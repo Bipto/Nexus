@@ -1,1 +1,10 @@
 ﻿build
+.vscode/settings.json
+build_emscripten/CMakeFiles
+build_emscripten/External
+build_emscripten/CMakeCache.txt
+build_emscripten/cmake_install.cmake
+build_emscripten/Editor.js
+build_emscripten/Editor.wasm
+build_emscripten/libNexusEngine.a
+build_emscripten/Makefile

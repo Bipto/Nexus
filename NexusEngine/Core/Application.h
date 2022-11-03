@@ -1,22 +1,18 @@
 #pragma once
 
+#include "Window.h"
+
 namespace NexusEngine
 {
-    enum WindowState
-    {
-        Normal,
-        Minimized,
-        Maximized
-    };
-
-    struct WindowSize
-    {
-        int Width, Height;
-    };
-
     class Application
     {
         public:
             Application();
+            Application(const Application&) = delete;
+            ~Application();
+
+            void Run();
+        private:
+            NexusEngine::Window* m_Window;
     };
 }
