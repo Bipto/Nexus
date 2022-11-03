@@ -10,7 +10,15 @@ extern "C"
 	#include <lualib.h>
 }
 
-/* #include <Python.h> */
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
+#include "Application.h"
+
+//-----------------------------------------------------------------------------
+// CORE ENGINE FUNCTIONS
+//-----------------------------------------------------------------------------
 
 namespace NexusEngine
 {
@@ -20,35 +28,40 @@ namespace NexusEngine
         {
             std::cout << "Could not initialize SDL\n";
         }
-
-        std::string cmd = "a = 7 + 11"; 
-        lua_State *L = luaL_newstate();
-
-        int r = luaL_dostring(L, cmd.c_str());
-
-        if (r == LUA_OK)
-        {
-            lua_getglobal(L, "a");
-            if (lua_isnumber(L, -1))
-            {
-                float a_in_cpp = (float)lua_tonumber(L, -1);
-                std::cout << "a_in_cpp: " << a_in_cpp << std::endl;
-            }
-        }
-        else
-        {
-            std::string errormsg = lua_tostring(L, -1);
-            std::cout << errormsg << std::endl;
-        }
-
-        lua_close(L);
-
-        /* Py_Initialize();
-        PyRun_SimpleString("print('Hello from Python')"); */
     }
+
     static void Shutdown()
     {
         SDL_Quit();
-        /* Py_Finalize(); */
     }
 }
+
+//-----------------------------------------------------------------------------
+// APPLICATION RUNTIME
+//-----------------------------------------------------------------------------
+
+NexusEngine::Application* appPtr = nullptr;
+
+void main_loop()
+{
+    appPtr->MainLoop();
+}
+
+namespace NexusEngine
+{
+    void Run(NexusEngine::Application* app)
+    {
+        appPtr = app;
+        appPtr->Load();
+
+        #ifdef __EMSCRIPTEN__
+            emscripten_set_main_loop(main_loop, 0, 1);
+        #else
+            while (!appPtr->ShouldClose())
+                appPtr->MainLoop();
+        #endif
+
+        app->Unload();
+    }
+}
+    

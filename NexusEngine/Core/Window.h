@@ -31,6 +31,8 @@ namespace NexusEngine
             void SetTitle(const std::string& title);
             void SetSize(WindowSize size);
 
+            SDL_Window* GetSDLWindowHandle(){return this->m_Window;}
+
         private:
             SDL_Window* m_Window;
             bool m_Closing = false;

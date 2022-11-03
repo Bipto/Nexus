@@ -14,17 +14,20 @@ add_executable(Editor ${APP_HEADERS} ${APP_SOURCES})
 
 add_subdirectory(External/SDL)
 add_subdirectory(External/Lua)
+add_subdirectory(External/glad)
 
 #NexusEngine
 target_include_directories(NexusEngine PUBLIC External/SDL/include)
 target_include_directories(NexusEngine PUBLIC External/SDL_mixer/include)
 target_include_directories(NexusEngine PUBLIC External/Lua.lua-5.4.4)
+target_include_directories(NexusEngine PUBLIC External/glad/include)
 #target_include_directories(NexusEngine PUBLIC ${Python_INCLUDE_DIRS})
 
 #target_link_directories(NexusEngine PUBLIC ${Python_LIBRARY_DIRS})
 #target_link_libraries(NexusEngine PUBLIC ${Python_LIBRARIES})
 target_link_libraries(NexusEngine PUBLIC lua_static)
 target_link_libraries(NexusEngine PUBLIC SDL2main SDL2-static)
+target_link_libraries(NexusEngine PUBLIC glad)
 
 #Editor
 target_include_directories(Editor PUBLIC NexusEngine)

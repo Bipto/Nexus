@@ -1,18 +1,39 @@
 #pragma once
 
 #include "Window.h"
+#include "Graphics/GraphicsDevice.h"
+#include "Platform/OpenGL/GraphicsDeviceOpenGL.h"
+
+#include <memory>
 
 namespace NexusEngine
 {
+    static GraphicsDevice* CreateGraphicsDevice(SDL_Window* window, GraphicsAPI api)
+    {
+        switch (api)
+        {
+            default:
+                return new GraphicsDeviceOpenGL(window, api);
+        }
+    }
+
     class Application
     {
         public:
-            Application();
+            Application(GraphicsAPI api);
             Application(const Application&) = delete;
             ~Application();
 
-            void Run();
+            //overridable methods
+            virtual void Load() = 0;
+            virtual void Update() = 0;
+            virtual void Unload() = 0;
+
+            void MainLoop();
+
+            bool ShouldClose(){return this->m_Window->IsClosing();}
         private:
             NexusEngine::Window* m_Window;
+            std::shared_ptr<GraphicsDevice> m_GraphicsDevice;
     };
 }
