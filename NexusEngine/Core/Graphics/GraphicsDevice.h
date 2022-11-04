@@ -31,7 +31,7 @@ namespace NexusEngine
             virtual void SetContext() = 0;
             virtual void Clear(float red, float green, float blue, float alpha) = 0;
             virtual void Resize(int width, int height) = 0;
-            virtual void Present() = 0;
+            virtual void SwapBuffers() = 0;
             virtual void DrawElements(unsigned int start, unsigned int count) = 0;
             virtual void SetVSync(VSyncState vSyncState) = 0;
 

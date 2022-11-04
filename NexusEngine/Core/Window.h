@@ -3,6 +3,10 @@
 #include <string>
 #include "SDL.h"
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 namespace NexusEngine
 {
     enum WindowState
@@ -32,6 +36,7 @@ namespace NexusEngine
             void SetSize(WindowSize size);
 
             SDL_Window* GetSDLWindowHandle(){return this->m_Window;}
+            WindowSize GetWindowSize();
 
         private:
             SDL_Window* m_Window;

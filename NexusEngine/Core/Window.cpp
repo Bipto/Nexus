@@ -1,10 +1,11 @@
 #include "Window.h"
+#include "glad/glad.h"
 
 namespace NexusEngine
 {
     Window::Window(const std::string& title, WindowSize size)
     {   
-        this->m_Window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, size.Width, size.Height, 0);
+        this->m_Window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, size.Width, size.Height, SDL_WINDOW_OPENGL);
     }   
 
     Window::~Window()
@@ -39,5 +40,12 @@ namespace NexusEngine
     void Window::SetSize(WindowSize size)
     {
         SDL_SetWindowSize(this->m_Window, size.Width, size.Height);
+    }
+
+    WindowSize Window::GetWindowSize()
+    {
+        WindowSize size{};
+        SDL_GetWindowSize(this->m_Window, &size.Width, &size.Height);
+        return size;
     }
 }

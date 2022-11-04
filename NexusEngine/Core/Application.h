@@ -6,6 +6,10 @@
 
 #include <memory>
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 namespace NexusEngine
 {
     static GraphicsDevice* CreateGraphicsDevice(SDL_Window* window, GraphicsAPI api)
@@ -31,9 +35,13 @@ namespace NexusEngine
 
             void MainLoop();
 
+            WindowSize GetWindowSize();
             bool ShouldClose(){return this->m_Window->IsClosing();}
+
+        protected:
+            std::shared_ptr<GraphicsDevice> m_GraphicsDevice;
+
         private:
             NexusEngine::Window* m_Window;
-            std::shared_ptr<GraphicsDevice> m_GraphicsDevice;
     };
 }
