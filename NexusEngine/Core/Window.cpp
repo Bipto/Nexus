@@ -3,7 +3,7 @@
 
 namespace NexusEngine
 {
-    Window::Window(const std::string& title, WindowSize size)
+    Window::Window(const std::string& title, Size size)
     {   
         this->m_Window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, size.Width, size.Height, SDL_WINDOW_OPENGL);
     }   
@@ -37,14 +37,14 @@ namespace NexusEngine
         SDL_SetWindowTitle(this->m_Window, title.c_str());
     }
 
-    void Window::SetSize(WindowSize size)
+    void Window::SetSize(Size size)
     {
         SDL_SetWindowSize(this->m_Window, size.Width, size.Height);
     }
 
-    WindowSize Window::GetWindowSize()
+    Size Window::GetWindowSize()
     {
-        WindowSize size{};
+        Size size{};
         SDL_GetWindowSize(this->m_Window, &size.Width, &size.Height);
         return size;
     }

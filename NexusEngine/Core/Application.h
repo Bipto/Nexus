@@ -10,9 +10,11 @@
 #include <emscripten.h>
 #endif
 
+#include "Size.h"
+
 namespace NexusEngine
 {
-    static GraphicsDevice* CreateGraphicsDevice(SDL_Window* window, GraphicsAPI api)
+    static GraphicsDevice* CreateGraphicsDevice(NexusEngine::Window* window, GraphicsAPI api)
     {
         switch (api)
         {
@@ -35,7 +37,7 @@ namespace NexusEngine
 
             void MainLoop();
 
-            WindowSize GetWindowSize();
+            Size GetWindowSize();
             bool ShouldClose(){return this->m_Window->IsClosing();}
 
         protected:

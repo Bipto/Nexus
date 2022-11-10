@@ -7,6 +7,8 @@
 #include <emscripten.h>
 #endif
 
+#include "Size.h"
+
 namespace NexusEngine
 {
     enum WindowState
@@ -16,15 +18,10 @@ namespace NexusEngine
         Maximized
     };
 
-    struct WindowSize
-    {
-        int Width, Height;
-    };
-
     class Window
     {
         public:
-            Window(const std::string& title, WindowSize size);
+            Window(const std::string& title, Size size);
             Window(const Window&) = delete;
             ~Window();
 
@@ -33,10 +30,10 @@ namespace NexusEngine
 
             void SetResizable(bool isResizable);
             void SetTitle(const std::string& title);
-            void SetSize(WindowSize size);
+            void SetSize(Size size);
 
             SDL_Window* GetSDLWindowHandle(){return this->m_Window;}
-            WindowSize GetWindowSize();
+            Size GetWindowSize();
 
         private:
             SDL_Window* m_Window;

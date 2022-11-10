@@ -8,7 +8,7 @@ namespace NexusEngine
         this->m_Window = new NexusEngine::Window("My Window", {960, 650});
         this->m_Window->SetResizable(true);
 
-        NexusEngine::GraphicsDevice* device = NexusEngine::CreateGraphicsDevice(this->m_Window->GetSDLWindowHandle(), api);
+        NexusEngine::GraphicsDevice* device = NexusEngine::CreateGraphicsDevice(this->m_Window, api);
         this->m_GraphicsDevice = std::shared_ptr<GraphicsDevice>(device);
         this->m_GraphicsDevice->SetContext();
     }
@@ -24,7 +24,7 @@ namespace NexusEngine
         this->Update();
     }
 
-    WindowSize Application::GetWindowSize()
+    Size Application::GetWindowSize()
     {
         return this->m_Window->GetWindowSize();
     }
