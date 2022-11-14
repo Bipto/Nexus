@@ -8,3 +8,4 @@ build_emscripten/Editor.js
 build_emscripten/Editor.wasm
 build_emscripten/libNexusEngine.a
 build_emscripten/Makefile
+.vs

@@ -4,6 +4,8 @@
 #include "GL.h"
 #include "SDL_opengl.h"
 #include "SwapchainOpenGL.h"
+#include "ShaderOpenGL.h"
+#include "VertexBufferOpenGL.h"
 
 #include <iostream>
 
@@ -41,7 +43,20 @@ namespace NexusEngine
                 glClear(GL_COLOR_BUFFER_BIT);
             }
 
-            void DrawElements(unsigned int start, unsigned int count) override {}
+            void DrawElements(unsigned int start, unsigned int count) override
+            {
+                glDrawArrays(GL_TRIANGLES, start, count);
+            }
+
+            Shader* CreateShader(const char* vertexShaderSource, const char* fragmentShaderSource) override
+            {
+                return new ShaderOpenGL(vertexShaderSource, fragmentShaderSource);
+            }
+
+            virtual VertexBuffer* CreateVertexBuffer(float vertices[], unsigned int size, unsigned int vertexStride, unsigned int vertexOffset, unsigned int vertexCount) override
+            {
+                return new VertexBufferOpenGL(vertices, size, vertexStride, vertexOffset, vertexCount);
+            }
 
         private:
             SDL_GLContext m_Context;
