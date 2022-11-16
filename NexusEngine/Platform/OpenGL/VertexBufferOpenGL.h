@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GL.h"
-#include "../../Graphics/VertexBuffer.h"
+#include "../../Core/Graphics/VertexBuffer.h"
 
 namespace NexusEngine
 {

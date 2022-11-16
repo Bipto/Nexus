@@ -4,7 +4,7 @@
 
 #include "Window.h"
 #include "Graphics/GraphicsDevice.h"
-#include "Platform/OpenGL/GraphicsDeviceOpenGL.h"
+#include "../Platform/OpenGL/GraphicsDeviceOpenGL.h"
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
