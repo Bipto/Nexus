@@ -1,6 +1,6 @@
 #pragma once
 
-#include <iostream>
+#include "nxpch.h"
 #include "SDL.h"
 
 /* extern "C" 

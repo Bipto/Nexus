@@ -3,7 +3,7 @@
 #include "GL.h"
 #include "../../Graphics/Shader.h"
 
-#include <iostream>
+#include "../../nxpch.h"
 
 namespace NexusEngine
 {

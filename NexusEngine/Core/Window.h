@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string>
+#include "nxpch.h"
 #include "SDL.h"
 
 #ifdef __EMSCRIPTEN__

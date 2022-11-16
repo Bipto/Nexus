@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "Core/Core.h"
+#include "Core/EntryPoint.h"
 #include "Core/Application.h"
 #include "Core/Graphics/GraphicsDevice.h"
 #include "Core/Window.h"

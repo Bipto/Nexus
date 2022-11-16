@@ -43,3 +43,5 @@ if (EMSCRIPTEN)
         "-s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2 -s FULL_ES2=1 -s FULL_ES3=1"
     )
 endif()
+
+target_precompile_headers(NexusEngine PUBLIC NexusEngine/Core/nxpch.h)

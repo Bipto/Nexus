@@ -17,11 +17,24 @@ namespace NexusEngine
 
     class GraphicsDevice
     {
+        class ResourceFactory
+        {
+            private:
+                ResourceFactory(GraphicsDevice* device)
+                {
+                    this->m_GraphicsDevice = device;
+                }
+            private:
+                GraphicsDevice* m_GraphicsDevice;
+                friend class GraphicsDevice;
+        };
+
         public:
             GraphicsDevice(NexusEngine::Window* window, GraphicsAPI api)
             {
                 this->m_Window = window;
                 this->m_API = api;
+                this->m_ResourceFactory = new ResourceFactory(this);
             }
             GraphicsDevice(const GraphicsDevice&) = delete;
     
@@ -39,5 +52,6 @@ namespace NexusEngine
             NexusEngine::Window* m_Window;
             GraphicsAPI m_API;
             Swapchain* m_Swapchain;
+            ResourceFactory* m_ResourceFactory;
     };
 }
