@@ -49,6 +49,9 @@ class Editor : public NexusEngine::Application
             this->m_GraphicsDevice->GetSwapchain()->SetVSyncState(NexusEngine::VSyncState::Disabled);
             this->m_Shader = this->m_GraphicsDevice->CreateShader(vertexShaderSource, fragmentShaderSource);
             this->m_VertexBuffer =  this->m_GraphicsDevice->CreateVertexBuffer(vertices, sizeof(vertices), 3 * sizeof(float), 0, 3);
+
+            NexusEngine::Logger* log = new NexusEngine::Logger();
+            log->LogMessage("Hello", NexusEngine::Severity::Info);
         }
 
         void Update()
