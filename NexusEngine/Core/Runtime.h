@@ -17,6 +17,7 @@
 #endif
 
 #include "Application.h"
+#include "Logging/Log.h"
 
 //-----------------------------------------------------------------------------
 // CORE ENGINE FUNCTIONS
@@ -76,6 +77,7 @@ namespace NexusEngine
 //-----------------------------------------------------------------------------
 
 NexusEngine::Application* appPtr = nullptr;
+NexusEngine::Logger* logger = new NexusEngine::Logger();
 
 void main_loop()
 {
@@ -98,5 +100,14 @@ namespace NexusEngine
 
         app->Unload();
     }
+
+    Application* GetApplication()
+    {
+        return appPtr;
+    }
+
+    Logger* GetCoreLogger()
+    {
+        return logger;
+    }
 }
-    

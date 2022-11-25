@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "Core/EntryPoint.h"
+#include "Core/Runtime.h"
 #include "Core/Application.h"
 #include "Core/Graphics/GraphicsDevice.h"
 #include "Core/Window.h"
@@ -50,8 +50,7 @@ class Editor : public NexusEngine::Application
             this->m_Shader = this->m_GraphicsDevice->CreateShader(vertexShaderSource, fragmentShaderSource);
             this->m_VertexBuffer =  this->m_GraphicsDevice->CreateVertexBuffer(vertices, sizeof(vertices), 3 * sizeof(float), 0, 3);
 
-            NexusEngine::Logger* log = new NexusEngine::Logger();
-            log->LogMessage("Hello", NexusEngine::Severity::Info);
+            NexusEngine::GetCoreLogger()->LogMessage("Hello", NexusEngine::Severity::Info);
         }
 
         void Update()
