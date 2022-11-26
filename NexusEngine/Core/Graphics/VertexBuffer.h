@@ -11,7 +11,8 @@ namespace NexusEngine
                 this->m_VertexOffset = vertexOffset;
                 this->m_VertexCount = vertexCount;
             }
-            virtual void Bind(){}
+            VertexBuffer(const VertexBuffer&) = delete;
+            virtual void Bind() = 0;
          private:
             unsigned int m_VertexStride;
             unsigned int m_VertexOffset;

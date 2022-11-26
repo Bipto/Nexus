@@ -6,8 +6,7 @@
 #include "SwapchainOpenGL.h"
 #include "ShaderOpenGL.h"
 #include "VertexBufferOpenGL.h"
-
-#include <iostream>
+#include "IndexBufferOpenGL.h"
 
 namespace NexusEngine
 {
@@ -48,14 +47,24 @@ namespace NexusEngine
                 glDrawArrays(GL_TRIANGLES, start, count);
             }
 
+            void DrawIndexed(unsigned int count) override
+            {
+                glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void*)0);
+            }
+
             Shader* CreateShader(const char* vertexShaderSource, const char* fragmentShaderSource) override
             {
                 return new ShaderOpenGL(vertexShaderSource, fragmentShaderSource);
             }
 
-            virtual VertexBuffer* CreateVertexBuffer(float vertices[], unsigned int size, unsigned int vertexStride, unsigned int vertexOffset, unsigned int vertexCount) override
+            VertexBuffer* CreateVertexBuffer(float vertices[], unsigned int size, unsigned int vertexStride, unsigned int vertexOffset, unsigned int vertexCount) override
             {
                 return new VertexBufferOpenGL(vertices, size, vertexStride, vertexOffset, vertexCount);
+            }
+
+            IndexBuffer* CreateIndexBuffer(unsigned int indices[], unsigned int indexCount) override
+            {
+                return new IndexBufferOpenGL(indices, indexCount);
             }
 
         private:

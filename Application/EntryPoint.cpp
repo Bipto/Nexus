@@ -7,18 +7,14 @@
 #include "Core/Size.h"
 #include "Core/Graphics/Swapchain.h"
 
-float vertices[] = {
-	-0.5f, -0.5f, 0.0f,
-	0.5f, -0.5f, 0.0f,
-	0.0f, 0.5f, 0.0f,
-};
+#include "Platform/OpenGL/IndexBufferOpenGL.h"
 
-/* float vertices[] = {
+ float vertices[] = {
 	-0.5f, -0.5f, 0.0f,
 	0.5f, -0.5f, 0.0f,
 	0.5f, 0.5f, 0.0f,
 	-0.5f, 0.5f, 0.0f
-};  */
+}; 
 
 unsigned int indices[] = {
 	0, 1, 2,
@@ -49,6 +45,7 @@ class Editor : public NexusEngine::Application
             this->m_GraphicsDevice->GetSwapchain()->SetVSyncState(NexusEngine::VSyncState::Disabled);
             this->m_Shader = this->m_GraphicsDevice->CreateShader(vertexShaderSource, fragmentShaderSource);
             this->m_VertexBuffer =  this->m_GraphicsDevice->CreateVertexBuffer(vertices, sizeof(vertices), 3 * sizeof(float), 0, 3);
+            this->m_IndexBuffer = this->m_GraphicsDevice->CreateIndexBuffer(indices, sizeof(indices));
 
             NexusEngine::GetCoreLogger()->LogMessage("Hello", NexusEngine::Severity::Info);
         }
@@ -67,7 +64,9 @@ class Editor : public NexusEngine::Application
 
             this->m_Shader->Bind();
             this->m_VertexBuffer->Bind();
-            this->m_GraphicsDevice->DrawElements(0, sizeof(vertices) / sizeof(float));
+            this->m_IndexBuffer->Bind();
+            this->m_GraphicsDevice->DrawIndexed(6);
+            //this->m_GraphicsDevice->DrawElements(0, sizeof(vertices) / sizeof(float));
 
             this->m_GraphicsDevice->GetSwapchain()->Present();
 
@@ -82,6 +81,7 @@ class Editor : public NexusEngine::Application
         NexusEngine::Size m_PreviousSize;
         NexusEngine::Shader* m_Shader;
         NexusEngine::VertexBuffer* m_VertexBuffer;
+        NexusEngine::IndexBuffer* m_IndexBuffer;
 };
 
 int main(int argc, char** argv)
