@@ -7,6 +7,8 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 
+#include <iostream>
+
 namespace NexusEngine
 {
     enum class GraphicsAPI
@@ -18,14 +20,17 @@ namespace NexusEngine
 
     class GraphicsDevice
     {
+        public:
         class ResourceFactory
         {
-            private:
+            public:
+                virtual void Print() = 0;
+            protected:
                 ResourceFactory(GraphicsDevice* device)
                 {
                     this->m_GraphicsDevice = device;
                 }
-            private:
+            protected:
                 GraphicsDevice* m_GraphicsDevice;
                 friend class GraphicsDevice;
         };
@@ -35,7 +40,6 @@ namespace NexusEngine
             {
                 this->m_Window = window;
                 this->m_API = api;
-                this->m_ResourceFactory = new ResourceFactory(this);
             }
             GraphicsDevice(const GraphicsDevice&) = delete;
     
@@ -50,11 +54,13 @@ namespace NexusEngine
             virtual Shader* CreateShader(const char* vertexShaderSource, const char* fragmentShaderSource) = 0;
             virtual VertexBuffer* CreateVertexBuffer(glm::vec3 vertices[], unsigned int size, unsigned int vertexStride, unsigned int vertexOffset, unsigned int vertexCount) = 0;
             virtual IndexBuffer* CreateIndexBuffer(unsigned int indices[], unsigned int indexCount) = 0;
-            
+
+            //ResourceFactory& GetResourceFactory() {return this->m_ResourceFactory;}
+            virtual ResourceFactory& GetResourceFactory() = 0;
         protected:
             NexusEngine::Window* m_Window;
             GraphicsAPI m_API;
             Swapchain* m_Swapchain;
-            ResourceFactory* m_ResourceFactory;
+            //ResourceFactory m_ResourceFactory {this};
     };
 }

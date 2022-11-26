@@ -12,6 +12,17 @@ namespace NexusEngine
 {
     class GraphicsDeviceOpenGL : public GraphicsDevice
     {
+        class ResourceFactoryOpenGL : public GraphicsDevice::ResourceFactory
+        {
+            public:
+                ResourceFactoryOpenGL(GraphicsDevice* device) :
+                    GraphicsDevice::ResourceFactory(device){}
+            void Print()
+                {
+                    std::cout << "Hello" << std::endl;
+                }
+        };
+
         public:
             GraphicsDeviceOpenGL(NexusEngine::Window* window, GraphicsAPI api) : GraphicsDevice(window, api)
             {
@@ -67,7 +78,13 @@ namespace NexusEngine
                 return new IndexBufferOpenGL(indices, indexCount);
             }
 
+            virtual ResourceFactory& GetResourceFactory() override 
+            {
+                return m_ResourceFactory;
+            }
+
         private:
             SDL_GLContext m_Context;
+            ResourceFactoryOpenGL m_ResourceFactory {this};
     };
 }

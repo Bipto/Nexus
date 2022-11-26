@@ -56,13 +56,14 @@ class Editor : public NexusEngine::Application
             this->m_VertexBuffer =  this->m_GraphicsDevice->CreateVertexBuffer(vertices, sizeof(vertices), 3 * sizeof(float), 0, 3);
             this->m_IndexBuffer = this->m_GraphicsDevice->CreateIndexBuffer(indices, sizeof(indices));
 
-
-            glm::vec3 v1 = {0.3f, 0.4f, 0.5f};
+            /* glm::vec3 v1 = {0.3f, 0.4f, 0.5f};
 
             std::ostringstream ss;
             ss << v1.x << ", " << v1.y << ", " << v1.z;
 
-            NexusEngine::GetCoreLogger()->LogMessage(ss.str(), NexusEngine::Severity::Info);
+            NexusEngine::GetCoreLogger()->LogMessage(ss.str(), NexusEngine::Severity::Info); */
+
+            this->m_GraphicsDevice->GetResourceFactory().Print();
         }
 
         void Update()
