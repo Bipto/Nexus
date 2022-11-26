@@ -48,7 +48,7 @@ namespace NexusEngine
             Swapchain* GetSwapchain(){return this->m_Swapchain;}
 
             virtual Shader* CreateShader(const char* vertexShaderSource, const char* fragmentShaderSource) = 0;
-            virtual VertexBuffer* CreateVertexBuffer(float vertices[], unsigned int size, unsigned int vertexStride, unsigned int vertexOffset, unsigned int vertexCount) = 0;
+            virtual VertexBuffer* CreateVertexBuffer(glm::vec3 vertices[], unsigned int size, unsigned int vertexStride, unsigned int vertexOffset, unsigned int vertexCount) = 0;
             virtual IndexBuffer* CreateIndexBuffer(unsigned int indices[], unsigned int indexCount) = 0;
             
         protected:

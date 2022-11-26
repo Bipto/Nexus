@@ -7,14 +7,23 @@
 #include "Core/Size.h"
 #include "Core/Graphics/Swapchain.h"
 
-#include "Platform/OpenGL/IndexBufferOpenGL.h"
+#include <sstream>
 
- float vertices[] = {
+#include "glm.hpp"
+
+/*  float vertices[] = {
 	-0.5f, -0.5f, 0.0f,
 	0.5f, -0.5f, 0.0f,
 	0.5f, 0.5f, 0.0f,
 	-0.5f, 0.5f, 0.0f
-}; 
+};  */
+
+glm::vec3 vertices[] = {
+    {-0.5f, -0.5f, 0.0f},
+    {0.5f, -0.5f, 0.0f},
+    {0.5f, 0.5f, 0.0f},
+    {-0.5f, 0.5f, 0.0f}
+};
 
 unsigned int indices[] = {
 	0, 1, 2,
@@ -47,7 +56,13 @@ class Editor : public NexusEngine::Application
             this->m_VertexBuffer =  this->m_GraphicsDevice->CreateVertexBuffer(vertices, sizeof(vertices), 3 * sizeof(float), 0, 3);
             this->m_IndexBuffer = this->m_GraphicsDevice->CreateIndexBuffer(indices, sizeof(indices));
 
-            NexusEngine::GetCoreLogger()->LogMessage("Hello", NexusEngine::Severity::Info);
+
+            glm::vec3 v1 = {0.3f, 0.4f, 0.5f};
+
+            std::ostringstream ss;
+            ss << v1.x << ", " << v1.y << ", " << v1.z;
+
+            NexusEngine::GetCoreLogger()->LogMessage(ss.str(), NexusEngine::Severity::Info);
         }
 
         void Update()

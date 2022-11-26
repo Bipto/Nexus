@@ -1,11 +1,13 @@
 #pragma once
 
+#include "glm.hpp"
+
 namespace NexusEngine
 {
     class VertexBuffer
     {
         public:
-            VertexBuffer(float vertices[], unsigned int size, unsigned int vertexStride, unsigned int vertexOffset, unsigned int vertexCount)
+            VertexBuffer(glm::vec3 vertices[], unsigned int size, unsigned int vertexStride, unsigned int vertexOffset, unsigned int vertexCount)
             {
                 this->m_VertexStride = vertexStride;
                 this->m_VertexOffset = vertexOffset;

@@ -8,7 +8,7 @@ namespace NexusEngine
     class VertexBufferOpenGL : public VertexBuffer
     {
         public:
-            VertexBufferOpenGL(float vertices[], unsigned int size, unsigned int vertexStride, unsigned int vertexOffset, unsigned int vertexCount) 
+            VertexBufferOpenGL(glm::vec3 vertices[], unsigned int size, unsigned int vertexStride, unsigned int vertexOffset, unsigned int vertexCount) 
                 : VertexBuffer(vertices, size, vertexStride, vertexOffset, vertexCount)
             {
                 glGenBuffers(1, &this->m_VBO);

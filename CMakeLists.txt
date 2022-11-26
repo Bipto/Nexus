@@ -8,6 +8,7 @@ add_subdirectory(NexusEngine)
 add_subdirectory(External/SDL)
 #add_subdirectory(External/Lua)
 add_subdirectory(External/glad)
+add_subdirectory(External/glm)
 
 #Editor
 target_include_directories(Editor PUBLIC NexusEngine)
