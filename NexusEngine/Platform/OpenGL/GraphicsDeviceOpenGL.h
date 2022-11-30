@@ -7,6 +7,7 @@
 #include "ShaderOpenGL.h"
 #include "VertexBufferOpenGL.h"
 #include "IndexBufferOpenGL.h"
+#include "TextureOpenGL.h"
 
 namespace NexusEngine
 {
@@ -63,19 +64,24 @@ namespace NexusEngine
                 glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void*)0);
             }
 
-            Shader* CreateShader(const char* vertexShaderSource, const char* fragmentShaderSource) override
+            virtual Shader* CreateShader(const char* vertexShaderSource, const char* fragmentShaderSource) override
             {
                 return new ShaderOpenGL(vertexShaderSource, fragmentShaderSource);
             }
 
-            VertexBuffer* CreateVertexBuffer(const std::vector<glm::vec3> vertices) override
+            virtual VertexBuffer* CreateVertexBuffer(const std::vector<glm::vec3> vertices) override
             {
                 return new VertexBufferOpenGL(vertices);
             }
 
-            IndexBuffer* CreateIndexBuffer(unsigned int indices[], unsigned int indexCount) override
+            virtual IndexBuffer* CreateIndexBuffer(unsigned int indices[], unsigned int indexCount) override
             {
                 return new IndexBufferOpenGL(indices, indexCount);
+            }
+
+            virtual Texture* CreateTexture(const char* filepath) override
+            {
+                return new TextureOpenGL(filepath);
             }
 
             virtual ResourceFactory& GetResourceFactory() override 

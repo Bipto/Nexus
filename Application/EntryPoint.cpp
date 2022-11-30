@@ -11,13 +11,6 @@
 
 #include "glm.hpp"
 
-/*  float vertices[] = {
-	-0.5f, -0.5f, 0.0f,
-	0.5f, -0.5f, 0.0f,
-	0.5f, 0.5f, 0.0f,
-	-0.5f, 0.5f, 0.0f
-};  */
-
 std::vector<glm::vec3> vertices = {
     {-0.5f, -0.5f, 0.0f},
     {0.5f, -0.5f, 0.0f},
@@ -62,6 +55,9 @@ class Editor : public NexusEngine::Application
             ss << v1.x << ", " << v1.y << ", " << v1.z;
 
             NexusEngine::GetCoreLogger()->LogMessage(ss.str(), NexusEngine::Severity::Info); */
+
+            this->m_GraphicsDevice->CreateTexture("brick.jpg");
+
 
             this->m_GraphicsDevice->GetResourceFactory().Print();
         }

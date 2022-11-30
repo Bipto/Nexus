@@ -6,6 +6,7 @@
 #include "Shader.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
+#include "Texture.h"
 
 namespace NexusEngine
 {
@@ -52,6 +53,7 @@ namespace NexusEngine
             virtual Shader* CreateShader(const char* vertexShaderSource, const char* fragmentShaderSource) = 0;
             virtual VertexBuffer* CreateVertexBuffer(const std::vector<glm::vec3> vertices) = 0;
             virtual IndexBuffer* CreateIndexBuffer(unsigned int indices[], unsigned int indexCount) = 0;
+            virtual Texture* CreateTexture(const char* filepath) = 0;
 
             virtual ResourceFactory& GetResourceFactory() = 0;
         protected:
