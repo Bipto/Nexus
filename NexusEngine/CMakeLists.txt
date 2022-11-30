@@ -13,6 +13,7 @@ target_include_directories(NexusEngine PUBLIC ../External/SDL_mixer/include)
 #target_include_directories(NexusEngine PRIVATE External/Lua.lua-5.4.4)
 target_include_directories(NexusEngine PUBLIC ${Python_INCLUDE_DIRS})
 target_include_directories(NexusEngine PUBLIC ../External/glm/glm)
+target_include_directories(NexusEngine PUBLIC ../External/stb)
 
 target_link_libraries(NexusEngine PUBLIC SDL2main SDL2-static)
 target_link_directories(NexusEngine PUBLIC ${Python_LIBRARY_DIRS})

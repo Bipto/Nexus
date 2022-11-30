@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include "glm.hpp"
 
 namespace NexusEngine
@@ -7,17 +8,10 @@ namespace NexusEngine
     class VertexBuffer
     {
         public:
-            VertexBuffer(glm::vec3 vertices[], unsigned int size, unsigned int vertexStride, unsigned int vertexOffset, unsigned int vertexCount)
+            VertexBuffer(const std::vector<glm::vec3>& vertices)
             {
-                this->m_VertexStride = vertexStride;
-                this->m_VertexOffset = vertexOffset;
-                this->m_VertexCount = vertexCount;
             }
             VertexBuffer(const VertexBuffer&) = delete;
             virtual void Bind() = 0;
-         private:
-            unsigned int m_VertexStride;
-            unsigned int m_VertexOffset;
-            unsigned int m_VertexCount;
     };
 }

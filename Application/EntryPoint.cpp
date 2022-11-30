@@ -18,7 +18,7 @@
 	-0.5f, 0.5f, 0.0f
 };  */
 
-glm::vec3 vertices[] = {
+std::vector<glm::vec3> vertices = {
     {-0.5f, -0.5f, 0.0f},
     {0.5f, -0.5f, 0.0f},
     {0.5f, 0.5f, 0.0f},
@@ -53,7 +53,7 @@ class Editor : public NexusEngine::Application
         {
             this->m_GraphicsDevice->GetSwapchain()->SetVSyncState(NexusEngine::VSyncState::Disabled);
             this->m_Shader = this->m_GraphicsDevice->CreateShader(vertexShaderSource, fragmentShaderSource);
-            this->m_VertexBuffer =  this->m_GraphicsDevice->CreateVertexBuffer(vertices, sizeof(vertices), 3 * sizeof(float), 0, 3);
+            this->m_VertexBuffer =  this->m_GraphicsDevice->CreateVertexBuffer(vertices);
             this->m_IndexBuffer = this->m_GraphicsDevice->CreateIndexBuffer(indices, sizeof(indices));
 
             /* glm::vec3 v1 = {0.3f, 0.4f, 0.5f};
