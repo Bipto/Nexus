@@ -68,7 +68,7 @@ namespace NexusEngine
                 return new ShaderOpenGL(vertexShaderSource, fragmentShaderSource);
             }
 
-            virtual VertexBuffer* CreateVertexBuffer(const std::vector<glm::vec3> vertices) override
+            virtual VertexBuffer* CreateVertexBuffer(const std::vector<Vertex> vertices) override
             {
                 return new VertexBufferOpenGL(vertices);
             }

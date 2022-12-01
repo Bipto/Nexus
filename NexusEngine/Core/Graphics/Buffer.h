@@ -1,14 +1,14 @@
 #pragma once
 
 #include <vector>
-#include "glm.hpp"
+#include "Vertex.h"
 
 namespace NexusEngine
 {
     class VertexBuffer
     {
         public:
-            VertexBuffer(const std::vector<glm::vec3>& vertices){}
+            VertexBuffer(const std::vector<Vertex>& vertices){}
             VertexBuffer(const VertexBuffer&) = delete;
             virtual void Bind() = 0;
     };

@@ -1,21 +1,21 @@
-#include <iostream>
-
-#include "Core/Runtime.h"
-#include "Core/Application.h"
-#include "Core/Graphics/GraphicsDevice.h"
-#include "Core/Window.h"
-#include "Core/Size.h"
-#include "Core/Graphics/Swapchain.h"
+#include "NexusEngine.h"
 
 #include <sstream>
 
 #include "glm.hpp"
 
-std::vector<glm::vec3> vertices = {
+/* std::vector<glm::vec3> vertices = {
     {-0.5f, -0.5f, 0.0f},
     {0.5f, -0.5f, 0.0f},
     {0.5f, 0.5f, 0.0f},
     {-0.5f, 0.5f, 0.0f}
+}; */
+
+std::vector<Vertex> vertices = {
+    {{-0.5f, -0.5f, 0.0f}, {0, 0}},
+    {{0.5f, -0.5f, 0.0f}, {0, 1}},
+    {{0.5f, 0.5f, 0.0f}, {1, 0}},
+    {{-0.5f, 0.5f, 0.0f}, {1, 1}},
 };
 
 unsigned int indices[] = {
@@ -24,7 +24,8 @@ unsigned int indices[] = {
 };
 
 const char * vertexShaderSource = "#version 330 core\n"
-	"layout (location = 0) in vec3 aPos\n;"
+	"layout (location = 0) in vec3 aPos;\n"
+    "layout (location = 1) in vec2 aTexCoord;\n"
 	"void main()\n"
 	"{\n"
 	"	gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
@@ -78,7 +79,6 @@ class Editor : public NexusEngine::Application
             this->m_VertexBuffer->Bind();
             this->m_IndexBuffer->Bind();
             this->m_GraphicsDevice->DrawIndexed(6);
-            //this->m_GraphicsDevice->DrawElements(0, sizeof(vertices) / sizeof(float));
 
             this->m_GraphicsDevice->GetSwapchain()->Present();
 
