@@ -5,8 +5,7 @@
 #include "SDL_opengl.h"
 #include "SwapchainOpenGL.h"
 #include "ShaderOpenGL.h"
-#include "VertexBufferOpenGL.h"
-#include "IndexBufferOpenGL.h"
+#include "BufferOpenGL.h"
 #include "TextureOpenGL.h"
 
 namespace NexusEngine

@@ -44,7 +44,7 @@ class Editor : public NexusEngine::Application
 
         void Load() override
         {
-            this->m_GraphicsDevice->GetSwapchain()->SetVSyncState(NexusEngine::VSyncState::Disabled);
+            this->m_GraphicsDevice->GetSwapchain()->SetVSyncState(NexusEngine::VSyncState::Enabled);
             this->m_Shader = this->m_GraphicsDevice->CreateShader(vertexShaderSource, fragmentShaderSource);
             this->m_VertexBuffer =  this->m_GraphicsDevice->CreateVertexBuffer(vertices);
             this->m_IndexBuffer = this->m_GraphicsDevice->CreateIndexBuffer(indices, sizeof(indices));

@@ -4,8 +4,7 @@
 #include "SDL.h"
 #include "Swapchain.h"
 #include "Shader.h"
-#include "VertexBuffer.h"
-#include "IndexBuffer.h"
+#include "Buffer.h"
 #include "Texture.h"
 
 namespace NexusEngine
