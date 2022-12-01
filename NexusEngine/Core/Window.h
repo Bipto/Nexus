@@ -23,6 +23,7 @@ namespace Nexus
         std::string Title = "My Window";
         int Width = 1280;
         int Height = 720;
+        bool Resizable = true;
     };
 
     class Window

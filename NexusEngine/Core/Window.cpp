@@ -6,6 +6,7 @@ namespace Nexus
     Window::Window(const WindowProperties& windowProps)
     {   
         this->m_Window = SDL_CreateWindow(windowProps.Title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowProps.Width, windowProps.Height, SDL_WINDOW_OPENGL);
+        SetResizable(windowProps.Resizable);
     }   
 
     Window::~Window()
