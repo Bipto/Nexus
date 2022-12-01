@@ -18,6 +18,10 @@ namespace NexusEngine
                 //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
                 glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
                 glEnableVertexAttribArray(0);
+                
+                glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)sizeof(Vertex::Position));
+                glEnableVertexAttribArray(1);
+
             }
             void Bind() override 
             {

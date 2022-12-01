@@ -57,9 +57,15 @@ namespace NexusEngine
             }
             ShaderOpenGL(const ShaderOpenGL&) = delete;
 
-            void Bind() override 
+            virtual void Bind() override 
             {
                 glUseProgram(this->m_ProgramHandle);
+            }
+
+            virtual void SetShaderUniform1i(const std::string& name, int value) override
+            {
+                unsigned int loc = glGetUniformLocation(this->m_ProgramHandle, name.c_str());
+                glUniform1f(loc, value);
             }
 
         private:

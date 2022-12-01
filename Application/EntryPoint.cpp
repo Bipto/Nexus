@@ -1,21 +1,13 @@
 #include "NexusEngine.h"
 
 #include <sstream>
-
 #include "glm.hpp"
-
-/* std::vector<glm::vec3> vertices = {
-    {-0.5f, -0.5f, 0.0f},
-    {0.5f, -0.5f, 0.0f},
-    {0.5f, 0.5f, 0.0f},
-    {-0.5f, 0.5f, 0.0f}
-}; */
 
 std::vector<Vertex> vertices = {
     {{-0.5f, -0.5f, 0.0f}, {0, 0}},
-    {{0.5f, -0.5f, 0.0f}, {0, 1}},
-    {{0.5f, 0.5f, 0.0f}, {1, 0}},
-    {{-0.5f, 0.5f, 0.0f}, {1, 1}},
+    {{0.5f, -0.5f, 0.0f}, {1, 0}},
+    {{0.5f, 0.5f, 0.0f}, {1, 1}},
+    {{-0.5f, 0.5f, 0.0f}, {0, 1}},
 };
 
 unsigned int indices[] = {
@@ -26,16 +18,21 @@ unsigned int indices[] = {
 const char * vertexShaderSource = "#version 330 core\n"
 	"layout (location = 0) in vec3 aPos;\n"
     "layout (location = 1) in vec2 aTexCoord;\n"
+    "out vec2 TexCoord;\n"
 	"void main()\n"
 	"{\n"
 	"	gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    "   TexCoord = aTexCoord;\n"
 	"}\n";
 
 	const char * fragmentShaderSource = "#version 330 core\n"
 	"out vec4 FragColor;\n"
+    "in vec2 TexCoord;\n"
+    "uniform sampler2D ourTexture;\n"
 	"void main()\n"
 	"{\n"
-	"	FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f)\n;"
+	"	//FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+    "   FragColor = texture(ourTexture, TexCoord);\n"
 	"}\n";
 
 class Editor : public NexusEngine::Application
@@ -57,7 +54,7 @@ class Editor : public NexusEngine::Application
 
             NexusEngine::GetCoreLogger()->LogMessage(ss.str(), NexusEngine::Severity::Info); */
 
-            this->m_GraphicsDevice->CreateTexture("brick.jpg");
+            m_Texture = this->m_GraphicsDevice->CreateTexture("brick.jpg");
 
 
             this->m_GraphicsDevice->GetResourceFactory().Print();
@@ -78,6 +75,10 @@ class Editor : public NexusEngine::Application
             this->m_Shader->Bind();
             this->m_VertexBuffer->Bind();
             this->m_IndexBuffer->Bind();
+            this->m_Texture->Bind();
+
+            this->m_Shader->SetShaderUniform1i("ourTexture", 0);
+            
             this->m_GraphicsDevice->DrawIndexed(6);
 
             this->m_GraphicsDevice->GetSwapchain()->Present();
@@ -94,6 +95,7 @@ class Editor : public NexusEngine::Application
         NexusEngine::Shader* m_Shader;
         NexusEngine::VertexBuffer* m_VertexBuffer;
         NexusEngine::IndexBuffer* m_IndexBuffer;
+        NexusEngine::Texture* m_Texture;
 };
 
 int main(int argc, char** argv)
