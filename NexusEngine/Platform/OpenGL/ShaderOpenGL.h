@@ -5,7 +5,7 @@
 
 #include "../../Core/nxpch.h"
 
-namespace NexusEngine
+namespace Nexus
 {
     class ShaderOpenGL : public Shader
     {

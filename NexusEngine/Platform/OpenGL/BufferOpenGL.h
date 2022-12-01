@@ -3,7 +3,7 @@
 #include "GL.h"
 #include "../../Core/Graphics/Buffer.h"
 
-namespace NexusEngine
+namespace Nexus
 {
     class VertexBufferOpenGL : public VertexBuffer
     {

@@ -47,14 +47,14 @@ const char * vertexShaderSource = "#version 330 core\n"
     "   FragColor = texture(ourTexture, TexCoord);\n"
 	"}\n";
 
-class Editor : public NexusEngine::Application
+class Editor : public Nexus::Application
 {
     public:
-        Editor() : Application(NexusEngine::GraphicsAPI::OpenGL){}
+        Editor() : Application(Nexus::GraphicsAPI::OpenGL){}
 
         void Load() override
         {
-            this->m_GraphicsDevice->GetSwapchain()->SetVSyncState(NexusEngine::VSyncState::Enabled);
+            this->m_GraphicsDevice->GetSwapchain()->SetVSyncState(Nexus::VSyncState::Enabled);
             this->m_Shader = this->m_GraphicsDevice->CreateShader(vertexShaderSource, fragmentShaderSource);
 
             this->m_VertexBuffer1 =  this->m_GraphicsDevice->CreateVertexBuffer(vertices1);
@@ -79,7 +79,7 @@ class Editor : public NexusEngine::Application
         void Update()
         {
             this->m_GraphicsDevice->SetContext();
-            NexusEngine::Size size = this->GetWindowSize();
+            Nexus::Size size = this->GetWindowSize();
 
             if (size.Height != this->m_PreviousSize.Height || size.Width != this->m_PreviousSize.Width)
             {
@@ -112,26 +112,26 @@ class Editor : public NexusEngine::Application
             
         }
     private:
-        NexusEngine::Size m_PreviousSize;
-        NexusEngine::Shader* m_Shader;
+        Nexus::Size m_PreviousSize;
+        Nexus::Shader* m_Shader;
 
-        NexusEngine::Texture* m_Texture1;
-        NexusEngine::VertexBuffer* m_VertexBuffer1;
-        NexusEngine::IndexBuffer* m_IndexBuffer1;
+        Nexus::Texture* m_Texture1;
+        Nexus::VertexBuffer* m_VertexBuffer1;
+        Nexus::IndexBuffer* m_IndexBuffer1;
 
-        NexusEngine::Texture* m_Texture2;
-        NexusEngine::VertexBuffer* m_VertexBuffer2;
-        NexusEngine::IndexBuffer* m_IndexBuffer2;
+        Nexus::Texture* m_Texture2;
+        Nexus::VertexBuffer* m_VertexBuffer2;
+        Nexus::IndexBuffer* m_IndexBuffer2;
 };
 
 int main(int argc, char** argv)
 {
-    NexusEngine::Init();
+    Nexus::Init();
 
     Editor* app = new Editor();
-    NexusEngine::Run(app);
+    Nexus::Run(app);
     delete app;
 
-    NexusEngine::Shutdown();
+    Nexus::Shutdown();
     return 0;
 } 

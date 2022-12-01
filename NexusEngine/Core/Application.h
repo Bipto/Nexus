@@ -12,9 +12,9 @@
 
 #include "Size.h"
 
-namespace NexusEngine
+namespace Nexus
 {
-    static GraphicsDevice* CreateGraphicsDevice(NexusEngine::Window* window, GraphicsAPI api)
+    static GraphicsDevice* CreateGraphicsDevice(Nexus::Window* window, GraphicsAPI api)
     {
         switch (api)
         {
@@ -44,6 +44,6 @@ namespace NexusEngine
             std::shared_ptr<GraphicsDevice> m_GraphicsDevice;
 
         private:
-            NexusEngine::Window* m_Window;
+            Nexus::Window* m_Window;
     };
 }

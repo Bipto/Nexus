@@ -3,7 +3,7 @@
 #include "../../Core/Graphics/Texture.h"
 #include "glad/glad.h"
 
-namespace NexusEngine
+namespace Nexus
 {
     class TextureOpenGL : public Texture
     {

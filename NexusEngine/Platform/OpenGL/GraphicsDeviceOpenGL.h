@@ -8,7 +8,7 @@
 #include "BufferOpenGL.h"
 #include "TextureOpenGL.h"
 
-namespace NexusEngine
+namespace Nexus
 {
     class GraphicsDeviceOpenGL : public GraphicsDevice
     {
@@ -24,7 +24,7 @@ namespace NexusEngine
         };
 
         public:
-            GraphicsDeviceOpenGL(NexusEngine::Window* window, GraphicsAPI api) : GraphicsDevice(window, api)
+            GraphicsDeviceOpenGL(Nexus::Window* window, GraphicsAPI api) : GraphicsDevice(window, api)
             {
                 this->m_Context = SDL_GL_CreateContext(this->m_Window->GetSDLWindowHandle());
 

@@ -3,7 +3,7 @@
 #include <vector>
 #include "Vertex.h"
 
-namespace NexusEngine
+namespace Nexus
 {
     class VertexBuffer
     {

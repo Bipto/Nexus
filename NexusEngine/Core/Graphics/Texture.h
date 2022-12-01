@@ -3,7 +3,7 @@
 #include "stb_image.h"
 #include <memory>
 
-namespace NexusEngine
+namespace Nexus
 {
     class Texture
     {

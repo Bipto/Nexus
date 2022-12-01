@@ -9,7 +9,7 @@
 
 #include "Size.h"
 
-namespace NexusEngine
+namespace Nexus
 {
     enum WindowState
     {

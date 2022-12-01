@@ -4,7 +4,7 @@
 #include "../Size.h"
 #include "GraphicsDevice.h"
 
-namespace NexusEngine
+namespace Nexus
 {
     enum class VSyncState
     {

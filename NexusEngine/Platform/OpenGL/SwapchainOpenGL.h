@@ -4,7 +4,7 @@
 #include "GL.h"
 #include "SDL_opengl.h"
 
-namespace NexusEngine
+namespace Nexus
 {
     class SwapchainOpenGL : public Swapchain
     {

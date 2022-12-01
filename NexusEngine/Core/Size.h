@@ -4,7 +4,7 @@
 // SIZE
 //-----------------------------------------------------------------------------
 
-namespace NexusEngine
+namespace Nexus
 {
     struct Size
     {

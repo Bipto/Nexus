@@ -1,7 +1,7 @@
 #include "Window.h"
 #include "glad/glad.h"
 
-namespace NexusEngine
+namespace Nexus
 {
     Window::Window(const std::string& title, Size size)
     {   

@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace NexusEngine
+namespace Nexus
 {
     class Shader
     {

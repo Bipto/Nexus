@@ -2,7 +2,7 @@
 
 #include "../Core/nxpch.h"
 
-namespace NexusEngine
+namespace Nexus
 {
     enum class Severity
     {
@@ -31,12 +31,12 @@ namespace NexusEngine
         public:
             void LogMessage(std::string message, Severity messageSeverity)
             {
-                NexusEngine::Log log(message, messageSeverity);
+                Nexus::Log log(message, messageSeverity);
                 std::cout << log.Message << std::endl;
                 m_Logs.push_back(log);
             }
         private:
-            std::vector<NexusEngine::Log> m_Logs;
+            std::vector<Nexus::Log> m_Logs;
     };
 }
 

@@ -23,7 +23,7 @@
 // CORE ENGINE FUNCTIONS
 //-----------------------------------------------------------------------------
 
-namespace NexusEngine
+namespace Nexus
 {
     static void Init()
     {
@@ -76,17 +76,17 @@ namespace NexusEngine
 // APPLICATION RUNTIME
 //-----------------------------------------------------------------------------
 
-NexusEngine::Application* appPtr = nullptr;
-NexusEngine::Logger* logger = new NexusEngine::Logger();
+Nexus::Application* appPtr = nullptr;
+Nexus::Logger* logger = new Nexus::Logger();
 
 void main_loop()
 {
     appPtr->MainLoop();
 }
 
-namespace NexusEngine
+namespace Nexus
 {
-    void Run(NexusEngine::Application* app)
+    void Run(Nexus::Application* app)
     {
         appPtr = app;
         appPtr->Load();

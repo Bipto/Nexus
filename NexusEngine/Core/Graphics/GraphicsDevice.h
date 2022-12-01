@@ -7,7 +7,7 @@
 #include "Buffer.h"
 #include "Texture.h"
 
-namespace NexusEngine
+namespace Nexus
 {
     enum class GraphicsAPI
     {
@@ -34,7 +34,7 @@ namespace NexusEngine
         };
 
         public:
-            GraphicsDevice(NexusEngine::Window* window, GraphicsAPI api)
+            GraphicsDevice(Nexus::Window* window, GraphicsAPI api)
             {
                 this->m_Window = window;
                 this->m_API = api;
@@ -56,7 +56,7 @@ namespace NexusEngine
 
             virtual ResourceFactory& GetResourceFactory() = 0;
         protected:
-            NexusEngine::Window* m_Window;
+            Nexus::Window* m_Window;
             GraphicsAPI m_API;
             Swapchain* m_Swapchain;
     };
