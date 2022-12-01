@@ -3,14 +3,26 @@
 #include <sstream>
 #include "glm.hpp"
 
-std::vector<Vertex> vertices = {
-    {{-0.5f, -0.5f, 0.0f}, {0, 0}},
-    {{0.5f, -0.5f, 0.0f}, {1, 0}},
-    {{0.5f, 0.5f, 0.0f}, {1, 1}},
-    {{-0.5f, 0.5f, 0.0f}, {0, 1}},
+std::vector<Vertex> vertices1 = {
+    {{-1.0f, -1.0f, 0.0f}, {0, 0}},
+    {{0.0f, -1.0f, 0.0f}, {1, 0}},
+    {{0.0f, 0.0f, 0.0f}, {1, 1}},
+    {{-1.0f, 0.0f, 0.0f}, {0, 1}},
 };
 
-unsigned int indices[] = {
+unsigned int indices1[] = {
+	0, 1, 2,
+	2, 3, 0
+};
+
+std::vector<Vertex> vertices2 = {
+    {{0.0f, 0.0f, 0.0f}, {0, 0}},
+    {{1.0f, 0.0f, 0.0f}, {1, 0}},
+    {{1.0f, 1.0f, 0.0f}, {1, 1}},
+    {{0.0f, 1.0f, 0.0f}, {0, 1}},
+};
+
+unsigned int indices2[] = {
 	0, 1, 2,
 	2, 3, 0
 };
@@ -44,8 +56,12 @@ class Editor : public NexusEngine::Application
         {
             this->m_GraphicsDevice->GetSwapchain()->SetVSyncState(NexusEngine::VSyncState::Enabled);
             this->m_Shader = this->m_GraphicsDevice->CreateShader(vertexShaderSource, fragmentShaderSource);
-            this->m_VertexBuffer =  this->m_GraphicsDevice->CreateVertexBuffer(vertices);
-            this->m_IndexBuffer = this->m_GraphicsDevice->CreateIndexBuffer(indices, sizeof(indices));
+
+            this->m_VertexBuffer1 =  this->m_GraphicsDevice->CreateVertexBuffer(vertices1);
+            this->m_IndexBuffer1 = this->m_GraphicsDevice->CreateIndexBuffer(indices1, sizeof(indices1));
+
+            this->m_VertexBuffer2 =  this->m_GraphicsDevice->CreateVertexBuffer(vertices2);
+            this->m_IndexBuffer2 = this->m_GraphicsDevice->CreateIndexBuffer(indices2, sizeof(indices2));
 
             /* glm::vec3 v1 = {0.3f, 0.4f, 0.5f};
 
@@ -54,8 +70,8 @@ class Editor : public NexusEngine::Application
 
             NexusEngine::GetCoreLogger()->LogMessage(ss.str(), NexusEngine::Severity::Info); */
 
-            m_Texture = this->m_GraphicsDevice->CreateTexture("brick.jpg");
-
+            m_Texture1 = this->m_GraphicsDevice->CreateTexture("brick.jpg");
+            m_Texture2 = this->m_GraphicsDevice->CreateTexture("wall.jpg");
 
             this->m_GraphicsDevice->GetResourceFactory().Print();
         }
@@ -73,12 +89,17 @@ class Editor : public NexusEngine::Application
             this->m_GraphicsDevice->Clear(0.07f, 0.13f, 0.17f, 1);
 
             this->m_Shader->Bind();
-            this->m_VertexBuffer->Bind();
-            this->m_IndexBuffer->Bind();
-            this->m_Texture->Bind();
 
+            this->m_Texture1->Bind();
             this->m_Shader->SetShaderUniform1i("ourTexture", 0);
-            
+            this->m_VertexBuffer1->Bind();
+            this->m_IndexBuffer1->Bind();            
+            this->m_GraphicsDevice->DrawIndexed(6);
+
+            this->m_Texture2->Bind();
+            this->m_Shader->SetShaderUniform1i("ourTexture", 0);
+            this->m_VertexBuffer2->Bind();
+            this->m_IndexBuffer2->Bind();            
             this->m_GraphicsDevice->DrawIndexed(6);
 
             this->m_GraphicsDevice->GetSwapchain()->Present();
@@ -93,9 +114,14 @@ class Editor : public NexusEngine::Application
     private:
         NexusEngine::Size m_PreviousSize;
         NexusEngine::Shader* m_Shader;
-        NexusEngine::VertexBuffer* m_VertexBuffer;
-        NexusEngine::IndexBuffer* m_IndexBuffer;
-        NexusEngine::Texture* m_Texture;
+
+        NexusEngine::Texture* m_Texture1;
+        NexusEngine::VertexBuffer* m_VertexBuffer1;
+        NexusEngine::IndexBuffer* m_IndexBuffer1;
+
+        NexusEngine::Texture* m_Texture2;
+        NexusEngine::VertexBuffer* m_VertexBuffer2;
+        NexusEngine::IndexBuffer* m_IndexBuffer2;
 };
 
 int main(int argc, char** argv)
