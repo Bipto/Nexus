@@ -4,8 +4,8 @@ namespace Nexus
 {
     Application::Application(GraphicsAPI api)
     {
-        
-        this->m_Window = new Nexus::Window("My Window", {960, 650});
+        WindowProperties props;
+        this->m_Window = new Nexus::Window(props);
         this->m_Window->SetResizable(true);
 
         Nexus::GraphicsDevice* device = Nexus::CreateGraphicsDevice(this->m_Window, api);

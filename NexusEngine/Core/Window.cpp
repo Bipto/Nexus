@@ -3,9 +3,9 @@
 
 namespace Nexus
 {
-    Window::Window(const std::string& title, Size size)
+    Window::Window(const WindowProperties& windowProps)
     {   
-        this->m_Window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, size.Width, size.Height, SDL_WINDOW_OPENGL);
+        this->m_Window = SDL_CreateWindow(windowProps.Title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowProps.Width, windowProps.Height, SDL_WINDOW_OPENGL);
     }   
 
     Window::~Window()

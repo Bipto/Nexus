@@ -18,10 +18,17 @@ namespace Nexus
         Maximized
     };
 
+    struct WindowProperties
+    {
+        std::string Title = "My Window";
+        int Width = 1280;
+        int Height = 720;
+    };
+
     class Window
     {
         public:
-            Window(const std::string& title, Size size);
+            Window(const WindowProperties& windowProps);
             Window(const Window&) = delete;
             ~Window();
 
