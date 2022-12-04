@@ -6,7 +6,6 @@ namespace Nexus
     {
         WindowProperties props;
         this->m_Window = new Nexus::Window(props);
-        this->m_Window->SetResizable(true);
 
         Nexus::GraphicsDevice* device = Nexus::CreateGraphicsDevice(this->m_Window, api);
         this->m_GraphicsDevice = std::shared_ptr<GraphicsDevice>(device);
@@ -27,5 +26,11 @@ namespace Nexus
     Size Application::GetWindowSize()
     {
         return this->m_Window->GetWindowSize();
+    }
+
+    Window* Application::CreateWindow(const WindowProperties& props)
+    {
+        Window* window = new Nexus::Window(props);
+        return window;
     }
 }

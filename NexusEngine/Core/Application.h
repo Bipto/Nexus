@@ -40,6 +40,8 @@ namespace Nexus
             Size GetWindowSize();
             bool ShouldClose(){return this->m_Window->IsClosing();}
 
+            Window* CreateWindow(const WindowProperties& props);
+
         protected:
             std::shared_ptr<GraphicsDevice> m_GraphicsDevice;
 
