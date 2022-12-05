@@ -12,5 +12,3 @@
 #include <chrono>
 
 #include <map>
-
-#include "Logging/Log.h"

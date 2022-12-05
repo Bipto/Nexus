@@ -17,9 +17,9 @@ namespace Nexus
             public:
                 ResourceFactoryOpenGL(GraphicsDevice* device) :
                     GraphicsDevice::ResourceFactory(device){}
-            void Print()
+            void Print() override
                 {
-                    std::cout << "Hello" << std::endl;
+                    
                 }
         };
 

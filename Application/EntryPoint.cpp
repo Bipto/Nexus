@@ -74,6 +74,10 @@ class Editor : public Nexus::Application
             m_Texture2 = this->m_GraphicsDevice->CreateTexture("wall.jpg");
 
             this->m_GraphicsDevice->GetResourceFactory().Print();
+
+            NX_LOG("This is a log");
+            NX_WARNING("This is a warning");
+            NX_ERROR("This is an error");
         }
 
         void Update()

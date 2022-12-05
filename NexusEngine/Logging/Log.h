@@ -29,15 +29,27 @@ namespace Nexus
     class Logger
     {
         public:
-            void LogMessage(std::string message, Severity messageSeverity)
+            void LogInfo(std::string message)
             {
-                Nexus::Log log(message, messageSeverity);
+                Nexus::Log log("INFO: " + message, Severity::Info);
                 std::cout << log.Message << std::endl;
-                m_Logs.push_back(log);
+                this->m_Logs.push_back(log);
+            }
+
+            void LogWarning(std::string message)
+            {
+                Nexus::Log log("WARNING: " + message, Severity::Warning);
+                std::cout << log.Message << std::endl;
+                this->m_Logs.push_back(log);
+            }
+
+            void LogError(std::string message)
+            {
+                Nexus::Log log("ERROR: " + message, Severity::Error);
+                std::cout << log.Message << std::endl;
+                this->m_Logs.push_back(log);
             }
         private:
             std::vector<Nexus::Log> m_Logs;
     };
 }
-
-//#define HZ_LOG(message, severity) ::NexusEngine::Logging::GetCoreLogger()->Log(message, severity)

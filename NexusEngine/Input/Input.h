@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/nxpch.h"
+#include "../Core/nxpch.h"
 
 namespace Nexus
 {
@@ -128,6 +128,12 @@ namespace Nexus
 
     class Input
     {
-
+        public:
+            inline bool IsKeyPressed(KeyCode key) 
+            {
+                return thisw->m_KeyboardState[key];
+            }
+        private:
+            std::map<KeyCode, bool> m_KeyboardState;
     };
 }
