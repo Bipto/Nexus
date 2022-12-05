@@ -19,6 +19,8 @@
 #include "Application.h"
 #include "Logging/Log.h"
 
+#include "assimp/Importer.hpp"
+
 //-----------------------------------------------------------------------------
 // CORE ENGINE FUNCTIONS
 //-----------------------------------------------------------------------------
@@ -63,6 +65,8 @@ namespace Nexus
         }
 
         Py_Initialize();
+
+        Assimp::Importer;
     }
 
     static void Shutdown()

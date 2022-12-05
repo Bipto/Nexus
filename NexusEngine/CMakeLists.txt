@@ -14,11 +14,13 @@ target_include_directories(NexusEngine PUBLIC ../External/SDL_mixer/include)
 target_include_directories(NexusEngine PUBLIC ${Python_INCLUDE_DIRS})
 target_include_directories(NexusEngine PUBLIC ../External/glm/glm)
 target_include_directories(NexusEngine PUBLIC ../External/stb)
+target_include_directories(NexusEngine PUBLIC ../External/assimp/include)
 
 target_link_libraries(NexusEngine PUBLIC SDL2main SDL2-static)
 target_link_directories(NexusEngine PUBLIC ${Python_LIBRARY_DIRS})
 target_link_libraries(NexusEngine PUBLIC ${Python_LIBRARIES})
 target_link_libraries(NexusEngine PUBLIC glad)
+target_link_libraries(NexusEngine PUBLIC assimp)
 
 find_package(OpenGL REQUIRED)
 target_link_libraries(NexusEngine PUBLIC ${OPENGL_LIBRARIES})
