@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GL.h"
-#include "../../Core/Graphics/Buffer.h"
+#include "Core/Graphics/Buffer.h"
 
 namespace Nexus
 {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SDL.h"
-#include "../Size.h"
+#include "Core/Size.h"
 #include "GraphicsDevice.h"
 
 namespace Nexus

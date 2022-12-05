@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Core/Graphics/Swapchain.h"
+#include "Core/Graphics/Swapchain.h"
 #include "GL.h"
 #include "SDL_opengl.h"
 

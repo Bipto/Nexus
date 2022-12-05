@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core/Graphics/Texture.h"
 #include "../../Core/Graphics/Texture.h"
 #include "glad/glad.h"
 

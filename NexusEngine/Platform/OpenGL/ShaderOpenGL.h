@@ -1,9 +1,8 @@
 #pragma once
 
 #include "GL.h"
-#include "../../Core/Graphics/Shader.h"
-
-#include "../../Core/nxpch.h"
+#include "Core/Graphics/Shader.h"
+#include "Core/nxpch.h"
 
 namespace Nexus
 {

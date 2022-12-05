@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Core/nxpch.h"
+#include "Core/nxpch.h"
 
 namespace Nexus
 {
