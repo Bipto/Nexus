@@ -9,7 +9,7 @@
 #include "Core/Graphics/GraphicsDevice.h"
 #include "Core/Graphics/Swapchain.h"
 
-#include "Logging/Log.h"
+#include "Core/Logging/Log.h"
 
 #define NX_LOG(message) Nexus::GetCoreLogger()->LogInfo(message)
 #define NX_WARNING(message) Nexus::GetCoreLogger()->LogWarning(message);
