@@ -67,6 +67,12 @@ namespace Nexus
                 glUniform1f(loc, value);
             }
 
+            virtual void SetShaderUniform4f(const std::string& name, const glm::vec4& value) override
+            {
+                unsigned int loc = glGetUniformLocation(this->m_ProgramHandle, name.c_str());
+                glUniform4f(loc, value.x, value.y, value.z, value.w);
+            }
+
         private:
             unsigned int m_ProgramHandle;
     };

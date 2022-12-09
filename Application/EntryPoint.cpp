@@ -41,10 +41,11 @@ const char * vertexShaderSource = "#version 330 core\n"
 	"out vec4 FragColor;\n"
     "in vec2 TexCoord;\n"
     "uniform sampler2D ourTexture;\n"
+    "uniform vec4 TintColor;\n"
 	"void main()\n"
 	"{\n"
 	"	//FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-    "   FragColor = texture(ourTexture, TexCoord);\n"
+    "   FragColor = texture(ourTexture, TexCoord) * TintColor;\n"
 	"}\n";
 
 class Editor : public Nexus::Application
@@ -95,6 +96,8 @@ class Editor : public Nexus::Application
             this->m_Renderer->Begin(glm::mat4(0), glm::vec4(0.07f, 0.13f, 0.17f, 1));
 
             this->m_Shader->Bind();
+
+            this->m_Shader->SetShaderUniform4f("TintColor", glm::vec4(1, 0, 0, 1));
 
             this->m_Texture1->Bind();
             this->m_Shader->SetShaderUniform1i("ourTexture", 0);
