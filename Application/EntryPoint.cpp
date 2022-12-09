@@ -54,6 +54,8 @@ class Editor : public Nexus::Application
 
         void Load() override
         {
+            this->m_Renderer = Nexus::Renderer::Create(this->m_GraphicsDevice);
+
             this->m_GraphicsDevice->GetSwapchain()->SetVSyncState(Nexus::VSyncState::Enabled);
             this->m_Shader = this->m_GraphicsDevice->CreateShader(vertexShaderSource, fragmentShaderSource);
 
@@ -90,7 +92,7 @@ class Editor : public Nexus::Application
                 this->m_GraphicsDevice->GetSwapchain()->Resize(size);
             }
 
-            this->m_GraphicsDevice->Clear(0.07f, 0.13f, 0.17f, 1);
+            this->m_Renderer->Begin(glm::mat4(0), glm::vec4(0.07f, 0.13f, 0.17f, 1));
 
             this->m_Shader->Bind();
 
@@ -106,6 +108,7 @@ class Editor : public Nexus::Application
             this->m_IndexBuffer2->Bind();            
             this->m_GraphicsDevice->DrawIndexed(6);
 
+            this->m_Renderer->End();
             this->m_GraphicsDevice->GetSwapchain()->Present();
 
             this->m_PreviousSize = size;
@@ -116,6 +119,8 @@ class Editor : public Nexus::Application
             
         }
     private:
+        Nexus::Renderer* m_Renderer;
+
         Nexus::Size m_PreviousSize;
         Nexus::Shader* m_Shader;
 
