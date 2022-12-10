@@ -18,8 +18,8 @@
             }
         },
         {
-            "name": "x64-debug",
-            "displayName": "x64 Debug",
+            "name": "x64-debug-windows",
+            "displayName": "x64 Debug - Windows",
             "inherits": "windows-base",
             "architecture": {
                 "value": "x64",
@@ -30,16 +30,16 @@
             }
         },
         {
-            "name": "x64-release",
-            "displayName": "x64 Release",
-            "inherits": "x64-debug",
+            "name": "x64-release-windows",
+            "displayName": "x64 Release - Windows",
+            "inherits": "x64-debug-windows",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
             }
         },
         {
-            "name": "x86-debug",
-            "displayName": "x86 Debug",
+            "name": "x86-debug-windows",
+            "displayName": "x86 Debug - Windows",
             "inherits": "windows-base",
             "architecture": {
                 "value": "x86",
@@ -50,31 +50,68 @@
             }
         },
         {
-            "name": "x86-release",
-            "displayName": "x86 Release",
-            "inherits": "x86-debug",
+            "name": "x86-release-windows",
+            "displayName": "x86 Release - Windows",
+            "inherits": "x86-debug-windows",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
             }
         },
+
         {
-            "name": "linux",
-            "description": "",
-            "displayName": "",
-            "inherits": [
-                "__addPreset__"
-            ]
-        },
-        {
-            "name": "gcc-linux",
-            "displayName": "GCC 11.3.0 x86_64-linux-gnu",
-            "description": "Using compilers: C = /usr/bin/gcc, CXX = /usr/bin/g++",
+            "name": "linux-base",
+            "hidden": true,
+            "generator": "Ninja",
             "binaryDir": "${sourceDir}/out/build/${presetName}",
             "cacheVariables": {
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
                 "CMAKE_C_COMPILER": "gcc",
-                "CMAKE_CXX_COMPILER": "g++",
-                "CMAKE_BUILD_TYPE": "Debug"
+                "CMAKE_CXX_COMPILER": "g++"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+            }
+        },
+        {
+            "name": "x64-debug-linux",
+            "displayName": "x64 Debug - Linux",
+            "inherits": "linux-base",
+            "architecture":{
+                "value": "x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE":"Debug"
+            }
+        },
+        {
+            "name": "x64-release-linux",
+            "displayName": "x64 Release - Linux",
+            "inherits": "x64-debug-linux",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE":"Release"
+            }
+        },
+        {
+            "name": "x86-debug-linux",
+            "displayName": "x86 Debug - Linux",
+            "inherits": "linux-base",
+            "architecture":{
+                "value": "x86",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE":"Debug"
+            }
+        },
+        {
+            "name": "x86-release-linux",
+            "displayName": "x86 Release - Linux",
+            "inherits": "x86-debug-linux",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE":"Release"
             }
         }
     ]
