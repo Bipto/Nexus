@@ -9,6 +9,8 @@ add_subdirectory(External/SDL)
 #add_subdirectory(External/Lua)
 add_subdirectory(External/glad)
 add_subdirectory(External/glm)
+
+set (BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 add_subdirectory(External/assimp)
 
 #Editor
