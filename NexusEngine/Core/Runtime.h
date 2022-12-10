@@ -65,8 +65,7 @@ namespace Nexus
         }
 
         Py_Initialize();
-
-        Assimp::Importer;
+        Assimp::Importer importer{};
     }
 
     static void Shutdown()

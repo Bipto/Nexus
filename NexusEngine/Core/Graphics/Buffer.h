@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "Vertex.h"
+#include "Core/Vertex.h"
 
 namespace Nexus
 {
