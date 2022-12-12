@@ -67,10 +67,40 @@ namespace Nexus
                 glUniform1f(loc, value);
             }
 
+            virtual void SetShaderUniform1f(const std::string& name, float value) override
+            {
+                unsigned int loc = glGetUniformLocation(this->m_ProgramHandle, name.c_str());
+                glUniform1f(loc, value);
+            }
+
+            virtual void SetShaderUniform2f(const std::string& name, const glm::vec2& value) override
+            {
+                unsigned int loc = glGetUniformLocation(this->m_ProgramHandle, name.c_str());
+                glUniform2f(loc, value.x, value.y);
+            }
+
+            virtual void SetShaderUniform3f(const std::string& name, const glm::vec3& value)
+            {
+                unsigned int loc = glGetUniformLocation(this->m_ProgramHandle, name.c_str());
+                glUniform3f(loc, value.x, value.y, value.z);
+            }
+
             virtual void SetShaderUniform4f(const std::string& name, const glm::vec4& value) override
             {
                 unsigned int loc = glGetUniformLocation(this->m_ProgramHandle, name.c_str());
                 glUniform4f(loc, value.x, value.y, value.z, value.w);
+            }
+
+            virtual void SetShaderUniformMat3(const std::string& name, const glm::mat3& value) override
+            {
+                unsigned int loc = glGetUniformLocation(this->m_ProgramHandle, name.c_str());
+                glUniformMatrix3fv(loc, 1, GL_FALSE, glm::value_ptr(value));
+            }
+
+            virtual void SetShaderUniformMat4(const std::string& name, const glm::mat4& value) override
+            {
+                unsigned int loc = glGetUniformLocation(this->m_ProgramHandle, name.c_str());
+                glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(value));
             }
 
         private:

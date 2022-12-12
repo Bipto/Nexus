@@ -31,13 +31,14 @@ const char * vertexShaderSource = "#version 330 core\n"
 	"layout (location = 0) in vec3 aPos;\n"
     "layout (location = 1) in vec2 aTexCoord;\n"
     "out vec2 TexCoord;\n"
+    "uniform mat4 Transform;\n"
 	"void main()\n"
 	"{\n"
-	"	gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+	"	gl_Position = Transform * vec4(aPos, 1.0);\n"
     "   TexCoord = aTexCoord;\n"
 	"}\n";
 
-	const char * fragmentShaderSource = "#version 330 core\n"
+const char * fragmentShaderSource = "#version 330 core\n"
 	"out vec4 FragColor;\n"
     "in vec2 TexCoord;\n"
     "uniform sampler2D ourTexture;\n"
@@ -66,13 +67,6 @@ class Editor : public Nexus::Application
             this->m_VertexBuffer2 =  this->m_GraphicsDevice->CreateVertexBuffer(vertices2);
             this->m_IndexBuffer2 = this->m_GraphicsDevice->CreateIndexBuffer(indices2, sizeof(indices2));
 
-            /* glm::vec3 v1 = {0.3f, 0.4f, 0.5f};
-
-            std::ostringstream ss;
-            ss << v1.x << ", " << v1.y << ", " << v1.z;
-
-            NexusEngine::GetCoreLogger()->LogMessage(ss.str(), NexusEngine::Severity::Info); */
-
             m_Texture1 = this->m_GraphicsDevice->CreateTexture("brick.jpg");
             m_Texture2 = this->m_GraphicsDevice->CreateTexture("wall.jpg");
 
@@ -98,6 +92,7 @@ class Editor : public Nexus::Application
             this->m_Shader->Bind();
 
             this->m_Shader->SetShaderUniform4f("TintColor", glm::vec4(1, 0, 0, 1));
+            this->m_Shader->SetShaderUniformMat4("Transform", this->m_MVP);
 
             this->m_Texture1->Bind();
             this->m_Shader->SetShaderUniform1i("ourTexture", 0);
@@ -115,6 +110,12 @@ class Editor : public Nexus::Application
             this->m_GraphicsDevice->GetSwapchain()->Present();
 
             this->m_PreviousSize = size;
+
+            glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians(this->m_Value), {0.0f, 0.0f, 1.0f});
+            glm::mat4 view = glm::translate(glm::mat4(1.0f), {0.0f, 0.0f, 0.0f});
+
+            this->m_MVP = model * view;
+            this->m_Value -= 0.1f;
         }
 
         void Unload()
@@ -134,6 +135,9 @@ class Editor : public Nexus::Application
         Nexus::Texture* m_Texture2;
         Nexus::VertexBuffer* m_VertexBuffer2;
         Nexus::IndexBuffer* m_IndexBuffer2;
+
+        glm::mat4 m_MVP;
+        float m_Value = 1.0f;
 };
 
 int main(int argc, char** argv)
