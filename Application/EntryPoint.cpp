@@ -1,13 +1,14 @@
 #include "NexusEngine.h"
 
 #include <sstream>
-#include "glm.hpp"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 std::vector<Vertex> vertices1 = {
-    {{-1.0f, -1.0f, 0.0f}, {0, 0}},
-    {{0.0f, -1.0f, 0.0f}, {1, 0}},
-    {{0.0f, 0.0f, 0.0f}, {1, 1}},
-    {{-1.0f, 0.0f, 0.0f}, {0, 1}},
+    {{-0.5f, -0.5f, 0.0f}, {0, 0}},
+    {{0.5f, -0.5f, 0.0f}, {1, 0}},
+    {{0.5f, 0.5f, 0.0f}, {1, 1}},
+    {{-0.5f, 0.5f, 0.0f}, {0, 1}},
 };
 
 unsigned int indices1[] = {
@@ -43,6 +44,7 @@ const char * fragmentShaderSource = "#version 330 core\n"
     "in vec2 TexCoord;\n"
     "uniform sampler2D ourTexture;\n"
     "uniform vec4 TintColor;\n"
+    "uniform mat4 Transform;\n"
 	"void main()\n"
 	"{\n"
 	"	//FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
@@ -64,8 +66,8 @@ class Editor : public Nexus::Application
             this->m_VertexBuffer1 =  this->m_GraphicsDevice->CreateVertexBuffer(vertices1);
             this->m_IndexBuffer1 = this->m_GraphicsDevice->CreateIndexBuffer(indices1, sizeof(indices1));
 
-            this->m_VertexBuffer2 =  this->m_GraphicsDevice->CreateVertexBuffer(vertices2);
-            this->m_IndexBuffer2 = this->m_GraphicsDevice->CreateIndexBuffer(indices2, sizeof(indices2));
+            /* this->m_VertexBuffer2 =  this->m_GraphicsDevice->CreateVertexBuffer(vertices2);
+            this->m_IndexBuffer2 = this->m_GraphicsDevice->CreateIndexBuffer(indices2, sizeof(indices2)); */
 
             m_Texture1 = this->m_GraphicsDevice->CreateTexture("brick.jpg");
             m_Texture2 = this->m_GraphicsDevice->CreateTexture("wall.jpg");
@@ -91,31 +93,34 @@ class Editor : public Nexus::Application
 
             this->m_Shader->Bind();
 
-            this->m_Shader->SetShaderUniform4f("TintColor", glm::vec4(1, 0, 0, 1));
             this->m_Shader->SetShaderUniformMat4("Transform", this->m_MVP);
 
             this->m_Texture1->Bind();
+            this->m_Shader->SetShaderUniform4f("TintColor", glm::vec4(0.7f, 0.1f, 0.2f, 1));
             this->m_Shader->SetShaderUniform1i("ourTexture", 0);
             this->m_VertexBuffer1->Bind();
             this->m_IndexBuffer1->Bind();            
             this->m_GraphicsDevice->DrawIndexed(6);
 
-            this->m_Texture2->Bind();
+/*             this->m_Texture2->Bind();
+            this->m_Shader->SetShaderUniform4f("TintColor", glm::vec4(0.15f, 0.8f, 0.2f, 1));
             this->m_Shader->SetShaderUniform1i("ourTexture", 0);
             this->m_VertexBuffer2->Bind();
             this->m_IndexBuffer2->Bind();            
-            this->m_GraphicsDevice->DrawIndexed(6);
+            this->m_GraphicsDevice->DrawIndexed(6); */
 
             this->m_Renderer->End();
             this->m_GraphicsDevice->GetSwapchain()->Present();
 
             this->m_PreviousSize = size;
 
-            glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians(this->m_Value), {0.0f, 0.0f, 1.0f});
-            glm::mat4 view = glm::translate(glm::mat4(1.0f), {0.0f, 0.0f, 0.0f});
+            auto windowSize = this->GetWindowSize();
+            //glm::mat4 projection = glm::ortho
 
-            this->m_MVP = model * view;
-            this->m_Value -= 0.1f;
+            glm::mat4 model = glm::scale(glm::mat4(1.0f), {100.0f, 100.0f, 100.0f});
+            glm::mat4 projection = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, -1.0f, 1.0f);
+
+            this->m_MVP = model * projection;
         }
 
         void Unload()
@@ -137,7 +142,6 @@ class Editor : public Nexus::Application
         Nexus::IndexBuffer* m_IndexBuffer2;
 
         glm::mat4 m_MVP;
-        float m_Value = 1.0f;
 };
 
 int main(int argc, char** argv)

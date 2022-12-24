@@ -1,6 +1,6 @@
 #pragma once
 #include "Core/Graphics/GraphicsDevice.h"
-#include "glm.hpp"
+#include "glm/glm.hpp"
 
 namespace Nexus
 {
