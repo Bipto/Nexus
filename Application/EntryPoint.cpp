@@ -102,7 +102,7 @@ class Editor : public Nexus::Application
             this->m_IndexBuffer1->Bind();            
             this->m_GraphicsDevice->DrawIndexed(6);
 
-/*             this->m_Texture2->Bind();
+            /* this->m_Texture2->Bind();
             this->m_Shader->SetShaderUniform4f("TintColor", glm::vec4(0.15f, 0.8f, 0.2f, 1));
             this->m_Shader->SetShaderUniform1i("ourTexture", 0);
             this->m_VertexBuffer2->Bind();
@@ -121,6 +121,11 @@ class Editor : public Nexus::Application
             glm::mat4 projection = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, -1.0f, 1.0f);
 
             this->m_MVP = model * projection;
+
+            std::stringstream ss;
+            auto memUsage = GetCurrentMemoryUsage();
+            ss << "Currently using " << memUsage << " bytes";
+            NX_LOG(ss.str());
         }
 
         void Unload()
