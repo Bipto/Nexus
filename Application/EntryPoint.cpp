@@ -4,6 +4,8 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
+#include "Components/Camera.h"
+
 std::vector<Vertex> vertices1 = {
     {{-0.5f, -0.5f, 0.0f}, {0, 0}},
     {{0.5f, -0.5f, 0.0f}, {1, 0}},
@@ -113,19 +115,14 @@ class Editor : public Nexus::Application
             this->m_GraphicsDevice->GetSwapchain()->Present();
 
             this->m_PreviousSize = size;
-
-            auto windowSize = this->GetWindowSize();
-            //glm::mat4 projection = glm::ortho
-
+            
             glm::mat4 model = glm::scale(glm::mat4(1.0f), {100.0f, 100.0f, 100.0f});
-            glm::mat4 projection = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, -1.0f, 1.0f);
+            this->m_MVP = model * this->m_Camera.GetProjection();
 
-            this->m_MVP = model * projection;
-
-            std::stringstream ss;
+            /* std::stringstream ss;
             auto memUsage = GetCurrentMemoryUsage();
             ss << "Currently using " << memUsage << " bytes";
-            NX_LOG(ss.str());
+            NX_LOG(ss.str()); */
         }
 
         void Unload()
@@ -147,6 +144,8 @@ class Editor : public Nexus::Application
         Nexus::IndexBuffer* m_IndexBuffer2;
 
         glm::mat4 m_MVP;
+
+        Nexus::OrthographicCamera m_Camera{1000, 1000};
 };
 
 int main(int argc, char** argv)

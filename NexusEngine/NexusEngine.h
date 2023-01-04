@@ -12,8 +12,6 @@
 
 #include "Core/Logging/Log.h"
 
-#include <iostream>
-
 #define NX_LOG(message) Nexus::GetCoreLogger()->LogInfo(message)
 #define NX_WARNING(message) Nexus::GetCoreLogger()->LogWarning(message);
 #define NX_ERROR(message) Nexus::GetCoreLogger()->LogError(message);
