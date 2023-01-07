@@ -7,9 +7,9 @@ namespace Nexus
     class Renderer
     {
         public:
-            void Begin(const glm::mat4& mvp, const glm::vec4& clearColor)
+            void Begin(const glm::mat4& vp, const glm::vec4& clearColor)
             {
-                this->m_MVP = mvp;
+                this->m_VP = vp;
                 this->m_GraphicsDevice->Clear(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
             }
 
@@ -31,6 +31,6 @@ namespace Nexus
             }   
         private:
             std::shared_ptr<GraphicsDevice> m_GraphicsDevice;
-            glm::mat4 m_MVP;
+            glm::mat4 m_VP;
     };
 }

@@ -8,16 +8,22 @@ namespace Nexus
     class OrthographicCamera
     {
         public:
-            OrthographicCamera(int width, int height)
+            OrthographicCamera(int width = 1280, int height = 720)
             {
-                m_Projection = glm::ortho<float>(
-                    -width / 2,
-                    width / 2,
-                    -height / 2,
-                    height / 2,
-                    -1.0f, 1.0f);
+                this->Resize(width, height);
             }
-            const glm::mat4 GetProjection(){return this->m_Projection;}
+
+            void Resize(int width, int height)
+            {
+                this->m_Projection = glm::ortho<float>(
+                                    -width / 2,
+                                    width / 2,
+                                    -height / 2,
+                                    height / 2,
+                                    -1.0f, 1.0f);
+            }
+
+            const glm::mat4 GetProjection(){ return this->m_Projection; }
         private:
             glm::mat4 m_Projection;
     };

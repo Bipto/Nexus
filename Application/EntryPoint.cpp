@@ -76,6 +76,10 @@ class Editor : public Nexus::Application
 
             this->m_GraphicsDevice->GetResourceFactory().Print();
 
+
+            Nexus::Size size = this->GetWindowSize();
+            this->m_Camera = { size.Width, size.Height };
+
             NX_LOG("This is a log");
             NX_WARNING("This is a warning");
             NX_ERROR("This is an error");
@@ -91,18 +95,22 @@ class Editor : public Nexus::Application
                 this->m_GraphicsDevice->GetSwapchain()->Resize(size);
             }
 
+            this->m_Camera.Resize(size.Width, size.Height);
+
             this->m_Renderer->Begin(glm::mat4(0), glm::vec4(0.07f, 0.13f, 0.17f, 1));
 
             this->m_Shader->Bind();
+            this->m_Shader->SetShaderUniform4f("TintColor", glm::vec4(0.7f, 0.1f, 0.2f, 1));
+            this->m_Shader->SetShaderUniform1i("ourTexture", 0);
 
-            this->m_Shader->SetShaderUniformMat4("Transform", this->m_MVP);
+            //this->m_Shader->SetShaderUniformMat4("Transform", this->m_MVP);
 
-            this->m_Texture1->Bind();
+            /* this->m_Texture1->Bind();
             this->m_Shader->SetShaderUniform4f("TintColor", glm::vec4(0.7f, 0.1f, 0.2f, 1));
             this->m_Shader->SetShaderUniform1i("ourTexture", 0);
             this->m_VertexBuffer1->Bind();
             this->m_IndexBuffer1->Bind();            
-            this->m_GraphicsDevice->DrawIndexed(6);
+            this->m_GraphicsDevice->DrawIndexed(6); */
 
             /* this->m_Texture2->Bind();
             this->m_Shader->SetShaderUniform4f("TintColor", glm::vec4(0.15f, 0.8f, 0.2f, 1));
@@ -111,18 +119,33 @@ class Editor : public Nexus::Application
             this->m_IndexBuffer2->Bind();            
             this->m_GraphicsDevice->DrawIndexed(6); */
 
+            this->RenderQuad(m_Texture1, glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(500.0f, 500.0f, 500.0f));  
+            this->RenderQuad(m_Texture1, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(500.0f, 500.0f, 500.0f));           
+
             this->m_Renderer->End();
             this->m_GraphicsDevice->GetSwapchain()->Present();
 
             this->m_PreviousSize = size;
             
-            glm::mat4 model = glm::scale(glm::mat4(1.0f), {100.0f, 100.0f, 100.0f});
-            this->m_MVP = model * this->m_Camera.GetProjection();
+            //glm::mat4 model = glm::scale(glm::mat4(1.0f), {100.0f, 100.0f, 100.0f});
+            //this->m_VP = model * this->m_Camera.GetProjection();
 
             /* std::stringstream ss;
             auto memUsage = GetCurrentMemoryUsage();
             ss << "Currently using " << memUsage << " bytes";
             NX_LOG(ss.str()); */
+        }
+
+        void RenderQuad(Nexus::Texture* texture, const glm::vec3& position, const glm::vec3& scale)
+        {
+            texture->Bind();
+            this->m_VertexBuffer1->Bind();
+            this->m_IndexBuffer1->Bind();
+
+            glm::mat4 mvp = this->m_Camera.GetProjection() * glm::scale(glm::mat4(1.0f), scale) * glm::translate(glm::mat4(1.0f), position);
+            this->m_Shader->SetShaderUniformMat4("Transform", mvp);
+
+            this->m_GraphicsDevice->DrawIndexed(6);
         }
 
         void Unload()
@@ -143,9 +166,7 @@ class Editor : public Nexus::Application
         Nexus::VertexBuffer* m_VertexBuffer2;
         Nexus::IndexBuffer* m_IndexBuffer2;
 
-        glm::mat4 m_MVP;
-
-        Nexus::OrthographicCamera m_Camera{1000, 1000};
+        Nexus::OrthographicCamera m_Camera;
 };
 
 int main(int argc, char** argv)
