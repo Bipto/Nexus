@@ -7,7 +7,6 @@
 #include "Core/Vertex.h"
 
 #include "Core/Graphics/GraphicsDevice.h"
-#include "Core/Graphics/Swapchain.h"
 #include "Core/Renderer.h"
 
 #include "Core/Logging/Log.h"

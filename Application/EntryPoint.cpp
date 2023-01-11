@@ -62,7 +62,7 @@ class Editor : public Nexus::Application
         {
             this->m_Renderer = Nexus::Renderer::Create(this->m_GraphicsDevice);
 
-            this->m_GraphicsDevice->GetSwapchain()->SetVSyncState(Nexus::VSyncState::Enabled);
+            this->m_GraphicsDevice->SetVSyncState(Nexus::VSyncState::Enabled);
             this->m_Shader = this->m_GraphicsDevice->CreateShader(vertexShaderSource, fragmentShaderSource);
 
             this->m_VertexBuffer1 =  this->m_GraphicsDevice->CreateVertexBuffer(vertices1);
@@ -87,7 +87,7 @@ class Editor : public Nexus::Application
 
         void Update()
         {
-            this->m_GraphicsDevice->SetContext();
+            /* this->m_GraphicsDevice->SetContext();
             Nexus::Size size = this->GetWindowSize();
 
             if (size.Height != this->m_PreviousSize.Height || size.Width != this->m_PreviousSize.Width)
@@ -103,37 +103,15 @@ class Editor : public Nexus::Application
             this->m_Shader->SetShaderUniform4f("TintColor", glm::vec4(0.7f, 0.1f, 0.2f, 1));
             this->m_Shader->SetShaderUniform1i("ourTexture", 0);
 
-            //this->m_Shader->SetShaderUniformMat4("Transform", this->m_MVP);
-
-            /* this->m_Texture1->Bind();
-            this->m_Shader->SetShaderUniform4f("TintColor", glm::vec4(0.7f, 0.1f, 0.2f, 1));
-            this->m_Shader->SetShaderUniform1i("ourTexture", 0);
-            this->m_VertexBuffer1->Bind();
-            this->m_IndexBuffer1->Bind();            
-            this->m_GraphicsDevice->DrawIndexed(6); */
-
-            /* this->m_Texture2->Bind();
-            this->m_Shader->SetShaderUniform4f("TintColor", glm::vec4(0.15f, 0.8f, 0.2f, 1));
-            this->m_Shader->SetShaderUniform1i("ourTexture", 0);
-            this->m_VertexBuffer2->Bind();
-            this->m_IndexBuffer2->Bind();            
-            this->m_GraphicsDevice->DrawIndexed(6); */
-
             this->RenderQuad(m_Texture1, glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(500.0f, 500.0f, 500.0f));  
             this->RenderQuad(m_Texture1, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(500.0f, 500.0f, 500.0f));           
 
             this->m_Renderer->End();
             this->m_GraphicsDevice->GetSwapchain()->Present();
 
-            this->m_PreviousSize = size;
-            
-            //glm::mat4 model = glm::scale(glm::mat4(1.0f), {100.0f, 100.0f, 100.0f});
-            //this->m_VP = model * this->m_Camera.GetProjection();
+            this->m_PreviousSize = size; */
 
-            /* std::stringstream ss;
-            auto memUsage = GetCurrentMemoryUsage();
-            ss << "Currently using " << memUsage << " bytes";
-            NX_LOG(ss.str()); */
+            this->RenderImGui();
         }
 
         void RenderQuad(Nexus::Texture* texture, const glm::vec3& position, const glm::vec3& scale)

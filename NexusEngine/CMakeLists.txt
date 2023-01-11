@@ -22,6 +22,8 @@ target_link_directories(NexusEngine PUBLIC ${Python_LIBRARY_DIRS})
 target_link_libraries(NexusEngine PUBLIC ${Python_LIBRARIES})
 target_link_libraries(NexusEngine PUBLIC glad)
 target_link_libraries(NexusEngine PUBLIC assimp)
+target_link_libraries(NexusEngine PUBLIC imgui)
+target_link_libraries(NexusEngine PUBLIC imguizmo)
 
 find_package(OpenGL REQUIRED)
 target_link_libraries(NexusEngine PUBLIC ${OPENGL_LIBRARIES})

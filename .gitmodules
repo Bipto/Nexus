@@ -13,3 +13,9 @@
 [submodule "External/assimp"]
 	path = External/assimp
 	url = https://github.com/assimp/assimp.git
+[submodule "External/imgui/imgui"]
+	path = External/imgui/imgui
+	url = https://github.com/ocornut/imgui.git
+[submodule "External/imgui/imguizmo"]
+	path = External/imgui/imguizmo
+	url = https://github.com/CedricGuillemet/ImGuizmo.git

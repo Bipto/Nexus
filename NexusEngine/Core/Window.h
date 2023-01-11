@@ -9,6 +9,8 @@
 
 #include "Size.h"
 
+#include "backends/imgui_impl_sdl.h"
+
 namespace Nexus
 {
     enum WindowState

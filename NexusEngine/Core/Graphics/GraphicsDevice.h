@@ -2,7 +2,6 @@
 
 #include "Core/Window.h"
 #include "SDL.h"
-#include "Swapchain.h"
 #include "Shader.h"
 #include "Buffer.h"
 #include "Texture.h"
@@ -14,6 +13,13 @@ namespace Nexus
         None,
         OpenGL,
         DirectX11
+    };
+
+    enum class VSyncState
+    {
+        Adaptive = -1,
+        Disabled = 0,
+        Enabled = 1
     };
 
     class GraphicsDevice
@@ -46,18 +52,23 @@ namespace Nexus
             virtual void DrawElements(unsigned int start, unsigned int count) = 0;
             virtual void DrawIndexed(unsigned int count) = 0;
 
+            virtual void* GetContext() = 0;
+
             GraphicsAPI GetGraphicsAPI(){return this->m_API;}
-            Swapchain* GetSwapchain(){return this->m_Swapchain;}
+            //Swapchain* GetSwapchain(){return this->m_Swapchain;}
 
             virtual Shader* CreateShader(const char* vertexShaderSource, const char* fragmentShaderSource) = 0;
             virtual VertexBuffer* CreateVertexBuffer(const std::vector<Vertex> vertices) = 0;
             virtual IndexBuffer* CreateIndexBuffer(unsigned int indices[], unsigned int indexCount) = 0;
             virtual Texture* CreateTexture(const char* filepath) = 0;
 
+            virtual void Resize(Size size) = 0;
+            virtual void SwapBuffers() = 0;
+            virtual void SetVSyncState(VSyncState VSyncState) = 0;
+
             virtual ResourceFactory& GetResourceFactory() = 0;
         protected:
             Nexus::Window* m_Window;
             GraphicsAPI m_API;
-            Swapchain* m_Swapchain;
     };
 }

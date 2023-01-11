@@ -3,7 +3,6 @@
 #include "Core/Graphics/GraphicsDevice.h"
 #include "GL.h"
 #include "SDL_opengl.h"
-#include "SwapchainOpenGL.h"
 #include "ShaderOpenGL.h"
 #include "BufferOpenGL.h"
 #include "TextureOpenGL.h"
@@ -36,8 +35,6 @@ namespace Nexus
                 #ifndef __EMSCRIPTEN__
                     gladLoadGL();
                 #endif
-
-                this->m_Swapchain = new SwapchainOpenGL(this->m_Window->GetSDLWindowHandle(), this->m_Window->GetWindowSize());
             }
 
             GraphicsDeviceOpenGL(const GraphicsDeviceOpenGL&) = delete;
@@ -63,6 +60,11 @@ namespace Nexus
                 glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void*)0);
             }
 
+            virtual void* GetContext() override
+            {
+                return (void*)this->m_Context;
+            }
+
             virtual Shader* CreateShader(const char* vertexShaderSource, const char* fragmentShaderSource) override
             {
                 return new ShaderOpenGL(vertexShaderSource, fragmentShaderSource);
@@ -86,6 +88,21 @@ namespace Nexus
             virtual ResourceFactory& GetResourceFactory() override 
             {
                 return m_ResourceFactory;
+            }
+            
+            virtual void Resize(Size size)
+            {
+                glViewport(0, 0, size.Width, size.Height);
+            }
+
+            virtual void SwapBuffers()
+            {
+                SDL_GL_SwapWindow(this->m_Window->GetSDLWindowHandle());
+            }
+
+            virtual void SetVSyncState(VSyncState VSyncState)
+            {
+                SDL_GL_SetSwapInterval((unsigned int)VSyncState);
             }
 
         private:

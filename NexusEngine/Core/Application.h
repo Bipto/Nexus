@@ -12,6 +12,10 @@
 
 #include "Size.h"
 
+#include "imgui.h"
+#include "backends/imgui_impl_sdl.h"
+#include "backends/imgui_impl_opengl3.h"
+
 namespace Nexus
 {
     static GraphicsDevice* CreateGraphicsDevice(Nexus::Window* window, GraphicsAPI api)
@@ -35,6 +39,7 @@ namespace Nexus
             virtual void Update() = 0;
             virtual void Unload() = 0;
 
+            void RenderImGui();
             void MainLoop();
 
             Size GetWindowSize();
