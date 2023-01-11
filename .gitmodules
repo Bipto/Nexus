@@ -16,6 +16,7 @@
 [submodule "External/imgui/imgui"]
 	path = External/imgui/imgui
 	url = https://github.com/ocornut/imgui.git
+	branch = docking
 [submodule "External/imgui/imguizmo"]
 	path = External/imgui/imguizmo
 	url = https://github.com/CedricGuillemet/ImGuizmo.git

@@ -10,6 +10,7 @@ namespace Nexus
         public:
             Texture(const char* filepath){}
             virtual void Bind(unsigned int slot = 0) = 0;
+            virtual void* GetHandle() = 0;
         protected:
             int m_Width;
             int m_Height;

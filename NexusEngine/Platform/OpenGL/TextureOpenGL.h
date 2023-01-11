@@ -38,6 +38,11 @@ namespace Nexus
                 glActiveTexture(GL_TEXTURE0 + slot);
                 glBindTexture(GL_TEXTURE_2D, this->m_Handle);
             }
+
+            virtual void* GetHandle() override
+            {
+                return (void*)m_Handle;   
+            }
         private:
             unsigned int m_Handle;
     };

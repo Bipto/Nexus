@@ -73,10 +73,7 @@ class Editor : public Nexus::Application
 
             m_Texture1 = this->m_GraphicsDevice->CreateTexture("brick.jpg");
             m_Texture2 = this->m_GraphicsDevice->CreateTexture("wall.jpg");
-
-            this->m_GraphicsDevice->GetResourceFactory().Print();
-
-
+            
             Nexus::Size size = this->GetWindowSize();
             this->m_Camera = { size.Width, size.Height };
 
@@ -87,14 +84,17 @@ class Editor : public Nexus::Application
 
         void Update()
         {
-            /* this->m_GraphicsDevice->SetContext();
+            this->BeginImGuiRender();
+
+            this->m_GraphicsDevice->SetContext();
             Nexus::Size size = this->GetWindowSize();
 
             if (size.Height != this->m_PreviousSize.Height || size.Width != this->m_PreviousSize.Width)
             {
-                this->m_GraphicsDevice->GetSwapchain()->Resize(size);
+                this->m_GraphicsDevice->Resize(size);
             }
 
+            this->m_GraphicsDevice->Resize(this->GetWindowSize());
             this->m_Camera.Resize(size.Width, size.Height);
 
             this->m_Renderer->Begin(glm::mat4(0), glm::vec4(0.07f, 0.13f, 0.17f, 1));
@@ -107,11 +107,19 @@ class Editor : public Nexus::Application
             this->RenderQuad(m_Texture1, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(500.0f, 500.0f, 500.0f));           
 
             this->m_Renderer->End();
-            this->m_GraphicsDevice->GetSwapchain()->Present();
+            /* this->m_GraphicsDevice->GetSwapchain()->Present(); */
+            this->m_PreviousSize = size;
 
-            this->m_PreviousSize = size; */
+            if (m_WindowOpen)
+            {
+                ImGui::Begin("My Window", &m_WindowOpen);
+                auto availSize = ImGui::GetContentRegionAvail();
+                ImGui::Image(m_Texture1->GetHandle(), availSize);
+                ImGui::End();
+            }
 
-            this->RenderImGui();
+            this->EndImGuiRender();
+            this->m_GraphicsDevice->SwapBuffers();
         }
 
         void RenderQuad(Nexus::Texture* texture, const glm::vec3& position, const glm::vec3& scale)
@@ -145,6 +153,8 @@ class Editor : public Nexus::Application
         Nexus::IndexBuffer* m_IndexBuffer2;
 
         Nexus::OrthographicCamera m_Camera;
+
+        bool m_WindowOpen = true;
 };
 
 int main(int argc, char** argv)

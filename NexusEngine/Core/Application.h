@@ -39,7 +39,9 @@ namespace Nexus
             virtual void Update() = 0;
             virtual void Unload() = 0;
 
-            void RenderImGui();
+            void BeginImGuiRender();
+            void EndImGuiRender();
+
             void MainLoop();
 
             Size GetWindowSize();

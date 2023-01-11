@@ -11,17 +11,6 @@ namespace Nexus
 {
     class GraphicsDeviceOpenGL : public GraphicsDevice
     {
-        class ResourceFactoryOpenGL : public GraphicsDevice::ResourceFactory
-        {
-            public:
-                ResourceFactoryOpenGL(GraphicsDevice* device) :
-                    GraphicsDevice::ResourceFactory(device){}
-            void Print() override
-                {
-                    
-                }
-        };
-
         public:
             GraphicsDeviceOpenGL(Nexus::Window* window, GraphicsAPI api) : GraphicsDevice(window, api)
             {
@@ -84,11 +73,6 @@ namespace Nexus
             {
                 return new TextureOpenGL(filepath);
             }
-
-            virtual ResourceFactory& GetResourceFactory() override 
-            {
-                return m_ResourceFactory;
-            }
             
             virtual void Resize(Size size)
             {
@@ -107,6 +91,5 @@ namespace Nexus
 
         private:
             SDL_GLContext m_Context;
-            ResourceFactoryOpenGL m_ResourceFactory {this};
     };
 }

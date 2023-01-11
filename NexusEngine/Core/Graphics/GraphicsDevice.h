@@ -25,21 +25,6 @@ namespace Nexus
     class GraphicsDevice
     {
         public:
-        class ResourceFactory
-        {
-            public:
-                virtual void Print() = 0;
-            protected:
-                ResourceFactory(GraphicsDevice* device)
-                {
-                    this->m_GraphicsDevice = device;
-                }
-            protected:
-                GraphicsDevice* m_GraphicsDevice;
-                friend class GraphicsDevice;
-        };
-
-        public:
             GraphicsDevice(Nexus::Window* window, GraphicsAPI api)
             {
                 this->m_Window = window;
@@ -65,8 +50,6 @@ namespace Nexus
             virtual void Resize(Size size) = 0;
             virtual void SwapBuffers() = 0;
             virtual void SetVSyncState(VSyncState VSyncState) = 0;
-
-            virtual ResourceFactory& GetResourceFactory() = 0;
         protected:
             Nexus::Window* m_Window;
             GraphicsAPI m_API;

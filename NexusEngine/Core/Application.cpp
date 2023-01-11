@@ -50,7 +50,8 @@ namespace Nexus
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO(); (void)io;
-
+        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+        
         ImGui::StyleColorsDark();
         SDL_Window* window = this->m_Window->GetSDLWindowHandle();
         SDL_GLContext context = (SDL_GLContext)this->m_GraphicsDevice->GetContext();
@@ -64,28 +65,37 @@ namespace Nexus
         delete this->m_Window;
     }
 
-    void Application::RenderImGui()
+    void Application::BeginImGuiRender()
     {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
+    }
 
-        ImGui::ShowDemoWindow();
-
+    void Application::EndImGuiRender()
+    {
         ImGui::Render();
-        this->m_GraphicsDevice->Resize(this->GetWindowSize());
-        this->m_GraphicsDevice->Clear(1, 0, 0, 1);
+        /* this->m_GraphicsDevice->Resize(this->GetWindowSize());
+        this->m_GraphicsDevice->Clear(0, 0, 0, 0); */
+
+        ImGui::GetMainViewport()->Size = { (float)this->GetWindowSize().Width, (float)this->GetWindowSize().Height };
 
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-        this->m_GraphicsDevice->SwapBuffers();
     }
 
     void Application::MainLoop()
     {
         this->m_Window->PollEvents();
 
-        this->Update();    }
+        this->Update();    
+
+        //Update and render additional platform windows
+        if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+        {
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
+        }
+    }
 
     Size Application::GetWindowSize()
     {
