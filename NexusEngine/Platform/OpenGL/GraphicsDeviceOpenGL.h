@@ -6,6 +6,7 @@
 #include "ShaderOpenGL.h"
 #include "BufferOpenGL.h"
 #include "TextureOpenGL.h"
+#include "FramebufferOpenGL.h"
 
 namespace Nexus
 {
@@ -72,6 +73,11 @@ namespace Nexus
             virtual Texture* CreateTexture(const char* filepath) override
             {
                 return new TextureOpenGL(filepath);
+            }
+
+            virtual Framebuffer* CreateFramebuffer() override
+            {
+                return new FramebufferOpenGL();
             }
             
             virtual void Resize(Size size)

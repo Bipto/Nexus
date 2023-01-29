@@ -80,45 +80,66 @@ class Editor : public Nexus::Application
             NX_LOG("This is a log");
             NX_WARNING("This is a warning");
             NX_ERROR("This is an error");
+
+            m_Framebuffer = this->m_GraphicsDevice->CreateFramebuffer();
         }
 
         void Update()
         {
-            this->BeginImGuiRender();
-
             this->m_GraphicsDevice->SetContext();
-            Nexus::Size size = this->GetWindowSize();
 
-            if (size.Height != this->m_PreviousSize.Height || size.Width != this->m_PreviousSize.Width)
-            {
-                this->m_GraphicsDevice->Resize(size);
-            }
+            this->m_GraphicsDevice->Resize({1920, 1080});
 
-            this->m_GraphicsDevice->Resize(this->GetWindowSize());
-            this->m_Camera.Resize(size.Width, size.Height);
-
+            this->m_Framebuffer->Bind();
             this->m_Renderer->Begin(glm::mat4(0), glm::vec4(0.07f, 0.13f, 0.17f, 1));
 
             this->m_Shader->Bind();
             this->m_Shader->SetShaderUniform4f("TintColor", glm::vec4(0.7f, 0.1f, 0.2f, 1));
             this->m_Shader->SetShaderUniform1i("ourTexture", 0);
 
-            this->RenderQuad(m_Texture1, glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(500.0f, 500.0f, 500.0f));  
-            this->RenderQuad(m_Texture1, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(500.0f, 500.0f, 500.0f));           
+            this->RenderQuad(m_Texture1, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(500.0f, 500.0f, 500.0f));           
 
             this->m_Renderer->End();
-            /* this->m_GraphicsDevice->GetSwapchain()->Present(); */
+            this->m_Framebuffer->Unbind();
+
+            Nexus::Size size = this->GetWindowSize();
+            this->m_GraphicsDevice->Resize(size);
+            this->m_Camera.Resize(size.Width, size.Height);
+            this->m_GraphicsDevice->Clear(0, 0, 0, 1);
+            this->BeginImGuiRender();
             this->m_PreviousSize = size;
 
-            if (m_WindowOpen)
+            ImGuiWindowFlags flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+
+            ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos, ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size);
+
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+
+
+            flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_AlwaysAutoResize;
+
+        
+            if (ImGui::Begin("Dockspace Demo", nullptr, flags))
             {
-                ImGui::Begin("My Window", &m_WindowOpen);
-                auto availSize = ImGui::GetContentRegionAvail();
-                ImGui::Image(m_Texture1->GetHandle(), availSize);
+                ImGui::DockSpace(ImGui::GetID("Dockspace"));
+
+                if (m_WindowOpen)
+                {
+                    ImGui::Begin("My Window", &m_WindowOpen);
+                    auto availSize = ImGui::GetContentRegionAvail();
+                    ImGui::Image((void*)m_Framebuffer->GetColorAttachment(), availSize);
+                    ImGui::End();
+                }
+
                 ImGui::End();
             }
 
+            ImGui::PopStyleVar(2);
+
             this->EndImGuiRender();
+
             this->m_GraphicsDevice->SwapBuffers();
         }
 
@@ -153,6 +174,7 @@ class Editor : public Nexus::Application
         Nexus::IndexBuffer* m_IndexBuffer2;
 
         Nexus::OrthographicCamera m_Camera;
+        Nexus::Framebuffer* m_Framebuffer;
 
         bool m_WindowOpen = true;
 };

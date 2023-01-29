@@ -51,6 +51,7 @@ namespace Nexus
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         
         ImGui::StyleColorsDark();
         SDL_Window* window = this->m_Window->GetSDLWindowHandle();
