@@ -47,7 +47,7 @@ namespace Nexus
             virtual VertexBuffer* CreateVertexBuffer(const std::vector<Vertex> vertices) = 0;
             virtual IndexBuffer* CreateIndexBuffer(unsigned int indices[], unsigned int indexCount) = 0;
             virtual Texture* CreateTexture(const char* filepath) = 0;
-            virtual Framebuffer* CreateFramebuffer() = 0;
+            virtual Framebuffer* CreateFramebuffer(const Nexus::FramebufferSpecification& spec) = 0;
 
             virtual void Resize(Size size) = 0;
             virtual void SwapBuffers() = 0;

@@ -75,9 +75,9 @@ namespace Nexus
                 return new TextureOpenGL(filepath);
             }
 
-            virtual Framebuffer* CreateFramebuffer() override
+            virtual Framebuffer* CreateFramebuffer(const Nexus::FramebufferSpecification& spec) override
             {
-                return new FramebufferOpenGL();
+                return new FramebufferOpenGL(spec);
             }
             
             virtual void Resize(Size size)

@@ -8,13 +8,10 @@ namespace Nexus
     class FramebufferOpenGL : public Framebuffer
     {
         public:
-            FramebufferOpenGL()
+            FramebufferOpenGL(const Nexus::FramebufferSpecification& spec)
             {
-                glGenFramebuffers(1, &m_FBO);
-                glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
-
-                m_Texture = CreateTexture();
-                glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                this->m_FramebufferSpecification = spec;
+                Resize();
             }
 
             ~FramebufferOpenGL()
@@ -37,6 +34,26 @@ namespace Nexus
                 return m_Texture;
             }
 
+            virtual void Resize() override
+            {
+                glGenFramebuffers(1, &m_FBO);
+                glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
+
+                m_Texture = CreateTexture();
+                glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            }
+
+            virtual const FramebufferSpecification GetFramebufferSpecification() override
+            {
+                return this->m_FramebufferSpecification;
+            }
+
+            virtual void SetFramebufferSpecification(const FramebufferSpecification& spec) override
+            {
+                this->m_FramebufferSpecification = spec;
+                Resize();
+            }
+
         private:
             unsigned int CreateTexture()
             {
@@ -44,7 +61,7 @@ namespace Nexus
                 glGenTextures(1, &texture);
                 glBindTexture(GL_TEXTURE_2D, texture);
 
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1920, 1080, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_FramebufferSpecification.Width, m_FramebufferSpecification.Height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -57,5 +74,7 @@ namespace Nexus
         private:
             unsigned int m_FBO;
             unsigned int m_Texture;
+
+            Nexus::FramebufferSpecification m_FramebufferSpecification;
     };
 }

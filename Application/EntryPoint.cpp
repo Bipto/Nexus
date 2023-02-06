@@ -81,14 +81,31 @@ class Editor : public Nexus::Application
             NX_WARNING("This is a warning");
             NX_ERROR("This is an error");
 
-            m_Framebuffer = this->m_GraphicsDevice->CreateFramebuffer();
+            Nexus::FramebufferSpecification framebufferSpec;
+            framebufferSpec.Width = 1920;
+            framebufferSpec.Height = 1080;
+            m_Framebuffer = this->m_GraphicsDevice->CreateFramebuffer(framebufferSpec);
         }
 
         void Update()
         {
             this->m_GraphicsDevice->SetContext();
 
-            this->m_GraphicsDevice->Resize({1920, 1080});
+            auto windowSize = this->GetWindowSize();
+            if (m_PreviousSize.Width != windowSize.Width || m_PreviousSize.Height != windowSize.Height)
+            {
+                Nexus::FramebufferSpecification spec;
+                spec.Width = windowSize.Width;
+                spec.Height = windowSize.Height;
+                m_Framebuffer->SetFramebufferSpecification(spec);
+
+                std::stringstream ss;
+                ss << "Resizing - Width: " << spec.Width << " Height: " << spec.Height; 
+                NX_LOG(ss.str());
+            }
+
+            auto framebufferSpec = this->m_Framebuffer->GetFramebufferSpecification();
+            this->m_GraphicsDevice->Resize({framebufferSpec.Width, framebufferSpec.Height});
 
             this->m_Framebuffer->Bind();
             this->m_Renderer->Begin(glm::mat4(0), glm::vec4(0.07f, 0.13f, 0.17f, 1));
@@ -120,7 +137,6 @@ class Editor : public Nexus::Application
 
             flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_AlwaysAutoResize;
 
-        
             if (ImGui::Begin("Dockspace Demo", nullptr, flags))
             {
                 ImGui::DockSpace(ImGui::GetID("Dockspace"));
