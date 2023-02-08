@@ -5,6 +5,8 @@
 #include "glm/gtc/matrix_transform.hpp"
 
 #include "Components/Camera.h"
+#include "Core/Graphics/TextureFormat.h"
+#include "Core/Graphics/DepthFormat.h"
 
 std::vector<Vertex> vertices1 = {
     {{-0.5f, -0.5f, 0.0f}, {0, 0}},
@@ -82,9 +84,12 @@ class Editor : public Nexus::Application
             NX_ERROR("This is an error");
 
             Nexus::FramebufferSpecification framebufferSpec;
-            framebufferSpec.Width = 1920;
-            framebufferSpec.Height = 1080;
+            framebufferSpec.Width = size.Width;
+            framebufferSpec.Height = size.Height;
+            framebufferSpec.ColorAttachmentSpecification = {Nexus::TextureFormat::RGBA8};
             m_Framebuffer = this->m_GraphicsDevice->CreateFramebuffer(framebufferSpec);
+
+            m_PreviousSize = size;
         }
 
         void Update()
@@ -94,7 +99,7 @@ class Editor : public Nexus::Application
             auto windowSize = this->GetWindowSize();
             if (m_PreviousSize.Width != windowSize.Width || m_PreviousSize.Height != windowSize.Height)
             {
-                Nexus::FramebufferSpecification spec;
+                Nexus::FramebufferSpecification spec = m_Framebuffer->GetFramebufferSpecification();
                 spec.Width = windowSize.Width;
                 spec.Height = windowSize.Height;
                 m_Framebuffer->SetFramebufferSpecification(spec);
@@ -145,7 +150,8 @@ class Editor : public Nexus::Application
                 {
                     ImGui::Begin("My Window", &m_WindowOpen);
                     auto availSize = ImGui::GetContentRegionAvail();
-                    ImGui::Image((void*)m_Framebuffer->GetColorAttachment(), availSize);
+                    if (m_Framebuffer->HasColorTexture())
+                        ImGui::Image((void*)m_Framebuffer->GetColorAttachment(), availSize);
                     ImGui::End();
                 }
 
