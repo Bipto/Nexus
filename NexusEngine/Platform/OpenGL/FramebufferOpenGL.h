@@ -25,6 +25,7 @@ namespace Nexus
             virtual void Bind() override
             {
                 glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
+                glDrawBuffers(m_ColorTextures.size(), m_Buffers.data());
             }
 
             virtual void Unbind() override
@@ -41,6 +42,12 @@ namespace Nexus
 
                 CreateTextures();
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+                m_Buffers.clear();
+                for (int i = 0; i < m_ColorTextures.size(); i++)
+                {
+                    m_Buffers.emplace_back(GL_COLOR_ATTACHMENT0 + i);
+                }
             }
 
             virtual int GetColorTextureCount()
@@ -98,7 +105,6 @@ namespace Nexus
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
                     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, texture, 0);
-
                     m_ColorTextures.emplace_back(texture);
                 }
             }
@@ -127,9 +133,10 @@ namespace Nexus
         private:
             unsigned int m_FBO;
             unsigned int m_Texture;
+            std::vector<GLenum> m_Buffers;
 
             std::vector<unsigned int> m_ColorTextures;
-            unsigned int m_DepthTexture;
+            unsigned int m_DepthTexture;    
 
             Nexus::FramebufferSpecification m_FramebufferSpecification;
     };

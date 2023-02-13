@@ -45,6 +45,7 @@ const char * vertexShaderSource = "#version 330 core\n"
 
 const char * fragmentShaderSource = "#version 330 core\n"
 	"out vec4 FragColor;\n"
+    "out vec4 Color2;\n"
     "in vec2 TexCoord;\n"
     "uniform sampler2D ourTexture;\n"
     "uniform vec4 TintColor;\n"
@@ -53,6 +54,7 @@ const char * fragmentShaderSource = "#version 330 core\n"
 	"{\n"
 	"	//FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
     "   FragColor = texture(ourTexture, TexCoord) * TintColor;\n"
+    "   Color2 = vec4(0, 1, 0, 1);\n"
 	"}\n";
 
 class Editor : public Nexus::Application
@@ -86,7 +88,8 @@ class Editor : public Nexus::Application
             Nexus::FramebufferSpecification framebufferSpec;
             framebufferSpec.Width = size.Width;
             framebufferSpec.Height = size.Height;
-            framebufferSpec.ColorAttachmentSpecification = {Nexus::TextureFormat::RGBA8};
+            framebufferSpec.ColorAttachmentSpecification = { Nexus::TextureFormat::RGBA8, Nexus::TextureFormat::RGBA8 };
+            framebufferSpec.DepthAttachmentSpecification = Nexus::DepthFormat::DEPTH24STENCIL8;
             m_Framebuffer = this->m_GraphicsDevice->CreateFramebuffer(framebufferSpec);
 
             m_PreviousSize = size;
@@ -145,13 +148,26 @@ class Editor : public Nexus::Application
             if (ImGui::Begin("Dockspace Demo", nullptr, flags))
             {
                 ImGui::DockSpace(ImGui::GetID("Dockspace"));
+            
+                if (ImGui::BeginMainMenuBar())
+                {
+                    if (ImGui::BeginMenu("File", true))
+                    {
+                        if (ImGui::MenuItem("Quit"))
+                        {
+                            this->Close();
+                        }
+                        ImGui::EndMenu();
+                    }
+                    ImGui::EndMainMenuBar();
+                }            
 
                 if (m_WindowOpen)
                 {
                     ImGui::Begin("My Window", &m_WindowOpen);
                     auto availSize = ImGui::GetContentRegionAvail();
                     if (m_Framebuffer->HasColorTexture())
-                        ImGui::Image((void*)m_Framebuffer->GetColorAttachment(), availSize);
+                        ImGui::Image((void*)m_Framebuffer->GetColorAttachment(0), availSize);
                     ImGui::End();
                 }
 

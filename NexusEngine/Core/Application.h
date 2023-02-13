@@ -45,6 +45,7 @@ namespace Nexus
             void MainLoop();
 
             Size GetWindowSize();
+            void Close(){ this->m_Window->Close(); }
             bool ShouldClose(){return this->m_Window->IsClosing();}
 
             Window* CreateWindow(const WindowProperties& props);
