@@ -38,8 +38,8 @@ namespace Nexus
         Eight,
         Nine,
         Zero,
-        Subtract,
-        Add,
+        Underscore,
+        Equals,
         Back,
 
         Tab,
@@ -90,8 +90,7 @@ namespace Nexus
         LeftAlt,
         Space,
         RightAlt,
-        Function,
-        Menu,
+        RightWin,
         RightControl,
 
         Insert,
@@ -107,7 +106,7 @@ namespace Nexus
         KeyRight,
 
         NumLock,
-        NumSlash,
+        KeyDivide,
         NumMultiply,
         NumSubstract,
         Num7,
@@ -125,19 +124,107 @@ namespace Nexus
         NumDelete,
     };
 
+    enum MouseButtonState
+    {
+        Pressed,
+        Released,
+    };
+
+    struct MouseState
+    {
+        MouseButtonState LeftButton;
+        MouseButtonState RightButton;
+
+        int MouseX;
+        int MouseY;
+        float MouseWheelX;
+        float MouseWheelY;
+    };
+
     class Input
     {
         public:
-            inline bool IsKeyPressed(KeyCode key) 
-            {
-                return this->m_KeyboardState[key];
-            }
+
+            //-----------------------------------------------------------------------------
+            // SET
+            //-----------------------------------------------------------------------------
 
             void SetKeyState(KeyCode code, bool pressed)
             {
-
+                m_KeyboardState[code] = pressed;
             }
+
+            void SetLeftMouseState(MouseButtonState state)
+            {
+                m_MouseState.LeftButton = state;
+            }
+
+            void SetRightMouseState(MouseButtonState state)
+            {
+                m_MouseState.RightButton = state;
+            }
+
+            void SetMousePosX(int pos)
+            {
+                m_MouseState.MouseX = pos;
+            }
+
+            void SetMousePosY(int pos)
+            {
+                m_MouseState.MouseY = pos;
+            }
+
+            void SetMouseScrollX(float scroll)
+            {
+                m_MouseState.MouseWheelX = scroll;
+            }
+
+            void SetMouseScrollY(float scroll)
+            {
+                m_MouseState.MouseWheelY = scroll;
+            }
+
+            //-----------------------------------------------------------------------------
+            // GET
+            //-----------------------------------------------------------------------------
+
+            inline bool IsKeyPressed(KeyCode key) 
+            {
+                return m_KeyboardState[key];
+            }
+
+            MouseButtonState GetLeftMouseState()
+            {
+                return m_MouseState.LeftButton;
+            }
+
+            MouseButtonState GetRightMouseState()
+            {
+                return m_MouseState.RightButton;
+            }
+
+            int GetMousePosX()
+            {
+                return m_MouseState.MouseX;
+            }
+
+            int GetMousePosY()
+            {
+                return m_MouseState.MouseY;
+            }
+
+            float GetMouseScrollX()
+            {
+                return m_MouseState.MouseWheelX;
+            }
+
+            float GetMouseScrollY()
+            {
+                return m_MouseState.MouseWheelY;
+            }
+
         private:
             std::map<KeyCode, bool> m_KeyboardState;
+            MouseState m_MouseState;
     };
 }

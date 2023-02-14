@@ -10,6 +10,7 @@
 #include "Point.h"
 #include "Core/Events/Event.h"
 #include "Core/Events/EventHandler.h"
+#include "Core/Input/Input.h"
 
 #include "backends/imgui_impl_sdl.h"
 
@@ -52,9 +53,12 @@ namespace Nexus
             SDL_Window* GetSDLWindowHandle(){return this->m_Window;}
             Point GetWindowSize();
 
+            Input* GetInput() { return m_Input; }
+
         private:
             SDL_Window* m_Window;
             bool m_WindowCloseClicked = false;
             bool m_Closing = false;
+            Input* m_Input;
     };
 }

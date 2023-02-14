@@ -18,6 +18,7 @@
 
 #include "Core/Events/Event.h"
 #include "Core/Events/EventHandler.h"
+#include "Core/Input/Input.h"
 
 namespace Nexus
 {
@@ -56,6 +57,8 @@ namespace Nexus
             bool ShouldClose(){return this->m_Window->IsClosing();}
 
             Window* CreateWindow(const WindowProperties& props);
+
+            Input* GetCoreInput() { return m_Window->GetInput(); }
 
         protected:
             std::shared_ptr<GraphicsDevice> m_GraphicsDevice;

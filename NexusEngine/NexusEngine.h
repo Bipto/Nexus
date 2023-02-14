@@ -22,7 +22,7 @@
 #define NX_WARNING(message) Nexus::GetCoreLogger()->LogWarning(message)
 #define NX_ERROR(message) Nexus::GetCoreLogger()->LogError(message)
 
-#define NX_IS_KEY_PRESSED(keycode) Nexus::GetCoreInput()->IsKeyPressed(keycode)
+#define NX_IS_KEY_PRESSED(keycode) Nexus::GetApplication()->GetCoreInput()->IsKeyPressed(keycode)
 
 struct AllocationTracker
 {

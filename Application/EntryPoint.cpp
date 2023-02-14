@@ -195,11 +195,6 @@ class Editor : public Nexus::Application
             this->EndImGuiRender();
 
             this->m_GraphicsDevice->SwapBuffers();
-
-            /* auto value = NX_IS_KEY_PRESSED(Nexus::KeyCode::A);
-            std::stringstream ss;
-            ss << value;
-            NX_LOG(ss.str()); */
         }
 
         void RenderQuad(Nexus::Texture* texture, const glm::vec3& position, const glm::vec3& scale)

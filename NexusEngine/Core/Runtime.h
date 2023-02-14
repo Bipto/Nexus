@@ -47,7 +47,6 @@ namespace Nexus
 
 Nexus::Application* appPtr = nullptr;
 Nexus::Logger* logger = new Nexus::Logger();
-Nexus::Input* input = new Nexus::Input();
 
 void main_loop()
 {
@@ -79,10 +78,5 @@ namespace Nexus
     Logger* GetCoreLogger()
     {
         return logger;
-    }
-
-    Input* GetCoreInput()
-    {
-        return input;
     }
 }
