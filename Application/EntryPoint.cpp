@@ -195,14 +195,11 @@ class Editor : public Nexus::Application
             this->EndImGuiRender();
 
             this->m_GraphicsDevice->SwapBuffers();
-        }
 
-        virtual void OnResize(Nexus::Point size) override
-        {
+            /* auto value = NX_IS_KEY_PRESSED(Nexus::KeyCode::A);
             std::stringstream ss;
-            ss << "Width: " << size.Width;
-            ss << "Height:" << size.Height;
-            NX_LOG(ss.str());
+            ss << value;
+            NX_LOG(ss.str()); */
         }
 
         void RenderQuad(Nexus::Texture* texture, const glm::vec3& position, const glm::vec3& scale)

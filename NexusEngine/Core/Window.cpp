@@ -23,7 +23,7 @@ namespace Nexus
             switch (event.type)
             {
                 case SDL_QUIT:
-                    this->m_Closing = true;
+                    this->m_WindowCloseClicked = true;
                     break;
             }
         }

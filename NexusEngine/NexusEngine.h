@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core/nxpch.h"
+
 #include "Core/Runtime.h"
 #include "Core/Application.h"
 #include "Core/Window.h"
@@ -14,9 +16,13 @@
 
 #include "Core/Logging/Log.h"
 
+#include "Core/Input/Input.h"
+
 #define NX_LOG(message) Nexus::GetCoreLogger()->LogInfo(message)
-#define NX_WARNING(message) Nexus::GetCoreLogger()->LogWarning(message);
-#define NX_ERROR(message) Nexus::GetCoreLogger()->LogError(message);
+#define NX_WARNING(message) Nexus::GetCoreLogger()->LogWarning(message)
+#define NX_ERROR(message) Nexus::GetCoreLogger()->LogError(message)
+
+#define NX_IS_KEY_PRESSED(keycode) Nexus::GetCoreInput()->IsKeyPressed(keycode)
 
 struct AllocationTracker
 {

@@ -8,6 +8,8 @@
 #endif
 
 #include "Point.h"
+#include "Core/Events/Event.h"
+#include "Core/Events/EventHandler.h"
 
 #include "backends/imgui_impl_sdl.h"
 
@@ -41,6 +43,10 @@ namespace Nexus
             void SetResizable(bool isResizable);
             void SetTitle(const std::string& title);
             void SetSize(Point size);
+
+            bool GetShouldWindowClose() { return m_WindowCloseClicked; }
+            void SetShouldWindowClose(bool close) { m_WindowCloseClicked; }
+
             void Close() { m_Closing = true; }
 
             SDL_Window* GetSDLWindowHandle(){return this->m_Window;}
@@ -48,6 +54,7 @@ namespace Nexus
 
         private:
             SDL_Window* m_Window;
+            bool m_WindowCloseClicked = false;
             bool m_Closing = false;
     };
 }

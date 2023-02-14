@@ -44,13 +44,15 @@ namespace Nexus
 
             virtual void OnResize(Point size) {}
 
+            virtual bool OnClose() { return true; }
+
             void BeginImGuiRender();
             void EndImGuiRender();
 
             void MainLoop();
 
             Point GetWindowSize();
-            void Close(){ this->m_Window->Close(); }
+            void Close(){ this->m_Window->SetShouldWindowClose(true); }
             bool ShouldClose(){return this->m_Window->IsClosing();}
 
             Window* CreateWindow(const WindowProperties& props);
@@ -60,7 +62,8 @@ namespace Nexus
 
         private:
             Nexus::Window* m_Window;
-            Nexus::EventHandler<Point> m_WindowResizeEventHandler;
             Point m_PreviousWindowSize;
+
+            Nexus::EventHandler<Point> m_WindowResizeEventHandler;
     };
 }

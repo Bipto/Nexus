@@ -28,7 +28,6 @@ namespace Nexus
         PauseBreak,
 
         Tilde,
-        Zero,
         One,
         Two,
         Three,
@@ -131,7 +130,12 @@ namespace Nexus
         public:
             inline bool IsKeyPressed(KeyCode key) 
             {
-                return thisw->m_KeyboardState[key];
+                return this->m_KeyboardState[key];
+            }
+
+            void SetKeyState(KeyCode code, bool pressed)
+            {
+
             }
         private:
             std::map<KeyCode, bool> m_KeyboardState;
