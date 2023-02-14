@@ -39,14 +39,14 @@ namespace Nexus
         SDL_SetWindowTitle(this->m_Window, title.c_str());
     }
 
-    void Window::SetSize(Size size)
+    void Window::SetSize(Point size)
     {
         SDL_SetWindowSize(this->m_Window, size.Width, size.Height);
     }
 
-    Size Window::GetWindowSize()
+    Point Window::GetWindowSize()
     {
-        Size size{};
+        Point size{};
         SDL_GetWindowSize(this->m_Window, &size.Width, &size.Height);
         return size;
     }

@@ -80,7 +80,7 @@ namespace Nexus
                 return new FramebufferOpenGL(spec);
             }
             
-            virtual void Resize(Size size)
+            virtual void Resize(Point size)
             {
                 glViewport(0, 0, size.Width, size.Height);
             }

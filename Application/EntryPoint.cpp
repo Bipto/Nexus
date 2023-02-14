@@ -1,6 +1,9 @@
 #include "NexusEngine.h"
 
+#include <iostream>
 #include <sstream>
+#include <functional>
+
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
@@ -62,7 +65,7 @@ class Editor : public Nexus::Application
     public:
         Editor() : Application(Nexus::GraphicsAPI::OpenGL){}
 
-        void Load() override
+        virtual void Load() override
         {
             this->m_Renderer = Nexus::Renderer::Create(this->m_GraphicsDevice);
 
@@ -78,7 +81,7 @@ class Editor : public Nexus::Application
             m_Texture1 = this->m_GraphicsDevice->CreateTexture("brick.jpg");
             m_Texture2 = this->m_GraphicsDevice->CreateTexture("wall.jpg");
             
-            Nexus::Size size = this->GetWindowSize();
+            Nexus::Point size = this->GetWindowSize();
             this->m_Camera = { size.Width, size.Height };
 
             NX_LOG("This is a log");
@@ -93,14 +96,27 @@ class Editor : public Nexus::Application
             m_Framebuffer = this->m_GraphicsDevice->CreateFramebuffer(framebufferSpec);
 
             m_PreviousSize = size;
+
+            //static method
+            //m_EventHandler.Bind(PrintText);
+
+
+            std::function<void(const std::string& text)> f = std::bind(&Editor::PrintText, this, std::placeholders::_1);
+            Delegate<const std::string&> d("PrintText", f);
+            
+            m_EventHandler.Bind(d);
+
+            //m_EventHandler.Unbind(d);
+            m_EventHandler.Invoke("Event firing test!");
+            m_EventHandler.Invoke("Event numero dos");
         }
 
-        void Update()
+        virtual void Update() override
         {
             this->m_GraphicsDevice->SetContext();
 
             auto windowSize = this->GetWindowSize();
-            if (m_PreviousSize.Width != windowSize.Width || m_PreviousSize.Height != windowSize.Height)
+            /* if (m_PreviousSize.Width != windowSize.Width || m_PreviousSize.Height != windowSize.Height)
             {
                 Nexus::FramebufferSpecification spec = m_Framebuffer->GetFramebufferSpecification();
                 spec.Width = windowSize.Width;
@@ -110,7 +126,7 @@ class Editor : public Nexus::Application
                 std::stringstream ss;
                 ss << "Resizing - Width: " << spec.Width << " Height: " << spec.Height; 
                 NX_LOG(ss.str());
-            }
+            } */
 
             auto framebufferSpec = this->m_Framebuffer->GetFramebufferSpecification();
             this->m_GraphicsDevice->Resize({framebufferSpec.Width, framebufferSpec.Height});
@@ -127,7 +143,7 @@ class Editor : public Nexus::Application
             this->m_Renderer->End();
             this->m_Framebuffer->Unbind();
 
-            Nexus::Size size = this->GetWindowSize();
+            Nexus::Point size = this->GetWindowSize();
             this->m_GraphicsDevice->Resize(size);
             this->m_Camera.Resize(size.Width, size.Height);
             this->m_GraphicsDevice->Clear(0, 0, 0, 1);
@@ -181,6 +197,14 @@ class Editor : public Nexus::Application
             this->m_GraphicsDevice->SwapBuffers();
         }
 
+        virtual void OnResize(Nexus::Point size) override
+        {
+            std::stringstream ss;
+            ss << "Width: " << size.Width;
+            ss << "Height:" << size.Height;
+            NX_LOG(ss.str());
+        }
+
         void RenderQuad(Nexus::Texture* texture, const glm::vec3& position, const glm::vec3& scale)
         {
             texture->Bind();
@@ -197,10 +221,16 @@ class Editor : public Nexus::Application
         {
             
         }
+
+        void PrintText(const std::string& text)
+        {
+            std::cout << text << std::endl;
+        }
+
     private:
         Nexus::Renderer* m_Renderer;
 
-        Nexus::Size m_PreviousSize;
+        Nexus::Point m_PreviousSize;
         Nexus::Shader* m_Shader;
 
         Nexus::Texture* m_Texture1;
@@ -215,6 +245,8 @@ class Editor : public Nexus::Application
         Nexus::Framebuffer* m_Framebuffer;
 
         bool m_WindowOpen = true;
+
+        Nexus::EventHandler<const std::string&> m_EventHandler;
 };
 
 int main(int argc, char** argv)

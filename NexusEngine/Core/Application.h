@@ -10,11 +10,14 @@
 #include <emscripten.h>
 #endif
 
-#include "Size.h"
+#include "Point.h"
 
 #include "imgui.h"
 #include "backends/imgui_impl_sdl.h"
 #include "backends/imgui_impl_opengl3.h"
+
+#include "Core/Events/Event.h"
+#include "Core/Events/EventHandler.h"
 
 namespace Nexus
 {
@@ -39,12 +42,14 @@ namespace Nexus
             virtual void Update() = 0;
             virtual void Unload() = 0;
 
+            virtual void OnResize(Point size) {}
+
             void BeginImGuiRender();
             void EndImGuiRender();
 
             void MainLoop();
 
-            Size GetWindowSize();
+            Point GetWindowSize();
             void Close(){ this->m_Window->Close(); }
             bool ShouldClose(){return this->m_Window->IsClosing();}
 
@@ -55,5 +60,7 @@ namespace Nexus
 
         private:
             Nexus::Window* m_Window;
+            Nexus::EventHandler<Point> m_WindowResizeEventHandler;
+            Point m_PreviousWindowSize;
     };
 }

@@ -7,7 +7,7 @@
 #include <emscripten.h>
 #endif
 
-#include "Size.h"
+#include "Point.h"
 
 #include "backends/imgui_impl_sdl.h"
 
@@ -40,11 +40,11 @@ namespace Nexus
 
             void SetResizable(bool isResizable);
             void SetTitle(const std::string& title);
-            void SetSize(Size size);
+            void SetSize(Point size);
             void Close() { m_Closing = true; }
 
             SDL_Window* GetSDLWindowHandle(){return this->m_Window;}
-            Size GetWindowSize();
+            Point GetWindowSize();
 
         private:
             SDL_Window* m_Window;

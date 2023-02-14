@@ -59,6 +59,10 @@ namespace Nexus
 
         ImGui_ImplSDL2_InitForOpenGL(window, context);
         ImGui_ImplOpenGL3_Init(glsl_version);
+
+        std::function<void(Point)> f = std::bind(&Application::OnResize, this, std::placeholders::_1);
+        Delegate<Point> resizeDelegate("OnResize", f);
+        m_WindowResizeEventHandler.Bind(resizeDelegate);
     }
 
     Application::~Application()
@@ -86,6 +90,13 @@ namespace Nexus
 
     void Application::MainLoop()
     {
+        auto windowSize = this->GetWindowSize();
+        if (m_PreviousWindowSize.Width != windowSize.Width || m_PreviousWindowSize.Height != windowSize.Height)
+        {
+            m_WindowResizeEventHandler.Invoke(windowSize);
+            m_PreviousWindowSize = windowSize;
+        }
+
         this->m_Window->PollEvents();
 
         this->Update();    
@@ -98,7 +109,7 @@ namespace Nexus
         }
     }
 
-    Size Application::GetWindowSize()
+    Point Application::GetWindowSize()
     {
         return this->m_Window->GetWindowSize();
     }

@@ -49,7 +49,7 @@ namespace Nexus
             virtual Texture* CreateTexture(const char* filepath) = 0;
             virtual Framebuffer* CreateFramebuffer(const Nexus::FramebufferSpecification& spec) = 0;
 
-            virtual void Resize(Size size) = 0;
+            virtual void Resize(Point size) = 0;
             virtual void SwapBuffers() = 0;
             virtual void SetVSyncState(VSyncState VSyncState) = 0;
         protected:

@@ -3,8 +3,11 @@
 #include "Core/Runtime.h"
 #include "Core/Application.h"
 #include "Core/Window.h"
-#include "Core/Size.h"
+#include "Core/Point.h"
 #include "Core/Vertex.h"
+
+#include "Core/Events/Event.h"
+#include "Core/Events/EventHandler.h"
 
 #include "Core/Graphics/GraphicsDevice.h"
 #include "Core/Renderer.h"
