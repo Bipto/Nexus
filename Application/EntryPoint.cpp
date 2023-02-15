@@ -82,7 +82,7 @@ class Editor : public Nexus::Application
             m_Texture2 = this->m_GraphicsDevice->CreateTexture("wall.jpg");
             
             Nexus::Point size = this->GetWindowSize();
-            this->m_Camera = { size.Width, size.Height };
+            this->m_Camera = { size.Width, size.Height, {0, 0, 0} };
 
             NX_LOG("This is a log");
             NX_WARNING("This is a warning");
@@ -113,6 +113,26 @@ class Editor : public Nexus::Application
 
         virtual void Update() override
         {
+            //movement
+            {
+                auto pos = m_Camera.GetPosition();
+
+                if (NX_IS_KEY_PRESSED(Nexus::KeyCode::KeyUp))
+                    pos.y -= 1;
+
+                if (NX_IS_KEY_PRESSED(Nexus::KeyCode::KeyDown))
+                    pos.y += 1;
+
+                if (NX_IS_KEY_PRESSED(Nexus::KeyCode::KeyLeft))
+                    pos.x -= 1;
+
+                if (NX_IS_KEY_PRESSED(Nexus::KeyCode::KeyRight))
+                    pos.x += 1;
+
+                m_Camera.SetPosition(pos);
+            }
+                            
+
             this->m_GraphicsDevice->SetContext();
 
             auto windowSize = this->GetWindowSize();
@@ -203,7 +223,7 @@ class Editor : public Nexus::Application
             this->m_VertexBuffer1->Bind();
             this->m_IndexBuffer1->Bind();
 
-            glm::mat4 mvp = this->m_Camera.GetProjection() * glm::scale(glm::mat4(1.0f), scale) * glm::translate(glm::mat4(1.0f), position);
+            glm::mat4 mvp = this->m_Camera.GetProjection() * m_Camera.GetWorld() * glm::scale(glm::mat4(1.0f), scale) * glm::translate(glm::mat4(1.0f), position);
             this->m_Shader->SetShaderUniformMat4("Transform", mvp);
 
             this->m_GraphicsDevice->DrawIndexed(6);
