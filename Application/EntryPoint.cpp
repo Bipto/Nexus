@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <functional>
+#include <iomanip>
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -111,27 +112,26 @@ class Editor : public Nexus::Application
             m_EventHandler.Invoke("Event numero dos");
         }
 
-        virtual void Update() override
+        virtual void Update(Nexus::Time time) override
         {
             //movement
             {
                 auto pos = m_Camera.GetPosition();
 
                 if (NX_IS_KEY_PRESSED(Nexus::KeyCode::KeyUp))
-                    pos.y -= 1;
+                    pos.y -= 1 * time.GetSeconds();
 
                 if (NX_IS_KEY_PRESSED(Nexus::KeyCode::KeyDown))
-                    pos.y += 1;
+                    pos.y += 1 * time.GetSeconds();
 
                 if (NX_IS_KEY_PRESSED(Nexus::KeyCode::KeyLeft))
-                    pos.x -= 1;
+                    pos.x -= 1 * time.GetSeconds();
 
                 if (NX_IS_KEY_PRESSED(Nexus::KeyCode::KeyRight))
-                    pos.x += 1;
+                    pos.x += 1 * time.GetSeconds();
 
                 m_Camera.SetPosition(pos);
-            }
-                            
+            }                            
 
             this->m_GraphicsDevice->SetContext();
 
@@ -215,6 +215,10 @@ class Editor : public Nexus::Application
             this->EndImGuiRender();
 
             this->m_GraphicsDevice->SwapBuffers();
+            
+            std::cout << std::fixed;
+            std::cout << std::setprecision(10);
+            std::cout << time.GetSeconds() << "\n";
         }
 
         void RenderQuad(Nexus::Texture* texture, const glm::vec3& position, const glm::vec3& scale)

@@ -19,6 +19,28 @@
 #include "Core/Events/Event.h"
 #include "Core/Events/EventHandler.h"
 #include "Core/Input/Input.h"
+#include "Core/Time.h"
+
+#include <chrono>
+
+class Clock
+{
+    public:
+        void Tick()
+        {
+            std::chrono::steady_clock::time_point tickTime = std::chrono::steady_clock::now();
+            m_DeltaTime = std::chrono::duration_cast<std::chrono::nanoseconds>(tickTime - m_StartTime).count();
+            m_StartTime = tickTime;
+        }
+
+        Nexus::Time GetTime()
+        {
+            return Nexus::Time(m_DeltaTime);
+        }
+    private:
+        std::chrono::steady_clock::time_point m_StartTime = std::chrono::steady_clock::now();
+        uint64_t m_DeltaTime;
+};
 
 namespace Nexus
 {
@@ -40,7 +62,7 @@ namespace Nexus
 
             //overridable methods
             virtual void Load() = 0;
-            virtual void Update() = 0;
+            virtual void Update(Nexus::Time time) = 0;
             virtual void Unload() = 0;
 
             virtual void OnResize(Point size) {}
@@ -68,5 +90,6 @@ namespace Nexus
             Point m_PreviousWindowSize;
 
             Nexus::EventHandler<Point> m_WindowResizeEventHandler;
+            Clock m_Clock;
     };
 }
