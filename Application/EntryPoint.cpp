@@ -7,6 +7,7 @@
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 #include "Components/Camera.h"
 #include "Core/Graphics/TextureFormat.h"
@@ -95,21 +96,6 @@ class Editor : public Nexus::Application
             framebufferSpec.ColorAttachmentSpecification = { Nexus::TextureFormat::RGBA8, Nexus::TextureFormat::RGBA8 };
             framebufferSpec.DepthAttachmentSpecification = Nexus::DepthFormat::DEPTH24STENCIL8;
             m_Framebuffer = this->m_GraphicsDevice->CreateFramebuffer(framebufferSpec);
-
-            m_PreviousSize = size;
-
-            //static method
-            //m_EventHandler.Bind(PrintText);
-
-
-            std::function<void(const std::string& text)> f = std::bind(&Editor::PrintText, this, std::placeholders::_1);
-            Delegate<const std::string&> d("PrintText", f);
-            
-            m_EventHandler.Bind(d);
-
-            //m_EventHandler.Unbind(d);
-            m_EventHandler.Invoke("Event firing test!");
-            m_EventHandler.Invoke("Event numero dos");
         }
 
         virtual void Update(Nexus::Time time) override
@@ -119,16 +105,16 @@ class Editor : public Nexus::Application
                 auto pos = m_Camera.GetPosition();
 
                 if (NX_IS_KEY_PRESSED(Nexus::KeyCode::KeyUp))
-                    pos.y -= 1 * time.GetSeconds();
+                    pos.y -= m_MovementSpeed * time.GetSeconds();
 
                 if (NX_IS_KEY_PRESSED(Nexus::KeyCode::KeyDown))
-                    pos.y += 1 * time.GetSeconds();
+                    pos.y += m_MovementSpeed * time.GetSeconds();
 
                 if (NX_IS_KEY_PRESSED(Nexus::KeyCode::KeyLeft))
-                    pos.x -= 1 * time.GetSeconds();
+                    pos.x -= m_MovementSpeed * time.GetSeconds();
 
                 if (NX_IS_KEY_PRESSED(Nexus::KeyCode::KeyRight))
-                    pos.x += 1 * time.GetSeconds();
+                    pos.x += m_MovementSpeed * time.GetSeconds();
 
                 m_Camera.SetPosition(pos);
             }                            
@@ -136,18 +122,6 @@ class Editor : public Nexus::Application
             this->m_GraphicsDevice->SetContext();
 
             auto windowSize = this->GetWindowSize();
-            /* if (m_PreviousSize.Width != windowSize.Width || m_PreviousSize.Height != windowSize.Height)
-            {
-                Nexus::FramebufferSpecification spec = m_Framebuffer->GetFramebufferSpecification();
-                spec.Width = windowSize.Width;
-                spec.Height = windowSize.Height;
-                m_Framebuffer->SetFramebufferSpecification(spec);
-
-                std::stringstream ss;
-                ss << "Resizing - Width: " << spec.Width << " Height: " << spec.Height; 
-                NX_LOG(ss.str());
-            } */
-
             auto framebufferSpec = this->m_Framebuffer->GetFramebufferSpecification();
             this->m_GraphicsDevice->Resize({framebufferSpec.Width, framebufferSpec.Height});
 
@@ -158,7 +132,7 @@ class Editor : public Nexus::Application
             this->m_Shader->SetShaderUniform4f("TintColor", glm::vec4(0.7f, 0.1f, 0.2f, 1));
             this->m_Shader->SetShaderUniform1i("ourTexture", 0);
 
-            this->RenderQuad(m_Texture1, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(500.0f, 500.0f, 500.0f));           
+            this->RenderQuad(m_Texture1, m_QuadPosition, m_QuadSize);           
 
             this->m_Renderer->End();
             this->m_Framebuffer->Unbind();
@@ -168,7 +142,6 @@ class Editor : public Nexus::Application
             this->m_Camera.Resize(size.Width, size.Height);
             this->m_GraphicsDevice->Clear(0, 0, 0, 1);
             this->BeginImGuiRender();
-            this->m_PreviousSize = size;
 
             ImGuiWindowFlags flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
 
@@ -191,6 +164,7 @@ class Editor : public Nexus::Application
                     {
                         if (ImGui::MenuItem("Quit"))
                         {
+                            this->ShouldClose();
                             this->Close();
                         }
                         ImGui::EndMenu();
@@ -207,6 +181,19 @@ class Editor : public Nexus::Application
                     ImGui::End();
                 }
 
+                {
+                    ImGui::Begin("Settings");
+                    ImGui::Text("Camera");
+                    ImGui::DragFloat("Movement Speed", &m_MovementSpeed, 0.1f, 0.1f, 5.0f);
+
+                    ImGui::Separator();
+                    ImGui::Text("Quad");
+                    ImGui::DragFloat2("Quad Position", glm::value_ptr(m_QuadPosition), 0.1f);
+                    ImGui::DragFloat2("Quad Size", glm::value_ptr(m_QuadSize));
+
+                    ImGui::End();
+                }
+
                 ImGui::End();
             }
 
@@ -215,10 +202,19 @@ class Editor : public Nexus::Application
             this->EndImGuiRender();
 
             this->m_GraphicsDevice->SwapBuffers();
-            
-            std::cout << std::fixed;
-            std::cout << std::setprecision(10);
-            std::cout << time.GetSeconds() << "\n";
+        }
+
+        virtual void OnResize(Nexus::Point size) override
+        {
+            Nexus::FramebufferSpecification spec = m_Framebuffer->GetFramebufferSpecification();
+            spec.Width = size.Width;
+            spec.Height = size.Height;
+            m_Framebuffer->SetFramebufferSpecification(spec);
+        }
+
+        virtual bool OnClose() override
+        {
+            return true;
         }
 
         void RenderQuad(Nexus::Texture* texture, const glm::vec3& position, const glm::vec3& scale)
@@ -238,15 +234,8 @@ class Editor : public Nexus::Application
             
         }
 
-        void PrintText(const std::string& text)
-        {
-            std::cout << text << std::endl;
-        }
-
     private:
         Nexus::Renderer* m_Renderer;
-
-        Nexus::Point m_PreviousSize;
         Nexus::Shader* m_Shader;
 
         Nexus::Texture* m_Texture1;
@@ -263,6 +252,10 @@ class Editor : public Nexus::Application
         bool m_WindowOpen = true;
 
         Nexus::EventHandler<const std::string&> m_EventHandler;
+
+        float m_MovementSpeed = 1.0f;
+        glm::vec3 m_QuadPosition = {0, 0, 0};
+        glm::vec3 m_QuadSize = {500, 500, 500};
 };
 
 int main(int argc, char** argv)

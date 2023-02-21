@@ -45,9 +45,6 @@ namespace Nexus
             void SetTitle(const std::string& title);
             void SetSize(Point size);
 
-            bool GetShouldWindowClose() { return m_WindowCloseClicked; }
-            void SetShouldWindowClose(bool close) { m_WindowCloseClicked; }
-
             void Close() { m_Closing = true; }
 
             SDL_Window* GetSDLWindowHandle(){return this->m_Window;}
@@ -57,8 +54,8 @@ namespace Nexus
 
         private:
             SDL_Window* m_Window;
-            bool m_WindowCloseClicked = false;
             bool m_Closing = false;
             Input* m_Input;
+            friend class Application;
     };
 }

@@ -60,13 +60,13 @@ namespace Nexus
             Application(const Application&) = delete;
             ~Application();
 
-            //overridable methods
+            //required overridable methods
             virtual void Load() = 0;
             virtual void Update(Nexus::Time time) = 0;
             virtual void Unload() = 0;
 
+            //optional overridable methods
             virtual void OnResize(Point size) {}
-
             virtual bool OnClose() { return true; }
 
             void BeginImGuiRender();
@@ -75,7 +75,7 @@ namespace Nexus
             void MainLoop();
 
             Point GetWindowSize();
-            void Close(){ this->m_Window->SetShouldWindowClose(true); }
+            void Close(){ this->m_Window->Close(); }
             bool ShouldClose(){return this->m_Window->IsClosing();}
 
             Window* CreateWindow(const WindowProperties& props);

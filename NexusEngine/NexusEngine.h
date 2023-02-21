@@ -23,6 +23,7 @@
 #define NX_ERROR(message) Nexus::GetCoreLogger()->LogError(message)
 
 #define NX_IS_KEY_PRESSED(keycode) Nexus::GetApplication()->GetCoreInput()->IsKeyPressed(keycode)
+#define NX_SCROLL_Y() Nexus::GetApplication()->GetCoreInput()->GetMouseScrollY()
 
 struct AllocationTracker
 {

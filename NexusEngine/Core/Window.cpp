@@ -121,7 +121,7 @@ static KeyCode SDLToNexusKeycode(SDL_Keycode keycode)
         case SDLK_KP_0:             return KeyCode::Num0;
         case SDLK_KP_PERIOD:        return KeyCode::NumDelete;
 
-        default:                return KeyCode::Unknown;
+        default:                    return KeyCode::Unknown;
     }
 }
 
@@ -149,7 +149,7 @@ namespace Nexus
             switch (event.type)
             {
                 case SDL_QUIT:
-                    this->m_WindowCloseClicked = true;
+                    this->Close();
                     break;
                 case SDL_KEYDOWN:
                     m_Input->SetKeyState(SDLToNexusKeycode(event.key.keysym.sym), true);

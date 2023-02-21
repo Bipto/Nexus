@@ -93,19 +93,11 @@ namespace Nexus
             m_PreviousWindowSize = windowSize;
         }
 
-        if (m_Window->GetShouldWindowClose())
-        {
-            if (OnClose())
-            {
-                m_Window->Close();
-            }
-            else
-            {
-                m_Window->SetShouldWindowClose(false);
-            }
-        }
-
         this->m_Window->PollEvents();
+
+        //Allow user to block closing events, for example to display save prompt
+        if (m_Window->m_Closing)
+            m_Window->m_Closing = this->OnClose();
 
         m_Clock.Tick();
         auto time = m_Clock.GetTime();
