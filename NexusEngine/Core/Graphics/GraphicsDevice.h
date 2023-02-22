@@ -44,7 +44,7 @@ namespace Nexus
             //Swapchain* GetSwapchain(){return this->m_Swapchain;}
 
             virtual Shader* CreateShader(const char* vertexShaderSource, const char* fragmentShaderSource) = 0;
-            virtual VertexBuffer* CreateVertexBuffer(const std::vector<Vertex> vertices) = 0;
+            virtual VertexBuffer* CreateVertexBuffer(const std::vector<float> vertices, const BufferLayout& layout) = 0;
             virtual IndexBuffer* CreateIndexBuffer(unsigned int indices[], unsigned int indexCount) = 0;
             virtual Texture* CreateTexture(const char* filepath) = 0;
             virtual Framebuffer* CreateFramebuffer(const Nexus::FramebufferSpecification& spec) = 0;

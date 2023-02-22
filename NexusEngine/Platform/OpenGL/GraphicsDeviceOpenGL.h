@@ -60,9 +60,9 @@ namespace Nexus
                 return new ShaderOpenGL(vertexShaderSource, fragmentShaderSource);
             }
 
-            virtual VertexBuffer* CreateVertexBuffer(const std::vector<Vertex> vertices) override
+            virtual VertexBuffer* CreateVertexBuffer(const std::vector<float> vertices, const BufferLayout& layout) override
             {
-                return new VertexBufferOpenGL(vertices);
+                return new VertexBufferOpenGL(vertices, layout);
             }
 
             virtual IndexBuffer* CreateIndexBuffer(unsigned int indices[], unsigned int indexCount) override

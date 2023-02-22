@@ -13,11 +13,11 @@
 #include "Core/Graphics/TextureFormat.h"
 #include "Core/Graphics/DepthFormat.h"
 
-std::vector<Vertex> vertices1 = {
-    {{-0.5f, -0.5f, 0.0f}, {0, 0}},
-    {{0.5f, -0.5f, 0.0f}, {1, 0}},
-    {{0.5f, 0.5f, 0.0f}, {1, 1}},
-    {{-0.5f, 0.5f, 0.0f}, {0, 1}},
+std::vector<float> vertices1 = {
+    -0.5f, -0.5f, 0.0f, 0, 0,
+    0.5f, -0.5f, 0.0f, 1, 0,
+    0.5f, 0.5f, 0.0f, 1, 1,
+    -0.5f, 0.5f, 0.0f, 0, 1,
 };
 
 unsigned int indices1[] = {
@@ -25,11 +25,11 @@ unsigned int indices1[] = {
 	2, 3, 0
 };
 
-std::vector<Vertex> vertices2 = {
-    {{0.0f, 0.0f, 0.0f}, {0, 0}},
-    {{1.0f, 0.0f, 0.0f}, {1, 0}},
-    {{1.0f, 1.0f, 0.0f}, {1, 1}},
-    {{0.0f, 1.0f, 0.0f}, {0, 1}},
+std::vector<float> vertices2 = {
+    0.0f, 0.0f, 0.0f, 0, 0,
+    1.0f, 0.0f, 0.0f, 1, 0,
+    1.0f, 1.0f, 0.0f, 1, 1,
+    0.0f, 1.0f, 0.0f, 0, 1,
 };
 
 unsigned int indices2[] = {
@@ -74,7 +74,13 @@ class Editor : public Nexus::Application
             this->m_GraphicsDevice->SetVSyncState(Nexus::VSyncState::Enabled);
             this->m_Shader = this->m_GraphicsDevice->CreateShader(vertexShaderSource, fragmentShaderSource);
 
-            this->m_VertexBuffer1 =  this->m_GraphicsDevice->CreateVertexBuffer(vertices1);
+            Nexus::BufferLayout layout = 
+            {
+                { Nexus::ShaderDataType::Float3, "aPos" },
+                { Nexus::ShaderDataType::Float2, "aTexCoord"}
+            };
+
+            this->m_VertexBuffer1 =  this->m_GraphicsDevice->CreateVertexBuffer(vertices1, layout);
             this->m_IndexBuffer1 = this->m_GraphicsDevice->CreateIndexBuffer(indices1, sizeof(indices1));
 
             /* this->m_VertexBuffer2 =  this->m_GraphicsDevice->CreateVertexBuffer(vertices2);
