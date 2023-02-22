@@ -55,9 +55,14 @@ namespace Nexus
                 return (void*)this->m_Context;
             }
 
-            virtual Shader* CreateShader(const char* vertexShaderSource, const char* fragmentShaderSource) override
+            virtual Shader* CreateShaderFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource) override
             {
                 return new ShaderOpenGL(vertexShaderSource, fragmentShaderSource);
+            }
+
+            virtual Shader* CreateShaderFromFile(const std::string& filepath) override
+            {
+                return new ShaderOpenGL(filepath);
             }
 
             virtual VertexBuffer* CreateVertexBuffer(const std::vector<float> vertices, const BufferLayout& layout) override

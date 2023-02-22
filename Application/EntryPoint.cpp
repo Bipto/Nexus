@@ -37,31 +37,6 @@ unsigned int indices2[] = {
 	2, 3, 0
 };
 
-const char * vertexShaderSource = "#version 330 core\n"
-	"layout (location = 0) in vec3 aPos;\n"
-    "layout (location = 1) in vec2 aTexCoord;\n"
-    "out vec2 TexCoord;\n"
-    "uniform mat4 Transform;\n"
-	"void main()\n"
-	"{\n"
-	"	gl_Position = Transform * vec4(aPos, 1.0);\n"
-    "   TexCoord = aTexCoord;\n"
-	"}\n";
-
-const char * fragmentShaderSource = "#version 330 core\n"
-	"out vec4 FragColor;\n"
-    "out vec4 Color2;\n"
-    "in vec2 TexCoord;\n"
-    "uniform sampler2D ourTexture;\n"
-    "uniform vec4 TintColor;\n"
-    "uniform mat4 Transform;\n"
-	"void main()\n"
-	"{\n"
-	"	//FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-    "   FragColor = texture(ourTexture, TexCoord) * TintColor;\n"
-    "   Color2 = vec4(0, 1, 0, 1);\n"
-	"}\n";
-
 class Editor : public Nexus::Application
 {
     public:
@@ -72,7 +47,7 @@ class Editor : public Nexus::Application
             this->m_Renderer = Nexus::Renderer::Create(this->m_GraphicsDevice);
 
             this->m_GraphicsDevice->SetVSyncState(Nexus::VSyncState::Enabled);
-            this->m_Shader = this->m_GraphicsDevice->CreateShader(vertexShaderSource, fragmentShaderSource);
+            this->m_Shader = this->m_GraphicsDevice->CreateShaderFromFile("Resources/Shaders/Basic.shader");
 
             Nexus::BufferLayout layout = 
             {
