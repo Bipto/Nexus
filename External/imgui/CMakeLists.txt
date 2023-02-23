@@ -16,8 +16,8 @@ add_library(imgui
 	"imgui/imstb_truetype.h"
 	"imgui/backends/imgui_impl_opengl3.h"
 	"imgui/backends/imgui_impl_opengl3.cpp"
-	"imgui/backends/imgui_impl_sdl.h"	
-	"imgui/backends/imgui_impl_sdl.cpp"	
+	"imgui/backends/imgui_impl_sdl2.h"	
+	"imgui/backends/imgui_impl_sdl2.cpp"	
 	"imgui/misc/cpp/imgui_stdlib.h"
 	"imgui/misc/cpp/imgui_stdlib.cpp"
 )

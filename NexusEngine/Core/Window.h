@@ -12,7 +12,7 @@
 #include "Core/Events/EventHandler.h"
 #include "Core/Input/Input.h"
 
-#include "backends/imgui_impl_sdl.h"
+#include "backends/imgui_impl_sdl2.h"
 
 namespace Nexus
 {
