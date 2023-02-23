@@ -18,6 +18,8 @@ add_library(imgui
 	"imgui/backends/imgui_impl_opengl3.cpp"
 	"imgui/backends/imgui_impl_sdl.h"	
 	"imgui/backends/imgui_impl_sdl.cpp"	
+	"imgui/misc/cpp/imgui_stdlib.h"
+	"imgui/misc/cpp/imgui_stdlib.cpp"
 )
 
 add_library(imguizmo

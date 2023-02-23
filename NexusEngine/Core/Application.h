@@ -13,6 +13,7 @@
 #include "Point.h"
 
 #include "imgui.h"
+#include "misc/cpp/imgui_stdlib.h"
 #include "backends/imgui_impl_sdl.h"
 #include "backends/imgui_impl_opengl3.h"
 

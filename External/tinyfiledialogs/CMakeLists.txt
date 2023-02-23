@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.16)
+
+project("tinyfiledialogs")
+
+add_library(tinyfiledialogs tinyfiledialogs/tinyfiledialogs.h tinyfiledialogs/tinyfiledialogs.c tinyfiledialogs/more_dialogs/tinyfd_moredialogs.h tinyfiledialogs/more_dialogs/tinyfd_moredialogs.c)
+target_include_directories(tinyfiledialogs PUBLIC tinyfiledialogs)

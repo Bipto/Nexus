@@ -20,3 +20,6 @@
 [submodule "External/imgui/imguizmo"]
 	path = External/imgui/imguizmo
 	url = https://github.com/CedricGuillemet/ImGuizmo.git
+[submodule "External/nativefiledialog-extended"]
+	path = External/nativefiledialog-extended
+	url = https://github.com/btzy/nativefiledialog-extended.git

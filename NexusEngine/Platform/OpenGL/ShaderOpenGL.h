@@ -6,6 +6,8 @@
 
 #include <iostream>
 
+#include <filesystem>
+
 namespace Nexus
 {
     struct ShaderSources

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project("NexusEngine")
 
-add_subdirectory(Application)
+add_subdirectory(Editor)
 add_subdirectory(NexusEngine)
 
 add_subdirectory(External/SDL)
@@ -10,6 +10,7 @@ add_subdirectory(External/SDL)
 add_subdirectory(External/glad)
 add_subdirectory(External/glm)
 add_subdirectory(External/imgui)
+add_subdirectory(External/tinyfiledialogs)
 
 set (BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 add_subdirectory(External/assimp)
@@ -17,6 +18,9 @@ add_subdirectory(External/assimp)
 #Editor
 target_include_directories(Editor PUBLIC NexusEngine)
 target_link_libraries(Editor PUBLIC NexusEngine)
+
+target_include_directories(Editor PUBLIC External/tinyfiledialogs/tinyfiledialogs)
+target_link_libraries(Editor PUBLIC tinyfiledialogs)
 
 if (EMSCRIPTEN)
     set_target_properties(

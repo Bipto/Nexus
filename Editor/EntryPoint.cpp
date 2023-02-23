@@ -1,21 +1,24 @@
 #include "NexusEngine.h"
 
-#include <iostream>
-#include <sstream>
-#include <functional>
-#include <iomanip>
+#include "Core/nxpch.h"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
-#include "Components/Camera.h"
+#include "Runtime/Camera.h"
 #include "Core/Graphics/TextureFormat.h"
 #include "Core/Graphics/DepthFormat.h"
 
+#include "Runtime/Project.h"
+#include "Runtime/Scene.h"
+
+#include "tinyfiledialogs.h"
+#include "more_dialogs/tinyfd_moredialogs.h"
+
 std::vector<float> vertices1 = {
     -0.5f, -0.5f, 0.0f, 0, 0,
-    0.5f, -0.5f, 0.0f, 1, 0,
+    0.5f, -0.5f, 0.0f, 1, 0, 
     0.5f, 0.5f, 0.0f, 1, 1,
     -0.5f, 0.5f, 0.0f, 0, 1,
 };
@@ -143,9 +146,18 @@ class Editor : public Nexus::Application
                 {
                     if (ImGui::BeginMenu("File", true))
                     {
+                        if (ImGui::MenuItem("New"))
+                        {
+                            m_NewProjectPanelVisible = true;
+                        }
+
+                        if (ImGui::MenuItem("Open"))
+                        {
+                            OpenProject();
+                        }
+
                         if (ImGui::MenuItem("Quit"))
                         {
-                            this->ShouldClose();
                             this->Close();
                         }
                         ImGui::EndMenu();
@@ -174,6 +186,8 @@ class Editor : public Nexus::Application
 
                     ImGui::End();
                 }
+
+                RenderNewProjectPanel();
 
                 ImGui::End();
             }
@@ -210,9 +224,81 @@ class Editor : public Nexus::Application
             this->m_GraphicsDevice->DrawIndexed(6);
         }
 
-        void Unload()
+        virtual void Unload() override
         {
-            
+
+        }
+
+        void CreateNewProject()
+        {
+            /* tinyfd_selectFolderDialogW(
+                L"Select a folder",
+                L"C:\\"  
+            ); */
+
+            m_NewProjectPanelVisible = true;
+            /* m_ActiveProject = new Nexus::Project("My project"); */
+        }
+
+        void OpenProject()
+        {
+            const wchar_t* filterPatterns[2] = {L"*.txt", L"*.text"};
+
+            tinyfd_openFileDialogW(
+                L"Select file",
+                L"",
+                2,
+                filterPatterns,
+                L"text files (*.txt|*.text)",
+                0
+            );
+        }
+
+        void RenderNewProjectPanel()
+        {
+            if (m_NewProjectPanelVisible)
+            {
+                static std::string name{};
+                static std::string path{};
+
+                ImGui::Begin("New Project", &m_NewProjectPanelVisible);
+
+                //name
+                ImGui::Text("Name: ");
+                ImGui::SameLine();
+                ImGui::InputText(" ", &name);
+
+                //directory
+                ImGui::Text("Directory: ");
+                ImGui::SameLine();
+                ImGui::Text(path.c_str());
+
+                if (ImGui::Button("Choose folder..."))
+                {
+                    wchar_t* p = tinyfd_selectFolderDialogW(
+                        L"Select a folder",
+                        L"C:\\"  
+                    );
+                    std::wstring ws(p);
+                    path = {ws.begin(), ws.end()};
+
+                    m_ProjectFilePath = {path};
+                }
+
+                if (ImGui::Button("Create"))
+                {
+                    std::filesystem::path path{m_ProjectFilePath};
+                    std::string extension(".proj");
+                    path /= name + extension;
+                    std::filesystem::create_directories(path.parent_path());
+                
+                    std::ofstream ofs(path);
+                    ofs << "this is some text";
+                    ofs.close();
+                }
+
+                ImGui::End();
+            }
         }
 
     private:
@@ -237,6 +323,10 @@ class Editor : public Nexus::Application
         float m_MovementSpeed = 1.0f;
         glm::vec3 m_QuadPosition = {0, 0, 0};
         glm::vec3 m_QuadSize = {500, 500, 500};
+
+        Nexus::Project* m_ActiveProject = nullptr;
+        bool m_NewProjectPanelVisible = false;
+        std::string m_ProjectFilePath;
 };
 
 int main(int argc, char** argv)

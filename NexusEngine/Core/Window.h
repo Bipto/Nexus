@@ -39,13 +39,13 @@ namespace Nexus
             ~Window();
 
             void PollEvents();
-            bool IsClosing() {return this->m_Closing;}
 
             void SetResizable(bool isResizable);
             void SetTitle(const std::string& title);
             void SetSize(Point size);
 
             void Close() { m_Closing = true; }
+            bool IsClosing() {return this->m_Closing;}
 
             SDL_Window* GetSDLWindowHandle(){return this->m_Window;}
             Point GetWindowSize();
