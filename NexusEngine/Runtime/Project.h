@@ -14,6 +14,11 @@ namespace Nexus
                 
             }
 
+            const std::string& GetName()
+            {
+                return m_Name;
+            }
+
         private:
             std::string m_Name;
             std::vector<Scene> m_Scenes;

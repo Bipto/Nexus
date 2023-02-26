@@ -16,6 +16,8 @@
 #include "tinyfiledialogs.h"
 #include "more_dialogs/tinyfd_moredialogs.h"
 
+#include "Data/JsonSerializer.h"
+
 std::vector<float> vertices1 = {
     -0.5f, -0.5f, 0.0f, 0, 0,
     0.5f, -0.5f, 0.0f, 1, 0, 
@@ -231,13 +233,7 @@ class Editor : public Nexus::Application
 
         void CreateNewProject()
         {
-            /* tinyfd_selectFolderDialogW(
-                L"Select a folder",
-                L"C:\\"  
-            ); */
-
             m_NewProjectPanelVisible = true;
-            /* m_ActiveProject = new Nexus::Project("My project"); */
         }
 
         void OpenProject()
@@ -279,21 +275,29 @@ class Editor : public Nexus::Application
                         L"Select a folder",
                         L"C:\\"  
                     );
-                    std::wstring ws(p);
-                    path = {ws.begin(), ws.end()};
 
-                    m_ProjectFilePath = {path};
+                    if (p)
+                    {
+                        std::wstring ws(p);
+                        path = {ws.begin(), ws.end()};
+                        m_ProjectFilePath = {path};
+                    }
+
                 }
 
                 if (ImGui::Button("Create"))
                 {
                     std::filesystem::path path{m_ProjectFilePath};
                     std::string extension(".proj");
-                    path /= name + extension;
+                    path /= name + std::string("\\") + name + extension;
                     std::filesystem::create_directories(path.parent_path());
+
+                    m_ActiveProject = new Nexus::Project(name);
                 
                     std::ofstream ofs(path);
-                    ofs << "this is some text";
+                    Nexus::JsonSerializer serializer;
+                    auto text = serializer.Serialize(m_ActiveProject);
+                    ofs << text;
                     ofs.close();
                 }
 

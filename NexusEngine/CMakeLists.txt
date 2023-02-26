@@ -15,6 +15,7 @@ target_include_directories(NexusEngine PUBLIC ${Python_INCLUDE_DIRS})
 target_include_directories(NexusEngine PUBLIC ../External/glm)
 target_include_directories(NexusEngine PUBLIC ../External/stb)
 target_include_directories(NexusEngine PUBLIC ../External/assimp/include)
+target_include_directories(NexusEngine PUBLIC ../External/json/single_include)
 target_include_directories(NexusEngine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(NexusEngine PUBLIC SDL2main SDL2-static)
