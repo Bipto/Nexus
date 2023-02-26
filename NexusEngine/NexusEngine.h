@@ -12,11 +12,22 @@
 #include "Core/Events/EventHandler.h"
 
 #include "Core/Graphics/GraphicsDevice.h"
+#include "Core/Graphics/Texture.h"
+#include "Core/Graphics/TextureFormat.h"
+#include "Core/Graphics/Framebuffer.h"
+#include "Core/Graphics/DepthFormat.h"
+
 #include "Core/Renderer.h"
-
 #include "Core/Logging/Log.h"
-
 #include "Core/Input/Input.h"
+
+#include "Runtime/Camera.h"
+#include "Runtime/Project.h"
+#include "Runtime/Scene.h"
+
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 #define NX_LOG(message) Nexus::GetCoreLogger()->LogInfo(message)
 #define NX_WARNING(message) Nexus::GetCoreLogger()->LogWarning(message)

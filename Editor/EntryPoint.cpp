@@ -1,22 +1,7 @@
 #include "NexusEngine.h"
 
-#include "Core/nxpch.h"
-
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtc/type_ptr.hpp"
-
-#include "Runtime/Camera.h"
-#include "Core/Graphics/TextureFormat.h"
-#include "Core/Graphics/DepthFormat.h"
-
-#include "Runtime/Project.h"
-#include "Runtime/Scene.h"
-
 #include "tinyfiledialogs.h"
 #include "more_dialogs/tinyfd_moredialogs.h"
-
-#include "Data/JsonSerializer.h"
 
 std::vector<float> vertices1 = {
     -0.5f, -0.5f, 0.0f, 0, 0,
@@ -82,6 +67,10 @@ class Editor : public Nexus::Application
             framebufferSpec.ColorAttachmentSpecification = { Nexus::TextureFormat::RGBA8, Nexus::TextureFormat::RGBA8 };
             framebufferSpec.DepthAttachmentSpecification = Nexus::DepthFormat::DEPTH24STENCIL8;
             m_Framebuffer = this->m_GraphicsDevice->CreateFramebuffer(framebufferSpec);
+
+            auto& style = ImGui::GetStyle();
+            style.ChildBorderSize = 0.0f;
+            //style.WindowPadding = ImVec2{0.0f, 0.0f};
         }
 
         virtual void Update(Nexus::Time time) override
@@ -129,72 +118,7 @@ class Editor : public Nexus::Application
             this->m_GraphicsDevice->Clear(0, 0, 0, 1);
             this->BeginImGuiRender();
 
-            ImGuiWindowFlags flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-
-            ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos, ImGuiCond_Always);
-            ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size);
-
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-
-
-            flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_AlwaysAutoResize;
-
-            if (ImGui::Begin("Dockspace Demo", nullptr, flags))
-            {
-                ImGui::DockSpace(ImGui::GetID("Dockspace"));
-            
-                if (ImGui::BeginMainMenuBar())
-                {
-                    if (ImGui::BeginMenu("File", true))
-                    {
-                        if (ImGui::MenuItem("New"))
-                        {
-                            m_NewProjectPanelVisible = true;
-                        }
-
-                        if (ImGui::MenuItem("Open"))
-                        {
-                            OpenProject();
-                        }
-
-                        if (ImGui::MenuItem("Quit"))
-                        {
-                            this->Close();
-                        }
-                        ImGui::EndMenu();
-                    }
-                    ImGui::EndMainMenuBar();
-                }            
-
-                if (m_WindowOpen)
-                {
-                    ImGui::Begin("My Window", &m_WindowOpen);
-                    auto availSize = ImGui::GetContentRegionAvail();
-                    if (m_Framebuffer->HasColorTexture())
-                        ImGui::Image((void*)m_Framebuffer->GetColorAttachment(0), availSize);
-                    ImGui::End();
-                }
-
-                {
-                    ImGui::Begin("Settings");
-                    ImGui::Text("Camera");
-                    ImGui::DragFloat("Movement Speed", &m_MovementSpeed, 0.1f, 0.1f, 5.0f);
-
-                    ImGui::Separator();
-                    ImGui::Text("Quad");
-                    ImGui::DragFloat2("Quad Position", glm::value_ptr(m_QuadPosition), 0.1f);
-                    ImGui::DragFloat2("Quad Size", glm::value_ptr(m_QuadSize));
-
-                    ImGui::End();
-                }
-
-                RenderNewProjectPanel();
-
-                ImGui::End();
-            }
-
-            ImGui::PopStyleVar(2);
+            RenderEditorUI();
 
             this->EndImGuiRender();
 
@@ -250,6 +174,79 @@ class Editor : public Nexus::Application
             );
         }
 
+        void RenderEditorUI()
+        {
+            ImGuiWindowFlags flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+
+            ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos, ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size);
+
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0.0f, 0.0f});
+
+            flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_AlwaysAutoResize;
+
+            ImGui::Begin("Dockspace Demo", nullptr, flags);
+            
+            ImGui::DockSpace(ImGui::GetID("Dockspace"));
+            ImGui::PopStyleVar();
+
+            if (ImGui::BeginMainMenuBar())
+            {
+                if (ImGui::BeginMenu("File", true))
+                {
+                    if (ImGui::MenuItem("New"))
+                    {
+                        m_NewProjectPanelVisible = true;
+                    }
+
+                    if (ImGui::MenuItem("Open"))
+                    {
+                        OpenProject();
+                    }
+
+                    if (ImGui::MenuItem("Quit"))
+                    {
+                        this->Close();
+                    }
+                    ImGui::EndMenu();
+                }
+                ImGui::EndMainMenuBar();
+            }            
+
+            if (m_WindowOpen)
+            {
+                ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0.0f, 0.0f});
+                ImGui::Begin("My Window", &m_WindowOpen);
+                auto availSize = ImGui::GetContentRegionAvail();
+                if (m_Framebuffer->HasColorTexture())
+                    ImGui::Image((void*)m_Framebuffer->GetColorAttachment(0), availSize);
+                ImGui::End();
+                ImGui::PopStyleVar();
+            }
+
+            {
+                ImGui::Begin("Settings");
+                ImGui::Text("Camera");
+                ImGui::DragFloat("Movement Speed", &m_MovementSpeed, 0.1f, 0.1f, 5.0f);
+
+                ImGui::Separator();
+                ImGui::Text("Quad");
+                ImGui::DragFloat2("Quad Position", glm::value_ptr(m_QuadPosition), 0.1f);
+                ImGui::DragFloat2("Quad Size", glm::value_ptr(m_QuadSize));
+
+                ImGui::End();
+            }
+
+            RenderNewProjectPanel();
+
+            ImGui::End();
+            
+
+            ImGui::PopStyleVar(2);
+        }
+
         void RenderNewProjectPanel()
         {
             if (m_NewProjectPanelVisible)
@@ -293,12 +290,7 @@ class Editor : public Nexus::Application
                     std::filesystem::create_directories(path.parent_path());
 
                     m_ActiveProject = new Nexus::Project(name);
-                
-                    std::ofstream ofs(path);
-                    Nexus::JsonSerializer serializer;
-                    auto text = serializer.Serialize(m_ActiveProject);
-                    ofs << text;
-                    ofs.close();
+                    m_ActiveProject->Serialize(m_ProjectFilePath);
                 }
 
                 ImGui::End();
