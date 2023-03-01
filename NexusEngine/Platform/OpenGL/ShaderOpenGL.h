@@ -55,7 +55,7 @@ namespace Nexus
                 glUniform2f(loc, value.x, value.y);
             }
 
-            virtual void SetShaderUniform3f(const std::string& name, const glm::vec3& value)
+            virtual void SetShaderUniform3f(const std::string& name, const glm::vec3& value) override
             {
                 unsigned int loc = glGetUniformLocation(this->m_ProgramHandle, name.c_str());
                 glUniform3f(loc, value.x, value.y, value.z);

@@ -3,14 +3,14 @@
 #include "nxpch.h"
 #include "SDL.h"
 
-/* extern "C" 
+extern "C" 
 {
 	#include <lua.h>
 	#include <lauxlib.h>
 	#include <lualib.h>
-} */
+}
 
-#include <Python.h>
+//#include <Python.h>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -30,14 +30,14 @@ namespace Nexus
 {
     static void Init()
     {
-        Py_Initialize();
+        //Py_Initialize();
         Assimp::Importer importer{};
     }
 
     static void Shutdown()
     {
         SDL_Quit();
-        Py_Finalize();
+        //Py_Finalize();
     }
 }
 

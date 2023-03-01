@@ -1,7 +1,7 @@
 #pragma once
 
+#include "GL.h"
 #include "Core/Graphics/Framebuffer.h"
-#include "glad/glad.h"
 
 #include <iostream>
 #include <sstream>
@@ -50,27 +50,27 @@ namespace Nexus
                 }
             }
 
-            virtual int GetColorTextureCount()
+            virtual int GetColorTextureCount() override
             {
                 return m_FramebufferSpecification.ColorAttachmentSpecification.Attachments.size(); 
             }
             
-            virtual bool HasColorTexture()
+            virtual bool HasColorTexture() override
             {
                 return m_FramebufferSpecification.ColorAttachmentSpecification.Attachments.size() > 0;
             }
             
-            virtual bool HasDepthTexture()
+            virtual bool HasDepthTexture() override
             {
                 return m_FramebufferSpecification.DepthAttachmentSpecification.DepthFormat != DepthFormat::None;
             }
 
-            virtual unsigned int GetColorAttachment(int index = 0)
+            virtual unsigned int GetColorAttachment(int index = 0) override
             {
                 return m_ColorTextures[index];
             }
 
-            virtual unsigned int GetDepthAttachment()
+            virtual unsigned int GetDepthAttachment() override
             {
                 return m_DepthTexture;
             }
@@ -107,18 +107,13 @@ namespace Nexus
                     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, texture, 0);
                     m_ColorTextures.emplace_back(texture);
                 }
+
+                //! TODO - Add support for depth textures
             }
 
             void DeleteTextures()
             {
                 glDeleteFramebuffers(1, &m_FBO);
-                /* glDeleteTextures(1, &m_Texture); */
-
-                /* for (int i = 1; i <= m_FramebufferSpecification.ColorAttachmentSpecification.Attachments.size(); i++)
-                {
-                    auto texture = m_ColorTextures[i];
-                    glDeleteTextures(1, &texture);
-                } */
 
                 for (auto texture : m_ColorTextures)
                 {

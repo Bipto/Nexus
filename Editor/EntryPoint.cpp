@@ -1,7 +1,10 @@
 #include "NexusEngine.h"
 
+#ifndef __EMSCRIPTEN__
 #include "tinyfiledialogs.h"
 #include "more_dialogs/tinyfd_moredialogs.h"
+#endif
+
 
 std::vector<float> vertices1 = {
     -0.5f, -0.5f, 0.0f, 0, 0,
@@ -37,7 +40,7 @@ class Editor : public Nexus::Application
             this->m_Renderer = Nexus::Renderer::Create(this->m_GraphicsDevice);
 
             this->m_GraphicsDevice->SetVSyncState(Nexus::VSyncState::Enabled);
-            this->m_Shader = this->m_GraphicsDevice->CreateShaderFromFile("Resources/Shaders/Basic.shader");
+            /* this->m_Shader = this->m_GraphicsDevice->CreateShaderFromFile("Resources/Shaders/Basic.shader");
 
             Nexus::BufferLayout layout = 
             {
@@ -46,13 +49,13 @@ class Editor : public Nexus::Application
             };
 
             this->m_VertexBuffer1 =  this->m_GraphicsDevice->CreateVertexBuffer(vertices1, layout);
-            this->m_IndexBuffer1 = this->m_GraphicsDevice->CreateIndexBuffer(indices1, sizeof(indices1));
+            this->m_IndexBuffer1 = this->m_GraphicsDevice->CreateIndexBuffer(indices1, sizeof(indices1)); */
 
             /* this->m_VertexBuffer2 =  this->m_GraphicsDevice->CreateVertexBuffer(vertices2);
             this->m_IndexBuffer2 = this->m_GraphicsDevice->CreateIndexBuffer(indices2, sizeof(indices2)); */
 
-            m_Texture1 = this->m_GraphicsDevice->CreateTexture("brick.jpg");
-            m_Texture2 = this->m_GraphicsDevice->CreateTexture("wall.jpg");
+            /* m_Texture1 = this->m_GraphicsDevice->CreateTexture("brick.jpg");
+            m_Texture2 = this->m_GraphicsDevice->CreateTexture("wall.jpg"); */
             
             Nexus::Point size = this->GetWindowSize();
             this->m_Camera = { size.Width, size.Height, {0, 0, 0} };
@@ -103,11 +106,11 @@ class Editor : public Nexus::Application
             this->m_Framebuffer->Bind();
             this->m_Renderer->Begin(glm::mat4(0), glm::vec4(0.07f, 0.13f, 0.17f, 1));
 
-            this->m_Shader->Bind();
+            /* this->m_Shader->Bind();
             this->m_Shader->SetShaderUniform4f("TintColor", glm::vec4(0.7f, 0.1f, 0.2f, 1));
             this->m_Shader->SetShaderUniform1i("ourTexture", 0);
 
-            this->RenderQuad(m_Texture1, m_QuadPosition, m_QuadSize);           
+            this->RenderQuad(m_Texture1, m_QuadPosition, m_QuadSize);  */          
 
             this->m_Renderer->End();
             this->m_Framebuffer->Unbind();
@@ -162,6 +165,7 @@ class Editor : public Nexus::Application
 
         void OpenProject()
         {
+            #ifndef __EMSCRIPTEN__
             const wchar_t* filterPatterns[2] = {L"*.txt", L"*.text"};
 
             tinyfd_openFileDialogW(
@@ -172,6 +176,7 @@ class Editor : public Nexus::Application
                 L"text files (*.txt|*.text)",
                 0
             );
+            #endif
         }
 
         void RenderEditorUI()
@@ -251,6 +256,7 @@ class Editor : public Nexus::Application
         {
             if (m_NewProjectPanelVisible)
             {
+                #ifndef __EMSCRIPTEN__
                 static std::string name{};
                 static std::string path{};
 
@@ -268,6 +274,8 @@ class Editor : public Nexus::Application
 
                 if (ImGui::Button("Choose folder..."))
                 {
+                    #ifndef __EMSCRIPTEN__
+
                     wchar_t* p = tinyfd_selectFolderDialogW(
                         L"Select a folder",
                         L"C:\\"  
@@ -280,10 +288,14 @@ class Editor : public Nexus::Application
                         m_ProjectFilePath = {path};
                     }
 
+                    #endif
+
                 }
 
                 if (ImGui::Button("Create"))
                 {
+                    #ifndef __EMSCRIPTEN__
+
                     std::filesystem::path path{m_ProjectFilePath};
                     std::string extension(".proj");
                     path /= name + std::string("\\") + name + extension;
@@ -291,9 +303,12 @@ class Editor : public Nexus::Application
 
                     m_ActiveProject = new Nexus::Project(name);
                     m_ActiveProject->Serialize(m_ProjectFilePath);
+
+                    #endif
                 }
 
                 ImGui::End();
+                #endif
             }
         }
 

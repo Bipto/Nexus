@@ -5,8 +5,6 @@ namespace Nexus
 {
     Application::Application(GraphicsAPI api)
     {
-        gladLoadGL();
-
         // Decide GL+GLSL versions
         #ifdef __EMSCRIPTEN__
             // GL ES 2.0 + GLSL 100
@@ -34,6 +32,10 @@ namespace Nexus
             SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
             SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
             SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+
+        #ifndef __EMSCRIPTEN__
+            gladLoadGL();
+        #endif
 
         if (SDL_Init(SDL_INIT_VIDEO) != 0)
         {
@@ -86,12 +88,15 @@ namespace Nexus
 
     void Application::MainLoop()
     {
-        auto windowSize = this->GetWindowSize();
+        /* auto windowSize = this->GetWindowSize();
         if (m_PreviousWindowSize.Width != windowSize.Width || m_PreviousWindowSize.Height != windowSize.Height)
         {
             OnResize(windowSize);
             m_PreviousWindowSize = windowSize;
-        }
+        } */
+
+        if (m_Window->m_RequiresResize)
+            OnResize(this->GetWindowSize());
 
         this->m_Window->PollEvents();
 

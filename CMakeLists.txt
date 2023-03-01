@@ -3,10 +3,11 @@ cmake_minimum_required(VERSION 3.16)
 project("NexusEngine")
 
 add_subdirectory(Editor)
+add_subdirectory(Test)
 add_subdirectory(NexusEngine)
 
 add_subdirectory(External/SDL)
-#add_subdirectory(External/Lua)
+add_subdirectory(External/Lua)
 add_subdirectory(External/glad)
 add_subdirectory(External/glm)
 add_subdirectory(External/imgui)
@@ -22,11 +23,14 @@ target_link_libraries(Editor PUBLIC NexusEngine)
 target_include_directories(Editor PUBLIC External/tinyfiledialogs/tinyfiledialogs)
 target_link_libraries(Editor PUBLIC tinyfiledialogs)
 
+target_include_directories(Test PUBLIC NexusEngine)
+target_link_libraries(Test PUBLIC NexusEngine)
+
 if (EMSCRIPTEN)
     set_target_properties(
         Editor
         PROPERTIES
         LINK_FLAGS
-        "-s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2 -s FULL_ES2=1 -s FULL_ES3=1"
+        "--std=c++17 -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2 -s FULL_ES2=1 -s FULL_ES3=1"
     )
 endif()

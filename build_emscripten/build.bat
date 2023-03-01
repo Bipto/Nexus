@@ -1,1 +1,1 @@
-emcmake cmake -S ../ -B . && make -o hello.html
+emcmake cmake -S ../ && make -o hello.html

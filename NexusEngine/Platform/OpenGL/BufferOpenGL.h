@@ -65,7 +65,7 @@ namespace Nexus
                 }
             }
 
-            virtual const BufferLayout& GetLayout() const { return m_Layout; }
+            virtual const BufferLayout& GetLayout() const override { return m_Layout; }
         private:
             unsigned int m_VBO;
             BufferLayout m_Layout;

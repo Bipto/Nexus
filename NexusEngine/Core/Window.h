@@ -47,7 +47,7 @@ namespace Nexus
             void Close() { m_Closing = true; }
             bool IsClosing() {return this->m_Closing;}
 
-            SDL_Window* GetSDLWindowHandle(){return this->m_Window;}
+            SDL_Window* GetSDLWindowHandle(){ return this->m_Window; }
             Point GetWindowSize();
 
             Input* GetInput() { return m_Input; }
@@ -55,6 +55,7 @@ namespace Nexus
         private:
             SDL_Window* m_Window;
             bool m_Closing = false;
+            bool m_RequiresResize = false;
             Input* m_Input;
             friend class Application;
     };

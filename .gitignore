@@ -9,3 +9,14 @@ build_emscripten/Editor.wasm
 build_emscripten/libNexusEngine.a
 build_emscripten/Makefile
 .vs
+build_emscripten/Editor/CMakeFiles
+build_emscripten/Editor/Resources
+build_emscripten/Editor/brick.jpg
+build_emscripten/Editor/cmake_install.cmake
+build_emscripten/NexusEngine
+build_emscripten/Test
+build_emscripten/SDL2ConfigVersion.cmake
+build_emscripten/Editor/Editor.js
+build_emscripten/Editor/Editor.wasm
+build_emscripten/Editor/Makefile
+build_emscripten/Editor/wall.jpg

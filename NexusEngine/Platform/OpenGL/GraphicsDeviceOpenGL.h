@@ -29,6 +29,11 @@ namespace Nexus
 
             GraphicsDeviceOpenGL(const GraphicsDeviceOpenGL&) = delete;
 
+            virtual ~GraphicsDeviceOpenGL()
+            {
+                SDL_GL_DeleteContext(m_Context);
+            }
+
             void SetContext() override 
             {
                 SDL_GL_MakeCurrent(this->m_Window->GetSDLWindowHandle(), this->m_Context);
@@ -85,17 +90,17 @@ namespace Nexus
                 return new FramebufferOpenGL(spec);
             }
             
-            virtual void Resize(Point size)
+            virtual void Resize(Point size) override
             {
                 glViewport(0, 0, size.Width, size.Height);
             }
 
-            virtual void SwapBuffers()
+            virtual void SwapBuffers() override
             {
                 SDL_GL_SwapWindow(this->m_Window->GetSDLWindowHandle());
             }
 
-            virtual void SetVSyncState(VSyncState VSyncState)
+            virtual void SetVSyncState(VSyncState VSyncState) override
             {
                 SDL_GL_SetSwapInterval((unsigned int)VSyncState);
             }

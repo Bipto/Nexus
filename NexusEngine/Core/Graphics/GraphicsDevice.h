@@ -31,6 +31,9 @@ namespace Nexus
                 this->m_Window = window;
                 this->m_API = api;
             }
+
+            virtual ~GraphicsDevice() {}
+
             GraphicsDevice(const GraphicsDevice&) = delete;
     
             virtual void SetContext() = 0;

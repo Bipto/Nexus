@@ -1,7 +1,7 @@
 #pragma once
 
+#include "GL.h"
 #include "Core/Graphics/Texture.h"
-#include "glad/glad.h"
 
 namespace Nexus
 {

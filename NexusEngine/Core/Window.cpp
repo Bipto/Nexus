@@ -199,6 +199,11 @@ namespace Nexus
                     m_Input->SetMouseScrollX(scrollX);
                     m_Input->SetMouseScrollY(scrollY);           
                 }
+                case SDL_WINDOWEVENT:
+                {
+                    if (event.window.event == SDL_WINDOWEVENT_RESIZED)
+                        m_RequiresResize = true;
+                }
 
             }
         }
