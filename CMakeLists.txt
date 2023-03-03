@@ -31,6 +31,6 @@ if (EMSCRIPTEN)
         Editor
         PROPERTIES
         LINK_FLAGS
-        "--std=c++17 -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2 -s FULL_ES2=1 -s FULL_ES3=1"
+        "--std=c++17 -s ALLOW_MEMORY_GROWTH=1 -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2 -s FULL_ES2=1 -s FULL_ES3=1 --preload-file Resources"
     )
 endif()

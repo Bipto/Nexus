@@ -5,7 +5,6 @@
 #include "more_dialogs/tinyfd_moredialogs.h"
 #endif
 
-
 std::vector<float> vertices1 = {
     -0.5f, -0.5f, 0.0f, 0, 0,
     0.5f, -0.5f, 0.0f, 1, 0, 
@@ -30,6 +29,64 @@ unsigned int indices2[] = {
 	2, 3, 0
 };
 
+#ifndef __EMSCRIPTEN__
+    std::string vertexShaderSource = 
+    "#version 330 core\n"
+    "layout (location = 0) in vec3 aPos;"
+    "layout (location = 1) in vec2 aTexCoord;"
+    "out vec2 TexCoord;"
+    "uniform mat4 Transform;"
+    "void main()"
+    "{"
+    "    gl_Position = Transform * vec4(aPos, 1.0);"
+    "    TexCoord = aTexCoord;"
+    "}";
+
+    std::string fragmentShaderSource = 
+    "#version 330 core\n"
+    "out vec4 FragColor;"
+    "out vec4 Color2;"
+    "in vec2 TexCoord;"
+    "uniform sampler2D ourTexture;"
+    "uniform vec4 TintColor;"
+    "uniform mat4 Transform;"
+    "void main()"
+    "{"
+    "    FragColor = texture(ourTexture, TexCoord) * TintColor;"
+    "    Color2 = vec4(0, 1, 0, 1);"
+    "}";
+#else
+    std::string vertexShaderSource = 
+    "#version 300 es\n"
+    "precision mediump float;"
+    "precision highp int;"
+    "layout (location = 0) in vec3 aPos;"
+    "layout (location = 1) in vec2 aTexCoord;"
+    "out vec2 TexCoord;"
+    "uniform mat4 Transform;"
+    "void main()"
+    "{"
+    "    gl_Position = Transform * vec4(aPos, 1.0);"
+    "    TexCoord = aTexCoord;"
+    "}";
+
+    std::string fragmentShaderSource = 
+    "#version 300 es\n"
+    "precision mediump float;"
+    "precision highp int;"
+    "layout (location = 0) out vec4 FragColor;"
+    "layout (location = 1) out vec4 Color2;"
+    "in vec2 TexCoord;"
+    "uniform sampler2D ourTexture;"
+    "uniform vec4 TintColor;"
+    "uniform mat4 Transform;"
+    "void main()"
+    "{"
+    "    FragColor = texture(ourTexture, TexCoord) * TintColor;"
+    "    Color2 = vec4(0, 1, 0, 1);"
+    "}";
+#endif
+
 class Editor : public Nexus::Application
 {
     public:
@@ -40,7 +97,14 @@ class Editor : public Nexus::Application
             this->m_Renderer = Nexus::Renderer::Create(this->m_GraphicsDevice);
 
             this->m_GraphicsDevice->SetVSyncState(Nexus::VSyncState::Enabled);
-            /* this->m_Shader = this->m_GraphicsDevice->CreateShaderFromFile("Resources/Shaders/Basic.shader");
+            //this->m_Shader = this->m_GraphicsDevice->CreateShaderFromFile("Resources/Shaders/Basic.shader");
+            //m_Shader = m_GraphicsDevice->CreateShaderFromSource(vertexShaderSource, fragmentShaderSource);
+
+            #ifndef __EMSCRIPTEN__
+                m_Shader = m_GraphicsDevice->CreateShaderFromFile("Resources/Shaders/GLSL.shader");
+            #else
+                m_Shader = m_GraphicsDevice->CreateShaderFromFile("Resources/Shaders/GLSLES.shader");
+            #endif
 
             Nexus::BufferLayout layout = 
             {
@@ -49,13 +113,13 @@ class Editor : public Nexus::Application
             };
 
             this->m_VertexBuffer1 =  this->m_GraphicsDevice->CreateVertexBuffer(vertices1, layout);
-            this->m_IndexBuffer1 = this->m_GraphicsDevice->CreateIndexBuffer(indices1, sizeof(indices1)); */
+            this->m_IndexBuffer1 = this->m_GraphicsDevice->CreateIndexBuffer(indices1, sizeof(indices1));
 
             /* this->m_VertexBuffer2 =  this->m_GraphicsDevice->CreateVertexBuffer(vertices2);
             this->m_IndexBuffer2 = this->m_GraphicsDevice->CreateIndexBuffer(indices2, sizeof(indices2)); */
 
-            /* m_Texture1 = this->m_GraphicsDevice->CreateTexture("brick.jpg");
-            m_Texture2 = this->m_GraphicsDevice->CreateTexture("wall.jpg"); */
+            m_Texture1 = this->m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
+            m_Texture2 = this->m_GraphicsDevice->CreateTexture("Resources/Textures/wall.jpg");
             
             Nexus::Point size = this->GetWindowSize();
             this->m_Camera = { size.Width, size.Height, {0, 0, 0} };
@@ -74,6 +138,14 @@ class Editor : public Nexus::Application
             auto& style = ImGui::GetStyle();
             style.ChildBorderSize = 0.0f;
             //style.WindowPadding = ImVec2{0.0f, 0.0f};
+
+            std::ifstream file("Resources/test.txt");
+            std::string line;
+
+            while (getline(file, line))
+            {
+                std::cout << line << std::endl;
+            }
         }
 
         virtual void Update(Nexus::Time time) override
@@ -106,11 +178,11 @@ class Editor : public Nexus::Application
             this->m_Framebuffer->Bind();
             this->m_Renderer->Begin(glm::mat4(0), glm::vec4(0.07f, 0.13f, 0.17f, 1));
 
-            /* this->m_Shader->Bind();
+            this->m_Shader->Bind();
             this->m_Shader->SetShaderUniform4f("TintColor", glm::vec4(0.7f, 0.1f, 0.2f, 1));
             this->m_Shader->SetShaderUniform1i("ourTexture", 0);
 
-            this->RenderQuad(m_Texture1, m_QuadPosition, m_QuadSize);  */          
+            this->RenderQuad(m_Texture1, m_QuadPosition, m_QuadSize);           
 
             this->m_Renderer->End();
             this->m_Framebuffer->Unbind();
