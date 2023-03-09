@@ -49,6 +49,11 @@ namespace Nexus
                 std::cout << log.Message << std::endl;
                 this->m_Logs.push_back(log);
             }
+
+            const std::vector<Nexus::Log>& GetLogs()
+            {
+                return m_Logs;
+            }
         private:
             std::vector<Nexus::Log> m_Logs;
     };

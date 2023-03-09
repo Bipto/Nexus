@@ -5,6 +5,13 @@
 #include "more_dialogs/tinyfd_moredialogs.h"
 #endif
 
+#include "UI/Panel.h"
+#include "UI/SceneHierarchyPanel.h"
+#include "UI/SettingsPanel.h"
+#include "UI/InspectorPanel.h"
+#include "UI/LogPanel.h"
+#include "UI/ViewportPanel.h"
+
 std::vector<float> vertices1 = {
     -0.5f, -0.5f, 0.0f, 0, 0,
     0.5f, -0.5f, 0.0f, 1, 0, 
@@ -94,6 +101,8 @@ class Editor : public Nexus::Application
 
         virtual void Load() override
         {
+            ImGui::LoadIniSettingsFromDisk("Layout.ini");
+
             this->m_Renderer = Nexus::Renderer::Create(this->m_GraphicsDevice);
 
             this->m_GraphicsDevice->SetVSyncState(Nexus::VSyncState::Enabled);
@@ -146,10 +155,23 @@ class Editor : public Nexus::Application
             {
                 std::cout << line << std::endl;
             }
+
+            //m_Panels.push_back(new SceneHierarchyPanel());
+
+            m_Panels["SceneHierarchy"] = new SceneHierarchyPanel();
+            m_Panels["Settings"] = new SettingsPanel(&m_MovementSpeed,
+                                                    &m_QuadPosition,
+                                                    &m_QuadSize);
+            m_Panels["InspectorPanel"] = new InspectorPanel();
+            m_Panels["LogPanel"] = new LogPanel();
+            m_Panels["ViewportPanel"] = new ViewportPanel(m_Framebuffer);
         }
 
         virtual void Update(Nexus::Time time) override
         {
+            for (auto panel : m_Panels)
+                panel.second->OnUpdate();
+
             //movement
             {
                 auto pos = m_Camera.GetPosition();
@@ -192,8 +214,30 @@ class Editor : public Nexus::Application
             this->m_Camera.Resize(size.Width, size.Height);
             this->m_GraphicsDevice->Clear(0, 0, 0, 1);
             this->BeginImGuiRender();
-
             RenderEditorUI();
+
+            if (ImGui::BeginMainMenuBar())
+            {
+                if (ImGui::BeginMenu("File", true))
+                {
+                    if (ImGui::MenuItem("New"))
+                    {
+                        m_NewProjectPanelVisible = true;
+                    }
+
+                    if (ImGui::MenuItem("Open"))
+                    {
+                        OpenProject();
+                    }
+
+                    if (ImGui::MenuItem("Quit"))
+                    {
+                        this->Close();
+                    }
+                    ImGui::EndMenu();
+                }
+                ImGui::EndMainMenuBar();
+            }  
 
             this->EndImGuiRender();
 
@@ -223,6 +267,8 @@ class Editor : public Nexus::Application
             this->m_Shader->SetShaderUniformMat4("Transform", mvp);
 
             this->m_GraphicsDevice->DrawIndexed(6);
+
+            ImGui::SaveIniSettingsToDisk("Layout.ini");
         }
 
         virtual void Unload() override
@@ -252,7 +298,7 @@ class Editor : public Nexus::Application
         }
 
         void RenderEditorUI()
-        {
+        {  
             ImGuiWindowFlags flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
 
             ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos, ImGuiCond_Always);
@@ -267,60 +313,15 @@ class Editor : public Nexus::Application
             ImGui::Begin("Dockspace Demo", nullptr, flags);
             
             ImGui::DockSpace(ImGui::GetID("Dockspace"));
-            ImGui::PopStyleVar();
 
-            if (ImGui::BeginMainMenuBar())
-            {
-                if (ImGui::BeginMenu("File", true))
-                {
-                    if (ImGui::MenuItem("New"))
-                    {
-                        m_NewProjectPanelVisible = true;
-                    }
-
-                    if (ImGui::MenuItem("Open"))
-                    {
-                        OpenProject();
-                    }
-
-                    if (ImGui::MenuItem("Quit"))
-                    {
-                        this->Close();
-                    }
-                    ImGui::EndMenu();
-                }
-                ImGui::EndMainMenuBar();
-            }            
-
-            if (m_WindowOpen)
-            {
-                ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0.0f, 0.0f});
-                ImGui::Begin("My Window", &m_WindowOpen);
-                auto availSize = ImGui::GetContentRegionAvail();
-                if (m_Framebuffer->HasColorTexture())
-                    ImGui::Image((void*)m_Framebuffer->GetColorAttachment(0), availSize);
-                ImGui::End();
-                ImGui::PopStyleVar();
-            }
-
-            {
-                ImGui::Begin("Settings");
-                ImGui::Text("Camera");
-                ImGui::DragFloat("Movement Speed", &m_MovementSpeed, 0.1f, 0.1f, 5.0f);
-
-                ImGui::Separator();
-                ImGui::Text("Quad");
-                ImGui::DragFloat2("Quad Position", glm::value_ptr(m_QuadPosition), 0.1f);
-                ImGui::DragFloat2("Quad Size", glm::value_ptr(m_QuadSize));
-
-                ImGui::End();
-            }
+            ImGui::PopStyleVar();       
 
             RenderNewProjectPanel();
 
-            ImGui::End();
-            
+            for (auto panel : m_Panels)
+                panel.second->OnRender();
 
+            ImGui::End();          
             ImGui::PopStyleVar(2);
         }
 
@@ -410,6 +411,9 @@ class Editor : public Nexus::Application
         Nexus::Project* m_ActiveProject = nullptr;
         bool m_NewProjectPanelVisible = false;
         std::string m_ProjectFilePath;
+
+        //std::vector<Panel*> m_Panels;
+        std::unordered_map<std::string, Panel*> m_Panels;
 };
 
 int main(int argc, char** argv)
