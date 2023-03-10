@@ -11,6 +11,7 @@
 #include "UI/InspectorPanel.h"
 #include "UI/LogPanel.h"
 #include "UI/ViewportPanel.h"
+#include "UI/NewProjectPanel.h"
 
 std::vector<float> vertices1 = {
     -0.5f, -0.5f, 0.0f, 0, 0,
@@ -165,12 +166,19 @@ class Editor : public Nexus::Application
             m_Panels["InspectorPanel"] = new InspectorPanel();
             m_Panels["LogPanel"] = new LogPanel();
             m_Panels["ViewportPanel"] = new ViewportPanel(m_Framebuffer);
+
+            auto newProjectPanel = new NewProjectPanel();
+            newProjectPanel->Disable();
+            m_Panels["NewProjectPanel"] = newProjectPanel;
         }
 
         virtual void Update(Nexus::Time time) override
         {
             for (auto panel : m_Panels)
-                panel.second->OnUpdate();
+            {
+                if (panel.second->IsEnabled())
+                    panel.second->OnUpdate();
+            }
 
             //movement
             {
@@ -215,33 +223,11 @@ class Editor : public Nexus::Application
             this->m_GraphicsDevice->Clear(0, 0, 0, 1);
             this->BeginImGuiRender();
             RenderEditorUI();
-
-            if (ImGui::BeginMainMenuBar())
-            {
-                if (ImGui::BeginMenu("File", true))
-                {
-                    if (ImGui::MenuItem("New"))
-                    {
-                        m_NewProjectPanelVisible = true;
-                    }
-
-                    if (ImGui::MenuItem("Open"))
-                    {
-                        OpenProject();
-                    }
-
-                    if (ImGui::MenuItem("Quit"))
-                    {
-                        this->Close();
-                    }
-                    ImGui::EndMenu();
-                }
-                ImGui::EndMainMenuBar();
-            }  
-
+            //RenderMainMenubar();
             this->EndImGuiRender();
 
             this->m_GraphicsDevice->SwapBuffers();
+
         }
 
         virtual void OnResize(Nexus::Point size) override
@@ -278,7 +264,7 @@ class Editor : public Nexus::Application
 
         void CreateNewProject()
         {
-            m_NewProjectPanelVisible = true;
+            m_Panels["NewProjectPanel"]->Enable();
         }
 
         void OpenProject()
@@ -297,92 +283,71 @@ class Editor : public Nexus::Application
             #endif
         }
 
-        void RenderEditorUI()
-        {  
-            ImGuiWindowFlags flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+        void RenderMainMenubar()
+        {
+            ImGui::BeginMenuBar();
 
-            ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos, ImGuiCond_Always);
-            ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size);
+            if (ImGui::BeginMenu("File", true))
+            {
+                if (ImGui::MenuItem("New"))
+                {
+                    m_Panels["NewProjectPanel"]->Enable();
+                }
 
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0.0f, 0.0f});
+                if (ImGui::MenuItem("Open"))
+                {
+                    OpenProject();
+                }
 
-            flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_AlwaysAutoResize;
+                if (ImGui::MenuItem("Quit"))
+                {
+                    this->Close();
+                }
+                ImGui::EndMenu();
+            }
 
-            ImGui::Begin("Dockspace Demo", nullptr, flags);
-            
-            ImGui::DockSpace(ImGui::GetID("Dockspace"));
+            if (ImGui::BeginMenu("Help"))
+            {
+                if (ImGui::MenuItem("About"))
+                {
 
-            ImGui::PopStyleVar();       
+                }
 
-            RenderNewProjectPanel();
-
-            for (auto panel : m_Panels)
-                panel.second->OnRender();
-
-            ImGui::End();          
-            ImGui::PopStyleVar(2);
+                ImGui::EndMenu();
+            }
+            ImGui::EndMenuBar();
         }
 
-        void RenderNewProjectPanel()
-        {
-            if (m_NewProjectPanelVisible)
-            {
-                #ifndef __EMSCRIPTEN__
-                static std::string name{};
-                static std::string path{};
+        void RenderEditorUI()
+        {      
+            ImGuiWindowFlags flags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar;
 
-                ImGui::Begin("New Project", &m_NewProjectPanelVisible);
+            ImGui::SetNextWindowPos({
+                (float)GetWindowPosition().Width,
+                (float)GetWindowPosition().Height
+            }, ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size);
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0.0f, 0.0f});
+            flags |= ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+             ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
+             ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_MenuBar;
 
-                //name
-                ImGui::Text("Name: ");
-                ImGui::SameLine();
-                ImGui::InputText(" ", &name);
+             if (ImGui::Begin("Dockspace", nullptr, flags))
+             {
+                ImGui::PopStyleVar(3);
+                ImGui::DockSpace(ImGui::GetID("Dockspace"));
 
-                //directory
-                ImGui::Text("Directory: ");
-                ImGui::SameLine();
-                ImGui::Text(path.c_str());
-
-                if (ImGui::Button("Choose folder..."))
+                for (auto panel : m_Panels)
                 {
-                    #ifndef __EMSCRIPTEN__
-
-                    wchar_t* p = tinyfd_selectFolderDialogW(
-                        L"Select a folder",
-                        L"C:\\"  
-                    );
-
-                    if (p)
-                    {
-                        std::wstring ws(p);
-                        path = {ws.begin(), ws.end()};
-                        m_ProjectFilePath = {path};
-                    }
-
-                    #endif
-
+                    if (panel.second->IsEnabled())
+                        panel.second->OnRender();
                 }
 
-                if (ImGui::Button("Create"))
-                {
-                    #ifndef __EMSCRIPTEN__
-
-                    std::filesystem::path path{m_ProjectFilePath};
-                    std::string extension(".proj");
-                    path /= name + std::string("\\") + name + extension;
-                    std::filesystem::create_directories(path.parent_path());
-
-                    m_ActiveProject = new Nexus::Project(name);
-                    m_ActiveProject->Serialize(m_ProjectFilePath);
-
-                    #endif
-                }
-
+                RenderMainMenubar();
                 ImGui::End();
-                #endif
-            }
+             }
         }
 
     private:
@@ -407,10 +372,6 @@ class Editor : public Nexus::Application
         float m_MovementSpeed = 1.0f;
         glm::vec3 m_QuadPosition = {0, 0, 0};
         glm::vec3 m_QuadSize = {500, 500, 500};
-
-        Nexus::Project* m_ActiveProject = nullptr;
-        bool m_NewProjectPanelVisible = false;
-        std::string m_ProjectFilePath;
 
         //std::vector<Panel*> m_Panels;
         std::unordered_map<std::string, Panel*> m_Panels;

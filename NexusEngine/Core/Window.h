@@ -49,6 +49,7 @@ namespace Nexus
 
             SDL_Window* GetSDLWindowHandle(){ return this->m_Window; }
             Point GetWindowSize();
+            Point GetWindowPosition();
 
             Input* GetInput() { return m_Input; }
 

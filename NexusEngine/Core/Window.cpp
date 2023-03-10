@@ -230,4 +230,11 @@ namespace Nexus
         SDL_GetWindowSize(this->m_Window, &size.Width, &size.Height);
         return size;
     }
+
+    Point Window::GetWindowPosition()
+    {
+        Point position{};
+        SDL_GetWindowPosition(this->m_Window, &position.Width, &position.Height);
+        return position;
+    }
 }

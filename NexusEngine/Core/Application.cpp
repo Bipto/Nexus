@@ -121,6 +121,11 @@ namespace Nexus
         return this->m_Window->GetWindowSize();
     }
 
+    Point Application::GetWindowPosition()
+    {
+        return this->m_Window->GetWindowPosition();
+    }
+
     Window* Application::CreateWindow(const WindowProperties& props)
     {
         Window* window = new Nexus::Window(props);

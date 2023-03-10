@@ -76,6 +76,8 @@ namespace Nexus
             void MainLoop();
 
             Point GetWindowSize();
+            Point GetWindowPosition();
+
             void Close(){ this->m_Window->Close(); }
             bool ShouldClose(){return this->m_Window->IsClosing();}
 

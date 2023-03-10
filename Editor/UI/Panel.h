@@ -14,8 +14,7 @@ class Panel
 
         void Enable() { m_Enabled = true; }
         void Disable() { m_Enabled = false; }
-
-        bool IsEnabled() {return m_Enabled; }
-    private:
+        bool IsEnabled() { return m_Enabled; }
+    protected:
         bool m_Enabled = true;
 };
