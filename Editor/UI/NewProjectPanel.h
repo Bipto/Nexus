@@ -1,4 +1,7 @@
 #include "Panel.h"
+#include "NexusEngine.h"
+
+#include <functional>
 
 class NewProjectPanel : public Panel
 {
@@ -50,8 +53,9 @@ class NewProjectPanel : public Panel
                     path /= name + std::string("\\") + name + extension;
                     std::filesystem::create_directories(path.parent_path());
 
-                    m_ActiveProject = new Nexus::Project(name);
-                    m_ActiveProject->Serialize(m_ProjectFilePath);
+                    auto project = Nexus::CreateRef<Nexus::Project>(name);
+                    project->Serialize(m_ProjectFilePath);
+                    m_ProjectCreatedEventHandler.Invoke(project);
 
                     #endif
                 }
@@ -59,9 +63,20 @@ class NewProjectPanel : public Panel
                 ImGui::End();
             #endif
         }
+
+        void Subscribe(Delegate<Nexus::Ref<Nexus::Project>> function)
+        {
+            m_ProjectCreatedEventHandler.Bind(function);
+        }
+
+        void Unsubscribe(Delegate<Nexus::Ref<Nexus::Project>> function)
+        {
+            m_ProjectCreatedEventHandler.Unbind(function);
+        }
     
     private:
-        Nexus::Project* m_ActiveProject = nullptr;
         bool m_NewProjectPanelVisible = false;
         std::string m_ProjectFilePath;
+        Nexus::EventHandler<Nexus::Ref<Nexus::Project>> m_ProjectCreatedEventHandler;
+        
 };

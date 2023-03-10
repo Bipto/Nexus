@@ -169,12 +169,22 @@ class Editor : public Nexus::Application
             m_Panels["ViewportPanel"] = new ViewportPanel(m_Framebuffer);
 
             auto newProjectPanel = new NewProjectPanel();
+            auto function = std::bind(&Editor::OnProjectCreated, this, std::placeholders::_1);
+            Delegate<Nexus::Ref<Nexus::Project>> d("OnProjectCreated", function);
+            newProjectPanel->Subscribe(d);
             newProjectPanel->Disable();
             m_Panels["NewProjectPanel"] = newProjectPanel;
 
             auto aboutPanel = new AboutPanel(m_GraphicsDevice);
             aboutPanel->Disable();
             m_Panels["AboutPanel"] = aboutPanel;
+        }
+
+        void OnProjectCreated(Nexus::Ref<Nexus::Project> project)
+        {
+            m_Project = project;
+            auto p = (SceneHierarchyPanel*)m_Panels["SceneHierarchy"];
+            p->LoadProject(m_Project);
         }
 
         virtual void Update(Nexus::Time time) override
@@ -369,6 +379,7 @@ class Editor : public Nexus::Application
 
         Nexus::OrthographicCamera m_Camera;
         Nexus::Ref<Nexus::Framebuffer> m_Framebuffer;
+        Nexus::Ref<Nexus::Project> m_Project;
 
         bool m_WindowOpen = true;
 

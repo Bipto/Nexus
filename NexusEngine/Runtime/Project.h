@@ -3,9 +3,6 @@
 #include "Core/nxpch.h"
 #include "Scene.h"
 
-#include "nlohmann/json.hpp"
-#include <filesystem>
-
 namespace Nexus
 {
     class Project
@@ -25,8 +22,12 @@ namespace Nexus
             void Serialize(const std::string& directory);
             void Deserialize(const std::string& filepath);
 
+            Scene* GetActiveScene() { return m_Scenes[m_ActiveSceneIndex]; }
+            void SetActiveScene(int index) { m_ActiveSceneIndex = index; }
+
         private:
             std::string m_Name;
             std::vector<Scene*> m_Scenes;
+            int m_ActiveSceneIndex = 0;
     };
 }
