@@ -7,6 +7,7 @@
 #include "Core/Window.h"
 #include "Core/Point.h"
 #include "Core/Vertex.h"
+#include "Core/Memory.h"
 
 #include "Core/Events/Event.h"
 #include "Core/Events/EventHandler.h"

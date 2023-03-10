@@ -12,6 +12,7 @@
 #include "UI/LogPanel.h"
 #include "UI/ViewportPanel.h"
 #include "UI/NewProjectPanel.h"
+#include "UI/AboutPanel.h"
 
 std::vector<float> vertices1 = {
     -0.5f, -0.5f, 0.0f, 0, 0,
@@ -170,6 +171,10 @@ class Editor : public Nexus::Application
             auto newProjectPanel = new NewProjectPanel();
             newProjectPanel->Disable();
             m_Panels["NewProjectPanel"] = newProjectPanel;
+
+            auto aboutPanel = new AboutPanel(m_GraphicsDevice);
+            aboutPanel->Disable();
+            m_Panels["AboutPanel"] = aboutPanel;
         }
 
         virtual void Update(Nexus::Time time) override
@@ -243,7 +248,7 @@ class Editor : public Nexus::Application
             return true;
         }
 
-        void RenderQuad(Nexus::Texture* texture, const glm::vec3& position, const glm::vec3& scale)
+        void RenderQuad(Nexus::Ref<Nexus::Texture> texture, const glm::vec3& position, const glm::vec3& scale)
         {
             texture->Bind();
             this->m_VertexBuffer1->Bind();
@@ -310,7 +315,7 @@ class Editor : public Nexus::Application
             {
                 if (ImGui::MenuItem("About"))
                 {
-
+                    m_Panels["AboutPanel"]->Enable();
                 }
 
                 ImGui::EndMenu();
@@ -352,18 +357,18 @@ class Editor : public Nexus::Application
 
     private:
         Nexus::Renderer* m_Renderer;
-        Nexus::Shader* m_Shader;
+        Nexus::Ref<Nexus::Shader> m_Shader;
 
-        Nexus::Texture* m_Texture1;
-        Nexus::VertexBuffer* m_VertexBuffer1;
-        Nexus::IndexBuffer* m_IndexBuffer1;
+        Nexus::Ref<Nexus::Texture> m_Texture1;
+        Nexus::Ref<Nexus::VertexBuffer> m_VertexBuffer1;
+        Nexus::Ref<Nexus::IndexBuffer> m_IndexBuffer1;
 
-        Nexus::Texture* m_Texture2;
-        Nexus::VertexBuffer* m_VertexBuffer2;
-        Nexus::IndexBuffer* m_IndexBuffer2;
+        Nexus::Ref<Nexus::Texture> m_Texture2;
+        Nexus::Ref<Nexus::VertexBuffer> m_VertexBuffer2;
+        Nexus::Ref<Nexus::IndexBuffer> m_IndexBuffer2;
 
         Nexus::OrthographicCamera m_Camera;
-        Nexus::Framebuffer* m_Framebuffer;
+        Nexus::Ref<Nexus::Framebuffer> m_Framebuffer;
 
         bool m_WindowOpen = true;
 

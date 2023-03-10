@@ -21,6 +21,7 @@
 #include "Core/Events/EventHandler.h"
 #include "Core/Input/Input.h"
 #include "Core/Time.h"
+#include "Core/Memory.h"
 
 #include <chrono>
 
@@ -45,12 +46,13 @@ class Clock
 
 namespace Nexus
 {
-    static GraphicsDevice* CreateGraphicsDevice(Nexus::Window* window, GraphicsAPI api)
+    static Ref<GraphicsDevice> CreateGraphicsDevice(Nexus::Window* window, GraphicsAPI api)
     {
         switch (api)
         {
             default:
-                return new GraphicsDeviceOpenGL(window, api);
+                return CreateRef<GraphicsDeviceOpenGL>(window, api);
+                //return new GraphicsDeviceOpenGL(window, api);
         }
     }
 
@@ -86,7 +88,7 @@ namespace Nexus
             Input* GetCoreInput() { return m_Window->GetInput(); }
 
         protected:
-            std::shared_ptr<GraphicsDevice> m_GraphicsDevice;
+            Ref<GraphicsDevice> m_GraphicsDevice;
 
         private:
             Nexus::Window* m_Window;

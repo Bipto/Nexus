@@ -45,7 +45,7 @@ namespace Nexus
         WindowProperties props;
         this->m_Window = new Nexus::Window(props);
 
-        Nexus::GraphicsDevice* device = Nexus::CreateGraphicsDevice(this->m_Window, api);
+        Ref<Nexus::GraphicsDevice> device = Nexus::CreateGraphicsDevice(this->m_Window, api);
         this->m_GraphicsDevice = std::shared_ptr<GraphicsDevice>(device);
         this->m_GraphicsDevice->SetContext();
 

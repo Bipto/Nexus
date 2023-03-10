@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Window.h"
+#include "Core/Memory.h"
 #include "SDL.h"
 #include "Shader.h"
 #include "Buffer.h"
@@ -46,12 +47,12 @@ namespace Nexus
             GraphicsAPI GetGraphicsAPI(){return this->m_API;}
             //Swapchain* GetSwapchain(){return this->m_Swapchain;}
 
-            virtual Shader* CreateShaderFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource) = 0;
-            virtual Shader* CreateShaderFromFile(const std::string& filepath) = 0;
-            virtual VertexBuffer* CreateVertexBuffer(const std::vector<float> vertices, const BufferLayout& layout) = 0;
-            virtual IndexBuffer* CreateIndexBuffer(unsigned int indices[], unsigned int indexCount) = 0;
-            virtual Texture* CreateTexture(const char* filepath) = 0;
-            virtual Framebuffer* CreateFramebuffer(const Nexus::FramebufferSpecification& spec) = 0;
+            virtual Ref<Shader> CreateShaderFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource) = 0;
+            virtual Ref<Shader> CreateShaderFromFile(const std::string& filepath) = 0;
+            virtual Ref<VertexBuffer> CreateVertexBuffer(const std::vector<float> vertices, const BufferLayout& layout) = 0;
+            virtual Ref<IndexBuffer> CreateIndexBuffer(unsigned int indices[], unsigned int indexCount) = 0;
+            virtual Ref<Texture> CreateTexture(const char* filepath) = 0;
+            virtual Ref<Framebuffer> CreateFramebuffer(const Nexus::FramebufferSpecification& spec) = 0;
 
             virtual void Resize(Point size) = 0;
             virtual void SwapBuffers() = 0;

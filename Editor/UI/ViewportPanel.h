@@ -3,14 +3,14 @@
 class ViewportPanel : public Panel
 {
     public:
-        ViewportPanel(Nexus::Framebuffer* framebuffer)
+        ViewportPanel(Nexus::Ref<Nexus::Framebuffer> framebuffer)
             : m_Framebuffer(framebuffer)
             {}
 
         virtual void OnRender() override
         {
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0.0f, 0.0f});
-            ImGui::Begin("Viewport", &m_WindowOpen);
+            ImGui::Begin("Viewport");
             auto availSize = ImGui::GetContentRegionAvail();
             if (m_Framebuffer->HasColorTexture())
                 ImGui::Image((void*)m_Framebuffer->GetColorAttachment(0), availSize);
@@ -19,6 +19,5 @@ class ViewportPanel : public Panel
         }
     
     private:
-        Nexus::Framebuffer* m_Framebuffer;
-        bool m_WindowOpen = true;
+        Nexus::Ref<Nexus::Framebuffer> m_Framebuffer;
 };

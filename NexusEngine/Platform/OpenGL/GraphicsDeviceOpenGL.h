@@ -60,34 +60,39 @@ namespace Nexus
                 return (void*)this->m_Context;
             }
 
-            virtual Shader* CreateShaderFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource) override
+            virtual Ref<Shader> CreateShaderFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource) override
             {
-                return new ShaderOpenGL(vertexShaderSource, fragmentShaderSource);
+                return CreateRef<ShaderOpenGL>(vertexShaderSource, fragmentShaderSource);
             }
 
-            virtual Shader* CreateShaderFromFile(const std::string& filepath) override
+            virtual Ref<Shader> CreateShaderFromFile(const std::string& filepath) override
             {
-                return new ShaderOpenGL(filepath);
+                //return new ShaderOpenGL(filepath);
+                return CreateRef<ShaderOpenGL>(filepath);
             }
 
-            virtual VertexBuffer* CreateVertexBuffer(const std::vector<float> vertices, const BufferLayout& layout) override
+            virtual Ref<VertexBuffer> CreateVertexBuffer(const std::vector<float> vertices, const BufferLayout& layout) override
             {
-                return new VertexBufferOpenGL(vertices, layout);
+                //return new VertexBufferOpenGL(vertices, layout);
+                return CreateRef<VertexBufferOpenGL>(vertices, layout);
             }
 
-            virtual IndexBuffer* CreateIndexBuffer(unsigned int indices[], unsigned int indexCount) override
+            virtual Ref<IndexBuffer> CreateIndexBuffer(unsigned int indices[], unsigned int indexCount) override
             {
-                return new IndexBufferOpenGL(indices, indexCount);
+                //return new IndexBufferOpenGL(indices, indexCount);
+                return CreateRef<IndexBufferOpenGL>(indices, indexCount);
             }
 
-            virtual Texture* CreateTexture(const char* filepath) override
+            virtual Ref<Texture> CreateTexture(const char* filepath) override
             {
-                return new TextureOpenGL(filepath);
+                //return new TextureOpenGL(filepath);
+                return CreateRef<TextureOpenGL>(filepath);
             }
 
-            virtual Framebuffer* CreateFramebuffer(const Nexus::FramebufferSpecification& spec) override
+            virtual Ref<Framebuffer> CreateFramebuffer(const Nexus::FramebufferSpecification& spec) override
             {
-                return new FramebufferOpenGL(spec);
+                //return new FramebufferOpenGL(spec);
+                return CreateRef<FramebufferOpenGL>(spec);
             }
             
             virtual void Resize(Point size) override
