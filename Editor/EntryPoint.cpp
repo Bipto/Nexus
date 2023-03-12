@@ -13,6 +13,8 @@
 #include "UI/ViewportPanel.h"
 #include "UI/NewProjectPanel.h"
 #include "UI/AboutPanel.h"
+#include "UI/ProjectHierarchyPanel.h"
+#include "UI/NewScenePanel.h"
 
 std::vector<float> vertices1 = {
     -0.5f, -0.5f, 0.0f, 0, 0,
@@ -167,6 +169,11 @@ class Editor : public Nexus::Application
             m_Panels["InspectorPanel"] = new InspectorPanel();
             m_Panels["LogPanel"] = new LogPanel();
             m_Panels["ViewportPanel"] = new ViewportPanel(m_Framebuffer);
+            m_Panels["ProjectHierarchy"] = new ProjectHierarchyPanel();
+
+            auto newScenePanel = new NewScenePanel();
+            newScenePanel->Disable();
+            m_Panels["NewScenePanel"] = newScenePanel;
 
             auto newProjectPanel = new NewProjectPanel();
             auto function = std::bind(&Editor::OnProjectCreated, this, std::placeholders::_1);
@@ -183,8 +190,7 @@ class Editor : public Nexus::Application
         void OnProjectCreated(Nexus::Ref<Nexus::Project> project)
         {
             m_Project = project;
-            auto p = (SceneHierarchyPanel*)m_Panels["SceneHierarchy"];
-            p->LoadProject(m_Project);
+            LoadProjectIntoEditor();
         }
 
         virtual void Update(Nexus::Time time) override
@@ -285,17 +291,37 @@ class Editor : public Nexus::Application
         void OpenProject()
         {
             #ifndef __EMSCRIPTEN__
-            const wchar_t* filterPatterns[2] = {L"*.txt", L"*.text"};
+            const char* filterPatterns[2] = {"*.proj", "*.text"};
 
-            tinyfd_openFileDialogW(
-                L"Select file",
-                L"",
+            auto p = tinyfd_openFileDialog(
+                "Select file",
+                "",
                 2,
                 filterPatterns,
-                L"text files (*.txt|*.text)",
+                "text files (*.txt|*.text)",
                 0
             );
+
+            if (p)
+            {
+                //std::wstring path(p);
+                m_Project = Nexus::Project::Deserialize({p});
+                LoadProjectIntoEditor();
+            }
+
             #endif
+        }
+
+        void LoadProjectIntoEditor()
+        {
+            auto sceneHierarchyPanel = (SceneHierarchyPanel*)m_Panels["SceneHierarchy"];
+            sceneHierarchyPanel->LoadProject(m_Project);
+
+            auto projectHierarchyPanel = (ProjectHierarchyPanel*)m_Panels["ProjectHierarchy"];
+            projectHierarchyPanel->LoadProject(m_Project);
+
+            auto newScenePanel = (NewScenePanel*)m_Panels["NewScenePanel"];
+            newScenePanel->LoadProject(m_Project);
         }
 
         void RenderMainMenubar()
@@ -304,9 +330,21 @@ class Editor : public Nexus::Application
 
             if (ImGui::BeginMenu("File", true))
             {
-                if (ImGui::MenuItem("New"))
+                if (ImGui::BeginMenu("New"))
                 {
-                    m_Panels["NewProjectPanel"]->Enable();
+                    if (ImGui::MenuItem("New Project"))
+                        m_Panels["NewProjectPanel"]->Enable();
+
+                    if (ImGui::MenuItem("New Scene"))
+                        m_Panels["NewScenePanel"]->Enable();
+                    
+                    ImGui::EndMenu();
+                }
+
+                if (ImGui::MenuItem("Save"))
+                {
+                    auto directory = m_Project->GetProjectDirectory();
+                    m_Project->Serialize(directory);
                 }
 
                 if (ImGui::MenuItem("Open"))
@@ -389,7 +427,6 @@ class Editor : public Nexus::Application
         glm::vec3 m_QuadPosition = {0, 0, 0};
         glm::vec3 m_QuadSize = {500, 500, 500};
 
-        //std::vector<Panel*> m_Panels;
         std::unordered_map<std::string, Panel*> m_Panels;
 };
 

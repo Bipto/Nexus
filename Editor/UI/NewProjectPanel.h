@@ -53,7 +53,7 @@ class NewProjectPanel : public Panel
                     path /= name + std::string("\\") + name + extension;
                     std::filesystem::create_directories(path.parent_path());
 
-                    auto project = Nexus::CreateRef<Nexus::Project>(name);
+                    auto project = Nexus::CreateRef<Nexus::Project>(name, path.string());
                     project->Serialize(m_ProjectFilePath);
                     m_ProjectCreatedEventHandler.Invoke(project);
 
@@ -75,7 +75,6 @@ class NewProjectPanel : public Panel
         }
     
     private:
-        bool m_NewProjectPanelVisible = false;
         std::string m_ProjectFilePath;
         Nexus::EventHandler<Nexus::Ref<Nexus::Project>> m_ProjectCreatedEventHandler;
         

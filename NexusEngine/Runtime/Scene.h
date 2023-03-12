@@ -13,15 +13,12 @@ namespace Nexus
             Scene(const std::string& name)
             {
                 m_Name = name;
-
-                m_Entities.push_back(Entity("Bob", "1"));
-                m_Entities.push_back(Entity("Steve", "2"));
             }
 
             const std::string& GetName() { return m_Name; }
             
             void Serialize(const std::string& sceneDirectory);
-            void Deserialize(const std::string filepath);
+            void Deserialize(const std::string& filepath);
 
             void AddEntity(const Nexus::Entity entity)
             {
@@ -30,9 +27,7 @@ namespace Nexus
 
             void AddEmptyEntity()
             {
-                std::stringstream ss;
-                ss << m_Entities.size();
-                Nexus::Entity entity(std::string("Entity"), ss.str());
+                Nexus::Entity entity(std::string("Entity"), m_Entities.size());
                 m_Entities.push_back(entity);
             }
 

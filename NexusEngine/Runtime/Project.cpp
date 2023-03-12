@@ -1,7 +1,6 @@
 #include "Project.h"
 
 #include "nlohmann/json.hpp"
-#include <filesystem>
 
 namespace Nexus
 {
@@ -24,28 +23,62 @@ namespace Nexus
 
             nlohmann::json j;
             j["name"] = m_Name;
+            j["scene_directory"] = m_SceneDirectory;
+            j["assets_directory"] = m_AssetsDirectory;
             std::vector<std::string> paths;
             for (auto scene : m_Scenes)
                 paths.emplace_back(scene->GetName());
             j["scenes"] = paths;
 
+            //write to file
             ofs << j.dump(1);
             ofs.close();
         }
 
         //create scene subdirectories
-        std::string sceneDirectory = baseDirectory + std::string("\\Scenes");
-        for (auto scene : m_Scenes)
-        {
-            /* std::ofstream ofs(baseDirectory + std::string("\\Scenes") + std::string("\\") + scene->GetName() + std::string(".scene"));
-            ofs << scene->GetName();
-            ofs.close(); */
-
-            
+        std::string sceneDirectory = baseDirectory + "\\Scenes";
+        for (auto scene : m_Scenes)         
             scene->Serialize(sceneDirectory);
-        }
     }
-    void Project::Deserialize(const std::string &filepath)
+
+    Ref<Project> Project::Deserialize(const std::string &filepath)
     {
+        std::stringstream ss;
+        std::string line;
+        std::ifstream file(filepath);
+        auto projectDirectory = std::filesystem::path(filepath).parent_path();
+
+        //read lines into buffer
+        if (file.is_open())
+            while (getline(file, line))
+                ss << line;
+
+        
+        nlohmann::json j = nlohmann::json::parse(ss.str());
+
+        auto name = j.value("name", "not found");
+        Ref<Project> project = CreateRef<Project>(name, filepath);
+
+        std::string assetDir = j["assets_directory"].get<std::string>();
+        project->m_AssetsDirectory = assetDir;
+        
+        std::string sceneDir = j["scene_directory"];
+        project->m_SceneDirectory = sceneDir;
+
+        std::vector<std::string> sceneNames;
+        sceneNames = j["scenes"];
+
+        std::filesystem::path sceneDirectory(sceneDir);
+        std::vector<Scene*> scenes;
+        for (auto sceneName : sceneNames)
+        {
+            Scene* scene = new Scene(sceneName);
+            std::string scenePath(projectDirectory.string() + std::string("\\") + sceneDir + std::string("\\") + sceneName + std::string(".scene"));
+            scene->Deserialize(scenePath);
+            scenes.push_back(scene);
+        }      
+        project->m_Scenes = scenes;      
+
+        return project;
     }
 }
