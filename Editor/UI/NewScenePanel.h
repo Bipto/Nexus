@@ -4,16 +4,6 @@
 class NewScenePanel : public Panel
 {
     public:
-        void LoadProject(Nexus::Ref<Nexus::Project> project)
-        {
-            m_Project = project;
-        }
-
-        void UnloadProject()
-        {
-            m_Project = {};
-        }
-
         virtual void OnRender() override
         {
             static std::string name{};
@@ -33,6 +23,4 @@ class NewScenePanel : public Panel
 
             ImGui::End();
         }
-    private:
-        Nexus::Ref<Nexus::Project> m_Project;
 };

@@ -25,10 +25,8 @@ namespace Nexus
             j["name"] = m_Name;
             j["scene_directory"] = m_SceneDirectory;
             j["assets_directory"] = m_AssetsDirectory;
-            std::vector<std::string> paths;
-            for (auto scene : m_Scenes)
-                paths.emplace_back(scene->GetName());
-            j["scenes"] = paths;
+            j["scenes"] = m_Scenes;
+            j["active_scene_index"] = m_ActiveSceneIndex;
 
             //write to file
             ofs << j.dump(1);
@@ -37,8 +35,9 @@ namespace Nexus
 
         //create scene subdirectories
         std::string sceneDirectory = baseDirectory + "\\Scenes";
-        for (auto scene : m_Scenes)         
-            scene->Serialize(sceneDirectory);
+        m_ActiveScene->Serialize(sceneDirectory);
+        /* for (auto scene : m_Scenes)         
+            scene->Serialize(sceneDirectory); */
     }
 
     Ref<Project> Project::Deserialize(const std::string &filepath)
@@ -67,17 +66,18 @@ namespace Nexus
 
         std::vector<std::string> sceneNames;
         sceneNames = j["scenes"];
+        project->m_Scenes = sceneNames;
+
+        project->m_ActiveSceneIndex = j["active_scene_index"].get<int>();
 
         std::filesystem::path sceneDirectory(sceneDir);
         std::vector<Scene*> scenes;
-        for (auto sceneName : sceneNames)
-        {
-            Scene* scene = new Scene(sceneName);
-            std::string scenePath(projectDirectory.string() + std::string("\\") + sceneDir + std::string("\\") + sceneName + std::string(".scene"));
-            scene->Deserialize(scenePath);
-            scenes.push_back(scene);
-        }      
-        project->m_Scenes = scenes;      
+
+        std::string& sceneName = project->m_Scenes[project->m_ActiveSceneIndex];
+        Scene* scene = new Scene(sceneName);
+        std::string scenePath(projectDirectory.string() + std::string("\\") + sceneDir + std::string("\\") + sceneName + std::string(".scene"));
+        scene->Deserialize(scenePath);
+        project->m_ActiveScene = scene;
 
         return project;
     }

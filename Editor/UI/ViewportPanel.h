@@ -13,7 +13,7 @@ class ViewportPanel : public Panel
             ImGui::Begin("Viewport");
             auto availSize = ImGui::GetContentRegionAvail();
             if (m_Framebuffer->HasColorTexture())
-                ImGui::Image((void*)m_Framebuffer->GetColorAttachment(0), availSize);
+                ImGui::Image((ImTextureID)m_Framebuffer->GetColorAttachment(0), availSize);
             ImGui::End();
             ImGui::PopStyleVar();
         }

@@ -3,29 +3,28 @@
 class SceneHierarchyPanel : public Panel
 {
     public:
-        void LoadProject(Nexus::Ref<Nexus::Project> project)
-        {
-            m_Project = project;
-        }
-
-        void UnloadProject()
-        {
-            m_Project = {};
-        }
-
         virtual void OnRender() override
         {
             ImGui::Begin("Scene Hierachy");
 
             if (m_Project)
             {             
-                for (auto entity : m_Project->GetActiveScene()->GetEntities())
-                {
-                    auto flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Leaf;
-                    auto text = entity.GetName();
+                auto activeScene = m_Project->GetActiveScene();
 
-                    if (ImGui::TreeNodeEx(text.c_str(), flags))
+                for (int i = 0; i < activeScene->GetEntities().size(); i++)
+                {
+                    auto& entity = activeScene->GetEntities()[i];
+
+                    auto flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Leaf;
+                    auto entityName = entity.GetName().c_str();
+
+                    if (ImGui::TreeNodeEx(entityName, flags))
                     {
+                        if (ImGui::IsItemClicked())
+                        {
+                            m_EventHandler.Invoke(i);
+                        }
+
                         ImGui::TreePop();
                     }
                 }
@@ -42,6 +41,17 @@ class SceneHierarchyPanel : public Panel
             
             ImGui::End();
         }
+
+        void BindEntitySelectedFunction(Delegate<int> delegate)
+        {
+            m_EventHandler.Bind(delegate);
+        }   
+
+        void UnbindEntitySelectedFunction(Delegate<int> delegate)
+        {
+            m_EventHandler.Unbind(delegate);
+        }
+
     private:
-        Nexus::Ref<Nexus::Project> m_Project;
+        Nexus::EventHandler<int> m_EventHandler;
 };
