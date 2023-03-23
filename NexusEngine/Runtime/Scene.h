@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/nxpch.h"
+#include "Core/Memory.h"
 #include "Runtime/ECS/Entity.h"
 
 #include <vector>
@@ -28,17 +28,18 @@ namespace Nexus
             void AddEmptyEntity()
             {
                 Nexus::Entity entity(std::string("Entity"), m_Entities.size());
+                auto transform = CreateRef<TransformComponent>();
+                entity.AddComponent(transform);
                 m_Entities.push_back(entity);
             }
 
-            const std::vector<Nexus::Entity>& GetEntities()
-            {
-                return m_Entities;
-            }
+            std::vector<Nexus::Entity>& GetEntities() { return m_Entities; }
 
             const size_t GetEntityCount() { return m_Entities.size(); }
 
         private:
+            void LoadEntity(nlohmann::json json, int id);
+            void LoadComponent(Entity& entity, nlohmann::json json);
             std::string m_Name;
             std::vector<Nexus::Entity> m_Entities;
     };

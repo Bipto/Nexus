@@ -2,6 +2,7 @@
 
 #include "nlohmann/json.hpp"
 #include <filesystem>
+#include <iostream>
 
 namespace Nexus
 {
@@ -18,18 +19,70 @@ namespace Nexus
             
             for (auto entity : m_Entities)
             {
-                std::stringstream ss;
-                ss << entity.GetID();
-                j["entities"][ss.str()] =
+                nlohmann::json componentJson;
+                int index = 0;
+                for (auto component : entity.GetComponents())
                 {
-                    { "name", entity.GetName()},
-                    { "is_active", entity.IsActive()}
+                    componentJson[std::to_string(index)] = 
+                    {
+                        { "name", component->GetName() },
+                        { "data", component->Serialize() }
+                    };
+                }
+
+                std::stringstream entityJson;
+                entityJson << entity.GetID();
+                j["entities"][entityJson.str()] =
+                {
+                    { "name", entity.GetName() },
+                    { "is_active", entity.IsActive() },
+                    { "component_count", entity.GetComponents().size() },
+                    { "components", componentJson }
                 };
             }
 
             ofs << j.dump(1);
             ofs.close();
         }
+    }
+
+    Ref<Component> GetComponentFromTypeName(const std::string& name)
+    {
+        if (name == "Transform")
+            return CreateRef<TransformComponent>();
+
+            return {};
+    }
+
+    void Scene::LoadComponent(Entity& entity, nlohmann::json json)
+    {
+        std::string name = json["name"];
+        auto componentData = json["data"];
+        Ref<Component> component = GetComponentFromTypeName(name);    
+
+        if (component)
+        {
+            component->Deserialize(componentData);
+            entity.AddComponent(component);
+        }    
+    }
+
+    void Scene::LoadEntity(nlohmann::json json, int id)
+    {
+        auto entityName = json["name"];
+        auto  entityIsActive = json["is_active"];
+
+        Entity entity(entityName, id);
+
+        int componentCount = json["component_count"];
+
+        for (int i = 0; i < componentCount; i++)
+        {
+            auto componentJson = json["components"][std::to_string(i)];
+            LoadComponent(entity, componentJson);
+        }
+
+        m_Entities.push_back(entity);
     }
     
     void Scene::Deserialize(const std::string& filepath)
@@ -51,14 +104,9 @@ namespace Nexus
             
             for (int i = 0; i < entityCount; i++)
             {
-                std::stringstream ss;
-                ss << i;
-                std::string id = ss.str();
-                auto entityName = j["entities"][id]["name"];
-                auto entityIsActive = j["entities"][id]["is_active"];
-
-                Entity entity(entityName, i);
-                m_Entities.push_back(entity);
+                std::string id = std::to_string(i);
+                auto entityJson = j["entities"][id];
+                LoadEntity(entityJson, std::stoi(id));
             }
         }
     }

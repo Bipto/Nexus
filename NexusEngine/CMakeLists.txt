@@ -4,8 +4,8 @@ project ("NexusEngine")
 
 #find_package(Python REQUIRED COMPONENTS Interpreter Development)
 
-file (GLOB_RECURSE ENGINE_HEADERS Core/*.h Platform/*.h Runtime/*.h)
-file (GLOB_RECURSE ENGINE_SOURCES Core/*.cpp Platform/*.cpp Runtime/*.cpp)
+file (GLOB_RECURSE ENGINE_HEADERS Core/*.h Platform/*.h Runtime/*.h Runtime/ECS/*.h)
+file (GLOB_RECURSE ENGINE_SOURCES Core/*.cpp Platform/*.cpp Runtime/*.cpp Runtime/ECS/*.cpp)
 add_library(NexusEngine ${ENGINE_HEADERS} ${ENGINE_SOURCES})
 
 target_include_directories(NexusEngine PUBLIC ../External/SDL/include)

@@ -195,8 +195,6 @@ class Editor : public Nexus::Application
         {
             for (auto& panel : m_Panels)
                 panel.second->SetActiveEntity(entityID);
-
-            NX_LOG("Entity selected");
         }
 
         void OnProjectCreated(Nexus::Ref<Nexus::Project> project)
@@ -353,8 +351,11 @@ class Editor : public Nexus::Application
 
                 if (ImGui::MenuItem("Save"))
                 {
-                    auto directory = m_Project->GetProjectDirectory();
-                    m_Project->Serialize(directory);
+                    if (m_Project)
+                    {
+                        auto directory = m_Project->GetProjectDirectory();
+                        m_Project->Serialize(directory);
+                    }                    
                 }
 
                 if (ImGui::MenuItem("Open"))
