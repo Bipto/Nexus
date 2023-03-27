@@ -60,4 +60,13 @@ namespace Nexus
             scale["z"]
         };
     }
+
+    Component* TransformComponent::Clone()
+    {
+        TransformComponent* component = new TransformComponent();
+        component->m_Translation = this->m_Translation;
+        component->m_Rotation = this->m_Rotation;
+        component->m_Scale = this->m_Scale;
+        return component;
+    }
 }

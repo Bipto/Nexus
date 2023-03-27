@@ -1,6 +1,5 @@
 #include "Panel.h"
 
-#include "Core/Runtime.h"
 #include "Core/Logging/Log.h"
 
 class LogPanel : public Panel

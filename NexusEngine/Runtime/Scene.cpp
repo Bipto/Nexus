@@ -4,6 +4,9 @@
 #include <filesystem>
 #include <iostream>
 
+#include "ECS/ComponentRegistry.h"
+#include "Core/Runtime.h"
+
 namespace Nexus
 {
     void Scene::Serialize(const std::string& sceneDirectory)
@@ -46,25 +49,21 @@ namespace Nexus
         }
     }
 
-    Ref<Component> GetComponentFromTypeName(const std::string& name)
-    {
-        if (name == "Transform")
-            return CreateRef<TransformComponent>();
-
-            return {};
-    }
-
     void Scene::LoadComponent(Entity& entity, nlohmann::json json)
     {
         std::string name = json["name"];
         auto componentData = json["data"];
-        Ref<Component> component = GetComponentFromTypeName(name);    
+        
+        /* auto c = factory.GetComponent(name);
+        auto component = c->Clone();
+        component->Deserialize(componentData);
+        entity.AddComponent(component); */
 
-        if (component)
-        {
-            component->Deserialize(componentData);
-            entity.AddComponent(component);
-        }    
+        auto& registry = GetComponentRegistry();
+        auto component = registry.Get(name);
+        auto newComponent = component->Clone();
+        newComponent->Deserialize(componentData);
+        entity.AddComponent(newComponent);
     }
 
     void Scene::LoadEntity(nlohmann::json json, int id)
@@ -95,7 +94,7 @@ namespace Nexus
         if (file.is_open())
             while (getline(file, line))
                 ss << line;
-
+                
         //load json
         {
             nlohmann::json j = nlohmann::json::parse(ss.str());

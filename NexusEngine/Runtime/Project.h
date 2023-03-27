@@ -8,7 +8,7 @@
 
 namespace Nexus
 {
-    class Project
+        class Project
     {
         public:
             Project(const std::string& name, const std::string& projectDirectory) 

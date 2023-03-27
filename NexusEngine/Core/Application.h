@@ -23,6 +23,8 @@
 #include "Core/Time.h"
 #include "Core/Memory.h"
 
+#include "Runtime/ECS/ComponentRegistry.h"
+
 #include <chrono>
 
 class Clock
@@ -86,7 +88,7 @@ namespace Nexus
             Window* CreateWindow(const WindowProperties& props);
 
             Input* GetCoreInput() { return m_Window->GetInput(); }
-
+            
         protected:
             Ref<GraphicsDevice> m_GraphicsDevice;
 

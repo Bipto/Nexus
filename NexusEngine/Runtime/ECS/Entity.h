@@ -21,13 +21,13 @@ namespace Nexus
             const std::string& GetName() const { return m_Name; }
             void SetName(const std::string& name) { m_Name = name; }
 
-            const std::vector<Ref<Component>>& GetComponents() { return m_Components; }
-            void AddComponent(Ref<Component> component) { m_Components.push_back(component); }
+            const std::vector<Component*>& GetComponents() { return m_Components; }
+            void AddComponent(Component* component) { m_Components.push_back(component); }
 
         private:
             int m_EntityID = 0;
             std::string m_Name = "Entity";
             bool m_Active = true;
-            std::vector<Ref<Component>> m_Components;
+            std::vector<Component*> m_Components;
     };
 }
