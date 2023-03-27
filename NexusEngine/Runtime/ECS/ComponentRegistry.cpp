@@ -13,4 +13,9 @@ namespace Nexus
             return m_Components[name];
         return {};
     }
+
+    std::unordered_map<std::string, Component*>& ComponentRegistry::GetComponents()
+    {
+        return m_Components;
+    }
 }
