@@ -44,7 +44,11 @@ class SceneHierarchyPanel : public Panel
                                     auto& registry = Nexus::GetComponentRegistry();
                                     for (auto component : registry.GetComponents())
                                     {                                        
-                                        ImGui::Selectable(component.first.c_str());
+                                        if (ImGui::Selectable(component.first.c_str()))
+                                        {
+                                            auto newComponent = component.second->Clone();
+                                            entity.AddComponent(newComponent);
+                                        }
                                     }
 
                                     ImGui::EndMenu();

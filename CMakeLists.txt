@@ -4,7 +4,6 @@ project("NexusEngine")
 set (CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(Editor)
-add_subdirectory(Test)
 add_subdirectory(NexusEngine)
 
 add_subdirectory(External/SDL)
@@ -23,9 +22,6 @@ target_link_libraries(Editor PUBLIC NexusEngine)
 
 target_include_directories(Editor PUBLIC External/tinyfiledialogs/tinyfiledialogs)
 target_link_libraries(Editor PUBLIC tinyfiledialogs)
-
-target_include_directories(Test PUBLIC NexusEngine)
-target_link_libraries(Test PUBLIC NexusEngine)
 
 if (EMSCRIPTEN)
     set_target_properties(

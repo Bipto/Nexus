@@ -11,18 +11,11 @@ class AboutPanel : public Panel
         {
             ImGui::Begin("About", &m_Enabled);
             ImGui::Text("Nexus Engine - Version 0.1 Alpha");
-            ImGui::Text(APIToString());
+            ImGui::Separator();
+            ImGui::Text(m_GraphicsDevice->GetAPIName());
+            ImGui::Text(m_GraphicsDevice->GetDeviceName());
             ImGui::End();
         }
     private:
-        const char* APIToString()
-        {
-                switch (m_GraphicsDevice->GetGraphicsAPI())
-                {
-                    default:
-                        return "Graphics API: OpenGL 3.3";
-                }
-        }
-
         Nexus::Ref<Nexus::GraphicsDevice> m_GraphicsDevice;
 };

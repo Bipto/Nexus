@@ -7,22 +7,36 @@ class InspectorPanel : public Panel
         {
             ImGui::Begin("Inspector");
 
+            Nexus::Component* componentToRemove = nullptr;
+
             if (m_SelectedEntityID != -1)
             {
                 auto& entity = m_Project->GetActiveScene()->GetEntities()[m_SelectedEntityID];
-                //ImGui::Text(m_SelectedEntity->GetName().c_str());
-                //ImGui::Text(entity.GetName().c_str());
 
                 auto name = entity.GetName();
                 if (ImGui::InputText("Name", &name))
                     entity.SetName(name);
+                ImGui::Separator();
 
+                int index = 0;
                 for (auto component : entity.GetComponents())
                 {
-                    ImGui::Separator();
+                    ImGui::PushID(index);
                     ImGui::Text(component->GetName());
                     component->RenderUI();
+                    if (ImGui::Button("Remove Component"))
+                    {
+                        componentToRemove = component;
+                    }
+
+                    ImGui::Separator();
+                    ImGui::PopID();
+                    index++;
                 }
+
+                //defer removal of component until UI rendering has been completed
+                if (componentToRemove)
+                    entity.RemoveComponent(componentToRemove);
             }
 
             ImGui::End();

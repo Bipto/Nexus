@@ -55,6 +55,7 @@ namespace Nexus
     void BindComponents()
     {
         registry.Bind(new TransformComponent());
+        registry.Bind(new SpriteRendererComponent());
     }
 
     void Init()

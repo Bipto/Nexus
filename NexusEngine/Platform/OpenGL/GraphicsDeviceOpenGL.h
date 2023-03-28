@@ -55,6 +55,16 @@ namespace Nexus
                 glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void*)0);
             }
 
+            virtual const char* GetAPIName() override
+            {
+                return (const char*)glGetString(GL_VERSION);
+            }
+
+            virtual const char* GetDeviceName() override
+            {
+                return (const char*)glGetString(GL_RENDERER);
+            }
+
             virtual void* GetContext() override
             {
                 return (void*)this->m_Context;

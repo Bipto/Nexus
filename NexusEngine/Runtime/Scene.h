@@ -28,8 +28,8 @@ namespace Nexus
             void AddEmptyEntity()
             {
                 Nexus::Entity entity(std::string("Entity"), m_Entities.size());
-                auto transform = new TransformComponent();
-                entity.AddComponent(transform);
+                TransformComponent* component = new TransformComponent();
+                entity.AddComponent(component);
                 m_Entities.push_back(entity);
             }
 

@@ -52,16 +52,16 @@ namespace Nexus
     class SpriteRendererComponent : public Component
     {
         public:
-            virtual const char* GetName() override { return "Transform"; }
+            virtual const char* GetName() override { return "SpriteRenderer"; }
             virtual void RenderUI() override;
             virtual nlohmann::json Serialize() override;
             virtual void Deserialize(nlohmann::json json) override;
             virtual Component* Clone() override;
 
-            const glm::vec4 GetColor() { return m_Color; }
-            void SetColor(glm::vec4 color) { m_Color = color; }
+            const glm::vec3 GetColor() { return m_Color; }
+            void SetColor(glm::vec3 color) { m_Color = color; }
         private:
-            glm::vec4 m_Color;
+            glm::vec3 m_Color;
             Ref<Texture> m_Texture;
     };
 }

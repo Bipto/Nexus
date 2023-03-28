@@ -20,19 +20,29 @@ namespace Nexus
             j["name"] = m_Name;
             j["entity_count"] = m_Entities.size();
             
+            //serialize entities
             for (auto entity : m_Entities)
             {
                 nlohmann::json componentJson;
                 int index = 0;
                 for (auto component : entity.GetComponents())
                 {
+                    /* componentJson[std::to_string(index)] = 
+                    {
+                        { "name", component->GetName() },
+                        { "data", component->Serialize() }
+                    }; */
+
                     componentJson[std::to_string(index)] = 
                     {
                         { "name", component->GetName() },
                         { "data", component->Serialize() }
                     };
+
+                    index++;
                 }
 
+                //add entity json to scene
                 std::stringstream entityJson;
                 entityJson << entity.GetID();
                 j["entities"][entityJson.str()] =
@@ -53,11 +63,6 @@ namespace Nexus
     {
         std::string name = json["name"];
         auto componentData = json["data"];
-        
-        /* auto c = factory.GetComponent(name);
-        auto component = c->Clone();
-        component->Deserialize(componentData);
-        entity.AddComponent(component); */
 
         auto& registry = GetComponentRegistry();
         auto component = registry.Get(name);

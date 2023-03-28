@@ -2,6 +2,11 @@
 
 namespace Nexus
 {
+
+//-----------------------------------------------------------------------------
+// TRANSFORM COMPONENT
+//-----------------------------------------------------------------------------
+
     //transform component
     void TransformComponent::RenderUI()
     {
@@ -67,6 +72,46 @@ namespace Nexus
         component->m_Translation = this->m_Translation;
         component->m_Rotation = this->m_Rotation;
         component->m_Scale = this->m_Scale;
+        return component;
+    }
+
+//-----------------------------------------------------------------------------
+// SPRITE RENDERER COMPONENT
+//-----------------------------------------------------------------------------
+
+    void SpriteRendererComponent::RenderUI()
+    {
+        ImGui::ColorEdit3("Color", glm::value_ptr(m_Color));
+    }
+
+    nlohmann::json SpriteRendererComponent::Serialize()
+    {
+        nlohmann::json j;
+        j["color"] = 
+        {
+            { "r", m_Color.r },
+            { "g", m_Color.g },
+            { "b", m_Color.b }
+        };
+        return j;
+    }
+
+    void SpriteRendererComponent::Deserialize(nlohmann::json json)
+    {
+        auto color = json["color"];
+        m_Color = 
+        {
+            color["r"],
+            color["g"],
+            color["b"]
+        };
+    }
+
+    Component* SpriteRendererComponent::Clone()
+    {
+        SpriteRendererComponent* component = new SpriteRendererComponent();
+        component->m_Color = this->m_Color;
+        component->m_Texture = this->m_Texture;
         return component;
     }
 }

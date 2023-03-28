@@ -41,6 +41,8 @@ namespace Nexus
             virtual void Clear(float red, float green, float blue, float alpha) = 0;
             virtual void DrawElements(unsigned int start, unsigned int count) = 0;
             virtual void DrawIndexed(unsigned int count) = 0;
+            virtual const char* GetAPIName() = 0;
+            virtual const char* GetDeviceName() = 0;
 
             virtual void* GetContext() = 0;
 

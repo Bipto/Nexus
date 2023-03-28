@@ -23,6 +23,11 @@ namespace Nexus
 
             const std::list<Component*>& GetComponents() { return m_Components; }
             void AddComponent(Component* component) { m_Components.push_back(component); }
+            void RemoveComponent(Component* component)
+            {
+                m_Components.remove(component);
+                delete component;
+            }
 
         private:
             int m_EntityID = 0;
