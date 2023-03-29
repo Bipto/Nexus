@@ -73,6 +73,8 @@ namespace Nexus
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
+
+        m_ImGuiActive = true;
     }
 
     void Application::EndImGuiRender()
@@ -88,13 +90,6 @@ namespace Nexus
 
     void Application::MainLoop()
     {
-        /* auto windowSize = this->GetWindowSize();
-        if (m_PreviousWindowSize.Width != windowSize.Width || m_PreviousWindowSize.Height != windowSize.Height)
-        {
-            OnResize(windowSize);
-            m_PreviousWindowSize = windowSize;
-        } */
-
         if (m_Window->m_RequiresResize)
             OnResize(this->GetWindowSize());
 
@@ -108,11 +103,14 @@ namespace Nexus
         auto time = m_Clock.GetTime();
         this->Update(time);    
 
-        //Update and render additional platform windows
-        if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+        if (m_ImGuiActive)
         {
-            ImGui::UpdatePlatformWindows();
-            ImGui::RenderPlatformWindowsDefault();
+            //Update and render additional platform windows
+            if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+            {
+                ImGui::UpdatePlatformWindows();
+                ImGui::RenderPlatformWindowsDefault();
+            }
         }
     }
 

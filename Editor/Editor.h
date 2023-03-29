@@ -151,13 +151,13 @@ class Editor : public Nexus::Application
             auto& style = ImGui::GetStyle();
             style.ChildBorderSize = 0.0f;
 
-            std::ifstream file("Resources/test.txt");
+            /* std::ifstream file("Resources/test.txt");
             std::string line;
 
             while (getline(file, line))
             {
                 std::cout << line << std::endl;
-            }
+            } */
 
             SceneHierarchyPanel* sceneHierarchyPanel = new SceneHierarchyPanel();
             std::function<void(int)> f = std::bind(&Editor::OnEntitySelected, this, std::placeholders::_1); 

@@ -98,5 +98,7 @@ namespace Nexus
 
             Nexus::EventHandler<Point> m_WindowResizeEventHandler;
             Clock m_Clock;
+
+            bool m_ImGuiActive = false;
     };
 }

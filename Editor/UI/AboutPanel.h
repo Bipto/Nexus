@@ -12,8 +12,19 @@ class AboutPanel : public Panel
             ImGui::Begin("About", &m_Enabled);
             ImGui::Text("Nexus Engine - Version 0.1 Alpha");
             ImGui::Separator();
+
+            ImGui::Text("Graphics API:");
+            if (m_GraphicsDevice->GetGraphicsAPI() == Nexus::GraphicsAPI::OpenGL)
+            {
+                ImGui::Text("OpenGL Version ");
+                ImGui::SameLine();
+            }
             ImGui::Text(m_GraphicsDevice->GetAPIName());
+            ImGui::Separator();
+
+            ImGui::Text("Graphics Adapter:");
             ImGui::Text(m_GraphicsDevice->GetDeviceName());
+            ImGui::Separator();
             ImGui::End();
         }
     private:
