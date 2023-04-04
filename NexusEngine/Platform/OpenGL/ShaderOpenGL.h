@@ -16,25 +16,41 @@ namespace Nexus
         std::string FragmentSource;
     };
 
+    static GLenum GetGLBaseType(const BufferElement element)
+    {
+        switch (element.Type)
+        {
+            case ShaderDataType::Float:     return GL_FLOAT;
+            case ShaderDataType::Float2:    return GL_FLOAT;
+            case ShaderDataType::Float3:    return GL_FLOAT;
+            case ShaderDataType::Float4:    return GL_FLOAT;
+            case ShaderDataType::Int:       return GL_INT;
+            case ShaderDataType::Int2:      return GL_INT;
+            case ShaderDataType::Int3:      return GL_INT;
+            case ShaderDataType::Int4:      return GL_INT;
+        }
+    }
+
     class ShaderOpenGL : public Shader
     {
         public:
-            ShaderOpenGL(const std::string& vertexShaderSource, const std::string& fragmentShaderSource)
+            ShaderOpenGL(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const BufferLayout& layout)
             {
                 Compile(vertexShaderSource, fragmentShaderSource);
+                m_Layout = layout;
             }
 
-            ShaderOpenGL(const std::string& filepath)
+            ShaderOpenGL(const std::string& filepath, const BufferLayout& layout)
             {
                 auto source = ParseShader(filepath);
                 Compile(source.VertexSource, source.FragmentSource);
+                m_Layout = layout;
             }
-
-            ShaderOpenGL(const ShaderOpenGL&) = delete;
 
             virtual void Bind() override 
             {
                 glUseProgram(this->m_ProgramHandle);
+                SetLayout();
             }
 
             virtual void SetShaderUniform1i(const std::string& name, int value) override
@@ -77,6 +93,11 @@ namespace Nexus
             {
                 unsigned int loc = glGetUniformLocation(this->m_ProgramHandle, name.c_str());
                 glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(value));
+            }
+
+            virtual const BufferLayout& GetLayout() const override
+            { 
+                return m_Layout; 
             }
 
         private:
@@ -164,7 +185,25 @@ namespace Nexus
                 glDeleteShader(fragmentShader);
             }
 
+            void SetLayout()
+            {
+                int index = 0;
+                for (auto& element : m_Layout)
+                {
+                    glVertexAttribPointer(index,
+                        element.GetComponentCount(),
+                        GetGLBaseType(element),
+                        element.Normalized ? GL_TRUE : GL_FALSE,
+                        m_Layout.GetStride(),
+                        (void*)element.Offset);
+                    
+                    glEnableVertexAttribArray(index);
+                    index++;
+                }
+            }
+
         private:
             unsigned int m_ProgramHandle;
+            BufferLayout m_Layout;
     };
 }

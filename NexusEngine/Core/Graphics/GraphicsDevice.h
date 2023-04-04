@@ -19,7 +19,6 @@ namespace Nexus
 
     enum class VSyncState
     {
-        Adaptive = -1,
         Disabled = 0,
         Enabled = 1
     };
@@ -39,8 +38,8 @@ namespace Nexus
     
             virtual void SetContext() = 0;
             virtual void Clear(float red, float green, float blue, float alpha) = 0;
-            virtual void DrawElements(unsigned int start, unsigned int count) = 0;
-            virtual void DrawIndexed(unsigned int count) = 0;
+            virtual void DrawElements(Ref<VertexBuffer> vertexBuffer, Ref<Shader> shader) = 0;
+            virtual void DrawIndexed(Ref<VertexBuffer> vertexBuffer, Ref<IndexBuffer> indexBuffer) = 0;
             virtual const char* GetAPIName() = 0;
             virtual const char* GetDeviceName() = 0;
 
@@ -49,16 +48,16 @@ namespace Nexus
             GraphicsAPI GetGraphicsAPI(){return this->m_API;}
             //Swapchain* GetSwapchain(){return this->m_Swapchain;}
 
-            virtual Ref<Shader> CreateShaderFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource) = 0;
-            virtual Ref<Shader> CreateShaderFromFile(const std::string& filepath) = 0;
-            virtual Ref<VertexBuffer> CreateVertexBuffer(const std::vector<float> vertices, const BufferLayout& layout) = 0;
+            virtual Ref<Shader> CreateShaderFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const BufferLayout& layout) = 0;
+            virtual Ref<Shader> CreateShaderFromFile(const std::string& filepath, const BufferLayout& layout) = 0;
+            virtual Ref<VertexBuffer> CreateVertexBuffer(const std::vector<float> vertices) = 0;
             virtual Ref<IndexBuffer> CreateIndexBuffer(unsigned int indices[], unsigned int indexCount) = 0;
             virtual Ref<Texture> CreateTexture(const char* filepath) = 0;
             virtual Ref<Framebuffer> CreateFramebuffer(const Nexus::FramebufferSpecification& spec) = 0;
 
             virtual void Resize(Point size) = 0;
             virtual void SwapBuffers() = 0;
-            virtual void SetVSyncState(VSyncState VSyncState) = 0;
+            virtual void SetVSyncState(VSyncState vSyncState) = 0;
         protected:
             Nexus::Window* m_Window;
             GraphicsAPI m_API;

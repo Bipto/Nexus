@@ -38,7 +38,7 @@ namespace Nexus
             Window(const Window&) = delete;
             ~Window();
 
-            void PollEvents();
+            void PollEvents(bool imguiActive = false);
 
             void SetResizable(bool isResizable);
             void SetTitle(const std::string& title);

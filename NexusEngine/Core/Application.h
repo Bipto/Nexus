@@ -5,6 +5,7 @@
 #include "Window.h"
 #include "Graphics/GraphicsDevice.h"
 #include "Platform/OpenGL/GraphicsDeviceOpenGL.h"
+#include "Platform/DX11/GraphicsDeviceDX11.h"
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -52,6 +53,8 @@ namespace Nexus
     {
         switch (api)
         {
+            case GraphicsAPI::DirectX11:
+                return CreateRef<GraphicsDeviceDX11>(window, api);
             default:
                 return CreateRef<GraphicsDeviceOpenGL>(window, api);
                 //return new GraphicsDeviceOpenGL(window, api);
@@ -85,7 +88,7 @@ namespace Nexus
             void Close(){ this->m_Window->Close(); }
             bool ShouldClose(){return this->m_Window->IsClosing();}
 
-            Window* CreateWindow(const WindowProperties& props);
+            Window* CreateApplicationWindow(const WindowProperties& props);
 
             Input* GetCoreInput() { return m_Window->GetInput(); }
             

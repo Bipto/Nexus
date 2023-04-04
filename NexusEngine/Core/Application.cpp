@@ -1,6 +1,8 @@
 #include "Application.h"
 #include "SDL_opengl.h"
 
+#include <iostream>
+
 namespace Nexus
 {
     Application::Application(GraphicsAPI api)
@@ -49,18 +51,22 @@ namespace Nexus
         this->m_GraphicsDevice = std::shared_ptr<GraphicsDevice>(device);
         this->m_GraphicsDevice->SetContext();
 
-        IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
-        ImGuiIO& io = ImGui::GetIO(); (void)io;
-        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-        
-        ImGui::StyleColorsDark();
-        SDL_Window* window = this->m_Window->GetSDLWindowHandle();
-        SDL_GLContext context = (SDL_GLContext)this->m_GraphicsDevice->GetContext();
+        if (device->GetGraphicsAPI() == GraphicsAPI::OpenGL)
+        {
+            IMGUI_CHECKVERSION();
+            ImGui::CreateContext();
+            ImGuiIO& io = ImGui::GetIO(); (void)io;
+            io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+            io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+            
+            ImGui::StyleColorsDark();
+            SDL_Window* window = this->m_Window->GetSDLWindowHandle();
+            SDL_GLContext context = (SDL_GLContext)this->m_GraphicsDevice->GetContext();
 
-        ImGui_ImplSDL2_InitForOpenGL(window, context);
-        ImGui_ImplOpenGL3_Init(glsl_version);
+            ImGui_ImplSDL2_InitForOpenGL(window, context);
+            ImGui_ImplOpenGL3_Init(glsl_version);
+        }  
+        
     }
 
     Application::~Application()
@@ -80,9 +86,6 @@ namespace Nexus
     void Application::EndImGuiRender()
     {
         ImGui::Render();
-        /* this->m_GraphicsDevice->Resize(this->GetWindowSize());
-        this->m_GraphicsDevice->Clear(0, 0, 0, 0); */
-
         ImGui::GetMainViewport()->Size = { (float)this->GetWindowSize().Width, (float)this->GetWindowSize().Height };
 
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -91,9 +94,12 @@ namespace Nexus
     void Application::MainLoop()
     {
         if (m_Window->m_RequiresResize)
+        {
             OnResize(this->GetWindowSize());
+            m_Window->m_RequiresResize = false;
+        }
 
-        this->m_Window->PollEvents();
+        this->m_Window->PollEvents(m_ImGuiActive);
 
         //Allow user to block closing events, for example to display save prompt
         if (m_Window->m_Closing)
@@ -124,7 +130,7 @@ namespace Nexus
         return this->m_Window->GetWindowPosition();
     }
 
-    Window* Application::CreateWindow(const WindowProperties& props)
+    Window* Application::CreateApplicationWindow(const WindowProperties& props)
     {
         Window* window = new Nexus::Window(props);
         return window;

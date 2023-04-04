@@ -45,14 +45,24 @@ namespace Nexus
                 glClear(GL_COLOR_BUFFER_BIT);
             }
 
-            void DrawElements(unsigned int start, unsigned int count) override
+            void DrawElements(Ref<VertexBuffer> vertexBuffer, Ref<Shader> shader) override
             {
-                glDrawArrays(GL_TRIANGLES, start, count);
+                shader->Bind();
+
+                Ref<VertexBufferOpenGL> vb = std::dynamic_pointer_cast<VertexBufferOpenGL>(vertexBuffer);
+                vb->Bind();
+                glDrawArrays(GL_TRIANGLES, 0, vertexBuffer->GetVertexCount());
             }
 
-            void DrawIndexed(unsigned int count) override
+            void DrawIndexed(Ref<VertexBuffer> vertexBuffer, Ref<IndexBuffer> indexBuffer) override
             {
-                glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void*)0);
+                Ref<VertexBufferOpenGL> vb = std::dynamic_pointer_cast<VertexBufferOpenGL>(vertexBuffer);
+                Ref<IndexBufferOpenGL> ib = std::dynamic_pointer_cast<IndexBufferOpenGL>(indexBuffer);
+
+                vb->Bind();
+                ib->Bind();
+
+                glDrawElements(GL_TRIANGLES, ib->GetIndexCount(), GL_UNSIGNED_INT, (void*)0);
             }
 
             virtual const char* GetAPIName() override
@@ -70,21 +80,20 @@ namespace Nexus
                 return (void*)this->m_Context;
             }
 
-            virtual Ref<Shader> CreateShaderFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource) override
+            virtual Ref<Shader> CreateShaderFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const BufferLayout& layout) override
             {
-                return CreateRef<ShaderOpenGL>(vertexShaderSource, fragmentShaderSource);
+                return CreateRef<ShaderOpenGL>(vertexShaderSource, fragmentShaderSource, layout);
             }
 
-            virtual Ref<Shader> CreateShaderFromFile(const std::string& filepath) override
+            virtual Ref<Shader> CreateShaderFromFile(const std::string& filepath, const BufferLayout& layout) override
             {
-                //return new ShaderOpenGL(filepath);
-                return CreateRef<ShaderOpenGL>(filepath);
+                return CreateRef<ShaderOpenGL>(filepath, layout);
             }
 
-            virtual Ref<VertexBuffer> CreateVertexBuffer(const std::vector<float> vertices, const BufferLayout& layout) override
+            virtual Ref<VertexBuffer> CreateVertexBuffer(const std::vector<float> vertices) override
             {
                 //return new VertexBufferOpenGL(vertices, layout);
-                return CreateRef<VertexBufferOpenGL>(vertices, layout);
+                return CreateRef<VertexBufferOpenGL>(vertices);
             }
 
             virtual Ref<IndexBuffer> CreateIndexBuffer(unsigned int indices[], unsigned int indexCount) override
@@ -115,9 +124,9 @@ namespace Nexus
                 SDL_GL_SwapWindow(this->m_Window->GetSDLWindowHandle());
             }
 
-            virtual void SetVSyncState(VSyncState VSyncState) override
+            virtual void SetVSyncState(VSyncState vSyncState) override
             {
-                SDL_GL_SetSwapInterval((unsigned int)VSyncState);
+                SDL_GL_SetSwapInterval((unsigned int)vSyncState);
             }
 
         private:

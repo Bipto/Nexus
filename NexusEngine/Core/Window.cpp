@@ -140,12 +140,13 @@ namespace Nexus
         SDL_DestroyWindow(this->m_Window);
     }
 
-    void Window::PollEvents()
+    void Window::PollEvents(bool imguiActive)
     {
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
-            ImGui_ImplSDL2_ProcessEvent(&event);
+            if (imguiActive)
+                ImGui_ImplSDL2_ProcessEvent(&event);
             switch (event.type)
             {
                 case SDL_QUIT:

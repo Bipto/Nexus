@@ -113,19 +113,19 @@ class Editor : public Nexus::Application
             //this->m_Shader = this->m_GraphicsDevice->CreateShaderFromFile("Resources/Shaders/Basic.shader");
             //m_Shader = m_GraphicsDevice->CreateShaderFromSource(vertexShaderSource, fragmentShaderSource);
 
-            #ifndef __EMSCRIPTEN__
-                m_Shader = m_GraphicsDevice->CreateShaderFromFile("Resources/Shaders/GLSL.shader");
-            #else
-                m_Shader = m_GraphicsDevice->CreateShaderFromFile("Resources/Shaders/GLSLES.shader");
-            #endif
-
             Nexus::BufferLayout layout = 
             {
                 { Nexus::ShaderDataType::Float3, "aPos" },
                 { Nexus::ShaderDataType::Float2, "aTexCoord"}
             };
 
-            this->m_VertexBuffer1 =  this->m_GraphicsDevice->CreateVertexBuffer(vertices1, layout);
+            #ifndef __EMSCRIPTEN__
+                m_Shader = m_GraphicsDevice->CreateShaderFromFile("Resources/Shaders/GLSL.shader", layout);
+            #else
+                m_Shader = m_GraphicsDevice->CreateShaderFromFile("Resources/Shaders/GLSLES.shader", layout);
+            #endif
+
+            this->m_VertexBuffer1 =  this->m_GraphicsDevice->CreateVertexBuffer(vertices1);
             this->m_IndexBuffer1 = this->m_GraphicsDevice->CreateIndexBuffer(indices1, sizeof(indices1));
 
             /* this->m_VertexBuffer2 =  this->m_GraphicsDevice->CreateVertexBuffer(vertices2);
@@ -269,21 +269,18 @@ class Editor : public Nexus::Application
 
         virtual bool OnClose() override
         {
+            ImGui::SaveIniSettingsToDisk("Layout.ini");
             return true;
         }
 
         void RenderQuad(Nexus::Ref<Nexus::Texture> texture, const glm::vec3& position, const glm::vec3& scale)
         {
             texture->Bind();
-            this->m_VertexBuffer1->Bind();
-            this->m_IndexBuffer1->Bind();
 
             glm::mat4 mvp = this->m_Camera.GetProjection() * m_Camera.GetWorld() * glm::scale(glm::mat4(1.0f), scale) * glm::translate(glm::mat4(1.0f), position);
             this->m_Shader->SetShaderUniformMat4("Transform", mvp);
 
-            this->m_GraphicsDevice->DrawIndexed(6);
-
-            ImGui::SaveIniSettingsToDisk("Layout.ini");
+            this->m_GraphicsDevice->DrawIndexed(this->m_VertexBuffer1, this->m_IndexBuffer1);
         }
 
         virtual void Unload() override
