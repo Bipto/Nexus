@@ -16,7 +16,7 @@ namespace Nexus
     class IndexBuffer
     {
         public:
-            IndexBuffer(unsigned int indices[], unsigned int size){}
+            IndexBuffer(const std::vector<unsigned int>& indices){}
             IndexBuffer(const IndexBuffer&) = delete;
             virtual unsigned int GetIndexCount() = 0;
     };

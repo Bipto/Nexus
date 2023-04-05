@@ -39,7 +39,7 @@ namespace Nexus
             virtual void SetContext() = 0;
             virtual void Clear(float red, float green, float blue, float alpha) = 0;
             virtual void DrawElements(Ref<VertexBuffer> vertexBuffer, Ref<Shader> shader) = 0;
-            virtual void DrawIndexed(Ref<VertexBuffer> vertexBuffer, Ref<IndexBuffer> indexBuffer) = 0;
+            virtual void DrawIndexed(Ref<VertexBuffer> vertexBuffer, Ref<IndexBuffer> indexBuffer, Ref<Shader> shader) = 0;
             virtual const char* GetAPIName() = 0;
             virtual const char* GetDeviceName() = 0;
 
@@ -51,7 +51,7 @@ namespace Nexus
             virtual Ref<Shader> CreateShaderFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const BufferLayout& layout) = 0;
             virtual Ref<Shader> CreateShaderFromFile(const std::string& filepath, const BufferLayout& layout) = 0;
             virtual Ref<VertexBuffer> CreateVertexBuffer(const std::vector<float> vertices) = 0;
-            virtual Ref<IndexBuffer> CreateIndexBuffer(unsigned int indices[], unsigned int indexCount) = 0;
+            virtual Ref<IndexBuffer> CreateIndexBuffer(const std::vector<unsigned int> indices) = 0;
             virtual Ref<Texture> CreateTexture(const char* filepath) = 0;
             virtual Ref<Framebuffer> CreateFramebuffer(const Nexus::FramebufferSpecification& spec) = 0;
 

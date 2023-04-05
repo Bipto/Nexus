@@ -54,8 +54,10 @@ namespace Nexus
                 glDrawArrays(GL_TRIANGLES, 0, vertexBuffer->GetVertexCount());
             }
 
-            void DrawIndexed(Ref<VertexBuffer> vertexBuffer, Ref<IndexBuffer> indexBuffer) override
+            void DrawIndexed(Ref<VertexBuffer> vertexBuffer, Ref<IndexBuffer> indexBuffer, Ref<Shader> shader) override
             {
+                shader->Bind();
+
                 Ref<VertexBufferOpenGL> vb = std::dynamic_pointer_cast<VertexBufferOpenGL>(vertexBuffer);
                 Ref<IndexBufferOpenGL> ib = std::dynamic_pointer_cast<IndexBufferOpenGL>(indexBuffer);
 
@@ -96,10 +98,10 @@ namespace Nexus
                 return CreateRef<VertexBufferOpenGL>(vertices);
             }
 
-            virtual Ref<IndexBuffer> CreateIndexBuffer(unsigned int indices[], unsigned int indexCount) override
+            virtual Ref<IndexBuffer> CreateIndexBuffer(const std::vector<unsigned int> indices) override
             {
                 //return new IndexBufferOpenGL(indices, indexCount);
-                return CreateRef<IndexBufferOpenGL>(indices, indexCount);
+                return CreateRef<IndexBufferOpenGL>(indices);
             }
 
             virtual Ref<Texture> CreateTexture(const char* filepath) override

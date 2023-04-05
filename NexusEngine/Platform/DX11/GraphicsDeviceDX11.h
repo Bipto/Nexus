@@ -91,7 +91,7 @@ namespace Nexus
 
                 auto layout = shader->GetLayout();
                 ID3D11Buffer* buffer = vb->GetNativeHandle();
-                uint32_t stride = sizeof(float) * 3;
+                uint32_t stride = layout.GetStride();
                 uint32_t offset = 0;
 
                 m_DeviceContextPtr->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -102,12 +102,37 @@ namespace Nexus
                     &stride,
                     &offset
                 );
-                m_DeviceContextPtr->Draw(3, 0);
+                m_DeviceContextPtr->Draw(vertexBuffer->GetVertexCount(), 0);
             }
 
-            virtual void DrawIndexed(Ref<VertexBuffer> vertexBuffer, Ref<IndexBuffer> indexBuffer)
+            virtual void DrawIndexed(Ref<VertexBuffer> vertexBuffer, Ref<IndexBuffer> indexBuffer, Ref<Shader> shader)
             {
+                shader->Bind();
 
+                Ref<VertexBufferDX11> vb = std::dynamic_pointer_cast<VertexBufferDX11>(vertexBuffer);
+                Ref<IndexBufferDX11> ib = std::dynamic_pointer_cast<IndexBufferDX11>(indexBuffer);
+
+                auto layout = shader->GetLayout();
+                ID3D11Buffer* dx11VertexBuffer = vb->GetNativeHandle();
+                ID3D11Buffer* dx11IndexBuffer = ib->GetNativeHandle();
+                uint32_t stride = layout.GetStride();
+                uint32_t offset = 0;
+
+                m_DeviceContextPtr->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+                m_DeviceContextPtr->IASetVertexBuffers(
+                    0,
+                    1,
+                    &dx11VertexBuffer,
+                    &stride,
+                    &offset
+                );
+                m_DeviceContextPtr->IASetIndexBuffer(
+                    dx11IndexBuffer,
+                    DXGI_FORMAT_R32_UINT,
+                    0
+                );
+
+                m_DeviceContextPtr->DrawIndexed(indexBuffer->GetIndexCount(), 0, 0);
             }
 
             virtual const char* GetAPIName()
@@ -140,9 +165,9 @@ namespace Nexus
                 return CreateRef<VertexBufferDX11>(m_DevicePtr, vertices);
             }
 
-            virtual Ref<IndexBuffer> CreateIndexBuffer(unsigned int indices[], unsigned int indexCount)
+            virtual Ref<IndexBuffer> CreateIndexBuffer(const std::vector<unsigned int> indices)
             {
-                return {};
+                return CreateRef<IndexBufferDX11>(m_DevicePtr, indices);
             }
 
             virtual Ref<Texture> CreateTexture(const char* filepath)

@@ -32,14 +32,15 @@ namespace Nexus
     class IndexBufferOpenGL : public IndexBuffer
     {
         public:
-            IndexBufferOpenGL(unsigned int indices[], unsigned int size)
-                : IndexBuffer(indices, size)
+            IndexBufferOpenGL(const std::vector<unsigned int>& indices)
+                : IndexBuffer(indices)
             {
                 glGenBuffers(1, &this->m_IBO);
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->m_IBO);
-                glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indices, GL_STATIC_DRAW);
+                size_t size = indices.size() * sizeof(unsigned int);
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indices.data(), GL_STATIC_DRAW);
             
-                m_IndexCount = size;
+                m_IndexCount = indices.size();
             }
             void Bind()
             {

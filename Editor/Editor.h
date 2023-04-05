@@ -23,9 +23,9 @@ std::vector<float> vertices1 = {
     -0.5f, 0.5f, 0.0f, 0, 1,
 };
 
-unsigned int indices1[] = {
-	0, 1, 2,
-	2, 3, 0
+std::vector<unsigned int> indices1 = {
+    0, 1, 2,
+    2, 3, 0
 };
 
 std::vector<float> vertices2 = {
@@ -126,7 +126,7 @@ class Editor : public Nexus::Application
             #endif
 
             this->m_VertexBuffer1 =  this->m_GraphicsDevice->CreateVertexBuffer(vertices1);
-            this->m_IndexBuffer1 = this->m_GraphicsDevice->CreateIndexBuffer(indices1, sizeof(indices1));
+            this->m_IndexBuffer1 = this->m_GraphicsDevice->CreateIndexBuffer(indices1);
 
             /* this->m_VertexBuffer2 =  this->m_GraphicsDevice->CreateVertexBuffer(vertices2);
             this->m_IndexBuffer2 = this->m_GraphicsDevice->CreateIndexBuffer(indices2, sizeof(indices2)); */
@@ -239,7 +239,6 @@ class Editor : public Nexus::Application
             this->m_Framebuffer->Bind();
             this->m_Renderer->Begin(glm::mat4(0), glm::vec4(0.07f, 0.13f, 0.17f, 1));
 
-            this->m_Shader->Bind();
             this->m_Shader->SetShaderUniform4f("TintColor", glm::vec4(0.7f, 0.1f, 0.2f, 1));
             this->m_Shader->SetShaderUniform1i("ourTexture", 0);
 
@@ -280,7 +279,7 @@ class Editor : public Nexus::Application
             glm::mat4 mvp = this->m_Camera.GetProjection() * m_Camera.GetWorld() * glm::scale(glm::mat4(1.0f), scale) * glm::translate(glm::mat4(1.0f), position);
             this->m_Shader->SetShaderUniformMat4("Transform", mvp);
 
-            this->m_GraphicsDevice->DrawIndexed(this->m_VertexBuffer1, this->m_IndexBuffer1);
+            this->m_GraphicsDevice->DrawIndexed(this->m_VertexBuffer1, this->m_IndexBuffer1, this->m_Shader);
         }
 
         virtual void Unload() override

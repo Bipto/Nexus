@@ -1,10 +1,19 @@
 #include "NexusEngine.h"
 
+#include <iostream>
+
 std::vector<float> vertices = 
 {
-    -0.5f, -0.5f, 0.0f,
-    0.0f, 0.5f, 0.0f,
-    0.5f, -0.5f, 0.0f
+    -0.5f, -0.5f, 0.0f,   //bottom left
+    -0.5f,  0.5f, 0.0f,   //top left
+     0.5f, -0.5f, 0.0f,   //bottom right
+     0.5f,  0.5f, 0.0f,   //top right
+};
+
+std::vector<unsigned int> indices = 
+{
+    0, 1, 2,
+    1, 3, 2
 };
 
 class Demo : public Nexus::Application
@@ -25,14 +34,15 @@ class Demo : public Nexus::Application
                 m_Shader = m_GraphicsDevice->CreateShaderFromFile("shaders.glsl", layout);
 
             m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(vertices);
+            m_IndexBuffer = m_GraphicsDevice->CreateIndexBuffer(indices);
             m_GraphicsDevice->Resize(this->GetWindowSize());
-            m_GraphicsDevice->SetVSyncState(Nexus::VSyncState::Disabled);
+            m_GraphicsDevice->SetVSyncState(Nexus::VSyncState::Enabled);
         }
 
         virtual void Update(Nexus::Time time) override
         {
             m_GraphicsDevice->Clear(0.8f, 0.2f, 0.3f, 1.0f);
-            m_GraphicsDevice->DrawElements(m_VertexBuffer, m_Shader);
+            m_GraphicsDevice->DrawIndexed(m_VertexBuffer, m_IndexBuffer, m_Shader);
             m_GraphicsDevice->SwapBuffers();   
         }
 
@@ -48,13 +58,27 @@ class Demo : public Nexus::Application
     private:
         Nexus::Ref<Nexus::Shader> m_Shader;
         Nexus::Ref<Nexus::VertexBuffer> m_VertexBuffer;
+        Nexus::Ref<Nexus::IndexBuffer> m_IndexBuffer;
 };
 
 int main(int argc, char** argv)
 {
+    Nexus::GraphicsAPI api = Nexus::GraphicsAPI::OpenGL;
+
+    std::vector<std::string> arguments;
+    for (int i = 0; i < argc; i++)
+    {
+        std::string argument = std::string(argv[i]);
+        arguments.push_back(argument);
+    }
+    
+    if (arguments.size() > 1)
+        if (arguments[1] == std::string("DX"))    
+            api = Nexus::GraphicsAPI::DirectX11;
+
     Nexus::Init();
 
-    Demo* app = new Demo(Nexus::GraphicsAPI::DirectX11);
+    Demo* app = new Demo(api);
     Nexus::Run(app);
     delete app;
 

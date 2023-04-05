@@ -5,5 +5,5 @@ float4 vs_main(float2 inPos: POSITION) : SV_POSITION
 
 float4 ps_main() : SV_TARGET
 {
-    return float4(1.0, 1.0, 1.0, 1.0);
+    return float4(0.2, 0.15, 0.9, 1.0);
 }
