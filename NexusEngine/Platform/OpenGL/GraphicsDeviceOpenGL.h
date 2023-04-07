@@ -32,11 +32,16 @@ namespace Nexus
             virtual Ref<Texture> CreateTexture(const char* filepath) override;
             virtual Ref<Framebuffer> CreateFramebuffer(const Nexus::FramebufferSpecification& spec) override;
             
+            virtual void InitialiseImGui() override;
+            virtual void BeginImGuiRender() override;
+            virtual void EndImGuiRender() override;
+
             virtual void Resize(Point size) override;
             virtual void SwapBuffers() override;
             virtual void SetVSyncState(VSyncState vSyncState) override;
 
         private:
             SDL_GLContext m_Context;
+            const char* m_GlslVersion;
     };
 }

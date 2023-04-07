@@ -43,6 +43,10 @@ namespace Nexus
             virtual const char* GetAPIName() = 0;
             virtual const char* GetDeviceName() = 0;
 
+            virtual void InitialiseImGui() = 0;
+            virtual void BeginImGuiRender() = 0;
+            virtual void EndImGuiRender() = 0;
+
             virtual void* GetContext() = 0;
 
             GraphicsAPI GetGraphicsAPI(){return this->m_API;}

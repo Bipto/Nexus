@@ -16,7 +16,6 @@
 #include "imgui.h"
 #include "misc/cpp/imgui_stdlib.h"
 #include "backends/imgui_impl_sdl2.h"
-#include "backends/imgui_impl_opengl3.h"
 
 #include "Core/Events/Event.h"
 #include "Core/Events/EventHandler.h"
@@ -89,7 +88,6 @@ namespace Nexus
             bool ShouldClose(){return this->m_Window->IsClosing();}
 
             Window* CreateApplicationWindow(const WindowProperties& props);
-
             Input* GetCoreInput() { return m_Window->GetInput(); }
             
         protected:
@@ -101,7 +99,6 @@ namespace Nexus
 
             Nexus::EventHandler<Point> m_WindowResizeEventHandler;
             Clock m_Clock;
-
             bool m_ImGuiActive = false;
     };
 }

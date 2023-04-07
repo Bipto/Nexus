@@ -1,5 +1,7 @@
 #include "GraphicsDeviceDX11.h"
 
+#include "backends/imgui_impl_dx11.h"
+
 namespace Nexus
 {
     GraphicsDeviceDX11::GraphicsDeviceDX11(Nexus::Window* window, GraphicsAPI api)
@@ -61,7 +63,7 @@ namespace Nexus
 
     void GraphicsDeviceDX11::SetContext()
     {
-
+        m_DeviceContextPtr->OMSetRenderTargets(1, &m_RenderTargetViewPtr, NULL);
     }
 
     void GraphicsDeviceDX11::Clear(float red, float green, float blue, float alpha)
@@ -168,6 +170,21 @@ namespace Nexus
     Ref<Framebuffer> GraphicsDeviceDX11::CreateFramebuffer(const Nexus::FramebufferSpecification& spec)
     {
         return {};
+    }
+
+    void GraphicsDeviceDX11::InitialiseImGui()
+    {
+        ImGui_ImplDX11_Init(m_DevicePtr, m_DeviceContextPtr);
+    }
+
+    void GraphicsDeviceDX11::BeginImGuiRender()
+    {
+        ImGui_ImplDX11_NewFrame();
+    }
+
+    void GraphicsDeviceDX11::EndImGuiRender()
+    {
+        ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
     }
 
     void GraphicsDeviceDX11::Resize(Point size)

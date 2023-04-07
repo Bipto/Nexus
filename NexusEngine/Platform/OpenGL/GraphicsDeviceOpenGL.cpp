@@ -1,10 +1,44 @@
 #include "GraphicsDeviceOpenGL.h"
 
+#include "backends/imgui_impl_opengl3.h"
+
 namespace Nexus
 {
     GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(Nexus::Window* window, GraphicsAPI api)
         : GraphicsDevice(window, api)
     {
+        // Decide GL+GLSL versions
+        #ifdef __EMSCRIPTEN__
+            // GL ES 2.0 + GLSL 100
+            m_GlslVersion = "#version 100";
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+        #elif defined(__APPLE__)
+            // GL 3.2 Core + GLSL 150
+            m_GlslVersion = "#version 150";
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG); // Always required on Mac
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+        #else
+            // GL 3.0 + GLSL 130
+            m_GlslVersion = "#version 130";
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+        #endif
+
+            SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+            SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+            SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+
+        #ifndef __EMSCRIPTEN__
+            gladLoadGL();
+        #endif
+
         this->m_Context = SDL_GL_CreateContext(this->m_Window->GetSDLWindowHandle());
 
         if (this->m_Context == NULL)
@@ -98,6 +132,21 @@ namespace Nexus
     Ref<Framebuffer> GraphicsDeviceOpenGL::CreateFramebuffer(const Nexus::FramebufferSpecification& spec)
     {
         return CreateRef<FramebufferOpenGL>(spec);
+    }
+
+    void GraphicsDeviceOpenGL::InitialiseImGui()
+    {
+        ImGui_ImplOpenGL3_Init(m_GlslVersion);
+    }
+
+    void GraphicsDeviceOpenGL::BeginImGuiRender()
+    {
+        ImGui_ImplOpenGL3_NewFrame();
+    }
+
+    void GraphicsDeviceOpenGL::EndImGuiRender()
+    {
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
 
     void GraphicsDeviceOpenGL::Resize(Point size)

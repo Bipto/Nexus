@@ -52,7 +52,7 @@ namespace Nexus
         registry.Bind(new SpriteRendererComponent());
     }
 
-    void Init()
+    void Init(int argc, char** argv)
     {
         //Py_Initialize();
         Assimp::Importer importer{};

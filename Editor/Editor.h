@@ -108,10 +108,7 @@ class Editor : public Nexus::Application
             ImGui::LoadIniSettingsFromDisk("Layout.ini");
 
             this->m_Renderer = Nexus::Renderer::Create(this->m_GraphicsDevice);
-
             this->m_GraphicsDevice->SetVSyncState(Nexus::VSyncState::Enabled);
-            //this->m_Shader = this->m_GraphicsDevice->CreateShaderFromFile("Resources/Shaders/Basic.shader");
-            //m_Shader = m_GraphicsDevice->CreateShaderFromSource(vertexShaderSource, fragmentShaderSource);
 
             Nexus::BufferLayout layout = 
             {
@@ -136,10 +133,6 @@ class Editor : public Nexus::Application
             
             Nexus::Point size = this->GetWindowSize();
             this->m_Camera = { size.Width, size.Height, {0, 0, 0} };
-
-            NX_LOG("This is a log");
-            NX_WARNING("This is a warning");
-            NX_ERROR("This is an error");
 
             Nexus::FramebufferSpecification framebufferSpec;
             framebufferSpec.Width = size.Width;

@@ -30,7 +30,7 @@ extern "C"
 
 namespace Nexus
 {
-    void Init();
+    void Init(int argc = 0, char** argv = nullptr);
     void Shutdown();
 }
 

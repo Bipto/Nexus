@@ -41,8 +41,14 @@ class Demo : public Nexus::Application
 
         virtual void Update(Nexus::Time time) override
         {
+            m_GraphicsDevice->SetContext();
             m_GraphicsDevice->Clear(0.8f, 0.2f, 0.3f, 1.0f);
             m_GraphicsDevice->DrawIndexed(m_VertexBuffer, m_IndexBuffer, m_Shader);
+
+            BeginImGuiRender();
+            ImGui::ShowDemoWindow();
+            EndImGuiRender();            
+            
             m_GraphicsDevice->SwapBuffers();   
         }
 
@@ -76,7 +82,7 @@ int main(int argc, char** argv)
         if (arguments[1] == std::string("DX"))    
             api = Nexus::GraphicsAPI::DirectX11;
 
-    Nexus::Init();
+    Nexus::Init(argc, argv);
 
     Demo* app = new Demo(api);
     Nexus::Run(app);
