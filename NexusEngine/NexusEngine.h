@@ -30,10 +30,6 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
-#define NX_LOG(message) Nexus::GetCoreLogger()->LogInfo(message)
-#define NX_WARNING(message) Nexus::GetCoreLogger()->LogWarning(message)
-#define NX_ERROR(message) Nexus::GetCoreLogger()->LogError(message)
-
 #define NX_IS_KEY_PRESSED(keycode) Nexus::GetApplication()->GetCoreInput()->IsKeyPressed(keycode)
 #define NX_SCROLL_Y() Nexus::GetApplication()->GetCoreInput()->GetMouseScrollY()
 

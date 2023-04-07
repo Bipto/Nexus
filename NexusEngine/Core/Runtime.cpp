@@ -1,7 +1,6 @@
 #include "Runtime.h"
 
 Nexus::Application* appPtr = nullptr;
-Nexus::Logger* logger = new Nexus::Logger();
 
 //-----------------------------------------------------------------------------
 // APPLICATION RUNTIME
@@ -32,11 +31,6 @@ namespace Nexus
     Application* GetApplication()
     {
         return appPtr;
-    }
-
-    Logger* GetCoreLogger()
-    {
-        return logger;
     }
 
     ComponentRegistry registry;

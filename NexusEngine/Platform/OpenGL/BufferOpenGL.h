@@ -8,20 +8,8 @@ namespace Nexus
     class VertexBufferOpenGL : public VertexBuffer
     {
         public:
-            VertexBufferOpenGL(const std::vector<float>& vertices) 
-                : VertexBuffer(vertices)
-            {
-                glGenBuffers(1, &this->m_VBO);
-                glBindBuffer(GL_ARRAY_BUFFER, this->m_VBO);
-                glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
-
-                m_VertexCount = vertices.size();
-            }
-            void Bind() 
-            {
-                glBindBuffer(GL_ARRAY_BUFFER, this->m_VBO);                
-            }
-        
+            VertexBufferOpenGL(const std::vector<float>& vertices);
+            void Bind();        
             virtual unsigned int GetVertexCount() override { return m_VertexCount; }
            
         private:
@@ -32,21 +20,8 @@ namespace Nexus
     class IndexBufferOpenGL : public IndexBuffer
     {
         public:
-            IndexBufferOpenGL(const std::vector<unsigned int>& indices)
-                : IndexBuffer(indices)
-            {
-                glGenBuffers(1, &this->m_IBO);
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->m_IBO);
-                size_t size = indices.size() * sizeof(unsigned int);
-                glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indices.data(), GL_STATIC_DRAW);
-            
-                m_IndexCount = indices.size();
-            }
-            void Bind()
-            {
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->m_IBO);
-            }
-
+            IndexBufferOpenGL(const std::vector<unsigned int>& indices);
+            void Bind();
             virtual unsigned int GetIndexCount() { return m_IndexCount; }
         private:
            unsigned int m_IBO; 

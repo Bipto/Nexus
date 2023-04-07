@@ -11,119 +11,25 @@ namespace Nexus
     class FramebufferOpenGL : public Framebuffer
     {
         public:
-            FramebufferOpenGL(const Nexus::FramebufferSpecification& spec)
-            {
-                this->m_FramebufferSpecification = spec;
-                Resize();
-            }
+            FramebufferOpenGL(const Nexus::FramebufferSpecification& spec);
+            ~FramebufferOpenGL();
 
-            ~FramebufferOpenGL()
-            {
-                DeleteTextures();
-            }
+            virtual void Bind() override;
+            virtual void Unbind() override;
+            virtual void Resize() override;
 
-            virtual void Bind() override
-            {
-                glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
-                glDrawBuffers(m_ColorTextures.size(), m_Buffers.data());
-            }
+            virtual int GetColorTextureCount() override;            
+            virtual bool HasColorTexture() override;            
+            virtual bool HasDepthTexture() override;
 
-            virtual void Unbind() override
-            {
-                glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            }
-
-            virtual void Resize() override
-            {
-                DeleteTextures();
-
-                glGenFramebuffers(1, &m_FBO);
-                glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
-
-                CreateTextures();
-                glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-                m_Buffers.clear();
-                for (int i = 0; i < m_ColorTextures.size(); i++)
-                {
-                    m_Buffers.emplace_back(GL_COLOR_ATTACHMENT0 + i);
-                }
-            }
-
-            virtual int GetColorTextureCount() override
-            {
-                return m_FramebufferSpecification.ColorAttachmentSpecification.Attachments.size(); 
-            }
-            
-            virtual bool HasColorTexture() override
-            {
-                return m_FramebufferSpecification.ColorAttachmentSpecification.Attachments.size() > 0;
-            }
-            
-            virtual bool HasDepthTexture() override
-            {
-                return m_FramebufferSpecification.DepthAttachmentSpecification.DepthFormat != DepthFormat::None;
-            }
-
-            virtual unsigned int GetColorAttachment(int index = 0) override
-            {
-                return m_ColorTextures[index];
-            }
-
-            virtual unsigned int GetDepthAttachment() override
-            {
-                return m_DepthTexture;
-            }
-
-            virtual const FramebufferSpecification GetFramebufferSpecification() override
-            {
-                return this->m_FramebufferSpecification;
-            }
-
-            virtual void SetFramebufferSpecification(const FramebufferSpecification& spec) override
-            {
-                this->m_FramebufferSpecification = spec;
-                Resize();
-            }
+            virtual unsigned int GetColorAttachment(int index = 0) override;
+            virtual unsigned int GetDepthAttachment() override;
+            virtual const FramebufferSpecification GetFramebufferSpecification() override;
+            virtual void SetFramebufferSpecification(const FramebufferSpecification& spec) override;
 
         private:
-            void CreateTextures()
-            {
-                m_ColorTextures.clear();
-
-                for (int i = 0; i < m_FramebufferSpecification.ColorAttachmentSpecification.Attachments.size(); i++)
-                {
-                    auto colorSpec = m_FramebufferSpecification.ColorAttachmentSpecification.Attachments[i];
-
-                    unsigned int texture;
-                    glGenTextures(1, &texture);
-                    glBindTexture(GL_TEXTURE_2D, texture);
-
-                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_FramebufferSpecification.Width, m_FramebufferSpecification.Height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, texture, 0);
-                    m_ColorTextures.emplace_back(texture);
-                }
-
-                //! TODO - Add support for depth textures
-            }
-
-            void DeleteTextures()
-            {
-                glDeleteFramebuffers(1, &m_FBO);
-
-                for (auto texture : m_ColorTextures)
-                {
-                    glDeleteTextures(1, &texture);
-                }
-
-                m_ColorTextures.clear();
-
-                glDeleteTextures(1, &m_DepthTexture);
-            }
+            void CreateTextures();
+            void DeleteTextures();
 
         private:
             unsigned int m_FBO;

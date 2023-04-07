@@ -44,6 +44,5 @@ namespace Nexus
 {
     void Run(Nexus::Application* app);
     Application* GetApplication();
-    Logger* GetCoreLogger();
     ComponentRegistry& GetComponentRegistry();
 }

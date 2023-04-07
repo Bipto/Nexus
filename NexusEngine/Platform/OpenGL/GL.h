@@ -6,3 +6,10 @@
 #else
 #include "glad/glad.h"
 #endif
+
+namespace Nexus::GL
+{
+    void ClearErrors();
+    bool CheckErrors();
+    std::string GetErrorMessageFromCode(const GLenum error);
+}
