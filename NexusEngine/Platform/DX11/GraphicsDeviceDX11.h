@@ -6,6 +6,7 @@
 
 #include "BufferDX11.h"
 #include "ShaderDX11.h"
+#include "TextureDX11.h"
 
 namespace Nexus
 {

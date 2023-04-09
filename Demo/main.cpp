@@ -37,6 +37,8 @@ class Demo : public Nexus::Application
             m_IndexBuffer = m_GraphicsDevice->CreateIndexBuffer(indices);
             m_GraphicsDevice->Resize(this->GetWindowSize());
             m_GraphicsDevice->SetVSyncState(Nexus::VSyncState::Enabled);
+
+            m_Texture = m_GraphicsDevice->CreateTexture("brick.jpg");
         }
 
         virtual void Update(Nexus::Time time) override
@@ -47,6 +49,11 @@ class Demo : public Nexus::Application
 
             BeginImGuiRender();
             ImGui::ShowDemoWindow();
+            if (ImGui::Begin("Texture"))
+            {
+                ImGui::Image((ImTextureID)m_Texture->GetHandle(), {200, 200});
+                ImGui::End();
+            }
             EndImGuiRender();            
             
             m_GraphicsDevice->SwapBuffers();   
@@ -54,6 +61,7 @@ class Demo : public Nexus::Application
 
         virtual void OnResize(Nexus::Point size) override
         {
+            m_GraphicsDevice->SetContext();
             m_GraphicsDevice->Resize(size);
         }
 
@@ -65,6 +73,7 @@ class Demo : public Nexus::Application
         Nexus::Ref<Nexus::Shader> m_Shader;
         Nexus::Ref<Nexus::VertexBuffer> m_VertexBuffer;
         Nexus::Ref<Nexus::IndexBuffer> m_IndexBuffer;
+        Nexus::Ref<Nexus::Texture> m_Texture;
 };
 
 int main(int argc, char** argv)
