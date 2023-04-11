@@ -1,10 +1,27 @@
 #pragma once
 
 #include "stb_image.h"
-#include <memory>
+#include "TextureFormat.h"
 
 namespace Nexus
 {
+    enum SamplerState
+    {
+        LinearClamp,
+        LinearWrap,
+        PointClamp,
+        PointWrap
+    };
+
+    struct TextureSpecification
+    {
+        uint32_t Width;
+        uint32_t Height;
+        TextureFormat Format;
+        SamplerState SamplerState;
+        bool RetainImageData = true;
+    };
+
     class Texture
     {
         public:

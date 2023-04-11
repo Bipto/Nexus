@@ -16,7 +16,7 @@ namespace Nexus
         desc.Height = m_Height;
         desc.MipLevels = 1;
         desc.ArraySize = 1;
-        desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+        desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
         desc.SampleDesc.Count = 1;
         desc.SampleDesc.Quality = 0;
         desc.Usage = D3D11_USAGE_DEFAULT;
@@ -47,7 +47,7 @@ namespace Nexus
 
         D3D11_SHADER_RESOURCE_VIEW_DESC rvDesc;
         ZeroMemory(&rvDesc, sizeof(rvDesc));
-        rvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+        rvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
         rvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
         rvDesc.Texture2D.MipLevels = desc.MipLevels;
         rvDesc.Texture2D.MostDetailedMip = 0;
