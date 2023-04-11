@@ -26,3 +26,21 @@
 [submodule "External/json"]
 	path = External/json
 	url = https://github.com/nlohmann/json.git
+[submodule "External/shaderc"]
+	path = External/shaderc
+	url = https://github.com/google/shaderc.git
+[submodule "External/SPIRV-Tools"]
+	path = External/SPIRV-Tools
+	url = https://github.com/KhronosGroup/SPIRV-Tools.git
+[submodule "External/SPIRV-Headers"]
+	path = External/SPIRV-Headers
+	url = https://github.com/KhronosGroup/SPIRV-Headers.git
+[submodule "External/glslang"]
+	path = External/glslang
+	url = https://github.com/KhronosGroup/glslang.git
+[submodule "External/effcee"]
+	path = External/effcee
+	url = https://github.com/google/effcee.git
+[submodule "External/re2"]
+	path = External/re2
+	url = https://github.com/google/re2.git

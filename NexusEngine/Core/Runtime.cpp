@@ -57,6 +57,8 @@ namespace Nexus
         //Py_Initialize();
         Assimp::Importer importer{};
         BindComponents();
+
+        shaderc::Compiler compiler;
     }
 
     void Shutdown()

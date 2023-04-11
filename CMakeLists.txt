@@ -7,12 +7,21 @@ add_subdirectory(Editor)
 add_subdirectory(Demo)
 add_subdirectory(NexusEngine)
 
+set(SHADERC_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
+
 add_subdirectory(External/SDL)
 add_subdirectory(External/Lua)
 add_subdirectory(External/glad)
 add_subdirectory(External/glm)
 add_subdirectory(External/imgui)
 add_subdirectory(External/tinyfiledialogs)
+
+add_subdirectory(External/re2)
+add_subdirectory(External/effcee)
+add_subdirectory(External/glslang)
+add_subdirectory(External/SPIRV-Headers)
+add_subdirectory(External/SPIRV-Tools)
+add_subdirectory(External/shaderc)
 
 set (BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 add_subdirectory(External/assimp)
