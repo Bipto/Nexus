@@ -144,7 +144,7 @@ namespace Nexus
 
     Ref<Shader> GraphicsDeviceDX11::CreateShaderFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const BufferLayout& layout)
     {
-        return {};
+        return CreateRef<ShaderDX11>(m_DevicePtr, m_DeviceContextPtr, vertexShaderSource, fragmentShaderSource, layout);
     }
 
     Ref<Shader> GraphicsDeviceDX11::CreateShaderFromFile(const std::string& filepath, const BufferLayout& layout)

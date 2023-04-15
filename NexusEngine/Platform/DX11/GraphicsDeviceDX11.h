@@ -38,6 +38,9 @@ namespace Nexus
             virtual void SwapBuffers() override;
             virtual void SetVSyncState(VSyncState vSyncState) override;
 
+            virtual ShaderFormat GetSupportedShaderFormat() { return ShaderFormat::HLSL; }
+
+
         #if defined(WIN32)
         private:
             ID3D11Device* m_DevicePtr                       = NULL;

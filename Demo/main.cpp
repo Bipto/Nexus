@@ -1,6 +1,10 @@
 #include "NexusEngine.h"
 
 #include <iostream>
+#include <fstream>
+#include <sstream>
+
+#include "Core/Graphics/ShaderGenerator.h"
 
 std::vector<float> vertices = 
 {
@@ -25,20 +29,23 @@ class Demo : public Nexus::Application
         {
             Nexus::BufferLayout layout = 
             {
-                { Nexus::ShaderDataType::Float3, "POSITION" }
+                { Nexus::ShaderDataType::Float3, "TEXCOORD" }
             };
-
-            if (m_GraphicsDevice->GetGraphicsAPI() == Nexus::GraphicsAPI::DirectX11)
-                m_Shader = m_GraphicsDevice->CreateShaderFromFile("shaders.hlsl", layout);
-            else
-                m_Shader = m_GraphicsDevice->CreateShaderFromFile("shaders.glsl", layout);
 
             m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(vertices);
             m_IndexBuffer = m_GraphicsDevice->CreateIndexBuffer(indices);
             m_GraphicsDevice->Resize(this->GetWindowSize());
             m_GraphicsDevice->SetVSyncState(Nexus::VSyncState::Enabled);
 
-            m_Texture = m_GraphicsDevice->CreateTexture("brick.jpg");
+            m_Texture = m_GraphicsDevice->CreateTexture("brick.jpg");  
+
+            Nexus::ShaderGenerator generator;
+
+            std::ifstream t("vertex.glsl");
+            std::stringstream buffer;
+            buffer << t.rdbuf();
+
+            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("shader.glsl", layout);
         }
 
         virtual void Update(Nexus::Time time) override

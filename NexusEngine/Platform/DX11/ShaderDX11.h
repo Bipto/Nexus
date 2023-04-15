@@ -11,7 +11,7 @@ namespace Nexus
     class ShaderDX11 : public Shader
     {
         public:
-            ShaderDX11(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const BufferLayout& layout);
+            ShaderDX11(ID3D11Device* device, ID3D11DeviceContext* context, std::string vertexShaderSource, std::string fragmentShaderSource, const BufferLayout& layout);
             ShaderDX11(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& filepath, const BufferLayout& layout);
             virtual void Bind() override;
             virtual void SetShaderUniform1i(const std::string& name, int value) override{}

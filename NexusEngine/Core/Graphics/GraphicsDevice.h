@@ -7,6 +7,7 @@
 #include "Buffer.h"
 #include "Texture.h"
 #include "Framebuffer.h"
+#include "Core/Graphics/ShaderGenerator.h"
 
 namespace Nexus
 {
@@ -62,6 +63,9 @@ namespace Nexus
             virtual void Resize(Point size) = 0;
             virtual void SwapBuffers() = 0;
             virtual void SetVSyncState(VSyncState vSyncState) = 0;
+
+            virtual ShaderFormat GetSupportedShaderFormat() = 0;
+            Ref<Shader> CreateShaderFromSpirvFile(const std::string& filepath, const BufferLayout& layout);
         protected:
             Nexus::Window* m_Window;
             GraphicsAPI m_API;

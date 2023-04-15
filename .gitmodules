@@ -44,3 +44,6 @@
 [submodule "External/re2"]
 	path = External/re2
 	url = https://github.com/google/re2.git
+[submodule "External/SPIRV-Cross"]
+	path = External/SPIRV-Cross
+	url = https://github.com/KhronosGroup/SPIRV-Cross.git

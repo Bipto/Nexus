@@ -40,6 +40,8 @@ namespace Nexus
             virtual void SwapBuffers() override;
             virtual void SetVSyncState(VSyncState vSyncState) override;
 
+            virtual ShaderFormat GetSupportedShaderFormat() override { return ShaderFormat::GLSL; }
+
         private:
             SDL_GLContext m_Context;
             const char* m_GlslVersion;
