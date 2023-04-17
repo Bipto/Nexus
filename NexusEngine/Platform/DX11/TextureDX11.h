@@ -8,7 +8,7 @@ namespace Nexus
     class TextureDX11 : public Texture
     {
         public:
-            TextureDX11(ID3D11Device* device, const char* filepath);
+            TextureDX11(ID3D11Device* device, TextureSpecification spec);
             ~TextureDX11();
             virtual void Bind(unsigned int slot = 0) override;
             virtual void* GetHandle() override;

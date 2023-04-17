@@ -113,7 +113,7 @@ class Editor : public Nexus::Application
             Nexus::BufferLayout layout = 
             {
                 { Nexus::ShaderDataType::Float3, "aPos" },
-                { Nexus::ShaderDataType::Float2, "aTexCoord"}
+                { Nexus::ShaderDataType::Float2, "aTexCoord" }
             };
 
             #ifndef __EMSCRIPTEN__

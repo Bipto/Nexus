@@ -27,7 +27,7 @@ namespace Nexus
             virtual Ref<Shader> CreateShaderFromFile(const std::string& filepath, const BufferLayout& layout) override;  
             virtual Ref<VertexBuffer> CreateVertexBuffer(const std::vector<float> vertices) override;
             virtual Ref<IndexBuffer> CreateIndexBuffer(const std::vector<unsigned int> indices) override;
-            virtual Ref<Texture> CreateTexture(const char* filepath) override;            
+            virtual Ref<Texture> CreateTexture(TextureSpecification spec) override;            
             virtual Ref<Framebuffer> CreateFramebuffer(const Nexus::FramebufferSpecification& spec);
 
             virtual void InitialiseImGui() override;

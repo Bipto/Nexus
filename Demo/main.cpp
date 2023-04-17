@@ -8,10 +8,10 @@
 
 std::vector<float> vertices = 
 {
-    -0.5f, -0.5f, 0.0f,   //bottom left
-    -0.5f,  0.5f, 0.0f,   //top left
-     0.5f, -0.5f, 0.0f,   //bottom right
-     0.5f,  0.5f, 0.0f,   //top right
+    -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  //bottom left
+    -0.5f,  0.5f, 0.0f, 1.0f, 0.0f,  //top left
+     0.5f, -0.5f, 0.0f, 1.0f, 1.0f,  //bottom right
+     0.5f,  0.5f, 0.0f, 0.0f, 1.0f  //top right
 };
 
 std::vector<unsigned int> indices = 
@@ -29,7 +29,8 @@ class Demo : public Nexus::Application
         {
             Nexus::BufferLayout layout = 
             {
-                { Nexus::ShaderDataType::Float3, "TEXCOORD" }
+                { Nexus::ShaderDataType::Float3, "TEXCOORD", 0 },
+                { Nexus::ShaderDataType::Float2, "TEXCOORD", 1}
             };
 
             m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(vertices);
@@ -68,7 +69,6 @@ class Demo : public Nexus::Application
 
         virtual void OnResize(Nexus::Point size) override
         {
-            m_GraphicsDevice->SetContext();
             m_GraphicsDevice->Resize(size);
         }
 

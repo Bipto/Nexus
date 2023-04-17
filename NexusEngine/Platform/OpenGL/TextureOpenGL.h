@@ -8,7 +8,7 @@ namespace Nexus
     class TextureOpenGL : public Texture
     {
         public:
-            TextureOpenGL(const char* filepath);
+            TextureOpenGL(TextureSpecification spec);
             ~TextureOpenGL();
             virtual void Bind(unsigned int slot = 0) override;
             virtual void* GetHandle() override;

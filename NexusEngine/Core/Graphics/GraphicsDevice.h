@@ -57,7 +57,10 @@ namespace Nexus
             virtual Ref<Shader> CreateShaderFromFile(const std::string& filepath, const BufferLayout& layout) = 0;
             virtual Ref<VertexBuffer> CreateVertexBuffer(const std::vector<float> vertices) = 0;
             virtual Ref<IndexBuffer> CreateIndexBuffer(const std::vector<unsigned int> indices) = 0;
-            virtual Ref<Texture> CreateTexture(const char* filepath) = 0;
+
+            virtual Ref<Texture> CreateTexture(TextureSpecification spec) = 0;
+            Ref<Texture> CreateTexture(const char* filepath);
+
             virtual Ref<Framebuffer> CreateFramebuffer(const Nexus::FramebufferSpecification& spec) = 0;
 
             virtual void Resize(Point size) = 0;

@@ -9,6 +9,8 @@
 #include "ShaderGenerator.h"
 #include "Core/Logging/Log.h"
 
+#include "stb_image.h"
+
 namespace Nexus
 {
     Ref<Shader> GraphicsDevice::CreateShaderFromSpirvFile(const std::string &filepath, const BufferLayout& layout)
@@ -96,5 +98,16 @@ namespace Nexus
         }     
 
         return {};
+    }
+
+    Ref<Texture> GraphicsDevice::CreateTexture(const char *filepath)
+    {
+        int desiredChannels = 4;
+
+        TextureSpecification spec;
+        spec.Format = TextureFormat::RGBA8;
+        spec.Data = stbi_load(filepath, &spec.Width, &spec.Height, &spec.NumberOfChannels, desiredChannels);
+
+        return this->CreateTexture(spec);
     }
 }

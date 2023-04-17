@@ -162,9 +162,9 @@ namespace Nexus
         return CreateRef<IndexBufferDX11>(m_DevicePtr, indices);
     }
 
-    Ref<Texture> GraphicsDeviceDX11::CreateTexture(const char* filepath)
+    Ref<Texture> GraphicsDeviceDX11::CreateTexture(TextureSpecification spec)
     {
-        return CreateRef<TextureDX11>(m_DevicePtr, filepath);
+        return CreateRef<TextureDX11>(m_DevicePtr, spec);
     }
 
     Ref<Framebuffer> GraphicsDeviceDX11::CreateFramebuffer(const Nexus::FramebufferSpecification& spec)

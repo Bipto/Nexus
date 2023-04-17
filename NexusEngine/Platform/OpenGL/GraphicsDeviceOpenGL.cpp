@@ -124,9 +124,9 @@ namespace Nexus
         return CreateRef<IndexBufferOpenGL>(indices);
     }
 
-    Ref<Texture> GraphicsDeviceOpenGL::CreateTexture(const char* filepath)
+    Ref<Texture> GraphicsDeviceOpenGL::CreateTexture(TextureSpecification spec)
     {
-        return CreateRef<TextureOpenGL>(filepath);
+        return CreateRef<TextureOpenGL>(spec);
     }
 
     Ref<Framebuffer> GraphicsDeviceOpenGL::CreateFramebuffer(const Nexus::FramebufferSpecification& spec)

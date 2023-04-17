@@ -152,6 +152,7 @@ namespace Nexus
             else
             {
                 NX_LOG("Vertex shader created successfully");
+                CreateLayout(layout);
             }
         }
 
@@ -189,8 +190,6 @@ namespace Nexus
                 NX_LOG("Pixel shader created successfully");
             }
         }
-
-        CreateLayout(layout);
     }
 
     void ShaderDX11::Bind()
@@ -211,7 +210,7 @@ namespace Nexus
             D3D11_INPUT_ELEMENT_DESC desc = 
             {
                 element.Name.c_str(),
-                0,
+                index,
                 GetDXBaseType(element),
                 0,
                 D3D11_APPEND_ALIGNED_ELEMENT,

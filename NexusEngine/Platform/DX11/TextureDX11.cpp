@@ -4,16 +4,13 @@
 
 namespace Nexus
 {
-    TextureDX11::TextureDX11(ID3D11Device* device, const char* filepath) : Texture(filepath)
+    TextureDX11::TextureDX11(ID3D11Device* device, TextureSpecification spec) : Texture(spec)
     {
-        int desiredChannels = 4;
-        this->m_Data = stbi_load(filepath, &m_Width, &m_Height, &m_NumOfChannels, desiredChannels);
-
-        int imagePitch = m_Width * 4;
+        int imagePitch = spec.Width * 4;
 
         D3D11_TEXTURE2D_DESC desc;
-        desc.Width = m_Width;
-        desc.Height = m_Height;
+        desc.Width = spec.Width;
+        desc.Height = spec.Height;
         desc.MipLevels = 1;
         desc.ArraySize = 1;
         desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -25,7 +22,7 @@ namespace Nexus
         desc.MiscFlags = 0;
 
         D3D11_SUBRESOURCE_DATA subresourceData;
-        subresourceData.pSysMem = m_Data;
+        subresourceData.pSysMem = spec.Data;
         subresourceData.SysMemPitch = imagePitch;
 
         HRESULT hr = device->CreateTexture2D(
@@ -68,7 +65,7 @@ namespace Nexus
     TextureDX11::~TextureDX11()
     {
         m_Texture->Release();
-        stbi_image_free(m_Data);
+        //stbi_image_free(m_Data);
     }
 
     void TextureDX11::Bind(unsigned int slot)

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "stb_image.h"
 #include "TextureFormat.h"
 
 namespace Nexus
@@ -15,17 +14,19 @@ namespace Nexus
 
     struct TextureSpecification
     {
-        uint32_t Width;
-        uint32_t Height;
+        int32_t Width;
+        int32_t Height;
+        int32_t NumberOfChannels;
         TextureFormat Format;
         SamplerState SamplerState;
+        unsigned char* Data;
         bool RetainImageData = true;
     };
 
     class Texture
     {
         public:
-            Texture(const char* filepath){}
+            Texture(TextureSpecification spec){}
             virtual void Bind(unsigned int slot = 0) = 0;
             virtual void* GetHandle() = 0;
         protected:
