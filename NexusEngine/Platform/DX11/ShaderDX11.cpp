@@ -1,6 +1,7 @@
 #include "ShaderDX11.h"
 
 #include "Core/Logging/Log.h"
+#include "Platform/DX11/TextureDX11.h"
 
 namespace Nexus
 {
@@ -199,7 +200,18 @@ namespace Nexus
         m_ContextPtr->IASetInputLayout(m_InputLayout);
     }
 
-    void ShaderDX11::CreateLayout(const BufferLayout& layout)
+    void ShaderDX11::SetTexture(Ref<Texture> texture, int slot)
+    {
+        Ref<TextureDX11> dxTexture = std::dynamic_pointer_cast<TextureDX11>(texture);
+
+        const ID3D11ShaderResourceView* resourceViews[] = { dxTexture->GetResourceView() };
+        const ID3D11SamplerState* samplers[] = { dxTexture->GetSamplerState() };
+
+        m_ContextPtr->PSSetShaderResources(slot, 1, (ID3D11ShaderResourceView* const*)resourceViews);
+        m_ContextPtr->PSSetSamplers(slot, 1, (ID3D11SamplerState* const*)samplers);
+    }
+
+    void ShaderDX11::CreateLayout(const BufferLayout &layout)
     {
         m_BufferLayout = layout;
             

@@ -1,13 +1,11 @@
 #pragma once
 
-#include <fstream>
-#include <string>
-#include <sstream>
-
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
-#include "Core/Graphics/ShaderDataType.h"
+#include "ShaderDataType.h"
+#include "Texture.h"
+#include "Core/Memory.h"
 
 namespace Nexus
 {
@@ -66,6 +64,8 @@ namespace Nexus
 
             virtual void SetShaderUniformMat3(const std::string& name, const glm::mat3& value) = 0;
             virtual void SetShaderUniformMat4(const std::string& name, const glm::mat4& value) = 0;
+
+            virtual void SetTexture(Ref<Texture> texture, int slot) = 0;
 
             virtual const BufferLayout& GetLayout() const = 0;
     };

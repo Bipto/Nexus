@@ -60,12 +60,23 @@ namespace Nexus
         {
             NX_LOG("Resource view created successfully");
         }
+
+        D3D11_SAMPLER_DESC samplerDesc;
+        ZeroMemory(&samplerDesc, sizeof(samplerDesc));
+        samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+        samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+        samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+        samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+        samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+        samplerDesc.MinLOD = 0;
+        samplerDesc.MaxAnisotropy = D3D11_FLOAT32_MAX;
+
+        hr = device->CreateSamplerState(&samplerDesc, &m_SamplerState);
     }
 
     TextureDX11::~TextureDX11()
     {
         m_Texture->Release();
-        //stbi_image_free(m_Data);
     }
 
     void TextureDX11::Bind(unsigned int slot)

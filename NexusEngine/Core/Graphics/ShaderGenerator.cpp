@@ -89,7 +89,7 @@ namespace Nexus
                 //allow the main method to be renamed
                 hlslOptions.use_entry_point_name = true;
                 //modern HLSL
-                hlslOptions.shader_model = 70;
+                hlslOptions.shader_model = 50;
                 hlsl.set_hlsl_options(hlslOptions);
                 
                 output.Source = hlsl.compile();
@@ -98,6 +98,9 @@ namespace Nexus
         }
 
         output.Successful = true;
+
+        std::cout << output.Source << std::endl;
+
         return output;
     }
 }

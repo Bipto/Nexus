@@ -80,6 +80,12 @@ namespace Nexus
         glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(value));
     }
 
+    void ShaderOpenGL::SetTexture(Ref<Texture> texture, int slot)
+    {
+        glActiveTexture(GL_TEXTURE0 + slot);
+        glBindTexture(GL_TEXTURE_2D, (unsigned int)texture->GetHandle());
+    }
+
     const BufferLayout& ShaderOpenGL::GetLayout() const
     { 
         return m_Layout; 

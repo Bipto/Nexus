@@ -21,6 +21,7 @@ namespace Nexus
             virtual void SetShaderUniform4f(const std::string& name, const glm::vec4& value) override{}
             virtual void SetShaderUniformMat3(const std::string& name, const glm::mat3& value) override{}
             virtual void SetShaderUniformMat4(const std::string& name, const glm::mat4& value) override{}
+            virtual void SetTexture(Ref<Texture> texture, int slot) override;
             virtual const BufferLayout& GetLayout() const override { return m_BufferLayout; }
 
         private:

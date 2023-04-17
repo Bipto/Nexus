@@ -53,6 +53,7 @@ class Demo : public Nexus::Application
         {
             m_GraphicsDevice->SetContext();
             m_GraphicsDevice->Clear(0.8f, 0.2f, 0.3f, 1.0f);
+            m_Shader->SetTexture(m_Texture, 1);
             m_GraphicsDevice->DrawIndexed(m_VertexBuffer, m_IndexBuffer, m_Shader);
 
             BeginImGuiRender();
