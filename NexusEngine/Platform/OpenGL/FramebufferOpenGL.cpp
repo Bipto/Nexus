@@ -81,6 +81,7 @@ namespace Nexus
     {
         m_ColorTextures.clear();
 
+        //color attachments
         for (int i = 0; i < m_FramebufferSpecification.ColorAttachmentSpecification.Attachments.size(); i++)
         {
             auto colorSpec = m_FramebufferSpecification.ColorAttachmentSpecification.Attachments[i];
@@ -93,12 +94,28 @@ namespace Nexus
 
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SAMPLES, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, texture, 0);
             m_ColorTextures.emplace_back(texture);
         }
 
-        //! TODO - Add support for depth textures
+        //depth attachment
+        if (m_FramebufferSpecification.DepthAttachmentSpecification.DepthFormat != DepthFormat::None)
+        {
+            glGenTextures(1, &m_DepthTexture);
+            glBindTexture(GL_TEXTURE_2D, m_DepthTexture);
+
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, m_FramebufferSpecification.Width, m_FramebufferSpecification.Height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
+
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SAMPLES, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthTexture, 0);
+        }
     }
 
     void FramebufferOpenGL::DeleteTextures()
