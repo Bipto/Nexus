@@ -101,7 +101,7 @@ unsigned int indices2[] = {
 class Editor : public Nexus::Application
 {
     public:
-        Editor() : Application(Nexus::GraphicsAPI::OpenGL){}
+        Editor(Nexus::GraphicsAPI api) : Application(api){}
 
         virtual void Load() override
         {
@@ -116,11 +116,11 @@ class Editor : public Nexus::Application
                 { Nexus::ShaderDataType::Float2, "aTexCoord" }
             };
 
-            #ifndef __EMSCRIPTEN__
+            /* #ifndef __EMSCRIPTEN__
                 m_Shader = m_GraphicsDevice->CreateShaderFromFile("Resources/Shaders/GLSL.shader", layout);
             #else
                 m_Shader = m_GraphicsDevice->CreateShaderFromFile("Resources/Shaders/GLSLES.shader", layout);
-            #endif
+            #endif */
 
             this->m_VertexBuffer1 =  this->m_GraphicsDevice->CreateVertexBuffer(vertices1);
             this->m_IndexBuffer1 = this->m_GraphicsDevice->CreateIndexBuffer(indices1);
@@ -140,9 +140,17 @@ class Editor : public Nexus::Application
             framebufferSpec.ColorAttachmentSpecification = { Nexus::TextureFormat::RGBA8, Nexus::TextureFormat::RGBA8 };
             framebufferSpec.DepthAttachmentSpecification = Nexus::DepthFormat::DEPTH24STENCIL8;
             m_Framebuffer = this->m_GraphicsDevice->CreateFramebuffer(framebufferSpec);
-
+            
             auto& style = ImGui::GetStyle();
             style.ChildBorderSize = 0.0f;
+
+            /* Nexus::Viewport vp;
+            vp.X = 0;
+            vp.Y = 0;
+            vp.Width = this->GetWindowSize().Width;
+            vp.Height = this->GetWindowSize().Height;
+            this->m_GraphicsDevice->SetViewport(vp);
+            this->m_GraphicsDevice->Resize(this->GetWindowSize()); */
 
             /* std::ifstream file("Resources/test.txt");
             std::string line;
@@ -223,40 +231,85 @@ class Editor : public Nexus::Application
                 m_Camera.SetPosition(pos);
             }                            
 
-            this->m_GraphicsDevice->SetContext();
+            //this->m_GraphicsDevice->SetContext();
 
-            auto windowSize = this->GetWindowSize();
+            /* auto windowSize = this->GetWindowSize();
             auto framebufferSpec = this->m_Framebuffer->GetFramebufferSpecification();
             this->m_GraphicsDevice->Resize({framebufferSpec.Width, framebufferSpec.Height});
 
-            this->m_Framebuffer->Bind();
+            this->m_GraphicsDevice->SetFramebuffer(m_Framebuffer);
             this->m_Renderer->Begin(glm::mat4(0), glm::vec4(0.07f, 0.13f, 0.17f, 1));
 
             this->m_Shader->SetShaderUniform4f("TintColor", glm::vec4(0.7f, 0.1f, 0.2f, 1));
-            this->m_Shader->SetShaderUniform1i("ourTexture", 0);
+            this->m_Shader->SetTexture(m_Texture1, 0);
 
             this->RenderQuad(m_Texture1, m_QuadPosition, m_QuadSize);           
 
-            this->m_Renderer->End();
-            this->m_Framebuffer->Unbind();
+            this->m_Renderer->End(); */
 
-            Nexus::Point size = this->GetWindowSize();
-            this->m_GraphicsDevice->Resize(size);
-            this->m_Camera.Resize(size.Width, size.Height);
-            this->m_GraphicsDevice->Clear(0, 0, 0, 1);
-            this->BeginImGuiRender();
+            //to framebuffer
+            {
+                m_GraphicsDevice->SetFramebuffer(m_Framebuffer);
+                Nexus::Viewport vp;
+                vp.X = 0;
+                vp.Y = 0;
+                vp.Width = m_Framebuffer->GetFramebufferSpecification().Width;
+                vp.Height = m_Framebuffer->GetFramebufferSpecification().Height;
+                m_GraphicsDevice->SetViewport(vp);
+                m_GraphicsDevice->Clear(1.0f, 0.0f, 0.0f, 1.0f);
+            }
+
+            //to swapchain
+            {
+                m_GraphicsDevice->SetFramebuffer(nullptr);
+                Nexus::Viewport vp;
+                vp.X = 0;
+                vp.Y = 0;
+                vp.Width = this->GetWindowSize().Width;
+                vp.Height = this->GetWindowSize().Height;
+                m_GraphicsDevice->SetViewport(vp);
+                m_GraphicsDevice->Clear(0.0f, 1.0f, 0.0f, 1.0f);
+
+                BeginImGuiRender();
+                RenderEditorUI();
+
+                /* ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0.0f, 0.0f});
+                if (ImGui::Begin("Viewport"))
+                {
+                    auto availSize = ImGui::GetContentRegionAvail();
+                    ImGui::Image((ImTextureID)m_Framebuffer->GetColorAttachment(), availSize);
+                    ImGui::End();
+                }
+                ImGui::PopStyleVar(); */
+
+                EndImGuiRender();
+            }
+
+            m_GraphicsDevice->SwapBuffers();
+
+            /* this->BeginImGuiRender();
             RenderEditorUI();
             this->EndImGuiRender();
 
-            this->m_GraphicsDevice->SwapBuffers();
+            this->m_GraphicsDevice->SwapBuffers(); */
         }
 
         virtual void OnResize(Nexus::Point size) override
         {
-            Nexus::FramebufferSpecification spec = m_Framebuffer->GetFramebufferSpecification();
+            /* Nexus::FramebufferSpecification spec = m_Framebuffer->GetFramebufferSpecification();
             spec.Width = size.Width;
             spec.Height = size.Height;
             m_Framebuffer->SetFramebufferSpecification(spec);
+            m_GraphicsDevice->SetContext();
+            m_GraphicsDevice->SetFramebuffer(nullptr);
+            m_GraphicsDevice->Resize(size); */
+
+            /* Nexus::FramebufferSpecification spec = m_Framebuffer->GetFramebufferSpecification();
+            spec.Width = size.Width;
+            spec.Height = size.Height;
+            m_Framebuffer->SetFramebufferSpecification(spec); */
+
+            m_GraphicsDevice->Resize(size);
         }
 
         virtual bool OnClose() override
@@ -301,7 +354,6 @@ class Editor : public Nexus::Application
 
             if (p)
             {
-                //std::wstring path(p);
                 m_Project = Nexus::Project::Deserialize({p});
                 LoadProjectIntoEditor();
             }
@@ -375,9 +427,13 @@ class Editor : public Nexus::Application
         {      
             ImGuiWindowFlags flags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar;
 
-            ImGui::SetNextWindowPos({
+            /* ImGui::SetNextWindowPos({
                 (float)GetWindowPosition().Width,
                 (float)GetWindowPosition().Height
+            }, ImGuiCond_Always); */
+            ImGui::SetNextWindowPos({
+                0,
+                0
             }, ImGuiCond_Always);
             ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size);
             ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);

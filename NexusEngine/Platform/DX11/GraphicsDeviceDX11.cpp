@@ -2,10 +2,12 @@
 
 #include "backends/imgui_impl_dx11.h"
 
+#include "Core/Logging/Log.h"
+
 namespace Nexus
 {
-    GraphicsDeviceDX11::GraphicsDeviceDX11(Nexus::Window* window, GraphicsAPI api)
-        : GraphicsDevice(window, api)
+    GraphicsDeviceDX11::GraphicsDeviceDX11(Nexus::Window* window, GraphicsAPI api, Viewport viewport)
+        : GraphicsDevice(window, api, viewport)
     {
         #if defined(WIN32)
         SDL_SysWMinfo wmInfo;
@@ -57,6 +59,7 @@ namespace Nexus
         );
 
         framebuffer->Release();
+        m_ActiveRenderTargetviews = {m_RenderTargetViewPtr};
 
         #endif
     }
@@ -69,11 +72,35 @@ namespace Nexus
     void GraphicsDeviceDX11::Clear(float red, float green, float blue, float alpha)
     {
         #if defined(WIN32)
-        float backgroundColor[4] = {red, green, blue, alpha};
-        m_DeviceContextPtr->ClearRenderTargetView(
-            m_RenderTargetViewPtr, backgroundColor  
-        );
+
+        for (auto target : m_ActiveRenderTargetviews)
+        {
+            float backgroundColor[4] = { red, green, blue, alpha };
+            m_DeviceContextPtr->ClearRenderTargetView(
+                target, backgroundColor
+            );
+        }
+
         #endif
+    }
+
+    void GraphicsDeviceDX11::SetFramebuffer(Ref<Framebuffer> framebuffer)
+    {
+        if (framebuffer)
+        {
+            Ref<FramebufferDX11> dxFramebuffer = std::dynamic_pointer_cast<FramebufferDX11>(framebuffer);
+            m_ActiveRenderTargetviews = { dxFramebuffer->GetRenderTargetView() };
+        }
+        else
+        {
+            m_ActiveRenderTargetviews = { m_RenderTargetViewPtr };
+        }
+
+        m_DeviceContextPtr->OMSetRenderTargets(
+            m_ActiveRenderTargetviews.size(),
+            m_ActiveRenderTargetviews.data(),
+            NULL
+        );
     }
 
     void GraphicsDeviceDX11::DrawElements(Ref<VertexBuffer> vertexBuffer, Ref<Shader> shader)
@@ -127,6 +154,25 @@ namespace Nexus
         m_DeviceContextPtr->DrawIndexed(indexBuffer->GetIndexCount(), 0, 0);
     }
 
+    void GraphicsDeviceDX11::SetViewport(const Viewport &viewport)
+    {
+        m_Viewport = viewport;
+
+        D3D11_VIEWPORT vp;
+        vp.Width = (float)viewport.Width;
+        vp.Height = (float)viewport.Height;
+        vp.MinDepth = 0.0f;
+        vp.MaxDepth = 1.0f;
+        vp.TopLeftX = viewport.X;
+        vp.TopLeftY = viewport.Y;
+        m_DeviceContextPtr->RSSetViewports(1, &vp);
+    }
+
+    const Viewport &GraphicsDeviceDX11::GetViewport()
+    {
+        return m_Viewport;
+    }
+
     const char* GraphicsDeviceDX11::GetAPIName()
     {
         return "DirectX11";
@@ -169,7 +215,7 @@ namespace Nexus
 
     Ref<Framebuffer> GraphicsDeviceDX11::CreateFramebuffer(const Nexus::FramebufferSpecification& spec)
     {
-        return {};
+        return CreateRef<FramebufferDX11>(m_DevicePtr, spec);
     }
 
     void GraphicsDeviceDX11::InitialiseImGui()
@@ -203,15 +249,6 @@ namespace Nexus
         pBuffer->Release();
 
         m_DeviceContextPtr->OMSetRenderTargets(1, &m_RenderTargetViewPtr, NULL);
-
-        D3D11_VIEWPORT vp;
-        vp.Width = (float)size.Width;
-        vp.Height = (float)size.Height;
-        vp.MinDepth = 0.0f;
-        vp.MaxDepth = 1.0f;
-        vp.TopLeftX = 0;
-        vp.TopLeftY = 0;
-        m_DeviceContextPtr->RSSetViewports(1, &vp);
 
         #endif
     }

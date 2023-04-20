@@ -13,13 +13,17 @@ namespace Nexus
     class GraphicsDeviceOpenGL : public GraphicsDevice
     {
         public:
-            GraphicsDeviceOpenGL(Nexus::Window* window, GraphicsAPI api);
+            GraphicsDeviceOpenGL(Nexus::Window* window, GraphicsAPI api, Viewport viewport);
             GraphicsDeviceOpenGL(const GraphicsDeviceOpenGL&) = delete;
             virtual ~GraphicsDeviceOpenGL();
             void SetContext() override;
             void Clear(float red, float green, float blue, float alpha) override;
+            virtual void SetFramebuffer(Ref<Framebuffer> framebuffer) override;
             void DrawElements(Ref<VertexBuffer> vertexBuffer, Ref<Shader> shader) override;
             void DrawIndexed(Ref<VertexBuffer> vertexBuffer, Ref<IndexBuffer> indexBuffer, Ref<Shader> shader) override;
+
+            virtual void SetViewport(const Viewport& viewport) override;
+            virtual const Viewport& GetViewport() override;
 
             virtual const char* GetAPIName() override;
             virtual const char* GetDeviceName() override;
@@ -45,5 +49,6 @@ namespace Nexus
         private:
             SDL_GLContext m_Context;
             const char* m_GlslVersion;
+            Ref<FramebufferOpenGL> m_BoundFramebuffer = nullptr;
     };
 }

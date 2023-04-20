@@ -4,8 +4,6 @@
 #include <fstream>
 #include <sstream>
 
-#include "Core/Graphics/ShaderGenerator.h"
-
 std::vector<float> vertices = 
 {
     -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  //bottom left
@@ -38,9 +36,13 @@ class Demo : public Nexus::Application
             m_GraphicsDevice->Resize(this->GetWindowSize());
             m_GraphicsDevice->SetVSyncState(Nexus::VSyncState::Enabled);
 
-            m_Texture = m_GraphicsDevice->CreateTexture("brick.jpg");  
+            Nexus::FramebufferSpecification spec;
+            spec.Width = 500;
+            spec.Height = 500;
+            spec.ColorAttachmentSpecification = { Nexus::TextureFormat::RGBA8 };
+            m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(spec);
 
-            Nexus::ShaderGenerator generator;
+            m_Texture = m_GraphicsDevice->CreateTexture("brick.jpg");  
 
             std::ifstream t("vertex.glsl");
             std::stringstream buffer;
@@ -51,16 +53,30 @@ class Demo : public Nexus::Application
 
         virtual void Update(Nexus::Time time) override
         {
-            m_GraphicsDevice->SetContext();
+            m_GraphicsDevice->SetFramebuffer(m_Framebuffer);
+            Nexus::Viewport vp;
+            vp.X = 0;
+            vp.Y = 0;
+            vp.Width = m_Framebuffer->GetFramebufferSpecification().Width;
+            vp.Height = m_Framebuffer->GetFramebufferSpecification().Height;
+            m_GraphicsDevice->SetViewport(vp);
             m_GraphicsDevice->Clear(0.8f, 0.2f, 0.3f, 1.0f);
             m_Shader->SetTexture(m_Texture, 1);
             m_GraphicsDevice->DrawIndexed(m_VertexBuffer, m_IndexBuffer, m_Shader);
-
+            
+            Nexus::Viewport vp2;
+            vp2.X = 0;
+            vp2.Y = 0;
+            vp2.Width = this->GetWindowSize().Width;
+            vp2.Height = this->GetWindowSize().Height;
+            m_GraphicsDevice->SetFramebuffer(nullptr);
+            m_GraphicsDevice->SetViewport(vp2);
+            m_GraphicsDevice->Clear(0.0f, 0.7f, 0.2f, 1.0f);
             BeginImGuiRender();
             ImGui::ShowDemoWindow();
             if (ImGui::Begin("Texture"))
             {
-                ImGui::Image((ImTextureID)m_Texture->GetHandle(), {200, 200});
+                ImGui::Image((ImTextureID)m_Framebuffer->GetColorAttachment(), {200, 200});
                 ImGui::End();
             }
             EndImGuiRender();            
@@ -82,12 +98,12 @@ class Demo : public Nexus::Application
         Nexus::Ref<Nexus::VertexBuffer> m_VertexBuffer;
         Nexus::Ref<Nexus::IndexBuffer> m_IndexBuffer;
         Nexus::Ref<Nexus::Texture> m_Texture;
+        Nexus::Ref<Nexus::Framebuffer> m_Framebuffer;
 };
 
 int main(int argc, char** argv)
 {
     Nexus::GraphicsAPI api = Nexus::GraphicsAPI::OpenGL;
-
     std::vector<std::string> arguments;
     for (int i = 0; i < argc; i++)
     {

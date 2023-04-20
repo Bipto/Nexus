@@ -4,8 +4,8 @@
 
 namespace Nexus
 {
-    GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(Nexus::Window* window, GraphicsAPI api)
-        : GraphicsDevice(window, api)
+    GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(Nexus::Window* window, GraphicsAPI api, Viewport viewport)
+        : GraphicsDevice(window, api, viewport)
     {
         // Decide GL+GLSL versions
         #ifdef __EMSCRIPTEN__
@@ -67,6 +67,21 @@ namespace Nexus
         glClear(GL_COLOR_BUFFER_BIT);
     }
 
+    void GraphicsDeviceOpenGL::SetFramebuffer(Ref<Framebuffer> framebuffer)
+    {
+        Ref<FramebufferOpenGL> fb = std::dynamic_pointer_cast<FramebufferOpenGL>(framebuffer);
+        if (framebuffer)
+        {
+            fb->Bind();
+            m_BoundFramebuffer = fb;
+        }
+        else
+        {
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            m_BoundFramebuffer = nullptr;
+        }
+    }
+
     void GraphicsDeviceOpenGL::DrawElements(Ref<VertexBuffer> vertexBuffer, Ref<Shader> shader)
     {
         shader->Bind();
@@ -87,6 +102,21 @@ namespace Nexus
         ib->Bind();
 
         glDrawElements(GL_TRIANGLES, ib->GetIndexCount(), GL_UNSIGNED_INT, (void*)0);
+    }
+
+    void GraphicsDeviceOpenGL::SetViewport(const Viewport &viewport)
+    {
+        m_Viewport = viewport;
+        glViewport(
+            viewport.X,
+            viewport.Y,
+            viewport.Width,
+            viewport.Height);
+    }
+
+    const Viewport &GraphicsDeviceOpenGL::GetViewport()
+    {
+        return m_Viewport;
     }
 
     const char* GraphicsDeviceOpenGL::GetAPIName()
@@ -151,7 +181,11 @@ namespace Nexus
 
     void GraphicsDeviceOpenGL::Resize(Point size)
     {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glViewport(0, 0, size.Width, size.Height);
+
+        if (m_BoundFramebuffer)
+            m_BoundFramebuffer->Bind();
     }
 
     void GraphicsDeviceOpenGL::SwapBuffers()

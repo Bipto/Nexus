@@ -4,7 +4,7 @@ int main(int argc, char** argv)
 {
     Nexus::Init();
 
-    Editor* app = new Editor();
+    Editor* app = new Editor(Nexus::GraphicsAPI::DirectX11);
     Nexus::Run(app);
     delete app;
 

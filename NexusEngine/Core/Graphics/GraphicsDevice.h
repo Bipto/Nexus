@@ -8,6 +8,7 @@
 #include "Texture.h"
 #include "Framebuffer.h"
 #include "Core/Graphics/ShaderGenerator.h"
+#include "Viewport.h"
 
 namespace Nexus
 {
@@ -27,7 +28,7 @@ namespace Nexus
     class GraphicsDevice
     {
         public:
-            GraphicsDevice(Nexus::Window* window, GraphicsAPI api)
+            GraphicsDevice(Nexus::Window* window, GraphicsAPI api, Viewport viewport)
             {
                 this->m_Window = window;
                 this->m_API = api;
@@ -39,10 +40,14 @@ namespace Nexus
     
             virtual void SetContext() = 0;
             virtual void Clear(float red, float green, float blue, float alpha) = 0;
+            virtual void SetFramebuffer(Ref<Framebuffer> framebuffer) = 0;
             virtual void DrawElements(Ref<VertexBuffer> vertexBuffer, Ref<Shader> shader) = 0;
             virtual void DrawIndexed(Ref<VertexBuffer> vertexBuffer, Ref<IndexBuffer> indexBuffer, Ref<Shader> shader) = 0;
             virtual const char* GetAPIName() = 0;
             virtual const char* GetDeviceName() = 0;
+
+            virtual void SetViewport(const Viewport& viewport) = 0;
+            virtual const Viewport& GetViewport() = 0;
 
             virtual void InitialiseImGui() = 0;
             virtual void BeginImGuiRender() = 0;
@@ -72,5 +77,6 @@ namespace Nexus
         protected:
             Nexus::Window* m_Window;
             GraphicsAPI m_API;
+            Viewport m_Viewport;
     };
 }

@@ -50,13 +50,18 @@ namespace Nexus
 {
     static Ref<GraphicsDevice> CreateGraphicsDevice(Nexus::Window* window, GraphicsAPI api)
     {
+        Viewport vp;
+        vp.X = 0;
+        vp.Y = 0;
+        vp.Width = window->GetWindowSize().Width;
+        vp.Height = window->GetWindowSize().Height;
+
         switch (api)
         {
             case GraphicsAPI::DirectX11:
-                return CreateRef<GraphicsDeviceDX11>(window, api);
+                return CreateRef<GraphicsDeviceDX11>(window, api, vp);
             default:
-                return CreateRef<GraphicsDeviceOpenGL>(window, api);
-                //return new GraphicsDeviceOpenGL(window, api);
+                return CreateRef<GraphicsDeviceOpenGL>(window, api, vp);
         }
     }
 

@@ -19,13 +19,21 @@ namespace Nexus
         Ref<Nexus::GraphicsDevice> device = Nexus::CreateGraphicsDevice(this->m_Window, api);
         this->m_GraphicsDevice = std::shared_ptr<GraphicsDevice>(device);
         this->m_GraphicsDevice->SetContext();
+        this->m_GraphicsDevice->Resize(this->GetWindowSize());
+        
+        Nexus::Viewport vp;
+        vp.X = 0;
+        vp.Y = 0;
+        vp.Width = this->GetWindowSize().Width;
+        vp.Height = this->GetWindowSize().Height;
+        this->m_GraphicsDevice->SetViewport(vp);
 
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();            
         ImGui::StyleColorsDark();
 
         ImGuiIO& io = ImGui::GetIO(); (void)io;
-        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+        //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; 
 
         if (device->GetGraphicsAPI() == GraphicsAPI::OpenGL)
@@ -51,7 +59,6 @@ namespace Nexus
 
     void Application::BeginImGuiRender()
     {
-        //ImGui_ImplOpenGL3_NewFrame();
         m_GraphicsDevice->BeginImGuiRender();
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
@@ -63,8 +70,6 @@ namespace Nexus
     {
         ImGui::Render();
         ImGui::GetMainViewport()->Size = { (float)this->GetWindowSize().Width, (float)this->GetWindowSize().Height };
-
-        //ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         m_GraphicsDevice->EndImGuiRender();
     }
 

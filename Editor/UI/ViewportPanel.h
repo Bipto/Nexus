@@ -1,11 +1,14 @@
 #include "Panel.h"
 
+#include <iostream>
+
 class ViewportPanel : public Panel
 {
     public:
         ViewportPanel(Nexus::Ref<Nexus::Framebuffer> framebuffer)
-            : m_Framebuffer(framebuffer)
-            {}
+        {
+            m_Framebuffer = framebuffer;
+        }
 
         virtual void OnRender() override
         {
@@ -13,7 +16,8 @@ class ViewportPanel : public Panel
             ImGui::Begin("Viewport");
             auto availSize = ImGui::GetContentRegionAvail();
             if (m_Framebuffer->HasColorTexture())
-                ImGui::Image((ImTextureID)m_Framebuffer->GetColorAttachment(0), availSize);
+                ImGui::Image((ImTextureID)m_Framebuffer->GetColorAttachment(), availSize);
+            
             ImGui::End();
             ImGui::PopStyleVar();
         }

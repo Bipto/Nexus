@@ -48,16 +48,14 @@ namespace Nexus
     {
         public:
             virtual ~Framebuffer() {};
-            virtual void Bind() = 0;
-            virtual void Unbind() = 0;
             virtual void Resize() = 0;
 
             virtual int GetColorTextureCount() = 0;
             virtual bool HasColorTexture() = 0;
             virtual bool HasDepthTexture() = 0;
 
-            virtual unsigned int GetColorAttachment(int index = 0) = 0;
-            virtual unsigned int GetDepthAttachment() = 0;
+            virtual void* GetColorAttachment(int index = 0) = 0;
+            virtual void* GetDepthAttachment() = 0;
 
             virtual const FramebufferSpecification GetFramebufferSpecification() = 0;
             virtual void SetFramebufferSpecification(const FramebufferSpecification& spec) = 0;
