@@ -76,7 +76,8 @@ class Demo : public Nexus::Application
             ImGui::ShowDemoWindow();
             if (ImGui::Begin("Texture"))
             {
-                ImGui::Image((ImTextureID)m_Framebuffer->GetColorAttachment(), {200, 200});
+                auto texture = m_Framebuffer->GetColorAttachment();
+                ImGui::Image((ImTextureID)texture, {200, 200});
                 ImGui::End();
             }
             EndImGuiRender();            

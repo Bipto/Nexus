@@ -1,7 +1,5 @@
 #include "Panel.h"
 
-#include <iostream>
-
 class ViewportPanel : public Panel
 {
     public:

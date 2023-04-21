@@ -88,8 +88,24 @@ namespace Nexus
     {
         if (framebuffer)
         {
+            /* Ref<FramebufferDX11> dxFramebuffer = std::dynamic_pointer_cast<FramebufferDX11>(framebuffer);
+            m_ActiveRenderTargetviews = { dxFramebuffer->GetRenderTargetView() }; */
+
             Ref<FramebufferDX11> dxFramebuffer = std::dynamic_pointer_cast<FramebufferDX11>(framebuffer);
-            m_ActiveRenderTargetviews = { dxFramebuffer->GetRenderTargetView() };
+    
+            std::vector<ID3D11RenderTargetView*> colorTargets;
+            for (const auto& colorTarget : dxFramebuffer->GetColorRenderTargets())
+            {
+                colorTargets.push_back(colorTarget.RenderTargetView);
+            }
+            ID3D11DepthStencilView* depthTarget = NULL;
+
+            if (dxFramebuffer->HasDepthTexture())
+            {
+                depthTarget = dxFramebuffer->GetDepthRenderTarget().DepthStencilView;
+            }
+
+            m_ActiveRenderTargetviews = colorTargets;
         }
         else
         {
