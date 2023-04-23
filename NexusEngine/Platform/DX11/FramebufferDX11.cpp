@@ -13,7 +13,7 @@ namespace Nexus
 
     FramebufferDX11::~FramebufferDX11()
     {
-
+        DeleteTextures();
     }
 
     void FramebufferDX11::Resize()

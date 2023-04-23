@@ -33,7 +33,7 @@ namespace Nexus
         ImGui::StyleColorsDark();
 
         ImGuiIO& io = ImGui::GetIO(); (void)io;
-        //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; 
 
         if (device->GetGraphicsAPI() == GraphicsAPI::OpenGL)
@@ -75,16 +75,6 @@ namespace Nexus
 
     void Application::MainLoop()
     {
-        if (m_ImGuiActive)
-        {
-            //Update and render additional platform windows
-            if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-            {
-                ImGui::UpdatePlatformWindows();
-                ImGui::RenderPlatformWindowsDefault();
-            }
-        }
-
         if (m_Window->m_RequiresResize)
         {
             OnResize(this->GetWindowSize());
@@ -99,7 +89,19 @@ namespace Nexus
 
         m_Clock.Tick();
         auto time = m_Clock.GetTime();
+
         this->Update(time);    
+        
+        if (m_ImGuiActive)
+        {
+            //Update and render additional platform windows
+            if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+            {
+                ImGui::UpdatePlatformWindows();
+                ImGui::RenderPlatformWindowsDefault();
+                m_GraphicsDevice->SetContext();
+            }
+        }
     }
 
     Point Application::GetWindowSize()

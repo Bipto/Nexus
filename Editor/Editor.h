@@ -431,10 +431,7 @@ class Editor : public Nexus::Application
                 (float)GetWindowPosition().Width,
                 (float)GetWindowPosition().Height
             }, ImGuiCond_Always); */
-            ImGui::SetNextWindowPos({
-                0,
-                0
-            }, ImGuiCond_Always);
+            ImGui::SetNextWindowPos(ImGui::GetWindowPos(), ImGuiCond_Always);
             ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size);
             ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
             ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
