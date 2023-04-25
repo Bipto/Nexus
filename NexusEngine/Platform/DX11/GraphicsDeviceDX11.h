@@ -56,6 +56,7 @@ namespace Nexus
             std::vector<ID3D11RenderTargetView*> m_ActiveRenderTargetviews;
             unsigned int m_VsyncValue                                       = 1;
             bool m_Initialised                                              = false;
+            std::string m_AdapterName;
         #endif
     };
 }

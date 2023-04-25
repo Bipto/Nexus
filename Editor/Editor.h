@@ -16,87 +16,19 @@
 #include "UI/ProjectHierarchyPanel.h"
 #include "UI/NewScenePanel.h"
 
-std::vector<float> vertices1 = {
-    -0.5f, -0.5f, 0.0f, 0, 0,
-    0.5f, -0.5f, 0.0f, 1, 0, 
-    0.5f, 0.5f, 0.0f, 1, 1,
-    -0.5f, 0.5f, 0.0f, 0, 1,
+std::vector<float> vertices = 
+{
+    -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  //bottom left
+    -0.5f,  0.5f, 0.0f, 1.0f, 0.0f,  //top left
+     0.5f, -0.5f, 0.0f, 1.0f, 1.0f,  //bottom right
+     0.5f,  0.5f, 0.0f, 0.0f, 1.0f  //top right
 };
 
-std::vector<unsigned int> indices1 = {
+std::vector<unsigned int> indices = 
+{
     0, 1, 2,
-    2, 3, 0
+    1, 3, 2
 };
-
-std::vector<float> vertices2 = {
-    0.0f, 0.0f, 0.0f, 0, 0,
-    1.0f, 0.0f, 0.0f, 1, 0,
-    1.0f, 1.0f, 0.0f, 1, 1,
-    0.0f, 1.0f, 0.0f, 0, 1,
-};
-
-unsigned int indices2[] = {
-	0, 1, 2,
-	2, 3, 0
-};
-
-#ifndef __EMSCRIPTEN__
-    std::string vertexShaderSource = 
-    "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;"
-    "layout (location = 1) in vec2 aTexCoord;"
-    "out vec2 TexCoord;"
-    "uniform mat4 Transform;"
-    "void main()"
-    "{"
-    "    gl_Position = Transform * vec4(aPos, 1.0);"
-    "    TexCoord = aTexCoord;"
-    "}";
-
-    std::string fragmentShaderSource = 
-    "#version 330 core\n"
-    "out vec4 FragColor;"
-    "out vec4 Color2;"
-    "in vec2 TexCoord;"
-    "uniform sampler2D ourTexture;"
-    "uniform vec4 TintColor;"
-    "uniform mat4 Transform;"
-    "void main()"
-    "{"
-    "    FragColor = texture(ourTexture, TexCoord) * TintColor;"
-    "    Color2 = vec4(0, 1, 0, 1);"
-    "}";
-#else
-    std::string vertexShaderSource = 
-    "#version 300 es\n"
-    "precision mediump float;"
-    "precision highp int;"
-    "layout (location = 0) in vec3 aPos;"
-    "layout (location = 1) in vec2 aTexCoord;"
-    "out vec2 TexCoord;"
-    "uniform mat4 Transform;"
-    "void main()"
-    "{"
-    "    gl_Position = Transform * vec4(aPos, 1.0);"
-    "    TexCoord = aTexCoord;"
-    "}";
-
-    std::string fragmentShaderSource = 
-    "#version 300 es\n"
-    "precision mediump float;"
-    "precision highp int;"
-    "layout (location = 0) out vec4 FragColor;"
-    "layout (location = 1) out vec4 Color2;"
-    "in vec2 TexCoord;"
-    "uniform sampler2D ourTexture;"
-    "uniform vec4 TintColor;"
-    "uniform mat4 Transform;"
-    "void main()"
-    "{"
-    "    FragColor = texture(ourTexture, TexCoord) * TintColor;"
-    "    Color2 = vec4(0, 1, 0, 1);"
-    "}";
-#endif
 
 class Editor : public Nexus::Application
 {
@@ -112,21 +44,14 @@ class Editor : public Nexus::Application
 
             Nexus::BufferLayout layout = 
             {
-                { Nexus::ShaderDataType::Float3, "aPos" },
-                { Nexus::ShaderDataType::Float2, "aTexCoord" }
+                { Nexus::ShaderDataType::Float3, "TEXCOORD", 0 },
+                { Nexus::ShaderDataType::Float2, "TEXCOORD", 1 }
             };
 
-            /* #ifndef __EMSCRIPTEN__
-                m_Shader = m_GraphicsDevice->CreateShaderFromFile("Resources/Shaders/GLSL.shader", layout);
-            #else
-                m_Shader = m_GraphicsDevice->CreateShaderFromFile("Resources/Shaders/GLSLES.shader", layout);
-            #endif */
+            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/shader.glsl", layout);
 
-            this->m_VertexBuffer1 =  this->m_GraphicsDevice->CreateVertexBuffer(vertices1);
-            this->m_IndexBuffer1 = this->m_GraphicsDevice->CreateIndexBuffer(indices1);
-
-            /* this->m_VertexBuffer2 =  this->m_GraphicsDevice->CreateVertexBuffer(vertices2);
-            this->m_IndexBuffer2 = this->m_GraphicsDevice->CreateIndexBuffer(indices2, sizeof(indices2)); */
+            this->m_VertexBuffer =  this->m_GraphicsDevice->CreateVertexBuffer(vertices);
+            this->m_IndexBuffer = this->m_GraphicsDevice->CreateIndexBuffer(indices);
 
             m_Texture1 = this->m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
             m_Texture2 = this->m_GraphicsDevice->CreateTexture("Resources/Textures/wall.jpg");
@@ -144,22 +69,11 @@ class Editor : public Nexus::Application
             auto& style = ImGui::GetStyle();
             style.ChildBorderSize = 0.0f;
 
-            /* Nexus::Viewport vp;
-            vp.X = 0;
-            vp.Y = 0;
-            vp.Width = this->GetWindowSize().Width;
-            vp.Height = this->GetWindowSize().Height;
-            this->m_GraphicsDevice->SetViewport(vp);
-            this->m_GraphicsDevice->Resize(this->GetWindowSize()); */
+            CreatePanels();
+        }
 
-            /* std::ifstream file("Resources/test.txt");
-            std::string line;
-
-            while (getline(file, line))
-            {
-                std::cout << line << std::endl;
-            } */
-
+        void CreatePanels()
+        {
             SceneHierarchyPanel* sceneHierarchyPanel = new SceneHierarchyPanel();
             std::function<void(int)> f = std::bind(&Editor::OnEntitySelected, this, std::placeholders::_1); 
             Delegate<int> d("OnEntitySelected", f);
@@ -231,22 +145,6 @@ class Editor : public Nexus::Application
                 m_Camera.SetPosition(pos);
             }                            
 
-            //this->m_GraphicsDevice->SetContext();
-
-            /* auto windowSize = this->GetWindowSize();
-            auto framebufferSpec = this->m_Framebuffer->GetFramebufferSpecification();
-            this->m_GraphicsDevice->Resize({framebufferSpec.Width, framebufferSpec.Height});
-
-            this->m_GraphicsDevice->SetFramebuffer(m_Framebuffer);
-            this->m_Renderer->Begin(glm::mat4(0), glm::vec4(0.07f, 0.13f, 0.17f, 1));
-
-            this->m_Shader->SetShaderUniform4f("TintColor", glm::vec4(0.7f, 0.1f, 0.2f, 1));
-            this->m_Shader->SetTexture(m_Texture1, 0);
-
-            this->RenderQuad(m_Texture1, m_QuadPosition, m_QuadSize);           
-
-            this->m_Renderer->End(); */
-
             //to framebuffer
             {
                 m_GraphicsDevice->SetFramebuffer(m_Framebuffer);
@@ -256,59 +154,27 @@ class Editor : public Nexus::Application
                 vp.Width = m_Framebuffer->GetFramebufferSpecification().Width;
                 vp.Height = m_Framebuffer->GetFramebufferSpecification().Height;
                 m_GraphicsDevice->SetViewport(vp);
-                m_GraphicsDevice->Clear(1.0f, 0.0f, 0.0f, 1.0f);
+                m_GraphicsDevice->Clear(0.0f, 1.0f, 0.0f, 1.0f);
+                m_GraphicsDevice->DrawIndexed(
+                    m_VertexBuffer,
+                    m_IndexBuffer,
+                    m_Shader
+                );
             }
 
             //to swapchain
             {
                 m_GraphicsDevice->SetFramebuffer(nullptr);
-                Nexus::Viewport vp;
-                vp.X = 0;
-                vp.Y = 0;
-                vp.Width = this->GetWindowSize().Width;
-                vp.Height = this->GetWindowSize().Height;
-                m_GraphicsDevice->SetViewport(vp);
-                m_GraphicsDevice->Clear(0.0f, 1.0f, 0.0f, 1.0f);
-
                 BeginImGuiRender();
                 RenderEditorUI();
-
-                /* ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0.0f, 0.0f});
-                if (ImGui::Begin("Viewport"))
-                {
-                    auto availSize = ImGui::GetContentRegionAvail();
-                    ImGui::Image((ImTextureID)m_Framebuffer->GetColorAttachment(), availSize);
-                    ImGui::End();
-                }
-                ImGui::PopStyleVar(); */
-
                 EndImGuiRender();
             }
 
             m_GraphicsDevice->SwapBuffers();
-
-            /* this->BeginImGuiRender();
-            RenderEditorUI();
-            this->EndImGuiRender();
-
-            this->m_GraphicsDevice->SwapBuffers(); */
         }
 
         virtual void OnResize(Nexus::Point size) override
         {
-            /* Nexus::FramebufferSpecification spec = m_Framebuffer->GetFramebufferSpecification();
-            spec.Width = size.Width;
-            spec.Height = size.Height;
-            m_Framebuffer->SetFramebufferSpecification(spec);
-            m_GraphicsDevice->SetContext();
-            m_GraphicsDevice->SetFramebuffer(nullptr);
-            m_GraphicsDevice->Resize(size); */
-
-            /* Nexus::FramebufferSpecification spec = m_Framebuffer->GetFramebufferSpecification();
-            spec.Width = size.Width;
-            spec.Height = size.Height;
-            m_Framebuffer->SetFramebufferSpecification(spec); */
-
             m_GraphicsDevice->Resize(size);
         }
 
@@ -325,7 +191,7 @@ class Editor : public Nexus::Application
             glm::mat4 mvp = this->m_Camera.GetProjection() * m_Camera.GetWorld() * glm::scale(glm::mat4(1.0f), scale) * glm::translate(glm::mat4(1.0f), position);
             this->m_Shader->SetShaderUniformMat4("Transform", mvp);
 
-            this->m_GraphicsDevice->DrawIndexed(this->m_VertexBuffer1, this->m_IndexBuffer1, this->m_Shader);
+            this->m_GraphicsDevice->DrawIndexed(this->m_VertexBuffer, this->m_IndexBuffer, this->m_Shader);
         }
 
         virtual void Unload() override
@@ -427,10 +293,6 @@ class Editor : public Nexus::Application
         {      
             ImGuiWindowFlags flags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar;
 
-            /* ImGui::SetNextWindowPos({
-                (float)GetWindowPosition().Width,
-                (float)GetWindowPosition().Height
-            }, ImGuiCond_Always); */
             ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos, ImGuiCond_Always);
             ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size);
             ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
@@ -495,12 +357,9 @@ class Editor : public Nexus::Application
         Nexus::Ref<Nexus::Shader> m_Shader;
 
         Nexus::Ref<Nexus::Texture> m_Texture1;
-        Nexus::Ref<Nexus::VertexBuffer> m_VertexBuffer1;
-        Nexus::Ref<Nexus::IndexBuffer> m_IndexBuffer1;
-
         Nexus::Ref<Nexus::Texture> m_Texture2;
-        Nexus::Ref<Nexus::VertexBuffer> m_VertexBuffer2;
-        Nexus::Ref<Nexus::IndexBuffer> m_IndexBuffer2;
+        Nexus::Ref<Nexus::VertexBuffer> m_VertexBuffer;
+        Nexus::Ref<Nexus::IndexBuffer> m_IndexBuffer;
 
         Nexus::OrthographicCamera m_Camera;
         Nexus::Ref<Nexus::Framebuffer> m_Framebuffer;

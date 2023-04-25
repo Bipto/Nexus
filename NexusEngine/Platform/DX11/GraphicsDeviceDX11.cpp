@@ -61,6 +61,15 @@ namespace Nexus
         framebuffer->Release();
         m_ActiveRenderTargetviews = {m_RenderTargetViewPtr};
 
+        IDXGIFactory1* factory;
+        IDXGIAdapter1* adapter;
+        CreateDXGIFactory1(IID_PPV_ARGS(&factory));
+        factory->EnumAdapters1(0, &adapter);
+        DXGI_ADAPTER_DESC1 adapterDesc;
+        adapter->GetDesc1(&adapterDesc);
+        std::wstring ws(adapterDesc.Description);      
+        m_AdapterName = std::string(ws.begin(), ws.end());
+        
         #endif
     }
 
@@ -196,7 +205,7 @@ namespace Nexus
 
     const char* GraphicsDeviceDX11::GetDeviceName()
     {
-        return "Test";
+        return m_AdapterName.c_str();
     }
 
     void* GraphicsDeviceDX11::GetContext()

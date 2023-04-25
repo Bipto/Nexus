@@ -116,7 +116,7 @@ class Demo : public Nexus::Application
 
 int main(int argc, char** argv)
 {
-    Nexus::GraphicsAPI api = Nexus::GraphicsAPI::DirectX11;
+    Nexus::GraphicsAPI api = Nexus::GraphicsAPI::OpenGL;
     std::vector<std::string> arguments;
     for (int i = 0; i < argc; i++)
     {
