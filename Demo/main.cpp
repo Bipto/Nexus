@@ -18,6 +18,11 @@ std::vector<unsigned int> indices =
     1, 3, 2
 };
 
+struct VB_UNIFORM_CAMERA
+{
+    glm::mat4 ViewProjection;
+};
+
 class Demo : public Nexus::Application
 {
     public:
@@ -33,6 +38,7 @@ class Demo : public Nexus::Application
 
             m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(vertices);
             m_IndexBuffer = m_GraphicsDevice->CreateIndexBuffer(indices);
+            m_UniformBuffer = m_GraphicsDevice->CreateUniformBuffer(sizeof(VB_UNIFORM_CAMERA), 0);
             m_GraphicsDevice->Resize(this->GetWindowSize());
             m_GraphicsDevice->SetVSyncState(Nexus::VSyncState::Enabled);
 
@@ -49,6 +55,9 @@ class Demo : public Nexus::Application
             buffer << t.rdbuf();
 
             m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("shader.glsl", layout);
+
+            m_CameraUniforms.ViewProjection = glm::mat4(1.0f);
+            m_UniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms), 0);
         }
 
         virtual void Update(Nexus::Time time) override
@@ -98,13 +107,16 @@ class Demo : public Nexus::Application
         Nexus::Ref<Nexus::Shader> m_Shader;
         Nexus::Ref<Nexus::VertexBuffer> m_VertexBuffer;
         Nexus::Ref<Nexus::IndexBuffer> m_IndexBuffer;
+        Nexus::Ref<Nexus::UniformBuffer> m_UniformBuffer;
         Nexus::Ref<Nexus::Texture> m_Texture;
         Nexus::Ref<Nexus::Framebuffer> m_Framebuffer;
+
+        VB_UNIFORM_CAMERA m_CameraUniforms;
 };
 
 int main(int argc, char** argv)
 {
-    Nexus::GraphicsAPI api = Nexus::GraphicsAPI::OpenGL;
+    Nexus::GraphicsAPI api = Nexus::GraphicsAPI::DirectX11;
     std::vector<std::string> arguments;
     for (int i = 0; i < argc; i++)
     {

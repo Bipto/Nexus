@@ -44,4 +44,32 @@ namespace Nexus
     {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->m_IBO);
     }
+
+    UniformBufferOpenGL::UniformBufferOpenGL(uint32_t size, uint32_t binding)
+        : UniformBuffer(size, binding)
+    {
+        GL::ClearErrors();
+
+        glCreateBuffers(1, &m_UBO);
+        glNamedBufferData(m_UBO, size, nullptr, GL_DYNAMIC_DRAW);
+        glBindBufferBase(GL_UNIFORM_BUFFER, binding, m_UBO);
+
+        if (!GL::CheckErrors())
+            NX_LOG("Uniform buffer created successfully");
+    }
+
+    UniformBufferOpenGL::~UniformBufferOpenGL()
+    {
+        GL::ClearErrors();
+        glDeleteBuffers(1, &m_UBO);
+        GL::CheckErrors();
+    }
+
+    void UniformBufferOpenGL::SetData(const void *data, uint32_t size, uint32_t offset)
+    {
+        GL::ClearErrors();
+        glNamedBufferSubData(m_UBO, offset, size, data);
+        if (!GL::CheckErrors())
+            NX_LOG("Uniform buffer data uploaded successfully");
+    }
 }

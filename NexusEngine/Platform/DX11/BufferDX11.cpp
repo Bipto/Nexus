@@ -67,4 +67,63 @@ namespace Nexus
 
         m_IndexCount = indices.size();
     }
+
+    UniformBufferDX11::UniformBufferDX11(ID3D11Device* device, ID3D11DeviceContext* context, uint32_t size, uint32_t binding)
+        : UniformBuffer(size, binding)
+    {
+        D3D11_BUFFER_DESC bd;
+        ZeroMemory(&bd, sizeof(bd));
+
+        bd.Usage = D3D11_USAGE_DEFAULT;
+        bd.ByteWidth = size;
+        bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+        bd.CPUAccessFlags = 0;
+        bd.MiscFlags = 0;
+        bd.StructureByteStride = 0;
+
+        HRESULT hr = device->CreateBuffer(&bd, NULL, &m_ConstantBuffer);
+
+        if (FAILED(hr))
+        {
+            _com_error error(hr);
+            std::string errorMessage = std::string("Failed to create constant buffer: ") + std::string(error.ErrorMessage());
+            NX_ERROR(errorMessage);
+        }
+        else
+        {
+            NX_LOG("Constant buffer created successfully");
+        }
+
+        m_DeviceContext = context;
+        m_Binding = binding;
+    }
+
+    UniformBufferDX11::~UniformBufferDX11()
+    {
+        m_ConstantBuffer->Release();
+        m_ConstantBuffer = nullptr;
+    }
+
+    void UniformBufferDX11::SetData(const void *data, uint32_t size, uint32_t offset)
+    {
+        /* D3D11_MAPPED_SUBRESOURCE mappedResource;
+        HRESULT hr = m_DeviceContext->Map(m_ConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+
+        if (FAILED(hr))
+        {
+            _com_error error(hr);
+            std::string output = std::string("Failed to map constant buffer: ") + error.ErrorMessage();
+            NX_ERROR(output);
+        }
+        memccpy(mappedResource.pData, data, 0, size);
+        m_DeviceContext->Unmap(m_ConstantBuffer, 0); */
+
+        m_DeviceContext->UpdateSubresource(m_ConstantBuffer, 0, 0, data, 0, 0);
+
+        m_DeviceContext->VSSetConstantBuffers(
+            m_Binding,
+            1,
+            &m_ConstantBuffer
+        );
+    }
 }

@@ -188,14 +188,20 @@ namespace Nexus
             colorAttachment.Texture = nullptr;
         }
 
-        if (HasDepthTexture())
+        /* if (HasDepthTexture())
         {
-            m_DepthTarget.DepthStencilView->Release();
-            m_DepthTarget.DepthStencilView = nullptr;
+            if (m_DepthTarget.DepthStencilView)
+            {
+                m_DepthTarget.DepthStencilView->Release();
+                m_DepthTarget.DepthStencilView = nullptr;                
+            }
 
-            m_DepthTarget.Texture->Release();
-            m_DepthTarget.Texture = nullptr;
-        }
+            if (m_DepthTarget.Texture)
+            {
+                m_DepthTarget.Texture->Release();
+                m_DepthTarget.Texture = nullptr;
+            }
+        } */
 
         m_ColorRenderTargets.clear();
     }

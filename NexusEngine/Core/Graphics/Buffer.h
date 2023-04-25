@@ -9,7 +9,7 @@ namespace Nexus
     {
         public:
             VertexBuffer(const std::vector<float>& vertices){}
-            VertexBuffer(const VertexBuffer&) = delete;
+            virtual ~VertexBuffer(){}
             virtual unsigned int GetVertexCount() = 0;
     };
 
@@ -17,7 +17,15 @@ namespace Nexus
     {
         public:
             IndexBuffer(const std::vector<unsigned int>& indices){}
-            IndexBuffer(const IndexBuffer&) = delete;
+            virtual ~IndexBuffer(){}
             virtual unsigned int GetIndexCount() = 0;
+    };
+
+    class UniformBuffer
+    {
+        public:
+            UniformBuffer(uint32_t size, uint32_t binding){}
+            virtual ~UniformBuffer(){}
+            virtual void SetData(const void* data, uint32_t size, uint32_t offset) = 0;
     };
 }

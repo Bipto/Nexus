@@ -26,9 +26,9 @@ namespace Nexus
             // GL 3.0 + GLSL 130
             m_GlslVersion = "#version 130";
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
         #endif
 
             SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -152,6 +152,11 @@ namespace Nexus
     Ref<IndexBuffer> GraphicsDeviceOpenGL::CreateIndexBuffer(const std::vector<unsigned int> indices)
     {
         return CreateRef<IndexBufferOpenGL>(indices);
+    }
+
+    Ref<UniformBuffer> GraphicsDeviceOpenGL::CreateUniformBuffer(uint32_t size, uint32_t binding)
+    {
+        return CreateRef<UniformBufferOpenGL>(size, binding);
     }
 
     Ref<Texture> GraphicsDeviceOpenGL::CreateTexture(TextureSpecification spec)

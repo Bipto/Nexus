@@ -33,6 +33,7 @@ namespace Nexus
             virtual Ref<VertexBuffer> CreateVertexBuffer(const std::vector<float> vertices) override;
             virtual Ref<IndexBuffer> CreateIndexBuffer(const std::vector<unsigned int> indices) override;
             virtual Ref<Texture> CreateTexture(TextureSpecification spec) override;            
+            virtual Ref<UniformBuffer> CreateUniformBuffer(uint32_t size, uint32_t binding) override;
             virtual Ref<Framebuffer> CreateFramebuffer(const Nexus::FramebufferSpecification& spec);
 
             virtual void InitialiseImGui() override;

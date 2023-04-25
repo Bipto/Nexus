@@ -27,4 +27,14 @@ namespace Nexus
            unsigned int m_IBO; 
            unsigned int m_IndexCount;
     };
+
+    class UniformBufferOpenGL : public UniformBuffer
+    {
+        public:
+            UniformBufferOpenGL(uint32_t size, uint32_t binding);
+            virtual ~UniformBufferOpenGL();
+            virtual void SetData(const void* data, uint32_t size, uint32_t offset) override;
+        private:
+            unsigned int m_UBO;
+    };
 }

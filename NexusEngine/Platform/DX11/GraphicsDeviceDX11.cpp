@@ -229,6 +229,15 @@ namespace Nexus
         return CreateRef<TextureDX11>(m_DevicePtr, spec);
     }
 
+    Ref<UniformBuffer> GraphicsDeviceDX11::CreateUniformBuffer(uint32_t size, uint32_t binding)
+    {
+        return CreateRef<UniformBufferDX11>(
+            m_DevicePtr,
+            m_DeviceContextPtr,
+            size,
+            binding);
+    }
+
     Ref<Framebuffer> GraphicsDeviceDX11::CreateFramebuffer(const Nexus::FramebufferSpecification& spec)
     {
         return CreateRef<FramebufferDX11>(m_DevicePtr, spec);
