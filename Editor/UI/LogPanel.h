@@ -14,6 +14,7 @@ class LogPanel : public Panel
             for (auto& log : logs)
             {
                 ImGui::Text(log.Message.c_str());
+                ImGui::Separator();
             }
 
             ImGui::End();

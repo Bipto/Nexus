@@ -29,7 +29,10 @@ namespace Nexus
             void LogError(std::string message);
             const std::vector<Nexus::Log>& GetLogs();
         private:
+            static std::string GetTime();
+        private:
             std::vector<Nexus::Log> m_Logs;
+        
     };
 
     Logger* GetCoreLogger();

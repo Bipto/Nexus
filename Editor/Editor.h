@@ -21,7 +21,7 @@ std::vector<float> vertices =
     -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  //bottom left
     -0.5f,  0.5f, 0.0f, 1.0f, 0.0f,  //top left
      0.5f, -0.5f, 0.0f, 1.0f, 1.0f,  //bottom right
-     0.5f,  0.5f, 0.0f, 0.0f, 1.0f  //top right
+     0.5f,  0.5f, 0.0f, 0.0f, 1.0f   //top right
 };
 
 std::vector<unsigned int> indices = 
@@ -68,6 +68,11 @@ class Editor : public Nexus::Application
             
             auto& style = ImGui::GetStyle();
             style.ChildBorderSize = 0.0f;
+
+            auto& io = ImGui::GetIO();
+            io.FontDefault = io.Fonts->AddFontFromFileTTF(
+                "Resources/Fonts/Roboto/Roboto-Regular.ttf", 18
+            );
 
             CreatePanels();
         }

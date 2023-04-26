@@ -8,8 +8,8 @@ layout (location = 0) out vec2 OutTexCoord;
 
 void main()
 {
-    gl_Position = vec4(aPos, 1.0);
-    TexCoord = aTexCoord;
+    gl_Position = vec4(Position, 1.0);
+    OutTexCoord = TexCoord;
 }
 
 #shader fragment
