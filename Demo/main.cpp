@@ -71,7 +71,12 @@ class Demo : public Nexus::Application
             m_GraphicsDevice->SetViewport(vp);
             m_GraphicsDevice->Clear(0.8f, 0.2f, 0.3f, 1.0f);
             m_Shader->SetTexture(m_Texture, 1);
-            m_GraphicsDevice->DrawIndexed(m_VertexBuffer, m_IndexBuffer, m_Shader);
+            //m_GraphicsDevice->DrawIndexed(m_VertexBuffer, m_IndexBuffer, m_Shader);
+
+            m_GraphicsDevice->SetShader(m_Shader);
+            m_GraphicsDevice->SetVertexBuffer(m_VertexBuffer);
+            m_GraphicsDevice->SetIndexBuffer(m_IndexBuffer);
+            m_GraphicsDevice->DrawIndexed(Nexus::PrimitiveType::Triangle, m_IndexBuffer->GetIndexCount(), 0);
             
             Nexus::Viewport vp2;
             vp2.X = 0;

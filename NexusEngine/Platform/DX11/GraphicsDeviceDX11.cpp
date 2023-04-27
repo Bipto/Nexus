@@ -128,55 +128,16 @@ namespace Nexus
         );
     }
 
-    void GraphicsDeviceDX11::DrawElements(Ref<VertexBuffer> vertexBuffer, Ref<Shader> shader)
+    void GraphicsDeviceDX11::DrawElements(PrimitiveType type, uint32_t start, uint32_t count)
     {
-        shader->Bind();
-        Ref<VertexBufferDX11> vb = std::dynamic_pointer_cast<VertexBufferDX11>(vertexBuffer);
-
-        auto layout = shader->GetLayout();
-        ID3D11Buffer* buffer = vb->GetNativeHandle();
-        uint32_t stride = layout.GetStride();
-        uint32_t offset = 0;
-
         m_DeviceContextPtr->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        m_DeviceContextPtr->IASetVertexBuffers(
-            0,
-            1,
-            &buffer,
-            &stride,
-            &offset
-        );
-        m_DeviceContextPtr->Draw(vertexBuffer->GetVertexCount(), 0);
+        m_DeviceContextPtr->Draw(count, start);
     }
 
-    void GraphicsDeviceDX11::DrawIndexed(Ref<VertexBuffer> vertexBuffer, Ref<IndexBuffer> indexBuffer, Ref<Shader> shader)
-    {
-        shader->Bind();
-
-        Ref<VertexBufferDX11> vb = std::dynamic_pointer_cast<VertexBufferDX11>(vertexBuffer);
-        Ref<IndexBufferDX11> ib = std::dynamic_pointer_cast<IndexBufferDX11>(indexBuffer);
-
-        auto layout = shader->GetLayout();
-        ID3D11Buffer* dx11VertexBuffer = vb->GetNativeHandle();
-        ID3D11Buffer* dx11IndexBuffer = ib->GetNativeHandle();
-        uint32_t stride = layout.GetStride();
-        uint32_t offset = 0;
-
-        m_DeviceContextPtr->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        m_DeviceContextPtr->IASetVertexBuffers(
-            0,
-            1,
-            &dx11VertexBuffer,
-            &stride,
-            &offset
-        );
-        m_DeviceContextPtr->IASetIndexBuffer(
-            dx11IndexBuffer,
-            DXGI_FORMAT_R32_UINT,
-            0
-        );
-
-        m_DeviceContextPtr->DrawIndexed(indexBuffer->GetIndexCount(), 0, 0);
+    void GraphicsDeviceDX11::DrawIndexed(PrimitiveType type, uint32_t count, uint32_t offset)
+    {        
+        m_DeviceContextPtr->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);       
+        m_DeviceContextPtr->DrawIndexed(count, offset, 0);
     }
 
     void GraphicsDeviceDX11::SetViewport(const Viewport &viewport)
@@ -211,6 +172,49 @@ namespace Nexus
     void* GraphicsDeviceDX11::GetContext()
     {
         return m_DeviceContextPtr;
+    }
+
+    void GraphicsDeviceDX11::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer)
+    {
+        if (!m_ActiveShader)
+        {
+            NX_ERROR("No shader is currently bound");
+            return;
+        }
+        
+        auto layout = m_ActiveShader->GetLayout();
+        
+        uint32_t stride = layout.GetStride();
+        uint32_t offset = 0;
+
+        Ref<VertexBufferDX11> vb = std::dynamic_pointer_cast<VertexBufferDX11>(vertexBuffer);
+        ID3D11Buffer* dx11VertexBuffer = vb->GetNativeHandle();
+
+        m_DeviceContextPtr->IASetVertexBuffers(
+            0,
+            1,
+            &dx11VertexBuffer,
+            &stride,
+            &offset
+        );
+    }
+
+    void GraphicsDeviceDX11::SetIndexBuffer(Ref<IndexBuffer> indexBuffer)
+    {
+        Ref<IndexBufferDX11> ib = std::dynamic_pointer_cast<IndexBufferDX11>(indexBuffer);
+        ID3D11Buffer* dx11IndexBuffer = ib->GetNativeHandle();
+
+        m_DeviceContextPtr->IASetIndexBuffer(
+            dx11IndexBuffer,
+            DXGI_FORMAT_R32_UINT,
+            0
+        );
+    }
+
+    void GraphicsDeviceDX11::SetShader(Ref<Shader> shader)
+    {
+        shader->Bind();
+        m_ActiveShader = shader;
     }
 
     Ref<Shader> GraphicsDeviceDX11::CreateShaderFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const BufferLayout& layout)

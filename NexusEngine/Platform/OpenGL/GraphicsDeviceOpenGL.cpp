@@ -82,26 +82,14 @@ namespace Nexus
         }
     }
 
-    void GraphicsDeviceOpenGL::DrawElements(Ref<VertexBuffer> vertexBuffer, Ref<Shader> shader)
+    void GraphicsDeviceOpenGL::DrawElements(PrimitiveType type, uint32_t start, uint32_t count)
     {
-        shader->Bind();
-
-        Ref<VertexBufferOpenGL> vb = std::dynamic_pointer_cast<VertexBufferOpenGL>(vertexBuffer);
-        vb->Bind();
-        glDrawArrays(GL_TRIANGLES, 0, vertexBuffer->GetVertexCount());
+        glDrawArrays(GL_TRIANGLES, start, count);
     }
 
-    void GraphicsDeviceOpenGL::DrawIndexed(Ref<VertexBuffer> vertexBuffer, Ref<IndexBuffer> indexBuffer, Ref<Shader> shader)
+    void GraphicsDeviceOpenGL::DrawIndexed(PrimitiveType type, uint32_t count, uint32_t offset)
     {
-        shader->Bind();
-
-        Ref<VertexBufferOpenGL> vb = std::dynamic_pointer_cast<VertexBufferOpenGL>(vertexBuffer);
-        Ref<IndexBufferOpenGL> ib = std::dynamic_pointer_cast<IndexBufferOpenGL>(indexBuffer);
-
-        vb->Bind();
-        ib->Bind();
-
-        glDrawElements(GL_TRIANGLES, ib->GetIndexCount(), GL_UNSIGNED_INT, (void*)0);
+        glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void*)offset);
     }
 
     void GraphicsDeviceOpenGL::SetViewport(const Viewport &viewport)
@@ -132,6 +120,23 @@ namespace Nexus
     void* GraphicsDeviceOpenGL::GetContext()
     {
         return (void*)this->m_Context;
+    }
+
+    void GraphicsDeviceOpenGL::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer)
+    {
+        Ref<VertexBufferOpenGL> vb = std::dynamic_pointer_cast<VertexBufferOpenGL>(vertexBuffer);
+        vb->Bind();
+    }
+
+    void GraphicsDeviceOpenGL::SetIndexBuffer(Ref<IndexBuffer> indexBuffer)
+    {
+        Ref<IndexBufferOpenGL> ib = std::dynamic_pointer_cast<IndexBufferOpenGL>(indexBuffer);
+        ib->Bind();
+    }
+
+    void GraphicsDeviceOpenGL::SetShader(Ref<Shader> shader)
+    {
+        shader->Bind();
     }
 
     Ref<Shader> GraphicsDeviceOpenGL::CreateShaderFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const BufferLayout& layout)

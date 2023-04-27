@@ -18,8 +18,8 @@ namespace Nexus
             virtual void SetContext() override;
             virtual void Clear(float red, float green, float blue, float alpha) override;
             virtual void SetFramebuffer(Ref<Framebuffer> framebuffer) override;
-            virtual void DrawElements(Ref<VertexBuffer> vertexBuffer, Ref<Shader> shader) override;
-            virtual void DrawIndexed(Ref<VertexBuffer> vertexBuffer, Ref<IndexBuffer> indexBuffer, Ref<Shader> shader) override;
+            virtual void DrawElements(PrimitiveType type, uint32_t start, uint32_t count) override;
+            virtual void DrawIndexed(PrimitiveType type, uint32_t count, uint32_t offset) override;
 
             virtual void SetViewport(const Viewport& viewport) override;
             virtual const Viewport& GetViewport() override;
@@ -27,6 +27,10 @@ namespace Nexus
             virtual const char* GetAPIName() override;
             virtual const char* GetDeviceName() override;
             virtual void* GetContext() override;
+
+            virtual void SetVertexBuffer(Ref<VertexBuffer> vertexBuffer) override;
+            virtual void SetIndexBuffer(Ref<IndexBuffer> indexBuffer) override;
+            virtual void SetShader(Ref<Shader> shader) override;
 
             virtual Ref<Shader> CreateShaderFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const BufferLayout& layout) override;            
             virtual Ref<Shader> CreateShaderFromFile(const std::string& filepath, const BufferLayout& layout) override;  
@@ -56,6 +60,7 @@ namespace Nexus
             std::vector<ID3D11RenderTargetView*> m_ActiveRenderTargetviews;
             unsigned int m_VsyncValue                                       = 1;
             bool m_Initialised                                              = false;
+            Ref<Shader> m_ActiveShader                                      = NULL;
             std::string m_AdapterName;
         #endif
     };

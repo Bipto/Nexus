@@ -25,6 +25,11 @@ namespace Nexus
         Enabled = 1
     };
 
+    enum PrimitiveType
+    {
+        Triangle
+    };
+
     class GraphicsDevice
     {
         public:
@@ -41,8 +46,8 @@ namespace Nexus
             virtual void SetContext() = 0;
             virtual void Clear(float red, float green, float blue, float alpha) = 0;
             virtual void SetFramebuffer(Ref<Framebuffer> framebuffer) = 0;
-            virtual void DrawElements(Ref<VertexBuffer> vertexBuffer, Ref<Shader> shader) = 0;
-            virtual void DrawIndexed(Ref<VertexBuffer> vertexBuffer, Ref<IndexBuffer> indexBuffer, Ref<Shader> shader) = 0;
+            virtual void DrawElements(PrimitiveType type, uint32_t start, uint32_t count) = 0;
+            virtual void DrawIndexed(PrimitiveType type, uint32_t count, uint32_t offset) = 0;
             virtual const char* GetAPIName() = 0;
             virtual const char* GetDeviceName() = 0;
 
@@ -56,7 +61,10 @@ namespace Nexus
             virtual void* GetContext() = 0;
 
             GraphicsAPI GetGraphicsAPI(){return this->m_API;}
-            //Swapchain* GetSwapchain(){return this->m_Swapchain;}
+
+            virtual void SetVertexBuffer(Ref<VertexBuffer> vertexBuffer) = 0;
+            virtual void SetIndexBuffer(Ref<IndexBuffer> indexBuffer) = 0;
+            virtual void SetShader(Ref<Shader> shader) = 0;
 
             virtual Ref<Shader> CreateShaderFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const BufferLayout& layout) = 0;
             virtual Ref<Shader> CreateShaderFromFile(const std::string& filepath, const BufferLayout& layout) = 0;
@@ -70,6 +78,7 @@ namespace Nexus
             virtual Ref<Framebuffer> CreateFramebuffer(const Nexus::FramebufferSpecification& spec) = 0;
 
             virtual void Resize(Point size) = 0;
+
             virtual void SwapBuffers() = 0;
             virtual void SetVSyncState(VSyncState vSyncState) = 0;
 

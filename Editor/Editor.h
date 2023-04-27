@@ -160,11 +160,12 @@ class Editor : public Nexus::Application
                 vp.Height = m_Framebuffer->GetFramebufferSpecification().Height;
                 m_GraphicsDevice->SetViewport(vp);
                 m_GraphicsDevice->Clear(0.0f, 1.0f, 0.0f, 1.0f);
-                m_GraphicsDevice->DrawIndexed(
-                    m_VertexBuffer,
-                    m_IndexBuffer,
-                    m_Shader
-                );
+                m_GraphicsDevice->SetShader(m_Shader);
+                m_GraphicsDevice->SetVertexBuffer(m_VertexBuffer);
+                m_GraphicsDevice->SetIndexBuffer(m_IndexBuffer);
+                m_GraphicsDevice->DrawIndexed(Nexus::PrimitiveType::Triangle,
+                    m_IndexBuffer->GetIndexCount(),
+                    0);
             }
 
             //to swapchain
@@ -191,12 +192,12 @@ class Editor : public Nexus::Application
 
         void RenderQuad(Nexus::Ref<Nexus::Texture> texture, const glm::vec3& position, const glm::vec3& scale)
         {
-            texture->Bind();
+            /* texture->Bind();
 
             glm::mat4 mvp = this->m_Camera.GetProjection() * m_Camera.GetWorld() * glm::scale(glm::mat4(1.0f), scale) * glm::translate(glm::mat4(1.0f), position);
             this->m_Shader->SetShaderUniformMat4("Transform", mvp);
 
-            this->m_GraphicsDevice->DrawIndexed(this->m_VertexBuffer, this->m_IndexBuffer, this->m_Shader);
+            this->m_GraphicsDevice->DrawIndexed(this->m_VertexBuffer, this->m_IndexBuffer, this->m_Shader); */
         }
 
         virtual void Unload() override
