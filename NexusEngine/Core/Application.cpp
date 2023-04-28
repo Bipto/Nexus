@@ -26,8 +26,8 @@ namespace Nexus
         Viewport vp;
         vp.X = 0;
         vp.Y = 0;
-        vp.Width = m_Window->GetWindowSize().Width;
-        vp.Height = m_Window->GetWindowSize().Height;
+        vp.Width = m_Window->GetWindowSize().X;
+        vp.Height = m_Window->GetWindowSize().Y;
         graphicsDeviceCreateInfo.GraphicsViewport = vp;
 
         Ref<Nexus::GraphicsDevice> device = Nexus::CreateGraphicsDevice(graphicsDeviceCreateInfo);
@@ -115,12 +115,12 @@ namespace Nexus
                 Nexus::Viewport vp;
                 vp.X = 0;
                 vp.Y = 0;
-                vp.Width = m_Window->GetWindowSize().Width;
-                vp.Height = m_Window->GetWindowSize().Height;
+                vp.Width = m_Window->GetWindowSize().X;
+                vp.Height = m_Window->GetWindowSize().Y;
                 m_GraphicsDevice->SetViewport(vp);
 
                 ImGui::Render();
-                ImGui::GetMainViewport()->Size = { (float)this->GetWindowSize().Width, (float)this->GetWindowSize().Height };
+                ImGui::GetMainViewport()->Size = { (float)this->GetWindowSize().X, (float)this->GetWindowSize().Y };
                 m_GraphicsDevice->EndImGuiRender(); 
             }            
 

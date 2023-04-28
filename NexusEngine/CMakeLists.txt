@@ -14,8 +14,8 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 #adds cpp and h files from engine
-file (GLOB_RECURSE ENGINE_HEADERS Core/*.h Platform/*.h Runtime/*.h Runtime/ECS/*.h)
-file (GLOB_RECURSE ENGINE_SOURCES Core/*.cpp Platform/*.cpp Platform/OpenGL*.cpp Platform/DX11/*.cpp Runtime/*.cpp Runtime/ECS/*.cpp)
+file (GLOB_RECURSE ENGINE_HEADERS Core/*.h Runtime/*.h)
+file (GLOB_RECURSE ENGINE_SOURCES Core/*.cpp Core/Input/*.cpp Platform/*.cpp Platform/OpenGL*.cpp Platform/DX11/*.cpp Runtime/*.cpp Runtime/ECS/*.cpp)
 add_library(NexusEngine ${ENGINE_HEADERS} ${ENGINE_SOURCES})
 
 #including dependencies

@@ -57,11 +57,11 @@ class Editor : public Nexus::Application
             m_Texture2 = this->m_GraphicsDevice->CreateTexture("Resources/Textures/wall.jpg");
             
             Nexus::Point size = this->GetWindowSize();
-            this->m_Camera = { size.Width, size.Height, {0, 0, 0} };
+            this->m_Camera = { size.X, size.Y, {0, 0, 0} };
 
             Nexus::FramebufferSpecification framebufferSpec;
-            framebufferSpec.Width = size.Width;
-            framebufferSpec.Height = size.Height;
+            framebufferSpec.Width = size.X;
+            framebufferSpec.Height = size.Y;
             framebufferSpec.ColorAttachmentSpecification = { Nexus::TextureFormat::RGBA8, Nexus::TextureFormat::RGBA8 };
             framebufferSpec.DepthAttachmentSpecification = Nexus::DepthFormat::DEPTH24STENCIL8;
             m_Framebuffer = this->m_GraphicsDevice->CreateFramebuffer(framebufferSpec);

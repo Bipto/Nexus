@@ -8,6 +8,6 @@ namespace Nexus
 {
     struct Point
     {
-        int Width, Height;
+        int X, Y = 0;
     };
 }

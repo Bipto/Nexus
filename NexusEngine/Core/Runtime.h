@@ -18,7 +18,7 @@ extern "C"
 
 #include "Application.h"
 #include "Logging/Log.h"
-#include "Input/Input.h"
+#include "Input/InputState.h"
 
 #include "Runtime/ECS/ComponentRegistry.h"
 

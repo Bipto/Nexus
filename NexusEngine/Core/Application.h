@@ -19,7 +19,7 @@
 
 #include "Core/Events/Event.h"
 #include "Core/Events/EventHandler.h"
-#include "Core/Input/Input.h"
+#include "Core/Input/InputState.h"
 #include "Core/Time.h"
 #include "Core/Memory.h"
 
@@ -94,7 +94,7 @@ namespace Nexus
             bool ShouldClose(){return this->m_Window->IsClosing();}
 
             Window* CreateApplicationWindow(const WindowProperties& props);
-            Input* GetCoreInput() { return m_Window->GetInput(); }
+            InputState* GetCoreInput() { return m_Window->GetInput(); }
             
         protected:
             Ref<GraphicsDevice> m_GraphicsDevice;

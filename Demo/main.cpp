@@ -1,8 +1,6 @@
 #include "NexusEngine.h"
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
+#include "Core/Input/Input.h"
 
 std::vector<float> vertices = 
 {
@@ -61,7 +59,7 @@ class Demo : public Nexus::Application
 
         virtual void Update(Nexus::Time time) override
         {
-            NX_LOG("Updating");
+            
         }
 
         virtual void Render(Nexus::Time time) override
@@ -75,8 +73,6 @@ class Demo : public Nexus::Application
             m_GraphicsDevice->SetViewport(vp);
             m_GraphicsDevice->Clear(0.8f, 0.2f, 0.3f, 1.0f);
             m_Shader->SetTexture(m_Texture, 1);
-            //m_GraphicsDevice->DrawIndexed(m_VertexBuffer, m_IndexBuffer, m_Shader);
-
             m_GraphicsDevice->SetShader(m_Shader);
             m_GraphicsDevice->SetVertexBuffer(m_VertexBuffer);
             m_GraphicsDevice->SetIndexBuffer(m_IndexBuffer);
@@ -85,8 +81,8 @@ class Demo : public Nexus::Application
             Nexus::Viewport vp2;
             vp2.X = 0;
             vp2.Y = 0;
-            vp2.Width = this->GetWindowSize().Width;
-            vp2.Height = this->GetWindowSize().Height;
+            vp2.Width = this->GetWindowSize().X;
+            vp2.Height = this->GetWindowSize().Y;
             m_GraphicsDevice->SetFramebuffer(nullptr);
             m_GraphicsDevice->SetViewport(vp2);
             m_GraphicsDevice->Clear(0.0f, 0.7f, 0.2f, 1.0f);
@@ -125,10 +121,9 @@ int main(int argc, char** argv)
     spec.API = Nexus::GraphicsAPI::OpenGL;
     spec.ImGuiActive = true;
     spec.VSyncState = Nexus::VSyncState::Enabled;
-    spec.UpdatesPerSecond = 60;
+    spec.UpdatesPerSecond = 1;
     spec.RendersPerSecond = 30;
 
-    spec.UpdatesPerSecond = 1;
     std::vector<std::string> arguments;
     for (int i = 0; i < argc; i++)
     {

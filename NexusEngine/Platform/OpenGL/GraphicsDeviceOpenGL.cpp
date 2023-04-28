@@ -192,7 +192,7 @@ namespace Nexus
     void GraphicsDeviceOpenGL::Resize(Point size)
     {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glViewport(0, 0, size.Width, size.Height);
+        glViewport(0, 0, size.X, size.Y);
 
         if (m_BoundFramebuffer)
             m_BoundFramebuffer->Bind();

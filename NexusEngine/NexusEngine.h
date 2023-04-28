@@ -30,9 +30,6 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
-#define NX_IS_KEY_PRESSED(keycode) Nexus::GetApplication()->GetCoreInput()->IsKeyPressed(keycode)
-#define NX_SCROLL_Y() Nexus::GetApplication()->GetCoreInput()->GetMouseScrollY()
-
 struct AllocationTracker
 {
     uint32_t TotalAllocated = 0;

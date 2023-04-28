@@ -275,8 +275,9 @@ namespace Nexus
         m_DeviceContextPtr->OMSetRenderTargets(0, 0, 0);
         m_RenderTargetViewPtr->Release();
 
-        HRESULT hr;
-        hr = m_SwapChainPtr->ResizeBuffers(0, size.Width, size.Height, DXGI_FORMAT_UNKNOWN, 0);
+        HRESULT hr;        
+        hr = m_SwapChainPtr->ResizeBuffers(0, size.X, size.Y, DXGI_FORMAT_UNKNOWN, 0);
+
 
         ID3D11Texture2D* pBuffer;
         hr = m_SwapChainPtr->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBuffer);

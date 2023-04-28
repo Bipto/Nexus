@@ -10,7 +10,7 @@
 #include "Point.h"
 #include "Core/Events/Event.h"
 #include "Core/Events/EventHandler.h"
-#include "Core/Input/Input.h"
+#include "Core/Input/InputState.h"
 
 #include "backends/imgui_impl_sdl2.h"
 
@@ -51,13 +51,13 @@ namespace Nexus
             Point GetWindowSize();
             Point GetWindowPosition();
 
-            Input* GetInput() { return m_Input; }
+            InputState* GetInput() { return m_Input; }
 
         private:
             SDL_Window* m_Window;
             bool m_Closing = false;
             bool m_RequiresResize = false;
-            Input* m_Input;
+            InputState* m_Input;
             friend class Application;
     };
 }

@@ -132,7 +132,7 @@ namespace Nexus
         this->m_Window = SDL_CreateWindow(windowProps.Title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowProps.Width, windowProps.Height, SDL_WINDOW_OPENGL);
         SetResizable(windowProps.Resizable);
 
-        m_Input = new Input();
+        m_Input = new InputState();
     }   
 
     Window::~Window()
@@ -222,20 +222,20 @@ namespace Nexus
 
     void Window::SetSize(Point size)
     {
-        SDL_SetWindowSize(this->m_Window, size.Width, size.Height);
+        SDL_SetWindowSize(this->m_Window, size.X, size.Y);
     }
 
     Point Window::GetWindowSize()
     {
         Point size{};
-        SDL_GetWindowSize(this->m_Window, &size.Width, &size.Height);
+        SDL_GetWindowSize(this->m_Window, &size.X, &size.Y);
         return size;
     }
 
     Point Window::GetWindowPosition()
     {
         Point position{};
-        SDL_GetWindowPosition(this->m_Window, &position.Width, &position.Height);
+        SDL_GetWindowPosition(this->m_Window, &position.X, &position.Y);
         return position;
     }
 }
