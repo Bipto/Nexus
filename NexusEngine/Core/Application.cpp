@@ -34,7 +34,7 @@ namespace Nexus
         m_GraphicsDevice = std::shared_ptr<GraphicsDevice>(device);
         m_GraphicsDevice->SetContext();
         m_GraphicsDevice->Resize(GetWindowSize());
-        m_GraphicsDevice->SetVSyncState(graphicsDeviceCreateInfo.VSyncStateSettings);
+        m_GraphicsDevice->SetVSyncState(spec.VSyncState);
 
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();            
@@ -93,46 +93,56 @@ namespace Nexus
             m_UpdateTimer = 0;
         }
 
-        //return if we do not need to render yet (only applies when vsync is disabled)
-        if ((m_GraphicsDevice->GetVsyncState() == Nexus::VSyncState::Disabled) && (m_RenderTimer > timeBetweenRenders))
-            return;
+        //if vsync is disabled, check if we should render yet
+        if (m_GraphicsDevice->GetVsyncState() == Nexus::VSyncState::Disabled)
+            if (m_RenderTimer < timeBetweenRenders)
+                return;
 
-        if (m_Specification.ImGuiActive)
+        //run render functions
         {
-            m_GraphicsDevice->BeginImGuiRender();
-            ImGui_ImplSDL2_NewFrame();
-            ImGui::NewFrame();
-        }           
-
-        this->Render(time);
-        m_RenderTimer = 0;
-
-        if (m_Specification.ImGuiActive)
-        {
-            Nexus::Viewport vp;
-            vp.X = 0;
-            vp.Y = 0;
-            vp.Width = m_Window->GetWindowSize().Width;
-            vp.Height = m_Window->GetWindowSize().Height;
-            m_GraphicsDevice->SetViewport(vp);
-
-            ImGui::Render();
-            ImGui::GetMainViewport()->Size = { (float)this->GetWindowSize().Width, (float)this->GetWindowSize().Height };
-            m_GraphicsDevice->EndImGuiRender(); 
-        }            
-
-        m_GraphicsDevice->SwapBuffers();      
-
-        if (m_Specification.ImGuiActive)
-        {
-            //Update and render additional platform windows
-            if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+            if (m_Specification.ImGuiActive)
             {
-                ImGui::UpdatePlatformWindows();
-                ImGui::RenderPlatformWindowsDefault();
-                m_GraphicsDevice->SetContext();
+                m_GraphicsDevice->BeginImGuiRender();
+                ImGui_ImplSDL2_NewFrame();
+                ImGui::NewFrame();
+            }           
+
+            this->Render(time);
+            m_RenderTimer = 0;
+
+            if (m_Specification.ImGuiActive)
+            {
+                Nexus::Viewport vp;
+                vp.X = 0;
+                vp.Y = 0;
+                vp.Width = m_Window->GetWindowSize().Width;
+                vp.Height = m_Window->GetWindowSize().Height;
+                m_GraphicsDevice->SetViewport(vp);
+
+                ImGui::Render();
+                ImGui::GetMainViewport()->Size = { (float)this->GetWindowSize().Width, (float)this->GetWindowSize().Height };
+                m_GraphicsDevice->EndImGuiRender(); 
+            }            
+
+            m_GraphicsDevice->SwapBuffers();      
+
+            if (m_Specification.ImGuiActive)
+            {
+                //Update and render additional platform windows
+                if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+                {
+                    ImGui::UpdatePlatformWindows();
+                    ImGui::RenderPlatformWindowsDefault();
+                    m_GraphicsDevice->SetContext();
+                }
             }
         }
+
+        //return if we do not need to render yet (only applies when vsync is disabled)
+        /* if ((m_GraphicsDevice->GetVsyncState() == Nexus::VSyncState::Disabled) && (m_RenderTimer > timeBetweenRenders))
+            return; */
+
+        
     }
 
     Point Application::GetWindowSize()

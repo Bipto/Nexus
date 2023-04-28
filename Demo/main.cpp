@@ -40,7 +40,6 @@ class Demo : public Nexus::Application
             m_IndexBuffer = m_GraphicsDevice->CreateIndexBuffer(indices);
             m_UniformBuffer = m_GraphicsDevice->CreateUniformBuffer(sizeof(VB_UNIFORM_CAMERA), 0);
             m_GraphicsDevice->Resize(this->GetWindowSize());
-            m_GraphicsDevice->SetVSyncState(Nexus::VSyncState::Disabled);
 
             Nexus::FramebufferSpecification spec;
             spec.Width = 500;
@@ -62,7 +61,7 @@ class Demo : public Nexus::Application
 
         virtual void Update(Nexus::Time time) override
         {
-            
+            NX_LOG("Updating");
         }
 
         virtual void Render(Nexus::Time time) override
@@ -125,6 +124,9 @@ int main(int argc, char** argv)
     Nexus::ApplicationSpecification spec;
     spec.API = Nexus::GraphicsAPI::OpenGL;
     spec.ImGuiActive = true;
+    spec.VSyncState = Nexus::VSyncState::Enabled;
+    spec.UpdatesPerSecond = 60;
+    spec.RendersPerSecond = 30;
 
     spec.UpdatesPerSecond = 1;
     std::vector<std::string> arguments;

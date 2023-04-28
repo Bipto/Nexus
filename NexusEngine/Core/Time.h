@@ -5,7 +5,7 @@ namespace Nexus
     class Time
     {
         public:
-            Time() = delete;
+            Time() = default;
             Time(double nanoseconds)
             {
                 m_Nanoseconds = nanoseconds;
@@ -27,6 +27,6 @@ namespace Nexus
             }
 
         private:
-            double m_Nanoseconds;
+            double m_Nanoseconds = 0;
     };
 }

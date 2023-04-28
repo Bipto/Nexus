@@ -106,18 +106,6 @@ namespace Nexus
 
     void UniformBufferDX11::SetData(const void *data, uint32_t size, uint32_t offset)
     {
-        /* D3D11_MAPPED_SUBRESOURCE mappedResource;
-        HRESULT hr = m_DeviceContext->Map(m_ConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-
-        if (FAILED(hr))
-        {
-            _com_error error(hr);
-            std::string output = std::string("Failed to map constant buffer: ") + error.ErrorMessage();
-            NX_ERROR(output);
-        }
-        memccpy(mappedResource.pData, data, 0, size);
-        m_DeviceContext->Unmap(m_ConstantBuffer, 0); */
-
         m_DeviceContext->UpdateSubresource(m_ConstantBuffer, 0, 0, data, 0, 0);
 
         m_DeviceContext->VSSetConstantBuffers(

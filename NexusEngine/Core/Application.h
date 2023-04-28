@@ -32,7 +32,7 @@ class Clock
     public:
         void Tick()
         {
-            std::chrono::steady_clock::time_point tickTime = std::chrono::steady_clock::now();
+            std::chrono::high_resolution_clock::time_point tickTime = std::chrono::high_resolution_clock::now();
             m_DeltaTime = std::chrono::duration_cast<std::chrono::nanoseconds>(tickTime - m_StartTime).count();
             m_StartTime = tickTime;
         }
@@ -42,7 +42,7 @@ class Clock
             return Nexus::Time(m_DeltaTime);
         }
     private:
-        std::chrono::steady_clock::time_point m_StartTime = std::chrono::steady_clock::now();
+        std::chrono::high_resolution_clock::time_point m_StartTime = std::chrono::high_resolution_clock::now();
         uint64_t m_DeltaTime;
 };
 
@@ -108,5 +108,8 @@ namespace Nexus
             Clock m_Clock;
             double m_UpdateTimer = 0;
             double m_RenderTimer = 0;
+
+            Nexus::Time m_PreviousUpdateTime;
+            Nexus::Time m_PreviousRenderTime;
     };
 }
