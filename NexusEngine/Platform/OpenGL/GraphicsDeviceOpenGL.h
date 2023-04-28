@@ -13,7 +13,7 @@ namespace Nexus
     class GraphicsDeviceOpenGL : public GraphicsDevice
     {
         public:
-            GraphicsDeviceOpenGL(Nexus::Window* window, GraphicsAPI api, Viewport viewport);
+            GraphicsDeviceOpenGL(const GraphicsDeviceCreateInfo& createInfo);
             GraphicsDeviceOpenGL(const GraphicsDeviceOpenGL&) = delete;
             virtual ~GraphicsDeviceOpenGL();
             void SetContext() override;
@@ -48,6 +48,7 @@ namespace Nexus
             virtual void Resize(Point size) override;
             virtual void SwapBuffers() override;
             virtual void SetVSyncState(VSyncState vSyncState) override;
+            virtual VSyncState GetVsyncState() override;
 
             virtual ShaderFormat GetSupportedShaderFormat() override { return ShaderFormat::GLSL; }
 
@@ -55,5 +56,6 @@ namespace Nexus
             SDL_GLContext m_Context;
             const char* m_GlslVersion;
             Ref<FramebufferOpenGL> m_BoundFramebuffer = nullptr;
+            VSyncState m_VsyncState = VSyncState::Enabled;
     };
 }

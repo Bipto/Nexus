@@ -48,41 +48,42 @@ class Clock
 
 namespace Nexus
 {
-    static Ref<GraphicsDevice> CreateGraphicsDevice(Nexus::Window* window, GraphicsAPI api)
-    {
-        Viewport vp;
-        vp.X = 0;
-        vp.Y = 0;
-        vp.Width = window->GetWindowSize().Width;
-        vp.Height = window->GetWindowSize().Height;
-
-        switch (api)
+    static Ref<GraphicsDevice> CreateGraphicsDevice(const GraphicsDeviceCreateInfo& createInfo)
+    {       
+        switch (createInfo.API)
         {
             case GraphicsAPI::DirectX11:
-                return CreateRef<GraphicsDeviceDX11>(window, api, vp);
+                return CreateRef<GraphicsDeviceDX11>(createInfo);
             default:
-                return CreateRef<GraphicsDeviceOpenGL>(window, api, vp);
+                return CreateRef<GraphicsDeviceOpenGL>(createInfo);
         }
     }
+
+    struct ApplicationSpecification
+    {
+        GraphicsAPI API;
+        uint32_t UpdatesPerSecond = 60;
+        uint32_t RendersPerSecond = 60;
+        VSyncState VSyncState = VSyncState::Enabled;
+        bool ImGuiActive = false;
+    };
 
     class Application
     {
         public:
-            Application(GraphicsAPI api);
+            Application(const ApplicationSpecification& spec);
             Application(const Application&) = delete;
             ~Application();
 
             //required overridable methods
             virtual void Load() = 0;
             virtual void Update(Nexus::Time time) = 0;
+            virtual void Render(Nexus::Time time) = 0;
             virtual void Unload() = 0;
 
             //optional overridable methods
             virtual void OnResize(Point size) {}
             virtual bool OnClose() { return true; }
-
-            void BeginImGuiRender();
-            void EndImGuiRender();
 
             void MainLoop();
 
@@ -99,11 +100,13 @@ namespace Nexus
             Ref<GraphicsDevice> m_GraphicsDevice;
 
         private:
+            ApplicationSpecification m_Specification;
             Nexus::Window* m_Window;
             Point m_PreviousWindowSize;
 
             Nexus::EventHandler<Point> m_WindowResizeEventHandler;
             Clock m_Clock;
-            bool m_ImGuiActive = false;
+            double m_UpdateTimer = 0;
+            double m_RenderTimer = 0;
     };
 }

@@ -6,13 +6,13 @@
 
 namespace Nexus
 {
-    GraphicsDeviceDX11::GraphicsDeviceDX11(Nexus::Window* window, GraphicsAPI api, Viewport viewport)
-        : GraphicsDevice(window, api, viewport)
+    GraphicsDeviceDX11::GraphicsDeviceDX11(const GraphicsDeviceCreateInfo& createInfo)
+        : GraphicsDevice(createInfo)
     {
         #if defined(WIN32)
         SDL_SysWMinfo wmInfo;
         SDL_VERSION(&wmInfo.version);
-        SDL_GetWindowWMInfo(window->GetSDLWindowHandle(), &wmInfo);
+        SDL_GetWindowWMInfo(m_Window->GetSDLWindowHandle(), &wmInfo);
         HWND hwnd = wmInfo.info.win.window;
 
         DXGI_SWAP_CHAIN_DESC swap_chain_desc = {0};
@@ -97,9 +97,6 @@ namespace Nexus
     {
         if (framebuffer)
         {
-            /* Ref<FramebufferDX11> dxFramebuffer = std::dynamic_pointer_cast<FramebufferDX11>(framebuffer);
-            m_ActiveRenderTargetviews = { dxFramebuffer->GetRenderTargetView() }; */
-
             Ref<FramebufferDX11> dxFramebuffer = std::dynamic_pointer_cast<FramebufferDX11>(framebuffer);
     
             std::vector<ID3D11RenderTargetView*> colorTargets;
@@ -310,6 +307,13 @@ namespace Nexus
                         m_VsyncValue = 0;
                         break;
                 }
-                #endif
+        #endif
+
+        m_VsyncState = vSyncState;
+    }
+
+    VSyncState GraphicsDeviceDX11::GetVsyncState()
+    {
+        return m_VsyncState;
     }
 }

@@ -2,7 +2,11 @@
 
 int main(int argc, char** argv)
 {
-    Nexus::GraphicsAPI api = Nexus::GraphicsAPI::OpenGL;
+    Nexus::ApplicationSpecification spec;
+    spec.API = Nexus::GraphicsAPI::OpenGL;
+    spec.ImGuiActive = true;
+    spec.UpdatesPerSecond = 60;
+    spec.VSyncState = Nexus::VSyncState::Enabled;
     std::vector<std::string> arguments;
     for (int i = 0; i < argc; i++)
     {
@@ -12,11 +16,11 @@ int main(int argc, char** argv)
     
     if (arguments.size() > 1)
         if (arguments[1] == std::string("DX"))    
-            api = Nexus::GraphicsAPI::DirectX11;
+            spec.API = Nexus::GraphicsAPI::DirectX11;
 
     Nexus::Init();
 
-    Editor* app = new Editor(api);
+    Editor* app = new Editor(spec);
     Nexus::Run(app);
     delete app;
 

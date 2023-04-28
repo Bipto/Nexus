@@ -14,7 +14,7 @@ namespace Nexus
     class GraphicsDeviceDX11 : public GraphicsDevice
     {
         public:
-            GraphicsDeviceDX11(Nexus::Window* window, GraphicsAPI api, Viewport viewport);
+            GraphicsDeviceDX11(const GraphicsDeviceCreateInfo& createInfo);
             virtual void SetContext() override;
             virtual void Clear(float red, float green, float blue, float alpha) override;
             virtual void SetFramebuffer(Ref<Framebuffer> framebuffer) override;
@@ -47,6 +47,7 @@ namespace Nexus
             virtual void Resize(Point size) override;
             virtual void SwapBuffers() override;
             virtual void SetVSyncState(VSyncState vSyncState) override;
+            virtual VSyncState GetVsyncState() override;
 
             virtual ShaderFormat GetSupportedShaderFormat() { return ShaderFormat::HLSL; }
 
@@ -63,5 +64,6 @@ namespace Nexus
             Ref<Shader> m_ActiveShader                                      = NULL;
             std::string m_AdapterName;
         #endif
+            VSyncState m_VsyncState = VSyncState::Enabled;
     };
 }

@@ -26,7 +26,7 @@ struct VB_UNIFORM_CAMERA
 class Demo : public Nexus::Application
 {
     public:
-        Demo(Nexus::GraphicsAPI api) : Application(api){}
+        Demo(const Nexus::ApplicationSpecification& spec) : Application(spec){}
 
         virtual void Load() override
         {
@@ -40,7 +40,7 @@ class Demo : public Nexus::Application
             m_IndexBuffer = m_GraphicsDevice->CreateIndexBuffer(indices);
             m_UniformBuffer = m_GraphicsDevice->CreateUniformBuffer(sizeof(VB_UNIFORM_CAMERA), 0);
             m_GraphicsDevice->Resize(this->GetWindowSize());
-            m_GraphicsDevice->SetVSyncState(Nexus::VSyncState::Enabled);
+            m_GraphicsDevice->SetVSyncState(Nexus::VSyncState::Disabled);
 
             Nexus::FramebufferSpecification spec;
             spec.Width = 500;
@@ -61,6 +61,11 @@ class Demo : public Nexus::Application
         }
 
         virtual void Update(Nexus::Time time) override
+        {
+            
+        }
+
+        virtual void Render(Nexus::Time time) override
         {
             m_GraphicsDevice->SetFramebuffer(m_Framebuffer);
             Nexus::Viewport vp;
@@ -86,17 +91,13 @@ class Demo : public Nexus::Application
             m_GraphicsDevice->SetFramebuffer(nullptr);
             m_GraphicsDevice->SetViewport(vp2);
             m_GraphicsDevice->Clear(0.0f, 0.7f, 0.2f, 1.0f);
-            BeginImGuiRender();
             ImGui::ShowDemoWindow();
             if (ImGui::Begin("Texture"))
             {
                 auto texture = m_Framebuffer->GetColorAttachment();
                 ImGui::Image((ImTextureID)texture, {200, 200});
                 ImGui::End();
-            }
-            EndImGuiRender();            
-            
-            m_GraphicsDevice->SwapBuffers();   
+            }          
         }
 
         virtual void OnResize(Nexus::Point size) override
@@ -121,7 +122,11 @@ class Demo : public Nexus::Application
 
 int main(int argc, char** argv)
 {
-    Nexus::GraphicsAPI api = Nexus::GraphicsAPI::OpenGL;
+    Nexus::ApplicationSpecification spec;
+    spec.API = Nexus::GraphicsAPI::OpenGL;
+    spec.ImGuiActive = true;
+
+    spec.UpdatesPerSecond = 1;
     std::vector<std::string> arguments;
     for (int i = 0; i < argc; i++)
     {
@@ -131,11 +136,11 @@ int main(int argc, char** argv)
     
     if (arguments.size() > 1)
         if (arguments[1] == std::string("DX"))    
-            api = Nexus::GraphicsAPI::DirectX11;
+            spec.API = Nexus::GraphicsAPI::DirectX11;
 
     Nexus::Init(argc, argv);
 
-    Demo* app = new Demo(api);
+    Demo* app = new Demo(spec);
     Nexus::Run(app);
     delete app;
 

@@ -4,8 +4,8 @@
 
 namespace Nexus
 {
-    GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(Nexus::Window* window, GraphicsAPI api, Viewport viewport)
-        : GraphicsDevice(window, api, viewport)
+    GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(const GraphicsDeviceCreateInfo& createInfo)
+        : GraphicsDevice(createInfo)
     {
         // Decide GL+GLSL versions
         #ifdef __EMSCRIPTEN__
@@ -206,5 +206,11 @@ namespace Nexus
     void GraphicsDeviceOpenGL::SetVSyncState(VSyncState vSyncState)
     {
         SDL_GL_SetSwapInterval((unsigned int)vSyncState);
+        m_VsyncState = vSyncState;
+    }
+    
+    VSyncState GraphicsDeviceOpenGL::GetVsyncState()
+    {
+        return m_VsyncState;
     }
 }

@@ -18,12 +18,12 @@ namespace Nexus
 
             double GetMilliseconds()
             {
-                return m_Nanoseconds / 1000;
+                return m_Nanoseconds / 1000000;
             }
 
             double GetSeconds()
             {
-                return m_Nanoseconds / 1000000;
+                return m_Nanoseconds / 1000000000;
             }
 
         private:

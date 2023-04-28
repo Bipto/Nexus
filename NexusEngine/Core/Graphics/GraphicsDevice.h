@@ -30,13 +30,22 @@ namespace Nexus
         Triangle
     };
 
+    struct GraphicsDeviceCreateInfo
+    {
+        Window* GraphicsWindow;
+        GraphicsAPI API;
+        VSyncState VSyncStateSettings;
+        Viewport GraphicsViewport;
+    };
+
     class GraphicsDevice
     {
         public:
-            GraphicsDevice(Nexus::Window* window, GraphicsAPI api, Viewport viewport)
+            GraphicsDevice(const GraphicsDeviceCreateInfo& createInfo)
             {
-                this->m_Window = window;
-                this->m_API = api;
+                m_Window = createInfo.GraphicsWindow;
+                m_API = createInfo.API;
+                m_Viewport = createInfo.GraphicsViewport;
             }
 
             virtual ~GraphicsDevice() {}
@@ -81,6 +90,7 @@ namespace Nexus
 
             virtual void SwapBuffers() = 0;
             virtual void SetVSyncState(VSyncState vSyncState) = 0;
+            virtual VSyncState GetVsyncState() = 0;
 
             virtual ShaderFormat GetSupportedShaderFormat() = 0;
             Ref<Shader> CreateShaderFromSpirvFile(const std::string& filepath, const BufferLayout& layout);

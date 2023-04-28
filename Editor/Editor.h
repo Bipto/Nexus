@@ -33,7 +33,7 @@ std::vector<unsigned int> indices =
 class Editor : public Nexus::Application
 {
     public:
-        Editor(Nexus::GraphicsAPI api) : Application(api){}
+        Editor(const Nexus::ApplicationSpecification& spec) : Application(spec){}
 
         virtual void Load() override
         {
@@ -125,6 +125,11 @@ class Editor : public Nexus::Application
 
         virtual void Update(Nexus::Time time) override
         {
+            
+        }
+
+        virtual void Render(Nexus::Time time) override
+        {
             for (auto panel : m_Panels)
             {
                 if (panel.second->IsEnabled())
@@ -171,12 +176,10 @@ class Editor : public Nexus::Application
             //to swapchain
             {
                 m_GraphicsDevice->SetFramebuffer(nullptr);
-                BeginImGuiRender();
+                //BeginImGuiRender();
                 RenderEditorUI();
-                EndImGuiRender();
+                //EndImGuiRender();
             }
-
-            m_GraphicsDevice->SwapBuffers();
         }
 
         virtual void OnResize(Nexus::Point size) override
