@@ -9,6 +9,11 @@ class SceneHierarchyPanel : public Panel
             bool itemHovered = false;
             int indexToRemove = -1;
 
+            if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+            {
+                m_EventHandler.Invoke(-1);
+            }
+
             if (m_Project)
             {             
                 auto activeScene = m_Project->GetActiveScene();

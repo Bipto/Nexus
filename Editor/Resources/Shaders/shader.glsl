@@ -4,11 +4,16 @@
 layout (location = 0) in vec3 Position;
 layout (location = 1) in vec2 TexCoord;
 
+layout (std140, binding = 0) uniform Transform
+{
+    mat4 u_Transform;
+};
+
 layout (location = 0) out vec2 OutTexCoord;
 
 void main()
 {
-    gl_Position = vec4(Position, 1.0);
+    gl_Position = vec4(Position, 1.0) * u_Transform;
     OutTexCoord = TexCoord;
 }
 
@@ -18,9 +23,9 @@ void main()
 layout (location = 0) in vec2 OutTexCoord;
 layout (location = 0) out vec4 FragColor;
 
-layout (binding = 1) uniform sampler2D texSampler;
+layout (binding = 0) uniform sampler2D texSampler;
 
 void main()
 {
-    FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    FragColor = texture(texSampler, OutTexCoord);
 }

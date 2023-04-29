@@ -9,7 +9,6 @@ class Panel
     public:
         virtual void OnLoad() {}
         virtual void OnUnload() {}
-        virtual void OnUpdate() {}
         virtual void OnRender() {}
 
         void Enable() { m_Enabled = true; }

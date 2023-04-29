@@ -29,6 +29,37 @@ namespace Nexus
                 delete component;
             }
 
+            template <typename T>
+            bool HasComponent()
+            {
+                for (auto component : m_Components)
+                {
+                    //we need to dereference pointer to find base type
+                    if (typeid(T) == typeid(*component))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            template <typename T>
+            T GetComponent()
+            {
+                for (auto component : m_Components)
+                {
+                    auto tType = std::remove_pointer<T>::type();
+
+                    if (typeid(tType) == typeid(*component))
+                    {
+                        return (T)component;
+                    }
+                }
+
+                return nullptr;
+            }
+
         private:
             int m_EntityID = 0;
             std::string m_Name = "Entity";

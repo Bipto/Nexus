@@ -9,6 +9,7 @@ class InspectorPanel : public Panel
 
             Nexus::Component* componentToRemove = nullptr;
 
+            //render selected entity info
             if (m_SelectedEntityID != -1)
             {
                 auto& entity = m_Project->GetActiveScene()->GetEntities()[m_SelectedEntityID];
@@ -37,6 +38,23 @@ class InspectorPanel : public Panel
                 //defer removal of component until UI rendering has been completed
                 if (componentToRemove)
                     entity.RemoveComponent(componentToRemove);
+            }
+
+            //render scene info
+            else
+            {
+                if (m_Project)
+                {
+                    auto scene = m_Project->GetActiveScene();
+                    auto& sceneName = scene->GetName();
+                    auto& clearColor = scene->GetClearColor();
+
+                    if (scene)
+                    {
+                        ImGui::InputText("Name", &sceneName);
+                        ImGui::ColorEdit3("Clear Color", glm::value_ptr(clearColor));
+                    }
+                }
             }
 
             ImGui::End();

@@ -15,11 +15,22 @@ class ViewportPanel : public Panel
             auto availSize = ImGui::GetContentRegionAvail();
             if (m_Framebuffer->HasColorTexture())
                 ImGui::Image((ImTextureID)m_Framebuffer->GetColorAttachment(), availSize);
-            
+
+
+            m_FramebufferRequiresResize = 
+                (availSize.x != m_PreviousWindowSize.x ||
+                availSize.y != m_PreviousWindowSize.y);
+
+            m_PreviousWindowSize = availSize;
             ImGui::End();
             ImGui::PopStyleVar();
         }
+
+        ImVec2 GetWindowSize() { return m_PreviousWindowSize; }
+        bool FramebufferRequiresResize() { return m_FramebufferRequiresResize; }
     
     private:
+        ImVec2 m_PreviousWindowSize;
         Nexus::Ref<Nexus::Framebuffer> m_Framebuffer;
+        bool m_FramebufferRequiresResize = true;
 };

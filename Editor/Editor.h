@@ -30,6 +30,11 @@ std::vector<unsigned int> indices =
     1, 3, 2
 };
 
+struct VB_UNIFORM_TRANSFORM
+{
+    glm::mat4 Translation;
+};
+
 class Editor : public Nexus::Application
 {
     public:
@@ -52,6 +57,7 @@ class Editor : public Nexus::Application
 
             this->m_VertexBuffer =  this->m_GraphicsDevice->CreateVertexBuffer(vertices);
             this->m_IndexBuffer = this->m_GraphicsDevice->CreateIndexBuffer(indices);
+            this->m_UniformBuffer = this->m_GraphicsDevice->CreateUniformBuffer(sizeof(VB_UNIFORM_TRANSFORM), 0);
 
             m_Texture1 = this->m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
             m_Texture2 = this->m_GraphicsDevice->CreateTexture("Resources/Textures/wall.jpg");
@@ -60,8 +66,8 @@ class Editor : public Nexus::Application
             this->m_Camera = { size.X, size.Y, {0, 0, 0} };
 
             Nexus::FramebufferSpecification framebufferSpec;
-            framebufferSpec.Width = size.X;
-            framebufferSpec.Height = size.Y;
+            framebufferSpec.Width = 500;
+            framebufferSpec.Height = 500;
             framebufferSpec.ColorAttachmentSpecification = { Nexus::TextureFormat::RGBA8, Nexus::TextureFormat::RGBA8 };
             framebufferSpec.DepthAttachmentSpecification = Nexus::DepthFormat::DEPTH24STENCIL8;
             m_Framebuffer = this->m_GraphicsDevice->CreateFramebuffer(framebufferSpec);
@@ -88,10 +94,13 @@ class Editor : public Nexus::Application
             m_Panels["Settings"] = new SettingsPanel(&m_MovementSpeed,
                                                     &m_QuadPosition,
                                                     &m_QuadSize);
-            m_Panels["InspectorPanel"] = new InspectorPanel();
+
+            m_InspectorPanel = new InspectorPanel();
+            m_Panels["InspectorPanel"] = m_InspectorPanel;
             m_Panels["LogPanel"] = new LogPanel();
-            m_Panels["ViewportPanel"] = new ViewportPanel(m_Framebuffer);
             m_Panels["ProjectHierarchy"] = new ProjectHierarchyPanel();
+            m_ViewportPanel = new ViewportPanel(m_Framebuffer);
+            m_Panels["ViewportPanel"] = m_ViewportPanel;
 
             auto newScenePanel = new NewScenePanel();
             newScenePanel->Disable();
@@ -130,17 +139,21 @@ class Editor : public Nexus::Application
 
         virtual void Render(Nexus::Time time) override
         {
-            for (auto panel : m_Panels)
+            if (m_ViewportPanel->FramebufferRequiresResize())
             {
-                if (panel.second->IsEnabled())
-                    panel.second->OnUpdate();
+                auto spec = m_Framebuffer->GetFramebufferSpecification();
+                spec.Width = m_ViewportPanel->GetWindowSize().x;
+                spec.Height = m_ViewportPanel->GetWindowSize().y;
+
+                if (spec.Width > 0 && spec.Height > 0)
+                    m_Framebuffer->SetFramebufferSpecification(spec);
             }
 
             //movement
             {
                 auto pos = m_Camera.GetPosition();
 
-                if (NX_IS_KEY_PRESSED(Nexus::KeyCode::KeyUp))
+                /* if (NX_IS_KEY_PRESSED(Nexus::KeyCode::KeyUp))
                     pos.y -= m_MovementSpeed * time.GetSeconds();
 
                 if (NX_IS_KEY_PRESSED(Nexus::KeyCode::KeyDown))
@@ -150,7 +163,7 @@ class Editor : public Nexus::Application
                     pos.x -= m_MovementSpeed * time.GetSeconds();
 
                 if (NX_IS_KEY_PRESSED(Nexus::KeyCode::KeyRight))
-                    pos.x += m_MovementSpeed * time.GetSeconds();
+                    pos.x += m_MovementSpeed * time.GetSeconds(); */
 
                 m_Camera.SetPosition(pos);
             }                            
@@ -164,21 +177,43 @@ class Editor : public Nexus::Application
                 vp.Width = m_Framebuffer->GetFramebufferSpecification().Width;
                 vp.Height = m_Framebuffer->GetFramebufferSpecification().Height;
                 m_GraphicsDevice->SetViewport(vp);
-                m_GraphicsDevice->Clear(0.0f, 1.0f, 0.0f, 1.0f);
-                m_GraphicsDevice->SetShader(m_Shader);
-                m_GraphicsDevice->SetVertexBuffer(m_VertexBuffer);
-                m_GraphicsDevice->SetIndexBuffer(m_IndexBuffer);
-                m_GraphicsDevice->DrawIndexed(Nexus::PrimitiveType::Triangle,
-                    m_IndexBuffer->GetIndexCount(),
-                    0);
+
+                if (m_Project)
+                {
+                    auto activeScene = m_Project->GetActiveScene();
+                    if (activeScene)
+                    {
+                        const auto& clearColor = activeScene->GetClearColor();
+                        m_GraphicsDevice->Clear(
+                            clearColor.r,
+                            clearColor.g,
+                            clearColor.b,
+                            clearColor.a
+                        );
+                        /* m_GraphicsDevice->SetShader(m_Shader);
+                        m_GraphicsDevice->SetVertexBuffer(m_VertexBuffer);
+                        m_GraphicsDevice->SetIndexBuffer(m_IndexBuffer);
+                        m_GraphicsDevice->DrawIndexed(Nexus::PrimitiveType::Triangle,
+                            m_IndexBuffer->GetIndexCount(),
+                            0); */
+
+                        for (auto& entity : activeScene->GetEntities())
+                        {
+                            if (entity.HasComponent<Nexus::SpriteRendererComponent>() && entity.HasComponent<Nexus::TransformComponent>())
+                            {
+                                Nexus::TransformComponent* transform = entity.GetComponent<Nexus::TransformComponent*>();                                
+                                RenderQuad(m_Texture1, transform->GetTranslation(), transform->GetScale());
+                            }
+                        }
+                    }                    
+                }
+                
             }
 
             //to swapchain
             {
                 m_GraphicsDevice->SetFramebuffer(nullptr);
-                //BeginImGuiRender();
-                RenderEditorUI();
-                //EndImGuiRender();
+                RenderEditorUI();            
             }
         }
 
@@ -201,6 +236,20 @@ class Editor : public Nexus::Application
             this->m_Shader->SetShaderUniformMat4("Transform", mvp);
 
             this->m_GraphicsDevice->DrawIndexed(this->m_VertexBuffer, this->m_IndexBuffer, this->m_Shader); */
+
+            m_TransformUniforms.Translation = glm::transpose(glm::translate(glm::mat4(1.0f), position)
+                * glm::scale(glm::mat4(1.0f), scale));
+            m_UniformBuffer->SetData(&m_TransformUniforms, sizeof(m_TransformUniforms), 0);
+
+            m_GraphicsDevice->SetShader(m_Shader);
+            m_GraphicsDevice->SetVertexBuffer(m_VertexBuffer);
+            m_GraphicsDevice->SetIndexBuffer(m_IndexBuffer);
+            m_Shader->SetTexture(texture, 0);
+            m_GraphicsDevice->DrawIndexed(
+                Nexus::PrimitiveType::Triangle,
+                m_IndexBuffer->GetIndexCount(),
+                0
+            );
         }
 
         virtual void Unload() override
@@ -369,6 +418,8 @@ class Editor : public Nexus::Application
         Nexus::Ref<Nexus::Texture> m_Texture2;
         Nexus::Ref<Nexus::VertexBuffer> m_VertexBuffer;
         Nexus::Ref<Nexus::IndexBuffer> m_IndexBuffer;
+        Nexus::Ref<Nexus::UniformBuffer> m_UniformBuffer;
+        VB_UNIFORM_TRANSFORM m_TransformUniforms;
 
         Nexus::OrthographicCamera m_Camera;
         Nexus::Ref<Nexus::Framebuffer> m_Framebuffer;
@@ -383,4 +434,6 @@ class Editor : public Nexus::Application
         glm::vec3 m_QuadSize = {500, 500, 500};
 
         std::unordered_map<std::string, Panel*> m_Panels;
+        ViewportPanel* m_ViewportPanel;
+        InspectorPanel* m_InspectorPanel;
 };

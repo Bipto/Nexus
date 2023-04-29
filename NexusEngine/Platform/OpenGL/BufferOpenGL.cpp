@@ -67,9 +67,6 @@ namespace Nexus
 
     void UniformBufferOpenGL::SetData(const void *data, uint32_t size, uint32_t offset)
     {
-        GL::ClearErrors();
         glNamedBufferSubData(m_UBO, offset, size, data);
-        if (!GL::CheckErrors())
-            NX_LOG("Uniform buffer data uploaded successfully");
     }
 }

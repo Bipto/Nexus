@@ -36,7 +36,6 @@ namespace Nexus
             virtual void Deserialize(nlohmann::json json) override;
             virtual Component* Clone() override;
 
-
             const glm::vec3 GetTranslation() { return m_Translation; }
             const glm::vec3 GetRotation() { return m_Rotation; }
             const glm::vec3 GetScale() { return m_Scale; }
@@ -44,9 +43,9 @@ namespace Nexus
             void SetRotation(glm::vec3 rotation) { m_Rotation = rotation; }
             void SetScale(glm::vec3 scale) { m_Scale = scale; }
         private:
-            glm::vec3 m_Translation;
-            glm::vec3 m_Rotation;
-            glm::vec3 m_Scale;
+            glm::vec3 m_Translation = glm::vec3(0.0f);
+            glm::vec3 m_Rotation    = glm::vec3(0.0f);
+            glm::vec3 m_Scale       = glm::vec3(1.0f);
     };
 
     class SpriteRendererComponent : public Component
