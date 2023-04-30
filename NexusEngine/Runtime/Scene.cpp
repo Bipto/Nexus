@@ -19,6 +19,13 @@ namespace Nexus
             nlohmann::json j;
             j["name"] = m_Name;
             j["entity_count"] = m_Entities.size();
+            j["clearColor"] = 
+            {
+                { "r", m_ClearColor.r },
+                { "g", m_ClearColor.g },
+                { "b", m_ClearColor.b },
+                { "a", m_ClearColor.a }
+            };
             
             //serialize entities
             for (auto entity : m_Entities)
@@ -105,6 +112,11 @@ namespace Nexus
             nlohmann::json j = nlohmann::json::parse(ss.str());
             m_Name = j["name"];
             int entityCount = j["entity_count"].get<int>();
+
+            m_ClearColor.r = j["clearColor"]["r"].get<float>();
+            m_ClearColor.g = j["clearColor"]["g"].get<float>();
+            m_ClearColor.b = j["clearColor"]["b"].get<float>();
+            m_ClearColor.a = j["clearColor"]["a"].get<float>();
             
             for (int i = 0; i < entityCount; i++)
             {

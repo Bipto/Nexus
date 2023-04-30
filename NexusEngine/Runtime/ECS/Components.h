@@ -57,10 +57,11 @@ namespace Nexus
             virtual void Deserialize(nlohmann::json json) override;
             virtual Component* Clone() override;
 
-            const glm::vec3 GetColor() { return m_Color; }
+            const glm::vec3& GetColor() const { return m_Color; }
+            glm::vec3& GetColor() { return m_Color; }
             void SetColor(glm::vec3 color) { m_Color = color; }
         private:
-            glm::vec3 m_Color;
+            glm::vec3 m_Color {1.0f, 1.0f, 1.0f};
             Ref<Texture> m_Texture;
     };
 }

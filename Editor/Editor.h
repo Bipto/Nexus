@@ -19,9 +19,9 @@
 std::vector<float> vertices = 
 {
     -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  //bottom left
-    -0.5f,  0.5f, 0.0f, 1.0f, 0.0f,  //top left
-     0.5f, -0.5f, 0.0f, 1.0f, 1.0f,  //bottom right
-     0.5f,  0.5f, 0.0f, 0.0f, 1.0f   //top right
+    -0.5f,  0.5f, 0.0f, 0.0f, 1.0f,  //top left
+     0.5f, -0.5f, 0.0f, 1.0f, 0.0f,  //bottom right
+     0.5f,  0.5f, 0.0f, 1.0f, 1.0f   //top right
 };
 
 std::vector<unsigned int> indices = 
@@ -30,9 +30,16 @@ std::vector<unsigned int> indices =
     1, 3, 2
 };
 
-struct VB_UNIFORM_TRANSFORM
+struct VB_UNIFORM_RENDERINFO
 {
     glm::mat4 Translation;
+    glm::vec3 Color;
+};
+
+struct VB_UNIFORM_CAMERA
+{
+    glm::mat4 View;
+    glm::mat4 Projection;
 };
 
 class Editor : public Nexus::Application
@@ -57,8 +64,8 @@ class Editor : public Nexus::Application
 
             this->m_VertexBuffer =  this->m_GraphicsDevice->CreateVertexBuffer(vertices);
             this->m_IndexBuffer = this->m_GraphicsDevice->CreateIndexBuffer(indices);
-            this->m_UniformBuffer = this->m_GraphicsDevice->CreateUniformBuffer(sizeof(VB_UNIFORM_TRANSFORM), 0);
-
+            this->m_RenderInfoUniformBuffer = this->m_GraphicsDevice->CreateUniformBuffer(512, 0);
+            this->m_CameraUniformBuffer = this->m_GraphicsDevice->CreateUniformBuffer(512, 1);
             m_Texture1 = this->m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
             m_Texture2 = this->m_GraphicsDevice->CreateTexture("Resources/Textures/wall.jpg");
             
@@ -147,25 +154,29 @@ class Editor : public Nexus::Application
 
                 if (spec.Width > 0 && spec.Height > 0)
                     m_Framebuffer->SetFramebufferSpecification(spec);
-            }
+            }            
 
             //movement
             {
                 auto pos = m_Camera.GetPosition();
 
-                /* if (NX_IS_KEY_PRESSED(Nexus::KeyCode::KeyUp))
-                    pos.y -= m_MovementSpeed * time.GetSeconds();
+                if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::KeyUp))
+                    pos.y -= m_MovementSpeed;
+                
+                if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::KeyDown))
+                    pos.y += m_MovementSpeed;
 
-                if (NX_IS_KEY_PRESSED(Nexus::KeyCode::KeyDown))
-                    pos.y += m_MovementSpeed * time.GetSeconds();
+                if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::KeyLeft))
+                    pos.x -= m_MovementSpeed;
 
-                if (NX_IS_KEY_PRESSED(Nexus::KeyCode::KeyLeft))
-                    pos.x -= m_MovementSpeed * time.GetSeconds();
+                if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::KeyRight))
+                    pos.x += m_MovementSpeed;
 
-                if (NX_IS_KEY_PRESSED(Nexus::KeyCode::KeyRight))
-                    pos.x += m_MovementSpeed * time.GetSeconds(); */
+                m_Camera.SetPosition(pos); 
 
-                m_Camera.SetPosition(pos);
+                m_CameraUniforms.Projection = m_Camera.GetProjection();
+                m_CameraUniforms.View = glm::transpose(m_Camera.GetView());
+                m_CameraUniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms), 0);
             }                            
 
             //to framebuffer
@@ -190,19 +201,14 @@ class Editor : public Nexus::Application
                             clearColor.b,
                             clearColor.a
                         );
-                        /* m_GraphicsDevice->SetShader(m_Shader);
-                        m_GraphicsDevice->SetVertexBuffer(m_VertexBuffer);
-                        m_GraphicsDevice->SetIndexBuffer(m_IndexBuffer);
-                        m_GraphicsDevice->DrawIndexed(Nexus::PrimitiveType::Triangle,
-                            m_IndexBuffer->GetIndexCount(),
-                            0); */
 
                         for (auto& entity : activeScene->GetEntities())
                         {
                             if (entity.HasComponent<Nexus::SpriteRendererComponent>() && entity.HasComponent<Nexus::TransformComponent>())
                             {
-                                Nexus::TransformComponent* transform = entity.GetComponent<Nexus::TransformComponent*>();                                
-                                RenderQuad(m_Texture1, transform->GetTranslation(), transform->GetScale());
+                                Nexus::TransformComponent* transform = entity.GetComponent<Nexus::TransformComponent*>();         
+                                Nexus::SpriteRendererComponent* renderer = entity.GetComponent<Nexus::SpriteRendererComponent*>();                       
+                                RenderQuad(m_Texture2, transform->GetTranslation(), transform->GetScale(), renderer->GetColor());
                             }
                         }
                     }                    
@@ -228,18 +234,12 @@ class Editor : public Nexus::Application
             return true;
         }
 
-        void RenderQuad(Nexus::Ref<Nexus::Texture> texture, const glm::vec3& position, const glm::vec3& scale)
+        void RenderQuad(Nexus::Ref<Nexus::Texture> texture, const glm::vec3& position, const glm::vec3& scale, const glm::vec3& color)
         {
-            /* texture->Bind();
-
-            glm::mat4 mvp = this->m_Camera.GetProjection() * m_Camera.GetWorld() * glm::scale(glm::mat4(1.0f), scale) * glm::translate(glm::mat4(1.0f), position);
-            this->m_Shader->SetShaderUniformMat4("Transform", mvp);
-
-            this->m_GraphicsDevice->DrawIndexed(this->m_VertexBuffer, this->m_IndexBuffer, this->m_Shader); */
-
-            m_TransformUniforms.Translation = glm::transpose(glm::translate(glm::mat4(1.0f), position)
+            m_RenderInfoUniforms.Translation = glm::transpose(glm::translate(glm::mat4(1.0f), position)
                 * glm::scale(glm::mat4(1.0f), scale));
-            m_UniformBuffer->SetData(&m_TransformUniforms, sizeof(m_TransformUniforms), 0);
+            m_RenderInfoUniforms.Color = color;
+            m_RenderInfoUniformBuffer->SetData(&m_RenderInfoUniforms, sizeof(m_RenderInfoUniforms), 0);
 
             m_GraphicsDevice->SetShader(m_Shader);
             m_GraphicsDevice->SetVertexBuffer(m_VertexBuffer);
@@ -418,8 +418,10 @@ class Editor : public Nexus::Application
         Nexus::Ref<Nexus::Texture> m_Texture2;
         Nexus::Ref<Nexus::VertexBuffer> m_VertexBuffer;
         Nexus::Ref<Nexus::IndexBuffer> m_IndexBuffer;
-        Nexus::Ref<Nexus::UniformBuffer> m_UniformBuffer;
-        VB_UNIFORM_TRANSFORM m_TransformUniforms;
+        Nexus::Ref<Nexus::UniformBuffer> m_RenderInfoUniformBuffer;
+        Nexus::Ref<Nexus::UniformBuffer> m_CameraUniformBuffer;
+        VB_UNIFORM_RENDERINFO m_RenderInfoUniforms;
+        VB_UNIFORM_CAMERA m_CameraUniforms;
 
         Nexus::OrthographicCamera m_Camera;
         Nexus::Ref<Nexus::Framebuffer> m_Framebuffer;

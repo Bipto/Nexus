@@ -52,12 +52,17 @@ namespace Nexus
                 return m_Zoom;
             }
 
-            const glm::mat4 GetWorld()
+            const glm::mat4 GetView()
             {
                 return glm::translate(glm::mat4(1.0f), m_Position);
             }
 
             const glm::mat4 GetProjection(){ return this->m_Projection; }
+
+            glm::mat4 GetViewProjection()
+            {
+                return GetView() * m_Projection;
+            }
         private:
             glm::vec3 m_Position;
             glm::mat4 m_Projection;

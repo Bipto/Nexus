@@ -79,7 +79,6 @@ namespace Nexus
         bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
         bd.CPUAccessFlags = 0;
         bd.MiscFlags = 0;
-        bd.StructureByteStride = 0;
 
         HRESULT hr = device->CreateBuffer(&bd, NULL, &m_ConstantBuffer);
 
