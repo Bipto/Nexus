@@ -21,6 +21,7 @@ extern "C"
 #include "Input/InputState.h"
 
 #include "Runtime/ECS/ComponentRegistry.h"
+#include "Core/AssetManager.h"
 
 #include "assimp/Importer.hpp"
 
@@ -46,5 +47,6 @@ namespace Nexus
 {
     void Run(Nexus::Application* app);
     Application* GetApplication();
+    AssetManager* GetAssetManager();
     ComponentRegistry& GetComponentRegistry();
 }

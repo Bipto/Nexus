@@ -10,6 +10,7 @@
 #include <inttypes.h>
 
 Nexus::Application* appPtr = nullptr;
+Nexus::AssetManager* assetManager = nullptr;
 
 //-----------------------------------------------------------------------------
 // APPLICATION RUNTIME
@@ -25,6 +26,7 @@ namespace Nexus
     void Run(Nexus::Application* app)
     {
         appPtr = app;
+        assetManager = new AssetManager(app->GetGraphicsDevice());
         appPtr->Load();
 
         #ifdef __EMSCRIPTEN__
@@ -40,6 +42,11 @@ namespace Nexus
     Application* GetApplication()
     {
         return appPtr;
+    }
+
+    AssetManager *GetAssetManager()
+    {
+        return assetManager;
     }
 
     ComponentRegistry registry;

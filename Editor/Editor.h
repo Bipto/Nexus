@@ -1,10 +1,5 @@
 #include "NexusEngine.h"
 
-#ifndef __EMSCRIPTEN__
-#include "tinyfiledialogs.h"
-#include "more_dialogs/tinyfd_moredialogs.h"
-#endif
-
 #include "UI/Panel.h"
 #include "UI/SceneHierarchyPanel.h"
 #include "UI/SettingsPanel.h"
@@ -15,6 +10,8 @@
 #include "UI/AboutPanel.h"
 #include "UI/ProjectHierarchyPanel.h"
 #include "UI/NewScenePanel.h"
+
+#include "Core/Utils/FileDialogs.h"
 
 std::vector<float> vertices = 
 {
@@ -30,13 +27,13 @@ std::vector<unsigned int> indices =
     1, 3, 2
 };
 
-struct VB_UNIFORM_RENDERINFO
+struct alignas(16) VB_UNIFORM_RENDERINFO
 {
     glm::mat4 Translation;
     glm::vec3 Color;
 };
 
-struct VB_UNIFORM_CAMERA
+struct alignas(16) VB_UNIFORM_CAMERA
 {
     glm::mat4 View;
     glm::mat4 Projection;
@@ -64,8 +61,8 @@ class Editor : public Nexus::Application
 
             this->m_VertexBuffer =  this->m_GraphicsDevice->CreateVertexBuffer(vertices);
             this->m_IndexBuffer = this->m_GraphicsDevice->CreateIndexBuffer(indices);
-            this->m_RenderInfoUniformBuffer = this->m_GraphicsDevice->CreateUniformBuffer(512, 0);
-            this->m_CameraUniformBuffer = this->m_GraphicsDevice->CreateUniformBuffer(512, 1);
+            this->m_RenderInfoUniformBuffer = this->m_GraphicsDevice->CreateUniformBuffer(sizeof(VB_UNIFORM_RENDERINFO), 0);
+            this->m_CameraUniformBuffer = this->m_GraphicsDevice->CreateUniformBuffer(sizeof(VB_UNIFORM_CAMERA), 1);
             m_Texture1 = this->m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
             m_Texture2 = this->m_GraphicsDevice->CreateTexture("Resources/Textures/wall.jpg");
             
@@ -207,8 +204,11 @@ class Editor : public Nexus::Application
                             if (entity.HasComponent<Nexus::SpriteRendererComponent>() && entity.HasComponent<Nexus::TransformComponent>())
                             {
                                 Nexus::TransformComponent* transform = entity.GetComponent<Nexus::TransformComponent*>();         
-                                Nexus::SpriteRendererComponent* renderer = entity.GetComponent<Nexus::SpriteRendererComponent*>();                       
-                                RenderQuad(m_Texture2, transform->GetTranslation(), transform->GetScale(), renderer->GetColor());
+                                Nexus::SpriteRendererComponent* renderer = entity.GetComponent<Nexus::SpriteRendererComponent*>();      
+                                if (renderer->GetTexture())
+                                {
+                                    RenderQuad(renderer->GetTexture(), transform->GetTranslation(), transform->GetScale(), renderer->GetColor());
+                                }                
                             }
                         }
                     }                    
@@ -265,16 +265,9 @@ class Editor : public Nexus::Application
         void OpenProject()
         {
             #ifndef __EMSCRIPTEN__
-            const char* filterPatterns[2] = {"*.proj", "*.text"};
 
-            auto p = tinyfd_openFileDialog(
-                "Select file",
-                "",
-                2,
-                filterPatterns,
-                "text files (*.txt|*.text)",
-                0
-            );
+            std::vector<const char*> filters = { "*.proj" };
+            auto p = Nexus::FileDialogs::OpenFile(filters);
 
             if (p)
             {
@@ -289,6 +282,8 @@ class Editor : public Nexus::Application
         {
             for (auto& panel : m_Panels)
                 panel.second->LoadProject(m_Project);
+
+            auto activeScene = m_Project->GetActiveScene();
         }
 
         void SetSelectedEntity(int entityID)

@@ -1,5 +1,8 @@
 #include "Components.h"
 
+#include "Core/Utils/FileDialogs.h"
+#include "Core/Runtime.h"
+
 namespace Nexus
 {
 
@@ -82,6 +85,15 @@ namespace Nexus
     void SpriteRendererComponent::RenderUI()
     {
         ImGui::ColorEdit3("Color", glm::value_ptr(m_Color));
+        ImGui::Text("Filepath: ");
+        ImGui::SameLine();
+        ImGui::Text(m_Filepath.c_str());
+        if (ImGui::Button("Choose file"))
+        {
+            std::vector<const char*> filters = { "*.png", "*.jpg" };
+            auto path = Nexus::FileDialogs::OpenFile(filters);
+            m_Filepath = std::string(path);
+        }
     }
 
     nlohmann::json SpriteRendererComponent::Serialize()
@@ -93,6 +105,7 @@ namespace Nexus
             { "g", m_Color.g },
             { "b", m_Color.b }
         };
+        j["filepath"]  = m_Filepath;
         return j;
     }
 
@@ -105,6 +118,8 @@ namespace Nexus
             color["g"],
             color["b"]
         };
+        m_Filepath = json["filepath"];
+        LoadTexture();
     }
 
     Component* SpriteRendererComponent::Clone()
@@ -113,5 +128,16 @@ namespace Nexus
         component->m_Color = this->m_Color;
         component->m_Texture = this->m_Texture;
         return component;
+    }
+
+    void SpriteRendererComponent::SetFilepath(const std::string &filepath)
+    {
+        m_Filepath = filepath;
+        LoadTexture();
+    }
+
+    void SpriteRendererComponent::LoadTexture()
+    {
+        m_Texture = Nexus::GetAssetManager()->GetTexture(m_Filepath);
     }
 }

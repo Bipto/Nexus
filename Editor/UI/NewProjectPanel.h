@@ -1,5 +1,6 @@
 #include "Panel.h"
 #include "NexusEngine.h"
+#include "Core/Utils/FileDialogs.h"
 
 #include <functional>
 
@@ -26,22 +27,15 @@ class NewProjectPanel : public Panel
 
                 if (ImGui::Button("Choose folder..."))
                 {
-                    #ifndef __EMSCRIPTEN__
-
-                    wchar_t* p = tinyfd_selectFolderDialogW(
-                        L"Select a folder",
-                        L"C:\\"  
+                    auto p = Nexus::FileDialogs::OpenFolder(
+                        "Select a folder",
+                        "C:\\"
                     );
 
                     if (p)
                     {
-                        std::wstring ws(p);
-                        path = {ws.begin(), ws.end()};
-                        m_ProjectFilePath = {path};
+                        m_ProjectFilePath = std::string(p);
                     }
-
-                    #endif
-
                 }
 
                 if (ImGui::Button("Create"))

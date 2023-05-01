@@ -28,6 +28,7 @@ target_include_directories(NexusEngine PUBLIC ../External/assimp/include)
 target_include_directories(NexusEngine PUBLIC ../External/json/single_include)
 target_include_directories(NexusEngine PUBLIC ../External/shaderc/libshaderc)
 target_include_directories(NexusEngine PUBLIC ../External/shaderc/SPIRV-Cross/include)
+target_include_directories(NexusEngine PUBLIC ../External/tinyfiledialogs/tinyfiledialogs)
 target_include_directories(NexusEngine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 #linking dependencies
@@ -39,6 +40,7 @@ target_link_libraries(NexusEngine PUBLIC imgui)
 target_link_libraries(NexusEngine PUBLIC imguizmo)
 target_link_libraries(NexusEngine PUBLIC shaderc)
 target_link_libraries(NexusEngine PUBLIC spirv-cross-cpp spirv-cross-hlsl)
+target_link_libraries(NexusEngine PUBLIC tinyfiledialogs)
 
 #including OpenGL
 find_package(OpenGL REQUIRED)

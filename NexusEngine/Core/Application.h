@@ -95,6 +95,8 @@ namespace Nexus
 
             Window* CreateApplicationWindow(const WindowProperties& props);
             InputState* GetCoreInput() { return m_Window->GetInput(); }
+
+            Ref<GraphicsDevice> GetGraphicsDevice() { return m_GraphicsDevice; }
             
         protected:
             Ref<GraphicsDevice> m_GraphicsDevice;

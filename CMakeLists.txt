@@ -31,9 +31,6 @@ add_subdirectory(External/assimp)
 target_include_directories(Editor PUBLIC NexusEngine)
 target_link_libraries(Editor PUBLIC NexusEngine)
 
-target_include_directories(Editor PUBLIC External/tinyfiledialogs/tinyfiledialogs)
-target_link_libraries(Editor PUBLIC tinyfiledialogs)
-
 target_include_directories(Demo PUBLIC NexusEngine)
 target_link_libraries(Demo PUBLIC NexusEngine)
 
