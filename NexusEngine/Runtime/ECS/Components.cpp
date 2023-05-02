@@ -92,7 +92,8 @@ namespace Nexus
         {
             std::vector<const char*> filters = { "*.png", "*.jpg" };
             auto path = Nexus::FileDialogs::OpenFile(filters);
-            m_Filepath = std::string(path);
+            if (path)
+                SetFilepath(std::string(path));
         }
     }
 
@@ -138,6 +139,7 @@ namespace Nexus
 
     void SpriteRendererComponent::LoadTexture()
     {
+        m_Texture = nullptr;
         m_Texture = Nexus::GetAssetManager()->GetTexture(m_Filepath);
     }
 }

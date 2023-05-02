@@ -47,6 +47,6 @@ namespace Nexus
             void LoadComponent(Entity& entity, nlohmann::json json);
             std::string m_Name;
             std::vector<Nexus::Entity> m_Entities;
-            glm::vec4 m_ClearColor = { 1.0f, 0.0f, 0.0f, 1.0f};
+            glm::vec4 m_ClearColor { 0.39f, 0.58f, 0.92f, 1.0f };
     };
 }

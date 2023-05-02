@@ -63,8 +63,6 @@ class Editor : public Nexus::Application
             this->m_IndexBuffer = this->m_GraphicsDevice->CreateIndexBuffer(indices);
             this->m_RenderInfoUniformBuffer = this->m_GraphicsDevice->CreateUniformBuffer(sizeof(VB_UNIFORM_RENDERINFO), 0);
             this->m_CameraUniformBuffer = this->m_GraphicsDevice->CreateUniformBuffer(sizeof(VB_UNIFORM_CAMERA), 1);
-            m_Texture1 = this->m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
-            m_Texture2 = this->m_GraphicsDevice->CreateTexture("Resources/Textures/wall.jpg");
             
             Nexus::Point size = this->GetWindowSize();
             this->m_Camera = { size.X, size.Y, {0, 0, 0} };
@@ -409,8 +407,6 @@ class Editor : public Nexus::Application
         Nexus::Renderer* m_Renderer;
         Nexus::Ref<Nexus::Shader> m_Shader;
 
-        Nexus::Ref<Nexus::Texture> m_Texture1;
-        Nexus::Ref<Nexus::Texture> m_Texture2;
         Nexus::Ref<Nexus::VertexBuffer> m_VertexBuffer;
         Nexus::Ref<Nexus::IndexBuffer> m_IndexBuffer;
         Nexus::Ref<Nexus::UniformBuffer> m_RenderInfoUniformBuffer;

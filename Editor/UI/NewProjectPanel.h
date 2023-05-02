@@ -34,7 +34,8 @@ class NewProjectPanel : public Panel
 
                     if (p)
                     {
-                        m_ProjectFilePath = std::string(p);
+                        path = std::string(p);
+                        m_ProjectFilePath = path;
                     }
                 }
 

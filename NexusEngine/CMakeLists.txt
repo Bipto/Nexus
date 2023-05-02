@@ -15,7 +15,7 @@ FetchContent_MakeAvailable(googletest)
 
 #adds cpp and h files from engine
 file (GLOB_RECURSE ENGINE_HEADERS Core/*.h Runtime/*.h)
-file (GLOB_RECURSE ENGINE_SOURCES Core/*.cpp Core/Input/*.cpp Platform/*.cpp Platform/OpenGL*.cpp Platform/DX11/*.cpp Runtime/*.cpp Runtime/ECS/*.cpp)
+file (GLOB_RECURSE ENGINE_SOURCES Core/*.cpp Core/Input/*.cpp Core/Utils/*.cpp Platform/*.cpp Platform/OpenGL*.cpp Platform/DX11/*.cpp Runtime/*.cpp Runtime/ECS/*.cpp)
 add_library(NexusEngine ${ENGINE_HEADERS} ${ENGINE_SOURCES})
 
 #including dependencies
