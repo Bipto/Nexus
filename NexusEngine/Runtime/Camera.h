@@ -11,9 +11,6 @@ namespace Nexus
         public:
             OrthographicCamera(int width = 1280, int height = 720, glm::vec3 position = {0, 0, 0})
             {
-                m_Width = width;
-                m_Height = height;
-
                 this->Resize(width, height);
                 this->m_Position = position;
             }

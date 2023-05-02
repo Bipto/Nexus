@@ -35,6 +35,27 @@ class InspectorPanel : public Panel
                     index++;
                 }
 
+                if (ImGui::Button("+"))
+                {
+                    ImGui::OpenPopup("new_component");
+                }
+
+                if (ImGui::BeginPopup("new_component"))
+                {
+                    auto& registry = Nexus::GetComponentRegistry();
+                    for (auto component : registry.GetComponents())
+                    {
+                        if (ImGui::Selectable(component.first.c_str()))
+                        {
+                            auto newComponent = component.second->Clone();
+                            entity.AddComponent(newComponent);
+                        }
+                    }
+
+
+                    ImGui::EndPopup();
+                }
+
                 //defer removal of component until UI rendering has been completed
                 if (componentToRemove)
                     entity.RemoveComponent(componentToRemove);

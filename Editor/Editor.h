@@ -136,7 +136,7 @@ class Editor : public Nexus::Application
 
         virtual void Update(Nexus::Time time) override
         {
-            
+
         }
 
         virtual void Render(Nexus::Time time) override
@@ -148,7 +148,10 @@ class Editor : public Nexus::Application
                 spec.Height = m_ViewportPanel->GetWindowSize().y;
 
                 if (spec.Width > 0 && spec.Height > 0)
+                {
                     m_Framebuffer->SetFramebufferSpecification(spec);
+                    m_Camera.Resize(spec.Width, spec.Height);
+                }
             }            
 
             //movement
