@@ -191,8 +191,8 @@ namespace Nexus
                     break;
                 case SDL_MOUSEWHEEL:
                 {
-                    float scrollX = m_Input->GetMouseScrollX();
-                    float scrollY = m_Input->GetMouseScrollY();
+                    float scrollX = m_Input->GetMouseState().MouseWheelX;
+                    float scrollY = m_Input->GetMouseState().MouseWheelY;
 
                     scrollX += event.wheel.x;
                     scrollY += event.wheel.y;

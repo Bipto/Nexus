@@ -94,7 +94,7 @@ namespace Nexus
             bool ShouldClose(){return this->m_Window->IsClosing();}
 
             Window* CreateApplicationWindow(const WindowProperties& props);
-            InputState* GetCoreInput() { return m_Window->GetInput(); }
+            InputState* GetCoreInputState() { return m_Window->GetInput(); }
 
             Ref<GraphicsDevice> GetGraphicsDevice() { return m_GraphicsDevice; }
             

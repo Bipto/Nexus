@@ -183,42 +183,48 @@ namespace Nexus
                 m_MouseState.MouseWheelY = scroll;
             }
 
+            void CachePreviousInput()
+            {
+                for (auto key : m_KeyboardState)
+                {
+                    m_PreviousKeyState[key.first] = key.second;
+                }
+
+                m_PreviousMouseState.LeftButton = m_MouseState.LeftButton;
+                m_PreviousMouseState.RightButton = m_MouseState.RightButton;
+                m_PreviousMouseState.MousePosition = m_MouseState.MousePosition;
+                m_PreviousMouseState.MouseWheelX = m_MouseState.MouseWheelX;
+                m_PreviousMouseState.MouseWheelY = m_MouseState.MouseWheelY;
+            }
+
             //-----------------------------------------------------------------------------
             // GET
             //-----------------------------------------------------------------------------
 
-            inline bool IsKeyPressed(KeyCode key) 
+            const std::map<KeyCode, bool>& GetKeyboardState()
             {
-                return m_KeyboardState[key];
+                return m_KeyboardState;
             }
 
-            MouseButtonState GetLeftMouseState()
+            const std::map<KeyCode, bool>& GetPreviousKeyboardState()
             {
-                return m_MouseState.LeftButton;
+                return m_PreviousKeyState;
             }
 
-            MouseButtonState GetRightMouseState()
+            MouseState GetMouseState()
             {
-                return m_MouseState.RightButton;
+                return m_MouseState;
             }
 
-            Point GetMousePosition()
+            MouseState GetPreviousMouseState()
             {
-                return m_MouseState.MousePosition;
-            }
-
-            float GetMouseScrollX()
-            {
-                return m_MouseState.MouseWheelX;
-            }
-
-            float GetMouseScrollY()
-            {
-                return m_MouseState.MouseWheelY;
+                return m_PreviousMouseState;
             }
 
         private:
             std::map<KeyCode, bool> m_KeyboardState;
+            std::map<KeyCode, bool> m_PreviousKeyState;
             MouseState m_MouseState;
+            MouseState m_PreviousMouseState;
     };
 }

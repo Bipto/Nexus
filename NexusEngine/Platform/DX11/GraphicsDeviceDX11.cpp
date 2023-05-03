@@ -146,8 +146,8 @@ namespace Nexus
         vp.Height = (float)viewport.Height;
         vp.MinDepth = 0.0f;
         vp.MaxDepth = 1.0f;
-        vp.TopLeftX = viewport.X;
-        vp.TopLeftY = viewport.Y;
+        vp.TopLeftX = viewport.X * -1.0f;
+        vp.TopLeftY = viewport.Y * -1.0f;
         m_DeviceContextPtr->RSSetViewports(1, &vp);
     }
 

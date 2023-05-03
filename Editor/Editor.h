@@ -157,6 +157,8 @@ class Editor : public Nexus::Application
             //movement
             {
                 auto pos = m_Camera.GetPosition();
+                auto rotation = m_Camera.GetRotation();
+                auto zoom = m_Camera.GetZoom();
 
                 if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::KeyUp))
                     pos.y -= m_MovementSpeed;
@@ -170,7 +172,22 @@ class Editor : public Nexus::Application
                 if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::KeyRight))
                     pos.x += m_MovementSpeed;
 
+                if (Nexus::Input::IsRightMouseHeld())
+                {
+                    rotation.y -= Nexus::Input::GetMouseMovement().X;
+                    rotation.x += Nexus::Input::GetMouseMovement().Y;
+                }
+
+                zoom += (Nexus::Input::GetMouseScrollMovementY() / 10.0f);
+
+                if (zoom <= 0.1f)
+                {
+                    zoom = 0.1f;
+                }
+
                 m_Camera.SetPosition(pos); 
+                m_Camera.SetRotation(rotation);
+                m_Camera.SetZoom(zoom);
 
                 m_CameraUniforms.Projection = m_Camera.GetProjection();
                 m_CameraUniforms.View = glm::transpose(m_Camera.GetView());

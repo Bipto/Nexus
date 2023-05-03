@@ -25,12 +25,17 @@ namespace Nexus
                                     (width / 2) / m_Zoom,
                                     (-height / 2) / m_Zoom,
                                     (height / 2) / m_Zoom,
-                                    -100.0f, 100.0f);
+                                    -1000.0f, 1000.0f);
             }
 
             void SetPosition(const glm::vec3& position)
             {
                 m_Position = position;
+            }
+            
+            void SetRotation(const glm::vec3& rotation)
+            {
+                m_Rotation = rotation;
             }
 
             void SetZoom(float zoom)
@@ -44,6 +49,11 @@ namespace Nexus
                 return m_Position;
             }
 
+            const glm::vec3& GetRotation()
+            {
+                return m_Rotation;
+            }
+
             const float GetZoom()
             {
                 return m_Zoom;
@@ -51,7 +61,10 @@ namespace Nexus
 
             const glm::mat4 GetView()
             {
-                return glm::translate(glm::mat4(1.0f), m_Position);
+                auto rotX = glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+                auto rotY = glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+                auto rotZ = glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+                return glm::translate(glm::mat4(1.0f), m_Position) * rotX * rotY * rotZ;
             }
 
             const glm::mat4 GetProjection(){ return this->m_Projection; }
@@ -62,6 +75,8 @@ namespace Nexus
             }
         private:
             glm::vec3 m_Position;
+            glm::vec3 m_Rotation { 0.0f, 0.0f, 0.0f };
+
             glm::mat4 m_Projection;
             glm::mat4 m_World;
             float m_Zoom = 1;

@@ -138,11 +138,7 @@ namespace Nexus
             }
         }
 
-        //return if we do not need to render yet (only applies when vsync is disabled)
-        /* if ((m_GraphicsDevice->GetVsyncState() == Nexus::VSyncState::Disabled) && (m_RenderTimer > timeBetweenRenders))
-            return; */
-
-        
+        m_Window->m_Input->CachePreviousInput();        
     }
 
     Point Application::GetWindowSize()
