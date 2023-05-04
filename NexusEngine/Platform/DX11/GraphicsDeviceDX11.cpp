@@ -69,6 +69,15 @@ namespace Nexus
         adapter->GetDesc1(&adapterDesc);
         std::wstring ws(adapterDesc.Description);      
         m_AdapterName = std::string(ws.begin(), ws.end());
+
+        ID3D11RasterizerState* noCull;
+        D3D11_RASTERIZER_DESC rastDesc;
+        ZeroMemory(&rastDesc, sizeof(rastDesc));
+        rastDesc.FillMode = D3D11_FILL_SOLID;
+        rastDesc.CullMode = D3D11_CULL_NONE;
+        m_DevicePtr->CreateRasterizerState(&rastDesc, &noCull);
+        m_DeviceContextPtr->RSSetState(noCull);
+
         
         #endif
     }
@@ -146,8 +155,8 @@ namespace Nexus
         vp.Height = (float)viewport.Height;
         vp.MinDepth = 0.0f;
         vp.MaxDepth = 1.0f;
-        vp.TopLeftX = viewport.X * -1.0f;
-        vp.TopLeftY = viewport.Y * -1.0f;
+        vp.TopLeftX = viewport.X;
+        vp.TopLeftY = viewport.Y;
         m_DeviceContextPtr->RSSetViewports(1, &vp);
     }
 

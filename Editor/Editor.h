@@ -160,7 +160,7 @@ class Editor : public Nexus::Application
                 auto rotation = m_Camera.GetRotation();
                 auto zoom = m_Camera.GetZoom();
 
-                if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::KeyUp))
+                /* if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::KeyUp))
                     pos.y -= m_MovementSpeed;
                 
                 if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::KeyDown))
@@ -183,14 +183,27 @@ class Editor : public Nexus::Application
                 if (zoom <= 0.1f)
                 {
                     zoom = 0.1f;
-                }
+                } */
+
+                rotation.y += time.GetSeconds();
+                rotation.z += time.GetSeconds();
 
                 m_Camera.SetPosition(pos); 
                 m_Camera.SetRotation(rotation);
                 m_Camera.SetZoom(zoom);
 
                 m_CameraUniforms.Projection = m_Camera.GetProjection();
-                m_CameraUniforms.View = glm::transpose(m_Camera.GetView());
+                auto viewMatrix = m_Camera.GetView() * glm::scale(glm::mat4(1.0f), glm::vec3(-1.0f, -1.0f, 1.0f));
+
+                if (m_GraphicsDevice->GetGraphicsAPI() != Nexus::GraphicsAPI::DirectX11)
+                {
+                    m_CameraUniforms.View = glm::transpose(viewMatrix * glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, -1.0f, 1.0f)));
+                }
+                else
+                {
+                    m_CameraUniforms.View = viewMatrix;
+                }
+
                 m_CameraUniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms), 0);
             }                            
 
