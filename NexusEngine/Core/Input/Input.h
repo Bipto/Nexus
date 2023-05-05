@@ -32,5 +32,6 @@ namespace Nexus
             //-----------------------------------------------------------------------------
             static bool IsKeyPressed(KeyCode code);
             static bool IsKeyReleased(KeyCode code);
+            static bool IsKeyHeld(KeyCode code);
     };
 };

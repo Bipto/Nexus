@@ -13,6 +13,8 @@
 
 #include "Core/Utils/FileDialogs.h"
 
+#include "Core/Graphics/MeshFactory.h"
+
 std::vector<float> vertices = 
 {
     -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  //bottom left
@@ -63,6 +65,7 @@ class Editor : public Nexus::Application
             this->m_IndexBuffer = this->m_GraphicsDevice->CreateIndexBuffer(indices);
             this->m_RenderInfoUniformBuffer = this->m_GraphicsDevice->CreateUniformBuffer(sizeof(VB_UNIFORM_RENDERINFO), 0);
             this->m_CameraUniformBuffer = this->m_GraphicsDevice->CreateUniformBuffer(sizeof(VB_UNIFORM_CAMERA), 1);
+            this->m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
             
             Nexus::Point size = this->GetWindowSize();
             this->m_Camera = { size.X, size.Y, {0, 0, 0} };
@@ -83,6 +86,9 @@ class Editor : public Nexus::Application
             );
 
             CreatePanels();
+
+            Nexus::MeshFactory factory = Nexus::MeshFactory(m_GraphicsDevice);
+            m_Mesh = factory.CreateCube();
         }
 
         void CreatePanels()
@@ -160,7 +166,7 @@ class Editor : public Nexus::Application
                 auto rotation = m_Camera.GetRotation();
                 auto zoom = m_Camera.GetZoom();
 
-                /* if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::KeyUp))
+                if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::KeyUp))
                     pos.y -= m_MovementSpeed;
                 
                 if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::KeyDown))
@@ -183,26 +189,27 @@ class Editor : public Nexus::Application
                 if (zoom <= 0.1f)
                 {
                     zoom = 0.1f;
-                } */
-
-                rotation.y += time.GetSeconds();
-                rotation.z += time.GetSeconds();
+                }
 
                 m_Camera.SetPosition(pos); 
                 m_Camera.SetRotation(rotation);
                 m_Camera.SetZoom(zoom);
 
                 m_CameraUniforms.Projection = m_Camera.GetProjection();
-                auto viewMatrix = m_Camera.GetView() * glm::scale(glm::mat4(1.0f), glm::vec3(-1.0f, -1.0f, 1.0f));
+                auto viewMatrix = m_Camera.GetView();// * glm::scale(glm::mat4(1.0f), glm::vec3(-1.0f, -1.0f, 1.0f));
 
-                if (m_GraphicsDevice->GetGraphicsAPI() != Nexus::GraphicsAPI::DirectX11)
+                if (m_GraphicsDevice->GetCoordinateSystem() == Nexus::CoordinateSystem::LeftHanded)
                 {
-                    m_CameraUniforms.View = glm::transpose(viewMatrix * glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, -1.0f, 1.0f)));
+                    m_CameraUniforms.View = viewMatrix * glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, -1.0f, 1.0f));
                 }
                 else
                 {
                     m_CameraUniforms.View = viewMatrix;
                 }
+
+                /* m_PerspectiveCamera.Update(m_ViewportPanel->GetWindowSize().x, m_ViewportPanel->GetWindowSize().y);
+                m_CameraUniforms.Projection = m_PerspectiveCamera.GetProjection();
+                m_CameraUniforms.View = m_PerspectiveCamera.GetView(); */
 
                 m_CameraUniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms), 0);
             }                            
@@ -217,7 +224,7 @@ class Editor : public Nexus::Application
                 vp.Height = m_Framebuffer->GetFramebufferSpecification().Height;
                 m_GraphicsDevice->SetViewport(vp);
 
-                if (m_Project)
+                /* if (m_Project)
                 {
                     auto activeScene = m_Project->GetActiveScene();
                     if (activeScene)
@@ -243,8 +250,23 @@ class Editor : public Nexus::Application
                             }
                         }
                     }                    
-                }
-                
+                } */
+
+                m_GraphicsDevice->Clear(1.0f, 0.0f, 0.0f, 1.0f );
+
+                m_RenderInfoUniforms.Translation = glm::mat4(1.0f);
+                m_RenderInfoUniforms.Color = glm::vec3(1.0f, 1.0f, 1.0f);
+                m_RenderInfoUniformBuffer->SetData(&m_RenderInfoUniforms, sizeof(m_RenderInfoUniforms), 0);
+
+                m_GraphicsDevice->SetShader(m_Shader);
+                m_GraphicsDevice->SetVertexBuffer(m_Mesh.GetVertexBuffer());
+                m_GraphicsDevice->SetIndexBuffer(m_Mesh.GetIndexBuffer());
+                m_Shader->SetTexture(m_Texture, 0);
+                m_GraphicsDevice->DrawIndexed(
+                    Nexus::PrimitiveType::Triangle,
+                    m_Mesh.GetIndexBuffer()->GetIndexCount(),
+                    0
+                );                
             }
 
             //to swapchain
@@ -444,6 +466,7 @@ class Editor : public Nexus::Application
         Nexus::Ref<Nexus::IndexBuffer> m_IndexBuffer;
         Nexus::Ref<Nexus::UniformBuffer> m_RenderInfoUniformBuffer;
         Nexus::Ref<Nexus::UniformBuffer> m_CameraUniformBuffer;
+        Nexus::Ref<Nexus::Texture> m_Texture;
         VB_UNIFORM_RENDERINFO m_RenderInfoUniforms;
         VB_UNIFORM_CAMERA m_CameraUniforms;
 
@@ -462,4 +485,8 @@ class Editor : public Nexus::Application
         std::unordered_map<std::string, Panel*> m_Panels;
         ViewportPanel* m_ViewportPanel;
         InspectorPanel* m_InspectorPanel;
+
+        Nexus::Mesh m_Mesh;
+
+        Nexus::PerspectiveCamera m_PerspectiveCamera = Nexus::PerspectiveCamera({0.0f, 50.0f, 720.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f});
 };

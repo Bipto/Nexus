@@ -10,7 +10,13 @@ namespace Nexus
             void Begin(const glm::mat4& vp, const glm::vec4& clearColor)
             {
                 this->m_VP = vp;
-                this->m_GraphicsDevice->Clear(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+
+                m_GraphicsDevice->Clear(
+                    clearColor.r,
+                    clearColor.g,
+                    clearColor.b,
+                    clearColor.a
+                );
             }
 
             void End()

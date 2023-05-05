@@ -71,7 +71,8 @@ class Demo : public Nexus::Application
             vp.Width = m_Framebuffer->GetFramebufferSpecification().Width;
             vp.Height = m_Framebuffer->GetFramebufferSpecification().Height;
             m_GraphicsDevice->SetViewport(vp);
-            m_GraphicsDevice->Clear(0.8f, 0.2f, 0.3f, 1.0f);
+
+            m_GraphicsDevice->Clear( 0.8f, 0.2f, 0.3f, 1.0f );
             m_Shader->SetTexture(m_Texture, 1);
             m_GraphicsDevice->SetShader(m_Shader);
             m_GraphicsDevice->SetVertexBuffer(m_VertexBuffer);
@@ -85,6 +86,7 @@ class Demo : public Nexus::Application
             vp2.Height = this->GetWindowSize().Y;
             m_GraphicsDevice->SetFramebuffer(nullptr);
             m_GraphicsDevice->SetViewport(vp2);
+
             m_GraphicsDevice->Clear(0.0f, 0.7f, 0.2f, 1.0f);
             ImGui::ShowDemoWindow();
             if (ImGui::Begin("Texture"))

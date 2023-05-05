@@ -85,4 +85,11 @@ namespace Nexus
         auto keys = Nexus::GetApplication()->GetCoreInputState()->GetKeyboardState();
         return !keys[code];
     }
+
+    bool Input::IsKeyHeld(KeyCode code)
+    {
+        auto keys = Nexus::GetApplication()->GetCoreInputState()->GetKeyboardState();
+        auto previousKeys = Nexus::GetApplication()->GetCoreInputState()->GetPreviousKeyboardState();
+        return keys[code] && previousKeys[code];
+    }
 }

@@ -92,6 +92,11 @@ namespace Nexus
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void*)offset);
     }
 
+    CoordinateSystem GraphicsDeviceOpenGL::GetCoordinateSystem()
+    {
+        return CoordinateSystem::RightHanded;
+    }
+
     void GraphicsDeviceOpenGL::SetViewport(const Viewport &viewport)
     {
         m_Viewport = viewport;

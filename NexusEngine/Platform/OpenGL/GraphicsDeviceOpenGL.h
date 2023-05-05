@@ -22,6 +22,8 @@ namespace Nexus
             void DrawElements(PrimitiveType type, uint32_t start, uint32_t count) override;
             void DrawIndexed(PrimitiveType type, uint32_t count, uint32_t offset) override;
 
+            virtual CoordinateSystem GetCoordinateSystem() override;
+
             virtual void SetViewport(const Viewport& viewport) override;
             virtual const Viewport& GetViewport() override;
 

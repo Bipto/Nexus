@@ -146,6 +146,11 @@ namespace Nexus
         m_DeviceContextPtr->DrawIndexed(count, offset, 0);
     }
 
+    CoordinateSystem GraphicsDeviceDX11::GetCoordinateSystem()
+    {
+        return CoordinateSystem::LeftHanded;
+    }
+
     void GraphicsDeviceDX11::SetViewport(const Viewport &viewport)
     {
         m_Viewport = viewport;
