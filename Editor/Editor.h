@@ -2,7 +2,6 @@
 
 #include "UI/Panel.h"
 #include "UI/SceneHierarchyPanel.h"
-#include "UI/SettingsPanel.h"
 #include "UI/InspectorPanel.h"
 #include "UI/LogPanel.h"
 #include "UI/ViewportPanel.h"
@@ -99,9 +98,6 @@ class Editor : public Nexus::Application
             sceneHierarchyPanel->BindEntitySelectedFunction(d);
 
             m_Panels["SceneHierarchy"] = sceneHierarchyPanel;
-            m_Panels["Settings"] = new SettingsPanel(&m_MovementSpeed,
-                                                    &m_QuadPosition,
-                                                    &m_QuadSize);
 
             m_InspectorPanel = new InspectorPanel();
             m_Panels["InspectorPanel"] = m_InspectorPanel;
@@ -156,13 +152,12 @@ class Editor : public Nexus::Application
                 if (spec.Width > 0 && spec.Height > 0)
                 {
                     m_Framebuffer->SetFramebufferSpecification(spec);
-                    m_Camera.Resize(spec.Width, spec.Height);
                 }
             }            
 
             //movement
             {
-                auto pos = m_Camera.GetPosition();
+                /* auto pos = m_Camera.GetPosition();
                 auto rotation = m_Camera.GetRotation();
                 auto zoom = m_Camera.GetZoom();
 
@@ -184,7 +179,9 @@ class Editor : public Nexus::Application
                     rotation.x += Nexus::Input::GetMouseMovement().Y;
                 }
 
-                zoom += (Nexus::Input::GetMouseScrollMovementY() / 10.0f);
+                rotation.x = glm::clamp(rotation.x, -89.0f, 89.0f);
+
+                zoom += (Nexus::Input::GetMouseScrollMovementY() * 10.0f);
 
                 if (zoom <= 0.1f)
                 {
@@ -193,24 +190,12 @@ class Editor : public Nexus::Application
 
                 m_Camera.SetPosition(pos); 
                 m_Camera.SetRotation(rotation);
-                m_Camera.SetZoom(zoom);
+                m_Camera.SetZoom(zoom); */
 
+                m_Camera.Update(m_ViewportPanel->GetWindowSize().x, m_ViewportPanel->GetWindowSize().y, time);
+
+                m_CameraUniforms.View = m_Camera.GetView();
                 m_CameraUniforms.Projection = m_Camera.GetProjection();
-                auto viewMatrix = m_Camera.GetView();// * glm::scale(glm::mat4(1.0f), glm::vec3(-1.0f, -1.0f, 1.0f));
-
-                if (m_GraphicsDevice->GetCoordinateSystem() == Nexus::CoordinateSystem::LeftHanded)
-                {
-                    m_CameraUniforms.View = viewMatrix * glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, -1.0f, 1.0f));
-                }
-                else
-                {
-                    m_CameraUniforms.View = viewMatrix;
-                }
-
-                /* m_PerspectiveCamera.Update(m_ViewportPanel->GetWindowSize().x, m_ViewportPanel->GetWindowSize().y);
-                m_CameraUniforms.Projection = m_PerspectiveCamera.GetProjection();
-                m_CameraUniforms.View = m_PerspectiveCamera.GetView(); */
-
                 m_CameraUniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms), 0);
             }                            
 
@@ -254,7 +239,7 @@ class Editor : public Nexus::Application
 
                 m_GraphicsDevice->Clear(1.0f, 0.0f, 0.0f, 1.0f );
 
-                m_RenderInfoUniforms.Translation = glm::mat4(1.0f);
+                m_RenderInfoUniforms.Translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 2.5f));
                 m_RenderInfoUniforms.Color = glm::vec3(1.0f, 1.0f, 1.0f);
                 m_RenderInfoUniformBuffer->SetData(&m_RenderInfoUniforms, sizeof(m_RenderInfoUniforms), 0);
 
@@ -419,6 +404,8 @@ class Editor : public Nexus::Application
                         panel.second->OnRender();
                 }
 
+                m_Camera.Render();
+
                 RenderMainMenubar();
                 ImGui::End();
              }
@@ -478,15 +465,9 @@ class Editor : public Nexus::Application
 
         Nexus::EventHandler<const std::string&> m_EventHandler;
 
-        float m_MovementSpeed = 1.0f;
-        glm::vec3 m_QuadPosition = {0, 0, 0};
-        glm::vec3 m_QuadSize = {500, 500, 500};
-
         std::unordered_map<std::string, Panel*> m_Panels;
         ViewportPanel* m_ViewportPanel;
         InspectorPanel* m_InspectorPanel;
 
         Nexus::Mesh m_Mesh;
-
-        Nexus::PerspectiveCamera m_PerspectiveCamera = Nexus::PerspectiveCamera({0.0f, 50.0f, 720.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f});
 };

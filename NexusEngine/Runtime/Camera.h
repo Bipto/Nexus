@@ -3,16 +3,26 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 #include "Core/Logging/Log.h"
 #include "Core/Input/Input.h"
+#include "Core/Time.h"
+
+#include "imgui.h"
 
 namespace Nexus
 {
+    enum ProjectionType
+    {
+        Perspective,
+        Orthographic
+    };
+
     class OrthographicCamera
     {
         public:
-            OrthographicCamera(int width = 1280, int height = 720, glm::vec3 position = {0, 0, 0})
+            OrthographicCamera(int width = 1280, int height = 720, const glm::vec3& position = {0, 0, 0})
             {
                 this->Resize(width, height);
                 this->m_Position = position;
@@ -23,17 +33,17 @@ namespace Nexus
                 m_Width = width;
                 m_Height = height;
 
-                //orthographic
-                this->m_Projection = glm::ortho<float>(
-                                    (-width / 2) / m_Zoom,
-                                    (width / 2) / m_Zoom,
-                                    (-height / 2) / m_Zoom,
-                                    (height / 2) / m_Zoom,
-                                    -1000.0f, 1000.0f);
+                RecalculateProjection();         
+            }
 
-                //perspective
-                //m_Projection = glm::perspectiveFov<float>(glm::radians(45.0f), width, height, 0.1f, 1000.0f);
-                //m_Projection = glm::perspective<float>(glm::radians(45.0f), (float)width / (float)height, 0.1f, 1000.0f);
+            void Update(int width, int height, Time time)
+            {
+                float aspectRatio = (float)width / (float)height;
+                m_View = glm::lookAt(m_Position, m_Position + m_Front, m_Up);
+
+                Move(time);
+                Rotate();
+                RecalculateProjection();
             }
 
             void SetPosition(const glm::vec3& position)
@@ -69,22 +79,7 @@ namespace Nexus
 
             const glm::mat4 GetView()
             {
-                auto rotX = glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-                auto rotY = glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-                auto rotZ = glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
-
-                float yaw = m_Rotation.y - 90.0f;
-                float pitch = m_Rotation.x;
-
-                glm::vec3 cameraDirection;
-                cameraDirection.x = (float)glm::cos(glm::radians(yaw)) * glm::cos(glm::radians(pitch));
-                cameraDirection.y = (float)glm::sin(glm::radians(-pitch));
-                cameraDirection.z = (float)glm::sin(glm::radians(yaw)) * glm::cos(glm::radians(pitch));
-
-                m_Front = glm::normalize(cameraDirection);
-
-                return glm::lookAt(m_Position, m_Position - m_Front, m_Up)
-                 * glm::translate(glm::mat4(1.0f), m_Position);
+                return m_View;
             }
 
             const glm::mat4 GetProjection(){ return this->m_Projection; }
@@ -93,47 +88,47 @@ namespace Nexus
             {
                 return GetView() * m_Projection;
             }
-        private:
-            glm::vec3 m_Position { 0.0f, 0.0f, -500.0f };
-            glm::vec3 m_Rotation { 0.0f, 0.0f, 0.0f };
-            glm::vec3 m_Front { 0.0f, 0.0f, -50.0f };
-            glm::vec3 m_Up { 0.0f, 1.0f, 0.0f };
 
-            glm::mat4 m_Projection;
-            glm::mat4 m_World;
-            float m_Zoom = 100;
-
-            int m_Width;
-            int m_Height;
-    };
-
-    class PerspectiveCamera
-    {
-        public:
-            PerspectiveCamera(const glm::vec3& position, const glm::vec3& front, const glm::vec3& up)
-                : m_Position(position), m_Front(front), m_Up(up){}
-
-            void Update(int windowWidth, int windowHeight)
+            void Render()
             {
-                float aspectRatio = (float)windowWidth / (float)windowHeight;
-                m_View = glm::lookAt(m_Position, m_Position + m_Front, m_Up);
-
-                if (aspectRatio > 0.0f)
+                if (ImGui::Begin("Camera"))
                 {
-                    m_Projection = glm::perspective(glm::radians(45.0f), aspectRatio, -10000.0f, 10000.0f);
-                }
+                    ImGui::InputFloat3("Position", glm::value_ptr(m_Position));
 
-                Move();
-                Rotate();
+                    ImGui::InputFloat("Pitch", &m_Pitch);
+                    ImGui::InputFloat("Yaw", &m_Yaw);
+
+                    const char* items[] = { "Perspective", "Orthographic" };
+                    static const char* currentItem = items[0];
+
+                    if (ImGui::BeginCombo("Projection Type", currentItem))
+                    {
+                        for (int i = 0; i < IM_ARRAYSIZE(items); i++)
+                        {
+                            bool isSelected = (currentItem == items[i]);
+                            if (ImGui::Selectable(items[i], isSelected))
+                            {
+                                currentItem = items[i];
+                                m_ProjectionType = (ProjectionType)i;
+                            }
+
+                            if (isSelected)
+                            {
+                                ImGui::SetItemDefaultFocus();
+                            }
+                        }
+
+                        ImGui::EndCombo();
+                    }                
+
+                    ImGui::End();
+                }                
             }
 
-            const glm::mat4& GetProjection() { return m_Projection; }
-            const glm::mat4& GetView() { return m_View; }
-
         private:
-            void Move()
+            void Move(Time time)
             {
-                float speed = 2.0f;
+                float speed = 2.0f * time.GetSeconds();
 
                 if (Input::IsRightMouseHeld())
                 {
@@ -161,30 +156,63 @@ namespace Nexus
 
             void Rotate()
             {
-                m_Yaw += Input::GetMouseMovement().X;
-                m_Front += Input::GetMouseMovement().Y;
+                if (Input::IsRightMouseHeld())
+                {
+                    m_Yaw += Input::GetMouseMovement().X;
+                    m_Pitch += Input::GetMouseMovement().Y;
 
-                m_Pitch = glm::clamp(m_Pitch, -89.0f, 89.0f);
+                    m_Pitch = glm::clamp(m_Pitch, 91.0f, 269.0f);
 
-                auto cameraDirection = glm::vec3(0.0f);
-                cameraDirection.x = glm::cos(glm::radians(m_Yaw)) * glm::cos(glm::radians(m_Pitch));
-                cameraDirection.y = glm::sin(glm::radians(-m_Pitch));
-                cameraDirection.z = glm::sin(glm::radians(m_Yaw)) * glm::cos(glm::radians(m_Pitch));
+                    auto cameraDirection = glm::vec3(0.0f);
+                    cameraDirection.x = glm::cos(glm::radians(m_Yaw)) * glm::cos(glm::radians(m_Pitch));
+                    cameraDirection.y = glm::sin(glm::radians(-m_Pitch));
+                    cameraDirection.z = glm::sin(glm::radians(m_Yaw)) * glm::cos(glm::radians(m_Pitch));
 
-                m_Front = glm::normalize(cameraDirection);
+                    m_Front = glm::normalize(cameraDirection);
+                }                
+            }
+
+            void RecalculateProjection()
+            {
+                float aspectRatio = (float)m_Width / (float)m_Height;
+
+                if (aspectRatio > 0.0f)
+                {
+                    //orthographic
+                    if (m_ProjectionType == ProjectionType::Orthographic)
+                    {
+                        m_Projection = glm::ortho<float>(
+                                        (-m_Width / 2) / m_Zoom,
+                                        (m_Width / 2) / m_Zoom,
+                                        (-m_Height / 2) / m_Zoom,
+                                        (m_Height / 2) / m_Zoom,
+                                        0.1f, 1000.0f);
+                    }
+                    //perspective
+                    else
+                    {
+                        m_Projection = glm::perspectiveFov<float>(glm::radians(45.0f), (float)m_Width, (float)m_Height, 0.1f, 1000.0f);
+                    }      
+                }                
             }
 
         private:
-            glm::vec3 m_Position;
-            glm::vec3 m_Front;
-            glm::vec3 m_Up;
-
-            float m_Yaw = -90.0f;
-            float m_Pitch = 0.0f;
+            glm::vec3 m_Position { 0.0f, 0.0f, -5.0f };
+            glm::vec3 m_Rotation { 0.0f, 0.0f, 0.0f };
+            glm::vec3 m_Front { 0.0f, 0.0f, 1.0f };
+            glm::vec3 m_Up { 0.0f, 1.0f, 0.0f };
 
             glm::mat4 m_Projection;
             glm::mat4 m_View;
+            glm::mat4 m_World;
+            float m_Zoom = 100;
 
-            float m_Zoom;
+            float m_Pitch = 180.0f;
+            float m_Yaw = -90.0f;
+
+            int m_Width = 0;
+            int m_Height = 0;
+
+            ProjectionType m_ProjectionType = ProjectionType::Perspective;
     };
 }

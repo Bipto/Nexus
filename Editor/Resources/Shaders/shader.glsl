@@ -21,7 +21,7 @@ layout (location = 1) out vec3 OutColor;
 
 void main()
 {
-    gl_Position = vec4(Position, 1.0) * u_Transform * u_View * u_Projection;
+    gl_Position = u_Projection * u_View * u_Transform * vec4(Position, 1.0);
     OutTexCoord = TexCoord;
     OutColor = u_Color;
 }

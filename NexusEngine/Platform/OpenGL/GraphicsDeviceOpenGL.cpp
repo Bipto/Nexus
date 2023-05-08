@@ -49,6 +49,12 @@ namespace Nexus
         #ifndef __EMSCRIPTEN__
             gladLoadGL();
         #endif
+
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_FRONT);
+        glFrontFace(GL_CW);
+
+        glEnable(GL_DEPTH_TEST);
     }
 
     GraphicsDeviceOpenGL::~GraphicsDeviceOpenGL()
@@ -64,7 +70,7 @@ namespace Nexus
     void GraphicsDeviceOpenGL::Clear(float red, float green, float blue, float alpha)
     {
         glClearColor(red, green, blue, alpha);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
     void GraphicsDeviceOpenGL::SetFramebuffer(Ref<Framebuffer> framebuffer)
