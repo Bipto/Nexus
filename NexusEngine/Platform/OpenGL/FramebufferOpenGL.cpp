@@ -61,11 +61,6 @@ namespace Nexus
         return (void*)m_ColorTextures[index];
     }
 
-    void* FramebufferOpenGL::GetDepthAttachment()
-    {
-        return (void*)m_DepthTexture;
-    }
-
     const FramebufferSpecification FramebufferOpenGL::GetFramebufferSpecification()
     {
         return this->m_FramebufferSpecification;

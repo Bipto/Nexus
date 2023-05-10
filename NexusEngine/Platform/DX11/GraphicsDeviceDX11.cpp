@@ -15,8 +15,13 @@ namespace Nexus
         SDL_GetWindowWMInfo(m_Window->GetSDLWindowHandle(), &wmInfo);
         HWND hwnd = wmInfo.info.win.window;
 
-        DXGI_SWAP_CHAIN_DESC swap_chain_desc = {0};
-        swap_chain_desc.BufferDesc.RefreshRate.Numerator = 0;
+        auto windowSize = createInfo.GraphicsWindow->GetWindowSize();
+
+        DXGI_SWAP_CHAIN_DESC swap_chain_desc;
+        ZeroMemory(&swap_chain_desc, sizeof(swap_chain_desc));
+        swap_chain_desc.BufferDesc.Width = windowSize.X;
+        swap_chain_desc.BufferDesc.Height = windowSize.Y;
+        swap_chain_desc.BufferDesc.RefreshRate.Numerator = 60;
         swap_chain_desc.BufferDesc.RefreshRate.Denominator = 1;
         swap_chain_desc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
         swap_chain_desc.SampleDesc.Count = 1;
@@ -61,6 +66,38 @@ namespace Nexus
         framebuffer->Release();
         m_ActiveRenderTargetviews = {m_RenderTargetViewPtr};
 
+        D3D11_TEXTURE2D_DESC depthDesc;
+        ZeroMemory(&depthDesc, sizeof(depthDesc));
+        depthDesc.Width = windowSize.X;
+        depthDesc.Height = windowSize.Y;
+        depthDesc.MipLevels = 1;
+        depthDesc.ArraySize = 1;
+        depthDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+        depthDesc.SampleDesc.Count = 4;
+        depthDesc.SampleDesc.Quality = 0;
+        depthDesc.Usage = D3D11_USAGE_DEFAULT;
+        depthDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+        depthDesc.CPUAccessFlags = 0;
+        depthDesc.MiscFlags = 0;
+
+        hr = m_DevicePtr->CreateTexture2D(&depthDesc, NULL, &m_SwapchainDepthTexture);
+
+        D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilDesc;
+        ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
+        depthStencilDesc.Format = depthDesc.Format;
+        depthStencilDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
+        depthStencilDesc.Texture2D.MipSlice = 0;
+
+        hr = m_DevicePtr->CreateDepthStencilView(m_SwapchainDepthTexture, &depthStencilDesc, &m_SwapchainStencilView);
+
+        m_ActiveDepthStencilView = m_SwapchainStencilView;
+
+        m_DeviceContextPtr->OMSetRenderTargets(
+            1,
+            &m_RenderTargetViewPtr,
+            m_SwapchainStencilView
+        );
+
         IDXGIFactory1* factory;
         IDXGIAdapter1* adapter;
         CreateDXGIFactory1(IID_PPV_ARGS(&factory));
@@ -74,7 +111,8 @@ namespace Nexus
         D3D11_RASTERIZER_DESC rastDesc;
         ZeroMemory(&rastDesc, sizeof(rastDesc));
         rastDesc.FillMode = D3D11_FILL_SOLID;
-        rastDesc.CullMode = D3D11_CULL_NONE;
+        rastDesc.FrontCounterClockwise = true;
+        rastDesc.CullMode = D3D11_CULL_BACK;
         m_DevicePtr->CreateRasterizerState(&rastDesc, &noCull);
         m_DeviceContextPtr->RSSetState(noCull);
 
@@ -113,18 +151,14 @@ namespace Nexus
             {
                 colorTargets.push_back(colorTarget.RenderTargetView);
             }
-            ID3D11DepthStencilView* depthTarget = NULL;
-
-            if (dxFramebuffer->HasDepthTexture())
-            {
-                depthTarget = dxFramebuffer->GetDepthRenderTarget().DepthStencilView;
-            }
 
             m_ActiveRenderTargetviews = colorTargets;
+            m_ActiveDepthStencilView = dxFramebuffer->GetDepthStencilView();
         }
         else
         {
             m_ActiveRenderTargetviews = { m_RenderTargetViewPtr };
+            m_ActiveDepthStencilView = m_SwapchainStencilView;
         }
 
         m_DeviceContextPtr->OMSetRenderTargets(
@@ -233,11 +267,6 @@ namespace Nexus
         return CreateRef<ShaderDX11>(m_DevicePtr, m_DeviceContextPtr, vertexShaderSource, fragmentShaderSource, layout);
     }
 
-    Ref<Shader> GraphicsDeviceDX11::CreateShaderFromFile(const std::string& filepath, const BufferLayout& layout)
-    {
-        return CreateRef<ShaderDX11>(m_DevicePtr, m_DeviceContextPtr, filepath, layout); 
-    }
-
     Ref<VertexBuffer> GraphicsDeviceDX11::CreateVertexBuffer(const std::vector<float> vertices)
     {
         return CreateRef<VertexBufferDX11>(m_DevicePtr, vertices);
@@ -292,13 +321,41 @@ namespace Nexus
         HRESULT hr;        
         hr = m_SwapChainPtr->ResizeBuffers(0, size.X, size.Y, DXGI_FORMAT_UNKNOWN, 0);
 
-
         ID3D11Texture2D* pBuffer;
         hr = m_SwapChainPtr->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBuffer);
         hr = m_DevicePtr->CreateRenderTargetView(pBuffer, NULL, &m_RenderTargetViewPtr);
         pBuffer->Release();
 
-        m_DeviceContextPtr->OMSetRenderTargets(1, &m_RenderTargetViewPtr, NULL);
+        D3D11_TEXTURE2D_DESC depthDesc;
+        ZeroMemory(&depthDesc, sizeof(depthDesc));
+        depthDesc.Width = size.X;
+        depthDesc.Height = size.Y;
+        depthDesc.MipLevels = 1;
+        depthDesc.ArraySize = 1;
+        depthDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+        depthDesc.SampleDesc.Count = 4;
+        depthDesc.SampleDesc.Quality = 0;
+        depthDesc.Usage = D3D11_USAGE_DEFAULT;
+        depthDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+        depthDesc.CPUAccessFlags = 0;
+        depthDesc.MiscFlags = 0;
+        hr = m_DevicePtr->CreateTexture2D(&depthDesc, NULL, &m_SwapchainDepthTexture);
+
+        D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilDesc;
+        ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
+        depthStencilDesc.Format = depthDesc.Format;
+        depthStencilDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
+        depthStencilDesc.Texture2D.MipSlice = 0;
+        hr = m_DevicePtr->CreateDepthStencilView(m_SwapchainDepthTexture, &depthStencilDesc, &m_SwapchainStencilView);
+
+        m_ActiveRenderTargetviews = { m_RenderTargetViewPtr };
+        m_ActiveDepthStencilView = m_SwapchainStencilView;
+        
+        m_DeviceContextPtr->OMSetRenderTargets(
+            m_ActiveRenderTargetviews.size(),
+            m_ActiveRenderTargetviews.data(),
+            m_ActiveDepthStencilView
+        );
 
         #endif
     }

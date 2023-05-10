@@ -5,7 +5,7 @@ class InspectorPanel : public Panel
     public:
         virtual void OnRender() override
         {
-            ImGui::Begin("Inspector");
+            /* ImGui::Begin("Inspector");
 
             Nexus::Component* componentToRemove = nullptr;
 
@@ -78,6 +78,9 @@ class InspectorPanel : public Panel
                 }
             }
 
+            ImGui::End(); */
+
+            ImGui::Begin("Inspector");
             ImGui::End();
         }
 };

@@ -9,6 +9,7 @@
 #include "UI/AboutPanel.h"
 #include "UI/ProjectHierarchyPanel.h"
 #include "UI/NewScenePanel.h"
+#include "UI/ShaderViewerPanel.h"
 
 #include "Core/Utils/FileDialogs.h"
 
@@ -67,7 +68,6 @@ class Editor : public Nexus::Application
             this->m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
             
             Nexus::Point size = this->GetWindowSize();
-            this->m_Camera = { size.X, size.Y, {0, 0, 0} };
 
             Nexus::FramebufferSpecification framebufferSpec;
             framebufferSpec.Width = 500;
@@ -88,6 +88,11 @@ class Editor : public Nexus::Application
 
             Nexus::MeshFactory factory = Nexus::MeshFactory(m_GraphicsDevice);
             m_Mesh = factory.CreateCube();
+
+            m_Camera = new Nexus::OrthographicCamera(m_GraphicsDevice,
+                size.X,
+                size.Y,
+                {0, 0, 0});
         }
 
         void CreatePanels()
@@ -120,6 +125,8 @@ class Editor : public Nexus::Application
             auto aboutPanel = new AboutPanel(m_GraphicsDevice);
             aboutPanel->Disable();
             m_Panels["AboutPanel"] = aboutPanel;
+
+            m_Panels["ShaderViewerPanel"] = new ShaderViewerPanel(m_Shader);
 
             ApplyDarkTheme();
         }
@@ -192,10 +199,9 @@ class Editor : public Nexus::Application
                 m_Camera.SetRotation(rotation);
                 m_Camera.SetZoom(zoom); */
 
-                m_Camera.Update(m_ViewportPanel->GetWindowSize().x, m_ViewportPanel->GetWindowSize().y, time);
-
-                m_CameraUniforms.View = m_Camera.GetView();
-                m_CameraUniforms.Projection = m_Camera.GetProjection();
+                m_Camera->Update(m_ViewportPanel->GetWindowSize().x, m_ViewportPanel->GetWindowSize().y, time);
+                m_CameraUniforms.View = m_Camera->GetView();
+                m_CameraUniforms.Projection = m_Camera->GetProjection();
                 m_CameraUniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms), 0);
             }                            
 
@@ -404,7 +410,6 @@ class Editor : public Nexus::Application
                         panel.second->OnRender();
                 }
 
-                m_Camera.Render();
 
                 RenderMainMenubar();
                 ImGui::End();
@@ -457,7 +462,7 @@ class Editor : public Nexus::Application
         VB_UNIFORM_RENDERINFO m_RenderInfoUniforms;
         VB_UNIFORM_CAMERA m_CameraUniforms;
 
-        Nexus::OrthographicCamera m_Camera;
+        Nexus::OrthographicCamera* m_Camera = nullptr;
         Nexus::Ref<Nexus::Framebuffer> m_Framebuffer;
         Nexus::Ref<Nexus::Project> m_Project;
 

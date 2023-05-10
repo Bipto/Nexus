@@ -55,6 +55,7 @@ namespace Nexus
             virtual bool HasDepthTexture() = 0;
 
             virtual void* GetColorAttachment(int index = 0) = 0;
+            virtual void* GetDepthAttachment() = 0;
 
             virtual const FramebufferSpecification GetFramebufferSpecification() = 0;
             virtual void SetFramebufferSpecification(const FramebufferSpecification& spec) = 0;

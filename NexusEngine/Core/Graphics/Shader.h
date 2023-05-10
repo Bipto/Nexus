@@ -67,6 +67,9 @@ namespace Nexus
 
             virtual void SetTexture(Ref<Texture> texture, int slot) = 0;
 
+            virtual const std::string& GetVertexShaderSource() = 0;
+            virtual const std::string& GetFragmentShaderSource() = 0;
+
             virtual const BufferLayout& GetLayout() const = 0;
     };
 }

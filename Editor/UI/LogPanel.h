@@ -10,13 +10,11 @@ class LogPanel : public Panel
             auto logs = Nexus::GetCoreLogger()->GetLogs();
 
             ImGui::Begin("Log");
-
             for (auto& log : logs)
             {
                 ImGui::Text(log.Message.c_str());
                 ImGui::Separator();
             }
-
-            ImGui::End();
+            ImGui::End();         
         }
 };

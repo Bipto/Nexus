@@ -21,10 +21,7 @@ namespace Nexus
     class ShaderOpenGL : public Shader
     {
         public:
-            ShaderOpenGL(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const BufferLayout& layout);
-            ShaderOpenGL(const std::string& filepath, const BufferLayout& layout);
-
-            virtual void Bind() override;
+            ShaderOpenGL(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const BufferLayout& layout);            virtual void Bind() override;
             virtual void SetShaderUniform1i(const std::string& name, int value) override;
             virtual void SetShaderUniform1f(const std::string& name, float value) override;
             virtual void SetShaderUniform2f(const std::string& name, const glm::vec2& value) override;
@@ -33,14 +30,20 @@ namespace Nexus
             virtual void SetShaderUniformMat3(const std::string& name, const glm::mat3& value) override;
             virtual void SetShaderUniformMat4(const std::string& name, const glm::mat4& value) override;
             virtual void SetTexture(Ref<Texture> texture, int slot) override;
+            
+            virtual const std::string& GetVertexShaderSource() override;
+            virtual const std::string& GetFragmentShaderSource() override;
+            
             virtual const BufferLayout& GetLayout() const override;
         private:
-            ShaderSources ParseShader(const std::string& path);
             void Compile(const std::string& vertexShaderSource, const std::string& fragmentShaderSource);
             void SetLayout();
 
         private:
             unsigned int m_ProgramHandle;
             BufferLayout m_Layout;
+
+            std::string m_VertexShaderSource;
+            std::string m_FragmentShaderSource;
     };
 }

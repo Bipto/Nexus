@@ -20,9 +20,10 @@ namespace Nexus
             virtual bool HasDepthTexture() override;
 
             virtual void* GetColorAttachment(int index = 0) override;
-            void* GetDepthAttachment();
             virtual const FramebufferSpecification GetFramebufferSpecification() override;
             virtual void SetFramebufferSpecification(const FramebufferSpecification& spec) override;
+            virtual void* GetDepthAttachment() override { return (void*)m_DepthTexture; }
+        
         private:
             void CreateTextures();
             void DeleteTextures();

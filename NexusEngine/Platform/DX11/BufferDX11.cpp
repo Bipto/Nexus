@@ -28,10 +28,6 @@ namespace Nexus
             std::string errorMessage = std::string("Failed to create vertex buffer: ") + std::string(error.ErrorMessage());
             NX_ERROR(errorMessage);
         }
-        else
-        {
-            NX_LOG("Vertex buffer created successfully");
-        }
 
         m_VertexCount = vertices.size();
     }
@@ -60,10 +56,6 @@ namespace Nexus
             std::string errorMessage = std::string("Failed to create index buffer: ") + std::string(error.ErrorMessage());
             NX_ERROR(errorMessage);
         }
-        else
-        {
-            NX_LOG("Index buffer created successfully");
-        }
 
         m_IndexCount = indices.size();
     }
@@ -87,10 +79,6 @@ namespace Nexus
             _com_error error(hr);
             std::string errorMessage = std::string("Failed to create constant buffer: ") + std::string(error.ErrorMessage());
             NX_ERROR(errorMessage);
-        }
-        else
-        {
-            NX_LOG("Constant buffer created successfully");
         }
 
         m_DeviceContext = context;

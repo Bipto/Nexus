@@ -23,13 +23,9 @@ namespace Nexus
     {
         Compile(vertexShaderSource, fragmentShaderSource);
         m_Layout = layout;
-    }
 
-    ShaderOpenGL::ShaderOpenGL(const std::string& filepath, const BufferLayout& layout)
-    {
-        auto source = ParseShader(filepath);
-        Compile(source.VertexSource, source.FragmentSource);
-        m_Layout = layout;
+        m_VertexShaderSource = vertexShaderSource;
+        m_FragmentShaderSource = fragmentShaderSource;
     }
 
     void ShaderOpenGL::Bind() 
@@ -86,45 +82,19 @@ namespace Nexus
         glBindTexture(GL_TEXTURE_2D, (unsigned int)texture->GetHandle());
     }
 
+    const std::string &ShaderOpenGL::GetVertexShaderSource()
+    {
+        return m_VertexShaderSource;
+    }
+
+    const std::string &ShaderOpenGL::GetFragmentShaderSource()
+    {
+        return m_FragmentShaderSource;
+    }
+
     const BufferLayout& ShaderOpenGL::GetLayout() const
     { 
         return m_Layout; 
-    }
-
-    ShaderSources ShaderOpenGL::ParseShader(const std::string& path)
-    {
-        std::ifstream stream(path);
-
-        enum class ShaderType
-        {
-            None = -1,
-            Vertex = 0,
-            Fragment = 1,
-        };
-
-        std::string line;
-        std::stringstream ss[2];
-        ShaderType type = ShaderType::None;
-
-        while (getline(stream, line))
-        {
-            if (line.find("#shader") != std::string::npos)
-            {
-                if (line.find("vertex") != std::string::npos)
-                    type = ShaderType::Vertex;
-                else if (line.find("fragment") != std::string::npos)
-                    type = ShaderType::Fragment;
-            }
-            else
-            {
-                ss[(int)type] << line << "\n";
-            }
-        }
-
-        ShaderSources source;
-        source.VertexSource = ss[0].str();
-        source.FragmentSource = ss[1].str();
-        return source;
     }
 
     void ShaderOpenGL::Compile(const std::string& vertexShaderSource, const std::string& fragmentShaderSource)
@@ -145,10 +115,6 @@ namespace Nexus
             std::string errorMessage = "Error: Vertex Shader - " + std::string(infoLog);
             NX_ERROR(errorMessage);
         }
-        else
-        {
-            NX_LOG("Vertex shader created successfully");
-        }
 
         unsigned int fragmentShader;
         fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -163,10 +129,6 @@ namespace Nexus
             glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
             std::string errorMessage = "Error: Pixel Shader - " + std::string(infoLog);
             NX_ERROR(errorMessage);
-        }
-        else
-        {
-            NX_LOG("Pixel shader created successfully");
         }
 
         this->m_ProgramHandle = glCreateProgram();

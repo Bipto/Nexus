@@ -13,8 +13,7 @@ namespace Nexus
         glBindBuffer(GL_ARRAY_BUFFER, this->m_VBO);
         glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
 
-        if (!GL::CheckErrors())
-            NX_LOG("Vertex buffer created successfully");
+        GL::CheckErrors();
 
         m_VertexCount = vertices.size();
     }
@@ -34,8 +33,7 @@ namespace Nexus
         size_t size = indices.size() * sizeof(unsigned int);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indices.data(), GL_STATIC_DRAW);
     
-        if (!GL::CheckErrors())
-            NX_LOG("Index buffer created successfully");
+        GL::CheckErrors();
 
         m_IndexCount = indices.size();
     }
@@ -54,8 +52,7 @@ namespace Nexus
         glNamedBufferData(m_UBO, size, nullptr, GL_DYNAMIC_DRAW);
         glBindBufferBase(GL_UNIFORM_BUFFER, binding, m_UBO);
 
-        if (!GL::CheckErrors())
-            NX_LOG("Uniform buffer created successfully");
+        GL::CheckErrors();
     }
 
     UniformBufferOpenGL::~UniformBufferOpenGL()

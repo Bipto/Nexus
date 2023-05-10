@@ -87,7 +87,6 @@ namespace Nexus
         {
             std::stringstream ss;
             ss << "Compilation of " << filepath << " took " << totalTime << " milliseconds";
-            NX_LOG(ss.str());
 
             auto shader = this->CreateShaderFromSource(vertResult.Source, fragResult.Source, layout);
             return shader;

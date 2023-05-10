@@ -9,6 +9,8 @@
 #include "Core/Input/Input.h"
 #include "Core/Time.h"
 
+#include "Core/Graphics/GraphicsDevice.h"
+
 #include "imgui.h"
 
 namespace Nexus
@@ -22,10 +24,11 @@ namespace Nexus
     class OrthographicCamera
     {
         public:
-            OrthographicCamera(int width = 1280, int height = 720, const glm::vec3& position = {0, 0, 0})
+            OrthographicCamera(Nexus::Ref<Nexus::GraphicsDevice> graphicsDevice, int width = 1280, int height = 720, const glm::vec3& position = {0, 0, 0})
             {
                 this->Resize(width, height);
                 this->m_Position = position;
+                m_GraphicsDevice = graphicsDevice;
             }
 
             void Resize(int width, int height)
@@ -38,8 +41,12 @@ namespace Nexus
 
             void Update(int width, int height, Time time)
             {
-                float aspectRatio = (float)width / (float)height;
+                m_Width = width;
+                m_Height = height; 
                 m_View = glm::lookAt(m_Position, m_Position + m_Front, m_Up);
+
+                //m_Zoom -= Input::GetMouseScrollMovementY() * 5.0f;
+                //m_Zoom = glm::clamp<float>(m_Zoom, 1.0f, 90.0f);
 
                 Move(time);
                 Rotate();
@@ -130,6 +137,11 @@ namespace Nexus
             {
                 float speed = 2.0f * time.GetSeconds();
 
+                if (Input::IsKeyHeld(KeyCode::LeftShift) || Input::IsKeyHeld(KeyCode::RightShift))
+                {
+                    speed *= 2.0f;
+                }
+
                 if (Input::IsRightMouseHeld())
                 {
                     if (Input::IsKeyHeld(KeyCode::W))
@@ -159,7 +171,15 @@ namespace Nexus
                 if (Input::IsRightMouseHeld())
                 {
                     m_Yaw += Input::GetMouseMovement().X;
-                    m_Pitch += Input::GetMouseMovement().Y;
+
+                    if (m_GraphicsDevice->GetCoordinateSystem() == Nexus::CoordinateSystem::RightHanded)
+                    {
+                        m_Pitch += Input::GetMouseMovement().Y;
+                    }
+                    else
+                    {
+                        m_Pitch -= Input::GetMouseMovement().Y;
+                    }
 
                     m_Pitch = glm::clamp(m_Pitch, 91.0f, 269.0f);
 
@@ -191,7 +211,7 @@ namespace Nexus
                     //perspective
                     else
                     {
-                        m_Projection = glm::perspectiveFov<float>(glm::radians(45.0f), (float)m_Width, (float)m_Height, 0.1f, 1000.0f);
+                        m_Projection = glm::perspectiveFov<float>(glm::radians(m_Zoom), (float)m_Width, (float)m_Height, 0.1f, 1000.0f);
                     }      
                 }                
             }
@@ -205,7 +225,7 @@ namespace Nexus
             glm::mat4 m_Projection;
             glm::mat4 m_View;
             glm::mat4 m_World;
-            float m_Zoom = 100;
+            float m_Zoom = 45.0f;
 
             float m_Pitch = 180.0f;
             float m_Yaw = -90.0f;
@@ -214,5 +234,6 @@ namespace Nexus
             int m_Height = 0;
 
             ProjectionType m_ProjectionType = ProjectionType::Perspective;
+            Nexus::Ref<Nexus::GraphicsDevice> m_GraphicsDevice;
     };
 }

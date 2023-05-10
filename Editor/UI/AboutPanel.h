@@ -25,7 +25,7 @@ class AboutPanel : public Panel
             ImGui::Text("Graphics Adapter:");
             ImGui::Text(m_GraphicsDevice->GetDeviceName());
             ImGui::Separator();
-            ImGui::End();
+            ImGui::End();       
         }
     private:
         Nexus::Ref<Nexus::GraphicsDevice> m_GraphicsDevice;

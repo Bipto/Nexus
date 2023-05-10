@@ -37,10 +37,6 @@ namespace Nexus
             std::string errorMessage = std::string("Failed to create texture: ") + std::string(error.ErrorMessage());
             NX_ERROR(errorMessage);
         }
-        else
-        {
-            NX_LOG("Texture created successfully");
-        }
 
         D3D11_SHADER_RESOURCE_VIEW_DESC rvDesc;
         ZeroMemory(&rvDesc, sizeof(rvDesc));
@@ -55,10 +51,6 @@ namespace Nexus
             _com_error error(hr);
             std::string errorMessage = std::string("Failed to create resource view: ") + std::string(error.ErrorMessage());
             NX_ERROR(errorMessage);
-        }
-        else
-        {
-            NX_LOG("Resource view created successfully");
         }
 
         D3D11_SAMPLER_DESC samplerDesc;

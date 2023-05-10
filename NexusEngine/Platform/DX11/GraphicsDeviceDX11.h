@@ -35,7 +35,6 @@ namespace Nexus
             virtual void SetShader(Ref<Shader> shader) override;
 
             virtual Ref<Shader> CreateShaderFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const BufferLayout& layout) override;            
-            virtual Ref<Shader> CreateShaderFromFile(const std::string& filepath, const BufferLayout& layout) override;  
             virtual Ref<VertexBuffer> CreateVertexBuffer(const std::vector<float> vertices) override;
             virtual Ref<IndexBuffer> CreateIndexBuffer(const std::vector<unsigned int> indices) override;
             virtual Ref<Texture> CreateTexture(TextureSpecification spec) override;            
@@ -61,10 +60,14 @@ namespace Nexus
             IDXGISwapChain* m_SwapChainPtr                                  = NULL;
             ID3D11RenderTargetView* m_RenderTargetViewPtr                   = NULL;
             std::vector<ID3D11RenderTargetView*> m_ActiveRenderTargetviews;
+            ID3D11DepthStencilView* m_ActiveDepthStencilView                = NULL;
             unsigned int m_VsyncValue                                       = 1;
             bool m_Initialised                                              = false;
             Ref<Shader> m_ActiveShader                                      = NULL;
             std::string m_AdapterName;
+
+            ID3D11Texture2D* m_SwapchainDepthTexture = NULL;
+            ID3D11DepthStencilView* m_SwapchainStencilView = NULL;
         #endif
             VSyncState m_VsyncState = VSyncState::Enabled;
     };

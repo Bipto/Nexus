@@ -65,7 +65,6 @@ namespace Nexus
             }
             else
             {
-                NX_LOG("Vertex shader created successfully");
                 CreateLayout(layout);
             }
         }
@@ -101,96 +100,10 @@ namespace Nexus
             {
                 NX_ERROR("Failed to create pixel shader");
             }
-            else
-            {
-                NX_LOG("Pixel shader created successfully");
-            }
-        }
-    }
-
-    ShaderDX11::ShaderDX11(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& filepath, const BufferLayout& layout)
-    {
-        m_Device = device;
-        m_ContextPtr = context;
-
-        UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
-        #if defined(DEBUG) || defined(_DEBUG)
-            flags |= D3DCOMPILE_DEBUG;
-        #endif
-
-        ID3DBlob *error_blob = NULL;
-
-        //compile vertex shader
-        HRESULT hr = D3DCompileFromFile(
-            L"shaders.hlsl",
-            nullptr,
-            D3D_COMPILE_STANDARD_FILE_INCLUDE,
-            "vs_main",
-            "vs_5_0",
-            flags,
-            0,
-            &m_VertexBlobPtr,
-            &error_blob  
-        );
-
-        if (FAILED(hr))
-        {
-            if (error_blob)
-            {
-                std::string errorMessage = std::string((char*)error_blob->GetBufferPointer());
-                NX_ERROR(errorMessage);
-                error_blob->Release();
-            }
-            if (m_VertexBlobPtr) { m_VertexBlobPtr->Release(); }
-        }
-        else
-        {
-            hr = device->CreateVertexShader(m_VertexBlobPtr->GetBufferPointer(), m_VertexBlobPtr->GetBufferSize(), NULL, &m_VertexShader);
-            if (FAILED(hr))
-            {
-                NX_ERROR("Failed to create vertex shader");
-            }
-            else
-            {
-                NX_LOG("Vertex shader created successfully");
-                CreateLayout(layout);
-            }
         }
 
-        //compile vertex shader
-        hr = D3DCompileFromFile(
-            L"shaders.hlsl",
-            nullptr,
-            D3D_COMPILE_STANDARD_FILE_INCLUDE,
-            "ps_main",
-            "ps_5_0",
-            flags,
-            0,
-            &m_PixelBlobPtr,
-            &error_blob
-        );
-        if (FAILED(hr))
-        {
-            if (error_blob)
-            {
-                std::string errorMessage = std::string((char*)error_blob->GetBufferPointer());
-                NX_ERROR(errorMessage);
-                error_blob->Release();
-            }
-            if (m_PixelBlobPtr) { m_PixelBlobPtr->Release(); }
-        }
-        else
-        {
-            hr = device->CreatePixelShader(m_PixelBlobPtr->GetBufferPointer(), m_PixelBlobPtr->GetBufferSize(), NULL, &m_PixelShader);
-            if (FAILED(hr))
-            {
-                NX_ERROR("Failed to create pixel shader");
-            }
-            else
-            {
-                NX_LOG("Pixel shader created successfully");
-            }
-        }
+        m_VertexShaderSource = vertexShaderSource;
+        m_FragmentShaderSource = fragmentShaderSource;
     }
 
     void ShaderDX11::Bind()
@@ -209,6 +122,16 @@ namespace Nexus
 
         m_ContextPtr->PSSetShaderResources(slot, 1, (ID3D11ShaderResourceView* const*)resourceViews);
         m_ContextPtr->PSSetSamplers(slot, 1, (ID3D11SamplerState* const*)samplers);
+    }
+
+    const std::string &ShaderDX11::GetVertexShaderSource()
+    {
+        return m_VertexShaderSource;
+    }
+
+    const std::string &ShaderDX11::GetFragmentShaderSource()
+    {
+        return m_FragmentShaderSource;
     }
 
     void ShaderDX11::CreateLayout(const BufferLayout &layout)
@@ -247,10 +170,6 @@ namespace Nexus
             _com_error error(hr);
             std::string errorMessage = std::string("Failed to create input layout: ") + std::string(error.ErrorMessage());
             NX_ERROR(errorMessage);
-        }
-        else
-        {
-            NX_LOG("Input layout created successfully");
         }
     }
 }

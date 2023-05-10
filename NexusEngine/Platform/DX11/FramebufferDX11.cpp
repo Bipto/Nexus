@@ -84,10 +84,6 @@ namespace Nexus
                     std::string output = std::string("Failed to created framebuffer texture: ") + error.ErrorMessage();
                     NX_ERROR(output);
                 }
-                else
-                {
-                    NX_LOG("Framebuffer texture created successfully");
-                }
 
                 D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
                 renderTargetViewDesc.Format = textureDesc.Format;
@@ -101,11 +97,6 @@ namespace Nexus
                     std::string output = std::string("Failed to create framebuffer render target view: ") + error.ErrorMessage();
                     NX_ERROR(output);
                 }
-                else
-                {
-                    NX_LOG("Framebuffer render target view created successfully");
-                }
-
                 D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
                 shaderResourceViewDesc.Format = textureDesc.Format;
                 shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
@@ -118,10 +109,6 @@ namespace Nexus
                     _com_error error(hr);
                     std::string output = std::string("Failed to create framebuffer shader resource view: ") + error.ErrorMessage();
                     NX_ERROR(output);
-                }
-                else
-                {
-                    NX_LOG("Framebuffer shader resource view created successfully");
                 }
 
                 m_ColorRenderTargets.push_back(target);
@@ -154,10 +141,6 @@ namespace Nexus
                 std::string output = std::string("Failed to create framebuffer depth texture: ") + error.ErrorMessage();
                 NX_ERROR(output);
             }
-            else
-            {
-                NX_LOG("Framebuffer depth texture created successfully");
-            }
 
             hr = m_Device->CreateDepthStencilView(depthTarget.Texture, NULL, &depthTarget.DepthStencilView);
 
@@ -166,10 +149,6 @@ namespace Nexus
                 _com_error error(hr);
                 std::string output = std::string("Failed to create framebuffer depth stencil view: ") + error.ErrorMessage();
                 NX_ERROR(output);
-            }
-            else
-            {
-                NX_LOG("Framebuffer depth stencil view created successfully");
             }
         }        
     }
@@ -188,7 +167,7 @@ namespace Nexus
             colorAttachment.Texture = nullptr;
         }
 
-        /* if (HasDepthTexture())
+        if (HasDepthTexture())
         {
             if (m_DepthTarget.DepthStencilView)
             {
@@ -201,7 +180,7 @@ namespace Nexus
                 m_DepthTarget.Texture->Release();
                 m_DepthTarget.Texture = nullptr;
             }
-        } */
+        }
 
         m_ColorRenderTargets.clear();
     }

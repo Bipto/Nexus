@@ -7,15 +7,15 @@ namespace Nexus
 {
     struct FramebufferColorRenderTarget
     {
-        ID3D11Texture2D* Texture;
-        ID3D11RenderTargetView* RenderTargetView;
-        ID3D11ShaderResourceView* ShaderResourceView;
+        ID3D11Texture2D* Texture                        = NULL;
+        ID3D11RenderTargetView* RenderTargetView        = NULL;
+        ID3D11ShaderResourceView* ShaderResourceView    = NULL;
     };
 
     struct FramebufferDepthRenderTarget
     {
-        ID3D11Texture2D* Texture;
-        ID3D11DepthStencilView* DepthStencilView;
+        ID3D11Texture2D* Texture                        = NULL;
+        ID3D11DepthStencilView* DepthStencilView        = NULL;
     };
 
     class FramebufferDX11 : public Framebuffer
@@ -34,8 +34,9 @@ namespace Nexus
             virtual void SetFramebufferSpecification(const FramebufferSpecification& spec) override;        
         
             const std::vector<FramebufferColorRenderTarget>& GetColorRenderTargets() { return m_ColorRenderTargets; }
-            const FramebufferDepthRenderTarget GetDepthRenderTarget() { return m_DepthTarget; }
+            virtual void* GetDepthAttachment() override { return (void*)m_DepthTarget.DepthStencilView; }
 
+            ID3D11DepthStencilView* GetDepthStencilView() { return m_DepthTarget.DepthStencilView; }
         private:
             void CreateTextures();
             void DeleteTextures();

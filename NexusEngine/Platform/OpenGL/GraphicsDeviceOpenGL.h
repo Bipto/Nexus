@@ -36,7 +36,6 @@ namespace Nexus
             virtual void SetShader(Ref<Shader> shader) override;
 
             virtual Ref<Shader> CreateShaderFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const BufferLayout& layout) override;
-            virtual Ref<Shader> CreateShaderFromFile(const std::string& filepath, const BufferLayout& layout) override;
             virtual Ref<VertexBuffer> CreateVertexBuffer(const std::vector<float> vertices) override;
             virtual Ref<IndexBuffer> CreateIndexBuffer(const std::vector<unsigned int> indices) override;
             virtual Ref<UniformBuffer> CreateUniformBuffer(uint32_t size, uint32_t binding) override;
