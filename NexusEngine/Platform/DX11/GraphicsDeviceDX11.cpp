@@ -1,8 +1,9 @@
 #include "GraphicsDeviceDX11.h"
-
-#include "backends/imgui_impl_dx11.h"
-
 #include "Core/Logging/Log.h"
+
+#if defined(WIN32)
+#include "backends/imgui_impl_dx11.h"
+#endif
 
 namespace Nexus
 {
@@ -114,15 +115,15 @@ namespace Nexus
         rastDesc.FrontCounterClockwise = true;
         rastDesc.CullMode = D3D11_CULL_BACK;
         m_DevicePtr->CreateRasterizerState(&rastDesc, &noCull);
-        m_DeviceContextPtr->RSSetState(noCull);
-
-        
+        m_DeviceContextPtr->RSSetState(noCull);        
         #endif
     }
 
     void GraphicsDeviceDX11::SetContext()
     {
+        #if defined(WIN32)
         m_DeviceContextPtr->OMSetRenderTargets(1, &m_RenderTargetViewPtr, NULL);
+        #endif
     }
 
     void GraphicsDeviceDX11::Clear(float red, float green, float blue, float alpha)
@@ -142,6 +143,7 @@ namespace Nexus
 
     void GraphicsDeviceDX11::SetFramebuffer(Ref<Framebuffer> framebuffer)
     {
+        #if defined(WIN32)
         if (framebuffer)
         {
             Ref<FramebufferDX11> dxFramebuffer = std::dynamic_pointer_cast<FramebufferDX11>(framebuffer);
@@ -166,18 +168,23 @@ namespace Nexus
             m_ActiveRenderTargetviews.data(),
             NULL
         );
+        #endif
     }
 
     void GraphicsDeviceDX11::DrawElements(PrimitiveType type, uint32_t start, uint32_t count)
     {
+        #if defined(WIN32)
         m_DeviceContextPtr->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         m_DeviceContextPtr->Draw(count, start);
+        #endif
     }
 
     void GraphicsDeviceDX11::DrawIndexed(PrimitiveType type, uint32_t count, uint32_t offset)
     {        
+        #if defined(WIN32)
         m_DeviceContextPtr->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);       
         m_DeviceContextPtr->DrawIndexed(count, offset, 0);
+        #endif
     }
 
     CoordinateSystem GraphicsDeviceDX11::GetCoordinateSystem()
@@ -189,6 +196,7 @@ namespace Nexus
     {
         m_Viewport = viewport;
 
+        #if defined(WIN32)
         D3D11_VIEWPORT vp;
         vp.Width = (float)viewport.Width;
         vp.Height = (float)viewport.Height;
@@ -197,6 +205,7 @@ namespace Nexus
         vp.TopLeftX = viewport.X;
         vp.TopLeftY = viewport.Y;
         m_DeviceContextPtr->RSSetViewports(1, &vp);
+        #endif
     }
 
     const Viewport &GraphicsDeviceDX11::GetViewport()
@@ -211,16 +220,25 @@ namespace Nexus
 
     const char* GraphicsDeviceDX11::GetDeviceName()
     {
+        #if defined(WIN32)
         return m_AdapterName.c_str();
+        #else
+        return "Device";
+        #endif
     }
 
     void* GraphicsDeviceDX11::GetContext()
     {
+        #if defined(WIN32)
         return m_DeviceContextPtr;
+        #else
+        return nullptr;
+        #endif
     }
 
     void GraphicsDeviceDX11::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer)
     {
+        #if defined(WIN32)
         if (!m_ActiveShader)
         {
             NX_ERROR("No shader is currently bound");
@@ -242,10 +260,12 @@ namespace Nexus
             &stride,
             &offset
         );
+        #endif
     }
 
     void GraphicsDeviceDX11::SetIndexBuffer(Ref<IndexBuffer> indexBuffer)
     {
+        #if defined(WIN32)
         Ref<IndexBufferDX11> ib = std::dynamic_pointer_cast<IndexBufferDX11>(indexBuffer);
         ID3D11Buffer* dx11IndexBuffer = ib->GetNativeHandle();
 
@@ -254,61 +274,99 @@ namespace Nexus
             DXGI_FORMAT_R32_UINT,
             0
         );
+        #endif
     }
 
     void GraphicsDeviceDX11::SetShader(Ref<Shader> shader)
     {
-        shader->Bind();
+        #if defined(WIN32)
+
+        Ref<ShaderDX11> dxShader = std::dynamic_pointer_cast<ShaderDX11>(shader);
+        m_DeviceContextPtr->VSSetShader(dxShader->GetVertexShader(), 0, 0);
+        m_DeviceContextPtr->PSSetShader(dxShader->GetPixelShader(), 0, 0);
+        m_DeviceContextPtr->IASetInputLayout(dxShader->GetInputLayout());
+
         m_ActiveShader = shader;
+        #endif
     }
 
-    Ref<Shader> GraphicsDeviceDX11::CreateShaderFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const BufferLayout& layout)
+    Ref<Shader> GraphicsDeviceDX11::CreateShaderFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const VertexBufferLayout& layout)
     {
+        #if defined(WIN32)
         return CreateRef<ShaderDX11>(m_DevicePtr, m_DeviceContextPtr, vertexShaderSource, fragmentShaderSource, layout);
+        #else
+        return nullptr;
+        #endif
     }
 
     Ref<VertexBuffer> GraphicsDeviceDX11::CreateVertexBuffer(const std::vector<float> vertices)
     {
+        #if defined(WIN32)
         return CreateRef<VertexBufferDX11>(m_DevicePtr, vertices);
+        #else
+        return nullptr;
+        #endif
     }
 
     Ref<IndexBuffer> GraphicsDeviceDX11::CreateIndexBuffer(const std::vector<unsigned int> indices)
     {
+        #if defined(WIN32)
         return CreateRef<IndexBufferDX11>(m_DevicePtr, indices);
+        #else
+        return nullptr;
+        #endif
     }
 
     Ref<Texture> GraphicsDeviceDX11::CreateTexture(TextureSpecification spec)
     {
+        #if defined(WIN32)
         return CreateRef<TextureDX11>(m_DevicePtr, spec);
+        #else
+        return nullptr;
+        #endif
     }
 
-    Ref<UniformBuffer> GraphicsDeviceDX11::CreateUniformBuffer(uint32_t size, uint32_t binding)
+    Ref<UniformBuffer> GraphicsDeviceDX11::CreateUniformBuffer(const UniformResourceBinding& binding)
     {
+        #if defined(WIN32)
         return CreateRef<UniformBufferDX11>(
             m_DevicePtr,
             m_DeviceContextPtr,
-            size,
-            binding);
+            binding
+            );
+        #else
+        return nullptr;
+        #endif
     }
 
     Ref<Framebuffer> GraphicsDeviceDX11::CreateFramebuffer(const Nexus::FramebufferSpecification& spec)
     {
+        #if defined(WIN32)
         return CreateRef<FramebufferDX11>(m_DevicePtr, spec);
+        #else
+        return nullptr;
+        #endif
     }
 
     void GraphicsDeviceDX11::InitialiseImGui()
     {
+        #if defined(WIN32)
         ImGui_ImplDX11_Init(m_DevicePtr, m_DeviceContextPtr);
+        #endif
     }
 
     void GraphicsDeviceDX11::BeginImGuiRender()
     {
+        #if defined(WIN32)
         ImGui_ImplDX11_NewFrame();
+        #endif
     }
 
     void GraphicsDeviceDX11::EndImGuiRender()
     {
+        #if defined(WIN32)
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+        #endif
     }
 
     void GraphicsDeviceDX11::Resize(Point size)

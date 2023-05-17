@@ -4,7 +4,7 @@
 
 namespace Nexus
 {
-    GLenum GetGLBaseType(const BufferElement element)
+    GLenum GetGLBaseType(const VertexBufferElement element)
     {
         switch (element.Type)
         {
@@ -19,7 +19,7 @@ namespace Nexus
         }
     }
 
-    ShaderOpenGL::ShaderOpenGL(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const BufferLayout& layout)
+    ShaderOpenGL::ShaderOpenGL(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const VertexBufferLayout& layout)
     {
         Compile(vertexShaderSource, fragmentShaderSource);
         m_Layout = layout;
@@ -34,51 +34,12 @@ namespace Nexus
         SetLayout();
     }
 
-    void ShaderOpenGL::SetShaderUniform1i(const std::string& name, int value)
+    void ShaderOpenGL::SetTexture(Ref<Texture> texture, const TextureBinding& binding)
     {
-        unsigned int loc = glGetUniformLocation(this->m_ProgramHandle, name.c_str());
-        glUniform1f(loc, value);
-    }
+        Bind();
+        glUniform1i(glGetUniformLocation(m_ProgramHandle, binding.Name.c_str()), binding.Slot);
 
-    void ShaderOpenGL::SetShaderUniform1f(const std::string& name, float value)
-    {
-        unsigned int loc = glGetUniformLocation(this->m_ProgramHandle, name.c_str());
-        glUniform1f(loc, value);
-    }
-
-    void ShaderOpenGL::SetShaderUniform2f(const std::string& name, const glm::vec2& value)
-    {
-        unsigned int loc = glGetUniformLocation(this->m_ProgramHandle, name.c_str());
-        glUniform2f(loc, value.x, value.y);
-    }
-
-    void ShaderOpenGL::SetShaderUniform3f(const std::string& name, const glm::vec3& value)
-    {
-        unsigned int loc = glGetUniformLocation(this->m_ProgramHandle, name.c_str());
-        glUniform3f(loc, value.x, value.y, value.z);
-    }
-
-    void ShaderOpenGL::SetShaderUniform4f(const std::string& name, const glm::vec4& value)
-    {
-        unsigned int loc = glGetUniformLocation(this->m_ProgramHandle, name.c_str());
-        glUniform4f(loc, value.x, value.y, value.z, value.w);
-    }
-
-    void ShaderOpenGL::SetShaderUniformMat3(const std::string& name, const glm::mat3& value)
-    {
-        unsigned int loc = glGetUniformLocation(this->m_ProgramHandle, name.c_str());
-        glUniformMatrix3fv(loc, 1, GL_FALSE, glm::value_ptr(value));
-    }
-
-    void ShaderOpenGL::SetShaderUniformMat4(const std::string& name, const glm::mat4& value)
-    {
-        unsigned int loc = glGetUniformLocation(this->m_ProgramHandle, name.c_str());
-        glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(value));
-    }
-
-    void ShaderOpenGL::SetTexture(Ref<Texture> texture, int slot)
-    {
-        glActiveTexture(GL_TEXTURE0 + slot);
+        glActiveTexture(GL_TEXTURE0 + binding.Slot);
         glBindTexture(GL_TEXTURE_2D, (unsigned int)texture->GetHandle());
     }
 
@@ -92,7 +53,7 @@ namespace Nexus
         return m_FragmentShaderSource;
     }
 
-    const BufferLayout& ShaderOpenGL::GetLayout() const
+    const VertexBufferLayout& ShaderOpenGL::GetLayout() const
     { 
         return m_Layout; 
     }

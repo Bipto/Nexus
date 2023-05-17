@@ -1,5 +1,6 @@
-#include "BufferDX11.h"
+#if defined(WIN32)
 
+#include "BufferDX11.h"
 #include "Core/Logging/Log.h"
 
 namespace Nexus
@@ -60,14 +61,14 @@ namespace Nexus
         m_IndexCount = indices.size();
     }
 
-    UniformBufferDX11::UniformBufferDX11(ID3D11Device* device, ID3D11DeviceContext* context, uint32_t size, uint32_t binding)
-        : UniformBuffer(size, binding)
+    UniformBufferDX11::UniformBufferDX11(ID3D11Device* device, ID3D11DeviceContext* context, const UniformResourceBinding& binding)
+        : UniformBuffer(binding)
     {
         D3D11_BUFFER_DESC bd;
         ZeroMemory(&bd, sizeof(bd));
 
         bd.Usage = D3D11_USAGE_DEFAULT;
-        bd.ByteWidth = size;
+        bd.ByteWidth = binding.Size;
         bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
         bd.CPUAccessFlags = 0;
         bd.MiscFlags = 0;
@@ -82,7 +83,7 @@ namespace Nexus
         }
 
         m_DeviceContext = context;
-        m_Binding = binding;
+        m_Binding = binding.Binding;
     }
 
     UniformBufferDX11::~UniformBufferDX11()
@@ -102,3 +103,5 @@ namespace Nexus
         );
     }
 }
+
+#endif

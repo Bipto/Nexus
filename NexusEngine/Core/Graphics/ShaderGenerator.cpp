@@ -1,3 +1,5 @@
+#ifndef __EMSCRIPTEN__
+
 #include "ShaderGenerator.h"
 
 #include "shaderc/shaderc.hpp"
@@ -99,8 +101,8 @@ namespace Nexus
 
         output.Successful = true;
 
-        std::cout << output.Source << std::endl;
-
         return output;
     }
 }
+
+#endif

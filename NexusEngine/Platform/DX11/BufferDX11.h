@@ -1,7 +1,9 @@
 #pragma once
 
-#include "DX11.h"
+#if defined(WIN32)
+
 #include "Core/Graphics/Buffer.h"
+#include "DX11.h"
 
 namespace Nexus
 {
@@ -30,7 +32,7 @@ namespace Nexus
     class UniformBufferDX11 : public UniformBuffer
     {
         public:
-            UniformBufferDX11(ID3D11Device* device, ID3D11DeviceContext* context, uint32_t size, uint32_t binding);
+            UniformBufferDX11(ID3D11Device* device, ID3D11DeviceContext* context, const UniformResourceBinding& binding);
             virtual ~UniformBufferDX11();
             virtual void SetData(const void* data, uint32_t size, uint32_t offset);
         private:
@@ -39,3 +41,5 @@ namespace Nexus
             uint32_t m_Binding = 0;
     };
 }
+
+#endif

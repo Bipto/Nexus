@@ -1,5 +1,21 @@
 #include "Window.h"
+
 #include "glad/glad.h"
+
+#include <iostream>
+
+#ifdef __EMSCRIPTEN
+
+EM_JS(int, get_canvas_width, (), {
+    const canvas = document.getElementById("canvas");
+    return canvas.width;
+});
+EM_JS(int, get_canvas_height, (),{
+    const canvas = document.getElementById("canvas");
+    return canvas.height; 
+ });
+
+#endif
 
 using namespace Nexus;
 static KeyCode SDLToNexusKeycode(SDL_Keycode keycode)
@@ -129,9 +145,7 @@ namespace Nexus
 {
     Window::Window(const WindowProperties& windowProps)
     {   
-        this->m_Window = SDL_CreateWindow(windowProps.Title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowProps.Width, windowProps.Height, SDL_WINDOW_OPENGL);
-        SetResizable(windowProps.Resizable);
-
+        this->m_Window = SDL_CreateWindow(windowProps.Title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowProps.Width, windowProps.Height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
         m_Input = new InputState();
     }   
 
@@ -205,7 +219,6 @@ namespace Nexus
                     if (event.window.event == SDL_WINDOWEVENT_RESIZED)
                         m_RequiresResize = true;
                 }
-
             }
         }
     }
@@ -228,7 +241,11 @@ namespace Nexus
     Point Window::GetWindowSize()
     {
         Point size{};
+        #ifndef __EMSCRIPTEN__
         SDL_GetWindowSize(this->m_Window, &size.X, &size.Y);
+        #else
+        emscripten_get_canvas_element_size("canvas", &size.X, &size.Y);
+        #endif
         return size;
     }
 

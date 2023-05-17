@@ -12,3 +12,15 @@ file (COPY
     ${CMAKE_CURRENT_SOURCE_DIR}/shader.glsl
     ${CMAKE_CURRENT_SOURCE_DIR}/brick.jpg
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+if (EMSCRIPTEN)
+    set_target_properties(
+        Demo
+        PROPERTIES
+        LINK_FLAGS
+        "--std=c++17 -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sUSE_WEBGL2=1 -sFULL_ES3=1 -lGL --preload-file brick.jpg"
+    )
+    add_compile_options("lGL")
+    string(APPEND CMAKE_EXE_LINKER_FLAGS "-lGL")
+
+endif()

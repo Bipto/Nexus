@@ -1,9 +1,5 @@
 #include "Runtime.h"
 
-#include "shaderc/shaderc.hpp"
-#include "spirv_glsl.hpp"
-#include "spirv_hlsl.hpp"
-
 #include <iostream>
 #include <chrono>
 #include <vector>

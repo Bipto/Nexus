@@ -1,5 +1,6 @@
-#include "TextureDX11.h"
+#if defined(WIN32)
 
+#include "TextureDX11.h"
 #include "Core/Logging/Log.h"
 
 namespace Nexus
@@ -81,3 +82,5 @@ namespace Nexus
         return m_ResourceView;
     }
 }
+
+#endif

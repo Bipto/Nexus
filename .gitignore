@@ -20,3 +20,14 @@ build_emscripten/Editor/Editor.js
 build_emscripten/Editor/Editor.wasm
 build_emscripten/Editor/Makefile
 build_emscripten/Editor/wall.jpg
+build_emscripten/_deps
+build_emscripten/Demo/CMakeFiles
+build_emscripten/Demo/cmake_install.cmake
+build_emscripten/Demo/Demo.data
+build_emscripten/Demo/Demo.js
+build_emscripten/Demo/Demo.wasm
+build_emscripten/Demo/Makefile
+build_emscripten/lib
+build_emscripten/include
+build_emscripten/SPIRV-ToolsConfig.cmake
+*.cmake

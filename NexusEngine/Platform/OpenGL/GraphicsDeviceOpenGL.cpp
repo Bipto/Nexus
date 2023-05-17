@@ -147,10 +147,11 @@ namespace Nexus
 
     void GraphicsDeviceOpenGL::SetShader(Ref<Shader> shader)
     {
-        shader->Bind();
+        Ref<ShaderOpenGL> openGLShader = std::dynamic_pointer_cast<ShaderOpenGL>(shader);
+        openGLShader->Bind();
     }
 
-    Ref<Shader> GraphicsDeviceOpenGL::CreateShaderFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const BufferLayout& layout)
+    Ref<Shader> GraphicsDeviceOpenGL::CreateShaderFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const VertexBufferLayout& layout)
     {
         return CreateRef<ShaderOpenGL>(vertexShaderSource, fragmentShaderSource, layout);
     }
@@ -165,9 +166,9 @@ namespace Nexus
         return CreateRef<IndexBufferOpenGL>(indices);
     }
 
-    Ref<UniformBuffer> GraphicsDeviceOpenGL::CreateUniformBuffer(uint32_t size, uint32_t binding)
+    Ref<UniformBuffer> GraphicsDeviceOpenGL::CreateUniformBuffer(const UniformResourceBinding& binding)
     {
-        return CreateRef<UniformBufferOpenGL>(size, binding);
+        return CreateRef<UniformBufferOpenGL>(binding);
     }
 
     Ref<Texture> GraphicsDeviceOpenGL::CreateTexture(TextureSpecification spec)

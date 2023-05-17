@@ -5,21 +5,49 @@
 std::vector<float> vertices = 
 {
     -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  //bottom left
-    -0.5f,  0.5f, 0.0f, 1.0f, 0.0f,  //top left
-     0.5f, -0.5f, 0.0f, 1.0f, 1.0f,  //bottom right
-     0.5f,  0.5f, 0.0f, 0.0f, 1.0f  //top right
+    -0.5f,  0.5f, 0.0f, 0.0f, 1.0f,  //top left
+     0.5f, -0.5f, 0.0f, 1.0f, 0.0f,  //bottom right
+     0.5f,  0.5f, 0.0f, 1.0f, 1.0f   //top right
 };
 
 std::vector<unsigned int> indices = 
 {
-    0, 1, 2,
-    1, 3, 2
+    2, 1, 0,
+    2, 3, 1
 };
 
 struct VB_UNIFORM_CAMERA
 {
     glm::mat4 ViewProjection;
 };
+
+const char* vertexShaderSource = 
+"#version 300 es\n"
+"layout(std140) uniform Camera\n"
+"{\n"
+"mat4 u_WVP;\n"
+"}_28;\n"
+"layout (location = 0) in vec3 aPos;\n"
+"layout (location = 1) in vec2 aTexCoord;\n"
+"out vec2 TexCoord;\n"
+"void main()\n" 
+"{\n"
+"gl_Position = vec4(aPos, 1.0) * _28.u_WVP;\n"
+"TexCoord = aTexCoord;\n"
+"}";
+
+std::string fragmentShaderSource = 
+"#version 300 es\n"
+"precision mediump float;\n"
+"precision highp int;\n"
+"layout (location = 0) out vec4 FragColor;\n"
+"in highp vec2 TexCoord;\n"
+"uniform sampler2D ourTexture;\n"
+"void main()\n"
+"{\n"
+"FragColor = texture(ourTexture, TexCoord);\n"
+"}";
+
 
 class Demo : public Nexus::Application
 {
@@ -28,7 +56,7 @@ class Demo : public Nexus::Application
 
         virtual void Load() override
         {
-            Nexus::BufferLayout layout = 
+            Nexus::VertexBufferLayout layout = 
             {
                 { Nexus::ShaderDataType::Float3, "TEXCOORD", 0 },
                 { Nexus::ShaderDataType::Float2, "TEXCOORD", 1}
@@ -36,8 +64,6 @@ class Demo : public Nexus::Application
 
             m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(vertices);
             m_IndexBuffer = m_GraphicsDevice->CreateIndexBuffer(indices);
-            m_UniformBuffer = m_GraphicsDevice->CreateUniformBuffer(sizeof(VB_UNIFORM_CAMERA), 0);
-            m_GraphicsDevice->Resize(this->GetWindowSize());
 
             Nexus::FramebufferSpecification spec;
             spec.Width = 500;
@@ -49,12 +75,27 @@ class Demo : public Nexus::Application
 
             std::ifstream t("vertex.glsl");
             std::stringstream buffer;
-            buffer << t.rdbuf();
+            buffer << t.rdbuf();            
 
+            #ifndef __EMSCRIPTEN__
             m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("shader.glsl", layout);
+            #else
+            m_Shader = m_GraphicsDevice->CreateShaderFromSource(vertexShaderSource, fragmentShaderSource, layout);
+            #endif
+
+            Nexus::UniformResourceBinding binding;
+            binding.Binding = 0;
+            binding.Name = "Camera";
+            binding.Size = sizeof(VB_UNIFORM_CAMERA);
+
+            m_UniformBuffer = m_GraphicsDevice->CreateUniformBuffer(binding);
+            m_UniformBuffer->BindToShader(m_Shader);
 
             m_CameraUniforms.ViewProjection = glm::mat4(1.0f);
             m_UniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms), 0);
+
+            NX_LOG(m_GraphicsDevice->GetAPIName());
+            NX_LOG(m_GraphicsDevice->GetDeviceName());
         }
 
         virtual void Update(Nexus::Time time) override
@@ -64,37 +105,40 @@ class Demo : public Nexus::Application
 
         virtual void Render(Nexus::Time time) override
         {
-            m_GraphicsDevice->SetFramebuffer(m_Framebuffer);
+            m_GraphicsDevice->SetFramebuffer(nullptr);
             Nexus::Viewport vp;
             vp.X = 0;
             vp.Y = 0;
-            vp.Width = m_Framebuffer->GetFramebufferSpecification().Width;
-            vp.Height = m_Framebuffer->GetFramebufferSpecification().Height;
+            vp.Width = GetWindowSize().X;
+            vp.Height = GetWindowSize().Y;
             m_GraphicsDevice->SetViewport(vp);
 
+            float aspectRatio = (float)GetWindowSize().X / (float)GetWindowSize().Y;
+
+            m_CameraUniforms.ViewProjection = glm::ortho(-aspectRatio, aspectRatio, -1.0f, 1.0f);
+            m_UniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms), 0);
+
             m_GraphicsDevice->Clear( 0.8f, 0.2f, 0.3f, 1.0f );
-            m_Shader->SetTexture(m_Texture, 1);
+
+            Nexus::TextureBinding textureBinding;
+            textureBinding.Slot = 1;
+            textureBinding.Name = "ourTexture";
+
+            m_Shader->SetTexture(m_Texture, textureBinding);
             m_GraphicsDevice->SetShader(m_Shader);
             m_GraphicsDevice->SetVertexBuffer(m_VertexBuffer);
             m_GraphicsDevice->SetIndexBuffer(m_IndexBuffer);
-            m_GraphicsDevice->DrawIndexed(Nexus::PrimitiveType::Triangle, m_IndexBuffer->GetIndexCount(), 0);
-            
-            Nexus::Viewport vp2;
-            vp2.X = 0;
-            vp2.Y = 0;
-            vp2.Width = this->GetWindowSize().X;
-            vp2.Height = this->GetWindowSize().Y;
-            m_GraphicsDevice->SetFramebuffer(nullptr);
-            m_GraphicsDevice->SetViewport(vp2);
+            m_GraphicsDevice->DrawIndexed(Nexus::PrimitiveType::Triangle, m_IndexBuffer->GetIndexCount(), 0); 
 
-            m_GraphicsDevice->Clear(0.0f, 0.7f, 0.2f, 1.0f);
-            ImGui::ShowDemoWindow();
-            if (ImGui::Begin("Texture"))
-            {
-                auto texture = m_Framebuffer->GetColorAttachment();
-                ImGui::Image((ImTextureID)texture, {200, 200});
-                ImGui::End();
-            }          
+            ImGui::Begin("Info");
+            
+            std::string width = std::to_string(GetWindowSize().X);
+            std::string height = std::to_string(GetWindowSize().Y);
+
+            ImGui::Text(width.c_str());
+            ImGui::Text(height.c_str());
+
+            ImGui::End();
         }
 
         virtual void OnResize(Nexus::Point size) override
@@ -106,6 +150,7 @@ class Demo : public Nexus::Application
         {
 
         }
+
     private:
         Nexus::Ref<Nexus::Shader> m_Shader;
         Nexus::Ref<Nexus::VertexBuffer> m_VertexBuffer;

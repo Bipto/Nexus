@@ -1,9 +1,11 @@
-#include "FramebufferDX11.h"
+#if defined(WIN32)
 
+#include "FramebufferDX11.h"
 #include "Core/Logging/Log.h"
 
 namespace Nexus
 {
+    #if defined(WIN32)
     FramebufferDX11::FramebufferDX11(ID3D11Device* device, const Nexus::FramebufferSpecification &spec)
     {
         m_Device = device;
@@ -184,4 +186,8 @@ namespace Nexus
 
         m_ColorRenderTargets.clear();
     }
+
+    #endif
 }
+
+#endif

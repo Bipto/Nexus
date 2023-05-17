@@ -2,12 +2,15 @@
 
 #include "Core/Graphics/GraphicsDevice.h"
 #include "SDL_syswm.h"
-#include "DX11.h"
 
 #include "BufferDX11.h"
 #include "ShaderDX11.h"
 #include "TextureDX11.h"
 #include "FramebufferDX11.h"
+
+#if defined(WIN32)
+#include "DX11.h"
+#endif
 
 namespace Nexus
 {
@@ -34,11 +37,11 @@ namespace Nexus
             virtual void SetIndexBuffer(Ref<IndexBuffer> indexBuffer) override;
             virtual void SetShader(Ref<Shader> shader) override;
 
-            virtual Ref<Shader> CreateShaderFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const BufferLayout& layout) override;            
+            virtual Ref<Shader> CreateShaderFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const VertexBufferLayout& layout) override;            
             virtual Ref<VertexBuffer> CreateVertexBuffer(const std::vector<float> vertices) override;
             virtual Ref<IndexBuffer> CreateIndexBuffer(const std::vector<unsigned int> indices) override;
             virtual Ref<Texture> CreateTexture(TextureSpecification spec) override;            
-            virtual Ref<UniformBuffer> CreateUniformBuffer(uint32_t size, uint32_t binding) override;
+            virtual Ref<UniformBuffer> CreateUniformBuffer(const UniformResourceBinding& binding) override;
             virtual Ref<Framebuffer> CreateFramebuffer(const Nexus::FramebufferSpecification& spec);
 
             virtual void InitialiseImGui() override;

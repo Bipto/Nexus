@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.16)
 project ("NexusEngine")
 set (CMAKE_CXX_STANDARD 17)
 
+set(SHADERC_SKIP_TESTS OFF CACHE BOOL "" FORCE)
+
 #google test - required for shaderc
 include(FetchContent)
 FetchContent_Declare(
@@ -12,6 +14,11 @@ FetchContent_Declare(
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
+
+set(SPIRV_CROSS_CLI OFF CACHE BOOL "" FORCE)
+set(SPIRV_CROSS_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
+set(SKIP_SPIRV_TOOLS_INSTALL ON CACHE BOOL "" FORCE)
+set(ENABLE_SPIRV_TOOLS_INSTALL OFF CACHE BOOL "" FORCE)
 
 #adds cpp and h files from engine
 file (GLOB_RECURSE ENGINE_HEADERS Core/*.h Runtime/*.h)
@@ -26,9 +33,13 @@ target_include_directories(NexusEngine PUBLIC ../External/glm)
 target_include_directories(NexusEngine PUBLIC ../External/stb)
 target_include_directories(NexusEngine PUBLIC ../External/assimp/include)
 target_include_directories(NexusEngine PUBLIC ../External/json/single_include)
+
+if (NOT DEFINED EMSCRIPTEN)
+target_include_directories(NexusEngine PUBLIC ../External/tinyfiledialogs/tinyfiledialogs)
 target_include_directories(NexusEngine PUBLIC ../External/shaderc/libshaderc)
 target_include_directories(NexusEngine PUBLIC ../External/shaderc/SPIRV-Cross/include)
-target_include_directories(NexusEngine PUBLIC ../External/tinyfiledialogs/tinyfiledialogs)
+endif()
+
 target_include_directories(NexusEngine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 #linking dependencies
@@ -38,9 +49,12 @@ target_link_libraries(NexusEngine PUBLIC glad)
 target_link_libraries(NexusEngine PUBLIC assimp)
 target_link_libraries(NexusEngine PUBLIC imgui)
 target_link_libraries(NexusEngine PUBLIC imguizmo)
+
+if(NOT DEFINED EMSCRIPTEN)
+target_link_libraries(NexusEngine PUBLIC tinyfiledialogs)
 target_link_libraries(NexusEngine PUBLIC shaderc)
 target_link_libraries(NexusEngine PUBLIC spirv-cross-cpp spirv-cross-hlsl)
-target_link_libraries(NexusEngine PUBLIC tinyfiledialogs)
+endif()
 
 #including OpenGL
 find_package(OpenGL REQUIRED)
@@ -48,3 +62,13 @@ target_link_libraries(NexusEngine PUBLIC ${OPENGL_LIBRARIES})
 
 #precompiled header
 target_precompile_headers(NexusEngine PUBLIC Core/nxpch.h)
+
+if (EMSCRIPTEN)
+    set_target_properties(
+        Editor
+        PROPERTIES
+        LINK_FLAGS
+        "--std=c++17 -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sUSE_WEBGL2=1 -sFULL_ES3=1 -lGL --preload-file Resources"
+    )
+
+endif()

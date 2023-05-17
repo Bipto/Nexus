@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(WIN32)
+
 #include "DX11.h"
 #include "Core/Graphics/Texture.h"
 
@@ -21,3 +23,5 @@ namespace Nexus
             ID3D11SamplerState* m_SamplerState;
     };
 }
+
+#endif

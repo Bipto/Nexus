@@ -53,22 +53,33 @@ class Editor : public Nexus::Application
             this->m_Renderer = Nexus::Renderer::Create(this->m_GraphicsDevice);
             this->m_GraphicsDevice->SetVSyncState(Nexus::VSyncState::Enabled);
 
-            Nexus::BufferLayout layout = 
+            this->m_VertexBuffer =  this->m_GraphicsDevice->CreateVertexBuffer(vertices);
+            this->m_IndexBuffer = this->m_GraphicsDevice->CreateIndexBuffer(indices);
+            this->m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
+
+            Nexus::UniformResourceBinding renderInfoBinding;
+            renderInfoBinding.Binding = 0;
+            renderInfoBinding.Name = "RenderInfo";
+            renderInfoBinding.Size = sizeof(VB_UNIFORM_RENDERINFO);
+
+            m_RenderInfoUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(renderInfoBinding);
+
+            Nexus::UniformResourceBinding cameraUniformBinding;
+            cameraUniformBinding.Binding = 1;
+            cameraUniformBinding.Name = "Camera";
+            cameraUniformBinding.Size = sizeof(VB_UNIFORM_CAMERA);
+
+            m_CameraUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(cameraUniformBinding);
+
+            Nexus::VertexBufferLayout vertexBufferLayout = 
             {
                 { Nexus::ShaderDataType::Float3, "TEXCOORD", 0 },
                 { Nexus::ShaderDataType::Float2, "TEXCOORD", 1 }
             };
 
-            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/shader.glsl", layout);
+            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/shader.glsl", vertexBufferLayout);
 
-            this->m_VertexBuffer =  this->m_GraphicsDevice->CreateVertexBuffer(vertices);
-            this->m_IndexBuffer = this->m_GraphicsDevice->CreateIndexBuffer(indices);
-            this->m_RenderInfoUniformBuffer = this->m_GraphicsDevice->CreateUniformBuffer(sizeof(VB_UNIFORM_RENDERINFO), 0);
-            this->m_CameraUniformBuffer = this->m_GraphicsDevice->CreateUniformBuffer(sizeof(VB_UNIFORM_CAMERA), 1);
-            this->m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
-            
             Nexus::Point size = this->GetWindowSize();
-
             Nexus::FramebufferSpecification framebufferSpec;
             framebufferSpec.Width = 500;
             framebufferSpec.Height = 500;
@@ -252,7 +263,12 @@ class Editor : public Nexus::Application
                 m_GraphicsDevice->SetShader(m_Shader);
                 m_GraphicsDevice->SetVertexBuffer(m_Mesh.GetVertexBuffer());
                 m_GraphicsDevice->SetIndexBuffer(m_Mesh.GetIndexBuffer());
-                m_Shader->SetTexture(m_Texture, 0);
+
+                Nexus::TextureBinding textureBinding;
+                textureBinding.Slot = 0;
+                textureBinding.Name = "texSampler";
+
+                m_Shader->SetTexture(m_Texture, textureBinding);
                 m_GraphicsDevice->DrawIndexed(
                     Nexus::PrimitiveType::Triangle,
                     m_Mesh.GetIndexBuffer()->GetIndexCount(),
@@ -278,7 +294,7 @@ class Editor : public Nexus::Application
             return true;
         }
 
-        void RenderQuad(Nexus::Ref<Nexus::Texture> texture, const glm::vec3& position, const glm::vec3& scale, const glm::vec3& color)
+        /* void RenderQuad(Nexus::Ref<Nexus::Texture> texture, const glm::vec3& position, const glm::vec3& scale, const glm::vec3& color)
         {
             m_RenderInfoUniforms.Translation = glm::transpose(glm::translate(glm::mat4(1.0f), position)
                 * glm::scale(glm::mat4(1.0f), scale));
@@ -294,7 +310,7 @@ class Editor : public Nexus::Application
                 m_IndexBuffer->GetIndexCount(),
                 0
             );
-        }
+        } */
 
         virtual void Unload() override
         {

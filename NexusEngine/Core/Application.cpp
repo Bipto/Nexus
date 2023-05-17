@@ -69,8 +69,9 @@ namespace Nexus
     {
         if (m_Window->m_RequiresResize)
         {
-            OnResize(this->GetWindowSize());
+            OnResize(m_PreviousWindowSize);
             m_Window->m_RequiresResize = false;
+            m_PreviousWindowSize = this->GetWindowSize();
         }
 
         this->m_Window->PollEvents(m_Specification.ImGuiActive);

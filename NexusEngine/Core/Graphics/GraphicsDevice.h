@@ -96,10 +96,10 @@ namespace Nexus
             virtual void SetIndexBuffer(Ref<IndexBuffer> indexBuffer) = 0;
             virtual void SetShader(Ref<Shader> shader) = 0;
 
-            virtual Ref<Shader> CreateShaderFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const BufferLayout& layout) = 0;
+            virtual Ref<Shader> CreateShaderFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const VertexBufferLayout& layout) = 0;
             virtual Ref<VertexBuffer> CreateVertexBuffer(const std::vector<float> vertices) = 0;
             virtual Ref<IndexBuffer> CreateIndexBuffer(const std::vector<unsigned int> indices) = 0;
-            virtual Ref<UniformBuffer> CreateUniformBuffer(uint32_t size, uint32_t binding) = 0;
+            virtual Ref<UniformBuffer> CreateUniformBuffer(const UniformResourceBinding& binding) = 0;
 
             virtual Ref<Texture> CreateTexture(TextureSpecification spec) = 0;
             Ref<Texture> CreateTexture(const char* filepath);
@@ -113,7 +113,7 @@ namespace Nexus
             virtual VSyncState GetVsyncState() = 0;
 
             virtual ShaderFormat GetSupportedShaderFormat() = 0;
-            Ref<Shader> CreateShaderFromSpirvFile(const std::string& filepath, const BufferLayout& layout);
+            Ref<Shader> CreateShaderFromSpirvFile(const std::string& filepath, const VertexBufferLayout& layout);
         protected:
             Nexus::Window* m_Window;
             GraphicsAPI m_API;

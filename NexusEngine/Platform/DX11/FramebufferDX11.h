@@ -1,7 +1,8 @@
 #pragma once
 
-#include "DX11.h"
+#if defined(WIN32)
 #include "Core/Graphics/Framebuffer.h"
+#include "DX11.h"
 
 namespace Nexus
 {
@@ -49,3 +50,5 @@ namespace Nexus
             Nexus::FramebufferSpecification m_FramebufferSpecification;
     };
 }
+
+#endif

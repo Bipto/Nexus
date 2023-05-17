@@ -1,5 +1,7 @@
 #pragma once
 
+#include <inttypes.h>
+
 namespace Nexus
 {
     enum ShaderDataType
@@ -9,12 +11,13 @@ namespace Nexus
         Float2,
         Float3,
         Float4,
-        Mat3,
-        Mat4,
         Int,
         Int2,
         Int3,
         Int4,
-        Bool
+        Mat3,
+        Mat4
     };
+
+    uint32_t GetShaderDataTypeSize(ShaderDataType type);
 }

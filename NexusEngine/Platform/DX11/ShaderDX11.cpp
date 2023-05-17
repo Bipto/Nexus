@@ -1,11 +1,12 @@
-#include "ShaderDX11.h"
+#if defined(WIN32)
 
+#include "ShaderDX11.h"
 #include "Core/Logging/Log.h"
 #include "Platform/DX11/TextureDX11.h"
 
 namespace Nexus
 {
-    DXGI_FORMAT GetDXBaseType(const BufferElement element)
+    DXGI_FORMAT GetDXBaseType(const VertexBufferElement element)
     {
         switch (element.Type)
         {
@@ -20,7 +21,7 @@ namespace Nexus
         }
     }
 
-    ShaderDX11::ShaderDX11(ID3D11Device* device, ID3D11DeviceContext* context, std::string vertexShaderSource, std::string fragmentShaderSource, const BufferLayout& layout)
+    ShaderDX11::ShaderDX11(ID3D11Device* device, ID3D11DeviceContext* context, std::string vertexShaderSource, std::string fragmentShaderSource, const VertexBufferLayout& layout)
     {
         m_Device = device;
         m_ContextPtr = context;
@@ -106,22 +107,22 @@ namespace Nexus
         m_FragmentShaderSource = fragmentShaderSource;
     }
 
-    void ShaderDX11::Bind()
+    /* void ShaderDX11::Bind()
     {
         m_ContextPtr->VSSetShader(m_VertexShader, 0, 0);
         m_ContextPtr->PSSetShader(m_PixelShader, 0, 0);
         m_ContextPtr->IASetInputLayout(m_InputLayout);
-    }
+    } */
 
-    void ShaderDX11::SetTexture(Ref<Texture> texture, int slot)
+    void ShaderDX11::SetTexture(Ref<Texture> texture, const TextureBinding& binding)
     {
         Ref<TextureDX11> dxTexture = std::dynamic_pointer_cast<TextureDX11>(texture);
 
         const ID3D11ShaderResourceView* resourceViews[] = { dxTexture->GetResourceView() };
         const ID3D11SamplerState* samplers[] = { dxTexture->GetSamplerState() };
 
-        m_ContextPtr->PSSetShaderResources(slot, 1, (ID3D11ShaderResourceView* const*)resourceViews);
-        m_ContextPtr->PSSetSamplers(slot, 1, (ID3D11SamplerState* const*)samplers);
+        m_ContextPtr->PSSetShaderResources(binding.Slot, 1, (ID3D11ShaderResourceView* const*)resourceViews);
+        m_ContextPtr->PSSetSamplers(binding.Slot, 1, (ID3D11SamplerState* const*)samplers);
     }
 
     const std::string &ShaderDX11::GetVertexShaderSource()
@@ -134,7 +135,7 @@ namespace Nexus
         return m_FragmentShaderSource;
     }
 
-    void ShaderDX11::CreateLayout(const BufferLayout &layout)
+    void ShaderDX11::CreateLayout(const VertexBufferLayout &layout)
     {
         m_BufferLayout = layout;
             
@@ -173,3 +174,5 @@ namespace Nexus
         }
     }
 }
+
+#endif

@@ -1,12 +1,15 @@
 #include "FileDialogs.h"
 
+#ifndef __EMSCRIPTEN__
 #include "tinyfiledialogs.h"
 #include "more_dialogs/tinyfd_moredialogs.h"
+#endif
 
 namespace Nexus::FileDialogs
 {
     const char *OpenFile(std::vector<const char *> filters)
     {
+        #ifndef __EMSCRIPTEN__
         return tinyfd_openFileDialog(
             "Select a file",
             "",
@@ -15,13 +18,19 @@ namespace Nexus::FileDialogs
             NULL,
             0
         );
+        #endif
+
+        return "";
     }
 
     const char *OpenFolder(const char* title, const char* defaultDirectory)
     {
+        #ifndef __EMSCRIPTEN__
         return tinyfd_selectFolderDialog(
             title,
             defaultDirectory
         );
+        #endif
+        return "";
     }
 }

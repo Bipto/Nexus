@@ -19,6 +19,8 @@ namespace Nexus
         HLSL
     };
 
+    #ifndef __EMSCRIPTEN__
+
     struct ShaderGenerationOptions
     {
         ShaderType Type;
@@ -39,4 +41,6 @@ namespace Nexus
         public:
             CompilationResult Generate(std::string source, ShaderGenerationOptions options);
     };
+
+    #endif
 }

@@ -1,7 +1,5 @@
 #include "GraphicsDevice.h"
 
-#include "shaderc/shaderc.hpp"
-
 #include <fstream>
 #include <sstream>
 #include <chrono>
@@ -13,8 +11,9 @@
 
 namespace Nexus
 {
-    Ref<Shader> GraphicsDevice::CreateShaderFromSpirvFile(const std::string &filepath, const BufferLayout& layout)
+    Ref<Shader> GraphicsDevice::CreateShaderFromSpirvFile(const std::string &filepath, const VertexBufferLayout& layout)
     {
+        #ifndef __EMSCRIPTEN__
         auto startTime = std::chrono::system_clock::now();
 
         if (!std::filesystem::exists(filepath))
@@ -89,12 +88,18 @@ namespace Nexus
             ss << "Compilation of " << filepath << " took " << totalTime << " milliseconds";
 
             auto shader = this->CreateShaderFromSource(vertResult.Source, fragResult.Source, layout);
+
+            NX_LOG(shader->GetVertexShaderSource());
+            NX_LOG(shader->GetFragmentShaderSource());
+
             return shader;
         }   
         else
         {
             NX_ERROR(errorMessage);
         }     
+
+        #endif
 
         return {};
     }

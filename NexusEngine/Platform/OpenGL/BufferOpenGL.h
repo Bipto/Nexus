@@ -3,6 +3,8 @@
 #include "GL.h"
 #include "Core/Graphics/Buffer.h"
 
+#include "Platform/OpenGL/ShaderOpenGL.h"
+
 namespace Nexus
 {
     class VertexBufferOpenGL : public VertexBuffer
@@ -31,10 +33,12 @@ namespace Nexus
     class UniformBufferOpenGL : public UniformBuffer
     {
         public:
-            UniformBufferOpenGL(uint32_t size, uint32_t binding);
+            UniformBufferOpenGL(const UniformResourceBinding& binding);
             virtual ~UniformBufferOpenGL();
             virtual void SetData(const void* data, uint32_t size, uint32_t offset) override;
+            virtual void BindToShader(Ref<Shader> shader) override;
         private:
-            unsigned int m_UBO;
+            unsigned int m_UBO = 0;
+            UniformResourceBinding m_Binding;
     };
 }

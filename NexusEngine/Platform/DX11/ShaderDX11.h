@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(WIN32)
+
 #include "DX11.h"
 
 #include "Core/Graphics/Shader.h"
@@ -11,24 +13,20 @@ namespace Nexus
     class ShaderDX11 : public Shader
     {
         public:
-            ShaderDX11(ID3D11Device* device, ID3D11DeviceContext* context, std::string vertexShaderSource, std::string fragmentShaderSource, const BufferLayout& layout);
-            virtual void Bind() override;
-            virtual void SetShaderUniform1i(const std::string& name, int value) override{}
-            virtual void SetShaderUniform1f(const std::string& name, float value) override{}
-            virtual void SetShaderUniform2f(const std::string& name, const glm::vec2& value) override{}
-            virtual void SetShaderUniform3f(const std::string& name, const glm::vec3& value) override{}
-            virtual void SetShaderUniform4f(const std::string& name, const glm::vec4& value) override{}
-            virtual void SetShaderUniformMat3(const std::string& name, const glm::mat3& value) override{}
-            virtual void SetShaderUniformMat4(const std::string& name, const glm::mat4& value) override{}
-            virtual void SetTexture(Ref<Texture> texture, int slot) override;
+            ShaderDX11(ID3D11Device* device, ID3D11DeviceContext* context, std::string vertexShaderSource, std::string fragmentShaderSource, const VertexBufferLayout& layout);
+            virtual void SetTexture(Ref<Texture> texture, const TextureBinding& binding) override;
             
             virtual const std::string& GetVertexShaderSource() override;
             virtual const std::string& GetFragmentShaderSource() override;
+
+            ID3D11VertexShader* GetVertexShader() { return m_VertexShader; }
+            ID3D11PixelShader* GetPixelShader() { return m_PixelShader; }
+            ID3D11InputLayout* GetInputLayout() { return m_InputLayout; }
             
-            virtual const BufferLayout& GetLayout() const override { return m_BufferLayout; }
+            virtual const VertexBufferLayout& GetLayout() const override { return m_BufferLayout; }
 
         private:
-            void CreateLayout(const BufferLayout& layout);
+            void CreateLayout(const VertexBufferLayout& layout);
 
         private:
             ID3D11Device* m_Device              = NULL;
@@ -38,9 +36,11 @@ namespace Nexus
             ID3D11PixelShader* m_PixelShader    = NULL;
             ID3DBlob* m_VertexBlobPtr           = NULL;
             ID3DBlob* m_PixelBlobPtr            = NULL;
-            BufferLayout m_BufferLayout;
+            VertexBufferLayout m_BufferLayout;
 
             std::string m_VertexShaderSource;
             std::string m_FragmentShaderSource;
     };
 }
+
+#endif
