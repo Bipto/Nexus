@@ -2,21 +2,6 @@
 
 #include "glad/glad.h"
 
-#include <iostream>
-
-#ifdef __EMSCRIPTEN
-
-EM_JS(int, get_canvas_width, (), {
-    const canvas = document.getElementById("canvas");
-    return canvas.width;
-});
-EM_JS(int, get_canvas_height, (),{
-    const canvas = document.getElementById("canvas");
-    return canvas.height; 
- });
-
-#endif
-
 using namespace Nexus;
 static KeyCode SDLToNexusKeycode(SDL_Keycode keycode)
 {
@@ -145,8 +130,15 @@ namespace Nexus
 {
     Window::Window(const WindowProperties& windowProps)
     {   
-        this->m_Window = SDL_CreateWindow(windowProps.Title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowProps.Width, windowProps.Height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+        // NOTE: Resizable flag MUST be set in order for Emscripten resizing to work correctly
+        this->m_Window = SDL_CreateWindow(windowProps.Title.c_str(),
+            SDL_WINDOWPOS_UNDEFINED,
+            SDL_WINDOWPOS_UNDEFINED,
+            windowProps.Width,
+            windowProps.Height,
+            SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
         m_Input = new InputState();
+    
     }   
 
     Window::~Window()

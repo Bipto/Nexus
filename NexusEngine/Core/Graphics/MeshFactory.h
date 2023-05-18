@@ -15,6 +15,7 @@ namespace Nexus
             }
 
             Mesh CreateCube();
+            Mesh CreateSprite();
 
         private:
             Ref<GraphicsDevice> m_Device = nullptr;

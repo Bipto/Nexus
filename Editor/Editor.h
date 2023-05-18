@@ -100,7 +100,7 @@ class Editor : public Nexus::Application
             Nexus::MeshFactory factory = Nexus::MeshFactory(m_GraphicsDevice);
             m_Mesh = factory.CreateCube();
 
-            m_Camera = new Nexus::OrthographicCamera(m_GraphicsDevice,
+            m_Camera = new Nexus::FirstPersonCamera(m_GraphicsDevice,
                 size.X,
                 size.Y,
                 {0, 0, 0});
@@ -478,7 +478,7 @@ class Editor : public Nexus::Application
         VB_UNIFORM_RENDERINFO m_RenderInfoUniforms;
         VB_UNIFORM_CAMERA m_CameraUniforms;
 
-        Nexus::OrthographicCamera* m_Camera = nullptr;
+        Nexus::FirstPersonCamera* m_Camera = nullptr;
         Nexus::Ref<Nexus::Framebuffer> m_Framebuffer;
         Nexus::Ref<Nexus::Project> m_Project;
 

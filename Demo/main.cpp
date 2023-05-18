@@ -1,39 +1,40 @@
 #include "NexusEngine.h"
 
-#include "Core/Input/Input.h"
-
-std::vector<float> vertices = 
-{
-    -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  //bottom left
-    -0.5f,  0.5f, 0.0f, 0.0f, 1.0f,  //top left
-     0.5f, -0.5f, 0.0f, 1.0f, 0.0f,  //bottom right
-     0.5f,  0.5f, 0.0f, 1.0f, 1.0f   //top right
-};
-
-std::vector<unsigned int> indices = 
-{
-    2, 1, 0,
-    2, 3, 1
-};
+#include "Core/Graphics/MeshFactory.h"
 
 struct VB_UNIFORM_CAMERA
 {
-    glm::mat4 ViewProjection;
+    glm::mat4 View;
+    glm::mat4 Projection;
+};
+
+struct VB_UNIFORM_RENDERINFO
+{
+    glm::mat4 Transform;
+    glm::vec3 Color;
 };
 
 const char* vertexShaderSource = 
 "#version 300 es\n"
 "layout(std140) uniform Camera\n"
 "{\n"
-"mat4 u_WVP;\n"
+"mat4 u_View;\n"
+"mat4 u_Projection;\n"
 "}_28;\n"
+"layout(std140) uniform RenderInfo\n"
+"{\n"
+"mat4 u_Transform;\n"
+"vec3 u_Color;\n"
+"}_23;\n"
 "layout (location = 0) in vec3 aPos;\n"
 "layout (location = 1) in vec2 aTexCoord;\n"
 "out vec2 TexCoord;\n"
+"out vec3 OutColor;\n"
 "void main()\n" 
 "{\n"
-"gl_Position = vec4(aPos, 1.0) * _28.u_WVP;\n"
+"gl_Position = _28.u_Projection * _28.u_View * _23.u_Transform * vec4(aPos, 1.0);\n"
 "TexCoord = aTexCoord;\n"
+"OutColor = _23.u_Color;\n"
 "}";
 
 std::string fragmentShaderSource = 
@@ -42,12 +43,12 @@ std::string fragmentShaderSource =
 "precision highp int;\n"
 "layout (location = 0) out vec4 FragColor;\n"
 "in highp vec2 TexCoord;\n"
+"in highp vec3 OutColor;\n"
 "uniform sampler2D ourTexture;\n"
 "void main()\n"
 "{\n"
-"FragColor = texture(ourTexture, TexCoord);\n"
+"FragColor = texture(ourTexture, TexCoord) * vec4(OutColor, 1.0);\n"
 "}";
-
 
 class Demo : public Nexus::Application
 {
@@ -62,20 +63,13 @@ class Demo : public Nexus::Application
                 { Nexus::ShaderDataType::Float2, "TEXCOORD", 1}
             };
 
-            m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(vertices);
-            m_IndexBuffer = m_GraphicsDevice->CreateIndexBuffer(indices);
-
             Nexus::FramebufferSpecification spec;
             spec.Width = 500;
             spec.Height = 500;
             spec.ColorAttachmentSpecification = { Nexus::TextureFormat::RGBA8 };
             m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(spec);
 
-            m_Texture = m_GraphicsDevice->CreateTexture("brick.jpg");  
-
-            std::ifstream t("vertex.glsl");
-            std::stringstream buffer;
-            buffer << t.rdbuf();            
+            m_Texture = m_GraphicsDevice->CreateTexture("brick.jpg");         
 
             #ifndef __EMSCRIPTEN__
             m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("shader.glsl", layout);
@@ -83,19 +77,26 @@ class Demo : public Nexus::Application
             m_Shader = m_GraphicsDevice->CreateShaderFromSource(vertexShaderSource, fragmentShaderSource, layout);
             #endif
 
-            Nexus::UniformResourceBinding binding;
-            binding.Binding = 0;
-            binding.Name = "Camera";
-            binding.Size = sizeof(VB_UNIFORM_CAMERA);
+            Nexus::UniformResourceBinding cameraUniformBinding;
+            cameraUniformBinding.Binding = 0;
+            cameraUniformBinding.Name = "Camera";
+            cameraUniformBinding.Size = sizeof(VB_UNIFORM_CAMERA);
+            m_CameraUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(cameraUniformBinding);
+            m_CameraUniformBuffer->BindToShader(m_Shader);
 
-            m_UniformBuffer = m_GraphicsDevice->CreateUniformBuffer(binding);
-            m_UniformBuffer->BindToShader(m_Shader);
+            Nexus::UniformResourceBinding renderInfoUniformBinding;
+            renderInfoUniformBinding.Binding = 1;
+            renderInfoUniformBinding.Name = "RenderInfo";
+            renderInfoUniformBinding.Size = sizeof(VB_UNIFORM_RENDERINFO);
+            m_TransformUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(renderInfoUniformBinding);
+            m_TransformUniformBuffer->BindToShader(m_Shader);
 
-            m_CameraUniforms.ViewProjection = glm::mat4(1.0f);
-            m_UniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms), 0);
+            Nexus::MeshFactory factory(m_GraphicsDevice);
+            m_SpriteMesh = factory.CreateCube();
 
-            NX_LOG(m_GraphicsDevice->GetAPIName());
-            NX_LOG(m_GraphicsDevice->GetDeviceName());
+            m_Camera = new Nexus::FirstPersonCamera(m_GraphicsDevice,
+                GetWindowSize().X,
+                GetWindowSize().Y);
         }
 
         virtual void Update(Nexus::Time time) override
@@ -115,10 +116,20 @@ class Demo : public Nexus::Application
 
             float aspectRatio = (float)GetWindowSize().X / (float)GetWindowSize().Y;
 
-            m_CameraUniforms.ViewProjection = glm::ortho(-aspectRatio, aspectRatio, -1.0f, 1.0f);
-            m_UniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms), 0);
+            m_CameraUniforms.View = m_Camera->GetView();
+            m_CameraUniforms.Projection = m_Camera->GetProjection();           
+            m_CameraUniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms), 0);
 
-            m_GraphicsDevice->Clear( 0.8f, 0.2f, 0.3f, 1.0f );
+            m_RenderInfoUniforms.Transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 2.5f));
+            m_RenderInfoUniforms.Color = m_CubeColor;
+            m_TransformUniformBuffer->SetData(&m_RenderInfoUniforms, sizeof(m_RenderInfoUniforms), 0);
+
+            m_GraphicsDevice->Clear(
+                m_ClearColor.r,
+                m_ClearColor.g,
+                m_ClearColor.b,
+                1.0f
+            );
 
             Nexus::TextureBinding textureBinding;
             textureBinding.Slot = 1;
@@ -126,18 +137,19 @@ class Demo : public Nexus::Application
 
             m_Shader->SetTexture(m_Texture, textureBinding);
             m_GraphicsDevice->SetShader(m_Shader);
-            m_GraphicsDevice->SetVertexBuffer(m_VertexBuffer);
-            m_GraphicsDevice->SetIndexBuffer(m_IndexBuffer);
-            m_GraphicsDevice->DrawIndexed(Nexus::PrimitiveType::Triangle, m_IndexBuffer->GetIndexCount(), 0); 
+            m_GraphicsDevice->SetVertexBuffer(m_SpriteMesh.GetVertexBuffer());
+            m_GraphicsDevice->SetIndexBuffer(m_SpriteMesh.GetIndexBuffer());
+            m_GraphicsDevice->DrawIndexed(Nexus::PrimitiveType::Triangle, m_SpriteMesh.GetIndexBuffer()->GetIndexCount(), 0); 
 
-            ImGui::Begin("Info");
-            
-            std::string width = std::to_string(GetWindowSize().X);
-            std::string height = std::to_string(GetWindowSize().Y);
+            m_Camera->Update(
+                GetWindowSize().X,
+                GetWindowSize().Y,
+                time
+            );
 
-            ImGui::Text(width.c_str());
-            ImGui::Text(height.c_str());
-
+            if (ImGui::Begin("Settings"));
+            ImGui::ColorEdit3("Clear Colour", glm::value_ptr(m_ClearColor));
+            ImGui::ColorEdit3("Cube Colour", glm::value_ptr(m_CubeColor));
             ImGui::End();
         }
 
@@ -153,13 +165,19 @@ class Demo : public Nexus::Application
 
     private:
         Nexus::Ref<Nexus::Shader> m_Shader;
-        Nexus::Ref<Nexus::VertexBuffer> m_VertexBuffer;
-        Nexus::Ref<Nexus::IndexBuffer> m_IndexBuffer;
-        Nexus::Ref<Nexus::UniformBuffer> m_UniformBuffer;
+        Nexus::Ref<Nexus::UniformBuffer> m_CameraUniformBuffer;
+        Nexus::Ref<Nexus::UniformBuffer> m_TransformUniformBuffer;
         Nexus::Ref<Nexus::Texture> m_Texture;
         Nexus::Ref<Nexus::Framebuffer> m_Framebuffer;
+        Nexus::Mesh m_SpriteMesh;
+
+        Nexus::FirstPersonCamera* m_Camera = nullptr;
 
         VB_UNIFORM_CAMERA m_CameraUniforms;
+        VB_UNIFORM_RENDERINFO m_RenderInfoUniforms;
+
+        glm::vec3 m_ClearColor { 0.8f, 0.2f, 0.3f };
+        glm::vec3 m_CubeColor { 1.0f, 1.0f, 1.0f };
 };
 
 int main(int argc, char** argv)

@@ -21,10 +21,10 @@ namespace Nexus
         Orthographic
     };
 
-    class OrthographicCamera
+    class FirstPersonCamera
     {
         public:
-            OrthographicCamera(Nexus::Ref<Nexus::GraphicsDevice> graphicsDevice, int width = 1280, int height = 720, const glm::vec3& position = {0, 0, 0})
+            FirstPersonCamera(Nexus::Ref<Nexus::GraphicsDevice> graphicsDevice, int width = 1280, int height = 720, const glm::vec3& position = {0, 0, 0})
             {
                 this->Resize(width, height);
                 this->m_Position = position;
@@ -96,42 +96,6 @@ namespace Nexus
                 return GetView() * m_Projection;
             }
 
-            void Render()
-            {
-                if (ImGui::Begin("Camera"))
-                {
-                    ImGui::InputFloat3("Position", glm::value_ptr(m_Position));
-
-                    ImGui::InputFloat("Pitch", &m_Pitch);
-                    ImGui::InputFloat("Yaw", &m_Yaw);
-
-                    const char* items[] = { "Perspective", "Orthographic" };
-                    static const char* currentItem = items[0];
-
-                    if (ImGui::BeginCombo("Projection Type", currentItem))
-                    {
-                        for (int i = 0; i < IM_ARRAYSIZE(items); i++)
-                        {
-                            bool isSelected = (currentItem == items[i]);
-                            if (ImGui::Selectable(items[i], isSelected))
-                            {
-                                currentItem = items[i];
-                                m_ProjectionType = (ProjectionType)i;
-                            }
-
-                            if (isSelected)
-                            {
-                                ImGui::SetItemDefaultFocus();
-                            }
-                        }
-
-                        ImGui::EndCombo();
-                    }                
-
-                    ImGui::End();
-                }                
-            }
-
         private:
             void Move(Time time)
             {
@@ -174,11 +138,11 @@ namespace Nexus
 
                     if (m_GraphicsDevice->GetCoordinateSystem() == Nexus::CoordinateSystem::RightHanded)
                     {
-                        m_Pitch += Input::GetMouseMovement().Y;
+                        m_Pitch -= Input::GetMouseMovement().Y;
                     }
                     else
                     {
-                        m_Pitch -= Input::GetMouseMovement().Y;
+                        m_Pitch += Input::GetMouseMovement().Y;
                     }
 
                     m_Pitch = glm::clamp(m_Pitch, 91.0f, 269.0f);

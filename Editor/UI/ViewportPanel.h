@@ -14,7 +14,7 @@ class ViewportPanel : public Panel
             ImGui::Begin("Viewport");
             auto availSize = ImGui::GetContentRegionAvail();
             if (m_Framebuffer->HasColorTexture())
-                ImGui::Image((ImTextureID)m_Framebuffer->GetColorAttachment(), availSize);
+                ImGui::Image((ImTextureID)m_Framebuffer->GetColorAttachment(), availSize, ImVec2(0, 1), ImVec2(1, 0));
 
 
             m_FramebufferRequiresResize = 
