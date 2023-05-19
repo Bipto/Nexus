@@ -12,7 +12,7 @@ class LogPanel : public Panel
             ImGui::Begin("Log");
             for (auto& log : logs)
             {
-                ImGui::Text(log.Message.c_str());
+                ImGui::Text("%s", log.Message.c_str());
                 ImGui::Separator();
             }
             ImGui::End();         

@@ -2,13 +2,13 @@
 
 #include "Core/Graphics/MeshFactory.h"
 
-struct VB_UNIFORM_CAMERA
+struct alignas(16) VB_UNIFORM_CAMERA
 {
     glm::mat4 View;
     glm::mat4 Projection;
 };
 
-struct VB_UNIFORM_RENDERINFO
+struct alignas(16) VB_UNIFORM_RENDERINFO
 {
     glm::mat4 Transform;
     glm::vec3 Color;
@@ -93,10 +93,6 @@ class Demo : public Nexus::Application
 
             Nexus::MeshFactory factory(m_GraphicsDevice);
             m_SpriteMesh = factory.CreateCube();
-
-            m_Camera = new Nexus::FirstPersonCamera(m_GraphicsDevice,
-                GetWindowSize().X,
-                GetWindowSize().Y);
         }
 
         virtual void Update(Nexus::Time time) override
@@ -116,8 +112,8 @@ class Demo : public Nexus::Application
 
             float aspectRatio = (float)GetWindowSize().X / (float)GetWindowSize().Y;
 
-            m_CameraUniforms.View = m_Camera->GetView();
-            m_CameraUniforms.Projection = m_Camera->GetProjection();           
+            m_CameraUniforms.View = m_Camera.GetView();
+            m_CameraUniforms.Projection = m_Camera.GetProjection();           
             m_CameraUniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms), 0);
 
             m_RenderInfoUniforms.Transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 2.5f));
@@ -141,7 +137,7 @@ class Demo : public Nexus::Application
             m_GraphicsDevice->SetIndexBuffer(m_SpriteMesh.GetIndexBuffer());
             m_GraphicsDevice->DrawIndexed(Nexus::PrimitiveType::Triangle, m_SpriteMesh.GetIndexBuffer()->GetIndexCount(), 0); 
 
-            m_Camera->Update(
+            m_Camera.Update(
                 GetWindowSize().X,
                 GetWindowSize().Y,
                 time
@@ -171,7 +167,7 @@ class Demo : public Nexus::Application
         Nexus::Ref<Nexus::Framebuffer> m_Framebuffer;
         Nexus::Mesh m_SpriteMesh;
 
-        Nexus::FirstPersonCamera* m_Camera = nullptr;
+        Nexus::FirstPersonCamera m_Camera;
 
         VB_UNIFORM_CAMERA m_CameraUniforms;
         VB_UNIFORM_RENDERINFO m_RenderInfoUniforms;

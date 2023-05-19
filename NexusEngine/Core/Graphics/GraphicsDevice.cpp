@@ -88,10 +88,6 @@ namespace Nexus
             ss << "Compilation of " << filepath << " took " << totalTime << " milliseconds";
 
             auto shader = this->CreateShaderFromSource(vertResult.Source, fragResult.Source, layout);
-
-            NX_LOG(shader->GetVertexShaderSource());
-            NX_LOG(shader->GetFragmentShaderSource());
-
             return shader;
         }   
         else

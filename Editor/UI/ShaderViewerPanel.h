@@ -11,10 +11,10 @@ class ShaderViewerPanel : public Panel
         {
             ImGui::Begin("Shader Viewer", &m_Enabled);
             ImGui::Text("Vertex Shader");
-            ImGui::Text(m_Shader->GetVertexShaderSource().c_str());
+            ImGui::Text("%s", m_Shader->GetVertexShaderSource().c_str());
             ImGui::Separator();
             ImGui::Text("Fragment Shader");
-            ImGui::Text(m_Shader->GetFragmentShaderSource().c_str());
+            ImGui::Text("%s", m_Shader->GetFragmentShaderSource().c_str());
             ImGui::Separator();        
             ImGui::End();
         }

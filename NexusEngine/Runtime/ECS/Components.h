@@ -20,6 +20,7 @@ namespace Nexus
     class Component
     {
         public:
+            virtual ~Component(){}
             virtual const char* GetName() = 0;
             virtual void RenderUI() = 0;
             virtual nlohmann::json Serialize() = 0;

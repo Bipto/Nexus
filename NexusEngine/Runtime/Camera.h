@@ -24,11 +24,10 @@ namespace Nexus
     class FirstPersonCamera
     {
         public:
-            FirstPersonCamera(Nexus::Ref<Nexus::GraphicsDevice> graphicsDevice, int width = 1280, int height = 720, const glm::vec3& position = {0, 0, 0})
+            FirstPersonCamera(int width = 1280, int height = 720, const glm::vec3& position = {0, 0, 0})
             {
                 this->Resize(width, height);
                 this->m_Position = position;
-                m_GraphicsDevice = graphicsDevice;
             }
 
             void Resize(int width, int height)
@@ -136,15 +135,7 @@ namespace Nexus
                 {
                     m_Yaw += Input::GetMouseMovement().X;
 
-                    if (m_GraphicsDevice->GetCoordinateSystem() == Nexus::CoordinateSystem::RightHanded)
-                    {
-                        m_Pitch -= Input::GetMouseMovement().Y;
-                    }
-                    else
-                    {
-                        m_Pitch += Input::GetMouseMovement().Y;
-                    }
-
+                    m_Pitch -= Input::GetMouseMovement().Y;
                     m_Pitch = glm::clamp(m_Pitch, 91.0f, 269.0f);
 
                     auto cameraDirection = glm::vec3(0.0f);
@@ -198,6 +189,5 @@ namespace Nexus
             int m_Height = 0;
 
             ProjectionType m_ProjectionType = ProjectionType::Perspective;
-            Nexus::Ref<Nexus::GraphicsDevice> m_GraphicsDevice;
     };
 }

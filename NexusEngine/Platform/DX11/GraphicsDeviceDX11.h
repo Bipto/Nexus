@@ -42,7 +42,7 @@ namespace Nexus
             virtual Ref<IndexBuffer> CreateIndexBuffer(const std::vector<unsigned int> indices) override;
             virtual Ref<Texture> CreateTexture(TextureSpecification spec) override;            
             virtual Ref<UniformBuffer> CreateUniformBuffer(const UniformResourceBinding& binding) override;
-            virtual Ref<Framebuffer> CreateFramebuffer(const Nexus::FramebufferSpecification& spec);
+            virtual Ref<Framebuffer> CreateFramebuffer(const Nexus::FramebufferSpecification& spec) override;
 
             virtual void InitialiseImGui() override;
             virtual void BeginImGuiRender() override;
@@ -53,7 +53,7 @@ namespace Nexus
             virtual void SetVSyncState(VSyncState vSyncState) override;
             virtual VSyncState GetVsyncState() override;
 
-            virtual ShaderFormat GetSupportedShaderFormat() { return ShaderFormat::HLSL; }
+            virtual ShaderFormat GetSupportedShaderFormat() override { return ShaderFormat::HLSL; }
 
 
         #if defined(WIN32)

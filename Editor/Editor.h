@@ -99,11 +99,6 @@ class Editor : public Nexus::Application
 
             Nexus::MeshFactory factory = Nexus::MeshFactory(m_GraphicsDevice);
             m_Mesh = factory.CreateCube();
-
-            m_Camera = new Nexus::FirstPersonCamera(m_GraphicsDevice,
-                size.X,
-                size.Y,
-                {0, 0, 0});
         }
 
         void CreatePanels()
@@ -210,9 +205,9 @@ class Editor : public Nexus::Application
                 m_Camera.SetRotation(rotation);
                 m_Camera.SetZoom(zoom); */
 
-                m_Camera->Update(m_ViewportPanel->GetWindowSize().x, m_ViewportPanel->GetWindowSize().y, time);
-                m_CameraUniforms.View = m_Camera->GetView();
-                m_CameraUniforms.Projection = m_Camera->GetProjection();
+                m_Camera.Update(m_ViewportPanel->GetWindowSize().x, m_ViewportPanel->GetWindowSize().y, time);
+                m_CameraUniforms.View = m_Camera.GetView();
+                m_CameraUniforms.Projection = m_Camera.GetProjection();
                 m_CameraUniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms), 0);
             }                            
 
@@ -478,7 +473,7 @@ class Editor : public Nexus::Application
         VB_UNIFORM_RENDERINFO m_RenderInfoUniforms;
         VB_UNIFORM_CAMERA m_CameraUniforms;
 
-        Nexus::FirstPersonCamera* m_Camera = nullptr;
+        Nexus::FirstPersonCamera m_Camera;
         Nexus::Ref<Nexus::Framebuffer> m_Framebuffer;
         Nexus::Ref<Nexus::Project> m_Project;
 

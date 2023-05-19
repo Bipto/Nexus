@@ -87,7 +87,7 @@ namespace Nexus
         ImGui::ColorEdit3("Color", glm::value_ptr(m_Color));
         ImGui::Text("Filepath: ");
         ImGui::SameLine();
-        ImGui::Text(m_Filepath.c_str());
+        ImGui::Text("%s", m_Filepath.c_str());
         if (ImGui::Button("Choose file"))
         {
             std::vector<const char*> filters = { "*.png", "*.jpg" };

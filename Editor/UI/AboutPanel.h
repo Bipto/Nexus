@@ -19,11 +19,11 @@ class AboutPanel : public Panel
                 ImGui::Text("OpenGL Version ");
                 ImGui::SameLine();
             }
-            ImGui::Text(m_GraphicsDevice->GetAPIName());
+            ImGui::Text("%s", m_GraphicsDevice->GetAPIName());
             ImGui::Separator();
 
             ImGui::Text("Graphics Adapter:");
-            ImGui::Text(m_GraphicsDevice->GetDeviceName());
+            ImGui::Text("%s", m_GraphicsDevice->GetDeviceName());
             ImGui::Separator();
             ImGui::End();       
         }
