@@ -1,8 +1,7 @@
 #include "Application.h"
 #include "SDL_opengl.h"
 
-#include <iostream>
-#include <iomanip>
+#include "Core/Logging/Log.h"
 
 namespace Nexus
 {
@@ -10,9 +9,9 @@ namespace Nexus
     {       
         m_Specification = spec;
 
-        if (SDL_Init(SDL_INIT_VIDEO) != 0)
+        if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) != 0)
         {
-            std::cout << "Could not initialize SDL\n";
+            NX_LOG("Could not initialize SDL");
         }
 
         WindowProperties props;
@@ -57,7 +56,13 @@ namespace Nexus
             ImGui_ImplSDL2_InitForD3D(this->m_Window->GetSDLWindowHandle());
         }
 
-        m_GraphicsDevice->InitialiseImGui();       
+        m_GraphicsDevice->InitialiseImGui();      
+
+        int controllerCount = SDL_NumJoysticks();
+        for (int i = 0; i < controllerCount; i++)
+        {
+            m_Window->m_Input->ConnectController(i);
+        }
     }
 
     Application::~Application()

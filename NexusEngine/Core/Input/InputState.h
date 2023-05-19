@@ -1,7 +1,16 @@
 #pragma once
 
 #include "Core/Point.h"
+#include "Core/Logging/Log.h"
+
+#include "SDL.h"
+#include "SDL_gamecontroller.h"
+
 #include <map>
+#include <sstream>
+#include <vector>
+
+const int JOYSTICK_DEAD_ZONE = 8000;
 
 namespace Nexus
 {
@@ -131,6 +140,32 @@ namespace Nexus
         Pressed,
     };
 
+    enum GamepadButton
+    {
+        DpadUp,
+        DpadDown,
+        DpadLeft,
+        DpadRight,
+        A,
+        B,
+        X,
+        Y,
+        Back,
+        Guide,
+        Start,
+        LeftStick,
+        RightStick,
+        LeftShoulder,
+        RightShoulder,
+        Misc,
+        Paddle1,
+        Paddle2,
+        Paddle3,
+        Paddle4,
+        Touchpad,
+        Max
+    };
+
     struct MouseState
     {
         MouseButtonState LeftButton;
@@ -138,6 +173,175 @@ namespace Nexus
         Point MousePosition;
         float MouseWheelX;
         float MouseWheelY;
+    };
+
+    SDL_GameControllerButton GetSDLGamepadButtonFromNexusKeyCode(GamepadButton button);
+
+    struct GamepadState
+    {
+        public:
+            GamepadState(uint32_t index)
+            {
+                if (SDL_IsGameController(index))
+                {
+                    m_GameController = SDL_GameControllerOpen(index);
+                    if (!m_GameController)
+                    {
+                        std::stringstream ss;
+                        ss << "Unable to open game controller: ";
+                        ss << SDL_GetError();
+                        NX_LOG(ss.str());
+                    }
+                    else
+                    {
+                        NX_LOG("Connected controller successfully");
+                    }
+                }
+            }
+            ~GamepadState()
+            {
+                SDL_GameControllerClose(m_GameController);
+            }
+
+            const int GetLeftAxisXNormalized() const
+            {
+                auto axis = SDL_GameControllerGetAxis(m_GameController, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_LEFTX);
+
+                if (axis < -JOYSTICK_DEAD_ZONE)
+                {
+                    return -1;
+                }
+                else if (axis > JOYSTICK_DEAD_ZONE)
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            const int GetLeftAxisYNormalized() const
+            {
+                auto axis = SDL_GameControllerGetAxis(m_GameController, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_LEFTY);
+                if (axis < -JOYSTICK_DEAD_ZONE)
+                {
+                    return -1;
+                }
+                else if (axis > JOYSTICK_DEAD_ZONE)
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            const int GetRightAxisXNormalized() const
+            {
+                auto axis = SDL_GameControllerGetAxis(m_GameController, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_RIGHTX);
+
+                if (axis < -JOYSTICK_DEAD_ZONE)
+                {
+                    return -1;
+                }
+                else if (axis > JOYSTICK_DEAD_ZONE)
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            const int GetRightAxisYNormalized() const
+            {
+                auto axis = SDL_GameControllerGetAxis(m_GameController, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_RIGHTY);
+                if (axis < -JOYSTICK_DEAD_ZONE)
+                {
+                    return -1;
+                }
+                else if (axis > JOYSTICK_DEAD_ZONE)
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            const int GetLeftAxisX() const
+            {
+                auto axis = SDL_GameControllerGetAxis(m_GameController, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_LEFTX);
+
+                if (axis < -JOYSTICK_DEAD_ZONE)
+                {
+                    return -1;
+                }
+                else if (axis > JOYSTICK_DEAD_ZONE)
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            const int GetLeftAxisY() const
+            {
+                auto axis = SDL_GameControllerGetAxis(m_GameController, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_LEFTY);
+                if (axis < -JOYSTICK_DEAD_ZONE)
+                {
+                    return axis;
+                }
+                else if (axis > JOYSTICK_DEAD_ZONE)
+                {
+                    return axis;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            const int GetRightAxisX() const
+            {
+                auto axis = SDL_GameControllerGetAxis(m_GameController, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_RIGHTX);
+
+                if (axis < -JOYSTICK_DEAD_ZONE)
+                {
+                    return axis;
+                }
+                else if (axis > JOYSTICK_DEAD_ZONE)
+                {
+                    return axis;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            const int GetRightAxisY() const
+            {
+                auto axis = SDL_GameControllerGetAxis(m_GameController, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_RIGHTY);
+                if (axis < -JOYSTICK_DEAD_ZONE)
+                {
+                    return axis;
+                }
+                else if (axis > JOYSTICK_DEAD_ZONE)
+                {
+                    return axis;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+
+            const bool IsGamepadButtonPressed(GamepadButton button) const
+            {
+                return (bool)SDL_GameControllerGetButton(m_GameController, GetSDLGamepadButtonFromNexusKeyCode(button));
+            }
+        private:
+            SDL_GameController* m_GameController = nullptr;
     };
 
     class InputState
@@ -221,10 +425,22 @@ namespace Nexus
                 return m_PreviousMouseState;
             }
 
+            void ConnectController(uint32_t index)
+            {
+                GamepadState* gamepadState = new GamepadState(index);
+                m_GamepadStates.push_back(gamepadState);
+            }
+
+            const std::vector<GamepadState*>& GetGamepadStates()
+            {
+                return m_GamepadStates;
+            }
+
         private:
             std::map<KeyCode, bool> m_KeyboardState;
             std::map<KeyCode, bool> m_PreviousKeyState;
             MouseState m_MouseState;
             MouseState m_PreviousMouseState;
+            std::vector<GamepadState*> m_GamepadStates;
     };
 }

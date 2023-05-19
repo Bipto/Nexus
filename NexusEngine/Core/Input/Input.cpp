@@ -74,6 +74,69 @@ namespace Nexus
             Nexus::GetApplication()->GetCoreInputState()->GetPreviousMouseState().MouseWheelY;
     }
 
+    bool Input::IsGamepadConnected()
+    {
+        return Nexus::GetApplication()->GetCoreInputState()->GetGamepadStates().size() > 0;
+    }
+
+    int Input::GetGamepadCount()
+    {
+        return Nexus::GetApplication()->GetCoreInputState()->GetGamepadStates().size();
+    }
+
+    bool Input::IsGamepadKeyHeld(uint32_t index, GamepadButton button)
+    {
+        auto gamepadState = Nexus::GetApplication()->GetCoreInputState()->GetGamepadStates()[index];
+        return gamepadState->IsGamepadButtonPressed(button);
+    }
+
+    int Input::GetGamepadLeftXAxis(uint32_t index)
+    {
+        auto gamepadState = Nexus::GetApplication()->GetCoreInputState()->GetGamepadStates()[index];
+        return gamepadState->GetLeftAxisX();
+    }
+
+    int Input::GetGamepadLeftYAxis(uint32_t index)
+    {
+        auto gamepadState = Nexus::GetApplication()->GetCoreInputState()->GetGamepadStates()[index];
+        return gamepadState->GetLeftAxisY();
+    }
+
+    int Input::GetGamepadRightXAxis(uint32_t index)
+    {
+        auto gamepadState = Nexus::GetApplication()->GetCoreInputState()->GetGamepadStates()[index];
+        return gamepadState->GetRightAxisX();
+    }
+
+    int Input::GetGamepadRightYAxis(uint32_t index)
+    {
+        auto gamepadState = Nexus::GetApplication()->GetCoreInputState()->GetGamepadStates()[index];
+        return gamepadState->GetRightAxisY();    }
+
+    int Input::GetGamepadLeftXAxisNormalized(uint32_t index)
+    {
+        auto gamepadState = Nexus::GetApplication()->GetCoreInputState()->GetGamepadStates()[index];
+        return gamepadState->GetLeftAxisXNormalized();
+    }
+
+    int Input::GetGamepadLeftYAxisNormalized(uint32_t index)
+    {
+        auto gamepadState = Nexus::GetApplication()->GetCoreInputState()->GetGamepadStates()[index];
+        return gamepadState->GetLeftAxisYNormalized();
+    }
+
+    int Input::GetGamepadRightXAxisNormalized(uint32_t index)
+    {
+        auto gamepadState = Nexus::GetApplication()->GetCoreInputState()->GetGamepadStates()[index];
+        return gamepadState->GetRightAxisXNormalized();
+    }
+
+    int Input::GetGamepadRightYAxisNormalized(uint32_t index)
+    {
+        auto gamepadState = Nexus::GetApplication()->GetCoreInputState()->GetGamepadStates()[index];
+        return gamepadState->GetRightAxisYNormalized();
+    }
+
     bool Input::IsKeyPressed(KeyCode code)
     {
         auto keys = Nexus::GetApplication()->GetCoreInputState()->GetKeyboardState();

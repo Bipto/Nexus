@@ -42,12 +42,12 @@ namespace Nexus
             {
                 m_Width = width;
                 m_Height = height; 
-                m_View = glm::lookAt(m_Position, m_Position + m_Front, m_Up);
 
                 //m_Zoom -= Input::GetMouseScrollMovementY() * 5.0f;
                 //m_Zoom = glm::clamp<float>(m_Zoom, 1.0f, 90.0f);
 
                 Move(time);
+                m_View = glm::lookAt(m_Position, m_Position + m_Front, m_Up);
                 Rotate();
                 RecalculateProjection();
             }
@@ -105,46 +105,54 @@ namespace Nexus
                     speed *= 2.0f;
                 }
 
-                if (Input::IsRightMouseHeld())
+                if (Input::IsKeyHeld(KeyCode::W))
                 {
-                    if (Input::IsKeyHeld(KeyCode::W))
-                    {
-                        m_Position += speed * m_Front;
-                    }
-
-                    if (Input::IsKeyHeld(KeyCode::S))
-                    {
-                        m_Position -= speed * m_Front;
-                    }
-
-                    if (Input::IsKeyHeld(KeyCode::A))
-                    {
-                        m_Position -= glm::normalize(glm::cross(m_Front, m_Up)) * speed;
-                    }
-
-                    if (Input::IsKeyHeld(KeyCode::D))
-                    {
-                        m_Position += glm::normalize(glm::cross(m_Front, m_Up)) * speed;
-                    }
+                    m_Position += speed * m_Front;
                 }
+
+                if (Input::IsKeyHeld(KeyCode::S))
+                {
+                    m_Position -= speed * m_Front;
+                }
+
+                if (Input::IsKeyHeld(KeyCode::A))
+                {
+                    m_Position -= glm::normalize(glm::cross(m_Front, m_Up)) * speed;
+                }
+
+                if (Input::IsKeyHeld(KeyCode::D))
+                {
+                    m_Position += glm::normalize(glm::cross(m_Front, m_Up)) * speed;
+                }
+
+                if (Input::IsGamepadConnected())
+                {
+                    m_Position -= speed * m_Front * (Input::GetGamepadLeftYAxis(0) / 10000.0f);
+                    m_Position += glm::normalize(glm::cross(m_Front, m_Up)) * (Input::GetGamepadLeftXAxis(0) / 50.0f);
+                }                
             }
 
             void Rotate()
             {
+                if (Input::IsGamepadConnected())
+                {
+                    m_Yaw += Input::GetGamepadRightXAxis(0) / 10000.0f;
+                    m_Pitch -= Input::GetGamepadRightYAxis(0) / 20000.0f;
+                }                
+
                 if (Input::IsRightMouseHeld())
                 {
                     m_Yaw += Input::GetMouseMovement().X;
-
                     m_Pitch -= Input::GetMouseMovement().Y;
-                    m_Pitch = glm::clamp(m_Pitch, 91.0f, 269.0f);
+                }   
 
-                    auto cameraDirection = glm::vec3(0.0f);
-                    cameraDirection.x = glm::cos(glm::radians(m_Yaw)) * glm::cos(glm::radians(m_Pitch));
-                    cameraDirection.y = glm::sin(glm::radians(-m_Pitch));
-                    cameraDirection.z = glm::sin(glm::radians(m_Yaw)) * glm::cos(glm::radians(m_Pitch));
+                m_Pitch = glm::clamp(m_Pitch, 91.0f, 269.0f);
+                auto cameraDirection = glm::vec3(0.0f);
+                cameraDirection.x = glm::cos(glm::radians(m_Yaw)) * glm::cos(glm::radians(m_Pitch));
+                cameraDirection.y = glm::sin(glm::radians(-m_Pitch));
+                cameraDirection.z = glm::sin(glm::radians(m_Yaw)) * glm::cos(glm::radians(m_Pitch));
 
-                    m_Front = glm::normalize(cameraDirection);
-                }                
+                m_Front = glm::normalize(cameraDirection);           
             }
 
             void RecalculateProjection()

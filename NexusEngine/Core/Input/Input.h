@@ -33,5 +33,24 @@ namespace Nexus
             static bool IsKeyPressed(KeyCode code);
             static bool IsKeyReleased(KeyCode code);
             static bool IsKeyHeld(KeyCode code);
+
+            //-----------------------------------------------------------------------------
+            //                                   Gamepad
+            //-----------------------------------------------------------------------------
+
+            static bool IsGamepadConnected();
+            static int GetGamepadCount();
+
+            static bool IsGamepadKeyHeld(uint32_t index, GamepadButton button);
+
+            static int GetGamepadLeftXAxis(uint32_t index);
+            static int GetGamepadLeftYAxis(uint32_t index);
+            static int GetGamepadRightXAxis(uint32_t index);
+            static int GetGamepadRightYAxis(uint32_t index);
+
+            static int GetGamepadLeftXAxisNormalized(uint32_t index);
+            static int GetGamepadLeftYAxisNormalized(uint32_t index);
+            static int GetGamepadRightXAxisNormalized(uint32_t index);
+            static int GetGamepadRightYAxisNormalized(uint32_t index);
     };
 };

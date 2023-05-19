@@ -276,6 +276,15 @@ class Editor : public Nexus::Application
                 m_GraphicsDevice->SetFramebuffer(nullptr);
                 RenderEditorUI();            
             }
+
+            if (Nexus::Input::IsGamepadConnected())
+            {
+                if (Nexus::Input::IsGamepadKeyHeld(0, Nexus::GamepadButton::Y))
+                {
+                    NX_LOG("Y key held");
+                }
+            }
+            
         }
 
         virtual void OnResize(Nexus::Point size) override
