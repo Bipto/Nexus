@@ -6,51 +6,43 @@ namespace Nexus
 {
     class Input
     {
-        public:
-            //-----------------------------------------------------------------------------
-            //                                    MOUSE
-            //-----------------------------------------------------------------------------
-            static bool IsLeftMousePressed();
-            static bool IsLeftMouseReleased();
-            static bool IsLeftMouseHeld();
+    public:
+        //-----------------------------------------------------------------------------
+        //                                    MOUSE
+        //-----------------------------------------------------------------------------
+        static bool IsLeftMousePressed();
+        static bool IsLeftMouseReleased();
+        static bool IsLeftMouseHeld();
 
-            static bool IsRightMousePressed();
-            static bool IsRightMouseReleased();
-            static bool IsRightMouseHeld();
+        static bool IsRightMousePressed();
+        static bool IsRightMouseReleased();
+        static bool IsRightMouseHeld();
 
-            static Point GetMousePosition();
-            static Point GetMouseMovement();
+        static Point<int> GetMousePosition();
+        static Point<int> GetMouseMovement();
 
-            static float GetMouseScrollX();
-            static float GetMouseScrollMovementX();
+        static float GetMouseScrollX();
+        static float GetMouseScrollMovementX();
 
-            static float GetMouseScrollY();
-            static float GetMouseScrollMovementY();
+        static float GetMouseScrollY();
+        static float GetMouseScrollMovementY();
 
-            //-----------------------------------------------------------------------------
-            //                                  KEYBOARD
-            //-----------------------------------------------------------------------------
-            static bool IsKeyPressed(KeyCode code);
-            static bool IsKeyReleased(KeyCode code);
-            static bool IsKeyHeld(KeyCode code);
+        //-----------------------------------------------------------------------------
+        //                                  KEYBOARD
+        //-----------------------------------------------------------------------------
+        static bool IsKeyPressed(KeyCode code);
+        static bool IsKeyReleased(KeyCode code);
+        static bool IsKeyHeld(KeyCode code);
 
-            //-----------------------------------------------------------------------------
-            //                                   Gamepad
-            //-----------------------------------------------------------------------------
+        //-----------------------------------------------------------------------------
+        //                                   Gamepad
+        //-----------------------------------------------------------------------------
 
-            static bool IsGamepadConnected();
-            static int GetGamepadCount();
+        static bool IsGamepadConnected();
+        static int GetGamepadCount();
 
-            static bool IsGamepadKeyHeld(uint32_t index, GamepadButton button);
-
-            static int GetGamepadLeftXAxis(uint32_t index);
-            static int GetGamepadLeftYAxis(uint32_t index);
-            static int GetGamepadRightXAxis(uint32_t index);
-            static int GetGamepadRightYAxis(uint32_t index);
-
-            static int GetGamepadLeftXAxisNormalized(uint32_t index);
-            static int GetGamepadLeftYAxisNormalized(uint32_t index);
-            static int GetGamepadRightXAxisNormalized(uint32_t index);
-            static int GetGamepadRightYAxisNormalized(uint32_t index);
+        static bool IsGamepadKeyHeld(uint32_t index, GamepadButton button);
+        static Point<float> GetGamepadAxisLeft(uint32_t index);
+        static Point<float> GetGamepadAxisRight(uint32_t index);
     };
 };

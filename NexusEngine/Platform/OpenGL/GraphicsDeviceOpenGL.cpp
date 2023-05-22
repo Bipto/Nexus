@@ -4,40 +4,40 @@
 
 namespace Nexus
 {
-    GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(const GraphicsDeviceCreateInfo& createInfo)
+    GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(const GraphicsDeviceCreateInfo &createInfo)
         : GraphicsDevice(createInfo)
     {
-        // Decide GL+GLSL versions
-        #ifdef __EMSCRIPTEN__
-            // GL ES 2.0 + GLSL 100
-            m_GlslVersion = "#version 100";
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-        #elif defined(__APPLE__)
-            // GL 3.2 Core + GLSL 150
-            m_GlslVersion = "#version 150";
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG); // Always required on Mac
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-        #else
-            // GL 3.0 + GLSL 130
-            m_GlslVersion = "#version 130";
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
-        #endif
+// Decide GL+GLSL versions
+#ifdef __EMSCRIPTEN__
+        // GL ES 2.0 + GLSL 100
+        m_GlslVersion = "#version 100";
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+#elif defined(__APPLE__)
+        // GL 3.2 Core + GLSL 150
+        m_GlslVersion = "#version 150";
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG); // Always required on Mac
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+#else
+        // GL 3.0 + GLSL 130
+        m_GlslVersion = "#version 130";
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
+#endif
 
-            SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-            SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-            SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+        SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+        SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-        #ifndef __EMSCRIPTEN__
-            gladLoadGL();
-        #endif
+#ifndef __EMSCRIPTEN__
+        gladLoadGL();
+#endif
 
         this->m_Context = SDL_GL_CreateContext(this->m_Window->GetSDLWindowHandle());
 
@@ -46,9 +46,9 @@ namespace Nexus
             std::cout << SDL_GetError() << std::endl;
         }
 
-        #ifndef __EMSCRIPTEN__
-            gladLoadGL();
-        #endif
+#ifndef __EMSCRIPTEN__
+        gladLoadGL();
+#endif
 
         glEnable(GL_CULL_FACE);
         glCullFace(GL_FRONT);
@@ -95,7 +95,7 @@ namespace Nexus
 
     void GraphicsDeviceOpenGL::DrawIndexed(PrimitiveType type, uint32_t count, uint32_t offset)
     {
-        glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void*)offset);
+        glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void *)offset);
     }
 
     CoordinateSystem GraphicsDeviceOpenGL::GetCoordinateSystem()
@@ -118,19 +118,19 @@ namespace Nexus
         return m_Viewport;
     }
 
-    const char* GraphicsDeviceOpenGL::GetAPIName()
+    const char *GraphicsDeviceOpenGL::GetAPIName()
     {
-        return (const char*)glGetString(GL_VERSION);
+        return (const char *)glGetString(GL_VERSION);
     }
 
-    const char* GraphicsDeviceOpenGL::GetDeviceName()
+    const char *GraphicsDeviceOpenGL::GetDeviceName()
     {
-        return (const char*)glGetString(GL_RENDERER);
+        return (const char *)glGetString(GL_RENDERER);
     }
 
-    void* GraphicsDeviceOpenGL::GetContext()
+    void *GraphicsDeviceOpenGL::GetContext()
     {
-        return (void*)this->m_Context;
+        return (void *)this->m_Context;
     }
 
     void GraphicsDeviceOpenGL::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer)
@@ -151,7 +151,7 @@ namespace Nexus
         openGLShader->Bind();
     }
 
-    Ref<Shader> GraphicsDeviceOpenGL::CreateShaderFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const VertexBufferLayout& layout)
+    Ref<Shader> GraphicsDeviceOpenGL::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout)
     {
         return CreateRef<ShaderOpenGL>(vertexShaderSource, fragmentShaderSource, layout);
     }
@@ -166,7 +166,7 @@ namespace Nexus
         return CreateRef<IndexBufferOpenGL>(indices);
     }
 
-    Ref<UniformBuffer> GraphicsDeviceOpenGL::CreateUniformBuffer(const UniformResourceBinding& binding)
+    Ref<UniformBuffer> GraphicsDeviceOpenGL::CreateUniformBuffer(const UniformResourceBinding &binding)
     {
         return CreateRef<UniformBufferOpenGL>(binding);
     }
@@ -176,7 +176,7 @@ namespace Nexus
         return CreateRef<TextureOpenGL>(spec);
     }
 
-    Ref<Framebuffer> GraphicsDeviceOpenGL::CreateFramebuffer(const Nexus::FramebufferSpecification& spec)
+    Ref<Framebuffer> GraphicsDeviceOpenGL::CreateFramebuffer(const Nexus::FramebufferSpecification &spec)
     {
         return CreateRef<FramebufferOpenGL>(spec);
     }
@@ -196,7 +196,7 @@ namespace Nexus
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
 
-    void GraphicsDeviceOpenGL::Resize(Point size)
+    void GraphicsDeviceOpenGL::Resize(Point<int> size)
     {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glViewport(0, 0, size.X, size.Y);
@@ -215,7 +215,7 @@ namespace Nexus
         SDL_GL_SetSwapInterval((unsigned int)vSyncState);
         m_VsyncState = vSyncState;
     }
-    
+
     VSyncState GraphicsDeviceOpenGL::GetVsyncState()
     {
         return m_VsyncState;

@@ -5,8 +5,8 @@
 
 namespace Nexus
 {
-    Application::Application(const ApplicationSpecification& spec)
-    {       
+    Application::Application(const ApplicationSpecification &spec)
+    {
         m_Specification = spec;
 
         if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) != 0)
@@ -36,33 +36,28 @@ namespace Nexus
         m_GraphicsDevice->SetVSyncState(spec.VSyncState);
 
         IMGUI_CHECKVERSION();
-        ImGui::CreateContext();            
+        ImGui::CreateContext();
         ImGui::StyleColorsDark();
 
-        ImGuiIO& io = ImGui::GetIO(); (void)io;
+        ImGuiIO &io = ImGui::GetIO();
+        (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; 
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
         if (device->GetGraphicsAPI() == GraphicsAPI::OpenGL)
         {
-            SDL_Window* window = this->m_Window->GetSDLWindowHandle();
+            SDL_Window *window = this->m_Window->GetSDLWindowHandle();
             SDL_GLContext context = (SDL_GLContext)this->m_GraphicsDevice->GetContext();
 
             ImGui_ImplSDL2_InitForOpenGL(window, context);
-        }  
+        }
 
         else if (device->GetGraphicsAPI() == GraphicsAPI::DirectX11)
         {
             ImGui_ImplSDL2_InitForD3D(this->m_Window->GetSDLWindowHandle());
         }
 
-        m_GraphicsDevice->InitialiseImGui();      
-
-        int controllerCount = SDL_NumJoysticks();
-        for (int i = 0; i < controllerCount; i++)
-        {
-            m_Window->m_Input->ConnectController(i);
-        }
+        m_GraphicsDevice->InitialiseImGui();
     }
 
     Application::~Application()
@@ -81,37 +76,37 @@ namespace Nexus
 
         this->m_Window->PollEvents(m_Specification.ImGuiActive);
 
-        //Allow user to block closing events, for example to display save prompt
+        // Allow user to block closing events, for example to display save prompt
         if (m_Window->m_Closing)
             m_Window->m_Closing = this->OnClose();
 
         m_Clock.Tick();
         auto time = m_Clock.GetTime();
         m_UpdateTimer += time.GetMilliseconds();
-        m_RenderTimer += time.GetMilliseconds(); 
+        m_RenderTimer += time.GetMilliseconds();
 
         double timeBetweenUpdates = (1000 / m_Specification.UpdatesPerSecond);
         double timeBetweenRenders = (1000 / m_Specification.RendersPerSecond);
 
         if (m_UpdateTimer > timeBetweenUpdates)
         {
-            this->Update(time);   
+            this->Update(time);
             m_UpdateTimer = 0;
         }
 
-        //if vsync is disabled, check if we should render yet
+        // if vsync is disabled, check if we should render yet
         if (m_GraphicsDevice->GetVsyncState() == Nexus::VSyncState::Disabled)
             if (m_RenderTimer < timeBetweenRenders)
                 return;
 
-        //run render functions
+        // run render functions
         {
             if (m_Specification.ImGuiActive)
             {
                 m_GraphicsDevice->BeginImGuiRender();
                 ImGui_ImplSDL2_NewFrame();
                 ImGui::NewFrame();
-            }           
+            }
 
             this->Render(time);
             m_RenderTimer = 0;
@@ -126,15 +121,15 @@ namespace Nexus
                 m_GraphicsDevice->SetViewport(vp);
 
                 ImGui::Render();
-                ImGui::GetMainViewport()->Size = { (float)this->GetWindowSize().X, (float)this->GetWindowSize().Y };
-                m_GraphicsDevice->EndImGuiRender(); 
-            }            
+                ImGui::GetMainViewport()->Size = {(float)this->GetWindowSize().X, (float)this->GetWindowSize().Y};
+                m_GraphicsDevice->EndImGuiRender();
+            }
 
-            m_GraphicsDevice->SwapBuffers();      
+            m_GraphicsDevice->SwapBuffers();
 
             if (m_Specification.ImGuiActive)
             {
-                //Update and render additional platform windows
+                // Update and render additional platform windows
                 if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
                 {
                     ImGui::UpdatePlatformWindows();
@@ -144,22 +139,22 @@ namespace Nexus
             }
         }
 
-        m_Window->m_Input->CachePreviousInput();        
+        m_Window->m_Input->CachePreviousInput();
     }
 
-    Point Application::GetWindowSize()
+    Point<int> Application::GetWindowSize()
     {
         return this->m_Window->GetWindowSize();
     }
 
-    Point Application::GetWindowPosition()
+    Point<int> Application::GetWindowPosition()
     {
         return this->m_Window->GetWindowPosition();
     }
 
-    Window* Application::CreateApplicationWindow(const WindowProperties& props)
+    Window *Application::CreateApplicationWindow(const WindowProperties &props)
     {
-        Window* window = new Nexus::Window(props);
+        Window *window = new Nexus::Window(props);
         return window;
     }
 }

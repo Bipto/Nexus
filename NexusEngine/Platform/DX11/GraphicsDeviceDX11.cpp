@@ -7,10 +7,10 @@
 
 namespace Nexus
 {
-    GraphicsDeviceDX11::GraphicsDeviceDX11(const GraphicsDeviceCreateInfo& createInfo)
+    GraphicsDeviceDX11::GraphicsDeviceDX11(const GraphicsDeviceCreateInfo &createInfo)
         : GraphicsDevice(createInfo)
     {
-        #if defined(WIN32)
+#if defined(WIN32)
         SDL_SysWMinfo wmInfo;
         SDL_VERSION(&wmInfo.version);
         SDL_GetWindowWMInfo(m_Window->GetSDLWindowHandle(), &wmInfo);
@@ -34,9 +34,9 @@ namespace Nexus
 
         D3D_FEATURE_LEVEL feature_level;
         UINT flags = D3D11_CREATE_DEVICE_SINGLETHREADED;
-        #if defined(DEBUG) | defined(_DEBUG)
+#if defined(DEBUG) | defined(_DEBUG)
         flags |= D3D11_CREATE_DEVICE_DEBUG;
-        #endif
+#endif
 
         HRESULT hr = D3D11CreateDeviceAndSwapChain(
             NULL,
@@ -50,19 +50,16 @@ namespace Nexus
             &m_SwapChainPtr,
             &m_DevicePtr,
             &feature_level,
-            &m_DeviceContextPtr
-        );
+            &m_DeviceContextPtr);
 
-        ID3D11Texture2D* framebuffer;
+        ID3D11Texture2D *framebuffer;
         hr = m_SwapChainPtr->GetBuffer(
             0,
             _uuidof(ID3D11Texture2D),
-            (void**)&framebuffer 
-        );
+            (void **)&framebuffer);
 
         hr = m_DevicePtr->CreateRenderTargetView(
-            framebuffer, 0, &m_RenderTargetViewPtr
-        );
+            framebuffer, 0, &m_RenderTargetViewPtr);
 
         framebuffer->Release();
         m_ActiveRenderTargetviews = {m_RenderTargetViewPtr};
@@ -96,60 +93,58 @@ namespace Nexus
         m_DeviceContextPtr->OMSetRenderTargets(
             1,
             &m_RenderTargetViewPtr,
-            m_SwapchainStencilView
-        );
+            m_SwapchainStencilView);
 
-        IDXGIFactory1* factory;
-        IDXGIAdapter1* adapter;
+        IDXGIFactory1 *factory;
+        IDXGIAdapter1 *adapter;
         CreateDXGIFactory1(IID_PPV_ARGS(&factory));
         factory->EnumAdapters1(0, &adapter);
         DXGI_ADAPTER_DESC1 adapterDesc;
         adapter->GetDesc1(&adapterDesc);
-        std::wstring ws(adapterDesc.Description);      
+        std::wstring ws(adapterDesc.Description);
         m_AdapterName = std::string(ws.begin(), ws.end());
 
-        ID3D11RasterizerState* noCull;
+        ID3D11RasterizerState *noCull;
         D3D11_RASTERIZER_DESC rastDesc;
         ZeroMemory(&rastDesc, sizeof(rastDesc));
         rastDesc.FillMode = D3D11_FILL_SOLID;
         rastDesc.FrontCounterClockwise = true;
         rastDesc.CullMode = D3D11_CULL_BACK;
         m_DevicePtr->CreateRasterizerState(&rastDesc, &noCull);
-        m_DeviceContextPtr->RSSetState(noCull);        
-        #endif
+        m_DeviceContextPtr->RSSetState(noCull);
+#endif
     }
 
     void GraphicsDeviceDX11::SetContext()
     {
-        #if defined(WIN32)
+#if defined(WIN32)
         m_DeviceContextPtr->OMSetRenderTargets(1, &m_RenderTargetViewPtr, NULL);
-        #endif
+#endif
     }
 
     void GraphicsDeviceDX11::Clear(float red, float green, float blue, float alpha)
     {
-        #if defined(WIN32)
+#if defined(WIN32)
 
         for (auto target : m_ActiveRenderTargetviews)
         {
-            float backgroundColor[4] = { red, green, blue, alpha };
+            float backgroundColor[4] = {red, green, blue, alpha};
             m_DeviceContextPtr->ClearRenderTargetView(
-                target, backgroundColor
-            );
+                target, backgroundColor);
         }
 
-        #endif
+#endif
     }
 
     void GraphicsDeviceDX11::SetFramebuffer(Ref<Framebuffer> framebuffer)
     {
-        #if defined(WIN32)
+#if defined(WIN32)
         if (framebuffer)
         {
             Ref<FramebufferDX11> dxFramebuffer = std::dynamic_pointer_cast<FramebufferDX11>(framebuffer);
-    
-            std::vector<ID3D11RenderTargetView*> colorTargets;
-            for (const auto& colorTarget : dxFramebuffer->GetColorRenderTargets())
+
+            std::vector<ID3D11RenderTargetView *> colorTargets;
+            for (const auto &colorTarget : dxFramebuffer->GetColorRenderTargets())
             {
                 colorTargets.push_back(colorTarget.RenderTargetView);
             }
@@ -159,32 +154,31 @@ namespace Nexus
         }
         else
         {
-            m_ActiveRenderTargetviews = { m_RenderTargetViewPtr };
+            m_ActiveRenderTargetviews = {m_RenderTargetViewPtr};
             m_ActiveDepthStencilView = m_SwapchainStencilView;
         }
 
         m_DeviceContextPtr->OMSetRenderTargets(
             m_ActiveRenderTargetviews.size(),
             m_ActiveRenderTargetviews.data(),
-            NULL
-        );
-        #endif
+            NULL);
+#endif
     }
 
     void GraphicsDeviceDX11::DrawElements(PrimitiveType type, uint32_t start, uint32_t count)
     {
-        #if defined(WIN32)
+#if defined(WIN32)
         m_DeviceContextPtr->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         m_DeviceContextPtr->Draw(count, start);
-        #endif
+#endif
     }
 
     void GraphicsDeviceDX11::DrawIndexed(PrimitiveType type, uint32_t count, uint32_t offset)
-    {        
-        #if defined(WIN32)
-        m_DeviceContextPtr->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);       
+    {
+#if defined(WIN32)
+        m_DeviceContextPtr->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         m_DeviceContextPtr->DrawIndexed(count, offset, 0);
-        #endif
+#endif
     }
 
     CoordinateSystem GraphicsDeviceDX11::GetCoordinateSystem()
@@ -196,7 +190,7 @@ namespace Nexus
     {
         m_Viewport = viewport;
 
-        #if defined(WIN32)
+#if defined(WIN32)
         D3D11_VIEWPORT vp;
         vp.Width = (float)viewport.Width;
         vp.Height = (float)viewport.Height;
@@ -205,7 +199,7 @@ namespace Nexus
         vp.TopLeftX = viewport.X;
         vp.TopLeftY = viewport.Y;
         m_DeviceContextPtr->RSSetViewports(1, &vp);
-        #endif
+#endif
     }
 
     const Viewport &GraphicsDeviceDX11::GetViewport()
@@ -213,73 +207,71 @@ namespace Nexus
         return m_Viewport;
     }
 
-    const char* GraphicsDeviceDX11::GetAPIName()
+    const char *GraphicsDeviceDX11::GetAPIName()
     {
         return "DirectX11";
     }
 
-    const char* GraphicsDeviceDX11::GetDeviceName()
+    const char *GraphicsDeviceDX11::GetDeviceName()
     {
-        #if defined(WIN32)
+#if defined(WIN32)
         return m_AdapterName.c_str();
-        #else
+#else
         return "Device";
-        #endif
+#endif
     }
 
-    void* GraphicsDeviceDX11::GetContext()
+    void *GraphicsDeviceDX11::GetContext()
     {
-        #if defined(WIN32)
+#if defined(WIN32)
         return m_DeviceContextPtr;
-        #else
+#else
         return nullptr;
-        #endif
+#endif
     }
 
     void GraphicsDeviceDX11::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer)
     {
-        #if defined(WIN32)
+#if defined(WIN32)
         if (!m_ActiveShader)
         {
             NX_ERROR("No shader is currently bound");
             return;
         }
-        
+
         auto layout = m_ActiveShader->GetLayout();
-        
+
         uint32_t stride = layout.GetStride();
         uint32_t offset = 0;
 
         Ref<VertexBufferDX11> vb = std::dynamic_pointer_cast<VertexBufferDX11>(vertexBuffer);
-        ID3D11Buffer* dx11VertexBuffer = vb->GetNativeHandle();
+        ID3D11Buffer *dx11VertexBuffer = vb->GetNativeHandle();
 
         m_DeviceContextPtr->IASetVertexBuffers(
             0,
             1,
             &dx11VertexBuffer,
             &stride,
-            &offset
-        );
-        #endif
+            &offset);
+#endif
     }
 
     void GraphicsDeviceDX11::SetIndexBuffer(Ref<IndexBuffer> indexBuffer)
     {
-        #if defined(WIN32)
+#if defined(WIN32)
         Ref<IndexBufferDX11> ib = std::dynamic_pointer_cast<IndexBufferDX11>(indexBuffer);
-        ID3D11Buffer* dx11IndexBuffer = ib->GetNativeHandle();
+        ID3D11Buffer *dx11IndexBuffer = ib->GetNativeHandle();
 
         m_DeviceContextPtr->IASetIndexBuffer(
             dx11IndexBuffer,
             DXGI_FORMAT_R32_UINT,
-            0
-        );
-        #endif
+            0);
+#endif
     }
 
     void GraphicsDeviceDX11::SetShader(Ref<Shader> shader)
     {
-        #if defined(WIN32)
+#if defined(WIN32)
 
         Ref<ShaderDX11> dxShader = std::dynamic_pointer_cast<ShaderDX11>(shader);
         m_DeviceContextPtr->VSSetShader(dxShader->GetVertexShader(), 0, 0);
@@ -287,100 +279,99 @@ namespace Nexus
         m_DeviceContextPtr->IASetInputLayout(dxShader->GetInputLayout());
 
         m_ActiveShader = shader;
-        #endif
+#endif
     }
 
-    Ref<Shader> GraphicsDeviceDX11::CreateShaderFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const VertexBufferLayout& layout)
+    Ref<Shader> GraphicsDeviceDX11::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout)
     {
-        #if defined(WIN32)
+#if defined(WIN32)
         return CreateRef<ShaderDX11>(m_DevicePtr, m_DeviceContextPtr, vertexShaderSource, fragmentShaderSource, layout);
-        #else
+#else
         return nullptr;
-        #endif
+#endif
     }
 
     Ref<VertexBuffer> GraphicsDeviceDX11::CreateVertexBuffer(const std::vector<float> vertices)
     {
-        #if defined(WIN32)
+#if defined(WIN32)
         return CreateRef<VertexBufferDX11>(m_DevicePtr, vertices);
-        #else
+#else
         return nullptr;
-        #endif
+#endif
     }
 
     Ref<IndexBuffer> GraphicsDeviceDX11::CreateIndexBuffer(const std::vector<unsigned int> indices)
     {
-        #if defined(WIN32)
+#if defined(WIN32)
         return CreateRef<IndexBufferDX11>(m_DevicePtr, indices);
-        #else
+#else
         return nullptr;
-        #endif
+#endif
     }
 
     Ref<Texture> GraphicsDeviceDX11::CreateTexture(TextureSpecification spec)
     {
-        #if defined(WIN32)
+#if defined(WIN32)
         return CreateRef<TextureDX11>(m_DevicePtr, spec);
-        #else
+#else
         return nullptr;
-        #endif
+#endif
     }
 
-    Ref<UniformBuffer> GraphicsDeviceDX11::CreateUniformBuffer(const UniformResourceBinding& binding)
+    Ref<UniformBuffer> GraphicsDeviceDX11::CreateUniformBuffer(const UniformResourceBinding &binding)
     {
-        #if defined(WIN32)
+#if defined(WIN32)
         return CreateRef<UniformBufferDX11>(
             m_DevicePtr,
             m_DeviceContextPtr,
-            binding
-            );
-        #else
+            binding);
+#else
         return nullptr;
-        #endif
+#endif
     }
 
-    Ref<Framebuffer> GraphicsDeviceDX11::CreateFramebuffer(const Nexus::FramebufferSpecification& spec)
+    Ref<Framebuffer> GraphicsDeviceDX11::CreateFramebuffer(const Nexus::FramebufferSpecification &spec)
     {
-        #if defined(WIN32)
+#if defined(WIN32)
         return CreateRef<FramebufferDX11>(m_DevicePtr, spec);
-        #else
+#else
         return nullptr;
-        #endif
+#endif
     }
 
     void GraphicsDeviceDX11::InitialiseImGui()
     {
-        #if defined(WIN32)
+#if defined(WIN32)
         ImGui_ImplDX11_Init(m_DevicePtr, m_DeviceContextPtr);
-        #endif
+#endif
     }
 
     void GraphicsDeviceDX11::BeginImGuiRender()
     {
-        #if defined(WIN32)
+#if defined(WIN32)
         ImGui_ImplDX11_NewFrame();
-        #endif
+#endif
     }
 
     void GraphicsDeviceDX11::EndImGuiRender()
     {
-        #if defined(WIN32)
+#if defined(WIN32)
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-        #endif
+#endif
     }
 
-    void GraphicsDeviceDX11::Resize(Point size)
+    void GraphicsDeviceDX11::Resize(Point<int> size)
     {
-        #if defined(WIN32)
+#if defined(WIN32)
 
         m_DeviceContextPtr->OMSetRenderTargets(0, 0, 0);
         m_RenderTargetViewPtr->Release();
 
-        HRESULT hr;        
+        HRESULT hr;
         hr = m_SwapChainPtr->ResizeBuffers(0, size.X, size.Y, DXGI_FORMAT_UNKNOWN, 0);
 
-        ID3D11Texture2D* pBuffer;
-        hr = m_SwapChainPtr->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBuffer);
+        ID3D11Texture2D *pBuffer;
+        hr = m_SwapChainPtr->GetBuffer(0, __uuidof(ID3D11Texture2D), (void **)&pBuffer);
         hr = m_DevicePtr->CreateRenderTargetView(pBuffer, NULL, &m_RenderTargetViewPtr);
         pBuffer->Release();
 
@@ -406,38 +397,37 @@ namespace Nexus
         depthStencilDesc.Texture2D.MipSlice = 0;
         hr = m_DevicePtr->CreateDepthStencilView(m_SwapchainDepthTexture, &depthStencilDesc, &m_SwapchainStencilView);
 
-        m_ActiveRenderTargetviews = { m_RenderTargetViewPtr };
+        m_ActiveRenderTargetviews = {m_RenderTargetViewPtr};
         m_ActiveDepthStencilView = m_SwapchainStencilView;
-        
+
         m_DeviceContextPtr->OMSetRenderTargets(
             m_ActiveRenderTargetviews.size(),
             m_ActiveRenderTargetviews.data(),
-            m_ActiveDepthStencilView
-        );
+            m_ActiveDepthStencilView);
 
-        #endif
+#endif
     }
 
     void GraphicsDeviceDX11::SwapBuffers()
     {
-        #if defined(WIN32)
+#if defined(WIN32)
         m_SwapChainPtr->Present(m_VsyncValue, 0);
-        #endif
+#endif
     }
 
     void GraphicsDeviceDX11::SetVSyncState(VSyncState vSyncState)
     {
-        #if defined(WIN32)
-                switch (vSyncState)
-                {
-                    case VSyncState::Enabled:
-                        m_VsyncValue = 1;
-                        break;
-                    default:
-                        m_VsyncValue = 0;
-                        break;
-                }
-        #endif
+#if defined(WIN32)
+        switch (vSyncState)
+        {
+        case VSyncState::Enabled:
+            m_VsyncValue = 1;
+            break;
+        default:
+            m_VsyncValue = 0;
+            break;
+        }
+#endif
 
         m_VsyncState = vSyncState;
     }

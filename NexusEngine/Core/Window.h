@@ -34,31 +34,31 @@ namespace Nexus
 
     class Window
     {
-        public:
-            Window(const WindowProperties& windowProps);
-            Window(const Window&) = delete;
-            ~Window();
+    public:
+        Window(const WindowProperties &windowProps);
+        Window(const Window &) = delete;
+        ~Window();
 
-            void PollEvents(bool imguiActive = false);
+        void PollEvents(bool imguiActive = false);
 
-            void SetResizable(bool isResizable);
-            void SetTitle(const std::string& title);
-            void SetSize(Point size);
+        void SetResizable(bool isResizable);
+        void SetTitle(const std::string &title);
+        void SetSize(Point<int> size);
 
-            void Close() { m_Closing = true; }
-            bool IsClosing() {return this->m_Closing;}
+        void Close() { m_Closing = true; }
+        bool IsClosing() { return this->m_Closing; }
 
-            SDL_Window* GetSDLWindowHandle(){ return this->m_Window; }
-            Point GetWindowSize();
-            Point GetWindowPosition();
+        SDL_Window *GetSDLWindowHandle() { return this->m_Window; }
+        Point<int> GetWindowSize();
+        Point<int> GetWindowPosition();
 
-            InputState* GetInput() { return m_Input; }
+        InputState *GetInput() { return m_Input; }
 
-        private:
-            SDL_Window* m_Window;
-            bool m_Closing = false;
-            bool m_RequiresResize = false;
-            InputState* m_Input;
-            friend class Application;
+    private:
+        SDL_Window *m_Window;
+        bool m_Closing = false;
+        bool m_RequiresResize = false;
+        InputState *m_Input;
+        friend class Application;
     };
 }

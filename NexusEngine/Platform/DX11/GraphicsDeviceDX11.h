@@ -16,62 +16,61 @@ namespace Nexus
 {
     class GraphicsDeviceDX11 : public GraphicsDevice
     {
-        public:
-            GraphicsDeviceDX11(const GraphicsDeviceCreateInfo& createInfo);
-            virtual void SetContext() override;
-            virtual void Clear(float red, float green, float blue, float alpha) override;
-            virtual void SetFramebuffer(Ref<Framebuffer> framebuffer) override;
-            virtual void DrawElements(PrimitiveType type, uint32_t start, uint32_t count) override;
-            virtual void DrawIndexed(PrimitiveType type, uint32_t count, uint32_t offset) override;
+    public:
+        GraphicsDeviceDX11(const GraphicsDeviceCreateInfo &createInfo);
+        virtual void SetContext() override;
+        virtual void Clear(float red, float green, float blue, float alpha) override;
+        virtual void SetFramebuffer(Ref<Framebuffer> framebuffer) override;
+        virtual void DrawElements(PrimitiveType type, uint32_t start, uint32_t count) override;
+        virtual void DrawIndexed(PrimitiveType type, uint32_t count, uint32_t offset) override;
 
-            virtual CoordinateSystem GetCoordinateSystem() override;
+        virtual CoordinateSystem GetCoordinateSystem() override;
 
-            virtual void SetViewport(const Viewport& viewport) override;
-            virtual const Viewport& GetViewport() override;
+        virtual void SetViewport(const Viewport &viewport) override;
+        virtual const Viewport &GetViewport() override;
 
-            virtual const char* GetAPIName() override;
-            virtual const char* GetDeviceName() override;
-            virtual void* GetContext() override;
+        virtual const char *GetAPIName() override;
+        virtual const char *GetDeviceName() override;
+        virtual void *GetContext() override;
 
-            virtual void SetVertexBuffer(Ref<VertexBuffer> vertexBuffer) override;
-            virtual void SetIndexBuffer(Ref<IndexBuffer> indexBuffer) override;
-            virtual void SetShader(Ref<Shader> shader) override;
+        virtual void SetVertexBuffer(Ref<VertexBuffer> vertexBuffer) override;
+        virtual void SetIndexBuffer(Ref<IndexBuffer> indexBuffer) override;
+        virtual void SetShader(Ref<Shader> shader) override;
 
-            virtual Ref<Shader> CreateShaderFromSource(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const VertexBufferLayout& layout) override;            
-            virtual Ref<VertexBuffer> CreateVertexBuffer(const std::vector<float> vertices) override;
-            virtual Ref<IndexBuffer> CreateIndexBuffer(const std::vector<unsigned int> indices) override;
-            virtual Ref<Texture> CreateTexture(TextureSpecification spec) override;            
-            virtual Ref<UniformBuffer> CreateUniformBuffer(const UniformResourceBinding& binding) override;
-            virtual Ref<Framebuffer> CreateFramebuffer(const Nexus::FramebufferSpecification& spec) override;
+        virtual Ref<Shader> CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout) override;
+        virtual Ref<VertexBuffer> CreateVertexBuffer(const std::vector<float> vertices) override;
+        virtual Ref<IndexBuffer> CreateIndexBuffer(const std::vector<unsigned int> indices) override;
+        virtual Ref<Texture> CreateTexture(TextureSpecification spec) override;
+        virtual Ref<UniformBuffer> CreateUniformBuffer(const UniformResourceBinding &binding) override;
+        virtual Ref<Framebuffer> CreateFramebuffer(const Nexus::FramebufferSpecification &spec) override;
 
-            virtual void InitialiseImGui() override;
-            virtual void BeginImGuiRender() override;
-            virtual void EndImGuiRender() override;
+        virtual void InitialiseImGui() override;
+        virtual void BeginImGuiRender() override;
+        virtual void EndImGuiRender() override;
 
-            virtual void Resize(Point size) override;
-            virtual void SwapBuffers() override;
-            virtual void SetVSyncState(VSyncState vSyncState) override;
-            virtual VSyncState GetVsyncState() override;
+        virtual void Resize(Point<int> size) override;
+        virtual void SwapBuffers() override;
+        virtual void SetVSyncState(VSyncState vSyncState) override;
+        virtual VSyncState GetVsyncState() override;
 
-            virtual ShaderFormat GetSupportedShaderFormat() override { return ShaderFormat::HLSL; }
+        virtual ShaderFormat GetSupportedShaderFormat() override { return ShaderFormat::HLSL; }
 
+#if defined(WIN32)
+    private:
+        ID3D11Device *m_DevicePtr = NULL;
+        ID3D11DeviceContext *m_DeviceContextPtr = NULL;
+        IDXGISwapChain *m_SwapChainPtr = NULL;
+        ID3D11RenderTargetView *m_RenderTargetViewPtr = NULL;
+        std::vector<ID3D11RenderTargetView *> m_ActiveRenderTargetviews;
+        ID3D11DepthStencilView *m_ActiveDepthStencilView = NULL;
+        unsigned int m_VsyncValue = 1;
+        bool m_Initialised = false;
+        Ref<Shader> m_ActiveShader = NULL;
+        std::string m_AdapterName;
 
-        #if defined(WIN32)
-        private:
-            ID3D11Device* m_DevicePtr                                       = NULL;
-            ID3D11DeviceContext* m_DeviceContextPtr                         = NULL;
-            IDXGISwapChain* m_SwapChainPtr                                  = NULL;
-            ID3D11RenderTargetView* m_RenderTargetViewPtr                   = NULL;
-            std::vector<ID3D11RenderTargetView*> m_ActiveRenderTargetviews;
-            ID3D11DepthStencilView* m_ActiveDepthStencilView                = NULL;
-            unsigned int m_VsyncValue                                       = 1;
-            bool m_Initialised                                              = false;
-            Ref<Shader> m_ActiveShader                                      = NULL;
-            std::string m_AdapterName;
-
-            ID3D11Texture2D* m_SwapchainDepthTexture = NULL;
-            ID3D11DepthStencilView* m_SwapchainStencilView = NULL;
-        #endif
-            VSyncState m_VsyncState = VSyncState::Enabled;
+        ID3D11Texture2D *m_SwapchainDepthTexture = NULL;
+        ID3D11DepthStencilView *m_SwapchainStencilView = NULL;
+#endif
+        VSyncState m_VsyncState = VSyncState::Enabled;
     };
 }
