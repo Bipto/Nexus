@@ -271,6 +271,16 @@ public:
             m_GraphicsDevice->SetFramebuffer(nullptr);
             RenderEditorUI();
         }
+
+        if (Nexus::Input::WasGamepadKeyPressed(0, Nexus::GamepadButton::A))
+        {
+            NX_LOG("A button pressed");
+        }
+
+        if (Nexus::Input::WasGamepadKeyReleased(0, Nexus::GamepadButton::A))
+        {
+            NX_LOG("A button released");
+        }
     }
 
     virtual void OnResize(Nexus::Point<int> size) override

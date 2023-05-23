@@ -6,7 +6,7 @@
 
 namespace Nexus
 {
-    Gamepad::Gamepad(uint32_t index) : m_LeftStick(0.0f), m_RightStick(0.0f)
+    Gamepad::Gamepad(uint32_t index)
     {
         m_GameController = SDL_GameControllerOpen(index);
         if (!m_GameController)
@@ -19,6 +19,42 @@ namespace Nexus
         else
         {
             NX_LOG("Controller connected successfully");
+
+            // initialize currently pressed keys and previously pressed key maps
+            // this is required because a map is empty when constructed
+            {
+                std::vector<GamepadButton> enumValues =
+                    {
+                        DpadUp,
+                        DpadDown,
+                        DpadLeft,
+                        DpadRight,
+                        A,
+                        B,
+                        X,
+                        Y,
+                        Back,
+                        Guide,
+                        Start,
+                        LeftStick,
+                        RightStick,
+                        LeftShoulder,
+                        RightShoulder,
+                        Misc,
+                        Paddle1,
+                        Paddle2,
+                        Paddle3,
+                        Paddle4,
+                        Touchpad,
+                        Max,
+                    };
+
+                for (auto val : enumValues)
+                {
+                    m_CurrentButtons[val] = false;
+                }
+                m_PreviousButtons = m_CurrentButtons;
+            }
         }
     }
 
@@ -30,10 +66,20 @@ namespace Nexus
 
     void Gamepad::Update()
     {
+        m_PreviousButtons = m_CurrentButtons;
+
         m_LeftStick.X = SDL_GameControllerGetAxis(m_GameController, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_LEFTX);
         m_LeftStick.Y = SDL_GameControllerGetAxis(m_GameController, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_LEFTY);
         m_RightStick.X = SDL_GameControllerGetAxis(m_GameController, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_RIGHTX);
         m_RightStick.Y = SDL_GameControllerGetAxis(m_GameController, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_RIGHTY);
+        m_LeftTrigger = SDL_GameControllerGetAxis(m_GameController, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_TRIGGERLEFT);
+        m_RightTrigger = SDL_GameControllerGetAxis(m_GameController, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
+
+        for (auto &button : m_CurrentButtons)
+        {
+            auto sdlButton = GetSDLGamepadButtonFromNexusKeyCode(button.first);
+            button.second = (bool)SDL_GameControllerGetButton(m_GameController, sdlButton);
+        }
     }
 
     const Point<float> Gamepad::GetLeftStick() const
@@ -102,9 +148,23 @@ namespace Nexus
         return m_RightTrigger / 32767.0f;
     }
 
-    const bool Gamepad::IsGamepadButtonHeld(GamepadButton button) const
+    const bool Gamepad::IsButtonHeld(GamepadButton button) const
     {
-        return (bool)SDL_GameControllerGetButton(m_GameController, GetSDLGamepadButtonFromNexusKeyCode(button));
+        return m_CurrentButtons.at(button);
+    }
+
+    const bool Gamepad::WasButtonPressed(GamepadButton button) const
+    {
+        auto current = m_CurrentButtons.at(button);
+        auto previous = m_PreviousButtons.at(button);
+        return current && !previous;
+    }
+
+    const bool Gamepad::WasButtonReleased(GamepadButton button) const
+    {
+        auto current = m_CurrentButtons.at(button);
+        auto previous = m_PreviousButtons.at(button);
+        return !current && previous;
     }
 
     const int Gamepad::GetDeadzone() const
@@ -115,6 +175,41 @@ namespace Nexus
     void Gamepad::SetDeadzone(const int deadzone)
     {
         m_Deadzone = deadzone;
+    }
+
+    bool Gamepad::HasTouchpad()
+    {
+        return SDL_GameControllerGetNumTouchpads(m_GameController) > 0;
+    }
+
+    bool Gamepad::SupportsRumble()
+    {
+        return SDL_GameControllerHasRumble(m_GameController);
+    }
+
+    bool Gamepad::SupportsRumbleTriggers()
+    {
+        return SDL_GameControllerHasRumbleTriggers(m_GameController);
+    }
+
+    bool Gamepad::SupportsLED()
+    {
+        return SDL_GameControllerHasLED(m_GameController);
+    }
+
+    void Gamepad::Rumble(uint16_t lowFrequency, uint16_t highFrequency, uint32_t milliseconds)
+    {
+        SDL_GameControllerRumble(m_GameController, lowFrequency, highFrequency, milliseconds);
+    }
+
+    void Gamepad::RumbleTriggers(uint16_t left, uint16_t right, uint32_t milliseconds)
+    {
+        SDL_GameControllerRumbleTriggers(m_GameController, left, right, milliseconds);
+    }
+
+    void Gamepad::SetLED(uint8_t red, uint8_t green, uint8_t blue)
+    {
+        SDL_GameControllerSetLED(m_GameController, red, green, blue);
     }
 
     const uint32_t Gamepad::GetControllerIndex()

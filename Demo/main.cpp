@@ -139,11 +139,12 @@ public:
             GetWindowSize().Y,
             time);
 
-        if (ImGui::Begin("Settings"))
-            ;
+        ImGui::Begin("Settings");
         ImGui::ColorEdit3("Clear Colour", glm::value_ptr(m_ClearColor));
         ImGui::ColorEdit3("Cube Colour", glm::value_ptr(m_CubeColor));
         ImGui::End();
+
+        Nexus::Input::GamepadSetLED(0, m_ClearColor.r * 255, m_ClearColor.g * 255, m_ClearColor.b * 255);
     }
 
     virtual void OnResize(Nexus::Point<int> size) override

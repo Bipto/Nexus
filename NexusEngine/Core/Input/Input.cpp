@@ -93,7 +93,23 @@ namespace Nexus
         if (GetGamepadCount() == 0)
             return false;
         auto gamepads = Nexus::GetApplication()->GetCoreInputState()->GetGamepads();
-        return gamepads[index]->IsGamepadButtonHeld(button);
+        return gamepads[index]->IsButtonHeld(button);
+    }
+
+    bool Input::WasGamepadKeyPressed(uint32_t index, GamepadButton button)
+    {
+        if (GetGamepadCount() == 0)
+            return false;
+        auto gamepads = Nexus::GetApplication()->GetCoreInputState()->GetGamepads();
+        return gamepads[index]->WasButtonPressed(button);
+    }
+
+    bool Input::WasGamepadKeyReleased(uint32_t index, GamepadButton button)
+    {
+        if (GetGamepadCount() == 0)
+            return false;
+        auto gamepads = Nexus::GetApplication()->GetCoreInputState()->GetGamepads();
+        return gamepads[index]->WasButtonReleased(button);
     }
 
     Point<float> Input::GetGamepadAxisLeft(uint32_t index)
@@ -114,6 +130,78 @@ namespace Nexus
 
         auto gamepads = Nexus::GetApplication()->GetCoreInputState()->GetGamepads();
         return gamepads[index]->GetRightStick();
+    }
+
+    float Input::GetGamepadLeftTrigger(uint32_t index)
+    {
+        if (GetGamepadCount() == 0)
+            return 0;
+
+        auto gamepads = Nexus::GetApplication()->GetCoreInputState()->GetGamepads();
+        return gamepads[index]->GetLeftTrigger();
+    }
+
+    float Input::GetGamepadRightTrigger(uint32_t index)
+    {
+        if (GetGamepadCount() == 0)
+            return 0;
+
+        auto gamepads = Nexus::GetApplication()->GetCoreInputState()->GetGamepads();
+        return gamepads[index]->GetRightTrigger();
+    }
+
+    bool Input::GamepadSupportsRumble(uint32_t index)
+    {
+        if (GetGamepadCount() == 0)
+            return false;
+
+        auto gamepads = Nexus::GetApplication()->GetCoreInputState()->GetGamepads();
+        return gamepads[index]->SupportsRumble();
+    }
+
+    bool Input::GamepadSupportsRumbleTriggers(uint32_t index)
+    {
+        if (GetGamepadCount() == 0)
+            return false;
+
+        auto gamepads = Nexus::GetApplication()->GetCoreInputState()->GetGamepads();
+        return gamepads[index]->SupportsRumbleTriggers();
+    }
+
+    bool Input::GamepadSupportsLED(uint32_t index)
+    {
+        if (GetGamepadCount() == 0)
+            return false;
+
+        auto gamepads = Nexus::GetApplication()->GetCoreInputState()->GetGamepads();
+        return gamepads[index]->SupportsLED();
+    }
+
+    void Input::GamepadRumble(uint32_t index, uint16_t lowFrequency, uint16_t highFrequency, uint32_t milliseconds)
+    {
+        if (index > GetGamepadCount())
+        {
+            auto gamepads = Nexus::GetApplication()->GetCoreInputState()->GetGamepads();
+            gamepads[index]->Rumble(lowFrequency, highFrequency, milliseconds);
+        }
+    }
+
+    void Input::GamepadRumbleTriggers(uint32_t index, uint16_t left, uint16_t right, uint32_t milliseconds)
+    {
+        if (GetGamepadCount() == 0)
+            return;
+
+        auto gamepads = Nexus::GetApplication()->GetCoreInputState()->GetGamepads();
+        return gamepads[index]->RumbleTriggers(left, right, milliseconds);
+    }
+
+    void Input::GamepadSetLED(uint32_t index, uint8_t red, uint8_t green, uint8_t blue)
+    {
+        if (GetGamepadCount() == 0)
+            return;
+
+        auto gamepads = Nexus::GetApplication()->GetCoreInputState()->GetGamepads();
+        return gamepads[index]->SetLED(red, green, blue);
     }
 
     bool Input::IsKeyPressed(KeyCode code)

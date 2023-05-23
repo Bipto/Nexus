@@ -127,8 +127,8 @@ namespace Nexus
 
             if (Input::IsGamepadConnected())
             {
-                m_Position -= speed * m_Front * (Input::GetGamepadAxisLeft(0).Y);
-                m_Position += glm::normalize(glm::cross(m_Front, m_Up)) * (Input::GetGamepadAxisLeft(0).X / 50.0f);
+                m_Position -= speed * m_Front * (Input::GetGamepadAxisLeft(0).Y * (Input::GetGamepadRightTrigger(0) + 1));
+                m_Position += glm::normalize(glm::cross(m_Front, m_Up)) * (Input::GetGamepadAxisLeft(0).X / 50.0f * (Input::GetGamepadRightTrigger(0) + 1));
             }
         }
 
@@ -137,8 +137,8 @@ namespace Nexus
             if (Input::IsGamepadConnected())
             {
                 auto rightStick = Input::GetGamepadAxisRight(0);
-                m_Yaw += rightStick.X;
-                m_Pitch -= rightStick.Y;
+                m_Yaw += rightStick.X * 2.0f;
+                m_Pitch -= rightStick.Y * 2.0f;
             }
 
             if (Input::IsRightMouseHeld())
@@ -154,12 +154,6 @@ namespace Nexus
             cameraDirection.z = glm::sin(glm::radians(m_Yaw)) * glm::cos(glm::radians(m_Pitch));
 
             m_Front = glm::normalize(cameraDirection);
-
-            std::string s1 = std::to_string(m_Yaw);
-            std::string s2 = std::to_string(m_Pitch);
-
-            NX_LOG(s1);
-            NX_LOG(s2);
         }
 
         void RecalculateProjection()

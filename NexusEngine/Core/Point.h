@@ -15,6 +15,6 @@ namespace Nexus
             : X(x), Y(x) {}
         Point(T x, T y)
             : X(x), Y(y) {}
-        T X, Y = 0;
+        T X = 0, Y = 0;
     };
 }
