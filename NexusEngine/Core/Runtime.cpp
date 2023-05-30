@@ -5,8 +5,8 @@
 #include <vector>
 #include <inttypes.h>
 
-Nexus::Application* appPtr = nullptr;
-Nexus::AssetManager* assetManager = nullptr;
+Nexus::Application *appPtr = nullptr;
+Nexus::AssetManager *assetManager = nullptr;
 
 //-----------------------------------------------------------------------------
 // APPLICATION RUNTIME
@@ -19,23 +19,23 @@ void main_loop()
 
 namespace Nexus
 {
-    void Run(Nexus::Application* app)
+    void Run(Nexus::Application *app)
     {
         appPtr = app;
         assetManager = new AssetManager(app->GetGraphicsDevice());
         appPtr->Load();
 
-        #ifdef __EMSCRIPTEN__
-            emscripten_set_main_loop(main_loop, 0, 1);
-        #else
-            while (!appPtr->ShouldClose())
-                appPtr->MainLoop();
-        #endif
+#ifdef __EMSCRIPTEN__
+        emscripten_set_main_loop(main_loop, 0, 1);
+#else
+        while (!appPtr->ShouldClose())
+            appPtr->MainLoop();
+#endif
 
         app->Unload();
     }
 
-    Application* GetApplication()
+    Application *GetApplication()
     {
         return appPtr;
     }
@@ -46,7 +46,7 @@ namespace Nexus
     }
 
     ComponentRegistry registry;
-    ComponentRegistry& GetComponentRegistry()
+    ComponentRegistry &GetComponentRegistry()
     {
         return registry;
     }
@@ -64,16 +64,15 @@ namespace Nexus
         registry.Bind(new SpriteRendererComponent());
     }
 
-    void Init(int argc, char** argv)
+    void Init(int argc, char **argv)
     {
-        //Py_Initialize();
-        Assimp::Importer importer{};
+        // Py_Initialize();
         BindComponents();
     }
 
     void Shutdown()
     {
         SDL_Quit();
-        //Py_Finalize();
+        // Py_Finalize();
     }
 }

@@ -291,7 +291,7 @@ namespace Nexus
 #endif
     }
 
-    Ref<VertexBuffer> GraphicsDeviceDX11::CreateVertexBuffer(const std::vector<float> vertices)
+    Ref<VertexBuffer> GraphicsDeviceDX11::CreateVertexBuffer(const std::vector<Vertex> vertices)
     {
 #if defined(WIN32)
         return CreateRef<VertexBufferDX11>(m_DevicePtr, vertices);

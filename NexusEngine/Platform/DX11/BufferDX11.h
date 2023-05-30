@@ -10,7 +10,7 @@ namespace Nexus
     class VertexBufferDX11 : public VertexBuffer
     {
         public:
-            VertexBufferDX11(ID3D11Device* device, const std::vector<float>& vertices);
+            VertexBufferDX11(ID3D11Device* device, const std::vector<Vertex>& vertices);
             virtual unsigned int GetVertexCount() override { return m_VertexCount; }
             ID3D11Buffer* GetNativeHandle() { return m_VertexBuffer; }
         private:

@@ -3,14 +3,14 @@
 
 namespace Nexus
 {
-    VertexBufferOpenGL::VertexBufferOpenGL(const std::vector<float>& vertices) 
+    VertexBufferOpenGL::VertexBufferOpenGL(const std::vector<Vertex> &vertices)
         : VertexBuffer(vertices)
     {
         GL::ClearErrors();
 
         glGenBuffers(1, &this->m_VBO);
         glBindBuffer(GL_ARRAY_BUFFER, this->m_VBO);
-        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
 
         GL::CheckErrors();
 
@@ -19,10 +19,10 @@ namespace Nexus
 
     void VertexBufferOpenGL::Bind()
     {
-        glBindBuffer(GL_ARRAY_BUFFER, this->m_VBO);    
+        glBindBuffer(GL_ARRAY_BUFFER, this->m_VBO);
     }
 
-    IndexBufferOpenGL::IndexBufferOpenGL(const std::vector<unsigned int>& indices)
+    IndexBufferOpenGL::IndexBufferOpenGL(const std::vector<unsigned int> &indices)
         : IndexBuffer(indices)
     {
         GL::ClearErrors();
@@ -31,7 +31,7 @@ namespace Nexus
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->m_IBO);
         size_t size = indices.size() * sizeof(unsigned int);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indices.data(), GL_STATIC_DRAW);
-    
+
         GL::CheckErrors();
 
         m_IndexCount = indices.size();
@@ -42,23 +42,23 @@ namespace Nexus
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->m_IBO);
     }
 
-    UniformBufferOpenGL::UniformBufferOpenGL(const UniformResourceBinding& binding)
+    UniformBufferOpenGL::UniformBufferOpenGL(const UniformResourceBinding &binding)
         : UniformBuffer(binding)
     {
         GL::ClearErrors();
 
         m_Binding = binding;
 
-        #ifndef __EMSCRIPTEN__
+#ifndef __EMSCRIPTEN__
         glCreateBuffers(1, &m_UBO);
         glNamedBufferData(m_UBO, m_Binding.Size, nullptr, GL_DYNAMIC_DRAW);
         glBindBufferBase(GL_UNIFORM_BUFFER, m_Binding.Binding, m_UBO);
-        #else
+#else
         glGenBuffers(1, &m_UBO);
         glBindBuffer(GL_UNIFORM_BUFFER, m_UBO);
         glBufferData(GL_UNIFORM_BUFFER, binding.Size, nullptr, GL_DYNAMIC_DRAW);
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
-        #endif     
+#endif
 
         GL::CheckErrors();
     }
@@ -73,13 +73,13 @@ namespace Nexus
     void UniformBufferOpenGL::SetData(const void *data, uint32_t size, uint32_t offset)
     {
         GL::ClearErrors();
-        #ifndef __EMSCRIPTEN__
+#ifndef __EMSCRIPTEN__
         glNamedBufferSubData(m_UBO, offset, size, data);
-        #else
+#else
         glBindBuffer(GL_UNIFORM_BUFFER, m_UBO);
         glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
-        #endif        
+#endif
         GL::CheckErrors();
     }
 

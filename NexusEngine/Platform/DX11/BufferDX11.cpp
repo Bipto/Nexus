@@ -5,14 +5,14 @@
 
 namespace Nexus
 {
-    VertexBufferDX11::VertexBufferDX11(ID3D11Device* device, const std::vector<float>& vertices)
+    VertexBufferDX11::VertexBufferDX11(ID3D11Device *device, const std::vector<Vertex> &vertices)
         : VertexBuffer(vertices)
     {
         D3D11_BUFFER_DESC bd;
         ZeroMemory(&bd, sizeof(bd));
 
         bd.Usage = D3D11_USAGE_DYNAMIC;
-        bd.ByteWidth = vertices.size() * sizeof(float);
+        bd.ByteWidth = vertices.size() * sizeof(Vertex);
         bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
         bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
         bd.MiscFlags = 0;
@@ -33,7 +33,7 @@ namespace Nexus
         m_VertexCount = vertices.size();
     }
 
-    IndexBufferDX11::IndexBufferDX11(ID3D11Device* device, const std::vector<unsigned int>& indices)
+    IndexBufferDX11::IndexBufferDX11(ID3D11Device *device, const std::vector<unsigned int> &indices)
         : IndexBuffer(indices)
     {
         D3D11_BUFFER_DESC bd;
@@ -61,7 +61,7 @@ namespace Nexus
         m_IndexCount = indices.size();
     }
 
-    UniformBufferDX11::UniformBufferDX11(ID3D11Device* device, ID3D11DeviceContext* context, const UniformResourceBinding& binding)
+    UniformBufferDX11::UniformBufferDX11(ID3D11Device *device, ID3D11DeviceContext *context, const UniformResourceBinding &binding)
         : UniformBuffer(binding)
     {
         D3D11_BUFFER_DESC bd;
@@ -99,8 +99,7 @@ namespace Nexus
         m_DeviceContext->VSSetConstantBuffers(
             m_Binding,
             1,
-            &m_ConstantBuffer
-        );
+            &m_ConstantBuffer);
     }
 }
 

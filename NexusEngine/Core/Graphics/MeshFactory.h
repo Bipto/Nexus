@@ -8,16 +8,17 @@ namespace Nexus
 {
     class MeshFactory
     {
-        public:
-            explicit MeshFactory(Ref<GraphicsDevice> device)
-            {
-                m_Device = device;
-            }
+    public:
+        explicit MeshFactory(Ref<GraphicsDevice> device)
+        {
+            m_Device = device;
+        }
 
-            Mesh CreateCube();
-            Mesh CreateSprite();
+        Mesh CreateCube();
+        Mesh CreateSprite();
+        Mesh CreateFromFile(const std::string& filepath);
 
-        private:
-            Ref<GraphicsDevice> m_Device = nullptr;
+    private:
+        Ref<GraphicsDevice> m_Device = nullptr;
     };
 }

@@ -97,7 +97,7 @@ namespace Nexus
         virtual void SetShader(Ref<Shader> shader) = 0;
 
         virtual Ref<Shader> CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout) = 0;
-        virtual Ref<VertexBuffer> CreateVertexBuffer(const std::vector<float> vertices) = 0;
+        virtual Ref<VertexBuffer> CreateVertexBuffer(const std::vector<Vertex> vertices) = 0;
         virtual Ref<IndexBuffer> CreateIndexBuffer(const std::vector<unsigned int> indices) = 0;
         virtual Ref<UniformBuffer> CreateUniformBuffer(const UniformResourceBinding &binding) = 0;
 

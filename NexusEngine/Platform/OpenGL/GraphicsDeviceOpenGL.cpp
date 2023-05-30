@@ -156,7 +156,7 @@ namespace Nexus
         return CreateRef<ShaderOpenGL>(vertexShaderSource, fragmentShaderSource, layout);
     }
 
-    Ref<VertexBuffer> GraphicsDeviceOpenGL::CreateVertexBuffer(const std::vector<float> vertices)
+    Ref<VertexBuffer> GraphicsDeviceOpenGL::CreateVertexBuffer(const std::vector<Vertex> vertices)
     {
         return CreateRef<VertexBufferOpenGL>(vertices);
     }

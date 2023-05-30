@@ -3,14 +3,14 @@
 #include "nxpch.h"
 #include "SDL.h"
 
-extern "C" 
+extern "C"
 {
-	#include <lua.h>
-	#include <lauxlib.h>
-	#include <lualib.h>
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
 }
 
-//#include <Python.h>
+// #include <Python.h>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -23,15 +23,13 @@ extern "C"
 #include "Runtime/ECS/ComponentRegistry.h"
 #include "Core/AssetManager.h"
 
-#include "assimp/Importer.hpp"
-
 //-----------------------------------------------------------------------------
 // CORE ENGINE FUNCTIONS
 //-----------------------------------------------------------------------------
 
 namespace Nexus
 {
-    void Init(int argc = 0, char** argv = nullptr);
+    void Init(int argc = 0, char **argv = nullptr);
     void Shutdown();
 }
 
@@ -43,8 +41,8 @@ void main_loop();
 
 namespace Nexus
 {
-    void Run(Nexus::Application* app);
-    Application* GetApplication();
-    AssetManager* GetAssetManager();
-    ComponentRegistry& GetComponentRegistry();
+    void Run(Nexus::Application *app);
+    Application *GetApplication();
+    AssetManager *GetAssetManager();
+    ComponentRegistry &GetComponentRegistry();
 }

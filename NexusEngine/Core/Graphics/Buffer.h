@@ -10,7 +10,7 @@ namespace Nexus
     class VertexBuffer
     {
         public:
-            VertexBuffer(const std::vector<float>& vertices){}
+            VertexBuffer(const std::vector<Vertex>& vertices){}
             virtual ~VertexBuffer(){}
             virtual unsigned int GetVertexCount() = 0;
     };
