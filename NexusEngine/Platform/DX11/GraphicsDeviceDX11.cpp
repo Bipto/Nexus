@@ -181,11 +181,6 @@ namespace Nexus
 #endif
     }
 
-    CoordinateSystem GraphicsDeviceDX11::GetCoordinateSystem()
-    {
-        return CoordinateSystem::LeftHanded;
-    }
-
     void GraphicsDeviceDX11::SetViewport(const Viewport &viewport)
     {
         m_Viewport = viewport;

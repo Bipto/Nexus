@@ -12,12 +12,6 @@
 
 namespace Nexus
 {
-    enum CoordinateSystem
-    {
-        LeftHanded,
-        RightHanded
-    };
-
     enum class GraphicsAPI
     {
         None,
@@ -78,8 +72,6 @@ namespace Nexus
         virtual void DrawIndexed(PrimitiveType type, uint32_t count, uint32_t offset) = 0;
         virtual const char *GetAPIName() = 0;
         virtual const char *GetDeviceName() = 0;
-
-        virtual CoordinateSystem GetCoordinateSystem() = 0;
 
         virtual void SetViewport(const Viewport &viewport) = 0;
         virtual const Viewport &GetViewport() = 0;
