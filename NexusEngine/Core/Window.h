@@ -15,6 +15,8 @@
 
 #include "backends/imgui_impl_sdl2.h"
 
+#include "Graphics/GraphicsAPI.h"
+
 namespace Nexus
 {
     enum WindowState
@@ -30,6 +32,7 @@ namespace Nexus
         int Width = 1280;
         int Height = 720;
         bool Resizable = true;
+        GraphicsAPI API;
     };
 
     class Window

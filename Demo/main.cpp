@@ -57,7 +57,7 @@ public:
 
     virtual void Load() override
     {
-        Nexus::VertexBufferLayout layout =
+        /* Nexus::VertexBufferLayout layout =
             {
                 {Nexus::ShaderDataType::Float3, "TEXCOORD", 0},
                 {Nexus::ShaderDataType::Float2, "TEXCOORD", 1}};
@@ -91,7 +91,7 @@ public:
         m_TransformUniformBuffer->BindToShader(m_Shader);
 
         Nexus::MeshFactory factory(m_GraphicsDevice);
-        m_SpriteMesh = factory.CreateCube();
+        m_SpriteMesh = factory.CreateCube(); */
     }
 
     virtual void Update(Nexus::Time time) override
@@ -100,7 +100,7 @@ public:
 
     virtual void Render(Nexus::Time time) override
     {
-        m_GraphicsDevice->SetFramebuffer(nullptr);
+        /* m_GraphicsDevice->SetFramebuffer(nullptr);
         Nexus::Viewport vp;
         vp.X = 0;
         vp.Y = 0;
@@ -144,12 +144,31 @@ public:
         ImGui::ColorEdit3("Cube Colour", glm::value_ptr(m_CubeColor));
         ImGui::End();
 
-        Nexus::Input::GamepadSetLED(0, m_ClearColor.r * 255, m_ClearColor.g * 255, m_ClearColor.b * 255);
+        Nexus::Input::GamepadSetLED(0, m_ClearColor.r * 255, m_ClearColor.g * 255, m_ClearColor.b * 255); */
+
+        Nexus::Ref<Nexus::GraphicsDeviceVk> vk = std::dynamic_pointer_cast<Nexus::GraphicsDeviceVk>(m_GraphicsDevice);
+
+        vk->AcquireNextImage();
+        vk->ResetCommandBuffer();
+
+        vk->BeginCommandBuffer();
+        {
+            VkClearColorValue clear_color = {1.0f, 0.0f, 0.0f, 1.0f};
+            VkClearDepthStencilValue clear_depth_stencil = {1.0f, 0};
+            vk->BeginRenderPass(clear_color, clear_depth_stencil);
+            {
+            }
+            vk->EndRenderPass();
+        }
+        vk->EndCommandBuffer();
+
+        vk->QueueSubmit();
+        vk->QueuePresent();
     }
 
     virtual void OnResize(Nexus::Point<int> size) override
     {
-        m_GraphicsDevice->Resize(size);
+        // m_GraphicsDevice->Resize(size);
     }
 
     virtual void Unload() override
@@ -176,22 +195,11 @@ private:
 int main(int argc, char **argv)
 {
     Nexus::ApplicationSpecification spec;
-    spec.API = Nexus::GraphicsAPI::OpenGL;
-    spec.ImGuiActive = true;
+    spec.API = Nexus::GraphicsAPI::Vulkan;
+    spec.ImGuiActive = false;
     spec.VSyncState = Nexus::VSyncState::Enabled;
-    spec.UpdatesPerSecond = 1;
-    spec.RendersPerSecond = 30;
-
-    std::vector<std::string> arguments;
-    for (int i = 0; i < argc; i++)
-    {
-        std::string argument = std::string(argv[i]);
-        arguments.push_back(argument);
-    }
-
-    if (arguments.size() > 1)
-        if (arguments[1] == std::string("DX"))
-            spec.API = Nexus::GraphicsAPI::DirectX11;
+    spec.UpdatesPerSecond = 60;
+    spec.RendersPerSecond = 60;
 
     Nexus::Init(argc, argv);
 

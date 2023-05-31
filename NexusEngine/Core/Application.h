@@ -6,6 +6,7 @@
 #include "Graphics/GraphicsDevice.h"
 #include "Platform/OpenGL/GraphicsDeviceOpenGL.h"
 #include "Platform/DX11/GraphicsDeviceDX11.h"
+#include "Platform/Vulkan/GraphicsDeviceVk.h"
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -55,8 +56,12 @@ namespace Nexus
         {
         case GraphicsAPI::DirectX11:
             return CreateRef<GraphicsDeviceDX11>(createInfo);
-        default:
+        case GraphicsAPI::OpenGL:
             return CreateRef<GraphicsDeviceOpenGL>(createInfo);
+        case GraphicsAPI::Vulkan:
+            return CreateRef<GraphicsDeviceVk>(createInfo);
+        default:
+            throw std::runtime_error("Invalid GraphicsAPI selected");
         }
     }
 

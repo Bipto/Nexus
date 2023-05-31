@@ -236,12 +236,24 @@ namespace Nexus
     Window::Window(const WindowProperties &windowProps)
     {
         // NOTE: Resizable flag MUST be set in order for Emscripten resizing to work correctly
+        int flags = 0; // SDL_WINDOW_RESIZABLE;
+
+        switch (windowProps.API)
+        {
+        case GraphicsAPI::OpenGL:
+            flags |= SDL_WINDOW_OPENGL;
+            break;
+        case GraphicsAPI::Vulkan:
+            flags |= SDL_WINDOW_VULKAN;
+            break;
+        }
+
         this->m_Window = SDL_CreateWindow(windowProps.Title.c_str(),
                                           SDL_WINDOWPOS_UNDEFINED,
                                           SDL_WINDOWPOS_UNDEFINED,
                                           windowProps.Width,
                                           windowProps.Height,
-                                          SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+                                          flags);
         m_Input = new InputState();
     }
 

@@ -9,16 +9,10 @@
 #include "Framebuffer.h"
 #include "Core/Graphics/ShaderGenerator.h"
 #include "Viewport.h"
+#include "GraphicsAPI.h"
 
 namespace Nexus
 {
-    enum class GraphicsAPI
-    {
-        None,
-        OpenGL,
-        DirectX11
-    };
-
     enum class VSyncState
     {
         Disabled = 0,

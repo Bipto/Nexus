@@ -60,6 +60,11 @@ endif()
 find_package(OpenGL REQUIRED)
 target_link_libraries(NexusEngine PUBLIC ${OPENGL_LIBRARIES})
 
+#including Vulkan
+find_package(Vulkan REQUIRED)
+target_include_directories(NexusEngine PUBLIC ${VULKAN_INCLUDE_DIRS})
+target_link_libraries(NexusEngine PUBLIC Vulkan::Vulkan)
+
 #precompiled header
 target_precompile_headers(NexusEngine PUBLIC Core/nxpch.h)
 
