@@ -2,6 +2,8 @@
 
 #include "Core/Graphics/MeshFactory.h"
 
+#include "shaderc/shaderc.hpp"
+
 struct alignas(16) VB_UNIFORM_CAMERA
 {
     glm::mat4 View;
@@ -157,6 +159,7 @@ public:
             VkClearDepthStencilValue clear_depth_stencil = {1.0f, 0};
             vk->BeginRenderPass(clear_color, clear_depth_stencil);
             {
+                vk->DrawWithPipeline();
             }
             vk->EndRenderPass();
         }

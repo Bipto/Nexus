@@ -1,10 +1,50 @@
 #pragma once
 
 #include "Core/Graphics/GraphicsDevice.h"
+
 #include "vulkan/vulkan.h"
+
+#include <array>
 
 namespace Nexus
 {
+    struct VulkanVertex
+    {
+        glm::vec2 pos;
+        glm::vec3 color;
+
+        static VkVertexInputBindingDescription GetBindingDescription()
+        {
+            VkVertexInputBindingDescription bindingDescription{};
+            bindingDescription.binding = 0;
+            bindingDescription.stride = sizeof(VulkanVertex);
+            bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+            return bindingDescription;
+        }
+
+        static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions()
+        {
+            std::vector<VkVertexInputAttributeDescription> attributeDescriptions(2);
+
+            attributeDescriptions[0].binding = 0;
+            attributeDescriptions[0].location = 0;
+            attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+            attributeDescriptions[0].offset = offsetof(VulkanVertex, pos);
+
+            attributeDescriptions[1].binding = 0;
+            attributeDescriptions[1].location = 1;
+            attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+            attributeDescriptions[1].offset = offsetof(VulkanVertex, color);
+
+            return attributeDescriptions;
+        }
+    };
+
+    const std::vector<VulkanVertex> vertices = {
+        {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+        {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+        {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
+
     class GraphicsDeviceVk : public GraphicsDevice
     {
     public:
@@ -44,7 +84,7 @@ namespace Nexus
         virtual void SetVSyncState(VSyncState vSyncState) override;
         virtual VSyncState GetVsyncState() override;
 
-        virtual ShaderFormat GetSupportedShaderFormat() override { return ShaderFormat::GLSL; }
+        virtual ShaderFormat GetSupportedShaderFormat() override { return ShaderFormat::SPIRV; }
 
     public:
         void AcquireNextImage();
@@ -58,6 +98,7 @@ namespace Nexus
         void QueuePresent();
         void SetViewport(int width, int height);
         void SetScissor(int width, int height);
+        void DrawWithPipeline();
 
     private:
         void CreateInstance();
@@ -78,12 +119,16 @@ namespace Nexus
         void CreateSemaphores();
         void CreateFences();
 
+        void InitPipelines();
+        void InitBuffers();
+
     private:
         VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
         VkBool32 GetSupportedDepthFormat(VkPhysicalDevice physicalDevice, VkFormat *depthFormat);
         uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
         void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory);
         void CreateSemaphore(VkSemaphore *semaphore);
+        VkShaderModule CreateShaderModule(const std::vector<uint32_t> &spirv_buffer, bool *successful);
 
     private:
         VkInstance m_Instance;
@@ -128,5 +173,14 @@ namespace Nexus
         VkSemaphore m_ImageAvailableSemaphore;
         VkSemaphore m_RenderingFinishedSemaphore;
         std::vector<VkFence> m_Fences;
+
+        // pipeline
+        VkShaderModule m_VertexShader;
+        VkShaderModule m_FragmentShader;
+        VkPipelineLayout m_TrianglePipelineLayout;
+        VkPipeline m_TrianglePipeline;
+
+        VkBuffer m_VertexBuffer;
+        VkDeviceMemory m_VertexBufferMemory;
     };
 }

@@ -14,10 +14,10 @@ namespace Nexus
     {
         switch (type)
         {
-            case ShaderType::Vertex:
-                return shaderc_glsl_vertex_shader;
-            case ShaderType::Fragment:
-                return shaderc_glsl_fragment_shader;
+        case ShaderType::Vertex:
+            return shaderc_glsl_vertex_shader;
+        case ShaderType::Fragment:
+            return shaderc_glsl_fragment_shader;
         }
     }
 
@@ -29,7 +29,7 @@ namespace Nexus
         output.Error = {};
         output.OutputFormat = options.OutputFormat;
 
-        //compile to SPIR-V
+        // compile to SPIR-V
         shaderc::Compiler compiler;
         auto shaderType = GetTypeOfShader(options.Type);
         shaderc::CompilationResult result = compiler.CompileGlslToSpv(source, shaderType, options.ShaderName.c_str());
@@ -41,62 +41,68 @@ namespace Nexus
         }
 
         std::vector<uint32_t> spirv_binary = {result.begin(), result.end()};
+        output.SpirvBuffer = spirv_binary;
 
-        //compile to shader language
+        // compile to shader language
         switch (options.OutputFormat)
         {
-            case ShaderFormat::GLSL:
-            {
-                spirv_cross::CompilerGLSL glsl(spirv_binary);
-                spirv_cross::CompilerGLSL::Options glOptions;
-                glOptions.version = 330;
-                glOptions.es = false;
-                glsl.set_common_options(glOptions);
-                output.Source = glsl.compile();
-                break;
-            }
-            case ShaderFormat::GLSLES:
-            {
-                spirv_cross::CompilerGLSL glsl(spirv_binary);
-                spirv_cross::CompilerGLSL::Options glOptions;
-                glOptions.version = 300;
-                glOptions.es = true;
-                glsl.set_common_options(glOptions);
-                output.Source = glsl.compile();
-                break;
-            }
-            case ShaderFormat::HLSL:
-            {
-                spirv_cross::CompilerHLSL hlsl(spirv_binary);
+        case ShaderFormat::GLSL:
+        {
+            spirv_cross::CompilerGLSL glsl(spirv_binary);
+            spirv_cross::CompilerGLSL::Options glOptions;
+            glOptions.version = 330;
+            glOptions.es = false;
+            glsl.set_common_options(glOptions);
+            output.Source = glsl.compile();
+            break;
+        }
+        case ShaderFormat::GLSLES:
+        {
+            spirv_cross::CompilerGLSL glsl(spirv_binary);
+            spirv_cross::CompilerGLSL::Options glOptions;
+            glOptions.version = 300;
+            glOptions.es = true;
+            glsl.set_common_options(glOptions);
+            output.Source = glsl.compile();
+            break;
+        }
+        case ShaderFormat::HLSL:
+        {
+            spirv_cross::CompilerHLSL hlsl(spirv_binary);
 
-                if (options.Type == ShaderType::Vertex)
-                {
-                    hlsl.rename_entry_point("main", "vs_main", spv::ExecutionModel::ExecutionModelVertex);
-                }
-                else if (options.Type == ShaderType::Fragment)
-                {
-                    hlsl.rename_entry_point("main", "ps_main", spv::ExecutionModel::ExecutionModelFragment);
-                }
-                else
-                {
-                    NX_ERROR("Unsupported shader type");
-                }
-
-                spirv_cross::CompilerGLSL::Options glOptions;
-                glOptions.version = 330;
-                glOptions.es = false;
-                hlsl.set_common_options(glOptions);
-
-                spirv_cross::CompilerHLSL::Options hlslOptions;
-                //allow the main method to be renamed
-                hlslOptions.use_entry_point_name = true;
-                //modern HLSL
-                hlslOptions.shader_model = 50;
-                hlsl.set_hlsl_options(hlslOptions);
-                
-                output.Source = hlsl.compile();
-                break;
+            if (options.Type == ShaderType::Vertex)
+            {
+                hlsl.rename_entry_point("main", "vs_main", spv::ExecutionModel::ExecutionModelVertex);
             }
+            else if (options.Type == ShaderType::Fragment)
+            {
+                hlsl.rename_entry_point("main", "ps_main", spv::ExecutionModel::ExecutionModelFragment);
+            }
+            else
+            {
+                NX_ERROR("Unsupported shader type");
+            }
+
+            spirv_cross::CompilerGLSL::Options glOptions;
+            glOptions.version = 330;
+            glOptions.es = false;
+            hlsl.set_common_options(glOptions);
+
+            spirv_cross::CompilerHLSL::Options hlslOptions;
+            // allow the main method to be renamed
+            hlslOptions.use_entry_point_name = true;
+            // modern HLSL
+            hlslOptions.shader_model = 50;
+            hlsl.set_hlsl_options(hlslOptions);
+
+            output.Source = hlsl.compile();
+            break;
+        }
+        case ShaderFormat::SPIRV:
+        {
+            output.Source = source;
+            break;
+        }
         }
 
         output.Successful = true;

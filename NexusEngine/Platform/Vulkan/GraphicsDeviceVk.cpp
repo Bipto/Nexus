@@ -2,6 +2,10 @@
 
 #include "SDL_vulkan.h"
 
+#include "shaderc/shaderc.hpp"
+
+#include "PipelineBuilder.h"
+
 #include <set>
 
 namespace Nexus
@@ -26,6 +30,9 @@ namespace Nexus
         CreateCommandBuffer();
         CreateSemaphores();
         CreateFences();
+
+        InitPipelines();
+        InitBuffers();
     }
 
     GraphicsDeviceVk::~GraphicsDeviceVk()
@@ -272,9 +279,24 @@ namespace Nexus
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
     }
 
+    void GraphicsDeviceVk::DrawWithPipeline()
+    {
+        /* vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_TrianglePipeline);
+        vkCmdDraw(commandBuffer, 3, 1, 0, 0); */
+
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_TrianglePipeline);
+
+        VkBuffer vertexBuffers[] = {m_VertexBuffer};
+        VkDeviceSize offsets[] = {0};
+        vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
+        vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+    }
+
     const std::vector<const char *> validationLayers =
         {
-            "VK_LAYER_KHRONOS_validation"};
+            "VK_LAYER_KHRONOS_validation",
+    };
 
     void GraphicsDeviceVk::CreateInstance()
     {
@@ -666,6 +688,181 @@ namespace Nexus
                 throw std::runtime_error("Failed to create fence");
             }
         }
+    }
+
+    struct ShaderSources
+    {
+        std::string VertexSource;
+        std::string FragmentSource;
+    };
+
+    ShaderSources ReadShaderFile(const std::string filepath)
+    {
+        std::ifstream stream(filepath);
+
+        std::string line;
+        std::stringstream ss[2];
+        ShaderType type = ShaderType::None;
+
+        while (getline(stream, line))
+        {
+            if (line.find("#shader") != std::string::npos)
+            {
+                if (line.find("vertex") != std::string::npos)
+                    type = ShaderType::Vertex;
+                else if (line.find("fragment") != std::string::npos)
+                    type = ShaderType::Fragment;
+            }
+            else
+            {
+                ss[(int)type] << line << "\n";
+            }
+        }
+
+        ShaderSources source;
+        source.VertexSource = ss[0].str();
+        source.FragmentSource = ss[1].str();
+        return source;
+    }
+
+    void GraphicsDeviceVk::InitPipelines()
+    {
+        PipelineBuilder pipelineBuilder;
+        VkPipelineLayoutCreateInfo pipeline_layout_info = pipelineBuilder.PipelineLayoutCreateInfo();
+        if (vkCreatePipelineLayout(m_Device, &pipeline_layout_info, nullptr, &m_TrianglePipelineLayout) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to create pipeline layout");
+        }
+
+        auto sources = ReadShaderFile("vulkan_shader.glsl");
+        shaderc::Compiler compiler;
+
+        // vertex shader
+        {
+            shaderc::CompileOptions options;
+            options.SetTargetSpirv(shaderc_spirv_version_1_1);
+            shaderc::CompilationResult result = compiler.CompileGlslToSpv(sources.VertexSource, shaderc_shader_kind::shaderc_glsl_vertex_shader, "Test");
+
+            if (result.GetCompilationStatus() != shaderc_compilation_status_success)
+            {
+                std::cout << result.GetErrorMessage();
+            }
+
+            std::vector<uint32_t> spirv_binary = {result.begin(), result.end()};
+
+            bool success;
+            m_VertexShader = CreateShaderModule(spirv_binary, &success);
+
+            if (!success)
+            {
+                throw std::runtime_error("Failed to create vertex shader module");
+            }
+
+            pipelineBuilder.ShaderStages.push_back(
+                pipelineBuilder.PipelineShaderStageCreateInfo(VK_SHADER_STAGE_VERTEX_BIT, m_VertexShader));
+        }
+
+        // fragment shader
+        {
+            shaderc::CompileOptions options;
+            options.SetTargetSpirv(shaderc_spirv_version_1_1);
+            shaderc::CompilationResult result = compiler.CompileGlslToSpv(sources.FragmentSource, shaderc_shader_kind::shaderc_glsl_fragment_shader, "Test");
+
+            if (result.GetCompilationStatus() != shaderc_compilation_status_success)
+            {
+                std::cout << result.GetErrorMessage();
+            }
+
+            std::vector<uint32_t> spirv_binary = {result.begin(), result.end()};
+
+            bool success;
+            m_FragmentShader = CreateShaderModule(spirv_binary, &success);
+
+            if (!success)
+            {
+                throw std::runtime_error("Failed to create fragment shader module");
+            }
+
+            pipelineBuilder.ShaderStages.push_back(
+                pipelineBuilder.PipelineShaderStageCreateInfo(VK_SHADER_STAGE_FRAGMENT_BIT, m_FragmentShader));
+        }
+
+        auto bindingDescription = VulkanVertex::GetBindingDescription();
+        auto attributeDescriptions = VulkanVertex::GetAttributeDescriptions();
+
+        pipelineBuilder.VertexInputInfo = pipelineBuilder.VertexInputStateCreateInfo(bindingDescription, attributeDescriptions);
+        pipelineBuilder.InputAssembly = pipelineBuilder.InputAssemblyCreateInfo(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+        pipelineBuilder.Viewport.x = 0.0f;
+        pipelineBuilder.Viewport.y = 0.0f;
+        pipelineBuilder.Viewport.width = (float)m_Window->GetWindowSize().X;
+        pipelineBuilder.Viewport.height = (float)m_Window->GetWindowSize().Y;
+        pipelineBuilder.Viewport.minDepth = 0.0f;
+        pipelineBuilder.Viewport.maxDepth = 1.0f;
+
+        pipelineBuilder.Scissor.offset = {0, 0};
+        pipelineBuilder.Scissor.extent = {(unsigned int)m_Window->GetWindowSize().X, (unsigned int)m_Window->GetWindowSize().Y};
+
+        pipelineBuilder.DepthStencil = pipelineBuilder.PipelineDepthStencilStateCreateInfo();
+
+        pipelineBuilder.Rasterizer = pipelineBuilder.RasterizationStateCreateInfo(VK_POLYGON_MODE_FILL);
+
+        pipelineBuilder.Multisampling = pipelineBuilder.MultisamplingStateCreateInfo();
+        pipelineBuilder.ColorBlendAttachment = pipelineBuilder.ColorBlendAttachmentState();
+        pipelineBuilder.PipelineLayout = m_TrianglePipelineLayout;
+
+        m_TrianglePipeline = pipelineBuilder.BuildPipeline(m_Device, m_RenderPass);
+    }
+
+    void GraphicsDeviceVk::InitBuffers()
+    {
+        VkBufferCreateInfo bufferInfo{};
+        bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+        bufferInfo.size = sizeof(vertices[0]) * vertices.size();
+        bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+        bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+        if (vkCreateBuffer(m_Device, &bufferInfo, nullptr, &m_VertexBuffer) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to create vertex buffer");
+        }
+
+        VkMemoryRequirements memRequirements;
+        vkGetBufferMemoryRequirements(m_Device, m_VertexBuffer, &memRequirements);
+
+        VkMemoryAllocateInfo allocInfo{};
+        allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+        allocInfo.allocationSize = memRequirements.size;
+        allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+        if (vkAllocateMemory(m_Device, &allocInfo, nullptr, &m_VertexBufferMemory) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to allocate vertex buffer memory");
+        }
+
+        vkBindBufferMemory(m_Device, m_VertexBuffer, m_VertexBufferMemory, 0);
+
+        void *data;
+        vkMapMemory(m_Device, m_VertexBufferMemory, 0, bufferInfo.size, 0, &data);
+        memcpy(data, vertices.data(), (size_t)bufferInfo.size);
+        vkUnmapMemory(m_Device, m_VertexBufferMemory);
+    }
+
+    VkShaderModule GraphicsDeviceVk::CreateShaderModule(const std::vector<uint32_t> &spirv_buffer, bool *successful)
+    {
+        VkShaderModuleCreateInfo createInfo = {};
+        createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+        createInfo.pNext = nullptr;
+        createInfo.codeSize = spirv_buffer.size() * sizeof(uint32_t);
+        createInfo.pCode = spirv_buffer.data();
+
+        VkShaderModule shaderModule;
+        if (vkCreateShaderModule(m_Device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
+        {
+            *successful = false;
+        }
+
+        *successful = true;
+        return shaderModule;
     }
 
     VkImageView GraphicsDeviceVk::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)

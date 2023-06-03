@@ -7,8 +7,8 @@ namespace Nexus
 {
     enum class ShaderType
     {
-        None     = -1,
-        Vertex   = 0,
+        None = -1,
+        Vertex = 0,
         Fragment = 1
     };
 
@@ -16,10 +16,11 @@ namespace Nexus
     {
         GLSL,
         GLSLES,
-        HLSL
+        HLSL,
+        SPIRV
     };
 
-    #ifndef __EMSCRIPTEN__
+#ifndef __EMSCRIPTEN__
 
     struct ShaderGenerationOptions
     {
@@ -32,15 +33,16 @@ namespace Nexus
     {
         bool Successful;
         std::string Source;
+        std::vector<uint32_t> SpirvBuffer;
         std::string Error;
         ShaderFormat OutputFormat;
     };
 
     class ShaderGenerator
     {
-        public:
-            CompilationResult Generate(std::string source, ShaderGenerationOptions options);
+    public:
+        CompilationResult Generate(std::string source, ShaderGenerationOptions options);
     };
 
-    #endif
+#endif
 }
