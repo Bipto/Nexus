@@ -3,11 +3,25 @@
 #include "Core/Graphics/GraphicsDevice.h"
 
 #include "vulkan/vulkan.h"
+#include "vk_mem_alloc.h"
+
+#include "glm/glm.hpp"
 
 #include <array>
 
+struct alignas(16) UniformBufferObject
+{
+    glm::mat4 MVP;
+};
+
 namespace Nexus
 {
+    struct AllocatedBuffer
+    {
+        VkBuffer Buffer;
+        VmaAllocation Allocation;
+    };
+
     struct VulkanVertex
     {
         glm::vec2 pos;
@@ -44,6 +58,17 @@ namespace Nexus
         {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
         {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
         {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
+
+    struct FrameData
+    {
+        VkSemaphore PresentSemaphore, RenderSemaphore;
+        VkFence RenderFence;
+
+        VkCommandPool CommandPool;
+        VkCommandBuffer MainCommandBuffer;
+    };
+
+    const uint32_t FRAMES_IN_FLIGHT = 2;
 
     class GraphicsDeviceVk : public GraphicsDevice
     {
@@ -107,6 +132,7 @@ namespace Nexus
         void SelectPhysicalDevice();
         void SelectQueueFamily();
         void CreateDevice();
+        void CreateAllocator();
 
         void CreateSwapchain();
         void CreateSwapchainImageViews();
@@ -114,11 +140,10 @@ namespace Nexus
         void CreateRenderPass();
         void CreateFramebuffers();
 
-        void CreateCommandPool();
-        void CreateCommandBuffer();
-        void CreateSemaphores();
-        void CreateFences();
+        void CreateCommandStructures();
+        void CreateSynchonisationStructures();
 
+        void InitDescriptors();
         void InitPipelines();
         void InitBuffers();
 
@@ -129,6 +154,7 @@ namespace Nexus
         void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory);
         void CreateSemaphore(VkSemaphore *semaphore);
         VkShaderModule CreateShaderModule(const std::vector<uint32_t> &spirv_buffer, bool *successful);
+        AllocatedBuffer CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
 
     private:
         VkInstance m_Instance;
@@ -165,14 +191,9 @@ namespace Nexus
         // framebuffer
         std::vector<VkFramebuffer> m_SwapchainFramebuffers;
 
-        // rendering
-        VkCommandPool m_CommandPool;
-        std::vector<VkCommandBuffer> m_CommandBuffers;
-
         // synchronisation
-        VkSemaphore m_ImageAvailableSemaphore;
-        VkSemaphore m_RenderingFinishedSemaphore;
-        std::vector<VkFence> m_Fences;
+        FrameData m_Frames[FRAMES_IN_FLIGHT];
+        FrameData &GetCurrentFrame();
 
         // pipeline
         VkShaderModule m_VertexShader;
@@ -180,7 +201,17 @@ namespace Nexus
         VkPipelineLayout m_TrianglePipelineLayout;
         VkPipeline m_TrianglePipeline;
 
+        // Vertex buffer
         VkBuffer m_VertexBuffer;
         VkDeviceMemory m_VertexBufferMemory;
+
+        // VMA
+        VmaAllocator m_Allocator;
+        std::vector<AllocatedBuffer> m_UniformBuffers;
+
+        VkDescriptorSetLayout m_GlobalSetLayout;
+        VkDescriptorPool m_DescriptorPool;
+
+        uint32_t m_FrameNumber = 0;
     };
 }

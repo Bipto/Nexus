@@ -5,6 +5,9 @@ set (CMAKE_CXX_STANDARD 17)
 
 add_link_options("-lGL")
 
+find_package(OpenGL REQUIRED)
+find_package(Vulkan REQUIRED)
+
 add_subdirectory(Editor)
 add_subdirectory(Demo)
 add_subdirectory(NexusEngine)
@@ -26,6 +29,7 @@ add_subdirectory(External/shaderc)
 add_subdirectory(External/tinyfiledialogs)
 add_subdirectory(External/re2)
 add_subdirectory(External/effcee)
+add_subdirectory(External/VulkanMemoryAllocator)
 endif()
 
 set (BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)

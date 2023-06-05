@@ -24,7 +24,7 @@ public:
     VkPipelineRasterizationStateCreateInfo RasterizationStateCreateInfo(VkPolygonMode polygonMode);
     VkPipelineMultisampleStateCreateInfo MultisamplingStateCreateInfo();
     VkPipelineColorBlendAttachmentState ColorBlendAttachmentState();
-    VkPipelineLayoutCreateInfo PipelineLayoutCreateInfo();
+    VkPipelineLayoutCreateInfo PipelineLayoutCreateInfo(const std::vector<VkDescriptorSetLayout> &layouts);
     VkPipelineDepthStencilStateCreateInfo PipelineDepthStencilStateCreateInfo();
     VkPipeline BuildPipeline(VkDevice device, VkRenderPass pass);
 };

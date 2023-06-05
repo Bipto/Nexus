@@ -25,6 +25,11 @@ file (GLOB_RECURSE ENGINE_HEADERS Core/*.h Runtime/*.h)
 file (GLOB_RECURSE ENGINE_SOURCES Core/*.cpp Core/Input/*.cpp Core/Utils/*.cpp Platform/*.cpp Platform/OpenGL*.cpp Platform/DX11/*.cpp Runtime/*.cpp Runtime/ECS/*.cpp)
 add_library(NexusEngine ${ENGINE_HEADERS} ${ENGINE_SOURCES})
 
+#including OpenGL and Vulkan
+target_link_libraries(NexusEngine PUBLIC ${OPENGL_LIBRARIES})
+target_include_directories(NexusEngine PUBLIC ${VULKAN_INCLUDE_DIRS})
+target_link_libraries(NexusEngine PUBLIC Vulkan::Vulkan)
+
 #including dependencies
 target_include_directories(NexusEngine PUBLIC ../External/SDL/include)
 target_include_directories(NexusEngine PUBLIC ../External/SDL_mixer/include)
@@ -33,6 +38,7 @@ target_include_directories(NexusEngine PUBLIC ../External/glm)
 target_include_directories(NexusEngine PUBLIC ../External/stb)
 target_include_directories(NexusEngine PUBLIC ../External/assimp/include)
 target_include_directories(NexusEngine PUBLIC ../External/json/single_include)
+target_include_directories(NexusEngine PUBLIC ../External/VulkanMemoryAllocator/include)
 
 if (NOT DEFINED EMSCRIPTEN)
 target_include_directories(NexusEngine PUBLIC ../External/tinyfiledialogs/tinyfiledialogs)
@@ -49,21 +55,13 @@ target_link_libraries(NexusEngine PUBLIC glad)
 target_link_libraries(NexusEngine PUBLIC assimp)
 target_link_libraries(NexusEngine PUBLIC imgui)
 target_link_libraries(NexusEngine PUBLIC imguizmo)
+target_link_libraries(NexusEngine PUBLIC VulkanMemoryAllocator)
 
 if(NOT DEFINED EMSCRIPTEN)
 target_link_libraries(NexusEngine PUBLIC tinyfiledialogs)
 target_link_libraries(NexusEngine PUBLIC shaderc)
 target_link_libraries(NexusEngine PUBLIC spirv-cross-cpp spirv-cross-hlsl)
 endif()
-
-#including OpenGL
-find_package(OpenGL REQUIRED)
-target_link_libraries(NexusEngine PUBLIC ${OPENGL_LIBRARIES})
-
-#including Vulkan
-find_package(Vulkan REQUIRED)
-target_include_directories(NexusEngine PUBLIC ${VULKAN_INCLUDE_DIRS})
-target_link_libraries(NexusEngine PUBLIC Vulkan::Vulkan)
 
 #precompiled header
 target_precompile_headers(NexusEngine PUBLIC Core/nxpch.h)

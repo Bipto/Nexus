@@ -19,6 +19,7 @@ namespace Nexus
         SelectPhysicalDevice();
         SelectQueueFamily();
         CreateDevice();
+        CreateAllocator();
 
         CreateSwapchain();
         CreateSwapchainImageViews();
@@ -26,11 +27,10 @@ namespace Nexus
         CreateRenderPass();
         CreateFramebuffers();
 
-        CreateCommandPool();
-        CreateCommandBuffer();
-        CreateSemaphores();
-        CreateFences();
+        CreateCommandStructures();
+        CreateSynchonisationStructures();
 
+        InitDescriptors();
         InitPipelines();
         InitBuffers();
     }
@@ -159,11 +159,11 @@ namespace Nexus
     VkImage image;
     void GraphicsDeviceVk::AcquireNextImage()
     {
-        vkAcquireNextImageKHR(m_Device, m_Swapchain, UINT64_MAX, m_ImageAvailableSemaphore, VK_NULL_HANDLE, &frameIndex);
-        vkWaitForFences(m_Device, 1, &m_Fences[frameIndex], VK_FALSE, UINT64_MAX);
-        vkResetFences(m_Device, 1, &m_Fences[frameIndex]);
+        vkAcquireNextImageKHR(m_Device, m_Swapchain, UINT64_MAX, GetCurrentFrame().PresentSemaphore, VK_NULL_HANDLE, &frameIndex);
+        vkWaitForFences(m_Device, 1, &GetCurrentFrame().RenderFence, VK_FALSE, UINT64_MAX);
+        vkResetFences(m_Device, 1, &GetCurrentFrame().RenderFence);
 
-        commandBuffer = m_CommandBuffers[frameIndex];
+        commandBuffer = GetCurrentFrame().MainCommandBuffer;
         image = m_SwapchainImages[frameIndex];
     }
 
@@ -190,7 +190,7 @@ namespace Nexus
 
     void GraphicsDeviceVk::FreeCommandBuffers()
     {
-        vkFreeCommandBuffers(m_Device, m_CommandPool, 1, &commandBuffer);
+        vkFreeCommandBuffers(m_Device, GetCurrentFrame().CommandPool, 1, &commandBuffer);
     }
 
     void GraphicsDeviceVk::BeginRenderPass(VkClearColorValue clear_color, VkClearDepthStencilValue clear_depth_stencil)
@@ -224,13 +224,13 @@ namespace Nexus
         VkSubmitInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = &m_ImageAvailableSemaphore;
+        submitInfo.pWaitSemaphores = &GetCurrentFrame().PresentSemaphore;
         submitInfo.pWaitDstStageMask = &waitDestStageMask;
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &commandBuffer;
         submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = &m_RenderingFinishedSemaphore;
-        if (vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_Fences[frameIndex]) != VK_SUCCESS)
+        submitInfo.pSignalSemaphores = &GetCurrentFrame().RenderSemaphore;
+        if (vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, GetCurrentFrame().RenderFence) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to submit queue");
         }
@@ -241,7 +241,7 @@ namespace Nexus
         VkPresentInfoKHR presentInfo = {};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         presentInfo.waitSemaphoreCount = 1;
-        presentInfo.pWaitSemaphores = &m_RenderingFinishedSemaphore;
+        presentInfo.pWaitSemaphores = &GetCurrentFrame().PresentSemaphore;
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = &m_Swapchain;
         presentInfo.pImageIndices = &frameIndex;
@@ -255,6 +255,8 @@ namespace Nexus
         {
             throw std::runtime_error("Failed to wait for present queue");
         }
+
+        m_FrameNumber++;
     }
 
     void GraphicsDeviceVk::SetViewport(int width, int height)
@@ -466,6 +468,19 @@ namespace Nexus
         vkGetDeviceQueue(m_Device, m_PresentQueueFamilyIndex, 0, &m_PresentQueue);
     }
 
+    void GraphicsDeviceVk::CreateAllocator()
+    {
+        VmaAllocatorCreateInfo allocatorInfo = {};
+        allocatorInfo.physicalDevice = m_PhysicalDevice;
+        allocatorInfo.device = m_Device;
+        allocatorInfo.instance = m_Instance;
+
+        if (vmaCreateAllocator(&allocatorInfo, &m_Allocator) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to create VMA allocator");
+        }
+    }
+
     void GraphicsDeviceVk::CreateSwapchain()
     {
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_PhysicalDevice, m_Surface, &m_SurfaceCapabilities);
@@ -642,50 +657,63 @@ namespace Nexus
         }
     }
 
-    void GraphicsDeviceVk::CreateCommandPool()
+    void GraphicsDeviceVk::CreateCommandStructures()
     {
-        VkCommandPoolCreateInfo createInfo = {};
-        createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-        createInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT | VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
-        createInfo.queueFamilyIndex = m_GraphicsQueueFamilyIndex;
-        if (vkCreateCommandPool(m_Device, &createInfo, nullptr, &m_CommandPool) != VK_SUCCESS)
+        for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
-            throw std::runtime_error("Failed to create command pool");
+            // create command pools
+            {
+                VkCommandPoolCreateInfo createInfo = {};
+                createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+                createInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT | VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
+                createInfo.queueFamilyIndex = m_GraphicsQueueFamilyIndex;
+                if (vkCreateCommandPool(m_Device, &createInfo, nullptr, &m_Frames[i].CommandPool) != VK_SUCCESS)
+                {
+                    throw std::runtime_error("Failed to create command pool");
+                }
+            }
+
+            // allocate command buffers
+            {
+                VkCommandBufferAllocateInfo allocateInfo = {};
+                allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+                allocateInfo.commandPool = m_Frames[i].CommandPool;
+                allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+                allocateInfo.commandBufferCount = m_SwapchainImageCount;
+
+                if (vkAllocateCommandBuffers(m_Device, &allocateInfo, &m_Frames[i].MainCommandBuffer) != VK_SUCCESS)
+                {
+                    throw std::runtime_error("Failed to allocate command buffers");
+                }
+            }
         }
     }
 
-    void GraphicsDeviceVk::CreateCommandBuffer()
+    void GraphicsDeviceVk::CreateSynchonisationStructures()
     {
-        VkCommandBufferAllocateInfo allocateInfo = {};
-        allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocateInfo.commandPool = m_CommandPool;
-        allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocateInfo.commandBufferCount = m_SwapchainImageCount;
+        VkFenceCreateInfo fenceCreateInfo = {};
+        fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-        m_CommandBuffers.resize(m_SwapchainImageCount);
-        if (vkAllocateCommandBuffers(m_Device, &allocateInfo, m_CommandBuffers.data()) != VK_SUCCESS)
+        VkSemaphoreCreateInfo semaphoreCreateInfo = {};
+        semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+        for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
-            throw std::runtime_error("Failed to allocate command buffers");
-        }
-    }
-
-    void GraphicsDeviceVk::CreateSemaphores()
-    {
-        CreateSemaphore(&m_ImageAvailableSemaphore);
-        CreateSemaphore(&m_RenderingFinishedSemaphore);
-    }
-
-    void GraphicsDeviceVk::CreateFences()
-    {
-        m_Fences.resize(m_SwapchainImageCount);
-        for (uint32_t i = 0; i < m_SwapchainImageCount; i++)
-        {
-            VkFenceCreateInfo createInfo = {};
-            createInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-            createInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-            if (vkCreateFence(m_Device, &createInfo, nullptr, &m_Fences[i]) != VK_SUCCESS)
+            // create fences
+            if (vkCreateFence(m_Device, &fenceCreateInfo, nullptr, &m_Frames[i].RenderFence) != VK_SUCCESS)
             {
                 throw std::runtime_error("Failed to create fence");
+            }
+
+            if (vkCreateSemaphore(m_Device, &semaphoreCreateInfo, nullptr, &m_Frames[i].PresentSemaphore) != VK_SUCCESS)
+            {
+                throw std::runtime_error("Failed to create semaphore");
+            }
+
+            if (vkCreateSemaphore(m_Device, &semaphoreCreateInfo, nullptr, &m_Frames[i].RenderSemaphore) != VK_SUCCESS)
+            {
+                throw std::runtime_error("Failed to create semaphore");
             }
         }
     }
@@ -725,10 +753,40 @@ namespace Nexus
         return source;
     }
 
+    void GraphicsDeviceVk::InitDescriptors()
+    {
+        m_UniformBuffers.resize(m_SwapchainImageCount);
+        for (int i = 0; i < m_SwapchainImageCount; i++)
+        {
+            // m_UniformBuffers[i] = CreateBuffer(sizeof(UniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+            auto buffer = CreateBuffer(sizeof(UniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+            m_UniformBuffers.push_back(buffer);
+        }
+
+        VkDescriptorSetLayoutBinding camBufferBinding = {};
+        camBufferBinding.binding = 0;
+        camBufferBinding.descriptorCount = 1;
+        camBufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        camBufferBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
+        VkDescriptorSetLayoutCreateInfo setInfo = {};
+        setInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        setInfo.pNext = nullptr;
+        setInfo.bindingCount = 1;
+        setInfo.flags = 0;
+        setInfo.pBindings = &camBufferBinding;
+        if (vkCreateDescriptorSetLayout(m_Device, &setInfo, nullptr, &m_GlobalSetLayout) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to create descriptor set layout");
+        }
+    }
+
     void GraphicsDeviceVk::InitPipelines()
     {
         PipelineBuilder pipelineBuilder;
-        VkPipelineLayoutCreateInfo pipeline_layout_info = pipelineBuilder.PipelineLayoutCreateInfo();
+
+        std::vector<VkDescriptorSetLayout> layouts = {};
+        VkPipelineLayoutCreateInfo pipeline_layout_info = pipelineBuilder.PipelineLayoutCreateInfo(layouts);
         if (vkCreatePipelineLayout(m_Device, &pipeline_layout_info, nullptr, &m_TrianglePipelineLayout) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to create pipeline layout");
@@ -863,6 +921,31 @@ namespace Nexus
 
         *successful = true;
         return shaderModule;
+    }
+
+    AllocatedBuffer GraphicsDeviceVk::CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage)
+    {
+        VkBufferCreateInfo bufferInfo = {};
+        bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+        bufferInfo.pNext = nullptr;
+
+        bufferInfo.size = allocSize;
+        bufferInfo.usage = usage;
+
+        VmaAllocationCreateInfo vmaAllocInfo = {};
+        vmaAllocInfo.usage = memoryUsage;
+
+        AllocatedBuffer newBuffer;
+
+        if (vmaCreateBuffer(m_Allocator, &bufferInfo, &vmaAllocInfo, &newBuffer.Buffer, &newBuffer.Allocation, nullptr) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to create buffer");
+        }
+    }
+
+    FrameData &GraphicsDeviceVk::GetCurrentFrame()
+    {
+        return m_Frames[m_FrameNumber % FRAMES_IN_FLIGHT];
     }
 
     VkImageView GraphicsDeviceVk::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)

@@ -75,15 +75,15 @@ VkPipelineColorBlendAttachmentState PipelineBuilder::ColorBlendAttachmentState()
     return colorBlendAttachment;
 }
 
-VkPipelineLayoutCreateInfo PipelineBuilder::PipelineLayoutCreateInfo()
+VkPipelineLayoutCreateInfo PipelineBuilder::PipelineLayoutCreateInfo(const std::vector<VkDescriptorSetLayout> &layouts)
 {
     VkPipelineLayoutCreateInfo info{};
     info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     info.pNext = nullptr;
 
     info.flags = 0;
-    info.setLayoutCount = 0;
-    info.pSetLayouts = nullptr;
+    info.setLayoutCount = layouts.size();
+    info.pSetLayouts = layouts.data();
     info.pushConstantRangeCount = 0;
     info.pPushConstantRanges = nullptr;
 
