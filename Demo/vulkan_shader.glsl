@@ -3,14 +3,14 @@
 
 layout (location = 0) in vec2 inPosition;
 
-layout (binding = 0) uniform CameraBuffer
+layout (set = 0, binding = 0) uniform CameraBuffer
 {
     mat4 MVP;
 } cameraBuffer;
 
 void main()
 {
-    gl_Position = vec4(inPosition, 0.0f, 1.0f);
+    gl_Position = cameraBuffer.MVP * vec4(inPosition, 0.0f, 1.0f);
 }
 
 #shader fragment

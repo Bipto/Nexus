@@ -66,6 +66,9 @@ namespace Nexus
 
         VkCommandPool CommandPool;
         VkCommandBuffer MainCommandBuffer;
+
+        AllocatedBuffer CameraBuffer;
+        VkDescriptorSet GlobalDescriptor;
     };
 
     const uint32_t FRAMES_IN_FLIGHT = 2;
@@ -124,6 +127,8 @@ namespace Nexus
         void SetViewport(int width, int height);
         void SetScissor(int width, int height);
         void DrawWithPipeline();
+
+        void UpdateUniformBuffer(const glm::mat4 &mvp);
 
     private:
         void CreateInstance();

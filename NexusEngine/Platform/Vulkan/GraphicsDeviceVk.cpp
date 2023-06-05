@@ -229,7 +229,7 @@ namespace Nexus
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &commandBuffer;
         submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = &GetCurrentFrame().RenderSemaphore;
+        submitInfo.pSignalSemaphores = &GetCurrentFrame().PresentSemaphore;
         if (vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, GetCurrentFrame().RenderFence) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to submit queue");
@@ -292,7 +292,20 @@ namespace Nexus
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 
+        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_TrianglePipelineLayout, 0, 1, &GetCurrentFrame().GlobalDescriptor, 0, nullptr);
+
         vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+    }
+
+    void GraphicsDeviceVk::UpdateUniformBuffer(const glm::mat4 &mvp)
+    {
+        UniformBufferObject ubo;
+        ubo.MVP = mvp;
+
+        void *data;
+        vmaMapMemory(m_Allocator, GetCurrentFrame().CameraBuffer.Allocation, &data);
+        memcpy(data, &ubo, sizeof(UniformBufferObject));
+        vmaUnmapMemory(m_Allocator, GetCurrentFrame().CameraBuffer.Allocation);
     }
 
     const std::vector<const char *> validationLayers =
@@ -755,14 +768,6 @@ namespace Nexus
 
     void GraphicsDeviceVk::InitDescriptors()
     {
-        m_UniformBuffers.resize(m_SwapchainImageCount);
-        for (int i = 0; i < m_SwapchainImageCount; i++)
-        {
-            // m_UniformBuffers[i] = CreateBuffer(sizeof(UniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
-            auto buffer = CreateBuffer(sizeof(UniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
-            m_UniformBuffers.push_back(buffer);
-        }
-
         VkDescriptorSetLayoutBinding camBufferBinding = {};
         camBufferBinding.binding = 0;
         camBufferBinding.descriptorCount = 1;
@@ -772,12 +777,65 @@ namespace Nexus
         VkDescriptorSetLayoutCreateInfo setInfo = {};
         setInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
         setInfo.pNext = nullptr;
+
         setInfo.bindingCount = 1;
         setInfo.flags = 0;
         setInfo.pBindings = &camBufferBinding;
+
         if (vkCreateDescriptorSetLayout(m_Device, &setInfo, nullptr, &m_GlobalSetLayout) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to create descriptor set layout");
+        }
+
+        std::vector<VkDescriptorPoolSize> sizes =
+            {
+                {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 10}};
+
+        VkDescriptorPoolCreateInfo poolInfo{};
+        poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+        poolInfo.flags = 0;
+        poolInfo.maxSets = 10;
+        poolInfo.poolSizeCount = (uint32_t)sizes.size();
+        poolInfo.pPoolSizes = sizes.data();
+
+        if (vkCreateDescriptorPool(m_Device, &poolInfo, nullptr, &m_DescriptorPool) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to create descriptor pool");
+        }
+
+        // sets up descriptor sets and points them to the uniform buffers
+        for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+        {
+            m_Frames[i].CameraBuffer = CreateBuffer(sizeof(UniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+
+            VkDescriptorSetAllocateInfo allocInfo{};
+            allocInfo.pNext = nullptr;
+            allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+            allocInfo.descriptorPool = m_DescriptorPool;
+            allocInfo.descriptorSetCount = 1;
+            allocInfo.pSetLayouts = &m_GlobalSetLayout;
+
+            if (vkAllocateDescriptorSets(m_Device, &allocInfo, &m_Frames[i].GlobalDescriptor) != VK_SUCCESS)
+            {
+                throw std::runtime_error("Failed to allocate descriptor sets");
+            }
+
+            VkDescriptorBufferInfo bInfo;
+            bInfo.buffer = m_Frames[i].CameraBuffer.Buffer;
+            bInfo.offset = 0;
+            bInfo.range = sizeof(UniformBufferObject);
+
+            VkWriteDescriptorSet setWrite = {};
+            setWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            setWrite.pNext = nullptr;
+
+            setWrite.dstBinding = 0;
+            setWrite.dstSet = m_Frames[i].GlobalDescriptor;
+            setWrite.descriptorCount = 1;
+            setWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            setWrite.pBufferInfo = &bInfo;
+
+            vkUpdateDescriptorSets(m_Device, 1, &setWrite, 0, nullptr);
         }
     }
 
@@ -785,7 +843,7 @@ namespace Nexus
     {
         PipelineBuilder pipelineBuilder;
 
-        std::vector<VkDescriptorSetLayout> layouts = {};
+        std::vector<VkDescriptorSetLayout> layouts = {m_GlobalSetLayout};
         VkPipelineLayoutCreateInfo pipeline_layout_info = pipelineBuilder.PipelineLayoutCreateInfo(layouts);
         if (vkCreatePipelineLayout(m_Device, &pipeline_layout_info, nullptr, &m_TrianglePipelineLayout) != VK_SUCCESS)
         {
@@ -941,6 +999,8 @@ namespace Nexus
         {
             throw std::runtime_error("Failed to create buffer");
         }
+
+        return newBuffer;
     }
 
     FrameData &GraphicsDeviceVk::GetCurrentFrame()
