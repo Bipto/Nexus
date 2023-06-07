@@ -22,10 +22,30 @@ namespace Nexus
         VmaAllocation Allocation;
     };
 
-    struct VulkanVertex
+    struct AllocatedImage
+    {
+        VkImage Image;
+        VmaAllocation Allocation;
+    };
+
+    struct VulkanTexture
+    {
+        AllocatedImage Image;
+        VkImageView ImageView;
+    };
+
+    struct UploadContext
+    {
+        VkFence UploadFence;
+        VkCommandPool CommandPool;
+        VkCommandBuffer CommandBuffer;
+    };
+
+    struct alignas(16) VulkanVertex
     {
         glm::vec2 pos;
         glm::vec3 color;
+        glm::vec2 uv;
 
         static VkVertexInputBindingDescription GetBindingDescription()
         {
@@ -38,26 +58,46 @@ namespace Nexus
 
         static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions()
         {
-            std::vector<VkVertexInputAttributeDescription> attributeDescriptions(2);
+            std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
 
-            attributeDescriptions[0].binding = 0;
-            attributeDescriptions[0].location = 0;
-            attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
-            attributeDescriptions[0].offset = offsetof(VulkanVertex, pos);
+            {
+                VkVertexInputAttributeDescription description;
+                description.binding = 0;
+                description.location = 0;
+                description.format = VK_FORMAT_R32G32_SFLOAT;
+                description.offset = offsetof(VulkanVertex, pos);
+                attributeDescriptions.push_back(description);
+            }
 
-            attributeDescriptions[1].binding = 0;
-            attributeDescriptions[1].location = 1;
-            attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-            attributeDescriptions[1].offset = offsetof(VulkanVertex, color);
+            {
+                VkVertexInputAttributeDescription description;
+                description.binding = 0;
+                description.location = 1;
+                description.format = VK_FORMAT_R32G32B32_SFLOAT;
+                description.offset = offsetof(VulkanVertex, color);
+                attributeDescriptions.push_back(description);
+            }
+
+            {
+                VkVertexInputAttributeDescription description;
+                description.binding = 0;
+                description.location = 2;
+                description.format = VK_FORMAT_R32G32_SFLOAT;
+                description.offset = offsetof(VulkanVertex, uv);
+                attributeDescriptions.push_back(description);
+            }
 
             return attributeDescriptions;
         }
     };
 
     const std::vector<VulkanVertex> vertices = {
-        {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-        {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-        {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
+        {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}}, // TOP LEFT
+        {{0.5f, 0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},   // BOTTOM RIGHT
+        {{-0.5f, 0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},  // BOTTOM LEFT
+        {{-0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}}, // TOP LEFT
+        {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},  // TOP RIGHT
+        {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}}};  // BOTTOM RIGHT
 
     struct FrameData
     {
@@ -68,7 +108,8 @@ namespace Nexus
         VkCommandBuffer MainCommandBuffer;
 
         AllocatedBuffer CameraBuffer;
-        VkDescriptorSet GlobalDescriptor;
+        VkDescriptorSet UniformBufferDescriptor;
+        VkDescriptorSet SamplerDescriptor;
     };
 
     const uint32_t FRAMES_IN_FLIGHT = 2;
@@ -152,6 +193,8 @@ namespace Nexus
         void InitPipelines();
         void InitBuffers();
 
+        void ImmediateSubmit(std::function<void(VkCommandBuffer cmd)> &&function);
+
     private:
         VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
         VkBool32 GetSupportedDepthFormat(VkPhysicalDevice physicalDevice, VkFormat *depthFormat);
@@ -160,6 +203,10 @@ namespace Nexus
         void CreateSemaphore(VkSemaphore *semaphore);
         VkShaderModule CreateShaderModule(const std::vector<uint32_t> &spirv_buffer, bool *successful);
         AllocatedBuffer CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
+        bool LoadImageFromFile(const char *file, AllocatedImage *image);
+
+        VkSamplerCreateInfo CreateSamplerCreateInfo(VkFilter filters, VkSamplerAddressMode samplerAddressMode = VK_SAMPLER_ADDRESS_MODE_REPEAT);
+        VkWriteDescriptorSet WriteDescriptorImage(VkDescriptorType type, VkDescriptorSet dstSet, VkDescriptorImageInfo *imageInfo, uint32_t binding);
 
     private:
         VkInstance m_Instance;
@@ -214,9 +261,14 @@ namespace Nexus
         VmaAllocator m_Allocator;
         std::vector<AllocatedBuffer> m_UniformBuffers;
 
-        VkDescriptorSetLayout m_GlobalSetLayout;
+        VkDescriptorSetLayout m_UniformBufferLayout;
+        VkDescriptorSetLayout m_SamplerLayout;
         VkDescriptorPool m_DescriptorPool;
 
         uint32_t m_FrameNumber = 0;
+
+        UploadContext m_UploadContext;
+
+        VulkanTexture m_LoadedTexture;
     };
 }

@@ -6,6 +6,8 @@
 
 #include "PipelineBuilder.h"
 
+#include "stb_image.h"
+
 #include <set>
 
 namespace Nexus
@@ -29,6 +31,14 @@ namespace Nexus
 
         CreateCommandStructures();
         CreateSynchonisationStructures();
+
+        AllocatedImage image;
+        LoadImageFromFile("brick.jpg", &image);
+
+        auto imageView = CreateImageView(image.Image, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT);
+
+        m_LoadedTexture.Image = image;
+        m_LoadedTexture.ImageView = imageView;
 
         InitDescriptors();
         InitPipelines();
@@ -292,7 +302,8 @@ namespace Nexus
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 
-        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_TrianglePipelineLayout, 0, 1, &GetCurrentFrame().GlobalDescriptor, 0, nullptr);
+        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_TrianglePipelineLayout, 0, 1, &GetCurrentFrame().UniformBufferDescriptor, 0, nullptr);
+        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_TrianglePipelineLayout, 1, 1, &m_Frames->SamplerDescriptor, 0, nullptr);
 
         vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
     }
@@ -700,6 +711,32 @@ namespace Nexus
                 }
             }
         }
+
+        // upload command pool
+        {
+            VkCommandPoolCreateInfo createInfo = {};
+            createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+            createInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT | VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
+            createInfo.queueFamilyIndex = m_GraphicsQueueFamilyIndex;
+            if (vkCreateCommandPool(m_Device, &createInfo, nullptr, &m_UploadContext.CommandPool) != VK_SUCCESS)
+            {
+                throw std::runtime_error("Failed to create command pool");
+            }
+        }
+
+        // upload command buffer
+        {
+            VkCommandBufferAllocateInfo allocateInfo = {};
+            allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+            allocateInfo.commandPool = m_UploadContext.CommandPool;
+            allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+            allocateInfo.commandBufferCount = m_SwapchainImageCount;
+
+            if (vkAllocateCommandBuffers(m_Device, &allocateInfo, &m_UploadContext.CommandBuffer) != VK_SUCCESS)
+            {
+                throw std::runtime_error("Failed to allocate command buffers");
+            }
+        }
     }
 
     void GraphicsDeviceVk::CreateSynchonisationStructures()
@@ -728,6 +765,11 @@ namespace Nexus
             {
                 throw std::runtime_error("Failed to create semaphore");
             }
+        }
+
+        if (vkCreateFence(m_Device, &fenceCreateInfo, nullptr, &m_UploadContext.UploadFence) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to create fence");
         }
     }
 
@@ -768,28 +810,54 @@ namespace Nexus
 
     void GraphicsDeviceVk::InitDescriptors()
     {
-        VkDescriptorSetLayoutBinding camBufferBinding = {};
-        camBufferBinding.binding = 0;
-        camBufferBinding.descriptorCount = 1;
-        camBufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        camBufferBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-
-        VkDescriptorSetLayoutCreateInfo setInfo = {};
-        setInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        setInfo.pNext = nullptr;
-
-        setInfo.bindingCount = 1;
-        setInfo.flags = 0;
-        setInfo.pBindings = &camBufferBinding;
-
-        if (vkCreateDescriptorSetLayout(m_Device, &setInfo, nullptr, &m_GlobalSetLayout) != VK_SUCCESS)
+        // uniform buffer descriptor set
         {
-            throw std::runtime_error("Failed to create descriptor set layout");
+            VkDescriptorSetLayoutBinding camBufferBinding = {};
+            camBufferBinding.binding = 0;
+            camBufferBinding.descriptorCount = 1;
+            camBufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            camBufferBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
+            VkDescriptorSetLayoutCreateInfo setInfo = {};
+            setInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+            setInfo.pNext = nullptr;
+
+            setInfo.bindingCount = 1;
+            setInfo.flags = 0;
+            setInfo.pBindings = &camBufferBinding;
+
+            if (vkCreateDescriptorSetLayout(m_Device, &setInfo, nullptr, &m_UniformBufferLayout) != VK_SUCCESS)
+            {
+                throw std::runtime_error("Failed to create descriptor set layout");
+            }
+        }
+
+        // sampler descriptor set
+        {
+            VkDescriptorSetLayoutBinding samplerBinding = {};
+            samplerBinding.binding = 0;
+            samplerBinding.descriptorCount = 1;
+            samplerBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            samplerBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+            VkDescriptorSetLayoutCreateInfo setInfo = {};
+            setInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+            setInfo.pNext = nullptr;
+
+            setInfo.bindingCount = 1;
+            setInfo.flags = 0;
+            setInfo.pBindings = &samplerBinding;
+
+            if (vkCreateDescriptorSetLayout(m_Device, &setInfo, nullptr, &m_SamplerLayout) != VK_SUCCESS)
+            {
+                throw std::runtime_error("Failed to create descriptor set layout");
+            }
         }
 
         std::vector<VkDescriptorPoolSize> sizes =
             {
-                {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 10}};
+                {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 10},
+                {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 10}};
 
         VkDescriptorPoolCreateInfo poolInfo{};
         poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -808,34 +876,69 @@ namespace Nexus
         {
             m_Frames[i].CameraBuffer = CreateBuffer(sizeof(UniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
-            VkDescriptorSetAllocateInfo allocInfo{};
-            allocInfo.pNext = nullptr;
-            allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-            allocInfo.descriptorPool = m_DescriptorPool;
-            allocInfo.descriptorSetCount = 1;
-            allocInfo.pSetLayouts = &m_GlobalSetLayout;
-
-            if (vkAllocateDescriptorSets(m_Device, &allocInfo, &m_Frames[i].GlobalDescriptor) != VK_SUCCESS)
+            // update uniform buffer descriptor sets
             {
-                throw std::runtime_error("Failed to allocate descriptor sets");
+                VkDescriptorSetAllocateInfo allocInfo{};
+                allocInfo.pNext = nullptr;
+                allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+                allocInfo.descriptorPool = m_DescriptorPool;
+                allocInfo.descriptorSetCount = 1;
+                allocInfo.pSetLayouts = &m_UniformBufferLayout;
+
+                if (vkAllocateDescriptorSets(m_Device, &allocInfo, &m_Frames[i].UniformBufferDescriptor) != VK_SUCCESS)
+                {
+                    throw std::runtime_error("Failed to allocate descriptor sets");
+                }
+
+                VkDescriptorBufferInfo bInfo;
+                bInfo.buffer = m_Frames[i].CameraBuffer.Buffer;
+                bInfo.offset = 0;
+                bInfo.range = sizeof(UniformBufferObject);
+
+                VkWriteDescriptorSet setWrite = {};
+                setWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                setWrite.pNext = nullptr;
+
+                setWrite.dstBinding = 0;
+                setWrite.dstSet = m_Frames[i].UniformBufferDescriptor;
+                setWrite.descriptorCount = 1;
+                setWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                setWrite.pBufferInfo = &bInfo;
+
+                vkUpdateDescriptorSets(m_Device, 1, &setWrite, 0, nullptr);
             }
 
-            VkDescriptorBufferInfo bInfo;
-            bInfo.buffer = m_Frames[i].CameraBuffer.Buffer;
-            bInfo.offset = 0;
-            bInfo.range = sizeof(UniformBufferObject);
+            // update sampler descriptor sets
+            {
+                VkSamplerCreateInfo samplerInfo = CreateSamplerCreateInfo(VK_FILTER_NEAREST);
 
-            VkWriteDescriptorSet setWrite = {};
-            setWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            setWrite.pNext = nullptr;
+                VkSampler sampler;
+                if (vkCreateSampler(m_Device, &samplerInfo, nullptr, &sampler) != VK_SUCCESS)
+                {
+                    throw std::runtime_error("Failed to create sampler");
+                }
 
-            setWrite.dstBinding = 0;
-            setWrite.dstSet = m_Frames[i].GlobalDescriptor;
-            setWrite.descriptorCount = 1;
-            setWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            setWrite.pBufferInfo = &bInfo;
+                VkDescriptorSetAllocateInfo allocInfo = {};
+                allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+                allocInfo.pNext = nullptr;
 
-            vkUpdateDescriptorSets(m_Device, 1, &setWrite, 0, nullptr);
+                allocInfo.descriptorPool = m_DescriptorPool;
+                allocInfo.descriptorSetCount = 1;
+                allocInfo.pSetLayouts = &m_SamplerLayout;
+
+                if (vkAllocateDescriptorSets(m_Device, &allocInfo, &m_Frames[i].SamplerDescriptor) != VK_SUCCESS)
+                {
+                    throw std::runtime_error("Failed to allocate descriptor sets");
+                }
+
+                VkDescriptorImageInfo imageBufferInfo{};
+                imageBufferInfo.sampler = sampler;
+                imageBufferInfo.imageView = m_LoadedTexture.ImageView;
+                imageBufferInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+                VkWriteDescriptorSet texture1 = WriteDescriptorImage(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, m_Frames->SamplerDescriptor, &imageBufferInfo, 0);
+                vkUpdateDescriptorSets(m_Device, 1, &texture1, 0, nullptr);
+            }
         }
     }
 
@@ -843,7 +946,7 @@ namespace Nexus
     {
         PipelineBuilder pipelineBuilder;
 
-        std::vector<VkDescriptorSetLayout> layouts = {m_GlobalSetLayout};
+        std::vector<VkDescriptorSetLayout> layouts = {m_UniformBufferLayout, m_SamplerLayout};
         VkPipelineLayoutCreateInfo pipeline_layout_info = pipelineBuilder.PipelineLayoutCreateInfo(layouts);
         if (vkCreatePipelineLayout(m_Device, &pipeline_layout_info, nullptr, &m_TrianglePipelineLayout) != VK_SUCCESS)
         {
@@ -963,6 +1066,54 @@ namespace Nexus
         vkUnmapMemory(m_Device, m_VertexBufferMemory);
     }
 
+    void GraphicsDeviceVk::ImmediateSubmit(std::function<void(VkCommandBuffer cmd)> &&function)
+    {
+        VkCommandBuffer cmd = m_UploadContext.CommandBuffer;
+        VkCommandBufferBeginInfo cmdBeginInfo{};
+        cmdBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        cmdBeginInfo.pNext = nullptr;
+
+        cmdBeginInfo.pInheritanceInfo = nullptr;
+        cmdBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+        if (vkBeginCommandBuffer(cmd, &cmdBeginInfo) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to begin command buffer");
+        }
+
+        function(cmd);
+
+        if (vkEndCommandBuffer(cmd) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to end command buffer");
+        }
+
+        VkSubmitInfo submit{};
+        submit.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submit.pNext = nullptr;
+
+        submit.waitSemaphoreCount = 0;
+        submit.pWaitSemaphores = nullptr;
+        submit.pWaitDstStageMask = nullptr;
+        submit.commandBufferCount = 1;
+        submit.pCommandBuffers = &cmd;
+        submit.signalSemaphoreCount = 0;
+        submit.pSignalSemaphores = nullptr;
+
+        vkWaitForFences(m_Device, 1, &m_UploadContext.UploadFence, true, UINT64_MAX);
+        vkResetFences(m_Device, 1, &m_UploadContext.UploadFence);
+
+        if (vkQueueSubmit(m_GraphicsQueue, 1, &submit, m_UploadContext.UploadFence) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to submit queue");
+        }
+
+        vkWaitForFences(m_Device, 1, &m_UploadContext.UploadFence, true, UINT64_MAX);
+        vkResetFences(m_Device, 1, &m_UploadContext.UploadFence);
+
+        vkResetCommandPool(m_Device, m_UploadContext.CommandPool, 0);
+    }
+
     VkShaderModule GraphicsDeviceVk::CreateShaderModule(const std::vector<uint32_t> &spirv_buffer, bool *successful)
     {
         VkShaderModuleCreateInfo createInfo = {};
@@ -1001,6 +1152,143 @@ namespace Nexus
         }
 
         return newBuffer;
+    }
+
+    bool GraphicsDeviceVk::LoadImageFromFile(const char *file, AllocatedImage *image)
+    {
+        int texWidth, texHeight, texChannels;
+
+        stbi_uc *pixels = stbi_load(file, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+
+        if (!pixels)
+        {
+            throw std::runtime_error("Failed to load texture file");
+            return false;
+        }
+
+        void *pixel_ptr = pixels;
+        VkDeviceSize imageSize = texWidth * texHeight * 4;
+
+        VkFormat image_format = VK_FORMAT_R8G8B8A8_SRGB;
+
+        AllocatedBuffer stagingBuffing = CreateBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
+
+        void *data;
+        vmaMapMemory(m_Allocator, stagingBuffing.Allocation, &data);
+        memcpy(data, pixel_ptr, static_cast<size_t>(imageSize));
+        vmaUnmapMemory(m_Allocator, stagingBuffing.Allocation);
+
+        stbi_image_free(pixels);
+
+        VkExtent3D imageExtent;
+        imageExtent.width = static_cast<uint32_t>(texWidth);
+        imageExtent.height = static_cast<uint32_t>(texHeight);
+        imageExtent.depth = 1;
+
+        VkImageCreateInfo dimg_info{};
+        dimg_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+        dimg_info.pNext = nullptr;
+
+        dimg_info.imageType = VK_IMAGE_TYPE_2D;
+        dimg_info.format = image_format;
+        dimg_info.extent = imageExtent;
+
+        dimg_info.mipLevels = 1;
+        dimg_info.arrayLayers = 1;
+        dimg_info.samples = VK_SAMPLE_COUNT_1_BIT;
+        dimg_info.tiling = VK_IMAGE_TILING_OPTIMAL;
+        dimg_info.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+
+        AllocatedImage newImage;
+        VmaAllocationCreateInfo dimg_allocInfo = {};
+        dimg_allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+        if (vmaCreateImage(m_Allocator, &dimg_info, &dimg_allocInfo, &newImage.Image, &newImage.Allocation, nullptr) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to create image");
+            return false;
+        }
+
+        *image = newImage;
+
+        // GOT TO LAYOUT TRANSITION (engine.immediate_submit screenshot)
+
+        ImmediateSubmit([&](VkCommandBuffer cmd)
+                        {
+                            VkImageSubresourceRange range;
+                            range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                            range.baseMipLevel = 0;
+                            range.levelCount = 1;
+                            range.baseArrayLayer = 0;
+                            range.layerCount = 1;
+
+                            VkImageMemoryBarrier imageBarrier_toTransfer = {};
+                            imageBarrier_toTransfer.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+
+                            imageBarrier_toTransfer.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+                            imageBarrier_toTransfer.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+                            imageBarrier_toTransfer.image = newImage.Image;
+                            imageBarrier_toTransfer.subresourceRange = range;
+                            
+                            imageBarrier_toTransfer.srcAccessMask = 0;
+                            imageBarrier_toTransfer.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+                            vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageBarrier_toTransfer);
+                            
+                            VkBufferImageCopy copyRegion = {};
+                            copyRegion.bufferOffset = 0;
+                            copyRegion.bufferRowLength = 0;
+                            copyRegion.bufferImageHeight = 0;
+
+                            copyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                            copyRegion.imageSubresource.mipLevel = 0;
+                            copyRegion.imageSubresource.baseArrayLayer = 0;
+                            copyRegion.imageSubresource.layerCount = 1;
+                            copyRegion.imageExtent = imageExtent;
+                            
+                            vkCmdCopyBufferToImage(cmd, stagingBuffing.Buffer, newImage.Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
+                            
+
+                            VkImageMemoryBarrier imageBarrier_toReadable = imageBarrier_toTransfer;
+
+                            imageBarrier_toReadable.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+                            imageBarrier_toReadable.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                            
+                            imageBarrier_toReadable.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+                            imageBarrier_toReadable.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+                            
+                            vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageBarrier_toReadable); });
+
+        return true;
+    }
+
+    VkSamplerCreateInfo GraphicsDeviceVk::CreateSamplerCreateInfo(VkFilter filters, VkSamplerAddressMode samplerAddressMode)
+    {
+        VkSamplerCreateInfo info = {};
+        info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+        info.pNext = nullptr;
+
+        info.magFilter = filters;
+        info.minFilter = filters;
+        info.addressModeU = samplerAddressMode;
+        info.addressModeV = samplerAddressMode;
+        info.addressModeW = samplerAddressMode;
+
+        return info;
+    }
+
+    VkWriteDescriptorSet GraphicsDeviceVk::WriteDescriptorImage(VkDescriptorType type, VkDescriptorSet dstSet, VkDescriptorImageInfo *imageInfo, uint32_t binding)
+    {
+        VkWriteDescriptorSet write = {};
+        write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        write.pNext = nullptr;
+
+        write.dstBinding = binding;
+        write.dstSet = dstSet;
+        write.descriptorCount = 1;
+        write.descriptorType = type;
+        write.pImageInfo = imageInfo;
+
+        return write;
     }
 
     FrameData &GraphicsDeviceVk::GetCurrentFrame()

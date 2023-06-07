@@ -155,11 +155,11 @@ public:
 
         vk->BeginCommandBuffer();
         {
-            VkClearColorValue clear_color = {0.8f, 0.3f, 0.2f, 1.0f};
+            VkClearColorValue clear_color = {0.0f, 0.0f, 0.0f, 1.0f};
             VkClearDepthStencilValue clear_depth_stencil = {1.0f, 0};
             vk->BeginRenderPass(clear_color, clear_depth_stencil);
             {
-                glm::mat4 m = glm::scale(glm::mat4(1.0f), {1.0f, 2.0f, 1.0f});
+                glm::mat4 m = glm::mat4(1.0f);
                 vk->UpdateUniformBuffer(m);
                 vk->DrawWithPipeline();
             }
