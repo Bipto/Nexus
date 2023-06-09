@@ -1169,7 +1169,7 @@ namespace Nexus
         void *pixel_ptr = pixels;
         VkDeviceSize imageSize = texWidth * texHeight * 4;
 
-        VkFormat image_format = VK_FORMAT_R8G8B8A8_SRGB;
+        VkFormat image_format = VK_FORMAT_R8G8B8A8_UNORM;
 
         AllocatedBuffer stagingBuffing = CreateBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
 
