@@ -165,6 +165,10 @@ namespace Nexus
 #endif
     }
 
+    void GraphicsDeviceDX11::SetPipeline(Ref<Pipeline> pipeline)
+    {
+    }
+
     void GraphicsDeviceDX11::DrawElements(PrimitiveType type, uint32_t start, uint32_t count)
     {
 #if defined(WIN32)
@@ -179,6 +183,10 @@ namespace Nexus
         m_DeviceContextPtr->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         m_DeviceContextPtr->DrawIndexed(count, offset, 0);
 #endif
+    }
+
+    void GraphicsDeviceDX11::SubmitCommandList(Ref<CommandList> commandList)
+    {
     }
 
     void GraphicsDeviceDX11::SetViewport(const Viewport &viewport)
@@ -332,6 +340,16 @@ namespace Nexus
 #else
         return nullptr;
 #endif
+    }
+
+    Ref<Pipeline> GraphicsDeviceDX11::CreatePipeline(const PipelineDescription &description)
+    {
+        return nullptr;
+    }
+
+    Ref<CommandList> GraphicsDeviceDX11::CreateCommandList(Ref<Pipeline> pipeline)
+    {
+        return nullptr;
     }
 
     void GraphicsDeviceDX11::InitialiseImGui()

@@ -21,8 +21,10 @@ namespace Nexus
         virtual void SetContext() override;
         virtual void Clear(float red, float green, float blue, float alpha) override;
         virtual void SetFramebuffer(Ref<Framebuffer> framebuffer) override;
+        virtual void SetPipeline(Ref<Pipeline> pipeline) override;
         virtual void DrawElements(PrimitiveType type, uint32_t start, uint32_t count) override;
         virtual void DrawIndexed(PrimitiveType type, uint32_t count, uint32_t offset) override;
+        virtual void SubmitCommandList(Ref<CommandList> commandList) override;
 
         virtual void SetViewport(const Viewport &viewport) override;
         virtual const Viewport &GetViewport() override;
@@ -41,6 +43,8 @@ namespace Nexus
         virtual Ref<Texture> CreateTexture(TextureSpecification spec) override;
         virtual Ref<UniformBuffer> CreateUniformBuffer(const UniformResourceBinding &binding) override;
         virtual Ref<Framebuffer> CreateFramebuffer(const Nexus::FramebufferSpecification &spec) override;
+        virtual Ref<Pipeline> CreatePipeline(const PipelineDescription &description) override;
+        virtual Ref<CommandList> CreateCommandList(Ref<Pipeline> pipeline) override;
 
         virtual void InitialiseImGui() override;
         virtual void BeginImGuiRender() override;

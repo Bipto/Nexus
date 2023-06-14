@@ -2,6 +2,12 @@
 
 #include "backends/imgui_impl_opengl3.h"
 
+#include "PipelineOpenGL.h"
+#include "ShaderOpenGL.h"
+#include "BufferOpenGL.h"
+#include "TextureOpenGL.h"
+#include "CommandListOpenGL.h"
+
 namespace Nexus
 {
     GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(const GraphicsDeviceCreateInfo &createInfo)
@@ -88,6 +94,12 @@ namespace Nexus
         }
     }
 
+    void GraphicsDeviceOpenGL::SetPipeline(Ref<Pipeline> pipeline)
+    {
+        Ref<PipelineOpenGL> pl = std::dynamic_pointer_cast<PipelineOpenGL>(pipeline);
+        pl->Bind();
+    }
+
     void GraphicsDeviceOpenGL::DrawElements(PrimitiveType type, uint32_t start, uint32_t count)
     {
         glDrawArrays(GL_TRIANGLES, start, count);
@@ -96,6 +108,18 @@ namespace Nexus
     void GraphicsDeviceOpenGL::DrawIndexed(PrimitiveType type, uint32_t count, uint32_t offset)
     {
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void *)offset);
+    }
+
+    void GraphicsDeviceOpenGL::SubmitCommandList(Ref<CommandList> commandList)
+    {
+        Ref<CommandListOpenGL> commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
+        auto &commands = commandListGL->GetRenderCommands();
+        auto commandCount = commandListGL->GetCommandCount();
+
+        for (int i = 0; i < commandCount; i++)
+        {
+            commands[i](commandListGL);
+        }
     }
 
     void GraphicsDeviceOpenGL::SetViewport(const Viewport &viewport)
@@ -174,6 +198,16 @@ namespace Nexus
     Ref<Framebuffer> GraphicsDeviceOpenGL::CreateFramebuffer(const Nexus::FramebufferSpecification &spec)
     {
         return CreateRef<FramebufferOpenGL>(spec);
+    }
+
+    Ref<Pipeline> GraphicsDeviceOpenGL::CreatePipeline(const PipelineDescription &description)
+    {
+        return CreateRef<PipelineOpenGL>(description);
+    }
+
+    Ref<CommandList> GraphicsDeviceOpenGL::CreateCommandList(Ref<Pipeline> pipeline)
+    {
+        return CreateRef<CommandListOpenGL>(pipeline);
     }
 
     void GraphicsDeviceOpenGL::InitialiseImGui()

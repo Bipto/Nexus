@@ -2,6 +2,8 @@
 
 #include "glad/glad.h"
 
+#include "SDL_syswm.h"
+
 using namespace Nexus;
 static KeyCode SDLToNexusKeycode(SDL_Keycode keycode)
 {
@@ -242,6 +244,22 @@ namespace Nexus
                                           windowProps.Width,
                                           windowProps.Height,
                                           SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+
+#if defined(WIN32)
+        SDL_SysWMinfo wmInfo;
+        SDL_VERSION(&wmInfo.version);
+        SDL_GetWindowWMInfo(m_Window, &wmInfo);
+        HWND hwnd = wmInfo.info.win.window;
+
+        /* // use new windows border style
+        BOOL value = TRUE;
+        DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &value, sizeof(value));
+
+        //set a custom titlebar colour
+        COLORREF color = 0xFFFFFF;
+        DwmSetWindowAttribute(hwnd, DWMWA_CAPTION_COLOR, &color, sizeof(color)); */
+#endif
+
         m_Input = new InputState();
     }
 

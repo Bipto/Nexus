@@ -15,6 +15,13 @@
 
 #include "backends/imgui_impl_sdl2.h"
 
+#if defined(WIN32)
+#include "Windows.h"
+#include "dwmapi.h"
+
+#pragma comment(lib, "Dwmapi.lib")
+#endif
+
 namespace Nexus
 {
     enum WindowState

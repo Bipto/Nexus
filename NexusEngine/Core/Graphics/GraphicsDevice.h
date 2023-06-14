@@ -7,6 +7,8 @@
 #include "Buffer.h"
 #include "Texture.h"
 #include "Framebuffer.h"
+#include "Pipeline.h"
+#include "CommandList.h"
 #include "Core/Graphics/ShaderGenerator.h"
 #include "Viewport.h"
 
@@ -28,13 +30,6 @@ namespace Nexus
     enum class PrimitiveType
     {
         Triangle
-    };
-
-    enum class CullMode
-    {
-        Clockwise,
-        CounterClockwise,
-        None
     };
 
     struct GraphicsDeviceCreateInfo
@@ -68,10 +63,12 @@ namespace Nexus
         virtual void SetContext() = 0;
         virtual void Clear(float red, float green, float blue, float alpha) = 0;
         virtual void SetFramebuffer(Ref<Framebuffer> framebuffer) = 0;
+        virtual void SetPipeline(Ref<Pipeline> pipeline) = 0;
         virtual void DrawElements(PrimitiveType type, uint32_t start, uint32_t count) = 0;
         virtual void DrawIndexed(PrimitiveType type, uint32_t count, uint32_t offset) = 0;
         virtual const char *GetAPIName() = 0;
         virtual const char *GetDeviceName() = 0;
+        virtual void SubmitCommandList(Ref<CommandList> commandList) = 0;
 
         virtual void SetViewport(const Viewport &viewport) = 0;
         virtual const Viewport &GetViewport() = 0;
@@ -92,8 +89,11 @@ namespace Nexus
         virtual Ref<VertexBuffer> CreateVertexBuffer(const std::vector<Vertex> vertices) = 0;
         virtual Ref<IndexBuffer> CreateIndexBuffer(const std::vector<unsigned int> indices) = 0;
         virtual Ref<UniformBuffer> CreateUniformBuffer(const UniformResourceBinding &binding) = 0;
+        virtual Ref<Pipeline> CreatePipeline(const PipelineDescription &description) = 0;
+        virtual Ref<CommandList> CreateCommandList(Ref<Pipeline> pipeline) = 0;
 
-        virtual Ref<Texture> CreateTexture(TextureSpecification spec) = 0;
+        virtual Ref<Texture>
+        CreateTexture(TextureSpecification spec) = 0;
         Ref<Texture> CreateTexture(const char *filepath);
 
         virtual Ref<Framebuffer> CreateFramebuffer(const Nexus::FramebufferSpecification &spec) = 0;

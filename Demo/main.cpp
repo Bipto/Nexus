@@ -2,6 +2,8 @@
 
 #include "Core/Graphics/MeshFactory.h"
 
+#include "Core/Graphics/Color.h"
+
 struct alignas(16) VB_UNIFORM_CAMERA
 {
     glm::mat4 View;
@@ -90,8 +92,18 @@ public:
         m_TransformUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(renderInfoUniformBinding);
         m_TransformUniformBuffer->BindToShader(m_Shader);
 
+        Nexus::PipelineDescription pipelineDescription;
+        pipelineDescription.RasterizerStateDescription.CullingEnabled = true;
+        pipelineDescription.RasterizerStateDescription.CullMode = Nexus::CullMode::Back;
+        pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::FrontFace::CounterClockwise;
+        pipelineDescription.Shader = m_Shader;
+
+        m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
+
         Nexus::MeshFactory factory(m_GraphicsDevice);
         m_SpriteMesh = factory.CreateCube();
+
+        m_CommandList = m_GraphicsDevice->CreateCommandList(m_Pipeline);
     }
 
     virtual void Update(Nexus::Time time) override
@@ -100,6 +112,8 @@ public:
 
     virtual void Render(Nexus::Time time) override
     {
+        m_GraphicsDevice->SetPipeline(m_Pipeline);
+
         m_GraphicsDevice->SetFramebuffer(nullptr);
         Nexus::Viewport vp;
         vp.X = 0;
@@ -118,21 +132,25 @@ public:
         m_RenderInfoUniforms.Color = m_CubeColor;
         m_TransformUniformBuffer->SetData(&m_RenderInfoUniforms, sizeof(m_RenderInfoUniforms), 0);
 
-        m_GraphicsDevice->Clear(
-            m_ClearColor.r,
-            m_ClearColor.g,
-            m_ClearColor.b,
-            1.0f);
-
         Nexus::TextureBinding textureBinding;
         textureBinding.Slot = 1;
         textureBinding.Name = "ourTexture";
 
         m_Shader->SetTexture(m_Texture, textureBinding);
-        m_GraphicsDevice->SetShader(m_Shader);
-        m_GraphicsDevice->SetVertexBuffer(m_SpriteMesh.GetVertexBuffer());
-        m_GraphicsDevice->SetIndexBuffer(m_SpriteMesh.GetIndexBuffer());
-        m_GraphicsDevice->DrawIndexed(Nexus::PrimitiveType::Triangle, m_SpriteMesh.GetIndexBuffer()->GetIndexCount(), 0);
+
+        Nexus::CommandListBeginInfo beginInfo{};
+        beginInfo.ClearValue = {
+            m_ClearColor.r,
+            m_ClearColor.g,
+            m_ClearColor.b,
+            1.0f};
+
+        m_CommandList->Begin(beginInfo);
+        m_CommandList->SetVertexBuffer(m_SpriteMesh.GetVertexBuffer());
+        m_CommandList->SetIndexBuffer(m_SpriteMesh.GetIndexBuffer());
+        m_CommandList->DrawIndexed(m_SpriteMesh.GetIndexBuffer()->GetIndexCount(), 0);
+        m_CommandList->End();
+        m_GraphicsDevice->SubmitCommandList(m_CommandList);
 
         m_Camera.Update(
             GetWindowSize().X,
@@ -162,6 +180,8 @@ private:
     Nexus::Ref<Nexus::UniformBuffer> m_TransformUniformBuffer;
     Nexus::Ref<Nexus::Texture> m_Texture;
     Nexus::Ref<Nexus::Framebuffer> m_Framebuffer;
+    Nexus::Ref<Nexus::Pipeline> m_Pipeline;
+    Nexus::Ref<Nexus::CommandList> m_CommandList;
     Nexus::Mesh m_SpriteMesh;
 
     Nexus::FirstPersonCamera m_Camera;
