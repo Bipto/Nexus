@@ -34,12 +34,15 @@ namespace Nexus
         m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
         {
             auto color = commandList->GetClearColorValue();
+
             glClearColor(color.Red,
                          color.Green,
                          color.Blue,
                          color.Alpha);
+            glClearDepth(commandList->GetClearDepthValue());
+            glClearStencil(commandList->GetClearStencilValue());
 
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         };
     }
 
@@ -110,6 +113,11 @@ namespace Nexus
     const float CommandListOpenGL::GetClearDepthValue()
     {
         return m_CommandListBeginInfo.DepthValue;
+    }
+
+    const uint8_t CommandListOpenGL::GetClearStencilValue()
+    {
+        return m_CommandListBeginInfo.StencilValue;
     }
 
     Ref<VertexBuffer> CommandListOpenGL::GetCurrentVertexBuffer()

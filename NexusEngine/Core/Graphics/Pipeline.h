@@ -3,6 +3,8 @@
 #include "Shader.h"
 #include "Viewport.h"
 
+#include "Rectangle.h"
+
 namespace Nexus
 {
     enum class ComparisonFunction
@@ -34,7 +36,7 @@ namespace Nexus
     {
         Back,
         Front,
-        Both
+        None
     };
 
     enum class FillMode
@@ -58,11 +60,27 @@ namespace Nexus
         TriangleStrip
     };
 
+    enum StencilOperation
+    {
+        Keep,
+        Zero,
+        Replace,
+        Increment,
+        Decrement,
+        Invert
+    };
+
     struct DepthStencilDescription
     {
         bool EnableDepthWrite = false;
         bool EnableDepthTest = false;
-        ComparisonFunction ComparisonFunction = ComparisonFunction::Never;
+        ComparisonFunction DepthComparisonFunction = ComparisonFunction::Never;
+        bool EnableStencilTest = false;
+        uint8_t StencilMask = 0xFF;
+        ComparisonFunction StencilComparisonFunction = ComparisonFunction::Never;
+        StencilOperation StencilFailOperation = StencilOperation::Keep;
+        StencilOperation StencilSuccessDepthFailOperation = StencilOperation::Keep;
+        StencilOperation StencilSuccessDepthSuccessOperation = StencilOperation::Keep;
     };
 
     struct RasterizerStateDescription
@@ -72,7 +90,7 @@ namespace Nexus
         FrontFace FrontFace = FrontFace::Clockwise;
         bool DepthClipEnabled = false;
         bool ScissorTestEnabled = false;
-        bool CullingEnabled = false;
+        Rectangle ScissorRectangle;
     };
 
     struct PipelineDescription
@@ -92,8 +110,9 @@ namespace Nexus
             m_Description = description;
         }
         Pipeline() = delete;
-        virtual ~Pipeline() {}
+        virtual ~Pipeline() = default;
         virtual const PipelineDescription &GetPipelineDescription() const = 0;
+        virtual Ref<Shader> GetShader() const { return m_Description.Shader; }
 
     protected:
         PipelineDescription m_Description;

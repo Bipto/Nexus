@@ -2,16 +2,18 @@
 
 #include "Core/Graphics/CommandList.h"
 
-#include "GL.h"
+#include "DX11.h"
 
 #include <array>
 
 namespace Nexus
 {
-    class CommandListOpenGL : public CommandList
+    class GraphicsDeviceDX11;
+
+    class CommandListDX11 : public CommandList
     {
     public:
-        CommandListOpenGL(Ref<Pipeline> pipeline);
+        CommandListDX11(GraphicsDeviceDX11 *graphicsDevice, Ref<Pipeline> pipeline);
 
         virtual void Begin(const CommandListBeginInfo &beginInfo) override;
         virtual void End() override;
@@ -34,9 +36,11 @@ namespace Nexus
         virtual DrawElementCommand &GetCurrentDrawElementCommand() override;
         virtual DrawIndexedCommand &GetCurrentDrawIndexedCommand() override;
 
-        GLenum GetTopology();
+        D3D11_PRIMITIVE_TOPOLOGY GetTopology();
         const std::array<RenderCommand, 1000> &GetRenderCommands();
         uint32_t GetCommandCount();
+
+        GraphicsDeviceDX11 *GetGraphicsDevice() { return m_GraphicsDevice; }
 
     private:
         std::array<RenderCommand, 1000> m_Commands;
@@ -53,5 +57,7 @@ namespace Nexus
         uint32_t m_IndexBufferIndex = 0;
         uint32_t m_ElementCommandIndex = 0;
         uint32_t m_IndexedCommandIndex = 0;
+
+        GraphicsDeviceDX11 *m_GraphicsDevice = nullptr;
     };
 }

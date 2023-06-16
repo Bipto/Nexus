@@ -20,6 +20,7 @@ namespace Nexus
     {
         ClearValue ClearValue;
         float DepthValue = 1.0f;
+        uint8_t StencilValue = 0;
     };
 
     struct DrawElementCommand
@@ -53,6 +54,7 @@ namespace Nexus
 
         virtual const ClearValue &GetClearColorValue() = 0;
         virtual const float GetClearDepthValue() = 0;
+        virtual const uint8_t GetClearStencilValue() = 0;
 
         virtual const std::vector<Ref<VertexBuffer>> &GetVertexBuffers() = 0;
         virtual const std::vector<Ref<IndexBuffer>> &GetIndexBuffers() = 0;

@@ -18,6 +18,48 @@ namespace Nexus
         SetShader();
     }
 
+    GLenum GetStencilOperation(StencilOperation operation)
+    {
+        switch (operation)
+        {
+        case StencilOperation::Keep:
+            return GL_KEEP;
+        case StencilOperation::Zero:
+            return GL_ZERO;
+        case StencilOperation::Replace:
+            return GL_REPLACE;
+        case StencilOperation::Increment:
+            return GL_INCR;
+        case StencilOperation::Decrement:
+            return GL_DECR;
+        case StencilOperation::Invert:
+            return GL_INVERT;
+        }
+    }
+
+    GLenum GetComparisonFunction(ComparisonFunction function)
+    {
+        switch (function)
+        {
+        case ComparisonFunction::Always:
+            return GL_ALWAYS;
+        case ComparisonFunction::Equal:
+            return GL_EQUAL;
+        case ComparisonFunction::Greater:
+            return GL_GREATER;
+        case ComparisonFunction::GreaterEqual:
+            return GL_GEQUAL;
+        case ComparisonFunction::Less:
+            return GL_LESS;
+        case ComparisonFunction::LessEqual:
+            return GL_LEQUAL;
+        case ComparisonFunction::Never:
+            return GL_NEVER;
+        case ComparisonFunction::NotEqual:
+            return GL_NOTEQUAL;
+        }
+    }
+
     void PipelineOpenGL::SetupDepthStencil()
     {
         // enable/disable depth testing
@@ -40,45 +82,38 @@ namespace Nexus
             glDepthMask(GL_FALSE);
         }
 
-        // set up depth comparison function
-        switch (m_Description.DepthStencilDescription.ComparisonFunction)
+        // set up stencil options
+        if (m_Description.DepthStencilDescription.EnableStencilTest)
         {
-        case ComparisonFunction::Always:
-            glDepthFunc(GL_ALWAYS);
-            break;
-        case ComparisonFunction::Equal:
-            glDepthFunc(GL_EQUAL);
-            break;
-        case ComparisonFunction::Greater:
-            glDepthFunc(GL_GREATER);
-            break;
-        case ComparisonFunction::GreaterEqual:
-            glDepthFunc(GL_GEQUAL);
-            break;
-        case ComparisonFunction::Less:
-            glDepthFunc(GL_LESS);
-            break;
-        case ComparisonFunction::LessEqual:
-            glDepthFunc(GL_LEQUAL);
-            break;
-        case ComparisonFunction::Never:
-            glDepthFunc(GL_NEVER);
-            break;
-        case ComparisonFunction::NotEqual:
-            glDepthFunc(GL_NOTEQUAL);
-            break;
+            glEnable(GL_STENCIL_TEST);
         }
+        else
+        {
+            glDisable(GL_STENCIL_TEST);
+        }
+
+        GLenum sfail = GetStencilOperation(m_Description.DepthStencilDescription.StencilFailOperation);
+        GLenum dpfail = GetStencilOperation(m_Description.DepthStencilDescription.StencilSuccessDepthFailOperation);
+        GLenum dppass = GetStencilOperation(m_Description.DepthStencilDescription.StencilSuccessDepthSuccessOperation);
+
+        glStencilOp(sfail, dpfail, dppass);
+        GLenum stencilFunction = GetComparisonFunction(m_Description.DepthStencilDescription.StencilComparisonFunction);
+        glStencilFunc(stencilFunction, 1, m_Description.DepthStencilDescription.StencilMask);
+        glStencilMask(m_Description.DepthStencilDescription.StencilMask);
+
+        GLenum depthFunction = GetComparisonFunction(m_Description.DepthStencilDescription.DepthComparisonFunction);
+        glDepthFunc(depthFunction);
     }
 
     void PipelineOpenGL::SetupRasterizer()
     {
-        if (m_Description.RasterizerStateDescription.CullingEnabled)
+        if (m_Description.RasterizerStateDescription.CullMode == CullMode::None)
         {
-            glEnable(GL_CULL_FACE);
+            glDisable(GL_CULL_FACE);
         }
         else
         {
-            glDisable(GL_CULL_FACE);
+            glEnable(GL_CULL_FACE);
         }
 
         switch (m_Description.RasterizerStateDescription.CullMode)
@@ -88,9 +123,6 @@ namespace Nexus
             break;
         case CullMode::Front:
             glCullFace(GL_FRONT);
-            break;
-        case CullMode::Both:
-            glCullFace(GL_FRONT_AND_BACK);
             break;
         }
 
@@ -122,6 +154,22 @@ namespace Nexus
             glFrontFace(GL_CCW);
             break;
         }
+
+        if (m_Description.RasterizerStateDescription.ScissorTestEnabled)
+        {
+            glEnable(GL_SCISSOR_TEST);
+        }
+        else
+        {
+            glDisable(GL_SCISSOR_TEST);
+        }
+
+        auto &scissorRectangle = m_Description.RasterizerStateDescription.ScissorRectangle;
+        glScissor(
+            scissorRectangle.X,
+            scissorRectangle.Y,
+            scissorRectangle.Width,
+            scissorRectangle.Height);
     }
 
     void PipelineOpenGL::SetShader()

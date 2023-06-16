@@ -5,6 +5,12 @@
 #include "backends/imgui_impl_dx11.h"
 #endif
 
+#include "BufferDX11.h"
+#include "ShaderDX11.h"
+#include "TextureDX11.h"
+#include "PipelineDX11.h"
+#include "CommandListDX11.h"
+
 namespace Nexus
 {
     GraphicsDeviceDX11::GraphicsDeviceDX11(const GraphicsDeviceCreateInfo &createInfo)
@@ -28,9 +34,10 @@ namespace Nexus
         swap_chain_desc.SampleDesc.Count = 1;
         swap_chain_desc.SampleDesc.Quality = 0;
         swap_chain_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        swap_chain_desc.BufferCount = 1;
+        swap_chain_desc.BufferCount = 2;
         swap_chain_desc.OutputWindow = hwnd;
         swap_chain_desc.Windowed = true;
+        swap_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 
         D3D_FEATURE_LEVEL feature_level;
         UINT flags = D3D11_CREATE_DEVICE_SINGLETHREADED;
@@ -71,7 +78,7 @@ namespace Nexus
         depthDesc.MipLevels = 1;
         depthDesc.ArraySize = 1;
         depthDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-        depthDesc.SampleDesc.Count = 4;
+        depthDesc.SampleDesc.Count = 1;
         depthDesc.SampleDesc.Quality = 0;
         depthDesc.Usage = D3D11_USAGE_DEFAULT;
         depthDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
@@ -167,6 +174,23 @@ namespace Nexus
 
     void GraphicsDeviceDX11::SetPipeline(Ref<Pipeline> pipeline)
     {
+#if defined(WIN32)
+        Ref<PipelineDX11> dxPipeline = std::dynamic_pointer_cast<PipelineDX11>(pipeline);
+        auto depthStencilState = dxPipeline->GetDepthStencilState();
+        auto rasterizerState = dxPipeline->GetRasterizerState();
+        const auto &scissorRectangle = dxPipeline->GetScissorRectangle();
+        auto topology = dxPipeline->GetTopology();
+
+        m_DeviceContextPtr->OMSetDepthStencilState(depthStencilState, 1);
+        m_DeviceContextPtr->RSSetState(rasterizerState);
+        m_DeviceContextPtr->RSSetScissorRects(1, &scissorRectangle);
+        m_DeviceContextPtr->IASetPrimitiveTopology(topology);
+
+        Ref<ShaderDX11> dxShader = std::dynamic_pointer_cast<ShaderDX11>(dxPipeline->GetShader());
+        m_DeviceContextPtr->VSSetShader(dxShader->GetVertexShader(), 0, 0);
+        m_DeviceContextPtr->PSSetShader(dxShader->GetPixelShader(), 0, 0);
+        m_DeviceContextPtr->IASetInputLayout(dxShader->GetInputLayout());
+#endif
     }
 
     void GraphicsDeviceDX11::DrawElements(PrimitiveType type, uint32_t start, uint32_t count)
@@ -187,6 +211,14 @@ namespace Nexus
 
     void GraphicsDeviceDX11::SubmitCommandList(Ref<CommandList> commandList)
     {
+        Ref<CommandListDX11> commandListDX11 = std::dynamic_pointer_cast<CommandListDX11>(commandList);
+        auto &commands = commandListDX11->GetRenderCommands();
+        auto commandCount = commandListDX11->GetCommandCount();
+
+        for (int i = 0; i < commandCount; i++)
+        {
+            commands[i](commandListDX11);
+        }
     }
 
     void GraphicsDeviceDX11::SetViewport(const Viewport &viewport)
@@ -344,12 +376,20 @@ namespace Nexus
 
     Ref<Pipeline> GraphicsDeviceDX11::CreatePipeline(const PipelineDescription &description)
     {
+#if defined(WIN32)
+        return CreateRef<PipelineDX11>(m_DevicePtr, description);
+#else
         return nullptr;
+#endif
     }
 
     Ref<CommandList> GraphicsDeviceDX11::CreateCommandList(Ref<Pipeline> pipeline)
     {
+#if defined(WIN32)
+        return CreateRef<CommandListDX11>(this, pipeline);
+#else
         return nullptr;
+#endif
     }
 
     void GraphicsDeviceDX11::InitialiseImGui()
@@ -395,7 +435,7 @@ namespace Nexus
         depthDesc.MipLevels = 1;
         depthDesc.ArraySize = 1;
         depthDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-        depthDesc.SampleDesc.Count = 4;
+        depthDesc.SampleDesc.Count = 1;
         depthDesc.SampleDesc.Quality = 0;
         depthDesc.Usage = D3D11_USAGE_DEFAULT;
         depthDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;

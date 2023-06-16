@@ -73,7 +73,7 @@ namespace Nexus
     {
         if (m_Window->m_RequiresResize)
         {
-            OnResize(m_PreviousWindowSize);
+            OnResize(this->GetWindowSize());
             m_Window->m_RequiresResize = false;
             m_PreviousWindowSize = this->GetWindowSize();
         }

@@ -3,9 +3,6 @@
 #include "Core/Graphics/GraphicsDevice.h"
 #include "SDL_syswm.h"
 
-#include "BufferDX11.h"
-#include "ShaderDX11.h"
-#include "TextureDX11.h"
 #include "FramebufferDX11.h"
 
 #if defined(WIN32)
@@ -57,6 +54,10 @@ namespace Nexus
 
         virtual ShaderFormat GetSupportedShaderFormat() override { return ShaderFormat::HLSL; }
 
+        ID3D11Device *GetDevice() { return m_DevicePtr; }
+        ID3D11DeviceContext *GetDeviceContext() { return m_DeviceContextPtr; }
+        std::vector<ID3D11RenderTargetView *> &GetActiveRenderTargetViews() { return m_ActiveRenderTargetviews; }
+        ID3D11DepthStencilView *GetActiveDepthStencilView() { return m_ActiveDepthStencilView; }
 #if defined(WIN32)
     private:
         ID3D11Device *m_DevicePtr = NULL;

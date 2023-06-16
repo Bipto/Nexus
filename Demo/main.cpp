@@ -93,7 +93,6 @@ public:
         m_TransformUniformBuffer->BindToShader(m_Shader);
 
         Nexus::PipelineDescription pipelineDescription;
-        pipelineDescription.RasterizerStateDescription.CullingEnabled = true;
         pipelineDescription.RasterizerStateDescription.CullMode = Nexus::CullMode::Back;
         pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::FrontFace::CounterClockwise;
         pipelineDescription.Shader = m_Shader;
@@ -196,7 +195,7 @@ private:
 int main(int argc, char **argv)
 {
     Nexus::ApplicationSpecification spec;
-    spec.API = Nexus::GraphicsAPI::OpenGL;
+    spec.API = Nexus::GraphicsAPI::DirectX11;
     spec.ImGuiActive = true;
     spec.VSyncState = Nexus::VSyncState::Enabled;
     spec.UpdatesPerSecond = 1;
