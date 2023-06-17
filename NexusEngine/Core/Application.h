@@ -4,8 +4,7 @@
 
 #include "Window.h"
 #include "Graphics/GraphicsDevice.h"
-#include "Platform/OpenGL/GraphicsDeviceOpenGL.h"
-#include "Platform/DX11/GraphicsDeviceDX11.h"
+#include "Audio/AudioDevice.h"
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -49,20 +48,13 @@ private:
 
 namespace Nexus
 {
-    static Ref<GraphicsDevice> CreateGraphicsDevice(const GraphicsDeviceCreateInfo &createInfo)
-    {
-        switch (createInfo.API)
-        {
-        case GraphicsAPI::DirectX11:
-            return CreateRef<GraphicsDeviceDX11>(createInfo);
-        default:
-            return CreateRef<GraphicsDeviceOpenGL>(createInfo);
-        }
-    }
+    static Ref<GraphicsDevice> CreateGraphicsDevice(const GraphicsDeviceCreateInfo &createInfo);
+    static Ref<AudioDevice> CreateAudioDevice(AudioAPI api);
 
     struct ApplicationSpecification
     {
-        GraphicsAPI API;
+        GraphicsAPI GraphicsAPI;
+        AudioAPI AudioAPI;
         uint32_t UpdatesPerSecond = 60;
         uint32_t RendersPerSecond = 60;
         VSyncState VSyncState = VSyncState::Enabled;
@@ -101,6 +93,7 @@ namespace Nexus
 
     protected:
         Ref<GraphicsDevice> m_GraphicsDevice;
+        Ref<AudioDevice> m_AudioDevice;
 
     private:
         ApplicationSpecification m_Specification;

@@ -47,3 +47,9 @@
 [submodule "External/SPIRV-Cross"]
 	path = External/SPIRV-Cross
 	url = https://github.com/KhronosGroup/SPIRV-Cross.git
+[submodule "External/OpenAL-Soft"]
+	path = External/OpenAL-Soft
+	url = https://github.com/kcat/openal-soft.git
+[submodule "External/libnyquist"]
+	path = External/libnyquist
+	url = https://github.com/ddiakopoulos/libnyquist.git

@@ -152,7 +152,7 @@ public:
 
     virtual void Render(Nexus::Time time) override
     {
-        if (m_ViewportPanel->FramebufferRequiresResize())
+        /* if (m_ViewportPanel->FramebufferRequiresResize())
         {
             auto spec = m_Framebuffer->GetFramebufferSpecification();
             spec.Width = m_ViewportPanel->GetWindowSize().x;
@@ -162,7 +162,7 @@ public:
             {
                 m_Framebuffer->SetFramebufferSpecification(spec);
             }
-        }
+        } */
 
         // movement
         {
@@ -201,21 +201,21 @@ public:
             m_Camera.SetRotation(rotation);
             m_Camera.SetZoom(zoom); */
 
-            m_Camera.Update(m_ViewportPanel->GetWindowSize().x, m_ViewportPanel->GetWindowSize().y, time);
+            /* m_Camera.Update(m_ViewportPanel->GetWindowSize().x, m_ViewportPanel->GetWindowSize().y, time);
             m_CameraUniforms.View = m_Camera.GetView();
             m_CameraUniforms.Projection = m_Camera.GetProjection();
-            m_CameraUniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms), 0);
+            m_CameraUniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms), 0); */
         }
 
         // to framebuffer
         {
-            m_GraphicsDevice->SetFramebuffer(m_Framebuffer);
+            /* m_GraphicsDevice->SetFramebuffer(m_Framebuffer);
             Nexus::Viewport vp;
             vp.X = 0;
             vp.Y = 0;
             vp.Width = m_Framebuffer->GetFramebufferSpecification().Width;
             vp.Height = m_Framebuffer->GetFramebufferSpecification().Height;
-            m_GraphicsDevice->SetViewport(vp);
+            m_GraphicsDevice->SetViewport(vp); */
 
             /* if (m_Project)
             {
@@ -245,7 +245,7 @@ public:
                 }
             } */
 
-            m_GraphicsDevice->Clear(1.0f, 0.0f, 0.0f, 1.0f);
+            /* m_GraphicsDevice->Clear(1.0f, 0.0f, 0.0f, 1.0f);
 
             m_RenderInfoUniforms.Translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 2.5f));
             m_RenderInfoUniforms.Color = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -263,7 +263,7 @@ public:
             m_GraphicsDevice->DrawIndexed(
                 Nexus::PrimitiveType::Triangle,
                 m_Mesh.GetIndexBuffer()->GetIndexCount(),
-                0);
+                0); */
         }
 
         // to swapchain

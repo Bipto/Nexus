@@ -11,7 +11,9 @@ add_executable(Demo main.cpp)
 file (COPY 
     ${CMAKE_CURRENT_SOURCE_DIR}/shader.glsl
     ${CMAKE_CURRENT_SOURCE_DIR}/brick.jpg
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+    ${CMAKE_CURRENT_SOURCE_DIR}/Laser_Shoot.wav
+    ${CMAKE_CURRENT_SOURCE_DIR}/Guitar_Music.mp3
+    DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
 if (EMSCRIPTEN)
     set_target_properties(

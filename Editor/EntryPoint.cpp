@@ -3,7 +3,7 @@
 int main(int argc, char** argv)
 {
     Nexus::ApplicationSpecification spec;
-    spec.API = Nexus::GraphicsAPI::OpenGL;
+    spec.GraphicsAPI = Nexus::GraphicsAPI::OpenGL;
     spec.ImGuiActive = true;
     spec.UpdatesPerSecond = 60;
     spec.VSyncState = Nexus::VSyncState::Enabled;
@@ -16,7 +16,7 @@ int main(int argc, char** argv)
     
     if (arguments.size() > 1)
         if (arguments[1] == std::string("DX"))    
-            spec.API = Nexus::GraphicsAPI::DirectX11;
+            spec.GraphicsAPI = Nexus::GraphicsAPI::DirectX11;
 
     Nexus::Init();
 

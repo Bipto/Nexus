@@ -1,4 +1,10 @@
 #include "Application.h"
+
+#include "Platform/OpenGL/GraphicsDeviceOpenGL.h"
+#include "Platform/DX11/GraphicsDeviceDX11.h"
+
+#include "Platform/OpenAL/AudioDeviceOpenAL.h"
+
 #include "SDL_opengl.h"
 
 #include "Core/Logging/Log.h"
@@ -23,7 +29,7 @@ namespace Nexus
 
         GraphicsDeviceCreateInfo graphicsDeviceCreateInfo;
         graphicsDeviceCreateInfo.GraphicsWindow = m_Window;
-        graphicsDeviceCreateInfo.API = spec.API;
+        graphicsDeviceCreateInfo.API = spec.GraphicsAPI;
         graphicsDeviceCreateInfo.VSyncStateSettings = spec.VSyncState;
 
         Viewport vp;
@@ -33,11 +39,12 @@ namespace Nexus
         vp.Height = m_Window->GetWindowSize().Y;
         graphicsDeviceCreateInfo.GraphicsViewport = vp;
 
-        Ref<Nexus::GraphicsDevice> device = Nexus::CreateGraphicsDevice(graphicsDeviceCreateInfo);
-        m_GraphicsDevice = std::shared_ptr<GraphicsDevice>(device);
+        m_GraphicsDevice = Nexus::CreateGraphicsDevice(graphicsDeviceCreateInfo);
         m_GraphicsDevice->SetContext();
         m_GraphicsDevice->Resize(GetWindowSize());
         m_GraphicsDevice->SetVSyncState(spec.VSyncState);
+
+        m_AudioDevice = Nexus::CreateAudioDevice(spec.AudioAPI);
 
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -48,7 +55,7 @@ namespace Nexus
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-        if (device->GetGraphicsAPI() == GraphicsAPI::OpenGL)
+        if (m_GraphicsDevice->GetGraphicsAPI() == GraphicsAPI::OpenGL)
         {
             SDL_Window *window = this->m_Window->GetSDLWindowHandle();
             SDL_GLContext context = (SDL_GLContext)this->m_GraphicsDevice->GetContext();
@@ -56,7 +63,7 @@ namespace Nexus
             ImGui_ImplSDL2_InitForOpenGL(window, context);
         }
 
-        else if (device->GetGraphicsAPI() == GraphicsAPI::DirectX11)
+        else if (m_GraphicsDevice->GetGraphicsAPI() == GraphicsAPI::DirectX11)
         {
             ImGui_ImplSDL2_InitForD3D(this->m_Window->GetSDLWindowHandle());
         }
@@ -160,5 +167,25 @@ namespace Nexus
     {
         Window *window = new Nexus::Window(props);
         return window;
+    }
+
+    Ref<GraphicsDevice> CreateGraphicsDevice(const GraphicsDeviceCreateInfo &createInfo)
+    {
+        switch (createInfo.API)
+        {
+        case GraphicsAPI::DirectX11:
+            return CreateRef<GraphicsDeviceDX11>(createInfo);
+        default:
+            return CreateRef<GraphicsDeviceOpenGL>(createInfo);
+        }
+    }
+
+    Ref<AudioDevice> CreateAudioDevice(AudioAPI api)
+    {
+        switch (api)
+        {
+        default:
+            return CreateRef<AudioDeviceOpenAL>();
+        }
     }
 }

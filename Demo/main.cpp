@@ -103,6 +103,13 @@ public:
         m_SpriteMesh = factory.CreateCube();
 
         m_CommandList = m_GraphicsDevice->CreateCommandList(m_Pipeline);
+
+        Nexus::Ref<Nexus::AudioBuffer> buffer = m_AudioDevice->CreateAudioBufferFromMP3File("Guitar_Music.mp3");
+        Nexus::Ref<Nexus::AudioSource> source = m_AudioDevice->CreateAudioSource(buffer);
+        m_AudioDevice->PlaySource(source);
+
+        m_ShootSoundEffect = m_AudioDevice->CreateAudioBufferFromWavFile("Laser_Shoot.wav");
+        m_ShootSoundSource = m_AudioDevice->CreateAudioSource(m_ShootSoundEffect);
     }
 
     virtual void Update(Nexus::Time time) override
@@ -162,6 +169,11 @@ public:
         ImGui::End();
 
         Nexus::Input::GamepadSetLED(0, m_ClearColor.r * 255, m_ClearColor.g * 255, m_ClearColor.b * 255);
+
+        if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::Space))
+        {
+            m_AudioDevice->PlaySource(m_ShootSoundSource);
+        }
     }
 
     virtual void OnResize(Nexus::Point<int> size) override
@@ -190,12 +202,16 @@ private:
 
     glm::vec3 m_ClearColor{0.8f, 0.2f, 0.3f};
     glm::vec3 m_CubeColor{1.0f, 1.0f, 1.0f};
+
+    Nexus::Ref<Nexus::AudioBuffer> m_ShootSoundEffect;
+    Nexus::Ref<Nexus::AudioSource> m_ShootSoundSource;
 };
 
 int main(int argc, char **argv)
 {
     Nexus::ApplicationSpecification spec;
-    spec.API = Nexus::GraphicsAPI::DirectX11;
+    spec.GraphicsAPI = Nexus::GraphicsAPI::OpenGL;
+    spec.AudioAPI = Nexus::AudioAPI::OpenAL;
     spec.ImGuiActive = true;
     spec.VSyncState = Nexus::VSyncState::Enabled;
     spec.UpdatesPerSecond = 1;
@@ -210,7 +226,7 @@ int main(int argc, char **argv)
 
     if (arguments.size() > 1)
         if (arguments[1] == std::string("DX"))
-            spec.API = Nexus::GraphicsAPI::DirectX11;
+            spec.GraphicsAPI = Nexus::GraphicsAPI::DirectX11;
 
     Nexus::Init(argc, argv);
 
