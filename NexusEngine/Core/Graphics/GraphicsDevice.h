@@ -105,6 +105,7 @@ namespace Nexus
         virtual VSyncState GetVsyncState() = 0;
 
         virtual ShaderFormat GetSupportedShaderFormat() = 0;
+        virtual float GetUVCorrection() = 0;
         Ref<Shader> CreateShaderFromSpirvFile(const std::string &filepath, const VertexBufferLayout &layout);
 
     protected:

@@ -13,9 +13,10 @@ namespace Nexus
     // transform component
     void TransformComponent::RenderUI()
     {
-        /* ImGui::DragFloat3("Translation", glm::value_ptr(m_Translation), 0.1f, 0.1f, std::numeric_limits<float>::max());
+        // ImGui::DragFloat3("Translation", glm::value_ptr(m_Translation), 0.1f, 0.1f, std::numeric_limits<float>::max());
+        ImGui::DragFloat3("Translation", glm::value_ptr(m_Translation));
         ImGui::DragFloat3("Rotation", glm::value_ptr(m_Rotation));
-        ImGui::DragFloat3("Scale", glm::value_ptr(m_Scale)); */
+        ImGui::DragFloat3("Scale", glm::value_ptr(m_Scale));
     }
 
     nlohmann::json TransformComponent::Serialize()

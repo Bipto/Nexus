@@ -77,6 +77,9 @@ public:
 
         m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/shader.glsl", vertexBufferLayout);
 
+        m_TextureBinding.Slot = 0;
+        m_TextureBinding.Name = "texSampler";
+
         Nexus::Point size = this->GetWindowSize();
         Nexus::FramebufferSpecification framebufferSpec;
         framebufferSpec.Width = 500;
@@ -84,6 +87,14 @@ public:
         framebufferSpec.ColorAttachmentSpecification = {Nexus::TextureFormat::RGBA8, Nexus::TextureFormat::RGBA8};
         framebufferSpec.DepthAttachmentSpecification = Nexus::DepthFormat::DEPTH24STENCIL8;
         m_Framebuffer = this->m_GraphicsDevice->CreateFramebuffer(framebufferSpec);
+
+        Nexus::PipelineDescription pipelineDescription;
+        pipelineDescription.RasterizerStateDescription.CullMode = Nexus::CullMode::None;
+        pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::FrontFace::CounterClockwise;
+        pipelineDescription.Shader = m_Shader;
+        m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
+
+        m_CommandList = m_GraphicsDevice->CreateCommandList(m_Pipeline);
 
         auto &style = ImGui::GetStyle();
         style.ChildBorderSize = 0.0f;
@@ -95,7 +106,9 @@ public:
         CreatePanels();
 
         Nexus::MeshFactory factory = Nexus::MeshFactory(m_GraphicsDevice);
-        m_Mesh = factory.CreateCube();
+        m_SpriteMesh = factory.CreateSprite();
+
+        m_Camera.SetPosition({0.0f, 0.0f, -5.0f});
     }
 
     void CreatePanels()
@@ -111,7 +124,7 @@ public:
         m_Panels["InspectorPanel"] = m_InspectorPanel;
         m_Panels["LogPanel"] = new LogPanel();
         m_Panels["ProjectHierarchy"] = new ProjectHierarchyPanel();
-        m_ViewportPanel = new ViewportPanel(m_Framebuffer);
+        m_ViewportPanel = new ViewportPanel(m_Framebuffer, m_GraphicsDevice);
         m_Panels["ViewportPanel"] = m_ViewportPanel;
 
         auto newScenePanel = new NewScenePanel();
@@ -152,7 +165,7 @@ public:
 
     virtual void Render(Nexus::Time time) override
     {
-        /* if (m_ViewportPanel->FramebufferRequiresResize())
+        if (m_ViewportPanel->FramebufferRequiresResize())
         {
             auto spec = m_Framebuffer->GetFramebufferSpecification();
             spec.Width = m_ViewportPanel->GetWindowSize().x;
@@ -162,114 +175,94 @@ public:
             {
                 m_Framebuffer->SetFramebufferSpecification(spec);
             }
-        } */
-
-        // movement
-        {
-            /* auto pos = m_Camera.GetPosition();
-            auto rotation = m_Camera.GetRotation();
-            auto zoom = m_Camera.GetZoom();
-
-            if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::KeyUp))
-                pos.y -= m_MovementSpeed;
-
-            if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::KeyDown))
-                pos.y += m_MovementSpeed;
-
-            if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::KeyLeft))
-                pos.x -= m_MovementSpeed;
-
-            if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::KeyRight))
-                pos.x += m_MovementSpeed;
-
-            if (Nexus::Input::IsRightMouseHeld())
-            {
-                rotation.y -= Nexus::Input::GetMouseMovement().X;
-                rotation.x += Nexus::Input::GetMouseMovement().Y;
-            }
-
-            rotation.x = glm::clamp(rotation.x, -89.0f, 89.0f);
-
-            zoom += (Nexus::Input::GetMouseScrollMovementY() * 10.0f);
-
-            if (zoom <= 0.1f)
-            {
-                zoom = 0.1f;
-            }
-
-            m_Camera.SetPosition(pos);
-            m_Camera.SetRotation(rotation);
-            m_Camera.SetZoom(zoom); */
-
-            /* m_Camera.Update(m_ViewportPanel->GetWindowSize().x, m_ViewportPanel->GetWindowSize().y, time);
-            m_CameraUniforms.View = m_Camera.GetView();
-            m_CameraUniforms.Projection = m_Camera.GetProjection();
-            m_CameraUniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms), 0); */
         }
+
+        m_GraphicsDevice->SetPipeline(m_Pipeline);
 
         // to framebuffer
         {
-            /* m_GraphicsDevice->SetFramebuffer(m_Framebuffer);
+            m_GraphicsDevice->SetFramebuffer(m_Framebuffer);
             Nexus::Viewport vp;
             vp.X = 0;
             vp.Y = 0;
             vp.Width = m_Framebuffer->GetFramebufferSpecification().Width;
             vp.Height = m_Framebuffer->GetFramebufferSpecification().Height;
-            m_GraphicsDevice->SetViewport(vp); */
+            m_GraphicsDevice->SetViewport(vp);
 
-            /* if (m_Project)
+            m_GraphicsDevice->SetFramebuffer(m_Framebuffer);
+
+            // if project has been loaded, render entities
+            if (m_Project)
             {
                 auto activeScene = m_Project->GetActiveScene();
                 if (activeScene)
                 {
-                    const auto& clearColor = activeScene->GetClearColor();
-                    m_GraphicsDevice->Clear(
+                    auto clearColor = activeScene->GetClearColor();
+                    Nexus::CommandListBeginInfo beginInfo{};
+                    beginInfo.ClearValue = {
                         clearColor.r,
                         clearColor.g,
                         clearColor.b,
-                        clearColor.a
-                    );
+                        clearColor.a};
 
-                    for (auto& entity : activeScene->GetEntities())
+                    m_CommandList->Begin(beginInfo);
+
+                    for (auto &entity : activeScene->GetEntities())
                     {
                         if (entity.HasComponent<Nexus::SpriteRendererComponent>() && entity.HasComponent<Nexus::TransformComponent>())
                         {
-                            Nexus::TransformComponent* transform = entity.GetComponent<Nexus::TransformComponent*>();
-                            Nexus::SpriteRendererComponent* renderer = entity.GetComponent<Nexus::SpriteRendererComponent*>();
-                            if (renderer->GetTexture())
+                            auto transformComponent = entity.GetComponent<Nexus::TransformComponent *>();
+                            auto spriteRendererComponent = entity.GetComponent<Nexus::SpriteRendererComponent *>();
+
+                            if (spriteRendererComponent->GetTexture())
                             {
-                                RenderQuad(renderer->GetTexture(), transform->GetTranslation(), transform->GetScale(), renderer->GetColor());
+                                RenderQuad(
+                                    spriteRendererComponent->GetTexture(),
+                                    transformComponent->GetTranslation(),
+                                    transformComponent->GetScale(),
+                                    spriteRendererComponent->GetColor(),
+                                    m_CommandList);
                             }
                         }
                     }
+
+                    m_CommandList->End();
+                    m_GraphicsDevice->SubmitCommandList(m_CommandList);
                 }
-            } */
+            }
 
-            /* m_GraphicsDevice->Clear(1.0f, 0.0f, 0.0f, 1.0f);
-
-            m_RenderInfoUniforms.Translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 2.5f));
-            m_RenderInfoUniforms.Color = glm::vec3(1.0f, 1.0f, 1.0f);
-            m_RenderInfoUniformBuffer->SetData(&m_RenderInfoUniforms, sizeof(m_RenderInfoUniforms), 0);
-
-            m_GraphicsDevice->SetShader(m_Shader);
-            m_GraphicsDevice->SetVertexBuffer(m_Mesh.GetVertexBuffer());
-            m_GraphicsDevice->SetIndexBuffer(m_Mesh.GetIndexBuffer());
-
-            Nexus::TextureBinding textureBinding;
-            textureBinding.Slot = 0;
-            textureBinding.Name = "texSampler";
-
-            m_Shader->SetTexture(m_Texture, textureBinding);
-            m_GraphicsDevice->DrawIndexed(
-                Nexus::PrimitiveType::Triangle,
-                m_Mesh.GetIndexBuffer()->GetIndexCount(),
-                0); */
+            // otherwise render empty screen
+            else
+            {
+                Nexus::CommandListBeginInfo beginInfo{};
+                beginInfo.ClearValue = {
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    1.0f};
+                m_CommandList->Begin(beginInfo);
+                m_CommandList->End();
+                m_GraphicsDevice->SubmitCommandList(m_CommandList);
+            }
         }
 
         // to swapchain
         {
             m_GraphicsDevice->SetFramebuffer(nullptr);
             RenderEditorUI();
+        }
+
+        // movement
+        {
+            m_Camera.Update(
+                GetWindowSize().X,
+                GetWindowSize().Y,
+                time);
+            m_Camera.Resize(m_ViewportPanel->GetWindowSize().x, m_ViewportPanel->GetWindowSize().y);
+
+            m_CameraUniforms.View = m_Camera.GetView();
+            m_CameraUniforms.Projection = m_Camera.GetProjection();
+            m_CameraUniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms), 0);
         }
 
         if (Nexus::Input::WasGamepadKeyPressed(0, Nexus::GamepadButton::A))
@@ -294,23 +287,29 @@ public:
         return true;
     }
 
-    /* void RenderQuad(Nexus::Ref<Nexus::Texture> texture, const glm::vec3& position, const glm::vec3& scale, const glm::vec3& color)
+    void RenderQuad(Nexus::Ref<Nexus::Texture> texture, const glm::vec3 &position, const glm::vec3 &scale, const glm::vec3 &color, Nexus::Ref<Nexus::CommandList> commandList)
     {
-        m_RenderInfoUniforms.Translation = glm::transpose(glm::translate(glm::mat4(1.0f), position)
-            * glm::scale(glm::mat4(1.0f), scale));
+        m_RenderInfoUniforms.Translation = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), scale);
         m_RenderInfoUniforms.Color = color;
-        m_RenderInfoUniformBuffer->SetData(&m_RenderInfoUniforms, sizeof(m_RenderInfoUniforms), 0);
 
-        m_GraphicsDevice->SetShader(m_Shader);
-        m_GraphicsDevice->SetVertexBuffer(m_VertexBuffer);
-        m_GraphicsDevice->SetIndexBuffer(m_IndexBuffer);
-        m_Shader->SetTexture(texture, 0);
-        m_GraphicsDevice->DrawIndexed(
-            Nexus::PrimitiveType::Triangle,
-            m_IndexBuffer->GetIndexCount(),
-            0
-        );
-    } */
+        m_CommandList->UpdateUniformBuffer(
+            m_RenderInfoUniformBuffer,
+            &m_RenderInfoUniforms,
+            sizeof(m_RenderInfoUniforms),
+            0);
+
+        m_CommandList->UpdateTexture(
+            texture,
+            m_Shader,
+            m_TextureBinding);
+
+        m_CommandList->SetVertexBuffer(m_SpriteMesh.GetVertexBuffer());
+        m_CommandList->SetIndexBuffer(m_SpriteMesh.GetIndexBuffer());
+
+        m_CommandList->DrawIndexed(
+            m_SpriteMesh.GetIndexBuffer()->GetIndexCount(),
+            0);
+    }
 
     virtual void Unload() override
     {
@@ -475,8 +474,11 @@ private:
     Nexus::Ref<Nexus::Texture> m_Texture;
     VB_UNIFORM_RENDERINFO m_RenderInfoUniforms;
     VB_UNIFORM_CAMERA m_CameraUniforms;
+    Nexus::Ref<Nexus::Pipeline> m_Pipeline;
+    Nexus::Ref<Nexus::CommandList> m_CommandList;
+    Nexus::TextureBinding m_TextureBinding;
 
-    Nexus::FirstPersonCamera m_Camera;
+    Nexus::FirstPersonCamera m_Camera{};
     Nexus::Ref<Nexus::Framebuffer> m_Framebuffer;
     Nexus::Ref<Nexus::Project> m_Project;
 
@@ -488,5 +490,7 @@ private:
     ViewportPanel *m_ViewportPanel;
     InspectorPanel *m_InspectorPanel;
 
-    Nexus::Mesh m_Mesh;
+    Nexus::Mesh m_SpriteMesh;
+
+    float m_MovementSpeed = 5.0f;
 };

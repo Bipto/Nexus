@@ -3,6 +3,9 @@
 #include "Color.h"
 #include "Pipeline.h"
 #include "Buffer.h"
+#include "Texture.h"
+#include "Shader.h"
+#include "Buffer.h"
 
 #include <functional>
 
@@ -35,6 +38,21 @@ namespace Nexus
         uint32_t Offset = 0;
     };
 
+    struct TextureUpdateCommand
+    {
+        Ref<Texture> texture;
+        Ref<Shader> shader;
+        TextureBinding binding;
+    };
+
+    struct UniformBufferUpdateCommand
+    {
+        Ref<UniformBuffer> buffer;
+        void *data;
+        uint32_t size;
+        uint32_t offset;
+    };
+
     class CommandList
     {
     public:
@@ -50,7 +68,13 @@ namespace Nexus
         virtual void DrawElements(uint32_t start, uint32_t count) = 0;
         virtual void DrawIndexed(uint32_t count, uint32_t offset) = 0;
 
-        Ref<Pipeline> GetPipeline() const { return m_Pipeline; }
+        virtual void UpdateTexture(Ref<Texture> texture, Ref<Shader> shader, const TextureBinding &binding) = 0;
+        virtual void UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset) = 0;
+
+        Ref<Pipeline> GetPipeline() const
+        {
+            return m_Pipeline;
+        }
 
         virtual const ClearValue &GetClearColorValue() = 0;
         virtual const float GetClearDepthValue() = 0;
@@ -63,6 +87,8 @@ namespace Nexus
         virtual Ref<IndexBuffer> GetCurrentIndexBuffer() = 0;
         virtual DrawElementCommand &GetCurrentDrawElementCommand() = 0;
         virtual DrawIndexedCommand &GetCurrentDrawIndexedCommand() = 0;
+        virtual TextureUpdateCommand &GetCurrentTextureUpdateCommand() = 0;
+        virtual UniformBufferUpdateCommand &GetCurrentUniformBufferCommand() = 0;
 
     protected:
         Ref<Pipeline> m_Pipeline = nullptr;

@@ -62,6 +62,11 @@ namespace Nexus
             m_Rotation = rotation;
         }
 
+        void SetFront(const glm::vec3 &front)
+        {
+            m_Front = front;
+        }
+
         void SetZoom(float zoom)
         {
             m_Zoom = zoom;
@@ -76,6 +81,11 @@ namespace Nexus
         const glm::vec3 &GetRotation()
         {
             return m_Rotation;
+        }
+
+        const glm::vec3 &GetFront()
+        {
+            return m_Front;
         }
 
         const float GetZoom()

@@ -20,11 +20,13 @@ namespace Nexus
         m_IndexBufferIndex = 0;
         m_ElementCommandIndex = 0;
         m_IndexedCommandIndex = 0;
+        m_TextureCommandIndex = 0;
 
         m_VertexBuffers.clear();
         m_IndexBuffers.clear();
         m_ElementCommands.clear();
         m_IndexedCommands.clear();
+        m_TextureUpdateCommands.clear();
 
         m_CommandListBeginInfo.ClearValue = beginInfo.ClearValue;
         m_CommandListBeginInfo.DepthValue = beginInfo.DepthValue;
@@ -63,8 +65,6 @@ namespace Nexus
 
     void CommandListDX11::End()
     {
-        m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList) {
-        };
     }
 
     void CommandListDX11::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer)
@@ -152,6 +152,44 @@ namespace Nexus
         };
     }
 
+    void CommandListDX11::UpdateTexture(Ref<Texture> texture, Ref<Shader> shader, const TextureBinding &binding)
+    {
+        TextureUpdateCommand command;
+        command.texture = texture;
+        command.shader = shader;
+        command.binding = binding;
+        m_TextureUpdateCommands.push_back(command);
+
+        m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
+        {
+            auto textureCommand = commandList->GetCurrentTextureUpdateCommand();
+
+            textureCommand.shader->SetTexture(
+                textureCommand.texture,
+                textureCommand.binding);
+        };
+    }
+
+    void CommandListDX11::UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset)
+    {
+        UniformBufferUpdateCommand command;
+        command.buffer = buffer;
+        command.data = new char[size];
+        command.size = size;
+        command.offset = offset;
+        memcpy(command.data, data, size);
+        m_UniformBufferUpdateCommands.push_back(command);
+
+        m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
+        {
+            auto uniformBufferCommand = commandList->GetCurrentUniformBufferCommand();
+            uniformBufferCommand.buffer->SetData(
+                uniformBufferCommand.data,
+                uniformBufferCommand.size,
+                uniformBufferCommand.offset);
+        };
+    }
+
     const ClearValue &CommandListDX11::GetClearColorValue()
     {
         return m_CommandListBeginInfo.ClearValue;
@@ -185,6 +223,16 @@ namespace Nexus
     DrawIndexedCommand &CommandListDX11::GetCurrentDrawIndexedCommand()
     {
         return m_IndexedCommands[m_IndexedCommandIndex++];
+    }
+
+    TextureUpdateCommand &CommandListDX11::GetCurrentTextureUpdateCommand()
+    {
+        return m_TextureUpdateCommands[m_TextureCommandIndex++];
+    }
+
+    UniformBufferUpdateCommand &CommandListDX11::GetCurrentUniformBufferCommand()
+    {
+        return m_UniformBufferUpdateCommands[m_UniformBufferUpdateCommandIndex++];
     }
 
     const std::array<RenderCommand, 1000> &CommandListDX11::GetRenderCommands()

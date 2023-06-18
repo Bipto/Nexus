@@ -51,6 +51,7 @@ namespace Nexus
         virtual VSyncState GetVsyncState() override;
 
         virtual ShaderFormat GetSupportedShaderFormat() override { return ShaderFormat::GLSL; }
+        virtual float GetUVCorrection() { return 1.0f; }
 
     private:
         SDL_GLContext m_Context;
