@@ -11,3 +11,6 @@ add_executable(Editor ${APP_HEADERS} ${APP_SOURCES})
 
 file (COPY ${CMAKE_CURRENT_SOURCE_DIR}/Resources
     DESTINATION ${CMAKE_BINARY_DIR}/bin)
+
+target_include_directories(Editor PUBLIC NexusEngine)
+target_link_libraries(Editor PUBLIC NexusEngine)

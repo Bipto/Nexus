@@ -15,15 +15,6 @@ namespace Nexus
     {
         m_Specification = spec;
 
-        if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) != 0)
-        {
-            NX_LOG("Could not initialize SDL");
-        }
-
-        SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4_RUMBLE, "1");
-        SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5_RUMBLE, "1");
-        SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5_PLAYER_LED, "1");
-
         WindowProperties props;
         this->m_Window = new Nexus::Window(props);
 

@@ -40,6 +40,7 @@ target_include_directories(NexusEngine PUBLIC ../External/shaderc/libshaderc)
 target_include_directories(NexusEngine PUBLIC ../External/shaderc/SPIRV-Cross/include)
 target_include_directories(NexusEngine PUBLIC ../External/OpenAL-Soft/include)
 target_include_directories(NexusEngine PUBLIC ../External/libnyquist/include)
+target_include_directories(NexusEngine PUBLIC ../External/SDL_net)
 endif()
 
 target_include_directories(NexusEngine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
@@ -58,6 +59,7 @@ target_link_libraries(NexusEngine PUBLIC shaderc)
 target_link_libraries(NexusEngine PUBLIC spirv-cross-cpp spirv-cross-hlsl)
 target_link_libraries(NexusEngine PUBLIC OpenAL)
 target_link_libraries(NexusEngine PUBLIC libnyquist)
+target_link_libraries(NexusEngine PUBLIC SDL2_net)
 endif()
 
 #including OpenGL

@@ -53,3 +53,6 @@
 [submodule "External/libnyquist"]
 	path = External/libnyquist
 	url = https://github.com/ddiakopoulos/libnyquist.git
+[submodule "External/SDL_net"]
+	path = External/SDL_net
+	url = https://github.com/libsdl-org/SDL_net.git

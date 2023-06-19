@@ -4,6 +4,8 @@
 
 #include "Core/Graphics/Color.h"
 
+#include "Core/Networking/Socket.h"
+
 struct alignas(16) VB_UNIFORM_CAMERA
 {
     glm::mat4 View;
@@ -110,6 +112,8 @@ public:
 
         m_ShootSoundEffect = m_AudioDevice->CreateAudioBufferFromWavFile("Laser_Shoot.wav");
         m_ShootSoundSource = m_AudioDevice->CreateAudioSource(m_ShootSoundEffect);
+
+        // Nexus::SocketTCP socket;
     }
 
     virtual void Update(Nexus::Time time) override

@@ -23,11 +23,6 @@ namespace Nexus
     public:
         void CachePreviousInput()
         {
-            /* for (auto key : m_KeyboardState)
-            {
-                m_PreviousKeyState[key.first] = key.second;
-            } */
-
             m_Keyboard.CacheInput();
             m_Mouse.CacheInput();
 

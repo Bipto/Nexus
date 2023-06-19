@@ -8,6 +8,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(Demo main.cpp)
 
+target_include_directories(Demo PUBLIC NexusEngine)
+target_link_libraries(Demo PUBLIC NexusEngine)
+
 file (COPY 
     ${CMAKE_CURRENT_SOURCE_DIR}/shader.glsl
     ${CMAKE_CURRENT_SOURCE_DIR}/brick.jpg
