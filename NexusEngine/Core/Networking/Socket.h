@@ -1,5 +1,7 @@
 #pragma once
 
+#if !defined(EMSCRIPTEN)
+
 #include "SDL_net.h"
 
 #include <string>
@@ -77,3 +79,5 @@ namespace Nexus
     };
 
 }
+
+#endif

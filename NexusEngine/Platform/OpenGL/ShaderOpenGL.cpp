@@ -8,18 +8,26 @@ namespace Nexus
     {
         switch (element.Type)
         {
-            case ShaderDataType::Float:     return GL_FLOAT;
-            case ShaderDataType::Float2:    return GL_FLOAT;
-            case ShaderDataType::Float3:    return GL_FLOAT;
-            case ShaderDataType::Float4:    return GL_FLOAT;
-            case ShaderDataType::Int:       return GL_INT;
-            case ShaderDataType::Int2:      return GL_INT;
-            case ShaderDataType::Int3:      return GL_INT;
-            case ShaderDataType::Int4:      return GL_INT;
+        case ShaderDataType::Float:
+            return GL_FLOAT;
+        case ShaderDataType::Float2:
+            return GL_FLOAT;
+        case ShaderDataType::Float3:
+            return GL_FLOAT;
+        case ShaderDataType::Float4:
+            return GL_FLOAT;
+        case ShaderDataType::Int:
+            return GL_INT;
+        case ShaderDataType::Int2:
+            return GL_INT;
+        case ShaderDataType::Int3:
+            return GL_INT;
+        case ShaderDataType::Int4:
+            return GL_INT;
         }
     }
 
-    ShaderOpenGL::ShaderOpenGL(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const VertexBufferLayout& layout)
+    ShaderOpenGL::ShaderOpenGL(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout)
     {
         Compile(vertexShaderSource, fragmentShaderSource);
         m_Layout = layout;
@@ -28,16 +36,17 @@ namespace Nexus
         m_FragmentShaderSource = fragmentShaderSource;
     }
 
-    void ShaderOpenGL::Bind() 
+    void ShaderOpenGL::Bind()
     {
         glUseProgram(this->m_ProgramHandle);
         SetLayout();
     }
 
-    void ShaderOpenGL::SetTexture(Ref<Texture> texture, const TextureBinding& binding)
+    void ShaderOpenGL::SetTexture(Ref<Texture> texture, const TextureBinding &binding)
     {
         Bind();
-        glUniform1i(glGetUniformLocation(m_ProgramHandle, binding.Name.c_str()), binding.Slot);
+        auto location = glGetUniformLocation(m_ProgramHandle, binding.Name.c_str());
+        glUniform1i(location, binding.Slot);
 
         glActiveTexture(GL_TEXTURE0 + binding.Slot);
         glBindTexture(GL_TEXTURE_2D, (unsigned int)texture->GetHandle());
@@ -53,23 +62,23 @@ namespace Nexus
         return m_FragmentShaderSource;
     }
 
-    const VertexBufferLayout& ShaderOpenGL::GetLayout() const
-    { 
-        return m_Layout; 
+    const VertexBufferLayout &ShaderOpenGL::GetLayout() const
+    {
+        return m_Layout;
     }
 
-    void ShaderOpenGL::Compile(const std::string& vertexShaderSource, const std::string& fragmentShaderSource)
+    void ShaderOpenGL::Compile(const std::string &vertexShaderSource, const std::string &fragmentShaderSource)
     {
         unsigned int vertexShader;
         vertexShader = glCreateShader(GL_VERTEX_SHADER);
-        const char* vertexShaderChar = vertexShaderSource.c_str();
+        const char *vertexShaderChar = vertexShaderSource.c_str();
         glShaderSource(vertexShader, 1, &vertexShaderChar, NULL);
         glCompileShader(vertexShader);
 
         int success;
         char infoLog[512];
         glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-        
+
         if (!success)
         {
             glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
@@ -79,7 +88,7 @@ namespace Nexus
 
         unsigned int fragmentShader;
         fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-        const char* fragmentShaderChar = fragmentShaderSource.c_str();
+        const char *fragmentShaderChar = fragmentShaderSource.c_str();
         glShaderSource(fragmentShader, 1, &fragmentShaderChar, NULL);
         glCompileShader(fragmentShader);
 
@@ -112,15 +121,15 @@ namespace Nexus
     void ShaderOpenGL::SetLayout()
     {
         int index = 0;
-        for (auto& element : m_Layout)
+        for (auto &element : m_Layout)
         {
             glVertexAttribPointer(index,
-                element.GetComponentCount(),
-                GetGLBaseType(element),
-                element.Normalized ? GL_TRUE : GL_FALSE,
-                m_Layout.GetStride(),
-                (void*)element.Offset);
-            
+                                  element.GetComponentCount(),
+                                  GetGLBaseType(element),
+                                  element.Normalized ? GL_TRUE : GL_FALSE,
+                                  m_Layout.GetStride(),
+                                  (void *)element.Offset);
+
             glEnableVertexAttribArray(index);
             index++;
         }

@@ -4,8 +4,11 @@
 
 #include "DX11.h"
 
+#if defined(NX_PLATFORM_DX11)
+
 namespace Nexus
 {
+
     class PipelineDX11 : public Pipeline
     {
     public:
@@ -29,4 +32,6 @@ namespace Nexus
         ID3D11RasterizerState *m_RasterizerState = NULL;
         D3D11_RECT m_ScissorRectangle;
     };
+
 }
+#endif

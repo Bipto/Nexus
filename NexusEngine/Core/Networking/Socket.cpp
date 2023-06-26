@@ -1,5 +1,7 @@
 #include "Socket.h"
 
+#if !defined(EMSCRIPTEN)
+
 #include "Core/Logging/Log.h"
 
 #include <string>
@@ -142,3 +144,5 @@ namespace Nexus
         return m_Packet->data;
     }
 }
+
+#endif

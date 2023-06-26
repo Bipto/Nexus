@@ -31,6 +31,22 @@ namespace Nexus
         Maximized
     };
 
+    enum Cursor
+    {
+        Arrow,
+        IBeam,
+        Wait,
+        Crosshair,
+        WaitArrow,
+        ArrowNWSE,
+        ArrowNESW,
+        ArrowWE,
+        ArrowNS,
+        ArrowAllDir,
+        No,
+        Hand
+    };
+
     struct WindowProperties
     {
         std::string Title = "My Window";
@@ -58,14 +74,20 @@ namespace Nexus
         SDL_Window *GetSDLWindowHandle() { return this->m_Window; }
         Point<int> GetWindowSize();
         Point<int> GetWindowPosition();
+        WindowState GetCurrentWindowState() { return m_CurrentWindowState; }
+        void SetIsMouseVisible(bool visible);
+        void SetCursor(Cursor cursor);
 
         InputState *GetInput() { return m_Input; }
+        bool IsFocussed() { return m_IsFocussed; }
 
     private:
         SDL_Window *m_Window;
         bool m_Closing = false;
         bool m_RequiresResize = false;
         InputState *m_Input;
+        bool m_IsFocussed = true;
+        WindowState m_CurrentWindowState = WindowState::Normal;
         friend class Application;
     };
 }

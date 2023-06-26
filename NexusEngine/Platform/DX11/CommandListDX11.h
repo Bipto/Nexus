@@ -41,7 +41,9 @@ namespace Nexus
         virtual TextureUpdateCommand &GetCurrentTextureUpdateCommand() override;
         virtual UniformBufferUpdateCommand &GetCurrentUniformBufferCommand() override;
 
+#if defined(NX_PLATFORM_DX11)
         D3D11_PRIMITIVE_TOPOLOGY GetTopology();
+#endif
         const std::array<RenderCommand, 1000> &GetRenderCommands();
         uint32_t GetCommandCount();
 

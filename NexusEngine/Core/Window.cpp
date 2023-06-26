@@ -245,21 +245,6 @@ namespace Nexus
                                           windowProps.Height,
                                           SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 
-#if defined(WIN32)
-        SDL_SysWMinfo wmInfo;
-        SDL_VERSION(&wmInfo.version);
-        SDL_GetWindowWMInfo(m_Window, &wmInfo);
-        HWND hwnd = wmInfo.info.win.window;
-
-        /* // use new windows border style
-        BOOL value = TRUE;
-        DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &value, sizeof(value));
-
-        //set a custom titlebar colour
-        COLORREF color = 0xFFFFFF;
-        DwmSetWindowAttribute(hwnd, DWMWA_CAPTION_COLOR, &color, sizeof(color)); */
-#endif
-
         m_Input = new InputState();
     }
 
@@ -305,6 +290,8 @@ namespace Nexus
                 case SDL_BUTTON_RIGHT:
                     m_Input->m_Mouse.m_CurrentState.RightButton = MouseButtonState::Pressed;
                     break;
+                case SDL_BUTTON_MIDDLE:
+                    m_Input->m_Mouse.m_CurrentState.MiddleButton = MouseButtonState::Pressed;
                 }
                 break;
             }
@@ -317,7 +304,9 @@ namespace Nexus
                     break;
                 case SDL_BUTTON_RIGHT:
                     m_Input->m_Mouse.m_CurrentState.RightButton = MouseButtonState::Released;
-
+                    break;
+                case SDL_BUTTON_MIDDLE:
+                    m_Input->m_Mouse.m_CurrentState.MiddleButton = MouseButtonState::Released;
                     break;
                 }
                 break;
@@ -361,6 +350,29 @@ namespace Nexus
             }
             }
         }
+
+        Uint32 flags = SDL_GetWindowFlags(m_Window);
+        if (flags & SDL_WINDOW_INPUT_FOCUS)
+        {
+            m_IsFocussed = true;
+        }
+        else
+        {
+            m_IsFocussed = false;
+        }
+
+        if (flags & SDL_WINDOW_MAXIMIZED)
+        {
+            m_CurrentWindowState = WindowState::Maximized;
+        }
+        else if (flags & SDL_WINDOW_MINIMIZED)
+        {
+            m_CurrentWindowState = WindowState::Minimized;
+        }
+        else
+        {
+            m_CurrentWindowState = WindowState::Normal;
+        }
     }
 
     void Window::SetResizable(bool isResizable)
@@ -394,5 +406,63 @@ namespace Nexus
         Point<int> position{};
         SDL_GetWindowPosition(this->m_Window, &position.X, &position.Y);
         return position;
+    }
+
+    void Window::SetIsMouseVisible(bool visible)
+    {
+        switch (visible)
+        {
+        case true:
+            SDL_ShowCursor(SDL_ENABLE);
+        case false:
+            SDL_ShowCursor(SDL_DISABLE);
+        }
+    }
+
+    void Window::SetCursor(Cursor cursor)
+    {
+        SDL_Cursor *sdlCursor;
+
+        switch (cursor)
+        {
+        case Cursor::Arrow:
+            sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+            break;
+        case Cursor::IBeam:
+            sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM);
+            break;
+        case Cursor::Wait:
+            sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_WAIT);
+            break;
+        case Cursor::Crosshair:
+            sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_CROSSHAIR);
+            break;
+        case Cursor::WaitArrow:
+            sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_WAITARROW);
+            break;
+        case Cursor::ArrowNWSE:
+            sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENWSE);
+            break;
+        case Cursor::ArrowNESW:
+            sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENESW);
+            break;
+        case Cursor::ArrowWE:
+            sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEWE);
+            break;
+        case Cursor::ArrowNS:
+            sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENS);
+            break;
+        case Cursor::ArrowAllDir:
+            sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEALL);
+            break;
+        case Cursor::No:
+            sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NO);
+            break;
+        case Cursor::Hand:
+            sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+            break;
+        }
+
+        SDL_SetCursor(sdlCursor);
     }
 }

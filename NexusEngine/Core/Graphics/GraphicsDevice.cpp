@@ -108,6 +108,8 @@ namespace Nexus
         spec.Format = TextureFormat::RGBA8;
         spec.Data = stbi_load(filepath, &spec.Width, &spec.Height, &spec.NumberOfChannels, desiredChannels);
 
+        std::cout << spec.NumberOfChannels << std::endl;
+
         return this->CreateTexture(spec);
     }
 }

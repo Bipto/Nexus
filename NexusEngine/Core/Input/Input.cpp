@@ -40,6 +40,24 @@ namespace Nexus
         return mouse.IsRightMouseHeld();
     }
 
+    bool Input::IsMiddleMousePressed()
+    {
+        auto mouse = Nexus::GetApplication()->GetCoreInputState()->GetMouse();
+        return mouse.IsMiddleMouseHeld();
+    }
+
+    bool Input::IsMiddleMouseReleased()
+    {
+        auto mouse = Nexus::GetApplication()->GetCoreInputState()->GetMouse();
+        return mouse.WasMiddleMouseReleased();
+    }
+
+    bool Input::IsMiddleMouseHeld()
+    {
+        auto mouse = Nexus::GetApplication()->GetCoreInputState()->GetMouse();
+        return mouse.IsMiddleMouseHeld();
+    }
+
     Point<int> Input::GetMousePosition()
     {
         auto mouse = Nexus::GetApplication()->GetCoreInputState()->GetMouse();

@@ -14,6 +14,7 @@ namespace Nexus
     {
         MouseButtonState LeftButton;
         MouseButtonState RightButton;
+        MouseButtonState MiddleButton;
         Point<int> MousePosition;
         float MouseWheelX;
         float MouseWheelY;
@@ -32,6 +33,10 @@ namespace Nexus
         bool WasRightMouseClicked();
         bool WasRightMouseReleased();
         bool IsRightMouseHeld();
+
+        bool WasMiddleMouseClicked();
+        bool WasMiddleMouseReleased();
+        bool IsMiddleMouseHeld();
 
         Point<int> GetMousePosition();
         Point<int> GetMouseMovement();

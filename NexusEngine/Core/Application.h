@@ -82,8 +82,15 @@ namespace Nexus
 
         Point<int> GetWindowSize();
         Point<int> GetWindowPosition();
+        bool IsWindowFocussed();
+        WindowState GetCurrentWindowState();
+        void SetIsMouseVisible(bool visible);
+        void SetCursor(Cursor cursor);
 
-        void Close() { this->m_Window->Close(); }
+        void Close()
+        {
+            this->m_Window->Close();
+        }
         bool ShouldClose() { return this->m_Window->IsClosing(); }
 
         Window *CreateApplicationWindow(const WindowProperties &props);

@@ -154,6 +154,26 @@ namespace Nexus
         return this->m_Window->GetWindowPosition();
     }
 
+    bool Application::IsWindowFocussed()
+    {
+        return m_Window->IsFocussed();
+    }
+
+    WindowState Application::GetCurrentWindowState()
+    {
+        return m_Window->GetCurrentWindowState();
+    }
+
+    void Application::SetIsMouseVisible(bool visible)
+    {
+        m_Window->SetIsMouseVisible(visible);
+    }
+
+    void Application::SetCursor(Cursor cursor)
+    {
+        m_Window->SetCursor(cursor);
+    }
+
     Window *Application::CreateApplicationWindow(const WindowProperties &props)
     {
         Window *window = new Nexus::Window(props);

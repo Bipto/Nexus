@@ -55,6 +55,8 @@ namespace Nexus
         virtual ShaderFormat GetSupportedShaderFormat() override { return ShaderFormat::HLSL; }
         virtual float GetUVCorrection() { return -1.0f; }
 
+#if defined(NX_PLATFORM_DX11)
+
         ID3D11Device *
         GetDevice()
         {
@@ -63,7 +65,7 @@ namespace Nexus
         ID3D11DeviceContext *GetDeviceContext() { return m_DeviceContextPtr; }
         std::vector<ID3D11RenderTargetView *> &GetActiveRenderTargetViews() { return m_ActiveRenderTargetviews; }
         ID3D11DepthStencilView *GetActiveDepthStencilView() { return m_ActiveDepthStencilView; }
-#if defined(WIN32)
+
     private:
         ID3D11Device *m_DevicePtr = NULL;
         ID3D11DeviceContext *m_DeviceContextPtr = NULL;

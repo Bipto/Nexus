@@ -1,10 +1,9 @@
 #include "NexusEngine.h"
-
 #include "Core/Graphics/MeshFactory.h"
-
 #include "Core/Graphics/Color.h"
-
 #include "Core/Networking/Socket.h"
+
+#include <iostream>
 
 struct alignas(16) VB_UNIFORM_CAMERA
 {
@@ -48,10 +47,10 @@ std::string fragmentShaderSource =
     "layout (location = 0) out vec4 FragColor;\n"
     "in highp vec2 TexCoord;\n"
     "in highp vec3 OutColor;\n"
-    "uniform sampler2D ourTexture;\n"
+    "uniform sampler2D texSampler;\n"
     "void main()\n"
     "{\n"
-    "FragColor = texture(ourTexture, TexCoord) * vec4(OutColor, 1.0);\n"
+    "FragColor = texture(texSampler, TexCoord) * vec4(OutColor, 1.0);\n"
     "}";
 
 class Demo : public Nexus::Application
@@ -72,10 +71,10 @@ public:
         spec.ColorAttachmentSpecification = {Nexus::TextureFormat::RGBA8};
         m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(spec);
 
-        m_Texture = m_GraphicsDevice->CreateTexture("brick.jpg");
+        m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
 
 #ifndef __EMSCRIPTEN__
-        m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("shader.glsl", layout);
+        m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/demo_shader.glsl", layout);
 #else
         m_Shader = m_GraphicsDevice->CreateShaderFromSource(vertexShaderSource, fragmentShaderSource, layout);
 #endif
@@ -106,14 +105,12 @@ public:
 
         m_CommandList = m_GraphicsDevice->CreateCommandList(m_Pipeline);
 
-        Nexus::Ref<Nexus::AudioBuffer> buffer = m_AudioDevice->CreateAudioBufferFromMP3File("Guitar_Music.mp3");
+        /* Nexus::Ref<Nexus::AudioBuffer> buffer = m_AudioDevice->CreateAudioBufferFromMP3File("Resources/Audio/Guitar_Music.mp3");
         Nexus::Ref<Nexus::AudioSource> source = m_AudioDevice->CreateAudioSource(buffer);
         m_AudioDevice->PlaySource(source);
 
-        m_ShootSoundEffect = m_AudioDevice->CreateAudioBufferFromWavFile("Laser_Shoot.wav");
-        m_ShootSoundSource = m_AudioDevice->CreateAudioSource(m_ShootSoundEffect);
-
-        // Nexus::SocketTCP socket;
+        m_ShootSoundEffect = m_AudioDevice->CreateAudioBufferFromWavFile("Resources/Audio/Laser_Shoot.wav");
+        m_ShootSoundSource = m_AudioDevice->CreateAudioSource(m_ShootSoundEffect); */
     }
 
     virtual void Update(Nexus::Time time) override
@@ -122,6 +119,8 @@ public:
 
     virtual void Render(Nexus::Time time) override
     {
+        this->SetCursor(Nexus::Cursor::No);
+
         m_GraphicsDevice->SetPipeline(m_Pipeline);
 
         m_GraphicsDevice->SetFramebuffer(nullptr);
@@ -143,8 +142,8 @@ public:
         m_TransformUniformBuffer->SetData(&m_RenderInfoUniforms, sizeof(m_RenderInfoUniforms), 0);
 
         Nexus::TextureBinding textureBinding;
-        textureBinding.Slot = 1;
-        textureBinding.Name = "ourTexture";
+        textureBinding.Slot = 0;
+        textureBinding.Name = "texSampler";
 
         m_Shader->SetTexture(m_Texture, textureBinding);
 
@@ -174,10 +173,10 @@ public:
 
         Nexus::Input::GamepadSetLED(0, m_ClearColor.r * 255, m_ClearColor.g * 255, m_ClearColor.b * 255);
 
-        if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::Space))
+        /* if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::Space))
         {
             m_AudioDevice->PlaySource(m_ShootSoundSource);
-        }
+        } */
     }
 
     virtual void OnResize(Nexus::Point<int> size) override

@@ -1,5 +1,7 @@
 #include "PipelineDX11.h"
 
+#if defined(NX_PLATFORM_DX11)
+
 namespace Nexus
 {
     PipelineDX11::PipelineDX11(ID3D11Device *device, const PipelineDescription &description)
@@ -185,3 +187,5 @@ namespace Nexus
         return m_Description;
     }
 }
+
+#endif

@@ -3,14 +3,18 @@
 #include "AudioBufferOpenAL.h"
 #include "AudioSourceOpenAL.h"
 
+#include "OpenAL.h"
+
+#if !defined(EMSCRIPTEN)
 #include "libnyquist/Common.h"
 #include "libnyquist/Decoders.h"
+#endif
 
 namespace Nexus
 {
     AudioDeviceOpenAL::AudioDeviceOpenAL()
     {
-        ALenum error = alGetError();
+        // ALenum error = alGetError();
         ALCdevice *device = alcOpenDevice(nullptr);
         if (!device)
         {
@@ -25,6 +29,7 @@ namespace Nexus
     {
     }
 
+#if !defined(EMSCRIPTEN)
     ALenum GetOpenALAudioFormat(nqr::PCMFormat format, int channelCount)
     {
         bool stereo = channelCount > 1;
@@ -73,9 +78,11 @@ namespace Nexus
             }
         }
     }
+#endif
 
     Ref<AudioBuffer> AudioDeviceOpenAL::CreateAudioBufferFromWavFile(const std::string &filepath)
     {
+#if !defined(EMSCRIPTEN)
         nqr::WavDecoder decoder;
 
         nqr::AudioData data;
@@ -88,10 +95,14 @@ namespace Nexus
         auto dataPtr = (ALvoid *)data.samples.data();
 
         return CreateRef<AudioBufferOpenAL>(fileSize, sampleRate, format, dataPtr);
+#else
+        return nullptr;
+#endif
     }
 
     Ref<AudioBuffer> AudioDeviceOpenAL::CreateAudioBufferFromMP3File(const std::string &filepath)
     {
+#if !defined(EMSCRIPTEN)
         nqr::Mp3Decoder decoder;
 
         nqr::AudioData data;
@@ -104,6 +115,9 @@ namespace Nexus
         auto dataPtr = (ALvoid *)data.samples.data();
 
         return CreateRef<AudioBufferOpenAL>(fileSize, sampleRate, format, dataPtr);
+#else
+        return nullptr;
+#endif
     }
 
     Ref<AudioSource> AudioDeviceOpenAL::CreateAudioSource(Ref<AudioBuffer> buffer)

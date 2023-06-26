@@ -2,8 +2,7 @@
 
 #include "Core/Audio/AudioBuffer.h"
 
-#include "AL/al.h"
-#include "AL/alext.h"
+#include "OpenAL.h"
 
 namespace Nexus
 {

@@ -1,7 +1,7 @@
 #include "GraphicsDeviceDX11.h"
 #include "Core/Logging/Log.h"
 
-#if defined(WIN32)
+#if defined(NX_PLATFORM_DX11)
 #include "backends/imgui_impl_dx11.h"
 #endif
 
@@ -16,7 +16,7 @@ namespace Nexus
     GraphicsDeviceDX11::GraphicsDeviceDX11(const GraphicsDeviceCreateInfo &createInfo)
         : GraphicsDevice(createInfo)
     {
-#if defined(WIN32)
+#if defined(NX_PLATFORM_DX11)
         SDL_SysWMinfo wmInfo;
         SDL_VERSION(&wmInfo.version);
         SDL_GetWindowWMInfo(m_Window->GetSDLWindowHandle(), &wmInfo);
@@ -124,14 +124,14 @@ namespace Nexus
 
     void GraphicsDeviceDX11::SetContext()
     {
-#if defined(WIN32)
+#if defined(NX_PLATFORM_DX11)
         m_DeviceContextPtr->OMSetRenderTargets(1, &m_RenderTargetViewPtr, NULL);
 #endif
     }
 
     void GraphicsDeviceDX11::Clear(float red, float green, float blue, float alpha)
     {
-#if defined(WIN32)
+#if defined(NX_PLATFORM_DX11)
 
         for (auto target : m_ActiveRenderTargetviews)
         {
@@ -145,7 +145,7 @@ namespace Nexus
 
     void GraphicsDeviceDX11::SetFramebuffer(Ref<Framebuffer> framebuffer)
     {
-#if defined(WIN32)
+#if defined(NX_PLATFORM_DX11)
         if (framebuffer)
         {
             Ref<FramebufferDX11> dxFramebuffer = std::dynamic_pointer_cast<FramebufferDX11>(framebuffer);
@@ -174,7 +174,7 @@ namespace Nexus
 
     void GraphicsDeviceDX11::SetPipeline(Ref<Pipeline> pipeline)
     {
-#if defined(WIN32)
+#if defined(NX_PLATFORM_DX11)
         Ref<PipelineDX11> dxPipeline = std::dynamic_pointer_cast<PipelineDX11>(pipeline);
         auto depthStencilState = dxPipeline->GetDepthStencilState();
         auto rasterizerState = dxPipeline->GetRasterizerState();
@@ -195,7 +195,7 @@ namespace Nexus
 
     void GraphicsDeviceDX11::DrawElements(PrimitiveType type, uint32_t start, uint32_t count)
     {
-#if defined(WIN32)
+#if defined(NX_PLATFORM_DX11)
         m_DeviceContextPtr->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         m_DeviceContextPtr->Draw(count, start);
 #endif
@@ -203,7 +203,7 @@ namespace Nexus
 
     void GraphicsDeviceDX11::DrawIndexed(PrimitiveType type, uint32_t count, uint32_t offset)
     {
-#if defined(WIN32)
+#if defined(NX_PLATFORM_DX11)
         m_DeviceContextPtr->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         m_DeviceContextPtr->DrawIndexed(count, offset, 0);
 #endif
@@ -225,7 +225,7 @@ namespace Nexus
     {
         m_Viewport = viewport;
 
-#if defined(WIN32)
+#if defined(NX_PLATFORM_DX11)
         D3D11_VIEWPORT vp;
         vp.Width = (float)viewport.Width;
         vp.Height = (float)viewport.Height;
@@ -249,7 +249,7 @@ namespace Nexus
 
     const char *GraphicsDeviceDX11::GetDeviceName()
     {
-#if defined(WIN32)
+#if defined(NX_PLATFORM_DX11)
         return m_AdapterName.c_str();
 #else
         return "Device";
@@ -258,7 +258,7 @@ namespace Nexus
 
     void *GraphicsDeviceDX11::GetContext()
     {
-#if defined(WIN32)
+#if defined(NX_PLATFORM_DX11)
         return m_DeviceContextPtr;
 #else
         return nullptr;
@@ -267,7 +267,7 @@ namespace Nexus
 
     void GraphicsDeviceDX11::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer)
     {
-#if defined(WIN32)
+#if defined(NX_PLATFORM_DX11)
         if (!m_ActiveShader)
         {
             NX_ERROR("No shader is currently bound");
@@ -293,7 +293,7 @@ namespace Nexus
 
     void GraphicsDeviceDX11::SetIndexBuffer(Ref<IndexBuffer> indexBuffer)
     {
-#if defined(WIN32)
+#if defined(NX_PLATFORM_DX11)
         Ref<IndexBufferDX11> ib = std::dynamic_pointer_cast<IndexBufferDX11>(indexBuffer);
         ID3D11Buffer *dx11IndexBuffer = ib->GetNativeHandle();
 
@@ -306,7 +306,7 @@ namespace Nexus
 
     void GraphicsDeviceDX11::SetShader(Ref<Shader> shader)
     {
-#if defined(WIN32)
+#if defined(NX_PLATFORM_DX11)
 
         Ref<ShaderDX11> dxShader = std::dynamic_pointer_cast<ShaderDX11>(shader);
         m_DeviceContextPtr->VSSetShader(dxShader->GetVertexShader(), 0, 0);
@@ -319,7 +319,7 @@ namespace Nexus
 
     Ref<Shader> GraphicsDeviceDX11::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout)
     {
-#if defined(WIN32)
+#if defined(NX_PLATFORM_DX11)
         return CreateRef<ShaderDX11>(m_DevicePtr, m_DeviceContextPtr, vertexShaderSource, fragmentShaderSource, layout);
 #else
         return nullptr;
@@ -328,7 +328,7 @@ namespace Nexus
 
     Ref<VertexBuffer> GraphicsDeviceDX11::CreateVertexBuffer(const std::vector<Vertex> vertices)
     {
-#if defined(WIN32)
+#if defined(NX_PLATFORM_DX11)
         return CreateRef<VertexBufferDX11>(m_DevicePtr, vertices);
 #else
         return nullptr;
@@ -337,7 +337,7 @@ namespace Nexus
 
     Ref<IndexBuffer> GraphicsDeviceDX11::CreateIndexBuffer(const std::vector<unsigned int> indices)
     {
-#if defined(WIN32)
+#if defined(NX_PLATFORM_DX11)
         return CreateRef<IndexBufferDX11>(m_DevicePtr, indices);
 #else
         return nullptr;
@@ -346,7 +346,7 @@ namespace Nexus
 
     Ref<Texture> GraphicsDeviceDX11::CreateTexture(TextureSpecification spec)
     {
-#if defined(WIN32)
+#if defined(NX_PLATFORM_DX11)
         return CreateRef<TextureDX11>(m_DevicePtr, spec);
 #else
         return nullptr;
@@ -355,7 +355,7 @@ namespace Nexus
 
     Ref<UniformBuffer> GraphicsDeviceDX11::CreateUniformBuffer(const UniformResourceBinding &binding)
     {
-#if defined(WIN32)
+#if defined(NX_PLATFORM_DX11)
         return CreateRef<UniformBufferDX11>(
             m_DevicePtr,
             m_DeviceContextPtr,
@@ -367,7 +367,7 @@ namespace Nexus
 
     Ref<Framebuffer> GraphicsDeviceDX11::CreateFramebuffer(const Nexus::FramebufferSpecification &spec)
     {
-#if defined(WIN32)
+#if defined(NX_PLATFORM_DX11)
         return CreateRef<FramebufferDX11>(m_DevicePtr, spec);
 #else
         return nullptr;
@@ -376,7 +376,7 @@ namespace Nexus
 
     Ref<Pipeline> GraphicsDeviceDX11::CreatePipeline(const PipelineDescription &description)
     {
-#if defined(WIN32)
+#if defined(NX_PLATFORM_DX11)
         return CreateRef<PipelineDX11>(m_DevicePtr, description);
 #else
         return nullptr;
@@ -385,7 +385,7 @@ namespace Nexus
 
     Ref<CommandList> GraphicsDeviceDX11::CreateCommandList(Ref<Pipeline> pipeline)
     {
-#if defined(WIN32)
+#if defined(NX_PLATFORM_DX11)
         return CreateRef<CommandListDX11>(this, pipeline);
 #else
         return nullptr;
@@ -394,28 +394,28 @@ namespace Nexus
 
     void GraphicsDeviceDX11::InitialiseImGui()
     {
-#if defined(WIN32)
+#if defined(NX_PLATFORM_DX11)
         ImGui_ImplDX11_Init(m_DevicePtr, m_DeviceContextPtr);
 #endif
     }
 
     void GraphicsDeviceDX11::BeginImGuiRender()
     {
-#if defined(WIN32)
+#if defined(NX_PLATFORM_DX11)
         ImGui_ImplDX11_NewFrame();
 #endif
     }
 
     void GraphicsDeviceDX11::EndImGuiRender()
     {
-#if defined(WIN32)
+#if defined(NX_PLATFORM_DX11)
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 #endif
     }
 
     void GraphicsDeviceDX11::Resize(Point<int> size)
     {
-#if defined(WIN32)
+#if defined(NX_PLATFORM_DX11)
 
         m_DeviceContextPtr->OMSetRenderTargets(0, 0, 0);
         m_RenderTargetViewPtr->Release();
@@ -463,14 +463,14 @@ namespace Nexus
 
     void GraphicsDeviceDX11::SwapBuffers()
     {
-#if defined(WIN32)
+#if defined(NX_PLATFORM_DX11)
         m_SwapChainPtr->Present(m_VsyncValue, 0);
 #endif
     }
 
     void GraphicsDeviceDX11::SetVSyncState(VSyncState vSyncState)
     {
-#if defined(WIN32)
+#if defined(NX_PLATFORM_DX11)
         switch (vSyncState)
         {
         case VSyncState::Enabled:

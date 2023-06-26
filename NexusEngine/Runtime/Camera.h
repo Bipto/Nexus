@@ -151,7 +151,7 @@ namespace Nexus
                 m_Pitch -= rightStick.Y * 2.0f;
             }
 
-            if (Input::IsRightMouseHeld())
+            if (Input::IsMiddleMouseHeld())
             {
                 m_Yaw += Input::GetMouseMovement().X;
                 m_Pitch -= Input::GetMouseMovement().Y;
@@ -166,7 +166,8 @@ namespace Nexus
             m_Front = glm::normalize(cameraDirection);
         }
 
-        void RecalculateProjection()
+        void
+        RecalculateProjection()
         {
             float aspectRatio = (float)m_Width / (float)m_Height;
 

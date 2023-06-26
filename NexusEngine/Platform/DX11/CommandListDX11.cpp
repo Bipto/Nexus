@@ -15,6 +15,7 @@ namespace Nexus
 
     void CommandListDX11::Begin(const CommandListBeginInfo &beginInfo)
     {
+#if defined(NX_PLATFORM_DX11)
         m_CommandIndex = 0;
         m_VertexBufferIndex = 0;
         m_IndexBufferIndex = 0;
@@ -61,6 +62,7 @@ namespace Nexus
                     commandList->GetClearStencilValue());
             }
         };
+#endif
     }
 
     void CommandListDX11::End()
@@ -69,6 +71,8 @@ namespace Nexus
 
     void CommandListDX11::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer)
     {
+#if defined(NX_PLATFORM_DX11)
+
         m_VertexBuffers.push_back(vertexBuffer);
 
         m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
@@ -94,10 +98,13 @@ namespace Nexus
                 &stride,
                 &offset);
         };
+#endif
     }
 
     void CommandListDX11::SetIndexBuffer(Ref<IndexBuffer> indexBuffer)
     {
+#if defined(NX_PLATFORM_DX11)
+
         m_IndexBuffers.push_back(indexBuffer);
 
         m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
@@ -115,9 +122,12 @@ namespace Nexus
                 DXGI_FORMAT_R32_UINT,
                 0);
         };
+#endif
     }
     void CommandListDX11::DrawElements(uint32_t start, uint32_t count)
     {
+#if defined(NX_PLATFORM_DX11)
+
         DrawElementCommand command;
         command.Start = start;
         command.Count = count;
@@ -132,10 +142,13 @@ namespace Nexus
 
             context->Draw(drawCommand.Count, drawCommand.Start);
         };
+#endif
     }
 
     void CommandListDX11::DrawIndexed(uint32_t count, uint32_t offset)
     {
+#if defined(NX_PLATFORM_DX11)
+
         DrawIndexedCommand command;
         command.Count = count;
         command.Offset = offset;
@@ -150,10 +163,13 @@ namespace Nexus
 
             context->DrawIndexed(drawCommand.Count, drawCommand.Offset, 0);
         };
+#endif
     }
 
     void CommandListDX11::UpdateTexture(Ref<Texture> texture, Ref<Shader> shader, const TextureBinding &binding)
     {
+#if defined(NX_PLATFORM_DX11)
+
         TextureUpdateCommand command;
         command.texture = texture;
         command.shader = shader;
@@ -168,10 +184,13 @@ namespace Nexus
                 textureCommand.texture,
                 textureCommand.binding);
         };
+#endif
     }
 
     void CommandListDX11::UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset)
     {
+#if defined(NX_PLATFORM_DX11)
+
         UniformBufferUpdateCommand command;
         command.buffer = buffer;
         command.data = new char[size];
@@ -188,6 +207,7 @@ namespace Nexus
                 uniformBufferCommand.size,
                 uniformBufferCommand.offset);
         };
+#endif
     }
 
     const ClearValue &CommandListDX11::GetClearColorValue()

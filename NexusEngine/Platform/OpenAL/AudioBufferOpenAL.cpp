@@ -1,7 +1,5 @@
 #include "AudioBufferOpenAL.h"
 
-#include "AudioBufferOpenAL.h"
-
 #include <iostream>
 
 void CheckError()

@@ -118,7 +118,8 @@ namespace Nexus
 
         for (int i = 0; i < commandCount; i++)
         {
-            commands[i](commandListGL);
+            RenderCommand command = commands[i];
+            command(commandList);
         }
     }
 

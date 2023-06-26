@@ -37,6 +37,21 @@ namespace Nexus
         return m_CurrentState.RightButton == MouseButtonState::Pressed;
     }
 
+    bool Mouse::WasMiddleMouseClicked()
+    {
+        return m_CurrentState.MiddleButton == MouseButtonState::Pressed && m_PreviousState.MiddleButton == MouseButtonState::Released;
+    }
+
+    bool Mouse::WasMiddleMouseReleased()
+    {
+        return m_CurrentState.MiddleButton == MouseButtonState::Released && m_PreviousState.MiddleButton == MouseButtonState::Pressed;
+    }
+
+    bool Mouse::IsMiddleMouseHeld()
+    {
+        return m_CurrentState.MiddleButton == MouseButtonState::Pressed;
+    }
+
     Point<int> Mouse::GetMousePosition()
     {
         return m_CurrentState.MousePosition;

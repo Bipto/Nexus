@@ -3,18 +3,20 @@ cmake_minimum_required(VERSION 3.16)
 project("NexusEngine")
 set (CMAKE_CXX_STANDARD 17)
 
+if (EMSCRIPTEN)
+else()
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-if (EMSCRIPTEN)
-    add_link_options("-lGL")
 endif()
 
-add_subdirectory(Editor)
 add_subdirectory(Demo)
 add_subdirectory(NexusEngine)
+
+if(NOT DEFINED EMSCRIPTEN)
+add_subdirectory(Editor)
 add_subdirectory(NetworkingTest/Client)
 add_subdirectory(NetworkingTest/Server)
+endif()
 
 set(SHADERC_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
 set(SPIRV_SKIP_EXECUTABLES ON CACHE BOOL "" FORCE)
@@ -59,22 +61,26 @@ add_subdirectory(External/re2)
 add_subdirectory(External/effcee)
 add_subdirectory(External/SDL_net)
 
+add_subdirectory(External/libnyquist)
+
 add_definitions(-DLIBTYPE=SHARED)
 add_subdirectory(External/OpenAL-Soft)
 remove_definitions(-DLIBTYPE)
-
-add_subdirectory(External/libnyquist)
 
 endif()
 
 set (BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 add_subdirectory(External/assimp)
 
+if (WIN32)
+    add_compile_definitions(NX_PLATFORM_DX11)
+    add_compile_definitions(NX_PLATFORM_OPENGL)
+    add_compile_definitions(NX_PLATFORM_OPENAL)
+    add_compile_definitions(NX_PLATFORM_SDL_NET)
+endif()
+
 if (EMSCRIPTEN)
-    set_target_properties(
-        Editor
-        PROPERTIES
-        LINK_FLAGS
-        "--std=c++17 -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sFULL_ES3=1 -lGL"
-    )
+    add_compile_definitions(NX_PLATFORM_OPENGL)
+    add_compile_definitions(NX_PLATFORM_OPENAL)
+    add_compile_definitions(NX_PLATFORM_SDL_NET)
 endif()

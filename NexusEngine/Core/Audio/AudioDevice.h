@@ -1,8 +1,5 @@
 #pragma once
 
-#include "AL/al.h"
-#include "AL/alext.h"
-
 #include "Core/Memory.h"
 #include "AudioBuffer.h"
 #include "AudioSource.h"

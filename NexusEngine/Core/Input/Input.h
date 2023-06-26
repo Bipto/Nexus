@@ -18,6 +18,10 @@ namespace Nexus
         static bool IsRightMouseReleased();
         static bool IsRightMouseHeld();
 
+        static bool IsMiddleMousePressed();
+        static bool IsMiddleMouseReleased();
+        static bool IsMiddleMouseHeld();
+
         static Point<int> GetMousePosition();
         static Point<int> GetMouseMovement();
 

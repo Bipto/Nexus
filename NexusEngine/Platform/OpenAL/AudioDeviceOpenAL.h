@@ -2,8 +2,7 @@
 
 #include "Core/Audio/AudioDevice.h"
 
-#include "AL/al.h"
-#include "AL/alext.h"
+#include "OpenAL.h"
 
 #include <vector>
 #include <string>

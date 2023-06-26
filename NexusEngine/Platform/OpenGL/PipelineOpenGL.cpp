@@ -135,6 +135,7 @@ namespace Nexus
             glDisable(GL_DEPTH_CLAMP);
         }
 
+#if !defined(EMSCRIPTEN)
         switch (m_Description.RasterizerStateDescription.FillMode)
         {
         case FillMode::Solid:
@@ -144,6 +145,7 @@ namespace Nexus
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             break;
         }
+#endif
 
         switch (m_Description.RasterizerStateDescription.FrontFace)
         {

@@ -41,7 +41,7 @@ namespace Nexus
                          color.Green,
                          color.Blue,
                          color.Alpha);
-            glClearDepth(commandList->GetClearDepthValue());
+            glClearDepthf(commandList->GetClearDepthValue());
             glClearStencil(commandList->GetClearStencilValue());
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -103,7 +103,7 @@ namespace Nexus
             Ref<CommandListOpenGL> oglCL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             auto drawCommand = oglCL->GetCurrentDrawIndexedCommand();
             auto topology = oglCL->GetTopology();
-            glDrawElements(GL_TRIANGLES, drawCommand.Count, GL_UNSIGNED_INT, (void *)drawCommand.Offset);
+            glDrawElements(topology, drawCommand.Count, GL_UNSIGNED_INT, (void *)drawCommand.Offset);
         };
     }
 
@@ -216,6 +216,8 @@ namespace Nexus
         default:
             throw std::runtime_error("Invalid topology selected");
         }
+
+        return drawMode;
     }
 
     const std::array<RenderCommand, 1000> &CommandListOpenGL::GetRenderCommands()

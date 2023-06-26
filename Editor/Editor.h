@@ -211,8 +211,8 @@ public:
                     {
                         if (entity.HasComponent<Nexus::SpriteRendererComponent>() && entity.HasComponent<Nexus::TransformComponent>())
                         {
-                            auto transformComponent = entity.GetComponent<Nexus::TransformComponent *>();
-                            auto spriteRendererComponent = entity.GetComponent<Nexus::SpriteRendererComponent *>();
+                            auto transformComponent = entity.GetComponent<Nexus::TransformComponent>();
+                            auto spriteRendererComponent = entity.GetComponent<Nexus::SpriteRendererComponent>();
 
                             if (spriteRendererComponent->GetTexture())
                             {

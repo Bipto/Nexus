@@ -14,3 +14,12 @@ file (COPY ${CMAKE_CURRENT_SOURCE_DIR}/Resources
 
 target_include_directories(Editor PUBLIC NexusEngine)
 target_link_libraries(Editor PUBLIC NexusEngine)
+
+if (EMSCRIPTEN)
+    set_target_properties(
+        Editor
+        PROPERTIES
+        LINK_FLAGS
+        "--std=c++17 -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sUSE_WEBGL2=1 -sFULL_ES3=1 -lGL -lopenal --preload-file Resources"
+    )
+endif()

@@ -33,12 +33,12 @@ target_include_directories(NexusEngine PUBLIC ../External/glm)
 target_include_directories(NexusEngine PUBLIC ../External/stb)
 target_include_directories(NexusEngine PUBLIC ../External/assimp/include)
 target_include_directories(NexusEngine PUBLIC ../External/json/single_include)
+target_include_directories(NexusEngine PUBLIC ../External/OpenAL-Soft/include)
 
 if (NOT DEFINED EMSCRIPTEN)
 target_include_directories(NexusEngine PUBLIC ../External/tinyfiledialogs/tinyfiledialogs)
 target_include_directories(NexusEngine PUBLIC ../External/shaderc/libshaderc)
 target_include_directories(NexusEngine PUBLIC ../External/shaderc/SPIRV-Cross/include)
-target_include_directories(NexusEngine PUBLIC ../External/OpenAL-Soft/include)
 target_include_directories(NexusEngine PUBLIC ../External/libnyquist/include)
 target_include_directories(NexusEngine PUBLIC ../External/SDL_net)
 endif()
@@ -69,12 +69,11 @@ target_link_libraries(NexusEngine PUBLIC ${OPENGL_LIBRARIES})
 #precompiled header
 target_precompile_headers(NexusEngine PUBLIC Core/nxpch.h)
 
-if (EMSCRIPTEN)
-    set_target_properties(
-        Editor
-        PROPERTIES
-        LINK_FLAGS
-        "--std=c++17 -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sUSE_WEBGL2=1 -sFULL_ES3=1 -lGL --preload-file Resources"
-    )
-
-endif()
+#if (EMSCRIPTEN)
+#    set_target_properties(
+#        NexusEngine
+#        PROPERTIES
+#        LINK_FLAGS
+#        "--std=c++17 -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sUSE_WEBGL2=1 -sFULL_ES3=1 -lGL -lopenal"
+#    )
+#endif()
