@@ -30,27 +30,36 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
+/// @brief A struct that is used to track the allocations of the engine
 struct AllocationTracker
 {
+    /// @brief The total amount of bytes allocated throughout the lifetime of the program
     uint32_t TotalAllocated = 0;
+
+    /// @brief The total amount of bytes released throughout the lifetime of the program
     uint32_t TotalFreed = 0;
 
-    uint32_t GetCurrentUsage(){return TotalAllocated - TotalFreed;}
+    /// @brief A method that returns the currently used memory by the application in bytes
+    /// @return The amount of bytes allocated
+    uint32_t GetCurrentUsage() { return TotalAllocated - TotalFreed; }
 };
 
+/// @brief A static allocation tracker that is used to track the new and delete keywords
 static AllocationTracker s_AllocationTracker;
 
-uint32_t GetCurrentMemoryUsage(){return s_AllocationTracker.GetCurrentUsage();}
+/// @brief A method that returns the current application memory usage in bytes
+/// @return The total amount of bytes currently allocated
+uint32_t GetCurrentMemoryUsage() { return s_AllocationTracker.GetCurrentUsage(); }
 
-//custom memory allocator
-void* operator new(size_t size)
+// custom memory allocator
+void *operator new(size_t size)
 {
     s_AllocationTracker.TotalAllocated += size;
     return malloc(size);
 }
 
-//custom memory deallocator
-void operator delete(void* memory, size_t size)
+// custom memory deallocator
+void operator delete(void *memory, size_t size)
 {
     s_AllocationTracker.TotalFreed += size;
     free(memory);

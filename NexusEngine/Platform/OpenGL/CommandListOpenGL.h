@@ -37,7 +37,7 @@ namespace Nexus
         virtual DrawElementCommand &GetCurrentDrawElementCommand() override;
         virtual DrawIndexedCommand &GetCurrentDrawIndexedCommand() override;
         virtual TextureUpdateCommand &GetCurrentTextureUpdateCommand() override;
-        virtual UniformBufferUpdateCommand &GetCurrentUniformBufferCommand() override;
+        virtual UniformBufferUpdateCommand &GetCurrentUniformBufferUpdateCommand() override;
 
         GLenum GetTopology();
         const std::array<RenderCommand, 1000> &GetRenderCommands();

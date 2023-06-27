@@ -39,7 +39,7 @@ namespace Nexus
         virtual DrawElementCommand &GetCurrentDrawElementCommand() override;
         virtual DrawIndexedCommand &GetCurrentDrawIndexedCommand() override;
         virtual TextureUpdateCommand &GetCurrentTextureUpdateCommand() override;
-        virtual UniformBufferUpdateCommand &GetCurrentUniformBufferCommand() override;
+        virtual UniformBufferUpdateCommand &GetCurrentUniformBufferUpdateCommand() override;
 
 #if defined(NX_PLATFORM_DX11)
         D3D11_PRIMITIVE_TOPOLOGY GetTopology();

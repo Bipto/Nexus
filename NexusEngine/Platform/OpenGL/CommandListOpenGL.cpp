@@ -110,38 +110,38 @@ namespace Nexus
     void CommandListOpenGL::UpdateTexture(Ref<Texture> texture, Ref<Shader> shader, const TextureBinding &binding)
     {
         TextureUpdateCommand command;
-        command.texture = texture;
-        command.shader = shader;
-        command.binding = binding;
+        command.Texture = texture;
+        command.Shader = shader;
+        command.Binding = binding;
         m_TextureUpdateCommands.push_back(command);
 
         m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
         {
             auto textureCommand = commandList->GetCurrentTextureUpdateCommand();
 
-            textureCommand.shader->SetTexture(
-                textureCommand.texture,
-                textureCommand.binding);
+            textureCommand.Shader->SetTexture(
+                textureCommand.Texture,
+                textureCommand.Binding);
         };
     }
 
     void CommandListOpenGL::UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset)
     {
         UniformBufferUpdateCommand command;
-        command.buffer = buffer;
-        command.data = new char[size];
-        command.size = size;
-        command.offset = offset;
-        memcpy(command.data, data, size);
+        command.Buffer = buffer;
+        command.Data = new char[size];
+        command.Size = size;
+        command.Offset = offset;
+        memcpy(command.Data, data, size);
         m_UniformBufferUpdateCommands.push_back(command);
 
         m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
         {
-            auto uniformBufferCommand = commandList->GetCurrentUniformBufferCommand();
-            uniformBufferCommand.buffer->SetData(
-                uniformBufferCommand.data,
-                uniformBufferCommand.size,
-                uniformBufferCommand.offset);
+            auto uniformBufferCommand = commandList->GetCurrentUniformBufferUpdateCommand();
+            uniformBufferCommand.Buffer->SetData(
+                uniformBufferCommand.Data,
+                uniformBufferCommand.Size,
+                uniformBufferCommand.Offset);
         };
     }
 
@@ -186,7 +186,7 @@ namespace Nexus
         return m_TextureUpdateCommands[m_TextureCommandIndex++];
     }
 
-    UniformBufferUpdateCommand &CommandListOpenGL::GetCurrentUniformBufferCommand()
+    UniformBufferUpdateCommand &CommandListOpenGL::GetCurrentUniformBufferUpdateCommand()
     {
         return m_UniformBufferUpdateCommands[m_UniformBufferUpdateCommandIndex++];
     }

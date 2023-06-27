@@ -171,18 +171,18 @@ namespace Nexus
 #if defined(NX_PLATFORM_DX11)
 
         TextureUpdateCommand command;
-        command.texture = texture;
-        command.shader = shader;
-        command.binding = binding;
+        command.Texture = texture;
+        command.Shader = shader;
+        command.Binding = binding;
         m_TextureUpdateCommands.push_back(command);
 
         m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
         {
             auto textureCommand = commandList->GetCurrentTextureUpdateCommand();
 
-            textureCommand.shader->SetTexture(
-                textureCommand.texture,
-                textureCommand.binding);
+            textureCommand.Shader->SetTexture(
+                textureCommand.Texture,
+                textureCommand.Binding);
         };
 #endif
     }
@@ -192,20 +192,20 @@ namespace Nexus
 #if defined(NX_PLATFORM_DX11)
 
         UniformBufferUpdateCommand command;
-        command.buffer = buffer;
-        command.data = new char[size];
-        command.size = size;
-        command.offset = offset;
-        memcpy(command.data, data, size);
+        command.Buffer = buffer;
+        command.Data = new char[size];
+        command.Size = size;
+        command.Offset = offset;
+        memcpy(command.Data, data, size);
         m_UniformBufferUpdateCommands.push_back(command);
 
         m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
         {
-            auto uniformBufferCommand = commandList->GetCurrentUniformBufferCommand();
-            uniformBufferCommand.buffer->SetData(
-                uniformBufferCommand.data,
-                uniformBufferCommand.size,
-                uniformBufferCommand.offset);
+            auto uniformBufferCommand = commandList->GetCurrentUniformBufferUpdateCommand();
+            uniformBufferCommand.Buffer->SetData(
+                uniformBufferCommand.Data,
+                uniformBufferCommand.Size,
+                uniformBufferCommand.Offset);
         };
 #endif
     }
@@ -250,7 +250,7 @@ namespace Nexus
         return m_TextureUpdateCommands[m_TextureCommandIndex++];
     }
 
-    UniformBufferUpdateCommand &CommandListDX11::GetCurrentUniformBufferCommand()
+    UniformBufferUpdateCommand &CommandListDX11::GetCurrentUniformBufferUpdateCommand()
     {
         return m_UniformBufferUpdateCommands[m_UniformBufferUpdateCommandIndex++];
     }
