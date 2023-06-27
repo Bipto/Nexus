@@ -11,6 +11,7 @@ add_executable(Demo main.cpp)
 target_include_directories(Demo PUBLIC NexusEngine)
 target_link_libraries(Demo PUBLIC NexusEngine)
 
+#resources need to be output into a separate folder if building for emscripten
 if (EMSCRIPTEN)
 file (COPY 
     ${CMAKE_CURRENT_SOURCE_DIR}/Resources
@@ -21,6 +22,7 @@ file (COPY
     DESTINATION ${CMAKE_BINARY_DIR}/bin)
 endif()
 
+#flags required for emscripten
 if (EMSCRIPTEN)
     set_target_properties(
         Demo

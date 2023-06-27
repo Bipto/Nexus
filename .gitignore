@@ -32,3 +32,4 @@ build_emscripten/include
 build_emscripten/SPIRV-ToolsConfig.cmake
 *.cmake
 .VSCodeCounter
+build_emscripten/Demo/Resources

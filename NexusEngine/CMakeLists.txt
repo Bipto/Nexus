@@ -15,51 +15,53 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-set(SPIRV_CROSS_CLI OFF CACHE BOOL "" FORCE)
-set(SPIRV_CROSS_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
-set(SKIP_SPIRV_TOOLS_INSTALL ON CACHE BOOL "" FORCE)
-set(ENABLE_SPIRV_TOOLS_INSTALL OFF CACHE BOOL "" FORCE)
-
 #adds cpp and h files from engine
 file (GLOB_RECURSE ENGINE_HEADERS Core/*.h Runtime/*.h)
 file (GLOB_RECURSE ENGINE_SOURCES Core/*.cpp Core/Input/*.cpp Core/Utils/*.cpp Platform/*.cpp Platform/OpenGL*.cpp Platform/DX11/*.cpp Runtime/*.cpp Runtime/ECS/*.cpp)
 add_library(NexusEngine ${ENGINE_HEADERS} ${ENGINE_SOURCES})
 
 #including dependencies
-target_include_directories(NexusEngine PUBLIC ../External/SDL/include)
-target_include_directories(NexusEngine PUBLIC ../External/SDL_mixer/include)
-target_include_directories(NexusEngine PRIVATE External/Lua.lua-5.4.4)
-target_include_directories(NexusEngine PUBLIC ../External/glm)
-target_include_directories(NexusEngine PUBLIC ../External/stb)
-target_include_directories(NexusEngine PUBLIC ../External/assimp/include)
-target_include_directories(NexusEngine PUBLIC ../External/json/single_include)
-target_include_directories(NexusEngine PUBLIC ../External/OpenAL-Soft/include)
+target_include_directories(NexusEngine PUBLIC 
+  ../External/SDL/include
+  ../External/Lua.lua-5.4.4
+  ../External/glm
+  ../External/stb
+  ../External/assimp/include
+  ../External/json/single_include
+  ../External/OpenAL-Soft/include)
 
+#dependencies when not building with emscripten
 if (NOT DEFINED EMSCRIPTEN)
-target_include_directories(NexusEngine PUBLIC ../External/tinyfiledialogs/tinyfiledialogs)
-target_include_directories(NexusEngine PUBLIC ../External/shaderc/libshaderc)
-target_include_directories(NexusEngine PUBLIC ../External/shaderc/SPIRV-Cross/include)
-target_include_directories(NexusEngine PUBLIC ../External/libnyquist/include)
-target_include_directories(NexusEngine PUBLIC ../External/SDL_net)
+  target_include_directories(NexusEngine PUBLIC
+    ../External/tinyfiledialogs/tinyfiledialogs
+    ../External/shaderc/libshaderc
+    ../External/shaderc/SPIRV-Cross/include
+    ../External/libnyquist/include
+    ../External/SDL_net)
 endif()
 
+#add the engines headers to the include path
 target_include_directories(NexusEngine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 #linking dependencies
-target_link_libraries(NexusEngine PUBLIC SDL2main SDL2-static)
-target_link_libraries(NexusEngine PUBLIC lua_static)
-target_link_libraries(NexusEngine PUBLIC glad)
-target_link_libraries(NexusEngine PUBLIC assimp)
-target_link_libraries(NexusEngine PUBLIC imgui)
-target_link_libraries(NexusEngine PUBLIC imguizmo)
+target_link_libraries(NexusEngine PUBLIC 
+  SDL2main
+  SDL2-static
+  lua_static
+  glad
+  assimp
+  imgui
+  imguizmo)
 
 if(NOT DEFINED EMSCRIPTEN)
-target_link_libraries(NexusEngine PUBLIC tinyfiledialogs)
-target_link_libraries(NexusEngine PUBLIC shaderc)
-target_link_libraries(NexusEngine PUBLIC spirv-cross-cpp spirv-cross-hlsl)
-target_link_libraries(NexusEngine PUBLIC OpenAL)
-target_link_libraries(NexusEngine PUBLIC libnyquist)
-target_link_libraries(NexusEngine PUBLIC SDL2_net)
+  target_link_libraries(NexusEngine PUBLIC 
+    tinyfiledialogs
+    shaderc
+    spirv-cross-cpp
+    spirv-cross-hlsl
+    OpenAL
+    libnyquist
+    SDL2_net)
 endif()
 
 #including OpenGL
@@ -68,12 +70,3 @@ target_link_libraries(NexusEngine PUBLIC ${OPENGL_LIBRARIES})
 
 #precompiled header
 target_precompile_headers(NexusEngine PUBLIC Core/nxpch.h)
-
-#if (EMSCRIPTEN)
-#    set_target_properties(
-#        NexusEngine
-#        PROPERTIES
-#        LINK_FLAGS
-#        "--std=c++17 -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sUSE_WEBGL2=1 -sFULL_ES3=1 -lGL -lopenal"
-#    )
-#endif()

@@ -119,8 +119,6 @@ public:
 
     virtual void Render(Nexus::Time time) override
     {
-        this->SetCursor(Nexus::Cursor::No);
-
         m_GraphicsDevice->SetPipeline(m_Pipeline);
 
         m_GraphicsDevice->SetFramebuffer(nullptr);
@@ -163,6 +161,7 @@ public:
 
         m_Camera.Update(
             GetWindowSize().X,
+
             GetWindowSize().Y,
             time);
 
@@ -208,12 +207,13 @@ private:
 
     Nexus::Ref<Nexus::AudioBuffer> m_ShootSoundEffect;
     Nexus::Ref<Nexus::AudioSource> m_ShootSoundSource;
+    Nexus::Point<int> m_PreviousWindowSize;
 };
 
 int main(int argc, char **argv)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::GraphicsAPI::OpenGL;
+    spec.GraphicsAPI = Nexus::GraphicsAPI::DirectX11;
     spec.AudioAPI = Nexus::AudioAPI::OpenAL;
     spec.ImGuiActive = true;
     spec.VSyncState = Nexus::VSyncState::Enabled;
