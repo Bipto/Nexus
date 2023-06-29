@@ -2,13 +2,14 @@
 
 #include "GraphicsDeviceDX11.h"
 #include "BufferDX11.h"
+#include "PipelineDX11.h"
+#include "ShaderDX11.h"
 
 #include <memory>
 
 namespace Nexus
 {
-    CommandListDX11::CommandListDX11(GraphicsDeviceDX11 *graphicsDevice, Ref<Pipeline> pipeline)
-        : CommandList(pipeline)
+    CommandListDX11::CommandListDX11(GraphicsDeviceDX11 *graphicsDevice)
     {
         m_GraphicsDevice = graphicsDevice;
     }
@@ -19,12 +20,14 @@ namespace Nexus
         m_CommandIndex = 0;
         m_VertexBufferIndex = 0;
         m_IndexBufferIndex = 0;
+        m_PipelineIndex = 0;
         m_ElementCommandIndex = 0;
         m_IndexedCommandIndex = 0;
         m_TextureCommandIndex = 0;
 
         m_VertexBuffers.clear();
         m_IndexBuffers.clear();
+        m_Pipelines.clear();
         m_ElementCommands.clear();
         m_IndexedCommands.clear();
         m_TextureUpdateCommands.clear();
@@ -80,7 +83,8 @@ namespace Nexus
             Ref<CommandListDX11> dxCommandList = std::dynamic_pointer_cast<CommandListDX11>(commandList);
             auto graphicsDevice = dxCommandList->GetGraphicsDevice();
             auto vertexBuffer = commandList->GetCurrentVertexBuffer();
-            auto pipeline = commandList->GetPipeline();
+
+            auto pipeline = dxCommandList->GetCurrentPipeline();
             auto shader = pipeline->GetShader();
             auto layout = shader->GetLayout();
             auto context = graphicsDevice->GetDeviceContext();
@@ -123,6 +127,16 @@ namespace Nexus
                 0);
         };
 #endif
+    }
+
+    void CommandListDX11::SetPipeline(Ref<Pipeline> pipeline)
+    {
+        m_Pipelines.push_back(pipeline);
+
+        m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
+        {
+            commandList->BindNextPipeline();
+        };
     }
     void CommandListDX11::DrawElements(uint32_t start, uint32_t count)
     {
@@ -233,6 +247,33 @@ namespace Nexus
     Ref<IndexBuffer> CommandListDX11::GetCurrentIndexBuffer()
     {
         return m_IndexBuffers[m_IndexBufferIndex++];
+    }
+
+    void CommandListDX11::BindNextPipeline()
+    {
+        m_CurrentPipeline = m_Pipelines[m_PipelineIndex++];
+        Ref<PipelineDX11> dxPipeline = std::dynamic_pointer_cast<PipelineDX11>(m_CurrentPipeline);
+
+        auto depthStencilState = dxPipeline->GetDepthStencilState();
+        auto rasterizerState = dxPipeline->GetRasterizerState();
+        auto blendState = dxPipeline->GetBlendState();
+        const auto &scissorRectangle = dxPipeline->GetScissorRectangle();
+        auto topology = dxPipeline->GetTopology();
+        auto shader = dxPipeline->GetShader();
+        auto dxShader = std::dynamic_pointer_cast<ShaderDX11>(shader);
+
+        auto context = m_GraphicsDevice->GetDeviceContext();
+
+        context->OMSetDepthStencilState(depthStencilState, 1);
+        context->RSSetState(rasterizerState);
+        context->RSSetScissorRects(1, &scissorRectangle);
+        context->IASetPrimitiveTopology(topology);
+        context->VSSetShader(dxShader->GetVertexShader(), 0, 0);
+        context->PSSetShader(dxShader->GetPixelShader(), 0, 0);
+        context->IASetInputLayout(dxShader->GetInputLayout());
+
+        float blendFactor[] = {1.0f, 1.0f, 1.0f, 1.0f};
+        context->OMSetBlendState(blendState, blendFactor, 0xffffffff);
     }
 
     DrawElementCommand &CommandListDX11::GetCurrentDrawElementCommand()

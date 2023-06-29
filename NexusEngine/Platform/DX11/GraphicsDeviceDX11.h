@@ -16,11 +16,7 @@ namespace Nexus
     public:
         GraphicsDeviceDX11(const GraphicsDeviceCreateInfo &createInfo);
         virtual void SetContext() override;
-        virtual void Clear(float red, float green, float blue, float alpha) override;
         virtual void SetFramebuffer(Ref<Framebuffer> framebuffer) override;
-        virtual void SetPipeline(Ref<Pipeline> pipeline) override;
-        virtual void DrawElements(PrimitiveType type, uint32_t start, uint32_t count) override;
-        virtual void DrawIndexed(PrimitiveType type, uint32_t count, uint32_t offset) override;
         virtual void SubmitCommandList(Ref<CommandList> commandList) override;
 
         virtual void SetViewport(const Viewport &viewport) override;
@@ -30,10 +26,6 @@ namespace Nexus
         virtual const char *GetDeviceName() override;
         virtual void *GetContext() override;
 
-        virtual void SetVertexBuffer(Ref<VertexBuffer> vertexBuffer) override;
-        virtual void SetIndexBuffer(Ref<IndexBuffer> indexBuffer) override;
-        virtual void SetShader(Ref<Shader> shader) override;
-
         virtual Ref<Shader> CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout) override;
         virtual Ref<VertexBuffer> CreateVertexBuffer(const std::vector<Vertex> vertices) override;
         virtual Ref<IndexBuffer> CreateIndexBuffer(const std::vector<unsigned int> indices) override;
@@ -41,7 +33,7 @@ namespace Nexus
         virtual Ref<UniformBuffer> CreateUniformBuffer(const UniformResourceBinding &binding) override;
         virtual Ref<Framebuffer> CreateFramebuffer(const Nexus::FramebufferSpecification &spec) override;
         virtual Ref<Pipeline> CreatePipeline(const PipelineDescription &description) override;
-        virtual Ref<CommandList> CreateCommandList(Ref<Pipeline> pipeline) override;
+        virtual Ref<CommandList> CreateCommandList() override;
 
         virtual void InitialiseImGui() override;
         virtual void BeginImGuiRender() override;

@@ -103,7 +103,7 @@ public:
         Nexus::MeshFactory factory(m_GraphicsDevice);
         m_SpriteMesh = factory.CreateCube();
 
-        m_CommandList = m_GraphicsDevice->CreateCommandList(m_Pipeline);
+        m_CommandList = m_GraphicsDevice->CreateCommandList();
 
         /* Nexus::Ref<Nexus::AudioBuffer> buffer = m_AudioDevice->CreateAudioBufferFromMP3File("Resources/Audio/Guitar_Music.mp3");
         Nexus::Ref<Nexus::AudioSource> source = m_AudioDevice->CreateAudioSource(buffer);
@@ -119,8 +119,6 @@ public:
 
     virtual void Render(Nexus::Time time) override
     {
-        m_GraphicsDevice->SetPipeline(m_Pipeline);
-
         m_GraphicsDevice->SetFramebuffer(nullptr);
         Nexus::Viewport vp;
         vp.X = 0;
@@ -153,6 +151,7 @@ public:
             1.0f};
 
         m_CommandList->Begin(beginInfo);
+        m_CommandList->SetPipeline(m_Pipeline);
         m_CommandList->SetVertexBuffer(m_SpriteMesh.GetVertexBuffer());
         m_CommandList->SetIndexBuffer(m_SpriteMesh.GetIndexBuffer());
         m_CommandList->DrawIndexed(m_SpriteMesh.GetIndexBuffer()->GetIndexCount(), 0);

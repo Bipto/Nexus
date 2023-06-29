@@ -11,6 +11,7 @@ namespace Nexus
 
         SetupDepthStencilState();
         SetupRasterizerState();
+        SetupBlendState();
     }
 
     D3D11_COMPARISON_FUNC GetComparisonFunction(ComparisonFunction function)
@@ -76,6 +77,50 @@ namespace Nexus
             return D3D11_CULL_FRONT;
         case CullMode::None:
             return D3D11_CULL_NONE;
+        }
+    }
+
+    D3D11_BLEND GetBlendFunction(BlendFunction function)
+    {
+        switch (function)
+        {
+        case BlendFunction::Zero:
+            return D3D11_BLEND_ZERO;
+        case BlendFunction::One:
+            return D3D11_BLEND_ONE;
+        case BlendFunction::SourceColor:
+            return D3D11_BLEND_SRC_COLOR;
+        case BlendFunction::OneMinusSourceColor:
+            return D3D11_BLEND_INV_SRC_COLOR;
+        case BlendFunction::DestinationColor:
+            return D3D11_BLEND_DEST_COLOR;
+        case BlendFunction::OneMinusDestinationColor:
+            return D3D11_BLEND_INV_DEST_COLOR;
+        case BlendFunction::SourceAlpha:
+            return D3D11_BLEND_SRC_ALPHA;
+        case BlendFunction::OneMinusSourceAlpha:
+            return D3D11_BLEND_INV_SRC_ALPHA;
+        case BlendFunction::DestinationAlpha:
+            return D3D11_BLEND_DEST_ALPHA;
+        case BlendFunction::OneMinusDestinationAlpha:
+            return D3D11_BLEND_INV_DEST_ALPHA;
+        }
+    }
+
+    D3D11_BLEND_OP GetBlendEquation(BlendEquation equation)
+    {
+        switch (equation)
+        {
+        case BlendEquation::Add:
+            return D3D11_BLEND_OP_ADD;
+        case BlendEquation::Subtract:
+            return D3D11_BLEND_OP_SUBTRACT;
+        case BlendEquation::ReverseSubtract:
+            return D3D11_BLEND_OP_REV_SUBTRACT;
+        case BlendEquation::Min:
+            return D3D11_BLEND_OP_MIN;
+        case BlendEquation::Max:
+            return D3D11_BLEND_OP_MAX;
         }
     }
 
@@ -163,6 +208,29 @@ namespace Nexus
         scissor.top = scissorRectangle.Y;
         scissor.bottom = scissorRectangle.Height;
         m_ScissorRectangle = scissor;
+    }
+
+    void PipelineDX11::SetupBlendState()
+    {
+        D3D11_BLEND_DESC blendDesc;
+        ZeroMemory(&blendDesc, sizeof(blendDesc));
+
+        D3D11_RENDER_TARGET_BLEND_DESC rtbd;
+        ZeroMemory(&rtbd, sizeof(rtbd));
+
+        rtbd.BlendEnable = m_Description.BlendStateDescription.EnableBlending;
+        rtbd.SrcBlend = GetBlendFunction(m_Description.BlendStateDescription.SourceColourBlend);
+        rtbd.DestBlend = GetBlendFunction(m_Description.BlendStateDescription.DestinationColourBlend);
+        rtbd.BlendOp = GetBlendEquation(m_Description.BlendStateDescription.BlendEquation);
+        rtbd.SrcBlendAlpha = GetBlendFunction(m_Description.BlendStateDescription.SourceAlphaBlend);
+        rtbd.DestBlendAlpha = GetBlendFunction(m_Description.BlendStateDescription.DestinationAlphaBlend);
+        rtbd.BlendOpAlpha = GetBlendEquation(m_Description.BlendStateDescription.BlendEquation);
+        rtbd.RenderTargetWriteMask = D3D10_COLOR_WRITE_ENABLE_ALL;
+
+        blendDesc.AlphaToCoverageEnable = false;
+        blendDesc.RenderTarget[0] = rtbd;
+
+        m_Device->CreateBlendState(&blendDesc, &m_BlendState);
     }
 
     D3D11_PRIMITIVE_TOPOLOGY PipelineDX11::GetTopology()

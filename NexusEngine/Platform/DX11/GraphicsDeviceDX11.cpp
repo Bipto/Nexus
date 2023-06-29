@@ -129,20 +129,6 @@ namespace Nexus
 #endif
     }
 
-    void GraphicsDeviceDX11::Clear(float red, float green, float blue, float alpha)
-    {
-#if defined(NX_PLATFORM_DX11)
-
-        for (auto target : m_ActiveRenderTargetviews)
-        {
-            float backgroundColor[4] = {red, green, blue, alpha};
-            m_DeviceContextPtr->ClearRenderTargetView(
-                target, backgroundColor);
-        }
-
-#endif
-    }
-
     void GraphicsDeviceDX11::SetFramebuffer(Ref<Framebuffer> framebuffer)
     {
 #if defined(NX_PLATFORM_DX11)
@@ -169,43 +155,6 @@ namespace Nexus
             m_ActiveRenderTargetviews.size(),
             m_ActiveRenderTargetviews.data(),
             NULL);
-#endif
-    }
-
-    void GraphicsDeviceDX11::SetPipeline(Ref<Pipeline> pipeline)
-    {
-#if defined(NX_PLATFORM_DX11)
-        Ref<PipelineDX11> dxPipeline = std::dynamic_pointer_cast<PipelineDX11>(pipeline);
-        auto depthStencilState = dxPipeline->GetDepthStencilState();
-        auto rasterizerState = dxPipeline->GetRasterizerState();
-        const auto &scissorRectangle = dxPipeline->GetScissorRectangle();
-        auto topology = dxPipeline->GetTopology();
-
-        m_DeviceContextPtr->OMSetDepthStencilState(depthStencilState, 1);
-        m_DeviceContextPtr->RSSetState(rasterizerState);
-        m_DeviceContextPtr->RSSetScissorRects(1, &scissorRectangle);
-        m_DeviceContextPtr->IASetPrimitiveTopology(topology);
-
-        Ref<ShaderDX11> dxShader = std::dynamic_pointer_cast<ShaderDX11>(dxPipeline->GetShader());
-        m_DeviceContextPtr->VSSetShader(dxShader->GetVertexShader(), 0, 0);
-        m_DeviceContextPtr->PSSetShader(dxShader->GetPixelShader(), 0, 0);
-        m_DeviceContextPtr->IASetInputLayout(dxShader->GetInputLayout());
-#endif
-    }
-
-    void GraphicsDeviceDX11::DrawElements(PrimitiveType type, uint32_t start, uint32_t count)
-    {
-#if defined(NX_PLATFORM_DX11)
-        m_DeviceContextPtr->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        m_DeviceContextPtr->Draw(count, start);
-#endif
-    }
-
-    void GraphicsDeviceDX11::DrawIndexed(PrimitiveType type, uint32_t count, uint32_t offset)
-    {
-#if defined(NX_PLATFORM_DX11)
-        m_DeviceContextPtr->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        m_DeviceContextPtr->DrawIndexed(count, offset, 0);
 #endif
     }
 
@@ -262,58 +211,6 @@ namespace Nexus
         return m_DeviceContextPtr;
 #else
         return nullptr;
-#endif
-    }
-
-    void GraphicsDeviceDX11::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer)
-    {
-#if defined(NX_PLATFORM_DX11)
-        if (!m_ActiveShader)
-        {
-            NX_ERROR("No shader is currently bound");
-            return;
-        }
-
-        auto layout = m_ActiveShader->GetLayout();
-
-        uint32_t stride = layout.GetStride();
-        uint32_t offset = 0;
-
-        Ref<VertexBufferDX11> vb = std::dynamic_pointer_cast<VertexBufferDX11>(vertexBuffer);
-        ID3D11Buffer *dx11VertexBuffer = vb->GetNativeHandle();
-
-        m_DeviceContextPtr->IASetVertexBuffers(
-            0,
-            1,
-            &dx11VertexBuffer,
-            &stride,
-            &offset);
-#endif
-    }
-
-    void GraphicsDeviceDX11::SetIndexBuffer(Ref<IndexBuffer> indexBuffer)
-    {
-#if defined(NX_PLATFORM_DX11)
-        Ref<IndexBufferDX11> ib = std::dynamic_pointer_cast<IndexBufferDX11>(indexBuffer);
-        ID3D11Buffer *dx11IndexBuffer = ib->GetNativeHandle();
-
-        m_DeviceContextPtr->IASetIndexBuffer(
-            dx11IndexBuffer,
-            DXGI_FORMAT_R32_UINT,
-            0);
-#endif
-    }
-
-    void GraphicsDeviceDX11::SetShader(Ref<Shader> shader)
-    {
-#if defined(NX_PLATFORM_DX11)
-
-        Ref<ShaderDX11> dxShader = std::dynamic_pointer_cast<ShaderDX11>(shader);
-        m_DeviceContextPtr->VSSetShader(dxShader->GetVertexShader(), 0, 0);
-        m_DeviceContextPtr->PSSetShader(dxShader->GetPixelShader(), 0, 0);
-        m_DeviceContextPtr->IASetInputLayout(dxShader->GetInputLayout());
-
-        m_ActiveShader = shader;
 #endif
     }
 
@@ -383,10 +280,10 @@ namespace Nexus
 #endif
     }
 
-    Ref<CommandList> GraphicsDeviceDX11::CreateCommandList(Ref<Pipeline> pipeline)
+    Ref<CommandList> GraphicsDeviceDX11::CreateCommandList()
     {
 #if defined(NX_PLATFORM_DX11)
-        return CreateRef<CommandListDX11>(this, pipeline);
+        return CreateRef<CommandListDX11>(this);
 #else
         return nullptr;
 #endif
@@ -417,15 +314,35 @@ namespace Nexus
     {
 #if defined(NX_PLATFORM_DX11)
 
+        m_DeviceContextPtr->OMSetBlendState(0, 0, 0xffffffff);
         m_DeviceContextPtr->OMSetRenderTargets(0, 0, 0);
         m_RenderTargetViewPtr->Release();
 
         HRESULT hr;
-        hr = m_SwapChainPtr->ResizeBuffers(0, size.X, size.Y, DXGI_FORMAT_UNKNOWN, 0);
+        // size is automatically chosen from window
+        hr = m_SwapChainPtr->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+
+        if (FAILED(hr))
+        {
+            _com_error error(hr);
+            NX_ERROR(error.ErrorMessage());
+        }
 
         ID3D11Texture2D *pBuffer;
         hr = m_SwapChainPtr->GetBuffer(0, __uuidof(ID3D11Texture2D), (void **)&pBuffer);
+        if (FAILED(hr))
+        {
+            _com_error error(hr);
+            NX_ERROR(error.ErrorMessage());
+        }
+
         hr = m_DevicePtr->CreateRenderTargetView(pBuffer, NULL, &m_RenderTargetViewPtr);
+        if (FAILED(hr))
+        {
+            _com_error error(hr);
+            NX_ERROR(error.ErrorMessage());
+        }
+
         pBuffer->Release();
 
         D3D11_TEXTURE2D_DESC depthDesc;
@@ -441,14 +358,26 @@ namespace Nexus
         depthDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
         depthDesc.CPUAccessFlags = 0;
         depthDesc.MiscFlags = 0;
+
         hr = m_DevicePtr->CreateTexture2D(&depthDesc, NULL, &m_SwapchainDepthTexture);
+        if (FAILED(hr))
+        {
+            _com_error error(hr);
+            NX_ERROR(error.ErrorMessage());
+        }
 
         D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilDesc;
         ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
         depthStencilDesc.Format = depthDesc.Format;
         depthStencilDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
         depthStencilDesc.Texture2D.MipSlice = 0;
+
         hr = m_DevicePtr->CreateDepthStencilView(m_SwapchainDepthTexture, &depthStencilDesc, &m_SwapchainStencilView);
+        if (FAILED(hr))
+        {
+            _com_error error(hr);
+            NX_ERROR(error.ErrorMessage());
+        }
 
         m_ActiveRenderTargetviews = {m_RenderTargetViewPtr};
         m_ActiveDepthStencilView = m_SwapchainStencilView;

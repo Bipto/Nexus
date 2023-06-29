@@ -25,7 +25,7 @@ namespace Nexus
             FramebufferDX11(ID3D11Device* device, const Nexus::FramebufferSpecification& spec);
             ~FramebufferDX11();
 
-            virtual void Resize() override;
+            virtual void Recreate() override;
             virtual int GetColorTextureCount() override;            
             virtual bool HasColorTexture() override;            
             virtual bool HasDepthTexture() override;

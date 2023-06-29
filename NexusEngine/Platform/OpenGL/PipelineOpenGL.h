@@ -22,6 +22,7 @@ namespace Nexus
     private:
         void SetupDepthStencil();
         void SetupRasterizer();
+        void SetupBlending();
         void SetShader();
     };
 }

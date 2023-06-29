@@ -94,7 +94,7 @@ public:
         pipelineDescription.Shader = m_Shader;
         m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
 
-        m_CommandList = m_GraphicsDevice->CreateCommandList(m_Pipeline);
+        m_CommandList = m_GraphicsDevice->CreateCommandList();
 
         auto &style = ImGui::GetStyle();
         style.ChildBorderSize = 0.0f;
@@ -177,8 +177,6 @@ public:
             }
         }
 
-        m_GraphicsDevice->SetPipeline(m_Pipeline);
-
         // to framebuffer
         {
             m_GraphicsDevice->SetFramebuffer(m_Framebuffer);
@@ -206,6 +204,7 @@ public:
                         clearColor.a};
 
                     m_CommandList->Begin(beginInfo);
+                    m_CommandList->SetPipeline(m_Pipeline);
 
                     for (auto &entity : activeScene->GetEntities())
                     {

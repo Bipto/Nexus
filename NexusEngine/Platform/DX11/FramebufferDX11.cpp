@@ -10,7 +10,7 @@ namespace Nexus
     {
         m_Device = device;
         this->m_FramebufferSpecification = spec;
-        Resize();
+        Recreate();
     }
 
     FramebufferDX11::~FramebufferDX11()
@@ -18,7 +18,7 @@ namespace Nexus
         DeleteTextures();
     }
 
-    void FramebufferDX11::Resize()
+    void FramebufferDX11::Recreate()
     {
         CreateTextures();
     }
@@ -51,7 +51,7 @@ namespace Nexus
     void FramebufferDX11::SetFramebufferSpecification(const FramebufferSpecification &spec)
     {
         m_FramebufferSpecification = spec;
-        Resize();
+        Recreate();
     }
 
     void FramebufferDX11::CreateTextures()

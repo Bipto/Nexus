@@ -60,6 +60,50 @@ namespace Nexus
         }
     }
 
+    GLenum GetBlendFunction(BlendFunction function)
+    {
+        switch (function)
+        {
+        case BlendFunction::Zero:
+            return GL_ZERO;
+        case BlendFunction::One:
+            return GL_ONE;
+        case BlendFunction::SourceColor:
+            return GL_SRC_COLOR;
+        case BlendFunction::OneMinusSourceColor:
+            return GL_ONE_MINUS_SRC_ALPHA;
+        case BlendFunction::DestinationColor:
+            return GL_DST_COLOR;
+        case BlendFunction::OneMinusDestinationColor:
+            return GL_ONE_MINUS_DST_COLOR;
+        case BlendFunction::SourceAlpha:
+            return GL_SRC_ALPHA;
+        case BlendFunction::OneMinusSourceAlpha:
+            return GL_ONE_MINUS_SRC_ALPHA;
+        case BlendFunction::DestinationAlpha:
+            return GL_DST_ALPHA;
+        case BlendFunction::OneMinusDestinationAlpha:
+            return GL_ONE_MINUS_DST_ALPHA;
+        }
+    }
+
+    GLenum GetBlendEquation(BlendEquation equation)
+    {
+        switch (equation)
+        {
+        case BlendEquation::Add:
+            return GL_FUNC_ADD;
+        case BlendEquation::Subtract:
+            return GL_FUNC_SUBTRACT;
+        case BlendEquation::ReverseSubtract:
+            return GL_FUNC_REVERSE_SUBTRACT;
+        case BlendEquation::Min:
+            return GL_MIN;
+        case BlendEquation::Max:
+            return GL_MAX;
+        }
+    }
+
     void PipelineOpenGL::SetupDepthStencil()
     {
         // enable/disable depth testing
@@ -172,6 +216,29 @@ namespace Nexus
             scissorRectangle.Y,
             scissorRectangle.Width,
             scissorRectangle.Height);
+    }
+
+    void PipelineOpenGL::SetupBlending()
+    {
+        if (m_Description.BlendStateDescription.EnableBlending)
+        {
+            glEnable(GL_BLEND);
+
+            auto sourceColourFunction = GetBlendFunction(m_Description.BlendStateDescription.SourceColourBlend);
+            auto sourceAlphaFunction = GetBlendFunction(m_Description.BlendStateDescription.SourceAlphaBlend);
+            glBlendFuncSeparate(sourceColourFunction, sourceColourFunction, sourceColourFunction, sourceAlphaFunction);
+
+            auto destinationColourFunction = GetBlendFunction(m_Description.BlendStateDescription.DestinationColourBlend);
+            auto destinationAlphaFunction = GetBlendFunction(m_Description.BlendStateDescription.DestinationAlphaBlend);
+            glBlendFuncSeparate(destinationColourFunction, destinationColourFunction, destinationColourFunction, destinationAlphaFunction);
+
+            auto blendEquation = GetBlendEquation(m_Description.BlendStateDescription.BlendEquation);
+            glBlendEquation(blendEquation);
+        }
+        else
+        {
+            glDisable(GL_BLEND);
+        }
     }
 
     void PipelineOpenGL::SetShader()

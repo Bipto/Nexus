@@ -10,16 +10,12 @@
 
 namespace Nexus
 {
-    CommandListOpenGL::CommandListOpenGL(Ref<Pipeline> pipeline)
-        : CommandList(pipeline)
-    {
-    }
-
     void CommandListOpenGL::Begin(const CommandListBeginInfo &beginInfo)
     {
         m_CommandIndex = 0;
         m_VertexBufferIndex = 0;
         m_IndexBufferIndex = 0;
+        m_PipelineIndex = 0;
         m_ElementCommandIndex = 0;
         m_IndexedCommandIndex = 0;
         m_TextureCommandIndex = 0;
@@ -73,6 +69,16 @@ namespace Nexus
             auto indexBuffer = commandList->GetCurrentIndexBuffer();
             auto openglIB = std::dynamic_pointer_cast<IndexBufferOpenGL>(indexBuffer);
             openglIB->Bind();
+        };
+    }
+
+    void CommandListOpenGL::SetPipeline(Ref<Pipeline> pipeline)
+    {
+        m_Pipelines.push_back(pipeline);
+
+        m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
+        {
+            commandList->BindNextPipeline();
         };
     }
 
@@ -171,6 +177,14 @@ namespace Nexus
         return m_IndexBuffers[m_IndexBufferIndex++];
     }
 
+    void CommandListOpenGL::BindNextPipeline()
+    {
+        auto pipeline = m_Pipelines[m_PipelineIndex++];
+        Ref<PipelineOpenGL> pl = std::dynamic_pointer_cast<PipelineOpenGL>(pipeline);
+        pl->Bind();
+        m_CurrentPipeline = pipeline;
+    }
+
     DrawElementCommand &CommandListOpenGL::GetCurrentDrawElementCommand()
     {
         return m_ElementCommands[m_ElementCommandIndex++];
@@ -194,7 +208,7 @@ namespace Nexus
     GLenum CommandListOpenGL::GetTopology()
     {
         GLenum drawMode;
-        auto topology = GetPipeline()->GetPipelineDescription().PrimitiveTopology;
+        auto topology = m_CurrentPipeline->GetPipelineDescription().PrimitiveTopology;
 
         switch (topology)
         {

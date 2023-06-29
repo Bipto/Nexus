@@ -13,13 +13,14 @@ namespace Nexus
     class CommandListDX11 : public CommandList
     {
     public:
-        CommandListDX11(GraphicsDeviceDX11 *graphicsDevice, Ref<Pipeline> pipeline);
+        CommandListDX11(GraphicsDeviceDX11 *graphicsDevice);
 
         virtual void Begin(const CommandListBeginInfo &beginInfo) override;
         virtual void End() override;
 
         virtual void SetVertexBuffer(Ref<VertexBuffer> vertexBuffer) override;
         virtual void SetIndexBuffer(Ref<IndexBuffer> indexBuffer) override;
+        virtual void SetPipeline(Ref<Pipeline> pipeline) override;
 
         virtual void DrawElements(uint32_t start, uint32_t count) override;
         virtual void DrawIndexed(uint32_t count, uint32_t offset) override;
@@ -36,10 +37,13 @@ namespace Nexus
 
         virtual Ref<VertexBuffer> GetCurrentVertexBuffer() override;
         virtual Ref<IndexBuffer> GetCurrentIndexBuffer() override;
+        virtual void BindNextPipeline() override;
         virtual DrawElementCommand &GetCurrentDrawElementCommand() override;
         virtual DrawIndexedCommand &GetCurrentDrawIndexedCommand() override;
         virtual TextureUpdateCommand &GetCurrentTextureUpdateCommand() override;
         virtual UniformBufferUpdateCommand &GetCurrentUniformBufferUpdateCommand() override;
+
+        Ref<Pipeline> GetCurrentPipeline() { return m_CurrentPipeline; }
 
 #if defined(NX_PLATFORM_DX11)
         D3D11_PRIMITIVE_TOPOLOGY GetTopology();
@@ -54,9 +58,11 @@ namespace Nexus
         uint32_t m_CommandIndex = 0;
 
         CommandListBeginInfo m_CommandListBeginInfo;
+        Ref<Pipeline> m_CurrentPipeline;
 
         std::vector<Ref<VertexBuffer>> m_VertexBuffers;
         std::vector<Ref<IndexBuffer>> m_IndexBuffers;
+        std::vector<Ref<Pipeline>> m_Pipelines;
         std::vector<DrawElementCommand> m_ElementCommands;
         std::vector<DrawIndexedCommand> m_IndexedCommands;
         std::vector<TextureUpdateCommand> m_TextureUpdateCommands;
@@ -64,6 +70,7 @@ namespace Nexus
 
         uint32_t m_VertexBufferIndex = 0;
         uint32_t m_IndexBufferIndex = 0;
+        uint32_t m_PipelineIndex = 0;
         uint32_t m_ElementCommandIndex = 0;
         uint32_t m_IndexedCommandIndex = 0;
         uint32_t m_TextureCommandIndex = 0;

@@ -13,7 +13,7 @@ namespace Nexus
 
             void Bind();
             void Unbind();
-            virtual void Resize() override;
+            virtual void Recreate() override;
 
             virtual int GetColorTextureCount() override;            
             virtual bool HasColorTexture() override;            

@@ -5,7 +5,7 @@ namespace Nexus
     FramebufferOpenGL::FramebufferOpenGL(const Nexus::FramebufferSpecification& spec)
     {
         this->m_FramebufferSpecification = spec;
-        Resize();
+        Recreate();
     }
 
     FramebufferOpenGL::~FramebufferOpenGL()
@@ -24,7 +24,7 @@ namespace Nexus
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    void FramebufferOpenGL::Resize()
+    void FramebufferOpenGL::Recreate()
     {
         DeleteTextures();
 
@@ -69,7 +69,7 @@ namespace Nexus
     void FramebufferOpenGL::SetFramebufferSpecification(const FramebufferSpecification& spec)
     {
         this->m_FramebufferSpecification = spec;
-        Resize();
+        Recreate();
     }
 
     void FramebufferOpenGL::CreateTextures()

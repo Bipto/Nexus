@@ -94,9 +94,7 @@ namespace Nexus
     {
     public:
         /// @brief A constructor creating a new command list
-        /// @param pipeline A pipeline to be used when rendering with the command list
-        CommandList(Ref<Pipeline> pipeline)
-            : m_Pipeline(pipeline) {}
+        CommandList() = default;
 
         /// @brief A pure virutal method that begins a command list
         /// @param beginInfo A parameter containing information about how to begin the command list
@@ -112,6 +110,10 @@ namespace Nexus
         /// @brief A pure virtual method that binds an index buffer to the pipeline
         /// @param indexBuffer A pointer to the index buffer to bind
         virtual void SetIndexBuffer(Ref<IndexBuffer> indexBuffer) = 0;
+
+        /// @brief A pure virtual method to binds a pipeline to a command list
+        /// @param pipeline The pointer to the pipeline to bind
+        virtual void SetPipeline(Ref<Pipeline> pipeline) = 0;
 
         /// @brief A pure virtual method that submits a draw call using the bound vertex buffer
         /// @param start The offset to begin rendering at
@@ -135,13 +137,6 @@ namespace Nexus
         /// @param size The size of the data to be uploaded
         /// @param offset An offset to upload the data to
         virtual void UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset) = 0;
-
-        /// @brief A method to get the bound pipeline of the command list
-        /// @return A const pointer to the currently bound pipeline
-        Ref<Pipeline> GetPipeline() const
-        {
-            return m_Pipeline;
-        }
 
         /// @brief A pure virtual method to get the clear colour value that the command list was started with
         /// @return The current clear colour value
@@ -171,6 +166,9 @@ namespace Nexus
         /// @return The currently bound index buffer
         virtual Ref<IndexBuffer> GetCurrentIndexBuffer() = 0;
 
+        /// @brief A pure virtual method that will retrieve the next pipeline in the command list and bind it
+        virtual void BindNextPipeline() = 0;
+
         /// @brief A pure virtual method to get the currently queued draw element command
         /// @return The currently queued draw element command
         virtual DrawElementCommand &GetCurrentDrawElementCommand() = 0;
@@ -186,10 +184,6 @@ namespace Nexus
         /// @brief A pure virtual method to get the currently queued uniform buffer update command
         /// @return The currently queued uniform buffer update command
         virtual UniformBufferUpdateCommand &GetCurrentUniformBufferUpdateCommand() = 0;
-
-    protected:
-        /// @brief A variable containing the command list's currently bound pipeline
-        Ref<Pipeline> m_Pipeline = nullptr;
     };
 
     /// @brief A typedef to simplify creating function pointers to render commands

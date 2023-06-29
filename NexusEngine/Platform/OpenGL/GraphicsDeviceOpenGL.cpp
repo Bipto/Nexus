@@ -73,12 +73,6 @@ namespace Nexus
         SDL_GL_MakeCurrent(this->m_Window->GetSDLWindowHandle(), this->m_Context);
     }
 
-    void GraphicsDeviceOpenGL::Clear(float red, float green, float blue, float alpha)
-    {
-        glClearColor(red, green, blue, alpha);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    }
-
     void GraphicsDeviceOpenGL::SetFramebuffer(Ref<Framebuffer> framebuffer)
     {
         Ref<FramebufferOpenGL> fb = std::dynamic_pointer_cast<FramebufferOpenGL>(framebuffer);
@@ -92,22 +86,6 @@ namespace Nexus
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
             m_BoundFramebuffer = nullptr;
         }
-    }
-
-    void GraphicsDeviceOpenGL::SetPipeline(Ref<Pipeline> pipeline)
-    {
-        Ref<PipelineOpenGL> pl = std::dynamic_pointer_cast<PipelineOpenGL>(pipeline);
-        pl->Bind();
-    }
-
-    void GraphicsDeviceOpenGL::DrawElements(PrimitiveType type, uint32_t start, uint32_t count)
-    {
-        glDrawArrays(GL_TRIANGLES, start, count);
-    }
-
-    void GraphicsDeviceOpenGL::DrawIndexed(PrimitiveType type, uint32_t count, uint32_t offset)
-    {
-        glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void *)offset);
     }
 
     void GraphicsDeviceOpenGL::SubmitCommandList(Ref<CommandList> commandList)
@@ -153,24 +131,6 @@ namespace Nexus
         return (void *)this->m_Context;
     }
 
-    void GraphicsDeviceOpenGL::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer)
-    {
-        Ref<VertexBufferOpenGL> vb = std::dynamic_pointer_cast<VertexBufferOpenGL>(vertexBuffer);
-        vb->Bind();
-    }
-
-    void GraphicsDeviceOpenGL::SetIndexBuffer(Ref<IndexBuffer> indexBuffer)
-    {
-        Ref<IndexBufferOpenGL> ib = std::dynamic_pointer_cast<IndexBufferOpenGL>(indexBuffer);
-        ib->Bind();
-    }
-
-    void GraphicsDeviceOpenGL::SetShader(Ref<Shader> shader)
-    {
-        Ref<ShaderOpenGL> openGLShader = std::dynamic_pointer_cast<ShaderOpenGL>(shader);
-        openGLShader->Bind();
-    }
-
     Ref<Shader> GraphicsDeviceOpenGL::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout)
     {
         return CreateRef<ShaderOpenGL>(vertexShaderSource, fragmentShaderSource, layout);
@@ -206,9 +166,9 @@ namespace Nexus
         return CreateRef<PipelineOpenGL>(description);
     }
 
-    Ref<CommandList> GraphicsDeviceOpenGL::CreateCommandList(Ref<Pipeline> pipeline)
+    Ref<CommandList> GraphicsDeviceOpenGL::CreateCommandList()
     {
-        return CreateRef<CommandListOpenGL>(pipeline);
+        return CreateRef<CommandListOpenGL>(this);
     }
 
     void GraphicsDeviceOpenGL::InitialiseImGui()
