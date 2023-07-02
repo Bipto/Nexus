@@ -4,7 +4,8 @@
 
 namespace Nexus
 {
-    enum ShaderDataType
+    /// @brief An enum representing the different types that can be contained within a vertex buffer
+    enum class ShaderDataType
     {
         None = 0,
         Float,
@@ -19,5 +20,8 @@ namespace Nexus
         Mat4
     };
 
+    /// @brief A method that returns the size of a shader data type in bytes
+    /// @param type An enum representing the data type to get the size of
+    /// @return An unsigned 32 bit integer representing the number of bytes taken by the data type
     uint32_t GetShaderDataTypeSize(ShaderDataType type);
 }

@@ -7,12 +7,13 @@ namespace Nexus
 {
     class TextureOpenGL : public Texture
     {
-        public:
-            TextureOpenGL(TextureSpecification spec);
-            ~TextureOpenGL();
-            virtual void Bind(unsigned int slot = 0) override;
-            virtual void* GetHandle() override;
-        private:
-            unsigned int m_Handle;
+    public:
+        TextureOpenGL(TextureSpecification spec);
+        ~TextureOpenGL();
+        void Bind(unsigned int slot = 0);
+        virtual void *GetHandle() override;
+
+    private:
+        unsigned int m_Handle;
     };
 }

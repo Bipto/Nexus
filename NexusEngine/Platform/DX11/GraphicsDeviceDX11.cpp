@@ -34,10 +34,10 @@ namespace Nexus
         swap_chain_desc.SampleDesc.Count = 1;
         swap_chain_desc.SampleDesc.Quality = 0;
         swap_chain_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        swap_chain_desc.BufferCount = 2;
+        swap_chain_desc.BufferCount = 3;
         swap_chain_desc.OutputWindow = hwnd;
         swap_chain_desc.Windowed = true;
-        swap_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+        swap_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_SEQUENTIAL;
 
         D3D_FEATURE_LEVEL feature_level;
         UINT flags = D3D11_CREATE_DEVICE_SINGLETHREADED;
@@ -320,7 +320,7 @@ namespace Nexus
 
         HRESULT hr;
         // size is automatically chosen from window
-        hr = m_SwapChainPtr->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+        hr = m_SwapChainPtr->ResizeBuffers(0, size.X, size.Y, DXGI_FORMAT_UNKNOWN, 0);
 
         if (FAILED(hr))
         {

@@ -2,6 +2,7 @@
 
 namespace Nexus
 {
+    /// @brief A struct representing a rectangle with a position, width and height
     struct Rectangle
     {
         int X = 0;

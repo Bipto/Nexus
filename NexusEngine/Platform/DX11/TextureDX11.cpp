@@ -72,11 +72,6 @@ namespace Nexus
         m_Texture->Release();
     }
 
-    void TextureDX11::Bind(unsigned int slot)
-    {
-
-    }
-
     void* TextureDX11::GetHandle()
     {
         return m_ResourceView;

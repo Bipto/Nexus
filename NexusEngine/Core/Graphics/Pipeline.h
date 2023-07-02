@@ -101,96 +101,191 @@ namespace Nexus
         None
     };
 
+    /// @brief An enum class representing how faces will be filled in
     enum class FillMode
     {
+        /// @brief All pixels within the face will be filled
         Solid,
+
+        /// @brief Only the border of the face will be filled
         Wireframe
     };
 
+    /// @brief An enum representing which face should be recognised as the front face of a mesh
     enum class FrontFace
     {
+        /// @brief Polygons with vertices wound clockwise will be set as the front face
         Clockwise,
+
+        /// @brief Polygons with vertices wound counter-clockwise will be set as the front face
         CounterClockwise
     };
 
+    /// @brief An enum representing how vertex data is stored within a vertex buffer
     enum class Topology
     {
+        /// @brief Each set of two vertices represent an unconnected line
         LineList,
+
+        /// @brief Each vertex is connected to the previous and next vertex in the buffer
         LineStrip,
+
+        /// @brief Each vertex represents a separate point
         PointList,
+
+        /// @brief Each set of three vertices represent an unconnected face
         TriangleList,
+
+        /// @brief Vertices are shared and every three vertices within the buffer represents a face (e.g. a vertex buffer with four vertices represents two triangles)
         TriangleStrip
     };
 
+    /// @brief An enum representing how data should be stored when a stencil test is carried out
     enum class StencilOperation
     {
+        /// @brief The value stored in the stencil buffer will be preserved
         Keep,
+
+        /// @brief The value stored in the stencil buffer will be set to zero
         Zero,
+
+        /// @brief The value stored in the stencil buffer will be replaced by the value produced by the stencil function
         Replace,
+
+        /// @brief The value stored in the stencil buffer will be increased by one if it is lower than the maximum value
         Increment,
+
+        /// @brief The value stored in the stencil buffer will be decremented by one if it is higher than the minimum value
         Decrement,
+
+        /// @brief The value stored in the stencil buffer will be inverted
         Invert
     };
 
+    /// @brief A struct representing how the depth and stencil configuration should be used in a pipeline
     struct DepthStencilDescription
     {
+        /// @brief Whether the pipeline can write to the depth buffer
         bool EnableDepthWrite = false;
+
+        /// @brief Whether the pipeline will test pixels against the depth buffer
         bool EnableDepthTest = false;
+
+        /// @brief How the pixel should be tested against the depth buffer
         ComparisonFunction DepthComparisonFunction = ComparisonFunction::Never;
+
+        /// @brief Whether the pipeline will use a stencil test when rendering
         bool EnableStencilTest = false;
+
+        /// @brief The mask to use when writing values to the stencil buffer
         uint8_t StencilMask = 0xFF;
+
+        /// @brief How the pixel should be tested against the stencil buffer
         ComparisonFunction StencilComparisonFunction = ComparisonFunction::Never;
+
+        /// @brief The value that should be entered in the stencil buffer when the stencil test fails
         StencilOperation StencilFailOperation = StencilOperation::Keep;
+
+        /// @brief The value that should be entered in the stencil buffer when the stencil test is successful but the depth test fails
         StencilOperation StencilSuccessDepthFailOperation = StencilOperation::Keep;
+
+        /// @brief The value that should be entered in the stencil buffer when the stencil test is successful and the depth test is successful
         StencilOperation StencilSuccessDepthSuccessOperation = StencilOperation::Keep;
     };
 
+    /// @brief A struct representing how triangles should be rendered onto the screen
     struct RasterizerStateDescription
     {
+        /// @brief How triangles should be culled during rendering
         CullMode CullMode = CullMode::Back;
+
+        /// @brief How triangles should be filled in during rendering
         FillMode FillMode = FillMode::Solid;
+
+        /// @brief Which faces should be recognised as the front of a mesh
         FrontFace FrontFace = FrontFace::Clockwise;
+
+        /// @brief Whether the values of the depth buffer should be limited
         bool DepthClipEnabled = false;
+
+        /// @brief Whether the scissor test should be used during rendering
         bool ScissorTestEnabled = false;
+
+        /// @brief The rectangle to check against when carrying out the scissor test
         Rectangle ScissorRectangle;
     };
 
+    /// @brief A struct represenging how pixels should be blended
     struct BlendStateDescription
     {
+        /// @brief Whether blending should be enabled during compositing
         bool EnableBlending = false;
+
+        /// @brief How to perform blending on the output of the source colour
         BlendFunction SourceColourBlend = BlendFunction::SourceColor;
+
+        /// @brief How to perform blending on the output of the source alpha
         BlendFunction SourceAlphaBlend = BlendFunction::One;
+
+        /// @brief How to perform blending on the output of the destination colour
         BlendFunction DestinationColourBlend = BlendFunction::DestinationColor;
+
+        /// @brief How to perform blending on the output of the destination alpha
         BlendFunction DestinationAlphaBlend = BlendFunction::DestinationAlpha;
+
+        /// @brief How the two RGB colour and alpha values should be blended together
         BlendEquation BlendEquation = BlendEquation::Add;
     };
 
+    /// @brief A struct representing how all of the settings required to create a pipeline
     struct PipelineDescription
     {
+        /// @brief How the pipeline should handle depth and stencil testing
         DepthStencilDescription DepthStencilDescription;
+
+        /// @brief How the pipeline should handle rasterization
         RasterizerStateDescription RasterizerStateDescription;
+
+        /// @brief How the pipeline should handle blending
         BlendStateDescription BlendStateDescription;
+
+        /// @brief How the pipeline should handle the vertex buffer data
         Topology PrimitiveTopology = Topology::TriangleList;
+
+        /// @brief A reference counted pointer to a shader that should be used for rendering
         Ref<Shader> Shader;
-        Viewport Viewport;
     };
 
+    /// @brief A pure virtual class representing an API specific pipeline
     class Pipeline
     {
     public:
+        /// @brief A constructor that takes in a PipelineDescription object to use for creation
         Pipeline(const PipelineDescription &description)
         {
             m_Description = description;
         }
+
+        /// @brief An empty pipeline cannot be created
         Pipeline() = delete;
+
+        /// @brief Virtual destructor allowing API specific resources to be destroyed
         virtual ~Pipeline() = default;
+
+        /// @brief A pure virtual method returning a const reference to a pipeline description
+        /// @return A const reference to a pipelinedescription
         virtual const PipelineDescription &GetPipelineDescription() const = 0;
+
+        /// @brief A method that returns a reference counted pointer to a shader
+        /// @return A pointer to the shader used by the pipeline
         virtual Ref<Shader> GetShader() const { return m_Description.Shader; }
 
     protected:
+        /// @brief The pipeline description used to create the pipeline
         PipelineDescription m_Description;
 
     private:
+        /// @brief This allows the GraphicsDevice to access all data stored within a pipeline
         friend class GraphicsDevice;
     };
 }

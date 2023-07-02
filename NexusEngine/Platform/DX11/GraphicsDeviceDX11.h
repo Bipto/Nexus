@@ -44,7 +44,7 @@ namespace Nexus
         virtual void SetVSyncState(VSyncState vSyncState) override;
         virtual VSyncState GetVsyncState() override;
 
-        virtual ShaderFormat GetSupportedShaderFormat() override { return ShaderFormat::HLSL; }
+        virtual ShaderLanguage GetSupportedShaderFormat() override { return ShaderLanguage::HLSL; }
         virtual float GetUVCorrection() { return -1.0f; }
 
 #if defined(NX_PLATFORM_DX11)

@@ -175,7 +175,7 @@ namespace Nexus
 
         /// @brief A pure virtual method that returns a ShaderFormat enum representing the supported shading language of the backend
         /// @return The supported shading language of the backend
-        virtual ShaderFormat GetSupportedShaderFormat() = 0;
+        virtual ShaderLanguage GetSupportedShaderFormat() = 0;
 
         /// @brief A pure virtual method that returns a value that can be used to standardise UV coordinates across backends
         /// @return A float representing the correction
