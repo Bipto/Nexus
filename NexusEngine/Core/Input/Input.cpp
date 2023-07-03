@@ -186,13 +186,13 @@ namespace Nexus
         return gamepads[index]->SupportsRumbleTriggers();
     }
 
-    bool Input::GamepadSupportsLED(uint32_t index)
+    bool Input::GamepadHasLED(uint32_t index)
     {
         if (GetGamepadCount() == 0)
             return false;
 
         auto gamepads = Nexus::GetApplication()->GetCoreInputState()->GetGamepads();
-        return gamepads[index]->SupportsLED();
+        return gamepads[index]->HasLED();
     }
 
     void Input::GamepadRumble(uint32_t index, uint16_t lowFrequency, uint16_t highFrequency, uint32_t milliseconds)

@@ -192,9 +192,14 @@ namespace Nexus
         return SDL_GameControllerHasRumbleTriggers(m_GameController);
     }
 
-    bool Gamepad::SupportsLED()
+    bool Gamepad::HasLED()
     {
         return SDL_GameControllerHasLED(m_GameController);
+    }
+
+    void Gamepad::SetLED(uint8_t red, uint8_t green, uint8_t blue)
+    {
+        SDL_GameControllerSetLED(m_GameController, red, green, blue);
     }
 
     void Gamepad::Rumble(uint16_t lowFrequency, uint16_t highFrequency, uint32_t milliseconds)
@@ -205,11 +210,6 @@ namespace Nexus
     void Gamepad::RumbleTriggers(uint16_t left, uint16_t right, uint32_t milliseconds)
     {
         SDL_GameControllerRumbleTriggers(m_GameController, left, right, milliseconds);
-    }
-
-    void Gamepad::SetLED(uint8_t red, uint8_t green, uint8_t blue)
-    {
-        SDL_GameControllerSetLED(m_GameController, red, green, blue);
     }
 
     const uint32_t Gamepad::GetControllerIndex()

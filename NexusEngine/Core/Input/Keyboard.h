@@ -4,6 +4,7 @@
 
 namespace Nexus
 {
+    /// @brief An enum representing the keys contained on a keyboard
     enum class KeyCode
     {
         Unknown = 0,
@@ -124,18 +125,36 @@ namespace Nexus
         NumDelete,
     };
 
+    /// @brief A class containing the current state of a set of keys
     class Keyboard
     {
     public:
+        /// @brief A method that caches the previous frames key states
         void CacheInput();
 
+        /// @brief A method that checks whether a key is currently held
+        /// @param code The keycode to check the state of
+        /// @return A boolean value representing whether a key was held
         bool IsKeyHeld(KeyCode code);
+
+        /// @brief A method that checks whether a key is currently pressed
+        /// @param code The keycode to check the state of
+        /// @return A boolean value representing whether a key was pressed
         bool WasKeyPressed(KeyCode code);
+
+        /// @brief A method that checks whether a key is currently released
+        /// @param code The keycode to check the state of
+        /// @return A boolean value representing whether a key was released
         bool WasKeyReleased(KeyCode code);
 
     private:
+        /// @brief A map containing the current state of the keyboard's keys
         std::map<KeyCode, bool> m_CurrentKeys;
+
+        /// @brief A map containing the state of the keyboard's keys in the previous frame
         std::map<KeyCode, bool> m_PreviousKeys;
+
+        /// @brief A friend class to allow a window to access the private properties of this class
         friend class Window;
     };
 }
