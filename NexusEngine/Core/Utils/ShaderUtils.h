@@ -4,14 +4,21 @@
 #include <sstream>
 
 namespace Nexus::ShaderUtils
-{   
+{
+    /// @brief A struct used to store the source file of a vertex and fragment shader
     struct ShaderSources
     {
+        /// @brief The source file of a vertex shader
         std::string VertexSource;
+
+        /// @brief The source file of a fragment shader
         std::string FragmentSource;
     };
 
-    static ShaderSources ParseShader(const std::string& path)
+    /// @brief A method to parse a shader in a custom format and return a vertex and fragment shader
+    /// @param path The path to the file to read
+    /// @return A struct containing a vertex and fragment shader
+    static ShaderSources ParseShader(const std::string &path)
     {
         std::ifstream stream(path);
 

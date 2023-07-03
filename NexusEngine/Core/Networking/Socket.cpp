@@ -117,6 +117,11 @@ namespace Nexus
         SDLNet_ResolveHost(&m_IP, hostName.c_str(), port);
     }
 
+    PacketUDP::PacketUDP(UDPpacket *packet)
+        : m_Packet(packet)
+    {
+    }
+
     PacketUDP::~PacketUDP()
     {
         SDLNet_FreePacket(m_Packet);
