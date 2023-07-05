@@ -121,6 +121,9 @@ namespace Nexus
     private:
         /// @brief An SDL_net UDP packet pointer
         UDPpacket *m_Packet;
+
+        /// @brief A friend class to allow UDP sockets to have access to the private properties of a packet
+        friend class SocketUDP;
     };
 
     /// @brief A class representing a UDP socket connection

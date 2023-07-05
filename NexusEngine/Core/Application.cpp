@@ -11,6 +11,18 @@
 
 namespace Nexus
 {
+    void Clock::Tick()
+    {
+        std::chrono::high_resolution_clock::time_point tickTime = std::chrono::high_resolution_clock::now();
+        m_DeltaTime = std::chrono::duration_cast<std::chrono::nanoseconds>(tickTime - m_StartTime).count();
+        m_StartTime = tickTime;
+    }
+
+    Nexus::Time Clock::GetTime()
+    {
+        return Nexus::Time(m_DeltaTime);
+    }
+
     Application::Application(const ApplicationSpecification &spec)
     {
         m_Specification = spec;
@@ -69,10 +81,10 @@ namespace Nexus
 
     void Application::MainLoop()
     {
-        if (m_Window->m_RequiresResize)
+        if (m_Window->m_SwapchainRequiresResize)
         {
             OnResize(this->GetWindowSize());
-            m_Window->m_RequiresResize = false;
+            m_Window->m_SwapchainRequiresResize = false;
             m_PreviousWindowSize = this->GetWindowSize();
         }
 
@@ -174,10 +186,30 @@ namespace Nexus
         m_Window->SetCursor(cursor);
     }
 
+    void Application::Close()
+    {
+        this->m_Window->Close();
+    }
+
+    bool Application::ShouldClose()
+    {
+        return this->m_Window->IsClosing();
+    }
+
     Window *Application::CreateApplicationWindow(const WindowProperties &props)
     {
         Window *window = new Nexus::Window(props);
         return window;
+    }
+
+    InputState *Application::GetCoreInputState()
+    {
+        return m_Window->GetInput();
+    }
+
+    Ref<GraphicsDevice> Application::GetGraphicsDevice()
+    {
+        return m_GraphicsDevice;
     }
 
     Ref<GraphicsDevice> CreateGraphicsDevice(const GraphicsDeviceCreateInfo &createInfo)
