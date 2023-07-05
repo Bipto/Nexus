@@ -3,7 +3,7 @@
 #include "TextureDX11.h"
 #include "Core/Logging/Log.h"
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     TextureDX11::TextureDX11(ID3D11Device* device, TextureSpecification spec) : Texture(spec)
     {

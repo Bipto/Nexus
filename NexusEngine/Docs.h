@@ -5,6 +5,16 @@ namespace Nexus
 {
 }
 
+/// @brief A namespace containing all graphics related functionality
+namespace Nexus::Graphics
+{
+}
+
+/// @brief A namespace containing all audio related functionality
+namespace Nexus::Audio
+{
+}
+
 /// @brief A namespace containing useful file dialogs
 namespace Nexus::FileDialogs
 {

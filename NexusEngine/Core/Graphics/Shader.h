@@ -7,7 +7,7 @@
 #include "Texture.h"
 #include "Core/Memory.h"
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     /// @brief A struct that represents an item within a vertex buffer
     struct VertexBufferElement

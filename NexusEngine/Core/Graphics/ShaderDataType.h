@@ -2,7 +2,7 @@
 
 #include <inttypes.h>
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     /// @brief An enum representing the different types that can be contained within a vertex buffer
     enum class ShaderDataType

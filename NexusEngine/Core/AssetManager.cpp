@@ -1,6 +1,9 @@
 #include "AssetManager.h"
 
-Nexus::Ref<Nexus::Texture> Nexus::AssetManager::GetTexture(const std::string &filepath)
+namespace Nexus
 {
-    return m_GraphicsDevice->CreateTexture(filepath.c_str());
+    Ref<Graphics::Texture> AssetManager::GetTexture(const std::string &filepath)
+    {
+        return m_GraphicsDevice->CreateTexture(filepath.c_str());
+    }
 }

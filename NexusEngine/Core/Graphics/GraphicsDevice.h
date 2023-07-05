@@ -12,7 +12,7 @@
 #include "Core/Graphics/ShaderGenerator.h"
 #include "Viewport.h"
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     /// @brief An enum class that represents an available graphics API backend
     enum class GraphicsAPI
@@ -156,7 +156,7 @@ namespace Nexus
         /// @brief A pure virtual method that creates a new framebuffer from a given specification
         /// @param spec The properties to use when creating the framebuffer
         /// @return A reference counted pointer to a framebuffer
-        virtual Ref<Framebuffer> CreateFramebuffer(const Nexus::FramebufferSpecification &spec) = 0;
+        virtual Ref<Graphics::Framebuffer> CreateFramebuffer(const FramebufferSpecification &spec) = 0;
 
         /// @brief A pure virtual method that resizes the swapchain of the device to a given size
         /// @param size The new size of the swapchain

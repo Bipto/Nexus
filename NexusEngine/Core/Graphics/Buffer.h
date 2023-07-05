@@ -5,7 +5,7 @@
 
 #include "Shader.h"
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     /// @brief A pure virtual class that represents an API specific vertex buffer
     class VertexBuffer

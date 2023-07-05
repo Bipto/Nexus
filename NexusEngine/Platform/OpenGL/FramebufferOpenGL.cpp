@@ -1,8 +1,8 @@
 #include "FramebufferOpenGL.h"
 
-namespace Nexus
+namespace Nexus::Graphics
 {
-    FramebufferOpenGL::FramebufferOpenGL(const Nexus::FramebufferSpecification& spec)
+    FramebufferOpenGL::FramebufferOpenGL(const FramebufferSpecification &spec)
     {
         this->m_FramebufferSpecification = spec;
         Recreate();
@@ -43,22 +43,22 @@ namespace Nexus
 
     int FramebufferOpenGL::GetColorTextureCount()
     {
-        return m_FramebufferSpecification.ColorAttachmentSpecification.Attachments.size(); 
+        return m_FramebufferSpecification.ColorAttachmentSpecification.Attachments.size();
     }
-    
+
     bool FramebufferOpenGL::HasColorTexture()
     {
         return m_FramebufferSpecification.ColorAttachmentSpecification.Attachments.size() > 0;
     }
-    
+
     bool FramebufferOpenGL::HasDepthTexture()
     {
         return m_FramebufferSpecification.DepthAttachmentSpecification.DepthFormat != DepthFormat::None;
     }
 
-    void* FramebufferOpenGL::GetColorAttachment(int index)
+    void *FramebufferOpenGL::GetColorAttachment(int index)
     {
-        return (void*)m_ColorTextures[index];
+        return (void *)m_ColorTextures[index];
     }
 
     const FramebufferSpecification FramebufferOpenGL::GetFramebufferSpecification()
@@ -66,7 +66,7 @@ namespace Nexus
         return this->m_FramebufferSpecification;
     }
 
-    void FramebufferOpenGL::SetFramebufferSpecification(const FramebufferSpecification& spec)
+    void FramebufferOpenGL::SetFramebufferSpecification(const FramebufferSpecification &spec)
     {
         this->m_FramebufferSpecification = spec;
         Recreate();
@@ -76,7 +76,7 @@ namespace Nexus
     {
         m_ColorTextures.clear();
 
-        //color attachments
+        // color attachments
         for (int i = 0; i < m_FramebufferSpecification.ColorAttachmentSpecification.Attachments.size(); i++)
         {
             auto colorSpec = m_FramebufferSpecification.ColorAttachmentSpecification.Attachments[i];
@@ -96,7 +96,7 @@ namespace Nexus
             m_ColorTextures.emplace_back(texture);
         }
 
-        //depth attachment
+        // depth attachment
         if (m_FramebufferSpecification.DepthAttachmentSpecification.DepthFormat != DepthFormat::None)
         {
             glGenTextures(1, &m_DepthTexture);

@@ -4,34 +4,42 @@
 #include "Core/Logging/Log.h"
 #include "Platform/DX11/TextureDX11.h"
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     DXGI_FORMAT GetDXBaseType(const VertexBufferElement element)
     {
         switch (element.Type)
         {
-            case ShaderDataType::Float:     return DXGI_FORMAT_R32_FLOAT;
-            case ShaderDataType::Float2:    return DXGI_FORMAT_R32G32_FLOAT;
-            case ShaderDataType::Float3:    return DXGI_FORMAT_R32G32B32_FLOAT;
-            case ShaderDataType::Float4:    return DXGI_FORMAT_R32G32B32A32_FLOAT;
-            case ShaderDataType::Int:       return DXGI_FORMAT_R32_SINT;
-            case ShaderDataType::Int2:      return DXGI_FORMAT_R32G32_SINT;
-            case ShaderDataType::Int3:      return DXGI_FORMAT_R32G32B32_SINT;
-            case ShaderDataType::Int4:      return DXGI_FORMAT_R32G32B32A32_SINT;
+        case ShaderDataType::Float:
+            return DXGI_FORMAT_R32_FLOAT;
+        case ShaderDataType::Float2:
+            return DXGI_FORMAT_R32G32_FLOAT;
+        case ShaderDataType::Float3:
+            return DXGI_FORMAT_R32G32B32_FLOAT;
+        case ShaderDataType::Float4:
+            return DXGI_FORMAT_R32G32B32A32_FLOAT;
+        case ShaderDataType::Int:
+            return DXGI_FORMAT_R32_SINT;
+        case ShaderDataType::Int2:
+            return DXGI_FORMAT_R32G32_SINT;
+        case ShaderDataType::Int3:
+            return DXGI_FORMAT_R32G32B32_SINT;
+        case ShaderDataType::Int4:
+            return DXGI_FORMAT_R32G32B32A32_SINT;
         }
     }
 
-    ShaderDX11::ShaderDX11(ID3D11Device* device, ID3D11DeviceContext* context, std::string vertexShaderSource, std::string fragmentShaderSource, const VertexBufferLayout& layout)
+    ShaderDX11::ShaderDX11(ID3D11Device *device, ID3D11DeviceContext *context, std::string vertexShaderSource, std::string fragmentShaderSource, const VertexBufferLayout &layout)
     {
         m_Device = device;
         m_ContextPtr = context;
 
         UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
-        #if defined(DEBUG) || defined(_DEBUG)
-            flags |= D3DCOMPILE_DEBUG;
-        #endif
+#if defined(DEBUG) || defined(_DEBUG)
+        flags |= D3DCOMPILE_DEBUG;
+#endif
 
-        ID3DBlob* error_blob = NULL;
+        ID3DBlob *error_blob = NULL;
 
         HRESULT hr = D3DCompile(
             vertexShaderSource.c_str(),
@@ -44,18 +52,20 @@ namespace Nexus
             flags,
             0,
             &m_VertexBlobPtr,
-            &error_blob
-        );
+            &error_blob);
 
         if (FAILED(hr))
         {
             if (error_blob)
             {
-                std::string errorMessage = std::string((char*)error_blob->GetBufferPointer());
+                std::string errorMessage = std::string((char *)error_blob->GetBufferPointer());
                 NX_ERROR(errorMessage);
                 error_blob->Release();
             }
-            if (m_VertexBlobPtr) { m_VertexBlobPtr->Release(); }
+            if (m_VertexBlobPtr)
+            {
+                m_VertexBlobPtr->Release();
+            }
         }
         else
         {
@@ -81,18 +91,20 @@ namespace Nexus
             flags,
             0,
             &m_PixelBlobPtr,
-            &error_blob
-        );
+            &error_blob);
 
         if (FAILED(hr))
         {
             if (error_blob)
             {
-                std::string errorMessage = std::string((char*)error_blob->GetBufferPointer());
+                std::string errorMessage = std::string((char *)error_blob->GetBufferPointer());
                 NX_ERROR(errorMessage);
                 error_blob->Release();
             }
-            if (m_PixelBlobPtr) { m_PixelBlobPtr->Release(); }
+            if (m_PixelBlobPtr)
+            {
+                m_PixelBlobPtr->Release();
+            }
         }
         else
         {
@@ -114,15 +126,15 @@ namespace Nexus
         m_ContextPtr->IASetInputLayout(m_InputLayout);
     } */
 
-    void ShaderDX11::SetTexture(Ref<Texture> texture, const TextureBinding& binding)
+    void ShaderDX11::SetTexture(Ref<Texture> texture, const TextureBinding &binding)
     {
         Ref<TextureDX11> dxTexture = std::dynamic_pointer_cast<TextureDX11>(texture);
 
-        const ID3D11ShaderResourceView* resourceViews[] = { dxTexture->GetResourceView() };
-        const ID3D11SamplerState* samplers[] = { dxTexture->GetSamplerState() };
+        const ID3D11ShaderResourceView *resourceViews[] = {dxTexture->GetResourceView()};
+        const ID3D11SamplerState *samplers[] = {dxTexture->GetSamplerState()};
 
-        m_ContextPtr->PSSetShaderResources(binding.Slot, 1, (ID3D11ShaderResourceView* const*)resourceViews);
-        m_ContextPtr->PSSetSamplers(binding.Slot, 1, (ID3D11SamplerState* const*)samplers);
+        m_ContextPtr->PSSetShaderResources(binding.Slot, 1, (ID3D11ShaderResourceView *const *)resourceViews);
+        m_ContextPtr->PSSetSamplers(binding.Slot, 1, (ID3D11SamplerState *const *)samplers);
     }
 
     const std::string &ShaderDX11::GetVertexShaderSource()
@@ -138,21 +150,20 @@ namespace Nexus
     void ShaderDX11::CreateLayout(const VertexBufferLayout &layout)
     {
         m_BufferLayout = layout;
-            
+
         std::vector<D3D11_INPUT_ELEMENT_DESC> elementDescriptions;
         unsigned int index = 0;
-        for (auto& element : m_BufferLayout)
+        for (auto &element : m_BufferLayout)
         {
-            D3D11_INPUT_ELEMENT_DESC desc = 
-            {
-                element.Name.c_str(),
-                index,
-                GetDXBaseType(element),
-                0,
-                D3D11_APPEND_ALIGNED_ELEMENT,
-                D3D11_INPUT_PER_VERTEX_DATA,
-                0
-            };
+            D3D11_INPUT_ELEMENT_DESC desc =
+                {
+                    element.Name.c_str(),
+                    index,
+                    GetDXBaseType(element),
+                    0,
+                    D3D11_APPEND_ALIGNED_ELEMENT,
+                    D3D11_INPUT_PER_VERTEX_DATA,
+                    0};
             elementDescriptions.push_back(desc);
 
             index++;
@@ -163,8 +174,7 @@ namespace Nexus
             elementDescriptions.size(),
             m_VertexBlobPtr->GetBufferPointer(),
             m_VertexBlobPtr->GetBufferSize(),
-            &m_InputLayout
-        );
+            &m_InputLayout);
 
         if (FAILED(hr))
         {

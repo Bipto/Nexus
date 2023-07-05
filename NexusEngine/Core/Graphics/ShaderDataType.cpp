@@ -1,6 +1,6 @@
 #include "ShaderDataType.h"
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     uint32_t GetShaderDataTypeSize(ShaderDataType type)
     {

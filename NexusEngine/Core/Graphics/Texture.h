@@ -1,7 +1,8 @@
 #pragma once
 
 #include "TextureFormat.h"
-namespace Nexus
+
+namespace Nexus::Graphics
 {
     /// @brief An enum representing a method of sampling a texture
     enum SamplerState

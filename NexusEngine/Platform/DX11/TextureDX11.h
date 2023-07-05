@@ -5,7 +5,7 @@
 #include "DX11.h"
 #include "Core/Graphics/Texture.h"
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     class TextureDX11 : public Texture
     {

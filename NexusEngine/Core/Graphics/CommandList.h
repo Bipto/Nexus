@@ -9,7 +9,7 @@
 
 #include <functional>
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     /// @brief A struct representing a set of values to use  to clear the colour buffer
     struct ClearValue

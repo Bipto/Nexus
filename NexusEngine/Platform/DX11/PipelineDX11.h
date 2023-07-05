@@ -6,7 +6,7 @@
 
 #if defined(NX_PLATFORM_DX11)
 
-namespace Nexus
+namespace Nexus::Graphics
 {
 
     class PipelineDX11 : public Pipeline

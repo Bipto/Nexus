@@ -3,7 +3,7 @@
 #include <string>
 #include <inttypes.h>
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     /// @brief An enum representing the type of shader
     enum class ShaderType

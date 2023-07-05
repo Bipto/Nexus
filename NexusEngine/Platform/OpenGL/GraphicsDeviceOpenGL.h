@@ -5,7 +5,7 @@
 #include "SDL_opengl.h"
 #include "FramebufferOpenGL.h"
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     class GraphicsDeviceOpenGL : public GraphicsDevice
     {
@@ -29,7 +29,7 @@ namespace Nexus
         virtual Ref<IndexBuffer> CreateIndexBuffer(const std::vector<unsigned int> indices) override;
         virtual Ref<UniformBuffer> CreateUniformBuffer(const UniformResourceBinding &binding) override;
         virtual Ref<Texture> CreateTexture(TextureSpecification spec) override;
-        virtual Ref<Framebuffer> CreateFramebuffer(const Nexus::FramebufferSpecification &spec) override;
+        virtual Ref<Framebuffer> CreateFramebuffer(const FramebufferSpecification &spec) override;
         virtual Ref<Pipeline> CreatePipeline(const PipelineDescription &description) override;
         virtual Ref<CommandList> CreateCommandList() override;
 

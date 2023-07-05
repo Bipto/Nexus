@@ -2,7 +2,7 @@
 
 #include "glm/glm.hpp"
 
-namespace Nexus
+namespace Nexus::Audio
 {
     /// @brief A pure virtual class representing a source that is able to play audio
     class AudioSource

@@ -11,12 +11,12 @@ namespace Nexus
     {
     }
 
-    Renderer *Renderer::Create(Ref<GraphicsDevice> device)
+    Renderer *Renderer::Create(Ref<Graphics::GraphicsDevice> device)
     {
         return new Renderer(device);
     }
 
-    Renderer::Renderer(Ref<GraphicsDevice> device)
+    Renderer::Renderer(Ref<Graphics::GraphicsDevice> device)
     {
         this->m_GraphicsDevice = device;
     }

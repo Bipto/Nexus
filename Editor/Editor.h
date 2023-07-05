@@ -50,30 +50,30 @@ public:
         ImGui::LoadIniSettingsFromDisk("Layout.ini");
 
         this->m_Renderer = Nexus::Renderer::Create(this->m_GraphicsDevice);
-        this->m_GraphicsDevice->SetVSyncState(Nexus::VSyncState::Enabled);
+        this->m_GraphicsDevice->SetVSyncState(Nexus::Graphics::VSyncState::Enabled);
 
         this->m_VertexBuffer = this->m_GraphicsDevice->CreateVertexBuffer(vertices);
         this->m_IndexBuffer = this->m_GraphicsDevice->CreateIndexBuffer(indices);
         this->m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
 
-        Nexus::UniformResourceBinding renderInfoBinding;
+        Nexus::Graphics::UniformResourceBinding renderInfoBinding;
         renderInfoBinding.Binding = 0;
         renderInfoBinding.Name = "RenderInfo";
         renderInfoBinding.Size = sizeof(VB_UNIFORM_RENDERINFO);
 
         m_RenderInfoUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(renderInfoBinding);
 
-        Nexus::UniformResourceBinding cameraUniformBinding;
+        Nexus::Graphics::UniformResourceBinding cameraUniformBinding;
         cameraUniformBinding.Binding = 1;
         cameraUniformBinding.Name = "Camera";
         cameraUniformBinding.Size = sizeof(VB_UNIFORM_CAMERA);
 
         m_CameraUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(cameraUniformBinding);
 
-        Nexus::VertexBufferLayout vertexBufferLayout =
+        Nexus::Graphics::VertexBufferLayout vertexBufferLayout =
             {
-                {Nexus::ShaderDataType::Float3, "TEXCOORD", 0},
-                {Nexus::ShaderDataType::Float2, "TEXCOORD", 1}};
+                {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD", 0},
+                {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD", 1}};
 
         m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/shader.glsl", vertexBufferLayout);
 
@@ -81,16 +81,16 @@ public:
         m_TextureBinding.Name = "texSampler";
 
         Nexus::Point size = this->GetWindowSize();
-        Nexus::FramebufferSpecification framebufferSpec;
+        Nexus::Graphics::FramebufferSpecification framebufferSpec;
         framebufferSpec.Width = 500;
         framebufferSpec.Height = 500;
-        framebufferSpec.ColorAttachmentSpecification = {Nexus::TextureFormat::RGBA8, Nexus::TextureFormat::RGBA8};
-        framebufferSpec.DepthAttachmentSpecification = Nexus::DepthFormat::DEPTH24STENCIL8;
+        framebufferSpec.ColorAttachmentSpecification = {Nexus::Graphics::TextureFormat::RGBA8, Nexus::Graphics::TextureFormat::RGBA8};
+        framebufferSpec.DepthAttachmentSpecification = Nexus::Graphics::DepthFormat::DEPTH24STENCIL8;
         m_Framebuffer = this->m_GraphicsDevice->CreateFramebuffer(framebufferSpec);
 
-        Nexus::PipelineDescription pipelineDescription;
-        pipelineDescription.RasterizerStateDescription.CullMode = Nexus::CullMode::None;
-        pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::FrontFace::CounterClockwise;
+        Nexus::Graphics::PipelineDescription pipelineDescription;
+        pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
+        pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
         pipelineDescription.Shader = m_Shader;
         m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
 
@@ -105,7 +105,7 @@ public:
 
         CreatePanels();
 
-        Nexus::MeshFactory factory = Nexus::MeshFactory(m_GraphicsDevice);
+        Nexus::Graphics::MeshFactory factory = Nexus::Graphics::MeshFactory(m_GraphicsDevice);
         m_SpriteMesh = factory.CreateSprite();
 
         m_Camera.SetPosition({0.0f, 0.0f, -5.0f});
@@ -180,7 +180,7 @@ public:
         // to framebuffer
         {
             m_GraphicsDevice->SetFramebuffer(m_Framebuffer);
-            Nexus::Viewport vp;
+            Nexus::Graphics::Viewport vp;
             vp.X = 0;
             vp.Y = 0;
             vp.Width = m_Framebuffer->GetFramebufferSpecification().Width;
@@ -196,7 +196,7 @@ public:
                 if (activeScene)
                 {
                     auto clearColor = activeScene->GetClearColor();
-                    Nexus::CommandListBeginInfo beginInfo{};
+                    Nexus::Graphics::CommandListBeginInfo beginInfo{};
                     beginInfo.ClearValue = {
                         clearColor.r,
                         clearColor.g,
@@ -233,7 +233,7 @@ public:
             // otherwise render empty screen
             else
             {
-                Nexus::CommandListBeginInfo beginInfo{};
+                Nexus::Graphics::CommandListBeginInfo beginInfo{};
                 beginInfo.ClearValue = {
                     0.0f,
                     0.0f,
@@ -286,7 +286,7 @@ public:
         return true;
     }
 
-    void RenderQuad(Nexus::Ref<Nexus::Texture> texture, const glm::vec3 &position, const glm::vec3 &scale, const glm::vec3 &color, Nexus::Ref<Nexus::CommandList> commandList)
+    void RenderQuad(Nexus::Ref<Nexus::Graphics::Texture> texture, const glm::vec3 &position, const glm::vec3 &scale, const glm::vec3 &color, Nexus::Ref<Nexus::Graphics::CommandList> commandList)
     {
         m_RenderInfoUniforms.Translation = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), scale);
         m_RenderInfoUniforms.Color = color;
@@ -464,21 +464,21 @@ public:
 
 private:
     Nexus::Renderer *m_Renderer;
-    Nexus::Ref<Nexus::Shader> m_Shader;
+    Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
 
-    Nexus::Ref<Nexus::VertexBuffer> m_VertexBuffer;
-    Nexus::Ref<Nexus::IndexBuffer> m_IndexBuffer;
-    Nexus::Ref<Nexus::UniformBuffer> m_RenderInfoUniformBuffer;
-    Nexus::Ref<Nexus::UniformBuffer> m_CameraUniformBuffer;
-    Nexus::Ref<Nexus::Texture> m_Texture;
+    Nexus::Ref<Nexus::Graphics::VertexBuffer> m_VertexBuffer;
+    Nexus::Ref<Nexus::Graphics::IndexBuffer> m_IndexBuffer;
+    Nexus::Ref<Nexus::Graphics::UniformBuffer> m_RenderInfoUniformBuffer;
+    Nexus::Ref<Nexus::Graphics::UniformBuffer> m_CameraUniformBuffer;
+    Nexus::Ref<Nexus::Graphics::Texture> m_Texture;
     VB_UNIFORM_RENDERINFO m_RenderInfoUniforms;
     VB_UNIFORM_CAMERA m_CameraUniforms;
-    Nexus::Ref<Nexus::Pipeline> m_Pipeline;
-    Nexus::Ref<Nexus::CommandList> m_CommandList;
-    Nexus::TextureBinding m_TextureBinding;
+    Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
+    Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
+    Nexus::Graphics::TextureBinding m_TextureBinding;
 
     Nexus::FirstPersonCamera m_Camera{};
-    Nexus::Ref<Nexus::Framebuffer> m_Framebuffer;
+    Nexus::Ref<Nexus::Graphics::Framebuffer> m_Framebuffer;
     Nexus::Ref<Nexus::Project> m_Project;
 
     bool m_WindowOpen = true;
@@ -489,7 +489,7 @@ private:
     ViewportPanel *m_ViewportPanel;
     InspectorPanel *m_InspectorPanel;
 
-    Nexus::Mesh m_SpriteMesh;
+    Nexus::Graphics::Mesh m_SpriteMesh;
 
     float m_MovementSpeed = 5.0f;
 };

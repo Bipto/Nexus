@@ -4,7 +4,7 @@
 #include "Core/Graphics/GraphicsDevice.h"
 #include "Core/Graphics/Mesh.h"
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     /// @brief A class allowing a specific mesh to be generated or a model to be loaded from a file
     class MeshFactory

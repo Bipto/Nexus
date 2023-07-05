@@ -8,7 +8,7 @@
 #include <memory>
 #include <stdexcept>
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     void CommandListOpenGL::Begin(const CommandListBeginInfo &beginInfo)
     {

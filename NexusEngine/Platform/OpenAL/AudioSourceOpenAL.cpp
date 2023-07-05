@@ -1,6 +1,6 @@
 #include "AudioSourceOpenAL.h"
 
-namespace Nexus
+namespace Nexus::Audio
 {
     AudioSourceOpenAL::AudioSourceOpenAL(Ref<AudioBuffer> buffer)
     {

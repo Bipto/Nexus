@@ -1,7 +1,7 @@
 #include "BufferOpenGL.h"
 #include "Core/Logging/Log.h"
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     VertexBufferOpenGL::VertexBufferOpenGL(const std::vector<Vertex> &vertices)
         : VertexBuffer(vertices)

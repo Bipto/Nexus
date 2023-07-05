@@ -5,7 +5,7 @@
 
 #include "Rectangle.h"
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     /// @brief An enum class representing how two pixels should be compared against each other
     enum class ComparisonFunction

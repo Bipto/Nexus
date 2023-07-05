@@ -30,12 +30,12 @@ namespace Nexus
         WindowProperties props;
         this->m_Window = new Nexus::Window(props);
 
-        GraphicsDeviceCreateInfo graphicsDeviceCreateInfo;
+        Graphics::GraphicsDeviceCreateInfo graphicsDeviceCreateInfo;
         graphicsDeviceCreateInfo.GraphicsWindow = m_Window;
         graphicsDeviceCreateInfo.API = spec.GraphicsAPI;
         graphicsDeviceCreateInfo.VSyncStateSettings = spec.VSyncState;
 
-        Viewport vp;
+        Graphics::Viewport vp;
         vp.X = 0;
         vp.Y = 0;
         vp.Width = m_Window->GetWindowSize().X;
@@ -58,7 +58,7 @@ namespace Nexus
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-        if (m_GraphicsDevice->GetGraphicsAPI() == GraphicsAPI::OpenGL)
+        if (m_GraphicsDevice->GetGraphicsAPI() == Graphics::GraphicsAPI::OpenGL)
         {
             SDL_Window *window = this->m_Window->GetSDLWindowHandle();
             SDL_GLContext context = (SDL_GLContext)this->m_GraphicsDevice->GetContext();
@@ -66,7 +66,7 @@ namespace Nexus
             ImGui_ImplSDL2_InitForOpenGL(window, context);
         }
 
-        else if (m_GraphicsDevice->GetGraphicsAPI() == GraphicsAPI::DirectX11)
+        else if (m_GraphicsDevice->GetGraphicsAPI() == Graphics::GraphicsAPI::DirectX11)
         {
             ImGui_ImplSDL2_InitForD3D(this->m_Window->GetSDLWindowHandle());
         }
@@ -109,7 +109,7 @@ namespace Nexus
         }
 
         // if vsync is disabled, check if we should render yet
-        if (m_GraphicsDevice->GetVsyncState() == Nexus::VSyncState::Disabled)
+        if (m_GraphicsDevice->GetVsyncState() == Nexus::Graphics::VSyncState::Disabled)
             if (m_RenderTimer < timeBetweenRenders)
                 return;
 
@@ -127,7 +127,7 @@ namespace Nexus
 
             if (m_Specification.ImGuiActive)
             {
-                Nexus::Viewport vp;
+                Nexus::Graphics::Viewport vp;
                 vp.X = 0;
                 vp.Y = 0;
                 vp.Width = m_Window->GetWindowSize().X;
@@ -207,28 +207,28 @@ namespace Nexus
         return m_Window->GetInput();
     }
 
-    Ref<GraphicsDevice> Application::GetGraphicsDevice()
+    Ref<Graphics::GraphicsDevice> Application::GetGraphicsDevice()
     {
         return m_GraphicsDevice;
     }
 
-    Ref<GraphicsDevice> CreateGraphicsDevice(const GraphicsDeviceCreateInfo &createInfo)
+    Ref<Graphics::GraphicsDevice> CreateGraphicsDevice(const Graphics::GraphicsDeviceCreateInfo &createInfo)
     {
         switch (createInfo.API)
         {
-        case GraphicsAPI::DirectX11:
-            return CreateRef<GraphicsDeviceDX11>(createInfo);
+        case Graphics::GraphicsAPI::DirectX11:
+            return CreateRef<Graphics::GraphicsDeviceDX11>(createInfo);
         default:
-            return CreateRef<GraphicsDeviceOpenGL>(createInfo);
+            return CreateRef<Graphics::GraphicsDeviceOpenGL>(createInfo);
         }
     }
 
-    Ref<AudioDevice> CreateAudioDevice(AudioAPI api)
+    Ref<Audio::AudioDevice> CreateAudioDevice(Audio::AudioAPI api)
     {
         switch (api)
         {
         default:
-            return CreateRef<AudioDeviceOpenAL>();
+            return CreateRef<Audio::AudioDeviceOpenAL>();
         }
     }
 }

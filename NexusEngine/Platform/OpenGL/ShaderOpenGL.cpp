@@ -2,7 +2,7 @@
 
 #include "Core/Logging/Log.h"
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     GLenum GetGLBaseType(const VertexBufferElement element)
     {

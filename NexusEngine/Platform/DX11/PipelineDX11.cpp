@@ -2,7 +2,7 @@
 
 #if defined(NX_PLATFORM_DX11)
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     PipelineDX11::PipelineDX11(ID3D11Device *device, const PipelineDescription &description)
         : Pipeline(description)

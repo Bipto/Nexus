@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     /// @brief An enum representing how the texture will be stored in memory
     enum class TextureFormat

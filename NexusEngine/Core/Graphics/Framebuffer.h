@@ -7,7 +7,7 @@
 #include "Core/Graphics/TextureFormat.h"
 #include "Core/Graphics/DepthFormat.h"
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     /// @brief A struct representing the settings to use when creating a framebuffer
     struct FramebufferTextureSpecification

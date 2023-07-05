@@ -10,7 +10,7 @@
 #include "libnyquist/Decoders.h"
 #endif
 
-namespace Nexus
+namespace Nexus::Audio
 {
     AudioDeviceOpenAL::AudioDeviceOpenAL()
     {
@@ -120,14 +120,14 @@ namespace Nexus
 #endif
     }
 
-    Ref<AudioSource> AudioDeviceOpenAL::CreateAudioSource(Ref<AudioBuffer> buffer)
+    Ref<Audio::AudioSource> AudioDeviceOpenAL::CreateAudioSource(Ref<Audio::AudioBuffer> buffer)
     {
         return CreateRef<AudioSourceOpenAL>(buffer);
     }
 
-    void AudioDeviceOpenAL::PlaySource(Ref<AudioSource> source)
+    void AudioDeviceOpenAL::PlaySource(Ref<Audio::AudioSource> source)
     {
-        Ref<AudioSourceOpenAL> s = std::dynamic_pointer_cast<AudioSourceOpenAL>(source);
+        Ref<AudioSourceOpenAL> s = std::dynamic_pointer_cast<Audio::AudioSourceOpenAL>(source);
         alSourcePlay(s->GetSource());
     }
 }

@@ -4,7 +4,7 @@
 
 #include "GL.h"
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     const PipelineDescription &PipelineOpenGL::GetPipelineDescription() const
     {

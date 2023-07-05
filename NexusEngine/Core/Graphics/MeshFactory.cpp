@@ -4,7 +4,7 @@
 
 #include <vector>
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     Mesh MeshFactory::CreateCube()
     {

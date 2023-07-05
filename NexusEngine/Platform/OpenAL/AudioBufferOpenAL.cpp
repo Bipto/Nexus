@@ -12,7 +12,7 @@ void CheckError()
     }
 }
 
-namespace Nexus
+namespace Nexus::Audio
 {
     AudioBufferOpenAL::AudioBufferOpenAL(ALsizei size, ALsizei frequency, ALenum format, ALvoid *data, ALboolean loop)
     {

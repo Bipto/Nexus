@@ -1,6 +1,6 @@
 #include "Shader.h"
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     VertexBufferElement::VertexBufferElement(ShaderDataType type, const std::string &name, bool normalized)
         : Name(name), Type(type), Size(GetShaderDataTypeSize(type)), Offset(0), Normalized(normalized)

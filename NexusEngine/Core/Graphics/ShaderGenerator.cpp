@@ -8,7 +8,7 @@
 
 #include "Core/Logging/Log.h"
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     shaderc_shader_kind GetTypeOfShader(ShaderType type)
     {

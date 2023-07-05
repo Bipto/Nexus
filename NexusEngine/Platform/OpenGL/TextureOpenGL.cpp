@@ -1,6 +1,6 @@
 #include "TextureOpenGL.h"
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     TextureOpenGL::TextureOpenGL(TextureSpecification spec) : Texture(spec)
     {

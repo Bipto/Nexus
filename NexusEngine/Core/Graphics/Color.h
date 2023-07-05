@@ -2,7 +2,7 @@
 
 #include <inttypes.h>
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     /// @brief A class that stores a four component colour value
     struct Color

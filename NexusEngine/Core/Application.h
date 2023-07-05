@@ -50,21 +50,21 @@ namespace Nexus
     /// @brief A static method to create a new graphics device from a set of options
     /// @param createInfo Options to use to configure the graphics device
     /// @return A reference counted pointer to a graphics device
-    static Ref<GraphicsDevice> CreateGraphicsDevice(const GraphicsDeviceCreateInfo &createInfo);
+    static Ref<Graphics::GraphicsDevice> CreateGraphicsDevice(const Graphics::GraphicsDeviceCreateInfo &createInfo);
 
     /// @brief A static method to create a new audio device from a selected audio API
     /// @param api The audio API to use to manage audio resources
     /// @return A reference counted pointer to an audio device
-    static Ref<AudioDevice> CreateAudioDevice(AudioAPI api);
+    static Ref<Audio::AudioDevice> CreateAudioDevice(Audio::AudioAPI api);
 
     /// @brief A struct representing options to use when creating an application
     struct ApplicationSpecification
     {
         /// @brief The graphics API to use for rendering
-        GraphicsAPI GraphicsAPI;
+        Graphics::GraphicsAPI GraphicsAPI;
 
         /// @brief The audio API to use to support sound effects
-        AudioAPI AudioAPI;
+        Audio::AudioAPI AudioAPI;
 
         /// @brief How many times per second the application should updated
         uint32_t UpdatesPerSecond = 60;
@@ -73,7 +73,7 @@ namespace Nexus
         uint32_t RendersPerSecond = 60;
 
         /// @brief Whether the application should use VSync
-        VSyncState VSyncState = VSyncState::Enabled;
+        Graphics::VSyncState VSyncState = Graphics::VSyncState::Enabled;
 
         /// @brief Whether the application will use ImGui
         bool ImGuiActive = false;
@@ -163,14 +163,14 @@ namespace Nexus
 
         /// @brief A method that returns a pointer to the application's graphics device
         /// @return A reference counted pointer to a graphics device
-        Ref<GraphicsDevice> GetGraphicsDevice();
+        Ref<Graphics::GraphicsDevice> GetGraphicsDevice();
 
     protected:
         /// @brief A reference counted pointer to a graphics device
-        Ref<GraphicsDevice> m_GraphicsDevice;
+        Ref<Graphics::GraphicsDevice> m_GraphicsDevice;
 
         /// @brief A reference counted pointer to an audio device
-        Ref<AudioDevice> m_AudioDevice;
+        Ref<Audio::AudioDevice> m_AudioDevice;
 
     private:
         /// @brief The specification that the application was created with

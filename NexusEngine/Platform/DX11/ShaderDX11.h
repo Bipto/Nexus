@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     class ShaderDX11 : public Shader
     {

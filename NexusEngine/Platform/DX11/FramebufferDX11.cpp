@@ -3,10 +3,10 @@
 #include "FramebufferDX11.h"
 #include "Core/Logging/Log.h"
 
-namespace Nexus
+namespace Nexus::Graphics
 {
-    #if defined(WIN32)
-    FramebufferDX11::FramebufferDX11(ID3D11Device* device, const Nexus::FramebufferSpecification &spec)
+#if defined(WIN32)
+    FramebufferDX11::FramebufferDX11(ID3D11Device *device, const FramebufferSpecification &spec)
     {
         m_Device = device;
         this->m_FramebufferSpecification = spec;
@@ -38,7 +38,7 @@ namespace Nexus
         return m_FramebufferSpecification.DepthAttachmentSpecification.DepthFormat != DepthFormat::None;
     }
 
-    void* FramebufferDX11::GetColorAttachment(int index)
+    void *FramebufferDX11::GetColorAttachment(int index)
     {
         return m_ColorRenderTargets[index].ShaderResourceView;
     }
@@ -58,7 +58,7 @@ namespace Nexus
     {
         DeleteTextures();
 
-        //create color textures
+        // create color textures
         {
             m_ColorRenderTargets.clear();
 
@@ -104,7 +104,7 @@ namespace Nexus
                 shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
                 shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
                 shaderResourceViewDesc.Texture2D.MipLevels = 1;
-                hr = m_Device->CreateShaderResourceView(target.Texture,  &shaderResourceViewDesc, &target.ShaderResourceView);
+                hr = m_Device->CreateShaderResourceView(target.Texture, &shaderResourceViewDesc, &target.ShaderResourceView);
 
                 if (FAILED(hr))
                 {
@@ -117,7 +117,7 @@ namespace Nexus
             }
         }
 
-        //create depth target if requested
+        // create depth target if requested
         {
             FramebufferDepthRenderTarget depthTarget;
 
@@ -152,7 +152,7 @@ namespace Nexus
                 std::string output = std::string("Failed to create framebuffer depth stencil view: ") + error.ErrorMessage();
                 NX_ERROR(output);
             }
-        }        
+        }
     }
 
     void FramebufferDX11::DeleteTextures()
@@ -164,7 +164,7 @@ namespace Nexus
 
             colorAttachment.ShaderResourceView->Release();
             colorAttachment.ShaderResourceView = nullptr;
-            
+
             colorAttachment.Texture->Release();
             colorAttachment.Texture = nullptr;
         }
@@ -174,7 +174,7 @@ namespace Nexus
             if (m_DepthTarget.DepthStencilView)
             {
                 m_DepthTarget.DepthStencilView->Release();
-                m_DepthTarget.DepthStencilView = nullptr;                
+                m_DepthTarget.DepthStencilView = nullptr;
             }
 
             if (m_DepthTarget.Texture)
@@ -187,7 +187,7 @@ namespace Nexus
         m_ColorRenderTargets.clear();
     }
 
-    #endif
+#endif
 }
 
 #endif

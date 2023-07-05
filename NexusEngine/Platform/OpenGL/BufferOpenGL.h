@@ -5,7 +5,7 @@
 
 #include "Platform/OpenGL/ShaderOpenGL.h"
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     class VertexBufferOpenGL : public VertexBuffer
     {

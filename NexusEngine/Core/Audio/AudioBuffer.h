@@ -2,7 +2,7 @@
 
 #include "AudioBuffer.h"
 
-namespace Nexus
+namespace Nexus::Audio
 {
     /// @brief A pure virtual class representing a buffer of audio data
     class AudioBuffer

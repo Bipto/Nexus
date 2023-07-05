@@ -3,7 +3,7 @@
 #include "BufferDX11.h"
 #include "Core/Logging/Log.h"
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     VertexBufferDX11::VertexBufferDX11(ID3D11Device *device, const std::vector<Vertex> &vertices)
         : VertexBuffer(vertices)

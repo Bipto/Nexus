@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Nexus
+namespace Nexus::Graphics
 {
 
     /// @brief An enum value representing the format to use for a depth buffer

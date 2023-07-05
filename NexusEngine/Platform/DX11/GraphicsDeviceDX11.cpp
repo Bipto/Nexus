@@ -11,7 +11,7 @@
 #include "PipelineDX11.h"
 #include "CommandListDX11.h"
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     GraphicsDeviceDX11::GraphicsDeviceDX11(const GraphicsDeviceCreateInfo &createInfo)
         : GraphicsDevice(createInfo)
@@ -262,7 +262,7 @@ namespace Nexus
 #endif
     }
 
-    Ref<Framebuffer> GraphicsDeviceDX11::CreateFramebuffer(const Nexus::FramebufferSpecification &spec)
+    Ref<Framebuffer> GraphicsDeviceDX11::CreateFramebuffer(const FramebufferSpecification &spec)
     {
 #if defined(NX_PLATFORM_DX11)
         return CreateRef<FramebufferDX11>(m_DevicePtr, spec);

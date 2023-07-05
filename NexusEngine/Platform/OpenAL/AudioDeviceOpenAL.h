@@ -7,7 +7,7 @@
 #include <vector>
 #include <string>
 
-namespace Nexus
+namespace Nexus::Audio
 {
     class AudioDeviceOpenAL : public AudioDevice
     {

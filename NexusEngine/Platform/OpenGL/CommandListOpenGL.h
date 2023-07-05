@@ -6,7 +6,7 @@
 
 #include <array>
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     class CommandListOpenGL : public CommandList
     {

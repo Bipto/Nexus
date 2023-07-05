@@ -7,7 +7,7 @@
 
 #include <memory>
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     CommandListDX11::CommandListDX11(GraphicsDeviceDX11 *graphicsDevice)
     {

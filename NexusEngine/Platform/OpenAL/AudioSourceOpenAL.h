@@ -7,7 +7,7 @@
 
 #include "OpenAL.h"
 
-namespace Nexus
+namespace Nexus::Audio
 {
     class AudioSourceOpenAL : public AudioSource
     {

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     /// @brief A struct representing a viewport to use when rendering
     struct Viewport

@@ -8,7 +8,7 @@
 #include "TextureOpenGL.h"
 #include "CommandListOpenGL.h"
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(const GraphicsDeviceCreateInfo &createInfo)
         : GraphicsDevice(createInfo)
@@ -156,7 +156,7 @@ namespace Nexus
         return CreateRef<TextureOpenGL>(spec);
     }
 
-    Ref<Framebuffer> GraphicsDeviceOpenGL::CreateFramebuffer(const Nexus::FramebufferSpecification &spec)
+    Ref<Framebuffer> GraphicsDeviceOpenGL::CreateFramebuffer(const FramebufferSpecification &spec)
     {
         return CreateRef<FramebufferOpenGL>(spec);
     }

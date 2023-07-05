@@ -9,7 +9,7 @@
 
 #include "stb_image.h"
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     GraphicsDevice::GraphicsDevice(const GraphicsDeviceCreateInfo &createInfo)
     {
@@ -61,10 +61,10 @@ namespace Nexus
         source.VertexSource = ss[0].str();
         source.FragmentSource = ss[1].str();
 
-        Nexus::ShaderGenerator generator;
+        ShaderGenerator generator;
         std::string errorMessage;
 
-        Nexus::ShaderGenerationOptions vertOptions;
+        ShaderGenerationOptions vertOptions;
         vertOptions.Type = ShaderType::Vertex;
         vertOptions.ShaderName = filepath;
         vertOptions.OutputFormat = this->GetSupportedShaderFormat();
@@ -75,7 +75,7 @@ namespace Nexus
             errorMessage += "Error compiling vertex shader: " + vertResult.Error + "\n";
         }
 
-        Nexus::ShaderGenerationOptions fragOptions;
+        ShaderGenerationOptions fragOptions;
         fragOptions.Type = ShaderType::Fragment;
         fragOptions.ShaderName = filepath;
         fragOptions.OutputFormat = this->GetSupportedShaderFormat();

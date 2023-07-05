@@ -2,7 +2,7 @@
 
 #include "Core/Graphics/Pipeline.h"
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     class PipelineOpenGL : public Pipeline
     {

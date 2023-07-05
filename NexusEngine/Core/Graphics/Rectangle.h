@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Nexus
+namespace Nexus::Graphics
 {
     /// @brief A struct representing a rectangle with a position, width and height
     struct Rectangle

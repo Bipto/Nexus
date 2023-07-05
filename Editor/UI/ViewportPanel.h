@@ -3,7 +3,7 @@
 class ViewportPanel : public Panel
 {
 public:
-    ViewportPanel(Nexus::Ref<Nexus::Framebuffer> framebuffer, Nexus::Ref<Nexus::GraphicsDevice> graphicsDevice)
+    ViewportPanel(Nexus::Ref<Nexus::Graphics::Framebuffer> framebuffer, Nexus::Ref<Nexus::Graphics::GraphicsDevice> graphicsDevice)
     {
         m_Framebuffer = framebuffer;
         m_GraphicsDevice = graphicsDevice;
@@ -36,7 +36,7 @@ public:
 
 private:
     ImVec2 m_PreviousWindowSize;
-    Nexus::Ref<Nexus::Framebuffer> m_Framebuffer;
-    Nexus::Ref<Nexus::GraphicsDevice> m_GraphicsDevice;
+    Nexus::Ref<Nexus::Graphics::Framebuffer> m_Framebuffer;
+    Nexus::Ref<Nexus::Graphics::GraphicsDevice> m_GraphicsDevice;
     bool m_FramebufferRequiresResize = true;
 };
