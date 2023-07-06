@@ -125,6 +125,10 @@ public:
 
         Demos::ClearScreenDemo clearScreenDemo(m_GraphicsDevice);*/
 
+        auto &io = ImGui::GetIO();
+        io.FontDefault = io.Fonts->AddFontFromFileTTF(
+            "Resources/Fonts/Roboto/Roboto-Regular.ttf", 18);
+
         m_CommandList = m_GraphicsDevice->CreateCommandList();
 
         RegisterDemo<Demos::ClearScreenDemo>("Clear Colour");

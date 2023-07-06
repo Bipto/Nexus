@@ -42,6 +42,13 @@ namespace Demos
 
         virtual void Render(Nexus::Time time) override
         {
+            Nexus::Graphics::Viewport vp;
+            vp.X = 0;
+            vp.Y = 0;
+            vp.Width = m_Window->GetWindowSize().X;
+            vp.Height = m_Window->GetWindowSize().Y;
+            m_GraphicsDevice->SetViewport(vp);
+
             Nexus::Graphics::CommandListBeginInfo beginInfo{};
             beginInfo.ClearValue = {
                 m_ClearColour.r,
