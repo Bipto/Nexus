@@ -121,6 +121,10 @@ namespace Nexus
         /// @brief A method that is used to run the update and render loops of the application
         void MainLoop();
 
+        /// @brief A method that gets access to the application's window
+        /// @return A handle to the application's window
+        Nexus::Window *GetWindow();
+
         /// @brief A method that is used to retrieve the size of an application's window
         /// @return A Nexus::Point containing two integers representing the size of the window
         Point<int> GetWindowSize();

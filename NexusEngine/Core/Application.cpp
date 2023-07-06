@@ -156,6 +156,11 @@ namespace Nexus
         m_Window->m_Input->CachePreviousInput();
     }
 
+    Nexus::Window *Application::GetWindow()
+    {
+        return m_Window;
+    }
+
     Point<int> Application::GetWindowSize()
     {
         return this->m_Window->GetWindowSize();

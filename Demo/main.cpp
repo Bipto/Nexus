@@ -3,7 +3,12 @@
 #include "Core/Graphics/Color.h"
 #include "Core/Networking/Socket.h"
 
+#include "Demos/ClearScreenDemo.h"
+#include "Demos/HelloTriangle.h"
+#include "Demos/HelloTriangleIndexed.h"
+
 #include <iostream>
+#include <utility>
 
 struct alignas(16) VB_UNIFORM_CAMERA
 {
@@ -53,14 +58,20 @@ std::string fragmentShaderSource =
     "FragColor = texture(texSampler, TexCoord) * vec4(OutColor, 1.0);\n"
     "}";
 
-class Demo : public Nexus::Application
+struct DemoInfo
+{
+    std::string Name;
+    Demos::Demo *(*CreationFunction)(Nexus::Application *, const std::string &name);
+};
+
+class DemoApplication : public Nexus::Application
 {
 public:
-    Demo(const Nexus::ApplicationSpecification &spec) : Application(spec) {}
+    DemoApplication(const Nexus::ApplicationSpecification &spec) : Application(spec) {}
 
     virtual void Load() override
     {
-        Nexus::Graphics::VertexBufferLayout layout =
+        /* Nexus::Graphics::VertexBufferLayout layout =
             {
                 {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD", 0},
                 {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD", 1}};
@@ -111,15 +122,37 @@ public:
 
         m_ShootSoundEffect = m_AudioDevice->CreateAudioBufferFromWavFile("Resources/Audio/Laser_Shoot.wav");
         m_ShootSoundSource = m_AudioDevice->CreateAudioSource(m_ShootSoundEffect);
+
+        Demos::ClearScreenDemo clearScreenDemo(m_GraphicsDevice);*/
+
+        m_CommandList = m_GraphicsDevice->CreateCommandList();
+
+        RegisterDemo<Demos::ClearScreenDemo>("Clear Colour");
+        RegisterDemo<Demos::HelloTriangle>("Hello Triangle");
+        RegisterDemo<Demos::HelloTriangleIndexed>("Hello Triangle Indexed");
+    }
+
+    template <typename T>
+    void RegisterDemo(const std::string &name)
+    {
+        DemoInfo info;
+        info.Name = name;
+        info.CreationFunction = [](Nexus::Application *app, const std::string &name) -> Demos::Demo *
+        {
+            return new T(name, app);
+        };
+        m_AvailableDemos.push_back(info);
     }
 
     virtual void Update(Nexus::Time time) override
     {
+        if (m_CurrentDemo)
+            m_CurrentDemo->Update(time);
     }
 
     virtual void Render(Nexus::Time time) override
     {
-        m_GraphicsDevice->SetFramebuffer(nullptr);
+        /* m_GraphicsDevice->SetFramebuffer(nullptr);
         Nexus::Graphics::Viewport vp;
         vp.X = 0;
         vp.Y = 0;
@@ -174,12 +207,79 @@ public:
         if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::Space))
         {
             m_AudioDevice->PlaySource(m_ShootSoundSource);
+        } */
+
+        {
+            ImGui::Begin("Demos");
+
+            if (m_CurrentDemo)
+            {
+                if (ImGui::Button("<- Back"))
+                {
+                    delete m_CurrentDemo;
+                    m_CurrentDemo = nullptr;
+                }
+
+                // required because demo could be deleted in the previous if statement
+                if (m_CurrentDemo)
+                {
+
+                    std::string label = std::string("Selected Demo - ") + m_CurrentDemo->GetName();
+                    ImGui::Text(label.c_str());
+                    m_CurrentDemo->RenderUI();
+                }
+            }
+            else
+            {
+                for (auto &pair : m_AvailableDemos)
+                {
+                    auto flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Leaf;
+
+                    if (ImGui::TreeNodeEx(pair.Name.c_str(), flags))
+                    {
+                        if (ImGui::IsItemClicked())
+                        {
+                            if (m_CurrentDemo)
+                            {
+                                delete m_CurrentDemo;
+                                m_CurrentDemo = nullptr;
+                            }
+
+                            m_CurrentDemo = pair.CreationFunction(this, pair.Name);
+                        }
+
+                        ImGui::TreePop();
+                    }
+                }
+            }
+
+            ImGui::End();
+        }
+
+        if (m_CurrentDemo)
+        {
+            m_CurrentDemo->Render(time);
+        }
+        else
+        {
+            Nexus::Graphics::CommandListBeginInfo beginInfo{};
+            beginInfo.ClearValue = {
+                0.0f,
+                0.0f,
+                0.0f,
+                1.0f};
+
+            m_CommandList->Begin(beginInfo);
+            m_CommandList->End();
+            m_GraphicsDevice->SubmitCommandList(m_CommandList);
         }
     }
 
     virtual void OnResize(Nexus::Point<int> size) override
     {
-        m_GraphicsDevice->Resize(size);
+        if (m_CurrentDemo)
+            m_CurrentDemo->OnResize(size);
+        // m_GraphicsDevice->Resize(size);
     }
 
     virtual void Unload() override
@@ -207,6 +307,9 @@ private:
     Nexus::Ref<Nexus::Audio::AudioBuffer> m_ShootSoundEffect;
     Nexus::Ref<Nexus::Audio::AudioSource> m_ShootSoundSource;
     Nexus::Point<int> m_PreviousWindowSize;
+
+    Demos::Demo *m_CurrentDemo = nullptr;
+    std::vector<DemoInfo> m_AvailableDemos;
 };
 
 int main(int argc, char **argv)
@@ -232,7 +335,7 @@ int main(int argc, char **argv)
 
     Nexus::Init(argc, argv);
 
-    Demo *app = new Demo(spec);
+    DemoApplication *app = new DemoApplication(spec);
     Nexus::Run(app);
     delete app;
 
