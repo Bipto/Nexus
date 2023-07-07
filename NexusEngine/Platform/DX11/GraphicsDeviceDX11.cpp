@@ -191,9 +191,9 @@ namespace Nexus::Graphics
         return m_Viewport;
     }
 
-    const char *GraphicsDeviceDX11::GetAPIName()
+    const std::string GraphicsDeviceDX11::GetAPIName()
     {
-        return "DirectX11";
+        return {"DirectX11"};
     }
 
     const char *GraphicsDeviceDX11::GetDeviceName()

@@ -4,10 +4,10 @@
 
 namespace Demos
 {
-    class HelloTriangle : public Demo
+    class HelloTriangleDemo : public Demo
     {
     public:
-        HelloTriangle(const std::string &name, Nexus::Application *app)
+        HelloTriangleDemo(const std::string &name, Nexus::Application *app)
             : Demo(name, app)
         {
             m_CommandList = m_GraphicsDevice->CreateCommandList();
@@ -34,10 +34,6 @@ namespace Demos
                 };
 
             m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(vertices);
-        }
-
-        virtual void Update(Nexus::Time time) override
-        {
         }
 
         virtual void Render(Nexus::Time time) override
@@ -78,6 +74,6 @@ namespace Demos
         Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
         Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
         Nexus::Ref<Nexus::Graphics::VertexBuffer> m_VertexBuffer;
-        glm::vec3 m_ClearColour = {0.0f, 0.0f, 0.0f};
+        glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
     };
 }

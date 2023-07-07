@@ -22,7 +22,7 @@ namespace Nexus::Graphics
         virtual void SetViewport(const Viewport &viewport) override;
         virtual const Viewport &GetViewport() override;
 
-        virtual const char *GetAPIName() override;
+        virtual const std::string GetAPIName() override;
         virtual const char *GetDeviceName() override;
         virtual void *GetContext() override;
 

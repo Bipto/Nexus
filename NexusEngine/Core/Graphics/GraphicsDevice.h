@@ -76,8 +76,8 @@ namespace Nexus::Graphics
         virtual void SetFramebuffer(Ref<Framebuffer> framebuffer) = 0;
 
         /// @brief A pure virtual method that returns the name of the graphics API as a string
-        /// @return A const char* containing the API name
-        virtual const char *GetAPIName() = 0;
+        /// @return A string containing the API name
+        virtual const std::string GetAPIName() = 0;
 
         /// @brief A pure virtual method that will return the name of the device currently being used to render graphics
         /// @return A const char* containing the device name

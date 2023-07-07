@@ -140,6 +140,15 @@ namespace Nexus
         /// @return A boolean value indicating whether the window is focussed
         bool IsFocussed();
 
+        /// @brief A method that maximizes a window
+        void Maximize();
+
+        /// @brief A method that minimizes a window
+        void Minimize();
+
+        /// @brief A method that restores a window to it's previous size
+        void Restore();
+
     private:
         /// @brief A pointer to the underlying SDL window
         SDL_Window *m_Window;

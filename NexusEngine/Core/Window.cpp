@@ -434,8 +434,10 @@ namespace Nexus
         {
         case true:
             SDL_ShowCursor(SDL_ENABLE);
+            break;
         case false:
             SDL_ShowCursor(SDL_DISABLE);
+            break;
         }
     }
 
@@ -494,5 +496,20 @@ namespace Nexus
     bool Window::IsFocussed()
     {
         return m_IsFocussed;
+    }
+
+    void Window::Maximize()
+    {
+        SDL_MaximizeWindow(m_Window);
+    }
+
+    void Window::Minimize()
+    {
+        SDL_MinimizeWindow(m_Window);
+    }
+
+    void Window::Restore()
+    {
+        SDL_RestoreWindow(m_Window);
     }
 }

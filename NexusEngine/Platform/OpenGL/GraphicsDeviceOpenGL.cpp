@@ -116,9 +116,10 @@ namespace Nexus::Graphics
         return m_Viewport;
     }
 
-    const char *GraphicsDeviceOpenGL::GetAPIName()
+    const std::string GraphicsDeviceOpenGL::GetAPIName()
     {
-        return (const char *)glGetString(GL_VERSION);
+        std::string name = std::string("OpenGL - ") + std::string((const char *)glGetString(GL_VERSION));
+        return name;
     }
 
     const char *GraphicsDeviceOpenGL::GetDeviceName()

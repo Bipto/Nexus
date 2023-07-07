@@ -4,10 +4,15 @@
 
 namespace Demos
 {
-    class HelloTriangleIndexedDemo : public Demo
+    struct alignas(16) VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO
+    {
+        glm::mat4 Transform;
+    };
+
+    class UniformBufferDemo : public Demo
     {
     public:
-        HelloTriangleIndexedDemo(const std::string &name, Nexus::Application *app)
+        UniformBufferDemo(const std::string &name, Nexus::Application *app)
             : Demo(name, app)
         {
             m_CommandList = m_GraphicsDevice->CreateCommandList();
@@ -17,7 +22,7 @@ namespace Demos
                     {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD", 0},
                     {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD", 1}};
 
-            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/hello_triangle.glsl", layout);
+            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/uniform_buffers.glsl", layout);
 
             Nexus::Graphics::PipelineDescription pipelineDescription;
             pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
@@ -26,20 +31,17 @@ namespace Demos
 
             m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
 
-            std::vector<Vertex> vertices =
-                {
-                    {{-0.5f, -0.5f, 0.0f}, {0.0f, 1.0f}}, // bottom left
-                    {{0.0f, 0.5f, 0.0f}, {0.0f, 0.0f}},   // top left
-                    {{0.5f, -0.5f, 0.0f}, {1.0f, 1.0f}},  // bottom right
-                };
+            Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
+            m_Mesh = factory.CreateSprite();
 
-            m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(vertices);
+            m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
 
-            std::vector<unsigned int> indices =
-                {
-                    0, 1, 2};
-
-            m_IndexBuffer = m_GraphicsDevice->CreateIndexBuffer(indices);
+            Nexus::Graphics::UniformResourceBinding transformUniformBinding;
+            transformUniformBinding.Binding = 0;
+            transformUniformBinding.Name = "Transform";
+            transformUniformBinding.Size = sizeof(VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO);
+            m_TransformUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(transformUniformBinding);
+            m_TransformUniformBuffer->BindToShader(m_Shader);
         }
 
         virtual void Update(Nexus::Time time) override
@@ -55,6 +57,11 @@ namespace Demos
             vp.Height = m_Window->GetWindowSize().Y;
             m_GraphicsDevice->SetViewport(vp);
 
+            Nexus::Graphics::TextureBinding textureBinding;
+            textureBinding.Slot = 0;
+            textureBinding.Name = "texSampler";
+            m_Shader->SetTexture(m_Texture, textureBinding);
+
             Nexus::Graphics::CommandListBeginInfo beginInfo{};
             beginInfo.ClearValue = {
                 m_ClearColour.r,
@@ -62,11 +69,14 @@ namespace Demos
                 m_ClearColour.b,
                 1.0f};
 
+            m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), m_Position);
+            m_TransformUniformBuffer->SetData(&m_TransformUniforms, sizeof(m_TransformUniforms), 0);
+
             m_CommandList->Begin(beginInfo);
             m_CommandList->SetPipeline(m_Pipeline);
-            m_CommandList->SetVertexBuffer(m_VertexBuffer);
-            m_CommandList->SetIndexBuffer(m_IndexBuffer);
-            m_CommandList->DrawIndexed(m_IndexBuffer->GetIndexCount(), 0);
+            m_CommandList->SetVertexBuffer(m_Mesh.GetVertexBuffer());
+            m_CommandList->SetIndexBuffer(m_Mesh.GetIndexBuffer());
+            m_CommandList->DrawIndexed(m_Mesh.GetIndexBuffer()->GetIndexCount(), 0);
             m_CommandList->End();
 
             m_GraphicsDevice->SubmitCommandList(m_CommandList);
@@ -78,14 +88,20 @@ namespace Demos
 
         virtual void RenderUI() override
         {
+            ImGui::DragFloat2("Position", glm::value_ptr(m_Position), 0.1f, -1.0f, 1.0f);
         }
 
     private:
         Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
         Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
         Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
-        Nexus::Ref<Nexus::Graphics::VertexBuffer> m_VertexBuffer;
-        Nexus::Ref<Nexus::Graphics::IndexBuffer> m_IndexBuffer;
+        Nexus::Graphics::Mesh m_Mesh;
+        Nexus::Ref<Nexus::Graphics::Texture> m_Texture;
         glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
+
+        glm::vec3 m_Position{0.0f, 0.0f, 0.0f};
+
+        VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO m_TransformUniforms;
+        Nexus::Ref<Nexus::Graphics::UniformBuffer> m_TransformUniformBuffer;
     };
 }

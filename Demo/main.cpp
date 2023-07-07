@@ -6,11 +6,15 @@
 #include "Demos/ClearScreenDemo.h"
 #include "Demos/HelloTriangle.h"
 #include "Demos/HelloTriangleIndexed.h"
+#include "Demos/Texturing.h"
+#include "Demos/UniformBufferDemo.h"
+#include "Demos/Demo3D.h"
+#include "Demos/CameraDemo.h"
 
 #include <iostream>
 #include <utility>
 
-struct alignas(16) VB_UNIFORM_CAMERA
+/* struct alignas(16) VB_UNIFORM_CAMERA
 {
     glm::mat4 View;
     glm::mat4 Projection;
@@ -20,7 +24,7 @@ struct alignas(16) VB_UNIFORM_RENDERINFO
 {
     glm::mat4 Transform;
     glm::vec3 Color;
-};
+}; */
 
 const char *vertexShaderSource =
     "#version 300 es\n"
@@ -132,8 +136,12 @@ public:
         m_CommandList = m_GraphicsDevice->CreateCommandList();
 
         RegisterDemo<Demos::ClearScreenDemo>("Clear Colour");
-        RegisterDemo<Demos::HelloTriangle>("Hello Triangle");
-        RegisterDemo<Demos::HelloTriangleIndexed>("Hello Triangle Indexed");
+        RegisterDemo<Demos::HelloTriangleDemo>("Hello Triangle");
+        RegisterDemo<Demos::HelloTriangleIndexedDemo>("Hello Triangle Indexed");
+        RegisterDemo<Demos::TexturingDemo>("Texturing");
+        RegisterDemo<Demos::UniformBufferDemo>("Uniform Buffers");
+        RegisterDemo<Demos::Demo3D>("3D");
+        RegisterDemo<Demos::CameraDemo>("Camera");
     }
 
     template <typename T>
@@ -197,7 +205,6 @@ public:
 
         m_Camera.Update(
             GetWindowSize().X,
-
             GetWindowSize().Y,
             time);
 
@@ -213,6 +220,19 @@ public:
             m_AudioDevice->PlaySource(m_ShootSoundSource);
         } */
 
+        if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::F11))
+        {
+            auto window = this->GetWindow();
+            if (window->GetCurrentWindowState() == Nexus::WindowState::Normal)
+            {
+                window->Maximize();
+            }
+            else if (window->GetCurrentWindowState() == Nexus::WindowState::Maximized)
+            {
+                window->Restore();
+            }
+        }
+
         {
             ImGui::Begin("Demos");
 
@@ -227,33 +247,48 @@ public:
                 // required because demo could be deleted in the previous if statement
                 if (m_CurrentDemo)
                 {
-
+                    // render demo name
                     std::string label = std::string("Selected Demo - ") + m_CurrentDemo->GetName();
                     ImGui::Text(label.c_str());
+
+                    auto n = m_GraphicsDevice->GetAPIName();
+                    std::string apiName = std::string("Running on : ") + std::string(m_GraphicsDevice->GetAPIName());
+                    ImGui::Text(apiName.c_str());
+
+                    // render framerate
+                    std::stringstream ss;
+                    ss.precision(2);
+                    ss << "Running at " << ImGui::GetIO().Framerate << " FPS";
+                    ImGui::Text(ss.str().c_str());
                     m_CurrentDemo->RenderUI();
                 }
             }
             else
             {
-                for (auto &pair : m_AvailableDemos)
+                if (ImGui::TreeNodeEx("Graphics", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth))
                 {
-                    auto flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Leaf;
-
-                    if (ImGui::TreeNodeEx(pair.Name.c_str(), flags))
+                    for (auto &pair : m_AvailableDemos)
                     {
-                        if (ImGui::IsItemClicked())
+                        auto flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Leaf;
+
+                        if (ImGui::TreeNodeEx(pair.Name.c_str(), flags))
                         {
-                            if (m_CurrentDemo)
+                            if (ImGui::IsItemClicked())
                             {
-                                delete m_CurrentDemo;
-                                m_CurrentDemo = nullptr;
+                                if (m_CurrentDemo)
+                                {
+                                    delete m_CurrentDemo;
+                                    m_CurrentDemo = nullptr;
+                                }
+
+                                m_CurrentDemo = pair.CreationFunction(this, pair.Name);
                             }
 
-                            m_CurrentDemo = pair.CreationFunction(this, pair.Name);
+                            ImGui::TreePop();
                         }
-
-                        ImGui::TreePop();
                     }
+
+                    ImGui::TreePop();
                 }
             }
 
@@ -283,7 +318,8 @@ public:
     {
         if (m_CurrentDemo)
             m_CurrentDemo->OnResize(size);
-        // m_GraphicsDevice->Resize(size);
+
+        m_GraphicsDevice->Resize(size);
     }
 
     virtual void Unload() override
@@ -291,7 +327,7 @@ public:
     }
 
 private:
-    Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
+    /* Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
     Nexus::Ref<Nexus::Graphics::UniformBuffer> m_CameraUniformBuffer;
     Nexus::Ref<Nexus::Graphics::UniformBuffer> m_TransformUniformBuffer;
     Nexus::Ref<Nexus::Graphics::Texture> m_Texture;
@@ -302,16 +338,17 @@ private:
 
     Nexus::FirstPersonCamera m_Camera;
 
-    VB_UNIFORM_CAMERA m_CameraUniforms;
-    VB_UNIFORM_RENDERINFO m_RenderInfoUniforms;
+    VB_UNIFORM_CAMERA_DEMO_3D m_CameraUniforms;
+    VB_UNIFORM_TRANSFORM_DEMO_3D m_RenderInfoUniforms;
 
     glm::vec3 m_ClearColor{0.8f, 0.2f, 0.3f};
     glm::vec3 m_CubeColor{1.0f, 1.0f, 1.0f};
 
     Nexus::Ref<Nexus::Audio::AudioBuffer> m_ShootSoundEffect;
     Nexus::Ref<Nexus::Audio::AudioSource> m_ShootSoundSource;
-    Nexus::Point<int> m_PreviousWindowSize;
+    Nexus::Point<int> m_PreviousWindowSize; */
 
+    Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
     Demos::Demo *m_CurrentDemo = nullptr;
     std::vector<DemoInfo> m_AvailableDemos;
 };
