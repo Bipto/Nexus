@@ -28,14 +28,14 @@ target_include_directories(NexusEngine PUBLIC
   ../External/stb
   ../External/assimp/include
   ../External/json/single_include
-  ../External/OpenAL-Soft/include)
+  ../External/OpenAL-Soft/include
+  ../External/shaderc/libshaderc
+  ../External/shaderc/SPIRV-Cross/include)
 
 #dependencies when not building with emscripten
 if (NOT DEFINED EMSCRIPTEN)
   target_include_directories(NexusEngine PUBLIC
     ../External/tinyfiledialogs/tinyfiledialogs
-    ../External/shaderc/libshaderc
-    ../External/shaderc/SPIRV-Cross/include
     ../External/libnyquist/include
     ../External/SDL_net)
 endif()
@@ -51,14 +51,14 @@ target_link_libraries(NexusEngine PUBLIC
   glad
   assimp
   imgui
-  imguizmo)
+  imguizmo
+  shaderc
+  spirv-cross-cpp
+  spirv-cross-hlsl)
 
 if(NOT DEFINED EMSCRIPTEN)
   target_link_libraries(NexusEngine PUBLIC 
     tinyfiledialogs
-    shaderc
-    spirv-cross-cpp
-    spirv-cross-hlsl
     OpenAL
     libnyquist
     SDL2_net)

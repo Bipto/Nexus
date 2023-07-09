@@ -40,7 +40,7 @@ namespace Nexus::Graphics
         virtual void SetVSyncState(VSyncState vSyncState) override;
         virtual VSyncState GetVsyncState() override;
 
-        virtual ShaderLanguage GetSupportedShaderFormat() override { return ShaderLanguage::GLSL; }
+        virtual ShaderLanguage GetSupportedShaderFormat() override;
         virtual float GetUVCorrection() { return 1.0f; }
 
     private:

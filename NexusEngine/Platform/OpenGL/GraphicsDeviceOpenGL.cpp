@@ -201,4 +201,12 @@ namespace Nexus::Graphics
     {
         return m_VsyncState;
     }
+    ShaderLanguage GraphicsDeviceOpenGL::GetSupportedShaderFormat()
+    {
+#if defined(EMSCRIPTEN)
+        return ShaderLanguage::GLSLES;
+#else
+        return ShaderLanguage::GLSL;
+#endif
+    }
 }

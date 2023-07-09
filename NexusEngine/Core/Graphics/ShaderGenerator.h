@@ -31,8 +31,6 @@ namespace Nexus::Graphics
         HLSL
     };
 
-#ifndef __EMSCRIPTEN__
-
     /// @brief A struct representing a set of options when generating a shader
     struct ShaderGenerationOptions
     {
@@ -72,6 +70,4 @@ namespace Nexus::Graphics
         /// @return A compilation result returning the output of the shader generation
         CompilationResult Generate(const std::string &source, ShaderGenerationOptions options);
     };
-
-#endif
 }

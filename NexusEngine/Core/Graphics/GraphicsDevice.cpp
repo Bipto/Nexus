@@ -20,7 +20,6 @@ namespace Nexus::Graphics
 
     Ref<Shader> GraphicsDevice::CreateShaderFromSpirvFile(const std::string &filepath, const VertexBufferLayout &layout)
     {
-#ifndef __EMSCRIPTEN__
         auto startTime = std::chrono::system_clock::now();
 
         if (!std::filesystem::exists(filepath))
@@ -101,8 +100,6 @@ namespace Nexus::Graphics
         {
             NX_ERROR(errorMessage);
         }
-
-#endif
 
         return {};
     }

@@ -28,6 +28,6 @@ if (EMSCRIPTEN)
         Demo
         PROPERTIES
         LINK_FLAGS
-        "--std=c++17 -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sUSE_WEBGL2=1 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS -lGL -lopenal --preload-file Resources"
+        "--std=c++17 -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sUSE_WEBGL2=1 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS -sALLOW_MEMORY_GROWTH=1 -fsanitize=address -lGL -lopenal --preload-file Resources"
     )
 endif()

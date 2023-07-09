@@ -1,5 +1,3 @@
-#ifndef __EMSCRIPTEN__
-
 #include "ShaderGenerator.h"
 
 #include "shaderc/shaderc.hpp"
@@ -104,5 +102,3 @@ namespace Nexus::Graphics
         return output;
     }
 }
-
-#endif
