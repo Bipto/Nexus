@@ -223,40 +223,10 @@ namespace Nexus::Graphics
 #endif
     }
 
-    Ref<VertexBuffer> GraphicsDeviceDX11::CreateVertexBuffer(const std::vector<Vertex> vertices)
-    {
-#if defined(NX_PLATFORM_DX11)
-        return CreateRef<VertexBufferDX11>(m_DevicePtr, vertices);
-#else
-        return nullptr;
-#endif
-    }
-
-    Ref<IndexBuffer> GraphicsDeviceDX11::CreateIndexBuffer(const std::vector<unsigned int> indices)
-    {
-#if defined(NX_PLATFORM_DX11)
-        return CreateRef<IndexBufferDX11>(m_DevicePtr, indices);
-#else
-        return nullptr;
-#endif
-    }
-
     Ref<Texture> GraphicsDeviceDX11::CreateTexture(TextureSpecification spec)
     {
 #if defined(NX_PLATFORM_DX11)
         return CreateRef<TextureDX11>(m_DevicePtr, spec);
-#else
-        return nullptr;
-#endif
-    }
-
-    Ref<UniformBuffer> GraphicsDeviceDX11::CreateUniformBuffer(const UniformResourceBinding &binding)
-    {
-#if defined(NX_PLATFORM_DX11)
-        return CreateRef<UniformBufferDX11>(
-            m_DevicePtr,
-            m_DeviceContextPtr,
-            binding);
 #else
         return nullptr;
 #endif
@@ -275,6 +245,15 @@ namespace Nexus::Graphics
     {
 #if defined(NX_PLATFORM_DX11)
         return CreateRef<PipelineDX11>(m_DevicePtr, description);
+#else
+        return nullptr;
+#endif
+    }
+
+    Ref<DeviceBuffer> GraphicsDeviceDX11::CreateDeviceBuffer(const BufferDescription &description, const void *data)
+    {
+#if defined(NX_PLATFORM_DX11)
+        return CreateRef<DeviceBufferDX11>(m_DevicePtr, m_DeviceContextPtr, description, data);
 #else
         return nullptr;
 #endif

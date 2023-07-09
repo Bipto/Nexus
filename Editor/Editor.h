@@ -52,8 +52,20 @@ public:
         this->m_Renderer = Nexus::Renderer::Create(this->m_GraphicsDevice);
         this->m_GraphicsDevice->SetVSyncState(Nexus::Graphics::VSyncState::Enabled);
 
-        this->m_VertexBuffer = this->m_GraphicsDevice->CreateVertexBuffer(vertices);
-        this->m_IndexBuffer = this->m_GraphicsDevice->CreateIndexBuffer(indices);
+        Nexus::Graphics::BufferDescription vertexBufferDesc;
+        vertexBufferDesc.Size = vertices.size() * sizeof(Vertex);
+        vertexBufferDesc.Type = Nexus::Graphics::BufferType::Vertex;
+        vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
+        m_VertexBuffer = m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc);
+
+        Nexus::Graphics::BufferDescription indexBufferDesc;
+        indexBufferDesc.Size = indices.size() * sizeof(unsigned int);
+        indexBufferDesc.Type = Nexus::Graphics::BufferType::Index;
+        indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
+        m_IndexBuffer = m_GraphicsDevice->CreateDeviceBuffer(indexBufferDesc);
+
+        // this->m_VertexBuffer = this->m_GraphicsDevice->CreateVertexBuffer(vertices);
+        // this->m_IndexBuffer = this->m_GraphicsDevice->CreateIndexBuffer(indices);
         this->m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
 
         Nexus::Graphics::UniformResourceBinding renderInfoBinding;
@@ -61,14 +73,26 @@ public:
         renderInfoBinding.Name = "RenderInfo";
         renderInfoBinding.Size = sizeof(VB_UNIFORM_RENDERINFO);
 
-        m_RenderInfoUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(renderInfoBinding);
+        Nexus::Graphics::BufferDescription renderInfoBufferDesc;
+        renderInfoBufferDesc.Size = sizeof(VB_UNIFORM_RENDERINFO);
+        renderInfoBufferDesc.Type = Nexus::Graphics::BufferType::Uniform;
+        renderInfoBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
+        m_RenderInfoUniformBuffer = m_GraphicsDevice->CreateDeviceBuffer(renderInfoBufferDesc);
+
+        // m_RenderInfoUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(renderInfoBinding);
 
         Nexus::Graphics::UniformResourceBinding cameraUniformBinding;
         cameraUniformBinding.Binding = 1;
         cameraUniformBinding.Name = "Camera";
         cameraUniformBinding.Size = sizeof(VB_UNIFORM_CAMERA);
 
-        m_CameraUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(cameraUniformBinding);
+        // m_CameraUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(cameraUniformBinding);
+
+        Nexus::Graphics::BufferDescription cameraUniformBufferDesc;
+        cameraUniformBufferDesc.Size = sizeof(VB_UNIFORM_CAMERA);
+        cameraUniformBufferDesc.Type = Nexus::Graphics::BufferType::Uniform;
+        cameraUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
+        m_CameraUniformBuffer = m_GraphicsDevice->CreateDeviceBuffer(cameraUniformBufferDesc);
 
         Nexus::Graphics::VertexBufferLayout vertexBufferLayout =
             {
@@ -305,9 +329,8 @@ public:
         m_CommandList->SetVertexBuffer(m_SpriteMesh.GetVertexBuffer());
         m_CommandList->SetIndexBuffer(m_SpriteMesh.GetIndexBuffer());
 
-        m_CommandList->DrawIndexed(
-            m_SpriteMesh.GetIndexBuffer()->GetIndexCount(),
-            0);
+        auto indexCount = m_SpriteMesh.GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
+        m_CommandList->DrawIndexed(indexCount, 0);
     }
 
     virtual void Unload() override
@@ -466,10 +489,10 @@ private:
     Nexus::Renderer *m_Renderer;
     Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
 
-    Nexus::Ref<Nexus::Graphics::VertexBuffer> m_VertexBuffer;
-    Nexus::Ref<Nexus::Graphics::IndexBuffer> m_IndexBuffer;
-    Nexus::Ref<Nexus::Graphics::UniformBuffer> m_RenderInfoUniformBuffer;
-    Nexus::Ref<Nexus::Graphics::UniformBuffer> m_CameraUniformBuffer;
+    Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_VertexBuffer;
+    Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_IndexBuffer;
+    Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_RenderInfoUniformBuffer;
+    Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_CameraUniformBuffer;
     Nexus::Ref<Nexus::Graphics::Texture> m_Texture;
     VB_UNIFORM_RENDERINFO m_RenderInfoUniforms;
     VB_UNIFORM_CAMERA m_CameraUniforms;

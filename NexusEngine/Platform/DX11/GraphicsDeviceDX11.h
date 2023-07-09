@@ -27,12 +27,11 @@ namespace Nexus::Graphics
         virtual void *GetContext() override;
 
         virtual Ref<Shader> CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout) override;
-        virtual Ref<VertexBuffer> CreateVertexBuffer(const std::vector<Vertex> vertices) override;
-        virtual Ref<IndexBuffer> CreateIndexBuffer(const std::vector<unsigned int> indices) override;
         virtual Ref<Texture> CreateTexture(TextureSpecification spec) override;
-        virtual Ref<UniformBuffer> CreateUniformBuffer(const UniformResourceBinding &binding) override;
         virtual Ref<Framebuffer> CreateFramebuffer(const FramebufferSpecification &spec) override;
         virtual Ref<Pipeline> CreatePipeline(const PipelineDescription &description) override;
+        virtual Ref<DeviceBuffer> CreateDeviceBuffer(const BufferDescription &description, const void *data = nullptr) override;
+
         virtual Ref<CommandList> CreateCommandList() override;
 
         virtual void InitialiseImGui() override;

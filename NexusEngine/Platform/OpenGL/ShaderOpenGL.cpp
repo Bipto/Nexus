@@ -2,6 +2,8 @@
 
 #include "Core/Logging/Log.h"
 
+#include "BufferOpenGL.h"
+
 namespace Nexus::Graphics
 {
     GLenum GetGLBaseType(const VertexBufferElement element)
@@ -65,6 +67,22 @@ namespace Nexus::Graphics
     const VertexBufferLayout &ShaderOpenGL::GetLayout() const
     {
         return m_Layout;
+    }
+
+    void ShaderOpenGL::BindUniformBuffer(Ref<DeviceBuffer> uniformBuffer, const UniformResourceBinding &binding)
+    {
+        if (uniformBuffer->GetDescription().Type != BufferType::Uniform)
+        {
+            throw std::runtime_error("Attempting to bind non-uniform buffer to shader");
+            return;
+        }
+
+        auto uniformBufferGL = std::dynamic_pointer_cast<DeviceBufferOpenGL>(uniformBuffer);
+        unsigned int index = glGetUniformBlockIndex(m_ProgramHandle, binding.Name.c_str());
+
+        glBindBuffer(GL_UNIFORM_BUFFER, uniformBufferGL->GetHandle());
+        glUniformBlockBinding(m_ProgramHandle, index, binding.Binding);
+        glBindBufferRange(GL_UNIFORM_BUFFER, binding.Binding, uniformBufferGL->GetHandle(), 0, uniformBufferGL->GetDescription().Size);
     }
 
     void ShaderOpenGL::Compile(const std::string &vertexShaderSource, const std::string &fragmentShaderSource)

@@ -25,8 +25,6 @@ namespace Nexus::Graphics
         m_IndexedCommandIndex = 0;
         m_TextureCommandIndex = 0;
 
-        m_VertexBuffers.clear();
-        m_IndexBuffers.clear();
         m_Pipelines.clear();
         m_ElementCommands.clear();
         m_IndexedCommands.clear();
@@ -72,17 +70,19 @@ namespace Nexus::Graphics
     {
     }
 
-    void CommandListDX11::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer)
+    void CommandListDX11::SetVertexBuffer(Ref<DeviceBuffer> vertexBuffer)
     {
 #if defined(NX_PLATFORM_DX11)
 
-        m_VertexBuffers.push_back(vertexBuffer);
+        // m_VertexBuffers.push_back(vertexBuffer);
+
+        m_CommandData.push_back(vertexBuffer.get());
 
         m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
         {
             Ref<CommandListDX11> dxCommandList = std::dynamic_pointer_cast<CommandListDX11>(commandList);
             auto graphicsDevice = dxCommandList->GetGraphicsDevice();
-            auto vertexBuffer = commandList->GetCurrentVertexBuffer();
+            auto vertexBuffer = (DeviceBufferDX11 *)dxCommandList->GetCurrentCommandData();
 
             auto pipeline = dxCommandList->GetCurrentPipeline();
             auto shader = pipeline->GetShader();
@@ -92,8 +92,7 @@ namespace Nexus::Graphics
             uint32_t stride = layout.GetStride();
             uint32_t offset = 0;
 
-            Ref<VertexBufferDX11> vb = std::dynamic_pointer_cast<VertexBufferDX11>(vertexBuffer);
-            ID3D11Buffer *dx11VertexBuffer = vb->GetNativeHandle();
+            ID3D11Buffer *dx11VertexBuffer = vertexBuffer->GetNativeHandle();
 
             context->IASetVertexBuffers(
                 0,
@@ -105,21 +104,23 @@ namespace Nexus::Graphics
 #endif
     }
 
-    void CommandListDX11::SetIndexBuffer(Ref<IndexBuffer> indexBuffer)
+    void CommandListDX11::SetIndexBuffer(Ref<DeviceBuffer> indexBuffer)
     {
 #if defined(NX_PLATFORM_DX11)
 
-        m_IndexBuffers.push_back(indexBuffer);
+        // m_IndexBuffers.push_back(indexBuffer);
+
+        m_CommandData.push_back(indexBuffer.get());
 
         m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
         {
             Ref<CommandListDX11> dxCommandList = std::dynamic_pointer_cast<CommandListDX11>(commandList);
             auto graphicsDevice = dxCommandList->GetGraphicsDevice();
-            auto indexBuffer = commandList->GetCurrentIndexBuffer();
+            auto indexBuffer = (DeviceBufferDX11 *)dxCommandList->GetCurrentCommandData();
+
             auto context = graphicsDevice->GetDeviceContext();
 
-            Ref<IndexBufferDX11> ib = std::dynamic_pointer_cast<IndexBufferDX11>(indexBuffer);
-            ID3D11Buffer *dx11IndexBuffer = ib->GetNativeHandle();
+            ID3D11Buffer *dx11IndexBuffer = indexBuffer->GetNativeHandle();
 
             context->IASetIndexBuffer(
                 dx11IndexBuffer,
@@ -131,11 +132,16 @@ namespace Nexus::Graphics
 
     void CommandListDX11::SetPipeline(Ref<Pipeline> pipeline)
     {
-        m_Pipelines.push_back(pipeline);
+        // m_Pipelines.push_back(pipeline);
+
+        m_CommandData.push_back(pipeline.get());
 
         m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
         {
-            commandList->BindNextPipeline();
+            // commandList->BindNextPipeline();
+
+            Ref<CommandListDX11> dxCommandList = std::dynamic_pointer_cast<CommandListDX11>(commandList);
+            dxCommandList->BindNextPipeline();
         };
     }
     void CommandListDX11::DrawElements(uint32_t start, uint32_t count)
@@ -201,7 +207,7 @@ namespace Nexus::Graphics
 #endif
     }
 
-    void CommandListDX11::UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset)
+    void CommandListDX11::UpdateUniformBuffer(Ref<DeviceBuffer> buffer, void *data, uint32_t size, uint32_t offset)
     {
 #if defined(NX_PLATFORM_DX11)
 
@@ -239,27 +245,18 @@ namespace Nexus::Graphics
         return m_CommandListBeginInfo.StencilValue;
     }
 
-    Ref<VertexBuffer> CommandListDX11::GetCurrentVertexBuffer()
-    {
-        return m_VertexBuffers[m_VertexBufferIndex++];
-    }
-
-    Ref<IndexBuffer> CommandListDX11::GetCurrentIndexBuffer()
-    {
-        return m_IndexBuffers[m_IndexBufferIndex++];
-    }
-
     void CommandListDX11::BindNextPipeline()
     {
-        m_CurrentPipeline = m_Pipelines[m_PipelineIndex++];
-        Ref<PipelineDX11> dxPipeline = std::dynamic_pointer_cast<PipelineDX11>(m_CurrentPipeline);
+        auto pipeline = (PipelineDX11 *)this->GetCurrentCommandData();
 
-        auto depthStencilState = dxPipeline->GetDepthStencilState();
-        auto rasterizerState = dxPipeline->GetRasterizerState();
-        auto blendState = dxPipeline->GetBlendState();
-        const auto &scissorRectangle = dxPipeline->GetScissorRectangle();
-        auto topology = dxPipeline->GetTopology();
-        auto shader = dxPipeline->GetShader();
+        m_CurrentPipeline = pipeline;
+
+        auto depthStencilState = pipeline->GetDepthStencilState();
+        auto rasterizerState = pipeline->GetRasterizerState();
+        auto blendState = pipeline->GetBlendState();
+        const auto &scissorRectangle = pipeline->GetScissorRectangle();
+        auto topology = pipeline->GetTopology();
+        auto shader = pipeline->GetShader();
         auto dxShader = std::dynamic_pointer_cast<ShaderDX11>(shader);
 
         auto context = m_GraphicsDevice->GetDeviceContext();
@@ -294,6 +291,11 @@ namespace Nexus::Graphics
     UniformBufferUpdateCommand &CommandListDX11::GetCurrentUniformBufferUpdateCommand()
     {
         return m_UniformBufferUpdateCommands[m_UniformBufferUpdateCommandIndex++];
+    }
+
+    void *CommandListDX11::GetCurrentCommandData()
+    {
+        return m_CommandData[m_CommandDataIndex++];
     }
 
     const std::array<RenderCommand, 1000> &CommandListDX11::GetRenderCommands()

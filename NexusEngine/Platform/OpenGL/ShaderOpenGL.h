@@ -29,6 +29,7 @@ namespace Nexus::Graphics
         virtual const std::string &GetFragmentShaderSource() override;
 
         virtual const VertexBufferLayout &GetLayout() const override;
+        virtual void BindUniformBuffer(Ref<DeviceBuffer> buffer, const UniformResourceBinding &binding) override;
 
         unsigned int GetHandle() { return m_ProgramHandle; }
 

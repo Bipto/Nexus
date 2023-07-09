@@ -119,25 +119,16 @@ namespace Nexus::Graphics
         /// @return A reference counted pointer to a shader
         virtual Ref<Shader> CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout) = 0;
 
-        /// @brief A pure virtual method that creates a vertex buffer with a given input vector of vertices
-        /// @param vertices A vector containing the vertices to use in the vertex buffer
-        /// @return A reference counted pointer to a vertex buffer
-        virtual Ref<VertexBuffer> CreateVertexBuffer(const std::vector<Vertex> vertices) = 0;
-
-        /// @brief A pure virtual method that creates an index buffer with a given input vector of indices
-        /// @param indices A vector containing the indices to use in the index buffer
-        /// @return A reference counted pointer to an index buffer
-        virtual Ref<IndexBuffer> CreateIndexBuffer(const std::vector<unsigned int> indices) = 0;
-
-        /// @brief A pure virtual method that creates a uniform buffer with a specified binding
-        /// @param binding A set of parameters that defines how the buffer will be accessed from a shader and how large it will be
-        /// @return A reference counted pointer to a uniform buffer
-        virtual Ref<UniformBuffer> CreateUniformBuffer(const UniformResourceBinding &binding) = 0;
-
         /// @brief A pure virtual method that creates a pipeline from a given pipeline description
         /// @param description The properties to use when creating the pipeline
         /// @return A reference counted pointer to a pipeline
         virtual Ref<Pipeline> CreatePipeline(const PipelineDescription &description) = 0;
+
+        /// @brief A pure virtual mewthod that creates a new device buffer from a given buffer description
+        /// @param description The properties to use when creating the buffer
+        /// @param data A pointer to data to upload to the buffer
+        /// @return A reference counted pointer to a pipeline
+        virtual Ref<DeviceBuffer> CreateDeviceBuffer(const BufferDescription &description, const void *data = nullptr) = 0;
 
         /// @brief A pure virtual method that creates a new command list
         /// @return A reference counted pointer to a command list

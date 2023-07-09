@@ -3,94 +3,71 @@
 
 namespace Nexus::Graphics
 {
-    VertexBufferOpenGL::VertexBufferOpenGL(const std::vector<Vertex> &vertices)
-        : VertexBuffer(vertices)
+    GLenum GetBufferType(BufferType type)
     {
+        switch (type)
+        {
+        case BufferType::Vertex:
+            return GL_ARRAY_BUFFER;
+        case BufferType::Index:
+            return GL_ELEMENT_ARRAY_BUFFER;
+        case BufferType::Uniform:
+            return GL_UNIFORM_BUFFER;
+        default:
+            throw std::runtime_error("Invalid buffer type entered");
+        }
+    }
+
+    GLenum GetBufferUsage(BufferUsage usage)
+    {
+        switch (usage)
+        {
+        case BufferUsage::Dynamic:
+            return GL_DYNAMIC_DRAW;
+        case BufferUsage::Static:
+            return GL_STATIC_DRAW;
+        default:
+            throw std::runtime_error("Invalid buffer usage entered");
+        }
+    }
+
+    DeviceBufferOpenGL::DeviceBufferOpenGL(const BufferDescription &description, const void *data)
+        : DeviceBuffer(description, data)
+    {
+        GLenum bufferType = GetBufferType(m_Description.Type);
+        GLenum bufferUsage = GetBufferUsage(m_Description.Usage);
+
         GL::ClearErrors();
 
-        glGenBuffers(1, &this->m_VBO);
-        glBindBuffer(GL_ARRAY_BUFFER, this->m_VBO);
-        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
-
-        GL::CheckErrors();
-
-        m_VertexCount = vertices.size();
-    }
-
-    void VertexBufferOpenGL::Bind()
-    {
-        glBindBuffer(GL_ARRAY_BUFFER, this->m_VBO);
-    }
-
-    IndexBufferOpenGL::IndexBufferOpenGL(const std::vector<unsigned int> &indices)
-        : IndexBuffer(indices)
-    {
-        GL::ClearErrors();
-
-        glGenBuffers(1, &this->m_IBO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->m_IBO);
-        size_t size = indices.size() * sizeof(unsigned int);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indices.data(), GL_STATIC_DRAW);
-
-        GL::CheckErrors();
-
-        m_IndexCount = indices.size();
-    }
-
-    void IndexBufferOpenGL::Bind()
-    {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->m_IBO);
-    }
-
-    UniformBufferOpenGL::UniformBufferOpenGL(const UniformResourceBinding &binding)
-        : UniformBuffer(binding)
-    {
-        GL::ClearErrors();
-
-        m_Binding = binding;
-
-#ifndef __EMSCRIPTEN__
-        glCreateBuffers(1, &m_UBO);
-        glNamedBufferData(m_UBO, m_Binding.Size, nullptr, GL_DYNAMIC_DRAW);
-        glBindBufferBase(GL_UNIFORM_BUFFER, m_Binding.Binding, m_UBO);
-#else
-        glGenBuffers(1, &m_UBO);
-        glBindBuffer(GL_UNIFORM_BUFFER, m_UBO);
-        glBufferData(GL_UNIFORM_BUFFER, binding.Size, nullptr, GL_DYNAMIC_DRAW);
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
-#endif
+        glGenBuffers(1, &m_Buffer);
+        glBindBuffer(bufferType, m_Buffer);
+        glBufferData(bufferType, description.Size, data, bufferUsage);
 
         GL::CheckErrors();
     }
 
-    UniformBufferOpenGL::~UniformBufferOpenGL()
+    void DeviceBufferOpenGL::SetData(const void *data, uint32_t size, uint32_t offset)
     {
-        GL::ClearErrors();
-        glDeleteBuffers(1, &m_UBO);
-        GL::CheckErrors();
+        if (m_Description.Usage == BufferUsage::Static)
+        {
+            throw std::runtime_error("Attempting to upload data to a static buffer");
+            return;
+        }
+
+        GLenum bufferType = GetBufferType(m_Description.Type);
+
+        glBindBuffer(bufferType, m_Buffer);
+        glBufferSubData(bufferType, offset, size, data);
     }
 
-    void UniformBufferOpenGL::SetData(const void *data, uint32_t size, uint32_t offset)
+    void DeviceBufferOpenGL::Bind()
     {
-        GL::ClearErrors();
-#ifndef __EMSCRIPTEN__
-        glNamedBufferSubData(m_UBO, offset, size, data);
-#else
-        glBindBuffer(GL_UNIFORM_BUFFER, m_UBO);
-        glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
-#endif
-        GL::CheckErrors();
+        GLenum bufferType = GetBufferType(m_Description.Type);
+        glBindBuffer(bufferType, m_Buffer);
     }
 
-    void UniformBufferOpenGL::BindToShader(Ref<Shader> shader)
+    unsigned int DeviceBufferOpenGL::GetHandle()
     {
-        GL::ClearErrors();
-        Ref<ShaderOpenGL> glShader = std::dynamic_pointer_cast<ShaderOpenGL>(shader);
-        unsigned int index = glGetUniformBlockIndex(glShader->GetHandle(), m_Binding.Name.c_str());
-        glBindBuffer(GL_UNIFORM_BUFFER, m_UBO);
-        glUniformBlockBinding(glShader->GetHandle(), index, m_Binding.Binding);
-        glBindBufferRange(GL_UNIFORM_BUFFER, m_Binding.Binding, m_UBO, 0, m_Binding.Size);
-        GL::CheckErrors();
+        return m_Buffer;
     }
 }

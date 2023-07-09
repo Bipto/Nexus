@@ -77,7 +77,7 @@ namespace Nexus::Graphics
     struct UniformBufferUpdateCommand
     {
         /// @brief A pointer to a uniform buffer to be updated
-        Ref<UniformBuffer> Buffer;
+        Ref<DeviceBuffer> Buffer;
 
         /// @brief A pointer to the data to be uploaded to the GPU
         void *Data;
@@ -105,11 +105,11 @@ namespace Nexus::Graphics
 
         /// @brief A pure virtual method that binds a vertex buffer to the pipeline
         /// @param vertexBuffer A pointer to the vertex buffer to bind
-        virtual void SetVertexBuffer(Ref<VertexBuffer> vertexBuffer) = 0;
+        virtual void SetVertexBuffer(Ref<DeviceBuffer> vertexBuffer) = 0;
 
         /// @brief A pure virtual method that binds an index buffer to the pipeline
         /// @param indexBuffer A pointer to the index buffer to bind
-        virtual void SetIndexBuffer(Ref<IndexBuffer> indexBuffer) = 0;
+        virtual void SetIndexBuffer(Ref<DeviceBuffer> indexBuffer) = 0;
 
         /// @brief A pure virtual method to binds a pipeline to a command list
         /// @param pipeline The pointer to the pipeline to bind
@@ -136,7 +136,7 @@ namespace Nexus::Graphics
         /// @param data A pointer to the data to upload
         /// @param size The size of the data to be uploaded
         /// @param offset An offset to upload the data to
-        virtual void UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset) = 0;
+        virtual void UpdateUniformBuffer(Ref<DeviceBuffer> buffer, void *data, uint32_t size, uint32_t offset) = 0;
 
         /// @brief A pure virtual method to get the clear colour value that the command list was started with
         /// @return The current clear colour value
@@ -149,22 +149,6 @@ namespace Nexus::Graphics
         /// @brief A pure virtual method to get the clear stencil value that the command list was started with
         /// @return The current clear stencil value
         virtual const uint8_t GetClearStencilValue() = 0;
-
-        /// @brief A pure virtual method to get the vertex buffers submitted to the command list
-        /// @return A vector of pointers to the vertex buffers
-        virtual const std::vector<Ref<VertexBuffer>> &GetVertexBuffers() = 0;
-
-        /// @brief A method to get the index buffers submitted to the command list
-        /// @return A vector of pointers to the index buffers
-        virtual const std::vector<Ref<IndexBuffer>> &GetIndexBuffers() = 0;
-
-        /// @brief A pure virtual method to get the vertex buffer used in the currently queued command
-        /// @return The currently bound vertex buffer
-        virtual Ref<VertexBuffer> GetCurrentVertexBuffer() = 0;
-
-        /// @brief A pure virtual method to get the index buffer used in the currently queued command
-        /// @return The currently bound index buffer
-        virtual Ref<IndexBuffer> GetCurrentIndexBuffer() = 0;
 
         /// @brief A pure virtual method that will retrieve the next pipeline in the command list and bind it
         virtual void BindNextPipeline() = 0;

@@ -61,7 +61,9 @@ namespace Demos
             m_CommandList->SetPipeline(m_Pipeline);
             m_CommandList->SetVertexBuffer(m_Mesh.GetVertexBuffer());
             m_CommandList->SetIndexBuffer(m_Mesh.GetIndexBuffer());
-            m_CommandList->DrawIndexed(m_Mesh.GetIndexBuffer()->GetIndexCount(), 0);
+
+            auto indexCount = m_Mesh.GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
+            m_CommandList->DrawIndexed(indexCount, 0);
             m_CommandList->End();
 
             m_GraphicsDevice->SubmitCommandList(m_CommandList);

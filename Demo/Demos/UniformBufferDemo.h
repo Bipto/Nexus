@@ -40,8 +40,14 @@ namespace Demos
             transformUniformBinding.Binding = 0;
             transformUniformBinding.Name = "Transform";
             transformUniformBinding.Size = sizeof(VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO);
-            m_TransformUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(transformUniformBinding);
-            m_TransformUniformBuffer->BindToShader(m_Shader);
+
+            Nexus::Graphics::BufferDescription transformUniformBufferDesc;
+            transformUniformBufferDesc.Size = sizeof(VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO);
+            transformUniformBufferDesc.Type = Nexus::Graphics::BufferType::Uniform;
+            transformUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
+            m_TransformUniformBuffer = m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc);
+
+            m_Shader->BindUniformBuffer(m_TransformUniformBuffer, transformUniformBinding);
         }
 
         virtual void Update(Nexus::Time time) override
@@ -76,7 +82,9 @@ namespace Demos
             m_CommandList->SetPipeline(m_Pipeline);
             m_CommandList->SetVertexBuffer(m_Mesh.GetVertexBuffer());
             m_CommandList->SetIndexBuffer(m_Mesh.GetIndexBuffer());
-            m_CommandList->DrawIndexed(m_Mesh.GetIndexBuffer()->GetIndexCount(), 0);
+
+            auto indexCount = m_Mesh.GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
+            m_CommandList->DrawIndexed(indexCount, 0);
             m_CommandList->End();
 
             m_GraphicsDevice->SubmitCommandList(m_CommandList);
@@ -102,6 +110,6 @@ namespace Demos
         glm::vec3 m_Position{0.0f, 0.0f, 0.0f};
 
         VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO m_TransformUniforms;
-        Nexus::Ref<Nexus::Graphics::UniformBuffer> m_TransformUniformBuffer;
+        Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_TransformUniformBuffer;
     };
 }

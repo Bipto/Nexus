@@ -14,18 +14,6 @@
 #include <iostream>
 #include <utility>
 
-/* struct alignas(16) VB_UNIFORM_CAMERA
-{
-    glm::mat4 View;
-    glm::mat4 Projection;
-};
-
-struct alignas(16) VB_UNIFORM_RENDERINFO
-{
-    glm::mat4 Transform;
-    glm::vec3 Color;
-}; */
-
 const char *vertexShaderSource =
     "#version 300 es\n"
     "layout(std140) uniform Camera\n"
@@ -75,60 +63,6 @@ public:
 
     virtual void Load() override
     {
-        /* Nexus::Graphics::VertexBufferLayout layout =
-            {
-                {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD", 0},
-                {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD", 1}};
-
-        Nexus::Graphics::FramebufferSpecification spec;
-        spec.Width = 500;
-        spec.Height = 500;
-        spec.ColorAttachmentSpecification = {Nexus::Graphics::TextureFormat::RGBA8};
-        m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(spec);
-
-        m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
-
-#ifndef __EMSCRIPTEN__
-        m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/demo_shader.glsl", layout);
-#else
-        m_Shader = m_GraphicsDevice->CreateShaderFromSource(vertexShaderSource, fragmentShaderSource, layout);
-#endif
-
-        Nexus::Graphics::UniformResourceBinding cameraUniformBinding;
-        cameraUniformBinding.Binding = 0;
-        cameraUniformBinding.Name = "Camera";
-        cameraUniformBinding.Size = sizeof(VB_UNIFORM_CAMERA);
-        m_CameraUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(cameraUniformBinding);
-        m_CameraUniformBuffer->BindToShader(m_Shader);
-
-        Nexus::Graphics::UniformResourceBinding renderInfoUniformBinding;
-        renderInfoUniformBinding.Binding = 1;
-        renderInfoUniformBinding.Name = "RenderInfo";
-        renderInfoUniformBinding.Size = sizeof(VB_UNIFORM_RENDERINFO);
-        m_TransformUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(renderInfoUniformBinding);
-        m_TransformUniformBuffer->BindToShader(m_Shader);
-
-        Nexus::Graphics::PipelineDescription pipelineDescription;
-        pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::Back;
-        pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
-        pipelineDescription.Shader = m_Shader;
-
-        m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
-
-        Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
-        m_SpriteMesh = factory.CreateCube();
-
-        m_CommandList = m_GraphicsDevice->CreateCommandList();
-
-        Nexus::Ref<Nexus::Audio::AudioBuffer> buffer = m_AudioDevice->CreateAudioBufferFromMP3File("Resources/Audio/Guitar_Music.mp3");
-        Nexus::Ref<Nexus::Audio::AudioSource> source = m_AudioDevice->CreateAudioSource(buffer);
-        m_AudioDevice->PlaySource(source);
-
-        m_ShootSoundEffect = m_AudioDevice->CreateAudioBufferFromWavFile("Resources/Audio/Laser_Shoot.wav");
-        m_ShootSoundSource = m_AudioDevice->CreateAudioSource(m_ShootSoundEffect);
-
-        Demos::ClearScreenDemo clearScreenDemo(m_GraphicsDevice);*/
-
         auto &io = ImGui::GetIO();
         io.FontDefault = io.Fonts->AddFontFromFileTTF(
             "Resources/Fonts/Roboto/Roboto-Regular.ttf", 18);
@@ -164,62 +98,6 @@ public:
 
     virtual void Render(Nexus::Time time) override
     {
-        /* m_GraphicsDevice->SetFramebuffer(nullptr);
-        Nexus::Graphics::Viewport vp;
-        vp.X = 0;
-        vp.Y = 0;
-        vp.Width = GetWindowSize().X;
-        vp.Height = GetWindowSize().Y;
-        m_GraphicsDevice->SetViewport(vp);
-
-        float aspectRatio = (float)GetWindowSize().X / (float)GetWindowSize().Y;
-
-        m_CameraUniforms.View = m_Camera.GetView();
-        m_CameraUniforms.Projection = m_Camera.GetProjection();
-        m_CameraUniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms), 0);
-
-        m_RenderInfoUniforms.Transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 2.5f));
-        m_RenderInfoUniforms.Color = m_CubeColor;
-        m_TransformUniformBuffer->SetData(&m_RenderInfoUniforms, sizeof(m_RenderInfoUniforms), 0);
-
-        Nexus::Graphics::TextureBinding textureBinding;
-        textureBinding.Slot = 0;
-        textureBinding.Name = "texSampler";
-
-        m_Shader->SetTexture(m_Texture, textureBinding);
-
-        Nexus::Graphics::CommandListBeginInfo beginInfo{};
-        beginInfo.ClearValue = {
-            m_ClearColor.r,
-            m_ClearColor.g,
-            m_ClearColor.b,
-            1.0f};
-
-        m_CommandList->Begin(beginInfo);
-        m_CommandList->SetPipeline(m_Pipeline);
-        m_CommandList->SetVertexBuffer(m_SpriteMesh.GetVertexBuffer());
-        m_CommandList->SetIndexBuffer(m_SpriteMesh.GetIndexBuffer());
-        m_CommandList->DrawIndexed(m_SpriteMesh.GetIndexBuffer()->GetIndexCount(), 0);
-        m_CommandList->End();
-        m_GraphicsDevice->SubmitCommandList(m_CommandList);
-
-        m_Camera.Update(
-            GetWindowSize().X,
-            GetWindowSize().Y,
-            time);
-
-        ImGui::Begin("Settings");
-        ImGui::ColorEdit3("Clear Colour", glm::value_ptr(m_ClearColor));
-        ImGui::ColorEdit3("Cube Colour", glm::value_ptr(m_CubeColor));
-        ImGui::End();
-
-        Nexus::Input::GamepadSetLED(0, m_ClearColor.r * 255, m_ClearColor.g * 255, m_ClearColor.b * 255);
-
-        if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::Space))
-        {
-            m_AudioDevice->PlaySource(m_ShootSoundSource);
-        } */
-
         if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::F11))
         {
             auto window = this->GetWindow();
@@ -327,27 +205,6 @@ public:
     }
 
 private:
-    /* Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
-    Nexus::Ref<Nexus::Graphics::UniformBuffer> m_CameraUniformBuffer;
-    Nexus::Ref<Nexus::Graphics::UniformBuffer> m_TransformUniformBuffer;
-    Nexus::Ref<Nexus::Graphics::Texture> m_Texture;
-    Nexus::Ref<Nexus::Graphics::Framebuffer> m_Framebuffer;
-    Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
-    Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
-    Nexus::Graphics::Mesh m_SpriteMesh;
-
-    Nexus::FirstPersonCamera m_Camera;
-
-    VB_UNIFORM_CAMERA_DEMO_3D m_CameraUniforms;
-    VB_UNIFORM_TRANSFORM_DEMO_3D m_RenderInfoUniforms;
-
-    glm::vec3 m_ClearColor{0.8f, 0.2f, 0.3f};
-    glm::vec3 m_CubeColor{1.0f, 1.0f, 1.0f};
-
-    Nexus::Ref<Nexus::Audio::AudioBuffer> m_ShootSoundEffect;
-    Nexus::Ref<Nexus::Audio::AudioSource> m_ShootSoundSource;
-    Nexus::Point<int> m_PreviousWindowSize; */
-
     Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
     Demos::Demo *m_CurrentDemo = nullptr;
     std::vector<DemoInfo> m_AvailableDemos;

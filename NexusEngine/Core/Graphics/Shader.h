@@ -6,6 +6,7 @@
 #include "ShaderDataType.h"
 #include "Texture.h"
 #include "Core/Memory.h"
+#include "Buffer.h"
 
 namespace Nexus::Graphics
 {
@@ -102,6 +103,19 @@ namespace Nexus::Graphics
         std::string Name;
     };
 
+    /// @brief A class representing a binding to a uniform buffer
+    struct UniformResourceBinding
+    {
+        /// @brief The total size of the uniform buffer in bytes
+        uint32_t Size;
+
+        /// @brief The binding index of the uniform buffer
+        uint32_t Binding;
+
+        /// @brief The name of the uniform buffer
+        std::string Name;
+    };
+
     /// @brief A pure virtual class representing an API specific shader
     class Shader
     {
@@ -122,5 +136,7 @@ namespace Nexus::Graphics
         /// @brief A pure virtual method that returns a const reference to the layout of the vertex buffer
         /// @return A const reference to a VertexBufferLayout containing the layout of the vertex buffer
         virtual const VertexBufferLayout &GetLayout() const = 0;
+
+        virtual void BindUniformBuffer(Ref<DeviceBuffer> buffer, const UniformResourceBinding &binding) = 0;
     };
 }

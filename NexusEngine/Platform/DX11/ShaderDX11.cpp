@@ -2,7 +2,8 @@
 
 #include "ShaderDX11.h"
 #include "Core/Logging/Log.h"
-#include "Platform/DX11/TextureDX11.h"
+#include "TextureDX11.h"
+#include "BufferDX11.h"
 
 namespace Nexus::Graphics
 {
@@ -145,6 +146,23 @@ namespace Nexus::Graphics
     const std::string &ShaderDX11::GetFragmentShaderSource()
     {
         return m_FragmentShaderSource;
+    }
+
+    void ShaderDX11::BindUniformBuffer(Ref<DeviceBuffer> uniformBuffer, const UniformResourceBinding &binding)
+    {
+        if (uniformBuffer->GetDescription().Type != BufferType::Uniform)
+        {
+            throw std::runtime_error("Attempting to bind non-uniform buffer to shader");
+            return;
+        }
+
+        auto uniformBufferDX = std::dynamic_pointer_cast<DeviceBufferDX11>(uniformBuffer);
+        auto bufferHandle = uniformBufferDX->GetNativeHandle();
+
+        m_ContextPtr->VSSetConstantBuffers(
+            binding.Binding,
+            1,
+            &bufferHandle);
     }
 
     void ShaderDX11::CreateLayout(const VertexBufferLayout &layout)

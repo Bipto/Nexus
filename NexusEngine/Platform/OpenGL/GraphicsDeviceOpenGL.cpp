@@ -137,21 +137,6 @@ namespace Nexus::Graphics
         return CreateRef<ShaderOpenGL>(vertexShaderSource, fragmentShaderSource, layout);
     }
 
-    Ref<VertexBuffer> GraphicsDeviceOpenGL::CreateVertexBuffer(const std::vector<Vertex> vertices)
-    {
-        return CreateRef<VertexBufferOpenGL>(vertices);
-    }
-
-    Ref<IndexBuffer> GraphicsDeviceOpenGL::CreateIndexBuffer(const std::vector<unsigned int> indices)
-    {
-        return CreateRef<IndexBufferOpenGL>(indices);
-    }
-
-    Ref<UniformBuffer> GraphicsDeviceOpenGL::CreateUniformBuffer(const UniformResourceBinding &binding)
-    {
-        return CreateRef<UniformBufferOpenGL>(binding);
-    }
-
     Ref<Texture> GraphicsDeviceOpenGL::CreateTexture(TextureSpecification spec)
     {
         return CreateRef<TextureOpenGL>(spec);
@@ -165,6 +150,11 @@ namespace Nexus::Graphics
     Ref<Pipeline> GraphicsDeviceOpenGL::CreatePipeline(const PipelineDescription &description)
     {
         return CreateRef<PipelineOpenGL>(description);
+    }
+
+    Ref<DeviceBuffer> GraphicsDeviceOpenGL::CreateDeviceBuffer(const BufferDescription &description, const void *data)
+    {
+        return CreateRef<DeviceBufferOpenGL>(description, data);
     }
 
     Ref<CommandList> GraphicsDeviceOpenGL::CreateCommandList()

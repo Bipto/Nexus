@@ -33,7 +33,11 @@ namespace Demos
                     {{0.5f, -0.5f, 0.0f}, {1.0f, 1.0f}},  // bottom right
                 };
 
-            m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(vertices);
+            Nexus::Graphics::BufferDescription vertexBufferDesc;
+            vertexBufferDesc.Size = vertices.size() * sizeof(Vertex);
+            vertexBufferDesc.Type = Nexus::Graphics::BufferType::Vertex;
+            vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
+            m_VertexBuffer = m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc, vertices.data());
         }
 
         virtual void Render(Nexus::Time time) override
@@ -55,7 +59,9 @@ namespace Demos
             m_CommandList->Begin(beginInfo);
             m_CommandList->SetPipeline(m_Pipeline);
             m_CommandList->SetVertexBuffer(m_VertexBuffer);
-            m_CommandList->DrawElements(0, m_VertexBuffer->GetVertexCount());
+
+            auto vertexCount = m_VertexBuffer->GetDescription().Size / sizeof(Vertex);
+            m_CommandList->DrawElements(0, vertexCount);
             m_CommandList->End();
 
             m_GraphicsDevice->SubmitCommandList(m_CommandList);
@@ -73,7 +79,7 @@ namespace Demos
         Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
         Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
         Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
-        Nexus::Ref<Nexus::Graphics::VertexBuffer> m_VertexBuffer;
+        Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_VertexBuffer;
         glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
     };
 }

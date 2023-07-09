@@ -49,15 +49,27 @@ namespace Demos
             cameraUniformBinding.Binding = 0;
             cameraUniformBinding.Name = "Camera";
             cameraUniformBinding.Size = sizeof(VB_UNIFORM_CAMERA_DEMO_3D);
-            m_CameraUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(cameraUniformBinding);
-            m_CameraUniformBuffer->BindToShader(m_Shader);
+
+            Nexus::Graphics::BufferDescription cameraUniformBufferDesc;
+            cameraUniformBufferDesc.Size = sizeof(VB_UNIFORM_CAMERA_DEMO_3D);
+            cameraUniformBufferDesc.Type = Nexus::Graphics::BufferType::Uniform;
+            cameraUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
+
+            m_CameraUniformBuffer = m_GraphicsDevice->CreateDeviceBuffer(cameraUniformBufferDesc);
+            m_Shader->BindUniformBuffer(m_CameraUniformBuffer, cameraUniformBinding);
 
             Nexus::Graphics::UniformResourceBinding transformUniformBinding;
             transformUniformBinding.Binding = 1;
             transformUniformBinding.Name = "Transform";
             transformUniformBinding.Size = sizeof(VB_UNIFORM_TRANSFORM_DEMO_3D);
-            m_TransformUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(transformUniformBinding);
-            m_TransformUniformBuffer->BindToShader(m_Shader);
+
+            Nexus::Graphics::BufferDescription transformUniformBufferDesc;
+            transformUniformBufferDesc.Size = sizeof(VB_UNIFORM_TRANSFORM_DEMO_3D);
+            transformUniformBufferDesc.Type = Nexus::Graphics::BufferType::Uniform;
+            transformUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
+
+            m_TransformUniformBuffer = m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc);
+            m_Shader->BindUniformBuffer(m_TransformUniformBuffer, transformUniformBinding);
         }
 
         virtual void Update(Nexus::Time time) override
@@ -101,7 +113,9 @@ namespace Demos
             m_CommandList->SetPipeline(m_Pipeline);
             m_CommandList->SetVertexBuffer(m_Mesh.GetVertexBuffer());
             m_CommandList->SetIndexBuffer(m_Mesh.GetIndexBuffer());
-            m_CommandList->DrawIndexed(m_Mesh.GetIndexBuffer()->GetIndexCount(), 0);
+
+            auto indexCount = m_Mesh.GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
+            m_CommandList->DrawIndexed(indexCount, 0);
             m_CommandList->End();
 
             m_GraphicsDevice->SubmitCommandList(m_CommandList);
@@ -126,10 +140,10 @@ namespace Demos
         glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
 
         VB_UNIFORM_CAMERA_DEMO_3D m_CameraUniforms;
-        Nexus::Ref<Nexus::Graphics::UniformBuffer> m_CameraUniformBuffer;
+        Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_CameraUniformBuffer;
 
         VB_UNIFORM_TRANSFORM_DEMO_3D m_TransformUniforms;
-        Nexus::Ref<Nexus::Graphics::UniformBuffer> m_TransformUniformBuffer;
+        Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_TransformUniformBuffer;
 
         Nexus::Time m_ElapsedTime = 0;
     };

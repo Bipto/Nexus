@@ -67,8 +67,18 @@ namespace Nexus::Graphics
                 22, 21, 20,
                 20, 23, 22};
 
-        auto vertexBuffer = m_Device->CreateVertexBuffer(vertices);
-        auto indexBuffer = m_Device->CreateIndexBuffer(indices);
+        Nexus::Graphics::BufferDescription vertexBufferDesc;
+        vertexBufferDesc.Size = vertices.size() * sizeof(Vertex);
+        vertexBufferDesc.Type = Nexus::Graphics::BufferType::Vertex;
+        vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
+        auto vertexBuffer = m_Device->CreateDeviceBuffer(vertexBufferDesc, vertices.data());
+
+        Nexus::Graphics::BufferDescription indexBufferDesc;
+        indexBufferDesc.Size = indices.size() * sizeof(unsigned int);
+        indexBufferDesc.Type = Nexus::Graphics::BufferType::Index;
+        indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
+        auto indexBuffer = m_Device->CreateDeviceBuffer(indexBufferDesc, indices.data());
+
         return Mesh(vertexBuffer, indexBuffer);
     }
 
@@ -87,8 +97,18 @@ namespace Nexus::Graphics
                 2, 1, 0,
                 2, 3, 1};
 
-        auto vertexBuffer = m_Device->CreateVertexBuffer(vertices);
-        auto indexBuffer = m_Device->CreateIndexBuffer(indices);
+        Nexus::Graphics::BufferDescription vertexBufferDesc;
+        vertexBufferDesc.Size = vertices.size() * sizeof(Vertex);
+        vertexBufferDesc.Type = Nexus::Graphics::BufferType::Vertex;
+        vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
+        auto vertexBuffer = m_Device->CreateDeviceBuffer(vertexBufferDesc, vertices.data());
+
+        Nexus::Graphics::BufferDescription indexBufferDesc;
+        indexBufferDesc.Size = indices.size() * sizeof(unsigned int);
+        indexBufferDesc.Type = Nexus::Graphics::BufferType::Index;
+        indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
+        auto indexBuffer = m_Device->CreateDeviceBuffer(indexBufferDesc, indices.data());
+
         return Mesh(vertexBuffer, indexBuffer);
     }
 
