@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Graphics/CommandList.h"
+#include "Core/Graphics/GraphicsDevice.h"
 
 #include "GL.h"
 

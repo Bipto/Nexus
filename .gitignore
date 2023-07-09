@@ -35,3 +35,4 @@ build_emscripten/SPIRV-ToolsConfig.cmake
 build_emscripten/Demo/Resources
 Docs
 html
+build_emscripten/BuildConfig

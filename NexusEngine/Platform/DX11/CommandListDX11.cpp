@@ -74,8 +74,6 @@ namespace Nexus::Graphics
     {
 #if defined(NX_PLATFORM_DX11)
 
-        // m_VertexBuffers.push_back(vertexBuffer);
-
         m_CommandData.push_back(vertexBuffer.get());
 
         m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
@@ -108,8 +106,6 @@ namespace Nexus::Graphics
     {
 #if defined(NX_PLATFORM_DX11)
 
-        // m_IndexBuffers.push_back(indexBuffer);
-
         m_CommandData.push_back(indexBuffer.get());
 
         m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
@@ -132,17 +128,15 @@ namespace Nexus::Graphics
 
     void CommandListDX11::SetPipeline(Ref<Pipeline> pipeline)
     {
-        // m_Pipelines.push_back(pipeline);
-
+#if defined(NX_PLATFORM_DX11)
         m_CommandData.push_back(pipeline.get());
 
         m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
         {
-            // commandList->BindNextPipeline();
-
             Ref<CommandListDX11> dxCommandList = std::dynamic_pointer_cast<CommandListDX11>(commandList);
             dxCommandList->BindNextPipeline();
         };
+#endif
     }
     void CommandListDX11::DrawElements(uint32_t start, uint32_t count)
     {
@@ -247,6 +241,7 @@ namespace Nexus::Graphics
 
     void CommandListDX11::BindNextPipeline()
     {
+#if defined(NX_PLATFORM_DX11)
         auto pipeline = (PipelineDX11 *)this->GetCurrentCommandData();
 
         m_CurrentPipeline = pipeline;
@@ -271,6 +266,7 @@ namespace Nexus::Graphics
 
         float blendFactor[] = {1.0f, 1.0f, 1.0f, 1.0f};
         context->OMSetBlendState(blendState, blendFactor, 0xffffffff);
+#endif
     }
 
     DrawElementCommand &CommandListDX11::GetCurrentDrawElementCommand()

@@ -64,8 +64,8 @@ public:
     virtual void Load() override
     {
         auto &io = ImGui::GetIO();
-        io.FontDefault = io.Fonts->AddFontFromFileTTF(
-            "Resources/Fonts/Roboto/Roboto-Regular.ttf", 18);
+        /* io.FontDefault = io.Fonts->AddFontFromFileTTF(
+            "Resources/Fonts/Roboto/Roboto-Regular.ttf", 18); */
 
         m_CommandList = m_GraphicsDevice->CreateCommandList();
 
