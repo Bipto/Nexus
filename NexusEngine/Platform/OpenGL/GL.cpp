@@ -1,12 +1,13 @@
-#include "GL.h"
+#include "GL.hpp"
 
-#include "Core/Logging/Log.h"
+#include "Core/Logging/Log.hpp"
 
 namespace Nexus::GL
 {
     void ClearErrors()
     {
-        while (glGetError() != GL_NO_ERROR);
+        while (glGetError() != GL_NO_ERROR)
+            ;
     }
 
     bool CheckErrors()
@@ -24,26 +25,26 @@ namespace Nexus::GL
 
     std::string GetErrorMessageFromCode(const GLenum error)
     {
-        switch(error)
+        switch (error)
         {
-            case GL_NO_ERROR:
-                return {"No error"};
-            case GL_INVALID_ENUM:
-                return {"An invalid enum was entered"};
-            case GL_INVALID_VALUE:
-                return {"An invalid value was entered"};
-            case GL_INVALID_OPERATION:
-                return {"An invalid operation was attempted"};
-            /* case GL_STACK_OVERFLOW:
-                return {"A stack overflow has occured"};
-            case GL_STACK_UNDERFLOW:
-                return {"A stack underflow has occured"}; */
-            case GL_OUT_OF_MEMORY:
-                return {"Out of memory"};
-            case GL_INVALID_FRAMEBUFFER_OPERATION:
-                return {"An invalid framebuffer operation was attempted"};
-            default:
-                return {"An unknown error occurred"};
+        case GL_NO_ERROR:
+            return {"No error"};
+        case GL_INVALID_ENUM:
+            return {"An invalid enum was entered"};
+        case GL_INVALID_VALUE:
+            return {"An invalid value was entered"};
+        case GL_INVALID_OPERATION:
+            return {"An invalid operation was attempted"};
+        /* case GL_STACK_OVERFLOW:
+            return {"A stack overflow has occured"};
+        case GL_STACK_UNDERFLOW:
+            return {"A stack underflow has occured"}; */
+        case GL_OUT_OF_MEMORY:
+            return {"Out of memory"};
+        case GL_INVALID_FRAMEBUFFER_OPERATION:
+            return {"An invalid framebuffer operation was attempted"};
+        default:
+            return {"An unknown error occurred"};
         }
     }
 }

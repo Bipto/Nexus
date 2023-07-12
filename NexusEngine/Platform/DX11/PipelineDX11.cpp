@@ -1,4 +1,4 @@
-#include "PipelineDX11.h"
+#include "PipelineDX11.hpp"
 
 #if defined(NX_PLATFORM_DX11)
 

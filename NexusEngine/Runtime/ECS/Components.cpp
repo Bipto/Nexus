@@ -1,7 +1,7 @@
-#include "Components.h"
+#include "Components.hpp"
 
-#include "Core/Utils/FileDialogs.h"
-#include "Core/Runtime.h"
+#include "Core/Utils/FileDialogs.hpp"
+#include "Core/Runtime.hpp"
 
 namespace Nexus
 {

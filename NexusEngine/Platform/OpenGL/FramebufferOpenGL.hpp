@@ -1,0 +1,41 @@
+#pragma once
+
+#include "GL.hpp"
+#include "Core/Graphics/Framebuffer.hpp"
+
+namespace Nexus::Graphics
+{
+    class FramebufferOpenGL : public Framebuffer
+    {
+    public:
+        FramebufferOpenGL(const FramebufferSpecification &spec);
+        ~FramebufferOpenGL();
+
+        void Bind();
+        void Unbind();
+        virtual void Recreate() override;
+
+        virtual int GetColorTextureCount() override;
+        virtual bool HasColorTexture() override;
+        virtual bool HasDepthTexture() override;
+
+        virtual void *GetColorAttachment(int index = 0) override;
+        virtual const FramebufferSpecification GetFramebufferSpecification() override;
+        virtual void SetFramebufferSpecification(const FramebufferSpecification &spec) override;
+        virtual void *GetDepthAttachment() override { return (void *)m_DepthTexture; }
+
+    private:
+        void CreateTextures();
+        void DeleteTextures();
+
+    private:
+        unsigned int m_FBO;
+        unsigned int m_Texture;
+        std::vector<GLenum> m_Buffers;
+
+        std::vector<unsigned int> m_ColorTextures;
+        unsigned int m_DepthTexture;
+
+        FramebufferSpecification m_FramebufferSpecification;
+    };
+}

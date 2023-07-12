@@ -1,8 +1,8 @@
-#include "PipelineOpenGL.h"
+#include "PipelineOpenGL.hpp"
 
-#include "ShaderOpenGL.h"
+#include "ShaderOpenGL.hpp"
 
-#include "GL.h"
+#include "GL.hpp"
 
 namespace Nexus::Graphics
 {

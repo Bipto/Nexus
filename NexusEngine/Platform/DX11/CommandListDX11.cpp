@@ -1,9 +1,9 @@
-#include "CommandListDX11.h"
+#include "CommandListDX11.hpp"
 
-#include "GraphicsDeviceDX11.h"
-#include "BufferDX11.h"
-#include "PipelineDX11.h"
-#include "ShaderDX11.h"
+#include "GraphicsDeviceDX11.hpp"
+#include "BufferDX11.hpp"
+#include "PipelineDX11.hpp"
+#include "ShaderDX11.hpp"
 
 #include <memory>
 

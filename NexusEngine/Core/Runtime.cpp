@@ -1,4 +1,4 @@
-#include "Runtime.h"
+#include "Runtime.hpp"
 
 #if defined(NX_PLATFORM_SDL_NET)
 #include "SDL_net.h"

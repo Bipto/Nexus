@@ -1,12 +1,12 @@
-#include "GraphicsDeviceOpenGL.h"
+#include "GraphicsDeviceOpenGL.hpp"
 
 #include "backends/imgui_impl_opengl3.h"
 
-#include "PipelineOpenGL.h"
-#include "ShaderOpenGL.h"
-#include "BufferOpenGL.h"
-#include "TextureOpenGL.h"
-#include "CommandListOpenGL.h"
+#include "PipelineOpenGL.hpp"
+#include "ShaderOpenGL.hpp"
+#include "BufferOpenGL.hpp"
+#include "TextureOpenGL.hpp"
+#include "CommandListOpenGL.hpp"
 
 namespace Nexus::Graphics
 {

@@ -1,9 +1,9 @@
-#include "AudioDeviceOpenAL.h"
+#include "AudioDeviceOpenAL.hpp"
 
-#include "AudioBufferOpenAL.h"
-#include "AudioSourceOpenAL.h"
+#include "AudioBufferOpenAL.hpp"
+#include "AudioSourceOpenAL.hpp"
 
-#include "OpenAL.h"
+#include "OpenAL.hpp"
 
 #if !defined(EMSCRIPTEN)
 #include "libnyquist/Common.h"

@@ -1,8 +1,8 @@
-#include "ShaderOpenGL.h"
+#include "ShaderOpenGL.hpp"
 
-#include "Core/Logging/Log.h"
+#include "Core/Logging/Log.hpp"
 
-#include "BufferOpenGL.h"
+#include "BufferOpenGL.hpp"
 
 namespace Nexus::Graphics
 {

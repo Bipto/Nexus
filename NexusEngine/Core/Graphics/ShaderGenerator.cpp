@@ -1,10 +1,10 @@
-#include "ShaderGenerator.h"
+#include "ShaderGenerator.hpp"
 
 #include "shaderc/shaderc.hpp"
 #include "spirv_glsl.hpp"
 #include "spirv_hlsl.hpp"
 
-#include "Core/Logging/Log.h"
+#include "Core/Logging/Log.hpp"
 
 namespace Nexus::Graphics
 {

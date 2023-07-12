@@ -1,15 +1,15 @@
-#include "GraphicsDeviceDX11.h"
-#include "Core/Logging/Log.h"
+#include "GraphicsDeviceDX11.hpp"
+#include "Core/Logging/Log.hpp"
 
 #if defined(NX_PLATFORM_DX11)
 #include "backends/imgui_impl_dx11.h"
 #endif
 
-#include "BufferDX11.h"
-#include "ShaderDX11.h"
-#include "TextureDX11.h"
-#include "PipelineDX11.h"
-#include "CommandListDX11.h"
+#include "BufferDX11.hpp"
+#include "ShaderDX11.hpp"
+#include "TextureDX11.hpp"
+#include "PipelineDX11.hpp"
+#include "CommandListDX11.hpp"
 
 namespace Nexus::Graphics
 {

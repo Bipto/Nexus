@@ -1,9 +1,9 @@
 #if defined(WIN32)
 
-#include "ShaderDX11.h"
-#include "Core/Logging/Log.h"
-#include "TextureDX11.h"
-#include "BufferDX11.h"
+#include "ShaderDX11.hpp"
+#include "Core/Logging/Log.hpp"
+#include "TextureDX11.hpp"
+#include "BufferDX11.hpp"
 
 namespace Nexus::Graphics
 {

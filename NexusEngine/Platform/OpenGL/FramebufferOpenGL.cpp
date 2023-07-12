@@ -1,4 +1,4 @@
-#include "FramebufferOpenGL.h"
+#include "FramebufferOpenGL.hpp"
 
 namespace Nexus::Graphics
 {

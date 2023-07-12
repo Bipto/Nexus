@@ -1,4 +1,4 @@
-#include "TextureOpenGL.h"
+#include "TextureOpenGL.hpp"
 
 namespace Nexus::Graphics
 {
@@ -6,7 +6,7 @@ namespace Nexus::Graphics
     {
         glGenTextures(1, &this->m_Handle);
         glBindTexture(GL_TEXTURE_2D, this->m_Handle);
-        
+
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -18,7 +18,7 @@ namespace Nexus::Graphics
 
         glBindTexture(GL_TEXTURE_2D, 0);
     }
-    
+
     TextureOpenGL::~TextureOpenGL()
     {
         glDeleteTextures(1, &this->m_Handle);
@@ -29,8 +29,8 @@ namespace Nexus::Graphics
         glBindTexture(GL_TEXTURE_2D, this->m_Handle);
     }
 
-    void* TextureOpenGL::GetHandle()
+    void *TextureOpenGL::GetHandle()
     {
-        return (void*)m_Handle;   
+        return (void *)m_Handle;
     }
 }

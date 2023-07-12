@@ -1,4 +1,4 @@
-#include "AudioBufferOpenAL.h"
+#include "AudioBufferOpenAL.hpp"
 
 #include <iostream>
 

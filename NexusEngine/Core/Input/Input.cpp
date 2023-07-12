@@ -1,6 +1,6 @@
-#include "Input.h"
+#include "Input.hpp"
 
-#include "Core/Runtime.h"
+#include "Core/Runtime.hpp"
 
 namespace Nexus
 {

@@ -1,9 +1,9 @@
-#include "FileSystem.h"
+#include "FileSystem.hpp"
 
 #include <fstream>
 #include <sstream>
 
-#include "Core/Logging/Log.h"
+#include "Core/Logging/Log.hpp"
 
 std::string Nexus::FileSystem::ReadFileToString(const std::string &filepath)
 {

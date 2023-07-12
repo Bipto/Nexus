@@ -1,4 +1,4 @@
-#include "FileDialogs.h"
+#include "FileDialogs.hpp"
 
 #ifndef __EMSCRIPTEN__
 #include "tinyfiledialogs.h"
@@ -9,28 +9,26 @@ namespace Nexus::FileDialogs
 {
     const char *OpenFile(std::vector<const char *> filters)
     {
-        #ifndef __EMSCRIPTEN__
+#ifndef __EMSCRIPTEN__
         return tinyfd_openFileDialog(
             "Select a file",
             "",
             filters.size(),
             filters.data(),
             NULL,
-            0
-        );
-        #endif
+            0);
+#endif
 
         return "";
     }
 
-    const char *OpenFolder(const char* title, const char* defaultDirectory)
+    const char *OpenFolder(const char *title, const char *defaultDirectory)
     {
-        #ifndef __EMSCRIPTEN__
+#ifndef __EMSCRIPTEN__
         return tinyfd_selectFolderDialog(
             title,
-            defaultDirectory
-        );
-        #endif
+            defaultDirectory);
+#endif
         return "";
     }
 }

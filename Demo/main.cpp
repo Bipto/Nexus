@@ -1,16 +1,16 @@
-#include "NexusEngine.h"
-#include "Core/Graphics/MeshFactory.h"
-#include "Core/Graphics/Color.h"
-#include "Core/Networking/Socket.h"
+#include "NexusEngine.hpp"
+#include "Core/Graphics/MeshFactory.hpp"
+#include "Core/Graphics/Color.hpp"
+#include "Core/Networking/Socket.hpp"
 
-#include "Demos/ClearScreenDemo.h"
-#include "Demos/HelloTriangle.h"
-#include "Demos/HelloTriangleIndexed.h"
-#include "Demos/Texturing.h"
-#include "Demos/UniformBufferDemo.h"
-#include "Demos/Demo3D.h"
-#include "Demos/CameraDemo.h"
-#include "Demos/Lighting.h"
+#include "Demos/ClearScreenDemo.hpp"
+#include "Demos/HelloTriangle.hpp"
+#include "Demos/HelloTriangleIndexed.hpp"
+#include "Demos/Texturing.hpp"
+#include "Demos/UniformBufferDemo.hpp"
+#include "Demos/Demo3D.hpp"
+#include "Demos/CameraDemo.hpp"
+#include "Demos/Lighting.hpp"
 
 #include <iostream>
 #include <utility>

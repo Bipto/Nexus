@@ -1,4 +1,4 @@
-#include "Vertex.h"
+#include "Vertex.hpp"
 
 namespace Nexus::Graphics
 {

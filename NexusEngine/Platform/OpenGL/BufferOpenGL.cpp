@@ -1,5 +1,5 @@
-#include "BufferOpenGL.h"
-#include "Core/Logging/Log.h"
+#include "BufferOpenGL.hpp"
+#include "Core/Logging/Log.hpp"
 
 namespace Nexus::Graphics
 {

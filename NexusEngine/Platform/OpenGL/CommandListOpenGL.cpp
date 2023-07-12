@@ -1,9 +1,9 @@
-#include "CommandListOpenGL.h"
+#include "CommandListOpenGL.hpp"
 
-#include "PipelineOpenGL.h"
-#include "ShaderOpenGL.h"
-#include "BufferOpenGL.h"
-#include "TextureOpenGL.h"
+#include "PipelineOpenGL.hpp"
+#include "ShaderOpenGL.hpp"
+#include "BufferOpenGL.hpp"
+#include "TextureOpenGL.hpp"
 
 #include <memory>
 #include <stdexcept>

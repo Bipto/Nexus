@@ -1,4 +1,4 @@
-#include "AudioSourceOpenAL.h"
+#include "AudioSourceOpenAL.hpp"
 
 namespace Nexus::Audio
 {

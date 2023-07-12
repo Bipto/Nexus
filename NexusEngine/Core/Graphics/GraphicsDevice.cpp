@@ -1,11 +1,11 @@
-#include "GraphicsDevice.h"
+#include "GraphicsDevice.hpp"
 
 #include <fstream>
 #include <sstream>
 #include <chrono>
 
-#include "ShaderGenerator.h"
-#include "Core/Logging/Log.h"
+#include "ShaderGenerator.hpp"
+#include "Core/Logging/Log.hpp"
 
 #include "stb_image.h"
 

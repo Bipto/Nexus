@@ -69,4 +69,4 @@ find_package(OpenGL REQUIRED)
 target_link_libraries(NexusEngine PUBLIC ${OPENGL_LIBRARIES})
 
 #precompiled header
-target_precompile_headers(NexusEngine PUBLIC Core/nxpch.h)
+target_precompile_headers(NexusEngine PUBLIC Core/nxpch.hpp)

@@ -1,13 +1,12 @@
-#include "Application.h"
+#include "Application.hpp"
 
-#include "Platform/OpenGL/GraphicsDeviceOpenGL.h"
-#include "Platform/DX11/GraphicsDeviceDX11.h"
+#include "Platform/OpenGL/GraphicsDeviceOpenGL.hpp"
+#include "Platform/DX11/GraphicsDeviceDX11.hpp"
+#include "Platform/OpenAL/AudioDeviceOpenAL.hpp"
 
-#include "Platform/OpenAL/AudioDeviceOpenAL.h"
+#include "Core/Logging/Log.hpp"
 
 #include "SDL_opengl.h"
-
-#include "Core/Logging/Log.h"
 
 namespace Nexus
 {

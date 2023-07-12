@@ -1,8 +1,8 @@
-#include "Socket.h"
+#include "Socket.hpp"
 
 #if !defined(EMSCRIPTEN)
 
-#include "Core/Logging/Log.h"
+#include "Core/Logging/Log.hpp"
 
 #include <string>
 

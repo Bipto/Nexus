@@ -1,6 +1,6 @@
-#include "Gamepad.h"
+#include "Gamepad.hpp"
 
-#include "Core/Logging/Log.h"
+#include "Core/Logging/Log.hpp"
 
 #include <sstream>
 

@@ -1,11 +1,11 @@
 #if defined(WIN32)
 
-#include "TextureDX11.h"
-#include "Core/Logging/Log.h"
+#include "TextureDX11.hpp"
+#include "Core/Logging/Log.hpp"
 
 namespace Nexus::Graphics
 {
-    TextureDX11::TextureDX11(ID3D11Device* device, TextureSpecification spec) : Texture(spec)
+    TextureDX11::TextureDX11(ID3D11Device *device, TextureSpecification spec) : Texture(spec)
     {
         int imagePitch = spec.Width * 4;
 
@@ -29,8 +29,7 @@ namespace Nexus::Graphics
         HRESULT hr = device->CreateTexture2D(
             &desc,
             &subresourceData,
-            &m_Texture
-        );
+            &m_Texture);
 
         if (FAILED(hr))
         {
@@ -72,7 +71,7 @@ namespace Nexus::Graphics
         m_Texture->Release();
     }
 
-    void* TextureDX11::GetHandle()
+    void *TextureDX11::GetHandle()
     {
         return m_ResourceView;
     }

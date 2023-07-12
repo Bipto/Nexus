@@ -1,7 +1,7 @@
 #if defined(WIN32)
 
-#include "BufferDX11.h"
-#include "Core/Logging/Log.h"
+#include "BufferDX11.hpp"
+#include "Core/Logging/Log.hpp"
 
 namespace Nexus::Graphics
 {
