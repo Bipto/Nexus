@@ -36,3 +36,4 @@ build_emscripten/Demo/Resources
 Docs
 html
 build_emscripten/BuildConfig
+build_emscripten/compile_commands.json

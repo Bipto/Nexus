@@ -10,45 +10,10 @@
 #include "Demos/UniformBufferDemo.h"
 #include "Demos/Demo3D.h"
 #include "Demos/CameraDemo.h"
+#include "Demos/Lighting.h"
 
 #include <iostream>
 #include <utility>
-
-const char *vertexShaderSource =
-    "#version 300 es\n"
-    "layout(std140) uniform Camera\n"
-    "{\n"
-    "mat4 u_View;\n"
-    "mat4 u_Projection;\n"
-    "}_28;\n"
-    "layout(std140) uniform RenderInfo\n"
-    "{\n"
-    "mat4 u_Transform;\n"
-    "vec3 u_Color;\n"
-    "}_23;\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "layout (location = 1) in vec2 aTexCoord;\n"
-    "out vec2 TexCoord;\n"
-    "out vec3 OutColor;\n"
-    "void main()\n"
-    "{\n"
-    "gl_Position = _28.u_Projection * _28.u_View * _23.u_Transform * vec4(aPos, 1.0);\n"
-    "TexCoord = aTexCoord;\n"
-    "OutColor = _23.u_Color;\n"
-    "}";
-
-std::string fragmentShaderSource =
-    "#version 300 es\n"
-    "precision mediump float;\n"
-    "precision highp int;\n"
-    "layout (location = 0) out vec4 FragColor;\n"
-    "in highp vec2 TexCoord;\n"
-    "in highp vec3 OutColor;\n"
-    "uniform sampler2D texSampler;\n"
-    "void main()\n"
-    "{\n"
-    "FragColor = texture(texSampler, TexCoord) * vec4(OutColor, 1.0);\n"
-    "}";
 
 struct DemoInfo
 {
@@ -76,6 +41,7 @@ public:
         RegisterDemo<Demos::UniformBufferDemo>("Uniform Buffers");
         RegisterDemo<Demos::Demo3D>("3D");
         RegisterDemo<Demos::CameraDemo>("Camera");
+        RegisterDemo<Demos::LightingDemo>("Lighting");
     }
 
     template <typename T>

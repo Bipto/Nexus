@@ -7,26 +7,27 @@
 
 namespace Demos
 {
-    struct alignas(16) VB_UNIFORM_CAMERA_DEMO_CAMERA
+    struct alignas(16) VB_UNIFORM_CAMERA_DEMO_LIGHTING
     {
         glm::mat4 View;
         glm::mat4 Projection;
+        glm::vec3 CamPosition;
     };
 
-    struct alignas(16) VB_UNIFORM_TRANSFORM_DEMO_CAMERA
+    struct alignas(16) VB_UNIFORM_TRANSFORM_DEMO_LIGHTING
     {
         glm::mat4 Transform;
     };
 
-    class CameraDemo : public Demo
+    class LightingDemo : public Demo
     {
     public:
-        CameraDemo(const std::string &name, Nexus::Application *app)
+        LightingDemo(const std::string &name, Nexus::Application *app)
             : Demo(name, app)
         {
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/3d.glsl",
+            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/lighting.glsl",
                                                                    VertexPositionTexCoordNormal::GetLayout());
 
             Nexus::Graphics::PipelineDescription pipelineDescription;
@@ -44,10 +45,10 @@ namespace Demos
             Nexus::Graphics::UniformResourceBinding cameraUniformBinding;
             cameraUniformBinding.Binding = 0;
             cameraUniformBinding.Name = "Camera";
-            cameraUniformBinding.Size = sizeof(VB_UNIFORM_CAMERA_DEMO_CAMERA);
+            cameraUniformBinding.Size = sizeof(VB_UNIFORM_CAMERA_DEMO_LIGHTING);
 
             Nexus::Graphics::BufferDescription cameraUniformBufferDesc;
-            cameraUniformBufferDesc.Size = sizeof(VB_UNIFORM_CAMERA_DEMO_CAMERA);
+            cameraUniformBufferDesc.Size = sizeof(VB_UNIFORM_CAMERA_DEMO_LIGHTING);
             cameraUniformBufferDesc.Type = Nexus::Graphics::BufferType::Uniform;
             cameraUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
 
@@ -57,10 +58,10 @@ namespace Demos
             Nexus::Graphics::UniformResourceBinding transformUniformBinding;
             transformUniformBinding.Binding = 1;
             transformUniformBinding.Name = "Transform";
-            transformUniformBinding.Size = sizeof(VB_UNIFORM_TRANSFORM_DEMO_CAMERA);
+            transformUniformBinding.Size = sizeof(VB_UNIFORM_TRANSFORM_DEMO_LIGHTING);
 
             Nexus::Graphics::BufferDescription transformUniformBufferDesc;
-            transformUniformBufferDesc.Size = sizeof(VB_UNIFORM_TRANSFORM_DEMO_CAMERA);
+            transformUniformBufferDesc.Size = sizeof(VB_UNIFORM_TRANSFORM_DEMO_LIGHTING);
             transformUniformBufferDesc.Type = Nexus::Graphics::BufferType::Uniform;
             transformUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
             m_TransformUniformBuffer = m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc);
@@ -90,11 +91,14 @@ namespace Demos
                 m_ClearColour.b,
                 1.0f};
 
-            m_TransformUniforms.Transform = glm::mat4(1.0f);
+            m_TransformUniforms.Transform = glm::rotate(glm::mat4(1.0f),
+                                                        glm::radians(m_Rotation),
+                                                        glm::vec3(0.0f, 1.0f, 0.0f));
             m_TransformUniformBuffer->SetData(&m_TransformUniforms, sizeof(m_TransformUniforms), 0);
 
             m_CameraUniforms.View = m_Camera.GetView();
             m_CameraUniforms.Projection = m_Camera.GetProjection();
+            m_CameraUniforms.CamPosition = m_Camera.GetPosition();
 
             m_CameraUniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms), 0);
 
@@ -113,6 +117,8 @@ namespace Demos
                 m_Window->GetWindowSize().X,
                 m_Window->GetWindowSize().Y,
                 time);
+
+            m_Rotation += 0.05f * time.GetMilliseconds();
         }
 
     private:
@@ -123,12 +129,14 @@ namespace Demos
         Nexus::Ref<Nexus::Graphics::Texture> m_Texture;
         glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
 
-        VB_UNIFORM_CAMERA_DEMO_CAMERA m_CameraUniforms;
+        VB_UNIFORM_CAMERA_DEMO_LIGHTING m_CameraUniforms;
         Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_CameraUniformBuffer;
 
-        VB_UNIFORM_TRANSFORM_DEMO_CAMERA m_TransformUniforms;
+        VB_UNIFORM_TRANSFORM_DEMO_LIGHTING m_TransformUniforms;
         Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_TransformUniformBuffer;
 
         Nexus::FirstPersonCamera m_Camera;
+
+        float m_Rotation = 0.0f;
     };
 }

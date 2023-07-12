@@ -12,12 +12,8 @@ namespace Demos
         {
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-            Nexus::Graphics::VertexBufferLayout layout =
-                {
-                    {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD", 0},
-                    {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD", 1}};
-
-            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/hello_triangle.glsl", layout);
+            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/hello_triangle.glsl",
+                                                                   VertexPositionTexCoordNormal::GetLayout());
 
             Nexus::Graphics::PipelineDescription pipelineDescription;
             pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
@@ -26,15 +22,17 @@ namespace Demos
 
             m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
 
-            std::vector<Vertex> vertices =
+            std::vector<VertexPositionTexCoordNormal> vertices =
                 {
-                    {{-0.5f, -0.5f, 0.0f}, {0.0f, 1.0f}}, // bottom left
-                    {{0.0f, 0.5f, 0.0f}, {0.0f, 0.0f}},   // top left
-                    {{0.5f, -0.5f, 0.0f}, {1.0f, 1.0f}},  // bottom right
+                    {{-0.5f, -0.5f, 0.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, -1.0f}}, // bottom left
+                    {{0.0f, 0.5f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}},   // top left
+                    {{0.5f, -0.5f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, -1.0f}},  // bottom right
                 };
 
+            auto size = vertices.size() * sizeof(VertexPositionTexCoordNormal);
+
             Nexus::Graphics::BufferDescription vertexBufferDesc;
-            vertexBufferDesc.Size = vertices.size() * sizeof(Vertex);
+            vertexBufferDesc.Size = vertices.size() * sizeof(VertexPositionTexCoordNormal);
             vertexBufferDesc.Type = Nexus::Graphics::BufferType::Vertex;
             vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
             m_VertexBuffer = m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc, vertices.data());
@@ -60,7 +58,7 @@ namespace Demos
             m_CommandList->SetPipeline(m_Pipeline);
             m_CommandList->SetVertexBuffer(m_VertexBuffer);
 
-            auto vertexCount = m_VertexBuffer->GetDescription().Size / sizeof(Vertex);
+            auto vertexCount = m_VertexBuffer->GetDescription().Size / sizeof(VertexPositionTexCoordNormal);
             m_CommandList->DrawElements(0, vertexCount);
             m_CommandList->End();
 

@@ -19,10 +19,12 @@ namespace Demos
 
             Nexus::Graphics::VertexBufferLayout layout =
                 {
-                    {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD", 0},
-                    {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD", 1}};
+                    {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
+                    {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
+                    {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}};
 
-            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/uniform_buffers.glsl", layout);
+            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/uniform_buffers.glsl",
+                                                                   VertexPositionTexCoordNormal::GetLayout());
 
             Nexus::Graphics::PipelineDescription pipelineDescription;
             pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;

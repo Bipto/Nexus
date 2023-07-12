@@ -15,7 +15,7 @@
 
 #include "Core/Graphics/MeshFactory.h"
 
-std::vector<Vertex> vertices =
+std::vector<VertexPositionTexCoordNormal> vertices =
     {
         {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f}}, // bottom left
         {{-0.5f, 0.5f, 0.0f}, {0.0f, 1.0f}},  // top left
@@ -53,7 +53,7 @@ public:
         this->m_GraphicsDevice->SetVSyncState(Nexus::Graphics::VSyncState::Enabled);
 
         Nexus::Graphics::BufferDescription vertexBufferDesc;
-        vertexBufferDesc.Size = vertices.size() * sizeof(Vertex);
+        vertexBufferDesc.Size = vertices.size() * sizeof(VertexPositionTexCoordNormal);
         vertexBufferDesc.Type = Nexus::Graphics::BufferType::Vertex;
         vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
         m_VertexBuffer = m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc);

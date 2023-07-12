@@ -26,12 +26,8 @@ namespace Demos
         {
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-            Nexus::Graphics::VertexBufferLayout layout =
-                {
-                    {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD", 0},
-                    {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD", 1}};
-
-            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/3d.glsl", layout);
+            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/3d.glsl",
+                                                                   VertexPositionTexCoordNormal::GetLayout());
 
             Nexus::Graphics::PipelineDescription pipelineDescription;
             pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::Back;

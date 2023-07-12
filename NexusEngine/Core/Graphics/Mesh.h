@@ -3,6 +3,8 @@
 #include "Core/Graphics/Buffer.h"
 #include "Core/Memory.h"
 
+#include "Core/Vertex.h"
+
 namespace Nexus::Graphics
 {
     /// @brief A class representing a mesh containing a vertex buffer and an index buffer
