@@ -97,8 +97,6 @@ namespace Nexus::Graphics
         }
         }
 
-        std::cout << output.Source << std::endl;
-
         output.Successful = true;
 
         return output;

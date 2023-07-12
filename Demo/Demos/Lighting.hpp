@@ -28,7 +28,7 @@ namespace Demos
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
             m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/lighting.glsl",
-                                                                   Nexus::Graphics::VertexPositionTexCoordNormal::GetLayout());
+                                                                   Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
 
             Nexus::Graphics::PipelineDescription pipelineDescription;
             pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::Back;
@@ -40,7 +40,9 @@ namespace Demos
             Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
             m_Mesh = factory.CreateCube();
 
-            m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/raw_plank_wall_diff_1k.jpg");
+            m_DiffuseMap = m_GraphicsDevice->CreateTexture("Resources/Textures/raw_plank_wall_diff_1k.jpg");
+            m_NormalMap = m_GraphicsDevice->CreateTexture("Resources/Textures/raw_plank_wall_normal_1k.jpg");
+            m_SpecularMap = m_GraphicsDevice->CreateTexture("Resources/Textures/raw_plank_wall_spec_1k.jpg");
 
             Nexus::Graphics::UniformResourceBinding cameraUniformBinding;
             cameraUniformBinding.Binding = 0;
@@ -79,10 +81,20 @@ namespace Demos
             vp.Height = m_Window->GetWindowSize().Y;
             m_GraphicsDevice->SetViewport(vp);
 
-            Nexus::Graphics::TextureBinding textureBinding;
-            textureBinding.Slot = 0;
-            textureBinding.Name = "texSampler";
-            m_Shader->SetTexture(m_Texture, textureBinding);
+            Nexus::Graphics::TextureBinding diffuseMapBinding;
+            diffuseMapBinding.Slot = 0;
+            diffuseMapBinding.Name = "diffuseMapSampler";
+            m_Shader->SetTexture(m_DiffuseMap, diffuseMapBinding);
+
+            Nexus::Graphics::TextureBinding normalMapBinding;
+            normalMapBinding.Slot = 1;
+            normalMapBinding.Name = "normalMapSampler";
+            m_Shader->SetTexture(m_NormalMap, normalMapBinding);
+
+            Nexus::Graphics::TextureBinding specularMapBinding;
+            specularMapBinding.Slot = 2;
+            specularMapBinding.Name = "specularMapSampler";
+            m_Shader->SetTexture(m_SpecularMap, specularMapBinding);
 
             Nexus::Graphics::CommandListBeginInfo beginInfo{};
             beginInfo.ClearValue = {
@@ -126,7 +138,9 @@ namespace Demos
         Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
         Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
         Nexus::Graphics::Mesh m_Mesh;
-        Nexus::Ref<Nexus::Graphics::Texture> m_Texture;
+        Nexus::Ref<Nexus::Graphics::Texture> m_DiffuseMap;
+        Nexus::Ref<Nexus::Graphics::Texture> m_NormalMap;
+        Nexus::Ref<Nexus::Graphics::Texture> m_SpecularMap;
         glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
 
         VB_UNIFORM_CAMERA_DEMO_LIGHTING m_CameraUniforms;

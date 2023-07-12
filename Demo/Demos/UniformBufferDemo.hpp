@@ -17,12 +17,6 @@ namespace Demos
         {
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-            Nexus::Graphics::VertexBufferLayout layout =
-                {
-                    {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
-                    {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
-                    {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}};
-
             m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/uniform_buffers.glsl",
                                                                    Nexus::Graphics::VertexPositionTexCoordNormal::GetLayout());
 

@@ -67,11 +67,13 @@ namespace Nexus::Graphics
                 22, 21, 20,
                 20, 23, 22};
 
+        auto fullVertices = Nexus::Graphics::Utilities::GenerateTangentAndBinormals(vertices);
+
         Nexus::Graphics::BufferDescription vertexBufferDesc;
-        vertexBufferDesc.Size = vertices.size() * sizeof(VertexPositionTexCoordNormal);
+        vertexBufferDesc.Size = vertices.size() * sizeof(VertexPositionTexCoordNormalTangentBitangent);
         vertexBufferDesc.Type = Nexus::Graphics::BufferType::Vertex;
         vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-        auto vertexBuffer = m_Device->CreateDeviceBuffer(vertexBufferDesc, vertices.data());
+        auto vertexBuffer = m_Device->CreateDeviceBuffer(vertexBufferDesc, fullVertices.data());
 
         Nexus::Graphics::BufferDescription indexBufferDesc;
         indexBufferDesc.Size = indices.size() * sizeof(unsigned int);
@@ -98,7 +100,7 @@ namespace Nexus::Graphics
                 2, 3, 1};
 
         Nexus::Graphics::BufferDescription vertexBufferDesc;
-        vertexBufferDesc.Size = vertices.size() * sizeof(VertexPositionTexCoordNormal);
+        vertexBufferDesc.Size = vertices.size() * sizeof(VertexPositionTexCoordNormalTangentBitangent);
         vertexBufferDesc.Type = Nexus::Graphics::BufferType::Vertex;
         vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
         auto vertexBuffer = m_Device->CreateDeviceBuffer(vertexBufferDesc, vertices.data());

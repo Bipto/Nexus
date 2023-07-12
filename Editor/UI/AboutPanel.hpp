@@ -1,4 +1,4 @@
-#include "Panel.h"
+#include "Panel.hpp"
 
 class AboutPanel : public Panel
 {

@@ -29,8 +29,6 @@ namespace Demos
                     {{0.5f, -0.5f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, -1.0f}},  // bottom right
                 };
 
-            auto size = vertices.size() * sizeof(Nexus::Graphics::VertexPositionTexCoordNormal);
-
             Nexus::Graphics::BufferDescription vertexBufferDesc;
             vertexBufferDesc.Size = vertices.size() * sizeof(Nexus::Graphics::VertexPositionTexCoordNormal);
             vertexBufferDesc.Type = Nexus::Graphics::BufferType::Vertex;

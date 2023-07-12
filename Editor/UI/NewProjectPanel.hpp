@@ -1,76 +1,74 @@
-#include "Panel.h"
-#include "NexusEngine.h"
-#include "Core/Utils/FileDialogs.h"
+#include "Panel.hpp"
+#include "NexusEngine.hpp"
+#include "Core/Utils/FileDialogs.hpp"
 
 #include <functional>
 
 class NewProjectPanel : public Panel
 {
-    public:
-        virtual void OnRender() override
+public:
+    virtual void OnRender() override
+    {
+#ifndef __EMSCRIPTEN__
+        static std::string name{};
+        static std::string path{};
+
+        ImGui::Begin("New Project", &m_Enabled);
+
+        // name
+        ImGui::Text("Name: ");
+        ImGui::SameLine();
+        ImGui::InputText(" ", &name);
+
+        // directory
+        ImGui::Text("Directory: ");
+        ImGui::SameLine();
+        ImGui::Text(path.c_str());
+
+        if (ImGui::Button("Choose folder..."))
         {
-            #ifndef __EMSCRIPTEN__
-                static std::string name{};
-                static std::string path{};
+            auto p = Nexus::FileDialogs::OpenFolder(
+                "Select a folder",
+                "C:\\");
 
-                ImGui::Begin("New Project", &m_Enabled);
-
-                //name
-                ImGui::Text("Name: ");
-                ImGui::SameLine();
-                ImGui::InputText(" ", &name);
-
-                //directory
-                ImGui::Text("Directory: ");
-                ImGui::SameLine();
-                ImGui::Text(path.c_str());
-
-                if (ImGui::Button("Choose folder..."))
-                {
-                    auto p = Nexus::FileDialogs::OpenFolder(
-                        "Select a folder",
-                        "C:\\"
-                    );
-
-                    if (p)
-                    {
-                        path = std::string(p);
-                        m_ProjectFilePath = path;
-                    }
-                }
-
-                if (ImGui::Button("Create"))
-                {
-                    #ifndef __EMSCRIPTEN__
-
-                    std::filesystem::path path{m_ProjectFilePath};
-                    std::string extension(".proj");
-                    path /= name + std::string("\\") + name + extension;
-                    std::filesystem::create_directories(path.parent_path());
-
-                    auto project = Nexus::CreateRef<Nexus::Project>(name, path.string());
-                    project->Serialize(m_ProjectFilePath);
-                    m_ProjectCreatedEventHandler.Invoke(project);
-
-                    #endif
-                }
-
-                ImGui::End();
-            #endif
+            if (p)
+            {
+                path = std::string(p);
+                m_ProjectFilePath = path;
+            }
         }
 
-        void Subscribe(Delegate<Nexus::Ref<Nexus::Project>> function)
+        if (ImGui::Button("Create"))
         {
-            m_ProjectCreatedEventHandler.Bind(function);
+#ifndef __EMSCRIPTEN__
+
+            std::filesystem::path path{m_ProjectFilePath};
+            std::string extension(".proj");
+            path /= name + std::string("\\") + name + extension;
+            std::filesystem::create_directories(path.parent_path());
+
+            auto project = Nexus::CreateRef<Nexus::Project>(name, path.string());
+            project->Serialize(m_ProjectFilePath);
+            m_ProjectCreatedEventHandler.Invoke(project);
+
+#endif
         }
 
-        void Unsubscribe(Delegate<Nexus::Ref<Nexus::Project>> function)
-        {
-            m_ProjectCreatedEventHandler.Unbind(function);
-        }
-    
-    private:
-        std::string m_ProjectFilePath;
-        Nexus::EventHandler<Nexus::Ref<Nexus::Project>> m_ProjectCreatedEventHandler;
-        
+        ImGui::End();
+#endif
+    }
+
+    void Subscribe(Delegate<Nexus::Ref<Nexus::Project>> function)
+    {
+        m_ProjectCreatedEventHandler.Bind(function);
+    }
+
+    void Unsubscribe(Delegate<Nexus::Ref<Nexus::Project>> function)
+    {
+        m_ProjectCreatedEventHandler.Unbind(function);
+    }
+
+private:
+    std::string m_ProjectFilePath;
+    Nexus::EventHandler<Nexus::Ref<Nexus::Project>> m_ProjectCreatedEventHandler;
 };
