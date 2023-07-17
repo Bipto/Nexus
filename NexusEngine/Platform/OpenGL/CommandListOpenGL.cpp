@@ -55,6 +55,8 @@ namespace Nexus::Graphics
     {
         // m_VertexBuffers.push_back(vertexBuffer);
         m_CommandData.push_back(vertexBuffer.get());
+        auto vb = (DeviceBufferOpenGL *)vertexBuffer.get();
+        std::cout << "Pushing vertex buffer with handle: " << vb->GetHandle() << std::endl;
 
         m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
         {
@@ -65,6 +67,13 @@ namespace Nexus::Graphics
             auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             auto vertexBuffer = (DeviceBufferOpenGL *)commandListGL->GetCurrentCommandData();
             vertexBuffer->Bind();
+
+            auto pipeline = commandListGL->GetCurrentPipeline();
+            auto pipelineGL = (PipelineOpenGL *)pipeline;
+            pipelineGL->SetupVertexLayout();
+
+            std::cout
+                << "Binding vertex buffer: " << vertexBuffer->GetHandle() << std::endl;
         };
     }
 
@@ -72,6 +81,8 @@ namespace Nexus::Graphics
     {
         // m_IndexBuffers.push_back(indexBuffer);
         m_CommandData.push_back(indexBuffer.get());
+        auto ib = (DeviceBufferOpenGL *)indexBuffer.get();
+        std::cout << "Pushing vertex buffer with handle: " << ib->GetHandle() << std::endl;
 
         m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
         {
@@ -82,6 +93,8 @@ namespace Nexus::Graphics
             auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             auto indexBuffer = (DeviceBufferOpenGL *)commandListGL->GetCurrentCommandData();
             indexBuffer->Bind();
+
+            std::cout << "Binding index buffer: " << indexBuffer->GetHandle() << std::endl;
         };
     }
 
@@ -118,6 +131,9 @@ namespace Nexus::Graphics
 
     void CommandListOpenGL::DrawIndexed(uint32_t count, uint32_t offset)
     {
+        std::cout << "Pushing indexed draw command with count of " << count
+                  << " and an offset of " << offset << std::endl;
+
         DrawIndexedCommand command;
         command.Count = count;
         command.Offset = offset;
@@ -129,6 +145,9 @@ namespace Nexus::Graphics
             auto drawCommand = oglCL->GetCurrentDrawIndexedCommand();
             auto topology = oglCL->GetTopology();
             glDrawElements(topology, drawCommand.Count, GL_UNSIGNED_INT, (void *)drawCommand.Offset);
+
+            std::cout << "Executing indexed draw command with count of " << drawCommand.Count
+                      << " and an offset of " << drawCommand.Offset << std::endl;
         };
     }
 
@@ -245,6 +264,11 @@ namespace Nexus::Graphics
         }
 
         return drawMode;
+    }
+
+    Pipeline *CommandListOpenGL::GetCurrentPipeline()
+    {
+        return m_CurrentPipeline;
     }
 
     const std::array<RenderCommand, 1000> &CommandListOpenGL::GetRenderCommands()

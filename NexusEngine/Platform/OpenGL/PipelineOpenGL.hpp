@@ -18,6 +18,7 @@ namespace Nexus::Graphics
 
         virtual const PipelineDescription &GetPipelineDescription() const override;
         void Bind();
+        void SetupVertexLayout();
 
     private:
         void SetupDepthStencil();

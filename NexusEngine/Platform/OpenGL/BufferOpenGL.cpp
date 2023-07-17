@@ -41,6 +41,7 @@ namespace Nexus::Graphics
 
         glGenBuffers(1, &m_Buffer);
         glBindBuffer(bufferType, m_Buffer);
+        // glBufferSubData(bufferType, 0, description.Size, data);
         glBufferData(bufferType, description.Size, data, bufferUsage);
 
         GL::CheckErrors();

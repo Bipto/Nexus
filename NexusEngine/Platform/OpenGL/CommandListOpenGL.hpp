@@ -40,6 +40,7 @@ namespace Nexus::Graphics
         void *GetCurrentCommandData();
 
         GLenum GetTopology();
+        Pipeline* GetCurrentPipeline();
         const std::array<RenderCommand, 1000> &GetRenderCommands();
         uint32_t GetCommandCount();
 

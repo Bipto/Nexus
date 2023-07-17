@@ -86,18 +86,18 @@ namespace Nexus::Graphics
 
     Mesh MeshFactory::CreateSprite()
     {
-        std::vector<VertexPositionTexCoordNormal> vertices =
+        std::vector<VertexPositionTexCoordNormalTangentBitangent> vertices =
             {
-                {{-0.5f, -0.5f, 0.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, -1.0f}}, // bottom left
-                {{-0.5f, 0.5f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}},  // top left
-                {{0.5f, -0.5f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, -1.0f}},  // bottom right
-                {{0.5f, 0.5f, 0.0f}, {1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}}    // top right
+                {{-0.5f, -0.5f, 0.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, -1.0f}, {1, 1, 1}, {1, 1, 1}}, // bottom left
+                {{-0.5f, 0.5f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {1, 1, 1}, {1, 1, 1}},  // top left
+                {{0.5f, -0.5f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, -1.0f}, {1, 1, 1}, {1, 1, 1}},  // bottom right
+                {{0.5f, 0.5f, 0.0f}, {1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {1, 1, 1}, {1, 1, 1}}    // top right
             };
 
         std::vector<unsigned int> indices =
             {
-                2, 1, 0,
-                2, 3, 1};
+                0, 1, 2,
+                1, 3, 2};
 
         Nexus::Graphics::BufferDescription vertexBufferDesc;
         vertexBufferDesc.Size = vertices.size() * sizeof(VertexPositionTexCoordNormalTangentBitangent);

@@ -15,19 +15,6 @@
 
 #include "Core/Graphics/MeshFactory.hpp"
 
-std::vector<VertexPositionTexCoordNormal> vertices =
-    {
-        {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f}}, // bottom left
-        {{-0.5f, 0.5f, 0.0f}, {0.0f, 1.0f}},  // top left
-        {{0.5f, -0.5f, 0.0f}, {1.0f, 0.0f}},  // bottom right
-        {{0.5f, 0.5f, 0.0f}, {1.0f, 1.0f}}    // top right
-};
-
-std::vector<unsigned int> indices =
-    {
-        0, 1, 2,
-        1, 3, 2};
-
 struct alignas(16) VB_UNIFORM_RENDERINFO
 {
     glm::mat4 Translation;
@@ -52,20 +39,6 @@ public:
         this->m_Renderer = Nexus::Renderer::Create(this->m_GraphicsDevice);
         this->m_GraphicsDevice->SetVSyncState(Nexus::Graphics::VSyncState::Enabled);
 
-        Nexus::Graphics::BufferDescription vertexBufferDesc;
-        vertexBufferDesc.Size = vertices.size() * sizeof(VertexPositionTexCoordNormal);
-        vertexBufferDesc.Type = Nexus::Graphics::BufferType::Vertex;
-        vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-        m_VertexBuffer = m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc);
-
-        Nexus::Graphics::BufferDescription indexBufferDesc;
-        indexBufferDesc.Size = indices.size() * sizeof(unsigned int);
-        indexBufferDesc.Type = Nexus::Graphics::BufferType::Index;
-        indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-        m_IndexBuffer = m_GraphicsDevice->CreateDeviceBuffer(indexBufferDesc);
-
-        // this->m_VertexBuffer = this->m_GraphicsDevice->CreateVertexBuffer(vertices);
-        // this->m_IndexBuffer = this->m_GraphicsDevice->CreateIndexBuffer(indices);
         this->m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
 
         Nexus::Graphics::UniformResourceBinding renderInfoBinding;
@@ -489,8 +462,6 @@ private:
     Nexus::Renderer *m_Renderer;
     Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
 
-    Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_VertexBuffer;
-    Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_IndexBuffer;
     Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_RenderInfoUniformBuffer;
     Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_CameraUniformBuffer;
     Nexus::Ref<Nexus::Graphics::Texture> m_Texture;

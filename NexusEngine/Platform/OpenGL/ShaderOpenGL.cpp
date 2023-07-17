@@ -41,7 +41,6 @@ namespace Nexus::Graphics
     void ShaderOpenGL::Bind()
     {
         glUseProgram(this->m_ProgramHandle);
-        SetLayout();
     }
 
     void ShaderOpenGL::SetTexture(Ref<Texture> texture, const TextureBinding &binding)

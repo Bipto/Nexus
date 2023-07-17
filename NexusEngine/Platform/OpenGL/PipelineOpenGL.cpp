@@ -18,6 +18,17 @@ namespace Nexus::Graphics
         SetShader();
     }
 
+    void PipelineOpenGL::SetupVertexLayout()
+    {
+        if (!m_Description.Shader)
+        {
+            throw std::runtime_error("A shader has not been assigned to this pipeline!");
+        }
+
+        Ref<ShaderOpenGL> shaderGL = std::dynamic_pointer_cast<ShaderOpenGL>(m_Description.Shader);
+        shaderGL->SetLayout();
+    }
+
     GLenum GetStencilOperation(StencilOperation operation)
     {
         switch (operation)
