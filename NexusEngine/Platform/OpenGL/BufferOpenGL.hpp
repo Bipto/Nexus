@@ -22,6 +22,7 @@ namespace Nexus::Graphics
 
     private:
         unsigned int m_Buffer = 0;
+        unsigned int m_VAO = 0;
     };
 
     class IndexBufferOpenGL : public IndexBuffer

@@ -62,10 +62,6 @@ namespace Nexus::Graphics
             auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             auto vertexBuffer = (VertexBufferOpenGL *)commandListGL->GetCurrentCommandData();
             vertexBuffer->Bind();
-
-            auto pipeline = commandListGL->GetCurrentPipeline();
-            auto pipelineGL = (PipelineOpenGL *)pipeline;
-            pipelineGL->SetupVertexLayout();
         };
     }
 

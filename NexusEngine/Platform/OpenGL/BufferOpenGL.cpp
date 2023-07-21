@@ -41,6 +41,22 @@ namespace Nexus::Graphics
         glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);
         glBufferData(GL_ARRAY_BUFFER, description.Size, data, bufferUsage);
         GL::CheckErrors();
+
+        glGenVertexArrays(1, &m_VAO);
+        glBindVertexArray(m_VAO);
+        int index = 0;
+        for (auto &element : m_Layout)
+        {
+            glVertexAttribPointer(index,
+                                  element.GetComponentCount(),
+                                  GetGLBaseType(element),
+                                  element.Normalized ? GL_TRUE : GL_FALSE,
+                                  m_Layout.GetStride(),
+                                  (void *)element.Offset);
+
+            glEnableVertexAttribArray(index);
+            index++;
+        }
     }
 
     void VertexBufferOpenGL::SetData(const void *data, uint32_t size, uint32_t offset)
@@ -57,6 +73,7 @@ namespace Nexus::Graphics
 
     void VertexBufferOpenGL::Bind()
     {
+        glBindVertexArray(m_VAO);
         glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);
     }
 

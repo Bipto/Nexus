@@ -46,13 +46,10 @@ namespace Nexus::Graphics
         virtual ShaderLanguage GetSupportedShaderFormat() override;
         virtual float GetUVCorrection() { return 1.0f; }
 
-        void BindVAO();
-
     private:
         SDL_GLContext m_Context;
         const char *m_GlslVersion;
         Ref<FramebufferOpenGL> m_BoundFramebuffer = nullptr;
         VSyncState m_VsyncState = VSyncState::Enabled;
-        unsigned int m_VAO = 0;
     };
 }

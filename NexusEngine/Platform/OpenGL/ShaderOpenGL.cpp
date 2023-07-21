@@ -134,21 +134,4 @@ namespace Nexus::Graphics
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
     }
-
-    void ShaderOpenGL::SetLayout()
-    {
-        int index = 0;
-        for (auto &element : m_Layout)
-        {
-            glVertexAttribPointer(index,
-                                  element.GetComponentCount(),
-                                  GetGLBaseType(element),
-                                  element.Normalized ? GL_TRUE : GL_FALSE,
-                                  m_Layout.GetStride(),
-                                  (void *)element.Offset);
-
-            glEnableVertexAttribArray(index);
-            index++;
-        }
-    }
 }

@@ -142,9 +142,6 @@ namespace Nexus::Graphics
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback(GLDebugMessageCallback, nullptr);
 #endif
-
-        glGenVertexArrays(1, &m_VAO);
-        glBindVertexArray(m_VAO);
     }
 
     GraphicsDeviceOpenGL::~GraphicsDeviceOpenGL()
@@ -174,8 +171,6 @@ namespace Nexus::Graphics
 
     void GraphicsDeviceOpenGL::SubmitCommandList(Ref<CommandList> commandList)
     {
-        glBindVertexArray(m_VAO);
-
         Ref<CommandListOpenGL> commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
         auto &commands = commandListGL->GetRenderCommands();
         auto commandCount = commandListGL->GetCommandCount();
@@ -304,10 +299,5 @@ namespace Nexus::Graphics
 #else
         return ShaderLanguage::GLSL;
 #endif
-    }
-
-    void GraphicsDeviceOpenGL::BindVAO()
-    {
-        glBindVertexArray(m_VAO);
     }
 }

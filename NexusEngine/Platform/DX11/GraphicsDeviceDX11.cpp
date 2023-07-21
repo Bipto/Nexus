@@ -261,17 +261,29 @@ namespace Nexus::Graphics
 
     Ref<VertexBuffer> GraphicsDeviceDX11::CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
     {
+#if defined(NX_PLATFORM_DX11)
         return CreateRef<VertexBufferDX11>(m_DevicePtr, m_DeviceContextPtr, description, data, layout);
+#else
+        return nullptr;
+#endif
     }
 
     Ref<IndexBuffer> GraphicsDeviceDX11::CreateIndexBuffer(const BufferDescription &description, const void *data)
     {
+#if defined(NX_PLATFORM_DX11)
         return CreateRef<IndexBufferDX11>(m_DevicePtr, m_DeviceContextPtr, description, data);
+#else
+        return nullptr;
+#endif
     }
 
     Ref<UniformBuffer> GraphicsDeviceDX11::CreateUniformBuffer(const BufferDescription &description, const void *data)
     {
+#if defined(NX_PLATFORM_DX11)
         return CreateRef<UniformBufferDX11>(m_DevicePtr, m_DeviceContextPtr, description, data);
+#else
+        return nullptr;
+#endif
     }
 
     void GraphicsDeviceDX11::InitialiseImGui()
