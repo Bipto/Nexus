@@ -179,7 +179,7 @@ private:
 int main(int argc, char **argv)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::DirectX11;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
     spec.ImGuiActive = true;
     spec.VSyncState = Nexus::Graphics::VSyncState::Enabled;
