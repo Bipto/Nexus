@@ -113,11 +113,24 @@ namespace Nexus::Graphics
         /// @return A reference counted pointer to a pipeline
         virtual Ref<Pipeline> CreatePipeline(const PipelineDescription &description) = 0;
 
-        /// @brief A pure virtual mewthod that creates a new device buffer from a given buffer description
+        /// @brief A pure virtual method that creates a vertex buffer from a given description
         /// @param description The properties to use when creating the buffer
-        /// @param data A pointer to data to upload to the buffer
-        /// @return A reference counted pointer to a pipeline
-        virtual Ref<DeviceBuffer> CreateDeviceBuffer(const BufferDescription &description, const void *data = nullptr) = 0;
+        /// @param data The initial data to store in the buffer
+        /// @param layout The layout of the vertex buffer
+        /// @return A reference counted pointer to a vertex buffer
+        virtual Ref<VertexBuffer> CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout) = 0;
+
+        /// @brief A pure virtual method that creates an index buffer from a given description
+        /// @param description The properties to use when creating the buffer
+        /// @param data The initial data to store in the buffer
+        /// @return A reference counted pointer to an index buffer
+        virtual Ref<IndexBuffer> CreateIndexBuffer(const BufferDescription &description, const void *data) = 0;
+
+        /// @brief A pure virtual method that creates a uniform buffer from a given description
+        /// @param description The properties to use when creating the buffer
+        /// @param data The initial data to store in the buffer
+        /// @return A reference counted pointer to a uniform buffer
+        virtual Ref<UniformBuffer> CreateUniformBuffer(const BufferDescription &description, const void *data) = 0;
 
         /// @brief A pure virtual method that creates a new command list
         /// @return A reference counted pointer to a command list

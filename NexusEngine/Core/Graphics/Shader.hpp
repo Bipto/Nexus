@@ -57,6 +57,6 @@ namespace Nexus::Graphics
         /// @brief A pure virtual method that binds a uniform buffer to a shader
         /// @param buffer A uniform buffer to bind to the shader
         /// @param binding The shader that the uniform buffer should be bound to
-        virtual void BindUniformBuffer(Ref<DeviceBuffer> buffer, const UniformResourceBinding &binding) = 0;
+        virtual void BindUniformBuffer(Ref<UniformBuffer> buffer, const UniformResourceBinding &binding) = 0;
     };
 }

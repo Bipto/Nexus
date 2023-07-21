@@ -70,7 +70,7 @@ namespace Nexus::Graphics
     {
     }
 
-    void CommandListDX11::SetVertexBuffer(Ref<DeviceBuffer> vertexBuffer)
+    void CommandListDX11::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer)
     {
 #if defined(NX_PLATFORM_DX11)
 
@@ -80,7 +80,7 @@ namespace Nexus::Graphics
         {
             Ref<CommandListDX11> dxCommandList = std::dynamic_pointer_cast<CommandListDX11>(commandList);
             auto graphicsDevice = dxCommandList->GetGraphicsDevice();
-            auto vertexBuffer = (DeviceBufferDX11 *)dxCommandList->GetCurrentCommandData();
+            auto vertexBuffer = (VertexBufferDX11 *)dxCommandList->GetCurrentCommandData();
 
             auto pipeline = dxCommandList->GetCurrentPipeline();
             auto shader = pipeline->GetShader();
@@ -90,7 +90,7 @@ namespace Nexus::Graphics
             uint32_t stride = layout.GetStride();
             uint32_t offset = 0;
 
-            ID3D11Buffer *dx11VertexBuffer = vertexBuffer->GetNativeHandle();
+            ID3D11Buffer *dx11VertexBuffer = vertexBuffer->GetHandle();
 
             context->IASetVertexBuffers(
                 0,
@@ -102,7 +102,7 @@ namespace Nexus::Graphics
 #endif
     }
 
-    void CommandListDX11::SetIndexBuffer(Ref<DeviceBuffer> indexBuffer)
+    void CommandListDX11::SetIndexBuffer(Ref<IndexBuffer> indexBuffer)
     {
 #if defined(NX_PLATFORM_DX11)
 
@@ -112,11 +112,11 @@ namespace Nexus::Graphics
         {
             Ref<CommandListDX11> dxCommandList = std::dynamic_pointer_cast<CommandListDX11>(commandList);
             auto graphicsDevice = dxCommandList->GetGraphicsDevice();
-            auto indexBuffer = (DeviceBufferDX11 *)dxCommandList->GetCurrentCommandData();
+            auto indexBuffer = (IndexBufferDX11 *)dxCommandList->GetCurrentCommandData();
 
             auto context = graphicsDevice->GetDeviceContext();
 
-            ID3D11Buffer *dx11IndexBuffer = indexBuffer->GetNativeHandle();
+            ID3D11Buffer *dx11IndexBuffer = indexBuffer->GetHandle();
 
             context->IASetIndexBuffer(
                 dx11IndexBuffer,
@@ -201,7 +201,7 @@ namespace Nexus::Graphics
 #endif
     }
 
-    void CommandListDX11::UpdateUniformBuffer(Ref<DeviceBuffer> buffer, void *data, uint32_t size, uint32_t offset)
+    void CommandListDX11::UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset)
     {
 #if defined(NX_PLATFORM_DX11)
 

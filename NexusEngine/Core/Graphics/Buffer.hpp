@@ -47,14 +47,32 @@ namespace Nexus::Graphics
         BufferUsage Usage = BufferUsage::Invalid;
     };
 
-    /// @brief A class representing a buffer that is stored on the GPU
-    class DeviceBuffer
+    class VertexBuffer
     {
     public:
-        /// @brief A constructor to create a new buffer from a given description and optional pointer to data to upload
-        /// @param description A struct representing how the buffer should be created
-        /// @param data An optional pointer to the data to upload, leave as nullptr to upload data later
-        DeviceBuffer(const BufferDescription &description, const void *data)
+        VertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
+            : m_Description(description), m_Layout(layout) {}
+
+        /// @brief A pure virtual method to upload data to the GPU
+        /// @param data A pointer to the data to upload
+        /// @param size The total size in bytes of the data to upload
+        /// @param offset An offset into the buffer to upload data to
+        virtual void SetData(const void *data, uint32_t size, uint32_t offset) = 0;
+
+        /// @brief A method that returns the buffer description that was used to create the buffer
+        /// @return A const reference to the BufferDescription
+        const BufferDescription &GetDescription() { return m_Description; }
+        const VertexBufferLayout &GetLayout() { return m_Layout; }
+
+    protected:
+        BufferDescription m_Description;
+        VertexBufferLayout m_Layout;
+    };
+
+    class IndexBuffer
+    {
+    public:
+        IndexBuffer(const BufferDescription &description, const void *data)
             : m_Description(description) {}
 
         /// @brief A pure virtual method to upload data to the GPU
@@ -68,7 +86,26 @@ namespace Nexus::Graphics
         const BufferDescription &GetDescription() { return m_Description; }
 
     protected:
-        /// @brief A struct containing the specification that the buffer was created with
+        BufferDescription m_Description;
+    };
+
+    class UniformBuffer
+    {
+    public:
+        UniformBuffer(const BufferDescription &description, const void *data)
+            : m_Description(description) {}
+
+        /// @brief A pure virtual method to upload data to the GPU
+        /// @param data A pointer to the data to upload
+        /// @param size The total size in bytes of the data to upload
+        /// @param offset An offset into the buffer to upload data to
+        virtual void SetData(const void *data, uint32_t size, uint32_t offset) = 0;
+
+        /// @brief A method that returns the buffer description that was used to create the buffer
+        /// @return A const reference to the BufferDescription
+        const BufferDescription &GetDescription() { return m_Description; }
+
+    protected:
         BufferDescription m_Description;
     };
 }

@@ -31,23 +31,19 @@ namespace Nexus::Graphics
         }
     }
 
-    DeviceBufferOpenGL::DeviceBufferOpenGL(const BufferDescription &description, const void *data)
-        : DeviceBuffer(description, data)
+    VertexBufferOpenGL::VertexBufferOpenGL(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
+        : VertexBuffer(description, data, layout)
     {
-        GLenum bufferType = GetBufferType(m_Description.Type);
         GLenum bufferUsage = GetBufferUsage(m_Description.Usage);
 
         GL::ClearErrors();
-
         glGenBuffers(1, &m_Buffer);
-        glBindBuffer(bufferType, m_Buffer);
-        // glBufferSubData(bufferType, 0, description.Size, data);
-        glBufferData(bufferType, description.Size, data, bufferUsage);
-
+        glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);
+        glBufferData(GL_ARRAY_BUFFER, description.Size, data, bufferUsage);
         GL::CheckErrors();
     }
 
-    void DeviceBufferOpenGL::SetData(const void *data, uint32_t size, uint32_t offset)
+    void VertexBufferOpenGL::SetData(const void *data, uint32_t size, uint32_t offset)
     {
         if (m_Description.Usage == BufferUsage::Static)
         {
@@ -55,19 +51,78 @@ namespace Nexus::Graphics
             return;
         }
 
-        GLenum bufferType = GetBufferType(m_Description.Type);
-
-        glBindBuffer(bufferType, m_Buffer);
-        glBufferSubData(bufferType, offset, size, data);
+        glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);
+        glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
     }
 
-    void DeviceBufferOpenGL::Bind()
+    void VertexBufferOpenGL::Bind()
     {
-        GLenum bufferType = GetBufferType(m_Description.Type);
-        glBindBuffer(bufferType, m_Buffer);
+        glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);
     }
 
-    unsigned int DeviceBufferOpenGL::GetHandle()
+    unsigned int VertexBufferOpenGL::GetHandle()
+    {
+        return m_Buffer;
+    }
+
+    IndexBufferOpenGL::IndexBufferOpenGL(const BufferDescription &description, const void *data)
+        : IndexBuffer(description, data)
+    {
+        GLenum bufferUsage = GetBufferUsage(m_Description.Usage);
+
+        GL::ClearErrors();
+        glGenBuffers(1, &m_Buffer);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, description.Size, data, bufferUsage);
+        GL::CheckErrors();
+    }
+
+    void IndexBufferOpenGL::SetData(const void *data, uint32_t size, uint32_t offset)
+    {
+        if (m_Description.Usage == BufferUsage::Static)
+        {
+            throw std::runtime_error("Attempting to upload data to a static buffer");
+            return;
+        }
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer);
+        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset, size, data);
+    }
+
+    void IndexBufferOpenGL::Bind()
+    {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer);
+    }
+
+    unsigned int IndexBufferOpenGL::GetHandle()
+    {
+        return m_Buffer;
+    }
+
+    UniformBufferOpenGL::UniformBufferOpenGL(const BufferDescription &description, const void *data)
+        : UniformBuffer(description, data)
+    {
+        GLenum bufferUsage = GetBufferUsage(m_Description.Usage);
+
+        GL::ClearErrors();
+        glGenBuffers(1, &m_Buffer);
+        glBindBuffer(GL_UNIFORM_BUFFER, m_Buffer);
+        glBufferData(GL_UNIFORM_BUFFER, description.Size, data, bufferUsage);
+        GL::CheckErrors();
+    }
+
+    void UniformBufferOpenGL::SetData(const void *data, uint32_t size, uint32_t offset)
+    {
+        if (m_Description.Usage == BufferUsage::Static)
+        {
+            throw std::runtime_error("Attempting to upload data to a static buffer");
+            return;
+        }
+
+        glBindBuffer(GL_UNIFORM_BUFFER, m_Buffer);
+        glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
+    }
+    unsigned int UniformBufferOpenGL::GetHandle()
     {
         return m_Buffer;
     }

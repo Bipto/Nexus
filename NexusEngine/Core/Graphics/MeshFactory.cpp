@@ -73,13 +73,13 @@ namespace Nexus::Graphics
         vertexBufferDesc.Size = vertices.size() * sizeof(VertexPositionTexCoordNormalTangentBitangent);
         vertexBufferDesc.Type = Nexus::Graphics::BufferType::Vertex;
         vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-        auto vertexBuffer = m_Device->CreateDeviceBuffer(vertexBufferDesc, fullVertices.data());
+        auto vertexBuffer = m_Device->CreateVertexBuffer(vertexBufferDesc, fullVertices.data(), VertexPositionTexCoordNormalTangentBitangent::GetLayout());
 
         Nexus::Graphics::BufferDescription indexBufferDesc;
         indexBufferDesc.Size = indices.size() * sizeof(unsigned int);
         indexBufferDesc.Type = Nexus::Graphics::BufferType::Index;
         indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-        auto indexBuffer = m_Device->CreateDeviceBuffer(indexBufferDesc, indices.data());
+        auto indexBuffer = m_Device->CreateIndexBuffer(indexBufferDesc, indices.data());
 
         return Mesh(vertexBuffer, indexBuffer);
     }
@@ -103,13 +103,13 @@ namespace Nexus::Graphics
         vertexBufferDesc.Size = vertices.size() * sizeof(VertexPositionTexCoordNormalTangentBitangent);
         vertexBufferDesc.Type = Nexus::Graphics::BufferType::Vertex;
         vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-        auto vertexBuffer = m_Device->CreateDeviceBuffer(vertexBufferDesc, vertices.data());
+        auto vertexBuffer = m_Device->CreateVertexBuffer(vertexBufferDesc, vertices.data(), VertexPositionTexCoordNormalTangentBitangent::GetLayout());
 
         Nexus::Graphics::BufferDescription indexBufferDesc;
         indexBufferDesc.Size = indices.size() * sizeof(unsigned int);
         indexBufferDesc.Type = Nexus::Graphics::BufferType::Index;
         indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-        auto indexBuffer = m_Device->CreateDeviceBuffer(indexBufferDesc, indices.data());
+        auto indexBuffer = m_Device->CreateIndexBuffer(indexBufferDesc, indices.data());
 
         return Mesh(vertexBuffer, indexBuffer);
     }

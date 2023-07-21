@@ -30,9 +30,11 @@ namespace Nexus::Graphics
         virtual Ref<Texture> CreateTexture(TextureSpecification spec) override;
         virtual Ref<Framebuffer> CreateFramebuffer(const FramebufferSpecification &spec) override;
         virtual Ref<Pipeline> CreatePipeline(const PipelineDescription &description) override;
-        virtual Ref<DeviceBuffer> CreateDeviceBuffer(const BufferDescription &description, const void *data = nullptr) override;
-
         virtual Ref<CommandList> CreateCommandList() override;
+
+        virtual Ref<VertexBuffer> CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout) override;
+        virtual Ref<IndexBuffer> CreateIndexBuffer(const BufferDescription &description, const void *data) override;
+        virtual Ref<UniformBuffer> CreateUniformBuffer(const BufferDescription &description, const void *data) override;
 
         virtual void InitialiseImGui() override;
         virtual void BeginImGuiRender() override;

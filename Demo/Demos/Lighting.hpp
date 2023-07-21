@@ -55,7 +55,7 @@ namespace Demos
             cameraUniformBufferDesc.Type = Nexus::Graphics::BufferType::Uniform;
             cameraUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
 
-            m_CameraUniformBuffer = m_GraphicsDevice->CreateDeviceBuffer(cameraUniformBufferDesc);
+            m_CameraUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(cameraUniformBufferDesc, nullptr);
             m_Shader->BindUniformBuffer(m_CameraUniformBuffer, cameraUniformBinding);
 
             Nexus::Graphics::UniformResourceBinding transformUniformBinding;
@@ -67,7 +67,7 @@ namespace Demos
             transformUniformBufferDesc.Size = sizeof(VB_UNIFORM_TRANSFORM_DEMO_LIGHTING);
             transformUniformBufferDesc.Type = Nexus::Graphics::BufferType::Uniform;
             transformUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
-            m_TransformUniformBuffer = m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc);
+            m_TransformUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(transformUniformBufferDesc, nullptr);
             m_Shader->BindUniformBuffer(m_TransformUniformBuffer, transformUniformBinding);
 
             m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, -2.5f));
@@ -166,10 +166,10 @@ namespace Demos
         glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
 
         VB_UNIFORM_CAMERA_DEMO_LIGHTING m_CameraUniforms;
-        Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_CameraUniformBuffer;
+        Nexus::Ref<Nexus::Graphics::UniformBuffer> m_CameraUniformBuffer;
 
         VB_UNIFORM_TRANSFORM_DEMO_LIGHTING m_TransformUniforms;
-        Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_TransformUniformBuffer;
+        Nexus::Ref<Nexus::Graphics::UniformBuffer> m_TransformUniformBuffer;
 
         Nexus::FirstPersonCamera m_Camera;
 

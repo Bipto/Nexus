@@ -68,7 +68,7 @@ namespace Nexus::Graphics
         return m_Layout;
     }
 
-    void ShaderOpenGL::BindUniformBuffer(Ref<DeviceBuffer> uniformBuffer, const UniformResourceBinding &binding)
+    void ShaderOpenGL::BindUniformBuffer(Ref<UniformBuffer> uniformBuffer, const UniformResourceBinding &binding)
     {
         if (uniformBuffer->GetDescription().Type != BufferType::Uniform)
         {
@@ -76,7 +76,7 @@ namespace Nexus::Graphics
             return;
         }
 
-        auto uniformBufferGL = std::dynamic_pointer_cast<DeviceBufferOpenGL>(uniformBuffer);
+        auto uniformBufferGL = std::dynamic_pointer_cast<UniformBufferOpenGL>(uniformBuffer);
         unsigned int index = glGetUniformBlockIndex(m_ProgramHandle, binding.Name.c_str());
 
         glBindBuffer(GL_UNIFORM_BUFFER, uniformBufferGL->GetHandle());

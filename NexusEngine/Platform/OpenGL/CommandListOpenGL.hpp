@@ -17,15 +17,15 @@ namespace Nexus::Graphics
         virtual void Begin(const CommandListBeginInfo &beginInfo) override;
         virtual void End() override;
 
-        virtual void SetVertexBuffer(Ref<DeviceBuffer> vertexBuffer) override;
-        virtual void SetIndexBuffer(Ref<DeviceBuffer> indexBuffer) override;
+        virtual void SetVertexBuffer(Ref<VertexBuffer> vertexBuffer) override;
+        virtual void SetIndexBuffer(Ref<IndexBuffer> indexBuffer) override;
         virtual void SetPipeline(Ref<Pipeline> pipeline) override;
 
         virtual void DrawElements(uint32_t start, uint32_t count) override;
         virtual void DrawIndexed(uint32_t count, uint32_t offset) override;
 
         virtual void UpdateTexture(Ref<Texture> texture, Ref<Shader> shader, const TextureBinding &binding) override;
-        virtual void UpdateUniformBuffer(Ref<DeviceBuffer> buffer, void *data, uint32_t size, uint32_t offset) override;
+        virtual void UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset) override;
 
         virtual const ClearValue &GetClearColorValue() override;
         virtual const float GetClearDepthValue() override;
@@ -40,7 +40,7 @@ namespace Nexus::Graphics
         void *GetCurrentCommandData();
 
         GLenum GetTopology();
-        Pipeline* GetCurrentPipeline();
+        Pipeline *GetCurrentPipeline();
         const std::array<RenderCommand, 1000> &GetRenderCommands();
         uint32_t GetCommandCount();
 

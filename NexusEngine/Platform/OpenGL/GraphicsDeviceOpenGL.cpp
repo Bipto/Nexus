@@ -176,8 +176,7 @@ namespace Nexus::Graphics
     {
         glBindVertexArray(m_VAO);
 
-        Ref<CommandListOpenGL>
-            commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
+        Ref<CommandListOpenGL> commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
         auto &commands = commandListGL->GetRenderCommands();
         auto commandCount = commandListGL->GetCommandCount();
 
@@ -239,14 +238,24 @@ namespace Nexus::Graphics
         return CreateRef<PipelineOpenGL>(description);
     }
 
-    Ref<DeviceBuffer> GraphicsDeviceOpenGL::CreateDeviceBuffer(const BufferDescription &description, const void *data)
-    {
-        return CreateRef<DeviceBufferOpenGL>(description, data);
-    }
-
     Ref<CommandList> GraphicsDeviceOpenGL::CreateCommandList()
     {
         return CreateRef<CommandListOpenGL>(this);
+    }
+
+    Ref<VertexBuffer> GraphicsDeviceOpenGL::CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
+    {
+        return CreateRef<VertexBufferOpenGL>(description, data, layout);
+    }
+
+    Ref<IndexBuffer> GraphicsDeviceOpenGL::CreateIndexBuffer(const BufferDescription &description, const void *data)
+    {
+        return CreateRef<IndexBufferOpenGL>(description, data);
+    }
+
+    Ref<UniformBuffer> GraphicsDeviceOpenGL::CreateUniformBuffer(const BufferDescription &description, const void *data)
+    {
+        return CreateRef<UniformBufferOpenGL>(description, data);
     }
 
     void GraphicsDeviceOpenGL::InitialiseImGui()

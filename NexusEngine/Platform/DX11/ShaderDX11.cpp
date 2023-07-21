@@ -148,7 +148,7 @@ namespace Nexus::Graphics
         return m_FragmentShaderSource;
     }
 
-    void ShaderDX11::BindUniformBuffer(Ref<DeviceBuffer> uniformBuffer, const UniformResourceBinding &binding)
+    void ShaderDX11::BindUniformBuffer(Ref<UniformBuffer> uniformBuffer, const UniformResourceBinding &binding)
     {
         if (uniformBuffer->GetDescription().Type != BufferType::Uniform)
         {
@@ -156,8 +156,8 @@ namespace Nexus::Graphics
             return;
         }
 
-        auto uniformBufferDX = std::dynamic_pointer_cast<DeviceBufferDX11>(uniformBuffer);
-        auto bufferHandle = uniformBufferDX->GetNativeHandle();
+        auto uniformBufferDX = std::dynamic_pointer_cast<UniformBufferDX11>(uniformBuffer);
+        auto bufferHandle = uniformBufferDX->GetHandle();
 
         m_ContextPtr->VSSetConstantBuffers(
             binding.Binding,
