@@ -25,6 +25,7 @@ namespace Nexus::Graphics
         m_IndexedCommandIndex = 0;
         m_TextureCommandIndex = 0;
 
+        m_Commands.clear();
         m_Pipelines.clear();
         m_ElementCommands.clear();
         m_IndexedCommands.clear();
@@ -33,7 +34,7 @@ namespace Nexus::Graphics
         m_CommandListBeginInfo.ClearValue = beginInfo.ClearValue;
         m_CommandListBeginInfo.DepthValue = beginInfo.DepthValue;
 
-        m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
             Ref<CommandListDX11> dxCommandList = std::dynamic_pointer_cast<CommandListDX11>(commandList);
             auto graphicsDevice = dxCommandList->GetGraphicsDevice();
@@ -63,6 +64,7 @@ namespace Nexus::Graphics
                     commandList->GetClearStencilValue());
             }
         };
+        m_Commands.push_back(renderCommand);
 #endif
     }
 
@@ -76,7 +78,7 @@ namespace Nexus::Graphics
 
         m_CommandData.push_back(vertexBuffer.get());
 
-        m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
             Ref<CommandListDX11> dxCommandList = std::dynamic_pointer_cast<CommandListDX11>(commandList);
             auto graphicsDevice = dxCommandList->GetGraphicsDevice();
@@ -99,6 +101,7 @@ namespace Nexus::Graphics
                 &stride,
                 &offset);
         };
+        m_Commands.push_back(renderCommand);
 #endif
     }
 
@@ -108,7 +111,7 @@ namespace Nexus::Graphics
 
         m_CommandData.push_back(indexBuffer.get());
 
-        m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
             Ref<CommandListDX11> dxCommandList = std::dynamic_pointer_cast<CommandListDX11>(commandList);
             auto graphicsDevice = dxCommandList->GetGraphicsDevice();
@@ -123,6 +126,7 @@ namespace Nexus::Graphics
                 DXGI_FORMAT_R32_UINT,
                 0);
         };
+        m_Commands.push_back(renderCommand);
 #endif
     }
 
@@ -131,11 +135,12 @@ namespace Nexus::Graphics
 #if defined(NX_PLATFORM_DX11)
         m_CommandData.push_back(pipeline.get());
 
-        m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
             Ref<CommandListDX11> dxCommandList = std::dynamic_pointer_cast<CommandListDX11>(commandList);
             dxCommandList->BindNextPipeline();
         };
+        m_Commands.push_back(renderCommand);
 #endif
     }
     void CommandListDX11::DrawElements(uint32_t start, uint32_t count)
@@ -147,7 +152,7 @@ namespace Nexus::Graphics
         command.Count = count;
         m_ElementCommands.push_back(command);
 
-        m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
             Ref<CommandListDX11> dxCommandList = std::dynamic_pointer_cast<CommandListDX11>(commandList);
             auto graphicsDevice = dxCommandList->GetGraphicsDevice();
@@ -156,6 +161,7 @@ namespace Nexus::Graphics
 
             context->Draw(drawCommand.Count, drawCommand.Start);
         };
+        m_Commands.push_back(renderCommand);
 #endif
     }
 
@@ -168,7 +174,7 @@ namespace Nexus::Graphics
         command.Offset = offset;
         m_IndexedCommands.push_back(command);
 
-        m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
             Ref<CommandListDX11> dxCommandList = std::dynamic_pointer_cast<CommandListDX11>(commandList);
             auto graphicsDevice = dxCommandList->GetGraphicsDevice();
@@ -177,6 +183,7 @@ namespace Nexus::Graphics
 
             context->DrawIndexed(drawCommand.Count, drawCommand.Offset, 0);
         };
+        m_Commands.push_back(renderCommand);
 #endif
     }
 
@@ -190,7 +197,7 @@ namespace Nexus::Graphics
         command.Binding = binding;
         m_TextureUpdateCommands.push_back(command);
 
-        m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
             auto textureCommand = commandList->GetCurrentTextureUpdateCommand();
 
@@ -198,6 +205,7 @@ namespace Nexus::Graphics
                 textureCommand.Texture,
                 textureCommand.Binding);
         };
+        m_Commands.push_back(renderCommand);
 #endif
     }
 
@@ -213,7 +221,7 @@ namespace Nexus::Graphics
         memcpy(command.Data, data, size);
         m_UniformBufferUpdateCommands.push_back(command);
 
-        m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
             auto uniformBufferCommand = commandList->GetCurrentUniformBufferUpdateCommand();
             uniformBufferCommand.Buffer->SetData(
@@ -221,6 +229,7 @@ namespace Nexus::Graphics
                 uniformBufferCommand.Size,
                 uniformBufferCommand.Offset);
         };
+        m_Commands.push_back(renderCommand);
 #endif
     }
 
@@ -293,14 +302,8 @@ namespace Nexus::Graphics
     {
         return m_CommandData[m_CommandDataIndex++];
     }
-
-    const std::array<RenderCommand, 1000> &CommandListDX11::GetRenderCommands()
+    const std::vector<RenderCommand> &CommandListDX11::GetRenderCommands()
     {
         return m_Commands;
-    }
-
-    uint32_t CommandListDX11::GetCommandCount()
-    {
-        return m_CommandIndex;
     }
 }

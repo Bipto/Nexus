@@ -48,13 +48,13 @@ namespace Nexus::Graphics
 #if defined(NX_PLATFORM_DX11)
         D3D11_PRIMITIVE_TOPOLOGY GetTopology();
 #endif
-        const std::array<RenderCommand, 1000> &GetRenderCommands();
+        const std::vector<RenderCommand> &GetRenderCommands();
         uint32_t GetCommandCount();
 
         GraphicsDeviceDX11 *GetGraphicsDevice() { return m_GraphicsDevice; }
 
     private:
-        std::array<RenderCommand, 1000> m_Commands;
+        std::vector<RenderCommand> m_Commands;
         uint32_t m_CommandIndex = 0;
 
         CommandListBeginInfo m_CommandListBeginInfo;

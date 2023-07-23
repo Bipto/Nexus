@@ -22,6 +22,7 @@ namespace Nexus::Graphics
 
         m_CommandDataIndex = 0;
 
+        m_Commands.clear();
         m_Pipelines.clear();
         m_ElementCommands.clear();
         m_IndexedCommands.clear();
@@ -32,7 +33,7 @@ namespace Nexus::Graphics
         m_CommandListBeginInfo.DepthValue = beginInfo.DepthValue;
         m_CommandListBeginInfo.StencilValue = beginInfo.StencilValue;
 
-        m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
             auto color = commandList->GetClearColorValue();
 
@@ -45,6 +46,7 @@ namespace Nexus::Graphics
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         };
+        m_Commands.push_back(renderCommand);
     }
 
     void CommandListOpenGL::End()
@@ -57,12 +59,13 @@ namespace Nexus::Graphics
         m_CommandData.push_back(vertexBuffer.get());
         auto vb = (VertexBufferOpenGL *)vertexBuffer.get();
 
-        m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
             auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             auto vertexBuffer = (VertexBufferOpenGL *)commandListGL->GetCurrentCommandData();
             vertexBuffer->Bind();
         };
+        m_Commands.push_back(renderCommand);
     }
 
     void CommandListOpenGL::SetIndexBuffer(Ref<IndexBuffer> indexBuffer)
@@ -71,12 +74,13 @@ namespace Nexus::Graphics
         m_CommandData.push_back(indexBuffer.get());
         auto ib = (IndexBufferOpenGL *)indexBuffer.get();
 
-        m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
             auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             auto indexBuffer = (IndexBufferOpenGL *)commandListGL->GetCurrentCommandData();
             indexBuffer->Bind();
         };
+        m_Commands.push_back(renderCommand);
     }
 
     void CommandListOpenGL::SetPipeline(Ref<Pipeline> pipeline)
@@ -84,7 +88,7 @@ namespace Nexus::Graphics
         // m_Pipelines.push_back(pipeline);
         m_CommandData.push_back(pipeline.get());
 
-        m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
             // commandList->BindNextPipeline();
 
@@ -93,6 +97,7 @@ namespace Nexus::Graphics
             pipeline->Bind();
             commandListGL->SetCurrentPipeline(pipeline);
         };
+        m_Commands.push_back(renderCommand);
     }
 
     void CommandListOpenGL::DrawElements(uint32_t start, uint32_t count)
@@ -102,12 +107,13 @@ namespace Nexus::Graphics
         command.Count = count;
         m_ElementCommands.push_back(command);
 
-        m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
             Ref<CommandListOpenGL> oglCL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             auto drawCommand = oglCL->GetCurrentDrawElementCommand();
             glDrawArrays(oglCL->GetTopology(), drawCommand.Start, drawCommand.Count);
         };
+        m_Commands.push_back(renderCommand);
     }
 
     void CommandListOpenGL::DrawIndexed(uint32_t count, uint32_t offset)
@@ -117,13 +123,14 @@ namespace Nexus::Graphics
         command.Offset = offset;
         m_IndexedCommands.push_back(command);
 
-        m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
             Ref<CommandListOpenGL> oglCL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             auto drawCommand = oglCL->GetCurrentDrawIndexedCommand();
             auto topology = oglCL->GetTopology();
             glDrawElements(topology, drawCommand.Count, GL_UNSIGNED_INT, (void *)drawCommand.Offset);
         };
+        m_Commands.push_back(renderCommand);
     }
 
     void CommandListOpenGL::UpdateTexture(Ref<Texture> texture, Ref<Shader> shader, const TextureBinding &binding)
@@ -134,7 +141,7 @@ namespace Nexus::Graphics
         command.Binding = binding;
         m_TextureUpdateCommands.push_back(command);
 
-        m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
             auto textureCommand = commandList->GetCurrentTextureUpdateCommand();
 
@@ -142,6 +149,7 @@ namespace Nexus::Graphics
                 textureCommand.Texture,
                 textureCommand.Binding);
         };
+        m_Commands.push_back(renderCommand);
     }
 
     void CommandListOpenGL::UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset)
@@ -154,7 +162,7 @@ namespace Nexus::Graphics
         memcpy(command.Data, data, size);
         m_UniformBufferUpdateCommands.push_back(command);
 
-        m_Commands[m_CommandIndex++] = [](Ref<CommandList> commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
             auto uniformBufferCommand = commandList->GetCurrentUniformBufferUpdateCommand();
             uniformBufferCommand.Buffer->SetData(
@@ -162,6 +170,7 @@ namespace Nexus::Graphics
                 uniformBufferCommand.Size,
                 uniformBufferCommand.Offset);
         };
+        m_Commands.push_back(renderCommand);
     }
 
     const ClearValue &CommandListOpenGL::GetClearColorValue()
@@ -246,7 +255,7 @@ namespace Nexus::Graphics
         return m_CurrentPipeline;
     }
 
-    const std::array<RenderCommand, 1000> &CommandListOpenGL::GetRenderCommands()
+    const std::vector<RenderCommand> &CommandListOpenGL::GetRenderCommands()
     {
         return m_Commands;
     }

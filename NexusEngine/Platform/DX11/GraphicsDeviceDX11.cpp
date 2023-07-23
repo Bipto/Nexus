@@ -162,11 +162,16 @@ namespace Nexus::Graphics
     {
         Ref<CommandListDX11> commandListDX11 = std::dynamic_pointer_cast<CommandListDX11>(commandList);
         auto &commands = commandListDX11->GetRenderCommands();
-        auto commandCount = commandListDX11->GetCommandCount();
+        /* auto commandCount = commandListDX11->GetCommandCount();
 
         for (int i = 0; i < commandCount; i++)
         {
             commands[i](commandListDX11);
+        } */
+
+        for (auto &command : commands)
+        {
+            command(commandList);
         }
     }
 

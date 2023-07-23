@@ -173,11 +173,16 @@ namespace Nexus::Graphics
     {
         Ref<CommandListOpenGL> commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
         auto &commands = commandListGL->GetRenderCommands();
-        auto commandCount = commandListGL->GetCommandCount();
+        /* auto commandCount = commandListGL->GetCommandCount();
 
         for (int i = 0; i < commandCount; i++)
         {
             RenderCommand command = commands[i];
+            command(commandList);
+        } */
+
+        for (auto &command : commands)
+        {
             command(commandList);
         }
     }
