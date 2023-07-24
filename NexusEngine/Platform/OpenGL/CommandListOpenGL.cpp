@@ -10,39 +10,36 @@
 
 namespace Nexus::Graphics
 {
+    CommandListOpenGL::CommandListOpenGL(GraphicsDevice *device)
+        : m_Device(device)
+    {
+        const uint32_t initialCommandCount = 100000;
+        m_Commands.resize(initialCommandCount);
+        m_CommandData.resize(initialCommandCount);
+    }
+
     void CommandListOpenGL::Begin(const CommandListBeginInfo &beginInfo)
     {
         m_CommandIndex = 0;
-        m_VertexBufferIndex = 0;
-        m_IndexBufferIndex = 0;
-        m_PipelineIndex = 0;
-        m_ElementCommandIndex = 0;
-        m_IndexedCommandIndex = 0;
-        m_TextureCommandIndex = 0;
-
-        m_CommandDataIndex = 0;
-
         m_Commands.clear();
-        m_Pipelines.clear();
-        m_ElementCommands.clear();
-        m_IndexedCommands.clear();
-        m_TextureUpdateCommands.clear();
         m_CommandData.clear();
 
-        m_CommandListBeginInfo.ClearValue = beginInfo.ClearValue;
-        m_CommandListBeginInfo.DepthValue = beginInfo.DepthValue;
-        m_CommandListBeginInfo.StencilValue = beginInfo.StencilValue;
+        m_CommandData.emplace_back(beginInfo);
 
         auto renderCommand = [](Ref<CommandList> commandList)
         {
-            auto color = commandList->GetClearColorValue();
+            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
+            const auto &commandData = commandListGL->GetCurrentCommandData();
+            const auto &beginInfo = std::get<CommandListBeginInfo>(commandData);
+
+            auto color = beginInfo.ClearValue;
 
             glClearColor(color.Red,
                          color.Green,
                          color.Blue,
                          color.Alpha);
-            glClearDepthf(commandList->GetClearDepthValue());
-            glClearStencil(commandList->GetClearStencilValue());
+            glClearDepthf(beginInfo.DepthValue);
+            glClearStencil(beginInfo.StencilValue);
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         };
@@ -55,47 +52,41 @@ namespace Nexus::Graphics
 
     void CommandListOpenGL::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer)
     {
-        // m_VertexBuffers.push_back(vertexBuffer);
-        m_CommandData.push_back(vertexBuffer.get());
-        auto vb = (VertexBufferOpenGL *)vertexBuffer.get();
-
+        m_CommandData.emplace_back(vertexBuffer);
         auto renderCommand = [](Ref<CommandList> commandList)
         {
             auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
-            auto vertexBuffer = (VertexBufferOpenGL *)commandListGL->GetCurrentCommandData();
-            vertexBuffer->Bind();
+            const auto &commandData = commandListGL->GetCurrentCommandData();
+            const auto vertexBuffer = std::get<Ref<VertexBuffer>>(commandData);
+            const auto vertexBufferGL = std::dynamic_pointer_cast<VertexBufferOpenGL>(vertexBuffer);
+            vertexBufferGL->Bind();
         };
         m_Commands.push_back(renderCommand);
     }
 
     void CommandListOpenGL::SetIndexBuffer(Ref<IndexBuffer> indexBuffer)
     {
-        // m_IndexBuffers.push_back(indexBuffer);
-        m_CommandData.push_back(indexBuffer.get());
-        auto ib = (IndexBufferOpenGL *)indexBuffer.get();
-
+        m_CommandData.emplace_back(indexBuffer);
         auto renderCommand = [](Ref<CommandList> commandList)
         {
             auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
-            auto indexBuffer = (IndexBufferOpenGL *)commandListGL->GetCurrentCommandData();
-            indexBuffer->Bind();
+            const auto &commandData = commandListGL->GetCurrentCommandData();
+            const auto indexBuffer = std::get<Ref<IndexBuffer>>(commandData);
+            const auto indexBufferGL = std::dynamic_pointer_cast<IndexBufferOpenGL>(indexBuffer);
+            indexBufferGL->Bind();
         };
         m_Commands.push_back(renderCommand);
     }
 
     void CommandListOpenGL::SetPipeline(Ref<Pipeline> pipeline)
     {
-        // m_Pipelines.push_back(pipeline);
-        m_CommandData.push_back(pipeline.get());
-
+        m_CommandData.emplace_back(pipeline);
         auto renderCommand = [](Ref<CommandList> commandList)
         {
-            // commandList->BindNextPipeline();
-
             auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
-            auto pipeline = (PipelineOpenGL *)commandListGL->GetCurrentCommandData();
-            pipeline->Bind();
-            commandListGL->SetCurrentPipeline(pipeline);
+            const auto &commandData = commandListGL->GetCurrentCommandData();
+            const auto pipeline = std::get<Ref<Pipeline>>(commandData);
+            commandListGL->BindPipeline(pipeline);
         };
         m_Commands.push_back(renderCommand);
     }
@@ -105,13 +96,14 @@ namespace Nexus::Graphics
         DrawElementCommand command;
         command.Start = start;
         command.Count = count;
-        m_ElementCommands.push_back(command);
+        m_CommandData.emplace_back(command);
 
         auto renderCommand = [](Ref<CommandList> commandList)
         {
-            Ref<CommandListOpenGL> oglCL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
-            auto drawCommand = oglCL->GetCurrentDrawElementCommand();
-            glDrawArrays(oglCL->GetTopology(), drawCommand.Start, drawCommand.Count);
+            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
+            const auto &commandData = commandListGL->GetCurrentCommandData();
+            const auto &drawElementsCommand = std::get<DrawElementCommand>(commandData);
+            glDrawArrays(commandListGL->GetTopology(), drawElementsCommand.Start, drawElementsCommand.Count);
         };
         m_Commands.push_back(renderCommand);
     }
@@ -121,14 +113,14 @@ namespace Nexus::Graphics
         DrawIndexedCommand command;
         command.Count = count;
         command.Offset = offset;
-        m_IndexedCommands.push_back(command);
+        m_CommandData.emplace_back(command);
 
         auto renderCommand = [](Ref<CommandList> commandList)
         {
-            Ref<CommandListOpenGL> oglCL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
-            auto drawCommand = oglCL->GetCurrentDrawIndexedCommand();
-            auto topology = oglCL->GetTopology();
-            glDrawElements(topology, drawCommand.Count, GL_UNSIGNED_INT, (void *)drawCommand.Offset);
+            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
+            const auto &commandData = commandListGL->GetCurrentCommandData();
+            const auto &drawIndexedCommand = std::get<DrawIndexedCommand>(commandData);
+            glDrawElements(commandListGL->GetTopology(), drawIndexedCommand.Count, GL_UNSIGNED_INT, (void *)drawIndexedCommand.Offset);
         };
         m_Commands.push_back(renderCommand);
     }
@@ -139,15 +131,17 @@ namespace Nexus::Graphics
         command.Texture = texture;
         command.Shader = shader;
         command.Binding = binding;
-        m_TextureUpdateCommands.push_back(command);
+        m_CommandData.emplace_back(command);
 
         auto renderCommand = [](Ref<CommandList> commandList)
         {
-            auto textureCommand = commandList->GetCurrentTextureUpdateCommand();
+            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
+            const auto &commandData = commandListGL->GetCurrentCommandData();
+            const auto &updateTextureCommand = std::get<TextureUpdateCommand>(commandData);
 
-            textureCommand.Shader->SetTexture(
-                textureCommand.Texture,
-                textureCommand.Binding);
+            updateTextureCommand.Shader->SetTexture(
+                updateTextureCommand.Texture,
+                updateTextureCommand.Binding);
         };
         m_Commands.push_back(renderCommand);
     }
@@ -160,71 +154,36 @@ namespace Nexus::Graphics
         command.Size = size;
         command.Offset = offset;
         memcpy(command.Data, data, size);
-        m_UniformBufferUpdateCommands.push_back(command);
+        m_CommandData.emplace_back(command);
 
         auto renderCommand = [](Ref<CommandList> commandList)
         {
-            auto uniformBufferCommand = commandList->GetCurrentUniformBufferUpdateCommand();
-            uniformBufferCommand.Buffer->SetData(
-                uniformBufferCommand.Data,
-                uniformBufferCommand.Size,
-                uniformBufferCommand.Offset);
+            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
+            const auto &commandData = commandListGL->GetCurrentCommandData();
+            const auto &uniformBufferUpdateCommand = std::get<UniformBufferUpdateCommand>(commandData);
+
+            uniformBufferUpdateCommand.Buffer->SetData(
+                uniformBufferUpdateCommand.Data,
+                uniformBufferUpdateCommand.Size,
+                uniformBufferUpdateCommand.Offset);
         };
         m_Commands.push_back(renderCommand);
     }
 
-    const ClearValue &CommandListOpenGL::GetClearColorValue()
+    const std::vector<RenderCommand> &CommandListOpenGL::GetRenderCommands()
     {
-        return m_CommandListBeginInfo.ClearValue;
+        return m_Commands;
     }
 
-    const float CommandListOpenGL::GetClearDepthValue()
+    RenderCommandData &CommandListOpenGL::GetCurrentCommandData()
     {
-        return m_CommandListBeginInfo.DepthValue;
-    }
-
-    const uint8_t CommandListOpenGL::GetClearStencilValue()
-    {
-        return m_CommandListBeginInfo.StencilValue;
-    }
-
-    void CommandListOpenGL::BindNextPipeline()
-    {
-        auto pipeline = m_Pipelines[m_PipelineIndex++];
-        Ref<PipelineOpenGL> pl = std::dynamic_pointer_cast<PipelineOpenGL>(pipeline);
-        pl->Bind();
-        m_CurrentPipeline = pipeline.get();
-    }
-
-    DrawElementCommand &CommandListOpenGL::GetCurrentDrawElementCommand()
-    {
-        return m_ElementCommands[m_ElementCommandIndex++];
-    }
-
-    DrawIndexedCommand &CommandListOpenGL::GetCurrentDrawIndexedCommand()
-    {
-        return m_IndexedCommands[m_IndexedCommandIndex++];
-    }
-
-    TextureUpdateCommand &CommandListOpenGL::GetCurrentTextureUpdateCommand()
-    {
-        return m_TextureUpdateCommands[m_TextureCommandIndex++];
-    }
-
-    UniformBufferUpdateCommand &CommandListOpenGL::GetCurrentUniformBufferUpdateCommand()
-    {
-        return m_UniformBufferUpdateCommands[m_UniformBufferUpdateCommandIndex++];
-    }
-
-    void *CommandListOpenGL::GetCurrentCommandData()
-    {
-        return m_CommandData[m_CommandDataIndex++];
+        return m_CommandData[m_CommandIndex++];
     }
 
     GLenum CommandListOpenGL::GetTopology()
     {
         GLenum drawMode;
-        auto topology = m_CurrentPipeline->GetPipelineDescription().PrimitiveTopology;
+        auto topology = m_CurrentlyBoundPipeline->GetPipelineDescription().PrimitiveTopology;
 
         switch (topology)
         {
@@ -250,23 +209,10 @@ namespace Nexus::Graphics
         return drawMode;
     }
 
-    Pipeline *CommandListOpenGL::GetCurrentPipeline()
+    void CommandListOpenGL::BindPipeline(Ref<Pipeline> pipeline)
     {
-        return m_CurrentPipeline;
-    }
-
-    const std::vector<RenderCommand> &CommandListOpenGL::GetRenderCommands()
-    {
-        return m_Commands;
-    }
-
-    uint32_t CommandListOpenGL::GetCommandCount()
-    {
-        return m_CommandIndex;
-    }
-
-    void CommandListOpenGL::SetCurrentPipeline(Pipeline *pipeline)
-    {
-        m_CurrentPipeline = pipeline;
+        auto pipelineGL = std::dynamic_pointer_cast<PipelineOpenGL>(pipeline);
+        pipelineGL->Bind();
+        m_CurrentlyBoundPipeline = pipeline;
     }
 }

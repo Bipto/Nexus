@@ -8,6 +8,7 @@
 #include "Buffer.hpp"
 
 #include <functional>
+#include <variant>
 
 namespace Nexus::Graphics
 {
@@ -137,39 +138,19 @@ namespace Nexus::Graphics
         /// @param size The size of the data to be uploaded
         /// @param offset An offset to upload the data to
         virtual void UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset) = 0;
-
-        /// @brief A pure virtual method to get the clear colour value that the command list was started with
-        /// @return The current clear colour value
-        virtual const ClearValue &GetClearColorValue() = 0;
-
-        /// @brief A pure virtual method to get the clear depth value that the command list was started with
-        /// @return The current clear depth value
-        virtual const float GetClearDepthValue() = 0;
-
-        /// @brief A pure virtual method to get the clear stencil value that the command list was started with
-        /// @return The current clear stencil value
-        virtual const uint8_t GetClearStencilValue() = 0;
-
-        /// @brief A pure virtual method that will retrieve the next pipeline in the command list and bind it
-        virtual void BindNextPipeline() = 0;
-
-        /// @brief A pure virtual method to get the currently queued draw element command
-        /// @return The currently queued draw element command
-        virtual DrawElementCommand &GetCurrentDrawElementCommand() = 0;
-
-        /// @brief A pure virtual method to get the currently queued draw indexed command
-        /// @return The currently queued draw indexed command
-        virtual DrawIndexedCommand &GetCurrentDrawIndexedCommand() = 0;
-
-        /// @brief A pure virtual method to get the currently queued texture update command
-        /// @return The currently queued texture update command
-        virtual TextureUpdateCommand &GetCurrentTextureUpdateCommand() = 0;
-
-        /// @brief A pure virtual method to get the currently queued uniform buffer update command
-        /// @return The currently queued uniform buffer update command
-        virtual UniformBufferUpdateCommand &GetCurrentUniformBufferUpdateCommand() = 0;
     };
 
     /// @brief A typedef to simplify creating function pointers to render commands
     typedef void (*RenderCommand)(Ref<CommandList> commandList);
+
+    typedef std::variant<
+        CommandListBeginInfo,
+        Ref<VertexBuffer>,
+        Ref<IndexBuffer>,
+        Ref<Pipeline>,
+        TextureUpdateCommand,
+        UniformBufferUpdateCommand,
+        DrawElementCommand,
+        DrawIndexedCommand>
+        RenderCommandData;
 }

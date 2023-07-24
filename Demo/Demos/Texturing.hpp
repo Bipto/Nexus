@@ -13,7 +13,7 @@ namespace Demos
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
             m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/texturing.glsl",
-                                                                   Nexus::Graphics::VertexPositionTexCoordNormal::GetLayout());
+                                                                   Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
 
             Nexus::Graphics::PipelineDescription pipelineDescription;
             pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;

@@ -12,45 +12,39 @@ namespace Nexus::Graphics
     CommandListDX11::CommandListDX11(GraphicsDeviceDX11 *graphicsDevice)
     {
         m_GraphicsDevice = graphicsDevice;
+
+        const uint32_t initialCommandCount = 100000;
+        m_Commands.resize(initialCommandCount);
+        m_CommandData.resize(initialCommandCount);
     }
 
     void CommandListDX11::Begin(const CommandListBeginInfo &beginInfo)
     {
 #if defined(NX_PLATFORM_DX11)
-        m_CommandIndex = 0;
-        m_VertexBufferIndex = 0;
-        m_IndexBufferIndex = 0;
-        m_PipelineIndex = 0;
-        m_ElementCommandIndex = 0;
-        m_IndexedCommandIndex = 0;
-        m_TextureCommandIndex = 0;
-
         m_Commands.clear();
-        m_Pipelines.clear();
-        m_ElementCommands.clear();
-        m_IndexedCommands.clear();
-        m_TextureUpdateCommands.clear();
+        m_CommandData.clear();
+        m_CommandIndex = 0;
 
-        m_CommandListBeginInfo.ClearValue = beginInfo.ClearValue;
-        m_CommandListBeginInfo.DepthValue = beginInfo.DepthValue;
+        m_CommandData.emplace_back(beginInfo);
 
         auto renderCommand = [](Ref<CommandList> commandList)
         {
-            Ref<CommandListDX11> dxCommandList = std::dynamic_pointer_cast<CommandListDX11>(commandList);
-            auto graphicsDevice = dxCommandList->GetGraphicsDevice();
+            Ref<CommandListDX11> commandListDX11 = std::dynamic_pointer_cast<CommandListDX11>(commandList);
+            auto graphicsDevice = commandListDX11->GetGraphicsDevice();
             auto activeRenderTargetViews = graphicsDevice->GetActiveRenderTargetViews();
             auto context = graphicsDevice->GetDeviceContext();
-            auto color = commandList->GetClearColorValue();
+            const auto &commandData = commandListDX11->GetCurrentCommandData();
+            const auto &beginInfo = std::get<CommandListBeginInfo>(commandData);
+            const auto &color = beginInfo.ClearValue;
+
+            float backgroundColor[4] = {
+                color.Red,
+                color.Green,
+                color.Blue,
+                color.Alpha};
 
             for (auto target : activeRenderTargetViews)
             {
-
-                float backgroundColor[4] = {
-                    color.Red,
-                    color.Green,
-                    color.Blue,
-                    color.Alpha};
-
                 context->ClearRenderTargetView(target, backgroundColor);
             }
 
@@ -60,8 +54,8 @@ namespace Nexus::Graphics
                 context->ClearDepthStencilView(
                     depthStencilView,
                     D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
-                    commandList->GetClearDepthValue(),
-                    commandList->GetClearStencilValue());
+                    beginInfo.DepthValue,
+                    beginInfo.StencilValue);
             }
         };
         m_Commands.push_back(renderCommand);
@@ -75,29 +69,30 @@ namespace Nexus::Graphics
     void CommandListDX11::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer)
     {
 #if defined(NX_PLATFORM_DX11)
-
-        m_CommandData.push_back(vertexBuffer.get());
+        m_CommandData.emplace_back(vertexBuffer);
 
         auto renderCommand = [](Ref<CommandList> commandList)
         {
-            Ref<CommandListDX11> dxCommandList = std::dynamic_pointer_cast<CommandListDX11>(commandList);
-            auto graphicsDevice = dxCommandList->GetGraphicsDevice();
-            auto vertexBuffer = (VertexBufferDX11 *)dxCommandList->GetCurrentCommandData();
+            Ref<CommandListDX11> commandListDX11 = std::dynamic_pointer_cast<CommandListDX11>(commandList);
+            auto graphicsDevice = commandListDX11->GetGraphicsDevice();
+            auto context = graphicsDevice->GetDeviceContext();
+            const auto &commandData = commandListDX11->GetCurrentCommandData();
+            const auto vertexBuffer = std::get<Ref<VertexBuffer>>(commandData);
+            auto vertexBufferDX11 = std::dynamic_pointer_cast<VertexBufferDX11>(vertexBuffer);
 
-            auto pipeline = dxCommandList->GetCurrentPipeline();
+            auto pipeline = commandListDX11->GetCurrentPipeline();
             auto shader = pipeline->GetShader();
             auto layout = shader->GetLayout();
-            auto context = graphicsDevice->GetDeviceContext();
 
             uint32_t stride = layout.GetStride();
             uint32_t offset = 0;
 
-            ID3D11Buffer *dx11VertexBuffer = vertexBuffer->GetHandle();
+            auto nativeBuffer = vertexBufferDX11->GetHandle();
 
             context->IASetVertexBuffers(
                 0,
                 1,
-                &dx11VertexBuffer,
+                &nativeBuffer,
                 &stride,
                 &offset);
         };
@@ -108,21 +103,22 @@ namespace Nexus::Graphics
     void CommandListDX11::SetIndexBuffer(Ref<IndexBuffer> indexBuffer)
     {
 #if defined(NX_PLATFORM_DX11)
-
-        m_CommandData.push_back(indexBuffer.get());
+        m_CommandData.emplace_back(indexBuffer);
 
         auto renderCommand = [](Ref<CommandList> commandList)
         {
-            Ref<CommandListDX11> dxCommandList = std::dynamic_pointer_cast<CommandListDX11>(commandList);
-            auto graphicsDevice = dxCommandList->GetGraphicsDevice();
-            auto indexBuffer = (IndexBufferDX11 *)dxCommandList->GetCurrentCommandData();
+            Ref<CommandListDX11> commandListDX11 = std::dynamic_pointer_cast<CommandListDX11>(commandList);
+            auto graphicsDevice = commandListDX11->GetGraphicsDevice();
+            const auto &commandData = commandListDX11->GetCurrentCommandData();
 
+            auto indexBuffer = std::get<Ref<IndexBuffer>>(commandData);
             auto context = graphicsDevice->GetDeviceContext();
+            auto indexBufferDX11 = std::dynamic_pointer_cast<IndexBufferDX11>(indexBuffer);
 
-            ID3D11Buffer *dx11IndexBuffer = indexBuffer->GetHandle();
+            auto nativeBuffer = indexBufferDX11->GetHandle();
 
             context->IASetIndexBuffer(
-                dx11IndexBuffer,
+                nativeBuffer,
                 DXGI_FORMAT_R32_UINT,
                 0);
         };
@@ -133,12 +129,14 @@ namespace Nexus::Graphics
     void CommandListDX11::SetPipeline(Ref<Pipeline> pipeline)
     {
 #if defined(NX_PLATFORM_DX11)
-        m_CommandData.push_back(pipeline.get());
+        m_CommandData.emplace_back(pipeline);
 
         auto renderCommand = [](Ref<CommandList> commandList)
         {
-            Ref<CommandListDX11> dxCommandList = std::dynamic_pointer_cast<CommandListDX11>(commandList);
-            dxCommandList->BindNextPipeline();
+            Ref<CommandListDX11> commandListDX11 = std::dynamic_pointer_cast<CommandListDX11>(commandList);
+            const auto &commandData = commandListDX11->GetCurrentCommandData();
+            auto pipeline = std::get<Ref<Pipeline>>(commandData);
+            commandListDX11->BindPipeline(pipeline);
         };
         m_Commands.push_back(renderCommand);
 #endif
@@ -146,44 +144,46 @@ namespace Nexus::Graphics
     void CommandListDX11::DrawElements(uint32_t start, uint32_t count)
     {
 #if defined(NX_PLATFORM_DX11)
-
         DrawElementCommand command;
         command.Start = start;
         command.Count = count;
-        m_ElementCommands.push_back(command);
+        m_CommandData.emplace_back(command);
 
         auto renderCommand = [](Ref<CommandList> commandList)
         {
-            Ref<CommandListDX11> dxCommandList = std::dynamic_pointer_cast<CommandListDX11>(commandList);
-            auto graphicsDevice = dxCommandList->GetGraphicsDevice();
+            auto commandListDX11 = std::dynamic_pointer_cast<CommandListDX11>(commandList);
+            auto graphicsDevice = commandListDX11->GetGraphicsDevice();
             auto context = graphicsDevice->GetDeviceContext();
-            auto drawCommand = dxCommandList->GetCurrentDrawElementCommand();
+            const auto &commandData = commandListDX11->GetCurrentCommandData();
+            const auto &drawCommand = std::get<DrawElementCommand>(commandData);
 
             context->Draw(drawCommand.Count, drawCommand.Start);
         };
         m_Commands.push_back(renderCommand);
+
 #endif
     }
 
     void CommandListDX11::DrawIndexed(uint32_t count, uint32_t offset)
     {
 #if defined(NX_PLATFORM_DX11)
-
         DrawIndexedCommand command;
         command.Count = count;
         command.Offset = offset;
-        m_IndexedCommands.push_back(command);
+        m_CommandData.emplace_back(command);
 
         auto renderCommand = [](Ref<CommandList> commandList)
         {
-            Ref<CommandListDX11> dxCommandList = std::dynamic_pointer_cast<CommandListDX11>(commandList);
-            auto graphicsDevice = dxCommandList->GetGraphicsDevice();
+            auto commandListDX11 = std::dynamic_pointer_cast<CommandListDX11>(commandList);
+            auto graphicsDevice = commandListDX11->GetGraphicsDevice();
             auto context = graphicsDevice->GetDeviceContext();
-            auto drawCommand = dxCommandList->GetCurrentDrawIndexedCommand();
+            const auto &commandData = commandListDX11->GetCurrentCommandData();
+            const auto &drawCommand = std::get<DrawIndexedCommand>(commandData);
 
             context->DrawIndexed(drawCommand.Count, drawCommand.Offset, 0);
         };
         m_Commands.push_back(renderCommand);
+
 #endif
     }
 
@@ -195,15 +195,17 @@ namespace Nexus::Graphics
         command.Texture = texture;
         command.Shader = shader;
         command.Binding = binding;
-        m_TextureUpdateCommands.push_back(command);
+        m_CommandData.emplace_back(command);
 
         auto renderCommand = [](Ref<CommandList> commandList)
         {
-            auto textureCommand = commandList->GetCurrentTextureUpdateCommand();
+            auto commandListDX11 = std::dynamic_pointer_cast<CommandListDX11>(commandList);
+            const auto &commandData = commandListDX11->GetCurrentCommandData();
+            auto &textureUpdateCommand = std::get<TextureUpdateCommand>(commandData);
 
-            textureCommand.Shader->SetTexture(
-                textureCommand.Texture,
-                textureCommand.Binding);
+            textureUpdateCommand.Shader->SetTexture(
+                textureUpdateCommand.Texture,
+                textureUpdateCommand.Binding);
         };
         m_Commands.push_back(renderCommand);
 #endif
@@ -212,54 +214,61 @@ namespace Nexus::Graphics
     void CommandListDX11::UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset)
     {
 #if defined(NX_PLATFORM_DX11)
-
         UniformBufferUpdateCommand command;
         command.Buffer = buffer;
         command.Data = new char[size];
         command.Size = size;
         command.Offset = offset;
         memcpy(command.Data, data, size);
-        m_UniformBufferUpdateCommands.push_back(command);
+        m_CommandData.emplace_back(command);
 
         auto renderCommand = [](Ref<CommandList> commandList)
         {
-            auto uniformBufferCommand = commandList->GetCurrentUniformBufferUpdateCommand();
-            uniformBufferCommand.Buffer->SetData(
-                uniformBufferCommand.Data,
-                uniformBufferCommand.Size,
-                uniformBufferCommand.Offset);
+            auto commandListDX11 = std::dynamic_pointer_cast<CommandListDX11>(commandList);
+            const auto &commandData = commandListDX11->GetCurrentCommandData();
+            const auto &uniformBufferUpdateCommand = std::get<UniformBufferUpdateCommand>(commandData);
+
+            uniformBufferUpdateCommand.Buffer->SetData(
+                uniformBufferUpdateCommand.Data,
+                uniformBufferUpdateCommand.Size,
+                uniformBufferUpdateCommand.Offset);
         };
         m_Commands.push_back(renderCommand);
+
 #endif
     }
 
-    const ClearValue &CommandListDX11::GetClearColorValue()
+    const std::vector<RenderCommand> &CommandListDX11::GetRenderCommands()
     {
-        return m_CommandListBeginInfo.ClearValue;
+        return m_Commands;
     }
 
-    const float CommandListDX11::GetClearDepthValue()
+    RenderCommandData &CommandListDX11::GetCurrentCommandData()
     {
-        return m_CommandListBeginInfo.DepthValue;
+        return m_CommandData[m_CommandIndex++];
     }
 
-    const uint8_t CommandListDX11::GetClearStencilValue()
+    GraphicsDeviceDX11 *CommandListDX11::GetGraphicsDevice()
     {
-        return m_CommandListBeginInfo.StencilValue;
+        return m_GraphicsDevice;
     }
 
-    void CommandListDX11::BindNextPipeline()
+    Ref<Pipeline> CommandListDX11::GetCurrentPipeline()
+    {
+        return m_CurrentPipeline;
+    }
+
+    void CommandListDX11::BindPipeline(Ref<Pipeline> pipeline)
     {
 #if defined(NX_PLATFORM_DX11)
-        auto pipeline = (PipelineDX11 *)this->GetCurrentCommandData();
-
+        auto pipelineDX11 = std::dynamic_pointer_cast<PipelineDX11>(pipeline);
         m_CurrentPipeline = pipeline;
 
-        auto depthStencilState = pipeline->GetDepthStencilState();
-        auto rasterizerState = pipeline->GetRasterizerState();
-        auto blendState = pipeline->GetBlendState();
-        const auto &scissorRectangle = pipeline->GetScissorRectangle();
-        auto topology = pipeline->GetTopology();
+        auto depthStencilState = pipelineDX11->GetDepthStencilState();
+        auto rasterizerState = pipelineDX11->GetRasterizerState();
+        auto blendState = pipelineDX11->GetBlendState();
+        const auto &scissorRectangle = pipelineDX11->GetScissorRectangle();
+        auto topology = pipelineDX11->GetTopology();
         auto shader = pipeline->GetShader();
         auto dxShader = std::dynamic_pointer_cast<ShaderDX11>(shader);
 
@@ -276,34 +285,5 @@ namespace Nexus::Graphics
         float blendFactor[] = {1.0f, 1.0f, 1.0f, 1.0f};
         context->OMSetBlendState(blendState, blendFactor, 0xffffffff);
 #endif
-    }
-
-    DrawElementCommand &CommandListDX11::GetCurrentDrawElementCommand()
-    {
-        return m_ElementCommands[m_ElementCommandIndex++];
-    }
-
-    DrawIndexedCommand &CommandListDX11::GetCurrentDrawIndexedCommand()
-    {
-        return m_IndexedCommands[m_IndexedCommandIndex++];
-    }
-
-    TextureUpdateCommand &CommandListDX11::GetCurrentTextureUpdateCommand()
-    {
-        return m_TextureUpdateCommands[m_TextureCommandIndex++];
-    }
-
-    UniformBufferUpdateCommand &CommandListDX11::GetCurrentUniformBufferUpdateCommand()
-    {
-        return m_UniformBufferUpdateCommands[m_UniformBufferUpdateCommandIndex++];
-    }
-
-    void *CommandListDX11::GetCurrentCommandData()
-    {
-        return m_CommandData[m_CommandDataIndex++];
-    }
-    const std::vector<RenderCommand> &CommandListDX11::GetRenderCommands()
-    {
-        return m_Commands;
     }
 }

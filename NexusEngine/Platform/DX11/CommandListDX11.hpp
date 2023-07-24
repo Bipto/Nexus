@@ -28,54 +28,20 @@ namespace Nexus::Graphics
         virtual void UpdateTexture(Ref<Texture> texture, Ref<Shader> shader, const TextureBinding &binding) override;
         virtual void UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset) override;
 
-        virtual const ClearValue &GetClearColorValue() override;
-        virtual const float GetClearDepthValue() override;
-        virtual const uint8_t GetClearStencilValue() override;
-
-        virtual void BindNextPipeline() override;
-        virtual DrawElementCommand &GetCurrentDrawElementCommand() override;
-        virtual DrawIndexedCommand &GetCurrentDrawIndexedCommand() override;
-        virtual TextureUpdateCommand &GetCurrentTextureUpdateCommand() override;
-        virtual UniformBufferUpdateCommand &GetCurrentUniformBufferUpdateCommand() override;
-
-        void *GetCurrentCommandData();
-
-        Pipeline *GetCurrentPipeline()
-        {
-            return m_CurrentPipeline;
-        }
-
-#if defined(NX_PLATFORM_DX11)
-        D3D11_PRIMITIVE_TOPOLOGY GetTopology();
-#endif
         const std::vector<RenderCommand> &GetRenderCommands();
-        uint32_t GetCommandCount();
+        RenderCommandData &GetCurrentCommandData();
+        GraphicsDeviceDX11 *GetGraphicsDevice();
 
-        GraphicsDeviceDX11 *GetGraphicsDevice() { return m_GraphicsDevice; }
+        Ref<Pipeline> GetCurrentPipeline();
+        void BindPipeline(Ref<Pipeline> pipeline);
 
     private:
         std::vector<RenderCommand> m_Commands;
+        std::vector<RenderCommandData> m_CommandData;
         uint32_t m_CommandIndex = 0;
 
         CommandListBeginInfo m_CommandListBeginInfo;
-        Pipeline *m_CurrentPipeline;
-
-        std::vector<Ref<Pipeline>> m_Pipelines;
-        std::vector<DrawElementCommand> m_ElementCommands;
-        std::vector<DrawIndexedCommand> m_IndexedCommands;
-        std::vector<TextureUpdateCommand> m_TextureUpdateCommands;
-        std::vector<UniformBufferUpdateCommand> m_UniformBufferUpdateCommands;
-
-        uint32_t m_VertexBufferIndex = 0;
-        uint32_t m_IndexBufferIndex = 0;
-        uint32_t m_PipelineIndex = 0;
-        uint32_t m_ElementCommandIndex = 0;
-        uint32_t m_IndexedCommandIndex = 0;
-        uint32_t m_TextureCommandIndex = 0;
-        uint32_t m_UniformBufferUpdateCommandIndex = 0;
-
-        std::vector<void *> m_CommandData;
-        uint32_t m_CommandDataIndex = 0;
+        Ref<Pipeline> m_CurrentPipeline;
 
         GraphicsDeviceDX11 *m_GraphicsDevice = nullptr;
     };

@@ -184,7 +184,7 @@ int main(int argc, char **argv)
     spec.ImGuiActive = true;
     spec.VSyncState = Nexus::Graphics::VSyncState::Enabled;
     spec.UpdatesPerSecond = 1;
-    spec.RendersPerSecond = 30;
+    spec.RendersPerSecond = 60;
 
     std::vector<std::string> arguments;
     for (int i = 0; i < argc; i++)
@@ -195,7 +195,7 @@ int main(int argc, char **argv)
 
     if (arguments.size() > 1)
         if (arguments[1] == std::string("DX"))
-            spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::DirectX11;
+            spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
 
     Nexus::Init(argc, argv);
 
