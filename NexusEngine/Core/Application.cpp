@@ -95,22 +95,8 @@ namespace Nexus
 
         m_Clock.Tick();
         auto time = m_Clock.GetTime();
-        m_UpdateTimer += time.GetMilliseconds();
-        m_RenderTimer += time.GetMilliseconds();
 
-        double timeBetweenUpdates = (1000 / m_Specification.UpdatesPerSecond);
-        double timeBetweenRenders = (1000 / m_Specification.RendersPerSecond);
-
-        if (m_UpdateTimer > timeBetweenUpdates)
-        {
-            this->Update(time);
-            m_UpdateTimer = 0;
-        }
-
-        // if vsync is disabled, check if we should render yet
-        if (m_GraphicsDevice->GetVsyncState() == Nexus::Graphics::VSyncState::Disabled)
-            if (m_RenderTimer < timeBetweenRenders)
-                return;
+        this->Update(time);
 
         // run render functions
         {
@@ -122,7 +108,6 @@ namespace Nexus
             }
 
             this->Render(time);
-            m_RenderTimer = 0;
 
             if (m_Specification.ImGuiActive)
             {

@@ -191,17 +191,5 @@ namespace Nexus
 
         /// @brief A clock to time when renders and updates occur
         Clock m_Clock;
-
-        /// @brief A double representing the milliseconds that have passed since the last update
-        double m_UpdateTimer = 0;
-
-        /// @brief A double representing the milliseconds that have passed since the last render
-        double m_RenderTimer = 0;
-
-        /// @brief A time representing when the last update occurred
-        Nexus::Time m_PreviousUpdateTime;
-
-        /// @brief A time representing when the last render occurred
-        Nexus::Time m_PreviousRenderTime;
     };
 }

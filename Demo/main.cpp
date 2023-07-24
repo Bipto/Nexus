@@ -182,9 +182,7 @@ int main(int argc, char **argv)
     spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
     spec.ImGuiActive = true;
-    spec.VSyncState = Nexus::Graphics::VSyncState::Enabled;
-    spec.UpdatesPerSecond = 1;
-    spec.RendersPerSecond = 60;
+    spec.VSyncState = Nexus::Graphics::VSyncState::Disabled;
 
     std::vector<std::string> arguments;
     for (int i = 0; i < argc; i++)
@@ -195,7 +193,7 @@ int main(int argc, char **argv)
 
     if (arguments.size() > 1)
         if (arguments[1] == std::string("DX"))
-            spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
+            spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::DirectX11;
 
     Nexus::Init(argc, argv);
 
