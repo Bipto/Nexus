@@ -38,6 +38,7 @@ namespace Nexus::Graphics
         swap_chain_desc.OutputWindow = hwnd;
         swap_chain_desc.Windowed = true;
         swap_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_SEQUENTIAL;
+#
 
         D3D_FEATURE_LEVEL feature_level;
         UINT flags = D3D11_CREATE_DEVICE_SINGLETHREADED;
@@ -93,14 +94,13 @@ namespace Nexus::Graphics
         depthStencilDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
         depthStencilDesc.Texture2D.MipSlice = 0;
 
-        hr = m_DevicePtr->CreateDepthStencilView(m_SwapchainDepthTexture, &depthStencilDesc, &m_SwapchainStencilView);
-
-        m_ActiveDepthStencilView = m_SwapchainStencilView;
+        hr = m_DevicePtr->CreateDepthStencilView(m_SwapchainDepthTexture, &depthStencilDesc, &m_SwapchainDepthStencilView);
+        m_ActiveDepthStencilView = m_SwapchainDepthStencilView;
 
         m_DeviceContextPtr->OMSetRenderTargets(
             1,
             &m_RenderTargetViewPtr,
-            m_SwapchainStencilView);
+            m_SwapchainDepthStencilView);
 
         IDXGIFactory1 *factory;
         IDXGIAdapter1 *adapter;
@@ -110,23 +110,11 @@ namespace Nexus::Graphics
         adapter->GetDesc1(&adapterDesc);
         std::wstring ws(adapterDesc.Description);
         m_AdapterName = std::string(ws.begin(), ws.end());
-
-        ID3D11RasterizerState *noCull;
-        D3D11_RASTERIZER_DESC rastDesc;
-        ZeroMemory(&rastDesc, sizeof(rastDesc));
-        rastDesc.FillMode = D3D11_FILL_SOLID;
-        rastDesc.FrontCounterClockwise = true;
-        rastDesc.CullMode = D3D11_CULL_BACK;
-        m_DevicePtr->CreateRasterizerState(&rastDesc, &noCull);
-        m_DeviceContextPtr->RSSetState(noCull);
 #endif
     }
 
     void GraphicsDeviceDX11::SetContext()
     {
-#if defined(NX_PLATFORM_DX11)
-        m_DeviceContextPtr->OMSetRenderTargets(1, &m_RenderTargetViewPtr, NULL);
-#endif
     }
 
     void GraphicsDeviceDX11::SetFramebuffer(Ref<Framebuffer> framebuffer)
@@ -148,13 +136,13 @@ namespace Nexus::Graphics
         else
         {
             m_ActiveRenderTargetviews = {m_RenderTargetViewPtr};
-            m_ActiveDepthStencilView = m_SwapchainStencilView;
+            m_ActiveDepthStencilView = m_SwapchainDepthStencilView;
         }
 
         m_DeviceContextPtr->OMSetRenderTargets(
             m_ActiveRenderTargetviews.size(),
             m_ActiveRenderTargetviews.data(),
-            NULL);
+            m_ActiveDepthStencilView);
 #endif
     }
 
@@ -162,13 +150,6 @@ namespace Nexus::Graphics
     {
         Ref<CommandListDX11> commandListDX11 = std::dynamic_pointer_cast<CommandListDX11>(commandList);
         auto &commands = commandListDX11->GetRenderCommands();
-        /* auto commandCount = commandListDX11->GetCommandCount();
-
-        for (int i = 0; i < commandCount; i++)
-        {
-            commands[i](commandListDX11);
-        } */
-
         for (auto &command : commands)
         {
             command(commandList);
@@ -374,7 +355,7 @@ namespace Nexus::Graphics
         depthStencilDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
         depthStencilDesc.Texture2D.MipSlice = 0;
 
-        hr = m_DevicePtr->CreateDepthStencilView(m_SwapchainDepthTexture, &depthStencilDesc, &m_SwapchainStencilView);
+        hr = m_DevicePtr->CreateDepthStencilView(m_SwapchainDepthTexture, &depthStencilDesc, &m_SwapchainDepthStencilView);
         if (FAILED(hr))
         {
             _com_error error(hr);
@@ -382,7 +363,7 @@ namespace Nexus::Graphics
         }
 
         m_ActiveRenderTargetviews = {m_RenderTargetViewPtr};
-        m_ActiveDepthStencilView = m_SwapchainStencilView;
+        m_ActiveDepthStencilView = m_SwapchainDepthStencilView;
 
         m_DeviceContextPtr->OMSetRenderTargets(
             m_ActiveRenderTargetviews.size(),
@@ -419,5 +400,20 @@ namespace Nexus::Graphics
     VSyncState GraphicsDeviceDX11::GetVsyncState()
     {
         return m_VsyncState;
+    }
+
+    ID3D11DeviceContext *GraphicsDeviceDX11::GetDeviceContext()
+    {
+        return m_DeviceContextPtr;
+    }
+
+    std::vector<ID3D11RenderTargetView *> &GraphicsDeviceDX11::GetActiveRenderTargetViews()
+    {
+        return m_ActiveRenderTargetviews;
+    }
+
+    ID3D11DepthStencilView *&GraphicsDeviceDX11::GetActiveDepthStencilView()
+    {
+        return m_ActiveDepthStencilView;
     }
 }

@@ -12,16 +12,16 @@ endif()
 
 #platform specific configurations
 if (WIN32)
-    add_compile_definitions(-DNX_PLATFORM_WINDOWS)
-    add_compile_definitions(-DNX_PLATFORM_DX11)
-    add_compile_definitions(-DNX_PLATFORM_OPENGL)
-    add_compile_definitions(-DNX_PLATFORM_OPENAL)
-    add_compile_definitions(-DNX_PLATFORM_SDL_NET)
+    add_compile_definitions(NX_PLATFORM_WINDOWS)
+    add_compile_definitions(NX_PLATFORM_DX11)
+    add_compile_definitions(NX_PLATFORM_OPENGL)
+    add_compile_definitions(NX_PLATFORM_OPENAL)
+    add_compile_definitions(NX_PLATFORM_SDL_NET)
 endif()
 
 if (EMSCRIPTEN)
-    add_compile_definitions(-DNX_PLATFORM_OPENGL)
-    add_compile_definitions(-DNX_PLATFORM_OPENAL)
+    add_compile_definitions(NX_PLATFORM_OPENGL)
+    add_compile_definitions(NX_PLATFORM_OPENAL)
 endif()
 
 #set up engine projects

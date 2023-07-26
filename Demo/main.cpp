@@ -11,6 +11,7 @@
 #include "Demos/Demo3D.hpp"
 #include "Demos/CameraDemo.hpp"
 #include "Demos/Lighting.hpp"
+#include "Demos/Models.hpp"
 
 #include <iostream>
 #include <utility>
@@ -42,6 +43,7 @@ public:
         RegisterDemo<Demos::Demo3D>("3D");
         RegisterDemo<Demos::CameraDemo>("Camera");
         RegisterDemo<Demos::LightingDemo>("Lighting");
+        RegisterDemo<Demos::ModelDemo>("Models");
     }
 
     template <typename T>
@@ -182,7 +184,7 @@ int main(int argc, char **argv)
     spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
     spec.ImGuiActive = true;
-    spec.VSyncState = Nexus::Graphics::VSyncState::Disabled;
+    spec.VSyncState = Nexus::Graphics::VSyncState::Enabled;
 
     std::vector<std::string> arguments;
     for (int i = 0; i < argc; i++)

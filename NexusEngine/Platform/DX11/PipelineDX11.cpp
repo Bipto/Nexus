@@ -191,7 +191,7 @@ namespace Nexus::Graphics
             rasterizerDesc.FrontCounterClockwise = false;
         }
 
-        rasterizerDesc.DepthBias = false;
+        rasterizerDesc.DepthBias = 16;
         rasterizerDesc.DepthBiasClamp = 0;
         rasterizerDesc.SlopeScaledDepthBias = 0;
         rasterizerDesc.DepthClipEnable = m_Description.RasterizerStateDescription.DepthClipEnabled;

@@ -49,7 +49,6 @@ namespace Nexus::Graphics
             }
 
             auto depthStencilView = graphicsDevice->GetActiveDepthStencilView();
-            if (depthStencilView)
             {
                 context->ClearDepthStencilView(
                     depthStencilView,
@@ -274,16 +273,16 @@ namespace Nexus::Graphics
 
         auto context = m_GraphicsDevice->GetDeviceContext();
 
-        context->OMSetDepthStencilState(depthStencilState, 1);
+        context->OMSetDepthStencilState(depthStencilState, 0);
         context->RSSetState(rasterizerState);
         context->RSSetScissorRects(1, &scissorRectangle);
+
+        context->OMSetBlendState(blendState, NULL, 0xffffffff);
+
         context->IASetPrimitiveTopology(topology);
         context->VSSetShader(dxShader->GetVertexShader(), 0, 0);
         context->PSSetShader(dxShader->GetPixelShader(), 0, 0);
         context->IASetInputLayout(dxShader->GetInputLayout());
-
-        float blendFactor[] = {1.0f, 1.0f, 1.0f, 1.0f};
-        context->OMSetBlendState(blendState, blendFactor, 0xffffffff);
 #endif
     }
 }

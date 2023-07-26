@@ -3,6 +3,7 @@
 #include "Core/Memory.hpp"
 #include "Core/Graphics/GraphicsDevice.hpp"
 #include "Core/Graphics/Mesh.hpp"
+#include "Core/Graphics/Model.hpp"
 
 namespace Nexus::Graphics
 {
@@ -28,7 +29,7 @@ namespace Nexus::Graphics
         /// @brief A method that returns a mesh representing a 3D model stored on disk
         /// @param filepath The filepath to load a model from
         /// @return A mesh representing the model
-        Mesh CreateFromFile(const std::string &filepath);
+        Nexus::Graphics::Model CreateFrom3DModelFile(const std::string &filepath);
 
     private:
         /// @brief A reference counted pointer to a graphics device to use to create the vertex buffer and index buffer

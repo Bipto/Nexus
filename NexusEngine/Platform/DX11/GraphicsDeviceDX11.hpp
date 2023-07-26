@@ -5,9 +5,8 @@
 
 #include "FramebufferDX11.hpp"
 
-#if defined(WIN32)
+#define NX_PLATFORM_DX11 1
 #include "DX11.hpp"
-#endif
 
 namespace Nexus::Graphics
 {
@@ -50,14 +49,13 @@ namespace Nexus::Graphics
 
 #if defined(NX_PLATFORM_DX11)
 
-        ID3D11Device *
-        GetDevice()
+        ID3D11Device *GetDevice()
         {
             return m_DevicePtr;
         }
-        ID3D11DeviceContext *GetDeviceContext() { return m_DeviceContextPtr; }
-        std::vector<ID3D11RenderTargetView *> &GetActiveRenderTargetViews() { return m_ActiveRenderTargetviews; }
-        ID3D11DepthStencilView *GetActiveDepthStencilView() { return m_ActiveDepthStencilView; }
+        ID3D11DeviceContext *GetDeviceContext();
+        std::vector<ID3D11RenderTargetView *> &GetActiveRenderTargetViews();
+        ID3D11DepthStencilView *&GetActiveDepthStencilView();
 
     private:
         ID3D11Device *m_DevicePtr = NULL;
@@ -72,7 +70,7 @@ namespace Nexus::Graphics
         std::string m_AdapterName;
 
         ID3D11Texture2D *m_SwapchainDepthTexture = NULL;
-        ID3D11DepthStencilView *m_SwapchainStencilView = NULL;
+        ID3D11DepthStencilView *m_SwapchainDepthStencilView = NULL;
 #endif
         VSyncState m_VsyncState = VSyncState::Enabled;
     };
