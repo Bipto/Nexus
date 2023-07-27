@@ -13,7 +13,7 @@ namespace Nexus::Graphics
     {
     public:
         PipelineDX11(ID3D11Device *device, const PipelineDescription &description);
-        virtual ~PipelineDX11() {}
+        virtual ~PipelineDX11();
         virtual const PipelineDescription &GetPipelineDescription() const override;
 
     public:

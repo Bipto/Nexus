@@ -2,6 +2,7 @@
 
 #include <Windows.h>
 #include <d3d11.h>
+#include <d3d11sdklayers.h>
 #include <dxgi.h>
 #include <d3dcompiler.h>
 #include <wrl/client.h>

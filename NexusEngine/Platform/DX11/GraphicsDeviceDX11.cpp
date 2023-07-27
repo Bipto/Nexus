@@ -38,7 +38,6 @@ namespace Nexus::Graphics
         swap_chain_desc.OutputWindow = hwnd;
         swap_chain_desc.Windowed = true;
         swap_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_SEQUENTIAL;
-#
 
         D3D_FEATURE_LEVEL feature_level;
         UINT flags = D3D11_CREATE_DEVICE_SINGLETHREADED;
@@ -60,7 +59,8 @@ namespace Nexus::Graphics
             &feature_level,
             &m_DeviceContextPtr);
 
-        ID3D11Texture2D *framebuffer;
+        ID3D11Texture2D *
+            framebuffer;
         hr = m_SwapChainPtr->GetBuffer(
             0,
             _uuidof(ID3D11Texture2D),
@@ -402,6 +402,7 @@ namespace Nexus::Graphics
         return m_VsyncState;
     }
 
+#if defined(NX_PLATFORM_DX11)
     ID3D11DeviceContext *GraphicsDeviceDX11::GetDeviceContext()
     {
         return m_DeviceContextPtr;
@@ -416,4 +417,5 @@ namespace Nexus::Graphics
     {
         return m_ActiveDepthStencilView;
     }
+#endif
 }

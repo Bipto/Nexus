@@ -14,6 +14,18 @@ namespace Nexus::Graphics
         SetupBlendState();
     }
 
+    PipelineDX11::~PipelineDX11()
+    {
+        m_DepthStencilState->Release();
+        m_DepthStencilState = nullptr;
+
+        m_RasterizerState->Release();
+        m_RasterizerState = nullptr;
+
+        m_BlendState->Release();
+        m_BlendState = nullptr;
+    }
+
     D3D11_COMPARISON_FUNC GetComparisonFunction(ComparisonFunction function)
     {
         switch (function)

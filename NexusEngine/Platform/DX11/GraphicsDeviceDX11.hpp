@@ -4,8 +4,6 @@
 #include "SDL_syswm.h"
 
 #include "FramebufferDX11.hpp"
-
-#define NX_PLATFORM_DX11 1
 #include "DX11.hpp"
 
 namespace Nexus::Graphics
@@ -56,8 +54,10 @@ namespace Nexus::Graphics
         ID3D11DeviceContext *GetDeviceContext();
         std::vector<ID3D11RenderTargetView *> &GetActiveRenderTargetViews();
         ID3D11DepthStencilView *&GetActiveDepthStencilView();
+#endif
 
     private:
+#if defined(NX_PLATFORM_DX11)
         ID3D11Device *m_DevicePtr = NULL;
         ID3D11DeviceContext *m_DeviceContextPtr = NULL;
         IDXGISwapChain *m_SwapChainPtr = NULL;

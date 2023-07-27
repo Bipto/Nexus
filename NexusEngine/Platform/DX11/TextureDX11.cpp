@@ -69,6 +69,7 @@ namespace Nexus::Graphics
     TextureDX11::~TextureDX11()
     {
         m_Texture->Release();
+        m_Texture = nullptr;
     }
 
     void *TextureDX11::GetHandle()

@@ -73,6 +73,12 @@ namespace Nexus::Graphics
         }
     }
 
+    VertexBufferDX11::~VertexBufferDX11()
+    {
+        m_Buffer->Release();
+        m_Buffer = nullptr;
+    }
+
     void VertexBufferDX11::SetData(const void *data, uint32_t size, uint32_t offset)
     {
         if (m_Description.Usage == BufferUsage::Static)
@@ -134,6 +140,12 @@ namespace Nexus::Graphics
         }
     }
 
+    IndexBufferDX11::~IndexBufferDX11()
+    {
+        m_Buffer->Release();
+        m_Buffer = nullptr;
+    }
+
     void IndexBufferDX11::SetData(const void *data, uint32_t size, uint32_t offset)
     {
         if (m_Description.Usage == BufferUsage::Static)
@@ -193,6 +205,12 @@ namespace Nexus::Graphics
             std::string errorMessage = std::string("Failed to create vertex buffer: ") + std::string(error.ErrorMessage());
             NX_ERROR(errorMessage);
         }
+    }
+
+    UniformBufferDX11::~UniformBufferDX11()
+    {
+        m_Buffer->Release();
+        m_Buffer = nullptr;
     }
 
     void UniformBufferDX11::SetData(const void *data, uint32_t size, uint32_t offset)
