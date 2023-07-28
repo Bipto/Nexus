@@ -1,7 +1,5 @@
 #include "GraphicsDeviceOpenGL.hpp"
 
-#include "backends/imgui_impl_opengl3.h"
-
 #include "PipelineOpenGL.hpp"
 #include "ShaderOpenGL.hpp"
 #include "BufferOpenGL.hpp"
@@ -111,21 +109,9 @@ void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
 
 namespace Nexus::Graphics
 {
-    GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(const GraphicsDeviceCreateInfo &createInfo)
-        : GraphicsDevice(createInfo)
+    GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(const GraphicsDeviceCreateInfo &createInfo, Window *window)
+        : GraphicsDevice(createInfo, window)
     {
-// Decide GL+GLSL versions
-#ifdef __EMSCRIPTEN__
-        // GL ES 2.0 + GLSL 100
-        m_GlslVersion = "#version 100";
-#elif defined(__APPLE__)
-        // GL 3.2 Core + GLSL 150
-        m_GlslVersion = "#version 150";
-#else
-        // GL 3.0 + GLSL 130
-        m_GlslVersion = "#version 130";
-#endif
-
 #ifndef __EMSCRIPTEN__
         gladLoadGL();
 #endif
@@ -173,13 +159,6 @@ namespace Nexus::Graphics
     {
         Ref<CommandListOpenGL> commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
         auto &commands = commandListGL->GetRenderCommands();
-        /* auto commandCount = commandListGL->GetCommandCount();
-
-        for (int i = 0; i < commandCount; i++)
-        {
-            RenderCommand command = commands[i];
-            command(commandList);
-        } */
 
         for (auto &command : commands)
         {
@@ -256,21 +235,6 @@ namespace Nexus::Graphics
     Ref<UniformBuffer> GraphicsDeviceOpenGL::CreateUniformBuffer(const BufferDescription &description, const void *data)
     {
         return CreateRef<UniformBufferOpenGL>(description, data);
-    }
-
-    void GraphicsDeviceOpenGL::InitialiseImGui()
-    {
-        ImGui_ImplOpenGL3_Init(m_GlslVersion);
-    }
-
-    void GraphicsDeviceOpenGL::BeginImGuiRender()
-    {
-        ImGui_ImplOpenGL3_NewFrame();
-    }
-
-    void GraphicsDeviceOpenGL::EndImGuiRender()
-    {
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
 
     void GraphicsDeviceOpenGL::Resize(Point<int> size)

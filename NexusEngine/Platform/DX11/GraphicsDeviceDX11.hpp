@@ -11,7 +11,7 @@ namespace Nexus::Graphics
     class GraphicsDeviceDX11 : public GraphicsDevice
     {
     public:
-        GraphicsDeviceDX11(const GraphicsDeviceCreateInfo &createInfo);
+        GraphicsDeviceDX11(const GraphicsDeviceCreateInfo &createInfo, Window *window);
         virtual void SetContext() override;
         virtual void SetFramebuffer(Ref<Framebuffer> framebuffer) override;
         virtual void SubmitCommandList(Ref<CommandList> commandList) override;
@@ -32,10 +32,6 @@ namespace Nexus::Graphics
         virtual Ref<VertexBuffer> CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout) override;
         virtual Ref<IndexBuffer> CreateIndexBuffer(const BufferDescription &description, const void *data) override;
         virtual Ref<UniformBuffer> CreateUniformBuffer(const BufferDescription &description, const void *data) override;
-
-        virtual void InitialiseImGui() override;
-        virtual void BeginImGuiRender() override;
-        virtual void EndImGuiRender() override;
 
         virtual void Resize(Point<int> size) override;
         virtual void SwapBuffers() override;

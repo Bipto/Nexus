@@ -24,6 +24,8 @@
 
 #include "Runtime/ECS/ComponentRegistry.hpp"
 
+#include "Core/Graphics/ImGuiRenderer.hpp"
+
 #include <chrono>
 
 namespace Nexus
@@ -50,7 +52,7 @@ namespace Nexus
     /// @brief A static method to create a new graphics device from a set of options
     /// @param createInfo Options to use to configure the graphics device
     /// @return A reference counted pointer to a graphics device
-    static Ref<Graphics::GraphicsDevice> CreateGraphicsDevice(const Graphics::GraphicsDeviceCreateInfo &createInfo);
+    static Ref<Graphics::GraphicsDevice> CreateGraphicsDevice(const Graphics::GraphicsDeviceCreateInfo &createInfo, Window *window);
 
     /// @brief A static method to create a new audio device from a selected audio API
     /// @param api The audio API to use to manage audio resources
@@ -191,5 +193,7 @@ namespace Nexus
 
         /// @brief A clock to time when renders and updates occur
         Clock m_Clock;
+
+        Nexus::Graphics::ImGuiRenderer *m_ImGuiRenderer = nullptr;
     };
 }

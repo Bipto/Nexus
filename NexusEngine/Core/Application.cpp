@@ -6,8 +6,6 @@
 
 #include "Core/Logging/Log.hpp"
 
-#include "SDL_opengl.h"
-
 namespace Nexus
 {
     void Clock::Tick()
@@ -30,18 +28,10 @@ namespace Nexus
         this->m_Window = new Nexus::Window(props);
 
         Graphics::GraphicsDeviceCreateInfo graphicsDeviceCreateInfo;
-        graphicsDeviceCreateInfo.GraphicsWindow = m_Window;
         graphicsDeviceCreateInfo.API = spec.GraphicsAPI;
         graphicsDeviceCreateInfo.VSyncStateSettings = spec.VSyncState;
 
-        Graphics::Viewport vp;
-        vp.X = 0;
-        vp.Y = 0;
-        vp.Width = m_Window->GetWindowSize().X;
-        vp.Height = m_Window->GetWindowSize().Y;
-        graphicsDeviceCreateInfo.GraphicsViewport = vp;
-
-        m_GraphicsDevice = Nexus::CreateGraphicsDevice(graphicsDeviceCreateInfo);
+        m_GraphicsDevice = Nexus::CreateGraphicsDevice(graphicsDeviceCreateInfo, m_Window);
         m_GraphicsDevice->SetContext();
         m_GraphicsDevice->Resize(GetWindowSize());
         m_GraphicsDevice->SetVSyncState(spec.VSyncState);
@@ -57,20 +47,8 @@ namespace Nexus
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-        if (m_GraphicsDevice->GetGraphicsAPI() == Graphics::GraphicsAPI::OpenGL)
-        {
-            SDL_Window *window = this->m_Window->GetSDLWindowHandle();
-            SDL_GLContext context = (SDL_GLContext)this->m_GraphicsDevice->GetContext();
-
-            ImGui_ImplSDL2_InitForOpenGL(window, context);
-        }
-
-        else if (m_GraphicsDevice->GetGraphicsAPI() == Graphics::GraphicsAPI::DirectX11)
-        {
-            ImGui_ImplSDL2_InitForD3D(this->m_Window->GetSDLWindowHandle());
-        }
-
-        m_GraphicsDevice->InitialiseImGui();
+        m_ImGuiRenderer = new Nexus::Graphics::ImGuiRenderer(this);
+        m_ImGuiRenderer->Initialise();
     }
 
     Application::~Application()
@@ -102,9 +80,7 @@ namespace Nexus
         {
             if (m_Specification.ImGuiActive)
             {
-                m_GraphicsDevice->BeginImGuiRender();
-                ImGui_ImplSDL2_NewFrame();
-                ImGui::NewFrame();
+                m_ImGuiRenderer->BeginFrame();
             }
 
             this->Render(time);
@@ -120,7 +96,7 @@ namespace Nexus
 
                 ImGui::Render();
                 ImGui::GetMainViewport()->Size = {(float)this->GetWindowSize().X, (float)this->GetWindowSize().Y};
-                m_GraphicsDevice->EndImGuiRender();
+                m_ImGuiRenderer->EndFrame();
             }
 
             m_GraphicsDevice->SwapBuffers();
@@ -128,12 +104,7 @@ namespace Nexus
             if (m_Specification.ImGuiActive)
             {
                 // Update and render additional platform windows
-                if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-                {
-                    ImGui::UpdatePlatformWindows();
-                    ImGui::RenderPlatformWindowsDefault();
-                    m_GraphicsDevice->SetContext();
-                }
+                m_ImGuiRenderer->UpdatePlatformWindows();
             }
         }
 
@@ -201,14 +172,14 @@ namespace Nexus
         return m_GraphicsDevice;
     }
 
-    Ref<Graphics::GraphicsDevice> CreateGraphicsDevice(const Graphics::GraphicsDeviceCreateInfo &createInfo)
+    Ref<Graphics::GraphicsDevice> CreateGraphicsDevice(const Graphics::GraphicsDeviceCreateInfo &createInfo, Window *window)
     {
         switch (createInfo.API)
         {
         case Graphics::GraphicsAPI::DirectX11:
-            return CreateRef<Graphics::GraphicsDeviceDX11>(createInfo);
+            return CreateRef<Graphics::GraphicsDeviceDX11>(createInfo, window);
         default:
-            return CreateRef<Graphics::GraphicsDeviceOpenGL>(createInfo);
+            return CreateRef<Graphics::GraphicsDeviceOpenGL>(createInfo, window);
         }
     }
 

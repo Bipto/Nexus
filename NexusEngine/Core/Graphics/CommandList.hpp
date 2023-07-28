@@ -39,6 +39,15 @@ namespace Nexus::Graphics
 
         /// @brief An unsigned 8 bit integer to use to clear the stencil buffer
         uint8_t StencilValue = 0;
+
+        /// @brief A boolean value indicating that any colour buffers attached to the currently bound framebuffer should be cleared
+        bool ClearColor = true;
+
+        /// @brief A boolean value indicating that any depth buffers attached to the currently bound framebuffer should be cleared
+        bool ClearDepth = true;
+
+        /// @brief A boolean value indicating that any stencil buffers attached to the currently bound framebuffer should be cleared
+        bool ClearStencil = true;
     };
 
     /// @brief A struct representing a draw command to be executed using a vertex buffer

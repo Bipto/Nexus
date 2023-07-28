@@ -43,16 +43,24 @@ namespace Nexus::Graphics
                 color.Blue,
                 color.Alpha};
 
-            for (auto target : activeRenderTargetViews)
+            if (beginInfo.ClearColor)
             {
-                context->ClearRenderTargetView(target, backgroundColor);
+                for (auto target : activeRenderTargetViews)
+                    context->ClearRenderTargetView(target, backgroundColor);
             }
 
             auto depthStencilView = graphicsDevice->GetActiveDepthStencilView();
             {
+                uint32_t clearFlags = 0;
+                if (beginInfo.ClearDepth)
+                    clearFlags |= D3D11_CLEAR_DEPTH;
+
+                if (beginInfo.ClearStencil)
+                    clearFlags |= D3D11_CLEAR_STENCIL;
+
                 context->ClearDepthStencilView(
                     depthStencilView,
-                    D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
+                    clearFlags,
                     beginInfo.DepthValue,
                     beginInfo.StencilValue);
             }
@@ -79,10 +87,7 @@ namespace Nexus::Graphics
             const auto vertexBuffer = std::get<Ref<VertexBuffer>>(commandData);
             auto vertexBufferDX11 = std::dynamic_pointer_cast<VertexBufferDX11>(vertexBuffer);
 
-            auto pipeline = commandListDX11->GetCurrentPipeline();
-            auto shader = pipeline->GetShader();
-            auto layout = shader->GetLayout();
-
+            const auto &layout = vertexBufferDX11->GetLayout();
             uint32_t stride = layout.GetStride();
             uint32_t offset = 0;
 

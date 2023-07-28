@@ -29,17 +29,11 @@ namespace Nexus::Graphics
     /// @brief A class representing properties needed to create a new graphics device
     struct GraphicsDeviceCreateInfo
     {
-        /// @brief A raw pointer to the window to use for rendering graphics
-        Window *GraphicsWindow;
-
         /// @brief The chosen graphics API to use to create the GraphicsDevice with
         GraphicsAPI API;
 
         /// @brief The VSync settings to use when creating the GraphicsDevice
         VSyncState VSyncStateSettings;
-
-        /// @brief An initial viewport to use with the GraphicsDevice
-        Viewport GraphicsViewport;
     };
 
     /// @brief A class representing an abstraction over a graphics API
@@ -48,7 +42,7 @@ namespace Nexus::Graphics
     public:
         /// @brief A constructor taking in a const reference to a GraphicsDeviceCreateInfo
         /// @param createInfo The options to use when creating the GraphicsDevice
-        GraphicsDevice(const GraphicsDeviceCreateInfo &createInfo);
+        GraphicsDevice(const GraphicsDeviceCreateInfo &createInfo, Window *window);
 
         /// @brief A virtual destructor allowing resources to be deleted
         virtual ~GraphicsDevice() {}
@@ -83,15 +77,6 @@ namespace Nexus::Graphics
         /// @brief A pure virtual method that will return a const reference to the currently bound viewport
         /// @return The current viewport being used for rendering
         virtual const Viewport &GetViewport() = 0;
-
-        /// @brief A pure virtual method that is responsible for initialising ImGui for a given graphics API
-        virtual void InitialiseImGui() = 0;
-
-        /// @brief A pure virtual method that is responsible for begininng an ImGui frame render
-        virtual void BeginImGuiRender() = 0;
-
-        /// @brief A pure virtual method that is responsible for ending an ImGui frame render
-        virtual void EndImGuiRender() = 0;
 
         /// @brief A pure virtual method that returns a context for a graphics API
         /// @return A void pointer to the graphics context

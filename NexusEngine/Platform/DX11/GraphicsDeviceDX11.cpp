@@ -1,10 +1,6 @@
 #include "GraphicsDeviceDX11.hpp"
 #include "Core/Logging/Log.hpp"
 
-#if defined(NX_PLATFORM_DX11)
-#include "backends/imgui_impl_dx11.h"
-#endif
-
 #include "BufferDX11.hpp"
 #include "ShaderDX11.hpp"
 #include "TextureDX11.hpp"
@@ -13,8 +9,8 @@
 
 namespace Nexus::Graphics
 {
-    GraphicsDeviceDX11::GraphicsDeviceDX11(const GraphicsDeviceCreateInfo &createInfo)
-        : GraphicsDevice(createInfo)
+    GraphicsDeviceDX11::GraphicsDeviceDX11(const GraphicsDeviceCreateInfo &createInfo, Window *window)
+        : GraphicsDevice(createInfo, window)
     {
 #if defined(NX_PLATFORM_DX11)
         SDL_SysWMinfo wmInfo;
@@ -22,7 +18,7 @@ namespace Nexus::Graphics
         SDL_GetWindowWMInfo(m_Window->GetSDLWindowHandle(), &wmInfo);
         HWND hwnd = wmInfo.info.win.window;
 
-        auto windowSize = createInfo.GraphicsWindow->GetWindowSize();
+        auto windowSize = m_Window->GetWindowSize();
 
         DXGI_SWAP_CHAIN_DESC swap_chain_desc;
         ZeroMemory(&swap_chain_desc, sizeof(swap_chain_desc));
@@ -269,27 +265,6 @@ namespace Nexus::Graphics
         return CreateRef<UniformBufferDX11>(m_DevicePtr, m_DeviceContextPtr, description, data);
 #else
         return nullptr;
-#endif
-    }
-
-    void GraphicsDeviceDX11::InitialiseImGui()
-    {
-#if defined(NX_PLATFORM_DX11)
-        ImGui_ImplDX11_Init(m_DevicePtr, m_DeviceContextPtr);
-#endif
-    }
-
-    void GraphicsDeviceDX11::BeginImGuiRender()
-    {
-#if defined(NX_PLATFORM_DX11)
-        ImGui_ImplDX11_NewFrame();
-#endif
-    }
-
-    void GraphicsDeviceDX11::EndImGuiRender()
-    {
-#if defined(NX_PLATFORM_DX11)
-        ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 #endif
     }
 

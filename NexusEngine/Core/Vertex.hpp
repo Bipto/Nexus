@@ -70,11 +70,11 @@ namespace Nexus::Graphics
 
         /// @brief A method that returns the stride between elements in the vertex buffer
         /// @return An unsigned 32 bit integer representing the gap between separate items of the vertex buffer
-        uint32_t GetStride() { return m_Stride; }
+        const uint32_t GetStride() const { return m_Stride; }
 
         /// @brief A method that returns the number of elements stored within the layout
         /// @return An unsigned 32 bit integer representing the number of elements within the layout
-        uint32_t GetNumberOfElements() { return m_Elements.size(); }
+        const uint32_t GetNumberOfElements() const { return m_Elements.size(); }
 
     private:
         /// @brief A private method that calculates the offset of each element within the buffer and the stride (total distance between elements)

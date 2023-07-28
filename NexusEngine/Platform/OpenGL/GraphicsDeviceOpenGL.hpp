@@ -10,7 +10,7 @@ namespace Nexus::Graphics
     class GraphicsDeviceOpenGL : public GraphicsDevice
     {
     public:
-        GraphicsDeviceOpenGL(const GraphicsDeviceCreateInfo &createInfo);
+        GraphicsDeviceOpenGL(const GraphicsDeviceCreateInfo &createInfo, Window *window);
         GraphicsDeviceOpenGL(const GraphicsDeviceOpenGL &) = delete;
         virtual ~GraphicsDeviceOpenGL();
         void SetContext() override;
@@ -33,10 +33,6 @@ namespace Nexus::Graphics
         virtual Ref<VertexBuffer> CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout) override;
         virtual Ref<IndexBuffer> CreateIndexBuffer(const BufferDescription &description, const void *data) override;
         virtual Ref<UniformBuffer> CreateUniformBuffer(const BufferDescription &description, const void *data) override;
-
-        virtual void InitialiseImGui() override;
-        virtual void BeginImGuiRender() override;
-        virtual void EndImGuiRender() override;
 
         virtual void Resize(Point<int> size) override;
         virtual void SwapBuffers() override;

@@ -41,7 +41,18 @@ namespace Nexus::Graphics
             glClearDepthf(beginInfo.DepthValue);
             glClearStencil(beginInfo.StencilValue);
 
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+            uint32_t clearFlags = 0;
+
+            if (beginInfo.ClearColor)
+                clearFlags |= GL_COLOR_BUFFER_BIT;
+
+            if (beginInfo.ClearDepth)
+                clearFlags |= GL_DEPTH_BUFFER_BIT;
+
+            if (beginInfo.ClearStencil)
+                clearFlags |= GL_STENCIL_BUFFER_BIT;
+
+            glClear(clearFlags);
         };
         m_Commands.push_back(renderCommand);
     }

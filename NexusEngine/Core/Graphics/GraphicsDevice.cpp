@@ -11,11 +11,10 @@
 
 namespace Nexus::Graphics
 {
-    GraphicsDevice::GraphicsDevice(const GraphicsDeviceCreateInfo &createInfo)
+    GraphicsDevice::GraphicsDevice(const GraphicsDeviceCreateInfo &createInfo, Window *window)
     {
-        m_Window = createInfo.GraphicsWindow;
+        m_Window = window;
         m_API = createInfo.API;
-        m_Viewport = createInfo.GraphicsViewport;
     }
 
     Ref<Shader> GraphicsDevice::CreateShaderFromSpirvFile(const std::string &filepath, const VertexBufferLayout &layout)
