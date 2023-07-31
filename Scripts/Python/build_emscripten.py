@@ -4,7 +4,7 @@ import shutil
 def build():
     current_dir = os.path.dirname(os.path.realpath(__file__))
     source_dir = os.path.dirname(current_dir)
-    source_dir = os.path.dirname(source_dir)    
+    source_dir = os.path.dirname(source_dir)  
     build_dir = source_dir + "/build/Emscripten"        
     os.chdir(source_dir)
     

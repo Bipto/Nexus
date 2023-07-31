@@ -3,6 +3,18 @@ cmake_minimum_required(VERSION 3.16)
 project("NexusEngine")
 set (CMAKE_CXX_STANDARD 17)
 
+set(SHADERC_SKIP_TESTS OFF CACHE BOOL "" FORCE)
+
+#google test - required for shaderc
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
 #if we are not building for emscripten, then output all executables into lib and bin folders
 #this is needed to ensure that dynamic libraries (.dll) are in the same folder as the executables
 if (NOT EMSCRIPTEN)
@@ -28,16 +40,16 @@ if (EMSCRIPTEN)
 endif()
 
 #set up engine projects
-add_subdirectory(Demo)
-add_subdirectory(NexusEngine)
+add_subdirectory(Source/Demo)
+add_subdirectory(Source/NexusEngine)
 
 if(NOT DEFINED EMSCRIPTEN)
-    add_subdirectory(Editor)
-    add_subdirectory(NetworkingTest/Client)
-    add_subdirectory(NetworkingTest/Server)
+    add_subdirectory(Source/Editor)
+    add_subdirectory(Source/NetworkingTest/Client)
+    add_subdirectory(Source/NetworkingTest/Server)
 endif()
 
-add_subdirectory(BuildConfig)
+add_subdirectory(Source/BuildConfig)
 
 #external dependencies
 add_subdirectory(External/SDL)
