@@ -1,1 +1,0 @@
-python install requires debug symbols to compile program
