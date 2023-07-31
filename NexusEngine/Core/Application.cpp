@@ -172,6 +172,11 @@ namespace Nexus
         return m_GraphicsDevice;
     }
 
+    Ref<Audio::AudioDevice> Application::GetAudioDevice()
+    {
+        return m_AudioDevice;
+    }
+
     Ref<Graphics::GraphicsDevice> CreateGraphicsDevice(const Graphics::GraphicsDeviceCreateInfo &createInfo, Window *window)
     {
         switch (createInfo.API)

@@ -1,0 +1,66 @@
+#pragma once
+
+#include "Demo.hpp"
+
+namespace Demos
+{
+    class AudioDemo : public Demo
+    {
+    public:
+        AudioDemo(const std::string &name, Nexus::Application *app)
+            : Demo(name, app)
+        {
+            m_CommandList = m_GraphicsDevice->CreateCommandList();
+
+            m_AudioBuffer = m_AudioDevice->CreateAudioBufferFromWavFile("Resources/Audio/Laser_Shoot.wav");
+            m_AudioSource = m_AudioDevice->CreateAudioSource(m_AudioBuffer);
+        }
+
+        virtual void Update(Nexus::Time time) override
+        {
+        }
+
+        virtual void Render(Nexus::Time time) override
+        {
+            Nexus::Graphics::Viewport vp;
+            vp.X = 0;
+            vp.Y = 0;
+            vp.Width = m_Window->GetWindowSize().X;
+            vp.Height = m_Window->GetWindowSize().Y;
+            m_GraphicsDevice->SetViewport(vp);
+
+            Nexus::Graphics::CommandListBeginInfo beginInfo{};
+            beginInfo.ClearValue = {
+                m_ClearColour.r,
+                m_ClearColour.g,
+                m_ClearColour.b,
+                1.0f};
+
+            m_CommandList->Begin(beginInfo);
+            m_CommandList->End();
+
+            m_GraphicsDevice->SubmitCommandList(m_CommandList);
+
+            if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::Space))
+            {
+                m_AudioDevice->PlaySource(m_AudioSource);
+            }
+        }
+
+        virtual void OnResize(Nexus::Point<int> size) override
+        {
+        }
+
+        virtual void RenderUI() override
+        {
+            ImGui::Text("Press the spacebar to play a sound effect");
+        }
+
+    private:
+        Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
+        glm::vec3 m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
+
+        Nexus::Ref<Nexus::Audio::AudioBuffer> m_AudioBuffer;
+        Nexus::Ref<Nexus::Audio::AudioSource> m_AudioSource;
+    };
+}

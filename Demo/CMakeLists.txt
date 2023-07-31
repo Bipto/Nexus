@@ -17,9 +17,12 @@ file (COPY
     ${CMAKE_CURRENT_SOURCE_DIR}/Resources
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 else()
-file (COPY 
-    ${CMAKE_CURRENT_SOURCE_DIR}/Resources
-    DESTINATION ${CMAKE_BINARY_DIR}/bin)
+    set(path ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    cmake_path(GET path PARENT_PATH parentDir)
+    set_target_properties(Demo PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${parentDir}/bin)
+    file (COPY
+        ${CMAKE_CURRENT_SOURCE_DIR}/Resources
+        DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 endif()
 
 #flags required for emscripten

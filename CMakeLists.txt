@@ -22,6 +22,9 @@ endif()
 if (EMSCRIPTEN)
     add_compile_definitions(NX_PLATFORM_OPENGL)
     add_compile_definitions(NX_PLATFORM_OPENAL)
+
+    set(CMAKE_CXX_FLAGS_DEBUG "-O3")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 endif()
 
 #set up engine projects
@@ -48,6 +51,7 @@ add_subdirectory(External/SPIRV-Cross)
 add_subdirectory(External/SPIRV-Headers)
 add_subdirectory(External/SPIRV-Tools)
 add_subdirectory(External/shaderc)
+add_subdirectory(External/libnyquist)
 
 #these libraries are only required if we are not building for emscripten
 #this is because these libraries are incompatible with emscripten
@@ -56,7 +60,6 @@ if (NOT DEFINED EMSCRIPTEN)
     add_subdirectory(External/re2)
     add_subdirectory(External/effcee)
     add_subdirectory(External/SDL_net)
-    add_subdirectory(External/libnyquist)
 
     add_definitions(-DLIBTYPE=SHARED)
     add_subdirectory(External/OpenAL-Soft)

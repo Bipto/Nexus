@@ -171,6 +171,10 @@ namespace Nexus
         /// @return A reference counted pointer to a graphics device
         Ref<Graphics::GraphicsDevice> GetGraphicsDevice();
 
+        /// @brief A method that returns a pointer to the application's audio device
+        /// @return A reference counted pointer to an audio device
+        Ref<Audio::AudioDevice> GetAudioDevice();
+
     protected:
         /// @brief A reference counted pointer to a graphics device
         Ref<Graphics::GraphicsDevice> m_GraphicsDevice;

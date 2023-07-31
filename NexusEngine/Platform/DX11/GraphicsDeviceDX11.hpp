@@ -1,8 +1,6 @@
 #pragma once
 
 #include "Core/Graphics/GraphicsDevice.hpp"
-#include "SDL_syswm.h"
-
 #include "FramebufferDX11.hpp"
 #include "DX11.hpp"
 

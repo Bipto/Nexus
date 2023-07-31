@@ -1,1 +1,0 @@
-emcmake cmake -G "Unix Makefiles" -S  ../ && make -o hello.html

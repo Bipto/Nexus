@@ -7,6 +7,8 @@
 #include "PipelineDX11.hpp"
 #include "CommandListDX11.hpp"
 
+#include "SDL_syswm.h"
+
 namespace Nexus::Graphics
 {
     GraphicsDeviceDX11::GraphicsDeviceDX11(const GraphicsDeviceCreateInfo &createInfo, Window *window)

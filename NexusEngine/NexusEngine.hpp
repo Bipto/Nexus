@@ -18,6 +18,8 @@
 #include "Core/Graphics/Framebuffer.hpp"
 #include "Core/Graphics/DepthFormat.hpp"
 
+#include "Core/Audio/AudioDevice.hpp"
+
 #include "Core/Renderer.hpp"
 #include "Core/Logging/Log.hpp"
 #include "Core/Input/Input.hpp"

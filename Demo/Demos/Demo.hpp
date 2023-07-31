@@ -1,8 +1,6 @@
 #pragma once
 
-#include "Core/Memory.hpp"
-#include "Core/Graphics/GraphicsDevice.hpp"
-#include "Core/Time.hpp"
+#include "NexusEngine.hpp"
 
 namespace Demos
 {
@@ -12,6 +10,7 @@ namespace Demos
         Demo(const std::string &name, Nexus::Application *app)
             : m_Name(name),
               m_GraphicsDevice(app->GetGraphicsDevice()),
+              m_AudioDevice(app->GetAudioDevice()),
               m_Window(app->GetWindow())
         {
         }
@@ -29,6 +28,7 @@ namespace Demos
     protected:
         std::string m_Name;
         Nexus::Ref<Nexus::Graphics::GraphicsDevice> m_GraphicsDevice = nullptr;
+        Nexus::Ref<Nexus::Audio::AudioDevice> m_AudioDevice = nullptr;
         Nexus::Window *m_Window = nullptr;
     };
 }

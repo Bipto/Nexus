@@ -22,4 +22,8 @@ if (EMSCRIPTEN)
         LINK_FLAGS
         "--std=c++17 -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sUSE_WEBGL2=1 -sFULL_ES3=1 -lGL -lopenal --preload-file Resources"
     )
+else()
+    set(path ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    cmake_path(GET path PARENT_PATH parentDir)
+    set_target_properties(Editor PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${parentDir}/bin)
 endif()

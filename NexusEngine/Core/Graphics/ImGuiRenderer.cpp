@@ -40,7 +40,9 @@ namespace Nexus::Graphics
             ImGui_ImplOpenGL3_NewFrame();
             break;
         case GraphicsAPI::DirectX11:
+#if defined(NX_PLATFORM_DX11)
             ImGui_ImplDX11_NewFrame();
+#endif
             break;
         }
         ImGui::NewFrame();
@@ -54,7 +56,9 @@ namespace Nexus::Graphics
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
             break;
         case GraphicsAPI::DirectX11:
+#if defined(NX_PLATFORM_DX11)
             ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+#endif
             break;
         }
     }

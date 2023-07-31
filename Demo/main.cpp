@@ -12,6 +12,7 @@
 #include "Demos/CameraDemo.hpp"
 #include "Demos/Lighting.hpp"
 #include "Demos/Models.hpp"
+#include "Demos/AudioDemo.hpp"
 
 #include <iostream>
 #include <utility>
@@ -35,19 +36,20 @@ public:
 
         m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-        RegisterDemo<Demos::ClearScreenDemo>("Clear Colour");
-        RegisterDemo<Demos::HelloTriangleDemo>("Hello Triangle");
-        RegisterDemo<Demos::HelloTriangleIndexedDemo>("Hello Triangle Indexed");
-        RegisterDemo<Demos::TexturingDemo>("Texturing");
-        RegisterDemo<Demos::UniformBufferDemo>("Uniform Buffers");
-        RegisterDemo<Demos::Demo3D>("3D");
-        RegisterDemo<Demos::CameraDemo>("Camera");
-        RegisterDemo<Demos::LightingDemo>("Lighting");
-        RegisterDemo<Demos::ModelDemo>("Models");
+        RegisterGraphicsDemo<Demos::ClearScreenDemo>("Clear Colour");
+        RegisterGraphicsDemo<Demos::HelloTriangleDemo>("Hello Triangle");
+        RegisterGraphicsDemo<Demos::HelloTriangleIndexedDemo>("Hello Triangle Indexed");
+        RegisterGraphicsDemo<Demos::TexturingDemo>("Texturing");
+        RegisterGraphicsDemo<Demos::UniformBufferDemo>("Uniform Buffers");
+        RegisterGraphicsDemo<Demos::Demo3D>("3D");
+        RegisterGraphicsDemo<Demos::CameraDemo>("Camera");
+        RegisterGraphicsDemo<Demos::LightingDemo>("Lighting");
+        RegisterGraphicsDemo<Demos::ModelDemo>("Models");
+        RegisterAudioDemo<Demos::AudioDemo>("Audio");
     }
 
     template <typename T>
-    void RegisterDemo(const std::string &name)
+    void RegisterGraphicsDemo(const std::string &name)
     {
         DemoInfo info;
         info.Name = name;
@@ -55,7 +57,19 @@ public:
         {
             return new T(name, app);
         };
-        m_AvailableDemos.push_back(info);
+        m_GraphicsDemos.push_back(info);
+    }
+
+    template <typename T>
+    void RegisterAudioDemo(const std::string &name)
+    {
+        DemoInfo info;
+        info.Name = name;
+        info.CreationFunction = [](Nexus::Application *app, const std::string &name) -> Demos::Demo *
+        {
+            return new T(name, app);
+        };
+        m_AudioDemos.push_back(info);
     }
 
     virtual void Update(Nexus::Time time) override
@@ -113,7 +127,33 @@ public:
             {
                 if (ImGui::TreeNodeEx("Graphics", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth))
                 {
-                    for (auto &pair : m_AvailableDemos)
+                    for (auto &pair : m_GraphicsDemos)
+                    {
+                        auto flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Leaf;
+
+                        if (ImGui::TreeNodeEx(pair.Name.c_str(), flags))
+                        {
+                            if (ImGui::IsItemClicked())
+                            {
+                                if (m_CurrentDemo)
+                                {
+                                    delete m_CurrentDemo;
+                                    m_CurrentDemo = nullptr;
+                                }
+
+                                m_CurrentDemo = pair.CreationFunction(this, pair.Name);
+                            }
+
+                            ImGui::TreePop();
+                        }
+                    }
+
+                    ImGui::TreePop();
+                }
+
+                if (ImGui::TreeNodeEx("Audio", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth))
+                {
+                    for (auto &pair : m_AudioDemos)
                     {
                         auto flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Leaf;
 
@@ -175,7 +215,9 @@ public:
 private:
     Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
     Demos::Demo *m_CurrentDemo = nullptr;
-    std::vector<DemoInfo> m_AvailableDemos;
+
+    std::vector<DemoInfo> m_GraphicsDemos;
+    std::vector<DemoInfo> m_AudioDemos;
 };
 
 int main(int argc, char **argv)
