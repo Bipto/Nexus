@@ -24,6 +24,8 @@
 #include "Core/Logging/Log.hpp"
 #include "Core/Input/Input.hpp"
 
+#include "Core/EntryPoint.hpp"
+
 #include "Runtime/Camera.hpp"
 #include "Runtime/Project.hpp"
 #include "Runtime/Scene.hpp"

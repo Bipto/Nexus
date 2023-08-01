@@ -29,14 +29,11 @@ if (WIN32)
     add_compile_definitions(NX_PLATFORM_OPENGL)
     add_compile_definitions(NX_PLATFORM_OPENAL)
     add_compile_definitions(NX_PLATFORM_SDL_NET)
-endif()
-
-if (EMSCRIPTEN)
+elseif (EMSCRIPTEN)
     add_compile_definitions(NX_PLATFORM_OPENGL)
     add_compile_definitions(NX_PLATFORM_OPENAL)
-
-    set(CMAKE_CXX_FLAGS_DEBUG "-O3")
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+    #set(CMAKE_CXX_FLAGS_DEBUG "-O3")
+    #set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 endif()
 
 #set up engine projects

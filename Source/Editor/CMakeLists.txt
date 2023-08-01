@@ -7,7 +7,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 file (GLOB_RECURSE APP_HEADERS *.h)
 file (GLOB_RECURSE APP_SOURCES *.cpp)
-add_executable(Editor ${APP_HEADERS} ${APP_SOURCES})
+add_executable(Editor WIN32 ${APP_HEADERS} ${APP_SOURCES})
 
 file (COPY ${CMAKE_CURRENT_SOURCE_DIR}/Resources
     DESTINATION ${CMAKE_BINARY_DIR}/bin)
