@@ -18,14 +18,23 @@ namespace Nexus::Graphics
         m_CommandData.resize(initialCommandCount);
     }
 
-    void CommandListDX11::Begin(const CommandListBeginInfo &beginInfo)
+    void CommandListDX11::Begin()
     {
 #if defined(NX_PLATFORM_DX11)
         m_Commands.clear();
         m_CommandData.clear();
         m_CommandIndex = 0;
+#endif
+    }
 
-        m_CommandData.emplace_back(beginInfo);
+    void CommandListDX11::End()
+    {
+    }
+
+    void CommandListDX11::Clear(const ClearInfo &clearInfo)
+    {
+#if defined(NX_PLATFORM_DX11)
+        m_CommandData.emplace_back(clearInfo);
 
         auto renderCommand = [](Ref<CommandList> commandList)
         {
@@ -34,8 +43,8 @@ namespace Nexus::Graphics
             auto activeRenderTargetViews = graphicsDevice->GetActiveRenderTargetViews();
             auto context = graphicsDevice->GetDeviceContext();
             const auto &commandData = commandListDX11->GetCurrentCommandData();
-            const auto &beginInfo = std::get<CommandListBeginInfo>(commandData);
-            const auto &color = beginInfo.ClearValue;
+            const auto &beginInfo = std::get<ClearInfo>(commandData);
+            const auto &color = beginInfo.ClearColorValue;
 
             float backgroundColor[4] = {
                 color.Red,
@@ -52,25 +61,21 @@ namespace Nexus::Graphics
             auto depthStencilView = graphicsDevice->GetActiveDepthStencilView();
             {
                 uint32_t clearFlags = 0;
-                if (beginInfo.ClearDepth)
+                if (beginInfo.ClearDepthStencil)
+                {
                     clearFlags |= D3D11_CLEAR_DEPTH;
-
-                if (beginInfo.ClearStencil)
                     clearFlags |= D3D11_CLEAR_STENCIL;
+                }
 
                 context->ClearDepthStencilView(
                     depthStencilView,
                     clearFlags,
-                    beginInfo.DepthValue,
-                    beginInfo.StencilValue);
+                    beginInfo.ClearDepthStencilValue.Depth,
+                    beginInfo.ClearDepthStencilValue.Stencil);
             }
         };
         m_Commands.push_back(renderCommand);
 #endif
-    }
-
-    void CommandListDX11::End()
-    {
     }
 
     void CommandListDX11::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer)
@@ -145,6 +150,25 @@ namespace Nexus::Graphics
         m_Commands.push_back(renderCommand);
 #endif
     }
+
+    void CommandListDX11::SetFramebuffer(Ref<Framebuffer> framebuffer)
+    {
+#if defined(NX_PLATFORM_DX11)
+        m_CommandData.emplace_back(framebuffer);
+
+        auto renderCommand = [](Ref<CommandList> commandList)
+        {
+            Ref<CommandListDX11> commandListDX11 = std::dynamic_pointer_cast<CommandListDX11>(commandList);
+            const auto &commandData = commandListDX11->GetCurrentCommandData();
+            auto framebuffer = std::get<Ref<Framebuffer>>(commandData);
+
+            auto graphicsDevice = commandListDX11->GetGraphicsDevice();
+            graphicsDevice->SetFramebuffer(framebuffer);
+        };
+        m_Commands.push_back(renderCommand);
+#endif
+    }
+
     void CommandListDX11::DrawElements(uint32_t start, uint32_t count)
     {
 #if defined(NX_PLATFORM_DX11)

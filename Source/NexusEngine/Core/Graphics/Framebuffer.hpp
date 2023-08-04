@@ -74,20 +74,25 @@ namespace Nexus::Graphics
     class Framebuffer
     {
     public:
+        /// @brief A constructor that sets the initial specification of a framebuffer
+        /// @param spec A const reference to a FramebufferSpecification object
+        Framebuffer(const FramebufferSpecification &spec)
+            : m_Specification(spec) {}
+
         /// @brief A virtual destructor enabling resources to be cleaned up
         virtual ~Framebuffer(){};
 
-        /// @brief A pure virtual method to get the number of colour attachments in the framebuffer
+        /// @brief A method to get the number of colour attachments in the framebuffer
         /// @return An integer representing the number of colour attachments
-        virtual int GetColorTextureCount() = 0;
+        int GetColorTextureCount() { return m_Specification.ColorAttachmentSpecification.Attachments.size(); }
 
-        /// @brief A pure virtual method to check whether a framebuffer has a colour attachment
+        /// @brief A method to check whether a framebuffer has a colour attachment
         /// @return A boolean representing whether a framebuffer has a colour attachment
-        virtual bool HasColorTexture() = 0;
+        virtual bool HasColorTexture() { return m_Specification.ColorAttachmentSpecification.Attachments.size() > 0; }
 
-        /// @brief A pure virtual method to check whether a framebuffer has a depth attachment
+        /// @brief A method to check whether a framebuffer has a depth attachment
         /// @return A boolean representing whether a framebuffer has a depth attachment
-        virtual bool HasDepthTexture() = 0;
+        virtual bool HasDepthTexture() { return m_Specification.DepthAttachmentSpecification.DepthFormat != DepthFormat::None; }
 
         /// @brief A pure virtual method to return a colour attachment in the framebuffer
         /// @param index The index of the colour attachment to return within the framebuffer
@@ -105,6 +110,10 @@ namespace Nexus::Graphics
         /// @brief A pure virtual method to set the framebuffer specification, automatically invoking the Recreate() method
         /// @param spec The new framebuffer specification
         virtual void SetFramebufferSpecification(const FramebufferSpecification &spec) = 0;
+
+    protected:
+        /// @brief An object containing the specification of a framebuffer
+        FramebufferSpecification m_Specification;
 
     private:
         /// @brief Recreates the framebuffer to the size specified in the specification

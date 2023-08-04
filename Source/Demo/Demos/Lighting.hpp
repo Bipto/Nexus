@@ -97,8 +97,8 @@ namespace Demos
             specularMapBinding.Name = "specularMapSampler";
             m_Shader->SetTexture(m_SpecularMap, specularMapBinding);
 
-            Nexus::Graphics::CommandListBeginInfo beginInfo{};
-            beginInfo.ClearValue = {
+            Nexus::Graphics::ClearInfo clearInfo{};
+            clearInfo.ClearColorValue = {
                 m_ClearColour.r,
                 m_ClearColour.g,
                 m_ClearColour.b,
@@ -115,8 +115,10 @@ namespace Demos
 
             m_CameraUniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms), 0);
 
-            m_CommandList->Begin(beginInfo);
+            m_CommandList->Begin();
+            m_CommandList->SetFramebuffer(nullptr);
             m_CommandList->SetPipeline(m_Pipeline);
+            m_CommandList->Clear(clearInfo);
 
             // draw sprite
             {

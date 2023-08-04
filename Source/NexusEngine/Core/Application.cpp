@@ -1,7 +1,11 @@
 #include "Application.hpp"
 
+// graphics headers
 #include "Platform/OpenGL/GraphicsDeviceOpenGL.hpp"
 #include "Platform/DX11/GraphicsDeviceDX11.hpp"
+#include "Platform/Vulkan/GraphicsDeviceVk.hpp"
+
+// audio headers
 #include "Platform/OpenAL/AudioDeviceOpenAL.hpp"
 
 #include "Core/Logging/Log.hpp"
@@ -25,6 +29,7 @@ namespace Nexus
         m_Specification = spec;
 
         WindowProperties props;
+        props.GraphicsAPI = spec.GraphicsAPI;
         this->m_Window = new Nexus::Window(props);
 
         Graphics::GraphicsDeviceCreateInfo graphicsDeviceCreateInfo;
@@ -183,8 +188,10 @@ namespace Nexus
         {
         case Graphics::GraphicsAPI::DirectX11:
             return CreateRef<Graphics::GraphicsDeviceDX11>(createInfo, window);
-        default:
+        case Graphics::GraphicsAPI::OpenGL:
             return CreateRef<Graphics::GraphicsDeviceOpenGL>(createInfo, window);
+        case Graphics::GraphicsAPI::Vulkan:
+            return CreateRef<Graphics::GraphicsDeviceVk>(createInfo, window);
         }
     }
 

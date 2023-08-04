@@ -13,11 +13,6 @@ namespace Nexus::Graphics
 
         void Bind();
         void Unbind();
-        virtual void Recreate() override;
-
-        virtual int GetColorTextureCount() override;
-        virtual bool HasColorTexture() override;
-        virtual bool HasDepthTexture() override;
 
         virtual void *GetColorAttachment(int index = 0) override;
         virtual const FramebufferSpecification GetFramebufferSpecification() override;
@@ -25,6 +20,7 @@ namespace Nexus::Graphics
         virtual void *GetDepthAttachment() override { return (void *)m_DepthTexture; }
 
     private:
+        virtual void Recreate() override;
         void CreateTextures();
         void DeleteTextures();
 
@@ -35,7 +31,5 @@ namespace Nexus::Graphics
 
         std::vector<unsigned int> m_ColorTextures;
         unsigned int m_DepthTexture;
-
-        FramebufferSpecification m_FramebufferSpecification;
     };
 }

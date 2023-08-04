@@ -4,6 +4,7 @@
 #include "ShaderOpenGL.hpp"
 #include "BufferOpenGL.hpp"
 #include "TextureOpenGL.hpp"
+#include "GraphicsDeviceOpenGL.hpp"
 
 #include <memory>
 #include <stdexcept>
@@ -18,47 +19,49 @@ namespace Nexus::Graphics
         m_CommandData.resize(initialCommandCount);
     }
 
-    void CommandListOpenGL::Begin(const CommandListBeginInfo &beginInfo)
+    void CommandListOpenGL::Begin()
     {
         m_CommandIndex = 0;
         m_Commands.clear();
         m_CommandData.clear();
+    }
 
-        m_CommandData.emplace_back(beginInfo);
+    void CommandListOpenGL::End()
+    {
+    }
 
+    void CommandListOpenGL::Clear(const ClearInfo &clearInfo)
+    {
+        m_CommandData.emplace_back(clearInfo);
         auto renderCommand = [](Ref<CommandList> commandList)
         {
             auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             const auto &commandData = commandListGL->GetCurrentCommandData();
-            const auto &beginInfo = std::get<CommandListBeginInfo>(commandData);
+            const auto &beginInfo = std::get<ClearInfo>(commandData);
 
-            auto color = beginInfo.ClearValue;
+            auto color = beginInfo.ClearColorValue;
 
             glClearColor(color.Red,
                          color.Green,
                          color.Blue,
                          color.Alpha);
-            glClearDepthf(beginInfo.DepthValue);
-            glClearStencil(beginInfo.StencilValue);
+            glClearDepthf(beginInfo.ClearDepthStencilValue.Depth);
+            glClearStencil(beginInfo.ClearDepthStencilValue.Stencil);
 
             uint32_t clearFlags = 0;
 
             if (beginInfo.ClearColor)
                 clearFlags |= GL_COLOR_BUFFER_BIT;
 
-            if (beginInfo.ClearDepth)
+            if (beginInfo.ClearDepthStencil)
+            {
                 clearFlags |= GL_DEPTH_BUFFER_BIT;
-
-            if (beginInfo.ClearStencil)
                 clearFlags |= GL_STENCIL_BUFFER_BIT;
+            }
 
             glClear(clearFlags);
         };
         m_Commands.push_back(renderCommand);
-    }
-
-    void CommandListOpenGL::End()
-    {
     }
 
     void CommandListOpenGL::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer)
@@ -98,6 +101,20 @@ namespace Nexus::Graphics
             const auto &commandData = commandListGL->GetCurrentCommandData();
             const auto pipeline = std::get<Ref<Pipeline>>(commandData);
             commandListGL->BindPipeline(pipeline);
+        };
+        m_Commands.push_back(renderCommand);
+    }
+
+    void CommandListOpenGL::SetFramebuffer(Ref<Framebuffer> framebuffer)
+    {
+        m_CommandData.emplace_back(framebuffer);
+        auto renderCommand = [](Ref<CommandList> commandList)
+        {
+            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
+            const auto &commandData = commandListGL->GetCurrentCommandData();
+            const auto framebuffer = std::get<Ref<Framebuffer>>(commandData);
+            auto graphicsDevice = (GraphicsDeviceOpenGL *)commandListGL->GetGraphicsDevice();
+            graphicsDevice->SetFramebuffer(framebuffer);
         };
         m_Commands.push_back(renderCommand);
     }
@@ -225,5 +242,10 @@ namespace Nexus::Graphics
         auto pipelineGL = std::dynamic_pointer_cast<PipelineOpenGL>(pipeline);
         pipelineGL->Bind();
         m_CurrentlyBoundPipeline = pipeline;
+    }
+
+    GraphicsDevice *CommandListOpenGL::GetGraphicsDevice()
+    {
+        return m_Device;
     }
 }

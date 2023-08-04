@@ -14,12 +14,15 @@ namespace Nexus::Graphics
     public:
         CommandListOpenGL(GraphicsDevice *device);
 
-        virtual void Begin(const CommandListBeginInfo &beginInfo) override;
+        virtual void Begin() override;
         virtual void End() override;
+
+        virtual void Clear(const ClearInfo &clearInfo) override;
 
         virtual void SetVertexBuffer(Ref<VertexBuffer> vertexBuffer) override;
         virtual void SetIndexBuffer(Ref<IndexBuffer> indexBuffer) override;
         virtual void SetPipeline(Ref<Pipeline> pipeline) override;
+        virtual void SetFramebuffer(Ref<Framebuffer> framebuffer) override;
 
         virtual void DrawElements(uint32_t start, uint32_t count) override;
         virtual void DrawIndexed(uint32_t count, uint32_t offset) override;
@@ -32,6 +35,7 @@ namespace Nexus::Graphics
         RenderCommandData &GetCurrentCommandData();
         GLenum GetTopology();
         void BindPipeline(Ref<Pipeline> pipeline);
+        GraphicsDevice *GetGraphicsDevice();
 
     private:
         GraphicsDevice *m_Device;
@@ -39,7 +43,7 @@ namespace Nexus::Graphics
         std::vector<RenderCommandData> m_CommandData;
         uint32_t m_CommandIndex = 0;
 
-        CommandListBeginInfo m_CommandListBeginInfo;
+        ClearInfo m_CommandListBeginInfo;
         Ref<Pipeline> m_CurrentlyBoundPipeline;
     };
 }

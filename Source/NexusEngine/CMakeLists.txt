@@ -19,7 +19,9 @@ target_include_directories(NexusEngine PUBLIC
   ../../External/OpenAL-Soft/include
   ../../External/shaderc/libshaderc
   ../../External/libnyquist/include
-  ../../External/shaderc/SPIRV-Cross/include)
+  ../../External/shaderc/SPIRV-Cross/include
+  ${VULKAN_INCLUDE_DIRS}
+  ../../External/VulkanMemoryAllocator/include)
 
 #dependencies when not building with emscripten
 if (NOT DEFINED EMSCRIPTEN)
@@ -32,7 +34,8 @@ endif()
 target_include_directories(NexusEngine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 #linking dependencies
-target_link_libraries(NexusEngine PUBLIC 
+target_link_libraries(NexusEngine PUBLIC
+  ${OPENGL_LIBRARIES} 
   SDL2main
   SDL2-static
   lua_static
@@ -43,7 +46,9 @@ target_link_libraries(NexusEngine PUBLIC
   shaderc
   libnyquist
   spirv-cross-cpp
-  spirv-cross-hlsl)
+  spirv-cross-hlsl
+  Vulkan::Vulkan
+  VulkanMemoryAllocator)
 
 if(NOT DEFINED EMSCRIPTEN)
   target_link_libraries(NexusEngine PUBLIC 
@@ -51,10 +56,6 @@ if(NOT DEFINED EMSCRIPTEN)
     OpenAL
     SDL2_net)
 endif()
-
-#including OpenGL
-find_package(OpenGL REQUIRED)
-target_link_libraries(NexusEngine PUBLIC ${OPENGL_LIBRARIES})
 
 #precompiled header
 target_precompile_headers(NexusEngine PUBLIC Core/nxpch.hpp)

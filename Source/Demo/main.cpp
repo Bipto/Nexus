@@ -26,7 +26,8 @@ struct DemoInfo
 class DemoApplication : public Nexus::Application
 {
 public:
-    DemoApplication(const Nexus::ApplicationSpecification &spec) : Application(spec) {}
+    DemoApplication(const Nexus::ApplicationSpecification &spec)
+        : Application(spec) {}
 
     virtual void Load() override
     {
@@ -187,14 +188,15 @@ public:
         }
         else
         {
-            Nexus::Graphics::CommandListBeginInfo beginInfo{};
-            beginInfo.ClearValue = {
+            Nexus::Graphics::ClearInfo clearInfo{};
+            clearInfo.ClearColorValue = {
                 0.0f,
                 0.0f,
                 0.0f,
                 1.0f};
 
-            m_CommandList->Begin(beginInfo);
+            m_CommandList->Begin();
+            m_CommandList->Clear(clearInfo);
             m_CommandList->End();
             m_GraphicsDevice->SubmitCommandList(m_CommandList);
         }
@@ -224,6 +226,15 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 {
     Nexus::ApplicationSpecification spec;
     spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
+
+    if (arguments.size() > 1)
+    {
+        if (arguments[1] == "DX")
+        {
+            spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::DirectX11;
+        }
+    }
+
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
     spec.ImGuiActive = true;
     spec.VSyncState = Nexus::Graphics::VSyncState::Enabled;

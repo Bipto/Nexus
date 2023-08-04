@@ -177,11 +177,6 @@ namespace Nexus::Graphics
             viewport.Height);
     }
 
-    const Viewport &GraphicsDeviceOpenGL::GetViewport()
-    {
-        return m_Viewport;
-    }
-
     const std::string GraphicsDeviceOpenGL::GetAPIName()
     {
         std::string name = std::string("OpenGL - ") + std::string((const char *)glGetString(GL_VERSION));
@@ -196,6 +191,14 @@ namespace Nexus::Graphics
     void *GraphicsDeviceOpenGL::GetContext()
     {
         return (void *)this->m_Context;
+    }
+
+    void GraphicsDeviceOpenGL::BeginFrame()
+    {
+        }
+
+    void GraphicsDeviceOpenGL::EndFrame()
+    {
     }
 
     Ref<Shader> GraphicsDeviceOpenGL::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout)

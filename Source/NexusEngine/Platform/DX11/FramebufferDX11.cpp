@@ -7,9 +7,9 @@ namespace Nexus::Graphics
 {
 #if defined(WIN32)
     FramebufferDX11::FramebufferDX11(ID3D11Device *device, const FramebufferSpecification &spec)
+        : Framebuffer(spec)
     {
         m_Device = device;
-        this->m_FramebufferSpecification = spec;
         Recreate();
     }
 
@@ -23,21 +23,6 @@ namespace Nexus::Graphics
         CreateTextures();
     }
 
-    int FramebufferDX11::GetColorTextureCount()
-    {
-        return m_ColorRenderTargets.size();
-    }
-
-    bool FramebufferDX11::HasColorTexture()
-    {
-        return m_ColorRenderTargets.size() > 0;
-    }
-
-    bool FramebufferDX11::HasDepthTexture()
-    {
-        return m_FramebufferSpecification.DepthAttachmentSpecification.DepthFormat != DepthFormat::None;
-    }
-
     void *FramebufferDX11::GetColorAttachment(int index)
     {
         return m_ColorRenderTargets[index].ShaderResourceView;
@@ -45,12 +30,12 @@ namespace Nexus::Graphics
 
     const FramebufferSpecification FramebufferDX11::GetFramebufferSpecification()
     {
-        return m_FramebufferSpecification;
+        return m_Specification;
     }
 
     void FramebufferDX11::SetFramebufferSpecification(const FramebufferSpecification &spec)
     {
-        m_FramebufferSpecification = spec;
+        m_Specification = spec;
         Recreate();
     }
 
@@ -62,14 +47,14 @@ namespace Nexus::Graphics
         {
             m_ColorRenderTargets.clear();
 
-            for (auto colorAttachments : m_FramebufferSpecification.ColorAttachmentSpecification.Attachments)
+            for (auto colorAttachments : m_Specification.ColorAttachmentSpecification.Attachments)
             {
                 FramebufferColorRenderTarget target;
 
                 D3D11_TEXTURE2D_DESC textureDesc;
                 ZeroMemory(&textureDesc, sizeof(textureDesc));
-                textureDesc.Width = m_FramebufferSpecification.Width;
-                textureDesc.Height = m_FramebufferSpecification.Height;
+                textureDesc.Width = m_Specification.Width;
+                textureDesc.Height = m_Specification.Height;
                 textureDesc.MipLevels = 1;
                 textureDesc.ArraySize = 1;
                 textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
@@ -123,8 +108,8 @@ namespace Nexus::Graphics
 
             D3D11_TEXTURE2D_DESC depthStencilDesc;
             ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
-            depthStencilDesc.Width = m_FramebufferSpecification.Width;
-            depthStencilDesc.Height = m_FramebufferSpecification.Height;
+            depthStencilDesc.Width = m_Specification.Width;
+            depthStencilDesc.Height = m_Specification.Height;
             depthStencilDesc.MipLevels = 1;
             depthStencilDesc.ArraySize = 1;
             depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;

@@ -25,11 +25,6 @@ namespace Nexus::Graphics
         FramebufferDX11(ID3D11Device *device, const FramebufferSpecification &spec);
         ~FramebufferDX11();
 
-        virtual void Recreate() override;
-        virtual int GetColorTextureCount() override;
-        virtual bool HasColorTexture() override;
-        virtual bool HasDepthTexture() override;
-
         virtual void *GetColorAttachment(int index = 0) override;
         virtual const FramebufferSpecification GetFramebufferSpecification() override;
         virtual void SetFramebufferSpecification(const FramebufferSpecification &spec) override;
@@ -40,6 +35,7 @@ namespace Nexus::Graphics
         ID3D11DepthStencilView *GetDepthStencilView() { return m_DepthTarget.DepthStencilView; }
 
     private:
+        virtual void Recreate() override;
         void CreateTextures();
         void DeleteTextures();
 
@@ -48,7 +44,6 @@ namespace Nexus::Graphics
         FramebufferDepthRenderTarget m_DepthTarget;
 
         ID3D11Device *m_Device;
-        FramebufferSpecification m_FramebufferSpecification;
     };
 }
 

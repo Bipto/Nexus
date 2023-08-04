@@ -170,11 +170,6 @@ namespace Nexus::Graphics
 #endif
     }
 
-    const Viewport &GraphicsDeviceDX11::GetViewport()
-    {
-        return m_Viewport;
-    }
-
     const std::string GraphicsDeviceDX11::GetAPIName()
     {
         return {"DirectX11"};
@@ -196,6 +191,14 @@ namespace Nexus::Graphics
 #else
         return nullptr;
 #endif
+    }
+
+    void GraphicsDeviceDX11::BeginFrame()
+    {
+    }
+
+    void GraphicsDeviceDX11::EndFrame()
+    {
     }
 
     Ref<Shader> GraphicsDeviceDX11::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout)

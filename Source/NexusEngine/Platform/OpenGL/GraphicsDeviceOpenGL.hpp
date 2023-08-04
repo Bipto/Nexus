@@ -14,15 +14,17 @@ namespace Nexus::Graphics
         GraphicsDeviceOpenGL(const GraphicsDeviceOpenGL &) = delete;
         virtual ~GraphicsDeviceOpenGL();
         void SetContext() override;
-        virtual void SetFramebuffer(Ref<Framebuffer> framebuffer) override;
+        void SetFramebuffer(Ref<Framebuffer> framebuffer);
         virtual void SubmitCommandList(Ref<CommandList> commandList) override;
 
         virtual void SetViewport(const Viewport &viewport) override;
-        virtual const Viewport &GetViewport() override;
 
         virtual const std::string GetAPIName() override;
         virtual const char *GetDeviceName() override;
         virtual void *GetContext() override;
+
+        virtual void BeginFrame() override;
+        virtual void EndFrame() override;
 
         virtual Ref<Shader> CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout) override;
         virtual Ref<Texture> CreateTexture(TextureSpecification spec) override;

@@ -193,8 +193,8 @@ public:
                 if (activeScene)
                 {
                     auto clearColor = activeScene->GetClearColor();
-                    Nexus::Graphics::CommandListBeginInfo beginInfo{};
-                    beginInfo.ClearValue = {
+                    Nexus::Graphics::ClearInfo beginInfo{};
+                    beginInfo.ClearColorValue = {
                         clearColor.r,
                         clearColor.g,
                         clearColor.b,
@@ -230,8 +230,8 @@ public:
             // otherwise render empty screen
             else
             {
-                Nexus::Graphics::CommandListBeginInfo beginInfo{};
-                beginInfo.ClearValue = {
+                Nexus::Graphics::ClearInfo beginInfo{};
+                beginInfo.ClearColorValue = {
                     0.0f,
                     0.0f,
                     0.0f,

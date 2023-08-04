@@ -3,8 +3,8 @@
 namespace Nexus::Graphics
 {
     FramebufferOpenGL::FramebufferOpenGL(const FramebufferSpecification &spec)
+        : Framebuffer(spec)
     {
-        this->m_FramebufferSpecification = spec;
         Recreate();
     }
 
@@ -41,21 +41,6 @@ namespace Nexus::Graphics
         }
     }
 
-    int FramebufferOpenGL::GetColorTextureCount()
-    {
-        return m_FramebufferSpecification.ColorAttachmentSpecification.Attachments.size();
-    }
-
-    bool FramebufferOpenGL::HasColorTexture()
-    {
-        return m_FramebufferSpecification.ColorAttachmentSpecification.Attachments.size() > 0;
-    }
-
-    bool FramebufferOpenGL::HasDepthTexture()
-    {
-        return m_FramebufferSpecification.DepthAttachmentSpecification.DepthFormat != DepthFormat::None;
-    }
-
     void *FramebufferOpenGL::GetColorAttachment(int index)
     {
         return (void *)m_ColorTextures[index];
@@ -63,12 +48,12 @@ namespace Nexus::Graphics
 
     const FramebufferSpecification FramebufferOpenGL::GetFramebufferSpecification()
     {
-        return this->m_FramebufferSpecification;
+        return m_Specification;
     }
 
     void FramebufferOpenGL::SetFramebufferSpecification(const FramebufferSpecification &spec)
     {
-        this->m_FramebufferSpecification = spec;
+        m_Specification = spec;
         Recreate();
     }
 
@@ -77,15 +62,15 @@ namespace Nexus::Graphics
         m_ColorTextures.clear();
 
         // color attachments
-        for (int i = 0; i < m_FramebufferSpecification.ColorAttachmentSpecification.Attachments.size(); i++)
+        for (int i = 0; i < m_Specification.ColorAttachmentSpecification.Attachments.size(); i++)
         {
-            auto colorSpec = m_FramebufferSpecification.ColorAttachmentSpecification.Attachments[i];
+            auto colorSpec = m_Specification.ColorAttachmentSpecification.Attachments[i];
 
             unsigned int texture;
             glGenTextures(1, &texture);
             glBindTexture(GL_TEXTURE_2D, texture);
 
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_FramebufferSpecification.Width, m_FramebufferSpecification.Height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_Specification.Width, m_Specification.Height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -97,12 +82,12 @@ namespace Nexus::Graphics
         }
 
         // depth attachment
-        if (m_FramebufferSpecification.DepthAttachmentSpecification.DepthFormat != DepthFormat::None)
+        if (m_Specification.DepthAttachmentSpecification.DepthFormat != DepthFormat::None)
         {
             glGenTextures(1, &m_DepthTexture);
             glBindTexture(GL_TEXTURE_2D, m_DepthTexture);
 
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, m_FramebufferSpecification.Width, m_FramebufferSpecification.Height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, m_Specification.Width, m_Specification.Height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
 
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

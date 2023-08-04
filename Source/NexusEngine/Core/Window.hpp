@@ -13,6 +13,8 @@
 #include "Core/Events/EventHandler.hpp"
 #include "Core/Input/InputState.hpp"
 
+#include "Core/Graphics/GraphicsAPI.hpp"
+
 #include "backends/imgui_impl_sdl2.h"
 
 #if defined(WIN32)
@@ -68,6 +70,9 @@ namespace Nexus
 
         /// @brief A boolean indicating whether the window can be resized or not
         bool Resizable = true;
+
+        /// @brief An enum value representing the graphics API to use within the window
+        Graphics::GraphicsAPI GraphicsAPI = Graphics::GraphicsAPI::None;
     };
 
     /// @brief A class representing a window

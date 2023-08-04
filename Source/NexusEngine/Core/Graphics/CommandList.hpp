@@ -6,6 +6,7 @@
 #include "Texture.hpp"
 #include "Shader.hpp"
 #include "Buffer.hpp"
+#include "Framebuffer.hpp"
 
 #include <functional>
 #include <variant>
@@ -13,7 +14,7 @@
 namespace Nexus::Graphics
 {
     /// @brief A struct representing a set of values to use  to clear the colour buffer
-    struct ClearValue
+    struct ClearColorValue
     {
         /// @brief The red channel as a value between 0.0f and 1.0f
         float Red = 1.0f;
@@ -28,26 +29,30 @@ namespace Nexus::Graphics
         float Alpha = 1.0f;
     };
 
-    /// @brief A struct representing a set of values used to clear the buffers when beginning a command list
-    struct CommandListBeginInfo
+    /// @brief A struct representing a set of values to use to clear the depth/stencil buffer
+    struct ClearDepthStencilValue
     {
-        /// @brief An instance of a clear value to use to clear the colour buffer
-        ClearValue ClearValue;
+        /// @brief The value to use to clear the depth buffer
+        float Depth = 1.0f;
 
-        /// @brief A floating point value to use to clear the depth buffer
-        float DepthValue = 1.0f;
+        /// @brief The value to use to clear the stencil buffer
+        uint8_t Stencil = 0;
+    };
 
-        /// @brief An unsigned 8 bit integer to use to clear the stencil buffer
-        uint8_t StencilValue = 0;
+    /// @brief A struct representing a set of values used to clear the buffers when beginning a command list
+    struct ClearInfo
+    {
+        /// @brief An instance of a clearcolorvalue to use to clear the colour buffer
+        ClearColorValue ClearColorValue;
+
+        /// @brief An instance of cleardepthstencilvalue to use to clear the depth stencil buffer
+        ClearDepthStencilValue ClearDepthStencilValue;
 
         /// @brief A boolean value indicating that any colour buffers attached to the currently bound framebuffer should be cleared
         bool ClearColor = true;
 
-        /// @brief A boolean value indicating that any depth buffers attached to the currently bound framebuffer should be cleared
-        bool ClearDepth = true;
-
-        /// @brief A boolean value indicating that any stencil buffers attached to the currently bound framebuffer should be cleared
-        bool ClearStencil = true;
+        /// @brief A boolean value indicating that any depth/stencil buffers attached to the currently bound framebuffer should be cleared
+        bool ClearDepthStencil = true;
     };
 
     /// @brief A struct representing a draw command to be executed using a vertex buffer
@@ -108,7 +113,7 @@ namespace Nexus::Graphics
 
         /// @brief A pure virutal method that begins a command list
         /// @param beginInfo A parameter containing information about how to begin the command list
-        virtual void Begin(const CommandListBeginInfo &beginInfo) = 0;
+        virtual void Begin() = 0;
 
         /// @brief A pure virtual method that ends a command list
         virtual void End() = 0;
@@ -121,9 +126,17 @@ namespace Nexus::Graphics
         /// @param indexBuffer A pointer to the index buffer to bind
         virtual void SetIndexBuffer(Ref<IndexBuffer> indexBuffer) = 0;
 
-        /// @brief A pure virtual method to binds a pipeline to a command list
+        /// @brief A pure virtual method to bind a pipeline to a command list
         /// @param pipeline The pointer to the pipeline to bind
         virtual void SetPipeline(Ref<Pipeline> pipeline) = 0;
+
+        /// @brief A pure virtual method to bind a framebuffer to a command list
+        /// @param framebuffer The pointer to the framebuffer to bind
+        virtual void SetFramebuffer(Ref<Framebuffer> framebuffer) = 0;
+
+        /// @brief A pure virtual method to clear a set of framebuffer textures
+        /// @param clearInfo A const reference to a ClearInfo struct
+        virtual void Clear(const ClearInfo &clearInfo) = 0;
 
         /// @brief A pure virtual method that submits a draw call using the bound vertex buffer
         /// @param start The offset to begin rendering at
@@ -153,10 +166,11 @@ namespace Nexus::Graphics
     typedef void (*RenderCommand)(Ref<CommandList> commandList);
 
     typedef std::variant<
-        CommandListBeginInfo,
+        ClearInfo,
         Ref<VertexBuffer>,
         Ref<IndexBuffer>,
         Ref<Pipeline>,
+        Ref<Framebuffer>,
         TextureUpdateCommand,
         UniformBufferUpdateCommand,
         DrawElementCommand,

@@ -26,14 +26,16 @@ namespace Demos
             vp.Height = m_Window->GetWindowSize().Y;
             m_GraphicsDevice->SetViewport(vp);
 
-            Nexus::Graphics::CommandListBeginInfo beginInfo{};
-            beginInfo.ClearValue = {
+            Nexus::Graphics::ClearInfo beginInfo{};
+            beginInfo.ClearColorValue = {
                 m_ClearColour.r,
                 m_ClearColour.g,
                 m_ClearColour.b,
                 1.0f};
 
-            m_CommandList->Begin(beginInfo);
+            m_CommandList->Begin();
+            m_CommandList->Clear(beginInfo);
+            m_CommandList->SetFramebuffer(nullptr);
             m_CommandList->End();
 
             m_GraphicsDevice->SubmitCommandList(m_CommandList);

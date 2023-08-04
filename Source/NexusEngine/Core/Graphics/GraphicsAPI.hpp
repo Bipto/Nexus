@@ -12,6 +12,9 @@ namespace Nexus::Graphics
         OpenGL,
 
         /// @brief Graphics will be created using DirectX11
-        DirectX11
+        DirectX11,
+
+        /// @brief Graphics will be created using Vulkan
+        Vulkan
     };
 }

@@ -64,8 +64,8 @@ namespace Demos
             textureBinding.Name = "texSampler";
             m_Shader->SetTexture(m_Texture, textureBinding);
 
-            Nexus::Graphics::CommandListBeginInfo beginInfo{};
-            beginInfo.ClearValue = {
+            Nexus::Graphics::ClearInfo clearInfo{};
+            clearInfo.ClearColorValue = {
                 m_ClearColour.r,
                 m_ClearColour.g,
                 m_ClearColour.b,
@@ -74,8 +74,10 @@ namespace Demos
             m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), m_Position);
             m_TransformUniformBuffer->SetData(&m_TransformUniforms, sizeof(m_TransformUniforms), 0);
 
-            m_CommandList->Begin(beginInfo);
+            m_CommandList->Begin();
             m_CommandList->SetPipeline(m_Pipeline);
+            m_CommandList->SetFramebuffer(nullptr);
+            m_CommandList->Clear(clearInfo);
             m_CommandList->SetVertexBuffer(m_Mesh.GetVertexBuffer());
             m_CommandList->SetIndexBuffer(m_Mesh.GetIndexBuffer());
 

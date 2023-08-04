@@ -54,10 +54,6 @@ namespace Nexus::Graphics
         /// @brief A pure virtual method that sets makes the current graphics context current
         virtual void SetContext() = 0;
 
-        /// @brief A pure virtual method that binds a framebuffer to a graphics context
-        /// @param framebuffer The framebuffer to use for rendering
-        virtual void SetFramebuffer(Ref<Framebuffer> framebuffer) = 0;
-
         /// @brief A pure virtual method that returns the name of the graphics API as a string
         /// @return A string containing the API name
         virtual const std::string GetAPIName() = 0;
@@ -74,13 +70,15 @@ namespace Nexus::Graphics
         /// @param viewport The viewport to apply
         virtual void SetViewport(const Viewport &viewport) = 0;
 
-        /// @brief A pure virtual method that will return a const reference to the currently bound viewport
-        /// @return The current viewport being used for rendering
-        virtual const Viewport &GetViewport() = 0;
-
         /// @brief A pure virtual method that returns a context for a graphics API
         /// @return A void pointer to the graphics context
         virtual void *GetContext() = 0;
+
+        /// @brief A pure virtual method that will execute instructions to begin a frame
+        virtual void BeginFrame() = 0;
+
+        /// @brief A pure virtual method that will execute instructions to end a frame
+        virtual void EndFrame() = 0;
 
         /// @brief A method that returns an enum value representing the currently running graphics API backend
         /// @return A GraphicsAPI enum containing the current backend
