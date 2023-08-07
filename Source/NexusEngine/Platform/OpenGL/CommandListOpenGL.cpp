@@ -30,14 +30,18 @@ namespace Nexus::Graphics
     {
     }
 
-    void CommandListOpenGL::Clear(const ClearInfo &clearInfo)
+    void CommandListOpenGL::BeginRenderPass(const RenderPassBeginInfo &clearInfo)
     {
         m_CommandData.emplace_back(clearInfo);
         auto renderCommand = [](Ref<CommandList> commandList)
         {
             auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             const auto &commandData = commandListGL->GetCurrentCommandData();
-            const auto &beginInfo = std::get<ClearInfo>(commandData);
+            const auto &beginInfo = std::get<RenderPassBeginInfo>(commandData);
+
+            auto framebuffer = beginInfo.Framebuffer;
+            auto graphicsDevice = (GraphicsDeviceOpenGL *)commandListGL->GetGraphicsDevice();
+            graphicsDevice->SetFramebuffer(framebuffer);
 
             auto color = beginInfo.ClearColorValue;
 
@@ -62,6 +66,10 @@ namespace Nexus::Graphics
             glClear(clearFlags);
         };
         m_Commands.push_back(renderCommand);
+    }
+
+    void CommandListOpenGL::EndRenderPass()
+    {
     }
 
     void CommandListOpenGL::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer)
@@ -101,20 +109,6 @@ namespace Nexus::Graphics
             const auto &commandData = commandListGL->GetCurrentCommandData();
             const auto pipeline = std::get<Ref<Pipeline>>(commandData);
             commandListGL->BindPipeline(pipeline);
-        };
-        m_Commands.push_back(renderCommand);
-    }
-
-    void CommandListOpenGL::SetFramebuffer(Ref<Framebuffer> framebuffer)
-    {
-        m_CommandData.emplace_back(framebuffer);
-        auto renderCommand = [](Ref<CommandList> commandList)
-        {
-            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
-            const auto &commandData = commandListGL->GetCurrentCommandData();
-            const auto framebuffer = std::get<Ref<Framebuffer>>(commandData);
-            auto graphicsDevice = (GraphicsDeviceOpenGL *)commandListGL->GetGraphicsDevice();
-            graphicsDevice->SetFramebuffer(framebuffer);
         };
         m_Commands.push_back(renderCommand);
     }

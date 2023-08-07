@@ -97,12 +97,13 @@ namespace Demos
             specularMapBinding.Name = "specularMapSampler";
             m_Shader->SetTexture(m_SpecularMap, specularMapBinding);
 
-            Nexus::Graphics::ClearInfo clearInfo{};
-            clearInfo.ClearColorValue = {
+            Nexus::Graphics::RenderPassBeginInfo beginInfo{};
+            beginInfo.ClearColorValue = {
                 m_ClearColour.r,
                 m_ClearColour.g,
                 m_ClearColour.b,
                 1.0f};
+            beginInfo.Framebuffer = nullptr;
 
             m_TransformUniforms.Transform = glm::rotate(glm::mat4(1.0f),
                                                         glm::radians(m_Rotation),
@@ -116,9 +117,8 @@ namespace Demos
             m_CameraUniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms), 0);
 
             m_CommandList->Begin();
-            m_CommandList->SetFramebuffer(nullptr);
             m_CommandList->SetPipeline(m_Pipeline);
-            m_CommandList->Clear(clearInfo);
+            m_CommandList->BeginRenderPass(beginInfo);
 
             // draw sprite
             {
@@ -144,6 +144,7 @@ namespace Demos
                 m_CommandList->DrawIndexed(indexCount, 0);
             }
 
+            m_CommandList->EndRenderPass();
             m_CommandList->End();
 
             m_GraphicsDevice->SubmitCommandList(m_CommandList);

@@ -273,6 +273,11 @@ namespace Nexus::Graphics
 #endif
     }
 
+    Ref<RenderPass> GraphicsDeviceDX11::CreateRenderPass(const RenderPassSpecification &spec)
+    {
+        return nullptr;
+    }
+
     void GraphicsDeviceDX11::Resize(Point<int> size)
     {
 #if defined(NX_PLATFORM_DX11)

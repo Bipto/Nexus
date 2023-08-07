@@ -45,17 +45,18 @@ namespace Demos
             vp.Height = m_Window->GetWindowSize().Y;
             m_GraphicsDevice->SetViewport(vp);
 
-            Nexus::Graphics::ClearInfo clearInfo{};
-            clearInfo.ClearColorValue = {
+            Nexus::Graphics::RenderPassBeginInfo beginInfo{};
+            beginInfo.ClearColorValue = {
                 m_ClearColour.r,
                 m_ClearColour.g,
                 m_ClearColour.b,
                 1.0f};
+            beginInfo.Framebuffer = nullptr;
 
             m_CommandList->Begin();
-            m_CommandList->Clear(clearInfo);
+            m_CommandList->BeginRenderPass(beginInfo);
             m_CommandList->SetPipeline(m_Pipeline);
-            m_CommandList->SetFramebuffer(nullptr);
+            m_CommandList->EndRenderPass();
             m_CommandList->SetVertexBuffer(m_VertexBuffer);
 
             auto vertexCount = m_VertexBuffer->GetDescription().Size / sizeof(Nexus::Graphics::VertexPositionTexCoordNormal);

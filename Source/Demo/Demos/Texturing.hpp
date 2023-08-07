@@ -46,22 +46,23 @@ namespace Demos
             textureBinding.Name = "texSampler";
             m_Shader->SetTexture(m_Texture, textureBinding);
 
-            Nexus::Graphics::ClearInfo clearInfo{};
-            clearInfo.ClearColorValue = {
+            Nexus::Graphics::RenderPassBeginInfo beginInfo{};
+            beginInfo.ClearColorValue = {
                 m_ClearColour.r,
                 m_ClearColour.g,
                 m_ClearColour.b,
                 1.0f};
+            beginInfo.Framebuffer = nullptr;
 
             m_CommandList->Begin();
             m_CommandList->SetPipeline(m_Pipeline);
-            m_CommandList->SetFramebuffer(nullptr);
-            m_CommandList->Clear(clearInfo);
+            m_CommandList->BeginRenderPass(beginInfo);
             m_CommandList->SetVertexBuffer(m_Mesh.GetVertexBuffer());
             m_CommandList->SetIndexBuffer(m_Mesh.GetIndexBuffer());
 
             auto indexCount = m_Mesh.GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
             m_CommandList->DrawIndexed(indexCount, 0);
+            m_CommandList->EndRenderPass();
             m_CommandList->End();
 
             m_GraphicsDevice->SubmitCommandList(m_CommandList);

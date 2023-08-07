@@ -32,6 +32,7 @@ namespace Nexus::Graphics
         virtual Ref<VertexBuffer> CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout) override;
         virtual Ref<IndexBuffer> CreateIndexBuffer(const BufferDescription &description, const void *data) override;
         virtual Ref<UniformBuffer> CreateUniformBuffer(const BufferDescription &description, const void *data) override;
+        virtual Ref<RenderPass> CreateRenderPass(const RenderPassSpecification &spec) override;
 
         virtual void Resize(Point<int> size) override;
         virtual void SwapBuffers() override;

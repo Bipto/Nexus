@@ -37,6 +37,12 @@ public:
 
         m_CommandList = m_GraphicsDevice->CreateCommandList();
 
+        Nexus::Graphics::RenderPassSpecification spec;
+        spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
+        spec.StencilDepthLoadOperation = Nexus::Graphics::LoadOperation::Clear;
+        spec.Framebuffer = nullptr;
+        m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec);
+
         RegisterGraphicsDemo<Demos::ClearScreenDemo>("Clear Colour");
         RegisterGraphicsDemo<Demos::HelloTriangleDemo>("Hello Triangle");
         RegisterGraphicsDemo<Demos::HelloTriangleIndexedDemo>("Hello Triangle Indexed");
@@ -188,15 +194,17 @@ public:
         }
         else
         {
-            Nexus::Graphics::ClearInfo clearInfo{};
-            clearInfo.ClearColorValue = {
+            Nexus::Graphics::RenderPassBeginInfo beginInfo{};
+            beginInfo.ClearColorValue = {
                 0.0f,
                 0.0f,
                 0.0f,
                 1.0f};
+            beginInfo.Framebuffer = nullptr;
 
             m_CommandList->Begin();
-            m_CommandList->Clear(clearInfo);
+            m_CommandList->BeginRenderPass(beginInfo);
+            m_CommandList->EndRenderPass();
             m_CommandList->End();
             m_GraphicsDevice->SubmitCommandList(m_CommandList);
         }
@@ -216,6 +224,8 @@ public:
 
 private:
     Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
+    Nexus::Ref<Nexus::Graphics::RenderPass> m_RenderPass;
+
     Demos::Demo *m_CurrentDemo = nullptr;
 
     std::vector<DemoInfo> m_GraphicsDemos;

@@ -40,7 +40,7 @@ namespace Nexus::Graphics
     };
 
     /// @brief A struct representing a set of values used to clear the buffers when beginning a command list
-    struct ClearInfo
+    struct RenderPassBeginInfo
     {
         /// @brief An instance of a clearcolorvalue to use to clear the colour buffer
         ClearColorValue ClearColorValue;
@@ -53,6 +53,9 @@ namespace Nexus::Graphics
 
         /// @brief A boolean value indicating that any depth/stencil buffers attached to the currently bound framebuffer should be cleared
         bool ClearDepthStencil = true;
+
+        /// @brief A reference counted pointer to a framebuffer
+        Ref<Framebuffer> Framebuffer = nullptr;
     };
 
     /// @brief A struct representing a draw command to be executed using a vertex buffer
@@ -130,13 +133,12 @@ namespace Nexus::Graphics
         /// @param pipeline The pointer to the pipeline to bind
         virtual void SetPipeline(Ref<Pipeline> pipeline) = 0;
 
-        /// @brief A pure virtual method to bind a framebuffer to a command list
-        /// @param framebuffer The pointer to the framebuffer to bind
-        virtual void SetFramebuffer(Ref<Framebuffer> framebuffer) = 0;
+        /// @brief A pure virtual method to begin a new render pass
+        /// @param clearInfo A const reference to a RenderPassBeginInfo struct
+        virtual void BeginRenderPass(const RenderPassBeginInfo &clearInfo) = 0;
 
-        /// @brief A pure virtual method to clear a set of framebuffer textures
-        /// @param clearInfo A const reference to a ClearInfo struct
-        virtual void Clear(const ClearInfo &clearInfo) = 0;
+        /// @brief A pure virtual method to end a new render pass
+        virtual void EndRenderPass() = 0;
 
         /// @brief A pure virtual method that submits a draw call using the bound vertex buffer
         /// @param start The offset to begin rendering at
@@ -166,11 +168,10 @@ namespace Nexus::Graphics
     typedef void (*RenderCommand)(Ref<CommandList> commandList);
 
     typedef std::variant<
-        ClearInfo,
+        RenderPassBeginInfo,
         Ref<VertexBuffer>,
         Ref<IndexBuffer>,
         Ref<Pipeline>,
-        Ref<Framebuffer>,
         TextureUpdateCommand,
         UniformBufferUpdateCommand,
         DrawElementCommand,

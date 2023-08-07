@@ -22,6 +22,25 @@ namespace Nexus::Graphics
         VkCommandBuffer CommandBuffer;
     };
 
+    struct VulkanSwapchain
+    {
+        VkSwapchainKHR Swapchain;
+        VkSurfaceCapabilitiesKHR SurfaceCapabilities;
+        VkSurfaceFormatKHR SurfaceFormat;
+        VkExtent2D SwapchainSize;
+
+        std::vector<VkImage> SwapchainImages;
+        uint32_t SwapchainImageCount;
+        std::vector<VkImageView> SwapchainImageViews;
+
+        VkFormat DepthFormat;
+        VkImage DepthImage;
+        VkDeviceMemory DepthImageMemory;
+        VkImageView DepthImageView;
+
+        std::vector<VkFramebuffer> SwapchainFramebuffers;
+    };
+
     class GraphicsDeviceVk : public GraphicsDevice
     {
     public:
@@ -49,6 +68,7 @@ namespace Nexus::Graphics
         virtual Ref<VertexBuffer> CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout) override;
         virtual Ref<IndexBuffer> CreateIndexBuffer(const BufferDescription &description, const void *data) override;
         virtual Ref<UniformBuffer> CreateUniformBuffer(const BufferDescription &description, const void *data) override;
+        virtual Ref<RenderPass> CreateRenderPass(const RenderPassSpecification &spec) override;
 
         virtual void Resize(Point<int> size) override;
         virtual void SwapBuffers() override;
@@ -113,23 +133,10 @@ namespace Nexus::Graphics
         VkQueue m_GraphicsQueue;
         VkQueue m_PresentQueue;
 
-        VkSwapchainKHR m_Swapchain;
-        VkSurfaceCapabilitiesKHR m_SurfaceCapabilities;
-        VkSurfaceFormatKHR m_SurfaceFormat;
-        VkExtent2D m_SwapchainSize;
-
-        std::vector<VkImage> m_SwapchainImages;
-        uint32_t m_SwapchainImageCount;
-        std::vector<VkImageView> m_SwapchainImageViews;
-
-        VkFormat m_DepthFormat;
-        VkImage m_DepthImage;
-        VkDeviceMemory m_DepthImageMemory;
-        VkImageView m_DepthImageView;
+        VulkanSwapchain m_Swapchain;
 
         // render pass
         VkRenderPass m_SwapchainRenderPass;
-        std::vector<VkFramebuffer> m_SwapchainFramebuffers;
 
         // synchronisation
         FrameData m_Frames[FRAMES_IN_FLIGHT];

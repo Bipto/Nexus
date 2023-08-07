@@ -31,7 +31,7 @@ namespace Nexus::Graphics
     {
     }
 
-    void CommandListDX11::Clear(const ClearInfo &clearInfo)
+    void CommandListDX11::BeginRenderPass(const RenderPassBeginInfo &clearInfo)
     {
 #if defined(NX_PLATFORM_DX11)
         m_CommandData.emplace_back(clearInfo);
@@ -43,39 +43,53 @@ namespace Nexus::Graphics
             auto activeRenderTargetViews = graphicsDevice->GetActiveRenderTargetViews();
             auto context = graphicsDevice->GetDeviceContext();
             const auto &commandData = commandListDX11->GetCurrentCommandData();
-            const auto &beginInfo = std::get<ClearInfo>(commandData);
-            const auto &color = beginInfo.ClearColorValue;
+            const auto &beginInfo = std::get<RenderPassBeginInfo>(commandData);
 
-            float backgroundColor[4] = {
-                color.Red,
-                color.Green,
-                color.Blue,
-                color.Alpha};
-
-            if (beginInfo.ClearColor)
+            // bind framebuffer
             {
-                for (auto target : activeRenderTargetViews)
-                    context->ClearRenderTargetView(target, backgroundColor);
+                auto framebuffer = beginInfo.Framebuffer;
+                graphicsDevice->SetFramebuffer(framebuffer);
             }
 
-            auto depthStencilView = graphicsDevice->GetActiveDepthStencilView();
+            // clear targets
             {
-                uint32_t clearFlags = 0;
-                if (beginInfo.ClearDepthStencil)
+                const auto &color = beginInfo.ClearColorValue;
+
+                float backgroundColor[4] = {
+                    color.Red,
+                    color.Green,
+                    color.Blue,
+                    color.Alpha};
+
+                if (beginInfo.ClearColor)
                 {
-                    clearFlags |= D3D11_CLEAR_DEPTH;
-                    clearFlags |= D3D11_CLEAR_STENCIL;
+                    for (auto target : activeRenderTargetViews)
+                        context->ClearRenderTargetView(target, backgroundColor);
                 }
 
-                context->ClearDepthStencilView(
-                    depthStencilView,
-                    clearFlags,
-                    beginInfo.ClearDepthStencilValue.Depth,
-                    beginInfo.ClearDepthStencilValue.Stencil);
+                auto depthStencilView = graphicsDevice->GetActiveDepthStencilView();
+                {
+                    uint32_t clearFlags = 0;
+                    if (beginInfo.ClearDepthStencil)
+                    {
+                        clearFlags |= D3D11_CLEAR_DEPTH;
+                        clearFlags |= D3D11_CLEAR_STENCIL;
+                    }
+
+                    context->ClearDepthStencilView(
+                        depthStencilView,
+                        clearFlags,
+                        beginInfo.ClearDepthStencilValue.Depth,
+                        beginInfo.ClearDepthStencilValue.Stencil);
+                }
             }
         };
         m_Commands.push_back(renderCommand);
 #endif
+    }
+
+    void CommandListDX11::EndRenderPass()
+    {
     }
 
     void CommandListDX11::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer)
@@ -146,24 +160,6 @@ namespace Nexus::Graphics
             const auto &commandData = commandListDX11->GetCurrentCommandData();
             auto pipeline = std::get<Ref<Pipeline>>(commandData);
             commandListDX11->BindPipeline(pipeline);
-        };
-        m_Commands.push_back(renderCommand);
-#endif
-    }
-
-    void CommandListDX11::SetFramebuffer(Ref<Framebuffer> framebuffer)
-    {
-#if defined(NX_PLATFORM_DX11)
-        m_CommandData.emplace_back(framebuffer);
-
-        auto renderCommand = [](Ref<CommandList> commandList)
-        {
-            Ref<CommandListDX11> commandListDX11 = std::dynamic_pointer_cast<CommandListDX11>(commandList);
-            const auto &commandData = commandListDX11->GetCurrentCommandData();
-            auto framebuffer = std::get<Ref<Framebuffer>>(commandData);
-
-            auto graphicsDevice = commandListDX11->GetGraphicsDevice();
-            graphicsDevice->SetFramebuffer(framebuffer);
         };
         m_Commands.push_back(renderCommand);
 #endif

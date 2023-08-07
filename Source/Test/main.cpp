@@ -20,12 +20,14 @@ public:
     virtual void Render(Nexus::Time time) override
     {
         m_GraphicsDevice->BeginFrame();
-        Nexus::Graphics::ClearInfo clearInfo;
-        clearInfo.ClearColorValue = {
+        Nexus::Graphics::RenderPassBeginInfo beginInfo;
+        beginInfo.ClearColorValue = {
             1.0f,
             0.0f,
             0.0f,
             1.0f};
+        beginInfo.Framebuffer = nullptr;
+
         // m_CommandList->Begin(beginInfo);
 
         // m_CommandList->End();

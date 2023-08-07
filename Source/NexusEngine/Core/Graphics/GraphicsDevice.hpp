@@ -9,6 +9,7 @@
 #include "Framebuffer.hpp"
 #include "Pipeline.hpp"
 #include "CommandList.hpp"
+#include "RenderPass.hpp"
 #include "Core/Graphics/ShaderGenerator.hpp"
 #include "Viewport.hpp"
 #include "GraphicsAPI.hpp"
@@ -133,6 +134,11 @@ namespace Nexus::Graphics
         /// @param spec The properties to use when creating the framebuffer
         /// @return A reference counted pointer to a framebuffer
         virtual Ref<Graphics::Framebuffer> CreateFramebuffer(const FramebufferSpecification &spec) = 0;
+
+        /// @brief A pure virtual method that creates a new renderpass from a given specification
+        /// @param spec The properties to use when creating the renderpass
+        /// @return A reference counted pointer to a renderpass
+        virtual Ref<Graphics::RenderPass> CreateRenderPass(const RenderPassSpecification &spec) = 0;
 
         /// @brief A pure virtual method that resizes the swapchain of the device to a given size
         /// @param size The new size of the swapchain

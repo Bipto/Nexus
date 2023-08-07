@@ -5,6 +5,7 @@
 #include "BufferOpenGL.hpp"
 #include "TextureOpenGL.hpp"
 #include "CommandListOpenGL.hpp"
+#include "RenderPassOpenGL.hpp"
 
 void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
                                      GLenum severity, GLsizei length,
@@ -195,7 +196,7 @@ namespace Nexus::Graphics
 
     void GraphicsDeviceOpenGL::BeginFrame()
     {
-        }
+    }
 
     void GraphicsDeviceOpenGL::EndFrame()
     {
@@ -239,6 +240,11 @@ namespace Nexus::Graphics
     Ref<UniformBuffer> GraphicsDeviceOpenGL::CreateUniformBuffer(const BufferDescription &description, const void *data)
     {
         return CreateRef<UniformBufferOpenGL>(description, data);
+    }
+
+    Ref<RenderPass> GraphicsDeviceOpenGL::CreateRenderPass(const RenderPassSpecification &spec)
+    {
+        return CreateRef<RenderPassOpenGL>(spec);
     }
 
     void GraphicsDeviceOpenGL::Resize(Point<int> size)

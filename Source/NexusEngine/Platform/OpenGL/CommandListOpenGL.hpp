@@ -17,12 +17,12 @@ namespace Nexus::Graphics
         virtual void Begin() override;
         virtual void End() override;
 
-        virtual void Clear(const ClearInfo &clearInfo) override;
+        virtual void BeginRenderPass(const RenderPassBeginInfo &clearInfo) override;
+        virtual void EndRenderPass() override;
 
         virtual void SetVertexBuffer(Ref<VertexBuffer> vertexBuffer) override;
         virtual void SetIndexBuffer(Ref<IndexBuffer> indexBuffer) override;
         virtual void SetPipeline(Ref<Pipeline> pipeline) override;
-        virtual void SetFramebuffer(Ref<Framebuffer> framebuffer) override;
 
         virtual void DrawElements(uint32_t start, uint32_t count) override;
         virtual void DrawIndexed(uint32_t count, uint32_t offset) override;
@@ -43,7 +43,7 @@ namespace Nexus::Graphics
         std::vector<RenderCommandData> m_CommandData;
         uint32_t m_CommandIndex = 0;
 
-        ClearInfo m_CommandListBeginInfo;
+        RenderPassBeginInfo m_CommandListBeginInfo;
         Ref<Pipeline> m_CurrentlyBoundPipeline;
     };
 }
