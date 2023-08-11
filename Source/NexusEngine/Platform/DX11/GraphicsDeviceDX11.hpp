@@ -2,6 +2,7 @@
 
 #include "Core/Graphics/GraphicsDevice.hpp"
 #include "FramebufferDX11.hpp"
+#include "SwapchainDX11.hpp"
 #include "DX11.hpp"
 
 namespace Nexus::Graphics
@@ -32,15 +33,13 @@ namespace Nexus::Graphics
         virtual Ref<VertexBuffer> CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout) override;
         virtual Ref<IndexBuffer> CreateIndexBuffer(const BufferDescription &description, const void *data) override;
         virtual Ref<UniformBuffer> CreateUniformBuffer(const BufferDescription &description, const void *data) override;
-        virtual Ref<RenderPass> CreateRenderPass(const RenderPassSpecification &spec) override;
+        virtual Ref<Graphics::RenderPass> CreateRenderPass(const RenderPassSpecification &renderPassSpecification) override;
 
         virtual void Resize(Point<int> size) override;
-        virtual void SwapBuffers() override;
-        virtual void SetVSyncState(VSyncState vSyncState) override;
-        virtual VSyncState GetVsyncState() override;
-
         virtual ShaderLanguage GetSupportedShaderFormat() override { return ShaderLanguage::HLSL; }
         virtual float GetUVCorrection() { return -1.0f; }
+
+        virtual Swapchain *GetSwapchain() override;
 
 #if defined(NX_PLATFORM_DX11)
 
@@ -57,17 +56,12 @@ namespace Nexus::Graphics
 #if defined(NX_PLATFORM_DX11)
         ID3D11Device *m_DevicePtr = NULL;
         ID3D11DeviceContext *m_DeviceContextPtr = NULL;
-        IDXGISwapChain *m_SwapChainPtr = NULL;
-        ID3D11RenderTargetView *m_RenderTargetViewPtr = NULL;
         std::vector<ID3D11RenderTargetView *> m_ActiveRenderTargetviews;
         ID3D11DepthStencilView *m_ActiveDepthStencilView = NULL;
-        unsigned int m_VsyncValue = 1;
         bool m_Initialised = false;
         Ref<Shader> m_ActiveShader = NULL;
         std::string m_AdapterName;
-
-        ID3D11Texture2D *m_SwapchainDepthTexture = NULL;
-        ID3D11DepthStencilView *m_SwapchainDepthStencilView = NULL;
+        SwapchainDX11 *m_Swapchain;
 #endif
         VSyncState m_VsyncState = VSyncState::Enabled;
     };

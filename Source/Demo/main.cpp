@@ -37,12 +37,6 @@ public:
 
         m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-        Nexus::Graphics::RenderPassSpecification spec;
-        spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
-        spec.StencilDepthLoadOperation = Nexus::Graphics::LoadOperation::Clear;
-        spec.Framebuffer = nullptr;
-        m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec);
-
         RegisterGraphicsDemo<Demos::ClearScreenDemo>("Clear Colour");
         RegisterGraphicsDemo<Demos::HelloTriangleDemo>("Hello Triangle");
         RegisterGraphicsDemo<Demos::HelloTriangleIndexedDemo>("Hello Triangle Indexed");
@@ -214,8 +208,6 @@ public:
     {
         if (m_CurrentDemo)
             m_CurrentDemo->OnResize(size);
-
-        m_GraphicsDevice->Resize(size);
     }
 
     virtual void Unload() override

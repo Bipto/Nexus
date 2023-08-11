@@ -68,15 +68,19 @@ namespace Nexus::Graphics
         virtual Ref<VertexBuffer> CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout) override;
         virtual Ref<IndexBuffer> CreateIndexBuffer(const BufferDescription &description, const void *data) override;
         virtual Ref<UniformBuffer> CreateUniformBuffer(const BufferDescription &description, const void *data) override;
-        virtual Ref<RenderPass> CreateRenderPass(const RenderPassSpecification &spec) override;
+        virtual Ref<RenderPass> CreateRenderPass(const RenderPassSpecification &renderPassSpecification) override;
 
         virtual void Resize(Point<int> size) override;
-        virtual void SwapBuffers() override;
-        virtual void SetVSyncState(VSyncState vSyncState) override;
-        virtual VSyncState GetVsyncState() override;
-
         virtual ShaderLanguage GetSupportedShaderFormat() override;
         virtual float GetUVCorrection() { return 1.0f; }
+
+        virtual Swapchain *GetSwapchain() override;
+
+        const VulkanSwapchain &GetVulkanSwapchain();
+        VkDevice GetVkDevice();
+        uint32_t GetGraphicsFamily();
+        uint32_t GetPresentFamily();
+        uint32_t GetCurrentFrameIndex();
 
         // vulkan functions
     private:

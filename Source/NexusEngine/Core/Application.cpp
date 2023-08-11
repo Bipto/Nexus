@@ -38,8 +38,10 @@ namespace Nexus
 
         m_GraphicsDevice = Nexus::CreateGraphicsDevice(graphicsDeviceCreateInfo, m_Window);
         m_GraphicsDevice->SetContext();
+
+        auto swapchain = m_GraphicsDevice->GetSwapchain();
+        swapchain->SetVSyncState(spec.VSyncState);
         m_GraphicsDevice->Resize(GetWindowSize());
-        m_GraphicsDevice->SetVSyncState(spec.VSyncState);
 
         m_AudioDevice = Nexus::CreateAudioDevice(spec.AudioAPI);
 
@@ -65,6 +67,7 @@ namespace Nexus
     {
         if (m_Window->m_SwapchainRequiresResize)
         {
+            m_GraphicsDevice->Resize(m_Window->GetWindowSize());
             OnResize(this->GetWindowSize());
             m_Window->m_SwapchainRequiresResize = false;
             m_PreviousWindowSize = this->GetWindowSize();
@@ -104,7 +107,8 @@ namespace Nexus
                 m_ImGuiRenderer->EndFrame();
             }
 
-            m_GraphicsDevice->SwapBuffers();
+            auto swapchain = m_GraphicsDevice->GetSwapchain();
+            swapchain->SwapBuffers();
 
             if (m_Specification.ImGuiActive)
             {

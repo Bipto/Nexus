@@ -11,6 +11,12 @@ public:
     virtual void Load() override
     {
         m_CommandList = m_GraphicsDevice->CreateCommandList();
+
+        Nexus::Graphics::RenderPassSpecification spec;
+        spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
+        spec.StencilDepthLoadOperation = Nexus::Graphics::LoadOperation::Clear;
+        spec.RenderToSwapchain = true;
+        m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec);
     }
 
     virtual void Update(Nexus::Time time) override
@@ -28,9 +34,9 @@ public:
             1.0f};
         beginInfo.Framebuffer = nullptr;
 
-        // m_CommandList->Begin(beginInfo);
+        m_CommandList->Begin();
 
-        // m_CommandList->End();
+        m_CommandList->End();
         // m_GraphicsDevice->SubmitCommandList(m_CommandList);
 
         m_GraphicsDevice->EndFrame();
@@ -47,6 +53,7 @@ public:
 
 private:
     Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
+    Nexus::Ref<Nexus::Graphics::RenderPass> m_RenderPass;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)

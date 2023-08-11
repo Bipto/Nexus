@@ -2,24 +2,21 @@
 
 namespace Nexus::Graphics
 {
-    RenderPassOpenGL::RenderPassOpenGL(const RenderPassSpecification &spec)
+    RenderPassOpenGL::RenderPassOpenGL(const RenderPassSpecification &renderPassSpecification)
     {
-        m_Specification = spec;
+        m_RenderPassSpecification = renderPassSpecification;
     }
     LoadOperation RenderPassOpenGL::GetColorLoadOperation()
     {
-        return m_Specification.ColorLoadOperation;
+        return m_RenderPassSpecification.ColorLoadOperation;
     }
     LoadOperation RenderPassOpenGL::GetDepthStencilLoadOperation()
     {
-        return m_Specification.StencilDepthLoadOperation;
+        return m_RenderPassSpecification.StencilDepthLoadOperation;
     }
-    const Ref<Framebuffer> &RenderPassOpenGL::GetFramebuffer()
+
+    const RenderPassSpecification &RenderPassOpenGL::GetRenderPassSpecification()
     {
-        return m_Specification.Framebuffer;
-    }
-    const RenderPassSpecification &RenderPassOpenGL::GetSpecification()
-    {
-        return m_Specification;
+        return m_RenderPassSpecification;
     }
 }

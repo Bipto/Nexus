@@ -130,6 +130,8 @@ namespace Nexus::Graphics
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback(GLDebugMessageCallback, nullptr);
 #endif
+
+        m_Swapchain = new SwapchainOpenGL(m_Window->GetSDLWindowHandle(), createInfo.VSyncStateSettings);
     }
 
     GraphicsDeviceOpenGL::~GraphicsDeviceOpenGL()
@@ -249,28 +251,12 @@ namespace Nexus::Graphics
 
     void GraphicsDeviceOpenGL::Resize(Point<int> size)
     {
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glViewport(0, 0, size.X, size.Y);
+        m_Swapchain->Resize(size.X, size.Y);
 
         if (m_BoundFramebuffer)
             m_BoundFramebuffer->Bind();
     }
 
-    void GraphicsDeviceOpenGL::SwapBuffers()
-    {
-        SDL_GL_SwapWindow(this->m_Window->GetSDLWindowHandle());
-    }
-
-    void GraphicsDeviceOpenGL::SetVSyncState(VSyncState vSyncState)
-    {
-        SDL_GL_SetSwapInterval((unsigned int)vSyncState);
-        m_VsyncState = vSyncState;
-    }
-
-    VSyncState GraphicsDeviceOpenGL::GetVsyncState()
-    {
-        return m_VsyncState;
-    }
     ShaderLanguage GraphicsDeviceOpenGL::GetSupportedShaderFormat()
     {
 #if defined(EMSCRIPTEN)
@@ -278,5 +264,10 @@ namespace Nexus::Graphics
 #else
         return ShaderLanguage::GLSL;
 #endif
+    }
+
+    Swapchain *GraphicsDeviceOpenGL::GetSwapchain()
+    {
+        return m_Swapchain;
     }
 }

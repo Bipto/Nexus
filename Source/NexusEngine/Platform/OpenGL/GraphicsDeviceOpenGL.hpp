@@ -3,6 +3,7 @@
 #include "Core/Graphics/GraphicsDevice.hpp"
 #include "GL.hpp"
 #include "FramebufferOpenGL.hpp"
+#include "SwapchainOpenGL.hpp"
 #include "SDL_opengl.h"
 
 namespace Nexus::Graphics
@@ -38,17 +39,17 @@ namespace Nexus::Graphics
         virtual Ref<RenderPass> CreateRenderPass(const RenderPassSpecification &spec) override;
 
         virtual void Resize(Point<int> size) override;
-        virtual void SwapBuffers() override;
-        virtual void SetVSyncState(VSyncState vSyncState) override;
-        virtual VSyncState GetVsyncState() override;
 
         virtual ShaderLanguage GetSupportedShaderFormat() override;
         virtual float GetUVCorrection() { return 1.0f; }
+
+        virtual Swapchain *GetSwapchain() override;
 
     private:
         SDL_GLContext m_Context;
         const char *m_GlslVersion;
         Ref<FramebufferOpenGL> m_BoundFramebuffer = nullptr;
         VSyncState m_VsyncState = VSyncState::Enabled;
+        SwapchainOpenGL *m_Swapchain = nullptr;
     };
 }

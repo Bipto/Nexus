@@ -1,4 +1,6 @@
 #include "GraphicsDeviceVk.hpp"
+#include "CommandListVk.hpp"
+#include "RenderPassVk.hpp"
 
 #include "SDL_vulkan.h"
 
@@ -106,7 +108,7 @@ namespace Nexus::Graphics
 
     Ref<CommandList> GraphicsDeviceVk::CreateCommandList()
     {
-        return nullptr;
+        return CreateRef<CommandListVk>(this);
     }
 
     Ref<VertexBuffer> GraphicsDeviceVk::CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
@@ -124,31 +126,48 @@ namespace Nexus::Graphics
         return nullptr;
     }
 
-    Ref<RenderPass> GraphicsDeviceVk::CreateRenderPass(const RenderPassSpecification &spec)
+    Ref<RenderPass> GraphicsDeviceVk::CreateRenderPass(const RenderPassSpecification &renderPassSpecification)
     {
-        return nullptr;
+        return CreateRef<RenderPassVk>(renderPassSpecification, this);
     }
 
     void GraphicsDeviceVk::Resize(Point<int> size)
     {
     }
 
-    void GraphicsDeviceVk::SwapBuffers()
-    {
-    }
-
-    void GraphicsDeviceVk::SetVSyncState(VSyncState vSyncState)
-    {
-    }
-
-    VSyncState GraphicsDeviceVk::GetVsyncState()
-    {
-        return VSyncState();
-    }
-
     ShaderLanguage GraphicsDeviceVk::GetSupportedShaderFormat()
     {
         return ShaderLanguage();
+    }
+
+    Swapchain *GraphicsDeviceVk::GetSwapchain()
+    {
+        return nullptr;
+    }
+
+    const VulkanSwapchain &GraphicsDeviceVk::GetVulkanSwapchain()
+    {
+        return m_Swapchain;
+    }
+
+    VkDevice GraphicsDeviceVk::GetVkDevice()
+    {
+        return m_Device;
+    }
+
+    uint32_t GraphicsDeviceVk::GetGraphicsFamily()
+    {
+        return m_GraphicsQueueFamilyIndex;
+    }
+
+    uint32_t GraphicsDeviceVk::GetPresentFamily()
+    {
+        return m_PresentQueueFamilyIndex;
+    }
+
+    uint32_t GraphicsDeviceVk::GetCurrentFrameIndex()
+    {
+        return m_FrameNumber % FRAMES_IN_FLIGHT;
     }
 
     const std::vector<const char *> validationLayers =
@@ -426,29 +445,33 @@ namespace Nexus::Graphics
 
         attachments[0].format = m_Swapchain.SurfaceFormat.format;
         attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
-        attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        // attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
         attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        // attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
         attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
         attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         attachments[0].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
         attachments[1].format = m_Swapchain.DepthFormat;
         attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
-        attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        // attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
         attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        // attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
         attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
         attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        attachments[1].finalLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
         VkAttachmentReference colorReference = {};
         colorReference.attachment = 0;
-        colorReference.layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        colorReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
         VkAttachmentReference depthReference = {};
         depthReference.attachment = 1;
-        depthReference.layout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        depthReference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
         VkSubpassDescription subpassDescription = {};
         subpassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
@@ -810,7 +833,7 @@ namespace Nexus::Graphics
         imageInfo.arrayLayers = 1;
         imageInfo.format = format;
         imageInfo.tiling = tiling;
-        imageInfo.initialLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         imageInfo.usage = usage;
         imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
         imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;

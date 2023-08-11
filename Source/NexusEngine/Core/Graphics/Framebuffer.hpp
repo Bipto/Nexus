@@ -7,6 +7,8 @@
 #include "Core/Graphics/TextureFormat.hpp"
 #include "Core/Graphics/DepthFormat.hpp"
 
+#define NX_SWAPCHAIN nullptr
+
 namespace Nexus::Graphics
 {
     /// @brief A struct representing the settings to use when creating a framebuffer
@@ -68,6 +70,9 @@ namespace Nexus::Graphics
 
         /// @brief Settings to use when creating a depth attachment
         FramebufferDepthAttachmentSpecification DepthAttachmentSpecification;
+
+        /// @brief A boolean value indicating whether the framebuffer is part of the swapchain
+        bool IsSwapchain = false;
     };
 
     /// @brief A pure virtual class representing an API specific framebuffer

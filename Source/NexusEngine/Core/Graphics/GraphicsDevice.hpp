@@ -13,20 +13,10 @@
 #include "Core/Graphics/ShaderGenerator.hpp"
 #include "Viewport.hpp"
 #include "GraphicsAPI.hpp"
+#include "Swapchain.hpp"
 
 namespace Nexus::Graphics
 {
-
-    /// @brief An enum class representing whether VSync is enabled
-    enum class VSyncState
-    {
-        /// @brief The graphics card will render as many frames as possible or will be limited by the frame rate cap specified
-        Disabled = 0,
-
-        /// @brief The refresh rate will be synchronised to the monitor
-        Enabled = 1
-    };
-
     /// @brief A class representing properties needed to create a new graphics device
     struct GraphicsDeviceCreateInfo
     {
@@ -138,22 +128,11 @@ namespace Nexus::Graphics
         /// @brief A pure virtual method that creates a new renderpass from a given specification
         /// @param spec The properties to use when creating the renderpass
         /// @return A reference counted pointer to a renderpass
-        virtual Ref<Graphics::RenderPass> CreateRenderPass(const RenderPassSpecification &spec) = 0;
+        virtual Ref<Graphics::RenderPass> CreateRenderPass(const RenderPassSpecification &renderPassSpecification) = 0;
 
         /// @brief A pure virtual method that resizes the swapchain of the device to a given size
         /// @param size The new size of the swapchain
         virtual void Resize(Point<int> size) = 0;
-
-        /// @brief A pure virtual method that swaps the buffers and presents the backbuffer to the screen
-        virtual void SwapBuffers() = 0;
-
-        /// @brief A pure virtual method that sets the VSync state of the graphics device
-        /// @param vSyncState An enum that enables or disables VSync
-        virtual void SetVSyncState(VSyncState vSyncState) = 0;
-
-        /// @brief A pure virtual method that returns the current VSync state of the device
-        /// @return An enum representing whether VSync is enabled or disabled
-        virtual VSyncState GetVsyncState() = 0;
 
         /// @brief A pure virtual method that returns a ShaderFormat enum representing the supported shading language of the backend
         /// @return The supported shading language of the backend
@@ -162,6 +141,10 @@ namespace Nexus::Graphics
         /// @brief A pure virtual method that returns a value that can be used to standardise UV coordinates across backends
         /// @return A float representing the correction
         virtual float GetUVCorrection() = 0;
+
+        /// @brief A pure virtual method that returns a pointer to the graphics device's swapchain
+        /// @return A raw pointer to an API specific swapchain
+        virtual Swapchain *GetSwapchain() = 0;
 
         /// @brief A method that generates a supported shader type from a GLSL file and a vertex buffer layout
         /// @param filepath The filepath to load the GLSL shader from

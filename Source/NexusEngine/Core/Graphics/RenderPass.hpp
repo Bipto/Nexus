@@ -15,15 +15,15 @@ namespace Nexus::Graphics
     {
         LoadOperation ColorLoadOperation = LoadOperation::Clear;
         LoadOperation StencilDepthLoadOperation = LoadOperation::Clear;
-        Ref<Framebuffer> Framebuffer;
+        bool RenderToSwapchain = false;
     };
 
     class RenderPass
     {
     public:
+        virtual ~RenderPass() {}
         virtual LoadOperation GetColorLoadOperation() = 0;
         virtual LoadOperation GetDepthStencilLoadOperation() = 0;
-        virtual const Ref<Framebuffer> &GetFramebuffer() = 0;
-        virtual const RenderPassSpecification &GetSpecification() = 0;
+        virtual const RenderPassSpecification &GetRenderPassSpecification() = 0;
     };
 }
