@@ -17,19 +17,18 @@ namespace Nexus::Graphics
         }
     }
 
-    RenderPassVk::RenderPassVk(const RenderPassSpecification &renderPassSpecification, GraphicsDeviceVk *graphicsDevice)
+    RenderPassVk::RenderPassVk(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification, GraphicsDeviceVk *graphicsDevice)
     {
         m_RenderPassSpecification = renderPassSpecification;
         m_GraphicsDevice = graphicsDevice;
+        SetupForFramebuffer();
+    }
 
-        if (m_RenderPassSpecification.RenderToSwapchain)
-        {
-            SetupForSwapchain();
-        }
-        else
-        {
-            SetupForFramebuffer();
-        }
+    RenderPassVk::RenderPassVk(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain, GraphicsDeviceVk *graphicsDevice)
+    {
+        m_RenderPassSpecification = renderPassSpecification;
+        m_GraphicsDevice = graphicsDevice;
+        SetupForSwapchain();
     }
 
     RenderPassVk::~RenderPassVk()
@@ -49,6 +48,11 @@ namespace Nexus::Graphics
     const RenderPassSpecification &RenderPassVk::GetRenderPassSpecification()
     {
         return m_RenderPassSpecification;
+    }
+
+    RenderPassDataType RenderPassVk::GetRenderPassDataType()
+    {
+        return RenderPassDataType();
     }
 
     void RenderPassVk::SetupForFramebuffer()

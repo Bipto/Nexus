@@ -96,7 +96,7 @@ namespace Nexus::Graphics
         return nullptr;
     }
 
-    Ref<Framebuffer> GraphicsDeviceVk::CreateFramebuffer(const FramebufferSpecification &spec)
+    Ref<Framebuffer> GraphicsDeviceVk::CreateFramebuffer(Ref<RenderPass> renderPass)
     {
         return nullptr;
     }
@@ -126,9 +126,14 @@ namespace Nexus::Graphics
         return nullptr;
     }
 
-    Ref<RenderPass> GraphicsDeviceVk::CreateRenderPass(const RenderPassSpecification &renderPassSpecification)
+    Ref<RenderPass> GraphicsDeviceVk::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification)
     {
-        return CreateRef<RenderPassVk>(renderPassSpecification, this);
+        return nullptr;
+    }
+
+    Ref<RenderPass> GraphicsDeviceVk::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain)
+    {
+        return nullptr;
     }
 
     void GraphicsDeviceVk::Resize(Point<int> size)

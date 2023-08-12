@@ -36,36 +36,9 @@ public:
     {
         ImGui::LoadIniSettingsFromDisk("Layout.ini");
 
-        this->m_Renderer = Nexus::Renderer::Create(this->m_GraphicsDevice);
-        this->m_GraphicsDevice->SetVSyncState(Nexus::Graphics::VSyncState::Enabled);
+        m_Renderer = Nexus::Renderer::Create(this->m_GraphicsDevice);
 
-        this->m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
-
-        Nexus::Graphics::UniformResourceBinding renderInfoBinding;
-        renderInfoBinding.Binding = 0;
-        renderInfoBinding.Name = "RenderInfo";
-        renderInfoBinding.Size = sizeof(VB_UNIFORM_RENDERINFO);
-
-        Nexus::Graphics::BufferDescription renderInfoBufferDesc;
-        renderInfoBufferDesc.Size = sizeof(VB_UNIFORM_RENDERINFO);
-        renderInfoBufferDesc.Type = Nexus::Graphics::BufferType::Uniform;
-        renderInfoBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
-        m_RenderInfoUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(renderInfoBufferDesc, nullptr);
-
-        // m_RenderInfoUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(renderInfoBinding);
-
-        Nexus::Graphics::UniformResourceBinding cameraUniformBinding;
-        cameraUniformBinding.Binding = 1;
-        cameraUniformBinding.Name = "Camera";
-        cameraUniformBinding.Size = sizeof(VB_UNIFORM_CAMERA);
-
-        // m_CameraUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(cameraUniformBinding);
-
-        Nexus::Graphics::BufferDescription cameraUniformBufferDesc;
-        cameraUniformBufferDesc.Size = sizeof(VB_UNIFORM_CAMERA);
-        cameraUniformBufferDesc.Type = Nexus::Graphics::BufferType::Uniform;
-        cameraUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
-        m_CameraUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(cameraUniformBufferDesc, nullptr);
+        m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
 
         Nexus::Graphics::VertexBufferLayout vertexBufferLayout =
             {
@@ -77,13 +50,51 @@ public:
         m_TextureBinding.Slot = 0;
         m_TextureBinding.Name = "texSampler";
 
+        Nexus::Graphics::UniformResourceBinding renderInfoBinding;
+        renderInfoBinding.Binding = 0;
+        renderInfoBinding.Name = "RenderInfo";
+        renderInfoBinding.Size = sizeof(VB_UNIFORM_RENDERINFO);
+
+        Nexus::Graphics::BufferDescription renderInfoBufferDesc;
+        renderInfoBufferDesc.Size = sizeof(VB_UNIFORM_RENDERINFO);
+        renderInfoBufferDesc.Type = Nexus::Graphics::BufferType::Uniform;
+        renderInfoBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
+
+        m_RenderInfoUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(renderInfoBufferDesc, nullptr);
+        m_Shader->BindUniformBuffer(m_RenderInfoUniformBuffer, renderInfoBinding);
+
+        Nexus::Graphics::UniformResourceBinding cameraUniformBinding;
+        cameraUniformBinding.Binding = 1;
+        cameraUniformBinding.Name = "Camera";
+        cameraUniformBinding.Size = sizeof(VB_UNIFORM_CAMERA);
+
+        Nexus::Graphics::BufferDescription cameraUniformBufferDesc;
+        cameraUniformBufferDesc.Size = sizeof(VB_UNIFORM_CAMERA);
+        cameraUniformBufferDesc.Type = Nexus::Graphics::BufferType::Uniform;
+        cameraUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
+
+        m_CameraUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(cameraUniformBufferDesc, nullptr);
+        m_Shader->BindUniformBuffer(m_CameraUniformBuffer, cameraUniformBinding);
+
         Nexus::Point size = this->GetWindowSize();
+
         Nexus::Graphics::FramebufferSpecification framebufferSpec;
         framebufferSpec.Width = 500;
         framebufferSpec.Height = 500;
         framebufferSpec.ColorAttachmentSpecification = {Nexus::Graphics::TextureFormat::RGBA8, Nexus::Graphics::TextureFormat::RGBA8};
         framebufferSpec.DepthAttachmentSpecification = Nexus::Graphics::DepthFormat::DEPTH24STENCIL8;
-        m_Framebuffer = this->m_GraphicsDevice->CreateFramebuffer(framebufferSpec);
+
+        Nexus::Graphics::RenderPassSpecification renderPassSpec;
+        renderPassSpec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
+        renderPassSpec.StencilDepthLoadOperation = Nexus::Graphics::LoadOperation::Clear;
+        m_FramebufferRenderPass = m_GraphicsDevice->CreateRenderPass(renderPassSpec, framebufferSpec);
+
+        m_Framebuffer = this->m_GraphicsDevice->CreateFramebuffer(m_FramebufferRenderPass);
+
+        Nexus::Graphics::RenderPassSpecification swapchainRenderPassSpec;
+        swapchainRenderPassSpec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
+        swapchainRenderPassSpec.StencilDepthLoadOperation = Nexus::Graphics::LoadOperation::Clear;
+        m_SwapchainRenderPass = m_GraphicsDevice->CreateRenderPass(swapchainRenderPassSpec, m_GraphicsDevice->GetSwapchain());
 
         Nexus::Graphics::PipelineDescription pipelineDescription;
         pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
@@ -174,34 +185,30 @@ public:
             }
         }
 
+        Nexus::Graphics::Viewport vp;
+        vp.X = 0;
+        vp.Y = 0;
+        vp.Width = m_Framebuffer->GetFramebufferSpecification().Width;
+        vp.Height = m_Framebuffer->GetFramebufferSpecification().Height;
+        m_GraphicsDevice->SetViewport(vp);
+
         // to framebuffer
         {
-            m_GraphicsDevice->SetFramebuffer(m_Framebuffer);
-            Nexus::Graphics::Viewport vp;
-            vp.X = 0;
-            vp.Y = 0;
-            vp.Width = m_Framebuffer->GetFramebufferSpecification().Width;
-            vp.Height = m_Framebuffer->GetFramebufferSpecification().Height;
-            m_GraphicsDevice->SetViewport(vp);
-
-            m_GraphicsDevice->SetFramebuffer(m_Framebuffer);
-
-            // if project has been loaded, render entities
+            m_CommandList->Begin();
+            m_CommandList->SetPipeline(m_Pipeline);
             if (m_Project)
             {
                 auto activeScene = m_Project->GetActiveScene();
                 if (activeScene)
                 {
                     auto clearColor = activeScene->GetClearColor();
-                    Nexus::Graphics::ClearInfo beginInfo{};
+                    Nexus::Graphics::RenderPassBeginInfo beginInfo{};
                     beginInfo.ClearColorValue = {
                         clearColor.r,
                         clearColor.g,
                         clearColor.b,
                         clearColor.a};
-
-                    m_CommandList->Begin(beginInfo);
-                    m_CommandList->SetPipeline(m_Pipeline);
+                    m_CommandList->BeginRenderPass(m_FramebufferRenderPass, beginInfo);
 
                     for (auto &entity : activeScene->GetEntities())
                     {
@@ -222,29 +229,39 @@ public:
                         }
                     }
 
-                    m_CommandList->End();
-                    m_GraphicsDevice->SubmitCommandList(m_CommandList);
+                    m_CommandList->EndRenderPass();
                 }
             }
-
-            // otherwise render empty screen
             else
             {
-                Nexus::Graphics::ClearInfo beginInfo{};
+                Nexus::Graphics::RenderPassBeginInfo beginInfo{};
                 beginInfo.ClearColorValue = {
                     0.0f,
                     0.0f,
                     0.0f,
-                    1.0f};
-                m_CommandList->Begin(beginInfo);
-                m_CommandList->End();
-                m_GraphicsDevice->SubmitCommandList(m_CommandList);
+                    0.0f};
+                m_CommandList->BeginRenderPass(m_FramebufferRenderPass, beginInfo);
+                m_CommandList->EndRenderPass();
             }
+
+            m_CommandList->End();
+            m_GraphicsDevice->SubmitCommandList(m_CommandList);
         }
 
         // to swapchain
         {
-            m_GraphicsDevice->SetFramebuffer(nullptr);
+            m_CommandList->Begin();
+            m_CommandList->SetPipeline(m_Pipeline);
+            Nexus::Graphics::RenderPassBeginInfo beginInfo{};
+            beginInfo.ClearColorValue = {
+                0.0f,
+                0.0f,
+                0.0f,
+                1.0f};
+            m_CommandList->BeginRenderPass(m_SwapchainRenderPass, beginInfo);
+            m_CommandList->EndRenderPass();
+            m_CommandList->End();
+            m_GraphicsDevice->SubmitCommandList(m_CommandList);
             RenderEditorUI();
         }
 
@@ -469,6 +486,8 @@ private:
     VB_UNIFORM_CAMERA m_CameraUniforms;
     Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
     Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
+    Nexus::Ref<Nexus::Graphics::RenderPass> m_FramebufferRenderPass;
+    Nexus::Ref<Nexus::Graphics::RenderPass> m_SwapchainRenderPass;
     Nexus::Graphics::TextureBinding m_TextureBinding;
 
     Nexus::FirstPersonCamera m_Camera{};

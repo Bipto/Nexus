@@ -121,14 +121,21 @@ namespace Nexus::Graphics
         Ref<Texture> CreateTexture(const char *filepath);
 
         /// @brief A pure virtual method that creates a new framebuffer from a given specification
-        /// @param spec The properties to use when creating the framebuffer
+        /// @param renderPass The renderpass to use when rendering the framebuffer
         /// @return A reference counted pointer to a framebuffer
-        virtual Ref<Graphics::Framebuffer> CreateFramebuffer(const FramebufferSpecification &spec) = 0;
+        virtual Ref<Framebuffer> CreateFramebuffer(Ref<RenderPass> renderPass) = 0;
 
         /// @brief A pure virtual method that creates a new renderpass from a given specification
-        /// @param spec The properties to use when creating the renderpass
+        /// @param renderPassSpecification The properties to use when creating the renderpass
+        /// @param framebufferSpecification The properties to use when creating a framebuffer
         /// @return A reference counted pointer to a renderpass
-        virtual Ref<Graphics::RenderPass> CreateRenderPass(const RenderPassSpecification &renderPassSpecification) = 0;
+        virtual Ref<RenderPass> CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification) = 0;
+
+        /// @brief A pure virtual method that creates a new renderpass from a given specification
+        /// @param renderPassSpecification The properties to use when creating the renderpass
+        /// @param swapchain A pointer to a swapchain to use when rendering the renderpass
+        /// @return A reference counted pointer to a renderpass
+        virtual Ref<RenderPass> CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain) = 0;
 
         /// @brief A pure virtual method that resizes the swapchain of the device to a given size
         /// @param size The new size of the swapchain

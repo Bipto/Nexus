@@ -22,7 +22,7 @@ namespace Nexus::Graphics
     class FramebufferDX11 : public Framebuffer
     {
     public:
-        FramebufferDX11(ID3D11Device *device, const FramebufferSpecification &spec);
+        FramebufferDX11(ID3D11Device *device, Ref<RenderPass> renderPass);
         ~FramebufferDX11();
 
         virtual void *GetColorAttachment(int index = 0) override;

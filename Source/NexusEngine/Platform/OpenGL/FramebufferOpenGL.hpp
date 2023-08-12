@@ -8,7 +8,7 @@ namespace Nexus::Graphics
     class FramebufferOpenGL : public Framebuffer
     {
     public:
-        FramebufferOpenGL(const FramebufferSpecification &spec);
+        FramebufferOpenGL(Ref<RenderPass> renderPass);
         ~FramebufferOpenGL();
 
         void Bind();

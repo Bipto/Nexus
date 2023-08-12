@@ -35,6 +35,11 @@ public:
         /* io.FontDefault = io.Fonts->AddFontFromFileTTF(
             "Resources/Fonts/Roboto/Roboto-Regular.ttf", 18); */
 
+        Nexus::Graphics::RenderPassSpecification spec;
+        spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
+        spec.StencilDepthLoadOperation = Nexus::Graphics::LoadOperation::Clear;
+        m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_GraphicsDevice->GetSwapchain());
+
         m_CommandList = m_GraphicsDevice->CreateCommandList();
 
         RegisterGraphicsDemo<Demos::ClearScreenDemo>("Clear Colour");
@@ -194,10 +199,9 @@ public:
                 0.0f,
                 0.0f,
                 1.0f};
-            beginInfo.Framebuffer = nullptr;
 
             m_CommandList->Begin();
-            m_CommandList->BeginRenderPass(beginInfo);
+            m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
             m_CommandList->EndRenderPass();
             m_CommandList->End();
             m_GraphicsDevice->SubmitCommandList(m_CommandList);

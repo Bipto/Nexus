@@ -2,8 +2,8 @@
 
 namespace Nexus::Graphics
 {
-    FramebufferVk::FramebufferVk(const FramebufferSpecification &spec)
-        : Framebuffer(spec)
+    FramebufferVk::FramebufferVk(Ref<RenderPass> renderPass)
+        : Framebuffer(renderPass)
     {
     }
 

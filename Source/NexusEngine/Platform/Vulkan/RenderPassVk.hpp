@@ -9,11 +9,13 @@ namespace Nexus::Graphics
     class RenderPassVk : public RenderPass
     {
     public:
-        RenderPassVk(const RenderPassSpecification &renderPassSpecification, GraphicsDeviceVk *graphicsDevice);
+        RenderPassVk(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification, GraphicsDeviceVk *graphicsDevice);
+        RenderPassVk(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain, GraphicsDeviceVk *graphicsDevice);
         virtual ~RenderPassVk();
         virtual LoadOperation GetColorLoadOperation() override;
         virtual LoadOperation GetDepthStencilLoadOperation() override;
         virtual const RenderPassSpecification &GetRenderPassSpecification() override;
+        virtual RenderPassDataType GetRenderPassDataType() override;
 
     private:
         void SetupForFramebuffer();

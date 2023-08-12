@@ -10,6 +10,9 @@ namespace Demos
         TexturingDemo(const std::string &name, Nexus::Application *app)
             : Demo(name, app)
         {
+            Nexus::Graphics::RenderPassSpecification spec;
+            m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_GraphicsDevice->GetSwapchain());
+
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
             m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/texturing.glsl",
@@ -52,11 +55,10 @@ namespace Demos
                 m_ClearColour.g,
                 m_ClearColour.b,
                 1.0f};
-            beginInfo.Framebuffer = nullptr;
 
             m_CommandList->Begin();
             m_CommandList->SetPipeline(m_Pipeline);
-            m_CommandList->BeginRenderPass(beginInfo);
+            m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
             m_CommandList->SetVertexBuffer(m_Mesh.GetVertexBuffer());
             m_CommandList->SetIndexBuffer(m_Mesh.GetIndexBuffer());
 
@@ -77,6 +79,7 @@ namespace Demos
         }
 
     private:
+        Nexus::Ref<Nexus::Graphics::RenderPass> m_RenderPass;
         Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
         Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
         Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;

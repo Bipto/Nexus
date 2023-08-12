@@ -16,7 +16,7 @@ public:
         spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
         spec.StencilDepthLoadOperation = Nexus::Graphics::LoadOperation::Clear;
         spec.RenderToSwapchain = true;
-        m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec);
+        m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_GraphicsDevice->GetSwapchain());
     }
 
     virtual void Update(Nexus::Time time) override
@@ -32,7 +32,6 @@ public:
             0.0f,
             0.0f,
             1.0f};
-        beginInfo.Framebuffer = nullptr;
 
         m_CommandList->Begin();
 

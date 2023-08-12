@@ -29,14 +29,16 @@ namespace Nexus::Graphics
 
         virtual Ref<Shader> CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout) override;
         virtual Ref<Texture> CreateTexture(TextureSpecification spec) override;
-        virtual Ref<Framebuffer> CreateFramebuffer(const FramebufferSpecification &spec) override;
+        virtual Ref<Framebuffer> CreateFramebuffer(Ref<RenderPass> renderPass) override;
         virtual Ref<Pipeline> CreatePipeline(const PipelineDescription &description) override;
         virtual Ref<CommandList> CreateCommandList();
 
         virtual Ref<VertexBuffer> CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout) override;
         virtual Ref<IndexBuffer> CreateIndexBuffer(const BufferDescription &description, const void *data) override;
         virtual Ref<UniformBuffer> CreateUniformBuffer(const BufferDescription &description, const void *data) override;
-        virtual Ref<RenderPass> CreateRenderPass(const RenderPassSpecification &spec) override;
+
+        virtual Ref<RenderPass> CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification) override;
+        virtual Ref<RenderPass> CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain) override;
 
         virtual void Resize(Point<int> size) override;
 

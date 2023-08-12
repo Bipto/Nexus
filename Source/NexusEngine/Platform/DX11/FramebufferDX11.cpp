@@ -6,8 +6,8 @@
 namespace Nexus::Graphics
 {
 #if defined(WIN32)
-    FramebufferDX11::FramebufferDX11(ID3D11Device *device, const FramebufferSpecification &spec)
-        : Framebuffer(spec)
+    FramebufferDX11::FramebufferDX11(ID3D11Device *device, Ref<RenderPass> renderPass)
+        : Framebuffer(renderPass)
     {
         m_Device = device;
         Recreate();
@@ -137,6 +137,8 @@ namespace Nexus::Graphics
                 std::string output = std::string("Failed to create framebuffer depth stencil view: ") + error.ErrorMessage();
                 NX_ERROR(output);
             }
+
+            m_DepthTarget = depthTarget;
         }
     }
 

@@ -24,6 +24,8 @@ namespace Demos
         Demo3D(const std::string &name, Nexus::Application *app)
             : Demo(name, app)
         {
+            Nexus::Graphics::RenderPassSpecification spec;
+            m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_GraphicsDevice->GetSwapchain());
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
             m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/3d.glsl",
@@ -92,7 +94,6 @@ namespace Demos
                 m_ClearColour.g,
                 m_ClearColour.b,
                 1.0f};
-            beginInfo.Framebuffer = nullptr;
 
             m_TransformUniforms.Transform = glm::rotate(glm::mat4(1.0f), glm::radians((float)m_ElapsedTime.GetSeconds() * 100.0f), glm::vec3(0.0f, 1.0f, 1.0f));
 
@@ -107,7 +108,7 @@ namespace Demos
             m_CameraUniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms), 0);
 
             m_CommandList->Begin();
-            m_CommandList->BeginRenderPass(beginInfo);
+            m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
             m_CommandList->SetPipeline(m_Pipeline);
             m_CommandList->SetVertexBuffer(m_Mesh.GetVertexBuffer());
             m_CommandList->SetIndexBuffer(m_Mesh.GetIndexBuffer());
@@ -131,6 +132,7 @@ namespace Demos
 
     private:
         Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
+        Nexus::Ref<Nexus::Graphics::RenderPass> m_RenderPass;
         Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
         Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
         Nexus::Graphics::Mesh m_Mesh;

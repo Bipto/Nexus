@@ -4,11 +4,11 @@
 
 namespace Nexus::Graphics
 {
-    class RenderPassOpenGL : public RenderPass
+    class RenderPassDX11 : public RenderPass
     {
     public:
-        RenderPassOpenGL(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &spec);
-        RenderPassOpenGL(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain);
+        RenderPassDX11(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &spec);
+        RenderPassDX11(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain);
         virtual LoadOperation GetColorLoadOperation() override;
         virtual LoadOperation GetDepthStencilLoadOperation() override;
         virtual const RenderPassSpecification &GetRenderPassSpecification() override;
@@ -20,7 +20,7 @@ namespace Nexus::Graphics
         RenderPassData m_Data;
         RenderPassDataType m_DataType;
         Ref<Framebuffer> m_Framebuffer;
-        friend class GraphicsDeviceOpenGL;
-        friend class CommandListOpenGL;
+        friend class GraphicsDeviceDX11;
+        friend class CommandListDX11;
     };
 }

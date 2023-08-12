@@ -1,42 +1,42 @@
-#include "RenderPassOpenGL.hpp"
+#include "RenderPassDX11.hpp"
 
 namespace Nexus::Graphics
 {
-    RenderPassOpenGL::RenderPassOpenGL(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &spec)
+    RenderPassDX11::RenderPassDX11(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &spec)
     {
         m_RenderPassSpecification = renderPassSpecification;
         m_Data = spec;
         m_DataType = Nexus::Graphics::RenderPassDataType::Framebuffer;
     }
 
-    RenderPassOpenGL::RenderPassOpenGL(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain)
+    RenderPassDX11::RenderPassDX11(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain)
     {
         m_RenderPassSpecification = renderPassSpecification;
         m_Data = swapchain;
         m_DataType = Nexus::Graphics::RenderPassDataType::Swapchain;
     }
 
-    LoadOperation RenderPassOpenGL::GetColorLoadOperation()
+    LoadOperation RenderPassDX11::GetColorLoadOperation()
     {
         return m_RenderPassSpecification.ColorLoadOperation;
     }
 
-    LoadOperation RenderPassOpenGL::GetDepthStencilLoadOperation()
+    LoadOperation RenderPassDX11::GetDepthStencilLoadOperation()
     {
         return m_RenderPassSpecification.StencilDepthLoadOperation;
     }
 
-    const RenderPassSpecification &RenderPassOpenGL::GetRenderPassSpecification()
+    const RenderPassSpecification &RenderPassDX11::GetRenderPassSpecification()
     {
         return m_RenderPassSpecification;
     }
 
-    const RenderPassData &RenderPassOpenGL::GetRenderPassData()
+    const RenderPassData &RenderPassDX11::GetRenderPassData()
     {
         return m_Data;
     }
 
-    RenderPassDataType RenderPassOpenGL::GetRenderPassDataType()
+    RenderPassDataType RenderPassDX11::GetRenderPassDataType()
     {
         return m_DataType;
     }

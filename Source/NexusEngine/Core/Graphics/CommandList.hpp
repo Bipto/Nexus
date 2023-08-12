@@ -7,6 +7,8 @@
 #include "Shader.hpp"
 #include "Buffer.hpp"
 #include "Framebuffer.hpp"
+#include "RenderPass.hpp"
+#include "Core/Memory.hpp"
 
 #include <functional>
 #include <variant>
@@ -47,15 +49,6 @@ namespace Nexus::Graphics
 
         /// @brief An instance of cleardepthstencilvalue to use to clear the depth stencil buffer
         ClearDepthStencilValue ClearDepthStencilValue;
-
-        /// @brief A boolean value indicating that any colour buffers attached to the currently bound framebuffer should be cleared
-        bool ClearColor = true;
-
-        /// @brief A boolean value indicating that any depth/stencil buffers attached to the currently bound framebuffer should be cleared
-        bool ClearDepthStencil = true;
-
-        /// @brief A reference counted pointer to a framebuffer
-        Ref<Framebuffer> Framebuffer = nullptr;
     };
 
     /// @brief A struct representing a draw command to be executed using a vertex buffer
@@ -107,6 +100,12 @@ namespace Nexus::Graphics
         uint32_t Offset;
     };
 
+    struct BeginRenderPassCommand
+    {
+        Ref<RenderPass> RenderPass;
+        RenderPassBeginInfo ClearValue;
+    };
+
     /// @brief A class representing a command list
     class CommandList
     {
@@ -134,8 +133,8 @@ namespace Nexus::Graphics
         virtual void SetPipeline(Ref<Pipeline> pipeline) = 0;
 
         /// @brief A pure virtual method to begin a new render pass
-        /// @param clearInfo A const reference to a RenderPassBeginInfo struct
-        virtual void BeginRenderPass(const RenderPassBeginInfo &clearInfo) = 0;
+        /// @param beginRenderPassCommand A const reference to a BeginRenderPassCommand struct
+        virtual void BeginRenderPass(Ref<RenderPass> renderPass, const RenderPassBeginInfo &beginInfo) = 0;
 
         /// @brief A pure virtual method to end a new render pass
         virtual void EndRenderPass() = 0;
@@ -168,7 +167,7 @@ namespace Nexus::Graphics
     typedef void (*RenderCommand)(Ref<CommandList> commandList);
 
     typedef std::variant<
-        RenderPassBeginInfo,
+        BeginRenderPassCommand,
         Ref<VertexBuffer>,
         Ref<IndexBuffer>,
         Ref<Pipeline>,

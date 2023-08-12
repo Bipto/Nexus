@@ -214,9 +214,12 @@ namespace Nexus::Graphics
         return CreateRef<TextureOpenGL>(spec);
     }
 
-    Ref<Framebuffer> GraphicsDeviceOpenGL::CreateFramebuffer(const FramebufferSpecification &spec)
+    Ref<Framebuffer> GraphicsDeviceOpenGL::CreateFramebuffer(Ref<RenderPass> renderPass)
     {
-        return CreateRef<FramebufferOpenGL>(spec);
+        auto framebufferOpenGL = CreateRef<FramebufferOpenGL>(renderPass);
+        auto renderPassOpenGL = std::dynamic_pointer_cast<RenderPassOpenGL>(renderPass);
+        renderPassOpenGL->m_Framebuffer = framebufferOpenGL;
+        return framebufferOpenGL;
     }
 
     Ref<Pipeline> GraphicsDeviceOpenGL::CreatePipeline(const PipelineDescription &description)
@@ -244,9 +247,14 @@ namespace Nexus::Graphics
         return CreateRef<UniformBufferOpenGL>(description, data);
     }
 
-    Ref<RenderPass> GraphicsDeviceOpenGL::CreateRenderPass(const RenderPassSpecification &spec)
+    Ref<RenderPass> GraphicsDeviceOpenGL::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification)
     {
-        return CreateRef<RenderPassOpenGL>(spec);
+        return CreateRef<RenderPassOpenGL>(renderPassSpecification, framebufferSpecification);
+    }
+
+    Ref<RenderPass> GraphicsDeviceOpenGL::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain)
+    {
+        return CreateRef<RenderPassOpenGL>(renderPassSpecification, swapchain);
     }
 
     void GraphicsDeviceOpenGL::Resize(Point<int> size)

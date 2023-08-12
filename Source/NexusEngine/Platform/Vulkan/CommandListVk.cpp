@@ -75,7 +75,7 @@ namespace Nexus::Graphics
     {
     }
 
-    void CommandListVk::BeginRenderPass(const RenderPassBeginInfo &clearInfo)
+    void CommandListVk::BeginRenderPass(Ref<RenderPass> renderPass, const RenderPassBeginInfo &beginInfo)
     {
     }
 

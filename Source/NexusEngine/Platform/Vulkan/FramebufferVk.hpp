@@ -8,7 +8,7 @@ namespace Nexus::Graphics
     class FramebufferVk : public Framebuffer
     {
     public:
-        FramebufferVk(const FramebufferSpecification &spec);
+        FramebufferVk(Ref<RenderPass> renderPass);
         ~FramebufferVk();
 
         virtual void *GetColorAttachment(int index = 0) override;

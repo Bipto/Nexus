@@ -18,7 +18,7 @@ namespace Nexus::Graphics
         virtual void Begin() override;
         virtual void End() override;
 
-        virtual void BeginRenderPass(const RenderPassBeginInfo &clearInfo) override;
+        virtual void BeginRenderPass(Ref<RenderPass> renderPass, const RenderPassBeginInfo &beginInfo) override;
         virtual void EndRenderPass() override;
 
         virtual void SetVertexBuffer(Ref<VertexBuffer> vertexBuffer) override;

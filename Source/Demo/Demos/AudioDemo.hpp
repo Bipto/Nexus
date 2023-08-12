@@ -10,6 +10,9 @@ namespace Demos
         AudioDemo(const std::string &name, Nexus::Application *app)
             : Demo(name, app)
         {
+            Nexus::Graphics::RenderPassSpecification spec;
+            m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_GraphicsDevice->GetSwapchain());
+
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
             m_AudioBuffer = m_AudioDevice->CreateAudioBufferFromWavFile("Resources/Audio/Laser_Shoot.wav");
@@ -35,10 +38,9 @@ namespace Demos
                 m_ClearColour.g,
                 m_ClearColour.b,
                 1.0f};
-            beginInfo.Framebuffer = nullptr;
 
             m_CommandList->Begin();
-            m_CommandList->BeginRenderPass(beginInfo);
+            m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
             m_CommandList->EndRenderPass();
             m_CommandList->End();
 
@@ -61,6 +63,7 @@ namespace Demos
 
     private:
         Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
+        Nexus::Ref<Nexus::Graphics::RenderPass> m_RenderPass;
         glm::vec3 m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 
         Nexus::Ref<Nexus::Audio::AudioBuffer> m_AudioBuffer;

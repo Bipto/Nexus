@@ -6,6 +6,7 @@
 #include "TextureDX11.hpp"
 #include "PipelineDX11.hpp"
 #include "CommandListDX11.hpp"
+#include "RenderPassDX11.hpp"
 
 #include "SDL_syswm.h"
 
@@ -67,8 +68,7 @@ namespace Nexus::Graphics
             m_ActiveRenderTargetviews.data(),
             m_ActiveDepthStencilView);
 
-        IDXGIFactory1 *
-            factory;
+        IDXGIFactory1 *factory;
         IDXGIAdapter1 *adapter;
         CreateDXGIFactory1(IID_PPV_ARGS(&factory));
         factory->EnumAdapters1(0, &adapter);
@@ -187,10 +187,13 @@ namespace Nexus::Graphics
 #endif
     }
 
-    Ref<Framebuffer> GraphicsDeviceDX11::CreateFramebuffer(const FramebufferSpecification &spec)
+    Ref<Framebuffer> GraphicsDeviceDX11::CreateFramebuffer(Ref<RenderPass> renderPass)
     {
 #if defined(NX_PLATFORM_DX11)
-        return CreateRef<FramebufferDX11>(m_DevicePtr, spec);
+        auto framebufferDX11 = CreateRef<FramebufferDX11>(m_DevicePtr, renderPass);
+        auto renderPassDX11 = std::dynamic_pointer_cast<RenderPassDX11>(renderPass);
+        renderPassDX11->m_Framebuffer = framebufferDX11;
+        return framebufferDX11;
 #else
         return nullptr;
 #endif
@@ -241,16 +244,20 @@ namespace Nexus::Graphics
 #endif
     }
 
-    Ref<Graphics::RenderPass> GraphicsDeviceDX11::CreateRenderPass(const RenderPassSpecification &renderPassSpecification)
+    Ref<RenderPass> GraphicsDeviceDX11::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification)
     {
-        return nullptr;
+        return CreateRef<RenderPassDX11>(renderPassSpecification, framebufferSpecification);
+    }
+
+    Ref<RenderPass> GraphicsDeviceDX11::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain)
+    {
+        return CreateRef<RenderPassDX11>(renderPassSpecification, swapchain);
     }
 
     void GraphicsDeviceDX11::Resize(Point<int> size)
     {
 #if defined(NX_PLATFORM_DX11)
 
-        m_DeviceContextPtr->OMSetBlendState(0, 0, 0xffffffff);
         m_DeviceContextPtr->OMSetRenderTargets(0, 0, 0);
 
         m_Swapchain->Resize(size.X, size.Y);
