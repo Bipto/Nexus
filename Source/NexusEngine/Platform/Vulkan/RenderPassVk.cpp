@@ -82,12 +82,12 @@ namespace Nexus::Graphics
 
     void RenderPassVk::SetupForSwapchain()
     {
-        const VulkanSwapchain &swapchain = m_GraphicsDevice->GetVulkanSwapchain();
+        SwapchainVk *swapchain = (SwapchainVk *)m_GraphicsDevice->GetSwapchain();
         VkDevice device = m_GraphicsDevice->GetVkDevice();
 
         std::vector<VkAttachmentDescription> attachments(2);
 
-        attachments[0].format = swapchain.SurfaceFormat.format;
+        attachments[0].format = swapchain->m_SurfaceFormat.format;
         attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
         attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -96,7 +96,7 @@ namespace Nexus::Graphics
         attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         attachments[0].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-        attachments[1].format = swapchain.DepthFormat;
+        attachments[1].format = swapchain->m_DepthFormat;
         attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
         attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;

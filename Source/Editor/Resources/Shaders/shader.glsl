@@ -16,6 +16,12 @@ layout (std140, binding = 1) uniform Camera
     mat4 u_Projection;
 };
 
+layout (push_constant) uniform Constants
+{
+    vec4 data;
+    mat4 render_matrix;
+} PushConstants;
+
 layout (location = 0) out vec2 OutTexCoord;
 layout (location = 1) out vec3 OutColor;
 

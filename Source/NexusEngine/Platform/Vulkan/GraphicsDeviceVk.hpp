@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Graphics/GraphicsDevice.hpp"
+#include "SwapchainVk.hpp"
 #include "Vk.hpp"
 
 const uint32_t FRAMES_IN_FLIGHT = 3;
@@ -77,8 +78,8 @@ namespace Nexus::Graphics
         virtual float GetUVCorrection() { return 1.0f; }
 
         virtual Swapchain *GetSwapchain() override;
+        uint32_t GetSwapchainImageCount();
 
-        const VulkanSwapchain &GetVulkanSwapchain();
         VkDevice GetVkDevice();
         uint32_t GetGraphicsFamily();
         uint32_t GetPresentFamily();
@@ -139,7 +140,7 @@ namespace Nexus::Graphics
         VkQueue m_GraphicsQueue;
         VkQueue m_PresentQueue;
 
-        VulkanSwapchain m_Swapchain;
+        // VulkanSwapchain m_Swapchain;
 
         // render pass
         VkRenderPass m_SwapchainRenderPass;
@@ -158,6 +159,9 @@ namespace Nexus::Graphics
         uint32_t m_FrameNumber = 0;
         uint32_t m_CurrentFrameIndex = 0;
 
+        SwapchainVk *m_Swapchain;
         VSyncState m_VsyncState = VSyncState::Enabled;
+
+        friend class SwapchainVk;
     };
 }

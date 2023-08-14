@@ -12,11 +12,10 @@ public:
     {
         m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-        Nexus::Graphics::RenderPassSpecification spec;
+        /* Nexus::Graphics::RenderPassSpecification spec;
         spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
         spec.StencilDepthLoadOperation = Nexus::Graphics::LoadOperation::Clear;
-        spec.RenderToSwapchain = true;
-        m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_GraphicsDevice->GetSwapchain());
+        m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_GraphicsDevice->GetSwapchain()); */
     }
 
     virtual void Update(Nexus::Time time) override

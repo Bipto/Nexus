@@ -49,6 +49,7 @@ namespace Nexus::Graphics
             spirv_cross::CompilerGLSL::Options glOptions;
             glOptions.version = 330;
             glOptions.es = false;
+            glOptions.emit_push_constant_as_uniform_buffer = true;
             glsl.set_common_options(glOptions);
             output.Source = glsl.compile();
             break;
@@ -59,6 +60,7 @@ namespace Nexus::Graphics
             spirv_cross::CompilerGLSL::Options glOptions;
             glOptions.version = 300;
             glOptions.es = true;
+            glOptions.emit_push_constant_as_uniform_buffer = true;
             glsl.set_common_options(glOptions);
             output.Source = glsl.compile();
             break;
@@ -83,6 +85,7 @@ namespace Nexus::Graphics
             spirv_cross::CompilerGLSL::Options glOptions;
             glOptions.version = 330;
             glOptions.es = false;
+            glOptions.emit_push_constant_as_uniform_buffer = true;
             hlsl.set_common_options(glOptions);
 
             spirv_cross::CompilerHLSL::Options hlslOptions;

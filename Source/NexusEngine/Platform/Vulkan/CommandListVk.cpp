@@ -25,7 +25,7 @@ namespace Nexus::Graphics
                 allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
                 allocateInfo.commandPool = m_CommandPools[i];
                 allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-                allocateInfo.commandBufferCount = graphicsDevice->GetVulkanSwapchain().SwapchainImageCount;
+                allocateInfo.commandBufferCount = graphicsDevice->GetSwapchainImageCount();
 
                 if (vkAllocateCommandBuffers(graphicsDevice->GetVkDevice(), &allocateInfo, &m_CommandBuffers[i]) != VK_SUCCESS)
                 {
