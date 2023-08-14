@@ -40,7 +40,8 @@ namespace Demos
             m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
 
             Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
-            m_Mesh = factory.CreateCube();
+            m_CubeMesh = factory.CreateCube();
+            m_SpriteMesh = factory.CreateSprite();
 
             m_DiffuseMap = m_GraphicsDevice->CreateTexture("Resources/Textures/raw_plank_wall_diff_1k.jpg");
             m_NormalMap = m_GraphicsDevice->CreateTexture("Resources/Textures/raw_plank_wall_normal_1k.jpg");
@@ -120,12 +121,23 @@ namespace Demos
 
             // draw cube
             {
-                m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f));
+                m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, -5.0f));
                 m_CommandList->UpdateUniformBuffer(m_TransformUniformBuffer, &m_TransformUniforms, sizeof(m_TransformUniforms), 0);
-                m_CommandList->SetVertexBuffer(m_Mesh.GetVertexBuffer());
-                m_CommandList->SetIndexBuffer(m_Mesh.GetIndexBuffer());
+                m_CommandList->SetVertexBuffer(m_CubeMesh.GetVertexBuffer());
+                m_CommandList->SetIndexBuffer(m_CubeMesh.GetIndexBuffer());
 
-                auto indexCount = m_Mesh.GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
+                auto indexCount = m_CubeMesh.GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
+                m_CommandList->DrawIndexed(indexCount, 0);
+            }
+
+            // draw sprite
+            {
+                m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 0.0f, -5.0f));
+                m_CommandList->UpdateUniformBuffer(m_TransformUniformBuffer, &m_TransformUniforms, sizeof(m_TransformUniforms), 0);
+                m_CommandList->SetVertexBuffer(m_SpriteMesh.GetVertexBuffer());
+                m_CommandList->SetIndexBuffer(m_SpriteMesh.GetIndexBuffer());
+
+                auto indexCount = m_SpriteMesh.GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
                 m_CommandList->DrawIndexed(indexCount, 0);
             }
 
@@ -149,8 +161,10 @@ namespace Demos
         Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
         Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
         Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
-        Nexus::Graphics::Mesh m_Mesh;
-        Nexus::Ref<Nexus::Graphics::Texture> m_DiffuseMap;
+        Nexus::Graphics::Mesh m_CubeMesh;
+        Nexus::Graphics::Mesh m_SpriteMesh;
+        Nexus::Ref<Nexus::Graphics::Texture>
+            m_DiffuseMap;
         Nexus::Ref<Nexus::Graphics::Texture> m_NormalMap;
         Nexus::Ref<Nexus::Graphics::Texture> m_SpecularMap;
         glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
