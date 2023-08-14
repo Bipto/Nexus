@@ -55,22 +55,26 @@ namespace Nexus
         void SetPosition(const glm::vec3 &position)
         {
             m_Position = position;
+            RecalculateProjection();
         }
 
         void SetRotation(const glm::vec3 &rotation)
         {
             m_Rotation = rotation;
+            RecalculateProjection();
         }
 
         void SetFront(const glm::vec3 &front)
         {
             m_Front = front;
+            RecalculateProjection();
         }
 
         void SetZoom(float zoom)
         {
             m_Zoom = zoom;
             Resize(m_Width, m_Height);
+            RecalculateProjection();
         }
 
         const glm::vec3 &GetPosition()
@@ -192,7 +196,7 @@ namespace Nexus
         }
 
     private:
-        glm::vec3 m_Position{0.0f, 0.0f, -5.0f};
+        glm::vec3 m_Position{0.0f, 0.0f, 5.0f};
         glm::vec3 m_Rotation{0.0f, 0.0f, 0.0f};
         glm::vec3 m_Front{0.0f, 0.0f, 1.0f};
         glm::vec3 m_Up{0.0f, 1.0f, 0.0f};
@@ -203,7 +207,7 @@ namespace Nexus
         float m_Zoom = 45.0f;
 
         float m_Pitch = 180.0f;
-        float m_Yaw = -90.0f;
+        float m_Yaw = 90.0f;
 
         int m_Width = 0;
         int m_Height = 0;

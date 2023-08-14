@@ -41,7 +41,6 @@ namespace Demos
 
             Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
             m_Mesh = factory.CreateCube();
-            m_Mesh2 = factory.CreateSprite();
 
             m_DiffuseMap = m_GraphicsDevice->CreateTexture("Resources/Textures/raw_plank_wall_diff_1k.jpg");
             m_NormalMap = m_GraphicsDevice->CreateTexture("Resources/Textures/raw_plank_wall_normal_1k.jpg");
@@ -106,9 +105,7 @@ namespace Demos
                 m_ClearColour.b,
                 1.0f};
 
-            m_TransformUniforms.Transform = glm::rotate(glm::mat4(1.0f),
-                                                        glm::radians(m_Rotation),
-                                                        glm::vec3(0.0f, 1.0f, 0.0f));
+            m_TransformUniforms.Transform = glm::mat4(1.0f);
             m_TransformUniformBuffer->SetData(&m_TransformUniforms, sizeof(m_TransformUniforms), 0);
 
             m_CameraUniforms.View = m_Camera.GetView();
@@ -121,22 +118,9 @@ namespace Demos
             m_CommandList->SetPipeline(m_Pipeline);
             m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
 
-            // draw sprite
-            {
-                m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-                m_CommandList->UpdateUniformBuffer(m_TransformUniformBuffer, &m_TransformUniforms, sizeof(m_TransformUniforms), 0);
-                m_CommandList->SetVertexBuffer(m_Mesh2.GetVertexBuffer());
-                m_CommandList->SetIndexBuffer(m_Mesh2.GetIndexBuffer());
-
-                auto indexCount = m_Mesh2.GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
-                m_CommandList->DrawIndexed(indexCount, 0);
-            }
-
-            m_CommandList->SetPipeline(m_Pipeline);
-
             // draw cube
             {
-                m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
+                m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f));
                 m_CommandList->UpdateUniformBuffer(m_TransformUniformBuffer, &m_TransformUniforms, sizeof(m_TransformUniforms), 0);
                 m_CommandList->SetVertexBuffer(m_Mesh.GetVertexBuffer());
                 m_CommandList->SetIndexBuffer(m_Mesh.GetIndexBuffer());
@@ -144,6 +128,8 @@ namespace Demos
                 auto indexCount = m_Mesh.GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
                 m_CommandList->DrawIndexed(indexCount, 0);
             }
+
+            m_CommandList->SetPipeline(m_Pipeline);
 
             m_CommandList->EndRenderPass();
             m_CommandList->End();
@@ -164,7 +150,6 @@ namespace Demos
         Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
         Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
         Nexus::Graphics::Mesh m_Mesh;
-        Nexus::Graphics::Mesh m_Mesh2;
         Nexus::Ref<Nexus::Graphics::Texture> m_DiffuseMap;
         Nexus::Ref<Nexus::Graphics::Texture> m_NormalMap;
         Nexus::Ref<Nexus::Graphics::Texture> m_SpecularMap;

@@ -98,7 +98,7 @@ public:
 
         Nexus::Graphics::PipelineDescription pipelineDescription;
         pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
-        pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
+        pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::Clockwise;
         pipelineDescription.Shader = m_Shader;
         m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
 
@@ -116,7 +116,7 @@ public:
         Nexus::Graphics::MeshFactory factory = Nexus::Graphics::MeshFactory(m_GraphicsDevice);
         m_SpriteMesh = factory.CreateSprite();
 
-        m_Camera.SetPosition({0.0f, 0.0f, -5.0f});
+        m_Camera.SetPosition({0, 0, 5});
     }
 
     void CreatePanels()
@@ -490,7 +490,7 @@ private:
     Nexus::Ref<Nexus::Graphics::RenderPass> m_SwapchainRenderPass;
     Nexus::Graphics::TextureBinding m_TextureBinding;
 
-    Nexus::FirstPersonCamera m_Camera{};
+    Nexus::FirstPersonCamera m_Camera;
     Nexus::Ref<Nexus::Graphics::Framebuffer> m_Framebuffer;
     Nexus::Ref<Nexus::Project> m_Project;
 
