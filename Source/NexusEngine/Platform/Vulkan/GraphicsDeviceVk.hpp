@@ -23,25 +23,6 @@ namespace Nexus::Graphics
         VkCommandBuffer CommandBuffer;
     };
 
-    struct VulkanSwapchain
-    {
-        VkSwapchainKHR Swapchain;
-        VkSurfaceCapabilitiesKHR SurfaceCapabilities;
-        VkSurfaceFormatKHR SurfaceFormat;
-        VkExtent2D SwapchainSize;
-
-        std::vector<VkImage> SwapchainImages;
-        uint32_t SwapchainImageCount;
-        std::vector<VkImageView> SwapchainImageViews;
-
-        VkFormat DepthFormat;
-        VkImage DepthImage;
-        VkDeviceMemory DepthImageMemory;
-        VkImageView DepthImageView;
-
-        std::vector<VkFramebuffer> SwapchainFramebuffers;
-    };
-
     class GraphicsDeviceVk : public GraphicsDevice
     {
     public:
@@ -89,17 +70,12 @@ namespace Nexus::Graphics
     private:
         void CreateInstance();
         void CreateDebug();
-        void CreateSurface();
         void SelectPhysicalDevice();
         void SelectQueueFamilies();
         void CreateDevice();
         void CreateAllocator();
 
-        void CreateSwapchain();
-        void CreateSwapchainImageViews();
-        void CreateDepthStencil();
         void CreateRenderPass();
-        void CreateFramebuffers();
 
         void CreateCommandStructures();
         void CreateSynchronisationStructures();
@@ -120,8 +96,7 @@ namespace Nexus::Graphics
 
         // utility functions
     private:
-        VkImageView
-        CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+        VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
         VkBool32 GetSupportedDepthFormat(VkPhysicalDevice physicalDevice, VkFormat *depthFormat);
         void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory);
         uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
@@ -130,7 +105,6 @@ namespace Nexus::Graphics
         // Vulkan types
         VkInstance m_Instance;
         VkDebugReportCallbackEXT m_DebugCallback;
-        VkSurfaceKHR m_Surface;
         VkPhysicalDevice m_PhysicalDevice;
 
         uint32_t m_GraphicsQueueFamilyIndex;
@@ -139,8 +113,6 @@ namespace Nexus::Graphics
         VkDevice m_Device;
         VkQueue m_GraphicsQueue;
         VkQueue m_PresentQueue;
-
-        // VulkanSwapchain m_Swapchain;
 
         // render pass
         VkRenderPass m_SwapchainRenderPass;

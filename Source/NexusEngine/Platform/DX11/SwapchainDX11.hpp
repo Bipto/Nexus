@@ -13,7 +13,7 @@ namespace Nexus::Graphics
         virtual void SwapBuffers() override;
         virtual VSyncState GetVsyncState() override;
         virtual void SetVSyncState(VSyncState vsyncState) override;
-        virtual void Resize(uint32_t width, uint32_t height) override;
+        void Resize(uint32_t width, uint32_t height);
 
         ID3D11RenderTargetView *GetRenderTargetView();
         ID3D11DepthStencilView *GetDepthStencilView();

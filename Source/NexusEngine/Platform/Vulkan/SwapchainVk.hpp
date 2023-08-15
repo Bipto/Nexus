@@ -2,6 +2,7 @@
 
 #include "Core/Graphics/Swapchain.hpp"
 #include "Core/Window.hpp"
+#include "SDL_vulkan.h"
 #include "Vk.hpp"
 
 namespace Nexus::Graphics
@@ -16,13 +17,29 @@ namespace Nexus::Graphics
         virtual void SwapBuffers() override;
         virtual VSyncState GetVsyncState() override;
         virtual void SetVSyncState(VSyncState vsyncState) override;
-        virtual void Resize(uint32_t width, uint32_t height) override;
+
+    private:
+        void CreateSurface();
+        void CreateSwapchain();
+        void CreateSwapchainImageViews();
+        void CreateDepthStencil();
+        void CreateFramebuffers();
+
+        void CleanupSwapchain();
+        void CleanupDepthStencil();
+
+        VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+        VkBool32 GetSupportedDepthFormat(VkPhysicalDevice physicalDevice, VkFormat *depthFormat);
+        void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory);
+        uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
     private:
         Window *m_Window;
         VSyncState m_VsyncState;
 
         // vulkan types
+        VkSurfaceKHR m_Surface;
+
         VkSwapchainKHR m_Swapchain;
         VkSurfaceCapabilitiesKHR m_SurfaceCapabilities;
         VkSurfaceFormatKHR m_SurfaceFormat;

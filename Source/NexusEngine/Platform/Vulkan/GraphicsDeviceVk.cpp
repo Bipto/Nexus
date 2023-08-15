@@ -13,24 +13,22 @@ namespace Nexus::Graphics
     {
         CreateInstance();
         CreateDebug();
-        CreateSurface();
+        m_Swapchain = new SwapchainVk(window, createInfo.VSyncStateSettings, this);
+        m_Swapchain->CreateSurface();
         SelectPhysicalDevice();
         SelectQueueFamilies();
         CreateDevice();
         CreateAllocator();
 
-        m_Swapchain = new SwapchainVk(window, createInfo.VSyncStateSettings, this);
-        CreateSwapchain();
-        CreateSwapchainImageViews();
-        CreateDepthStencil();
+        m_Swapchain->CreateSwapchain();
+        m_Swapchain->CreateSwapchainImageViews();
+        m_Swapchain->CreateDepthStencil();
+        m_Swapchain->CreateFramebuffers();
 
         CreateRenderPass();
-        CreateFramebuffers();
 
         CreateCommandStructures();
         CreateSynchronisationStructures();
-
-        std::cout << "Created Vulkan device" << std::endl;
     }
 
     GraphicsDeviceVk::~GraphicsDeviceVk()
@@ -138,6 +136,15 @@ namespace Nexus::Graphics
 
     void GraphicsDeviceVk::Resize(Point<int> size)
     {
+        vkDeviceWaitIdle(m_Device);
+
+        m_Swapchain->CleanupSwapchain();
+        m_Swapchain->CleanupDepthStencil();
+
+        m_Swapchain->CreateSwapchain();
+        m_Swapchain->CreateSwapchainImageViews();
+        m_Swapchain->CreateDepthStencil();
+        m_Swapchain->CreateFramebuffers();
     }
 
     ShaderLanguage GraphicsDeviceVk::GetSupportedShaderFormat()
@@ -238,13 +245,6 @@ namespace Nexus::Graphics
         }
     }
 
-    void GraphicsDeviceVk::CreateSurface()
-    {
-        if (!SDL_Vulkan_CreateSurface(m_Window->GetSDLWindowHandle(), m_Instance, &m_Surface))
-        {
-            throw std::runtime_error("Failed to create surface");
-        }
-    }
     void GraphicsDeviceVk::SelectPhysicalDevice()
     {
         std::vector<VkPhysicalDevice> physicalDevices;
@@ -278,7 +278,7 @@ namespace Nexus::Graphics
             }
 
             VkBool32 presentSupport = false;
-            vkGetPhysicalDeviceSurfaceSupportKHR(m_PhysicalDevice, i, m_Surface, &presentSupport);
+            vkGetPhysicalDeviceSurfaceSupportKHR(m_PhysicalDevice, i, m_Swapchain->m_Surface, &presentSupport);
             if (queueFamily.queueCount > 0 && presentSupport)
             {
                 presentIndex = i;
@@ -361,89 +361,6 @@ namespace Nexus::Graphics
         }
     }
 
-    void GraphicsDeviceVk::CreateSwapchain()
-    {
-        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_PhysicalDevice, m_Surface, &m_Swapchain->m_SurfaceCapabilities);
-
-        std::vector<VkSurfaceFormatKHR> surfaceFormats;
-        uint32_t surfaceFormatCount;
-        vkGetPhysicalDeviceSurfaceFormatsKHR(m_PhysicalDevice, m_Surface, &surfaceFormatCount, nullptr);
-        surfaceFormats.resize(surfaceFormatCount);
-        vkGetPhysicalDeviceSurfaceFormatsKHR(m_PhysicalDevice, m_Surface, &surfaceFormatCount, surfaceFormats.data());
-
-        if (surfaceFormats[0].format != VK_FORMAT_B8G8R8A8_UNORM)
-        {
-            throw std::runtime_error("surfaceFormats[0].format != VK_FORMAT_B8G8R8A8_UNORM");
-        }
-
-        m_Swapchain->m_SurfaceFormat = surfaceFormats[0];
-        int width = 0, height = 0;
-        SDL_Vulkan_GetDrawableSize(m_Window->GetSDLWindowHandle(), &width, &height);
-        width = std::clamp(width, (int)m_Swapchain->m_SurfaceCapabilities.minImageExtent.width, (int)m_Swapchain->m_SurfaceCapabilities.maxImageExtent.width);
-        height = std::clamp(height, (int)m_Swapchain->m_SurfaceCapabilities.minImageExtent.height, (int)m_Swapchain->m_SurfaceCapabilities.maxImageExtent.height);
-        m_Swapchain->m_SwapchainSize.width = width;
-        m_Swapchain->m_SwapchainSize.height = height;
-
-        uint32_t imageCount = m_Swapchain->m_SurfaceCapabilities.minImageCount + 1;
-        if (m_Swapchain->m_SurfaceCapabilities.maxImageCount > 0 && imageCount > m_Swapchain->m_SurfaceCapabilities.maxImageCount)
-        {
-            imageCount = m_Swapchain->m_SurfaceCapabilities.maxImageCount;
-        }
-
-        VkSwapchainCreateInfoKHR createInfo = {};
-        createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        createInfo.surface = m_Surface;
-        createInfo.minImageCount = m_Swapchain->m_SurfaceCapabilities.minImageCount;
-        createInfo.imageFormat = m_Swapchain->m_SurfaceFormat.format;
-        createInfo.imageColorSpace = m_Swapchain->m_SurfaceFormat.colorSpace;
-        createInfo.imageExtent = m_Swapchain->m_SwapchainSize;
-        createInfo.imageArrayLayers = 1;
-        createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-
-        uint32_t queueFamilyIndices[] = {m_GraphicsQueueFamilyIndex, m_PresentQueueFamilyIndex};
-        if (m_GraphicsQueueFamilyIndex != m_PresentQueueFamilyIndex)
-        {
-            createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-            createInfo.queueFamilyIndexCount = 2;
-            createInfo.pQueueFamilyIndices = queueFamilyIndices;
-        }
-        else
-        {
-            createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-        }
-
-        createInfo.preTransform = m_Swapchain->m_SurfaceCapabilities.currentTransform;
-        createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-        createInfo.presentMode = VK_PRESENT_MODE_FIFO_KHR;
-        createInfo.clipped = VK_TRUE;
-
-        if (vkCreateSwapchainKHR(m_Device, &createInfo, nullptr, &m_Swapchain->m_Swapchain) != VK_SUCCESS)
-        {
-            throw std::runtime_error("Failed to create swapchain");
-        }
-
-        vkGetSwapchainImagesKHR(m_Device, m_Swapchain->m_Swapchain, &m_Swapchain->m_SwapchainImageCount, nullptr);
-        m_Swapchain->m_SwapchainImages.resize(m_Swapchain->m_SwapchainImageCount);
-        vkGetSwapchainImagesKHR(m_Device, m_Swapchain->m_Swapchain, &m_Swapchain->m_SwapchainImageCount, m_Swapchain->m_SwapchainImages.data());
-    }
-
-    void GraphicsDeviceVk::CreateSwapchainImageViews()
-    {
-        m_Swapchain->m_SwapchainImageViews.resize(m_Swapchain->m_SwapchainImages.size());
-
-        for (uint32_t i = 0; i < m_Swapchain->m_SwapchainImages.size(); i++)
-        {
-            m_Swapchain->m_SwapchainImageViews[i] = CreateImageView(m_Swapchain->m_SwapchainImages[i], m_Swapchain->m_SurfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT);
-        }
-    }
-
-    void GraphicsDeviceVk::CreateDepthStencil()
-    {
-        VkBool32 validDepthFormat = GetSupportedDepthFormat(m_PhysicalDevice, &m_Swapchain->m_DepthFormat);
-        CreateImage(m_Swapchain->m_SwapchainSize.width, m_Swapchain->m_SwapchainSize.height, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_Swapchain->m_DepthImage, m_Swapchain->m_DepthImageMemory);
-        m_Swapchain->m_DepthImageView = CreateImageView(m_Swapchain->m_DepthImage, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_IMAGE_ASPECT_DEPTH_BIT);
-    }
-
     void GraphicsDeviceVk::CreateRenderPass()
     {
         std::vector<VkAttachmentDescription> attachments(2);
@@ -510,32 +427,6 @@ namespace Nexus::Graphics
         if (vkCreateRenderPass(m_Device, &renderPassInfo, nullptr, &m_SwapchainRenderPass) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to create render pass");
-        }
-    }
-
-    void GraphicsDeviceVk::CreateFramebuffers()
-    {
-        m_Swapchain->m_SwapchainFramebuffers.resize((m_Swapchain->m_SwapchainImageViews.size()));
-
-        for (size_t i = 0; i < m_Swapchain->m_SwapchainImageViews.size(); i++)
-        {
-            std::vector<VkImageView> attachments(2);
-            attachments[0] = m_Swapchain->m_SwapchainImageViews[i];
-            attachments[1] = m_Swapchain->m_DepthImageView;
-
-            VkFramebufferCreateInfo framebufferInfo = {};
-            framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            framebufferInfo.renderPass = m_SwapchainRenderPass;
-            framebufferInfo.attachmentCount = (uint32_t)attachments.size();
-            framebufferInfo.pAttachments = attachments.data();
-            framebufferInfo.width = m_Swapchain->m_SwapchainSize.width;
-            framebufferInfo.height = m_Swapchain->m_SwapchainSize.height;
-            framebufferInfo.layers = 1;
-
-            if (vkCreateFramebuffer(m_Device, &framebufferInfo, nullptr, &m_Swapchain->m_SwapchainFramebuffers[i]) != VK_SUCCESS)
-            {
-                throw std::runtime_error("Failed to create framebuffer");
-            }
         }
     }
 
@@ -751,13 +642,13 @@ namespace Nexus::Graphics
     {
         vkDeviceWaitIdle(m_Device);
 
-        CleanupSwapchain();
-        CleanupDepthStencil();
+        m_Swapchain->CleanupSwapchain();
+        m_Swapchain->CleanupDepthStencil();
 
-        CreateSwapchain();
-        CreateSwapchainImageViews();
-        CreateDepthStencil();
-        CreateFramebuffers();
+        m_Swapchain->CreateSwapchain();
+        m_Swapchain->CreateSwapchainImageViews();
+        m_Swapchain->CreateDepthStencil();
+        m_Swapchain->CreateFramebuffers();
     }
 
     void GraphicsDeviceVk::CleanupSwapchain()
