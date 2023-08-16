@@ -25,6 +25,8 @@ namespace Nexus::Graphics
         virtual void UpdateTexture(Ref<Texture> texture, Ref<Shader> shader, const TextureBinding &binding) override;
         virtual void UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset) override;
 
+        const VkCommandBuffer &GetCurrentCommandBuffer();
+
     private:
         VkCommandPool m_CommandPools[FRAMES_IN_FLIGHT];
         VkCommandBuffer m_CommandBuffers[FRAMES_IN_FLIGHT];

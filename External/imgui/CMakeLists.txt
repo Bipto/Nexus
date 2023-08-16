@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
 
+find_package(Vulkan REQUIRED)
+
 project ("ImGui")
 
 if (WIN32)
@@ -19,6 +21,8 @@ add_library(imgui
 	"imgui/backends/imgui_impl_opengl3.cpp"
 	"imgui/backends/imgui_impl_dx11.h"
 	"imgui/backends/imgui_impl_dx11.cpp"
+	"imgui/backends/imgui_impl_vulkan.h"
+	"imgui/backends/imgui_impl_vulkan.cpp"
 	"imgui/backends/imgui_impl_sdl2.h"	
 	"imgui/backends/imgui_impl_sdl2.cpp"	
 	"imgui/misc/cpp/imgui_stdlib.h"
@@ -39,6 +43,8 @@ add_library(imgui
 	"imgui/imstb_truetype.h"
 	"imgui/backends/imgui_impl_opengl3.h"
 	"imgui/backends/imgui_impl_opengl3.cpp"
+	"imgui/backends/imgui_impl_vulkan.h"
+	"imgui/backends/imgui_impl_vulkan.cpp"
 	"imgui/backends/imgui_impl_sdl2.h"	
 	"imgui/backends/imgui_impl_sdl2.cpp"	
 	"imgui/misc/cpp/imgui_stdlib.h"
@@ -46,14 +52,11 @@ add_library(imgui
 )
 endif(WIN32)
 
-
-
 add_library(imguizmo
     "imguizmo/ImGuizmo.h"
     "imguizmo/ImGuizmo.cpp"
 )
 
-target_include_directories(imgui PUBLIC ../SDL/include)
-target_include_directories(imgui PUBLIC imgui)
-
+target_include_directories(imgui PUBLIC ../SDL/include ${VULKAN_INCLUDE_DIRS} imgui)
 target_include_directories(imguizmo PUBLIC imgui)
+target_link_libraries(imgui PUBLIC Vulkan::Vulkan)

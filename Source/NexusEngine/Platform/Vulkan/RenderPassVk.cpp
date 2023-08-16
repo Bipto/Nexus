@@ -21,6 +21,8 @@ namespace Nexus::Graphics
     {
         m_RenderPassSpecification = renderPassSpecification;
         m_GraphicsDevice = graphicsDevice;
+        m_Data = framebufferSpecification;
+        m_DataType = RenderPassDataType::Framebuffer;
         SetupForFramebuffer();
     }
 
@@ -28,6 +30,8 @@ namespace Nexus::Graphics
     {
         m_RenderPassSpecification = renderPassSpecification;
         m_GraphicsDevice = graphicsDevice;
+        m_Data = swapchain;
+        m_DataType = RenderPassDataType::Swapchain;
         SetupForSwapchain();
     }
 
@@ -50,9 +54,14 @@ namespace Nexus::Graphics
         return m_RenderPassSpecification;
     }
 
+    const RenderPassData &RenderPassVk::GetRenderPassData()
+    {
+        return m_Data;
+    }
+
     RenderPassDataType RenderPassVk::GetRenderPassDataType()
     {
-        return RenderPassDataType();
+        return m_DataType;
     }
 
     void RenderPassVk::SetupForFramebuffer()

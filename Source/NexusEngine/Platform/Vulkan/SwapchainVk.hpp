@@ -17,6 +17,9 @@ namespace Nexus::Graphics
         virtual void SwapBuffers() override;
         virtual VSyncState GetVsyncState() override;
         virtual void SetVSyncState(VSyncState vsyncState) override;
+        const VkFramebuffer &GetCurrentFramebuffer();
+        VkSurfaceFormatKHR GetSurfaceFormat();
+        VkFormat GetDepthFormat();
 
     private:
         void CreateSurface();
@@ -59,5 +62,7 @@ namespace Nexus::Graphics
 
         friend class GraphicsDeviceVk;
         friend class RenderPassVk;
+        friend class CommandListVk;
+        friend class ImGuiRenderer;
     };
 }

@@ -2,6 +2,7 @@
 
 #include "Core/Application.hpp"
 #include "Platform/DX11/GraphicsDeviceDX11.hpp"
+#include "Platform/Vulkan/GraphicsDeviceVk.hpp"
 
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
@@ -9,6 +10,7 @@
 
 #include <backends/imgui_impl_opengl3.h>
 #include <backends/imgui_impl_dx11.h>
+#include <backends/imgui_impl_vulkan.h>
 
 namespace Nexus::Graphics
 {
@@ -28,6 +30,9 @@ namespace Nexus::Graphics
         case GraphicsAPI::DirectX11:
             InitialiseD3D11();
             break;
+        case GraphicsAPI::Vulkan:
+            InitialiseVulkan();
+            break;
         }
     }
 
@@ -44,6 +49,9 @@ namespace Nexus::Graphics
             ImGui_ImplDX11_NewFrame();
 #endif
             break;
+        case GraphicsAPI::Vulkan:
+            ImGui_ImplVulkan_NewFrame();
+            break;
         }
         ImGui::NewFrame();
     }
@@ -59,6 +67,10 @@ namespace Nexus::Graphics
 #if defined(NX_PLATFORM_DX11)
             ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 #endif
+            break;
+        case GraphicsAPI::Vulkan:
+            EndFrameImplVulkan();
+            break;
             break;
         }
     }
@@ -103,5 +115,66 @@ namespace Nexus::Graphics
         ID3D11DeviceContext *id3d11DeviceContext = (ID3D11DeviceContext *)device->GetDeviceContext();
         ImGui_ImplDX11_Init(id3d11Device, id3d11DeviceContext);
 #endif
+    }
+
+    void ImGuiRenderer::InitialiseVulkan()
+    {
+        auto graphicsDevice = m_Application->GetGraphicsDevice();
+        auto vulkanGraphicsDevice = std::dynamic_pointer_cast<GraphicsDeviceVk>(graphicsDevice);
+
+        VkDescriptorPoolSize poolSizes[] =
+            {
+                {VK_DESCRIPTOR_TYPE_SAMPLER, 1000},
+                {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000},
+                {VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000},
+                {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000},
+                {VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000},
+                {VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000},
+                {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000},
+                {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000},
+                {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000},
+                {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000},
+                {VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000}};
+
+        VkDescriptorPoolCreateInfo poolInfo = {};
+        poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+        poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+        poolInfo.maxSets = 1000;
+        poolInfo.poolSizeCount = std::size(poolSizes);
+        poolInfo.pPoolSizes = poolSizes;
+
+        VkDescriptorPool imguiPool;
+        if (vkCreateDescriptorPool(vulkanGraphicsDevice->m_Device, &poolInfo, nullptr, &imguiPool))
+        {
+            throw std::runtime_error("Failed to create ImGui descriptor pool");
+        }
+
+        ImGui::CreateContext();
+        ImGui_ImplSDL2_InitForVulkan(m_Application->GetWindow()->GetSDLWindowHandle());
+
+        ImGui_ImplVulkan_InitInfo initInfo = {};
+        initInfo.Instance = vulkanGraphicsDevice->m_Instance;
+        initInfo.PhysicalDevice = vulkanGraphicsDevice->m_PhysicalDevice;
+        initInfo.Device = vulkanGraphicsDevice->m_Device;
+        initInfo.Queue = vulkanGraphicsDevice->m_GraphicsQueue;
+        initInfo.DescriptorPool = imguiPool;
+        initInfo.MinImageCount = vulkanGraphicsDevice->GetSwapchainImageCount();
+        initInfo.ImageCount = vulkanGraphicsDevice->GetSwapchainImageCount();
+        initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+
+        ImGui_ImplVulkan_Init(&initInfo, vulkanGraphicsDevice->m_SwapchainRenderPass);
+        vulkanGraphicsDevice->ImmediateSubmit([&](VkCommandBuffer cmd)
+                                              { ImGui_ImplVulkan_CreateFontsTexture(cmd); });
+        ImGui_ImplVulkan_DestroyFontUploadObjects();
+    }
+
+    void ImGuiRenderer::EndFrameImplVulkan()
+    {
+        auto graphicsDevice = m_Application->GetGraphicsDevice();
+        auto vulkanGraphicsDevice = std::dynamic_pointer_cast<GraphicsDeviceVk>(graphicsDevice);
+
+        vulkanGraphicsDevice->BeginImGuiRenderPass();
+        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), vulkanGraphicsDevice->m_ImGuiCommandBuffer);
+        vulkanGraphicsDevice->EndImGuiRenderPass();
     }
 }

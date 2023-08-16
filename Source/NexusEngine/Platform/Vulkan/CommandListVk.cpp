@@ -1,4 +1,5 @@
 #include "CommandListVk.hpp"
+#include "RenderPassVk.hpp"
 
 namespace Nexus::Graphics
 {
@@ -61,6 +62,7 @@ namespace Nexus::Graphics
 
     void CommandListVk::End()
     {
+        vkEndCommandBuffer(m_CurrentCommandBuffer);
     }
 
     void CommandListVk::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer)
@@ -77,10 +79,42 @@ namespace Nexus::Graphics
 
     void CommandListVk::BeginRenderPass(Ref<RenderPass> renderPass, const RenderPassBeginInfo &beginInfo)
     {
+        Ref<RenderPassVk> vulkanRenderPass = std::dynamic_pointer_cast<RenderPassVk>(renderPass);
+
+        VkRenderPassBeginInfo renderPassInfo = {};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassInfo.renderPass = vulkanRenderPass->m_RenderPass;
+
+        if (vulkanRenderPass->GetRenderPassDataType() == Nexus::Graphics::RenderPassDataType::Swapchain)
+        {
+            auto vulkanSwapchain = (SwapchainVk *)m_Device->GetSwapchain();
+            renderPassInfo.framebuffer = vulkanSwapchain->GetCurrentFramebuffer();
+            renderPassInfo.renderArea.offset = {0, 0};
+            renderPassInfo.renderArea.extent = vulkanSwapchain->m_SwapchainSize;
+
+            std::vector<VkClearValue> clearValues(2);
+            clearValues[0].color = {
+                beginInfo.ClearColorValue.Red,
+                beginInfo.ClearColorValue.Green,
+                beginInfo.ClearColorValue.Blue,
+                beginInfo.ClearColorValue.Alpha};
+
+            clearValues[1].depthStencil.depth = beginInfo.ClearDepthStencilValue.Depth;
+            clearValues[1].depthStencil.stencil = beginInfo.ClearDepthStencilValue.Stencil;
+
+            renderPassInfo.clearValueCount = (uint32_t)clearValues.size();
+            renderPassInfo.pClearValues = clearValues.data();
+            vkCmdBeginRenderPass(m_CurrentCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+        }
+        else
+        {
+            throw std::runtime_error("Rendering to framebuffers has not been implemented yet");
+        }
     }
 
     void CommandListVk::EndRenderPass()
     {
+        vkCmdEndRenderPass(m_CurrentCommandBuffer);
     }
 
     void CommandListVk::DrawElements(uint32_t start, uint32_t count)
@@ -97,5 +131,10 @@ namespace Nexus::Graphics
 
     void CommandListVk::UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset)
     {
+    }
+
+    const VkCommandBuffer &CommandListVk::GetCurrentCommandBuffer()
+    {
+        return m_CurrentCommandBuffer;
     }
 }

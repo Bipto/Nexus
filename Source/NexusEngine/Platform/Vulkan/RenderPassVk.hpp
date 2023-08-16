@@ -15,6 +15,7 @@ namespace Nexus::Graphics
         virtual LoadOperation GetColorLoadOperation() override;
         virtual LoadOperation GetDepthStencilLoadOperation() override;
         virtual const RenderPassSpecification &GetRenderPassSpecification() override;
+        virtual const RenderPassData &GetRenderPassData() override;
         virtual RenderPassDataType GetRenderPassDataType() override;
 
     private:
@@ -25,5 +26,8 @@ namespace Nexus::Graphics
         RenderPassSpecification m_RenderPassSpecification;
         VkRenderPass m_RenderPass;
         GraphicsDeviceVk *m_GraphicsDevice;
+        RenderPassData m_Data;
+        RenderPassDataType m_DataType;
+        friend class CommandListVk;
     };
 }

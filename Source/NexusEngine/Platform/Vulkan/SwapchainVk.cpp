@@ -48,6 +48,21 @@ namespace Nexus::Graphics
     {
     }
 
+    const VkFramebuffer &SwapchainVk::GetCurrentFramebuffer()
+    {
+        return m_SwapchainFramebuffers[m_GraphicsDevice->m_CurrentFrameIndex];
+    }
+
+    VkSurfaceFormatKHR SwapchainVk::GetSurfaceFormat()
+    {
+        return m_SurfaceFormat;
+    }
+
+    VkFormat SwapchainVk::GetDepthFormat()
+    {
+        return m_DepthFormat;
+    }
+
     void SwapchainVk::CreateSurface()
     {
         if (!SDL_Vulkan_CreateSurface(m_Window->GetSDLWindowHandle(), m_GraphicsDevice->m_Instance, &m_Surface))

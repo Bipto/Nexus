@@ -12,10 +12,10 @@ public:
     {
         m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-        /* Nexus::Graphics::RenderPassSpecification spec;
+        Nexus::Graphics::RenderPassSpecification spec;
         spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
         spec.StencilDepthLoadOperation = Nexus::Graphics::LoadOperation::Clear;
-        m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_GraphicsDevice->GetSwapchain()); */
+        m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_GraphicsDevice->GetSwapchain());
     }
 
     virtual void Update(Nexus::Time time) override
@@ -31,11 +31,15 @@ public:
             0.0f,
             0.0f,
             1.0f};
+        beginInfo.ClearDepthStencilValue.Depth = 1.0f;
 
         m_CommandList->Begin();
-
+        m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
+        m_CommandList->EndRenderPass();
         m_CommandList->End();
-        // m_GraphicsDevice->SubmitCommandList(m_CommandList);
+        m_GraphicsDevice->SubmitCommandList(m_CommandList);
+
+        ImGui::ShowDemoWindow();
 
         m_GraphicsDevice->EndFrame();
     }
@@ -59,7 +63,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
     Nexus::ApplicationSpecification spec;
     spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
-    spec.ImGuiActive = false;
+    spec.ImGuiActive = true;
     spec.VSyncState = Nexus::Graphics::VSyncState::Enabled;
 
     return new TestApplication(spec);
