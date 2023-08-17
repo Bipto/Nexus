@@ -54,10 +54,14 @@ namespace Nexus::Graphics
         submitInfo.pCommandBuffers = &vulkanCommandList->GetCurrentCommandBuffer();
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = &GetCurrentFrame().PresentSemaphore;
+
         if (vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, GetCurrentFrame().RenderFence) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to submit queue");
         }
+
+        vkWaitForFences(m_Device, 1, &GetCurrentFrame().RenderFence, VK_TRUE, UINT32_MAX);
+        vkResetFences(m_Device, 1, &GetCurrentFrame().RenderFence);
     }
 
     void GraphicsDeviceVk::SetViewport(const Viewport &viewport)
