@@ -98,6 +98,9 @@ namespace Nexus::Graphics
             output.Source = hlsl.compile();
             break;
         }
+        case ShaderLanguage::SPIRV:
+            output.SpirvBinary = spirv_binary;
+            break;
         }
 
         output.Successful = true;

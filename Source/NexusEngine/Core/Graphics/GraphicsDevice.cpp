@@ -59,45 +59,54 @@ namespace Nexus::Graphics
         source.VertexSource = ss[0].str();
         source.FragmentSource = ss[1].str();
 
-        ShaderGenerator generator;
-        std::string errorMessage;
-
-        ShaderGenerationOptions vertOptions;
-        vertOptions.Type = ShaderType::Vertex;
-        vertOptions.ShaderName = filepath;
-        vertOptions.OutputFormat = this->GetSupportedShaderFormat();
-        auto vertResult = generator.Generate(source.VertexSource, vertOptions);
-
-        if (!vertResult.Successful)
+        // if we are using a SPIR_V bytecode we do not need to compile the GLSL to a native shader language
+        if (this->GetSupportedShaderFormat() != Nexus::Graphics::ShaderLanguage::SPIRV)
         {
-            errorMessage += "Error compiling vertex shader: " + vertResult.Error + "\n";
+            ShaderGenerator generator;
+            std::string errorMessage;
+
+            ShaderGenerationOptions vertOptions;
+            vertOptions.Type = ShaderType::Vertex;
+            vertOptions.ShaderName = filepath;
+            vertOptions.OutputFormat = this->GetSupportedShaderFormat();
+            auto vertResult = generator.Generate(source.VertexSource, vertOptions);
+
+            if (!vertResult.Successful)
+            {
+                errorMessage += "Error compiling vertex shader: " + vertResult.Error + "\n";
+            }
+
+            ShaderGenerationOptions fragOptions;
+            fragOptions.Type = ShaderType::Fragment;
+            fragOptions.ShaderName = filepath;
+            fragOptions.OutputFormat = this->GetSupportedShaderFormat();
+            auto fragResult = generator.Generate(source.FragmentSource, fragOptions);
+
+            if (!fragResult.Successful)
+            {
+                errorMessage += "Error compiling fragment shader: " + fragResult.Error;
+            }
+
+            auto endTime = std::chrono::system_clock::now();
+            auto totalTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+
+            if (vertResult.Successful && fragResult.Successful)
+            {
+                std::stringstream ss;
+                ss << "Compilation of " << filepath << " took " << totalTime << " milliseconds";
+
+                auto shader = this->CreateShaderFromSource(vertResult.Source, fragResult.Source, layout);
+                return shader;
+            }
+            else
+            {
+                NX_ERROR(errorMessage);
+            }
         }
 
-        ShaderGenerationOptions fragOptions;
-        fragOptions.Type = ShaderType::Fragment;
-        fragOptions.ShaderName = filepath;
-        fragOptions.OutputFormat = this->GetSupportedShaderFormat();
-        auto fragResult = generator.Generate(source.FragmentSource, fragOptions);
-
-        if (!fragResult.Successful)
-        {
-            errorMessage += "Error compiling fragment shader: " + fragResult.Error;
-        }
-
-        auto endTime = std::chrono::system_clock::now();
-        auto totalTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
-
-        if (vertResult.Successful && fragResult.Successful)
-        {
-            std::stringstream ss;
-            ss << "Compilation of " << filepath << " took " << totalTime << " milliseconds";
-
-            auto shader = this->CreateShaderFromSource(vertResult.Source, fragResult.Source, layout);
-            return shader;
-        }
         else
         {
-            NX_ERROR(errorMessage);
+            this->CreateShaderFromSource(source.VertexSource, source.FragmentSource, layout);
         }
 
         return {};

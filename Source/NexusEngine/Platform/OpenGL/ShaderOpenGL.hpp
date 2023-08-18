@@ -32,7 +32,6 @@ namespace Nexus::Graphics
         virtual void BindUniformBuffer(Ref<UniformBuffer> buffer, const UniformResourceBinding &binding) override;
 
         unsigned int GetHandle() { return m_ProgramHandle; }
-        void SetLayout();
 
     private:
         void Compile(const std::string &vertexShaderSource, const std::string &fragmentShaderSource);

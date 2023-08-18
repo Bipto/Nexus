@@ -28,7 +28,10 @@ namespace Nexus::Graphics
         GLSLES,
 
         /// @brief Value representing the HLSL shader language
-        HLSL
+        HLSL,
+
+        /// @brief Value representing a SPIR-V binary shader
+        SPIRV
     };
 
     /// @brief A struct representing a set of options when generating a shader
@@ -58,6 +61,9 @@ namespace Nexus::Graphics
 
         /// @brief The shader language that has been output by the generation
         ShaderLanguage OutputFormat;
+
+        /// @brief A vector containing the SPIR-V binary bytecode
+        std::vector<uint32_t> SpirvBinary;
     };
 
     /// @brief A class representing a shader generator instance

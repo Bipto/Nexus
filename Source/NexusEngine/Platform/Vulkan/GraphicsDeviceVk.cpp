@@ -1,6 +1,8 @@
 #include "GraphicsDeviceVk.hpp"
 #include "CommandListVk.hpp"
 #include "RenderPassVk.hpp"
+#include "ShaderVk.hpp"
+#include "PipelineVk.hpp"
 
 #include "SDL_vulkan.h"
 
@@ -107,7 +109,31 @@ namespace Nexus::Graphics
 
     Ref<Shader> GraphicsDeviceVk::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout)
     {
-        return nullptr;
+        Nexus::Graphics::ShaderGenerator generator;
+
+        Nexus::Graphics::ShaderGenerationOptions vertOptions;
+        vertOptions.OutputFormat = ShaderLanguage::SPIRV;
+        vertOptions.Type = Nexus::Graphics::ShaderType::Vertex;
+        auto vertexResult = generator.Generate(vertexShaderSource, vertOptions);
+
+        if (!vertexResult.Successful)
+        {
+            NX_ERROR(vertexResult.Error);
+            throw std::runtime_error(vertexResult.Error);
+        }
+
+        Nexus::Graphics::ShaderGenerationOptions fragOptions;
+        fragOptions.OutputFormat = ShaderLanguage::SPIRV;
+        fragOptions.Type = Nexus::Graphics::ShaderType::Fragment;
+        auto fragmentResult = generator.Generate(fragmentShaderSource, fragOptions);
+
+        if (!fragmentResult.Successful)
+        {
+            NX_ERROR(fragmentResult.Error);
+            throw std::runtime_error(fragmentResult.Error);
+        }
+
+        return CreateRef<ShaderVk>(vertexResult.SpirvBinary, fragmentResult.SpirvBinary, vertexShaderSource, fragmentShaderSource, layout, this);
     }
 
     Ref<Texture> GraphicsDeviceVk::CreateTexture(TextureSpecification spec)
@@ -170,7 +196,7 @@ namespace Nexus::Graphics
 
     ShaderLanguage GraphicsDeviceVk::GetSupportedShaderFormat()
     {
-        return ShaderLanguage();
+        return ShaderLanguage::SPIRV;
     }
 
     Swapchain *GraphicsDeviceVk::GetSwapchain()

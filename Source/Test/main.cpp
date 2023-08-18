@@ -16,6 +16,8 @@ public:
         spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
         spec.StencilDepthLoadOperation = Nexus::Graphics::LoadOperation::Clear;
         m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_GraphicsDevice->GetSwapchain());
+
+        m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/hello_triangle.glsl", Nexus::Graphics::VertexPosition::GetLayout());
     }
 
     virtual void Update(Nexus::Time time) override
@@ -56,6 +58,8 @@ public:
 private:
     Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
     Nexus::Ref<Nexus::Graphics::RenderPass> m_RenderPass;
+
+    Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
