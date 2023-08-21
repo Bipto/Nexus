@@ -16,8 +16,6 @@ namespace Nexus::Graphics
         Int2,
         Int3,
         Int4,
-        Mat3,
-        Mat4
     };
 
     /// @brief A method that returns the size of a shader data type in bytes

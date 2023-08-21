@@ -4,6 +4,7 @@
 #include "Viewport.hpp"
 
 #include "Rectangle.hpp"
+#include "RenderPass.hpp"
 
 namespace Nexus::Graphics
 {
@@ -254,6 +255,12 @@ namespace Nexus::Graphics
 
         /// @brief A reference counted pointer to a shader that should be used for rendering
         Ref<Shader> Shader;
+
+        /// @brief A reference counted pointer to the render pass that will be used for rendering with this pipeline
+        Ref<RenderPass> RenderPass;
+
+        /// @brief A viewport that will specify the dimensions that will be used for rendering
+        Viewport Viewport;
     };
 
     /// @brief A pure virtual class representing an API specific pipeline

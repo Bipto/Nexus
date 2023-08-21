@@ -106,7 +106,8 @@ namespace Nexus::Graphics
 
         else
         {
-            this->CreateShaderFromSource(source.VertexSource, source.FragmentSource, layout);
+            auto shader = this->CreateShaderFromSource(source.VertexSource, source.FragmentSource, layout);
+            return shader;
         }
 
         return {};

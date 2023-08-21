@@ -14,6 +14,7 @@ namespace Nexus::Graphics
         virtual const std::string &GetFragmentShaderSource() override;
         virtual const VertexBufferLayout &GetLayout() const override;
         virtual void BindUniformBuffer(Ref<UniformBuffer> buffer, const UniformResourceBinding &binding) override;
+        const std::vector<VkPipelineShaderStageCreateInfo> &GetShaderStages();
 
     private:
         VkShaderModule CreateShaderModule(const std::vector<uint32_t> &spirv_buffer, bool *successful);
@@ -25,6 +26,8 @@ namespace Nexus::Graphics
 
         VkShaderModule m_VertexShader;
         VkShaderModule m_FragmentShader;
+
+        std::vector<VkPipelineShaderStageCreateInfo> m_ShaderStages;
 
         GraphicsDeviceVk *m_GraphicsDevice;
     };

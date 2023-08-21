@@ -17,6 +17,22 @@ namespace Nexus::Graphics
         {
             throw std::runtime_error("Failed to create fragment shader module");
         }
+
+        VkPipelineShaderStageCreateInfo vertexInfo = {};
+        vertexInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        vertexInfo.pNext = nullptr;
+        vertexInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+        vertexInfo.module = m_VertexShader;
+        vertexInfo.pName = "main";
+        m_ShaderStages.push_back(vertexInfo);
+
+        VkPipelineShaderStageCreateInfo fragmentInfo = {};
+        fragmentInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        fragmentInfo.pNext = nullptr;
+        fragmentInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+        fragmentInfo.module = m_FragmentShader;
+        fragmentInfo.pName = "main";
+        m_ShaderStages.push_back(fragmentInfo);
     }
 
     void ShaderVk::SetTexture(Ref<Texture> texture, const TextureBinding &binding)
@@ -40,6 +56,11 @@ namespace Nexus::Graphics
 
     void ShaderVk::BindUniformBuffer(Ref<UniformBuffer> buffer, const UniformResourceBinding &binding)
     {
+    }
+
+    const std::vector<VkPipelineShaderStageCreateInfo> &ShaderVk::GetShaderStages()
+    {
+        return m_ShaderStages;
     }
 
     VkShaderModule ShaderVk::CreateShaderModule(const std::vector<uint32_t> &spirv_buffer, bool *successful)

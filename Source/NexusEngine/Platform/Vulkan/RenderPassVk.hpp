@@ -17,6 +17,8 @@ namespace Nexus::Graphics
         virtual const RenderPassSpecification &GetRenderPassSpecification() override;
         virtual const RenderPassData &GetRenderPassData() override;
         virtual RenderPassDataType GetRenderPassDataType() override;
+        VkRenderPass GetVkRenderPass();
+        uint32_t GetColorAttachmentCount();
 
     private:
         void SetupForFramebuffer();
@@ -28,6 +30,8 @@ namespace Nexus::Graphics
         GraphicsDeviceVk *m_GraphicsDevice;
         RenderPassData m_Data;
         RenderPassDataType m_DataType;
+        uint32_t m_ColorAttachmentCount;
+
         friend class CommandListVk;
     };
 }

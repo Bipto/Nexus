@@ -148,7 +148,7 @@ namespace Nexus::Graphics
 
     Ref<Pipeline> GraphicsDeviceVk::CreatePipeline(const PipelineDescription &description)
     {
-        return nullptr;
+        return CreateRef<PipelineVk>(description, this);
     }
 
     Ref<CommandList> GraphicsDeviceVk::CreateCommandList()

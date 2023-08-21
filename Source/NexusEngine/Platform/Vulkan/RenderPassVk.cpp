@@ -24,6 +24,7 @@ namespace Nexus::Graphics
         m_Data = framebufferSpecification;
         m_DataType = RenderPassDataType::Framebuffer;
         SetupForFramebuffer();
+        m_ColorAttachmentCount = framebufferSpecification.ColorAttachmentSpecification.Attachments.size();
     }
 
     RenderPassVk::RenderPassVk(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain, GraphicsDeviceVk *graphicsDevice)
@@ -33,6 +34,7 @@ namespace Nexus::Graphics
         m_Data = swapchain;
         m_DataType = RenderPassDataType::Swapchain;
         SetupForSwapchain();
+        m_ColorAttachmentCount = 1;
     }
 
     RenderPassVk::~RenderPassVk()
@@ -62,6 +64,16 @@ namespace Nexus::Graphics
     RenderPassDataType RenderPassVk::GetRenderPassDataType()
     {
         return m_DataType;
+    }
+
+    VkRenderPass RenderPassVk::GetVkRenderPass()
+    {
+        return m_RenderPass;
+    }
+
+    uint32_t RenderPassVk::GetColorAttachmentCount()
+    {
+        return 0;
     }
 
     void RenderPassVk::SetupForFramebuffer()

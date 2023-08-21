@@ -18,6 +18,16 @@ public:
         m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_GraphicsDevice->GetSwapchain());
 
         m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/hello_triangle.glsl", Nexus::Graphics::VertexPosition::GetLayout());
+
+        Nexus::Graphics::PipelineDescription description;
+        description.Shader = m_Shader;
+        description.RenderPass = m_RenderPass;
+        description.Viewport.X = 0;
+        description.Viewport.Y = 0;
+        description.Viewport.Width = GetWindow()->GetWindowSize().X;
+        description.Viewport.Height = GetWindow()->GetWindowSize().Y;
+
+        m_Pipeline = m_GraphicsDevice->CreatePipeline(description);
     }
 
     virtual void Update(Nexus::Time time) override
@@ -60,6 +70,7 @@ private:
     Nexus::Ref<Nexus::Graphics::RenderPass> m_RenderPass;
 
     Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
+    Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
