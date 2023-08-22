@@ -70,12 +70,6 @@ namespace Nexus::Graphics
 
     void ShaderOpenGL::BindUniformBuffer(Ref<UniformBuffer> uniformBuffer, const UniformResourceBinding &binding)
     {
-        if (uniformBuffer->GetDescription().Type != BufferType::Uniform)
-        {
-            throw std::runtime_error("Attempting to bind non-uniform buffer to shader");
-            return;
-        }
-
         auto uniformBufferGL = std::dynamic_pointer_cast<UniformBufferOpenGL>(uniformBuffer);
         unsigned int index = glGetUniformBlockIndex(m_ProgramHandle, binding.Name.c_str());
 

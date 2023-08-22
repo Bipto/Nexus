@@ -5,22 +5,6 @@
 
 namespace Nexus::Graphics
 {
-    /// @brief An enum representing the different types of buffers that can be created
-    enum class BufferType
-    {
-        /// @brief A default value used internally by the engine, should not be used by an application
-        Invalid = 0,
-
-        /// @brief A value representing a vertex buffer
-        Vertex,
-
-        /// @brief A value representing an index buffer
-        Index,
-
-        /// @brief A value representing a uniform buffer
-        Uniform
-    };
-
     /// @brief An enum representing the different access modifiers for buffers
     enum class BufferUsage
     {
@@ -39,9 +23,6 @@ namespace Nexus::Graphics
     {
         /// @brief The total size of the buffer in bytes
         uint32_t Size = 0;
-
-        /// @brief An enum value representing the type of buffer to create
-        BufferType Type = BufferType::Invalid;
 
         /// @brief An enum value representing how the buffer can be accessed
         BufferUsage Usage = BufferUsage::Invalid;

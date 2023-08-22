@@ -65,15 +65,18 @@ namespace Nexus::Graphics
         uint32_t GetGraphicsFamily();
         uint32_t GetPresentFamily();
         uint32_t GetCurrentFrameIndex();
+        VmaAllocator GetAllocator();
 
         void CreateImGuiCommandStructures();
 
         void ImmediateSubmit(std::function<void(VkCommandBuffer cmd)> &&function);
+        uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
         // vulkan functions
     private:
         void CreateInstance();
         void CreateDebug();
+        void SetupDebugMessenger();
         void SelectPhysicalDevice();
         void SelectQueueFamilies();
         void CreateDevice();
@@ -101,18 +104,23 @@ namespace Nexus::Graphics
         void CleanupSwapchain();
         void CleanupDepthStencil();
 
-        // utility functions
     private:
+        // utility functions
         VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
         VkBool32 GetSupportedDepthFormat(VkPhysicalDevice physicalDevice, VkFormat *depthFormat);
         void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory);
-        uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+
+        bool CheckValidationLayerSupport();
+        std::vector<const char *> GetRequiredExtensions();
+        static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData);
+        VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pDebugMessenger);
 
     private:
         // Vulkan types
         VkInstance m_Instance;
         VkDebugReportCallbackEXT m_DebugCallback;
         VkPhysicalDevice m_PhysicalDevice;
+        VkDebugUtilsMessengerEXT m_DebugMessenger;
 
         uint32_t m_GraphicsQueueFamilyIndex;
         uint32_t m_PresentQueueFamilyIndex;

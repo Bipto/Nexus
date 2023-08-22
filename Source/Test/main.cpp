@@ -1,5 +1,11 @@
 #include "NexusEngine.hpp"
 
+std::vector<Nexus::Graphics::VertexPosition> vertices =
+    {
+        {{-0.5f, 0.5f, 0.0f}},
+        {{0.0f, -0.5f, 0.0f}},
+        {{0.5f, 0.5f, 0.0f}}};
+
 class TestApplication : public Nexus::Application
 {
 public:
@@ -26,8 +32,18 @@ public:
         description.Viewport.Y = 0;
         description.Viewport.Width = GetWindow()->GetWindowSize().X;
         description.Viewport.Height = GetWindow()->GetWindowSize().Y;
+        description.RasterizerStateDescription.ScissorRectangle =
+            {
+                0, 0, GetWindowSize().X, GetWindowSize().Y};
+
+        description.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
 
         m_Pipeline = m_GraphicsDevice->CreatePipeline(description);
+
+        Nexus::Graphics::BufferDescription vertexBufferDesc;
+        vertexBufferDesc.Size = vertices.size() * sizeof(Nexus::Graphics::VertexPosition);
+        vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
+        m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(vertexBufferDesc, vertices.data(), Nexus::Graphics::VertexPosition::GetLayout());
     }
 
     virtual void Update(Nexus::Time time) override
@@ -47,6 +63,11 @@ public:
 
         m_CommandList->Begin();
         m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
+        m_CommandList->SetPipeline(m_Pipeline);
+        m_CommandList->SetVertexBuffer(m_VertexBuffer);
+
+        auto vertexCount = m_VertexBuffer->GetDescription().Size / sizeof(Nexus::Graphics::VertexPosition);
+        m_CommandList->DrawElements(0, vertexCount);
         m_CommandList->EndRenderPass();
         m_CommandList->End();
         m_GraphicsDevice->SubmitCommandList(m_CommandList);
@@ -59,6 +80,20 @@ public:
     virtual void OnResize(Nexus::Point<int> size) override
     {
         m_GraphicsDevice->Resize(size);
+
+        Nexus::Graphics::PipelineDescription description;
+        description.Shader = m_Shader;
+        description.RenderPass = m_RenderPass;
+        description.Viewport.X = 0;
+        description.Viewport.Y = 0;
+        description.Viewport.Width = size.X;
+        description.Viewport.Height = size.Y;
+        description.RasterizerStateDescription.ScissorRectangle =
+            {
+                0, 0, size.X, size.Y};
+        description.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
+
+        m_Pipeline = m_GraphicsDevice->CreatePipeline(description);
     }
 
     virtual void Unload() override
@@ -71,6 +106,8 @@ private:
 
     Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
     Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
+
+    Nexus::Ref<Nexus::Graphics::VertexBuffer> m_VertexBuffer;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)

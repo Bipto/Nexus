@@ -33,7 +33,6 @@ namespace Demos
 
             Nexus::Graphics::BufferDescription vertexBufferDesc;
             vertexBufferDesc.Size = vertices.size() * sizeof(Nexus::Graphics::VertexPositionTexCoordNormal);
-            vertexBufferDesc.Type = Nexus::Graphics::BufferType::Vertex;
             vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
             m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(vertexBufferDesc, vertices.data(), Nexus::Graphics::VertexPositionTexCoordNormal::GetLayout());
         }

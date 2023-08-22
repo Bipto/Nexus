@@ -1,5 +1,7 @@
 #include "CommandListVk.hpp"
 #include "RenderPassVk.hpp"
+#include "PipelineVk.hpp"
+#include "BufferVk.hpp"
 
 namespace Nexus::Graphics
 {
@@ -67,6 +69,11 @@ namespace Nexus::Graphics
 
     void CommandListVk::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer)
     {
+        Ref<VertexBufferVk> vulkanVB = std::dynamic_pointer_cast<VertexBufferVk>(vertexBuffer);
+
+        VkBuffer vertexBuffers[] = {vulkanVB->GetBuffer()};
+        VkDeviceSize offsets[] = {0};
+        vkCmdBindVertexBuffers(m_CurrentCommandBuffer, 0, 1, vertexBuffers, offsets);
     }
 
     void CommandListVk::SetIndexBuffer(Ref<IndexBuffer> indexBuffer)
@@ -75,6 +82,8 @@ namespace Nexus::Graphics
 
     void CommandListVk::SetPipeline(Ref<Pipeline> pipeline)
     {
+        Ref<PipelineVk> vulkanPipeline = std::dynamic_pointer_cast<PipelineVk>(pipeline);
+        vkCmdBindPipeline(m_CurrentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanPipeline->GetPipeline());
     }
 
     void CommandListVk::BeginRenderPass(Ref<RenderPass> renderPass, const RenderPassBeginInfo &beginInfo)
@@ -119,6 +128,7 @@ namespace Nexus::Graphics
 
     void CommandListVk::DrawElements(uint32_t start, uint32_t count)
     {
+        vkCmdDraw(m_CurrentCommandBuffer, count, 1, start, 0);
     }
 
     void CommandListVk::DrawIndexed(uint32_t count, uint32_t offset)

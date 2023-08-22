@@ -44,10 +44,10 @@ namespace Nexus::Graphics
     /// @brief A struct representing a set of values used to clear the buffers when beginning a command list
     struct RenderPassBeginInfo
     {
-        /// @brief An instance of a clearcolorvalue to use to clear the colour buffer
+        /// @brief An instance of a ClearColorValue to use to clear the colour buffer
         ClearColorValue ClearColorValue;
 
-        /// @brief An instance of cleardepthstencilvalue to use to clear the depth stencil buffer
+        /// @brief An instance of a ClearDepthStencilValue to use to clear the depth stencil buffer
         ClearDepthStencilValue ClearDepthStencilValue;
     };
 

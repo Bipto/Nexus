@@ -3,21 +3,6 @@
 
 namespace Nexus::Graphics
 {
-    GLenum GetBufferType(BufferType type)
-    {
-        switch (type)
-        {
-        case BufferType::Vertex:
-            return GL_ARRAY_BUFFER;
-        case BufferType::Index:
-            return GL_ELEMENT_ARRAY_BUFFER;
-        case BufferType::Uniform:
-            return GL_UNIFORM_BUFFER;
-        default:
-            throw std::runtime_error("Invalid buffer type entered");
-        }
-    }
-
     GLenum GetBufferUsage(BufferUsage usage)
     {
         switch (usage)

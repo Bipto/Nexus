@@ -41,7 +41,6 @@ namespace Demos
 
             Nexus::Graphics::BufferDescription transformUniformBufferDesc;
             transformUniformBufferDesc.Size = sizeof(VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO);
-            transformUniformBufferDesc.Type = Nexus::Graphics::BufferType::Uniform;
             transformUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
             m_TransformUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(transformUniformBufferDesc, nullptr);
 

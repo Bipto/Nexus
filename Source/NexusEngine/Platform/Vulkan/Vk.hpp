@@ -8,3 +8,9 @@
 
 VkFormat GetVkFormatFromNexusFormat(Nexus::Graphics::TextureFormat format);
 VkFormat GetShaderDataType(Nexus::Graphics::ShaderDataType type);
+
+struct AllocatedBuffer
+{
+    VkBuffer Buffer;
+    VmaAllocation Allocation;
+};

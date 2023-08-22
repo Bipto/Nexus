@@ -11,6 +11,8 @@ namespace Nexus::Graphics
         PipelineVk(const PipelineDescription &description, GraphicsDeviceVk *graphicsDevice);
         ~PipelineVk();
         virtual const PipelineDescription &GetPipelineDescription() const override;
+        VkPipeline GetPipeline();
+        VkPipelineLayout GetPipelineLayout();
 
     private:
         VkPipelineShaderStageCreateInfo CreatePipelineShaderStageCreateInfo(VkShaderStageFlagBits stage, VkShaderModule module);

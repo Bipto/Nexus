@@ -3,6 +3,7 @@
 #include "RenderPassVk.hpp"
 #include "ShaderVk.hpp"
 #include "PipelineVk.hpp"
+#include "BufferVk.hpp"
 
 #include "SDL_vulkan.h"
 
@@ -14,7 +15,8 @@ namespace Nexus::Graphics
         : GraphicsDevice(createInfo, window)
     {
         CreateInstance();
-        CreateDebug();
+        // CreateDebug();
+        SetupDebugMessenger();
         m_Swapchain = new SwapchainVk(window, createInfo.VSyncStateSettings, this);
         m_Swapchain->CreateSurface();
         SelectPhysicalDevice();
@@ -25,9 +27,8 @@ namespace Nexus::Graphics
         m_Swapchain->CreateSwapchain();
         m_Swapchain->CreateSwapchainImageViews();
         m_Swapchain->CreateDepthStencil();
-        m_Swapchain->CreateFramebuffers();
-
         CreateRenderPass();
+        m_Swapchain->CreateFramebuffers();
 
         CreateCommandStructures();
         CreateSynchronisationStructures();
@@ -158,7 +159,7 @@ namespace Nexus::Graphics
 
     Ref<VertexBuffer> GraphicsDeviceVk::CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
     {
-        return nullptr;
+        return CreateRef<VertexBufferVk>(description, data, layout, this);
     }
 
     Ref<IndexBuffer> GraphicsDeviceVk::CreateIndexBuffer(const BufferDescription &description, const void *data)
@@ -227,6 +228,11 @@ namespace Nexus::Graphics
     uint32_t GraphicsDeviceVk::GetCurrentFrameIndex()
     {
         return m_FrameNumber % FRAMES_IN_FLIGHT;
+    }
+
+    VmaAllocator GraphicsDeviceVk::GetAllocator()
+    {
+        return m_Allocator;
     }
 
     void GraphicsDeviceVk::CreateImGuiCommandStructures()
@@ -308,12 +314,18 @@ namespace Nexus::Graphics
             "VK_LAYER_KHRONOS_validation",
     };
 
+#ifdef NDEBUG
+    const bool enableValidationLayers = false;
+#else
+    const bool enableValidationLayers = true;
+#endif
+
     void GraphicsDeviceVk::CreateInstance()
     {
-        uint32_t extensionCount = 0;
-        SDL_Vulkan_GetInstanceExtensions(m_Window->GetSDLWindowHandle(), &extensionCount, nullptr);
-        std::vector<const char *> extensionNames(extensionCount);
-        SDL_Vulkan_GetInstanceExtensions(m_Window->GetSDLWindowHandle(), &extensionCount, extensionNames.data());
+        if (enableValidationLayers && !CheckValidationLayerSupport())
+        {
+            throw std::runtime_error("Validation layers were requested, but were not available");
+        }
 
         VkApplicationInfo appInfo = {};
         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -326,10 +338,20 @@ namespace Nexus::Graphics
         VkInstanceCreateInfo instanceCreateInfo = {};
         instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
         instanceCreateInfo.pApplicationInfo = &appInfo;
-        instanceCreateInfo.enabledLayerCount = validationLayers.size();
-        instanceCreateInfo.ppEnabledLayerNames = validationLayers.data();
-        instanceCreateInfo.enabledExtensionCount = extensionNames.size();
-        instanceCreateInfo.ppEnabledExtensionNames = extensionNames.data();
+
+        if (enableValidationLayers)
+        {
+            instanceCreateInfo.enabledLayerCount = validationLayers.size();
+            instanceCreateInfo.ppEnabledLayerNames = validationLayers.data();
+        }
+        else
+        {
+            instanceCreateInfo.enabledLayerCount = 0;
+        }
+
+        auto extensions = GetRequiredExtensions();
+        instanceCreateInfo.enabledExtensionCount = (uint32_t)extensions.size();
+        instanceCreateInfo.ppEnabledExtensionNames = extensions.data();
 
         if (vkCreateInstance(&instanceCreateInfo, nullptr, &m_Instance) != VK_SUCCESS)
         {
@@ -363,6 +385,21 @@ namespace Nexus::Graphics
         if (SDL2_vkCreateDebugReportCallbackEXT(m_Instance, &debugCallbackCreateInfo, 0, &m_DebugCallback) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to create Vulkan debug messenger");
+        }
+    }
+
+    void GraphicsDeviceVk::SetupDebugMessenger()
+    {
+        VkDebugUtilsMessengerCreateInfoEXT createInfo = {};
+        createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+        createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT;
+        createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+        createInfo.pfnUserCallback = debugCallback;
+        createInfo.pUserData = nullptr;
+
+        if (CreateDebugUtilsMessengerEXT(m_Instance, &createInfo, nullptr, &m_DebugMessenger) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to setup debug messenger");
         }
     }
 
@@ -489,10 +526,10 @@ namespace Nexus::Graphics
         attachments[0].format = m_Swapchain->m_SurfaceFormat.format;
         attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
         // attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+        attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         // attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+        attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
         attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         attachments[0].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
@@ -500,10 +537,10 @@ namespace Nexus::Graphics
         attachments[1].format = m_Swapchain->m_DepthFormat;
         attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
         // attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+        attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         // attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+        attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
         attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
@@ -928,6 +965,69 @@ namespace Nexus::Graphics
         }
 
         vkBindImageMemory(m_Device, image, imageMemory, 0);
+    }
+
+    bool GraphicsDeviceVk::CheckValidationLayerSupport()
+    {
+        uint32_t layerCount;
+        vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+
+        std::vector<VkLayerProperties> availableLayers(layerCount);
+        vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+        for (const char *layerName : validationLayers)
+        {
+            bool layerFound = false;
+            for (const auto &layerProperties : availableLayers)
+            {
+                if (strcmp(layerName, layerProperties.layerName) == 0)
+                {
+                    layerFound = true;
+                    break;
+                }
+            }
+
+            if (!layerFound)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    std::vector<const char *> GraphicsDeviceVk::GetRequiredExtensions()
+    {
+        uint32_t sdlExtensionCount = 0;
+        SDL_Vulkan_GetInstanceExtensions(m_Window->GetSDLWindowHandle(), &sdlExtensionCount, nullptr);
+        std::vector<const char *> extensionNames(sdlExtensionCount);
+        SDL_Vulkan_GetInstanceExtensions(m_Window->GetSDLWindowHandle(), &sdlExtensionCount, extensionNames.data());
+
+        if (enableValidationLayers)
+        {
+            extensionNames.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+        }
+
+        return extensionNames;
+    }
+
+    VKAPI_ATTR VkBool32 VKAPI_CALL GraphicsDeviceVk::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData)
+    {
+        std::cerr << "Validation layer: " << pCallbackData->pMessage << std::endl;
+        return VK_FALSE;
+    }
+
+    VkResult GraphicsDeviceVk::CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pDebugMessenger)
+    {
+        auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+        if (func != nullptr)
+        {
+            return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
+        }
+        else
+        {
+            return VK_ERROR_EXTENSION_NOT_PRESENT;
+        }
     }
 
     uint32_t GraphicsDeviceVk::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)

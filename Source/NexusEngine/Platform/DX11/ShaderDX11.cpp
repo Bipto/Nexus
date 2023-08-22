@@ -150,12 +150,6 @@ namespace Nexus::Graphics
 
     void ShaderDX11::BindUniformBuffer(Ref<UniformBuffer> uniformBuffer, const UniformResourceBinding &binding)
     {
-        if (uniformBuffer->GetDescription().Type != BufferType::Uniform)
-        {
-            throw std::runtime_error("Attempting to bind non-uniform buffer to shader");
-            return;
-        }
-
         auto uniformBufferDX = std::dynamic_pointer_cast<UniformBufferDX11>(uniformBuffer);
         auto bufferHandle = uniformBufferDX->GetHandle();
 

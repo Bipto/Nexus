@@ -101,6 +101,16 @@ namespace Nexus::Graphics
         return m_Description;
     }
 
+    VkPipeline PipelineVk::GetPipeline()
+    {
+        return m_Pipeline;
+    }
+
+    VkPipelineLayout PipelineVk::GetPipelineLayout()
+    {
+        return m_PipelineLayout;
+    }
+
     VkPipelineShaderStageCreateInfo PipelineVk::CreatePipelineShaderStageCreateInfo(VkShaderStageFlagBits stage, VkShaderModule module)
     {
         VkPipelineShaderStageCreateInfo createInfo = {};

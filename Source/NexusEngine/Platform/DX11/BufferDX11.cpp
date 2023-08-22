@@ -5,21 +5,6 @@
 
 namespace Nexus::Graphics
 {
-    D3D11_BIND_FLAG GetBufferType(BufferType type)
-    {
-        switch (type)
-        {
-        case BufferType::Vertex:
-            return D3D11_BIND_VERTEX_BUFFER;
-        case BufferType::Index:
-            return D3D11_BIND_INDEX_BUFFER;
-        case BufferType::Uniform:
-            return D3D11_BIND_CONSTANT_BUFFER;
-        default:
-            throw std::runtime_error("Invalid buffer type entered");
-        }
-    }
-
     D3D11_USAGE GetBufferUsage(BufferUsage usage)
     {
         switch (usage)

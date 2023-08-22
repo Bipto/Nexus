@@ -51,9 +51,7 @@ namespace Demos
 
             Nexus::Graphics::BufferDescription cameraUniformBufferDesc;
             cameraUniformBufferDesc.Size = sizeof(VB_UNIFORM_CAMERA_DEMO_CAMERA);
-            cameraUniformBufferDesc.Type = Nexus::Graphics::BufferType::Uniform;
             cameraUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
-
             m_CameraUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(cameraUniformBufferDesc, nullptr);
             m_Shader->BindUniformBuffer(m_CameraUniformBuffer, cameraUniformBinding);
 
@@ -64,7 +62,6 @@ namespace Demos
 
             Nexus::Graphics::BufferDescription transformUniformBufferDesc;
             transformUniformBufferDesc.Size = sizeof(VB_UNIFORM_TRANSFORM_DEMO_CAMERA);
-            transformUniformBufferDesc.Type = Nexus::Graphics::BufferType::Uniform;
             transformUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
             m_TransformUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(transformUniformBufferDesc, nullptr);
             m_Shader->BindUniformBuffer(m_TransformUniformBuffer, transformUniformBinding);
