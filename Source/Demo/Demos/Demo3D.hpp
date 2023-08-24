@@ -93,7 +93,9 @@ namespace Demos
 
             m_TransformUniforms.Transform = glm::rotate(glm::mat4(1.0f), glm::radians((float)m_ElapsedTime.GetSeconds() * 100.0f), glm::vec3(0.0f, 1.0f, 1.0f));
 
-            m_TransformUniformBuffer->SetData(&m_TransformUniforms, sizeof(m_TransformUniforms), 0);
+            void *buffer = m_TransformUniformBuffer->Map(Nexus::Graphics::MapMode::Write);
+            memcpy(buffer, &m_TransformUniforms, sizeof(m_TransformUniforms));
+            m_TransformUniformBuffer->Unmap();
 
             m_CameraUniforms.View = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -2.5f));
             m_CameraUniforms.Projection = glm::perspectiveFov<float>(glm::radians(60.0f),
@@ -101,7 +103,9 @@ namespace Demos
                                                                      m_Window->GetWindowSize().Y,
                                                                      0.1f, 100.0f);
 
-            m_CameraUniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms), 0);
+            buffer = m_CameraUniformBuffer->Map(Nexus::Graphics::MapMode::Write);
+            memcpy(buffer, &m_CameraUniforms, sizeof(m_CameraUniforms));
+            m_CameraUniformBuffer->Unmap();
 
             m_CommandList->Begin();
             m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);

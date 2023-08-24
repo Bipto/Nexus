@@ -3,27 +3,8 @@
 namespace Nexus::Graphics
 {
     VertexBufferVk::VertexBufferVk(const BufferDescription &description, const void *data, const VertexBufferLayout &layout, GraphicsDeviceVk *device)
-        : VertexBuffer(description, data, layout)
+        : VertexBuffer(description, data, layout), m_Device(device)
     {
-        /* VkBufferCreateInfo bufferInfo = {};
-        bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-        bufferInfo.pNext = nullptr;
-        bufferInfo.size = description.Size;
-        bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
-
-        VmaAllocationCreateInfo vmaAllocInfo = {};
-        vmaAllocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
-
-        if (vmaCreateBuffer(device->GetAllocator(), &bufferInfo, &vmaAllocInfo, &m_Buffer.Buffer, &m_Buffer.Allocation, nullptr) != VK_SUCCESS)
-        {
-            throw std::runtime_error("Failed to create vertex buffer");
-        }
-
-        void *mappedData;
-        vmaMapMemory(device->GetAllocator(), m_Buffer.Allocation, &mappedData);
-        memcpy(mappedData, &data, bufferInfo.size);
-        vmaUnmapMemory(device->GetAllocator(), m_Buffer.Allocation); */
-
         VkBufferCreateInfo bufferInfo = {};
         bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
         bufferInfo.size = description.Size;
@@ -43,8 +24,16 @@ namespace Nexus::Graphics
         vmaUnmapMemory(device->GetAllocator(), m_Buffer.Allocation);
     }
 
-    void VertexBufferVk::SetData(const void *data, uint32_t size, uint32_t offset)
+    void *VertexBufferVk::Map(MapMode mode)
     {
+        void *buffer;
+        vmaMapMemory(m_Device->GetAllocator(), m_Buffer.Allocation, &buffer);
+        return buffer;
+    }
+
+    void VertexBufferVk::Unmap()
+    {
+        vmaUnmapMemory(m_Device->GetAllocator(), m_Buffer.Allocation);
     }
 
     VkBuffer VertexBufferVk::GetBuffer()
@@ -53,12 +42,32 @@ namespace Nexus::Graphics
     }
 
     IndexBufferVk::IndexBufferVk(const BufferDescription &description, const void *data, GraphicsDeviceVk *device)
-        : IndexBuffer(description, data)
+        : IndexBuffer(description, data), m_Device(device)
     {
+        VkBufferCreateInfo bufferInfo = {};
+        bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+        bufferInfo.size = description.Size;
+        bufferInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+
+        VmaAllocationCreateInfo vmaAllocInfo = {};
+        vmaAllocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
+
+        if (vmaCreateBuffer(device->GetAllocator(), &bufferInfo, &vmaAllocInfo, &m_Buffer.Buffer, &m_Buffer.Allocation, nullptr) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to create index buffer");
+        }
     }
 
-    void IndexBufferVk::SetData(const void *data, uint32_t size, uint32_t offset)
+    void *IndexBufferVk::Map(MapMode mode)
     {
+        void *buffer;
+        vmaMapMemory(m_Device->GetAllocator(), m_Buffer.Allocation, &buffer);
+        return buffer;
+    }
+
+    void IndexBufferVk::Unmap()
+    {
+        vmaUnmapMemory(m_Device->GetAllocator(), m_Buffer.Allocation);
     }
 
     VkBuffer IndexBufferVk::GetBuffer()
@@ -67,12 +76,32 @@ namespace Nexus::Graphics
     }
 
     UniformBufferVk::UniformBufferVk(const BufferDescription &description, const void *data, GraphicsDeviceVk *device)
-        : UniformBuffer(description, data)
+        : UniformBuffer(description, data), m_Device(device)
     {
+        VkBufferCreateInfo bufferInfo = {};
+        bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+        bufferInfo.size = description.Size;
+        bufferInfo.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+
+        VmaAllocationCreateInfo vmaAllocInfo = {};
+        vmaAllocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
+
+        if (vmaCreateBuffer(device->GetAllocator(), &bufferInfo, &vmaAllocInfo, &m_Buffer.Buffer, &m_Buffer.Allocation, nullptr) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to create uniform buffer");
+        }
     }
 
-    void UniformBufferVk::SetData(const void *data, uint32_t size, uint32_t offset)
+    void *UniformBufferVk::Map(MapMode mode)
     {
+        void *buffer;
+        vmaMapMemory(m_Device->GetAllocator(), m_Buffer.Allocation, &buffer);
+        return buffer;
+    }
+
+    void UniformBufferVk::Unmap()
+    {
+        vmaUnmapMemory(m_Device->GetAllocator(), m_Buffer.Allocation);
     }
 
     VkBuffer UniformBufferVk::GetBuffer()

@@ -264,10 +264,11 @@ namespace Nexus::Graphics
             const auto &commandData = commandListDX11->GetCurrentCommandData();
             const auto &uniformBufferUpdateCommand = std::get<UniformBufferUpdateCommand>(commandData);
 
-            uniformBufferUpdateCommand.Buffer->SetData(
-                uniformBufferUpdateCommand.Data,
-                uniformBufferUpdateCommand.Size,
-                uniformBufferUpdateCommand.Offset);
+            void *buffer = uniformBufferUpdateCommand.Buffer->Map(MapMode::Write);
+            memcpy(buffer, uniformBufferUpdateCommand.Data, uniformBufferUpdateCommand.Size);
+            uniformBufferUpdateCommand.Buffer->Unmap();
+
+            delete uniformBufferUpdateCommand.Data;
         };
         m_Commands.push_back(renderCommand);
 

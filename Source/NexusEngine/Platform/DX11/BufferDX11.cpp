@@ -18,6 +18,21 @@ namespace Nexus::Graphics
         }
     }
 
+    D3D11_MAP GetMapMode(MapMode mode)
+    {
+        switch (mode)
+        {
+        case MapMode::Read:
+            return D3D11_MAP_READ;
+        case MapMode::Write:
+            return D3D11_MAP_WRITE_DISCARD;
+        case MapMode::ReadWrite:
+            return D3D11_MAP_READ_WRITE;
+        default:
+            throw std::runtime_error("Invalid map mode entered");
+        }
+    }
+
     VertexBufferDX11::VertexBufferDX11(ID3D11Device *device, ID3D11DeviceContext *context, const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
         : VertexBuffer(description, data, layout)
     {
@@ -64,19 +79,16 @@ namespace Nexus::Graphics
         m_Buffer = nullptr;
     }
 
-    void VertexBufferDX11::SetData(const void *data, uint32_t size, uint32_t offset)
+    void *VertexBufferDX11::Map(MapMode mode)
     {
-        if (m_Description.Usage == BufferUsage::Static)
-        {
-            throw std::runtime_error("Attempting to upload data to a static buffer");
-            return;
-        }
-
         D3D11_MAPPED_SUBRESOURCE mappedResource;
         ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
+        m_Context->Map(m_Buffer, 0, GetMapMode(mode), 0, &mappedResource);
+        return mappedResource.pData;
+    }
 
-        m_Context->Map(m_Buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-        memcpy(mappedResource.pData, data, size);
+    void VertexBufferDX11::Unmap()
+    {
         m_Context->Unmap(m_Buffer, 0);
     }
 
@@ -131,19 +143,16 @@ namespace Nexus::Graphics
         m_Buffer = nullptr;
     }
 
-    void IndexBufferDX11::SetData(const void *data, uint32_t size, uint32_t offset)
+    void *IndexBufferDX11::Map(MapMode mode)
     {
-        if (m_Description.Usage == BufferUsage::Static)
-        {
-            throw std::runtime_error("Attempting to upload data to a static buffer");
-            return;
-        }
-
         D3D11_MAPPED_SUBRESOURCE mappedResource;
         ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
+        m_Context->Map(m_Buffer, 0, GetMapMode(mode), 0, &mappedResource);
+        return mappedResource.pData;
+    }
 
-        m_Context->Map(m_Buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-        memcpy(mappedResource.pData, data, size);
+    void IndexBufferDX11::Unmap()
+    {
         m_Context->Unmap(m_Buffer, 0);
     }
 
@@ -198,19 +207,16 @@ namespace Nexus::Graphics
         m_Buffer = nullptr;
     }
 
-    void UniformBufferDX11::SetData(const void *data, uint32_t size, uint32_t offset)
+    void *UniformBufferDX11::Map(MapMode mode)
     {
-        if (m_Description.Usage == BufferUsage::Static)
-        {
-            throw std::runtime_error("Attempting to upload data to a static buffer");
-            return;
-        }
-
         D3D11_MAPPED_SUBRESOURCE mappedResource;
         ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
+        m_Context->Map(m_Buffer, 0, GetMapMode(mode), 0, &mappedResource);
+        return mappedResource.pData;
+    }
 
-        m_Context->Map(m_Buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-        memcpy(mappedResource.pData, data, size);
+    void UniformBufferDX11::Unmap()
+    {
         m_Context->Unmap(m_Buffer, 0);
     }
 

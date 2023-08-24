@@ -104,6 +104,7 @@ namespace Nexus::Graphics
         auto vertexBuffer = m_Device->CreateVertexBuffer(vertexBufferDesc, vertices.data(), VertexPositionTexCoordNormalTangentBitangent::GetLayout());
 
         Nexus::Graphics::BufferDescription indexBufferDesc;
+        indexBufferDesc.Size = indices.size() * sizeof(unsigned int);
         indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
         auto indexBuffer = m_Device->CreateIndexBuffer(indexBufferDesc, indices.data());
 

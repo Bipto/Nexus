@@ -18,6 +18,13 @@ namespace Nexus::Graphics
         Dynamic
     };
 
+    enum class MapMode
+    {
+        Read,
+        Write,
+        ReadWrite
+    };
+
     /// @brief A struct representing a specification for a buffer
     struct BufferDescription
     {
@@ -39,15 +46,19 @@ namespace Nexus::Graphics
         VertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
             : m_Description(description), m_Layout(layout) {}
 
-        /// @brief A pure virtual method to upload data to the GPU
-        /// @param data A pointer to the data to upload
-        /// @param size The total size in bytes of the data to upload
-        /// @param offset An offset into the buffer to upload data to
-        virtual void SetData(const void *data, uint32_t size, uint32_t offset) = 0;
+        /// @brief A pure virtual method to map a buffer an return a pointer to an array that can be written to
+        /// @return A void pointer to a copy of the data contained in the buffer
+        virtual void *Map(MapMode mode) = 0;
+
+        /// @brief A pure virtual method to unmap a buffer and copy any uploaded data into GPU memory
+        virtual void Unmap() = 0;
 
         /// @brief A method that returns the buffer description that was used to create the buffer
         /// @return A const reference to the BufferDescription
-        const BufferDescription &GetDescription() { return m_Description; }
+        const BufferDescription &GetDescription()
+        {
+            return m_Description;
+        }
 
         /// @brief A method that returns the layout of the contents of the buffer
         /// @return A const reference to the VertexBufferLayout
@@ -71,11 +82,12 @@ namespace Nexus::Graphics
         IndexBuffer(const BufferDescription &description, const void *data)
             : m_Description(description) {}
 
-        /// @brief A pure virtual method to upload data to the GPU
-        /// @param data A pointer to the data to upload
-        /// @param size The total size in bytes of the data to upload
-        /// @param offset An offset into the buffer to upload data to
-        virtual void SetData(const void *data, uint32_t size, uint32_t offset) = 0;
+        /// @brief A pure virtual method to map a buffer an return a pointer to an array that can be written to
+        /// @return A void pointer to a copy of the data contained in the buffer
+        virtual void *Map(MapMode mode) = 0;
+
+        /// @brief A pure virtual method to unmap a buffer and copy any uploaded data into GPU memory
+        virtual void Unmap() = 0;
 
         /// @brief A method that returns the buffer description that was used to create the buffer
         /// @return A const reference to the BufferDescription
@@ -96,11 +108,12 @@ namespace Nexus::Graphics
         UniformBuffer(const BufferDescription &description, const void *data)
             : m_Description(description) {}
 
-        /// @brief A pure virtual method to upload data to the GPU
-        /// @param data A pointer to the data to upload
-        /// @param size The total size in bytes of the data to upload
-        /// @param offset An offset into the buffer to upload data to
-        virtual void SetData(const void *data, uint32_t size, uint32_t offset) = 0;
+        /// @brief A pure virtual method to map a buffer an return a pointer to an array that can be written to
+        /// @return A void pointer to a copy of the data contained in the buffer
+        virtual void *Map(MapMode mode) = 0;
+
+        /// @brief A pure virtual method to unmap a buffer and copy any uploaded data into GPU memory
+        virtual void Unmap() = 0;
 
         /// @brief A method that returns the buffer description that was used to create the buffer
         /// @return A const reference to the BufferDescription
