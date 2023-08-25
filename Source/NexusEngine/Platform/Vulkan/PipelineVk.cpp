@@ -249,6 +249,7 @@ namespace Nexus::Graphics
             description.format = GetShaderDataType(element.Type);
             description.offset = element.Offset;
             attributeDescriptions.push_back(description);
+            index++;
         }
 
         return attributeDescriptions;

@@ -5,7 +5,7 @@
 
 namespace Nexus::Graphics
 {
-    TextureDX11::TextureDX11(ID3D11Device *device, TextureSpecification spec) : Texture(spec)
+    TextureDX11::TextureDX11(ID3D11Device *device, const TextureSpecification &spec) : Texture(spec)
     {
         int imagePitch = spec.Width * 4;
 

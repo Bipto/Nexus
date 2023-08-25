@@ -56,6 +56,11 @@ namespace Nexus::Graphics
         {
             throw std::runtime_error("Failed to create index buffer");
         }
+
+        void *buffer;
+        vmaMapMemory(device->GetAllocator(), m_Buffer.Allocation, &buffer);
+        memcpy(buffer, data, description.Size);
+        vmaUnmapMemory(device->GetAllocator(), m_Buffer.Allocation);
     }
 
     void *IndexBufferVk::Map(MapMode mode)
@@ -90,6 +95,11 @@ namespace Nexus::Graphics
         {
             throw std::runtime_error("Failed to create uniform buffer");
         }
+
+        void *buffer;
+        vmaMapMemory(device->GetAllocator(), m_Buffer.Allocation, &buffer);
+        memcpy(buffer, data, description.Size);
+        vmaUnmapMemory(device->GetAllocator(), m_Buffer.Allocation);
     }
 
     void *UniformBufferVk::Map(MapMode mode)

@@ -178,7 +178,7 @@ namespace Nexus::Graphics
 #endif
     }
 
-    Ref<Texture> GraphicsDeviceDX11::CreateTexture(TextureSpecification spec)
+    Ref<Texture> GraphicsDeviceDX11::CreateTexture(const TextureSpecification &spec)
     {
 #if defined(NX_PLATFORM_DX11)
         return CreateRef<TextureDX11>(m_DevicePtr, spec);

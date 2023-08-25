@@ -113,7 +113,7 @@ namespace Nexus::Graphics
         /// @brief A pure virtual method that creates a new texture from a given specification
         /// @param spec The properties to use when creating the texture
         /// @return A reference counted pointer to a texture
-        virtual Ref<Texture> CreateTexture(TextureSpecification spec) = 0;
+        virtual Ref<Texture> CreateTexture(const TextureSpecification &spec) = 0;
 
         /// @brief A method that loads a new texture from a image stored on disk
         /// @param filepath The filepath to load the image from

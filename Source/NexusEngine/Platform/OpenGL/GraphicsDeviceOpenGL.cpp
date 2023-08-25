@@ -209,7 +209,7 @@ namespace Nexus::Graphics
         return CreateRef<ShaderOpenGL>(vertexShaderSource, fragmentShaderSource, layout);
     }
 
-    Ref<Texture> GraphicsDeviceOpenGL::CreateTexture(TextureSpecification spec)
+    Ref<Texture> GraphicsDeviceOpenGL::CreateTexture(const TextureSpecification &spec)
     {
         return CreateRef<TextureOpenGL>(spec);
     }

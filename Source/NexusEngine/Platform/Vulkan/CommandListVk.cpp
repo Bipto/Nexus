@@ -78,6 +78,10 @@ namespace Nexus::Graphics
 
     void CommandListVk::SetIndexBuffer(Ref<IndexBuffer> indexBuffer)
     {
+        Ref<IndexBufferVk> vulkanIB = std::dynamic_pointer_cast<IndexBufferVk>(indexBuffer);
+
+        VkBuffer indexBufferRaw = vulkanIB->GetBuffer();
+        vkCmdBindIndexBuffer(m_CurrentCommandBuffer, indexBufferRaw, 0, VK_INDEX_TYPE_UINT32);
     }
 
     void CommandListVk::SetPipeline(Ref<Pipeline> pipeline)
@@ -133,6 +137,7 @@ namespace Nexus::Graphics
 
     void CommandListVk::DrawIndexed(uint32_t count, uint32_t offset)
     {
+        vkCmdDrawIndexed(m_CurrentCommandBuffer, count, 1, 0, offset, 0);
     }
 
     void CommandListVk::UpdateTexture(Ref<Texture> texture, Ref<Shader> shader, const TextureBinding &binding)

@@ -54,7 +54,7 @@ namespace Nexus::Graphics
 
         /// @brief A constructor that takes in a texture specification
         /// @param spec The specification to create a texture from
-        Texture(TextureSpecification spec){};
+        Texture(const TextureSpecification &spec){};
 
         /// @brief A pure virtual method that returns a pointer to the underlying native texture
         /// @return A void pointer to an API specific texture

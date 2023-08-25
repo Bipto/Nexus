@@ -10,7 +10,7 @@ namespace Nexus::Graphics
     class TextureDX11 : public Texture
     {
     public:
-        TextureDX11(ID3D11Device *device, TextureSpecification spec);
+        TextureDX11(ID3D11Device *device, const TextureSpecification &spec);
         ~TextureDX11();
         virtual void *GetHandle() override;
 

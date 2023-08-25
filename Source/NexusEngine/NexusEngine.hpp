@@ -17,6 +17,8 @@
 #include "Core/Graphics/TextureFormat.hpp"
 #include "Core/Graphics/Framebuffer.hpp"
 #include "Core/Graphics/DepthFormat.hpp"
+#include "Core/Graphics/Mesh.hpp"
+#include "Core/Graphics/MeshFactory.hpp"
 
 #include "Core/Audio/AudioDevice.hpp"
 

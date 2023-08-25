@@ -23,7 +23,7 @@ public:
         spec.StencilDepthLoadOperation = Nexus::Graphics::LoadOperation::Clear;
         m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_GraphicsDevice->GetSwapchain());
 
-        m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/hello_triangle.glsl", Nexus::Graphics::VertexPosition::GetLayout());
+        m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/basic.glsl", Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
 
         Nexus::Graphics::PipelineDescription description;
         description.Shader = m_Shader;
@@ -40,10 +40,8 @@ public:
 
         m_Pipeline = m_GraphicsDevice->CreatePipeline(description);
 
-        Nexus::Graphics::BufferDescription vertexBufferDesc;
-        vertexBufferDesc.Size = vertices.size() * sizeof(Nexus::Graphics::VertexPosition);
-        vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-        m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(vertexBufferDesc, vertices.data(), Nexus::Graphics::VertexPosition::GetLayout());
+        Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
+        m_Mesh = factory.CreateSprite();
     }
 
     virtual void Update(Nexus::Time time) override
@@ -64,10 +62,11 @@ public:
         m_CommandList->Begin();
         m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
         m_CommandList->SetPipeline(m_Pipeline);
-        m_CommandList->SetVertexBuffer(m_VertexBuffer);
+        m_CommandList->SetVertexBuffer(m_Mesh.GetVertexBuffer());
+        m_CommandList->SetIndexBuffer(m_Mesh.GetIndexBuffer());
 
-        auto vertexCount = m_VertexBuffer->GetDescription().Size / sizeof(Nexus::Graphics::VertexPosition);
-        m_CommandList->DrawElements(0, vertexCount);
+        auto indexCount = m_Mesh.GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
+        m_CommandList->DrawIndexed(indexCount, 0);
         m_CommandList->EndRenderPass();
         m_CommandList->End();
         m_GraphicsDevice->SubmitCommandList(m_CommandList);
@@ -106,8 +105,7 @@ private:
 
     Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
     Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
-
-    Nexus::Ref<Nexus::Graphics::VertexBuffer> m_VertexBuffer;
+    Nexus::Graphics::Mesh m_Mesh;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)

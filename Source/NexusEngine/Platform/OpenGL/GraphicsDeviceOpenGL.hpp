@@ -28,7 +28,7 @@ namespace Nexus::Graphics
         virtual void EndFrame() override;
 
         virtual Ref<Shader> CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout) override;
-        virtual Ref<Texture> CreateTexture(TextureSpecification spec) override;
+        virtual Ref<Texture> CreateTexture(const TextureSpecification &spec) override;
         virtual Ref<Framebuffer> CreateFramebuffer(Ref<RenderPass> renderPass) override;
         virtual Ref<Pipeline> CreatePipeline(const PipelineDescription &description) override;
         virtual Ref<CommandList> CreateCommandList();

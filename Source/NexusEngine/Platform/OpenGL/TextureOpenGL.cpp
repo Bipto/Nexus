@@ -2,7 +2,7 @@
 
 namespace Nexus::Graphics
 {
-    TextureOpenGL::TextureOpenGL(TextureSpecification spec) : Texture(spec)
+    TextureOpenGL::TextureOpenGL(const TextureSpecification &spec) : Texture(spec)
     {
         glGenTextures(1, &this->m_Handle);
         glBindTexture(GL_TEXTURE_2D, this->m_Handle);

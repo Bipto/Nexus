@@ -4,6 +4,7 @@
 #include "ShaderVk.hpp"
 #include "PipelineVk.hpp"
 #include "BufferVk.hpp"
+#include "TextureVk.hpp"
 
 #include "SDL_vulkan.h"
 
@@ -124,9 +125,9 @@ namespace Nexus::Graphics
         return CreateRef<ShaderVk>(vertexResult.SpirvBinary, fragmentResult.SpirvBinary, vertexShaderSource, fragmentShaderSource, layout, this);
     }
 
-    Ref<Texture> GraphicsDeviceVk::CreateTexture(TextureSpecification spec)
+    Ref<Texture> GraphicsDeviceVk::CreateTexture(const TextureSpecification &spec)
     {
-        return nullptr;
+        return CreateRef<TextureVk>(this, spec);
     }
 
     Ref<Framebuffer> GraphicsDeviceVk::CreateFramebuffer(Ref<RenderPass> renderPass)
@@ -151,12 +152,12 @@ namespace Nexus::Graphics
 
     Ref<IndexBuffer> GraphicsDeviceVk::CreateIndexBuffer(const BufferDescription &description, const void *data)
     {
-        return nullptr;
+        return CreateRef<IndexBufferVk>(description, data, this);
     }
 
     Ref<UniformBuffer> GraphicsDeviceVk::CreateUniformBuffer(const BufferDescription &description, const void *data)
     {
-        return nullptr;
+        return CreateRef<UniformBufferVk>(description, data, this);
     }
 
     Ref<RenderPass> GraphicsDeviceVk::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification)
