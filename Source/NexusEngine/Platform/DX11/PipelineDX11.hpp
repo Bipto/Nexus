@@ -20,6 +20,7 @@ namespace Nexus::Graphics
         ID3D11DepthStencilState *GetDepthStencilState() { return m_DepthStencilState; }
         ID3D11RasterizerState *GetRasterizerState() { return m_RasterizerState; }
         ID3D11BlendState *GetBlendState() { return m_BlendState; }
+        const D3D11_VIEWPORT &GetViewport() { return m_Viewport; }
         const D3D11_RECT &GetScissorRectangle() { return m_ScissorRectangle; }
         D3D11_PRIMITIVE_TOPOLOGY GetTopology();
 
@@ -33,6 +34,7 @@ namespace Nexus::Graphics
         ID3D11DepthStencilState *m_DepthStencilState = NULL;
         ID3D11RasterizerState *m_RasterizerState = NULL;
         ID3D11BlendState *m_BlendState = NULL;
+        D3D11_VIEWPORT m_Viewport;
         D3D11_RECT m_ScissorRectangle;
     };
 

@@ -304,6 +304,7 @@ namespace Nexus::Graphics
         auto depthStencilState = pipelineDX11->GetDepthStencilState();
         auto rasterizerState = pipelineDX11->GetRasterizerState();
         auto blendState = pipelineDX11->GetBlendState();
+        const auto &viewport = pipelineDX11->GetViewport();
         const auto &scissorRectangle = pipelineDX11->GetScissorRectangle();
         auto topology = pipelineDX11->GetTopology();
         auto shader = pipeline->GetShader();
@@ -313,6 +314,7 @@ namespace Nexus::Graphics
 
         context->OMSetDepthStencilState(depthStencilState, 0);
         context->RSSetState(rasterizerState);
+        context->RSSetViewports(1, &viewport);
         context->RSSetScissorRects(1, &scissorRectangle);
 
         context->OMSetBlendState(blendState, NULL, 0xffffffff);

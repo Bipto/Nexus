@@ -12,6 +12,18 @@ namespace Nexus::Graphics
         SetupDepthStencilState();
         SetupRasterizerState();
         SetupBlendState();
+
+        m_Viewport.TopLeftX = description.Viewport.X;
+        m_Viewport.TopLeftY = description.Viewport.Y;
+        m_Viewport.Height = description.Viewport.Height;
+        m_Viewport.Width = description.Viewport.Width;
+        m_Viewport.MinDepth = description.Viewport.MinDepth;
+        m_Viewport.MaxDepth = description.Viewport.MaxDepth;
+
+        m_ScissorRectangle.left = description.RasterizerStateDescription.ScissorRectangle.X;
+        m_ScissorRectangle.top = description.RasterizerStateDescription.ScissorRectangle.Y;
+        m_ScissorRectangle.bottom = description.RasterizerStateDescription.ScissorRectangle.Height;
+        m_ScissorRectangle.right = description.RasterizerStateDescription.ScissorRectangle.Width;
     }
 
     PipelineDX11::~PipelineDX11()
@@ -212,14 +224,6 @@ namespace Nexus::Graphics
         rasterizerDesc.AntialiasedLineEnable = false;
 
         m_Device->CreateRasterizerState(&rasterizerDesc, &m_RasterizerState);
-
-        auto &scissorRectangle = m_Description.RasterizerStateDescription.ScissorRectangle;
-        D3D11_RECT scissor;
-        scissor.left = scissorRectangle.X;
-        scissor.right = scissorRectangle.Width;
-        scissor.top = scissorRectangle.Y;
-        scissor.bottom = scissorRectangle.Height;
-        m_ScissorRectangle = scissor;
     }
 
     void PipelineDX11::SetupBlendState()

@@ -29,8 +29,8 @@ namespace Nexus::Graphics
         viewport.y = description.Viewport.Y;
         viewport.width = description.Viewport.Width;
         viewport.height = description.Viewport.Height;
-        viewport.minDepth = 0.0f;
-        viewport.maxDepth = 1.0f;
+        viewport.minDepth = description.Viewport.MinDepth;
+        viewport.maxDepth = description.Viewport.MaxDepth;
 
         VkRect2D scissor;
         scissor.offset = {

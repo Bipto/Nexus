@@ -16,5 +16,11 @@ namespace Nexus::Graphics
 
         /// @brief The height of the viewport
         int Height = 0;
+
+        /// @brief The minimum depth of the viewport
+        float MinDepth = 0.0f;
+
+        /// @brief The maximum depth of the viewport
+        float MaxDepth = 1.0f;
     };
 }

@@ -210,6 +210,14 @@ namespace Nexus::Graphics
             glDisable(GL_SCISSOR_TEST);
         }
 
+        auto &viewport = m_Description.Viewport;
+        glViewport(
+            viewport.X,
+            viewport.Y,
+            viewport.Width,
+            viewport.Height);
+        glDepthRange(viewport.MinDepth, viewport.MaxDepth);
+
         auto &scissorRectangle = m_Description.RasterizerStateDescription.ScissorRectangle;
         glScissor(
             scissorRectangle.X,
