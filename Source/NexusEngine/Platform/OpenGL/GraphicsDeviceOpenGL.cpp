@@ -170,16 +170,6 @@ namespace Nexus::Graphics
         }
     }
 
-    void GraphicsDeviceOpenGL::SetViewport(const Viewport &viewport)
-    {
-        m_Viewport = viewport;
-        glViewport(
-            viewport.X,
-            viewport.Y,
-            viewport.Width,
-            viewport.Height);
-    }
-
     const std::string GraphicsDeviceOpenGL::GetAPIName()
     {
         std::string name = std::string("OpenGL - ") + std::string((const char *)glGetString(GL_VERSION));

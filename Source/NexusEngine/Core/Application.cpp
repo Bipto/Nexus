@@ -95,13 +95,6 @@ namespace Nexus
 
             if (m_Specification.ImGuiActive)
             {
-                Nexus::Graphics::Viewport vp;
-                vp.X = 0;
-                vp.Y = 0;
-                vp.Width = m_Window->GetWindowSize().X;
-                vp.Height = m_Window->GetWindowSize().Y;
-                m_GraphicsDevice->SetViewport(vp);
-
                 ImGui::Render();
                 ImGui::GetMainViewport()->Size = {(float)this->GetWindowSize().X, (float)this->GetWindowSize().Y};
                 m_ImGuiRenderer->EndFrame();

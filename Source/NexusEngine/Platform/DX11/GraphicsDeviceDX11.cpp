@@ -122,22 +122,6 @@ namespace Nexus::Graphics
         }
     }
 
-    void GraphicsDeviceDX11::SetViewport(const Viewport &viewport)
-    {
-        m_Viewport = viewport;
-
-#if defined(NX_PLATFORM_DX11)
-        D3D11_VIEWPORT vp;
-        vp.Width = (float)viewport.Width;
-        vp.Height = (float)viewport.Height;
-        vp.MinDepth = 0.0f;
-        vp.MaxDepth = 1.0f;
-        vp.TopLeftX = viewport.X;
-        vp.TopLeftY = viewport.Y;
-        m_DeviceContextPtr->RSSetViewports(1, &vp);
-#endif
-    }
-
     const std::string GraphicsDeviceDX11::GetAPIName()
     {
         return {"DirectX11"};

@@ -32,12 +32,7 @@ namespace Demos
             m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/3d.glsl",
                                                                    Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
 
-            Nexus::Graphics::PipelineDescription pipelineDescription;
-            pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::Back;
-            pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
-            pipelineDescription.Shader = m_Shader;
-
-            m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
+            CreatePipeline();
 
             Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
             m_Mesh = factory.CreateCube();
@@ -71,13 +66,6 @@ namespace Demos
 
         virtual void Render(Nexus::Time time) override
         {
-            Nexus::Graphics::Viewport vp;
-            vp.X = 0;
-            vp.Y = 0;
-            vp.Width = m_Window->GetWindowSize().X;
-            vp.Height = m_Window->GetWindowSize().Y;
-            m_GraphicsDevice->SetViewport(vp);
-
             Nexus::Graphics::TextureBinding textureBinding;
             textureBinding.Slot = 0;
             textureBinding.Name = "texSampler";
@@ -118,6 +106,25 @@ namespace Demos
                 m_Window->GetWindowSize().X,
                 m_Window->GetWindowSize().Y,
                 time);
+        }
+
+        virtual void OnResize(Nexus::Point<int> size) override
+        {
+            CreatePipeline();
+        }
+
+    private:
+        void CreatePipeline()
+        {
+            Nexus::Graphics::PipelineDescription pipelineDescription;
+            pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::Back;
+            pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
+            pipelineDescription.Shader = m_Shader;
+
+            pipelineDescription.Viewport = {
+                0, 0, m_Window->GetWindowSize().X, m_Window->GetWindowSize().Y};
+
+            m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
         }
 
     private:

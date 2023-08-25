@@ -57,10 +57,6 @@ namespace Nexus::Graphics
         /// @param commandList The command list to submit for rendering
         virtual void SubmitCommandList(Ref<CommandList> commandList) = 0;
 
-        /// @brief A pure virtual method that will set the current viewport to render with
-        /// @param viewport The viewport to apply
-        virtual void SetViewport(const Viewport &viewport) = 0;
-
         /// @brief A pure virtual method that returns a context for a graphics API
         /// @return A void pointer to the graphics context
         virtual void *GetContext() = 0;

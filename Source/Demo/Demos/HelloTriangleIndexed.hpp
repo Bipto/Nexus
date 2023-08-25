@@ -17,12 +17,7 @@ namespace Demos
             m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/hello_triangle.glsl",
                                                                    Nexus::Graphics::VertexPositionTexCoordNormal::GetLayout());
 
-            Nexus::Graphics::PipelineDescription pipelineDescription;
-            pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
-            pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
-            pipelineDescription.Shader = m_Shader;
-
-            m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
+            CreatePipeline();
 
             std::vector<Nexus::Graphics::VertexPositionTexCoordNormal> vertices =
                 {
@@ -52,13 +47,6 @@ namespace Demos
 
         virtual void Render(Nexus::Time time) override
         {
-            Nexus::Graphics::Viewport vp;
-            vp.X = 0;
-            vp.Y = 0;
-            vp.Width = m_Window->GetWindowSize().X;
-            vp.Height = m_Window->GetWindowSize().Y;
-            m_GraphicsDevice->SetViewport(vp);
-
             Nexus::Graphics::RenderPassBeginInfo beginInfo{};
             beginInfo.ClearColorValue = {
                 m_ClearColour.r,
@@ -82,10 +70,25 @@ namespace Demos
 
         virtual void OnResize(Nexus::Point<int> size) override
         {
+            CreatePipeline();
         }
 
         virtual void RenderUI() override
         {
+        }
+
+    private:
+        void CreatePipeline()
+        {
+            Nexus::Graphics::PipelineDescription pipelineDescription;
+            pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
+            pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
+            pipelineDescription.Shader = m_Shader;
+
+            pipelineDescription.Viewport = {
+                0, 0, m_Window->GetWindowSize().X, m_Window->GetWindowSize().Y};
+
+            m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
         }
 
     private:

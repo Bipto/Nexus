@@ -68,10 +68,6 @@ namespace Nexus::Graphics
         vkResetFences(m_Device, 1, &GetCurrentFrame().RenderFence);
     }
 
-    void GraphicsDeviceVk::SetViewport(const Viewport &viewport)
-    {
-    }
-
     const std::string GraphicsDeviceVk::GetAPIName()
     {
         return "Vulkan";

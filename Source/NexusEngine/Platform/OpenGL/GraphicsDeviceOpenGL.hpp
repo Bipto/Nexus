@@ -18,8 +18,6 @@ namespace Nexus::Graphics
         void SetFramebuffer(Ref<Framebuffer> framebuffer);
         virtual void SubmitCommandList(Ref<CommandList> commandList) override;
 
-        virtual void SetViewport(const Viewport &viewport) override;
-
         virtual const std::string GetAPIName() override;
         virtual const char *GetDeviceName() override;
         virtual void *GetContext() override;
