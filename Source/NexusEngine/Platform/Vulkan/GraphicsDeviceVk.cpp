@@ -252,7 +252,6 @@ namespace Nexus::Graphics
         VkCommandBufferBeginInfo cmdBeginInfo = {};
         cmdBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         cmdBeginInfo.pNext = nullptr;
-
         cmdBeginInfo.pInheritanceInfo = nullptr;
         cmdBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
@@ -271,7 +270,6 @@ namespace Nexus::Graphics
         VkSubmitInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.pNext = nullptr;
-
         submitInfo.waitSemaphoreCount = 0;
         submitInfo.pWaitSemaphores = nullptr;
         submitInfo.pWaitDstStageMask = nullptr;
@@ -280,7 +278,7 @@ namespace Nexus::Graphics
         submitInfo.signalSemaphoreCount = 0;
         submitInfo.pSignalSemaphores = nullptr;
 
-        vkWaitForFences(m_Device, 1, &m_UploadContext.UploadFence, true, UINT64_MAX);
+        vkWaitForFences(m_Device, 1, &m_UploadContext.UploadFence, false, 0);
         vkResetFences(m_Device, 1, &m_UploadContext.UploadFence);
 
         if (vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_UploadContext.UploadFence) != VK_SUCCESS)
@@ -1017,6 +1015,27 @@ namespace Nexus::Graphics
         {
             return VK_ERROR_EXTENSION_NOT_PRESENT;
         }
+    }
+
+    AllocatedBuffer GraphicsDeviceVk::CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage)
+    {
+        VkBufferCreateInfo bufferInfo = {};
+        bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+        bufferInfo.pNext = nullptr;
+        bufferInfo.size = allocSize;
+        bufferInfo.usage = usage;
+
+        VmaAllocationCreateInfo vmaAllocInfo = {};
+        vmaAllocInfo.usage = memoryUsage;
+
+        AllocatedBuffer buffer;
+
+        if (vmaCreateBuffer(m_Allocator, &bufferInfo, &vmaAllocInfo, &buffer.Buffer, &buffer.Allocation, nullptr) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to create buffer");
+        }
+
+        return buffer;
     }
 
     uint32_t GraphicsDeviceVk::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)

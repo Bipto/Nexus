@@ -42,6 +42,8 @@ public:
 
         Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
         m_Mesh = factory.CreateSprite();
+
+        m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
     }
 
     virtual void Update(Nexus::Time time) override
@@ -106,6 +108,8 @@ private:
     Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
     Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
     Nexus::Graphics::Mesh m_Mesh;
+
+    Nexus::Ref<Nexus::Graphics::Texture> m_Texture;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
