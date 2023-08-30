@@ -1,4 +1,5 @@
 #include "BufferVk.hpp"
+#include "GraphicsDeviceVk.hpp"
 
 namespace Nexus::Graphics
 {

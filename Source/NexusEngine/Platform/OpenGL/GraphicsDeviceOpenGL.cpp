@@ -247,6 +247,11 @@ namespace Nexus::Graphics
         return CreateRef<RenderPassOpenGL>(renderPassSpecification, swapchain);
     }
 
+    Ref<ResourceSet> GraphicsDeviceOpenGL::CreateResourceSet(const ResourceSetSpecification &spec)
+    {
+        return nullptr;
+    }
+
     void GraphicsDeviceOpenGL::Resize(Point<int> size)
     {
         m_Swapchain->Resize(size.X, size.Y);

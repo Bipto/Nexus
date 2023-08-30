@@ -9,7 +9,7 @@ namespace Nexus::Graphics
     {
     public:
         ShaderVk(const std::vector<uint32_t> &vertexBytecode, std::vector<uint32_t> &fragmentBytecode, const std::string &vertexSource, const std::string &fragmentSource, const VertexBufferLayout &layout, GraphicsDeviceVk *graphicsDevice);
-        virtual void SetTexture(Ref<Texture> texture, const TextureBinding &binding) override;
+        virtual void SetTexture(Ref<Texture> texture, const TextureResourceBinding &binding) override;
         virtual const std::string &GetVertexShaderSource() override;
         virtual const std::string &GetFragmentShaderSource() override;
         virtual const VertexBufferLayout &GetLayout() const override;

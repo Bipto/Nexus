@@ -5,6 +5,7 @@
 #include "PipelineVk.hpp"
 #include "BufferVk.hpp"
 #include "TextureVk.hpp"
+#include "ResourceSetVk.hpp"
 
 #include "SDL_vulkan.h"
 
@@ -164,6 +165,11 @@ namespace Nexus::Graphics
     Ref<RenderPass> GraphicsDeviceVk::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain)
     {
         return CreateRef<RenderPassVk>(renderPassSpecification, swapchain, this);
+    }
+
+    Ref<ResourceSet> GraphicsDeviceVk::CreateResourceSet(const ResourceSetSpecification &spec)
+    {
+        return CreateRef<ResourceSetVk>(spec, this);
     }
 
     void GraphicsDeviceVk::Resize(Point<int> size)

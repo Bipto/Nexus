@@ -32,7 +32,7 @@ namespace Demos
 
         virtual void Render(Nexus::Time time) override
         {
-            Nexus::Graphics::TextureBinding textureBinding;
+            Nexus::Graphics::TextureResourceBinding textureBinding;
             textureBinding.Slot = 0;
             textureBinding.Name = "texSampler";
             m_Shader->SetTexture(m_Texture, textureBinding);

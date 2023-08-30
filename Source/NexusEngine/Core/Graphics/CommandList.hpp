@@ -81,7 +81,7 @@ namespace Nexus::Graphics
         Ref<Shader> Shader;
 
         /// @brief The binding of the texture to update
-        TextureBinding Binding;
+        TextureResourceBinding Binding;
     };
 
     /// @brief A struct representing a uniform buffer update command
@@ -153,7 +153,7 @@ namespace Nexus::Graphics
         /// @param texture A pointer to the texture to update
         /// @param shader A pointer requiring a texture update
         /// @param binding The binding slot of the texture
-        virtual void UpdateTexture(Ref<Texture> texture, Ref<Shader> shader, const TextureBinding &binding) = 0;
+        virtual void UpdateTexture(Ref<Texture> texture, Ref<Shader> shader, const TextureResourceBinding &binding) = 0;
 
         /// @brief A pure virtual method to submit a uniform buffer update command
         /// @param buffer A pointer to the buffer to upload data to

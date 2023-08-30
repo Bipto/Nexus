@@ -70,17 +70,17 @@ namespace Demos
 
         virtual void Render(Nexus::Time time) override
         {
-            Nexus::Graphics::TextureBinding diffuseMapBinding;
+            Nexus::Graphics::TextureResourceBinding diffuseMapBinding;
             diffuseMapBinding.Slot = 0;
             diffuseMapBinding.Name = "diffuseMapSampler";
             m_Shader->SetTexture(m_DiffuseMap, diffuseMapBinding);
 
-            Nexus::Graphics::TextureBinding normalMapBinding;
+            Nexus::Graphics::TextureResourceBinding normalMapBinding;
             normalMapBinding.Slot = 1;
             normalMapBinding.Name = "normalMapSampler";
             m_Shader->SetTexture(m_NormalMap, normalMapBinding);
 
-            Nexus::Graphics::TextureBinding specularMapBinding;
+            Nexus::Graphics::TextureResourceBinding specularMapBinding;
             specularMapBinding.Slot = 2;
             specularMapBinding.Name = "specularMapSampler";
             m_Shader->SetTexture(m_SpecularMap, specularMapBinding);

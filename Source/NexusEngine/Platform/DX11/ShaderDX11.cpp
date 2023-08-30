@@ -127,7 +127,7 @@ namespace Nexus::Graphics
         m_ContextPtr->IASetInputLayout(m_InputLayout);
     } */
 
-    void ShaderDX11::SetTexture(Ref<Texture> texture, const TextureBinding &binding)
+    void ShaderDX11::SetTexture(Ref<Texture> texture, const TextureResourceBinding &binding)
     {
         Ref<TextureDX11> dxTexture = std::dynamic_pointer_cast<TextureDX11>(texture);
 

@@ -17,7 +17,7 @@ namespace Nexus::Graphics
 
     private:
         AllocatedBuffer m_Buffer;
-        GraphicsDeviceVk* m_Device;
+        GraphicsDeviceVk *m_Device;
     };
 
     class IndexBufferVk : public IndexBuffer
@@ -30,7 +30,7 @@ namespace Nexus::Graphics
 
     private:
         AllocatedBuffer m_Buffer;
-        GraphicsDeviceVk* m_Device;
+        GraphicsDeviceVk *m_Device;
     };
 
     class UniformBufferVk : public UniformBuffer
@@ -43,6 +43,6 @@ namespace Nexus::Graphics
 
     private:
         AllocatedBuffer m_Buffer;
-        GraphicsDeviceVk* m_Device;
+        GraphicsDeviceVk *m_Device;
     };
 }

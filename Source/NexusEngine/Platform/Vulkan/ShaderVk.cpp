@@ -35,7 +35,7 @@ namespace Nexus::Graphics
         m_ShaderStages.push_back(fragmentInfo);
     }
 
-    void ShaderVk::SetTexture(Ref<Texture> texture, const TextureBinding &binding)
+    void ShaderVk::SetTexture(Ref<Texture> texture, const TextureResourceBinding &binding)
     {
     }
 

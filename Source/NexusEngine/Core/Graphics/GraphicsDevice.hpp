@@ -14,6 +14,7 @@
 #include "Viewport.hpp"
 #include "GraphicsAPI.hpp"
 #include "Swapchain.hpp"
+#include "ResourceSet.hpp"
 
 namespace Nexus::Graphics
 {
@@ -132,6 +133,8 @@ namespace Nexus::Graphics
         /// @param swapchain A pointer to a swapchain to use when rendering the renderpass
         /// @return A reference counted pointer to a renderpass
         virtual Ref<RenderPass> CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain) = 0;
+
+        virtual Ref<ResourceSet> CreateResourceSet(const ResourceSetSpecification &spec) = 0;
 
         /// @brief A pure virtual method that resizes the swapchain of the device to a given size
         /// @param size The new size of the swapchain

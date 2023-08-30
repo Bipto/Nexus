@@ -223,7 +223,7 @@ namespace Nexus::Graphics
 #endif
     }
 
-    void CommandListDX11::UpdateTexture(Ref<Texture> texture, Ref<Shader> shader, const TextureBinding &binding)
+    void CommandListDX11::UpdateTexture(Ref<Texture> texture, Ref<Shader> shader, const TextureResourceBinding &binding)
     {
 #if defined(NX_PLATFORM_DX11)
 

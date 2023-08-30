@@ -16,6 +16,17 @@ public:
 
     virtual void Load() override
     {
+        Nexus::Graphics::TextureResourceBinding textureBinding;
+        textureBinding.Slot = 0;
+        textureBinding.Name = "texSampler";
+
+        Nexus::Graphics::ResourceSetSpecification resourceSetSpec;
+        resourceSetSpec.TextureBindings =
+            {
+                textureBinding};
+
+        m_ResourceSet = m_GraphicsDevice->CreateResourceSet(resourceSetSpec);
+
         m_CommandList = m_GraphicsDevice->CreateCommandList();
 
         Nexus::Graphics::RenderPassSpecification spec;
@@ -104,6 +115,7 @@ public:
 private:
     Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
     Nexus::Ref<Nexus::Graphics::RenderPass> m_RenderPass;
+    Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
 
     Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
     Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;

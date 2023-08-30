@@ -488,7 +488,7 @@ private:
     Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
     Nexus::Ref<Nexus::Graphics::RenderPass> m_FramebufferRenderPass;
     Nexus::Ref<Nexus::Graphics::RenderPass> m_SwapchainRenderPass;
-    Nexus::Graphics::TextureBinding m_TextureBinding;
+    Nexus::Graphics::TextureResourceBinding m_TextureBinding;
 
     Nexus::FirstPersonCamera m_Camera;
     Nexus::Ref<Nexus::Graphics::Framebuffer> m_Framebuffer;

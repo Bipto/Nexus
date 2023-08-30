@@ -23,7 +23,7 @@ namespace Nexus::Graphics
     public:
         ShaderOpenGL(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout);
         void Bind();
-        virtual void SetTexture(Ref<Texture> texture, const TextureBinding &binding) override;
+        virtual void SetTexture(Ref<Texture> texture, const TextureResourceBinding &binding) override;
 
         virtual const std::string &GetVertexShaderSource() override;
         virtual const std::string &GetFragmentShaderSource() override;

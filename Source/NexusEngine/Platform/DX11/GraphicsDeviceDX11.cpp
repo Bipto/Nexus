@@ -238,6 +238,11 @@ namespace Nexus::Graphics
         return CreateRef<RenderPassDX11>(renderPassSpecification, swapchain);
     }
 
+    Ref<ResourceSet> GraphicsDeviceDX11::CreateResourceSet(const ResourceSetSpecification &spec)
+    {
+        return nullptr;
+    }
+
     void GraphicsDeviceDX11::Resize(Point<int> size)
     {
 #if defined(NX_PLATFORM_DX11)

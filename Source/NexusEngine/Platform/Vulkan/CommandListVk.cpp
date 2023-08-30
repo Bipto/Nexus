@@ -140,7 +140,7 @@ namespace Nexus::Graphics
         vkCmdDrawIndexed(m_CurrentCommandBuffer, count, 1, 0, offset, 0);
     }
 
-    void CommandListVk::UpdateTexture(Ref<Texture> texture, Ref<Shader> shader, const TextureBinding &binding)
+    void CommandListVk::UpdateTexture(Ref<Texture> texture, Ref<Shader> shader, const TextureResourceBinding &binding)
     {
     }
 

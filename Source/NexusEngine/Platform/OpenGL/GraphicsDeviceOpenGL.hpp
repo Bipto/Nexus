@@ -37,6 +37,7 @@ namespace Nexus::Graphics
 
         virtual Ref<RenderPass> CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification) override;
         virtual Ref<RenderPass> CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain) override;
+        virtual Ref<ResourceSet> CreateResourceSet(const ResourceSetSpecification& spec) override;
 
         virtual void Resize(Point<int> size) override;
 

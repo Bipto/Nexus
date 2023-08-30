@@ -6,6 +6,8 @@
 #include "Rectangle.hpp"
 #include "RenderPass.hpp"
 
+#include "ResourceSet.hpp"
+
 namespace Nexus::Graphics
 {
     /// @brief An enum class representing how two pixels should be compared against each other

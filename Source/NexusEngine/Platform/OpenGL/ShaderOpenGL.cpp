@@ -43,7 +43,7 @@ namespace Nexus::Graphics
         glUseProgram(this->m_ProgramHandle);
     }
 
-    void ShaderOpenGL::SetTexture(Ref<Texture> texture, const TextureBinding &binding)
+    void ShaderOpenGL::SetTexture(Ref<Texture> texture, const TextureResourceBinding &binding)
     {
         Bind();
         auto location = glGetUniformLocation(m_ProgramHandle, binding.Name.c_str());

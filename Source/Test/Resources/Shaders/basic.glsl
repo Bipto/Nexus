@@ -17,6 +17,8 @@ void main()
 
 layout (location = 0) out vec4 FragColor;
 
+layout (set = 1, binding = 0) uniform sampler2D texSampler;
+
 void main()
 {
     FragColor = vec4(0.15, 0.7, 0.3, 1.0);
