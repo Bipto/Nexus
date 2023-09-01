@@ -8,4 +8,6 @@ namespace Nexus::FileSystem
     /// @param filepath The path to the file to read
     /// @return A string containing the contents of the file
     std::string ReadFileToString(const std::string &filepath);
+
+    void WriteFile(const std::string &filepath, const std::string &text);
 }

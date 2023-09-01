@@ -16,21 +16,6 @@ namespace Nexus::Graphics
         }
     }
 
-    GLenum GetMapMode(MapMode mode)
-    {
-        switch (mode)
-        {
-        case MapMode::Read:
-            return GL_READ_ONLY;
-        case MapMode::Write:
-            return GL_WRITE_ONLY;
-        case MapMode::ReadWrite:
-            return GL_READ_WRITE;
-        default:
-            throw std::runtime_error("Invalid map mode entered");
-        }
-    }
-
     VertexBufferOpenGL::VertexBufferOpenGL(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
         : VertexBuffer(description, data, layout)
     {
@@ -59,16 +44,10 @@ namespace Nexus::Graphics
         }
     }
 
-    void *VertexBufferOpenGL::Map(MapMode mode)
+    void VertexBufferOpenGL::SetData(const void *data, uint32_t size, uint32_t offset)
     {
         glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);
-        return glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-    }
-
-    void VertexBufferOpenGL::Unmap()
-    {
-        glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);
-        glUnmapBuffer(GL_ARRAY_BUFFER);
+        glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
     }
 
     void VertexBufferOpenGL::Bind()
@@ -94,16 +73,10 @@ namespace Nexus::Graphics
         GL::CheckErrors();
     }
 
-    void *IndexBufferOpenGL::Map(MapMode mode)
+    void IndexBufferOpenGL::SetData(const void *data, uint32_t size, uint32_t offset)
     {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer);
-        return glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
-    }
-
-    void IndexBufferOpenGL::Unmap()
-    {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer);
-        glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
+        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset, size, data);
     }
 
     void IndexBufferOpenGL::Bind()
@@ -128,16 +101,10 @@ namespace Nexus::Graphics
         GL::CheckErrors();
     }
 
-    void *UniformBufferOpenGL::Map(MapMode mode)
+    void UniformBufferOpenGL::SetData(const void *data, uint32_t size, uint32_t offset)
     {
         glBindBuffer(GL_UNIFORM_BUFFER, m_Buffer);
-        return glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
-    }
-
-    void UniformBufferOpenGL::Unmap()
-    {
-        glBindBuffer(GL_UNIFORM_BUFFER, m_Buffer);
-        glUnmapBuffer(GL_UNIFORM_BUFFER);
+        glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
     }
 
     unsigned int UniformBufferOpenGL::GetHandle()

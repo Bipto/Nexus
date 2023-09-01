@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_VULKAN)
+
 #include "Vk.hpp"
 #include "Core/Graphics/ResourceSet.hpp"
 #include "GraphicsDeviceVk.hpp"
@@ -18,3 +20,5 @@ namespace Nexus::Graphics
         VkDescriptorPool m_DescriptorPool;
     };
 }
+
+#endif

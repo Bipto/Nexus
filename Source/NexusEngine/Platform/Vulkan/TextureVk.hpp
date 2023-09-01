@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_VULKAN)
+
 #include "Vk.hpp"
 #include "GraphicsDeviceVk.hpp"
 #include "Core/Graphics/Texture.hpp"
@@ -19,3 +21,5 @@ namespace Nexus::Graphics
         VkImageView m_ImageView;
     };
 }
+
+#endif

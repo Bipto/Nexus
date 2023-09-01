@@ -1,5 +1,6 @@
 #pragma once
 
+#if defined(NX_PLATFORM_DX11)
 #include "DX11.hpp"
 #include "Core/Graphics/Swapchain.hpp"
 #include "Core/Window.hpp"
@@ -29,3 +30,4 @@ namespace Nexus::Graphics
         ID3D11Device *m_Device;
     };
 }
+#endif

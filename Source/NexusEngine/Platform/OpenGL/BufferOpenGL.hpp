@@ -11,8 +11,7 @@ namespace Nexus::Graphics
     {
     public:
         VertexBufferOpenGL(const BufferDescription &description, const void *data, const VertexBufferLayout &layout);
-        virtual void *Map(MapMode mode) override;
-        virtual void Unmap() override;
+        virtual void SetData(const void *data, uint32_t size, uint32_t offset) override;
         void Bind();
         unsigned int GetHandle();
 
@@ -25,8 +24,7 @@ namespace Nexus::Graphics
     {
     public:
         IndexBufferOpenGL(const BufferDescription &description, const void *data);
-        virtual void *Map(MapMode mode) override;
-        virtual void Unmap() override;
+        virtual void SetData(const void *data, uint32_t size, uint32_t offset) override;
         void Bind();
         unsigned int GetHandle();
 
@@ -38,11 +36,11 @@ namespace Nexus::Graphics
     {
     public:
         UniformBufferOpenGL(const BufferDescription &description, const void *data);
-        virtual void *Map(MapMode mode) override;
-        virtual void Unmap() override;
+        virtual void SetData(const void *data, uint32_t size, uint32_t offset) override;
         unsigned int GetHandle();
 
     private:
         unsigned int m_Buffer = 0;
+        void *m_MappedBuffer = nullptr;
     };
 }

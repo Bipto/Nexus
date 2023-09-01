@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_VULKAN)
+
 #include "Vk.hpp"
 #include "Core/Graphics/Buffer.hpp"
 
@@ -11,8 +13,7 @@ namespace Nexus::Graphics
     {
     public:
         VertexBufferVk(const BufferDescription &description, const void *data, const VertexBufferLayout &layout, GraphicsDeviceVk *device);
-        virtual void *Map(MapMode mode) override;
-        virtual void Unmap() override;
+        virtual void SetData(const void *data, uint32_t size, uint32_t offset) override;
         VkBuffer GetBuffer();
 
     private:
@@ -24,8 +25,7 @@ namespace Nexus::Graphics
     {
     public:
         IndexBufferVk(const BufferDescription &description, const void *data, GraphicsDeviceVk *device);
-        virtual void *Map(MapMode mode) override;
-        virtual void Unmap() override;
+        virtual void SetData(const void *data, uint32_t size, uint32_t offset) override;
         VkBuffer GetBuffer();
 
     private:
@@ -37,8 +37,7 @@ namespace Nexus::Graphics
     {
     public:
         UniformBufferVk(const BufferDescription &description, const void *data, GraphicsDeviceVk *device);
-        virtual void *Map(MapMode mode) override;
-        virtual void Unmap() override;
+        virtual void SetData(const void *data, uint32_t size, uint32_t offset) override;
         VkBuffer GetBuffer();
 
     private:
@@ -46,3 +45,5 @@ namespace Nexus::Graphics
         GraphicsDeviceVk *m_Device;
     };
 }
+
+#endif

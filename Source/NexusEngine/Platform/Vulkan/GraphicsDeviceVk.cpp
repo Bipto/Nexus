@@ -1,3 +1,5 @@
+#if defined(NX_PLATFORM_VULKAN)
+
 #include "GraphicsDeviceVk.hpp"
 #include "CommandListVk.hpp"
 #include "RenderPassVk.hpp"
@@ -1065,3 +1067,5 @@ namespace Nexus::Graphics
         return m_Frames[m_FrameNumber % FRAMES_IN_FLIGHT];
     }
 }
+
+#endif

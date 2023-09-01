@@ -25,3 +25,12 @@ std::string Nexus::FileSystem::ReadFileToString(const std::string &filepath)
 
     return ss.str();
 }
+
+void Nexus::FileSystem::WriteFile(const std::string &filepath, const std::string &text)
+{
+    std::filesystem::path path = {filepath};
+
+    std::ofstream ofs(path);
+    ofs << text;
+    ofs.close();
+}

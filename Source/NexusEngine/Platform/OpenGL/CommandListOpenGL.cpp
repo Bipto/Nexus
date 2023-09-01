@@ -206,9 +206,10 @@ namespace Nexus::Graphics
             const auto &commandData = commandListGL->GetCurrentCommandData();
             const auto &uniformBufferUpdateCommand = std::get<UniformBufferUpdateCommand>(commandData);
 
-            void *buffer = uniformBufferUpdateCommand.Buffer->Map(MapMode::Write);
-            memcpy(buffer, uniformBufferUpdateCommand.Data, uniformBufferUpdateCommand.Size);
-            uniformBufferUpdateCommand.Buffer->Unmap();
+            uniformBufferUpdateCommand.Buffer->SetData(
+                uniformBufferUpdateCommand.Data,
+                uniformBufferUpdateCommand.Size,
+                uniformBufferUpdateCommand.Offset);
             delete uniformBufferUpdateCommand.Data;
         };
         m_Commands.push_back(renderCommand);

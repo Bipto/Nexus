@@ -1,5 +1,7 @@
 #include "SwapchainDX11.hpp"
 
+#if defined(NX_PLATFORM_DX11)
+
 namespace Nexus::Graphics
 {
     SwapchainDX11::SwapchainDX11(Window *window, ID3D11Device *device, IDXGISwapChain *swapchain, VSyncState vSyncState)
@@ -71,16 +73,6 @@ namespace Nexus::Graphics
         m_VsyncState = vsyncState;
     }
 
-    ID3D11RenderTargetView *SwapchainDX11::GetRenderTargetView()
-    {
-        return m_RenderTargetView;
-    }
-
-    ID3D11DepthStencilView *SwapchainDX11::GetDepthStencilView()
-    {
-        return m_SwapchainDepthTextureView;
-    }
-
     void SwapchainDX11::Resize(uint32_t width, uint32_t height)
     {
         m_RenderTargetView->Release();
@@ -148,4 +140,15 @@ namespace Nexus::Graphics
             NX_ERROR(error.ErrorMessage());
         }
     }
+    ID3D11RenderTargetView *SwapchainDX11::GetRenderTargetView()
+    {
+        return m_RenderTargetView;
+    }
+
+    ID3D11DepthStencilView *SwapchainDX11::GetDepthStencilView()
+    {
+        return m_SwapchainDepthTextureView;
+    }
 }
+
+#endif

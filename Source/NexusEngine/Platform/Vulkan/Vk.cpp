@@ -1,5 +1,7 @@
 #include "Vk.hpp"
 
+#if defined(NX_PLATFORM_VULKAN)
+
 VkFormat GetVkFormatFromNexusFormat(Nexus::Graphics::TextureFormat format)
 {
     switch (format)
@@ -45,3 +47,5 @@ VkFormat GetShaderDataType(Nexus::Graphics::ShaderDataType type)
         break;
     }
 }
+
+#endif

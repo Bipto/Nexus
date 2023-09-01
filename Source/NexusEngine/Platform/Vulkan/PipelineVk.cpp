@@ -1,3 +1,5 @@
+#if defined(NX_PLATFORM_VULKAN)
+
 #include "PipelineVk.hpp"
 #include "ShaderVk.hpp"
 #include "RenderPassVk.hpp"
@@ -317,3 +319,5 @@ namespace Nexus::Graphics
         }
     }
 }
+
+#endif

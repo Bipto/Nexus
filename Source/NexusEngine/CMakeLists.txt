@@ -4,8 +4,8 @@ project ("NexusEngine")
 set (CMAKE_CXX_STANDARD 17)
 
 #adds cpp and h files from engine
-file (GLOB_RECURSE ENGINE_HEADERS Core/*.h Runtime/*.h)
-file (GLOB_RECURSE ENGINE_SOURCES Core/*.cpp Core/Input/*.cpp Core/Utils/*.cpp Platform/*.cpp Platform/OpenGL*.cpp Platform/DX11/*.cpp Runtime/*.cpp Runtime/ECS/*.cpp)
+file (GLOB_RECURSE ENGINE_HEADERS Core/*.h)
+file (GLOB_RECURSE ENGINE_SOURCES Core/*.cpp Core/Input/*.cpp Core/FileSystem/*.cpp Platform/*.cpp Platform/OpenGL*.cpp Platform/DX11/*.cpp Runtime/*.cpp Runtime/ECS/*.cpp)
 add_library(NexusEngine ${ENGINE_HEADERS} ${ENGINE_SOURCES})
 
 #including dependencies
@@ -20,14 +20,16 @@ target_include_directories(NexusEngine PUBLIC
   ../../External/shaderc/libshaderc
   ../../External/libnyquist/include
   ../../External/shaderc/SPIRV-Cross/include
-  ${VULKAN_INCLUDE_DIRS}
-  ../../External/VulkanMemoryAllocator/include)
+  )
 
 #dependencies when not building with emscripten
 if (NOT DEFINED EMSCRIPTEN)
+
   target_include_directories(NexusEngine PUBLIC
     ../../External/tinyfiledialogs/tinyfiledialogs
-    ../../External/SDL_net)
+    ../../External/SDL_net
+    ${VULKAN_INCLUDE_DIRS}
+    ../../External/VulkanMemoryAllocator/include)
 endif()
 
 #add the engines headers to the include path
@@ -47,15 +49,27 @@ target_link_libraries(NexusEngine PUBLIC
   libnyquist
   spirv-cross-cpp
   spirv-cross-hlsl
-  Vulkan::Vulkan
-  VulkanMemoryAllocator)
+  )
 
 if(NOT DEFINED EMSCRIPTEN)
   target_link_libraries(NexusEngine PUBLIC 
     tinyfiledialogs
     OpenAL
-    SDL2_net)
+    SDL2_net
+    Vulkan::Vulkan
+    VulkanMemoryAllocator)
 endif()
 
 #precompiled header
 target_precompile_headers(NexusEngine PUBLIC Core/nxpch.hpp)
+#flags required for emscripten
+if (EMSCRIPTEN)
+    set_target_properties(
+      NexusEngine
+        PROPERTIES
+        LINK_FLAGS
+        "--std=c++17 -Os -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS -fsanitize=address -lopenal --preload-file Resources"
+    )
+
+    set_target_properties(NexusEngine PROPERTIES COMPILE_FLAGS "-Os")
+endif()

@@ -1,3 +1,5 @@
+#if defined(NX_PLATFORM_DX11)
+
 #include "GraphicsDeviceDX11.hpp"
 #include "Core/Logging/Log.hpp"
 
@@ -15,7 +17,6 @@ namespace Nexus::Graphics
     GraphicsDeviceDX11::GraphicsDeviceDX11(const GraphicsDeviceCreateInfo &createInfo, Window *window)
         : GraphicsDevice(createInfo, window)
     {
-#if defined(NX_PLATFORM_DX11)
         SDL_SysWMinfo wmInfo;
         SDL_VERSION(&wmInfo.version);
         SDL_GetWindowWMInfo(m_Window->GetSDLWindowHandle(), &wmInfo);
@@ -76,7 +77,6 @@ namespace Nexus::Graphics
         adapter->GetDesc1(&adapterDesc);
         std::wstring ws(adapterDesc.Description);
         m_AdapterName = std::string(ws.begin(), ws.end());
-#endif
     }
 
     void GraphicsDeviceDX11::SetContext()
@@ -85,7 +85,6 @@ namespace Nexus::Graphics
 
     void GraphicsDeviceDX11::SetFramebuffer(Ref<Framebuffer> framebuffer)
     {
-#if defined(NX_PLATFORM_DX11)
         if (framebuffer)
         {
             Ref<FramebufferDX11> dxFramebuffer = std::dynamic_pointer_cast<FramebufferDX11>(framebuffer);
@@ -109,7 +108,6 @@ namespace Nexus::Graphics
             m_ActiveRenderTargetviews.size(),
             m_ActiveRenderTargetviews.data(),
             m_ActiveDepthStencilView);
-#endif
     }
 
     void GraphicsDeviceDX11::SubmitCommandList(Ref<CommandList> commandList)
@@ -129,20 +127,12 @@ namespace Nexus::Graphics
 
     const char *GraphicsDeviceDX11::GetDeviceName()
     {
-#if defined(NX_PLATFORM_DX11)
         return m_AdapterName.c_str();
-#else
-        return "Device";
-#endif
     }
 
     void *GraphicsDeviceDX11::GetContext()
     {
-#if defined(NX_PLATFORM_DX11)
         return m_DeviceContextPtr;
-#else
-        return nullptr;
-#endif
     }
 
     void GraphicsDeviceDX11::BeginFrame()
@@ -155,77 +145,45 @@ namespace Nexus::Graphics
 
     Ref<Shader> GraphicsDeviceDX11::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout)
     {
-#if defined(NX_PLATFORM_DX11)
         return CreateRef<ShaderDX11>(m_DevicePtr, m_DeviceContextPtr, vertexShaderSource, fragmentShaderSource, layout);
-#else
-        return nullptr;
-#endif
     }
 
     Ref<Texture> GraphicsDeviceDX11::CreateTexture(const TextureSpecification &spec)
     {
-#if defined(NX_PLATFORM_DX11)
         return CreateRef<TextureDX11>(m_DevicePtr, spec);
-#else
-        return nullptr;
-#endif
     }
 
     Ref<Framebuffer> GraphicsDeviceDX11::CreateFramebuffer(Ref<RenderPass> renderPass)
     {
-#if defined(NX_PLATFORM_DX11)
         auto framebufferDX11 = CreateRef<FramebufferDX11>(m_DevicePtr, renderPass);
         auto renderPassDX11 = std::dynamic_pointer_cast<RenderPassDX11>(renderPass);
         renderPassDX11->m_Framebuffer = framebufferDX11;
         return framebufferDX11;
-#else
-        return nullptr;
-#endif
     }
 
     Ref<Pipeline> GraphicsDeviceDX11::CreatePipeline(const PipelineDescription &description)
     {
-#if defined(NX_PLATFORM_DX11)
         return CreateRef<PipelineDX11>(m_DevicePtr, description);
-#else
-        return nullptr;
-#endif
     }
 
     Ref<CommandList> GraphicsDeviceDX11::CreateCommandList()
     {
-#if defined(NX_PLATFORM_DX11)
         return CreateRef<CommandListDX11>(this);
-#else
-        return nullptr;
-#endif
     }
 
     Ref<VertexBuffer> GraphicsDeviceDX11::CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
     {
-#if defined(NX_PLATFORM_DX11)
         return CreateRef<VertexBufferDX11>(m_DevicePtr, m_DeviceContextPtr, description, data, layout);
-#else
-        return nullptr;
-#endif
     }
 
     Ref<IndexBuffer> GraphicsDeviceDX11::CreateIndexBuffer(const BufferDescription &description, const void *data)
     {
-#if defined(NX_PLATFORM_DX11)
         return CreateRef<IndexBufferDX11>(m_DevicePtr, m_DeviceContextPtr, description, data);
-#else
-        return nullptr;
-#endif
     }
 
     Ref<UniformBuffer> GraphicsDeviceDX11::CreateUniformBuffer(const BufferDescription &description, const void *data)
     {
-#if defined(NX_PLATFORM_DX11)
         return CreateRef<UniformBufferDX11>(m_DevicePtr, m_DeviceContextPtr, description, data);
-#else
-        return nullptr;
-#endif
     }
 
     Ref<RenderPass> GraphicsDeviceDX11::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification)
@@ -245,8 +203,6 @@ namespace Nexus::Graphics
 
     void GraphicsDeviceDX11::Resize(Point<int> size)
     {
-#if defined(NX_PLATFORM_DX11)
-
         m_DeviceContextPtr->OMSetRenderTargets(0, 0, 0);
 
         m_Swapchain->Resize(size.X, size.Y);
@@ -258,8 +214,6 @@ namespace Nexus::Graphics
             m_ActiveRenderTargetviews.size(),
             m_ActiveRenderTargetviews.data(),
             m_ActiveDepthStencilView);
-
-#endif
     }
 
     Swapchain *GraphicsDeviceDX11::GetSwapchain()
@@ -267,7 +221,6 @@ namespace Nexus::Graphics
         return m_Swapchain;
     }
 
-#if defined(NX_PLATFORM_DX11)
     ID3D11DeviceContext *GraphicsDeviceDX11::GetDeviceContext()
     {
         return m_DeviceContextPtr;
@@ -282,5 +235,6 @@ namespace Nexus::Graphics
     {
         return m_ActiveDepthStencilView;
     }
-#endif
 }
+
+#endif

@@ -1,3 +1,5 @@
+#if defined(NX_PLATFORM_VULKAN)
+
 #include "CommandListVk.hpp"
 #include "RenderPassVk.hpp"
 #include "PipelineVk.hpp"
@@ -153,3 +155,5 @@ namespace Nexus::Graphics
         return m_CurrentCommandBuffer;
     }
 }
+
+#endif

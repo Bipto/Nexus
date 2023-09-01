@@ -61,10 +61,7 @@ namespace Demos
                 1.0f};
 
             m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), m_Position);
-
-            void *buffer = m_TransformUniformBuffer->Map(Nexus::Graphics::MapMode::Write);
-            memcpy(buffer, &m_TransformUniforms, sizeof(m_TransformUniforms));
-            m_TransformUniformBuffer->Unmap();
+            m_TransformUniformBuffer->SetData(&m_TransformUniforms, sizeof(m_TransformUniforms), 0);
 
             m_CommandList->Begin();
             m_CommandList->SetPipeline(m_Pipeline);

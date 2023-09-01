@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_DX11)
+
 #include "Core/Graphics/GraphicsDevice.hpp"
 #include "FramebufferDX11.hpp"
 #include "SwapchainDX11.hpp"
@@ -42,8 +44,6 @@ namespace Nexus::Graphics
 
         virtual Swapchain *GetSwapchain() override;
 
-#if defined(NX_PLATFORM_DX11)
-
         ID3D11Device *GetDevice()
         {
             return m_DevicePtr;
@@ -51,10 +51,8 @@ namespace Nexus::Graphics
         ID3D11DeviceContext *GetDeviceContext();
         std::vector<ID3D11RenderTargetView *> &GetActiveRenderTargetViews();
         ID3D11DepthStencilView *&GetActiveDepthStencilView();
-#endif
 
     private:
-#if defined(NX_PLATFORM_DX11)
         ID3D11Device *m_DevicePtr = NULL;
         ID3D11DeviceContext *m_DeviceContextPtr = NULL;
         std::vector<ID3D11RenderTargetView *> m_ActiveRenderTargetviews;
@@ -63,7 +61,8 @@ namespace Nexus::Graphics
         Ref<Shader> m_ActiveShader = NULL;
         std::string m_AdapterName;
         SwapchainDX11 *m_Swapchain;
-#endif
         VSyncState m_VsyncState = VSyncState::Enabled;
     };
 }
+
+#endif

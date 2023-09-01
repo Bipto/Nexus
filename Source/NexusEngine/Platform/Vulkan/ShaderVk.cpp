@@ -1,3 +1,5 @@
+#if defined(NX_PLATFORM_VULKAN)
+
 #include "ShaderVk.hpp"
 
 namespace Nexus::Graphics
@@ -82,3 +84,5 @@ namespace Nexus::Graphics
         return shaderModule;
     }
 }
+
+#endif

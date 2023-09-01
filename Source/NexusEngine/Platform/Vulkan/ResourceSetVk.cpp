@@ -1,3 +1,5 @@
+#if defined(NX_PLATFORM_VULKAN)
+
 #include "ResourceSetVk.hpp"
 
 namespace Nexus::Graphics
@@ -92,3 +94,5 @@ namespace Nexus::Graphics
     {
     }
 }
+
+#endif

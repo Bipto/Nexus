@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_VULKAN)
+
 #include "Vk.hpp"
 #include "Core/Graphics/Framebuffer.hpp"
 
@@ -20,3 +22,5 @@ namespace Nexus::Graphics
         virtual void Recreate() override;
     };
 }
+
+#endif

@@ -1,3 +1,5 @@
+#if defined(NX_PLATFORM_VULKAN)
+
 #include "TextureVk.hpp"
 
 namespace Nexus::Graphics
@@ -89,3 +91,5 @@ namespace Nexus::Graphics
         return nullptr;
     }
 }
+
+#endif

@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_VULKAN)
+
 #include "Core/Graphics/GraphicsDevice.hpp"
 #include "SwapchainVk.hpp"
 #include "Vk.hpp"
@@ -49,16 +51,16 @@ namespace Nexus::Graphics
 
         virtual Ref<RenderPass> CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification) override;
         virtual Ref<RenderPass> CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain) override;
-        virtual Ref<ResourceSet> CreateResourceSet(const ResourceSetSpecification& spec) override;
+        virtual Ref<ResourceSet> CreateResourceSet(const ResourceSetSpecification &spec) override;
 
         virtual void Resize(Point<int> size) override;
         virtual ShaderLanguage GetSupportedShaderFormat() override;
         virtual float GetUVCorrection() { return 1.0f; }
 
         virtual Swapchain *GetSwapchain() override;
-        uint32_t GetSwapchainImageCount();
 
         VkDevice GetVkDevice();
+        uint32_t GetSwapchainImageCount();
         uint32_t GetGraphicsFamily();
         uint32_t GetPresentFamily();
         uint32_t GetCurrentFrameIndex();
@@ -154,3 +156,5 @@ namespace Nexus::Graphics
         friend class ImGuiRenderer;
     };
 }
+
+#endif

@@ -10,7 +10,10 @@
 
 #include <backends/imgui_impl_opengl3.h>
 #include <backends/imgui_impl_dx11.h>
+
+#if defined(WIN32)
 #include <backends/imgui_impl_vulkan.h>
+#endif
 
 namespace Nexus::Graphics
 {
@@ -50,7 +53,9 @@ namespace Nexus::Graphics
 #endif
             break;
         case GraphicsAPI::Vulkan:
+#if defined(NX_PLATFORM_VULKAN)
             ImGui_ImplVulkan_NewFrame();
+#endif
             break;
         }
         ImGui::NewFrame();
@@ -119,6 +124,7 @@ namespace Nexus::Graphics
 
     void ImGuiRenderer::InitialiseVulkan()
     {
+#if defined(NX_PLATFORM_VULKAN)
         auto graphicsDevice = m_Application->GetGraphicsDevice();
         auto vulkanGraphicsDevice = std::dynamic_pointer_cast<GraphicsDeviceVk>(graphicsDevice);
 
@@ -166,15 +172,18 @@ namespace Nexus::Graphics
         vulkanGraphicsDevice->ImmediateSubmit([&](VkCommandBuffer cmd)
                                               { ImGui_ImplVulkan_CreateFontsTexture(cmd); });
         ImGui_ImplVulkan_DestroyFontUploadObjects();
+#endif
     }
 
     void ImGuiRenderer::EndFrameImplVulkan()
     {
+#if defined(NX_PLATFORM_VULKAN)
         auto graphicsDevice = m_Application->GetGraphicsDevice();
         auto vulkanGraphicsDevice = std::dynamic_pointer_cast<GraphicsDeviceVk>(graphicsDevice);
 
         vulkanGraphicsDevice->BeginImGuiRenderPass();
         ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), vulkanGraphicsDevice->m_ImGuiCommandBuffer);
         vulkanGraphicsDevice->EndImGuiRenderPass();
+#endif
     }
 }

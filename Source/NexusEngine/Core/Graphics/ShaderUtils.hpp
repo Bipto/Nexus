@@ -3,7 +3,7 @@
 #include <fstream>
 #include <sstream>
 
-namespace Nexus::ShaderUtils
+namespace Nexus::Utils
 {
     /// @brief A struct used to store the source file of a vertex and fragment shader
     struct ShaderSources
@@ -18,7 +18,7 @@ namespace Nexus::ShaderUtils
     /// @brief A method to parse a shader in a custom format and return a vertex and fragment shader
     /// @param path The path to the file to read
     /// @return A struct containing a vertex and fragment shader
-    static ShaderSources ParseShader(const std::string &path)
+    static ShaderSources ParseCustomShaderFile(const std::string &path)
     {
         std::ifstream stream(path);
 
@@ -48,7 +48,7 @@ namespace Nexus::ShaderUtils
             }
         }
 
-        ShaderUtils::ShaderSources source;
+        ShaderSources source;
         source.VertexSource = ss[0].str();
         source.FragmentSource = ss[1].str();
         return source;

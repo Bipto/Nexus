@@ -93,10 +93,7 @@ namespace Demos
             m_CameraUniforms.View = m_Camera.GetView();
             m_CameraUniforms.Projection = m_Camera.GetProjection();
             m_CameraUniforms.CamPosition = m_Camera.GetPosition();
-
-            void *buffer = m_CameraUniformBuffer->Map(Nexus::Graphics::MapMode::Write);
-            memcpy(buffer, &m_CameraUniforms, sizeof(m_CameraUniforms));
-            m_CameraUniformBuffer->Unmap();
+            m_CameraUniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms), 0);
 
             m_CommandList->Begin();
             m_CommandList->SetPipeline(m_Pipeline);

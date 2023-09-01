@@ -1,3 +1,5 @@
+#if defined(NX_PLATFORM_VULKAN)
+
 #include "BufferVk.hpp"
 #include "GraphicsDeviceVk.hpp"
 
@@ -25,15 +27,13 @@ namespace Nexus::Graphics
         vmaUnmapMemory(device->GetAllocator(), m_Buffer.Allocation);
     }
 
-    void *VertexBufferVk::Map(MapMode mode)
+    void VertexBufferVk::SetData(const void *data, uint32_t size, uint32_t offset)
     {
         void *buffer;
         vmaMapMemory(m_Device->GetAllocator(), m_Buffer.Allocation, &buffer);
-        return buffer;
-    }
-
-    void VertexBufferVk::Unmap()
-    {
+        unsigned char *char_buffer = reinterpret_cast<unsigned char *>(buffer);
+        char_buffer += offset;
+        memcpy(char_buffer, data, size);
         vmaUnmapMemory(m_Device->GetAllocator(), m_Buffer.Allocation);
     }
 
@@ -64,15 +64,13 @@ namespace Nexus::Graphics
         vmaUnmapMemory(device->GetAllocator(), m_Buffer.Allocation);
     }
 
-    void *IndexBufferVk::Map(MapMode mode)
+    void IndexBufferVk::SetData(const void *data, uint32_t size, uint32_t offset)
     {
         void *buffer;
         vmaMapMemory(m_Device->GetAllocator(), m_Buffer.Allocation, &buffer);
-        return buffer;
-    }
-
-    void IndexBufferVk::Unmap()
-    {
+        unsigned char *char_buffer = reinterpret_cast<unsigned char *>(buffer);
+        char_buffer += offset;
+        memcpy(char_buffer, data, size);
         vmaUnmapMemory(m_Device->GetAllocator(), m_Buffer.Allocation);
     }
 
@@ -103,15 +101,13 @@ namespace Nexus::Graphics
         vmaUnmapMemory(device->GetAllocator(), m_Buffer.Allocation);
     }
 
-    void *UniformBufferVk::Map(MapMode mode)
+    void UniformBufferVk::SetData(const void *data, uint32_t size, uint32_t offset)
     {
         void *buffer;
         vmaMapMemory(m_Device->GetAllocator(), m_Buffer.Allocation, &buffer);
-        return buffer;
-    }
-
-    void UniformBufferVk::Unmap()
-    {
+        unsigned char *char_buffer = reinterpret_cast<unsigned char *>(buffer);
+        char_buffer += offset;
+        memcpy(char_buffer, data, size);
         vmaUnmapMemory(m_Device->GetAllocator(), m_Buffer.Allocation);
     }
 
@@ -120,3 +116,5 @@ namespace Nexus::Graphics
         return m_Buffer.Buffer;
     }
 }
+
+#endif

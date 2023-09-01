@@ -3,7 +3,10 @@
 // graphics headers
 #include "Platform/OpenGL/GraphicsDeviceOpenGL.hpp"
 #include "Platform/DX11/GraphicsDeviceDX11.hpp"
+
+#if defined(NX_PLATFORM_VK)
 #include "Platform/Vulkan/GraphicsDeviceVk.hpp"
+#endif
 
 // audio headers
 #include "Platform/OpenAL/AudioDeviceOpenAL.hpp"
@@ -184,11 +187,21 @@ namespace Nexus
         switch (createInfo.API)
         {
         case Graphics::GraphicsAPI::DirectX11:
+#if defined(NX_PLATFORM_DX11)
             return CreateRef<Graphics::GraphicsDeviceDX11>(createInfo, window);
+#else
+            return nullptr;
+#endif
+
         case Graphics::GraphicsAPI::OpenGL:
             return CreateRef<Graphics::GraphicsDeviceOpenGL>(createInfo, window);
+
         case Graphics::GraphicsAPI::Vulkan:
+#if defined(NX_PLATFORM_VK)
             return CreateRef<Graphics::GraphicsDeviceVk>(createInfo, window);
+#else
+            return nullptr;
+#endif
         }
     }
 

@@ -1,3 +1,5 @@
+#if defined(NX_PLATFORM_VULKAN)
+
 #include "SwapchainVk.hpp"
 
 #include "GraphicsDeviceVk.hpp"
@@ -297,3 +299,5 @@ namespace Nexus::Graphics
         throw std::runtime_error("Failed to find suitable memory type");
     }
 }
+
+#endif

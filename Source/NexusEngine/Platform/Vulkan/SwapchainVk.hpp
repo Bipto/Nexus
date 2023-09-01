@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_VULKAN)
+
 #include "Core/Graphics/Swapchain.hpp"
 #include "Core/Window.hpp"
 #include "SDL_vulkan.h"
@@ -66,3 +68,5 @@ namespace Nexus::Graphics
         friend class ImGuiRenderer;
     };
 }
+
+#endif

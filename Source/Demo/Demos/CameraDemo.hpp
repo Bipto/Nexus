@@ -79,16 +79,11 @@ namespace Demos
                 1.0f};
 
             m_TransformUniforms.Transform = glm::mat4(1.0f);
-            void *buffer = m_TransformUniformBuffer->Map(Nexus::Graphics::MapMode::Write);
-            memcpy(buffer, &m_TransformUniforms, sizeof(m_TransformUniforms));
-            m_TransformUniformBuffer->Unmap();
+            m_TransformUniformBuffer->SetData(&m_TransformUniforms, sizeof(m_TransformUniforms), 0);
 
             m_CameraUniforms.View = m_Camera.GetView();
             m_CameraUniforms.Projection = m_Camera.GetProjection();
-
-            buffer = m_CameraUniformBuffer->Map(Nexus::Graphics::MapMode::Write);
-            memcpy(buffer, &m_CameraUniforms, sizeof(m_CameraUniforms));
-            m_CameraUniformBuffer->Unmap();
+            m_CameraUniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms), 0);
 
             m_CommandList->Begin();
             m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);

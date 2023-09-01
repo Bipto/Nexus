@@ -4,8 +4,9 @@
 #include <sstream>
 #include <chrono>
 
-#include "ShaderGenerator.hpp"
 #include "Core/Logging/Log.hpp"
+#include "ShaderGenerator.hpp"
+#include "ShaderUtils.hpp"
 
 #include "stb_image.h"
 
@@ -20,44 +21,7 @@ namespace Nexus::Graphics
     Ref<Shader> GraphicsDevice::CreateShaderFromSpirvFile(const std::string &filepath, const VertexBufferLayout &layout)
     {
         auto startTime = std::chrono::system_clock::now();
-
-        if (!std::filesystem::exists(filepath))
-        {
-            std::string message = "File: " + filepath + " does not exist!";
-            NX_ERROR(message);
-            return {};
-        }
-
-        std::ifstream stream(filepath);
-
-        struct ShaderSources
-        {
-            std::string VertexSource;
-            std::string FragmentSource;
-        };
-
-        std::string line;
-        std::stringstream ss[2];
-        ShaderType type = ShaderType::None;
-
-        while (getline(stream, line))
-        {
-            if (line.find("#shader") != std::string::npos)
-            {
-                if (line.find("vertex") != std::string::npos)
-                    type = ShaderType::Vertex;
-                else if (line.find("fragment") != std::string::npos)
-                    type = ShaderType::Fragment;
-            }
-            else
-            {
-                ss[(int)type] << line << "\n";
-            }
-        }
-
-        ShaderSources source;
-        source.VertexSource = ss[0].str();
-        source.FragmentSource = ss[1].str();
+        Nexus::Utils::ShaderSources sources = Nexus::Utils::ParseCustomShaderFile(filepath);
 
         // if we are using a SPIR_V bytecode we do not need to compile the GLSL to a native shader language
         if (this->GetSupportedShaderFormat() != Nexus::Graphics::ShaderLanguage::SPIRV)
@@ -69,7 +33,7 @@ namespace Nexus::Graphics
             vertOptions.Type = ShaderType::Vertex;
             vertOptions.ShaderName = filepath;
             vertOptions.OutputFormat = this->GetSupportedShaderFormat();
-            auto vertResult = generator.Generate(source.VertexSource, vertOptions);
+            auto vertResult = generator.Generate(sources.VertexSource, vertOptions);
 
             if (!vertResult.Successful)
             {
@@ -80,7 +44,7 @@ namespace Nexus::Graphics
             fragOptions.Type = ShaderType::Fragment;
             fragOptions.ShaderName = filepath;
             fragOptions.OutputFormat = this->GetSupportedShaderFormat();
-            auto fragResult = generator.Generate(source.FragmentSource, fragOptions);
+            auto fragResult = generator.Generate(sources.FragmentSource, fragOptions);
 
             if (!fragResult.Successful)
             {
@@ -106,7 +70,7 @@ namespace Nexus::Graphics
 
         else
         {
-            auto shader = this->CreateShaderFromSource(source.VertexSource, source.FragmentSource, layout);
+            auto shader = this->CreateShaderFromSource(sources.VertexSource, sources.FragmentSource, layout);
             return shader;
         }
 

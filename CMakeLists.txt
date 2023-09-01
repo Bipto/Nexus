@@ -3,9 +3,6 @@ cmake_minimum_required(VERSION 3.16)
 project("NexusEngine")
 set (CMAKE_CXX_STANDARD 17)
 
-find_package(OpenGL REQUIRED)
-find_package(Vulkan REQUIRED)
-
 set(SHADERC_SKIP_TESTS OFF CACHE BOOL "" FORCE)
 
 #google test - required for shaderc
@@ -23,6 +20,7 @@ FetchContent_MakeAvailable(googletest)
 if (NOT EMSCRIPTEN)
     set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
     set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+    find_package(Vulkan REQUIRED)
 endif()
 
 #platform specific configurations
@@ -38,6 +36,8 @@ elseif (EMSCRIPTEN)
     add_compile_definitions(NX_PLATFORM_OPENAL)
 endif()
 
+find_package(OpenGL REQUIRED)
+
 #set up engine projects
 add_subdirectory(Source/Demo)
 add_subdirectory(Source/NexusEngine)
@@ -47,6 +47,7 @@ if(NOT DEFINED EMSCRIPTEN)
     add_subdirectory(Source/NetworkingTest/Client)
     add_subdirectory(Source/NetworkingTest/Server)
     add_subdirectory(Source/Test)
+    add_subdirectory(Source/ShaderGen)
 endif()
 
 add_subdirectory(Source/BuildConfig)
@@ -64,7 +65,10 @@ add_subdirectory(External/SPIRV-Headers)
 add_subdirectory(External/SPIRV-Tools)
 add_subdirectory(External/shaderc)
 add_subdirectory(External/libnyquist)
-add_subdirectory(External/VulkanMemoryAllocator)
+
+if (NOT DEFINED EMSCRIPTEN)
+    add_subdirectory(External/VulkanMemoryAllocator)
+endif()
 
 #these libraries are only required if we are not building for emscripten
 #this is because these libraries are incompatible with emscripten

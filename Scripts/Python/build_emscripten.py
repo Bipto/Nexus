@@ -8,7 +8,7 @@ def build():
     build_dir = source_dir + "/build/Emscripten"        
     os.chdir(source_dir)
     
-    os.system('emcmake cmake -DCMAKE_BUILD_TYPE=Release -G "Unix Makefiles" -S . -B build/Emscripten')
+    os.system('emcmake cmake -D CMAKE_BUILD_TYPE=Release -G "Unix Makefiles" -S . -B build/Emscripten')
     os.chdir(build_dir)
     os.system('make')
     

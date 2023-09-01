@@ -1,3 +1,5 @@
+#if defined(NX_PLATFORM_VULKAN)
+
 #include "FramebufferVk.hpp"
 
 namespace Nexus::Graphics
@@ -34,3 +36,5 @@ namespace Nexus::Graphics
     {
     }
 }
+
+#endif

@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_VULKAN)
+
 #include "Core/Graphics/Shader.hpp"
 #include "GraphicsDeviceVk.hpp"
 
@@ -32,3 +34,5 @@ namespace Nexus::Graphics
         GraphicsDeviceVk *m_GraphicsDevice;
     };
 }
+
+#endif
