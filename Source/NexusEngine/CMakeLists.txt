@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
 project ("NexusEngine")
-set (CMAKE_CXX_STANDARD 17)
 
 #adds cpp and h files from engine
 file (GLOB_RECURSE ENGINE_HEADERS Core/*.h)

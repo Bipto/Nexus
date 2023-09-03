@@ -14,6 +14,8 @@ namespace Nexus::Graphics
         TextureVk(GraphicsDeviceVk *graphicsDevice, const TextureSpecification &spec);
         ~TextureVk();
         virtual void *GetHandle() override;
+        VkImage GetImage();
+        VkImageView GetImageView();
 
     private:
         VkImage m_Image;

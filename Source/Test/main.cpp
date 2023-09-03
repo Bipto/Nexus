@@ -72,6 +72,10 @@ public:
             1.0f};
         beginInfo.ClearDepthStencilValue.Depth = 1.0f;
 
+        m_ResourceSet->UpdateTexture(
+            m_Texture,
+            0);
+
         m_CommandList->Begin();
         m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
         m_CommandList->SetPipeline(m_Pipeline);

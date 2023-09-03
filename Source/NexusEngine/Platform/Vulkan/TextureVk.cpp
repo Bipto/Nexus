@@ -80,6 +80,22 @@ namespace Nexus::Graphics
                                                 imageBarrierToReadable.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
                                                 vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TRANSFER_BIT,  VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageBarrierToReadable); });
         }
+
+        VkImageViewCreateInfo createInfo{};
+        createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        createInfo.pNext = nullptr;
+        createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        createInfo.image = m_Image;
+        createInfo.format = format;
+        createInfo.subresourceRange.baseMipLevel = 0;
+        createInfo.subresourceRange.levelCount = 1;
+        createInfo.subresourceRange.baseArrayLayer = 0;
+        createInfo.subresourceRange.layerCount = 1;
+        createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        if (vkCreateImageView(graphicsDevice->GetVkDevice(), &createInfo, nullptr, &m_ImageView) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to create image view");
+        }
     }
 
     TextureVk::~TextureVk()
@@ -88,7 +104,17 @@ namespace Nexus::Graphics
 
     void *TextureVk::GetHandle()
     {
-        return nullptr;
+        return m_ImageView;
+    }
+
+    VkImage TextureVk::GetImage()
+    {
+        return m_Image;
+    }
+
+    VkImageView TextureVk::GetImageView()
+    {
+        return m_ImageView;
     }
 }
 

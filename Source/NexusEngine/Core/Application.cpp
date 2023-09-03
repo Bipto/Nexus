@@ -4,7 +4,7 @@
 #include "Platform/OpenGL/GraphicsDeviceOpenGL.hpp"
 #include "Platform/DX11/GraphicsDeviceDX11.hpp"
 
-#if defined(NX_PLATFORM_VK)
+#if defined(NX_PLATFORM_VULKAN)
 #include "Platform/Vulkan/GraphicsDeviceVk.hpp"
 #endif
 
@@ -197,7 +197,7 @@ namespace Nexus
             return CreateRef<Graphics::GraphicsDeviceOpenGL>(createInfo, window);
 
         case Graphics::GraphicsAPI::Vulkan:
-#if defined(NX_PLATFORM_VK)
+#if defined(NX_PLATFORM_VULKAN)
             return CreateRef<Graphics::GraphicsDeviceVk>(createInfo, window);
 #else
             return nullptr;

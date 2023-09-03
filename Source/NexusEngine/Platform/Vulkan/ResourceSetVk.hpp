@@ -14,10 +14,20 @@ namespace Nexus::Graphics
         ResourceSetVk(const ResourceSetSpecification &spec, GraphicsDeviceVk *device);
         virtual void UpdateTexture(Ref<Texture> texture, uint32_t binding) override;
 
+        VkDescriptorSetLayout GetSamplerDescriptorSetLayout();
+        VkDescriptorSet GetSamplerDescriptorSet();
+        VkDescriptorSetLayout GetUniformBufferDescriptorSetLayout();
+        VkDescriptorSet GetUniformBufferrDescriptorSet();
+
     private:
-        VkDescriptorSetLayout m_SamplerLayout;
-        VkDescriptorSetLayout m_UniformBufferLayout;
+        std::vector<VkDescriptorSetLayout> m_SamplerLayout;
+        std::vector<VkDescriptorSetLayout> m_UniformBufferLayout;
         VkDescriptorPool m_DescriptorPool;
+
+        std::vector<VkDescriptorSet> m_SamplerDescriptorSet;
+        std::vector<VkDescriptorSet> m_UniformBufferDescriptorSet;
+
+        GraphicsDeviceVk *m_Device;
     };
 }
 
