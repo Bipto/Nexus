@@ -677,7 +677,7 @@ namespace Nexus::Graphics
     VkImage image;
     bool GraphicsDeviceVk::AcquireNextImage()
     {
-        VkResult result = vkAcquireNextImageKHR(m_Device, m_Swapchain->m_Swapchain, UINT64_MAX, GetCurrentFrame().PresentSemaphore, VK_NULL_HANDLE, &m_CurrentFrameIndex);
+        VkResult result = vkAcquireNextImageKHR(m_Device, m_Swapchain->m_Swapchain, 0, GetCurrentFrame().PresentSemaphore, VK_NULL_HANDLE, &m_CurrentFrameIndex);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR)
         {
@@ -689,7 +689,7 @@ namespace Nexus::Graphics
             throw std::runtime_error("Failed to acquire swapchain image");
         }
 
-        vkWaitForFences(m_Device, 1, &GetCurrentFrame().RenderFence, VK_FALSE, UINT64_MAX);
+        vkWaitForFences(m_Device, 1, &GetCurrentFrame().RenderFence, VK_FALSE, 0);
         vkResetFences(m_Device, 1, &GetCurrentFrame().RenderFence);
 
         m_CurrentCommandBuffer = GetCurrentFrame().MainCommandBuffer;
