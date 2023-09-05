@@ -3,6 +3,7 @@
 #include "PipelineVk.hpp"
 #include "ShaderVk.hpp"
 #include "RenderPassVk.hpp"
+#include "ResourceSetVk.hpp"
 
 namespace Nexus::Graphics
 {
@@ -12,7 +13,10 @@ namespace Nexus::Graphics
         Ref<ShaderVk> vulkanShader = std::dynamic_pointer_cast<ShaderVk>(description.Shader);
         Ref<RenderPassVk> vulkanRenderPass = std::dynamic_pointer_cast<RenderPassVk>(description.RenderPass);
 
-        std::vector<VkDescriptorSetLayout> layouts = {};
+        Ref<ResourceSetVk> resourceSetVk = std::dynamic_pointer_cast<ResourceSetVk>(description.ResourceSet);
+        std::vector<VkDescriptorSetLayout> layouts = {
+            resourceSetVk->GetUniformBufferDescriptorSetLayout(),
+            resourceSetVk->GetSamplerDescriptorSetLayout()};
 
         // describes data that will be uploaded to the shader
         VkPipelineLayoutCreateInfo layoutInfo = CreatePipelineLayoutCreateInfo(layouts);

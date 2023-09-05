@@ -4,6 +4,7 @@
 #include "RenderPassVk.hpp"
 #include "PipelineVk.hpp"
 #include "BufferVk.hpp"
+#include "ResourceSetVk.hpp"
 
 namespace Nexus::Graphics
 {
@@ -42,6 +43,8 @@ namespace Nexus::Graphics
 
     void CommandListVk::Begin()
     {
+        m_CurrentPipeline = nullptr;
+
         // get current command buffer
         {
             m_CurrentCommandBuffer = m_CommandBuffers[m_Device->GetCurrentFrameIndex()];
@@ -90,6 +93,7 @@ namespace Nexus::Graphics
     {
         Ref<PipelineVk> vulkanPipeline = std::dynamic_pointer_cast<PipelineVk>(pipeline);
         vkCmdBindPipeline(m_CurrentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanPipeline->GetPipeline());
+        m_CurrentPipeline = std::dynamic_pointer_cast<PipelineVk>(pipeline);
     }
 
     void CommandListVk::BeginRenderPass(Ref<RenderPass> renderPass, const RenderPassBeginInfo &beginInfo)
@@ -148,6 +152,22 @@ namespace Nexus::Graphics
 
     void CommandListVk::UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset)
     {
+    }
+
+    void CommandListVk::WriteTexture(Ref<Texture> texture, Ref<ResourceSet> resourceSet, uint32_t binding)
+    {
+        Ref<ResourceSetVk> resourceSetVk = std::dynamic_pointer_cast<ResourceSetVk>(resourceSet);
+        resourceSetVk->UpdateTexture(texture, binding);
+    }
+
+    void CommandListVk::SetResources(Ref<ResourceSet> resourceSet)
+    {
+        Ref<ResourceSetVk> resourceSetVk = std::dynamic_pointer_cast<ResourceSetVk>(resourceSet);
+        auto uniformBufferDescriptor = resourceSetVk->GetUniformBufferrDescriptorSet();
+        auto samplerDescriptor = resourceSetVk->GetSamplerDescriptorSet();
+
+        vkCmdBindDescriptorSets(m_CurrentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_CurrentPipeline->GetPipelineLayout(), 0, 1, &uniformBufferDescriptor, 0, nullptr);
+        vkCmdBindDescriptorSets(m_CurrentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_CurrentPipeline->GetPipelineLayout(), 1, 1, &samplerDescriptor, 0, nullptr);
     }
 
     const VkCommandBuffer &CommandListVk::GetCurrentCommandBuffer()

@@ -25,8 +25,17 @@ namespace Nexus::Graphics
             setInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
             setInfo.pNext = nullptr;
             setInfo.flags = 0;
-            setInfo.bindingCount = uniformBufferBindings.size();
-            setInfo.pBindings = uniformBufferBindings.data();
+
+            if (uniformBufferBindings.size() > 0)
+            {
+                setInfo.bindingCount = uniformBufferBindings.size();
+                setInfo.pBindings = uniformBufferBindings.data();
+            }
+            else
+            {
+                setInfo.bindingCount = 0;
+                setInfo.pBindings = nullptr;
+            }
 
             m_UniformBufferLayout.resize(FRAMES_IN_FLIGHT);
 
@@ -56,8 +65,17 @@ namespace Nexus::Graphics
             setInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
             setInfo.pNext = nullptr;
             setInfo.flags = 0;
-            setInfo.bindingCount = textureBindings.size();
-            setInfo.pBindings = textureBindings.data();
+
+            if (textureBindings.size() > 0)
+            {
+                setInfo.bindingCount = textureBindings.size();
+                setInfo.pBindings = textureBindings.data();
+            }
+            else
+            {
+                setInfo.bindingCount = 0;
+                setInfo.pBindings = nullptr;
+            }
 
             m_SamplerLayout.resize(FRAMES_IN_FLIGHT);
 
@@ -79,7 +97,8 @@ namespace Nexus::Graphics
             {
                 VkDescriptorPoolSize size;
                 size.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                size.descriptorCount = spec.UniformResourceBindings.size();
+                int descriptorCount = std::clamp((int)spec.UniformResourceBindings.size(), 1, 1000);
+                size.descriptorCount = descriptorCount;
                 sizes.push_back(size);
             }
 
@@ -88,20 +107,40 @@ namespace Nexus::Graphics
             {
                 VkDescriptorPoolSize size;
                 size.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                size.descriptorCount = spec.TextureBindings.size();
+                int descriptorCount = std::clamp((int)spec.TextureBindings.size(), 1, 1000);
+                size.descriptorCount = descriptorCount;
                 sizes.push_back(size);
             }
 
             VkDescriptorPoolCreateInfo poolInfo = {};
             poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
             poolInfo.flags = 0;
-            poolInfo.maxSets = FRAMES_IN_FLIGHT;
+
+            // allow 2 descriptor sets to be allocated for each frame
+            poolInfo.maxSets = FRAMES_IN_FLIGHT * 2;
             poolInfo.poolSizeCount = (uint32_t)sizes.size();
             poolInfo.pPoolSizes = sizes.data();
 
             if (vkCreateDescriptorPool(device->GetVkDevice(), &poolInfo, nullptr, &m_DescriptorPool) != VK_SUCCESS)
             {
                 throw std::runtime_error("Failed to create descriptor pool");
+            }
+        }
+
+        // allocate uniform buffer descriptor set
+        {
+            m_UniformBufferDescriptorSet.resize(FRAMES_IN_FLIGHT);
+
+            VkDescriptorSetAllocateInfo allocInfo = {};
+            allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+            allocInfo.pNext = nullptr;
+            allocInfo.descriptorPool = m_DescriptorPool;
+            allocInfo.descriptorSetCount = FRAMES_IN_FLIGHT;
+            allocInfo.pSetLayouts = m_UniformBufferLayout.data();
+
+            if (vkAllocateDescriptorSets(m_Device->GetVkDevice(), &allocInfo, m_UniformBufferDescriptorSet.data()) != VK_SUCCESS)
+            {
+                throw std::runtime_error("Failed to allocate uniform buffer descriptor set");
             }
         }
 

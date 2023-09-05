@@ -276,6 +276,14 @@ namespace Nexus::Graphics
 #endif
     }
 
+    void CommandListDX11::WriteTexture(Ref<Texture> texture, Ref<ResourceSet> resourceSet, uint32_t binding)
+    {
+    }
+
+    void CommandListDX11::SetResources(Ref<ResourceSet> resourceSet)
+    {
+    }
+
     const std::vector<RenderCommand> &CommandListDX11::GetRenderCommands()
     {
         return m_Commands;

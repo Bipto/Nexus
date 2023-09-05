@@ -21,6 +21,7 @@ public:
         textureBinding.Name = "texSampler";
 
         Nexus::Graphics::ResourceSetSpecification resourceSetSpec;
+        ;
         resourceSetSpec.TextureBindings =
             {
                 textureBinding};
@@ -36,20 +37,8 @@ public:
 
         m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/basic.glsl", Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
 
-        Nexus::Graphics::PipelineDescription description;
-        description.Shader = m_Shader;
-        description.RenderPass = m_RenderPass;
-        description.Viewport.X = 0;
-        description.Viewport.Y = 0;
-        description.Viewport.Width = GetWindow()->GetWindowSize().X;
-        description.Viewport.Height = GetWindow()->GetWindowSize().Y;
-        description.RasterizerStateDescription.ScissorRectangle =
-            {
-                0, 0, GetWindowSize().X, GetWindowSize().Y};
-
-        description.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
-
-        m_Pipeline = m_GraphicsDevice->CreatePipeline(description);
+        CreatePipeline({GetWindowSize().X,
+                        GetWindowSize().Y});
 
         Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
         m_Mesh = factory.CreateSprite();
@@ -79,6 +68,8 @@ public:
         m_CommandList->Begin();
         m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
         m_CommandList->SetPipeline(m_Pipeline);
+        m_CommandList->WriteTexture(m_Texture, m_ResourceSet, 0);
+        m_CommandList->SetResources(m_ResourceSet);
         m_CommandList->SetVertexBuffer(m_Mesh.GetVertexBuffer());
         m_CommandList->SetIndexBuffer(m_Mesh.GetIndexBuffer());
 
@@ -96,7 +87,11 @@ public:
     virtual void OnResize(Nexus::Point<int> size) override
     {
         m_GraphicsDevice->Resize(size);
+        CreatePipeline(size);
+    }
 
+    void CreatePipeline(Nexus::Point<int> size)
+    {
         Nexus::Graphics::PipelineDescription description;
         description.Shader = m_Shader;
         description.RenderPass = m_RenderPass;
@@ -108,6 +103,7 @@ public:
             {
                 0, 0, size.X, size.Y};
         description.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
+        description.ResourceSet = m_ResourceSet;
 
         m_Pipeline = m_GraphicsDevice->CreatePipeline(description);
     }

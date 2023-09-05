@@ -215,6 +215,14 @@ namespace Nexus::Graphics
         m_Commands.push_back(renderCommand);
     }
 
+    void CommandListOpenGL::WriteTexture(Ref<Texture> texture, Ref<ResourceSet> resourceSet, uint32_t binding)
+    {
+    }
+
+    void CommandListOpenGL::SetResources(Ref<ResourceSet> resourceSet)
+    {
+    }
+
     const std::vector<RenderCommand> &CommandListOpenGL::GetRenderCommands()
     {
         return m_Commands;

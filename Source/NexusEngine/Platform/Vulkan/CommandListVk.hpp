@@ -4,6 +4,7 @@
 
 #include "Core/Graphics/CommandList.hpp"
 #include "GraphicsDeviceVk.hpp"
+#include "PipelineVk.hpp"
 
 namespace Nexus::Graphics
 {
@@ -27,6 +28,9 @@ namespace Nexus::Graphics
         virtual void UpdateTexture(Ref<Texture> texture, Ref<Shader> shader, const TextureResourceBinding &binding) override;
         virtual void UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset) override;
 
+        virtual void WriteTexture(Ref<Texture> texture, Ref<ResourceSet> resourceSet, uint32_t binding) override;
+        virtual void SetResources(Ref<ResourceSet> resourceSet) override;
+
         const VkCommandBuffer &GetCurrentCommandBuffer();
 
     private:
@@ -34,6 +38,7 @@ namespace Nexus::Graphics
         VkCommandBuffer m_CommandBuffers[FRAMES_IN_FLIGHT];
         VkCommandBuffer m_CurrentCommandBuffer;
         GraphicsDeviceVk *m_Device;
+        Ref<PipelineVk> m_CurrentPipeline = nullptr;
     };
 }
 
