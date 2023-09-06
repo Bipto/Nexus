@@ -9,9 +9,14 @@ layout (location = 4) in vec3 Bitangent;
 
 layout (location = 0) out vec2 outTexCoord;
 
+layout (set = 0, binding = 0) uniform TransformBuffer
+{
+    mat4 Transform;
+} transformBuffer;
+
 void main()
 {
-    gl_Position = vec4(Position, 1.0);
+    gl_Position = transformBuffer.Transform * vec4(Position, 1.0);
     outTexCoord = TexCoord;
 }
 

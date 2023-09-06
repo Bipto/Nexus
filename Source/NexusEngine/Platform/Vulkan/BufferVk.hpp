@@ -41,7 +41,7 @@ namespace Nexus::Graphics
         VkBuffer GetBuffer();
 
     private:
-        AllocatedBuffer m_Buffer;
+        std::vector<AllocatedBuffer> m_Buffers;
         GraphicsDeviceVk *m_Device;
     };
 }

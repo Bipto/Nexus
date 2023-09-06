@@ -6,6 +6,11 @@ std::vector<Nexus::Graphics::VertexPosition> vertices =
         {{0.0f, -0.5f, 0.0f}},
         {{0.5f, 0.5f, 0.0f}}};
 
+struct TestUniforms
+{
+    glm::mat4 Transform;
+};
+
 class TestApplication : public Nexus::Application
 {
 public:
@@ -20,11 +25,14 @@ public:
         textureBinding.Slot = 0;
         textureBinding.Name = "texSampler";
 
+        Nexus::Graphics::UniformResourceBinding uniformBinding;
+        uniformBinding.Binding = 0;
+        uniformBinding.Name = "transformBuffer";
+        uniformBinding.Size = sizeof(TestUniforms);
+
         Nexus::Graphics::ResourceSetSpecification resourceSetSpec;
-        ;
-        resourceSetSpec.TextureBindings =
-            {
-                textureBinding};
+        resourceSetSpec.TextureBindings = {textureBinding};
+        resourceSetSpec.UniformResourceBindings = {uniformBinding};
 
         m_ResourceSet = m_GraphicsDevice->CreateResourceSet(resourceSetSpec);
 
@@ -36,6 +44,11 @@ public:
         m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_GraphicsDevice->GetSwapchain());
 
         m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/basic.glsl", Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
+
+        Nexus::Graphics::BufferDescription uniformBufferDesc;
+        uniformBufferDesc.Size = sizeof(TestUniforms);
+        uniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
+        m_UniformBuffer = m_GraphicsDevice->CreateUniformBuffer(uniformBufferDesc, nullptr);
 
         CreatePipeline({GetWindowSize().X,
                         GetWindowSize().Y});
@@ -65,10 +78,14 @@ public:
             m_Texture,
             0);
 
+        m_TestUniforms.Transform = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), {0, 0, 1});
+        m_UniformBuffer->SetData(&m_TestUniforms, sizeof(m_TestUniforms), 0);
+
         m_CommandList->Begin();
         m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
         m_CommandList->SetPipeline(m_Pipeline);
         m_CommandList->WriteTexture(m_Texture, m_ResourceSet, 0);
+        m_CommandList->WriteUniformBuffer(m_UniformBuffer, m_ResourceSet, 0);
         m_CommandList->SetResources(m_ResourceSet);
         m_CommandList->SetVertexBuffer(m_Mesh.GetVertexBuffer());
         m_CommandList->SetIndexBuffer(m_Mesh.GetIndexBuffer());
@@ -79,7 +96,7 @@ public:
         m_CommandList->End();
         m_GraphicsDevice->SubmitCommandList(m_CommandList);
 
-        // ImGui::ShowDemoWindow();
+        ImGui::ShowDemoWindow();
 
         m_GraphicsDevice->EndFrame();
     }
@@ -122,6 +139,9 @@ private:
     Nexus::Graphics::Mesh m_Mesh;
 
     Nexus::Ref<Nexus::Graphics::Texture> m_Texture;
+    Nexus::Ref<Nexus::Graphics::UniformBuffer> m_UniformBuffer;
+
+    TestUniforms m_TestUniforms;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
@@ -129,7 +149,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
     Nexus::ApplicationSpecification spec;
     spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
-    spec.ImGuiActive = false;
+    spec.ImGuiActive = true;
     spec.VSyncState = Nexus::Graphics::VSyncState::Enabled;
 
     return new TestApplication(spec);

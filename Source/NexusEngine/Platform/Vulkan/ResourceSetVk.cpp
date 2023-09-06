@@ -2,6 +2,7 @@
 
 #include "ResourceSetVk.hpp"
 #include "TextureVk.hpp"
+#include "BufferVk.hpp"
 
 namespace Nexus::Graphics
 {
@@ -162,19 +163,6 @@ namespace Nexus::Graphics
         }
     }
 
-    VkWriteDescriptorSet WriteDescriptorImage(VkDescriptorType type, VkDescriptorSet dstSet, VkDescriptorImageInfo *imageInfo, uint32_t binding)
-    {
-        VkWriteDescriptorSet write = {};
-        write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        write.pNext = nullptr;
-        write.dstBinding = binding;
-        write.dstSet = dstSet;
-        write.descriptorCount = 1;
-        write.descriptorType = type;
-        write.pImageInfo = imageInfo;
-        return write;
-    }
-
     void ResourceSetVk::UpdateTexture(Ref<Texture> texture, uint32_t binding)
     {
         Ref<TextureVk> textureVk = std::dynamic_pointer_cast<TextureVk>(texture);
@@ -197,7 +185,6 @@ namespace Nexus::Graphics
         samplerInfo.mipLodBias = 0.0f;
         samplerInfo.minLod = 0.0f;
         samplerInfo.maxLod = 0.0f;
-
         samplerInfo.flags = 0;
 
         VkSampler sampler;
@@ -211,11 +198,37 @@ namespace Nexus::Graphics
         imageBufferInfo.imageView = textureVk->GetImageView();
         imageBufferInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-        VkWriteDescriptorSet writtenTexture = WriteDescriptorImage(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                                                                   m_SamplerDescriptorSet[m_Device->GetCurrentFrameIndex()],
-                                                                   &imageBufferInfo, binding);
+        VkWriteDescriptorSet textureToWrite = {};
+        textureToWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        textureToWrite.pNext = nullptr;
+        textureToWrite.dstBinding = binding;
+        textureToWrite.dstSet = m_SamplerDescriptorSet[m_Device->GetCurrentFrameIndex()];
+        textureToWrite.descriptorCount = 1;
+        textureToWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        textureToWrite.pImageInfo = &imageBufferInfo;
 
-        vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &writtenTexture, 0, nullptr);
+        vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &textureToWrite, 0, nullptr);
+    }
+
+    void ResourceSetVk::UpdateUniformBuffer(Ref<UniformBuffer> uniformBuffer, uint32_t binding)
+    {
+        Ref<UniformBufferVk> uniformBufferVk = std::dynamic_pointer_cast<UniformBufferVk>(uniformBuffer);
+
+        VkDescriptorBufferInfo bufferInfo;
+        bufferInfo.buffer = uniformBufferVk->GetBuffer();
+        bufferInfo.offset = 0;
+        bufferInfo.range = uniformBuffer->GetDescription().Size;
+
+        VkWriteDescriptorSet uniformBufferToWrite = {};
+        uniformBufferToWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        uniformBufferToWrite.pNext = nullptr;
+        uniformBufferToWrite.dstBinding = binding;
+        uniformBufferToWrite.descriptorCount = 1;
+        uniformBufferToWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        uniformBufferToWrite.pBufferInfo = &bufferInfo;
+        uniformBufferToWrite.dstSet = m_UniformBufferDescriptorSet[m_Device->GetCurrentFrameIndex()];
+
+        vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &uniformBufferToWrite, 0, nullptr);
     }
 
     VkDescriptorSetLayout ResourceSetVk::GetSamplerDescriptorSetLayout()

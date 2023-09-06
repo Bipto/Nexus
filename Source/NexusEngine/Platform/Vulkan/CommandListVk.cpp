@@ -160,6 +160,12 @@ namespace Nexus::Graphics
         resourceSetVk->UpdateTexture(texture, binding);
     }
 
+    void CommandListVk::WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, Ref<ResourceSet> resourceSet, uint32_t binding)
+    {
+        Ref<ResourceSetVk> resourceSetVk = std::dynamic_pointer_cast<ResourceSetVk>(resourceSet);
+        resourceSetVk->UpdateUniformBuffer(uniformBuffer, binding);
+    }
+
     void CommandListVk::SetResources(Ref<ResourceSet> resourceSet)
     {
         Ref<ResourceSetVk> resourceSetVk = std::dynamic_pointer_cast<ResourceSetVk>(resourceSet);

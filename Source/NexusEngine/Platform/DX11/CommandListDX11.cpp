@@ -280,6 +280,10 @@ namespace Nexus::Graphics
     {
     }
 
+    void CommandListDX11::WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, Ref<ResourceSet> resourceSet, uint32_t binding)
+    {
+    }
+
     void CommandListDX11::SetResources(Ref<ResourceSet> resourceSet)
     {
     }

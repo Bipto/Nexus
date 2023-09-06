@@ -163,6 +163,7 @@ namespace Nexus::Graphics
         virtual void UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset) = 0;
 
         virtual void WriteTexture(Ref<Texture> texture, Ref<ResourceSet> resourceSet, uint32_t binding) = 0;
+        virtual void WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, Ref<ResourceSet> resourceSet, uint32_t binding) = 0;
         virtual void SetResources(Ref<ResourceSet> resourceSet) = 0;
     };
 

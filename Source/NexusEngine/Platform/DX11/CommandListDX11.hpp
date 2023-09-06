@@ -32,6 +32,7 @@ namespace Nexus::Graphics
         virtual void UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset) override;
 
         virtual void WriteTexture(Ref<Texture> texture, Ref<ResourceSet> resourceSet, uint32_t binding) override;
+        virtual void WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, Ref<ResourceSet> resourceSet, uint32_t binding) override;
         virtual void SetResources(Ref<ResourceSet> resourceSet) override;
 
         const std::vector<RenderCommand> &GetRenderCommands();

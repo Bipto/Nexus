@@ -219,6 +219,10 @@ namespace Nexus::Graphics
     {
     }
 
+    void CommandListOpenGL::WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, Ref<ResourceSet> resourceSet, uint32_t binding)
+    {
+    }
+
     void CommandListOpenGL::SetResources(Ref<ResourceSet> resourceSet)
     {
     }

@@ -6,6 +6,7 @@
 
 #include "Core/Memory.hpp"
 #include "Core/Graphics/Texture.hpp"
+#include "Core/Graphics/Buffer.hpp"
 
 namespace Nexus::Graphics
 {
@@ -42,5 +43,6 @@ namespace Nexus::Graphics
     {
     public:
         virtual void UpdateTexture(Ref<Texture> texture, uint32_t binding) = 0;
+        virtual void UpdateUniformBuffer(Ref<UniformBuffer> uniformBuffer, uint32_t binding) = 0;
     };
 }
