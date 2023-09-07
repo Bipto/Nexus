@@ -32,35 +32,22 @@ namespace Demos
             m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/3d.glsl",
                                                                    Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
 
-            CreatePipeline();
-
             Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
             m_Mesh = factory.CreateCube();
 
             m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/raw_plank_wall_diff_1k.jpg");
 
-            Nexus::Graphics::UniformResourceBinding cameraUniformBinding;
-            cameraUniformBinding.Binding = 0;
-            cameraUniformBinding.Name = "Camera";
-            cameraUniformBinding.Size = sizeof(VB_UNIFORM_CAMERA_DEMO_CAMERA);
-
             Nexus::Graphics::BufferDescription cameraUniformBufferDesc;
             cameraUniformBufferDesc.Size = sizeof(VB_UNIFORM_CAMERA_DEMO_CAMERA);
             cameraUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
             m_CameraUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(cameraUniformBufferDesc, nullptr);
-            m_Shader->BindUniformBuffer(m_CameraUniformBuffer, cameraUniformBinding);
-
-            Nexus::Graphics::UniformResourceBinding transformUniformBinding;
-            transformUniformBinding.Binding = 1;
-            transformUniformBinding.Name = "Transform";
-            transformUniformBinding.Size = sizeof(VB_UNIFORM_TRANSFORM_DEMO_CAMERA);
 
             Nexus::Graphics::BufferDescription transformUniformBufferDesc;
             transformUniformBufferDesc.Size = sizeof(VB_UNIFORM_TRANSFORM_DEMO_CAMERA);
             transformUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
             m_TransformUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(transformUniformBufferDesc, nullptr);
-            m_Shader->BindUniformBuffer(m_TransformUniformBuffer, transformUniformBinding);
 
+            CreatePipeline();
             m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, 2.5f));
         }
 
@@ -118,6 +105,20 @@ namespace Demos
 
             pipelineDescription.Viewport = {
                 0, 0, m_Window->GetWindowSize().X, m_Window->GetWindowSize().Y};
+
+            Nexus::Graphics::UniformResourceBinding cameraUniformBinding;
+            cameraUniformBinding.Binding = 0;
+            cameraUniformBinding.Name = "Camera";
+            cameraUniformBinding.Buffer = m_CameraUniformBuffer;
+
+            Nexus::Graphics::UniformResourceBinding transformUniformBinding;
+            transformUniformBinding.Binding = 1;
+            transformUniformBinding.Name = "Transform";
+            transformUniformBinding.Buffer = m_TransformUniformBuffer;
+
+            Nexus::Graphics::ResourceSetSpecification resources;
+            resources.UniformResourceBindings = {cameraUniformBinding, transformUniformBinding};
+            pipelineDescription.ResourceSetSpecification = resources;
 
             m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
         }

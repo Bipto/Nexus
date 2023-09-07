@@ -215,15 +215,11 @@ namespace Nexus::Graphics
         m_Commands.push_back(renderCommand);
     }
 
-    void CommandListOpenGL::WriteTexture(Ref<Texture> texture, Ref<ResourceSet> resourceSet, uint32_t binding)
+    void CommandListOpenGL::WriteTexture(Ref<Texture> texture, Ref<Pipeline> pipeline, uint32_t binding)
     {
     }
 
-    void CommandListOpenGL::WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, Ref<ResourceSet> resourceSet, uint32_t binding)
-    {
-    }
-
-    void CommandListOpenGL::SetResources(Ref<ResourceSet> resourceSet)
+    void CommandListOpenGL::WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, Ref<Pipeline> pipeline, uint32_t binding)
     {
     }
 

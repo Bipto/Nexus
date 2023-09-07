@@ -23,14 +23,14 @@ namespace Nexus::Graphics
     /// @brief A class representing a binding to a uniform buffer
     struct UniformResourceBinding
     {
-        /// @brief The total size of the uniform buffer in bytes
-        uint32_t Size;
-
         /// @brief The binding index of the uniform buffer
         uint32_t Binding;
 
         /// @brief The name of the uniform buffer
         std::string Name;
+
+        /// @brief A reference counted pointer to a uniform buffer
+        Ref<UniformBuffer> Buffer;
     };
 
     struct ResourceSetSpecification

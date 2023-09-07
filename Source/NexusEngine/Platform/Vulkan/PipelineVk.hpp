@@ -4,6 +4,7 @@
 
 #include "Core/Graphics/Pipeline.hpp"
 #include "GraphicsDeviceVk.hpp"
+#include "ResourceSetVk.hpp"
 
 namespace Nexus::Graphics
 {
@@ -15,6 +16,7 @@ namespace Nexus::Graphics
         virtual const PipelineDescription &GetPipelineDescription() const override;
         VkPipeline GetPipeline();
         VkPipelineLayout GetPipelineLayout();
+        ResourceSetVk *GetResourceSet();
 
     private:
         VkPipelineShaderStageCreateInfo CreatePipelineShaderStageCreateInfo(VkShaderStageFlagBits stage, VkShaderModule module);
@@ -37,6 +39,7 @@ namespace Nexus::Graphics
         VkPipelineLayout m_PipelineLayout;
         VkPipeline m_Pipeline;
         GraphicsDeviceVk *m_GraphicsDevice;
+        ResourceSetVk *m_ResourceSet;
     };
 }
 

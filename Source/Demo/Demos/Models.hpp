@@ -32,8 +32,6 @@ namespace Demos
             m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/models.glsl",
                                                                    Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
 
-            CreatePipeline();
-
             Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
             m_Model = factory.CreateFrom3DModelFile("Resources/Models/Survival_BackPack_2/Survival_BackPack_2.fbx");
 
@@ -41,28 +39,17 @@ namespace Demos
             m_NormalMap = m_GraphicsDevice->CreateTexture("Resources/Models/Survival_BackPack_2/1001_normal.png");
             m_SpecularMap = m_GraphicsDevice->CreateTexture("Resources/Models/Survival_BackPack_2/specular.jpg");
 
-            Nexus::Graphics::UniformResourceBinding cameraUniformBinding;
-            cameraUniformBinding.Binding = 0;
-            cameraUniformBinding.Name = "Camera";
-            cameraUniformBinding.Size = sizeof(VB_UNIFORM_CAMERA_DEMO_LIGHTING);
-
             Nexus::Graphics::BufferDescription cameraUniformBufferDesc;
             cameraUniformBufferDesc.Size = sizeof(VB_UNIFORM_CAMERA_DEMO_LIGHTING);
             cameraUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
             m_CameraUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(cameraUniformBufferDesc, nullptr);
-            m_Shader->BindUniformBuffer(m_CameraUniformBuffer, cameraUniformBinding);
-
-            Nexus::Graphics::UniformResourceBinding transformUniformBinding;
-            transformUniformBinding.Binding = 1;
-            transformUniformBinding.Name = "Transform";
-            transformUniformBinding.Size = sizeof(VB_UNIFORM_TRANSFORM_DEMO_LIGHTING);
 
             Nexus::Graphics::BufferDescription transformUniformBufferDesc;
             transformUniformBufferDesc.Size = sizeof(VB_UNIFORM_TRANSFORM_DEMO_LIGHTING);
             transformUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
             m_TransformUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(transformUniformBufferDesc, nullptr);
-            m_Shader->BindUniformBuffer(m_TransformUniformBuffer, transformUniformBinding);
 
+            CreatePipeline();
             m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, -2.5f));
         }
 
@@ -143,6 +130,20 @@ namespace Demos
             pipelineDescription.Shader = m_Shader;
             pipelineDescription.Viewport = {
                 0, 0, m_Window->GetWindowSize().X, m_Window->GetWindowSize().Y};
+
+            Nexus::Graphics::UniformResourceBinding cameraUniformBinding;
+            cameraUniformBinding.Binding = 0;
+            cameraUniformBinding.Name = "Camera";
+            cameraUniformBinding.Buffer = m_CameraUniformBuffer;
+
+            Nexus::Graphics::UniformResourceBinding transformUniformBinding;
+            transformUniformBinding.Binding = 1;
+            transformUniformBinding.Name = "Transform";
+            transformUniformBinding.Buffer = m_TransformUniformBuffer;
+
+            Nexus::Graphics::ResourceSetSpecification resources;
+            resources.UniformResourceBindings = {cameraUniformBinding, transformUniformBinding};
+            pipelineDescription.ResourceSetSpecification = resources;
 
             m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
         }

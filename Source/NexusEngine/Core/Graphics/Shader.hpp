@@ -31,10 +31,5 @@ namespace Nexus::Graphics
         /// @brief A pure virtual method that returns a const reference to the layout of the vertex buffer
         /// @return A const reference to a VertexBufferLayout containing the layout of the vertex buffer
         virtual const VertexBufferLayout &GetLayout() const = 0;
-
-        /// @brief A pure virtual method that binds a uniform buffer to a shader
-        /// @param buffer A uniform buffer to bind to the shader
-        /// @param binding The shader that the uniform buffer should be bound to
-        virtual void BindUniformBuffer(Ref<UniformBuffer> buffer, const UniformResourceBinding &binding) = 0;
     };
 }

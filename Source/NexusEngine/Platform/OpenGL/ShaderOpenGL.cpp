@@ -68,16 +68,6 @@ namespace Nexus::Graphics
         return m_Layout;
     }
 
-    void ShaderOpenGL::BindUniformBuffer(Ref<UniformBuffer> uniformBuffer, const UniformResourceBinding &binding)
-    {
-        auto uniformBufferGL = std::dynamic_pointer_cast<UniformBufferOpenGL>(uniformBuffer);
-        unsigned int index = glGetUniformBlockIndex(m_ProgramHandle, binding.Name.c_str());
-
-        glBindBuffer(GL_UNIFORM_BUFFER, uniformBufferGL->GetHandle());
-        glUniformBlockBinding(m_ProgramHandle, index, binding.Binding);
-        glBindBufferRange(GL_UNIFORM_BUFFER, binding.Binding, uniformBufferGL->GetHandle(), 0, uniformBufferGL->GetDescription().Size);
-    }
-
     void ShaderOpenGL::Compile(const std::string &vertexShaderSource, const std::string &fragmentShaderSource)
     {
         unsigned int vertexShader;

@@ -276,15 +276,11 @@ namespace Nexus::Graphics
 #endif
     }
 
-    void CommandListDX11::WriteTexture(Ref<Texture> texture, Ref<ResourceSet> resourceSet, uint32_t binding)
+    void CommandListDX11::WriteTexture(Ref<Texture> texture, Ref<Pipeline> pipeline, uint32_t binding)
     {
     }
 
-    void CommandListDX11::WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, Ref<ResourceSet> resourceSet, uint32_t binding)
-    {
-    }
-
-    void CommandListDX11::SetResources(Ref<ResourceSet> resourceSet)
+    void CommandListDX11::WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, Ref<Pipeline> pipeline, uint32_t binding)
     {
     }
 
@@ -336,6 +332,8 @@ namespace Nexus::Graphics
         context->VSSetShader(dxShader->GetVertexShader(), 0, 0);
         context->PSSetShader(dxShader->GetPixelShader(), 0, 0);
         context->IASetInputLayout(dxShader->GetInputLayout());
+
+        pipelineDX11->SetupUniformBuffers();
 #endif
     }
 }

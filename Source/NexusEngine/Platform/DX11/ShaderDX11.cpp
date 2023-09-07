@@ -120,13 +120,6 @@ namespace Nexus::Graphics
         m_FragmentShaderSource = fragmentShaderSource;
     }
 
-    /* void ShaderDX11::Bind()
-    {
-        m_ContextPtr->VSSetShader(m_VertexShader, 0, 0);
-        m_ContextPtr->PSSetShader(m_PixelShader, 0, 0);
-        m_ContextPtr->IASetInputLayout(m_InputLayout);
-    } */
-
     void ShaderDX11::SetTexture(Ref<Texture> texture, const TextureResourceBinding &binding)
     {
         Ref<TextureDX11> dxTexture = std::dynamic_pointer_cast<TextureDX11>(texture);
@@ -146,17 +139,6 @@ namespace Nexus::Graphics
     const std::string &ShaderDX11::GetFragmentShaderSource()
     {
         return m_FragmentShaderSource;
-    }
-
-    void ShaderDX11::BindUniformBuffer(Ref<UniformBuffer> uniformBuffer, const UniformResourceBinding &binding)
-    {
-        auto uniformBufferDX = std::dynamic_pointer_cast<UniformBufferDX11>(uniformBuffer);
-        auto bufferHandle = uniformBufferDX->GetHandle();
-
-        m_ContextPtr->VSSetConstantBuffers(
-            binding.Binding,
-            1,
-            &bufferHandle);
     }
 
     void ShaderDX11::CreateLayout(const VertexBufferLayout &layout)

@@ -1,14 +1,14 @@
-#include "PipelineDX11.hpp"
-
 #if defined(NX_PLATFORM_DX11)
+
+#include "PipelineDX11.hpp"
+#include "ShaderDX11.hpp"
+#include "BufferDX11.hpp"
 
 namespace Nexus::Graphics
 {
-    PipelineDX11::PipelineDX11(ID3D11Device *device, const PipelineDescription &description)
-        : Pipeline(description)
+    PipelineDX11::PipelineDX11(ID3D11Device *device, ID3D11DeviceContext *context, const PipelineDescription &description)
+        : Pipeline(description), m_Device(device), m_Context(context)
     {
-        m_Device = device;
-
         SetupDepthStencilState();
         SetupRasterizerState();
         SetupBlendState();
@@ -247,6 +247,20 @@ namespace Nexus::Graphics
         blendDesc.RenderTarget[0] = rtbd;
 
         m_Device->CreateBlendState(&blendDesc, &m_BlendState);
+    }
+
+    void PipelineDX11::SetupUniformBuffers()
+    {
+        for (const auto &uniformBufferBinding : m_Description.ResourceSetSpecification.UniformResourceBindings)
+        {
+            auto uniformBufferDX11 = std::dynamic_pointer_cast<UniformBufferDX11>(uniformBufferBinding.Buffer);
+            auto bufferHandle = uniformBufferDX11->GetHandle();
+
+            m_Context->VSSetConstantBuffers(
+                uniformBufferBinding.Binding,
+                1,
+                &bufferHandle);
+        }
     }
 
     D3D11_PRIMITIVE_TOPOLOGY PipelineDX11::GetTopology()

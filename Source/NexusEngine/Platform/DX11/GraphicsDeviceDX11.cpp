@@ -163,7 +163,7 @@ namespace Nexus::Graphics
 
     Ref<Pipeline> GraphicsDeviceDX11::CreatePipeline(const PipelineDescription &description)
     {
-        return CreateRef<PipelineDX11>(m_DevicePtr, description);
+        return CreateRef<PipelineDX11>(m_DevicePtr, m_DeviceContextPtr, description);
     }
 
     Ref<CommandList> GraphicsDeviceDX11::CreateCommandList()

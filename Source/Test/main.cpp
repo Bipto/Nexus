@@ -21,21 +21,6 @@ public:
 
     virtual void Load() override
     {
-        Nexus::Graphics::TextureResourceBinding textureBinding;
-        textureBinding.Slot = 0;
-        textureBinding.Name = "texSampler";
-
-        Nexus::Graphics::UniformResourceBinding uniformBinding;
-        uniformBinding.Binding = 0;
-        uniformBinding.Name = "transformBuffer";
-        uniformBinding.Size = sizeof(TestUniforms);
-
-        Nexus::Graphics::ResourceSetSpecification resourceSetSpec;
-        resourceSetSpec.TextureBindings = {textureBinding};
-        resourceSetSpec.UniformResourceBindings = {uniformBinding};
-
-        m_ResourceSet = m_GraphicsDevice->CreateResourceSet(resourceSetSpec);
-
         m_CommandList = m_GraphicsDevice->CreateCommandList();
 
         Nexus::Graphics::RenderPassSpecification spec;
@@ -74,19 +59,16 @@ public:
             1.0f};
         beginInfo.ClearDepthStencilValue.Depth = 1.0f;
 
-        m_ResourceSet->UpdateTexture(
-            m_Texture,
-            0);
-
         m_TestUniforms.Transform = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), {0, 0, 1});
         m_UniformBuffer->SetData(&m_TestUniforms, sizeof(m_TestUniforms), 0);
 
         m_CommandList->Begin();
         m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
         m_CommandList->SetPipeline(m_Pipeline);
-        m_CommandList->WriteTexture(m_Texture, m_ResourceSet, 0);
-        m_CommandList->WriteUniformBuffer(m_UniformBuffer, m_ResourceSet, 0);
-        m_CommandList->SetResources(m_ResourceSet);
+
+        m_CommandList->WriteTexture(m_Texture, m_Pipeline, 0);
+        m_CommandList->WriteUniformBuffer(m_UniformBuffer, m_Pipeline, 0);
+
         m_CommandList->SetVertexBuffer(m_Mesh.GetVertexBuffer());
         m_CommandList->SetIndexBuffer(m_Mesh.GetIndexBuffer());
 
@@ -116,11 +98,23 @@ public:
         description.Viewport.Y = 0;
         description.Viewport.Width = size.X;
         description.Viewport.Height = size.Y;
-        description.RasterizerStateDescription.ScissorRectangle =
-            {
-                0, 0, size.X, size.Y};
+        description.RasterizerStateDescription.ScissorRectangle = {0, 0, size.X, size.Y};
         description.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
-        description.ResourceSet = m_ResourceSet;
+
+        Nexus::Graphics::TextureResourceBinding textureBinding;
+        textureBinding.Slot = 0;
+        textureBinding.Name = "texSampler";
+
+        Nexus::Graphics::UniformResourceBinding uniformBinding;
+        uniformBinding.Binding = 0;
+        uniformBinding.Name = "transformBuffer";
+        uniformBinding.Buffer = m_UniformBuffer;
+
+        Nexus::Graphics::ResourceSetSpecification resourceSetSpec;
+        resourceSetSpec.TextureBindings = {textureBinding};
+        resourceSetSpec.UniformResourceBindings = {uniformBinding};
+
+        description.ResourceSetSpecification = resourceSetSpec;
 
         m_Pipeline = m_GraphicsDevice->CreatePipeline(description);
     }
@@ -132,7 +126,6 @@ public:
 private:
     Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
     Nexus::Ref<Nexus::Graphics::RenderPass> m_RenderPass;
-    Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
 
     Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
     Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;

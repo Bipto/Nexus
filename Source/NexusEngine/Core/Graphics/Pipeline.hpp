@@ -261,8 +261,8 @@ namespace Nexus::Graphics
         /// @brief A reference counted pointer to the render pass that will be used for rendering with this pipeline
         Ref<RenderPass> RenderPass;
 
-        /// @brief A reference counted pointer to the resource set that will be used to bind resources to this pipeline
-        Ref<ResourceSet> ResourceSet;
+        /// @brief A resource set specification describing how resources are allocated in the pipeline
+        ResourceSetSpecification ResourceSetSpecification;
 
         /// @brief A viewport that will specify the dimensions that will be used for rendering
         Viewport Viewport;

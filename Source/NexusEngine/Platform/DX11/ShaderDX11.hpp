@@ -24,7 +24,6 @@ namespace Nexus::Graphics
         ID3D11InputLayout *GetInputLayout() { return m_InputLayout; }
 
         virtual const VertexBufferLayout &GetLayout() const override { return m_BufferLayout; }
-        virtual void BindUniformBuffer(Ref<UniformBuffer> buffer, const UniformResourceBinding &binding) override;
 
     private:
         void CreateLayout(const VertexBufferLayout &layout);

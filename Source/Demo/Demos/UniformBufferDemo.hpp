@@ -28,18 +28,6 @@ namespace Demos
             m_Mesh = factory.CreateSprite();
 
             m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
-
-            Nexus::Graphics::UniformResourceBinding transformUniformBinding;
-            transformUniformBinding.Binding = 0;
-            transformUniformBinding.Name = "Transform";
-            transformUniformBinding.Size = sizeof(VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO);
-
-            Nexus::Graphics::BufferDescription transformUniformBufferDesc;
-            transformUniformBufferDesc.Size = sizeof(VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO);
-            transformUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
-            m_TransformUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(transformUniformBufferDesc, nullptr);
-
-            m_Shader->BindUniformBuffer(m_TransformUniformBuffer, transformUniformBinding);
         }
 
         virtual void Update(Nexus::Time time) override
@@ -97,6 +85,20 @@ namespace Demos
 
             pipelineDescription.Viewport = {
                 0, 0, m_Window->GetWindowSize().X, m_Window->GetWindowSize().Y};
+
+            Nexus::Graphics::BufferDescription transformUniformBufferDesc;
+            transformUniformBufferDesc.Size = sizeof(VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO);
+            transformUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
+            m_TransformUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(transformUniformBufferDesc, nullptr);
+
+            Nexus::Graphics::UniformResourceBinding transformUniformBinding;
+            transformUniformBinding.Binding = 0;
+            transformUniformBinding.Name = "Transform";
+            transformUniformBinding.Buffer = m_TransformUniformBuffer;
+
+            Nexus::Graphics::ResourceSetSpecification resources;
+            resources.UniformResourceBindings = {transformUniformBinding};
+            pipelineDescription.ResourceSetSpecification = resources;
 
             m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
         }

@@ -13,10 +13,11 @@ namespace Nexus::Graphics
         Ref<ShaderVk> vulkanShader = std::dynamic_pointer_cast<ShaderVk>(description.Shader);
         Ref<RenderPassVk> vulkanRenderPass = std::dynamic_pointer_cast<RenderPassVk>(description.RenderPass);
 
-        Ref<ResourceSetVk> resourceSetVk = std::dynamic_pointer_cast<ResourceSetVk>(description.ResourceSet);
-        std::vector<VkDescriptorSetLayout> layouts = {
-            resourceSetVk->GetUniformBufferDescriptorSetLayout(),
-            resourceSetVk->GetSamplerDescriptorSetLayout()};
+        m_ResourceSet = new ResourceSetVk(description.ResourceSetSpecification, graphicsDevice);
+        std::vector<VkDescriptorSetLayout> layouts =
+            {
+                m_ResourceSet->GetUniformBufferDescriptorSetLayout(),
+                m_ResourceSet->GetSamplerDescriptorSetLayout()};
 
         // describes data that will be uploaded to the shader
         VkPipelineLayoutCreateInfo layoutInfo = CreatePipelineLayoutCreateInfo(layouts);
@@ -115,6 +116,11 @@ namespace Nexus::Graphics
     VkPipelineLayout PipelineVk::GetPipelineLayout()
     {
         return m_PipelineLayout;
+    }
+
+    ResourceSetVk *PipelineVk::GetResourceSet()
+    {
+        return m_ResourceSet;
     }
 
     VkPipelineShaderStageCreateInfo PipelineVk::CreatePipelineShaderStageCreateInfo(VkShaderStageFlagBits stage, VkShaderModule module)

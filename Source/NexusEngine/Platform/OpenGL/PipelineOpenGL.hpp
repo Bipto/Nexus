@@ -7,15 +7,8 @@ namespace Nexus::Graphics
     class PipelineOpenGL : public Pipeline
     {
     public:
-        PipelineOpenGL(const PipelineDescription &description)
-            : Pipeline(description)
-        {
-        }
-
-        virtual ~PipelineOpenGL()
-        {
-        }
-
+        PipelineOpenGL(const PipelineDescription &description);
+        virtual ~PipelineOpenGL();
         virtual const PipelineDescription &GetPipelineDescription() const override;
         void Bind();
 
@@ -24,5 +17,6 @@ namespace Nexus::Graphics
         void SetupRasterizer();
         void SetupBlending();
         void SetShader();
+        void SetupUniformBuffers();
     };
 }

@@ -56,10 +56,6 @@ namespace Nexus::Graphics
         return m_Layout;
     }
 
-    void ShaderVk::BindUniformBuffer(Ref<UniformBuffer> buffer, const UniformResourceBinding &binding)
-    {
-    }
-
     const std::vector<VkPipelineShaderStageCreateInfo> &ShaderVk::GetShaderStages()
     {
         return m_ShaderStages;

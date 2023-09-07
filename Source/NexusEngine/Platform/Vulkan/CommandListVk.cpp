@@ -43,8 +43,6 @@ namespace Nexus::Graphics
 
     void CommandListVk::Begin()
     {
-        m_CurrentPipeline = nullptr;
-
         // get current command buffer
         {
             m_CurrentCommandBuffer = m_CommandBuffers[m_Device->GetCurrentFrameIndex()];
@@ -93,7 +91,12 @@ namespace Nexus::Graphics
     {
         Ref<PipelineVk> vulkanPipeline = std::dynamic_pointer_cast<PipelineVk>(pipeline);
         vkCmdBindPipeline(m_CurrentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanPipeline->GetPipeline());
-        m_CurrentPipeline = std::dynamic_pointer_cast<PipelineVk>(pipeline);
+
+        auto resourceSet = vulkanPipeline->GetResourceSet();
+        auto uniformBufferDescriptor = resourceSet->GetUniformBufferrDescriptorSet();
+        auto samplerDescriptor = resourceSet->GetSamplerDescriptorSet();
+        vkCmdBindDescriptorSets(m_CurrentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanPipeline->GetPipelineLayout(), 0, 1, &uniformBufferDescriptor, 0, nullptr);
+        vkCmdBindDescriptorSets(m_CurrentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanPipeline->GetPipelineLayout(), 1, 1, &samplerDescriptor, 0, nullptr);
     }
 
     void CommandListVk::BeginRenderPass(Ref<RenderPass> renderPass, const RenderPassBeginInfo &beginInfo)
@@ -154,26 +157,18 @@ namespace Nexus::Graphics
     {
     }
 
-    void CommandListVk::WriteTexture(Ref<Texture> texture, Ref<ResourceSet> resourceSet, uint32_t binding)
+    void CommandListVk::WriteTexture(Ref<Texture> texture, Ref<Pipeline> pipeline, uint32_t binding)
     {
-        Ref<ResourceSetVk> resourceSetVk = std::dynamic_pointer_cast<ResourceSetVk>(resourceSet);
-        resourceSetVk->UpdateTexture(texture, binding);
+        Ref<PipelineVk> pipelineVk = std::dynamic_pointer_cast<PipelineVk>(pipeline);
+        auto resourceSet = pipelineVk->GetResourceSet();
+        resourceSet->UpdateTexture(texture, binding);
     }
 
-    void CommandListVk::WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, Ref<ResourceSet> resourceSet, uint32_t binding)
+    void CommandListVk::WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, Ref<Pipeline> pipeline, uint32_t binding)
     {
-        Ref<ResourceSetVk> resourceSetVk = std::dynamic_pointer_cast<ResourceSetVk>(resourceSet);
-        resourceSetVk->UpdateUniformBuffer(uniformBuffer, binding);
-    }
-
-    void CommandListVk::SetResources(Ref<ResourceSet> resourceSet)
-    {
-        Ref<ResourceSetVk> resourceSetVk = std::dynamic_pointer_cast<ResourceSetVk>(resourceSet);
-        auto uniformBufferDescriptor = resourceSetVk->GetUniformBufferrDescriptorSet();
-        auto samplerDescriptor = resourceSetVk->GetSamplerDescriptorSet();
-
-        vkCmdBindDescriptorSets(m_CurrentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_CurrentPipeline->GetPipelineLayout(), 0, 1, &uniformBufferDescriptor, 0, nullptr);
-        vkCmdBindDescriptorSets(m_CurrentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_CurrentPipeline->GetPipelineLayout(), 1, 1, &samplerDescriptor, 0, nullptr);
+        Ref<PipelineVk> pipelineVk = std::dynamic_pointer_cast<PipelineVk>(pipeline);
+        auto resourceSet = pipelineVk->GetResourceSet();
+        resourceSet->UpdateUniformBuffer(uniformBuffer, binding);
     }
 
     const VkCommandBuffer &CommandListVk::GetCurrentCommandBuffer()

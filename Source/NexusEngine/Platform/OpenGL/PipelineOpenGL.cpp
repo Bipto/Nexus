@@ -1,11 +1,21 @@
 #include "PipelineOpenGL.hpp"
 
 #include "ShaderOpenGL.hpp"
+#include "BufferOpenGL.hpp"
 
 #include "GL.hpp"
 
 namespace Nexus::Graphics
 {
+    PipelineOpenGL::PipelineOpenGL(const PipelineDescription &description)
+        : Pipeline(description)
+    {
+    }
+
+    PipelineOpenGL::~PipelineOpenGL()
+    {
+    }
+
     const PipelineDescription &PipelineOpenGL::GetPipelineDescription() const
     {
         return m_Description;
@@ -16,6 +26,7 @@ namespace Nexus::Graphics
         SetupDepthStencil();
         SetupRasterizer();
         SetShader();
+        SetupUniformBuffers();
     }
 
     GLenum GetStencilOperation(StencilOperation operation)
@@ -258,5 +269,21 @@ namespace Nexus::Graphics
 
         Ref<ShaderOpenGL> shaderGL = std::dynamic_pointer_cast<ShaderOpenGL>(m_Description.Shader);
         shaderGL->Bind();
+    }
+
+    void PipelineOpenGL::SetupUniformBuffers()
+    {
+        for (const auto &uniformBinding : m_Description.ResourceSetSpecification.UniformResourceBindings)
+        {
+            auto uniformBuffer = uniformBinding.Buffer;
+            auto uniformBufferOpenGL = std::dynamic_pointer_cast<UniformBufferOpenGL>(uniformBuffer);
+            auto shaderOpenGL = std::dynamic_pointer_cast<ShaderOpenGL>(m_Description.Shader);
+
+            unsigned int index = glGetUniformBlockIndex(shaderOpenGL->GetHandle(), uniformBinding.Name.c_str());
+
+            glBindBuffer(GL_UNIFORM_BUFFER, uniformBufferOpenGL->GetHandle());
+            glUniformBlockBinding(shaderOpenGL->GetHandle(), index, uniformBinding.Binding);
+            glBindBufferRange(GL_UNIFORM_BUFFER, uniformBinding.Binding, uniformBufferOpenGL->GetHandle(), 0, uniformBufferOpenGL->GetDescription().Size);
+        }
     }
 }
