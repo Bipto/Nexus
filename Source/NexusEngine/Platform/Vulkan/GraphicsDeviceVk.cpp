@@ -8,6 +8,7 @@
 #include "BufferVk.hpp"
 #include "TextureVk.hpp"
 #include "ResourceSetVk.hpp"
+#include "FramebufferVk.hpp"
 
 #include "SDL_vulkan.h"
 
@@ -131,7 +132,7 @@ namespace Nexus::Graphics
 
     Ref<Framebuffer> GraphicsDeviceVk::CreateFramebuffer(Ref<RenderPass> renderPass)
     {
-        return nullptr;
+        return CreateRef<FramebufferVk>(renderPass, this);
     }
 
     Ref<Pipeline> GraphicsDeviceVk::CreatePipeline(const PipelineDescription &description)

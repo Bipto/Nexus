@@ -80,27 +80,94 @@ namespace Nexus::Graphics
 
     void RenderPassVk::SetupForFramebuffer()
     {
-        /* const auto &framebufferSpecification = spec.Framebuffer->GetFramebufferSpecification();
-        std::vector<VkAttachmentDescription> attachments;
-        for (int i = 0; i < framebufferSpecification.ColorAttachmentSpecification.Attachments.size(); i++)
+        const auto &framebufferSpecification = GetData<FramebufferSpecification>();
+        std::vector<VkAttachmentDescription> colorAttachmentDescriptions;
+        std::vector<VkAttachmentReference> colorAttachmentReferences;
+        std::vector<VkSubpassDependency> subpassDependencies;
+        std::vector<VkAttachmentDescription> subpassAttachments;
+        int attachmentIndex = 0;
+
+        for (const auto &colorAttachment : framebufferSpecification.ColorAttachmentSpecification.Attachments)
         {
-            const FramebufferTextureSpecification &colorAttachmentSpec = framebufferSpecification.ColorAttachmentSpecification.Attachments[i];
+            VkAttachmentDescription attachment = {};
+            attachment.format = GetVkTextureFormatFromNexusFormat(colorAttachment.TextureFormat);
+            attachment.samples = VK_SAMPLE_COUNT_1_BIT;
+            attachment.loadOp = GetVkLoadOpFromNexusLoadOp(m_RenderPassSpecification.ColorLoadOperation);
+            attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+            attachment.stencilLoadOp = GetVkLoadOpFromNexusLoadOp(m_RenderPassSpecification.StencilDepthLoadOperation);
+            attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
+            attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            attachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-            // creating attachments
-            {
-                VkAttachmentDescription attachment;
-                attachment.format = GetVkFormatFromNexusFormat(colorAttachmentSpec.TextureFormat);
-                attachment.samples = VK_SAMPLE_COUNT_1_BIT;
-                attachment.loadOp = GetVkLoadOpFromNexusLoadOp(spec.ColorLoadOperation);
-                attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-                attachment.stencilLoadOp = GetVkLoadOpFromNexusLoadOp(spec.StencilDepthLoadOperation);
-                attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
-                attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-                attachment.finalLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-            }
-        } */
+            colorAttachmentDescriptions.push_back(attachment);
+            subpassAttachments.push_back(attachment);
 
-        throw std::runtime_error("Function is not implemented yet");
+            VkAttachmentReference colorReference = {};
+            colorReference.attachment = attachmentIndex;
+            colorReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+            colorAttachmentReferences.push_back(colorReference);
+
+            VkSubpassDependency dependency = {};
+            dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+            dependency.dstSubpass = 0;
+            dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+            dependency.srcAccessMask = 0;
+            dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+            dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+            dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+            subpassDependencies.push_back(dependency);
+
+            attachmentIndex++;
+        }
+
+        VkSubpassDescription subpass = {};
+        subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+        subpass.colorAttachmentCount = colorAttachmentReferences.size();
+        subpass.pColorAttachments = colorAttachmentReferences.data();
+
+        if (framebufferSpecification.DepthAttachmentSpecification.DepthFormat != DepthFormat::None)
+        {
+            VkAttachmentDescription depthAttachment = {};
+            depthAttachment.flags = 0;
+            depthAttachment.format = GetVkDepthFormatFromNexusFormat(framebufferSpecification.DepthAttachmentSpecification.DepthFormat);
+            depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+            depthAttachment.loadOp = GetVkLoadOpFromNexusLoadOp(m_RenderPassSpecification.StencilDepthLoadOperation);
+            depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+            depthAttachment.stencilLoadOp = GetVkLoadOpFromNexusLoadOp(m_RenderPassSpecification.StencilDepthLoadOperation);
+            depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
+            depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            subpassAttachments.push_back(depthAttachment);
+
+            VkAttachmentReference depthReference = {};
+            depthReference.attachment = attachmentIndex;
+            depthReference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            subpass.pDepthStencilAttachment = &depthReference;
+
+            VkSubpassDependency depthDependency;
+            depthDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+            depthDependency.dstSubpass = 0;
+            depthDependency.srcStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+            depthDependency.srcAccessMask = 0;
+            depthDependency.dstStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+            depthDependency.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+            depthDependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+            subpassDependencies.push_back(depthDependency);
+        }
+
+        VkRenderPassCreateInfo renderPassInfo = {};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+        renderPassInfo.attachmentCount = subpassAttachments.size();
+        renderPassInfo.pAttachments = subpassAttachments.data();
+        renderPassInfo.subpassCount = 1;
+        renderPassInfo.pSubpasses = &subpass;
+        renderPassInfo.dependencyCount = subpassDependencies.size();
+        renderPassInfo.pDependencies = subpassDependencies.data();
+
+        if (vkCreateRenderPass(m_GraphicsDevice->GetVkDevice(), &renderPassInfo, nullptr, &m_RenderPass) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to create render pass");
+        }
     }
 
     void RenderPassVk::SetupForSwapchain()

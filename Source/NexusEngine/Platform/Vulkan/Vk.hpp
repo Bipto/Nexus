@@ -10,7 +10,8 @@
 
 const uint32_t FRAMES_IN_FLIGHT = 3;
 
-VkFormat GetVkFormatFromNexusFormat(Nexus::Graphics::TextureFormat format);
+VkFormat GetVkTextureFormatFromNexusFormat(Nexus::Graphics::TextureFormat format);
+VkFormat GetVkDepthFormatFromNexusFormat(Nexus::Graphics::DepthFormat format);
 VkFormat GetShaderDataType(Nexus::Graphics::ShaderDataType type);
 
 struct AllocatedBuffer

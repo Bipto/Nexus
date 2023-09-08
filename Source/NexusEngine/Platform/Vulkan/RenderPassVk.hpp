@@ -33,8 +33,9 @@ namespace Nexus::Graphics
         RenderPassData m_Data;
         RenderPassDataType m_DataType;
         uint32_t m_ColorAttachmentCount;
-
+        Framebuffer *m_Framebuffer = nullptr;
         friend class CommandListVk;
+        friend class FramebufferVk;
     };
 }
 

@@ -71,7 +71,6 @@ namespace Nexus::Graphics
         void ImmediateSubmit(std::function<void(VkCommandBuffer cmd)> &&function);
         uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
         AllocatedBuffer CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
-
         // vulkan functions
     private:
         void CreateInstance();
@@ -103,6 +102,8 @@ namespace Nexus::Graphics
         void RecreateSwapchain();
         void CleanupSwapchain();
         void CleanupDepthStencil();
+
+        void CreateImGuiRenderPass();
 
     private:
         // utility functions

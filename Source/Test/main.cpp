@@ -42,6 +42,20 @@ public:
         m_Mesh = factory.CreateSprite();
 
         m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
+
+        Nexus::Graphics::FramebufferSpecification framebufferSpec;
+        framebufferSpec.Width = 1280;
+        framebufferSpec.Height = 720;
+        framebufferSpec.IsSwapchain = false;
+        framebufferSpec.ColorAttachmentSpecification =
+            {
+                Nexus::Graphics::TextureFormat::Color};
+
+        Nexus::Graphics::RenderPassSpecification offscreenSpec;
+        offscreenSpec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
+        offscreenSpec.StencilDepthLoadOperation = Nexus::Graphics::LoadOperation::Clear;
+        m_FramebufferRenderPass = m_GraphicsDevice->CreateRenderPass(offscreenSpec, framebufferSpec);
+        m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(m_FramebufferRenderPass);
     }
 
     virtual void Update(Nexus::Time time) override
@@ -51,34 +65,55 @@ public:
     virtual void Render(Nexus::Time time) override
     {
         m_GraphicsDevice->BeginFrame();
-        Nexus::Graphics::RenderPassBeginInfo beginInfo;
-        beginInfo.ClearColorValue = {
-            1.0f,
-            0.0f,
-            0.0f,
-            1.0f};
-        beginInfo.ClearDepthStencilValue.Depth = 1.0f;
 
         m_TestUniforms.Transform = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), {0, 0, 1});
         m_UniformBuffer->SetData(&m_TestUniforms, sizeof(m_TestUniforms), 0);
 
         m_CommandList->Begin();
-        m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
-        m_CommandList->SetPipeline(m_Pipeline);
-
-        m_CommandList->WriteTexture(m_Texture, m_Pipeline, 0);
-        m_CommandList->WriteUniformBuffer(m_UniformBuffer, m_Pipeline, 0);
-
-        m_CommandList->SetVertexBuffer(m_Mesh.GetVertexBuffer());
-        m_CommandList->SetIndexBuffer(m_Mesh.GetIndexBuffer());
-
-        auto indexCount = m_Mesh.GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
-        m_CommandList->DrawIndexed(indexCount, 0);
-        m_CommandList->EndRenderPass();
-        m_CommandList->End();
-        m_GraphicsDevice->SubmitCommandList(m_CommandList);
 
         ImGui::ShowDemoWindow();
+
+        /* {
+            ImGui::Begin("Framebuffer");
+            auto texture = m_Framebuffer->GetColorAttachment(0);
+            ImGui::Image(texture, {1280, 720});
+            ImGui::End();
+        } */
+
+        // offscreen rendering
+        {
+            Nexus::Graphics::RenderPassBeginInfo beginInfo;
+            beginInfo.ClearColorValue = {0.0f, 1.0f, 0.0f, 1.0f};
+            m_CommandList->BeginRenderPass(m_FramebufferRenderPass, beginInfo);
+            m_CommandList->EndRenderPass();
+        }
+
+        // render to swapchain
+        {
+            Nexus::Graphics::RenderPassBeginInfo beginInfo;
+            beginInfo.ClearColorValue = {
+                1.0f,
+                0.0f,
+                0.0f,
+                1.0f};
+            beginInfo.ClearDepthStencilValue.Depth = 1.0f;
+
+            m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
+            m_CommandList->SetPipeline(m_Pipeline);
+
+            m_CommandList->WriteTexture(m_Texture, m_Pipeline, 0);
+            m_CommandList->WriteUniformBuffer(m_UniformBuffer, m_Pipeline, 0);
+
+            m_CommandList->SetVertexBuffer(m_Mesh.GetVertexBuffer());
+            m_CommandList->SetIndexBuffer(m_Mesh.GetIndexBuffer());
+
+            auto indexCount = m_Mesh.GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
+            m_CommandList->DrawIndexed(indexCount, 0);
+            m_CommandList->EndRenderPass();
+        }
+
+        m_CommandList->End();
+        m_GraphicsDevice->SubmitCommandList(m_CommandList);
 
         m_GraphicsDevice->EndFrame();
     }
@@ -133,6 +168,9 @@ private:
 
     Nexus::Ref<Nexus::Graphics::Texture> m_Texture;
     Nexus::Ref<Nexus::Graphics::UniformBuffer> m_UniformBuffer;
+
+    Nexus::Ref<Nexus::Graphics::RenderPass> m_FramebufferRenderPass;
+    Nexus::Ref<Nexus::Graphics::Framebuffer> m_Framebuffer;
 
     TestUniforms m_TestUniforms;
 };

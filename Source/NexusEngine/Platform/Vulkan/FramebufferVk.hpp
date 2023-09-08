@@ -4,22 +4,43 @@
 
 #include "Vk.hpp"
 #include "Core/Graphics/Framebuffer.hpp"
+#include "GraphicsDeviceVk.hpp"
 
 namespace Nexus::Graphics
 {
     class FramebufferVk : public Framebuffer
     {
     public:
-        FramebufferVk(Ref<RenderPass> renderPass);
+        FramebufferVk(Ref<RenderPass> renderPass, GraphicsDeviceVk *device);
         ~FramebufferVk();
 
         virtual void *GetColorAttachment(int index = 0) override;
         virtual const FramebufferSpecification GetFramebufferSpecification() override;
         virtual void SetFramebufferSpecification(const FramebufferSpecification &spec) override;
         virtual void *GetDepthAttachment() override;
+        VkFramebuffer GetVkFramebuffer();
 
     private:
         virtual void Recreate() override;
+
+        void CreateColorTargets();
+        void CreateDepthTargets();
+        void CreateFramebuffer();
+
+    private:
+        std::vector<VkImage> m_Images;
+        std::vector<VkDeviceMemory> m_ImageMemory;
+        std::vector<VkSampler> m_Samplers;
+        std::vector<VkImageView> m_ImageViews;
+
+        VkImage m_DepthImage;
+        VkDeviceMemory m_DepthMemory;
+        VkImageView m_DepthImageView;
+
+        VkFramebuffer m_Framebuffer;
+
+        GraphicsDeviceVk *m_Device;
+        Ref<RenderPassVk> m_RenderPass;
     };
 }
 

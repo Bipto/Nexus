@@ -5,6 +5,7 @@
 #include "PipelineVk.hpp"
 #include "BufferVk.hpp"
 #include "ResourceSetVk.hpp"
+#include "FramebufferVk.hpp"
 
 namespace Nexus::Graphics
 {
@@ -130,7 +131,34 @@ namespace Nexus::Graphics
         }
         else
         {
-            throw std::runtime_error("Rendering to framebuffers has not been implemented yet");
+            auto framebuffer = (FramebufferVk *)vulkanRenderPass->m_Framebuffer;
+            renderPassInfo.framebuffer = framebuffer->GetVkFramebuffer();
+            renderPassInfo.renderArea.offset = {0, 0};
+            renderPassInfo.renderArea.extent = {(uint32_t)framebuffer->GetFramebufferSpecification().Width, (uint32_t)framebuffer->GetFramebufferSpecification().Height};
+
+            int attachmentCount = 0;
+            attachmentCount += framebuffer->GetColorTextureCount();
+            if (framebuffer->HasDepthTexture())
+            {
+                attachmentCount += 1;
+            }
+
+            std::vector<VkClearValue> clearValues;
+            for (int i = 0; i < attachmentCount; i++)
+            {
+                VkClearValue value;
+                value.color = {
+                    beginInfo.ClearColorValue.Red,
+                    beginInfo.ClearColorValue.Green,
+                    beginInfo.ClearColorValue.Blue,
+                    beginInfo.ClearColorValue.Alpha};
+                value.depthStencil.depth = beginInfo.ClearDepthStencilValue.Depth;
+                value.depthStencil.stencil = beginInfo.ClearDepthStencilValue.Stencil;
+                clearValues.push_back(value);
+            }
+            renderPassInfo.clearValueCount = (uint32_t)clearValues.size();
+            renderPassInfo.pClearValues = clearValues.data();
+            vkCmdBeginRenderPass(m_CurrentCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
         }
     }
 
