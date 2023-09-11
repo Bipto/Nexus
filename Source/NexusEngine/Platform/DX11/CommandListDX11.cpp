@@ -223,30 +223,6 @@ namespace Nexus::Graphics
 #endif
     }
 
-    void CommandListDX11::UpdateTexture(Ref<Texture> texture, Ref<Shader> shader, const TextureResourceBinding &binding)
-    {
-#if defined(NX_PLATFORM_DX11)
-
-        TextureUpdateCommand command;
-        command.Texture = texture;
-        command.Shader = shader;
-        command.Binding = binding;
-        m_CommandData.emplace_back(command);
-
-        auto renderCommand = [](Ref<CommandList> commandList)
-        {
-            auto commandListDX11 = std::dynamic_pointer_cast<CommandListDX11>(commandList);
-            const auto &commandData = commandListDX11->GetCurrentCommandData();
-            auto &textureUpdateCommand = std::get<TextureUpdateCommand>(commandData);
-
-            textureUpdateCommand.Shader->SetTexture(
-                textureUpdateCommand.Texture,
-                textureUpdateCommand.Binding);
-        };
-        m_Commands.push_back(renderCommand);
-#endif
-    }
-
     void CommandListDX11::UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset)
     {
 #if defined(NX_PLATFORM_DX11)
@@ -276,8 +252,28 @@ namespace Nexus::Graphics
 #endif
     }
 
-    void CommandListDX11::WriteTexture(Ref<Texture> texture, Ref<Pipeline> pipeline, uint32_t binding)
+    void CommandListDX11::WriteTexture(Ref<Texture> texture, Ref<Pipeline> pipeline, const TextureResourceBinding &binding)
     {
+#if defined(NX_PLATFORM_DX11)
+
+        TextureUpdateCommand command;
+        command.Texture = texture;
+        command.Shader = pipeline->GetShader();
+        command.Binding = binding;
+        m_CommandData.emplace_back(command);
+
+        auto renderCommand = [](Ref<CommandList> commandList)
+        {
+            auto commandListDX11 = std::dynamic_pointer_cast<CommandListDX11>(commandList);
+            const auto &commandData = commandListDX11->GetCurrentCommandData();
+            auto &textureUpdateCommand = std::get<TextureUpdateCommand>(commandData);
+
+            textureUpdateCommand.Shader->SetTexture(
+                textureUpdateCommand.Texture,
+                textureUpdateCommand.Binding);
+        };
+        m_Commands.push_back(renderCommand);
+#endif
     }
 
     void CommandListDX11::WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, Ref<Pipeline> pipeline, uint32_t binding)

@@ -169,27 +169,6 @@ namespace Nexus::Graphics
         m_Commands.push_back(renderCommand);
     }
 
-    void CommandListOpenGL::UpdateTexture(Ref<Texture> texture, Ref<Shader> shader, const TextureResourceBinding &binding)
-    {
-        TextureUpdateCommand command;
-        command.Texture = texture;
-        command.Shader = shader;
-        command.Binding = binding;
-        m_CommandData.emplace_back(command);
-
-        auto renderCommand = [](Ref<CommandList> commandList)
-        {
-            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
-            const auto &commandData = commandListGL->GetCurrentCommandData();
-            const auto &updateTextureCommand = std::get<TextureUpdateCommand>(commandData);
-
-            updateTextureCommand.Shader->SetTexture(
-                updateTextureCommand.Texture,
-                updateTextureCommand.Binding);
-        };
-        m_Commands.push_back(renderCommand);
-    }
-
     void CommandListOpenGL::UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset)
     {
         UniformBufferUpdateCommand command;
@@ -215,8 +194,25 @@ namespace Nexus::Graphics
         m_Commands.push_back(renderCommand);
     }
 
-    void CommandListOpenGL::WriteTexture(Ref<Texture> texture, Ref<Pipeline> pipeline, uint32_t binding)
+    void CommandListOpenGL::WriteTexture(Ref<Texture> texture, Ref<Pipeline> pipeline, const TextureResourceBinding &binding)
     {
+        TextureUpdateCommand command;
+        command.Texture = texture;
+        command.Shader = pipeline->GetShader();
+        command.Binding = binding;
+        m_CommandData.emplace_back(command);
+
+        auto renderCommand = [](Ref<CommandList> commandList)
+        {
+            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
+            const auto &commandData = commandListGL->GetCurrentCommandData();
+            const auto &updateTextureCommand = std::get<TextureUpdateCommand>(commandData);
+
+            updateTextureCommand.Shader->SetTexture(
+                updateTextureCommand.Texture,
+                updateTextureCommand.Binding);
+        };
+        m_Commands.push_back(renderCommand);
     }
 
     void CommandListOpenGL::WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, Ref<Pipeline> pipeline, uint32_t binding)

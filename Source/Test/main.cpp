@@ -71,9 +71,9 @@ public:
 
         m_CommandList->Begin();
 
-        ImGui::ShowDemoWindow();
+        /* ImGui::ShowDemoWindow();
 
-        /* {
+        {
             ImGui::Begin("Framebuffer");
             auto texture = m_Framebuffer->GetColorAttachment(0);
             ImGui::Image(texture, {1280, 720});
@@ -101,7 +101,11 @@ public:
             m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
             m_CommandList->SetPipeline(m_Pipeline);
 
-            m_CommandList->WriteTexture(m_Texture, m_Pipeline, 0);
+            Nexus::Graphics::TextureResourceBinding textureBinding;
+            textureBinding.Slot = 0;
+            textureBinding.Name = "texSampler";
+
+            m_CommandList->WriteTexture(m_Texture, m_Pipeline, textureBinding);
             m_CommandList->WriteUniformBuffer(m_UniformBuffer, m_Pipeline, 0);
 
             m_CommandList->SetVertexBuffer(m_Mesh.GetVertexBuffer());
@@ -142,7 +146,7 @@ public:
 
         Nexus::Graphics::UniformResourceBinding uniformBinding;
         uniformBinding.Binding = 0;
-        uniformBinding.Name = "transformBuffer";
+        uniformBinding.Name = "Transform";
         uniformBinding.Buffer = m_UniformBuffer;
 
         Nexus::Graphics::ResourceSetSpecification resourceSetSpec;
@@ -180,7 +184,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
     Nexus::ApplicationSpecification spec;
     spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
-    spec.ImGuiActive = true;
+    spec.ImGuiActive = false;
     spec.VSyncState = Nexus::Graphics::VSyncState::Enabled;
 
     return new TestApplication(spec);

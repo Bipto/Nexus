@@ -42,6 +42,7 @@ namespace Nexus::Graphics
             glEnableVertexAttribArray(index);
             index++;
         }
+        glBindVertexArray(0);
     }
 
     void VertexBufferOpenGL::SetData(const void *data, uint32_t size, uint32_t offset)

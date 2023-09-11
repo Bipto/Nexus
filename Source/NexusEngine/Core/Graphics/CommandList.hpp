@@ -149,12 +149,6 @@ namespace Nexus::Graphics
         /// @param offset The offset to begin rendering at
         virtual void DrawIndexed(uint32_t count, uint32_t offset) = 0;
 
-        /// @brief A pure virtual method to submit a texture update command
-        /// @param texture A pointer to the texture to update
-        /// @param shader A pointer requiring a texture update
-        /// @param binding The binding slot of the texture
-        virtual void UpdateTexture(Ref<Texture> texture, Ref<Shader> shader, const TextureResourceBinding &binding) = 0;
-
         /// @brief A pure virtual method to submit a uniform buffer update command
         /// @param buffer A pointer to the buffer to upload data to
         /// @param data A pointer to the data to upload
@@ -162,7 +156,16 @@ namespace Nexus::Graphics
         /// @param offset An offset to upload the data to
         virtual void UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset) = 0;
 
-        virtual void WriteTexture(Ref<Texture> texture, Ref<Pipeline> pipeline, uint32_t binding) = 0;
+        /// @brief A pure virtual method that writes a specified texture into the pipeline, allowing it to be used from a shader
+        /// @param texture A pointer to the texture to write
+        /// @param pipeline A pointer to the pipeline to write the texture to
+        /// @param binding A point to upload the texture to
+        virtual void WriteTexture(Ref<Texture> texture, Ref<Pipeline> pipeline, const TextureResourceBinding &binding) = 0;
+
+        /// @brief A pure virtual method that writes a specified uniform buffer into the pipeline, allowing it to be used from a shader
+        /// @param uniformBuffer A pointer to the uniform buffer to write
+        /// @param pipeline A pointer to the pipeline to write the uniform buffer to
+        /// @param binding A point to upload the uniform buffer to
         virtual void WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, Ref<Pipeline> pipeline, uint32_t binding) = 0;
     };
 

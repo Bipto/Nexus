@@ -41,6 +41,5 @@ namespace Nexus::Graphics
 
     private:
         unsigned int m_Buffer = 0;
-        void *m_MappedBuffer = nullptr;
     };
 }

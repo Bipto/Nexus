@@ -177,19 +177,15 @@ namespace Nexus::Graphics
         vkCmdDrawIndexed(m_CurrentCommandBuffer, count, 1, 0, offset, 0);
     }
 
-    void CommandListVk::UpdateTexture(Ref<Texture> texture, Ref<Shader> shader, const TextureResourceBinding &binding)
-    {
-    }
-
     void CommandListVk::UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset)
     {
     }
 
-    void CommandListVk::WriteTexture(Ref<Texture> texture, Ref<Pipeline> pipeline, uint32_t binding)
+    void CommandListVk::WriteTexture(Ref<Texture> texture, Ref<Pipeline> pipeline, const TextureResourceBinding &binding)
     {
         Ref<PipelineVk> pipelineVk = std::dynamic_pointer_cast<PipelineVk>(pipeline);
         auto resourceSet = pipelineVk->GetResourceSet();
-        resourceSet->UpdateTexture(texture, binding);
+        resourceSet->UpdateTexture(texture, binding.Slot);
     }
 
     void CommandListVk::WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, Ref<Pipeline> pipeline, uint32_t binding)
