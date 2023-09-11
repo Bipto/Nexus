@@ -53,6 +53,9 @@ namespace Nexus::Graphics
         VkPipelineStageFlags waitDestStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
         Ref<CommandListVk> vulkanCommandList = std::dynamic_pointer_cast<CommandListVk>(commandList);
 
+        vkWaitForFences(m_Device, 1, &GetCurrentFrame().RenderFence, VK_TRUE, 0);
+        vkResetFences(m_Device, 1, &GetCurrentFrame().RenderFence);
+
         VkSubmitInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.waitSemaphoreCount = 1;
@@ -206,6 +209,11 @@ namespace Nexus::Graphics
     VkDevice GraphicsDeviceVk::GetVkDevice()
     {
         return m_Device;
+    }
+
+    VkPhysicalDevice GraphicsDeviceVk::GetPhysicalDevice()
+    {
+        return m_PhysicalDevice;
     }
 
     uint32_t GraphicsDeviceVk::GetGraphicsFamily()

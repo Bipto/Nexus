@@ -121,7 +121,7 @@ namespace Nexus::Graphics
 
         createInfo.preTransform = m_SurfaceCapabilities.currentTransform;
         createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-        createInfo.presentMode = VK_PRESENT_MODE_FIFO_KHR;
+        createInfo.presentMode = m_PresentMode;
         createInfo.clipped = VK_TRUE;
 
         if (vkCreateSwapchainKHR(m_GraphicsDevice->m_Device, &createInfo, nullptr, &m_Swapchain) != VK_SUCCESS)

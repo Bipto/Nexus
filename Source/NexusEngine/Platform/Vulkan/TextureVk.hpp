@@ -16,11 +16,13 @@ namespace Nexus::Graphics
         virtual void *GetHandle() override;
         VkImage GetImage();
         VkImageView GetImageView();
+        VkSampler GetSampler();
 
     private:
         VkImage m_Image;
         VmaAllocation m_Allocation;
         VkImageView m_ImageView;
+        VkSampler m_Sampler;
     };
 }
 

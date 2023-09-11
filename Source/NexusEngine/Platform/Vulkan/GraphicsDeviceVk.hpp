@@ -60,6 +60,7 @@ namespace Nexus::Graphics
         virtual Swapchain *GetSwapchain() override;
 
         VkDevice GetVkDevice();
+        VkPhysicalDevice GetPhysicalDevice();
         uint32_t GetSwapchainImageCount();
         uint32_t GetGraphicsFamily();
         uint32_t GetPresentFamily();

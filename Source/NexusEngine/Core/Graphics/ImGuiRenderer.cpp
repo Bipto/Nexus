@@ -15,6 +15,8 @@
 #include <backends/imgui_impl_vulkan.h>
 #endif
 
+#include "Platform/Vulkan/TextureVk.hpp"
+
 namespace Nexus::Graphics
 {
     ImGuiRenderer::ImGuiRenderer(Application *app)
@@ -87,6 +89,20 @@ namespace Nexus::Graphics
             ImGui::UpdatePlatformWindows();
             ImGui::RenderPlatformWindowsDefault();
             m_Application->GetGraphicsDevice()->SetContext();
+        }
+    }
+
+    ImTextureID ImGuiRenderer::BindTexture(Ref<Texture> texture)
+    {
+        switch (m_Application->GetGraphicsDevice()->GetGraphicsAPI())
+        {
+        case GraphicsAPI::Vulkan:
+        {
+            auto textureVk = std::dynamic_pointer_cast<TextureVk>(texture);
+            return ImGui_ImplVulkan_AddTexture(textureVk->GetSampler(), textureVk->GetImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+        }
+        default:
+            return texture->GetHandle();
         }
     }
 

@@ -182,6 +182,8 @@ namespace Nexus
         /// @brief A reference counted pointer to an audio device
         Ref<Audio::AudioDevice> m_AudioDevice;
 
+        Nexus::Graphics::ImGuiRenderer *m_ImGuiRenderer = nullptr;
+
     private:
         /// @brief The specification that the application was created with
         ApplicationSpecification m_Specification;
@@ -197,7 +199,5 @@ namespace Nexus
 
         /// @brief A clock to time when renders and updates occur
         Clock m_Clock;
-
-        Nexus::Graphics::ImGuiRenderer *m_ImGuiRenderer = nullptr;
     };
 }

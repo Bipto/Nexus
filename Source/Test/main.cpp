@@ -56,6 +56,8 @@ public:
         offscreenSpec.StencilDepthLoadOperation = Nexus::Graphics::LoadOperation::Clear;
         m_FramebufferRenderPass = m_GraphicsDevice->CreateRenderPass(offscreenSpec, framebufferSpec);
         m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(m_FramebufferRenderPass);
+
+        m_BoundTexture = m_ImGuiRenderer->BindTexture(m_Texture);
     }
 
     virtual void Update(Nexus::Time time) override
@@ -64,21 +66,16 @@ public:
 
     virtual void Render(Nexus::Time time) override
     {
+        ImGui::Begin("Texture Window");
+        ImGui::Image(m_BoundTexture, {300, 300});
+        ImGui::End();
+
         m_GraphicsDevice->BeginFrame();
 
         m_TestUniforms.Transform = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), {0, 0, 1});
         m_UniformBuffer->SetData(&m_TestUniforms, sizeof(m_TestUniforms), 0);
 
         m_CommandList->Begin();
-
-        /* ImGui::ShowDemoWindow();
-
-        {
-            ImGui::Begin("Framebuffer");
-            auto texture = m_Framebuffer->GetColorAttachment(0);
-            ImGui::Image(texture, {1280, 720});
-            ImGui::End();
-        } */
 
         // offscreen rendering
         {
@@ -177,6 +174,7 @@ private:
     Nexus::Ref<Nexus::Graphics::Framebuffer> m_Framebuffer;
 
     TestUniforms m_TestUniforms;
+    ImTextureID m_BoundTexture;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
@@ -184,7 +182,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
     Nexus::ApplicationSpecification spec;
     spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
-    spec.ImGuiActive = false;
+    spec.ImGuiActive = true;
     spec.VSyncState = Nexus::Graphics::VSyncState::Enabled;
 
     return new TestApplication(spec);

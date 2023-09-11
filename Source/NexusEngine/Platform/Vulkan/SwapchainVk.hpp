@@ -62,6 +62,8 @@ namespace Nexus::Graphics
         std::vector<VkFramebuffer> m_SwapchainFramebuffers;
         GraphicsDeviceVk *m_GraphicsDevice;
 
+        VkPresentModeKHR m_PresentMode = VK_PRESENT_MODE_FIFO_KHR;
+
         friend class GraphicsDeviceVk;
         friend class RenderPassVk;
         friend class CommandListVk;

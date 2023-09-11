@@ -34,6 +34,8 @@ namespace Nexus::Graphics
         /// @brief A method to update and render ImGui platform windows
         void UpdatePlatformWindows();
 
+        ImTextureID BindTexture(Ref<Texture> texture);
+
     private:
         /// @brief A private method to initialise ImGui for OpenGL
         void InitialiseOpenGL();
