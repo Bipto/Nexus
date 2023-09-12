@@ -28,6 +28,12 @@ namespace Nexus::Graphics
         BufferUsage Usage = BufferUsage::Invalid;
     };
 
+    enum class IndexBufferFormat
+    {
+        UInt16,
+        UInt32
+    };
+
     /// @brief A class representing an API specific vertex buffer
     class VertexBuffer
     {
@@ -68,8 +74,8 @@ namespace Nexus::Graphics
         /// @brief A constructor to create a new index buffer
         /// @param description A struct representing the properties to use when creating the buffer
         /// @param data A pointer to initial data to upload to the buffer
-        IndexBuffer(const BufferDescription &description, const void *data)
-            : m_Description(description) {}
+        IndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format)
+            : m_Description(description), m_Format(format) {}
 
         /// @brief A virtual method that uploads data into a GPU buffer
         /// @param data A const pointer to data to upload
@@ -81,9 +87,14 @@ namespace Nexus::Graphics
         /// @return A const reference to the BufferDescription
         const BufferDescription &GetDescription() { return m_Description; }
 
+        IndexBufferFormat GetFormat() { return m_Format; }
+
     protected:
         /// @brief A struct containing the properties that were used when creating the buffer
         BufferDescription m_Description;
+
+        /// @brief An enum indicating the format of the buffer
+        IndexBufferFormat m_Format;
     };
 
     /// @brief A class representing an API specific uniform buffer

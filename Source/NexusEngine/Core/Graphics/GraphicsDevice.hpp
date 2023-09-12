@@ -95,7 +95,7 @@ namespace Nexus::Graphics
         /// @param description The properties to use when creating the buffer
         /// @param data The initial data to store in the buffer
         /// @return A reference counted pointer to an index buffer
-        virtual Ref<IndexBuffer> CreateIndexBuffer(const BufferDescription &description, const void *data) = 0;
+        virtual Ref<IndexBuffer> CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format = IndexBufferFormat::UInt32) = 0;
 
         /// @brief A pure virtual method that creates a uniform buffer from a given description
         /// @param description The properties to use when creating the buffer

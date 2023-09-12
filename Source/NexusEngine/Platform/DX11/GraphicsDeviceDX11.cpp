@@ -176,9 +176,9 @@ namespace Nexus::Graphics
         return CreateRef<VertexBufferDX11>(m_DevicePtr, m_DeviceContextPtr, description, data, layout);
     }
 
-    Ref<IndexBuffer> GraphicsDeviceDX11::CreateIndexBuffer(const BufferDescription &description, const void *data)
+    Ref<IndexBuffer> GraphicsDeviceDX11::CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format)
     {
-        return CreateRef<IndexBufferDX11>(m_DevicePtr, m_DeviceContextPtr, description, data);
+        return CreateRef<IndexBufferDX11>(m_DevicePtr, m_DeviceContextPtr, description, data, format);
     }
 
     Ref<UniformBuffer> GraphicsDeviceDX11::CreateUniformBuffer(const BufferDescription &description, const void *data)

@@ -62,8 +62,8 @@ namespace Nexus::Graphics
         return m_Buffer;
     }
 
-    IndexBufferOpenGL::IndexBufferOpenGL(const BufferDescription &description, const void *data)
-        : IndexBuffer(description, data)
+    IndexBufferOpenGL::IndexBufferOpenGL(const BufferDescription &description, const void *data, IndexBufferFormat format)
+        : IndexBuffer(description, data, format)
     {
         GLenum bufferUsage = GetBufferUsage(m_Description.Usage);
 

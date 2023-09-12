@@ -23,7 +23,7 @@ namespace Nexus::Graphics
     class IndexBufferOpenGL : public IndexBuffer
     {
     public:
-        IndexBufferOpenGL(const BufferDescription &description, const void *data);
+        IndexBufferOpenGL(const BufferDescription &description, const void *data, IndexBufferFormat format);
         virtual void SetData(const void *data, uint32_t size, uint32_t offset) override;
         void Bind();
         unsigned int GetHandle();

@@ -45,7 +45,7 @@ namespace Nexus::Graphics
         /// @param context A pointer to an ID3D11DeviceContext to use to update the buffer
         /// @param description A const reference to a BufferDescription to describe how the buffer should be represented in memory
         /// @param data A const pointer to a set of data to use as the initial data of the buffer
-        IndexBufferDX11(ID3D11Device *device, ID3D11DeviceContext *context, const BufferDescription &description, const void *data);
+        IndexBufferDX11(ID3D11Device *device, ID3D11DeviceContext *context, const BufferDescription &description, const void *data, IndexBufferFormat format);
 
         /// @brief A destructor to clean up resources
         ~IndexBufferDX11();

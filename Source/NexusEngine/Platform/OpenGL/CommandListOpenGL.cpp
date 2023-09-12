@@ -10,6 +10,19 @@
 #include <memory>
 #include <stdexcept>
 
+GLenum GetGLIndexBufferFormat(Nexus::Graphics::IndexBufferFormat format)
+{
+    switch (format)
+    {
+    case Nexus::Graphics::IndexBufferFormat::UInt16:
+        return GL_UNSIGNED_SHORT;
+    case Nexus::Graphics::IndexBufferFormat::UInt32:
+        return GL_UNSIGNED_INT;
+    default:
+        throw std::runtime_error("Failed to find a valid index buffer format");
+    }
+}
+
 namespace Nexus::Graphics
 {
     CommandListOpenGL::CommandListOpenGL(GraphicsDevice *device)
@@ -118,6 +131,7 @@ namespace Nexus::Graphics
             const auto indexBuffer = std::get<Ref<IndexBuffer>>(commandData);
             const auto indexBufferGL = std::dynamic_pointer_cast<IndexBufferOpenGL>(indexBuffer);
             indexBufferGL->Bind();
+            commandListGL->m_IndexBufferFormat = GetGLIndexBufferFormat(indexBufferGL->GetFormat());
         };
         m_Commands.push_back(renderCommand);
     }
@@ -164,7 +178,7 @@ namespace Nexus::Graphics
             auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             const auto &commandData = commandListGL->GetCurrentCommandData();
             const auto &drawIndexedCommand = std::get<DrawIndexedCommand>(commandData);
-            glDrawElements(commandListGL->GetTopology(), drawIndexedCommand.Count, GL_UNSIGNED_INT, (void *)drawIndexedCommand.Offset);
+            glDrawElements(commandListGL->GetTopology(), drawIndexedCommand.Count, commandListGL->m_IndexBufferFormat, (void *)drawIndexedCommand.Offset);
         };
         m_Commands.push_back(renderCommand);
     }

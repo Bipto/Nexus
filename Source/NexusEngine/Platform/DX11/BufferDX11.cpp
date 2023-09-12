@@ -83,8 +83,8 @@ namespace Nexus::Graphics
         return m_Buffer;
     }
 
-    IndexBufferDX11::IndexBufferDX11(ID3D11Device *device, ID3D11DeviceContext *context, const BufferDescription &description, const void *data)
-        : IndexBuffer(description, data)
+    IndexBufferDX11::IndexBufferDX11(ID3D11Device *device, ID3D11DeviceContext *context, const BufferDescription &description, const void *data, IndexBufferFormat format)
+        : IndexBuffer(description, data, format)
     {
         m_Context = context;
         auto bufferUsage = GetBufferUsage(m_Description.Usage);

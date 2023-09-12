@@ -8,6 +8,17 @@
 
 #include <memory>
 
+DXGI_FORMAT GetD3DIndexBufferFormat(Nexus::Graphics::IndexBufferFormat format)
+{
+    switch (format)
+    {
+    case Nexus::Graphics::IndexBufferFormat::UInt16:
+        return DXGI_FORMAT_R16_UINT;
+    case Nexus::Graphics::IndexBufferFormat::UInt32:
+        return DXGI_FORMAT_R32_UINT;
+    }
+}
+
 namespace Nexus::Graphics
 {
     CommandListDX11::CommandListDX11(GraphicsDeviceDX11 *graphicsDevice)
@@ -152,9 +163,11 @@ namespace Nexus::Graphics
 
             auto nativeBuffer = indexBufferDX11->GetHandle();
 
+            auto bufferFormat = indexBufferDX11->GetFormat();
+
             context->IASetIndexBuffer(
                 nativeBuffer,
-                DXGI_FORMAT_R32_UINT,
+                GetD3DIndexBufferFormat(indexBufferDX11->GetFormat()),
                 0);
         };
         m_Commands.push_back(renderCommand);

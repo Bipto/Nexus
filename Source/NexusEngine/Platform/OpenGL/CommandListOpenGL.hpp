@@ -37,6 +37,7 @@ namespace Nexus::Graphics
         GLenum GetTopology();
         void BindPipeline(Ref<Pipeline> pipeline);
         GraphicsDevice *GetGraphicsDevice();
+        GLenum m_IndexBufferFormat;
 
     private:
         GraphicsDevice *m_Device;

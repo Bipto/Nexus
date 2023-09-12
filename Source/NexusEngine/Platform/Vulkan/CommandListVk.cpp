@@ -7,6 +7,17 @@
 #include "ResourceSetVk.hpp"
 #include "FramebufferVk.hpp"
 
+VkIndexType GetVulkanIndexBufferFormat(Nexus::Graphics::IndexBufferFormat format)
+{
+    switch (format)
+    {
+    case Nexus::Graphics::IndexBufferFormat::UInt16:
+        return VK_INDEX_TYPE_UINT16;
+    case Nexus::Graphics::IndexBufferFormat::UInt32:
+        return VK_INDEX_TYPE_UINT32;
+    }
+}
+
 namespace Nexus::Graphics
 {
     CommandListVk::CommandListVk(GraphicsDeviceVk *graphicsDevice)
@@ -85,7 +96,8 @@ namespace Nexus::Graphics
         Ref<IndexBufferVk> vulkanIB = std::dynamic_pointer_cast<IndexBufferVk>(indexBuffer);
 
         VkBuffer indexBufferRaw = vulkanIB->GetBuffer();
-        vkCmdBindIndexBuffer(m_CurrentCommandBuffer, indexBufferRaw, 0, VK_INDEX_TYPE_UINT32);
+        VkIndexType indexType = GetVulkanIndexBufferFormat(vulkanIB->GetFormat());
+        vkCmdBindIndexBuffer(m_CurrentCommandBuffer, indexBufferRaw, 0, indexType);
     }
 
     void CommandListVk::SetPipeline(Ref<Pipeline> pipeline)

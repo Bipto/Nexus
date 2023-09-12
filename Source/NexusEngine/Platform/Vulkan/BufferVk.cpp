@@ -42,8 +42,8 @@ namespace Nexus::Graphics
         return m_Buffer.Buffer;
     }
 
-    IndexBufferVk::IndexBufferVk(const BufferDescription &description, const void *data, GraphicsDeviceVk *device)
-        : IndexBuffer(description, data), m_Device(device)
+    IndexBufferVk::IndexBufferVk(const BufferDescription &description, const void *data, GraphicsDeviceVk *device, IndexBufferFormat format)
+        : IndexBuffer(description, data, format), m_Device(device)
     {
         VkBufferCreateInfo bufferInfo = {};
         bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;

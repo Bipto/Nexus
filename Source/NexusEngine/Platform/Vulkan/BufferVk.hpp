@@ -24,7 +24,7 @@ namespace Nexus::Graphics
     class IndexBufferVk : public IndexBuffer
     {
     public:
-        IndexBufferVk(const BufferDescription &description, const void *data, GraphicsDeviceVk *device);
+        IndexBufferVk(const BufferDescription &description, const void *data, GraphicsDeviceVk *device, IndexBufferFormat format);
         virtual void SetData(const void *data, uint32_t size, uint32_t offset) override;
         VkBuffer GetBuffer();
 
