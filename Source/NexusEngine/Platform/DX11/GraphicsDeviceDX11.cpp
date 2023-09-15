@@ -9,6 +9,7 @@
 #include "PipelineDX11.hpp"
 #include "CommandListDX11.hpp"
 #include "RenderPassDX11.hpp"
+#include "ResourceSetDX11.hpp"
 
 #include "SDL_syswm.h"
 
@@ -198,7 +199,7 @@ namespace Nexus::Graphics
 
     Ref<ResourceSet> GraphicsDeviceDX11::CreateResourceSet(const ResourceSetSpecification &spec)
     {
-        return nullptr;
+        return CreateRef<ResourceSetDX11>(spec, this);
     }
 
     void GraphicsDeviceDX11::Resize(Point<int> size)

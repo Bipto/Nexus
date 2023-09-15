@@ -88,4 +88,9 @@ namespace Nexus::Graphics
 
         return this->CreateTexture(spec);
     }
+
+    Ref<ResourceSet> GraphicsDevice::CreateResourceSet(Ref<Pipeline> pipeline)
+    {
+        return CreateResourceSet(pipeline->GetPipelineDescription().ResourceSetSpecification);
+    }
 }

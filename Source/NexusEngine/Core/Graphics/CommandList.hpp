@@ -100,6 +100,11 @@ namespace Nexus::Graphics
         uint32_t Offset;
     };
 
+    struct UpdateResourcesCommand
+    {
+        Ref<ResourceSet> Resources;
+    };
+
     struct BeginRenderPassCommand
     {
         Ref<RenderPass> RenderPass;
@@ -156,17 +161,9 @@ namespace Nexus::Graphics
         /// @param offset An offset to upload the data to
         virtual void UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset) = 0;
 
-        /// @brief A pure virtual method that writes a specified texture into the pipeline, allowing it to be used from a shader
-        /// @param texture A pointer to the texture to write
-        /// @param pipeline A pointer to the pipeline to write the texture to
-        /// @param binding A point to upload the texture to
-        virtual void WriteTexture(Ref<Texture> texture, Ref<Pipeline> pipeline, const TextureResourceBinding &binding) = 0;
-
-        /// @brief A pure virtual method that writes a specified uniform buffer into the pipeline, allowing it to be used from a shader
-        /// @param uniformBuffer A pointer to the uniform buffer to write
-        /// @param pipeline A pointer to the pipeline to write the uniform buffer to
-        /// @param binding A point to upload the uniform buffer to
-        virtual void WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, Ref<Pipeline> pipeline, uint32_t binding) = 0;
+        /// @brief A pure virtual method that updates the resources bound within a pipeline
+        /// @param resources A reference counted pointer to a ResourceSet
+        virtual void SetResourceSet(Ref<ResourceSet> resources) = 0;
     };
 
     /// @brief A typedef to simplify creating function pointers to render commands
@@ -180,6 +177,7 @@ namespace Nexus::Graphics
         TextureUpdateCommand,
         UniformBufferUpdateCommand,
         DrawElementCommand,
-        DrawIndexedCommand>
+        DrawIndexedCommand,
+        UpdateResourcesCommand>
         RenderCommandData;
 }

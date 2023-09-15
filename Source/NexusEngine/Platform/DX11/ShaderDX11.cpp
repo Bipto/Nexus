@@ -120,17 +120,6 @@ namespace Nexus::Graphics
         m_FragmentShaderSource = fragmentShaderSource;
     }
 
-    void ShaderDX11::SetTexture(Ref<Texture> texture, const TextureResourceBinding &binding)
-    {
-        Ref<TextureDX11> dxTexture = std::dynamic_pointer_cast<TextureDX11>(texture);
-
-        const ID3D11ShaderResourceView *resourceViews[] = {dxTexture->GetResourceView()};
-        const ID3D11SamplerState *samplers[] = {dxTexture->GetSamplerState()};
-
-        m_ContextPtr->PSSetShaderResources(binding.Slot, 1, (ID3D11ShaderResourceView *const *)resourceViews);
-        m_ContextPtr->PSSetSamplers(binding.Slot, 1, (ID3D11SamplerState *const *)samplers);
-    }
-
     const std::string &ShaderDX11::GetVertexShaderSource()
     {
         return m_VertexShaderSource;

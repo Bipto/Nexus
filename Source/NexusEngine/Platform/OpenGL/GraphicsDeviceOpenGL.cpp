@@ -6,6 +6,7 @@
 #include "TextureOpenGL.hpp"
 #include "CommandListOpenGL.hpp"
 #include "RenderPassOpenGL.hpp"
+#include "ResourceSetOpenGL.hpp"
 
 void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
                                      GLenum severity, GLsizei length,
@@ -249,7 +250,7 @@ namespace Nexus::Graphics
 
     Ref<ResourceSet> GraphicsDeviceOpenGL::CreateResourceSet(const ResourceSetSpecification &spec)
     {
-        return nullptr;
+        return CreateRef<ResourceSetOpenGL>(spec);
     }
 
     void GraphicsDeviceOpenGL::Resize(Point<int> size)

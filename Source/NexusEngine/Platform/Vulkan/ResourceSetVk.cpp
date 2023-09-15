@@ -7,7 +7,7 @@
 namespace Nexus::Graphics
 {
     ResourceSetVk::ResourceSetVk(const ResourceSetSpecification &spec, GraphicsDeviceVk *device)
-        : m_Device(device)
+        : ResourceSet(spec), m_Device(device)
     {
         // allocating uniform buffer descriptor set
         {
@@ -163,7 +163,7 @@ namespace Nexus::Graphics
         }
     }
 
-    void ResourceSetVk::UpdateTexture(Ref<Texture> texture, uint32_t binding)
+    void ResourceSetVk::WriteTexture(Ref<Texture> texture, uint32_t binding)
     {
         Ref<TextureVk> textureVk = std::dynamic_pointer_cast<TextureVk>(texture);
 
@@ -210,7 +210,7 @@ namespace Nexus::Graphics
         vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &textureToWrite, 0, nullptr);
     }
 
-    void ResourceSetVk::UpdateUniformBuffer(Ref<UniformBuffer> uniformBuffer, uint32_t binding)
+    void ResourceSetVk::WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, uint32_t binding)
     {
         Ref<UniformBufferVk> uniformBufferVk = std::dynamic_pointer_cast<UniformBufferVk>(uniformBuffer);
 

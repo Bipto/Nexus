@@ -23,7 +23,6 @@ namespace Nexus::Graphics
         const D3D11_VIEWPORT &GetViewport() { return m_Viewport; }
         const D3D11_RECT &GetScissorRectangle() { return m_ScissorRectangle; }
         D3D11_PRIMITIVE_TOPOLOGY GetTopology();
-        void SetupUniformBuffers();
 
     private:
         void SetupDepthStencilState();

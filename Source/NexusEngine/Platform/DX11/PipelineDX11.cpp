@@ -249,20 +249,6 @@ namespace Nexus::Graphics
         m_Device->CreateBlendState(&blendDesc, &m_BlendState);
     }
 
-    void PipelineDX11::SetupUniformBuffers()
-    {
-        for (const auto &uniformBufferBinding : m_Description.ResourceSetSpecification.UniformResourceBindings)
-        {
-            auto uniformBufferDX11 = std::dynamic_pointer_cast<UniformBufferDX11>(uniformBufferBinding.Buffer);
-            auto bufferHandle = uniformBufferDX11->GetHandle();
-
-            m_Context->VSSetConstantBuffers(
-                uniformBufferBinding.Binding,
-                1,
-                &bufferHandle);
-        }
-    }
-
     D3D11_PRIMITIVE_TOPOLOGY PipelineDX11::GetTopology()
     {
         switch (m_Description.PrimitiveTopology)

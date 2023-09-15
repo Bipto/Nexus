@@ -32,11 +32,6 @@ namespace Demos
 
         virtual void Render(Nexus::Time time) override
         {
-            Nexus::Graphics::TextureResourceBinding textureBinding;
-            textureBinding.Slot = 0;
-            textureBinding.Name = "texSampler";
-            m_Shader->SetTexture(m_Texture, textureBinding);
-
             Nexus::Graphics::RenderPassBeginInfo beginInfo{};
             beginInfo.ClearColorValue = {
                 m_ClearColour.r,
@@ -45,8 +40,12 @@ namespace Demos
                 1.0f};
 
             m_CommandList->Begin();
-            m_CommandList->SetPipeline(m_Pipeline);
             m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
+            m_CommandList->SetPipeline(m_Pipeline);
+
+            m_ResourceSet->WriteTexture(m_Texture, 0);
+            m_CommandList->SetResourceSet(m_ResourceSet);
+
             m_CommandList->SetVertexBuffer(m_Mesh.GetVertexBuffer());
             m_CommandList->SetIndexBuffer(m_Mesh.GetIndexBuffer());
 
@@ -78,7 +77,13 @@ namespace Demos
             pipelineDescription.Viewport = {
                 0, 0, m_Window->GetWindowSize().X, m_Window->GetWindowSize().Y};
 
+            Nexus::Graphics::TextureResourceBinding textureBinding;
+            textureBinding.Slot = 0;
+            textureBinding.Name = "texSampler";
+            pipelineDescription.ResourceSetSpecification.TextureBindings = {textureBinding};
+
             m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
+            m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
         }
 
     private:
@@ -86,6 +91,7 @@ namespace Demos
         Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
         Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
         Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
+        Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
         Nexus::Graphics::Mesh m_Mesh;
         Nexus::Ref<Nexus::Graphics::Texture> m_Texture;
         glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};

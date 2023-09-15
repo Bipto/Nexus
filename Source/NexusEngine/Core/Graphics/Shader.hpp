@@ -15,11 +15,6 @@ namespace Nexus::Graphics
     class Shader
     {
     public:
-        /// @brief A pure virtual method that binds a texture to a shader
-        /// @param texture A reference counted pointer to the texture to bind
-        /// @param binding A const reference to a TextureBinding mapping where the texture should be bound
-        virtual void SetTexture(Ref<Texture> texture, const TextureResourceBinding &binding) = 0;
-
         /// @brief A pure virtual method that returns a const string reference containing the API specific source code of the vertex shader
         /// @return A const string reference to a string containing the vertex shader source code
         virtual const std::string &GetVertexShaderSource() = 0;

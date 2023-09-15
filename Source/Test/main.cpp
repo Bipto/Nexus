@@ -98,12 +98,9 @@ public:
             m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
             m_CommandList->SetPipeline(m_Pipeline);
 
-            Nexus::Graphics::TextureResourceBinding textureBinding;
-            textureBinding.Slot = 0;
-            textureBinding.Name = "texSampler";
-
-            m_CommandList->WriteTexture(m_Texture, m_Pipeline, textureBinding);
-            m_CommandList->WriteUniformBuffer(m_UniformBuffer, m_Pipeline, 0);
+            m_ResourceSet->WriteTexture(m_Texture, 0);
+            m_ResourceSet->WriteUniformBuffer(m_UniformBuffer, 0);
+            m_CommandList->SetResourceSet(m_ResourceSet);
 
             m_CommandList->SetVertexBuffer(m_Mesh.GetVertexBuffer());
             m_CommandList->SetIndexBuffer(m_Mesh.GetIndexBuffer());
@@ -153,6 +150,8 @@ public:
         description.ResourceSetSpecification = resourceSetSpec;
 
         m_Pipeline = m_GraphicsDevice->CreatePipeline(description);
+
+        m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
     }
 
     virtual void Unload() override
@@ -172,6 +171,7 @@ private:
 
     Nexus::Ref<Nexus::Graphics::RenderPass> m_FramebufferRenderPass;
     Nexus::Ref<Nexus::Graphics::Framebuffer> m_Framebuffer;
+    Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
 
     TestUniforms m_TestUniforms;
     ImTextureID m_BoundTexture;
@@ -180,7 +180,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::DirectX11;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
     spec.ImGuiActive = true;
     spec.VSyncState = Nexus::Graphics::VSyncState::Enabled;

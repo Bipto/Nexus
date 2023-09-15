@@ -5,6 +5,8 @@
 #include "PipelineDX11.hpp"
 #include "ShaderDX11.hpp"
 #include "RenderPassDX11.hpp"
+#include "ResourceSetDX11.hpp"
+#include "TextureDX11.hpp"
 
 #include <memory>
 
@@ -265,32 +267,46 @@ namespace Nexus::Graphics
 #endif
     }
 
-    void CommandListDX11::WriteTexture(Ref<Texture> texture, Ref<Pipeline> pipeline, const TextureResourceBinding &binding)
+    void CommandListDX11::SetResourceSet(Ref<ResourceSet> resources)
     {
-#if defined(NX_PLATFORM_DX11)
-
-        TextureUpdateCommand command;
-        command.Texture = texture;
-        command.Shader = pipeline->GetShader();
-        command.Binding = binding;
+        UpdateResourcesCommand command;
+        command.Resources = resources;
         m_CommandData.emplace_back(command);
 
         auto renderCommand = [](Ref<CommandList> commandList)
         {
             auto commandListDX11 = std::dynamic_pointer_cast<CommandListDX11>(commandList);
-            const auto &commandData = commandListDX11->GetCurrentCommandData();
-            auto &textureUpdateCommand = std::get<TextureUpdateCommand>(commandData);
+            auto graphicsDeviceDX11 = (GraphicsDeviceDX11 *)commandListDX11->GetGraphicsDevice();
+            auto context = graphicsDeviceDX11->GetDeviceContext();
 
-            textureUpdateCommand.Shader->SetTexture(
-                textureUpdateCommand.Texture,
-                textureUpdateCommand.Binding);
+            const auto &updateResourceCommand = std::get<UpdateResourcesCommand>(commandListDX11->GetCurrentCommandData());
+            auto resourceSetDX11 = std::dynamic_pointer_cast<ResourceSetDX11>(updateResourceCommand.Resources);
+
+            // update textures
+            for (const auto &textureBinding : resourceSetDX11->GetTextureBindings())
+            {
+                auto textureDX11 = std::dynamic_pointer_cast<TextureDX11>(textureBinding.second);
+
+                const ID3D11ShaderResourceView *resourceViews[] = {textureDX11->GetResourceView()};
+                const ID3D11SamplerState *samplers[] = {textureDX11->GetSamplerState()};
+
+                context->PSSetShaderResources(textureBinding.first, 1, (ID3D11ShaderResourceView *const *)resourceViews);
+                context->PSSetSamplers(textureBinding.first, 1, (ID3D11SamplerState *const *)samplers);
+            }
+
+            // update uniform buffers
+            for (const auto &uniformBufferBinding : resourceSetDX11->GetUniformBufferBindings())
+            {
+                auto uniformBufferDX11 = std::dynamic_pointer_cast<UniformBufferDX11>(uniformBufferBinding.second);
+                auto bufferHandle = uniformBufferDX11->GetHandle();
+
+                context->VSSetConstantBuffers(
+                    uniformBufferBinding.first,
+                    1,
+                    &bufferHandle);
+            }
         };
         m_Commands.push_back(renderCommand);
-#endif
-    }
-
-    void CommandListDX11::WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, Ref<Pipeline> pipeline, uint32_t binding)
-    {
     }
 
     const std::vector<RenderCommand> &CommandListDX11::GetRenderCommands()
@@ -341,8 +357,6 @@ namespace Nexus::Graphics
         context->VSSetShader(dxShader->GetVertexShader(), 0, 0);
         context->PSSetShader(dxShader->GetPixelShader(), 0, 0);
         context->IASetInputLayout(dxShader->GetInputLayout());
-
-        pipelineDX11->SetupUniformBuffers();
 #endif
     }
 }

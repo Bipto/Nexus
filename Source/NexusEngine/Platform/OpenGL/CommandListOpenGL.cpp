@@ -6,6 +6,7 @@
 #include "TextureOpenGL.hpp"
 #include "GraphicsDeviceOpenGL.hpp"
 #include "RenderPassOpenGL.hpp"
+#include "ResourceSetOpenGL.hpp"
 
 #include <memory>
 #include <stdexcept>
@@ -208,29 +209,43 @@ namespace Nexus::Graphics
         m_Commands.push_back(renderCommand);
     }
 
-    void CommandListOpenGL::WriteTexture(Ref<Texture> texture, Ref<Pipeline> pipeline, const TextureResourceBinding &binding)
+    void CommandListOpenGL::SetResourceSet(Ref<ResourceSet> resources)
     {
-        TextureUpdateCommand command;
-        command.Texture = texture;
-        command.Shader = pipeline->GetShader();
-        command.Binding = binding;
+        UpdateResourcesCommand command;
+        command.Resources = resources;
         m_CommandData.emplace_back(command);
 
         auto renderCommand = [](Ref<CommandList> commandList)
         {
             auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
-            const auto &commandData = commandListGL->GetCurrentCommandData();
-            const auto &updateTextureCommand = std::get<TextureUpdateCommand>(commandData);
+            auto pipeline = commandListGL->m_CurrentlyBoundPipeline;
+            const auto &updateResourcesCommand = std::get<UpdateResourcesCommand>(commandListGL->GetCurrentCommandData());
 
-            updateTextureCommand.Shader->SetTexture(
-                updateTextureCommand.Texture,
-                updateTextureCommand.Binding);
+            auto shaderGL = std::dynamic_pointer_cast<ShaderOpenGL>(pipeline->GetShader());
+            auto resourcesGL = std::dynamic_pointer_cast<ResourceSetOpenGL>(updateResourcesCommand.Resources);
+
+            // update textures
+            for (const auto &textureBinding : resourcesGL->GetTextureBindings())
+            {
+                auto textureGL = std::dynamic_pointer_cast<TextureOpenGL>(textureBinding.second.Texture);
+
+                auto location = glGetUniformLocation(shaderGL->GetHandle(), textureBinding.second.BindingName.c_str());
+                glUniform1i(location, textureBinding.first);
+                glActiveTexture(GL_TEXTURE0 + textureBinding.first);
+                glBindTexture(GL_TEXTURE_2D, (unsigned int)textureGL->GetHandle());
+            }
+
+            // update uniform buffers
+            for (const auto &uniformBufferBinding : resourcesGL->GetUniformBufferBindings())
+            {
+                auto uniformBufferGL = std::dynamic_pointer_cast<UniformBufferOpenGL>(uniformBufferBinding.second.Buffer);
+                unsigned int index = glGetUniformBlockIndex(shaderGL->GetHandle(), uniformBufferBinding.second.BindingName.c_str());
+                glBindBuffer(GL_UNIFORM_BUFFER, uniformBufferGL->GetHandle());
+                glUniformBlockBinding(shaderGL->GetHandle(), index, uniformBufferBinding.first);
+                glBindBufferRange(GL_UNIFORM_BUFFER, uniformBufferBinding.first, uniformBufferGL->GetHandle(), 0, uniformBufferGL->GetDescription().Size);
+            }
         };
         m_Commands.push_back(renderCommand);
-    }
-
-    void CommandListOpenGL::WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, Ref<Pipeline> pipeline, uint32_t binding)
-    {
     }
 
     const std::vector<RenderCommand> &CommandListOpenGL::GetRenderCommands()

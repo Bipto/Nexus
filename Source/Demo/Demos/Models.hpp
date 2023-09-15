@@ -55,21 +55,6 @@ namespace Demos
 
         virtual void Render(Nexus::Time time) override
         {
-            Nexus::Graphics::TextureResourceBinding diffuseMapBinding;
-            diffuseMapBinding.Slot = 0;
-            diffuseMapBinding.Name = "diffuseMapSampler";
-            m_Shader->SetTexture(m_DiffuseMap, diffuseMapBinding);
-
-            Nexus::Graphics::TextureResourceBinding normalMapBinding;
-            normalMapBinding.Slot = 1;
-            normalMapBinding.Name = "normalMapSampler";
-            m_Shader->SetTexture(m_NormalMap, normalMapBinding);
-
-            Nexus::Graphics::TextureResourceBinding specularMapBinding;
-            specularMapBinding.Slot = 2;
-            specularMapBinding.Name = "specularMapSampler";
-            m_Shader->SetTexture(m_SpecularMap, specularMapBinding);
-
             Nexus::Graphics::RenderPassBeginInfo beginInfo{};
             beginInfo.ClearColorValue = {
                 m_ClearColour.r,
@@ -87,6 +72,15 @@ namespace Demos
             m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
 
             m_CommandList->SetPipeline(m_Pipeline);
+
+            m_ResourceSet->WriteUniformBuffer(m_CameraUniformBuffer, 0);
+            m_ResourceSet->WriteUniformBuffer(m_TransformUniformBuffer, 1);
+
+            m_ResourceSet->WriteTexture(m_DiffuseMap, 0);
+            m_ResourceSet->WriteTexture(m_NormalMap, 1);
+            m_ResourceSet->WriteTexture(m_SpecularMap, 2);
+            m_CommandList->SetResourceSet(m_ResourceSet);
+
             m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), {0.0f, 0.0f, -10.0f});
             m_CommandList->UpdateUniformBuffer(m_TransformUniformBuffer, &m_TransformUniforms, sizeof(m_TransformUniforms), 0);
 
@@ -141,11 +135,25 @@ namespace Demos
             transformUniformBinding.Name = "Transform";
             transformUniformBinding.Buffer = m_TransformUniformBuffer;
 
+            Nexus::Graphics::TextureResourceBinding diffuseMapBinding;
+            diffuseMapBinding.Slot = 0;
+            diffuseMapBinding.Name = "diffuseMapSampler";
+
+            Nexus::Graphics::TextureResourceBinding normalMapBinding;
+            normalMapBinding.Slot = 1;
+            normalMapBinding.Name = "normalMapSampler";
+
+            Nexus::Graphics::TextureResourceBinding specularMapBinding;
+            specularMapBinding.Slot = 2;
+            specularMapBinding.Name = "specularMapSampler";
+
             Nexus::Graphics::ResourceSetSpecification resources;
             resources.UniformResourceBindings = {cameraUniformBinding, transformUniformBinding};
+            resources.TextureBindings = {diffuseMapBinding, normalMapBinding, specularMapBinding};
             pipelineDescription.ResourceSetSpecification = resources;
 
             m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
+            m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
         }
 
     private:
@@ -158,6 +166,8 @@ namespace Demos
         Nexus::Ref<Nexus::Graphics::Texture> m_NormalMap;
         Nexus::Ref<Nexus::Graphics::Texture> m_SpecularMap;
         glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
+
+        Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
 
         VB_UNIFORM_CAMERA_DEMO_MODELS m_CameraUniforms;
         Nexus::Ref<Nexus::Graphics::UniformBuffer> m_CameraUniformBuffer;

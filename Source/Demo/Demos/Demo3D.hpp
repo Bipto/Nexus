@@ -54,11 +54,6 @@ namespace Demos
 
         virtual void Render(Nexus::Time time) override
         {
-            Nexus::Graphics::TextureResourceBinding textureBinding;
-            textureBinding.Slot = 0;
-            textureBinding.Name = "texSampler";
-            m_Shader->SetTexture(m_Texture, textureBinding);
-
             Nexus::Graphics::RenderPassBeginInfo beginInfo{};
             beginInfo.ClearColorValue = {
                 m_ClearColour.r,
@@ -79,6 +74,12 @@ namespace Demos
             m_CommandList->Begin();
             m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
             m_CommandList->SetPipeline(m_Pipeline);
+
+            m_ResourceSet->WriteUniformBuffer(m_CameraUniformBuffer, 0);
+            m_ResourceSet->WriteUniformBuffer(m_TransformUniformBuffer, 1);
+            m_ResourceSet->WriteTexture(m_Texture, 0);
+            m_CommandList->SetResourceSet(m_ResourceSet);
+
             m_CommandList->SetVertexBuffer(m_Mesh.GetVertexBuffer());
             m_CommandList->SetIndexBuffer(m_Mesh.GetIndexBuffer());
 
@@ -126,6 +127,7 @@ namespace Demos
             pipelineDescription.ResourceSetSpecification = resources;
 
             m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
+            m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
         }
 
     private:
@@ -136,6 +138,8 @@ namespace Demos
         Nexus::Graphics::Mesh m_Mesh;
         Nexus::Ref<Nexus::Graphics::Texture> m_Texture;
         glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
+
+        Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
 
         VB_UNIFORM_CAMERA_DEMO_3D m_CameraUniforms;
         Nexus::Ref<Nexus::Graphics::UniformBuffer> m_CameraUniformBuffer;

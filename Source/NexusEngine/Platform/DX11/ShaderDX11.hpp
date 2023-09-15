@@ -14,7 +14,6 @@ namespace Nexus::Graphics
     {
     public:
         ShaderDX11(ID3D11Device *device, ID3D11DeviceContext *context, std::string vertexShaderSource, std::string fragmentShaderSource, const VertexBufferLayout &layout);
-        virtual void SetTexture(Ref<Texture> texture, const TextureResourceBinding &binding) override;
 
         virtual const std::string &GetVertexShaderSource() override;
         virtual const std::string &GetFragmentShaderSource() override;

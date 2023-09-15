@@ -17,6 +17,5 @@ namespace Nexus::Graphics
         void SetupRasterizer();
         void SetupBlending();
         void SetShader();
-        void SetupUniformBuffers();
     };
 }

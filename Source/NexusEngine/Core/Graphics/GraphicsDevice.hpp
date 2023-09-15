@@ -134,7 +134,15 @@ namespace Nexus::Graphics
         /// @return A reference counted pointer to a renderpass
         virtual Ref<RenderPass> CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain) = 0;
 
+        /// @brief A pure virtual method that creates a new resource set from a given specification
+        /// @param spec A set of properties to use when creating the resource set
+        /// @return A reference counted pointer to a resource set
         virtual Ref<ResourceSet> CreateResourceSet(const ResourceSetSpecification &spec) = 0;
+
+        /// @brief A method that creates a new resource set from a pipeline
+        /// @param pipeline A pipeline to use when creating the resource set
+        /// @return A reference counted pointer to a resource set
+        Ref<ResourceSet> CreateResourceSet(Ref<Pipeline> pipeline);
 
         /// @brief A pure virtual method that resizes the swapchain of the device to a given size
         /// @param size The new size of the swapchain

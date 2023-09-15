@@ -14,7 +14,7 @@ namespace Nexus::Graphics
     struct TextureResourceBinding
     {
         /// @brief An integer representing which slot the texture should be bound to
-        int Slot;
+        uint32_t Slot;
 
         /// @brief The name of the texture (must match the name within the shader as this is required by some APIs)
         std::string Name;
@@ -42,7 +42,13 @@ namespace Nexus::Graphics
     class ResourceSet
     {
     public:
-        virtual void UpdateTexture(Ref<Texture> texture, uint32_t binding) = 0;
-        virtual void UpdateUniformBuffer(Ref<UniformBuffer> uniformBuffer, uint32_t binding) = 0;
+        ResourceSet(const ResourceSetSpecification &spec) : m_Specification(spec) {}
+        virtual void WriteTexture(Ref<Texture> texture, uint32_t binding) = 0;
+        virtual void WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, uint32_t binding) = 0;
+
+        const ResourceSetSpecification &GetSpecification() { return m_Specification; }
+
+    protected:
+        ResourceSetSpecification m_Specification;
     };
 }

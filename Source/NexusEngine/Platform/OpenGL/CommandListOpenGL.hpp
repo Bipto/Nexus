@@ -28,8 +28,7 @@ namespace Nexus::Graphics
         virtual void DrawIndexed(uint32_t count, uint32_t offset) override;
 
         virtual void UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset) override;
-        virtual void WriteTexture(Ref<Texture> texture, Ref<Pipeline> pipeline, const TextureResourceBinding &binding) override;
-        virtual void WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, Ref<Pipeline> pipeline, uint32_t binding) override;
+        virtual void SetResourceSet(Ref<ResourceSet> resources) override;
 
     public:
         const std::vector<RenderCommand> &GetRenderCommands();
