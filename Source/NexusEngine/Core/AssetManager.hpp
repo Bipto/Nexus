@@ -15,7 +15,7 @@ namespace Nexus
 
         /// @brief A constructor taking in a reference counted pointer to a graphics device
         /// @param graphicsDevice A pointer to a graphics device
-        AssetManager(Ref<Graphics::GraphicsDevice> graphicsDevice) : m_GraphicsDevice(graphicsDevice) {}
+        AssetManager(Graphics::GraphicsDevice *graphicsDevice) : m_GraphicsDevice(graphicsDevice) {}
 
         /// @brief A method to return a reference counted pointer to a texture
         /// @param filepath A filepath to retrieve a texture from, if the texture has already been loaded then the cached one will be returned
@@ -24,6 +24,6 @@ namespace Nexus
 
     private:
         /// @brief A reference counted pointer to a graphics device
-        Ref<Graphics::GraphicsDevice> m_GraphicsDevice;
+        Graphics::GraphicsDevice *m_GraphicsDevice;
     };
 }

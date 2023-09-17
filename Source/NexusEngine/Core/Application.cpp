@@ -172,45 +172,45 @@ namespace Nexus
         return m_Window->GetInput();
     }
 
-    Ref<Graphics::GraphicsDevice> Application::GetGraphicsDevice()
+    Graphics::GraphicsDevice *Application::GetGraphicsDevice()
     {
-        return m_GraphicsDevice;
+        return m_GraphicsDevice.get();
     }
 
-    Ref<Audio::AudioDevice> Application::GetAudioDevice()
+    Audio::AudioDevice *Application::GetAudioDevice()
     {
-        return m_AudioDevice;
+        return m_AudioDevice.get();
     }
 
-    Ref<Graphics::GraphicsDevice> CreateGraphicsDevice(const Graphics::GraphicsDeviceCreateInfo &createInfo, Window *window)
+    Scope<Graphics::GraphicsDevice> CreateGraphicsDevice(const Graphics::GraphicsDeviceCreateInfo &createInfo, Window *window)
     {
         switch (createInfo.API)
         {
         case Graphics::GraphicsAPI::DirectX11:
 #if defined(NX_PLATFORM_DX11)
-            return CreateRef<Graphics::GraphicsDeviceDX11>(createInfo, window);
+            return CreateScope<Graphics::GraphicsDeviceDX11>(createInfo, window);
 #else
             return nullptr;
 #endif
 
         case Graphics::GraphicsAPI::OpenGL:
-            return CreateRef<Graphics::GraphicsDeviceOpenGL>(createInfo, window);
+            return CreateScope<Graphics::GraphicsDeviceOpenGL>(createInfo, window);
 
         case Graphics::GraphicsAPI::Vulkan:
 #if defined(NX_PLATFORM_VULKAN)
-            return CreateRef<Graphics::GraphicsDeviceVk>(createInfo, window);
+            return CreateScope<Graphics::GraphicsDeviceVk>(createInfo, window);
 #else
             return nullptr;
 #endif
         }
     }
 
-    Ref<Audio::AudioDevice> CreateAudioDevice(Audio::AudioAPI api)
+    Scope<Audio::AudioDevice> CreateAudioDevice(Audio::AudioAPI api)
     {
         switch (api)
         {
         default:
-            return CreateRef<Audio::AudioDeviceOpenAL>();
+            return CreateScope<Audio::AudioDeviceOpenAL>();
         }
     }
 }

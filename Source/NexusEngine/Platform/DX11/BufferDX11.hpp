@@ -17,7 +17,7 @@ namespace Nexus::Graphics
         /// @param description A const reference to a BufferDescription to describe how the buffer should be represented in memory
         /// @param data A const pointer to a set of data to use as the initial data of the buffer
         /// @param layout A const reference to a VertexBufferLayout describing the layout of the vertex buffer
-        VertexBufferDX11(ID3D11Device *device, ID3D11DeviceContext *context, const BufferDescription &description, const void *data, const VertexBufferLayout &layout);
+        VertexBufferDX11(Microsoft::WRL::ComPtr<ID3D11Device> device, Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, const BufferDescription &description, const void *data, const VertexBufferLayout &layout);
 
         /// @brief A destructor to clean up resources
         ~VertexBufferDX11();
@@ -26,14 +26,14 @@ namespace Nexus::Graphics
 
         /// @brief A method that returns a pointer to the ID3D11Buffer handle
         /// @return A pointer to the ID3D11Buffers
-        ID3D11Buffer *GetHandle();
+        Microsoft::WRL::ComPtr<ID3D11Buffer> GetHandle();
 
     private:
         /// @brief A pointer to an underlying ID3D11Buffer representing the vertex buffer
-        ID3D11Buffer *m_Buffer;
+        Microsoft::WRL::ComPtr<ID3D11Buffer> m_Buffer;
 
         /// @brief A pointer to an ID3D11DeviceContext to use to create and update the buffer
-        ID3D11DeviceContext *m_Context;
+        Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_Context;
     };
 
     /// @brief A class representing an index buffer to be used with the DirectX11 backend
@@ -45,7 +45,7 @@ namespace Nexus::Graphics
         /// @param context A pointer to an ID3D11DeviceContext to use to update the buffer
         /// @param description A const reference to a BufferDescription to describe how the buffer should be represented in memory
         /// @param data A const pointer to a set of data to use as the initial data of the buffer
-        IndexBufferDX11(ID3D11Device *device, ID3D11DeviceContext *context, const BufferDescription &description, const void *data, IndexBufferFormat format);
+        IndexBufferDX11(Microsoft::WRL::ComPtr<ID3D11Device> device, Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, const BufferDescription &description, const void *data, IndexBufferFormat format);
 
         /// @brief A destructor to clean up resources
         ~IndexBufferDX11();
@@ -54,14 +54,14 @@ namespace Nexus::Graphics
 
         /// @brief A method that returns a pointer to the ID3D11Buffer handle
         /// @return A pointer to the ID3D11Buffers
-        ID3D11Buffer *GetHandle();
+        Microsoft::WRL::ComPtr<ID3D11Buffer> GetHandle();
 
     private:
         /// @brief A pointer to an underlying ID3D11Buffer representing the index buffer
-        ID3D11Buffer *m_Buffer;
+        Microsoft::WRL::ComPtr<ID3D11Buffer> m_Buffer;
 
         /// @brief A pointer to an ID3D11DeviceContext to use to create and update the buffer
-        ID3D11DeviceContext *m_Context;
+        Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_Context;
     };
 
     /// @brief A class representing a uniform buffer to be used with the DirectX11 backend
@@ -73,7 +73,7 @@ namespace Nexus::Graphics
         /// @param context A pointer to an ID3D11DeviceContext to use to update the buffer
         /// @param description A const reference to a BufferDescription to describe how the buffer should be represented in memory
         /// @param data A const pointer to a set of data to use as the initial data of the buffer
-        UniformBufferDX11(ID3D11Device *device, ID3D11DeviceContext *context, const BufferDescription &description, const void *data);
+        UniformBufferDX11(Microsoft::WRL::ComPtr<ID3D11Device> device, Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, const BufferDescription &description, const void *data);
 
         /// @brief A destructor to clean up resources
         ~UniformBufferDX11();
@@ -82,14 +82,14 @@ namespace Nexus::Graphics
 
         /// @brief A method that returns a pointer to the ID3D11Buffer handle
         /// @return A pointer to the ID3D11Buffers
-        ID3D11Buffer *GetHandle();
+        Microsoft::WRL::ComPtr<ID3D11Buffer> GetHandle();
 
     private:
         /// @brief A pointer to an underlying ID3D11Buffer representing the uniform buffer
-        ID3D11Buffer *m_Buffer;
+        Microsoft::WRL::ComPtr<ID3D11Buffer> m_Buffer;
 
         /// @brief A pointer to an ID3D11DeviceContext to use to create and update the buffer
-        ID3D11DeviceContext *m_Context;
+        Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_Context;
     };
 }
 

@@ -91,7 +91,7 @@ namespace Nexus::Graphics
                 if (renderPass->GetColorLoadOperation() == Nexus::Graphics::LoadOperation::Clear)
                 {
                     for (auto target : activeRenderTargetViews)
-                        context->ClearRenderTargetView(target, backgroundColor);
+                        context->ClearRenderTargetView(target.Get(), backgroundColor);
                 }
 
                 if (renderPass->GetDepthStencilLoadOperation() == Nexus::Graphics::LoadOperation::Clear)
@@ -102,7 +102,7 @@ namespace Nexus::Graphics
                     clearFlags |= D3D11_CLEAR_STENCIL;
 
                     context->ClearDepthStencilView(
-                        depthStencilView,
+                        depthStencilView.Get(),
                         clearFlags,
                         beginInfo.ClearDepthStencilValue.Depth,
                         beginInfo.ClearDepthStencilValue.Stencil);
@@ -168,7 +168,7 @@ namespace Nexus::Graphics
             auto bufferFormat = indexBufferDX11->GetFormat();
 
             context->IASetIndexBuffer(
-                nativeBuffer,
+                nativeBuffer.Get(),
                 GetD3DIndexBufferFormat(indexBufferDX11->GetFormat()),
                 0);
         };
@@ -287,11 +287,8 @@ namespace Nexus::Graphics
             {
                 auto textureDX11 = std::dynamic_pointer_cast<TextureDX11>(textureBinding.second);
 
-                const ID3D11ShaderResourceView *resourceViews[] = {textureDX11->GetResourceView()};
-                const ID3D11SamplerState *samplers[] = {textureDX11->GetSamplerState()};
-
-                context->PSSetShaderResources(textureBinding.first, 1, (ID3D11ShaderResourceView *const *)resourceViews);
-                context->PSSetSamplers(textureBinding.first, 1, (ID3D11SamplerState *const *)samplers);
+                context->PSSetShaderResources(textureBinding.first, 1, (ID3D11ShaderResourceView *const *)textureDX11->GetResourceView().GetAddressOf());
+                context->PSSetSamplers(textureBinding.first, 1, (ID3D11SamplerState *const *)textureDX11->GetSamplerState().GetAddressOf());
             }
 
             // update uniform buffers
@@ -346,17 +343,17 @@ namespace Nexus::Graphics
 
         auto context = m_GraphicsDevice->GetDeviceContext();
 
-        context->OMSetDepthStencilState(depthStencilState, 0);
-        context->RSSetState(rasterizerState);
+        context->OMSetDepthStencilState(depthStencilState.Get(), 0);
+        context->RSSetState(rasterizerState.Get());
         context->RSSetViewports(1, &viewport);
         context->RSSetScissorRects(1, &scissorRectangle);
 
-        context->OMSetBlendState(blendState, NULL, 0xffffffff);
+        context->OMSetBlendState(blendState.Get(), NULL, 0xffffffff);
 
         context->IASetPrimitiveTopology(topology);
-        context->VSSetShader(dxShader->GetVertexShader(), 0, 0);
-        context->PSSetShader(dxShader->GetPixelShader(), 0, 0);
-        context->IASetInputLayout(dxShader->GetInputLayout());
+        context->VSSetShader(dxShader->GetVertexShader().Get(), 0, 0);
+        context->PSSetShader(dxShader->GetPixelShader().Get(), 0, 0);
+        context->IASetInputLayout(dxShader->GetInputLayout().Get());
 #endif
     }
 }

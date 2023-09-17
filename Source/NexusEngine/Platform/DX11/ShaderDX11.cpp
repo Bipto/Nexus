@@ -30,7 +30,7 @@ namespace Nexus::Graphics
         }
     }
 
-    ShaderDX11::ShaderDX11(ID3D11Device *device, ID3D11DeviceContext *context, std::string vertexShaderSource, std::string fragmentShaderSource, const VertexBufferLayout &layout)
+    ShaderDX11::ShaderDX11(Microsoft::WRL::ComPtr<ID3D11Device> device, Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, std::string vertexShaderSource, std::string fragmentShaderSource, const VertexBufferLayout &layout)
     {
         m_Device = device;
         m_ContextPtr = context;
@@ -40,7 +40,7 @@ namespace Nexus::Graphics
         flags |= D3DCOMPILE_DEBUG;
 #endif
 
-        ID3DBlob *error_blob = NULL;
+        Microsoft::WRL::ComPtr<ID3DBlob> error_blob = NULL;
 
         HRESULT hr = D3DCompile(
             vertexShaderSource.c_str(),
@@ -53,7 +53,7 @@ namespace Nexus::Graphics
             flags,
             0,
             &m_VertexBlobPtr,
-            &error_blob);
+            error_blob.GetAddressOf());
 
         if (FAILED(hr))
         {
@@ -61,11 +61,6 @@ namespace Nexus::Graphics
             {
                 std::string errorMessage = std::string((char *)error_blob->GetBufferPointer());
                 NX_ERROR(errorMessage);
-                error_blob->Release();
-            }
-            if (m_VertexBlobPtr)
-            {
-                m_VertexBlobPtr->Release();
             }
         }
         else
@@ -92,7 +87,7 @@ namespace Nexus::Graphics
             flags,
             0,
             &m_PixelBlobPtr,
-            &error_blob);
+            error_blob.GetAddressOf());
 
         if (FAILED(hr))
         {
@@ -100,11 +95,6 @@ namespace Nexus::Graphics
             {
                 std::string errorMessage = std::string((char *)error_blob->GetBufferPointer());
                 NX_ERROR(errorMessage);
-                error_blob->Release();
-            }
-            if (m_PixelBlobPtr)
-            {
-                m_PixelBlobPtr->Release();
             }
         }
         else

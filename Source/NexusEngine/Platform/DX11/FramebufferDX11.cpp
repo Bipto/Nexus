@@ -6,7 +6,7 @@
 namespace Nexus::Graphics
 {
 #if defined(WIN32)
-    FramebufferDX11::FramebufferDX11(ID3D11Device *device, Ref<RenderPass> renderPass)
+    FramebufferDX11::FramebufferDX11(Microsoft::WRL::ComPtr<ID3D11Device> device, Ref<RenderPass> renderPass)
         : Framebuffer(renderPass)
     {
         m_Device = device;
@@ -25,7 +25,7 @@ namespace Nexus::Graphics
 
     void *FramebufferDX11::GetColorAttachment(int index)
     {
-        return m_ColorRenderTargets[index].ShaderResourceView;
+        return m_ColorRenderTargets[index].ShaderResourceView.Get();
     }
 
     const FramebufferSpecification FramebufferDX11::GetFramebufferSpecification()
@@ -76,7 +76,7 @@ namespace Nexus::Graphics
                 renderTargetViewDesc.Format = textureDesc.Format;
                 renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
                 renderTargetViewDesc.Texture2D.MipSlice = 0;
-                hr = m_Device->CreateRenderTargetView(target.Texture, &renderTargetViewDesc, &target.RenderTargetView);
+                hr = m_Device->CreateRenderTargetView(target.Texture.Get(), &renderTargetViewDesc, target.RenderTargetView.GetAddressOf());
 
                 if (FAILED(hr))
                 {
@@ -89,7 +89,7 @@ namespace Nexus::Graphics
                 shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
                 shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
                 shaderResourceViewDesc.Texture2D.MipLevels = 1;
-                hr = m_Device->CreateShaderResourceView(target.Texture, &shaderResourceViewDesc, &target.ShaderResourceView);
+                hr = m_Device->CreateShaderResourceView(target.Texture.Get(), &shaderResourceViewDesc, target.ShaderResourceView.GetAddressOf());
 
                 if (FAILED(hr))
                 {
@@ -129,7 +129,7 @@ namespace Nexus::Graphics
                 NX_ERROR(output);
             }
 
-            hr = m_Device->CreateDepthStencilView(depthTarget.Texture, NULL, &depthTarget.DepthStencilView);
+            hr = m_Device->CreateDepthStencilView(depthTarget.Texture.Get(), NULL, depthTarget.DepthStencilView.GetAddressOf());
 
             if (FAILED(hr))
             {
@@ -144,34 +144,6 @@ namespace Nexus::Graphics
 
     void FramebufferDX11::DeleteTextures()
     {
-        for (auto colorAttachment : m_ColorRenderTargets)
-        {
-            colorAttachment.RenderTargetView->Release();
-            colorAttachment.RenderTargetView = nullptr;
-
-            colorAttachment.ShaderResourceView->Release();
-            colorAttachment.ShaderResourceView = nullptr;
-
-            colorAttachment.Texture->Release();
-            colorAttachment.Texture = nullptr;
-        }
-
-        if (HasDepthTexture())
-        {
-            if (m_DepthTarget.DepthStencilView)
-            {
-                m_DepthTarget.DepthStencilView->Release();
-                m_DepthTarget.DepthStencilView = nullptr;
-            }
-
-            if (m_DepthTarget.Texture)
-            {
-                m_DepthTarget.Texture->Release();
-                m_DepthTarget.Texture = nullptr;
-            }
-        }
-
-        m_ColorRenderTargets.clear();
     }
 
 #endif

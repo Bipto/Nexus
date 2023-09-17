@@ -13,6 +13,8 @@ namespace Nexus::Graphics
     {
     public:
         GraphicsDeviceDX11(const GraphicsDeviceCreateInfo &createInfo, Window *window);
+        virtual ~GraphicsDeviceDX11();
+
         virtual void SetContext() override;
         void SetFramebuffer(Ref<Framebuffer> framebuffer);
         virtual void SubmitCommandList(Ref<CommandList> commandList) override;
@@ -44,19 +46,16 @@ namespace Nexus::Graphics
 
         virtual Swapchain *GetSwapchain() override;
 
-        ID3D11Device *GetDevice()
-        {
-            return m_DevicePtr;
-        }
-        ID3D11DeviceContext *GetDeviceContext();
-        std::vector<ID3D11RenderTargetView *> &GetActiveRenderTargetViews();
-        ID3D11DepthStencilView *&GetActiveDepthStencilView();
+        Microsoft::WRL::ComPtr<ID3D11Device> GetDevice();
+        Microsoft::WRL::ComPtr<ID3D11DeviceContext> GetDeviceContext();
+        std::vector<Microsoft::WRL::ComPtr<ID3D11RenderTargetView>> GetActiveRenderTargetViews();
+        Microsoft::WRL::ComPtr<ID3D11DepthStencilView> GetActiveDepthStencilView();
 
     private:
-        ID3D11Device *m_DevicePtr = NULL;
-        ID3D11DeviceContext *m_DeviceContextPtr = NULL;
-        std::vector<ID3D11RenderTargetView *> m_ActiveRenderTargetviews;
-        ID3D11DepthStencilView *m_ActiveDepthStencilView = NULL;
+        Microsoft::WRL::ComPtr<ID3D11Device> m_DevicePtr = NULL;
+        Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_DeviceContextPtr = NULL;
+        std::vector<Microsoft::WRL::ComPtr<ID3D11RenderTargetView>> m_ActiveRenderTargetviews;
+        Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_ActiveDepthStencilView = NULL;
         bool m_Initialised = false;
         Ref<Shader> m_ActiveShader = NULL;
         std::string m_AdapterName;

@@ -52,12 +52,12 @@ namespace Nexus
     /// @brief A static method to create a new graphics device from a set of options
     /// @param createInfo Options to use to configure the graphics device
     /// @return A reference counted pointer to a graphics device
-    static Ref<Graphics::GraphicsDevice> CreateGraphicsDevice(const Graphics::GraphicsDeviceCreateInfo &createInfo, Window *window);
+    static Scope<Graphics::GraphicsDevice> CreateGraphicsDevice(const Graphics::GraphicsDeviceCreateInfo &createInfo, Window *window);
 
     /// @brief A static method to create a new audio device from a selected audio API
     /// @param api The audio API to use to manage audio resources
     /// @return A reference counted pointer to an audio device
-    static Ref<Audio::AudioDevice> CreateAudioDevice(Audio::AudioAPI api);
+    static Scope<Audio::AudioDevice> CreateAudioDevice(Audio::AudioAPI api);
 
     /// @brief A struct representing options to use when creating an application
     struct ApplicationSpecification
@@ -169,18 +169,18 @@ namespace Nexus
 
         /// @brief A method that returns a pointer to the application's graphics device
         /// @return A reference counted pointer to a graphics device
-        Ref<Graphics::GraphicsDevice> GetGraphicsDevice();
+        Graphics::GraphicsDevice *GetGraphicsDevice();
 
         /// @brief A method that returns a pointer to the application's audio device
         /// @return A reference counted pointer to an audio device
-        Ref<Audio::AudioDevice> GetAudioDevice();
+        Audio::AudioDevice *GetAudioDevice();
 
     protected:
         /// @brief A reference counted pointer to a graphics device
-        Ref<Graphics::GraphicsDevice> m_GraphicsDevice;
+        Scope<Graphics::GraphicsDevice> m_GraphicsDevice;
 
         /// @brief A reference counted pointer to an audio device
-        Ref<Audio::AudioDevice> m_AudioDevice;
+        Scope<Audio::AudioDevice> m_AudioDevice;
 
         Nexus::Graphics::ImGuiRenderer *m_ImGuiRenderer = nullptr;
 

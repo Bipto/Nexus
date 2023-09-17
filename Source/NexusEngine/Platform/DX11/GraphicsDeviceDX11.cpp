@@ -62,22 +62,27 @@ namespace Nexus::Graphics
             &m_DeviceContextPtr);
 
         m_Swapchain = new SwapchainDX11(m_Window, m_DevicePtr, swapchain, createInfo.VSyncStateSettings);
-        m_ActiveRenderTargetviews = {m_Swapchain->GetRenderTargetView()};
+        m_ActiveRenderTargetviews = {m_Swapchain->GetRenderTargetView().Get()};
         m_ActiveDepthStencilView = m_Swapchain->GetDepthStencilView();
 
         m_DeviceContextPtr->OMSetRenderTargets(
             m_ActiveRenderTargetviews.size(),
-            m_ActiveRenderTargetviews.data(),
-            m_ActiveDepthStencilView);
+            (ID3D11RenderTargetView *const *)m_ActiveRenderTargetviews.data(),
+            m_ActiveDepthStencilView.Get());
 
-        IDXGIFactory1 *factory;
-        IDXGIAdapter1 *adapter;
+        Microsoft::WRL::ComPtr<IDXGIFactory1> factory;
+        Microsoft::WRL::ComPtr<IDXGIAdapter1> adapter;
         CreateDXGIFactory1(IID_PPV_ARGS(&factory));
         factory->EnumAdapters1(0, &adapter);
         DXGI_ADAPTER_DESC1 adapterDesc;
         adapter->GetDesc1(&adapterDesc);
         std::wstring ws(adapterDesc.Description);
         m_AdapterName = std::string(ws.begin(), ws.end());
+    }
+
+    GraphicsDeviceDX11::~GraphicsDeviceDX11()
+    {
+        delete m_Swapchain;
     }
 
     void GraphicsDeviceDX11::SetContext()
@@ -90,7 +95,7 @@ namespace Nexus::Graphics
         {
             Ref<FramebufferDX11> dxFramebuffer = std::dynamic_pointer_cast<FramebufferDX11>(framebuffer);
 
-            std::vector<ID3D11RenderTargetView *> colorTargets;
+            std::vector<Microsoft::WRL::ComPtr<ID3D11RenderTargetView>> colorTargets;
             for (const auto &colorTarget : dxFramebuffer->GetColorRenderTargets())
             {
                 colorTargets.push_back(colorTarget.RenderTargetView);
@@ -107,8 +112,8 @@ namespace Nexus::Graphics
 
         m_DeviceContextPtr->OMSetRenderTargets(
             m_ActiveRenderTargetviews.size(),
-            m_ActiveRenderTargetviews.data(),
-            m_ActiveDepthStencilView);
+            (ID3D11RenderTargetView *const *)m_ActiveRenderTargetviews.data(),
+            m_ActiveDepthStencilView.Get());
     }
 
     void GraphicsDeviceDX11::SubmitCommandList(Ref<CommandList> commandList)
@@ -133,7 +138,7 @@ namespace Nexus::Graphics
 
     void *GraphicsDeviceDX11::GetContext()
     {
-        return m_DeviceContextPtr;
+        return m_DeviceContextPtr.Get();
     }
 
     void GraphicsDeviceDX11::BeginFrame()
@@ -213,8 +218,8 @@ namespace Nexus::Graphics
 
         m_DeviceContextPtr->OMSetRenderTargets(
             m_ActiveRenderTargetviews.size(),
-            m_ActiveRenderTargetviews.data(),
-            m_ActiveDepthStencilView);
+            (ID3D11RenderTargetView *const *)m_ActiveRenderTargetviews.data(),
+            m_ActiveDepthStencilView.Get());
     }
 
     Swapchain *GraphicsDeviceDX11::GetSwapchain()
@@ -222,17 +227,22 @@ namespace Nexus::Graphics
         return m_Swapchain;
     }
 
-    ID3D11DeviceContext *GraphicsDeviceDX11::GetDeviceContext()
+    Microsoft::WRL::ComPtr<ID3D11Device> GraphicsDeviceDX11::GetDevice()
+    {
+        return m_DevicePtr;
+    }
+
+    Microsoft::WRL::ComPtr<ID3D11DeviceContext> GraphicsDeviceDX11::GetDeviceContext()
     {
         return m_DeviceContextPtr;
     }
 
-    std::vector<ID3D11RenderTargetView *> &GraphicsDeviceDX11::GetActiveRenderTargetViews()
+    std::vector<Microsoft::WRL::ComPtr<ID3D11RenderTargetView>> GraphicsDeviceDX11::GetActiveRenderTargetViews()
     {
         return m_ActiveRenderTargetviews;
     }
 
-    ID3D11DepthStencilView *&GraphicsDeviceDX11::GetActiveDepthStencilView()
+    Microsoft::WRL::ComPtr<ID3D11DepthStencilView> GraphicsDeviceDX11::GetActiveDepthStencilView()
     {
         return m_ActiveDepthStencilView;
     }
