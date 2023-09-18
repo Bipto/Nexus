@@ -138,6 +138,7 @@ namespace Nexus::Graphics
     GraphicsDeviceOpenGL::~GraphicsDeviceOpenGL()
     {
         SDL_GL_DeleteContext(m_Context);
+        delete m_Swapchain;
     }
 
     void GraphicsDeviceOpenGL::SetContext()

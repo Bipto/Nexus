@@ -38,6 +38,11 @@ namespace Nexus::Graphics
         m_FragmentShaderSource = fragmentShaderSource;
     }
 
+    ShaderOpenGL::~ShaderOpenGL()
+    {
+        glDeleteProgram(m_ProgramHandle);
+    }
+
     void ShaderOpenGL::Bind()
     {
         glUseProgram(this->m_ProgramHandle);
@@ -105,6 +110,8 @@ namespace Nexus::Graphics
             NX_ERROR(errorMessage);
         }
 
+        glDetachShader(GL_VERTEX_SHADER, vertexShader);
+        glDetachShader(GL_FRAGMENT_SHADER, fragmentShader);
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
     }

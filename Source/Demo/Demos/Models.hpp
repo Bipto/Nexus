@@ -32,7 +32,7 @@ namespace Demos
             m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/models.glsl",
                                                                    Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
 
-            Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
+            Nexus::Graphics::MeshFactory factory(m_GraphicsDevice.get());
             m_Model = factory.CreateFrom3DModelFile("Resources/Models/Survival_BackPack_2/Survival_BackPack_2.fbx");
 
             m_DiffuseMap = m_GraphicsDevice->CreateTexture("Resources/Models/Survival_BackPack_2/1001_albedo.jpg");

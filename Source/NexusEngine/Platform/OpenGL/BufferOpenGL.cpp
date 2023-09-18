@@ -45,6 +45,12 @@ namespace Nexus::Graphics
         glBindVertexArray(0);
     }
 
+    VertexBufferOpenGL::~VertexBufferOpenGL()
+    {
+        glDeleteBuffers(1, &m_Buffer);
+        glDeleteVertexArrays(1, &m_VAO);
+    }
+
     void VertexBufferOpenGL::SetData(const void *data, uint32_t size, uint32_t offset)
     {
         glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);
@@ -74,6 +80,11 @@ namespace Nexus::Graphics
         GL::CheckErrors();
     }
 
+    IndexBufferOpenGL::~IndexBufferOpenGL()
+    {
+        glDeleteBuffers(1, &m_Buffer);
+    }
+
     void IndexBufferOpenGL::SetData(const void *data, uint32_t size, uint32_t offset)
     {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer);
@@ -100,6 +111,11 @@ namespace Nexus::Graphics
         glBindBuffer(GL_UNIFORM_BUFFER, m_Buffer);
         glBufferData(GL_UNIFORM_BUFFER, description.Size, data, bufferUsage);
         GL::CheckErrors();
+    }
+
+    UniformBufferOpenGL::~UniformBufferOpenGL()
+    {
+        glDeleteBuffers(1, &m_Buffer);
     }
 
     void UniformBufferOpenGL::SetData(const void *data, uint32_t size, uint32_t offset)

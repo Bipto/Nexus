@@ -78,7 +78,6 @@ namespace Nexus::Graphics
         case GraphicsAPI::Vulkan:
             EndFrameImplVulkan();
             break;
-            break;
         }
     }
 

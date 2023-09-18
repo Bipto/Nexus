@@ -111,7 +111,7 @@ namespace Nexus::Graphics
         return Mesh(vertexBuffer, indexBuffer);
     }
 
-    Mesh ProcessMesh(aiMesh *mesh, const aiScene *scene, Ref<GraphicsDevice> device)
+    Mesh ProcessMesh(aiMesh *mesh, const aiScene *scene, GraphicsDevice *device)
     {
         std::vector<VertexPositionTexCoordNormalTangentBitangent> vertices;
         std::vector<unsigned int> indices;
@@ -163,7 +163,7 @@ namespace Nexus::Graphics
         return Mesh(vertexBuffer, indexBuffer, name);
     }
 
-    void ProcessNode(aiNode *node, const aiScene *scene, std::vector<Mesh> &meshes, Ref<GraphicsDevice> device)
+    void ProcessNode(aiNode *node, const aiScene *scene, std::vector<Mesh> &meshes, GraphicsDevice *device)
     {
         for (unsigned int i = 0; i < node->mNumMeshes; i++)
         {

@@ -11,9 +11,9 @@ namespace Nexus::Graphics
     class MeshFactory
     {
     public:
-        /// @brief
-        /// @param device
-        explicit MeshFactory(Ref<GraphicsDevice> device)
+        /// @brief A constructor to create a new MeshFactory
+        /// @param device A graphics device to use to create resources
+        explicit MeshFactory(GraphicsDevice *device)
         {
             m_Device = device;
         }
@@ -32,7 +32,7 @@ namespace Nexus::Graphics
         Nexus::Graphics::Model CreateFrom3DModelFile(const std::string &filepath);
 
     private:
-        /// @brief A reference counted pointer to a graphics device to use to create the vertex buffer and index buffer
-        Ref<GraphicsDevice> m_Device = nullptr;
+        /// @brief A pointer to a graphics device to use to create the vertex buffer and index buffer
+        GraphicsDevice *m_Device = nullptr;
     };
 }

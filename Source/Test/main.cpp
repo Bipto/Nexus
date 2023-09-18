@@ -21,7 +21,7 @@ public:
 
     virtual void Load() override
     {
-        /* m_CommandList = m_GraphicsDevice->CreateCommandList();
+        m_CommandList = m_GraphicsDevice->CreateCommandList();
 
         Nexus::Graphics::RenderPassSpecification spec;
         spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
@@ -38,7 +38,7 @@ public:
         CreatePipeline({GetWindowSize().X,
                         GetWindowSize().Y});
 
-        Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
+        Nexus::Graphics::MeshFactory factory(m_GraphicsDevice.get());
         m_Mesh = factory.CreateSprite();
 
         m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
@@ -57,7 +57,7 @@ public:
         m_FramebufferRenderPass = m_GraphicsDevice->CreateRenderPass(offscreenSpec, framebufferSpec);
         m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(m_FramebufferRenderPass);
 
-        m_BoundTexture = m_ImGuiRenderer->BindTexture(m_Texture); */
+        m_BoundTexture = m_ImGuiRenderer->BindTexture(m_Texture);
     }
 
     virtual void Update(Nexus::Time time) override
@@ -66,13 +66,9 @@ public:
 
     virtual void Render(Nexus::Time time) override
     {
-        /* ImGui::Begin("Texture Window");
-        ImGui::Image(m_BoundTexture, {300, 300});
-        ImGui::End(); */
-
         m_GraphicsDevice->BeginFrame();
 
-        /* m_TestUniforms.Transform = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), {0, 0, 1});
+        m_TestUniforms.Transform = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), {0, 0, 1});
         m_UniformBuffer->SetData(&m_TestUniforms, sizeof(m_TestUniforms), 0);
 
         m_CommandList->Begin();
@@ -110,8 +106,12 @@ public:
             m_CommandList->EndRenderPass();
         }
 
+        ImGui::Begin("Texture Window");
+        ImGui::Image(m_BoundTexture, {300, 300});
+        ImGui::End();
+
         m_CommandList->End();
-        m_GraphicsDevice->SubmitCommandList(m_CommandList); */
+        m_GraphicsDevice->SubmitCommandList(m_CommandList);
 
         m_GraphicsDevice->EndFrame();
     }
@@ -124,7 +124,7 @@ public:
 
     void CreatePipeline(Nexus::Point<int> size)
     {
-        /* Nexus::Graphics::PipelineDescription description;
+        Nexus::Graphics::PipelineDescription description;
         description.Shader = m_Shader;
         description.RenderPass = m_RenderPass;
         description.Viewport.X = 0;
@@ -151,7 +151,7 @@ public:
 
         m_Pipeline = m_GraphicsDevice->CreatePipeline(description);
 
-        m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline); */
+        m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
     }
 
     virtual void Unload() override
@@ -159,7 +159,7 @@ public:
     }
 
 private:
-    /* Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
+    Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
     Nexus::Ref<Nexus::Graphics::RenderPass> m_RenderPass;
 
     Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
@@ -174,15 +174,15 @@ private:
     Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
 
     TestUniforms m_TestUniforms;
-    ImTextureID m_BoundTexture; */
+    ImTextureID m_BoundTexture;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::DirectX11;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
-    spec.ImGuiActive = false;
+    spec.ImGuiActive = true;
     spec.VSyncState = Nexus::Graphics::VSyncState::Enabled;
 
     return new TestApplication(spec);
