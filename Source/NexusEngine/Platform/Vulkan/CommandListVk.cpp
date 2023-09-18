@@ -53,6 +53,15 @@ namespace Nexus::Graphics
         }
     }
 
+    CommandListVk::~CommandListVk()
+    {
+        for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+        {
+            vkFreeCommandBuffers(m_Device->GetVkDevice(), m_CommandPools[i], 1, &m_CommandBuffers[i]);
+            vkDestroyCommandPool(m_Device->GetVkDevice(), m_CommandPools[i], nullptr);
+        }
+    }
+
     void CommandListVk::Begin()
     {
         // get current command buffer

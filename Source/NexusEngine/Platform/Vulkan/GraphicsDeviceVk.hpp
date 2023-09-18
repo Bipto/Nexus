@@ -29,6 +29,7 @@ namespace Nexus::Graphics
         GraphicsDeviceVk(const GraphicsDeviceCreateInfo &createInfo, Window *window);
         GraphicsDeviceVk(const GraphicsDeviceVk &) = delete;
         virtual ~GraphicsDeviceVk();
+
         void SetContext() override;
         virtual void SubmitCommandList(Ref<CommandList> commandList) override;
 
@@ -75,7 +76,6 @@ namespace Nexus::Graphics
         // vulkan functions
     private:
         void CreateInstance();
-        void CreateDebug();
         void SetupDebugMessenger();
         void SelectPhysicalDevice();
         void SelectQueueFamilies();
@@ -104,8 +104,6 @@ namespace Nexus::Graphics
         void CleanupSwapchain();
         void CleanupDepthStencil();
 
-        void CreateImGuiRenderPass();
-
     private:
         // utility functions
         VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
@@ -116,11 +114,11 @@ namespace Nexus::Graphics
         std::vector<const char *> GetRequiredExtensions();
         static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData);
         VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pDebugMessenger);
+        void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT messenger, const VkAllocationCallbacks *pAllocator);
 
     private:
         // Vulkan types
         VkInstance m_Instance;
-        VkDebugReportCallbackEXT m_DebugCallback;
         VkPhysicalDevice m_PhysicalDevice;
         VkDebugUtilsMessengerEXT m_DebugMessenger;
 

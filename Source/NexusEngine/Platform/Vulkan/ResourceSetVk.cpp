@@ -163,6 +163,20 @@ namespace Nexus::Graphics
         }
     }
 
+    ResourceSetVk::~ResourceSetVk()
+    {
+        for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+        {
+            vkDestroyDescriptorSetLayout(m_Device->GetVkDevice(), m_SamplerLayout[i], nullptr);
+            vkDestroyDescriptorSetLayout(m_Device->GetVkDevice(), m_UniformBufferLayout[i], nullptr);
+
+            vkFreeDescriptorSets(m_Device->GetVkDevice(), m_DescriptorPool, 1, &m_SamplerDescriptorSet[i]);
+            vkFreeDescriptorSets(m_Device->GetVkDevice(), m_DescriptorPool, 1, &m_UniformBufferDescriptorSet[i]);
+
+            vkDestroyDescriptorPool(m_Device->GetVkDevice(), m_DescriptorPool, nullptr);
+        }
+    }
+
     void ResourceSetVk::WriteTexture(Ref<Texture> texture, uint32_t binding)
     {
         Ref<TextureVk> textureVk = std::dynamic_pointer_cast<TextureVk>(texture);
