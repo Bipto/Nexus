@@ -24,6 +24,11 @@ namespace Nexus::Graphics
         SetData(data, description.Size, 0);
     }
 
+    VertexBufferVk::~VertexBufferVk()
+    {
+        vmaDestroyBuffer(m_Device->GetAllocator(), m_Buffer.Buffer, m_Buffer.Allocation);
+    }
+
     void VertexBufferVk::SetData(const void *data, uint32_t size, uint32_t offset)
     {
         if (data)
@@ -59,6 +64,11 @@ namespace Nexus::Graphics
         }
 
         SetData(data, description.Size, 0);
+    }
+
+    IndexBufferVk::~IndexBufferVk()
+    {
+        vmaDestroyBuffer(m_Device->GetAllocator(), m_Buffer.Buffer, m_Buffer.Allocation);
     }
 
     void IndexBufferVk::SetData(const void *data, uint32_t size, uint32_t offset)
@@ -102,6 +112,14 @@ namespace Nexus::Graphics
         }
 
         SetData(data, description.Size, 0);
+    }
+
+    UniformBufferVk::~UniformBufferVk()
+    {
+        for (int i = 0; i < m_Buffers.size(); i++)
+        {
+            vmaDestroyBuffer(m_Device->GetAllocator(), m_Buffers[i].Buffer, m_Buffers[i].Allocation);
+        }
     }
 
     void UniformBufferVk::SetData(const void *data, uint32_t size, uint32_t offset)

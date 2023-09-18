@@ -16,6 +16,8 @@ namespace Nexus::Graphics
     {
     public:
         SwapchainVk(Window *window, VSyncState vSyncState, GraphicsDeviceVk *graphicsDevice);
+        virtual ~SwapchainVk();
+
         virtual void SwapBuffers() override;
         virtual VSyncState GetVsyncState() override;
         virtual void SetVSyncState(VSyncState vsyncState) override;

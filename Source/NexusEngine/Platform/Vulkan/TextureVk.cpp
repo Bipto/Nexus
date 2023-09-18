@@ -5,7 +5,7 @@
 namespace Nexus::Graphics
 {
     TextureVk::TextureVk(GraphicsDeviceVk *graphicsDevice, const TextureSpecification &spec)
-        : Texture(spec)
+        : Texture(spec), m_GraphicsDevice(graphicsDevice)
     {
         VkDeviceSize imageSize = spec.Width * spec.Height * spec.NumberOfChannels;
         VkFormat format = VK_FORMAT_R8G8B8A8_UNORM;
@@ -126,6 +126,9 @@ namespace Nexus::Graphics
 
     TextureVk::~TextureVk()
     {
+        vkDestroySampler(m_GraphicsDevice->GetVkDevice(), m_Sampler, nullptr);
+        vkDestroyImageView(m_GraphicsDevice->GetVkDevice(), m_ImageView, nullptr);
+        vmaDestroyImage(m_GraphicsDevice->GetAllocator(), m_Image, m_Allocation);
     }
 
     void *TextureVk::GetHandle()

@@ -13,6 +13,26 @@ namespace Nexus::Graphics
         m_GraphicsDevice = graphicsDevice;
     }
 
+    SwapchainVk::~SwapchainVk()
+    {
+        for (int i = 0; i < m_SwapchainFramebuffers.size(); i++)
+        {
+            vkDestroyFramebuffer(m_GraphicsDevice->GetVkDevice(), m_SwapchainFramebuffers[i], nullptr);
+        }
+
+        vkDestroyImageView(m_GraphicsDevice->GetVkDevice(), m_DepthImageView, nullptr);
+        vkFreeMemory(m_GraphicsDevice->GetVkDevice(), m_DepthImageMemory, nullptr);
+        vkDestroyImage(m_GraphicsDevice->GetVkDevice(), m_DepthImage, nullptr);
+
+        for (int i = 0; i < m_SwapchainImageCount; i++)
+        {
+            vkDestroyImageView(m_GraphicsDevice->GetVkDevice(), m_SwapchainImageViews[i], nullptr);
+        }
+
+        vkDestroySwapchainKHR(m_GraphicsDevice->GetVkDevice(), m_Swapchain, nullptr);
+        vkDestroySurfaceKHR(m_GraphicsDevice->m_Instance, m_Surface, nullptr);
+    }
+
     void SwapchainVk::SwapBuffers()
     {
         VkPresentInfoKHR presentInfo = {};

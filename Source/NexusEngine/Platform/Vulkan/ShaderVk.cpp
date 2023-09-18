@@ -37,6 +37,12 @@ namespace Nexus::Graphics
         m_ShaderStages.push_back(fragmentInfo);
     }
 
+    ShaderVk::~ShaderVk()
+    {
+        vkDestroyShaderModule(m_GraphicsDevice->GetVkDevice(), m_VertexShader, nullptr);
+        vkDestroyShaderModule(m_GraphicsDevice->GetVkDevice(), m_FragmentShader, nullptr);
+    }
+
     const std::string &ShaderVk::GetVertexShaderSource()
     {
         return m_VertexShaderSource;

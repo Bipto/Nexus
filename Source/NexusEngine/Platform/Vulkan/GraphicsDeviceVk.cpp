@@ -42,6 +42,23 @@ namespace Nexus::Graphics
 
     GraphicsDeviceVk::~GraphicsDeviceVk()
     {
+        vkFreeCommandBuffers(m_Device, m_ImGuiCommandPool, 1, &m_ImGuiCommandBuffer);
+        vkDestroyCommandPool(m_Device, m_ImGuiCommandPool, nullptr);
+
+        delete m_Swapchain;
+
+        vkDestroyFence(m_Device, m_UploadContext.UploadFence, nullptr);
+        vkFreeCommandBuffers(m_Device, m_UploadContext.CommandPool, 1, &m_UploadContext.CommandBuffer);
+        vkDestroyCommandPool(m_Device, m_UploadContext.CommandPool, nullptr);
+
+        for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+        {
+            vkDestroySemaphore(m_Device, m_Frames[i].PresentSemaphore, nullptr);
+            vkDestroySemaphore(m_Device, m_Frames[i].RenderSemaphore, nullptr);
+            vkDestroyFence(m_Device, m_Frames[i].RenderFence, nullptr);
+            vkFreeCommandBuffers(m_Device, m_Frames[i].CommandPool, 1, &m_Frames[i].MainCommandBuffer);
+            vkDestroyCommandPool(m_Device, m_Frames[i].CommandPool, nullptr);
+        }
     }
 
     void GraphicsDeviceVk::SetContext()
@@ -370,21 +387,6 @@ namespace Nexus::Graphics
     {
         std::cout << "VULKAN VALIDATION: " << msg << std::endl;
         return VK_FALSE;
-    }
-
-    PFN_vkCreateDebugReportCallbackEXT SDL2_vkCreateDebugReportCallbackEXT = nullptr;
-    void GraphicsDeviceVk::CreateDebug()
-    {
-        SDL2_vkCreateDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT)SDL_Vulkan_GetVkGetInstanceProcAddr();
-        VkDebugReportCallbackCreateInfoEXT debugCallbackCreateInfo = {};
-        debugCallbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
-        debugCallbackCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
-        debugCallbackCreateInfo.pfnCallback = VulkanReportFunc;
-
-        if (SDL2_vkCreateDebugReportCallbackEXT(m_Instance, &debugCallbackCreateInfo, 0, &m_DebugCallback) != VK_SUCCESS)
-        {
-            throw std::runtime_error("Failed to create Vulkan debug messenger");
-        }
     }
 
     void GraphicsDeviceVk::SetupDebugMessenger()
@@ -1031,6 +1033,15 @@ namespace Nexus::Graphics
         else
         {
             return VK_ERROR_EXTENSION_NOT_PRESENT;
+        }
+    }
+
+    void GraphicsDeviceVk::DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT messenger, const VkAllocationCallbacks *pAllocator)
+    {
+        auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+        if (func != nullptr)
+        {
+            func(instance, messenger, pAllocator);
         }
     }
 

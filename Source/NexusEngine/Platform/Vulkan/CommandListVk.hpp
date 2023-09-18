@@ -12,6 +12,8 @@ namespace Nexus::Graphics
     {
     public:
         CommandListVk(GraphicsDeviceVk *graphicsDevice);
+        virtual ~CommandListVk();
+
         virtual void Begin() override;
         virtual void End() override;
 

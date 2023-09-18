@@ -103,6 +103,8 @@ namespace Nexus::Graphics
 
     PipelineVk::~PipelineVk()
     {
+        vkDestroyPipeline(m_GraphicsDevice->GetVkDevice(), m_Pipeline, nullptr);
+        vkDestroyPipelineLayout(m_GraphicsDevice->GetVkDevice(), m_PipelineLayout, nullptr);
     }
 
     const PipelineDescription &PipelineVk::GetPipelineDescription() const

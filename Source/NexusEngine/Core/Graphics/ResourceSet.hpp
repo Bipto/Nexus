@@ -43,6 +43,8 @@ namespace Nexus::Graphics
     {
     public:
         ResourceSet(const ResourceSetSpecification &spec) : m_Specification(spec) {}
+        virtual ~ResourceSet(){}
+
         virtual void WriteTexture(Ref<Texture> texture, uint32_t binding) = 0;
         virtual void WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, uint32_t binding) = 0;
 
