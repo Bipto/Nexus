@@ -1,8 +1,8 @@
 #pragma once
 
 #include "GL.hpp"
-#include "Core/Graphics/Shader.hpp"
-#include "Core/nxpch.hpp"
+#include "Nexus/Graphics/Shader.hpp"
+#include "Nexus/nxpch.hpp"
 
 #include <iostream>
 

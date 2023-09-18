@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GL.hpp"
-#include "Core/Graphics/Buffer.hpp"
+#include "Nexus/Graphics/Buffer.hpp"
 
 #include "Platform/OpenGL/ShaderOpenGL.hpp"
 

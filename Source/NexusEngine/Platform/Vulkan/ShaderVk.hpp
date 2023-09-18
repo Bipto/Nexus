@@ -2,7 +2,7 @@
 
 #if defined(NX_PLATFORM_VULKAN)
 
-#include "Core/Graphics/Shader.hpp"
+#include "Nexus/Graphics/Shader.hpp"
 #include "GraphicsDeviceVk.hpp"
 
 namespace Nexus::Graphics

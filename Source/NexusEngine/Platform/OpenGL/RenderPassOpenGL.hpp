@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Graphics/RenderPass.hpp"
+#include "Nexus/Graphics/RenderPass.hpp"
 
 namespace Nexus::Graphics
 {

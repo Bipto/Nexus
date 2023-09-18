@@ -3,7 +3,7 @@
 #if defined(NX_PLATFORM_VULKAN)
 
 #include "Vk.hpp"
-#include "Core/Graphics/Framebuffer.hpp"
+#include "Nexus/Graphics/Framebuffer.hpp"
 #include "GraphicsDeviceVk.hpp"
 
 namespace Nexus::Graphics

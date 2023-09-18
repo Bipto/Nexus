@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Audio/AudioDevice.hpp"
+#include "Nexus/Audio/AudioDevice.hpp"
 
 #include "OpenAL.hpp"
 

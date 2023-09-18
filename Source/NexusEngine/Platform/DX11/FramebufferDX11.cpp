@@ -1,7 +1,7 @@
 #if defined(WIN32)
 
 #include "FramebufferDX11.hpp"
-#include "Core/Logging/Log.hpp"
+#include "Nexus/Logging/Log.hpp"
 
 namespace Nexus::Graphics
 {

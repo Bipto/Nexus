@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GL.hpp"
-#include "Core/Graphics/Texture.hpp"
+#include "Nexus/Graphics/Texture.hpp"
 
 namespace Nexus::Graphics
 {

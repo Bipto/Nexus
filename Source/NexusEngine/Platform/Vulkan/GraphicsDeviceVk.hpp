@@ -2,7 +2,7 @@
 
 #if defined(NX_PLATFORM_VULKAN)
 
-#include "Core/Graphics/GraphicsDevice.hpp"
+#include "Nexus/Graphics/GraphicsDevice.hpp"
 #include "SwapchainVk.hpp"
 #include "Vk.hpp"
 

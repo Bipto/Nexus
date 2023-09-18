@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GL.hpp"
-#include "Core/Graphics/Framebuffer.hpp"
+#include "Nexus/Graphics/Framebuffer.hpp"
 
 namespace Nexus::Graphics
 {

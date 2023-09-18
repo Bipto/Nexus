@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Graphics/Swapchain.hpp"
+#include "Nexus/Graphics/Swapchain.hpp"
 #include "SDL.h"
 
 namespace Nexus::Graphics

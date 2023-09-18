@@ -1,7 +1,7 @@
 #pragma once
 
 #if defined(WIN32)
-#include "Core/Graphics/Framebuffer.hpp"
+#include "Nexus/Graphics/Framebuffer.hpp"
 #include "DX11.hpp"
 
 namespace Nexus::Graphics

@@ -2,7 +2,7 @@
 
 #if defined(WIN32)
 
-#include "Core/Graphics/Buffer.hpp"
+#include "Nexus/Graphics/Buffer.hpp"
 #include "DX11.hpp"
 
 namespace Nexus::Graphics

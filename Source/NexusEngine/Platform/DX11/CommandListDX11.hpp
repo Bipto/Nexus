@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Graphics/CommandList.hpp"
+#include "Nexus/Graphics/CommandList.hpp"
 
 #include "DX11.hpp"
 

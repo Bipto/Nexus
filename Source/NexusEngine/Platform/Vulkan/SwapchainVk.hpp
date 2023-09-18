@@ -2,8 +2,8 @@
 
 #if defined(NX_PLATFORM_VULKAN)
 
-#include "Core/Graphics/Swapchain.hpp"
-#include "Core/Window.hpp"
+#include "Nexus/Graphics/Swapchain.hpp"
+#include "Nexus/Window.hpp"
 #include "SDL_vulkan.h"
 #include "Vk.hpp"
 

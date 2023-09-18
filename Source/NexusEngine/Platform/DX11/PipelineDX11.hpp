@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Graphics/Pipeline.hpp"
+#include "Nexus/Graphics/Pipeline.hpp"
 
 #include "DX11.hpp"
 

@@ -1,7 +1,7 @@
 #if defined(NX_PLATFORM_DX11)
 
 #include "GraphicsDeviceDX11.hpp"
-#include "Core/Logging/Log.hpp"
+#include "Nexus/Logging/Log.hpp"
 
 #include "BufferDX11.hpp"
 #include "ShaderDX11.hpp"

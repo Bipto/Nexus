@@ -1,7 +1,7 @@
 #if defined(WIN32)
 
 #include "ShaderDX11.hpp"
-#include "Core/Logging/Log.hpp"
+#include "Nexus/Logging/Log.hpp"
 #include "TextureDX11.hpp"
 #include "BufferDX11.hpp"
 

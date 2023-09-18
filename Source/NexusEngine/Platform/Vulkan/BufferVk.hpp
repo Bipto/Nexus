@@ -3,7 +3,7 @@
 #if defined(NX_PLATFORM_VULKAN)
 
 #include "Vk.hpp"
-#include "Core/Graphics/Buffer.hpp"
+#include "Nexus/Graphics/Buffer.hpp"
 
 #include "Platform/Vulkan/ShaderVk.hpp"
 

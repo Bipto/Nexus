@@ -1,6 +1,6 @@
 #include "ShaderOpenGL.hpp"
 
-#include "Core/Logging/Log.hpp"
+#include "Nexus/Logging/Log.hpp"
 
 #include "BufferOpenGL.hpp"
 

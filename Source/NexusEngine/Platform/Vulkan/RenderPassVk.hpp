@@ -2,7 +2,7 @@
 
 #if defined(NX_PLATFORM_VULKAN)
 
-#include "Core/Graphics/RenderPass.hpp"
+#include "Nexus/Graphics/RenderPass.hpp"
 #include "GraphicsDeviceVk.hpp"
 #include "Vk.hpp"
 

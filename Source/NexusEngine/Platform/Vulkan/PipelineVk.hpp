@@ -2,7 +2,7 @@
 
 #if defined(NX_PLATFORM_VULKAN)
 
-#include "Core/Graphics/Pipeline.hpp"
+#include "Nexus/Graphics/Pipeline.hpp"
 #include "GraphicsDeviceVk.hpp"
 #include "ResourceSetVk.hpp"
 

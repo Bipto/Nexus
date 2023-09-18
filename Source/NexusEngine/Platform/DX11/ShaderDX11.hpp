@@ -4,7 +4,7 @@
 
 #include "DX11.hpp"
 
-#include "Core/Graphics/Shader.hpp"
+#include "Nexus/Graphics/Shader.hpp"
 
 #include <iostream>
 

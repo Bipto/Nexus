@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Graphics/GraphicsDevice.hpp"
+#include "Nexus/Graphics/GraphicsDevice.hpp"
 #include "GL.hpp"
 #include "FramebufferOpenGL.hpp"
 #include "SwapchainOpenGL.hpp"

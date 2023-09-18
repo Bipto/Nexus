@@ -2,8 +2,8 @@
 
 #if defined(NX_PLATFORM_DX11)
 #include "DX11.hpp"
-#include "Core/Graphics/Swapchain.hpp"
-#include "Core/Window.hpp"
+#include "Nexus/Graphics/Swapchain.hpp"
+#include "Nexus/Window.hpp"
 
 namespace Nexus::Graphics
 {

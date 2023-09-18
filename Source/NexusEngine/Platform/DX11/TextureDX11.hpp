@@ -3,7 +3,7 @@
 #if defined(WIN32)
 
 #include "DX11.hpp"
-#include "Core/Graphics/Texture.hpp"
+#include "Nexus/Graphics/Texture.hpp"
 
 namespace Nexus::Graphics
 {

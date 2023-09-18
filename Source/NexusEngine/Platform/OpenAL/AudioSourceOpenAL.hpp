@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Core/Audio/AudioSource.hpp"
-#include "Core/Audio/AudioBuffer.hpp"
+#include "Nexus/Audio/AudioSource.hpp"
+#include "Nexus/Audio/AudioBuffer.hpp"
 
-#include "Core/Memory.hpp"
+#include "Nexus/Memory.hpp"
 
 #include "OpenAL.hpp"
 
