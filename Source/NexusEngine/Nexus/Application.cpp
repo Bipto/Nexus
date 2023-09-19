@@ -50,12 +50,6 @@ namespace Nexus
 
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
-        ImGui::StyleColorsDark();
-
-        ImGuiIO &io = ImGui::GetIO();
-        (void)io;
-        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
         m_ImGuiRenderer = new Nexus::Graphics::ImGuiRenderer(this);
         m_ImGuiRenderer->Initialise();

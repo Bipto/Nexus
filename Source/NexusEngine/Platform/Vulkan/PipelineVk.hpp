@@ -26,7 +26,6 @@ namespace Nexus::Graphics
         VkPipelineColorBlendAttachmentState CreateColorBlendAttachmentState();
         VkPipelineLayoutCreateInfo CreatePipelineLayoutCreateInfo(const std::vector<VkDescriptorSetLayout> &layouts);
         VkPipelineDepthStencilStateCreateInfo CreatePipelineDepthStencilStateCreateInfo();
-        VkPipeline BuildPipeline();
 
         VkVertexInputBindingDescription GetBindingDescription();
         std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions();
