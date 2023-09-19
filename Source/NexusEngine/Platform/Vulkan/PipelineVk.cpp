@@ -228,11 +228,6 @@ namespace Nexus::Graphics
         return info;
     }
 
-    VkPipeline PipelineVk::BuildPipeline()
-    {
-        return VkPipeline();
-    }
-
     VkVertexInputBindingDescription PipelineVk::GetBindingDescription()
     {
         auto shader = m_Description.Shader;
