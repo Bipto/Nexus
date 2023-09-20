@@ -21,7 +21,7 @@ public:
 
     virtual void Load() override
     {
-        /* m_CommandList = m_GraphicsDevice->CreateCommandList();
+        m_CommandList = m_GraphicsDevice->CreateCommandList();
 
         Nexus::Graphics::RenderPassSpecification spec;
         spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
@@ -57,7 +57,7 @@ public:
         m_FramebufferRenderPass = m_GraphicsDevice->CreateRenderPass(offscreenSpec, framebufferSpec);
         m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(m_FramebufferRenderPass);
 
-        m_BoundTexture = m_ImGuiRenderer->BindTexture(m_Texture); */
+        m_BoundTexture = m_ImGuiRenderer->BindTexture(m_Texture);
     }
 
     virtual void Update(Nexus::Time time) override
@@ -66,10 +66,6 @@ public:
 
     virtual void Render(Nexus::Time time) override
     {
-        /* ImGui::Begin("Texture Window");
-        ImGui::Image(m_BoundTexture, {300, 300});
-        ImGui::End();
-
         m_GraphicsDevice->BeginFrame();
 
         m_TestUniforms.Transform = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), {0, 0, 1});
@@ -113,13 +109,13 @@ public:
         m_CommandList->End();
         m_GraphicsDevice->SubmitCommandList(m_CommandList);
 
-        m_GraphicsDevice->EndFrame(); */
+        m_GraphicsDevice->EndFrame();
     }
 
     virtual void OnResize(Nexus::Point<int> size) override
     {
-        /* m_GraphicsDevice->Resize(size);
-        CreatePipeline(size); */
+        m_GraphicsDevice->Resize(size);
+        CreatePipeline(size);
     }
 
     void CreatePipeline(Nexus::Point<int> size)

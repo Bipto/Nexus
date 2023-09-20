@@ -168,7 +168,7 @@ namespace Nexus::Graphics
             auto bufferFormat = indexBufferDX11->GetFormat();
 
             context->IASetIndexBuffer(
-                nativeBuffer.Get(),
+                nativeBuffer,
                 GetD3DIndexBufferFormat(indexBufferDX11->GetFormat()),
                 0);
         };
