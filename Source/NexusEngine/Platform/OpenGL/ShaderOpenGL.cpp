@@ -1,6 +1,6 @@
 #include "ShaderOpenGL.hpp"
 
-#include "Core/Logging/Log.hpp"
+#include "Nexus/Logging/Log.hpp"
 
 #include "BufferOpenGL.hpp"
 
@@ -36,6 +36,11 @@ namespace Nexus::Graphics
 
         m_VertexShaderSource = vertexShaderSource;
         m_FragmentShaderSource = fragmentShaderSource;
+    }
+
+    ShaderOpenGL::~ShaderOpenGL()
+    {
+        glDeleteProgram(m_ProgramHandle);
     }
 
     void ShaderOpenGL::Bind()
@@ -105,6 +110,8 @@ namespace Nexus::Graphics
             NX_ERROR(errorMessage);
         }
 
+        glDetachShader(GL_VERTEX_SHADER, vertexShader);
+        glDetachShader(GL_FRAGMENT_SHADER, fragmentShader);
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
     }

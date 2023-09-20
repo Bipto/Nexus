@@ -4,7 +4,7 @@
 
 #include "Vk.hpp"
 #include "GraphicsDeviceVk.hpp"
-#include "Core/Graphics/Texture.hpp"
+#include "Nexus/Graphics/Texture.hpp"
 
 namespace Nexus::Graphics
 {
@@ -19,6 +19,7 @@ namespace Nexus::Graphics
         VkSampler GetSampler();
 
     private:
+        GraphicsDeviceVk *m_GraphicsDevice;
         VkImage m_Image;
         VmaAllocation m_Allocation;
         VkImageView m_ImageView;

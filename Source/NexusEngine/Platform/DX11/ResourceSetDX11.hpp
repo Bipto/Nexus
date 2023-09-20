@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Graphics/ResourceSet.hpp"
+#include "Nexus/Graphics/ResourceSet.hpp"
 #include "Platform/DX11/GraphicsDeviceDX11.hpp"
 
 #include <unordered_map>

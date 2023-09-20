@@ -103,6 +103,8 @@ namespace Nexus::Graphics
 
     PipelineVk::~PipelineVk()
     {
+        vkDestroyPipeline(m_GraphicsDevice->GetVkDevice(), m_Pipeline, nullptr);
+        vkDestroyPipelineLayout(m_GraphicsDevice->GetVkDevice(), m_PipelineLayout, nullptr);
     }
 
     const PipelineDescription &PipelineVk::GetPipelineDescription() const
@@ -224,11 +226,6 @@ namespace Nexus::Graphics
         info.depthTestEnable = VK_FALSE;
         info.depthWriteEnable = VK_FALSE;
         return info;
-    }
-
-    VkPipeline PipelineVk::BuildPipeline()
-    {
-        return VkPipeline();
     }
 
     VkVertexInputBindingDescription PipelineVk::GetBindingDescription()

@@ -2,7 +2,7 @@
 
 #if defined(NX_PLATFORM_DX11)
 
-#include "Core/Graphics/GraphicsDevice.hpp"
+#include "Nexus/Graphics/GraphicsDevice.hpp"
 #include "FramebufferDX11.hpp"
 #include "SwapchainDX11.hpp"
 #include "DX11.hpp"

@@ -5,8 +5,8 @@
 #include "vulkan/vulkan.h"
 #include "vk_mem_alloc.h"
 
-#include "Core/Graphics/Framebuffer.hpp"
-#include "Core/Graphics/ShaderDataType.hpp"
+#include "Nexus/Graphics/Framebuffer.hpp"
+#include "Nexus/Graphics/ShaderDataType.hpp"
 
 const uint32_t FRAMES_IN_FLIGHT = 3;
 

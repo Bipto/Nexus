@@ -32,7 +32,7 @@ namespace Demos
             m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/lighting.glsl",
                                                                    Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
 
-            Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
+            Nexus::Graphics::MeshFactory factory(m_GraphicsDevice.get());
             m_CubeMesh = factory.CreateCube();
             m_SpriteMesh = factory.CreateSprite();
 

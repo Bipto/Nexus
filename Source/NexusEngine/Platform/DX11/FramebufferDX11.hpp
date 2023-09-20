@@ -1,7 +1,7 @@
 #pragma once
 
 #if defined(WIN32)
-#include "Core/Graphics/Framebuffer.hpp"
+#include "Nexus/Graphics/Framebuffer.hpp"
 #include "DX11.hpp"
 
 namespace Nexus::Graphics
@@ -22,7 +22,7 @@ namespace Nexus::Graphics
     class FramebufferDX11 : public Framebuffer
     {
     public:
-        FramebufferDX11(ID3D11Device *device, Ref<RenderPass> renderPass);
+        FramebufferDX11(ID3D11Device *&device, Ref<RenderPass> renderPass);
         ~FramebufferDX11();
 
         virtual void *GetColorAttachment(int index = 0) override;
@@ -32,7 +32,7 @@ namespace Nexus::Graphics
         const std::vector<FramebufferColorRenderTarget> &GetColorRenderTargets() { return m_ColorRenderTargets; }
         virtual void *GetDepthAttachment() override { return (void *)m_DepthTarget.DepthStencilView; }
 
-        ID3D11DepthStencilView *GetDepthStencilView() { return m_DepthTarget.DepthStencilView; }
+        ID3D11DepthStencilView *&GetDepthStencilView() { return m_DepthTarget.DepthStencilView; }
 
     private:
         virtual void Recreate() override;

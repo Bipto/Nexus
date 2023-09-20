@@ -1,11 +1,11 @@
 #if defined(WIN32)
 
 #include "TextureDX11.hpp"
-#include "Core/Logging/Log.hpp"
+#include "Nexus/Logging/Log.hpp"
 
 namespace Nexus::Graphics
 {
-    TextureDX11::TextureDX11(ID3D11Device *device, const TextureSpecification &spec) : Texture(spec)
+    TextureDX11::TextureDX11(Microsoft::WRL::ComPtr<ID3D11Device> device, const TextureSpecification &spec) : Texture(spec)
     {
         int imagePitch = spec.Width * 4;
 
@@ -44,7 +44,7 @@ namespace Nexus::Graphics
         rvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
         rvDesc.Texture2D.MipLevels = desc.MipLevels;
         rvDesc.Texture2D.MostDetailedMip = 0;
-        hr = device->CreateShaderResourceView(m_Texture, &rvDesc, &m_ResourceView);
+        hr = device->CreateShaderResourceView(m_Texture.Get(), &rvDesc, m_ResourceView.GetAddressOf());
 
         if (FAILED(hr))
         {
@@ -68,13 +68,11 @@ namespace Nexus::Graphics
 
     TextureDX11::~TextureDX11()
     {
-        m_Texture->Release();
-        m_Texture = nullptr;
     }
 
     void *TextureDX11::GetHandle()
     {
-        return m_ResourceView;
+        return m_ResourceView.Get();
     }
 }
 

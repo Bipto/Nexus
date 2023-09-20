@@ -115,7 +115,7 @@ namespace Nexus::Graphics
 
             VkDescriptorPoolCreateInfo poolInfo = {};
             poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-            poolInfo.flags = 0;
+            poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
 
             // allow 2 descriptor sets to be allocated for each frame
             poolInfo.maxSets = FRAMES_IN_FLIGHT * 2;
@@ -160,6 +160,19 @@ namespace Nexus::Graphics
             {
                 throw std::runtime_error("Failed to allocate descriptor sets");
             }
+        }
+    }
+
+    ResourceSetVk::~ResourceSetVk()
+    {
+        vkFreeDescriptorSets(m_Device->GetVkDevice(), m_DescriptorPool, FRAMES_IN_FLIGHT, &m_SamplerDescriptorSet[0]);
+        vkFreeDescriptorSets(m_Device->GetVkDevice(), m_DescriptorPool, FRAMES_IN_FLIGHT, &m_UniformBufferDescriptorSet[0]);
+        vkDestroyDescriptorPool(m_Device->GetVkDevice(), m_DescriptorPool, nullptr);
+
+        for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+        {
+            vkDestroyDescriptorSetLayout(m_Device->GetVkDevice(), m_SamplerLayout[i], nullptr);
+            vkDestroyDescriptorSetLayout(m_Device->GetVkDevice(), m_UniformBufferLayout[i], nullptr);
         }
     }
 

@@ -24,7 +24,7 @@ namespace Demos
 
             CreatePipeline();
 
-            Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
+            Nexus::Graphics::MeshFactory factory(m_GraphicsDevice.get());
             m_Mesh = factory.CreateSprite();
 
             m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");

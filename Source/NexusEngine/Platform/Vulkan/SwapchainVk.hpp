@@ -2,8 +2,8 @@
 
 #if defined(NX_PLATFORM_VULKAN)
 
-#include "Core/Graphics/Swapchain.hpp"
-#include "Core/Window.hpp"
+#include "Nexus/Graphics/Swapchain.hpp"
+#include "Nexus/Window.hpp"
 #include "SDL_vulkan.h"
 #include "Vk.hpp"
 
@@ -16,6 +16,8 @@ namespace Nexus::Graphics
     {
     public:
         SwapchainVk(Window *window, VSyncState vSyncState, GraphicsDeviceVk *graphicsDevice);
+        virtual ~SwapchainVk();
+
         virtual void SwapBuffers() override;
         virtual VSyncState GetVsyncState() override;
         virtual void SetVSyncState(VSyncState vsyncState) override;

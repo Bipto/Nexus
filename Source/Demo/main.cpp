@@ -1,7 +1,7 @@
 #include "NexusEngine.hpp"
-#include "Core/Graphics/MeshFactory.hpp"
-#include "Core/Graphics/Color.hpp"
-#include "Core/Networking/Socket.hpp"
+#include "Nexus/Graphics/MeshFactory.hpp"
+#include "Nexus/Graphics/Color.hpp"
+#include "Nexus/Networking/Socket.hpp"
 
 #include "Demos/ClearScreenDemo.hpp"
 #include "Demos/HelloTriangle.hpp"

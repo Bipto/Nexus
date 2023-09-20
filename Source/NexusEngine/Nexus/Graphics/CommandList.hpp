@@ -1,0 +1,183 @@
+#pragma once
+
+#include "Color.hpp"
+#include "Pipeline.hpp"
+#include "Buffer.hpp"
+#include "Texture.hpp"
+#include "Shader.hpp"
+#include "Buffer.hpp"
+#include "Framebuffer.hpp"
+#include "RenderPass.hpp"
+#include "Nexus/Memory.hpp"
+
+#include <functional>
+#include <variant>
+
+namespace Nexus::Graphics
+{
+    /// @brief A struct representing a set of values to use  to clear the colour buffer
+    struct ClearColorValue
+    {
+        /// @brief The red channel as a value between 0.0f and 1.0f
+        float Red = 1.0f;
+
+        /// @brief The green channel as a value between 0.0f and 1.0f
+        float Green = 1.0f;
+
+        /// @brief The blue channel as a value between 0.0f and 1.0f
+        float Blue = 1.0f;
+
+        /// @brief The alpha channel as a value between 0.0f and 1.0f
+        float Alpha = 1.0f;
+    };
+
+    /// @brief A struct representing a set of values to use to clear the depth/stencil buffer
+    struct ClearDepthStencilValue
+    {
+        /// @brief The value to use to clear the depth buffer
+        float Depth = 1.0f;
+
+        /// @brief The value to use to clear the stencil buffer
+        uint8_t Stencil = 0;
+    };
+
+    /// @brief A struct representing a set of values used to clear the buffers when beginning a command list
+    struct RenderPassBeginInfo
+    {
+        /// @brief An instance of a ClearColorValue to use to clear the colour buffer
+        ClearColorValue ClearColorValue;
+
+        /// @brief An instance of a ClearDepthStencilValue to use to clear the depth stencil buffer
+        ClearDepthStencilValue ClearDepthStencilValue;
+    };
+
+    /// @brief A struct representing a draw command to be executed using a vertex buffer
+    struct DrawElementCommand
+    {
+        /// @brief The starting index within the vertex buffer
+        uint32_t Start = 0;
+
+        /// @brief The number of vertices to draw
+        uint32_t Count = 0;
+    };
+
+    /// @brief A struct representing a draw command using a vertex buffer and an indexed buffer
+    struct DrawIndexedCommand
+    {
+        /// @brief The number of vertices to draw
+        uint32_t Count = 0;
+
+        /// @brief An offset into the index buffer
+        uint32_t Offset = 0;
+    };
+
+    /// @brief A struct representing a texture update command
+    struct TextureUpdateCommand
+    {
+        /// @brief A pointer to the texture to update
+        Ref<Texture> Texture;
+
+        /// @brief A pointer to the shader to upload the texture to
+        Ref<Shader> Shader;
+
+        /// @brief The binding of the texture to update
+        TextureResourceBinding Binding;
+    };
+
+    /// @brief A struct representing a uniform buffer update command
+    struct UniformBufferUpdateCommand
+    {
+        /// @brief A pointer to a uniform buffer to be updated
+        Ref<UniformBuffer> Buffer;
+
+        /// @brief A pointer to the data to be uploaded to the GPU
+        void *Data;
+
+        /// @brief The size of the data to be uploaded
+        uint32_t Size;
+
+        /// @brief An offset to upload the data to
+        uint32_t Offset;
+    };
+
+    struct UpdateResourcesCommand
+    {
+        Ref<ResourceSet> Resources;
+    };
+
+    struct BeginRenderPassCommand
+    {
+        Ref<RenderPass> RenderPass;
+        RenderPassBeginInfo ClearValue;
+    };
+
+    /// @brief A class representing a command list
+    class CommandList
+    {
+    public:
+        /// @brief A constructor creating a new command list
+        CommandList() = default;
+
+        /// @brief A pure virutal method that begins a command list
+        /// @param beginInfo A parameter containing information about how to begin the command list
+        virtual void Begin() = 0;
+
+        /// @brief A pure virtual method that ends a command list
+        virtual void End() = 0;
+
+        /// @brief A pure virtual method that binds a vertex buffer to the pipeline
+        /// @param vertexBuffer A pointer to the vertex buffer to bind
+        virtual void SetVertexBuffer(Ref<VertexBuffer> vertexBuffer) = 0;
+
+        /// @brief A pure virtual method that binds an index buffer to the pipeline
+        /// @param indexBuffer A pointer to the index buffer to bind
+        virtual void SetIndexBuffer(Ref<IndexBuffer> indexBuffer) = 0;
+
+        /// @brief A pure virtual method to bind a pipeline to a command list
+        /// @param pipeline The pointer to the pipeline to bind
+        virtual void SetPipeline(Ref<Pipeline> pipeline) = 0;
+
+        /// @brief A pure virtual method to begin a new render pass
+        /// @param beginRenderPassCommand A const reference to a BeginRenderPassCommand struct
+        virtual void BeginRenderPass(Ref<RenderPass> renderPass, const RenderPassBeginInfo &beginInfo) = 0;
+
+        /// @brief A pure virtual method to end a new render pass
+        virtual void EndRenderPass() = 0;
+
+        /// @brief A pure virtual method that submits a draw call using the bound vertex buffer
+        /// @param start The offset to begin rendering at
+        /// @param count The number of vertices to draw
+        virtual void DrawElements(uint32_t start, uint32_t count) = 0;
+
+        /// @brief A pure virtual method that submits an indexed draw call using the bound vertex buffer and index buffer
+        /// @param count The number of vertices to draw
+        /// @param offset The offset to begin rendering at
+        virtual void DrawIndexed(uint32_t count, uint32_t offset) = 0;
+
+        /// @brief A pure virtual method to submit a uniform buffer update command
+        /// @param buffer A pointer to the buffer to upload data to
+        /// @param data A pointer to the data to upload
+        /// @param size The size of the data to be uploaded
+        /// @param offset An offset to upload the data to
+        virtual void UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset) = 0;
+
+        /// @brief A pure virtual method that updates the resources bound within a pipeline
+        /// @param resources A reference counted pointer to a ResourceSet
+        virtual void SetResourceSet(Ref<ResourceSet> resources) = 0;
+    };
+
+    /// @brief A typedef to simplify creating function pointers to render commands
+    typedef void (*RenderCommand)(Ref<CommandList> commandList);
+
+    typedef std::variant<
+        BeginRenderPassCommand,
+        Ref<VertexBuffer>,
+        Ref<IndexBuffer>,
+        Ref<Pipeline>,
+        TextureUpdateCommand,
+        UniformBufferUpdateCommand,
+        DrawElementCommand,
+        DrawIndexedCommand,
+        UpdateResourcesCommand>
+        RenderCommandData;
+}

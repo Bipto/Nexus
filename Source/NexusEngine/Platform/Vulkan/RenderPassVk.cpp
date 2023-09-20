@@ -41,6 +41,7 @@ namespace Nexus::Graphics
 
     RenderPassVk::~RenderPassVk()
     {
+        vkDestroyRenderPass(m_GraphicsDevice->GetVkDevice(), m_RenderPass, nullptr);
     }
 
     LoadOperation RenderPassVk::GetColorLoadOperation()

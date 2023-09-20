@@ -1,8 +1,8 @@
 #pragma once
 
 #include "GL.hpp"
-#include "Core/Graphics/Shader.hpp"
-#include "Core/nxpch.hpp"
+#include "Nexus/Graphics/Shader.hpp"
+#include "Nexus/nxpch.hpp"
 
 #include <iostream>
 
@@ -22,6 +22,7 @@ namespace Nexus::Graphics
     {
     public:
         ShaderOpenGL(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout);
+        virtual ~ShaderOpenGL();
         void Bind();
 
         virtual const std::string &GetVertexShaderSource() override;

@@ -2,7 +2,7 @@
 
 #if defined(NX_PLATFORM_VULKAN)
 
-#include "Core/Graphics/CommandList.hpp"
+#include "Nexus/Graphics/CommandList.hpp"
 #include "GraphicsDeviceVk.hpp"
 #include "PipelineVk.hpp"
 
@@ -12,6 +12,8 @@ namespace Nexus::Graphics
     {
     public:
         CommandListVk(GraphicsDeviceVk *graphicsDevice);
+        virtual ~CommandListVk();
+
         virtual void Begin() override;
         virtual void End() override;
 

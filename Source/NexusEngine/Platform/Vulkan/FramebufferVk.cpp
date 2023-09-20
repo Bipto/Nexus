@@ -16,6 +16,22 @@ namespace Nexus::Graphics
 
     FramebufferVk::~FramebufferVk()
     {
+        for (int i = 0; i < m_Specification.ColorAttachmentSpecification.Attachments.size(); i++)
+        {
+            vkDestroyImage(m_Device->GetVkDevice(), m_Images[i], nullptr);
+            vkFreeMemory(m_Device->GetVkDevice(), m_ImageMemory[i], nullptr);
+            vkDestroySampler(m_Device->GetVkDevice(), m_Samplers[i], nullptr);
+            vkDestroyImageView(m_Device->GetVkDevice(), m_ImageViews[i], nullptr);
+        }
+
+        if (m_Specification.DepthAttachmentSpecification.DepthFormat != DepthFormat::None)
+        {
+            vkDestroyImage(m_Device->GetVkDevice(), m_DepthImage, nullptr);
+            vkFreeMemory(m_Device->GetVkDevice(), m_DepthMemory, nullptr);
+            vkDestroyImageView(m_Device->GetVkDevice(), m_DepthImageView, nullptr);
+        }
+
+        vkDestroyFramebuffer(m_Device->GetVkDevice(), m_Framebuffer, nullptr);
     }
 
     void *FramebufferVk::GetColorAttachment(int index)

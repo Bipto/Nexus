@@ -2,7 +2,7 @@
 
 #if defined(NX_PLATFORM_VULKAN)
 
-#include "Core/Graphics/Pipeline.hpp"
+#include "Nexus/Graphics/Pipeline.hpp"
 #include "GraphicsDeviceVk.hpp"
 #include "ResourceSetVk.hpp"
 
@@ -26,7 +26,6 @@ namespace Nexus::Graphics
         VkPipelineColorBlendAttachmentState CreateColorBlendAttachmentState();
         VkPipelineLayoutCreateInfo CreatePipelineLayoutCreateInfo(const std::vector<VkDescriptorSetLayout> &layouts);
         VkPipelineDepthStencilStateCreateInfo CreatePipelineDepthStencilStateCreateInfo();
-        VkPipeline BuildPipeline();
 
         VkVertexInputBindingDescription GetBindingDescription();
         std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions();

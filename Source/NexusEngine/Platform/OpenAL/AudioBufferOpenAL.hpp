@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Audio/AudioBuffer.hpp"
+#include "Nexus/Audio/AudioBuffer.hpp"
 
 #include "OpenAL.hpp"
 

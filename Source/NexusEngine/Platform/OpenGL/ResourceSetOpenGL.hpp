@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Graphics/ResourceSet.hpp"
+#include "Nexus/Graphics/ResourceSet.hpp"
 #include <unordered_map>
 
 namespace Nexus::Graphics

@@ -1,7 +1,7 @@
 #if defined(WIN32)
 
 #include "BufferDX11.hpp"
-#include "Core/Logging/Log.hpp"
+#include "Nexus/Logging/Log.hpp"
 
 namespace Nexus::Graphics
 {
@@ -18,7 +18,7 @@ namespace Nexus::Graphics
         }
     }
 
-    VertexBufferDX11::VertexBufferDX11(ID3D11Device *device, ID3D11DeviceContext *context, const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
+    VertexBufferDX11::VertexBufferDX11(Microsoft::WRL::ComPtr<ID3D11Device> device, Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
         : VertexBuffer(description, data, layout)
     {
         m_Context = context;
@@ -60,30 +60,28 @@ namespace Nexus::Graphics
 
     VertexBufferDX11::~VertexBufferDX11()
     {
-        m_Buffer->Release();
-        m_Buffer = nullptr;
     }
 
     void VertexBufferDX11::SetData(const void *data, uint32_t size, uint32_t offset)
     {
         D3D11_MAPPED_SUBRESOURCE mappedResource;
         ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
-        m_Context->Map(m_Buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+        m_Context->Map(m_Buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 
         unsigned char *buffer = reinterpret_cast<unsigned char *>(mappedResource.pData);
         buffer += offset;
 
         memcpy(buffer, data, size);
 
-        m_Context->Unmap(m_Buffer, 0);
+        m_Context->Unmap(m_Buffer.Get(), 0);
     }
 
-    ID3D11Buffer *VertexBufferDX11::GetHandle()
+    Microsoft::WRL::ComPtr<ID3D11Buffer> VertexBufferDX11::GetHandle()
     {
         return m_Buffer;
     }
 
-    IndexBufferDX11::IndexBufferDX11(ID3D11Device *device, ID3D11DeviceContext *context, const BufferDescription &description, const void *data, IndexBufferFormat format)
+    IndexBufferDX11::IndexBufferDX11(Microsoft::WRL::ComPtr<ID3D11Device> device, Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, const BufferDescription &description, const void *data, IndexBufferFormat format)
         : IndexBuffer(description, data, format)
     {
         m_Context = context;
@@ -125,30 +123,28 @@ namespace Nexus::Graphics
 
     IndexBufferDX11::~IndexBufferDX11()
     {
-        m_Buffer->Release();
-        m_Buffer = nullptr;
     }
 
     void IndexBufferDX11::SetData(const void *data, uint32_t size, uint32_t offset)
     {
         D3D11_MAPPED_SUBRESOURCE mappedResource;
         ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
-        m_Context->Map(m_Buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+        m_Context->Map(m_Buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 
         unsigned char *buffer = reinterpret_cast<unsigned char *>(mappedResource.pData);
         buffer += offset;
 
         memcpy(buffer, data, size);
 
-        m_Context->Unmap(m_Buffer, 0);
+        m_Context->Unmap(m_Buffer.Get(), 0);
     }
 
-    ID3D11Buffer *IndexBufferDX11::GetHandle()
+    Microsoft::WRL::ComPtr<ID3D11Buffer> IndexBufferDX11::GetHandle()
     {
         return m_Buffer;
     }
 
-    UniformBufferDX11::UniformBufferDX11(ID3D11Device *device, ID3D11DeviceContext *context, const BufferDescription &description, const void *data)
+    UniformBufferDX11::UniformBufferDX11(Microsoft::WRL::ComPtr<ID3D11Device> device, Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, const BufferDescription &description, const void *data)
         : UniformBuffer(description, data)
     {
         m_Context = context;
@@ -190,25 +186,23 @@ namespace Nexus::Graphics
 
     UniformBufferDX11::~UniformBufferDX11()
     {
-        m_Buffer->Release();
-        m_Buffer = nullptr;
-    }
+        }
 
     void UniformBufferDX11::SetData(const void *data, uint32_t size, uint32_t offset)
     {
         D3D11_MAPPED_SUBRESOURCE mappedResource;
         ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
-        m_Context->Map(m_Buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+        m_Context->Map(m_Buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 
         unsigned char *buffer = reinterpret_cast<unsigned char *>(mappedResource.pData);
         buffer += offset;
 
         memcpy(buffer, data, size);
 
-        m_Context->Unmap(m_Buffer, 0);
+        m_Context->Unmap(m_Buffer.Get(), 0);
     }
 
-    ID3D11Buffer *UniformBufferDX11::GetHandle()
+    Microsoft::WRL::ComPtr<ID3D11Buffer> UniformBufferDX11::GetHandle()
     {
         return m_Buffer;
     }

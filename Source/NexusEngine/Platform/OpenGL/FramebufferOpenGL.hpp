@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GL.hpp"
-#include "Core/Graphics/Framebuffer.hpp"
+#include "Nexus/Graphics/Framebuffer.hpp"
 
 namespace Nexus::Graphics
 {
@@ -26,7 +26,6 @@ namespace Nexus::Graphics
 
     private:
         unsigned int m_FBO;
-        unsigned int m_Texture;
         std::vector<GLenum> m_Buffers;
 
         std::vector<unsigned int> m_ColorTextures;

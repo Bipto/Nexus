@@ -2,7 +2,7 @@
 
 #if defined(NX_PLATFORM_VULKAN)
 
-#include "Core/Graphics/RenderPass.hpp"
+#include "Nexus/Graphics/RenderPass.hpp"
 #include "GraphicsDeviceVk.hpp"
 #include "Vk.hpp"
 
@@ -14,6 +14,7 @@ namespace Nexus::Graphics
         RenderPassVk(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification, GraphicsDeviceVk *graphicsDevice);
         RenderPassVk(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain, GraphicsDeviceVk *graphicsDevice);
         virtual ~RenderPassVk();
+
         virtual LoadOperation GetColorLoadOperation() override;
         virtual LoadOperation GetDepthStencilLoadOperation() override;
         virtual const RenderPassSpecification &GetRenderPassSpecification() override;
