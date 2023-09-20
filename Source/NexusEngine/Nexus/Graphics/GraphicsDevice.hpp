@@ -56,7 +56,7 @@ namespace Nexus::Graphics
 
         /// @brief A pure virtual method that will submit a command list for rendering
         /// @param commandList The command list to submit for rendering
-        virtual void SubmitCommandList(Ref<CommandList> commandList) = 0;
+        virtual void SubmitCommandList(CommandList *commandList) = 0;
 
         /// @brief A pure virtual method that returns a context for a graphics API
         /// @return A void pointer to the graphics context
@@ -77,72 +77,72 @@ namespace Nexus::Graphics
         /// @param fragmentShaderSource A fragment shader written in the native shading language of the backend
         /// @param layout A parameter specifying how data is laid out in the vertex buffer
         /// @return A reference counted pointer to a shader
-        virtual Ref<Shader> CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout) = 0;
+        virtual Shader *CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout) = 0;
 
         /// @brief A pure virtual method that creates a pipeline from a given pipeline description
         /// @param description The properties to use when creating the pipeline
         /// @return A reference counted pointer to a pipeline
-        virtual Ref<Pipeline> CreatePipeline(const PipelineDescription &description) = 0;
+        virtual Pipeline *CreatePipeline(const PipelineDescription &description) = 0;
 
         /// @brief A pure virtual method that creates a vertex buffer from a given description
         /// @param description The properties to use when creating the buffer
         /// @param data The initial data to store in the buffer
         /// @param layout The layout of the vertex buffer
         /// @return A reference counted pointer to a vertex buffer
-        virtual Ref<VertexBuffer> CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout) = 0;
+        virtual VertexBuffer *CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout) = 0;
 
         /// @brief A pure virtual method that creates an index buffer from a given description
         /// @param description The properties to use when creating the buffer
         /// @param data The initial data to store in the buffer
         /// @return A reference counted pointer to an index buffer
-        virtual Ref<IndexBuffer> CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format = IndexBufferFormat::UInt32) = 0;
+        virtual IndexBuffer *CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format = IndexBufferFormat::UInt32) = 0;
 
         /// @brief A pure virtual method that creates a uniform buffer from a given description
         /// @param description The properties to use when creating the buffer
         /// @param data The initial data to store in the buffer
         /// @return A reference counted pointer to a uniform buffer
-        virtual Ref<UniformBuffer> CreateUniformBuffer(const BufferDescription &description, const void *data) = 0;
+        virtual UniformBuffer *CreateUniformBuffer(const BufferDescription &description, const void *data) = 0;
 
         /// @brief A pure virtual method that creates a new command list
         /// @return A reference counted pointer to a command list
-        virtual Ref<CommandList> CreateCommandList() = 0;
+        virtual CommandList *CreateCommandList() = 0;
 
         /// @brief A pure virtual method that creates a new texture from a given specification
         /// @param spec The properties to use when creating the texture
         /// @return A reference counted pointer to a texture
-        virtual Ref<Texture> CreateTexture(const TextureSpecification &spec) = 0;
+        virtual Texture *CreateTexture(const TextureSpecification &spec) = 0;
 
         /// @brief A method that loads a new texture from a image stored on disk
         /// @param filepath The filepath to load the image from
         /// @return A reference counted pointer to a texture
-        Ref<Texture> CreateTexture(const char *filepath);
+        Texture *CreateTexture(const char *filepath);
 
         /// @brief A pure virtual method that creates a new framebuffer from a given specification
         /// @param renderPass The renderpass to use when rendering the framebuffer
         /// @return A reference counted pointer to a framebuffer
-        virtual Ref<Framebuffer> CreateFramebuffer(Ref<RenderPass> renderPass) = 0;
+        virtual Framebuffer *CreateFramebuffer(RenderPass *renderPass) = 0;
 
         /// @brief A pure virtual method that creates a new renderpass from a given specification
         /// @param renderPassSpecification The properties to use when creating the renderpass
         /// @param framebufferSpecification The properties to use when creating a framebuffer
         /// @return A reference counted pointer to a renderpass
-        virtual Ref<RenderPass> CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification) = 0;
+        virtual RenderPass *CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification) = 0;
 
         /// @brief A pure virtual method that creates a new renderpass from a given specification
         /// @param renderPassSpecification The properties to use when creating the renderpass
         /// @param swapchain A pointer to a swapchain to use when rendering the renderpass
         /// @return A reference counted pointer to a renderpass
-        virtual Ref<RenderPass> CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain) = 0;
+        virtual RenderPass *CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain) = 0;
 
         /// @brief A pure virtual method that creates a new resource set from a given specification
         /// @param spec A set of properties to use when creating the resource set
         /// @return A reference counted pointer to a resource set
-        virtual Ref<ResourceSet> CreateResourceSet(const ResourceSetSpecification &spec) = 0;
+        virtual ResourceSet *CreateResourceSet(const ResourceSetSpecification &spec) = 0;
 
         /// @brief A method that creates a new resource set from a pipeline
         /// @param pipeline A pipeline to use when creating the resource set
         /// @return A reference counted pointer to a resource set
-        Ref<ResourceSet> CreateResourceSet(Ref<Pipeline> pipeline);
+        ResourceSet *CreateResourceSet(Pipeline *pipeline);
 
         /// @brief A pure virtual method that resizes the swapchain of the device to a given size
         /// @param size The new size of the swapchain
@@ -164,7 +164,7 @@ namespace Nexus::Graphics
         /// @param filepath The filepath to load the GLSL shader from
         /// @param layout A vertex buffer layout to use to create the shader
         /// @return A reference counted pointer to a shader
-        Ref<Shader> CreateShaderFromSpirvFile(const std::string &filepath, const VertexBufferLayout &layout);
+        Shader *CreateShaderFromSpirvFile(const std::string &filepath, const VertexBufferLayout &layout);
 
     protected:
         /// @brief A pointer to the window to render graphics into

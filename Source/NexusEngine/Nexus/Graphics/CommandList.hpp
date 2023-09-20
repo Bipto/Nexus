@@ -75,10 +75,10 @@ namespace Nexus::Graphics
     struct TextureUpdateCommand
     {
         /// @brief A pointer to the texture to update
-        Ref<Texture> Texture;
+        Texture *Texture;
 
         /// @brief A pointer to the shader to upload the texture to
-        Ref<Shader> Shader;
+        Shader *Shader;
 
         /// @brief The binding of the texture to update
         TextureResourceBinding Binding;
@@ -88,7 +88,7 @@ namespace Nexus::Graphics
     struct UniformBufferUpdateCommand
     {
         /// @brief A pointer to a uniform buffer to be updated
-        Ref<UniformBuffer> Buffer;
+        UniformBuffer *Buffer;
 
         /// @brief A pointer to the data to be uploaded to the GPU
         void *Data;
@@ -102,12 +102,12 @@ namespace Nexus::Graphics
 
     struct UpdateResourcesCommand
     {
-        Ref<ResourceSet> Resources;
+        ResourceSet *Resources;
     };
 
     struct BeginRenderPassCommand
     {
-        Ref<RenderPass> RenderPass;
+        RenderPass *RenderPass;
         RenderPassBeginInfo ClearValue;
     };
 
@@ -127,19 +127,19 @@ namespace Nexus::Graphics
 
         /// @brief A pure virtual method that binds a vertex buffer to the pipeline
         /// @param vertexBuffer A pointer to the vertex buffer to bind
-        virtual void SetVertexBuffer(Ref<VertexBuffer> vertexBuffer) = 0;
+        virtual void SetVertexBuffer(VertexBuffer *vertexBuffer) = 0;
 
         /// @brief A pure virtual method that binds an index buffer to the pipeline
         /// @param indexBuffer A pointer to the index buffer to bind
-        virtual void SetIndexBuffer(Ref<IndexBuffer> indexBuffer) = 0;
+        virtual void SetIndexBuffer(IndexBuffer *indexBuffer) = 0;
 
         /// @brief A pure virtual method to bind a pipeline to a command list
         /// @param pipeline The pointer to the pipeline to bind
-        virtual void SetPipeline(Ref<Pipeline> pipeline) = 0;
+        virtual void SetPipeline(Pipeline *pipeline) = 0;
 
         /// @brief A pure virtual method to begin a new render pass
         /// @param beginRenderPassCommand A const reference to a BeginRenderPassCommand struct
-        virtual void BeginRenderPass(Ref<RenderPass> renderPass, const RenderPassBeginInfo &beginInfo) = 0;
+        virtual void BeginRenderPass(RenderPass *renderPass, const RenderPassBeginInfo &beginInfo) = 0;
 
         /// @brief A pure virtual method to end a new render pass
         virtual void EndRenderPass() = 0;
@@ -159,21 +159,21 @@ namespace Nexus::Graphics
         /// @param data A pointer to the data to upload
         /// @param size The size of the data to be uploaded
         /// @param offset An offset to upload the data to
-        virtual void UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset) = 0;
+        virtual void UpdateUniformBuffer(UniformBuffer *buffer, void *data, uint32_t size, uint32_t offset) = 0;
 
         /// @brief A pure virtual method that updates the resources bound within a pipeline
         /// @param resources A reference counted pointer to a ResourceSet
-        virtual void SetResourceSet(Ref<ResourceSet> resources) = 0;
+        virtual void SetResourceSet(ResourceSet *resources) = 0;
     };
 
     /// @brief A typedef to simplify creating function pointers to render commands
-    typedef void (*RenderCommand)(Ref<CommandList> commandList);
+    typedef void (*RenderCommand)(CommandList *commandList);
 
     typedef std::variant<
         BeginRenderPassCommand,
-        Ref<VertexBuffer>,
-        Ref<IndexBuffer>,
-        Ref<Pipeline>,
+        VertexBuffer *,
+        IndexBuffer *,
+        Pipeline *,
         TextureUpdateCommand,
         UniformBufferUpdateCommand,
         DrawElementCommand,

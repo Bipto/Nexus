@@ -17,18 +17,18 @@ namespace Nexus::Graphics
         virtual void Begin() override;
         virtual void End() override;
 
-        virtual void SetVertexBuffer(Ref<VertexBuffer> vertexBuffer) override;
-        virtual void SetIndexBuffer(Ref<IndexBuffer> indexBuffer) override;
-        virtual void SetPipeline(Ref<Pipeline> pipeline) override;
+        virtual void SetVertexBuffer(VertexBuffer *vertexBuffer) override;
+        virtual void SetIndexBuffer(IndexBuffer *indexBuffer) override;
+        virtual void SetPipeline(Pipeline *pipeline) override;
 
-        virtual void BeginRenderPass(Ref<RenderPass> renderPass, const RenderPassBeginInfo &beginInfo) override;
+        virtual void BeginRenderPass(RenderPass *renderPass, const RenderPassBeginInfo &beginInfo) override;
         virtual void EndRenderPass() override;
 
         virtual void DrawElements(uint32_t start, uint32_t count) override;
         virtual void DrawIndexed(uint32_t count, uint32_t offset) override;
 
-        virtual void UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset) override;
-        virtual void SetResourceSet(Ref<ResourceSet> resources) override;
+        virtual void UpdateUniformBuffer(UniformBuffer *buffer, void *data, uint32_t size, uint32_t offset) override;
+        virtual void SetResourceSet(ResourceSet *resources) override;
 
         const VkCommandBuffer &GetCurrentCommandBuffer();
 
@@ -38,7 +38,7 @@ namespace Nexus::Graphics
         VkCommandBuffer m_CurrentCommandBuffer;
         GraphicsDeviceVk *m_Device;
 
-        Ref<Pipeline> m_CurrentlyBoundPipeline = nullptr;
+        Pipeline *m_CurrentlyBoundPipeline = nullptr;
     };
 }
 

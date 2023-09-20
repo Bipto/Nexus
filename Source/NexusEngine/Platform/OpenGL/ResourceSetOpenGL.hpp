@@ -7,13 +7,13 @@ namespace Nexus::Graphics
 {
     struct OpenGLTextureBindingInfo
     {
-        Ref<Texture> Texture;
+        Texture *Texture;
         std::string BindingName;
     };
 
     struct OpenGLUniformBufferBindingInfo
     {
-        Ref<UniformBuffer> Buffer;
+        UniformBuffer *Buffer;
         std::string BindingName;
     };
 
@@ -21,8 +21,8 @@ namespace Nexus::Graphics
     {
     public:
         ResourceSetOpenGL(const ResourceSetSpecification &spec);
-        virtual void WriteTexture(Ref<Texture> texture, uint32_t binding) override;
-        virtual void WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, uint32_t binding) override;
+        virtual void WriteTexture(Texture *texture, uint32_t binding) override;
+        virtual void WriteUniformBuffer(UniformBuffer *uniformBuffer, uint32_t binding) override;
 
         const std::unordered_map<uint32_t, OpenGLTextureBindingInfo> &GetTextureBindings();
         const std::unordered_map<uint32_t, OpenGLUniformBufferBindingInfo> &GetUniformBufferBindings();

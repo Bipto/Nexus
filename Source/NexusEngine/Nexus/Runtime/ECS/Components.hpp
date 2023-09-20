@@ -65,13 +65,13 @@ namespace Nexus
         const std::string &GetFilepath() { return m_Filepath; }
         void SetFilepath(const std::string &filepath);
 
-        Ref<Graphics::Texture> GetTexture() { return m_Texture; }
+        Graphics::Texture *GetTexture() { return m_Texture; }
 
         void LoadTexture();
 
     private:
         glm::vec3 m_Color{1.0f, 1.0f, 1.0f};
-        Ref<Graphics::Texture> m_Texture;
+        Graphics::Texture *m_Texture;
         std::string m_Filepath;
     };
 }

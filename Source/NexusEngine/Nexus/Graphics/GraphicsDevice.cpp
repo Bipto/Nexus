@@ -18,7 +18,7 @@ namespace Nexus::Graphics
         m_API = createInfo.API;
     }
 
-    Ref<Shader> GraphicsDevice::CreateShaderFromSpirvFile(const std::string &filepath, const VertexBufferLayout &layout)
+    Shader *GraphicsDevice::CreateShaderFromSpirvFile(const std::string &filepath, const VertexBufferLayout &layout)
     {
         auto startTime = std::chrono::system_clock::now();
         Nexus::Utils::ShaderSources sources = Nexus::Utils::ParseCustomShaderFile(filepath);
@@ -77,7 +77,7 @@ namespace Nexus::Graphics
         return {};
     }
 
-    Ref<Texture> GraphicsDevice::CreateTexture(const char *filepath)
+    Texture *GraphicsDevice::CreateTexture(const char *filepath)
     {
         int desiredChannels = 4;
 
@@ -89,7 +89,7 @@ namespace Nexus::Graphics
         return this->CreateTexture(spec);
     }
 
-    Ref<ResourceSet> GraphicsDevice::CreateResourceSet(Ref<Pipeline> pipeline)
+    ResourceSet *GraphicsDevice::CreateResourceSet(Pipeline *pipeline)
     {
         return CreateResourceSet(pipeline->GetPipelineDescription().ResourceSetSpecification);
     }

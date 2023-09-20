@@ -157,23 +157,23 @@ namespace Demos
         }
 
     private:
-        Nexus::Ref<Nexus::Graphics::RenderPass> m_RenderPass;
-        Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
-        Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
-        Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
+        Nexus::Graphics::RenderPass *m_RenderPass;
+        Nexus::Graphics::CommandList *m_CommandList;
+        Nexus::Graphics::Shader *m_Shader;
+        Nexus::Graphics::Pipeline *m_Pipeline;
         Nexus::Graphics::Model m_Model;
-        Nexus::Ref<Nexus::Graphics::Texture> m_DiffuseMap;
-        Nexus::Ref<Nexus::Graphics::Texture> m_NormalMap;
-        Nexus::Ref<Nexus::Graphics::Texture> m_SpecularMap;
+        Nexus::Graphics::Texture *m_DiffuseMap;
+        Nexus::Graphics::Texture *m_NormalMap;
+        Nexus::Graphics::Texture *m_SpecularMap;
         glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
 
-        Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
+        Nexus::Graphics::ResourceSet *m_ResourceSet;
 
         VB_UNIFORM_CAMERA_DEMO_MODELS m_CameraUniforms;
-        Nexus::Ref<Nexus::Graphics::UniformBuffer> m_CameraUniformBuffer;
+        Nexus::Graphics::UniformBuffer *m_CameraUniformBuffer;
 
         VB_UNIFORM_TRANSFORM_DEMO_MODELS m_TransformUniforms;
-        Nexus::Ref<Nexus::Graphics::UniformBuffer> m_TransformUniformBuffer;
+        Nexus::Graphics::UniformBuffer *m_TransformUniformBuffer;
 
         Nexus::FirstPersonCamera m_Camera;
 

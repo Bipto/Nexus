@@ -19,7 +19,7 @@ namespace Nexus::Graphics
         RenderPassSpecification m_RenderPassSpecification;
         RenderPassData m_Data;
         RenderPassDataType m_DataType;
-        Ref<Framebuffer> m_Framebuffer;
+        Framebuffer *m_Framebuffer;
         friend class GraphicsDeviceDX11;
         friend class CommandListDX11;
     };

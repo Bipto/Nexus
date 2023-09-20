@@ -266,7 +266,7 @@ namespace Nexus::Graphics
             throw std::runtime_error("A shader has not been assigned to this pipeline!");
         }
 
-        Ref<ShaderOpenGL> shaderGL = std::dynamic_pointer_cast<ShaderOpenGL>(m_Description.Shader);
+        auto shaderGL = (ShaderOpenGL *)m_Description.Shader;
         shaderGL->Bind();
     }
 }

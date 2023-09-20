@@ -100,11 +100,11 @@ namespace Nexus::Graphics
     {
     }
 
-    void GraphicsDeviceDX11::SetFramebuffer(Ref<Framebuffer> framebuffer)
+    void GraphicsDeviceDX11::SetFramebuffer(Framebuffer *framebuffer)
     {
         if (framebuffer)
         {
-            Ref<FramebufferDX11> dxFramebuffer = std::dynamic_pointer_cast<FramebufferDX11>(framebuffer);
+            auto dxFramebuffer = (FramebufferDX11 *)framebuffer;
 
             std::vector<ID3D11RenderTargetView *> colorTargets;
             for (const auto &colorTarget : dxFramebuffer->GetColorRenderTargets())
@@ -127,9 +127,9 @@ namespace Nexus::Graphics
             m_ActiveDepthStencilView);
     }
 
-    void GraphicsDeviceDX11::SubmitCommandList(Ref<CommandList> commandList)
+    void GraphicsDeviceDX11::SubmitCommandList(CommandList *commandList)
     {
-        Ref<CommandListDX11> commandListDX11 = std::dynamic_pointer_cast<CommandListDX11>(commandList);
+        auto commandListDX11 = (CommandListDX11 *)commandList;
         auto &commands = commandListDX11->GetRenderCommands();
         for (auto &command : commands)
         {
@@ -160,62 +160,62 @@ namespace Nexus::Graphics
     {
     }
 
-    Ref<Shader> GraphicsDeviceDX11::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout)
+    Shader *GraphicsDeviceDX11::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout)
     {
-        return CreateRef<ShaderDX11>(m_DevicePtr, m_DeviceContextPtr, vertexShaderSource, fragmentShaderSource, layout);
+        return new ShaderDX11(m_DevicePtr, m_DeviceContextPtr, vertexShaderSource, fragmentShaderSource, layout);
     }
 
-    Ref<Texture> GraphicsDeviceDX11::CreateTexture(const TextureSpecification &spec)
+    Texture *GraphicsDeviceDX11::CreateTexture(const TextureSpecification &spec)
     {
-        return CreateRef<TextureDX11>(m_DevicePtr, spec);
+        return new TextureDX11(m_DevicePtr, spec);
     }
 
-    Ref<Framebuffer> GraphicsDeviceDX11::CreateFramebuffer(Ref<RenderPass> renderPass)
+    Framebuffer *GraphicsDeviceDX11::CreateFramebuffer(RenderPass *renderPass)
     {
-        auto framebufferDX11 = CreateRef<FramebufferDX11>(m_DevicePtr, renderPass);
-        auto renderPassDX11 = std::dynamic_pointer_cast<RenderPassDX11>(renderPass);
+        auto framebufferDX11 = new FramebufferDX11(m_DevicePtr, renderPass);
+        auto renderPassDX11 = (RenderPassDX11 *)renderPass;
         renderPassDX11->m_Framebuffer = framebufferDX11;
         return framebufferDX11;
     }
 
-    Ref<Pipeline> GraphicsDeviceDX11::CreatePipeline(const PipelineDescription &description)
+    Pipeline *GraphicsDeviceDX11::CreatePipeline(const PipelineDescription &description)
     {
-        return CreateRef<PipelineDX11>(m_DevicePtr, m_DeviceContextPtr, description);
+        return new PipelineDX11(m_DevicePtr, m_DeviceContextPtr, description);
     }
 
-    Ref<CommandList> GraphicsDeviceDX11::CreateCommandList()
+    CommandList *GraphicsDeviceDX11::CreateCommandList()
     {
-        return CreateRef<CommandListDX11>(this);
+        return new CommandListDX11(this);
     }
 
-    Ref<VertexBuffer> GraphicsDeviceDX11::CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
+    VertexBuffer *GraphicsDeviceDX11::CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
     {
-        return CreateRef<VertexBufferDX11>(m_DevicePtr, m_DeviceContextPtr, description, data, layout);
+        return new VertexBufferDX11(m_DevicePtr, m_DeviceContextPtr, description, data, layout);
     }
 
-    Ref<IndexBuffer> GraphicsDeviceDX11::CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format)
+    IndexBuffer *GraphicsDeviceDX11::CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format)
     {
-        return CreateRef<IndexBufferDX11>(m_DevicePtr, m_DeviceContextPtr, description, data, format);
+        return new IndexBufferDX11(m_DevicePtr, m_DeviceContextPtr, description, data, format);
     }
 
-    Ref<UniformBuffer> GraphicsDeviceDX11::CreateUniformBuffer(const BufferDescription &description, const void *data)
+    UniformBuffer *GraphicsDeviceDX11::CreateUniformBuffer(const BufferDescription &description, const void *data)
     {
-        return CreateRef<UniformBufferDX11>(m_DevicePtr, m_DeviceContextPtr, description, data);
+        return new UniformBufferDX11(m_DevicePtr, m_DeviceContextPtr, description, data);
     }
 
-    Ref<RenderPass> GraphicsDeviceDX11::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification)
+    RenderPass *GraphicsDeviceDX11::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification)
     {
-        return CreateRef<RenderPassDX11>(renderPassSpecification, framebufferSpecification);
+        return new RenderPassDX11(renderPassSpecification, framebufferSpecification);
     }
 
-    Ref<RenderPass> GraphicsDeviceDX11::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain)
+    RenderPass *GraphicsDeviceDX11::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain)
     {
-        return CreateRef<RenderPassDX11>(renderPassSpecification, swapchain);
+        return new RenderPassDX11(renderPassSpecification, swapchain);
     }
 
-    Ref<ResourceSet> GraphicsDeviceDX11::CreateResourceSet(const ResourceSetSpecification &spec)
+    ResourceSet *GraphicsDeviceDX11::CreateResourceSet(const ResourceSetSpecification &spec)
     {
-        return CreateRef<ResourceSetDX11>(spec, this);
+        return new ResourceSetDX11(spec, this);
     }
 
     void GraphicsDeviceDX11::Resize(Point<int> size)

@@ -146,9 +146,9 @@ namespace Nexus::Graphics
         SDL_GL_MakeCurrent(this->m_Window->GetSDLWindowHandle(), this->m_Context);
     }
 
-    void GraphicsDeviceOpenGL::SetFramebuffer(Ref<Framebuffer> framebuffer)
+    void GraphicsDeviceOpenGL::SetFramebuffer(Framebuffer *framebuffer)
     {
-        Ref<FramebufferOpenGL> fb = std::dynamic_pointer_cast<FramebufferOpenGL>(framebuffer);
+        auto fb = (FramebufferOpenGL *)framebuffer;
         if (framebuffer)
         {
             fb->Bind();
@@ -161,9 +161,9 @@ namespace Nexus::Graphics
         }
     }
 
-    void GraphicsDeviceOpenGL::SubmitCommandList(Ref<CommandList> commandList)
+    void GraphicsDeviceOpenGL::SubmitCommandList(CommandList *commandList)
     {
-        Ref<CommandListOpenGL> commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
+        auto commandListGL = (CommandListOpenGL *)commandList;
         auto &commands = commandListGL->GetRenderCommands();
 
         for (auto &command : commands)
@@ -196,62 +196,62 @@ namespace Nexus::Graphics
     {
     }
 
-    Ref<Shader> GraphicsDeviceOpenGL::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout)
+    Shader *GraphicsDeviceOpenGL::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout)
     {
-        return CreateRef<ShaderOpenGL>(vertexShaderSource, fragmentShaderSource, layout);
+        return new ShaderOpenGL(vertexShaderSource, fragmentShaderSource, layout);
     }
 
-    Ref<Texture> GraphicsDeviceOpenGL::CreateTexture(const TextureSpecification &spec)
+    Texture *GraphicsDeviceOpenGL::CreateTexture(const TextureSpecification &spec)
     {
-        return CreateRef<TextureOpenGL>(spec);
+        return new TextureOpenGL(spec);
     }
 
-    Ref<Framebuffer> GraphicsDeviceOpenGL::CreateFramebuffer(Ref<RenderPass> renderPass)
+    Framebuffer *GraphicsDeviceOpenGL::CreateFramebuffer(RenderPass *renderPass)
     {
-        auto framebufferOpenGL = CreateRef<FramebufferOpenGL>(renderPass);
-        auto renderPassOpenGL = std::dynamic_pointer_cast<RenderPassOpenGL>(renderPass);
+        auto framebufferOpenGL = new FramebufferOpenGL(renderPass);
+        auto renderPassOpenGL = (RenderPassOpenGL *)renderPass;
         renderPassOpenGL->m_Framebuffer = framebufferOpenGL;
         return framebufferOpenGL;
     }
 
-    Ref<Pipeline> GraphicsDeviceOpenGL::CreatePipeline(const PipelineDescription &description)
+    Pipeline *GraphicsDeviceOpenGL::CreatePipeline(const PipelineDescription &description)
     {
-        return CreateRef<PipelineOpenGL>(description);
+        return new PipelineOpenGL(description);
     }
 
-    Ref<CommandList> GraphicsDeviceOpenGL::CreateCommandList()
+    CommandList *GraphicsDeviceOpenGL::CreateCommandList()
     {
-        return CreateRef<CommandListOpenGL>(this);
+        return new CommandListOpenGL(this);
     }
 
-    Ref<VertexBuffer> GraphicsDeviceOpenGL::CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
+    VertexBuffer *GraphicsDeviceOpenGL::CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
     {
-        return CreateRef<VertexBufferOpenGL>(description, data, layout);
+        return new VertexBufferOpenGL(description, data, layout);
     }
 
-    Ref<IndexBuffer> GraphicsDeviceOpenGL::CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format)
+    IndexBuffer *GraphicsDeviceOpenGL::CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format)
     {
-        return CreateRef<IndexBufferOpenGL>(description, data, format);
+        return new IndexBufferOpenGL(description, data, format);
     }
 
-    Ref<UniformBuffer> GraphicsDeviceOpenGL::CreateUniformBuffer(const BufferDescription &description, const void *data)
+    UniformBuffer *GraphicsDeviceOpenGL::CreateUniformBuffer(const BufferDescription &description, const void *data)
     {
-        return CreateRef<UniformBufferOpenGL>(description, data);
+        return new UniformBufferOpenGL(description, data);
     }
 
-    Ref<RenderPass> GraphicsDeviceOpenGL::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification)
+    RenderPass *GraphicsDeviceOpenGL::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification)
     {
-        return CreateRef<RenderPassOpenGL>(renderPassSpecification, framebufferSpecification);
+        return new RenderPassOpenGL(renderPassSpecification, framebufferSpecification);
     }
 
-    Ref<RenderPass> GraphicsDeviceOpenGL::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain)
+    RenderPass *GraphicsDeviceOpenGL::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain)
     {
-        return CreateRef<RenderPassOpenGL>(renderPassSpecification, swapchain);
+        return new RenderPassOpenGL(renderPassSpecification, swapchain);
     }
 
-    Ref<ResourceSet> GraphicsDeviceOpenGL::CreateResourceSet(const ResourceSetSpecification &spec)
+    ResourceSet *GraphicsDeviceOpenGL::CreateResourceSet(const ResourceSetSpecification &spec)
     {
-        return CreateRef<ResourceSetOpenGL>(spec);
+        return new ResourceSetOpenGL(spec);
     }
 
     void GraphicsDeviceOpenGL::Resize(Point<int> size)

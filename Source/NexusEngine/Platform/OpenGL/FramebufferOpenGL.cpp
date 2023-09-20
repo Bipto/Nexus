@@ -2,7 +2,7 @@
 
 namespace Nexus::Graphics
 {
-    FramebufferOpenGL::FramebufferOpenGL(Ref<RenderPass> renderPass)
+    FramebufferOpenGL::FramebufferOpenGL(RenderPass *renderPass)
         : Framebuffer(renderPass)
     {
         Recreate();

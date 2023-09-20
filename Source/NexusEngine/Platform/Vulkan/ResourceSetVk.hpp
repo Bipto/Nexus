@@ -14,8 +14,8 @@ namespace Nexus::Graphics
         ResourceSetVk(const ResourceSetSpecification &spec, GraphicsDeviceVk *device);
         ~ResourceSetVk();
 
-        virtual void WriteTexture(Ref<Texture> texture, uint32_t binding) override;
-        virtual void WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, uint32_t binding) override;
+        virtual void WriteTexture(Texture *texture, uint32_t binding) override;
+        virtual void WriteUniformBuffer(UniformBuffer *uniformBuffer, uint32_t binding) override;
 
         VkDescriptorSetLayout GetSamplerDescriptorSetLayout();
         VkDescriptorSet GetSamplerDescriptorSet();

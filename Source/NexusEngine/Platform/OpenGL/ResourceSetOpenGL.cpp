@@ -18,7 +18,7 @@ namespace Nexus::Graphics
         }
     }
 
-    void Nexus::Graphics::ResourceSetOpenGL::WriteTexture(Ref<Texture> texture, uint32_t binding)
+    void Nexus::Graphics::ResourceSetOpenGL::WriteTexture(Texture *texture, uint32_t binding)
     {
         OpenGLTextureBindingInfo info;
         info.Texture = texture;
@@ -27,7 +27,7 @@ namespace Nexus::Graphics
         m_TextureBindings[binding] = info;
     }
 
-    void Nexus::Graphics::ResourceSetOpenGL::WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, uint32_t binding)
+    void Nexus::Graphics::ResourceSetOpenGL::WriteUniformBuffer(UniformBuffer *uniformBuffer, uint32_t binding)
     {
         OpenGLUniformBufferBindingInfo info;
         info.Buffer = uniformBuffer;

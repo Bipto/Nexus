@@ -10,8 +10,8 @@ namespace Nexus::Graphics
     PipelineVk::PipelineVk(const PipelineDescription &description, GraphicsDeviceVk *graphicsDevice)
         : Pipeline(description), m_GraphicsDevice(graphicsDevice)
     {
-        Ref<ShaderVk> vulkanShader = std::dynamic_pointer_cast<ShaderVk>(description.Shader);
-        Ref<RenderPassVk> vulkanRenderPass = std::dynamic_pointer_cast<RenderPassVk>(description.RenderPass);
+        auto vulkanShader = (ShaderVk *)description.Shader;
+        auto vulkanRenderPass = (RenderPassVk *)description.RenderPass;
 
         auto resourceSet = new ResourceSetVk(description.ResourceSetSpecification, graphicsDevice);
         std::vector<VkDescriptorSetLayout> layouts =

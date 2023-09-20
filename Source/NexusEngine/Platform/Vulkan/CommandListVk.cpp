@@ -91,27 +91,27 @@ namespace Nexus::Graphics
         vkEndCommandBuffer(m_CurrentCommandBuffer);
     }
 
-    void CommandListVk::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer)
+    void CommandListVk::SetVertexBuffer(VertexBuffer *vertexBuffer)
     {
-        Ref<VertexBufferVk> vulkanVB = std::dynamic_pointer_cast<VertexBufferVk>(vertexBuffer);
+        auto vulkanVB = (VertexBufferVk *)vertexBuffer;
 
         VkBuffer vertexBuffers[] = {vulkanVB->GetBuffer()};
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(m_CurrentCommandBuffer, 0, 1, vertexBuffers, offsets);
     }
 
-    void CommandListVk::SetIndexBuffer(Ref<IndexBuffer> indexBuffer)
+    void CommandListVk::SetIndexBuffer(IndexBuffer *indexBuffer)
     {
-        Ref<IndexBufferVk> vulkanIB = std::dynamic_pointer_cast<IndexBufferVk>(indexBuffer);
+        auto vulkanIB = (IndexBufferVk *)indexBuffer;
 
         VkBuffer indexBufferRaw = vulkanIB->GetBuffer();
         VkIndexType indexType = GetVulkanIndexBufferFormat(vulkanIB->GetFormat());
         vkCmdBindIndexBuffer(m_CurrentCommandBuffer, indexBufferRaw, 0, indexType);
     }
 
-    void CommandListVk::SetPipeline(Ref<Pipeline> pipeline)
+    void CommandListVk::SetPipeline(Pipeline *pipeline)
     {
-        Ref<PipelineVk> vulkanPipeline = std::dynamic_pointer_cast<PipelineVk>(pipeline);
+        auto vulkanPipeline = (PipelineVk *)pipeline;
         vkCmdBindPipeline(m_CurrentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanPipeline->GetPipeline());
 
         m_CurrentlyBoundPipeline = pipeline;
@@ -123,9 +123,9 @@ namespace Nexus::Graphics
         vkCmdBindDescriptorSets(m_CurrentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanPipeline->GetPipelineLayout(), 1, 1, &samplerDescriptor, 0, nullptr); */
     }
 
-    void CommandListVk::BeginRenderPass(Ref<RenderPass> renderPass, const RenderPassBeginInfo &beginInfo)
+    void CommandListVk::BeginRenderPass(RenderPass *renderPass, const RenderPassBeginInfo &beginInfo)
     {
-        Ref<RenderPassVk> vulkanRenderPass = std::dynamic_pointer_cast<RenderPassVk>(renderPass);
+        auto vulkanRenderPass = (RenderPassVk *)renderPass;
 
         VkRenderPassBeginInfo renderPassInfo = {};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -200,14 +200,14 @@ namespace Nexus::Graphics
         vkCmdDrawIndexed(m_CurrentCommandBuffer, count, 1, 0, offset, 0);
     }
 
-    void CommandListVk::UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset)
+    void CommandListVk::UpdateUniformBuffer(UniformBuffer *buffer, void *data, uint32_t size, uint32_t offset)
     {
     }
 
-    void CommandListVk::SetResourceSet(Ref<ResourceSet> resources)
+    void CommandListVk::SetResourceSet(ResourceSet *resources)
     {
-        auto pipelineVk = std::dynamic_pointer_cast<PipelineVk>(m_CurrentlyBoundPipeline);
-        auto resourceSetVk = std::dynamic_pointer_cast<ResourceSetVk>(resources);
+        auto pipelineVk = (PipelineVk *)m_CurrentlyBoundPipeline;
+        auto resourceSetVk = (ResourceSetVk *)resources;
         auto uniformBufferDescriptor = resourceSetVk->GetUniformBufferrDescriptorSet();
         auto samplerDescriptor = resourceSetVk->GetSamplerDescriptorSet();
 

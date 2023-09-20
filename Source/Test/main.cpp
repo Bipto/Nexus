@@ -155,19 +155,19 @@ public:
     }
 
 private:
-    Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
-    Nexus::Ref<Nexus::Graphics::RenderPass> m_RenderPass;
+    Nexus::Graphics::CommandList *m_CommandList;
+    Nexus::Graphics::RenderPass *m_RenderPass;
 
-    Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
-    Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
+    Nexus::Graphics::Shader *m_Shader;
+    Nexus::Graphics::Pipeline *m_Pipeline;
     Nexus::Graphics::Mesh m_Mesh;
 
-    Nexus::Ref<Nexus::Graphics::Texture> m_Texture;
-    Nexus::Ref<Nexus::Graphics::UniformBuffer> m_UniformBuffer;
+    Nexus::Graphics::Texture *m_Texture;
+    Nexus::Graphics::UniformBuffer *m_UniformBuffer;
 
-    Nexus::Ref<Nexus::Graphics::RenderPass> m_FramebufferRenderPass;
-    Nexus::Ref<Nexus::Graphics::Framebuffer> m_Framebuffer;
-    Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
+    Nexus::Graphics::RenderPass *m_FramebufferRenderPass;
+    Nexus::Graphics::Framebuffer *m_Framebuffer;
+    Nexus::Graphics::ResourceSet *m_ResourceSet;
 
     TestUniforms m_TestUniforms;
     ImTextureID m_BoundTexture;

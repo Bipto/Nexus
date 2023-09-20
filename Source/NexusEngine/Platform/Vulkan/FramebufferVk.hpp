@@ -11,7 +11,7 @@ namespace Nexus::Graphics
     class FramebufferVk : public Framebuffer
     {
     public:
-        FramebufferVk(Ref<RenderPass> renderPass, GraphicsDeviceVk *device);
+        FramebufferVk(RenderPass *renderPass, GraphicsDeviceVk *device);
         ~FramebufferVk();
 
         virtual void *GetColorAttachment(int index = 0) override;
@@ -40,7 +40,7 @@ namespace Nexus::Graphics
         VkFramebuffer m_Framebuffer;
 
         GraphicsDeviceVk *m_Device;
-        Ref<RenderPassVk> m_RenderPass;
+        RenderPassVk *m_RenderPass;
     };
 }
 

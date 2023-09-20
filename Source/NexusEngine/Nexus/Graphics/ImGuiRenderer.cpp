@@ -92,13 +92,13 @@ namespace Nexus::Graphics
         }
     }
 
-    ImTextureID ImGuiRenderer::BindTexture(Ref<Texture> texture)
+    ImTextureID ImGuiRenderer::BindTexture(Texture *texture)
     {
         switch (m_Application->GetGraphicsDevice()->GetGraphicsAPI())
         {
         case GraphicsAPI::Vulkan:
         {
-            auto textureVk = std::dynamic_pointer_cast<TextureVk>(texture);
+            auto textureVk = (TextureVk *)(texture);
             return ImGui_ImplVulkan_AddTexture(textureVk->GetSampler(), textureVk->GetImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
         }
         default:

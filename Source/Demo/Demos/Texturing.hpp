@@ -87,13 +87,13 @@ namespace Demos
         }
 
     private:
-        Nexus::Ref<Nexus::Graphics::RenderPass> m_RenderPass;
-        Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
-        Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
-        Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
-        Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
+        Nexus::Graphics::RenderPass *m_RenderPass;
+        Nexus::Graphics::CommandList *m_CommandList;
+        Nexus::Graphics::Shader *m_Shader;
+        Nexus::Graphics::Pipeline *m_Pipeline;
+        Nexus::Graphics::ResourceSet *m_ResourceSet;
         Nexus::Graphics::Mesh m_Mesh;
-        Nexus::Ref<Nexus::Graphics::Texture> m_Texture;
+        Nexus::Graphics::Texture *m_Texture;
         glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
     };
 }

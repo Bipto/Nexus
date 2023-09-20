@@ -6,7 +6,7 @@
 namespace Nexus::Graphics
 {
 #if defined(WIN32)
-    FramebufferDX11::FramebufferDX11(ID3D11Device *&device, Ref<RenderPass> renderPass)
+    FramebufferDX11::FramebufferDX11(ID3D11Device *&device, RenderPass *renderPass)
         : Framebuffer(renderPass)
     {
         m_Device = device;

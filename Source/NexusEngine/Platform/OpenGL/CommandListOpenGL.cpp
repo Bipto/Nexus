@@ -45,16 +45,16 @@ namespace Nexus::Graphics
     {
     }
 
-    void CommandListOpenGL::BeginRenderPass(Ref<RenderPass> renderPass, const RenderPassBeginInfo &beginInfo)
+    void CommandListOpenGL::BeginRenderPass(RenderPass *renderPass, const RenderPassBeginInfo &beginInfo)
     {
         BeginRenderPassCommand command;
         command.ClearValue = beginInfo;
         command.RenderPass = renderPass;
         m_CommandData.emplace_back(command);
 
-        auto renderCommand = [](Ref<CommandList> commandList)
+        auto renderCommand = [](CommandList *commandList)
         {
-            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
+            auto commandListGL = (CommandListOpenGL *)commandList;
             const auto &commandData = commandListGL->GetCurrentCommandData();
             const auto &renderPassCommand = std::get<BeginRenderPassCommand>(commandData);
             const auto renderPass = renderPassCommand.RenderPass;
@@ -65,7 +65,7 @@ namespace Nexus::Graphics
             {
                 if (renderPass->GetRenderPassDataType() == Nexus::Graphics::RenderPassDataType::Framebuffer)
                 {
-                    auto renderPassOpenGL = std::dynamic_pointer_cast<RenderPassOpenGL>(renderPass);
+                    auto renderPassOpenGL = (RenderPassOpenGL *)renderPass;
                     graphicsDevice->SetFramebuffer(renderPassOpenGL->m_Framebuffer);
                 }
                 else
@@ -108,43 +108,43 @@ namespace Nexus::Graphics
     {
     }
 
-    void CommandListOpenGL::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer)
+    void CommandListOpenGL::SetVertexBuffer(VertexBuffer *vertexBuffer)
     {
         m_CommandData.emplace_back(vertexBuffer);
-        auto renderCommand = [](Ref<CommandList> commandList)
+        auto renderCommand = [](CommandList *commandList)
         {
-            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
+            auto commandListGL = (CommandListOpenGL *)commandList;
             const auto &commandData = commandListGL->GetCurrentCommandData();
-            const auto vertexBuffer = std::get<Ref<VertexBuffer>>(commandData);
-            const auto vertexBufferGL = std::dynamic_pointer_cast<VertexBufferOpenGL>(vertexBuffer);
+            const auto vertexBuffer = std::get<VertexBuffer *>(commandData);
+            const auto vertexBufferGL = (VertexBufferOpenGL *)vertexBuffer;
             vertexBufferGL->Bind();
         };
         m_Commands.push_back(renderCommand);
     }
 
-    void CommandListOpenGL::SetIndexBuffer(Ref<IndexBuffer> indexBuffer)
+    void CommandListOpenGL::SetIndexBuffer(IndexBuffer *indexBuffer)
     {
         m_CommandData.emplace_back(indexBuffer);
-        auto renderCommand = [](Ref<CommandList> commandList)
+        auto renderCommand = [](CommandList *commandList)
         {
-            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
+            auto commandListGL = (CommandListOpenGL *)commandList;
             const auto &commandData = commandListGL->GetCurrentCommandData();
-            const auto indexBuffer = std::get<Ref<IndexBuffer>>(commandData);
-            const auto indexBufferGL = std::dynamic_pointer_cast<IndexBufferOpenGL>(indexBuffer);
+            const auto indexBuffer = std::get<IndexBuffer *>(commandData);
+            const auto indexBufferGL = (IndexBufferOpenGL *)indexBuffer;
             indexBufferGL->Bind();
             commandListGL->m_IndexBufferFormat = GetGLIndexBufferFormat(indexBufferGL->GetFormat());
         };
         m_Commands.push_back(renderCommand);
     }
 
-    void CommandListOpenGL::SetPipeline(Ref<Pipeline> pipeline)
+    void CommandListOpenGL::SetPipeline(Pipeline *pipeline)
     {
         m_CommandData.emplace_back(pipeline);
-        auto renderCommand = [](Ref<CommandList> commandList)
+        auto renderCommand = [](CommandList *commandList)
         {
-            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
+            auto commandListGL = (CommandListOpenGL *)commandList;
             const auto &commandData = commandListGL->GetCurrentCommandData();
-            const auto pipeline = std::get<Ref<Pipeline>>(commandData);
+            const auto pipeline = std::get<Pipeline *>(commandData);
             commandListGL->BindPipeline(pipeline);
         };
         m_Commands.push_back(renderCommand);
@@ -157,9 +157,9 @@ namespace Nexus::Graphics
         command.Count = count;
         m_CommandData.emplace_back(command);
 
-        auto renderCommand = [](Ref<CommandList> commandList)
+        auto renderCommand = [](CommandList *commandList)
         {
-            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
+            auto commandListGL = (CommandListOpenGL *)commandList;
             const auto &commandData = commandListGL->GetCurrentCommandData();
             const auto &drawElementsCommand = std::get<DrawElementCommand>(commandData);
             glDrawArrays(commandListGL->GetTopology(), drawElementsCommand.Start, drawElementsCommand.Count);
@@ -174,9 +174,9 @@ namespace Nexus::Graphics
         command.Offset = offset;
         m_CommandData.emplace_back(command);
 
-        auto renderCommand = [](Ref<CommandList> commandList)
+        auto renderCommand = [](CommandList *commandList)
         {
-            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
+            auto commandListGL = (CommandListOpenGL *)commandList;
             const auto &commandData = commandListGL->GetCurrentCommandData();
             const auto &drawIndexedCommand = std::get<DrawIndexedCommand>(commandData);
             glDrawElements(commandListGL->GetTopology(), drawIndexedCommand.Count, commandListGL->m_IndexBufferFormat, (void *)drawIndexedCommand.Offset);
@@ -184,7 +184,7 @@ namespace Nexus::Graphics
         m_Commands.push_back(renderCommand);
     }
 
-    void CommandListOpenGL::UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset)
+    void CommandListOpenGL::UpdateUniformBuffer(UniformBuffer *buffer, void *data, uint32_t size, uint32_t offset)
     {
         UniformBufferUpdateCommand command;
         command.Buffer = buffer;
@@ -194,9 +194,9 @@ namespace Nexus::Graphics
         memcpy(command.Data, data, size);
         m_CommandData.emplace_back(command);
 
-        auto renderCommand = [](Ref<CommandList> commandList)
+        auto renderCommand = [](CommandList *commandList)
         {
-            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
+            auto commandListGL = (CommandListOpenGL *)commandList;
             const auto &commandData = commandListGL->GetCurrentCommandData();
             const auto &uniformBufferUpdateCommand = std::get<UniformBufferUpdateCommand>(commandData);
 
@@ -209,25 +209,25 @@ namespace Nexus::Graphics
         m_Commands.push_back(renderCommand);
     }
 
-    void CommandListOpenGL::SetResourceSet(Ref<ResourceSet> resources)
+    void CommandListOpenGL::SetResourceSet(ResourceSet *resources)
     {
         UpdateResourcesCommand command;
         command.Resources = resources;
         m_CommandData.emplace_back(command);
 
-        auto renderCommand = [](Ref<CommandList> commandList)
+        auto renderCommand = [](CommandList *commandList)
         {
-            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
+            auto commandListGL = (CommandListOpenGL *)commandList;
             auto pipeline = commandListGL->m_CurrentlyBoundPipeline;
             const auto &updateResourcesCommand = std::get<UpdateResourcesCommand>(commandListGL->GetCurrentCommandData());
 
-            auto shaderGL = std::dynamic_pointer_cast<ShaderOpenGL>(pipeline->GetShader());
-            auto resourcesGL = std::dynamic_pointer_cast<ResourceSetOpenGL>(updateResourcesCommand.Resources);
+            auto shaderGL = (ShaderOpenGL *)pipeline->GetShader();
+            auto resourcesGL = (ResourceSetOpenGL *)updateResourcesCommand.Resources;
 
             // update textures
             for (const auto &textureBinding : resourcesGL->GetTextureBindings())
             {
-                auto textureGL = std::dynamic_pointer_cast<TextureOpenGL>(textureBinding.second.Texture);
+                auto textureGL = (TextureOpenGL *)textureBinding.second.Texture;
 
                 auto location = glGetUniformLocation(shaderGL->GetHandle(), textureBinding.second.BindingName.c_str());
                 glUniform1i(location, textureBinding.first);
@@ -238,7 +238,7 @@ namespace Nexus::Graphics
             // update uniform buffers
             for (const auto &uniformBufferBinding : resourcesGL->GetUniformBufferBindings())
             {
-                auto uniformBufferGL = std::dynamic_pointer_cast<UniformBufferOpenGL>(uniformBufferBinding.second.Buffer);
+                auto uniformBufferGL = (UniformBufferOpenGL *)uniformBufferBinding.second.Buffer;
                 unsigned int index = glGetUniformBlockIndex(shaderGL->GetHandle(), uniformBufferBinding.second.BindingName.c_str());
                 glBindBuffer(GL_UNIFORM_BUFFER, uniformBufferGL->GetHandle());
                 glUniformBlockBinding(shaderGL->GetHandle(), index, uniformBufferBinding.first);
@@ -287,9 +287,9 @@ namespace Nexus::Graphics
         return drawMode;
     }
 
-    void CommandListOpenGL::BindPipeline(Ref<Pipeline> pipeline)
+    void CommandListOpenGL::BindPipeline(Pipeline *pipeline)
     {
-        auto pipelineGL = std::dynamic_pointer_cast<PipelineOpenGL>(pipeline);
+        auto pipelineGL = (PipelineOpenGL *)pipeline;
         pipelineGL->Bind();
         m_CurrentlyBoundPipeline = pipeline;
     }

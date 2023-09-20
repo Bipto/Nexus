@@ -11,15 +11,15 @@ namespace Nexus::Graphics
     {
     public:
         ResourceSetDX11(const ResourceSetSpecification &spec, GraphicsDeviceDX11 *device);
-        virtual void WriteTexture(Ref<Texture> texture, uint32_t binding) override;
-        virtual void WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, uint32_t binding) override;
+        virtual void WriteTexture(Texture *texture, uint32_t binding) override;
+        virtual void WriteUniformBuffer(UniformBuffer *uniformBuffer, uint32_t binding) override;
 
-        const std::unordered_map<uint32_t, Ref<Texture>> &GetTextureBindings();
-        const std::unordered_map<uint32_t, Ref<UniformBuffer>> &GetUniformBufferBindings();
+        const std::unordered_map<uint32_t, Texture *> &GetTextureBindings();
+        const std::unordered_map<uint32_t, UniformBuffer *> &GetUniformBufferBindings();
 
     private:
-        std::unordered_map<uint32_t, Ref<Texture>> m_TextureBindings;
-        std::unordered_map<uint32_t, Ref<UniformBuffer>> m_UniformBufferBindings;
+        std::unordered_map<uint32_t, Texture *> m_TextureBindings;
+        std::unordered_map<uint32_t, UniformBuffer *> m_UniformBufferBindings;
         GraphicsDeviceDX11 *m_GraphicsDevice;
     };
 }

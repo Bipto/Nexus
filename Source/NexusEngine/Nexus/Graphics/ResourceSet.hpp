@@ -30,7 +30,7 @@ namespace Nexus::Graphics
         std::string Name;
 
         /// @brief A reference counted pointer to a uniform buffer
-        Ref<UniformBuffer> Buffer;
+        UniformBuffer *Buffer;
     };
 
     struct ResourceSetSpecification
@@ -43,10 +43,10 @@ namespace Nexus::Graphics
     {
     public:
         ResourceSet(const ResourceSetSpecification &spec) : m_Specification(spec) {}
-        virtual ~ResourceSet(){}
+        virtual ~ResourceSet() {}
 
-        virtual void WriteTexture(Ref<Texture> texture, uint32_t binding) = 0;
-        virtual void WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, uint32_t binding) = 0;
+        virtual void WriteTexture(Texture *texture, uint32_t binding) = 0;
+        virtual void WriteUniformBuffer(UniformBuffer *uniformBuffer, uint32_t binding) = 0;
 
         const ResourceSetSpecification &GetSpecification() { return m_Specification; }
 

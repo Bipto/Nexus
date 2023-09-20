@@ -65,10 +65,10 @@ namespace Nexus::Graphics
     {
     }
 
-    void GraphicsDeviceVk::SubmitCommandList(Ref<CommandList> commandList)
+    void GraphicsDeviceVk::SubmitCommandList(CommandList *commandList)
     {
         VkPipelineStageFlags waitDestStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
-        Ref<CommandListVk> vulkanCommandList = std::dynamic_pointer_cast<CommandListVk>(commandList);
+        auto vulkanCommandList = (CommandListVk *)commandList;
 
         vkWaitForFences(m_Device, 1, &GetCurrentFrame().RenderFence, VK_TRUE, 0);
         vkResetFences(m_Device, 1, &GetCurrentFrame().RenderFence);
@@ -116,7 +116,7 @@ namespace Nexus::Graphics
     {
     }
 
-    Ref<Shader> GraphicsDeviceVk::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout)
+    Shader *GraphicsDeviceVk::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout)
     {
         Nexus::Graphics::ShaderGenerator generator;
 
@@ -142,57 +142,57 @@ namespace Nexus::Graphics
             throw std::runtime_error(fragmentResult.Error);
         }
 
-        return CreateRef<ShaderVk>(vertexResult.SpirvBinary, fragmentResult.SpirvBinary, vertexShaderSource, fragmentShaderSource, layout, this);
+        return new ShaderVk(vertexResult.SpirvBinary, fragmentResult.SpirvBinary, vertexShaderSource, fragmentShaderSource, layout, this);
     }
 
-    Ref<Texture> GraphicsDeviceVk::CreateTexture(const TextureSpecification &spec)
+    Texture *GraphicsDeviceVk::CreateTexture(const TextureSpecification &spec)
     {
-        return CreateRef<TextureVk>(this, spec);
+        return new TextureVk(this, spec);
     }
 
-    Ref<Framebuffer> GraphicsDeviceVk::CreateFramebuffer(Ref<RenderPass> renderPass)
+    Framebuffer *GraphicsDeviceVk::CreateFramebuffer(RenderPass *renderPass)
     {
-        return CreateRef<FramebufferVk>(renderPass, this);
+        return new FramebufferVk(renderPass, this);
     }
 
-    Ref<Pipeline> GraphicsDeviceVk::CreatePipeline(const PipelineDescription &description)
+    Pipeline *GraphicsDeviceVk::CreatePipeline(const PipelineDescription &description)
     {
-        return CreateRef<PipelineVk>(description, this);
+        return new PipelineVk(description, this);
     }
 
-    Ref<CommandList> GraphicsDeviceVk::CreateCommandList()
+    CommandList *GraphicsDeviceVk::CreateCommandList()
     {
-        return CreateRef<CommandListVk>(this);
+        return new CommandListVk(this);
     }
 
-    Ref<VertexBuffer> GraphicsDeviceVk::CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
+    VertexBuffer *GraphicsDeviceVk::CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
     {
-        return CreateRef<VertexBufferVk>(description, data, layout, this);
+        return new VertexBufferVk(description, data, layout, this);
     }
 
-    Ref<IndexBuffer> GraphicsDeviceVk::CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format)
+    IndexBuffer *GraphicsDeviceVk::CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format)
     {
-        return CreateRef<IndexBufferVk>(description, data, this, format);
+        return new IndexBufferVk(description, data, this, format);
     }
 
-    Ref<UniformBuffer> GraphicsDeviceVk::CreateUniformBuffer(const BufferDescription &description, const void *data)
+    UniformBuffer *GraphicsDeviceVk::CreateUniformBuffer(const BufferDescription &description, const void *data)
     {
-        return CreateRef<UniformBufferVk>(description, data, this);
+        return new UniformBufferVk(description, data, this);
     }
 
-    Ref<RenderPass> GraphicsDeviceVk::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification)
+    RenderPass *GraphicsDeviceVk::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification)
     {
-        return CreateRef<RenderPassVk>(renderPassSpecification, framebufferSpecification, this);
+        return new RenderPassVk(renderPassSpecification, framebufferSpecification, this);
     }
 
-    Ref<RenderPass> GraphicsDeviceVk::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain)
+    RenderPass *GraphicsDeviceVk::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain)
     {
-        return CreateRef<RenderPassVk>(renderPassSpecification, swapchain, this);
+        return new RenderPassVk(renderPassSpecification, swapchain, this);
     }
 
-    Ref<ResourceSet> GraphicsDeviceVk::CreateResourceSet(const ResourceSetSpecification &spec)
+    ResourceSet *GraphicsDeviceVk::CreateResourceSet(const ResourceSetSpecification &spec)
     {
-        return CreateRef<ResourceSetVk>(spec, this);
+        return new ResourceSetVk(spec, this);
     }
 
     void GraphicsDeviceVk::Resize(Point<int> size)

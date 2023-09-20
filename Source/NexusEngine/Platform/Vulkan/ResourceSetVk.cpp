@@ -176,9 +176,9 @@ namespace Nexus::Graphics
         }
     }
 
-    void ResourceSetVk::WriteTexture(Ref<Texture> texture, uint32_t binding)
+    void ResourceSetVk::WriteTexture(Texture *texture, uint32_t binding)
     {
-        Ref<TextureVk> textureVk = std::dynamic_pointer_cast<TextureVk>(texture);
+        TextureVk *textureVk = (TextureVk *)texture;
 
         VkSamplerCreateInfo samplerInfo;
         samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -223,9 +223,9 @@ namespace Nexus::Graphics
         vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &textureToWrite, 0, nullptr);
     }
 
-    void ResourceSetVk::WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, uint32_t binding)
+    void ResourceSetVk::WriteUniformBuffer(UniformBuffer *uniformBuffer, uint32_t binding)
     {
-        Ref<UniformBufferVk> uniformBufferVk = std::dynamic_pointer_cast<UniformBufferVk>(uniformBuffer);
+        auto uniformBufferVk = (UniformBufferVk *)uniformBuffer;
 
         VkDescriptorBufferInfo bufferInfo;
         bufferInfo.buffer = uniformBufferVk->GetBuffer();

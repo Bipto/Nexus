@@ -219,8 +219,8 @@ public:
     }
 
 private:
-    Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
-    Nexus::Ref<Nexus::Graphics::RenderPass> m_RenderPass;
+    Nexus::Graphics::CommandList *m_CommandList;
+    Nexus::Graphics::RenderPass *m_RenderPass;
 
     Demos::Demo *m_CurrentDemo = nullptr;
 

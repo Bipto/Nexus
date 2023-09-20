@@ -45,7 +45,7 @@ namespace Nexus::Graphics
     {
     }
 
-    void CommandListDX11::BeginRenderPass(Ref<RenderPass> renderPass, const RenderPassBeginInfo &beginInfo)
+    void CommandListDX11::BeginRenderPass(RenderPass *renderPass, const RenderPassBeginInfo &beginInfo)
     {
 #if defined(NX_PLATFORM_DX11)
 
@@ -54,9 +54,9 @@ namespace Nexus::Graphics
         command.RenderPass = renderPass;
         m_CommandData.emplace_back(command);
 
-        auto renderCommand = [](Ref<CommandList> commandList)
+        auto renderCommand = [](CommandList *commandList)
         {
-            Ref<CommandListDX11> commandListDX11 = std::dynamic_pointer_cast<CommandListDX11>(commandList);
+            CommandListDX11 *commandListDX11 = (CommandListDX11 *)commandList;
             auto graphicsDevice = commandListDX11->GetGraphicsDevice();
             auto context = graphicsDevice->GetDeviceContext();
             const auto &commandData = commandListDX11->GetCurrentCommandData();
@@ -68,7 +68,7 @@ namespace Nexus::Graphics
             {
                 if (renderPass->GetRenderPassDataType() == Nexus::Graphics::RenderPassDataType::Framebuffer)
                 {
-                    auto renderPassDX11 = std::dynamic_pointer_cast<RenderPassDX11>(renderPass);
+                    auto renderPassDX11 = (RenderPassDX11 *)(renderPass);
                     graphicsDevice->SetFramebuffer(renderPassDX11->m_Framebuffer);
                 }
                 else
@@ -117,19 +117,19 @@ namespace Nexus::Graphics
     {
     }
 
-    void CommandListDX11::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer)
+    void CommandListDX11::SetVertexBuffer(VertexBuffer *vertexBuffer)
     {
 #if defined(NX_PLATFORM_DX11)
         m_CommandData.emplace_back(vertexBuffer);
 
-        auto renderCommand = [](Ref<CommandList> commandList)
+        auto renderCommand = [](CommandList *commandList)
         {
-            Ref<CommandListDX11> commandListDX11 = std::dynamic_pointer_cast<CommandListDX11>(commandList);
+            CommandListDX11 *commandListDX11 = (CommandListDX11 *)commandList;
             auto graphicsDevice = commandListDX11->GetGraphicsDevice();
             auto context = graphicsDevice->GetDeviceContext();
             const auto &commandData = commandListDX11->GetCurrentCommandData();
-            const auto vertexBuffer = std::get<Ref<VertexBuffer>>(commandData);
-            auto vertexBufferDX11 = std::dynamic_pointer_cast<VertexBufferDX11>(vertexBuffer);
+            const auto vertexBuffer = std::get<VertexBuffer *>(commandData);
+            auto vertexBufferDX11 = (VertexBufferDX11 *)vertexBuffer;
 
             const auto &layout = vertexBufferDX11->GetLayout();
             uint32_t stride = layout.GetStride();
@@ -148,20 +148,20 @@ namespace Nexus::Graphics
 #endif
     }
 
-    void CommandListDX11::SetIndexBuffer(Ref<IndexBuffer> indexBuffer)
+    void CommandListDX11::SetIndexBuffer(IndexBuffer *indexBuffer)
     {
 #if defined(NX_PLATFORM_DX11)
         m_CommandData.emplace_back(indexBuffer);
 
-        auto renderCommand = [](Ref<CommandList> commandList)
+        auto renderCommand = [](CommandList *commandList)
         {
-            Ref<CommandListDX11> commandListDX11 = std::dynamic_pointer_cast<CommandListDX11>(commandList);
+            CommandListDX11 *commandListDX11 = (CommandListDX11 *)commandList;
             auto graphicsDevice = commandListDX11->GetGraphicsDevice();
             const auto &commandData = commandListDX11->GetCurrentCommandData();
 
-            auto indexBuffer = std::get<Ref<IndexBuffer>>(commandData);
+            auto indexBuffer = std::get<IndexBuffer *>(commandData);
             auto context = graphicsDevice->GetDeviceContext();
-            auto indexBufferDX11 = std::dynamic_pointer_cast<IndexBufferDX11>(indexBuffer);
+            auto indexBufferDX11 = (IndexBufferDX11 *)indexBuffer;
 
             auto nativeBuffer = indexBufferDX11->GetHandle();
 
@@ -176,16 +176,16 @@ namespace Nexus::Graphics
 #endif
     }
 
-    void CommandListDX11::SetPipeline(Ref<Pipeline> pipeline)
+    void CommandListDX11::SetPipeline(Pipeline *pipeline)
     {
 #if defined(NX_PLATFORM_DX11)
         m_CommandData.emplace_back(pipeline);
 
-        auto renderCommand = [](Ref<CommandList> commandList)
+        auto renderCommand = [](CommandList *commandList)
         {
-            Ref<CommandListDX11> commandListDX11 = std::dynamic_pointer_cast<CommandListDX11>(commandList);
+            CommandListDX11 *commandListDX11 = (CommandListDX11 *)commandList;
             const auto &commandData = commandListDX11->GetCurrentCommandData();
-            auto pipeline = std::get<Ref<Pipeline>>(commandData);
+            auto pipeline = std::get<Pipeline *>(commandData);
             commandListDX11->BindPipeline(pipeline);
         };
         m_Commands.push_back(renderCommand);
@@ -200,9 +200,9 @@ namespace Nexus::Graphics
         command.Count = count;
         m_CommandData.emplace_back(command);
 
-        auto renderCommand = [](Ref<CommandList> commandList)
+        auto renderCommand = [](CommandList *commandList)
         {
-            auto commandListDX11 = std::dynamic_pointer_cast<CommandListDX11>(commandList);
+            auto commandListDX11 = (CommandListDX11 *)commandList;
             auto graphicsDevice = commandListDX11->GetGraphicsDevice();
             auto context = graphicsDevice->GetDeviceContext();
             const auto &commandData = commandListDX11->GetCurrentCommandData();
@@ -223,9 +223,9 @@ namespace Nexus::Graphics
         command.Offset = offset;
         m_CommandData.emplace_back(command);
 
-        auto renderCommand = [](Ref<CommandList> commandList)
+        auto renderCommand = [](CommandList *commandList)
         {
-            auto commandListDX11 = std::dynamic_pointer_cast<CommandListDX11>(commandList);
+            auto commandListDX11 = (CommandListDX11 *)commandList;
             auto graphicsDevice = commandListDX11->GetGraphicsDevice();
             auto context = graphicsDevice->GetDeviceContext();
             const auto &commandData = commandListDX11->GetCurrentCommandData();
@@ -238,7 +238,7 @@ namespace Nexus::Graphics
 #endif
     }
 
-    void CommandListDX11::UpdateUniformBuffer(Ref<UniformBuffer> buffer, void *data, uint32_t size, uint32_t offset)
+    void CommandListDX11::UpdateUniformBuffer(UniformBuffer *buffer, void *data, uint32_t size, uint32_t offset)
     {
 #if defined(NX_PLATFORM_DX11)
         UniformBufferUpdateCommand command;
@@ -249,9 +249,9 @@ namespace Nexus::Graphics
         memcpy(command.Data, data, size);
         m_CommandData.emplace_back(command);
 
-        auto renderCommand = [](Ref<CommandList> commandList)
+        auto renderCommand = [](CommandList *commandList)
         {
-            auto commandListDX11 = std::dynamic_pointer_cast<CommandListDX11>(commandList);
+            auto commandListDX11 = (CommandListDX11 *)commandList;
             const auto &commandData = commandListDX11->GetCurrentCommandData();
             const auto &uniformBufferUpdateCommand = std::get<UniformBufferUpdateCommand>(commandData);
 
@@ -267,25 +267,25 @@ namespace Nexus::Graphics
 #endif
     }
 
-    void CommandListDX11::SetResourceSet(Ref<ResourceSet> resources)
+    void CommandListDX11::SetResourceSet(ResourceSet *resources)
     {
         UpdateResourcesCommand command;
         command.Resources = resources;
         m_CommandData.emplace_back(command);
 
-        auto renderCommand = [](Ref<CommandList> commandList)
+        auto renderCommand = [](CommandList *commandList)
         {
-            auto commandListDX11 = std::dynamic_pointer_cast<CommandListDX11>(commandList);
+            auto commandListDX11 = (CommandListDX11 *)commandList;
             auto graphicsDeviceDX11 = (GraphicsDeviceDX11 *)commandListDX11->GetGraphicsDevice();
             auto context = graphicsDeviceDX11->GetDeviceContext();
 
             const auto &updateResourceCommand = std::get<UpdateResourcesCommand>(commandListDX11->GetCurrentCommandData());
-            auto resourceSetDX11 = std::dynamic_pointer_cast<ResourceSetDX11>(updateResourceCommand.Resources);
+            auto resourceSetDX11 = (ResourceSetDX11 *)updateResourceCommand.Resources;
 
             // update textures
             for (const auto &textureBinding : resourceSetDX11->GetTextureBindings())
             {
-                auto textureDX11 = std::dynamic_pointer_cast<TextureDX11>(textureBinding.second);
+                auto textureDX11 = (TextureDX11 *)textureBinding.second;
 
                 context->PSSetShaderResources(textureBinding.first, 1, (ID3D11ShaderResourceView *const *)textureDX11->GetResourceView().GetAddressOf());
                 context->PSSetSamplers(textureBinding.first, 1, (ID3D11SamplerState *const *)textureDX11->GetSamplerState().GetAddressOf());
@@ -294,7 +294,7 @@ namespace Nexus::Graphics
             // update uniform buffers
             for (const auto &uniformBufferBinding : resourceSetDX11->GetUniformBufferBindings())
             {
-                auto uniformBufferDX11 = std::dynamic_pointer_cast<UniformBufferDX11>(uniformBufferBinding.second);
+                auto uniformBufferDX11 = (UniformBufferDX11 *)uniformBufferBinding.second;
                 auto bufferHandle = uniformBufferDX11->GetHandle();
 
                 context->VSSetConstantBuffers(
@@ -321,15 +321,15 @@ namespace Nexus::Graphics
         return m_GraphicsDevice;
     }
 
-    Ref<Pipeline> CommandListDX11::GetCurrentPipeline()
+    Pipeline *CommandListDX11::GetCurrentPipeline()
     {
         return m_CurrentPipeline;
     }
 
-    void CommandListDX11::BindPipeline(Ref<Pipeline> pipeline)
+    void CommandListDX11::BindPipeline(Pipeline *pipeline)
     {
 #if defined(NX_PLATFORM_DX11)
-        auto pipelineDX11 = std::dynamic_pointer_cast<PipelineDX11>(pipeline);
+        auto pipelineDX11 = (PipelineDX11 *)pipeline;
         m_CurrentPipeline = pipeline;
 
         auto depthStencilState = pipelineDX11->GetDepthStencilState();
@@ -339,7 +339,7 @@ namespace Nexus::Graphics
         const auto &scissorRectangle = pipelineDX11->GetScissorRectangle();
         auto topology = pipelineDX11->GetTopology();
         auto shader = pipeline->GetShader();
-        auto dxShader = std::dynamic_pointer_cast<ShaderDX11>(shader);
+        auto dxShader = (ShaderDX11 *)shader;
 
         auto context = m_GraphicsDevice->GetDeviceContext();
 

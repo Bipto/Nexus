@@ -256,10 +256,10 @@ namespace Nexus::Graphics
         Topology PrimitiveTopology = Topology::TriangleList;
 
         /// @brief A reference counted pointer to a shader that should be used for rendering
-        Ref<Shader> Shader;
+        Shader *Shader;
 
         /// @brief A reference counted pointer to the render pass that will be used for rendering with this pipeline
-        Ref<RenderPass> RenderPass;
+        RenderPass *RenderPass;
 
         /// @brief A resource set specification describing how resources are allocated in the pipeline
         ResourceSetSpecification ResourceSetSpecification;
@@ -290,7 +290,7 @@ namespace Nexus::Graphics
 
         /// @brief A method that returns a reference counted pointer to a shader
         /// @return A pointer to the shader used by the pipeline
-        virtual Ref<Shader> GetShader() const { return m_Description.Shader; }
+        virtual Shader *GetShader() const { return m_Description.Shader; }
 
     protected:
         /// @brief The pipeline description used to create the pipeline

@@ -2,7 +2,7 @@
 
 namespace Nexus::Audio
 {
-    AudioSourceOpenAL::AudioSourceOpenAL(Ref<AudioBuffer> buffer)
+    AudioSourceOpenAL::AudioSourceOpenAL(AudioBuffer *buffer)
     {
         m_Buffer = buffer;
 

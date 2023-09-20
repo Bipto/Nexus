@@ -55,11 +55,11 @@ namespace Demos
         }
 
     private:
-        Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
-        Nexus::Ref<Nexus::Graphics::RenderPass> m_RenderPass;
+        Nexus::Graphics::CommandList *m_CommandList;
+        Nexus::Graphics::RenderPass *m_RenderPass;
         glm::vec3 m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 
-        Nexus::Ref<Nexus::Audio::AudioBuffer> m_AudioBuffer;
-        Nexus::Ref<Nexus::Audio::AudioSource> m_AudioSource;
+        Nexus::Audio::AudioBuffer *m_AudioBuffer;
+        Nexus::Audio::AudioSource *m_AudioSource;
     };
 }

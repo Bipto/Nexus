@@ -31,7 +31,7 @@ namespace Nexus::Graphics
         virtual ~GraphicsDeviceVk();
 
         void SetContext() override;
-        virtual void SubmitCommandList(Ref<CommandList> commandList) override;
+        virtual void SubmitCommandList(CommandList *commandList) override;
 
         virtual const std::string GetAPIName() override;
         virtual const char *GetDeviceName() override;
@@ -40,19 +40,19 @@ namespace Nexus::Graphics
         virtual void BeginFrame() override;
         virtual void EndFrame() override;
 
-        virtual Ref<Shader> CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout) override;
-        virtual Ref<Texture> CreateTexture(const TextureSpecification &spec) override;
-        virtual Ref<Framebuffer> CreateFramebuffer(Ref<RenderPass> renderPass) override;
-        virtual Ref<Pipeline> CreatePipeline(const PipelineDescription &description) override;
-        virtual Ref<CommandList> CreateCommandList();
+        virtual Shader *CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout) override;
+        virtual Texture *CreateTexture(const TextureSpecification &spec) override;
+        virtual Framebuffer *CreateFramebuffer(RenderPass *renderPass) override;
+        virtual Pipeline *CreatePipeline(const PipelineDescription &description) override;
+        virtual CommandList *CreateCommandList();
 
-        virtual Ref<VertexBuffer> CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout) override;
-        virtual Ref<IndexBuffer> CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format = IndexBufferFormat::UInt32) override;
-        virtual Ref<UniformBuffer> CreateUniformBuffer(const BufferDescription &description, const void *data) override;
+        virtual VertexBuffer *CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout) override;
+        virtual IndexBuffer *CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format = IndexBufferFormat::UInt32) override;
+        virtual UniformBuffer *CreateUniformBuffer(const BufferDescription &description, const void *data) override;
 
-        virtual Ref<RenderPass> CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification) override;
-        virtual Ref<RenderPass> CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain) override;
-        virtual Ref<ResourceSet> CreateResourceSet(const ResourceSetSpecification &spec) override;
+        virtual RenderPass *CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification) override;
+        virtual RenderPass *CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain) override;
+        virtual ResourceSet *CreateResourceSet(const ResourceSetSpecification &spec) override;
 
         virtual void Resize(Point<int> size) override;
         virtual ShaderLanguage GetSupportedShaderFormat() override;

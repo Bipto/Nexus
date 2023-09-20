@@ -20,7 +20,7 @@ namespace Nexus::Graphics
     public:
         /// @brief A constructor that sets the initial specification of a framebuffer
         /// @param renderPass A reference counted pointer to a RenderPass to use when rendering to the framebuffer
-        Framebuffer(Ref<RenderPass> renderPass)
+        Framebuffer(RenderPass *renderPass)
             : m_Specification(renderPass->GetData<FramebufferSpecification>()) {}
 
         /// @brief A virtual destructor enabling resources to be cleaned up
