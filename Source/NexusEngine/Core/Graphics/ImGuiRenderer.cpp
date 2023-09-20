@@ -131,7 +131,7 @@ namespace Nexus::Graphics
     {
 #if defined(NX_PLATFORM_DX11)
         ImGui_ImplSDL2_InitForD3D(m_Application->GetWindow()->GetSDLWindowHandle());
-        Nexus::Ref<Nexus::Graphics::GraphicsDeviceDX11> device = std::dynamic_pointer_cast<GraphicsDeviceDX11>(m_Application->GetGraphicsDevice());
+        auto device = (GraphicsDeviceDX11 *)(m_Application->GetGraphicsDevice());
         ID3D11Device *id3d11Device = (ID3D11Device *)device->GetDevice();
         ID3D11DeviceContext *id3d11DeviceContext = (ID3D11DeviceContext *)device->GetDeviceContext();
         ImGui_ImplDX11_Init(id3d11Device, id3d11DeviceContext);
@@ -142,7 +142,7 @@ namespace Nexus::Graphics
     {
 #if defined(NX_PLATFORM_VULKAN)
         auto graphicsDevice = m_Application->GetGraphicsDevice();
-        auto vulkanGraphicsDevice = std::dynamic_pointer_cast<GraphicsDeviceVk>(graphicsDevice);
+        auto vulkanGraphicsDevice = (GraphicsDeviceVk *)(graphicsDevice);
 
         VkDescriptorPoolSize poolSizes[] =
             {
@@ -195,7 +195,7 @@ namespace Nexus::Graphics
     {
 #if defined(NX_PLATFORM_VULKAN)
         auto graphicsDevice = m_Application->GetGraphicsDevice();
-        auto vulkanGraphicsDevice = std::dynamic_pointer_cast<GraphicsDeviceVk>(graphicsDevice);
+        auto vulkanGraphicsDevice = (GraphicsDeviceVk *)(graphicsDevice);
 
         vulkanGraphicsDevice->BeginImGuiRenderPass();
         ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), vulkanGraphicsDevice->m_ImGuiCommandBuffer);

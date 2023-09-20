@@ -13,6 +13,8 @@ namespace Nexus::Graphics
     {
     public:
         GraphicsDeviceDX11(const GraphicsDeviceCreateInfo &createInfo, Window *window);
+        ~GraphicsDeviceDX11();
+
         virtual void SetContext() override;
         void SetFramebuffer(Ref<Framebuffer> framebuffer);
         virtual void SubmitCommandList(Ref<CommandList> commandList) override;

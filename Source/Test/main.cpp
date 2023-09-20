@@ -21,7 +21,7 @@ public:
 
     virtual void Load() override
     {
-        m_CommandList = m_GraphicsDevice->CreateCommandList();
+        /* m_CommandList = m_GraphicsDevice->CreateCommandList();
 
         Nexus::Graphics::RenderPassSpecification spec;
         spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
@@ -57,7 +57,7 @@ public:
         m_FramebufferRenderPass = m_GraphicsDevice->CreateRenderPass(offscreenSpec, framebufferSpec);
         m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(m_FramebufferRenderPass);
 
-        m_BoundTexture = m_ImGuiRenderer->BindTexture(m_Texture);
+        m_BoundTexture = m_ImGuiRenderer->BindTexture(m_Texture); */
     }
 
     virtual void Update(Nexus::Time time) override
@@ -66,7 +66,7 @@ public:
 
     virtual void Render(Nexus::Time time) override
     {
-        ImGui::Begin("Texture Window");
+        /* ImGui::Begin("Texture Window");
         ImGui::Image(m_BoundTexture, {300, 300});
         ImGui::End();
 
@@ -113,13 +113,13 @@ public:
         m_CommandList->End();
         m_GraphicsDevice->SubmitCommandList(m_CommandList);
 
-        m_GraphicsDevice->EndFrame();
+        m_GraphicsDevice->EndFrame(); */
     }
 
     virtual void OnResize(Nexus::Point<int> size) override
     {
-        m_GraphicsDevice->Resize(size);
-        CreatePipeline(size);
+        /* m_GraphicsDevice->Resize(size);
+        CreatePipeline(size); */
     }
 
     void CreatePipeline(Nexus::Point<int> size)
@@ -182,7 +182,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
     Nexus::ApplicationSpecification spec;
     spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::DirectX11;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
-    spec.ImGuiActive = true;
+    spec.ImGuiActive = false;
     spec.VSyncState = Nexus::Graphics::VSyncState::Enabled;
 
     return new TestApplication(spec);

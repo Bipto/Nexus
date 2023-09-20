@@ -60,6 +60,7 @@ namespace Nexus::Graphics
             &m_DevicePtr,
             &feature_level,
             &m_DeviceContextPtr);
+        m_DeviceContextPtr->Release();
 
         m_Swapchain = new SwapchainDX11(m_Window, m_DevicePtr, swapchain, createInfo.VSyncStateSettings);
         m_ActiveRenderTargetviews = {m_Swapchain->GetRenderTargetView()};
@@ -72,12 +73,27 @@ namespace Nexus::Graphics
 
         IDXGIFactory1 *factory;
         IDXGIAdapter1 *adapter;
+
         CreateDXGIFactory1(IID_PPV_ARGS(&factory));
         factory->EnumAdapters1(0, &adapter);
         DXGI_ADAPTER_DESC1 adapterDesc;
         adapter->GetDesc1(&adapterDesc);
         std::wstring ws(adapterDesc.Description);
         m_AdapterName = std::string(ws.begin(), ws.end());
+
+        factory->Release();
+        adapter->Release();
+    }
+
+    GraphicsDeviceDX11::~GraphicsDeviceDX11()
+    {
+        delete m_Swapchain;
+
+        m_DevicePtr->Release();
+
+        m_DeviceContextPtr->ClearState();
+        m_DeviceContextPtr->Flush();
+        m_DeviceContextPtr->Release();
     }
 
     void GraphicsDeviceDX11::SetContext()

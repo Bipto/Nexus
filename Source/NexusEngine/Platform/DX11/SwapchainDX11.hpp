@@ -11,6 +11,8 @@ namespace Nexus::Graphics
     {
     public:
         SwapchainDX11(Nexus::Window *window, ID3D11Device *device, IDXGISwapChain *swapchain, VSyncState vSyncState);
+        ~SwapchainDX11();
+
         virtual void SwapBuffers() override;
         virtual VSyncState GetVsyncState() override;
         virtual void SetVSyncState(VSyncState vsyncState) override;

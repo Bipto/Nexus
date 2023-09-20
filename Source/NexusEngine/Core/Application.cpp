@@ -63,7 +63,9 @@ namespace Nexus
 
     Application::~Application()
     {
-        delete this->m_Window;
+        delete m_Window;
+        delete m_AudioDevice;
+        delete m_GraphicsDevice;
     }
 
     void Application::MainLoop()
@@ -172,45 +174,45 @@ namespace Nexus
         return m_Window->GetInput();
     }
 
-    Ref<Graphics::GraphicsDevice> Application::GetGraphicsDevice()
+    Graphics::GraphicsDevice *Application::GetGraphicsDevice()
     {
         return m_GraphicsDevice;
     }
 
-    Ref<Audio::AudioDevice> Application::GetAudioDevice()
+    Audio::AudioDevice *Application::GetAudioDevice()
     {
         return m_AudioDevice;
     }
 
-    Ref<Graphics::GraphicsDevice> CreateGraphicsDevice(const Graphics::GraphicsDeviceCreateInfo &createInfo, Window *window)
+    Graphics::GraphicsDevice *CreateGraphicsDevice(const Graphics::GraphicsDeviceCreateInfo &createInfo, Window *window)
     {
         switch (createInfo.API)
         {
         case Graphics::GraphicsAPI::DirectX11:
 #if defined(NX_PLATFORM_DX11)
-            return CreateRef<Graphics::GraphicsDeviceDX11>(createInfo, window);
+            return new Graphics::GraphicsDeviceDX11(createInfo, window);
 #else
             return nullptr;
 #endif
 
         case Graphics::GraphicsAPI::OpenGL:
-            return CreateRef<Graphics::GraphicsDeviceOpenGL>(createInfo, window);
+            return new Graphics::GraphicsDeviceOpenGL(createInfo, window);
 
         case Graphics::GraphicsAPI::Vulkan:
 #if defined(NX_PLATFORM_VULKAN)
-            return CreateRef<Graphics::GraphicsDeviceVk>(createInfo, window);
+            return new Graphics::GraphicsDeviceVk(createInfo, window);
 #else
             return nullptr;
 #endif
         }
     }
 
-    Ref<Audio::AudioDevice> CreateAudioDevice(Audio::AudioAPI api)
+    Audio::AudioDevice *CreateAudioDevice(Audio::AudioAPI api)
     {
         switch (api)
         {
         default:
-            return CreateRef<Audio::AudioDeviceOpenAL>();
+            return new Audio::AudioDeviceOpenAL();
         }
     }
 }
