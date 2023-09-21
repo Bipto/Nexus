@@ -282,7 +282,7 @@ namespace Nexus::Graphics
         Pipeline() = delete;
 
         /// @brief Virtual destructor allowing API specific resources to be destroyed
-        virtual ~Pipeline() = default;
+        virtual ~Pipeline(){};
 
         /// @brief A pure virtual method returning a const reference to a pipeline description
         /// @return A const reference to a pipelinedescription

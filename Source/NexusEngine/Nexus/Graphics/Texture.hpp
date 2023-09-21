@@ -56,6 +56,8 @@ namespace Nexus::Graphics
         /// @param spec The specification to create a texture from
         Texture(const TextureSpecification &spec){};
 
+        virtual ~Texture() {}
+
         /// @brief A pure virtual method that returns a pointer to the underlying native texture
         /// @return A void pointer to an API specific texture
         virtual void *GetHandle() = 0;

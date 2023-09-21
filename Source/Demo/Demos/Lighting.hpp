@@ -90,10 +90,10 @@ namespace Demos
             {
                 m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, -5.0f));
                 m_CommandList->UpdateUniformBuffer(m_TransformUniformBuffer, &m_TransformUniforms, sizeof(m_TransformUniforms), 0);
-                m_CommandList->SetVertexBuffer(m_CubeMesh.GetVertexBuffer());
-                m_CommandList->SetIndexBuffer(m_CubeMesh.GetIndexBuffer());
+                m_CommandList->SetVertexBuffer(m_CubeMesh->GetVertexBuffer());
+                m_CommandList->SetIndexBuffer(m_CubeMesh->GetIndexBuffer());
 
-                auto indexCount = m_CubeMesh.GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
+                auto indexCount = m_CubeMesh->GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
                 m_CommandList->DrawIndexed(indexCount, 0);
             }
 
@@ -101,10 +101,10 @@ namespace Demos
             {
                 m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 0.0f, -5.0f));
                 m_CommandList->UpdateUniformBuffer(m_TransformUniformBuffer, &m_TransformUniforms, sizeof(m_TransformUniforms), 0);
-                m_CommandList->SetVertexBuffer(m_SpriteMesh.GetVertexBuffer());
-                m_CommandList->SetIndexBuffer(m_SpriteMesh.GetIndexBuffer());
+                m_CommandList->SetVertexBuffer(m_SpriteMesh->GetVertexBuffer());
+                m_CommandList->SetIndexBuffer(m_SpriteMesh->GetIndexBuffer());
 
-                auto indexCount = m_SpriteMesh.GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
+                auto indexCount = m_SpriteMesh->GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
                 m_CommandList->DrawIndexed(indexCount, 0);
             }
 
@@ -175,8 +175,8 @@ namespace Demos
         Nexus::Graphics::CommandList *m_CommandList;
         Nexus::Graphics::Shader *m_Shader;
         Nexus::Graphics::Pipeline *m_Pipeline;
-        Nexus::Graphics::Mesh m_CubeMesh;
-        Nexus::Graphics::Mesh m_SpriteMesh;
+        Nexus::Graphics::Mesh *m_CubeMesh;
+        Nexus::Graphics::Mesh *m_SpriteMesh;
 
         Nexus::Graphics::ResourceSet *m_ResourceSet;
         Nexus::Graphics::Texture *m_DiffuseMap;

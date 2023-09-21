@@ -60,6 +60,7 @@ namespace Nexus::Graphics
 
     VertexBufferDX11::~VertexBufferDX11()
     {
+        m_Buffer->Release();
     }
 
     void VertexBufferDX11::SetData(const void *data, uint32_t size, uint32_t offset)
@@ -123,6 +124,7 @@ namespace Nexus::Graphics
 
     IndexBufferDX11::~IndexBufferDX11()
     {
+        m_Buffer->Release();
     }
 
     void IndexBufferDX11::SetData(const void *data, uint32_t size, uint32_t offset)
@@ -186,6 +188,7 @@ namespace Nexus::Graphics
 
     UniformBufferDX11::~UniformBufferDX11()
     {
+        m_Buffer->Release();
     }
 
     void UniformBufferDX11::SetData(const void *data, uint32_t size, uint32_t offset)

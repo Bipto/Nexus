@@ -63,8 +63,9 @@ namespace Nexus::Graphics
         m_DeviceContextPtr->Release();
 
         m_Swapchain = new SwapchainDX11(m_Window, m_DevicePtr, swapchain, createInfo.VSyncStateSettings);
+
         m_ActiveRenderTargetviews = {m_Swapchain->GetRenderTargetView()};
-        m_ActiveDepthStencilView = m_Swapchain->GetDepthStencilView();
+        m_ActiveDepthStencilView = {m_Swapchain->GetDepthStencilView()};
 
         m_DeviceContextPtr->OMSetRenderTargets(
             m_ActiveRenderTargetviews.size(),

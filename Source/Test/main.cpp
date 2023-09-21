@@ -98,10 +98,10 @@ public:
             m_ResourceSet->WriteUniformBuffer(m_UniformBuffer, 0);
             m_CommandList->SetResourceSet(m_ResourceSet);
 
-            m_CommandList->SetVertexBuffer(m_Mesh.GetVertexBuffer());
-            m_CommandList->SetIndexBuffer(m_Mesh.GetIndexBuffer());
+            m_CommandList->SetVertexBuffer(m_Mesh->GetVertexBuffer());
+            m_CommandList->SetIndexBuffer(m_Mesh->GetIndexBuffer());
 
-            auto indexCount = m_Mesh.GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
+            auto indexCount = m_Mesh->GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
             m_CommandList->DrawIndexed(indexCount, 0);
             m_CommandList->EndRenderPass();
         }
@@ -114,12 +114,17 @@ public:
 
     virtual void OnResize(Nexus::Point<int> size) override
     {
-        m_GraphicsDevice->Resize(size);
         CreatePipeline(size);
     }
 
     void CreatePipeline(Nexus::Point<int> size)
     {
+        if (m_Pipeline)
+        {
+            delete m_Pipeline;
+            m_Pipeline = nullptr;
+        }
+
         Nexus::Graphics::PipelineDescription description;
         description.Shader = m_Shader;
         description.RenderPass = m_RenderPass;
@@ -152,22 +157,29 @@ public:
 
     virtual void Unload() override
     {
+        delete m_Shader;
+        delete m_UniformBuffer;
+        delete m_Pipeline;
+        delete m_Mesh;
+        delete m_Texture;
+        delete m_Framebuffer;
+        delete m_FramebufferRenderPass;
     }
 
 private:
-    Nexus::Graphics::CommandList *m_CommandList;
-    Nexus::Graphics::RenderPass *m_RenderPass;
+    Nexus::Graphics::CommandList *m_CommandList = nullptr;
+    Nexus::Graphics::RenderPass *m_RenderPass = nullptr;
 
-    Nexus::Graphics::Shader *m_Shader;
-    Nexus::Graphics::Pipeline *m_Pipeline;
-    Nexus::Graphics::Mesh m_Mesh;
+    Nexus::Graphics::Shader *m_Shader = nullptr;
+    Nexus::Graphics::Pipeline *m_Pipeline = nullptr;
+    Nexus::Graphics::Mesh *m_Mesh;
 
-    Nexus::Graphics::Texture *m_Texture;
-    Nexus::Graphics::UniformBuffer *m_UniformBuffer;
+    Nexus::Graphics::Texture *m_Texture = nullptr;
+    Nexus::Graphics::UniformBuffer *m_UniformBuffer = nullptr;
 
-    Nexus::Graphics::RenderPass *m_FramebufferRenderPass;
-    Nexus::Graphics::Framebuffer *m_Framebuffer;
-    Nexus::Graphics::ResourceSet *m_ResourceSet;
+    Nexus::Graphics::RenderPass *m_FramebufferRenderPass = nullptr;
+    Nexus::Graphics::Framebuffer *m_Framebuffer = nullptr;
+    Nexus::Graphics::ResourceSet *m_ResourceSet = nullptr;
 
     TestUniforms m_TestUniforms;
     ImTextureID m_BoundTexture;

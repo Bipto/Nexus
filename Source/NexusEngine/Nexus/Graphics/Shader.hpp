@@ -15,6 +15,9 @@ namespace Nexus::Graphics
     class Shader
     {
     public:
+        /// @brief A virtual destructor to allow resources to be cleaned up
+        virtual ~Shader() {}
+
         /// @brief A pure virtual method that returns a const string reference containing the API specific source code of the vertex shader
         /// @return A const string reference to a string containing the vertex shader source code
         virtual const std::string &GetVertexShaderSource() = 0;

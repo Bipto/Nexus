@@ -84,13 +84,13 @@ namespace Demos
             m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), {0.0f, 0.0f, -10.0f});
             m_CommandList->UpdateUniformBuffer(m_TransformUniformBuffer, &m_TransformUniforms, sizeof(m_TransformUniforms), 0);
 
-            auto &meshes = m_Model.GetMeshes();
+            auto &meshes = m_Model->GetMeshes();
             for (auto mesh : meshes)
             {
-                m_CommandList->SetVertexBuffer(mesh.GetVertexBuffer());
-                m_CommandList->SetIndexBuffer(mesh.GetIndexBuffer());
+                m_CommandList->SetVertexBuffer(mesh->GetVertexBuffer());
+                m_CommandList->SetIndexBuffer(mesh->GetIndexBuffer());
 
-                auto indexCount = mesh.GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
+                auto indexCount = mesh->GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
                 m_CommandList->DrawIndexed(indexCount, 0);
             }
 
@@ -161,7 +161,7 @@ namespace Demos
         Nexus::Graphics::CommandList *m_CommandList;
         Nexus::Graphics::Shader *m_Shader;
         Nexus::Graphics::Pipeline *m_Pipeline;
-        Nexus::Graphics::Model m_Model;
+        Nexus::Graphics::Model *m_Model;
         Nexus::Graphics::Texture *m_DiffuseMap;
         Nexus::Graphics::Texture *m_NormalMap;
         Nexus::Graphics::Texture *m_SpecularMap;

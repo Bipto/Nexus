@@ -30,7 +30,7 @@ namespace Nexus::Graphics
         }
     }
 
-    ShaderDX11::ShaderDX11(Microsoft::WRL::ComPtr<ID3D11Device> device, Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, std::string vertexShaderSource, std::string fragmentShaderSource, const VertexBufferLayout &layout)
+    ShaderDX11::ShaderDX11(ID3D11Device *device, ID3D11DeviceContext *context, std::string vertexShaderSource, std::string fragmentShaderSource, const VertexBufferLayout &layout)
     {
         m_Device = device;
         m_ContextPtr = context;
@@ -40,7 +40,7 @@ namespace Nexus::Graphics
         flags |= D3DCOMPILE_DEBUG;
 #endif
 
-        Microsoft::WRL::ComPtr<ID3DBlob> error_blob = NULL;
+        ID3DBlob *error_blob = NULL;
 
         HRESULT hr = D3DCompile(
             vertexShaderSource.c_str(),
@@ -53,7 +53,7 @@ namespace Nexus::Graphics
             flags,
             0,
             &m_VertexBlobPtr,
-            error_blob.GetAddressOf());
+            &error_blob);
 
         if (FAILED(hr))
         {
@@ -61,6 +61,7 @@ namespace Nexus::Graphics
             {
                 std::string errorMessage = std::string((char *)error_blob->GetBufferPointer());
                 NX_ERROR(errorMessage);
+                error_blob->Release();
             }
         }
         else
@@ -87,7 +88,7 @@ namespace Nexus::Graphics
             flags,
             0,
             &m_PixelBlobPtr,
-            error_blob.GetAddressOf());
+            &error_blob);
 
         if (FAILED(hr))
         {
@@ -95,6 +96,7 @@ namespace Nexus::Graphics
             {
                 std::string errorMessage = std::string((char *)error_blob->GetBufferPointer());
                 NX_ERROR(errorMessage);
+                error_blob->Release();
             }
         }
         else
@@ -108,6 +110,15 @@ namespace Nexus::Graphics
 
         m_VertexShaderSource = vertexShaderSource;
         m_FragmentShaderSource = fragmentShaderSource;
+    }
+
+    ShaderDX11::~ShaderDX11()
+    {
+        m_VertexBlobPtr->Release();
+        m_PixelBlobPtr->Release();
+        m_VertexShader->Release();
+        m_PixelShader->Release();
+        m_InputLayout->Release();
     }
 
     const std::string &ShaderDX11::GetVertexShaderSource()

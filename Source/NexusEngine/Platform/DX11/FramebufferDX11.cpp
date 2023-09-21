@@ -45,8 +45,6 @@ namespace Nexus::Graphics
 
         // create color textures
         {
-            m_ColorRenderTargets.clear();
-
             for (auto colorAttachments : m_Specification.ColorAttachmentSpecification.Attachments)
             {
                 FramebufferColorRenderTarget target;
@@ -102,6 +100,9 @@ namespace Nexus::Graphics
             }
         }
 
+        if (m_Specification.DepthAttachmentSpecification.DepthFormat == DepthFormat::None)
+            return;
+
         // create depth target if requested
         {
             FramebufferDepthRenderTarget depthTarget;
@@ -144,6 +145,20 @@ namespace Nexus::Graphics
 
     void FramebufferDX11::DeleteTextures()
     {
+        for (int i = 0; i < m_ColorRenderTargets.size(); i++)
+        {
+            m_ColorRenderTargets[i].RenderTargetView->Release();
+            m_ColorRenderTargets[i].ShaderResourceView->Release();
+            m_ColorRenderTargets[i].Texture->Release();
+        }
+
+        m_ColorRenderTargets.clear();
+
+        if (m_Specification.DepthAttachmentSpecification.DepthFormat != DepthFormat::None)
+        {
+            m_DepthTarget.Texture->Release();
+            m_DepthTarget.DepthStencilView->Release();
+        }
     }
 
 #endif

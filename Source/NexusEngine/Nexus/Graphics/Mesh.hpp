@@ -21,6 +21,12 @@ namespace Nexus::Graphics
         Mesh(VertexBuffer *vertexBuffer, IndexBuffer *indexBuffer, const std::string &name = "Mesh")
             : m_VertexBuffer(vertexBuffer), m_IndexBuffer(indexBuffer), m_Name(name) {}
 
+        virtual ~Mesh()
+        {
+            delete m_VertexBuffer;
+            delete m_IndexBuffer;
+        }
+
         /// @brief A method that returns a const reference to the meshes vertex buffer
         /// @return A const reference to the vertex buffer
         VertexBuffer *&GetVertexBuffer() { return m_VertexBuffer; }

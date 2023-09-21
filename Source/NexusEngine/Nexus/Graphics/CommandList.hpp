@@ -118,6 +118,9 @@ namespace Nexus::Graphics
         /// @brief A constructor creating a new command list
         CommandList() = default;
 
+        /// @brief A virtual destructor allowing resources to be cleaned up
+        virtual ~CommandList() {}
+
         /// @brief A pure virutal method that begins a command list
         /// @param beginInfo A parameter containing information about how to begin the command list
         virtual void Begin() = 0;

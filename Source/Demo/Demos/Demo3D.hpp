@@ -80,10 +80,10 @@ namespace Demos
             m_ResourceSet->WriteTexture(m_Texture, 0);
             m_CommandList->SetResourceSet(m_ResourceSet);
 
-            m_CommandList->SetVertexBuffer(m_Mesh.GetVertexBuffer());
-            m_CommandList->SetIndexBuffer(m_Mesh.GetIndexBuffer());
+            m_CommandList->SetVertexBuffer(m_Mesh->GetVertexBuffer());
+            m_CommandList->SetIndexBuffer(m_Mesh->GetIndexBuffer());
 
-            auto indexCount = m_Mesh.GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
+            auto indexCount = m_Mesh->GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
             m_CommandList->DrawIndexed(indexCount, 0);
             m_CommandList->End();
 
@@ -135,7 +135,7 @@ namespace Demos
         Nexus::Graphics::RenderPass *m_RenderPass;
         Nexus::Graphics::Shader *m_Shader;
         Nexus::Graphics::Pipeline *m_Pipeline;
-        Nexus::Graphics::Mesh m_Mesh;
+        Nexus::Graphics::Mesh *m_Mesh;
         Nexus::Graphics::Texture *m_Texture;
         glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
 

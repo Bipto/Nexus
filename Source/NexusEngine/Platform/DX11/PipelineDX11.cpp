@@ -6,7 +6,7 @@
 
 namespace Nexus::Graphics
 {
-    PipelineDX11::PipelineDX11(Microsoft::WRL::ComPtr<ID3D11Device> device, Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, const PipelineDescription &description)
+    PipelineDX11::PipelineDX11(ID3D11Device *device, ID3D11DeviceContext *context, const PipelineDescription &description)
         : Pipeline(description), m_Device(device), m_Context(context)
     {
         SetupDepthStencilState();
@@ -28,6 +28,9 @@ namespace Nexus::Graphics
 
     PipelineDX11::~PipelineDX11()
     {
+        m_BlendState->Release();
+        m_RasterizerState->Release();
+        m_DepthStencilState->Release();
     }
 
     D3D11_COMPARISON_FUNC GetComparisonFunction(ComparisonFunction function)

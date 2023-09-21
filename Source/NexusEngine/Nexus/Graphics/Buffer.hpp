@@ -45,6 +45,9 @@ namespace Nexus::Graphics
         VertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
             : m_Description(description), m_Layout(layout) {}
 
+        /// @brief A virtual destructor to cleanup resources
+        virtual ~VertexBuffer() {}
+
         /// @brief A virtual method that uploads data into a GPU buffer
         /// @param data A const pointer to data to upload
         /// @param size An unsigned int representing the size of the memory to upload
@@ -77,6 +80,9 @@ namespace Nexus::Graphics
         IndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format)
             : m_Description(description), m_Format(format) {}
 
+        /// @brief A virtual destructor to cleanup resources
+        virtual ~IndexBuffer() {}
+
         /// @brief A virtual method that uploads data into a GPU buffer
         /// @param data A const pointer to data to upload
         /// @param size An unsigned int representing the size of the memory to upload
@@ -106,6 +112,9 @@ namespace Nexus::Graphics
         /// @param data A pointer to initial data to upload to the buffer
         UniformBuffer(const BufferDescription &description, const void *data)
             : m_Description(description) {}
+
+        /// @brief A virtual destructor to cleanup resources
+        virtual ~UniformBuffer() {}
 
         /// @brief A virtual method that uploads data into a GPU buffer
         /// @param data A const pointer to data to upload
