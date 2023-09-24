@@ -57,6 +57,7 @@ public:
         m_FramebufferRenderPass = m_GraphicsDevice->CreateRenderPass(offscreenSpec, framebufferSpec);
         m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(m_FramebufferRenderPass);
 
+        m_BoundFramebufferTexture = m_ImGuiRenderer->BindFramebufferTexture(m_Framebuffer, 0);
         m_BoundTexture = m_ImGuiRenderer->BindTexture(m_Texture);
     }
 
@@ -66,6 +67,14 @@ public:
 
     virtual void Render(Nexus::Time time) override
     {
+        ImGui::ShowDemoWindow();
+
+        ImGui::Begin("Framebuffer");
+        ImGui::ColorEdit3("Color", glm::value_ptr(m_Color));
+        auto windowSize = ImGui::GetContentRegionAvail();
+        ImGui::Image(m_BoundFramebufferTexture, windowSize);
+        ImGui::End();
+
         m_GraphicsDevice->BeginFrame();
 
         m_TestUniforms.Transform = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), {0, 0, 1});
@@ -76,7 +85,7 @@ public:
         // offscreen rendering
         {
             Nexus::Graphics::RenderPassBeginInfo beginInfo;
-            beginInfo.ClearColorValue = {0.0f, 1.0f, 0.0f, 1.0f};
+            beginInfo.ClearColorValue = {m_Color.r, m_Color.g, m_Color.b, 1.0f};
             m_CommandList->BeginRenderPass(m_FramebufferRenderPass, beginInfo);
             m_CommandList->EndRenderPass();
         }
@@ -85,9 +94,9 @@ public:
         {
             Nexus::Graphics::RenderPassBeginInfo beginInfo;
             beginInfo.ClearColorValue = {
-                1.0f,
-                0.0f,
-                0.0f,
+                0.65f,
+                0.45f,
+                0.375f,
                 1.0f};
             beginInfo.ClearDepthStencilValue.Depth = 1.0f;
 
@@ -183,14 +192,17 @@ private:
 
     TestUniforms m_TestUniforms;
     ImTextureID m_BoundTexture;
+    ImTextureID m_BoundFramebufferTexture;
+
+    glm::vec3 m_Color = {0.3f, 0.8f, 0.45f};
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::DirectX11;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
-    spec.ImGuiActive = false;
+    spec.ImGuiActive = true;
     spec.VSyncState = Nexus::Graphics::VSyncState::Enabled;
 
     return new TestApplication(spec);

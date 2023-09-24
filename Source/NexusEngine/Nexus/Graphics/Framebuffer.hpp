@@ -10,7 +10,7 @@
 
 #include "Nexus/Memory.hpp"
 
-#define NX_SWAPCHAIN nullptr
+typedef void *FramebufferTexture;
 
 namespace Nexus::Graphics
 {

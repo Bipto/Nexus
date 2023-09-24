@@ -16,6 +16,7 @@
 #endif
 
 #include "Platform/Vulkan/TextureVk.hpp"
+#include "Platform/Vulkan/FramebufferVk.hpp"
 
 namespace Nexus::Graphics
 {
@@ -98,11 +99,27 @@ namespace Nexus::Graphics
         {
         case GraphicsAPI::Vulkan:
         {
-            auto textureVk = (TextureVk *)(texture);
+            auto textureVk = (TextureVk *)texture;
             return ImGui_ImplVulkan_AddTexture(textureVk->GetSampler(), textureVk->GetImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
         }
         default:
             return texture->GetHandle();
+        }
+    }
+
+    ImTextureID ImGuiRenderer::BindFramebufferTexture(Framebuffer *framebuffer, uint32_t textureIndex)
+    {
+        switch (m_Application->GetGraphicsDevice()->GetGraphicsAPI())
+        {
+        case GraphicsAPI::Vulkan:
+        {
+            auto framebufferVk = (FramebufferVk *)framebuffer;
+            auto sampler = framebufferVk->GetColorTextureSampler(textureIndex);
+            auto imageView = framebufferVk->GetColorTextureImageView(textureIndex);
+            return ImGui_ImplVulkan_AddTexture(sampler, imageView, VK_IMAGE_LAYOUT_GENERAL);
+        }
+        default:
+            return framebuffer->GetColorAttachment(textureIndex);
         }
     }
 

@@ -60,6 +60,16 @@ namespace Nexus::Graphics
         return m_Framebuffer;
     }
 
+    VkImageView FramebufferVk::GetColorTextureImageView(uint32_t index)
+    {
+        return m_ImageViews[index];
+    }
+
+    VkSampler FramebufferVk::GetColorTextureSampler(uint32_t index)
+    {
+        return m_Samplers[index];
+    }
+
     void FramebufferVk::Recreate()
     {
         CreateColorTargets();
@@ -112,18 +122,6 @@ namespace Nexus::Graphics
             {
                 throw std::runtime_error("Failed to bind image memory");
             }
-
-            VkImageViewCreateInfo imageView = {};
-            imageView.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-            imageView.viewType = VK_IMAGE_VIEW_TYPE_2D;
-            imageView.format = format;
-            imageView.subresourceRange = {};
-            imageView.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            imageView.subresourceRange.baseMipLevel = 0;
-            imageView.subresourceRange.levelCount = 1;
-            imageView.subresourceRange.baseArrayLayer = 0;
-            imageView.subresourceRange.layerCount = 1;
-            imageView.image = m_Images[i];
 
             VkSamplerCreateInfo samplerInfo = {};
             samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;

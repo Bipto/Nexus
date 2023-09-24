@@ -20,8 +20,12 @@ namespace Nexus::Graphics
         virtual void *GetDepthAttachment() override;
         VkFramebuffer GetVkFramebuffer();
 
+        VkImageView GetColorTextureImageView(uint32_t index);
+        VkSampler GetColorTextureSampler(uint32_t index);
+
     private:
-        virtual void Recreate() override;
+        virtual void
+        Recreate() override;
 
         void CreateColorTargets();
         void CreateDepthTargets();

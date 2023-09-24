@@ -98,7 +98,7 @@ namespace Nexus::Graphics
             attachment.stencilLoadOp = GetVkLoadOpFromNexusLoadOp(m_RenderPassSpecification.StencilDepthLoadOperation);
             attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
             attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-            attachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+            attachment.finalLayout = VK_IMAGE_LAYOUT_GENERAL;
 
             colorAttachmentDescriptions.push_back(attachment);
             subpassAttachments.push_back(attachment);

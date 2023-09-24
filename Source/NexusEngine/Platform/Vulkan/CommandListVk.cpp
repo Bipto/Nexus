@@ -167,18 +167,24 @@ namespace Nexus::Graphics
             }
 
             std::vector<VkClearValue> clearValues;
+
             for (int i = 0; i < attachmentCount; i++)
             {
-                VkClearValue value;
-                value.color = {
+                VkClearValue clearValue{};
+
+                clearValue.depthStencil.depth = beginInfo.ClearDepthStencilValue.Depth;
+                clearValue.depthStencil.stencil = beginInfo.ClearDepthStencilValue.Stencil;
+
+                // NOTE: setting the color first here seems to reset the colour to red after changing the depth/stencil values for some reason
+                clearValue.color = {
                     beginInfo.ClearColorValue.Red,
                     beginInfo.ClearColorValue.Green,
                     beginInfo.ClearColorValue.Blue,
                     beginInfo.ClearColorValue.Alpha};
-                value.depthStencil.depth = beginInfo.ClearDepthStencilValue.Depth;
-                value.depthStencil.stencil = beginInfo.ClearDepthStencilValue.Stencil;
-                clearValues.push_back(value);
+
+                clearValues.push_back(clearValue);
             }
+
             renderPassInfo.clearValueCount = (uint32_t)clearValues.size();
             renderPassInfo.pClearValues = clearValues.data();
             vkCmdBeginRenderPass(m_CurrentCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);

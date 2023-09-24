@@ -34,7 +34,16 @@ namespace Nexus::Graphics
         /// @brief A method to update and render ImGui platform windows
         void UpdatePlatformWindows();
 
+        /// @brief A method that binds a API specific texture to an ImTextureID
+        /// @param texture A pointer to the texture to bind
+        /// @return An ImTextureID that binds to the API specific texture
         ImTextureID BindTexture(Texture *texture);
+
+        /// @brief A method that binds an API specific framebuffer target to an ImTextureID
+        /// @param framebuffer A pointer to a framebuffer
+        /// @param textureIndex The index of the texture to retrieve
+        /// @return An ImTextureID that binds to the API specific texture
+        ImTextureID BindFramebufferTexture(Framebuffer *framebuffer, uint32_t textureIndex);
 
     private:
         /// @brief A private method to initialise ImGui for OpenGL
