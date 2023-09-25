@@ -32,6 +32,15 @@ namespace Demos
             m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(vertexBufferDesc, vertices.data(), Nexus::Graphics::VertexPositionTexCoordNormal::GetLayout());
         }
 
+        virtual ~HelloTriangleDemo()
+        {
+            delete m_CommandList;
+            delete m_RenderPass;
+            delete m_Shader;
+            delete m_Pipeline;
+            delete m_VertexBuffer;
+        }
+
         virtual void Render(Nexus::Time time) override
         {
             Nexus::Graphics::RenderPassBeginInfo beginInfo{};

@@ -84,6 +84,8 @@ namespace Nexus::Graphics
 
         factory->Release();
         adapter->Release();
+
+        m_DeviceContextPtr->AddRef();
     }
 
     GraphicsDeviceDX11::~GraphicsDeviceDX11()

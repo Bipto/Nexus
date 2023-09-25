@@ -25,6 +25,9 @@ namespace Nexus::Graphics
         /// @brief A method to initialise ImGui
         void Initialise();
 
+        /// @brief A method to shutdown ImGui
+        void Shutdown();
+
         /// @brief A method to begin a new ImGui frame
         void BeginFrame();
 

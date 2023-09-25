@@ -32,7 +32,7 @@ namespace Demos
             m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/models.glsl",
                                                                    Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
 
-            Nexus::Graphics::MeshFactory factory(m_GraphicsDevice.get());
+            Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
             m_Model = factory.CreateFrom3DModelFile("Resources/Models/Survival_BackPack_2/Survival_BackPack_2.fbx");
 
             m_DiffuseMap = m_GraphicsDevice->CreateTexture("Resources/Models/Survival_BackPack_2/1001_albedo.jpg");
@@ -51,6 +51,21 @@ namespace Demos
 
             CreatePipeline();
             m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, -2.5f));
+        }
+
+        virtual ~ModelDemo()
+        {
+            delete m_RenderPass;
+            delete m_CommandList;
+            delete m_Shader;
+            delete m_Pipeline;
+            delete m_Model;
+            delete m_DiffuseMap;
+            delete m_NormalMap;
+            delete m_SpecularMap;
+            delete m_ResourceSet;
+            delete m_CameraUniformBuffer;
+            delete m_TransformUniformBuffer;
         }
 
         virtual void Render(Nexus::Time time) override

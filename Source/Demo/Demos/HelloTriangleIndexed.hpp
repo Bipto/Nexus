@@ -41,6 +41,16 @@ namespace Demos
             m_IndexBuffer = m_GraphicsDevice->CreateIndexBuffer(indexBufferDesc, indices.data());
         }
 
+        virtual ~HelloTriangleIndexedDemo()
+        {
+            delete m_CommandList;
+            delete m_RenderPass;
+            delete m_Shader;
+            delete m_Pipeline;
+            delete m_VertexBuffer;
+            delete m_IndexBuffer;
+        }
+
         virtual void Update(Nexus::Time time) override
         {
         }

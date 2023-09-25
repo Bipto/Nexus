@@ -19,6 +19,14 @@ namespace Demos
             m_AudioSource = m_AudioDevice->CreateAudioSource(m_AudioBuffer);
         }
 
+        virtual ~AudioDemo()
+        {
+            delete m_CommandList;
+            delete m_RenderPass;
+            delete m_AudioBuffer;
+            delete m_AudioSource;
+        }
+
         virtual void Update(Nexus::Time time) override
         {
         }

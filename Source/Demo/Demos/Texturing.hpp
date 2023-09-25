@@ -20,10 +20,21 @@ namespace Demos
 
             CreatePipeline();
 
-            Nexus::Graphics::MeshFactory factory(m_GraphicsDevice.get());
+            Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
             m_Mesh = factory.CreateSprite();
 
             m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
+        }
+
+        virtual ~TexturingDemo()
+        {
+            delete m_RenderPass;
+            delete m_CommandList;
+            delete m_Shader;
+            delete m_Pipeline;
+            delete m_ResourceSet;
+            delete m_Mesh;
+            delete m_Texture;
         }
 
         virtual void Update(Nexus::Time time) override

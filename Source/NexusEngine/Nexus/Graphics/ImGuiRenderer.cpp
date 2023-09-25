@@ -42,6 +42,23 @@ namespace Nexus::Graphics
         }
     }
 
+    void ImGuiRenderer::Shutdown()
+    {
+        auto graphicsDevice = m_Application->GetGraphicsDevice();
+        switch (graphicsDevice->GetGraphicsAPI())
+        {
+        case GraphicsAPI::OpenGL:
+            ImGui_ImplOpenGL3_Shutdown();
+            break;
+        case GraphicsAPI::DirectX11:
+            ImGui_ImplDX11_Shutdown();
+            break;
+        case GraphicsAPI::Vulkan:
+            ImGui_ImplVulkan_Shutdown();
+            break;
+        }
+    }
+
     void ImGuiRenderer::BeginFrame()
     {
         ImGui_ImplSDL2_NewFrame();

@@ -60,7 +60,6 @@ namespace Nexus::Graphics
 
     SwapchainDX11::~SwapchainDX11()
     {
-        m_Device->Release();
         m_SwapchainDepthTextureView->Release();
         m_SwapchainDepthTexture->Release();
         m_RenderTargetView->Release();

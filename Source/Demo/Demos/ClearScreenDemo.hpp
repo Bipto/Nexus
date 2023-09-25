@@ -13,9 +13,15 @@ namespace Demos
             Nexus::Graphics::RenderPassSpecification spec;
             spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
             spec.StencilDepthLoadOperation = Nexus::Graphics::LoadOperation::Clear;
-            m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_GraphicsDevice->GetSwapchain());
 
+            m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_GraphicsDevice->GetSwapchain());
             m_CommandList = m_GraphicsDevice->CreateCommandList();
+        }
+
+        virtual ~ClearScreenDemo()
+        {
+            delete m_RenderPass;
+            delete m_CommandList;
         }
 
         virtual void Update(Nexus::Time time) override

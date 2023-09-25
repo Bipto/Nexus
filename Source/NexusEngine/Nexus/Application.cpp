@@ -63,6 +63,7 @@ namespace Nexus
 
     Application::~Application()
     {
+        m_ImGuiRenderer->Shutdown();
         delete m_Window;
         delete m_AudioDevice;
         delete m_GraphicsDevice;

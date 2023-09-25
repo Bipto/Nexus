@@ -32,7 +32,7 @@ namespace Demos
             m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/lighting.glsl",
                                                                    Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
 
-            Nexus::Graphics::MeshFactory factory(m_GraphicsDevice.get());
+            Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
             m_CubeMesh = factory.CreateCube();
             m_SpriteMesh = factory.CreateSprite();
 
@@ -52,6 +52,25 @@ namespace Demos
 
             CreatePipeline();
             m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, -2.5f));
+        }
+
+        virtual ~LightingDemo()
+        {
+            delete m_RenderPass;
+            delete m_CommandList;
+            delete m_Shader;
+            delete m_Pipeline;
+
+            delete m_CubeMesh;
+            delete m_SpriteMesh;
+
+            delete m_ResourceSet;
+            delete m_DiffuseMap;
+            delete m_NormalMap;
+            delete m_SpecularMap;
+
+            delete m_CameraUniformBuffer;
+            delete m_TransformUniformBuffer;
         }
 
         virtual void Render(Nexus::Time time) override

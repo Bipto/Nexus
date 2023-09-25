@@ -29,6 +29,17 @@ public:
     DemoApplication(const Nexus::ApplicationSpecification &spec)
         : Application(spec) {}
 
+    virtual ~DemoApplication()
+    {
+        delete m_CommandList;
+        delete m_RenderPass;
+
+        if (m_CurrentDemo)
+        {
+            delete m_CurrentDemo;
+        }
+    }
+
     virtual void Load() override
     {
         auto &io = ImGui::GetIO();

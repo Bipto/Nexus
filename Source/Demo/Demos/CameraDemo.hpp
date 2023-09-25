@@ -32,7 +32,7 @@ namespace Demos
             m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/3d.glsl",
                                                                    Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
 
-            Nexus::Graphics::MeshFactory factory(m_GraphicsDevice.get());
+            Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
             m_Mesh = factory.CreateCube();
 
             m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/raw_plank_wall_diff_1k.jpg");
@@ -49,6 +49,19 @@ namespace Demos
 
             CreatePipeline();
             m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, 2.5f));
+        }
+
+        virtual ~CameraDemo()
+        {
+            delete m_CommandList;
+            delete m_RenderPass;
+            delete m_Shader;
+            delete m_Pipeline;
+            delete m_Mesh;
+            delete m_Texture;
+            delete m_ResourceSet;
+            delete m_CameraUniformBuffer;
+            delete m_TransformUniformBuffer;
         }
 
         virtual void Render(Nexus::Time time) override

@@ -86,7 +86,9 @@ namespace Nexus::Graphics
         spec.Data = stbi_load(filepath, &spec.Width, &spec.Height, &spec.NumberOfChannels, desiredChannels);
         spec.NumberOfChannels = desiredChannels;
 
-        return this->CreateTexture(spec);
+        auto texture = CreateTexture(spec);
+        delete[] spec.Data;
+        return texture;
     }
 
     ResourceSet *GraphicsDevice::CreateResourceSet(Pipeline *pipeline)

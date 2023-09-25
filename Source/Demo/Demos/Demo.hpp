@@ -15,6 +15,8 @@ namespace Demos
         {
         }
 
+        virtual ~Demo() {}
+
         virtual void Update(Nexus::Time time)
         {
         }
@@ -27,8 +29,8 @@ namespace Demos
 
     protected:
         std::string m_Name;
-        Nexus::Ref<Nexus::Graphics::GraphicsDevice> m_GraphicsDevice = nullptr;
-        Nexus::Ref<Nexus::Audio::AudioDevice> m_AudioDevice = nullptr;
+        Nexus::Graphics::GraphicsDevice *m_GraphicsDevice = nullptr;
+        Nexus::Audio::AudioDevice *m_AudioDevice = nullptr;
         Nexus::Window *m_Window = nullptr;
     };
 }
