@@ -11,12 +11,11 @@
 #include <backends/imgui_impl_opengl3.h>
 #include <backends/imgui_impl_dx11.h>
 
-#if defined(WIN32)
+#if defined(NX_PLATFORM_VULKAN)
 #include <backends/imgui_impl_vulkan.h>
-#endif
-
 #include "Platform/Vulkan/TextureVk.hpp"
 #include "Platform/Vulkan/FramebufferVk.hpp"
+#endif
 
 namespace Nexus::Graphics
 {
@@ -51,10 +50,14 @@ namespace Nexus::Graphics
             ImGui_ImplOpenGL3_Shutdown();
             break;
         case GraphicsAPI::DirectX11:
+#if defined(NX_PLATFORM_DX11)
             ImGui_ImplDX11_Shutdown();
+#endif
             break;
         case GraphicsAPI::Vulkan:
+#if defined(NX_PLATFORM_VULKAN)
             ImGui_ImplVulkan_Shutdown();
+#endif
             break;
         }
     }
@@ -94,8 +97,9 @@ namespace Nexus::Graphics
 #endif
             break;
         case GraphicsAPI::Vulkan:
+#if defined(NX_PLATFORM_VULKAN)
             EndFrameImplVulkan();
-            break;
+#endif
             break;
         }
     }
@@ -114,11 +118,13 @@ namespace Nexus::Graphics
     {
         switch (m_Application->GetGraphicsDevice()->GetGraphicsAPI())
         {
+#if defined(NX_PLATFORM_VULKAN)
         case GraphicsAPI::Vulkan:
         {
             auto textureVk = (TextureVk *)texture;
             return ImGui_ImplVulkan_AddTexture(textureVk->GetSampler(), textureVk->GetImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
         }
+#endif
         default:
             return texture->GetHandle();
         }
@@ -128,6 +134,7 @@ namespace Nexus::Graphics
     {
         switch (m_Application->GetGraphicsDevice()->GetGraphicsAPI())
         {
+#if defined(NX_PLATFORM_VULKAN)
         case GraphicsAPI::Vulkan:
         {
             auto framebufferVk = (FramebufferVk *)framebuffer;
@@ -135,6 +142,7 @@ namespace Nexus::Graphics
             auto imageView = framebufferVk->GetColorTextureImageView(textureIndex);
             return ImGui_ImplVulkan_AddTexture(sampler, imageView, VK_IMAGE_LAYOUT_GENERAL);
         }
+#endif
         default:
             return framebuffer->GetColorAttachment(textureIndex);
         }

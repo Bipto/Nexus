@@ -10,6 +10,7 @@
 
 #include <memory>
 
+#if defined(NX_PLATFORM_DX11)
 DXGI_FORMAT GetD3DIndexBufferFormat(Nexus::Graphics::IndexBufferFormat format)
 {
     switch (format)
@@ -20,6 +21,7 @@ DXGI_FORMAT GetD3DIndexBufferFormat(Nexus::Graphics::IndexBufferFormat format)
         return DXGI_FORMAT_R32_UINT;
     }
 }
+#endif
 
 namespace Nexus::Graphics
 {
@@ -272,6 +274,7 @@ namespace Nexus::Graphics
 
     void CommandListDX11::SetResourceSet(ResourceSet *resources)
     {
+#if defined(NX_PLATFORM_DX11)
         UpdateResourcesCommand command;
         command.Resources = resources;
         m_CommandData.emplace_back(command);
@@ -310,6 +313,7 @@ namespace Nexus::Graphics
             }
         };
         m_Commands.push_back(renderCommand);
+#endif
     }
 
     const std::vector<RenderCommand> &CommandListDX11::GetRenderCommands()

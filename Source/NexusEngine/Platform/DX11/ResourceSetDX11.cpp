@@ -1,5 +1,7 @@
 #include "ResourceSetDX11.hpp"
 
+#if defined(NX_PLATFORM_DX11)
+
 namespace Nexus::Graphics
 {
     ResourceSetDX11::ResourceSetDX11(const ResourceSetSpecification &spec, GraphicsDeviceDX11 *device)
@@ -27,3 +29,5 @@ namespace Nexus::Graphics
         return m_UniformBufferBindings;
     }
 }
+
+#endif

@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_DX11)
+
 #include "Nexus/Graphics/ResourceSet.hpp"
 #include "Platform/DX11/GraphicsDeviceDX11.hpp"
 
@@ -23,3 +25,5 @@ namespace Nexus::Graphics
         GraphicsDeviceDX11 *m_GraphicsDevice;
     };
 }
+
+#endif
