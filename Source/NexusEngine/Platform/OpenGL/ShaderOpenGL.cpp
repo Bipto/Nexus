@@ -97,12 +97,12 @@ namespace Nexus::Graphics
             NX_ERROR(errorMessage);
         }
 
-        this->m_ProgramHandle = glCreateProgram();
-        glAttachShader(this->m_ProgramHandle, vertexShader);
-        glAttachShader(this->m_ProgramHandle, fragmentShader);
-        glLinkProgram(this->m_ProgramHandle);
+        m_ProgramHandle = glCreateProgram();
+        glAttachShader(m_ProgramHandle, vertexShader);
+        glAttachShader(m_ProgramHandle, fragmentShader);
+        glLinkProgram(m_ProgramHandle);
 
-        glGetProgramiv(this->m_ProgramHandle, GL_LINK_STATUS, &success);
+        glGetProgramiv(m_ProgramHandle, GL_LINK_STATUS, &success);
         if (!success)
         {
             glGetProgramInfoLog(this->m_ProgramHandle, 512, NULL, infoLog);
@@ -110,8 +110,8 @@ namespace Nexus::Graphics
             NX_ERROR(errorMessage);
         }
 
-        glDetachShader(GL_VERTEX_SHADER, vertexShader);
-        glDetachShader(GL_FRAGMENT_SHADER, fragmentShader);
+        glDetachShader(m_ProgramHandle, vertexShader);
+        glDetachShader(m_ProgramHandle, fragmentShader);
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
     }

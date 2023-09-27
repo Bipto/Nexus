@@ -20,6 +20,11 @@ namespace Nexus::Audio
         }
     }
 
+    AudioSourceOpenAL::~AudioSourceOpenAL()
+    {
+        alDeleteSources(1, &m_Source);
+    }
+
     glm::vec3 &AudioSourceOpenAL::GetPosition()
     {
         return m_Position;

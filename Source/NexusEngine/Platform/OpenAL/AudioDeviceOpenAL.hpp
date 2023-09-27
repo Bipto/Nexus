@@ -19,5 +19,9 @@ namespace Nexus::Audio
         virtual AudioBuffer *CreateAudioBufferFromMP3File(const std::string &filepath) override;
         virtual AudioSource *CreateAudioSource(AudioBuffer *buffer) override;
         virtual void PlaySource(AudioSource *source) override;
+
+    private:
+        ALCdevice *m_Device = nullptr;
+        ALCcontext *m_Context = nullptr;
     };
 }

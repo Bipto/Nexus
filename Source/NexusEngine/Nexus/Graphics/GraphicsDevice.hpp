@@ -128,6 +128,12 @@ namespace Nexus::Graphics
         /// @return A reference counted pointer to a renderpass
         virtual RenderPass *CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification) = 0;
 
+        /// @brief A method that creates a new renderpass and framebuffer from a given specification
+        /// @param renderPassSpecification The properties to use when creating the renderpass
+        /// @param framebufferSpecification The properties to use when creating the framebuffer
+        /// @return A pair containing a pointer to a renderpass and a pointer to a framebuffer
+        std::pair<Framebuffer *, RenderPass *> CreateRenderPassAndFramebuffer(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification);
+
         /// @brief A pure virtual method that creates a new renderpass from a given specification
         /// @param renderPassSpecification The properties to use when creating the renderpass
         /// @param swapchain A pointer to a swapchain to use when rendering the renderpass

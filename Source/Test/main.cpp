@@ -54,8 +54,10 @@ public:
         Nexus::Graphics::RenderPassSpecification offscreenSpec;
         offscreenSpec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
         offscreenSpec.StencilDepthLoadOperation = Nexus::Graphics::LoadOperation::Clear;
-        m_FramebufferRenderPass = m_GraphicsDevice->CreateRenderPass(offscreenSpec, framebufferSpec);
-        m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(m_FramebufferRenderPass);
+
+        auto pair = m_GraphicsDevice->CreateRenderPassAndFramebuffer(offscreenSpec, framebufferSpec);
+        m_Framebuffer = pair.first;
+        m_FramebufferRenderPass = pair.second;
 
         m_BoundFramebufferTexture = m_ImGuiRenderer->BindFramebufferTexture(m_Framebuffer, 0);
         m_BoundTexture = m_ImGuiRenderer->BindTexture(m_Texture);

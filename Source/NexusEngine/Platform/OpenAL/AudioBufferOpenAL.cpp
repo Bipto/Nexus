@@ -23,6 +23,11 @@ namespace Nexus::Audio
         CheckError();
     }
 
+    AudioBufferOpenAL::~AudioBufferOpenAL()
+    {
+        alDeleteBuffers(1, &m_Buffer);
+    }
+
     void *AudioBufferOpenAL::GetHandle()
     {
         return (void *)m_Buffer;

@@ -10,6 +10,7 @@ namespace Nexus::Audio
     {
     public:
         AudioBufferOpenAL(ALsizei size, ALsizei frequency, ALenum format, ALvoid *data, ALboolean loop = AL_FALSE);
+        virtual ~AudioBufferOpenAL();
         virtual void *GetHandle() override;
 
     private:

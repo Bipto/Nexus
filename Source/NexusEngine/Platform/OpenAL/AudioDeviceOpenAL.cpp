@@ -12,18 +12,20 @@ namespace Nexus::Audio
 {
     AudioDeviceOpenAL::AudioDeviceOpenAL()
     {
-        ALCdevice *device = alcOpenDevice(nullptr);
-        if (!device)
+        m_Device = alcOpenDevice(nullptr);
+        if (!m_Device)
         {
             throw std::runtime_error("Failed to create audio device");
         }
 
-        ALCcontext *context = alcCreateContext(device, nullptr);
-        alcMakeContextCurrent(context);
+        m_Context = alcCreateContext(m_Device, nullptr);
+        alcMakeContextCurrent(m_Context);
     }
 
     AudioDeviceOpenAL::~AudioDeviceOpenAL()
     {
+        alcDestroyContext(m_Context);
+        alcCloseDevice(m_Device);
     }
 
     ALenum GetOpenALAudioFormat(nqr::PCMFormat format, int channelCount)

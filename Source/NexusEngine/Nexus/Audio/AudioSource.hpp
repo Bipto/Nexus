@@ -8,6 +8,9 @@ namespace Nexus::Audio
     class AudioSource
     {
     public:
+        /// @brief A virtual destructor to clean up resources
+        virtual ~AudioSource() {}
+
         /// @brief A method that provides access to the location of the source
         /// @return
         virtual glm::vec3 &GetPosition() = 0;
