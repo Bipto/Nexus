@@ -8,7 +8,7 @@
 #include "Buffer.hpp"
 #include "Framebuffer.hpp"
 #include "RenderPass.hpp"
-#include "Nexus/Memory.hpp"
+#include "Nexus/Types.hpp"
 
 #include <functional>
 #include <variant>

@@ -8,7 +8,7 @@
 #include "Nexus/Graphics/DepthFormat.hpp"
 #include "Nexus/Graphics/RenderPass.hpp"
 
-#include "Nexus/Memory.hpp"
+#include "Nexus/Types.hpp"
 
 typedef void *FramebufferTexture;
 

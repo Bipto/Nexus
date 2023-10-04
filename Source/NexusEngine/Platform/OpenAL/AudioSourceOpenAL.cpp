@@ -1,5 +1,7 @@
 #include "AudioSourceOpenAL.hpp"
 
+#if defined(NX_PLATFORM_OPENAL)
+
 namespace Nexus::Audio
 {
     AudioSourceOpenAL::AudioSourceOpenAL(AudioBuffer *buffer)
@@ -34,3 +36,5 @@ namespace Nexus::Audio
         m_Position = position;
     }
 }
+
+#endif

@@ -22,8 +22,7 @@ target_include_directories(NexusEngine PUBLIC
   )
 
 #dependencies when not building with emscripten
-if (NOT DEFINED EMSCRIPTEN)
-
+if (WIN32)
   target_include_directories(NexusEngine PUBLIC
     ../../External/tinyfiledialogs/tinyfiledialogs
     ../../External/SDL_net
@@ -50,7 +49,7 @@ target_link_libraries(NexusEngine PUBLIC
   spirv-cross-hlsl
   )
 
-if(NOT DEFINED EMSCRIPTEN)
+if(WIN32)
   target_link_libraries(NexusEngine PUBLIC 
     tinyfiledialogs
     OpenAL

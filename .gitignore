@@ -37,3 +37,10 @@ Docs
 html
 build_emscripten/BuildConfig
 build_emscripten/compile_commands.json
+android-project/app/.cxx
+android-project/app/src/main/libs/arm64-v8a
+android-project/app/src/main/libs/armeabi-v7a
+android-project/app/src/main/libs/x86
+android-project/app/src/main/libs/x86_64
+android-project/.idea
+android-project/.gradle

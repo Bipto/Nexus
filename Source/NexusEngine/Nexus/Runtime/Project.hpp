@@ -2,7 +2,7 @@
 
 #include "Nexus/nxpch.hpp"
 #include "Scene.hpp"
-#include "Nexus/Memory.hpp"
+#include "Nexus/Types.hpp"
 
 #include <filesystem>
 

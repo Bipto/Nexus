@@ -11,7 +11,7 @@ namespace Nexus::Graphics
         TextureOpenGL(const TextureSpecification &spec);
         ~TextureOpenGL();
         void Bind(unsigned int slot = 0);
-        virtual void *GetHandle() override;
+        virtual ResourceHandle GetHandle() override;
 
     private:
         unsigned int m_Handle;

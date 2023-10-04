@@ -19,7 +19,7 @@ FetchContent_MakeAvailable(googletest)
 
 #if we are not building for emscripten, then output all executables into lib and bin folders
 #this is needed to ensure that dynamic libraries (.dll) are in the same folder as the executables
-if (NOT EMSCRIPTEN)
+if (WIN32)
     set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
     set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
     find_package(Vulkan REQUIRED)
@@ -38,13 +38,15 @@ elseif (EMSCRIPTEN)
     add_compile_definitions(NX_PLATFORM_OPENAL)
 endif()
 
-find_package(OpenGL REQUIRED)
+if (WIN32 OR EMSCRIPTEN)
+    find_package(OpenGL REQUIRED)
+endif()
 
 #set up engine projects
 add_subdirectory(Source/Demo)
 add_subdirectory(Source/NexusEngine)
 
-if(NOT DEFINED EMSCRIPTEN)
+if(WIN32)
     add_subdirectory(Source/Editor)
     add_subdirectory(Source/NetworkingTest/Client)
     add_subdirectory(Source/NetworkingTest/Server)
@@ -68,18 +70,17 @@ add_subdirectory(External/SPIRV-Tools)
 add_subdirectory(External/shaderc)
 add_subdirectory(External/libnyquist)
 
-if (NOT DEFINED EMSCRIPTEN)
+if (WIN32)
     add_subdirectory(External/VulkanMemoryAllocator)
 endif()
 
 #these libraries are only required if we are not building for emscripten
 #this is because these libraries are incompatible with emscripten
-if (NOT DEFINED EMSCRIPTEN)
+if (WIN32)
     add_subdirectory(External/tinyfiledialogs)
     add_subdirectory(External/re2)
     add_subdirectory(External/effcee)
     add_subdirectory(External/SDL_net)
-
     add_definitions(-DLIBTYPE=SHARED)
     add_subdirectory(External/OpenAL-Soft)
     remove_definitions(-DLIBTYPE)

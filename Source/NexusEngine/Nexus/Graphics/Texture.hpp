@@ -1,6 +1,7 @@
 #pragma once
 
 #include "TextureFormat.hpp"
+#include "Nexus/Types.hpp"
 
 namespace Nexus::Graphics
 {
@@ -60,7 +61,7 @@ namespace Nexus::Graphics
 
         /// @brief A pure virtual method that returns a pointer to the underlying native texture
         /// @return A void pointer to an API specific texture
-        virtual void *GetHandle() = 0;
+        virtual ResourceHandle GetHandle() = 0;
 
     protected:
         /// @brief An integer representing the width of the texture

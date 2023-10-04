@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_OPENAL)
+
 #include "Nexus/Audio/AudioDevice.hpp"
 
 #include "OpenAL.hpp"
@@ -25,3 +27,5 @@ namespace Nexus::Audio
         ALCcontext *m_Context = nullptr;
     };
 }
+
+#endif

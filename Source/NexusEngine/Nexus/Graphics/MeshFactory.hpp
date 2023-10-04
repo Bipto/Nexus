@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Nexus/Memory.hpp"
+#include "Nexus/Types.hpp"
 #include "Nexus/Graphics/GraphicsDevice.hpp"
 #include "Nexus/Graphics/Mesh.hpp"
 #include "Nexus/Graphics/Model.hpp"

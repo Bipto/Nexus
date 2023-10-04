@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AudioBuffer.hpp"
+#include "Nexus/Types.hpp"
 
 namespace Nexus::Audio
 {
@@ -13,6 +14,6 @@ namespace Nexus::Audio
 
         /// @brief A pure virtual method to provide access to the raw buffer
         /// @return A handle to the native buffer
-        virtual void *GetHandle() = 0;
+        virtual ResourceHandle GetHandle() = 0;
     };
 }

@@ -9,7 +9,9 @@
 #endif
 
 // audio headers
+#if defined(NX_PLATFORM_OPENAL)
 #include "Platform/OpenAL/AudioDeviceOpenAL.hpp"
+#endif
 
 #include "Nexus/Logging/Log.hpp"
 
@@ -212,8 +214,13 @@ namespace Nexus
     {
         switch (api)
         {
-        default:
+#if defined(NX_PLATFORM_OPENAL)
+        case Audio::AudioAPI::OpenAL:
             return new Audio::AudioDeviceOpenAL();
+#endif
+
+        default:
+            return nullptr;
         }
     }
 }

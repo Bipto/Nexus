@@ -1,5 +1,7 @@
 #include "AudioBufferOpenAL.hpp"
 
+#if defined(NX_PLATFORM_OPENAL)
+
 #include <iostream>
 
 void CheckError()
@@ -28,8 +30,10 @@ namespace Nexus::Audio
         alDeleteBuffers(1, &m_Buffer);
     }
 
-    void *AudioBufferOpenAL::GetHandle()
+    ResourceHandle AudioBufferOpenAL::GetHandle()
     {
-        return (void *)m_Buffer;
+        return (ResourceHandle)m_Buffer;
     }
 }
+
+#endif

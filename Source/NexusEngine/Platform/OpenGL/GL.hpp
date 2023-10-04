@@ -1,8 +1,7 @@
 #pragma once
 
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__) || defined(ANDROID) || defined(__ANDROID__)
 #include <GLES3/gl32.h>
-#include <gl/GL.h>
 #else
 #include "glad/glad.h"
 #endif

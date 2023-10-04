@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Nexus/Window.hpp"
-#include "Nexus/Memory.hpp"
+#include "Nexus/Types.hpp"
 #include "SDL.h"
 #include "Shader.hpp"
 #include "Buffer.hpp"

@@ -1,9 +1,11 @@
 #pragma once
 
+#if defined(NX_PLATFORM_OPENAL)
+
 #include "Nexus/Audio/AudioSource.hpp"
 #include "Nexus/Audio/AudioBuffer.hpp"
 
-#include "Nexus/Memory.hpp"
+#include "Nexus/Types.hpp"
 
 #include "OpenAL.hpp"
 
@@ -24,3 +26,5 @@ namespace Nexus::Audio
         ALuint m_Source = 0;
     };
 }
+
+#endif

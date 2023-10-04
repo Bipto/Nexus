@@ -42,9 +42,9 @@ public:
 
     virtual void Load() override
     {
-        auto &io = ImGui::GetIO();
-        /* io.FontDefault = io.Fonts->AddFontFromFileTTF(
-            "Resources/Fonts/Roboto/Roboto-Regular.ttf", 18); */
+        /* auto &io = ImGui::GetIO();
+        io.FontDefault = io.Fonts->AddFontFromFileTTF(
+            "res/resources/fonts/roboto/roboto-regular.ttf", 18); */
 
         Nexus::Graphics::RenderPassSpecification spec;
         spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
@@ -53,7 +53,7 @@ public:
 
         m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-        RegisterGraphicsDemo<Demos::ClearScreenDemo>("Clear Colour");
+        /*RegisterGraphicsDemo<Demos::ClearScreenDemo>("Clear Colour");
         RegisterGraphicsDemo<Demos::HelloTriangleDemo>("Hello Triangle");
         RegisterGraphicsDemo<Demos::HelloTriangleIndexedDemo>("Hello Triangle Indexed");
         RegisterGraphicsDemo<Demos::TexturingDemo>("Texturing");
@@ -62,7 +62,7 @@ public:
         RegisterGraphicsDemo<Demos::CameraDemo>("Camera");
         RegisterGraphicsDemo<Demos::LightingDemo>("Lighting");
         RegisterGraphicsDemo<Demos::ModelDemo>("Models");
-        RegisterAudioDemo<Demos::AudioDemo>("Audio");
+        RegisterAudioDemo<Demos::AudioDemo>("Audio"); */
     }
 
     template <typename T>
@@ -91,13 +91,13 @@ public:
 
     virtual void Update(Nexus::Time time) override
     {
-        if (m_CurrentDemo)
-            m_CurrentDemo->Update(time);
+        /* if (m_CurrentDemo)
+            m_CurrentDemo->Update(time); */
     }
 
     virtual void Render(Nexus::Time time) override
     {
-        if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::F11))
+        /* if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::F11))
         {
             auto window = this->GetWindow();
             if (window->GetCurrentWindowState() == Nexus::WindowState::Normal)
@@ -126,17 +126,17 @@ public:
                 {
                     // render demo name
                     std::string label = std::string("Selected Demo - ") + m_CurrentDemo->GetName();
-                    ImGui::Text(label.c_str());
+                    ImGui::Text("%s", label.c_str());
 
                     auto n = m_GraphicsDevice->GetAPIName();
                     std::string apiName = std::string("Running on : ") + std::string(m_GraphicsDevice->GetAPIName());
-                    ImGui::Text(apiName.c_str());
+                    ImGui::Text("%s", apiName.c_str());
 
                     // render framerate
                     std::stringstream ss;
                     ss.precision(2);
                     ss << "Running at " << ImGui::GetIO().Framerate << " FPS";
-                    ImGui::Text(ss.str().c_str());
+                    ImGui::Text("%s", ss.str().c_str());
                     m_CurrentDemo->RenderUI();
                 }
             }
@@ -216,13 +216,26 @@ public:
             m_CommandList->EndRenderPass();
             m_CommandList->End();
             m_GraphicsDevice->SubmitCommandList(m_CommandList);
-        }
+        } */
+
+        m_CommandList->Begin();
+
+        Nexus::Graphics::RenderPassBeginInfo beginInfo{};
+        beginInfo.ClearColorValue = {
+            0.32f, 0.65f, 0.56f, 1.0f};
+
+        m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
+
+        m_CommandList->EndRenderPass();
+        m_CommandList->End();
+
+        m_GraphicsDevice->SubmitCommandList(m_CommandList);
     }
 
     virtual void OnResize(Nexus::Point<int> size) override
     {
-        if (m_CurrentDemo)
-            m_CurrentDemo->OnResize(size);
+        /* if (m_CurrentDemo)
+            m_CurrentDemo->OnResize(size); */
     }
 
     virtual void Unload() override

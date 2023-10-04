@@ -73,9 +73,9 @@ namespace Nexus::Graphics
         m_Texture->Release();
     }
 
-    void *TextureDX11::GetHandle()
+    ResourceHandle TextureDX11::GetHandle()
     {
-        return m_ResourceView;
+        return (ResourceHandle)m_ResourceView;
     }
 }
 

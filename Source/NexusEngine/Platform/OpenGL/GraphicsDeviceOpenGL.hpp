@@ -52,5 +52,6 @@ namespace Nexus::Graphics
         FramebufferOpenGL *m_BoundFramebuffer = nullptr;
         VSyncState m_VsyncState = VSyncState::Enabled;
         SwapchainOpenGL *m_Swapchain = nullptr;
+        int m_Backbuffer = 0;
     };
 }

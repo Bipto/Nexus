@@ -20,7 +20,7 @@
 #include "Nexus/Events/EventHandler.hpp"
 #include "Nexus/Input/InputState.hpp"
 #include "Nexus/Time.hpp"
-#include "Nexus/Memory.hpp"
+#include "Nexus/Types.hpp"
 
 #include "Runtime/ECS/ComponentRegistry.hpp"
 

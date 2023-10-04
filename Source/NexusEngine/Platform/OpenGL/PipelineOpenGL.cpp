@@ -180,6 +180,7 @@ namespace Nexus::Graphics
             break;
         }
 
+#if !defined(__ANDROID__)
         if (m_Description.RasterizerStateDescription.DepthClipEnabled)
         {
             glEnable(GL_DEPTH_CLAMP);
@@ -188,8 +189,9 @@ namespace Nexus::Graphics
         {
             glDisable(GL_DEPTH_CLAMP);
         }
+#endif
 
-#if !defined(EMSCRIPTEN)
+#if !defined(EMSCRIPTEN) && !defined(__ANDROID__)
         switch (m_Description.RasterizerStateDescription.FillMode)
         {
         case FillMode::Solid:
@@ -226,7 +228,7 @@ namespace Nexus::Graphics
             viewport.Y,
             viewport.Width,
             viewport.Height);
-        glDepthRange(viewport.MinDepth, viewport.MaxDepth);
+        glDepthRangef(viewport.MinDepth, viewport.MaxDepth);
 
         auto &scissorRectangle = m_Description.RasterizerStateDescription.ScissorRectangle;
         glScissor(

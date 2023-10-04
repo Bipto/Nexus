@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Nexus/Memory.hpp"
+#include "Nexus/Types.hpp"
 #include "Nexus/Runtime/ECS/Entity.hpp"
 
 #include <vector>

@@ -13,7 +13,7 @@ namespace Nexus::Graphics
     public:
         TextureVk(GraphicsDeviceVk *graphicsDevice, const TextureSpecification &spec);
         ~TextureVk();
-        virtual void *GetHandle() override;
+        virtual ResourceHandle GetHandle() override;
         VkImage GetImage();
         VkImageView GetImageView();
         VkSampler GetSampler();

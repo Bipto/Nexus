@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GraphicsDevice.hpp"
-#include "Nexus/Memory.hpp"
+#include "Nexus/Types.hpp"
 
 namespace Nexus
 {

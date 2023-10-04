@@ -23,14 +23,15 @@ namespace Nexus::Graphics
     {
         glDeleteTextures(1, &this->m_Handle);
     }
+
     void TextureOpenGL::Bind(unsigned int slot)
     {
         glActiveTexture(GL_TEXTURE0 + slot);
         glBindTexture(GL_TEXTURE_2D, this->m_Handle);
     }
 
-    void *TextureOpenGL::GetHandle()
+    ResourceHandle TextureOpenGL::GetHandle()
     {
-        return (void *)m_Handle;
+        return (ResourceHandle)m_Handle;
     }
 }

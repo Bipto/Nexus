@@ -57,6 +57,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
 int main(int argc, char **argv)
 {
     auto commandLineArgs = InputParametersToStringVector(argc, argv);
+    std::cout << commandLineArgs[0] << std::endl;
     return Nexus::Main(commandLineArgs);
 }
 #endif

@@ -7,7 +7,7 @@
 #include "Nexus/Window.hpp"
 #include "Nexus/Point.hpp"
 #include "Nexus/Vertex.hpp"
-#include "Nexus/Memory.hpp"
+#include "Nexus/Types.hpp"
 
 #include "Nexus/Events/Event.hpp"
 #include "Nexus/Events/EventHandler.hpp"

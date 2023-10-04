@@ -4,7 +4,7 @@
 #include <inttypes.h>
 #include <vector>
 
-#include "Nexus/Memory.hpp"
+#include "Nexus/Types.hpp"
 #include "Nexus/Graphics/Texture.hpp"
 #include "Nexus/Graphics/Buffer.hpp"
 

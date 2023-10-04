@@ -57,7 +57,6 @@
                 "CMAKE_BUILD_TYPE": "Release"
             }
         },
-
         {
             "name": "linux-base",
             "hidden": true,
@@ -78,12 +77,12 @@
             "name": "x64-debug-linux",
             "displayName": "x64 Debug - Linux",
             "inherits": "linux-base",
-            "architecture":{
+            "architecture": {
                 "value": "x64",
                 "strategy": "external"
             },
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE":"Debug"
+                "CMAKE_BUILD_TYPE": "Debug"
             }
         },
         {
@@ -91,19 +90,19 @@
             "displayName": "x64 Release - Linux",
             "inherits": "x64-debug-linux",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE":"Release"
+                "CMAKE_BUILD_TYPE": "Release"
             }
         },
         {
             "name": "x86-debug-linux",
             "displayName": "x86 Debug - Linux",
             "inherits": "linux-base",
-            "architecture":{
+            "architecture": {
                 "value": "x86",
                 "strategy": "external"
             },
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE":"Debug"
+                "CMAKE_BUILD_TYPE": "Debug"
             }
         },
         {
@@ -111,7 +110,18 @@
             "displayName": "x86 Release - Linux",
             "inherits": "x86-debug-linux",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE":"Release"
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "android-msvc",
+            "displayName": "android-msvc",
+            "generator": "Visual Studio 17 2022",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_SYSTEM_NAME": "Android",
+                "CMAKE_ANDROID_NDK": "C:/Microsoft/AndroidNDK/android-ndk-r23c",
+                "CMAKE_TOOLCHAIN_FILE": "C:/Microsoft/AndroidNDK/android-ndk-r23c/build/cmake/android.toolchain.cmake"
             }
         }
     ]

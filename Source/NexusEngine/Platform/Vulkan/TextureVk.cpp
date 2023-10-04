@@ -131,9 +131,9 @@ namespace Nexus::Graphics
         vmaDestroyImage(m_GraphicsDevice->GetAllocator(), m_Image, m_Allocation);
     }
 
-    void *TextureVk::GetHandle()
+    ResourceHandle TextureVk::GetHandle()
     {
-        return m_ImageView;
+        return (ResourceHandle)m_ImageView;
     }
 
     VkImage TextureVk::GetImage()

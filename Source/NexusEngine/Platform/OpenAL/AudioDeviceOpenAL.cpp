@@ -1,5 +1,7 @@
 #include "AudioDeviceOpenAL.hpp"
 
+#if defined(NX_PLATFORM_OPENAL)
+
 #include "AudioBufferOpenAL.hpp"
 #include "AudioSourceOpenAL.hpp"
 
@@ -120,3 +122,5 @@ namespace Nexus::Audio
         alSourcePlay(s->GetSource());
     }
 }
+
+#endif

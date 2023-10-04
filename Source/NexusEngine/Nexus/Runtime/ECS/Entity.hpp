@@ -3,7 +3,7 @@
 #include <string>
 #include <list>
 
-#include "Nexus/Memory.hpp"
+#include "Nexus/Types.hpp"
 #include "Components.hpp"
 
 namespace Nexus

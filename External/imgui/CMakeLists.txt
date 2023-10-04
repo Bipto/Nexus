@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
 
-if (NOT DEFINED EMSCRIPTEN)
-find_package(Vulkan REQUIRED)
+if (WIN32)
+	find_package(Vulkan REQUIRED)
 endif()
 
 project ("ImGui")
@@ -44,7 +44,18 @@ add_library(imguizmo
 target_include_directories(imgui PUBLIC ../SDL/include imgui)
 target_include_directories(imguizmo PUBLIC imgui)
 
-if (NOT DEFINED EMSCRIPTEN)
+if (WIN32)
 	target_include_directories(imgui PUBLIC ${VULKAN_INCLUDE_DIRS})
 	target_link_libraries(imgui PUBLIC Vulkan::Vulkan)
+endif()
+
+if (ANDROID OR __ANDROID__)
+    target_link_libraries(
+        imgui
+        PUBLIC
+		android
+		EGL
+        GLESv3
+		NexusEngine
+    )
 endif()

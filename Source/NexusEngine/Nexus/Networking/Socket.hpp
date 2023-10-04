@@ -1,6 +1,6 @@
 #pragma once
 
-#if !defined(EMSCRIPTEN)
+#if defined(NX_PLATFORM_SDL_NET)
 
 #include "SDL_net.h"
 

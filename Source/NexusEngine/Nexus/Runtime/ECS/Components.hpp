@@ -9,7 +9,7 @@
 #include "glm/gtc/type_ptr.hpp"
 
 #include "Nexus/Graphics/Texture.hpp"
-#include "Nexus/Memory.hpp"
+#include "Nexus/Types.hpp"
 
 #include "imgui.h"
 #include "nlohmann/json.hpp"

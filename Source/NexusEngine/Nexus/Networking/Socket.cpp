@@ -1,6 +1,6 @@
 #include "Socket.hpp"
 
-#if !defined(EMSCRIPTEN)
+#if defined(NX_PLATFORM_SDL_NET)
 
 #include "Nexus/Logging/Log.hpp"
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Nexus/Graphics/Buffer.hpp"
-#include "Nexus/Memory.hpp"
+#include "Nexus/Types.hpp"
 
 #include "Nexus/Vertex.hpp"
 

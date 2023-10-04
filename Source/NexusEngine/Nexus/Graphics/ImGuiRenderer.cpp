@@ -126,7 +126,7 @@ namespace Nexus::Graphics
         }
 #endif
         default:
-            return texture->GetHandle();
+            return (ImTextureID)texture->GetHandle();
         }
     }
 

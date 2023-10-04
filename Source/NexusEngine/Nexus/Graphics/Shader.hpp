@@ -4,7 +4,7 @@
 #include "glm/gtc/type_ptr.hpp"
 
 #include "Texture.hpp"
-#include "Nexus/Memory.hpp"
+#include "Nexus/Types.hpp"
 #include "Buffer.hpp"
 #include "Nexus/Vertex.hpp"
 #include "Nexus/Graphics/ResourceSet.hpp"
