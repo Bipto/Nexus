@@ -152,7 +152,7 @@ namespace Nexus::Graphics
     {
         const char *glslVersion;
         // Decide GL+GLSL versions
-#ifdef __EMSCRIPTEN__
+#if defined __EMSCRIPTEN__ || defined(__ANDROID__)
         // GL ES 2.0 + GLSL 100
         glslVersion = "#version 100";
 #elif defined(__APPLE__)

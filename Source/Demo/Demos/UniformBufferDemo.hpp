@@ -19,7 +19,7 @@ namespace Demos
             m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_GraphicsDevice->GetSwapchain());
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/uniform_buffers.glsl",
+            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("resources/shaders/uniform_buffers.glsl",
                                                                    Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
 
             CreatePipeline();
@@ -27,7 +27,7 @@ namespace Demos
             Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
             m_Mesh = factory.CreateSprite();
 
-            m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
+            m_Texture = m_GraphicsDevice->CreateTexture("resources/textures/brick.jpg");
         }
 
         virtual ~UniformBufferDemo()

@@ -15,7 +15,7 @@ namespace Demos
 
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-            m_AudioBuffer = m_AudioDevice->CreateAudioBufferFromWavFile("Resources/Audio/Laser_Shoot.wav");
+            m_AudioBuffer = m_AudioDevice->CreateAudioBufferFromWavFile("resources/audio/laser_shoot.wav");
             m_AudioSource = m_AudioDevice->CreateAudioSource(m_AudioBuffer);
         }
 

@@ -29,16 +29,16 @@ namespace Demos
             m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_GraphicsDevice->GetSwapchain());
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/lighting.glsl",
+            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("resources/shaders/lighting.glsl",
                                                                    Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
 
             Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
             m_CubeMesh = factory.CreateCube();
             m_SpriteMesh = factory.CreateSprite();
 
-            m_DiffuseMap = m_GraphicsDevice->CreateTexture("Resources/Textures/raw_plank_wall_diff_1k.jpg");
-            m_NormalMap = m_GraphicsDevice->CreateTexture("Resources/Textures/raw_plank_wall_normal_1k.jpg");
-            m_SpecularMap = m_GraphicsDevice->CreateTexture("Resources/Textures/raw_plank_wall_spec_1k.jpg");
+            m_DiffuseMap = m_GraphicsDevice->CreateTexture("resources/textures/raw_plank_wall_diff_1k.jpg");
+            m_NormalMap = m_GraphicsDevice->CreateTexture("resources/textures/raw_plank_wall_normal_1k.jpg");
+            m_SpecularMap = m_GraphicsDevice->CreateTexture("resources/textures/raw_plank_wall_spec_1k.jpg");
 
             Nexus::Graphics::BufferDescription cameraUniformBufferDesc;
             cameraUniformBufferDesc.Size = sizeof(VB_UNIFORM_CAMERA_DEMO_LIGHTING);

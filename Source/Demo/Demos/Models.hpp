@@ -29,15 +29,15 @@ namespace Demos
             m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_GraphicsDevice->GetSwapchain());
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/models.glsl",
+            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("resources/shaders/models.glsl",
                                                                    Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
 
             Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
-            m_Model = factory.CreateFrom3DModelFile("Resources/Models/Survival_BackPack_2/Survival_BackPack_2.fbx");
+            m_Model = factory.CreateFrom3DModelFile("resources/models/survival_backpack_2/survival_backpack_2.fbx");
 
-            m_DiffuseMap = m_GraphicsDevice->CreateTexture("Resources/Models/Survival_BackPack_2/1001_albedo.jpg");
-            m_NormalMap = m_GraphicsDevice->CreateTexture("Resources/Models/Survival_BackPack_2/1001_normal.png");
-            m_SpecularMap = m_GraphicsDevice->CreateTexture("Resources/Models/Survival_BackPack_2/specular.jpg");
+            m_DiffuseMap = m_GraphicsDevice->CreateTexture("resources/models/survival_backpack_2/1001_albedo.jpg");
+            m_NormalMap = m_GraphicsDevice->CreateTexture("resources/models/survival_backpack_2/1001_normal.png");
+            m_SpecularMap = m_GraphicsDevice->CreateTexture("resources/models/survival_backpack_2/specular.jpg");
 
             Nexus::Graphics::BufferDescription cameraUniformBufferDesc;
             cameraUniformBufferDesc.Size = sizeof(VB_UNIFORM_CAMERA_DEMO_LIGHTING);

@@ -8,14 +8,14 @@ else {
 }
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 34
 
     defaultConfig {
         if (buildAsApplication) {
             applicationId "org.libsdl.app"
         }
-        minSdkVersion 31
-        targetSdkVersion 31
+        minSdkVersion 24
+        targetSdkVersion 34
         versionCode 1
         versionName "1.0"
         externalNativeBuild {
@@ -39,9 +39,8 @@ android {
     if (!project.hasProperty('EXCLUDE_NATIVE_LIBS')) {
         sourceSets.main {
             jniLibs.srcDir 'libs'
+            assets.srcDir 'assets'
         }
-
-        //sourceSets.main.assets.srcDirs += '../../Source/Demo/Resources'
 
         externalNativeBuild {
             cmake {
@@ -51,10 +50,14 @@ android {
         }
        
     }
+
+    //sourceSets.main.assets.srcDirs += ['src/main/res']
+
     lintOptions {
         abortOnError false
     }
-    
+    namespace 'org.libsdl.app'
+
     if (buildAsLibrary) {
         libraryVariants.all { variant ->
             variant.outputs.each { output ->

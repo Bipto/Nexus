@@ -15,7 +15,7 @@ namespace Demos
 
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/texturing.glsl",
+            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("resources/shaders/texturing.glsl",
                                                                    Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
 
             CreatePipeline();
@@ -23,7 +23,7 @@ namespace Demos
             Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
             m_Mesh = factory.CreateSprite();
 
-            m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
+            m_Texture = m_GraphicsDevice->CreateTexture("resources/textures/brick.jpg");
         }
 
         virtual ~TexturingDemo()

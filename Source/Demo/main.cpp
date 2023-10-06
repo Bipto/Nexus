@@ -14,8 +14,11 @@
 #include "Demos/Models.hpp"
 #include "Demos/AudioDemo.hpp"
 
+#include "Nexus/FileSystem/FileSystem.hpp"
+
 #include <iostream>
 #include <utility>
+#include <filesystem>
 
 struct DemoInfo
 {
@@ -42,9 +45,23 @@ public:
 
     virtual void Load() override
     {
-        /* auto &io = ImGui::GetIO();
+        auto text = Nexus::FileSystem::ReadFileToString("/data/data/org.libsdl.app/text.txt");
+
+        std::filesystem::path cwd = std::filesystem::current_path();
+        std::string path = cwd.string();
+
+        auto &io = ImGui::GetIO();
+
+        /* io.FontDefault = io.Fonts->AddFontFromFileTTF(
+            "resources/fonts/roboto/roboto-regular.ttf", 18); */
+
+        if (std::filesystem::exists("/data/data/org.libsdl.app/text.txt"))
+        {
+            std::cout << "Hello" << std::endl;
+        }
+
         io.FontDefault = io.Fonts->AddFontFromFileTTF(
-            "res/resources/fonts/roboto/roboto-regular.ttf", 18); */
+            "/data/data/org.libsdl.app/resources/fonts/roboto/roboto-regular.ttf", 18);
 
         Nexus::Graphics::RenderPassSpecification spec;
         spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
@@ -53,7 +70,7 @@ public:
 
         m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-        /*RegisterGraphicsDemo<Demos::ClearScreenDemo>("Clear Colour");
+        RegisterGraphicsDemo<Demos::ClearScreenDemo>("Clear Colour");
         RegisterGraphicsDemo<Demos::HelloTriangleDemo>("Hello Triangle");
         RegisterGraphicsDemo<Demos::HelloTriangleIndexedDemo>("Hello Triangle Indexed");
         RegisterGraphicsDemo<Demos::TexturingDemo>("Texturing");
@@ -62,7 +79,7 @@ public:
         RegisterGraphicsDemo<Demos::CameraDemo>("Camera");
         RegisterGraphicsDemo<Demos::LightingDemo>("Lighting");
         RegisterGraphicsDemo<Demos::ModelDemo>("Models");
-        RegisterAudioDemo<Demos::AudioDemo>("Audio"); */
+        RegisterAudioDemo<Demos::AudioDemo>("Audio");
     }
 
     template <typename T>
@@ -91,13 +108,13 @@ public:
 
     virtual void Update(Nexus::Time time) override
     {
-        /* if (m_CurrentDemo)
-            m_CurrentDemo->Update(time); */
+        if (m_CurrentDemo)
+            m_CurrentDemo->Update(time);
     }
 
     virtual void Render(Nexus::Time time) override
     {
-        /* if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::F11))
+        if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::F11))
         {
             auto window = this->GetWindow();
             if (window->GetCurrentWindowState() == Nexus::WindowState::Normal)
@@ -216,9 +233,9 @@ public:
             m_CommandList->EndRenderPass();
             m_CommandList->End();
             m_GraphicsDevice->SubmitCommandList(m_CommandList);
-        } */
+        }
 
-        m_CommandList->Begin();
+        /* m_CommandList->Begin();
 
         Nexus::Graphics::RenderPassBeginInfo beginInfo{};
         beginInfo.ClearColorValue = {
@@ -229,13 +246,13 @@ public:
         m_CommandList->EndRenderPass();
         m_CommandList->End();
 
-        m_GraphicsDevice->SubmitCommandList(m_CommandList);
+        m_GraphicsDevice->SubmitCommandList(m_CommandList); */
     }
 
     virtual void OnResize(Nexus::Point<int> size) override
     {
-        /* if (m_CurrentDemo)
-            m_CurrentDemo->OnResize(size); */
+        if (m_CurrentDemo)
+            m_CurrentDemo->OnResize(size);
     }
 
     virtual void Unload() override
