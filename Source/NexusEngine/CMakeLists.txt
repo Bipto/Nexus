@@ -52,10 +52,13 @@ target_link_libraries(NexusEngine PUBLIC
 if(WIN32)
   target_link_libraries(NexusEngine PUBLIC 
     tinyfiledialogs
-    OpenAL
     SDL2_net
     Vulkan::Vulkan
     VulkanMemoryAllocator)
+endif()
+
+if(WIN32 OR ANDROID)
+  target_link_libraries(NexusEngine PUBLIC OpenAL)
 endif()
 
 #precompiled header

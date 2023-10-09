@@ -1,6 +1,7 @@
 #pragma once
 
 #include "NexusEngine.hpp"
+#include "Nexus/FileSystem/FileSystem.hpp"
 
 namespace Demos
 {

@@ -76,56 +76,61 @@ namespace Nexus::Graphics
         /// @param vertexShaderSource A vertex shader written in the native shading language of the backend
         /// @param fragmentShaderSource A fragment shader written in the native shading language of the backend
         /// @param layout A parameter specifying how data is laid out in the vertex buffer
-        /// @return A reference counted pointer to a shader
+        /// @return A pointer to a shader
         virtual Shader *CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout) = 0;
 
         /// @brief A pure virtual method that creates a pipeline from a given pipeline description
         /// @param description The properties to use when creating the pipeline
-        /// @return A reference counted pointer to a pipeline
+        /// @return A pointer to a pipeline
         virtual Pipeline *CreatePipeline(const PipelineDescription &description) = 0;
 
         /// @brief A pure virtual method that creates a vertex buffer from a given description
         /// @param description The properties to use when creating the buffer
         /// @param data The initial data to store in the buffer
         /// @param layout The layout of the vertex buffer
-        /// @return A reference counted pointer to a vertex buffer
+        /// @return A pointer to a vertex buffer
         virtual VertexBuffer *CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout) = 0;
 
         /// @brief A pure virtual method that creates an index buffer from a given description
         /// @param description The properties to use when creating the buffer
         /// @param data The initial data to store in the buffer
-        /// @return A reference counted pointer to an index buffer
+        /// @return A pointer to an index buffer
         virtual IndexBuffer *CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format = IndexBufferFormat::UInt32) = 0;
 
         /// @brief A pure virtual method that creates a uniform buffer from a given description
         /// @param description The properties to use when creating the buffer
         /// @param data The initial data to store in the buffer
-        /// @return A reference counted pointer to a uniform buffer
+        /// @return A pointer to a uniform buffer
         virtual UniformBuffer *CreateUniformBuffer(const BufferDescription &description, const void *data) = 0;
 
         /// @brief A pure virtual method that creates a new command list
-        /// @return A reference counted pointer to a command list
+        /// @return A pointer to a command list
         virtual CommandList *CreateCommandList() = 0;
 
         /// @brief A pure virtual method that creates a new texture from a given specification
         /// @param spec The properties to use when creating the texture
-        /// @return A reference counted pointer to a texture
+        /// @return A pointer to a texture
         virtual Texture *CreateTexture(const TextureSpecification &spec) = 0;
 
         /// @brief A method that loads a new texture from a image stored on disk
         /// @param filepath The filepath to load the image from
-        /// @return A reference counted pointer to a texture
+        /// @return A pointer to a texture
         Texture *CreateTexture(const char *filepath);
+
+        /// @brief A method that loads a new texture from an image stored on disk
+        /// @param filepath The filepath to load the image from
+        /// @return A pointer to a texture
+        Texture *CreateTexture(const std::string &filepath);
 
         /// @brief A pure virtual method that creates a new framebuffer from a given specification
         /// @param renderPass The renderpass to use when rendering the framebuffer
-        /// @return A reference counted pointer to a framebuffer
+        /// @return A pointer to a framebuffer
         virtual Framebuffer *CreateFramebuffer(RenderPass *renderPass) = 0;
 
         /// @brief A pure virtual method that creates a new renderpass from a given specification
         /// @param renderPassSpecification The properties to use when creating the renderpass
         /// @param framebufferSpecification The properties to use when creating a framebuffer
-        /// @return A reference counted pointer to a renderpass
+        /// @return A pointer to a renderpass
         virtual RenderPass *CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification) = 0;
 
         /// @brief A method that creates a new renderpass and framebuffer from a given specification
@@ -137,17 +142,17 @@ namespace Nexus::Graphics
         /// @brief A pure virtual method that creates a new renderpass from a given specification
         /// @param renderPassSpecification The properties to use when creating the renderpass
         /// @param swapchain A pointer to a swapchain to use when rendering the renderpass
-        /// @return A reference counted pointer to a renderpass
+        /// @return A pointer to a renderpass
         virtual RenderPass *CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain) = 0;
 
         /// @brief A pure virtual method that creates a new resource set from a given specification
         /// @param spec A set of properties to use when creating the resource set
-        /// @return A reference counted pointer to a resource set
+        /// @return A pointer to a resource set
         virtual ResourceSet *CreateResourceSet(const ResourceSetSpecification &spec) = 0;
 
         /// @brief A method that creates a new resource set from a pipeline
         /// @param pipeline A pipeline to use when creating the resource set
-        /// @return A reference counted pointer to a resource set
+        /// @return A pointer to a resource set
         ResourceSet *CreateResourceSet(Pipeline *pipeline);
 
         /// @brief A pure virtual method that resizes the swapchain of the device to a given size
@@ -169,7 +174,7 @@ namespace Nexus::Graphics
         /// @brief A method that generates a supported shader type from a GLSL file and a vertex buffer layout
         /// @param filepath The filepath to load the GLSL shader from
         /// @param layout A vertex buffer layout to use to create the shader
-        /// @return A reference counted pointer to a shader
+        /// @return A pointer to a shader
         Shader *CreateShaderFromSpirvFile(const std::string &filepath, const VertexBufferLayout &layout);
 
     protected:

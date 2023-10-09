@@ -14,7 +14,7 @@ namespace Demos
             m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_GraphicsDevice->GetSwapchain());
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("resources/shaders/hello_triangle.glsl",
+            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile(Nexus::FileSystem::GetFilePathAbsolute("resources/shaders/hello_triangle.glsl"),
                                                                    Nexus::Graphics::VertexPositionTexCoordNormal::GetLayout());
 
             CreatePipeline();

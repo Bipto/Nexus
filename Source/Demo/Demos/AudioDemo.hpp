@@ -15,7 +15,7 @@ namespace Demos
 
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-            m_AudioBuffer = m_AudioDevice->CreateAudioBufferFromWavFile("resources/audio/laser_shoot.wav");
+            m_AudioBuffer = m_AudioDevice->CreateAudioBufferFromWavFile({Nexus::FileSystem::GetFilePathAbsolute("resources/audio/laser_shoot.wav")});
             m_AudioSource = m_AudioDevice->CreateAudioSource(m_AudioBuffer);
         }
 
@@ -46,11 +46,6 @@ namespace Demos
             m_CommandList->End();
 
             m_GraphicsDevice->SubmitCommandList(m_CommandList);
-
-            if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::Space))
-            {
-                m_AudioDevice->PlaySource(m_AudioSource);
-            }
         }
 
         virtual void OnResize(Nexus::Point<int> size) override
@@ -59,7 +54,11 @@ namespace Demos
 
         virtual void RenderUI() override
         {
-            ImGui::Text("Press the spacebar to play a sound effect");
+            ImGui::Text("Press button to play a sound effect");
+            if (ImGui::Button("Play"))
+            {
+                m_AudioDevice->PlaySource(m_AudioSource);
+            }
         }
 
     private:

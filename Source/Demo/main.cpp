@@ -45,23 +45,16 @@ public:
 
     virtual void Load() override
     {
-        auto text = Nexus::FileSystem::ReadFileToString("/data/data/org.libsdl.app/text.txt");
-
-        std::filesystem::path cwd = std::filesystem::current_path();
-        std::string path = cwd.string();
-
         auto &io = ImGui::GetIO();
 
-        /* io.FontDefault = io.Fonts->AddFontFromFileTTF(
-            "resources/fonts/roboto/roboto-regular.ttf", 18); */
+        int size = 18;
 
-        if (std::filesystem::exists("/data/data/org.libsdl.app/text.txt"))
-        {
-            std::cout << "Hello" << std::endl;
-        }
+#if defined(__ANDROID__)
+        size = 48;
+#endif
 
-        io.FontDefault = io.Fonts->AddFontFromFileTTF(
-            "/data/data/org.libsdl.app/resources/fonts/roboto/roboto-regular.ttf", 18);
+        std::string fontPath = Nexus::FileSystem::GetFilePathAbsolute("resources/fonts/roboto/roboto-regular.ttf");
+        io.FontDefault = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), size);
 
         Nexus::Graphics::RenderPassSpecification spec;
         spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
@@ -260,8 +253,14 @@ public:
     }
 
 private:
+    void CreatePipeline()
+    {
+    }
+
+private:
     Nexus::Graphics::CommandList *m_CommandList;
     Nexus::Graphics::RenderPass *m_RenderPass;
+    Nexus::Graphics::Pipeline *m_Pipeline;
 
     Demos::Demo *m_CurrentDemo = nullptr;
 

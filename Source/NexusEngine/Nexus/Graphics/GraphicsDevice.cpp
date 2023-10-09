@@ -91,6 +91,11 @@ namespace Nexus::Graphics
         return texture;
     }
 
+    Texture *GraphicsDevice::CreateTexture(const std::string &filepath)
+    {
+        return CreateTexture(filepath.c_str());
+    }
+
     std::pair<Framebuffer *, RenderPass *> GraphicsDevice::CreateRenderPassAndFramebuffer(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification)
     {
         auto container = std::pair<Framebuffer *, RenderPass *>();

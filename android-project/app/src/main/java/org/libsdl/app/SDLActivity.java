@@ -254,7 +254,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         if (libraries.length > 0) {
             library = "lib" + libraries[libraries.length - 1] + ".so";
         } else {
-            library = "libDemo.so";
+            library = "libDemod.so";
         }
         String path = getContext().getApplicationInfo().nativeLibraryDir;
         return getContext().getApplicationInfo().nativeLibraryDir + "/" + library;
@@ -278,7 +278,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      */
     protected String[] getLibraries() {
         return new String[] {
-            "Demo"
+            "Demod"
         };
     }
 
