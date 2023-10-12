@@ -10,6 +10,7 @@ namespace Nexus::Graphics
         : ResourceSet(spec), m_Device(device)
     {
         // allocating uniform buffer descriptor set
+        if (spec.UniformResourceBindings.size() > 0)
         {
             std::vector<VkDescriptorSetLayoutBinding> uniformBufferBindings;
             for (const auto &item : spec.UniformResourceBindings)
@@ -27,16 +28,8 @@ namespace Nexus::Graphics
             setInfo.pNext = nullptr;
             setInfo.flags = 0;
 
-            if (uniformBufferBindings.size() > 0)
-            {
-                setInfo.bindingCount = uniformBufferBindings.size();
-                setInfo.pBindings = uniformBufferBindings.data();
-            }
-            else
-            {
-                setInfo.bindingCount = 0;
-                setInfo.pBindings = nullptr;
-            }
+            setInfo.bindingCount = uniformBufferBindings.size();
+            setInfo.pBindings = uniformBufferBindings.data();
 
             m_UniformBufferLayout.resize(FRAMES_IN_FLIGHT);
 
@@ -50,6 +43,7 @@ namespace Nexus::Graphics
         }
 
         // allocating sampler descriptor set
+        if (spec.TextureBindings.size() > 0)
         {
             std::vector<VkDescriptorSetLayoutBinding> textureBindings;
             for (const auto &item : spec.TextureBindings)
@@ -67,16 +61,8 @@ namespace Nexus::Graphics
             setInfo.pNext = nullptr;
             setInfo.flags = 0;
 
-            if (textureBindings.size() > 0)
-            {
-                setInfo.bindingCount = textureBindings.size();
-                setInfo.pBindings = textureBindings.data();
-            }
-            else
-            {
-                setInfo.bindingCount = 0;
-                setInfo.pBindings = nullptr;
-            }
+            setInfo.bindingCount = textureBindings.size();
+            setInfo.pBindings = textureBindings.data();
 
             m_SamplerLayout.resize(FRAMES_IN_FLIGHT);
 
@@ -129,6 +115,7 @@ namespace Nexus::Graphics
         }
 
         // allocate uniform buffer descriptor set
+        if (spec.UniformResourceBindings.size() > 0)
         {
             m_UniformBufferDescriptorSet.resize(FRAMES_IN_FLIGHT);
 
@@ -146,6 +133,7 @@ namespace Nexus::Graphics
         }
 
         // allocate descriptor set
+        if (spec.TextureBindings.size() > 0)
         {
             m_SamplerDescriptorSet.resize(FRAMES_IN_FLIGHT);
 
@@ -165,19 +153,22 @@ namespace Nexus::Graphics
 
     ResourceSetVk::~ResourceSetVk()
     {
-        vkFreeDescriptorSets(m_Device->GetVkDevice(), m_DescriptorPool, FRAMES_IN_FLIGHT, &m_SamplerDescriptorSet[0]);
-        vkFreeDescriptorSets(m_Device->GetVkDevice(), m_DescriptorPool, FRAMES_IN_FLIGHT, &m_UniformBufferDescriptorSet[0]);
-        vkDestroyDescriptorPool(m_Device->GetVkDevice(), m_DescriptorPool, nullptr);
-
         for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
-            vkDestroyDescriptorSetLayout(m_Device->GetVkDevice(), m_SamplerLayout[i], nullptr);
-            vkDestroyDescriptorSetLayout(m_Device->GetVkDevice(), m_UniformBufferLayout[i], nullptr);
+            if (HasTextures())
+                vkDestroyDescriptorSetLayout(m_Device->GetVkDevice(), m_SamplerLayout[i], nullptr);
+
+            if (HasUniformBuffers())
+                vkDestroyDescriptorSetLayout(m_Device->GetVkDevice(), m_UniformBufferLayout[i], nullptr);
         }
+        vkDestroyDescriptorPool(m_Device->GetVkDevice(), m_DescriptorPool, nullptr);
     }
 
     void ResourceSetVk::WriteTexture(Texture *texture, uint32_t binding)
     {
+        if (!HasTextures())
+            return;
+
         TextureVk *textureVk = (TextureVk *)texture;
 
         VkSamplerCreateInfo samplerInfo;
@@ -225,6 +216,9 @@ namespace Nexus::Graphics
 
     void ResourceSetVk::WriteUniformBuffer(UniformBuffer *uniformBuffer, uint32_t binding)
     {
+        if (!HasUniformBuffers())
+            return;
+
         auto uniformBufferVk = (UniformBufferVk *)uniformBuffer;
 
         VkDescriptorBufferInfo bufferInfo;

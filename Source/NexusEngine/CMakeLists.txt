@@ -18,7 +18,8 @@ target_include_directories(NexusEngine PUBLIC
   ../../External/OpenAL-Soft/include
   ../../External/shaderc/libshaderc
   ../../External/libnyquist/include
-  ../../External/shaderc/SPIRV-Cross/include
+  ../../External/SPIRV-Cross/include
+  ../../External/SPIRV-Reflect
   )
 
 #dependencies when not building with emscripten

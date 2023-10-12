@@ -26,6 +26,8 @@ namespace Demos
             : Demo(name, app)
         {
             Nexus::Graphics::RenderPassSpecification spec;
+            spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
+            spec.StencilDepthLoadOperation = Nexus::Graphics::LoadOperation::Clear;
             m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_GraphicsDevice->GetSwapchain());
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
@@ -82,6 +84,9 @@ namespace Demos
             m_CameraUniforms.CamPosition = m_Camera.GetPosition();
             m_CameraUniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms), 0);
 
+            m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), {0.0f, 0.0f, -10.0f});
+            m_TransformUniformBuffer->SetData(&m_TransformUniforms, sizeof(m_TransformUniforms), 0);
+
             m_CommandList->Begin();
             m_CommandList->SetPipeline(m_Pipeline);
             m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
@@ -95,9 +100,6 @@ namespace Demos
             m_ResourceSet->WriteTexture(m_NormalMap, 1);
             m_ResourceSet->WriteTexture(m_SpecularMap, 2);
             m_CommandList->SetResourceSet(m_ResourceSet);
-
-            m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), {0.0f, 0.0f, -10.0f});
-            m_CommandList->UpdateUniformBuffer(m_TransformUniformBuffer, &m_TransformUniforms, sizeof(m_TransformUniforms), 0);
 
             auto &meshes = m_Model->GetMeshes();
             for (auto mesh : meshes)
@@ -137,7 +139,11 @@ namespace Demos
             pipelineDescription.DepthStencilDescription.EnableDepthWrite = true;
             pipelineDescription.DepthStencilDescription.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;
             pipelineDescription.Shader = m_Shader;
+            pipelineDescription.RenderPass = m_RenderPass;
+
             pipelineDescription.Viewport = {
+                0, 0, m_Window->GetWindowSize().X, m_Window->GetWindowSize().Y};
+            pipelineDescription.RasterizerStateDescription.ScissorRectangle = {
                 0, 0, m_Window->GetWindowSize().X, m_Window->GetWindowSize().Y};
 
             Nexus::Graphics::UniformResourceBinding cameraUniformBinding;

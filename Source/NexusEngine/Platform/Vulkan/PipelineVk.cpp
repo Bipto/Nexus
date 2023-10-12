@@ -7,6 +7,29 @@
 
 namespace Nexus::Graphics
 {
+    VkCompareOp GetCompareOp(ComparisonFunction function)
+    {
+        switch (function)
+        {
+        case ComparisonFunction::Always:
+            return VK_COMPARE_OP_ALWAYS;
+        case ComparisonFunction::Equal:
+            return VK_COMPARE_OP_EQUAL;
+        case ComparisonFunction::Greater:
+            return VK_COMPARE_OP_GREATER;
+        case ComparisonFunction::GreaterEqual:
+            return VK_COMPARE_OP_GREATER_OR_EQUAL;
+        case ComparisonFunction::Less:
+            return VK_COMPARE_OP_LESS;
+        case ComparisonFunction::LessEqual:
+            return VK_COMPARE_OP_LESS_OR_EQUAL;
+        case ComparisonFunction::Never:
+            return VK_COMPARE_OP_NEVER;
+        case ComparisonFunction::NotEqual:
+            return VK_COMPARE_OP_NOT_EQUAL;
+        }
+    }
+
     PipelineVk::PipelineVk(const PipelineDescription &description, GraphicsDeviceVk *graphicsDevice)
         : Pipeline(description), m_GraphicsDevice(graphicsDevice)
     {
@@ -14,10 +37,17 @@ namespace Nexus::Graphics
         auto vulkanRenderPass = (RenderPassVk *)description.RenderPass;
 
         auto resourceSet = new ResourceSetVk(description.ResourceSetSpecification, graphicsDevice);
-        std::vector<VkDescriptorSetLayout> layouts =
-            {
-                resourceSet->GetUniformBufferDescriptorSetLayout(),
-                resourceSet->GetSamplerDescriptorSetLayout()};
+        std::vector<VkDescriptorSetLayout> layouts;
+
+        if (resourceSet->HasUniformBuffers())
+        {
+            layouts.push_back(resourceSet->GetUniformBufferDescriptorSetLayout());
+        }
+
+        if (resourceSet->HasTextures())
+        {
+            layouts.push_back(resourceSet->GetSamplerDescriptorSetLayout());
+        }
 
         // describes data that will be uploaded to the shader
         VkPipelineLayoutCreateInfo layoutInfo = CreatePipelineLayoutCreateInfo(layouts);
@@ -35,9 +65,9 @@ namespace Nexus::Graphics
 
         VkViewport viewport;
         viewport.x = description.Viewport.X;
-        viewport.y = description.Viewport.Y;
+        viewport.y = description.Viewport.Height + description.Viewport.Y;
         viewport.width = description.Viewport.Width;
-        viewport.height = description.Viewport.Height;
+        viewport.height = -description.Viewport.Height;
         viewport.minDepth = description.Viewport.MinDepth;
         viewport.maxDepth = description.Viewport.MaxDepth;
 
@@ -223,8 +253,16 @@ namespace Nexus::Graphics
         VkPipelineDepthStencilStateCreateInfo info = {};
         info.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
         info.pNext = nullptr;
-        info.depthTestEnable = VK_FALSE;
-        info.depthWriteEnable = VK_FALSE;
+        info.depthTestEnable = m_Description.DepthStencilDescription.EnableDepthTest;
+        info.depthWriteEnable = m_Description.DepthStencilDescription.EnableDepthWrite;
+        info.depthCompareOp = GetCompareOp(m_Description.DepthStencilDescription.DepthComparisonFunction);
+
+        info.depthBoundsTestEnable = VK_FALSE;
+        info.minDepthBounds = 0.0f;
+        info.maxDepthBounds = 1.0f;
+
+        info.stencilTestEnable = m_Description.DepthStencilDescription.EnableStencilTest;
+
         return info;
     }
 

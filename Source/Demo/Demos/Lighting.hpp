@@ -26,6 +26,8 @@ namespace Demos
             : Demo(name, app)
         {
             Nexus::Graphics::RenderPassSpecification spec;
+            spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
+            spec.StencilDepthLoadOperation = Nexus::Graphics::LoadOperation::Clear;
             m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_GraphicsDevice->GetSwapchain());
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
@@ -34,7 +36,6 @@ namespace Demos
 
             Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
             m_CubeMesh = factory.CreateCube();
-            m_SpriteMesh = factory.CreateSprite();
 
             m_DiffuseMap = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/raw_plank_wall_diff_1k.jpg"));
             m_NormalMap = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/raw_plank_wall_normal_1k.jpg"));
@@ -62,7 +63,6 @@ namespace Demos
             delete m_Pipeline;
 
             delete m_CubeMesh;
-            delete m_SpriteMesh;
 
             delete m_ResourceSet;
             delete m_DiffuseMap;
@@ -82,8 +82,9 @@ namespace Demos
                 m_ClearColour.b,
                 1.0f};
 
-            m_TransformUniforms.Transform = glm::mat4(1.0f);
+            m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f)) * glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation), {1.0f, 1.0f, 0.0f});
             m_TransformUniformBuffer->SetData(&m_TransformUniforms, sizeof(m_TransformUniforms), 0);
+            m_Rotation += time.GetSeconds();
 
             m_CameraUniforms.View = m_Camera.GetView();
             m_CameraUniforms.Projection = m_Camera.GetProjection();
@@ -107,23 +108,10 @@ namespace Demos
 
             // draw cube
             {
-                m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, -5.0f));
-                m_CommandList->UpdateUniformBuffer(m_TransformUniformBuffer, &m_TransformUniforms, sizeof(m_TransformUniforms), 0);
                 m_CommandList->SetVertexBuffer(m_CubeMesh->GetVertexBuffer());
                 m_CommandList->SetIndexBuffer(m_CubeMesh->GetIndexBuffer());
 
                 auto indexCount = m_CubeMesh->GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
-                m_CommandList->DrawIndexed(indexCount, 0);
-            }
-
-            // draw sprite
-            {
-                m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 0.0f, -5.0f));
-                m_CommandList->UpdateUniformBuffer(m_TransformUniformBuffer, &m_TransformUniforms, sizeof(m_TransformUniforms), 0);
-                m_CommandList->SetVertexBuffer(m_SpriteMesh->GetVertexBuffer());
-                m_CommandList->SetIndexBuffer(m_SpriteMesh->GetIndexBuffer());
-
-                auto indexCount = m_SpriteMesh->GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
                 m_CommandList->DrawIndexed(indexCount, 0);
             }
 
@@ -154,8 +142,11 @@ namespace Demos
             pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::Back;
             pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
             pipelineDescription.Shader = m_Shader;
+            pipelineDescription.RenderPass = m_RenderPass;
 
             pipelineDescription.Viewport = {
+                0, 0, m_Window->GetWindowSize().X, m_Window->GetWindowSize().Y};
+            pipelineDescription.RasterizerStateDescription.ScissorRectangle = {
                 0, 0, m_Window->GetWindowSize().X, m_Window->GetWindowSize().Y};
 
             Nexus::Graphics::UniformResourceBinding cameraUniformBinding;
@@ -195,7 +186,6 @@ namespace Demos
         Nexus::Graphics::Shader *m_Shader;
         Nexus::Graphics::Pipeline *m_Pipeline;
         Nexus::Graphics::Mesh *m_CubeMesh;
-        Nexus::Graphics::Mesh *m_SpriteMesh;
 
         Nexus::Graphics::ResourceSet *m_ResourceSet;
         Nexus::Graphics::Texture *m_DiffuseMap;

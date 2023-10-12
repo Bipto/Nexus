@@ -42,15 +42,24 @@ namespace Nexus::Graphics
     class ResourceSet
     {
     public:
-        ResourceSet(const ResourceSetSpecification &spec) : m_Specification(spec) {}
+        ResourceSet(const ResourceSetSpecification &spec);
         virtual ~ResourceSet() {}
 
         virtual void WriteTexture(Texture *texture, uint32_t binding) = 0;
         virtual void WriteUniformBuffer(UniformBuffer *uniformBuffer, uint32_t binding) = 0;
 
-        const ResourceSetSpecification &GetSpecification() { return m_Specification; }
+        const ResourceSetSpecification &GetSpecification() const;
+
+        bool HasTextures() const;
+        bool HasUniformBuffers() const;
+
+        uint32_t GetTextureDescriptorIndex() const;
+        uint32_t GetUniformBufferDescriptorIndex() const;
 
     protected:
         ResourceSetSpecification m_Specification;
+
+        uint32_t m_TextureDescriptorIndex = 0;
+        uint32_t m_UniformBufferDescriptorIndex = 0;
     };
 }

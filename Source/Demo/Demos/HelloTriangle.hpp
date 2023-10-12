@@ -53,11 +53,11 @@ namespace Demos
             m_CommandList->Begin();
             m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
             m_CommandList->SetPipeline(m_Pipeline);
-            m_CommandList->EndRenderPass();
             m_CommandList->SetVertexBuffer(m_VertexBuffer);
 
             auto vertexCount = m_VertexBuffer->GetDescription().Size / sizeof(Nexus::Graphics::VertexPositionTexCoordNormal);
             m_CommandList->DrawElements(0, vertexCount);
+            m_CommandList->EndRenderPass();
             m_CommandList->End();
 
             m_GraphicsDevice->SubmitCommandList(m_CommandList);
@@ -79,8 +79,11 @@ namespace Demos
             pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
             pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
             pipelineDescription.Shader = m_Shader;
+            pipelineDescription.RenderPass = m_RenderPass;
 
             pipelineDescription.Viewport = {
+                0, 0, m_Window->GetWindowSize().X, m_Window->GetWindowSize().Y};
+            pipelineDescription.RasterizerStateDescription.ScissorRectangle = {
                 0, 0, m_Window->GetWindowSize().X, m_Window->GetWindowSize().Y};
 
             m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);

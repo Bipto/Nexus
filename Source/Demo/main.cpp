@@ -53,8 +53,8 @@ public:
         size = 48;
 #endif
 
-        std::string fontPath = Nexus::FileSystem::GetFilePathAbsolute("resources/fonts/roboto/roboto-regular.ttf");
-        io.FontDefault = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), size);
+        /* std::string fontPath = Nexus::FileSystem::GetFilePathAbsolute("resources/fonts/roboto/roboto-regular.ttf");
+        io.FontDefault = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), size); */
 
         Nexus::Graphics::RenderPassSpecification spec;
         spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
@@ -107,6 +107,8 @@ public:
 
     virtual void Render(Nexus::Time time) override
     {
+        m_GraphicsDevice->BeginFrame();
+
         if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::F11))
         {
             auto window = this->GetWindow();
@@ -240,6 +242,8 @@ public:
         m_CommandList->End();
 
         m_GraphicsDevice->SubmitCommandList(m_CommandList); */
+
+        m_GraphicsDevice->EndFrame();
     }
 
     virtual void OnResize(Nexus::Point<int> size) override
@@ -253,14 +257,8 @@ public:
     }
 
 private:
-    void CreatePipeline()
-    {
-    }
-
-private:
     Nexus::Graphics::CommandList *m_CommandList;
     Nexus::Graphics::RenderPass *m_RenderPass;
-    Nexus::Graphics::Pipeline *m_Pipeline;
 
     Demos::Demo *m_CurrentDemo = nullptr;
 
@@ -271,7 +269,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
 
     if (arguments.size() > 1)
     {

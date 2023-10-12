@@ -81,12 +81,16 @@ namespace Demos
         void CreatePipeline()
         {
             Nexus::Graphics::PipelineDescription pipelineDescription;
-            pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::Back;
+            pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
             pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
             pipelineDescription.Shader = m_Shader;
+            pipelineDescription.RenderPass = m_RenderPass;
 
             pipelineDescription.Viewport = {
                 0, 0, m_Window->GetWindowSize().X, m_Window->GetWindowSize().Y};
+            pipelineDescription.RasterizerStateDescription.ScissorRectangle =
+                {
+                    0, 0, m_Window->GetWindowSize().X, m_Window->GetWindowSize().Y};
 
             Nexus::Graphics::TextureResourceBinding textureBinding;
             textureBinding.Slot = 0;

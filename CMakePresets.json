@@ -30,29 +30,33 @@
             }
         },
         {
-            "name": "x64-release-windows",
-            "displayName": "x64 Release - Windows",
-            "inherits": "x64-debug-windows",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
-            }
-        },
-        {
-            "name": "x86-debug-windows",
-            "displayName": "x86 Debug - Windows",
+            "name": "x64-relwithdebinfo-windows",
+            "displayName": "x64 Release With Debug Info - Windows",
             "inherits": "windows-base",
             "architecture": {
-                "value": "x86",
+                "value": "x64",
                 "strategy": "external"
             },
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug"
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
             }
         },
         {
-            "name": "x86-release-windows",
-            "displayName": "x86 Release - Windows",
-            "inherits": "x86-debug-windows",
+            "name": "x64-minsizerel-windows",
+            "displayName": "x64 Min Size Release - Windows",
+            "inherits": "windows-base",
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "MinSizeRel"
+            }
+        },
+        {
+            "name": "x64-release-windows",
+            "displayName": "x64 Release - Windows",
+            "inherits": "x64-debug-windows",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
             }
@@ -88,40 +92,25 @@
         {
             "name": "x64-release-linux",
             "displayName": "x64 Release - Linux",
-            "inherits": "x64-debug-linux",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
-            }
-        },
-        {
-            "name": "x86-debug-linux",
-            "displayName": "x86 Debug - Linux",
             "inherits": "linux-base",
-            "architecture": {
-                "value": "x86",
-                "strategy": "external"
-            },
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug"
-            }
-        },
-        {
-            "name": "x86-release-linux",
-            "displayName": "x86 Release - Linux",
-            "inherits": "x86-debug-linux",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
             }
         },
         {
-            "name": "android-msvc",
-            "displayName": "android-msvc",
-            "generator": "Visual Studio 17 2022",
+            "name": "x64-releasewithdebinfo-linux",
+            "displayName": "x64 Release With Debug Info - Linux",
+            "inherits": "linux-base",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug",
-                "CMAKE_SYSTEM_NAME": "Android",
-                "CMAKE_ANDROID_NDK": "C:/Microsoft/AndroidNDK/android-ndk-r23c",
-                "CMAKE_TOOLCHAIN_FILE": "C:/Microsoft/AndroidNDK/android-ndk-r23c/build/cmake/android.toolchain.cmake"
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "x64-minsizerel-linux",
+            "displayName": "x64 Min Size Release - Linux",
+            "inherits": "linux-base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
             }
         }
     ]

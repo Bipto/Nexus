@@ -214,7 +214,7 @@ namespace Nexus::Graphics
         rasterizerDesc.DepthBiasClamp = 0;
         rasterizerDesc.SlopeScaledDepthBias = 0;
         rasterizerDesc.DepthClipEnable = m_Description.RasterizerStateDescription.DepthClipEnabled;
-        rasterizerDesc.ScissorEnable = m_Description.RasterizerStateDescription.ScissorTestEnabled;
+        rasterizerDesc.ScissorEnable = true;
         rasterizerDesc.MultisampleEnable = false;
         rasterizerDesc.AntialiasedLineEnable = false;
 

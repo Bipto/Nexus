@@ -213,14 +213,8 @@ namespace Nexus::Graphics
             break;
         }
 
-        if (m_Description.RasterizerStateDescription.ScissorTestEnabled)
-        {
-            glEnable(GL_SCISSOR_TEST);
-        }
-        else
-        {
-            glDisable(GL_SCISSOR_TEST);
-        }
+        // vulkan requires scissor test to be enabled
+        glEnable(GL_SCISSOR_TEST);
 
         auto &viewport = m_Description.Viewport;
         glViewport(

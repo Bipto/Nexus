@@ -25,6 +25,8 @@ namespace Demos
             : Demo(name, app)
         {
             Nexus::Graphics::RenderPassSpecification spec;
+            spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
+            spec.StencilDepthLoadOperation = Nexus::Graphics::LoadOperation::Clear;
             m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_GraphicsDevice->GetSwapchain());
 
             m_CommandList = m_GraphicsDevice->CreateCommandList();
@@ -116,8 +118,11 @@ namespace Demos
             pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::Back;
             pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
             pipelineDescription.Shader = m_Shader;
+            pipelineDescription.RenderPass = m_RenderPass;
 
             pipelineDescription.Viewport = {
+                0, 0, m_Window->GetWindowSize().X, m_Window->GetWindowSize().Y};
+            pipelineDescription.RasterizerStateDescription.ScissorRectangle = {
                 0, 0, m_Window->GetWindowSize().X, m_Window->GetWindowSize().Y};
 
             Nexus::Graphics::UniformResourceBinding cameraUniformBinding;
@@ -130,12 +135,16 @@ namespace Demos
             transformUniformBinding.Name = "Transform";
             transformUniformBinding.Buffer = m_TransformUniformBuffer;
 
+            Nexus::Graphics::TextureResourceBinding textureBinding;
+            textureBinding.Slot = 0;
+            textureBinding.Name = "texSampler";
+
             Nexus::Graphics::ResourceSetSpecification resources;
             resources.UniformResourceBindings = {cameraUniformBinding, transformUniformBinding};
+            resources.TextureBindings = {textureBinding};
             pipelineDescription.ResourceSetSpecification = resources;
 
             m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
-
             m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
         }
 

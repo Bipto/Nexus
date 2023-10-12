@@ -211,9 +211,6 @@ namespace Nexus::Graphics
         /// @brief Whether the values of the depth buffer should be limited
         bool DepthClipEnabled = false;
 
-        /// @brief Whether the scissor test should be used during rendering
-        bool ScissorTestEnabled = false;
-
         /// @brief The rectangle to check against when carrying out the scissor test
         Rectangle ScissorRectangle;
     };
