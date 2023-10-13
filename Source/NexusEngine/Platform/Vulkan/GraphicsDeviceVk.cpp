@@ -268,6 +268,9 @@ namespace Nexus::Graphics
 
     void GraphicsDeviceVk::ImmediateSubmit(std::function<void(VkCommandBuffer cmd)> &&function)
     {
+        vkResetFences(m_Device, 1, &m_UploadContext.UploadFence);
+        vkResetCommandPool(m_Device, m_UploadContext.CommandPool, 0);
+
         VkCommandBuffer cmd = m_UploadContext.CommandBuffer;
         VkCommandBufferBeginInfo cmdBeginInfo = {};
         cmdBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -298,17 +301,12 @@ namespace Nexus::Graphics
         submitInfo.signalSemaphoreCount = 0;
         submitInfo.pSignalSemaphores = nullptr;
 
-        vkWaitForFences(m_Device, 1, &m_UploadContext.UploadFence, false, 0);
-        vkResetFences(m_Device, 1, &m_UploadContext.UploadFence);
-
         if (vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_UploadContext.UploadFence) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to submit queue");
         }
 
-        vkWaitForFences(m_Device, 1, &m_UploadContext.UploadFence, true, UINT64_MAX);
-        vkResetFences(m_Device, 1, &m_UploadContext.UploadFence);
-        vkResetCommandPool(m_Device, m_UploadContext.CommandPool, 0);
+        vkDeviceWaitIdle(m_Device);
     }
 
     const std::vector<const char *> validationLayers =

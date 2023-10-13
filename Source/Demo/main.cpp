@@ -47,14 +47,16 @@ public:
     {
         auto &io = ImGui::GetIO();
 
-        int size = 18;
+        int size = 22;
 
 #if defined(__ANDROID__)
         size = 48;
+
 #endif
 
-        /* std::string fontPath = Nexus::FileSystem::GetFilePathAbsolute("resources/fonts/roboto/roboto-regular.ttf");
-        io.FontDefault = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), size); */
+        std::string fontPath = Nexus::FileSystem::GetFilePathAbsolute("resources/fonts/roboto/roboto-regular.ttf");
+        io.FontDefault = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), size);
+        m_ImGuiRenderer->RebuildFontAtlas();
 
         Nexus::Graphics::RenderPassSpecification spec;
         spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
@@ -271,7 +273,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
 
     if (arguments.size() > 1)
     {

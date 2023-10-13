@@ -114,6 +114,23 @@ namespace Nexus::Graphics
         }
     }
 
+    void ImGuiRenderer::RebuildFontAtlas()
+    {
+        switch (m_Application->GetGraphicsDevice()->GetGraphicsAPI())
+        {
+#if defined(NX_PLATFORM_VULKAN)
+        case GraphicsAPI::Vulkan:
+        {
+            auto vulkanGraphicsDevice = (GraphicsDeviceVk *)m_Application->GetGraphicsDevice();
+            vulkanGraphicsDevice->ImmediateSubmit([&](VkCommandBuffer cmd)
+                                                  { ImGui_ImplVulkan_CreateFontsTexture(cmd); });
+            ImGui_ImplVulkan_DestroyFontUploadObjects();
+        }
+
+#endif
+        }
+    }
+
     ImTextureID ImGuiRenderer::BindTexture(Texture *texture)
     {
         switch (m_Application->GetGraphicsDevice()->GetGraphicsAPI())

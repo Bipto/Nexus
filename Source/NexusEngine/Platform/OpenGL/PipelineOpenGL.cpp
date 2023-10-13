@@ -180,7 +180,7 @@ namespace Nexus::Graphics
             break;
         }
 
-#if !defined(__ANDROID__)
+#if !defined(__ANDROID__) && !defined(__EMSCRIPTEN__)
         if (m_Description.RasterizerStateDescription.DepthClipEnabled)
         {
             glEnable(GL_DEPTH_CLAMP);

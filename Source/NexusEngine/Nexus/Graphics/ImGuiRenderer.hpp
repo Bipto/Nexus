@@ -37,6 +37,9 @@ namespace Nexus::Graphics
         /// @brief A method to update and render ImGui platform windows
         void UpdatePlatformWindows();
 
+        /// @brief A method to rebuild ImGui's font atlas
+        void RebuildFontAtlas();
+
         /// @brief A method that binds a API specific texture to an ImTextureID
         /// @param texture A pointer to the texture to bind
         /// @return An ImTextureID that binds to the API specific texture
