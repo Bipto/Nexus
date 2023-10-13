@@ -46,7 +46,6 @@ namespace Nexus
 
         auto swapchain = m_GraphicsDevice->GetSwapchain();
         swapchain->SetVSyncState(spec.VSyncState);
-        m_GraphicsDevice->Resize(GetWindowSize());
 
         m_AudioDevice = Nexus::CreateAudioDevice(spec.AudioAPI);
 
@@ -75,10 +74,7 @@ namespace Nexus
     {
         if (m_Window->m_SwapchainRequiresResize)
         {
-            m_GraphicsDevice->Resize(m_Window->GetWindowSize());
             OnResize(this->GetWindowSize());
-            m_Window->m_SwapchainRequiresResize = false;
-            m_PreviousWindowSize = this->GetWindowSize();
         }
 
         this->m_Window->PollEvents(m_Specification.ImGuiActive);

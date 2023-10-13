@@ -128,7 +128,7 @@ namespace Nexus::Graphics
         glDebugMessageCallback(GLDebugMessageCallback, nullptr);
 #endif
 
-        m_Swapchain = new SwapchainOpenGL(m_Window->GetSDLWindowHandle(), createInfo.VSyncStateSettings);
+        m_Swapchain = new SwapchainOpenGL(m_Window, createInfo.VSyncStateSettings);
 
         glGetIntegerv(GL_FRAMEBUFFER_BINDING, &m_Backbuffer);
     }
@@ -250,14 +250,6 @@ namespace Nexus::Graphics
     ResourceSet *GraphicsDeviceOpenGL::CreateResourceSet(const ResourceSetSpecification &spec)
     {
         return new ResourceSetOpenGL(spec);
-    }
-
-    void GraphicsDeviceOpenGL::Resize(Point<int> size)
-    {
-        /* m_Swapchain->Resize(size.X, size.Y);
-
-        if (m_BoundFramebuffer)
-            m_BoundFramebuffer->Bind(); */
     }
 
     ShaderLanguage GraphicsDeviceOpenGL::GetSupportedShaderFormat()

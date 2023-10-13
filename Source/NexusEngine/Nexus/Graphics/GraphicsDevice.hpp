@@ -155,10 +155,6 @@ namespace Nexus::Graphics
         /// @return A pointer to a resource set
         ResourceSet *CreateResourceSet(Pipeline *pipeline);
 
-        /// @brief A pure virtual method that resizes the swapchain of the device to a given size
-        /// @param size The new size of the swapchain
-        virtual void Resize(Point<int> size) = 0;
-
         /// @brief A pure virtual method that returns a ShaderFormat enum representing the supported shading language of the backend
         /// @return The supported shading language of the backend
         virtual ShaderLanguage GetSupportedShaderFormat() = 0;

@@ -20,7 +20,6 @@ namespace Nexus::Graphics
         : GraphicsDevice(createInfo, window)
     {
         CreateInstance();
-        // CreateDebug();
         SetupDebugMessenger();
         m_Swapchain = new SwapchainVk(window, createInfo.VSyncStateSettings, this);
         m_Swapchain->CreateSurface();
@@ -193,19 +192,6 @@ namespace Nexus::Graphics
     ResourceSet *GraphicsDeviceVk::CreateResourceSet(const ResourceSetSpecification &spec)
     {
         return new ResourceSetVk(spec, this);
-    }
-
-    void GraphicsDeviceVk::Resize(Point<int> size)
-    {
-        vkDeviceWaitIdle(m_Device);
-
-        m_Swapchain->CleanupSwapchain();
-        m_Swapchain->CleanupDepthStencil();
-
-        m_Swapchain->CreateSwapchain();
-        m_Swapchain->CreateSwapchainImageViews();
-        m_Swapchain->CreateDepthStencil();
-        m_Swapchain->CreateFramebuffers();
     }
 
     ShaderLanguage GraphicsDeviceVk::GetSupportedShaderFormat()

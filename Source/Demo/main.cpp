@@ -73,6 +73,8 @@ public:
         RegisterGraphicsDemo<Demos::LightingDemo>("Lighting");
         RegisterGraphicsDemo<Demos::ModelDemo>("Models");
         RegisterAudioDemo<Demos::AudioDemo>("Audio");
+
+        m_GraphicsDevice->GetSwapchain()->SetVSyncState(Nexus::Graphics::VSyncState::Disabled);
     }
 
     template <typename T>
@@ -269,7 +271,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
 
     if (arguments.size() > 1)
     {
@@ -281,7 +283,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
     spec.ImGuiActive = true;
-    spec.VSyncState = Nexus::Graphics::VSyncState::Enabled;
+    spec.VSyncState = Nexus::Graphics::VSyncState::Disabled;
 
     return new DemoApplication(spec);
 }

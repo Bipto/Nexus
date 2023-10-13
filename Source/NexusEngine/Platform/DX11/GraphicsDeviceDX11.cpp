@@ -62,7 +62,7 @@ namespace Nexus::Graphics
             &m_DeviceContextPtr);
         m_DeviceContextPtr->Release();
 
-        m_Swapchain = new SwapchainDX11(m_Window, m_DevicePtr, swapchain, createInfo.VSyncStateSettings);
+        m_Swapchain = new SwapchainDX11(m_Window, this, swapchain, createInfo.VSyncStateSettings);
 
         m_ActiveRenderTargetviews = {m_Swapchain->GetRenderTargetView()};
         m_ActiveDepthStencilView = {m_Swapchain->GetDepthStencilView()};
@@ -219,21 +219,6 @@ namespace Nexus::Graphics
     ResourceSet *GraphicsDeviceDX11::CreateResourceSet(const ResourceSetSpecification &spec)
     {
         return new ResourceSetDX11(spec, this);
-    }
-
-    void GraphicsDeviceDX11::Resize(Point<int> size)
-    {
-        m_DeviceContextPtr->OMSetRenderTargets(0, 0, 0);
-
-        m_Swapchain->Resize(size.X, size.Y);
-
-        m_ActiveRenderTargetviews = {m_Swapchain->GetRenderTargetView()};
-        m_ActiveDepthStencilView = m_Swapchain->GetDepthStencilView();
-
-        m_DeviceContextPtr->OMSetRenderTargets(
-            m_ActiveRenderTargetviews.size(),
-            m_ActiveRenderTargetviews.data(),
-            m_ActiveDepthStencilView);
     }
 
     Swapchain *GraphicsDeviceDX11::GetSwapchain()

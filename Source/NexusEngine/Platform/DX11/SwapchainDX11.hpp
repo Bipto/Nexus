@@ -7,19 +7,25 @@
 
 namespace Nexus::Graphics
 {
+    // forward declaration
+    class GraphicsDeviceDX11;
+
     class SwapchainDX11 : public Swapchain
     {
     public:
-        SwapchainDX11(Nexus::Window *window, ID3D11Device *device, IDXGISwapChain *swapchain, VSyncState vSyncState);
+        SwapchainDX11(Window *window, GraphicsDeviceDX11 *device, IDXGISwapChain *swapchain, VSyncState vSyncState);
         ~SwapchainDX11();
 
         virtual void SwapBuffers() override;
         virtual VSyncState GetVsyncState() override;
         virtual void SetVSyncState(VSyncState vsyncState) override;
-        void Resize(uint32_t width, uint32_t height);
 
         ID3D11RenderTargetView *GetRenderTargetView();
         ID3D11DepthStencilView *GetDepthStencilView();
+
+    private:
+        void RecreateSwapchainIfNecessary();
+        void ResizeBuffers(uint32_t width, uint32_t height);
 
     private:
         IDXGISwapChain *m_Swapchain = NULL;
@@ -29,7 +35,11 @@ namespace Nexus::Graphics
         ID3D11DepthStencilView *m_SwapchainDepthTextureView = NULL;
 
         VSyncState m_VsyncState;
-        ID3D11Device *m_Device;
+        GraphicsDeviceDX11 *m_Device;
+        Window *m_Window;
+
+        uint32_t m_SwapchainWidth = 0;
+        uint32_t m_SwapchainHeight = 0;
     };
 }
 #endif

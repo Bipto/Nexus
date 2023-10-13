@@ -6,11 +6,20 @@
 
 namespace Nexus::Graphics
 {
-    SwapchainVk::SwapchainVk(Window *window, VSyncState vSyncState, GraphicsDeviceVk *graphicsDevice)
+    VkPresentModeKHR GetPresentMode(VSyncState vSyncState)
     {
-        m_Window = window;
-        m_VsyncState = vSyncState;
-        m_GraphicsDevice = graphicsDevice;
+        switch (vSyncState)
+        {
+        case VSyncState::Enabled:
+            return VK_PRESENT_MODE_FIFO_KHR;
+        case VSyncState::Disabled:
+            return VK_PRESENT_MODE_IMMEDIATE_KHR;
+        }
+    }
+
+    SwapchainVk::SwapchainVk(Window *window, VSyncState vSyncState, GraphicsDeviceVk *graphicsDevice)
+        : m_Window(window), m_VsyncState(vSyncState), m_GraphicsDevice(graphicsDevice)
+    {
     }
 
     SwapchainVk::~SwapchainVk()
@@ -63,7 +72,7 @@ namespace Nexus::Graphics
 
     VSyncState SwapchainVk::GetVsyncState()
     {
-        return VSyncState();
+        return m_VsyncState;
     }
 
     void SwapchainVk::SetVSyncState(VSyncState vsyncState)
@@ -83,6 +92,18 @@ namespace Nexus::Graphics
     VkFormat SwapchainVk::GetDepthFormat()
     {
         return m_DepthFormat;
+    }
+
+    void SwapchainVk::RecreateSwapchain()
+    {
+        vkDeviceWaitIdle(m_GraphicsDevice->GetVkDevice());
+
+        CleanupSwapchain();
+        CleanupDepthStencil();
+        CreateSwapchain();
+        CreateSwapchainImageViews();
+        CreateDepthStencil();
+        CreateFramebuffers();
     }
 
     void SwapchainVk::CreateSurface()
@@ -141,7 +162,7 @@ namespace Nexus::Graphics
 
         createInfo.preTransform = m_SurfaceCapabilities.currentTransform;
         createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-        createInfo.presentMode = m_PresentMode;
+        createInfo.presentMode = GetPresentMode(m_VsyncState);
         createInfo.clipped = VK_TRUE;
 
         if (vkCreateSwapchainKHR(m_GraphicsDevice->m_Device, &createInfo, nullptr, &m_Swapchain) != VK_SUCCESS)
