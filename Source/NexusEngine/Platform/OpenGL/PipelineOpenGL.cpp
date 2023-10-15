@@ -191,7 +191,7 @@ namespace Nexus::Graphics
         }
 #endif
 
-#if !defined(EMSCRIPTEN) && !defined(__ANDROID__)
+#if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
         switch (m_Description.RasterizerStateDescription.FillMode)
         {
         case FillMode::Solid:

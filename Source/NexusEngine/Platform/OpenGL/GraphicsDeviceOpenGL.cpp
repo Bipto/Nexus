@@ -254,7 +254,7 @@ namespace Nexus::Graphics
 
     ShaderLanguage GraphicsDeviceOpenGL::GetSupportedShaderFormat()
     {
-#if defined(EMSCRIPTEN) || defined(__ANDROID__)
+#if defined(__EMSCRIPTEN__) || defined(__ANDROID__)
         return ShaderLanguage::GLSLES;
 #else
         return ShaderLanguage::GLSL;

@@ -47,7 +47,7 @@ public:
     {
         auto &io = ImGui::GetIO();
 
-        int size = 22;
+        int size = 19;
 
 #if defined(__ANDROID__)
         size = 48;
@@ -75,8 +75,6 @@ public:
         RegisterGraphicsDemo<Demos::LightingDemo>("Lighting");
         RegisterGraphicsDemo<Demos::ModelDemo>("Models");
         RegisterAudioDemo<Demos::AudioDemo>("Audio");
-
-        m_GraphicsDevice->GetSwapchain()->SetVSyncState(Nexus::Graphics::VSyncState::Disabled);
     }
 
     template <typename T>
@@ -222,9 +220,9 @@ public:
         {
             Nexus::Graphics::RenderPassBeginInfo beginInfo{};
             beginInfo.ClearColorValue = {
-                0.0f,
-                0.0f,
-                0.0f,
+                0.35f,
+                0.25f,
+                0.42f,
                 1.0f};
 
             m_CommandList->Begin();
@@ -234,23 +232,11 @@ public:
             m_GraphicsDevice->SubmitCommandList(m_CommandList);
         }
 
-        /* m_CommandList->Begin();
-
-        Nexus::Graphics::RenderPassBeginInfo beginInfo{};
-        beginInfo.ClearColorValue = {
-            0.32f, 0.65f, 0.56f, 1.0f};
-
-        m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
-
-        m_CommandList->EndRenderPass();
-        m_CommandList->End();
-
-        m_GraphicsDevice->SubmitCommandList(m_CommandList); */
-
         m_GraphicsDevice->EndFrame();
     }
 
-    virtual void OnResize(Nexus::Point<int> size) override
+    virtual void
+    OnResize(Nexus::Point<int> size) override
     {
         if (m_CurrentDemo)
             m_CurrentDemo->OnResize(size);
@@ -273,7 +259,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
 
     if (arguments.size() > 1)
     {
@@ -285,7 +271,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
     spec.ImGuiActive = true;
-    spec.VSyncState = Nexus::Graphics::VSyncState::Disabled;
+    spec.VSyncState = Nexus::Graphics::VSyncState::Enabled;
 
     return new DemoApplication(spec);
 }
