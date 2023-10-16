@@ -27,7 +27,6 @@ namespace Nexus::Graphics
         virtual void DrawElements(uint32_t start, uint32_t count) override;
         virtual void DrawIndexed(uint32_t count, uint32_t offset) override;
 
-        virtual void UpdateUniformBuffer(UniformBuffer *buffer, void *data, uint32_t size, uint32_t offset) override;
         virtual void SetResourceSet(ResourceSet *resources) override;
 
         const VkCommandBuffer &GetCurrentCommandBuffer();

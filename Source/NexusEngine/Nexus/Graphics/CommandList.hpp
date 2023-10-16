@@ -71,35 +71,6 @@ namespace Nexus::Graphics
         uint32_t Offset = 0;
     };
 
-    /// @brief A struct representing a texture update command
-    struct TextureUpdateCommand
-    {
-        /// @brief A pointer to the texture to update
-        Texture *Texture;
-
-        /// @brief A pointer to the shader to upload the texture to
-        Shader *Shader;
-
-        /// @brief The binding of the texture to update
-        TextureResourceBinding Binding;
-    };
-
-    /// @brief A struct representing a uniform buffer update command
-    struct UniformBufferUpdateCommand
-    {
-        /// @brief A pointer to a uniform buffer to be updated
-        UniformBuffer *Buffer;
-
-        /// @brief A pointer to the data to be uploaded to the GPU
-        void *Data;
-
-        /// @brief The size of the data to be uploaded
-        uint32_t Size;
-
-        /// @brief An offset to upload the data to
-        uint32_t Offset;
-    };
-
     struct UpdateResourcesCommand
     {
         ResourceSet *Resources;
@@ -157,13 +128,6 @@ namespace Nexus::Graphics
         /// @param offset The offset to begin rendering at
         virtual void DrawIndexed(uint32_t count, uint32_t offset) = 0;
 
-        /// @brief A pure virtual method to submit a uniform buffer update command
-        /// @param buffer A pointer to the buffer to upload data to
-        /// @param data A pointer to the data to upload
-        /// @param size The size of the data to be uploaded
-        /// @param offset An offset to upload the data to
-        virtual void UpdateUniformBuffer(UniformBuffer *buffer, void *data, uint32_t size, uint32_t offset) = 0;
-
         /// @brief A pure virtual method that updates the resources bound within a pipeline
         /// @param resources A reference counted pointer to a ResourceSet
         virtual void SetResourceSet(ResourceSet *resources) = 0;
@@ -177,8 +141,6 @@ namespace Nexus::Graphics
         VertexBuffer *,
         IndexBuffer *,
         Pipeline *,
-        TextureUpdateCommand,
-        UniformBufferUpdateCommand,
         DrawElementCommand,
         DrawIndexedCommand,
         UpdateResourcesCommand>

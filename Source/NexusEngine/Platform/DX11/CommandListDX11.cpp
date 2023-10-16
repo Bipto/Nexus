@@ -243,35 +243,6 @@ namespace Nexus::Graphics
 #endif
     }
 
-    void CommandListDX11::UpdateUniformBuffer(UniformBuffer *buffer, void *data, uint32_t size, uint32_t offset)
-    {
-#if defined(NX_PLATFORM_DX11)
-        UniformBufferUpdateCommand command;
-        command.Buffer = buffer;
-        command.Data = new char[size];
-        command.Size = size;
-        command.Offset = offset;
-        memcpy(command.Data, data, size);
-        m_CommandData.emplace_back(command);
-
-        auto renderCommand = [](CommandList *commandList)
-        {
-            auto commandListDX11 = (CommandListDX11 *)commandList;
-            const auto &commandData = commandListDX11->GetCurrentCommandData();
-            const auto &uniformBufferUpdateCommand = std::get<UniformBufferUpdateCommand>(commandData);
-
-            uniformBufferUpdateCommand.Buffer->SetData(
-                uniformBufferUpdateCommand.Data,
-                uniformBufferUpdateCommand.Size,
-                uniformBufferUpdateCommand.Offset);
-
-            delete uniformBufferUpdateCommand.Data;
-        };
-        m_Commands.push_back(renderCommand);
-
-#endif
-    }
-
     void CommandListDX11::SetResourceSet(ResourceSet *resources)
     {
 #if defined(NX_PLATFORM_DX11)

@@ -235,8 +235,7 @@ public:
         m_GraphicsDevice->EndFrame();
     }
 
-    virtual void
-    OnResize(Nexus::Point<int> size) override
+    virtual void OnResize(Nexus::Point<int> size) override
     {
         if (m_CurrentDemo)
             m_CurrentDemo->OnResize(size);
@@ -259,7 +258,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::DirectX11;
 
     if (arguments.size() > 1)
     {
@@ -271,7 +270,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
     spec.ImGuiActive = true;
-    spec.VSyncState = Nexus::Graphics::VSyncState::Enabled;
+    spec.VSyncState = Nexus::Graphics::VSyncState::Disabled;
 
     return new DemoApplication(spec);
 }

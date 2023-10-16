@@ -184,31 +184,6 @@ namespace Nexus::Graphics
         m_Commands.push_back(renderCommand);
     }
 
-    void CommandListOpenGL::UpdateUniformBuffer(UniformBuffer *buffer, void *data, uint32_t size, uint32_t offset)
-    {
-        UniformBufferUpdateCommand command;
-        command.Buffer = buffer;
-        command.Data = new char[size];
-        command.Size = size;
-        command.Offset = offset;
-        memcpy(command.Data, data, size);
-        m_CommandData.emplace_back(command);
-
-        auto renderCommand = [](CommandList *commandList)
-        {
-            auto commandListGL = (CommandListOpenGL *)commandList;
-            const auto &commandData = commandListGL->GetCurrentCommandData();
-            const auto &uniformBufferUpdateCommand = std::get<UniformBufferUpdateCommand>(commandData);
-
-            uniformBufferUpdateCommand.Buffer->SetData(
-                uniformBufferUpdateCommand.Data,
-                uniformBufferUpdateCommand.Size,
-                uniformBufferUpdateCommand.Offset);
-            delete uniformBufferUpdateCommand.Data;
-        };
-        m_Commands.push_back(renderCommand);
-    }
-
     void CommandListOpenGL::SetResourceSet(ResourceSet *resources)
     {
         UpdateResourcesCommand command;

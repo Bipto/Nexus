@@ -206,10 +206,6 @@ namespace Nexus::Graphics
         vkCmdDrawIndexed(m_CurrentCommandBuffer, count, 1, 0, offset, 0);
     }
 
-    void CommandListVk::UpdateUniformBuffer(UniformBuffer *buffer, void *data, uint32_t size, uint32_t offset)
-    {
-    }
-
     void CommandListVk::SetResourceSet(ResourceSet *resources)
     {
         auto pipelineVk = (PipelineVk *)m_CurrentlyBoundPipeline;
