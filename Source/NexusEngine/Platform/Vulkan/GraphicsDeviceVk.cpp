@@ -21,18 +21,16 @@ namespace Nexus::Graphics
     {
         CreateInstance();
         SetupDebugMessenger();
-        m_Swapchain = new SwapchainVk(window, createInfo.VSyncStateSettings, this);
-        m_Swapchain->CreateSurface();
+
+        window->CreateSwapchain(this, createInfo.VSyncStateSettings);
+
         SelectPhysicalDevice();
         SelectQueueFamilies();
         CreateDevice();
         CreateAllocator();
 
-        m_Swapchain->CreateSwapchain();
-        m_Swapchain->CreateSwapchainImageViews();
-        m_Swapchain->CreateDepthStencil();
-        CreateRenderPass();
-        m_Swapchain->CreateFramebuffers();
+        SwapchainVk *swapchain = (SwapchainVk *)window->GetSwapchain();
+        swapchain->Initialise();
 
         CreateCommandStructures();
         CreateSynchronisationStructures();
@@ -43,8 +41,6 @@ namespace Nexus::Graphics
     {
         vkFreeCommandBuffers(m_Device, m_ImGuiCommandPool, 1, &m_ImGuiCommandBuffer);
         vkDestroyCommandPool(m_Device, m_ImGuiCommandPool, nullptr);
-
-        delete m_Swapchain;
 
         vkDestroyFence(m_Device, m_UploadContext.UploadFence, nullptr);
         vkFreeCommandBuffers(m_Device, m_UploadContext.CommandPool, 1, &m_UploadContext.CommandBuffer);
@@ -199,14 +195,10 @@ namespace Nexus::Graphics
         return ShaderLanguage::SPIRV;
     }
 
-    Swapchain *GraphicsDeviceVk::GetSwapchain()
-    {
-        return m_Swapchain;
-    }
-
     uint32_t GraphicsDeviceVk::GetSwapchainImageCount()
     {
-        return m_Swapchain->m_SwapchainImageCount;
+        SwapchainVk *swapchain = (SwapchainVk *)m_Window->GetSwapchain();
+        return swapchain->GetImageCount();
     }
 
     VkDevice GraphicsDeviceVk::GetVkDevice()
@@ -421,7 +413,9 @@ namespace Nexus::Graphics
             }
 
             VkBool32 presentSupport = false;
-            vkGetPhysicalDeviceSurfaceSupportKHR(m_PhysicalDevice, i, m_Swapchain->m_Surface, &presentSupport);
+            SwapchainVk *swapchain = (SwapchainVk *)m_Window->GetSwapchain();
+
+            vkGetPhysicalDeviceSurfaceSupportKHR(m_PhysicalDevice, i, swapchain->m_Surface, &presentSupport);
             if (queueFamily.queueCount > 0 && presentSupport)
             {
                 presentIndex = i;
@@ -504,81 +498,10 @@ namespace Nexus::Graphics
         }
     }
 
-    void GraphicsDeviceVk::CreateRenderPass()
-    {
-        VkAttachmentDescription colorAttachment = {};
-        colorAttachment.format = m_Swapchain->m_SurfaceFormat.format;
-        colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-        colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-        colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-        VkAttachmentReference colorAttachmentReference = {};
-        colorAttachmentReference.attachment = 0;
-        colorAttachmentReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-        VkAttachmentDescription depthAttachment = {};
-        depthAttachment.flags = 0;
-        depthAttachment.format = m_Swapchain->m_DepthFormat;
-        depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-        depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-        depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-        VkAttachmentReference depthAttachmentReference = {};
-        depthAttachmentReference.attachment = 1;
-        depthAttachmentReference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-        VkSubpassDescription subpass = {};
-        subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-        subpass.colorAttachmentCount = 1;
-        subpass.pColorAttachments = &colorAttachmentReference;
-        subpass.pDepthStencilAttachment = &depthAttachmentReference;
-
-        VkSubpassDependency dependency = {};
-        dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-        dependency.dstSubpass = 0;
-        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        dependency.srcAccessMask = 0;
-        dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
-        VkSubpassDependency depthDependency;
-        depthDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-        depthDependency.dstSubpass = 0;
-        depthDependency.srcStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
-        depthDependency.srcAccessMask = 0;
-        depthDependency.dstStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
-        depthDependency.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-        depthDependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
-        VkSubpassDependency dependencies[2] = {dependency, depthDependency};
-        VkAttachmentDescription attachments[2] = {colorAttachment, depthAttachment};
-
-        VkRenderPassCreateInfo renderPassInfo = {};
-        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-        renderPassInfo.attachmentCount = 2;
-        renderPassInfo.pAttachments = &attachments[0];
-        renderPassInfo.subpassCount = 1;
-        renderPassInfo.pSubpasses = &subpass;
-        renderPassInfo.dependencyCount = 2;
-        renderPassInfo.pDependencies = &dependencies[0];
-
-        if (vkCreateRenderPass(m_Device, &renderPassInfo, nullptr, &m_SwapchainRenderPass) != VK_SUCCESS)
-        {
-            throw std::runtime_error("Failed to create render pass");
-        }
-    }
-
     void GraphicsDeviceVk::CreateCommandStructures()
     {
+        SwapchainVk *swapchain = (SwapchainVk *)m_Window->GetSwapchain();
+
         for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
             // create command pools
@@ -599,7 +522,7 @@ namespace Nexus::Graphics
                 allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
                 allocateInfo.commandPool = m_Frames[i].CommandPool;
                 allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-                allocateInfo.commandBufferCount = m_Swapchain->m_SwapchainImageCount;
+                allocateInfo.commandBufferCount = swapchain->m_SwapchainImageCount;
 
                 if (vkAllocateCommandBuffers(m_Device, &allocateInfo, &m_Frames[i].MainCommandBuffer) != VK_SUCCESS)
                 {
@@ -625,7 +548,7 @@ namespace Nexus::Graphics
                 allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
                 allocateInfo.commandPool = m_UploadContext.CommandPool;
                 allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-                allocateInfo.commandBufferCount = m_Swapchain->m_SwapchainImageCount;
+                allocateInfo.commandBufferCount = swapchain->m_SwapchainImageCount;
 
                 if (vkAllocateCommandBuffers(m_Device, &allocateInfo, &m_UploadContext.CommandBuffer) != VK_SUCCESS)
                 {
@@ -672,7 +595,9 @@ namespace Nexus::Graphics
     VkImage image;
     bool GraphicsDeviceVk::AcquireNextImage()
     {
-        VkResult result = vkAcquireNextImageKHR(m_Device, m_Swapchain->m_Swapchain, 0, GetCurrentFrame().PresentSemaphore, VK_NULL_HANDLE, &m_CurrentFrameIndex);
+        SwapchainVk *swapchain = (SwapchainVk *)m_Window->GetSwapchain();
+
+        VkResult result = vkAcquireNextImageKHR(m_Device, swapchain->m_Swapchain, 0, GetCurrentFrame().PresentSemaphore, VK_NULL_HANDLE, &m_CurrentFrameIndex);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR)
         {
@@ -688,7 +613,7 @@ namespace Nexus::Graphics
         vkResetFences(m_Device, 1, &GetCurrentFrame().RenderFence);
 
         m_CurrentCommandBuffer = GetCurrentFrame().MainCommandBuffer;
-        image = m_Swapchain->m_SwapchainImages[m_CurrentFrameIndex];
+        image = swapchain->m_SwapchainImages[m_CurrentFrameIndex];
 
         return true;
     }
@@ -734,12 +659,14 @@ namespace Nexus::Graphics
 
     void GraphicsDeviceVk::QueuePresent()
     {
+        SwapchainVk *swapchain = (SwapchainVk *)m_Window->GetSwapchain();
+
         VkPresentInfoKHR presentInfo = {};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         presentInfo.waitSemaphoreCount = 1;
         presentInfo.pWaitSemaphores = &GetCurrentFrame().PresentSemaphore;
         presentInfo.swapchainCount = 1;
-        presentInfo.pSwapchains = &m_Swapchain->m_Swapchain;
+        presentInfo.pSwapchains = &swapchain->m_Swapchain;
         presentInfo.pImageIndices = &m_CurrentFrameIndex;
 
         VkResult result = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
@@ -762,12 +689,14 @@ namespace Nexus::Graphics
 
     void GraphicsDeviceVk::BeginRenderPass(VkClearColorValue clear_color, VkClearDepthStencilValue clear_depth_stencil)
     {
+        SwapchainVk *swapchain = (SwapchainVk *)m_Window->GetSwapchain();
+
         VkRenderPassBeginInfo render_pass_info = {};
         render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        render_pass_info.renderPass = m_SwapchainRenderPass;
-        render_pass_info.framebuffer = m_Swapchain->m_SwapchainFramebuffers[m_CurrentFrameIndex];
+        render_pass_info.renderPass = swapchain->GetRenderPass();
+        render_pass_info.framebuffer = swapchain->m_SwapchainFramebuffers[m_CurrentFrameIndex];
         render_pass_info.renderArea.offset = {0, 0};
-        render_pass_info.renderArea.extent = m_Swapchain->m_SwapchainSize;
+        render_pass_info.renderArea.extent = swapchain->m_SwapchainSize;
         render_pass_info.clearValueCount = 1;
 
         std::vector<VkClearValue> clearValues(2);
@@ -803,12 +732,14 @@ namespace Nexus::Graphics
 
         // begin render pass
         {
+            SwapchainVk *swapchain = (SwapchainVk *)m_Window->GetSwapchain();
+
             VkRenderPassBeginInfo beginInfo = {};
             beginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-            beginInfo.renderPass = m_SwapchainRenderPass;
-            beginInfo.framebuffer = m_Swapchain->GetCurrentFramebuffer();
+            beginInfo.renderPass = swapchain->GetRenderPass();
+            beginInfo.framebuffer = swapchain->GetCurrentFramebuffer();
             beginInfo.renderArea.offset = {0, 0};
-            beginInfo.renderArea.extent = m_Swapchain->m_SwapchainSize;
+            beginInfo.renderArea.extent = swapchain->m_SwapchainSize;
             beginInfo.clearValueCount = 1;
 
             beginInfo.clearValueCount = 0;
@@ -843,35 +774,8 @@ namespace Nexus::Graphics
     {
         vkDeviceWaitIdle(m_Device);
 
-        m_Swapchain->CleanupSwapchain();
-        m_Swapchain->CleanupDepthStencil();
-
-        m_Swapchain->CreateSwapchain();
-        m_Swapchain->CreateSwapchainImageViews();
-        m_Swapchain->CreateDepthStencil();
-        m_Swapchain->CreateFramebuffers();
-    }
-
-    void GraphicsDeviceVk::CleanupSwapchain()
-    {
-        for (size_t i = 0; i < m_Swapchain->m_SwapchainFramebuffers.size(); i++)
-        {
-            vkDestroyFramebuffer(m_Device, m_Swapchain->m_SwapchainFramebuffers[i], nullptr);
-        }
-
-        for (size_t i = 0; i < m_Swapchain->m_SwapchainImageViews.size(); i++)
-        {
-            vkDestroyImageView(m_Device, m_Swapchain->m_SwapchainImageViews[i], nullptr);
-        }
-
-        vkDestroySwapchainKHR(m_Device, m_Swapchain->m_Swapchain, nullptr);
-    }
-
-    void GraphicsDeviceVk::CleanupDepthStencil()
-    {
-        vkDestroyImageView(m_Device, m_Swapchain->m_DepthImageView, nullptr);
-        vkDestroyImage(m_Device, m_Swapchain->m_DepthImage, nullptr);
-        vkFreeMemory(m_Device, m_Swapchain->m_DepthImageMemory, nullptr);
+        SwapchainVk *swapchain = (SwapchainVk *)m_Window->GetSwapchain();
+        swapchain->RecreateSwapchain();
     }
 
     VkImageView GraphicsDeviceVk::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)

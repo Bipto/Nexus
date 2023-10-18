@@ -43,8 +43,6 @@ namespace Nexus::Graphics
         virtual ShaderLanguage GetSupportedShaderFormat() override { return ShaderLanguage::HLSL; }
         virtual float GetUVCorrection() { return -1.0f; }
 
-        virtual Swapchain *GetSwapchain() override;
-
         ID3D11Device *GetDevice()
         {
             return m_DevicePtr;
@@ -61,7 +59,6 @@ namespace Nexus::Graphics
         bool m_Initialised = false;
         Ref<Shader> m_ActiveShader = NULL;
         std::string m_AdapterName;
-        SwapchainDX11 *m_Swapchain;
         VSyncState m_VsyncState = VSyncState::Enabled;
     };
 }

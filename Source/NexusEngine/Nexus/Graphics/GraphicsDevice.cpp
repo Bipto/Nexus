@@ -77,6 +77,11 @@ namespace Nexus::Graphics
         return {};
     }
 
+    Window *GraphicsDevice::GetPrimaryWindow()
+    {
+        return m_Window;
+    }
+
     Texture *GraphicsDevice::CreateTexture(const char *filepath)
     {
         int desiredChannels = 4;

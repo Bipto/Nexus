@@ -4,7 +4,6 @@
 #include "GL.hpp"
 #include "FramebufferOpenGL.hpp"
 #include "SwapchainOpenGL.hpp"
-#include "SDL_opengl.h"
 
 namespace Nexus::Graphics
 {
@@ -13,7 +12,6 @@ namespace Nexus::Graphics
     public:
         GraphicsDeviceOpenGL(const GraphicsDeviceCreateInfo &createInfo, Window *window);
         GraphicsDeviceOpenGL(const GraphicsDeviceOpenGL &) = delete;
-        virtual ~GraphicsDeviceOpenGL();
         void SetContext() override;
         void SetFramebuffer(Framebuffer *framebuffer);
         virtual void SubmitCommandList(CommandList *commandList) override;
@@ -42,14 +40,9 @@ namespace Nexus::Graphics
         virtual ShaderLanguage GetSupportedShaderFormat() override;
         virtual float GetUVCorrection() { return 1.0f; }
 
-        virtual Swapchain *GetSwapchain() override;
-
     private:
-        SDL_GLContext m_Context;
         const char *m_GlslVersion;
         FramebufferOpenGL *m_BoundFramebuffer = nullptr;
         VSyncState m_VsyncState = VSyncState::Enabled;
-        SwapchainOpenGL *m_Swapchain = nullptr;
-        int m_Backbuffer = 0;
     };
 }

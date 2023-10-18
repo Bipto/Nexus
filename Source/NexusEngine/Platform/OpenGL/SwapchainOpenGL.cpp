@@ -10,6 +10,16 @@ namespace Nexus::Graphics
     {
         m_SwapchainWidth = m_Window->GetWindowSize().X;
         m_SwapchainHeight = m_Window->GetWindowSize().Y;
+
+        m_Context = SDL_GL_CreateContext(window->GetSDLWindowHandle());
+
+        // the backbuffer integer is usually 0, but this cannot be guaranteed, so we check it
+        // glGetIntegerv(GL_FRAMEBUFFER_BINDING, &m_Backbuffer);
+    }
+
+    SwapchainOpenGL::~SwapchainOpenGL()
+    {
+        SDL_GL_DeleteContext(m_Context);
     }
 
     void SwapchainOpenGL::SwapBuffers()
@@ -37,10 +47,16 @@ namespace Nexus::Graphics
         if (m_SwapchainWidth == windowWidth || m_SwapchainHeight == windowHeight)
             return;
 
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, m_Backbuffer);
         glViewport(0, 0, windowWidth, windowHeight);
 
         m_SwapchainWidth = windowWidth;
         m_SwapchainHeight = windowHeight;
+    }
+
+    void SwapchainOpenGL::Bind()
+    {
+        SDL_GL_MakeCurrent(m_Window->GetSDLWindowHandle(), m_Context);
+        glBindFramebuffer(GL_FRAMEBUFFER, m_Backbuffer);
     }
 }

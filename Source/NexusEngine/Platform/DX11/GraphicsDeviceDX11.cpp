@@ -46,8 +46,7 @@ namespace Nexus::Graphics
         flags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
-        IDXGISwapChain *swapchain;
-        HRESULT hr = D3D11CreateDeviceAndSwapChain(
+        HRESULT hr = D3D11CreateDevice(
             NULL,
             D3D_DRIVER_TYPE_HARDWARE,
             NULL,
@@ -55,22 +54,13 @@ namespace Nexus::Graphics
             NULL,
             0,
             D3D11_SDK_VERSION,
-            &swap_chain_desc,
-            &swapchain,
             &m_DevicePtr,
             &feature_level,
             &m_DeviceContextPtr);
+
         m_DeviceContextPtr->Release();
 
-        m_Swapchain = new SwapchainDX11(m_Window, this, swapchain, createInfo.VSyncStateSettings);
-
-        m_ActiveRenderTargetviews = {m_Swapchain->GetRenderTargetView()};
-        m_ActiveDepthStencilView = {m_Swapchain->GetDepthStencilView()};
-
-        m_DeviceContextPtr->OMSetRenderTargets(
-            m_ActiveRenderTargetviews.size(),
-            m_ActiveRenderTargetviews.data(),
-            m_ActiveDepthStencilView);
+        m_Window->CreateSwapchain(this, createInfo.VSyncStateSettings);
 
         IDXGIFactory1 *factory;
         IDXGIAdapter1 *adapter;
@@ -90,8 +80,6 @@ namespace Nexus::Graphics
 
     GraphicsDeviceDX11::~GraphicsDeviceDX11()
     {
-        delete m_Swapchain;
-
         m_DevicePtr->Release();
 
         m_DeviceContextPtr->ClearState();
@@ -120,8 +108,9 @@ namespace Nexus::Graphics
         }
         else
         {
-            m_ActiveRenderTargetviews = {m_Swapchain->GetRenderTargetView()};
-            m_ActiveDepthStencilView = m_Swapchain->GetDepthStencilView();
+            SwapchainDX11 *swapchain = (SwapchainDX11 *)m_Window->GetSwapchain();
+            m_ActiveRenderTargetviews = {swapchain->GetRenderTargetView()};
+            m_ActiveDepthStencilView = swapchain->GetDepthStencilView();
         }
 
         m_DeviceContextPtr->OMSetRenderTargets(
@@ -219,11 +208,6 @@ namespace Nexus::Graphics
     ResourceSet *GraphicsDeviceDX11::CreateResourceSet(const ResourceSetSpecification &spec)
     {
         return new ResourceSetDX11(spec, this);
-    }
-
-    Swapchain *GraphicsDeviceDX11::GetSwapchain()
-    {
-        return m_Swapchain;
     }
 
     ID3D11DeviceContext *GraphicsDeviceDX11::GetDeviceContext()

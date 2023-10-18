@@ -163,15 +163,13 @@ namespace Nexus::Graphics
         /// @return A float representing the correction
         virtual float GetUVCorrection() = 0;
 
-        /// @brief A pure virtual method that returns a pointer to the graphics device's swapchain
-        /// @return A raw pointer to an API specific swapchain
-        virtual Swapchain *GetSwapchain() = 0;
-
         /// @brief A method that generates a supported shader type from a GLSL file and a vertex buffer layout
         /// @param filepath The filepath to load the GLSL shader from
         /// @param layout A vertex buffer layout to use to create the shader
         /// @return A pointer to a shader
         Shader *CreateShaderFromSpirvFile(const std::string &filepath, const VertexBufferLayout &layout);
+
+        Window *GetPrimaryWindow();
 
     protected:
         /// @brief A pointer to the window to render graphics into

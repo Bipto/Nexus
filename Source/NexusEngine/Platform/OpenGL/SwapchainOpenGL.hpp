@@ -9,10 +9,12 @@ namespace Nexus::Graphics
     {
     public:
         SwapchainOpenGL(Window *window, VSyncState vSyncState);
+        virtual ~SwapchainOpenGL();
         virtual void SwapBuffers() override;
         virtual VSyncState GetVsyncState() override;
         virtual void SetVSyncState(VSyncState vsyncState) override;
         void ResizeIfNecessary();
+        void Bind();
 
     private:
         Window *m_Window;
@@ -20,5 +22,8 @@ namespace Nexus::Graphics
 
         uint32_t m_SwapchainWidth = 0;
         uint32_t m_SwapchainHeight = 0;
+
+        SDL_GLContext m_Context = nullptr;
+        int m_Backbuffer = 0;
     };
 }

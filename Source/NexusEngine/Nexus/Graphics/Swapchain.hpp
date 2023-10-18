@@ -19,5 +19,7 @@ namespace Nexus::Graphics
         virtual void SwapBuffers() = 0;
         virtual VSyncState GetVsyncState() = 0;
         virtual void SetVSyncState(VSyncState vsyncState) = 0;
+
+        friend class GraphicsDevice;
     };
 }

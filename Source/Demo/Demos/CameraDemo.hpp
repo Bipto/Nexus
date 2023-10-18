@@ -27,7 +27,7 @@ namespace Demos
             Nexus::Graphics::RenderPassSpecification spec;
             spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
             spec.StencilDepthLoadOperation = Nexus::Graphics::LoadOperation::Clear;
-            m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_GraphicsDevice->GetSwapchain());
+            m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, app->GetPrimaryWindow()->GetSwapchain());
 
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 

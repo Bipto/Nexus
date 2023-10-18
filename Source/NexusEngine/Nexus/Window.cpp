@@ -4,9 +4,13 @@
 
 #include "SDL_syswm.h"
 
+#include "Nexus/Graphics/GraphicsDevice.hpp"
+#include "Platform/OpenGL/SwapchainOpenGL.hpp"
+#include "Platform/DX11/SwapchainDX11.hpp"
+#include "Platform/Vulkan/SwapchainVk.hpp"
+
 namespace Nexus
 {
-
     static KeyCode SDLToNexusKeycode(SDL_Keycode keycode)
     {
         switch (keycode)
@@ -235,9 +239,10 @@ namespace Nexus
         }
     }
 
-    Window::Window(const WindowProperties &windowProps)
+    Window::Window(const WindowProperties &windowProps, Graphics::GraphicsAPI api)
     {
-        uint32_t flags = SDL_WINDOW_RESIZABLE;
+        // required by emscripten
+        /* uint32_t flags = SDL_WINDOW_RESIZABLE;
 
         if (windowProps.GraphicsAPI == Graphics::GraphicsAPI::OpenGL)
         {
@@ -272,7 +277,9 @@ namespace Nexus
         if (windowProps.GraphicsAPI == Graphics::GraphicsAPI::Vulkan)
         {
             flags |= SDL_WINDOW_VULKAN;
-        }
+        } */
+
+        uint32_t flags = GetFlags(api);
 
         // NOTE: Resizable flag MUST be set in order for Emscripten resizing to work correctly
         this->m_Window = SDL_CreateWindow(windowProps.Title.c_str(),
@@ -548,5 +555,83 @@ namespace Nexus
     void Window::Restore()
     {
         SDL_RestoreWindow(m_Window);
+    }
+
+    void Window::CreateSwapchain(Graphics::GraphicsDevice *device, Graphics::VSyncState vSyncState)
+    {
+        switch (device->GetGraphicsAPI())
+        {
+        case Graphics::GraphicsAPI::OpenGL:
+        {
+            m_Swapchain = new Graphics::SwapchainOpenGL(this, vSyncState);
+            break;
+        }
+        case Graphics::GraphicsAPI::DirectX11:
+        {
+            m_Swapchain = new Graphics::SwapchainDX11(this, device, vSyncState);
+            break;
+        }
+        case Graphics::GraphicsAPI::Vulkan:
+        {
+            m_Swapchain = new Graphics::SwapchainVk(this, device, vSyncState);
+            break;
+        }
+        default:
+            NX_ERROR("Failed to create swapchain");
+            throw std::runtime_error("Failed to create swapchain");
+        }
+    }
+
+    Graphics::Swapchain *Window::GetSwapchain()
+    {
+        return m_Swapchain;
+    }
+
+    uint32_t Window::GetFlags(Graphics::GraphicsAPI api)
+    {
+        // required for emscripten to handle resizing correctly
+        uint32_t flags = SDL_WINDOW_RESIZABLE;
+
+        switch (api)
+        {
+            // setup for OpenGL
+        case Graphics::GraphicsAPI::OpenGL:
+        {
+#if defined(EMSCRIPTEN) || defined(__ANDROID__)
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+#elif defined(__APPLE__)
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG); // Always required on Mac
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+#else
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
+#endif
+
+            SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+            SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+            SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+
+#ifndef __EMSCRIPTEN__
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+#endif
+
+            flags |= SDL_WINDOW_OPENGL;
+            break;
+        }
+        case Graphics::GraphicsAPI::Vulkan:
+        {
+            flags |= SDL_WINDOW_VULKAN;
+            break;
+        }
+        default:
+            return flags;
+        }
     }
 }

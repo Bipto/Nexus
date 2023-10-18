@@ -61,7 +61,7 @@ public:
         Nexus::Graphics::RenderPassSpecification spec;
         spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
         spec.StencilDepthLoadOperation = Nexus::Graphics::LoadOperation::Clear;
-        m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_GraphicsDevice->GetSwapchain());
+        m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, GetPrimaryWindow()->GetSwapchain());
 
         m_CommandList = m_GraphicsDevice->CreateCommandList();
 
@@ -113,7 +113,7 @@ public:
 
         if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::F11))
         {
-            auto window = this->GetWindow();
+            auto window = this->GetPrimaryWindow();
             if (window->GetCurrentWindowState() == Nexus::WindowState::Normal)
             {
                 window->Maximize();
@@ -258,7 +258,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::DirectX11;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
 
     if (arguments.size() > 1)
     {

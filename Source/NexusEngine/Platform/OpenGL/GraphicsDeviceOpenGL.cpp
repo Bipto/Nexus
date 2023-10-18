@@ -115,33 +115,18 @@ namespace Nexus::Graphics
     GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(const GraphicsDeviceCreateInfo &createInfo, Window *window)
         : GraphicsDevice(createInfo, window)
     {
-        this->m_Context = SDL_GL_CreateContext(this->m_Window->GetSDLWindowHandle());
 
-        if (this->m_Context == NULL)
-        {
-            std::cout << SDL_GetError() << std::endl;
-        }
+        window->CreateSwapchain(this, createInfo.VSyncStateSettings);
 
 #if defined(WIN32)
-        gladLoadGL();
+        int error = gladLoadGL();
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback(GLDebugMessageCallback, nullptr);
 #endif
-
-        m_Swapchain = new SwapchainOpenGL(m_Window, createInfo.VSyncStateSettings);
-
-        glGetIntegerv(GL_FRAMEBUFFER_BINDING, &m_Backbuffer);
-    }
-
-    GraphicsDeviceOpenGL::~GraphicsDeviceOpenGL()
-    {
-        SDL_GL_DeleteContext(m_Context);
-        delete m_Swapchain;
     }
 
     void GraphicsDeviceOpenGL::SetContext()
     {
-        SDL_GL_MakeCurrent(this->m_Window->GetSDLWindowHandle(), this->m_Context);
     }
 
     void GraphicsDeviceOpenGL::SetFramebuffer(Framebuffer *framebuffer)
@@ -154,7 +139,8 @@ namespace Nexus::Graphics
         }
         else
         {
-            glBindFramebuffer(GL_FRAMEBUFFER, m_Backbuffer);
+            SwapchainOpenGL *swapchain = (SwapchainOpenGL *)m_Window->GetSwapchain();
+            swapchain->Bind();
             m_BoundFramebuffer = nullptr;
         }
     }
@@ -183,7 +169,7 @@ namespace Nexus::Graphics
 
     void *GraphicsDeviceOpenGL::GetContext()
     {
-        return (void *)this->m_Context;
+        return nullptr;
     }
 
     void GraphicsDeviceOpenGL::BeginFrame()
@@ -259,10 +245,5 @@ namespace Nexus::Graphics
 #else
         return ShaderLanguage::GLSL;
 #endif
-    }
-
-    Swapchain *GraphicsDeviceOpenGL::GetSwapchain()
-    {
-        return m_Swapchain;
     }
 }

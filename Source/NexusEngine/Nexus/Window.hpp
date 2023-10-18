@@ -14,18 +14,17 @@
 #include "Nexus/Input/InputState.hpp"
 
 #include "Nexus/Graphics/GraphicsAPI.hpp"
-
+#include "Nexus/Graphics/Swapchain.hpp"
 #include "backends/imgui_impl_sdl2.h"
-
-#if defined(WIN32)
-#include "Windows.h"
-#include "dwmapi.h"
-
-#pragma comment(lib, "Dwmapi.lib")
-#endif
 
 namespace Nexus
 {
+    namespace Graphics
+    {
+        // forward declaration
+        class GraphicsDevice;
+    }
+
     /// @brief An enum representing the current window state
     enum class WindowState
     {
@@ -81,7 +80,7 @@ namespace Nexus
     public:
         /// @brief A constructor taking in a window properties struct
         /// @param windowProps A structure containing options controlling how the window is created
-        Window(const WindowProperties &windowProps);
+        Window(const WindowProperties &windowProps, Graphics::GraphicsAPI api);
 
         /// @brief Copying a window is not supported
         /// @param A const reference to a window
@@ -154,6 +153,13 @@ namespace Nexus
         /// @brief A method that restores a window to it's previous size
         void Restore();
 
+        void CreateSwapchain(Graphics::GraphicsDevice *device, Graphics::VSyncState vSyncState);
+
+        Graphics::Swapchain *GetSwapchain();
+
+    private:
+        uint32_t GetFlags(Graphics::GraphicsAPI api);
+
     private:
         /// @brief A pointer to the underlying SDL window
         SDL_Window *m_Window;
@@ -172,6 +178,10 @@ namespace Nexus
 
         /// @brief An enum value representing the current state of the window
         WindowState m_CurrentWindowState = WindowState::Normal;
+
+        Graphics::Swapchain *m_Swapchain = nullptr;
+
+        void *m_Surface = nullptr;
 
         /// @brief A friend class to allow an application to access private members of this class
         friend class Application;

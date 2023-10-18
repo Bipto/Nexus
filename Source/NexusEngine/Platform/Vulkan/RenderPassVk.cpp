@@ -173,7 +173,7 @@ namespace Nexus::Graphics
 
     void RenderPassVk::SetupForSwapchain()
     {
-        SwapchainVk *swapchain = (SwapchainVk *)m_GraphicsDevice->GetSwapchain();
+        SwapchainVk *swapchain = (SwapchainVk *)m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain();
         VkDevice device = m_GraphicsDevice->GetVkDevice();
 
         VkAttachmentDescription colorAttachment = {};

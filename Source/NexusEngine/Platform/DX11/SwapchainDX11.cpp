@@ -4,12 +4,47 @@
 
 #include "Platform/DX11/GraphicsDeviceDX11.hpp"
 
+#include "SDL_syswm.h"
+
+#include <dxgi.h>
+#include <dxgi1_6.h>
+
 namespace Nexus::Graphics
 {
-    SwapchainDX11::SwapchainDX11(Window *window, GraphicsDeviceDX11 *device, IDXGISwapChain *swapchain, VSyncState vSyncState)
-        : m_Swapchain(swapchain), m_VsyncState(vSyncState), m_Device(device), m_Window(window)
+    SwapchainDX11::SwapchainDX11(Window *window, GraphicsDevice *device, VSyncState vSyncState)
+        : m_VsyncState(vSyncState), m_Window(window)
     {
+        m_Device = (GraphicsDeviceDX11 *)device;
         auto dx11Device = m_Device->GetDevice();
+
+        SDL_SysWMinfo wmInfo;
+        SDL_VERSION(&wmInfo.version);
+        SDL_GetWindowWMInfo(m_Window->GetSDLWindowHandle(), &wmInfo);
+        HWND hwnd = wmInfo.info.win.window;
+
+        IDXGIFactory2 *factory;
+        HRESULT hr = CreateDXGIFactory2(0, IID_PPV_ARGS(&factory));
+        if (FAILED(hr))
+        {
+            NX_ERROR("Failed to create DXGIFactory");
+        }
+
+        DXGI_SWAP_CHAIN_DESC swapChainDesc;
+        ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
+        swapChainDesc.BufferDesc.Width = window->GetWindowSize().X;
+        swapChainDesc.BufferDesc.Height = window->GetWindowSize().Y;
+        swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
+        swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
+        swapChainDesc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+        swapChainDesc.SampleDesc.Count = 1;
+        swapChainDesc.SampleDesc.Quality = 0;
+        swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+        swapChainDesc.BufferCount = 3;
+        swapChainDesc.OutputWindow = hwnd;
+        swapChainDesc.Windowed = true;
+        swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+
+        factory->CreateSwapChain(dx11Device, &swapChainDesc, &m_Swapchain);
 
         // create view into swapchain
         {

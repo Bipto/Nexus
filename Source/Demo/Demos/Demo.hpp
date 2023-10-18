@@ -12,7 +12,7 @@ namespace Demos
             : m_Name(name),
               m_GraphicsDevice(app->GetGraphicsDevice()),
               m_AudioDevice(app->GetAudioDevice()),
-              m_Window(app->GetWindow())
+              m_Window(app->GetPrimaryWindow())
         {
         }
 

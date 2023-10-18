@@ -13,7 +13,7 @@ namespace Nexus::Graphics
     class SwapchainDX11 : public Swapchain
     {
     public:
-        SwapchainDX11(Window *window, GraphicsDeviceDX11 *device, IDXGISwapChain *swapchain, VSyncState vSyncState);
+        SwapchainDX11(Window *window, GraphicsDevice *device, VSyncState vSyncState);
         ~SwapchainDX11();
 
         virtual void SwapBuffers() override;

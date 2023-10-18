@@ -180,7 +180,7 @@ namespace Nexus::Graphics
         glslVersion = "#version 130";
 #endif
 
-        SDL_Window *window = m_Application->GetWindow()->GetSDLWindowHandle();
+        SDL_Window *window = m_Application->GetPrimaryWindow()->GetSDLWindowHandle();
         SDL_GLContext context = (SDL_GLContext)m_Application->GetGraphicsDevice()->GetContext();
         ImGui_ImplSDL2_InitForOpenGL(window, context);
         ImGui_ImplOpenGL3_Init(glslVersion);
@@ -189,7 +189,7 @@ namespace Nexus::Graphics
     void ImGuiRenderer::InitialiseD3D11()
     {
 #if defined(NX_PLATFORM_DX11)
-        ImGui_ImplSDL2_InitForD3D(m_Application->GetWindow()->GetSDLWindowHandle());
+        ImGui_ImplSDL2_InitForD3D(m_Application->GetPrimaryWindow()->GetSDLWindowHandle());
         auto device = (GraphicsDeviceDX11 *)(m_Application->GetGraphicsDevice());
         ID3D11Device *id3d11Device = (ID3D11Device *)device->GetDevice();
         ID3D11DeviceContext *id3d11DeviceContext = (ID3D11DeviceContext *)device->GetDeviceContext();
@@ -231,7 +231,7 @@ namespace Nexus::Graphics
         }
 
         ImGui::CreateContext();
-        ImGui_ImplSDL2_InitForVulkan(m_Application->GetWindow()->GetSDLWindowHandle());
+        ImGui_ImplSDL2_InitForVulkan(m_Application->GetPrimaryWindow()->GetSDLWindowHandle());
 
         ImGui_ImplVulkan_InitInfo initInfo = {};
         initInfo.Instance = vulkanGraphicsDevice->m_Instance;
@@ -243,7 +243,9 @@ namespace Nexus::Graphics
         initInfo.ImageCount = vulkanGraphicsDevice->GetSwapchainImageCount();
         initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 
-        ImGui_ImplVulkan_Init(&initInfo, vulkanGraphicsDevice->m_SwapchainRenderPass);
+        SwapchainVk *swapchain = (SwapchainVk *)vulkanGraphicsDevice->GetPrimaryWindow()->GetSwapchain();
+
+        ImGui_ImplVulkan_Init(&initInfo, swapchain->GetRenderPass());
         vulkanGraphicsDevice->ImmediateSubmit([&](VkCommandBuffer cmd)
                                               { ImGui_ImplVulkan_CreateFontsTexture(cmd); });
         ImGui_ImplVulkan_DestroyFontUploadObjects();

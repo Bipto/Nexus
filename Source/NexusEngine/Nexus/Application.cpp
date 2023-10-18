@@ -35,7 +35,7 @@ namespace Nexus
 
         WindowProperties props;
         props.GraphicsAPI = spec.GraphicsAPI;
-        this->m_Window = new Nexus::Window(props);
+        m_Window = new Nexus::Window(props, spec.GraphicsAPI);
 
         Graphics::GraphicsDeviceCreateInfo graphicsDeviceCreateInfo;
         graphicsDeviceCreateInfo.API = spec.GraphicsAPI;
@@ -44,7 +44,7 @@ namespace Nexus
         m_GraphicsDevice = Nexus::CreateGraphicsDevice(graphicsDeviceCreateInfo, m_Window);
         m_GraphicsDevice->SetContext();
 
-        auto swapchain = m_GraphicsDevice->GetSwapchain();
+        auto swapchain = m_Window->GetSwapchain();
         swapchain->SetVSyncState(spec.VSyncState);
 
         m_AudioDevice = Nexus::CreateAudioDevice(spec.AudioAPI);
@@ -104,7 +104,7 @@ namespace Nexus
                 m_ImGuiRenderer->EndFrame();
             }
 
-            auto swapchain = m_GraphicsDevice->GetSwapchain();
+            auto swapchain = m_Window->GetSwapchain();
             swapchain->SwapBuffers();
 
             if (m_Specification.ImGuiActive)
@@ -117,7 +117,7 @@ namespace Nexus
         m_Window->m_Input->CachePreviousInput();
     }
 
-    Nexus::Window *Application::GetWindow()
+    Nexus::Window *Application::GetPrimaryWindow()
     {
         return m_Window;
     }
@@ -164,7 +164,7 @@ namespace Nexus
 
     Window *Application::CreateApplicationWindow(const WindowProperties &props)
     {
-        Window *window = new Nexus::Window(props);
+        Window *window = new Nexus::Window(props, m_Specification.GraphicsAPI);
         return window;
     }
 

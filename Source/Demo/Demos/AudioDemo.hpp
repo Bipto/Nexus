@@ -11,7 +11,7 @@ namespace Demos
             : Demo(name, app)
         {
             Nexus::Graphics::RenderPassSpecification spec;
-            m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_GraphicsDevice->GetSwapchain());
+            m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, app->GetPrimaryWindow()->GetSwapchain());
 
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 

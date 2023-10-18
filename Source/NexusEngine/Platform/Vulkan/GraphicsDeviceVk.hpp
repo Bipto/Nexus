@@ -57,8 +57,6 @@ namespace Nexus::Graphics
         virtual ShaderLanguage GetSupportedShaderFormat() override;
         virtual float GetUVCorrection() { return 1.0f; }
 
-        virtual Swapchain *GetSwapchain() override;
-
         VkDevice GetVkDevice();
         VkPhysicalDevice GetPhysicalDevice();
         uint32_t GetSwapchainImageCount();
@@ -80,8 +78,6 @@ namespace Nexus::Graphics
         void SelectQueueFamilies();
         void CreateDevice();
         void CreateAllocator();
-
-        void CreateRenderPass();
 
         void CreateCommandStructures();
         void CreateSynchronisationStructures();
@@ -128,9 +124,6 @@ namespace Nexus::Graphics
         VkQueue m_GraphicsQueue;
         VkQueue m_PresentQueue;
 
-        // render pass
-        VkRenderPass m_SwapchainRenderPass;
-
         // synchronisation
         FrameData m_Frames[FRAMES_IN_FLIGHT];
         FrameData &GetCurrentFrame();
@@ -145,7 +138,6 @@ namespace Nexus::Graphics
         uint32_t m_FrameNumber = 0;
         uint32_t m_CurrentFrameIndex = 0;
 
-        SwapchainVk *m_Swapchain;
         VSyncState m_VsyncState = VSyncState::Enabled;
 
         VkCommandPool m_ImGuiCommandPool;
