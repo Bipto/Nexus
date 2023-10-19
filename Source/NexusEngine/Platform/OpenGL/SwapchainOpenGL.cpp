@@ -12,6 +12,7 @@ namespace Nexus::Graphics
         m_SwapchainHeight = m_Window->GetWindowSize().Y;
 
         m_Context = SDL_GL_CreateContext(window->GetSDLWindowHandle());
+        SDL_GL_MakeCurrent(window->GetSDLWindowHandle(), m_Context);
 
         // the backbuffer integer is usually 0, but this cannot be guaranteed, so we check it
         // glGetIntegerv(GL_FRAMEBUFFER_BINDING, &m_Backbuffer);

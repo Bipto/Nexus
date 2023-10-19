@@ -31,7 +31,7 @@ if (EMSCRIPTEN)
         Demo
         PROPERTIES
         LINK_FLAGS
-        "--std=c++17 -Os -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS -fsanitize=address -lopenal --preload-file resources"
+        "--std=c++17 -Os -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS --profiling -fsanitize=address -lopenal --preload-file resources"
     )
 
     set_target_properties(Demo PROPERTIES COMPILE_FLAGS "-Os")

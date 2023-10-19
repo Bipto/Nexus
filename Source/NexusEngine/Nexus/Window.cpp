@@ -6,8 +6,14 @@
 
 #include "Nexus/Graphics/GraphicsDevice.hpp"
 #include "Platform/OpenGL/SwapchainOpenGL.hpp"
+
+#if defined(WIN32)
 #include "Platform/DX11/SwapchainDX11.hpp"
+#endif
+
+#if defined(NX_PLATFORM_VULKAN)
 #include "Platform/Vulkan/SwapchainVk.hpp"
+#endif
 
 namespace Nexus
 {
@@ -566,16 +572,20 @@ namespace Nexus
             m_Swapchain = new Graphics::SwapchainOpenGL(this, vSyncState);
             break;
         }
+#if defined(WIN32)
         case Graphics::GraphicsAPI::DirectX11:
         {
             m_Swapchain = new Graphics::SwapchainDX11(this, device, vSyncState);
             break;
         }
+#endif
+#if defined(NX_PLATFORM_VULKAN)
         case Graphics::GraphicsAPI::Vulkan:
         {
             m_Swapchain = new Graphics::SwapchainVk(this, device, vSyncState);
             break;
         }
+#endif
         default:
             NX_ERROR("Failed to create swapchain");
             throw std::runtime_error("Failed to create swapchain");
@@ -623,12 +633,12 @@ namespace Nexus
 #endif
 
             flags |= SDL_WINDOW_OPENGL;
-            break;
+            return flags;
         }
         case Graphics::GraphicsAPI::Vulkan:
         {
             flags |= SDL_WINDOW_VULKAN;
-            break;
+            return flags;
         }
         default:
             return flags;

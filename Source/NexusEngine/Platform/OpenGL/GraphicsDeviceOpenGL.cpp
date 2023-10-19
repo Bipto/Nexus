@@ -8,6 +8,7 @@
 #include "RenderPassOpenGL.hpp"
 #include "ResourceSetOpenGL.hpp"
 
+#if defined(WIN32)
 void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
                                      GLenum severity, GLsizei length,
                                      const GLchar *msg, const void *data)
@@ -109,6 +110,7 @@ void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
         printf("%d: %s of %s severity, raised from %s: %s\n",
                id, _type, _severity, _source, msg);
 }
+#endif
 
 namespace Nexus::Graphics
 {
@@ -119,7 +121,7 @@ namespace Nexus::Graphics
         window->CreateSwapchain(this, createInfo.VSyncStateSettings);
 
 #if defined(WIN32)
-        int error = gladLoadGL();
+        gladLoadGL();
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback(GLDebugMessageCallback, nullptr);
 #endif
