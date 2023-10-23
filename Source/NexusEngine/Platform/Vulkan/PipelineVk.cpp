@@ -58,11 +58,6 @@ namespace Nexus::Graphics
 
         delete resourceSet;
 
-        auto bindingDescription = GetBindingDescription();
-        auto attributeDescriptions = GetAttributeDescriptions();
-        VkPipelineVertexInputStateCreateInfo vertexInputInfo = CreateVertexInputStateCreateInfo(bindingDescription, attributeDescriptions);
-        VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo = CreateInputAssemblyCreateInfo(GetPrimitiveTopology());
-
         VkViewport viewport;
         viewport.x = description.Viewport.X;
         viewport.y = description.Viewport.Height + description.Viewport.Y;
@@ -107,6 +102,11 @@ namespace Nexus::Graphics
         colorBlending.pAttachments = blendStates.data();
 
         const auto &shaderStages = vulkanShader->GetShaderStages();
+
+        auto bindingDescription = GetBindingDescription();
+        auto attributeDescriptions = GetAttributeDescriptions();
+        VkPipelineVertexInputStateCreateInfo vertexInputInfo = CreateVertexInputStateCreateInfo(bindingDescription, attributeDescriptions);
+        VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo = CreateInputAssemblyCreateInfo(GetPrimitiveTopology());
 
         VkGraphicsPipelineCreateInfo pipelineInfo = {};
         pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;

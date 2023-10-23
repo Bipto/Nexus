@@ -20,7 +20,10 @@ namespace Nexus::Graphics
         : GraphicsDevice(createInfo, window)
     {
         CreateInstance();
+
+#if defined(_DEBUG)
         SetupDebugMessenger();
+#endif
 
         window->CreateSwapchain(this, createInfo.VSyncStateSettings);
 
@@ -306,10 +309,10 @@ namespace Nexus::Graphics
             "VK_LAYER_KHRONOS_validation",
     };
 
-#ifdef NDEBUG
-    const bool enableValidationLayers = false;
-#else
+#if defined(_DEBUG)
     const bool enableValidationLayers = true;
+#else
+    const bool enableValidationLayers = false;
 #endif
 
     void GraphicsDeviceVk::CreateInstance()

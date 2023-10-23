@@ -15,21 +15,21 @@ namespace Demos
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
             m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile(Nexus::FileSystem::GetFilePathAbsolute("resources/shaders/hello_triangle.glsl"),
-                                                                   Nexus::Graphics::VertexPositionTexCoordNormal::GetLayout());
+                                                                   Nexus::Graphics::VertexPosition::GetLayout());
 
             CreatePipeline();
 
-            std::vector<Nexus::Graphics::VertexPositionTexCoordNormal> vertices =
+            std::vector<Nexus::Graphics::VertexPosition> vertices =
                 {
-                    {{-0.5f, -0.5f, 0.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, -1.0f}}, // bottom left
-                    {{0.0f, 0.5f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}},   // top left
-                    {{0.5f, -0.5f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, -1.0f}},  // bottom right
+                    {{-0.5f, -0.5f, 0.0f}}, // bottom left
+                    {{0.0f, 0.5f, 0.0f}},   // top left
+                    {{0.5f, -0.5f, 0.0f}},  // bottom right
                 };
 
             Nexus::Graphics::BufferDescription vertexBufferDesc;
-            vertexBufferDesc.Size = vertices.size() * sizeof(Nexus::Graphics::VertexPositionTexCoordNormal);
+            vertexBufferDesc.Size = vertices.size() * sizeof(Nexus::Graphics::VertexPosition);
             vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-            m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(vertexBufferDesc, vertices.data(), Nexus::Graphics::VertexPositionTexCoordNormal::GetLayout());
+            m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(vertexBufferDesc, vertices.data(), Nexus::Graphics::VertexPosition::GetLayout());
 
             std::vector<unsigned int> indices =
                 {

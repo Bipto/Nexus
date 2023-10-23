@@ -14,7 +14,9 @@ namespace Nexus::Graphics
         bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 
         VmaAllocationCreateInfo vmaAllocInfo = {};
-        vmaAllocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
+        vmaAllocInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
+        vmaAllocInfo.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+        // vmaAllocInfo.usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE;
 
         if (vmaCreateBuffer(device->GetAllocator(), &bufferInfo, &vmaAllocInfo, &m_Buffer.Buffer, &m_Buffer.Allocation, nullptr) != VK_SUCCESS)
         {
@@ -56,7 +58,9 @@ namespace Nexus::Graphics
         bufferInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
 
         VmaAllocationCreateInfo vmaAllocInfo = {};
-        vmaAllocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
+        vmaAllocInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
+        vmaAllocInfo.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+        // vmaAllocInfo.usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE;
 
         if (vmaCreateBuffer(device->GetAllocator(), &bufferInfo, &vmaAllocInfo, &m_Buffer.Buffer, &m_Buffer.Allocation, nullptr) != VK_SUCCESS)
         {
@@ -98,8 +102,9 @@ namespace Nexus::Graphics
         bufferInfo.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 
         VmaAllocationCreateInfo vmaAllocInfo = {};
-        vmaAllocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
+        vmaAllocInfo.usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE;
         vmaAllocInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
+        vmaAllocInfo.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
 
         m_Buffers.resize(FRAMES_IN_FLIGHT);
 
