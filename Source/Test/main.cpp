@@ -21,12 +21,12 @@ public:
 
     virtual void Load() override
     {
-        m_CommandList = m_GraphicsDevice->CreateCommandList();
+        /* m_CommandList = m_GraphicsDevice->CreateCommandList();
 
         Nexus::Graphics::RenderPassSpecification spec;
         spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
         spec.StencilDepthLoadOperation = Nexus::Graphics::LoadOperation::Clear;
-        m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_GraphicsDevice->GetSwapchain());
+        m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain());
 
         m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/basic.glsl", Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
 
@@ -60,7 +60,7 @@ public:
         m_FramebufferRenderPass = pair.second;
 
         m_BoundFramebufferTexture = m_ImGuiRenderer->BindFramebufferTexture(m_Framebuffer, 0);
-        m_BoundTexture = m_ImGuiRenderer->BindTexture(m_Texture);
+        m_BoundTexture = m_ImGuiRenderer->BindTexture(m_Texture); */
     }
 
     virtual void Update(Nexus::Time time) override
@@ -69,7 +69,7 @@ public:
 
     virtual void Render(Nexus::Time time) override
     {
-        ImGui::ShowDemoWindow();
+        /* ImGui::ShowDemoWindow();
 
         ImGui::Begin("Framebuffer");
         ImGui::ColorEdit3("Color", glm::value_ptr(m_Color));
@@ -120,12 +120,12 @@ public:
         m_CommandList->End();
         m_GraphicsDevice->SubmitCommandList(m_CommandList);
 
-        m_GraphicsDevice->EndFrame();
+        m_GraphicsDevice->EndFrame(); */
     }
 
     virtual void OnResize(Nexus::Point<int> size) override
     {
-        CreatePipeline(size);
+        // CreatePipeline(size);
     }
 
     void CreatePipeline(Nexus::Point<int> size)
@@ -168,13 +168,13 @@ public:
 
     virtual void Unload() override
     {
-        delete m_Shader;
+        /* delete m_Shader;
         delete m_UniformBuffer;
         delete m_Pipeline;
         delete m_Mesh;
         delete m_Texture;
         delete m_Framebuffer;
-        delete m_FramebufferRenderPass;
+        delete m_FramebufferRenderPass; */
     }
 
 private:
@@ -202,9 +202,9 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
-    spec.ImGuiActive = true;
+    spec.ImGuiActive = false;
     spec.VSyncState = Nexus::Graphics::VSyncState::Enabled;
 
     return new TestApplication(spec);
