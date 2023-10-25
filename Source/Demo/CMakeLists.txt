@@ -34,7 +34,7 @@ if (EMSCRIPTEN)
         "--std=c++17 -Os -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS --profiling -fsanitize=address -lopenal --preload-file resources"
     )
 
-    set_target_properties(Demo PROPERTIES COMPILE_FLAGS "-Os")
+    set_target_properties(Demo PROPERTIES COMPILE_FLAGS "-O3")
 endif()
 
 if (ANDROID OR __ANDROID__)
@@ -46,3 +46,11 @@ if (ANDROID OR __ANDROID__)
         GLESv3
     )
 endif()
+
+#default to release build if not otherwise specified
+if (NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")

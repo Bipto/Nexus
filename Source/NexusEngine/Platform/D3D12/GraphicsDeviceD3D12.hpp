@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_D3D12)
+
 #include "Nexus/Graphics/GraphicsDevice.hpp"
 #include "D3D12Include.hpp"
 
@@ -61,3 +63,4 @@ namespace Nexus::Graphics
         ID3D12GraphicsCommandList7 *m_CommandList = nullptr;
     };
 }
+#endif

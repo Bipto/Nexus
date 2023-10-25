@@ -1,5 +1,7 @@
 #include "GraphicsDeviceD3D12.hpp"
 
+#if defined(NX_PLATFORM_D3D12)
+
 namespace Nexus::Graphics
 {
     GraphicsDeviceD3D12::GraphicsDeviceD3D12(const GraphicsDeviceCreateInfo &createInfo, Window *window)
@@ -198,3 +200,5 @@ namespace Nexus::Graphics
         }
     }
 }
+
+#endif

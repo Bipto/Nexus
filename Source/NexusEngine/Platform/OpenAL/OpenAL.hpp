@@ -3,13 +3,13 @@
 #if defined(NX_PLATFORM_OPENAL)
 #endif
 
-#if defined(EMSCRIPTEN)
+#if defined(__EMSCRIPTEN__)
 #include <emscripten.h>
 #include <AL/al.h>
 #include <AL/alc.h>
 #endif
 
-#if !defined(EMSCRIPTEN)
+#if !defined(__EMSCRIPTEN__)
 #include "AL/al.h"
 #include "AL/alc.h"
 #include "AL/alext.h"
