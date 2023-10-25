@@ -71,7 +71,11 @@ namespace Nexus
 
     Application::~Application()
     {
-        m_ImGuiRenderer->Shutdown();
+        if (m_Specification.ImGuiActive)
+        {
+            m_ImGuiRenderer->Shutdown();
+        }
+
         delete m_Window;
         delete m_AudioDevice;
         delete m_GraphicsDevice;

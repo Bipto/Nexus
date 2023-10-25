@@ -13,4 +13,6 @@
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "dxguid.lib")
 
+#define BUFFER_COUNT 2
+
 #endif

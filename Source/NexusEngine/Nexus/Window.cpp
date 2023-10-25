@@ -15,6 +15,10 @@
 #include "Platform/Vulkan/SwapchainVk.hpp"
 #endif
 
+#if defined(NX_PLATFORM_D3D12)
+#include "Platform/D3D12/SwapchainD3D12.hpp"
+#endif
+
 namespace Nexus
 {
     static KeyCode SDLToNexusKeycode(SDL_Keycode keycode)
@@ -262,6 +266,7 @@ namespace Nexus
 
     Window::~Window()
     {
+        delete m_Swapchain;
         SDL_DestroyWindow(this->m_Window);
     }
 
@@ -548,6 +553,14 @@ namespace Nexus
             break;
         }
 #endif
+#if defined(NX_PLATFORM_D3D12)
+        case Graphics::GraphicsAPI::D3D12:
+        {
+            m_Swapchain = new Graphics::SwapchainD3D12(this, device, vSyncState);
+            break;
+        }
+#endif
+
         default:
             NX_ERROR("Failed to create swapchain");
             throw std::runtime_error("Failed to create swapchain");

@@ -41,8 +41,12 @@ namespace Nexus::Graphics
         virtual ShaderLanguage GetSupportedShaderFormat() override { return ShaderLanguage::HLSL; }
         virtual float GetUVCorrection() { return -1.0f; }
 
-    private:
+        IDXGIFactory7 *GetDXGIFactory();
+        ID3D12CommandQueue *GetCommandQueue();
+
         void SignalAndWait();
+
+    private:
         void InitCommandList();
         void DispatchCommandList();
 
@@ -61,6 +65,8 @@ namespace Nexus::Graphics
 
         ID3D12CommandAllocator *m_CommandAllocator = nullptr;
         ID3D12GraphicsCommandList7 *m_CommandList = nullptr;
+
+        IDXGIFactory7 *m_DxgiFactory = nullptr;
     };
 }
 #endif

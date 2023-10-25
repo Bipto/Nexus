@@ -23,6 +23,10 @@ namespace Nexus::Graphics
         }
 #endif
 
+        if (SUCCEEDED(CreateDXGIFactory2(0, IID_PPV_ARGS(&m_DxgiFactory))))
+        {
+        }
+
         // create the D3D12Device
         if (SUCCEEDED(D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_Device))))
         {
@@ -46,6 +50,8 @@ namespace Nexus::Graphics
                 m_Device->CreateCommandList1(0, D3D12_COMMAND_LIST_TYPE_DIRECT, D3D12_COMMAND_LIST_FLAG_NONE, IID_PPV_ARGS(&m_CommandList));
             }
         }
+
+        window->CreateSwapchain(this, createInfo.VSyncStateSettings);
     }
 
     GraphicsDeviceD3D12::~GraphicsDeviceD3D12()
@@ -54,6 +60,7 @@ namespace Nexus::Graphics
         // release references to objects
         m_CommandList->Release();
         m_CommandAllocator->Release();
+        m_CommandQueue->Release();
 
         if (m_FenceEvent)
         {
@@ -64,16 +71,16 @@ namespace Nexus::Graphics
         m_Device->Release();
 
 #if defined(_DEBUG)
+        m_D3D12Debug->Release();
         if (m_DXGIDebug)
         {
             // report any remaining live objects
-            OutputDebugStringW(L"Reporting live D3D12 objects:");
+            OutputDebugStringW(L"Reporting live D3D12 objects:\n");
             m_DXGIDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_DETAIL | DXGI_DEBUG_RLO_IGNORE_INTERNAL));
+            m_DXGIDebug->Release();
         }
 
-        // release remaining references
-        m_DXGIDebug->Release();
-        m_D3D12Debug->Release();
+        m_DxgiFactory->Release();
 #endif
     }
 
@@ -165,6 +172,16 @@ namespace Nexus::Graphics
     ResourceSet *GraphicsDeviceD3D12::CreateResourceSet(const ResourceSetSpecification &spec)
     {
         return nullptr;
+    }
+
+    IDXGIFactory7 *GraphicsDeviceD3D12::GetDXGIFactory()
+    {
+        return m_DxgiFactory;
+    }
+
+    ID3D12CommandQueue *GraphicsDeviceD3D12::GetCommandQueue()
+    {
+        return m_CommandQueue;
     }
 
     void GraphicsDeviceD3D12::SignalAndWait()
