@@ -43,6 +43,7 @@ namespace Nexus::Graphics
 
         IDXGIFactory7 *GetDXGIFactory();
         ID3D12CommandQueue *GetCommandQueue();
+        ID3D12Device10 *GetDevice();
 
         void SignalAndWait();
 

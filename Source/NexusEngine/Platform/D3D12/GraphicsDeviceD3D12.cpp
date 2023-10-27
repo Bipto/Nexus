@@ -2,6 +2,8 @@
 
 #if defined(NX_PLATFORM_D3D12)
 
+#include "SwapchainD3D12.hpp"
+
 namespace Nexus::Graphics
 {
     GraphicsDeviceD3D12::GraphicsDeviceD3D12(const GraphicsDeviceCreateInfo &createInfo, Window *window)
@@ -56,7 +58,6 @@ namespace Nexus::Graphics
 
     GraphicsDeviceD3D12::~GraphicsDeviceD3D12()
     {
-
         // release references to objects
         m_CommandList->Release();
         m_CommandAllocator->Release();
@@ -98,7 +99,7 @@ namespace Nexus::Graphics
 
     const std::string GraphicsDeviceD3D12::GetAPIName()
     {
-        return std::string();
+        return {"D3D12"};
     }
 
     const char *GraphicsDeviceD3D12::GetDeviceName()
@@ -113,10 +114,41 @@ namespace Nexus::Graphics
 
     void GraphicsDeviceD3D12::BeginFrame()
     {
+        SwapchainD3D12 *swapchain = (SwapchainD3D12 *)m_Window->GetSwapchain();
+
+        InitCommandList();
+
+        D3D12_RESOURCE_BARRIER barrier;
+        barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+        barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+        barrier.Transition.pResource = swapchain->RetrieveBufferHandles()[swapchain->GetCurrentBufferIndex()];
+        barrier.Transition.Subresource = 0;
+        barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+        barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+
+        m_CommandList->ResourceBarrier(1, &barrier);
+
+        float clearColor[] = {0.4f, 0.4f, 0.8f, 1.0f};
+
+        m_CommandList->ClearRenderTargetView(swapchain->RetrieveRenderTargetViewDescriptorHandles()[swapchain->GetCurrentBufferIndex()], clearColor, 0, nullptr);
+        m_CommandList->OMSetRenderTargets(1, &swapchain->RetrieveRenderTargetViewDescriptorHandles()[swapchain->GetCurrentBufferIndex()], false, nullptr);
     }
 
     void GraphicsDeviceD3D12::EndFrame()
     {
+        SwapchainD3D12 *swapchain = (SwapchainD3D12 *)m_Window->GetSwapchain();
+
+        D3D12_RESOURCE_BARRIER barrier;
+        barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+        barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+        barrier.Transition.pResource = swapchain->RetrieveBufferHandles()[swapchain->GetCurrentBufferIndex()];
+        barrier.Transition.Subresource = 0;
+        barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+        barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+
+        m_CommandList->ResourceBarrier(1, &barrier);
+
+        DispatchCommandList();
     }
 
     Shader *GraphicsDeviceD3D12::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout)
@@ -182,6 +214,11 @@ namespace Nexus::Graphics
     ID3D12CommandQueue *GraphicsDeviceD3D12::GetCommandQueue()
     {
         return m_CommandQueue;
+    }
+
+    ID3D12Device10 *GraphicsDeviceD3D12::GetDevice()
+    {
+        return m_Device;
     }
 
     void GraphicsDeviceD3D12::SignalAndWait()

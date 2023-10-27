@@ -5,9 +5,14 @@
 namespace Nexus::Graphics
 {
     SwapchainD3D12::SwapchainD3D12(Window *window, GraphicsDevice *device, VSyncState vSyncState)
-        : m_VsyncState(vSyncState)
+        : m_Window(window), m_VsyncState(vSyncState)
     {
+        // assign the graphics device
         m_Device = (GraphicsDeviceD3D12 *)device;
+
+        // resize the buffer vector to a suitable size
+        m_Buffers.resize(BUFFER_COUNT);
+        m_RenderTargetViewDescriptorHandles.resize(BUFFER_COUNT);
 
         // retrieve the window's native handle
         SDL_SysWMinfo wmInfo;
@@ -37,25 +42,69 @@ namespace Nexus::Graphics
         DXGI_SWAP_CHAIN_FULLSCREEN_DESC fullscreenDesc{};
         fullscreenDesc.Windowed = true;
 
+        // retrieve the graphics device's DXGI factory
         auto factory = m_Device->GetDXGIFactory();
 
+        // create the swapchain and query for the correct swapchain type
         IDXGISwapChain1 *sc1;
         factory->CreateSwapChainForHwnd(m_Device->GetCommandQueue(), hwnd, &swapchainDesc, &fullscreenDesc, nullptr, &sc1);
         if (SUCCEEDED(sc1->QueryInterface(IID_PPV_ARGS(&m_Swapchain))))
         {
+            // release the original swapchain, otherwise we create a memory leak
             sc1->Release();
         }
+
+        // retrieve the ID3D12Device
+        const auto d3d12Device = m_Device->GetDevice();
+
+        // create the descriptor heap
+        D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc;
+        descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+        descriptorHeapDesc.NumDescriptors = BUFFER_COUNT;
+        descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+        descriptorHeapDesc.NodeMask = 0;
+
+        d3d12Device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&m_RenderTargetViewDescriptorHeap));
+
+        // create handles to descriptor view
+        auto firstHandle = m_RenderTargetViewDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+        auto handleIncrement = d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+
+        for (int i = 0; i < BUFFER_COUNT; ++i)
+        {
+            m_RenderTargetViewDescriptorHandles[i] = firstHandle;
+            m_RenderTargetViewDescriptorHandles[i].ptr += handleIncrement * i;
+        }
+
+        // get the buffers from the swapchain
+        GetBuffers();
     }
 
     Nexus::Graphics::SwapchainD3D12::~SwapchainD3D12()
     {
+        // we need to flush the swapchain to ensure that resources are not in use when we attempt to delete them
         Flush();
+
+        // release the swapchain's buffer
+        ReleaseBuffers();
+
+        // release render target view descriptor heap
+        // m_RenderTargetViewDescriptorHeap->Release();
+
+        // clean up the swapchain
         m_Swapchain->Release();
     }
 
     void SwapchainD3D12::SwapBuffers()
     {
+        // recreate the swapchain if the window's size has changed
+        RecreateSwapchainIfNecessary();
+
+        // swap the swapchain's buffers and present to the display
         m_Swapchain->Present((uint32_t)m_VsyncState, 0);
+
+        // retrieve the current buffer index from the swapchain
+        m_CurrentBufferIndex = m_Swapchain->GetCurrentBackBufferIndex();
     }
 
     VSyncState SwapchainD3D12::GetVsyncState()
@@ -68,11 +117,84 @@ namespace Nexus::Graphics
         m_VsyncState = vsyncState;
     }
 
+    std::vector<ID3D12Resource2 *> const SwapchainD3D12::RetrieveBufferHandles() const
+    {
+        return m_Buffers;
+    }
+
+    uint32_t SwapchainD3D12::GetCurrentBufferIndex()
+    {
+        return m_CurrentBufferIndex;
+    }
+
+    const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> SwapchainD3D12::RetrieveRenderTargetViewDescriptorHandles() const
+    {
+        return m_RenderTargetViewDescriptorHandles;
+    }
+
     void SwapchainD3D12::Flush()
     {
+        // execute a signal and wait for each buffer in the swapchain
         for (int i = 0; i < BUFFER_COUNT; i++)
         {
             m_Device->SignalAndWait();
+        }
+    }
+    void SwapchainD3D12::RecreateSwapchainIfNecessary()
+    {
+        auto windowWidth = m_Window->GetWindowSize().X;
+        auto windowHeight = m_Window->GetWindowSize().Y;
+
+        // if the size of the window is the same, we do not need to do anything and can return
+        if (m_SwapchainWidth == windowWidth || m_SwapchainHeight == windowHeight)
+            return;
+
+        // resize the swapchain
+        ResizeBuffers(windowWidth, windowHeight);
+        m_SwapchainWidth = windowWidth;
+        m_SwapchainHeight = windowHeight;
+    }
+
+    void SwapchainD3D12::ResizeBuffers(uint32_t width, uint32_t height)
+    {
+        // flush swapchain to ensure that buffers are not in use
+        Flush();
+
+        // we need to release the buffers retrieved from the swapchain before new ones can be created
+        ReleaseBuffers();
+
+        // resize the swapchains buffers
+        m_Swapchain->ResizeBuffers(BUFFER_COUNT, width, height, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING);
+
+        // retrieve the new buffers
+        GetBuffers();
+    }
+
+    void SwapchainD3D12::GetBuffers()
+    {
+        const auto d3d12Device = m_Device->GetDevice();
+
+        // loop through and retrieve the buffers from the swapchain
+        for (size_t i = 0; i < BUFFER_COUNT; ++i)
+        {
+            m_Swapchain->GetBuffer(i, IID_PPV_ARGS(&m_Buffers[i]));
+
+            D3D12_RENDER_TARGET_VIEW_DESC rtv;
+            rtv.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+            rtv.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+            rtv.Texture2D.MipSlice = 0;
+            rtv.Texture2D.PlaneSlice = 0;
+
+            d3d12Device->CreateRenderTargetView(m_Buffers[i], &rtv, m_RenderTargetViewDescriptorHandles[i]);
+        }
+    }
+
+    void SwapchainD3D12::ReleaseBuffers()
+    {
+        // loop through retrieved buffers and clean them up
+        for (size_t i = 0; i < BUFFER_COUNT; ++i)
+        {
+            m_Buffers[i]->Release();
         }
     }
 }

@@ -5,6 +5,8 @@
 #include "GraphicsDeviceD3D12.hpp"
 #include "D3D12Include.hpp"
 
+#include <array>
+
 namespace Nexus::Graphics
 {
     class SwapchainD3D12 : public Swapchain
@@ -16,11 +18,31 @@ namespace Nexus::Graphics
         virtual VSyncState GetVsyncState() override;
         virtual void SetVSyncState(VSyncState vsyncState) override;
 
-        void Flush();
+        const std::vector<ID3D12Resource2 *> RetrieveBufferHandles() const;
+        uint32_t GetCurrentBufferIndex();
+
+        const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> RetrieveRenderTargetViewDescriptorHandles() const;
 
     private:
+        void Flush();
+        void RecreateSwapchainIfNecessary();
+        void ResizeBuffers(uint32_t width, uint32_t height);
+        void GetBuffers();
+        void ReleaseBuffers();
+
+    private:
+        Window *m_Window = nullptr;
         IDXGISwapChain3 *m_Swapchain = nullptr;
         VSyncState m_VsyncState;
         GraphicsDeviceD3D12 *m_Device = nullptr;
+
+        uint32_t m_SwapchainWidth = 0;
+        uint32_t m_SwapchainHeight = 0;
+
+        std::vector<ID3D12Resource2 *> m_Buffers;
+        uint32_t m_CurrentBufferIndex = 0;
+
+        ID3D12DescriptorHeap *m_RenderTargetViewDescriptorHeap = nullptr;
+        std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_RenderTargetViewDescriptorHandles;
     };
 }

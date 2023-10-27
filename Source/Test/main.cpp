@@ -121,6 +121,10 @@ public:
         m_GraphicsDevice->SubmitCommandList(m_CommandList);
 
         m_GraphicsDevice->EndFrame(); */
+
+        m_GraphicsDevice->BeginFrame();
+
+        m_GraphicsDevice->EndFrame();
     }
 
     virtual void OnResize(Nexus::Point<int> size) override
