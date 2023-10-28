@@ -3,6 +3,7 @@
 #if defined(NX_PLATFORM_D3D12)
 
 #include "SwapchainD3D12.hpp"
+#include "ShaderD3D12.hpp"
 
 namespace Nexus::Graphics
 {
@@ -59,29 +60,29 @@ namespace Nexus::Graphics
     GraphicsDeviceD3D12::~GraphicsDeviceD3D12()
     {
         // release references to objects
-        m_CommandList->Release();
+        /* m_CommandList->Release();
         m_CommandAllocator->Release();
-        m_CommandQueue->Release();
+        m_CommandQueue->Release(); */
 
         if (m_FenceEvent)
         {
             CloseHandle(m_FenceEvent);
         }
 
-        m_Fence->Release();
-        m_Device->Release();
+        /* m_Fence->Release();
+        m_Device->Release(); */
 
 #if defined(_DEBUG)
-        m_D3D12Debug->Release();
+        // m_D3D12Debug->Release();
         if (m_DXGIDebug)
         {
             // report any remaining live objects
             OutputDebugStringW(L"Reporting live D3D12 objects:\n");
             m_DXGIDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_DETAIL | DXGI_DEBUG_RLO_IGNORE_INTERNAL));
-            m_DXGIDebug->Release();
+            // m_DXGIDebug->Release();
         }
 
-        m_DxgiFactory->Release();
+        // m_DxgiFactory->Release();
 #endif
     }
 
@@ -153,7 +154,7 @@ namespace Nexus::Graphics
 
     Shader *GraphicsDeviceD3D12::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout)
     {
-        return nullptr;
+        return new ShaderD3D12(m_Device.Get(), vertexShaderSource, fragmentShaderSource, layout);
     }
 
     Texture *GraphicsDeviceD3D12::CreateTexture(const TextureSpecification &spec)
@@ -206,24 +207,24 @@ namespace Nexus::Graphics
         return nullptr;
     }
 
-    IDXGIFactory7 *GraphicsDeviceD3D12::GetDXGIFactory()
+    IDXGIFactory7 *GraphicsDeviceD3D12::GetDXGIFactory() const
     {
-        return m_DxgiFactory;
+        return m_DxgiFactory.Get();
     }
 
-    ID3D12CommandQueue *GraphicsDeviceD3D12::GetCommandQueue()
+    ID3D12CommandQueue *GraphicsDeviceD3D12::GetCommandQueue() const
     {
-        return m_CommandQueue;
+        return m_CommandQueue.Get();
     }
 
-    ID3D12Device10 *GraphicsDeviceD3D12::GetDevice()
+    ID3D12Device10 *GraphicsDeviceD3D12::GetDevice() const
     {
-        return m_Device;
+        return m_Device.Get();
     }
 
     void GraphicsDeviceD3D12::SignalAndWait()
     {
-        m_CommandQueue->Signal(m_Fence, ++m_FenceValue);
+        m_CommandQueue->Signal(m_Fence.Get(), ++m_FenceValue);
 
         if (SUCCEEDED(m_Fence->SetEventOnCompletion(m_FenceValue, m_FenceEvent)))
         {
@@ -241,14 +242,14 @@ namespace Nexus::Graphics
     void GraphicsDeviceD3D12::InitCommandList()
     {
         m_CommandAllocator->Reset();
-        m_CommandList->Reset(m_CommandAllocator, nullptr);
+        m_CommandList->Reset(m_CommandAllocator.Get(), nullptr);
     }
 
     void GraphicsDeviceD3D12::DispatchCommandList()
     {
         if (SUCCEEDED(m_CommandList->Close()))
         {
-            ID3D12CommandList *list[] = {m_CommandList};
+            ID3D12CommandList *list[] = {m_CommandList.Get()};
             m_CommandQueue->ExecuteCommandLists(1, list);
             SignalAndWait();
         }

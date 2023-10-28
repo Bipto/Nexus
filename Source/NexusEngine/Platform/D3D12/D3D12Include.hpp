@@ -8,6 +8,8 @@
 #include <dxgi1_6.h>
 #include <dxgidebug.h>
 
+#include <wrl/client.h>
+
 #pragma comment(lib, "user32")
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")

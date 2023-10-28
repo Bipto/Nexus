@@ -85,14 +85,8 @@ namespace Nexus::Graphics
         // we need to flush the swapchain to ensure that resources are not in use when we attempt to delete them
         Flush();
 
-        // release the swapchain's buffer
+        // release the swapchain's buffers
         ReleaseBuffers();
-
-        // release render target view descriptor heap
-        // m_RenderTargetViewDescriptorHeap->Release();
-
-        // clean up the swapchain
-        m_Swapchain->Release();
     }
 
     void SwapchainD3D12::SwapBuffers()

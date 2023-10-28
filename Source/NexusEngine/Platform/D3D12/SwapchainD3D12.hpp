@@ -32,7 +32,7 @@ namespace Nexus::Graphics
 
     private:
         Window *m_Window = nullptr;
-        IDXGISwapChain3 *m_Swapchain = nullptr;
+        Microsoft::WRL::ComPtr<IDXGISwapChain3> m_Swapchain = nullptr;
         VSyncState m_VsyncState;
         GraphicsDeviceD3D12 *m_Device = nullptr;
 
@@ -42,7 +42,7 @@ namespace Nexus::Graphics
         std::vector<ID3D12Resource2 *> m_Buffers;
         uint32_t m_CurrentBufferIndex = 0;
 
-        ID3D12DescriptorHeap *m_RenderTargetViewDescriptorHeap = nullptr;
+        Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_RenderTargetViewDescriptorHeap = nullptr;
         std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_RenderTargetViewDescriptorHandles;
     };
 }

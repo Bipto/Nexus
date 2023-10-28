@@ -61,6 +61,8 @@ public:
 
         m_BoundFramebufferTexture = m_ImGuiRenderer->BindFramebufferTexture(m_Framebuffer, 0);
         m_BoundTexture = m_ImGuiRenderer->BindTexture(m_Texture); */
+
+        m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/basic.glsl", Nexus::Graphics::VertexPosition::GetLayout());
     }
 
     virtual void Update(Nexus::Time time) override

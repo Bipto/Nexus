@@ -41,9 +41,9 @@ namespace Nexus::Graphics
         virtual ShaderLanguage GetSupportedShaderFormat() override { return ShaderLanguage::HLSL; }
         virtual float GetUVCorrection() { return -1.0f; }
 
-        IDXGIFactory7 *GetDXGIFactory();
-        ID3D12CommandQueue *GetCommandQueue();
-        ID3D12Device10 *GetDevice();
+        IDXGIFactory7 *GetDXGIFactory() const;
+        ID3D12CommandQueue *GetCommandQueue() const;
+        ID3D12Device10 *GetDevice() const;
 
         void SignalAndWait();
 
@@ -53,21 +53,21 @@ namespace Nexus::Graphics
 
     private:
 #if defined(_DEBUG)
-        ID3D12Debug6 *m_D3D12Debug = nullptr;
-        IDXGIDebug1 *m_DXGIDebug = nullptr;
+        Microsoft::WRL::ComPtr<ID3D12Debug6> m_D3D12Debug = nullptr;
+        Microsoft::WRL::ComPtr<IDXGIDebug1> m_DXGIDebug = nullptr;
 #endif
 
-        ID3D12Device10 *m_Device = nullptr;
-        ID3D12CommandQueue *m_CommandQueue = nullptr;
+        Microsoft::WRL::ComPtr<ID3D12Device10> m_Device = nullptr;
+        Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CommandQueue = nullptr;
 
-        ID3D12Fence1 *m_Fence = nullptr;
+        Microsoft::WRL::ComPtr<ID3D12Fence1> m_Fence = nullptr;
         uint64_t m_FenceValue = 0;
         HANDLE m_FenceEvent = nullptr;
 
-        ID3D12CommandAllocator *m_CommandAllocator = nullptr;
-        ID3D12GraphicsCommandList7 *m_CommandList = nullptr;
+        Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_CommandAllocator = nullptr;
+        Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> m_CommandList = nullptr;
 
-        IDXGIFactory7 *m_DxgiFactory = nullptr;
+        Microsoft::WRL::ComPtr<IDXGIFactory7> m_DxgiFactory = nullptr;
     };
 }
 #endif
