@@ -44,12 +44,16 @@ namespace Nexus::Graphics
         IDXGIFactory7 *GetDXGIFactory() const;
         ID3D12CommandQueue *GetCommandQueue() const;
         ID3D12Device10 *GetDevice() const;
+        ID3D12GraphicsCommandList7 *GetUploadCommandList();
 
         void SignalAndWait();
+        void ImmediateSubmit(std::function<void(ID3D12GraphicsCommandList7 *cmd)> &&function);
+
+        void Draw(Pipeline *pipeline, VertexBuffer* buffer);
 
     private:
-        void InitCommandList();
-        void DispatchCommandList();
+        void InitUploadCommandList();
+        void DispatchUploadCommandList();
 
     private:
 #if defined(_DEBUG)
@@ -64,8 +68,8 @@ namespace Nexus::Graphics
         uint64_t m_FenceValue = 0;
         HANDLE m_FenceEvent = nullptr;
 
-        Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_CommandAllocator = nullptr;
-        Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> m_CommandList = nullptr;
+        Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_UploadCommandAllocator = nullptr;
+        Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> m_UploadCommandList = nullptr;
 
         Microsoft::WRL::ComPtr<IDXGIFactory7> m_DxgiFactory = nullptr;
     };

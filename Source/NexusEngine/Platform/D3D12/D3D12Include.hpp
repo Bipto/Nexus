@@ -9,6 +9,7 @@
 #include <dxgidebug.h>
 
 #include <wrl/client.h>
+#include <comdef.h>
 
 #pragma comment(lib, "user32")
 #pragma comment(lib, "d3d12.lib")

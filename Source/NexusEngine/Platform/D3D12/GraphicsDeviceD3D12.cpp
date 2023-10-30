@@ -4,6 +4,8 @@
 
 #include "SwapchainD3D12.hpp"
 #include "ShaderD3D12.hpp"
+#include "PipelineD3D12.hpp"
+#include "BufferD3D12.hpp"
 
 namespace Nexus::Graphics
 {
@@ -49,8 +51,8 @@ namespace Nexus::Graphics
                     m_FenceEvent = CreateEvent(nullptr, false, false, nullptr);
                 }
 
-                m_Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_CommandAllocator));
-                m_Device->CreateCommandList1(0, D3D12_COMMAND_LIST_TYPE_DIRECT, D3D12_COMMAND_LIST_FLAG_NONE, IID_PPV_ARGS(&m_CommandList));
+                m_Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_UploadCommandAllocator));
+                m_Device->CreateCommandList1(0, D3D12_COMMAND_LIST_TYPE_DIRECT, D3D12_COMMAND_LIST_FLAG_NONE, IID_PPV_ARGS(&m_UploadCommandList));
             }
         }
 
@@ -115,46 +117,15 @@ namespace Nexus::Graphics
 
     void GraphicsDeviceD3D12::BeginFrame()
     {
-        SwapchainD3D12 *swapchain = (SwapchainD3D12 *)m_Window->GetSwapchain();
-
-        InitCommandList();
-
-        D3D12_RESOURCE_BARRIER barrier;
-        barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-        barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-        barrier.Transition.pResource = swapchain->RetrieveBufferHandles()[swapchain->GetCurrentBufferIndex()];
-        barrier.Transition.Subresource = 0;
-        barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-        barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-
-        m_CommandList->ResourceBarrier(1, &barrier);
-
-        float clearColor[] = {0.4f, 0.4f, 0.8f, 1.0f};
-
-        m_CommandList->ClearRenderTargetView(swapchain->RetrieveRenderTargetViewDescriptorHandles()[swapchain->GetCurrentBufferIndex()], clearColor, 0, nullptr);
-        m_CommandList->OMSetRenderTargets(1, &swapchain->RetrieveRenderTargetViewDescriptorHandles()[swapchain->GetCurrentBufferIndex()], false, nullptr);
     }
 
     void GraphicsDeviceD3D12::EndFrame()
     {
-        SwapchainD3D12 *swapchain = (SwapchainD3D12 *)m_Window->GetSwapchain();
-
-        D3D12_RESOURCE_BARRIER barrier;
-        barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-        barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-        barrier.Transition.pResource = swapchain->RetrieveBufferHandles()[swapchain->GetCurrentBufferIndex()];
-        barrier.Transition.Subresource = 0;
-        barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-        barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-
-        m_CommandList->ResourceBarrier(1, &barrier);
-
-        DispatchCommandList();
     }
 
     Shader *GraphicsDeviceD3D12::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout)
     {
-        return new ShaderD3D12(m_Device.Get(), vertexShaderSource, fragmentShaderSource, layout);
+        return new ShaderD3D12(vertexShaderSource, fragmentShaderSource, layout);
     }
 
     Texture *GraphicsDeviceD3D12::CreateTexture(const TextureSpecification &spec)
@@ -169,7 +140,7 @@ namespace Nexus::Graphics
 
     Pipeline *GraphicsDeviceD3D12::CreatePipeline(const PipelineDescription &description)
     {
-        return nullptr;
+        return new PipelineD3D12(m_Device.Get(), description);
     }
 
     CommandList *GraphicsDeviceD3D12::CreateCommandList()
@@ -179,7 +150,7 @@ namespace Nexus::Graphics
 
     VertexBuffer *GraphicsDeviceD3D12::CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
     {
-        return nullptr;
+        return new VertexBufferD3D12(this, description, data, layout);
     }
 
     IndexBuffer *GraphicsDeviceD3D12::CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format)
@@ -222,6 +193,11 @@ namespace Nexus::Graphics
         return m_Device.Get();
     }
 
+    ID3D12GraphicsCommandList7 *GraphicsDeviceD3D12::GetUploadCommandList()
+    {
+        return m_UploadCommandList.Get();
+    }
+
     void GraphicsDeviceD3D12::SignalAndWait()
     {
         m_CommandQueue->Signal(m_Fence.Get(), ++m_FenceValue);
@@ -239,17 +215,85 @@ namespace Nexus::Graphics
         }
     }
 
-    void GraphicsDeviceD3D12::InitCommandList()
+    void GraphicsDeviceD3D12::ImmediateSubmit(std::function<void(ID3D12GraphicsCommandList7 *cmd)> &&function)
     {
-        m_CommandAllocator->Reset();
-        m_CommandList->Reset(m_CommandAllocator.Get(), nullptr);
+        InitUploadCommandList();
+        function(m_UploadCommandList.Get());
+        DispatchUploadCommandList();
     }
 
-    void GraphicsDeviceD3D12::DispatchCommandList()
+    void GraphicsDeviceD3D12::Draw(Pipeline *pipeline, VertexBuffer *buffer)
     {
-        if (SUCCEEDED(m_CommandList->Close()))
+        PipelineD3D12 *d3d12Pipeline = (PipelineD3D12 *)pipeline;
+
+        InitUploadCommandList();
+
+        SwapchainD3D12 *swapchain = (SwapchainD3D12 *)m_Window->GetSwapchain();
+
+        D3D12_RESOURCE_BARRIER beginBarrier;
+        beginBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+        beginBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+        beginBarrier.Transition.pResource = swapchain->RetrieveBufferHandles()[swapchain->GetCurrentBufferIndex()];
+        beginBarrier.Transition.Subresource = 0;
+        beginBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+        beginBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+
+        m_UploadCommandList->ResourceBarrier(1, &beginBarrier);
+
+        float clearColor[] = {0.4f, 0.4f, 0.8f, 1.0f};
+
+        m_UploadCommandList->ClearRenderTargetView(swapchain->RetrieveRenderTargetViewDescriptorHandles()[swapchain->GetCurrentBufferIndex()], clearColor, 0, nullptr);
+        m_UploadCommandList->OMSetRenderTargets(1, &swapchain->RetrieveRenderTargetViewDescriptorHandles()[swapchain->GetCurrentBufferIndex()], false, nullptr);
+
+        m_UploadCommandList->SetPipelineState(d3d12Pipeline->GetPipelineState());
+        m_UploadCommandList->SetGraphicsRootSignature(d3d12Pipeline->GetRootSignature());
+
+        VertexBufferD3D12 *d3d12VertexBuffer = (VertexBufferD3D12 *)buffer;
+        D3D12_VERTEX_BUFFER_VIEW vbView = d3d12VertexBuffer->GetVertexBufferView();
+        m_UploadCommandList->IASetVertexBuffers(0, 1, &vbView);
+        m_UploadCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+        D3D12_VIEWPORT vp;
+        vp.TopLeftX = vp.TopLeftY = 0;
+        vp.Width = m_Window->GetWindowSize().X;
+        vp.Height = m_Window->GetWindowSize().Y;
+        vp.MinDepth = 1.0f;
+        vp.MaxDepth = 0.0f;
+        m_UploadCommandList->RSSetViewports(1, &vp);
+
+        RECT rect;
+        rect.left = 0;
+        rect.top = 0;
+        rect.right = m_Window->GetWindowSize().X;
+        rect.bottom = m_Window->GetWindowSize().Y;
+        m_UploadCommandList->RSSetScissorRects(1, &rect);
+
+        m_UploadCommandList->DrawInstanced(3, 1, 0, 0);
+
+        D3D12_RESOURCE_BARRIER endBarrier;
+        endBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+        endBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+        endBarrier.Transition.pResource = swapchain->RetrieveBufferHandles()[swapchain->GetCurrentBufferIndex()];
+        endBarrier.Transition.Subresource = 0;
+        endBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+        endBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+
+        m_UploadCommandList->ResourceBarrier(1, &endBarrier);
+
+        DispatchUploadCommandList();
+    }
+
+    void GraphicsDeviceD3D12::InitUploadCommandList()
+    {
+        m_UploadCommandAllocator->Reset();
+        m_UploadCommandList->Reset(m_UploadCommandAllocator.Get(), nullptr);
+    }
+
+    void GraphicsDeviceD3D12::DispatchUploadCommandList()
+    {
+        if (SUCCEEDED(m_UploadCommandList->Close()))
         {
-            ID3D12CommandList *list[] = {m_CommandList.Get()};
+            ID3D12CommandList *list[] = {m_UploadCommandList.Get()};
             m_CommandQueue->ExecuteCommandLists(1, list);
             SignalAndWait();
         }

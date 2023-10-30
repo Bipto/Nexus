@@ -1,17 +1,15 @@
 #pragma once
 
 #include "Nexus/Graphics/CommandList.hpp"
-
-#include "DX11.hpp"
+#include "GraphicsDeviceD3D12.hpp"
 
 namespace Nexus::Graphics
 {
-    class GraphicsDeviceDX11;
-
-    class CommandListDX11 : public CommandList
+    class CommandListD3D12 : public CommandList
     {
     public:
-        CommandListDX11(GraphicsDeviceDX11 *graphicsDevice);
+        CommandListD3D12(GraphicsDeviceD3D12 *device);
+        virtual ~CommandListD3D12();
 
         virtual void Begin() override;
         virtual void End() override;
@@ -28,21 +26,8 @@ namespace Nexus::Graphics
 
         virtual void SetResourceSet(ResourceSet *resources) override;
 
-        const std::vector<RenderCommand> &GetRenderCommands();
-        RenderCommandData &GetCurrentCommandData();
-        GraphicsDeviceDX11 *GetGraphicsDevice();
-
-        Pipeline *GetCurrentPipeline();
-        void BindPipeline(Pipeline *pipeline);
-
     private:
-        std::vector<RenderCommand> m_Commands;
-        std::vector<RenderCommandData> m_CommandData;
-        uint32_t m_CommandIndex = 0;
-
-        RenderPassBeginInfo m_CommandListBeginInfo;
-        Pipeline *m_CurrentPipeline;
-
-        GraphicsDeviceDX11 *m_GraphicsDevice = nullptr;
+        Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_CommandAllocator = nullptr;
+        Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> m_CommandList = nullptr;
     };
 }

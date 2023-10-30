@@ -4,7 +4,7 @@
 
 namespace Nexus::Graphics
 {
-    Nexus::Graphics::ShaderD3D12::ShaderD3D12(ID3D12Device10 *device, std::string vertexShaderSource, std::string fragmentShaderSource, const VertexBufferLayout &layout)
+    Nexus::Graphics::ShaderD3D12::ShaderD3D12(std::string vertexShaderSource, std::string fragmentShaderSource, const VertexBufferLayout &layout)
         : m_VertexShaderSource(vertexShaderSource), m_FragmentShaderSource(fragmentShaderSource), m_BufferLayout(layout)
     {
         CreateVertexShader();

@@ -8,7 +8,7 @@ namespace Nexus::Graphics
     class ShaderD3D12 : public Shader
     {
     public:
-        ShaderD3D12(ID3D12Device10 *device, std::string vertexShaderSource, std::string fragmentShaderSource, const VertexBufferLayout &layout);
+        ShaderD3D12(std::string vertexShaderSource, std::string fragmentShaderSource, const VertexBufferLayout &layout);
         virtual ~ShaderD3D12();
 
         virtual const std::string &GetVertexShaderSource() override;
@@ -24,8 +24,6 @@ namespace Nexus::Graphics
         void CreateFragmentShader();
 
     private:
-        ID3D12Device10 *m_Device;
-
         VertexBufferLayout m_BufferLayout;
         std::string m_VertexShaderSource;
         std::string m_FragmentShaderSource;
