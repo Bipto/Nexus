@@ -161,7 +161,7 @@ namespace Nexus::Graphics
 
     IndexBuffer *GraphicsDeviceD3D12::CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format)
     {
-        return nullptr;
+        return new IndexBufferD3D12(this, description, data, format);
     }
 
     UniformBuffer *GraphicsDeviceD3D12::CreateUniformBuffer(const BufferDescription &description, const void *data)
@@ -226,6 +226,7 @@ namespace Nexus::Graphics
         InitUploadCommandList();
         function(m_UploadCommandList.Get());
         DispatchUploadCommandList();
+        SignalAndWait();
     }
 
     void GraphicsDeviceD3D12::Draw(Pipeline *pipeline, VertexBuffer *buffer)

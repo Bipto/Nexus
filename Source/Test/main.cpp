@@ -8,6 +8,8 @@ std::vector<Nexus::Graphics::VertexPosition> vertices =
         {{0.0f, 0.5f, 0.0f}},
         {{0.5f, -0.5f, 0.0f}}};
 
+std::vector<uint32_t> indices = {0, 1, 2};
+
 struct TestUniforms
 {
     glm::mat4 Transform;
@@ -36,6 +38,11 @@ public:
         vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
         m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(vertexBufferDesc, vertices.data(), Nexus::Graphics::VertexPosition::GetLayout());
 
+        Nexus::Graphics::BufferDescription indexBufferDesc;
+        indexBufferDesc.Size = indices.size() * sizeof(uint32_t);
+        indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
+        m_IndexBuffer = m_GraphicsDevice->CreateIndexBuffer(indexBufferDesc, indices.data());
+
         m_CommandList = m_GraphicsDevice->CreateCommandList();
     }
 
@@ -62,7 +69,8 @@ public:
         {
             m_CommandList->SetPipeline(m_Pipeline);
             m_CommandList->SetVertexBuffer(m_VertexBuffer);
-            m_CommandList->DrawElements(0, 3);
+            m_CommandList->SetIndexBuffer(m_IndexBuffer);
+            m_CommandList->DrawIndexed(3, 0);
         }
         m_CommandList->EndRenderPass();
         m_CommandList->End();
@@ -116,7 +124,9 @@ private:
 
     Nexus::Graphics::Shader *m_Shader = nullptr;
     Nexus::Graphics::Pipeline *m_Pipeline = nullptr;
+
     Nexus::Graphics::VertexBuffer *m_VertexBuffer = nullptr;
+    Nexus::Graphics::IndexBuffer *m_IndexBuffer = nullptr;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)

@@ -108,12 +108,15 @@ namespace Nexus::Graphics
     void CommandListD3D12::SetVertexBuffer(VertexBuffer *vertexBuffer)
     {
         VertexBufferD3D12 *d3d12VertexBuffer = (VertexBufferD3D12 *)vertexBuffer;
-        auto vertexBuffervView = d3d12VertexBuffer->GetVertexBufferView();
-        m_CommandList->IASetVertexBuffers(0, 1, &vertexBuffervView);
+        auto vertexBufferView = d3d12VertexBuffer->GetVertexBufferView();
+        m_CommandList->IASetVertexBuffers(0, 1, &vertexBufferView);
     }
 
     void CommandListD3D12::SetIndexBuffer(IndexBuffer *indexBuffer)
     {
+        IndexBufferD3D12 *d3d12IndexBuffer = (IndexBufferD3D12 *)indexBuffer;
+        auto indexBufferView = d3d12IndexBuffer->GetIndexBufferView();
+        m_CommandList->IASetIndexBuffer(&indexBufferView);
     }
 
     void CommandListD3D12::SetPipeline(Pipeline *pipeline)
@@ -136,6 +139,7 @@ namespace Nexus::Graphics
 
     void CommandListD3D12::DrawIndexed(uint32_t count, uint32_t offset)
     {
+        m_CommandList->DrawIndexedInstanced(count, 1, offset, 0, 0);
     }
 
     void CommandListD3D12::SetResourceSet(ResourceSet *resources)
