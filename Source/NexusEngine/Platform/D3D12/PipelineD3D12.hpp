@@ -14,10 +14,15 @@ namespace Nexus::Graphics
         virtual const PipelineDescription &GetPipelineDescription() const override;
         ID3D12RootSignature *GetRootSignature();
         ID3D12PipelineState *GetPipelineState();
+        D3D_PRIMITIVE_TOPOLOGY GetPrimitiveTopology();
+
+        const D3D12_VIEWPORT& GetViewport();
+        const RECT& GetScissorRectangle();
 
     private:
         void CreateRootSignature();
         void CreateInputLayout();
+        void CreatePrimitiveTopology();
 
         D3D12_RASTERIZER_DESC CreateRasterizerState();
         D3D12_STREAM_OUTPUT_DESC CreateStreamOutputDesc();
@@ -36,5 +41,9 @@ namespace Nexus::Graphics
         std::vector<D3D12_INPUT_ELEMENT_DESC> m_InputLayout;
 
         Microsoft::WRL::ComPtr<ID3D12PipelineState> m_PipelineStateObject = nullptr;
+
+        D3D_PRIMITIVE_TOPOLOGY m_PrimitiveTopology;
+        D3D12_VIEWPORT m_Viewport;
+        RECT m_ScissorRectangle;
     };
 }

@@ -4,9 +4,9 @@
 
 std::vector<Nexus::Graphics::VertexPosition> vertices =
     {
-        {{-0.5f, 0.5f, 0.0f}},
-        {{0.0f, -0.5f, 0.0f}},
-        {{0.5f, 0.5f, 0.0f}}};
+        {{-0.5f, -0.5f, 0.0f}},
+        {{0.0f, 0.5f, 0.0f}},
+        {{0.5f, -0.5f, 0.0f}}};
 
 struct TestUniforms
 {
@@ -24,12 +24,19 @@ public:
     virtual void Load() override
     {
         m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/basic.glsl", Nexus::Graphics::VertexPosition::GetLayout());
+
+        Nexus::Graphics::RenderPassSpecification renderPassSpec;
+        renderPassSpec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
+        m_RenderPass = m_GraphicsDevice->CreateRenderPass(renderPassSpec, GetPrimaryWindow()->GetSwapchain());
+
         CreatePipeline(GetWindowSize());
 
         Nexus::Graphics::BufferDescription vertexBufferDesc;
         vertexBufferDesc.Size = vertices.size() * sizeof(Nexus::Graphics::VertexPosition);
         vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
         m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(vertexBufferDesc, vertices.data(), Nexus::Graphics::VertexPosition::GetLayout());
+
+        m_CommandList = m_GraphicsDevice->CreateCommandList();
     }
 
     virtual void Update(Nexus::Time time) override
@@ -40,10 +47,28 @@ public:
     {
         m_GraphicsDevice->BeginFrame();
 
-        Nexus::Graphics::GraphicsDeviceD3D12 *d3d12Device = (Nexus::Graphics::GraphicsDeviceD3D12 *)m_GraphicsDevice;
-        d3d12Device->Draw(m_Pipeline, m_VertexBuffer);
+        // Nexus::Graphics::GraphicsDeviceD3D12 *d3d12Device = (Nexus::Graphics::GraphicsDeviceD3D12 *)m_GraphicsDevice;
+        // d3d12Device->Draw(m_Pipeline, m_VertexBuffer);
 
+        m_CommandList->Begin();
+
+        Nexus::Graphics::RenderPassBeginInfo beginInfo{};
+        beginInfo.ClearColorValue = {
+            0.45f,
+            0.32f,
+            0.55f,
+            1.0f};
+        m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
+        {
+            m_CommandList->SetPipeline(m_Pipeline);
+            m_CommandList->SetVertexBuffer(m_VertexBuffer);
+            m_CommandList->DrawElements(0, 3);
+        }
+        m_CommandList->EndRenderPass();
+        m_CommandList->End();
         m_GraphicsDevice->EndFrame();
+
+        m_GraphicsDevice->SubmitCommandList(m_CommandList);
     }
 
     virtual void OnResize(Nexus::Point<int> size) override
@@ -68,6 +93,7 @@ public:
         description.Viewport.Height = size.Y;
         description.RasterizerStateDescription.ScissorRectangle = {0, 0, size.X, size.Y};
         description.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
+        description.RenderPass = m_RenderPass;
 
         Nexus::Graphics::ResourceSetSpecification resourceSetSpec;
         description.ResourceSetSpecification = resourceSetSpec;
@@ -80,6 +106,8 @@ public:
         delete m_Shader;
         delete m_Pipeline;
         delete m_VertexBuffer;
+        delete m_CommandList;
+        delete m_RenderPass;
     }
 
 private:

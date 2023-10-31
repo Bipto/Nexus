@@ -26,8 +26,12 @@ namespace Nexus::Graphics
 
         virtual void SetResourceSet(ResourceSet *resources) override;
 
+        ID3D12GraphicsCommandList7 *GetCommandList();
+
     private:
         Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_CommandAllocator = nullptr;
         Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> m_CommandList = nullptr;
+
+        RenderPass *m_CurrentRenderPass = nullptr;
     };
 }

@@ -33,6 +33,19 @@ namespace Nexus::Graphics
         CreateRootSignature();
         CreateInputLayout();
         CreatePipeline();
+        CreatePrimitiveTopology();
+
+        m_Viewport.TopLeftX = description.Viewport.X;
+        m_Viewport.TopLeftY = description.Viewport.Y;
+        m_Viewport.Width = description.Viewport.Width;
+        m_Viewport.Height = description.Viewport.Height;
+        m_Viewport.MinDepth = description.Viewport.MinDepth;
+        m_Viewport.MaxDepth = description.Viewport.MaxDepth;
+
+        m_ScissorRectangle.left = description.RasterizerStateDescription.ScissorRectangle.X;
+        m_ScissorRectangle.top = description.RasterizerStateDescription.ScissorRectangle.Y;
+        m_ScissorRectangle.right = description.RasterizerStateDescription.ScissorRectangle.Width;
+        m_ScissorRectangle.bottom = description.RasterizerStateDescription.ScissorRectangle.Height;
     }
 
     PipelineD3D12::~PipelineD3D12()
@@ -52,6 +65,21 @@ namespace Nexus::Graphics
     ID3D12PipelineState *PipelineD3D12::GetPipelineState()
     {
         return m_PipelineStateObject.Get();
+    }
+
+    D3D_PRIMITIVE_TOPOLOGY PipelineD3D12::GetPrimitiveTopology()
+    {
+        return m_PrimitiveTopology;
+    }
+
+    const D3D12_VIEWPORT &PipelineD3D12::GetViewport()
+    {
+        return m_Viewport;
+    }
+
+    const RECT &PipelineD3D12::GetScissorRectangle()
+    {
+        return m_ScissorRectangle;
     }
 
     void PipelineD3D12::CreateRootSignature()
@@ -139,6 +167,28 @@ namespace Nexus::Graphics
             index++;
         }
     }
+
+    void PipelineD3D12::CreatePrimitiveTopology()
+    {
+        switch (m_Description.PrimitiveTopology)
+        {
+        case Topology::LineList:
+            m_PrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_LINELIST;
+            break;
+        case Topology::LineStrip:
+            m_PrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_LINESTRIP;
+        case Topology::PointList:
+            m_PrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
+            break;
+        case Topology::TriangleList:
+            m_PrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+            break;
+        case Topology::TriangleStrip:
+            m_PrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
+            break;
+        }
+    }
+
     D3D12_RASTERIZER_DESC PipelineD3D12::CreateRasterizerState()
     {
         D3D12_RASTERIZER_DESC desc{};

@@ -6,6 +6,8 @@
 #include "ShaderD3D12.hpp"
 #include "PipelineD3D12.hpp"
 #include "BufferD3D12.hpp"
+#include "CommandListD3D12.hpp"
+#include "RenderPassD3D12.hpp"
 
 namespace Nexus::Graphics
 {
@@ -98,6 +100,10 @@ namespace Nexus::Graphics
 
     void GraphicsDeviceD3D12::SubmitCommandList(CommandList *commandList)
     {
+        CommandListD3D12 *d3d12CommandList = (CommandListD3D12 *)commandList;
+        ID3D12CommandList *lists[] = {d3d12CommandList->GetCommandList()};
+        m_CommandQueue->ExecuteCommandLists(1, lists);
+        SignalAndWait();
     }
 
     const std::string GraphicsDeviceD3D12::GetAPIName()
@@ -145,7 +151,7 @@ namespace Nexus::Graphics
 
     CommandList *GraphicsDeviceD3D12::CreateCommandList()
     {
-        return nullptr;
+        return new CommandListD3D12(this);
     }
 
     VertexBuffer *GraphicsDeviceD3D12::CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
@@ -170,7 +176,7 @@ namespace Nexus::Graphics
 
     RenderPass *GraphicsDeviceD3D12::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain)
     {
-        return nullptr;
+        return new RenderPassD3D12(renderPassSpecification, swapchain);
     }
 
     ResourceSet *GraphicsDeviceD3D12::CreateResourceSet(const ResourceSetSpecification &spec)
