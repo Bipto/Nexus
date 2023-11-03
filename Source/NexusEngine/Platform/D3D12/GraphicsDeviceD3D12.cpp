@@ -8,6 +8,8 @@
 #include "BufferD3D12.hpp"
 #include "CommandListD3D12.hpp"
 #include "RenderPassD3D12.hpp"
+#include "TextureD3D12.hpp"
+#include "ResourceSetD3D12.hpp"
 
 namespace Nexus::Graphics
 {
@@ -136,7 +138,7 @@ namespace Nexus::Graphics
 
     Texture *GraphicsDeviceD3D12::CreateTexture(const TextureSpecification &spec)
     {
-        return nullptr;
+        return new TextureD3D12(this, spec);
     }
 
     Framebuffer *GraphicsDeviceD3D12::CreateFramebuffer(RenderPass *renderPass)
@@ -181,7 +183,7 @@ namespace Nexus::Graphics
 
     ResourceSet *GraphicsDeviceD3D12::CreateResourceSet(const ResourceSetSpecification &spec)
     {
-        return nullptr;
+        return new ResourceSetD3D12(spec, this);
     }
 
     IDXGIFactory7 *GraphicsDeviceD3D12::GetDXGIFactory() const

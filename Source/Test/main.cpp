@@ -2,11 +2,11 @@
 
 #include "Platform/D3D12/GraphicsDeviceD3D12.hpp"
 
-std::vector<Nexus::Graphics::VertexPosition> vertices =
+std::vector<Nexus::Graphics::VertexPositionTexCoord> vertices =
     {
-        {{-0.5f, -0.5f, 0.0f}},
-        {{0.0f, 0.5f, 0.0f}},
-        {{0.5f, -0.5f, 0.0f}}};
+        {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f}},
+        {{0.0f, 0.5f, 0.0f}, {0.5f, 1.0f}},
+        {{0.5f, -0.5f, 0.0f}, {1.0f, 0.0f}}};
 
 std::vector<uint32_t> indices = {0, 1, 2};
 
@@ -25,7 +25,7 @@ public:
 
     virtual void Load() override
     {
-        m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/basic.glsl", Nexus::Graphics::VertexPosition::GetLayout());
+        m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/basic.glsl", Nexus::Graphics::VertexPositionTexCoord::GetLayout());
 
         Nexus::Graphics::RenderPassSpecification renderPassSpec;
         renderPassSpec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
@@ -34,14 +34,16 @@ public:
         CreatePipeline(GetWindowSize());
 
         Nexus::Graphics::BufferDescription vertexBufferDesc;
-        vertexBufferDesc.Size = vertices.size() * sizeof(Nexus::Graphics::VertexPosition);
+        vertexBufferDesc.Size = vertices.size() * sizeof(Nexus::Graphics::VertexPositionTexCoord);
         vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
-        m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(vertexBufferDesc, vertices.data(), Nexus::Graphics::VertexPosition::GetLayout());
+        m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(vertexBufferDesc, vertices.data(), Nexus::Graphics::VertexPositionTexCoord::GetLayout());
 
         Nexus::Graphics::BufferDescription indexBufferDesc;
         indexBufferDesc.Size = indices.size() * sizeof(uint32_t);
         indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
         m_IndexBuffer = m_GraphicsDevice->CreateIndexBuffer(indexBufferDesc, indices.data());
+
+        m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
 
         m_CommandList = m_GraphicsDevice->CreateCommandList();
     }
@@ -52,6 +54,8 @@ public:
 
     virtual void Render(Nexus::Time time) override
     {
+        m_ResourceSet->WriteTexture(m_Texture, 0);
+
         m_GraphicsDevice->BeginFrame();
 
         // Nexus::Graphics::GraphicsDeviceD3D12 *d3d12Device = (Nexus::Graphics::GraphicsDeviceD3D12 *)m_GraphicsDevice;
@@ -68,6 +72,7 @@ public:
         m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
         {
             m_CommandList->SetPipeline(m_Pipeline);
+            m_CommandList->SetResourceSet(m_ResourceSet);
             m_CommandList->SetVertexBuffer(m_VertexBuffer);
             m_CommandList->SetIndexBuffer(m_IndexBuffer);
             m_CommandList->DrawIndexed(3, 0);
@@ -92,6 +97,12 @@ public:
             m_Pipeline = nullptr;
         }
 
+        if (m_ResourceSet)
+        {
+            delete m_ResourceSet;
+            m_ResourceSet = nullptr;
+        }
+
         Nexus::Graphics::PipelineDescription description;
         description.Shader = m_Shader;
         description.RenderPass = m_RenderPass;
@@ -103,10 +114,16 @@ public:
         description.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
         description.RenderPass = m_RenderPass;
 
+        Nexus::Graphics::TextureResourceBinding textureBinding;
+        textureBinding.Name = "texSampler";
+        textureBinding.Slot = 0;
+
         Nexus::Graphics::ResourceSetSpecification resourceSetSpec;
+        resourceSetSpec.TextureBindings = {textureBinding};
         description.ResourceSetSpecification = resourceSetSpec;
 
         m_Pipeline = m_GraphicsDevice->CreatePipeline(description);
+        m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
     }
 
     virtual void Unload() override
@@ -116,6 +133,7 @@ public:
         delete m_VertexBuffer;
         delete m_CommandList;
         delete m_RenderPass;
+        delete m_Texture;
     }
 
 private:
@@ -127,6 +145,9 @@ private:
 
     Nexus::Graphics::VertexBuffer *m_VertexBuffer = nullptr;
     Nexus::Graphics::IndexBuffer *m_IndexBuffer = nullptr;
+
+    Nexus::Graphics::ResourceSet *m_ResourceSet = nullptr;
+    Nexus::Graphics::Texture *m_Texture = nullptr;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)

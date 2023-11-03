@@ -16,8 +16,8 @@ namespace Nexus::Graphics
         ID3D12PipelineState *GetPipelineState();
         D3D_PRIMITIVE_TOPOLOGY GetPrimitiveTopology();
 
-        const D3D12_VIEWPORT& GetViewport();
-        const RECT& GetScissorRectangle();
+        const D3D12_VIEWPORT &GetViewport();
+        const RECT &GetScissorRectangle();
 
     private:
         void CreateRootSignature();

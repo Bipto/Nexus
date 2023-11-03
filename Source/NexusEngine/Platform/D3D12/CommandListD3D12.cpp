@@ -3,6 +3,7 @@
 #include "SwapchainD3D12.hpp"
 #include "PipelineD3D12.hpp"
 #include "BufferD3D12.hpp"
+#include "ResourceSetD3D12.hpp"
 
 namespace Nexus::Graphics
 {
@@ -144,6 +145,17 @@ namespace Nexus::Graphics
 
     void CommandListD3D12::SetResourceSet(ResourceSet *resources)
     {
+        ResourceSetD3D12 *d3d12ResourceSet = (ResourceSetD3D12 *)resources;
+
+        ID3D12DescriptorHeap *heaps[] =
+            {
+                d3d12ResourceSet->GetSamplerDescriptorHeap(),
+                d3d12ResourceSet->GetConstantBufferDescriptorHeap()};
+
+        m_CommandList->SetDescriptorHeaps(2, heaps);
+
+        m_CommandList->SetGraphicsRootDescriptorTable(0, d3d12ResourceSet->GetSamplerGPUStartHandle());
+        m_CommandList->SetGraphicsRootDescriptorTable(1, d3d12ResourceSet->GetConstantBufferGPUStartHandle());
     }
 
     ID3D12GraphicsCommandList7 *CommandListD3D12::GetCommandList()

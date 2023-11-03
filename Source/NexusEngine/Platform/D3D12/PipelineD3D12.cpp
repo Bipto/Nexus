@@ -89,6 +89,45 @@ namespace Nexus::Graphics
         desc.NumParameters = 0;
         desc.NumStaticSamplers = 0;
 
+        D3D12_DESCRIPTOR_RANGE samplerRange;
+        samplerRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+        samplerRange.BaseShaderRegister = 0;
+        samplerRange.NumDescriptors = 1;
+        samplerRange.OffsetInDescriptorsFromTableStart = 0;
+        samplerRange.RegisterSpace = 0;
+
+        D3D12_ROOT_DESCRIPTOR_TABLE samplerTable;
+        samplerTable.NumDescriptorRanges = 1;
+        samplerTable.pDescriptorRanges = &samplerRange;
+
+        D3D12_ROOT_PARAMETER samplerParameter;
+        samplerParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+        samplerParameter.DescriptorTable = samplerTable;
+        samplerParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+        D3D12_DESCRIPTOR_RANGE textureRange;
+        textureRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+        textureRange.BaseShaderRegister = 0;
+        textureRange.NumDescriptors = 1;
+        textureRange.OffsetInDescriptorsFromTableStart = 0;
+        textureRange.RegisterSpace = 0;
+
+        D3D12_ROOT_DESCRIPTOR_TABLE textureTable;
+        textureTable.NumDescriptorRanges = 1;
+        textureTable.pDescriptorRanges = &textureRange;
+
+        D3D12_ROOT_PARAMETER textureParameter;
+        textureParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+        textureParameter.DescriptorTable = textureTable;
+        textureParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+        std::vector<D3D12_ROOT_PARAMETER> parameters =
+            {
+                samplerParameter, textureParameter};
+
+        desc.NumParameters = parameters.size();
+        desc.pParameters = parameters.data();
+
         Microsoft::WRL::ComPtr<ID3DBlob> errorBlob;
 
         if (SUCCEEDED(D3D12SerializeRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION_1, &m_RootSignatureBlob, &errorBlob)))
@@ -177,6 +216,7 @@ namespace Nexus::Graphics
             break;
         case Topology::LineStrip:
             m_PrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_LINESTRIP;
+            break;
         case Topology::PointList:
             m_PrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
             break;
