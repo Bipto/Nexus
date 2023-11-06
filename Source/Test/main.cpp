@@ -1,7 +1,5 @@
 #include "NexusEngine.hpp"
 
-#include "Platform/D3D12/GraphicsDeviceD3D12.hpp"
-
 std::vector<Nexus::Graphics::VertexPositionTexCoord> vertices =
     {
         {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f}},
@@ -57,9 +55,6 @@ public:
         m_ResourceSet->WriteTexture(m_Texture, 0);
 
         m_GraphicsDevice->BeginFrame();
-
-        // Nexus::Graphics::GraphicsDeviceD3D12 *d3d12Device = (Nexus::Graphics::GraphicsDeviceD3D12 *)m_GraphicsDevice;
-        // d3d12Device->Draw(m_Pipeline, m_VertexBuffer);
 
         m_CommandList->Begin();
 

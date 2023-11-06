@@ -89,7 +89,7 @@ namespace Nexus::Graphics
         desc.NumParameters = 0;
         desc.NumStaticSamplers = 0;
 
-        D3D12_DESCRIPTOR_RANGE samplerRange;
+        /* D3D12_DESCRIPTOR_RANGE samplerRange;
         samplerRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
         samplerRange.BaseShaderRegister = 0;
         samplerRange.NumDescriptors = 1;
@@ -123,7 +123,51 @@ namespace Nexus::Graphics
 
         std::vector<D3D12_ROOT_PARAMETER> parameters =
             {
-                samplerParameter, textureParameter};
+                samplerParameter, textureParameter}; */
+
+        std::vector<D3D12_ROOT_PARAMETER> parameters;
+
+        D3D12_DESCRIPTOR_RANGE samplerRange;
+        samplerRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+        samplerRange.BaseShaderRegister = 0;
+        samplerRange.NumDescriptors = m_Description.ResourceSetSpecification.TextureBindings.size();
+        samplerRange.OffsetInDescriptorsFromTableStart = 0;
+        samplerRange.RegisterSpace = 0;
+
+        D3D12_ROOT_DESCRIPTOR_TABLE samplerTable;
+        samplerTable.NumDescriptorRanges = 1;
+        samplerTable.pDescriptorRanges = &samplerRange;
+
+        D3D12_DESCRIPTOR_RANGE textureRange;
+        textureRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+        textureRange.BaseShaderRegister = 0;
+        textureRange.NumDescriptors = m_Description.ResourceSetSpecification.TextureBindings.size();
+        textureRange.OffsetInDescriptorsFromTableStart = 0;
+        textureRange.RegisterSpace = 0;
+
+        D3D12_ROOT_DESCRIPTOR_TABLE textureTable;
+        textureTable.NumDescriptorRanges = 1;
+        textureTable.pDescriptorRanges = &textureRange;
+
+        // setup samplers and textures
+        for (const auto &textureBinding : m_Description.ResourceSetSpecification.TextureBindings)
+        {
+            D3D12_ROOT_PARAMETER samplerParameter;
+            samplerParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+            samplerParameter.DescriptorTable = samplerTable;
+            samplerParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+            parameters.push_back(samplerParameter);
+
+            D3D12_ROOT_PARAMETER textureParameter;
+            textureParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+            textureParameter.DescriptorTable = textureTable;
+            textureParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+            parameters.push_back(textureParameter);
+        }
+
+        // setup constant buffers
+        {
+        }
 
         desc.NumParameters = parameters.size();
         desc.pParameters = parameters.data();
