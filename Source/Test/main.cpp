@@ -41,9 +41,16 @@ public:
         indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
         m_IndexBuffer = m_GraphicsDevice->CreateIndexBuffer(indexBufferDesc, indices.data());
 
+        Nexus::Graphics::BufferDescription uniformBufferDesc;
+        uniformBufferDesc.Size = sizeof(TestUniforms);
+        uniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
+        m_UniformBuffer = m_GraphicsDevice->CreateUniformBuffer(uniformBufferDesc, nullptr);
+
         m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
 
         m_CommandList = m_GraphicsDevice->CreateCommandList();
+
+        m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->SetVSyncState(Nexus::Graphics::VSyncState::Disabled);
     }
 
     virtual void Update(Nexus::Time time) override
@@ -52,6 +59,10 @@ public:
 
     virtual void Render(Nexus::Time time) override
     {
+        m_TestUniforms.Transform = glm::mat4(1.0f);
+        m_UniformBuffer->SetData(&m_TestUniforms, sizeof(m_TestUniforms), 0);
+
+        m_ResourceSet->WriteUniformBuffer(m_UniformBuffer, 0);
         m_ResourceSet->WriteTexture(m_Texture, 0);
 
         m_GraphicsDevice->BeginFrame();
@@ -113,8 +124,14 @@ public:
         textureBinding.Name = "texSampler";
         textureBinding.Slot = 0;
 
+        Nexus::Graphics::UniformResourceBinding uniformBufferBinding;
+        uniformBufferBinding.Binding = 0;
+        uniformBufferBinding.Name = "Transform";
+        uniformBufferBinding.Buffer = m_UniformBuffer;
+
         Nexus::Graphics::ResourceSetSpecification resourceSetSpec;
         resourceSetSpec.TextureBindings = {textureBinding};
+        resourceSetSpec.UniformResourceBindings = {uniformBufferBinding};
         description.ResourceSetSpecification = resourceSetSpec;
 
         m_Pipeline = m_GraphicsDevice->CreatePipeline(description);
@@ -129,6 +146,7 @@ public:
         delete m_CommandList;
         delete m_RenderPass;
         delete m_Texture;
+        delete m_UniformBuffer;
     }
 
 private:
@@ -143,6 +161,9 @@ private:
 
     Nexus::Graphics::ResourceSet *m_ResourceSet = nullptr;
     Nexus::Graphics::Texture *m_Texture = nullptr;
+
+    Nexus::Graphics::UniformBuffer *m_UniformBuffer = nullptr;
+    TestUniforms m_TestUniforms;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)

@@ -147,15 +147,28 @@ namespace Nexus::Graphics
     {
         ResourceSetD3D12 *d3d12ResourceSet = (ResourceSetD3D12 *)resources;
 
+        /*ID3D12DescriptorHeap *heaps[] =
+            {
+                d3d12ResourceSet->GetSamplerDescriptorHeap(),
+                d3d12ResourceSet->GetTextureDescriptorHeap(),
+                d3d12ResourceSet->GetConstantBufferDescriptorHeap()};
+
+        m_CommandList->SetDescriptorHeaps(3, heaps);
+
+        m_CommandList->SetGraphicsRootDescriptorTable(0, d3d12ResourceSet->GetSamplerGPUStartHandle());
+        m_CommandList->SetGraphicsRootDescriptorTable(1, d3d12ResourceSet->GetTextureGPUStartHandle());
+        m_CommandList->SetGraphicsRootDescriptorTable(2, d3d12ResourceSet->GetConstantBufferGPUStartHandle()); */
+
         ID3D12DescriptorHeap *heaps[] =
             {
                 d3d12ResourceSet->GetSamplerDescriptorHeap(),
-                d3d12ResourceSet->GetConstantBufferDescriptorHeap()};
+                d3d12ResourceSet->GetTextureConstantBufferDescriptorHeap()};
 
         m_CommandList->SetDescriptorHeaps(2, heaps);
 
         m_CommandList->SetGraphicsRootDescriptorTable(0, d3d12ResourceSet->GetSamplerGPUStartHandle());
-        m_CommandList->SetGraphicsRootDescriptorTable(1, d3d12ResourceSet->GetConstantBufferGPUStartHandle());
+        m_CommandList->SetGraphicsRootDescriptorTable(1, d3d12ResourceSet->GetTextureGPUStartHandle());
+        m_CommandList->SetGraphicsRootDescriptorTable(2, d3d12ResourceSet->GetConstantBufferGPUStartHandle());
     }
 
     ID3D12GraphicsCommandList7 *CommandListD3D12::GetCommandList()

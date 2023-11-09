@@ -168,7 +168,7 @@ namespace Nexus::Graphics
 
     UniformBuffer *GraphicsDeviceD3D12::CreateUniformBuffer(const BufferDescription &description, const void *data)
     {
-        return nullptr;
+        return new UniformBufferD3D12(this, description, data);
     }
 
     RenderPass *GraphicsDeviceD3D12::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification)

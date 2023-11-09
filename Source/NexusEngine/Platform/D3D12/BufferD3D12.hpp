@@ -37,4 +37,18 @@ namespace Nexus::Graphics
         DXGI_FORMAT m_IndexBufferFormat;
         GraphicsDeviceD3D12 *m_Device = nullptr;
     };
+
+    class UniformBufferD3D12 : public UniformBuffer
+    {
+    public:
+        UniformBufferD3D12(GraphicsDeviceD3D12 *device, const BufferDescription &description, const void *data);
+        virtual ~UniformBufferD3D12();
+        virtual void SetData(const void *data, uint32_t size, uint32_t offset) override;
+        ID3D12Resource2 *GetHandle();
+
+    private:
+        Microsoft::WRL::ComPtr<ID3D12Resource2> m_ConstantBuffer = nullptr;
+        Microsoft::WRL::ComPtr<ID3D12Resource2> m_UploadBuffer = nullptr;
+        GraphicsDeviceD3D12 *m_Device = nullptr;
+    };
 }

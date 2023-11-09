@@ -89,49 +89,13 @@ namespace Nexus::Graphics
         desc.NumParameters = 0;
         desc.NumStaticSamplers = 0;
 
-        /* D3D12_DESCRIPTOR_RANGE samplerRange;
-        samplerRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
-        samplerRange.BaseShaderRegister = 0;
-        samplerRange.NumDescriptors = 1;
-        samplerRange.OffsetInDescriptorsFromTableStart = 0;
-        samplerRange.RegisterSpace = 0;
-
-        D3D12_ROOT_DESCRIPTOR_TABLE samplerTable;
-        samplerTable.NumDescriptorRanges = 1;
-        samplerTable.pDescriptorRanges = &samplerRange;
-
-        D3D12_ROOT_PARAMETER samplerParameter;
-        samplerParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-        samplerParameter.DescriptorTable = samplerTable;
-        samplerParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-
-        D3D12_DESCRIPTOR_RANGE textureRange;
-        textureRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-        textureRange.BaseShaderRegister = 0;
-        textureRange.NumDescriptors = 1;
-        textureRange.OffsetInDescriptorsFromTableStart = 0;
-        textureRange.RegisterSpace = 0;
-
-        D3D12_ROOT_DESCRIPTOR_TABLE textureTable;
-        textureTable.NumDescriptorRanges = 1;
-        textureTable.pDescriptorRanges = &textureRange;
-
-        D3D12_ROOT_PARAMETER textureParameter;
-        textureParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-        textureParameter.DescriptorTable = textureTable;
-        textureParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-
-        std::vector<D3D12_ROOT_PARAMETER> parameters =
-            {
-                samplerParameter, textureParameter}; */
-
         std::vector<D3D12_ROOT_PARAMETER> parameters;
 
         D3D12_DESCRIPTOR_RANGE samplerRange;
         samplerRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
         samplerRange.BaseShaderRegister = 0;
         samplerRange.NumDescriptors = m_Description.ResourceSetSpecification.TextureBindings.size();
-        samplerRange.OffsetInDescriptorsFromTableStart = 0;
+        samplerRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
         samplerRange.RegisterSpace = 0;
 
         D3D12_ROOT_DESCRIPTOR_TABLE samplerTable;
@@ -142,12 +106,23 @@ namespace Nexus::Graphics
         textureRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
         textureRange.BaseShaderRegister = 0;
         textureRange.NumDescriptors = m_Description.ResourceSetSpecification.TextureBindings.size();
-        textureRange.OffsetInDescriptorsFromTableStart = 0;
+        textureRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
         textureRange.RegisterSpace = 0;
 
         D3D12_ROOT_DESCRIPTOR_TABLE textureTable;
         textureTable.NumDescriptorRanges = 1;
         textureTable.pDescriptorRanges = &textureRange;
+
+        D3D12_DESCRIPTOR_RANGE constantBufferRange;
+        constantBufferRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+        constantBufferRange.BaseShaderRegister = 0;
+        constantBufferRange.NumDescriptors = m_Description.ResourceSetSpecification.UniformResourceBindings.size();
+        constantBufferRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+        constantBufferRange.RegisterSpace = 0;
+
+        D3D12_ROOT_DESCRIPTOR_TABLE constantBufferTable;
+        constantBufferTable.NumDescriptorRanges = 1;
+        constantBufferTable.pDescriptorRanges = &constantBufferRange;
 
         // setup samplers and textures
         for (const auto &textureBinding : m_Description.ResourceSetSpecification.TextureBindings)
@@ -166,7 +141,13 @@ namespace Nexus::Graphics
         }
 
         // setup constant buffers
+        for (const auto &uniformBufferBinding : m_Description.ResourceSetSpecification.UniformResourceBindings)
         {
+            D3D12_ROOT_PARAMETER constantBufferParameter;
+            constantBufferParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+            constantBufferParameter.DescriptorTable = constantBufferTable;
+            constantBufferParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+            parameters.push_back(constantBufferParameter);
         }
 
         desc.NumParameters = parameters.size();

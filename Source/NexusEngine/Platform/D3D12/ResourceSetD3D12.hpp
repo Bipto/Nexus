@@ -16,13 +16,14 @@ namespace Nexus::Graphics
 
         D3D12_GPU_DESCRIPTOR_HANDLE GetConstantBufferGPUStartHandle();
         D3D12_GPU_DESCRIPTOR_HANDLE GetSamplerGPUStartHandle();
+        D3D12_GPU_DESCRIPTOR_HANDLE GetTextureGPUStartHandle();
 
         ID3D12DescriptorHeap *GetSamplerDescriptorHeap();
-        ID3D12DescriptorHeap *GetConstantBufferDescriptorHeap();
+        ID3D12DescriptorHeap *GetTextureConstantBufferDescriptorHeap();
 
     private:
         Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_SamplerDescriptorHeap = nullptr;
-        Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_ConstantBufferTextureDescriptorHeap = nullptr;
+        Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_TextureConstantBufferDescriptorHeap = nullptr;
 
         std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_SamplerCPUDescriptors;
         std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> m_SamplerGPUDescriptors;
