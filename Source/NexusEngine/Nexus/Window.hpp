@@ -153,11 +153,19 @@ namespace Nexus
         /// @brief A method that restores a window to it's previous size
         void Restore();
 
+        /// @brief A method that creates a new swapchain to support rendering to the window
+        /// @param device The graphics device to use to create the swapchain
+        /// @param vSyncState Whether or not vsync should be enabled for rendering
         void CreateSwapchain(Graphics::GraphicsDevice *device, Graphics::VSyncState vSyncState);
 
+        /// @brief A method that returns a pointer to the window's swapchain
+        /// @return A pointer to a swapchain
         Graphics::Swapchain *GetSwapchain();
 
     private:
+        /// @brief A method that returns a set of flags to use when creating the window
+        /// @param api The graphics API to create the swapchain
+        /// @return An unsigned int representing the flags
         uint32_t GetFlags(Graphics::GraphicsAPI api);
 
     private:
@@ -179,8 +187,10 @@ namespace Nexus
         /// @brief An enum value representing the current state of the window
         WindowState m_CurrentWindowState = WindowState::Normal;
 
+        /// @brief A pointer to the window's swapchain
         Graphics::Swapchain *m_Swapchain = nullptr;
 
+        /// @brief A void pointer to the window's surface
         void *m_Surface = nullptr;
 
         /// @brief A friend class to allow an application to access private members of this class

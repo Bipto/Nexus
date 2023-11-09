@@ -4,7 +4,17 @@ project ("NexusEngine")
 
 #adds cpp and h files from engine
 file (GLOB_RECURSE ENGINE_HEADERS Nexus/*.h)
-file (GLOB_RECURSE ENGINE_SOURCES Nexus/*.cpp Nexus/Input/*.cpp Nexus/FileSystem/*.cpp Platform/*.cpp Platform/OpenGL*.cpp Platform/DX11/*.cpp Runtime/*.cpp Runtime/ECS/*.cpp)
+file (GLOB_RECURSE ENGINE_SOURCES 
+ Nexus/*.cpp
+ Nexus/Input/*.cpp
+ Nexus/FileSystem/*.cpp
+ Platform/*.cpp
+ Platform/OpenGL*.cpp
+ Platform/DX11/*.cpp
+ Platform/D3D12/*.cpp
+ Runtime/*.cpp
+ Runtime/ECS/*.cpp)
+
 add_library(NexusEngine ${ENGINE_HEADERS} ${ENGINE_SOURCES})
 
 #including dependencies

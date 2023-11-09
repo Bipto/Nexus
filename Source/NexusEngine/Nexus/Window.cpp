@@ -15,6 +15,10 @@
 #include "Platform/Vulkan/SwapchainVk.hpp"
 #endif
 
+#if defined(NX_PLATFORM_D3D12)
+#include "Platform/D3D12/SwapchainD3D12.hpp"
+#endif
+
 namespace Nexus
 {
     static KeyCode SDLToNexusKeycode(SDL_Keycode keycode)
@@ -247,44 +251,6 @@ namespace Nexus
 
     Window::Window(const WindowProperties &windowProps, Graphics::GraphicsAPI api)
     {
-        // required by emscripten
-        /* uint32_t flags = SDL_WINDOW_RESIZABLE;
-
-        if (windowProps.GraphicsAPI == Graphics::GraphicsAPI::OpenGL)
-        {
-#if defined(EMSCRIPTEN) || defined(__ANDROID__)
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-#elif defined(__APPLE__)
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG); // Always required on Mac
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-#else
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
-#endif
-
-            SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-            SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-            SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-
-#ifndef __EMSCRIPTEN__
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
-#endif
-
-            flags |= SDL_WINDOW_OPENGL;
-        }
-
-        if (windowProps.GraphicsAPI == Graphics::GraphicsAPI::Vulkan)
-        {
-            flags |= SDL_WINDOW_VULKAN;
-        } */
-
         uint32_t flags = GetFlags(api);
 
         // NOTE: Resizable flag MUST be set in order for Emscripten resizing to work correctly
@@ -300,6 +266,7 @@ namespace Nexus
 
     Window::~Window()
     {
+        delete m_Swapchain;
         SDL_DestroyWindow(this->m_Window);
     }
 
@@ -586,6 +553,14 @@ namespace Nexus
             break;
         }
 #endif
+#if defined(NX_PLATFORM_D3D12)
+        case Graphics::GraphicsAPI::D3D12:
+        {
+            m_Swapchain = new Graphics::SwapchainD3D12(this, device, vSyncState);
+            break;
+        }
+#endif
+
         default:
             NX_ERROR("Failed to create swapchain");
             throw std::runtime_error("Failed to create swapchain");
@@ -607,7 +582,7 @@ namespace Nexus
             // setup for OpenGL
         case Graphics::GraphicsAPI::OpenGL:
         {
-#if defined(EMSCRIPTEN) || defined(__ANDROID__)
+#if defined(__EMSCRIPTEN__) || defined(__ANDROID__)
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);

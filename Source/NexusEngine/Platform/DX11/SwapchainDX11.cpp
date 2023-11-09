@@ -6,7 +6,6 @@
 
 #include "SDL_syswm.h"
 
-#include <dxgi.h>
 #include <dxgi1_6.h>
 
 namespace Nexus::Graphics

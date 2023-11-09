@@ -7,7 +7,7 @@
 
 namespace Nexus::Graphics
 {
-    DXGI_FORMAT GetDXBaseType(const VertexBufferElement element)
+    DXGI_FORMAT Get3D11BaseType(const VertexBufferElement element)
     {
         switch (element.Type)
         {
@@ -143,7 +143,7 @@ namespace Nexus::Graphics
                 {
                     element.Name.c_str(),
                     index,
-                    GetDXBaseType(element),
+                    Get3D11BaseType(element),
                     0,
                     D3D11_APPEND_ALIGNED_ELEMENT,
                     D3D11_INPUT_PER_VERTEX_DATA,

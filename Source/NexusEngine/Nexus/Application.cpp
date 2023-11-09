@@ -4,6 +4,10 @@
 #include "Platform/OpenGL/GraphicsDeviceOpenGL.hpp"
 #include "Platform/DX11/GraphicsDeviceDX11.hpp"
 
+#if defined(NX_PLATFORM_D3D12)
+#include "Platform/D3D12/GraphicsDeviceD3D12.hpp"
+#endif
+
 #if defined(NX_PLATFORM_VULKAN)
 #include "Platform/Vulkan/GraphicsDeviceVk.hpp"
 #endif
@@ -49,22 +53,29 @@ namespace Nexus
 
         m_AudioDevice = Nexus::CreateAudioDevice(spec.AudioAPI);
 
-        IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
-        ImGui::StyleColorsDark();
+        if (spec.ImGuiActive)
+        {
+            IMGUI_CHECKVERSION();
+            ImGui::CreateContext();
+            ImGui::StyleColorsDark();
 
-        ImGuiIO &io = ImGui::GetIO();
-        (void)io;
-        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+            ImGuiIO &io = ImGui::GetIO();
+            (void)io;
+            io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+            io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-        m_ImGuiRenderer = new Nexus::Graphics::ImGuiRenderer(this);
-        m_ImGuiRenderer->Initialise();
+            m_ImGuiRenderer = new Nexus::Graphics::ImGuiRenderer(this);
+            m_ImGuiRenderer->Initialise();
+        }
     }
 
     Application::~Application()
     {
-        m_ImGuiRenderer->Shutdown();
+        if (m_Specification.ImGuiActive)
+        {
+            m_ImGuiRenderer->Shutdown();
+        }
+
         delete m_Window;
         delete m_AudioDevice;
         delete m_GraphicsDevice;
@@ -187,22 +198,30 @@ namespace Nexus
     {
         switch (createInfo.API)
         {
-        case Graphics::GraphicsAPI::DirectX11:
 #if defined(NX_PLATFORM_DX11)
+        case Graphics::GraphicsAPI::DirectX11:
             return new Graphics::GraphicsDeviceDX11(createInfo, window);
-#else
-            return nullptr;
+            break;
+#endif
+
+#if defined(NX_PLATFORM_D3D12)
+        case Graphics::GraphicsAPI::D3D12:
+            return new Graphics::GraphicsDeviceD3D12(createInfo, window);
+            break;
 #endif
 
         case Graphics::GraphicsAPI::OpenGL:
             return new Graphics::GraphicsDeviceOpenGL(createInfo, window);
+            break;
 
-        case Graphics::GraphicsAPI::Vulkan:
 #if defined(NX_PLATFORM_VULKAN)
+        case Graphics::GraphicsAPI::Vulkan:
             return new Graphics::GraphicsDeviceVk(createInfo, window);
-#else
-            return nullptr;
+            break;
 #endif
+        default:
+            return nullptr;
+            break;
         }
     }
 

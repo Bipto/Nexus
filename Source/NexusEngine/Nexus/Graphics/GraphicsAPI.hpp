@@ -14,6 +14,9 @@ namespace Nexus::Graphics
         /// @brief Graphics will be created using DirectX11
         DirectX11,
 
+        /// @brief Graphics will be created using Direct3D12
+        D3D12,
+
         /// @brief Graphics will be created using Vulkan
         Vulkan
     };

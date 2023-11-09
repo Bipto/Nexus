@@ -1,10 +1,12 @@
 #include "NexusEngine.hpp"
 
-std::vector<Nexus::Graphics::VertexPosition> vertices =
+std::vector<Nexus::Graphics::VertexPositionTexCoord> vertices =
     {
-        {{-0.5f, 0.5f, 0.0f}},
-        {{0.0f, -0.5f, 0.0f}},
-        {{0.5f, 0.5f, 0.0f}}};
+        {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f}},
+        {{0.0f, 0.5f, 0.0f}, {0.5f, 1.0f}},
+        {{0.5f, -0.5f, 0.0f}, {1.0f, 0.0f}}};
+
+std::vector<uint32_t> indices = {0, 1, 2};
 
 struct TestUniforms
 {
@@ -21,46 +23,34 @@ public:
 
     virtual void Load() override
     {
-        m_CommandList = m_GraphicsDevice->CreateCommandList();
+        m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/basic.glsl", Nexus::Graphics::VertexPositionTexCoord::GetLayout());
 
-        Nexus::Graphics::RenderPassSpecification spec;
-        spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
-        spec.StencilDepthLoadOperation = Nexus::Graphics::LoadOperation::Clear;
-        m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_GraphicsDevice->GetSwapchain());
+        Nexus::Graphics::RenderPassSpecification renderPassSpec;
+        renderPassSpec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
+        m_RenderPass = m_GraphicsDevice->CreateRenderPass(renderPassSpec, GetPrimaryWindow()->GetSwapchain());
 
-        m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/basic.glsl", Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
+        CreatePipeline(GetWindowSize());
+
+        Nexus::Graphics::BufferDescription vertexBufferDesc;
+        vertexBufferDesc.Size = vertices.size() * sizeof(Nexus::Graphics::VertexPositionTexCoord);
+        vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
+        m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(vertexBufferDesc, vertices.data(), Nexus::Graphics::VertexPositionTexCoord::GetLayout());
+
+        Nexus::Graphics::BufferDescription indexBufferDesc;
+        indexBufferDesc.Size = indices.size() * sizeof(uint32_t);
+        indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
+        m_IndexBuffer = m_GraphicsDevice->CreateIndexBuffer(indexBufferDesc, indices.data());
 
         Nexus::Graphics::BufferDescription uniformBufferDesc;
         uniformBufferDesc.Size = sizeof(TestUniforms);
         uniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
         m_UniformBuffer = m_GraphicsDevice->CreateUniformBuffer(uniformBufferDesc, nullptr);
 
-        CreatePipeline({GetWindowSize().X,
-                        GetWindowSize().Y});
-
-        Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
-        m_Mesh = factory.CreateSprite();
-
         m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
 
-        Nexus::Graphics::FramebufferSpecification framebufferSpec;
-        framebufferSpec.Width = 1280;
-        framebufferSpec.Height = 720;
-        framebufferSpec.IsSwapchain = false;
-        framebufferSpec.ColorAttachmentSpecification =
-            {
-                Nexus::Graphics::TextureFormat::Color};
+        m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-        Nexus::Graphics::RenderPassSpecification offscreenSpec;
-        offscreenSpec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
-        offscreenSpec.StencilDepthLoadOperation = Nexus::Graphics::LoadOperation::Clear;
-
-        auto pair = m_GraphicsDevice->CreateRenderPassAndFramebuffer(offscreenSpec, framebufferSpec);
-        m_Framebuffer = pair.first;
-        m_FramebufferRenderPass = pair.second;
-
-        m_BoundFramebufferTexture = m_ImGuiRenderer->BindFramebufferTexture(m_Framebuffer, 0);
-        m_BoundTexture = m_ImGuiRenderer->BindTexture(m_Texture);
+        m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->SetVSyncState(Nexus::Graphics::VSyncState::Disabled);
     }
 
     virtual void Update(Nexus::Time time) override
@@ -69,58 +59,35 @@ public:
 
     virtual void Render(Nexus::Time time) override
     {
-        ImGui::ShowDemoWindow();
+        m_TestUniforms.Transform = glm::mat4(1.0f);
+        m_UniformBuffer->SetData(&m_TestUniforms, sizeof(m_TestUniforms), 0);
 
-        ImGui::Begin("Framebuffer");
-        ImGui::ColorEdit3("Color", glm::value_ptr(m_Color));
-        auto windowSize = ImGui::GetContentRegionAvail();
-        ImGui::Image(m_BoundFramebufferTexture, windowSize);
-        ImGui::End();
+        m_ResourceSet->WriteUniformBuffer(m_UniformBuffer, 0);
+        m_ResourceSet->WriteTexture(m_Texture, 0);
 
         m_GraphicsDevice->BeginFrame();
 
-        m_TestUniforms.Transform = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), {0, 0, 1});
-        m_UniformBuffer->SetData(&m_TestUniforms, sizeof(m_TestUniforms), 0);
-
         m_CommandList->Begin();
 
-        // offscreen rendering
+        Nexus::Graphics::RenderPassBeginInfo beginInfo{};
+        beginInfo.ClearColorValue = {
+            0.45f,
+            0.32f,
+            0.55f,
+            1.0f};
+        m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
         {
-            Nexus::Graphics::RenderPassBeginInfo beginInfo;
-            beginInfo.ClearColorValue = {m_Color.r, m_Color.g, m_Color.b, 1.0f};
-            m_CommandList->BeginRenderPass(m_FramebufferRenderPass, beginInfo);
-            m_CommandList->EndRenderPass();
-        }
-
-        // render to swapchain
-        {
-            Nexus::Graphics::RenderPassBeginInfo beginInfo;
-            beginInfo.ClearColorValue = {
-                0.65f,
-                0.45f,
-                0.375f,
-                1.0f};
-            beginInfo.ClearDepthStencilValue.Depth = 1.0f;
-
-            m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
             m_CommandList->SetPipeline(m_Pipeline);
-
-            m_ResourceSet->WriteTexture(m_Texture, 0);
-            m_ResourceSet->WriteUniformBuffer(m_UniformBuffer, 0);
             m_CommandList->SetResourceSet(m_ResourceSet);
-
-            m_CommandList->SetVertexBuffer(m_Mesh->GetVertexBuffer());
-            m_CommandList->SetIndexBuffer(m_Mesh->GetIndexBuffer());
-
-            auto indexCount = m_Mesh->GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
-            m_CommandList->DrawIndexed(indexCount, 0);
-            m_CommandList->EndRenderPass();
+            m_CommandList->SetVertexBuffer(m_VertexBuffer);
+            m_CommandList->SetIndexBuffer(m_IndexBuffer);
+            m_CommandList->DrawIndexed(3, 0);
         }
-
+        m_CommandList->EndRenderPass();
         m_CommandList->End();
-        m_GraphicsDevice->SubmitCommandList(m_CommandList);
-
         m_GraphicsDevice->EndFrame();
+
+        m_GraphicsDevice->SubmitCommandList(m_CommandList);
     }
 
     virtual void OnResize(Nexus::Point<int> size) override
@@ -136,6 +103,12 @@ public:
             m_Pipeline = nullptr;
         }
 
+        if (m_ResourceSet)
+        {
+            delete m_ResourceSet;
+            m_ResourceSet = nullptr;
+        }
+
         Nexus::Graphics::PipelineDescription description;
         description.Shader = m_Shader;
         description.RenderPass = m_RenderPass;
@@ -145,36 +118,35 @@ public:
         description.Viewport.Height = size.Y;
         description.RasterizerStateDescription.ScissorRectangle = {0, 0, size.X, size.Y};
         description.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
+        description.RenderPass = m_RenderPass;
 
         Nexus::Graphics::TextureResourceBinding textureBinding;
-        textureBinding.Slot = 0;
         textureBinding.Name = "texSampler";
+        textureBinding.Slot = 0;
 
-        Nexus::Graphics::UniformResourceBinding uniformBinding;
-        uniformBinding.Binding = 0;
-        uniformBinding.Name = "Transform";
-        uniformBinding.Buffer = m_UniformBuffer;
+        Nexus::Graphics::UniformResourceBinding uniformBufferBinding;
+        uniformBufferBinding.Binding = 0;
+        uniformBufferBinding.Name = "Transform";
+        uniformBufferBinding.Buffer = m_UniformBuffer;
 
         Nexus::Graphics::ResourceSetSpecification resourceSetSpec;
         resourceSetSpec.TextureBindings = {textureBinding};
-        resourceSetSpec.UniformResourceBindings = {uniformBinding};
-
+        resourceSetSpec.UniformResourceBindings = {uniformBufferBinding};
         description.ResourceSetSpecification = resourceSetSpec;
 
         m_Pipeline = m_GraphicsDevice->CreatePipeline(description);
-
         m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
     }
 
     virtual void Unload() override
     {
         delete m_Shader;
-        delete m_UniformBuffer;
         delete m_Pipeline;
-        delete m_Mesh;
+        delete m_VertexBuffer;
+        delete m_CommandList;
+        delete m_RenderPass;
         delete m_Texture;
-        delete m_Framebuffer;
-        delete m_FramebufferRenderPass;
+        delete m_UniformBuffer;
     }
 
 private:
@@ -183,28 +155,23 @@ private:
 
     Nexus::Graphics::Shader *m_Shader = nullptr;
     Nexus::Graphics::Pipeline *m_Pipeline = nullptr;
-    Nexus::Graphics::Mesh *m_Mesh;
 
-    Nexus::Graphics::Texture *m_Texture = nullptr;
-    Nexus::Graphics::UniformBuffer *m_UniformBuffer = nullptr;
+    Nexus::Graphics::VertexBuffer *m_VertexBuffer = nullptr;
+    Nexus::Graphics::IndexBuffer *m_IndexBuffer = nullptr;
 
-    Nexus::Graphics::RenderPass *m_FramebufferRenderPass = nullptr;
-    Nexus::Graphics::Framebuffer *m_Framebuffer = nullptr;
     Nexus::Graphics::ResourceSet *m_ResourceSet = nullptr;
+    Nexus::Graphics::Texture *m_Texture = nullptr;
 
+    Nexus::Graphics::UniformBuffer *m_UniformBuffer = nullptr;
     TestUniforms m_TestUniforms;
-    ImTextureID m_BoundTexture;
-    ImTextureID m_BoundFramebufferTexture;
-
-    glm::vec3 m_Color = {0.3f, 0.8f, 0.45f};
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
-    spec.ImGuiActive = true;
+    spec.ImGuiActive = false;
     spec.VSyncState = Nexus::Graphics::VSyncState::Enabled;
 
     return new TestApplication(spec);

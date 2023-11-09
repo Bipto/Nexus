@@ -8,10 +8,11 @@ def build():
     build_dir = source_dir + "/build/Emscripten"        
     os.chdir(source_dir)
     
-    os.system('emcmake cmake -D CMAKE_BUILD_TYPE=Release -G "Unix Makefiles" -S . -B build/Emscripten')
+    os.system('emcmake cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -S . -B build/Emscripten')
     os.chdir(build_dir)
     os.system('make')
     
+    #copy the html templates to the output directory
     debug_html_path = current_dir + "/Resources/debug.html"
     fullscreen_html_path = current_dir + "/Resources/fullscreen.html"
     
