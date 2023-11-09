@@ -264,7 +264,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
     {
         if (arguments[1] == "DX")
         {
-            spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::DirectX11;
+            spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D11;
         }
     }
 

@@ -24,12 +24,12 @@ layout (location = 0) out vec4 FragColor;
 
 layout (location = 0) in vec2 texCoord;
 
-layout (set = 0, binding = 0) uniform sampler2D texSampler;
+//layout (set = 0, binding = 0) uniform sampler2D texSampler;
 
 void main()
 {
-    //FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 
-    vec3 color = texture(texSampler, texCoord).xyz;
-    FragColor = vec4(color, 1.0);
+    //vec3 color = texture(texSampler, texCoord).xyz;
+    //FragColor = vec4(color, 1.0);
 }

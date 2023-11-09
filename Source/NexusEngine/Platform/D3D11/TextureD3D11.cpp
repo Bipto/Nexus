@@ -1,11 +1,11 @@
 #if defined(WIN32)
 
-#include "TextureDX11.hpp"
+#include "TextureD3D11.hpp"
 #include "Nexus/Logging/Log.hpp"
 
 namespace Nexus::Graphics
 {
-    TextureDX11::TextureDX11(ID3D11Device *device, const TextureSpecification &spec) : Texture(spec)
+    TextureD3D11::TextureD3D11(ID3D11Device *device, const TextureSpecification &spec) : Texture(spec)
     {
         int imagePitch = spec.Width * 4;
 
@@ -66,14 +66,14 @@ namespace Nexus::Graphics
         hr = device->CreateSamplerState(&samplerDesc, &m_SamplerState);
     }
 
-    TextureDX11::~TextureDX11()
+    TextureD3D11::~TextureD3D11()
     {
         m_SamplerState->Release();
         m_ResourceView->Release();
         m_Texture->Release();
     }
 
-    ResourceHandle TextureDX11::GetHandle()
+    ResourceHandle TextureD3D11::GetHandle()
     {
         return (ResourceHandle)m_ResourceView;
     }

@@ -28,7 +28,7 @@ endif()
 #platform specific configurations
 if (WIN32)
     add_compile_definitions(NX_PLATFORM_WINDOWS)
-    add_compile_definitions(NX_PLATFORM_DX11)
+    add_compile_definitions(NX_PLATFORM_D3D11)
     add_compile_definitions(NX_PLATFORM_D3D12)
     add_compile_definitions(NX_PLATFORM_OPENGL)
     add_compile_definitions(NX_PLATFORM_VULKAN)

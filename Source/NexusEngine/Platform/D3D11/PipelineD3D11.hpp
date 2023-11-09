@@ -2,18 +2,18 @@
 
 #include "Nexus/Graphics/Pipeline.hpp"
 
-#include "DX11.hpp"
+#include "D3D11Include.hpp"
 
-#if defined(NX_PLATFORM_DX11)
+#if defined(NX_PLATFORM_D3D11)
 
 namespace Nexus::Graphics
 {
 
-    class PipelineDX11 : public Pipeline
+    class PipelineD3D11 : public Pipeline
     {
     public:
-        PipelineDX11(ID3D11Device *device, ID3D11DeviceContext *context, const PipelineDescription &description);
-        virtual ~PipelineDX11();
+        PipelineD3D11(ID3D11Device *device, ID3D11DeviceContext *context, const PipelineDescription &description);
+        virtual ~PipelineD3D11();
         virtual const PipelineDescription &GetPipelineDescription() const override;
 
     public:

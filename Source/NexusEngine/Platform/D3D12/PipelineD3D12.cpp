@@ -27,6 +27,116 @@ namespace Nexus::Graphics
         }
     }
 
+    D3D12_CULL_MODE GetCullMode(CullMode cullMode)
+    {
+        switch (cullMode)
+        {
+        case CullMode::Back:
+            return D3D12_CULL_MODE_BACK;
+        case CullMode::Front:
+            return D3D12_CULL_MODE_FRONT;
+        case CullMode::None:
+            return D3D12_CULL_MODE_NONE;
+        }
+    }
+
+    D3D12_COMPARISON_FUNC GetComparisonFunction(ComparisonFunction function)
+    {
+        switch (function)
+        {
+        case ComparisonFunction::Always:
+            return D3D12_COMPARISON_FUNC_ALWAYS;
+        case ComparisonFunction::Equal:
+            return D3D12_COMPARISON_FUNC_EQUAL;
+        case ComparisonFunction::Greater:
+            return D3D12_COMPARISON_FUNC_GREATER;
+        case ComparisonFunction::GreaterEqual:
+            return D3D12_COMPARISON_FUNC_GREATER_EQUAL;
+        case ComparisonFunction::Less:
+            return D3D12_COMPARISON_FUNC_LESS;
+        case ComparisonFunction::LessEqual:
+            return D3D12_COMPARISON_FUNC_LESS_EQUAL;
+        case ComparisonFunction::Never:
+            return D3D12_COMPARISON_FUNC_NEVER;
+        case ComparisonFunction::NotEqual:
+            return D3D12_COMPARISON_FUNC_NOT_EQUAL;
+        }
+    }
+
+    D3D12_STENCIL_OP GetStencilOperation(StencilOperation operation)
+    {
+        switch (operation)
+        {
+        case StencilOperation::Keep:
+            return D3D12_STENCIL_OP_KEEP;
+        case StencilOperation::Zero:
+            return D3D12_STENCIL_OP_ZERO;
+        case StencilOperation::Replace:
+            return D3D12_STENCIL_OP_REPLACE;
+        case StencilOperation::Increment:
+            return D3D12_STENCIL_OP_INCR;
+        case StencilOperation::Decrement:
+            return D3D12_STENCIL_OP_DECR;
+        case StencilOperation::Invert:
+            return D3D12_STENCIL_OP_INVERT;
+        }
+    }
+
+    D3D12_FILL_MODE GetFillMode(FillMode fillMode)
+    {
+        switch (fillMode)
+        {
+        case FillMode::Solid:
+            return D3D12_FILL_MODE_SOLID;
+        case FillMode::Wireframe:
+            return D3D12_FILL_MODE_WIREFRAME;
+        }
+    }
+
+    D3D12_BLEND GetBlendFunction(BlendFunction function)
+    {
+        switch (function)
+        {
+        case BlendFunction::Zero:
+            return D3D12_BLEND_ZERO;
+        case BlendFunction::One:
+            return D3D12_BLEND_ONE;
+        case BlendFunction::SourceColor:
+            return D3D12_BLEND_SRC_COLOR;
+        case BlendFunction::OneMinusSourceColor:
+            return D3D12_BLEND_INV_SRC_COLOR;
+        case BlendFunction::DestinationColor:
+            return D3D12_BLEND_DEST_COLOR;
+        case BlendFunction::OneMinusDestinationColor:
+            return D3D12_BLEND_INV_DEST_COLOR;
+        case BlendFunction::SourceAlpha:
+            return D3D12_BLEND_SRC_ALPHA;
+        case BlendFunction::OneMinusSourceAlpha:
+            return D3D12_BLEND_INV_SRC_ALPHA;
+        case BlendFunction::DestinationAlpha:
+            return D3D12_BLEND_DEST_ALPHA;
+        case BlendFunction::OneMinusDestinationAlpha:
+            return D3D12_BLEND_INV_DEST_ALPHA;
+        }
+    }
+
+    D3D12_BLEND_OP GetBlendEquation(BlendEquation equation)
+    {
+        switch (equation)
+        {
+        case BlendEquation::Add:
+            return D3D12_BLEND_OP_ADD;
+        case BlendEquation::Subtract:
+            return D3D12_BLEND_OP_SUBTRACT;
+        case BlendEquation::ReverseSubtract:
+            return D3D12_BLEND_OP_REV_SUBTRACT;
+        case BlendEquation::Min:
+            return D3D12_BLEND_OP_MIN;
+        case BlendEquation::Max:
+            return D3D12_BLEND_OP_MAX;
+        }
+    }
+
     PipelineD3D12::PipelineD3D12(ID3D12Device10 *device, const PipelineDescription &description)
         : Pipeline(description), m_Device(device), m_Description(description)
     {
@@ -258,7 +368,7 @@ namespace Nexus::Graphics
     {
         D3D12_RASTERIZER_DESC desc{};
         desc.FillMode = D3D12_FILL_MODE_SOLID;
-        desc.CullMode = D3D12_CULL_MODE_NONE;
+        desc.CullMode = GetCullMode(m_Description.RasterizerStateDescription.CullMode);
         desc.FrontCounterClockwise = false;
         desc.DepthBias = 0;
         desc.DepthBiasClamp = .0f;
@@ -286,12 +396,12 @@ namespace Nexus::Graphics
         desc.AlphaToCoverageEnable = FALSE;
         desc.IndependentBlendEnable = FALSE;
         desc.RenderTarget[0].BlendEnable = TRUE;
-        desc.RenderTarget[0].SrcBlend = D3D12_BLEND_ONE;
-        desc.RenderTarget[0].DestBlend = D3D12_BLEND_ZERO;
-        desc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-        desc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ZERO;
-        desc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
-        desc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+        desc.RenderTarget[0].SrcBlend = GetBlendFunction(m_Description.BlendStateDescription.SourceColourBlend);
+        desc.RenderTarget[0].DestBlend = GetBlendFunction(m_Description.BlendStateDescription.DestinationColourBlend);
+        desc.RenderTarget[0].BlendOp = GetBlendEquation(m_Description.BlendStateDescription.BlendEquation);
+        desc.RenderTarget[0].SrcBlendAlpha = GetBlendFunction(m_Description.BlendStateDescription.SourceAlphaBlend);
+        desc.RenderTarget[0].DestBlendAlpha = GetBlendFunction(m_Description.BlendStateDescription.DestinationAlphaBlend);
+        desc.RenderTarget[0].BlendOpAlpha = GetBlendEquation(m_Description.BlendStateDescription.BlendEquation);
         desc.RenderTarget[0].LogicOpEnable = FALSE;
         desc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
         desc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
@@ -301,20 +411,35 @@ namespace Nexus::Graphics
     D3D12_DEPTH_STENCIL_DESC PipelineD3D12::CreateDepthStencilDesc()
     {
         D3D12_DEPTH_STENCIL_DESC desc{};
-        desc.DepthEnable = FALSE;
+        desc.DepthEnable = m_Description.DepthStencilDescription.EnableDepthTest;
         desc.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-        desc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
-        desc.StencilEnable = FALSE;
-        desc.StencilReadMask = 0;
-        desc.StencilWriteMask = 0;
-        desc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-        desc.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
-        desc.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
-        desc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
-        desc.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-        desc.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
-        desc.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
-        desc.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+
+        if (m_Description.DepthStencilDescription.EnableDepthWrite)
+        {
+            desc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+        }
+        else
+        {
+            desc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+        }
+
+        desc.StencilEnable = m_Description.DepthStencilDescription.EnableStencilTest;
+        desc.StencilReadMask = m_Description.DepthStencilDescription.StencilMask;
+        desc.StencilWriteMask = m_Description.DepthStencilDescription.StencilMask;
+
+        auto stencilFailOp = GetStencilOperation(m_Description.DepthStencilDescription.StencilFailOperation);
+        auto stencilDepthFailOp = GetStencilOperation(m_Description.DepthStencilDescription.StencilSuccessDepthFailOperation);
+        auto stencilPassOp = GetStencilOperation(m_Description.DepthStencilDescription.StencilSuccessDepthSuccessOperation);
+        auto stencilFunc = GetComparisonFunction(m_Description.DepthStencilDescription.StencilComparisonFunction);
+
+        desc.FrontFace.StencilFunc = stencilFunc;
+        desc.FrontFace.StencilDepthFailOp = stencilDepthFailOp;
+        desc.FrontFace.StencilFailOp = stencilFailOp;
+        desc.FrontFace.StencilPassOp = stencilPassOp;
+        desc.BackFace.StencilFunc = stencilFunc;
+        desc.BackFace.StencilDepthFailOp = stencilDepthFailOp;
+        desc.BackFace.StencilFailOp = stencilFailOp;
+        desc.BackFace.StencilPassOp = stencilPassOp;
         return desc;
     }
 }

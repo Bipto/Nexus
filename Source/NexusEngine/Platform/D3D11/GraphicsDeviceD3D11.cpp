@@ -1,21 +1,21 @@
-#if defined(NX_PLATFORM_DX11)
+#if defined(NX_PLATFORM_D3D11)
 
-#include "GraphicsDeviceDX11.hpp"
+#include "GraphicsDeviceD3D11.hpp"
 #include "Nexus/Logging/Log.hpp"
 
-#include "BufferDX11.hpp"
-#include "ShaderDX11.hpp"
-#include "TextureDX11.hpp"
-#include "PipelineDX11.hpp"
-#include "CommandListDX11.hpp"
-#include "RenderPassDX11.hpp"
-#include "ResourceSetDX11.hpp"
+#include "BufferD3D11.hpp"
+#include "ShaderD3D11.hpp"
+#include "TextureD3D11.hpp"
+#include "PipelineD3D11.hpp"
+#include "CommandListD3D11.hpp"
+#include "RenderPassD3D11.hpp"
+#include "ResourceSetD3D11.hpp"
 
 #include "SDL_syswm.h"
 
 namespace Nexus::Graphics
 {
-    GraphicsDeviceDX11::GraphicsDeviceDX11(const GraphicsDeviceCreateInfo &createInfo, Window *window)
+    GraphicsDeviceD3D11::GraphicsDeviceD3D11(const GraphicsDeviceCreateInfo &createInfo, Window *window)
         : GraphicsDevice(createInfo, window)
     {
         SDL_SysWMinfo wmInfo;
@@ -78,7 +78,7 @@ namespace Nexus::Graphics
         m_DeviceContextPtr->AddRef();
     }
 
-    GraphicsDeviceDX11::~GraphicsDeviceDX11()
+    GraphicsDeviceD3D11::~GraphicsDeviceD3D11()
     {
         m_DevicePtr->Release();
 
@@ -87,15 +87,15 @@ namespace Nexus::Graphics
         m_DeviceContextPtr->Release();
     }
 
-    void GraphicsDeviceDX11::SetContext()
+    void GraphicsDeviceD3D11::SetContext()
     {
     }
 
-    void GraphicsDeviceDX11::SetFramebuffer(Framebuffer *framebuffer)
+    void GraphicsDeviceD3D11::SetFramebuffer(Framebuffer *framebuffer)
     {
         if (framebuffer)
         {
-            auto dxFramebuffer = (FramebufferDX11 *)framebuffer;
+            auto dxFramebuffer = (FramebufferD3D11 *)framebuffer;
 
             std::vector<ID3D11RenderTargetView *> colorTargets;
             for (const auto &colorTarget : dxFramebuffer->GetColorRenderTargets())
@@ -108,7 +108,7 @@ namespace Nexus::Graphics
         }
         else
         {
-            SwapchainDX11 *swapchain = (SwapchainDX11 *)m_Window->GetSwapchain();
+            SwapchainD3D11 *swapchain = (SwapchainD3D11 *)m_Window->GetSwapchain();
             m_ActiveRenderTargetviews = {swapchain->GetRenderTargetView()};
             m_ActiveDepthStencilView = swapchain->GetDepthStencilView();
         }
@@ -119,108 +119,108 @@ namespace Nexus::Graphics
             m_ActiveDepthStencilView);
     }
 
-    void GraphicsDeviceDX11::SubmitCommandList(CommandList *commandList)
+    void GraphicsDeviceD3D11::SubmitCommandList(CommandList *commandList)
     {
-        auto commandListDX11 = (CommandListDX11 *)commandList;
-        auto &commands = commandListDX11->GetRenderCommands();
+        auto commandListD3D11 = (CommandListD3D11 *)commandList;
+        auto &commands = commandListD3D11->GetRenderCommands();
         for (auto &command : commands)
         {
             command(commandList);
         }
     }
 
-    const std::string GraphicsDeviceDX11::GetAPIName()
+    const std::string GraphicsDeviceD3D11::GetAPIName()
     {
-        return {"DirectX11"};
+        return {"Direct3D11"};
     }
 
-    const char *GraphicsDeviceDX11::GetDeviceName()
+    const char *GraphicsDeviceD3D11::GetDeviceName()
     {
         return m_AdapterName.c_str();
     }
 
-    void *GraphicsDeviceDX11::GetContext()
+    void *GraphicsDeviceD3D11::GetContext()
     {
         return m_DeviceContextPtr;
     }
 
-    void GraphicsDeviceDX11::BeginFrame()
+    void GraphicsDeviceD3D11::BeginFrame()
     {
     }
 
-    void GraphicsDeviceDX11::EndFrame()
+    void GraphicsDeviceD3D11::EndFrame()
     {
     }
 
-    Shader *GraphicsDeviceDX11::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout)
+    Shader *GraphicsDeviceD3D11::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout)
     {
-        return new ShaderDX11(m_DevicePtr, m_DeviceContextPtr, vertexShaderSource, fragmentShaderSource, layout);
+        return new ShaderD3D11(m_DevicePtr, m_DeviceContextPtr, vertexShaderSource, fragmentShaderSource, layout);
     }
 
-    Texture *GraphicsDeviceDX11::CreateTexture(const TextureSpecification &spec)
+    Texture *GraphicsDeviceD3D11::CreateTexture(const TextureSpecification &spec)
     {
-        return new TextureDX11(m_DevicePtr, spec);
+        return new TextureD3D11(m_DevicePtr, spec);
     }
 
-    Framebuffer *GraphicsDeviceDX11::CreateFramebuffer(RenderPass *renderPass)
+    Framebuffer *GraphicsDeviceD3D11::CreateFramebuffer(RenderPass *renderPass)
     {
-        auto framebufferDX11 = new FramebufferDX11(m_DevicePtr, renderPass);
-        auto renderPassDX11 = (RenderPassDX11 *)renderPass;
-        renderPassDX11->m_Framebuffer = framebufferDX11;
-        return framebufferDX11;
+        auto framebufferD3D11 = new FramebufferD3D11(m_DevicePtr, renderPass);
+        auto renderPassD3D11 = (RenderPassD3D11 *)renderPass;
+        renderPassD3D11->m_Framebuffer = framebufferD3D11;
+        return framebufferD3D11;
     }
 
-    Pipeline *GraphicsDeviceDX11::CreatePipeline(const PipelineDescription &description)
+    Pipeline *GraphicsDeviceD3D11::CreatePipeline(const PipelineDescription &description)
     {
-        return new PipelineDX11(m_DevicePtr, m_DeviceContextPtr, description);
+        return new PipelineD3D11(m_DevicePtr, m_DeviceContextPtr, description);
     }
 
-    CommandList *GraphicsDeviceDX11::CreateCommandList()
+    CommandList *GraphicsDeviceD3D11::CreateCommandList()
     {
-        return new CommandListDX11(this);
+        return new CommandListD3D11(this);
     }
 
-    VertexBuffer *GraphicsDeviceDX11::CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
+    VertexBuffer *GraphicsDeviceD3D11::CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
     {
-        return new VertexBufferDX11(m_DevicePtr, m_DeviceContextPtr, description, data, layout);
+        return new VertexBufferD3D11(m_DevicePtr, m_DeviceContextPtr, description, data, layout);
     }
 
-    IndexBuffer *GraphicsDeviceDX11::CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format)
+    IndexBuffer *GraphicsDeviceD3D11::CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format)
     {
-        return new IndexBufferDX11(m_DevicePtr, m_DeviceContextPtr, description, data, format);
+        return new IndexBufferD3D11(m_DevicePtr, m_DeviceContextPtr, description, data, format);
     }
 
-    UniformBuffer *GraphicsDeviceDX11::CreateUniformBuffer(const BufferDescription &description, const void *data)
+    UniformBuffer *GraphicsDeviceD3D11::CreateUniformBuffer(const BufferDescription &description, const void *data)
     {
-        return new UniformBufferDX11(m_DevicePtr, m_DeviceContextPtr, description, data);
+        return new UniformBufferD3D11(m_DevicePtr, m_DeviceContextPtr, description, data);
     }
 
-    RenderPass *GraphicsDeviceDX11::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification)
+    RenderPass *GraphicsDeviceD3D11::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification)
     {
-        return new RenderPassDX11(renderPassSpecification, framebufferSpecification);
+        return new RenderPassD3D11(renderPassSpecification, framebufferSpecification);
     }
 
-    RenderPass *GraphicsDeviceDX11::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain)
+    RenderPass *GraphicsDeviceD3D11::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain)
     {
-        return new RenderPassDX11(renderPassSpecification, swapchain);
+        return new RenderPassD3D11(renderPassSpecification, swapchain);
     }
 
-    ResourceSet *GraphicsDeviceDX11::CreateResourceSet(const ResourceSetSpecification &spec)
+    ResourceSet *GraphicsDeviceD3D11::CreateResourceSet(const ResourceSetSpecification &spec)
     {
-        return new ResourceSetDX11(spec, this);
+        return new ResourceSetD3D11(spec, this);
     }
 
-    ID3D11DeviceContext *GraphicsDeviceDX11::GetDeviceContext()
+    ID3D11DeviceContext *GraphicsDeviceD3D11::GetDeviceContext()
     {
         return m_DeviceContextPtr;
     }
 
-    std::vector<ID3D11RenderTargetView *> &GraphicsDeviceDX11::GetActiveRenderTargetViews()
+    std::vector<ID3D11RenderTargetView *> &GraphicsDeviceD3D11::GetActiveRenderTargetViews()
     {
         return m_ActiveRenderTargetviews;
     }
 
-    ID3D11DepthStencilView *&GraphicsDeviceDX11::GetActiveDepthStencilView()
+    ID3D11DepthStencilView *&GraphicsDeviceD3D11::GetActiveDepthStencilView()
     {
         return m_ActiveDepthStencilView;
     }

@@ -63,7 +63,7 @@ public:
         m_UniformBuffer->SetData(&m_TestUniforms, sizeof(m_TestUniforms), 0);
 
         m_ResourceSet->WriteUniformBuffer(m_UniformBuffer, 0);
-        m_ResourceSet->WriteTexture(m_Texture, 0);
+        // m_ResourceSet->WriteTexture(m_Texture, 0);
 
         m_GraphicsDevice->BeginFrame();
 
@@ -120,9 +120,9 @@ public:
         description.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
         description.RenderPass = m_RenderPass;
 
-        Nexus::Graphics::TextureResourceBinding textureBinding;
+        /* Nexus::Graphics::TextureResourceBinding textureBinding;
         textureBinding.Name = "texSampler";
-        textureBinding.Slot = 0;
+        textureBinding.Slot = 0; */
 
         Nexus::Graphics::UniformResourceBinding uniformBufferBinding;
         uniformBufferBinding.Binding = 0;
@@ -130,7 +130,7 @@ public:
         uniformBufferBinding.Buffer = m_UniformBuffer;
 
         Nexus::Graphics::ResourceSetSpecification resourceSetSpec;
-        resourceSetSpec.TextureBindings = {textureBinding};
+        // resourceSetSpec.TextureBindings = {textureBinding};
         resourceSetSpec.UniformResourceBindings = {uniformBufferBinding};
         description.ResourceSetSpecification = resourceSetSpec;
 
@@ -169,7 +169,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D11;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
     spec.ImGuiActive = false;
     spec.VSyncState = Nexus::Graphics::VSyncState::Enabled;

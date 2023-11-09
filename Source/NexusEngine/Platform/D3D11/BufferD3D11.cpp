@@ -1,6 +1,6 @@
 #if defined(WIN32)
 
-#include "BufferDX11.hpp"
+#include "BufferD3D11.hpp"
 #include "Nexus/Logging/Log.hpp"
 
 namespace Nexus::Graphics
@@ -18,7 +18,7 @@ namespace Nexus::Graphics
         }
     }
 
-    VertexBufferDX11::VertexBufferDX11(ID3D11Device *&device, ID3D11DeviceContext *&context, const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
+    VertexBufferD3D11::VertexBufferD3D11(ID3D11Device *&device, ID3D11DeviceContext *&context, const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
         : VertexBuffer(description, data, layout)
     {
         m_Context = context;
@@ -58,12 +58,12 @@ namespace Nexus::Graphics
         }
     }
 
-    VertexBufferDX11::~VertexBufferDX11()
+    VertexBufferD3D11::~VertexBufferD3D11()
     {
         m_Buffer->Release();
     }
 
-    void VertexBufferDX11::SetData(const void *data, uint32_t size, uint32_t offset)
+    void VertexBufferD3D11::SetData(const void *data, uint32_t size, uint32_t offset)
     {
         D3D11_MAPPED_SUBRESOURCE mappedResource;
         ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
@@ -77,12 +77,12 @@ namespace Nexus::Graphics
         m_Context->Unmap(m_Buffer, 0);
     }
 
-    ID3D11Buffer *&VertexBufferDX11::GetHandle()
+    ID3D11Buffer *&VertexBufferD3D11::GetHandle()
     {
         return m_Buffer;
     }
 
-    IndexBufferDX11::IndexBufferDX11(ID3D11Device *&device, ID3D11DeviceContext *&context, const BufferDescription &description, const void *data, IndexBufferFormat format)
+    IndexBufferD3D11::IndexBufferD3D11(ID3D11Device *&device, ID3D11DeviceContext *&context, const BufferDescription &description, const void *data, IndexBufferFormat format)
         : IndexBuffer(description, data, format)
     {
         m_Context = context;
@@ -122,12 +122,12 @@ namespace Nexus::Graphics
         }
     }
 
-    IndexBufferDX11::~IndexBufferDX11()
+    IndexBufferD3D11::~IndexBufferD3D11()
     {
         m_Buffer->Release();
     }
 
-    void IndexBufferDX11::SetData(const void *data, uint32_t size, uint32_t offset)
+    void IndexBufferD3D11::SetData(const void *data, uint32_t size, uint32_t offset)
     {
         D3D11_MAPPED_SUBRESOURCE mappedResource;
         ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
@@ -141,12 +141,12 @@ namespace Nexus::Graphics
         m_Context->Unmap(m_Buffer, 0);
     }
 
-    ID3D11Buffer *&IndexBufferDX11::GetHandle()
+    ID3D11Buffer *&IndexBufferD3D11::GetHandle()
     {
         return m_Buffer;
     }
 
-    UniformBufferDX11::UniformBufferDX11(ID3D11Device *&device, ID3D11DeviceContext *&context, const BufferDescription &description, const void *data)
+    UniformBufferD3D11::UniformBufferD3D11(ID3D11Device *&device, ID3D11DeviceContext *&context, const BufferDescription &description, const void *data)
         : UniformBuffer(description, data)
     {
         m_Context = context;
@@ -186,12 +186,12 @@ namespace Nexus::Graphics
         }
     }
 
-    UniformBufferDX11::~UniformBufferDX11()
+    UniformBufferD3D11::~UniformBufferD3D11()
     {
         m_Buffer->Release();
     }
 
-    void UniformBufferDX11::SetData(const void *data, uint32_t size, uint32_t offset)
+    void UniformBufferD3D11::SetData(const void *data, uint32_t size, uint32_t offset)
     {
         D3D11_MAPPED_SUBRESOURCE mappedResource;
         ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
@@ -205,7 +205,7 @@ namespace Nexus::Graphics
         m_Context->Unmap(m_Buffer, 0);
     }
 
-    ID3D11Buffer *&UniformBufferDX11::GetHandle()
+    ID3D11Buffer *&UniformBufferD3D11::GetHandle()
     {
         return m_Buffer;
     }

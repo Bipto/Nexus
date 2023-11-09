@@ -1,7 +1,7 @@
 #include "ImGuiRenderer.hpp"
 
 #include "Nexus/Application.hpp"
-#include "Platform/DX11/GraphicsDeviceDX11.hpp"
+#include "Platform/D3D11/GraphicsDeviceD3D11.hpp"
 #include "Platform/Vulkan/GraphicsDeviceVk.hpp"
 
 #include <imgui.h>
@@ -32,7 +32,7 @@ namespace Nexus::Graphics
         case GraphicsAPI::OpenGL:
             InitialiseOpenGL();
             break;
-        case GraphicsAPI::DirectX11:
+        case GraphicsAPI::D3D11:
             InitialiseD3D11();
             break;
         case GraphicsAPI::Vulkan:
@@ -49,7 +49,7 @@ namespace Nexus::Graphics
         case GraphicsAPI::OpenGL:
             ImGui_ImplOpenGL3_Shutdown();
             break;
-        case GraphicsAPI::DirectX11:
+        case GraphicsAPI::D3D11:
 #if defined(NX_PLATFORM_DX11)
             ImGui_ImplDX11_Shutdown();
 #endif
@@ -70,7 +70,7 @@ namespace Nexus::Graphics
         case GraphicsAPI::OpenGL:
             ImGui_ImplOpenGL3_NewFrame();
             break;
-        case GraphicsAPI::DirectX11:
+        case GraphicsAPI::D3D11:
 #if defined(NX_PLATFORM_DX11)
             ImGui_ImplDX11_NewFrame();
 #endif
@@ -91,7 +91,7 @@ namespace Nexus::Graphics
         case GraphicsAPI::OpenGL:
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
             break;
-        case GraphicsAPI::DirectX11:
+        case GraphicsAPI::D3D11:
 #if defined(NX_PLATFORM_DX11)
             ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 #endif
@@ -188,9 +188,9 @@ namespace Nexus::Graphics
 
     void ImGuiRenderer::InitialiseD3D11()
     {
-#if defined(NX_PLATFORM_DX11)
+#if defined(NX_PLATFORM_D3D11)
         ImGui_ImplSDL2_InitForD3D(m_Application->GetPrimaryWindow()->GetSDLWindowHandle());
-        auto device = (GraphicsDeviceDX11 *)(m_Application->GetGraphicsDevice());
+        auto device = (GraphicsDeviceD3D11 *)(m_Application->GetGraphicsDevice());
         ID3D11Device *id3d11Device = (ID3D11Device *)device->GetDevice();
         ID3D11DeviceContext *id3d11DeviceContext = (ID3D11DeviceContext *)device->GetDeviceContext();
         ImGui_ImplDX11_Init(id3d11Device, id3d11DeviceContext);

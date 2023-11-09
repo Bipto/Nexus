@@ -1,12 +1,12 @@
-#if defined(NX_PLATFORM_DX11)
+#if defined(NX_PLATFORM_D3D11)
 
-#include "PipelineDX11.hpp"
-#include "ShaderDX11.hpp"
-#include "BufferDX11.hpp"
+#include "PipelineD3D11.hpp"
+#include "ShaderD3D11.hpp"
+#include "BufferD3D11.hpp"
 
 namespace Nexus::Graphics
 {
-    PipelineDX11::PipelineDX11(ID3D11Device *device, ID3D11DeviceContext *context, const PipelineDescription &description)
+    PipelineD3D11::PipelineD3D11(ID3D11Device *device, ID3D11DeviceContext *context, const PipelineDescription &description)
         : Pipeline(description), m_Device(device), m_Context(context)
     {
         SetupDepthStencilState();
@@ -26,7 +26,7 @@ namespace Nexus::Graphics
         m_ScissorRectangle.right = description.RasterizerStateDescription.ScissorRectangle.Width;
     }
 
-    PipelineDX11::~PipelineDX11()
+    PipelineD3D11::~PipelineD3D11()
     {
         m_BlendState->Release();
         m_RasterizerState->Release();
@@ -143,7 +143,7 @@ namespace Nexus::Graphics
         }
     }
 
-    void PipelineDX11::SetupDepthStencilState()
+    void PipelineD3D11::SetupDepthStencilState()
     {
         D3D11_DEPTH_STENCIL_DESC depthStencilDescription;
 
@@ -192,7 +192,7 @@ namespace Nexus::Graphics
         m_Device->CreateDepthStencilState(&depthStencilDescription, &m_DepthStencilState);
     }
 
-    void PipelineDX11::SetupRasterizerState()
+    void PipelineD3D11::SetupRasterizerState()
     {
         D3D11_RASTERIZER_DESC rasterizerDesc;
 
@@ -221,7 +221,7 @@ namespace Nexus::Graphics
         m_Device->CreateRasterizerState(&rasterizerDesc, &m_RasterizerState);
     }
 
-    void PipelineDX11::SetupBlendState()
+    void PipelineD3D11::SetupBlendState()
     {
         D3D11_BLEND_DESC blendDesc;
         ZeroMemory(&blendDesc, sizeof(blendDesc));
@@ -244,7 +244,7 @@ namespace Nexus::Graphics
         m_Device->CreateBlendState(&blendDesc, &m_BlendState);
     }
 
-    D3D11_PRIMITIVE_TOPOLOGY PipelineDX11::GetTopology()
+    D3D11_PRIMITIVE_TOPOLOGY PipelineD3D11::GetTopology()
     {
         switch (m_Description.PrimitiveTopology)
         {
@@ -261,7 +261,7 @@ namespace Nexus::Graphics
         }
     }
 
-    const PipelineDescription &PipelineDX11::GetPipelineDescription() const
+    const PipelineDescription &PipelineD3D11::GetPipelineDescription() const
     {
         return m_Description;
     }

@@ -38,30 +38,6 @@ namespace Nexus::Graphics
                     gpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
                 }
             }
-
-            // create texture descriptors
-            {
-                /* D3D12_DESCRIPTOR_HEAP_DESC textureDescriptorDesc;
-                textureDescriptorDesc.NumDescriptors = textureCount;
-                textureDescriptorDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-                textureDescriptorDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-                textureDescriptorDesc.NodeMask = 0;
-
-                d3d12Device->CreateDescriptorHeap(&textureDescriptorDesc, IID_PPV_ARGS(&m_TextureDescriptorHeap));
-
-                auto cpuLocation = m_TextureDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-                auto gpuLocation = m_TextureDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
-
-                // retrieve texture handles
-                for (int i = 0; i < spec.TextureBindings.size(); i++)
-                {
-                    m_TextureCPUDescriptors.push_back(cpuLocation);
-                    m_TextureGPUDescriptors.push_back(gpuLocation);
-
-                    cpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-                    gpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-                } */
-            }
         }
 
         if (textureConstantBufferCount > 0)
@@ -102,30 +78,6 @@ namespace Nexus::Graphics
                 }
             }
         }
-
-        /* if (uniformBufferCount > 0)
-        {
-            D3D12_DESCRIPTOR_HEAP_DESC constantBufferDescriptorDesc;
-            constantBufferDescriptorDesc.NumDescriptors = uniformBufferCount;
-            constantBufferDescriptorDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-            constantBufferDescriptorDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-            constantBufferDescriptorDesc.NodeMask = 0;
-
-            d3d12Device->CreateDescriptorHeap(&constantBufferDescriptorDesc, IID_PPV_ARGS(&m_ConstantBufferDescriptorHeap));
-
-            auto cpuLocation = m_ConstantBufferDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-            auto gpuLocation = m_ConstantBufferDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
-
-            // retrieve constant buffer handles
-            for (int i = 0; i < spec.UniformResourceBindings.size(); i++)
-            {
-                m_ConstantBufferCPUDescriptors.push_back(cpuLocation);
-                m_ConstantBufferGPUDescriptors.push_back(gpuLocation);
-
-                cpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-                gpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-            }
-        } */
     }
 
     void ResourceSetD3D12::WriteTexture(Texture *texture, uint32_t binding)

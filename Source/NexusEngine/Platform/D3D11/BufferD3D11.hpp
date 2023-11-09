@@ -3,12 +3,12 @@
 #if defined(WIN32)
 
 #include "Nexus/Graphics/Buffer.hpp"
-#include "DX11.hpp"
+#include "D3D11Include.hpp"
 
 namespace Nexus::Graphics
 {
     /// @brief A class representing a vertex buffer to be used with the DirectX11 backend
-    class VertexBufferDX11 : public VertexBuffer
+    class VertexBufferD3D11 : public VertexBuffer
     {
     public:
         /// @brief A constructor creating a new vertex buffer
@@ -17,10 +17,10 @@ namespace Nexus::Graphics
         /// @param description A const reference to a BufferDescription to describe how the buffer should be represented in memory
         /// @param data A const pointer to a set of data to use as the initial data of the buffer
         /// @param layout A const reference to a VertexBufferLayout describing the layout of the vertex buffer
-        VertexBufferDX11(ID3D11Device *&device, ID3D11DeviceContext *&context, const BufferDescription &description, const void *data, const VertexBufferLayout &layout);
+        VertexBufferD3D11(ID3D11Device *&device, ID3D11DeviceContext *&context, const BufferDescription &description, const void *data, const VertexBufferLayout &layout);
 
         /// @brief A destructor to clean up resources
-        ~VertexBufferDX11();
+        ~VertexBufferD3D11();
 
         virtual void SetData(const void *data, uint32_t size, uint32_t offset) override;
 
@@ -37,7 +37,7 @@ namespace Nexus::Graphics
     };
 
     /// @brief A class representing an index buffer to be used with the DirectX11 backend
-    class IndexBufferDX11 : public IndexBuffer
+    class IndexBufferD3D11 : public IndexBuffer
     {
     public:
         /// @brief A constructor creating a new index buffer
@@ -45,10 +45,10 @@ namespace Nexus::Graphics
         /// @param context A pointer to an ID3D11DeviceContext to use to update the buffer
         /// @param description A const reference to a BufferDescription to describe how the buffer should be represented in memory
         /// @param data A const pointer to a set of data to use as the initial data of the buffer
-        IndexBufferDX11(ID3D11Device *&device, ID3D11DeviceContext *&context, const BufferDescription &description, const void *data, IndexBufferFormat format);
+        IndexBufferD3D11(ID3D11Device *&device, ID3D11DeviceContext *&context, const BufferDescription &description, const void *data, IndexBufferFormat format);
 
         /// @brief A destructor to clean up resources
-        ~IndexBufferDX11();
+        ~IndexBufferD3D11();
 
         virtual void SetData(const void *data, uint32_t size, uint32_t offset) override;
 
@@ -65,7 +65,7 @@ namespace Nexus::Graphics
     };
 
     /// @brief A class representing a uniform buffer to be used with the DirectX11 backend
-    class UniformBufferDX11 : public UniformBuffer
+    class UniformBufferD3D11 : public UniformBuffer
     {
     public:
         /// @brief A constructor creating a new uniform buffer
@@ -73,10 +73,10 @@ namespace Nexus::Graphics
         /// @param context A pointer to an ID3D11DeviceContext to use to update the buffer
         /// @param description A const reference to a BufferDescription to describe how the buffer should be represented in memory
         /// @param data A const pointer to a set of data to use as the initial data of the buffer
-        UniformBufferDX11(ID3D11Device *&device, ID3D11DeviceContext *&context, const BufferDescription &description, const void *data);
+        UniformBufferD3D11(ID3D11Device *&device, ID3D11DeviceContext *&context, const BufferDescription &description, const void *data);
 
         /// @brief A destructor to clean up resources
-        ~UniformBufferDX11();
+        ~UniformBufferD3D11();
 
         virtual void SetData(const void *data, uint32_t size, uint32_t offset) override;
 
