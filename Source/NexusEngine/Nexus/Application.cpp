@@ -2,7 +2,7 @@
 
 // graphics headers
 #include "Platform/OpenGL/GraphicsDeviceOpenGL.hpp"
-#include "Platform/DX11/GraphicsDeviceDX11.hpp"
+#include "Platform/D3D11/GraphicsDeviceD3D11.hpp"
 
 #if defined(NX_PLATFORM_D3D12)
 #include "Platform/D3D12/GraphicsDeviceD3D12.hpp"
@@ -198,9 +198,9 @@ namespace Nexus
     {
         switch (createInfo.API)
         {
-#if defined(NX_PLATFORM_DX11)
-        case Graphics::GraphicsAPI::DirectX11:
-            return new Graphics::GraphicsDeviceDX11(createInfo, window);
+#if defined(NX_PLATFORM_D3D11)
+        case Graphics::GraphicsAPI::D3D11:
+            return new Graphics::GraphicsDeviceD3D11(createInfo, window);
             break;
 #endif
 

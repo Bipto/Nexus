@@ -1,16 +1,16 @@
-#include "CommandListDX11.hpp"
+#include "CommandListD3D11.hpp"
 
-#include "GraphicsDeviceDX11.hpp"
-#include "BufferDX11.hpp"
-#include "PipelineDX11.hpp"
-#include "ShaderDX11.hpp"
-#include "RenderPassDX11.hpp"
-#include "ResourceSetDX11.hpp"
-#include "TextureDX11.hpp"
+#include "GraphicsDeviceD3D11.hpp"
+#include "BufferD3D11.hpp"
+#include "PipelineD3D11.hpp"
+#include "ShaderD3D11.hpp"
+#include "RenderPassD3D11.hpp"
+#include "ResourceSetD3D11.hpp"
+#include "TextureD3D11.hpp"
 
 #include <memory>
 
-#if defined(NX_PLATFORM_DX11)
+#if defined(NX_PLATFORM_D3D11)
 DXGI_FORMAT GetD3DIndexBufferFormat(Nexus::Graphics::IndexBufferFormat format)
 {
     switch (format)
@@ -25,7 +25,7 @@ DXGI_FORMAT GetD3DIndexBufferFormat(Nexus::Graphics::IndexBufferFormat format)
 
 namespace Nexus::Graphics
 {
-    CommandListDX11::CommandListDX11(GraphicsDeviceDX11 *graphicsDevice)
+    CommandListD3D11::CommandListD3D11(GraphicsDeviceD3D11 *graphicsDevice)
     {
         m_GraphicsDevice = graphicsDevice;
 
@@ -34,22 +34,22 @@ namespace Nexus::Graphics
         m_CommandData.resize(initialCommandCount);
     }
 
-    void CommandListDX11::Begin()
+    void CommandListD3D11::Begin()
     {
-#if defined(NX_PLATFORM_DX11)
+#if defined(NX_PLATFORM_D3D11)
         m_Commands.clear();
         m_CommandData.clear();
         m_CommandIndex = 0;
 #endif
     }
 
-    void CommandListDX11::End()
+    void CommandListD3D11::End()
     {
     }
 
-    void CommandListDX11::BeginRenderPass(RenderPass *renderPass, const RenderPassBeginInfo &beginInfo)
+    void CommandListD3D11::BeginRenderPass(RenderPass *renderPass, const RenderPassBeginInfo &beginInfo)
     {
-#if defined(NX_PLATFORM_DX11)
+#if defined(NX_PLATFORM_D3D11)
 
         BeginRenderPassCommand command;
         command.ClearValue = beginInfo;
@@ -58,10 +58,10 @@ namespace Nexus::Graphics
 
         auto renderCommand = [](CommandList *commandList)
         {
-            CommandListDX11 *commandListDX11 = (CommandListDX11 *)commandList;
-            auto graphicsDevice = commandListDX11->GetGraphicsDevice();
+            CommandListD3D11 *commandListD3D11 = (CommandListD3D11 *)commandList;
+            auto graphicsDevice = commandListD3D11->GetGraphicsDevice();
             auto context = graphicsDevice->GetDeviceContext();
-            const auto &commandData = commandListDX11->GetCurrentCommandData();
+            const auto &commandData = commandListD3D11->GetCurrentCommandData();
             const auto &renderPassCommand = std::get<BeginRenderPassCommand>(commandData);
             const auto renderPass = renderPassCommand.RenderPass;
             const auto &beginInfo = renderPassCommand.ClearValue;
@@ -70,8 +70,8 @@ namespace Nexus::Graphics
             {
                 if (renderPass->GetRenderPassDataType() == Nexus::Graphics::RenderPassDataType::Framebuffer)
                 {
-                    auto renderPassDX11 = (RenderPassDX11 *)(renderPass);
-                    graphicsDevice->SetFramebuffer(renderPassDX11->m_Framebuffer);
+                    auto renderPassD3D11 = (RenderPassD3D11 *)(renderPass);
+                    graphicsDevice->SetFramebuffer(renderPassD3D11->m_Framebuffer);
                 }
                 else
                 {
@@ -118,29 +118,29 @@ namespace Nexus::Graphics
 #endif
     }
 
-    void CommandListDX11::EndRenderPass()
+    void CommandListD3D11::EndRenderPass()
     {
     }
 
-    void CommandListDX11::SetVertexBuffer(VertexBuffer *vertexBuffer)
+    void CommandListD3D11::SetVertexBuffer(VertexBuffer *vertexBuffer)
     {
-#if defined(NX_PLATFORM_DX11)
+#if defined(NX_PLATFORM_D3D11)
         m_CommandData.emplace_back(vertexBuffer);
 
         auto renderCommand = [](CommandList *commandList)
         {
-            CommandListDX11 *commandListDX11 = (CommandListDX11 *)commandList;
-            auto graphicsDevice = commandListDX11->GetGraphicsDevice();
+            CommandListD3D11 *commandListD3D11 = (CommandListD3D11 *)commandList;
+            auto graphicsDevice = commandListD3D11->GetGraphicsDevice();
             auto context = graphicsDevice->GetDeviceContext();
-            const auto &commandData = commandListDX11->GetCurrentCommandData();
+            const auto &commandData = commandListD3D11->GetCurrentCommandData();
             const auto vertexBuffer = std::get<VertexBuffer *>(commandData);
-            auto vertexBufferDX11 = (VertexBufferDX11 *)vertexBuffer;
+            auto vertexBufferD3D11 = (VertexBufferD3D11 *)vertexBuffer;
 
-            const auto &layout = vertexBufferDX11->GetLayout();
+            const auto &layout = vertexBufferD3D11->GetLayout();
             uint32_t stride = layout.GetStride();
             uint32_t offset = 0;
 
-            auto nativeBuffer = vertexBufferDX11->GetHandle();
+            auto nativeBuffer = vertexBufferD3D11->GetHandle();
 
             context->IASetVertexBuffers(
                 0,
@@ -153,53 +153,53 @@ namespace Nexus::Graphics
 #endif
     }
 
-    void CommandListDX11::SetIndexBuffer(IndexBuffer *indexBuffer)
+    void CommandListD3D11::SetIndexBuffer(IndexBuffer *indexBuffer)
     {
-#if defined(NX_PLATFORM_DX11)
+#if defined(NX_PLATFORM_D3D11)
         m_CommandData.emplace_back(indexBuffer);
 
         auto renderCommand = [](CommandList *commandList)
         {
-            CommandListDX11 *commandListDX11 = (CommandListDX11 *)commandList;
-            auto graphicsDevice = commandListDX11->GetGraphicsDevice();
-            const auto &commandData = commandListDX11->GetCurrentCommandData();
+            CommandListD3D11 *commandListD3D11 = (CommandListD3D11 *)commandList;
+            auto graphicsDevice = commandListD3D11->GetGraphicsDevice();
+            const auto &commandData = commandListD3D11->GetCurrentCommandData();
 
             auto indexBuffer = std::get<IndexBuffer *>(commandData);
             auto context = graphicsDevice->GetDeviceContext();
-            auto indexBufferDX11 = (IndexBufferDX11 *)indexBuffer;
+            auto indexBufferD3D11 = (IndexBufferD3D11 *)indexBuffer;
 
-            auto nativeBuffer = indexBufferDX11->GetHandle();
+            auto nativeBuffer = indexBufferD3D11->GetHandle();
 
-            auto bufferFormat = indexBufferDX11->GetFormat();
+            auto bufferFormat = indexBufferD3D11->GetFormat();
 
             context->IASetIndexBuffer(
                 nativeBuffer,
-                GetD3DIndexBufferFormat(indexBufferDX11->GetFormat()),
+                GetD3DIndexBufferFormat(indexBufferD3D11->GetFormat()),
                 0);
         };
         m_Commands.push_back(renderCommand);
 #endif
     }
 
-    void CommandListDX11::SetPipeline(Pipeline *pipeline)
+    void CommandListD3D11::SetPipeline(Pipeline *pipeline)
     {
-#if defined(NX_PLATFORM_DX11)
+#if defined(NX_PLATFORM_D3D11)
         m_CommandData.emplace_back(pipeline);
 
         auto renderCommand = [](CommandList *commandList)
         {
-            CommandListDX11 *commandListDX11 = (CommandListDX11 *)commandList;
-            const auto &commandData = commandListDX11->GetCurrentCommandData();
+            CommandListD3D11 *commandListD3D11 = (CommandListD3D11 *)commandList;
+            const auto &commandData = commandListD3D11->GetCurrentCommandData();
             auto pipeline = std::get<Pipeline *>(commandData);
-            commandListDX11->BindPipeline(pipeline);
+            commandListD3D11->BindPipeline(pipeline);
         };
         m_Commands.push_back(renderCommand);
 #endif
     }
 
-    void CommandListDX11::DrawElements(uint32_t start, uint32_t count)
+    void CommandListD3D11::DrawElements(uint32_t start, uint32_t count)
     {
-#if defined(NX_PLATFORM_DX11)
+#if defined(NX_PLATFORM_D3D11)
         DrawElementCommand command;
         command.Start = start;
         command.Count = count;
@@ -207,10 +207,10 @@ namespace Nexus::Graphics
 
         auto renderCommand = [](CommandList *commandList)
         {
-            auto commandListDX11 = (CommandListDX11 *)commandList;
-            auto graphicsDevice = commandListDX11->GetGraphicsDevice();
+            auto commandListD3D11 = (CommandListD3D11 *)commandList;
+            auto graphicsDevice = commandListD3D11->GetGraphicsDevice();
             auto context = graphicsDevice->GetDeviceContext();
-            const auto &commandData = commandListDX11->GetCurrentCommandData();
+            const auto &commandData = commandListD3D11->GetCurrentCommandData();
             const auto &drawCommand = std::get<DrawElementCommand>(commandData);
 
             context->Draw(drawCommand.Count, drawCommand.Start);
@@ -220,9 +220,9 @@ namespace Nexus::Graphics
 #endif
     }
 
-    void CommandListDX11::DrawIndexed(uint32_t count, uint32_t offset)
+    void CommandListD3D11::DrawIndexed(uint32_t count, uint32_t offset)
     {
-#if defined(NX_PLATFORM_DX11)
+#if defined(NX_PLATFORM_D3D11)
         DrawIndexedCommand command;
         command.Count = count;
         command.Offset = offset;
@@ -230,10 +230,10 @@ namespace Nexus::Graphics
 
         auto renderCommand = [](CommandList *commandList)
         {
-            auto commandListDX11 = (CommandListDX11 *)commandList;
-            auto graphicsDevice = commandListDX11->GetGraphicsDevice();
+            auto commandListD3D11 = (CommandListD3D11 *)commandList;
+            auto graphicsDevice = commandListD3D11->GetGraphicsDevice();
             auto context = graphicsDevice->GetDeviceContext();
-            const auto &commandData = commandListDX11->GetCurrentCommandData();
+            const auto &commandData = commandListD3D11->GetCurrentCommandData();
             const auto &drawCommand = std::get<DrawIndexedCommand>(commandData);
 
             context->DrawIndexed(drawCommand.Count, drawCommand.Offset, 0);
@@ -243,39 +243,39 @@ namespace Nexus::Graphics
 #endif
     }
 
-    void CommandListDX11::SetResourceSet(ResourceSet *resources)
+    void CommandListD3D11::SetResourceSet(ResourceSet *resources)
     {
-#if defined(NX_PLATFORM_DX11)
+#if defined(NX_PLATFORM_D3D11)
         UpdateResourcesCommand command;
         command.Resources = resources;
         m_CommandData.emplace_back(command);
 
         auto renderCommand = [](CommandList *commandList)
         {
-            auto commandListDX11 = (CommandListDX11 *)commandList;
-            auto graphicsDeviceDX11 = (GraphicsDeviceDX11 *)commandListDX11->GetGraphicsDevice();
-            auto context = graphicsDeviceDX11->GetDeviceContext();
+            auto commandListD3D11 = (CommandListD3D11 *)commandList;
+            auto graphicsDeviceD3D11 = (GraphicsDeviceD3D11 *)commandListD3D11->GetGraphicsDevice();
+            auto context = graphicsDeviceD3D11->GetDeviceContext();
 
-            const auto &updateResourceCommand = std::get<UpdateResourcesCommand>(commandListDX11->GetCurrentCommandData());
-            auto resourceSetDX11 = (ResourceSetDX11 *)updateResourceCommand.Resources;
+            const auto &updateResourceCommand = std::get<UpdateResourcesCommand>(commandListD3D11->GetCurrentCommandData());
+            auto resourceSetD3D11 = (ResourceSetD3D11 *)updateResourceCommand.Resources;
 
             // update textures
-            for (const auto &textureBinding : resourceSetDX11->GetTextureBindings())
+            for (const auto &textureBinding : resourceSetD3D11->GetTextureBindings())
             {
-                auto textureDX11 = (TextureDX11 *)textureBinding.second;
+                auto textureD3D11 = (TextureD3D11 *)textureBinding.second;
 
-                auto resourceView = textureDX11->GetResourceView();
-                auto samplerState = textureDX11->GetSamplerState();
+                auto resourceView = textureD3D11->GetResourceView();
+                auto samplerState = textureD3D11->GetSamplerState();
 
                 context->PSSetShaderResources(textureBinding.first, 1, (ID3D11ShaderResourceView *const *)&resourceView);
                 context->PSSetSamplers(textureBinding.first, 1, (ID3D11SamplerState *const *)&samplerState);
             }
 
             // update uniform buffers
-            for (const auto &uniformBufferBinding : resourceSetDX11->GetUniformBufferBindings())
+            for (const auto &uniformBufferBinding : resourceSetD3D11->GetUniformBufferBindings())
             {
-                auto uniformBufferDX11 = (UniformBufferDX11 *)uniformBufferBinding.second;
-                auto bufferHandle = uniformBufferDX11->GetHandle();
+                auto uniformBufferD3D11 = (UniformBufferD3D11 *)uniformBufferBinding.second;
+                auto bufferHandle = uniformBufferD3D11->GetHandle();
 
                 context->VSSetConstantBuffers(
                     uniformBufferBinding.first,
@@ -287,40 +287,40 @@ namespace Nexus::Graphics
 #endif
     }
 
-    const std::vector<RenderCommand> &CommandListDX11::GetRenderCommands()
+    const std::vector<RenderCommand> &CommandListD3D11::GetRenderCommands()
     {
         return m_Commands;
     }
 
-    RenderCommandData &CommandListDX11::GetCurrentCommandData()
+    RenderCommandData &CommandListD3D11::GetCurrentCommandData()
     {
         return m_CommandData[m_CommandIndex++];
     }
 
-    GraphicsDeviceDX11 *CommandListDX11::GetGraphicsDevice()
+    GraphicsDeviceD3D11 *CommandListD3D11::GetGraphicsDevice()
     {
         return m_GraphicsDevice;
     }
 
-    Pipeline *CommandListDX11::GetCurrentPipeline()
+    Pipeline *CommandListD3D11::GetCurrentPipeline()
     {
         return m_CurrentPipeline;
     }
 
-    void CommandListDX11::BindPipeline(Pipeline *pipeline)
+    void CommandListD3D11::BindPipeline(Pipeline *pipeline)
     {
-#if defined(NX_PLATFORM_DX11)
-        auto pipelineDX11 = (PipelineDX11 *)pipeline;
+#if defined(NX_PLATFORM_D3D11)
+        auto pipelineD3D11 = (PipelineD3D11 *)pipeline;
         m_CurrentPipeline = pipeline;
 
-        auto depthStencilState = pipelineDX11->GetDepthStencilState();
-        auto rasterizerState = pipelineDX11->GetRasterizerState();
-        auto blendState = pipelineDX11->GetBlendState();
-        const auto &viewport = pipelineDX11->GetViewport();
-        const auto &scissorRectangle = pipelineDX11->GetScissorRectangle();
-        auto topology = pipelineDX11->GetTopology();
+        auto depthStencilState = pipelineD3D11->GetDepthStencilState();
+        auto rasterizerState = pipelineD3D11->GetRasterizerState();
+        auto blendState = pipelineD3D11->GetBlendState();
+        const auto &viewport = pipelineD3D11->GetViewport();
+        const auto &scissorRectangle = pipelineD3D11->GetScissorRectangle();
+        auto topology = pipelineD3D11->GetTopology();
         auto shader = pipeline->GetShader();
-        auto dxShader = (ShaderDX11 *)shader;
+        auto dxShader = (ShaderD3D11 *)shader;
 
         auto context = m_GraphicsDevice->GetDeviceContext();
 

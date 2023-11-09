@@ -1,19 +1,19 @@
 #pragma once
 
-#if defined(NX_PLATFORM_DX11)
+#if defined(NX_PLATFORM_D3D11)
 
 #include "Nexus/Graphics/GraphicsDevice.hpp"
-#include "FramebufferDX11.hpp"
-#include "SwapchainDX11.hpp"
-#include "DX11.hpp"
+#include "FramebufferD3D11.hpp"
+#include "SwapchainD3D11.hpp"
+#include "D3D11Include.hpp"
 
 namespace Nexus::Graphics
 {
-    class GraphicsDeviceDX11 : public GraphicsDevice
+    class GraphicsDeviceD3D11 : public GraphicsDevice
     {
     public:
-        GraphicsDeviceDX11(const GraphicsDeviceCreateInfo &createInfo, Window *window);
-        ~GraphicsDeviceDX11();
+        GraphicsDeviceD3D11(const GraphicsDeviceCreateInfo &createInfo, Window *window);
+        ~GraphicsDeviceD3D11();
 
         virtual void SetContext() override;
         void SetFramebuffer(Framebuffer *framebuffer);

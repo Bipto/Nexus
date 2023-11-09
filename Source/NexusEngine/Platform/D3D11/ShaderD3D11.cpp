@@ -1,9 +1,9 @@
 #if defined(WIN32)
 
-#include "ShaderDX11.hpp"
+#include "ShaderD3D11.hpp"
 #include "Nexus/Logging/Log.hpp"
-#include "TextureDX11.hpp"
-#include "BufferDX11.hpp"
+#include "TextureD3D11.hpp"
+#include "BufferD3D11.hpp"
 
 namespace Nexus::Graphics
 {
@@ -30,7 +30,7 @@ namespace Nexus::Graphics
         }
     }
 
-    ShaderDX11::ShaderDX11(ID3D11Device *device, ID3D11DeviceContext *context, std::string vertexShaderSource, std::string fragmentShaderSource, const VertexBufferLayout &layout)
+    ShaderD3D11::ShaderD3D11(ID3D11Device *device, ID3D11DeviceContext *context, std::string vertexShaderSource, std::string fragmentShaderSource, const VertexBufferLayout &layout)
     {
         m_Device = device;
         m_ContextPtr = context;
@@ -112,7 +112,7 @@ namespace Nexus::Graphics
         m_FragmentShaderSource = fragmentShaderSource;
     }
 
-    ShaderDX11::~ShaderDX11()
+    ShaderD3D11::~ShaderD3D11()
     {
         m_VertexBlobPtr->Release();
         m_PixelBlobPtr->Release();
@@ -121,17 +121,17 @@ namespace Nexus::Graphics
         m_InputLayout->Release();
     }
 
-    const std::string &ShaderDX11::GetVertexShaderSource()
+    const std::string &ShaderD3D11::GetVertexShaderSource()
     {
         return m_VertexShaderSource;
     }
 
-    const std::string &ShaderDX11::GetFragmentShaderSource()
+    const std::string &ShaderD3D11::GetFragmentShaderSource()
     {
         return m_FragmentShaderSource;
     }
 
-    void ShaderDX11::CreateLayout(const VertexBufferLayout &layout)
+    void ShaderD3D11::CreateLayout(const VertexBufferLayout &layout)
     {
         m_BufferLayout = layout;
 

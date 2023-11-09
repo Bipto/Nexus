@@ -1,45 +1,45 @@
 #if defined(WIN32)
 
-#include "FramebufferDX11.hpp"
+#include "FramebufferD3D11.hpp"
 #include "Nexus/Logging/Log.hpp"
 
 namespace Nexus::Graphics
 {
 #if defined(WIN32)
-    FramebufferDX11::FramebufferDX11(ID3D11Device *&device, RenderPass *renderPass)
+    FramebufferD3D11::FramebufferD3D11(ID3D11Device *&device, RenderPass *renderPass)
         : Framebuffer(renderPass)
     {
         m_Device = device;
         Recreate();
     }
 
-    FramebufferDX11::~FramebufferDX11()
+    FramebufferD3D11::~FramebufferD3D11()
     {
         DeleteTextures();
     }
 
-    void FramebufferDX11::Recreate()
+    void FramebufferD3D11::Recreate()
     {
         CreateTextures();
     }
 
-    void *FramebufferDX11::GetColorAttachment(int index)
+    void *FramebufferD3D11::GetColorAttachment(int index)
     {
         return m_ColorRenderTargets[index].ShaderResourceView;
     }
 
-    const FramebufferSpecification FramebufferDX11::GetFramebufferSpecification()
+    const FramebufferSpecification FramebufferD3D11::GetFramebufferSpecification()
     {
         return m_Specification;
     }
 
-    void FramebufferDX11::SetFramebufferSpecification(const FramebufferSpecification &spec)
+    void FramebufferD3D11::SetFramebufferSpecification(const FramebufferSpecification &spec)
     {
         m_Specification = spec;
         Recreate();
     }
 
-    void FramebufferDX11::CreateTextures()
+    void FramebufferD3D11::CreateTextures()
     {
         DeleteTextures();
 
@@ -143,7 +143,7 @@ namespace Nexus::Graphics
         }
     }
 
-    void FramebufferDX11::DeleteTextures()
+    void FramebufferD3D11::DeleteTextures()
     {
         for (int i = 0; i < m_ColorRenderTargets.size(); i++)
         {

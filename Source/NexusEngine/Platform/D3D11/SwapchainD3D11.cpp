@@ -1,8 +1,8 @@
-#include "SwapchainDX11.hpp"
+#include "SwapchainD3D11.hpp"
 
-#if defined(NX_PLATFORM_DX11)
+#if defined(NX_PLATFORM_D3D11)
 
-#include "Platform/DX11/GraphicsDeviceDX11.hpp"
+#include "Platform/D3D11/GraphicsDeviceD3D11.hpp"
 
 #include "SDL_syswm.h"
 
@@ -10,11 +10,11 @@
 
 namespace Nexus::Graphics
 {
-    SwapchainDX11::SwapchainDX11(Window *window, GraphicsDevice *device, VSyncState vSyncState)
+    SwapchainD3D11::SwapchainD3D11(Window *window, GraphicsDevice *device, VSyncState vSyncState)
         : m_VsyncState(vSyncState), m_Window(window)
     {
-        m_Device = (GraphicsDeviceDX11 *)device;
-        auto dx11Device = m_Device->GetDevice();
+        m_Device = (GraphicsDeviceD3D11 *)device;
+        auto D3D11Device = m_Device->GetDevice();
 
         SDL_SysWMinfo wmInfo;
         SDL_VERSION(&wmInfo.version);
@@ -43,7 +43,7 @@ namespace Nexus::Graphics
         swapChainDesc.Windowed = true;
         swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 
-        factory->CreateSwapChain(dx11Device, &swapChainDesc, &m_Swapchain);
+        factory->CreateSwapChain(D3D11Device, &swapChainDesc, &m_Swapchain);
 
         // create view into swapchain
         {
@@ -53,7 +53,7 @@ namespace Nexus::Graphics
                 _uuidof(ID3D11Texture2D),
                 (void **)&framebuffer);
 
-            hr = dx11Device->CreateRenderTargetView(
+            hr = D3D11Device->CreateRenderTargetView(
                 framebuffer, 0, &m_RenderTargetView);
 
             framebuffer->Release();
@@ -75,7 +75,7 @@ namespace Nexus::Graphics
             depthDesc.CPUAccessFlags = 0;
             depthDesc.MiscFlags = 0;
 
-            HRESULT hr = dx11Device->CreateTexture2D(
+            HRESULT hr = D3D11Device->CreateTexture2D(
                 &depthDesc,
                 NULL,
                 &m_SwapchainDepthTexture);
@@ -86,14 +86,14 @@ namespace Nexus::Graphics
             depthStencilDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
             depthStencilDesc.Texture2D.MipSlice = 0;
 
-            hr = dx11Device->CreateDepthStencilView(
+            hr = D3D11Device->CreateDepthStencilView(
                 m_SwapchainDepthTexture,
                 &depthStencilDesc,
                 &m_SwapchainDepthTextureView);
         }
     }
 
-    SwapchainDX11::~SwapchainDX11()
+    SwapchainD3D11::~SwapchainD3D11()
     {
         m_SwapchainDepthTextureView->Release();
         m_SwapchainDepthTexture->Release();
@@ -101,25 +101,25 @@ namespace Nexus::Graphics
         m_Swapchain->Release();
     }
 
-    void SwapchainDX11::SwapBuffers()
+    void SwapchainD3D11::SwapBuffers()
     {
         m_Swapchain->Present((uint32_t)m_VsyncState, 0);
         RecreateSwapchainIfNecessary();
     }
 
-    VSyncState SwapchainDX11::GetVsyncState()
+    VSyncState SwapchainD3D11::GetVsyncState()
     {
         return m_VsyncState;
     }
 
-    void SwapchainDX11::SetVSyncState(VSyncState vsyncState)
+    void SwapchainD3D11::SetVSyncState(VSyncState vsyncState)
     {
         m_VsyncState = vsyncState;
     }
 
-    void SwapchainDX11::ResizeBuffers(uint32_t width, uint32_t height)
+    void SwapchainD3D11::ResizeBuffers(uint32_t width, uint32_t height)
     {
-        auto dx11Device = m_Device->GetDevice();
+        auto D3D11Device = m_Device->GetDevice();
 
         m_RenderTargetView->Release();
         m_SwapchainDepthTexture->Release();
@@ -146,7 +146,7 @@ namespace Nexus::Graphics
             NX_ERROR(error.ErrorMessage());
         }
 
-        hr = dx11Device->CreateRenderTargetView(
+        hr = D3D11Device->CreateRenderTargetView(
             pBuffer,
             NULL,
             &m_RenderTargetView);
@@ -167,7 +167,7 @@ namespace Nexus::Graphics
         depthDesc.CPUAccessFlags = 0;
         depthDesc.MiscFlags = 0;
 
-        hr = dx11Device->CreateTexture2D(&depthDesc, NULL, &m_SwapchainDepthTexture);
+        hr = D3D11Device->CreateTexture2D(&depthDesc, NULL, &m_SwapchainDepthTexture);
         if (FAILED(hr))
         {
             _com_error error(hr);
@@ -180,24 +180,24 @@ namespace Nexus::Graphics
         depthStencilDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
         depthStencilDesc.Texture1D.MipSlice = 0;
 
-        hr = dx11Device->CreateDepthStencilView(m_SwapchainDepthTexture, &depthStencilDesc, &m_SwapchainDepthTextureView);
+        hr = D3D11Device->CreateDepthStencilView(m_SwapchainDepthTexture, &depthStencilDesc, &m_SwapchainDepthTextureView);
         if (FAILED(hr))
         {
             _com_error error(hr);
             NX_ERROR(error.ErrorMessage());
         }
     }
-    ID3D11RenderTargetView *SwapchainDX11::GetRenderTargetView()
+    ID3D11RenderTargetView *SwapchainD3D11::GetRenderTargetView()
     {
         return m_RenderTargetView;
     }
 
-    ID3D11DepthStencilView *SwapchainDX11::GetDepthStencilView()
+    ID3D11DepthStencilView *SwapchainD3D11::GetDepthStencilView()
     {
         return m_SwapchainDepthTextureView;
     }
 
-    void SwapchainDX11::RecreateSwapchainIfNecessary()
+    void SwapchainD3D11::RecreateSwapchainIfNecessary()
     {
         auto windowWidth = m_Window->GetWindowSize().X;
         auto windowHeight = m_Window->GetWindowSize().Y;

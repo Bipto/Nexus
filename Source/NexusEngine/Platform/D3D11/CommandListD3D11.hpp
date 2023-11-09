@@ -2,16 +2,16 @@
 
 #include "Nexus/Graphics/CommandList.hpp"
 
-#include "DX11.hpp"
+#include "D3D11Include.hpp"
 
 namespace Nexus::Graphics
 {
-    class GraphicsDeviceDX11;
+    class GraphicsDeviceD3D11;
 
-    class CommandListDX11 : public CommandList
+    class CommandListD3D11 : public CommandList
     {
     public:
-        CommandListDX11(GraphicsDeviceDX11 *graphicsDevice);
+        CommandListD3D11(GraphicsDeviceD3D11 *graphicsDevice);
 
         virtual void Begin() override;
         virtual void End() override;
@@ -30,7 +30,7 @@ namespace Nexus::Graphics
 
         const std::vector<RenderCommand> &GetRenderCommands();
         RenderCommandData &GetCurrentCommandData();
-        GraphicsDeviceDX11 *GetGraphicsDevice();
+        GraphicsDeviceD3D11 *GetGraphicsDevice();
 
         Pipeline *GetCurrentPipeline();
         void BindPipeline(Pipeline *pipeline);
@@ -43,6 +43,6 @@ namespace Nexus::Graphics
         RenderPassBeginInfo m_CommandListBeginInfo;
         Pipeline *m_CurrentPipeline;
 
-        GraphicsDeviceDX11 *m_GraphicsDevice = nullptr;
+        GraphicsDeviceD3D11 *m_GraphicsDevice = nullptr;
     };
 }

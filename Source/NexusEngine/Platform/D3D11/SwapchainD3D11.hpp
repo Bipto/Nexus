@@ -1,20 +1,20 @@
 #pragma once
 
-#if defined(NX_PLATFORM_DX11)
-#include "DX11.hpp"
+#if defined(NX_PLATFORM_D3D11)
+#include "D3D11Include.hpp"
 #include "Nexus/Graphics/Swapchain.hpp"
 #include "Nexus/Window.hpp"
 
 namespace Nexus::Graphics
 {
     // forward declaration
-    class GraphicsDeviceDX11;
+    class GraphicsDeviceD3D11;
 
-    class SwapchainDX11 : public Swapchain
+    class SwapchainD3D11 : public Swapchain
     {
     public:
-        SwapchainDX11(Window *window, GraphicsDevice *device, VSyncState vSyncState);
-        ~SwapchainDX11();
+        SwapchainD3D11(Window *window, GraphicsDevice *device, VSyncState vSyncState);
+        ~SwapchainD3D11();
 
         virtual void SwapBuffers() override;
         virtual VSyncState GetVsyncState() override;
@@ -35,7 +35,7 @@ namespace Nexus::Graphics
         ID3D11DepthStencilView *m_SwapchainDepthTextureView = NULL;
 
         VSyncState m_VsyncState;
-        GraphicsDeviceDX11 *m_Device;
+        GraphicsDeviceD3D11 *m_Device;
         Window *m_Window;
 
         uint32_t m_SwapchainWidth = 0;

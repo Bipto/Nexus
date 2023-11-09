@@ -2,7 +2,7 @@
 
 #if defined(WIN32)
 #include "Nexus/Graphics/Framebuffer.hpp"
-#include "DX11.hpp"
+#include "D3D11Include.hpp"
 
 namespace Nexus::Graphics
 {
@@ -19,11 +19,11 @@ namespace Nexus::Graphics
         ID3D11DepthStencilView *DepthStencilView = NULL;
     };
 
-    class FramebufferDX11 : public Framebuffer
+    class FramebufferD3D11 : public Framebuffer
     {
     public:
-        FramebufferDX11(ID3D11Device *&device, RenderPass *renderPass);
-        ~FramebufferDX11();
+        FramebufferD3D11(ID3D11Device *&device, RenderPass *renderPass);
+        ~FramebufferD3D11();
 
         virtual void *GetColorAttachment(int index = 0) override;
         virtual const FramebufferSpecification GetFramebufferSpecification() override;

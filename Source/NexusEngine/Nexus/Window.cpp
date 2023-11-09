@@ -7,8 +7,8 @@
 #include "Nexus/Graphics/GraphicsDevice.hpp"
 #include "Platform/OpenGL/SwapchainOpenGL.hpp"
 
-#if defined(WIN32)
-#include "Platform/DX11/SwapchainDX11.hpp"
+#if defined(NX_PLATFORM_D3D11)
+#include "Platform/D3D11/SwapchainD3D11.hpp"
 #endif
 
 #if defined(NX_PLATFORM_VULKAN)
@@ -539,10 +539,10 @@ namespace Nexus
             m_Swapchain = new Graphics::SwapchainOpenGL(this, vSyncState);
             break;
         }
-#if defined(WIN32)
-        case Graphics::GraphicsAPI::DirectX11:
+#if defined(NX_PLATFORM_D3D11)
+        case Graphics::GraphicsAPI::D3D11:
         {
-            m_Swapchain = new Graphics::SwapchainDX11(this, device, vSyncState);
+            m_Swapchain = new Graphics::SwapchainD3D11(this, device, vSyncState);
             break;
         }
 #endif

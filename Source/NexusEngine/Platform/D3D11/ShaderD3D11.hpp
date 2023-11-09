@@ -2,7 +2,7 @@
 
 #if defined(WIN32)
 
-#include "DX11.hpp"
+#include "D3D11Include.hpp"
 
 #include "Nexus/Graphics/Shader.hpp"
 
@@ -10,11 +10,11 @@
 
 namespace Nexus::Graphics
 {
-    class ShaderDX11 : public Shader
+    class ShaderD3D11 : public Shader
     {
     public:
-        ShaderDX11(ID3D11Device *device, ID3D11DeviceContext *context, std::string vertexShaderSource, std::string fragmentShaderSource, const VertexBufferLayout &layout);
-        virtual ~ShaderDX11();
+        ShaderD3D11(ID3D11Device *device, ID3D11DeviceContext *context, std::string vertexShaderSource, std::string fragmentShaderSource, const VertexBufferLayout &layout);
+        virtual ~ShaderD3D11();
 
         virtual const std::string &GetVertexShaderSource() override;
         virtual const std::string &GetFragmentShaderSource() override;

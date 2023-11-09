@@ -10,7 +10,7 @@ file (GLOB_RECURSE ENGINE_SOURCES
  Nexus/FileSystem/*.cpp
  Platform/*.cpp
  Platform/OpenGL*.cpp
- Platform/DX11/*.cpp
+ Platform/D3D11/*.cpp
  Platform/D3D12/*.cpp
  Runtime/*.cpp
  Runtime/ECS/*.cpp)
