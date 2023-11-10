@@ -2,6 +2,7 @@
 
 #include "Nexus/Application.hpp"
 #include "Platform/D3D11/GraphicsDeviceD3D11.hpp"
+#include "Platform/D3D12/GraphicsDeviceD3D12.hpp"
 #include "Platform/Vulkan/GraphicsDeviceVk.hpp"
 
 #include <imgui.h>
@@ -16,6 +17,9 @@
 #include "Platform/Vulkan/TextureVk.hpp"
 #include "Platform/Vulkan/FramebufferVk.hpp"
 #endif
+
+#include <backends/imgui_impl_dx12.h>
+#include "Platform/D3D12/TextureD3D12.hpp"
 
 namespace Nexus::Graphics
 {
@@ -35,6 +39,9 @@ namespace Nexus::Graphics
         case GraphicsAPI::D3D11:
             InitialiseD3D11();
             break;
+        case GraphicsAPI::D3D12:
+            InitialiseD3D12();
+            break;
         case GraphicsAPI::Vulkan:
             InitialiseVulkan();
             break;
@@ -50,9 +57,12 @@ namespace Nexus::Graphics
             ImGui_ImplOpenGL3_Shutdown();
             break;
         case GraphicsAPI::D3D11:
-#if defined(NX_PLATFORM_DX11)
+#if defined(NX_PLATFORM_D3D11)
             ImGui_ImplDX11_Shutdown();
+            break;
 #endif
+        case GraphicsAPI::D3D12:
+            ImGui_ImplDX12_Shutdown();
             break;
         case GraphicsAPI::Vulkan:
 #if defined(NX_PLATFORM_VULKAN)
@@ -71,9 +81,12 @@ namespace Nexus::Graphics
             ImGui_ImplOpenGL3_NewFrame();
             break;
         case GraphicsAPI::D3D11:
-#if defined(NX_PLATFORM_DX11)
+#if defined(NX_PLATFORM_D3D11)
             ImGui_ImplDX11_NewFrame();
 #endif
+            break;
+        case GraphicsAPI::D3D12:
+            ImGui_ImplDX12_NewFrame();
             break;
         case GraphicsAPI::Vulkan:
 #if defined(NX_PLATFORM_VULKAN)
@@ -92,9 +105,12 @@ namespace Nexus::Graphics
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
             break;
         case GraphicsAPI::D3D11:
-#if defined(NX_PLATFORM_DX11)
+#if defined(NX_PLATFORM_D3D11)
             ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 #endif
+            break;
+        case GraphicsAPI::D3D12:
+            EndFrameImplD3D12();
             break;
         case GraphicsAPI::Vulkan:
 #if defined(NX_PLATFORM_VULKAN)
@@ -142,6 +158,35 @@ namespace Nexus::Graphics
             return ImGui_ImplVulkan_AddTexture(textureVk->GetSampler(), textureVk->GetImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
         }
 #endif
+
+        case GraphicsAPI::D3D12:
+        {
+            GraphicsDeviceD3D12 *graphicsDevice = (GraphicsDeviceD3D12 *)m_Application->GetGraphicsDevice();
+            auto d3d12Device = graphicsDevice->GetDevice();
+
+            auto d3d12Texture = (TextureD3D12 *)texture;
+
+            auto descriptorHeap = graphicsDevice->GetImGuiDescriptorHeap();
+            auto descriptorIndex = graphicsDevice->GetNextTextureOffset();
+
+            D3D12_CPU_DESCRIPTOR_HANDLE srv_cpu_handle = descriptorHeap->GetCPUDescriptorHandleForHeapStart();
+            D3D12_GPU_DESCRIPTOR_HANDLE srv_gpu_handle = descriptorHeap->GetGPUDescriptorHandleForHeapStart();
+            srv_cpu_handle.ptr += (descriptorIndex * d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
+            srv_gpu_handle.ptr += (descriptorIndex * d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
+
+            D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc;
+            srvDesc.Format = d3d12Texture->GetFormat();
+            srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+            srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+            srvDesc.Texture2D.MipLevels = 1;
+            srvDesc.Texture2D.MostDetailedMip = 0;
+            srvDesc.Texture2D.PlaneSlice = 0;
+            srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+            d3d12Device->CreateShaderResourceView(d3d12Texture->GetD3D12ResourceHandle(), &srvDesc, srv_cpu_handle);
+
+            return (ImTextureID)srv_gpu_handle.ptr;
+        }
+
         default:
             return (ImTextureID)texture->GetHandle();
         }
@@ -195,6 +240,14 @@ namespace Nexus::Graphics
         ID3D11DeviceContext *id3d11DeviceContext = (ID3D11DeviceContext *)device->GetDeviceContext();
         ImGui_ImplDX11_Init(id3d11Device, id3d11DeviceContext);
 #endif
+    }
+
+    void ImGuiRenderer::InitialiseD3D12()
+    {
+        ImGui_ImplSDL2_InitForD3D(m_Application->GetPrimaryWindow()->GetSDLWindowHandle());
+        auto device = (GraphicsDeviceD3D12 *)(m_Application->GetGraphicsDevice());
+        auto descriptorHeap = device->GetImGuiDescriptorHeap();
+        ImGui_ImplDX12_Init(device->GetDevice(), 1, DXGI_FORMAT_R8G8B8A8_UNORM, descriptorHeap, descriptorHeap->GetCPUDescriptorHandleForHeapStart(), descriptorHeap->GetGPUDescriptorHandleForHeapStart());
     }
 
     void ImGuiRenderer::InitialiseVulkan()
@@ -262,5 +315,15 @@ namespace Nexus::Graphics
         ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), vulkanGraphicsDevice->m_ImGuiCommandBuffer);
         vulkanGraphicsDevice->EndImGuiRenderPass();
 #endif
+    }
+
+    void ImGuiRenderer::EndFrameImplD3D12()
+    {
+        auto graphicsDevice = (GraphicsDeviceD3D12 *)m_Application->GetGraphicsDevice();
+        auto d3d12Device = graphicsDevice->GetDevice();
+
+        graphicsDevice->BeginImGuiFrame();
+        ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), graphicsDevice->GetImGuiCommandList());
+        graphicsDevice->EndImGuiFrame();
     }
 }

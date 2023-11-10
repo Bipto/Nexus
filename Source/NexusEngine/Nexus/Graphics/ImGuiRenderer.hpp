@@ -58,11 +58,17 @@ namespace Nexus::Graphics
         /// @brief A private method to initialise ImGui for DirectX11
         void InitialiseD3D11();
 
+        /// @brief A private method to initialise ImGui for DirectX12
+        void InitialiseD3D12();
+
         /// @brief A private method to initialise ImGui for Vulkan
         void InitialiseVulkan();
 
         /// @brief A private method to contain all functionality for ending a frame with Vulkan
         void EndFrameImplVulkan();
+
+        /// @brief A private method to contain all functionality for ending a frame with DirectX12
+        void EndFrameImplD3D12();
 
     private:
         /// @brief A pointer to an Application

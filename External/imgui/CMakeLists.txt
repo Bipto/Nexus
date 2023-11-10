@@ -30,6 +30,8 @@ if (WIN32)
 	list(APPEND Files "imgui/backends/imgui_impl_dx11.cpp")
 	list(APPEND Files "imgui/backends/imgui_impl_vulkan.h")
 	list(APPEND Files "imgui/backends/imgui_impl_vulkan.cpp")
+	list(APPEND Files "imgui/backends/imgui_impl_dx12.h")
+	list(APPEND Files "imgui/backends/imgui_impl_dx12.cpp")
 endif()
 
 add_library(imgui
