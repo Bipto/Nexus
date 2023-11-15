@@ -20,6 +20,7 @@
 
 #include <backends/imgui_impl_dx12.h>
 #include "Platform/D3D12/TextureD3D12.hpp"
+#include "Platform/D3D12/FramebufferD3D12.hpp"
 
 namespace Nexus::Graphics
 {
@@ -205,6 +206,35 @@ namespace Nexus::Graphics
             return ImGui_ImplVulkan_AddTexture(sampler, imageView, VK_IMAGE_LAYOUT_GENERAL);
         }
 #endif
+        case GraphicsAPI::D3D12:
+        {
+            GraphicsDeviceD3D12 *graphicsDevice = (GraphicsDeviceD3D12 *)m_Application->GetGraphicsDevice();
+            auto d3d12Device = graphicsDevice->GetDevice();
+
+            auto d3d12Framebuffer = (FramebufferD3D12 *)framebuffer;
+
+            auto descriptorHeap = graphicsDevice->GetImGuiDescriptorHeap();
+            auto descriptorIndex = graphicsDevice->GetNextTextureOffset();
+
+            D3D12_CPU_DESCRIPTOR_HANDLE srv_cpu_handle = descriptorHeap->GetCPUDescriptorHandleForHeapStart();
+            D3D12_GPU_DESCRIPTOR_HANDLE srv_gpu_handle = descriptorHeap->GetGPUDescriptorHandleForHeapStart();
+            srv_cpu_handle.ptr += (descriptorIndex * d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
+            srv_gpu_handle.ptr += (descriptorIndex * d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
+
+            D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc;
+            srvDesc.Format = d3d12Framebuffer->GetColorAttachmentFormat(textureIndex);
+            srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+            srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+            srvDesc.Texture2D.MipLevels = 1;
+            srvDesc.Texture2D.MostDetailedMip = 0;
+            srvDesc.Texture2D.PlaneSlice = 0;
+            srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+
+            ID3D12Resource2 *resource = (ID3D12Resource2 *)d3d12Framebuffer->GetColorAttachment(textureIndex);
+            d3d12Device->CreateShaderResourceView(resource, &srvDesc, srv_cpu_handle);
+
+            return (ImTextureID)srv_gpu_handle.ptr;
+        }
         default:
             return framebuffer->GetColorAttachment(textureIndex);
         }

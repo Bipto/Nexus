@@ -50,8 +50,6 @@ namespace Nexus::Graphics
         d3d12Device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&m_Texture));
 
         SetData(spec.Data);
-
-        D3D12_SAMPLER_DESC samplerDesc;
     }
 
     TextureD3D12::~TextureD3D12()

@@ -48,8 +48,23 @@ public:
 
         m_CommandList = m_GraphicsDevice->CreateCommandList();
 
+        // offscreen rendering
+        Nexus::Graphics::FramebufferSpecification fbSpec;
+        fbSpec.Width = 500;
+        fbSpec.Height = 500;
+        fbSpec.ColorAttachmentSpecification =
+            {
+                Nexus::Graphics::TextureFormat::Color};
+
+        Nexus::Graphics::RenderPassSpecification rpSpec;
+        rpSpec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
+
+        auto pair = m_GraphicsDevice->CreateRenderPassAndFramebuffer(rpSpec, fbSpec);
+        m_Framebuffer = pair.first;
+        m_OffscreenRenderPass = pair.second;
+
         m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
-        m_ImGuiTexture = m_ImGuiRenderer->BindTexture(m_Texture);
+        m_ImGuiTexture = m_ImGuiRenderer->BindFramebufferTexture(m_Framebuffer, 0);
     }
 
     virtual void Update(Nexus::Time time) override
@@ -62,11 +77,19 @@ public:
         m_UniformBuffer->SetData(&m_TestUniforms, sizeof(m_TestUniforms), 0);
 
         m_ResourceSet->WriteUniformBuffer(m_UniformBuffer, 0);
-        // m_ResourceSet->WriteTexture(m_Texture, 0);
+        m_ResourceSet->WriteTexture(m_Texture, 0);
 
         m_GraphicsDevice->BeginFrame();
 
         m_CommandList->Begin();
+
+        Nexus::Graphics::RenderPassBeginInfo offscreenBeginInfo{};
+        offscreenBeginInfo.ClearColorValue = {
+            0.95f, 0.65f, 0.73f, 1.0f};
+        m_CommandList->BeginRenderPass(m_OffscreenRenderPass, offscreenBeginInfo);
+        {
+        }
+        m_CommandList->EndRenderPass();
 
         Nexus::Graphics::RenderPassBeginInfo beginInfo{};
         beginInfo.ClearColorValue = {
@@ -83,13 +106,14 @@ public:
             m_CommandList->DrawIndexed(3, 0);
         }
         m_CommandList->EndRenderPass();
+
         m_CommandList->End();
         m_GraphicsDevice->EndFrame();
 
         m_GraphicsDevice->SubmitCommandList(m_CommandList);
 
         ImGui::Begin("Test Window");
-        ImGui::Image(m_ImGuiTexture, {500, 500});
+        // ImGui::Image(m_ImGuiTexture, {500, 500});
         ImGui::End();
     }
 
@@ -169,6 +193,9 @@ private:
     TestUniforms m_TestUniforms;
 
     ImTextureID m_ImGuiTexture;
+
+    Nexus::Graphics::Framebuffer *m_Framebuffer = nullptr;
+    Nexus::Graphics::RenderPass *m_OffscreenRenderPass = nullptr;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)

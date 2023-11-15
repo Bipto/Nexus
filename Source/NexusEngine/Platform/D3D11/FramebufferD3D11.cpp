@@ -3,6 +3,8 @@
 #include "FramebufferD3D11.hpp"
 #include "Nexus/Logging/Log.hpp"
 
+#include "D3D11Utils.hpp"
+
 namespace Nexus::Graphics
 {
 #if defined(WIN32)
@@ -55,7 +57,7 @@ namespace Nexus::Graphics
                 textureDesc.Height = m_Specification.Height;
                 textureDesc.MipLevels = 1;
                 textureDesc.ArraySize = 1;
-                textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+                textureDesc.Format = GetD3D11TextureFormat(colorAttachments.TextureFormat);
                 textureDesc.SampleDesc.Count = 1;
                 textureDesc.Usage = D3D11_USAGE_DEFAULT;
                 textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
@@ -113,7 +115,7 @@ namespace Nexus::Graphics
             depthStencilDesc.Height = m_Specification.Height;
             depthStencilDesc.MipLevels = 1;
             depthStencilDesc.ArraySize = 1;
-            depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+            depthStencilDesc.Format = GetD3D11DepthFormat(m_Specification.DepthAttachmentSpecification.DepthFormat);
             depthStencilDesc.SampleDesc.Count = 1;
             depthStencilDesc.SampleDesc.Quality = 0;
             depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;

@@ -4,6 +4,8 @@
 #include "PipelineD3D12.hpp"
 #include "BufferD3D12.hpp"
 #include "ResourceSetD3D12.hpp"
+#include "FramebufferD3D12.hpp"
+#include "RenderPassD3D12.hpp"
 
 namespace Nexus::Graphics
 {
@@ -45,6 +47,7 @@ namespace Nexus::Graphics
     {
         m_CurrentRenderPass = renderPass;
         std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> targets;
+        D3D12_CPU_DESCRIPTOR_HANDLE *depthHandle = nullptr;
 
         if (renderPass->GetRenderPassDataType() == Nexus::Graphics::RenderPassDataType::Swapchain)
         {
@@ -60,6 +63,16 @@ namespace Nexus::Graphics
             renderTargetBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
             renderTargetBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
             m_CommandList->ResourceBarrier(1, &renderTargetBarrier);
+        }
+        else
+        {
+            RenderPassD3D12 *d3d12RenderPass = (RenderPassD3D12 *)renderPass;
+            FramebufferD3D12 *framebuffer = (FramebufferD3D12 *)d3d12RenderPass->GetFramebuffer();
+            targets = framebuffer->GetColorAttachmentHandles();
+            if (framebuffer->HasDepthTexture())
+            {
+                depthHandle = &framebuffer->GetDepthAttachmentHandle();
+            }
         }
 
         if (renderPass->GetColorLoadOperation() == Nexus::Graphics::LoadOperation::Clear)
@@ -85,7 +98,7 @@ namespace Nexus::Graphics
             targets.size(),
             targets.data(),
             false,
-            nullptr);
+            depthHandle);
     }
 
     void CommandListD3D12::EndRenderPass()

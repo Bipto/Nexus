@@ -40,4 +40,9 @@ namespace Nexus::Graphics
     {
         return m_DataType;
     }
+
+    Framebuffer *RenderPassD3D12::GetFramebuffer()
+    {
+        return m_Framebuffer;
+    }
 }

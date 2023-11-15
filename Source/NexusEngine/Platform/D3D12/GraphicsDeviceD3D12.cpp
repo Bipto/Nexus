@@ -10,6 +10,7 @@
 #include "RenderPassD3D12.hpp"
 #include "TextureD3D12.hpp"
 #include "ResourceSetD3D12.hpp"
+#include "FramebufferD3D12.hpp"
 
 namespace Nexus::Graphics
 {
@@ -144,7 +145,10 @@ namespace Nexus::Graphics
 
     Framebuffer *GraphicsDeviceD3D12::CreateFramebuffer(RenderPass *renderPass)
     {
-        return nullptr;
+        RenderPassD3D12 *d3d12RenderPass = (RenderPassD3D12 *)renderPass;
+        auto framebuffer = new FramebufferD3D12(this, renderPass);
+        d3d12RenderPass->m_Framebuffer = framebuffer;
+        return framebuffer;
     }
 
     Pipeline *GraphicsDeviceD3D12::CreatePipeline(const PipelineDescription &description)
@@ -174,11 +178,12 @@ namespace Nexus::Graphics
 
     RenderPass *GraphicsDeviceD3D12::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification)
     {
-        return nullptr;
+        return new RenderPassD3D12(renderPassSpecification, framebufferSpecification);
     }
 
     RenderPass *GraphicsDeviceD3D12::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain)
     {
+
         return new RenderPassD3D12(renderPassSpecification, swapchain);
     }
 

@@ -14,11 +14,14 @@ namespace Nexus::Graphics
         virtual const RenderPassSpecification &GetRenderPassSpecification() override;
         virtual const RenderPassData &GetRenderPassData() override;
         virtual RenderPassDataType GetRenderPassDataType() override;
+        Framebuffer *GetFramebuffer();
 
     private:
         RenderPassSpecification m_RenderPassSpecification;
         RenderPassData m_Data;
         RenderPassDataType m_DataType;
         Framebuffer *m_Framebuffer;
+
+        friend class GraphicsDeviceD3D12;
     };
 }
