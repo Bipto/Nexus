@@ -64,7 +64,7 @@ public:
         m_OffscreenRenderPass = pair.second;
 
         m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
-        m_ImGuiTexture = m_ImGuiRenderer->BindFramebufferTexture(m_Framebuffer, 0);
+        // m_ImGuiTexture = m_ImGuiRenderer->BindFramebufferTexture(m_Framebuffer, 0);
     }
 
     virtual void Update(Nexus::Time time) override
@@ -147,9 +147,9 @@ public:
         description.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
         description.RenderPass = m_RenderPass;
 
-        /* Nexus::Graphics::TextureResourceBinding textureBinding;
+        Nexus::Graphics::TextureResourceBinding textureBinding;
         textureBinding.Name = "texSampler";
-        textureBinding.Slot = 0; */
+        textureBinding.Slot = 0;
 
         Nexus::Graphics::UniformResourceBinding uniformBufferBinding;
         uniformBufferBinding.Binding = 0;
@@ -157,7 +157,7 @@ public:
         uniformBufferBinding.Buffer = m_UniformBuffer;
 
         Nexus::Graphics::ResourceSetSpecification resourceSetSpec;
-        // resourceSetSpec.TextureBindings = {textureBinding};
+        resourceSetSpec.TextureBindings = {textureBinding};
         resourceSetSpec.UniformResourceBindings = {uniformBufferBinding};
         description.ResourceSetSpecification = resourceSetSpec;
 

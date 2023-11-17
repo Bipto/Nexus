@@ -19,6 +19,9 @@ namespace Nexus::Graphics
         const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> &GetColorAttachmentHandles();
         D3D12_CPU_DESCRIPTOR_HANDLE GetDepthAttachmentHandle();
 
+        const std::vector<Microsoft::WRL::ComPtr<ID3D12Resource2>> GetColorTextures();
+        Microsoft::WRL::ComPtr<ID3D12Resource2> GetDepthTexture();
+
         DXGI_FORMAT GetColorAttachmentFormat(uint32_t index);
 
     private:
