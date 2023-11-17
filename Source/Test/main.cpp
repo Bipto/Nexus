@@ -64,7 +64,7 @@ public:
         m_OffscreenRenderPass = pair.second;
 
         m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
-        // m_ImGuiTexture = m_ImGuiRenderer->BindFramebufferTexture(m_Framebuffer, 0);
+        m_ImGuiTexture = m_ImGuiRenderer->BindFramebufferTexture(m_Framebuffer, 0);
     }
 
     virtual void Update(Nexus::Time time) override
@@ -113,7 +113,7 @@ public:
         m_GraphicsDevice->SubmitCommandList(m_CommandList);
 
         ImGui::Begin("Test Window");
-        // ImGui::Image(m_ImGuiTexture, {500, 500});
+        ImGui::Image(m_ImGuiTexture, {500, 500});
         ImGui::End();
     }
 
