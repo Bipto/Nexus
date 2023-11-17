@@ -64,7 +64,11 @@ public:
         m_OffscreenRenderPass = pair.second;
 
         m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
-        m_ImGuiTexture = m_ImGuiRenderer->BindFramebufferTexture(m_Framebuffer, 0);
+
+        Nexus::WindowProperties props;
+        props.Title = "Second Window";
+        props.Resizable = false;
+        m_Window2 = CreateApplicationWindow(props);
     }
 
     virtual void Update(Nexus::Time time) override
@@ -112,9 +116,10 @@ public:
 
         m_GraphicsDevice->SubmitCommandList(m_CommandList);
 
-        ImGui::Begin("Test Window");
-        ImGui::Image(m_ImGuiTexture, {500, 500});
-        ImGui::End();
+        if (m_Window2)
+        {
+            std::cout << m_Window2->IsClosing() << std::endl;
+        }
     }
 
     virtual void OnResize(Nexus::Point<int> size) override
@@ -192,18 +197,18 @@ private:
     Nexus::Graphics::UniformBuffer *m_UniformBuffer = nullptr;
     TestUniforms m_TestUniforms;
 
-    ImTextureID m_ImGuiTexture;
-
     Nexus::Graphics::Framebuffer *m_Framebuffer = nullptr;
     Nexus::Graphics::RenderPass *m_OffscreenRenderPass = nullptr;
+
+    Nexus::Window *m_Window2 = nullptr;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
-    spec.ImGuiActive = true;
+    spec.ImGuiActive = false;
     spec.VSyncState = Nexus::Graphics::VSyncState::Disabled;
 
     return new TestApplication(spec);

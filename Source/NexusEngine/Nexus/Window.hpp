@@ -69,9 +69,6 @@ namespace Nexus
 
         /// @brief A boolean indicating whether the window can be resized or not
         bool Resizable = true;
-
-        /// @brief An enum value representing the graphics API to use within the window
-        Graphics::GraphicsAPI GraphicsAPI = Graphics::GraphicsAPI::None;
     };
 
     /// @brief A class representing a window
@@ -88,10 +85,6 @@ namespace Nexus
 
         /// @brief A destructor to allow resources to be freed
         ~Window();
-
-        /// @brief A method to update the window's input
-        /// @param imguiActiveA boolean value indicating whether the ImGui context needs updating
-        void PollEvents(bool imguiActive = false);
 
         /// @brief A method that allows a window to be resized
         /// @param isResizable Whether the window should be resizable
@@ -162,6 +155,8 @@ namespace Nexus
         /// @return A pointer to a swapchain
         Graphics::Swapchain *GetSwapchain();
 
+        uint32_t GetID();
+
     private:
         /// @brief A method that returns a set of flags to use when creating the window
         /// @param api The graphics API to create the swapchain
@@ -192,6 +187,9 @@ namespace Nexus
 
         /// @brief A void pointer to the window's surface
         void *m_Surface = nullptr;
+
+        /// @brief The underlying SDL window ID
+        uint32_t m_WindowID = 0;
 
         /// @brief A friend class to allow an application to access private members of this class
         friend class Application;

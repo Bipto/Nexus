@@ -164,7 +164,7 @@ namespace Nexus
         static void GamepadRumble(uint32_t index, uint16_t lowFrequency, uint16_t highFrequency, uint32_t milliseconds);
 
         /// @brief A static method to rumble a controller's triggers
-        /// @param index The index of the controller to rumble triggers of
+        /// @param index The index of the controller to rumble triggers of`
         /// @param left The rumble to use for the left trigger
         /// @param right The rumble to use for the right trigger
         /// @param milliseconds The number of milliseconds to rumble for
@@ -176,5 +176,16 @@ namespace Nexus
         /// @param green The green channel of the colour
         /// @param blue The blue channel of the colour
         static void GamepadSetLED(uint32_t index, uint8_t red, uint8_t green, uint8_t blue);
+
+        Gamepad *GetGamepadByIndex(uint32_t index);
+
+    private:
+        static std::vector<Gamepad *> s_Gamepads;
+
+        static void AddController(uint32_t index);
+        static void RemoveController(uint32_t index);
+        void CacheInput();
+
+        friend class Application;
     };
 };

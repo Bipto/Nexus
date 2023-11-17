@@ -175,6 +175,11 @@ namespace Nexus
         /// @return A pointer to an audio device
         Audio::AudioDevice *GetAudioDevice();
 
+    private:
+        void PollEvents(bool imguiActive);
+        Window *GetWindowFromHandle(uint32_t handle);
+        void RemoveClosedWindows();
+
     protected:
         /// @brief A pointer to a graphics device
         Graphics::GraphicsDevice *m_GraphicsDevice;
@@ -199,5 +204,7 @@ namespace Nexus
 
         /// @brief A clock to time when renders and updates occur
         Clock m_Clock;
+
+        std::vector<Window *> m_Windows;
     };
 }

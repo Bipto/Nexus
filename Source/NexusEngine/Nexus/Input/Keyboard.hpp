@@ -156,5 +156,7 @@ namespace Nexus
 
         /// @brief A friend class to allow a window to access the private properties of this class
         friend class Window;
+
+        friend class Application;
     };
 }

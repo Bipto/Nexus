@@ -4,6 +4,9 @@
 
 namespace Nexus
 {
+    // instatiate static vector
+    std::vector<Gamepad *> Input::s_Gamepads;
+
     bool Input::IsLeftMousePressed()
     {
         auto mouse = Nexus::GetApplication()->GetCoreInputState()->GetMouse();
@@ -96,38 +99,33 @@ namespace Nexus
 
     bool Input::IsGamepadConnected()
     {
-        auto gamepads = Nexus::GetApplication()->GetCoreInputState()->GetGamepads();
-        return gamepads.size() > 0;
+        return s_Gamepads.size() > 0;
     }
 
     int Input::GetGamepadCount()
     {
-        auto gamepads = Nexus::GetApplication()->GetCoreInputState()->GetGamepads();
-        return gamepads.size();
+        return s_Gamepads.size();
     }
 
     bool Input::IsGamepadKeyHeld(uint32_t index, GamepadButton button)
     {
         if (GetGamepadCount() == 0)
             return false;
-        auto gamepads = Nexus::GetApplication()->GetCoreInputState()->GetGamepads();
-        return gamepads[index]->IsButtonHeld(button);
+        return s_Gamepads[index]->IsButtonHeld(button);
     }
 
     bool Input::WasGamepadKeyPressed(uint32_t index, GamepadButton button)
     {
         if (GetGamepadCount() == 0)
             return false;
-        auto gamepads = Nexus::GetApplication()->GetCoreInputState()->GetGamepads();
-        return gamepads[index]->WasButtonPressed(button);
+        return s_Gamepads[index]->WasButtonPressed(button);
     }
 
     bool Input::WasGamepadKeyReleased(uint32_t index, GamepadButton button)
     {
         if (GetGamepadCount() == 0)
             return false;
-        auto gamepads = Nexus::GetApplication()->GetCoreInputState()->GetGamepads();
-        return gamepads[index]->WasButtonReleased(button);
+        return s_Gamepads[index]->WasButtonReleased(button);
     }
 
     Point<float> Input::GetGamepadAxisLeft(uint32_t index)
@@ -136,8 +134,7 @@ namespace Nexus
             return {
                 0, 0};
 
-        auto gamepads = Nexus::GetApplication()->GetCoreInputState()->GetGamepads();
-        return gamepads[index]->GetLeftStick();
+        return s_Gamepads[index]->GetLeftStick();
     }
 
     Point<float> Input::GetGamepadAxisRight(uint32_t index)
@@ -146,8 +143,7 @@ namespace Nexus
             return {
                 0, 0};
 
-        auto gamepads = Nexus::GetApplication()->GetCoreInputState()->GetGamepads();
-        return gamepads[index]->GetRightStick();
+        return s_Gamepads[index]->GetRightStick();
     }
 
     float Input::GetGamepadLeftTrigger(uint32_t index)
@@ -155,8 +151,7 @@ namespace Nexus
         if (GetGamepadCount() == 0)
             return 0;
 
-        auto gamepads = Nexus::GetApplication()->GetCoreInputState()->GetGamepads();
-        return gamepads[index]->GetLeftTrigger();
+        return s_Gamepads[index]->GetLeftTrigger();
     }
 
     float Input::GetGamepadRightTrigger(uint32_t index)
@@ -164,8 +159,7 @@ namespace Nexus
         if (GetGamepadCount() == 0)
             return 0;
 
-        auto gamepads = Nexus::GetApplication()->GetCoreInputState()->GetGamepads();
-        return gamepads[index]->GetRightTrigger();
+        return s_Gamepads[index]->GetRightTrigger();
     }
 
     bool Input::GamepadSupportsRumble(uint32_t index)
@@ -173,8 +167,7 @@ namespace Nexus
         if (GetGamepadCount() == 0)
             return false;
 
-        auto gamepads = Nexus::GetApplication()->GetCoreInputState()->GetGamepads();
-        return gamepads[index]->SupportsRumble();
+        return s_Gamepads[index]->SupportsRumble();
     }
 
     bool Input::GamepadSupportsRumbleTriggers(uint32_t index)
@@ -182,8 +175,7 @@ namespace Nexus
         if (GetGamepadCount() == 0)
             return false;
 
-        auto gamepads = Nexus::GetApplication()->GetCoreInputState()->GetGamepads();
-        return gamepads[index]->SupportsRumbleTriggers();
+        return s_Gamepads[index]->SupportsRumbleTriggers();
     }
 
     bool Input::GamepadHasLED(uint32_t index)
@@ -191,16 +183,14 @@ namespace Nexus
         if (GetGamepadCount() == 0)
             return false;
 
-        auto gamepads = Nexus::GetApplication()->GetCoreInputState()->GetGamepads();
-        return gamepads[index]->HasLED();
+        return s_Gamepads[index]->HasLED();
     }
 
     void Input::GamepadRumble(uint32_t index, uint16_t lowFrequency, uint16_t highFrequency, uint32_t milliseconds)
     {
         if (index > GetGamepadCount())
         {
-            auto gamepads = Nexus::GetApplication()->GetCoreInputState()->GetGamepads();
-            gamepads[index]->Rumble(lowFrequency, highFrequency, milliseconds);
+            s_Gamepads[index]->Rumble(lowFrequency, highFrequency, milliseconds);
         }
     }
 
@@ -209,8 +199,7 @@ namespace Nexus
         if (GetGamepadCount() == 0)
             return;
 
-        auto gamepads = Nexus::GetApplication()->GetCoreInputState()->GetGamepads();
-        return gamepads[index]->RumbleTriggers(left, right, milliseconds);
+        return s_Gamepads[index]->RumbleTriggers(left, right, milliseconds);
     }
 
     void Input::GamepadSetLED(uint32_t index, uint8_t red, uint8_t green, uint8_t blue)
@@ -218,8 +207,48 @@ namespace Nexus
         if (GetGamepadCount() == 0)
             return;
 
-        auto gamepads = Nexus::GetApplication()->GetCoreInputState()->GetGamepads();
-        return gamepads[index]->SetLED(red, green, blue);
+        return s_Gamepads[index]->SetLED(red, green, blue);
+    }
+
+    Gamepad *Input::GetGamepadByIndex(uint32_t index)
+    {
+        for (int i = 0; i < s_Gamepads.size(); i++)
+        {
+            auto gamepad = s_Gamepads[i];
+            if (gamepad->GetControllerIndex() == index)
+            {
+                return gamepad;
+            }
+        }
+
+        return nullptr;
+    }
+
+    void Input::AddController(uint32_t index)
+    {
+        Gamepad *gamepad = new Gamepad(index);
+        s_Gamepads.push_back(gamepad);
+    }
+
+    void Input::RemoveController(uint32_t index)
+    {
+        for (int i = 0; i < s_Gamepads.size(); i++)
+        {
+            auto gamepad = s_Gamepads[i];
+            if (gamepad->GetControllerIndex() == index)
+            {
+                delete gamepad;
+                s_Gamepads.erase(s_Gamepads.begin() + i);
+            }
+        }
+    }
+
+    void Input::CacheInput()
+    {
+        for (int i = 0; i < s_Gamepads.size(); i++)
+        {
+            s_Gamepads[i]->Update();
+        }
     }
 
     bool Input::IsKeyPressed(KeyCode code)
