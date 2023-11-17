@@ -15,6 +15,10 @@
                 "type": "equals",
                 "lhs": "${hostSystemName}",
                 "rhs": "Windows"
+            },
+            "toolset": {
+                "value": "host=x64",
+                "strategy": "external"
             }
         },
         {
@@ -56,7 +60,11 @@
         {
             "name": "x64-release-windows",
             "displayName": "x64 Release - Windows",
-            "inherits": "x64-debug-windows",
+            "inherits": "windows-base",
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
             }
