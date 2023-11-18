@@ -25,7 +25,7 @@ namespace Nexus::Graphics
         VkSurfaceFormatKHR GetSurfaceFormat();
         VkFormat GetDepthFormat();
 
-        void Initialise();
+        virtual void Initialise() override;
         void RecreateSwapchain();
 
         VkRenderPass GetRenderPass();

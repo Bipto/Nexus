@@ -66,7 +66,7 @@ namespace Nexus::Graphics
             const auto renderPass = renderPassCommand.RenderPass;
             const auto &beginInfo = renderPassCommand.ClearValue;
 
-            // bind framebuffer
+            // bind targets
             {
                 if (renderPass->GetRenderPassDataType() == Nexus::Graphics::RenderPassDataType::Framebuffer)
                 {
@@ -75,7 +75,8 @@ namespace Nexus::Graphics
                 }
                 else
                 {
-                    graphicsDevice->SetFramebuffer(nullptr);
+                    Swapchain *swapchain = renderPass->GetData<Swapchain *>();
+                    graphicsDevice->SetSwapchain(swapchain);
                 }
             }
 

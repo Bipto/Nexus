@@ -133,7 +133,7 @@ namespace Nexus::Graphics
 
         if (vulkanRenderPass->GetRenderPassDataType() == Nexus::Graphics::RenderPassDataType::Swapchain)
         {
-            auto vulkanSwapchain = (SwapchainVk *)m_Device->GetPrimaryWindow()->GetSwapchain();
+            auto vulkanSwapchain = (SwapchainVk *)renderPass->GetData<Swapchain *>();
             renderPassInfo.framebuffer = vulkanSwapchain->GetCurrentFramebuffer();
             renderPassInfo.renderArea.offset = {0, 0};
             renderPassInfo.renderArea.extent = vulkanSwapchain->m_SwapchainSize;

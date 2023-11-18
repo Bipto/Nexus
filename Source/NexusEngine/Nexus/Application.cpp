@@ -526,8 +526,11 @@ namespace Nexus
             }
             case SDL_CONTROLLERDEVICEADDED:
             {
-                Nexus::Input::AddController(event.cdevice.which);
-                break;
+                if (SDL_IsGameController(event.cdevice.which))
+                {
+                    Nexus::Input::AddController(event.cdevice.which);
+                    break;
+                }
             }
             case SDL_CONTROLLERDEVICEREMOVED:
             {

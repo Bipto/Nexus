@@ -16,6 +16,7 @@ namespace Nexus::Graphics
     {
     public:
         virtual ~Swapchain() {}
+        virtual void Initialise() = 0;
         virtual void SwapBuffers() = 0;
         virtual VSyncState GetVsyncState() = 0;
         virtual void SetVSyncState(VSyncState vsyncState) = 0;

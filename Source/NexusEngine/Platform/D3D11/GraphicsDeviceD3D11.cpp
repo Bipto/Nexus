@@ -93,25 +93,28 @@ namespace Nexus::Graphics
 
     void GraphicsDeviceD3D11::SetFramebuffer(Framebuffer *framebuffer)
     {
-        if (framebuffer)
-        {
-            auto dxFramebuffer = (FramebufferD3D11 *)framebuffer;
+        auto dxFramebuffer = (FramebufferD3D11 *)framebuffer;
 
-            std::vector<ID3D11RenderTargetView *> colorTargets;
-            for (const auto &colorTarget : dxFramebuffer->GetColorRenderTargets())
-            {
-                colorTargets.push_back(colorTarget.RenderTargetView);
-            }
-
-            m_ActiveRenderTargetviews = colorTargets;
-            m_ActiveDepthStencilView = dxFramebuffer->GetDepthStencilView();
-        }
-        else
+        std::vector<ID3D11RenderTargetView *> colorTargets;
+        for (const auto &colorTarget : dxFramebuffer->GetColorRenderTargets())
         {
-            SwapchainD3D11 *swapchain = (SwapchainD3D11 *)m_Window->GetSwapchain();
-            m_ActiveRenderTargetviews = {swapchain->GetRenderTargetView()};
-            m_ActiveDepthStencilView = swapchain->GetDepthStencilView();
+            colorTargets.push_back(colorTarget.RenderTargetView);
         }
+
+        m_ActiveRenderTargetviews = colorTargets;
+        m_ActiveDepthStencilView = dxFramebuffer->GetDepthStencilView();
+
+        m_DeviceContextPtr->OMSetRenderTargets(
+            m_ActiveRenderTargetviews.size(),
+            m_ActiveRenderTargetviews.data(),
+            m_ActiveDepthStencilView);
+    }
+
+    void GraphicsDeviceD3D11::SetSwapchain(Swapchain *swapchain)
+    {
+        SwapchainD3D11 *d3d11Swapchain = (SwapchainD3D11 *)swapchain;
+        m_ActiveRenderTargetviews = {d3d11Swapchain->GetRenderTargetView()};
+        m_ActiveDepthStencilView = d3d11Swapchain->GetDepthStencilView();
 
         m_DeviceContextPtr->OMSetRenderTargets(
             m_ActiveRenderTargetviews.size(),

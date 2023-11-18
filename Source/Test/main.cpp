@@ -69,6 +69,12 @@ public:
         props.Title = "Second Window";
         props.Resizable = false;
         m_Window2 = CreateApplicationWindow(props);
+        m_Window2->CreateSwapchain(m_GraphicsDevice, Nexus::Graphics::VSyncState::Enabled);
+        m_Window2->GetSwapchain()->Initialise();
+
+        Nexus::Graphics::RenderPassSpecification spec;
+        spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
+        m_Window2RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_Window2->GetSwapchain());
     }
 
     virtual void Update(Nexus::Time time) override
@@ -77,6 +83,25 @@ public:
 
     virtual void Render(Nexus::Time time) override
     {
+        if (!m_Window2->IsClosing())
+        {
+            Nexus::Graphics::RenderPassBeginInfo beginInfo{};
+            beginInfo.ClearColorValue = {
+                0.45f,
+                0.32f,
+                0.55f,
+                1.0f};
+
+            m_CommandList->Begin();
+            m_CommandList->BeginRenderPass(m_Window2RenderPass, beginInfo);
+            {
+            }
+            m_CommandList->EndRenderPass();
+            m_CommandList->End();
+            m_GraphicsDevice->SubmitCommandList(m_CommandList);
+            m_Window2->GetSwapchain()->SwapBuffers();
+        }
+
         m_TestUniforms.Transform = glm::mat4(1.0f);
         m_UniformBuffer->SetData(&m_TestUniforms, sizeof(m_TestUniforms), 0);
 
@@ -115,11 +140,6 @@ public:
         m_GraphicsDevice->EndFrame();
 
         m_GraphicsDevice->SubmitCommandList(m_CommandList);
-
-        if (m_Window2)
-        {
-            std::cout << m_Window2->IsClosing() << std::endl;
-        }
     }
 
     virtual void OnResize(Nexus::Point<int> size) override
@@ -201,12 +221,13 @@ private:
     Nexus::Graphics::RenderPass *m_OffscreenRenderPass = nullptr;
 
     Nexus::Window *m_Window2 = nullptr;
+    Nexus::Graphics::RenderPass *m_Window2RenderPass = nullptr;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
     spec.ImGuiActive = false;
     spec.VSyncState = Nexus::Graphics::VSyncState::Disabled;

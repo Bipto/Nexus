@@ -10,11 +10,14 @@ namespace Nexus::Graphics
     public:
         SwapchainOpenGL(Window *window, VSyncState vSyncState);
         virtual ~SwapchainOpenGL();
+        virtual void Initialise() override {}
         virtual void SwapBuffers() override;
         virtual VSyncState GetVsyncState() override;
         virtual void SetVSyncState(VSyncState vsyncState) override;
         void ResizeIfNecessary();
         void Bind();
+
+        static bool HasContextBeenCreated();
 
     private:
         Window *m_Window;
@@ -25,5 +28,8 @@ namespace Nexus::Graphics
 
         SDL_GLContext m_Context = nullptr;
         int m_Backbuffer = 0;
+
+        static bool s_ContextCreated;
+        static SDL_Window *s_ContextWindow;
     };
 }

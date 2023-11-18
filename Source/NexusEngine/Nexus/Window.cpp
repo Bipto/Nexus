@@ -291,6 +291,15 @@ namespace Nexus
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
 #endif
 
+            if (Graphics::SwapchainOpenGL::HasContextBeenCreated())
+            {
+                SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
+            }
+            else
+            {
+                SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 0);
+            }
+
             flags |= SDL_WINDOW_OPENGL;
             return flags;
         }

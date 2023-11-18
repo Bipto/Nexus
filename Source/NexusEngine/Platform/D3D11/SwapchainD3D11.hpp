@@ -16,6 +16,7 @@ namespace Nexus::Graphics
         SwapchainD3D11(Window *window, GraphicsDevice *device, VSyncState vSyncState);
         ~SwapchainD3D11();
 
+        virtual void Initialise() override {}
         virtual void SwapBuffers() override;
         virtual VSyncState GetVsyncState() override;
         virtual void SetVSyncState(VSyncState vsyncState) override;
