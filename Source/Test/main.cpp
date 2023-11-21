@@ -112,14 +112,6 @@ public:
 
         m_CommandList->Begin();
 
-        Nexus::Graphics::RenderPassBeginInfo offscreenBeginInfo{};
-        offscreenBeginInfo.ClearColorValue = {
-            0.95f, 0.65f, 0.73f, 1.0f};
-        m_CommandList->BeginRenderPass(m_OffscreenRenderPass, offscreenBeginInfo);
-        {
-        }
-        m_CommandList->EndRenderPass();
-
         Nexus::Graphics::RenderPassBeginInfo beginInfo{};
         beginInfo.ClearColorValue = {
             0.45f,
@@ -227,7 +219,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
     spec.ImGuiActive = false;
     spec.VSyncState = Nexus::Graphics::VSyncState::Disabled;

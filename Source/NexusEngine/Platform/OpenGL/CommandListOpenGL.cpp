@@ -70,7 +70,8 @@ namespace Nexus::Graphics
                 }
                 else
                 {
-                    graphicsDevice->SetFramebuffer(nullptr);
+                    auto swapchain = renderPass->GetData<Swapchain *>();
+                    graphicsDevice->SetSwapchain(swapchain);
                 }
             }
 

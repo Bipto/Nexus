@@ -139,11 +139,14 @@ namespace Nexus::Graphics
             fb->Bind();
             m_BoundFramebuffer = fb;
         }
-        else
+    }
+
+    void GraphicsDeviceOpenGL::SetSwapchain(Swapchain *swapchain)
+    {
+        auto glSwapchain = (SwapchainOpenGL *)swapchain;
+        if (glSwapchain)
         {
-            SwapchainOpenGL *swapchain = (SwapchainOpenGL *)m_Window->GetSwapchain();
-            swapchain->Bind();
-            m_BoundFramebuffer = nullptr;
+            glSwapchain->Bind();
         }
     }
 
