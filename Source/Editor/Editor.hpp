@@ -11,9 +11,8 @@
 #include "UI/NewScenePanel.hpp"
 #include "UI/ShaderViewerPanel.hpp"
 
-#include "Core/Utils/FileDialogs.hpp"
-
-#include "Core/Graphics/MeshFactory.hpp"
+#include "Nexus/FileSystem/FileDialogs.hpp"
+#include "Nexus/Graphics/MeshFactory.hpp"
 
 struct alignas(16) VB_UNIFORM_RENDERINFO
 {
@@ -477,22 +476,22 @@ public:
 
 private:
     Nexus::Renderer *m_Renderer;
-    Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
+    Nexus::Graphics::Shader *m_Shader;
 
-    Nexus::Ref<Nexus::Graphics::UniformBuffer> m_RenderInfoUniformBuffer;
-    Nexus::Ref<Nexus::Graphics::UniformBuffer> m_CameraUniformBuffer;
-    Nexus::Ref<Nexus::Graphics::Texture> m_Texture;
+    Nexus::Graphics::UniformBuffer *m_RenderInfoUniformBuffer;
+    Nexus::Graphics::UniformBuffer *m_CameraUniformBuffer;
+    Nexus::Graphics::Texture *m_Texture;
     VB_UNIFORM_RENDERINFO m_RenderInfoUniforms;
     VB_UNIFORM_CAMERA m_CameraUniforms;
-    Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
-    Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
-    Nexus::Ref<Nexus::Graphics::RenderPass> m_FramebufferRenderPass;
-    Nexus::Ref<Nexus::Graphics::RenderPass> m_SwapchainRenderPass;
+    Nexus::Graphics::Pipeline *m_Pipeline;
+    Nexus::Graphics::CommandList *m_CommandList;
+    Nexus::Graphics::RenderPass *m_FramebufferRenderPass;
+    Nexus::Graphics::RenderPass *m_SwapchainRenderPass;
     Nexus::Graphics::TextureResourceBinding m_TextureBinding;
 
     Nexus::FirstPersonCamera m_Camera;
-    Nexus::Ref<Nexus::Graphics::Framebuffer> m_Framebuffer;
-    Nexus::Ref<Nexus::Project> m_Project;
+    Nexus::Graphics::Framebuffer *m_Framebuffer;
+    Nexus::Project *m_Project;
 
     bool m_WindowOpen = true;
 

@@ -311,6 +311,8 @@ namespace Nexus
 
     void Application::MainLoop()
     {
+        CloseWindows();
+
         if (m_Window->m_SwapchainRequiresResize)
         {
             OnResize(this->GetWindowSize());
@@ -355,7 +357,7 @@ namespace Nexus
 
         m_Window->m_Input->CacheInput();
 
-        RemoveClosedWindows();
+        CheckForClosingWindows();
     }
 
     Nexus::Window *Application::GetPrimaryWindow()
@@ -553,7 +555,7 @@ namespace Nexus
         return nullptr;
     }
 
-    void Application::RemoveClosedWindows()
+    void Application::CheckForClosingWindows()
     {
         uint32_t indexToRemove = 0;
         for (uint32_t i = 0; i < m_Windows.size(); i++)
@@ -561,15 +563,43 @@ namespace Nexus
             if (m_Windows[i]->IsClosing())
             {
                 auto window = m_Windows[i];
-                delete window;
 
-                indexToRemove = i;
+                auto pair = std::make_pair(window, 0);
+                m_WindowsToClose.push_back(pair);
             }
         }
+    }
 
-        if (indexToRemove)
+    void Application::CloseWindows()
+    {
+        // this is required because the swapchain's framebuffer may still be in use on the GPU
+        // we need to wait until we are certain that the swapchain is no longer in use before we delete it
+        for (uint32_t i = 0; i < m_WindowsToClose.size(); i++)
         {
-            m_Windows.erase(m_Windows.begin() + indexToRemove);
+            m_WindowsToClose[i].second++;
+        }
+
+        for (uint32_t closingWindowIndex = 0; closingWindowIndex < m_WindowsToClose.size(); closingWindowIndex++)
+        {
+            auto pair = m_WindowsToClose[closingWindowIndex];
+
+            auto window = pair.first;
+            auto count = pair.second;
+
+            if (count > 10)
+            {
+                for (uint32_t windowIndex = 0; windowIndex < m_Windows.size(); windowIndex++)
+                {
+                    if (window == m_Windows[windowIndex])
+                    {
+                        delete window;
+                        window = nullptr;
+
+                        m_WindowsToClose.erase(m_WindowsToClose.begin() + closingWindowIndex);
+                        m_Windows.erase(m_Windows.begin() + windowIndex);
+                    }
+                }
+            }
         }
     }
 

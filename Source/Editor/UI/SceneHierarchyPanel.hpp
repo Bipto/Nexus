@@ -2,116 +2,116 @@
 
 class SceneHierarchyPanel : public Panel
 {
-    public:
-        virtual void OnRender() override
+public:
+    virtual void OnRender() override
+    {
+        ImGui::Begin("Scene Hierachy");
+        bool itemHovered = false;
+        int indexToRemove = -1;
+
+        if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
         {
-            ImGui::Begin("Scene Hierachy");
-            bool itemHovered = false;
-            int indexToRemove = -1;
+            m_EventHandler.Invoke(-1);
+        }
 
-            if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+        if (m_Project)
+        {
+            auto activeScene = m_Project->GetActiveScene();
+            auto sceneName = activeScene->GetName().c_str();
+            auto &entities = activeScene->GetEntities();
+
+            auto flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Leaf;
+
+            if (ImGui::TreeNodeEx(sceneName, flags))
             {
-                m_EventHandler.Invoke(-1);
-            }
-
-            if (m_Project)
-            {             
-                auto activeScene = m_Project->GetActiveScene();
-                auto sceneName = activeScene->GetName().c_str();
-                auto& entities = activeScene->GetEntities();
-
-                auto flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Leaf;
-
-                if (ImGui::TreeNodeEx(sceneName, flags))
+                for (int i = 0; i < entities.size(); i++)
                 {
-                    for (int i = 0; i < entities.size(); i++)
+                    auto &entity = entities[i];
+                    auto entityName = entity.GetName().c_str();
+
+                    if (ImGui::TreeNodeEx(entityName, flags))
                     {
-                        auto& entity = entities[i];
-                        auto entityName = entity.GetName().c_str();
-
-                        if (ImGui::TreeNodeEx(entityName, flags))
+                        if (ImGui::IsItemClicked())
                         {
-                            if (ImGui::IsItemClicked())
-                            {
-                                m_EventHandler.Invoke(i);
-                            }
+                            m_EventHandler.Invoke(i);
+                        }
 
-                            if (ImGui::IsItemHovered())
-                            {
-                                itemHovered = true;
-                            }
+                        if (ImGui::IsItemHovered())
+                        {
+                            itemHovered = true;
+                        }
 
-                            ImGui::PushID(std::to_string(i).c_str());
-                            if (ImGui::BeginPopupContextItem(entityName))
+                        ImGui::PushID(std::to_string(i).c_str());
+                        if (ImGui::BeginPopupContextItem(entityName))
+                        {
+                            if (ImGui::BeginMenu("New Component"))
                             {
-                                if (ImGui::BeginMenu("New Component"))
+                                auto &registry = Nexus::GetComponentRegistry();
+                                for (auto component : registry.GetComponents())
                                 {
-                                    auto& registry = Nexus::GetComponentRegistry();
-                                    for (auto component : registry.GetComponents())
-                                    {                                        
-                                        if (ImGui::Selectable(component.first.c_str()))
-                                        {
-                                            auto newComponent = component.second->Clone();
-                                            entity.AddComponent(newComponent);
-                                        }
+                                    if (ImGui::Selectable(component.first.c_str()))
+                                    {
+                                        auto newComponent = component.second->Clone();
+                                        entity.AddComponent(newComponent);
                                     }
-
-                                    ImGui::EndMenu();
-                                }     
-
-                                if (ImGui::MenuItem("Delete Entity"))
-                                {
-                                    indexToRemove = i;
                                 }
 
-                                ImGui::EndPopup();
+                                ImGui::EndMenu();
                             }
-                            ImGui::PopID();
 
-                            ImGui::TreePop();
+                            if (ImGui::MenuItem("Delete Entity"))
+                            {
+                                indexToRemove = i;
+                            }
+
+                            ImGui::EndPopup();
                         }
-                    }   
+                        ImGui::PopID();
 
-                    if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(1) && !itemHovered)
-                    {
-                        ImGui::OpenPopup("create_entity");
+                        ImGui::TreePop();
                     }
-
-                    if (ImGui::BeginPopup("create_entity"))
-                    {
-                        if (ImGui::Selectable("New Entity"))
-                            activeScene->AddEmptyEntity();
-                        ImGui::EndPopup();
-                    }
-
-                    ImGui::TreePop();
                 }
 
-                if (indexToRemove != -1)
+                if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(1) && !itemHovered)
                 {
-                    auto iterator = entities.begin() + indexToRemove;
+                    ImGui::OpenPopup("create_entity");
+                }
 
-                    if (iterator < entities.end())
-                    {
-                        m_EventHandler.Invoke(-1);
-                        entities.erase(iterator);
-                    }
-                }   
-            }                    
-            
-            ImGui::End();
+                if (ImGui::BeginPopup("create_entity"))
+                {
+                    if (ImGui::Selectable("New Entity"))
+                        activeScene->AddEmptyEntity();
+                    ImGui::EndPopup();
+                }
+
+                ImGui::TreePop();
+            }
+
+            if (indexToRemove != -1)
+            {
+                auto iterator = entities.begin() + indexToRemove;
+
+                if (iterator < entities.end())
+                {
+                    m_EventHandler.Invoke(-1);
+                    entities.erase(iterator);
+                }
+            }
         }
 
-        void BindEntitySelectedFunction(Delegate<int> delegate)
-        {
-            m_EventHandler.Bind(delegate);
-        }   
+        ImGui::End();
+    }
 
-        void UnbindEntitySelectedFunction(Delegate<int> delegate)
-        {
-            m_EventHandler.Unbind(delegate);
-        }
+    void BindEntitySelectedFunction(std::function<void(int)> function)
+    {
+        m_EventHandler.Bind(function);
+    }
 
-    private:
-        Nexus::EventHandler<int> m_EventHandler;
+    void UnbindEntitySelectedFunction(std::function<void(int)> function)
+    {
+        m_EventHandler.Unbind(function);
+    }
+
+private:
+    Nexus::EventHandler<int> m_EventHandler;
 };

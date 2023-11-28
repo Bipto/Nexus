@@ -53,6 +53,12 @@ namespace Nexus::Graphics
         {
             Swapchain *swapchain = renderPass->GetData<Swapchain *>();
             SwapchainD3D12 *d3d12Swapchain = (SwapchainD3D12 *)swapchain;
+
+            if (!d3d12Swapchain)
+            {
+                return;
+            }
+
             targets = {d3d12Swapchain->RetrieveRenderTargetViewDescriptorHandles()[d3d12Swapchain->GetCurrentBufferIndex()]};
 
             D3D12_RESOURCE_BARRIER renderTargetBarrier;
@@ -135,6 +141,11 @@ namespace Nexus::Graphics
         {
             Swapchain *swapchain = m_CurrentRenderPass->GetData<Swapchain *>();
             SwapchainD3D12 *d3d12Swapchain = (SwapchainD3D12 *)swapchain;
+
+            if (!d3d12Swapchain)
+            {
+                return;
+            }
 
             D3D12_RESOURCE_BARRIER presentBarrier;
             presentBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;

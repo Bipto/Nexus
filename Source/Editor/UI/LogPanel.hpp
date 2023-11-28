@@ -1,6 +1,6 @@
 #include "Panel.hpp"
 
-#include "Core/Logging/Log.hpp"
+#include "Nexus/Logging/Log.hpp"
 
 class LogPanel : public Panel
 {

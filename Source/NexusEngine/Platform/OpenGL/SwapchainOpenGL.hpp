@@ -17,6 +17,8 @@ namespace Nexus::Graphics
         void ResizeIfNecessary();
         void Bind();
 
+        virtual Window *GetWindow() override { return m_Window; }
+
         static bool HasContextBeenCreated();
 
     private:

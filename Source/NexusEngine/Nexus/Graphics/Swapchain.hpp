@@ -1,5 +1,11 @@
 #pragma once
 
+namespace Nexus
+{
+    // forward declaration
+    class Window;
+}
+
 namespace Nexus::Graphics
 {
     /// @brief An enum class representing whether VSync is enabled
@@ -20,6 +26,7 @@ namespace Nexus::Graphics
         virtual void SwapBuffers() = 0;
         virtual VSyncState GetVsyncState() = 0;
         virtual void SetVSyncState(VSyncState vsyncState) = 0;
+        virtual Window *GetWindow() = 0;
 
         friend class GraphicsDevice;
     };

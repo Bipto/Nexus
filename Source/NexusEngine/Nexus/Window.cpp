@@ -43,6 +43,7 @@ namespace Nexus
         if (m_Swapchain)
         {
             delete m_Swapchain;
+            m_Swapchain = nullptr;
         }
 
         SDL_DestroyWindow(this->m_Window);

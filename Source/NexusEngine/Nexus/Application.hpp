@@ -178,7 +178,8 @@ namespace Nexus
     private:
         void PollEvents(bool imguiActive);
         Window *GetWindowFromHandle(uint32_t handle);
-        void RemoveClosedWindows();
+        void CheckForClosingWindows();
+        void CloseWindows();
 
     protected:
         /// @brief A pointer to a graphics device
@@ -206,5 +207,6 @@ namespace Nexus
         Clock m_Clock;
 
         std::vector<Window *> m_Windows;
+        std::vector<std::pair<Window *, uint32_t>> m_WindowsToClose;
     };
 }

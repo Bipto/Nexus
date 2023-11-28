@@ -1,6 +1,6 @@
 #include "Panel.hpp"
 #include "NexusEngine.hpp"
-#include "Core/Utils/FileDialogs.hpp"
+#include "Nexus/FileSystem/FileDialogs.hpp"
 
 #include <functional>
 
