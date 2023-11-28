@@ -83,9 +83,9 @@ public:
 
     virtual void Render(Nexus::Time time) override
     {
-        if (!m_Window2->IsClosing())
+        if (!m_Window2->IsClosing() && m_Window2RenderPass->IsValid())
         {
-            /* Nexus::Graphics::RenderPassBeginInfo beginInfo{};
+            Nexus::Graphics::RenderPassBeginInfo beginInfo{};
             beginInfo.ClearColorValue = {
                 0.45f,
                 0.32f,
@@ -98,7 +98,7 @@ public:
             }
             m_CommandList->EndRenderPass();
             m_CommandList->End();
-            m_GraphicsDevice->SubmitCommandList(m_CommandList);*/
+            m_GraphicsDevice->SubmitCommandList(m_CommandList);
             m_Window2->GetSwapchain()->SwapBuffers();
         }
 
@@ -219,7 +219,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
     spec.ImGuiActive = false;
     spec.VSyncState = Nexus::Graphics::VSyncState::Disabled;

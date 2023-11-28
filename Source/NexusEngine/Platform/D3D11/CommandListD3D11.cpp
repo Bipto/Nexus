@@ -70,8 +70,9 @@ namespace Nexus::Graphics
             {
                 if (renderPass->GetRenderPassDataType() == Nexus::Graphics::RenderPassDataType::Framebuffer)
                 {
-                    auto renderPassD3D11 = (RenderPassD3D11 *)(renderPass);
-                    graphicsDevice->SetFramebuffer(renderPassD3D11->m_Framebuffer);
+                    RenderPassD3D11 *renderPassD3D11 = (RenderPassD3D11 *)renderPass;
+                    Framebuffer *framebuffer = renderPassD3D11->GetFramebuffer();
+                    graphicsDevice->SetFramebuffer(framebuffer);
                 }
                 else
                 {

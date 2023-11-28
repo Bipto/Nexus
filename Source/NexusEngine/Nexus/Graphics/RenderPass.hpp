@@ -100,12 +100,15 @@ namespace Nexus::Graphics
     class RenderPass
     {
     public:
-        virtual ~RenderPass() {}
-        virtual LoadOperation GetColorLoadOperation() = 0;
-        virtual LoadOperation GetDepthStencilLoadOperation() = 0;
-        virtual const RenderPassSpecification &GetRenderPassSpecification() = 0;
-        virtual const RenderPassData &GetRenderPassData() = 0;
-        virtual RenderPassDataType GetRenderPassDataType() = 0;
+        RenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &spec);
+        RenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain);
+        virtual ~RenderPass();
+
+        LoadOperation GetColorLoadOperation();
+        LoadOperation GetDepthStencilLoadOperation();
+        const RenderPassSpecification &GetRenderPassSpecification();
+        const RenderPassData &GetRenderPassData();
+        RenderPassDataType GetRenderPassDataType();
 
         template <typename T>
         T GetData()
@@ -114,5 +117,17 @@ namespace Nexus::Graphics
             T data = std::get<T>(initialData);
             return data;
         }
+
+        bool IsValid() { return m_IsValid; }
+
+    protected:
+        bool m_IsValid = true;
+        RenderPassSpecification m_RenderPassSpecification;
+        RenderPassData m_RenderPassData;
+        RenderPassDataType m_RenderPassDataType;
+
+    private:
+        friend class GraphicsDevice;
+        friend class CommandList;
     };
 }

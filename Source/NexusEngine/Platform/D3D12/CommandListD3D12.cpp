@@ -46,6 +46,7 @@ namespace Nexus::Graphics
     void CommandListD3D12::BeginRenderPass(RenderPass *renderPass, const RenderPassBeginInfo &beginInfo)
     {
         m_CurrentRenderPass = renderPass;
+
         std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> targets;
         D3D12_CPU_DESCRIPTOR_HANDLE *depthHandle = nullptr;
 
@@ -74,8 +75,9 @@ namespace Nexus::Graphics
         {
             std::vector<D3D12_RESOURCE_BARRIER> resourceBarriers;
 
-            RenderPassD3D12 *d3d12RenderPass = (RenderPassD3D12 *)renderPass;
-            FramebufferD3D12 *framebuffer = (FramebufferD3D12 *)d3d12RenderPass->GetFramebuffer();
+            RenderPassD3D12 *renderPassD3D12 = (RenderPassD3D12 *)renderPass;
+            FramebufferD3D12 *framebuffer = (FramebufferD3D12 *)renderPassD3D12->m_Framebuffer;
+
             targets = framebuffer->GetColorAttachmentHandles();
             auto colorTextures = framebuffer->GetColorTextures();
 
@@ -161,7 +163,7 @@ namespace Nexus::Graphics
             std::vector<D3D12_RESOURCE_BARRIER> resourceBarriers;
 
             RenderPassD3D12 *d3d12RenderPass = (RenderPassD3D12 *)m_CurrentRenderPass;
-            FramebufferD3D12 *framebuffer = (FramebufferD3D12 *)d3d12RenderPass->GetFramebuffer();
+            FramebufferD3D12 *framebuffer = d3d12RenderPass->m_Framebuffer;
             auto colorTextures = framebuffer->GetColorTextures();
 
             for (int i = 0; i < framebuffer->GetColorTextureCount(); i++)

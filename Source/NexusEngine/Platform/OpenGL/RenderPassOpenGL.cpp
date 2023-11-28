@@ -3,41 +3,12 @@
 namespace Nexus::Graphics
 {
     RenderPassOpenGL::RenderPassOpenGL(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &spec)
+        : RenderPass(renderPassSpecification, spec)
     {
-        m_RenderPassSpecification = renderPassSpecification;
-        m_Data = spec;
-        m_DataType = Nexus::Graphics::RenderPassDataType::Framebuffer;
     }
 
     RenderPassOpenGL::RenderPassOpenGL(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain)
+        : RenderPass(renderPassSpecification, swapchain)
     {
-        m_RenderPassSpecification = renderPassSpecification;
-        m_Data = swapchain;
-        m_DataType = Nexus::Graphics::RenderPassDataType::Swapchain;
-    }
-
-    LoadOperation RenderPassOpenGL::GetColorLoadOperation()
-    {
-        return m_RenderPassSpecification.ColorLoadOperation;
-    }
-
-    LoadOperation RenderPassOpenGL::GetDepthStencilLoadOperation()
-    {
-        return m_RenderPassSpecification.StencilDepthLoadOperation;
-    }
-
-    const RenderPassSpecification &RenderPassOpenGL::GetRenderPassSpecification()
-    {
-        return m_RenderPassSpecification;
-    }
-
-    const RenderPassData &RenderPassOpenGL::GetRenderPassData()
-    {
-        return m_Data;
-    }
-
-    RenderPassDataType RenderPassOpenGL::GetRenderPassDataType()
-    {
-        return m_DataType;
     }
 }

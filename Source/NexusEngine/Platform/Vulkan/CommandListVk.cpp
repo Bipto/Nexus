@@ -154,7 +154,7 @@ namespace Nexus::Graphics
         }
         else
         {
-            auto framebuffer = (FramebufferVk *)vulkanRenderPass->m_Framebuffer;
+            auto framebuffer = vulkanRenderPass->m_Framebuffer;
             renderPassInfo.framebuffer = framebuffer->GetVkFramebuffer();
             renderPassInfo.renderArea.offset = {0, 0};
             renderPassInfo.renderArea.extent = {(uint32_t)framebuffer->GetFramebufferSpecification().Width, (uint32_t)framebuffer->GetFramebufferSpecification().Height};

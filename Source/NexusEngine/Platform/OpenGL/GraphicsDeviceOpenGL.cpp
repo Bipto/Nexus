@@ -197,8 +197,8 @@ namespace Nexus::Graphics
 
     Framebuffer *GraphicsDeviceOpenGL::CreateFramebuffer(RenderPass *renderPass)
     {
-        auto framebufferOpenGL = new FramebufferOpenGL(renderPass);
         auto renderPassOpenGL = (RenderPassOpenGL *)renderPass;
+        auto framebufferOpenGL = new FramebufferOpenGL(renderPass);
         renderPassOpenGL->m_Framebuffer = framebufferOpenGL;
         return framebufferOpenGL;
     }

@@ -20,21 +20,17 @@ namespace Nexus::Graphics
     }
 
     RenderPassVk::RenderPassVk(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification, GraphicsDeviceVk *graphicsDevice)
+        : RenderPass(renderPassSpecification, framebufferSpecification)
     {
-        m_RenderPassSpecification = renderPassSpecification;
         m_GraphicsDevice = graphicsDevice;
-        m_Data = framebufferSpecification;
-        m_DataType = RenderPassDataType::Framebuffer;
         SetupForFramebuffer();
         m_ColorAttachmentCount = framebufferSpecification.ColorAttachmentSpecification.Attachments.size();
     }
 
     RenderPassVk::RenderPassVk(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain, GraphicsDeviceVk *graphicsDevice)
+        : RenderPass(renderPassSpecification, swapchain)
     {
-        m_RenderPassSpecification = renderPassSpecification;
         m_GraphicsDevice = graphicsDevice;
-        m_Data = swapchain;
-        m_DataType = RenderPassDataType::Swapchain;
         SetupForSwapchain();
         m_ColorAttachmentCount = 1;
     }
@@ -42,31 +38,6 @@ namespace Nexus::Graphics
     RenderPassVk::~RenderPassVk()
     {
         vkDestroyRenderPass(m_GraphicsDevice->GetVkDevice(), m_RenderPass, nullptr);
-    }
-
-    LoadOperation RenderPassVk::GetColorLoadOperation()
-    {
-        return m_RenderPassSpecification.ColorLoadOperation;
-    }
-
-    LoadOperation RenderPassVk::GetDepthStencilLoadOperation()
-    {
-        return m_RenderPassSpecification.StencilDepthLoadOperation;
-    }
-
-    const RenderPassSpecification &RenderPassVk::GetRenderPassSpecification()
-    {
-        return m_RenderPassSpecification;
-    }
-
-    const RenderPassData &RenderPassVk::GetRenderPassData()
-    {
-        return m_Data;
-    }
-
-    RenderPassDataType RenderPassVk::GetRenderPassDataType()
-    {
-        return m_DataType;
     }
 
     VkRenderPass RenderPassVk::GetVkRenderPass()

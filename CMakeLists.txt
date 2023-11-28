@@ -51,7 +51,6 @@ add_subdirectory(Source/Demo)
 add_subdirectory(Source/NexusEngine)
 
 if(WIN32)
-    add_subdirectory(Source/Editor)
     add_subdirectory(Source/NetworkingTest/Client)
     add_subdirectory(Source/NetworkingTest/Server)
     add_subdirectory(Source/Test)

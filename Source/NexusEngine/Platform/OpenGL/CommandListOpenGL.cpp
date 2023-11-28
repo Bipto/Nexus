@@ -65,8 +65,9 @@ namespace Nexus::Graphics
             {
                 if (renderPass->GetRenderPassDataType() == Nexus::Graphics::RenderPassDataType::Framebuffer)
                 {
-                    auto renderPassOpenGL = (RenderPassOpenGL *)renderPass;
-                    graphicsDevice->SetFramebuffer(renderPassOpenGL->m_Framebuffer);
+                    RenderPassOpenGL *renderPassOpenGL = (RenderPassOpenGL *)renderPass;
+                    auto framebuffer = renderPassOpenGL->m_Framebuffer;
+                    graphicsDevice->SetFramebuffer(framebuffer);
                 }
                 else
                 {

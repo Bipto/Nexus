@@ -167,8 +167,8 @@ namespace Nexus::Graphics
 
     Framebuffer *GraphicsDeviceD3D11::CreateFramebuffer(RenderPass *renderPass)
     {
-        auto framebufferD3D11 = new FramebufferD3D11(m_DevicePtr, renderPass);
         auto renderPassD3D11 = (RenderPassD3D11 *)renderPass;
+        auto framebufferD3D11 = new FramebufferD3D11(m_DevicePtr, renderPass);
         renderPassD3D11->m_Framebuffer = framebufferD3D11;
         return framebufferD3D11;
     }
