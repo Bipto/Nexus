@@ -75,6 +75,10 @@ namespace Nexus::Graphics
     bool SwapchainOpenGL::s_ContextCreated = false;
     SDL_Window *SwapchainOpenGL::s_ContextWindow = nullptr;
 
+    void SwapchainOpenGL::Prepare()
+    {
+    }
+
     bool SwapchainOpenGL::HasContextBeenCreated()
     {
         return s_ContextCreated;

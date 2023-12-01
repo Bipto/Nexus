@@ -68,7 +68,16 @@ namespace Nexus::Graphics
             attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
             attachment.stencilLoadOp = GetVkLoadOpFromNexusLoadOp(m_RenderPassSpecification.StencilDepthLoadOperation);
             attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
-            attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+            if (GetColorLoadOperation() == LoadOperation::Clear)
+            {
+                attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            }
+            else
+            {
+                attachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+            }
+
             attachment.finalLayout = VK_IMAGE_LAYOUT_GENERAL;
 
             colorAttachmentDescriptions.push_back(attachment);
@@ -107,7 +116,16 @@ namespace Nexus::Graphics
             depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
             depthAttachment.stencilLoadOp = GetVkLoadOpFromNexusLoadOp(m_RenderPassSpecification.StencilDepthLoadOperation);
             depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
-            depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+            if (GetDepthStencilLoadOperation() == LoadOperation::Clear)
+            {
+                depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            }
+            else
+            {
+                depthAttachment.initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            }
+
             depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
             subpassAttachments.push_back(depthAttachment);
 
@@ -154,7 +172,16 @@ namespace Nexus::Graphics
         colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+        if (GetColorLoadOperation() == LoadOperation::Clear)
+        {
+            colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        }
+        else
+        {
+            colorAttachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        }
+
         colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
         VkAttachmentReference colorAttachmentReference = {};
@@ -169,7 +196,16 @@ namespace Nexus::Graphics
         depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
-        depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+        if (GetDepthStencilLoadOperation() == LoadOperation::Clear)
+        {
+            depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        }
+        else
+        {
+            depthAttachment.initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        }
+
         depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
         VkAttachmentReference depthAttachmentReference = {};

@@ -18,6 +18,7 @@ namespace Nexus::Graphics
         void Bind();
 
         virtual Window *GetWindow() override { return m_Window; }
+        virtual void Prepare() override;
 
         static bool HasContextBeenCreated();
 

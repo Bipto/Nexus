@@ -16,7 +16,7 @@ namespace Nexus::Graphics
         m_RenderPassDataType = Nexus::Graphics::RenderPassDataType::Swapchain;
 
         swapchain->OnClose([&]()
-                           { this->m_IsValid = false; });
+                           { m_IsValid = false; });
     }
 
     RenderPass::~RenderPass()

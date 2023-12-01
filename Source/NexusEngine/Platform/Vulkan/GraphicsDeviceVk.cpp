@@ -51,8 +51,6 @@ namespace Nexus::Graphics
 
         for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
-            vkDestroySemaphore(m_Device, m_Frames[i].PresentSemaphore, nullptr);
-            vkDestroySemaphore(m_Device, m_Frames[i].RenderSemaphore, nullptr);
             vkDestroyFence(m_Device, m_Frames[i].RenderFence, nullptr);
             vkFreeCommandBuffers(m_Device, m_Frames[i].CommandPool, 1, &m_Frames[i].MainCommandBuffer);
             vkDestroyCommandPool(m_Device, m_Frames[i].CommandPool, nullptr);
@@ -107,7 +105,7 @@ namespace Nexus::Graphics
 
     void GraphicsDeviceVk::BeginFrame()
     {
-        AcquireNextImage();
+        // AcquireNextImage();
     }
 
     void GraphicsDeviceVk::EndFrame()
@@ -569,6 +567,7 @@ namespace Nexus::Graphics
 
         VkSemaphoreCreateInfo semaphoreCreateInfo = {};
         semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+        semaphoreCreateInfo.flags = 0;
 
         for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
         {

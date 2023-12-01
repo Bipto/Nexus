@@ -19,6 +19,7 @@ namespace Nexus::Graphics
         virtual VSyncState GetVsyncState() override;
         virtual void SetVSyncState(VSyncState vsyncState) override;
         virtual Window *GetWindow() override { return m_Window; }
+        virtual void Prepare() override;
 
         const std::vector<ID3D12Resource2 *> RetrieveBufferHandles() const;
         uint32_t GetCurrentBufferIndex();

@@ -21,6 +21,7 @@ namespace Nexus::Graphics
         virtual VSyncState GetVsyncState() override;
         virtual void SetVSyncState(VSyncState vsyncState) override;
         virtual Window *GetWindow() override { return m_Window; }
+        virtual void Prepare() override;
 
         ID3D11RenderTargetView *GetRenderTargetView();
         ID3D11DepthStencilView *GetDepthStencilView();

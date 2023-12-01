@@ -91,14 +91,8 @@ namespace Nexus::Graphics
 
     void SwapchainD3D12::SwapBuffers()
     {
-        // recreate the swapchain if the window's size has changed
-        RecreateSwapchainIfNecessary();
-
         // swap the swapchain's buffers and present to the display
         m_Swapchain->Present((uint32_t)m_VsyncState, 0);
-
-        // retrieve the current buffer index from the swapchain
-        m_CurrentBufferIndex = m_Swapchain->GetCurrentBackBufferIndex();
     }
 
     VSyncState SwapchainD3D12::GetVsyncState()
@@ -109,6 +103,15 @@ namespace Nexus::Graphics
     void SwapchainD3D12::SetVSyncState(VSyncState vsyncState)
     {
         m_VsyncState = vsyncState;
+    }
+
+    void SwapchainD3D12::Prepare()
+    {
+        // recreate the swapchain if the window's size has changed
+        RecreateSwapchainIfNecessary();
+
+        // retrieve the current buffer index from the swapchain
+        m_CurrentBufferIndex = m_Swapchain->GetCurrentBackBufferIndex();
     }
 
     std::vector<ID3D12Resource2 *> const SwapchainD3D12::RetrieveBufferHandles() const
@@ -134,6 +137,7 @@ namespace Nexus::Graphics
             m_Device->SignalAndWait();
         }
     }
+
     void SwapchainD3D12::RecreateSwapchainIfNecessary()
     {
         auto windowWidth = m_Window->GetWindowSize().X;

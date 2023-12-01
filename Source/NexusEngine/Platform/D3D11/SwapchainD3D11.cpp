@@ -117,6 +117,10 @@ namespace Nexus::Graphics
         m_VsyncState = vsyncState;
     }
 
+    void SwapchainD3D11::Prepare()
+    {
+    }
+
     void SwapchainD3D11::ResizeBuffers(uint32_t width, uint32_t height)
     {
         auto D3D11Device = m_Device->GetDevice();

@@ -26,6 +26,7 @@ namespace Nexus::Graphics
         VkFormat GetDepthFormat();
 
         virtual Window *GetWindow() override { return m_Window; }
+        virtual void Prepare() override;
 
         virtual void Initialise() override;
         void RecreateSwapchain();
@@ -43,11 +44,13 @@ namespace Nexus::Graphics
 
         void CleanupSwapchain();
         void CleanupDepthStencil();
+        bool AcquireNextImage();
 
         VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
         VkBool32 GetSupportedDepthFormat(VkPhysicalDevice physicalDevice, VkFormat *depthFormat);
         void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory);
         uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+        uint32_t GetCurrentFrameIndex();
 
     private:
         Window *m_Window;
@@ -75,6 +78,12 @@ namespace Nexus::Graphics
         VkRenderPass m_SwapchainRenderPass;
 
         GraphicsDeviceVk *m_GraphicsDevice;
+
+        uint32_t m_FrameNumber = 0;
+        uint32_t m_CurrentFrameIndex = 0;
+        // VkSemaphore m_PresentSemaphores[FRAMES_IN_FLIGHT];
+        // VkSemaphore m_RenderSemaphores[FRAMES_IN_FLIGHT];
+        VkImage m_CurrentImage = nullptr;
 
         friend class GraphicsDeviceVk;
         friend class RenderPassVk;

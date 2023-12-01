@@ -42,6 +42,7 @@ namespace Nexus::Graphics
         virtual VSyncState GetVsyncState() = 0;
         virtual void SetVSyncState(VSyncState vsyncState) = 0;
         virtual Window *GetWindow() = 0;
+        virtual void Prepare() = 0;
 
     private:
         std::vector<std::function<void(void)>> m_ClosingFunctions;

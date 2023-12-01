@@ -83,7 +83,7 @@ public:
 
     virtual void Render(Nexus::Time time) override
     {
-        if (!m_Window2->IsClosing() && m_Window2RenderPass->IsValid())
+        if (m_Window2RenderPass->IsValid())
         {
             Nexus::Graphics::RenderPassBeginInfo beginInfo{};
             beginInfo.ClearColorValue = {
@@ -92,6 +92,7 @@ public:
                 0.55f,
                 1.0f};
 
+            m_Window2->GetSwapchain()->Prepare();
             m_CommandList->Begin();
             m_CommandList->BeginRenderPass(m_Window2RenderPass, beginInfo);
             {
@@ -102,6 +103,7 @@ public:
             m_Window2->GetSwapchain()->SwapBuffers();
         }
 
+        m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
         m_TestUniforms.Transform = glm::mat4(1.0f);
         m_UniformBuffer->SetData(&m_TestUniforms, sizeof(m_TestUniforms), 0);
 
@@ -109,7 +111,6 @@ public:
         m_ResourceSet->WriteTexture(m_Texture, 0);
 
         m_GraphicsDevice->BeginFrame();
-
         m_CommandList->Begin();
 
         Nexus::Graphics::RenderPassBeginInfo beginInfo{};

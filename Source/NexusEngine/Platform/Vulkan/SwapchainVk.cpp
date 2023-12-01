@@ -67,7 +67,7 @@ namespace Nexus::Graphics
         presentInfo.pWaitSemaphores = &m_GraphicsDevice->GetCurrentFrame().PresentSemaphore;
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = &m_Swapchain;
-        presentInfo.pImageIndices = &m_GraphicsDevice->m_CurrentFrameIndex;
+        presentInfo.pImageIndices = &m_CurrentFrameIndex;
 
         VkResult result = vkQueuePresentKHR(m_GraphicsDevice->m_PresentQueue, &presentInfo);
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
@@ -84,7 +84,7 @@ namespace Nexus::Graphics
             throw std::runtime_error("Failed to wait for present queue");
         }
 
-        m_GraphicsDevice->m_FrameNumber++;
+        m_FrameNumber++;
     }
 
     VSyncState SwapchainVk::GetVsyncState()
@@ -98,7 +98,7 @@ namespace Nexus::Graphics
 
     const VkFramebuffer &SwapchainVk::GetCurrentFramebuffer()
     {
-        return m_SwapchainFramebuffers[m_GraphicsDevice->m_CurrentFrameIndex];
+        return m_SwapchainFramebuffers[m_CurrentFrameIndex];
     }
 
     VkSurfaceFormatKHR SwapchainVk::GetSurfaceFormat()
@@ -109,6 +109,11 @@ namespace Nexus::Graphics
     VkFormat SwapchainVk::GetDepthFormat()
     {
         return m_DepthFormat;
+    }
+
+    void SwapchainVk::Prepare()
+    {
+        AcquireNextImage();
     }
 
     void SwapchainVk::Initialise()
@@ -126,10 +131,8 @@ namespace Nexus::Graphics
 
         CleanupSwapchain();
         CleanupDepthStencil();
-        CreateSwapchain();
-        CreateSwapchainImageViews();
-        CreateDepthStencil();
-        CreateFramebuffers();
+
+        Initialise();
     }
 
     VkRenderPass SwapchainVk::GetRenderPass()
@@ -349,6 +352,25 @@ namespace Nexus::Graphics
         vkFreeMemory(m_GraphicsDevice->m_Device, m_DepthImageMemory, nullptr);
     }
 
+    bool SwapchainVk::AcquireNextImage()
+    {
+        VkResult result = vkAcquireNextImageKHR(m_GraphicsDevice->GetVkDevice(), m_Swapchain, 0, m_GraphicsDevice->GetCurrentFrame().PresentSemaphore, VK_NULL_HANDLE, &m_CurrentFrameIndex);
+
+        if (result == VK_ERROR_OUT_OF_DATE_KHR)
+        {
+            RecreateSwapchain();
+            return false;
+        }
+        else if (result != VK_SUCCESS && result == VK_SUBOPTIMAL_KHR)
+        {
+            throw std::runtime_error("Failed to acquire swapchain image");
+        }
+
+        m_CurrentImage = m_SwapchainImages[m_CurrentFrameIndex];
+
+        return true;
+    }
+
     VkImageView SwapchainVk::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
     {
         VkImageViewCreateInfo viewInfo = {};
@@ -447,6 +469,11 @@ namespace Nexus::Graphics
         }
 
         throw std::runtime_error("Failed to find suitable memory type");
+    }
+
+    uint32_t SwapchainVk::GetCurrentFrameIndex()
+    {
+        return m_FrameNumber % FRAMES_IN_FLIGHT;
     }
 }
 
