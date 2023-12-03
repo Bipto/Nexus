@@ -1,6 +1,6 @@
 #include "FramebufferD3D12.hpp"
-#include "FramebufferD3D12.hpp"
-#include "FramebufferD3D12.hpp"
+
+#if defined(NX_PLATFORM_D3D12)
 
 #include "D3D12Utils.hpp"
 
@@ -169,3 +169,5 @@ namespace Nexus::Graphics
         return GetD3D12TextureFormat(m_Specification.ColorAttachmentSpecification.Attachments[index].TextureFormat);
     }
 }
+
+#endif

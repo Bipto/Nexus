@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_D3D12)
+
 #include "Nexus/Graphics/Buffer.hpp"
 #include "D3D12Include.hpp"
 #include "GraphicsDeviceD3D12.hpp"
@@ -52,3 +54,4 @@ namespace Nexus::Graphics
         GraphicsDeviceD3D12 *m_Device = nullptr;
     };
 }
+#endif

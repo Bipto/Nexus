@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_D3D12)
+
 #include "Nexus/Graphics/Swapchain.hpp"
 #include "Nexus/Window.hpp"
 #include "GraphicsDeviceD3D12.hpp"
@@ -49,3 +51,4 @@ namespace Nexus::Graphics
         std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_RenderTargetViewDescriptorHandles;
     };
 }
+#endif

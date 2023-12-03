@@ -1,5 +1,7 @@
 #include "ResourceSetD3D12.hpp"
 
+#if defined(NX_PLATFORM_D3D12)
+
 #include "TextureD3D12.hpp"
 #include "BufferD3D12.hpp"
 
@@ -159,3 +161,5 @@ namespace Nexus::Graphics
         return m_ConstantBufferGPUDescriptors[0];
     }
 }
+
+#endif

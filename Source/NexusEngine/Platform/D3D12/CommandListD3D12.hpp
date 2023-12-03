@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_D3D12)
+
 #include "Nexus/Graphics/CommandList.hpp"
 #include "GraphicsDeviceD3D12.hpp"
 
@@ -35,3 +37,4 @@ namespace Nexus::Graphics
         RenderPass *m_CurrentRenderPass = nullptr;
     };
 }
+#endif

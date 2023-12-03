@@ -1,5 +1,7 @@
 #include "RenderPassD3D11.hpp"
 
+#if defined(NX_PLATFORM_D3D11)
+
 namespace Nexus::Graphics
 {
     RenderPassD3D11::RenderPassD3D11(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &spec)
@@ -12,3 +14,4 @@ namespace Nexus::Graphics
     {
     }
 }
+#endif

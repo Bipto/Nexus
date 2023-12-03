@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_D3D12)
+
 #include "Nexus/Graphics/RenderPass.hpp"
 #include "FramebufferD3D12.hpp"
 
@@ -18,3 +20,5 @@ namespace Nexus::Graphics
         friend class CommandListD3D12;
     };
 }
+
+#endif

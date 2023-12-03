@@ -1,5 +1,7 @@
 #include "TextureD3D12.hpp"
 
+#if defined(NX_PLATFORM_D3D12)
+
 #include "D3D12Utils.hpp"
 
 namespace Nexus::Graphics
@@ -114,3 +116,5 @@ namespace Nexus::Graphics
                                       cmd->CopyTextureRegion(&textureDestination, 0, 0, 0, &textureSource, &textureSizeAsBox); });
     }
 }
+
+#endif

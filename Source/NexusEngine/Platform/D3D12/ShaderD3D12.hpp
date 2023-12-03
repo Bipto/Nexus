@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_D3D12)
+
 #include "D3D12Include.hpp"
 #include "Nexus/Graphics/Shader.hpp"
 
@@ -32,3 +34,5 @@ namespace Nexus::Graphics
         ID3DBlob *m_FragmentBlobPtr = nullptr;
     };
 }
+
+#endif

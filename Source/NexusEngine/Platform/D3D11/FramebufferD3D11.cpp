@@ -1,4 +1,4 @@
-#if defined(WIN32)
+#if defined(NX_PLATFORM_D3D11)
 
 #include "FramebufferD3D11.hpp"
 #include "Nexus/Logging/Log.hpp"
@@ -7,7 +7,7 @@
 
 namespace Nexus::Graphics
 {
-#if defined(WIN32)
+#if defined(NX_PLATFORM_D3D11)
     FramebufferD3D11::FramebufferD3D11(ID3D11Device *&device, RenderPass *renderPass)
         : Framebuffer(renderPass)
     {

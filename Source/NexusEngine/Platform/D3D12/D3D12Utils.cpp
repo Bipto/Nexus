@@ -1,5 +1,7 @@
 #include "D3D12Utils.hpp"
 
+#if defined(NX_PLATFORM_D3D12)
+
 DXGI_FORMAT GetD3D12TextureFormat(Nexus::Graphics::TextureFormat format)
 {
     switch (format)
@@ -23,3 +25,5 @@ DXGI_FORMAT GetD3D12DepthFormat(Nexus::Graphics::DepthFormat format)
         throw std::runtime_error("Failed to find a valid format");
     }
 }
+
+#endif

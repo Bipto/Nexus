@@ -1,5 +1,7 @@
 #include "PipelineD3D12.hpp"
 
+#if defined(NX_PLATFORM_D3D12)
+
 #include "ShaderD3D12.hpp"
 
 namespace Nexus::Graphics
@@ -443,3 +445,5 @@ namespace Nexus::Graphics
         return desc;
     }
 }
+
+#endif

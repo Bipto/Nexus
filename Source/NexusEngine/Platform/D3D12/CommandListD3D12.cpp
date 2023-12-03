@@ -1,5 +1,7 @@
 #include "CommandListD3D12.hpp"
 
+#if defined(NX_PLATFORM_D3D12)
+
 #include "SwapchainD3D12.hpp"
 #include "PipelineD3D12.hpp"
 #include "BufferD3D12.hpp"
@@ -273,3 +275,5 @@ namespace Nexus::Graphics
         return m_CommandList.Get();
     }
 }
+
+#endif

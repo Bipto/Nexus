@@ -1,5 +1,7 @@
 #include "ShaderD3D12.hpp"
 
+#if defined(NX_PLATFORM_D3D12)
+
 #include <d3dcompiler.h>
 
 namespace Nexus::Graphics
@@ -81,3 +83,5 @@ namespace Nexus::Graphics
             &error_blob);
     }
 }
+
+#endif

@@ -1,6 +1,6 @@
 #pragma once
 
-#if defined(WIN32)
+#if defined(NX_PLATFORM_D3D11)
 
 #include "Nexus/Graphics/Buffer.hpp"
 #include "D3D11Include.hpp"

@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_D3D11)
+
 #include "Nexus/Graphics/RenderPass.hpp"
 #include "FramebufferD3D11.hpp"
 
@@ -20,3 +22,4 @@ namespace Nexus::Graphics
         friend class GraphicsDeviceD3D11;
     };
 }
+#endif

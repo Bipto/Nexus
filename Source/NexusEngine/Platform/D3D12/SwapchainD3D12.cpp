@@ -1,5 +1,7 @@
 #include "SwapchainD3D12.hpp"
 
+#if defined(NX_PLATFORM_D3D12)
+
 #include "SDL_syswm.h"
 
 namespace Nexus::Graphics
@@ -196,3 +198,4 @@ namespace Nexus::Graphics
         }
     }
 }
+#endif

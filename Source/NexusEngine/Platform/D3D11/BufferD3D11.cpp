@@ -1,4 +1,4 @@
-#if defined(WIN32)
+#if defined(NX_PLATFORM_D3D11)
 
 #include "BufferD3D11.hpp"
 #include "Nexus/Logging/Log.hpp"

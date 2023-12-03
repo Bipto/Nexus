@@ -1,5 +1,7 @@
 #include "D3D11Utils.hpp"
 
+#if defined(NX_PLATFORM_D3D11)
+
 DXGI_FORMAT GetD3D11TextureFormat(Nexus::Graphics::TextureFormat format)
 {
     switch (format)
@@ -24,3 +26,4 @@ DXGI_FORMAT GetD3D11DepthFormat(Nexus::Graphics::DepthFormat format)
         throw std::runtime_error("Failed to find a valid format");
     }
 }
+#endif

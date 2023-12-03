@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_D3D12)
+
 #include "Nexus/Graphics/Framebuffer.hpp"
 #include "GraphicsDeviceD3D12.hpp"
 #include "D3D12Include.hpp"
@@ -40,3 +42,5 @@ namespace Nexus::Graphics
         D3D12_CPU_DESCRIPTOR_HANDLE m_DepthAttachmentCPUHandle;
     };
 }
+
+#endif
