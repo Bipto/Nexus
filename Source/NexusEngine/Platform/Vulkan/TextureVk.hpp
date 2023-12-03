@@ -24,6 +24,7 @@ namespace Nexus::Graphics
         VmaAllocation m_Allocation;
         VkImageView m_ImageView;
         VkSampler m_Sampler;
+        VkFormat m_Format;
     };
 }
 

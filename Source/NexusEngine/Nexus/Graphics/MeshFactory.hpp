@@ -26,6 +26,10 @@ namespace Nexus::Graphics
         /// @return A mesh representing a sprite
         Mesh *CreateSprite();
 
+        /// @brief A method that returns a mesh representing a triangle with a width and height of 1
+        /// @return A mesh representing a triangle
+        Mesh *CreateTriangle();
+
         /// @brief A method that returns a mesh representing a 3D model stored on disk
         /// @param filepath The filepath to load a model from
         /// @return A mesh representing the model

@@ -30,6 +30,7 @@ target_include_directories(NexusEngine PUBLIC
   ../../External/libnyquist/include
   ../../External/SPIRV-Cross/include
   ../../External/SPIRV-Reflect
+  ../../External/include
   )
 
 #dependencies when not building with emscripten
@@ -58,6 +59,7 @@ target_link_libraries(NexusEngine PUBLIC
   libnyquist
   spirv-cross-cpp
   spirv-cross-hlsl
+  freetype
   )
 
 if(WIN32)

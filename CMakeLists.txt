@@ -72,6 +72,7 @@ add_subdirectory(External/SPIRV-Headers)
 add_subdirectory(External/SPIRV-Tools)
 add_subdirectory(External/shaderc)
 add_subdirectory(External/libnyquist)
+add_subdirectory(External/freetype)
 
 if (WIN32)
     add_subdirectory(External/VulkanMemoryAllocator)

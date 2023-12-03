@@ -21,6 +21,7 @@ namespace Nexus::Graphics
         ID3D11Texture2D *m_Texture;
         ID3D11ShaderResourceView *m_ResourceView;
         ID3D11SamplerState *m_SamplerState;
+        DXGI_FORMAT m_TextureFormat;
     };
 }
 

@@ -1,20 +1,22 @@
 #if defined(WIN32)
 
 #include "TextureD3D11.hpp"
+#include "D3D11Utils.hpp"
 #include "Nexus/Logging/Log.hpp"
 
 namespace Nexus::Graphics
 {
     TextureD3D11::TextureD3D11(ID3D11Device *device, const TextureSpecification &spec) : Texture(spec)
     {
-        int imagePitch = spec.Width * 4;
+        int imagePitch = spec.Width * spec.NumberOfChannels;
+        m_TextureFormat = GetD3D11TextureFormat(spec.Format);
 
         D3D11_TEXTURE2D_DESC desc;
         desc.Width = spec.Width;
         desc.Height = spec.Height;
         desc.MipLevels = 1;
         desc.ArraySize = 1;
-        desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+        desc.Format = m_TextureFormat;
         desc.SampleDesc.Count = 1;
         desc.SampleDesc.Quality = 0;
         desc.Usage = D3D11_USAGE_DEFAULT;
@@ -40,7 +42,7 @@ namespace Nexus::Graphics
 
         D3D11_SHADER_RESOURCE_VIEW_DESC rvDesc;
         ZeroMemory(&rvDesc, sizeof(rvDesc));
-        rvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+        rvDesc.Format = m_TextureFormat;
         rvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
         rvDesc.Texture2D.MipLevels = desc.MipLevels;
         rvDesc.Texture2D.MostDetailedMip = 0;

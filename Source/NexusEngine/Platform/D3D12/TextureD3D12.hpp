@@ -22,7 +22,7 @@ namespace Nexus::Graphics
         Microsoft::WRL::ComPtr<ID3D12Resource2> m_Texture = nullptr;
         Microsoft::WRL::ComPtr<ID3D12Resource2> m_UploadBuffer = nullptr;
 
-        DXGI_FORMAT m_TextureFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+        DXGI_FORMAT m_TextureFormat = DXGI_FORMAT_UNKNOWN;
 
         TextureSpecification m_Specification;
         GraphicsDeviceD3D12 *m_Device = nullptr;

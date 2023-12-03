@@ -111,6 +111,30 @@ namespace Nexus::Graphics
         return new Mesh(vertexBuffer, indexBuffer);
     }
 
+    Mesh *MeshFactory::CreateTriangle()
+    {
+        std::vector<VertexPositionTexCoordNormalTangentBitangent> vertices =
+            {
+                {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1, 1, 1}, {1, 1, 1}},
+                {{0.0f, 0.5f, 0.0f}, {0.5f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1, 1, 1}, {1, 1, 1}},
+                {{0.5f, -0.5f, 0.0f}, {1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1, 1, 1}, {1, 1, 1}}};
+
+        std::vector<unsigned int> indices = {
+            0, 1, 2};
+
+        Nexus::Graphics::BufferDescription vertexBufferDesc;
+        vertexBufferDesc.Size = vertices.size() * sizeof(VertexPositionTexCoordNormalTangentBitangent);
+        vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
+        auto vertexBuffer = m_Device->CreateVertexBuffer(vertexBufferDesc, vertices.data(), VertexPositionTexCoordNormalTangentBitangent::GetLayout());
+
+        Nexus::Graphics::BufferDescription indexBufferDesc;
+        indexBufferDesc.Size = indices.size() * sizeof(unsigned int);
+        indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
+        auto indexBuffer = m_Device->CreateIndexBuffer(indexBufferDesc, indices.data());
+
+        return new Mesh(vertexBuffer, indexBuffer);
+    }
+
     Mesh *ProcessMesh(aiMesh *mesh, const aiScene *scene, GraphicsDevice *device)
     {
         std::vector<VertexPositionTexCoordNormalTangentBitangent> vertices;

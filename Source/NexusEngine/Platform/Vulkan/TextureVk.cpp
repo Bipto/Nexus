@@ -8,7 +8,8 @@ namespace Nexus::Graphics
         : Texture(spec), m_GraphicsDevice(graphicsDevice)
     {
         VkDeviceSize imageSize = spec.Width * spec.Height * spec.NumberOfChannels;
-        VkFormat format = VK_FORMAT_R8G8B8A8_UNORM;
+        m_Format = GetVkTextureFormatFromNexusFormat(spec.Format);
+
         AllocatedBuffer stagingBuffer = graphicsDevice->CreateBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
 
         void *data;
@@ -25,7 +26,7 @@ namespace Nexus::Graphics
         imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
         imageInfo.pNext = nullptr;
         imageInfo.imageType = VK_IMAGE_TYPE_2D;
-        imageInfo.format = format;
+        imageInfo.format = m_Format;
         imageInfo.extent = imageExtent;
         imageInfo.mipLevels = 1;
         imageInfo.arrayLayers = 1;
@@ -86,7 +87,7 @@ namespace Nexus::Graphics
         createInfo.pNext = nullptr;
         createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
         createInfo.image = m_Image;
-        createInfo.format = format;
+        createInfo.format = m_Format;
         createInfo.subresourceRange.baseMipLevel = 0;
         createInfo.subresourceRange.levelCount = 1;
         createInfo.subresourceRange.baseArrayLayer = 0;

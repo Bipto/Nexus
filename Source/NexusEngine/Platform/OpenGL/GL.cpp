@@ -47,4 +47,28 @@ namespace Nexus::GL
             return {"An unknown error occurred"};
         }
     }
+
+    GLenum GetColorTextureFormat(Nexus::Graphics::TextureFormat format)
+    {
+        switch (format)
+        {
+        case Graphics::TextureFormat::RGBA8:
+            return GL_RGBA;
+        case Graphics::TextureFormat::RedInteger:
+            return GL_RED;
+        default:
+            throw std::runtime_error("Invalid texture format selected");
+        }
+    }
+
+    GLenum GetDepthTextureFormat(Nexus::Graphics::DepthFormat format)
+    {
+        switch (format)
+        {
+        case Graphics::DepthFormat::DEPTH24STENCIL8:
+            return GL_DEPTH24_STENCIL8;
+        default:
+            throw std::runtime_error("Invalid depth format selected");
+        }
+    }
 }

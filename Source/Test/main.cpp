@@ -1,5 +1,7 @@
 #include "NexusEngine.hpp"
 
+#include "Nexus/Graphics/Font.hpp"
+
 std::vector<Nexus::Graphics::VertexPositionTexCoord> vertices =
     {
         {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f}},
@@ -23,23 +25,13 @@ public:
 
     virtual void Load() override
     {
-        m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/basic.glsl", Nexus::Graphics::VertexPositionTexCoord::GetLayout());
+        m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/basic.glsl", Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
 
         Nexus::Graphics::RenderPassSpecification renderPassSpec;
         renderPassSpec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
         m_RenderPass = m_GraphicsDevice->CreateRenderPass(renderPassSpec, GetPrimaryWindow()->GetSwapchain());
 
         CreatePipeline(GetWindowSize());
-
-        Nexus::Graphics::BufferDescription vertexBufferDesc;
-        vertexBufferDesc.Size = vertices.size() * sizeof(Nexus::Graphics::VertexPositionTexCoord);
-        vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
-        m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(vertexBufferDesc, vertices.data(), Nexus::Graphics::VertexPositionTexCoord::GetLayout());
-
-        Nexus::Graphics::BufferDescription indexBufferDesc;
-        indexBufferDesc.Size = indices.size() * sizeof(uint32_t);
-        indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
-        m_IndexBuffer = m_GraphicsDevice->CreateIndexBuffer(indexBufferDesc, indices.data());
 
         Nexus::Graphics::BufferDescription uniformBufferDesc;
         uniformBufferDesc.Size = sizeof(TestUniforms);
@@ -65,7 +57,7 @@ public:
 
         m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
 
-        Nexus::WindowProperties props;
+        /* Nexus::WindowProperties props;
         props.Title = "Second Window";
         props.Resizable = false;
         m_Window2 = CreateApplicationWindow(props);
@@ -74,7 +66,12 @@ public:
 
         Nexus::Graphics::RenderPassSpecification spec;
         spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
-        m_Window2RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_Window2->GetSwapchain());
+        m_Window2RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_Window2->GetSwapchain()); */
+
+        m_Font = new Nexus::Graphics::Font("Resources/Fonts/Roboto/Roboto-Regular.ttf", m_GraphicsDevice);
+
+        Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
+        m_QuadMesh = factory.CreateSprite();
     }
 
     virtual void Update(Nexus::Time time) override
@@ -83,7 +80,7 @@ public:
 
     virtual void Render(Nexus::Time time) override
     {
-        if (m_Window2RenderPass->IsValid())
+        /* if (m_Window2RenderPass->IsValid())
         {
             Nexus::Graphics::RenderPassBeginInfo beginInfo{};
             beginInfo.ClearColorValue = {
@@ -101,14 +98,14 @@ public:
             m_CommandList->End();
             m_GraphicsDevice->SubmitCommandList(m_CommandList);
             m_Window2->GetSwapchain()->SwapBuffers();
-        }
+        } */
 
         m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
         m_TestUniforms.Transform = glm::mat4(1.0f);
         m_UniformBuffer->SetData(&m_TestUniforms, sizeof(m_TestUniforms), 0);
 
         m_ResourceSet->WriteUniformBuffer(m_UniformBuffer, 0);
-        m_ResourceSet->WriteTexture(m_Texture, 0);
+        m_ResourceSet->WriteTexture(m_Font->GetTexture(), 0);
 
         m_GraphicsDevice->BeginFrame();
         m_CommandList->Begin();
@@ -123,9 +120,9 @@ public:
         {
             m_CommandList->SetPipeline(m_Pipeline);
             m_CommandList->SetResourceSet(m_ResourceSet);
-            m_CommandList->SetVertexBuffer(m_VertexBuffer);
-            m_CommandList->SetIndexBuffer(m_IndexBuffer);
-            m_CommandList->DrawIndexed(3, 0);
+            m_CommandList->SetVertexBuffer(m_QuadMesh->GetVertexBuffer());
+            m_CommandList->SetIndexBuffer(m_QuadMesh->GetIndexBuffer());
+            m_CommandList->DrawIndexed(6, 0);
         }
         m_CommandList->EndRenderPass();
 
@@ -187,7 +184,6 @@ public:
     {
         delete m_Shader;
         delete m_Pipeline;
-        delete m_VertexBuffer;
         delete m_CommandList;
         delete m_RenderPass;
         delete m_Texture;
@@ -201,9 +197,6 @@ private:
     Nexus::Graphics::Shader *m_Shader = nullptr;
     Nexus::Graphics::Pipeline *m_Pipeline = nullptr;
 
-    Nexus::Graphics::VertexBuffer *m_VertexBuffer = nullptr;
-    Nexus::Graphics::IndexBuffer *m_IndexBuffer = nullptr;
-
     Nexus::Graphics::ResourceSet *m_ResourceSet = nullptr;
     Nexus::Graphics::Texture *m_Texture = nullptr;
 
@@ -215,6 +208,9 @@ private:
 
     Nexus::Window *m_Window2 = nullptr;
     Nexus::Graphics::RenderPass *m_Window2RenderPass = nullptr;
+
+    Nexus::Graphics::Font *m_Font = nullptr;
+    Nexus::Graphics::Mesh *m_QuadMesh = nullptr;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
@@ -223,7 +219,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
     spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
     spec.ImGuiActive = false;
-    spec.VSyncState = Nexus::Graphics::VSyncState::Disabled;
+    spec.VSyncState = Nexus::Graphics::VSyncState::Enabled;
 
     return new TestApplication(spec);
 }

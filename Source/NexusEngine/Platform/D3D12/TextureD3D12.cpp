@@ -1,11 +1,14 @@
 #include "TextureD3D12.hpp"
 
+#include "D3D12Utils.hpp"
+
 namespace Nexus::Graphics
 {
     TextureD3D12::TextureD3D12(GraphicsDeviceD3D12 *device, const TextureSpecification &spec)
         : Texture(spec), m_Specification(spec), m_Device(device)
     {
         auto d3d12Device = device->GetDevice();
+        m_TextureFormat = GetD3D12TextureFormat(spec.Format);
 
         D3D12_HEAP_PROPERTIES uploadProperties;
         uploadProperties.Type = D3D12_HEAP_TYPE_UPLOAD;

@@ -19,7 +19,7 @@ namespace Nexus::Graphics
                 uniformBufferBinding.binding = item.Binding;
                 uniformBufferBinding.descriptorCount = 1;
                 uniformBufferBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                uniformBufferBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+                uniformBufferBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
                 uniformBufferBindings.push_back(uniformBufferBinding);
             }
 
@@ -52,7 +52,7 @@ namespace Nexus::Graphics
                 samplerBinding.binding = item.Slot;
                 samplerBinding.descriptorCount = 1;
                 samplerBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                samplerBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+                samplerBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
                 textureBindings.push_back(samplerBinding);
             }
 

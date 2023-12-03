@@ -6,9 +6,15 @@
 #include "glad/glad.h"
 #endif
 
+#include "Nexus/Graphics/TextureFormat.hpp"
+#include "Nexus/Graphics/DepthFormat.hpp"
+
 namespace Nexus::GL
 {
     void ClearErrors();
     bool CheckErrors();
     std::string GetErrorMessageFromCode(const GLenum error);
+
+    GLenum GetColorTextureFormat(Nexus::Graphics::TextureFormat format);
+    GLenum GetDepthTextureFormat(Nexus::Graphics::DepthFormat format);
 }

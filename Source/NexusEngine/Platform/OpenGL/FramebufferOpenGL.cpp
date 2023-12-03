@@ -69,8 +69,10 @@ namespace Nexus::Graphics
             unsigned int texture;
             glGenTextures(1, &texture);
             glBindTexture(GL_TEXTURE_2D, texture);
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_Specification.Width, m_Specification.Height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+            auto textureFormat = GL::GetColorTextureFormat(colorSpec.TextureFormat);
+            glTexImage2D(GL_TEXTURE_2D, 0, textureFormat, m_Specification.Width, m_Specification.Height, 0, textureFormat, GL_UNSIGNED_BYTE, NULL);
 
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

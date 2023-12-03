@@ -59,3 +59,6 @@
 [submodule "External/VulkanMemoryAllocator"]
 	path = External/VulkanMemoryAllocator
 	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
+[submodule "External/freetype"]
+	path = External/freetype
+	url = https://github.com/freetype/freetype.git

@@ -3,6 +3,9 @@
 
 layout (location = 0) in vec3 Position;
 layout (location = 1) in vec2 TexCoord;
+layout (location = 2) in vec3 Normal;
+layout (location = 3) in vec3 Tangent;
+layout (location = 4) in vec3 Bitangent;
 
 layout (location = 0) out vec2 texCoord;
 
@@ -24,12 +27,19 @@ layout (location = 0) out vec4 FragColor;
 
 layout (location = 0) in vec2 texCoord;
 
-//layout (set = 0, binding = 0) uniform sampler2D texSampler;
+layout (set = 1, binding = 0) uniform sampler2D texSampler;
 
 void main()
 {
-    FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    //FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 
-    //vec3 color = texture(texSampler, texCoord).xyz;
-    //FragColor = vec4(color, 1.0);
+    vec3 color = texture(texSampler, texCoord).xyz;
+
+    if (color.r == 0.0)
+    {
+        discard;
+    }
+
+    FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+
 }

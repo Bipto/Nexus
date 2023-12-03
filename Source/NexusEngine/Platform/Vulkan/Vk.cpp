@@ -8,6 +8,8 @@ VkFormat GetVkTextureFormatFromNexusFormat(Nexus::Graphics::TextureFormat format
     {
     case Nexus::Graphics::TextureFormat::RGBA8:
         return VK_FORMAT_R8G8B8A8_UNORM;
+    case Nexus::Graphics::TextureFormat::RedInteger:
+        return VK_FORMAT_R8_UNORM;
 
     default:
         throw std::runtime_error("Failed to find a valid format");

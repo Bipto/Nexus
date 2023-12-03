@@ -211,18 +211,19 @@ namespace Nexus::Graphics
         auto pipelineVk = (PipelineVk *)m_CurrentlyBoundPipeline;
         auto resourceSetVk = (ResourceSetVk *)resources;
 
+        auto uniformBufferDescriptorIndex = resourceSetVk->GetUniformBufferDescriptorIndex();
+        auto samplerDescriptorIndex = resourceSetVk->GetTextureDescriptorIndex();
+
         if (resourceSetVk->HasUniformBuffers())
         {
             auto uniformBufferDescriptor = resourceSetVk->GetUniformBufferrDescriptorSet();
-            auto uniformBufferIndex = resourceSetVk->GetUniformBufferDescriptorIndex();
-            vkCmdBindDescriptorSets(m_CurrentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineVk->GetPipelineLayout(), uniformBufferIndex, 1, &uniformBufferDescriptor, 0, nullptr);
+            vkCmdBindDescriptorSets(m_CurrentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineVk->GetPipelineLayout(), uniformBufferDescriptorIndex, 1, &uniformBufferDescriptor, 0, nullptr);
         }
 
         if (resourceSetVk->HasTextures())
         {
             auto samplerDescriptor = resourceSetVk->GetSamplerDescriptorSet();
-            auto samplerIndex = resourceSetVk->GetTextureDescriptorIndex();
-            vkCmdBindDescriptorSets(m_CurrentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineVk->GetPipelineLayout(), samplerIndex, 1, &samplerDescriptor, 0, nullptr);
+            vkCmdBindDescriptorSets(m_CurrentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineVk->GetPipelineLayout(), samplerDescriptorIndex, 1, &samplerDescriptor, 0, nullptr);
         }
     }
 
