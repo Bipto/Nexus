@@ -63,17 +63,16 @@ namespace Nexus::Graphics
         m_Buffer->Release();
     }
 
-    void VertexBufferD3D11::SetData(const void *data, uint32_t size, uint32_t offset)
+    void *VertexBufferD3D11::Map()
     {
         D3D11_MAPPED_SUBRESOURCE mappedResource;
         ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
         m_Context->Map(m_Buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+        return mappedResource.pData;
+    }
 
-        unsigned char *buffer = reinterpret_cast<unsigned char *>(mappedResource.pData);
-        buffer += offset;
-
-        memcpy(buffer, data, size);
-
+    void VertexBufferD3D11::Unmap()
+    {
         m_Context->Unmap(m_Buffer, 0);
     }
 
@@ -127,17 +126,16 @@ namespace Nexus::Graphics
         m_Buffer->Release();
     }
 
-    void IndexBufferD3D11::SetData(const void *data, uint32_t size, uint32_t offset)
+    void *IndexBufferD3D11::Map()
     {
         D3D11_MAPPED_SUBRESOURCE mappedResource;
         ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
         m_Context->Map(m_Buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+        return mappedResource.pData;
+    }
 
-        unsigned char *buffer = reinterpret_cast<unsigned char *>(mappedResource.pData);
-        buffer += offset;
-
-        memcpy(buffer, data, size);
-
+    void IndexBufferD3D11::Unmap()
+    {
         m_Context->Unmap(m_Buffer, 0);
     }
 
@@ -191,17 +189,16 @@ namespace Nexus::Graphics
         m_Buffer->Release();
     }
 
-    void UniformBufferD3D11::SetData(const void *data, uint32_t size, uint32_t offset)
+    void *UniformBufferD3D11::Map()
     {
         D3D11_MAPPED_SUBRESOURCE mappedResource;
         ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
         m_Context->Map(m_Buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+        return mappedResource.pData;
+    }
 
-        unsigned char *buffer = reinterpret_cast<unsigned char *>(mappedResource.pData);
-        buffer += offset;
-
-        memcpy(buffer, data, size);
-
+    void UniformBufferD3D11::Unmap()
+    {
         m_Context->Unmap(m_Buffer, 0);
     }
 

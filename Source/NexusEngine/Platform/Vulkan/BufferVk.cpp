@@ -23,7 +23,12 @@ namespace Nexus::Graphics
             throw std::runtime_error("Failed to create vertex buffer");
         }
 
-        SetData(data, description.Size, 0);
+        if (!data)
+            return;
+
+        void *buffer = Map();
+        memcpy(buffer, data, m_Description.Size);
+        Unmap();
     }
 
     VertexBufferVk::~VertexBufferVk()
@@ -31,22 +36,21 @@ namespace Nexus::Graphics
         vmaDestroyBuffer(m_Device->GetAllocator(), m_Buffer.Buffer, m_Buffer.Allocation);
     }
 
-    void VertexBufferVk::SetData(const void *data, uint32_t size, uint32_t offset)
-    {
-        if (data)
-        {
-            void *buffer;
-            vmaMapMemory(m_Device->GetAllocator(), m_Buffer.Allocation, &buffer);
-            unsigned char *char_buffer = reinterpret_cast<unsigned char *>(buffer);
-            char_buffer += offset;
-            memcpy(char_buffer, data, size);
-            vmaUnmapMemory(m_Device->GetAllocator(), m_Buffer.Allocation);
-        }
-    }
-
     VkBuffer VertexBufferVk::GetBuffer()
     {
         return m_Buffer.Buffer;
+    }
+
+    void *VertexBufferVk::Map()
+    {
+        void *buffer;
+        vmaMapMemory(m_Device->GetAllocator(), m_Buffer.Allocation, &buffer);
+        return buffer;
+    }
+
+    void VertexBufferVk::Unmap()
+    {
+        vmaUnmapMemory(m_Device->GetAllocator(), m_Buffer.Allocation);
     }
 
     IndexBufferVk::IndexBufferVk(const BufferDescription &description, const void *data, GraphicsDeviceVk *device, IndexBufferFormat format)
@@ -67,7 +71,12 @@ namespace Nexus::Graphics
             throw std::runtime_error("Failed to create index buffer");
         }
 
-        SetData(data, description.Size, 0);
+        if (!data)
+            return;
+
+        void *buffer = Map();
+        memcpy(buffer, data, m_Description.Size);
+        Unmap();
     }
 
     IndexBufferVk::~IndexBufferVk()
@@ -75,22 +84,21 @@ namespace Nexus::Graphics
         vmaDestroyBuffer(m_Device->GetAllocator(), m_Buffer.Buffer, m_Buffer.Allocation);
     }
 
-    void IndexBufferVk::SetData(const void *data, uint32_t size, uint32_t offset)
-    {
-        if (data)
-        {
-            void *buffer;
-            vmaMapMemory(m_Device->GetAllocator(), m_Buffer.Allocation, &buffer);
-            unsigned char *char_buffer = reinterpret_cast<unsigned char *>(buffer);
-            char_buffer += offset;
-            memcpy(char_buffer, data, size);
-            vmaUnmapMemory(m_Device->GetAllocator(), m_Buffer.Allocation);
-        }
-    }
-
     VkBuffer IndexBufferVk::GetBuffer()
     {
         return m_Buffer.Buffer;
+    }
+
+    void *IndexBufferVk::Map()
+    {
+        void *buffer;
+        vmaMapMemory(m_Device->GetAllocator(), m_Buffer.Allocation, &buffer);
+        return buffer;
+    }
+
+    void IndexBufferVk::Unmap()
+    {
+        vmaUnmapMemory(m_Device->GetAllocator(), m_Buffer.Allocation);
     }
 
     UniformBufferVk::UniformBufferVk(const BufferDescription &description, const void *data, GraphicsDeviceVk *device)
@@ -116,7 +124,12 @@ namespace Nexus::Graphics
             }
         }
 
-        SetData(data, description.Size, 0);
+        if (!data)
+            return;
+
+        void *buffer = Map();
+        memcpy(buffer, data, m_Description.Size);
+        Unmap();
     }
 
     UniformBufferVk::~UniformBufferVk()
@@ -127,22 +140,21 @@ namespace Nexus::Graphics
         }
     }
 
-    void UniformBufferVk::SetData(const void *data, uint32_t size, uint32_t offset)
-    {
-        if (data)
-        {
-            void *buffer;
-            vmaMapMemory(m_Device->GetAllocator(), m_Buffers[m_Device->GetCurrentFrameIndex()].Allocation, &buffer);
-            unsigned char *char_buffer = reinterpret_cast<unsigned char *>(buffer);
-            char_buffer += offset;
-            memcpy(char_buffer, data, size);
-            vmaUnmapMemory(m_Device->GetAllocator(), m_Buffers[m_Device->GetCurrentFrameIndex()].Allocation);
-        }
-    }
-
     VkBuffer UniformBufferVk::GetBuffer()
     {
         return m_Buffers[m_Device->GetCurrentFrameIndex()].Buffer;
+    }
+
+    void *UniformBufferVk::Map()
+    {
+        void *buffer;
+        vmaMapMemory(m_Device->GetAllocator(), m_Buffers[m_Device->GetCurrentFrameIndex()].Allocation, &buffer);
+        return buffer;
+    }
+
+    void UniformBufferVk::Unmap()
+    {
+        vmaUnmapMemory(m_Device->GetAllocator(), m_Buffers[m_Device->GetCurrentFrameIndex()].Allocation);
     }
 }
 

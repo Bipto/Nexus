@@ -22,7 +22,8 @@ namespace Nexus::Graphics
         /// @brief A destructor to clean up resources
         ~VertexBufferD3D11();
 
-        virtual void SetData(const void *data, uint32_t size, uint32_t offset) override;
+        virtual void *Map() override;
+        virtual void Unmap() override;
 
         /// @brief A method that returns a pointer to the ID3D11Buffer handle
         /// @return A pointer to the ID3D11Buffers
@@ -50,7 +51,8 @@ namespace Nexus::Graphics
         /// @brief A destructor to clean up resources
         ~IndexBufferD3D11();
 
-        virtual void SetData(const void *data, uint32_t size, uint32_t offset) override;
+        virtual void *Map() override;
+        virtual void Unmap() override;
 
         /// @brief A method that returns a pointer to the ID3D11Buffer handle
         /// @return A pointer to the ID3D11Buffers
@@ -78,7 +80,8 @@ namespace Nexus::Graphics
         /// @brief A destructor to clean up resources
         ~UniformBufferD3D11();
 
-        virtual void SetData(const void *data, uint32_t size, uint32_t offset) override;
+        virtual void *Map() override;
+        virtual void Unmap() override;
 
         /// @brief A method that returns a pointer to the ID3D11Buffer handle
         /// @return A pointer to the ID3D11Buffers

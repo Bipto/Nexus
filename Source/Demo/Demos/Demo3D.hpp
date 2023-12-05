@@ -75,14 +75,20 @@ namespace Demos
                 1.0f};
 
             m_TransformUniforms.Transform = glm::rotate(glm::mat4(1.0f), glm::radians((float)m_ElapsedTime.GetSeconds() * 100.0f), glm::vec3(0.0f, 1.0f, 1.0f));
-            m_TransformUniformBuffer->SetData(&m_TransformUniforms, sizeof(m_TransformUniforms), 0);
+
+            void *buffer = m_TransformUniformBuffer->Map();
+            memcpy(buffer, &m_TransformUniforms, sizeof(m_TransformUniforms));
+            m_TransformUniformBuffer->Unmap();
 
             m_CameraUniforms.View = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -2.5f));
             m_CameraUniforms.Projection = glm::perspectiveFov<float>(glm::radians(60.0f),
                                                                      m_Window->GetWindowSize().X,
                                                                      m_Window->GetWindowSize().Y,
                                                                      0.1f, 100.0f);
-            m_CameraUniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms), 0);
+
+            buffer = m_CameraUniformBuffer->Map();
+            memcpy(buffer, &m_CameraUniformBuffer, sizeof(m_CameraUniformBuffer));
+            m_CameraUniformBuffer->Unmap();
 
             m_CommandList->Begin();
             m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);

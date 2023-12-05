@@ -51,12 +51,6 @@ namespace Nexus::Graphics
         glDeleteVertexArrays(1, &m_VAO);
     }
 
-    void VertexBufferOpenGL::SetData(const void *data, uint32_t size, uint32_t offset)
-    {
-        glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);
-        glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
-    }
-
     void VertexBufferOpenGL::Bind()
     {
         glBindVertexArray(m_VAO);
@@ -66,6 +60,18 @@ namespace Nexus::Graphics
     unsigned int VertexBufferOpenGL::GetHandle()
     {
         return m_Buffer;
+    }
+
+    void *VertexBufferOpenGL::Map()
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);
+        return glMapBufferRange(GL_ARRAY_BUFFER, 0, m_Description.Size, GL_MAP_READ_BIT | GL_MAP_WRITE_BIT);
+    }
+
+    void VertexBufferOpenGL::Unmap()
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);
+        glUnmapBuffer(GL_ARRAY_BUFFER);
     }
 
     IndexBufferOpenGL::IndexBufferOpenGL(const BufferDescription &description, const void *data, IndexBufferFormat format)
@@ -85,12 +91,6 @@ namespace Nexus::Graphics
         glDeleteBuffers(1, &m_Buffer);
     }
 
-    void IndexBufferOpenGL::SetData(const void *data, uint32_t size, uint32_t offset)
-    {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer);
-        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset, size, data);
-    }
-
     void IndexBufferOpenGL::Bind()
     {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer);
@@ -99,6 +99,18 @@ namespace Nexus::Graphics
     unsigned int IndexBufferOpenGL::GetHandle()
     {
         return m_Buffer;
+    }
+
+    void *IndexBufferOpenGL::Map()
+    {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer);
+        return glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, m_Description.Size, GL_MAP_READ_BIT | GL_MAP_WRITE_BIT);
+    }
+
+    void IndexBufferOpenGL::Unmap()
+    {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer);
+        glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
     }
 
     UniformBufferOpenGL::UniformBufferOpenGL(const BufferDescription &description, const void *data)
@@ -118,14 +130,20 @@ namespace Nexus::Graphics
         glDeleteBuffers(1, &m_Buffer);
     }
 
-    void UniformBufferOpenGL::SetData(const void *data, uint32_t size, uint32_t offset)
-    {
-        glBindBuffer(GL_UNIFORM_BUFFER, m_Buffer);
-        glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
-    }
-
     unsigned int UniformBufferOpenGL::GetHandle()
     {
         return m_Buffer;
+    }
+
+    void *UniformBufferOpenGL::Map()
+    {
+        glBindBuffer(GL_UNIFORM_BUFFER, m_Buffer);
+        return glMapBufferRange(GL_UNIFORM_BUFFER, 0, m_Description.Size, GL_MAP_READ_BIT | GL_MAP_WRITE_BIT);
+    }
+
+    void UniformBufferOpenGL::Unmap()
+    {
+        glBindBuffer(GL_UNIFORM_BUFFER, m_Buffer);
+        glUnmapBuffer(GL_UNIFORM_BUFFER);
     }
 }

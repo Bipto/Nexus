@@ -48,11 +48,8 @@ namespace Nexus::Graphics
         /// @brief A virtual destructor to cleanup resources
         virtual ~VertexBuffer() {}
 
-        /// @brief A virtual method that uploads data into a GPU buffer
-        /// @param data A const pointer to data to upload
-        /// @param size An unsigned int representing the size of the memory to upload
-        /// @param offset An unsigned int representing an offset into the buffer to upload data to
-        virtual void SetData(const void *data, uint32_t size, uint32_t offset) = 0;
+        virtual void *Map() = 0;
+        virtual void Unmap() = 0;
 
         /// @brief A method that returns the buffer description that was used to create the buffer
         /// @return A const reference to the BufferDescription
@@ -83,11 +80,8 @@ namespace Nexus::Graphics
         /// @brief A virtual destructor to cleanup resources
         virtual ~IndexBuffer() {}
 
-        /// @brief A virtual method that uploads data into a GPU buffer
-        /// @param data A const pointer to data to upload
-        /// @param size An unsigned int representing the size of the memory to upload
-        /// @param offset An unsigned int representing an offset into the buffer to upload data to
-        virtual void SetData(const void *data, uint32_t size, uint32_t offset) = 0;
+        virtual void *Map() = 0;
+        virtual void Unmap() = 0;
 
         /// @brief A method that returns the buffer description that was used to create the buffer
         /// @return A const reference to the BufferDescription
@@ -116,11 +110,8 @@ namespace Nexus::Graphics
         /// @brief A virtual destructor to cleanup resources
         virtual ~UniformBuffer() {}
 
-        /// @brief A virtual method that uploads data into a GPU buffer
-        /// @param data A const pointer to data to upload
-        /// @param size An unsigned int representing the size of the memory to upload
-        /// @param offset An unsigned int representing an offset into the buffer to upload data to
-        virtual void SetData(const void *data, uint32_t size, uint32_t offset) = 0;
+        virtual void *Map() = 0;
+        virtual void Unmap() = 0;
 
         /// @brief A method that returns the buffer description that was used to create the buffer
         /// @return A const reference to the BufferDescription

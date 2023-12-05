@@ -102,7 +102,11 @@ public:
 
         m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
         m_TestUniforms.Transform = glm::mat4(1.0f);
-        m_UniformBuffer->SetData(&m_TestUniforms, sizeof(m_TestUniforms), 0);
+        // m_UniformBuffer->SetData(&m_TestUniforms, sizeof(m_TestUniforms), 0);
+
+        void *buffer = m_UniformBuffer->Map();
+        memcpy(buffer, &m_TestUniforms, sizeof(m_TestUniforms));
+        m_UniformBuffer->Unmap();
 
         m_ResourceSet->WriteUniformBuffer(m_UniformBuffer, 0);
         m_ResourceSet->WriteTexture(m_Font->GetTexture(), 0);
@@ -216,7 +220,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
     spec.ImGuiActive = false;
     spec.VSyncState = Nexus::Graphics::VSyncState::Enabled;

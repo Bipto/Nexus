@@ -14,8 +14,10 @@ namespace Nexus::Graphics
     public:
         VertexBufferVk(const BufferDescription &description, const void *data, const VertexBufferLayout &layout, GraphicsDeviceVk *device);
         virtual ~VertexBufferVk();
-        virtual void SetData(const void *data, uint32_t size, uint32_t offset) override;
         VkBuffer GetBuffer();
+
+        virtual void *Map() override;
+        virtual void Unmap() override;
 
     private:
         AllocatedBuffer m_Buffer;
@@ -27,8 +29,10 @@ namespace Nexus::Graphics
     public:
         IndexBufferVk(const BufferDescription &description, const void *data, GraphicsDeviceVk *device, IndexBufferFormat format);
         virtual ~IndexBufferVk();
-        virtual void SetData(const void *data, uint32_t size, uint32_t offset) override;
         VkBuffer GetBuffer();
+
+        virtual void *Map() override;
+        virtual void Unmap() override;
 
     private:
         AllocatedBuffer m_Buffer;
@@ -40,8 +44,10 @@ namespace Nexus::Graphics
     public:
         UniformBufferVk(const BufferDescription &description, const void *data, GraphicsDeviceVk *device);
         virtual ~UniformBufferVk();
-        virtual void SetData(const void *data, uint32_t size, uint32_t offset) override;
         VkBuffer GetBuffer();
+
+        virtual void *Map() override;
+        virtual void Unmap() override;
 
     private:
         std::vector<AllocatedBuffer> m_Buffers;
