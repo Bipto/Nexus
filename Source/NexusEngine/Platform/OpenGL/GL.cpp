@@ -54,7 +54,7 @@ namespace Nexus::GL
         {
         case Graphics::TextureFormat::RGBA8:
             return GL_RGBA;
-        case Graphics::TextureFormat::RedInteger:
+        case Graphics::TextureFormat::R8:
             return GL_RED;
         default:
             throw std::runtime_error("Invalid texture format selected");

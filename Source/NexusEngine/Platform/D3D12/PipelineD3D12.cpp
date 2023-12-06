@@ -397,7 +397,7 @@ namespace Nexus::Graphics
         D3D12_BLEND_DESC desc{};
         desc.AlphaToCoverageEnable = FALSE;
         desc.IndependentBlendEnable = FALSE;
-        desc.RenderTarget[0].BlendEnable = TRUE;
+        desc.RenderTarget[0].BlendEnable = m_Description.BlendStateDescription.EnableBlending;
         desc.RenderTarget[0].SrcBlend = GetBlendFunction(m_Description.BlendStateDescription.SourceColourBlend);
         desc.RenderTarget[0].DestBlend = GetBlendFunction(m_Description.BlendStateDescription.DestinationColourBlend);
         desc.RenderTarget[0].BlendOp = GetBlendEquation(m_Description.BlendStateDescription.BlendEquation);

@@ -40,7 +40,7 @@ namespace Nexus::Graphics
         SamplerState SamplerState;
 
         /// @brief A raw pointer to the memory to upload to the texture
-        unsigned char *Data;
+        void *Data;
 
         /// @brief Whether image data will be retained in RAM
         bool RetainImageData = true;

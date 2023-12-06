@@ -12,7 +12,7 @@ namespace Nexus::Graphics
         RGBA8,
 
         /// @brief A value representing that 8 bits will be allocated to the red channel
-        RedInteger,
+        R8,
 
         /// @brief A default value for creating colour textures
         Color = RGBA8,

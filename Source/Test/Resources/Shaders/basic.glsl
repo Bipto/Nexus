@@ -31,15 +31,13 @@ layout (set = 1, binding = 0) uniform sampler2D texSampler;
 
 void main()
 {
-    //FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    float color = texture(texSampler, texCoord).x;
 
-    vec3 color = texture(texSampler, texCoord).xyz;
-
-    if (color.r == 0.0)
+    if (color == 0.0)
     {
         discard;
     }
 
-    FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+    FragColor = vec4(0.0, 0.0, 0.0, 1.0);
 
 }
