@@ -52,7 +52,19 @@ namespace Nexus::Graphics
         bufferDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
         d3d12Device->CreateCommittedResource(&bufferProperties, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&m_VertexBuffer));
 
-        // SetData(data, m_Description.Size, 0);
+        m_UploadRange.Begin = 0;
+        m_UploadRange.End = m_Description.Size;
+
+        m_VertexBufferView.BufferLocation = m_VertexBuffer->GetGPUVirtualAddress();
+        m_VertexBufferView.SizeInBytes = m_Description.Size;
+        m_VertexBufferView.StrideInBytes = m_Layout.GetStride();
+
+        if (!data)
+            return;
+
+        void *buffer = Map();
+        memcpy(buffer, data, m_Description.Size);
+        Unmap();
     }
 
     VertexBufferD3D12::~VertexBufferD3D12()
@@ -66,11 +78,16 @@ namespace Nexus::Graphics
 
     void *VertexBufferD3D12::Map()
     {
-        return nullptr;
+        void *buffer;
+        m_UploadBuffer->Map(0, &m_UploadRange, &buffer);
+        return buffer;
     }
 
     void VertexBufferD3D12::Unmap()
     {
+        m_UploadBuffer->Unmap(0, &m_UploadRange);
+        m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd)
+                                  { cmd->CopyBufferRegion(m_VertexBuffer.Get(), 0, m_UploadBuffer.Get(), 0, m_Description.Size); });
     }
 
     IndexBufferD3D12::IndexBufferD3D12(GraphicsDeviceD3D12 *device, const BufferDescription &description, const void *data, IndexBufferFormat format)
@@ -120,8 +137,20 @@ namespace Nexus::Graphics
         bufferDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
         d3d12Device->CreateCommittedResource(&bufferProperties, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&m_IndexBuffer));
 
+        m_UploadRange.Begin = 0;
+        m_UploadRange.End = m_Description.Size;
+
         CreateIndexBufferFormat();
-        // SetData(data, m_Description.Size, 0);
+        m_IndexBufferView.BufferLocation = m_IndexBuffer->GetGPUVirtualAddress();
+        m_IndexBufferView.SizeInBytes = m_Description.Size;
+        m_IndexBufferView.Format = m_IndexBufferFormat;
+
+        if (!data)
+            return;
+
+        void *buffer = Map();
+        memcpy(buffer, data, m_Description.Size);
+        Unmap();
     }
 
     IndexBufferD3D12::~IndexBufferD3D12()
@@ -148,11 +177,16 @@ namespace Nexus::Graphics
 
     void *IndexBufferD3D12::Map()
     {
-        return nullptr;
+        void *buffer;
+        m_UploadBuffer->Map(0, &m_UploadRange, &buffer);
+        return buffer;
     }
 
     void IndexBufferD3D12::Unmap()
     {
+        m_UploadBuffer->Unmap(0, &m_UploadRange);
+        m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd)
+                                  { cmd->CopyBufferRegion(m_IndexBuffer.Get(), 0, m_UploadBuffer.Get(), 0, m_Description.Size); });
     }
 
     UniformBufferD3D12::UniformBufferD3D12(GraphicsDeviceD3D12 *device, const BufferDescription &description, const void *data)
@@ -206,7 +240,15 @@ namespace Nexus::Graphics
 
         d3d12Device->CreateCommittedResource(&bufferProperties, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&m_ConstantBuffer));
 
-        // SetData(data, m_Description.Size, 0);
+        m_UploadRange.Begin = 0;
+        m_UploadRange.End = m_Description.Size;
+
+        if (!data)
+            return;
+
+        void *buffer = Map();
+        memcpy(buffer, data, m_Description.Size);
+        Unmap();
     }
 
     UniformBufferD3D12::~UniformBufferD3D12()
@@ -220,11 +262,16 @@ namespace Nexus::Graphics
 
     void *UniformBufferD3D12::Map()
     {
-        return nullptr;
+        void *buffer;
+        m_UploadBuffer->Map(0, &m_UploadRange, &buffer);
+        return buffer;
     }
 
     void UniformBufferD3D12::Unmap()
     {
+        m_UploadBuffer->Unmap(0, &m_UploadRange);
+        m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd)
+                                  { cmd->CopyBufferRegion(m_ConstantBuffer.Get(), 0, m_UploadBuffer.Get(), 0, m_Description.Size); });
     }
 }
 #endif

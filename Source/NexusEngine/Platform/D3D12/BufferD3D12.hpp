@@ -22,6 +22,7 @@ namespace Nexus::Graphics
         Microsoft::WRL::ComPtr<ID3D12Resource2> m_VertexBuffer = nullptr;
         Microsoft::WRL::ComPtr<ID3D12Resource2> m_UploadBuffer = nullptr;
         D3D12_VERTEX_BUFFER_VIEW m_VertexBufferView;
+        D3D12_RANGE m_UploadRange;
         GraphicsDeviceD3D12 *m_Device = nullptr;
     };
 
@@ -40,6 +41,7 @@ namespace Nexus::Graphics
         Microsoft::WRL::ComPtr<ID3D12Resource2> m_IndexBuffer = nullptr;
         Microsoft::WRL::ComPtr<ID3D12Resource2> m_UploadBuffer = nullptr;
         D3D12_INDEX_BUFFER_VIEW m_IndexBufferView;
+        D3D12_RANGE m_UploadRange;
         DXGI_FORMAT m_IndexBufferFormat;
         GraphicsDeviceD3D12 *m_Device = nullptr;
     };
@@ -57,6 +59,7 @@ namespace Nexus::Graphics
     private:
         Microsoft::WRL::ComPtr<ID3D12Resource2> m_ConstantBuffer = nullptr;
         Microsoft::WRL::ComPtr<ID3D12Resource2> m_UploadBuffer = nullptr;
+        D3D12_RANGE m_UploadRange;
         GraphicsDeviceD3D12 *m_Device = nullptr;
     };
 }
