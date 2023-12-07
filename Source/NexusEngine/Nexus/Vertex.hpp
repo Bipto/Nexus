@@ -141,6 +141,40 @@ namespace Nexus::Graphics
         }
     };
 
+    /// @brief A struct representing a vertex with 3D position in world space, a texture coordinate and a color
+    struct VertexPositionTexCoordColor
+    {
+        /// @brief 3 floating point values representing position of the vertex
+        glm::vec3 Position = {0, 0, 0};
+
+        /// @brief 2 floating point values representing the texture coordinates of the vertex
+        glm::vec2 TexCoords = {0, 0};
+
+        // @brief 4 floating point values representing the colour of the vertex
+        glm::vec4 Color = {1.0f, 1.0f, 1.0f, 1.0f};
+
+        VertexPositionTexCoordColor() = default;
+
+        /// @brief A constructor taking in the position of the vertex and its texture coordinate
+        /// @param position A const reference to 3 floating point values representing the position
+        /// @param texCoords A const reference to 2 floating point values representing the texture coordinates
+        /// @param color A const reference to 4 floating point values repsenting the colour
+        VertexPositionTexCoordColor(const glm::vec3 &position, const glm::vec2 &texCoords, const glm::vec4 &color)
+            : Position(position), TexCoords(texCoords), Color(color) {}
+
+        /// @brief A static method that returns the vertex buffer layout of this vertex type
+        /// @return A VertexBufferLayout object containing the buffer layout of the type
+        static Nexus::Graphics::VertexBufferLayout GetLayout()
+        {
+            Nexus::Graphics::VertexBufferLayout layout =
+                {
+                    {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
+                    {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
+                    {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"}};
+            return layout;
+        }
+    };
+
     /// @brief A struct representing a vertex with 3D position in world space, a texture coordinate and a normal
     struct VertexPositionTexCoordNormal
     {

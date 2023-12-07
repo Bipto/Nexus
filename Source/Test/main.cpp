@@ -2,6 +2,8 @@
 
 #include "Nexus/Graphics/Font.hpp"
 
+#include "Nexus/Renderer/BatchRenderer.hpp"
+
 std::vector<Nexus::Graphics::VertexPositionTexCoord> vertices =
     {
         {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f}},
@@ -25,7 +27,7 @@ public:
 
     virtual void Load() override
     {
-        m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("Resources/Shaders/basic.glsl", Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
+        m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("resources/shaders/basic.glsl", Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
 
         Nexus::Graphics::RenderPassSpecification renderPassSpec;
         renderPassSpec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
@@ -55,7 +57,7 @@ public:
         m_Framebuffer = pair.first;
         m_OffscreenRenderPass = pair.second;
 
-        m_Texture = m_GraphicsDevice->CreateTexture("Resources/Textures/brick.jpg");
+        m_Texture = m_GraphicsDevice->CreateTexture("resources/textures/brick.jpg");
 
         /* Nexus::WindowProperties props;
         props.Title = "Second Window";
@@ -68,10 +70,12 @@ public:
         spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
         m_Window2RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_Window2->GetSwapchain()); */
 
-        m_Font = new Nexus::Graphics::Font("Resources/Fonts/Roboto/Roboto-Regular.ttf", m_GraphicsDevice);
+        m_Font = new Nexus::Graphics::Font("resources/fonts/Roboto/Roboto-Regular.ttf", m_GraphicsDevice);
 
         Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
         m_QuadMesh = factory.CreateSprite();
+
+        m_BatchRenderer = new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, m_RenderPass);
     }
 
     virtual void Update(Nexus::Time time) override
@@ -104,7 +108,7 @@ public:
         m_TestUniforms.Transform = glm::mat4(1.0f);
         // m_UniformBuffer->SetData(&m_TestUniforms, sizeof(m_TestUniforms), 0);
 
-        void *buffer = m_UniformBuffer->Map();
+        /* void *buffer = m_UniformBuffer->Map();
         memcpy(buffer, &m_TestUniforms, sizeof(m_TestUniforms));
         m_UniformBuffer->Unmap();
 
@@ -129,16 +133,28 @@ public:
             m_CommandList->DrawIndexed(6, 0);
         }
         m_CommandList->EndRenderPass();
-
         m_CommandList->End();
         m_GraphicsDevice->EndFrame();
 
-        m_GraphicsDevice->SubmitCommandList(m_CommandList);
+        m_GraphicsDevice->SubmitCommandList(m_CommandList);*/
+
+        Nexus::Graphics::RenderPassBeginInfo beginInfo;
+        beginInfo.ClearColorValue = {
+            0.45f,
+            0.32f,
+            0.55f,
+            1.0f};
+        beginInfo.ClearDepthStencilValue = {1.0f, 0};
+
+        m_BatchRenderer->Begin(beginInfo);
+        m_BatchRenderer->DrawRectangle({-0.5f, -0.5f}, {0.5f, 0.5f}, {1.0f, 0.0f, 0.0f, 1.0f});
+        m_BatchRenderer->End();
     }
 
     virtual void OnResize(Nexus::Point<int> size) override
     {
         CreatePipeline(size);
+        m_BatchRenderer->Resize();
     }
 
     void CreatePipeline(Nexus::Point<int> size)
@@ -164,7 +180,6 @@ public:
         description.Viewport.Height = size.Y;
         description.RasterizerStateDescription.ScissorRectangle = {0, 0, size.X, size.Y};
         description.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
-        description.RenderPass = m_RenderPass;
 
         Nexus::Graphics::TextureResourceBinding textureBinding;
         textureBinding.Name = "texSampler";
@@ -215,12 +230,14 @@ private:
 
     Nexus::Graphics::Font *m_Font = nullptr;
     Nexus::Graphics::Mesh *m_QuadMesh = nullptr;
+
+    Nexus::Graphics::BatchRenderer *m_BatchRenderer = nullptr;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
     spec.ImGuiActive = false;
     spec.VSyncState = Nexus::Graphics::VSyncState::Enabled;

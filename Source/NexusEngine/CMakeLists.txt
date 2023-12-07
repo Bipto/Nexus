@@ -87,3 +87,6 @@ if (EMSCRIPTEN)
 
     set_target_properties(NexusEngine PROPERTIES COMPILE_FLAGS "-Os")
 endif()
+
+file (COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources
+  DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
