@@ -24,6 +24,16 @@ namespace Nexus::Graphics
         indexBufferDesc.Size = m_Indices.size() * sizeof(uint32_t);
         indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
         m_IndexBuffer = m_Device->CreateIndexBuffer(indexBufferDesc, nullptr);
+
+        uint32_t textureData = 0xFFFFFFFF;
+
+        Nexus::Graphics::TextureSpecification textureSpec;
+        textureSpec.Data = &textureData;
+        textureSpec.Width = 1;
+        textureSpec.Height = 1;
+        textureSpec.Format = TextureFormat::RGBA8;
+        textureSpec.NumberOfChannels = 4;
+        m_Texture = m_Device->CreateTexture(textureSpec);
     }
 
     void BatchRenderer::Resize()
@@ -72,7 +82,7 @@ namespace Nexus::Graphics
 
         VertexPositionTexCoordColor v0;
         v0.Position = a;
-        v0.TexCoords = {1.0f, 1.0f};
+        v0.TexCoords = {0.0f, 1.0f};
         v0.Color = color;
         m_Vertices.push_back(v0);
 
@@ -84,13 +94,13 @@ namespace Nexus::Graphics
 
         VertexPositionTexCoordColor v2;
         v0.Position = c;
-        v0.TexCoords = {1.0f, 1.0f};
+        v0.TexCoords = {1.0f, 0.0f};
         v0.Color = color;
         m_Vertices.push_back(v0);
 
         VertexPositionTexCoordColor v3;
         v0.Position = d;
-        v0.TexCoords = {1.0f, 1.0f};
+        v0.TexCoords = {0.0f, 0.0f};
         v0.Color = color;
         m_Vertices.push_back(v0);
 
@@ -152,7 +162,9 @@ namespace Nexus::Graphics
                 {14, "texture14"},
                 {15, "texture15"}};
 
+        description.ResourceSetSpecification = resourceSpec;
         m_Pipeline = m_Device->CreatePipeline(description);
+        m_ResourceSet = m_Device->CreateResourceSet(m_Pipeline);
     }
 
     void BatchRenderer::Flush()
@@ -167,9 +179,12 @@ namespace Nexus::Graphics
         memcpy(buffer, m_Indices.data(), m_Indices.size() * sizeof(uint32_t));
         m_IndexBuffer->Unmap();
 
+        m_ResourceSet->WriteTexture(m_Texture, 0);
+
         m_CommandList->Begin();
         m_CommandList->BeginRenderPass(m_RenderPass, m_BeginInfo);
         m_CommandList->SetPipeline(m_Pipeline);
+        m_CommandList->SetResourceSet(m_ResourceSet);
 
         m_CommandList->SetVertexBuffer(m_VertexBuffer);
         m_CommandList->SetIndexBuffer(m_IndexBuffer);

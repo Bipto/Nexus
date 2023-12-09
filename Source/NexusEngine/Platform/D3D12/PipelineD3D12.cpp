@@ -203,42 +203,30 @@ namespace Nexus::Graphics
 
         std::vector<D3D12_ROOT_PARAMETER> parameters;
 
-        D3D12_DESCRIPTOR_RANGE samplerRange;
-        samplerRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
-        samplerRange.BaseShaderRegister = 0;
-        samplerRange.NumDescriptors = m_Description.ResourceSetSpecification.TextureBindings.size();
-        samplerRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-        samplerRange.RegisterSpace = 0;
-
-        D3D12_ROOT_DESCRIPTOR_TABLE samplerTable;
-        samplerTable.NumDescriptorRanges = 1;
-        samplerTable.pDescriptorRanges = &samplerRange;
-
-        D3D12_DESCRIPTOR_RANGE textureRange;
-        textureRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-        textureRange.BaseShaderRegister = 0;
-        textureRange.NumDescriptors = m_Description.ResourceSetSpecification.TextureBindings.size();
-        textureRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-        textureRange.RegisterSpace = 0;
-
-        D3D12_ROOT_DESCRIPTOR_TABLE textureTable;
-        textureTable.NumDescriptorRanges = 1;
-        textureTable.pDescriptorRanges = &textureRange;
-
-        D3D12_DESCRIPTOR_RANGE constantBufferRange;
-        constantBufferRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-        constantBufferRange.BaseShaderRegister = 0;
-        constantBufferRange.NumDescriptors = m_Description.ResourceSetSpecification.UniformResourceBindings.size();
-        constantBufferRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-        constantBufferRange.RegisterSpace = 0;
-
-        D3D12_ROOT_DESCRIPTOR_TABLE constantBufferTable;
-        constantBufferTable.NumDescriptorRanges = 1;
-        constantBufferTable.pDescriptorRanges = &constantBufferRange;
-
-        // setup samplers and textures
-        for (const auto &textureBinding : m_Description.ResourceSetSpecification.TextureBindings)
+        if (m_Description.ResourceSetSpecification.TextureBindings.size() > 0)
         {
+            D3D12_DESCRIPTOR_RANGE samplerRange;
+            samplerRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+            samplerRange.BaseShaderRegister = 0;
+            samplerRange.NumDescriptors = m_Description.ResourceSetSpecification.TextureBindings.size();
+            samplerRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+            samplerRange.RegisterSpace = 0;
+
+            D3D12_ROOT_DESCRIPTOR_TABLE samplerTable;
+            samplerTable.NumDescriptorRanges = 1;
+            samplerTable.pDescriptorRanges = &samplerRange;
+
+            D3D12_DESCRIPTOR_RANGE textureRange;
+            textureRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+            textureRange.BaseShaderRegister = 0;
+            textureRange.NumDescriptors = m_Description.ResourceSetSpecification.TextureBindings.size();
+            textureRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+            textureRange.RegisterSpace = 0;
+
+            D3D12_ROOT_DESCRIPTOR_TABLE textureTable;
+            textureTable.NumDescriptorRanges = 1;
+            textureTable.pDescriptorRanges = &textureRange;
+
             D3D12_ROOT_PARAMETER samplerParameter;
             samplerParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
             samplerParameter.DescriptorTable = samplerTable;
@@ -252,9 +240,19 @@ namespace Nexus::Graphics
             parameters.push_back(textureParameter);
         }
 
-        // setup constant buffers
-        for (const auto &uniformBufferBinding : m_Description.ResourceSetSpecification.UniformResourceBindings)
+        if (m_Description.ResourceSetSpecification.UniformResourceBindings.size() > 0)
         {
+            D3D12_DESCRIPTOR_RANGE constantBufferRange;
+            constantBufferRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+            constantBufferRange.BaseShaderRegister = 0;
+            constantBufferRange.NumDescriptors = m_Description.ResourceSetSpecification.UniformResourceBindings.size();
+            constantBufferRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+            constantBufferRange.RegisterSpace = 0;
+
+            D3D12_ROOT_DESCRIPTOR_TABLE constantBufferTable;
+            constantBufferTable.NumDescriptorRanges = 1;
+            constantBufferTable.pDescriptorRanges = &constantBufferRange;
+
             D3D12_ROOT_PARAMETER constantBufferParameter;
             constantBufferParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
             constantBufferParameter.DescriptorTable = constantBufferTable;

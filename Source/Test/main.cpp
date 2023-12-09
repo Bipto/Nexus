@@ -147,7 +147,8 @@ public:
         beginInfo.ClearDepthStencilValue = {1.0f, 0};
 
         m_BatchRenderer->Begin(beginInfo);
-        m_BatchRenderer->DrawRectangle({-0.5f, -0.5f}, {0.5f, 0.5f}, {1.0f, 0.0f, 0.0f, 1.0f});
+        m_BatchRenderer->DrawRectangle({-1.0f, -1.0f}, {0.0f, 0.0f}, {0.7f, 0.3f, 0.25f, 1.0f});
+        m_BatchRenderer->DrawRectangle({0.0f, 0.0f}, {1.0f, 1.0f}, {0.4f, 0.6f, 0.15f, 1.0f});
         m_BatchRenderer->End();
     }
 
@@ -237,7 +238,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
     spec.ImGuiActive = false;
     spec.VSyncState = Nexus::Graphics::VSyncState::Enabled;

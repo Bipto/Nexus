@@ -3,13 +3,16 @@
 
 layout (location = 0) in vec3 Position;
 layout (location = 1) in vec2 TexCoord;
+layout (location = 2) in vec4 Color;
 
 layout (location = 0) out vec2 texCoord;
+layout (location = 1) out vec4 outColor;
 
 void main()
 {
     gl_Position = vec4(Position, 1.0);
     texCoord = TexCoord;
+    outColor = Color;
 }
 
 #shader fragment
@@ -18,6 +21,7 @@ void main()
 layout (location = 0) out vec4 FragColor;
 
 layout (location = 0) in vec2 texCoord;
+layout (location = 1) in vec4 outColor;
 
 layout (set = 0, binding = 0) uniform sampler2D texture0;
 layout (set = 0, binding = 1) uniform sampler2D texture1;
@@ -38,5 +42,5 @@ layout (set = 0, binding = 15) uniform sampler2D texture15;
 
 void main()
 {
-    FragColor = texture(texture0, texCoord);
+    FragColor = texture(texture0, texCoord) * outColor;
 }

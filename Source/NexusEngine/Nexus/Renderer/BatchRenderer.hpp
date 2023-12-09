@@ -43,5 +43,6 @@ namespace Nexus::Graphics
 
         Nexus::Graphics::VertexBuffer *m_VertexBuffer = nullptr;
         Nexus::Graphics::IndexBuffer *m_IndexBuffer = nullptr;
+        Nexus::Graphics::Texture *m_Texture = nullptr;
     };
 }
