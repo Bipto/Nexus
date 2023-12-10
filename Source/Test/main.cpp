@@ -146,9 +146,17 @@ public:
             1.0f};
         beginInfo.ClearDepthStencilValue = {1.0f, 0};
 
-        m_BatchRenderer->Begin(beginInfo);
-        m_BatchRenderer->DrawRectangle({-1.0f, -1.0f}, {0.0f, 0.0f}, {0.7f, 0.3f, 0.25f, 1.0f});
-        m_BatchRenderer->DrawRectangle({0.0f, 0.0f}, {1.0f, 1.0f}, {0.4f, 0.6f, 0.15f, 1.0f});
+        uint32_t width = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize().X;
+        uint32_t height = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize().Y;
+
+        glm::mat4 projection = glm::ortho<float>(0.0f, width, height, 0.0f, -1.0f, 1.0f);
+        glm::mat4 view = glm::mat4(1.0f);
+        glm::mat4 mvp = projection * view;
+
+        m_BatchRenderer->Begin(beginInfo, mvp);
+        m_BatchRenderer->DrawRectangle({50.0f, 50.0f}, {200.0f, 200.0f}, {0.7f, 0.3f, 0.25f, 1.0f});
+        m_BatchRenderer->DrawRectangle({500.0f, 500.0f}, {700.0f, 700.0f}, {0.4f, 0.6f, 0.15f, 1.0f});
+        m_BatchRenderer->DrawRectangle({700.0f, 50.0f}, {1000.0f, 350.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, m_Texture);
         m_BatchRenderer->End();
     }
 
@@ -238,7 +246,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
     spec.ImGuiActive = false;
     spec.VSyncState = Nexus::Graphics::VSyncState::Enabled;

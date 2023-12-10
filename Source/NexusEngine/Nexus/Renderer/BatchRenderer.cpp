@@ -8,17 +8,18 @@ namespace Nexus::Graphics
         m_RenderPass = renderPass;
 
         m_CommandList = m_Device->CreateCommandList();
-        m_Shader = m_Device->CreateShaderFromSpirvFile("resources/shaders/batch.glsl", Nexus::Graphics::VertexPositionTexCoordColor::GetLayout());
+        m_Shader = m_Device->CreateShaderFromSpirvFile("resources/shaders/batch.glsl", Nexus::Graphics::VertexPositionTexCoordColorTexIndex::GetLayout());
         CreatePipeline();
 
         const uint32_t MAX_VERTEX_COUNT = 1024;
         m_Vertices.resize(MAX_VERTEX_COUNT);
         m_Indices.resize(MAX_VERTEX_COUNT * 3);
+        m_Textures.resize(MAX_TEXTURES);
 
         Nexus::Graphics::BufferDescription vertexBufferDesc;
-        vertexBufferDesc.Size = m_Vertices.size() * sizeof(VertexPositionTexCoordColor);
+        vertexBufferDesc.Size = m_Vertices.size() * sizeof(VertexPositionTexCoordColorTexIndex);
         vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
-        m_VertexBuffer = m_Device->CreateVertexBuffer(vertexBufferDesc, nullptr, VertexPositionTexCoordColor::GetLayout());
+        m_VertexBuffer = m_Device->CreateVertexBuffer(vertexBufferDesc, nullptr, VertexPositionTexCoordColorTexIndex::GetLayout());
 
         Nexus::Graphics::BufferDescription indexBufferDesc;
         indexBufferDesc.Size = m_Indices.size() * sizeof(uint32_t);
@@ -33,7 +34,12 @@ namespace Nexus::Graphics
         textureSpec.Height = 1;
         textureSpec.Format = TextureFormat::RGBA8;
         textureSpec.NumberOfChannels = 4;
-        m_Texture = m_Device->CreateTexture(textureSpec);
+        m_BlankTexture = m_Device->CreateTexture(textureSpec);
+
+        Nexus::Graphics::BufferDescription uniformBufferDesc;
+        uniformBufferDesc.Size = sizeof(glm::mat4);
+        uniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
+        m_UniformBuffer = m_Device->CreateUniformBuffer(uniformBufferDesc, nullptr);
     }
 
     void BatchRenderer::Resize()
@@ -41,7 +47,7 @@ namespace Nexus::Graphics
         CreatePipeline();
     }
 
-    void BatchRenderer::Begin(const Nexus::Graphics::RenderPassBeginInfo &beginInfo)
+    void BatchRenderer::Begin(const Nexus::Graphics::RenderPassBeginInfo &beginInfo, const glm::mat4 &mvp)
     {
         if (m_IsStarted)
         {
@@ -57,6 +63,13 @@ namespace Nexus::Graphics
         m_VertexCount = 0;
         m_IndexCount = 0;
         m_ShapeCount = 0;
+
+        void *buffer = m_UniformBuffer->Map();
+        memcpy(buffer, &mvp, sizeof(mvp));
+        m_UniformBuffer->Unmap();
+
+        m_Textures.clear();
+        m_Textures.push_back(m_BlankTexture);
     }
 
     void BatchRenderer::DrawRectangle(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color)
@@ -80,32 +93,92 @@ namespace Nexus::Graphics
         m_Indices.push_back(2 + m_VertexCount);
         m_Indices.push_back(3 + m_VertexCount);
 
-        VertexPositionTexCoordColor v0;
+        VertexPositionTexCoordColorTexIndex v0;
         v0.Position = a;
         v0.TexCoords = {0.0f, 1.0f};
         v0.Color = color;
+        v0.TexIndex = 0;
         m_Vertices.push_back(v0);
 
-        VertexPositionTexCoordColor v1;
-        v0.Position = b;
-        v0.TexCoords = {1.0f, 1.0f};
-        v0.Color = color;
-        m_Vertices.push_back(v0);
+        VertexPositionTexCoordColorTexIndex v1;
+        v1.Position = b;
+        v1.TexCoords = {1.0f, 1.0f};
+        v1.Color = color;
+        v1.TexIndex = 0;
+        m_Vertices.push_back(v1);
 
-        VertexPositionTexCoordColor v2;
-        v0.Position = c;
-        v0.TexCoords = {1.0f, 0.0f};
-        v0.Color = color;
-        m_Vertices.push_back(v0);
+        VertexPositionTexCoordColorTexIndex v2;
+        v2.Position = c;
+        v2.TexCoords = {1.0f, 0.0f};
+        v2.Color = color;
+        v2.TexIndex = 0;
+        m_Vertices.push_back(v2);
 
-        VertexPositionTexCoordColor v3;
-        v0.Position = d;
-        v0.TexCoords = {0.0f, 0.0f};
-        v0.Color = color;
-        m_Vertices.push_back(v0);
+        VertexPositionTexCoordColorTexIndex v3;
+        v3.Position = d;
+        v3.TexCoords = {0.0f, 0.0f};
+        v3.Color = color;
+        v3.TexIndex = 0;
+        m_Vertices.push_back(v3);
 
         m_IndexCount += shapeIndexCount;
         m_VertexCount += shapeVertexCount;
+    }
+
+    void BatchRenderer::DrawRectangle(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Texture *texture)
+    {
+        EnsureStarted();
+
+        const uint32_t shapeVertexCount = 4;
+        const uint32_t shapeIndexCount = 6;
+
+        EnsureSpace(shapeVertexCount, shapeIndexCount);
+
+        glm::vec3 a(min.x, max.y, 0.0f);
+        glm::vec3 b(max.x, max.y, 0.0f);
+        glm::vec3 c(max.x, min.y, 0.0f);
+        glm::vec3 d(min.x, min.y, 0.0f);
+
+        m_Indices.push_back(0 + m_VertexCount);
+        m_Indices.push_back(1 + m_VertexCount);
+        m_Indices.push_back(2 + m_VertexCount);
+        m_Indices.push_back(0 + m_VertexCount);
+        m_Indices.push_back(2 + m_VertexCount);
+        m_Indices.push_back(3 + m_VertexCount);
+
+        float texIndex = (float)m_Textures.size();
+
+        VertexPositionTexCoordColorTexIndex v0;
+        v0.Position = a;
+        v0.TexCoords = {0.0f, 1.0f};
+        v0.Color = color;
+        v0.TexIndex = texIndex;
+        m_Vertices.push_back(v0);
+
+        VertexPositionTexCoordColorTexIndex v1;
+        v1.Position = b;
+        v1.TexCoords = {1.0f, 1.0f};
+        v1.Color = color;
+        v1.TexIndex = texIndex;
+        m_Vertices.push_back(v1);
+
+        VertexPositionTexCoordColorTexIndex v2;
+        v2.Position = c;
+        v2.TexCoords = {1.0f, 0.0f};
+        v2.Color = color;
+        v2.TexIndex = texIndex;
+        m_Vertices.push_back(v2);
+
+        VertexPositionTexCoordColorTexIndex v3;
+        v3.Position = d;
+        v3.TexCoords = {0.0f, 0.0f};
+        v3.Color = color;
+        v3.TexIndex = texIndex;
+        m_Vertices.push_back(v3);
+
+        m_IndexCount += shapeIndexCount;
+        m_VertexCount += shapeVertexCount;
+        m_Textures.push_back(texture);
     }
 
     void BatchRenderer::End()
@@ -162,6 +235,12 @@ namespace Nexus::Graphics
                 {14, "texture14"},
                 {15, "texture15"}};
 
+        Nexus::Graphics::UniformResourceBinding uniformResourceBinding;
+        uniformResourceBinding.Binding = 0;
+        uniformResourceBinding.Name = "MVP";
+        uniformResourceBinding.Buffer = m_UniformBuffer;
+        resourceSpec.UniformResourceBindings = {uniformResourceBinding};
+
         description.ResourceSetSpecification = resourceSpec;
         m_Pipeline = m_Device->CreatePipeline(description);
         m_ResourceSet = m_Device->CreateResourceSet(m_Pipeline);
@@ -172,14 +251,19 @@ namespace Nexus::Graphics
         EnsureStarted();
 
         void *buffer = m_VertexBuffer->Map();
-        memcpy(buffer, m_Vertices.data(), m_Vertices.size() * sizeof(VertexPositionTexCoordColor));
+        memcpy(buffer, m_Vertices.data(), m_Vertices.size() * sizeof(VertexPositionTexCoordColorTexIndex));
         m_VertexBuffer->Unmap();
 
         buffer = m_IndexBuffer->Map();
         memcpy(buffer, m_Indices.data(), m_Indices.size() * sizeof(uint32_t));
         m_IndexBuffer->Unmap();
 
-        m_ResourceSet->WriteTexture(m_Texture, 0);
+        m_ResourceSet->WriteUniformBuffer(m_UniformBuffer, 0);
+
+        for (uint32_t i = 0; i < m_Textures.size(); i++)
+        {
+            m_ResourceSet->WriteTexture(m_Textures[i], i);
+        }
 
         m_CommandList->Begin();
         m_CommandList->BeginRenderPass(m_RenderPass, m_BeginInfo);
@@ -193,6 +277,9 @@ namespace Nexus::Graphics
         m_CommandList->EndRenderPass();
         m_CommandList->End();
         m_Device->SubmitCommandList(m_CommandList);
+
+        m_Textures.clear();
+        m_Textures.push_back(m_BlankTexture);
     }
 
     void BatchRenderer::EnsureStarted()
@@ -213,7 +300,7 @@ namespace Nexus::Graphics
             throw std::runtime_error("Max vertex or index count reached for one draw call");
         }
 
-        if (m_VertexCount + shapeVertexCount > maxVertexCount || m_IndexCount + shapeIndexCount > maxIndexCount)
+        if (m_VertexCount + shapeVertexCount > maxVertexCount || m_IndexCount + shapeIndexCount > maxIndexCount || m_Textures.size() > MAX_TEXTURES)
         {
             Flush();
         }
