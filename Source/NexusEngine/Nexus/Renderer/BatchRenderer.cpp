@@ -95,28 +95,28 @@ namespace Nexus::Graphics
 
         VertexPositionTexCoordColorTexIndex v0;
         v0.Position = a;
-        v0.TexCoords = {0.0f, 1.0f};
+        v0.TexCoords = {0.0f, 0.0f};
         v0.Color = color;
         v0.TexIndex = 0;
         m_Vertices.push_back(v0);
 
         VertexPositionTexCoordColorTexIndex v1;
         v1.Position = b;
-        v1.TexCoords = {1.0f, 1.0f};
+        v1.TexCoords = {1.0f, 0.0f};
         v1.Color = color;
         v1.TexIndex = 0;
         m_Vertices.push_back(v1);
 
         VertexPositionTexCoordColorTexIndex v2;
         v2.Position = c;
-        v2.TexCoords = {1.0f, 0.0f};
+        v2.TexCoords = {1.0f, 1.0f};
         v2.Color = color;
         v2.TexIndex = 0;
         m_Vertices.push_back(v2);
 
         VertexPositionTexCoordColorTexIndex v3;
         v3.Position = d;
-        v3.TexCoords = {0.0f, 0.0f};
+        v3.TexCoords = {0.0f, 1.0f};
         v3.Color = color;
         v3.TexIndex = 0;
         m_Vertices.push_back(v3);
@@ -150,28 +150,28 @@ namespace Nexus::Graphics
 
         VertexPositionTexCoordColorTexIndex v0;
         v0.Position = a;
-        v0.TexCoords = {0.0f, 1.0f};
+        v0.TexCoords = {0.0f, 0.0f};
         v0.Color = color;
         v0.TexIndex = texIndex;
         m_Vertices.push_back(v0);
 
         VertexPositionTexCoordColorTexIndex v1;
         v1.Position = b;
-        v1.TexCoords = {1.0f, 1.0f};
+        v1.TexCoords = {1.0f, 0.0f};
         v1.Color = color;
         v1.TexIndex = texIndex;
         m_Vertices.push_back(v1);
 
         VertexPositionTexCoordColorTexIndex v2;
         v2.Position = c;
-        v2.TexCoords = {1.0f, 0.0f};
+        v2.TexCoords = {1.0f, 1.0f};
         v2.Color = color;
         v2.TexIndex = texIndex;
         m_Vertices.push_back(v2);
 
         VertexPositionTexCoordColorTexIndex v3;
         v3.Position = d;
-        v3.TexCoords = {0.0f, 0.0f};
+        v3.TexCoords = {0.0f, 1.0f};
         v3.Color = color;
         v3.TexIndex = texIndex;
         m_Vertices.push_back(v3);

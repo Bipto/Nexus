@@ -3,10 +3,21 @@
 #include "GraphicsDevice.hpp"
 #include "Texture.hpp"
 
+#include "Nexus/Point.hpp"
+
+#include "ft2build.h"
+#include FT_FREETYPE_H
+
 #include <string>
 
 namespace Nexus::Graphics
 {
+    struct CharacterRange
+    {
+        uint32_t Begin;
+        uint32_t End;
+    };
+
     struct FontData
     {
     public:
@@ -56,15 +67,15 @@ namespace Nexus::Graphics
     class Font
     {
     public:
-        Font(const std::string &filepath, GraphicsDevice *device);
+        Font(const std::string &filepath, const std::vector<CharacterRange> &characterRanges, GraphicsDevice *device);
         Nexus::Graphics::Texture *GetTexture();
 
     private:
-        std::vector<unsigned char> CreateBuffer(uint32_t width, uint32_t height);
-        void Clear(std::vector<unsigned char> &buffer, unsigned char value);
-        void SetPixel(std::vector<unsigned char> &buffer, uint32_t x, uint32_t y, uint32_t width, unsigned char value);
+        void LoadCharacters(FT_Face &face, FontData &data, uint32_t rowColumnCount, uint32_t maxCharacterWidth, uint32_t maxCharacterHeight);
+        void LoadCharacter(char character, FT_Face &face, FontData &data, uint32_t x, uint32_t y);
 
     private:
         Nexus::Graphics::Texture *m_Texture = nullptr;
+        std::vector<CharacterRange> m_CharacterRanges;
     };
 }

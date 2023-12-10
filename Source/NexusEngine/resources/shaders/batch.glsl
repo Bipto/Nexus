@@ -70,4 +70,9 @@ void main()
         case 14: FragColor = texture(texture14, texCoord) * outColor; break;
         case 15: FragColor = texture(texture15, texCoord) * outColor; break;
     }
+
+    if (FragColor.a == 0.0)
+    {
+        discard;
+    }
 }
