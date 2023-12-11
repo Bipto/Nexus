@@ -54,25 +54,18 @@ namespace Nexus::Graphics
             std::cout << "Failed to load glyph" << std::endl;
         }
 
+        m_TextureWidth = columnCount * size.X;
+        m_TextureHeight = columnCount * size.Y;
+
         Nexus::Graphics::TextureSpecification textureSpec;
         textureSpec.NumberOfChannels = 1;
-        textureSpec.Format = Nexus::Graphics::TextureFormat::R8;
-        textureSpec.Width = columnCount * size.X;
-        textureSpec.Height = columnCount * size.Y;
+        textureSpec.Format = Nexus::Graphics::TextureFormat::RGBA8;
+        textureSpec.Width = m_TextureWidth;
+        textureSpec.Height = m_TextureHeight;
+        textureSpec.SamplerState = SamplerState::PointClamp;
 
         FontData pixels(textureSpec.Width, textureSpec.Height);
         pixels.Clear(0);
-        // LoadCharacters(face, pixels, columnCount, size.X, size.Y);
-        // LoadCharacter('a', face, pixels, 100, 100);
-
-        /* for (int y = 0; y < face->glyph->bitmap.rows; y++)
-        {
-            for (int x = 0; x < face->glyph->bitmap.width; x++)
-            {
-                unsigned char pixel = face->glyph->bitmap.buffer[x + (y * face->glyph->bitmap.width)];
-                pixels.SetPixel(x + 100, y + 100, pixel);
-            }
-        } */
 
         uint32_t xPos = 0;
         uint32_t yPos = 0;
@@ -84,7 +77,7 @@ namespace Nexus::Graphics
 
                 xPos += size.X;
 
-                if (xPos > columnCount * size.X)
+                if (xPos >= m_TextureWidth)
                 {
                     xPos = 0;
                     yPos += size.Y;
@@ -103,47 +96,6 @@ namespace Nexus::Graphics
         return m_Texture;
     }
 
-    void Font::LoadCharacters(FT_Face &face, FontData &data, uint32_t columnCount, uint32_t maxCharacterWidth, uint32_t maxCharacterHeight)
-    {
-        uint32_t xIndex = 0;
-        uint32_t yIndex = 0;
-
-        for (const auto &range : m_CharacterRanges)
-        {
-            for (int i = range.Begin; i < range.End; i++)
-            {
-                char character = (char)i;
-                if (FT_Load_Char(face, character, FT_LOAD_RENDER))
-                {
-                    std::cout << "Failed to load glyph: " << character << std::endl;
-                }
-
-                /* for (uint32_t yPos = 0; yPos < face->glyph->bitmap.rows; yPos++)
-                {
-                    for (uint32_t xPos = 0; xPos < face->glyph->bitmap.width; xPos++)
-                    {
-                        unsigned char pixel = face->glyph->bitmap.buffer[xPos + (yPos * face->glyph->bitmap.width)];
-                        data.SetPixel(xPos * maxCharacterWidth, yPos * maxCharacterHeight, pixel);
-                    }
-                } */
-
-                for (int y = 0; y < face->glyph->bitmap.rows; y++)
-                {
-                    for (int x = 0; x < face->glyph->bitmap.width; x++)
-                    {
-                        unsigned char pixel = face->glyph->bitmap.buffer[x + (y * face->glyph->bitmap.width)];
-                    }
-                }
-
-                if (xIndex > columnCount)
-                {
-                    yIndex = 0;
-                    xIndex++;
-                }
-            }
-        }
-    }
-
     void Font::LoadCharacter(char character, FT_Face &face, FontData &data, uint32_t xPos, uint32_t yPos)
     {
         if (FT_Load_Char(face, character, FT_LOAD_RENDER))
@@ -159,36 +111,29 @@ namespace Nexus::Graphics
                 data.SetPixel(x + xPos, y + yPos, pixel);
             }
         }
+
+        float u = 1 / (float)m_TextureWidth * (float)xPos;
+        float v = 1 / (float)m_TextureHeight * (float)yPos;
+
+        glm::vec2 texCoordsMin;
+        texCoordsMin.x = u;
+        texCoordsMin.y = 1.0f - v - (1 / (float)m_TextureHeight * face->glyph->bitmap.rows);
+
+        glm::vec2 texCoordsMax;
+        texCoordsMax.x = u + (1 / (float)m_TextureWidth * face->glyph->bitmap.width);
+        texCoordsMax.y = 1.0f - v;
+
+        Character c;
+        c.Size = {face->glyph->bitmap.width, face->glyph->bitmap.rows};
+        c.Bearing = {face->glyph->bitmap_left, face->glyph->bitmap_top};
+        c.TexCoordsMin = texCoordsMin;
+        c.TexCoordsMax = texCoordsMax;
+        c.Advance = {face->glyph->advance.x, face->glyph->advance.y};
+        m_Characters[character] = c;
     }
 
-    /*void Font::LoadCharacter(char character, const FT_Face &face, FontData &data)
+    const Character &Font::GetCharacter(char character)
     {
-        if (FT_Load_Char(face, character, FT_LOAD_RENDER))
-        {
-        }
+        return m_Characters[character];
     }
-
-     Point<uint32_t> Font::GetLargestCharacterSize(const FT_Face &face)
-    {
-        uint32_t width = 0;
-        uint32_t height = 0;
-
-        for (const auto &range : m_CharacterRanges)
-        {
-            for (char i = range.Begin; i < range.End; i++)
-            {
-                FT_Load_Char(face, (char)i, FT_LOAD_RENDER);
-                if (face->glyph->bitmap.width > width)
-                {
-                    width = face->glyph->bitmap.width;
-                }
-                if (face->glyph->bitmap.rows > height)
-                {
-                    height = face->glyph->bitmap.rows;
-                }
-            }
-        }
-
-        return {width, height};
-    } */
 }

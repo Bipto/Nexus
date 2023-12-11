@@ -25,22 +25,22 @@ namespace Nexus::Graphics
     struct TextureSpecification
     {
         /// @brief An unsigned 32 bit integer representing the width of the texture
-        int32_t Width;
+        int32_t Width = 512;
 
         /// @brief An unsigned 32 bit integer representing the height of the texture
-        int32_t Height;
+        int32_t Height = 512;
 
         /// @brief An unsigned 32 bit integer representing the number of channels in the texture
-        int32_t NumberOfChannels;
+        int32_t NumberOfChannels = 4;
 
         /// @brief A value representing how many bits will be allocated for the texture
-        TextureFormat Format;
+        TextureFormat Format = TextureFormat::RGBA8;
 
         /// @brief A value representing how the texture will be sampled
-        SamplerState SamplerState;
+        SamplerState SamplerState = SamplerState::LinearWrap;
 
         /// @brief A raw pointer to the memory to upload to the texture
-        void *Data;
+        void *Data = nullptr;
 
         /// @brief Whether image data will be retained in RAM
         bool RetainImageData = true;

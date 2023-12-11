@@ -181,6 +181,66 @@ namespace Nexus::Graphics
         m_Textures.push_back(texture);
     }
 
+    void BatchRenderer::DrawCharacter(char character, const glm::vec2 &position, const glm::vec4 &color, Font *font)
+    {
+        EnsureStarted();
+
+        const uint32_t shapeVertexCount = 4;
+        const uint32_t shapeIndexCount = 6;
+
+        EnsureSpace(shapeVertexCount, shapeIndexCount);
+
+        const auto &characterInfo = font->GetCharacter(character);
+        glm::vec2 min = position;
+        glm::vec2 max = {position.x + characterInfo.Size.x, position.y + characterInfo.Size.y};
+
+        glm::vec3 a(min.x, max.y, 0.0f);
+        glm::vec3 b(max.x, max.y, 0.0f);
+        glm::vec3 c(max.x, min.y, 0.0f);
+        glm::vec3 d(min.x, min.y, 0.0f);
+
+        m_Indices.push_back(0 + m_VertexCount);
+        m_Indices.push_back(1 + m_VertexCount);
+        m_Indices.push_back(2 + m_VertexCount);
+        m_Indices.push_back(0 + m_VertexCount);
+        m_Indices.push_back(2 + m_VertexCount);
+        m_Indices.push_back(3 + m_VertexCount);
+
+        float texIndex = (float)m_Textures.size();
+
+        VertexPositionTexCoordColorTexIndex v0;
+        v0.Position = a;
+        v0.TexCoords = {characterInfo.TexCoordsMin.x, characterInfo.TexCoordsMin.y};
+        v0.Color = color;
+        v0.TexIndex = texIndex;
+        m_Vertices.push_back(v0);
+
+        VertexPositionTexCoordColorTexIndex v1;
+        v1.Position = b;
+        v1.TexCoords = {characterInfo.TexCoordsMax.x, characterInfo.TexCoordsMin.y};
+        v1.Color = color;
+        v1.TexIndex = texIndex;
+        m_Vertices.push_back(v1);
+
+        VertexPositionTexCoordColorTexIndex v2;
+        v2.Position = c;
+        v2.TexCoords = {characterInfo.TexCoordsMax.x, characterInfo.TexCoordsMax.y};
+        v2.Color = color;
+        v2.TexIndex = texIndex;
+        m_Vertices.push_back(v2);
+
+        VertexPositionTexCoordColorTexIndex v3;
+        v3.Position = d;
+        v3.TexCoords = {characterInfo.TexCoordsMin.x, characterInfo.TexCoordsMax.y};
+        v3.Color = color;
+        v3.TexIndex = texIndex;
+        m_Vertices.push_back(v3);
+
+        m_IndexCount += shapeIndexCount;
+        m_VertexCount += shapeVertexCount;
+        m_Textures.push_back(font->GetTexture());
+    }
+
     void BatchRenderer::End()
     {
         EnsureStarted();

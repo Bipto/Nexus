@@ -34,6 +34,10 @@ namespace Nexus::Graphics
         /// @return An 8 bit unsigned int containing the value of the alpha channel
         uint8_t GetAlphaChannel() const { return uint8_t(m_Color); }
 
+        /// @brief A method returning a 32 bit value representing the colour
+        /// @return A 32 bit unsigned int containing the value of the colour
+        uint32_t GetColor() const { return m_Color; }
+
     private:
         /// @brief A variable containing a 32 bit unsigned int containing the colour
         uint32_t m_Color = 0;

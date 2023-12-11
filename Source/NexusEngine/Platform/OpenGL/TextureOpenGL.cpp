@@ -8,11 +8,14 @@ namespace Nexus::Graphics
         glBindTexture(GL_TEXTURE_2D, this->m_Handle);
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        auto samplerMode = GL::GetSamplerState(spec.SamplerState);
+        auto wrapMode = GL::GetWrapMode(spec.SamplerState);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, samplerMode);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, samplerMode);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode);
 
         auto textureFormat = GL::GetColorTextureFormat(spec.Format);
         glTexImage2D(GL_TEXTURE_2D, 0, textureFormat, spec.Width, spec.Height, 0, textureFormat, GL_UNSIGNED_BYTE, spec.Data);

@@ -8,6 +8,7 @@
 
 #include "Nexus/Graphics/TextureFormat.hpp"
 #include "Nexus/Graphics/DepthFormat.hpp"
+#include "Nexus/Graphics/Texture.hpp"
 
 namespace Nexus::GL
 {
@@ -17,4 +18,6 @@ namespace Nexus::GL
 
     GLenum GetColorTextureFormat(Nexus::Graphics::TextureFormat format);
     GLenum GetDepthTextureFormat(Nexus::Graphics::DepthFormat format);
+    GLenum GetSamplerState(Nexus::Graphics::SamplerState state);
+    GLenum GetWrapMode(Nexus::Graphics::SamplerState state);
 }

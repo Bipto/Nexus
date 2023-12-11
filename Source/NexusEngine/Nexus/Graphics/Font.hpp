@@ -4,6 +4,7 @@
 #include "Texture.hpp"
 
 #include "Nexus/Point.hpp"
+#include "Nexus/Graphics/Color.hpp"
 
 #include "ft2build.h"
 #include FT_FREETYPE_H
@@ -18,6 +19,12 @@ namespace Nexus::Graphics
         uint32_t End;
     };
 
+    struct CharacterTextureCoords
+    {
+        Nexus::Point<float> Min;
+        Nexus::Point<float> Max;
+    };
+
     struct FontData
     {
     public:
@@ -29,7 +36,7 @@ namespace Nexus::Graphics
             m_Pixels.resize(m_Width * m_Height);
         }
 
-        std::vector<unsigned char> &GetPixels()
+        std::vector<uint32_t> &GetPixels()
         {
             return m_Pixels;
         }
@@ -50,18 +57,38 @@ namespace Nexus::Graphics
             y = m_Height - y - 1;
 
             uint32_t offset = x + (y * m_Width);
-            m_Pixels[offset] = value;
+
+            if (value > 0)
+            {
+                value = 255;
+            }
+            else
+            {
+                value = 0;
+            }
+
+            Color color = Nexus::Graphics::Color(value, value, value, value);
+            m_Pixels[offset] = color.GetColor();
         }
 
-        operator std::vector<unsigned char>() const
+        operator std::vector<uint32_t>() const
         {
             return m_Pixels;
         }
 
     private:
-        std::vector<unsigned char> m_Pixels;
+        std::vector<uint32_t> m_Pixels;
         uint32_t m_Width = 0;
         uint32_t m_Height = 0;
+    };
+
+    struct Character
+    {
+        glm::vec2 Size;
+        glm::vec2 Bearing;
+        glm::vec2 TexCoordsMin;
+        glm::vec2 TexCoordsMax;
+        glm::vec2 Advance;
     };
 
     class Font
@@ -69,13 +96,16 @@ namespace Nexus::Graphics
     public:
         Font(const std::string &filepath, const std::vector<CharacterRange> &characterRanges, GraphicsDevice *device);
         Nexus::Graphics::Texture *GetTexture();
+        const Character &GetCharacter(char character);
 
     private:
-        void LoadCharacters(FT_Face &face, FontData &data, uint32_t rowColumnCount, uint32_t maxCharacterWidth, uint32_t maxCharacterHeight);
         void LoadCharacter(char character, FT_Face &face, FontData &data, uint32_t x, uint32_t y);
 
     private:
         Nexus::Graphics::Texture *m_Texture = nullptr;
         std::vector<CharacterRange> m_CharacterRanges;
+        std::map<char, Character> m_Characters;
+        uint32_t m_TextureWidth = 0;
+        uint32_t m_TextureHeight = 0;
     };
 }

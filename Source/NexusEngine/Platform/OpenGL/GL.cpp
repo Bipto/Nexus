@@ -71,4 +71,34 @@ namespace Nexus::GL
             throw std::runtime_error("Invalid depth format selected");
         }
     }
+
+    GLenum GetSamplerState(Nexus::Graphics::SamplerState state)
+    {
+        switch (state)
+        {
+        case Nexus::Graphics::SamplerState::LinearClamp:
+        case Nexus::Graphics::SamplerState::LinearWrap:
+            return GL_LINEAR;
+        case Nexus::Graphics::SamplerState::PointClamp:
+        case Nexus::Graphics::SamplerState::PointWrap:
+            return GL_NEAREST;
+        default:
+            throw std::runtime_error("Invalid sampler state selected");
+        }
+    }
+
+    GLenum GetWrapMode(Nexus::Graphics::SamplerState state)
+    {
+        switch (state)
+        {
+        case Nexus::Graphics::SamplerState::LinearClamp:
+        case Nexus::Graphics::SamplerState::PointClamp:
+            return GL_CLAMP_TO_EDGE;
+        case Nexus::Graphics::SamplerState::LinearWrap:
+        case Nexus::Graphics::SamplerState::PointWrap:
+            return GL_REPEAT;
+        default:
+            throw std::runtime_error("Invalid sampler state selected");
+        }
+    }
 }
