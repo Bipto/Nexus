@@ -159,11 +159,11 @@ public:
 
         m_BatchRenderer->Begin(beginInfo, mvp);
         // m_BatchRenderer->DrawRectangle({0, 0}, {width, height}, {1.0f, 1.0f, 1.0f, 1.0f}, m_Font->GetTexture());
-        // m_BatchRenderer->DrawRectangle({50.0f, 50.0f}, {200.0f, 200.0f}, {0.7f, 0.3f, 0.25f, 1.0f});
-        // m_BatchRenderer->DrawRectangle({500.0f, 500.0f}, {700.0f, 700.0f}, {0.4f, 0.6f, 0.15f, 1.0f});
-        // m_BatchRenderer->DrawRectangle({700.0f, 50.0f}, {1000.0f, 350.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, m_Texture);
+        //  m_BatchRenderer->DrawRectangle({50.0f, 50.0f}, {200.0f, 200.0f}, {0.7f, 0.3f, 0.25f, 1.0f});
+        //  m_BatchRenderer->DrawRectangle({500.0f, 500.0f}, {700.0f, 700.0f}, {0.4f, 0.6f, 0.15f, 1.0f});
+        //  m_BatchRenderer->DrawRectangle({700.0f, 50.0f}, {1000.0f, 350.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, m_Texture);
 
-        m_BatchRenderer->DrawCharacter('m', {50.0f, 50.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, m_Font);
+        m_BatchRenderer->DrawString("Hello World!", {50.0f, 50.0f}, 1, {1.0f, 1.0f, 1.0f, 1.0f}, m_Font);
         m_BatchRenderer->End();
     }
 

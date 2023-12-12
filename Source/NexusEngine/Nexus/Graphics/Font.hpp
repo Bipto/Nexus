@@ -36,7 +36,7 @@ namespace Nexus::Graphics
             m_Pixels.resize(m_Width * m_Height);
         }
 
-        std::vector<uint32_t> &GetPixels()
+        std::vector<unsigned char> &GetPixels()
         {
             return m_Pixels;
         }
@@ -58,26 +58,28 @@ namespace Nexus::Graphics
 
             uint32_t offset = x + (y * m_Width);
 
-            if (value > 0)
+            /* if (value > 0)
             {
                 value = 255;
             }
             else
             {
                 value = 0;
-            }
+            } */
 
-            Color color = Nexus::Graphics::Color(value, value, value, value);
-            m_Pixels[offset] = color.GetColor();
+            // Color color = Nexus::Graphics::Color(value, value, value, value);
+            // m_Pixels[offset] = color.GetColor();
+
+            m_Pixels[offset] = value;
         }
 
-        operator std::vector<uint32_t>() const
+        operator std::vector<unsigned char>() const
         {
             return m_Pixels;
         }
 
     private:
-        std::vector<uint32_t> m_Pixels;
+        std::vector<unsigned char> m_Pixels;
         uint32_t m_Width = 0;
         uint32_t m_Height = 0;
     };
@@ -88,7 +90,7 @@ namespace Nexus::Graphics
         glm::vec2 Bearing;
         glm::vec2 TexCoordsMin;
         glm::vec2 TexCoordsMax;
-        glm::vec2 Advance;
+        Nexus::Point<uint32_t> Advance;
     };
 
     class Font

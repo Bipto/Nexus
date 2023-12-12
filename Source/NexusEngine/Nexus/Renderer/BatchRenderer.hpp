@@ -41,7 +41,8 @@ namespace Nexus::Graphics
         void Begin(const Nexus::Graphics::RenderPassBeginInfo &beginInfo, const glm::mat4 &mvp);
         void DrawRectangle(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color);
         void DrawRectangle(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Texture *texture);
-        void DrawCharacter(char character, const glm::vec2 &position, const glm::vec4 &color, Font *font);
+        void DrawCharacter(char character, const glm::vec2 &position, float scale, const glm::vec4 &color, Font *font);
+        void DrawString(const std::string &text, const glm::vec2 &position, float scale, const glm::vec4 &color, Font *font);
         void End();
 
     private:

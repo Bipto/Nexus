@@ -51,6 +51,7 @@ layout (set = 0, binding = 15) uniform sampler2D texture15;
 
 void main()
 {
+    /*
     switch (int(texIndex))
     {
         case 0: FragColor = texture(texture0, texCoord) * outColor; break;
@@ -71,8 +72,44 @@ void main()
         case 15: FragColor = texture(texture15, texCoord) * outColor; break;
     }
 
-    if (FragColor.a == 0.0)
+     if (FragColor.a == 0.0)
+    {
+        discard;
+    } */
+
+    float glyphShape = 0;
+
+    switch (int(texIndex))
+    {
+        case 0: glyphShape = texture(texture0, texCoord).r; break;
+        case 1: glyphShape = texture(texture1, texCoord).r; break;
+        case 2: glyphShape = texture(texture2, texCoord).r; break;
+        case 3: glyphShape = texture(texture3, texCoord).r; break;
+        case 4: glyphShape = texture(texture4, texCoord).r; break;
+        case 5: glyphShape = texture(texture5, texCoord).r; break;
+        case 6: glyphShape = texture(texture6, texCoord).r; break;
+        case 7: glyphShape = texture(texture7, texCoord).r; break;
+        case 8: glyphShape = texture(texture8, texCoord).r; break;
+        case 9: glyphShape = texture(texture9, texCoord).r; break;
+        case 10: glyphShape = texture(texture10, texCoord).r; break;
+        case 11: glyphShape = texture(texture11, texCoord).r; break;
+        case 12: glyphShape = texture(texture12, texCoord).r; break;
+        case 13: glyphShape = texture(texture13, texCoord).r; break;
+        case 14: glyphShape = texture(texture14, texCoord).r; break;
+        case 15: glyphShape = texture(texture15, texCoord).r; break;
+    }
+
+    /* if (glyphShape < 0.5)
     {
         discard;
     }
+
+    FragColor = outColor; */
+
+    if (glyphShape < 0.4)
+    {
+        discard;
+    }
+
+    FragColor = vec4(outColor.rgb, glyphShape);
 }

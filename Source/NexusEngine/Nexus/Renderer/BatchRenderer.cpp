@@ -181,7 +181,7 @@ namespace Nexus::Graphics
         m_Textures.push_back(texture);
     }
 
-    void BatchRenderer::DrawCharacter(char character, const glm::vec2 &position, const glm::vec4 &color, Font *font)
+    void BatchRenderer::DrawCharacter(char character, const glm::vec2 &position, float scale, const glm::vec4 &color, Font *font)
     {
         EnsureStarted();
 
@@ -192,7 +192,7 @@ namespace Nexus::Graphics
 
         const auto &characterInfo = font->GetCharacter(character);
         glm::vec2 min = position;
-        glm::vec2 max = {position.x + characterInfo.Size.x, position.y + characterInfo.Size.y};
+        glm::vec2 max = {position.x + (characterInfo.Size.x * scale), position.y + (characterInfo.Size.y * scale)};
 
         glm::vec3 a(min.x, max.y, 0.0f);
         glm::vec3 b(max.x, max.y, 0.0f);
@@ -239,6 +239,38 @@ namespace Nexus::Graphics
         m_IndexCount += shapeIndexCount;
         m_VertexCount += shapeVertexCount;
         m_Textures.push_back(font->GetTexture());
+    }
+
+    void BatchRenderer::DrawString(const std::string &text, const glm::vec2 &position, float scale, const glm::vec4 &color, Font *font)
+    {
+        float x = position.x;
+        float y = position.y;
+
+        uint32_t largestCharacterSize = 0;
+        for (auto character : text)
+        {
+            const auto &characterInfo = font->GetCharacter(character);
+
+            auto characterHeight = characterInfo.Size.y * scale;
+            if (characterHeight > largestCharacterSize)
+            {
+                largestCharacterSize = characterHeight;
+            }
+        }
+
+        for (auto character : text)
+        {
+            const auto &characterInfo = font->GetCharacter(character);
+
+            float xPos = x + characterInfo.Bearing.x * scale;
+            // float yPos = y - (characterInfo.Size.y - characterInfo.Bearing.y) * scale;
+            float yPos = (characterInfo.Bearing.y) * scale;
+            yPos -= largestCharacterSize;
+
+            DrawCharacter(character, {xPos, y - yPos}, scale, color, font);
+
+            x += (characterInfo.Advance.X >> 6) * scale;
+        }
     }
 
     void BatchRenderer::End()

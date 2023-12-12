@@ -11,6 +11,7 @@ Nexus::Point<uint32_t> GetLargestCharacterSize(const FT_Face &face, const std::v
         for (uint32_t i = range.Begin; i < range.End; i++)
         {
             FT_Load_Char(face, (char)i, FT_LOAD_RENDER);
+            FT_Render_Glyph(face->glyph, FT_RENDER_MODE_SDF);
             if (face->glyph->bitmap.width > width)
             {
                 width = face->glyph->bitmap.width;
@@ -43,26 +44,21 @@ namespace Nexus::Graphics
         {
             std::cout << "Failed to load font" << std::endl;
         }
-        FT_Set_Pixel_Sizes(face, 0, 96);
+        FT_Set_Pixel_Sizes(face, 0, 128);
 
         uint32_t characterCount;
         auto size = GetLargestCharacterSize(face, m_CharacterRanges, characterCount);
         uint32_t columnCount = ceil(sqrt(characterCount));
-
-        if (FT_Load_Char(face, 'a', FT_LOAD_RENDER))
-        {
-            std::cout << "Failed to load glyph" << std::endl;
-        }
 
         m_TextureWidth = columnCount * size.X;
         m_TextureHeight = columnCount * size.Y;
 
         Nexus::Graphics::TextureSpecification textureSpec;
         textureSpec.NumberOfChannels = 1;
-        textureSpec.Format = Nexus::Graphics::TextureFormat::RGBA8;
+        textureSpec.Format = Nexus::Graphics::TextureFormat::R8;
         textureSpec.Width = m_TextureWidth;
         textureSpec.Height = m_TextureHeight;
-        textureSpec.SamplerState = SamplerState::PointClamp;
+        textureSpec.SamplerState = SamplerState::LinearClamp;
 
         FontData pixels(textureSpec.Width, textureSpec.Height);
         pixels.Clear(0);
@@ -98,10 +94,13 @@ namespace Nexus::Graphics
 
     void Font::LoadCharacter(char character, FT_Face &face, FontData &data, uint32_t xPos, uint32_t yPos)
     {
-        if (FT_Load_Char(face, character, FT_LOAD_RENDER))
+        if (FT_Load_Char(face, character, FT_LOAD_DEFAULT))
         {
             std::cout << "Failed to load glyph: " << character << std::endl;
         }
+
+        FT_GlyphSlot slot = face->glyph;
+        FT_Render_Glyph(slot, FT_RENDER_MODE_SDF);
 
         for (int y = 0; y < face->glyph->bitmap.rows; y++)
         {
@@ -128,7 +127,7 @@ namespace Nexus::Graphics
         c.Bearing = {face->glyph->bitmap_left, face->glyph->bitmap_top};
         c.TexCoordsMin = texCoordsMin;
         c.TexCoordsMax = texCoordsMax;
-        c.Advance = {face->glyph->advance.x, face->glyph->advance.y};
+        c.Advance = {(uint32_t)face->glyph->advance.x, (uint32_t)face->glyph->advance.y};
         m_Characters[character] = c;
     }
 
