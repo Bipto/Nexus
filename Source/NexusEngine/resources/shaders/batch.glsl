@@ -32,22 +32,22 @@ layout (location = 0) in vec2 texCoord;
 layout (location = 1) in vec4 outColor;
 layout (location = 2) in flat float texIndex;
 
-layout (set = 0, binding = 0) uniform sampler2D texture0;
-layout (set = 0, binding = 1) uniform sampler2D texture1;
-layout (set = 0, binding = 2) uniform sampler2D texture2;
-layout (set = 0, binding = 3) uniform sampler2D texture3;
-layout (set = 0, binding = 4) uniform sampler2D texture4;
-layout (set = 0, binding = 5) uniform sampler2D texture5;
-layout (set = 0, binding = 6) uniform sampler2D texture6;
-layout (set = 0, binding = 7) uniform sampler2D texture7;
-layout (set = 0, binding = 8) uniform sampler2D texture8;
-layout (set = 0, binding = 9) uniform sampler2D texture9;
-layout (set = 0, binding = 10) uniform sampler2D texture10;
-layout (set = 0, binding = 11) uniform sampler2D texture11;
-layout (set = 0, binding = 12) uniform sampler2D texture12;
-layout (set = 0, binding = 13) uniform sampler2D texture13;
-layout (set = 0, binding = 14) uniform sampler2D texture14;
-layout (set = 0, binding = 15) uniform sampler2D texture15;
+layout (set = 1, binding = 0) uniform sampler2D texture0;
+layout (set = 1, binding = 1) uniform sampler2D texture1;
+layout (set = 1, binding = 2) uniform sampler2D texture2;
+layout (set = 1, binding = 3) uniform sampler2D texture3;
+layout (set = 1, binding = 4) uniform sampler2D texture4;
+layout (set = 1, binding = 5) uniform sampler2D texture5;
+layout (set = 1, binding = 6) uniform sampler2D texture6;
+layout (set = 1, binding = 7) uniform sampler2D texture7;
+layout (set = 1, binding = 8) uniform sampler2D texture8;
+layout (set = 1, binding = 9) uniform sampler2D texture9;
+layout (set = 1, binding = 10) uniform sampler2D texture10;
+layout (set = 1, binding = 11) uniform sampler2D texture11;
+layout (set = 1, binding = 12) uniform sampler2D texture12;
+layout (set = 1, binding = 13) uniform sampler2D texture13;
+layout (set = 1, binding = 14) uniform sampler2D texture14;
+layout (set = 1, binding = 15) uniform sampler2D texture15;
 
 void main()
 {
@@ -55,7 +55,6 @@ void main()
     
     switch (int(texIndex))
     {
-
         case 0: alpha = texture(texture0, texCoord).r; break;
         case 1: alpha = texture(texture1, texCoord).r; break;
         case 2: alpha = texture(texture2, texCoord).r; break;

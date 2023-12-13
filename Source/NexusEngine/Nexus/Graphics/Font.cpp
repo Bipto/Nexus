@@ -54,7 +54,7 @@ namespace Nexus::Graphics
         m_TextureHeight = columnCount * size.Y;
 
         Nexus::Graphics::TextureSpecification textureSpec;
-        textureSpec.NumberOfChannels = 1;
+        textureSpec.NumberOfChannels = 4;
         textureSpec.Format = Nexus::Graphics::TextureFormat::RGBA8;
         textureSpec.Width = m_TextureWidth;
         textureSpec.Height = m_TextureHeight;

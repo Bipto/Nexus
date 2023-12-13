@@ -260,17 +260,24 @@ namespace Nexus::Graphics
 
         for (auto character : text)
         {
-            const auto &characterInfo = font->GetCharacter(character);
+            if (character == ' ')
+            {
+                const auto &characterInfo = font->GetCharacter('i');
+                x += characterInfo.Size.x * scale;
+            }
+            else
+            {
+                const auto &characterInfo = font->GetCharacter(character);
 
-            float xPos = x + characterInfo.Bearing.x * scale;
-            // float yPos = y - (characterInfo.Size.y - characterInfo.Bearing.y) * scale;
-            float yPos = (characterInfo.Bearing.y) * scale;
-            yPos -= largestCharacterSize;
+                float xPos = x + characterInfo.Bearing.x * scale;
+                // float yPos = y - (characterInfo.Size.y - characterInfo.Bearing.y) * scale;
+                float yPos = (characterInfo.Bearing.y) * scale;
+                yPos -= largestCharacterSize;
 
-            DrawCharacter(character, {xPos, y - yPos}, scale, color, font);
+                DrawCharacter(character, {xPos, y - yPos}, scale, color, font);
 
-            // x += (characterInfo.Advance.X >> 6);
-            x += characterInfo.Size.x * scale;
+                x += (characterInfo.Advance.X >> 6) * scale;
+            }
         }
     }
 
