@@ -74,7 +74,8 @@ public:
             {
                 {0x0020, 0x00FF}};
 
-        m_Font = new Nexus::Graphics::Font("resources/fonts/Roboto/Roboto-Regular.ttf", fontRange, m_GraphicsDevice);
+        // m_Font = new Nexus::Graphics::Font("resources/fonts/Roboto/Roboto-Regular.ttf", fontRange, m_GraphicsDevice);
+        m_Font = new Nexus::Graphics::Font("C://Windows//Fonts//Arial.ttf", fontRange, m_GraphicsDevice);
 
         Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
         m_QuadMesh = factory.CreateSprite();
@@ -163,7 +164,7 @@ public:
         //  m_BatchRenderer->DrawRectangle({500.0f, 500.0f}, {700.0f, 700.0f}, {0.4f, 0.6f, 0.15f, 1.0f});
         //  m_BatchRenderer->DrawRectangle({700.0f, 50.0f}, {1000.0f, 350.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, m_Texture);
 
-        m_BatchRenderer->DrawString("Hello World!", {50.0f, 50.0f}, 1, {1.0f, 1.0f, 1.0f, 1.0f}, m_Font);
+        m_BatchRenderer->DrawString("Hello World!", {50.0f, 50.0f}, 0.5f, {1.0f, 1.0f, 1.0f, 1.0f}, m_Font);
         m_BatchRenderer->End();
     }
 

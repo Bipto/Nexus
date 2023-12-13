@@ -51,65 +51,74 @@ layout (set = 0, binding = 15) uniform sampler2D texture15;
 
 void main()
 {
-    /*
+    float alpha = 0;
+    
     switch (int(texIndex))
     {
-        case 0: FragColor = texture(texture0, texCoord) * outColor; break;
-        case 1: FragColor = texture(texture1, texCoord) * outColor; break;
-        case 2: FragColor = texture(texture2, texCoord) * outColor; break;
-        case 3: FragColor = texture(texture3, texCoord) * outColor; break;
-        case 4: FragColor = texture(texture4, texCoord) * outColor; break;
-        case 5: FragColor = texture(texture5, texCoord) * outColor; break;
-        case 6: FragColor = texture(texture6, texCoord) * outColor; break;
-        case 7: FragColor = texture(texture7, texCoord) * outColor; break;
-        case 8: FragColor = texture(texture8, texCoord) * outColor; break;
-        case 9: FragColor = texture(texture9, texCoord) * outColor; break;
-        case 10: FragColor = texture(texture10, texCoord) * outColor; break;
-        case 11: FragColor = texture(texture11, texCoord) * outColor; break;
-        case 12: FragColor = texture(texture12, texCoord) * outColor; break;
-        case 13: FragColor = texture(texture13, texCoord) * outColor; break;
-        case 14: FragColor = texture(texture14, texCoord) * outColor; break;
-        case 15: FragColor = texture(texture15, texCoord) * outColor; break;
+
+        case 0: alpha = texture(texture0, texCoord).r; break;
+        case 1: alpha = texture(texture1, texCoord).r; break;
+        case 2: alpha = texture(texture2, texCoord).r; break;
+        case 3: alpha = texture(texture3, texCoord).r; break;
+        case 4: alpha = texture(texture4, texCoord).r; break;
+        case 5: alpha = texture(texture5, texCoord).r; break;
+        case 6: alpha = texture(texture6, texCoord).r; break;
+        case 7: alpha = texture(texture7, texCoord).r; break;
+        case 8: alpha = texture(texture8, texCoord).r; break;
+        case 9: alpha = texture(texture9, texCoord).r; break;
+        case 10: alpha = texture(texture10, texCoord).r; break;
+        case 11: alpha = texture(texture11, texCoord).r; break;
+        case 12: alpha = texture(texture12, texCoord).r; break;
+        case 13: alpha = texture(texture13, texCoord).r; break;
+        case 14: alpha = texture(texture14, texCoord).r; break;
+        case 15: alpha = texture(texture15, texCoord).r; break;
     }
 
-     if (FragColor.a == 0.0)
+    if (alpha < 0.5)
     {
         discard;
-    } */
+    }
 
-    float glyphShape = 0;
+    //alpha = 1.0 - smoothstep(0.5, 0.6, alpha);
+
+    float w = fwidth(alpha);
+    float opacity = smoothstep(0.5 - w, 0.5 + w, alpha);
+
+    FragColor = vec4(outColor.rgb, opacity);
+
+    /* float dist = 0;
 
     switch (int(texIndex))
     {
-        case 0: glyphShape = texture(texture0, texCoord).r; break;
-        case 1: glyphShape = texture(texture1, texCoord).r; break;
-        case 2: glyphShape = texture(texture2, texCoord).r; break;
-        case 3: glyphShape = texture(texture3, texCoord).r; break;
-        case 4: glyphShape = texture(texture4, texCoord).r; break;
-        case 5: glyphShape = texture(texture5, texCoord).r; break;
-        case 6: glyphShape = texture(texture6, texCoord).r; break;
-        case 7: glyphShape = texture(texture7, texCoord).r; break;
-        case 8: glyphShape = texture(texture8, texCoord).r; break;
-        case 9: glyphShape = texture(texture9, texCoord).r; break;
-        case 10: glyphShape = texture(texture10, texCoord).r; break;
-        case 11: glyphShape = texture(texture11, texCoord).r; break;
-        case 12: glyphShape = texture(texture12, texCoord).r; break;
-        case 13: glyphShape = texture(texture13, texCoord).r; break;
-        case 14: glyphShape = texture(texture14, texCoord).r; break;
-        case 15: glyphShape = texture(texture15, texCoord).r; break;
+        case 0: dist = texture(texture0, texCoord).r; break;
+        case 1: dist = texture(texture1, texCoord).r; break;
+        case 2: dist = texture(texture2, texCoord).r; break;
+        case 3: dist = texture(texture3, texCoord).r; break;
+        case 4: dist = texture(texture4, texCoord).r; break;
+        case 5: dist = texture(texture5, texCoord).r; break;
+        case 6: dist = texture(texture6, texCoord).r; break;
+        case 7: dist = texture(texture7, texCoord).r; break;
+        case 8: dist = texture(texture8, texCoord).r; break;
+        case 9: dist = texture(texture9, texCoord).r; break;
+        case 10: dist = texture(texture10, texCoord).r; break;
+        case 11: dist = texture(texture11, texCoord).r; break;
+        case 12: dist = texture(texture12, texCoord).r; break;
+        case 13: dist = texture(texture13, texCoord).r; break;
+        case 14: dist = texture(texture14, texCoord).r; break;
+        case 15: dist = texture(texture15, texCoord).r; break;
     }
 
-    /* if (glyphShape < 0.5)
+    if (glyphShape < 0.5)
     {
         discard;
     }
 
-    FragColor = outColor; */
+    FragColor = outColor;
 
-    if (glyphShape < 0.4)
+    if (dist < 0.5)
     {
         discard;
     }
 
-    FragColor = vec4(outColor.rgb, glyphShape);
+    FragColor = vec4(outColor.rgb, 1.0f); */
 }

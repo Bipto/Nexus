@@ -269,7 +269,8 @@ namespace Nexus::Graphics
 
             DrawCharacter(character, {xPos, y - yPos}, scale, color, font);
 
-            x += (characterInfo.Advance.X >> 6) * scale;
+            // x += (characterInfo.Advance.X >> 6);
+            x += characterInfo.Size.x * scale;
         }
     }
 
@@ -306,6 +307,13 @@ namespace Nexus::Graphics
         description.Viewport.Height = swapchain->GetWindowSize().Y;
         description.RasterizerStateDescription.ScissorRectangle = {0, 0, swapchain->GetWindowSize().X, swapchain->GetWindowSize().Y};
         description.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
+
+        /* description.BlendStateDescription.EnableBlending = true;
+        description.BlendStateDescription.BlendEquation = BlendEquation::Add;
+        description.BlendStateDescription.SourceColourBlend = BlendFunction::SourceAlpha;
+        description.BlendStateDescription.DestinationColourBlend = BlendFunction::OneMinusSourceAlpha;
+        description.BlendStateDescription.SourceAlphaBlend = BlendFunction::One;
+        description.BlendStateDescription.DestinationAlphaBlend = BlendFunction::Zero; */
 
         Nexus::Graphics::ResourceSetSpecification resourceSpec;
         resourceSpec.TextureBindings =

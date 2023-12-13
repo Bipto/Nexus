@@ -36,7 +36,7 @@ namespace Nexus::Graphics
             m_Pixels.resize(m_Width * m_Height);
         }
 
-        std::vector<unsigned char> &GetPixels()
+        std::vector<uint32_t> &GetPixels()
         {
             return m_Pixels;
         }
@@ -67,19 +67,19 @@ namespace Nexus::Graphics
                 value = 0;
             } */
 
-            // Color color = Nexus::Graphics::Color(value, value, value, value);
-            // m_Pixels[offset] = color.GetColor();
+            Color color = Nexus::Graphics::Color(255, 255, 255, 255);
+            m_Pixels[offset] = color.GetColor();
 
             m_Pixels[offset] = value;
         }
 
-        operator std::vector<unsigned char>() const
+        operator std::vector<uint32_t>() const
         {
             return m_Pixels;
         }
 
     private:
-        std::vector<unsigned char> m_Pixels;
+        std::vector<uint32_t> m_Pixels;
         uint32_t m_Width = 0;
         uint32_t m_Height = 0;
     };

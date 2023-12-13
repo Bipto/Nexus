@@ -44,7 +44,7 @@ namespace Nexus::Graphics
         {
             std::cout << "Failed to load font" << std::endl;
         }
-        FT_Set_Pixel_Sizes(face, 0, 128);
+        FT_Set_Pixel_Sizes(face, 0, 64);
 
         uint32_t characterCount;
         auto size = GetLargestCharacterSize(face, m_CharacterRanges, characterCount);
@@ -55,10 +55,10 @@ namespace Nexus::Graphics
 
         Nexus::Graphics::TextureSpecification textureSpec;
         textureSpec.NumberOfChannels = 1;
-        textureSpec.Format = Nexus::Graphics::TextureFormat::R8;
+        textureSpec.Format = Nexus::Graphics::TextureFormat::RGBA8;
         textureSpec.Width = m_TextureWidth;
         textureSpec.Height = m_TextureHeight;
-        textureSpec.SamplerState = SamplerState::LinearClamp;
+        textureSpec.SamplerState = SamplerState::LinearWrap;
 
         FontData pixels(textureSpec.Width, textureSpec.Height);
         pixels.Clear(0);
