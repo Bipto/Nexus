@@ -14,8 +14,8 @@
 
 namespace Nexus::Graphics
 {
-    GraphicsDeviceD3D12::GraphicsDeviceD3D12(const GraphicsDeviceCreateInfo &createInfo, Window *window)
-        : GraphicsDevice(createInfo, window)
+    GraphicsDeviceD3D12::GraphicsDeviceD3D12(const GraphicsDeviceCreateInfo &createInfo, Window *window, const SwapchainSpecification &swapchainSpec)
+        : GraphicsDevice(createInfo, window, swapchainSpec)
     {
 #if defined(_DEBUG)
         // retrieve the debug interface
@@ -61,7 +61,7 @@ namespace Nexus::Graphics
             }
         }
 
-        window->CreateSwapchain(this, createInfo.VSyncStateSettings);
+        window->CreateSwapchain(this, swapchainSpec);
         CreateImGuiCommandStructures();
     }
 

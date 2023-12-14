@@ -10,8 +10,8 @@
 
 namespace Nexus::Graphics
 {
-    SwapchainD3D11::SwapchainD3D11(Window *window, GraphicsDevice *device, VSyncState vSyncState)
-        : m_VsyncState(vSyncState), m_Window(window)
+    SwapchainD3D11::SwapchainD3D11(Window *window, GraphicsDevice *device, const Graphics::SwapchainSpecification &swapchainSpec)
+        : m_VsyncState(swapchainSpec.VSyncState), m_Window(window)
     {
         m_Device = (GraphicsDeviceD3D11 *)device;
         auto D3D11Device = m_Device->GetDevice();

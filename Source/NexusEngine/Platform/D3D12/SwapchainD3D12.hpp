@@ -14,7 +14,7 @@ namespace Nexus::Graphics
     class SwapchainD3D12 : public Swapchain
     {
     public:
-        SwapchainD3D12(Window *window, GraphicsDevice *device, VSyncState vSyncState);
+        SwapchainD3D12(Window *window, GraphicsDevice *device, const SwapchainSpecification &swapchainSpec);
         virtual ~SwapchainD3D12();
         virtual void Initialise() override{};
         virtual void SwapBuffers() override;

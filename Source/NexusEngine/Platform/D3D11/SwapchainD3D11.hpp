@@ -13,7 +13,7 @@ namespace Nexus::Graphics
     class SwapchainD3D11 : public Swapchain
     {
     public:
-        SwapchainD3D11(Window *window, GraphicsDevice *device, VSyncState vSyncState);
+        SwapchainD3D11(Window *window, GraphicsDevice *device, const Graphics::SwapchainSpecification &swapchainSpec);
         ~SwapchainD3D11();
 
         virtual void Initialise() override {}

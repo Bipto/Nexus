@@ -99,6 +99,7 @@ namespace Nexus::Graphics
         Font(const std::string &filepath, const std::vector<CharacterRange> &characterRanges, GraphicsDevice *device);
         Nexus::Graphics::Texture *GetTexture();
         const Character &GetCharacter(char character);
+        uint32_t GetSize() const;
 
     private:
         void LoadCharacter(char character, FT_Face &face, FontData &data, uint32_t x, uint32_t y);
@@ -109,5 +110,6 @@ namespace Nexus::Graphics
         std::map<char, Character> m_Characters;
         uint32_t m_TextureWidth = 0;
         uint32_t m_TextureHeight = 0;
+        uint32_t m_Size = 64;
     };
 }

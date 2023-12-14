@@ -15,7 +15,7 @@ namespace Nexus::Graphics
     class SwapchainVk : public Swapchain
     {
     public:
-        SwapchainVk(Window *window, GraphicsDevice *graphicsDevice, VSyncState vSyncState);
+        SwapchainVk(Window *window, GraphicsDevice *graphicsDevice, const SwapchainSpecification& swapchainSpec);
         virtual ~SwapchainVk();
 
         virtual void SwapBuffers() override;

@@ -114,11 +114,11 @@ void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
 
 namespace Nexus::Graphics
 {
-    GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(const GraphicsDeviceCreateInfo &createInfo, Window *window)
-        : GraphicsDevice(createInfo, window)
+    GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(const GraphicsDeviceCreateInfo &createInfo, Window *window, const SwapchainSpecification &swapchainSpec)
+        : GraphicsDevice(createInfo, window, swapchainSpec)
     {
 
-        window->CreateSwapchain(this, createInfo.VSyncStateSettings);
+        window->CreateSwapchain(this, swapchainSpec);
 
 #if defined(WIN32)
         gladLoadGL();

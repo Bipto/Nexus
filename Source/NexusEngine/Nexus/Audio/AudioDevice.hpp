@@ -4,16 +4,12 @@
 #include "AudioBuffer.hpp"
 #include "AudioSource.hpp"
 
+#include "Nexus/ApplicationSpecification.hpp"
+
 #include <string>
 
 namespace Nexus::Audio
 {
-    /// @brief An enum representing the different audio backends that are available
-    enum AudioAPI
-    {
-        OpenAL
-    };
-
     /// @brief A class representing an abstraction over a graphics API and context
     class AudioDevice
     {

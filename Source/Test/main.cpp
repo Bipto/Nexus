@@ -74,8 +74,8 @@ public:
             {
                 {0x0020, 0x00FF}};
 
-        // m_Font = new Nexus::Graphics::Font("resources/fonts/Roboto/Roboto-Regular.ttf", fontRange, m_GraphicsDevice);
-        m_Font = new Nexus::Graphics::Font("C://Windows//Fonts//Arial.ttf", fontRange, m_GraphicsDevice);
+        m_Font = new Nexus::Graphics::Font("resources/fonts/Roboto/Roboto-Regular.ttf", fontRange, m_GraphicsDevice);
+        // m_Font = new Nexus::Graphics::Font("C://Windows//Fonts//Arial.ttf", fontRange, m_GraphicsDevice);
 
         Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
         m_QuadMesh = factory.CreateSprite();
@@ -165,7 +165,7 @@ public:
         //  m_BatchRenderer->DrawRectangle({700.0f, 50.0f}, {1000.0f, 350.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, m_Texture);
 
         m_BatchRenderer->DrawRectangle({0, 0}, {width, height}, {1.0f, 1.0f, 1.0f, 1.0f});
-        m_BatchRenderer->DrawString("Hello World!", {50.0f, 50.0f}, 1, {1.0f, 0.0f, 0.0f, 1.0f}, m_Font);
+        m_BatchRenderer->DrawString("Hello World!", {50.0f, 50.0f}, 5, {1.0f, 0.0f, 0.0f, 1.0f}, m_Font);
         // m_BatchRenderer->DrawCharacter('!', {0.0f, 0.0f}, 32, {1.0f, 0.0f, 0.0f, 1.0f}, m_Font);
         m_BatchRenderer->End();
     }
@@ -258,8 +258,13 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
     Nexus::ApplicationSpecification spec;
     spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
-    spec.ImGuiActive = false;
-    spec.VSyncState = Nexus::Graphics::VSyncState::Enabled;
+
+    spec.WindowProperties.Width = 1280;
+    spec.WindowProperties.Height = 720;
+    spec.WindowProperties.Resizable = true;
+    spec.WindowProperties.Title = "Test Application";
+
+    spec.SwapchainSpecification.Samples = 16;
 
     return new TestApplication(spec);
 }

@@ -12,7 +12,7 @@
 
 namespace Nexus::Graphics
 {
-    GraphicsDevice::GraphicsDevice(const GraphicsDeviceCreateInfo &createInfo, Window *window)
+    GraphicsDevice::GraphicsDevice(const GraphicsDeviceCreateInfo &createInfo, Window *window, const SwapchainSpecification &swapchainSpec)
     {
         m_Window = window;
         m_API = createInfo.API;

@@ -15,8 +15,8 @@
 
 namespace Nexus::Graphics
 {
-    GraphicsDeviceD3D11::GraphicsDeviceD3D11(const GraphicsDeviceCreateInfo &createInfo, Window *window)
-        : GraphicsDevice(createInfo, window)
+    GraphicsDeviceD3D11::GraphicsDeviceD3D11(const GraphicsDeviceCreateInfo &createInfo, Window *window, const SwapchainSpecification &swapchainSpec)
+        : GraphicsDevice(createInfo, window, swapchainSpec)
     {
         SDL_SysWMinfo wmInfo;
         SDL_VERSION(&wmInfo.version);
@@ -60,7 +60,7 @@ namespace Nexus::Graphics
 
         m_DeviceContextPtr->Release();
 
-        m_Window->CreateSwapchain(this, createInfo.VSyncStateSettings);
+        m_Window->CreateSwapchain(this, swapchainSpec);
 
         IDXGIFactory1 *factory;
         IDXGIAdapter1 *adapter;

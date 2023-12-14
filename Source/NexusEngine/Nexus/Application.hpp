@@ -26,6 +26,8 @@
 
 #include "Nexus/Graphics/ImGuiRenderer.hpp"
 
+#include "ApplicationSpecification.hpp"
+
 #include <chrono>
 
 namespace Nexus
@@ -52,34 +54,12 @@ namespace Nexus
     /// @brief A static method to create a new graphics device from a set of options
     /// @param createInfo Options to use to configure the graphics device
     /// @return A pointer to a graphics device
-    static Graphics::GraphicsDevice *CreateGraphicsDevice(const Graphics::GraphicsDeviceCreateInfo &createInfo, Window *window);
+    static Graphics::GraphicsDevice *CreateGraphicsDevice(const Graphics::GraphicsDeviceCreateInfo &createInfo, Window *window, const Graphics::SwapchainSpecification &swapchainSpec);
 
     /// @brief A static method to create a new audio device from a selected audio API
     /// @param api The audio API to use to manage audio resources
     /// @return A pointer to an audio device
     static Audio::AudioDevice *CreateAudioDevice(Audio::AudioAPI api);
-
-    /// @brief A struct representing options to use when creating an application
-    struct ApplicationSpecification
-    {
-        /// @brief The graphics API to use for rendering
-        Graphics::GraphicsAPI GraphicsAPI;
-
-        /// @brief The audio API to use to support sound effects
-        Audio::AudioAPI AudioAPI;
-
-        /// @brief How many times per second the application should updated
-        uint32_t UpdatesPerSecond = 60;
-
-        /// @brief How many times per second the application should render
-        uint32_t RendersPerSecond = 60;
-
-        /// @brief Whether the application should use VSync
-        Graphics::VSyncState VSyncState = Graphics::VSyncState::Enabled;
-
-        /// @brief Whether the application will use ImGui
-        bool ImGuiActive = false;
-    };
 
     /// @brief A class representing an application
     class Application
@@ -160,8 +140,9 @@ namespace Nexus
 
         /// @brief A method that returns a pointer to a newly created window
         /// @param props A set of options to use to create a new window
+        /// @param swapchainSpec A struct containing information about how to create a swapchain for the window
         /// @return A pointer to a new window
-        Window *CreateApplicationWindow(const WindowProperties &props);
+        Window *CreateApplicationWindow(const WindowSpecification &windowProps, const Graphics::SwapchainSpecification &swapchainSpec);
 
         /// @brief A method that returns a pointer to the engine's core input state
         /// @return A pointer to an InputState

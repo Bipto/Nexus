@@ -23,9 +23,6 @@ namespace Nexus::Graphics
     {
         /// @brief The chosen graphics API to use to create the GraphicsDevice with
         GraphicsAPI API;
-
-        /// @brief The VSync settings to use when creating the GraphicsDevice
-        VSyncState VSyncStateSettings;
     };
 
     /// @brief A class representing an abstraction over a graphics API
@@ -34,7 +31,7 @@ namespace Nexus::Graphics
     public:
         /// @brief A constructor taking in a const reference to a GraphicsDeviceCreateInfo
         /// @param createInfo The options to use when creating the GraphicsDevice
-        GraphicsDevice(const GraphicsDeviceCreateInfo &createInfo, Window *window);
+        GraphicsDevice(const GraphicsDeviceCreateInfo &createInfo, Window *window, const SwapchainSpecification &swapchainSpec);
 
         /// @brief A virtual destructor allowing resources to be deleted
         virtual ~GraphicsDevice() {}

@@ -3,6 +3,8 @@
 #include <vector>
 #include <functional>
 
+#include "Nexus/ApplicationSpecification.hpp"
+
 namespace Nexus
 {
     // forward declaration
@@ -11,16 +13,6 @@ namespace Nexus
 
 namespace Nexus::Graphics
 {
-    /// @brief An enum class representing whether VSync is enabled
-    enum class VSyncState
-    {
-        /// @brief The graphics card will render as many frames as possible or will be limited by the frame rate cap specified
-        Disabled = 0,
-
-        /// @brief The refresh rate will be synchronised to the monitor
-        Enabled = 1
-    };
-
     class Swapchain
     {
     public:

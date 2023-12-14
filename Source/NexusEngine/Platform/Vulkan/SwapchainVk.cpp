@@ -17,8 +17,8 @@ namespace Nexus::Graphics
         }
     }
 
-    SwapchainVk::SwapchainVk(Window *window, GraphicsDevice *graphicsDevice, VSyncState vSyncState)
-        : m_Window(window), m_VsyncState(vSyncState)
+    SwapchainVk::SwapchainVk(Window *window, GraphicsDevice *graphicsDevice, const SwapchainSpecification &swapchainSpec)
+        : m_Window(window), m_VsyncState(swapchainSpec.VSyncState)
     {
         m_GraphicsDevice = (GraphicsDeviceVk *)graphicsDevice;
 

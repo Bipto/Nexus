@@ -8,7 +8,7 @@ namespace Nexus::Graphics
     class SwapchainOpenGL : public Swapchain
     {
     public:
-        SwapchainOpenGL(Window *window, VSyncState vSyncState);
+        SwapchainOpenGL(Window *window, const SwapchainSpecification &swapchainSpec);
         virtual ~SwapchainOpenGL();
         virtual void Initialise() override {}
         virtual void SwapBuffers() override;

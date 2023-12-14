@@ -22,9 +22,9 @@
 namespace Nexus
 {
 
-    Window::Window(const WindowProperties &windowProps, Graphics::GraphicsAPI api)
+    Window::Window(const WindowSpecification &windowProps, Graphics::GraphicsAPI api, const Graphics::SwapchainSpecification &swapchainSpec)
     {
-        uint32_t flags = GetFlags(api);
+        uint32_t flags = GetFlags(api, swapchainSpec);
 
         // NOTE: Resizable flag MUST be set in order for Emscripten resizing to work correctly
         m_Window = SDL_CreateWindow(windowProps.Title.c_str(),
@@ -210,33 +210,33 @@ namespace Nexus
         SDL_RestoreWindow(m_Window);
     }
 
-    void Window::CreateSwapchain(Graphics::GraphicsDevice *device, Graphics::VSyncState vSyncState)
+    void Window::CreateSwapchain(Graphics::GraphicsDevice *device, const Graphics::SwapchainSpecification &swapchainSpec)
     {
         switch (device->GetGraphicsAPI())
         {
         case Graphics::GraphicsAPI::OpenGL:
         {
-            m_Swapchain = new Graphics::SwapchainOpenGL(this, vSyncState);
+            m_Swapchain = new Graphics::SwapchainOpenGL(this, swapchainSpec);
             break;
         }
 #if defined(NX_PLATFORM_D3D11)
         case Graphics::GraphicsAPI::D3D11:
         {
-            m_Swapchain = new Graphics::SwapchainD3D11(this, device, vSyncState);
+            m_Swapchain = new Graphics::SwapchainD3D11(this, device, swapchainSpec);
             break;
         }
 #endif
 #if defined(NX_PLATFORM_VULKAN)
         case Graphics::GraphicsAPI::Vulkan:
         {
-            m_Swapchain = new Graphics::SwapchainVk(this, device, vSyncState);
+            m_Swapchain = new Graphics::SwapchainVk(this, device, swapchainSpec);
             break;
         }
 #endif
 #if defined(NX_PLATFORM_D3D12)
         case Graphics::GraphicsAPI::D3D12:
         {
-            m_Swapchain = new Graphics::SwapchainD3D12(this, device, vSyncState);
+            m_Swapchain = new Graphics::SwapchainD3D12(this, device, swapchainSpec);
             break;
         }
 #endif
@@ -257,7 +257,7 @@ namespace Nexus
         return m_WindowID;
     }
 
-    uint32_t Window::GetFlags(Graphics::GraphicsAPI api)
+    uint32_t Window::GetFlags(Graphics::GraphicsAPI api, const Graphics::SwapchainSpecification &swapchainSpec)
     {
         // required for emscripten to handle resizing correctly
         uint32_t flags = SDL_WINDOW_RESIZABLE;
@@ -290,6 +290,13 @@ namespace Nexus
 
 #ifndef __EMSCRIPTEN__
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+#endif
+
+            if (swapchainSpec.Samples > 1)
+            {
+                SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+                SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, swapchainSpec.Samples);
+            }
 
             if (Graphics::SwapchainOpenGL::HasContextBeenCreated())
             {
@@ -299,7 +306,6 @@ namespace Nexus
             {
                 SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 0);
             }
-#endif
 
             flags |= SDL_WINDOW_OPENGL;
             return flags;

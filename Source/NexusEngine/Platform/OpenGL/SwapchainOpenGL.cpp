@@ -5,8 +5,8 @@
 
 namespace Nexus::Graphics
 {
-    SwapchainOpenGL::SwapchainOpenGL(Window *window, VSyncState vSyncState)
-        : m_Window(window), m_VsyncState(vSyncState)
+    SwapchainOpenGL::SwapchainOpenGL(Window *window, const SwapchainSpecification &swapchainSpec)
+        : m_Window(window), m_VsyncState(swapchainSpec.VSyncState)
     {
         m_SwapchainWidth = m_Window->GetWindowSize().X;
         m_SwapchainHeight = m_Window->GetWindowSize().Y;

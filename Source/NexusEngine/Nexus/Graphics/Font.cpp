@@ -44,7 +44,7 @@ namespace Nexus::Graphics
         {
             std::cout << "Failed to load font" << std::endl;
         }
-        FT_Set_Pixel_Sizes(face, 0, 64);
+        FT_Set_Pixel_Sizes(face, 0, m_Size);
 
         uint32_t characterCount;
         auto size = GetLargestCharacterSize(face, m_CharacterRanges, characterCount);
@@ -134,5 +134,10 @@ namespace Nexus::Graphics
     const Character &Font::GetCharacter(char character)
     {
         return m_Characters[character];
+    }
+
+    uint32_t Font::GetSize() const
+    {
+        return m_Size;
     }
 }

@@ -267,18 +267,17 @@ namespace Nexus
     {
         m_Specification = spec;
 
-        WindowProperties props;
-        m_Window = CreateApplicationWindow(props);
+        WindowSpecification props;
+        m_Window = CreateApplicationWindow(props, spec.SwapchainSpecification);
 
         Graphics::GraphicsDeviceCreateInfo graphicsDeviceCreateInfo;
         graphicsDeviceCreateInfo.API = spec.GraphicsAPI;
-        graphicsDeviceCreateInfo.VSyncStateSettings = spec.VSyncState;
 
-        m_GraphicsDevice = Nexus::CreateGraphicsDevice(graphicsDeviceCreateInfo, m_Window);
+        m_GraphicsDevice = Nexus::CreateGraphicsDevice(graphicsDeviceCreateInfo, m_Window, spec.SwapchainSpecification);
         m_GraphicsDevice->SetContext();
 
         auto swapchain = m_Window->GetSwapchain();
-        swapchain->SetVSyncState(spec.VSyncState);
+        swapchain->SetVSyncState(spec.SwapchainSpecification.VSyncState);
 
         m_AudioDevice = Nexus::CreateAudioDevice(spec.AudioAPI);
 
@@ -405,9 +404,9 @@ namespace Nexus
         return m_Window->IsClosing();
     }
 
-    Window *Application::CreateApplicationWindow(const WindowProperties &props)
+    Window *Application::CreateApplicationWindow(const WindowSpecification &windowProps, const Graphics::SwapchainSpecification &swapchainSpec)
     {
-        Window *window = new Nexus::Window(props, m_Specification.GraphicsAPI);
+        Window *window = new Nexus::Window(windowProps, m_Specification.GraphicsAPI, swapchainSpec);
         m_Windows.push_back(window);
         return window;
     }
@@ -603,29 +602,29 @@ namespace Nexus
         }
     }
 
-    Graphics::GraphicsDevice *CreateGraphicsDevice(const Graphics::GraphicsDeviceCreateInfo &createInfo, Window *window)
+    Graphics::GraphicsDevice *CreateGraphicsDevice(const Graphics::GraphicsDeviceCreateInfo &createInfo, Window *window, const Graphics::SwapchainSpecification &swapchainSpec)
     {
         switch (createInfo.API)
         {
 #if defined(NX_PLATFORM_D3D11)
         case Graphics::GraphicsAPI::D3D11:
-            return new Graphics::GraphicsDeviceD3D11(createInfo, window);
+            return new Graphics::GraphicsDeviceD3D11(createInfo, window, swapchainSpec);
             break;
 #endif
 
 #if defined(NX_PLATFORM_D3D12)
         case Graphics::GraphicsAPI::D3D12:
-            return new Graphics::GraphicsDeviceD3D12(createInfo, window);
+            return new Graphics::GraphicsDeviceD3D12(createInfo, window, swapchainSpec);
             break;
 #endif
 
         case Graphics::GraphicsAPI::OpenGL:
-            return new Graphics::GraphicsDeviceOpenGL(createInfo, window);
+            return new Graphics::GraphicsDeviceOpenGL(createInfo, window, swapchainSpec);
             break;
 
 #if defined(NX_PLATFORM_VULKAN)
         case Graphics::GraphicsAPI::Vulkan:
-            return new Graphics::GraphicsDeviceVk(createInfo, window);
+            return new Graphics::GraphicsDeviceVk(createInfo, window, swapchainSpec);
             break;
 #endif
         default:

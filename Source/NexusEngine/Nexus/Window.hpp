@@ -17,6 +17,8 @@
 #include "Nexus/Graphics/Swapchain.hpp"
 #include "backends/imgui_impl_sdl2.h"
 
+#include "ApplicationSpecification.hpp"
+
 namespace Nexus
 {
     namespace Graphics
@@ -24,19 +26,6 @@ namespace Nexus
         // forward declaration
         class GraphicsDevice;
     }
-
-    /// @brief An enum representing the current window state
-    enum class WindowState
-    {
-        /// @brief A value representing the window is in a default state
-        Normal,
-
-        /// @brief A value representing that the window has been minimized
-        Minimized,
-
-        /// @brief A value representing that the window has been maximized
-        Maximized
-    };
 
     /// @brief An enum representing the different default cursors that can be selected
     enum class Cursor
@@ -55,29 +44,13 @@ namespace Nexus
         Hand
     };
 
-    /// @brief A struct that represents a set of options for a window
-    struct WindowProperties
-    {
-        /// @brief A string containing the title of the window
-        std::string Title = "My Window";
-
-        /// @brief An integer containing the width of the window
-        int Width = 1280;
-
-        /// @brief An integer containing the height of the window
-        int Height = 720;
-
-        /// @brief A boolean indicating whether the window can be resized or not
-        bool Resizable = true;
-    };
-
     /// @brief A class representing a window
     class Window
     {
     public:
         /// @brief A constructor taking in a window properties struct
         /// @param windowProps A structure containing options controlling how the window is created
-        Window(const WindowProperties &windowProps, Graphics::GraphicsAPI api);
+        Window(const WindowSpecification &windowProps, Graphics::GraphicsAPI api, const Graphics::SwapchainSpecification& swapchainSpec);
 
         /// @brief Copying a window is not supported
         /// @param A const reference to a window
@@ -149,7 +122,7 @@ namespace Nexus
         /// @brief A method that creates a new swapchain to support rendering to the window
         /// @param device The graphics device to use to create the swapchain
         /// @param vSyncState Whether or not vsync should be enabled for rendering
-        void CreateSwapchain(Graphics::GraphicsDevice *device, Graphics::VSyncState vSyncState);
+        void CreateSwapchain(Graphics::GraphicsDevice *device, const Graphics::SwapchainSpecification &swapchainSpec);
 
         /// @brief A method that returns a pointer to the window's swapchain
         /// @return A pointer to a swapchain
@@ -161,7 +134,7 @@ namespace Nexus
         /// @brief A method that returns a set of flags to use when creating the window
         /// @param api The graphics API to create the swapchain
         /// @return An unsigned int representing the flags
-        uint32_t GetFlags(Graphics::GraphicsAPI api);
+        uint32_t GetFlags(Graphics::GraphicsAPI api, const Graphics::SwapchainSpecification &swapchainSpec);
 
     private:
         /// @brief A pointer to the underlying SDL window

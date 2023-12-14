@@ -16,8 +16,8 @@
 
 namespace Nexus::Graphics
 {
-    GraphicsDeviceVk::GraphicsDeviceVk(const GraphicsDeviceCreateInfo &createInfo, Window *window)
-        : GraphicsDevice(createInfo, window)
+    GraphicsDeviceVk::GraphicsDeviceVk(const GraphicsDeviceCreateInfo &createInfo, Window *window, const SwapchainSpecification &swapchainSpec)
+        : GraphicsDevice(createInfo, window, swapchainSpec)
     {
         CreateInstance();
 
@@ -25,7 +25,7 @@ namespace Nexus::Graphics
         SetupDebugMessenger();
 #endif
 
-        window->CreateSwapchain(this, createInfo.VSyncStateSettings);
+        window->CreateSwapchain(this, swapchainSpec);
 
         SelectPhysicalDevice();
         SelectQueueFamilies();

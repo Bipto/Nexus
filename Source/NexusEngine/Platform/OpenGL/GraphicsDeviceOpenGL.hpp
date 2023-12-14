@@ -10,7 +10,7 @@ namespace Nexus::Graphics
     class GraphicsDeviceOpenGL : public GraphicsDevice
     {
     public:
-        GraphicsDeviceOpenGL(const GraphicsDeviceCreateInfo &createInfo, Window *window);
+        GraphicsDeviceOpenGL(const GraphicsDeviceCreateInfo &createInfo, Window *window, const SwapchainSpecification& swapchainSpec);
         GraphicsDeviceOpenGL(const GraphicsDeviceOpenGL &) = delete;
         void SetContext() override;
         void SetFramebuffer(Framebuffer *framebuffer);

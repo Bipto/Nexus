@@ -26,7 +26,7 @@ namespace Nexus::Graphics
     class GraphicsDeviceVk : public GraphicsDevice
     {
     public:
-        GraphicsDeviceVk(const GraphicsDeviceCreateInfo &createInfo, Window *window);
+        GraphicsDeviceVk(const GraphicsDeviceCreateInfo &createInfo, Window *window, const SwapchainSpecification& swapchainSpec);
         GraphicsDeviceVk(const GraphicsDeviceVk &) = delete;
         virtual ~GraphicsDeviceVk();
 

@@ -270,7 +270,11 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
     spec.ImGuiActive = true;
-    spec.VSyncState = Nexus::Graphics::VSyncState::Disabled;
+
+    spec.WindowProperties.Width = 1280;
+    spec.WindowProperties.Height = 720;
+    spec.WindowProperties.Title = "Demo";
+    spec.WindowProperties.Resizable = true;
 
     return new DemoApplication(spec);
 }
