@@ -12,6 +12,7 @@ namespace Nexus::Graphics
     {
     public:
         FramebufferVk(RenderPass *renderPass, GraphicsDeviceVk *device);
+        FramebufferVk(const FramebufferSpecification &spec, GraphicsDeviceVk *device);
         ~FramebufferVk();
 
         virtual void *GetColorAttachment(int index = 0) override;
@@ -23,13 +24,15 @@ namespace Nexus::Graphics
         VkImageView GetColorTextureImageView(uint32_t index);
         VkSampler GetColorTextureSampler(uint32_t index);
 
+        VkRenderPass GetRenderPass();
+
     private:
-        virtual void
-        Recreate() override;
+        virtual void Recreate() override;
 
         void CreateColorTargets();
         void CreateDepthTargets();
         void CreateFramebuffer();
+        void CreateRenderPass();
 
     private:
         std::vector<VkImage> m_Images;
@@ -45,6 +48,8 @@ namespace Nexus::Graphics
 
         GraphicsDeviceVk *m_Device;
         RenderPassVk *m_RenderPass;
+
+        VkRenderPass m_FramebufferRenderPass;
     };
 }
 

@@ -130,6 +130,8 @@ namespace Nexus::Graphics
         /// @return A pointer to a renderpass
         virtual RenderPass *CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification) = 0;
 
+        virtual Framebuffer *CreateFramebuffer(const FramebufferSpecification &spec) = 0;
+
         /// @brief A method that creates a new renderpass and framebuffer from a given specification
         /// @param renderPassSpecification The properties to use when creating the renderpass
         /// @param framebufferSpecification The properties to use when creating the framebuffer

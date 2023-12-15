@@ -225,6 +225,18 @@ namespace Nexus::Graphics
         m_Commands.push_back(renderCommand);
     }
 
+    void CommandListOpenGL::ClearColorTarget(uint32_t index, const ClearColorValue &color)
+    {
+    }
+
+    void CommandListOpenGL::ClearDepthTarget(const ClearDepthStencilValue &value)
+    {
+    }
+
+    void CommandListOpenGL::SetRenderTarget(RenderTarget target)
+    {
+    }
+
     const std::vector<RenderCommand> &CommandListOpenGL::GetRenderCommands()
     {
         return m_Commands;

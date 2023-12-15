@@ -289,6 +289,18 @@ namespace Nexus::Graphics
 #endif
     }
 
+    void CommandListD3D11::ClearColorTarget(uint32_t index, const ClearColorValue &color)
+    {
+    }
+
+    void CommandListD3D11::ClearDepthTarget(const ClearDepthStencilValue &value)
+    {
+    }
+
+    void CommandListD3D11::SetRenderTarget(RenderTarget target)
+    {
+    }
+
     const std::vector<RenderCommand> &CommandListD3D11::GetRenderCommands()
     {
         return m_Commands;

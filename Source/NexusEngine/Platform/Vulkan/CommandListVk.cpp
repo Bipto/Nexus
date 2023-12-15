@@ -88,7 +88,14 @@ namespace Nexus::Graphics
 
     void CommandListVk::End()
     {
+        if (m_RenderPassStarted)
+        {
+            vkCmdEndRenderPass(m_CurrentCommandBuffer);
+        }
+
         vkEndCommandBuffer(m_CurrentCommandBuffer);
+
+        m_RenderPassStarted = false;
     }
 
     void CommandListVk::SetVertexBuffer(VertexBuffer *vertexBuffer)
@@ -151,6 +158,34 @@ namespace Nexus::Graphics
             renderPassInfo.clearValueCount = (uint32_t)clearValues.size();
             renderPassInfo.pClearValues = clearValues.data();
             vkCmdBeginRenderPass(m_CurrentCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+            std::vector<VkClearAttachment> clearAttachments(2);
+            std::vector<VkClearRect> clearRects(2);
+
+            clearAttachments[0].aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            clearAttachments[0].clearValue.color = {
+                beginInfo.ClearColorValue.Red,
+                beginInfo.ClearColorValue.Green,
+                beginInfo.ClearColorValue.Blue,
+                beginInfo.ClearColorValue.Alpha};
+            clearAttachments[0].colorAttachment = 0;
+
+            clearRects[0].baseArrayLayer = 0;
+            clearRects[0].layerCount = 1;
+            clearRects[0].rect.offset = {0, 0};
+            clearRects[0].rect.extent = {vulkanSwapchain->m_SwapchainSize};
+
+            clearAttachments[1].aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+            clearAttachments[1].clearValue.depthStencil.depth = beginInfo.ClearDepthStencilValue.Depth;
+            clearAttachments[1].clearValue.depthStencil.stencil = beginInfo.ClearDepthStencilValue.Stencil;
+            clearAttachments[1].colorAttachment = 1;
+
+            clearRects[1].baseArrayLayer = 0;
+            clearRects[1].layerCount = 1;
+            clearRects[1].rect.offset = {0, 0};
+            clearRects[1].rect.extent = {vulkanSwapchain->m_SwapchainSize};
+
+            vkCmdClearAttachments(m_CurrentCommandBuffer, clearAttachments.size(), clearAttachments.data(), clearRects.size(), clearRects.data());
         }
         else
         {
@@ -225,6 +260,82 @@ namespace Nexus::Graphics
             auto samplerDescriptor = resourceSetVk->GetSamplerDescriptorSet();
             vkCmdBindDescriptorSets(m_CurrentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineVk->GetPipelineLayout(), samplerDescriptorIndex, 1, &samplerDescriptor, 0, nullptr);
         }
+    }
+
+    void CommandListVk::ClearColorTarget(uint32_t index, const ClearColorValue &color)
+    {
+        VkClearAttachment clearAttachment{};
+        clearAttachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        clearAttachment.clearValue.color = {
+            color.Red,
+            color.Green,
+            color.Blue,
+            color.Alpha};
+        clearAttachment.colorAttachment = index;
+
+        VkClearRect clearRect;
+        clearRect.baseArrayLayer = 0;
+        clearRect.layerCount = 1;
+        clearRect.rect.offset = {0, 0};
+        clearRect.rect.extent = {m_RenderSize};
+
+        vkCmdClearAttachments(m_CurrentCommandBuffer, 1, &clearAttachment, 1, &clearRect);
+    }
+
+    void CommandListVk::ClearDepthTarget(const ClearDepthStencilValue &value)
+    {
+    }
+
+    void CommandListVk::SetRenderTarget(RenderTarget target)
+    {
+        if (m_RenderPassStarted)
+        {
+            vkCmdEndRenderPass(m_CurrentCommandBuffer);
+        }
+
+        if (target.GetType() == RenderTargetType::Swapchain)
+        {
+            auto swapchain = target.GetData<Swapchain *>();
+            auto vulkanSwapchain = (SwapchainVk *)swapchain;
+            auto renderPass = vulkanSwapchain->GetRenderPass();
+            auto framebuffer = vulkanSwapchain->GetCurrentFramebuffer();
+
+            m_RenderSize = vulkanSwapchain->m_SwapchainSize;
+
+            VkRenderPassBeginInfo info;
+            info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+            info.pNext = nullptr;
+            info.framebuffer = framebuffer;
+            info.renderPass = renderPass;
+            info.renderArea.offset = {0, 0};
+            info.renderArea.extent = vulkanSwapchain->m_SwapchainSize;
+            info.clearValueCount = 0;
+            info.pClearValues = nullptr;
+
+            vkCmdBeginRenderPass(m_CurrentCommandBuffer, &info, VK_SUBPASS_CONTENTS_INLINE);
+        }
+        else
+        {
+            auto framebuffer = target.GetData<Framebuffer *>();
+            auto vulkanFramebuffer = (FramebufferVk *)framebuffer;
+            auto renderPass = vulkanFramebuffer->GetRenderPass();
+
+            m_RenderSize = {vulkanFramebuffer->GetFramebufferSpecification().Width, vulkanFramebuffer->GetFramebufferSpecification().Height};
+
+            VkRenderPassBeginInfo info;
+            info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+            info.pNext = nullptr;
+            info.framebuffer = vulkanFramebuffer->GetVkFramebuffer();
+            info.renderPass = renderPass;
+            info.renderArea.offset = {0, 0};
+            info.renderArea.extent = m_RenderSize;
+            info.clearValueCount = 0;
+            info.pClearValues = nullptr;
+
+            vkCmdBeginRenderPass(m_CurrentCommandBuffer, &info, VK_SUBPASS_CONTENTS_INLINE);
+        }
+
+        m_RenderPassStarted = true;
     }
 
     const VkCommandBuffer &CommandListVk::GetCurrentCommandBuffer()

@@ -80,10 +80,10 @@ namespace Nexus::Graphics
     struct FramebufferSpecification
     {
         /// @brief The width of the textures in the framebuffer
-        int Width = 1280;
+        uint32_t Width = 1280;
 
         /// @brief The height of the textures in the framebuffer
-        int Height = 720;
+        uint32_t Height = 720;
 
         /// @brief Settings to use when creating a set of colour attachments
         FramebufferColorAttachmentSpecification ColorAttachmentSpecification;

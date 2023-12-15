@@ -23,6 +23,11 @@ namespace Nexus::Graphics
         Framebuffer(RenderPass *renderPass)
             : m_Specification(renderPass->GetData<FramebufferSpecification>()) {}
 
+        /// @brief A constructor that sets the initial specification of a framebuffer
+        /// @param spec A reference to a specification to create the framebuffer with
+        Framebuffer(const FramebufferSpecification &spec)
+            : m_Specification(spec) {}
+
         /// @brief A virtual destructor enabling resources to be cleaned up
         virtual ~Framebuffer(){};
 

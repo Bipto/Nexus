@@ -213,6 +213,11 @@ namespace Nexus::Graphics
         return new ResourceSetD3D11(spec, this);
     }
 
+    Framebuffer *GraphicsDeviceD3D11::CreateFramebuffer(const FramebufferSpecification &spec)
+    {
+        return nullptr;
+    }
+
     ID3D11DeviceContext *GraphicsDeviceD3D11::GetDeviceContext()
     {
         return m_DeviceContextPtr;

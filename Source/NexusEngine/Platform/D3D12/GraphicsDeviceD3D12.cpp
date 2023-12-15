@@ -183,13 +183,17 @@ namespace Nexus::Graphics
 
     RenderPass *GraphicsDeviceD3D12::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain)
     {
-
         return new RenderPassD3D12(renderPassSpecification, swapchain);
     }
 
     ResourceSet *GraphicsDeviceD3D12::CreateResourceSet(const ResourceSetSpecification &spec)
     {
         return new ResourceSetD3D12(spec, this);
+    }
+
+    Framebuffer *GraphicsDeviceD3D12::CreateFramebuffer(const FramebufferSpecification &spec)
+    {
+        return nullptr;
     }
 
     IDXGIFactory7 *GraphicsDeviceD3D12::GetDXGIFactory() const

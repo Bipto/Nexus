@@ -27,7 +27,7 @@ public:
 
     virtual void Load() override
     {
-        m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("resources/shaders/basic.glsl", Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
+        /* m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("resources/shaders/basic.glsl", Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
 
         Nexus::Graphics::RenderPassSpecification renderPassSpec;
         renderPassSpec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
@@ -59,17 +59,6 @@ public:
 
         m_Texture = m_GraphicsDevice->CreateTexture("resources/textures/brick.jpg");
 
-        /* Nexus::WindowProperties props;
-        props.Title = "Second Window";
-        props.Resizable = false;
-        m_Window2 = CreateApplicationWindow(props);
-        m_Window2->CreateSwapchain(m_GraphicsDevice, Nexus::Graphics::VSyncState::Enabled);
-        m_Window2->GetSwapchain()->Initialise();
-
-        Nexus::Graphics::RenderPassSpecification spec;
-        spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
-        m_Window2RenderPass = m_GraphicsDevice->CreateRenderPass(spec, m_Window2->GetSwapchain()); */
-
         std::vector<Nexus::Graphics::CharacterRange> fontRange =
             {
                 {0x0020, 0x00FF}};
@@ -80,7 +69,17 @@ public:
         Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
         m_QuadMesh = factory.CreateSprite();
 
-        m_BatchRenderer = new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, m_RenderPass);
+        m_BatchRenderer = new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, m_RenderPass); */
+
+        m_CommandList = m_GraphicsDevice->CreateCommandList();
+
+        Nexus::Graphics::FramebufferSpecification spec;
+        spec.ColorAttachmentSpecification.Attachments =
+            {
+                {Nexus::Graphics::TextureFormat::RGBA8}};
+        spec.Width = 1280;
+        spec.Height = 720;
+        m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(spec);
     }
 
     virtual void Update(Nexus::Time time) override
@@ -89,59 +88,8 @@ public:
 
     virtual void Render(Nexus::Time time) override
     {
-        /* if (m_Window2RenderPass->IsValid())
-        {
-            Nexus::Graphics::RenderPassBeginInfo beginInfo{};
-            beginInfo.ClearColorValue = {
-                0.45f,
-                0.32f,
-                0.55f,
-                1.0f};
-
-            m_Window2->GetSwapchain()->Prepare();
-            m_CommandList->Begin();
-            m_CommandList->BeginRenderPass(m_Window2RenderPass, beginInfo);
-            {
-            }
-            m_CommandList->EndRenderPass();
-            m_CommandList->End();
-            m_GraphicsDevice->SubmitCommandList(m_CommandList);
-            m_Window2->GetSwapchain()->SwapBuffers();
-        } */
-
-        m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
+        /* m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
         m_TestUniforms.Transform = glm::mat4(1.0f);
-        // m_UniformBuffer->SetData(&m_TestUniforms, sizeof(m_TestUniforms), 0);
-
-        /* void *buffer = m_UniformBuffer->Map();
-        memcpy(buffer, &m_TestUniforms, sizeof(m_TestUniforms));
-        m_UniformBuffer->Unmap();
-
-        m_ResourceSet->WriteUniformBuffer(m_UniformBuffer, 0);
-        m_ResourceSet->WriteTexture(m_Font->GetTexture(), 0);
-
-        m_GraphicsDevice->BeginFrame();
-        m_CommandList->Begin();
-
-        Nexus::Graphics::RenderPassBeginInfo beginInfo{};
-        beginInfo.ClearColorValue = {
-            0.45f,
-            0.32f,
-            0.55f,
-            1.0f};
-        m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
-        {
-            m_CommandList->SetPipeline(m_Pipeline);
-            m_CommandList->SetResourceSet(m_ResourceSet);
-            m_CommandList->SetVertexBuffer(m_QuadMesh->GetVertexBuffer());
-            m_CommandList->SetIndexBuffer(m_QuadMesh->GetIndexBuffer());
-            m_CommandList->DrawIndexed(6, 0);
-        }
-        m_CommandList->EndRenderPass();
-        m_CommandList->End();
-        m_GraphicsDevice->EndFrame();
-
-        m_GraphicsDevice->SubmitCommandList(m_CommandList);*/
 
         Nexus::Graphics::RenderPassBeginInfo beginInfo;
         beginInfo.ClearColorValue = {
@@ -164,21 +112,34 @@ public:
         //  m_BatchRenderer->DrawRectangle({500.0f, 500.0f}, {700.0f, 700.0f}, {0.4f, 0.6f, 0.15f, 1.0f});
         //  m_BatchRenderer->DrawRectangle({700.0f, 50.0f}, {1000.0f, 350.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, m_Texture);
 
-        m_BatchRenderer->DrawRectangle({0, 0}, {width, height}, {1.0f, 1.0f, 1.0f, 1.0f});
-        m_BatchRenderer->DrawString("Hello World!", {50.0f, 50.0f}, 5, {1.0f, 0.0f, 0.0f, 1.0f}, m_Font);
+        // m_BatchRenderer->DrawRectangle({0, 0}, {width, height}, {1.0f, 1.0f, 1.0f, 1.0f});
+        m_BatchRenderer->DrawString("Hello World!", {50.0f, 50.0f}, 0.45f, {1.0f, 0.0f, 0.0f, 1.0f}, m_Font);
         // m_BatchRenderer->DrawCharacter('!', {0.0f, 0.0f}, 32, {1.0f, 0.0f, 0.0f, 1.0f}, m_Font);
-        m_BatchRenderer->End();
+        m_BatchRenderer->End(); */
+
+        m_CommandList->Begin();
+
+        Nexus::Graphics::RenderTarget framebufferTarget(m_Framebuffer);
+        m_CommandList->SetRenderTarget(framebufferTarget);
+        m_CommandList->ClearColorTarget(0, {0.0f, 1.0f, 0.0f, 1.0f});
+
+        Nexus::Graphics::RenderTarget swapchainTarget(m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain());
+        m_CommandList->SetRenderTarget(swapchainTarget);
+        m_CommandList->ClearColorTarget(0, {1.0f, 0.0f, 0.0f, 1.0f});
+
+        m_CommandList->End();
+        m_GraphicsDevice->SubmitCommandList(m_CommandList);
     }
 
     virtual void OnResize(Nexus::Point<int> size) override
     {
-        CreatePipeline(size);
-        m_BatchRenderer->Resize();
+        /* CreatePipeline(size);
+        m_BatchRenderer->Resize(); */
     }
 
     void CreatePipeline(Nexus::Point<int> size)
     {
-        if (m_Pipeline)
+        /* if (m_Pipeline)
         {
             delete m_Pipeline;
             m_Pipeline = nullptr;
@@ -215,7 +176,7 @@ public:
         description.ResourceSetSpecification = resourceSetSpec;
 
         m_Pipeline = m_GraphicsDevice->CreatePipeline(description);
-        m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
+        m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline); */
     }
 
     virtual void Unload() override
@@ -256,7 +217,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;

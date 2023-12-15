@@ -28,6 +28,10 @@ namespace Nexus::Graphics
 
         virtual void SetResourceSet(ResourceSet *resources) override;
 
+        virtual void ClearColorTarget(uint32_t index, const ClearColorValue &color) override;
+        virtual void ClearDepthTarget(const ClearDepthStencilValue &value) override;
+        virtual void SetRenderTarget(RenderTarget target) override;
+
         ID3D12GraphicsCommandList7 *GetCommandList();
 
     private:

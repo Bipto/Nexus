@@ -19,6 +19,8 @@ namespace Nexus::Graphics
         VkRenderPass GetVkRenderPass();
         uint32_t GetColorAttachmentCount();
 
+        VkRenderPass GetFramebufferRenderPass();
+
     private:
         void SetupForFramebuffer();
         void SetupForSwapchain();

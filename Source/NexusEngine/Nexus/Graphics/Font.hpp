@@ -110,6 +110,6 @@ namespace Nexus::Graphics
         std::map<char, Character> m_Characters;
         uint32_t m_TextureWidth = 0;
         uint32_t m_TextureHeight = 0;
-        uint32_t m_Size = 64;
+        uint32_t m_Size = 32;
     };
 }

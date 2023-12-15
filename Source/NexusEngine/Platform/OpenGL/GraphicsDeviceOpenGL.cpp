@@ -243,6 +243,11 @@ namespace Nexus::Graphics
         return new ResourceSetOpenGL(spec);
     }
 
+    Framebuffer *GraphicsDeviceOpenGL::CreateFramebuffer(const FramebufferSpecification &spec)
+    {
+        return nullptr;
+    }
+
     ShaderLanguage GraphicsDeviceOpenGL::GetSupportedShaderFormat()
     {
 #if defined(__EMSCRIPTEN__) || defined(__ANDROID__)

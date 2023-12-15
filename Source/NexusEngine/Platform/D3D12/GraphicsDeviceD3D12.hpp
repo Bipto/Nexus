@@ -38,6 +38,8 @@ namespace Nexus::Graphics
         virtual RenderPass *CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain) override;
         virtual ResourceSet *CreateResourceSet(const ResourceSetSpecification &spec) override;
 
+        virtual Framebuffer *CreateFramebuffer(const FramebufferSpecification &spec) override;
+
         virtual ShaderLanguage GetSupportedShaderFormat() override { return ShaderLanguage::HLSL; }
         virtual float GetUVCorrection() { return -1.0f; }
 

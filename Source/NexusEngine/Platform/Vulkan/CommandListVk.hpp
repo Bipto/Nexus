@@ -29,6 +29,10 @@ namespace Nexus::Graphics
 
         virtual void SetResourceSet(ResourceSet *resources) override;
 
+        virtual void ClearColorTarget(uint32_t index, const ClearColorValue &color) override;
+        virtual void ClearDepthTarget(const ClearDepthStencilValue &value) override;
+        virtual void SetRenderTarget(RenderTarget target) override;
+
         const VkCommandBuffer &GetCurrentCommandBuffer();
 
     private:
@@ -38,6 +42,8 @@ namespace Nexus::Graphics
         GraphicsDeviceVk *m_Device;
 
         Pipeline *m_CurrentlyBoundPipeline = nullptr;
+        bool m_RenderPassStarted = false;
+        VkExtent2D m_RenderSize = {0, 0};
     };
 }
 

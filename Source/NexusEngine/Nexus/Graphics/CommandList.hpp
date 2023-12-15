@@ -9,6 +9,7 @@
 #include "Framebuffer.hpp"
 #include "RenderPass.hpp"
 #include "Nexus/Types.hpp"
+#include "RenderTarget.hpp"
 
 #include <functional>
 #include <variant>
@@ -131,6 +132,12 @@ namespace Nexus::Graphics
         /// @brief A pure virtual method that updates the resources bound within a pipeline
         /// @param resources A reference counted pointer to a ResourceSet
         virtual void SetResourceSet(ResourceSet *resources) = 0;
+
+        virtual void ClearColorTarget(uint32_t index, const ClearColorValue &color) = 0;
+
+        virtual void ClearDepthTarget(const ClearDepthStencilValue &value) = 0;
+
+        virtual void SetRenderTarget(RenderTarget target) = 0;
     };
 
     /// @brief A typedef to simplify creating function pointers to render commands

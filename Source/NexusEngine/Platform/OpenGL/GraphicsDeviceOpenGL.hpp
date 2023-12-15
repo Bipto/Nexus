@@ -10,7 +10,7 @@ namespace Nexus::Graphics
     class GraphicsDeviceOpenGL : public GraphicsDevice
     {
     public:
-        GraphicsDeviceOpenGL(const GraphicsDeviceCreateInfo &createInfo, Window *window, const SwapchainSpecification& swapchainSpec);
+        GraphicsDeviceOpenGL(const GraphicsDeviceCreateInfo &createInfo, Window *window, const SwapchainSpecification &swapchainSpec);
         GraphicsDeviceOpenGL(const GraphicsDeviceOpenGL &) = delete;
         void SetContext() override;
         void SetFramebuffer(Framebuffer *framebuffer);
@@ -37,6 +37,8 @@ namespace Nexus::Graphics
         virtual RenderPass *CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification) override;
         virtual RenderPass *CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain) override;
         virtual ResourceSet *CreateResourceSet(const ResourceSetSpecification &spec) override;
+
+        virtual Framebuffer *CreateFramebuffer(const FramebufferSpecification &spec) override;
 
         virtual ShaderLanguage GetSupportedShaderFormat() override;
         virtual float GetUVCorrection() { return 1.0f; }

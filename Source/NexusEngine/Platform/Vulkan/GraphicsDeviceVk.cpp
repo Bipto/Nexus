@@ -191,6 +191,11 @@ namespace Nexus::Graphics
         return new ResourceSetVk(spec, this);
     }
 
+    Framebuffer *GraphicsDeviceVk::CreateFramebuffer(const FramebufferSpecification &spec)
+    {
+        return new FramebufferVk(spec, this);
+    }
+
     ShaderLanguage GraphicsDeviceVk::GetSupportedShaderFormat()
     {
         return ShaderLanguage::SPIRV;

@@ -64,9 +64,9 @@ namespace Nexus::Graphics
             VkAttachmentDescription attachment = {};
             attachment.format = GetVkTextureFormatFromNexusFormat(colorAttachment.TextureFormat);
             attachment.samples = VK_SAMPLE_COUNT_1_BIT;
-            attachment.loadOp = GetVkLoadOpFromNexusLoadOp(m_RenderPassSpecification.ColorLoadOperation);
+            attachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD; // GetVkLoadOpFromNexusLoadOp(m_RenderPassSpecification.ColorLoadOperation);
             attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-            attachment.stencilLoadOp = GetVkLoadOpFromNexusLoadOp(m_RenderPassSpecification.StencilDepthLoadOperation);
+            attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD; // GetVkLoadOpFromNexusLoadOp(m_RenderPassSpecification.StencilDepthLoadOperation);
             attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
 
             if (GetColorLoadOperation() == LoadOperation::Clear)
@@ -112,9 +112,9 @@ namespace Nexus::Graphics
             depthAttachment.flags = 0;
             depthAttachment.format = GetVkDepthFormatFromNexusFormat(framebufferSpecification.DepthAttachmentSpecification.DepthFormat);
             depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-            depthAttachment.loadOp = GetVkLoadOpFromNexusLoadOp(m_RenderPassSpecification.StencilDepthLoadOperation);
+            depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD; // GetVkLoadOpFromNexusLoadOp(m_RenderPassSpecification.StencilDepthLoadOperation);
             depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-            depthAttachment.stencilLoadOp = GetVkLoadOpFromNexusLoadOp(m_RenderPassSpecification.StencilDepthLoadOperation);
+            depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD; // GetVkLoadOpFromNexusLoadOp(m_RenderPassSpecification.StencilDepthLoadOperation);
             depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
 
             if (GetDepthStencilLoadOperation() == LoadOperation::Clear)
@@ -168,9 +168,9 @@ namespace Nexus::Graphics
         VkAttachmentDescription colorAttachment = {};
         colorAttachment.format = swapchain->m_SurfaceFormat.format;
         colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-        colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD; // VK_ATTACHMENT_LOAD_OP_CLEAR;
         colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD; // VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 
         if (GetColorLoadOperation() == LoadOperation::Clear)
@@ -192,9 +192,9 @@ namespace Nexus::Graphics
         depthAttachment.flags = 0;
         depthAttachment.format = swapchain->m_DepthFormat;
         depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-        depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD; // VK_ATTACHMENT_LOAD_OP_CLEAR;
         depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD; // VK_ATTACHMENT_LOAD_OP_CLEAR;
         depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
 
         if (GetDepthStencilLoadOperation() == LoadOperation::Clear)

@@ -270,6 +270,18 @@ namespace Nexus::Graphics
         }
     }
 
+    void CommandListD3D12::ClearColorTarget(uint32_t index, const ClearColorValue &color)
+    {
+    }
+
+    void CommandListD3D12::ClearDepthTarget(const ClearDepthStencilValue &value)
+    {
+    }
+
+    void CommandListD3D12::SetRenderTarget(RenderTarget target)
+    {
+    }
+
     ID3D12GraphicsCommandList7 *CommandListD3D12::GetCommandList()
     {
         return m_CommandList.Get();
