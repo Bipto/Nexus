@@ -272,8 +272,7 @@ namespace Nexus::Graphics
 
     void CommandListOpenGL::SetRenderTarget(RenderTarget target)
     {
-        SetRenderTargetCommand command;
-        command.Target = target;
+        SetRenderTargetCommand command{target};
         m_CommandData.emplace_back(command);
 
         auto renderCommand = [](CommandList *commandList)

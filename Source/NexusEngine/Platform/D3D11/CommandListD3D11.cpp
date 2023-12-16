@@ -291,14 +291,97 @@ namespace Nexus::Graphics
 
     void CommandListD3D11::ClearColorTarget(uint32_t index, const ClearColorValue &color)
     {
+        ClearColorTargetCommand command;
+        command.Index = index;
+        command.Color = color;
+        m_CommandData.emplace_back(command);
+
+        auto renderCommand = [](CommandList *commandList)
+        {
+            CommandListD3D11 *commandListD3D11 = (CommandListD3D11 *)commandList;
+            auto graphicsDevice = commandListD3D11->GetGraphicsDevice();
+            auto context = graphicsDevice->GetDeviceContext();
+            const auto &commandData = commandListD3D11->GetCurrentCommandData();
+            auto clearColorCommand = std::get<ClearColorTargetCommand>(commandData);
+
+            float backgroundColor[4] =
+                {
+                    clearColorCommand.Color.Red,
+                    clearColorCommand.Color.Green,
+                    clearColorCommand.Color.Blue,
+                    clearColorCommand.Color.Alpha};
+
+            auto activeRenderTargetViews = graphicsDevice->GetActiveRenderTargetViews();
+            if (activeRenderTargetViews.size() > clearColorCommand.Index)
+            {
+                auto target = activeRenderTargetViews[clearColorCommand.Index];
+                context->ClearRenderTargetView(target, backgroundColor);
+            }
+        };
+        m_Commands.push_back(renderCommand);
     }
 
     void CommandListD3D11::ClearDepthTarget(const ClearDepthStencilValue &value)
     {
+        ClearDepthStencilTargetCommand command;
+        command.Value = value;
+        m_CommandData.emplace_back(command);
+
+        auto renderCommand = [](CommandList *commandList)
+        {
+            CommandListD3D11 *commandListD3D11 = (CommandListD3D11 *)commandList;
+            auto graphicsDevice = commandListD3D11->GetGraphicsDevice();
+            auto context = graphicsDevice->GetDeviceContext();
+            const auto &commandData = commandListD3D11->GetCurrentCommandData();
+            auto clearDepthCommand = std::get<ClearDepthStencilTargetCommand>(commandData);
+
+            auto activeDepthStencilView = graphicsDevice->GetActiveDepthStencilView();
+            if (activeDepthStencilView)
+            {
+                uint32_t clearFlags = 0;
+                clearFlags |= D3D11_CLEAR_DEPTH;
+                clearFlags |= D3D11_CLEAR_STENCIL;
+
+                context->ClearDepthStencilView(activeDepthStencilView, clearFlags, clearDepthCommand.Value.Depth, clearDepthCommand.Value.Stencil);
+            }
+            /* if (activeRenderTargetViews.size() > clearColorCommand.Index)
+            {
+                auto target = activeRenderTargetViews[clearColorCommand.Index];
+                context->ClearRenderTargetView(target, backgroundColor);
+            } */
+        };
+        m_Commands.push_back(renderCommand);
     }
 
     void CommandListD3D11::SetRenderTarget(RenderTarget target)
     {
+        SetRenderTargetCommand command{target};
+        m_CommandData.emplace_back(command);
+
+        auto renderCommand = [](CommandList *commandList)
+        {
+            CommandListD3D11 *commandListD3D11 = (CommandListD3D11 *)commandList;
+            auto graphicsDevice = commandListD3D11->GetGraphicsDevice();
+            auto context = graphicsDevice->GetDeviceContext();
+            const auto &commandData = commandListD3D11->GetCurrentCommandData();
+            auto setRenderTargetCommand = std::get<SetRenderTargetCommand>(commandData);
+
+            if (setRenderTargetCommand.Target.GetType() == RenderTargetType::Swapchain)
+            {
+                Swapchain *swapchain = setRenderTargetCommand.Target.GetData<Swapchain *>();
+                graphicsDevice->SetSwapchain(swapchain);
+            }
+            else if (setRenderTargetCommand.Target.GetType() == RenderTargetType::Framebuffer)
+            {
+                Framebuffer *framebuffer = setRenderTargetCommand.Target.GetData<Framebuffer *>();
+                graphicsDevice->SetFramebuffer(framebuffer);
+            }
+            else
+            {
+                throw std::runtime_error("Invalid render target type entered");
+            }
+        };
+        m_Commands.push_back(renderCommand);
     }
 
     const std::vector<RenderCommand> &CommandListD3D11::GetRenderCommands()

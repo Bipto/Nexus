@@ -15,6 +15,12 @@ namespace Nexus::Graphics
         Recreate();
     }
 
+    FramebufferD3D11::FramebufferD3D11(const FramebufferSpecification &spec, ID3D11Device *device)
+        : Framebuffer(spec), m_Device(device)
+    {
+        Recreate();
+    }
+
     FramebufferD3D11::~FramebufferD3D11()
     {
         DeleteTextures();
