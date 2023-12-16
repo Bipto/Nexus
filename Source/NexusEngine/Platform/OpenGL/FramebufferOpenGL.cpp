@@ -8,6 +8,12 @@ namespace Nexus::Graphics
         Recreate();
     }
 
+    FramebufferOpenGL::FramebufferOpenGL(const FramebufferSpecification &spec)
+        : Framebuffer(spec)
+    {
+        Recreate();
+    }
+
     FramebufferOpenGL::~FramebufferOpenGL()
     {
         DeleteTextures();

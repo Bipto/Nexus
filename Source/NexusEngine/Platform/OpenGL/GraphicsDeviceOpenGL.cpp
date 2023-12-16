@@ -245,7 +245,7 @@ namespace Nexus::Graphics
 
     Framebuffer *GraphicsDeviceOpenGL::CreateFramebuffer(const FramebufferSpecification &spec)
     {
-        return nullptr;
+        return new FramebufferOpenGL(spec);
     }
 
     ShaderLanguage GraphicsDeviceOpenGL::GetSupportedShaderFormat()

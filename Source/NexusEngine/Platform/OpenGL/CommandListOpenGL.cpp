@@ -227,14 +227,78 @@ namespace Nexus::Graphics
 
     void CommandListOpenGL::ClearColorTarget(uint32_t index, const ClearColorValue &color)
     {
+        ClearColorTargetCommand command;
+        command.Index = index;
+        command.Color = color;
+        m_CommandData.emplace_back(command);
+
+        auto renderCommand = [](CommandList *commandList)
+        {
+            auto commandListGL = (CommandListOpenGL *)commandList;
+            auto commandData = commandListGL->GetCurrentCommandData();
+            auto clearColorCommand = std::get<ClearColorTargetCommand>(commandData);
+            auto graphicsDevice = (GraphicsDeviceOpenGL *)commandListGL->GetGraphicsDevice();
+
+            float color[] = {clearColorCommand.Color.Red,
+                             clearColorCommand.Color.Green,
+                             clearColorCommand.Color.Blue,
+                             clearColorCommand.Color.Alpha};
+            glClearBufferfv(GL_COLOR, 0, color);
+        };
+        m_Commands.push_back(renderCommand);
     }
 
     void CommandListOpenGL::ClearDepthTarget(const ClearDepthStencilValue &value)
     {
+        ClearDepthStencilTargetCommand command;
+        command.Value = value;
+        m_CommandData.emplace_back(command);
+
+        auto renderCommand = [](CommandList *commandList)
+        {
+            auto commandListGL = (CommandListOpenGL *)commandList;
+            auto commandData = commandListGL->GetCurrentCommandData();
+            auto clearDepthCommand = std::get<ClearDepthStencilTargetCommand>(commandData);
+            auto graphicsDevice = (GraphicsDeviceOpenGL *)commandListGL->GetGraphicsDevice();
+
+            float depth = clearDepthCommand.Value.Depth;
+            glClearBufferfv(GL_DEPTH, 0, &depth);
+
+            GLuint stencil = clearDepthCommand.Value.Stencil;
+            glClearBufferuiv(GL_STENCIL, 0, &stencil);
+        };
+        m_Commands.push_back(renderCommand);
     }
 
     void CommandListOpenGL::SetRenderTarget(RenderTarget target)
     {
+        SetRenderTargetCommand command;
+        command.Target = target;
+        m_CommandData.emplace_back(command);
+
+        auto renderCommand = [](CommandList *commandList)
+        {
+            auto commandListGL = (CommandListOpenGL *)commandList;
+            auto commandData = commandListGL->GetCurrentCommandData();
+            auto setRenderTargetCommand = std::get<SetRenderTargetCommand>(commandData);
+            auto graphicsDevice = (GraphicsDeviceOpenGL *)commandListGL->GetGraphicsDevice();
+
+            if (setRenderTargetCommand.Target.GetType() == RenderTargetType::Swapchain)
+            {
+                auto swapchain = setRenderTargetCommand.Target.GetData<Swapchain *>();
+                graphicsDevice->SetSwapchain(swapchain);
+            }
+            else if (setRenderTargetCommand.Target.GetType() == RenderTargetType::Framebuffer)
+            {
+                auto framebuffer = setRenderTargetCommand.Target.GetData<Framebuffer *>();
+                graphicsDevice->SetFramebuffer(framebuffer);
+            }
+            else
+            {
+                throw std::runtime_error("Invalid render target type");
+            }
+        };
+        m_Commands.push_back(renderCommand);
     }
 
     const std::vector<RenderCommand> &CommandListOpenGL::GetRenderCommands()

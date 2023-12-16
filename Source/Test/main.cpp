@@ -119,13 +119,13 @@ public:
 
         m_CommandList->Begin();
 
-        Nexus::Graphics::RenderTarget framebufferTarget(m_Framebuffer);
-        m_CommandList->SetRenderTarget(framebufferTarget);
-        m_CommandList->ClearColorTarget(0, {0.0f, 1.0f, 0.0f, 1.0f});
-
         Nexus::Graphics::RenderTarget swapchainTarget(m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain());
         m_CommandList->SetRenderTarget(swapchainTarget);
         m_CommandList->ClearColorTarget(0, {1.0f, 0.0f, 0.0f, 1.0f});
+
+        Nexus::Graphics::RenderTarget framebufferTarget(m_Framebuffer);
+        m_CommandList->SetRenderTarget(framebufferTarget);
+        m_CommandList->ClearColorTarget(0, {0.0f, 1.0f, 0.0f, 1.0f});
 
         m_CommandList->End();
         m_GraphicsDevice->SubmitCommandList(m_CommandList);
@@ -217,7 +217,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;

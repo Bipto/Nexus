@@ -83,6 +83,22 @@ namespace Nexus::Graphics
         RenderPassBeginInfo ClearValue;
     };
 
+    struct ClearColorTargetCommand
+    {
+        uint32_t Index;
+        ClearColorValue Color;
+    };
+
+    struct ClearDepthStencilTargetCommand
+    {
+        ClearDepthStencilValue Value;
+    };
+
+    struct SetRenderTargetCommand
+    {
+        RenderTarget Target{};
+    };
+
     /// @brief A class representing a command list
     class CommandList
     {
@@ -150,6 +166,9 @@ namespace Nexus::Graphics
         Pipeline *,
         DrawElementCommand,
         DrawIndexedCommand,
-        UpdateResourcesCommand>
+        UpdateResourcesCommand,
+        ClearColorTargetCommand,
+        ClearDepthStencilTargetCommand,
+        SetRenderTargetCommand>
         RenderCommandData;
 }

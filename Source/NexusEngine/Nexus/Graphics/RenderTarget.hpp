@@ -10,7 +10,8 @@ namespace Nexus::Graphics
     enum class RenderTargetType
     {
         Swapchain,
-        Framebuffer
+        Framebuffer,
+        None
     };
 
     class RenderTarget
@@ -26,6 +27,11 @@ namespace Nexus::Graphics
         {
             m_Target = framebuffer;
             m_RenderTargetType = RenderTargetType::Framebuffer;
+        }
+
+        RenderTarget()
+        {
+            m_RenderTargetType = RenderTargetType::None;
         }
 
         template <typename T>
