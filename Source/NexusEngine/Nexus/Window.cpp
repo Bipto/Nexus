@@ -36,6 +36,11 @@ namespace Nexus
 
         m_Input = new InputState();
         m_WindowID = SDL_GetWindowID(m_Window);
+
+        if (!windowProps.Resizable)
+        {
+            SDL_SetWindowResizable(m_Window, SDL_FALSE);
+        }
     }
 
     Window::~Window()

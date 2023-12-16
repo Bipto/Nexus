@@ -344,11 +344,6 @@ namespace Nexus::Graphics
 
                 context->ClearDepthStencilView(activeDepthStencilView, clearFlags, clearDepthCommand.Value.Depth, clearDepthCommand.Value.Stencil);
             }
-            /* if (activeRenderTargetViews.size() > clearColorCommand.Index)
-            {
-                auto target = activeRenderTargetViews[clearColorCommand.Index];
-                context->ClearRenderTargetView(target, backgroundColor);
-            } */
         };
         m_Commands.push_back(renderCommand);
     }

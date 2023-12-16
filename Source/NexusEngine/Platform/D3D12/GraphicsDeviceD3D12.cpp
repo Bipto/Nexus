@@ -193,7 +193,7 @@ namespace Nexus::Graphics
 
     Framebuffer *GraphicsDeviceD3D12::CreateFramebuffer(const FramebufferSpecification &spec)
     {
-        return nullptr;
+        return new FramebufferD3D12(spec, this);
     }
 
     IDXGIFactory7 *GraphicsDeviceD3D12::GetDXGIFactory() const

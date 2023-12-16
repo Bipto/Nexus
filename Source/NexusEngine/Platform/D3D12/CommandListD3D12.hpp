@@ -5,6 +5,9 @@
 #include "Nexus/Graphics/CommandList.hpp"
 #include "GraphicsDeviceD3D12.hpp"
 
+#include "SwapchainD3D12.hpp"
+#include "FramebufferD3D12.hpp"
+
 namespace Nexus::Graphics
 {
     class CommandListD3D12 : public CommandList
@@ -34,11 +37,20 @@ namespace Nexus::Graphics
 
         ID3D12GraphicsCommandList7 *GetCommandList();
 
+        void SetSwapchain(SwapchainD3D12 *swapchain);
+        void SetFramebuffer(FramebufferD3D12 *framebuffer);
+        void ResetPreviousRenderTargets();
+
     private:
         Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_CommandAllocator = nullptr;
         Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> m_CommandList = nullptr;
 
         RenderPass *m_CurrentRenderPass = nullptr;
+
+        std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_DescriptorHandles;
+        D3D12_CPU_DESCRIPTOR_HANDLE *m_DepthHandle = nullptr;
+
+        RenderTarget *m_CurrentRenderTarget = nullptr;
     };
 }
 #endif

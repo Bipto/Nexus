@@ -10,7 +10,7 @@ namespace Nexus::Graphics
     class GraphicsDeviceD3D12 : public GraphicsDevice
     {
     public:
-        GraphicsDeviceD3D12(const GraphicsDeviceCreateInfo &createInfo, Window *window, const SwapchainSpecification& swapchainSpec);
+        GraphicsDeviceD3D12(const GraphicsDeviceCreateInfo &createInfo, Window *window, const SwapchainSpecification &swapchainSpec);
         ~GraphicsDeviceD3D12();
 
         virtual void SetContext() override;

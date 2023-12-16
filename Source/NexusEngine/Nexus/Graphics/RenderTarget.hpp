@@ -45,6 +45,11 @@ namespace Nexus::Graphics
             return m_RenderTargetType;
         }
 
+        constexpr bool operator==(const RenderTarget &other)
+        {
+            return m_Target == other.m_Target;
+        }
+
     private:
         std::variant<Swapchain *, Framebuffer *> m_Target;
         RenderTargetType m_RenderTargetType;

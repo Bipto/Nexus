@@ -27,50 +27,6 @@ public:
 
     virtual void Load() override
     {
-        /* m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("resources/shaders/basic.glsl", Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
-
-        Nexus::Graphics::RenderPassSpecification renderPassSpec;
-        renderPassSpec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
-        m_RenderPass = m_GraphicsDevice->CreateRenderPass(renderPassSpec, GetPrimaryWindow()->GetSwapchain());
-
-        CreatePipeline(GetWindowSize());
-
-        Nexus::Graphics::BufferDescription uniformBufferDesc;
-        uniformBufferDesc.Size = sizeof(TestUniforms);
-        uniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
-        m_UniformBuffer = m_GraphicsDevice->CreateUniformBuffer(uniformBufferDesc, nullptr);
-
-        m_CommandList = m_GraphicsDevice->CreateCommandList();
-
-        // offscreen rendering
-        Nexus::Graphics::FramebufferSpecification fbSpec;
-        fbSpec.Width = 500;
-        fbSpec.Height = 500;
-        fbSpec.ColorAttachmentSpecification =
-            {
-                Nexus::Graphics::TextureFormat::Color};
-
-        Nexus::Graphics::RenderPassSpecification rpSpec;
-        rpSpec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
-
-        auto pair = m_GraphicsDevice->CreateRenderPassAndFramebuffer(rpSpec, fbSpec);
-        m_Framebuffer = pair.first;
-        m_OffscreenRenderPass = pair.second;
-
-        m_Texture = m_GraphicsDevice->CreateTexture("resources/textures/brick.jpg");
-
-        std::vector<Nexus::Graphics::CharacterRange> fontRange =
-            {
-                {0x0020, 0x00FF}};
-
-        m_Font = new Nexus::Graphics::Font("resources/fonts/Roboto/Roboto-Regular.ttf", fontRange, m_GraphicsDevice);
-        // m_Font = new Nexus::Graphics::Font("C://Windows//Fonts//Arial.ttf", fontRange, m_GraphicsDevice);
-
-        Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
-        m_QuadMesh = factory.CreateSprite();
-
-        m_BatchRenderer = new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, m_RenderPass); */
-
         m_CommandList = m_GraphicsDevice->CreateCommandList();
 
         Nexus::Graphics::FramebufferSpecification spec;
@@ -80,6 +36,19 @@ public:
         spec.Width = 1280;
         spec.Height = 720;
         m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(spec);
+
+        Nexus::WindowSpecification windowSpec;
+        windowSpec.Width = 500;
+        windowSpec.Height = 500;
+        windowSpec.Resizable = false;
+        windowSpec.Title = "Second Window";
+
+        Nexus::Graphics::SwapchainSpecification swapchainSpec;
+        swapchainSpec.VSyncState = Nexus::Graphics::VSyncState::Enabled;
+
+        m_Window2 = this->CreateApplicationWindow(windowSpec, swapchainSpec);
+        m_Window2->CreateSwapchain(m_GraphicsDevice, swapchainSpec);
+        m_Window2->GetSwapchain()->Initialise();
     }
 
     virtual void Update(Nexus::Time time) override
@@ -88,34 +57,7 @@ public:
 
     virtual void Render(Nexus::Time time) override
     {
-        /* m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
-        m_TestUniforms.Transform = glm::mat4(1.0f);
-
-        Nexus::Graphics::RenderPassBeginInfo beginInfo;
-        beginInfo.ClearColorValue = {
-            0.45f,
-            0.32f,
-            0.55f,
-            1.0f};
-        beginInfo.ClearDepthStencilValue = {1.0f, 0};
-
-        uint32_t width = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize().X;
-        uint32_t height = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize().Y;
-
-        glm::mat4 projection = glm::ortho<float>(0.0f, width, height, 0.0f, -1.0f, 1.0f);
-        glm::mat4 view = glm::mat4(1.0f);
-        glm::mat4 mvp = projection * view;
-
-        m_BatchRenderer->Begin(beginInfo, mvp);
-        // m_BatchRenderer->DrawRectangle({0, 0}, {width, height}, {1.0f, 1.0f, 1.0f, 1.0f}, m_Font->GetTexture());
-        //  m_BatchRenderer->DrawRectangle({50.0f, 50.0f}, {200.0f, 200.0f}, {0.7f, 0.3f, 0.25f, 1.0f});
-        //  m_BatchRenderer->DrawRectangle({500.0f, 500.0f}, {700.0f, 700.0f}, {0.4f, 0.6f, 0.15f, 1.0f});
-        //  m_BatchRenderer->DrawRectangle({700.0f, 50.0f}, {1000.0f, 350.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, m_Texture);
-
-        // m_BatchRenderer->DrawRectangle({0, 0}, {width, height}, {1.0f, 1.0f, 1.0f, 1.0f});
-        m_BatchRenderer->DrawString("Hello World!", {50.0f, 50.0f}, 0.45f, {1.0f, 0.0f, 0.0f, 1.0f}, m_Font);
-        // m_BatchRenderer->DrawCharacter('!', {0.0f, 0.0f}, 32, {1.0f, 0.0f, 0.0f, 1.0f}, m_Font);
-        m_BatchRenderer->End(); */
+        m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
 
         m_CommandList->Begin();
 
@@ -123,12 +65,26 @@ public:
         m_CommandList->SetRenderTarget(swapchainTarget);
         m_CommandList->ClearColorTarget(0, {1.0f, 0.0f, 0.0f, 1.0f});
 
+        if (!m_Window2->IsClosing())
+        {
+            m_Window2->GetSwapchain()->Prepare();
+
+            Nexus::Graphics::RenderTarget otherSwapchainTarget(m_Window2->GetSwapchain());
+            m_CommandList->SetRenderTarget(otherSwapchainTarget);
+            m_CommandList->ClearColorTarget(0, {0.0f, 1.0f, 0.0f, 1.0f});
+        }
+
         Nexus::Graphics::RenderTarget framebufferTarget(m_Framebuffer);
         m_CommandList->SetRenderTarget(framebufferTarget);
         m_CommandList->ClearColorTarget(0, {0.0f, 1.0f, 0.0f, 1.0f});
 
         m_CommandList->End();
         m_GraphicsDevice->SubmitCommandList(m_CommandList);
+
+        if (!m_Window2->IsClosing())
+        {
+            m_Window2->GetSwapchain()->SwapBuffers();
+        }
     }
 
     virtual void OnResize(Nexus::Point<int> size) override
@@ -217,7 +173,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D11;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;
