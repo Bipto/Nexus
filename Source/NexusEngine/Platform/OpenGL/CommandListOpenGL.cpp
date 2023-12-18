@@ -147,6 +147,24 @@ namespace Nexus::Graphics
             auto commandListGL = (CommandListOpenGL *)commandList;
             const auto &commandData = commandListGL->GetCurrentCommandData();
             const auto pipeline = std::get<Pipeline *>(commandData);
+            auto graphicsDevice = (GraphicsDeviceOpenGL *)commandListGL->GetGraphicsDevice();
+
+            auto target = pipeline->GetPipelineDescription().Target;
+            if (target.GetType() == RenderTargetType::Swapchain)
+            {
+                auto swapchain = target.GetData<Swapchain *>();
+                graphicsDevice->SetSwapchain(swapchain);
+            }
+            else if (target.GetType() == RenderTargetType::Framebuffer)
+            {
+                auto framebuffer = target.GetData<Framebuffer *>();
+                graphicsDevice->SetFramebuffer(framebuffer);
+            }
+            else
+            {
+                throw std::runtime_error("Invalid render target type");
+            }
+
             commandListGL->BindPipeline(pipeline);
         };
         m_Commands.push_back(renderCommand);

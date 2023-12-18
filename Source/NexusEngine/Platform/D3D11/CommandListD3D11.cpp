@@ -193,6 +193,24 @@ namespace Nexus::Graphics
             CommandListD3D11 *commandListD3D11 = (CommandListD3D11 *)commandList;
             const auto &commandData = commandListD3D11->GetCurrentCommandData();
             auto pipeline = std::get<Pipeline *>(commandData);
+            auto graphicsDevice = commandListD3D11->GetGraphicsDevice();
+
+            auto target = pipeline->GetPipelineDescription().Target;
+            if (target.GetType() == RenderTargetType::Swapchain)
+            {
+                Swapchain *swapchain = target.GetData<Swapchain *>();
+                graphicsDevice->SetSwapchain(swapchain);
+            }
+            else if (target.GetType() == RenderTargetType::Framebuffer)
+            {
+                Framebuffer *framebuffer = target.GetData<Framebuffer *>();
+                graphicsDevice->SetFramebuffer(framebuffer);
+            }
+            else
+            {
+                throw std::runtime_error("Invalid render target type entered");
+            }
+
             commandListD3D11->BindPipeline(pipeline);
         };
         m_Commands.push_back(renderCommand);

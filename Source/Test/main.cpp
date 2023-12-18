@@ -68,10 +68,9 @@ public:
         m_CommandList->Begin();
 
         Nexus::Graphics::RenderTarget swapchainTarget(m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain());
-        m_CommandList->SetRenderTarget(swapchainTarget);
-        m_CommandList->ClearColorTarget(0, {1.0f, 0.0f, 0.0f, 1.0f});
 
         m_CommandList->SetPipeline(m_Pipeline);
+        m_CommandList->ClearColorTarget(0, {1.0f, 0.0f, 0.0f, 1.0f});
 
         Nexus::Graphics::Viewport vp;
         vp.X = 0;
@@ -193,7 +192,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D11;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;

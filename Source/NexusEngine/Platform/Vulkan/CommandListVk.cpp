@@ -118,6 +118,8 @@ namespace Nexus::Graphics
 
     void CommandListVk::SetPipeline(Pipeline *pipeline)
     {
+        SetRenderTarget(pipeline->GetPipelineDescription().Target);
+
         auto vulkanPipeline = (PipelineVk *)pipeline;
         vkCmdBindPipeline(m_CurrentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanPipeline->GetPipeline());
 
