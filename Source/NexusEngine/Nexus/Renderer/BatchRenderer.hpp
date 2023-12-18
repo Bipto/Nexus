@@ -34,11 +34,11 @@ namespace Nexus::Graphics
     class BatchRenderer
     {
     public:
-        BatchRenderer(Nexus::Graphics::GraphicsDevice *device, Nexus::Graphics::RenderPass *renderPass);
+        BatchRenderer(Nexus::Graphics::GraphicsDevice *device, Nexus::Graphics::RenderTarget target);
 
         void Resize();
 
-        void Begin(const Nexus::Graphics::RenderPassBeginInfo &beginInfo, const glm::mat4 &mvp);
+        void Begin(const glm::mat4 &mvp);
         void DrawRectangle(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color);
         void DrawRectangle(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Texture *texture);
         void DrawCharacter(char character, const glm::vec2 &position, float scale, const glm::vec4 &color, Font *font);
@@ -76,5 +76,9 @@ namespace Nexus::Graphics
 
         Nexus::Graphics::Texture *m_BlankTexture = nullptr;
         const uint32_t MAX_TEXTURES = 32;
+
+        uint32_t m_Width = 0;
+        uint32_t m_Height = 0;
+        Nexus::Graphics::RenderTarget m_RenderTarget;
     };
 }

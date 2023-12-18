@@ -286,6 +286,19 @@ namespace Nexus::Graphics
 
     void CommandListVk::ClearDepthTarget(const ClearDepthStencilValue &value)
     {
+        VkClearAttachment clearAttachment{};
+        clearAttachment.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+        clearAttachment.clearValue.depthStencil.depth = value.Depth;
+        clearAttachment.clearValue.depthStencil.stencil = value.Stencil;
+        clearAttachment.colorAttachment = m_DepthAttachmentIndex;
+
+        VkClearRect clearRect;
+        clearRect.baseArrayLayer = 0;
+        clearRect.layerCount = 1;
+        clearRect.rect.offset = {0, 0};
+        clearRect.rect.extent = {m_RenderSize};
+
+        vkCmdClearAttachments(m_CurrentCommandBuffer, 1, &clearAttachment, 1, &clearRect);
     }
 
     void CommandListVk::SetRenderTarget(RenderTarget target)
@@ -315,6 +328,8 @@ namespace Nexus::Graphics
             info.pClearValues = nullptr;
 
             vkCmdBeginRenderPass(m_CurrentCommandBuffer, &info, VK_SUBPASS_CONTENTS_INLINE);
+
+            m_DepthAttachmentIndex = 1;
         }
         else
         {
@@ -335,6 +350,8 @@ namespace Nexus::Graphics
             info.pClearValues = nullptr;
 
             vkCmdBeginRenderPass(m_CurrentCommandBuffer, &info, VK_SUBPASS_CONTENTS_INLINE);
+
+            m_DepthAttachmentIndex = framebuffer->GetColorTextureCount() + 1;
         }
 
         m_RenderPassStarted = true;
@@ -342,6 +359,9 @@ namespace Nexus::Graphics
 
     void CommandListVk::SetViewport(const Viewport &viewport)
     {
+        if (viewport.Width == 0 || viewport.Height == 0)
+            return;
+
         VkViewport vp;
         vp.x = viewport.X;
         vp.y = viewport.Y;
@@ -354,6 +374,9 @@ namespace Nexus::Graphics
 
     void CommandListVk::SetScissor(const Rectangle &scissor)
     {
+        if (scissor.Width == 0 || scissor.Height == 0)
+            return;
+
         VkRect2D rect;
         rect.offset = {scissor.X, scissor.Y};
         rect.extent = {(uint32_t)scissor.Width, (uint32_t)scissor.Height};

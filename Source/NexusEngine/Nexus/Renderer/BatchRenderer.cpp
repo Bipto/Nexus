@@ -2,10 +2,10 @@
 
 namespace Nexus::Graphics
 {
-    BatchRenderer::BatchRenderer(Nexus::Graphics::GraphicsDevice *device, Nexus::Graphics::RenderPass *renderPass)
+    BatchRenderer::BatchRenderer(Nexus::Graphics::GraphicsDevice *device, Nexus::Graphics::RenderTarget target)
     {
         m_Device = device;
-        m_RenderPass = renderPass;
+        m_RenderTarget = target;
 
         m_CommandList = m_Device->CreateCommandList();
         m_Shader = m_Device->CreateShaderFromSpirvFile("resources/shaders/batch.glsl", Nexus::Graphics::VertexPositionTexCoordColorTexIndex::GetLayout());
@@ -44,17 +44,17 @@ namespace Nexus::Graphics
 
     void BatchRenderer::Resize()
     {
-        CreatePipeline();
+        m_Width = m_Device->GetPrimaryWindow()->GetWindowSize().X;
+        m_Height = m_Device->GetPrimaryWindow()->GetWindowSize().Y;
     }
 
-    void BatchRenderer::Begin(const Nexus::Graphics::RenderPassBeginInfo &beginInfo, const glm::mat4 &mvp)
+    void BatchRenderer::Begin(const glm::mat4 &mvp)
     {
         if (m_IsStarted)
         {
             throw std::runtime_error("Batching has already started");
         }
 
-        m_BeginInfo = beginInfo;
         m_IsStarted = true;
 
         m_Vertices.clear();
@@ -309,13 +309,6 @@ namespace Nexus::Graphics
         description.Shader = m_Shader;
         description.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
 
-        /* description.BlendStateDescription.EnableBlending = true;
-        description.BlendStateDescription.BlendEquation = BlendEquation::Add;
-        description.BlendStateDescription.SourceColourBlend = BlendFunction::SourceAlpha;
-        description.BlendStateDescription.DestinationColourBlend = BlendFunction::OneMinusSourceAlpha;
-        description.BlendStateDescription.SourceAlphaBlend = BlendFunction::One;
-        description.BlendStateDescription.DestinationAlphaBlend = BlendFunction::Zero; */
-
         Nexus::Graphics::ResourceSetSpecification resourceSpec;
         resourceSpec.TextureBindings =
             {
@@ -343,6 +336,7 @@ namespace Nexus::Graphics
         resourceSpec.UniformResourceBindings = {uniformResourceBinding};
 
         description.ResourceSetSpecification = resourceSpec;
+        description.Target = {m_RenderTarget};
         m_Pipeline = m_Device->CreatePipeline(description);
         m_ResourceSet = m_Device->CreateResourceSet(m_Pipeline);
     }
@@ -367,15 +361,30 @@ namespace Nexus::Graphics
         }
 
         m_CommandList->Begin();
-        m_CommandList->BeginRenderPass(m_RenderPass, m_BeginInfo);
         m_CommandList->SetPipeline(m_Pipeline);
+
+        Nexus::Graphics::Viewport vp;
+        vp.X = 0;
+        vp.Y = 0;
+        vp.Width = m_Device->GetPrimaryWindow()->GetWindowSize().X;
+        vp.Height = m_Device->GetPrimaryWindow()->GetWindowSize().Y;
+        vp.MinDepth = 0.0f;
+        vp.MaxDepth = 1.0f;
+        m_CommandList->SetViewport(vp);
+
+        Nexus::Graphics::Rectangle scissor;
+        scissor.X = 0;
+        scissor.Y = 0;
+        scissor.Width = m_Device->GetPrimaryWindow()->GetWindowSize().X;
+        scissor.Height = m_Device->GetPrimaryWindow()->GetWindowSize().Y;
+        m_CommandList->SetScissor(scissor);
+
         m_CommandList->SetResourceSet(m_ResourceSet);
 
         m_CommandList->SetVertexBuffer(m_VertexBuffer);
         m_CommandList->SetIndexBuffer(m_IndexBuffer);
         m_CommandList->DrawIndexed(m_IndexCount, 0);
 
-        m_CommandList->EndRenderPass();
         m_CommandList->End();
         m_Device->SubmitCommandList(m_CommandList);
 

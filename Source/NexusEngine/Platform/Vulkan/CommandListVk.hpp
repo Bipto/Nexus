@@ -47,6 +47,8 @@ namespace Nexus::Graphics
         Pipeline *m_CurrentlyBoundPipeline = nullptr;
         bool m_RenderPassStarted = false;
         VkExtent2D m_RenderSize = {0, 0};
+
+        uint32_t m_DepthAttachmentIndex = 0;
     };
 }
 
