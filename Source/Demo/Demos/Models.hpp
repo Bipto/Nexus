@@ -145,12 +145,6 @@ namespace Demos
             pipelineDescription.DepthStencilDescription.EnableDepthWrite = true;
             pipelineDescription.DepthStencilDescription.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;
             pipelineDescription.Shader = m_Shader;
-            pipelineDescription.RenderPass = m_RenderPass;
-
-            pipelineDescription.Viewport = {
-                0, 0, m_Window->GetWindowSize().X, m_Window->GetWindowSize().Y};
-            pipelineDescription.RasterizerStateDescription.ScissorRectangle = {
-                0, 0, m_Window->GetWindowSize().X, m_Window->GetWindowSize().Y};
 
             Nexus::Graphics::UniformResourceBinding cameraUniformBinding;
             cameraUniformBinding.Binding = 0;

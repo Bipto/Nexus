@@ -379,6 +379,58 @@ namespace Nexus::Graphics
         m_Commands.push_back(renderCommand);
     }
 
+    void CommandListD3D11::SetViewport(const Viewport &viewport)
+    {
+        SetViewportCommand command;
+        command.Viewport = viewport;
+        m_CommandData.emplace_back(command);
+
+        auto renderCommand = [](CommandList *commandList)
+        {
+            CommandListD3D11 *commandListD3D11 = (CommandListD3D11 *)commandList;
+            auto graphicsDevice = commandListD3D11->GetGraphicsDevice();
+            auto context = graphicsDevice->GetDeviceContext();
+            const auto &commandData = commandListD3D11->GetCurrentCommandData();
+            auto setViewport = std::get<SetViewportCommand>(commandData);
+
+            D3D11_VIEWPORT vp;
+            vp.TopLeftX = setViewport.Viewport.X;
+            vp.TopLeftY = setViewport.Viewport.Y;
+            vp.Width = setViewport.Viewport.Width;
+            vp.Height = setViewport.Viewport.Height;
+            vp.MinDepth = setViewport.Viewport.MinDepth;
+            vp.MaxDepth = setViewport.Viewport.MaxDepth;
+
+            context->RSSetViewports(1, &vp);
+        };
+        m_Commands.push_back(renderCommand);
+    }
+
+    void CommandListD3D11::SetScissor(const Rectangle &scissor)
+    {
+        SetScissorCommand command;
+        command.Scissor = scissor;
+        m_CommandData.emplace_back(command);
+
+        auto renderCommand = [](CommandList *commandList)
+        {
+            CommandListD3D11 *commandListD3D11 = (CommandListD3D11 *)commandList;
+            auto graphicsDevice = commandListD3D11->GetGraphicsDevice();
+            auto context = graphicsDevice->GetDeviceContext();
+            const auto &commandData = commandListD3D11->GetCurrentCommandData();
+            auto setScissor = std::get<SetScissorCommand>(commandData);
+
+            D3D11_RECT rect;
+            rect.left = setScissor.Scissor.X;
+            rect.top = setScissor.Scissor.Y;
+            rect.bottom = setScissor.Scissor.Height;
+            rect.right = setScissor.Scissor.Width;
+
+            context->RSSetScissorRects(1, &rect);
+        };
+        m_Commands.push_back(renderCommand);
+    }
+
     const std::vector<RenderCommand> &CommandListD3D11::GetRenderCommands()
     {
         return m_Commands;
@@ -408,8 +460,6 @@ namespace Nexus::Graphics
         auto depthStencilState = pipelineD3D11->GetDepthStencilState();
         auto rasterizerState = pipelineD3D11->GetRasterizerState();
         auto blendState = pipelineD3D11->GetBlendState();
-        const auto &viewport = pipelineD3D11->GetViewport();
-        const auto &scissorRectangle = pipelineD3D11->GetScissorRectangle();
         auto topology = pipelineD3D11->GetTopology();
         auto shader = pipeline->GetShader();
         auto dxShader = (ShaderD3D11 *)shader;
@@ -418,8 +468,6 @@ namespace Nexus::Graphics
 
         context->OMSetDepthStencilState(depthStencilState, 0);
         context->RSSetState(rasterizerState);
-        context->RSSetViewports(1, &viewport);
-        context->RSSetScissorRects(1, &scissorRectangle);
 
         context->OMSetBlendState(blendState, NULL, 0xffffffff);
 

@@ -7,6 +7,7 @@
 #include "RenderPass.hpp"
 
 #include "ResourceSet.hpp"
+#include "RenderTarget.hpp"
 
 namespace Nexus::Graphics
 {
@@ -210,9 +211,6 @@ namespace Nexus::Graphics
 
         /// @brief Whether the values of the depth buffer should be limited
         bool DepthClipEnabled = false;
-
-        /// @brief The rectangle to check against when carrying out the scissor test
-        Rectangle ScissorRectangle;
     };
 
     /// @brief A struct represenging how pixels should be blended
@@ -252,17 +250,13 @@ namespace Nexus::Graphics
         /// @brief How the pipeline should handle the vertex buffer data
         Topology PrimitiveTopology = Topology::TriangleList;
 
-        /// @brief A reference counted pointer to a shader that should be used for rendering
+        /// @brief A pointer to a shader that should be used for rendering
         Shader *Shader;
-
-        /// @brief A reference counted pointer to the render pass that will be used for rendering with this pipeline
-        RenderPass *RenderPass;
 
         /// @brief A resource set specification describing how resources are allocated in the pipeline
         ResourceSetSpecification ResourceSetSpecification;
 
-        /// @brief A viewport that will specify the dimensions that will be used for rendering
-        Viewport Viewport;
+        RenderTarget Target;
     };
 
     /// @brief A pure virtual class representing an API specific pipeline

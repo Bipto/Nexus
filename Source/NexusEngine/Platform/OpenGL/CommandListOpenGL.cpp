@@ -300,6 +300,52 @@ namespace Nexus::Graphics
         m_Commands.push_back(renderCommand);
     }
 
+    void CommandListOpenGL::SetViewport(const Viewport &viewport)
+    {
+        SetViewportCommand command;
+        command.Viewport = viewport;
+        m_CommandData.emplace_back(command);
+
+        auto renderCommand = [](CommandList *commandList)
+        {
+            auto commandListGL = (CommandListOpenGL *)commandList;
+            auto commandData = commandListGL->GetCurrentCommandData();
+            auto setViewportCommand = std::get<SetViewportCommand>(commandData);
+
+            glViewport(
+                setViewportCommand.Viewport.X,
+                setViewportCommand.Viewport.Y,
+                setViewportCommand.Viewport.Width,
+                setViewportCommand.Viewport.Height);
+
+            glDepthRangef(
+                setViewportCommand.Viewport.MinDepth,
+                setViewportCommand.Viewport.MaxDepth);
+        };
+        m_Commands.push_back(renderCommand);
+    }
+
+    void CommandListOpenGL::SetScissor(const Rectangle &scissor)
+    {
+        SetScissorCommand command;
+        command.Scissor = scissor;
+        m_CommandData.emplace_back(command);
+
+        auto renderCommand = [](CommandList *commandList)
+        {
+            auto commandListGL = (CommandListOpenGL *)commandList;
+            auto commandData = commandListGL->GetCurrentCommandData();
+            auto setScissorCommand = std::get<SetScissorCommand>(commandData);
+
+            glScissor(
+                setScissorCommand.Scissor.X,
+                setScissorCommand.Scissor.Y,
+                setScissorCommand.Scissor.Width,
+                setScissorCommand.Scissor.Height);
+        };
+        m_Commands.push_back(renderCommand);
+    }
+
     const std::vector<RenderCommand> &CommandListOpenGL::GetRenderCommands()
     {
         return m_Commands;

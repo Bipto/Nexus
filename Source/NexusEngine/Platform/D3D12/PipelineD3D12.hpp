@@ -18,9 +18,6 @@ namespace Nexus::Graphics
         ID3D12PipelineState *GetPipelineState();
         D3D_PRIMITIVE_TOPOLOGY GetPrimitiveTopology();
 
-        const D3D12_VIEWPORT &GetViewport();
-        const RECT &GetScissorRectangle();
-
     private:
         void CreateRootSignature();
         void CreateInputLayout();
@@ -45,8 +42,6 @@ namespace Nexus::Graphics
         Microsoft::WRL::ComPtr<ID3D12PipelineState> m_PipelineStateObject = nullptr;
 
         D3D_PRIMITIVE_TOPOLOGY m_PrimitiveTopology;
-        D3D12_VIEWPORT m_Viewport;
-        RECT m_ScissorRectangle;
     };
 }
 

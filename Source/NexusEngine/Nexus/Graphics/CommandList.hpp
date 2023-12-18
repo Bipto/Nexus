@@ -99,6 +99,16 @@ namespace Nexus::Graphics
         RenderTarget Target{};
     };
 
+    struct SetViewportCommand
+    {
+        Viewport Viewport;
+    };
+
+    struct SetScissorCommand
+    {
+        Rectangle Scissor;
+    };
+
     /// @brief A class representing a command list
     class CommandList
     {
@@ -154,6 +164,10 @@ namespace Nexus::Graphics
         virtual void ClearDepthTarget(const ClearDepthStencilValue &value) = 0;
 
         virtual void SetRenderTarget(RenderTarget target) = 0;
+
+        virtual void SetViewport(const Viewport &viewport) = 0;
+
+        virtual void SetScissor(const Rectangle &scissor) = 0;
     };
 
     /// @brief A typedef to simplify creating function pointers to render commands
@@ -169,6 +183,8 @@ namespace Nexus::Graphics
         UpdateResourcesCommand,
         ClearColorTargetCommand,
         ClearDepthStencilTargetCommand,
-        SetRenderTargetCommand>
+        SetRenderTargetCommand,
+        SetViewportCommand,
+        SetScissorCommand>
         RenderCommandData;
 }

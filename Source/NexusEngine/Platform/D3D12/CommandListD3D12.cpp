@@ -219,11 +219,6 @@ namespace Nexus::Graphics
         m_CommandList->SetPipelineState(d3d12Pipeline->GetPipelineState());
         m_CommandList->SetGraphicsRootSignature(d3d12Pipeline->GetRootSignature());
         m_CommandList->IASetPrimitiveTopology(d3d12Pipeline->GetPrimitiveTopology());
-
-        const D3D12_VIEWPORT &viewport = d3d12Pipeline->GetViewport();
-        const RECT &scissorRect = d3d12Pipeline->GetScissorRectangle();
-        m_CommandList->RSSetViewports(1, &viewport);
-        m_CommandList->RSSetScissorRects(1, &scissorRect);
     }
 
     void CommandListD3D12::DrawElements(uint32_t start, uint32_t count)
@@ -331,6 +326,28 @@ namespace Nexus::Graphics
             m_DepthHandle);
 
         m_CurrentRenderTarget = &target;
+    }
+
+    void CommandListD3D12::SetViewport(const Viewport &viewport)
+    {
+        D3D12_VIEWPORT vp;
+        vp.TopLeftX = viewport.X;
+        vp.TopLeftY = viewport.Y;
+        vp.Width = viewport.Width;
+        vp.Height = viewport.Height;
+        vp.MinDepth = viewport.MinDepth;
+        vp.MaxDepth = viewport.MaxDepth;
+        m_CommandList->RSSetViewports(1, &vp);
+    }
+
+    void CommandListD3D12::SetScissor(const Rectangle &scissor)
+    {
+        RECT rect;
+        rect.left = scissor.X;
+        rect.top = scissor.Y;
+        rect.right = scissor.Width;
+        rect.bottom = scissor.Height;
+        m_CommandList->RSSetScissorRects(1, &rect);
     }
 
     ID3D12GraphicsCommandList7 *CommandListD3D12::GetCommandList()

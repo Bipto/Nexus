@@ -307,12 +307,6 @@ namespace Nexus::Graphics
 
         Nexus::Graphics::PipelineDescription description;
         description.Shader = m_Shader;
-        description.RenderPass = m_RenderPass;
-        description.Viewport.X = 0;
-        description.Viewport.Y = 0;
-        description.Viewport.Width = swapchain->GetWindowSize().X;
-        description.Viewport.Height = swapchain->GetWindowSize().Y;
-        description.RasterizerStateDescription.ScissorRectangle = {0, 0, swapchain->GetWindowSize().X, swapchain->GetWindowSize().Y};
         description.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
 
         /* description.BlendStateDescription.EnableBlending = true;

@@ -34,8 +34,6 @@ namespace Nexus::Graphics
         : Pipeline(description), m_GraphicsDevice(graphicsDevice)
     {
         auto vulkanShader = (ShaderVk *)description.Shader;
-        auto vulkanRenderPass = (RenderPassVk *)description.RenderPass;
-
         auto resourceSet = new ResourceSetVk(description.ResourceSetSpecification, graphicsDevice);
         std::vector<VkDescriptorSetLayout> layouts;
 
@@ -58,22 +56,6 @@ namespace Nexus::Graphics
 
         delete resourceSet;
 
-        VkViewport viewport;
-        viewport.x = description.Viewport.X;
-        viewport.y = description.Viewport.Height + description.Viewport.Y;
-        viewport.width = description.Viewport.Width;
-        viewport.height = -description.Viewport.Height;
-        viewport.minDepth = description.Viewport.MinDepth;
-        viewport.maxDepth = description.Viewport.MaxDepth;
-
-        VkRect2D scissor;
-        scissor.offset = {
-            description.RasterizerStateDescription.ScissorRectangle.X,
-            description.RasterizerStateDescription.ScissorRectangle.Y};
-        scissor.extent = {
-            (uint32_t)description.RasterizerStateDescription.ScissorRectangle.Width,
-            (uint32_t)description.RasterizerStateDescription.ScissorRectangle.Height};
-
         VkPipelineDepthStencilStateCreateInfo depthStencilInfo = CreatePipelineDepthStencilStateCreateInfo();
         VkPipelineRasterizationStateCreateInfo rasterizerInfo = CreateRasterizationStateCreateInfo(GetPolygonMode(), GetCullMode());
         VkPipelineMultisampleStateCreateInfo multisampleInfo = CreateMultisampleStateCreateInfo();
@@ -83,12 +65,12 @@ namespace Nexus::Graphics
         viewportState.pNext = nullptr;
 
         viewportState.viewportCount = 1;
-        viewportState.pViewports = &viewport;
+        viewportState.pViewports = nullptr;
         viewportState.scissorCount = 1;
-        viewportState.pScissors = &scissor;
+        viewportState.pScissors = nullptr;
 
         std::vector<VkPipelineColorBlendAttachmentState> blendStates;
-        for (int i = 0; i <= vulkanRenderPass->GetColorAttachmentCount(); i++)
+        for (int i = 0; i <= m_Description.Target.GetColorAttachmentCount(); i++)
         {
             blendStates.push_back(CreateColorBlendAttachmentState());
         }
@@ -121,7 +103,37 @@ namespace Nexus::Graphics
         pipelineInfo.pColorBlendState = &colorBlending;
         pipelineInfo.pDepthStencilState = &depthStencilInfo;
         pipelineInfo.layout = m_PipelineLayout;
-        pipelineInfo.renderPass = vulkanRenderPass->GetVkRenderPass();
+
+        VkPipelineDynamicStateCreateInfo dynamicInfo = {};
+        dynamicInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+        dynamicInfo.pNext = nullptr;
+        dynamicInfo.flags = 0;
+
+        std::vector<VkDynamicState> dynamicStates =
+            {
+                VK_DYNAMIC_STATE_VIEWPORT,
+                VK_DYNAMIC_STATE_SCISSOR};
+
+        dynamicInfo.dynamicStateCount = dynamicStates.size();
+        dynamicInfo.pDynamicStates = dynamicStates.data();
+
+        pipelineInfo.pDynamicState = &dynamicInfo;
+
+        if (m_Description.Target.GetType() == RenderTargetType::Swapchain)
+        {
+            auto swapchainVk = (SwapchainVk *)m_Description.Target.GetData<Swapchain *>();
+            pipelineInfo.renderPass = swapchainVk->GetRenderPass();
+        }
+        else if (m_Description.Target.GetType() == RenderTargetType::Framebuffer)
+        {
+            auto framebufferVk = (FramebufferVk *)m_Description.Target.GetData<Framebuffer *>();
+            pipelineInfo.renderPass = framebufferVk->GetRenderPass();
+        }
+        else
+        {
+            throw std::runtime_error("Invalid render target entered");
+        }
+
         pipelineInfo.subpass = 0;
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 

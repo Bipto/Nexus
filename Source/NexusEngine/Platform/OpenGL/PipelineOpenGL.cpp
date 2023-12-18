@@ -215,21 +215,6 @@ namespace Nexus::Graphics
 
         // vulkan requires scissor test to be enabled
         glEnable(GL_SCISSOR_TEST);
-
-        auto &viewport = m_Description.Viewport;
-        glViewport(
-            viewport.X,
-            viewport.Y,
-            viewport.Width,
-            viewport.Height);
-        glDepthRangef(viewport.MinDepth, viewport.MaxDepth);
-
-        auto &scissorRectangle = m_Description.RasterizerStateDescription.ScissorRectangle;
-        glScissor(
-            scissorRectangle.X,
-            scissorRectangle.Y,
-            scissorRectangle.Width,
-            scissorRectangle.Height);
     }
 
     void PipelineOpenGL::SetupBlending()

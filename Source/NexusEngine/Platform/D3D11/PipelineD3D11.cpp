@@ -12,18 +12,6 @@ namespace Nexus::Graphics
         SetupDepthStencilState();
         SetupRasterizerState();
         SetupBlendState();
-
-        m_Viewport.TopLeftX = description.Viewport.X;
-        m_Viewport.TopLeftY = description.Viewport.Y;
-        m_Viewport.Height = description.Viewport.Height;
-        m_Viewport.Width = description.Viewport.Width;
-        m_Viewport.MinDepth = description.Viewport.MinDepth;
-        m_Viewport.MaxDepth = description.Viewport.MaxDepth;
-
-        m_ScissorRectangle.left = description.RasterizerStateDescription.ScissorRectangle.X;
-        m_ScissorRectangle.top = description.RasterizerStateDescription.ScissorRectangle.Y;
-        m_ScissorRectangle.bottom = description.RasterizerStateDescription.ScissorRectangle.Height;
-        m_ScissorRectangle.right = description.RasterizerStateDescription.ScissorRectangle.Width;
     }
 
     PipelineD3D11::~PipelineD3D11()

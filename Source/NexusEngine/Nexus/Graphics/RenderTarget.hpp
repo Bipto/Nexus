@@ -45,6 +45,23 @@ namespace Nexus::Graphics
             return m_RenderTargetType;
         }
 
+        uint32_t GetColorAttachmentCount()
+        {
+            if (m_RenderTargetType == RenderTargetType::Swapchain)
+            {
+                return 1;
+            }
+            else if (m_RenderTargetType == RenderTargetType::Framebuffer)
+            {
+                auto framebuffer = GetData<Framebuffer *>();
+                return framebuffer->GetColorTextureCount();
+            }
+            else
+            {
+                throw std::runtime_error("An invalid render target was selected");
+            }
+        }
+
         constexpr bool operator==(const RenderTarget &other)
         {
             return m_Target == other.m_Target;

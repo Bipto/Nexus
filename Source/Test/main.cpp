@@ -29,13 +29,13 @@ public:
     {
         m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-        Nexus::Graphics::FramebufferSpecification spec;
+        /* Nexus::Graphics::FramebufferSpecification spec;
         spec.ColorAttachmentSpecification.Attachments =
             {
                 {Nexus::Graphics::TextureFormat::RGBA8}};
         spec.Width = 1280;
         spec.Height = 720;
-        m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(spec);
+        m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(spec); */
 
         Nexus::WindowSpecification windowSpec;
         windowSpec.Width = 500;
@@ -46,9 +46,15 @@ public:
         Nexus::Graphics::SwapchainSpecification swapchainSpec;
         swapchainSpec.VSyncState = Nexus::Graphics::VSyncState::Enabled;
 
-        m_Window2 = this->CreateApplicationWindow(windowSpec, swapchainSpec);
+        /* m_Window2 = this->CreateApplicationWindow(windowSpec, swapchainSpec);
         m_Window2->CreateSwapchain(m_GraphicsDevice, swapchainSpec);
-        m_Window2->GetSwapchain()->Initialise();
+        m_Window2->GetSwapchain()->Initialise(); */
+
+        m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("resources/shaders/basic.glsl", Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
+        CreatePipeline();
+
+        Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
+        m_QuadMesh = factory.CreateSprite();
     }
 
     virtual void Update(Nexus::Time time) override
@@ -65,37 +71,55 @@ public:
         m_CommandList->SetRenderTarget(swapchainTarget);
         m_CommandList->ClearColorTarget(0, {1.0f, 0.0f, 0.0f, 1.0f});
 
-        if (!m_Window2->IsClosing())
+        m_CommandList->SetPipeline(m_Pipeline);
+
+        Nexus::Graphics::Viewport vp;
+        vp.X = 0;
+        vp.Y = 0;
+        vp.Width = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize().X;
+        vp.Height = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize().Y;
+        vp.MinDepth = 0.0f;
+        vp.MaxDepth = 1.0f;
+        m_CommandList->SetViewport(vp);
+
+        Nexus::Graphics::Rectangle scissor;
+        scissor.X = 0;
+        scissor.Y = 0;
+        scissor.Width = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize().X;
+        scissor.Height = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize().Y;
+        m_CommandList->SetScissor(scissor);
+
+        /* if (!m_Window2->IsClosing())
         {
             m_Window2->GetSwapchain()->Prepare();
 
             Nexus::Graphics::RenderTarget otherSwapchainTarget(m_Window2->GetSwapchain());
             m_CommandList->SetRenderTarget(otherSwapchainTarget);
             m_CommandList->ClearColorTarget(0, {0.0f, 1.0f, 0.0f, 1.0f});
-        }
+        } */
 
-        Nexus::Graphics::RenderTarget framebufferTarget(m_Framebuffer);
-        m_CommandList->SetRenderTarget(framebufferTarget);
-        m_CommandList->ClearColorTarget(0, {0.0f, 1.0f, 0.0f, 1.0f});
+        m_CommandList->SetVertexBuffer(m_QuadMesh->GetVertexBuffer());
+        m_CommandList->SetIndexBuffer(m_QuadMesh->GetIndexBuffer());
+        m_CommandList->DrawIndexed(6, 0);
 
         m_CommandList->End();
         m_GraphicsDevice->SubmitCommandList(m_CommandList);
 
-        if (!m_Window2->IsClosing())
+        /* if (!m_Window2->IsClosing())
         {
             m_Window2->GetSwapchain()->SwapBuffers();
-        }
+        } */
     }
 
     virtual void OnResize(Nexus::Point<int> size) override
     {
-        /* CreatePipeline(size);
-        m_BatchRenderer->Resize(); */
+        // CreatePipeline(size);
+        /*m_BatchRenderer->Resize(); */
     }
 
-    void CreatePipeline(Nexus::Point<int> size)
+    void CreatePipeline()
     {
-        /* if (m_Pipeline)
+        if (m_Pipeline)
         {
             delete m_Pipeline;
             m_Pipeline = nullptr;
@@ -109,12 +133,6 @@ public:
 
         Nexus::Graphics::PipelineDescription description;
         description.Shader = m_Shader;
-        description.RenderPass = m_RenderPass;
-        description.Viewport.X = 0;
-        description.Viewport.Y = 0;
-        description.Viewport.Width = size.X;
-        description.Viewport.Height = size.Y;
-        description.RasterizerStateDescription.ScissorRectangle = {0, 0, size.X, size.Y};
         description.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
 
         Nexus::Graphics::TextureResourceBinding textureBinding;
@@ -127,12 +145,14 @@ public:
         uniformBufferBinding.Buffer = m_UniformBuffer;
 
         Nexus::Graphics::ResourceSetSpecification resourceSetSpec;
-        resourceSetSpec.TextureBindings = {textureBinding};
-        resourceSetSpec.UniformResourceBindings = {uniformBufferBinding};
+        // resourceSetSpec.TextureBindings = {textureBinding};
+        // resourceSetSpec.UniformResourceBindings = {uniformBufferBinding};
         description.ResourceSetSpecification = resourceSetSpec;
 
+        description.Target = Nexus::Graphics::RenderTarget(m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain());
+
         m_Pipeline = m_GraphicsDevice->CreatePipeline(description);
-        m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline); */
+        m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
     }
 
     virtual void Unload() override
@@ -173,7 +193,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;

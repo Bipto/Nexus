@@ -338,6 +338,26 @@ namespace Nexus::Graphics
         m_RenderPassStarted = true;
     }
 
+    void CommandListVk::SetViewport(const Viewport &viewport)
+    {
+        VkViewport vp;
+        vp.x = viewport.X;
+        vp.y = viewport.Y;
+        vp.width = viewport.Width;
+        vp.height = viewport.Height;
+        vp.minDepth = viewport.MinDepth;
+        vp.maxDepth = viewport.MaxDepth;
+        vkCmdSetViewport(m_CurrentCommandBuffer, 0, 1, &vp);
+    }
+
+    void CommandListVk::SetScissor(const Rectangle &scissor)
+    {
+        VkRect2D rect;
+        rect.offset = {scissor.X, scissor.Y};
+        rect.extent = {(uint32_t)scissor.Width, (uint32_t)scissor.Height};
+        vkCmdSetScissor(m_CurrentCommandBuffer, 0, 1, &rect);
+    }
+
     const VkCommandBuffer &CommandListVk::GetCurrentCommandBuffer()
     {
         return m_CurrentCommandBuffer;
