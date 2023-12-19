@@ -364,9 +364,9 @@ namespace Nexus::Graphics
 
         VkViewport vp;
         vp.x = viewport.X;
-        vp.y = viewport.Y;
+        vp.y = viewport.Height + viewport.Y;
         vp.width = viewport.Width;
-        vp.height = viewport.Height;
+        vp.height = -viewport.Height;
         vp.minDepth = viewport.MinDepth;
         vp.maxDepth = viewport.MaxDepth;
         vkCmdSetViewport(m_CurrentCommandBuffer, 0, 1, &vp);
