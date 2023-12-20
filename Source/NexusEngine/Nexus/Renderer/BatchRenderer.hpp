@@ -39,10 +39,14 @@ namespace Nexus::Graphics
         void Resize();
 
         void Begin(const glm::mat4 &mvp);
-        void DrawRectangle(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color);
-        void DrawRectangle(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Texture *texture);
+        void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color);
+        void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Texture *texture);
+        void DrawQuad(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, float thickness);
         void DrawCharacter(char character, const glm::vec2 &position, float scale, const glm::vec4 &color, Font *font);
         void DrawString(const std::string &text, const glm::vec2 &position, float scale, const glm::vec4 &color, Font *font);
+        void DrawLine(const glm::vec2 &a, const glm::vec2 &b, const glm::vec4 &color, float thickness);
+        void DrawCircle(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, float thickness);
+        void DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints);
         void End();
 
     private:
@@ -50,6 +54,7 @@ namespace Nexus::Graphics
         void Flush();
         void EnsureStarted();
         void EnsureSpace(uint32_t shapeVertexCount, uint32_t shapeIndexCount);
+        bool FindTextureInBatch(Texture *texture, uint32_t *index);
 
     private:
         Nexus::Graphics::GraphicsDevice *m_Device = nullptr;
@@ -75,7 +80,7 @@ namespace Nexus::Graphics
         Nexus::Graphics::UniformBuffer *m_UniformBuffer = nullptr;
 
         Nexus::Graphics::Texture *m_BlankTexture = nullptr;
-        const uint32_t MAX_TEXTURES = 32;
+        const uint32_t MAX_TEXTURES = 16;
 
         uint32_t m_Width = 0;
         uint32_t m_Height = 0;

@@ -132,9 +132,29 @@ public:
         glm::mat4 mvp = projection * view;
 
         m_BatchRenderer->Begin(mvp);
-        m_BatchRenderer->DrawRectangle({100.0f, 100.0f}, {50.0f, 50.0f}, {1.0f, 0.0f, 0.0f, 1.0f});
+        m_BatchRenderer->DrawQuadFill({100.0f, 100.0f}, {250.0f, 250.0f}, {1.0f, 0.0f, 0.0f, 1.0f});
         m_BatchRenderer->DrawString("Hello World!", {200.0f, 20.0f}, 1.0f, {0.2f, 0.2f, 0.2f, 1.0f}, m_Font);
+        m_BatchRenderer->DrawLine({0.0f, 0.0f}, {GetPrimaryWindow()->GetWindowSize().X, GetPrimaryWindow()->GetWindowSize().Y}, {1.0f, 1.0f, 1.0f, 1.0f}, 2.0f);
+        m_BatchRenderer->DrawLine({0.0f, GetPrimaryWindow()->GetWindowSize().Y}, {GetPrimaryWindow()->GetWindowSize().X, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, 5.0f);
+        m_BatchRenderer->DrawCircle({500.0f, 500.0f}, 96.0f, {0.0f, 1.0f, 0.0f, 1.0f}, 48, 2.0f);
+        m_BatchRenderer->DrawCircleFill({700.0f, 500.0f}, 128.0f, {0.0f, 0.0f, 1.0f, 1.0f}, 48);
+        m_BatchRenderer->DrawQuad({900.0f, 100.0f}, {500.0f, 500.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, 8.0f);
         m_BatchRenderer->End();
+
+        if (Nexus::Input::IsLeftMousePressed())
+        {
+            std::cout << "Left mouse pressed\n";
+        }
+
+        if (Nexus::Input::IsRightMousePressed())
+        {
+            std::cout << "Right mouse pressed\n";
+        }
+
+        if (Nexus::Input::IsMiddleMousePressed())
+        {
+            std::cout << "Middle mouse pressed\n";
+        }
 
         /* if (!m_Window2->IsClosing())
         {
@@ -231,7 +251,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
     spec.WindowProperties.Resizable = true;
     spec.WindowProperties.Title = "Test Application";
 
-    spec.SwapchainSpecification.Samples = 1;
+    spec.SwapchainSpecification.Samples = 16;
 
     return new TestApplication(spec);
 }

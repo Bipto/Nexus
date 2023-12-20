@@ -1,5 +1,7 @@
 #include "BatchRenderer.hpp"
 
+#include "glm/gtx/compatibility.hpp"
+
 namespace Nexus::Graphics
 {
     BatchRenderer::BatchRenderer(Nexus::Graphics::GraphicsDevice *device, Nexus::Graphics::RenderTarget target)
@@ -72,7 +74,7 @@ namespace Nexus::Graphics
         m_Textures.push_back(m_BlankTexture);
     }
 
-    void BatchRenderer::DrawRectangle(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color)
+    void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color)
     {
         EnsureStarted();
 
@@ -125,7 +127,7 @@ namespace Nexus::Graphics
         m_VertexCount += shapeVertexCount;
     }
 
-    void BatchRenderer::DrawRectangle(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Texture *texture)
+    void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Texture *texture)
     {
         EnsureStarted();
 
@@ -146,7 +148,18 @@ namespace Nexus::Graphics
         m_Indices.push_back(2 + m_VertexCount);
         m_Indices.push_back(3 + m_VertexCount);
 
-        float texIndex = (float)m_Textures.size();
+        float texIndex = 0.0f;
+
+        uint32_t index;
+        if (FindTextureInBatch(texture, &index))
+        {
+            texIndex = (float)index;
+        }
+        else
+        {
+            texIndex = (float)m_Textures.size();
+            m_Textures.push_back(texture);
+        }
 
         VertexPositionTexCoordColorTexIndex v0;
         v0.Position = a;
@@ -178,7 +191,14 @@ namespace Nexus::Graphics
 
         m_IndexCount += shapeIndexCount;
         m_VertexCount += shapeVertexCount;
-        m_Textures.push_back(texture);
+    }
+
+    void BatchRenderer::DrawQuad(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, float thickness)
+    {
+        DrawLine({min.x, max.y}, {max.x, max.y}, color, thickness);
+        DrawLine({max.x, max.y}, {max.x, min.y}, color, thickness);
+        DrawLine({max.x, min.y}, {min.x, min.y}, color, thickness);
+        DrawLine({min.x, min.y}, {min.x, max.y}, color, thickness);
     }
 
     void BatchRenderer::DrawCharacter(char character, const glm::vec2 &position, float scale, const glm::vec4 &color, Font *font)
@@ -206,7 +226,19 @@ namespace Nexus::Graphics
         m_Indices.push_back(2 + m_VertexCount);
         m_Indices.push_back(3 + m_VertexCount);
 
-        float texIndex = (float)m_Textures.size();
+        float texIndex = 0.0f;
+
+        uint32_t index;
+        auto texture = font->GetTexture();
+        if (FindTextureInBatch(texture, &index))
+        {
+            texIndex = (float)index;
+        }
+        else
+        {
+            texIndex = (float)m_Textures.size();
+            m_Textures.push_back(texture);
+        }
 
         VertexPositionTexCoordColorTexIndex v0;
         v0.Position = a;
@@ -238,7 +270,6 @@ namespace Nexus::Graphics
 
         m_IndexCount += shapeIndexCount;
         m_VertexCount += shapeVertexCount;
-        m_Textures.push_back(font->GetTexture());
     }
 
     void BatchRenderer::DrawString(const std::string &text, const glm::vec2 &position, float scale, const glm::vec4 &color, Font *font)
@@ -279,6 +310,148 @@ namespace Nexus::Graphics
                 x += (characterInfo.Advance.X >> 6) * scale;
             }
         }
+    }
+
+    void BatchRenderer::DrawLine(const glm::vec2 &a, const glm::vec2 &b, const glm::vec4 &color, float thickness)
+    {
+        EnsureStarted();
+
+        const uint32_t shapeVertexCount = 4;
+        const uint32_t shapeIndexCount = 6;
+
+        EnsureSpace(shapeVertexCount, shapeIndexCount);
+
+        thickness = glm::clamp(thickness, 1.0f, 10.0f);
+
+        float halfThickness = thickness / 2.0f;
+
+        glm::vec2 e1 = b - a;
+        e1 = glm::normalize(e1);
+        e1 *= halfThickness;
+
+        glm::vec2 e2 = -e1;
+
+        glm::vec2 n1 = {-e1.y, e1.x};
+        glm::vec2 n2 = -n1;
+
+        glm::vec2 q1 = a + n1 + e2;
+        glm::vec2 q2 = b + n1 + e1;
+        glm::vec2 q3 = b + n2 + e1;
+        glm::vec2 q4 = a + n2 + e2;
+
+        m_Indices.push_back(0 + m_VertexCount);
+        m_Indices.push_back(1 + m_VertexCount);
+        m_Indices.push_back(2 + m_VertexCount);
+        m_Indices.push_back(0 + m_VertexCount);
+        m_Indices.push_back(2 + m_VertexCount);
+        m_Indices.push_back(3 + m_VertexCount);
+
+        VertexPositionTexCoordColorTexIndex v0;
+        v0.Position = glm::vec3(q1, 0.0f);
+        v0.TexCoords = {0.0f, 0.0f};
+        v0.Color = color;
+        v0.TexIndex = 0;
+        m_Vertices.push_back(v0);
+
+        VertexPositionTexCoordColorTexIndex v1;
+        v1.Position = glm::vec3(q2, 0.0f);
+        v1.TexCoords = {1.0f, 0.0f};
+        v1.Color = color;
+        v1.TexIndex = 0;
+        m_Vertices.push_back(v1);
+
+        VertexPositionTexCoordColorTexIndex v2;
+        v2.Position = glm::vec3(q3, 0.0f);
+        v2.TexCoords = {1.0f, 1.0f};
+        v2.Color = color;
+        v2.TexIndex = 0;
+        m_Vertices.push_back(v2);
+
+        VertexPositionTexCoordColorTexIndex v3;
+        v3.Position = glm::vec3(q4, 0.0f);
+        v3.TexCoords = {0.0f, 1.0f};
+        v3.Color = color;
+        v3.TexIndex = 0;
+        m_Vertices.push_back(v3);
+
+        m_IndexCount += shapeIndexCount;
+        m_VertexCount += shapeVertexCount;
+    }
+
+    void BatchRenderer::DrawCircle(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, float thickness)
+    {
+        const uint32_t minPoints = 3;
+        const uint32_t maxPoints = 256;
+
+        numberOfPoints = glm::clamp<float>(numberOfPoints, minPoints, maxPoints);
+
+        float deltaAngle = glm::two_pi<float>() / (float)numberOfPoints;
+        float angle = 0.0f;
+
+        for (int i = 0; i < numberOfPoints; i++)
+        {
+            float ax = glm::sin(angle) * radius + (position.x / 2);
+            float ay = glm::cos(angle) * radius + (position.y / 2);
+
+            angle += deltaAngle;
+
+            float bx = glm::sin(angle) * radius + (position.x / 2);
+            float by = glm::cos(angle) * radius + (position.y / 2);
+
+            DrawLine({ax, ay}, {bx, by}, color, thickness);
+        }
+    }
+
+    void BatchRenderer::DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints)
+    {
+        const uint32_t minPoints = 3;
+        const uint32_t maxPoints = 256;
+
+        int shapeVertexCount = glm::clamp(numberOfPoints, minPoints, maxPoints);
+        int shapeTriangleCount = shapeVertexCount - 2;
+        int shapeIndexCount = shapeTriangleCount * 3;
+
+        EnsureSpace(shapeVertexCount, shapeIndexCount);
+
+        // create indices
+        int index = 1;
+
+        for (int i = 0; i < shapeTriangleCount; i++)
+        {
+            m_Indices.push_back(0 + m_VertexCount);
+            m_Indices.push_back(index + m_VertexCount);
+            m_Indices.push_back(index + 1 + m_VertexCount);
+
+            index++;
+        }
+
+        // create vertices
+        float rotation = glm::two_pi<float>() / (float)shapeVertexCount;
+
+        float sin = glm::sin(rotation);
+        float cos = glm::cos(rotation);
+
+        float ax = radius;
+        float ay = 0.0f;
+
+        for (int i = 0; i < shapeVertexCount; i++)
+        {
+            float x1 = ax;
+            float y1 = ay;
+
+            VertexPositionTexCoordColorTexIndex vertex;
+            vertex.Position = glm::vec3{x1 + position.x, y1 + position.y, 0.0f};
+            vertex.TexCoords = {0.0f, 0.0f};
+            vertex.Color = color;
+            vertex.TexIndex = 0;
+            m_Vertices.push_back(vertex);
+
+            ax = cos * x1 - sin * y1;
+            ay = sin * x1 + cos * y1;
+        }
+
+        m_IndexCount += shapeIndexCount;
+        m_VertexCount += shapeVertexCount;
     }
 
     void BatchRenderer::End()
@@ -360,6 +533,11 @@ namespace Nexus::Graphics
             m_ResourceSet->WriteTexture(m_Textures[i], i);
         }
 
+        for (uint32_t i = m_Textures.size(); i < MAX_TEXTURES; i++)
+        {
+            m_ResourceSet->WriteTexture(m_BlankTexture, i);
+        }
+
         m_CommandList->Begin();
         m_CommandList->SetPipeline(m_Pipeline);
 
@@ -414,5 +592,23 @@ namespace Nexus::Graphics
         {
             Flush();
         }
+    }
+
+    bool BatchRenderer::FindTextureInBatch(Texture *texture, uint32_t *index)
+    {
+        for (int i = 0; i < m_Textures.size(); i++)
+        {
+            if (m_Textures[i] == texture)
+            {
+                if (index)
+                {
+                    *index = (uint32_t)i;
+                }
+
+                return true;
+            }
+        }
+
+        return false;
     }
 }
