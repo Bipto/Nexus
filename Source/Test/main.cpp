@@ -141,21 +141,6 @@ public:
         m_BatchRenderer->DrawQuad({900.0f, 100.0f}, {500.0f, 500.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, 8.0f);
         m_BatchRenderer->End();
 
-        if (Nexus::Input::IsLeftMousePressed())
-        {
-            std::cout << "Left mouse pressed\n";
-        }
-
-        if (Nexus::Input::IsRightMousePressed())
-        {
-            std::cout << "Right mouse pressed\n";
-        }
-
-        if (Nexus::Input::IsMiddleMousePressed())
-        {
-            std::cout << "Middle mouse pressed\n";
-        }
-
         /* if (!m_Window2->IsClosing())
         {
             m_Window2->GetSwapchain()->SwapBuffers();

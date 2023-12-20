@@ -354,8 +354,6 @@ namespace Nexus
             }
         }
 
-        m_Window->m_Input->CacheInput();
-
         CheckForClosingWindows();
     }
 
@@ -428,6 +426,11 @@ namespace Nexus
 
     void Application::PollEvents(bool imguiActive)
     {
+        for (auto window : m_Windows)
+        {
+            window->m_Input->CacheInput();
+        }
+
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
@@ -472,6 +475,7 @@ namespace Nexus
                     break;
                 }
                 }
+                break;
             }
             case SDL_MOUSEBUTTONUP:
             {
@@ -493,6 +497,7 @@ namespace Nexus
                     break;
                 }
                 }
+                break;
             }
             case SDL_MOUSEMOTION:
             {
