@@ -1,7 +1,6 @@
 #if defined(NX_PLATFORM_VULKAN)
 
 #include "CommandListVk.hpp"
-#include "RenderPassVk.hpp"
 #include "PipelineVk.hpp"
 #include "BufferVk.hpp"
 #include "ResourceSetVk.hpp"
@@ -119,118 +118,9 @@ namespace Nexus::Graphics
     void CommandListVk::SetPipeline(Pipeline *pipeline)
     {
         SetRenderTarget(pipeline->GetPipelineDescription().Target);
-
         auto vulkanPipeline = (PipelineVk *)pipeline;
         vkCmdBindPipeline(m_CurrentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanPipeline->GetPipeline());
-
         m_CurrentlyBoundPipeline = pipeline;
-
-        /* auto resourceSet = vulkanPipeline->GetResourceSet();
-        auto uniformBufferDescriptor = resourceSet->GetUniformBufferrDescriptorSet();
-        auto samplerDescriptor = resourceSet->GetSamplerDescriptorSet();
-        vkCmdBindDescriptorSets(m_CurrentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanPipeline->GetPipelineLayout(), 0, 1, &uniformBufferDescriptor, 0, nullptr);
-        vkCmdBindDescriptorSets(m_CurrentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanPipeline->GetPipelineLayout(), 1, 1, &samplerDescriptor, 0, nullptr); */
-    }
-
-    void CommandListVk::BeginRenderPass(RenderPass *renderPass, const RenderPassBeginInfo &beginInfo)
-    {
-        auto vulkanRenderPass = (RenderPassVk *)renderPass;
-
-        VkRenderPassBeginInfo renderPassInfo = {};
-        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass = vulkanRenderPass->m_RenderPass;
-
-        if (vulkanRenderPass->GetRenderPassDataType() == Nexus::Graphics::RenderPassDataType::Swapchain)
-        {
-            auto vulkanSwapchain = (SwapchainVk *)renderPass->GetData<Swapchain *>();
-            renderPassInfo.framebuffer = vulkanSwapchain->GetCurrentFramebuffer();
-            renderPassInfo.renderArea.offset = {0, 0};
-            renderPassInfo.renderArea.extent = vulkanSwapchain->m_SwapchainSize;
-
-            std::vector<VkClearValue> clearValues(2);
-            clearValues[0].color = {
-                beginInfo.ClearColorValue.Red,
-                beginInfo.ClearColorValue.Green,
-                beginInfo.ClearColorValue.Blue,
-                beginInfo.ClearColorValue.Alpha};
-
-            clearValues[1].depthStencil.depth = beginInfo.ClearDepthStencilValue.Depth;
-            clearValues[1].depthStencil.stencil = beginInfo.ClearDepthStencilValue.Stencil;
-
-            renderPassInfo.clearValueCount = (uint32_t)clearValues.size();
-            renderPassInfo.pClearValues = clearValues.data();
-            vkCmdBeginRenderPass(m_CurrentCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-            std::vector<VkClearAttachment> clearAttachments(2);
-            std::vector<VkClearRect> clearRects(2);
-
-            clearAttachments[0].aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            clearAttachments[0].clearValue.color = {
-                beginInfo.ClearColorValue.Red,
-                beginInfo.ClearColorValue.Green,
-                beginInfo.ClearColorValue.Blue,
-                beginInfo.ClearColorValue.Alpha};
-            clearAttachments[0].colorAttachment = 0;
-
-            clearRects[0].baseArrayLayer = 0;
-            clearRects[0].layerCount = 1;
-            clearRects[0].rect.offset = {0, 0};
-            clearRects[0].rect.extent = {vulkanSwapchain->m_SwapchainSize};
-
-            clearAttachments[1].aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-            clearAttachments[1].clearValue.depthStencil.depth = beginInfo.ClearDepthStencilValue.Depth;
-            clearAttachments[1].clearValue.depthStencil.stencil = beginInfo.ClearDepthStencilValue.Stencil;
-            clearAttachments[1].colorAttachment = 1;
-
-            clearRects[1].baseArrayLayer = 0;
-            clearRects[1].layerCount = 1;
-            clearRects[1].rect.offset = {0, 0};
-            clearRects[1].rect.extent = {vulkanSwapchain->m_SwapchainSize};
-
-            vkCmdClearAttachments(m_CurrentCommandBuffer, clearAttachments.size(), clearAttachments.data(), clearRects.size(), clearRects.data());
-        }
-        else
-        {
-            auto framebuffer = vulkanRenderPass->m_Framebuffer;
-            renderPassInfo.framebuffer = framebuffer->GetVkFramebuffer();
-            renderPassInfo.renderArea.offset = {0, 0};
-            renderPassInfo.renderArea.extent = {(uint32_t)framebuffer->GetFramebufferSpecification().Width, (uint32_t)framebuffer->GetFramebufferSpecification().Height};
-
-            int attachmentCount = 0;
-            attachmentCount += framebuffer->GetColorTextureCount();
-            if (framebuffer->HasDepthTexture())
-            {
-                attachmentCount += 1;
-            }
-
-            std::vector<VkClearValue> clearValues;
-
-            for (int i = 0; i < attachmentCount; i++)
-            {
-                VkClearValue clearValue{};
-
-                clearValue.depthStencil.depth = beginInfo.ClearDepthStencilValue.Depth;
-                clearValue.depthStencil.stencil = beginInfo.ClearDepthStencilValue.Stencil;
-
-                // NOTE: setting the color first here seems to reset the colour to red after changing the depth/stencil values for some reason
-                clearValue.color = {
-                    beginInfo.ClearColorValue.Red,
-                    beginInfo.ClearColorValue.Green,
-                    beginInfo.ClearColorValue.Blue,
-                    beginInfo.ClearColorValue.Alpha};
-
-                clearValues.push_back(clearValue);
-            }
-
-            renderPassInfo.clearValueCount = (uint32_t)clearValues.size();
-            renderPassInfo.pClearValues = clearValues.data();
-            vkCmdBeginRenderPass(m_CurrentCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-        }
-    }
-
-    void CommandListVk::EndRenderPass()
-    {
-        vkCmdEndRenderPass(m_CurrentCommandBuffer);
     }
 
     void CommandListVk::DrawElements(uint32_t start, uint32_t count)

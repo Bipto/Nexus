@@ -7,7 +7,6 @@
 #include "Shader.hpp"
 #include "Buffer.hpp"
 #include "Framebuffer.hpp"
-#include "RenderPass.hpp"
 #include "Nexus/Types.hpp"
 #include "RenderTarget.hpp"
 
@@ -42,16 +41,6 @@ namespace Nexus::Graphics
         uint8_t Stencil = 0;
     };
 
-    /// @brief A struct representing a set of values used to clear the buffers when beginning a command list
-    struct RenderPassBeginInfo
-    {
-        /// @brief An instance of a ClearColorValue to use to clear the colour buffer
-        ClearColorValue ClearColorValue;
-
-        /// @brief An instance of a ClearDepthStencilValue to use to clear the depth stencil buffer
-        ClearDepthStencilValue ClearDepthStencilValue;
-    };
-
     /// @brief A struct representing a draw command to be executed using a vertex buffer
     struct DrawElementCommand
     {
@@ -75,12 +64,6 @@ namespace Nexus::Graphics
     struct UpdateResourcesCommand
     {
         ResourceSet *Resources;
-    };
-
-    struct BeginRenderPassCommand
-    {
-        RenderPass *RenderPass;
-        RenderPassBeginInfo ClearValue;
     };
 
     struct ClearColorTargetCommand
@@ -138,13 +121,6 @@ namespace Nexus::Graphics
         /// @param pipeline The pointer to the pipeline to bind
         virtual void SetPipeline(Pipeline *pipeline) = 0;
 
-        /// @brief A pure virtual method to begin a new render pass
-        /// @param beginRenderPassCommand A const reference to a BeginRenderPassCommand struct
-        virtual void BeginRenderPass(RenderPass *renderPass, const RenderPassBeginInfo &beginInfo) = 0;
-
-        /// @brief A pure virtual method to end a new render pass
-        virtual void EndRenderPass() = 0;
-
         /// @brief A pure virtual method that submits a draw call using the bound vertex buffer
         /// @param start The offset to begin rendering at
         /// @param count The number of vertices to draw
@@ -174,7 +150,6 @@ namespace Nexus::Graphics
     typedef void (*RenderCommand)(CommandList *commandList);
 
     typedef std::variant<
-        BeginRenderPassCommand,
         VertexBuffer *,
         IndexBuffer *,
         Pipeline *,

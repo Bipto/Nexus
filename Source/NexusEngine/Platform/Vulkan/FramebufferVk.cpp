@@ -1,19 +1,9 @@
 #if defined(NX_PLATFORM_VULKAN)
 
 #include "FramebufferVk.hpp"
-#include "RenderPassVk.hpp"
 
 namespace Nexus::Graphics
 {
-    FramebufferVk::FramebufferVk(RenderPass *renderPass, GraphicsDeviceVk *device)
-        : Framebuffer(renderPass), m_Device(device)
-    {
-        auto renderPassVk = (RenderPassVk *)renderPass;
-        renderPassVk->m_Framebuffer = this;
-        m_RenderPass = renderPassVk;
-        Recreate();
-    }
-
     FramebufferVk::FramebufferVk(const FramebufferSpecification &spec, GraphicsDeviceVk *device)
         : Framebuffer(spec), m_Device(device)
     {

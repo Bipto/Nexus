@@ -4,7 +4,6 @@
 #include "Viewport.hpp"
 
 #include "Rectangle.hpp"
-#include "RenderPass.hpp"
 
 #include "ResourceSet.hpp"
 #include "RenderTarget.hpp"

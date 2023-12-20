@@ -21,9 +21,6 @@ namespace Nexus::Graphics
         virtual void SetIndexBuffer(IndexBuffer *indexBuffer) override;
         virtual void SetPipeline(Pipeline *pipeline) override;
 
-        virtual void BeginRenderPass(RenderPass *renderPass, const RenderPassBeginInfo &beginInfo) override;
-        virtual void EndRenderPass() override;
-
         virtual void DrawElements(uint32_t start, uint32_t count) override;
         virtual void DrawIndexed(uint32_t count, uint32_t offset) override;
 

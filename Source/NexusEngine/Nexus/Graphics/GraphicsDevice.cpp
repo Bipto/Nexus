@@ -101,14 +101,6 @@ namespace Nexus::Graphics
         return CreateTexture(filepath.c_str());
     }
 
-    std::pair<Framebuffer *, RenderPass *> GraphicsDevice::CreateRenderPassAndFramebuffer(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification)
-    {
-        auto container = std::pair<Framebuffer *, RenderPass *>();
-        container.second = CreateRenderPass(renderPassSpecification, framebufferSpecification);
-        container.first = CreateFramebuffer(container.second);
-        return container;
-    }
-
     ResourceSet *GraphicsDevice::CreateResourceSet(Pipeline *pipeline)
     {
         return CreateResourceSet(pipeline->GetPipelineDescription().ResourceSetSpecification);

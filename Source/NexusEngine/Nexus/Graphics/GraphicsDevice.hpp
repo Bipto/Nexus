@@ -9,7 +9,6 @@
 #include "Framebuffer.hpp"
 #include "Pipeline.hpp"
 #include "CommandList.hpp"
-#include "RenderPass.hpp"
 #include "Nexus/Graphics/ShaderGenerator.hpp"
 #include "Viewport.hpp"
 #include "GraphicsAPI.hpp"
@@ -119,30 +118,7 @@ namespace Nexus::Graphics
         /// @return A pointer to a texture
         Texture *CreateTexture(const std::string &filepath);
 
-        /// @brief A pure virtual method that creates a new framebuffer from a given specification
-        /// @param renderPass The renderpass to use when rendering the framebuffer
-        /// @return A pointer to a framebuffer
-        virtual Framebuffer *CreateFramebuffer(RenderPass *renderPass) = 0;
-
-        /// @brief A pure virtual method that creates a new renderpass from a given specification
-        /// @param renderPassSpecification The properties to use when creating the renderpass
-        /// @param framebufferSpecification The properties to use when creating a framebuffer
-        /// @return A pointer to a renderpass
-        virtual RenderPass *CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification) = 0;
-
         virtual Framebuffer *CreateFramebuffer(const FramebufferSpecification &spec) = 0;
-
-        /// @brief A method that creates a new renderpass and framebuffer from a given specification
-        /// @param renderPassSpecification The properties to use when creating the renderpass
-        /// @param framebufferSpecification The properties to use when creating the framebuffer
-        /// @return A pair containing a pointer to a renderpass and a pointer to a framebuffer
-        std::pair<Framebuffer *, RenderPass *> CreateRenderPassAndFramebuffer(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification);
-
-        /// @brief A pure virtual method that creates a new renderpass from a given specification
-        /// @param renderPassSpecification The properties to use when creating the renderpass
-        /// @param swapchain A pointer to a swapchain to use when rendering the renderpass
-        /// @return A pointer to a renderpass
-        virtual RenderPass *CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain) = 0;
 
         /// @brief A pure virtual method that creates a new resource set from a given specification
         /// @param spec A set of properties to use when creating the resource set

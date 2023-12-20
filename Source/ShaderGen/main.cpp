@@ -1,9 +1,9 @@
 #include <iostream>
 #include <filesystem>
 
-#include "Core/Graphics/ShaderGenerator.hpp"
-#include "Core/Graphics/ShaderUtils.hpp"
-#include "Core/FileSystem/FileSystem.hpp"
+#include "Nexus/Graphics/ShaderGenerator.hpp"
+#include "Nexus/Graphics/ShaderUtils.hpp"
+#include "Nexus/FileSystem/FileSystem.hpp"
 
 void ProcessFile(const std::string &filepath)
 {

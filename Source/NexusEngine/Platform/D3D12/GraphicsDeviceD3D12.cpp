@@ -7,7 +7,6 @@
 #include "PipelineD3D12.hpp"
 #include "BufferD3D12.hpp"
 #include "CommandListD3D12.hpp"
-#include "RenderPassD3D12.hpp"
 #include "TextureD3D12.hpp"
 #include "ResourceSetD3D12.hpp"
 #include "FramebufferD3D12.hpp"
@@ -143,14 +142,6 @@ namespace Nexus::Graphics
         return new TextureD3D12(this, spec);
     }
 
-    Framebuffer *GraphicsDeviceD3D12::CreateFramebuffer(RenderPass *renderPass)
-    {
-        RenderPassD3D12 *d3d12RenderPass = (RenderPassD3D12 *)renderPass;
-        auto framebuffer = new FramebufferD3D12(this, renderPass);
-        d3d12RenderPass->m_Framebuffer = framebuffer;
-        return framebuffer;
-    }
-
     Pipeline *GraphicsDeviceD3D12::CreatePipeline(const PipelineDescription &description)
     {
         return new PipelineD3D12(m_Device.Get(), description);
@@ -174,16 +165,6 @@ namespace Nexus::Graphics
     UniformBuffer *GraphicsDeviceD3D12::CreateUniformBuffer(const BufferDescription &description, const void *data)
     {
         return new UniformBufferD3D12(this, description, data);
-    }
-
-    RenderPass *GraphicsDeviceD3D12::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification)
-    {
-        return new RenderPassD3D12(renderPassSpecification, framebufferSpecification);
-    }
-
-    RenderPass *GraphicsDeviceD3D12::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain)
-    {
-        return new RenderPassD3D12(renderPassSpecification, swapchain);
     }
 
     ResourceSet *GraphicsDeviceD3D12::CreateResourceSet(const ResourceSetSpecification &spec)

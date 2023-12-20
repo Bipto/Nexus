@@ -8,13 +8,6 @@
 namespace Nexus::Graphics
 {
 #if defined(NX_PLATFORM_D3D11)
-    FramebufferD3D11::FramebufferD3D11(ID3D11Device *&device, RenderPass *renderPass)
-        : Framebuffer(renderPass)
-    {
-        m_Device = device;
-        Recreate();
-    }
-
     FramebufferD3D11::FramebufferD3D11(const FramebufferSpecification &spec, ID3D11Device *device)
         : Framebuffer(spec), m_Device(device)
     {

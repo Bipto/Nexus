@@ -40,6 +40,5 @@ namespace Nexus::Graphics
         std::vector<std::function<void(void)>> m_ClosingFunctions;
 
         friend class GraphicsDevice;
-        friend class RenderPass;
     };
 }

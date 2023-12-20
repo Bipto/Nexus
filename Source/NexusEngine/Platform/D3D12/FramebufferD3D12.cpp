@@ -6,12 +6,6 @@
 
 namespace Nexus::Graphics
 {
-    FramebufferD3D12::FramebufferD3D12(GraphicsDeviceD3D12 *device, RenderPass *renderPass)
-        : Framebuffer(renderPass), m_Device(device)
-    {
-        Recreate();
-    }
-
     FramebufferD3D12::FramebufferD3D12(const FramebufferSpecification &spec, GraphicsDeviceD3D12 *device)
         : Framebuffer(spec), m_Device(device)
     {

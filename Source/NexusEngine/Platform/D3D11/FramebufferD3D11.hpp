@@ -22,7 +22,6 @@ namespace Nexus::Graphics
     class FramebufferD3D11 : public Framebuffer
     {
     public:
-        FramebufferD3D11(ID3D11Device *&device, RenderPass *renderPass);
         FramebufferD3D11(const FramebufferSpecification &spec, ID3D11Device *device);
         ~FramebufferD3D11();
 

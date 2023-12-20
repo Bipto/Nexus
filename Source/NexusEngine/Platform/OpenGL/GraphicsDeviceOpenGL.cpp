@@ -5,7 +5,6 @@
 #include "BufferOpenGL.hpp"
 #include "TextureOpenGL.hpp"
 #include "CommandListOpenGL.hpp"
-#include "RenderPassOpenGL.hpp"
 #include "ResourceSetOpenGL.hpp"
 
 #if defined(WIN32)
@@ -195,14 +194,6 @@ namespace Nexus::Graphics
         return new TextureOpenGL(spec);
     }
 
-    Framebuffer *GraphicsDeviceOpenGL::CreateFramebuffer(RenderPass *renderPass)
-    {
-        auto renderPassOpenGL = (RenderPassOpenGL *)renderPass;
-        auto framebufferOpenGL = new FramebufferOpenGL(renderPass);
-        renderPassOpenGL->m_Framebuffer = framebufferOpenGL;
-        return framebufferOpenGL;
-    }
-
     Pipeline *GraphicsDeviceOpenGL::CreatePipeline(const PipelineDescription &description)
     {
         return new PipelineOpenGL(description);
@@ -226,16 +217,6 @@ namespace Nexus::Graphics
     UniformBuffer *GraphicsDeviceOpenGL::CreateUniformBuffer(const BufferDescription &description, const void *data)
     {
         return new UniformBufferOpenGL(description, data);
-    }
-
-    RenderPass *GraphicsDeviceOpenGL::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification)
-    {
-        return new RenderPassOpenGL(renderPassSpecification, framebufferSpecification);
-    }
-
-    RenderPass *GraphicsDeviceOpenGL::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain)
-    {
-        return new RenderPassOpenGL(renderPassSpecification, swapchain);
     }
 
     ResourceSet *GraphicsDeviceOpenGL::CreateResourceSet(const ResourceSetSpecification &spec)

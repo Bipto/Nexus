@@ -195,29 +195,23 @@ public:
         delete m_Shader;
         delete m_Pipeline;
         delete m_CommandList;
-        delete m_RenderPass;
         delete m_Texture;
         delete m_UniformBuffer;
     }
 
 private:
     Nexus::Graphics::CommandList *m_CommandList = nullptr;
-    Nexus::Graphics::RenderPass *m_RenderPass = nullptr;
 
     Nexus::Graphics::Shader *m_Shader = nullptr;
     Nexus::Graphics::Pipeline *m_Pipeline = nullptr;
 
     Nexus::Graphics::ResourceSet *m_ResourceSet = nullptr;
     Nexus::Graphics::Texture *m_Texture = nullptr;
-
     Nexus::Graphics::UniformBuffer *m_UniformBuffer = nullptr;
     TestUniforms m_TestUniforms;
 
     Nexus::Graphics::Framebuffer *m_Framebuffer = nullptr;
-    Nexus::Graphics::RenderPass *m_OffscreenRenderPass = nullptr;
-
     Nexus::Window *m_Window2 = nullptr;
-    Nexus::Graphics::RenderPass *m_Window2RenderPass = nullptr;
 
     Nexus::Graphics::Font *m_Font = nullptr;
     Nexus::Graphics::Mesh *m_QuadMesh = nullptr;
@@ -228,7 +222,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;

@@ -4,7 +4,6 @@
 #include "BufferD3D11.hpp"
 #include "PipelineD3D11.hpp"
 #include "ShaderD3D11.hpp"
-#include "RenderPassD3D11.hpp"
 #include "ResourceSetD3D11.hpp"
 #include "TextureD3D11.hpp"
 
@@ -44,83 +43,6 @@ namespace Nexus::Graphics
     }
 
     void CommandListD3D11::End()
-    {
-    }
-
-    void CommandListD3D11::BeginRenderPass(RenderPass *renderPass, const RenderPassBeginInfo &beginInfo)
-    {
-#if defined(NX_PLATFORM_D3D11)
-
-        BeginRenderPassCommand command;
-        command.ClearValue = beginInfo;
-        command.RenderPass = renderPass;
-        m_CommandData.emplace_back(command);
-
-        auto renderCommand = [](CommandList *commandList)
-        {
-            CommandListD3D11 *commandListD3D11 = (CommandListD3D11 *)commandList;
-            auto graphicsDevice = commandListD3D11->GetGraphicsDevice();
-            auto context = graphicsDevice->GetDeviceContext();
-            const auto &commandData = commandListD3D11->GetCurrentCommandData();
-            const auto &renderPassCommand = std::get<BeginRenderPassCommand>(commandData);
-            const auto renderPass = renderPassCommand.RenderPass;
-            const auto &beginInfo = renderPassCommand.ClearValue;
-
-            // bind targets
-            {
-                if (renderPass->GetRenderPassDataType() == Nexus::Graphics::RenderPassDataType::Framebuffer)
-                {
-                    RenderPassD3D11 *renderPassD3D11 = (RenderPassD3D11 *)renderPass;
-                    Framebuffer *framebuffer = renderPassD3D11->GetFramebuffer();
-                    graphicsDevice->SetFramebuffer(framebuffer);
-                }
-                else
-                {
-                    Swapchain *swapchain = renderPass->GetData<Swapchain *>();
-                    graphicsDevice->SetSwapchain(swapchain);
-                }
-            }
-
-            // clear targets
-            {
-                const auto &color = beginInfo.ClearColorValue;
-                auto activeRenderTargetViews = graphicsDevice->GetActiveRenderTargetViews();
-
-                float backgroundColor[4] = {
-                    color.Red,
-                    color.Green,
-                    color.Blue,
-                    color.Alpha};
-
-                if (renderPass->GetColorLoadOperation() == Nexus::Graphics::LoadOperation::Clear)
-                {
-                    for (auto target : activeRenderTargetViews)
-                        context->ClearRenderTargetView(target, backgroundColor);
-                }
-
-                if (renderPass->GetDepthStencilLoadOperation() == Nexus::Graphics::LoadOperation::Clear)
-                {
-                    auto depthStencilView = graphicsDevice->GetActiveDepthStencilView();
-                    if (depthStencilView)
-                    {
-                        uint32_t clearFlags = 0;
-                        clearFlags |= D3D11_CLEAR_DEPTH;
-                        clearFlags |= D3D11_CLEAR_STENCIL;
-
-                        context->ClearDepthStencilView(
-                            depthStencilView,
-                            clearFlags,
-                            beginInfo.ClearDepthStencilValue.Depth,
-                            beginInfo.ClearDepthStencilValue.Stencil);
-                    }
-                }
-            }
-        };
-        m_Commands.push_back(renderCommand);
-#endif
-    }
-
-    void CommandListD3D11::EndRenderPass()
     {
     }
 

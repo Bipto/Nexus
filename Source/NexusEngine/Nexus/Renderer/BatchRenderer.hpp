@@ -58,10 +58,8 @@ namespace Nexus::Graphics
 
     private:
         Nexus::Graphics::GraphicsDevice *m_Device = nullptr;
-        Nexus::Graphics::RenderPass *m_RenderPass = nullptr;
         Nexus::Graphics::Shader *m_Shader = nullptr;
         Nexus::Graphics::CommandList *m_CommandList = nullptr;
-        Nexus::Graphics::RenderPassBeginInfo m_BeginInfo;
 
         Nexus::Graphics::Pipeline *m_Pipeline = nullptr;
         Nexus::Graphics::ResourceSet *m_ResourceSet = nullptr;

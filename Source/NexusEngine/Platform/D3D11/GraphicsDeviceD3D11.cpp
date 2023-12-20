@@ -8,7 +8,6 @@
 #include "TextureD3D11.hpp"
 #include "PipelineD3D11.hpp"
 #include "CommandListD3D11.hpp"
-#include "RenderPassD3D11.hpp"
 #include "ResourceSetD3D11.hpp"
 
 #include "SDL_syswm.h"
@@ -165,14 +164,6 @@ namespace Nexus::Graphics
         return new TextureD3D11(m_DevicePtr, spec);
     }
 
-    Framebuffer *GraphicsDeviceD3D11::CreateFramebuffer(RenderPass *renderPass)
-    {
-        auto renderPassD3D11 = (RenderPassD3D11 *)renderPass;
-        auto framebufferD3D11 = new FramebufferD3D11(m_DevicePtr, renderPass);
-        renderPassD3D11->m_Framebuffer = framebufferD3D11;
-        return framebufferD3D11;
-    }
-
     Pipeline *GraphicsDeviceD3D11::CreatePipeline(const PipelineDescription &description)
     {
         return new PipelineD3D11(m_DevicePtr, m_DeviceContextPtr, description);
@@ -196,16 +187,6 @@ namespace Nexus::Graphics
     UniformBuffer *GraphicsDeviceD3D11::CreateUniformBuffer(const BufferDescription &description, const void *data)
     {
         return new UniformBufferD3D11(m_DevicePtr, m_DeviceContextPtr, description, data);
-    }
-
-    RenderPass *GraphicsDeviceD3D11::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification)
-    {
-        return new RenderPassD3D11(renderPassSpecification, framebufferSpecification);
-    }
-
-    RenderPass *GraphicsDeviceD3D11::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain)
-    {
-        return new RenderPassD3D11(renderPassSpecification, swapchain);
     }
 
     ResourceSet *GraphicsDeviceD3D11::CreateResourceSet(const ResourceSetSpecification &spec)

@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "Core/Networking/Socket.hpp"
+#include "Nexus/Networking/Socket.hpp"
 
 #include "SDL_net.h"
 #include <cstring>

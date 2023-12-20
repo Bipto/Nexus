@@ -46,11 +46,3 @@ if (ANDROID OR __ANDROID__)
         GLESv3
     )
 endif()
-
-#default to release build if not otherwise specified
-if (NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Release)
-endif()
-
-set(CMAKE_CXX_FLAGS_DEBUG "-g")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")

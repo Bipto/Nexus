@@ -35,7 +35,6 @@ public:
     virtual ~DemoApplication()
     {
         delete m_CommandList;
-        delete m_RenderPass;
 
         if (m_CurrentDemo)
         {
@@ -57,11 +56,6 @@ public:
         std::string fontPath = Nexus::FileSystem::GetFilePathAbsolute("resources/fonts/roboto/roboto-regular.ttf");
         io.FontDefault = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), size);
         m_ImGuiRenderer->RebuildFontAtlas();
-
-        Nexus::Graphics::RenderPassSpecification spec;
-        spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
-        spec.StencilDepthLoadOperation = Nexus::Graphics::LoadOperation::Clear;
-        m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, GetPrimaryWindow()->GetSwapchain());
 
         m_CommandList = m_GraphicsDevice->CreateCommandList();
 
@@ -218,16 +212,14 @@ public:
         }
         else
         {
-            Nexus::Graphics::RenderPassBeginInfo beginInfo{};
-            beginInfo.ClearColorValue = {
-                0.35f,
-                0.25f,
-                0.42f,
-                1.0f};
-
             m_CommandList->Begin();
-            m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
-            m_CommandList->EndRenderPass();
+
+            m_CommandList->SetRenderTarget({m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
+            m_CommandList->ClearColorTarget(0, {0.35f,
+                                                0.25f,
+                                                0.42f,
+                                                1.0f});
+
             m_CommandList->End();
             m_GraphicsDevice->SubmitCommandList(m_CommandList);
         }
@@ -247,10 +239,7 @@ public:
 
 private:
     Nexus::Graphics::CommandList *m_CommandList;
-    Nexus::Graphics::RenderPass *m_RenderPass;
-
     Demos::Demo *m_CurrentDemo = nullptr;
-
     std::vector<DemoInfo> m_GraphicsDemos;
     std::vector<DemoInfo> m_AudioDemos;
 };
@@ -258,13 +247,13 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D11;
 
     if (arguments.size() > 1)
     {
         if (arguments[1] == "DX")
         {
-            spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D11;
+            spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
         }
     }
 

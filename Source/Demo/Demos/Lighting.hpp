@@ -25,10 +25,6 @@ namespace Demos
         LightingDemo(const std::string &name, Nexus::Application *app)
             : Demo(name, app)
         {
-            Nexus::Graphics::RenderPassSpecification spec;
-            spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
-            spec.StencilDepthLoadOperation = Nexus::Graphics::LoadOperation::Clear;
-            m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, app->GetPrimaryWindow()->GetSwapchain());
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
             m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile(Nexus::FileSystem::GetFilePathAbsolute("resources/shaders/lighting.glsl"),
@@ -57,7 +53,6 @@ namespace Demos
 
         virtual ~LightingDemo()
         {
-            delete m_RenderPass;
             delete m_CommandList;
             delete m_Shader;
             delete m_Pipeline;
@@ -75,13 +70,6 @@ namespace Demos
 
         virtual void Render(Nexus::Time time) override
         {
-            Nexus::Graphics::RenderPassBeginInfo beginInfo{};
-            beginInfo.ClearColorValue = {
-                m_ClearColour.r,
-                m_ClearColour.g,
-                m_ClearColour.b,
-                1.0f};
-
             m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f)) * glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation), {1.0f, 1.0f, 0.0f});
 
             void *buffer = m_TransformUniformBuffer->Map();
@@ -99,7 +87,28 @@ namespace Demos
 
             m_CommandList->Begin();
             m_CommandList->SetPipeline(m_Pipeline);
-            m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
+
+            Nexus::Graphics::Viewport vp;
+            vp.X = 0;
+            vp.Y = 0;
+            vp.Width = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize().X;
+            vp.Height = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize().Y;
+            vp.MinDepth = 0.0f;
+            vp.MaxDepth = 1.0f;
+            m_CommandList->SetViewport(vp);
+
+            Nexus::Graphics::Rectangle scissor;
+            scissor.X = 0;
+            scissor.Y = 0;
+            scissor.Width = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize().X;
+            scissor.Height = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize().Y;
+            m_CommandList->SetScissor(scissor);
+            m_CommandList->ClearColorTarget(0, {m_ClearColour.r,
+                                                m_ClearColour.g,
+                                                m_ClearColour.b,
+                                                1.0f});
+            Nexus::Graphics::ClearDepthStencilValue clearValue;
+            m_CommandList->ClearDepthTarget(clearValue);
 
             // upload resources
             {
@@ -123,7 +132,6 @@ namespace Demos
 
             m_CommandList->SetPipeline(m_Pipeline);
 
-            m_CommandList->EndRenderPass();
             m_CommandList->End();
 
             m_GraphicsDevice->SubmitCommandList(m_CommandList);
@@ -138,7 +146,6 @@ namespace Demos
 
         virtual void OnResize(Nexus::Point<int> size) override
         {
-            CreatePipeline();
         }
 
     private:
@@ -176,12 +183,13 @@ namespace Demos
             resources.TextureBindings = {diffuseMapBinding, normalMapBinding, specularMapBinding};
             pipelineDescription.ResourceSetSpecification = resources;
 
+            pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
+
             m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
             m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
         }
 
     private:
-        Nexus::Graphics::RenderPass *m_RenderPass;
         Nexus::Graphics::CommandList *m_CommandList;
         Nexus::Graphics::Shader *m_Shader;
         Nexus::Graphics::Pipeline *m_Pipeline;

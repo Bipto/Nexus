@@ -11,7 +11,6 @@ namespace Nexus::Graphics
     class FramebufferVk : public Framebuffer
     {
     public:
-        FramebufferVk(RenderPass *renderPass, GraphicsDeviceVk *device);
         FramebufferVk(const FramebufferSpecification &spec, GraphicsDeviceVk *device);
         ~FramebufferVk();
 

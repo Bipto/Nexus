@@ -11,8 +11,7 @@ namespace Nexus::Graphics
     class FramebufferD3D12 : public Framebuffer
     {
     public:
-        FramebufferD3D12(GraphicsDeviceD3D12 *device, RenderPass *renderPass);
-        FramebufferD3D12(const FramebufferSpecification& spec, GraphicsDeviceD3D12* device);
+        FramebufferD3D12(const FramebufferSpecification &spec, GraphicsDeviceD3D12 *device);
         virtual ~FramebufferD3D12();
         virtual void *GetColorAttachment(int index = 0) override;
         virtual void *GetDepthAttachment() override;

@@ -2,7 +2,6 @@
 
 #include "GraphicsDeviceVk.hpp"
 #include "CommandListVk.hpp"
-#include "RenderPassVk.hpp"
 #include "ShaderVk.hpp"
 #include "PipelineVk.hpp"
 #include "BufferVk.hpp"
@@ -146,11 +145,6 @@ namespace Nexus::Graphics
         return new TextureVk(this, spec);
     }
 
-    Framebuffer *GraphicsDeviceVk::CreateFramebuffer(RenderPass *renderPass)
-    {
-        return new FramebufferVk(renderPass, this);
-    }
-
     Pipeline *GraphicsDeviceVk::CreatePipeline(const PipelineDescription &description)
     {
         return new PipelineVk(description, this);
@@ -174,16 +168,6 @@ namespace Nexus::Graphics
     UniformBuffer *GraphicsDeviceVk::CreateUniformBuffer(const BufferDescription &description, const void *data)
     {
         return new UniformBufferVk(description, data, this);
-    }
-
-    RenderPass *GraphicsDeviceVk::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification)
-    {
-        return new RenderPassVk(renderPassSpecification, framebufferSpecification, this);
-    }
-
-    RenderPass *GraphicsDeviceVk::CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain)
-    {
-        return new RenderPassVk(renderPassSpecification, swapchain, this);
     }
 
     ResourceSet *GraphicsDeviceVk::CreateResourceSet(const ResourceSetSpecification &spec)

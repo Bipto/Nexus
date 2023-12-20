@@ -10,10 +10,7 @@ namespace Demos
         HelloTriangleIndexedDemo(const std::string &name, Nexus::Application *app)
             : Demo(name, app)
         {
-            Nexus::Graphics::RenderPassSpecification spec;
-            m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, app->GetPrimaryWindow()->GetSwapchain());
             m_CommandList = m_GraphicsDevice->CreateCommandList();
-
             m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile(Nexus::FileSystem::GetFilePathAbsolute("resources/shaders/hello_triangle.glsl"),
                                                                    Nexus::Graphics::VertexPosition::GetLayout());
 
@@ -44,7 +41,6 @@ namespace Demos
         virtual ~HelloTriangleIndexedDemo()
         {
             delete m_CommandList;
-            delete m_RenderPass;
             delete m_Shader;
             delete m_Pipeline;
             delete m_VertexBuffer;
@@ -57,22 +53,36 @@ namespace Demos
 
         virtual void Render(Nexus::Time time) override
         {
-            Nexus::Graphics::RenderPassBeginInfo beginInfo{};
-            beginInfo.ClearColorValue = {
-                m_ClearColour.r,
-                m_ClearColour.g,
-                m_ClearColour.b,
-                1.0f};
-
             m_CommandList->Begin();
-            m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
             m_CommandList->SetPipeline(m_Pipeline);
+
+            Nexus::Graphics::Viewport vp;
+            vp.X = 0;
+            vp.Y = 0;
+            vp.Width = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize().X;
+            vp.Height = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize().Y;
+            vp.MinDepth = 0.0f;
+            vp.MaxDepth = 1.0f;
+            m_CommandList->SetViewport(vp);
+
+            Nexus::Graphics::Rectangle scissor;
+            scissor.X = 0;
+            scissor.Y = 0;
+            scissor.Width = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize().X;
+            scissor.Height = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize().Y;
+            m_CommandList->SetScissor(scissor);
+
+            m_CommandList->ClearColorTarget(0,
+                                            {m_ClearColour.r,
+                                             m_ClearColour.g,
+                                             m_ClearColour.b,
+                                             1.0f});
+
             m_CommandList->SetVertexBuffer(m_VertexBuffer);
             m_CommandList->SetIndexBuffer(m_IndexBuffer);
 
             auto indexCount = m_IndexBuffer->GetDescription().Size / sizeof(unsigned int);
             m_CommandList->DrawIndexed(indexCount, 0);
-            m_CommandList->EndRenderPass();
             m_CommandList->End();
 
             m_GraphicsDevice->SubmitCommandList(m_CommandList);
@@ -80,8 +90,7 @@ namespace Demos
 
         virtual void OnResize(Nexus::Point<int> size) override
         {
-            CreatePipeline();
-        }
+                }
 
         virtual void RenderUI() override
         {
@@ -94,13 +103,13 @@ namespace Demos
             pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
             pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
             pipelineDescription.Shader = m_Shader;
+            pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
 
             m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
         }
 
     private:
         Nexus::Graphics::CommandList *m_CommandList;
-        Nexus::Graphics::RenderPass *m_RenderPass;
         Nexus::Graphics::Shader *m_Shader;
         Nexus::Graphics::Pipeline *m_Pipeline;
         Nexus::Graphics::VertexBuffer *m_VertexBuffer;

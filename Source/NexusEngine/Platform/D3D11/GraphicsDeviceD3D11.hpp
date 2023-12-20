@@ -12,7 +12,7 @@ namespace Nexus::Graphics
     class GraphicsDeviceD3D11 : public GraphicsDevice
     {
     public:
-        GraphicsDeviceD3D11(const GraphicsDeviceCreateInfo &createInfo, Window *window, const SwapchainSpecification& swapchainSpec);
+        GraphicsDeviceD3D11(const GraphicsDeviceCreateInfo &createInfo, Window *window, const SwapchainSpecification &swapchainSpec);
         ~GraphicsDeviceD3D11();
 
         virtual void SetContext() override;
@@ -29,7 +29,6 @@ namespace Nexus::Graphics
 
         virtual Shader *CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout) override;
         virtual Texture *CreateTexture(const TextureSpecification &spec) override;
-        virtual Framebuffer *CreateFramebuffer(RenderPass *renderPass) override;
         virtual Pipeline *CreatePipeline(const PipelineDescription &description) override;
         virtual CommandList *CreateCommandList() override;
 
@@ -37,8 +36,6 @@ namespace Nexus::Graphics
         virtual IndexBuffer *CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format = IndexBufferFormat::UInt32) override;
         virtual UniformBuffer *CreateUniformBuffer(const BufferDescription &description, const void *data) override;
 
-        virtual RenderPass *CreateRenderPass(const RenderPassSpecification &renderPassSpecification, const FramebufferSpecification &framebufferSpecification) override;
-        virtual RenderPass *CreateRenderPass(const RenderPassSpecification &renderPassSpecification, Swapchain *swapchain) override;
         virtual ResourceSet *CreateResourceSet(const ResourceSetSpecification &spec) override;
 
         virtual Framebuffer *CreateFramebuffer(const FramebufferSpecification &spec) override;

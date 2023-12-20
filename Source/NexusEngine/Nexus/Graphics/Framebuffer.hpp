@@ -6,7 +6,6 @@
 
 #include "Nexus/Graphics/TextureFormat.hpp"
 #include "Nexus/Graphics/DepthFormat.hpp"
-#include "Nexus/Graphics/RenderPass.hpp"
 
 #include "Nexus/Types.hpp"
 
@@ -14,15 +13,74 @@ typedef void *FramebufferTexture;
 
 namespace Nexus::Graphics
 {
+    /// @brief A struct representing the settings to use when creating a framebuffer
+    struct FramebufferTextureSpecification
+    {
+        /// @brief A default constructor initialising to default values
+        FramebufferTextureSpecification() = default;
+
+        /// @brief A constructor taking in a texture format to use to create a colour attachment
+        /// @param format A texture
+        FramebufferTextureSpecification(TextureFormat format)
+            : TextureFormat(format) {}
+
+        /// @brief The format to use for a colour attachment
+        TextureFormat TextureFormat;
+    };
+
+    /// @brief A struct representing a set of colour attachments for a framebuffer
+    struct FramebufferColorAttachmentSpecification
+    {
+        /// @brief A default constructor creating an empty set of colour attachments
+        FramebufferColorAttachmentSpecification() = default;
+
+        /// @brief A constructor taking in an initializer list of texture specifications
+        /// @param attachments An initializer list of the colour attachments to create
+        FramebufferColorAttachmentSpecification(std::initializer_list<FramebufferTextureSpecification> attachments)
+            : Attachments(attachments) {}
+
+        /// @brief A vector containing the colour attachments
+        std::vector<FramebufferTextureSpecification> Attachments;
+    };
+
+    /// @brief A struct representing a depth attachment of a framebuffer
+    struct FramebufferDepthAttachmentSpecification
+    {
+        /// @brief A default constructor creating no depth attachment
+        FramebufferDepthAttachmentSpecification() = default;
+
+        /// @brief A constructor taking in a depth format
+        /// @param format The depth format to create a depth attachment with
+        FramebufferDepthAttachmentSpecification(DepthFormat format)
+            : DepthFormat(format) {}
+
+        /// @brief The depth attachment to use to create the depth attachment
+        DepthFormat DepthFormat = DepthFormat::None;
+    };
+
+    /// @brief A struct representing a framebuffer configuration
+    struct FramebufferSpecification
+    {
+        /// @brief The width of the textures in the framebuffer
+        uint32_t Width = 1280;
+
+        /// @brief The height of the textures in the framebuffer
+        uint32_t Height = 720;
+
+        /// @brief Settings to use when creating a set of colour attachments
+        FramebufferColorAttachmentSpecification ColorAttachmentSpecification;
+
+        /// @brief Settings to use when creating a depth attachment
+        FramebufferDepthAttachmentSpecification DepthAttachmentSpecification;
+
+        /// @brief A boolean value indicating whether the framebuffer is part of the swapchain
+        bool IsSwapchain = false;
+    };
+
     /// @brief A pure virtual class representing an API specific framebuffer
     class Framebuffer
     {
     public:
-        /// @brief A constructor that sets the initial specification of a framebuffer
-        /// @param renderPass A reference counted pointer to a RenderPass to use when rendering to the framebuffer
-        Framebuffer(RenderPass *renderPass)
-            : m_Specification(renderPass->GetData<FramebufferSpecification>()) {}
-
         /// @brief A constructor that sets the initial specification of a framebuffer
         /// @param spec A reference to a specification to create the framebuffer with
         Framebuffer(const FramebufferSpecification &spec)

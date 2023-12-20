@@ -10,17 +10,11 @@ namespace Demos
         ClearScreenDemo(const std::string &name, Nexus::Application *app)
             : Demo(name, app)
         {
-            Nexus::Graphics::RenderPassSpecification spec;
-            spec.ColorLoadOperation = Nexus::Graphics::LoadOperation::Clear;
-            spec.StencilDepthLoadOperation = Nexus::Graphics::LoadOperation::Clear;
-
-            m_RenderPass = m_GraphicsDevice->CreateRenderPass(spec, app->GetPrimaryWindow()->GetSwapchain());
             m_CommandList = m_GraphicsDevice->CreateCommandList();
         }
 
         virtual ~ClearScreenDemo()
         {
-            delete m_RenderPass;
             delete m_CommandList;
         }
 
@@ -30,16 +24,12 @@ namespace Demos
 
         virtual void Render(Nexus::Time time) override
         {
-            Nexus::Graphics::RenderPassBeginInfo beginInfo;
-            beginInfo.ClearColorValue = {
-                m_ClearColour.r,
-                m_ClearColour.g,
-                m_ClearColour.b,
-                1.0f};
-
             m_CommandList->Begin();
-            m_CommandList->BeginRenderPass(m_RenderPass, beginInfo);
-            m_CommandList->EndRenderPass();
+            m_CommandList->SetRenderTarget({m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
+            m_CommandList->ClearColorTarget(0, {m_ClearColour.r,
+                                                m_ClearColour.g,
+                                                m_ClearColour.b,
+                                                1.0f});
             m_CommandList->End();
 
             m_GraphicsDevice->SubmitCommandList(m_CommandList);
@@ -56,8 +46,6 @@ namespace Demos
 
     private:
         Nexus::Graphics::CommandList *m_CommandList;
-        Nexus::Graphics::RenderPass *m_RenderPass;
-
         glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
     };
 }

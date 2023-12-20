@@ -5,7 +5,6 @@
 #include "BufferOpenGL.hpp"
 #include "TextureOpenGL.hpp"
 #include "GraphicsDeviceOpenGL.hpp"
-#include "RenderPassOpenGL.hpp"
 #include "ResourceSetOpenGL.hpp"
 
 #include <memory>
@@ -42,71 +41,6 @@ namespace Nexus::Graphics
     }
 
     void CommandListOpenGL::End()
-    {
-    }
-
-    void CommandListOpenGL::BeginRenderPass(RenderPass *renderPass, const RenderPassBeginInfo &beginInfo)
-    {
-        BeginRenderPassCommand command;
-        command.ClearValue = beginInfo;
-        command.RenderPass = renderPass;
-        m_CommandData.emplace_back(command);
-
-        auto renderCommand = [](CommandList *commandList)
-        {
-            auto commandListGL = (CommandListOpenGL *)commandList;
-            const auto &commandData = commandListGL->GetCurrentCommandData();
-            const auto &renderPassCommand = std::get<BeginRenderPassCommand>(commandData);
-            const auto renderPass = renderPassCommand.RenderPass;
-            const auto &beginInfo = renderPassCommand.ClearValue;
-            auto graphicsDevice = (GraphicsDeviceOpenGL *)commandListGL->GetGraphicsDevice();
-
-            // bind framebuffers
-            {
-                if (renderPass->GetRenderPassDataType() == Nexus::Graphics::RenderPassDataType::Framebuffer)
-                {
-                    RenderPassOpenGL *renderPassOpenGL = (RenderPassOpenGL *)renderPass;
-                    auto framebuffer = renderPassOpenGL->m_Framebuffer;
-                    graphicsDevice->SetFramebuffer(framebuffer);
-                }
-                else
-                {
-                    auto swapchain = renderPass->GetData<Swapchain *>();
-                    graphicsDevice->SetSwapchain(swapchain);
-                }
-            }
-
-            // clear targets
-            {
-                const auto &color = beginInfo.ClearColorValue;
-
-                glClearColor(color.Red,
-                             color.Green,
-                             color.Blue,
-                             color.Alpha);
-                glClearDepthf(beginInfo.ClearDepthStencilValue.Depth);
-                glClearStencil(beginInfo.ClearDepthStencilValue.Stencil);
-
-                uint32_t clearFlags = 0;
-
-                if (renderPass->GetColorLoadOperation() == Nexus::Graphics::LoadOperation::Clear)
-                {
-                    clearFlags |= GL_COLOR_BUFFER_BIT;
-                }
-
-                if (renderPass->GetDepthStencilLoadOperation() == Nexus::Graphics::LoadOperation::Clear)
-                {
-                    clearFlags |= GL_DEPTH_BUFFER_BIT;
-                    clearFlags |= GL_STENCIL_BUFFER_BIT;
-                }
-
-                glClear(clearFlags);
-            }
-        };
-        m_Commands.push_back(renderCommand);
-    }
-
-    void CommandListOpenGL::EndRenderPass()
     {
     }
 
