@@ -272,8 +272,10 @@ namespace Nexus::Graphics
         m_VertexCount += shapeVertexCount;
     }
 
-    void BatchRenderer::DrawString(const std::string &text, const glm::vec2 &position, float scale, const glm::vec4 &color, Font *font)
+    void BatchRenderer::DrawString(const std::string &text, const glm::vec2 &position, uint32_t size, const glm::vec4 &color, Font *font)
     {
+        float scale = 1.0f / font->GetSize() * size;       
+
         float x = position.x;
         float y = position.y;
 
@@ -293,21 +295,28 @@ namespace Nexus::Graphics
         {
             if (character == ' ')
             {
-                const auto &characterInfo = font->GetCharacter('i');
-                x += characterInfo.Size.x * scale;
+                x += font->GetSpaceWidth() * scale;
+            }
+            else if (character == '\n')
+            {
+                x = position.x;
+                y += font->GetLargestCharacterSize().y * scale;
+            }
+            else if (character == '\t')
+            {
+                x += font->GetSpaceWidth() * scale * 4;
             }
             else
             {
                 const auto &characterInfo = font->GetCharacter(character);
 
                 float xPos = x + characterInfo.Bearing.x * scale;
-                // float yPos = y - (characterInfo.Size.y - characterInfo.Bearing.y) * scale;
                 float yPos = (characterInfo.Bearing.y) * scale;
                 yPos -= largestCharacterSize;
 
                 DrawCharacter(character, {xPos, y - yPos}, scale, color, font);
 
-                x += (characterInfo.Advance.X >> 6) * scale;
+                x += (characterInfo.Advance.x / 64) * scale;
             }
         }
     }

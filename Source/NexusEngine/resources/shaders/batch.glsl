@@ -78,46 +78,8 @@ void main()
         discard;
     }
 
-    //alpha = 1.0 - smoothstep(0.5, 0.6, alpha);
-
     float w = fwidth(alpha);
     float opacity = smoothstep(0.5 - w, 0.5 + w, alpha);
 
     FragColor = vec4(outColor.rgb, opacity);
-
-    /* float dist = 0;
-
-    switch (int(texIndex))
-    {
-        case 0: dist = texture(texture0, texCoord).r; break;
-        case 1: dist = texture(texture1, texCoord).r; break;
-        case 2: dist = texture(texture2, texCoord).r; break;
-        case 3: dist = texture(texture3, texCoord).r; break;
-        case 4: dist = texture(texture4, texCoord).r; break;
-        case 5: dist = texture(texture5, texCoord).r; break;
-        case 6: dist = texture(texture6, texCoord).r; break;
-        case 7: dist = texture(texture7, texCoord).r; break;
-        case 8: dist = texture(texture8, texCoord).r; break;
-        case 9: dist = texture(texture9, texCoord).r; break;
-        case 10: dist = texture(texture10, texCoord).r; break;
-        case 11: dist = texture(texture11, texCoord).r; break;
-        case 12: dist = texture(texture12, texCoord).r; break;
-        case 13: dist = texture(texture13, texCoord).r; break;
-        case 14: dist = texture(texture14, texCoord).r; break;
-        case 15: dist = texture(texture15, texCoord).r; break;
-    }
-
-    if (glyphShape < 0.5)
-    {
-        discard;
-    }
-
-    FragColor = outColor;
-
-    if (dist < 0.5)
-    {
-        discard;
-    }
-
-    FragColor = vec4(outColor.rgb, 1.0f); */
 }

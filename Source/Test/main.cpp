@@ -133,12 +133,19 @@ public:
 
         m_BatchRenderer->Begin(mvp);
         m_BatchRenderer->DrawQuadFill({100.0f, 100.0f}, {250.0f, 250.0f}, {1.0f, 0.0f, 0.0f, 1.0f});
-        m_BatchRenderer->DrawString("Hello World!", {200.0f, 20.0f}, 1.0f, {0.2f, 0.2f, 0.2f, 1.0f}, m_Font);
+        m_BatchRenderer->DrawString("Hello\nWorld!\tThis line is tabbed across", {0.0f, 0.0f}, 22, {0.2f, 0.2f, 0.2f, 1.0f}, m_Font);
         m_BatchRenderer->DrawLine({0.0f, 0.0f}, {GetPrimaryWindow()->GetWindowSize().X, GetPrimaryWindow()->GetWindowSize().Y}, {1.0f, 1.0f, 1.0f, 1.0f}, 2.0f);
         m_BatchRenderer->DrawLine({0.0f, GetPrimaryWindow()->GetWindowSize().Y}, {GetPrimaryWindow()->GetWindowSize().X, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f}, 5.0f);
         m_BatchRenderer->DrawCircle({500.0f, 500.0f}, 96.0f, {0.0f, 1.0f, 0.0f, 1.0f}, 48, 2.0f);
         m_BatchRenderer->DrawCircleFill({700.0f, 500.0f}, 128.0f, {0.0f, 0.0f, 1.0f, 1.0f}, 48);
         m_BatchRenderer->DrawQuad({900.0f, 100.0f}, {500.0f, 500.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, 8.0f);
+
+        std::string text = "abc\nHello";
+        auto fontSize = 272;
+        auto size = m_Font->MeasureString(text, fontSize);
+        m_BatchRenderer->DrawQuadFill({700.0f, 200.0f}, {700 + size.X, 200 + size.Y}, {1.0f, 0.0f, 0.0f, 1.0f});
+        m_BatchRenderer->DrawString(text, {700.0f, 200.0f}, fontSize, {0.2f, 0.2f, 0.2f, 1.0f}, m_Font);
+
         m_BatchRenderer->End();
 
         /* if (!m_Window2->IsClosing())
@@ -222,7 +229,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D11;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;

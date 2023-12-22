@@ -6,9 +6,6 @@
 #include "Nexus/Point.hpp"
 #include "Nexus/Graphics/Color.hpp"
 
-#include "ft2build.h"
-#include FT_FREETYPE_H
-
 #include <string>
 
 namespace Nexus::Graphics
@@ -58,15 +55,6 @@ namespace Nexus::Graphics
 
             uint32_t offset = x + (y * m_Width);
 
-            /* if (value > 0)
-            {
-                value = 255;
-            }
-            else
-            {
-                value = 0;
-            } */
-
             Color color = Nexus::Graphics::Color(255, 255, 255, 255);
             m_Pixels[offset] = color.GetColor();
 
@@ -90,7 +78,7 @@ namespace Nexus::Graphics
         glm::vec2 Bearing;
         glm::vec2 TexCoordsMin;
         glm::vec2 TexCoordsMax;
-        Nexus::Point<uint32_t> Advance;
+        glm::vec2 Advance;
     };
 
     class Font
@@ -100,9 +88,9 @@ namespace Nexus::Graphics
         Nexus::Graphics::Texture *GetTexture();
         const Character &GetCharacter(char character);
         uint32_t GetSize() const;
-
-    private:
-        void LoadCharacter(char character, FT_Face &face, FontData &data, uint32_t x, uint32_t y);
+        Nexus::Point<uint32_t> MeasureString(const std::string& text, uint32_t size);
+        float GetSpaceWidth();
+        const glm::vec2& GetLargestCharacterSize();
 
     private:
         Nexus::Graphics::Texture *m_Texture = nullptr;
@@ -110,6 +98,8 @@ namespace Nexus::Graphics
         std::map<char, Character> m_Characters;
         uint32_t m_TextureWidth = 0;
         uint32_t m_TextureHeight = 0;
-        uint32_t m_Size = 128;
+        uint32_t m_Size = 96;
+        float m_SpaceWidth = 0;
+        glm::vec2 m_LargestCharacterSize;
     };
 }
