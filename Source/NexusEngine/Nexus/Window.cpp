@@ -64,7 +64,7 @@ namespace Nexus
         SDL_SetWindowTitle(this->m_Window, title.c_str());
     }
 
-    void Window::SetSize(Point<int> size)
+    void Window::SetSize(Point<uint32_t> size)
     {
         SDL_SetWindowSize(m_Window, size.X, size.Y);
     }
@@ -84,14 +84,18 @@ namespace Nexus
         return m_Window;
     }
 
-    Point<int> Window::GetWindowSize()
+    Point<uint32_t> Window::GetWindowSize()
     {
-        Point<int> size{};
+        int x, y;
 #ifndef __EMSCRIPTEN__
-        SDL_GetWindowSize(m_Window, &size.X, &size.Y);
+        SDL_GetWindowSize(m_Window, &x, &y);
 #else
-        emscripten_get_canvas_element_size("canvas", &size.X, &size.Y);
+        emscripten_get_canvas_element_size("canvas", &x, &y);
 #endif
+
+        Point<uint32_t> size{};
+        size.X = x;
+        size.Y = y;
         return size;
     }
 

@@ -9,6 +9,8 @@
 #include "Framebuffer.hpp"
 #include "Nexus/Types.hpp"
 #include "RenderTarget.hpp"
+#include "Viewport.hpp"
+#include "Scissor.hpp"
 
 #include <functional>
 #include <variant>
@@ -89,7 +91,7 @@ namespace Nexus::Graphics
 
     struct SetScissorCommand
     {
-        Rectangle Scissor;
+        Scissor Scissor;
     };
 
     /// @brief A class representing a command list
@@ -143,7 +145,7 @@ namespace Nexus::Graphics
 
         virtual void SetViewport(const Viewport &viewport) = 0;
 
-        virtual void SetScissor(const Rectangle &scissor) = 0;
+        virtual void SetScissor(const Scissor &scissor) = 0;
     };
 
     /// @brief A typedef to simplify creating function pointers to render commands

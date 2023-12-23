@@ -94,7 +94,7 @@ namespace Nexus
         // optional overridable methods
         /// @brief A virtual method that is called when the application's window is resized
         /// @param size The new size of the window
-        virtual void OnResize(Point<int> size) {}
+        virtual void OnResize(Point<uint32_t> size) {}
 
         /// @brief A virtual method that allows a client to block the application from closing (e.g. to prompt to save)
         /// @return A boolean value representing whether the application should close
@@ -109,7 +109,7 @@ namespace Nexus
 
         /// @brief A method that is used to retrieve the size of an application's window
         /// @return A Nexus::Point containing two integers representing the size of the window
-        Point<int> GetWindowSize();
+        Point<uint32_t> GetWindowSize();
 
         /// @brief A method that is used to retrieve the location of a window
         /// @return A Nexus::Point containing two integers representing the position of the window

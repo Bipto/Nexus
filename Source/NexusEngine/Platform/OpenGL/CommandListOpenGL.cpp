@@ -100,6 +100,7 @@ namespace Nexus::Graphics
             }
 
             commandListGL->BindPipeline(pipeline);
+            commandListGL->m_CurrentRenderTarget = target;
         };
         m_Commands.push_back(renderCommand);
     }
@@ -248,6 +249,8 @@ namespace Nexus::Graphics
             {
                 throw std::runtime_error("Invalid render target type");
             }
+
+            commandListGL->m_CurrentRenderTarget = setRenderTargetCommand.Target;
         };
         m_Commands.push_back(renderCommand);
     }
@@ -277,7 +280,7 @@ namespace Nexus::Graphics
         m_Commands.push_back(renderCommand);
     }
 
-    void CommandListOpenGL::SetScissor(const Rectangle &scissor)
+    void CommandListOpenGL::SetScissor(const Scissor &scissor)
     {
         SetScissorCommand command;
         command.Scissor = scissor;
@@ -289,11 +292,14 @@ namespace Nexus::Graphics
             auto commandData = commandListGL->GetCurrentCommandData();
             auto setScissorCommand = std::get<SetScissorCommand>(commandData);
 
+            auto scissorMinY = commandListGL->m_CurrentRenderTarget.GetSize().Y - setScissorCommand.Scissor.Height;
+            auto scissorMaxY = setScissorCommand.Scissor.Height - setScissorCommand.Scissor.Y;
+
             glScissor(
                 setScissorCommand.Scissor.X,
-                setScissorCommand.Scissor.Y,
+                scissorMinY,
                 setScissorCommand.Scissor.Width,
-                setScissorCommand.Scissor.Height);
+                scissorMaxY);
         };
         m_Commands.push_back(renderCommand);
     }

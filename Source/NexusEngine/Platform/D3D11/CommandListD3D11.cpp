@@ -346,7 +346,7 @@ namespace Nexus::Graphics
         m_Commands.push_back(renderCommand);
     }
 
-    void CommandListD3D11::SetScissor(const Rectangle &scissor)
+    void CommandListD3D11::SetScissor(const Scissor &scissor)
     {
         SetScissorCommand command;
         command.Scissor = scissor;
@@ -363,8 +363,8 @@ namespace Nexus::Graphics
             D3D11_RECT rect;
             rect.left = setScissor.Scissor.X;
             rect.top = setScissor.Scissor.Y;
-            rect.bottom = setScissor.Scissor.Height;
-            rect.right = setScissor.Scissor.Width;
+            rect.bottom = setScissor.Scissor.Height + setScissor.Scissor.Y;
+            rect.right = setScissor.Scissor.Width + setScissor.Scissor.X;
 
             context->RSSetScissorRects(1, &rect);
         };

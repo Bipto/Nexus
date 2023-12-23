@@ -4,6 +4,7 @@
 
 #include "Nexus/Graphics/Font.hpp"
 #include "Nexus/Vertex.hpp"
+#include "Nexus/Graphics/Rectangle.hpp"
 
 namespace Nexus::Graphics
 {
@@ -39,8 +40,10 @@ namespace Nexus::Graphics
         void Resize();
 
         void Begin(const glm::mat4 &mvp);
+        void Begin(Viewport viewport, Scissor scissor);
         void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color);
         void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Texture *texture);
+        void DrawQuadFill(const Rectangle &rectangle, const glm::vec4 &color);
         void DrawQuad(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, float thickness);
         void DrawCharacter(char character, const glm::vec2 &position, float scale, const glm::vec4 &color, Font *font);
         void DrawString(const std::string &text, const glm::vec2 &position, uint32_t size, const glm::vec4 &color, Font *font);
@@ -83,5 +86,8 @@ namespace Nexus::Graphics
         uint32_t m_Width = 0;
         uint32_t m_Height = 0;
         Nexus::Graphics::RenderTarget m_RenderTarget;
+
+        Nexus::Graphics::Viewport m_Viewport;
+        Nexus::Graphics::Scissor m_ScissorRectangle;
     };
 }

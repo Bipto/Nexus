@@ -2,8 +2,7 @@
 
 #include "Shader.hpp"
 #include "Viewport.hpp"
-
-#include "Rectangle.hpp"
+#include "Scissor.hpp"
 
 #include "ResourceSet.hpp"
 #include "RenderTarget.hpp"

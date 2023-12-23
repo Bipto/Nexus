@@ -4,6 +4,10 @@
 
 #include "Nexus/Renderer/BatchRenderer.hpp"
 
+#include "Nexus/UI/Layout.hpp"
+#include "Nexus/UI/Control.hpp"
+#include "Nexus/UI/Window.hpp"
+
 std::vector<Nexus::Graphics::VertexPositionTexCoord> vertices =
     {
         {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f}},
@@ -69,10 +73,16 @@ public:
                 {0x0020, 0x00FF}};
 
         m_Font = new Nexus::Graphics::Font("resources/fonts/roboto/Roboto-Regular.ttf", fontRange, m_GraphicsDevice);
+
+        m_Layout = new Nexus::UI::Layout(m_GraphicsDevice->GetPrimaryWindow(), m_GraphicsDevice);
+
+        auto uiWindow = new Nexus::UI::Window(100, 100, 500, 500, "My Window with a really long title to test if text gets cut off", m_Font);
+        m_Layout->AddControl(uiWindow);
     }
 
     virtual void Update(Nexus::Time time) override
     {
+        m_Layout->Update();
     }
 
     virtual void Render(Nexus::Time time) override
@@ -104,7 +114,7 @@ public:
         vp.MaxDepth = 1.0f;
         m_CommandList->SetViewport(vp);
 
-        Nexus::Graphics::Rectangle scissor;
+        Nexus::Graphics::Scissor scissor;
         scissor.X = 0;
         scissor.Y = 0;
         scissor.Width = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize().X;
@@ -127,7 +137,7 @@ public:
         m_CommandList->End();
         m_GraphicsDevice->SubmitCommandList(m_CommandList);
 
-        glm::mat4 projection = glm::ortho<float>(0.0f, m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize().X, m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize().Y, 0.0f, -1.0f, 1.0f);
+        /* glm::mat4 projection = glm::ortho<float>(0.0f, m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize().X, m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize().Y, 0.0f, -1.0f, 1.0f);
         glm::mat4 view = glm::mat4(1.0f);
         glm::mat4 mvp = projection * view;
 
@@ -146,15 +156,17 @@ public:
         m_BatchRenderer->DrawQuadFill({700.0f, 200.0f}, {700 + size.X, 200 + size.Y}, {1.0f, 0.0f, 0.0f, 1.0f});
         m_BatchRenderer->DrawString(text, {700.0f, 200.0f}, fontSize, {0.2f, 0.2f, 0.2f, 1.0f}, m_Font);
 
-        m_BatchRenderer->End();
+        m_BatchRenderer->End(); */
 
         /* if (!m_Window2->IsClosing())
         {
             m_Window2->GetSwapchain()->SwapBuffers();
         } */
+
+        m_Layout->Render();
     }
 
-    virtual void OnResize(Nexus::Point<int> size) override
+    virtual void OnResize(Nexus::Point<uint32_t> size) override
     {
         m_BatchRenderer->Resize();
     }
@@ -224,12 +236,13 @@ private:
     Nexus::Graphics::Mesh *m_QuadMesh = nullptr;
 
     Nexus::Graphics::BatchRenderer *m_BatchRenderer = nullptr;
+    Nexus::UI::Layout *m_Layout = nullptr;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D11;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;

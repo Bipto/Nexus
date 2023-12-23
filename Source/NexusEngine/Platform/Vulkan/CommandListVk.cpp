@@ -262,7 +262,7 @@ namespace Nexus::Graphics
         vkCmdSetViewport(m_CurrentCommandBuffer, 0, 1, &vp);
     }
 
-    void CommandListVk::SetScissor(const Rectangle &scissor)
+    void CommandListVk::SetScissor(const Scissor &scissor)
     {
         if (scissor.Width == 0 || scissor.Height == 0)
             return;

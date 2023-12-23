@@ -68,6 +68,11 @@ namespace Nexus::Graphics
     {
         SDL_GL_MakeCurrent(m_Window->GetSDLWindowHandle(), m_Context);
         glBindFramebuffer(GL_FRAMEBUFFER, m_Backbuffer);
+
+        auto width = m_Window->GetWindowSize().X;
+        auto height = m_Window->GetWindowSize().Y;
+        glViewport(0, 0, width, height);
+        glScissor(0, 0, width, height);
     }
 
     // static member initialisation

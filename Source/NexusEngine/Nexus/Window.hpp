@@ -69,7 +69,7 @@ namespace Nexus
 
         /// @brief A method to set the size of a window
         /// @param size
-        void SetSize(Point<int> size);
+        void SetSize(Point<uint32_t> size);
 
         /// @brief A method that closes a window
         void Close();
@@ -84,7 +84,7 @@ namespace Nexus
 
         /// @brief A metho dthat returns the size of the window
         /// @return A Nexus::Point containing two integers representing the size of the window
-        Point<int> GetWindowSize();
+        Point<uint32_t> GetWindowSize();
 
         /// @brief A method to get the position of the window
         /// @return A Nexus::Point containing two integers representing the position of the window

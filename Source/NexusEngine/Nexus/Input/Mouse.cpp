@@ -7,69 +7,69 @@ namespace Nexus
         m_PreviousState = m_CurrentState;
     }
 
-    bool Mouse::WasLeftMouseClicked()
+    bool Mouse::WasLeftMouseClicked() const
     {
         return m_CurrentState.LeftButton == MouseButtonState::Pressed && m_PreviousState.LeftButton == MouseButtonState::Released;
     }
 
-    bool Mouse::WasLeftMouseReleased()
+    bool Mouse::WasLeftMouseReleased() const
     {
         return m_CurrentState.LeftButton == MouseButtonState::Released && m_PreviousState.LeftButton == MouseButtonState::Pressed;
     }
 
-    bool Mouse::IsLeftMouseHeld()
+    bool Mouse::IsLeftMouseHeld() const
     {
         return m_CurrentState.LeftButton == MouseButtonState::Pressed;
     }
 
-    bool Mouse::WasRightMouseClicked()
+    bool Mouse::WasRightMouseClicked() const
     {
         return m_CurrentState.RightButton == MouseButtonState::Pressed && m_PreviousState.RightButton == MouseButtonState::Released;
     }
 
-    bool Mouse::WasRightMouseReleased()
+    bool Mouse::WasRightMouseReleased() const
     {
         return m_CurrentState.RightButton == MouseButtonState::Released && m_PreviousState.RightButton == MouseButtonState::Pressed;
     }
 
-    bool Mouse::IsRightMouseHeld()
+    bool Mouse::IsRightMouseHeld() const
     {
         return m_CurrentState.RightButton == MouseButtonState::Pressed;
     }
 
-    bool Mouse::WasMiddleMouseClicked()
+    bool Mouse::WasMiddleMouseClicked() const
     {
         return m_CurrentState.MiddleButton == MouseButtonState::Pressed && m_PreviousState.MiddleButton == MouseButtonState::Released;
     }
 
-    bool Mouse::WasMiddleMouseReleased()
+    bool Mouse::WasMiddleMouseReleased() const
     {
         return m_CurrentState.MiddleButton == MouseButtonState::Released && m_PreviousState.MiddleButton == MouseButtonState::Pressed;
     }
 
-    bool Mouse::IsMiddleMouseHeld()
+    bool Mouse::IsMiddleMouseHeld() const
     {
         return m_CurrentState.MiddleButton == MouseButtonState::Pressed;
     }
 
-    Point<int> Mouse::GetMousePosition()
+    Point<int> Mouse::GetMousePosition() const
     {
         return m_CurrentState.MousePosition;
     }
 
-    Point<int> Mouse::GetMouseMovement()
+    Point<int> Mouse::GetMouseMovement() const
     {
         return {
             m_CurrentState.MousePosition.X - m_PreviousState.MousePosition.X,
             m_CurrentState.MousePosition.Y - m_PreviousState.MousePosition.Y};
     }
 
-    Point<int> Mouse::GetScroll()
+    Point<int> Mouse::GetScroll() const
     {
         return m_CurrentState.MouseWheel;
     }
 
-    Point<int> Mouse::GetScrollMovement()
+    Point<int> Mouse::GetScrollMovement() const
     {
         return {
             m_CurrentState.MouseWheel.X - m_PreviousState.MouseWheel.X,

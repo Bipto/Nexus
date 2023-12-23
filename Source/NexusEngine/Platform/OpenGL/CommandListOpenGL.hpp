@@ -31,7 +31,7 @@ namespace Nexus::Graphics
         virtual void SetRenderTarget(RenderTarget target) override;
 
         virtual void SetViewport(const Viewport &viewport) override;
-        virtual void SetScissor(const Rectangle &scissor) override;
+        virtual void SetScissor(const Scissor &scissor) override;
 
     public:
         const std::vector<RenderCommand> &GetRenderCommands();
@@ -47,5 +47,6 @@ namespace Nexus::Graphics
         std::vector<RenderCommandData> m_CommandData;
         uint32_t m_CommandIndex = 0;
         Pipeline *m_CurrentlyBoundPipeline;
+        RenderTarget m_CurrentRenderTarget;
     };
 }

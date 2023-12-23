@@ -17,6 +17,11 @@ namespace Nexus::Graphics
     {
         glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
         glDrawBuffers(m_ColorTextures.size(), m_Buffers.data());
+
+        auto width = m_Specification.Width;
+        auto height = m_Specification.Height;
+        glViewport(0, 0, width, height);
+        glScissor(0, 0, width, height);
     }
 
     void FramebufferOpenGL::Unbind()

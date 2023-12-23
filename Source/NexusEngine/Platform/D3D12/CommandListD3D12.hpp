@@ -33,7 +33,7 @@ namespace Nexus::Graphics
         virtual void SetRenderTarget(RenderTarget target) override;
 
         virtual void SetViewport(const Viewport &viewport) override;
-        virtual void SetScissor(const Rectangle &scissor) override;
+        virtual void SetScissor(const Scissor &scissor) override;
 
         ID3D12GraphicsCommandList7 *GetCommandList();
 

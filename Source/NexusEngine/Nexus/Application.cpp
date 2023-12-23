@@ -362,7 +362,7 @@ namespace Nexus
         return m_Window;
     }
 
-    Point<int> Application::GetWindowSize()
+    Point<uint32_t> Application::GetWindowSize()
     {
         return this->m_Window->GetWindowSize();
     }

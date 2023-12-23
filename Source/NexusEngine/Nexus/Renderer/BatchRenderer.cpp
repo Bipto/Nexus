@@ -66,8 +66,49 @@ namespace Nexus::Graphics
         m_IndexCount = 0;
         m_ShapeCount = 0;
 
+        m_Viewport.X = 0;
+        m_Viewport.Y = 0;
+        m_Viewport.Width = m_RenderTarget.GetSize().X;
+        m_Viewport.Height = m_RenderTarget.GetSize().Y;
+
+        m_ScissorRectangle.X = 0;
+        m_ScissorRectangle.Y = 0;
+        m_ScissorRectangle.Width = m_RenderTarget.GetSize().X;
+        m_ScissorRectangle.Height = m_RenderTarget.GetSize().Y;
+
+        glm::mat4 projection = glm::ortho<float>(m_Viewport.X, m_Viewport.Width, m_Viewport.Height, m_Viewport.Y, -1.0f, 1.0f);
+
         void *buffer = m_UniformBuffer->Map();
-        memcpy(buffer, &mvp, sizeof(mvp));
+        memcpy(buffer, &projection, sizeof(projection));
+        m_UniformBuffer->Unmap();
+
+        m_Textures.clear();
+        m_Textures.push_back(m_BlankTexture);
+    }
+
+    void BatchRenderer::Begin(Viewport viewport, Scissor scissor)
+    {
+        if (m_IsStarted)
+        {
+            throw std::runtime_error("Batching has already started");
+        }
+
+        m_IsStarted = true;
+
+        m_Vertices.clear();
+        m_Indices.clear();
+
+        m_VertexCount = 0;
+        m_IndexCount = 0;
+        m_ShapeCount = 0;
+
+        m_Viewport = viewport;
+        m_ScissorRectangle = scissor;
+
+        glm::mat4 projection = glm::ortho<float>(m_Viewport.X, m_Viewport.Width, m_Viewport.Height, m_Viewport.Y, -1.0f, 1.0f);
+
+        void *buffer = m_UniformBuffer->Map();
+        memcpy(buffer, &projection, sizeof(projection));
         m_UniformBuffer->Unmap();
 
         m_Textures.clear();
@@ -193,6 +234,13 @@ namespace Nexus::Graphics
         m_VertexCount += shapeVertexCount;
     }
 
+    void BatchRenderer::DrawQuadFill(const Rectangle &rectangle, const glm::vec4 &color)
+    {
+        glm::vec2 min = {(float)rectangle.GetLeft(), (float)rectangle.GetTop()};
+        glm::vec2 max = {(float)rectangle.GetRight(), (float)rectangle.GetBottom()};
+        DrawQuadFill(min, max, color);
+    }
+
     void BatchRenderer::DrawQuad(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, float thickness)
     {
         DrawLine({min.x, max.y}, {max.x, max.y}, color, thickness);
@@ -274,7 +322,7 @@ namespace Nexus::Graphics
 
     void BatchRenderer::DrawString(const std::string &text, const glm::vec2 &position, uint32_t size, const glm::vec4 &color, Font *font)
     {
-        float scale = 1.0f / font->GetSize() * size;       
+        float scale = 1.0f / font->GetSize() * size;
 
         float x = position.x;
         float y = position.y;
@@ -550,6 +598,9 @@ namespace Nexus::Graphics
         m_CommandList->Begin();
         m_CommandList->SetPipeline(m_Pipeline);
 
+        /* m_CommandList->SetViewport(m_Viewport);
+        m_CommandList->SetScissor(m_ScissorRectangle); */
+
         Nexus::Graphics::Viewport vp;
         vp.X = 0;
         vp.Y = 0;
@@ -557,14 +608,17 @@ namespace Nexus::Graphics
         vp.Height = m_Device->GetPrimaryWindow()->GetWindowSize().Y;
         vp.MinDepth = 0.0f;
         vp.MaxDepth = 1.0f;
-        m_CommandList->SetViewport(vp);
+        // m_CommandList->SetViewport(vp);
 
-        Nexus::Graphics::Rectangle scissor;
+        Nexus::Graphics::Scissor scissor;
         scissor.X = 0;
         scissor.Y = 0;
         scissor.Width = m_Device->GetPrimaryWindow()->GetWindowSize().X;
         scissor.Height = m_Device->GetPrimaryWindow()->GetWindowSize().Y;
-        m_CommandList->SetScissor(scissor);
+        // m_CommandList->SetScissor(scissor);
+
+        m_CommandList->SetViewport(m_Viewport);
+        m_CommandList->SetScissor(m_ScissorRectangle);
 
         m_CommandList->SetResourceSet(m_ResourceSet);
 

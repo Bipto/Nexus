@@ -186,13 +186,13 @@ namespace Nexus::Graphics
         m_CommandList->RSSetViewports(1, &vp);
     }
 
-    void CommandListD3D12::SetScissor(const Rectangle &scissor)
+    void CommandListD3D12::SetScissor(const Scissor &scissor)
     {
         RECT rect;
         rect.left = scissor.X;
         rect.top = scissor.Y;
-        rect.right = scissor.Width;
-        rect.bottom = scissor.Height;
+        rect.right = scissor.Width + scissor.X;
+        rect.bottom = scissor.Height + scissor.Y;
         m_CommandList->RSSetScissorRects(1, &rect);
     }
 

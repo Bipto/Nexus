@@ -2,7 +2,10 @@
 
 #include "Framebuffer.hpp"
 #include "Swapchain.hpp"
+#include "Nexus/Window.hpp"
+#include "Nexus/Point.hpp"
 
+#include <inttypes.h>
 #include <variant>
 
 namespace Nexus::Graphics
@@ -55,6 +58,25 @@ namespace Nexus::Graphics
             {
                 auto framebuffer = GetData<Framebuffer *>();
                 return framebuffer->GetColorTextureCount();
+            }
+            else
+            {
+                throw std::runtime_error("An invalid render target was selected");
+            }
+        }
+
+        Nexus::Point<uint32_t> GetSize()
+        {
+            if (m_RenderTargetType == RenderTargetType::Swapchain)
+            {
+                auto swapchain = GetData<Swapchain*>();
+                return swapchain->GetWindow()->GetWindowSize();
+            }
+            else if (m_RenderTargetType == RenderTargetType::Framebuffer)
+            {
+                auto framebuffer = GetData<Framebuffer*>();
+                const auto& framebufferSpec = framebuffer->GetFramebufferSpecification();
+                return {framebufferSpec.Width, framebufferSpec.Height};
             }
             else
             {

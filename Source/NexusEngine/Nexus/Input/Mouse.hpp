@@ -42,55 +42,55 @@ namespace Nexus
 
         /// @brief A method that checks whether the left mouse buttons was clicked
         /// @return A boolean value representing if the left mouse button was clicked
-        bool WasLeftMouseClicked();
+        bool WasLeftMouseClicked() const;
 
         /// @brief A method that checks whether the left mouse buttons was released
         /// @return A boolean value representing if the left mouse button was released
-        bool WasLeftMouseReleased();
+        bool WasLeftMouseReleased() const;
 
         /// @brief A method that checks whether the left mouse buttons was held
         /// @return A boolean value representing if the left mouse button was held
-        bool IsLeftMouseHeld();
+        bool IsLeftMouseHeld() const;
 
         /// @brief A method that checks whether the right mouse buttons was clicked
         /// @return A boolean value representing if the right mouse button was clicked
-        bool WasRightMouseClicked();
+        bool WasRightMouseClicked() const;
 
         /// @brief A method that checks whether the right mouse buttons was released
         /// @return A boolean value representing if the right mouse button was released
-        bool WasRightMouseReleased();
+        bool WasRightMouseReleased() const;
 
         /// @brief A method that checks whether the right mouse buttons was held
         /// @return A boolean value representing if the right mouse button was held
-        bool IsRightMouseHeld();
+        bool IsRightMouseHeld() const;
 
         /// @brief A method that checks whether the middle mouse buttons was clicked
         /// @return A boolean value representing if the middle mouse button was clicked
-        bool WasMiddleMouseClicked();
+        bool WasMiddleMouseClicked() const;
 
         /// @brief A method that checks whether the left mouse buttons was released
         /// @return A boolean value representing if the middle mouse button was released
-        bool WasMiddleMouseReleased();
+        bool WasMiddleMouseReleased() const;
 
         /// @brief A method that checks whether the left mouse buttons was held
         /// @return A boolean value representing if the middle mouse button was held
-        bool IsMiddleMouseHeld();
+        bool IsMiddleMouseHeld() const;
 
         /// @brief A method that returns the current position of the mouse pointer
         /// @return A Nexus::Point containing two integer values representing the position of the mouse
-        Point<int> GetMousePosition();
+        Point<int> GetMousePosition() const;
 
         /// @brief A method that returns the movement of the mouse pointer
         /// @return A Nexus::Point containing two integer values representing the movement of the mouse
-        Point<int> GetMouseMovement();
+        Point<int> GetMouseMovement() const;
 
         /// @brief A method that returns the current scroll value of the mouse
         /// @return A Nexus::Point containing two integer values representing the current scroll of the mouse
-        Point<int> GetScroll();
+        Point<int> GetScroll() const;
 
         /// @brief A method that returns the scroll movement of the mouse
         /// @return A Nexus::Point containing two integer values representing the scroll movement of the mouse
-        Point<int> GetScrollMovement();
+        Point<int> GetScrollMovement() const;
 
     private:
         /// @brief A mouse state containing the current state of the mouse pointer and buttons
