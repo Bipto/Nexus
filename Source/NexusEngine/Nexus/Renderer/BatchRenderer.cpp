@@ -320,6 +320,83 @@ namespace Nexus::Graphics
         m_VertexCount += shapeVertexCount;
     }
 
+    void BatchRenderer::DrawCharacter(char character, const glm::vec2 &position, float scale, const glm::vec4 &color, Font *font, const Rectangle &clippingRectangle)
+    {
+        const auto &characterInfo = font->GetCharacter(character);
+        glm::vec2 min = position;
+        glm::vec2 max = {position.x + (characterInfo.Size.x * scale), position.y + (characterInfo.Size.y * scale)};
+
+        // if (min.x > clippingRectangle.GetRight() || max.x < clippingRectangle.GetLeft())
+        if (max.x > clippingRectangle.GetRight())
+        {
+            return;
+        }
+
+        EnsureStarted();
+
+        const uint32_t shapeVertexCount = 4;
+        const uint32_t shapeIndexCount = 6;
+
+        EnsureSpace(shapeVertexCount, shapeIndexCount);
+
+        glm::vec3 a(min.x, max.y, 0.0f);
+        glm::vec3 b(max.x, max.y, 0.0f);
+        glm::vec3 c(max.x, min.y, 0.0f);
+        glm::vec3 d(min.x, min.y, 0.0f);
+
+        m_Indices.push_back(0 + m_VertexCount);
+        m_Indices.push_back(1 + m_VertexCount);
+        m_Indices.push_back(2 + m_VertexCount);
+        m_Indices.push_back(0 + m_VertexCount);
+        m_Indices.push_back(2 + m_VertexCount);
+        m_Indices.push_back(3 + m_VertexCount);
+
+        float texIndex = 0.0f;
+
+        uint32_t index;
+        auto texture = font->GetTexture();
+        if (FindTextureInBatch(texture, &index))
+        {
+            texIndex = (float)index;
+        }
+        else
+        {
+            texIndex = (float)m_Textures.size();
+            m_Textures.push_back(texture);
+        }
+
+        VertexPositionTexCoordColorTexIndex v0;
+        v0.Position = a;
+        v0.TexCoords = {characterInfo.TexCoordsMin.x, characterInfo.TexCoordsMin.y};
+        v0.Color = color;
+        v0.TexIndex = texIndex;
+        m_Vertices.push_back(v0);
+
+        VertexPositionTexCoordColorTexIndex v1;
+        v1.Position = b;
+        v1.TexCoords = {characterInfo.TexCoordsMax.x, characterInfo.TexCoordsMin.y};
+        v1.Color = color;
+        v1.TexIndex = texIndex;
+        m_Vertices.push_back(v1);
+
+        VertexPositionTexCoordColorTexIndex v2;
+        v2.Position = c;
+        v2.TexCoords = {characterInfo.TexCoordsMax.x, characterInfo.TexCoordsMax.y};
+        v2.Color = color;
+        v2.TexIndex = texIndex;
+        m_Vertices.push_back(v2);
+
+        VertexPositionTexCoordColorTexIndex v3;
+        v3.Position = d;
+        v3.TexCoords = {characterInfo.TexCoordsMin.x, characterInfo.TexCoordsMax.y};
+        v3.Color = color;
+        v3.TexIndex = texIndex;
+        m_Vertices.push_back(v3);
+
+        m_IndexCount += shapeIndexCount;
+        m_VertexCount += shapeVertexCount;
+    }
+
     void BatchRenderer::DrawString(const std::string &text, const glm::vec2 &position, uint32_t size, const glm::vec4 &color, Font *font)
     {
         float scale = 1.0f / font->GetSize() * size;
@@ -363,6 +440,55 @@ namespace Nexus::Graphics
                 yPos -= largestCharacterSize;
 
                 DrawCharacter(character, {xPos, y - yPos}, scale, color, font);
+
+                x += (characterInfo.Advance.x / 64) * scale;
+            }
+        }
+    }
+
+    void BatchRenderer::DrawString(const std::string &text, const glm::vec2 &position, uint32_t size, const glm::vec4 &color, Font *font, const Rectangle &clippingRectangle)
+    {
+        float scale = 1.0f / font->GetSize() * size;
+
+        float x = position.x;
+        float y = position.y;
+
+        uint32_t largestCharacterSize = 0;
+        for (auto character : text)
+        {
+            const auto &characterInfo = font->GetCharacter(character);
+
+            auto characterHeight = characterInfo.Size.y * scale;
+            if (characterHeight > largestCharacterSize)
+            {
+                largestCharacterSize = characterHeight;
+            }
+        }
+
+        for (auto character : text)
+        {
+            if (character == ' ')
+            {
+                x += font->GetSpaceWidth() * scale;
+            }
+            else if (character == '\n')
+            {
+                x = position.x;
+                y += font->GetLargestCharacterSize().y * scale;
+            }
+            else if (character == '\t')
+            {
+                x += font->GetSpaceWidth() * scale * 4;
+            }
+            else
+            {
+                const auto &characterInfo = font->GetCharacter(character);
+
+                float xPos = x + characterInfo.Bearing.x * scale;
+                float yPos = (characterInfo.Bearing.y) * scale;
+                yPos -= largestCharacterSize;
+
+                DrawCharacter(character, {xPos, y - yPos}, scale, color, font, clippingRectangle);
 
                 x += (characterInfo.Advance.x / 64) * scale;
             }
@@ -447,16 +573,21 @@ namespace Nexus::Graphics
 
         for (int i = 0; i < numberOfPoints; i++)
         {
-            float ax = glm::sin(angle) * radius + (position.x / 2);
-            float ay = glm::cos(angle) * radius + (position.y / 2);
+            float ax = glm::sin(angle) * radius + (position.x);
+            float ay = glm::cos(angle) * radius + (position.y);
 
             angle += deltaAngle;
 
-            float bx = glm::sin(angle) * radius + (position.x / 2);
-            float by = glm::cos(angle) * radius + (position.y / 2);
+            float bx = glm::sin(angle) * radius + (position.x);
+            float by = glm::cos(angle) * radius + (position.y);
 
             DrawLine({ax, ay}, {bx, by}, color, thickness);
         }
+    }
+
+    void BatchRenderer::DrawCircle(const Circle &circle, const glm::vec4 &color, uint32_t numberOfPoints, float thickness)
+    {
+        DrawCircle(circle.GetPosition(), circle.GetRadius(), color, numberOfPoints, thickness);
     }
 
     void BatchRenderer::DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints)
@@ -506,6 +637,60 @@ namespace Nexus::Graphics
             ax = cos * x1 - sin * y1;
             ay = sin * x1 + cos * y1;
         }
+
+        m_IndexCount += shapeIndexCount;
+        m_VertexCount += shapeVertexCount;
+    }
+
+    void BatchRenderer::DrawCircleFill(const Circle &circle, const glm::vec4 &color, uint32_t numberOfPoints)
+    {
+        DrawCircleFill(circle.GetPosition(), circle.GetRadius(), color, numberOfPoints);
+    }
+
+    void BatchRenderer::DrawCross(const Rectangle &rectangle, float thickness, const glm::vec4 &color)
+    {
+        glm::vec2 topLeft = {rectangle.GetLeft() + thickness, rectangle.GetTop() + thickness};
+        glm::vec2 bottomRight = {rectangle.GetRight() - thickness, rectangle.GetBottom() - thickness};
+        glm::vec2 bottomLeft = {rectangle.GetLeft() + thickness, rectangle.GetBottom() - thickness};
+        glm::vec2 topRight = {rectangle.GetRight() - thickness, rectangle.GetTop() + thickness};
+
+        DrawLine(topLeft, bottomRight, color, thickness);
+        DrawLine(bottomLeft, topRight, color, thickness);
+    }
+
+    void BatchRenderer::DrawTriangle(const glm::vec2 &a, const glm::vec2 &b, const glm::vec2 &c, const glm::vec4 &color)
+    {
+        EnsureStarted();
+
+        const uint32_t shapeVertexCount = 3;
+        const uint32_t shapeIndexCount = 3;
+
+        EnsureSpace(shapeVertexCount, shapeIndexCount);
+
+        m_Indices.push_back(0 + m_VertexCount);
+        m_Indices.push_back(1 + m_VertexCount);
+        m_Indices.push_back(2 + m_VertexCount);
+
+        VertexPositionTexCoordColorTexIndex v0;
+        v0.Position = {a, 0.0f};
+        v0.TexCoords = {1.0f, 1.0f};
+        v0.Color = color;
+        v0.TexIndex = 0;
+        m_Vertices.push_back(v0);
+
+        VertexPositionTexCoordColorTexIndex v1;
+        v1.Position = {b, 0.0f};
+        v1.TexCoords = {1.0f, 1.0f};
+        v1.Color = color;
+        v1.TexIndex = 0;
+        m_Vertices.push_back(v1);
+
+        VertexPositionTexCoordColorTexIndex v2;
+        v2.Position = {c, 0.0f};
+        v2.TexCoords = {1.0f, 1.0f};
+        v2.Color = color;
+        v2.TexIndex = 0;
+        m_Vertices.push_back(v2);
 
         m_IndexCount += shapeIndexCount;
         m_VertexCount += shapeVertexCount;

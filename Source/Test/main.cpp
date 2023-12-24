@@ -8,6 +8,8 @@
 #include "Nexus/UI/Control.hpp"
 #include "Nexus/UI/Window.hpp"
 
+#include "Nexus/Graphics/Circle.hpp"
+
 std::vector<Nexus::Graphics::VertexPositionTexCoord> vertices =
     {
         {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f}},
@@ -75,9 +77,9 @@ public:
         m_Font = new Nexus::Graphics::Font("resources/fonts/roboto/Roboto-Regular.ttf", fontRange, m_GraphicsDevice);
 
         m_Layout = new Nexus::UI::Layout(m_GraphicsDevice->GetPrimaryWindow(), m_GraphicsDevice);
+        m_Layout->AddWindow("My Window with a really long title to test if text gets cut off", 100, 100, 500, 500, m_Font);
 
-        auto uiWindow = new Nexus::UI::Window(100, 100, 500, 500, "My Window with a really long title to test if text gets cut off", m_Font);
-        m_Layout->AddControl(uiWindow);
+        Nexus::Graphics::Circle c({100.0f, 100.0f}, 72);
     }
 
     virtual void Update(Nexus::Time time) override
@@ -242,7 +244,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;

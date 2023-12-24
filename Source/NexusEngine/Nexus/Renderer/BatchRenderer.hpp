@@ -5,6 +5,7 @@
 #include "Nexus/Graphics/Font.hpp"
 #include "Nexus/Vertex.hpp"
 #include "Nexus/Graphics/Rectangle.hpp"
+#include "Nexus/Graphics/Circle.hpp"
 
 namespace Nexus::Graphics
 {
@@ -46,10 +47,16 @@ namespace Nexus::Graphics
         void DrawQuadFill(const Rectangle &rectangle, const glm::vec4 &color);
         void DrawQuad(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, float thickness);
         void DrawCharacter(char character, const glm::vec2 &position, float scale, const glm::vec4 &color, Font *font);
+        void DrawCharacter(char character, const glm::vec2 &position, float scale, const glm::vec4 &color, Font *font, const Rectangle &clippingRectangle);
         void DrawString(const std::string &text, const glm::vec2 &position, uint32_t size, const glm::vec4 &color, Font *font);
+        void DrawString(const std::string &text, const glm::vec2 &position, uint32_t size, const glm::vec4 &color, Font *font, const Rectangle &clippingRectangle);
         void DrawLine(const glm::vec2 &a, const glm::vec2 &b, const glm::vec4 &color, float thickness);
         void DrawCircle(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, float thickness);
+        void DrawCircle(const Circle &circle, const glm::vec4 &color, uint32_t numberOfPoints, float thickness);
         void DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints);
+        void DrawCircleFill(const Circle &circle, const glm::vec4 &color, uint32_t numberOfPoints);
+        void DrawCross(const Rectangle &rectangle, float thickness, const glm::vec4 &color);
+        void DrawTriangle(const glm::vec2 &a, const glm::vec2 &b, const glm::vec2 &c, const glm::vec4 &color);
         void End();
 
     private:

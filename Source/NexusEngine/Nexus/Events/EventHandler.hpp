@@ -21,7 +21,7 @@ namespace Nexus
         void Invoke(T param)
         {
             for (auto delegate : m_EventFunctions)
-                delegate.Call(param);
+                delegate(param);
         }
 
         /// @brief A method to bind a new function to the event handler
@@ -46,6 +46,7 @@ namespace Nexus
         EventHandler &operator+=(std::function<void(T)> function)
         {
             Bind(function);
+            return *this;
         }
 
         /// @brief A custom operator that can be used to unbind a function from the event handler
@@ -54,6 +55,7 @@ namespace Nexus
         EventHandler &operator-=(std::function<void(T)> function)
         {
             Unbind(function);
+            return *this;
         }
 
         /// @brief A method that returns the amount of delegates bound to the event handler

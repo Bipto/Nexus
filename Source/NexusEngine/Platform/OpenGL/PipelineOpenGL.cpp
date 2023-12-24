@@ -45,6 +45,8 @@ namespace Nexus::Graphics
         case StencilOperation::Invert:
             return GL_INVERT;
         }
+
+        throw std::runtime_error("Failed to find a valid stencil operation");
     }
 
     GLenum GetComparisonFunction(ComparisonFunction function)
@@ -68,6 +70,8 @@ namespace Nexus::Graphics
         case ComparisonFunction::NotEqual:
             return GL_NOTEQUAL;
         }
+
+        throw std::runtime_error("Failed to find a valid comparison function");
     }
 
     GLenum GetBlendFunction(BlendFunction function)
@@ -95,6 +99,8 @@ namespace Nexus::Graphics
         case BlendFunction::OneMinusDestinationAlpha:
             return GL_ONE_MINUS_DST_ALPHA;
         }
+
+        throw std::runtime_error("Failed to find a valid blend function");
     }
 
     GLenum GetBlendEquation(BlendEquation equation)
@@ -112,6 +118,8 @@ namespace Nexus::Graphics
         case BlendEquation::Max:
             return GL_MAX;
         }
+
+        throw std::runtime_error("Failed to find a valid blend equation");
     }
 
     void PipelineOpenGL::SetupDepthStencil()

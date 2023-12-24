@@ -53,8 +53,8 @@ namespace Nexus::Graphics
 
     bool Rectangle::ContainsPoint(Nexus::Point<int> point)
     {
-        return point.X > m_X && point.X < m_X + m_Width &&
-               point.Y > m_Y && point.Y < m_Y + m_Height;
+        return point.X >= m_X && point.X < m_X + m_Width &&
+               point.Y >= m_Y && point.Y < m_Y + m_Height;
     }
 
     const int Rectangle::GetWidth() const
