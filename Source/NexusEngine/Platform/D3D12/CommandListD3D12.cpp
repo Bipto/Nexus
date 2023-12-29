@@ -36,6 +36,8 @@ namespace Nexus::Graphics
     {
         m_CommandAllocator->Reset();
         m_CommandList->Reset(m_CommandAllocator.Get(), nullptr);
+
+        m_CurrentRenderTarget = {};
     }
 
     void CommandListD3D12::End()
@@ -171,7 +173,7 @@ namespace Nexus::Graphics
             false,
             m_DepthHandle);
 
-        m_CurrentRenderTarget = &target;
+        m_CurrentRenderTarget = target;
     }
 
     void CommandListD3D12::SetViewport(const Viewport &viewport)
@@ -255,61 +257,58 @@ namespace Nexus::Graphics
 
     void CommandListD3D12::ResetPreviousRenderTargets()
     {
-        if (m_CurrentRenderTarget)
+        if (m_CurrentRenderTarget.GetType() == RenderTargetType::None)
         {
-            if (m_CurrentRenderTarget->GetType() == RenderTargetType::None)
-            {
-                return;
-            }
-
-            if (m_CurrentRenderTarget->GetType() == RenderTargetType::Swapchain)
-            {
-                auto d3d12Swapchain = (SwapchainD3D12 *)m_CurrentRenderTarget->GetData<Swapchain *>();
-                D3D12_RESOURCE_BARRIER presentBarrier;
-                presentBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-                presentBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-                presentBarrier.Transition.pResource = d3d12Swapchain->RetrieveBufferHandles()[d3d12Swapchain->GetCurrentBufferIndex()];
-                presentBarrier.Transition.Subresource = 0;
-                presentBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-                presentBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-                m_CommandList->ResourceBarrier(1, &presentBarrier);
-            }
-            else if (m_CurrentRenderTarget->GetType() == RenderTargetType::Framebuffer)
-            {
-                auto d3d12Framebuffer = (FramebufferD3D12 *)m_CurrentRenderTarget->GetData<Framebuffer *>();
-                std::vector<D3D12_RESOURCE_BARRIER> resourceBarriers;
-                auto colorTextures = d3d12Framebuffer->GetColorTextures();
-
-                for (int i = 0; i < d3d12Framebuffer->GetColorTextureCount(); i++)
-                {
-                    D3D12_RESOURCE_BARRIER renderTargetBarrier;
-                    renderTargetBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-                    renderTargetBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-                    renderTargetBarrier.Transition.pResource = colorTextures[i].Get();
-                    renderTargetBarrier.Transition.Subresource = 0;
-                    renderTargetBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-                    renderTargetBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COMMON;
-                    resourceBarriers.push_back(renderTargetBarrier);
-                }
-
-                if (d3d12Framebuffer->HasDepthTexture())
-                {
-                    auto depthTexture = d3d12Framebuffer->GetDepthTexture();
-
-                    D3D12_RESOURCE_BARRIER depthTargetBarrier;
-                    depthTargetBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-                    depthTargetBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-                    depthTargetBarrier.Transition.pResource = depthTexture.Get();
-                    depthTargetBarrier.Transition.Subresource = 0;
-                    depthTargetBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-                    depthTargetBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COMMON;
-                    resourceBarriers.push_back(depthTargetBarrier);
-                }
-                m_CommandList->ResourceBarrier(resourceBarriers.size(), resourceBarriers.data());
-            }
-
-            m_CurrentRenderTarget = nullptr;
+            return;
         }
+
+        if (m_CurrentRenderTarget.GetType() == RenderTargetType::Swapchain)
+        {
+            auto d3d12Swapchain = (SwapchainD3D12 *)m_CurrentRenderTarget.GetData<Swapchain *>();
+            D3D12_RESOURCE_BARRIER presentBarrier;
+            presentBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+            presentBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+            presentBarrier.Transition.pResource = d3d12Swapchain->RetrieveBufferHandles()[d3d12Swapchain->GetCurrentBufferIndex()];
+            presentBarrier.Transition.Subresource = 0;
+            presentBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+            presentBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+            m_CommandList->ResourceBarrier(1, &presentBarrier);
+        }
+        else if (m_CurrentRenderTarget.GetType() == RenderTargetType::Framebuffer)
+        {
+            auto d3d12Framebuffer = (FramebufferD3D12 *)m_CurrentRenderTarget.GetData<Framebuffer *>();
+            std::vector<D3D12_RESOURCE_BARRIER> resourceBarriers;
+            auto colorTextures = d3d12Framebuffer->GetColorTextures();
+
+            for (int i = 0; i < d3d12Framebuffer->GetColorTextureCount(); i++)
+            {
+                D3D12_RESOURCE_BARRIER renderTargetBarrier;
+                renderTargetBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+                renderTargetBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+                renderTargetBarrier.Transition.pResource = colorTextures[i].Get();
+                renderTargetBarrier.Transition.Subresource = 0;
+                renderTargetBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+                renderTargetBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COMMON;
+                resourceBarriers.push_back(renderTargetBarrier);
+            }
+
+            if (d3d12Framebuffer->HasDepthTexture())
+            {
+                auto depthTexture = d3d12Framebuffer->GetDepthTexture();
+
+                D3D12_RESOURCE_BARRIER depthTargetBarrier;
+                depthTargetBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+                depthTargetBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+                depthTargetBarrier.Transition.pResource = depthTexture.Get();
+                depthTargetBarrier.Transition.Subresource = 0;
+                depthTargetBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+                depthTargetBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COMMON;
+                resourceBarriers.push_back(depthTargetBarrier);
+            }
+            m_CommandList->ResourceBarrier(resourceBarriers.size(), resourceBarriers.data());
+        }
+
+        m_CurrentRenderTarget = {};
     }
 }
 

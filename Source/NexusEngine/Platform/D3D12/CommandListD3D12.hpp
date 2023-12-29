@@ -48,7 +48,7 @@ namespace Nexus::Graphics
         std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_DescriptorHandles;
         D3D12_CPU_DESCRIPTOR_HANDLE *m_DepthHandle = nullptr;
 
-        RenderTarget *m_CurrentRenderTarget = nullptr;
+        RenderTarget m_CurrentRenderTarget = {};
     };
 }
 #endif
