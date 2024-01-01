@@ -3,7 +3,7 @@
 #include "ft2build.h"
 #include FT_FREETYPE_H
 
-void LoadCharacter(char character, FT_Face &face, Nexus::Graphics::FontData &data, std::map<char, Nexus::Graphics::Character>& characters, uint32_t xPos, uint32_t yPos, uint32_t textureWidth, uint32_t textureHeight)
+void LoadCharacter(char character, FT_Face &face, Nexus::Graphics::FontData &data, std::map<char, Nexus::Graphics::Character> &characters, uint32_t xPos, uint32_t yPos, uint32_t textureWidth, uint32_t textureHeight)
 {
     if (FT_Load_Char(face, character, FT_LOAD_DEFAULT))
     {
@@ -92,7 +92,7 @@ namespace Nexus::Graphics
         auto size = FindLargestGlyphSize(face, m_CharacterRanges, characterCount);
 
         m_LargestCharacterSize = {size.X, size.Y};
-        
+
         uint32_t columnCount = ceil(sqrt(characterCount));
 
         m_TextureWidth = columnCount * size.X;
@@ -128,8 +128,9 @@ namespace Nexus::Graphics
 
         m_SpaceWidth = GetCharacter('i').Advance.x / 64;
 
-        textureSpec.Data = pixels.GetPixels().data();
         m_Texture = device->CreateTexture(textureSpec);
+        auto &pixelData = pixels.GetPixels();
+        m_Texture->SetData(pixelData.data(), pixelData.size() * sizeof(pixelData[0]));
         FT_Done_Face(face);
         FT_Done_FreeType(ft);
     }
@@ -159,13 +160,13 @@ namespace Nexus::Graphics
 
         for (auto character : text)
         {
-            const auto& characterInfo = GetCharacter(character);
+            const auto &characterInfo = GetCharacter(character);
 
             if (character == ' ')
             {
                 xPos += GetSpaceWidth() * scale;
             }
-            else if (character =='\t')
+            else if (character == '\t')
             {
                 xPos += GetSpaceWidth() * scale * 4;
             }

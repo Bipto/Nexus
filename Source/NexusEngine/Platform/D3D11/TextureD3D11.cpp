@@ -6,9 +6,11 @@
 
 namespace Nexus::Graphics
 {
-    TextureD3D11::TextureD3D11(ID3D11Device *device, const TextureSpecification &spec) : Texture(spec)
+    TextureD3D11::TextureD3D11(ID3D11Device *device, ID3D11DeviceContext *context, const TextureSpecification &spec) : Texture(spec)
     {
-        int imagePitch = spec.Width * spec.NumberOfChannels;
+        m_DeviceContext = context;
+
+        m_RowPitch = spec.Width * spec.NumberOfChannels;
         m_TextureFormat = GetD3D11TextureFormat(spec.Format);
 
         D3D11_TEXTURE2D_DESC desc;
@@ -19,18 +21,14 @@ namespace Nexus::Graphics
         desc.Format = m_TextureFormat;
         desc.SampleDesc.Count = 1;
         desc.SampleDesc.Quality = 0;
-        desc.Usage = D3D11_USAGE_DEFAULT;
+        desc.Usage = D3D11_USAGE_DYNAMIC;
         desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
         desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
         desc.MiscFlags = 0;
 
-        D3D11_SUBRESOURCE_DATA subresourceData;
-        subresourceData.pSysMem = spec.Data;
-        subresourceData.SysMemPitch = imagePitch;
-
         HRESULT hr = device->CreateTexture2D(
             &desc,
-            &subresourceData,
+            nullptr,
             &m_Texture);
 
         if (FAILED(hr))
@@ -78,6 +76,28 @@ namespace Nexus::Graphics
     ResourceHandle TextureD3D11::GetHandle()
     {
         return (ResourceHandle)m_ResourceView;
+    }
+
+    void TextureD3D11::SetData(void *data, uint32_t size)
+    {
+        D3D11_MAPPED_SUBRESOURCE mappedResource;
+        m_DeviceContext->Map(m_Texture, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+        // memcpy(mappedResource.pData, data, size);
+
+        BYTE *mappedData = (BYTE *)mappedResource.pData;
+        BYTE *buffer = (BYTE *)data;
+
+        D3D11_TEXTURE2D_DESC desc;
+        m_Texture->GetDesc(&desc);
+
+        for (uint32_t i = 0; i < desc.Height; ++i)
+        {
+            memcpy(mappedData, buffer, m_RowPitch);
+            mappedData += mappedResource.RowPitch;
+            buffer += m_RowPitch;
+        }
+
+        m_DeviceContext->Unmap(m_Texture, 0);
     }
 }
 

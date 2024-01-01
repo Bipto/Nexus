@@ -161,7 +161,7 @@ namespace Nexus::Graphics
 
     Texture *GraphicsDeviceD3D11::CreateTexture(const TextureSpecification &spec)
     {
-        return new TextureD3D11(m_DevicePtr, spec);
+        return new TextureD3D11(m_DevicePtr, m_DeviceContextPtr, spec);
     }
 
     Pipeline *GraphicsDeviceD3D11::CreatePipeline(const PipelineDescription &description)

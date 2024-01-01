@@ -31,12 +31,12 @@ namespace Nexus::Graphics
         uint32_t textureData = 0xFFFFFFFF;
 
         Nexus::Graphics::TextureSpecification textureSpec;
-        textureSpec.Data = &textureData;
         textureSpec.Width = 1;
         textureSpec.Height = 1;
         textureSpec.Format = TextureFormat::RGBA8;
         textureSpec.NumberOfChannels = 4;
         m_BlankTexture = m_Device->CreateTexture(textureSpec);
+        m_BlankTexture->SetData(&textureData, sizeof(uint32_t));
 
         Nexus::Graphics::BufferDescription uniformBufferDesc;
         uniformBufferDesc.Size = sizeof(glm::mat4);

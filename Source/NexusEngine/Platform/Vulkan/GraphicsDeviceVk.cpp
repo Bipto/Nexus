@@ -289,6 +289,7 @@ namespace Nexus::Graphics
         }
 
         vkDeviceWaitIdle(m_Device);
+        vkQueueWaitIdle(m_GraphicsQueue);
     }
 
     const std::vector<const char *> validationLayers =
@@ -934,6 +935,8 @@ namespace Nexus::Graphics
 
         VmaAllocationCreateInfo vmaAllocInfo = {};
         vmaAllocInfo.usage = memoryUsage;
+        vmaAllocInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
+        vmaAllocInfo.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
 
         AllocatedBuffer buffer;
 

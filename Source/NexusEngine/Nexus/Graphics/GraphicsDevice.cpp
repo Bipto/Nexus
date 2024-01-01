@@ -88,11 +88,12 @@ namespace Nexus::Graphics
 
         TextureSpecification spec;
         spec.Format = TextureFormat::RGBA8;
-        spec.Data = stbi_load(filepath, &spec.Width, &spec.Height, &spec.NumberOfChannels, desiredChannels);
+        unsigned char *data = stbi_load(filepath, &spec.Width, &spec.Height, &spec.NumberOfChannels, desiredChannels);
         spec.NumberOfChannels = desiredChannels;
 
         auto texture = CreateTexture(spec);
-        delete[] spec.Data;
+        texture->SetData(data, spec.Width * spec.Height * spec.NumberOfChannels * sizeof(unsigned char));
+        delete[] data;
         return texture;
     }
 

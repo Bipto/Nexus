@@ -2,24 +2,24 @@
 
 namespace Nexus::Graphics
 {
-    TextureOpenGL::TextureOpenGL(const TextureSpecification &spec) : Texture(spec)
+    TextureOpenGL::TextureOpenGL(const TextureSpecification &spec)
+        : Texture(spec)
     {
         glGenTextures(1, &this->m_Handle);
         glBindTexture(GL_TEXTURE_2D, this->m_Handle);
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-        auto samplerMode = GL::GetSamplerState(spec.SamplerState);
-        auto wrapMode = GL::GetWrapMode(spec.SamplerState);
+        m_SamplerMode = GL::GetSamplerState(spec.SamplerState);
+        m_WrapMode = GL::GetWrapMode(spec.SamplerState);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, samplerMode);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, samplerMode);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_SamplerMode);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_SamplerMode);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_WrapMode);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_WrapMode);
 
-        auto textureFormat = GL::GetColorTextureFormat(spec.Format);
-        glTexImage2D(GL_TEXTURE_2D, 0, textureFormat, spec.Width, spec.Height, 0, textureFormat, GL_UNSIGNED_BYTE, spec.Data);
-        glGenerateMipmap(GL_TEXTURE_2D);
+        m_TextureFormat = GL::GetColorTextureFormat(spec.Format);
+        glTexImage2D(GL_TEXTURE_2D, 0, m_TextureFormat, spec.Width, spec.Height, 0, m_TextureFormat, GL_UNSIGNED_BYTE, nullptr);
 
         glBindTexture(GL_TEXTURE_2D, 0);
     }
@@ -38,5 +38,12 @@ namespace Nexus::Graphics
     ResourceHandle TextureOpenGL::GetHandle()
     {
         return (ResourceHandle)m_Handle;
+    }
+
+    void TextureOpenGL::SetData(void *data, uint32_t size)
+    {
+        GL::ClearErrors();
+        glTextureSubImage2D(m_Handle, 0, 0, 0, m_Width, m_Height, m_TextureFormat, GL_UNSIGNED_BYTE, data);
+        GL::CheckErrors();
     }
 }

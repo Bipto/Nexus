@@ -53,8 +53,6 @@ namespace Nexus::Graphics
         resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
         resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
         d3d12Device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&m_Texture));
-
-        SetData(spec.Data);
     }
 
     TextureD3D12::~TextureD3D12()
@@ -66,19 +64,8 @@ namespace Nexus::Graphics
         return ResourceHandle();
     }
 
-    DXGI_FORMAT TextureD3D12::GetFormat()
+    void TextureD3D12::SetData(void *data, uint32_t size)
     {
-        return m_TextureFormat;
-    }
-
-    ID3D12Resource2 *TextureD3D12::GetD3D12ResourceHandle()
-    {
-        return m_Texture.Get();
-    }
-
-    void TextureD3D12::SetData(const void *data)
-    {
-        uint32_t size = m_Specification.Width * m_Specification.Height * m_Specification.NumberOfChannels;
         uint32_t stride = m_Specification.Width * m_Specification.NumberOfChannels;
 
         void *uploadBufferAddress;
@@ -114,6 +101,16 @@ namespace Nexus::Graphics
                                       textureDestination.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
                                       textureDestination.SubresourceIndex = 0;
                                       cmd->CopyTextureRegion(&textureDestination, 0, 0, 0, &textureSource, &textureSizeAsBox); });
+    }
+
+    DXGI_FORMAT TextureD3D12::GetFormat()
+    {
+        return m_TextureFormat;
+    }
+
+    ID3D12Resource2 *TextureD3D12::GetD3D12ResourceHandle()
+    {
+        return m_Texture.Get();
     }
 }
 
