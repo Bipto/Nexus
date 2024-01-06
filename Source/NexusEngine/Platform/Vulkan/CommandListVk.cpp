@@ -128,9 +128,10 @@ namespace Nexus::Graphics
         vkCmdDraw(m_CurrentCommandBuffer, count, 1, start, 0);
     }
 
-    void CommandListVk::DrawIndexed(uint32_t count, uint32_t offset)
+    void CommandListVk::DrawIndexed(uint32_t count, uint32_t indexStart, uint32_t vertexStart)
     {
-        vkCmdDrawIndexed(m_CurrentCommandBuffer, count, 1, 0, offset, 0);
+        // vkCmdDrawIndexed(m_CurrentCommandBuffer, count, 1, 0, offset, 0);
+        vkCmdDrawIndexed(m_CurrentCommandBuffer, count, 1, indexStart, vertexStart, 0);
     }
 
     void CommandListVk::SetResourceSet(ResourceSet *resources)
@@ -268,7 +269,7 @@ namespace Nexus::Graphics
             return;
 
         VkRect2D rect;
-        rect.offset = {scissor.X, scissor.Y};
+        rect.offset = {(int32_t)scissor.X, (int32_t)scissor.Y};
         rect.extent = {(uint32_t)scissor.Width, (uint32_t)scissor.Height};
         vkCmdSetScissor(m_CurrentCommandBuffer, 0, 1, &rect);
     }

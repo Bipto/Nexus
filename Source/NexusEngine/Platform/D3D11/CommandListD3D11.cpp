@@ -162,12 +162,13 @@ namespace Nexus::Graphics
 #endif
     }
 
-    void CommandListD3D11::DrawIndexed(uint32_t count, uint32_t offset)
+    void CommandListD3D11::DrawIndexed(uint32_t count, uint32_t indexStart, uint32_t vertexStart)
     {
 #if defined(NX_PLATFORM_D3D11)
         DrawIndexedCommand command;
         command.Count = count;
-        command.Offset = offset;
+        command.IndexStart = indexStart;
+        command.VertexStart = vertexStart;
         m_CommandData.emplace_back(command);
 
         auto renderCommand = [](CommandList *commandList)
@@ -178,7 +179,7 @@ namespace Nexus::Graphics
             const auto &commandData = commandListD3D11->GetCurrentCommandData();
             const auto &drawCommand = std::get<DrawIndexedCommand>(commandData);
 
-            context->DrawIndexed(drawCommand.Count, drawCommand.Offset, 0);
+            context->DrawIndexed(drawCommand.Count, drawCommand.IndexStart, 0);
         };
         m_Commands.push_back(renderCommand);
 

@@ -74,9 +74,9 @@ namespace Nexus::Graphics
         m_CommandList->DrawInstanced(count, 1, start, 0);
     }
 
-    void CommandListD3D12::DrawIndexed(uint32_t count, uint32_t offset)
+    void CommandListD3D12::DrawIndexed(uint32_t count, uint32_t indexStart, uint32_t vertexStart)
     {
-        m_CommandList->DrawIndexedInstanced(count, 1, offset, 0, 0);
+        m_CommandList->DrawIndexedInstanced(count, 1, indexStart, vertexStart, 0);
     }
 
     void CommandListD3D12::SetResourceSet(ResourceSet *resources)

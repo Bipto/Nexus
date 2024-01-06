@@ -82,7 +82,7 @@ namespace Nexus::Graphics
         return m_Window;
     }
 
-    Texture *GraphicsDevice::CreateTexture(const char *filepath)
+    Texture *GraphicsDevice::CreateTexture(const char *filepath, SamplerState samplerState)
     {
         int desiredChannels = 4;
 
@@ -90,6 +90,7 @@ namespace Nexus::Graphics
         spec.Format = TextureFormat::RGBA8;
         unsigned char *data = stbi_load(filepath, &spec.Width, &spec.Height, &spec.NumberOfChannels, desiredChannels);
         spec.NumberOfChannels = desiredChannels;
+        spec.SamplerState = samplerState;
 
         auto texture = CreateTexture(spec);
         texture->SetData(data, spec.Width * spec.Height * spec.NumberOfChannels * sizeof(unsigned char));
@@ -97,9 +98,9 @@ namespace Nexus::Graphics
         return texture;
     }
 
-    Texture *GraphicsDevice::CreateTexture(const std::string &filepath)
+    Texture *GraphicsDevice::CreateTexture(const std::string &filepath, SamplerState samplerState)
     {
-        return CreateTexture(filepath.c_str());
+        return CreateTexture(filepath.c_str(), samplerState);
     }
 
     ResourceSet *GraphicsDevice::CreateResourceSet(Pipeline *pipeline)

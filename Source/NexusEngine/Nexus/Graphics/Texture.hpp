@@ -61,7 +61,7 @@ namespace Nexus::Graphics
         /// @return A void pointer to an API specific texture
         virtual ResourceHandle GetHandle() = 0;
 
-        virtual void SetData(void *data, uint32_t size) = 0;
+        virtual void SetData(const void *data, uint32_t size) = 0;
 
     protected:
         /// @brief An integer representing the width of the texture

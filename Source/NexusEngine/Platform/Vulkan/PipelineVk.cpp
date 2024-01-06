@@ -27,6 +27,56 @@ namespace Nexus::Graphics
             return VK_COMPARE_OP_NEVER;
         case ComparisonFunction::NotEqual:
             return VK_COMPARE_OP_NOT_EQUAL;
+        default:
+            throw std::runtime_error("Failed to find a valid comparison function");
+        }
+    }
+
+    VkBlendOp GetVkBlendOp(Nexus::Graphics::BlendEquation function)
+    {
+        switch (function)
+        {
+        case BlendEquation::Add:
+            return VK_BLEND_OP_ADD;
+        case BlendEquation::Subtract:
+            return VK_BLEND_OP_SUBTRACT;
+        case BlendEquation::ReverseSubtract:
+            return VK_BLEND_OP_REVERSE_SUBTRACT;
+        case BlendEquation::Min:
+            return VK_BLEND_OP_MIN;
+        case BlendEquation::Max:
+            return VK_BLEND_OP_MAX;
+        default:
+            throw std::runtime_error("Failed to find a valid blend operation");
+        }
+    }
+
+    VkBlendFactor GetVkBlendFactor(Nexus::Graphics::BlendFunction function)
+    {
+        switch (function)
+        {
+        case BlendFunction::Zero:
+            return VK_BLEND_FACTOR_ZERO;
+        case BlendFunction::One:
+            return VK_BLEND_FACTOR_ONE;
+        case BlendFunction::SourceColor:
+            return VK_BLEND_FACTOR_SRC_COLOR;
+        case BlendFunction::OneMinusSourceColor:
+            return VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
+        case BlendFunction::DestinationColor:
+            return VK_BLEND_FACTOR_DST_COLOR;
+        case BlendFunction::OneMinusDestinationColor:
+            return VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
+        case BlendFunction::SourceAlpha:
+            return VK_BLEND_FACTOR_SRC_ALPHA;
+        case BlendFunction::OneMinusSourceAlpha:
+            return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+        case BlendFunction::DestinationAlpha:
+            return VK_BLEND_FACTOR_DST_ALPHA;
+        case BlendFunction::OneMinusDestinationAlpha:
+            return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
+        default:
+            throw std::runtime_error("Failed to find a valid blend factor");
         }
     }
 
@@ -237,13 +287,13 @@ namespace Nexus::Graphics
     {
         VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
         colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-        colorBlendAttachment.blendEnable = VK_TRUE;
-        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
-        colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
-        colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
-        colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-        colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-        colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+        colorBlendAttachment.blendEnable = m_Description.BlendStateDescription.EnableBlending;
+        colorBlendAttachment.srcColorBlendFactor = GetVkBlendFactor(m_Description.BlendStateDescription.SourceColourBlend);
+        colorBlendAttachment.dstColorBlendFactor = GetVkBlendFactor(m_Description.BlendStateDescription.DestinationColourBlend);
+        colorBlendAttachment.colorBlendOp = GetVkBlendOp(m_Description.BlendStateDescription.BlendEquation);
+        colorBlendAttachment.srcAlphaBlendFactor = GetVkBlendFactor(m_Description.BlendStateDescription.SourceAlphaBlend);
+        colorBlendAttachment.dstAlphaBlendFactor = GetVkBlendFactor(m_Description.BlendStateDescription.DestinationAlphaBlend);
+        colorBlendAttachment.alphaBlendOp = GetVkBlendOp(m_Description.BlendStateDescription.BlendEquation);
         return colorBlendAttachment;
     }
 

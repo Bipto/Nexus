@@ -64,7 +64,7 @@ namespace Nexus::Graphics
         return ResourceHandle();
     }
 
-    void TextureD3D12::SetData(void *data, uint32_t size)
+    void TextureD3D12::SetData(const void *data, uint32_t size)
     {
         uint32_t stride = m_Specification.Width * m_Specification.NumberOfChannels;
 

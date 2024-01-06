@@ -6,29 +6,6 @@
 
 namespace Nexus::Graphics
 {
-    GLenum GetGLBaseType(const VertexBufferElement element)
-    {
-        switch (element.Type)
-        {
-        case ShaderDataType::Float:
-            return GL_FLOAT;
-        case ShaderDataType::Float2:
-            return GL_FLOAT;
-        case ShaderDataType::Float3:
-            return GL_FLOAT;
-        case ShaderDataType::Float4:
-            return GL_FLOAT;
-        case ShaderDataType::Int:
-            return GL_INT;
-        case ShaderDataType::Int2:
-            return GL_INT;
-        case ShaderDataType::Int3:
-            return GL_INT;
-        case ShaderDataType::Int4:
-            return GL_INT;
-        }
-    }
-
     ShaderOpenGL::ShaderOpenGL(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout)
     {
         Compile(vertexShaderSource, fragmentShaderSource);

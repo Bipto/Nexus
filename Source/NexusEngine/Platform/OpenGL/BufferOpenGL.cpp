@@ -3,6 +3,222 @@
 
 namespace Nexus::Graphics
 {
+    void GetBaseType(const VertexBufferElement element, GLenum &baseType, uint32_t &componentCount, GLboolean &normalized)
+    {
+        switch (element.Type)
+        {
+        case ShaderDataType::Byte:
+            baseType = GL_BYTE;
+            componentCount = 1;
+            normalized = false;
+            break;
+        case ShaderDataType::Byte2:
+            baseType = GL_BYTE;
+            componentCount = 2;
+            normalized = false;
+            break;
+        case ShaderDataType::Byte4:
+            baseType = GL_BYTE;
+            componentCount = 4;
+            normalized = false;
+            break;
+
+        case ShaderDataType::NormByte:
+            baseType = GL_UNSIGNED_BYTE;
+            componentCount = 1;
+            normalized = true;
+            break;
+        case ShaderDataType::NormByte2:
+            baseType = GL_UNSIGNED_BYTE;
+            componentCount = 2;
+            normalized = true;
+            break;
+
+        case ShaderDataType::NormByte4:
+            baseType = GL_UNSIGNED_BYTE;
+            componentCount = 4;
+            normalized = true;
+            break;
+
+        case ShaderDataType::Float:
+            baseType = GL_FLOAT;
+            componentCount = 1;
+            normalized = false;
+            break;
+        case ShaderDataType::Float2:
+            baseType = GL_FLOAT;
+            componentCount = 2;
+            normalized = false;
+            break;
+        case ShaderDataType::Float3:
+            baseType = GL_FLOAT;
+            componentCount = 3;
+            normalized = false;
+            break;
+        case ShaderDataType::Float4:
+            baseType = GL_FLOAT;
+            componentCount = 4;
+            normalized = false;
+            break;
+
+        case ShaderDataType::Half:
+            baseType = GL_HALF_FLOAT;
+            componentCount = 1;
+            normalized = true;
+            break;
+        case ShaderDataType::Half2:
+            baseType = GL_HALF_FLOAT;
+            componentCount = 2;
+            normalized = true;
+            break;
+        case ShaderDataType::Half4:
+            baseType = GL_HALF_FLOAT;
+            componentCount = 4;
+            normalized = true;
+            break;
+
+        case ShaderDataType::Int:
+            baseType = GL_INT;
+            componentCount = 1;
+            normalized = false;
+            break;
+        case ShaderDataType::Int2:
+            baseType = GL_INT;
+            componentCount = 2;
+            normalized = false;
+            break;
+        case ShaderDataType::Int3:
+            baseType = GL_INT;
+            componentCount = 3;
+            normalized = false;
+            break;
+        case ShaderDataType::Int4:
+            baseType = GL_INT;
+            componentCount = 4;
+            normalized = false;
+            break;
+
+        case ShaderDataType::SignedByte:
+            baseType = GL_BYTE;
+            componentCount = 1;
+            normalized = false;
+            break;
+        case ShaderDataType::SignedByte2:
+            baseType = GL_BYTE;
+            componentCount = 2;
+            normalized = false;
+            break;
+        case ShaderDataType::SignedByte4:
+            baseType = GL_BYTE;
+            componentCount = 4;
+            normalized = false;
+            break;
+
+        case ShaderDataType::SignedByteNormalized:
+            baseType = GL_BYTE;
+            componentCount = 1;
+            normalized = true;
+            break;
+        case ShaderDataType::SignedByte2Normalized:
+            baseType = GL_BYTE;
+            componentCount = 2;
+            normalized = true;
+            break;
+        case ShaderDataType::SignedByte4Normalized:
+            baseType = GL_BYTE;
+            componentCount = 4;
+            normalized = true;
+            break;
+
+        case ShaderDataType::Short:
+            baseType = GL_SHORT;
+            componentCount = 1;
+            normalized = false;
+            break;
+        case ShaderDataType::Short2:
+            baseType = GL_SHORT;
+            componentCount = 2;
+            normalized = false;
+            break;
+        case ShaderDataType::Short4:
+            baseType = GL_SHORT;
+            componentCount = 4;
+            normalized = false;
+            break;
+
+        case ShaderDataType::ShortNormalized:
+            baseType = GL_SHORT;
+            componentCount = 1;
+            normalized = true;
+            break;
+        case ShaderDataType::Short2Normalized:
+            baseType = GL_SHORT;
+            componentCount = 2;
+            normalized = true;
+            break;
+        case ShaderDataType::Short4Normalized:
+            baseType = GL_SHORT;
+            componentCount = 4;
+            normalized = true;
+            break;
+
+        case ShaderDataType::UInt:
+            baseType = GL_UNSIGNED_INT;
+            componentCount = 1;
+            normalized = false;
+            break;
+        case ShaderDataType::UInt2:
+            baseType = GL_UNSIGNED_INT;
+            componentCount = 2;
+            normalized = false;
+            break;
+        case ShaderDataType::UInt3:
+            baseType = GL_UNSIGNED_INT;
+            componentCount = 3;
+            normalized = false;
+            break;
+        case ShaderDataType::UInt4:
+            baseType = GL_UNSIGNED_INT;
+            componentCount = 4;
+            normalized = false;
+            break;
+
+        case ShaderDataType::UShort:
+            baseType = GL_UNSIGNED_SHORT;
+            componentCount = 1;
+            normalized = false;
+            break;
+        case ShaderDataType::UShort2:
+            baseType = GL_UNSIGNED_SHORT;
+            componentCount = 2;
+            normalized = false;
+            break;
+        case ShaderDataType::UShort4:
+            baseType = GL_UNSIGNED_SHORT;
+            componentCount = 4;
+            normalized = false;
+            break;
+
+        case ShaderDataType::UShortNormalized:
+            baseType = GL_UNSIGNED_SHORT;
+            componentCount = 1;
+            normalized = true;
+            break;
+        case ShaderDataType::UShort2Normalized:
+            baseType = GL_UNSIGNED_SHORT;
+            componentCount = 2;
+            normalized = true;
+            break;
+        case ShaderDataType::UShort4Normalized:
+            baseType = GL_UNSIGNED_SHORT;
+            componentCount = 4;
+            normalized = true;
+            break;
+        default:
+            throw std::runtime_error("Failed to find valid vertex buffer element type");
+        }
+    }
+
     GLenum GetBufferUsage(BufferUsage usage)
     {
         switch (usage)
@@ -28,20 +244,7 @@ namespace Nexus::Graphics
         GL::CheckErrors();
 
         glGenVertexArrays(1, &m_VAO);
-        glBindVertexArray(m_VAO);
-        int index = 0;
-        for (auto &element : m_Layout)
-        {
-            glVertexAttribPointer(index,
-                                  element.GetComponentCount(),
-                                  GetGLBaseType(element),
-                                  element.Normalized ? GL_TRUE : GL_FALSE,
-                                  m_Layout.GetStride(),
-                                  (void *)element.Offset);
-
-            glEnableVertexAttribArray(index);
-            index++;
-        }
+        SetupVertexArray();
         glBindVertexArray(0);
     }
 
@@ -60,6 +263,30 @@ namespace Nexus::Graphics
     unsigned int VertexBufferOpenGL::GetHandle()
     {
         return m_Buffer;
+    }
+
+    void VertexBufferOpenGL::SetupVertexArray(uint32_t offset)
+    {
+        glBindVertexArray(m_VAO);
+        int index = 0;
+        for (auto &element : m_Layout)
+        {
+            GLenum baseType;
+            uint32_t componentCount;
+            GLboolean normalized;
+            GetBaseType(element, baseType, componentCount, normalized);
+
+            glVertexAttribPointer(
+                index,
+                componentCount,
+                baseType,
+                normalized,
+                m_Layout.GetStride(),
+                (void *)(element.Offset + offset));
+
+            glEnableVertexAttribArray(index);
+            index++;
+        }
     }
 
     void *VertexBufferOpenGL::Map()

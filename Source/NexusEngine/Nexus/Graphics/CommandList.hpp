@@ -60,7 +60,9 @@ namespace Nexus::Graphics
         uint32_t Count = 0;
 
         /// @brief An offset into the index buffer
-        uint32_t Offset = 0;
+        uint32_t IndexStart = 0;
+
+        uint32_t VertexStart = 0;
     };
 
     struct UpdateResourcesCommand
@@ -131,7 +133,7 @@ namespace Nexus::Graphics
         /// @brief A pure virtual method that submits an indexed draw call using the bound vertex buffer and index buffer
         /// @param count The number of vertices to draw
         /// @param offset The offset to begin rendering at
-        virtual void DrawIndexed(uint32_t count, uint32_t offset) = 0;
+        virtual void DrawIndexed(uint32_t count, uint32_t indexStart, uint32_t vertexStart) = 0;
 
         /// @brief A pure virtual method that updates the resources bound within a pipeline
         /// @param resources A reference counted pointer to a ResourceSet

@@ -7,26 +7,140 @@
 
 namespace Nexus::Graphics
 {
-    DXGI_FORMAT Get3D11BaseType(const VertexBufferElement element)
+    DXGI_FORMAT GetD3D11BaseType(const VertexBufferElement element)
     {
         switch (element.Type)
         {
+        case ShaderDataType::Byte:
+            return DXGI_FORMAT_R8_UINT;
+            break;
+        case ShaderDataType::Byte2:
+            return DXGI_FORMAT_R8G8_UINT;
+            break;
+        case ShaderDataType::Byte4:
+            return DXGI_FORMAT_R8G8B8A8_UINT;
+            break;
+
+        case ShaderDataType::NormByte:
+            return DXGI_FORMAT_R8_UNORM;
+            break;
+        case ShaderDataType::NormByte2:
+            return DXGI_FORMAT_R8G8_UNORM;
+            break;
+        case ShaderDataType::NormByte4:
+            return DXGI_FORMAT_R8G8B8A8_UNORM;
+            break;
+
         case ShaderDataType::Float:
             return DXGI_FORMAT_R32_FLOAT;
+            break;
         case ShaderDataType::Float2:
             return DXGI_FORMAT_R32G32_FLOAT;
+            break;
         case ShaderDataType::Float3:
             return DXGI_FORMAT_R32G32B32_FLOAT;
+            break;
         case ShaderDataType::Float4:
             return DXGI_FORMAT_R32G32B32A32_FLOAT;
+            break;
+
+        case ShaderDataType::Half:
+            return DXGI_FORMAT_R16_FLOAT;
+            break;
+        case ShaderDataType::Half2:
+            return DXGI_FORMAT_R16G16_FLOAT;
+            break;
+        case ShaderDataType::Half4:
+            return DXGI_FORMAT_R16G16B16A16_FLOAT;
+            break;
+
         case ShaderDataType::Int:
             return DXGI_FORMAT_R32_SINT;
+            break;
         case ShaderDataType::Int2:
             return DXGI_FORMAT_R32G32_SINT;
+            break;
         case ShaderDataType::Int3:
             return DXGI_FORMAT_R32G32B32_SINT;
+            break;
         case ShaderDataType::Int4:
             return DXGI_FORMAT_R32G32B32A32_SINT;
+            break;
+
+        case ShaderDataType::SignedByte:
+            return DXGI_FORMAT_R8_SNORM;
+            break;
+        case ShaderDataType::SignedByte2:
+            return DXGI_FORMAT_R8G8_SNORM;
+            break;
+        case ShaderDataType::SignedByte4:
+            return DXGI_FORMAT_R8G8B8A8_SNORM;
+            break;
+
+        case ShaderDataType::SignedByteNormalized:
+            return DXGI_FORMAT_R8_SNORM;
+            break;
+        case ShaderDataType::SignedByte2Normalized:
+            return DXGI_FORMAT_R8G8_SNORM;
+            break;
+        case ShaderDataType::SignedByte4Normalized:
+            return DXGI_FORMAT_R8G8B8A8_SNORM;
+            break;
+
+        case ShaderDataType::Short:
+            return DXGI_FORMAT_R16_UINT;
+            break;
+        case ShaderDataType::Short2:
+            return DXGI_FORMAT_R16G16_UINT;
+            break;
+        case ShaderDataType::Short4:
+            return DXGI_FORMAT_R16G16B16A16_UINT;
+            break;
+
+        case ShaderDataType::ShortNormalized:
+            return DXGI_FORMAT_R16_SNORM;
+            break;
+        case ShaderDataType::Short2Normalized:
+            return DXGI_FORMAT_R16G16_SNORM;
+            break;
+        case ShaderDataType::Short4Normalized:
+            return DXGI_FORMAT_R16G16B16A16_SNORM;
+            break;
+
+        case ShaderDataType::UInt:
+            return DXGI_FORMAT_R32_UINT;
+            break;
+        case ShaderDataType::UInt2:
+            return DXGI_FORMAT_R32G32_UINT;
+            break;
+        case ShaderDataType::UInt3:
+            return DXGI_FORMAT_R32G32B32_UINT;
+            break;
+        case ShaderDataType::UInt4:
+            return DXGI_FORMAT_R32G32B32A32_UINT;
+            break;
+
+        case ShaderDataType::UShort:
+            return DXGI_FORMAT_R16_UINT;
+            break;
+        case ShaderDataType::UShort2:
+            return DXGI_FORMAT_R16G16_UINT;
+            break;
+        case ShaderDataType::UShort4:
+            return DXGI_FORMAT_R16G16B16A16_UINT;
+            break;
+
+        case ShaderDataType::UShortNormalized:
+            return DXGI_FORMAT_R16_UNORM;
+            break;
+        case ShaderDataType::UShort2Normalized:
+            return DXGI_FORMAT_R16G16_UNORM;
+            break;
+        case ShaderDataType::UShort4Normalized:
+            return DXGI_FORMAT_R16G16B16A16_UNORM;
+            break;
+        default:
+            throw std::runtime_error("Failed to find valid vertex buffer element type");
         }
     }
 
@@ -143,7 +257,7 @@ namespace Nexus::Graphics
                 {
                     element.Name.c_str(),
                     index,
-                    Get3D11BaseType(element),
+                    GetD3D11BaseType(element),
                     0,
                     D3D11_APPEND_ALIGNED_ELEMENT,
                     D3D11_INPUT_PER_VERTEX_DATA,

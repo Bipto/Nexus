@@ -22,7 +22,7 @@ namespace Nexus::Graphics
         virtual void SetPipeline(Pipeline *pipeline) override;
 
         virtual void DrawElements(uint32_t start, uint32_t count) override;
-        virtual void DrawIndexed(uint32_t count, uint32_t offset) override;
+        virtual void DrawIndexed(uint32_t count, uint32_t indexStart, uint32_t vertexStart) override;
 
         virtual void SetResourceSet(ResourceSet *resources) override;
 

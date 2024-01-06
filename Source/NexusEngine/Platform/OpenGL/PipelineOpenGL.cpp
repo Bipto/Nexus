@@ -25,6 +25,7 @@ namespace Nexus::Graphics
     {
         SetupDepthStencil();
         SetupRasterizer();
+        SetupBlending();
         SetShader();
     }
 

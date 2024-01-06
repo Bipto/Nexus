@@ -40,7 +40,7 @@ namespace Nexus::Graphics
         return (ResourceHandle)m_Handle;
     }
 
-    void TextureOpenGL::SetData(void *data, uint32_t size)
+    void TextureOpenGL::SetData(const void *data, uint32_t size)
     {
         GL::ClearErrors();
         glTextureSubImage2D(m_Handle, 0, 0, 0, m_Width, m_Height, m_TextureFormat, GL_UNSIGNED_BYTE, data);

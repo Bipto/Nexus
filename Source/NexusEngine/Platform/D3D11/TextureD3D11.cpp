@@ -78,7 +78,7 @@ namespace Nexus::Graphics
         return (ResourceHandle)m_ResourceView;
     }
 
-    void TextureD3D11::SetData(void *data, uint32_t size)
+    void TextureD3D11::SetData(const void *data, uint32_t size)
     {
         D3D11_MAPPED_SUBRESOURCE mappedResource;
         m_DeviceContext->Map(m_Texture, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);

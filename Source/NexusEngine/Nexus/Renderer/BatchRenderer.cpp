@@ -809,7 +809,7 @@ namespace Nexus::Graphics
 
         m_CommandList->SetVertexBuffer(m_VertexBuffer);
         m_CommandList->SetIndexBuffer(m_IndexBuffer);
-        m_CommandList->DrawIndexed(m_IndexCount, 0);
+        m_CommandList->DrawIndexed(m_IndexCount, 0, 0);
 
         m_CommandList->End();
         m_Device->SubmitCommandList(m_CommandList);

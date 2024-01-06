@@ -20,9 +20,6 @@ namespace Nexus::Graphics
         /// @brief The offset of the element within each separate buffer item
         size_t Offset = 0;
 
-        /// @brief Whether the data within the vertex buffer is normalized
-        bool Normalized;
-
         /// @brief A default constructor to create an empty element
         VertexBufferElement() = default;
 
@@ -30,7 +27,7 @@ namespace Nexus::Graphics
         /// @param type The type of the data within the buffer
         /// @param name The name of the item within the buffer
         /// @param normalized Whether the data is normalized
-        VertexBufferElement(ShaderDataType type, const std::string &name, bool normalized = false);
+        VertexBufferElement(ShaderDataType type, const std::string &name);
 
         /// @brief A method that returns an unsigned 32 bit integer representing the number of components within the element
         /// @return The number of components within the element (e.g. Float2 will return 2)

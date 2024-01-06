@@ -14,7 +14,7 @@ namespace Nexus::Graphics
         TextureD3D12(GraphicsDeviceD3D12 *device, const TextureSpecification &spec);
         virtual ~TextureD3D12();
         virtual ResourceHandle GetHandle() override;
-        virtual void SetData(void *data, uint32_t size) override;
+        virtual void SetData(const void *data, uint32_t size) override;
         DXGI_FORMAT GetFormat();
         ID3D12Resource2 *GetD3D12ResourceHandle();
 

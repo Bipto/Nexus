@@ -12,7 +12,7 @@ namespace Nexus::Graphics
         ~TextureOpenGL();
         void Bind(unsigned int slot = 0);
         virtual ResourceHandle GetHandle() override;
-        virtual void SetData(void *data, uint32_t size) override;
+        virtual void SetData(const void *data, uint32_t size) override;
 
     private:
         unsigned int m_Handle;

@@ -38,6 +38,8 @@ namespace Nexus::Graphics
         m_CommandIndex = 0;
         m_Commands.clear();
         m_CommandData.clear();
+
+        m_CurrentlyBoundVertexBuffer = nullptr;
     }
 
     void CommandListOpenGL::End()
@@ -54,6 +56,7 @@ namespace Nexus::Graphics
             const auto vertexBuffer = std::get<VertexBuffer *>(commandData);
             const auto vertexBufferGL = (VertexBufferOpenGL *)vertexBuffer;
             vertexBufferGL->Bind();
+            commandListGL->m_CurrentlyBoundVertexBuffer = vertexBufferGL;
         };
         m_Commands.push_back(renderCommand);
     }
@@ -122,11 +125,12 @@ namespace Nexus::Graphics
         m_Commands.push_back(renderCommand);
     }
 
-    void CommandListOpenGL::DrawIndexed(uint32_t count, uint32_t offset)
+    void CommandListOpenGL::DrawIndexed(uint32_t count, uint32_t indexStart, uint32_t vertexStart)
     {
         DrawIndexedCommand command;
         command.Count = count;
-        command.Offset = offset;
+        command.VertexStart = vertexStart;
+        command.IndexStart = indexStart;
         m_CommandData.emplace_back(command);
 
         auto renderCommand = [](CommandList *commandList)
@@ -134,7 +138,11 @@ namespace Nexus::Graphics
             auto commandListGL = (CommandListOpenGL *)commandList;
             const auto &commandData = commandListGL->GetCurrentCommandData();
             const auto &drawIndexedCommand = std::get<DrawIndexedCommand>(commandData);
-            glDrawElements(commandListGL->GetTopology(), drawIndexedCommand.Count, commandListGL->m_IndexBufferFormat, (void *)drawIndexedCommand.Offset);
+
+            auto vertexBuffer = commandListGL->m_CurrentlyBoundVertexBuffer;
+            vertexBuffer->SetupVertexArray(drawIndexedCommand.VertexStart);
+
+            glDrawElements(commandListGL->GetTopology(), drawIndexedCommand.Count, commandListGL->m_IndexBufferFormat, (void *)drawIndexedCommand.IndexStart);
         };
         m_Commands.push_back(renderCommand);
     }
@@ -292,14 +300,23 @@ namespace Nexus::Graphics
             auto commandData = commandListGL->GetCurrentCommandData();
             auto setScissorCommand = std::get<SetScissorCommand>(commandData);
 
-            auto scissorMinY = commandListGL->m_CurrentRenderTarget.GetSize().Y - setScissorCommand.Scissor.Height;
-            auto scissorMaxY = setScissorCommand.Scissor.Height - setScissorCommand.Scissor.Y;
+            /* auto scissorMinY = commandListGL->m_CurrentRenderTarget.GetSize().Y - setScissorCommand.Scissor.Height; */
+            /* auto scissorMaxY = setScissorCommand.Scissor.Height - setScissorCommand.Scissor.Y; */
+
+            /* std::cout << "Min Scissor Y: " << scissorMinY << std::endl; */
+            /* std::cout << "Max Scissor Y: " << scissorMaxY << std::endl; */
+
+            /* glScissor( */
+            /*     setScissorCommand.Scissor.X, */
+            /*     scissorMinY, */
+            /*     setScissorCommand.Scissor.Width, */
+            /*     scissorMaxY); */
 
             glScissor(
                 setScissorCommand.Scissor.X,
-                scissorMinY,
+                setScissorCommand.Scissor.Y,
                 setScissorCommand.Scissor.Width,
-                scissorMaxY);
+                setScissorCommand.Scissor.Height);
         };
         m_Commands.push_back(renderCommand);
     }

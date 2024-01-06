@@ -111,12 +111,12 @@ namespace Nexus::Graphics
         /// @brief A method that loads a new texture from a image stored on disk
         /// @param filepath The filepath to load the image from
         /// @return A pointer to a texture
-        Texture *CreateTexture(const char *filepath);
+        Texture *CreateTexture(const char *filepath, SamplerState samplerState = SamplerState::LinearClamp);
 
         /// @brief A method that loads a new texture from an image stored on disk
         /// @param filepath The filepath to load the image from
         /// @return A pointer to a texture
-        Texture *CreateTexture(const std::string &filepath);
+        Texture *CreateTexture(const std::string &filepath, SamplerState samplerState = SamplerState::LinearClamp);
 
         virtual Framebuffer *CreateFramebuffer(const FramebufferSpecification &spec) = 0;
 

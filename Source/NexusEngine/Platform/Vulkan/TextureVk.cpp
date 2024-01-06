@@ -92,7 +92,7 @@ namespace Nexus::Graphics
         return (ResourceHandle)m_ImageView;
     }
 
-    void TextureVk::SetData(void *data, uint32_t size)
+    void TextureVk::SetData(const void *data, uint32_t size)
     {
         VkDeviceSize imageSize = m_Width * m_Height * m_NumOfChannels;
 
