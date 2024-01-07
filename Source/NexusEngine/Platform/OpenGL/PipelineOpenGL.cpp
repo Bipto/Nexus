@@ -86,7 +86,7 @@ namespace Nexus::Graphics
         case BlendFunction::SourceColor:
             return GL_SRC_COLOR;
         case BlendFunction::OneMinusSourceColor:
-            return GL_ONE_MINUS_SRC_ALPHA;
+            return GL_ONE_MINUS_SRC_COLOR;
         case BlendFunction::DestinationColor:
             return GL_DST_COLOR;
         case BlendFunction::OneMinusDestinationColor:
@@ -234,11 +234,11 @@ namespace Nexus::Graphics
 
             auto sourceColourFunction = GetBlendFunction(m_Description.BlendStateDescription.SourceColourBlend);
             auto sourceAlphaFunction = GetBlendFunction(m_Description.BlendStateDescription.SourceAlphaBlend);
-            glBlendFuncSeparate(sourceColourFunction, sourceColourFunction, sourceColourFunction, sourceAlphaFunction);
 
             auto destinationColourFunction = GetBlendFunction(m_Description.BlendStateDescription.DestinationColourBlend);
             auto destinationAlphaFunction = GetBlendFunction(m_Description.BlendStateDescription.DestinationAlphaBlend);
-            glBlendFuncSeparate(destinationColourFunction, destinationColourFunction, destinationColourFunction, destinationAlphaFunction);
+            // glBlendFuncSeparate(destinationColourFunction, destinationColourFunction, destinationColourFunction, destinationAlphaFunction);
+            glBlendFuncSeparate(sourceColourFunction, destinationColourFunction, sourceAlphaFunction, destinationAlphaFunction);
 
             auto blendEquation = GetBlendEquation(m_Description.BlendStateDescription.BlendEquation);
             glBlendEquation(blendEquation);

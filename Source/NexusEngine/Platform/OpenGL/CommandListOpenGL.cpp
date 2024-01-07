@@ -140,9 +140,11 @@ namespace Nexus::Graphics
             const auto &drawIndexedCommand = std::get<DrawIndexedCommand>(commandData);
 
             auto vertexBuffer = commandListGL->m_CurrentlyBoundVertexBuffer;
-            vertexBuffer->SetupVertexArray(drawIndexedCommand.VertexStart);
+            // vertexBuffer->SetupVertexArray(drawIndexedCommand.VertexStart);
 
-            glDrawElements(commandListGL->GetTopology(), drawIndexedCommand.Count, commandListGL->m_IndexBufferFormat, (void *)drawIndexedCommand.IndexStart);
+            // vertexBuffer->SetupVertexArray(drawIndexedCommand.VertexStart);
+            // glDrawElements(commandListGL->GetTopology(), drawIndexedCommand.Count, commandListGL->m_IndexBufferFormat, (void *)drawIndexedCommand.IndexStart);
+            glDrawElementsBaseVertex(commandListGL->GetTopology(), drawIndexedCommand.Count, commandListGL->m_IndexBufferFormat, (void *)drawIndexedCommand.IndexStart, drawIndexedCommand.VertexStart);
         };
         m_Commands.push_back(renderCommand);
     }
@@ -300,21 +302,11 @@ namespace Nexus::Graphics
             auto commandData = commandListGL->GetCurrentCommandData();
             auto setScissorCommand = std::get<SetScissorCommand>(commandData);
 
-            /* auto scissorMinY = commandListGL->m_CurrentRenderTarget.GetSize().Y - setScissorCommand.Scissor.Height; */
-            /* auto scissorMaxY = setScissorCommand.Scissor.Height - setScissorCommand.Scissor.Y; */
-
-            /* std::cout << "Min Scissor Y: " << scissorMinY << std::endl; */
-            /* std::cout << "Max Scissor Y: " << scissorMaxY << std::endl; */
-
-            /* glScissor( */
-            /*     setScissorCommand.Scissor.X, */
-            /*     scissorMinY, */
-            /*     setScissorCommand.Scissor.Width, */
-            /*     scissorMaxY); */
+            auto scissorMinY = commandListGL->m_CurrentRenderTarget.GetSize().Y - setScissorCommand.Scissor.Height - setScissorCommand.Scissor.Y;
 
             glScissor(
                 setScissorCommand.Scissor.X,
-                setScissorCommand.Scissor.Y,
+                scissorMinY,
                 setScissorCommand.Scissor.Width,
                 setScissorCommand.Scissor.Height);
         };

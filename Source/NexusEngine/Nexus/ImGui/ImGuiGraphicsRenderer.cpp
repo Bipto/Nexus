@@ -20,11 +20,6 @@ namespace Nexus::ImGuiUtils
         pipelineDesc.Shader = m_Shader;
         pipelineDesc.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
         pipelineDesc.BlendStateDescription.EnableBlending = true;
-        /* pipelineDesc.BlendStateDescription.SourceColourBlend = Nexus::Graphics::BlendFunction::SourceAlpha;
-        pipelineDesc.BlendStateDescription.DestinationColourBlend = Nexus::Graphics::BlendFunction::OneMinusSourceAlpha;
-        pipelineDesc.BlendStateDescription.BlendEquation = Nexus::Graphics::BlendEquation::Add;
-        pipelineDesc.BlendStateDescription.SourceAlphaBlend = Nexus::Graphics::BlendFunction::SourceAlpha;
-        pipelineDesc.BlendStateDescription.DestinationAlphaBlend = Nexus::Graphics::BlendFunction::OneMinusSourceAlpha; */
 
         pipelineDesc.BlendStateDescription.SourceColourBlend = Nexus::Graphics::BlendFunction::SourceAlpha;
         pipelineDesc.BlendStateDescription.DestinationColourBlend = Nexus::Graphics::BlendFunction::OneMinusSourceAlpha;
@@ -227,19 +222,15 @@ namespace Nexus::ImGuiUtils
                     scissor.Height = (uint32_t)(drawCmd.ClipRect.w - drawCmd.ClipRect.y);
                     m_CommandList->SetScissor(scissor);
 
-                    /* m_CommandList->DrawIndexed(
-                        drawCmd.ElemCount,
-                        idxOffset); */
-
                     m_CommandList->DrawIndexed(
                         drawCmd.ElemCount,
-                        idxOffset + drawCmd.IdxOffset,
-                        vtxOffset + drawCmd.VtxOffset);
+                        drawCmd.IdxOffset,
+                        drawCmd.VtxOffset);
                 }
             }
 
-            idxOffset += cmdList->IdxBuffer.size_in_bytes();
-            vtxOffset += cmdList->VtxBuffer.size_in_bytes();
+            idxOffset += cmdList->IdxBuffer.Size;
+            vtxOffset += cmdList->VtxBuffer.Size;
         }
 
         m_CommandList->End();
