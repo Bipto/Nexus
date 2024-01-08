@@ -267,6 +267,8 @@ namespace Nexus::Graphics
 
     void VertexBufferOpenGL::SetupVertexArray(uint32_t offset)
     {
+        offset *= m_Layout.GetStride();
+
         glBindVertexArray(m_VAO);
         int index = 0;
         for (auto &element : m_Layout)
@@ -282,7 +284,7 @@ namespace Nexus::Graphics
                 baseType,
                 normalized,
                 m_Layout.GetStride(),
-                (void *)(element.Offset * offset));
+                (void *)(element.Offset + offset));
 
             glEnableVertexAttribArray(index);
             index++;

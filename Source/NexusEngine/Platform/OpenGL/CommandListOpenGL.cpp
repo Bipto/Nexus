@@ -154,7 +154,6 @@ namespace Nexus::Graphics
 
             uint32_t offset = drawIndexedCommand.IndexStart * indexSize;
             glDrawElements(commandListGL->GetTopology(), drawIndexedCommand.Count, commandListGL->m_IndexBufferFormat, (void *)offset);
-            // glDrawElementsBaseVertex(commandListGL->GetTopology(), drawIndexedCommand.Count, commandListGL->m_IndexBufferFormat, (void *)offset, drawIndexedCommand.VertexStart);
         };
         m_Commands.push_back(renderCommand);
     }
