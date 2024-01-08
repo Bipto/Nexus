@@ -282,7 +282,7 @@ namespace Nexus::Graphics
                 baseType,
                 normalized,
                 m_Layout.GetStride(),
-                (void *)(element.Offset + offset));
+                (void *)(element.Offset * offset));
 
             glEnableVertexAttribArray(index);
             index++;

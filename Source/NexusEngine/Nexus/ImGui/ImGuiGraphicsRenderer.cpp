@@ -1,5 +1,7 @@
 #include "ImGuiGraphicsRenderer.hpp"
 
+#include "Nexus/Input/Input.hpp"
+
 namespace Nexus::ImGuiUtils
 {
     ImGuiGraphicsRenderer::ImGuiGraphicsRenderer(Nexus::Application *app)
@@ -29,6 +31,7 @@ namespace Nexus::ImGuiUtils
 
         pipelineDesc.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
         pipelineDesc.RasterizerStateDescription.FillMode = Nexus::Graphics::FillMode::Solid;
+        pipelineDesc.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
         Nexus::Graphics::BufferDescription uniformBufferDesc;
         uniformBufferDesc.Size = sizeof(glm::mat4);
@@ -58,6 +61,9 @@ namespace Nexus::ImGuiUtils
 
         auto &io = ImGui::GetIO();
         io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;
+        io.Fonts->AddFontDefault();
+
+        SetupInput();
     }
 
     void ImGuiGraphicsRenderer::RebuildFontAtlas()
@@ -115,8 +121,70 @@ namespace Nexus::ImGuiUtils
         RenderDrawData(ImGui::GetDrawData());
     }
 
+    void ImGuiGraphicsRenderer::SetupInput()
+    {
+        auto &io = ImGui::GetIO();
+
+        m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Tab] = (int)KeyCode::Tab);
+        m_Keys.push_back(io.KeyMap[(int)ImGuiKey_LeftArrow] = (int)KeyCode::KeyLeft);
+        m_Keys.push_back(io.KeyMap[(int)ImGuiKey_RightArrow] = (int)KeyCode::KeyRight);
+        m_Keys.push_back(io.KeyMap[(int)ImGuiKey_UpArrow] = (int)KeyCode::KeyUp);
+        m_Keys.push_back(io.KeyMap[(int)ImGuiKey_DownArrow] = (int)KeyCode::KeyDown);
+        m_Keys.push_back(io.KeyMap[(int)ImGuiKey_PageUp] = (int)KeyCode::PageUp);
+        m_Keys.push_back(io.KeyMap[(int)ImGuiKey_PageDown] = (int)KeyCode::PageDown);
+        m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Home] = (int)KeyCode::Home);
+        m_Keys.push_back(io.KeyMap[(int)ImGuiKey_End] = (int)KeyCode::End);
+        m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Delete] = (int)KeyCode::Delete);
+        m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Backspace] = (int)KeyCode::Back);
+        m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Enter] = (int)KeyCode::Enter);
+        m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Escape] = (int)KeyCode::Escape);
+        m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Space] = (int)KeyCode::Space);
+        m_Keys.push_back(io.KeyMap[(int)ImGuiKey_A] = (int)KeyCode::A);
+        m_Keys.push_back(io.KeyMap[(int)ImGuiKey_C] = (int)KeyCode::C);
+        m_Keys.push_back(io.KeyMap[(int)ImGuiKey_V] = (int)KeyCode::V);
+        m_Keys.push_back(io.KeyMap[(int)ImGuiKey_X] = (int)KeyCode::X);
+        m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Y] = (int)KeyCode::Y);
+        m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Z] = (int)KeyCode::Z);
+
+        auto input = m_GraphicsDevice->GetPrimaryWindow()->GetInput();
+        input->TextInput += [&](char c)
+        {
+            if (c == '\t')
+                return;
+
+            io.AddInputCharacter(c);
+        };
+    }
+
     void ImGuiGraphicsRenderer::UpdateInput()
     {
+        auto window = m_GraphicsDevice->GetPrimaryWindow();
+        auto &io = ImGui::GetIO();
+
+        auto keyboard = m_GraphicsDevice->GetPrimaryWindow()->GetInput()->GetKeyboard();
+        auto mouse = m_GraphicsDevice->GetPrimaryWindow()->GetInput()->GetMouse();
+
+        for (int i = 0; i < m_Keys.size(); i++)
+        {
+            io.KeysDown[m_Keys[i]] = keyboard.IsKeyHeld((KeyCode)m_Keys[i]);
+        }
+
+        io.KeyShift = keyboard.IsKeyHeld(KeyCode::LeftShift) || keyboard.IsKeyHeld(KeyCode::RightShift);
+        io.KeyCtrl = keyboard.IsKeyHeld(KeyCode::LeftControl) || keyboard.IsKeyHeld(KeyCode::RightControl);
+        io.KeyAlt = keyboard.IsKeyHeld(KeyCode::LeftAlt) || keyboard.IsKeyHeld(KeyCode::RightAlt);
+        io.KeySuper = keyboard.IsKeyHeld(KeyCode::LeftWin) || keyboard.IsKeyHeld(KeyCode::RightWin);
+
+        io.DisplaySize = {
+            (float)window->GetWindowSize().X,
+            (float)window->GetWindowSize().Y};
+        io.DisplayFramebufferScale = {1.0f, 1.0f};
+        io.MousePos = {(float)mouse.GetMousePosition().X, (float)mouse.GetMousePosition().Y};
+
+        io.MouseDown[0] = mouse.IsLeftMouseHeld();
+        io.MouseDown[1] = mouse.IsRightMouseHeld();
+        io.MouseDown[2] = mouse.IsMiddleMouseHeld();
+
+        io.MouseWheel = mouse.GetScrollMovement().Y;
     }
 
     void ImGuiGraphicsRenderer::RenderDrawData(ImDrawData *drawData)
@@ -168,8 +236,8 @@ namespace Nexus::ImGuiUtils
             memcpy(vtxDst, cmdList->VtxBuffer.Data, cmdList->VtxBuffer.size_in_bytes());
             memcpy(idxDst, cmdList->IdxBuffer.Data, cmdList->IdxBuffer.size_in_bytes());
 
-            vtxDst += cmdList->VtxBuffer.size_in_bytes();
-            idxDst += cmdList->IdxBuffer.size_in_bytes();
+            vtxDst += cmdList->VtxBuffer.Size;
+            idxDst += cmdList->IdxBuffer.Size;
         }
 
         m_VertexBuffer->Unmap();
@@ -227,8 +295,8 @@ namespace Nexus::ImGuiUtils
 
                     m_CommandList->DrawIndexed(
                         drawCmd.ElemCount,
-                        drawCmd.IdxOffset,
-                        drawCmd.VtxOffset);
+                        drawCmd.IdxOffset + idxOffset,
+                        drawCmd.VtxOffset + vtxOffset);
                 }
             }
 

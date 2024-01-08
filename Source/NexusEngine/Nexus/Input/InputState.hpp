@@ -10,6 +10,8 @@
 #include "Mouse.hpp"
 #include "Gamepad.hpp"
 
+#include "Nexus/Events/EventHandler.hpp"
+
 #include <map>
 #include <sstream>
 #include <vector>
@@ -30,6 +32,8 @@ namespace Nexus
         /// @brief A method that returns the mouse of the input state
         /// @return A const reference to the mouse
         const Mouse &GetMouse() { return m_Mouse; }
+
+        Nexus::EventHandler<char> TextInput;
 
     private:
         /// @brief The keyboard associated with the input state

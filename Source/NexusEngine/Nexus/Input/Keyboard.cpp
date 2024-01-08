@@ -26,4 +26,9 @@ namespace Nexus
         auto previous = m_PreviousKeys[code];
         return !current && previous;
     }
+
+    const std::map<KeyCode, bool> &Keyboard::GetKeys() const
+    {
+        return m_CurrentKeys;
+    }
 }

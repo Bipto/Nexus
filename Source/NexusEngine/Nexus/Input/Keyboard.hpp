@@ -147,6 +147,8 @@ namespace Nexus
         /// @return A boolean value representing whether a key was released
         bool WasKeyReleased(KeyCode code);
 
+        const std::map<KeyCode, bool> &GetKeys() const;
+
     private:
         /// @brief A map containing the current state of the keyboard's keys
         std::map<KeyCode, bool> m_CurrentKeys;

@@ -511,7 +511,7 @@ namespace Nexus
             }
             case SDL_MOUSEWHEEL:
             {
-                auto scroll = window->m_Input->m_Mouse.m_CurrentState.MouseWheel;
+                auto &scroll = window->m_Input->m_Mouse.m_CurrentState.MouseWheel;
                 scroll.X += event.wheel.x;
                 scroll.Y += event.wheel.y;
                 break;
@@ -529,6 +529,7 @@ namespace Nexus
                     window->Close();
                     break;
                 }
+                break;
             }
             case SDL_CONTROLLERDEVICEADDED:
             {
@@ -537,10 +538,16 @@ namespace Nexus
                     Nexus::Input::AddController(event.cdevice.which);
                     break;
                 }
+                break;
             }
             case SDL_CONTROLLERDEVICEREMOVED:
             {
                 Nexus::Input::RemoveController(event.cdevice.which);
+                break;
+            }
+            case SDL_TEXTINPUT:
+            {
+                window->m_Input->TextInput.Invoke(event.text.text[0]);
                 break;
             }
             }

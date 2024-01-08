@@ -71,7 +71,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;
@@ -81,7 +81,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 
     spec.ImGuiActive = false;
 
-    spec.SwapchainSpecification.Samples = 1;
+    spec.SwapchainSpecification.Samples = 16;
 
     return new TestApplication(spec);
 }

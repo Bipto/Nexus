@@ -22,6 +22,7 @@ namespace Nexus::ImGuiUtils
         void AfterLayout();
 
     private:
+        void SetupInput();
         void UpdateInput();
         void RenderDrawData(ImDrawData *drawData);
         void UpdateBuffers(ImDrawData *drawData);
@@ -47,5 +48,7 @@ namespace Nexus::ImGuiUtils
         Nexus::Graphics::UniformBuffer *m_UniformBuffer = nullptr;
 
         Nexus::Graphics::ResourceSet *m_ResourceSet = nullptr;
+
+        std::vector<int> m_Keys;
     };
 }
