@@ -140,11 +140,22 @@ namespace Nexus::Graphics
             const auto &drawIndexedCommand = std::get<DrawIndexedCommand>(commandData);
 
             auto vertexBuffer = commandListGL->m_CurrentlyBoundVertexBuffer;
-            // vertexBuffer->SetupVertexArray(drawIndexedCommand.VertexStart);
+            vertexBuffer->SetupVertexArray(drawIndexedCommand.VertexStart);
 
-            // vertexBuffer->SetupVertexArray(drawIndexedCommand.VertexStart);
-            // glDrawElements(commandListGL->GetTopology(), drawIndexedCommand.Count, commandListGL->m_IndexBufferFormat, (void *)drawIndexedCommand.IndexStart);
-            glDrawElementsBaseVertex(commandListGL->GetTopology(), drawIndexedCommand.Count, commandListGL->m_IndexBufferFormat, (void *)drawIndexedCommand.IndexStart, drawIndexedCommand.VertexStart);
+            uint32_t indexSize = 0;
+            if (commandListGL->m_IndexBufferFormat == GL_UNSIGNED_SHORT)
+            {
+                indexSize = sizeof(uint16_t);
+            }
+            else
+            {
+                indexSize = sizeof(uint32_t);
+            }
+
+            uint32_t offset = drawIndexedCommand.IndexStart * indexSize;
+            glDrawElements(commandListGL->GetTopology(), drawIndexedCommand.Count, commandListGL->m_IndexBufferFormat, (void *)offset);
+
+            // glDrawElementsBaseVertex(commandListGL->GetTopology(), drawIndexedCommand.Count, commandListGL->m_IndexBufferFormat, (void *)offset, drawIndexedCommand.VertexStart);
         };
         m_Commands.push_back(renderCommand);
     }

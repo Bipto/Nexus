@@ -55,6 +55,9 @@ namespace Nexus::ImGuiUtils
 
         auto context = ImGui::CreateContext();
         ImGui::SetCurrentContext(context);
+
+        auto &io = ImGui::GetIO();
+        io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;
     }
 
     void ImGuiGraphicsRenderer::RebuildFontAtlas()

@@ -7,9 +7,6 @@ add_executable(Test WIN32 main.cpp)
 target_include_directories(Test PUBLIC NexusEngine)
 target_link_libraries(Test PUBLIC NexusEngine)
 
-target_include_directories(Test PUBLIC ../Vivida)
-target_link_libraries(Test PUBLIC Vivida)
-
 set(path ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 cmake_path(GET path PARENT_PATH parentDir)
 set_target_properties(Demo PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${parentDir}/bin)
