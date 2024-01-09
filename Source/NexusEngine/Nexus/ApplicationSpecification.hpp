@@ -92,9 +92,6 @@ namespace Nexus
         /// @brief The audio API to use to support sound effects
         Audio::AudioAPI AudioAPI;
 
-        /// @brief Whether the application will use ImGui
-        bool ImGuiActive = false;
-
         /// @brief Properties to configure the initial window
         WindowSpecification WindowProperties;
 

@@ -52,7 +52,7 @@ namespace Demos
             vp.MaxDepth = 1.0f;
             m_CommandList->SetViewport(vp);
 
-            Nexus::Graphics::Rectangle scissor;
+            Nexus::Graphics::Scissor scissor;
             scissor.X = 0;
             scissor.Y = 0;
             scissor.Width = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize().X;
@@ -73,9 +73,9 @@ namespace Demos
             m_GraphicsDevice->SubmitCommandList(m_CommandList);
         }
 
-        virtual void OnResize(Nexus::Point<int> size) override
+        virtual void OnResize(Nexus::Point<uint32_t> size) override
         {
-                }
+        }
 
         virtual void RenderUI() override
         {

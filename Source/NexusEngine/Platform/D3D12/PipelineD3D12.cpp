@@ -396,7 +396,7 @@ namespace Nexus::Graphics
         pipelineDesc.StreamOutput = CreateStreamOutputDesc();
         pipelineDesc.NumRenderTargets = 1;
         pipelineDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-        pipelineDesc.DSVFormat = DXGI_FORMAT_UNKNOWN;
+        pipelineDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
         pipelineDesc.BlendState = CreateBlendStateDesc();
         pipelineDesc.DepthStencilState = CreateDepthStencilDesc();
         pipelineDesc.SampleMask = 0xFFFFFFFF;
@@ -465,7 +465,16 @@ namespace Nexus::Graphics
         D3D12_RASTERIZER_DESC desc{};
         desc.FillMode = D3D12_FILL_MODE_SOLID;
         desc.CullMode = GetCullMode(m_Description.RasterizerStateDescription.CullMode);
-        desc.FrontCounterClockwise = false;
+
+        if (m_Description.RasterizerStateDescription.FrontFace == Nexus::Graphics::FrontFace::CounterClockwise)
+        {
+            desc.FrontCounterClockwise = true;
+        }
+        else
+        {
+            desc.FrontCounterClockwise = false;
+        }
+
         desc.DepthBias = 0;
         desc.DepthBiasClamp = .0f;
         desc.SlopeScaledDepthBias = .0f;
@@ -508,15 +517,15 @@ namespace Nexus::Graphics
     {
         D3D12_DEPTH_STENCIL_DESC desc{};
         desc.DepthEnable = m_Description.DepthStencilDescription.EnableDepthTest;
-        desc.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+        desc.DepthFunc = GetComparisonFunction(m_Description.DepthStencilDescription.DepthComparisonFunction);
 
         if (m_Description.DepthStencilDescription.EnableDepthWrite)
         {
-            desc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+            desc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
         }
         else
         {
-            desc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+            desc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
         }
 
         desc.StencilEnable = m_Description.DepthStencilDescription.EnableStencilTest;

@@ -71,15 +71,13 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;
     spec.WindowProperties.Height = 720;
     spec.WindowProperties.Resizable = true;
     spec.WindowProperties.Title = "Test Application";
-
-    spec.ImGuiActive = false;
 
     spec.SwapchainSpecification.Samples = 16;
 

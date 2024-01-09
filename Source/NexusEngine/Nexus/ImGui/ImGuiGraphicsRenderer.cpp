@@ -61,9 +61,83 @@ namespace Nexus::ImGuiUtils
 
         auto &io = ImGui::GetIO();
         io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;
+        // io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports;
+        // io.BackendFlags |= ImGuiBackendFlags_RendererHasViewports;
         io.Fonts->AddFontDefault();
+        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
         SetupInput();
+
+        // look into implementing viewports
+        auto &platformIo = ImGui::GetPlatformIO();
+
+        // platform
+        platformIo.Platform_CreateWindow = [](ImGuiViewport *vp) -> void
+        {
+            std::cout << "Creating new window\n";
+        };
+
+        platformIo.Platform_DestroyWindow = [](ImGuiViewport *vp) -> void {
+
+        };
+
+        platformIo.Platform_ShowWindow = [](ImGuiViewport *vp) -> void {
+
+        };
+
+        platformIo.Platform_SetWindowPos = [](ImGuiViewport *vp, ImVec2 pos) -> void {
+
+        };
+
+        platformIo.Platform_SetWindowSize = [](ImGuiViewport *vp, ImVec2 size) -> void {
+
+        };
+
+        platformIo.Platform_SetWindowFocus = [](ImGuiViewport *vp) -> void {
+
+        };
+
+        platformIo.Platform_GetWindowFocus = [](ImGuiViewport *vp) -> bool
+        {
+            return false;
+        };
+
+        platformIo.Platform_GetWindowMinimized = [](ImGuiViewport *vp) -> bool
+        {
+            return false;
+        };
+
+        platformIo.Platform_SetWindowTitle = [](ImGuiViewport *vp, const char *str) -> void {
+
+        };
+
+        platformIo.Platform_GetWindowDpiScale = [](ImGuiViewport *vp) -> float
+        {
+            return 0;
+        };
+
+        platformIo.Platform_UpdateWindow = [](ImGuiViewport *vp) -> void {
+
+        };
+
+        platformIo.Platform_GetWindowPos = [](ImGuiViewport *vp) -> ImVec2
+        {
+            return {};
+        };
+
+        platformIo.Platform_GetWindowSize = [](ImGuiViewport *vp) -> ImVec2
+        {
+            return {};
+        };
+
+        // rendering
+        platformIo.Platform_RenderWindow = [](ImGuiViewport *vp, void *render_arg) -> void {
+
+        };
+
+        platformIo.Platform_SwapBuffers = [](ImGuiViewport *vp, void *render_arg) -> void {
+
+        };
     }
 
     void ImGuiGraphicsRenderer::RebuildFontAtlas()
@@ -119,6 +193,12 @@ namespace Nexus::ImGuiUtils
     {
         ImGui::Render();
         RenderDrawData(ImGui::GetDrawData());
+
+        if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+        {
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
+        }
     }
 
     void ImGuiGraphicsRenderer::SetupInput()

@@ -280,30 +280,10 @@ namespace Nexus
         swapchain->SetVSyncState(spec.SwapchainSpecification.VSyncState);
 
         m_AudioDevice = Nexus::CreateAudioDevice(spec.AudioAPI);
-
-        if (spec.ImGuiActive)
-        {
-            IMGUI_CHECKVERSION();
-            ImGui::CreateContext();
-            ImGui::StyleColorsDark();
-
-            ImGuiIO &io = ImGui::GetIO();
-            (void)io;
-            // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-            io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-
-            m_ImGuiRenderer = new Nexus::Graphics::ImGuiRenderer(this);
-            m_ImGuiRenderer->Initialise();
-        }
     }
 
     Application::~Application()
     {
-        if (m_Specification.ImGuiActive)
-        {
-            m_ImGuiRenderer->Shutdown();
-        }
-
         delete m_AudioDevice;
         delete m_GraphicsDevice;
     }
@@ -317,7 +297,7 @@ namespace Nexus
             OnResize(this->GetWindowSize());
         }
 
-        this->PollEvents(m_Specification.ImGuiActive);
+        this->PollEvents();
 
         // Allow user to block closing events, for example to display save prompt
         if (m_Window->m_Closing)
@@ -330,28 +310,10 @@ namespace Nexus
 
         // run render functions
         {
-            if (m_Specification.ImGuiActive)
-            {
-                m_ImGuiRenderer->BeginFrame();
-            }
-
             this->Render(time);
-
-            if (m_Specification.ImGuiActive)
-            {
-                ImGui::Render();
-                ImGui::GetMainViewport()->Size = {(float)this->GetWindowSize().X, (float)this->GetWindowSize().Y};
-                m_ImGuiRenderer->EndFrame();
-            }
 
             auto swapchain = m_Window->GetSwapchain();
             swapchain->SwapBuffers();
-
-            if (m_Specification.ImGuiActive)
-            {
-                // Update and render additional platform windows
-                m_ImGuiRenderer->UpdatePlatformWindows();
-            }
         }
 
         CheckForClosingWindows();
@@ -424,7 +386,7 @@ namespace Nexus
         return m_AudioDevice;
     }
 
-    void Application::PollEvents(bool imguiActive)
+    void Application::PollEvents()
     {
         for (auto window : m_Windows)
         {
@@ -434,11 +396,6 @@ namespace Nexus
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
-            if (imguiActive)
-            {
-                ImGui_ImplSDL2_ProcessEvent(&event);
-            }
-
             auto window = GetWindowFromHandle(event.window.windowID);
 
             switch (event.type)

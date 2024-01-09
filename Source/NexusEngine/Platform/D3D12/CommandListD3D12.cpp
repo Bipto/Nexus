@@ -136,12 +136,12 @@ namespace Nexus::Graphics
 
     void CommandListD3D12::ClearDepthTarget(const ClearDepthStencilValue &value)
     {
-        if (m_DepthHandle)
+        if (m_DepthHandle.ptr)
         {
             D3D12_CLEAR_FLAGS clearFlags = D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL;
 
             m_CommandList->ClearDepthStencilView(
-                *m_DepthHandle,
+                m_DepthHandle,
                 clearFlags,
                 value.Depth,
                 value.Stencil,
@@ -171,7 +171,7 @@ namespace Nexus::Graphics
             m_DescriptorHandles.size(),
             m_DescriptorHandles.data(),
             false,
-            m_DepthHandle);
+            &m_DepthHandle);
 
         m_CurrentRenderTarget = target;
     }
@@ -207,6 +207,7 @@ namespace Nexus::Graphics
     {
         ResetPreviousRenderTargets();
         m_DescriptorHandles = {swapchain->RetrieveRenderTargetViewDescriptorHandles()[swapchain->GetCurrentBufferIndex()]};
+        m_DepthHandle = swapchain->RetrieveDepthBufferDescriptorHandle();
 
         D3D12_RESOURCE_BARRIER renderTargetBarrier;
         renderTargetBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -216,6 +217,21 @@ namespace Nexus::Graphics
         renderTargetBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
         renderTargetBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
         m_CommandList->ResourceBarrier(1, &renderTargetBarrier);
+
+        /* D3D12_RESOURCE_BARRIER depthTargetBarrier;
+        depthTargetBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+        depthTargetBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+        depthTargetBarrier.Transition.pResource = swapchain->RetrieveDepthBufferHandle();
+        depthTargetBarrier.Transition.Subresource = 0;
+        depthTargetBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COMMON;
+        depthTargetBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_DEPTH_WRITE;
+
+        D3D12_RESOURCE_BARRIER barriers[] =
+            {
+                renderTargetBarrier,
+                depthTargetBarrier};
+
+        m_CommandList->ResourceBarrier(2, barriers); */
     }
 
     void CommandListD3D12::SetFramebuffer(FramebufferD3D12 *framebuffer)
@@ -240,18 +256,13 @@ namespace Nexus::Graphics
 
         if (framebuffer->HasDepthTexture())
         {
-            m_DepthHandle = &framebuffer->GetDepthAttachmentHandle();
-            auto depthTexture = framebuffer->GetDepthTexture();
-
-            D3D12_RESOURCE_BARRIER depthTargetBarrier;
-            depthTargetBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-            depthTargetBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-            depthTargetBarrier.Transition.pResource = depthTexture.Get();
-            depthTargetBarrier.Transition.Subresource = 0;
-            depthTargetBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COMMON;
-            depthTargetBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-            resourceBarriers.push_back(depthTargetBarrier);
+            m_DepthHandle = framebuffer->GetDepthAttachmentHandle();
         }
+        else
+        {
+            m_DepthHandle = {};
+        }
+
         m_CommandList->ResourceBarrier(resourceBarriers.size(), resourceBarriers.data());
     }
 
@@ -273,6 +284,21 @@ namespace Nexus::Graphics
             presentBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
             presentBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
             m_CommandList->ResourceBarrier(1, &presentBarrier);
+
+            /* D3D12_RESOURCE_BARRIER depthTargetBarrier;
+            depthTargetBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+            depthTargetBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+            depthTargetBarrier.Transition.pResource = d3d12Swapchain->RetrieveDepthBufferHandle();
+            depthTargetBarrier.Transition.Subresource = 0;
+            depthTargetBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_DEPTH_WRITE;
+            depthTargetBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COMMON;
+
+            D3D12_RESOURCE_BARRIER barriers[] =
+                {
+                    presentBarrier,
+                    depthTargetBarrier};
+
+            m_CommandList->ResourceBarrier(2, barriers); */
         }
         else if (m_CurrentRenderTarget.GetType() == RenderTargetType::Framebuffer)
         {
@@ -309,6 +335,7 @@ namespace Nexus::Graphics
         }
 
         m_CurrentRenderTarget = {};
+        m_DepthHandle = {};
     }
 }
 

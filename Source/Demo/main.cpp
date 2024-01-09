@@ -16,6 +16,8 @@
 
 #include "Nexus/FileSystem/FileSystem.hpp"
 
+#include "Nexus/ImGui/ImGuiGraphicsRenderer.hpp"
+
 #include <iostream>
 #include <utility>
 #include <filesystem>
@@ -44,7 +46,7 @@ public:
 
     virtual void Load() override
     {
-        auto &io = ImGui::GetIO();
+        m_ImGuiRenderer = new Nexus::ImGuiUtils::ImGuiGraphicsRenderer(this);
 
         int size = 19;
 
@@ -52,6 +54,7 @@ public:
         size = 48;
 
 #endif
+        auto &io = ImGui::GetIO();
 
         std::string fontPath = Nexus::FileSystem::GetFilePathAbsolute("resources/fonts/roboto/roboto-regular.ttf");
         io.FontDefault = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), size);
@@ -103,7 +106,10 @@ public:
 
     virtual void Render(Nexus::Time time) override
     {
+        m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
         m_GraphicsDevice->BeginFrame();
+
+        m_ImGuiRenderer->BeforeLayout(time);
 
         if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::F11))
         {
@@ -224,10 +230,12 @@ public:
             m_GraphicsDevice->SubmitCommandList(m_CommandList);
         }
 
+        m_ImGuiRenderer->AfterLayout();
+
         m_GraphicsDevice->EndFrame();
     }
 
-    virtual void OnResize(Nexus::Point<int> size) override
+    virtual void OnResize(Nexus::Point<uint32_t> size) override
     {
         if (m_CurrentDemo)
             m_CurrentDemo->OnResize(size);
@@ -242,12 +250,14 @@ private:
     Demos::Demo *m_CurrentDemo = nullptr;
     std::vector<DemoInfo> m_GraphicsDemos;
     std::vector<DemoInfo> m_AudioDemos;
+
+    Nexus::ImGuiUtils::ImGuiGraphicsRenderer *m_ImGuiRenderer = nullptr;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D11;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
 
     if (arguments.size() > 1)
     {
@@ -258,7 +268,6 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
     }
 
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
-    spec.ImGuiActive = true;
 
     spec.WindowProperties.Width = 1280;
     spec.WindowProperties.Height = 720;

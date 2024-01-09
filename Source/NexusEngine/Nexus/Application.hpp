@@ -12,10 +12,6 @@
 
 #include "Point.hpp"
 
-#include "imgui.h"
-#include "misc/cpp/imgui_stdlib.h"
-#include "backends/imgui_impl_sdl2.h"
-
 #include "Nexus/Events/Event.hpp"
 #include "Nexus/Events/EventHandler.hpp"
 #include "Nexus/Input/InputState.hpp"
@@ -23,8 +19,6 @@
 #include "Nexus/Types.hpp"
 
 #include "Runtime/ECS/ComponentRegistry.hpp"
-
-#include "Nexus/Graphics/ImGuiRenderer.hpp"
 
 #include "ApplicationSpecification.hpp"
 
@@ -157,7 +151,7 @@ namespace Nexus
         Audio::AudioDevice *GetAudioDevice();
 
     private:
-        void PollEvents(bool imguiActive);
+        void PollEvents();
         Window *GetWindowFromHandle(uint32_t handle);
         void CheckForClosingWindows();
         void CloseWindows();
@@ -168,8 +162,6 @@ namespace Nexus
 
         /// @brief A pointer to an audio device
         Audio::AudioDevice *m_AudioDevice;
-
-        Nexus::Graphics::ImGuiRenderer *m_ImGuiRenderer = nullptr;
 
     private:
         /// @brief The specification that the application was created with

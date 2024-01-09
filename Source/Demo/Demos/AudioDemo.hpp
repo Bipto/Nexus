@@ -39,7 +39,7 @@ namespace Demos
             m_GraphicsDevice->SubmitCommandList(m_CommandList);
         }
 
-        virtual void OnResize(Nexus::Point<int> size) override
+        virtual void OnResize(Nexus::Point<uint32_t> size) override
         {
         }
 

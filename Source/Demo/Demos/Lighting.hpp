@@ -97,7 +97,7 @@ namespace Demos
             vp.MaxDepth = 1.0f;
             m_CommandList->SetViewport(vp);
 
-            Nexus::Graphics::Rectangle scissor;
+            Nexus::Graphics::Scissor scissor;
             scissor.X = 0;
             scissor.Y = 0;
             scissor.Width = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize().X;
@@ -127,7 +127,7 @@ namespace Demos
                 m_CommandList->SetIndexBuffer(m_CubeMesh->GetIndexBuffer());
 
                 auto indexCount = m_CubeMesh->GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
-                m_CommandList->DrawIndexed(indexCount, 0);
+                m_CommandList->DrawIndexed(indexCount, 0, 0);
             }
 
             m_CommandList->SetPipeline(m_Pipeline);
@@ -144,7 +144,7 @@ namespace Demos
             m_Rotation += 0.05f * time.GetMilliseconds();
         }
 
-        virtual void OnResize(Nexus::Point<int> size) override
+        virtual void OnResize(Nexus::Point<uint32_t> size) override
         {
         }
 

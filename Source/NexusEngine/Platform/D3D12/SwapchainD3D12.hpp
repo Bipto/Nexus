@@ -28,12 +28,18 @@ namespace Nexus::Graphics
 
         const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> RetrieveRenderTargetViewDescriptorHandles() const;
 
+        ID3D12Resource2 *RetrieveDepthBufferHandle();
+        D3D12_CPU_DESCRIPTOR_HANDLE RetrieveDepthBufferDescriptorHandle();
+
     private:
         void Flush();
         void RecreateSwapchainIfNecessary();
         void ResizeBuffers(uint32_t width, uint32_t height);
         void GetBuffers();
         void ReleaseBuffers();
+
+        void CreateColourAttachments();
+        void CreateDepthAttachment();
 
     private:
         Window *m_Window = nullptr;
@@ -46,9 +52,11 @@ namespace Nexus::Graphics
 
         std::vector<ID3D12Resource2 *> m_Buffers;
         uint32_t m_CurrentBufferIndex = 0;
-
         Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_RenderTargetViewDescriptorHeap = nullptr;
         std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_RenderTargetViewDescriptorHandles;
+
+        Microsoft::WRL::ComPtr<ID3D12Resource2> m_DepthBuffer = nullptr;
+        Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_DepthTextureDescriptorHeap = nullptr;
     };
 }
 #endif
