@@ -257,7 +257,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
 
     if (arguments.size() > 1)
     {

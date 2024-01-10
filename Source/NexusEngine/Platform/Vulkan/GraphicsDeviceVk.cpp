@@ -36,14 +36,10 @@ namespace Nexus::Graphics
 
         CreateCommandStructures();
         CreateSynchronisationStructures();
-        CreateImGuiCommandStructures();
     }
 
     GraphicsDeviceVk::~GraphicsDeviceVk()
     {
-        vkFreeCommandBuffers(m_Device, m_ImGuiCommandPool, 1, &m_ImGuiCommandBuffer);
-        vkDestroyCommandPool(m_Device, m_ImGuiCommandPool, nullptr);
-
         vkDestroyFence(m_Device, m_UploadContext.UploadFence, nullptr);
         vkFreeCommandBuffers(m_Device, m_UploadContext.CommandPool, 1, &m_UploadContext.CommandBuffer);
         vkDestroyCommandPool(m_Device, m_UploadContext.CommandPool, nullptr);
@@ -219,33 +215,6 @@ namespace Nexus::Graphics
     VmaAllocator GraphicsDeviceVk::GetAllocator()
     {
         return m_Allocator;
-    }
-
-    void GraphicsDeviceVk::CreateImGuiCommandStructures()
-    {
-        {
-            VkCommandPoolCreateInfo createInfo = {};
-            createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-            createInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT | VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
-            createInfo.queueFamilyIndex = m_GraphicsQueueFamilyIndex;
-            if (vkCreateCommandPool(m_Device, &createInfo, nullptr, &m_ImGuiCommandPool) != VK_SUCCESS)
-            {
-                throw std::runtime_error("Failed to create command pool");
-            }
-        }
-
-        {
-            VkCommandBufferAllocateInfo allocateInfo = {};
-            allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-            allocateInfo.commandPool = m_ImGuiCommandPool;
-            allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-            allocateInfo.commandBufferCount = 1;
-
-            if (vkAllocateCommandBuffers(m_Device, &allocateInfo, &m_ImGuiCommandBuffer) != VK_SUCCESS)
-            {
-                throw std::runtime_error("Failed to allocate command buffer");
-            }
-        }
     }
 
     void GraphicsDeviceVk::ImmediateSubmit(std::function<void(VkCommandBuffer cmd)> &&function)
@@ -704,62 +673,6 @@ namespace Nexus::Graphics
     void GraphicsDeviceVk::EndRenderPass()
     {
         vkCmdEndRenderPass(m_CurrentCommandBuffer);
-    }
-
-    void GraphicsDeviceVk::BeginImGuiRenderPass()
-    {
-        // reset command buffer
-        vkResetCommandBuffer(m_ImGuiCommandBuffer, 0);
-
-        // begin command buffer
-        {
-            VkCommandBufferBeginInfo beginInfo = {};
-            beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-            beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-            if (vkBeginCommandBuffer(m_ImGuiCommandBuffer, &beginInfo) != VK_SUCCESS)
-            {
-                throw std::runtime_error("Failed to begin ImGui command buffer");
-            }
-        }
-
-        // begin render pass
-        {
-            SwapchainVk *swapchain = (SwapchainVk *)m_Window->GetSwapchain();
-
-            VkRenderPassBeginInfo beginInfo = {};
-            beginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-            beginInfo.renderPass = swapchain->GetRenderPass();
-            beginInfo.framebuffer = swapchain->GetCurrentFramebuffer();
-            beginInfo.renderArea.offset = {0, 0};
-            beginInfo.renderArea.extent = swapchain->m_SwapchainSize;
-            beginInfo.clearValueCount = 1;
-
-            beginInfo.clearValueCount = 0;
-            beginInfo.pClearValues = nullptr;
-
-            vkCmdBeginRenderPass(m_ImGuiCommandBuffer, &beginInfo, VK_SUBPASS_CONTENTS_INLINE);
-        }
-    }
-
-    void GraphicsDeviceVk::EndImGuiRenderPass()
-    {
-        vkCmdEndRenderPass(m_ImGuiCommandBuffer);
-        vkEndCommandBuffer(m_ImGuiCommandBuffer);
-
-        VkSubmitInfo submitInfo = {};
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = &GetCurrentFrame().PresentSemaphore;
-        submitInfo.pWaitDstStageMask = &waitDestStageMask;
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &m_ImGuiCommandBuffer;
-        submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = &GetCurrentFrame().PresentSemaphore;
-
-        if (vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, GetCurrentFrame().RenderFence) != VK_SUCCESS)
-        {
-            throw std::runtime_error("Failed to submit queue");
-        }
     }
 
     void GraphicsDeviceVk::RecreateSwapchain()

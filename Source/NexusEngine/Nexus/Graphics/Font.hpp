@@ -88,9 +88,9 @@ namespace Nexus::Graphics
         Nexus::Graphics::Texture *GetTexture();
         const Character &GetCharacter(char character);
         uint32_t GetSize() const;
-        Nexus::Point<uint32_t> MeasureString(const std::string& text, uint32_t size);
+        Nexus::Point<uint32_t> MeasureString(const std::string &text, uint32_t size);
         float GetSpaceWidth();
-        const glm::vec2& GetLargestCharacterSize();
+        const glm::vec2 &GetLargestCharacterSize();
 
     private:
         Nexus::Graphics::Texture *m_Texture = nullptr;

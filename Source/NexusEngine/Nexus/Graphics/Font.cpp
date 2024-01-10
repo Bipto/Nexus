@@ -1,6 +1,6 @@
 #include "Font.hpp"
 
-#include "ft2build.h"
+#include <ft2build.h>
 #include FT_FREETYPE_H
 
 void LoadCharacter(char character, FT_Face &face, Nexus::Graphics::FontData &data, std::map<char, Nexus::Graphics::Character> &characters, uint32_t xPos, uint32_t yPos, uint32_t textureWidth, uint32_t textureHeight)

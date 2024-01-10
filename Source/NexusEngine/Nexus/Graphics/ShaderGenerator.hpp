@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <inttypes.h>
 
 namespace Nexus::Graphics
 {

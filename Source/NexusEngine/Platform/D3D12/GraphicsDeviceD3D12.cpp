@@ -61,7 +61,6 @@ namespace Nexus::Graphics
         }
 
         window->CreateSwapchain(this, swapchainSpec);
-        CreateImGuiCommandStructures();
     }
 
     GraphicsDeviceD3D12::~GraphicsDeviceD3D12()
@@ -197,16 +196,6 @@ namespace Nexus::Graphics
         return m_UploadCommandList.Get();
     }
 
-    ID3D12GraphicsCommandList7 *GraphicsDeviceD3D12::GetImGuiCommandList()
-    {
-        return m_ImGuiCommandList.Get();
-    }
-
-    ID3D12DescriptorHeap *GraphicsDeviceD3D12::GetImGuiDescriptorHeap()
-    {
-        return m_ImGuiDescriptorHeap.Get();
-    }
-
     void GraphicsDeviceD3D12::SignalAndWait()
     {
         m_CommandQueue->Signal(m_Fence.Get(), ++m_FenceValue);
@@ -232,64 +221,6 @@ namespace Nexus::Graphics
         SignalAndWait();
     }
 
-    void GraphicsDeviceD3D12::BeginImGuiFrame()
-    {
-        m_ImGuiCommandAllocator->Reset();
-        m_ImGuiCommandList->Reset(m_ImGuiCommandAllocator.Get(), nullptr);
-
-        D3D12_RESOURCE_BARRIER resourceBarrier;
-        resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-        resourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-
-        SwapchainD3D12 *d3d12Swapchain = (SwapchainD3D12 *)m_Window->GetSwapchain();
-        resourceBarrier.Transition.pResource = d3d12Swapchain->RetrieveBufferHandles()[d3d12Swapchain->GetCurrentBufferIndex()];
-        resourceBarrier.Transition.Subresource = 0;
-        resourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-        resourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-        m_ImGuiCommandList->ResourceBarrier(1, &resourceBarrier);
-
-        D3D12_CPU_DESCRIPTOR_HANDLE targets[] =
-            {
-                d3d12Swapchain->RetrieveRenderTargetViewDescriptorHandles()[d3d12Swapchain->GetCurrentBufferIndex()]};
-
-        m_ImGuiCommandList->OMSetRenderTargets(
-            1,
-            targets,
-            false,
-            nullptr);
-
-        const ID3D12DescriptorHeap *heaps[] = {m_ImGuiDescriptorHeap.Get()};
-        // m_ImGuiCommandList->SetGraphicsRootSignature(m_ImGuiRootSignature.Get());
-        m_ImGuiCommandList->SetDescriptorHeaps(1, (ID3D12DescriptorHeap *const *)heaps);
-        // m_ImGuiCommandList->SetGraphicsRootDescriptorTable(0, m_ImGuiDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-    }
-
-    void GraphicsDeviceD3D12::EndImGuiFrame()
-    {
-        SwapchainD3D12 *d3d12Swapchain = (SwapchainD3D12 *)m_Window->GetSwapchain();
-
-        D3D12_RESOURCE_BARRIER resourceBarrier;
-        resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-        resourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-        resourceBarrier.Transition.pResource = d3d12Swapchain->RetrieveBufferHandles()[d3d12Swapchain->GetCurrentBufferIndex()];
-        resourceBarrier.Transition.Subresource = 0;
-        resourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-        resourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-        m_ImGuiCommandList->ResourceBarrier(1, &resourceBarrier);
-
-        if (SUCCEEDED(m_ImGuiCommandList->Close()))
-        {
-            ID3D12CommandList *list[] = {m_ImGuiCommandList.Get()};
-            m_CommandQueue->ExecuteCommandLists(1, list);
-            SignalAndWait();
-        }
-    }
-
-    uint32_t GraphicsDeviceD3D12::GetNextTextureOffset()
-    {
-        return m_DescriptorHandleOffset++;
-    }
-
     void GraphicsDeviceD3D12::InitUploadCommandList()
     {
         m_UploadCommandAllocator->Reset();
@@ -304,51 +235,6 @@ namespace Nexus::Graphics
             m_CommandQueue->ExecuteCommandLists(1, list);
             SignalAndWait();
         }
-    }
-
-    void GraphicsDeviceD3D12::CreateImGuiCommandStructures()
-    {
-        m_Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_ImGuiCommandAllocator));
-        m_Device->CreateCommandList1(0, D3D12_COMMAND_LIST_TYPE_DIRECT, D3D12_COMMAND_LIST_FLAG_NONE, IID_PPV_ARGS(&m_ImGuiCommandList));
-
-        D3D12_DESCRIPTOR_RANGE texRange;
-        texRange.BaseShaderRegister = 0;
-        texRange.NumDescriptors = 1000;
-        texRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-        texRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-        texRange.RegisterSpace = 0;
-
-        D3D12_ROOT_DESCRIPTOR_TABLE texTable;
-        texTable.NumDescriptorRanges = 1;
-        texTable.pDescriptorRanges = &texRange;
-
-        D3D12_ROOT_PARAMETER texParameter;
-        texParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-        texParameter.DescriptorTable = texTable;
-        texParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-
-        D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc;
-        rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-        rootSignatureDesc.NumParameters = 0;
-        rootSignatureDesc.NumStaticSamplers = 0;
-        rootSignatureDesc.NumParameters = 1;
-        rootSignatureDesc.pParameters = &texParameter;
-
-        Microsoft::WRL::ComPtr<ID3DBlob> errorBlob;
-
-        if (SUCCEEDED(D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &m_ImGuiRootSignatureBlob, &errorBlob)))
-        {
-            m_Device->CreateRootSignature(0, m_ImGuiRootSignatureBlob->GetBufferPointer(), m_ImGuiRootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_ImGuiRootSignature));
-        }
-
-        D3D12_DESCRIPTOR_HEAP_DESC heapDesc;
-        heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-        heapDesc.NumDescriptors = 1000;
-        heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-        heapDesc.NodeMask = 0;
-
-        ID3D12DescriptorHeap *descriptorHeap = nullptr;
-        m_Device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_ImGuiDescriptorHeap));
     }
 }
 

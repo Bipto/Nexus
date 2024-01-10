@@ -72,9 +72,8 @@ namespace Nexus::ImGuiUtils
         auto &platformIo = ImGui::GetPlatformIO();
 
         // platform
-        platformIo.Platform_CreateWindow = [](ImGuiViewport *vp) -> void
-        {
-            std::cout << "Creating new window\n";
+        platformIo.Platform_CreateWindow = [](ImGuiViewport *vp) -> void {
+
         };
 
         platformIo.Platform_DestroyWindow = [](ImGuiViewport *vp) -> void {
@@ -193,6 +192,7 @@ namespace Nexus::ImGuiUtils
     {
         ImGui::Render();
         RenderDrawData(ImGui::GetDrawData());
+        UpdateCursor();
 
         if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
         {
@@ -387,5 +387,59 @@ namespace Nexus::ImGuiUtils
         m_CommandList->End();
 
         m_GraphicsDevice->SubmitCommandList(m_CommandList);
+    }
+
+    void ImGuiGraphicsRenderer::UpdateCursor()
+    {
+        auto window = m_GraphicsDevice->GetPrimaryWindow();
+
+        switch (ImGui::GetMouseCursor())
+        {
+        case ImGuiMouseCursor_Arrow:
+        {
+            window->SetCursor(Nexus::Cursor::Arrow);
+            break;
+        }
+        case ImGuiMouseCursor_TextInput:
+        {
+            window->SetCursor(Nexus::Cursor::IBeam);
+            break;
+        case ImGuiMouseCursor_ResizeAll:
+        {
+            window->SetCursor(Nexus::Cursor::ArrowAllDir);
+            break;
+        }
+        case ImGuiMouseCursor_ResizeNS:
+        {
+            window->SetCursor(Nexus::Cursor::ArrowNS);
+            break;
+        }
+        case ImGuiMouseCursor_ResizeEW:
+        {
+            window->SetCursor(Nexus::Cursor::ArrowWE);
+            break;
+        }
+        case ImGuiMouseCursor_ResizeNESW:
+        {
+            window->SetCursor(Nexus::Cursor::ArrowNESW);
+            break;
+        }
+        case ImGuiMouseCursor_ResizeNWSE:
+        {
+            window->SetCursor(Nexus::Cursor::ArrowNWSE);
+            break;
+        }
+        case ImGuiMouseCursor_Hand:
+        {
+            window->SetCursor(Nexus::Cursor::Hand);
+            break;
+        }
+        case ImGuiMouseCursor_NotAllowed:
+        {
+            window->SetCursor(Nexus::Cursor::No);
+            break;
+        }
+        }
+        }
     }
 }

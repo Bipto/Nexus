@@ -28,6 +28,7 @@ namespace Nexus::ImGuiUtils
         void RenderDrawData(ImDrawData *drawData);
         void UpdateBuffers(ImDrawData *drawData);
         void RenderCommandLists(ImDrawData *drawData);
+        void UpdateCursor();
 
     private:
         Nexus::Graphics::GraphicsDevice *m_GraphicsDevice = nullptr;

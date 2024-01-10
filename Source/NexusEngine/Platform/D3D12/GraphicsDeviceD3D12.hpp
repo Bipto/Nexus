@@ -43,20 +43,13 @@ namespace Nexus::Graphics
         ID3D12CommandQueue *GetCommandQueue() const;
         ID3D12Device10 *GetDevice() const;
         ID3D12GraphicsCommandList7 *GetUploadCommandList();
-        ID3D12GraphicsCommandList7 *GetImGuiCommandList();
-        ID3D12DescriptorHeap *GetImGuiDescriptorHeap();
 
         void SignalAndWait();
         void ImmediateSubmit(std::function<void(ID3D12GraphicsCommandList7 *cmd)> &&function);
 
-        void BeginImGuiFrame();
-        void EndImGuiFrame();
-        uint32_t GetNextTextureOffset();
-
     private:
         void InitUploadCommandList();
         void DispatchUploadCommandList();
-        void CreateImGuiCommandStructures();
 
     private:
 #if defined(_DEBUG)
@@ -75,16 +68,6 @@ namespace Nexus::Graphics
         Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> m_UploadCommandList = nullptr;
 
         Microsoft::WRL::ComPtr<IDXGIFactory7> m_DxgiFactory = nullptr;
-
-        Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_ImGuiCommandAllocator = nullptr;
-        Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> m_ImGuiCommandList = nullptr;
-        Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_ImGuiDescriptorHeap = nullptr;
-
-        Microsoft::WRL::ComPtr<ID3DBlob> m_ImGuiRootSignatureBlob = nullptr;
-        Microsoft::WRL::ComPtr<ID3D12RootSignature> m_ImGuiRootSignature = nullptr;
-
-        // first texture slot is used by font atlas
-        uint32_t m_DescriptorHandleOffset = 1;
     };
 }
 #endif

@@ -61,11 +61,10 @@ namespace Nexus::Graphics
         uint32_t GetCurrentFrameIndex();
         VmaAllocator GetAllocator();
 
-        void CreateImGuiCommandStructures();
-
         void ImmediateSubmit(std::function<void(VkCommandBuffer cmd)> &&function);
         uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
         AllocatedBuffer CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
+
         // vulkan functions
     private:
         void CreateInstance();
@@ -87,9 +86,6 @@ namespace Nexus::Graphics
 
         void BeginRenderPass(VkClearColorValue clear_color, VkClearDepthStencilValue clear_depth_stencil);
         void EndRenderPass();
-
-        void BeginImGuiRenderPass();
-        void EndImGuiRenderPass();
 
         void RecreateSwapchain();
         void CleanupSwapchain();
@@ -136,11 +132,7 @@ namespace Nexus::Graphics
 
         VSyncState m_VsyncState = VSyncState::Enabled;
 
-        VkCommandPool m_ImGuiCommandPool;
-        VkCommandBuffer m_ImGuiCommandBuffer;
-
         friend class SwapchainVk;
-        friend class ImGuiRenderer;
     };
 }
 

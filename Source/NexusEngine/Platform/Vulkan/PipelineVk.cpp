@@ -120,7 +120,7 @@ namespace Nexus::Graphics
         viewportState.pScissors = nullptr;
 
         std::vector<VkPipelineColorBlendAttachmentState> blendStates;
-        for (int i = 0; i <= m_Description.Target.GetColorAttachmentCount(); i++)
+        for (int i = 0; i < m_Description.Target.GetColorAttachmentCount(); i++)
         {
             blendStates.push_back(CreateColorBlendAttachmentState());
         }
