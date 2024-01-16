@@ -1,3 +1,5 @@
+#if defined(NX_PLATFORM_OPENGL)
+
 #include "SwapchainOpenGL.hpp"
 
 #include "GL.hpp"
@@ -85,3 +87,5 @@ namespace Nexus::Graphics
         return s_ContextCreated;
     }
 }
+
+#endif

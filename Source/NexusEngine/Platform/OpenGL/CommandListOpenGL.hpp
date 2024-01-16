@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_OPENGL)
+
 #include "Nexus/Graphics/CommandList.hpp"
 #include "Nexus/Graphics/GraphicsDevice.hpp"
 #include "Platform/OpenGL/BufferOpenGL.hpp"
@@ -52,3 +54,5 @@ namespace Nexus::Graphics
         Nexus::Graphics::VertexBufferOpenGL *m_CurrentlyBoundVertexBuffer = nullptr;
     };
 }
+
+#endif

@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_OPENGL)
+
 #include "Nexus/Graphics/GraphicsDevice.hpp"
 #include "GL.hpp"
 #include "FramebufferOpenGL.hpp"
@@ -43,3 +45,5 @@ namespace Nexus::Graphics
         VSyncState m_VsyncState = VSyncState::Enabled;
     };
 }
+
+#endif

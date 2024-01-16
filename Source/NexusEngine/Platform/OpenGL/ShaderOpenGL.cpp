@@ -1,7 +1,7 @@
+#if defined(NX_PLATFORM_OPENGL)
+
 #include "ShaderOpenGL.hpp"
-
 #include "Nexus/Logging/Log.hpp"
-
 #include "BufferOpenGL.hpp"
 
 namespace Nexus::Graphics
@@ -93,3 +93,5 @@ namespace Nexus::Graphics
         glDeleteShader(fragmentShader);
     }
 }
+
+#endif

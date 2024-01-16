@@ -1,6 +1,6 @@
-#include "D3D11Utils.hpp"
-
 #if defined(NX_PLATFORM_D3D11)
+
+#include "D3D11Utils.hpp"
 
 DXGI_FORMAT GetD3D11TextureFormat(Nexus::Graphics::TextureFormat format)
 {

@@ -1,3 +1,5 @@
+#if defined(NX_PLATFORM_OPENGL)
+
 #include "PipelineOpenGL.hpp"
 
 #include "ShaderOpenGL.hpp"
@@ -260,3 +262,5 @@ namespace Nexus::Graphics
         shaderGL->Bind();
     }
 }
+
+#endif

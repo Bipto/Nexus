@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_D3D11)
+
 #include "Nexus/Graphics/CommandList.hpp"
 
 #include "D3D11Include.hpp"
@@ -48,3 +50,5 @@ namespace Nexus::Graphics
         GraphicsDeviceD3D11 *m_GraphicsDevice = nullptr;
     };
 }
+
+#endif

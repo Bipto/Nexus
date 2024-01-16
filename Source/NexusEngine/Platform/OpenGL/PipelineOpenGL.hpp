@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_OPENGL)
+
 #include "Nexus/Graphics/Pipeline.hpp"
 
 namespace Nexus::Graphics
@@ -19,3 +21,5 @@ namespace Nexus::Graphics
         void SetShader();
     };
 }
+
+#endif

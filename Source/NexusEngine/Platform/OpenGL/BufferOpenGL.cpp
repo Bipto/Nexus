@@ -1,3 +1,5 @@
+#if defined(NX_PLATFORM_OPENGL)
+
 #include "BufferOpenGL.hpp"
 #include "Nexus/Logging/Log.hpp"
 
@@ -294,7 +296,7 @@ namespace Nexus::Graphics
     void *VertexBufferOpenGL::Map()
     {
         glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);
-        return glMapBufferRange(GL_ARRAY_BUFFER, 0, m_Description.Size, GL_MAP_READ_BIT | GL_MAP_WRITE_BIT);
+        return glMapBufferRange(GL_ARRAY_BUFFER, 0, m_Description.Size, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
     }
 
     void VertexBufferOpenGL::Unmap()
@@ -333,7 +335,7 @@ namespace Nexus::Graphics
     void *IndexBufferOpenGL::Map()
     {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer);
-        return glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, m_Description.Size, GL_MAP_READ_BIT | GL_MAP_WRITE_BIT);
+        return glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, m_Description.Size, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
     }
 
     void IndexBufferOpenGL::Unmap()
@@ -367,7 +369,7 @@ namespace Nexus::Graphics
     void *UniformBufferOpenGL::Map()
     {
         glBindBuffer(GL_UNIFORM_BUFFER, m_Buffer);
-        return glMapBufferRange(GL_UNIFORM_BUFFER, 0, m_Description.Size, GL_MAP_READ_BIT | GL_MAP_WRITE_BIT);
+        return glMapBufferRange(GL_UNIFORM_BUFFER, 0, m_Description.Size, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
     }
 
     void UniformBufferOpenGL::Unmap()
@@ -376,3 +378,5 @@ namespace Nexus::Graphics
         glUnmapBuffer(GL_UNIFORM_BUFFER);
     }
 }
+
+#endif

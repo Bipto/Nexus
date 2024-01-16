@@ -25,6 +25,10 @@ if (WIN32)
     find_package(Vulkan REQUIRED)
 endif()
 
+if (WIN32 OR EMSCRIPTEN)
+    find_package(OpenGL REQUIRED)
+endif()
+
 #platform specific configurations
 if (WIN32)
     add_compile_definitions(NX_PLATFORM_WINDOWS)
@@ -42,21 +46,17 @@ elseif (ANDROID)
     add_compile_definitions(NX_PLATFORM_OPENAL)
 endif()
 
-if (WIN32 OR EMSCRIPTEN)
-    find_package(OpenGL REQUIRED)
-endif()
-
 #set up engine projects
-add_subdirectory(Source/Demo)
 add_subdirectory(Source/NexusEngine)
+add_subdirectory(Source/Demo)
 
 if(WIN32)
+    add_subdirectory(Source/Test)
     add_subdirectory(Source/NetworkingTest/Client)
     add_subdirectory(Source/NetworkingTest/Server)
-    add_subdirectory(Source/Test)
     add_subdirectory(Source/ShaderGen)
 endif()
-
+    
 add_subdirectory(Source/BuildConfig)
 
 #external dependencies
@@ -72,7 +72,7 @@ add_subdirectory(External/SPIRV-Headers)
 add_subdirectory(External/SPIRV-Tools)
 add_subdirectory(External/shaderc)
 add_subdirectory(External/libnyquist)
-add_subdirectory(External/freetype)
+
 
 if (WIN32)
     add_subdirectory(External/VulkanMemoryAllocator)
@@ -87,7 +87,7 @@ if (WIN32)
     add_subdirectory(External/SDL_net)
 endif()
 
-if (WIN32 OR ANDROID)
+if (WIN32 OR __ANDROID__)
     add_definitions(-DLIBTYPE=SHARED)
     add_subdirectory(External/OpenAL-Soft)
     remove_definitions(-DLIBTYPE)

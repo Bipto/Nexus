@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_OPENGL)
+
 #include "GL.hpp"
 #include "Nexus/Graphics/Texture.hpp"
 
@@ -21,3 +23,5 @@ namespace Nexus::Graphics
         GLenum m_WrapMode = 0;
     };
 }
+
+#endif

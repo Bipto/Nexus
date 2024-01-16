@@ -1,3 +1,5 @@
+#if defined(NX_PLATFORM_OPENGL)
+
 #include "TextureOpenGL.hpp"
 
 namespace Nexus::Graphics
@@ -43,7 +45,10 @@ namespace Nexus::Graphics
     void TextureOpenGL::SetData(const void *data, uint32_t size)
     {
         GL::ClearErrors();
-        glTextureSubImage2D(m_Handle, 0, 0, 0, m_Width, m_Height, m_TextureFormat, GL_UNSIGNED_BYTE, data);
+        glBindTexture(GL_TEXTURE_2D, m_Handle);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_Width, m_Height, m_TextureFormat, GL_UNSIGNED_BYTE, data);
         GL::CheckErrors();
     }
 }
+
+#endif

@@ -1,3 +1,5 @@
+#if defined(NX_PLATFORM_OPENGL)
+
 #include "FramebufferOpenGL.hpp"
 
 namespace Nexus::Graphics
@@ -119,3 +121,5 @@ namespace Nexus::Graphics
         glDeleteTextures(1, &m_DepthTexture);
     }
 }
+
+#endif

@@ -144,6 +144,8 @@ namespace Nexus::Graphics
         /// @return A pointer to a shader
         Shader *CreateShaderFromSpirvFile(const std::string &filepath, const VertexBufferLayout &layout);
 
+        Shader *CreateShaderFromSpirvSources(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout, const std::string &vertexShaderName = "VertexShader", const std::string &fragmentShaderName = "FragmentShader");
+
         Window *GetPrimaryWindow();
 
     protected:

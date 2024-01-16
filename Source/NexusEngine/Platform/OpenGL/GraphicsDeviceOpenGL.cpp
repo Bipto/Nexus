@@ -1,3 +1,5 @@
+#if defined(NX_PLATFORM_OPENGL)
+
 #include "GraphicsDeviceOpenGL.hpp"
 
 #include "PipelineOpenGL.hpp"
@@ -124,8 +126,6 @@ namespace Nexus::Graphics
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback(GLDebugMessageCallback, nullptr);
 #endif
-
-        glClipControl(GL_UPPER_LEFT, 1.0f);
     }
 
     void GraphicsDeviceOpenGL::SetContext()
@@ -240,3 +240,5 @@ namespace Nexus::Graphics
 #endif
     }
 }
+
+#endif

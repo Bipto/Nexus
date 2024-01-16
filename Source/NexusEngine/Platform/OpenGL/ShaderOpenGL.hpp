@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_OPENGL)
+
 #include "GL.hpp"
 #include "Nexus/Graphics/Shader.hpp"
 #include "Nexus/nxpch.hpp"
@@ -42,3 +44,5 @@ namespace Nexus::Graphics
         std::string m_FragmentShaderSource;
     };
 }
+
+#endif

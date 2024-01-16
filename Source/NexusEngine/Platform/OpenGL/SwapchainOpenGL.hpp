@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_OPENGL)
+
 #include "Nexus/Graphics/Swapchain.hpp"
 #include "Nexus/Window.hpp"
 
@@ -36,3 +38,5 @@ namespace Nexus::Graphics
         static SDL_Window *s_ContextWindow;
     };
 }
+
+#endif

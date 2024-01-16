@@ -223,11 +223,13 @@ namespace Nexus
     {
         switch (device->GetGraphicsAPI())
         {
+#if defined(NX_PLATFORM_OPENGL)
         case Graphics::GraphicsAPI::OpenGL:
         {
             m_Swapchain = new Graphics::SwapchainOpenGL(this, swapchainSpec);
             break;
         }
+#endif
 #if defined(NX_PLATFORM_D3D11)
         case Graphics::GraphicsAPI::D3D11:
         {
@@ -274,6 +276,7 @@ namespace Nexus
         switch (api)
         {
             // setup for OpenGL
+#if defined(NX_PLATFORM_OPENGL)
         case Graphics::GraphicsAPI::OpenGL:
         {
 #if defined(__EMSCRIPTEN__) || defined(__ANDROID__)
@@ -319,6 +322,7 @@ namespace Nexus
             flags |= SDL_WINDOW_OPENGL;
             return flags;
         }
+#endif
         case Graphics::GraphicsAPI::Vulkan:
         {
             flags |= SDL_WINDOW_VULKAN;

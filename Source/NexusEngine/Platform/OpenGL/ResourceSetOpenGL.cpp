@@ -1,3 +1,5 @@
+#if defined(NX_PLATFORM_OPENGL)
+
 #include "ResourceSetOpenGL.hpp"
 
 namespace Nexus::Graphics
@@ -46,3 +48,5 @@ namespace Nexus::Graphics
         return m_UniformBindings;
     }
 }
+
+#endif

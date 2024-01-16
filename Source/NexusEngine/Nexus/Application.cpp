@@ -587,9 +587,11 @@ namespace Nexus
             break;
 #endif
 
+#if defined(NX_PLATFORM_OPENGL)
         case Graphics::GraphicsAPI::OpenGL:
             return new Graphics::GraphicsDeviceOpenGL(createInfo, window, swapchainSpec);
             break;
+#endif
 
 #if defined(NX_PLATFORM_VULKAN)
         case Graphics::GraphicsAPI::Vulkan:
@@ -597,6 +599,7 @@ namespace Nexus
             break;
 #endif
         default:
+            throw std::runtime_error("Attempting to run application with unsupported graphics API");
             return nullptr;
             break;
         }
@@ -612,6 +615,7 @@ namespace Nexus
 #endif
 
         default:
+            throw std::runtime_error("Attempting to run application with unsupported audio API");
             return nullptr;
         }
     }

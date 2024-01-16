@@ -1,3 +1,5 @@
+#if defined(NX_PLATFORM_OPENGL)
+
 #include "GL.hpp"
 
 #include "Nexus/Logging/Log.hpp"
@@ -102,3 +104,5 @@ namespace Nexus::GL
         }
     }
 }
+
+#endif

@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_OPENGL)
+
 #include "GL.hpp"
 #include "Nexus/Graphics/Buffer.hpp"
 
@@ -54,3 +56,5 @@ namespace Nexus::Graphics
         unsigned int m_Buffer = 0;
     };
 }
+
+#endif

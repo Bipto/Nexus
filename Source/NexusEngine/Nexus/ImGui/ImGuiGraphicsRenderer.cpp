@@ -2,6 +2,51 @@
 
 #include "Nexus/Input/Input.hpp"
 
+std::string GetImGuiShaderVertexSource()
+{
+    std::string shader =
+        "#version 450 core\n"
+
+        "layout(location = 0) in vec2 Position;\n"
+        "layout(location = 1) in vec2 TexCoord;\n"
+        "layout(location = 2) in vec4 Color;\n"
+
+        "layout(location = 0) out vec2 Frag_UV;\n"
+        "layout(location = 1) out vec4 Frag_Color;\n"
+
+        "layout(binding = 0, set = 0) uniform MVP\n"
+        "{\n"
+        "    mat4 u_MVP;\n"
+        "};\n"
+
+        "void main()\n"
+        "{\n"
+        "    gl_Position = u_MVP * vec4(Position, 0.0, 1.0);\n"
+        "    Frag_UV = vec2(TexCoord.x, TexCoord.y);\n"
+        "    Frag_Color = Color;\n"
+        "}";
+    return shader;
+}
+
+std::string GetImGuiShaderFragmentSource()
+{
+    std::string shader =
+        "#version 450 core\n"
+
+        "layout(location = 0) in vec2 Frag_UV;\n"
+        "layout(location = 1) in vec4 Frag_Color;\n"
+
+        "layout(set = 1, binding = 0) uniform sampler2D Texture;\n"
+
+        "layout(location = 0) out vec4 OutColor;\n"
+
+        "void main()\n"
+        "{\n"
+        "    OutColor = Frag_Color * texture(Texture, Frag_UV.st)\n;"
+        "}";
+    return shader;
+}
+
 namespace Nexus::ImGuiUtils
 {
     ImGuiGraphicsRenderer::ImGuiGraphicsRenderer(Nexus::Application *app)
@@ -16,7 +61,9 @@ namespace Nexus::ImGuiUtils
                 {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
                 {Nexus::Graphics::ShaderDataType::NormByte4, "TEXCOORD"}};
 
-        m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile("resources/shaders/imgui.glsl", layout);
+        auto vertexSource = GetImGuiShaderVertexSource();
+        auto fragmentSource = GetImGuiShaderFragmentSource();
+        m_Shader = m_GraphicsDevice->CreateShaderFromSpirvSources(vertexSource, fragmentSource, layout, "imgui.vert", "imgui.frag");
 
         Nexus::Graphics::PipelineDescription pipelineDesc;
         pipelineDesc.Shader = m_Shader;
@@ -307,26 +354,62 @@ namespace Nexus::ImGuiUtils
             m_IndexBuffer = m_GraphicsDevice->CreateIndexBuffer(desc, nullptr, Nexus::Graphics::IndexBufferFormat::UInt16);
         }
 
-        ImDrawVert *vtxDst = (ImDrawVert *)m_VertexBuffer->Map();
-        ImDrawIdx *idxDst = (ImDrawIdx *)m_IndexBuffer->Map();
-
-        for (int i = 0; i < drawData->CmdListsCount; i++)
+        // update vertex buffer
         {
-            const ImDrawList *cmdList = drawData->CmdLists[i];
-            memcpy(vtxDst, cmdList->VtxBuffer.Data, cmdList->VtxBuffer.size_in_bytes());
-            memcpy(idxDst, cmdList->IdxBuffer.Data, cmdList->IdxBuffer.size_in_bytes());
+            ImDrawVert *vtxDst = (ImDrawVert *)m_VertexBuffer->Map();
 
-            vtxDst += cmdList->VtxBuffer.Size;
-            idxDst += cmdList->IdxBuffer.Size;
+            for (int i = 0; i < drawData->CmdListsCount; i++)
+            {
+                const ImDrawList *cmdList = drawData->CmdLists[i];
+                memcpy(vtxDst, cmdList->VtxBuffer.Data, cmdList->VtxBuffer.size_in_bytes());
+
+                vtxDst += cmdList->VtxBuffer.Size;
+            }
+
+            m_VertexBuffer->Unmap();
         }
 
-        m_VertexBuffer->Unmap();
-        m_IndexBuffer->Unmap();
+        // update index buffer
+        {
+            ImDrawIdx *idxDst = (ImDrawIdx *)m_IndexBuffer->Map();
+
+            for (int i = 0; i < drawData->CmdListsCount; i++)
+            {
+                const ImDrawList *cmdList = drawData->CmdLists[i];
+                memcpy(idxDst, cmdList->IdxBuffer.Data, cmdList->IdxBuffer.size_in_bytes());
+                idxDst += cmdList->IdxBuffer.Size;
+            }
+
+            m_IndexBuffer->Unmap();
+        }
+
+        // update buffers
+        {
+            /* uint32_t vtxDst = 0;
+            uint32_t idxDst = 0;
+
+            for (int i = 0; i < drawData->CmdListsCount; i++)
+            {
+                const ImDrawList *cmdList = drawData->CmdLists[i];
+
+                m_VertexBuffer->SetData(cmdList->VtxBuffer.Data, cmdList->VtxBuffer.size_in_bytes(), vtxDst);
+                m_IndexBuffer->SetData(cmdList->IdxBuffer.Data, cmdList->IdxBuffer.size_in_bytes(), idxDst);
+
+                vtxDst += cmdList->VtxBuffer.size_in_bytes();
+                idxDst += cmdList->IdxBuffer.size_in_bytes();
+            } */
+        }
     }
 
     void ImGuiGraphicsRenderer::RenderCommandLists(ImDrawData *drawData)
     {
         if (drawData->TotalVtxCount == 0)
+            return;
+
+        if (!m_VertexBuffer)
+            return;
+
+        if (!m_IndexBuffer)
             return;
 
         m_CommandList->Begin();

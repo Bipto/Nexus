@@ -109,6 +109,12 @@ public:
         m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
         m_GraphicsDevice->BeginFrame();
 
+        m_CommandList->Begin();
+        m_CommandList->SetRenderTarget({m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
+        m_CommandList->ClearColorTarget(0, {1.0f, 0.0f, 0.0f, 1.0f});
+        m_CommandList->End();
+        m_GraphicsDevice->SubmitCommandList(m_CommandList);
+
         m_ImGuiRenderer->BeforeLayout(time);
 
         if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::F11))

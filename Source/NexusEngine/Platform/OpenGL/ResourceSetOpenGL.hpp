@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_OPENGL)
+
 #include "Nexus/Graphics/ResourceSet.hpp"
 #include <unordered_map>
 
@@ -35,3 +37,5 @@ namespace Nexus::Graphics
         std::unordered_map<uint32_t, std::string> m_UniformBufferBindingNames;
     };
 }
+
+#endif

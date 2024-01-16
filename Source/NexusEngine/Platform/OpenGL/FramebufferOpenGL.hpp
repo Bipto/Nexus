@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_OPENGL)
+
 #include "GL.hpp"
 #include "Nexus/Graphics/Framebuffer.hpp"
 
@@ -32,3 +34,5 @@ namespace Nexus::Graphics
         unsigned int m_DepthTexture;
     };
 }
+
+#endif

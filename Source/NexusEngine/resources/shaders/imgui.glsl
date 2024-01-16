@@ -16,7 +16,6 @@ layout (binding = 0, set = 0) uniform MVP
 void main()
 {
     gl_Position = u_MVP * vec4(Position, 0.0, 1.0);
-    //Frag_UV = TexCoord;
     Frag_UV = vec2(TexCoord.x, TexCoord.y);
     Frag_Color = Color;
 }

@@ -1,3 +1,5 @@
+#if defined(NX_PLATFORM_D3D11)
+
 #include "CommandListD3D11.hpp"
 
 #include "GraphicsDeviceD3D11.hpp"
@@ -419,3 +421,5 @@ namespace Nexus::Graphics
 #endif
     }
 }
+
+#endif

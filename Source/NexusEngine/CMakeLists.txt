@@ -6,14 +6,22 @@ project ("NexusEngine")
 file (GLOB_RECURSE ENGINE_HEADERS Nexus/*.h)
 file (GLOB_RECURSE ENGINE_SOURCES 
  Nexus/*.cpp
- Nexus/Input/*.cpp
  Nexus/FileSystem/*.cpp
+ Nexus/Graphics/*.cpp
+ Nexus/ImGui/*.cpp
+ Nexus/Input/*.cpp
+ Nexus/Input/*.cpp
+ Nexus/Logging/*.cpp
+ Nexus/Renderer/*.cpp
+ Nexus/Runtime/*.cpp
+ Nexus/Runtime/ECS/*.cpp
+ 
  Platform/*.cpp
- Platform/OpenGL*.cpp
+ Platform/Vulkan/*.cpp
+ Platform/OpenGL/*.cpp
  Platform/D3D11/*.cpp
  Platform/D3D12/*.cpp
- Runtime/*.cpp
- Runtime/ECS/*.cpp)
+ )
 
 add_library(NexusEngine ${ENGINE_HEADERS} ${ENGINE_SOURCES})
 
@@ -30,7 +38,7 @@ target_include_directories(NexusEngine PUBLIC
   ../../External/libnyquist/include
   ../../External/SPIRV-Cross/include
   ../../External/SPIRV-Reflect
-  ../../External/include
+  #../../External/Freetype/include
   )
 
 #dependencies when not building with emscripten
@@ -59,7 +67,6 @@ target_link_libraries(NexusEngine PUBLIC
   libnyquist
   spirv-cross-cpp
   spirv-cross-hlsl
-  freetype
   )
 
 if(WIN32)
@@ -67,7 +74,9 @@ if(WIN32)
     tinyfiledialogs
     SDL2_net
     Vulkan::Vulkan
-    VulkanMemoryAllocator)
+    VulkanMemoryAllocator
+    #freetype
+    )
 endif()
 
 if(WIN32 OR ANDROID)
@@ -76,17 +85,29 @@ endif()
 
 #precompiled header
 target_precompile_headers(NexusEngine PUBLIC Nexus/nxpch.hpp)
+
+#resources need to be output into a separate folder if building for emscripten
+if (EMSCRIPTEN)
+file (COPY 
+    ${CMAKE_CURRENT_SOURCE_DIR}/resources
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+else()
+    set(path ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    cmake_path(GET path PARENT_PATH parentDir)
+    set_target_properties(NexusEngine PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${parentDir}/bin)
+    file (COPY
+        ${CMAKE_CURRENT_SOURCE_DIR}/resources
+        DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+endif()
+
 #flags required for emscripten
 if (EMSCRIPTEN)
     set_target_properties(
       NexusEngine
         PROPERTIES
         LINK_FLAGS
-        "--std=c++17 -Os -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sFULL_ES2=1 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS -fsanitize=address -lopenal --preload-file Resources"
+        "--std=c++17 -Os -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sFULL_ES2=1 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS -lopenal -sGL_ENABLE_GET_PROC_ADDRESS"
     )
 
     set_target_properties(NexusEngine PROPERTIES COMPILE_FLAGS "-Os")
 endif()
-
-file (COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources
-  DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

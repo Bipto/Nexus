@@ -1,7 +1,12 @@
 #pragma once
 
+#if defined(NX_PLATFORM_OPENGL)
+
 #if defined(__EMSCRIPTEN__) || defined(__ANDROID__)
+#include <emscripten.h>
+#include <emscripten/html5.h>
 #include <GLES3/gl3.h>
+#include <GLES3/gl2ext.h>
 #else
 #include "glad/glad.h"
 #endif
@@ -21,3 +26,5 @@ namespace Nexus::GL
     GLenum GetSamplerState(Nexus::Graphics::SamplerState state);
     GLenum GetWrapMode(Nexus::Graphics::SamplerState state);
 }
+
+#endif

@@ -1,3 +1,5 @@
+#if defined(NX_PLATFORM_OPENGL)
+
 #include "CommandListOpenGL.hpp"
 
 #include "PipelineOpenGL.hpp"
@@ -6,6 +8,8 @@
 #include "TextureOpenGL.hpp"
 #include "GraphicsDeviceOpenGL.hpp"
 #include "ResourceSetOpenGL.hpp"
+
+#include "GL.hpp"
 
 #include <memory>
 #include <stdexcept>
@@ -233,11 +237,7 @@ namespace Nexus::Graphics
             auto clearDepthCommand = std::get<ClearDepthStencilTargetCommand>(commandData);
             auto graphicsDevice = (GraphicsDeviceOpenGL *)commandListGL->GetGraphicsDevice();
 
-            float depth = clearDepthCommand.Value.Depth;
-            glClearBufferfv(GL_DEPTH, 0, &depth);
-
-            GLuint stencil = clearDepthCommand.Value.Stencil;
-            glClearBufferuiv(GL_STENCIL, 0, &stencil);
+            glClearBufferfi(GL_DEPTH_STENCIL, 0, clearDepthCommand.Value.Depth, clearDepthCommand.Value.Stencil);
         };
         m_Commands.push_back(renderCommand);
     }
@@ -373,3 +373,5 @@ namespace Nexus::Graphics
         return m_Device;
     }
 }
+
+#endif
