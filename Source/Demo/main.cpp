@@ -13,6 +13,7 @@
 #include "Demos/Lighting.hpp"
 #include "Demos/Models.hpp"
 #include "Demos/AudioDemo.hpp"
+#include "Demos/PythonDemo.hpp"
 
 #include "Nexus/FileSystem/FileSystem.hpp"
 
@@ -72,6 +73,7 @@ public:
         RegisterGraphicsDemo<Demos::LightingDemo>("Lighting");
         RegisterGraphicsDemo<Demos::ModelDemo>("Models");
         RegisterAudioDemo<Demos::AudioDemo>("Audio");
+        RegisterScriptingDemo<Demos::PythonDemo>("Python");
     }
 
     template <typename T>
@@ -96,6 +98,18 @@ public:
             return new T(name, app);
         };
         m_AudioDemos.push_back(info);
+    }
+
+    template <typename T>
+    void RegisterScriptingDemo(const std::string &name)
+    {
+        DemoInfo info;
+        info.Name = name;
+        info.CreationFunction = [](Nexus::Application *app, const std::string &name) -> Demos::Demo *
+        {
+            return new T(name, app);
+        };
+        m_ScriptingDemos.push_back(info);
     }
 
     virtual void Update(Nexus::Time time) override
@@ -213,6 +227,32 @@ public:
 
                     ImGui::TreePop();
                 }
+
+                if (ImGui::TreeNodeEx("Scripting", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth))
+                {
+                    for (auto &pair : m_ScriptingDemos)
+                    {
+                        auto flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Leaf;
+
+                        if (ImGui::TreeNodeEx(pair.Name.c_str(), flags))
+                        {
+                            if (ImGui::IsItemClicked())
+                            {
+                                if (m_CurrentDemo)
+                                {
+                                    delete m_CurrentDemo;
+                                    m_CurrentDemo = nullptr;
+                                }
+
+                                m_CurrentDemo = pair.CreationFunction(this, pair.Name);
+                            }
+
+                            ImGui::TreePop();
+                        }
+                    }
+
+                    ImGui::TreePop();
+                }
             }
 
             ImGui::End();
@@ -256,6 +296,7 @@ private:
     Demos::Demo *m_CurrentDemo = nullptr;
     std::vector<DemoInfo> m_GraphicsDemos;
     std::vector<DemoInfo> m_AudioDemos;
+    std::vector<DemoInfo> m_ScriptingDemos;
 
     Nexus::ImGuiUtils::ImGuiGraphicsRenderer *m_ImGuiRenderer = nullptr;
 };

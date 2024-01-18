@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+option(PK_BUILD_STATIC_LIB "Build static library" ON)
 set(SHADERC_SKIP_TESTS OFF CACHE BOOL "" FORCE)
 
 #google test - required for shaderc
@@ -72,7 +73,7 @@ add_subdirectory(External/SPIRV-Headers)
 add_subdirectory(External/SPIRV-Tools)
 add_subdirectory(External/shaderc)
 add_subdirectory(External/libnyquist)
-
+add_subdirectory(External/pocketpy)
 
 if (WIN32)
     add_subdirectory(External/VulkanMemoryAllocator)

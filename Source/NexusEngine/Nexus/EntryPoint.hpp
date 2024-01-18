@@ -47,7 +47,7 @@ namespace
     }
 }
 
-#if defined(NX_PLATFORM_WINDOWS)
+#if defined(NX_NO_CONSOLE)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nCmdShow)
 {
     auto commandLineArgs = InputParametersToStringVector(__argc, __argv);

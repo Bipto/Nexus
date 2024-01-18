@@ -62,3 +62,6 @@
 [submodule "External/freetype"]
 	path = External/freetype
 	url = https://github.com/freetype/freetype.git
+[submodule "External/pocketpy"]
+	path = External/pocketpy
+	url = https://github.com/blueloveTH/pocketpy.git

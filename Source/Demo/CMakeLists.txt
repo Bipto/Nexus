@@ -5,7 +5,7 @@ project("Demo")
 if (ANDROID OR __ANDROID__)
     add_library(Demo SHARED main.cpp)
 else()
-    add_executable(Demo WIN32 main.cpp)
+    add_executable(Demo main.cpp)
 endif()
 
 target_include_directories(Demo PUBLIC NexusEngine)

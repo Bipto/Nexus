@@ -39,6 +39,7 @@ target_include_directories(NexusEngine PUBLIC
   ../../External/SPIRV-Cross/include
   ../../External/SPIRV-Reflect
   #../../External/Freetype/include
+  ../../External/pocketpy/include
   )
 
 #dependencies when not building with emscripten
@@ -67,6 +68,7 @@ target_link_libraries(NexusEngine PUBLIC
   libnyquist
   spirv-cross-cpp
   spirv-cross-hlsl
+  pocketpy
   )
 
 if(WIN32)
