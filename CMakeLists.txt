@@ -73,6 +73,7 @@ add_subdirectory(External/SPIRV-Headers)
 add_subdirectory(External/SPIRV-Tools)
 add_subdirectory(External/shaderc)
 add_subdirectory(External/libnyquist)
+add_subdirectory(External/freetype)
 add_subdirectory(External/pocketpy)
 
 if (WIN32)

@@ -38,7 +38,7 @@ target_include_directories(NexusEngine PUBLIC
   ../../External/libnyquist/include
   ../../External/SPIRV-Cross/include
   ../../External/SPIRV-Reflect
-  #../../External/Freetype/include
+  ../../External/Freetype/include
   ../../External/pocketpy/include
   )
 
@@ -69,6 +69,7 @@ target_link_libraries(NexusEngine PUBLIC
   spirv-cross-cpp
   spirv-cross-hlsl
   pocketpy
+  freetype
   )
 
 if(WIN32)
@@ -77,7 +78,6 @@ if(WIN32)
     SDL2_net
     Vulkan::Vulkan
     VulkanMemoryAllocator
-    #freetype
     )
 endif()
 

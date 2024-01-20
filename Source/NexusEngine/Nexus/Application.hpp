@@ -170,11 +170,11 @@ namespace Nexus
         /// @brief A pointer to the application's main window
         Nexus::Window *m_Window;
 
-        /// @brief A set of two integers containing the size of the window
-        Point<int> m_PreviousWindowSize;
+        /// @brief A set of two unsignd integers containing the size of the window
+        Point<uint32_t> m_PreviousWindowSize;
 
         /// @brief An event handler for when the window is resized
-        Nexus::EventHandler<Point<int>> m_WindowResizeEventHandler;
+        Nexus::EventHandler<Point<uint32_t>> m_WindowResizeEventHandler;
 
         /// @brief A clock to time when renders and updates occur
         Clock m_Clock;

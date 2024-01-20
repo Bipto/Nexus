@@ -50,7 +50,7 @@ namespace Nexus
     public:
         /// @brief A constructor taking in a window properties struct
         /// @param windowProps A structure containing options controlling how the window is created
-        Window(const WindowSpecification &windowProps, Graphics::GraphicsAPI api, const Graphics::SwapchainSpecification& swapchainSpec);
+        Window(const WindowSpecification &windowProps, Graphics::GraphicsAPI api, const Graphics::SwapchainSpecification &swapchainSpec);
 
         /// @brief Copying a window is not supported
         /// @param A const reference to a window
@@ -142,9 +142,6 @@ namespace Nexus
 
         /// @brief A boolean representing whether the window should close
         bool m_Closing = false;
-
-        /// @brief A boolean indicating whether the swapchain requires resizing
-        bool m_SwapchainRequiresResize = false;
 
         /// @brief A pointer to the window's input state
         InputState *m_Input;

@@ -292,9 +292,10 @@ namespace Nexus
     {
         CloseWindows();
 
-        if (m_Window->m_SwapchainRequiresResize)
+        auto windowSize = m_Window->GetWindowSize();
+        if (windowSize.X != m_PreviousWindowSize.X || windowSize.Y != m_PreviousWindowSize.Y)
         {
-            OnResize(this->GetWindowSize());
+            OnResize(windowSize);
         }
 
         this->PollEvents();
@@ -317,6 +318,7 @@ namespace Nexus
         }
 
         CheckForClosingWindows();
+        m_PreviousWindowSize = windowSize;
     }
 
     Nexus::Window *Application::GetPrimaryWindow()
@@ -475,12 +477,6 @@ namespace Nexus
             }
             case SDL_WINDOWEVENT:
             {
-                if (event.window.event == SDL_WINDOWEVENT_RESIZED)
-                {
-                    window->m_SwapchainRequiresResize = true;
-                    break;
-                }
-
                 if (event.window.event == SDL_WINDOWEVENT_CLOSE)
                 {
                     window->Close();

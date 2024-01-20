@@ -2,6 +2,92 @@
 
 #include "glm/gtx/compatibility.hpp"
 
+const std::string s_BatchVertexShaderSource =
+    "#version 450 core\n"
+
+    "layout(location = 0) in vec3 Position;\n"
+    "layout(location = 1) in vec2 TexCoord;\n"
+    "layout(location = 2) in vec4 Color;\n"
+    "layout(location = 3) in float TexIndex;\n"
+
+    "layout(location = 0) out vec2 texCoord;\n"
+    "layout(location = 1) out vec4 outColor;\n"
+    "layout(location = 2) out flat float texIndex;\n"
+
+    "layout(binding = 0, set = 0) uniform MVP\n"
+    "{\n"
+    "    mat4 u_MVP;\n"
+    "};\n"
+
+    "void main()\n"
+    "{\n"
+    "    gl_Position = u_MVP * vec4(Position, 1.0);\n"
+    "    texCoord = TexCoord;\n"
+    "    outColor = Color;\n"
+    "    texIndex = TexIndex;\n"
+    "}";
+
+const std::string s_BatchFragmentShaderSource =
+    "#version 450 core\n"
+
+    "layout (location = 0) out vec4 FragColor;\n"
+
+    "layout (location = 0) in vec2 texCoord;\n"
+    "layout (location = 1) in vec4 outColor;\n"
+    "layout (location = 2) in flat float texIndex;\n"
+
+    "layout (set = 1, binding = 0) uniform sampler2D texture0;\n"
+    "layout (set = 1, binding = 1) uniform sampler2D texture1;\n"
+    "layout (set = 1, binding = 2) uniform sampler2D texture2;\n"
+    "layout (set = 1, binding = 3) uniform sampler2D texture3;\n"
+    "layout (set = 1, binding = 4) uniform sampler2D texture4;\n"
+    "layout (set = 1, binding = 5) uniform sampler2D texture5;\n"
+    "layout (set = 1, binding = 6) uniform sampler2D texture6;\n"
+    "layout (set = 1, binding = 7) uniform sampler2D texture7;\n"
+    "layout (set = 1, binding = 8) uniform sampler2D texture8;\n"
+    "layout (set = 1, binding = 9) uniform sampler2D texture9;\n"
+    "layout (set = 1, binding = 10) uniform sampler2D texture10;\n"
+    "layout (set = 1, binding = 11) uniform sampler2D texture11;\n"
+    "layout (set = 1, binding = 12) uniform sampler2D texture12;\n"
+    "layout (set = 1, binding = 13) uniform sampler2D texture13;\n"
+    "layout (set = 1, binding = 14) uniform sampler2D texture14;\n"
+    "layout (set = 1, binding = 15) uniform sampler2D texture15;\n"
+
+    "void main()\n"
+    "{\n"
+    "    float alpha = 0;\n"
+
+    "    switch (int(texIndex))\n"
+    "    {\n"
+    "        case 0: alpha = texture(texture0, texCoord).r; break;\n"
+    "        case 1: alpha = texture(texture1, texCoord).r; break;\n"
+    "        case 2: alpha = texture(texture2, texCoord).r; break;\n"
+    "        case 3: alpha = texture(texture3, texCoord).r; break;\n"
+    "        case 4: alpha = texture(texture4, texCoord).r; break;\n"
+    "        case 5: alpha = texture(texture5, texCoord).r; break;\n"
+    "        case 6: alpha = texture(texture6, texCoord).r; break;\n"
+    "        case 7: alpha = texture(texture7, texCoord).r; break;\n"
+    "        case 8: alpha = texture(texture8, texCoord).r; break;\n"
+    "        case 9: alpha = texture(texture9, texCoord).r; break;\n"
+    "        case 10: alpha = texture(texture10, texCoord).r; break;\n"
+    "        case 11: alpha = texture(texture11, texCoord).r; break;\n"
+    "        case 12: alpha = texture(texture12, texCoord).r; break;\n"
+    "        case 13: alpha = texture(texture13, texCoord).r; break;\n"
+    "        case 14: alpha = texture(texture14, texCoord).r; break;\n"
+    "        case 15: alpha = texture(texture15, texCoord).r; break;\n"
+    "    }\n"
+
+    "    if (alpha < 0.5)\n"
+    "    {\n"
+    "        discard;\n"
+    "    }\n"
+
+    "    float w = fwidth(alpha);\n"
+    "    float opacity = smoothstep(0.5 - w, 0.5 + w, alpha);\n"
+
+    "    FragColor = vec4(outColor.rgb, opacity);\n"
+    "}\n";
+
 namespace Nexus::Graphics
 {
     BatchRenderer::BatchRenderer(Nexus::Graphics::GraphicsDevice *device, Nexus::Graphics::RenderTarget target)
@@ -10,7 +96,7 @@ namespace Nexus::Graphics
         m_RenderTarget = target;
 
         m_CommandList = m_Device->CreateCommandList();
-        m_Shader = m_Device->CreateShaderFromSpirvFile("resources/shaders/batch.glsl", Nexus::Graphics::VertexPositionTexCoordColorTexIndex::GetLayout());
+        m_Shader = m_Device->CreateShaderFromSpirvSources(s_BatchVertexShaderSource, s_BatchFragmentShaderSource, Nexus::Graphics::VertexPositionTexCoordColorTexIndex::GetLayout());
         CreatePipeline();
 
         const uint32_t MAX_VERTEX_COUNT = 1024;

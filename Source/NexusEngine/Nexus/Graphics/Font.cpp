@@ -1,9 +1,9 @@
 #include "Font.hpp"
 
-/* #include <ft2build.h>
-#include FT_FREETYPE_H */
+#include "ft2build.h"
+#include FT_FREETYPE_H
 
-/* void LoadCharacter(char character, FT_Face &face, Nexus::Graphics::FontData &data, std::map<char, Nexus::Graphics::Character> &characters, uint32_t xPos, uint32_t yPos, uint32_t textureWidth, uint32_t textureHeight)
+void LoadCharacter(char character, FT_Face &face, Nexus::Graphics::FontData &data, std::map<char, Nexus::Graphics::Character> &characters, uint32_t xPos, uint32_t yPos, uint32_t textureWidth, uint32_t textureHeight)
 {
     if (FT_Load_Char(face, character, FT_LOAD_DEFAULT))
     {
@@ -68,14 +68,14 @@ Nexus::Point<uint32_t> FindLargestGlyphSize(const FT_Face &face, const std::vect
     }
 
     return Nexus::Point<uint32_t>(width, height);
-} */
+}
 
 namespace Nexus::Graphics
 {
     Font::Font(const std::string &filepath, const std::vector<CharacterRange> &characterRanges, GraphicsDevice *device)
         : m_CharacterRanges(characterRanges)
     {
-        /* FT_Library ft;
+        FT_Library ft;
         if (FT_Init_FreeType(&ft))
         {
             std::cout << "Could not initialise FreeType" << std::endl;
@@ -129,9 +129,71 @@ namespace Nexus::Graphics
         m_SpaceWidth = GetCharacter('i').Advance.x / 64;
 
         m_Texture = device->CreateTexture(textureSpec);
-        auto &pixelData = pixels.GetPixels();
-        m_Texture->SetData(pixelData.data(), pixelData.size() * sizeof(pixelData[0]));
+        m_Texture->SetData(pixels.GetPixels().data(), pixels.GetPixels().size() * sizeof(uint32_t));
+
         FT_Done_Face(face);
-        FT_Done_FreeType(ft); */
+        FT_Done_FreeType(ft);
+    }
+
+    Nexus::Graphics::Texture *Font::GetTexture()
+    {
+        return m_Texture;
+    }
+
+    const Character &Font::GetCharacter(char character)
+    {
+        return m_Characters[character];
+    }
+
+    uint32_t Font::GetSize() const
+    {
+        return m_Size;
+    }
+
+    Nexus::Point<uint32_t> Font::MeasureString(const std::string &text, uint32_t size)
+    {
+        float scale = 1.0f / GetSize() * size;
+        float xPos = 0.0f;
+        float yPos = 0.0f;
+        float width = 0.0f;
+        float height = GetLargestCharacterSize().y * scale;
+
+        for (auto character : text)
+        {
+            const auto &characterInfo = GetCharacter(character);
+
+            if (character == ' ')
+            {
+                xPos += GetSpaceWidth() * scale;
+            }
+            else if (character == '\t')
+            {
+                xPos += GetSpaceWidth() * scale * 4;
+            }
+            else if (character == '\n')
+            {
+                xPos = 0;
+                yPos += height;
+                height += GetLargestCharacterSize().y * scale;
+            }
+            else
+            {
+                xPos += characterInfo.Bearing.x * scale;
+                width = xPos + characterInfo.Size.x * scale;
+                xPos += characterInfo.Advance.x / 64 * scale;
+            }
+        }
+
+        return {(uint32_t)width, (uint32_t)height};
+    }
+
+    float Font::GetSpaceWidth()
+    {
+        return m_SpaceWidth;
+    }
+
+    const glm::vec2 &Font::GetLargestCharacterSize()
+    {
+        return m_LargestCharacterSize;
     }
 }

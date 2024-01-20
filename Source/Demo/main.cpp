@@ -14,6 +14,7 @@
 #include "Demos/Models.hpp"
 #include "Demos/AudioDemo.hpp"
 #include "Demos/PythonDemo.hpp"
+#include "Demos/BatchingDemo.hpp"
 
 #include "Nexus/FileSystem/FileSystem.hpp"
 
@@ -67,6 +68,7 @@ public:
         RegisterGraphicsDemo<Demos::HelloTriangleDemo>("Hello Triangle");
         RegisterGraphicsDemo<Demos::HelloTriangleIndexedDemo>("Hello Triangle Indexed");
         RegisterGraphicsDemo<Demos::TexturingDemo>("Texturing");
+        RegisterGraphicsDemo<Demos::BatchingDemo>("Batching");
         RegisterGraphicsDemo<Demos::UniformBufferDemo>("Uniform Buffers");
         RegisterGraphicsDemo<Demos::Demo3D>("3D");
         RegisterGraphicsDemo<Demos::CameraDemo>("Camera");
@@ -304,7 +306,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
 
     if (arguments.size() > 1)
     {
