@@ -5,10 +5,9 @@
 #include "SDL_syswm.h"
 
 #include "Nexus/Graphics/GraphicsDevice.hpp"
-#include "Platform/OpenGL/SwapchainOpenGL.hpp"
 
-#if defined(NX_PLATFORM_D3D11)
-#include "Platform/D3D11/SwapchainD3D11.hpp"
+#if defined(NX_PLATFORM_OPENGL)
+#include "Platform/OpenGL/SwapchainOpenGL.hpp"
 #endif
 
 #if defined(NX_PLATFORM_VULKAN)
@@ -227,13 +226,6 @@ namespace Nexus
         case Graphics::GraphicsAPI::OpenGL:
         {
             m_Swapchain = new Graphics::SwapchainOpenGL(this, swapchainSpec);
-            break;
-        }
-#endif
-#if defined(NX_PLATFORM_D3D11)
-        case Graphics::GraphicsAPI::D3D11:
-        {
-            m_Swapchain = new Graphics::SwapchainD3D11(this, device, swapchainSpec);
             break;
         }
 #endif

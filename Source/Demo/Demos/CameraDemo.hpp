@@ -136,12 +136,10 @@ namespace Demos
             Nexus::Graphics::UniformResourceBinding cameraUniformBinding;
             cameraUniformBinding.Binding = 0;
             cameraUniformBinding.Name = "Camera";
-            cameraUniformBinding.Buffer = m_CameraUniformBuffer;
 
             Nexus::Graphics::UniformResourceBinding transformUniformBinding;
             transformUniformBinding.Binding = 1;
             transformUniformBinding.Name = "Transform";
-            transformUniformBinding.Buffer = m_TransformUniformBuffer;
 
             Nexus::Graphics::TextureResourceBinding textureBinding;
             textureBinding.Slot = 0;

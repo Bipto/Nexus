@@ -92,7 +92,6 @@ namespace Nexus::ImGuiUtils
         Nexus::Graphics::UniformResourceBinding uniformBinding;
         uniformBinding.Binding = 0;
         uniformBinding.Name = "MVP";
-        uniformBinding.Buffer = m_UniformBuffer;
 
         Nexus::Graphics::ResourceSetSpecification resources;
         resources.TextureBindings = {textureBinding};
