@@ -18,8 +18,8 @@ namespace Nexus::Graphics
 
         virtual const VertexBufferLayout &GetLayout() const override { return m_BufferLayout; }
 
-        ID3DBlob *GetVertexShaderBlob();
-        ID3DBlob *GetFragmentShaderBlob();
+        IDxcBlob *GetVertexShaderBlob();
+        IDxcBlob *GetFragmentShaderBlob();
 
     private:
         void CreateVertexShader();
@@ -30,8 +30,8 @@ namespace Nexus::Graphics
         std::string m_VertexShaderSource;
         std::string m_FragmentShaderSource;
 
-        ID3DBlob *m_VertexBlobPtr = nullptr;
-        ID3DBlob *m_FragmentBlobPtr = nullptr;
+        IDxcBlob *m_VertexBlobPtr = nullptr;
+        IDxcBlob *m_FragmentBlobPtr = nullptr;
     };
 }
 
