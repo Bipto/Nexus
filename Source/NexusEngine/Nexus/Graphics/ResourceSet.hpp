@@ -28,9 +28,6 @@ namespace Nexus::Graphics
 
         /// @brief The name of the uniform buffer
         std::string Name;
-
-        /// @brief A reference counted pointer to a uniform buffer
-        UniformBuffer *Buffer;
     };
 
     struct ResourceSetSpecification

@@ -110,7 +110,6 @@ namespace Demos
             Nexus::Graphics::UniformResourceBinding transformUniformBinding;
             transformUniformBinding.Binding = 0;
             transformUniformBinding.Name = "Transform";
-            transformUniformBinding.Buffer = m_TransformUniformBuffer;
 
             Nexus::Graphics::TextureResourceBinding textureBinding;
             textureBinding.Slot = 0;

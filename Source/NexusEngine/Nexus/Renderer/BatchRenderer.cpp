@@ -52,6 +52,22 @@ const std::string s_BatchFragmentShaderSource =
     "layout (set = 1, binding = 13) uniform sampler2D texture13;\n"
     "layout (set = 1, binding = 14) uniform sampler2D texture14;\n"
     "layout (set = 1, binding = 15) uniform sampler2D texture15;\n"
+    "layout (set = 1, binding = 16) uniform sampler2D texture16;\n"
+    "layout (set = 1, binding = 17) uniform sampler2D texture17;\n"
+    "layout (set = 1, binding = 18) uniform sampler2D texture18;\n"
+    "layout (set = 1, binding = 19) uniform sampler2D texture19;\n"
+    "layout (set = 1, binding = 20) uniform sampler2D texture20;\n"
+    "layout (set = 1, binding = 21) uniform sampler2D texture21;\n"
+    "layout (set = 1, binding = 22) uniform sampler2D texture22;\n"
+    "layout (set = 1, binding = 23) uniform sampler2D texture23;\n"
+    "layout (set = 1, binding = 24) uniform sampler2D texture24;\n"
+    "layout (set = 1, binding = 25) uniform sampler2D texture25;\n"
+    "layout (set = 1, binding = 26) uniform sampler2D texture26;\n"
+    "layout (set = 1, binding = 27) uniform sampler2D texture27;\n"
+    "layout (set = 1, binding = 28) uniform sampler2D texture28;\n"
+    "layout (set = 1, binding = 29) uniform sampler2D texture29;\n"
+    "layout (set = 1, binding = 30) uniform sampler2D texture30;\n"
+    "layout (set = 1, binding = 31) uniform sampler2D texture31;\n"
 
     "void main()\n"
     "{\n"
@@ -75,6 +91,22 @@ const std::string s_BatchFragmentShaderSource =
     "        case 13: alpha = texture(texture13, texCoord).r; break;\n"
     "        case 14: alpha = texture(texture14, texCoord).r; break;\n"
     "        case 15: alpha = texture(texture15, texCoord).r; break;\n"
+    "        case 16: alpha = texture(texture16, texCoord).r; break;\n"
+    "        case 17: alpha = texture(texture17, texCoord).r; break;\n"
+    "        case 18: alpha = texture(texture18, texCoord).r; break;\n"
+    "        case 19: alpha = texture(texture19, texCoord).r; break;\n"
+    "        case 20: alpha = texture(texture20, texCoord).r; break;\n"
+    "        case 21: alpha = texture(texture21, texCoord).r; break;\n"
+    "        case 22: alpha = texture(texture22, texCoord).r; break;\n"
+    "        case 23: alpha = texture(texture23, texCoord).r; break;\n"
+    "        case 24: alpha = texture(texture24, texCoord).r; break;\n"
+    "        case 25: alpha = texture(texture25, texCoord).r; break;\n"
+    "        case 26: alpha = texture(texture26, texCoord).r; break;\n"
+    "        case 27: alpha = texture(texture27, texCoord).r; break;\n"
+    "        case 28: alpha = texture(texture28, texCoord).r; break;\n"
+    "        case 29: alpha = texture(texture29, texCoord).r; break;\n"
+    "        case 30: alpha = texture(texture30, texCoord).r; break;\n"
+    "        case 31: alpha = texture(texture31, texCoord).r; break;\n"
     "    }\n"
 
     "    if (alpha < 0.5)\n"
@@ -828,12 +860,28 @@ namespace Nexus::Graphics
                 {12, "texture12"},
                 {13, "texture13"},
                 {14, "texture14"},
-                {15, "texture15"}};
+                {15, "texture15"},
+                {16, "texture16"},
+                {17, "texture17"},
+                {18, "texture18"},
+                {19, "texture19"},
+                {20, "texture20"},
+                {21, "texture21"},
+                {22, "texture22"},
+                {23, "texture23"},
+                {24, "texture24"},
+                {25, "texture25"},
+                {26, "texture26"},
+                {27, "texture27"},
+                {28, "texture28"},
+                {29, "texture29"},
+                {30, "texture30"},
+                {31, "texture31"},
+            };
 
         Nexus::Graphics::UniformResourceBinding uniformResourceBinding;
         uniformResourceBinding.Binding = 0;
         uniformResourceBinding.Name = "MVP";
-        uniformResourceBinding.Buffer = m_UniformBuffer;
         resourceSpec.UniformResourceBindings = {uniformResourceBinding};
 
         description.ResourceSetSpecification = resourceSpec;
