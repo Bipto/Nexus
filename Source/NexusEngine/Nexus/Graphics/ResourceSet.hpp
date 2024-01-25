@@ -13,6 +13,8 @@ namespace Nexus::Graphics
     /// @brief A struct representing a binding of a texture within a shader
     struct TextureResourceBinding
     {
+        uint32_t Set;
+
         /// @brief An integer representing which slot the texture should be bound to
         uint32_t Slot;
 
@@ -23,6 +25,8 @@ namespace Nexus::Graphics
     /// @brief A class representing a binding to a uniform buffer
     struct UniformResourceBinding
     {
+        uint32_t Set;
+
         /// @brief The binding index of the uniform buffer
         uint32_t Binding;
 
@@ -42,8 +46,8 @@ namespace Nexus::Graphics
         ResourceSet(const ResourceSetSpecification &spec);
         virtual ~ResourceSet() {}
 
-        virtual void WriteTexture(Texture *texture, uint32_t binding) = 0;
-        virtual void WriteUniformBuffer(UniformBuffer *uniformBuffer, uint32_t binding) = 0;
+        virtual void WriteTexture(Texture *texture, uint32_t set, uint32_t binding) = 0;
+        virtual void WriteUniformBuffer(UniformBuffer *uniformBuffer, uint32_t set, uint32_t binding) = 0;
 
         const ResourceSetSpecification &GetSpecification() const;
 
@@ -52,6 +56,9 @@ namespace Nexus::Graphics
 
         uint32_t GetTextureDescriptorIndex() const;
         uint32_t GetUniformBufferDescriptorIndex() const;
+
+        static constexpr uint32_t DescriptorSlotCount = 16;
+        static uint32_t GetLinearDescriptorSlot(uint32_t set, uint32_t slot);
 
     protected:
         ResourceSetSpecification m_Specification;

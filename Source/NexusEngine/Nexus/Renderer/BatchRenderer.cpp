@@ -845,38 +845,38 @@ namespace Nexus::Graphics
         Nexus::Graphics::ResourceSetSpecification resourceSpec;
         resourceSpec.TextureBindings =
             {
-                {0, "texture0"},
-                {1, "texture1"},
-                {2, "texture2"},
-                {3, "texture3"},
-                {4, "texture4"},
-                {5, "texture5"},
-                {6, "texture6"},
-                {7, "texture7"},
-                {8, "texture8"},
-                {9, "texture9"},
-                {10, "texture10"},
-                {11, "texture11"},
-                {12, "texture12"},
-                {13, "texture13"},
-                {14, "texture14"},
-                {15, "texture15"},
-                {16, "texture16"},
-                {17, "texture17"},
-                {18, "texture18"},
-                {19, "texture19"},
-                {20, "texture20"},
-                {21, "texture21"},
-                {22, "texture22"},
-                {23, "texture23"},
-                {24, "texture24"},
-                {25, "texture25"},
-                {26, "texture26"},
-                {27, "texture27"},
-                {28, "texture28"},
-                {29, "texture29"},
-                {30, "texture30"},
-                {31, "texture31"},
+                {1, 0, "texture0"},
+                {1, 1, "texture1"},
+                {1, 2, "texture2"},
+                {1, 3, "texture3"},
+                {1, 4, "texture4"},
+                {1, 5, "texture5"},
+                {1, 6, "texture6"},
+                {1, 7, "texture7"},
+                {1, 8, "texture8"},
+                {1, 9, "texture9"},
+                {1, 10, "texture10"},
+                {1, 11, "texture11"},
+                {1, 12, "texture12"},
+                {1, 13, "texture13"},
+                {1, 14, "texture14"},
+                {1, 15, "texture15"},
+                {1, 16, "texture16"},
+                {1, 17, "texture17"},
+                {1, 18, "texture18"},
+                {1, 19, "texture19"},
+                {1, 20, "texture20"},
+                {1, 21, "texture21"},
+                {1, 22, "texture22"},
+                {1, 23, "texture23"},
+                {1, 24, "texture24"},
+                {1, 25, "texture25"},
+                {1, 26, "texture26"},
+                {1, 27, "texture27"},
+                {1, 28, "texture28"},
+                {1, 29, "texture29"},
+                {1, 30, "texture30"},
+                {1, 31, "texture31"},
             };
 
         Nexus::Graphics::UniformResourceBinding uniformResourceBinding;
@@ -902,16 +902,16 @@ namespace Nexus::Graphics
         memcpy(buffer, m_Indices.data(), m_Indices.size() * sizeof(uint32_t));
         m_IndexBuffer->Unmap();
 
-        m_ResourceSet->WriteUniformBuffer(m_UniformBuffer, 0);
+        m_ResourceSet->WriteUniformBuffer(m_UniformBuffer, 0, 0);
 
         for (uint32_t i = 0; i < m_Textures.size(); i++)
         {
-            m_ResourceSet->WriteTexture(m_Textures[i], i);
+            m_ResourceSet->WriteTexture(m_Textures[i], 1, i);
         }
 
         for (uint32_t i = m_Textures.size(); i < MAX_TEXTURES; i++)
         {
-            m_ResourceSet->WriteTexture(m_BlankTexture, i);
+            m_ResourceSet->WriteTexture(m_BlankTexture, 1, i);
         }
 
         m_CommandList->Begin();

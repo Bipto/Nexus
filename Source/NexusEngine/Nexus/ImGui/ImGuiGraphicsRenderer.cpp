@@ -87,10 +87,12 @@ namespace Nexus::ImGuiUtils
 
         Nexus::Graphics::TextureResourceBinding textureBinding;
         textureBinding.Slot = 0;
+        textureBinding.Set = 1;
         textureBinding.Name = "Texture";
 
         Nexus::Graphics::UniformResourceBinding uniformBinding;
         uniformBinding.Binding = 0;
+        uniformBinding.Set = 0;
         uniformBinding.Name = "MVP";
 
         Nexus::Graphics::ResourceSetSpecification resources;
@@ -381,23 +383,6 @@ namespace Nexus::ImGuiUtils
 
             m_IndexBuffer->Unmap();
         }
-
-        // update buffers
-        {
-            /* uint32_t vtxDst = 0;
-            uint32_t idxDst = 0;
-
-            for (int i = 0; i < drawData->CmdListsCount; i++)
-            {
-                const ImDrawList *cmdList = drawData->CmdLists[i];
-
-                m_VertexBuffer->SetData(cmdList->VtxBuffer.Data, cmdList->VtxBuffer.size_in_bytes(), vtxDst);
-                m_IndexBuffer->SetData(cmdList->IdxBuffer.Data, cmdList->IdxBuffer.size_in_bytes(), idxDst);
-
-                vtxDst += cmdList->VtxBuffer.size_in_bytes();
-                idxDst += cmdList->IdxBuffer.size_in_bytes();
-            } */
-        }
     }
 
     void ImGuiGraphicsRenderer::RenderCommandLists(ImDrawData *drawData)
@@ -423,8 +408,8 @@ namespace Nexus::ImGuiUtils
         memcpy(buffer, &mvp, sizeof(mvp));
         m_UniformBuffer->Unmap();
 
-        m_ResourceSet->WriteTexture(m_FontTexture, 0);
-        m_ResourceSet->WriteUniformBuffer(m_UniformBuffer, 0);
+        m_ResourceSet->WriteUniformBuffer(m_UniformBuffer, 0, 0);
+        m_ResourceSet->WriteTexture(m_FontTexture, 1, 0);
         m_CommandList->SetResourceSet(m_ResourceSet);
 
         auto windowSize = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize();

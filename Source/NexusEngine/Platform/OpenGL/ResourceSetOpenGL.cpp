@@ -10,42 +10,38 @@ namespace Nexus::Graphics
         // setup texture binding names
         for (const auto &textureBinding : m_Specification.TextureBindings)
         {
-            m_TextureBindingNames[textureBinding.Slot] = textureBinding.Name;
+            uint32_t slot = ResourceSet::GetLinearDescriptorSlot(textureBinding.Set, textureBinding.Slot);
+            m_TextureBindings[slot] = nullptr;
         }
 
         // setup uniform buffer binding names
-        for (const auto &uniformBufferBindings : m_Specification.UniformResourceBindings)
+        for (const auto &uniformBufferBinding : m_Specification.UniformResourceBindings)
         {
-            m_UniformBufferBindingNames[uniformBufferBindings.Binding] = uniformBufferBindings.Name;
+            uint32_t slot = ResourceSet::GetLinearDescriptorSlot(uniformBufferBinding.Set, uniformBufferBinding.Binding);
+            m_UniformBufferBindings[slot] = nullptr;
         }
     }
 
-    void Nexus::Graphics::ResourceSetOpenGL::WriteTexture(Texture *texture, uint32_t binding)
+    void Nexus::Graphics::ResourceSetOpenGL::WriteTexture(Texture *texture, uint32_t set, uint32_t binding)
     {
-        OpenGLTextureBindingInfo info;
-        info.Texture = texture;
-        info.BindingName = m_TextureBindingNames[binding];
-
-        m_TextureBindings[binding] = info;
+        uint32_t slot = ResourceSet::GetLinearDescriptorSlot(set, binding);
+        m_TextureBindings[slot] = (TextureOpenGL *)texture;
     }
 
-    void Nexus::Graphics::ResourceSetOpenGL::WriteUniformBuffer(UniformBuffer *uniformBuffer, uint32_t binding)
+    void Nexus::Graphics::ResourceSetOpenGL::WriteUniformBuffer(UniformBuffer *uniformBuffer, uint32_t set, uint32_t binding)
     {
-        OpenGLUniformBufferBindingInfo info;
-        info.Buffer = uniformBuffer;
-        info.BindingName = m_UniformBufferBindingNames[binding];
-
-        m_UniformBindings[binding] = info;
+        uint32_t slot = ResourceSet::GetLinearDescriptorSlot(set, binding);
+        m_UniformBufferBindings[slot] = (UniformBufferOpenGL *)uniformBuffer;
     }
 
-    const std::unordered_map<uint32_t, OpenGLTextureBindingInfo> &ResourceSetOpenGL::GetTextureBindings()
+    const std::map<uint32_t, TextureOpenGL *> &ResourceSetOpenGL::GetTextureBindings() const
     {
         return m_TextureBindings;
     }
 
-    const std::unordered_map<uint32_t, OpenGLUniformBufferBindingInfo> &ResourceSetOpenGL::GetUniformBufferBindings()
+    const std::map<uint32_t, UniformBufferOpenGL *> &ResourceSetOpenGL::GetUniformBufferBindings() const
     {
-        return m_UniformBindings;
+        return m_UniformBufferBindings;
     }
 }
 

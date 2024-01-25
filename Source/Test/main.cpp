@@ -38,6 +38,7 @@ public:
     virtual void Render(Nexus::Time time) override
     {
         m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
+        m_GraphicsDevice->BeginFrame();
 
         m_CommandList->Begin();
         m_CommandList->SetRenderTarget({m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
@@ -48,6 +49,8 @@ public:
         m_ImGuiGraphicsRenderer->BeforeLayout(time);
         ImGui::ShowDemoWindow();
         m_ImGuiGraphicsRenderer->AfterLayout();
+
+        m_GraphicsDevice->EndFrame();
     }
 
     virtual void OnResize(Nexus::Point<uint32_t> size) override
@@ -71,7 +74,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;

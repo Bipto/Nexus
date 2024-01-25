@@ -16,6 +16,10 @@ namespace Nexus::Graphics
     GraphicsDeviceD3D12::GraphicsDeviceD3D12(const GraphicsDeviceCreateInfo &createInfo, Window *window, const SwapchainSpecification &swapchainSpec)
         : GraphicsDevice(createInfo, window, swapchainSpec)
     {
+        // this has to be enabled to support newer HLSL versions and DXIL bytecode
+        UUID experimentalFeatures[] = {D3D12ExperimentalShaderModels};
+        D3D12EnableExperimentalFeatures(1, experimentalFeatures, NULL, NULL);
+
 #if defined(_DEBUG)
         // retrieve the debug interface
         if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&m_D3D12Debug))))
@@ -37,7 +41,7 @@ namespace Nexus::Graphics
         }
 
         // create the D3D12Device
-        if (SUCCEEDED(D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_Device))))
+        if (SUCCEEDED(D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&m_Device))))
         {
             // Create a command queue to submit work to the GPU
             D3D12_COMMAND_QUEUE_DESC commandQueueDesc{};

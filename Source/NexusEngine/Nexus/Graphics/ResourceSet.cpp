@@ -46,4 +46,9 @@ namespace Nexus::Graphics
 
         return 1;
     }
+
+    uint32_t ResourceSet::GetLinearDescriptorSlot(uint32_t set, uint32_t slot)
+    {
+        return set * ResourceSet::DescriptorSlotCount + slot;
+    }
 }

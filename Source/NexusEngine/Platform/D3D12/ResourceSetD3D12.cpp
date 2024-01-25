@@ -15,6 +15,7 @@ namespace Nexus::Graphics
         uint32_t textureCount = spec.TextureBindings.size();
         uint32_t uniformBufferCount = spec.UniformResourceBindings.size();
         uint32_t textureConstantBufferCount = spec.TextureBindings.size() + spec.UniformResourceBindings.size();
+        uint32_t cpuSlotLocation = 0;
 
         if (textureCount > 0)
         {
@@ -33,11 +34,19 @@ namespace Nexus::Graphics
 
                 for (int i = 0; i < textureCount; i++)
                 {
-                    m_SamplerCPUDescriptors.push_back(cpuLocation);
-                    m_SamplerGPUDescriptors.push_back(gpuLocation);
+                    /* m_SamplerCPUDescriptors.push_back(cpuLocation);
+                    m_SamplerGPUDescriptors.push_back(gpuLocation); */
+
+                    auto samplerInfo = spec.TextureBindings[i];
+                    uint32_t binding = ResourceSet::GetLinearDescriptorSlot(samplerInfo.Set, samplerInfo.Slot);
+
+                    m_SamplerCPUDescriptors[binding] = cpuLocation;
+                    m_SamplerGPUDescriptors[binding] = gpuLocation;
+                    m_CPUDescriptorSlots[binding] = cpuSlotLocation;
 
                     cpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
                     gpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+                    cpuSlotLocation++;
                 }
             }
         }
@@ -60,11 +69,19 @@ namespace Nexus::Graphics
                 // retrieve texture handles
                 for (int i = 0; i < spec.TextureBindings.size(); i++)
                 {
-                    m_TextureCPUDescriptors.push_back(cpuLocation);
-                    m_TextureGPUDescriptors.push_back(gpuLocation);
+                    /* m_TextureCPUDescriptors.push_back(cpuLocation); */
+                    /* m_TextureGPUDescriptors.push_back(gpuLocation); */
+
+                    auto textureInfo = spec.TextureBindings[i];
+                    uint32_t binding = ResourceSet::GetLinearDescriptorSlot(textureInfo.Set, textureInfo.Slot);
+
+                    m_TextureCPUDescriptors[binding] = cpuLocation;
+                    m_TextureGPUDescriptors[binding] = gpuLocation;
+                    m_CPUDescriptorSlots[binding] = cpuSlotLocation;
 
                     cpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
                     gpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+                    cpuSlotLocation++;
                 }
             }
 
@@ -72,20 +89,29 @@ namespace Nexus::Graphics
             {
                 for (int i = 0; i < spec.UniformResourceBindings.size(); i++)
                 {
-                    m_ConstantBufferCPUDescriptors.push_back(cpuLocation);
-                    m_ConstantBufferGPUDescriptors.push_back(gpuLocation);
+                    /* m_ConstantBufferCPUDescriptors.push_back(cpuLocation);
+                    m_ConstantBufferGPUDescriptors.push_back(gpuLocation); */
+
+                    auto constantBufferInfo = spec.UniformResourceBindings[i];
+                    uint32_t binding = ResourceSet::GetLinearDescriptorSlot(constantBufferInfo.Set, constantBufferInfo.Binding);
+
+                    m_ConstantBufferCPUDescriptors[binding] = cpuLocation;
+                    m_ConstantBufferGPUDescriptors[binding] = gpuLocation;
+                    m_CPUDescriptorSlots[binding] = cpuSlotLocation;
 
                     cpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
                     gpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+                    cpuSlotLocation++;
                 }
             }
         }
     }
 
-    void ResourceSetD3D12::WriteTexture(Texture *texture, uint32_t binding)
+    void ResourceSetD3D12::WriteTexture(Texture *texture, uint32_t set, uint32_t binding)
     {
         auto d3d12Device = m_Device->GetDevice();
         TextureD3D12 *d3d12Texture = (TextureD3D12 *)texture;
+        uint32_t slot = ResourceSet::GetLinearDescriptorSlot(set, binding);
 
         D3D12_SHADER_RESOURCE_VIEW_DESC srv;
         srv.Format = d3d12Texture->GetFormat();
@@ -96,9 +122,11 @@ namespace Nexus::Graphics
         srv.Texture2D.PlaneSlice = 0;
         srv.Texture2D.ResourceMinLODClamp = 0.0f;
 
+        D3D12_CPU_DESCRIPTOR_HANDLE textureHandle = m_TextureCPUDescriptors.at(slot);
+
         d3d12Device->CreateShaderResourceView(d3d12Texture->GetD3D12ResourceHandle(),
                                               &srv,
-                                              m_TextureCPUDescriptors[binding]);
+                                              textureHandle);
 
         D3D12_SAMPLER_DESC sd;
         sd.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
@@ -115,13 +143,17 @@ namespace Nexus::Graphics
         sd.MinLOD = 0.0f;
         sd.MaxLOD = D3D12_FLOAT32_MAX;
 
+        D3D12_CPU_DESCRIPTOR_HANDLE samplerHandle = m_SamplerCPUDescriptors.at(slot);
+
         d3d12Device->CreateSampler(
             &sd,
-            m_SamplerCPUDescriptors[binding]);
+            samplerHandle);
     }
 
-    void ResourceSetD3D12::WriteUniformBuffer(UniformBuffer *uniformBuffer, uint32_t binding)
+    void ResourceSetD3D12::WriteUniformBuffer(UniformBuffer *uniformBuffer, uint32_t set, uint32_t binding)
     {
+        uint32_t slot = ResourceSet::GetLinearDescriptorSlot(set, binding);
+
         auto d3d12Device = m_Device->GetDevice();
         UniformBufferD3D12 *d3d12UniformBuffer = (UniformBufferD3D12 *)uniformBuffer;
 
@@ -133,7 +165,7 @@ namespace Nexus::Graphics
 
         d3d12Device->CreateConstantBufferView(
             &desc,
-            m_ConstantBufferCPUDescriptors[binding]);
+            m_ConstantBufferCPUDescriptors[slot]);
     }
 
     D3D12_GPU_DESCRIPTOR_HANDLE ResourceSetD3D12::GetSamplerGPUStartHandle()
@@ -141,9 +173,9 @@ namespace Nexus::Graphics
         return m_SamplerDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
     }
 
-    D3D12_GPU_DESCRIPTOR_HANDLE ResourceSetD3D12::GetTextureGPUStartHandle()
+    D3D12_GPU_DESCRIPTOR_HANDLE ResourceSetD3D12::GetConstantBufferTextureGPUStartHandle()
     {
-        return m_TextureGPUDescriptors[0];
+        return m_TextureConstantBufferDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
     }
 
     ID3D12DescriptorHeap *ResourceSetD3D12::GetSamplerDescriptorHeap()
@@ -156,9 +188,57 @@ namespace Nexus::Graphics
         return m_TextureConstantBufferDescriptorHeap.Get();
     }
 
-    D3D12_GPU_DESCRIPTOR_HANDLE ResourceSetD3D12::GetConstantBufferGPUStartHandle()
+    const D3D12_GPU_DESCRIPTOR_HANDLE ResourceSetD3D12::GetConstantBufferDescriptor(uint32_t slot)
     {
-        return m_ConstantBufferGPUDescriptors[0];
+        return m_ConstantBufferGPUDescriptors.at(slot);
+    }
+
+    const D3D12_GPU_DESCRIPTOR_HANDLE ResourceSetD3D12::GetTextureDescriptor(uint32_t slot)
+    {
+        return m_TextureGPUDescriptors.at(slot);
+    }
+
+    const D3D12_GPU_DESCRIPTOR_HANDLE ResourceSetD3D12::GetSamplerDescriptor(uint32_t slot)
+    {
+        return m_SamplerGPUDescriptors.at(slot);
+    }
+
+    uint32_t ResourceSetD3D12::GetFirstSamplerIndex() const
+    {
+        uint32_t firstIndex = UINT32_MAX;
+
+        for (const auto &pair : m_SamplerCPUDescriptors)
+        {
+            if (pair.first < firstIndex)
+            {
+                firstIndex = pair.first;
+            }
+        }
+
+        return firstIndex;
+    }
+
+    uint32_t ResourceSetD3D12::GetFirstConstantBufferTextureIndex() const
+    {
+        uint32_t firstIndex = UINT32_MAX;
+
+        for (const auto &pair : m_ConstantBufferCPUDescriptors)
+        {
+            if (pair.first < firstIndex)
+            {
+                firstIndex = pair.first;
+            }
+        }
+
+        for (const auto &pair : m_TextureCPUDescriptors)
+        {
+            if (pair.first < firstIndex)
+            {
+                firstIndex = pair.first;
+            }
+        }
+
+        return firstIndex;
     }
 }
 

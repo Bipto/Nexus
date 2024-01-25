@@ -299,12 +299,15 @@ namespace Nexus::Graphics
 
         std::vector<D3D12_ROOT_PARAMETER> parameters;
 
-        if (m_Description.ResourceSetSpecification.TextureBindings.size() > 0)
+        for (int i = 0; i < m_Description.ResourceSetSpecification.TextureBindings.size(); i++)
         {
+            auto textureInfo = m_Description.ResourceSetSpecification.TextureBindings[i];
+            uint32_t slot = ResourceSet::GetLinearDescriptorSlot(textureInfo.Set, textureInfo.Slot);
+
             D3D12_DESCRIPTOR_RANGE samplerRange;
             samplerRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
-            samplerRange.BaseShaderRegister = 0;
-            samplerRange.NumDescriptors = m_Description.ResourceSetSpecification.TextureBindings.size();
+            samplerRange.BaseShaderRegister = slot;
+            samplerRange.NumDescriptors = 1;
             samplerRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
             samplerRange.RegisterSpace = 0;
 
@@ -312,10 +315,16 @@ namespace Nexus::Graphics
             samplerTable.NumDescriptorRanges = 1;
             samplerTable.pDescriptorRanges = &samplerRange;
 
+            D3D12_ROOT_PARAMETER samplerParameter;
+            samplerParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+            samplerParameter.DescriptorTable = samplerTable;
+            samplerParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+            parameters.push_back(samplerParameter);
+
             D3D12_DESCRIPTOR_RANGE textureRange;
             textureRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-            textureRange.BaseShaderRegister = 0;
-            textureRange.NumDescriptors = m_Description.ResourceSetSpecification.TextureBindings.size();
+            textureRange.BaseShaderRegister = slot;
+            textureRange.NumDescriptors = 1;
             textureRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
             textureRange.RegisterSpace = 0;
 
@@ -323,25 +332,22 @@ namespace Nexus::Graphics
             textureTable.NumDescriptorRanges = 1;
             textureTable.pDescriptorRanges = &textureRange;
 
-            D3D12_ROOT_PARAMETER samplerParameter;
-            samplerParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-            samplerParameter.DescriptorTable = samplerTable;
-            samplerParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-            parameters.push_back(samplerParameter);
-
             D3D12_ROOT_PARAMETER textureParameter;
             textureParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
             textureParameter.DescriptorTable = textureTable;
-            textureParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+            textureParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
             parameters.push_back(textureParameter);
         }
 
-        if (m_Description.ResourceSetSpecification.UniformResourceBindings.size() > 0)
+        for (int i = 0; i < m_Description.ResourceSetSpecification.UniformResourceBindings.size(); i++)
         {
+            auto constantBufferInfo = m_Description.ResourceSetSpecification.UniformResourceBindings[i];
+            uint32_t slot = ResourceSet::GetLinearDescriptorSlot(constantBufferInfo.Set, constantBufferInfo.Binding);
+
             D3D12_DESCRIPTOR_RANGE constantBufferRange;
             constantBufferRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-            constantBufferRange.BaseShaderRegister = 0;
-            constantBufferRange.NumDescriptors = m_Description.ResourceSetSpecification.UniformResourceBindings.size();
+            constantBufferRange.BaseShaderRegister = slot;
+            constantBufferRange.NumDescriptors = 1;
             constantBufferRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
             constantBufferRange.RegisterSpace = 0;
 
@@ -352,7 +358,7 @@ namespace Nexus::Graphics
             D3D12_ROOT_PARAMETER constantBufferParameter;
             constantBufferParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
             constantBufferParameter.DescriptorTable = constantBufferTable;
-            constantBufferParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+            constantBufferParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
             parameters.push_back(constantBufferParameter);
         }
 
@@ -360,7 +366,6 @@ namespace Nexus::Graphics
         desc.pParameters = parameters.data();
 
         Microsoft::WRL::ComPtr<ID3DBlob> errorBlob;
-
         if (SUCCEEDED(D3D12SerializeRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION_1, &m_RootSignatureBlob, &errorBlob)))
         {
             m_Device->CreateRootSignature(0, m_RootSignatureBlob->GetBufferPointer(), m_RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_RootSignature));

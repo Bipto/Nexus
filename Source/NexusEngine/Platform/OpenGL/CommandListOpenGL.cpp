@@ -180,10 +180,12 @@ namespace Nexus::Graphics
             // update textures
             for (const auto &textureBinding : resourcesGL->GetTextureBindings())
             {
-                auto textureGL = (TextureOpenGL *)textureBinding.second.Texture;
+                auto textureGL = textureBinding.second;
 
-                auto location = glGetUniformLocation(shaderGL->GetHandle(), textureBinding.second.BindingName.c_str());
-                glUniform1i(location, textureBinding.first);
+                // assign sampled to texture
+                glUniform1i(textureBinding.first, textureBinding.first);
+
+                // bind texture
                 glActiveTexture(GL_TEXTURE0 + textureBinding.first);
                 glBindTexture(GL_TEXTURE_2D, (unsigned int)textureGL->GetHandle());
             }
@@ -191,11 +193,10 @@ namespace Nexus::Graphics
             // update uniform buffers
             for (const auto &uniformBufferBinding : resourcesGL->GetUniformBufferBindings())
             {
-                auto uniformBufferGL = (UniformBufferOpenGL *)uniformBufferBinding.second.Buffer;
-                unsigned int index = glGetUniformBlockIndex(shaderGL->GetHandle(), uniformBufferBinding.second.BindingName.c_str());
+                // bind uniform buffer
+                auto uniformBufferGL = uniformBufferBinding.second;
                 glBindBuffer(GL_UNIFORM_BUFFER, uniformBufferGL->GetHandle());
-                glUniformBlockBinding(shaderGL->GetHandle(), index, uniformBufferBinding.first);
-                glBindBufferRange(GL_UNIFORM_BUFFER, uniformBufferBinding.first, uniformBufferGL->GetHandle(), 0, uniformBufferGL->GetDescription().Size);
+                glBindBufferBase(GL_UNIFORM_BUFFER, uniformBufferBinding.first, uniformBufferGL->GetHandle());
             }
         };
         m_Commands.push_back(renderCommand);

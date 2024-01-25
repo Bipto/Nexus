@@ -6,6 +6,8 @@
 
 #include "Nexus/Logging/Log.hpp"
 
+#include "ResourceSet.hpp"
+
 namespace Nexus::Graphics
 {
     shaderc_shader_kind GetTypeOfShader(ShaderType type)
@@ -23,18 +25,15 @@ namespace Nexus::Graphics
     {
         spirv_cross::ShaderResources resources = compiler.get_shader_resources();
 
-        for (auto &resource : resources.sampled_images)
+        for (auto &image : resources.sampled_images)
         {
-            uint32_t set = compiler.get_decoration(resource.id, spv::DecorationDescriptorSet);
-            uint32_t binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
+            uint32_t set = compiler.get_decoration(image.id, spv::DecorationDescriptorSet);
+            uint32_t binding = compiler.get_decoration(image.id, spv::DecorationBinding);
 
-            std::cout << "Image: [" << resource.name << "] at set: " << set << ", binding: " << binding << "\n";
-
-            constexpr uint32_t descriptorSlotCount = 16;
-
-            uint32_t newBinding = set * descriptorSlotCount + binding;
-            // compiler.unset_decoration(resource.id, spv::DecorationDescriptorSet);
-            // compiler.set_decoration(resource.id, spv::DecorationBinding, newBinding);
+            uint32_t newBinding = ResourceSet::GetLinearDescriptorSlot(set, binding);
+            compiler.unset_decoration(image.id, spv::DecorationDescriptorSet);
+            compiler.set_decoration(image.id, spv::DecorationBinding, newBinding);
+            std::cout << "Image: [" << image.name << "] at set: " << set << ", binding: " << binding << " remapped to slot: " << newBinding << "\n";
         }
 
         for (auto &uniformBuffer : resources.uniform_buffers)
@@ -42,13 +41,10 @@ namespace Nexus::Graphics
             uint32_t set = compiler.get_decoration(uniformBuffer.id, spv::DecorationDescriptorSet);
             uint32_t binding = compiler.get_decoration(uniformBuffer.id, spv::DecorationBinding);
 
-            std::cout << "Uniform Buffer: [" << uniformBuffer.name << "] at set: " << set << ", binding: " << binding << "\n";
-
-            constexpr uint32_t descriptorSlotCount = 16;
-
-            uint32_t newBinding = set * descriptorSlotCount + binding;
-            // compiler.unset_decoration(resource.id, spv::DecorationDescriptorSet);
-            // compiler.set_decoration(resource.id, spv::DecorationBinding, newBinding);
+            uint32_t newBinding = ResourceSet::GetLinearDescriptorSlot(set, binding);
+            compiler.unset_decoration(uniformBuffer.id, spv::DecorationDescriptorSet);
+            compiler.set_decoration(uniformBuffer.id, spv::DecorationBinding, newBinding);
+            std::cout << "Uniform Buffer: [" << uniformBuffer.name << "] at set: " << set << ", binding: " << binding << " remapped to slot: " << newBinding << "\n";
         }
     }
 

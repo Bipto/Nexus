@@ -1,5 +1,7 @@
 #include "ShaderD3D12.hpp"
 
+#include "Nexus/Logging/Log.hpp"
+
 #if defined(NX_PLATFORM_D3D12)
 
 namespace Nexus::Graphics
@@ -53,7 +55,7 @@ namespace Nexus::Graphics
                 L"-E",
                 L"vs_main",
                 L"-T",
-                L"vs_6_6",
+                L"vs_6_0",
                 DXC_ARG_WARNINGS_ARE_ERRORS};
 
 #if defined(DEBUG) || defined(_DEBUG)
@@ -73,7 +75,7 @@ namespace Nexus::Graphics
             includeHandler.Get(),
             IID_PPV_ARGS(compiledShaderBuffer.GetAddressOf()));
 
-        compiledShaderBuffer->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&m_VertexBlobPtr), nullptr);
+        compiledShaderBuffer->GetResult(&m_VertexBlobPtr);
     }
 
     void ShaderD3D12::CreateFragmentShader()
@@ -94,7 +96,7 @@ namespace Nexus::Graphics
                 L"-E",
                 L"ps_main",
                 L"-T",
-                L"ps_6_6",
+                L"ps_6_0",
                 DXC_ARG_WARNINGS_ARE_ERRORS};
 
 #if defined(DEBUG) || defined(_DEBUG)
@@ -114,7 +116,7 @@ namespace Nexus::Graphics
             includeHandler.Get(),
             IID_PPV_ARGS(compiledShaderBuffer.GetAddressOf()));
 
-        compiledShaderBuffer->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&m_FragmentBlobPtr), nullptr);
+        compiledShaderBuffer->GetResult(&m_FragmentBlobPtr);
     }
 }
 

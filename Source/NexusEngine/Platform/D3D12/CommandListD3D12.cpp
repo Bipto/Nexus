@@ -99,17 +99,28 @@ namespace Nexus::Graphics
         m_CommandList->SetDescriptorHeaps(heaps.size(), heaps.data());
 
         uint32_t descriptorIndex = 0;
-        if (d3d12ResourceSet->GetSpecification().TextureBindings.size() > 0)
+        const auto &spec = d3d12ResourceSet->GetSpecification();
+        for (int i = 0; i < spec.TextureBindings.size(); i++)
         {
-            m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex, d3d12ResourceSet->GetSamplerGPUStartHandle());
+            auto textureInfo = spec.TextureBindings[i];
+            uint32_t slot = ResourceSet::GetLinearDescriptorSlot(textureInfo.Set, textureInfo.Slot);
+
+            auto samplerHandle = d3d12ResourceSet->GetSamplerDescriptor(slot);
+            m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex, samplerHandle);
             descriptorIndex++;
-            m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex, d3d12ResourceSet->GetTextureGPUStartHandle());
+
+            auto textureHandle = d3d12ResourceSet->GetTextureDescriptor(slot);
+            m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex, textureHandle);
             descriptorIndex++;
         }
 
-        if (d3d12ResourceSet->GetSpecification().UniformResourceBindings.size() > 0)
+        for (int i = 0; i < spec.UniformResourceBindings.size(); i++)
         {
-            m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex, d3d12ResourceSet->GetConstantBufferGPUStartHandle());
+            auto constantBufferInfo = spec.UniformResourceBindings[i];
+            uint32_t slot = ResourceSet::GetLinearDescriptorSlot(0, constantBufferInfo.Binding);
+
+            auto constantBufferHandle = d3d12ResourceSet->GetConstantBufferDescriptor(slot);
+            m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex, constantBufferHandle);
             descriptorIndex++;
         }
     }
@@ -217,21 +228,6 @@ namespace Nexus::Graphics
         renderTargetBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
         renderTargetBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
         m_CommandList->ResourceBarrier(1, &renderTargetBarrier);
-
-        /* D3D12_RESOURCE_BARRIER depthTargetBarrier;
-        depthTargetBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-        depthTargetBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-        depthTargetBarrier.Transition.pResource = swapchain->RetrieveDepthBufferHandle();
-        depthTargetBarrier.Transition.Subresource = 0;
-        depthTargetBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COMMON;
-        depthTargetBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_DEPTH_WRITE;
-
-        D3D12_RESOURCE_BARRIER barriers[] =
-            {
-                renderTargetBarrier,
-                depthTargetBarrier};
-
-        m_CommandList->ResourceBarrier(2, barriers); */
     }
 
     void CommandListD3D12::SetFramebuffer(FramebufferD3D12 *framebuffer)
@@ -284,21 +280,6 @@ namespace Nexus::Graphics
             presentBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
             presentBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
             m_CommandList->ResourceBarrier(1, &presentBarrier);
-
-            /* D3D12_RESOURCE_BARRIER depthTargetBarrier;
-            depthTargetBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-            depthTargetBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-            depthTargetBarrier.Transition.pResource = d3d12Swapchain->RetrieveDepthBufferHandle();
-            depthTargetBarrier.Transition.Subresource = 0;
-            depthTargetBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_DEPTH_WRITE;
-            depthTargetBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COMMON;
-
-            D3D12_RESOURCE_BARRIER barriers[] =
-                {
-                    presentBarrier,
-                    depthTargetBarrier};
-
-            m_CommandList->ResourceBarrier(2, barriers); */
         }
         else if (m_CurrentRenderTarget.GetType() == RenderTargetType::Framebuffer)
         {
