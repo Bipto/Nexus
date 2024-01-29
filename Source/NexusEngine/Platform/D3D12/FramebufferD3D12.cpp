@@ -124,6 +124,7 @@ namespace Nexus::Graphics
             dsvDesc.Format = GetD3D12DepthFormat(m_Specification.DepthAttachmentSpecification.DepthFormat);
             dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
             dsvDesc.Texture2D.MipSlice = 0;
+            dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
 
             d3d12Device->CreateDepthStencilView(m_DepthTexture.Get(), &dsvDesc, m_DepthAttachmentCPUHandle);
         }

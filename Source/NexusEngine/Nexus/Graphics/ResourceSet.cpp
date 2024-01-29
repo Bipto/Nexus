@@ -5,15 +5,7 @@ namespace Nexus::Graphics
     ResourceSet::ResourceSet(const ResourceSetSpecification &spec)
         : m_Specification(spec)
     {
-        if (HasUniformBuffers())
-        {
-            m_UniformBufferDescriptorIndex = 0;
-            m_TextureDescriptorIndex = 1;
-        }
-        else
-        {
-            m_TextureDescriptorIndex = 0;
-        }
+        m_LinearBindings = RemapToLinearBindings(spec);
     }
 
     const ResourceSetSpecification &ResourceSet::GetSpecification() const
@@ -21,34 +13,57 @@ namespace Nexus::Graphics
         return m_Specification;
     }
 
-    bool ResourceSet::HasTextures() const
+    const std::unordered_map<uint32_t, uint32_t> &ResourceSet::GetLinearBindings() const
     {
-        return m_Specification.TextureBindings.size() > 0;
-    }
-
-    bool ResourceSet::HasUniformBuffers() const
-    {
-        return m_Specification.UniformResourceBindings.size() > 0;
-    }
-
-    uint32_t ResourceSet::GetTextureDescriptorIndex() const
-    {
-        if (m_Specification.UniformResourceBindings.size() > 0)
-            return 1;
-
-        return 0;
-    }
-
-    uint32_t ResourceSet::GetUniformBufferDescriptorIndex() const
-    {
-        if (m_Specification.UniformResourceBindings.size() > 0)
-            return 0;
-
-        return 1;
+        return m_LinearBindings;
     }
 
     uint32_t ResourceSet::GetLinearDescriptorSlot(uint32_t set, uint32_t slot)
     {
         return set * ResourceSet::DescriptorSlotCount + slot;
+    }
+
+    std::unordered_map<uint32_t, uint32_t> ResourceSet::RemapToLinearBindings(const ResourceSetSpecification &spec)
+    {
+        uint32_t textureIndex = 0;
+        uint32_t uniformBufferIndex = 0;
+        std::unordered_map<uint32_t, uint32_t> bindings;
+
+        // TODO: should check if map already contains value
+        /* for (const auto &textureInfo : spec.TextureBindings)
+        {
+            uint32_t binding = (textureInfo.Set * ResourceSet::DescriptorSlotCount) + textureInfo.Slot;
+            bindings[binding] = textureIndex++;
+        }
+
+        for (const auto &uniformBufferInfo : spec.UniformResourceBindings)
+        {
+            uint32_t binding = (uniformBufferInfo.Set * ResourceSet::DescriptorSlotCount) + uniformBufferInfo.Binding;
+            bindings[binding] = textureIndex++;
+        } */
+
+        for (const auto &binding : spec.Resources)
+        {
+            uint32_t remappedBinding = (binding.Set * ResourceSet::DescriptorSlotCount) + binding.Binding;
+            if (bindings.find(remappedBinding) != bindings.end())
+            {
+                throw std::runtime_error("A resource has already been mapped to this slot");
+            }
+
+            if (binding.Type == ResourceType::CombinedImageSampler)
+            {
+                bindings[remappedBinding] = textureIndex++;
+            }
+            else if (binding.Type == ResourceType::UniformBuffer)
+            {
+                bindings[remappedBinding] = uniformBufferIndex++;
+            }
+            else
+            {
+                throw std::runtime_error("Failed to find a valid resource");
+            }
+        }
+
+        return bindings;
     }
 }

@@ -8,9 +8,16 @@
 #include "Platform/OpenGL/BufferOpenGL.hpp"
 
 #include <unordered_map>
+#include <variant>
 
 namespace Nexus::Graphics
 {
+    struct OpenGLResourceInfo
+    {
+        ResourceType Type;
+        std::variant<TextureOpenGL *, UniformBufferOpenGL *> Resource;
+    };
+
     class ResourceSetOpenGL : public ResourceSet
     {
     public:
@@ -18,12 +25,10 @@ namespace Nexus::Graphics
         virtual void WriteTexture(Texture *texture, uint32_t set, uint32_t binding) override;
         virtual void WriteUniformBuffer(UniformBuffer *uniformBuffer, uint32_t set, uint32_t binding) override;
 
-        const std::map<uint32_t, TextureOpenGL *> &GetTextureBindings() const;
-        const std::map<uint32_t, UniformBufferOpenGL *> &GetUniformBufferBindings() const;
+        const std::map<uint32_t, OpenGLResourceInfo> &GetResources() const;
 
     private:
-        std::map<uint32_t, TextureOpenGL *> m_TextureBindings;
-        std::map<uint32_t, UniformBufferOpenGL *> m_UniformBufferBindings;
+        std::map<uint32_t, OpenGLResourceInfo> m_Resources;
     };
 }
 

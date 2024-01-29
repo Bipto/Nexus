@@ -14,8 +14,11 @@ namespace Nexus::Graphics
         std::map<uint32_t, std::vector<VkDescriptorSetLayoutBinding>> sets;
         std::map<VkDescriptorType, uint32_t> descriptorCounts;
 
+        uint32_t textureIndex = 0;
+        uint32_t uniformBufferIndex = 0;
+
         // create texture bindings
-        for (const auto &textureInfo : spec.TextureBindings)
+        /* for (const auto &textureInfo : spec.TextureBindings)
         {
             VkDescriptorSetLayoutBinding samplerBinding = {};
             samplerBinding.binding = textureInfo.Slot;
@@ -37,10 +40,10 @@ namespace Nexus::Graphics
             auto &set = sets[textureInfo.Set];
             set.push_back(samplerBinding);
             descriptorCounts[VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER]++;
-        }
+        } */
 
         // create uniform buffer bindings
-        for (const auto &uniformInfo : spec.UniformResourceBindings)
+        /* for (const auto &uniformInfo : spec.UniformResourceBindings)
         {
             VkDescriptorSetLayoutBinding uniformBinding = {};
             uniformBinding.binding = uniformInfo.Binding;
@@ -62,9 +65,66 @@ namespace Nexus::Graphics
             auto &set = sets[uniformInfo.Set];
             set.push_back(uniformBinding);
             descriptorCounts[VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER]++;
-        }
+        } */
 
         // create descriptor set layouts
+        /* for (const auto &set : sets)
+        {
+            VkDescriptorSetLayoutCreateInfo setInfo = {};
+            setInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+            setInfo.pNext = nullptr;
+            setInfo.flags = 0;
+            setInfo.bindingCount = set.second.size();
+            setInfo.pBindings = set.second.data();
+
+            VkDescriptorSetLayout layout;
+            if (vkCreateDescriptorSetLayout(device->GetVkDevice(), &setInfo, nullptr, &layout) != VK_SUCCESS)
+            {
+                throw std::runtime_error("Failed to create descriptor set layout");
+            }
+
+            m_DescriptorSetLayouts[set.first] = layout;
+        } */
+
+        for (const auto &binding : spec.Resources)
+        {
+            VkDescriptorSetLayoutBinding descriptorBinding = {};
+            descriptorBinding.binding = binding.Binding;
+            descriptorBinding.descriptorCount = 1;
+            descriptorBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+
+            VkDescriptorType descriptorType{};
+
+            if (binding.Type == ResourceType::CombinedImageSampler)
+            {
+                descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            }
+            else if (binding.Type == ResourceType::UniformBuffer)
+            {
+                descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            }
+            else
+            {
+                throw std::runtime_error("Failed to find a valid resource type");
+            }
+
+            descriptorBinding.descriptorType = descriptorType;
+
+            if (sets.find(binding.Set) == sets.end())
+            {
+                sets[binding.Set] = {};
+            }
+
+            if (descriptorCounts.find(descriptorType) == descriptorCounts.end())
+            {
+                descriptorCounts[descriptorType] = 0;
+            }
+
+            auto &set = sets[binding.Set];
+            set.push_back(descriptorBinding);
+            descriptorCounts[descriptorType]++;
+        }
+
         for (const auto &set : sets)
         {
             VkDescriptorSetLayoutCreateInfo setInfo = {};

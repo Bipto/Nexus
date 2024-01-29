@@ -29,18 +29,12 @@ namespace Nexus::Graphics
         uint32_t GetFirstSamplerIndex() const;
         uint32_t GetFirstConstantBufferTextureIndex() const;
 
+        bool HasConstantBufferTextureHeap() const;
+        bool HasSamplerHeap() const;
+
     private:
         Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_SamplerDescriptorHeap = nullptr;
         Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_TextureConstantBufferDescriptorHeap = nullptr;
-
-        // std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_SamplerCPUDescriptors;
-        // std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> m_SamplerGPUDescriptors;
-
-        // std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_ConstantBufferCPUDescriptors;
-        // std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> m_ConstantBufferGPUDescriptors;
-
-        // std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_TextureCPUDescriptors;
-        // std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> m_TextureGPUDescriptors;
 
         std::map<uint32_t, D3D12_CPU_DESCRIPTOR_HANDLE> m_SamplerCPUDescriptors;
         std::map<uint32_t, D3D12_GPU_DESCRIPTOR_HANDLE> m_SamplerGPUDescriptors;
@@ -54,6 +48,8 @@ namespace Nexus::Graphics
         std::map<uint32_t, uint32_t> m_CPUDescriptorSlots;
 
         GraphicsDeviceD3D12 *m_Device = nullptr;
+        bool m_HasConstantBufferTextureHeap = false;
+        bool m_HasSamplerHeap = false;
     };
 }
 

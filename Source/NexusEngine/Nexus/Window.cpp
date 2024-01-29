@@ -296,12 +296,6 @@ namespace Nexus
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
 #endif
 
-            if (swapchainSpec.Samples > 1)
-            {
-                SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-                SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, swapchainSpec.Samples);
-            }
-
             if (Graphics::SwapchainOpenGL::HasContextBeenCreated())
             {
                 SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);

@@ -86,20 +86,6 @@ namespace Nexus::Graphics
         auto vulkanShader = (ShaderVk *)description.Shader;
         auto resourceSet = new ResourceSetVk(description.ResourceSetSpecification, graphicsDevice);
 
-        /* const auto &pipelineLayouts = resourceSet->GetDescriptorSetLayouts();
-        std::vector<VkDescriptorSetLayout> layouts;
-        for (const auto &layout : pipelineLayouts)
-        {
-            layouts.push_back(layout.second[0]);
-        }
-
-        // describes data that will be uploaded to the shader
-        VkPipelineLayoutCreateInfo layoutInfo = CreatePipelineLayoutCreateInfo(layouts);
-        if (vkCreatePipelineLayout(graphicsDevice->GetVkDevice(), &layoutInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS)
-        {
-            throw std::runtime_error("Failed to create pipeline layout");
-        }*/
-
         const auto &pipelineLayouts = resourceSet->GetDescriptorSetLayouts();
         std::vector<VkDescriptorSetLayout> layouts;
         for (const auto &layout : pipelineLayouts)

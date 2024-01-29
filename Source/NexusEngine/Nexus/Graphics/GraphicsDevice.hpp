@@ -68,13 +68,6 @@ namespace Nexus::Graphics
         /// @return A GraphicsAPI enum containing the current backend
         GraphicsAPI GetGraphicsAPI() { return this->m_API; }
 
-        /// @brief A pure virtual method that creates a new shader from a vertex and fragment shader and a vertex buffer layout
-        /// @param vertexShaderSource A vertex shader written in the native shading language of the backend
-        /// @param fragmentShaderSource A fragment shader written in the native shading language of the backend
-        /// @param layout A parameter specifying how data is laid out in the vertex buffer
-        /// @return A pointer to a shader
-        virtual Shader *CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout) = 0;
-
         /// @brief A pure virtual method that creates a pipeline from a given pipeline description
         /// @param description The properties to use when creating the pipeline
         /// @return A pointer to a pipeline
@@ -147,6 +140,14 @@ namespace Nexus::Graphics
         Shader *CreateShaderFromSpirvSources(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout, const std::string &vertexShaderName = "VertexShader", const std::string &fragmentShaderName = "FragmentShader");
 
         Window *GetPrimaryWindow();
+
+    private:
+        /// @brief A pure virtual method that creates a new shader from a vertex and fragment shader and a vertex buffer layout
+        /// @param vertexShaderSource A vertex shader written in the native shading language of the backend
+        /// @param fragmentShaderSource A fragment shader written in the native shading language of the backend
+        /// @param layout A parameter specifying how data is laid out in the vertex buffer
+        /// @return A pointer to a shader
+        virtual Shader *CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout) = 0;
 
     protected:
         /// @brief A pointer to the window to render graphics into

@@ -1,9 +1,9 @@
 #pragma once
 
+#include "Nexus/ApplicationSpecification.hpp"
+
 #include <vector>
 #include <functional>
-
-#include "Nexus/ApplicationSpecification.hpp"
 
 namespace Nexus
 {
@@ -16,17 +16,9 @@ namespace Nexus::Graphics
     class Swapchain
     {
     public:
-        virtual ~Swapchain()
+        Swapchain(const SwapchainSpecification &spec)
+            : m_Specification(spec)
         {
-            for (const auto &function : m_ClosingFunctions)
-            {
-                function();
-            }
-        }
-
-        void OnClose(std::function<void(void)> function)
-        {
-            m_ClosingFunctions.push_back(function);
         }
 
         virtual void Initialise() = 0;
@@ -36,9 +28,15 @@ namespace Nexus::Graphics
         virtual Window *GetWindow() = 0;
         virtual void Prepare() = 0;
 
-    private:
-        std::vector<std::function<void(void)>> m_ClosingFunctions;
+        const SwapchainSpecification &GetSpecification()
+        {
+            return m_Specification;
+        }
 
+    protected:
+        SwapchainSpecification m_Specification;
+
+    private:
         friend class GraphicsDevice;
     };
 }

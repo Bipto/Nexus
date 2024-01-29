@@ -84,14 +84,12 @@ namespace Nexus::Graphics
         ResourceSetD3D12 *d3d12ResourceSet = (ResourceSetD3D12 *)resources;
 
         std::vector<ID3D12DescriptorHeap *> heaps;
-        if (d3d12ResourceSet->GetSpecification().TextureBindings.size() > 0)
+        if (d3d12ResourceSet->HasSamplerHeap())
         {
             heaps.push_back(d3d12ResourceSet->GetSamplerDescriptorHeap());
         }
 
-        uint32_t textureConstantBufferDescriptorCount = d3d12ResourceSet->GetSpecification().TextureBindings.size() + d3d12ResourceSet->GetSpecification().UniformResourceBindings.size();
-
-        if (textureConstantBufferDescriptorCount > 0)
+        if (d3d12ResourceSet->HasConstantBufferTextureHeap())
         {
             heaps.push_back(d3d12ResourceSet->GetTextureConstantBufferDescriptorHeap());
         }
@@ -100,7 +98,7 @@ namespace Nexus::Graphics
 
         uint32_t descriptorIndex = 0;
         const auto &spec = d3d12ResourceSet->GetSpecification();
-        for (int i = 0; i < spec.TextureBindings.size(); i++)
+        /* for (int i = 0; i < spec.TextureBindings.size(); i++)
         {
             auto textureInfo = spec.TextureBindings[i];
             uint32_t slot = ResourceSet::GetLinearDescriptorSlot(textureInfo.Set, textureInfo.Slot);
@@ -122,6 +120,30 @@ namespace Nexus::Graphics
             auto constantBufferHandle = d3d12ResourceSet->GetConstantBufferDescriptor(slot);
             m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex, constantBufferHandle);
             descriptorIndex++;
+        } */
+
+        for (uint32_t i = 0; i < spec.Resources.size(); i++)
+        {
+            const auto &binding = spec.Resources[i];
+            uint32_t slot = ResourceSet::GetLinearDescriptorSlot(binding.Set, binding.Binding);
+
+            if (binding.Type == ResourceType::CombinedImageSampler)
+            {
+                auto samplerHandle = d3d12ResourceSet->GetSamplerDescriptor(slot);
+                m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, samplerHandle);
+
+                auto textureHandle = d3d12ResourceSet->GetTextureDescriptor(slot);
+                m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, textureHandle);
+            }
+            else if (binding.Type == ResourceType::UniformBuffer)
+            {
+                auto constantBufferHandle = d3d12ResourceSet->GetConstantBufferDescriptor(slot);
+                m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, constantBufferHandle);
+            }
+            else
+            {
+                throw std::runtime_error("Failed to find a valid resource type");
+            }
         }
     }
 

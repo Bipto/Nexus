@@ -85,7 +85,7 @@ namespace Nexus::ImGuiUtils
         uniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
         m_UniformBuffer = m_GraphicsDevice->CreateUniformBuffer(uniformBufferDesc, nullptr);
 
-        Nexus::Graphics::TextureResourceBinding textureBinding;
+        /* Nexus::Graphics::TextureResourceBinding textureBinding;
         textureBinding.Slot = 0;
         textureBinding.Set = 1;
         textureBinding.Name = "Texture";
@@ -98,7 +98,21 @@ namespace Nexus::ImGuiUtils
         Nexus::Graphics::ResourceSetSpecification resources;
         resources.TextureBindings = {textureBinding};
         resources.UniformResourceBindings = {uniformBinding};
-        pipelineDesc.ResourceSetSpecification = resources;
+        pipelineDesc.ResourceSetSpecification = resources; */
+
+        Nexus::Graphics::ResourceBinding textureBinding;
+        textureBinding.Name = "Texture";
+        textureBinding.Set = 1;
+        textureBinding.Binding = 0;
+        textureBinding.Type = Nexus::Graphics::ResourceType::CombinedImageSampler;
+
+        Nexus::Graphics::ResourceBinding uniformBufferBinding;
+        uniformBufferBinding.Name = "MVP";
+        uniformBufferBinding.Set = 0;
+        uniformBufferBinding.Binding = 0;
+        uniformBufferBinding.Type = Nexus::Graphics::ResourceType::UniformBuffer;
+
+        pipelineDesc.ResourceSetSpecification.Resources = {textureBinding, uniformBufferBinding};
 
         m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDesc);
 

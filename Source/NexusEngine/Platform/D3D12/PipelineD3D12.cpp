@@ -299,7 +299,7 @@ namespace Nexus::Graphics
 
         std::vector<D3D12_ROOT_PARAMETER> parameters;
 
-        for (int i = 0; i < m_Description.ResourceSetSpecification.TextureBindings.size(); i++)
+        /* for (int i = 0; i < m_Description.ResourceSetSpecification.TextureBindings.size(); i++)
         {
             auto textureInfo = m_Description.ResourceSetSpecification.TextureBindings[i];
             uint32_t slot = ResourceSet::GetLinearDescriptorSlot(textureInfo.Set, textureInfo.Slot);
@@ -360,6 +360,71 @@ namespace Nexus::Graphics
             constantBufferParameter.DescriptorTable = constantBufferTable;
             constantBufferParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
             parameters.push_back(constantBufferParameter);
+        } */
+
+        for (const auto &resource : m_Description.ResourceSetSpecification.Resources)
+        {
+            uint32_t slot = ResourceSet::GetLinearDescriptorSlot(resource.Set, resource.Binding);
+
+            if (resource.Type == ResourceType::CombinedImageSampler)
+            {
+                D3D12_DESCRIPTOR_RANGE samplerRange;
+                samplerRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+                samplerRange.BaseShaderRegister = slot;
+                samplerRange.NumDescriptors = 1;
+                samplerRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+                samplerRange.RegisterSpace = 0;
+
+                D3D12_ROOT_DESCRIPTOR_TABLE samplerTable;
+                samplerTable.NumDescriptorRanges = 1;
+                samplerTable.pDescriptorRanges = &samplerRange;
+
+                D3D12_ROOT_PARAMETER samplerParameter;
+                samplerParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+                samplerParameter.DescriptorTable = samplerTable;
+                samplerParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+                parameters.push_back(samplerParameter);
+
+                D3D12_DESCRIPTOR_RANGE textureRange;
+                textureRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+                textureRange.BaseShaderRegister = slot;
+                textureRange.NumDescriptors = 1;
+                textureRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+                textureRange.RegisterSpace = 0;
+
+                D3D12_ROOT_DESCRIPTOR_TABLE textureTable;
+                textureTable.NumDescriptorRanges = 1;
+                textureTable.pDescriptorRanges = &textureRange;
+
+                D3D12_ROOT_PARAMETER textureParameter;
+                textureParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+                textureParameter.DescriptorTable = textureTable;
+                textureParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+                parameters.push_back(textureParameter);
+            }
+            else if (resource.Type == ResourceType::UniformBuffer)
+            {
+                D3D12_DESCRIPTOR_RANGE constantBufferRange;
+                constantBufferRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+                constantBufferRange.BaseShaderRegister = slot;
+                constantBufferRange.NumDescriptors = 1;
+                constantBufferRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+                constantBufferRange.RegisterSpace = 0;
+
+                D3D12_ROOT_DESCRIPTOR_TABLE constantBufferTable;
+                constantBufferTable.NumDescriptorRanges = 1;
+                constantBufferTable.pDescriptorRanges = &constantBufferRange;
+
+                D3D12_ROOT_PARAMETER constantBufferParameter;
+                constantBufferParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+                constantBufferParameter.DescriptorTable = constantBufferTable;
+                constantBufferParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+                parameters.push_back(constantBufferParameter);
+            }
+            else
+            {
+                throw std::runtime_error("Failed to find a valid resource type");
+            }
         }
 
         desc.NumParameters = parameters.size();

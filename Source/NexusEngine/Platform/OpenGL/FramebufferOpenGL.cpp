@@ -79,14 +79,19 @@ namespace Nexus::Graphics
             glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
             auto textureFormat = GL::GetColorTextureFormat(colorSpec.TextureFormat);
-            glTexImage2D(GL_TEXTURE_2D, 0, textureFormat, m_Specification.Width, m_Specification.Height, 0, textureFormat, GL_UNSIGNED_BYTE, NULL);
 
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            /* glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SAMPLES, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); */
+            if (m_Specification.Samples != MultiSamples::SampleCount1)
+            {
+                uint32_t samples = GetSampleCount(m_Specification.Samples);
+                glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, textureFormat, m_Specification.Width, m_Specification.Height, GL_FALSE);
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, texture, 0);
+            }
+            else
+            {
+                glTexImage2D(GL_TEXTURE_2D, 0, textureFormat, m_Specification.Width, m_Specification.Height, 0, textureFormat, GL_UNSIGNED_BYTE, NULL);
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, texture, 0);
+            }
 
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, texture, 0);
             m_ColorTextures.emplace_back(texture);
         }
 
@@ -96,14 +101,17 @@ namespace Nexus::Graphics
             glGenTextures(1, &m_DepthTexture);
             glBindTexture(GL_TEXTURE_2D, m_DepthTexture);
 
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, m_Specification.Width, m_Specification.Height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
-
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            /* glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SAMPLES, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); */
-
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthTexture, 0);
+            if (m_Specification.Samples != MultiSamples::SampleCount1)
+            {
+                uint32_t samples = GetSampleCount(m_Specification.Samples);
+                glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_DEPTH24_STENCIL8, m_Specification.Width, m_Specification.Height, GL_FALSE);
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthTexture, 0);
+            }
+            else
+            {
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, m_Specification.Width, m_Specification.Height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthTexture, 0);
+            }
         }
     }
 

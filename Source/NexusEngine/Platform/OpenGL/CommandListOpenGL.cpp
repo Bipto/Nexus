@@ -177,26 +177,33 @@ namespace Nexus::Graphics
             auto shaderGL = (ShaderOpenGL *)pipeline->GetShader();
             auto resourcesGL = (ResourceSetOpenGL *)updateResourcesCommand.Resources;
 
-            // update textures
-            for (const auto &textureBinding : resourcesGL->GetTextureBindings())
+            // upload resources
+
+            const auto &resourceBindings = resourcesGL->GetResources();
+            const auto &remappedBindings = resourcesGL->GetLinearBindings();
+            for (const auto &resource : resourceBindings)
             {
-                auto textureGL = textureBinding.second;
+                uint32_t slot = remappedBindings.at(resource.first);
+                if (resource.second.Type == ResourceType::CombinedImageSampler)
+                {
+                    auto texture = std::get<TextureOpenGL *>(resource.second.Resource);
 
-                // assign sampled to texture
-                glUniform1i(textureBinding.first, textureBinding.first);
+                    // assign sampler to texture
+                    glUniform1i(slot, slot);
 
-                // bind texture
-                glActiveTexture(GL_TEXTURE0 + textureBinding.first);
-                glBindTexture(GL_TEXTURE_2D, (unsigned int)textureGL->GetHandle());
-            }
-
-            // update uniform buffers
-            for (const auto &uniformBufferBinding : resourcesGL->GetUniformBufferBindings())
-            {
-                // bind uniform buffer
-                auto uniformBufferGL = uniformBufferBinding.second;
-                glBindBuffer(GL_UNIFORM_BUFFER, uniformBufferGL->GetHandle());
-                glBindBufferBase(GL_UNIFORM_BUFFER, uniformBufferBinding.first, uniformBufferGL->GetHandle());
+                    glActiveTexture(GL_TEXTURE0 + slot);
+                    glBindTexture(GL_TEXTURE_2D, (GLuint)texture->GetHandle());
+                }
+                else if (resource.second.Type == ResourceType::UniformBuffer)
+                {
+                    auto uniformBuffer = std::get<UniformBufferOpenGL *>(resource.second.Resource);
+                    glBindBuffer(GL_UNIFORM_BUFFER, uniformBuffer->GetHandle());
+                    glBindBufferBase(GL_UNIFORM_BUFFER, slot, uniformBuffer->GetHandle());
+                }
+                else
+                {
+                    throw std::runtime_error("Failed to find a valid resource ");
+                }
             }
         };
         m_Commands.push_back(renderCommand);

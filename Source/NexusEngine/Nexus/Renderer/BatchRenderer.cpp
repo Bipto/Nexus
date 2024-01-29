@@ -843,7 +843,7 @@ namespace Nexus::Graphics
         description.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
 
         Nexus::Graphics::ResourceSetSpecification resourceSpec;
-        resourceSpec.TextureBindings =
+        /*resourceSpec.TextureBindings =
             {
                 {1, 0, "texture0"},
                 {1, 1, "texture1"},
@@ -882,7 +882,43 @@ namespace Nexus::Graphics
         Nexus::Graphics::UniformResourceBinding uniformResourceBinding;
         uniformResourceBinding.Binding = 0;
         uniformResourceBinding.Name = "MVP";
-        resourceSpec.UniformResourceBindings = {uniformResourceBinding};
+        resourceSpec.UniformResourceBindings = {uniformResourceBinding}; */
+
+        resourceSpec.Resources =
+            {
+                {"texture0", 1, 0, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture1", 1, 1, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture2", 1, 2, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture3", 1, 3, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture4", 1, 4, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture5", 1, 5, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture6", 1, 6, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture7", 1, 7, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture8", 1, 8, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture9", 1, 9, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture10", 1, 10, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture11", 1, 11, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture12", 1, 12, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture13", 1, 13, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture14", 1, 14, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture15", 1, 15, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture16", 1, 16, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture17", 1, 17, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture18", 1, 18, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture19", 1, 19, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture20", 1, 20, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture21", 1, 21, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture22", 1, 22, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture23", 1, 23, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture24", 1, 24, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture25", 1, 25, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture26", 1, 26, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture27", 1, 27, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture28", 1, 28, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture29", 1, 29, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture30", 1, 30, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture31", 1, 31, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"MVP", 0, 0, Nexus::Graphics::ResourceType::UniformBuffer}};
 
         description.ResourceSetSpecification = resourceSpec;
         description.Target = {m_RenderTarget};

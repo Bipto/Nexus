@@ -7,6 +7,8 @@
 #include "Nexus/Graphics/TextureFormat.hpp"
 #include "Nexus/Graphics/DepthFormat.hpp"
 
+#include "Nexus/Graphics/Multisample.hpp"
+
 #include "Nexus/Types.hpp"
 
 typedef void *FramebufferTexture;
@@ -73,8 +75,7 @@ namespace Nexus::Graphics
         /// @brief Settings to use when creating a depth attachment
         FramebufferDepthAttachmentSpecification DepthAttachmentSpecification;
 
-        /// @brief A boolean value indicating whether the framebuffer is part of the swapchain
-        bool IsSwapchain = false;
+        MultiSamples Samples = MultiSamples::SampleCount1;
     };
 
     /// @brief A pure virtual class representing an API specific framebuffer

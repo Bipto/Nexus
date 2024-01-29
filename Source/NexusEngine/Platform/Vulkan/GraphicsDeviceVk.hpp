@@ -40,7 +40,6 @@ namespace Nexus::Graphics
         virtual void BeginFrame() override;
         virtual void EndFrame() override;
 
-        virtual Shader *CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout) override;
         virtual Texture *CreateTexture(const TextureSpecification &spec) override;
         virtual Pipeline *CreatePipeline(const PipelineDescription &description) override;
         virtual CommandList *CreateCommandList();
@@ -67,6 +66,7 @@ namespace Nexus::Graphics
 
         // vulkan functions
     private:
+        virtual Shader *CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout) override;
         void CreateInstance();
         void SetupDebugMessenger();
         void SelectPhysicalDevice();

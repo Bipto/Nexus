@@ -29,6 +29,17 @@ public:
 
         m_ImGuiGraphicsRenderer = new Nexus::ImGuiUtils::ImGuiGraphicsRenderer(this);
         m_ImGuiGraphicsRenderer->RebuildFontAtlas();
+
+        Nexus::Graphics::FramebufferSpecification framebufferSpec;
+        framebufferSpec.ColorAttachmentSpecification.Attachments =
+            {
+                Nexus::Graphics::TextureFormat::RGBA8};
+        framebufferSpec.DepthAttachmentSpecification.DepthFormat = Nexus::Graphics::DepthFormat::DEPTH24STENCIL8;
+        framebufferSpec.Height = 1024;
+        framebufferSpec.Height = 1024;
+        framebufferSpec.Samples = Nexus::Graphics::MultiSamples::SampleCount4;
+
+        m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(framebufferSpec);
     }
 
     virtual void Update(Nexus::Time time) override
@@ -69,20 +80,20 @@ public:
 private:
     Nexus::Graphics::CommandList *m_CommandList = nullptr;
     Nexus::ImGuiUtils::ImGuiGraphicsRenderer *m_ImGuiGraphicsRenderer = nullptr;
+
+    Nexus::Graphics::Framebuffer *m_Framebuffer = nullptr;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;
     spec.WindowProperties.Height = 720;
     spec.WindowProperties.Resizable = true;
     spec.WindowProperties.Title = "Test Application";
-
-    spec.SwapchainSpecification.Samples = 16;
 
     return new TestApplication(spec);
 }

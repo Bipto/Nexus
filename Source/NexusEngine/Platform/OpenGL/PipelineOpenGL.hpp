@@ -18,6 +18,7 @@ namespace Nexus::Graphics
         void SetupDepthStencil();
         void SetupRasterizer();
         void SetupBlending();
+        void SetupMultisamping();
         void SetShader();
     };
 }

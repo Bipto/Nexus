@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Nexus/Graphics/Multisample.hpp"
+
 #include <string>
 
 namespace Nexus::Audio
@@ -41,9 +43,6 @@ namespace Nexus::Graphics
 
     struct SwapchainSpecification
     {
-        /// @brief An unsigned 32 bit integer representing the number of samples to use
-        uint32_t Samples = 1;
-
         /// @brief Whether the application should use VSync
         Graphics::VSyncState VSyncState = Graphics::VSyncState::Enabled;
     };

@@ -25,6 +25,8 @@ namespace Nexus::Graphics
     {
         spirv_cross::ShaderResources resources = compiler.get_shader_resources();
 
+        ResourceSetSpecification resourceSpec;
+
         for (auto &image : resources.sampled_images)
         {
             uint32_t set = compiler.get_decoration(image.id, spv::DecorationDescriptorSet);
@@ -33,7 +35,13 @@ namespace Nexus::Graphics
             uint32_t newBinding = ResourceSet::GetLinearDescriptorSlot(set, binding);
             compiler.unset_decoration(image.id, spv::DecorationDescriptorSet);
             compiler.set_decoration(image.id, spv::DecorationBinding, newBinding);
-            std::cout << "Image: [" << image.name << "] at set: " << set << ", binding: " << binding << " remapped to slot: " << newBinding << "\n";
+
+            Nexus::Graphics::ResourceBinding resBinding;
+            resBinding.Name = image.name;
+            resBinding.Set = set;
+            resBinding.Binding = binding;
+            resBinding.Type = Nexus::Graphics::ResourceType::CombinedImageSampler;
+            resourceSpec.Resources.push_back(resBinding);
         }
 
         for (auto &uniformBuffer : resources.uniform_buffers)
@@ -44,7 +52,13 @@ namespace Nexus::Graphics
             uint32_t newBinding = ResourceSet::GetLinearDescriptorSlot(set, binding);
             compiler.unset_decoration(uniformBuffer.id, spv::DecorationDescriptorSet);
             compiler.set_decoration(uniformBuffer.id, spv::DecorationBinding, newBinding);
-            std::cout << "Uniform Buffer: [" << uniformBuffer.name << "] at set: " << set << ", binding: " << binding << " remapped to slot: " << newBinding << "\n";
+
+            Nexus::Graphics::ResourceBinding resBinding;
+            resBinding.Name = uniformBuffer.name;
+            resBinding.Set = set;
+            resBinding.Binding = binding;
+            resBinding.Type = Nexus::Graphics::ResourceType::UniformBuffer;
+            resourceSpec.Resources.push_back(resBinding);
         }
     }
 
@@ -134,7 +148,6 @@ namespace Nexus::Graphics
             break;
         }
 
-        std::cout << output.Source << std::endl;
         output.Successful = true;
 
         return output;
