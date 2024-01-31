@@ -4,6 +4,23 @@
 
 namespace Nexus::Graphics
 {
+    VkSampleCountFlagBits GetVkSampleCount(MultiSamples samples)
+    {
+        switch (samples)
+        {
+        case MultiSamples::SampleCount1:
+            return VK_SAMPLE_COUNT_1_BIT;
+        case MultiSamples::SampleCount2:
+            return VK_SAMPLE_COUNT_2_BIT;
+        case MultiSamples::SampleCount4:
+            return VK_SAMPLE_COUNT_4_BIT;
+        case MultiSamples::SampleCount8:
+            return VK_SAMPLE_COUNT_8_BIT;
+        default:
+            throw std::runtime_error("Failed to find a valid sample count");
+        }
+    }
+
     FramebufferVk::FramebufferVk(const FramebufferSpecification &spec, GraphicsDeviceVk *device)
         : Framebuffer(spec), m_Device(device)
     {
@@ -88,6 +105,8 @@ namespace Nexus::Graphics
         m_Samplers.resize(m_Specification.ColorAttachmentSpecification.Attachments.size());
         m_ImageViews.resize(m_Specification.ColorAttachmentSpecification.Attachments.size());
 
+        VkSampleCountFlagBits sampleCount = GetVkSampleCount(m_Specification.Samples);
+
         for (int i = 0; i < m_Images.size(); i++)
         {
             VkFormat format = GetVkTextureFormatFromNexusFormat(m_Specification.ColorAttachmentSpecification.Attachments[0].TextureFormat);
@@ -101,7 +120,7 @@ namespace Nexus::Graphics
             imageInfo.extent.depth = 1;
             imageInfo.mipLevels = 1;
             imageInfo.arrayLayers = 1;
-            imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+            imageInfo.samples = sampleCount;
             imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
             imageInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
 
@@ -170,6 +189,7 @@ namespace Nexus::Graphics
             return;
 
         VkFormat depthFormat = GetVkDepthFormatFromNexusFormat(m_Specification.DepthAttachmentSpecification.DepthFormat);
+        VkSampleCountFlagBits sampleCount = GetVkSampleCount(m_Specification.Samples);
 
         // allocate image
         {
@@ -183,9 +203,9 @@ namespace Nexus::Graphics
             imageInfo.arrayLayers = 1;
             imageInfo.format = depthFormat;
             imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-            imageInfo.initialLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+            imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
             imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-            imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+            imageInfo.samples = sampleCount;
             imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
             if (vkCreateImage(m_Device->GetVkDevice(), &imageInfo, nullptr, &m_DepthImage) != VK_SUCCESS)
@@ -264,18 +284,19 @@ namespace Nexus::Graphics
         std::vector<VkAttachmentDescription> subpassAttachments;
 
         uint32_t attachmentIndex = 0;
+        VkSampleCountFlagBits samples = GetVkSampleCount(m_Specification.Samples);
 
         for (const auto &colorAttachment : m_Specification.ColorAttachmentSpecification.Attachments)
         {
             VkAttachmentDescription attachment = {};
             attachment.format = GetVkTextureFormatFromNexusFormat(colorAttachment.TextureFormat);
-            attachment.samples = VK_SAMPLE_COUNT_1_BIT;
+            attachment.samples = samples;
             attachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
             attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
             attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
             attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
             attachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-            attachment.finalLayout = VK_IMAGE_LAYOUT_GENERAL;
+            attachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
             colorAttachmentDescriptions.push_back(attachment);
             subpassAttachments.push_back(attachment);
@@ -309,7 +330,7 @@ namespace Nexus::Graphics
             VkAttachmentDescription depthAttachment = {};
             depthAttachment.flags = 0;
             depthAttachment.format = GetVkDepthFormatFromNexusFormat(m_Specification.DepthAttachmentSpecification.DepthFormat);
-            depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+            depthAttachment.samples = samples;
             depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
             depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
             depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
@@ -329,6 +350,7 @@ namespace Nexus::Graphics
             depthDependency.srcStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
             depthDependency.srcAccessMask = 0;
             depthDependency.dstStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+            depthDependency.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
             depthDependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
             subpassDependencies.push_back(depthDependency);
         }

@@ -24,6 +24,8 @@ namespace Nexus::Graphics
     {
         auto d3d12Device = m_Device->GetDevice();
 
+        uint32_t samples = GetSampleCount(m_Specification.Samples);
+
         // create color textures
         for (int i = 0; i < m_Specification.ColorAttachmentSpecification.Attachments.size(); i++)
         {
@@ -46,7 +48,7 @@ namespace Nexus::Graphics
             resourceDesc.DepthOrArraySize = 1;
             resourceDesc.MipLevels = 1;
             resourceDesc.Format = textureFormat;
-            resourceDesc.SampleDesc.Count = 1;
+            resourceDesc.SampleDesc.Count = samples;
             resourceDesc.SampleDesc.Quality = 0;
             resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
             resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
@@ -76,7 +78,7 @@ namespace Nexus::Graphics
             resourceDesc.DepthOrArraySize = 1;
             resourceDesc.MipLevels = 1;
             resourceDesc.Format = depthFormat;
-            resourceDesc.SampleDesc.Count = 1;
+            resourceDesc.SampleDesc.Count = samples;
             resourceDesc.SampleDesc.Quality = 0;
             resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
             resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
@@ -109,7 +111,16 @@ namespace Nexus::Graphics
 
             D3D12_RENDER_TARGET_VIEW_DESC rtvDesc;
             rtvDesc.Format = GetD3D12TextureFormat(m_Specification.ColorAttachmentSpecification.Attachments[i].TextureFormat);
-            rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+
+            if (samples > 1)
+            {
+                rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DMS;
+            }
+            else
+            {
+                rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+            }
+
             rtvDesc.Texture2D.MipSlice = 0;
             rtvDesc.Texture2D.PlaneSlice = 0;
 
@@ -122,7 +133,16 @@ namespace Nexus::Graphics
         {
             D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
             dsvDesc.Format = GetD3D12DepthFormat(m_Specification.DepthAttachmentSpecification.DepthFormat);
-            dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+
+            if (samples > 1)
+            {
+                dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DMS;
+            }
+            else
+            {
+                dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+            }
+
             dsvDesc.Texture2D.MipSlice = 0;
             dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
 
