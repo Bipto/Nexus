@@ -98,29 +98,6 @@ namespace Nexus::Graphics
 
         uint32_t descriptorIndex = 0;
         const auto &spec = d3d12ResourceSet->GetSpecification();
-        /* for (int i = 0; i < spec.TextureBindings.size(); i++)
-        {
-            auto textureInfo = spec.TextureBindings[i];
-            uint32_t slot = ResourceSet::GetLinearDescriptorSlot(textureInfo.Set, textureInfo.Slot);
-
-            auto samplerHandle = d3d12ResourceSet->GetSamplerDescriptor(slot);
-            m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex, samplerHandle);
-            descriptorIndex++;
-
-            auto textureHandle = d3d12ResourceSet->GetTextureDescriptor(slot);
-            m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex, textureHandle);
-            descriptorIndex++;
-        }
-
-        for (int i = 0; i < spec.UniformResourceBindings.size(); i++)
-        {
-            auto constantBufferInfo = spec.UniformResourceBindings[i];
-            uint32_t slot = ResourceSet::GetLinearDescriptorSlot(0, constantBufferInfo.Binding);
-
-            auto constantBufferHandle = d3d12ResourceSet->GetConstantBufferDescriptor(slot);
-            m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex, constantBufferHandle);
-            descriptorIndex++;
-        } */
 
         for (uint32_t i = 0; i < spec.Resources.size(); i++)
         {
@@ -229,6 +206,10 @@ namespace Nexus::Graphics
         rect.right = scissor.Width + scissor.X;
         rect.bottom = scissor.Height + scissor.Y;
         m_CommandList->RSSetScissorRects(1, &rect);
+    }
+
+    void CommandListD3D12::ResolveFramebuffer(Framebuffer *source, uint32_t sourceIndex, Swapchain *target, uint32_t targetIndex)
+    {
     }
 
     ID3D12GraphicsCommandList7 *CommandListD3D12::GetCommandList()

@@ -96,6 +96,14 @@ namespace Nexus::Graphics
         Scissor Scissor;
     };
 
+    struct ResolveSamplesToSwapchainCommand
+    {
+        Framebuffer *Source;
+        uint32_t SourceIndex;
+        Swapchain *Target;
+        uint32_t TargetIndex;
+    };
+
     /// @brief A class representing a command list
     class CommandList
     {
@@ -148,6 +156,8 @@ namespace Nexus::Graphics
         virtual void SetViewport(const Viewport &viewport) = 0;
 
         virtual void SetScissor(const Scissor &scissor) = 0;
+
+        virtual void ResolveFramebuffer(Framebuffer *source, uint32_t sourceIndex, Swapchain *target, uint32_t targetIndex) = 0;
     };
 
     /// @brief A typedef to simplify creating function pointers to render commands
@@ -164,6 +174,7 @@ namespace Nexus::Graphics
         ClearDepthStencilTargetCommand,
         SetRenderTargetCommand,
         SetViewportCommand,
-        SetScissorCommand>
+        SetScissorCommand,
+        ResolveSamplesToSwapchainCommand>
         RenderCommandData;
 }

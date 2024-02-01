@@ -30,17 +30,6 @@ namespace Nexus::Graphics
         std::unordered_map<uint32_t, uint32_t> bindings;
 
         // TODO: should check if map already contains value
-        /* for (const auto &textureInfo : spec.TextureBindings)
-        {
-            uint32_t binding = (textureInfo.Set * ResourceSet::DescriptorSlotCount) + textureInfo.Slot;
-            bindings[binding] = textureIndex++;
-        }
-
-        for (const auto &uniformBufferInfo : spec.UniformResourceBindings)
-        {
-            uint32_t binding = (uniformBufferInfo.Set * ResourceSet::DescriptorSlotCount) + uniformBufferInfo.Binding;
-            bindings[binding] = textureIndex++;
-        } */
 
         for (const auto &binding : spec.Resources)
         {

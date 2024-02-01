@@ -137,7 +137,7 @@ namespace Nexus::Graphics
         auto fb = (FramebufferOpenGL *)framebuffer;
         if (framebuffer)
         {
-            fb->Bind();
+            fb->BindAsRenderTarget();
             m_BoundFramebuffer = fb;
         }
     }
@@ -147,7 +147,7 @@ namespace Nexus::Graphics
         auto glSwapchain = (SwapchainOpenGL *)swapchain;
         if (glSwapchain)
         {
-            glSwapchain->Bind();
+            glSwapchain->BindAsRenderTarget();
         }
     }
 

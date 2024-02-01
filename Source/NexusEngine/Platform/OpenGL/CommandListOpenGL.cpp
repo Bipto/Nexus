@@ -330,6 +330,27 @@ namespace Nexus::Graphics
         m_Commands.push_back(renderCommand);
     }
 
+    void CommandListOpenGL::ResolveFramebuffer(Framebuffer *source, uint32_t sourceIndex, Swapchain *target, uint32_t targetIndex)
+    {
+        ResolveSamplesToSwapchainCommand command;
+        command.Source = source;
+        command.SourceIndex = sourceIndex;
+        command.Target = target;
+        command.TargetIndex = targetIndex;
+        m_CommandData.emplace_back(command);
+
+        auto renderCommand = [](CommandList *commandList)
+        {
+            auto commandListGL = (CommandListOpenGL *)commandList;
+            auto commandData = commandListGL->GetCurrentCommandData();
+            auto resolveToSwapchainCommand = std::get<ResolveSamplesToSwapchainCommand>(commandData);
+
+            FramebufferOpenGL *framebufferGL = (FramebufferOpenGL *)resolveToSwapchainCommand.Source;
+            SwapchainOpenGL *swapchainGL = (SwapchainOpenGL *)resolveToSwapchainCommand.Target;
+        };
+        m_Commands.push_back(renderCommand);
+    }
+
     const std::vector<RenderCommand> &CommandListOpenGL::GetRenderCommands()
     {
         return m_Commands;

@@ -108,9 +108,9 @@ namespace Demos
             Nexus::Graphics::ClearDepthStencilValue clearValue;
             m_CommandList->ClearDepthTarget(clearValue);
 
-            m_ResourceSet->WriteUniformBuffer(m_CameraUniformBuffer, 0);
-            m_ResourceSet->WriteUniformBuffer(m_TransformUniformBuffer, 1);
-            m_ResourceSet->WriteTexture(m_Texture, 0);
+            m_ResourceSet->WriteUniformBuffer(m_CameraUniformBuffer, 0, 0);
+            m_ResourceSet->WriteUniformBuffer(m_TransformUniformBuffer, 0, 1);
+            m_ResourceSet->WriteTexture(m_Texture, 1, 0);
             m_CommandList->SetResourceSet(m_ResourceSet);
 
             m_CommandList->SetVertexBuffer(m_Mesh->GetVertexBuffer());
@@ -141,22 +141,11 @@ namespace Demos
             pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
             pipelineDescription.Shader = m_Shader;
 
-            Nexus::Graphics::UniformResourceBinding cameraUniformBinding;
-            cameraUniformBinding.Binding = 0;
-            cameraUniformBinding.Name = "Camera";
-
-            Nexus::Graphics::UniformResourceBinding transformUniformBinding;
-            transformUniformBinding.Binding = 1;
-            transformUniformBinding.Name = "Transform";
-
-            Nexus::Graphics::TextureResourceBinding textureBinding;
-            textureBinding.Slot = 0;
-            textureBinding.Name = "texSampler";
-
-            Nexus::Graphics::ResourceSetSpecification resources;
-            resources.UniformResourceBindings = {cameraUniformBinding, transformUniformBinding};
-            resources.TextureBindings = {textureBinding};
-            pipelineDescription.ResourceSetSpecification = resources;
+            pipelineDescription.ResourceSetSpecification.Resources =
+                {
+                    {"Camera", 0, 0, Nexus::Graphics::ResourceType::UniformBuffer},
+                    {"Transform", 0, 1, Nexus::Graphics::ResourceType::UniformBuffer},
+                    {"texSampler", 1, 0, Nexus::Graphics::ResourceType::CombinedImageSampler}};
 
             pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
 

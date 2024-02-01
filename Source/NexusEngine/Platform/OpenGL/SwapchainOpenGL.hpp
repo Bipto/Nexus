@@ -17,7 +17,7 @@ namespace Nexus::Graphics
         virtual VSyncState GetVsyncState() override;
         virtual void SetVSyncState(VSyncState vsyncState) override;
         void ResizeIfNecessary();
-        void Bind();
+        void BindAsRenderTarget();
 
         virtual Window *GetWindow() override { return m_Window; }
         virtual void Prepare() override;

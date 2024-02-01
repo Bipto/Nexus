@@ -15,7 +15,7 @@ namespace Nexus::Graphics
         DeleteTextures();
     }
 
-    void FramebufferOpenGL::Bind()
+    void FramebufferOpenGL::BindAsRenderTarget()
     {
         glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
         glDrawBuffers(m_ColorTextures.size(), m_Buffers.data());

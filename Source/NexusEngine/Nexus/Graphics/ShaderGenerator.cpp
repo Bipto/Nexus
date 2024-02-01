@@ -27,7 +27,8 @@ namespace Nexus::Graphics
 
         ResourceSetSpecification resourceSpec;
 
-        for (auto &image : resources.sampled_images)
+        // find all resources in shaders
+        for (const auto &image : resources.sampled_images)
         {
             uint32_t set = compiler.get_decoration(image.id, spv::DecorationDescriptorSet);
             uint32_t binding = compiler.get_decoration(image.id, spv::DecorationBinding);
@@ -44,7 +45,7 @@ namespace Nexus::Graphics
             resourceSpec.Resources.push_back(resBinding);
         }
 
-        for (auto &uniformBuffer : resources.uniform_buffers)
+        for (const auto &uniformBuffer : resources.uniform_buffers)
         {
             uint32_t set = compiler.get_decoration(uniformBuffer.id, spv::DecorationDescriptorSet);
             uint32_t binding = compiler.get_decoration(uniformBuffer.id, spv::DecorationBinding);
@@ -145,6 +146,7 @@ namespace Nexus::Graphics
             break;
         }
         case ShaderLanguage::SPIRV:
+            output.Source = source;
             break;
         }
 

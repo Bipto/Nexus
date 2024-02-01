@@ -280,6 +280,10 @@ namespace Nexus::Graphics
         vkCmdSetScissor(m_CurrentCommandBuffer, 0, 1, &rect);
     }
 
+    void CommandListVk::ResolveFramebuffer(Framebuffer *source, uint32_t sourceIndex, Swapchain *target, uint32_t targetIndex)
+    {
+    }
+
     const VkCommandBuffer &CommandListVk::GetCurrentCommandBuffer()
     {
         return m_CurrentCommandBuffer;

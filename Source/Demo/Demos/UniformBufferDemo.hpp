@@ -71,8 +71,8 @@ namespace Demos
 
             m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 
-            m_ResourceSet->WriteUniformBuffer(m_TransformUniformBuffer, 0);
-            m_ResourceSet->WriteTexture(m_Texture, 0);
+            m_ResourceSet->WriteUniformBuffer(m_TransformUniformBuffer, 0, 0);
+            m_ResourceSet->WriteTexture(m_Texture, 1, 0);
             m_CommandList->SetResourceSet(m_ResourceSet);
 
             m_CommandList->SetVertexBuffer(m_Mesh->GetVertexBuffer());
@@ -107,7 +107,7 @@ namespace Demos
             transformUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
             m_TransformUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(transformUniformBufferDesc, nullptr);
 
-            Nexus::Graphics::UniformResourceBinding transformUniformBinding;
+            /* Nexus::Graphics::UniformResourceBinding transformUniformBinding;
             transformUniformBinding.Binding = 0;
             transformUniformBinding.Name = "Transform";
 
@@ -118,7 +118,12 @@ namespace Demos
             Nexus::Graphics::ResourceSetSpecification resources;
             resources.UniformResourceBindings = {transformUniformBinding};
             resources.TextureBindings = {textureBinding};
-            pipelineDescription.ResourceSetSpecification = resources;
+            pipelineDescription.ResourceSetSpecification = resources; */
+
+            pipelineDescription.ResourceSetSpecification.Resources =
+                {
+                    {"Transform", 0, 0, Nexus::Graphics::ResourceType::UniformBuffer},
+                    {"texSampler", 1, 0, Nexus::Graphics::ResourceType::CombinedImageSampler}};
 
             pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
 

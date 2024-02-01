@@ -47,6 +47,16 @@ namespace Demos
             transformUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
             m_TransformUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(transformUniformBufferDesc, nullptr);
 
+            Nexus::Graphics::FramebufferSpecification framebufferSpec;
+            framebufferSpec.ColorAttachmentSpecification =
+                {
+                    {Nexus::Graphics::TextureFormat::RGBA8}};
+            framebufferSpec.DepthAttachmentSpecification.DepthFormat = Nexus::Graphics::DepthFormat::DEPTH24STENCIL8;
+            framebufferSpec.Width = 1280;
+            framebufferSpec.Height = 720;
+            framebufferSpec.Samples = Nexus::Graphics::MultiSamples::SampleCount8;
+            m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(framebufferSpec);
+
             CreatePipeline();
             m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, -2.5f));
         }
@@ -108,12 +118,12 @@ namespace Demos
             Nexus::Graphics::ClearDepthStencilValue value;
             m_CommandList->ClearDepthTarget(value);
 
-            m_ResourceSet->WriteUniformBuffer(m_CameraUniformBuffer, 0);
-            m_ResourceSet->WriteUniformBuffer(m_TransformUniformBuffer, 1);
+            m_ResourceSet->WriteUniformBuffer(m_CameraUniformBuffer, 0, 0);
+            m_ResourceSet->WriteUniformBuffer(m_TransformUniformBuffer, 0, 1);
 
-            m_ResourceSet->WriteTexture(m_DiffuseMap, 0);
-            m_ResourceSet->WriteTexture(m_NormalMap, 1);
-            m_ResourceSet->WriteTexture(m_SpecularMap, 2);
+            m_ResourceSet->WriteTexture(m_DiffuseMap, 1, 0);
+            m_ResourceSet->WriteTexture(m_NormalMap, 1, 1);
+            m_ResourceSet->WriteTexture(m_SpecularMap, 1, 2);
             m_CommandList->SetResourceSet(m_ResourceSet);
 
             auto &meshes = m_Model->GetMeshes();
@@ -153,32 +163,15 @@ namespace Demos
             pipelineDescription.DepthStencilDescription.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;
             pipelineDescription.Shader = m_Shader;
 
-            Nexus::Graphics::UniformResourceBinding cameraUniformBinding;
-            cameraUniformBinding.Binding = 0;
-            cameraUniformBinding.Name = "Camera";
+            pipelineDescription.ResourceSetSpecification.Resources =
+                {
+                    {"Camera", 0, 0, Nexus::Graphics::ResourceType::UniformBuffer},
+                    {"Transform", 0, 1, Nexus::Graphics::ResourceType::UniformBuffer},
+                    {"diffuseMapSampler", 1, 0, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                    {"normalMapSampler", 1, 1, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                    {"specularMapSampler", 1, 2, Nexus::Graphics::ResourceType::CombinedImageSampler}};
 
-            Nexus::Graphics::UniformResourceBinding transformUniformBinding;
-            transformUniformBinding.Binding = 1;
-            transformUniformBinding.Name = "Transform";
-
-            Nexus::Graphics::TextureResourceBinding diffuseMapBinding;
-            diffuseMapBinding.Slot = 0;
-            diffuseMapBinding.Name = "diffuseMapSampler";
-
-            Nexus::Graphics::TextureResourceBinding normalMapBinding;
-            normalMapBinding.Slot = 1;
-            normalMapBinding.Name = "normalMapSampler";
-
-            Nexus::Graphics::TextureResourceBinding specularMapBinding;
-            specularMapBinding.Slot = 2;
-            specularMapBinding.Name = "specularMapSampler";
-
-            Nexus::Graphics::ResourceSetSpecification resources;
-            resources.UniformResourceBindings = {cameraUniformBinding, transformUniformBinding};
-            resources.TextureBindings = {diffuseMapBinding, normalMapBinding, specularMapBinding};
-            pipelineDescription.ResourceSetSpecification = resources;
-
-            pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
+            pipelineDescription.Target = {m_Framebuffer};
 
             m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
             m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
@@ -203,6 +196,8 @@ namespace Demos
         Nexus::Graphics::UniformBuffer *m_TransformUniformBuffer;
 
         Nexus::FirstPersonCamera m_Camera;
+
+        Nexus::Graphics::Framebuffer *m_Framebuffer = nullptr;
 
         float m_Rotation = 0.0f;
     };

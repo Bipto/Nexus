@@ -13,7 +13,7 @@ namespace Nexus::Graphics
         FramebufferOpenGL(const FramebufferSpecification &spec);
         ~FramebufferOpenGL();
 
-        void Bind();
+        void BindAsRenderTarget();
         void Unbind();
 
         virtual void *GetColorAttachment(int index = 0) override;

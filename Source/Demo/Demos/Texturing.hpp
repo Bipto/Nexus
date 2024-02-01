@@ -64,7 +64,7 @@ namespace Demos
                                              m_ClearColour.b,
                                              1.0f});
 
-            m_ResourceSet->WriteTexture(m_Texture, 0);
+            m_ResourceSet->WriteTexture(m_Texture, 0, 0);
             m_CommandList->SetResourceSet(m_ResourceSet);
 
             m_CommandList->SetVertexBuffer(m_Mesh->GetVertexBuffer());
@@ -93,10 +93,14 @@ namespace Demos
             pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
             pipelineDescription.Shader = m_Shader;
 
-            Nexus::Graphics::TextureResourceBinding textureBinding;
+            /* Nexus::Graphics::TextureResourceBinding textureBinding;
             textureBinding.Slot = 0;
             textureBinding.Name = "texSampler";
-            pipelineDescription.ResourceSetSpecification.TextureBindings = {textureBinding};
+            pipelineDescription.ResourceSetSpecification.TextureBindings = {textureBinding}; */
+
+            pipelineDescription.ResourceSetSpecification.Resources =
+                {
+                    {"texSampler", 0, 0, Nexus::Graphics::ResourceType::CombinedImageSampler}};
 
             pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
 

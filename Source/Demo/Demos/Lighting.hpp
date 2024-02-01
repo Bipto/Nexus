@@ -112,12 +112,12 @@ namespace Demos
 
             // upload resources
             {
-                m_ResourceSet->WriteUniformBuffer(m_CameraUniformBuffer, 0);
-                m_ResourceSet->WriteUniformBuffer(m_TransformUniformBuffer, 1);
+                m_ResourceSet->WriteUniformBuffer(m_CameraUniformBuffer, 0, 0);
+                m_ResourceSet->WriteUniformBuffer(m_TransformUniformBuffer, 0, 1);
 
-                m_ResourceSet->WriteTexture(m_DiffuseMap, 0);
-                m_ResourceSet->WriteTexture(m_NormalMap, 1);
-                m_ResourceSet->WriteTexture(m_SpecularMap, 2);
+                m_ResourceSet->WriteTexture(m_DiffuseMap, 1, 0);
+                m_ResourceSet->WriteTexture(m_NormalMap, 1, 1);
+                m_ResourceSet->WriteTexture(m_SpecularMap, 1, 2);
                 m_CommandList->SetResourceSet(m_ResourceSet);
             }
 
@@ -156,7 +156,7 @@ namespace Demos
             pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
             pipelineDescription.Shader = m_Shader;
 
-            Nexus::Graphics::UniformResourceBinding cameraUniformBinding;
+            /* Nexus::Graphics::UniformResourceBinding cameraUniformBinding;
             cameraUniformBinding.Binding = 0;
             cameraUniformBinding.Name = "Camera";
 
@@ -179,7 +179,15 @@ namespace Demos
             Nexus::Graphics::ResourceSetSpecification resources;
             resources.UniformResourceBindings = {cameraUniformBinding, transformUniformBinding};
             resources.TextureBindings = {diffuseMapBinding, normalMapBinding, specularMapBinding};
-            pipelineDescription.ResourceSetSpecification = resources;
+            pipelineDescription.ResourceSetSpecification = resources; */
+
+            pipelineDescription.ResourceSetSpecification.Resources =
+                {
+                    {"Camera", 0, 0, Nexus::Graphics::ResourceType::UniformBuffer},
+                    {"Transform", 0, 1, Nexus::Graphics::ResourceType::UniformBuffer},
+                    {"diffuseMapSampler", 1, 0, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                    {"normalMapSampler", 1, 1, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                    {"specularMapSampler", 1, 2, Nexus::Graphics::ResourceType::CombinedImageSampler}};
 
             pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
 

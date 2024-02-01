@@ -31,7 +31,7 @@ namespace Nexus::Graphics
 
     void SwapchainOpenGL::SwapBuffers()
     {
-        Bind();
+        BindAsRenderTarget();
 
         SDL_GL_SwapWindow(m_Window->GetSDLWindowHandle());
         ResizeIfNecessary();
@@ -63,7 +63,7 @@ namespace Nexus::Graphics
         m_SwapchainHeight = windowHeight;
     }
 
-    void SwapchainOpenGL::Bind()
+    void SwapchainOpenGL::BindAsRenderTarget()
     {
         SDL_GL_MakeCurrent(m_Window->GetSDLWindowHandle(), m_Context);
         glBindFramebuffer(GL_FRAMEBUFFER, m_Backbuffer);
