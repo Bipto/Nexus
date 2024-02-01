@@ -33,9 +33,9 @@ namespace Nexus::Graphics
             uint32_t set = compiler.get_decoration(image.id, spv::DecorationDescriptorSet);
             uint32_t binding = compiler.get_decoration(image.id, spv::DecorationBinding);
 
-            uint32_t newBinding = ResourceSet::GetLinearDescriptorSlot(set, binding);
+            /* uint32_t newBinding = ResourceSet::GetLinearDescriptorSlot(set, binding);
             compiler.unset_decoration(image.id, spv::DecorationDescriptorSet);
-            compiler.set_decoration(image.id, spv::DecorationBinding, newBinding);
+            compiler.set_decoration(image.id, spv::DecorationBinding, newBinding); */
 
             Nexus::Graphics::ResourceBinding resBinding;
             resBinding.Name = image.name;
@@ -50,9 +50,9 @@ namespace Nexus::Graphics
             uint32_t set = compiler.get_decoration(uniformBuffer.id, spv::DecorationDescriptorSet);
             uint32_t binding = compiler.get_decoration(uniformBuffer.id, spv::DecorationBinding);
 
-            uint32_t newBinding = ResourceSet::GetLinearDescriptorSlot(set, binding);
+            /* uint32_t newBinding = ResourceSet::GetLinearDescriptorSlot(set, binding);
             compiler.unset_decoration(uniformBuffer.id, spv::DecorationDescriptorSet);
-            compiler.set_decoration(uniformBuffer.id, spv::DecorationBinding, newBinding);
+            compiler.set_decoration(uniformBuffer.id, spv::DecorationBinding, newBinding); */
 
             Nexus::Graphics::ResourceBinding resBinding;
             resBinding.Name = uniformBuffer.name;
@@ -60,6 +60,30 @@ namespace Nexus::Graphics
             resBinding.Binding = binding;
             resBinding.Type = Nexus::Graphics::ResourceType::UniformBuffer;
             resourceSpec.Resources.push_back(resBinding);
+        }
+
+        const auto &bindings = ResourceSet::RemapToLinearBindings(resourceSpec);
+
+        for (const auto &image : resources.sampled_images)
+        {
+            uint32_t set = compiler.get_decoration(image.id, spv::DecorationDescriptorSet);
+            uint32_t binding = compiler.get_decoration(image.id, spv::DecorationBinding);
+            uint32_t index = ResourceSet::GetLinearDescriptorSlot(set, binding);
+
+            uint32_t newBinding = bindings.at(index);
+            compiler.unset_decoration(image.id, spv::DecorationDescriptorSet);
+            compiler.set_decoration(image.id, spv::DecorationBinding, newBinding);
+        }
+
+        for (const auto &uniformBuffer : resources.uniform_buffers)
+        {
+            uint32_t set = compiler.get_decoration(uniformBuffer.id, spv::DecorationDescriptorSet);
+            uint32_t binding = compiler.get_decoration(uniformBuffer.id, spv::DecorationBinding);
+            uint32_t index = ResourceSet::GetLinearDescriptorSlot(set, binding);
+
+            uint32_t newBinding = bindings.at(index);
+            compiler.unset_decoration(uniformBuffer.id, spv::DecorationDescriptorSet);
+            compiler.set_decoration(uniformBuffer.id, spv::DecorationBinding, newBinding);
         }
     }
 
@@ -151,6 +175,8 @@ namespace Nexus::Graphics
         }
 
         output.Successful = true;
+
+        std::cout << output.Source << "\n";
 
         return output;
     }

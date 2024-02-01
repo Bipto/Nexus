@@ -47,16 +47,6 @@ namespace Demos
             transformUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
             m_TransformUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(transformUniformBufferDesc, nullptr);
 
-            Nexus::Graphics::FramebufferSpecification framebufferSpec;
-            framebufferSpec.ColorAttachmentSpecification =
-                {
-                    {Nexus::Graphics::TextureFormat::RGBA8}};
-            framebufferSpec.DepthAttachmentSpecification.DepthFormat = Nexus::Graphics::DepthFormat::DEPTH24STENCIL8;
-            framebufferSpec.Width = 1280;
-            framebufferSpec.Height = 720;
-            framebufferSpec.Samples = Nexus::Graphics::MultiSamples::SampleCount8;
-            m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(framebufferSpec);
-
             CreatePipeline();
             m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, -2.5f));
         }
@@ -136,6 +126,7 @@ namespace Demos
                 m_CommandList->DrawIndexed(indexCount, 0, 0);
             }
 
+            m_CommandList->ResolveFramebuffer(m_Framebuffer, 0, m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain(), 0);
             m_CommandList->End();
 
             m_GraphicsDevice->SubmitCommandList(m_CommandList);
@@ -150,11 +141,22 @@ namespace Demos
 
         virtual void OnResize(Nexus::Point<uint32_t> size) override
         {
+            CreatePipeline();
         }
 
     private:
         void CreatePipeline()
         {
+            Nexus::Graphics::FramebufferSpecification framebufferSpec;
+            framebufferSpec.ColorAttachmentSpecification =
+                {
+                    {Nexus::Graphics::TextureFormat::RGBA8}};
+            framebufferSpec.DepthAttachmentSpecification.DepthFormat = Nexus::Graphics::DepthFormat::DEPTH24STENCIL8;
+            framebufferSpec.Width = m_Window->GetWindowSize().X;
+            framebufferSpec.Height = m_Window->GetWindowSize().Y;
+            framebufferSpec.Samples = Nexus::Graphics::MultiSamples::SampleCount8;
+            m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(framebufferSpec);
+
             Nexus::Graphics::PipelineDescription pipelineDescription;
             pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::Back;
             pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;

@@ -14,6 +14,7 @@ namespace Nexus::Graphics
         ~FramebufferOpenGL();
 
         void BindAsRenderTarget();
+        void BindAsReadBuffer(uint32_t texture);
         void Unbind();
 
         virtual void *GetColorAttachment(int index = 0) override;

@@ -347,6 +347,18 @@ namespace Nexus::Graphics
 
             FramebufferOpenGL *framebufferGL = (FramebufferOpenGL *)resolveToSwapchainCommand.Source;
             SwapchainOpenGL *swapchainGL = (SwapchainOpenGL *)resolveToSwapchainCommand.Target;
+
+            framebufferGL->BindAsReadBuffer(resolveToSwapchainCommand.SourceIndex);
+            swapchainGL->BindAsDrawTarget(resolveToSwapchainCommand.TargetIndex);
+
+            uint32_t framebufferWidth = framebufferGL->GetFramebufferSpecification().Width;
+            uint32_t framebufferHeight = framebufferGL->GetFramebufferSpecification().Height;
+
+            auto window = swapchainGL->GetWindow();
+            uint32_t swapchainWidth = window->GetWindowSize().X;
+            uint32_t swapchainHeight = window->GetWindowSize().Y;
+
+            glBlitFramebuffer(0, 0, swapchainWidth, swapchainHeight, 0, 0, swapchainWidth, swapchainHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
         };
         m_Commands.push_back(renderCommand);
     }

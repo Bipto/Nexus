@@ -41,7 +41,7 @@ namespace Nexus::Graphics
         const ResourceSetSpecification &GetSpecification() const;
         const std::unordered_map<uint32_t, uint32_t> &GetLinearBindings() const;
 
-        static constexpr uint32_t DescriptorSlotCount = 64;
+        static constexpr uint32_t DescriptorSlotCount = 16;
         static uint32_t GetLinearDescriptorSlot(uint32_t set, uint32_t slot);
         static std::unordered_map<uint32_t, uint32_t> RemapToLinearBindings(const ResourceSetSpecification &spec);
 

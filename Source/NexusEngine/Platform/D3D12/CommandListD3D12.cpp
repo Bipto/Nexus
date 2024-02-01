@@ -99,27 +99,18 @@ namespace Nexus::Graphics
         uint32_t descriptorIndex = 0;
         const auto &spec = d3d12ResourceSet->GetSpecification();
 
-        for (uint32_t i = 0; i < spec.Resources.size(); i++)
+        if (d3d12ResourceSet->HasSamplerHeap())
         {
-            const auto &binding = spec.Resources[i];
-            uint32_t slot = ResourceSet::GetLinearDescriptorSlot(binding.Set, binding.Binding);
+            m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, d3d12ResourceSet->GetSamplerGPUStartHandle());
+        }
 
-            if (binding.Type == ResourceType::CombinedImageSampler)
-            {
-                auto samplerHandle = d3d12ResourceSet->GetSamplerDescriptor(slot);
-                m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, samplerHandle);
+        if (d3d12ResourceSet->HasConstantBufferTextureHeap())
+        {
+            m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, d3d12ResourceSet->GetTextureDescriptor(0));
 
-                auto textureHandle = d3d12ResourceSet->GetTextureDescriptor(slot);
-                m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, textureHandle);
-            }
-            else if (binding.Type == ResourceType::UniformBuffer)
+            if (d3d12ResourceSet->HasConstantBuffers())
             {
-                auto constantBufferHandle = d3d12ResourceSet->GetConstantBufferDescriptor(slot);
-                m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, constantBufferHandle);
-            }
-            else
-            {
-                throw std::runtime_error("Failed to find a valid resource type");
+                m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, d3d12ResourceSet->GetConstantBufferDescriptor(0));
             }
         }
     }

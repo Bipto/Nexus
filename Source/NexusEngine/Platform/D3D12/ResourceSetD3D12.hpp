@@ -31,6 +31,7 @@ namespace Nexus::Graphics
 
         bool HasConstantBufferTextureHeap() const;
         bool HasSamplerHeap() const;
+        bool HasConstantBuffers() const;
 
     private:
         Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_SamplerDescriptorHeap = nullptr;
@@ -50,6 +51,8 @@ namespace Nexus::Graphics
         GraphicsDeviceD3D12 *m_Device = nullptr;
         bool m_HasConstantBufferTextureHeap = false;
         bool m_HasSamplerHeap = false;
+
+        bool m_HasConstantBuffers = false;
     };
 }
 
