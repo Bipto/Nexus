@@ -299,102 +299,12 @@ namespace Nexus::Graphics
 
         std::vector<D3D12_ROOT_PARAMETER> parameters;
 
-        std::cout << "New shader layout:\n";
-
-        const auto &remappedBindings = ResourceSet::RemapToLinearBindings(m_Description.ResourceSetSpecification);
-
-        uint32_t textureCount = 0;
-        uint32_t samplerCount = 0;
-        uint32_t constantBufferCount = 0;
-
-        for (const auto &resource : m_Description.ResourceSetSpecification.Resources)
-        {
-            uint32_t slot = ResourceSet::GetLinearDescriptorSlot(resource.Set, resource.Binding);
-            uint32_t newBinding = remappedBindings.at(slot);
-
-            /* if (resource.Type == ResourceType::CombinedImageSampler)
-            {
-                D3D12_DESCRIPTOR_RANGE samplerRange;
-                samplerRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
-                samplerRange.BaseShaderRegister = newBinding;
-                samplerRange.NumDescriptors = 1;
-                samplerRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-                samplerRange.RegisterSpace = 0;
-
-                D3D12_ROOT_DESCRIPTOR_TABLE samplerTable;
-                samplerTable.NumDescriptorRanges = 1;
-                samplerTable.pDescriptorRanges = &samplerRange;
-
-                D3D12_ROOT_PARAMETER samplerParameter;
-                samplerParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-                samplerParameter.DescriptorTable = samplerTable;
-                samplerParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-                parameters.push_back(samplerParameter);
-
-                std::cout << "Sampler bound to base shader register: " << samplerRange.BaseShaderRegister << ", NumDescriptors: " << samplerRange.NumDescriptors << "\n";
-
-                D3D12_DESCRIPTOR_RANGE textureRange;
-                textureRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-                textureRange.BaseShaderRegister = newBinding;
-                textureRange.NumDescriptors = 1;
-                textureRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-                textureRange.RegisterSpace = 0;
-
-                D3D12_ROOT_DESCRIPTOR_TABLE textureTable;
-                textureTable.NumDescriptorRanges = 1;
-                textureTable.pDescriptorRanges = &textureRange;
-
-                D3D12_ROOT_PARAMETER textureParameter;
-                textureParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-                textureParameter.DescriptorTable = textureTable;
-                textureParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-                parameters.push_back(textureParameter);
-
-                std::cout << "Texture bound to base shader register: " << textureRange.BaseShaderRegister << ", NumDescriptors: " << textureRange.NumDescriptors << "\n";
-            }
-            else if (resource.Type == ResourceType::UniformBuffer)
-            {
-                D3D12_DESCRIPTOR_RANGE constantBufferRange;
-                constantBufferRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-                constantBufferRange.BaseShaderRegister = newBinding;
-                constantBufferRange.NumDescriptors = 1;
-                constantBufferRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-                constantBufferRange.RegisterSpace = 0;
-
-                D3D12_ROOT_DESCRIPTOR_TABLE constantBufferTable;
-                constantBufferTable.NumDescriptorRanges = 1;
-                constantBufferTable.pDescriptorRanges = &constantBufferRange;
-
-                D3D12_ROOT_PARAMETER constantBufferParameter;
-                constantBufferParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-                constantBufferParameter.DescriptorTable = constantBufferTable;
-                constantBufferParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-                parameters.push_back(constantBufferParameter);
-
-                std::cout << "Constant buffer bound to base shader register: " << constantBufferRange.BaseShaderRegister << ", NumDescriptors: " << constantBufferRange.NumDescriptors << "\n";
-            }
-            else
-            {
-                throw std::runtime_error("Failed to find a valid resource type");
-            } */
-
-            if (resource.Type == ResourceType::CombinedImageSampler)
-            {
-                textureCount++;
-                samplerCount++;
-            }
-            else if (resource.Type == ResourceType::UniformBuffer)
-            {
-                constantBufferCount++;
-            }
-        }
-
-        if (samplerCount > 0)
+        if (m_Description.ResourceSetSpecification.Textures.size() > 0)
         {
             D3D12_DESCRIPTOR_RANGE samplerRange;
             samplerRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
             samplerRange.BaseShaderRegister = 0;
-            samplerRange.NumDescriptors = samplerCount;
+            samplerRange.NumDescriptors = m_Description.ResourceSetSpecification.Textures.size();
             samplerRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
             samplerRange.RegisterSpace = 0;
 
@@ -407,14 +317,11 @@ namespace Nexus::Graphics
             samplerParameter.DescriptorTable = samplerTable;
             samplerParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
             parameters.push_back(samplerParameter);
-        }
 
-        if (textureCount > 0)
-        {
             D3D12_DESCRIPTOR_RANGE textureRange;
             textureRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
             textureRange.BaseShaderRegister = 0;
-            textureRange.NumDescriptors = textureCount;
+            textureRange.NumDescriptors = m_Description.ResourceSetSpecification.Textures.size();
             textureRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
             textureRange.RegisterSpace = 0;
 
@@ -429,12 +336,12 @@ namespace Nexus::Graphics
             parameters.push_back(textureParameter);
         }
 
-        if (constantBufferCount > 0)
+        if (m_Description.ResourceSetSpecification.UniformBuffers.size() > 0)
         {
             D3D12_DESCRIPTOR_RANGE constantBufferRange;
             constantBufferRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
             constantBufferRange.BaseShaderRegister = 0;
-            constantBufferRange.NumDescriptors = constantBufferCount;
+            constantBufferRange.NumDescriptors = m_Description.ResourceSetSpecification.UniformBuffers.size();
             constantBufferRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
             constantBufferRange.RegisterSpace = 0;
 

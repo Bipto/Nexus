@@ -42,7 +42,7 @@ namespace Nexus::Graphics
             resBinding.Set = set;
             resBinding.Binding = binding;
             resBinding.Type = Nexus::Graphics::ResourceType::CombinedImageSampler;
-            resourceSpec.Resources.push_back(resBinding);
+            resourceSpec.Textures.push_back(resBinding);
         }
 
         for (const auto &uniformBuffer : resources.uniform_buffers)
@@ -59,29 +59,32 @@ namespace Nexus::Graphics
             resBinding.Set = set;
             resBinding.Binding = binding;
             resBinding.Type = Nexus::Graphics::ResourceType::UniformBuffer;
-            resourceSpec.Resources.push_back(resBinding);
+            resourceSpec.UniformBuffers.push_back(resBinding);
         }
 
-        const auto &bindings = ResourceSet::RemapToLinearBindings(resourceSpec);
+        const auto &remappedTextureBindings = ResourceSet::RemapToLinearBindings(resourceSpec.Textures);
+        const auto &remappedUniformBufferBindings = ResourceSet::RemapToLinearBindings(resourceSpec.UniformBuffers);
 
-        for (const auto &image : resources.sampled_images)
+        for (int i = 0; i < resources.sampled_images.size(); i++)
         {
+            auto &image = resources.sampled_images[i];
             uint32_t set = compiler.get_decoration(image.id, spv::DecorationDescriptorSet);
             uint32_t binding = compiler.get_decoration(image.id, spv::DecorationBinding);
-            uint32_t index = ResourceSet::GetLinearDescriptorSlot(set, binding);
 
-            uint32_t newBinding = bindings.at(index);
+            uint32_t index = ResourceSet::GetLinearDescriptorSlot(set, binding);
+            uint32_t newBinding = remappedTextureBindings.at(index);
             compiler.unset_decoration(image.id, spv::DecorationDescriptorSet);
             compiler.set_decoration(image.id, spv::DecorationBinding, newBinding);
         }
 
-        for (const auto &uniformBuffer : resources.uniform_buffers)
+        for (int i = 0; i < resources.uniform_buffers.size(); i++)
         {
+            auto &uniformBuffer = resources.uniform_buffers[i];
             uint32_t set = compiler.get_decoration(uniformBuffer.id, spv::DecorationDescriptorSet);
             uint32_t binding = compiler.get_decoration(uniformBuffer.id, spv::DecorationBinding);
-            uint32_t index = ResourceSet::GetLinearDescriptorSlot(set, binding);
 
-            uint32_t newBinding = bindings.at(index);
+            uint32_t index = ResourceSet::GetLinearDescriptorSlot(set, binding);
+            uint32_t newBinding = remappedUniformBufferBindings.at(index);
             compiler.unset_decoration(uniformBuffer.id, spv::DecorationDescriptorSet);
             compiler.set_decoration(uniformBuffer.id, spv::DecorationBinding, newBinding);
         }

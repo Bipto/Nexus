@@ -884,7 +884,7 @@ namespace Nexus::Graphics
         uniformResourceBinding.Name = "MVP";
         resourceSpec.UniformResourceBindings = {uniformResourceBinding}; */
 
-        resourceSpec.Resources =
+        resourceSpec.Textures =
             {
                 {"texture0", 1, 0, Nexus::Graphics::ResourceType::CombinedImageSampler},
                 {"texture1", 1, 1, Nexus::Graphics::ResourceType::CombinedImageSampler},
@@ -917,7 +917,10 @@ namespace Nexus::Graphics
                 {"texture28", 1, 28, Nexus::Graphics::ResourceType::CombinedImageSampler},
                 {"texture29", 1, 29, Nexus::Graphics::ResourceType::CombinedImageSampler},
                 {"texture30", 1, 30, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture31", 1, 31, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture31", 1, 31, Nexus::Graphics::ResourceType::CombinedImageSampler}};
+
+        resourceSpec.UniformBuffers =
+            {
                 {"MVP", 0, 0, Nexus::Graphics::ResourceType::UniformBuffer}};
 
         description.ResourceSetSpecification = resourceSpec;

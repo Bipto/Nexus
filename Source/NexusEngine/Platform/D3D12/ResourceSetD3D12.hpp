@@ -26,9 +26,6 @@ namespace Nexus::Graphics
         const D3D12_GPU_DESCRIPTOR_HANDLE GetTextureDescriptor(uint32_t slot);
         const D3D12_GPU_DESCRIPTOR_HANDLE GetSamplerDescriptor(uint32_t slot);
 
-        uint32_t GetFirstSamplerIndex() const;
-        uint32_t GetFirstConstantBufferTextureIndex() const;
-
         bool HasConstantBufferTextureHeap() const;
         bool HasSamplerHeap() const;
         bool HasConstantBuffers() const;
@@ -37,22 +34,19 @@ namespace Nexus::Graphics
         Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_SamplerDescriptorHeap = nullptr;
         Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_TextureConstantBufferDescriptorHeap = nullptr;
 
-        std::map<uint32_t, D3D12_CPU_DESCRIPTOR_HANDLE> m_SamplerCPUDescriptors;
-        std::map<uint32_t, D3D12_GPU_DESCRIPTOR_HANDLE> m_SamplerGPUDescriptors;
+        std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_SamplerCPUDescriptors;
+        std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> m_SamplerGPUDescriptors;
+        std::vector<uint32_t> m_SamplerCPUDescriptorSlots;
 
-        std::map<uint32_t, D3D12_CPU_DESCRIPTOR_HANDLE> m_ConstantBufferCPUDescriptors;
-        std::map<uint32_t, D3D12_GPU_DESCRIPTOR_HANDLE> m_ConstantBufferGPUDescriptors;
+        std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_ConstantBufferCPUDescriptors;
+        std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> m_ConstantBufferGPUDescriptors;
+        std::vector<uint32_t> m_ConstantBufferCPUDescriptorsSlots;
 
-        std::map<uint32_t, D3D12_CPU_DESCRIPTOR_HANDLE> m_TextureCPUDescriptors;
-        std::map<uint32_t, D3D12_GPU_DESCRIPTOR_HANDLE> m_TextureGPUDescriptors;
-
-        std::map<uint32_t, uint32_t> m_CPUDescriptorSlots;
+        std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_TextureCPUDescriptors;
+        std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> m_TextureGPUDescriptors;
+        std::vector<uint32_t> m_TextureCPUDescriptorSlots;
 
         GraphicsDeviceD3D12 *m_Device = nullptr;
-        bool m_HasConstantBufferTextureHeap = false;
-        bool m_HasSamplerHeap = false;
-
-        bool m_HasConstantBuffers = false;
     };
 }
 

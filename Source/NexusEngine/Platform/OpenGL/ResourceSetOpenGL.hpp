@@ -12,12 +12,6 @@
 
 namespace Nexus::Graphics
 {
-    struct OpenGLResourceInfo
-    {
-        ResourceType Type;
-        std::variant<TextureOpenGL *, UniformBufferOpenGL *> Resource;
-    };
-
     class ResourceSetOpenGL : public ResourceSet
     {
     public:
@@ -25,10 +19,12 @@ namespace Nexus::Graphics
         virtual void WriteTexture(Texture *texture, uint32_t set, uint32_t binding) override;
         virtual void WriteUniformBuffer(UniformBuffer *uniformBuffer, uint32_t set, uint32_t binding) override;
 
-        const std::map<uint32_t, OpenGLResourceInfo> &GetResources() const;
+        const std::map<uint32_t, TextureOpenGL *> &GetBoundTextures() const;
+        const std::map<uint32_t, UniformBufferOpenGL *> &GetBoundUniformBuffers() const;
 
     private:
-        std::map<uint32_t, OpenGLResourceInfo> m_Resources;
+        std::map<uint32_t, TextureOpenGL *> m_BoundTextures;
+        std::map<uint32_t, UniformBufferOpenGL *> m_BoundUniformBuffers;
     };
 }
 

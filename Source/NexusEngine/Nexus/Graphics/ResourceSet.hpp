@@ -26,7 +26,8 @@ namespace Nexus::Graphics
 
     struct ResourceSetSpecification
     {
-        std::vector<ResourceBinding> Resources;
+        std::vector<ResourceBinding> Textures;
+        std::vector<ResourceBinding> UniformBuffers;
     };
 
     class ResourceSet
@@ -38,15 +39,18 @@ namespace Nexus::Graphics
         virtual void WriteTexture(Texture *texture, uint32_t set, uint32_t binding) = 0;
         virtual void WriteUniformBuffer(UniformBuffer *uniformBuffer, uint32_t set, uint32_t binding) = 0;
 
+        const std::unordered_map<uint32_t, uint32_t> &GetLinearTextureBindings() const;
+        const std::unordered_map<uint32_t, uint32_t> &GetLinearUniformBufferBindings() const;
+
         const ResourceSetSpecification &GetSpecification() const;
-        const std::unordered_map<uint32_t, uint32_t> &GetLinearBindings() const;
 
         static constexpr uint32_t DescriptorSlotCount = 16;
         static uint32_t GetLinearDescriptorSlot(uint32_t set, uint32_t slot);
-        static std::unordered_map<uint32_t, uint32_t> RemapToLinearBindings(const ResourceSetSpecification &spec);
+        static std::unordered_map<uint32_t, uint32_t> RemapToLinearBindings(const std::vector<ResourceBinding> &resources);
 
     protected:
         ResourceSetSpecification m_Specification;
-        std::unordered_map<uint32_t, uint32_t> m_LinearBindings;
+        std::unordered_map<uint32_t, uint32_t> m_TextureBindings;
+        std::unordered_map<uint32_t, uint32_t> m_UniformBufferBindings;
     };
 }

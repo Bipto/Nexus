@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project("Test")
 
-add_executable(Test WIN32 main.cpp)
+add_executable(Test main.cpp)
 
 target_include_directories(Test PUBLIC NexusEngine)
 target_link_libraries(Test PUBLIC NexusEngine)

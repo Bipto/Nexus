@@ -112,7 +112,8 @@ namespace Nexus::ImGuiUtils
         uniformBufferBinding.Binding = 0;
         uniformBufferBinding.Type = Nexus::Graphics::ResourceType::UniformBuffer;
 
-        pipelineDesc.ResourceSetSpecification.Resources = {textureBinding, uniformBufferBinding};
+        pipelineDesc.ResourceSetSpecification.Textures = {textureBinding};
+        pipelineDesc.ResourceSetSpecification.UniformBuffers = {uniformBufferBinding};
 
         m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDesc);
 

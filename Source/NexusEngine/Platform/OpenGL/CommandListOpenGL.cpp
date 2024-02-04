@@ -178,32 +178,23 @@ namespace Nexus::Graphics
             auto resourcesGL = (ResourceSetOpenGL *)updateResourcesCommand.Resources;
 
             // upload resources
-
-            const auto &resourceBindings = resourcesGL->GetResources();
-            const auto &remappedBindings = resourcesGL->GetLinearBindings();
-            for (const auto &resource : resourceBindings)
+            const auto &textureBindings = resourcesGL->GetBoundTextures();
+            const auto &remappedTextureBindings = resourcesGL->GetLinearTextureBindings();
+            for (const auto &textureBinding : textureBindings)
             {
-                uint32_t slot = remappedBindings.at(resource.first);
-                if (resource.second.Type == ResourceType::CombinedImageSampler)
-                {
-                    auto texture = std::get<TextureOpenGL *>(resource.second.Resource);
+                uint32_t slot = remappedTextureBindings.at(textureBinding.first);
+                glUniform1i(slot, slot);
+                glActiveTexture(GL_TEXTURE0 + slot);
+                glBindTexture(GL_TEXTURE_2D, (GLuint)textureBinding.second->GetHandle());
+            }
 
-                    // assign sampler to texture
-                    glUniform1i(slot, slot);
-
-                    glActiveTexture(GL_TEXTURE0 + slot);
-                    glBindTexture(GL_TEXTURE_2D, (GLuint)texture->GetHandle());
-                }
-                else if (resource.second.Type == ResourceType::UniformBuffer)
-                {
-                    auto uniformBuffer = std::get<UniformBufferOpenGL *>(resource.second.Resource);
-                    glBindBuffer(GL_UNIFORM_BUFFER, uniformBuffer->GetHandle());
-                    glBindBufferBase(GL_UNIFORM_BUFFER, slot, uniformBuffer->GetHandle());
-                }
-                else
-                {
-                    throw std::runtime_error("Failed to find a valid resource ");
-                }
+            const auto &uniformBufferBindings = resourcesGL->GetBoundUniformBuffers();
+            const auto &remappedUniformBufferBindings = resourcesGL->GetLinearUniformBufferBindings();
+            for (const auto &uniformBufferBinding : uniformBufferBindings)
+            {
+                uint32_t slot = remappedUniformBufferBindings.at(uniformBufferBinding.first);
+                glBindBuffer(GL_UNIFORM_BUFFER, uniformBufferBinding.second->GetHandle());
+                glBindBufferBase(GL_UNIFORM_BUFFER, slot, uniformBufferBinding.second->GetHandle());
             }
         };
         m_Commands.push_back(renderCommand);

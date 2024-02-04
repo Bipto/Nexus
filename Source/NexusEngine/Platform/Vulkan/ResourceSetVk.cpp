@@ -14,9 +14,6 @@ namespace Nexus::Graphics
         std::map<uint32_t, std::vector<VkDescriptorSetLayoutBinding>> sets;
         std::map<VkDescriptorType, uint32_t> descriptorCounts;
 
-        uint32_t textureIndex = 0;
-        uint32_t uniformBufferIndex = 0;
-
         // create texture bindings
         /* for (const auto &textureInfo : spec.TextureBindings)
         {
@@ -86,7 +83,7 @@ namespace Nexus::Graphics
             m_DescriptorSetLayouts[set.first] = layout;
         } */
 
-        for (const auto &binding : spec.Resources)
+        /* for (const auto &binding : spec.Resources)
         {
             VkDescriptorSetLayoutBinding descriptorBinding = {};
             descriptorBinding.binding = binding.Binding;
@@ -123,8 +120,60 @@ namespace Nexus::Graphics
             auto &set = sets[binding.Set];
             set.push_back(descriptorBinding);
             descriptorCounts[descriptorType]++;
+        } */
+
+        // create texture bindings
+        for (const auto &textureBinding : spec.Textures)
+        {
+            VkDescriptorSetLayoutBinding descriptorBinding = {};
+            descriptorBinding.binding = textureBinding.Binding;
+            descriptorBinding.descriptorCount = 1;
+            descriptorBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            descriptorBinding.stageFlags = VK_SHADER_STAGE_ALL_GRAPHICS;
+
+            // if this set has not been created yet, then create it
+            if (sets.find(textureBinding.Set) == sets.end())
+            {
+                sets[textureBinding.Set] = {};
+            }
+
+            // if we do not have a count for this descriptor type, create one
+            if (descriptorCounts.find(descriptorBinding.descriptorType) == descriptorCounts.end())
+            {
+                descriptorCounts[descriptorBinding.descriptorType] = 0;
+            }
+
+            auto &set = sets[textureBinding.Set];
+            set.push_back(descriptorBinding);
+            descriptorCounts[descriptorBinding.descriptorType]++;
         }
 
+        for (const auto &uniformBufferBinding : spec.UniformBuffers)
+        {
+            VkDescriptorSetLayoutBinding descriptorBinding = {};
+            descriptorBinding.binding = uniformBufferBinding.Binding;
+            descriptorBinding.descriptorCount = 1;
+            descriptorBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            descriptorBinding.stageFlags = VK_SHADER_STAGE_ALL_GRAPHICS;
+
+            // if this set has not been created yet, then create it
+            if (sets.find(uniformBufferBinding.Set) == sets.end())
+            {
+                sets[uniformBufferBinding.Set] = {};
+            }
+
+            // if we do not have a count for this descriptor type, create one
+            if (descriptorCounts.find(descriptorBinding.descriptorType) == descriptorCounts.end())
+            {
+                descriptorCounts[descriptorBinding.descriptorType] = 0;
+            }
+
+            auto &set = sets[uniformBufferBinding.Set];
+            set.push_back(descriptorBinding);
+            descriptorCounts[descriptorBinding.descriptorType]++;
+        }
+
+        // create descriptor sets
         for (const auto &set : sets)
         {
             VkDescriptorSetLayoutCreateInfo setInfo = {};
