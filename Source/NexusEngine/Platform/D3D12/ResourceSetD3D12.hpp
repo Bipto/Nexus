@@ -18,13 +18,11 @@ namespace Nexus::Graphics
 
         D3D12_GPU_DESCRIPTOR_HANDLE GetSamplerGPUStartHandle();
         D3D12_GPU_DESCRIPTOR_HANDLE GetConstantBufferTextureGPUStartHandle();
+        D3D12_GPU_DESCRIPTOR_HANDLE GetTextureGPUStartHandle();
+        D3D12_GPU_DESCRIPTOR_HANDLE GetConstantBufferGPUStartHandle();
 
         ID3D12DescriptorHeap *GetSamplerDescriptorHeap();
         ID3D12DescriptorHeap *GetTextureConstantBufferDescriptorHeap();
-
-        const D3D12_GPU_DESCRIPTOR_HANDLE GetConstantBufferDescriptor(uint32_t slot);
-        const D3D12_GPU_DESCRIPTOR_HANDLE GetTextureDescriptor(uint32_t slot);
-        const D3D12_GPU_DESCRIPTOR_HANDLE GetSamplerDescriptor(uint32_t slot);
 
         bool HasConstantBufferTextureHeap() const;
         bool HasSamplerHeap() const;

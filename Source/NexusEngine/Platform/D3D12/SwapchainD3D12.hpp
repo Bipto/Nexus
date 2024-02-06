@@ -31,6 +31,12 @@ namespace Nexus::Graphics
         ID3D12Resource2 *RetrieveDepthBufferHandle();
         D3D12_CPU_DESCRIPTOR_HANDLE RetrieveDepthBufferDescriptorHandle();
 
+        uint32_t GetColorAttachmentCount();
+        const std::vector<D3D12_RESOURCE_STATES> &GetCurrentTextureStates() const;
+        const D3D12_RESOURCE_STATES GetCurrentDepthState() const;
+        void SetTextureState(D3D12_RESOURCE_STATES state, uint32_t index);
+        void SetDepthState(D3D12_RESOURCE_STATES state);
+
     private:
         void Flush();
         void RecreateSwapchainIfNecessary();
@@ -57,6 +63,9 @@ namespace Nexus::Graphics
 
         Microsoft::WRL::ComPtr<ID3D12Resource2> m_DepthBuffer = nullptr;
         Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_DepthTextureDescriptorHeap = nullptr;
+
+        std::vector<D3D12_RESOURCE_STATES> m_CurrentTextureStates;
+        D3D12_RESOURCE_STATES m_CurrentDepthState;
     };
 }
 #endif

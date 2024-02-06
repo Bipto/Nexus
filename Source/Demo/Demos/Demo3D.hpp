@@ -141,11 +141,14 @@ namespace Demos
             pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
             pipelineDescription.Shader = m_Shader;
 
-            pipelineDescription.ResourceSetSpecification.Resources =
+            pipelineDescription.ResourceSetSpecification.UniformBuffers =
                 {
-                    {"Camera", 0, 0, Nexus::Graphics::ResourceType::UniformBuffer},
-                    {"Transform", 0, 1, Nexus::Graphics::ResourceType::UniformBuffer},
-                    {"texSampler", 1, 0, Nexus::Graphics::ResourceType::CombinedImageSampler}};
+                    {"Camera", 0, 0},
+                    {"Transform", 0, 1}};
+
+            pipelineDescription.ResourceSetSpecification.Textures =
+                {
+                    {"texSampler", 1, 0}};
 
             pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
 

@@ -4,6 +4,8 @@
 
 #include "D3D12Utils.hpp"
 
+#include "D3D12Include.hpp"
+
 namespace Nexus::Graphics
 {
     FramebufferD3D12::FramebufferD3D12(const FramebufferSpecification &spec, GraphicsDeviceD3D12 *device)
@@ -14,6 +16,7 @@ namespace Nexus::Graphics
 
     FramebufferD3D12::~FramebufferD3D12()
     {
+        Flush();
     }
 
     void FramebufferD3D12::SetFramebufferSpecification(const FramebufferSpecification &spec)
@@ -23,12 +26,17 @@ namespace Nexus::Graphics
     void FramebufferD3D12::Recreate()
     {
         auto d3d12Device = m_Device->GetDevice();
+        m_CurrentColorTextureStates.clear();
+
+        D3D12_RESOURCE_STATES colourResourceState = D3D12_RESOURCE_STATE_COMMON;
+        m_CurrentDepthState = D3D12_RESOURCE_STATE_DEPTH_READ;
 
         uint32_t samples = GetSampleCount(m_Specification.Samples);
 
         // create color textures
         for (int i = 0; i < m_Specification.ColorAttachmentSpecification.Attachments.size(); i++)
         {
+
             Microsoft::WRL::ComPtr<ID3D12Resource2> texture = nullptr;
 
             D3D12_HEAP_PROPERTIES heapProperties;
@@ -53,9 +61,10 @@ namespace Nexus::Graphics
             resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
             resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 
-            d3d12Device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&texture));
+            d3d12Device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, colourResourceState, nullptr, IID_PPV_ARGS(&texture));
 
             m_ColorTextures.push_back(texture);
+            m_CurrentColorTextureStates.push_back(colourResourceState);
         }
 
         // create depth texture if required
@@ -83,7 +92,7 @@ namespace Nexus::Graphics
             resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
             resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
-            d3d12Device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE, nullptr, IID_PPV_ARGS(&m_DepthTexture));
+            d3d12Device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, m_CurrentDepthState, nullptr, IID_PPV_ARGS(&m_DepthTexture));
         }
 
         D3D12_DESCRIPTOR_HEAP_DESC colorDescriptorHeapDesc;
@@ -150,9 +159,17 @@ namespace Nexus::Graphics
         }
     }
 
+    void FramebufferD3D12::Flush()
+    {
+        for (int i = 0; i < BUFFER_COUNT; i++)
+        {
+            m_Device->SignalAndWait();
+        }
+    }
+
     const FramebufferSpecification FramebufferD3D12::GetFramebufferSpecification()
     {
-        return FramebufferSpecification();
+        return m_Specification;
     }
 
     void *FramebufferD3D12::GetColorAttachment(int index)
@@ -188,6 +205,31 @@ namespace Nexus::Graphics
     DXGI_FORMAT FramebufferD3D12::GetColorAttachmentFormat(uint32_t index)
     {
         return GetD3D12TextureFormat(m_Specification.ColorAttachmentSpecification.Attachments[index].TextureFormat);
+    }
+
+    const std::vector<D3D12_RESOURCE_STATES> &FramebufferD3D12::GetCurrentColorTextureStates() const
+    {
+        return m_CurrentColorTextureStates;
+    }
+
+    const D3D12_RESOURCE_STATES FramebufferD3D12::GetCurrentDepthState() const
+    {
+        return m_CurrentDepthState;
+    }
+
+    void FramebufferD3D12::SetColorTextureState(D3D12_RESOURCE_STATES state, uint32_t index)
+    {
+        if (index > m_CurrentColorTextureStates.size())
+        {
+            return;
+        }
+
+        m_CurrentColorTextureStates[index] = state;
+    }
+
+    void FramebufferD3D12::SetDepthState(D3D12_RESOURCE_STATES state)
+    {
+        m_CurrentDepthState = state;
     }
 }
 

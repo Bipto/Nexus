@@ -9,12 +9,12 @@ namespace Nexus::Graphics
         m_UniformBufferBindings = RemapToLinearBindings(spec.UniformBuffers);
     }
 
-    const std::unordered_map<uint32_t, uint32_t> &ResourceSet::GetLinearTextureBindings() const
+    const std::map<uint32_t, uint32_t> &ResourceSet::GetLinearTextureBindings() const
     {
         return m_TextureBindings;
     }
 
-    const std::unordered_map<uint32_t, uint32_t> &ResourceSet::GetLinearUniformBufferBindings() const
+    const std::map<uint32_t, uint32_t> &ResourceSet::GetLinearUniformBufferBindings() const
     {
         return m_UniformBufferBindings;
     }
@@ -24,25 +24,19 @@ namespace Nexus::Graphics
         return m_Specification;
     }
 
-    uint32_t ResourceSet::GetLinearDescriptorSlot(uint32_t set, uint32_t slot)
+    uint32_t ResourceSet::GetLinearDescriptorSlot(uint32_t set, uint32_t binding)
     {
-        return set * ResourceSet::DescriptorSlotCount + slot;
+        return (set * DescriptorSetCount) + binding;
     }
 
-    std::unordered_map<uint32_t, uint32_t> ResourceSet::RemapToLinearBindings(const std::vector<ResourceBinding> &resources)
+    std::map<uint32_t, uint32_t> ResourceSet::RemapToLinearBindings(const std::vector<ResourceBinding> &resources)
     {
         uint32_t resourceIndex = 0;
-        std::unordered_map<uint32_t, uint32_t> bindings;
+        std::map<uint32_t, uint32_t> bindings;
 
         for (const auto &resource : resources)
         {
-            uint32_t remappedBinding = ResourceSet::GetLinearDescriptorSlot(resource.Set, resource.Binding);
-
-            if (bindings.find(remappedBinding) != bindings.end())
-            {
-                throw std::runtime_error("A resource has already been mapped to this slot");
-            }
-
+            uint32_t remappedBinding = GetLinearDescriptorSlot(resource.Set, resource.Binding);
             bindings[remappedBinding] = resourceIndex++;
         }
 

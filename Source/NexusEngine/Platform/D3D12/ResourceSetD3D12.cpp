@@ -13,107 +13,6 @@ namespace Nexus::Graphics
         m_Device = device;
         auto d3d12Device = m_Device->GetDevice();
 
-        /*uint32_t textureCount = 0;
-        uint32_t textureConstantBufferCount = 0;
-        uint32_t cpuSlotLocation = 0;
-
-         for (const auto &binding : spec.Resources)
-        {
-            if (binding.Type == ResourceType::CombinedImageSampler)
-            {
-                textureCount++;
-                textureConstantBufferCount++;
-            }
-            else if (binding.Type == ResourceType::UniformBuffer)
-            {
-                m_HasConstantBuffers = true;
-                textureConstantBufferCount++;
-            }
-            else
-            {
-                throw std::runtime_error("Failed to find a valid resource");
-            }
-        }
-
-        if (textureCount > 0)
-        {
-            m_HasSamplerHeap = true;
-
-            D3D12_DESCRIPTOR_HEAP_DESC samplerDesc;
-            samplerDesc.NumDescriptors = textureCount;
-            samplerDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
-            samplerDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-            samplerDesc.NodeMask = 0;
-
-            d3d12Device->CreateDescriptorHeap(&samplerDesc, IID_PPV_ARGS(&m_SamplerDescriptorHeap));
-
-            auto cpuLocation = m_SamplerDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-            auto gpuLocation = m_SamplerDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
-
-            for (const auto &resource : spec.Resources)
-            {
-                if (resource.Type == ResourceType::CombinedImageSampler)
-                {
-                    uint32_t binding = ResourceSet::GetLinearDescriptorSlot(resource.Set, resource.Binding);
-                    uint32_t mappedBinding = m_LinearBindings.at(binding);
-
-                    m_SamplerCPUDescriptors[mappedBinding] = cpuLocation;
-                    m_SamplerGPUDescriptors[mappedBinding] = gpuLocation;
-                    m_CPUDescriptorSlots[mappedBinding] = cpuSlotLocation;
-
-                    cpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
-                    gpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
-                    cpuSlotLocation++;
-                }
-            }
-        }
-
-        if (textureConstantBufferCount > 0)
-        {
-            m_HasConstantBufferTextureHeap = true;
-
-            D3D12_DESCRIPTOR_HEAP_DESC textureConstantBufferDesc;
-            textureConstantBufferDesc.NumDescriptors = textureConstantBufferCount;
-            textureConstantBufferDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-            textureConstantBufferDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-            textureConstantBufferDesc.NodeMask = 0;
-
-            d3d12Device->CreateDescriptorHeap(&textureConstantBufferDesc, IID_PPV_ARGS(&m_TextureConstantBufferDescriptorHeap));
-
-            auto cpuLocation = m_TextureConstantBufferDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-            auto gpuLocation = m_TextureConstantBufferDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
-
-            for (const auto &resource : spec.Resources)
-            {
-                if (resource.Type == ResourceType::CombinedImageSampler)
-                {
-                    uint32_t binding = ResourceSet::GetLinearDescriptorSlot(resource.Set, resource.Binding);
-                    uint32_t mappedBinding = m_LinearBindings.at(binding);
-
-                    m_TextureCPUDescriptors[mappedBinding] = cpuLocation;
-                    m_TextureGPUDescriptors[mappedBinding] = gpuLocation;
-                    m_CPUDescriptorSlots[mappedBinding] = cpuSlotLocation;
-
-                    cpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-                    gpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-                    cpuSlotLocation++;
-                }
-                else if (resource.Type == ResourceType::UniformBuffer)
-                {
-                    uint32_t binding = ResourceSet::GetLinearDescriptorSlot(resource.Set, resource.Binding);
-                    uint32_t mappedBinding = m_LinearBindings.at(binding);
-
-                    m_ConstantBufferCPUDescriptors[mappedBinding] = cpuLocation;
-                    m_ConstantBufferGPUDescriptors[mappedBinding] = gpuLocation;
-                    m_CPUDescriptorSlots[mappedBinding] = cpuSlotLocation;
-
-                    cpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-                    gpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-                    cpuSlotLocation++;
-                }
-            }
-        } */
-
         uint32_t textureCount = spec.Textures.size();
         uint32_t constantBufferCount = spec.UniformBuffers.size();
         uint32_t textureConstantBufferCount = spec.Textures.size() + spec.UniformBuffers.size();
@@ -182,10 +81,12 @@ namespace Nexus::Graphics
 
     void ResourceSetD3D12::WriteTexture(Texture *texture, uint32_t set, uint32_t binding)
     {
-        auto d3d12Device = m_Device->GetDevice();
+        const auto d3d12Device = m_Device->GetDevice();
         TextureD3D12 *d3d12Texture = (TextureD3D12 *)texture;
-        uint32_t slot = ResourceSet::GetLinearDescriptorSlot(set, binding);
-        uint32_t newBinding = m_TextureBindings.at(slot);
+        // uint32_t slot = ResourceSet::GetTextureSlot(set, binding);
+
+        const uint32_t index = GetLinearDescriptorSlot(set, binding);
+        const uint32_t newBinding = m_TextureBindings.at(index);
 
         D3D12_SHADER_RESOURCE_VIEW_DESC srv;
         srv.Format = d3d12Texture->GetFormat();
@@ -226,8 +127,11 @@ namespace Nexus::Graphics
 
     void ResourceSetD3D12::WriteUniformBuffer(UniformBuffer *uniformBuffer, uint32_t set, uint32_t binding)
     {
-        uint32_t slot = ResourceSet::GetLinearDescriptorSlot(set, binding);
-        uint32_t newBinding = m_UniformBufferBindings.at(slot);
+        /* uint32_t slot = ResourceSet::GetUniformBufferSlot(set, binding);
+        uint32_t newBinding = m_UniformBufferBindings.at(slot); */
+
+        const uint32_t index = GetLinearDescriptorSlot(set, binding);
+        const uint32_t newBinding = m_UniformBufferBindings.at(index);
 
         auto d3d12Device = m_Device->GetDevice();
         UniformBufferD3D12 *d3d12UniformBuffer = (UniformBufferD3D12 *)uniformBuffer;
@@ -253,6 +157,16 @@ namespace Nexus::Graphics
         return m_TextureConstantBufferDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
     }
 
+    D3D12_GPU_DESCRIPTOR_HANDLE ResourceSetD3D12::GetTextureGPUStartHandle()
+    {
+        return m_TextureGPUDescriptors[0];
+    }
+
+    D3D12_GPU_DESCRIPTOR_HANDLE ResourceSetD3D12::GetConstantBufferGPUStartHandle()
+    {
+        return m_ConstantBufferGPUDescriptors[0];
+    }
+
     ID3D12DescriptorHeap *ResourceSetD3D12::GetSamplerDescriptorHeap()
     {
         return m_SamplerDescriptorHeap.Get();
@@ -261,21 +175,6 @@ namespace Nexus::Graphics
     ID3D12DescriptorHeap *ResourceSetD3D12::GetTextureConstantBufferDescriptorHeap()
     {
         return m_TextureConstantBufferDescriptorHeap.Get();
-    }
-
-    const D3D12_GPU_DESCRIPTOR_HANDLE ResourceSetD3D12::GetConstantBufferDescriptor(uint32_t slot)
-    {
-        return m_ConstantBufferGPUDescriptors.at(slot);
-    }
-
-    const D3D12_GPU_DESCRIPTOR_HANDLE ResourceSetD3D12::GetTextureDescriptor(uint32_t slot)
-    {
-        return m_TextureGPUDescriptors.at(slot);
-    }
-
-    const D3D12_GPU_DESCRIPTOR_HANDLE ResourceSetD3D12::GetSamplerDescriptor(uint32_t slot)
-    {
-        return m_SamplerGPUDescriptors.at(slot);
     }
 
     bool ResourceSetD3D12::HasConstantBufferTextureHeap() const

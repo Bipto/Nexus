@@ -93,14 +93,9 @@ namespace Demos
             pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
             pipelineDescription.Shader = m_Shader;
 
-            /* Nexus::Graphics::TextureResourceBinding textureBinding;
-            textureBinding.Slot = 0;
-            textureBinding.Name = "texSampler";
-            pipelineDescription.ResourceSetSpecification.TextureBindings = {textureBinding}; */
-
-            pipelineDescription.ResourceSetSpecification.Resources =
+            pipelineDescription.ResourceSetSpecification.Textures =
                 {
-                    {"texSampler", 0, 0, Nexus::Graphics::ResourceType::CombinedImageSampler}};
+                    {"texSampler", 0, 0}};
 
             pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
 

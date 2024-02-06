@@ -3,6 +3,7 @@
 #if defined(NX_PLATFORM_D3D12)
 
 #include "ShaderD3D12.hpp"
+#include "FramebufferD3D12.hpp"
 
 namespace Nexus::Graphics
 {
@@ -375,6 +376,15 @@ namespace Nexus::Graphics
     {
         auto shaderD3D12 = (ShaderD3D12 *)m_Description.Shader;
 
+        uint32_t sampleCount = 1;
+
+        // multisampling is only supported on framebuffers
+        if (m_Description.Target.GetType() == RenderTargetType::Framebuffer)
+        {
+            auto framebuffer = (FramebufferD3D12 *)m_Description.Target.GetData<Framebuffer *>();
+            sampleCount = GetSampleCount(framebuffer->GetFramebufferSpecification().Samples);
+        }
+
         D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineDesc{};
         pipelineDesc.pRootSignature = m_RootSignature.Get();
         pipelineDesc.InputLayout.NumElements = m_InputLayout.size();
@@ -399,7 +409,7 @@ namespace Nexus::Graphics
         pipelineDesc.BlendState = CreateBlendStateDesc();
         pipelineDesc.DepthStencilState = CreateDepthStencilDesc();
         pipelineDesc.SampleMask = 0xFFFFFFFF;
-        pipelineDesc.SampleDesc.Count = 1;
+        pipelineDesc.SampleDesc.Count = sampleCount;
         pipelineDesc.SampleDesc.Quality = 0;
         pipelineDesc.NodeMask = 0;
         pipelineDesc.CachedPSO.CachedBlobSizeInBytes = 0;

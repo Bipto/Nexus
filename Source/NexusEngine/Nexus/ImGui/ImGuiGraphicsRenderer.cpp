@@ -85,21 +85,6 @@ namespace Nexus::ImGuiUtils
         uniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
         m_UniformBuffer = m_GraphicsDevice->CreateUniformBuffer(uniformBufferDesc, nullptr);
 
-        /* Nexus::Graphics::TextureResourceBinding textureBinding;
-        textureBinding.Slot = 0;
-        textureBinding.Set = 1;
-        textureBinding.Name = "Texture";
-
-        Nexus::Graphics::UniformResourceBinding uniformBinding;
-        uniformBinding.Binding = 0;
-        uniformBinding.Set = 0;
-        uniformBinding.Name = "MVP";
-
-        Nexus::Graphics::ResourceSetSpecification resources;
-        resources.TextureBindings = {textureBinding};
-        resources.UniformResourceBindings = {uniformBinding};
-        pipelineDesc.ResourceSetSpecification = resources; */
-
         Nexus::Graphics::ResourceBinding textureBinding;
         textureBinding.Name = "Texture";
         textureBinding.Set = 1;

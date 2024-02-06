@@ -11,14 +11,14 @@ namespace Nexus::Graphics
 
     void Nexus::Graphics::ResourceSetOpenGL::WriteTexture(Texture *texture, uint32_t set, uint32_t binding)
     {
-        uint32_t slot = ResourceSet::GetLinearDescriptorSlot(set, binding);
-        m_BoundTextures[slot] = (TextureOpenGL *)texture;
+        const uint32_t index = GetLinearDescriptorSlot(set, binding);
+        m_BoundTextures[index] = (TextureOpenGL *)texture;
     }
 
     void Nexus::Graphics::ResourceSetOpenGL::WriteUniformBuffer(UniformBuffer *uniformBuffer, uint32_t set, uint32_t binding)
     {
-        uint32_t slot = ResourceSet::GetLinearDescriptorSlot(set, binding);
-        m_BoundUniformBuffers[slot] = (UniformBufferOpenGL *)uniformBuffer;
+        const uint32_t index = GetLinearDescriptorSlot(set, binding);
+        m_BoundUniformBuffers[index] = (UniformBufferOpenGL *)uniformBuffer;
     }
 
     const std::map<uint32_t, TextureOpenGL *> &ResourceSetOpenGL::GetBoundTextures() const

@@ -107,23 +107,13 @@ namespace Demos
             transformUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
             m_TransformUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(transformUniformBufferDesc, nullptr);
 
-            /* Nexus::Graphics::UniformResourceBinding transformUniformBinding;
-            transformUniformBinding.Binding = 0;
-            transformUniformBinding.Name = "Transform";
-
-            Nexus::Graphics::TextureResourceBinding textureBinding;
-            textureBinding.Slot = 0;
-            textureBinding.Name = "texSampler";
-
-            Nexus::Graphics::ResourceSetSpecification resources;
-            resources.UniformResourceBindings = {transformUniformBinding};
-            resources.TextureBindings = {textureBinding};
-            pipelineDescription.ResourceSetSpecification = resources; */
-
-            pipelineDescription.ResourceSetSpecification.Resources =
+            pipelineDescription.ResourceSetSpecification.UniformBuffers =
                 {
-                    {"Transform", 0, 0, Nexus::Graphics::ResourceType::UniformBuffer},
-                    {"texSampler", 1, 0, Nexus::Graphics::ResourceType::CombinedImageSampler}};
+                    {"Transform", 0, 0}};
+
+            pipelineDescription.ResourceSetSpecification.Textures =
+                {
+                    {"texSampler", 1, 0}};
 
             pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
 

@@ -181,13 +181,16 @@ namespace Demos
             resources.TextureBindings = {diffuseMapBinding, normalMapBinding, specularMapBinding};
             pipelineDescription.ResourceSetSpecification = resources; */
 
-            pipelineDescription.ResourceSetSpecification.Resources =
+            pipelineDescription.ResourceSetSpecification.UniformBuffers =
                 {
-                    {"Camera", 0, 0, Nexus::Graphics::ResourceType::UniformBuffer},
-                    {"Transform", 0, 1, Nexus::Graphics::ResourceType::UniformBuffer},
-                    {"diffuseMapSampler", 1, 0, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                    {"normalMapSampler", 1, 1, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                    {"specularMapSampler", 1, 2, Nexus::Graphics::ResourceType::CombinedImageSampler}};
+                    {"Camera", 0, 0},
+                    {"Transform", 0, 1}};
+
+            pipelineDescription.ResourceSetSpecification.Textures =
+                {
+                    {"diffuseMapSampler", 1, 0},
+                    {"normalMapSampler", 1, 1},
+                    {"specularMapSampler", 1, 2}};
 
             pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
 

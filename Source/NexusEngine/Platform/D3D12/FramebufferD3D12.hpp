@@ -26,8 +26,15 @@ namespace Nexus::Graphics
 
         DXGI_FORMAT GetColorAttachmentFormat(uint32_t index);
 
+        const std::vector<D3D12_RESOURCE_STATES> &GetCurrentColorTextureStates() const;
+        const D3D12_RESOURCE_STATES GetCurrentDepthState() const;
+
+        void SetColorTextureState(D3D12_RESOURCE_STATES state, uint32_t index);
+        void SetDepthState(D3D12_RESOURCE_STATES state);
+
     private:
         void Recreate();
+        void Flush();
 
     private:
         GraphicsDeviceD3D12 *m_Device = nullptr;
@@ -40,6 +47,9 @@ namespace Nexus::Graphics
 
         std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_ColorAttachmentCPUHandles;
         D3D12_CPU_DESCRIPTOR_HANDLE m_DepthAttachmentCPUHandle;
+
+        std::vector<D3D12_RESOURCE_STATES> m_CurrentColorTextureStates;
+        D3D12_RESOURCE_STATES m_CurrentDepthState;
     };
 }
 

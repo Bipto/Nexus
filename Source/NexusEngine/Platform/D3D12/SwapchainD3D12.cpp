@@ -14,7 +14,6 @@ namespace Nexus::Graphics
 
         // setup colour attachments for swapchain
         CreateColourAttachments();
-
         CreateDepthAttachment();
     }
 
@@ -75,6 +74,36 @@ namespace Nexus::Graphics
     D3D12_CPU_DESCRIPTOR_HANDLE SwapchainD3D12::RetrieveDepthBufferDescriptorHandle()
     {
         return m_DepthTextureDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+    }
+
+    uint32_t SwapchainD3D12::GetColorAttachmentCount()
+    {
+        return 1;
+    }
+
+    const std::vector<D3D12_RESOURCE_STATES> &SwapchainD3D12::GetCurrentTextureStates() const
+    {
+        return m_CurrentTextureStates;
+    }
+
+    const D3D12_RESOURCE_STATES SwapchainD3D12::GetCurrentDepthState() const
+    {
+        return m_CurrentDepthState;
+    }
+
+    void SwapchainD3D12::SetTextureState(D3D12_RESOURCE_STATES state, uint32_t index)
+    {
+        if (index > m_CurrentTextureStates.size())
+        {
+            return;
+        }
+
+        m_CurrentTextureStates[index] = state;
+    }
+
+    void SwapchainD3D12::SetDepthState(D3D12_RESOURCE_STATES state)
+    {
+        m_CurrentDepthState = state;
     }
 
     void SwapchainD3D12::Flush()
@@ -149,6 +178,7 @@ namespace Nexus::Graphics
         // resize the buffer vector to a suitable size
         m_Buffers.resize(BUFFER_COUNT);
         m_RenderTargetViewDescriptorHandles.resize(BUFFER_COUNT);
+        m_CurrentTextureStates.clear();
 
         // retrieve the window's native handle
         SDL_SysWMinfo wmInfo;
@@ -210,6 +240,7 @@ namespace Nexus::Graphics
         {
             m_RenderTargetViewDescriptorHandles[i] = firstHandle;
             m_RenderTargetViewDescriptorHandles[i].ptr += handleIncrement * i;
+            m_CurrentTextureStates.push_back(D3D12_RESOURCE_STATE_COMMON);
         }
 
         // get the buffers from the swapchain
@@ -220,44 +251,7 @@ namespace Nexus::Graphics
     {
         auto d3d12Device = m_Device->GetDevice();
         auto size = m_Window->GetWindowSize();
-
-        /* D3D12_HEAP_PROPERTIES heapProperties;
-        heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
-        heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-        heapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-        heapProperties.CreationNodeMask = 0;
-        heapProperties.VisibleNodeMask = 0;
-
-        D3D12_DESCRIPTOR_HEAP_DESC depthDescriptorHeapDesc;
-        depthDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-        depthDescriptorHeapDesc.NumDescriptors = 1;
-        depthDescriptorHeapDesc.NodeMask = 0;
-        depthDescriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-        d3d12Device->CreateDescriptorHeap(&depthDescriptorHeapDesc, IID_PPV_ARGS(&m_DepthTextureDescriptorHeap));
-
-        m_DepthBufferDescriptorHandle = m_DepthTextureDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-
-        D3D12_RESOURCE_DESC resourceDesc;
-        resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-        resourceDesc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
-        resourceDesc.Width = size.X;
-        resourceDesc.Height = size.Y;
-        resourceDesc.DepthOrArraySize = 1;
-        resourceDesc.MipLevels = 1;
-        resourceDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-        resourceDesc.SampleDesc.Count = 1;
-        resourceDesc.SampleDesc.Quality = 0;
-        resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-        resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-
-        d3d12Device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&m_DepthBuffer));
-
-        D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
-        dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-        dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-        dsvDesc.Texture2D.MipSlice = 0;
-
-        d3d12Device->CreateDepthStencilView(m_DepthBuffer.Get(), &dsvDesc, m_DepthBufferDescriptorHandle); */
+        m_CurrentDepthState = D3D12_RESOURCE_STATE_DEPTH_READ;
 
         D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
         dsvHeapDesc.NumDescriptors = 1;
@@ -299,7 +293,7 @@ namespace Nexus::Graphics
             &heapProperties,
             D3D12_HEAP_FLAG_NONE,
             &resourceDesc,
-            D3D12_RESOURCE_STATE_DEPTH_WRITE,
+            m_CurrentDepthState,
             &depthOptimizedClearValue,
             IID_PPV_ARGS(&m_DepthBuffer));
 
