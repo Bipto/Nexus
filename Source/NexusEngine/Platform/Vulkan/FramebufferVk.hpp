@@ -20,10 +20,17 @@ namespace Nexus::Graphics
         virtual void *GetDepthAttachment() override;
         VkFramebuffer GetVkFramebuffer();
 
+        VkImage GetColorTextureImage(uint32_t index);
         VkImageView GetColorTextureImageView(uint32_t index);
         VkSampler GetColorTextureSampler(uint32_t index);
+        VkImage GetDepthTextureImage();
 
         VkRenderPass GetRenderPass();
+
+        const std::vector<VkImageLayout> &GetColorImageLayouts();
+        VkImageLayout GetDepthImageLayout();
+        void SetColorImageLayout(VkImageLayout layout, uint32_t index);
+        void SetDepthImageLayout(VkImageLayout layout);
 
     private:
         virtual void Recreate() override;
@@ -38,16 +45,15 @@ namespace Nexus::Graphics
         std::vector<VkDeviceMemory> m_ImageMemory;
         std::vector<VkSampler> m_Samplers;
         std::vector<VkImageView> m_ImageViews;
+        std::vector<VkImageLayout> m_ImageLayouts;
 
         VkImage m_DepthImage;
         VkDeviceMemory m_DepthMemory;
         VkImageView m_DepthImageView;
+        VkImageLayout m_DepthLayout;
 
         VkFramebuffer m_Framebuffer;
-
         GraphicsDeviceVk *m_Device;
-        RenderPassVk *m_RenderPass;
-
         VkRenderPass m_FramebufferRenderPass;
     };
 }

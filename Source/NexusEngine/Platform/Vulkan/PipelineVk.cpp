@@ -266,11 +266,20 @@ namespace Nexus::Graphics
 
     VkPipelineMultisampleStateCreateInfo PipelineVk::CreateMultisampleStateCreateInfo()
     {
+        VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT;
+
+        // multisampling is only supported on framebuffers
+        if (m_Description.Target.GetType() == RenderTargetType::Framebuffer)
+        {
+            auto framebufferVk = (FramebufferVk *)m_Description.Target.GetData<Framebuffer *>();
+            samples = GetVkSampleCount(framebufferVk->GetFramebufferSpecification().Samples);
+        }
+
         VkPipelineMultisampleStateCreateInfo info = {};
         info.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
         info.pNext = nullptr;
         info.sampleShadingEnable = VK_FALSE;
-        info.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+        info.rasterizationSamples = samples;
         info.minSampleShading = 1.0f;
         info.pSampleMask = nullptr;
         info.alphaToCoverageEnable = VK_FALSE;

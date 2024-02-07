@@ -15,7 +15,7 @@ namespace Nexus::Graphics
     class SwapchainVk : public Swapchain
     {
     public:
-        SwapchainVk(Window *window, GraphicsDevice *graphicsDevice, const SwapchainSpecification& swapchainSpec);
+        SwapchainVk(Window *window, GraphicsDevice *graphicsDevice, const SwapchainSpecification &swapchainSpec);
         virtual ~SwapchainVk();
 
         virtual void SwapBuffers() override;
@@ -34,8 +34,16 @@ namespace Nexus::Graphics
         VkRenderPass GetRenderPass();
         uint32_t GetImageCount();
 
+        VkImage GetColourImage();
+
+        VkImageLayout GetColorImageLayout();
+        VkImageLayout GetDepthImageLayout();
+        void SetColorImageLayout(VkImageLayout layout);
+        void SetDepthImageLayout(VkImageLayout layout);
+
     private:
-        void CreateSurface();
+        void
+        CreateSurface();
         void CreateSwapchain();
         void CreateSwapchainImageViews();
         void CreateDepthStencil();
@@ -67,11 +75,13 @@ namespace Nexus::Graphics
         std::vector<VkImage> m_SwapchainImages;
         uint32_t m_SwapchainImageCount;
         std::vector<VkImageView> m_SwapchainImageViews;
+        std::vector<VkImageLayout> m_ImageLayouts;
 
         VkFormat m_DepthFormat;
         VkImage m_DepthImage;
         VkDeviceMemory m_DepthImageMemory;
         VkImageView m_DepthImageView;
+        VkImageLayout m_DepthLayout;
 
         std::vector<VkFramebuffer> m_SwapchainFramebuffers;
 

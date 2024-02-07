@@ -4,23 +4,6 @@
 
 namespace Nexus::Graphics
 {
-    VkSampleCountFlagBits GetVkSampleCount(MultiSamples samples)
-    {
-        switch (samples)
-        {
-        case MultiSamples::SampleCount1:
-            return VK_SAMPLE_COUNT_1_BIT;
-        case MultiSamples::SampleCount2:
-            return VK_SAMPLE_COUNT_2_BIT;
-        case MultiSamples::SampleCount4:
-            return VK_SAMPLE_COUNT_4_BIT;
-        case MultiSamples::SampleCount8:
-            return VK_SAMPLE_COUNT_8_BIT;
-        default:
-            throw std::runtime_error("Failed to find a valid sample count");
-        }
-    }
-
     FramebufferVk::FramebufferVk(const FramebufferSpecification &spec, GraphicsDeviceVk *device)
         : Framebuffer(spec), m_Device(device)
     {
@@ -75,6 +58,11 @@ namespace Nexus::Graphics
         return m_Framebuffer;
     }
 
+    VkImage FramebufferVk::GetColorTextureImage(uint32_t index)
+    {
+        return m_Images[index];
+    }
+
     VkImageView FramebufferVk::GetColorTextureImageView(uint32_t index)
     {
         return m_ImageViews[index];
@@ -85,9 +73,39 @@ namespace Nexus::Graphics
         return m_Samplers[index];
     }
 
+    VkImage FramebufferVk::GetDepthTextureImage()
+    {
+        return m_DepthImage;
+    }
+
     VkRenderPass FramebufferVk::GetRenderPass()
     {
         return m_FramebufferRenderPass;
+    }
+
+    const std::vector<VkImageLayout> &FramebufferVk::GetColorImageLayouts()
+    {
+        return m_ImageLayouts;
+    }
+
+    VkImageLayout FramebufferVk::GetDepthImageLayout()
+    {
+        return m_DepthLayout;
+    }
+
+    void FramebufferVk::SetColorImageLayout(VkImageLayout layout, uint32_t index)
+    {
+        if (index > m_Images.size())
+        {
+            return;
+        }
+
+        m_ImageLayouts[index] = layout;
+    }
+
+    void FramebufferVk::SetDepthImageLayout(VkImageLayout layout)
+    {
+        m_DepthLayout = layout;
     }
 
     void FramebufferVk::Recreate()
@@ -104,6 +122,7 @@ namespace Nexus::Graphics
         m_ImageMemory.resize(m_Specification.ColorAttachmentSpecification.Attachments.size());
         m_Samplers.resize(m_Specification.ColorAttachmentSpecification.Attachments.size());
         m_ImageViews.resize(m_Specification.ColorAttachmentSpecification.Attachments.size());
+        m_ImageLayouts.clear();
 
         VkSampleCountFlagBits sampleCount = GetVkSampleCount(m_Specification.Samples);
 
@@ -122,7 +141,8 @@ namespace Nexus::Graphics
             imageInfo.arrayLayers = 1;
             imageInfo.samples = sampleCount;
             imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-            imageInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+            imageInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+            imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
             VkMemoryAllocateInfo memAlloc{};
             memAlloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -179,6 +199,8 @@ namespace Nexus::Graphics
             {
                 throw std::runtime_error("Failed to create texture image view");
             }
+
+            m_ImageLayouts.push_back(VK_IMAGE_LAYOUT_UNDEFINED);
         }
     }
 
@@ -204,7 +226,7 @@ namespace Nexus::Graphics
             imageInfo.format = depthFormat;
             imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
             imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-            imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+            imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
             imageInfo.samples = sampleCount;
             imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
@@ -247,6 +269,8 @@ namespace Nexus::Graphics
                 throw std::runtime_error("Failed to create image view");
             }
         }
+
+        m_DepthLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     }
 
     void FramebufferVk::CreateFramebuffer()

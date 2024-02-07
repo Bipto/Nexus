@@ -37,6 +37,9 @@ namespace Nexus::Graphics
         const VkCommandBuffer &GetCurrentCommandBuffer();
 
     private:
+        void TransitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlagBits aspectMask);
+
+    private:
         VkCommandPool m_CommandPools[FRAMES_IN_FLIGHT];
         VkCommandBuffer m_CommandBuffers[FRAMES_IN_FLIGHT];
         VkCommandBuffer m_CurrentCommandBuffer;
@@ -47,6 +50,7 @@ namespace Nexus::Graphics
         VkExtent2D m_RenderSize = {0, 0};
 
         uint32_t m_DepthAttachmentIndex = 0;
+        RenderTarget m_CurrentRenderTarget;
     };
 }
 

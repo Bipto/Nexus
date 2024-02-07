@@ -145,6 +145,31 @@ namespace Nexus::Graphics
         return m_SwapchainImageCount;
     }
 
+    VkImage SwapchainVk::GetColourImage()
+    {
+        return m_SwapchainImages[m_CurrentFrameIndex];
+    }
+
+    VkImageLayout SwapchainVk::GetColorImageLayout()
+    {
+        return m_ImageLayouts[m_CurrentFrameIndex];
+    }
+
+    VkImageLayout SwapchainVk::GetDepthImageLayout()
+    {
+        return m_DepthLayout;
+    }
+
+    void SwapchainVk::SetColorImageLayout(VkImageLayout layout)
+    {
+        m_ImageLayouts[m_CurrentFrameIndex] = layout;
+    }
+
+    void SwapchainVk::SetDepthImageLayout(VkImageLayout layout)
+    {
+        m_DepthLayout = layout;
+    }
+
     void SwapchainVk::CreateSurface()
     {
         if (!SDL_Vulkan_CreateSurface(m_Window->GetSDLWindowHandle(), m_GraphicsDevice->m_Instance, &m_Surface))
@@ -163,12 +188,21 @@ namespace Nexus::Graphics
         surfaceFormats.resize(surfaceFormatCount);
         vkGetPhysicalDeviceSurfaceFormatsKHR(m_GraphicsDevice->m_PhysicalDevice, m_Surface, &surfaceFormatCount, surfaceFormats.data());
 
-        if (surfaceFormats[0].format != VK_FORMAT_B8G8R8A8_UNORM)
+        bool found = false;
+        for (const auto &format : surfaceFormats)
         {
-            throw std::runtime_error("surfaceFormats[0].format != VK_FORMAT_B8G8R8A8_UNORM");
+            if (format.format == VK_FORMAT_R8G8B8A8_UNORM)
+            {
+                m_SurfaceFormat = format;
+                found = true;
+            }
         }
 
-        m_SurfaceFormat = surfaceFormats[0];
+        if (!found)
+        {
+            throw std::runtime_error("Could not find surface format: VK_FORMAT_R8G8B8A8_UNORM");
+        }
+
         int width = 0, height = 0;
         SDL_Vulkan_GetDrawableSize(m_Window->GetSDLWindowHandle(), &width, &height);
         width = std::clamp(width, (int)m_SurfaceCapabilities.minImageExtent.width, (int)m_SurfaceCapabilities.maxImageExtent.width);
@@ -191,7 +225,7 @@ namespace Nexus::Graphics
         createInfo.imageColorSpace = m_SurfaceFormat.colorSpace;
         createInfo.imageExtent = m_SwapchainSize;
         createInfo.imageArrayLayers = 1;
-        createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
         uint32_t queueFamilyIndices[] = {m_GraphicsDevice->m_GraphicsQueueFamilyIndex, m_GraphicsDevice->m_PresentQueueFamilyIndex};
         if (m_SurfaceCapabilities.maxImageCount > 0 && imageCount > m_SurfaceCapabilities.maxImageCount)
@@ -217,10 +251,12 @@ namespace Nexus::Graphics
     void SwapchainVk::CreateSwapchainImageViews()
     {
         m_SwapchainImageViews.resize(m_SwapchainImages.size());
+        m_ImageLayouts.resize(m_SwapchainImages.size());
 
         for (uint32_t i = 0; i < m_SwapchainImages.size(); i++)
         {
             m_SwapchainImageViews[i] = CreateImageView(m_SwapchainImages[i], m_SurfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT);
+            m_ImageLayouts[i] = VK_IMAGE_LAYOUT_UNDEFINED;
         }
     }
 
@@ -229,6 +265,7 @@ namespace Nexus::Graphics
         VkBool32 validDepthFormat = GetSupportedDepthFormat(m_GraphicsDevice->m_PhysicalDevice, &m_DepthFormat);
         CreateImage(m_SwapchainSize.width, m_SwapchainSize.height, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_DepthImage, m_DepthImageMemory);
         m_DepthImageView = CreateImageView(m_DepthImage, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_IMAGE_ASPECT_DEPTH_BIT);
+        m_DepthLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
     }
 
     void SwapchainVk::CreateRenderPass()

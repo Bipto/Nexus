@@ -32,36 +32,6 @@ VkFormat GetVkDepthFormatFromNexusFormat(Nexus::Graphics::DepthFormat format)
 
 VkFormat GetShaderDataType(Nexus::Graphics::ShaderDataType type)
 {
-    /* switch (type)
-    {
-    case Nexus::Graphics::ShaderDataType::Float:
-        return VK_FORMAT_R32_SFLOAT;
-        break;
-    case Nexus::Graphics::ShaderDataType::Float2:
-        return VK_FORMAT_R32G32_SFLOAT;
-        break;
-    case Nexus::Graphics::ShaderDataType::Float3:
-        return VK_FORMAT_R32G32B32_SFLOAT;
-        break;
-    case Nexus::Graphics::ShaderDataType::Float4:
-        return VK_FORMAT_R32G32B32A32_SFLOAT;
-    case Nexus::Graphics::ShaderDataType::Int:
-        return VK_FORMAT_R32_SINT;
-        break;
-    case Nexus::Graphics::ShaderDataType::Int2:
-        return VK_FORMAT_R32G32_SINT;
-        break;
-    case Nexus::Graphics::ShaderDataType::Int3:
-        return VK_FORMAT_R32G32B32_SINT;
-        break;
-    case Nexus::Graphics::ShaderDataType::Int4:
-        return VK_FORMAT_R32G32B32A32_SINT;
-        break;
-    default:
-        throw std::runtime_error("An invalid data type was entered");
-        break;
-    } */
-
     switch (type)
     {
     case Nexus::Graphics::ShaderDataType::Byte:
@@ -194,6 +164,23 @@ VkFormat GetShaderDataType(Nexus::Graphics::ShaderDataType type)
         break;
     default:
         throw std::runtime_error("Failed to find valid vertex buffer element type");
+    }
+}
+
+VkSampleCountFlagBits GetVkSampleCount(Nexus::Graphics::MultiSamples samples)
+{
+    switch (samples)
+    {
+    case Nexus::Graphics::MultiSamples::SampleCount1:
+        return VK_SAMPLE_COUNT_1_BIT;
+    case Nexus::Graphics::MultiSamples::SampleCount2:
+        return VK_SAMPLE_COUNT_2_BIT;
+    case Nexus::Graphics::MultiSamples::SampleCount4:
+        return VK_SAMPLE_COUNT_4_BIT;
+    case Nexus::Graphics::MultiSamples::SampleCount8:
+        return VK_SAMPLE_COUNT_8_BIT;
+    default:
+        throw std::runtime_error("Failed to find a valid sample count");
     }
 }
 

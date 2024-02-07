@@ -83,6 +83,8 @@ namespace Nexus::Graphics
                 throw std::runtime_error("Failed to begin command buffer");
             }
         }
+
+        m_CurrentRenderTarget = {};
     }
 
     void CommandListVk::End()
@@ -130,7 +132,6 @@ namespace Nexus::Graphics
 
     void CommandListVk::DrawIndexed(uint32_t count, uint32_t indexStart, uint32_t vertexStart)
     {
-        // vkCmdDrawIndexed(m_CurrentCommandBuffer, count, 1, 0, offset, 0);
         vkCmdDrawIndexed(m_CurrentCommandBuffer, count, 1, indexStart, vertexStart, 0);
     }
 
@@ -138,21 +139,6 @@ namespace Nexus::Graphics
     {
         auto pipelineVk = (PipelineVk *)m_CurrentlyBoundPipeline;
         auto resourceSetVk = (ResourceSetVk *)resources;
-
-        // auto uniformBufferDescriptorIndex = resourceSetVk->GetUniformBufferDescriptorIndex();
-        // auto samplerDescriptorIndex = resourceSetVk->GetTextureDescriptorIndex();
-
-        /* if (resourceSetVk->HasUniformBuffers())
-        {
-            auto uniformBufferDescriptor = resourceSetVk->GetUniformBufferrDescriptorSet();
-            vkCmdBindDescriptorSets(m_CurrentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineVk->GetPipelineLayout(), uniformBufferDescriptorIndex, 1, &uniformBufferDescriptor, 0, nullptr);
-        }
-
-        if (resourceSetVk->HasTextures())
-        {
-            auto samplerDescriptor = resourceSetVk->GetSamplerDescriptorSet();
-            vkCmdBindDescriptorSets(m_CurrentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineVk->GetPipelineLayout(), samplerDescriptorIndex, 1, &samplerDescriptor, 0, nullptr);
-        } */
 
         const auto &descriptorSets = resourceSetVk->GetDescriptorSets()[m_Device->GetCurrentFrameIndex()];
         for (const auto &set : descriptorSets)
@@ -178,6 +164,11 @@ namespace Nexus::Graphics
         clearRect.rect.offset = {0, 0};
         clearRect.rect.extent = {m_RenderSize};
 
+        if (clearRect.rect.extent.width == 0 || clearRect.rect.extent.height == 0)
+        {
+            return;
+        }
+
         vkCmdClearAttachments(m_CurrentCommandBuffer, 1, &clearAttachment, 1, &clearRect);
     }
 
@@ -195,6 +186,11 @@ namespace Nexus::Graphics
         clearRect.rect.offset = {0, 0};
         clearRect.rect.extent = {m_RenderSize};
 
+        if (clearRect.rect.extent.width == 0 || clearRect.rect.extent.height == 0)
+        {
+            return;
+        }
+
         vkCmdClearAttachments(m_CurrentCommandBuffer, 1, &clearAttachment, 1, &clearRect);
     }
 
@@ -204,6 +200,8 @@ namespace Nexus::Graphics
         {
             vkCmdEndRenderPass(m_CurrentCommandBuffer);
         }
+
+        m_CurrentRenderTarget = target;
 
         if (target.GetType() == RenderTargetType::Swapchain)
         {
@@ -227,12 +225,36 @@ namespace Nexus::Graphics
             vkCmdBeginRenderPass(m_CurrentCommandBuffer, &info, VK_SUBPASS_CONTENTS_INLINE);
 
             m_DepthAttachmentIndex = 1;
+
+            vulkanSwapchain->SetColorImageLayout(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+            vulkanSwapchain->SetDepthImageLayout(VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
         }
         else
         {
             auto framebuffer = target.GetData<Framebuffer *>();
             auto vulkanFramebuffer = (FramebufferVk *)framebuffer;
             auto renderPass = vulkanFramebuffer->GetRenderPass();
+
+            // on first frame, put the framebuffer images into the correct layout
+            {
+                for (int i = 0; i < vulkanFramebuffer->GetColorTextureCount(); i++)
+                {
+                    auto colorLayout = vulkanFramebuffer->GetColorImageLayouts()[i];
+                    if (colorLayout == VK_IMAGE_LAYOUT_UNDEFINED)
+                    {
+                        auto image = vulkanFramebuffer->GetColorTextureImage(i);
+                        TransitionImageLayout(image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
+                        vulkanFramebuffer->SetColorImageLayout(VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL, i);
+                    }
+                }
+
+                if (vulkanFramebuffer->HasDepthTexture() && vulkanFramebuffer->GetDepthImageLayout() == VK_IMAGE_LAYOUT_UNDEFINED)
+                {
+                    auto image = vulkanFramebuffer->GetDepthTextureImage();
+                    TransitionImageLayout(image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT));
+                    vulkanFramebuffer->SetDepthImageLayout(VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
+                }
+            }
 
             m_RenderSize = {vulkanFramebuffer->GetFramebufferSpecification().Width, vulkanFramebuffer->GetFramebufferSpecification().Height};
 
@@ -249,6 +271,13 @@ namespace Nexus::Graphics
             vkCmdBeginRenderPass(m_CurrentCommandBuffer, &info, VK_SUBPASS_CONTENTS_INLINE);
 
             m_DepthAttachmentIndex = framebuffer->GetColorTextureCount() + 1;
+
+            for (int i = 0; i < vulkanFramebuffer->GetFramebufferSpecification().ColorAttachmentSpecification.Attachments.size(); i++)
+            {
+                vulkanFramebuffer->SetColorImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, i);
+            }
+
+            vulkanFramebuffer->SetDepthImageLayout(VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
         }
 
         m_RenderPassStarted = true;
@@ -282,11 +311,99 @@ namespace Nexus::Graphics
 
     void CommandListVk::ResolveFramebuffer(Framebuffer *source, uint32_t sourceIndex, Swapchain *target, uint32_t targetIndex)
     {
+        if (sourceIndex > source->GetColorTextureCount())
+        {
+            return;
+        }
+
+        if (m_RenderPassStarted)
+        {
+            vkCmdEndRenderPass(m_CurrentCommandBuffer);
+            m_RenderPassStarted = false;
+        }
+
+        auto framebufferVk = (FramebufferVk *)source;
+        auto swapchainVk = (SwapchainVk *)target;
+
+        VkImage framebufferImage = framebufferVk->GetColorTextureImage(sourceIndex);
+        VkImage swapchainImage = swapchainVk->GetColourImage();
+
+        VkImageSubresourceLayers src;
+        src.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        src.baseArrayLayer = 0;
+        src.layerCount = 1;
+        src.mipLevel = 0;
+
+        VkImageSubresourceLayers dst;
+        dst.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        dst.baseArrayLayer = 0;
+        dst.layerCount = 1;
+        dst.mipLevel = 0;
+
+        VkImageResolve resolve;
+        resolve.dstOffset = {0, 0, 0};
+        resolve.dstSubresource = dst;
+        resolve.extent = {framebufferVk->GetFramebufferSpecification().Width, framebufferVk->GetFramebufferSpecification().Height, 1};
+        resolve.srcOffset = {0, 0, 0};
+        resolve.srcSubresource = src;
+
+        auto framebufferLayout = framebufferVk->GetColorImageLayouts()[sourceIndex];
+        auto swapchainLayout = swapchainVk->GetColorImageLayout();
+
+        TransitionImageLayout(framebufferImage, framebufferLayout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
+        TransitionImageLayout(swapchainImage, swapchainLayout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
+
+        vkCmdResolveImage(
+            m_CurrentCommandBuffer,
+            framebufferImage,
+            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            swapchainImage,
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            1,
+            &resolve);
+
+        TransitionImageLayout(framebufferImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
+        TransitionImageLayout(swapchainImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_IMAGE_ASPECT_COLOR_BIT);
+
+        SetRenderTarget(m_CurrentRenderTarget);
     }
 
     const VkCommandBuffer &CommandListVk::GetCurrentCommandBuffer()
     {
         return m_CurrentCommandBuffer;
+    }
+
+    void CommandListVk::TransitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlagBits aspectMask)
+    {
+        VkImageMemoryBarrier barrier{};
+        barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        barrier.oldLayout = oldLayout;
+        barrier.newLayout = newLayout;
+
+        barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+        barrier.image = image;
+        barrier.subresourceRange.aspectMask = aspectMask;
+        barrier.subresourceRange.baseMipLevel = 0;
+        barrier.subresourceRange.levelCount = 1;
+        barrier.subresourceRange.baseArrayLayer = 0;
+        barrier.subresourceRange.layerCount = 1;
+
+        barrier.srcAccessMask = 0;
+        barrier.dstAccessMask = 0;
+
+        vkCmdPipelineBarrier(
+            m_CurrentCommandBuffer,
+            VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+            VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+            VK_DEPENDENCY_BY_REGION_BIT,
+            0,
+            nullptr,
+            0,
+            nullptr,
+            1,
+            &barrier);
     }
 }
 
