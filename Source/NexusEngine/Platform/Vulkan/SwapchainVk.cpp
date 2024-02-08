@@ -61,6 +61,11 @@ namespace Nexus::Graphics
 
     void SwapchainVk::SwapBuffers()
     {
+        if (!m_SwapchainValid)
+        {
+            return;
+        }
+
         VkPresentInfoKHR presentInfo = {};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         presentInfo.waitSemaphoreCount = 1;
@@ -113,16 +118,28 @@ namespace Nexus::Graphics
 
     void SwapchainVk::Prepare()
     {
+        if (!m_SwapchainValid)
+        {
+            return;
+        }
+
         AcquireNextImage();
     }
 
     void SwapchainVk::Initialise()
     {
-        CreateSwapchain();
-        CreateSwapchainImageViews();
-        CreateDepthStencil();
-        CreateRenderPass();
-        CreateFramebuffers();
+        if (CreateSwapchain())
+        {
+            CreateSwapchainImageViews();
+            CreateDepthStencil();
+            CreateRenderPass();
+            CreateFramebuffers();
+            m_SwapchainValid = true;
+        }
+        else
+        {
+            m_SwapchainValid = false;
+        }
     }
 
     void SwapchainVk::RecreateSwapchain()
@@ -150,6 +167,11 @@ namespace Nexus::Graphics
         return m_SwapchainImages[m_CurrentFrameIndex];
     }
 
+    VkImage SwapchainVk::GetDepthImage()
+    {
+        return m_DepthImage;
+    }
+
     VkImageLayout SwapchainVk::GetColorImageLayout()
     {
         return m_ImageLayouts[m_CurrentFrameIndex];
@@ -170,6 +192,11 @@ namespace Nexus::Graphics
         m_DepthLayout = layout;
     }
 
+    bool SwapchainVk::IsSwapchainValid() const
+    {
+        return m_SwapchainValid;
+    }
+
     void SwapchainVk::CreateSurface()
     {
         if (!SDL_Vulkan_CreateSurface(m_Window->GetSDLWindowHandle(), m_GraphicsDevice->m_Instance, &m_Surface))
@@ -178,7 +205,7 @@ namespace Nexus::Graphics
         }
     }
 
-    void SwapchainVk::CreateSwapchain()
+    bool SwapchainVk::CreateSwapchain()
     {
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_GraphicsDevice->m_PhysicalDevice, m_Surface, &m_SurfaceCapabilities);
 
@@ -207,6 +234,11 @@ namespace Nexus::Graphics
         SDL_Vulkan_GetDrawableSize(m_Window->GetSDLWindowHandle(), &width, &height);
         width = std::clamp(width, (int)m_SurfaceCapabilities.minImageExtent.width, (int)m_SurfaceCapabilities.maxImageExtent.width);
         height = std::clamp(height, (int)m_SurfaceCapabilities.minImageExtent.height, (int)m_SurfaceCapabilities.maxImageExtent.height);
+
+        if (width == 0 || height == 0)
+        {
+            return false;
+        }
 
         m_SwapchainSize.width = width;
         m_SwapchainSize.height = height;
@@ -246,6 +278,8 @@ namespace Nexus::Graphics
         vkGetSwapchainImagesKHR(m_GraphicsDevice->m_Device, m_Swapchain, &m_SwapchainImageCount, nullptr);
         m_SwapchainImages.resize(m_SwapchainImageCount);
         vkGetSwapchainImagesKHR(m_GraphicsDevice->m_Device, m_Swapchain, &m_SwapchainImageCount, m_SwapchainImages.data());
+
+        return true;
     }
 
     void SwapchainVk::CreateSwapchainImageViews()

@@ -279,6 +279,7 @@ namespace Nexus::Graphics
         info.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
         info.pNext = nullptr;
         info.sampleShadingEnable = VK_FALSE;
+        info.minSampleShading = 0.0f;
         info.rasterizationSamples = samples;
         info.minSampleShading = 1.0f;
         info.pSampleMask = nullptr;

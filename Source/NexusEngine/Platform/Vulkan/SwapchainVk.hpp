@@ -35,16 +35,18 @@ namespace Nexus::Graphics
         uint32_t GetImageCount();
 
         VkImage GetColourImage();
+        VkImage GetDepthImage();
 
         VkImageLayout GetColorImageLayout();
         VkImageLayout GetDepthImageLayout();
         void SetColorImageLayout(VkImageLayout layout);
         void SetDepthImageLayout(VkImageLayout layout);
 
+        bool IsSwapchainValid() const;
+
     private:
-        void
-        CreateSurface();
-        void CreateSwapchain();
+        void CreateSurface();
+        bool CreateSwapchain();
         void CreateSwapchainImageViews();
         void CreateDepthStencil();
         void CreateRenderPass();
@@ -94,6 +96,7 @@ namespace Nexus::Graphics
         // VkSemaphore m_PresentSemaphores[FRAMES_IN_FLIGHT];
         // VkSemaphore m_RenderSemaphores[FRAMES_IN_FLIGHT];
         VkImage m_CurrentImage = nullptr;
+        bool m_SwapchainValid = false;
 
         friend class GraphicsDeviceVk;
         friend class RenderPassVk;

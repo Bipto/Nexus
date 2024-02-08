@@ -127,11 +127,21 @@ namespace Nexus::Graphics
 
     void CommandListVk::DrawElements(uint32_t start, uint32_t count)
     {
+        if (!m_RenderPassStarted)
+        {
+            return;
+        }
+
         vkCmdDraw(m_CurrentCommandBuffer, count, 1, start, 0);
     }
 
     void CommandListVk::DrawIndexed(uint32_t count, uint32_t indexStart, uint32_t vertexStart)
     {
+        if (!m_RenderPassStarted)
+        {
+            return;
+        }
+
         vkCmdDrawIndexed(m_CurrentCommandBuffer, count, 1, indexStart, vertexStart, 0);
     }
 
@@ -149,6 +159,11 @@ namespace Nexus::Graphics
 
     void CommandListVk::ClearColorTarget(uint32_t index, const ClearColorValue &color)
     {
+        if (!m_RenderPassStarted)
+        {
+            return;
+        }
+
         VkClearAttachment clearAttachment{};
         clearAttachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         clearAttachment.clearValue.color = {
@@ -174,6 +189,11 @@ namespace Nexus::Graphics
 
     void CommandListVk::ClearDepthTarget(const ClearDepthStencilValue &value)
     {
+        if (!m_RenderPassStarted)
+        {
+            return;
+        }
+
         VkClearAttachment clearAttachment{};
         clearAttachment.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
         clearAttachment.clearValue.depthStencil.depth = value.Depth;
@@ -210,6 +230,12 @@ namespace Nexus::Graphics
             auto renderPass = vulkanSwapchain->GetRenderPass();
             auto framebuffer = vulkanSwapchain->GetCurrentFramebuffer();
 
+            if (!vulkanSwapchain->IsSwapchainValid())
+            {
+                m_RenderPassStarted = false;
+                return;
+            }
+
             m_RenderSize = vulkanSwapchain->m_SwapchainSize;
 
             VkRenderPassBeginInfo info;
@@ -222,12 +248,27 @@ namespace Nexus::Graphics
             info.clearValueCount = 0;
             info.pClearValues = nullptr;
 
+            // transition image layouts if required
+            if (vulkanSwapchain->GetColorImageLayout() == VK_IMAGE_LAYOUT_UNDEFINED)
+            {
+                auto swapchainColourImage = vulkanSwapchain->GetColourImage();
+                TransitionImageLayout(swapchainColourImage, vulkanSwapchain->GetColorImageLayout(), VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_IMAGE_ASPECT_COLOR_BIT);
+            }
+
+            if (vulkanSwapchain->GetDepthImageLayout() == VK_IMAGE_LAYOUT_UNDEFINED)
+            {
+                auto swapchainDepthImage = vulkanSwapchain->GetDepthImage();
+                TransitionImageLayout(swapchainDepthImage, vulkanSwapchain->GetDepthImageLayout(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT));
+            }
+
+            vulkanSwapchain->SetColorImageLayout(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+            vulkanSwapchain->SetDepthImageLayout(VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
+
             vkCmdBeginRenderPass(m_CurrentCommandBuffer, &info, VK_SUBPASS_CONTENTS_INLINE);
 
             m_DepthAttachmentIndex = 1;
 
-            vulkanSwapchain->SetColorImageLayout(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
-            vulkanSwapchain->SetDepthImageLayout(VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
+            m_RenderPassStarted = true;
         }
         else
         {
@@ -278,9 +319,9 @@ namespace Nexus::Graphics
             }
 
             vulkanFramebuffer->SetDepthImageLayout(VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
-        }
 
-        m_RenderPassStarted = true;
+            m_RenderPassStarted = true;
+        }
     }
 
     void CommandListVk::SetViewport(const Viewport &viewport)
@@ -309,8 +350,13 @@ namespace Nexus::Graphics
         vkCmdSetScissor(m_CurrentCommandBuffer, 0, 1, &rect);
     }
 
-    void CommandListVk::ResolveFramebuffer(Framebuffer *source, uint32_t sourceIndex, Swapchain *target, uint32_t targetIndex)
+    void CommandListVk::ResolveFramebuffer(Framebuffer *source, uint32_t sourceIndex, Swapchain *target)
     {
+        if (!m_RenderPassStarted)
+        {
+            return;
+        }
+
         if (sourceIndex > source->GetColorTextureCount())
         {
             return;
@@ -362,8 +408,8 @@ namespace Nexus::Graphics
             1,
             &resolve);
 
-        TransitionImageLayout(framebufferImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
-        TransitionImageLayout(swapchainImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_IMAGE_ASPECT_COLOR_BIT);
+        TransitionImageLayout(framebufferImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, framebufferLayout, VK_IMAGE_ASPECT_COLOR_BIT);
+        TransitionImageLayout(swapchainImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, swapchainLayout, VK_IMAGE_ASPECT_COLOR_BIT);
 
         SetRenderTarget(m_CurrentRenderTarget);
     }

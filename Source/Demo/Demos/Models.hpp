@@ -126,7 +126,7 @@ namespace Demos
                 m_CommandList->DrawIndexed(indexCount, 0, 0);
             }
 
-            m_CommandList->ResolveFramebuffer(m_Framebuffer, 0, m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain(), 0);
+            m_CommandList->ResolveFramebuffer(m_Framebuffer, 0, m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain());
             m_CommandList->End();
 
             m_GraphicsDevice->SubmitCommandList(m_CommandList);

@@ -34,7 +34,7 @@ namespace Nexus::Graphics
 
         virtual void SetViewport(const Viewport &viewport) override;
         virtual void SetScissor(const Scissor &scissor) override;
-        virtual void ResolveFramebuffer(Framebuffer *source, uint32_t sourceIndex, Swapchain *target, uint32_t targetIndex) override;
+        virtual void ResolveFramebuffer(Framebuffer *source, uint32_t sourceIndex, Swapchain *target) override;
 
         ID3D12GraphicsCommandList7 *GetCommandList();
 

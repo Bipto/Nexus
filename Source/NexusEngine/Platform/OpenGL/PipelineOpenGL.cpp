@@ -251,10 +251,6 @@ namespace Nexus::Graphics
         }
     }
 
-    void PipelineOpenGL::SetupMultisamping()
-    {
-        }
-
     void PipelineOpenGL::SetShader()
     {
         if (!m_Description.Shader)

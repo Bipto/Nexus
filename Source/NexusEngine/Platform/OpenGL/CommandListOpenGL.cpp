@@ -48,6 +48,7 @@ namespace Nexus::Graphics
 
     void CommandListOpenGL::End()
     {
+        VertexBufferOpenGL::UnbindVertexArray();
     }
 
     void CommandListOpenGL::SetVertexBuffer(VertexBuffer *vertexBuffer)
@@ -55,6 +56,7 @@ namespace Nexus::Graphics
         m_CommandData.emplace_back(vertexBuffer);
         auto renderCommand = [](CommandList *commandList)
         {
+            VertexBufferOpenGL::UnbindVertexArray();
             auto commandListGL = (CommandListOpenGL *)commandList;
             const auto &commandData = commandListGL->GetCurrentCommandData();
             const auto vertexBuffer = std::get<VertexBuffer *>(commandData);
@@ -85,6 +87,8 @@ namespace Nexus::Graphics
         m_CommandData.emplace_back(pipeline);
         auto renderCommand = [](CommandList *commandList)
         {
+            VertexBufferOpenGL::UnbindVertexArray();
+
             auto commandListGL = (CommandListOpenGL *)commandList;
             const auto &commandData = commandListGL->GetCurrentCommandData();
             const auto pipeline = std::get<Pipeline *>(commandData);
@@ -321,17 +325,18 @@ namespace Nexus::Graphics
         m_Commands.push_back(renderCommand);
     }
 
-    void CommandListOpenGL::ResolveFramebuffer(Framebuffer *source, uint32_t sourceIndex, Swapchain *target, uint32_t targetIndex)
+    void CommandListOpenGL::ResolveFramebuffer(Framebuffer *source, uint32_t sourceIndex, Swapchain *target)
     {
         ResolveSamplesToSwapchainCommand command;
         command.Source = source;
         command.SourceIndex = sourceIndex;
         command.Target = target;
-        command.TargetIndex = targetIndex;
         m_CommandData.emplace_back(command);
 
         auto renderCommand = [](CommandList *commandList)
         {
+            VertexBufferOpenGL::UnbindVertexArray();
+
             auto commandListGL = (CommandListOpenGL *)commandList;
             auto commandData = commandListGL->GetCurrentCommandData();
             auto resolveToSwapchainCommand = std::get<ResolveSamplesToSwapchainCommand>(commandData);
@@ -340,7 +345,7 @@ namespace Nexus::Graphics
             SwapchainOpenGL *swapchainGL = (SwapchainOpenGL *)resolveToSwapchainCommand.Target;
 
             framebufferGL->BindAsReadBuffer(resolveToSwapchainCommand.SourceIndex);
-            swapchainGL->BindAsDrawTarget(resolveToSwapchainCommand.TargetIndex);
+            swapchainGL->BindAsDrawTarget();
 
             uint32_t framebufferWidth = framebufferGL->GetFramebufferSpecification().Width;
             uint32_t framebufferHeight = framebufferGL->GetFramebufferSpecification().Height;

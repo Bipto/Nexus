@@ -18,6 +18,7 @@ namespace Nexus::Graphics
         unsigned int GetHandle();
 
         void SetupVertexArray(uint32_t offset = 0);
+        static void UnbindVertexArray();
 
         virtual void *Map() override;
         virtual void Unmap() override;

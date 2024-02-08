@@ -254,6 +254,7 @@ namespace Nexus::Graphics
         /// @brief A resource set specification describing how resources are allocated in the pipeline
         ResourceSetSpecification ResourceSetSpecification;
 
+        /// @brief The target to render to with the pipeline
         RenderTarget Target;
     };
 

@@ -74,12 +74,10 @@ namespace Nexus::Graphics
         glScissor(0, 0, width, height);
     }
 
-    void SwapchainOpenGL::BindAsDrawTarget(uint32_t texture)
+    void SwapchainOpenGL::BindAsDrawTarget()
     {
         SDL_GL_MakeCurrent(m_Window->GetSDLWindowHandle(), m_Context);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_Backbuffer);
-
-        glDrawBuffer(GL_COLOR_ATTACHMENT0 + texture);
     }
 
     // static member initialisation

@@ -293,6 +293,11 @@ namespace Nexus::Graphics
         }
     }
 
+    void VertexBufferOpenGL::UnbindVertexArray()
+    {
+        glBindVertexArray(0);
+    }
+
     void *VertexBufferOpenGL::Map()
     {
         glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);

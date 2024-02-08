@@ -194,7 +194,7 @@ namespace Nexus::Graphics
         m_CommandList->RSSetScissorRects(1, &rect);
     }
 
-    void CommandListD3D12::ResolveFramebuffer(Framebuffer *source, uint32_t sourceIndex, Swapchain *target, uint32_t targetIndex)
+    void CommandListD3D12::ResolveFramebuffer(Framebuffer *source, uint32_t sourceIndex, Swapchain *target)
     {
         auto framebufferD3D12 = (FramebufferD3D12 *)source;
         auto swapchainD3D12 = (SwapchainD3D12 *)target;
