@@ -94,7 +94,7 @@ namespace Nexus::Graphics
 
     void TextureVk::SetData(const void *data, uint32_t size)
     {
-        VkDeviceSize imageSize = m_Width * m_Height * m_NumOfChannels;
+        VkDeviceSize imageSize = m_Specification.Width * m_Specification.Height * m_Specification.NumberOfChannels;
 
         void *buffer;
         vmaMapMemory(m_GraphicsDevice->GetAllocator(), m_StagingBuffer.Allocation, &buffer);
@@ -102,8 +102,8 @@ namespace Nexus::Graphics
         vmaUnmapMemory(m_GraphicsDevice->GetAllocator(), m_StagingBuffer.Allocation);
 
         VkExtent3D imageExtent;
-        imageExtent.width = m_Width;
-        imageExtent.height = m_Height;
+        imageExtent.width = m_Specification.Width;
+        imageExtent.height = m_Specification.Height;
         imageExtent.depth = 1;
 
         // upload texture to GPU

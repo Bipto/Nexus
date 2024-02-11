@@ -21,8 +21,7 @@ namespace Nexus::Graphics
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_WrapMode);
 
         m_TextureFormat = GL::GetColorTextureFormat(spec.Format);
-        glTexImage2D(GL_TEXTURE_2D, 0, m_TextureFormat, spec.Width, spec.Height, 0, m_TextureFormat, GL_UNSIGNED_BYTE, nullptr);
-
+        glTexStorage2D(GL_TEXTURE_2D, 1, m_TextureFormat, spec.Width, spec.Height);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
@@ -46,7 +45,11 @@ namespace Nexus::Graphics
     {
         GL::ClearErrors();
         glBindTexture(GL_TEXTURE_2D, m_Handle);
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_Width, m_Height, m_TextureFormat, GL_UNSIGNED_BYTE, data);
+
+        GLenum internalFormat = GL::GetInternalTextureFormat(m_Specification.Format);
+        GLenum baseType = GL::GetTextureFormatBaseType(m_Specification.Format);
+
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_Specification.Width, m_Specification.Height, internalFormat, baseType, data);
         GL::CheckErrors();
     }
 }

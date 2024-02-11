@@ -126,8 +126,6 @@ namespace Nexus::Graphics
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback(GLDebugMessageCallback, nullptr);
 #endif
-
-        glEnable(GL_MULTISAMPLE);
     }
 
     void GraphicsDeviceOpenGL::SetContext()

@@ -53,7 +53,7 @@ namespace Nexus::Graphics
         /// @brief A constructor that takes in a texture specification
         /// @param spec The specification to create a texture from
         Texture(const TextureSpecification &spec)
-            : m_Width(spec.Width), m_Height(spec.Height), m_NumOfChannels(spec.NumberOfChannels){};
+            : m_Specification(spec){};
 
         virtual ~Texture() {}
 
@@ -64,16 +64,10 @@ namespace Nexus::Graphics
         virtual void SetData(const void *data, uint32_t size) = 0;
 
     protected:
-        /// @brief An integer representing the width of the texture
-        int m_Width = 0;
-
-        /// @brief An integer representing the height of the texture
-        int m_Height = 0;
-
-        /// @brief An integer representing the number of channels in the texture
-        int m_NumOfChannels = 4;
-
         /// @brief An unsigned char pointer to the underlying data of the texture if retaining image data
         unsigned char *m_Data = nullptr;
+
+        /// @brief A specification describing the layout of the texture
+        TextureSpecification m_Specification;
     };
 }

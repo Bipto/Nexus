@@ -55,9 +55,34 @@ namespace Nexus::GL
         switch (format)
         {
         case Graphics::TextureFormat::RGBA8:
+            return GL_RGBA8;
+        case Graphics::TextureFormat::R8:
+            return GL_R8;
+        default:
+            throw std::runtime_error("Invalid texture format selected");
+        }
+    }
+
+    GLenum GetInternalTextureFormat(Nexus::Graphics::TextureFormat format)
+    {
+        switch (format)
+        {
+        case Graphics::TextureFormat::RGBA8:
             return GL_RGBA;
         case Graphics::TextureFormat::R8:
             return GL_RED;
+        default:
+            throw std::runtime_error("Invalid texture format selected");
+        }
+    }
+
+    GLenum GetTextureFormatBaseType(Nexus::Graphics::TextureFormat format)
+    {
+        switch (format)
+        {
+        case Graphics::TextureFormat::RGBA8:
+        case Graphics::TextureFormat::R8:
+            return GL_UNSIGNED_BYTE;
         default:
             throw std::runtime_error("Invalid texture format selected");
         }

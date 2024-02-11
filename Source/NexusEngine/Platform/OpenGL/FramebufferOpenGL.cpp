@@ -84,21 +84,28 @@ namespace Nexus::Graphics
 
             auto textureFormat = GL::GetColorTextureFormat(colorSpec.TextureFormat);
 
+#if !defined(NX_PLATFORM_WEBGL2)
             if (m_Specification.Samples != MultiSamples::SampleCount1)
             {
                 uint32_t samples = GetSampleCount(m_Specification.Samples);
                 glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, texture);
                 glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-                glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, textureFormat, m_Specification.Width, m_Specification.Height, GL_FALSE);
+                glTexStorage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, textureFormat, m_Specification.Width, m_Specification.Height, GL_FALSE);
                 glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D_MULTISAMPLE, texture, 0);
             }
             else
             {
                 glBindTexture(GL_TEXTURE_2D, texture);
                 glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-                glTexImage2D(GL_TEXTURE_2D, 0, textureFormat, m_Specification.Width, m_Specification.Height, 0, textureFormat, GL_UNSIGNED_BYTE, NULL);
+                glTexStorage2D(GL_TEXTURE_2D, 1, textureFormat, m_Specification.Width, m_Specification.Height);
                 glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, texture, 0);
             }
+#else
+            glBindTexture(GL_TEXTURE_2D, texture);
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+            glTexStorage2D(GL_TEXTURE_2D, 1, textureFormat, m_Specification.Width, m_Specification.Height);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, texture, 0);
+#endif
 
             m_ColorTextures.emplace_back(texture);
         }
@@ -108,19 +115,28 @@ namespace Nexus::Graphics
         {
             glGenTextures(1, &m_DepthTexture);
 
+#if !defined(NX_PLATFORM_WEBGL2)
             if (m_Specification.Samples != MultiSamples::SampleCount1)
             {
                 uint32_t samples = GetSampleCount(m_Specification.Samples);
                 glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_DepthTexture);
-                glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_DEPTH24_STENCIL8, m_Specification.Width, m_Specification.Height, GL_FALSE);
+                glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+                glTexStorage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_DEPTH24_STENCIL8, m_Specification.Width, m_Specification.Height, GL_FALSE);
                 glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE, m_DepthTexture, 0);
             }
             else
             {
                 glBindTexture(GL_TEXTURE_2D, m_DepthTexture);
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, m_Specification.Width, m_Specification.Height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
+                glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+                glTexStorage2D(GL_FRAMEBUFFER, 1, GL_DEPTH24_STENCIL8, m_Specification.Width, m_Specification.Height);
                 glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthTexture, 0);
             }
+#else
+            glBindTexture(GL_TEXTURE_2D, m_DepthTexture);
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+            glTexStorage2D(GL_FRAMEBUFFER, 1, GL_DEPTH24_STENCIL8, m_Specification.Width, m_Specification.Height);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthTexture, 0);
+#endif
         }
     }
 

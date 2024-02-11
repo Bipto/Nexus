@@ -5,19 +5,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-option(PK_BUILD_STATIC_LIB "Build static library" ON)
-set(SHADERC_SKIP_TESTS OFF CACHE BOOL "" FORCE)
-
-#google test - required for shaderc
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
-)
-# For Windows: Prevent overriding the parent project's compiler/linker settings
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
-
 #if we are not building for emscripten, then output all executables into lib and bin folders
 #this is needed to ensure that dynamic libraries (.dll) are in the same folder as the executables
 if (WIN32)
@@ -42,12 +29,14 @@ if (WIN32)
 elseif (EMSCRIPTEN)
     add_compile_definitions(NX_PLATFORM_OPENGL)
     add_compile_definitions(NX_PLATFORM_OPENAL)
+    add_compile_definitions(NX_PLATFORM_WEBGL2)
 elseif (ANDROID)
     add_compile_definitions(NX_PLATFORM_OPENGL)
     add_compile_definitions(NX_PLATFORM_OPENAL)
 endif()
 
 #set up engine projects
+add_subdirectory(Source/BuildConfig)
 add_subdirectory(Source/NexusEngine)
 add_subdirectory(Source/Demo)
 
@@ -58,7 +47,6 @@ if(WIN32)
     add_subdirectory(Source/ShaderGen)
 endif()
     
-add_subdirectory(Source/BuildConfig)
 
 #external dependencies
 add_subdirectory(External/SDL)
@@ -94,3 +82,13 @@ if (WIN32 OR __ANDROID__)
     add_subdirectory(External/OpenAL-Soft)
     remove_definitions(-DLIBTYPE)
 endif()
+
+#google test - required for shaderc
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)

@@ -20,7 +20,7 @@ namespace Nexus::Graphics
 
     Shader *GraphicsDevice::CreateShaderFromSpirvFile(const std::string &filepath, const VertexBufferLayout &layout)
     {
-
+        std::cout << "Creating shader: " << filepath << "\n";
         Nexus::Utils::ShaderSources sources = Nexus::Utils::ParseCustomShaderFile(filepath);
         auto shader = CreateShaderFromSpirvSources(sources.VertexSource, sources.FragmentSource, layout, filepath, filepath);
         return shader;
