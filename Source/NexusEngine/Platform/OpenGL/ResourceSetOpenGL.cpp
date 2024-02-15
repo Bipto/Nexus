@@ -9,24 +9,28 @@ namespace Nexus::Graphics
     {
     }
 
-    void Nexus::Graphics::ResourceSetOpenGL::WriteTexture(Texture *texture, uint32_t set, uint32_t binding)
+    void Nexus::Graphics::ResourceSetOpenGL::WriteTexture(Texture *texture, const std::string &name)
     {
-        const uint32_t index = GetLinearDescriptorSlot(set, binding);
-        m_BoundTextures[index] = (TextureOpenGL *)texture;
+        // const uint32_t index = GetLinearDescriptorSlot(set, binding);
+        // m_BoundTextures[index] = (TextureOpenGL *)texture;
+
+        m_BoundTextures[name] = (TextureOpenGL *)texture;
     }
 
-    void Nexus::Graphics::ResourceSetOpenGL::WriteUniformBuffer(UniformBuffer *uniformBuffer, uint32_t set, uint32_t binding)
+    void Nexus::Graphics::ResourceSetOpenGL::WriteUniformBuffer(UniformBuffer *uniformBuffer, const std::string &name)
     {
-        const uint32_t index = GetLinearDescriptorSlot(set, binding);
-        m_BoundUniformBuffers[index] = (UniformBufferOpenGL *)uniformBuffer;
+        // const uint32_t index = GetLinearDescriptorSlot(set, binding);
+        // m_BoundUniformBuffers[index] = (UniformBufferOpenGL *)uniformBuffer;
+
+        m_BoundUniformBuffers[name] = (UniformBufferOpenGL *)uniformBuffer;
     }
 
-    const std::map<uint32_t, TextureOpenGL *> &ResourceSetOpenGL::GetBoundTextures() const
+    const std::map<std::string, TextureOpenGL *> &ResourceSetOpenGL::GetBoundTextures() const
     {
         return m_BoundTextures;
     }
 
-    const std::map<uint32_t, UniformBufferOpenGL *> &ResourceSetOpenGL::GetBoundUniformBuffers() const
+    const std::map<std::string, UniformBufferOpenGL *> &ResourceSetOpenGL::GetBoundUniformBuffers() const
     {
         return m_BoundUniformBuffers;
     }

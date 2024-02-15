@@ -42,6 +42,8 @@ namespace Nexus::Graphics
 
     void ShaderOpenGL::Compile(const std::string &vertexShaderSource, const std::string &fragmentShaderSource)
     {
+        glEnableVertexAttribArray(0);
+
         unsigned int vertexShader;
         vertexShader = glCreateShader(GL_VERTEX_SHADER);
         const char *vertexShaderChar = vertexShaderSource.c_str();

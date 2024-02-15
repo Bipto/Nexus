@@ -408,8 +408,8 @@ namespace Nexus::ImGuiUtils
         memcpy(buffer, &mvp, sizeof(mvp));
         m_UniformBuffer->Unmap();
 
-        m_ResourceSet->WriteUniformBuffer(m_UniformBuffer, 0, 0);
-        m_ResourceSet->WriteTexture(m_FontTexture, 1, 0);
+        m_ResourceSet->WriteUniformBuffer(m_UniformBuffer, "MVP");
+        m_ResourceSet->WriteTexture(m_FontTexture, "Texture");
         m_CommandList->SetResourceSet(m_ResourceSet);
 
         auto windowSize = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize();

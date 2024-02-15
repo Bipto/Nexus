@@ -6,7 +6,7 @@ layout (location = 1) in vec2 TexCoord;
 
 layout (location = 0) out vec2 OutTexCoord;
 
-layout (binding = 0, set = 0) uniform Transform
+layout (std140,binding = 0, set = 0) uniform Transform
 {
     mat4 u_Transform;
 };

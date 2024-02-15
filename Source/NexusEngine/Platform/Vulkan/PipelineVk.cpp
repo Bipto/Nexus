@@ -325,8 +325,8 @@ namespace Nexus::Graphics
         info.depthCompareOp = GetCompareOp(m_Description.DepthStencilDescription.DepthComparisonFunction);
 
         info.depthBoundsTestEnable = VK_FALSE;
-        info.minDepthBounds = 0.0f;
-        info.maxDepthBounds = 1.0f;
+        info.minDepthBounds = m_Description.DepthStencilDescription.MinDepth;
+        info.maxDepthBounds = m_Description.DepthStencilDescription.MaxDepth;
 
         info.stencilTestEnable = m_Description.DepthStencilDescription.EnableStencilTest;
 

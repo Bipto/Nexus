@@ -168,6 +168,8 @@ namespace Nexus::Graphics
 
         GLenum depthFunction = GetComparisonFunction(m_Description.DepthStencilDescription.DepthComparisonFunction);
         glDepthFunc(depthFunction);
+
+        glDepthRangef(m_Description.DepthStencilDescription.MinDepth, m_Description.DepthStencilDescription.MaxDepth);
     }
 
     void PipelineOpenGL::SetupRasterizer()

@@ -13,8 +13,8 @@ namespace Nexus::Graphics
     {
     public:
         ResourceSetD3D12(const ResourceSetSpecification &spec, GraphicsDeviceD3D12 *device);
-        virtual void WriteTexture(Texture *texture, uint32_t set, uint32_t binding) override;
-        virtual void WriteUniformBuffer(UniformBuffer *uniformBuffer, uint32_t set, uint32_t binding) override;
+        virtual void WriteTexture(Texture *texture, const std::string &name) override;
+        virtual void WriteUniformBuffer(UniformBuffer *uniformBuffer, const std::string &name) override;
 
         D3D12_GPU_DESCRIPTOR_HANDLE GetSamplerGPUStartHandle();
         D3D12_GPU_DESCRIPTOR_HANDLE GetConstantBufferTextureGPUStartHandle();

@@ -15,114 +15,6 @@ namespace Nexus::Graphics
         std::map<VkDescriptorType, uint32_t> descriptorCounts;
 
         // create texture bindings
-        /* for (const auto &textureInfo : spec.TextureBindings)
-        {
-            VkDescriptorSetLayoutBinding samplerBinding = {};
-            samplerBinding.binding = textureInfo.Slot;
-            samplerBinding.descriptorCount = 1;
-            samplerBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            samplerBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-
-            // if set does not exist, create it
-            if (sets.find(textureInfo.Set) == sets.end())
-            {
-                sets[textureInfo.Set] = {};
-            }
-
-            if (descriptorCounts.find(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) == descriptorCounts.end())
-            {
-                descriptorCounts[VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER] = 0;
-            }
-
-            auto &set = sets[textureInfo.Set];
-            set.push_back(samplerBinding);
-            descriptorCounts[VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER]++;
-        } */
-
-        // create uniform buffer bindings
-        /* for (const auto &uniformInfo : spec.UniformResourceBindings)
-        {
-            VkDescriptorSetLayoutBinding uniformBinding = {};
-            uniformBinding.binding = uniformInfo.Binding;
-            uniformBinding.descriptorCount = 1;
-            uniformBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            uniformBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-
-            // if set does not exist, create it
-            if (sets.find(uniformInfo.Set) == sets.end())
-            {
-                sets[uniformInfo.Set] = {};
-            }
-
-            if (descriptorCounts.find(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) == descriptorCounts.end())
-            {
-                descriptorCounts[VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER] = 0;
-            }
-
-            auto &set = sets[uniformInfo.Set];
-            set.push_back(uniformBinding);
-            descriptorCounts[VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER]++;
-        } */
-
-        // create descriptor set layouts
-        /* for (const auto &set : sets)
-        {
-            VkDescriptorSetLayoutCreateInfo setInfo = {};
-            setInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-            setInfo.pNext = nullptr;
-            setInfo.flags = 0;
-            setInfo.bindingCount = set.second.size();
-            setInfo.pBindings = set.second.data();
-
-            VkDescriptorSetLayout layout;
-            if (vkCreateDescriptorSetLayout(device->GetVkDevice(), &setInfo, nullptr, &layout) != VK_SUCCESS)
-            {
-                throw std::runtime_error("Failed to create descriptor set layout");
-            }
-
-            m_DescriptorSetLayouts[set.first] = layout;
-        } */
-
-        /* for (const auto &binding : spec.Resources)
-        {
-            VkDescriptorSetLayoutBinding descriptorBinding = {};
-            descriptorBinding.binding = binding.Binding;
-            descriptorBinding.descriptorCount = 1;
-            descriptorBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-
-            VkDescriptorType descriptorType{};
-
-            if (binding.Type == ResourceType::CombinedImageSampler)
-            {
-                descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            }
-            else if (binding.Type == ResourceType::UniformBuffer)
-            {
-                descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            }
-            else
-            {
-                throw std::runtime_error("Failed to find a valid resource type");
-            }
-
-            descriptorBinding.descriptorType = descriptorType;
-
-            if (sets.find(binding.Set) == sets.end())
-            {
-                sets[binding.Set] = {};
-            }
-
-            if (descriptorCounts.find(descriptorType) == descriptorCounts.end())
-            {
-                descriptorCounts[descriptorType] = 0;
-            }
-
-            auto &set = sets[binding.Set];
-            set.push_back(descriptorBinding);
-            descriptorCounts[descriptorType]++;
-        } */
-
-        // create texture bindings
         for (const auto &textureBinding : spec.Textures)
         {
             VkDescriptorSetLayoutBinding descriptorBinding = {};
@@ -248,10 +140,12 @@ namespace Nexus::Graphics
         vkDestroyDescriptorPool(m_Device->GetVkDevice(), m_DescriptorPool, nullptr);
     }
 
-    void ResourceSetVk::WriteTexture(Texture *texture, uint32_t set, uint32_t binding)
+    void ResourceSetVk::WriteTexture(Texture *texture, const std::string &name)
     {
         TextureVk *textureVk = (TextureVk *)texture;
         const auto &descriptorSets = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
+
+        const BindingInfo &info = m_TextureBindingInfos.at(name);
 
         VkDescriptorImageInfo imageBufferInfo = {};
         imageBufferInfo.sampler = textureVk->GetSampler();
@@ -261,8 +155,8 @@ namespace Nexus::Graphics
         VkWriteDescriptorSet textureToWrite = {};
         textureToWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         textureToWrite.pNext = nullptr;
-        textureToWrite.dstBinding = binding;
-        textureToWrite.dstSet = descriptorSets.at(set);
+        textureToWrite.dstBinding = info.Binding;
+        textureToWrite.dstSet = descriptorSets.at(info.Set);
         textureToWrite.descriptorCount = 1;
         textureToWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         textureToWrite.pImageInfo = &imageBufferInfo;
@@ -270,10 +164,12 @@ namespace Nexus::Graphics
         vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &textureToWrite, 0, nullptr);
     }
 
-    void ResourceSetVk::WriteUniformBuffer(UniformBuffer *uniformBuffer, uint32_t set, uint32_t binding)
+    void ResourceSetVk::WriteUniformBuffer(UniformBuffer *uniformBuffer, const std::string &name)
     {
         UniformBufferVk *uniformBufferVk = (UniformBufferVk *)uniformBuffer;
         const auto &descriptorSets = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
+
+        const BindingInfo &info = m_UniformBufferBindingInfos.at(name);
 
         VkDescriptorBufferInfo bufferInfo = {};
         bufferInfo.buffer = uniformBufferVk->GetBuffer();
@@ -283,11 +179,11 @@ namespace Nexus::Graphics
         VkWriteDescriptorSet uniformBufferToWrite = {};
         uniformBufferToWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         uniformBufferToWrite.pNext = nullptr;
-        uniformBufferToWrite.dstBinding = binding;
+        uniformBufferToWrite.dstBinding = info.Binding;
         uniformBufferToWrite.descriptorCount = 1;
         uniformBufferToWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         uniformBufferToWrite.pBufferInfo = &bufferInfo;
-        uniformBufferToWrite.dstSet = descriptorSets.at(set);
+        uniformBufferToWrite.dstSet = descriptorSets.at(info.Set);
 
         vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &uniformBufferToWrite, 0, nullptr);
     }

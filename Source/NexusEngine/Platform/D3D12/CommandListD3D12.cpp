@@ -63,8 +63,11 @@ namespace Nexus::Graphics
 
     void CommandListD3D12::SetPipeline(Pipeline *pipeline)
     {
+        const auto &description = pipeline->GetPipelineDescription();
+
         PipelineD3D12 *d3d12Pipeline = (PipelineD3D12 *)pipeline;
         SetRenderTarget(pipeline->GetPipelineDescription().Target);
+        m_CommandList->OMSetDepthBounds(description.DepthStencilDescription.MinDepth, description.DepthStencilDescription.MaxDepth);
         m_CommandList->SetPipelineState(d3d12Pipeline->GetPipelineState());
         m_CommandList->SetGraphicsRootSignature(d3d12Pipeline->GetRootSignature());
         m_CommandList->IASetPrimitiveTopology(d3d12Pipeline->GetPrimitiveTopology());

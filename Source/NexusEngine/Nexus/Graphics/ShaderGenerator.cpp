@@ -21,11 +21,14 @@ namespace Nexus::Graphics
         }
     }
 
-    void ToLinearResourceSet(spirv_cross::Compiler &compiler)
+    void ToLinearResourceSet(spirv_cross::Compiler &compiler, ShaderLanguage language)
     {
         spirv_cross::ShaderResources resources = compiler.get_shader_resources();
 
         ResourceSetSpecification resourceSpec;
+
+        uint32_t textureSlot = 0;
+        uint32_t uniformBufferSlot = 0;
 
         // find all resources in shaders
         for (const auto &image : resources.sampled_images)
@@ -39,6 +42,18 @@ namespace Nexus::Graphics
             resource.Binding = binding;
             resource.Type = ResourceType::CombinedImageSampler;
             resourceSpec.Textures.push_back(resource);
+
+            // uint32_t slot = (set * ResourceSet::DescriptorSetCount) + binding;
+            compiler.unset_decoration(image.id, spv::DecorationDescriptorSet);
+
+            if (language == ShaderLanguage::GLSL | language == ShaderLanguage::GLSLES)
+            {
+                compiler.unset_decoration(image.id, spv::DecorationBinding);
+            }
+            else
+            {
+                compiler.set_decoration(image.id, spv::DecorationBinding, textureSlot++);
+            }
         }
 
         for (const auto &uniformBuffer : resources.uniform_buffers)
@@ -52,9 +67,21 @@ namespace Nexus::Graphics
             resource.Binding = binding;
             resource.Type = ResourceType::UniformBuffer;
             resourceSpec.UniformBuffers.push_back(resource);
+
+            // uint32_t slot = (set * ResourceSet::DescriptorSetCount) + binding;
+            compiler.unset_decoration(uniformBuffer.id, spv::DecorationDescriptorSet);
+
+            if (language == ShaderLanguage::GLSL | language == ShaderLanguage::GLSLES)
+            {
+                compiler.unset_decoration(uniformBuffer.id, spv::DecorationBinding);
+            }
+            else
+            {
+                compiler.set_decoration(uniformBuffer.id, spv::DecorationBinding, uniformBufferSlot++);
+            }
         }
 
-        const auto &textureBindings = ResourceSet::RemapToLinearBindings(resourceSpec.Textures);
+        /* const auto &textureBindings = ResourceSet::RemapToLinearBindings(resourceSpec.Textures);
         const auto &uniformBufferBindings = ResourceSet::RemapToLinearBindings(resourceSpec.UniformBuffers);
 
         // remapping resource binding, ensuring that resources are sorted by set and binding
@@ -72,7 +99,7 @@ namespace Nexus::Graphics
             const auto &uniformBuffer = resources.uniform_buffers[index++];
             compiler.unset_decoration(uniformBuffer.id, spv::DecorationDescriptorSet);
             compiler.set_decoration(uniformBuffer.id, spv::DecorationBinding, binding.second);
-        }
+        } */
     }
 
     CompilationResult ShaderGenerator::Generate(const std::string &source, ShaderGenerationOptions options)
@@ -97,30 +124,29 @@ namespace Nexus::Graphics
         std::vector<uint32_t> spirv_binary = {result.begin(), result.end()};
         output.SpirvBinary = spirv_binary;
 
+        spirv_cross::CompilerGLSL::Options glOptions;
+        glOptions.emit_push_constant_as_uniform_buffer = true;
+
         // compile to shader language
         switch (options.OutputFormat)
         {
         case ShaderLanguage::GLSL:
         {
             spirv_cross::CompilerGLSL glsl(spirv_binary);
-            spirv_cross::CompilerGLSL::Options glOptions;
             glOptions.version = 330;
             glOptions.es = false;
-            glOptions.emit_push_constant_as_uniform_buffer = true;
             glsl.set_common_options(glOptions);
-            ToLinearResourceSet(glsl);
+            ToLinearResourceSet(glsl, options.OutputFormat);
             output.Source = glsl.compile();
             break;
         }
         case ShaderLanguage::GLSLES:
         {
             spirv_cross::CompilerGLSL glsl(spirv_binary);
-            spirv_cross::CompilerGLSL::Options glOptions;
             glOptions.version = 300;
             glOptions.es = true;
-            glOptions.emit_push_constant_as_uniform_buffer = true;
             glsl.set_common_options(glOptions);
-            ToLinearResourceSet(glsl);
+            ToLinearResourceSet(glsl, options.OutputFormat);
             output.Source = glsl.compile();
             break;
         }
@@ -141,10 +167,8 @@ namespace Nexus::Graphics
                 NX_ERROR("Unsupported shader type");
             }
 
-            spirv_cross::CompilerGLSL::Options glOptions;
             glOptions.version = 330;
             glOptions.es = false;
-            glOptions.emit_push_constant_as_uniform_buffer = true;
             hlsl.set_common_options(glOptions);
 
             spirv_cross::CompilerHLSL::Options hlslOptions;
@@ -153,7 +177,7 @@ namespace Nexus::Graphics
             // modern HLSL
             hlslOptions.shader_model = 50;
             hlsl.set_hlsl_options(hlslOptions);
-            ToLinearResourceSet(hlsl);
+            ToLinearResourceSet(hlsl, options.OutputFormat);
             output.Source = hlsl.compile();
             break;
         }
@@ -161,6 +185,8 @@ namespace Nexus::Graphics
             output.Source = source;
             break;
         }
+
+        std::cout << "Shader source: " << output.Source << std::endl;
 
         output.Successful = true;
         return output;

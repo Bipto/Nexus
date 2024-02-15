@@ -941,16 +941,16 @@ namespace Nexus::Graphics
         memcpy(buffer, m_Indices.data(), m_Indices.size() * sizeof(uint32_t));
         m_IndexBuffer->Unmap();
 
-        m_ResourceSet->WriteUniformBuffer(m_UniformBuffer, 0, 0);
+        m_ResourceSet->WriteUniformBuffer(m_UniformBuffer, "MVP");
 
         for (uint32_t i = 0; i < m_Textures.size(); i++)
         {
-            m_ResourceSet->WriteTexture(m_Textures[i], 1, i);
+            m_ResourceSet->WriteTexture(m_Textures[i], "texture" + std::to_string(i));
         }
 
         for (uint32_t i = m_Textures.size(); i < MAX_TEXTURES; i++)
         {
-            m_ResourceSet->WriteTexture(m_BlankTexture, 1, i);
+            m_ResourceSet->WriteTexture(m_BlankTexture, "texture0");
         }
 
         m_CommandList->Begin();

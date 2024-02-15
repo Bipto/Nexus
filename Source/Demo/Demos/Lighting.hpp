@@ -112,12 +112,12 @@ namespace Demos
 
             // upload resources
             {
-                m_ResourceSet->WriteUniformBuffer(m_CameraUniformBuffer, 0, 0);
-                m_ResourceSet->WriteUniformBuffer(m_TransformUniformBuffer, 0, 1);
+                m_ResourceSet->WriteUniformBuffer(m_CameraUniformBuffer, "Camera");
+                m_ResourceSet->WriteUniformBuffer(m_TransformUniformBuffer, "Transform");
 
-                m_ResourceSet->WriteTexture(m_DiffuseMap, 1, 0);
-                m_ResourceSet->WriteTexture(m_NormalMap, 1, 1);
-                m_ResourceSet->WriteTexture(m_SpecularMap, 1, 2);
+                m_ResourceSet->WriteTexture(m_DiffuseMap, "diffuseMapSampler");
+                m_ResourceSet->WriteTexture(m_NormalMap, "normalMapSampler");
+                m_ResourceSet->WriteTexture(m_SpecularMap, "specularMapSampler");
                 m_CommandList->SetResourceSet(m_ResourceSet);
             }
 

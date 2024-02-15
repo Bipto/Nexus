@@ -64,7 +64,7 @@ namespace Demos
                                              m_ClearColour.b,
                                              1.0f});
 
-            m_ResourceSet->WriteTexture(m_Texture, 0, 0);
+            m_ResourceSet->WriteTexture(m_Texture, "texSampler");
             m_CommandList->SetResourceSet(m_ResourceSet);
 
             m_CommandList->SetVertexBuffer(m_Mesh->GetVertexBuffer());

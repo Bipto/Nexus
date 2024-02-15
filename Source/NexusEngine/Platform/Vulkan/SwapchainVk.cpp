@@ -66,6 +66,12 @@ namespace Nexus::Graphics
             return;
         }
 
+        // prevents the swapchain being presented on the first frame that the window is minimized
+        if (m_Window->GetCurrentWindowState() == WindowState::Minimized)
+        {
+            return;
+        }
+
         VkPresentInfoKHR presentInfo = {};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         presentInfo.waitSemaphoreCount = 1;
@@ -403,6 +409,8 @@ namespace Nexus::Graphics
 
     void SwapchainVk::CleanupSwapchain()
     {
+        vkDeviceWaitIdle(m_GraphicsDevice->GetVkDevice());
+
         for (size_t i = 0; i < m_SwapchainFramebuffers.size(); i++)
         {
             vkDestroyFramebuffer(m_GraphicsDevice->m_Device, m_SwapchainFramebuffers[i], nullptr);

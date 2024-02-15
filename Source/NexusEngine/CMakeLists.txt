@@ -89,11 +89,7 @@ endif()
 target_precompile_headers(NexusEngine PUBLIC Nexus/nxpch.hpp)
 
 #resources need to be output into a separate folder if building for emscripten
-if (EMSCRIPTEN)
-file (COPY 
-    ${CMAKE_CURRENT_SOURCE_DIR}/resources
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-else()
+if (NOT EMSCRIPTEN)
     set(path ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     cmake_path(GET path PARENT_PATH parentDir)
     set_target_properties(NexusEngine PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${parentDir}/bin)

@@ -16,15 +16,15 @@ namespace Nexus::Graphics
     {
     public:
         ResourceSetOpenGL(const ResourceSetSpecification &spec);
-        virtual void WriteTexture(Texture *texture, uint32_t set, uint32_t binding) override;
-        virtual void WriteUniformBuffer(UniformBuffer *uniformBuffer, uint32_t set, uint32_t binding) override;
+        virtual void WriteTexture(Texture *texture, const std::string &name) override;
+        virtual void WriteUniformBuffer(UniformBuffer *uniformBuffer, const std::string &name) override;
 
-        const std::map<uint32_t, TextureOpenGL *> &GetBoundTextures() const;
-        const std::map<uint32_t, UniformBufferOpenGL *> &GetBoundUniformBuffers() const;
+        const std::map<std::string, TextureOpenGL *> &GetBoundTextures() const;
+        const std::map<std::string, UniformBufferOpenGL *> &GetBoundUniformBuffers() const;
 
     private:
-        std::map<uint32_t, TextureOpenGL *> m_BoundTextures;
-        std::map<uint32_t, UniformBufferOpenGL *> m_BoundUniformBuffers;
+        std::map<std::string, TextureOpenGL *> m_BoundTextures;
+        std::map<std::string, UniformBufferOpenGL *> m_BoundUniformBuffers;
     };
 }
 

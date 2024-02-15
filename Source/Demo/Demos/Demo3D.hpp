@@ -108,9 +108,9 @@ namespace Demos
             Nexus::Graphics::ClearDepthStencilValue clearValue;
             m_CommandList->ClearDepthTarget(clearValue);
 
-            m_ResourceSet->WriteUniformBuffer(m_CameraUniformBuffer, 0, 0);
-            m_ResourceSet->WriteUniformBuffer(m_TransformUniformBuffer, 0, 1);
-            m_ResourceSet->WriteTexture(m_Texture, 1, 0);
+            m_ResourceSet->WriteUniformBuffer(m_CameraUniformBuffer, "Camera");
+            m_ResourceSet->WriteUniformBuffer(m_TransformUniformBuffer, "Transform");
+            m_ResourceSet->WriteTexture(m_Texture, "texSampler");
             m_CommandList->SetResourceSet(m_ResourceSet);
 
             m_CommandList->SetVertexBuffer(m_Mesh->GetVertexBuffer());

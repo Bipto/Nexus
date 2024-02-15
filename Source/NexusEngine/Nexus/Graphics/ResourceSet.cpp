@@ -7,14 +7,30 @@ namespace Nexus::Graphics
     {
         m_TextureBindings = RemapToLinearBindings(spec.Textures);
         m_UniformBufferBindings = RemapToLinearBindings(spec.UniformBuffers);
+
+        for (const auto &texture : spec.Textures)
+        {
+            BindingInfo info;
+            info.Set = texture.Set;
+            info.Binding = texture.Binding;
+            m_TextureBindingInfos[texture.Name] = info;
+        }
+
+        for (const auto &uniformBuffer : spec.UniformBuffers)
+        {
+            BindingInfo info;
+            info.Set = uniformBuffer.Set;
+            info.Binding = uniformBuffer.Binding;
+            m_UniformBufferBindingInfos[uniformBuffer.Name] = info;
+        }
     }
 
-    const std::map<uint32_t, uint32_t> &ResourceSet::GetLinearTextureBindings() const
+    const std::map<std::string, uint32_t> &ResourceSet::GetLinearTextureBindings() const
     {
         return m_TextureBindings;
     }
 
-    const std::map<uint32_t, uint32_t> &ResourceSet::GetLinearUniformBufferBindings() const
+    const std::map<std::string, uint32_t> &ResourceSet::GetLinearUniformBufferBindings() const
     {
         return m_UniformBufferBindings;
     }
@@ -29,15 +45,15 @@ namespace Nexus::Graphics
         return (set * DescriptorSetCount) + binding;
     }
 
-    std::map<uint32_t, uint32_t> ResourceSet::RemapToLinearBindings(const std::vector<ResourceBinding> &resources)
+    std::map<std::string, uint32_t> ResourceSet::RemapToLinearBindings(const std::vector<ResourceBinding> &resources)
     {
         uint32_t resourceIndex = 0;
-        std::map<uint32_t, uint32_t> bindings;
+        std::map<std::string, uint32_t> bindings;
 
         for (const auto &resource : resources)
         {
             uint32_t remappedBinding = GetLinearDescriptorSlot(resource.Set, resource.Binding);
-            bindings[remappedBinding] = resourceIndex++;
+            bindings[resource.Name] = resourceIndex++;
         }
 
         return bindings;

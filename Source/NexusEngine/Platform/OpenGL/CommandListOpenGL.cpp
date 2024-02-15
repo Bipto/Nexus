@@ -48,7 +48,6 @@ namespace Nexus::Graphics
 
     void CommandListOpenGL::End()
     {
-        VertexBufferOpenGL::UnbindVertexArray();
     }
 
     void CommandListOpenGL::SetVertexBuffer(VertexBuffer *vertexBuffer)
@@ -56,7 +55,6 @@ namespace Nexus::Graphics
         m_CommandData.emplace_back(vertexBuffer);
         auto renderCommand = [](CommandList *commandList)
         {
-            VertexBufferOpenGL::UnbindVertexArray();
             auto commandListGL = (CommandListOpenGL *)commandList;
             const auto &commandData = commandListGL->GetCurrentCommandData();
             const auto vertexBuffer = std::get<VertexBuffer *>(commandData);
@@ -87,8 +85,6 @@ namespace Nexus::Graphics
         m_CommandData.emplace_back(pipeline);
         auto renderCommand = [](CommandList *commandList)
         {
-            VertexBufferOpenGL::UnbindVertexArray();
-
             auto commandListGL = (CommandListOpenGL *)commandList;
             const auto &commandData = commandListGL->GetCurrentCommandData();
             const auto pipeline = std::get<Pipeline *>(commandData);
@@ -183,22 +179,23 @@ namespace Nexus::Graphics
 
             // upload resources
             const auto &textureBindings = resourcesGL->GetBoundTextures();
-            const auto &remappedTextureBindings = resourcesGL->GetLinearTextureBindings();
-            for (const auto &textureBinding : textureBindings)
+            const auto &uniformBufferBindings = resourcesGL->GetBoundUniformBuffers();
+
+            for (const auto &texture : textureBindings)
             {
-                uint32_t slot = remappedTextureBindings.at(textureBinding.first);
-                glUniform1i(slot, slot);
-                glActiveTexture(GL_TEXTURE0 + slot);
-                glBindTexture(GL_TEXTURE_2D, (GLuint)textureBinding.second->GetHandle());
+                GLint location = glGetUniformLocation(shaderGL->GetHandle(), texture.first.c_str());
+                glUniform1i(location, location);
+                glActiveTexture(GL_TEXTURE0 + location);
+                glBindTexture(GL_TEXTURE_2D, texture.second->GetHandle());
             }
 
-            const auto &uniformBufferBindings = resourcesGL->GetBoundUniformBuffers();
-            const auto &remappedUniformBufferBindings = resourcesGL->GetLinearUniformBufferBindings();
-            for (const auto &uniformBufferBinding : uniformBufferBindings)
+            GLint uniformBufferSlot = 0;
+            for (const auto &uniformBuffer : uniformBufferBindings)
             {
-                uint32_t slot = remappedUniformBufferBindings.at(uniformBufferBinding.first);
-                glBindBuffer(GL_UNIFORM_BUFFER, uniformBufferBinding.second->GetHandle());
-                glBindBufferBase(GL_UNIFORM_BUFFER, slot, uniformBufferBinding.second->GetHandle());
+                GLint location = glGetUniformBlockIndex(shaderGL->GetHandle(), uniformBuffer.first.c_str());
+                glUniformBlockBinding(shaderGL->GetHandle(), location, uniformBufferSlot);
+                glBindBufferBase(GL_UNIFORM_BUFFER, uniformBufferSlot, uniformBuffer.second->GetHandle());
+                uniformBufferSlot++;
             }
         };
         m_Commands.push_back(renderCommand);
@@ -335,8 +332,6 @@ namespace Nexus::Graphics
 
         auto renderCommand = [](CommandList *commandList)
         {
-            VertexBufferOpenGL::UnbindVertexArray();
-
             auto commandListGL = (CommandListOpenGL *)commandList;
             auto commandData = commandListGL->GetCurrentCommandData();
             auto resolveToSwapchainCommand = std::get<ResolveSamplesToSwapchainCommand>(commandData);

@@ -193,6 +193,12 @@ namespace Nexus::Graphics
 
         /// @brief The value that should be entered in the stencil buffer when the stencil test is successful and the depth test is successful
         StencilOperation StencilSuccessDepthSuccessOperation = StencilOperation::Keep;
+
+        /// @brief The value to use for the minimum depth
+        float MinDepth = 0.0f;
+
+        /// @brief The value to use for the maximum depth
+        float MaxDepth = 1.0f;
     };
 
     /// @brief A struct representing how triangles should be rendered onto the screen

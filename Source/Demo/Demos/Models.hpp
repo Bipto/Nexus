@@ -108,12 +108,12 @@ namespace Demos
             Nexus::Graphics::ClearDepthStencilValue value;
             m_CommandList->ClearDepthTarget(value);
 
-            m_ResourceSet->WriteUniformBuffer(m_CameraUniformBuffer, 0, 0);
-            m_ResourceSet->WriteUniformBuffer(m_TransformUniformBuffer, 0, 1);
+            m_ResourceSet->WriteUniformBuffer(m_CameraUniformBuffer, "Camera");
+            m_ResourceSet->WriteUniformBuffer(m_TransformUniformBuffer, "Transform");
 
-            m_ResourceSet->WriteTexture(m_DiffuseMap, 1, 0);
-            m_ResourceSet->WriteTexture(m_NormalMap, 1, 1);
-            m_ResourceSet->WriteTexture(m_SpecularMap, 1, 2);
+            m_ResourceSet->WriteTexture(m_DiffuseMap, "diffuseMapSampler");
+            m_ResourceSet->WriteTexture(m_NormalMap, "normalMapSampler");
+            m_ResourceSet->WriteTexture(m_SpecularMap, "specularMapSampler");
             m_CommandList->SetResourceSet(m_ResourceSet);
 
             auto &meshes = m_Model->GetMeshes();
@@ -126,7 +126,6 @@ namespace Demos
                 m_CommandList->DrawIndexed(indexCount, 0, 0);
             }
 
-            m_CommandList->ResolveFramebuffer(m_Framebuffer, 0, m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain());
             m_CommandList->End();
 
             m_GraphicsDevice->SubmitCommandList(m_CommandList);
@@ -147,21 +146,6 @@ namespace Demos
     private:
         void CreatePipeline()
         {
-            if (m_Framebuffer)
-            {
-                delete m_Framebuffer;
-            }
-
-            Nexus::Graphics::FramebufferSpecification framebufferSpec;
-            framebufferSpec.ColorAttachmentSpecification =
-                {
-                    {Nexus::Graphics::TextureFormat::RGBA8}};
-            framebufferSpec.DepthAttachmentSpecification.DepthFormat = Nexus::Graphics::DepthFormat::DEPTH24STENCIL8;
-            framebufferSpec.Width = m_Window->GetWindowSize().X;
-            framebufferSpec.Height = m_Window->GetWindowSize().Y;
-            framebufferSpec.Samples = Nexus::Graphics::MultiSamples::SampleCount8;
-            m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(framebufferSpec);
-
             Nexus::Graphics::PipelineDescription pipelineDescription;
             pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::Back;
             pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
@@ -181,7 +165,7 @@ namespace Demos
                     {"normalMapSampler", 1, 1},
                     {"specularMapSampler", 1, 2}};
 
-            pipelineDescription.Target = {m_Framebuffer};
+            pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
 
             m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
             m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
@@ -206,8 +190,6 @@ namespace Demos
         Nexus::Graphics::UniformBuffer *m_TransformUniformBuffer;
 
         Nexus::FirstPersonCamera m_Camera;
-
-        Nexus::Graphics::Framebuffer *m_Framebuffer = nullptr;
 
         float m_Rotation = 0.0f;
     };

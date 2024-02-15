@@ -13,14 +13,14 @@ layout (location = 2) out vec3 FragPos;
 layout (location = 3) out vec3 ViewPos;
 layout (location = 4) out mat3 TBN;
 
-layout (binding = 0, set = 0) uniform Camera
+layout (std140, binding = 0, set = 0) uniform Camera
 {
     mat4 u_View;
     mat4 u_Projection;
     vec3 u_ViewPos;
 };
 
-layout (binding = 1, set = 0) uniform Transform
+layout (std140,binding = 1, set = 0) uniform Transform
 {
     mat4 u_Transform;
 };

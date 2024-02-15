@@ -4,13 +4,13 @@
 layout (location = 0) in vec3 Position;
 layout (location = 1) in vec2 TexCoord;
 
-layout (set = 0, binding = 0) uniform Camera
+layout (std140, set = 0, binding = 0) uniform Camera
 {
     mat4 u_View;
     mat4 u_Projection;
 };
 
-layout (set = 0, binding = 1) uniform RenderInfo
+layout (std140, set = 0, binding = 1) uniform RenderInfo
 {
     mat4 u_Transform;
     vec3 u_Color;
