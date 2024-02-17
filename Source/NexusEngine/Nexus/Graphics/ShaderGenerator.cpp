@@ -27,9 +27,6 @@ namespace Nexus::Graphics
 
         ResourceSetSpecification resourceSpec;
 
-        uint32_t textureSlot = 0;
-        uint32_t uniformBufferSlot = 0;
-
         // find all resources in shaders
         for (const auto &image : resources.sampled_images)
         {
@@ -43,7 +40,7 @@ namespace Nexus::Graphics
             resource.Type = ResourceType::CombinedImageSampler;
             resourceSpec.Textures.push_back(resource);
 
-            // uint32_t slot = (set * ResourceSet::DescriptorSetCount) + binding;
+            uint32_t slot = (set * ResourceSet::DescriptorSetCount) + binding;
             compiler.unset_decoration(image.id, spv::DecorationDescriptorSet);
 
             if (language == ShaderLanguage::GLSL | language == ShaderLanguage::GLSLES)
@@ -52,7 +49,7 @@ namespace Nexus::Graphics
             }
             else
             {
-                compiler.set_decoration(image.id, spv::DecorationBinding, textureSlot++);
+                compiler.set_decoration(image.id, spv::DecorationBinding, slot);
             }
         }
 
@@ -68,7 +65,7 @@ namespace Nexus::Graphics
             resource.Type = ResourceType::UniformBuffer;
             resourceSpec.UniformBuffers.push_back(resource);
 
-            // uint32_t slot = (set * ResourceSet::DescriptorSetCount) + binding;
+            uint32_t slot = (set * ResourceSet::DescriptorSetCount) + binding;
             compiler.unset_decoration(uniformBuffer.id, spv::DecorationDescriptorSet);
 
             if (language == ShaderLanguage::GLSL | language == ShaderLanguage::GLSLES)
@@ -77,29 +74,9 @@ namespace Nexus::Graphics
             }
             else
             {
-                compiler.set_decoration(uniformBuffer.id, spv::DecorationBinding, uniformBufferSlot++);
+                compiler.set_decoration(uniformBuffer.id, spv::DecorationBinding, slot);
             }
         }
-
-        /* const auto &textureBindings = ResourceSet::RemapToLinearBindings(resourceSpec.Textures);
-        const auto &uniformBufferBindings = ResourceSet::RemapToLinearBindings(resourceSpec.UniformBuffers);
-
-        // remapping resource binding, ensuring that resources are sorted by set and binding
-        uint32_t index = 0;
-        for (const auto &binding : textureBindings)
-        {
-            const auto &image = resources.sampled_images[index++];
-            compiler.unset_decoration(image.id, spv::DecorationDescriptorSet);
-            compiler.set_decoration(image.id, spv::DecorationBinding, binding.second);
-        }
-
-        index = 0;
-        for (const auto &binding : uniformBufferBindings)
-        {
-            const auto &uniformBuffer = resources.uniform_buffers[index++];
-            compiler.unset_decoration(uniformBuffer.id, spv::DecorationDescriptorSet);
-            compiler.set_decoration(uniformBuffer.id, spv::DecorationBinding, binding.second);
-        } */
     }
 
     CompilationResult ShaderGenerator::Generate(const std::string &source, ShaderGenerationOptions options)

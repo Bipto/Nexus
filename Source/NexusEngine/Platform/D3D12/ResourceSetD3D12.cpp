@@ -32,8 +32,11 @@ namespace Nexus::Graphics
 
             for (int i = 0; i < textureCount; i++)
             {
-                m_SamplerCPUDescriptors.push_back(cpuLocation);
-                m_SamplerGPUDescriptors.push_back(gpuLocation);
+                const auto &textureInfo = spec.Textures.at(i);
+                const uint32_t slot = ResourceSet::GetLinearDescriptorSlot(textureInfo.Set, textureInfo.Binding);
+
+                m_SamplerCPUDescriptors[slot] = cpuLocation;
+                m_SamplerGPUDescriptors[slot] = gpuLocation;
 
                 cpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
                 gpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
@@ -57,8 +60,11 @@ namespace Nexus::Graphics
             {
                 for (int i = 0; i < spec.Textures.size(); i++)
                 {
-                    m_TextureCPUDescriptors.push_back(cpuLocation);
-                    m_TextureGPUDescriptors.push_back(gpuLocation);
+                    const auto &textureInfo = spec.Textures.at(i);
+                    const uint32_t slot = ResourceSet::GetLinearDescriptorSlot(textureInfo.Set, textureInfo.Binding);
+
+                    m_TextureCPUDescriptors[slot] = cpuLocation;
+                    m_TextureGPUDescriptors[slot] = gpuLocation;
 
                     cpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
                     gpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -69,8 +75,11 @@ namespace Nexus::Graphics
             {
                 for (int i = 0; i < spec.UniformBuffers.size(); i++)
                 {
-                    m_ConstantBufferCPUDescriptors.push_back(cpuLocation);
-                    m_ConstantBufferGPUDescriptors.push_back(gpuLocation);
+                    const auto &constantBufferInfo = spec.UniformBuffers.at(i);
+                    const uint32_t slot = ResourceSet::GetLinearDescriptorSlot(constantBufferInfo.Set, constantBufferInfo.Binding);
+
+                    m_ConstantBufferCPUDescriptors[slot] = cpuLocation;
+                    m_ConstantBufferGPUDescriptors[slot] = gpuLocation;
 
                     cpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
                     gpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -81,90 +90,62 @@ namespace Nexus::Graphics
 
     void ResourceSetD3D12::WriteTexture(Texture *texture, const std::string &name)
     {
-        // const auto d3d12Device = m_Device->GetDevice();
-        // TextureD3D12 *d3d12Texture = (TextureD3D12 *)texture;
-        //// uint32_t slot = ResourceSet::GetTextureSlot(set, binding);
+        const auto d3d12Device = m_Device->GetDevice();
+        TextureD3D12 *d3d12Texture = (TextureD3D12 *)texture;
 
-        // const uint32_t index = GetLinearDescriptorSlot(set, binding);
-        // const uint32_t newBinding = m_TextureBindings.at(index);
+        const BindingInfo &info = m_TextureBindingInfos.at(name);
+        const uint32_t index = GetLinearDescriptorSlot(info.Set, info.Binding);
 
-        // D3D12_SHADER_RESOURCE_VIEW_DESC srv;
-        // srv.Format = d3d12Texture->GetFormat();
-        // srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-        // srv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-        // srv.Texture2D.MipLevels = 1;
-        // srv.Texture2D.MostDetailedMip = 0;
-        // srv.Texture2D.PlaneSlice = 0;
-        // srv.Texture2D.ResourceMinLODClamp = 0.0f;
+        D3D12_SHADER_RESOURCE_VIEW_DESC srv;
+        srv.Format = d3d12Texture->GetFormat();
+        srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+        srv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+        srv.Texture2D.MipLevels = 1;
+        srv.Texture2D.MostDetailedMip = 0;
+        srv.Texture2D.PlaneSlice = 0;
+        srv.Texture2D.ResourceMinLODClamp = 0.0f;
 
-        // D3D12_CPU_DESCRIPTOR_HANDLE textureHandle = m_TextureCPUDescriptors.at(newBinding);
+        D3D12_CPU_DESCRIPTOR_HANDLE textureHandle = m_TextureCPUDescriptors.at(index);
+        d3d12Device->CreateShaderResourceView(d3d12Texture->GetD3D12ResourceHandle(),
+                                              &srv,
+                                              textureHandle);
+        D3D12_SAMPLER_DESC sd;
+        sd.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+        sd.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+        sd.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+        sd.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+        sd.MipLODBias = 0;
+        sd.MaxAnisotropy = 1;
+        sd.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+        sd.BorderColor[0] = 0.0f;
+        sd.BorderColor[1] = 0.0f;
+        sd.BorderColor[2] = 0.0f;
+        sd.BorderColor[3] = 0.0f;
+        sd.MinLOD = 0.0f;
+        sd.MaxLOD = D3D12_FLOAT32_MAX;
 
-        // d3d12Device->CreateShaderResourceView(d3d12Texture->GetD3D12ResourceHandle(),
-        //                                       &srv,
-        //                                       textureHandle);
-
-        // D3D12_SAMPLER_DESC sd;
-        // sd.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-        // sd.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-        // sd.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-        // sd.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-        // sd.MipLODBias = 0;
-        // sd.MaxAnisotropy = 1;
-        // sd.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-        // sd.BorderColor[0] = 0.0f;
-        // sd.BorderColor[1] = 0.0f;
-        // sd.BorderColor[2] = 0.0f;
-        // sd.BorderColor[3] = 0.0f;
-        // sd.MinLOD = 0.0f;
-        // sd.MaxLOD = D3D12_FLOAT32_MAX;
-
-        // D3D12_CPU_DESCRIPTOR_HANDLE samplerHandle = m_SamplerCPUDescriptors.at(newBinding);
-
-        // d3d12Device->CreateSampler(
-        //     &sd,
-        //     samplerHandle);
+        D3D12_CPU_DESCRIPTOR_HANDLE samplerHandle = m_SamplerCPUDescriptors.at(index);
+        d3d12Device->CreateSampler(
+            &sd,
+            samplerHandle);
     }
 
     void ResourceSetD3D12::WriteUniformBuffer(UniformBuffer *uniformBuffer, const std::string &name)
     {
-        /* uint32_t slot = ResourceSet::GetUniformBufferSlot(set, binding);
-        uint32_t newBinding = m_UniformBufferBindings.at(slot); */
+        const BindingInfo &info = m_UniformBufferBindingInfos.at(name);
+        const uint32_t index = GetLinearDescriptorSlot(info.Set, info.Binding);
+        auto d3d12Device = m_Device->GetDevice();
+        UniformBufferD3D12 *d3d12UniformBuffer = (UniformBufferD3D12 *)uniformBuffer;
 
-        // const uint32_t index = GetLinearDescriptorSlot(set, binding);
-        // const uint32_t newBinding = m_UniformBufferBindings.at(index);
+        D3D12_CONSTANT_BUFFER_VIEW_DESC desc;
+        desc.BufferLocation = d3d12UniformBuffer->GetHandle()->GetGPUVirtualAddress();
 
-        // auto d3d12Device = m_Device->GetDevice();
-        // UniformBufferD3D12 *d3d12UniformBuffer = (UniformBufferD3D12 *)uniformBuffer;
+        // convert the size of the constant buffer to be 256 byte aligned
+        desc.SizeInBytes = (d3d12UniformBuffer->GetDescription().Size + 255) & ~255;
 
-        // D3D12_CONSTANT_BUFFER_VIEW_DESC desc;
-        // desc.BufferLocation = d3d12UniformBuffer->GetHandle()->GetGPUVirtualAddress();
-
-        //// convert the size of the constant buffer to be 256 byte aligned
-        // desc.SizeInBytes = (d3d12UniformBuffer->GetDescription().Size + 255) & ~255;
-        //
-        // d3d12Device->CreateConstantBufferView(
-        //    &desc,
-        //    m_ConstantBufferCPUDescriptors[newBinding]);
-    }
-
-    D3D12_GPU_DESCRIPTOR_HANDLE ResourceSetD3D12::GetSamplerGPUStartHandle()
-    {
-        return m_SamplerDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
-    }
-
-    D3D12_GPU_DESCRIPTOR_HANDLE ResourceSetD3D12::GetConstantBufferTextureGPUStartHandle()
-    {
-        return m_TextureConstantBufferDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
-    }
-
-    D3D12_GPU_DESCRIPTOR_HANDLE ResourceSetD3D12::GetTextureGPUStartHandle()
-    {
-        return m_TextureGPUDescriptors[0];
-    }
-
-    D3D12_GPU_DESCRIPTOR_HANDLE ResourceSetD3D12::GetConstantBufferGPUStartHandle()
-    {
-        return m_ConstantBufferGPUDescriptors[0];
+        d3d12Device->CreateConstantBufferView(
+            &desc,
+            m_ConstantBufferCPUDescriptors.at(index));
     }
 
     ID3D12DescriptorHeap *ResourceSetD3D12::GetSamplerDescriptorHeap()
@@ -190,6 +171,16 @@ namespace Nexus::Graphics
     bool ResourceSetD3D12::HasConstantBuffers() const
     {
         return m_Specification.UniformBuffers.size() > 0;
+    }
+
+    const D3D12_GPU_DESCRIPTOR_HANDLE ResourceSetD3D12::GetSamplerStartHandle() const
+    {
+        return m_SamplerDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+    }
+
+    const D3D12_GPU_DESCRIPTOR_HANDLE ResourceSetD3D12::GetTextureConstantBufferStartHandle() const
+    {
+        return m_TextureConstantBufferDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
     }
 }
 

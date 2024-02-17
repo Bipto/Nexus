@@ -49,7 +49,7 @@ namespace Nexus::Graphics
         const std::map<std::string, uint32_t> &GetLinearUniformBufferBindings() const;
         const ResourceSetSpecification &GetSpecification() const;
 
-        static constexpr uint32_t DescriptorSetCount = 4096;
+        static constexpr uint32_t DescriptorSetCount = 64;
         static uint32_t GetLinearDescriptorSlot(uint32_t set, uint32_t binding);
 
         static std::map<std::string, uint32_t> RemapToLinearBindings(const std::vector<ResourceBinding> &resources);

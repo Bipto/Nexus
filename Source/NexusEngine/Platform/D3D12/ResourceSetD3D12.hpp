@@ -16,11 +16,6 @@ namespace Nexus::Graphics
         virtual void WriteTexture(Texture *texture, const std::string &name) override;
         virtual void WriteUniformBuffer(UniformBuffer *uniformBuffer, const std::string &name) override;
 
-        D3D12_GPU_DESCRIPTOR_HANDLE GetSamplerGPUStartHandle();
-        D3D12_GPU_DESCRIPTOR_HANDLE GetConstantBufferTextureGPUStartHandle();
-        D3D12_GPU_DESCRIPTOR_HANDLE GetTextureGPUStartHandle();
-        D3D12_GPU_DESCRIPTOR_HANDLE GetConstantBufferGPUStartHandle();
-
         ID3D12DescriptorHeap *GetSamplerDescriptorHeap();
         ID3D12DescriptorHeap *GetTextureConstantBufferDescriptorHeap();
 
@@ -28,21 +23,21 @@ namespace Nexus::Graphics
         bool HasSamplerHeap() const;
         bool HasConstantBuffers() const;
 
+        const D3D12_GPU_DESCRIPTOR_HANDLE GetSamplerStartHandle() const;
+        const D3D12_GPU_DESCRIPTOR_HANDLE GetTextureConstantBufferStartHandle() const;
+
     private:
         Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_SamplerDescriptorHeap = nullptr;
         Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_TextureConstantBufferDescriptorHeap = nullptr;
 
-        std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_SamplerCPUDescriptors;
-        std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> m_SamplerGPUDescriptors;
-        std::vector<uint32_t> m_SamplerCPUDescriptorSlots;
+        std::map<uint32_t, D3D12_CPU_DESCRIPTOR_HANDLE> m_SamplerCPUDescriptors;
+        std::map<uint32_t, D3D12_GPU_DESCRIPTOR_HANDLE> m_SamplerGPUDescriptors;
 
-        std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_ConstantBufferCPUDescriptors;
-        std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> m_ConstantBufferGPUDescriptors;
-        std::vector<uint32_t> m_ConstantBufferCPUDescriptorsSlots;
+        std::map<uint32_t, D3D12_CPU_DESCRIPTOR_HANDLE> m_ConstantBufferCPUDescriptors;
+        std::map<uint32_t, D3D12_GPU_DESCRIPTOR_HANDLE> m_ConstantBufferGPUDescriptors;
 
-        std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_TextureCPUDescriptors;
-        std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> m_TextureGPUDescriptors;
-        std::vector<uint32_t> m_TextureCPUDescriptorSlots;
+        std::map<uint32_t, D3D12_CPU_DESCRIPTOR_HANDLE> m_TextureCPUDescriptors;
+        std::map<uint32_t, D3D12_GPU_DESCRIPTOR_HANDLE> m_TextureGPUDescriptors;
 
         GraphicsDeviceD3D12 *m_Device = nullptr;
     };

@@ -101,15 +101,38 @@ namespace Nexus::Graphics
         m_CommandList->SetDescriptorHeaps(heaps.size(), heaps.data());
 
         uint32_t descriptorIndex = 0;
-        if (d3d12ResourceSet->GetSpecification().Textures.size() > 0)
+
+        // bind textures/samplers
+        /* for (int i = 0; i < d3d12ResourceSet->GetSpecification().Textures.size(); i++)
         {
-            m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, d3d12ResourceSet->GetSamplerGPUStartHandle());
-            m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, d3d12ResourceSet->GetTextureGPUStartHandle());
+            const auto &textureInfo = d3d12ResourceSet->GetSpecification().Textures.at(i);
+            uint32_t slot = ResourceSet::GetLinearDescriptorSlot(textureInfo.Set, textureInfo.Binding);
+
+            D3D12_GPU_DESCRIPTOR_HANDLE samplerGPUHandle = d3d12ResourceSet->GetSamplerDescriptorHandle(slot);
+            m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, samplerGPUHandle);
+
+            D3D12_GPU_DESCRIPTOR_HANDLE textureGPUHandle = d3d12ResourceSet->GetTextureDescriptorHandle(slot);
+            m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, textureGPUHandle);
+        } */
+
+        // bind constant buffers
+        /* for (int i = 0; i < d3d12ResourceSet->GetSpecification().UniformBuffers.size(); i++)
+        {
+            const auto &constantBufferInfo = d3d12ResourceSet->GetSpecification().UniformBuffers.at(i);
+            uint32_t slot = ResourceSet::GetLinearDescriptorSlot(constantBufferInfo.Set, constantBufferInfo.Binding);
+
+            D3D12_GPU_DESCRIPTOR_HANDLE constantBufferHandle = d3d12ResourceSet->GetConstantBufferDescriptorHandle(slot);
+            m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, constantBufferHandle);
+        } */
+
+        // bind samplers
+        {
+            m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, d3d12ResourceSet->GetSamplerStartHandle());
         }
 
-        if (d3d12ResourceSet->GetSpecification().UniformBuffers.size() > 0)
+        // bind textures/constant buffers
         {
-            m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, d3d12ResourceSet->GetConstantBufferGPUStartHandle());
+            m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, d3d12ResourceSet->GetTextureConstantBufferStartHandle());
         }
     }
 
