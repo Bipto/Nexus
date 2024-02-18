@@ -51,14 +51,16 @@ namespace Nexus::Graphics
         void CreateDepthStencil();
         void CreateRenderPass();
         void CreateFramebuffers();
+        void CreateResolveAttachment();
 
         void CleanupSwapchain();
         void CleanupDepthStencil();
+        void CleanupResolveAttachment();
         bool AcquireNextImage();
 
         VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
         VkBool32 GetSupportedDepthFormat(VkPhysicalDevice physicalDevice, VkFormat *depthFormat);
-        void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory);
+        void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory, VkSampleCountFlagBits samples);
         uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
         uint32_t GetCurrentFrameIndex();
 
@@ -79,6 +81,10 @@ namespace Nexus::Graphics
         std::vector<VkImageView> m_SwapchainImageViews;
         std::vector<VkImageLayout> m_ImageLayouts;
 
+        VkImage m_ResolveImage;
+        VkDeviceMemory m_ResolveMemory;
+        VkImageView m_ResolveImageView;
+
         VkFormat m_DepthFormat;
         VkImage m_DepthImage;
         VkDeviceMemory m_DepthImageMemory;
@@ -93,8 +99,6 @@ namespace Nexus::Graphics
 
         uint32_t m_FrameNumber = 0;
         uint32_t m_CurrentFrameIndex = 0;
-        // VkSemaphore m_PresentSemaphores[FRAMES_IN_FLIGHT];
-        // VkSemaphore m_RenderSemaphores[FRAMES_IN_FLIGHT];
         VkImage m_CurrentImage = nullptr;
         bool m_SwapchainValid = false;
 

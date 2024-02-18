@@ -274,6 +274,15 @@ namespace Nexus::Graphics
             auto framebufferVk = (FramebufferVk *)m_Description.Target.GetData<Framebuffer *>();
             samples = GetVkSampleCount(framebufferVk->GetFramebufferSpecification().Samples);
         }
+        else if (m_Description.Target.GetType() == RenderTargetType::Swapchain)
+        {
+            auto swapchainVk = (SwapchainVk *)m_Description.Target.GetData<Swapchain *>();
+            samples = GetVkSampleCount(swapchainVk->GetSpecification().Samples);
+        }
+        else
+        {
+            throw std::runtime_error("Failed to find a valid render target type");
+        }
 
         VkPipelineMultisampleStateCreateInfo info = {};
         info.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;

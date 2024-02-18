@@ -163,8 +163,6 @@ namespace Nexus::Graphics
             break;
         }
 
-        std::cout << "Shader source: " << output.Source << std::endl;
-
         output.Successful = true;
         return output;
     }

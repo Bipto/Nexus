@@ -45,6 +45,9 @@ namespace Nexus::Graphics
     {
         /// @brief Whether the application should use VSync
         Graphics::VSyncState VSyncState = Graphics::VSyncState::Enabled;
+
+        /// @brief Whether the swapchain should be multisampled
+        Graphics::MultiSamples Samples = Graphics::MultiSamples::SampleCount1;
     };
 }
 

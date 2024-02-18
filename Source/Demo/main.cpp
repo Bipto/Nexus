@@ -306,13 +306,15 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;
     spec.WindowProperties.Height = 720;
     spec.WindowProperties.Title = "Demo";
     spec.WindowProperties.Resizable = true;
+
+    spec.SwapchainSpecification.Samples = Nexus::Graphics::MultiSamples::SampleCount8;
 
     return new DemoApplication(spec);
 }
