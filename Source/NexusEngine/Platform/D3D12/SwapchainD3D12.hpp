@@ -7,6 +7,8 @@
 #include "GraphicsDeviceD3D12.hpp"
 #include "D3D12Include.hpp"
 
+#include "Nexus/Graphics/Framebuffer.hpp"
+
 #include <array>
 
 namespace Nexus::Graphics
@@ -23,19 +25,20 @@ namespace Nexus::Graphics
         virtual Window *GetWindow() override { return m_Window; }
         virtual void Prepare() override;
 
-        const std::vector<ID3D12Resource2 *> RetrieveBufferHandles() const;
+        ID3D12Resource2 *RetrieveBufferHandle();
         uint32_t GetCurrentBufferIndex();
 
-        const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> RetrieveRenderTargetViewDescriptorHandles() const;
+        const D3D12_CPU_DESCRIPTOR_HANDLE RetrieveRenderTargetViewDescriptorHandle() const;
 
         ID3D12Resource2 *RetrieveDepthBufferHandle();
         D3D12_CPU_DESCRIPTOR_HANDLE RetrieveDepthBufferDescriptorHandle();
 
         uint32_t GetColorAttachmentCount();
-        const std::vector<D3D12_RESOURCE_STATES> &GetCurrentTextureStates() const;
+        const D3D12_RESOURCE_STATES GetCurrentTextureState() const;
         const D3D12_RESOURCE_STATES GetCurrentDepthState() const;
-        void SetTextureState(D3D12_RESOURCE_STATES state, uint32_t index);
+        void SetTextureState(D3D12_RESOURCE_STATES state);
         void SetDepthState(D3D12_RESOURCE_STATES state);
+        Framebuffer *GetMultisampledFramebuffer();
 
     private:
         void Flush();
@@ -46,6 +49,7 @@ namespace Nexus::Graphics
 
         void CreateColourAttachments();
         void CreateDepthAttachment();
+        void CreateMultisampledFramebuffer();
 
     private:
         Window *m_Window = nullptr;
@@ -66,6 +70,8 @@ namespace Nexus::Graphics
 
         std::vector<D3D12_RESOURCE_STATES> m_CurrentTextureStates;
         D3D12_RESOURCE_STATES m_CurrentDepthState;
+
+        Framebuffer *m_MultisampledFramebuffer = nullptr;
     };
 }
 #endif

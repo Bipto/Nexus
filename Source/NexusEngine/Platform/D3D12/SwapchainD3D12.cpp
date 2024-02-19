@@ -15,6 +15,7 @@ namespace Nexus::Graphics
         // setup colour attachments for swapchain
         CreateColourAttachments();
         CreateDepthAttachment();
+        CreateMultisampledFramebuffer();
     }
 
     Nexus::Graphics::SwapchainD3D12::~SwapchainD3D12()
@@ -51,9 +52,9 @@ namespace Nexus::Graphics
         m_CurrentBufferIndex = m_Swapchain->GetCurrentBackBufferIndex();
     }
 
-    std::vector<ID3D12Resource2 *> const SwapchainD3D12::RetrieveBufferHandles() const
+    ID3D12Resource2 *SwapchainD3D12::RetrieveBufferHandle()
     {
-        return m_Buffers;
+        return m_Buffers.at(m_CurrentBufferIndex);
     }
 
     uint32_t SwapchainD3D12::GetCurrentBufferIndex()
@@ -61,9 +62,9 @@ namespace Nexus::Graphics
         return m_CurrentBufferIndex;
     }
 
-    const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> SwapchainD3D12::RetrieveRenderTargetViewDescriptorHandles() const
+    const D3D12_CPU_DESCRIPTOR_HANDLE SwapchainD3D12::RetrieveRenderTargetViewDescriptorHandle() const
     {
-        return m_RenderTargetViewDescriptorHandles;
+        return m_RenderTargetViewDescriptorHandles.at(m_CurrentBufferIndex);
     }
 
     ID3D12Resource2 *SwapchainD3D12::RetrieveDepthBufferHandle()
@@ -81,9 +82,9 @@ namespace Nexus::Graphics
         return 1;
     }
 
-    const std::vector<D3D12_RESOURCE_STATES> &SwapchainD3D12::GetCurrentTextureStates() const
+    const D3D12_RESOURCE_STATES SwapchainD3D12::GetCurrentTextureState() const
     {
-        return m_CurrentTextureStates;
+        return m_CurrentTextureStates.at(m_CurrentBufferIndex);
     }
 
     const D3D12_RESOURCE_STATES SwapchainD3D12::GetCurrentDepthState() const
@@ -91,19 +92,19 @@ namespace Nexus::Graphics
         return m_CurrentDepthState;
     }
 
-    void SwapchainD3D12::SetTextureState(D3D12_RESOURCE_STATES state, uint32_t index)
+    void SwapchainD3D12::SetTextureState(D3D12_RESOURCE_STATES state)
     {
-        if (index > m_CurrentTextureStates.size())
-        {
-            return;
-        }
-
-        m_CurrentTextureStates[index] = state;
+        m_CurrentTextureStates[m_CurrentBufferIndex] = state;
     }
 
     void SwapchainD3D12::SetDepthState(D3D12_RESOURCE_STATES state)
     {
         m_CurrentDepthState = state;
+    }
+
+    Framebuffer *SwapchainD3D12::GetMultisampledFramebuffer()
+    {
+        return m_MultisampledFramebuffer;
     }
 
     void SwapchainD3D12::Flush()
@@ -124,11 +125,13 @@ namespace Nexus::Graphics
         if (m_SwapchainWidth == windowWidth || m_SwapchainHeight == windowHeight)
             return;
 
-        // resize the swapchain
-        ResizeBuffers(windowWidth, windowHeight);
-        CreateDepthAttachment();
         m_SwapchainWidth = windowWidth;
         m_SwapchainHeight = windowHeight;
+
+        // resize the swapchain
+        ResizeBuffers(m_SwapchainWidth, m_SwapchainHeight);
+        CreateDepthAttachment();
+        CreateMultisampledFramebuffer();
     }
 
     void SwapchainD3D12::ResizeBuffers(uint32_t width, uint32_t height)
@@ -298,6 +301,18 @@ namespace Nexus::Graphics
             IID_PPV_ARGS(&m_DepthBuffer));
 
         d3d12Device->CreateDepthStencilView(m_DepthBuffer.Get(), &depthStencilDesc, m_DepthTextureDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+    }
+
+    void SwapchainD3D12::CreateMultisampledFramebuffer()
+    {
+        Nexus::Graphics::FramebufferSpecification spec;
+        spec.Width = m_SwapchainWidth;
+        spec.Height = m_SwapchainHeight;
+        spec.ColorAttachmentSpecification = {Nexus::Graphics::TextureFormat::Color};
+        spec.DepthAttachmentSpecification = Nexus::Graphics::DepthFormat::Depth;
+        spec.Samples = m_Specification.Samples;
+
+        m_MultisampledFramebuffer = m_Device->CreateFramebuffer(spec);
     }
 }
 #endif

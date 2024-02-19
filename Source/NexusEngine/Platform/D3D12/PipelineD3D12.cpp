@@ -4,6 +4,7 @@
 
 #include "ShaderD3D12.hpp"
 #include "FramebufferD3D12.hpp"
+#include "SwapchainD3D12.hpp"
 
 namespace Nexus::Graphics
 {
@@ -399,6 +400,15 @@ namespace Nexus::Graphics
         {
             auto framebuffer = (FramebufferD3D12 *)m_Description.Target.GetData<Framebuffer *>();
             sampleCount = GetSampleCount(framebuffer->GetFramebufferSpecification().Samples);
+        }
+        else if (m_Description.Target.GetType() == RenderTargetType::Swapchain)
+        {
+            auto swapchain = (SwapchainD3D12 *)m_Description.Target.GetData<Swapchain *>();
+            sampleCount = GetSampleCount(swapchain->GetSpecification().Samples);
+        }
+        else
+        {
+            throw std::runtime_error("Failed to find a valid render target type");
         }
 
         D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineDesc{};
