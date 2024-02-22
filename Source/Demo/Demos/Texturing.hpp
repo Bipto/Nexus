@@ -21,6 +21,10 @@ namespace Demos
             m_Mesh = factory.CreateSprite();
 
             m_Texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"));
+
+            Nexus::Graphics::SamplerSpecification samplerSpec{};
+            samplerSpec.MaximumAnisotropy = 8;
+            m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
         }
 
         virtual ~TexturingDemo()
@@ -64,7 +68,7 @@ namespace Demos
                                              m_ClearColour.b,
                                              1.0f});
 
-            m_ResourceSet->WriteTexture(m_Texture, "texSampler");
+            m_ResourceSet->WriteCombinedImageSampler(m_Texture, m_Sampler, "texSampler");
             m_CommandList->SetResourceSet(m_ResourceSet);
 
             m_CommandList->SetVertexBuffer(m_Mesh->GetVertexBuffer());
@@ -110,6 +114,7 @@ namespace Demos
         Nexus::Graphics::ResourceSet *m_ResourceSet;
         Nexus::Graphics::Mesh *m_Mesh;
         Nexus::Graphics::Texture *m_Texture;
+        Nexus::Graphics::Sampler *m_Sampler;
         glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
     };
 }

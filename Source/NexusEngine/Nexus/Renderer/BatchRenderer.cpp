@@ -160,6 +160,9 @@ namespace Nexus::Graphics
         uniformBufferDesc.Size = sizeof(glm::mat4);
         uniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
         m_UniformBuffer = m_Device->CreateUniformBuffer(uniformBufferDesc, nullptr);
+
+        Nexus::Graphics::SamplerSpecification samplerSpec{};
+        m_Sampler = m_Device->CreateSampler(samplerSpec);
     }
 
     void BatchRenderer::Resize()
@@ -943,37 +946,24 @@ namespace Nexus::Graphics
 
         m_ResourceSet->WriteUniformBuffer(m_UniformBuffer, "MVP");
 
-        for (uint32_t i = 0; i < m_Textures.size(); i++)
+        for (uint32_t i = 0; i < MAX_TEXTURES; i++)
         {
-            m_ResourceSet->WriteTexture(m_Textures[i], "texture" + std::to_string(i));
-        }
-
-        for (uint32_t i = m_Textures.size(); i < MAX_TEXTURES; i++)
-        {
-            m_ResourceSet->WriteTexture(m_BlankTexture, "texture0");
+            std::string textureName = "texture" + std::to_string(i);
+            if (i < m_Textures.size())
+            {
+                m_ResourceSet->WriteCombinedImageSampler(m_Textures[i], m_Sampler, textureName.c_str());
+            }
+            else
+            {
+                m_ResourceSet->WriteCombinedImageSampler(m_BlankTexture, m_Sampler, textureName.c_str());
+            }
         }
 
         m_CommandList->Begin();
         m_CommandList->SetPipeline(m_Pipeline);
 
-        /* m_CommandList->SetViewport(m_Viewport);
-        m_CommandList->SetScissor(m_ScissorRectangle); */
-
-        Nexus::Graphics::Viewport vp;
-        vp.X = 0;
-        vp.Y = 0;
-        vp.Width = m_Device->GetPrimaryWindow()->GetWindowSize().X;
-        vp.Height = m_Device->GetPrimaryWindow()->GetWindowSize().Y;
-        vp.MinDepth = 0.0f;
-        vp.MaxDepth = 1.0f;
-        // m_CommandList->SetViewport(vp);
-
-        Nexus::Graphics::Scissor scissor;
-        scissor.X = 0;
-        scissor.Y = 0;
-        scissor.Width = m_Device->GetPrimaryWindow()->GetWindowSize().X;
-        scissor.Height = m_Device->GetPrimaryWindow()->GetWindowSize().Y;
-        // m_CommandList->SetScissor(scissor);
+        m_CommandList->SetViewport(m_Viewport);
+        m_CommandList->SetScissor(m_ScissorRectangle);
 
         m_CommandList->SetViewport(m_Viewport);
         m_CommandList->SetScissor(m_ScissorRectangle);

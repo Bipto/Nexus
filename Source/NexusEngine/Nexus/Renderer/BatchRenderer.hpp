@@ -73,6 +73,7 @@ namespace Nexus::Graphics
 
         Nexus::Graphics::Pipeline *m_Pipeline = nullptr;
         Nexus::Graphics::ResourceSet *m_ResourceSet = nullptr;
+        Nexus::Graphics::Sampler *m_Sampler = nullptr;
 
         std::vector<Nexus::Graphics::VertexPositionTexCoordColorTexIndex> m_Vertices;
         std::vector<uint32_t> m_Indices;

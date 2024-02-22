@@ -8,6 +8,7 @@
 #include "TextureOpenGL.hpp"
 #include "CommandListOpenGL.hpp"
 #include "ResourceSetOpenGL.hpp"
+#include "SamplerOpenGL.hpp"
 
 #if defined(WIN32)
 void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
@@ -229,6 +230,11 @@ namespace Nexus::Graphics
     Framebuffer *GraphicsDeviceOpenGL::CreateFramebuffer(const FramebufferSpecification &spec)
     {
         return new FramebufferOpenGL(spec);
+    }
+
+    Sampler *GraphicsDeviceOpenGL::CreateSampler(const SamplerSpecification &spec)
+    {
+        return new SamplerOpenGL(spec);
     }
 
     ShaderLanguage GraphicsDeviceOpenGL::GetSupportedShaderFormat()

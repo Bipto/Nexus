@@ -10,6 +10,7 @@
 #include "TextureD3D12.hpp"
 #include "ResourceSetD3D12.hpp"
 #include "FramebufferD3D12.hpp"
+#include "SamplerD3D12.hpp"
 
 namespace Nexus::Graphics
 {
@@ -178,6 +179,11 @@ namespace Nexus::Graphics
     Framebuffer *GraphicsDeviceD3D12::CreateFramebuffer(const FramebufferSpecification &spec)
     {
         return new FramebufferD3D12(spec, this);
+    }
+
+    Sampler *GraphicsDeviceD3D12::CreateSampler(const SamplerSpecification &spec)
+    {
+        return new SamplerD3D12(spec);
     }
 
     IDXGIFactory7 *GraphicsDeviceD3D12::GetDXGIFactory() const

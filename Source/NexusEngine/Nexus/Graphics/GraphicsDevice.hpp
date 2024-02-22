@@ -14,6 +14,7 @@
 #include "GraphicsAPI.hpp"
 #include "Swapchain.hpp"
 #include "ResourceSet.hpp"
+#include "Sampler.hpp"
 
 namespace Nexus::Graphics
 {
@@ -122,6 +123,11 @@ namespace Nexus::Graphics
         /// @param pipeline A pipeline to use when creating the resource set
         /// @return A pointer to a resource set
         ResourceSet *CreateResourceSet(Pipeline *pipeline);
+
+        /// @brief A pure virtual method that creates a new sampler from a given specification
+        /// @param spec A set of properties to use when creating the sampler
+        /// @return A pointer to a sampler
+        virtual Sampler *CreateSampler(const SamplerSpecification &spec) = 0;
 
         /// @brief A pure virtual method that returns a ShaderFormat enum representing the supported shading language of the backend
         /// @return The supported shading language of the backend

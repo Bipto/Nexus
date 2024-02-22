@@ -366,12 +366,6 @@ namespace Nexus::Graphics
         glDeleteBuffers(1, &m_Buffer);
     }
 
-    void UniformBufferOpenGL::Bind(uint32_t binding)
-    {
-        glBindBuffer(GL_UNIFORM_BUFFER, m_Buffer);
-        glBindBufferRange(GL_UNIFORM_BUFFER, binding, m_Buffer, 0, m_Description.Size);
-    }
-
     unsigned int UniformBufferOpenGL::GetHandle()
     {
         return m_Buffer;

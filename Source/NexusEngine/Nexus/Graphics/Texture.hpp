@@ -3,24 +3,10 @@
 #include "TextureFormat.hpp"
 #include "Nexus/Types.hpp"
 
+#include "SamplerState.hpp"
+
 namespace Nexus::Graphics
 {
-    /// @brief An enum representing a method of sampling a texture
-    enum SamplerState
-    {
-        /// @brief Pixels will be linearly interpolated and pixels out of range will be clamped to the nearest value in the texture
-        LinearClamp,
-
-        /// @brief Pixels will be linearly interpolated and pixels out of range will be wrapped around into the texture
-        LinearWrap,
-
-        /// @brief Pixels will be clamped to the nearest value and pixels out of range will be clamped to the nearest value in the texture
-        PointClamp,
-
-        /// @brief Pixels will be clamped to the nearest value and pixels out of range will be wrapped around into the texture
-        PointWrap
-    };
-
     /// @brief A struct that represents a set of values to use to create a texture
     struct TextureSpecification
     {

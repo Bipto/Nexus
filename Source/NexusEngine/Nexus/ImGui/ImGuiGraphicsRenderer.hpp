@@ -38,6 +38,7 @@ namespace Nexus::ImGuiUtils
         Nexus::Graphics::Texture *m_FontTexture = nullptr;
 
         std::map<ImTextureID, Nexus::Graphics::Texture *> m_BoundTextures;
+        Nexus::Graphics::Sampler *m_Sampler = nullptr;
         uint64_t m_TextureID = 0;
         ImTextureID m_FontTextureID = 0;
 

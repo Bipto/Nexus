@@ -104,6 +104,16 @@ namespace Nexus::ImGuiUtils
 
         m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
 
+        Nexus::Graphics::SamplerSpecification samplerSpec;
+        samplerSpec.AddressModeU = Nexus::Graphics::SamplerAddressMode::Wrap;
+        samplerSpec.AddressModeV = Nexus::Graphics::SamplerAddressMode::Wrap;
+        samplerSpec.AddressModeW = Nexus::Graphics::SamplerAddressMode::Wrap;
+        samplerSpec.MinimumLOD = 0;
+        samplerSpec.MaximumLOD = 0;
+        samplerSpec.LODBias = 0;
+        samplerSpec.SampleFilter = Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipLinear;
+        m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
+
         auto context = ImGui::CreateContext();
         ImGui::SetCurrentContext(context);
 
@@ -409,7 +419,7 @@ namespace Nexus::ImGuiUtils
         m_UniformBuffer->Unmap();
 
         m_ResourceSet->WriteUniformBuffer(m_UniformBuffer, "MVP");
-        m_ResourceSet->WriteTexture(m_FontTexture, "Texture");
+        m_ResourceSet->WriteCombinedImageSampler(m_FontTexture, m_Sampler, "Texture");
         m_CommandList->SetResourceSet(m_ResourceSet);
 
         auto windowSize = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize();

@@ -49,6 +49,9 @@ namespace Demos
 
             CreatePipeline();
             m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, -2.5f));
+
+            Nexus::Graphics::SamplerSpecification samplerSpec{};
+            m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
         }
 
         virtual ~LightingDemo()
@@ -115,9 +118,10 @@ namespace Demos
                 m_ResourceSet->WriteUniformBuffer(m_CameraUniformBuffer, "Camera");
                 m_ResourceSet->WriteUniformBuffer(m_TransformUniformBuffer, "Transform");
 
-                m_ResourceSet->WriteTexture(m_DiffuseMap, "diffuseMapSampler");
-                m_ResourceSet->WriteTexture(m_NormalMap, "normalMapSampler");
-                m_ResourceSet->WriteTexture(m_SpecularMap, "specularMapSampler");
+                m_ResourceSet->WriteCombinedImageSampler(m_DiffuseMap, m_Sampler, "diffuseMapSampler");
+                m_ResourceSet->WriteCombinedImageSampler(m_NormalMap, m_Sampler, "normalMapSampler");
+                m_ResourceSet->WriteCombinedImageSampler(m_SpecularMap, m_Sampler, "specularMapSampler");
+
                 m_CommandList->SetResourceSet(m_ResourceSet);
             }
 
@@ -156,31 +160,6 @@ namespace Demos
             pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
             pipelineDescription.Shader = m_Shader;
 
-            /* Nexus::Graphics::UniformResourceBinding cameraUniformBinding;
-            cameraUniformBinding.Binding = 0;
-            cameraUniformBinding.Name = "Camera";
-
-            Nexus::Graphics::UniformResourceBinding transformUniformBinding;
-            transformUniformBinding.Binding = 1;
-            transformUniformBinding.Name = "Transform";
-
-            Nexus::Graphics::TextureResourceBinding diffuseMapBinding;
-            diffuseMapBinding.Slot = 0;
-            diffuseMapBinding.Name = "diffuseMapSampler";
-
-            Nexus::Graphics::TextureResourceBinding normalMapBinding;
-            normalMapBinding.Slot = 1;
-            normalMapBinding.Name = "normalMapSampler";
-
-            Nexus::Graphics::TextureResourceBinding specularMapBinding;
-            specularMapBinding.Slot = 2;
-            specularMapBinding.Name = "specularMapSampler";
-
-            Nexus::Graphics::ResourceSetSpecification resources;
-            resources.UniformResourceBindings = {cameraUniformBinding, transformUniformBinding};
-            resources.TextureBindings = {diffuseMapBinding, normalMapBinding, specularMapBinding};
-            pipelineDescription.ResourceSetSpecification = resources; */
-
             pipelineDescription.ResourceSetSpecification.UniformBuffers =
                 {
                     {"Camera", 0, 0},
@@ -215,6 +194,8 @@ namespace Demos
 
         VB_UNIFORM_TRANSFORM_DEMO_LIGHTING m_TransformUniforms;
         Nexus::Graphics::UniformBuffer *m_TransformUniformBuffer;
+
+        Nexus::Graphics::Sampler *m_Sampler;
 
         Nexus::FirstPersonCamera m_Camera;
 

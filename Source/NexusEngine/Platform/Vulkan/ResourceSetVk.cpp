@@ -3,6 +3,7 @@
 #include "ResourceSetVk.hpp"
 #include "TextureVk.hpp"
 #include "BufferVk.hpp"
+#include "SamplerVk.hpp"
 
 #include <algorithm>
 
@@ -140,6 +141,10 @@ namespace Nexus::Graphics
         vkDestroyDescriptorPool(m_Device->GetVkDevice(), m_DescriptorPool, nullptr);
     }
 
+    void ResourceSetVk::PerformResourceUpdate()
+    {
+    }
+
     void ResourceSetVk::WriteTexture(Texture *texture, const std::string &name)
     {
         TextureVk *textureVk = (TextureVk *)texture;
@@ -148,8 +153,8 @@ namespace Nexus::Graphics
         const BindingInfo &info = m_TextureBindingInfos.at(name);
 
         VkDescriptorImageInfo imageBufferInfo = {};
-        imageBufferInfo.sampler = textureVk->GetSampler();
         imageBufferInfo.imageView = textureVk->GetImageView();
+        imageBufferInfo.sampler = VK_NULL_HANDLE;
         imageBufferInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
         VkWriteDescriptorSet textureToWrite = {};
@@ -158,7 +163,7 @@ namespace Nexus::Graphics
         textureToWrite.dstBinding = info.Binding;
         textureToWrite.dstSet = descriptorSets.at(info.Set);
         textureToWrite.descriptorCount = 1;
-        textureToWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        textureToWrite.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
         textureToWrite.pImageInfo = &imageBufferInfo;
 
         vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &textureToWrite, 0, nullptr);
@@ -186,6 +191,55 @@ namespace Nexus::Graphics
         uniformBufferToWrite.dstSet = descriptorSets.at(info.Set);
 
         vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &uniformBufferToWrite, 0, nullptr);
+    }
+
+    void ResourceSetVk::WriteSampler(Sampler *sampler, const std::string &name)
+    {
+        SamplerVk *samplerVk = (SamplerVk *)sampler;
+        const auto &descriptorSets = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
+
+        const BindingInfo &info = m_TextureBindingInfos.at(name);
+
+        VkDescriptorImageInfo imageBufferInfo = {};
+        imageBufferInfo.imageView = VK_NULL_HANDLE;
+        imageBufferInfo.sampler = samplerVk->GetSampler();
+        imageBufferInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+        VkWriteDescriptorSet textureToWrite = {};
+        textureToWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        textureToWrite.pNext = nullptr;
+        textureToWrite.dstBinding = info.Binding;
+        textureToWrite.dstSet = descriptorSets.at(info.Set);
+        textureToWrite.descriptorCount = 1;
+        textureToWrite.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
+        textureToWrite.pImageInfo = &imageBufferInfo;
+
+        vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &textureToWrite, 0, nullptr);
+    }
+
+    void ResourceSetVk::WriteCombinedImageSampler(Texture *texture, Sampler *sampler, const std::string &name)
+    {
+        TextureVk *textureVk = (TextureVk *)texture;
+        SamplerVk *samplerVk = (SamplerVk *)sampler;
+        const auto &descriptorSets = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
+
+        const BindingInfo &info = m_TextureBindingInfos.at(name);
+
+        VkDescriptorImageInfo imageBufferInfo = {};
+        imageBufferInfo.imageView = textureVk->GetImageView();
+        imageBufferInfo.sampler = samplerVk->GetSampler();
+        imageBufferInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+        VkWriteDescriptorSet textureToWrite = {};
+        textureToWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        textureToWrite.pNext = nullptr;
+        textureToWrite.dstBinding = info.Binding;
+        textureToWrite.dstSet = descriptorSets.at(info.Set);
+        textureToWrite.descriptorCount = 1;
+        textureToWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        textureToWrite.pImageInfo = &imageBufferInfo;
+
+        vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &textureToWrite, 0, nullptr);
     }
 
     const std::map<uint32_t, VkDescriptorSetLayout> &ResourceSetVk::GetDescriptorSetLayouts() const

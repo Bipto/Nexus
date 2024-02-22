@@ -4,6 +4,9 @@
 
 #include "TextureD3D12.hpp"
 #include "BufferD3D12.hpp"
+#include "SamplerD3D12.hpp"
+
+#include "Nexus/Utils/Utils.hpp"
 
 namespace Nexus::Graphics
 {
@@ -88,6 +91,10 @@ namespace Nexus::Graphics
         }
     }
 
+    void ResourceSetD3D12::PerformResourceUpdate()
+    {
+    }
+
     void ResourceSetD3D12::WriteTexture(Texture *texture, const std::string &name)
     {
         const auto d3d12Device = m_Device->GetDevice();
@@ -109,7 +116,7 @@ namespace Nexus::Graphics
         d3d12Device->CreateShaderResourceView(d3d12Texture->GetD3D12ResourceHandle(),
                                               &srv,
                                               textureHandle);
-        D3D12_SAMPLER_DESC sd;
+        /* D3D12_SAMPLER_DESC sd;
         sd.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
         sd.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
         sd.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
@@ -127,7 +134,7 @@ namespace Nexus::Graphics
         D3D12_CPU_DESCRIPTOR_HANDLE samplerHandle = m_SamplerCPUDescriptors.at(index);
         d3d12Device->CreateSampler(
             &sd,
-            samplerHandle);
+            samplerHandle); */
     }
 
     void ResourceSetD3D12::WriteUniformBuffer(UniformBuffer *uniformBuffer, const std::string &name)
@@ -146,6 +153,44 @@ namespace Nexus::Graphics
         d3d12Device->CreateConstantBufferView(
             &desc,
             m_ConstantBufferCPUDescriptors.at(index));
+    }
+
+    void ResourceSetD3D12::WriteSampler(Sampler *sampler, const std::string &name)
+    {
+        const BindingInfo &info = m_SamplerBindingInfos.at(name);
+        const uint32_t index = GetLinearDescriptorSlot(info.Set, info.Binding);
+        auto d3d12Device = m_Device->GetDevice();
+        SamplerD3D12 *d3d12Sampler = (SamplerD3D12 *)sampler;
+
+        const auto &spec = d3d12Sampler->GetSamplerSpecification();
+
+        const glm::vec4 color = Nexus::Utils::ColorFromBorderColor(spec.BorderColor);
+
+        D3D12_SAMPLER_DESC sd;
+        sd.Filter = d3d12Sampler->GetFilter();
+        sd.AddressU = d3d12Sampler->GetAddressModeU();
+        sd.AddressV = d3d12Sampler->GetAddressModeV();
+        sd.AddressW = d3d12Sampler->GetAddressModeW();
+        sd.MipLODBias = spec.LODBias;
+        sd.MaxAnisotropy = spec.MaximumAnisotropy;
+        sd.ComparisonFunc = d3d12Sampler->GetComparisonFunc();
+        sd.BorderColor[0] = color.r;
+        sd.BorderColor[1] = color.g;
+        sd.BorderColor[2] = color.b;
+        sd.BorderColor[3] = color.a;
+        sd.MinLOD = spec.MinimumLOD;
+        sd.MaxLOD = spec.MaximumLOD;
+
+        D3D12_CPU_DESCRIPTOR_HANDLE samplerHandle = m_SamplerCPUDescriptors.at(index);
+        d3d12Device->CreateSampler(
+            &sd,
+            samplerHandle);
+    }
+
+    void ResourceSetD3D12::WriteCombinedImageSampler(Texture *texture, Sampler *sampler, const std::string &name)
+    {
+        WriteTexture(texture, name);
+        WriteSampler(sampler, name);
     }
 
     ID3D12DescriptorHeap *ResourceSetD3D12::GetSamplerDescriptorHeap()

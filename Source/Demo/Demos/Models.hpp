@@ -49,6 +49,9 @@ namespace Demos
 
             CreatePipeline();
             m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, -2.5f));
+
+            Nexus::Graphics::SamplerSpecification samplerSpec{};
+            m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
         }
 
         virtual ~ModelDemo()
@@ -111,9 +114,10 @@ namespace Demos
             m_ResourceSet->WriteUniformBuffer(m_CameraUniformBuffer, "Camera");
             m_ResourceSet->WriteUniformBuffer(m_TransformUniformBuffer, "Transform");
 
-            m_ResourceSet->WriteTexture(m_DiffuseMap, "diffuseMapSampler");
-            m_ResourceSet->WriteTexture(m_NormalMap, "normalMapSampler");
-            m_ResourceSet->WriteTexture(m_SpecularMap, "specularMapSampler");
+            m_ResourceSet->WriteCombinedImageSampler(m_DiffuseMap, m_Sampler, "diffuseMapSampler");
+            m_ResourceSet->WriteCombinedImageSampler(m_NormalMap, m_Sampler, "normalMapSampler");
+            m_ResourceSet->WriteCombinedImageSampler(m_SpecularMap, m_Sampler, "specularMapSampler");
+
             m_CommandList->SetResourceSet(m_ResourceSet);
 
             auto &meshes = m_Model->GetMeshes();
@@ -188,6 +192,8 @@ namespace Demos
 
         VB_UNIFORM_TRANSFORM_DEMO_MODELS m_TransformUniforms;
         Nexus::Graphics::UniformBuffer *m_TransformUniformBuffer;
+
+        Nexus::Graphics::Sampler *m_Sampler;
 
         Nexus::FirstPersonCamera m_Camera;
 

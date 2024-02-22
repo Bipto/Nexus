@@ -11,15 +11,6 @@ namespace Nexus::Graphics
         glBindTexture(GL_TEXTURE_2D, this->m_Handle);
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-        m_SamplerMode = GL::GetSamplerState(spec.SamplerState);
-        m_WrapMode = GL::GetWrapMode(spec.SamplerState);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_SamplerMode);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_SamplerMode);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_WrapMode);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_WrapMode);
-
         m_TextureFormat = GL::GetColorTextureFormat(spec.Format);
         glTexStorage2D(GL_TEXTURE_2D, 1, m_TextureFormat, spec.Width, spec.Height);
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -28,12 +19,6 @@ namespace Nexus::Graphics
     TextureOpenGL::~TextureOpenGL()
     {
         glDeleteTextures(1, &this->m_Handle);
-    }
-
-    void TextureOpenGL::Bind(unsigned int slot)
-    {
-        glActiveTexture(GL_TEXTURE0 + slot);
-        glBindTexture(GL_TEXTURE_2D, this->m_Handle);
     }
 
     ResourceHandle TextureOpenGL::GetHandle()

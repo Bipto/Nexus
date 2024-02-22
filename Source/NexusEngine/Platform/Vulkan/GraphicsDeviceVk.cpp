@@ -8,6 +8,7 @@
 #include "TextureVk.hpp"
 #include "ResourceSetVk.hpp"
 #include "FramebufferVk.hpp"
+#include "SamplerVk.hpp"
 
 #include "SDL_vulkan.h"
 
@@ -174,6 +175,11 @@ namespace Nexus::Graphics
     Framebuffer *GraphicsDeviceVk::CreateFramebuffer(const FramebufferSpecification &spec)
     {
         return new FramebufferVk(spec, this);
+    }
+
+    Sampler *GraphicsDeviceVk::CreateSampler(const SamplerSpecification &spec)
+    {
+        return new SamplerVk(this, spec);
     }
 
     ShaderLanguage GraphicsDeviceVk::GetSupportedShaderFormat()

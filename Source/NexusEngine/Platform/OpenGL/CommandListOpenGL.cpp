@@ -180,6 +180,7 @@ namespace Nexus::Graphics
             // upload resources
             const auto &textureBindings = resourcesGL->GetBoundTextures();
             const auto &uniformBufferBindings = resourcesGL->GetBoundUniformBuffers();
+            const auto &samplerBindings = resourcesGL->GetBoundSamplers();
 
             for (const auto &texture : textureBindings)
             {
@@ -187,6 +188,12 @@ namespace Nexus::Graphics
                 glUniform1i(location, location);
                 glActiveTexture(GL_TEXTURE0 + location);
                 glBindTexture(GL_TEXTURE_2D, texture.second->GetHandle());
+            }
+
+            for (const auto &sampler : samplerBindings)
+            {
+                GLint location = glGetUniformLocation(shaderGL->GetHandle(), sampler.first.c_str());
+                glBindSampler(location, sampler.second->GetHandle());
             }
 
             GLint uniformBufferSlot = 0;

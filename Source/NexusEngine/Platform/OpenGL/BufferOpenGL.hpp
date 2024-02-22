@@ -48,7 +48,6 @@ namespace Nexus::Graphics
     public:
         UniformBufferOpenGL(const BufferDescription &description, const void *data);
         virtual ~UniformBufferOpenGL();
-        void Bind(uint32_t binding);
         unsigned int GetHandle();
 
         virtual void *Map() override;

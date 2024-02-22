@@ -7,6 +7,7 @@
 #include "Nexus/Types.hpp"
 #include "Nexus/Graphics/Texture.hpp"
 #include "Nexus/Graphics/Buffer.hpp"
+#include "Nexus/Graphics/Sampler.hpp"
 
 namespace Nexus::Graphics
 {
@@ -42,13 +43,13 @@ namespace Nexus::Graphics
         ResourceSet(const ResourceSetSpecification &spec);
         virtual ~ResourceSet() {}
 
+        virtual void PerformResourceUpdate() = 0;
         virtual void WriteTexture(Texture *texture, const std::string &name) = 0;
         virtual void WriteUniformBuffer(UniformBuffer *uniformBuffer, const std::string &name) = 0;
+        virtual void WriteSampler(Sampler *sampler, const std::string &name) = 0;
+        virtual void WriteCombinedImageSampler(Texture *texture, Sampler *sampler, const std::string &name) = 0;
 
-        const std::map<std::string, uint32_t> &GetLinearTextureBindings() const;
-        const std::map<std::string, uint32_t> &GetLinearUniformBufferBindings() const;
         const ResourceSetSpecification &GetSpecification() const;
-
         static constexpr uint32_t DescriptorSetCount = 64;
         static uint32_t GetLinearDescriptorSlot(uint32_t set, uint32_t binding);
 
@@ -56,10 +57,8 @@ namespace Nexus::Graphics
 
     protected:
         ResourceSetSpecification m_Specification;
-        std::map<std::string, uint32_t> m_TextureBindings;
-        std::map<std::string, uint32_t> m_UniformBufferBindings;
-
         std::map<std::string, BindingInfo> m_TextureBindingInfos;
         std::map<std::string, BindingInfo> m_UniformBufferBindingInfos;
+        std::map<std::string, BindingInfo> m_SamplerBindingInfos;
     };
 }

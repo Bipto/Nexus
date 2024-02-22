@@ -31,100 +31,6 @@ namespace Nexus::Graphics
         SetShader();
     }
 
-    GLenum GetStencilOperation(StencilOperation operation)
-    {
-        switch (operation)
-        {
-        case StencilOperation::Keep:
-            return GL_KEEP;
-        case StencilOperation::Zero:
-            return GL_ZERO;
-        case StencilOperation::Replace:
-            return GL_REPLACE;
-        case StencilOperation::Increment:
-            return GL_INCR;
-        case StencilOperation::Decrement:
-            return GL_DECR;
-        case StencilOperation::Invert:
-            return GL_INVERT;
-        }
-
-        throw std::runtime_error("Failed to find a valid stencil operation");
-    }
-
-    GLenum GetComparisonFunction(ComparisonFunction function)
-    {
-        switch (function)
-        {
-        case ComparisonFunction::Always:
-            return GL_ALWAYS;
-        case ComparisonFunction::Equal:
-            return GL_EQUAL;
-        case ComparisonFunction::Greater:
-            return GL_GREATER;
-        case ComparisonFunction::GreaterEqual:
-            return GL_GEQUAL;
-        case ComparisonFunction::Less:
-            return GL_LESS;
-        case ComparisonFunction::LessEqual:
-            return GL_LEQUAL;
-        case ComparisonFunction::Never:
-            return GL_NEVER;
-        case ComparisonFunction::NotEqual:
-            return GL_NOTEQUAL;
-        }
-
-        throw std::runtime_error("Failed to find a valid comparison function");
-    }
-
-    GLenum GetBlendFunction(BlendFunction function)
-    {
-        switch (function)
-        {
-        case BlendFunction::Zero:
-            return GL_ZERO;
-        case BlendFunction::One:
-            return GL_ONE;
-        case BlendFunction::SourceColor:
-            return GL_SRC_COLOR;
-        case BlendFunction::OneMinusSourceColor:
-            return GL_ONE_MINUS_SRC_COLOR;
-        case BlendFunction::DestinationColor:
-            return GL_DST_COLOR;
-        case BlendFunction::OneMinusDestinationColor:
-            return GL_ONE_MINUS_DST_COLOR;
-        case BlendFunction::SourceAlpha:
-            return GL_SRC_ALPHA;
-        case BlendFunction::OneMinusSourceAlpha:
-            return GL_ONE_MINUS_SRC_ALPHA;
-        case BlendFunction::DestinationAlpha:
-            return GL_DST_ALPHA;
-        case BlendFunction::OneMinusDestinationAlpha:
-            return GL_ONE_MINUS_DST_ALPHA;
-        }
-
-        throw std::runtime_error("Failed to find a valid blend function");
-    }
-
-    GLenum GetBlendEquation(BlendEquation equation)
-    {
-        switch (equation)
-        {
-        case BlendEquation::Add:
-            return GL_FUNC_ADD;
-        case BlendEquation::Subtract:
-            return GL_FUNC_SUBTRACT;
-        case BlendEquation::ReverseSubtract:
-            return GL_FUNC_REVERSE_SUBTRACT;
-        case BlendEquation::Min:
-            return GL_MIN;
-        case BlendEquation::Max:
-            return GL_MAX;
-        }
-
-        throw std::runtime_error("Failed to find a valid blend equation");
-    }
-
     void PipelineOpenGL::SetupDepthStencil()
     {
         // enable/disable depth testing
@@ -157,16 +63,16 @@ namespace Nexus::Graphics
             glDisable(GL_STENCIL_TEST);
         }
 
-        GLenum sfail = GetStencilOperation(m_Description.DepthStencilDescription.StencilFailOperation);
-        GLenum dpfail = GetStencilOperation(m_Description.DepthStencilDescription.StencilSuccessDepthFailOperation);
-        GLenum dppass = GetStencilOperation(m_Description.DepthStencilDescription.StencilSuccessDepthSuccessOperation);
+        GLenum sfail = GL::GetStencilOperation(m_Description.DepthStencilDescription.StencilFailOperation);
+        GLenum dpfail = GL::GetStencilOperation(m_Description.DepthStencilDescription.StencilSuccessDepthFailOperation);
+        GLenum dppass = GL::GetStencilOperation(m_Description.DepthStencilDescription.StencilSuccessDepthSuccessOperation);
 
         glStencilOp(sfail, dpfail, dppass);
-        GLenum stencilFunction = GetComparisonFunction(m_Description.DepthStencilDescription.StencilComparisonFunction);
+        GLenum stencilFunction = GL::GetComparisonFunction(m_Description.DepthStencilDescription.StencilComparisonFunction);
         glStencilFunc(stencilFunction, 1, m_Description.DepthStencilDescription.StencilMask);
         glStencilMask(m_Description.DepthStencilDescription.StencilMask);
 
-        GLenum depthFunction = GetComparisonFunction(m_Description.DepthStencilDescription.DepthComparisonFunction);
+        GLenum depthFunction = GL::GetComparisonFunction(m_Description.DepthStencilDescription.DepthComparisonFunction);
         glDepthFunc(depthFunction);
 
         glDepthRangef(m_Description.DepthStencilDescription.MinDepth, m_Description.DepthStencilDescription.MaxDepth);
@@ -236,15 +142,15 @@ namespace Nexus::Graphics
         {
             glEnable(GL_BLEND);
 
-            auto sourceColourFunction = GetBlendFunction(m_Description.BlendStateDescription.SourceColourBlend);
-            auto sourceAlphaFunction = GetBlendFunction(m_Description.BlendStateDescription.SourceAlphaBlend);
+            auto sourceColourFunction = GL::GetBlendFunction(m_Description.BlendStateDescription.SourceColourBlend);
+            auto sourceAlphaFunction = GL::GetBlendFunction(m_Description.BlendStateDescription.SourceAlphaBlend);
 
-            auto destinationColourFunction = GetBlendFunction(m_Description.BlendStateDescription.DestinationColourBlend);
-            auto destinationAlphaFunction = GetBlendFunction(m_Description.BlendStateDescription.DestinationAlphaBlend);
+            auto destinationColourFunction = GL::GetBlendFunction(m_Description.BlendStateDescription.DestinationColourBlend);
+            auto destinationAlphaFunction = GL::GetBlendFunction(m_Description.BlendStateDescription.DestinationAlphaBlend);
             // glBlendFuncSeparate(destinationColourFunction, destinationColourFunction, destinationColourFunction, destinationAlphaFunction);
             glBlendFuncSeparate(sourceColourFunction, destinationColourFunction, sourceAlphaFunction, destinationAlphaFunction);
 
-            auto blendEquation = GetBlendEquation(m_Description.BlendStateDescription.BlendEquation);
+            auto blendEquation = GL::GetBlendEquation(m_Description.BlendStateDescription.BlendEquation);
             glBlendEquation(blendEquation);
         }
         else

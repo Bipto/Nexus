@@ -287,10 +287,6 @@ namespace Nexus
             SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
             SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-#if defined(_DEBUG)
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
-#endif
-
             if (swapchainSpec.Samples != Graphics::MultiSamples::SampleCount1)
             {
                 uint32_t samples = Graphics::GetSampleCount(swapchainSpec.Samples);

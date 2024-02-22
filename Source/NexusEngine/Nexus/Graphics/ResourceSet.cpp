@@ -5,8 +5,6 @@ namespace Nexus::Graphics
     ResourceSet::ResourceSet(const ResourceSetSpecification &spec)
         : m_Specification(spec)
     {
-        m_TextureBindings = RemapToLinearBindings(spec.Textures);
-        m_UniformBufferBindings = RemapToLinearBindings(spec.UniformBuffers);
 
         for (const auto &texture : spec.Textures)
         {
@@ -14,6 +12,7 @@ namespace Nexus::Graphics
             info.Set = texture.Set;
             info.Binding = texture.Binding;
             m_TextureBindingInfos[texture.Name] = info;
+            m_SamplerBindingInfos[texture.Name] = info;
         }
 
         for (const auto &uniformBuffer : spec.UniformBuffers)
@@ -23,16 +22,6 @@ namespace Nexus::Graphics
             info.Binding = uniformBuffer.Binding;
             m_UniformBufferBindingInfos[uniformBuffer.Name] = info;
         }
-    }
-
-    const std::map<std::string, uint32_t> &ResourceSet::GetLinearTextureBindings() const
-    {
-        return m_TextureBindings;
-    }
-
-    const std::map<std::string, uint32_t> &ResourceSet::GetLinearUniformBufferBindings() const
-    {
-        return m_UniformBufferBindings;
     }
 
     const ResourceSetSpecification &ResourceSet::GetSpecification() const
