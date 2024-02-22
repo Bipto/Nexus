@@ -1,3 +1,5 @@
+#if defined(NX_PLATFORM_D3D12)
+
 #include "SamplerD3D12.hpp"
 
 #include "D3D12Utils.hpp"
@@ -48,3 +50,5 @@ namespace Nexus::Graphics
         return m_ComparisonFunc;
     }
 }
+
+#endif

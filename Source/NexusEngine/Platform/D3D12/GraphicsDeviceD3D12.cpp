@@ -196,6 +196,15 @@ namespace Nexus::Graphics
         return m_CommandQueue.Get();
     }
 
+    const GraphicsCapabilities GraphicsDeviceD3D12::GetGraphicsCapabilities() const
+    {
+        GraphicsCapabilities capabilities;
+        capabilities.SupportsMultisampledFramebuffer = true;
+        capabilities.SupportsMultisampledSwapchain = true;
+        capabilities.SupportsLODBias = true;
+        return capabilities;
+    }
+
     ID3D12Device10 *GraphicsDeviceD3D12::GetDevice() const
     {
         return m_Device.Get();

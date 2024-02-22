@@ -199,14 +199,22 @@ namespace Nexus::GL
         {
         case Nexus::Graphics::SamplerAddressMode::Wrap:
             return GL_REPEAT;
+        case Nexus::Graphics::SamplerAddressMode::MirrorOnce:
+#if !defined(NX_PLATFORM_WEBGL2)
+            return GL_MIRROR_CLAMP_TO_EDGE;
+#else
+            return GL_MIRROR_CLAMP_TO_EDGE_EXT;
+#endif
         case Nexus::Graphics::SamplerAddressMode::Mirror:
             return GL_MIRRORED_REPEAT;
-        case Nexus::Graphics::SamplerAddressMode::MirrorOnce:
-            return GL_MIRROR_CLAMP_TO_EDGE;
+        case Nexus::Graphics::SamplerAddressMode::Border:
+#if !defined(NX_PLATFORM_WEBGL2)
+            return GL_CLAMP_TO_BORDER;
+#else
+            return GL_CLAMP_TO_BORDER_EXT;
+#endif
         case Nexus::Graphics::SamplerAddressMode::Clamp:
             return GL_CLAMP_TO_EDGE;
-        case Nexus::Graphics::SamplerAddressMode::Border:
-            return GL_CLAMP_TO_BORDER;
         default:
             throw std::runtime_error("Failed to find a valid address mode");
         }

@@ -35,6 +35,7 @@ namespace Nexus::Graphics
         virtual ResourceSet *CreateResourceSet(const ResourceSetSpecification &spec) override;
         virtual Framebuffer *CreateFramebuffer(const FramebufferSpecification &spec) override;
         virtual Sampler *CreateSampler(const SamplerSpecification &spec) override;
+        virtual const GraphicsCapabilities GetGraphicsCapabilities() const override;
 
         virtual ShaderLanguage GetSupportedShaderFormat() override;
         virtual float GetUVCorrection() { return 1.0f; }

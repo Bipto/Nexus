@@ -15,6 +15,7 @@
 #include "Swapchain.hpp"
 #include "ResourceSet.hpp"
 #include "Sampler.hpp"
+#include "GraphicsCapabilities.hpp"
 
 namespace Nexus::Graphics
 {
@@ -136,6 +137,8 @@ namespace Nexus::Graphics
         /// @brief A pure virtual method that returns a value that can be used to standardise UV coordinates across backends
         /// @return A float representing the correction
         virtual float GetUVCorrection() = 0;
+
+        virtual const GraphicsCapabilities GetGraphicsCapabilities() const = 0;
 
         /// @brief A method that generates a supported shader type from a GLSL file and a vertex buffer layout
         /// @param filepath The filepath to load the GLSL shader from

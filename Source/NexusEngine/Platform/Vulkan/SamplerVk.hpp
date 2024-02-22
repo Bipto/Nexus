@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_VULKAN)
+
 #include "Vk.hpp"
 
 #include "GraphicsDeviceVk.hpp"
@@ -21,3 +23,5 @@ namespace Nexus::Graphics
         VkSampler m_Sampler;
     };
 }
+
+#endif

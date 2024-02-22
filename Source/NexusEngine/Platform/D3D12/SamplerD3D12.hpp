@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_D3D12)
+
 #include "D3D12Include.hpp"
 #include "Nexus/Graphics/Sampler.hpp"
 
@@ -27,3 +29,5 @@ namespace Nexus::Graphics
         D3D12_COMPARISON_FUNC m_ComparisonFunc;
     };
 }
+
+#endif

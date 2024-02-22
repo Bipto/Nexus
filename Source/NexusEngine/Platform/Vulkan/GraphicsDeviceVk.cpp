@@ -182,6 +182,15 @@ namespace Nexus::Graphics
         return new SamplerVk(this, spec);
     }
 
+    const GraphicsCapabilities GraphicsDeviceVk::GetGraphicsCapabilities() const
+    {
+        GraphicsCapabilities capabilities;
+        capabilities.SupportsLODBias = true;
+        capabilities.SupportsMultisampledFramebuffer = true;
+        capabilities.SupportsMultisampledSwapchain = true;
+        return capabilities;
+    }
+
     ShaderLanguage GraphicsDeviceVk::GetSupportedShaderFormat()
     {
         return ShaderLanguage::SPIRV;

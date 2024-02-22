@@ -237,6 +237,19 @@ namespace Nexus::Graphics
         return new SamplerOpenGL(spec);
     }
 
+    const GraphicsCapabilities GraphicsDeviceOpenGL::GetGraphicsCapabilities() const
+    {
+        GraphicsCapabilities capabilities;
+        capabilities.SupportsMultisampledSwapchain = true;
+
+#if !defined(NX_PLATFORM_WEBGL2)
+        capabilities.SupportsLODBias = true;
+        capabilities.SupportsMultisampledFramebuffer = true;
+#endif
+
+        return capabilities;
+    }
+
     ShaderLanguage GraphicsDeviceOpenGL::GetSupportedShaderFormat()
     {
 #if defined(__EMSCRIPTEN__) || defined(__ANDROID__)

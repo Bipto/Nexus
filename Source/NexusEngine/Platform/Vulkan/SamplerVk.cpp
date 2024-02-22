@@ -1,3 +1,5 @@
+#if defined(NX_PLATFORM_VULKAN)
+
 #include "SamplerVk.hpp"
 
 namespace Nexus::Graphics
@@ -57,3 +59,5 @@ namespace Nexus::Graphics
         return m_Sampler;
     }
 }
+
+#endif

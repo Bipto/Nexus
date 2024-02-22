@@ -2,8 +2,10 @@
 
 namespace Nexus::Graphics
 {
-    struct GraphicsDeviceSupport
+    struct GraphicsCapabilities
     {
-        bool MultiSampledFramebuffer = false;
+        bool SupportsMultisampledFramebuffer = false;
+        bool SupportsMultisampledSwapchain = false;
+        bool SupportsLODBias = false;
     };
 }

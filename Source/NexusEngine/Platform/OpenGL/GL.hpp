@@ -6,6 +6,7 @@
 #include <emscripten.h>
 #include <emscripten/html5.h>
 #include <GLES3/gl3.h>
+#include <GLES2/gl2ext.h>
 #else
 #include "glad/glad.h"
 #endif
