@@ -35,6 +35,9 @@ namespace Nexus::GL
 
     GLenum GetSamplerAddressMode(Nexus::Graphics::SamplerAddressMode addressMode);
     void GetSamplerFilter(Nexus::Graphics::SamplerFilter filter, GLenum &min, GLenum &max);
+
+    GLenum GetPixelType(Nexus::Graphics::PixelFormat format);
+    GLenum GetPixelInternalFormat(Nexus::Graphics::PixelFormat format);
 }
 
 #endif

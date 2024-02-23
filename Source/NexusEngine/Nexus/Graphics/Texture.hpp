@@ -3,6 +3,8 @@
 #include "TextureFormat.hpp"
 #include "Nexus/Types.hpp"
 
+#include "PixelFormat.hpp"
+
 #include "SamplerState.hpp"
 
 namespace Nexus::Graphics
@@ -24,9 +26,6 @@ namespace Nexus::Graphics
 
         /// @brief A value representing how the texture will be sampled
         SamplerState SamplerState = SamplerState::LinearWrap;
-
-        /// @brief Whether image data will be retained in RAM
-        bool RetainImageData = true;
     };
 
     /// @brief A pure virtual class that represents an API specific texture

@@ -42,11 +42,14 @@ namespace Nexus::Graphics
 
     private:
         virtual Shader *CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout) override;
+        std::vector<std::string> GetSupportedExtensions();
 
     private:
         const char *m_GlslVersion;
         FramebufferOpenGL *m_BoundFramebuffer = nullptr;
         VSyncState m_VsyncState = VSyncState::Enabled;
+
+        std::vector<std::string> m_Extensions;
     };
 }
 

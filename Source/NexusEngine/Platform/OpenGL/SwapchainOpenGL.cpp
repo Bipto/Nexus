@@ -19,6 +19,16 @@ namespace Nexus::Graphics
             s_ContextCreated = true;
         }
 
+        /* #if defined(EMSCRIPTEN)
+                EmscriptenWebGLContextAttributes attrs;
+                attrs.antialias = true;
+                attrs.majorVersion = 3;
+                attrs.minorVersion = 2;
+                attrs.alpha = true;
+                EMSCRIPTEN_WEBGL_CONTEXT_HANDLE webgl_context = emscripten_webgl_create_context("#canvas", &attrs);
+                emscripten_webgl_make_context_current(webgl_context);
+        #endif */
+
         m_Context = SDL_GL_CreateContext(s_ContextWindow);
 
         SDL_GL_MakeCurrent(window->GetSDLWindowHandle(), m_Context);

@@ -271,6 +271,244 @@ namespace Nexus::GL
         }
     }
 
+    GLenum GetPixelType(Nexus::Graphics::PixelFormat format)
+    {
+        switch (format)
+        {
+        case Nexus::Graphics::PixelFormat::R8_UNorm:
+        case Nexus::Graphics::PixelFormat::R16_UNorm:
+        case Nexus::Graphics::PixelFormat::R16_Float:
+        case Nexus::Graphics::PixelFormat::R32_Float:
+        case Nexus::Graphics::PixelFormat::BC4_UNorm:
+            return GL_RED;
+
+        case Nexus::Graphics::PixelFormat::R8_SNorm:
+        case Nexus::Graphics::PixelFormat::R8_UInt:
+        case Nexus::Graphics::PixelFormat::R8_SInt:
+        case Nexus::Graphics::PixelFormat::R16_SNorm:
+        case Nexus::Graphics::PixelFormat::R16_UInt:
+        case Nexus::Graphics::PixelFormat::R16_SInt:
+        case Nexus::Graphics::PixelFormat::R32_UInt:
+        case Nexus::Graphics::PixelFormat::R32_SInt:
+        case Nexus::Graphics::PixelFormat::BC4_SNorm:
+            return GL_RED_INTEGER;
+
+        case Nexus::Graphics::PixelFormat::R8_G8_UNorm:
+        case Nexus::Graphics::PixelFormat::R16_G16_UNorm:
+        case Nexus::Graphics::PixelFormat::R16_G16_Float:
+        case Nexus::Graphics::PixelFormat::R32_G32_Float:
+        case Nexus::Graphics::PixelFormat::BC5_UNorm:
+            return GL_RG;
+
+        case Nexus::Graphics::PixelFormat::R8_G8_SNorm:
+        case Nexus::Graphics::PixelFormat::R8_G8_UInt:
+        case Nexus::Graphics::PixelFormat::R8_G8_SInt:
+        case Nexus::Graphics::PixelFormat::R16_G16_SNorm:
+        case Nexus::Graphics::PixelFormat::R16_G16_UInt:
+        case Nexus::Graphics::PixelFormat::R16_G16_SInt:
+        case Nexus::Graphics::PixelFormat::R32_G32_UInt:
+        case Nexus::Graphics::PixelFormat::R32_G32_SInt:
+        case Nexus::Graphics::PixelFormat::BC5_SNorm:
+            return GL_RG_INTEGER;
+
+        case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm:
+        case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm_SRGB:
+        case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_UNorm:
+        case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_Float:
+        case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float:
+            return GL_RGBA;
+
+        case Nexus::Graphics::PixelFormat::B8_G8_R8_A8_UNorm:
+        case Nexus::Graphics::PixelFormat::B8_G8_R8_A8_UNorm_SRGB:
+            return GL_BGRA;
+
+        case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_SNorm:
+        case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UInt:
+        case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_SInt:
+        case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_SNorm:
+        case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_UInt:
+        case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_SInt:
+        case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_UInt:
+        case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_SInt:
+            return GL_RGBA_INTEGER;
+
+        case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm:
+        case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm_SRGB:
+        case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_UNorm:
+            return GL_RGB;
+
+        case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm:
+        case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm_SRGB:
+        case Nexus::Graphics::PixelFormat::BC2_UNorm:
+        case Nexus::Graphics::PixelFormat::BC2_UNorm_SRGB:
+        case Nexus::Graphics::PixelFormat::BC3_UNorm:
+        case Nexus::Graphics::PixelFormat::BC3_UNorm_SRGB:
+        case Nexus::Graphics::PixelFormat::BC7_UNorm:
+        case Nexus::Graphics::PixelFormat::BC7_Unorm_SRGB:
+        case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A1_UNorm:
+        case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A8_UNorm:
+            return GL_RGBA;
+
+        case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt:
+        case Nexus::Graphics::PixelFormat::D32_Float_S8_UInt:
+            return GL_DEPTH_STENCIL;
+
+        case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UNorm:
+            return GL_RGBA;
+
+        case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UInt:
+            return GL_RGBA_INTEGER;
+
+        case Nexus::Graphics::PixelFormat::R11_G11_B10_Float:
+            return GL_RGB;
+
+        default:
+            throw std::runtime_error("Failed to find a valid format");
+        }
+    }
+
+    GLenum GetPixelInternalFormat(Nexus::Graphics::PixelFormat format)
+    {
+        switch (format)
+        {
+        case Nexus::Graphics::PixelFormat::R8_UNorm:
+            return GL_R8;
+        case Nexus::Graphics::PixelFormat::R8_SNorm:
+            return GL_R8_SNORM;
+        case Nexus::Graphics::PixelFormat::R8_UInt:
+            return GL_R8UI;
+        case Nexus::Graphics::PixelFormat::R8_SInt:
+            return GL_R8I;
+
+        case Nexus::Graphics::PixelFormat::R16_UNorm:
+            return GL_R16;
+        case Nexus::Graphics::PixelFormat::R16_SNorm:
+            return GL_R16_SNORM;
+        case Nexus::Graphics::PixelFormat::R16_UInt:
+            return GL_R16UI;
+        case Nexus::Graphics::PixelFormat::R16_SInt:
+            return GL_R16I;
+        case Nexus::Graphics::PixelFormat::R16_Float:
+            return GL_R16F;
+        case Nexus::Graphics::PixelFormat::R32_UInt:
+            return GL_R32UI;
+        case Nexus::Graphics::PixelFormat::R32_SInt:
+            return GL_R32I;
+        case Nexus::Graphics::PixelFormat::R32_Float:
+            return GL_R32F;
+
+        case Nexus::Graphics::PixelFormat::R8_G8_UNorm:
+            return GL_RG8;
+        case Nexus::Graphics::PixelFormat::R8_G8_SNorm:
+            return GL_RG8_SNORM;
+        case Nexus::Graphics::PixelFormat::R8_G8_UInt:
+            return GL_RG8UI;
+        case Nexus::Graphics::PixelFormat::R8_G8_SInt:
+            return GL_RG8I;
+
+        case Nexus::Graphics::PixelFormat::R16_G16_UNorm:
+            return GL_RG16;
+        case Nexus::Graphics::PixelFormat::R16_G16_SNorm:
+            return GL_RG16_SNORM;
+        case Nexus::Graphics::PixelFormat::R16_G16_SInt:
+            return GL_RG16I;
+        case Nexus::Graphics::PixelFormat::R16_G16_Float:
+            return GL_RG16F;
+
+        case Nexus::Graphics::PixelFormat::R32_G32_UInt:
+            return GL_RG32UI;
+        case Nexus::Graphics::PixelFormat::R32_G32_SInt:
+            return GL_RG32I;
+        case Nexus::Graphics::PixelFormat::R32_G32_Float:
+            return GL_RG32F;
+
+        case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm:
+            return GL_RGBA8;
+        case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm_SRGB:
+            return GL_SRGB8_ALPHA8;
+        case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_SNorm:
+            return GL_RGBA8_SNORM;
+        case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UInt:
+            return GL_RGBA8UI;
+        case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_SInt:
+            return GL_RGBA8I;
+
+        case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_UNorm:
+            return GL_RGBA16;
+        case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_SNorm:
+            return GL_RGBA16_SNORM;
+        case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_UInt:
+            return GL_RGBA16UI;
+        case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_SInt:
+            return GL_RGBA16I;
+        case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_Float:
+            return GL_RGBA16F;
+
+        case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float:
+            return GL_RGBA32F;
+        case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_UInt:
+            return GL_RGBA32UI;
+        case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_SInt:
+            return GL_RGBA32I;
+
+        case Nexus::Graphics::PixelFormat::B8_G8_R8_A8_UNorm:
+            return GL_RGBA;
+        case Nexus::Graphics::PixelFormat::B8_G8_R8_A8_UNorm_SRGB:
+            return GL_SRGB8_ALPHA8;
+
+        case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm:
+            return GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
+        case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm_SRGB:
+            return GL_COMPRESSED_SRGB_S3TC_DXT1_EXT;
+        case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm:
+            return GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+        case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm_SRGB:
+            return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT;
+        case Nexus::Graphics::PixelFormat::BC2_UNorm:
+            return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+        case Nexus::Graphics::PixelFormat::BC2_UNorm_SRGB:
+            return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT;
+        case Nexus::Graphics::PixelFormat::BC3_UNorm:
+            return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+        case Nexus::Graphics::PixelFormat::BC3_UNorm_SRGB:
+            return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
+        case Nexus::Graphics::PixelFormat::BC4_UNorm:
+            return GL_COMPRESSED_RED_RGTC1_EXT;
+        case Nexus::Graphics::PixelFormat::BC4_SNorm:
+            return GL_COMPRESSED_SIGNED_RED_RGTC1_EXT;
+        case Nexus::Graphics::PixelFormat::BC5_UNorm:
+            return GL_COMPRESSED_RG_RGTC2;
+        case Nexus::Graphics::PixelFormat::BC5_SNorm:
+            return GL_COMPRESSED_SIGNED_RG_RGTC2;
+        case Nexus::Graphics::PixelFormat::BC7_UNorm:
+            return GL_COMPRESSED_RGBA_BPTC_UNORM_EXT;
+        case Nexus::Graphics::PixelFormat::BC7_Unorm_SRGB:
+            return GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM_EXT;
+
+        case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_UNorm:
+            return GL_COMPRESSED_RGB8_ETC2;
+        case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A1_UNorm:
+            return GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2;
+        case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A8_UNorm:
+            return GL_COMPRESSED_RGBA8_ETC2_EAC;
+
+        case Nexus::Graphics::PixelFormat::D32_Float_S8_UInt:
+            return GL_DEPTH32F_STENCIL8;
+        case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt:
+            return GL_DEPTH24_STENCIL8;
+
+        case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UNorm:
+            return GL_RGB10_A2;
+        case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UInt:
+            return GL_RGB10_A2UI;
+        case Nexus::Graphics::PixelFormat::R11_G11_B10_Float:
+            return GL_R11F_G11F_B10F;
+
+        default:
+            throw std::runtime_error("Failed to find a valid format");
+        }
+    }
+
     GLenum GetSamplerState(Nexus::Graphics::SamplerState state)
     {
         switch (state)

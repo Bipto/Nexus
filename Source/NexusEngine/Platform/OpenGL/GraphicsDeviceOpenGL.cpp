@@ -127,6 +127,14 @@ namespace Nexus::Graphics
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback(GLDebugMessageCallback, nullptr);
 #endif
+
+        m_Extensions = GetSupportedExtensions();
+
+        std::cout << "Extensions:\n";
+        for (const auto &extension : m_Extensions)
+        {
+            std::cout << extension << "\n";
+        }
     }
 
     void GraphicsDeviceOpenGL::SetContext()
@@ -190,6 +198,22 @@ namespace Nexus::Graphics
     Shader *GraphicsDeviceOpenGL::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout)
     {
         return new ShaderOpenGL(vertexShaderSource, fragmentShaderSource, layout);
+    }
+
+    std::vector<std::string> GraphicsDeviceOpenGL::GetSupportedExtensions()
+    {
+        std::vector<std::string> extensions;
+
+        GLint n = 0;
+        glGetIntegerv(GL_NUM_EXTENSIONS, &n);
+
+        for (GLint i = 0; i < n; i++)
+        {
+            const char *extension = (const char *)glGetStringi(GL_EXTENSIONS, i);
+            extensions.push_back(extension);
+        }
+
+        return extensions;
     }
 
     Texture *GraphicsDeviceOpenGL::CreateTexture(const TextureSpecification &spec)
