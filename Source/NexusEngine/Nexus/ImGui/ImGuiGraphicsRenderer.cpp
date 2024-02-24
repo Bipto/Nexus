@@ -208,8 +208,7 @@ namespace Nexus::ImGuiUtils
         spec.Width = width;
         spec.Height = height;
         spec.NumberOfChannels = channels;
-        spec.Format = Nexus::Graphics::TextureFormat::RGBA8;
-        spec.SamplerState = Nexus::Graphics::SamplerState::LinearClamp;
+        spec.Format = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
 
         m_FontTexture = m_GraphicsDevice->CreateTexture(spec);
         m_FontTexture->SetData(pixels, width * height * channels * sizeof(unsigned char));

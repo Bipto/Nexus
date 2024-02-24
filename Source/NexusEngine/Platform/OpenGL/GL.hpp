@@ -28,16 +28,11 @@ namespace Nexus::GL
     GLenum GetBlendFunction(Nexus::Graphics::BlendFunction function);
     GLenum GetBlendEquation(Nexus::Graphics::BlendEquation equation);
 
-    GLenum GetColorTextureFormat(Nexus::Graphics::TextureFormat format);
-    GLenum GetInternalTextureFormat(Nexus::Graphics::TextureFormat format);
-    GLenum GetTextureFormatBaseType(Nexus::Graphics::TextureFormat format);
-    GLenum GetDepthTextureFormat(Nexus::Graphics::DepthFormat format);
-
     GLenum GetSamplerAddressMode(Nexus::Graphics::SamplerAddressMode addressMode);
     void GetSamplerFilter(Nexus::Graphics::SamplerFilter filter, GLenum &min, GLenum &max);
-
     GLenum GetPixelType(Nexus::Graphics::PixelFormat format);
-    GLenum GetPixelInternalFormat(Nexus::Graphics::PixelFormat format);
+    GLenum GetPixelDataFormat(Nexus::Graphics::PixelFormat format);
+    GLenum GetSizedInternalFormat(Nexus::Graphics::PixelFormat format, bool depthFormat);
 }
 
 #endif

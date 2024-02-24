@@ -19,7 +19,7 @@ namespace Nexus::Graphics
         BC5_SNorm,
         BC5_UNorm,
         BC7_UNorm,
-        BC7_Unorm_SRGB,
+        BC7_UNorm_SRGB,
         D24_UNorm_S8_UInt,
         D32_Float_S8_UInt,
         ETC2_R8_G8_B8_A1_UNorm,
@@ -65,6 +65,7 @@ namespace Nexus::Graphics
         R8_SInt,
         R8_SNorm,
         R8_UInt,
-        R8_UNorm
+        R8_UNorm,
+        None
     };
 }

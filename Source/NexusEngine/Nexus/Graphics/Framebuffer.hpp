@@ -11,6 +11,8 @@
 
 #include "Nexus/Types.hpp"
 
+#include "PixelFormat.hpp"
+
 typedef void *FramebufferTexture;
 
 namespace Nexus::Graphics
@@ -23,11 +25,11 @@ namespace Nexus::Graphics
 
         /// @brief A constructor taking in a texture format to use to create a colour attachment
         /// @param format A texture
-        FramebufferTextureSpecification(TextureFormat format)
+        FramebufferTextureSpecification(PixelFormat format)
             : TextureFormat(format) {}
 
         /// @brief The format to use for a colour attachment
-        TextureFormat TextureFormat;
+        PixelFormat TextureFormat;
     };
 
     /// @brief A struct representing a set of colour attachments for a framebuffer
@@ -53,11 +55,11 @@ namespace Nexus::Graphics
 
         /// @brief A constructor taking in a depth format
         /// @param format The depth format to create a depth attachment with
-        FramebufferDepthAttachmentSpecification(DepthFormat format)
+        FramebufferDepthAttachmentSpecification(PixelFormat format)
             : DepthFormat(format) {}
 
         /// @brief The depth attachment to use to create the depth attachment
-        DepthFormat DepthFormat = DepthFormat::None;
+        PixelFormat DepthFormat = PixelFormat::None;
     };
 
     /// @brief A struct representing a framebuffer configuration
@@ -100,7 +102,7 @@ namespace Nexus::Graphics
 
         /// @brief A method to check whether a framebuffer has a depth attachment
         /// @return A boolean representing whether a framebuffer has a depth attachment
-        virtual bool HasDepthTexture() { return m_Specification.DepthAttachmentSpecification.DepthFormat != DepthFormat::None; }
+        virtual bool HasDepthTexture() { return m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::None; }
 
         /// @brief A pure virtual method to return a colour attachment in the framebuffer
         /// @param index The index of the colour attachment to return within the framebuffer

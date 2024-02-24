@@ -7,7 +7,7 @@ namespace Nexus::Graphics
     TextureVk::TextureVk(GraphicsDeviceVk *graphicsDevice, const TextureSpecification &spec)
         : Texture(spec), m_GraphicsDevice(graphicsDevice)
     {
-        VkDeviceSize imageSize = spec.Width * spec.Height * spec.NumberOfChannels;
+        /* VkDeviceSize imageSize = spec.Width * spec.Height * spec.NumberOfChannels;
         m_Format = GetVkTextureFormatFromNexusFormat(spec.Format);
 
         m_StagingBuffer = graphicsDevice->CreateBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
@@ -77,7 +77,7 @@ namespace Nexus::Graphics
         if (vkCreateSampler(graphicsDevice->GetVkDevice(), &samplerInfo, nullptr, &m_Sampler) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to create texture sampler");
-        }
+        } */
     }
 
     TextureVk::~TextureVk()

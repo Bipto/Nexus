@@ -151,7 +151,7 @@ namespace Nexus::Graphics
         Nexus::Graphics::TextureSpecification textureSpec;
         textureSpec.Width = 1;
         textureSpec.Height = 1;
-        textureSpec.Format = TextureFormat::RGBA8;
+        textureSpec.Format = PixelFormat::R8_G8_B8_A8_UNorm;
         textureSpec.NumberOfChannels = 4;
         m_BlankTexture = m_Device->CreateTexture(textureSpec);
         m_BlankTexture->SetData(&textureData, sizeof(uint32_t));

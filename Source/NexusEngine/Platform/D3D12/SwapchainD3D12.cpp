@@ -308,8 +308,8 @@ namespace Nexus::Graphics
         Nexus::Graphics::FramebufferSpecification spec;
         spec.Width = m_SwapchainWidth;
         spec.Height = m_SwapchainHeight;
-        spec.ColorAttachmentSpecification = {Nexus::Graphics::TextureFormat::Color};
-        spec.DepthAttachmentSpecification = Nexus::Graphics::DepthFormat::Depth;
+        spec.ColorAttachmentSpecification = {Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm};
+        spec.DepthAttachmentSpecification = Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt;
         spec.Samples = m_Specification.Samples;
 
         m_MultisampledFramebuffer = m_Device->CreateFramebuffer(spec);

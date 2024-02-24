@@ -22,10 +22,7 @@ namespace Nexus::Graphics
         int32_t NumberOfChannels = 4;
 
         /// @brief A value representing how many bits will be allocated for the texture
-        TextureFormat Format = TextureFormat::RGBA8;
-
-        /// @brief A value representing how the texture will be sampled
-        SamplerState SamplerState = SamplerState::LinearWrap;
+        PixelFormat Format = PixelFormat::R8_G8_B8_A8_UNorm;
     };
 
     /// @brief A pure virtual class that represents an API specific texture

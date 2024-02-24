@@ -25,7 +25,7 @@ namespace Nexus::Graphics
 
     void FramebufferD3D12::Recreate()
     {
-        auto d3d12Device = m_Device->GetDevice();
+        /* auto d3d12Device = m_Device->GetDevice();
         m_CurrentColorTextureStates.clear();
 
         D3D12_RESOURCE_STATES colourResourceState = D3D12_RESOURCE_STATE_COMMON;
@@ -156,7 +156,7 @@ namespace Nexus::Graphics
             dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
 
             d3d12Device->CreateDepthStencilView(m_DepthTexture.Get(), &dsvDesc, m_DepthAttachmentCPUHandle);
-        }
+        } */
     }
 
     void FramebufferD3D12::Flush()
@@ -204,7 +204,8 @@ namespace Nexus::Graphics
 
     DXGI_FORMAT FramebufferD3D12::GetColorAttachmentFormat(uint32_t index)
     {
-        return GetD3D12TextureFormat(m_Specification.ColorAttachmentSpecification.Attachments[index].TextureFormat);
+        // return GetD3D12TextureFormat(m_Specification.ColorAttachmentSpecification.Attachments[index].TextureFormat);
+        return DXGI_FORMAT();
     }
 
     const std::vector<D3D12_RESOURCE_STATES> &FramebufferD3D12::GetCurrentColorTextureStates() const

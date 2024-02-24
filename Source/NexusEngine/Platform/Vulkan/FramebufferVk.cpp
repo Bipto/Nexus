@@ -21,7 +21,7 @@ namespace Nexus::Graphics
             vkDestroyImageView(m_Device->GetVkDevice(), m_ImageViews[i], nullptr);
         }
 
-        if (m_Specification.DepthAttachmentSpecification.DepthFormat != DepthFormat::None)
+        if (m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::None)
         {
             vkDestroyImage(m_Device->GetVkDevice(), m_DepthImage, nullptr);
             vkFreeMemory(m_Device->GetVkDevice(), m_DepthMemory, nullptr);
@@ -118,7 +118,7 @@ namespace Nexus::Graphics
 
     void FramebufferVk::CreateColorTargets()
     {
-        m_Images.resize(m_Specification.ColorAttachmentSpecification.Attachments.size());
+        /* m_Images.resize(m_Specification.ColorAttachmentSpecification.Attachments.size());
         m_ImageMemory.resize(m_Specification.ColorAttachmentSpecification.Attachments.size());
         m_Samplers.resize(m_Specification.ColorAttachmentSpecification.Attachments.size());
         m_ImageViews.resize(m_Specification.ColorAttachmentSpecification.Attachments.size());
@@ -201,13 +201,13 @@ namespace Nexus::Graphics
             }
 
             m_ImageLayouts.push_back(VK_IMAGE_LAYOUT_UNDEFINED);
-        }
+        } */
     }
 
     void FramebufferVk::CreateDepthTargets()
     {
         // the specification does not contain a depth attachment, so we do not create one
-        if (m_Specification.DepthAttachmentSpecification.DepthFormat == DepthFormat::None)
+        /* if (m_Specification.DepthAttachmentSpecification.DepthFormat == DepthFormat::None)
             return;
 
         VkFormat depthFormat = GetVkDepthFormatFromNexusFormat(m_Specification.DepthAttachmentSpecification.DepthFormat);
@@ -270,7 +270,7 @@ namespace Nexus::Graphics
             }
         }
 
-        m_DepthLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        m_DepthLayout = VK_IMAGE_LAYOUT_UNDEFINED; */
     }
 
     void FramebufferVk::CreateFramebuffer()
@@ -302,7 +302,7 @@ namespace Nexus::Graphics
 
     void FramebufferVk::CreateRenderPass()
     {
-        std::vector<VkAttachmentDescription> colorAttachmentDescriptions;
+        /* std::vector<VkAttachmentDescription> colorAttachmentDescriptions;
         std::vector<VkAttachmentReference> colorAttachmentReferences;
         std::vector<VkSubpassDependency> subpassDependencies;
         std::vector<VkAttachmentDescription> subpassAttachments;
@@ -391,7 +391,7 @@ namespace Nexus::Graphics
         if (vkCreateRenderPass(m_Device->GetVkDevice(), &renderPassInfo, nullptr, &m_FramebufferRenderPass) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to create render pass");
-        }
+        } */
     }
 }
 

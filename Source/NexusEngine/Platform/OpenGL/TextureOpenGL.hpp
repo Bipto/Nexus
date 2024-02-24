@@ -17,7 +17,9 @@ namespace Nexus::Graphics
 
     private:
         unsigned int m_Handle;
-        GLenum m_TextureFormat = 0;
+        GLenum m_DataFormat = 0;
+        GLenum m_InternalFormat = 0;
+        GLenum m_BaseType = 0;
     };
 }
 

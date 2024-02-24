@@ -82,7 +82,7 @@ namespace Nexus::Graphics
             unsigned int texture;
             glGenTextures(1, &texture);
 
-            auto textureFormat = GL::GetColorTextureFormat(colorSpec.TextureFormat);
+            auto textureFormat = GL::GetPixelType(colorSpec.TextureFormat);
 
 #if !defined(NX_PLATFORM_WEBGL2)
             if (m_Specification.Samples != MultiSamples::SampleCount1)
@@ -111,7 +111,7 @@ namespace Nexus::Graphics
         }
 
         // depth attachment
-        if (m_Specification.DepthAttachmentSpecification.DepthFormat != DepthFormat::None)
+        if (m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::None)
         {
             glGenTextures(1, &m_DepthTexture);
 

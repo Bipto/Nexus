@@ -100,10 +100,9 @@ namespace Nexus::Graphics
 
         Nexus::Graphics::TextureSpecification textureSpec;
         textureSpec.NumberOfChannels = 4;
-        textureSpec.Format = Nexus::Graphics::TextureFormat::RGBA8;
+        textureSpec.Format = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
         textureSpec.Width = m_TextureWidth;
         textureSpec.Height = m_TextureHeight;
-        textureSpec.SamplerState = SamplerState::LinearWrap;
 
         FontData pixels(textureSpec.Width, textureSpec.Height);
         pixels.Clear(0);
