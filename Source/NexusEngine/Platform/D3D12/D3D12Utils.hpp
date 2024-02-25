@@ -3,13 +3,11 @@
 #if defined(NX_PLATFORM_D3D12)
 
 #include "D3D12Include.hpp"
-#include "Nexus/Graphics/TextureFormat.hpp"
-#include "Nexus/Graphics/DepthFormat.hpp"
 #include "Nexus/Graphics/SamplerState.hpp"
 #include "Nexus/Vertex.hpp"
+#include "Nexus/Graphics/PixelFormat.hpp"
 
-DXGI_FORMAT GetD3D12TextureFormat(Nexus::Graphics::TextureFormat format);
-DXGI_FORMAT GetD3D12DepthFormat(Nexus::Graphics::DepthFormat format);
+DXGI_FORMAT GetD3D12PixelFormat(Nexus::Graphics::PixelFormat format, bool isDepth);
 
 DXGI_FORMAT GetD3D12BaseType(const Nexus::Graphics::VertexBufferElement &element);
 D3D12_CULL_MODE GetCullMode(Nexus::Graphics::CullMode cullMode);

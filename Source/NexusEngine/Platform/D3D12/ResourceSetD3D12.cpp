@@ -116,7 +116,7 @@ namespace Nexus::Graphics
         d3d12Device->CreateShaderResourceView(d3d12Texture->GetD3D12ResourceHandle(),
                                               &srv,
                                               textureHandle);
-        /* D3D12_SAMPLER_DESC sd;
+        D3D12_SAMPLER_DESC sd;
         sd.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
         sd.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
         sd.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
@@ -134,7 +134,7 @@ namespace Nexus::Graphics
         D3D12_CPU_DESCRIPTOR_HANDLE samplerHandle = m_SamplerCPUDescriptors.at(index);
         d3d12Device->CreateSampler(
             &sd,
-            samplerHandle); */
+            samplerHandle);
     }
 
     void ResourceSetD3D12::WriteUniformBuffer(UniformBuffer *uniformBuffer, const std::string &name)

@@ -11,8 +11,6 @@
 #include "glad/glad.h"
 #endif
 
-#include "Nexus/Graphics/TextureFormat.hpp"
-#include "Nexus/Graphics/DepthFormat.hpp"
 #include "Nexus/Graphics/Texture.hpp"
 
 #include "GL.hpp"

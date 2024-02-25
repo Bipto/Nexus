@@ -1,10 +1,7 @@
 #pragma once
 
-#include "TextureFormat.hpp"
 #include "Nexus/Types.hpp"
-
 #include "PixelFormat.hpp"
-
 #include "SamplerState.hpp"
 
 namespace Nexus::Graphics

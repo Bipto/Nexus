@@ -19,7 +19,7 @@ namespace Nexus::Graphics
     {
         // this has to be enabled to support newer HLSL versions and DXIL bytecode
         UUID experimentalFeatures[] = {D3D12ExperimentalShaderModels};
-        D3D12EnableExperimentalFeatures(1, experimentalFeatures, NULL, NULL);
+        D3D12EnableExperimentalFeatures(0, nullptr, NULL, NULL);
 
 #if defined(_DEBUG)
         // retrieve the debug interface

@@ -209,7 +209,7 @@ namespace Nexus::Graphics
 
         auto framebufferTexture = framebufferD3D12->GetColorTextures()[sourceIndex];
         auto swapchainTexture = swapchainD3D12->RetrieveBufferHandle();
-        auto format = GetD3D12TextureFormat(Nexus::Graphics::TextureFormat::RGBA8);
+        auto format = GetD3D12PixelFormat(Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm, false);
         auto framebufferState = framebufferD3D12->GetCurrentColorTextureStates()[sourceIndex];
         auto swapchainState = swapchainD3D12->GetCurrentTextureState();
 

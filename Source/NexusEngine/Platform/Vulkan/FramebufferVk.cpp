@@ -118,7 +118,7 @@ namespace Nexus::Graphics
 
     void FramebufferVk::CreateColorTargets()
     {
-        /* m_Images.resize(m_Specification.ColorAttachmentSpecification.Attachments.size());
+        m_Images.resize(m_Specification.ColorAttachmentSpecification.Attachments.size());
         m_ImageMemory.resize(m_Specification.ColorAttachmentSpecification.Attachments.size());
         m_Samplers.resize(m_Specification.ColorAttachmentSpecification.Attachments.size());
         m_ImageViews.resize(m_Specification.ColorAttachmentSpecification.Attachments.size());
@@ -128,7 +128,7 @@ namespace Nexus::Graphics
 
         for (int i = 0; i < m_Images.size(); i++)
         {
-            VkFormat format = GetVkTextureFormatFromNexusFormat(m_Specification.ColorAttachmentSpecification.Attachments[0].TextureFormat);
+            VkFormat format = GetVkPixelDataFormat(m_Specification.ColorAttachmentSpecification.Attachments[i].TextureFormat, false);
 
             VkImageCreateInfo imageInfo = {};
             imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -201,16 +201,16 @@ namespace Nexus::Graphics
             }
 
             m_ImageLayouts.push_back(VK_IMAGE_LAYOUT_UNDEFINED);
-        } */
+        }
     }
 
     void FramebufferVk::CreateDepthTargets()
     {
         // the specification does not contain a depth attachment, so we do not create one
-        /* if (m_Specification.DepthAttachmentSpecification.DepthFormat == DepthFormat::None)
+        if (m_Specification.DepthAttachmentSpecification.DepthFormat == PixelFormat::None)
             return;
 
-        VkFormat depthFormat = GetVkDepthFormatFromNexusFormat(m_Specification.DepthAttachmentSpecification.DepthFormat);
+        VkFormat depthFormat = GetVkPixelDataFormat(m_Specification.DepthAttachmentSpecification.DepthFormat, true);
         VkSampleCountFlagBits sampleCount = GetVkSampleCount(m_Specification.Samples);
 
         // allocate image
@@ -270,7 +270,7 @@ namespace Nexus::Graphics
             }
         }
 
-        m_DepthLayout = VK_IMAGE_LAYOUT_UNDEFINED; */
+        m_DepthLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     }
 
     void FramebufferVk::CreateFramebuffer()
@@ -302,7 +302,7 @@ namespace Nexus::Graphics
 
     void FramebufferVk::CreateRenderPass()
     {
-        /* std::vector<VkAttachmentDescription> colorAttachmentDescriptions;
+        std::vector<VkAttachmentDescription> colorAttachmentDescriptions;
         std::vector<VkAttachmentReference> colorAttachmentReferences;
         std::vector<VkSubpassDependency> subpassDependencies;
         std::vector<VkAttachmentDescription> subpassAttachments;
@@ -313,7 +313,7 @@ namespace Nexus::Graphics
         for (const auto &colorAttachment : m_Specification.ColorAttachmentSpecification.Attachments)
         {
             VkAttachmentDescription attachment = {};
-            attachment.format = GetVkTextureFormatFromNexusFormat(colorAttachment.TextureFormat);
+            attachment.format = GetVkPixelDataFormat(colorAttachment.TextureFormat, false);
             attachment.samples = samples;
             attachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
             attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -349,11 +349,11 @@ namespace Nexus::Graphics
         subpass.pColorAttachments = colorAttachmentReferences.data();
 
         // create depth information for render pass
-        if (m_Specification.DepthAttachmentSpecification.DepthFormat != DepthFormat::None)
+        if (m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::None)
         {
             VkAttachmentDescription depthAttachment = {};
             depthAttachment.flags = 0;
-            depthAttachment.format = GetVkDepthFormatFromNexusFormat(m_Specification.DepthAttachmentSpecification.DepthFormat);
+            depthAttachment.format = GetVkPixelDataFormat(m_Specification.DepthAttachmentSpecification.DepthFormat, true);
             depthAttachment.samples = samples;
             depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
             depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -391,7 +391,7 @@ namespace Nexus::Graphics
         if (vkCreateRenderPass(m_Device->GetVkDevice(), &renderPassInfo, nullptr, &m_FramebufferRenderPass) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to create render pass");
-        } */
+        }
     }
 }
 

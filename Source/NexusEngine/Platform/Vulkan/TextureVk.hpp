@@ -17,14 +17,12 @@ namespace Nexus::Graphics
         virtual void SetData(const void *data, uint32_t size) override;
         VkImage GetImage();
         VkImageView GetImageView();
-        VkSampler GetSampler();
 
     private:
         GraphicsDeviceVk *m_GraphicsDevice;
         VkImage m_Image;
         VmaAllocation m_Allocation;
         VkImageView m_ImageView;
-        VkSampler m_Sampler;
         VkFormat m_Format;
         AllocatedBuffer m_StagingBuffer;
     };

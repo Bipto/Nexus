@@ -146,55 +146,6 @@ namespace Nexus::GL
         throw std::runtime_error("Failed to find a valid blend equation");
     }
 
-    GLenum GetColorTextureFormat(Nexus::Graphics::TextureFormat format)
-    {
-        switch (format)
-        {
-        case Graphics::TextureFormat::RGBA8:
-            return GL_RGBA8;
-        case Graphics::TextureFormat::R8:
-            return GL_R8;
-        default:
-            throw std::runtime_error("Invalid texture format selected");
-        }
-    }
-
-    GLenum GetInternalTextureFormat(Nexus::Graphics::TextureFormat format)
-    {
-        switch (format)
-        {
-        case Graphics::TextureFormat::RGBA8:
-            return GL_RGBA;
-        case Graphics::TextureFormat::R8:
-            return GL_RED;
-        default:
-            throw std::runtime_error("Invalid texture format selected");
-        }
-    }
-
-    GLenum GetTextureFormatBaseType(Nexus::Graphics::TextureFormat format)
-    {
-        switch (format)
-        {
-        case Graphics::TextureFormat::RGBA8:
-        case Graphics::TextureFormat::R8:
-            return GL_UNSIGNED_BYTE;
-        default:
-            throw std::runtime_error("Invalid texture format selected");
-        }
-    }
-
-    GLenum GetDepthTextureFormat(Nexus::Graphics::DepthFormat format)
-    {
-        switch (format)
-        {
-        case Graphics::DepthFormat::DEPTH24STENCIL8:
-            return GL_DEPTH24_STENCIL8;
-        default:
-            throw std::runtime_error("Invalid depth format selected");
-        }
-    }
-
     GLenum GetSamplerAddressMode(Nexus::Graphics::SamplerAddressMode addressMode)
     {
         switch (addressMode)
@@ -346,9 +297,6 @@ namespace Nexus::GL
         case Nexus::Graphics::PixelFormat::BC5_UNorm:
         case Nexus::Graphics::PixelFormat::BC7_UNorm:
         case Nexus::Graphics::PixelFormat::BC7_UNorm_SRGB:
-        case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_UNorm:
-        case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A1_UNorm:
-        case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A8_UNorm:
             return GL_UNSIGNED_BYTE;
 
         case Nexus::Graphics::PixelFormat::D32_Float_S8_UInt:
@@ -358,7 +306,11 @@ namespace Nexus::GL
 
         case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UNorm:
         case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UInt:
-            return GL_UNSIGNED_INT_10_10_10_2;
+#if defined(__EMSCRIPTEN__)
+            throw std::runtime_error("This format is not supported by WebGL");
+#else
+            return GL_UNSIGNED_INT_10_10_10_2_EXT;
+#endif
         case Nexus::Graphics::PixelFormat::R11_G11_B10_Float:
             return GL_UNSIGNED_INT_10F_11F_11F_REV;
 
@@ -416,7 +368,7 @@ namespace Nexus::GL
 
         case Nexus::Graphics::PixelFormat::B8_G8_R8_A8_UNorm:
         case Nexus::Graphics::PixelFormat::B8_G8_R8_A8_UNorm_SRGB:
-            return GL_BGRA;
+            return GL_BGRA_EXT;
 
         case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_SNorm:
         case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UInt:
@@ -430,7 +382,6 @@ namespace Nexus::GL
 
         case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm:
         case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm_SRGB:
-        case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_UNorm:
             return GL_RGB;
 
         case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm:
@@ -439,8 +390,6 @@ namespace Nexus::GL
         case Nexus::Graphics::PixelFormat::BC3_UNorm:
         case Nexus::Graphics::PixelFormat::BC3_UNorm_SRGB:
         case Nexus::Graphics::PixelFormat::BC7_UNorm_SRGB:
-        case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A1_UNorm:
-        case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A8_UNorm:
             return GL_RGBA;
 
         case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt:
@@ -473,7 +422,7 @@ namespace Nexus::GL
             return GL_R8I;
 
         case Nexus::Graphics::PixelFormat::R16_UNorm:
-            return depthFormat ? GL_DEPTH_COMPONENT16 : GL_R16;
+            return depthFormat ? GL_DEPTH_COMPONENT16 : GL_R16_EXT;
         case Nexus::Graphics::PixelFormat::R16_SNorm:
             return GL_R16I;
         case Nexus::Graphics::PixelFormat::R16_UInt:
@@ -500,7 +449,7 @@ namespace Nexus::GL
             return GL_RG8I;
 
         case Nexus::Graphics::PixelFormat::R16_G16_UNorm:
-            return GL_RG16;
+            return GL_RG16_EXT;
         case Nexus::Graphics::PixelFormat::R16_G16_SNorm:
             return GL_RG16I;
         case Nexus::Graphics::PixelFormat::R16_G16_UInt:
@@ -533,7 +482,7 @@ namespace Nexus::GL
             return GL_SRGB8_ALPHA8;
 
         case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_UNorm:
-            return GL_RGBA16;
+            return GL_RGBA16_EXT;
         case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_SNorm:
             return GL_RGBA16I;
         case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_UInt:
@@ -567,24 +516,17 @@ namespace Nexus::GL
         case Nexus::Graphics::PixelFormat::BC3_UNorm_SRGB:
             return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
         case Nexus::Graphics::PixelFormat::BC4_UNorm:
-            return GL_COMPRESSED_RED_RGTC1;
+            return GL_COMPRESSED_RED_RGTC1_EXT;
         case Nexus::Graphics::PixelFormat::BC4_SNorm:
-            return GL_COMPRESSED_SIGNED_RED_RGTC1;
+            return GL_COMPRESSED_SIGNED_RED_RGTC1_EXT;
         case Nexus::Graphics::PixelFormat::BC5_UNorm:
-            return GL_COMPRESSED_RG_RGTC2;
+            return GL_COMPRESSED_RED_GREEN_RGTC2_EXT;
         case Nexus::Graphics::PixelFormat::BC5_SNorm:
-            return GL_COMPRESSED_SIGNED_RG_RGTC2;
+            return GL_COMPRESSED_SIGNED_RED_GREEN_RGTC2_EXT;
         case Nexus::Graphics::PixelFormat::BC7_UNorm:
-            return GL_COMPRESSED_RGBA_BPTC_UNORM;
+            return GL_COMPRESSED_RGBA_BPTC_UNORM_EXT;
         case Nexus::Graphics::PixelFormat::BC7_UNorm_SRGB:
-            return GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM;
-
-        case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_UNorm:
-            return GL_COMPRESSED_RGB8_ETC2;
-        case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A1_UNorm:
-            return GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2;
-        case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A8_UNorm:
-            return GL_COMPRESSED_RGBA8_ETC2_EAC;
+            return GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM_EXT;
 
         case Nexus::Graphics::PixelFormat::D32_Float_S8_UInt:
             assert(depthFormat);

@@ -14,9 +14,7 @@
 
 #include "Nexus/Graphics/GraphicsDevice.hpp"
 #include "Nexus/Graphics/Texture.hpp"
-#include "Nexus/Graphics/TextureFormat.hpp"
 #include "Nexus/Graphics/Framebuffer.hpp"
-#include "Nexus/Graphics/DepthFormat.hpp"
 #include "Nexus/Graphics/Mesh.hpp"
 #include "Nexus/Graphics/MeshFactory.hpp"
 

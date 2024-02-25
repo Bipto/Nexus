@@ -9,8 +9,8 @@ namespace Nexus::Graphics
     TextureD3D12::TextureD3D12(GraphicsDeviceD3D12 *device, const TextureSpecification &spec)
         : Texture(spec), m_Specification(spec), m_Device(device)
     {
-        /* auto d3d12Device = device->GetDevice();
-        m_TextureFormat = GetD3D12TextureFormat(spec.Format);
+        auto d3d12Device = device->GetDevice();
+        m_TextureFormat = GetD3D12PixelFormat(spec.Format, false);
 
         D3D12_HEAP_PROPERTIES uploadProperties;
         uploadProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
@@ -52,7 +52,7 @@ namespace Nexus::Graphics
         resourceDesc.SampleDesc.Quality = 0;
         resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
         resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
-        d3d12Device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&m_Texture)); */
+        d3d12Device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&m_Texture));
     }
 
     TextureD3D12::~TextureD3D12()

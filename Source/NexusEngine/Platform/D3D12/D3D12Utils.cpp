@@ -2,25 +2,137 @@
 
 #if defined(NX_PLATFORM_D3D12)
 
-DXGI_FORMAT GetD3D12TextureFormat(Nexus::Graphics::TextureFormat format)
+DXGI_FORMAT GetD3D12PixelFormat(Nexus::Graphics::PixelFormat format, bool isDepth)
 {
     switch (format)
     {
-    case Nexus::Graphics::TextureFormat::RGBA8:
-        return DXGI_FORMAT_R8G8B8A8_UNORM;
-    case Nexus::Graphics::TextureFormat::R8:
+    case Nexus::Graphics::PixelFormat::R8_UNorm:
         return DXGI_FORMAT_R8_UNORM;
-    default:
-        throw std::runtime_error("Failed to find a valid format");
-    }
-}
+    case Nexus::Graphics::PixelFormat::R8_SNorm:
+        return DXGI_FORMAT_R8_SNORM;
+    case Nexus::Graphics::PixelFormat::R8_UInt:
+        return DXGI_FORMAT_R8_UINT;
+    case Nexus::Graphics::PixelFormat::R8_SInt:
+        return DXGI_FORMAT_R8_SINT;
 
-DXGI_FORMAT GetD3D12DepthFormat(Nexus::Graphics::DepthFormat format)
-{
-    switch (format)
-    {
-    case Nexus::Graphics::DepthFormat::DEPTH24STENCIL8:
+    case Nexus::Graphics::PixelFormat::R16_UNorm:
+        return isDepth ? DXGI_FORMAT_R16_TYPELESS : DXGI_FORMAT_R16_UNORM;
+    case Nexus::Graphics::PixelFormat::R16_SNorm:
+        return DXGI_FORMAT_R16_SNORM;
+    case Nexus::Graphics::PixelFormat::R16_UInt:
+        return DXGI_FORMAT_R16_UINT;
+    case Nexus::Graphics::PixelFormat::R16_SInt:
+        return DXGI_FORMAT_R16_SINT;
+    case Nexus::Graphics::PixelFormat::R16_Float:
+        return DXGI_FORMAT_R16_FLOAT;
+
+    case Nexus::Graphics::PixelFormat::R32_UInt:
+        return DXGI_FORMAT_R32_UINT;
+    case Nexus::Graphics::PixelFormat::R32_SInt:
+        return DXGI_FORMAT_R32_SINT;
+    case Nexus::Graphics::PixelFormat::R32_Float:
+        return isDepth ? DXGI_FORMAT_R32_TYPELESS : DXGI_FORMAT_R32_FLOAT;
+
+    case Nexus::Graphics::PixelFormat::R8_G8_UNorm:
+        return DXGI_FORMAT_R8G8_UNORM;
+    case Nexus::Graphics::PixelFormat::R8_G8_SNorm:
+        return DXGI_FORMAT_R8G8_SNORM;
+    case Nexus::Graphics::PixelFormat::R8_G8_UInt:
+        return DXGI_FORMAT_R8G8_UINT;
+    case Nexus::Graphics::PixelFormat::R8_G8_SInt:
+        return DXGI_FORMAT_R8G8_SINT;
+
+    case Nexus::Graphics::PixelFormat::R16_G16_UNorm:
+        return DXGI_FORMAT_R16G16_UNORM;
+    case Nexus::Graphics::PixelFormat::R16_G16_SNorm:
+        return DXGI_FORMAT_R16G16_SNORM;
+    case Nexus::Graphics::PixelFormat::R16_G16_UInt:
+        return DXGI_FORMAT_R16G16_UINT;
+    case Nexus::Graphics::PixelFormat::R16_G16_SInt:
+        return DXGI_FORMAT_R16G16_SINT;
+    case Nexus::Graphics::PixelFormat::R16_G16_Float:
+        return DXGI_FORMAT_R16G16_FLOAT;
+
+    case Nexus::Graphics::PixelFormat::R32_G32_UInt:
+        return DXGI_FORMAT_R32G32_UINT;
+    case Nexus::Graphics::PixelFormat::R32_G32_SInt:
+        return DXGI_FORMAT_R32G32_SINT;
+    case Nexus::Graphics::PixelFormat::R32_G32_Float:
+        return DXGI_FORMAT_R32G32_FLOAT;
+
+    case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm:
+        return DXGI_FORMAT_R8G8B8A8_UNORM;
+    case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm_SRGB:
+        return DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+    case Nexus::Graphics::PixelFormat::B8_G8_R8_A8_UNorm:
+        return DXGI_FORMAT_B8G8R8A8_UNORM;
+    case Nexus::Graphics::PixelFormat::B8_G8_R8_A8_UNorm_SRGB:
+        return DXGI_FORMAT_B8G8R8A8_UNORM_SRGB;
+    case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_SNorm:
+        return DXGI_FORMAT_R8G8B8A8_SNORM;
+    case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UInt:
+        return DXGI_FORMAT_R8G8B8A8_UINT;
+    case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_SInt:
+        return DXGI_FORMAT_R8G8B8A8_SINT;
+
+    case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_UNorm:
+        return DXGI_FORMAT_R16G16B16A16_UNORM;
+    case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_SNorm:
+        return DXGI_FORMAT_R16G16B16A16_SNORM;
+    case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_UInt:
+        return DXGI_FORMAT_R16G16B16A16_UINT;
+    case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_SInt:
+        return DXGI_FORMAT_R16G16B16A16_SINT;
+    case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_Float:
+        return DXGI_FORMAT_R16G16B16A16_FLOAT;
+
+    case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_UInt:
+        return DXGI_FORMAT_R32G32B32A32_UINT;
+    case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_SInt:
+        return DXGI_FORMAT_R32G32B32A32_SINT;
+    case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float:
+        return DXGI_FORMAT_R32G32B32A32_FLOAT;
+
+    case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm:
+    case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm:
+        return DXGI_FORMAT_BC1_UNORM;
+    case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm_SRGB:
+    case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm_SRGB:
+        return DXGI_FORMAT_BC1_UNORM_SRGB;
+    case Nexus::Graphics::PixelFormat::BC2_UNorm:
+        return DXGI_FORMAT_BC2_UNORM;
+    case Nexus::Graphics::PixelFormat::BC2_UNorm_SRGB:
+        return DXGI_FORMAT_BC2_UNORM_SRGB;
+    case Nexus::Graphics::PixelFormat::BC3_UNorm:
+        return DXGI_FORMAT_BC3_UNORM;
+    case Nexus::Graphics::PixelFormat::BC3_UNorm_SRGB:
+        return DXGI_FORMAT_BC3_UNORM_SRGB;
+    case Nexus::Graphics::PixelFormat::BC4_UNorm:
+        return DXGI_FORMAT_BC4_UNORM;
+    case Nexus::Graphics::PixelFormat::BC4_SNorm:
+        return DXGI_FORMAT_BC4_SNORM;
+    case Nexus::Graphics::PixelFormat::BC5_UNorm:
+        return DXGI_FORMAT_BC5_UNORM;
+    case Nexus::Graphics::PixelFormat::BC5_SNorm:
+        return DXGI_FORMAT_BC5_SNORM;
+    case Nexus::Graphics::PixelFormat::BC7_UNorm:
+        return DXGI_FORMAT_BC7_UNORM;
+    case Nexus::Graphics::PixelFormat::BC7_UNorm_SRGB:
+        return DXGI_FORMAT_BC7_UNORM_SRGB;
+
+    case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt:
+        assert(isDepth);
         return DXGI_FORMAT_D24_UNORM_S8_UINT;
+    case Nexus::Graphics::PixelFormat::D32_Float_S8_UInt:
+        assert(isDepth);
+        return DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+
+    case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UNorm:
+        return DXGI_FORMAT_R10G10B10A2_UNORM;
+    case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UInt:
+        return DXGI_FORMAT_R10G10B10A2_UINT;
+    case Nexus::Graphics::PixelFormat::R11_G11_B10_Float:
+        return DXGI_FORMAT_R11G11B10_FLOAT;
     default:
         throw std::runtime_error("Failed to find a valid format");
     }

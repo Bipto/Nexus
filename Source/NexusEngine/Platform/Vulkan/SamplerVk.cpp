@@ -5,6 +5,7 @@
 namespace Nexus::Graphics
 {
     SamplerVk::SamplerVk(GraphicsDeviceVk *device, const SamplerSpecification &spec)
+        : m_Device(device)
     {
         VkFilter min, max;
         VkSamplerMipmapMode mipmapMode;
@@ -47,6 +48,7 @@ namespace Nexus::Graphics
 
     SamplerVk::~SamplerVk()
     {
+        vkDestroySampler(m_Device->GetVkDevice(), m_Sampler, nullptr);
     }
 
     const SamplerSpecification &SamplerVk::GetSamplerSpecification()

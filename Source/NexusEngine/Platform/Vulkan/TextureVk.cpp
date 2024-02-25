@@ -7,8 +7,8 @@ namespace Nexus::Graphics
     TextureVk::TextureVk(GraphicsDeviceVk *graphicsDevice, const TextureSpecification &spec)
         : Texture(spec), m_GraphicsDevice(graphicsDevice)
     {
-        /* VkDeviceSize imageSize = spec.Width * spec.Height * spec.NumberOfChannels;
-        m_Format = GetVkTextureFormatFromNexusFormat(spec.Format);
+        VkDeviceSize imageSize = spec.Width * spec.Height * spec.NumberOfChannels;
+        m_Format = GetVkPixelDataFormat(spec.Format, false);
 
         m_StagingBuffer = graphicsDevice->CreateBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
 
@@ -52,37 +52,10 @@ namespace Nexus::Graphics
         {
             throw std::runtime_error("Failed to create image view");
         }
-
-        VkSamplerCreateInfo samplerInfo = {};
-        samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-        samplerInfo.magFilter = VK_FILTER_LINEAR;
-        samplerInfo.minFilter = VK_FILTER_LINEAR;
-        samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        samplerInfo.anisotropyEnable = VK_FALSE;
-        samplerInfo.maxAnisotropy = 0.0f;
-
-        VkPhysicalDeviceProperties properties{};
-        vkGetPhysicalDeviceProperties(graphicsDevice->GetPhysicalDevice(), &properties);
-
-        samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-        samplerInfo.unnormalizedCoordinates = VK_FALSE;
-        samplerInfo.compareEnable = VK_FALSE;
-        samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-        samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-        samplerInfo.mipLodBias = 0.0f;
-        samplerInfo.minLod = 0.0f;
-        samplerInfo.maxLod = 0.0f;
-        if (vkCreateSampler(graphicsDevice->GetVkDevice(), &samplerInfo, nullptr, &m_Sampler) != VK_SUCCESS)
-        {
-            throw std::runtime_error("Failed to create texture sampler");
-        } */
     }
 
     TextureVk::~TextureVk()
     {
-        vkDestroySampler(m_GraphicsDevice->GetVkDevice(), m_Sampler, nullptr);
         vkDestroyImageView(m_GraphicsDevice->GetVkDevice(), m_ImageView, nullptr);
         vmaDestroyImage(m_GraphicsDevice->GetAllocator(), m_Image, m_Allocation);
     }
@@ -155,11 +128,6 @@ namespace Nexus::Graphics
     VkImageView TextureVk::GetImageView()
     {
         return m_ImageView;
-    }
-
-    VkSampler TextureVk::GetSampler()
-    {
-        return m_Sampler;
     }
 }
 

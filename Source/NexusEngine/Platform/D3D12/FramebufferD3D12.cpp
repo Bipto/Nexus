@@ -25,7 +25,7 @@ namespace Nexus::Graphics
 
     void FramebufferD3D12::Recreate()
     {
-        /* auto d3d12Device = m_Device->GetDevice();
+        auto d3d12Device = m_Device->GetDevice();
         m_CurrentColorTextureStates.clear();
 
         D3D12_RESOURCE_STATES colourResourceState = D3D12_RESOURCE_STATE_COMMON;
@@ -46,7 +46,7 @@ namespace Nexus::Graphics
             heapProperties.CreationNodeMask = 0;
             heapProperties.VisibleNodeMask = 0;
 
-            auto textureFormat = GetD3D12TextureFormat(m_Specification.ColorAttachmentSpecification.Attachments[i].TextureFormat);
+            auto textureFormat = GetD3D12PixelFormat(m_Specification.ColorAttachmentSpecification.Attachments[i].TextureFormat, false);
 
             D3D12_RESOURCE_DESC resourceDesc;
             resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
@@ -68,9 +68,9 @@ namespace Nexus::Graphics
         }
 
         // create depth texture if required
-        if (m_Specification.DepthAttachmentSpecification.DepthFormat != DepthFormat::None)
+        if (m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::None)
         {
-            auto depthFormat = GetD3D12DepthFormat(m_Specification.DepthAttachmentSpecification.DepthFormat);
+            auto depthFormat = GetD3D12PixelFormat(m_Specification.DepthAttachmentSpecification.DepthFormat, true);
 
             D3D12_HEAP_PROPERTIES heapProperties;
             heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
@@ -119,7 +119,7 @@ namespace Nexus::Graphics
             m_ColorAttachmentCPUHandles.push_back(cpuHandle);
 
             D3D12_RENDER_TARGET_VIEW_DESC rtvDesc;
-            rtvDesc.Format = GetD3D12TextureFormat(m_Specification.ColorAttachmentSpecification.Attachments[i].TextureFormat);
+            rtvDesc.Format = GetD3D12PixelFormat(m_Specification.ColorAttachmentSpecification.Attachments[i].TextureFormat, false);
 
             if (samples > 1)
             {
@@ -138,10 +138,10 @@ namespace Nexus::Graphics
 
         m_DepthAttachmentCPUHandle = m_DepthDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 
-        if (m_Specification.DepthAttachmentSpecification.DepthFormat != DepthFormat::None)
+        if (m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::None)
         {
             D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
-            dsvDesc.Format = GetD3D12DepthFormat(m_Specification.DepthAttachmentSpecification.DepthFormat);
+            dsvDesc.Format = GetD3D12PixelFormat(m_Specification.DepthAttachmentSpecification.DepthFormat, true);
 
             if (samples > 1)
             {
@@ -156,7 +156,7 @@ namespace Nexus::Graphics
             dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
 
             d3d12Device->CreateDepthStencilView(m_DepthTexture.Get(), &dsvDesc, m_DepthAttachmentCPUHandle);
-        } */
+        }
     }
 
     void FramebufferD3D12::Flush()
@@ -204,8 +204,7 @@ namespace Nexus::Graphics
 
     DXGI_FORMAT FramebufferD3D12::GetColorAttachmentFormat(uint32_t index)
     {
-        // return GetD3D12TextureFormat(m_Specification.ColorAttachmentSpecification.Attachments[index].TextureFormat);
-        return DXGI_FORMAT();
+        return GetD3D12PixelFormat(m_Specification.ColorAttachmentSpecification.Attachments[index].TextureFormat, false);
     }
 
     const std::vector<D3D12_RESOURCE_STATES> &FramebufferD3D12::GetCurrentColorTextureStates() const

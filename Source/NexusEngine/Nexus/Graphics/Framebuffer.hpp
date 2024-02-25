@@ -4,13 +4,8 @@
 #include <initializer_list>
 #include <array>
 
-#include "Nexus/Graphics/TextureFormat.hpp"
-#include "Nexus/Graphics/DepthFormat.hpp"
-
 #include "Nexus/Graphics/Multisample.hpp"
-
 #include "Nexus/Types.hpp"
-
 #include "PixelFormat.hpp"
 
 typedef void *FramebufferTexture;

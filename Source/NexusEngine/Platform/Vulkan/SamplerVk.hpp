@@ -21,6 +21,7 @@ namespace Nexus::Graphics
     private:
         SamplerSpecification m_Specification;
         VkSampler m_Sampler;
+        GraphicsDeviceVk *m_Device = nullptr;
     };
 }
 
