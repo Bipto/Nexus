@@ -135,12 +135,12 @@ namespace Nexus::Graphics
 
     void CommandListD3D12::ClearDepthTarget(const ClearDepthStencilValue &value)
     {
-        if (m_DepthHandle)
+        if (m_DepthHandle.ptr)
         {
             D3D12_CLEAR_FLAGS clearFlags = D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL;
 
             m_CommandList->ClearDepthStencilView(
-                *m_DepthHandle,
+                m_DepthHandle,
                 clearFlags,
                 value.Depth,
                 value.Stencil,
@@ -170,7 +170,7 @@ namespace Nexus::Graphics
             m_DescriptorHandles.size(),
             m_DescriptorHandles.data(),
             false,
-            m_DepthHandle);
+            &m_DepthHandle);
 
         m_CurrentRenderTarget = target;
     }
@@ -270,7 +270,7 @@ namespace Nexus::Graphics
         {
             ResetPreviousRenderTargets();
             m_DescriptorHandles = {swapchain->RetrieveRenderTargetViewDescriptorHandle()};
-            m_DepthHandle = &swapchain->RetrieveDepthBufferDescriptorHandle();
+            m_DepthHandle = swapchain->RetrieveDepthBufferDescriptorHandle();
             auto colorState = swapchain->GetCurrentTextureState();
 
             if (colorState != D3D12_RESOURCE_STATE_RENDER_TARGET)
@@ -321,7 +321,7 @@ namespace Nexus::Graphics
 
         if (framebuffer->HasDepthTexture())
         {
-            m_DepthHandle = &framebuffer->GetDepthAttachmentCPUHandle();
+            m_DepthHandle = framebuffer->GetDepthAttachmentCPUHandle();
             auto depthTexture = framebuffer->GetD3D12DepthTexture();
 
             if (depthTexture->GetCurrentResourceState() != D3D12_RESOURCE_STATE_DEPTH_WRITE)
@@ -340,7 +340,7 @@ namespace Nexus::Graphics
         }
         else
         {
-            m_DepthHandle = nullptr;
+            m_DepthHandle = {};
         }
 
         if (resourceBarriers.size() > 0)

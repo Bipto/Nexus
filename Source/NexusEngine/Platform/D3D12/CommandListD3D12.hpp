@@ -47,7 +47,7 @@ namespace Nexus::Graphics
         Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> m_CommandList = nullptr;
 
         std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_DescriptorHandles;
-        D3D12_CPU_DESCRIPTOR_HANDLE *m_DepthHandle = nullptr;
+        D3D12_CPU_DESCRIPTOR_HANDLE m_DepthHandle;
 
         RenderTarget m_CurrentRenderTarget = {};
     };

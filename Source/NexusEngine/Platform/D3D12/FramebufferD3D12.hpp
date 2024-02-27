@@ -38,7 +38,7 @@ namespace Nexus::Graphics
         Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_DepthDescriptorHeap = nullptr;
 
         std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_ColorAttachmentCPUHandles;
-        D3D12_CPU_DESCRIPTOR_HANDLE m_DepthAttachmentCPUHandle;
+        D3D12_CPU_DESCRIPTOR_HANDLE m_DepthAttachmentCPUHandle{};
 
         std::vector<TextureD3D12 *> m_ColorAttachments;
         TextureD3D12 *m_DepthAttachment = nullptr;
