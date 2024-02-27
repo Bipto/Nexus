@@ -4,7 +4,7 @@
 
 namespace Nexus::Graphics
 {
-    enum class MultiSamples
+    enum class SampleCount
     {
         SampleCount1,
         SampleCount2,
@@ -12,5 +12,5 @@ namespace Nexus::Graphics
         SampleCount8
     };
 
-    uint32_t GetSampleCount(MultiSamples samples);
+    uint32_t GetSampleCount(SampleCount samples);
 }

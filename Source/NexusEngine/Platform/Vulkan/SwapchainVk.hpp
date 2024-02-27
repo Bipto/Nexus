@@ -105,7 +105,6 @@ namespace Nexus::Graphics
         friend class GraphicsDeviceVk;
         friend class RenderPassVk;
         friend class CommandListVk;
-        friend class ImGuiRenderer;
     };
 }
 

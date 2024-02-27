@@ -102,8 +102,6 @@ namespace Nexus::ImGuiUtils
 
         m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDesc);
 
-        m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
-
         Nexus::Graphics::SamplerSpecification samplerSpec;
         samplerSpec.AddressModeU = Nexus::Graphics::SamplerAddressMode::Wrap;
         samplerSpec.AddressModeV = Nexus::Graphics::SamplerAddressMode::Wrap;
@@ -223,13 +221,18 @@ namespace Nexus::ImGuiUtils
     ImTextureID ImGuiGraphicsRenderer::BindTexture(Nexus::Graphics::Texture *texture)
     {
         auto id = (ImTextureID)m_TextureID++;
-        m_BoundTextures.insert({id, texture});
+
+        auto resourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
+        resourceSet->WriteCombinedImageSampler(texture, m_Sampler, "Texture");
+
+        m_ResourceSets.insert({id, resourceSet});
+
         return id;
     }
 
     void ImGuiGraphicsRenderer::UnbindTexture(ImTextureID id)
     {
-        m_BoundTextures.erase(id);
+        m_ResourceSets.erase(id);
     }
 
     void ImGuiGraphicsRenderer::BeforeLayout(Nexus::Time gameTime)
@@ -417,9 +420,11 @@ namespace Nexus::ImGuiUtils
         memcpy(buffer, &mvp, sizeof(mvp));
         m_UniformBuffer->Unmap();
 
-        m_ResourceSet->WriteUniformBuffer(m_UniformBuffer, "MVP");
-        m_ResourceSet->WriteCombinedImageSampler(m_FontTexture, m_Sampler, "Texture");
-        m_CommandList->SetResourceSet(m_ResourceSet);
+        for (auto &resourceSet : m_ResourceSets)
+        {
+            resourceSet.second->WriteUniformBuffer(m_UniformBuffer, "MVP");
+            resourceSet.second->PerformResourceUpdate();
+        }
 
         auto windowSize = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize();
         Nexus::Graphics::Viewport viewport;
@@ -448,6 +453,9 @@ namespace Nexus::ImGuiUtils
                     scissor.Width = (uint32_t)(drawCmd.ClipRect.z - drawCmd.ClipRect.x);
                     scissor.Height = (uint32_t)(drawCmd.ClipRect.w - drawCmd.ClipRect.y);
                     m_CommandList->SetScissor(scissor);
+
+                    const auto &resourceSet = m_ResourceSets.at(drawCmd.TextureId);
+                    m_CommandList->SetResourceSet(resourceSet);
 
                     m_CommandList->DrawIndexed(
                         drawCmd.ElemCount,

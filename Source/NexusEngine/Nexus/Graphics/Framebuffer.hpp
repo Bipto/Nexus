@@ -7,8 +7,7 @@
 #include "Nexus/Graphics/Multisample.hpp"
 #include "Nexus/Types.hpp"
 #include "PixelFormat.hpp"
-
-typedef void *FramebufferTexture;
+#include "Nexus/Graphics/Texture.hpp"
 
 namespace Nexus::Graphics
 {
@@ -72,7 +71,7 @@ namespace Nexus::Graphics
         /// @brief Settings to use when creating a depth attachment
         FramebufferDepthAttachmentSpecification DepthAttachmentSpecification;
 
-        MultiSamples Samples = MultiSamples::SampleCount1;
+        SampleCount Samples = SampleCount::SampleCount1;
     };
 
     /// @brief A pure virtual class representing an API specific framebuffer
@@ -99,15 +98,6 @@ namespace Nexus::Graphics
         /// @return A boolean representing whether a framebuffer has a depth attachment
         virtual bool HasDepthTexture() { return m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::None; }
 
-        /// @brief A pure virtual method to return a colour attachment in the framebuffer
-        /// @param index The index of the colour attachment to return within the framebuffer
-        /// @return A void pointer to the colour texture
-        virtual void *GetColorAttachment(int index = 0) = 0;
-
-        /// @brief A pure virtual method to return the framebuffers depth attachment
-        /// @return A void pointer to the depth texture
-        virtual void *GetDepthAttachment() = 0;
-
         /// @brief A pure virtual method to return the FramebufferSpecification
         /// @return The FramebufferSpecification
         virtual const FramebufferSpecification GetFramebufferSpecification() = 0;
@@ -115,6 +105,15 @@ namespace Nexus::Graphics
         /// @brief A pure virtual method to set the framebuffer specification, automatically invoking the Recreate() method
         /// @param spec The new framebuffer specification
         virtual void SetFramebufferSpecification(const FramebufferSpecification &spec) = 0;
+
+        /// @brief A pure virtual method to retrieve a color texture from the framebuffer at the specified index
+        /// @param index The index of the texture to retrieve
+        /// @return A pointer to a texture object
+        virtual Texture *GetColorTexture(uint32_t index = 0) = 0;
+
+        /// @brief A pure virtual method to retrieve the depth texture from the framebuffer
+        /// @return A pointer to a texture object
+        virtual Texture *GetDepthTexture() = 0;
 
     protected:
         /// @brief An object containing the specification of a framebuffer

@@ -338,7 +338,7 @@ namespace Nexus::Graphics
         subpass.pColorAttachments = &colorAttachmentReference;
         subpass.pDepthStencilAttachment = &depthAttachmentReference;
 
-        if (m_Specification.Samples != MultiSamples::SampleCount1)
+        if (m_Specification.Samples != SampleCount::SampleCount1)
         {
             subpass.pResolveAttachments = &resolveAttachmentReference;
         }
@@ -364,7 +364,7 @@ namespace Nexus::Graphics
         std::vector<VkSubpassDependency> dependencies = {dependency, depthDependency};
         std::vector<VkAttachmentDescription> attachments = {colorAttachment, depthAttachment};
 
-        if (m_Specification.Samples != MultiSamples::SampleCount1)
+        if (m_Specification.Samples != SampleCount::SampleCount1)
         {
             attachments.push_back(resolveAttachment);
         }
@@ -391,7 +391,7 @@ namespace Nexus::Graphics
         for (size_t i = 0; i < m_SwapchainImageViews.size(); i++)
         {
             std::vector<VkImageView> attachments;
-            if (m_Specification.Samples == MultiSamples::SampleCount1)
+            if (m_Specification.Samples == SampleCount::SampleCount1)
             {
                 attachments.push_back(m_SwapchainImageViews[i]);
                 attachments.push_back(m_DepthImageView);

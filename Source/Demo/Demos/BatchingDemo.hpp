@@ -11,8 +11,8 @@ namespace Demos
     class BatchingDemo : public Demo
     {
     public:
-        BatchingDemo(const std::string &name, Nexus::Application *app)
-            : Demo(name, app)
+        BatchingDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
+            : Demo(name, app, imGuiRenderer)
         {
             m_CommandList = m_GraphicsDevice->CreateCommandList();
             m_BatchRenderer = new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});

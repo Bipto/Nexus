@@ -7,8 +7,10 @@ namespace Nexus::Graphics
     TextureVk::TextureVk(GraphicsDeviceVk *graphicsDevice, const TextureSpecification &spec)
         : Texture(spec), m_GraphicsDevice(graphicsDevice)
     {
+        bool isDepth;
         VkDeviceSize imageSize = spec.Width * spec.Height * spec.NumberOfChannels;
-        m_Format = GetVkPixelDataFormat(spec.Format, false);
+        VkImageUsageFlagBits usage = GetVkImageUsageFlags(spec.Usage, isDepth);
+        m_Format = GetVkPixelDataFormat(spec.Format, isDepth);
 
         m_StagingBuffer = graphicsDevice->CreateBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
 
@@ -27,7 +29,7 @@ namespace Nexus::Graphics
         imageInfo.arrayLayers = 1;
         imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
         imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-        imageInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+        imageInfo.usage = usage;
 
         VmaAllocationCreateInfo imageAllocInfo = {};
         imageAllocInfo.usage = VMA_MEMORY_USAGE_AUTO;
@@ -128,6 +130,16 @@ namespace Nexus::Graphics
     VkImageView TextureVk::GetImageView()
     {
         return m_ImageView;
+    }
+
+    VkImageLayout TextureVk::GetLayout()
+    {
+        return m_Layout;
+    }
+
+    void TextureVk::SetLayout(VkImageLayout layout)
+    {
+        m_Layout = layout;
     }
 }
 

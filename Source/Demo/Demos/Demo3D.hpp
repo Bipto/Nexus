@@ -21,8 +21,8 @@ namespace Demos
     class Demo3D : public Demo
     {
     public:
-        Demo3D(const std::string &name, Nexus::Application *app)
-            : Demo(name, app)
+        Demo3D(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
+            : Demo(name, app, imGuiRenderer)
         {
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 

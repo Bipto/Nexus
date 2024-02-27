@@ -2,6 +2,8 @@
 
 #include "Nexus/nxpch.hpp"
 
+#include <cassert>
+
 namespace Nexus
 {
     /// @brief An enum representing the severity of a log message
@@ -78,3 +80,4 @@ namespace Nexus
 #define NX_LOG(message) Nexus::GetCoreLogger()->LogInfo(message)
 #define NX_WARNING(message) Nexus::GetCoreLogger()->LogWarning(message)
 #define NX_ERROR(message) Nexus::GetCoreLogger()->LogError(message)
+#define NX_ASSERT(expression, message) assert(expression &&message)

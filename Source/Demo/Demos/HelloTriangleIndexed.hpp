@@ -7,8 +7,8 @@ namespace Demos
     class HelloTriangleIndexedDemo : public Demo
     {
     public:
-        HelloTriangleIndexedDemo(const std::string &name, Nexus::Application *app)
-            : Demo(name, app)
+        HelloTriangleIndexedDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
+            : Demo(name, app, imGuiRenderer)
         {
             m_CommandList = m_GraphicsDevice->CreateCommandList();
             m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile(Nexus::FileSystem::GetFilePathAbsolute("resources/shaders/hello_triangle.glsl"),

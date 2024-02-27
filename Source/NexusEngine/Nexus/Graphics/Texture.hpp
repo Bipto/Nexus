@@ -3,9 +3,18 @@
 #include "Nexus/Types.hpp"
 #include "PixelFormat.hpp"
 #include "SamplerState.hpp"
+#include "Multisample.hpp"
 
 namespace Nexus::Graphics
 {
+    enum class TextureUsage : uint8_t
+    {
+        DepthStencil,
+        RenderTarget,
+        Sampled,
+        Storage
+    };
+
     /// @brief A struct that represents a set of values to use to create a texture
     struct TextureSpecification
     {
@@ -20,6 +29,12 @@ namespace Nexus::Graphics
 
         /// @brief A value representing how many bits will be allocated for the texture
         PixelFormat Format = PixelFormat::R8_G8_B8_A8_UNorm;
+
+        /// @brief A set of values to use for creating the texture
+        std::vector<TextureUsage> Usage = {TextureUsage::Sampled};
+
+        /// @brief How many samples should be used to sample a pixel
+        SampleCount Samples = SampleCount::SampleCount1;
     };
 
     /// @brief A pure virtual class that represents an API specific texture

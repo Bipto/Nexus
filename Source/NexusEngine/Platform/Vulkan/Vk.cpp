@@ -275,17 +275,17 @@ VkFormat GetShaderDataType(Nexus::Graphics::ShaderDataType type)
     }
 }
 
-VkSampleCountFlagBits GetVkSampleCount(Nexus::Graphics::MultiSamples samples)
+VkSampleCountFlagBits GetVkSampleCount(Nexus::Graphics::SampleCount samples)
 {
     switch (samples)
     {
-    case Nexus::Graphics::MultiSamples::SampleCount1:
+    case Nexus::Graphics::SampleCount::SampleCount1:
         return VK_SAMPLE_COUNT_1_BIT;
-    case Nexus::Graphics::MultiSamples::SampleCount2:
+    case Nexus::Graphics::SampleCount::SampleCount2:
         return VK_SAMPLE_COUNT_2_BIT;
-    case Nexus::Graphics::MultiSamples::SampleCount4:
+    case Nexus::Graphics::SampleCount::SampleCount4:
         return VK_SAMPLE_COUNT_4_BIT;
-    case Nexus::Graphics::MultiSamples::SampleCount8:
+    case Nexus::Graphics::SampleCount::SampleCount8:
         return VK_SAMPLE_COUNT_8_BIT;
     default:
         throw std::runtime_error("Failed to find a valid sample count");
@@ -460,6 +460,82 @@ VkBorderColor GetVkBorderColor(Nexus::Graphics::BorderColor color)
     default:
         throw std::runtime_error("Failed to find a valid border color");
     }
+}
+
+VkImageUsageFlagBits GetVkImageUsageFlags(const std::vector<Nexus::Graphics::TextureUsage> &usage, bool &isDepth)
+{
+    isDepth = false;
+    VkImageUsageFlagBits flags = VkImageUsageFlagBits(VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
+
+    // if the texture has been created to use as a depth attachment
+    /* if (usage & Nexus::Graphics::TextureUsage::NX_TEXTURE_USAGE_DEPTH_STENCIL)
+    {
+        isDepth = true;
+        flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_SAMPLED_BIT);
+    }
+
+    // if the texture should be used as a render target
+    if (usage & Nexus::Graphics::TextureUsage::NX_TEXTURE_USAGE_RENDER_TARGET)
+    {
+        if (isDepth)
+        {
+            flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
+        }
+        else
+        {
+            flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
+        }
+    }
+
+    if (usage & Nexus::Graphics::TextureUsage::NX_TEXTURE_USAGE_SAMPLED)
+    {
+        flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_SAMPLED_BIT);
+    }
+
+    if (usage & Nexus::Graphics::TextureUsage::NX_TEXTURE_USAGE_STORAGE)
+    {
+        flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_STORAGE_BIT);
+    } */
+
+    for (const auto &item : usage)
+    {
+        if (item == Nexus::Graphics::TextureUsage::DepthStencil)
+        {
+            isDepth = true;
+        }
+    }
+
+    for (const auto &item : usage)
+    {
+        if (item == Nexus::Graphics::TextureUsage::DepthStencil)
+        {
+            flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_SAMPLED_BIT);
+        }
+
+        if (item == Nexus::Graphics::TextureUsage::RenderTarget)
+        {
+            if (isDepth)
+            {
+                flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
+            }
+            else
+            {
+                flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
+            }
+        }
+
+        if (item == Nexus::Graphics::TextureUsage::Sampled)
+        {
+            flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_SAMPLED_BIT);
+        }
+
+        if (item == Nexus::Graphics::TextureUsage::Storage)
+        {
+            flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_STORAGE_BIT);
+        }
+    }
+
+    return flags;
 }
 
 #endif

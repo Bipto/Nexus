@@ -5,6 +5,7 @@
 #include "Nexus/Graphics/Framebuffer.hpp"
 #include "GraphicsDeviceD3D12.hpp"
 #include "D3D12Include.hpp"
+#include "TextureD3D12.hpp"
 
 namespace Nexus::Graphics
 {
@@ -13,24 +14,19 @@ namespace Nexus::Graphics
     public:
         FramebufferD3D12(const FramebufferSpecification &spec, GraphicsDeviceD3D12 *device);
         virtual ~FramebufferD3D12();
-        virtual void *GetColorAttachment(int index = 0) override;
-        virtual void *GetDepthAttachment() override;
         virtual const FramebufferSpecification GetFramebufferSpecification() override;
         virtual void SetFramebufferSpecification(const FramebufferSpecification &spec) override;
+        virtual Texture *GetColorTexture(uint32_t index = 0) override;
+        virtual Texture *GetDepthTexture() override;
 
-        const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> &GetColorAttachmentHandles();
-        D3D12_CPU_DESCRIPTOR_HANDLE GetDepthAttachmentHandle();
+        TextureD3D12 *GetD3D12ColorTexture(uint32_t index = 0);
+        TextureD3D12 *GetD3D12DepthTexture();
 
-        const std::vector<Microsoft::WRL::ComPtr<ID3D12Resource2>> GetColorTextures();
-        Microsoft::WRL::ComPtr<ID3D12Resource2> GetDepthTexture();
+        const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> &GetColorAttachmentCPUHandles();
+        D3D12_CPU_DESCRIPTOR_HANDLE GetDepthAttachmentCPUHandle();
 
-        DXGI_FORMAT GetColorAttachmentFormat(uint32_t index);
-
-        const std::vector<D3D12_RESOURCE_STATES> &GetCurrentColorTextureStates() const;
-        const D3D12_RESOURCE_STATES GetCurrentDepthState() const;
-
-        void SetColorTextureState(D3D12_RESOURCE_STATES state, uint32_t index);
-        void SetDepthState(D3D12_RESOURCE_STATES state);
+        void CreateAttachments();
+        void CreateRTVs();
 
     private:
         void Recreate();
@@ -38,18 +34,14 @@ namespace Nexus::Graphics
 
     private:
         GraphicsDeviceD3D12 *m_Device = nullptr;
-
-        std::vector<Microsoft::WRL::ComPtr<ID3D12Resource2>> m_ColorTextures;
-        Microsoft::WRL::ComPtr<ID3D12Resource2> m_DepthTexture = nullptr;
-
         Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_ColorDescriptorHeap = nullptr;
         Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_DepthDescriptorHeap = nullptr;
 
         std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_ColorAttachmentCPUHandles;
         D3D12_CPU_DESCRIPTOR_HANDLE m_DepthAttachmentCPUHandle;
 
-        std::vector<D3D12_RESOURCE_STATES> m_CurrentColorTextureStates;
-        D3D12_RESOURCE_STATES m_CurrentDepthState;
+        std::vector<TextureD3D12 *> m_ColorAttachments;
+        TextureD3D12 *m_DepthAttachment = nullptr;
     };
 }
 

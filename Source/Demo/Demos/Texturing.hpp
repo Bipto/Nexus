@@ -7,8 +7,8 @@ namespace Demos
     class TexturingDemo : public Demo
     {
     public:
-        TexturingDemo(const std::string &name, Nexus::Application *app)
-            : Demo(name, app)
+        TexturingDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
+            : Demo(name, app, imGuiRenderer)
         {
 
             m_CommandList = m_GraphicsDevice->CreateCommandList();
@@ -25,10 +25,14 @@ namespace Demos
             Nexus::Graphics::SamplerSpecification samplerSpec{};
             samplerSpec.MaximumAnisotropy = 8;
             m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
+
+            m_TextureID = m_ImGuiRenderer->BindTexture(m_Texture);
         }
 
         virtual ~TexturingDemo()
         {
+            m_ImGuiRenderer->UnbindTexture(m_TextureID);
+
             delete m_CommandList;
             delete m_Shader;
             delete m_Pipeline;
@@ -87,6 +91,7 @@ namespace Demos
 
         virtual void RenderUI() override
         {
+            ImGui::Image(m_TextureID, {256, 256});
         }
 
     private:
@@ -116,5 +121,7 @@ namespace Demos
         Nexus::Graphics::Texture *m_Texture;
         Nexus::Graphics::Sampler *m_Sampler;
         glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
+
+        ImTextureID m_TextureID = 0;
     };
 }

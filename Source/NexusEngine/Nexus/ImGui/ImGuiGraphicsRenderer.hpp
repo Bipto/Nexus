@@ -37,7 +37,7 @@ namespace Nexus::ImGuiUtils
         Nexus::Graphics::Pipeline *m_Pipeline = nullptr;
         Nexus::Graphics::Texture *m_FontTexture = nullptr;
 
-        std::map<ImTextureID, Nexus::Graphics::Texture *> m_BoundTextures;
+        std::map<ImTextureID, Nexus::Graphics::ResourceSet *> m_ResourceSets;
         Nexus::Graphics::Sampler *m_Sampler = nullptr;
         uint64_t m_TextureID = 0;
         ImTextureID m_FontTextureID = 0;
@@ -49,8 +49,6 @@ namespace Nexus::ImGuiUtils
         uint32_t m_IndexBufferCount = 0;
 
         Nexus::Graphics::UniformBuffer *m_UniformBuffer = nullptr;
-
-        Nexus::Graphics::ResourceSet *m_ResourceSet = nullptr;
 
         std::vector<int> m_Keys;
     };

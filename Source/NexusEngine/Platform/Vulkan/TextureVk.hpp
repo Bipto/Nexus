@@ -18,6 +18,9 @@ namespace Nexus::Graphics
         VkImage GetImage();
         VkImageView GetImageView();
 
+        VkImageLayout GetLayout();
+        void SetLayout(VkImageLayout layout);
+
     private:
         GraphicsDeviceVk *m_GraphicsDevice;
         VkImage m_Image;
@@ -25,6 +28,7 @@ namespace Nexus::Graphics
         VkImageView m_ImageView;
         VkFormat m_Format;
         AllocatedBuffer m_StagingBuffer;
+        VkImageLayout m_Layout = VK_IMAGE_LAYOUT_UNDEFINED;
     };
 }
 

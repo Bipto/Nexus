@@ -5,6 +5,7 @@
 #include "Vk.hpp"
 #include "Nexus/Graphics/Framebuffer.hpp"
 #include "GraphicsDeviceVk.hpp"
+#include "TextureVk.hpp"
 
 namespace Nexus::Graphics
 {
@@ -14,23 +15,17 @@ namespace Nexus::Graphics
         FramebufferVk(const FramebufferSpecification &spec, GraphicsDeviceVk *device);
         ~FramebufferVk();
 
-        virtual void *GetColorAttachment(int index = 0) override;
         virtual const FramebufferSpecification GetFramebufferSpecification() override;
         virtual void SetFramebufferSpecification(const FramebufferSpecification &spec) override;
-        virtual void *GetDepthAttachment() override;
         VkFramebuffer GetVkFramebuffer();
 
-        VkImage GetColorTextureImage(uint32_t index);
-        VkImageView GetColorTextureImageView(uint32_t index);
-        VkSampler GetColorTextureSampler(uint32_t index);
-        VkImage GetDepthTextureImage();
+        virtual Texture *GetColorTexture(uint32_t index = 0) override;
+        virtual Texture *GetDepthTexture() override;
+
+        TextureVk *GetVulkanColorTexture(uint32_t index = 0);
+        TextureVk *GetVulkanDepthTexture();
 
         VkRenderPass GetRenderPass();
-
-        const std::vector<VkImageLayout> &GetColorImageLayouts();
-        VkImageLayout GetDepthImageLayout();
-        void SetColorImageLayout(VkImageLayout layout, uint32_t index);
-        void SetDepthImageLayout(VkImageLayout layout);
 
     private:
         virtual void Recreate() override;
@@ -41,20 +36,12 @@ namespace Nexus::Graphics
         void CreateRenderPass();
 
     private:
-        std::vector<VkImage> m_Images;
-        std::vector<VkDeviceMemory> m_ImageMemory;
-        std::vector<VkSampler> m_Samplers;
-        std::vector<VkImageView> m_ImageViews;
-        std::vector<VkImageLayout> m_ImageLayouts;
-
-        VkImage m_DepthImage;
-        VkDeviceMemory m_DepthMemory;
-        VkImageView m_DepthImageView;
-        VkImageLayout m_DepthLayout;
-
         VkFramebuffer m_Framebuffer;
         GraphicsDeviceVk *m_Device;
         VkRenderPass m_FramebufferRenderPass;
+
+        std::vector<TextureVk *> m_ColorAttachments;
+        TextureVk *m_DepthAttachment = nullptr;
     };
 }
 

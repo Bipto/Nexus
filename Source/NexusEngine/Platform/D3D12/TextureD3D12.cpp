@@ -9,50 +9,58 @@ namespace Nexus::Graphics
     TextureD3D12::TextureD3D12(GraphicsDeviceD3D12 *device, const TextureSpecification &spec)
         : Texture(spec), m_Specification(spec), m_Device(device)
     {
+        bool isDepth;
+        D3D12_RESOURCE_FLAGS flags = GetD3D12ResourceFlags(spec.Usage, isDepth);
         auto d3d12Device = device->GetDevice();
-        m_TextureFormat = GetD3D12PixelFormat(spec.Format, false);
+        m_TextureFormat = GetD3D12PixelFormat(spec.Format, isDepth);
 
-        D3D12_HEAP_PROPERTIES uploadProperties;
-        uploadProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
-        uploadProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-        uploadProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-        uploadProperties.CreationNodeMask = 0;
-        uploadProperties.VisibleNodeMask = 0;
+        // staging buffer
+        {
+            D3D12_HEAP_PROPERTIES uploadProperties;
+            uploadProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
+            uploadProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+            uploadProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+            uploadProperties.CreationNodeMask = 0;
+            uploadProperties.VisibleNodeMask = 0;
 
-        D3D12_RESOURCE_DESC uploadBufferDesc;
-        uploadBufferDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-        uploadBufferDesc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
-        uploadBufferDesc.Width = spec.Width * spec.Height * spec.NumberOfChannels;
-        uploadBufferDesc.Height = 1;
-        uploadBufferDesc.DepthOrArraySize = 1;
-        uploadBufferDesc.MipLevels = 1;
-        uploadBufferDesc.Format = DXGI_FORMAT_UNKNOWN;
-        uploadBufferDesc.SampleDesc.Count = 1;
-        uploadBufferDesc.SampleDesc.Quality = 0;
-        uploadBufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-        uploadBufferDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
-        d3d12Device->CreateCommittedResource(&uploadProperties, D3D12_HEAP_FLAG_NONE, &uploadBufferDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&m_UploadBuffer));
+            D3D12_RESOURCE_DESC uploadBufferDesc;
+            uploadBufferDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+            uploadBufferDesc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
+            uploadBufferDesc.Width = spec.Width * spec.Height * spec.NumberOfChannels;
+            uploadBufferDesc.Height = 1;
+            uploadBufferDesc.DepthOrArraySize = 1;
+            uploadBufferDesc.MipLevels = 1;
+            uploadBufferDesc.Format = DXGI_FORMAT_UNKNOWN;
+            uploadBufferDesc.SampleDesc.Count = 1;
+            uploadBufferDesc.SampleDesc.Quality = 0;
+            uploadBufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+            uploadBufferDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+            d3d12Device->CreateCommittedResource(&uploadProperties, D3D12_HEAP_FLAG_NONE, &uploadBufferDesc, m_CurrentResourceState, nullptr, IID_PPV_ARGS(&m_UploadBuffer));
+        }
 
-        D3D12_HEAP_PROPERTIES heapProperties;
-        heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
-        heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-        heapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-        heapProperties.CreationNodeMask = 0;
-        heapProperties.VisibleNodeMask = 0;
+        // texture
+        {
+            D3D12_HEAP_PROPERTIES heapProperties;
+            heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
+            heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+            heapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+            heapProperties.CreationNodeMask = 0;
+            heapProperties.VisibleNodeMask = 0;
 
-        D3D12_RESOURCE_DESC resourceDesc;
-        resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-        resourceDesc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
-        resourceDesc.Width = spec.Width;
-        resourceDesc.Height = spec.Height;
-        resourceDesc.DepthOrArraySize = 1;
-        resourceDesc.MipLevels = 1;
-        resourceDesc.Format = m_TextureFormat;
-        resourceDesc.SampleDesc.Count = 1;
-        resourceDesc.SampleDesc.Quality = 0;
-        resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-        resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
-        d3d12Device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&m_Texture));
+            D3D12_RESOURCE_DESC resourceDesc;
+            resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+            resourceDesc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
+            resourceDesc.Width = spec.Width;
+            resourceDesc.Height = spec.Height;
+            resourceDesc.DepthOrArraySize = 1;
+            resourceDesc.MipLevels = 1;
+            resourceDesc.Format = m_TextureFormat;
+            resourceDesc.SampleDesc.Count = 1;
+            resourceDesc.SampleDesc.Quality = 0;
+            resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+            resourceDesc.Flags = flags;
+            d3d12Device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, m_CurrentResourceState, nullptr, IID_PPV_ARGS(&m_Texture));
+        }
     }
 
     TextureD3D12::~TextureD3D12()
@@ -108,9 +116,19 @@ namespace Nexus::Graphics
         return m_TextureFormat;
     }
 
-    ID3D12Resource2 *TextureD3D12::GetD3D12ResourceHandle()
+    const Microsoft::WRL::ComPtr<ID3D12Resource2> &TextureD3D12::GetD3D12ResourceHandle()
     {
-        return m_Texture.Get();
+        return m_Texture;
+    }
+
+    D3D12_RESOURCE_STATES TextureD3D12::GetCurrentResourceState()
+    {
+        return m_CurrentResourceState;
+    }
+
+    void TextureD3D12::SetCurrentResourceState(D3D12_RESOURCE_STATES state)
+    {
+        m_CurrentResourceState = state;
     }
 }
 

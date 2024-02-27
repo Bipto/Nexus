@@ -23,8 +23,8 @@ namespace Demos
     class CameraDemo : public Demo
     {
     public:
-        CameraDemo(const std::string &name, Nexus::Application *app)
-            : Demo(name, app)
+        CameraDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
+            : Demo(name, app, imGuiRenderer)
         {
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 

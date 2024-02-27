@@ -16,13 +16,17 @@ namespace Nexus::Graphics
         virtual ResourceHandle GetHandle() override;
         virtual void SetData(const void *data, uint32_t size) override;
         DXGI_FORMAT GetFormat();
-        ID3D12Resource2 *GetD3D12ResourceHandle();
+        const Microsoft::WRL::ComPtr<ID3D12Resource2> &GetD3D12ResourceHandle();
+
+        D3D12_RESOURCE_STATES GetCurrentResourceState();
+        void SetCurrentResourceState(D3D12_RESOURCE_STATES state);
 
     private:
         Microsoft::WRL::ComPtr<ID3D12Resource2> m_Texture = nullptr;
         Microsoft::WRL::ComPtr<ID3D12Resource2> m_UploadBuffer = nullptr;
 
         DXGI_FORMAT m_TextureFormat = DXGI_FORMAT_UNKNOWN;
+        D3D12_RESOURCE_STATES m_CurrentResourceState = D3D12_RESOURCE_STATE_COMMON;
 
         TextureSpecification m_Specification;
         GraphicsDeviceD3D12 *m_Device = nullptr;

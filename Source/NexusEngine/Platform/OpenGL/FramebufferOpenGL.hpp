@@ -7,20 +7,24 @@
 
 namespace Nexus::Graphics
 {
+    // forward declaration
+    class GraphicsDeviceOpenGL;
+
     class FramebufferOpenGL : public Framebuffer
     {
     public:
-        FramebufferOpenGL(const FramebufferSpecification &spec);
+        FramebufferOpenGL(const FramebufferSpecification &spec, GraphicsDeviceOpenGL *graphicsDevice);
         ~FramebufferOpenGL();
 
         void BindAsRenderTarget();
         void BindAsReadBuffer(uint32_t texture);
         void Unbind();
 
-        virtual void *GetColorAttachment(int index = 0) override;
         virtual const FramebufferSpecification GetFramebufferSpecification() override;
         virtual void SetFramebufferSpecification(const FramebufferSpecification &spec) override;
-        virtual void *GetDepthAttachment() override { return (void *)m_DepthTexture; }
+
+        virtual Texture *GetColorTexture(uint32_t index = 0) override;
+        virtual Texture *GetDepthTexture() override;
 
     private:
         virtual void Recreate() override;
@@ -29,10 +33,11 @@ namespace Nexus::Graphics
 
     private:
         unsigned int m_FBO;
-        std::vector<GLenum> m_Buffers;
 
-        std::vector<unsigned int> m_ColorTextures;
-        unsigned int m_DepthTexture;
+        std::vector<Texture *> m_ColorAttachments;
+        Texture *m_DepthAttachment;
+
+        GraphicsDeviceOpenGL *m_Device = nullptr;
     };
 }
 

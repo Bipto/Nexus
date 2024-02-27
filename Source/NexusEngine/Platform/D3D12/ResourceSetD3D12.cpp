@@ -113,7 +113,8 @@ namespace Nexus::Graphics
         srv.Texture2D.ResourceMinLODClamp = 0.0f;
 
         D3D12_CPU_DESCRIPTOR_HANDLE textureHandle = m_TextureCPUDescriptors.at(index);
-        d3d12Device->CreateShaderResourceView(d3d12Texture->GetD3D12ResourceHandle(),
+        auto resourceHandle = d3d12Texture->GetD3D12ResourceHandle();
+        d3d12Device->CreateShaderResourceView(resourceHandle.Get(),
                                               &srv,
                                               textureHandle);
         D3D12_SAMPLER_DESC sd;

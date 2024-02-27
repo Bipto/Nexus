@@ -15,6 +15,7 @@
 #include "Demos/AudioDemo.hpp"
 #include "Demos/PythonDemo.hpp"
 #include "Demos/BatchingDemo.hpp"
+#include "Demos/FramebufferDemo.hpp"
 
 #include "Nexus/FileSystem/FileSystem.hpp"
 
@@ -27,7 +28,7 @@
 struct DemoInfo
 {
     std::string Name;
-    Demos::Demo *(*CreationFunction)(Nexus::Application *, const std::string &name);
+    Demos::Demo *(*CreationFunction)(Nexus::Application *, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer);
 };
 
 class DemoApplication : public Nexus::Application
@@ -69,6 +70,7 @@ public:
         RegisterGraphicsDemo<Demos::HelloTriangleIndexedDemo>("Hello Triangle Indexed");
         RegisterGraphicsDemo<Demos::TexturingDemo>("Texturing");
         RegisterGraphicsDemo<Demos::BatchingDemo>("Batching");
+        RegisterGraphicsDemo<Demos::FramebufferDemo>("Framebuffers");
         RegisterGraphicsDemo<Demos::UniformBufferDemo>("Uniform Buffers");
         RegisterGraphicsDemo<Demos::Demo3D>("3D");
         RegisterGraphicsDemo<Demos::CameraDemo>("Camera");
@@ -83,9 +85,9 @@ public:
     {
         DemoInfo info;
         info.Name = name;
-        info.CreationFunction = [](Nexus::Application *app, const std::string &name) -> Demos::Demo *
+        info.CreationFunction = [](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
         {
-            return new T(name, app);
+            return new T(name, app, imGuiRenderer);
         };
         m_GraphicsDemos.push_back(info);
     }
@@ -95,9 +97,9 @@ public:
     {
         DemoInfo info;
         info.Name = name;
-        info.CreationFunction = [](Nexus::Application *app, const std::string &name) -> Demos::Demo *
+        info.CreationFunction = [](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
         {
-            return new T(name, app);
+            return new T(name, app, imGuiRenderer);
         };
         m_AudioDemos.push_back(info);
     }
@@ -107,9 +109,9 @@ public:
     {
         DemoInfo info;
         info.Name = name;
-        info.CreationFunction = [](Nexus::Application *app, const std::string &name) -> Demos::Demo *
+        info.CreationFunction = [](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
         {
-            return new T(name, app);
+            return new T(name, app, imGuiRenderer);
         };
         m_ScriptingDemos.push_back(info);
     }
@@ -194,7 +196,7 @@ public:
                                     m_CurrentDemo = nullptr;
                                 }
 
-                                m_CurrentDemo = pair.CreationFunction(this, pair.Name);
+                                m_CurrentDemo = pair.CreationFunction(this, pair.Name, m_ImGuiRenderer);
                             }
 
                             ImGui::TreePop();
@@ -220,7 +222,7 @@ public:
                                     m_CurrentDemo = nullptr;
                                 }
 
-                                m_CurrentDemo = pair.CreationFunction(this, pair.Name);
+                                m_CurrentDemo = pair.CreationFunction(this, pair.Name, m_ImGuiRenderer);
                             }
 
                             ImGui::TreePop();
@@ -246,7 +248,7 @@ public:
                                     m_CurrentDemo = nullptr;
                                 }
 
-                                m_CurrentDemo = pair.CreationFunction(this, pair.Name);
+                                m_CurrentDemo = pair.CreationFunction(this, pair.Name, m_ImGuiRenderer);
                             }
 
                             ImGui::TreePop();
@@ -314,7 +316,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
     spec.WindowProperties.Title = "Demo";
     spec.WindowProperties.Resizable = true;
 
-    spec.SwapchainSpecification.Samples = Nexus::Graphics::MultiSamples::SampleCount8;
+    spec.SwapchainSpecification.Samples = Nexus::Graphics::SampleCount::SampleCount1;
 
     return new DemoApplication(spec);
 }

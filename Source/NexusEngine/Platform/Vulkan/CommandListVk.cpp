@@ -219,6 +219,30 @@ namespace Nexus::Graphics
         if (m_RenderPassStarted)
         {
             vkCmdEndRenderPass(m_CurrentCommandBuffer);
+
+            if (m_CurrentRenderTarget.GetType() == RenderTargetType::Framebuffer)
+            {
+                auto framebuffer = (FramebufferVk *)m_CurrentRenderTarget.GetData<Framebuffer *>();
+                for (int i = 0; i < framebuffer->GetColorTextureCount(); i++)
+                {
+                    auto texture = framebuffer->GetVulkanColorTexture(i);
+                    if (texture->GetLayout() != VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+                    {
+                        TransitionImageLayout(texture->GetImage(), texture->GetLayout(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
+                        texture->SetLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+                    }
+                }
+
+                if (framebuffer->HasDepthTexture())
+                {
+                    auto texture = (TextureVk *)framebuffer->GetDepthTexture();
+                    if (texture->GetLayout() != VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+                    {
+                        TransitionImageLayout(texture->GetImage(), texture->GetLayout(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
+                        texture->SetLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+                    }
+                }
+            }
         }
 
         m_CurrentRenderTarget = target;
@@ -278,8 +302,9 @@ namespace Nexus::Graphics
 
             // on first frame, put the framebuffer images into the correct layout
             {
-                for (int i = 0; i < vulkanFramebuffer->GetColorTextureCount(); i++)
+                /* for (int i = 0; i < vulkanFramebuffer->GetColorTextureCount(); i++)
                 {
+
                     auto colorLayout = vulkanFramebuffer->GetColorImageLayouts()[i];
                     if (colorLayout == VK_IMAGE_LAYOUT_UNDEFINED)
                     {
@@ -294,6 +319,26 @@ namespace Nexus::Graphics
                     auto image = vulkanFramebuffer->GetDepthTextureImage();
                     TransitionImageLayout(image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT));
                     vulkanFramebuffer->SetDepthImageLayout(VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
+                } */
+
+                for (uint32_t i = 0; i < vulkanFramebuffer->GetColorTextureCount(); i++)
+                {
+                    auto texture = vulkanFramebuffer->GetVulkanColorTexture(i);
+                    if (texture->GetLayout() != VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+                    {
+                        TransitionImageLayout(texture->GetImage(), texture->GetLayout(), VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
+                        texture->SetLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+                    }
+                }
+
+                if (vulkanFramebuffer->HasDepthTexture())
+                {
+                    auto texture = vulkanFramebuffer->GetVulkanDepthTexture();
+                    if (texture->GetLayout() != VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+                    {
+                        TransitionImageLayout(texture->GetImage(), texture->GetLayout(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT));
+                        texture->SetLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+                    }
                 }
             }
 
@@ -313,12 +358,12 @@ namespace Nexus::Graphics
 
             m_DepthAttachmentIndex = framebuffer->GetColorTextureCount() + 1;
 
-            for (int i = 0; i < vulkanFramebuffer->GetFramebufferSpecification().ColorAttachmentSpecification.Attachments.size(); i++)
+            /* for (int i = 0; i < vulkanFramebuffer->GetFramebufferSpecification().ColorAttachmentSpecification.Attachments.size(); i++)
             {
                 vulkanFramebuffer->SetColorImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, i);
             }
 
-            vulkanFramebuffer->SetDepthImageLayout(VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
+            vulkanFramebuffer->SetDepthImageLayout(VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL); */
 
             m_RenderPassStarted = true;
         }
@@ -371,7 +416,7 @@ namespace Nexus::Graphics
         auto framebufferVk = (FramebufferVk *)source;
         auto swapchainVk = (SwapchainVk *)target;
 
-        VkImage framebufferImage = framebufferVk->GetColorTextureImage(sourceIndex);
+        VkImage framebufferImage = framebufferVk->GetVulkanColorTexture(sourceIndex)->GetImage();
         VkImage swapchainImage = swapchainVk->GetColourImage();
 
         VkImageSubresourceLayers src;
@@ -393,7 +438,7 @@ namespace Nexus::Graphics
         resolve.srcOffset = {0, 0, 0};
         resolve.srcSubresource = src;
 
-        auto framebufferLayout = framebufferVk->GetColorImageLayouts()[sourceIndex];
+        auto framebufferLayout = framebufferVk->GetVulkanColorTexture(sourceIndex)->GetLayout();
         auto swapchainLayout = swapchainVk->GetColorImageLayout();
 
         TransitionImageLayout(framebufferImage, framebufferLayout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);

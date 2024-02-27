@@ -37,6 +37,11 @@ namespace Nexus::Graphics
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_Specification.Width, m_Specification.Height, m_DataFormat, m_BaseType, data);
         GL::CheckErrors();
     }
+
+    unsigned int TextureOpenGL::GetNativeHandle()
+    {
+        return m_Handle;
+    }
 }
 
 #endif

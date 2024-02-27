@@ -13,28 +13,8 @@ namespace Nexus::Graphics
 
     FramebufferVk::~FramebufferVk()
     {
-        for (int i = 0; i < m_Specification.ColorAttachmentSpecification.Attachments.size(); i++)
-        {
-            vkDestroyImage(m_Device->GetVkDevice(), m_Images[i], nullptr);
-            vkFreeMemory(m_Device->GetVkDevice(), m_ImageMemory[i], nullptr);
-            vkDestroySampler(m_Device->GetVkDevice(), m_Samplers[i], nullptr);
-            vkDestroyImageView(m_Device->GetVkDevice(), m_ImageViews[i], nullptr);
-        }
-
-        if (m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::None)
-        {
-            vkDestroyImage(m_Device->GetVkDevice(), m_DepthImage, nullptr);
-            vkFreeMemory(m_Device->GetVkDevice(), m_DepthMemory, nullptr);
-            vkDestroyImageView(m_Device->GetVkDevice(), m_DepthImageView, nullptr);
-        }
-
         vkDestroyFramebuffer(m_Device->GetVkDevice(), m_Framebuffer, nullptr);
         vkDestroyRenderPass(m_Device->GetVkDevice(), m_FramebufferRenderPass, nullptr);
-    }
-
-    void *FramebufferVk::GetColorAttachment(int index)
-    {
-        return m_ImageViews[index];
     }
 
     const FramebufferSpecification FramebufferVk::GetFramebufferSpecification()
@@ -48,64 +28,34 @@ namespace Nexus::Graphics
         Recreate();
     }
 
-    void *FramebufferVk::GetDepthAttachment()
-    {
-        return m_DepthImageView;
-    }
-
     VkFramebuffer FramebufferVk::GetVkFramebuffer()
     {
         return m_Framebuffer;
     }
 
-    VkImage FramebufferVk::GetColorTextureImage(uint32_t index)
+    Texture *FramebufferVk::GetColorTexture(uint32_t index)
     {
-        return m_Images[index];
+        return m_ColorAttachments.at(index);
     }
 
-    VkImageView FramebufferVk::GetColorTextureImageView(uint32_t index)
+    Texture *FramebufferVk::GetDepthTexture()
     {
-        return m_ImageViews[index];
+        return m_DepthAttachment;
     }
 
-    VkSampler FramebufferVk::GetColorTextureSampler(uint32_t index)
+    TextureVk *FramebufferVk::GetVulkanColorTexture(uint32_t index)
     {
-        return m_Samplers[index];
+        return m_ColorAttachments.at(index);
     }
 
-    VkImage FramebufferVk::GetDepthTextureImage()
+    TextureVk *FramebufferVk::GetVulkanDepthTexture()
     {
-        return m_DepthImage;
+        return m_DepthAttachment;
     }
 
     VkRenderPass FramebufferVk::GetRenderPass()
     {
         return m_FramebufferRenderPass;
-    }
-
-    const std::vector<VkImageLayout> &FramebufferVk::GetColorImageLayouts()
-    {
-        return m_ImageLayouts;
-    }
-
-    VkImageLayout FramebufferVk::GetDepthImageLayout()
-    {
-        return m_DepthLayout;
-    }
-
-    void FramebufferVk::SetColorImageLayout(VkImageLayout layout, uint32_t index)
-    {
-        if (index > m_Images.size())
-        {
-            return;
-        }
-
-        m_ImageLayouts[index] = layout;
-    }
-
-    void FramebufferVk::SetDepthImageLayout(VkImageLayout layout)
-    {
-        m_DepthLayout = layout;
     }
 
     void FramebufferVk::Recreate()
@@ -118,171 +68,56 @@ namespace Nexus::Graphics
 
     void FramebufferVk::CreateColorTargets()
     {
-        m_Images.resize(m_Specification.ColorAttachmentSpecification.Attachments.size());
-        m_ImageMemory.resize(m_Specification.ColorAttachmentSpecification.Attachments.size());
-        m_Samplers.resize(m_Specification.ColorAttachmentSpecification.Attachments.size());
-        m_ImageViews.resize(m_Specification.ColorAttachmentSpecification.Attachments.size());
-        m_ImageLayouts.clear();
+        m_ColorAttachments.clear();
 
-        VkSampleCountFlagBits sampleCount = GetVkSampleCount(m_Specification.Samples);
-
-        for (int i = 0; i < m_Images.size(); i++)
+        for (int i = 0; i < m_Specification.ColorAttachmentSpecification.Attachments.size(); i++)
         {
-            VkFormat format = GetVkPixelDataFormat(m_Specification.ColorAttachmentSpecification.Attachments[i].TextureFormat, false);
+            const auto &colorAttachmentSpec = m_Specification.ColorAttachmentSpecification.Attachments.at(i);
 
-            VkImageCreateInfo imageInfo = {};
-            imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-            imageInfo.imageType = VK_IMAGE_TYPE_2D;
-            imageInfo.format = format;
-            imageInfo.extent.width = m_Specification.Width;
-            imageInfo.extent.height = m_Specification.Height;
-            imageInfo.extent.depth = 1;
-            imageInfo.mipLevels = 1;
-            imageInfo.arrayLayers = 1;
-            imageInfo.samples = sampleCount;
-            imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-            imageInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-            imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-
-            VkMemoryAllocateInfo memAlloc{};
-            memAlloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-
-            if (vkCreateImage(m_Device->GetVkDevice(), &imageInfo, nullptr, &m_Images[i]) != VK_SUCCESS)
+            if (colorAttachmentSpec.TextureFormat == PixelFormat::None)
             {
-                throw std::runtime_error("Failed to create image");
+                NX_ASSERT(0, "Pixel format cannot be PixelFormat::None for a color attachment");
             }
 
-            VkMemoryRequirements memRequirements{};
-            vkGetImageMemoryRequirements(m_Device->GetVkDevice(), m_Images[i], &memRequirements);
-            memAlloc.allocationSize = memRequirements.size;
-            memAlloc.memoryTypeIndex = m_Device->FindMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-            if (vkAllocateMemory(m_Device->GetVkDevice(), &memAlloc, nullptr, &m_ImageMemory[i]) != VK_SUCCESS)
-            {
-                throw std::runtime_error("Failed to create image memory");
-            }
-
-            if (vkBindImageMemory(m_Device->GetVkDevice(), m_Images[i], m_ImageMemory[i], 0) != VK_SUCCESS)
-            {
-                throw std::runtime_error("Failed to bind image memory");
-            }
-
-            VkSamplerCreateInfo samplerInfo = {};
-            samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-            samplerInfo.magFilter = VK_FILTER_LINEAR;
-            samplerInfo.minFilter = VK_FILTER_LINEAR;
-            samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-            samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-            samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-            samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-            samplerInfo.mipLodBias = 0.0f;
-            samplerInfo.maxAnisotropy = 0.0f;
-            samplerInfo.minLod = 0.0f;
-            samplerInfo.maxLod = 1.0f;
-            samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
-            if (vkCreateSampler(m_Device->GetVkDevice(), &samplerInfo, nullptr, &m_Samplers[i]) != VK_SUCCESS)
-            {
-                throw std::runtime_error("Failed to create sampler");
-            }
-
-            VkImageViewCreateInfo viewInfo = {};
-            viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-            viewInfo.image = m_Images[i];
-            viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-            viewInfo.format = format;
-            viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            viewInfo.subresourceRange.baseMipLevel = 0;
-            viewInfo.subresourceRange.levelCount = 1;
-            viewInfo.subresourceRange.baseArrayLayer = 0;
-            viewInfo.subresourceRange.layerCount = 1;
-
-            if (vkCreateImageView(m_Device->GetVkDevice(), &viewInfo, nullptr, &m_ImageViews[i]) != VK_SUCCESS)
-            {
-                throw std::runtime_error("Failed to create texture image view");
-            }
-
-            m_ImageLayouts.push_back(VK_IMAGE_LAYOUT_UNDEFINED);
+            Nexus::Graphics::TextureSpecification spec;
+            spec.Width = m_Specification.Width;
+            spec.Height = m_Specification.Height;
+            spec.Format = colorAttachmentSpec.TextureFormat;
+            spec.NumberOfChannels = 4;
+            spec.Samples = m_Specification.Samples;
+            spec.Usage = {TextureUsage::Sampled, TextureUsage::RenderTarget};
+            auto texture = (TextureVk *)m_Device->CreateTexture(spec);
+            m_ColorAttachments.push_back(texture);
         }
     }
 
     void FramebufferVk::CreateDepthTargets()
     {
         // the specification does not contain a depth attachment, so we do not create one
-        if (m_Specification.DepthAttachmentSpecification.DepthFormat == PixelFormat::None)
-            return;
-
-        VkFormat depthFormat = GetVkPixelDataFormat(m_Specification.DepthAttachmentSpecification.DepthFormat, true);
-        VkSampleCountFlagBits sampleCount = GetVkSampleCount(m_Specification.Samples);
-
-        // allocate image
+        if (m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::None)
         {
-            VkImageCreateInfo imageInfo = {};
-            imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-            imageInfo.imageType = VK_IMAGE_TYPE_2D;
-            imageInfo.extent.width = m_Specification.Width;
-            imageInfo.extent.height = m_Specification.Height;
-            imageInfo.extent.depth = 1;
-            imageInfo.mipLevels = 1;
-            imageInfo.arrayLayers = 1;
-            imageInfo.format = depthFormat;
-            imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-            imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-            imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-            imageInfo.samples = sampleCount;
-            imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-            if (vkCreateImage(m_Device->GetVkDevice(), &imageInfo, nullptr, &m_DepthImage) != VK_SUCCESS)
-            {
-                throw std::runtime_error("Failed to create image");
-            }
-
-            VkMemoryRequirements memRequirements;
-            vkGetImageMemoryRequirements(m_Device->GetVkDevice(), m_DepthImage, &memRequirements);
-
-            VkMemoryAllocateInfo allocInfo = {};
-            allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-            allocInfo.allocationSize = memRequirements.size;
-            allocInfo.memoryTypeIndex = m_Device->FindMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-
-            if (vkAllocateMemory(m_Device->GetVkDevice(), &allocInfo, nullptr, &m_DepthMemory) != VK_SUCCESS)
-            {
-                throw std::runtime_error("Failed to alloate image memory");
-            }
-
-            vkBindImageMemory(m_Device->GetVkDevice(), m_DepthImage, m_DepthMemory, 0);
+            Nexus::Graphics::TextureSpecification spec;
+            spec.Width = m_Specification.Width;
+            spec.Height = m_Specification.Height;
+            spec.Format = m_Specification.DepthAttachmentSpecification.DepthFormat;
+            spec.NumberOfChannels = 2;
+            spec.Samples = m_Specification.Samples;
+            spec.Usage = {TextureUsage::DepthStencil};
+            m_DepthAttachment = (TextureVk *)m_Device->CreateTexture(spec);
         }
-
-        // allocate image view
-        {
-            VkImageViewCreateInfo viewInfo = {};
-            viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-            viewInfo.image = m_DepthImage;
-            viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-            viewInfo.format = depthFormat;
-            viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-            viewInfo.subresourceRange.baseMipLevel = 0;
-            viewInfo.subresourceRange.levelCount = 1;
-            viewInfo.subresourceRange.baseArrayLayer = 0;
-            viewInfo.subresourceRange.layerCount = 1;
-
-            if (vkCreateImageView(m_Device->GetVkDevice(), &viewInfo, nullptr, &m_DepthImageView) != VK_SUCCESS)
-            {
-                throw std::runtime_error("Failed to create image view");
-            }
-        }
-
-        m_DepthLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     }
 
     void FramebufferVk::CreateFramebuffer()
     {
         std::vector<VkImageView> attachments;
-        for (const auto imageView : m_ImageViews)
+        for (const auto texture : m_ColorAttachments)
         {
-            attachments.push_back(imageView);
+            attachments.push_back(texture->GetImageView());
         }
-        if (this->HasDepthTexture())
+
+        if (HasDepthTexture())
         {
-            attachments.push_back(m_DepthImageView);
+            attachments.push_back(m_DepthAttachment->GetImageView());
         }
 
         VkFramebufferCreateInfo framebufferInfo = {};

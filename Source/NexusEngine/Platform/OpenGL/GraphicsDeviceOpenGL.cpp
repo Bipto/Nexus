@@ -253,7 +253,7 @@ namespace Nexus::Graphics
 
     Framebuffer *GraphicsDeviceOpenGL::CreateFramebuffer(const FramebufferSpecification &spec)
     {
-        return new FramebufferOpenGL(spec);
+        return new FramebufferOpenGL(spec, this);
     }
 
     Sampler *GraphicsDeviceOpenGL::CreateSampler(const SamplerSpecification &spec)

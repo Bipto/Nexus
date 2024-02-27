@@ -15,6 +15,8 @@ namespace Nexus::Graphics
         virtual ResourceHandle GetHandle() override;
         virtual void SetData(const void *data, uint32_t size) override;
 
+        unsigned int GetNativeHandle();
+
     private:
         unsigned int m_Handle;
         GLenum m_DataFormat = 0;

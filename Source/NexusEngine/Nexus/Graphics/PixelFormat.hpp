@@ -4,6 +4,7 @@ namespace Nexus::Graphics
 {
     enum class PixelFormat
     {
+        None = 0,
         B8_G8_R8_A8_UNorm,
         B8_G8_R8_A8_UNorm_SRGB,
         BC1_Rgb_UNorm,
@@ -63,6 +64,5 @@ namespace Nexus::Graphics
         R8_SNorm,
         R8_UInt,
         R8_UNorm,
-        None
     };
 }

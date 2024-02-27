@@ -393,6 +393,28 @@ DXGI_FORMAT GetD3D12BaseType(const Nexus::Graphics::VertexBufferElement &element
     }
 }
 
+D3D12_RESOURCE_FLAGS GetD3D12ResourceFlags(const std::vector<Nexus::Graphics::TextureUsage> &usage, bool &isDepth)
+{
+    isDepth = false;
+    D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE;
+
+    for (const auto &item : usage)
+    {
+        if (item == Nexus::Graphics::TextureUsage::DepthStencil)
+        {
+            isDepth = true;
+            flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+        }
+
+        if (item == Nexus::Graphics::TextureUsage::RenderTarget)
+        {
+            flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+        }
+    }
+
+    return flags;
+}
+
 D3D12_FILTER GetD3D12Filter(Nexus::Graphics::SamplerFilter filter)
 {
     switch (filter)

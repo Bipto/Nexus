@@ -37,7 +37,7 @@ public:
         framebufferSpec.DepthAttachmentSpecification.DepthFormat = Nexus::Graphics::DepthFormat::DEPTH24STENCIL8;
         framebufferSpec.Height = 1024;
         framebufferSpec.Height = 1024;
-        framebufferSpec.Samples = Nexus::Graphics::MultiSamples::SampleCount4;
+        framebufferSpec.Samples = Nexus::Graphics::SampleCount::SampleCount4;
 
         m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(framebufferSpec);
     }

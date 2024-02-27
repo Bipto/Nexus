@@ -5,6 +5,7 @@
 #include "Vk.hpp"
 #include "Nexus/Graphics/ResourceSet.hpp"
 #include "GraphicsDeviceVk.hpp"
+#include "TextureVk.hpp"
 
 namespace Nexus::Graphics
 {
