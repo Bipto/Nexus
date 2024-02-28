@@ -187,7 +187,7 @@ namespace Nexus::Graphics
                 GLint location = glGetUniformLocation(shaderGL->GetHandle(), texture.first.c_str());
                 glUniform1i(location, location);
                 glActiveTexture(GL_TEXTURE0 + location);
-                glBindTexture(GL_TEXTURE_2D, texture.second->GetHandle());
+                glBindTexture(GL_TEXTURE_2D, texture.second->GetNativeHandle());
             }
 
             for (const auto &sampler : samplerBindings)

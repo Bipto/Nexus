@@ -69,19 +69,43 @@ namespace Nexus::Graphics
         {
             if (m_RenderTargetType == RenderTargetType::Swapchain)
             {
-                auto swapchain = GetData<Swapchain*>();
+                auto swapchain = GetData<Swapchain *>();
                 return swapchain->GetWindow()->GetWindowSize();
             }
             else if (m_RenderTargetType == RenderTargetType::Framebuffer)
             {
-                auto framebuffer = GetData<Framebuffer*>();
-                const auto& framebufferSpec = framebuffer->GetFramebufferSpecification();
+                auto framebuffer = GetData<Framebuffer *>();
+                const auto &framebufferSpec = framebuffer->GetFramebufferSpecification();
                 return {framebufferSpec.Width, framebufferSpec.Height};
             }
             else
             {
                 throw std::runtime_error("An invalid render target was selected");
             }
+        }
+
+        bool HasDepthAttachment()
+        {
+            if (m_RenderTargetType == RenderTargetType::Swapchain)
+            {
+                auto swapchain = GetData<Swapchain *>();
+                return true;
+            }
+            else if (m_RenderTargetType == RenderTargetType::Framebuffer)
+            {
+                auto framebuffer = GetData<Framebuffer *>();
+                const auto &framebufferSpec = framebuffer->GetFramebufferSpecification();
+                return framebufferSpec.DepthAttachmentSpecification.DepthFormat != PixelFormat::None;
+            }
+            else
+            {
+                throw std::runtime_error("An invalid render target was selected");
+            }
+        }
+
+        bool IsValid()
+        {
+            return m_RenderTargetType != RenderTargetType::None;
         }
 
         constexpr bool operator==(const RenderTarget &other)

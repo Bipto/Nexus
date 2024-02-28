@@ -138,14 +138,7 @@ public:
         if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::F11))
         {
             auto window = this->GetPrimaryWindow();
-            if (window->GetCurrentWindowState() == Nexus::WindowState::Normal)
-            {
-                window->Maximize();
-            }
-            else if (window->GetCurrentWindowState() == Nexus::WindowState::Maximized)
-            {
-                window->Restore();
-            }
+            window->ToggleFullscreen();
         }
 
         {
@@ -308,7 +301,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;

@@ -218,6 +218,41 @@ namespace Nexus
         SDL_RestoreWindow(m_Window);
     }
 
+    void Window::ToggleFullscreen()
+    {
+        if (IsFullscreen())
+        {
+            UnsetFullscreen();
+        }
+        else
+        {
+            SetFullscreen();
+        }
+    }
+
+    bool Window::IsFullscreen()
+    {
+        auto flags = SDL_GetWindowFlags(m_Window);
+
+        if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    void Window::SetFullscreen()
+    {
+        SDL_SetWindowFullscreen(m_Window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+        SDL_SetWindowDisplayMode(m_Window, nullptr);
+    }
+
+    void Window::UnsetFullscreen()
+    {
+        SDL_SetWindowFullscreen(m_Window, 0);
+    }
+
     void Window::CreateSwapchain(Graphics::GraphicsDevice *device, const Graphics::SwapchainSpecification &swapchainSpec)
     {
         switch (device->GetGraphicsAPI())

@@ -51,10 +51,6 @@ namespace Nexus::Graphics
 
         virtual ~Texture() {}
 
-        /// @brief A pure virtual method that returns a pointer to the underlying native texture
-        /// @return A void pointer to an API specific texture
-        virtual ResourceHandle GetHandle() = 0;
-
         virtual void SetData(const void *data, uint32_t size) = 0;
 
     protected:

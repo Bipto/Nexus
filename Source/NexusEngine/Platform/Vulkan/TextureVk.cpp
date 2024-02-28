@@ -62,11 +62,6 @@ namespace Nexus::Graphics
         vmaDestroyImage(m_GraphicsDevice->GetAllocator(), m_Image, m_Allocation);
     }
 
-    ResourceHandle TextureVk::GetHandle()
-    {
-        return (ResourceHandle)m_ImageView;
-    }
-
     void TextureVk::SetData(const void *data, uint32_t size)
     {
         VkDeviceSize imageSize = m_Specification.Width * m_Specification.Height * m_Specification.NumberOfChannels;

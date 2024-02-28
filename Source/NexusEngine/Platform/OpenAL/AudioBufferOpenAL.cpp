@@ -30,9 +30,9 @@ namespace Nexus::Audio
         alDeleteBuffers(1, &m_Buffer);
     }
 
-    ResourceHandle AudioBufferOpenAL::GetHandle()
+    const ALuint AudioBufferOpenAL::GetHandle() const
     {
-        return (ResourceHandle)m_Buffer;
+        return m_Buffer;
     }
 }
 

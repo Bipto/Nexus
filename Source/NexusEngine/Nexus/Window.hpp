@@ -82,7 +82,7 @@ namespace Nexus
         /// @return  A pointer to an SDL window
         SDL_Window *GetSDLWindowHandle();
 
-        /// @brief A metho dthat returns the size of the window
+        /// @brief A method that returns the size of the window
         /// @return A Nexus::Point containing two integers representing the size of the window
         Point<uint32_t> GetWindowSize();
 
@@ -118,6 +118,19 @@ namespace Nexus
 
         /// @brief A method that restores a window to it's previous size
         void Restore();
+
+        /// @brief A method that toggles a window between fullscreen and windowed
+        void ToggleFullscreen();
+
+        /// @brief A method that returns a boolean value indicating whether the window is currently fullscreen or windowed
+        /// @return A boolean indicating whether the window is fullscreen
+        bool IsFullscreen();
+
+        /// @brief A method that sets a window to be fullscreen
+        void SetFullscreen();
+
+        /// @brief A method that sets a window to be windowed
+        void UnsetFullscreen();
 
         /// @brief A method that creates a new swapchain to support rendering to the window
         /// @param device The graphics device to use to create the swapchain

@@ -31,6 +31,9 @@ namespace Nexus::Graphics
     {
         // swap the swapchain's buffers and present to the display
         m_Swapchain->Present((uint32_t)m_VsyncState, 0);
+
+        std::cout << "Width: " << m_SwapchainWidth << "\n";
+        std::cout << "Height: " << m_SwapchainHeight << "\n";
     }
 
     VSyncState SwapchainD3D12::GetVsyncState()
@@ -254,7 +257,7 @@ namespace Nexus::Graphics
     {
         auto d3d12Device = m_Device->GetDevice();
         auto size = m_Window->GetWindowSize();
-        m_CurrentDepthState = D3D12_RESOURCE_STATE_DEPTH_READ;
+        m_CurrentDepthState = D3D12_RESOURCE_STATE_DEPTH_WRITE;
 
         D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
         dsvHeapDesc.NumDescriptors = 1;

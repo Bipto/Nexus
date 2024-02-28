@@ -19,16 +19,6 @@ namespace Nexus::Graphics
             s_ContextCreated = true;
         }
 
-        /* #if defined(EMSCRIPTEN)
-                EmscriptenWebGLContextAttributes attrs;
-                attrs.antialias = true;
-                attrs.majorVersion = 3;
-                attrs.minorVersion = 2;
-                attrs.alpha = true;
-                EMSCRIPTEN_WEBGL_CONTEXT_HANDLE webgl_context = emscripten_webgl_create_context("#canvas", &attrs);
-                emscripten_webgl_make_context_current(webgl_context);
-        #endif */
-
         m_Context = SDL_GL_CreateContext(s_ContextWindow);
 
         SDL_GL_MakeCurrent(window->GetSDLWindowHandle(), m_Context);
@@ -60,28 +50,25 @@ namespace Nexus::Graphics
 
     void SwapchainOpenGL::ResizeIfNecessary()
     {
-        auto windowWidth = m_Window->GetWindowSize().X;
-        auto windowHeight = m_Window->GetWindowSize().Y;
+        int w, h;
 
-        if (m_SwapchainWidth == windowWidth || m_SwapchainHeight == windowHeight)
-            return;
+        SDL_GL_GetDrawableSize(m_Window->GetSDLWindowHandle(), &w, &h);
 
         glBindFramebuffer(GL_FRAMEBUFFER, m_Backbuffer);
-        glViewport(0, 0, windowWidth, windowHeight);
+        glViewport(0, 0, w, h);
 
-        m_SwapchainWidth = windowWidth;
-        m_SwapchainHeight = windowHeight;
+        m_SwapchainWidth = w;
+        m_SwapchainHeight = h;
     }
 
     void SwapchainOpenGL::BindAsRenderTarget()
     {
         SDL_GL_MakeCurrent(m_Window->GetSDLWindowHandle(), m_Context);
+        ResizeIfNecessary();
         glBindFramebuffer(GL_FRAMEBUFFER, m_Backbuffer);
 
-        auto width = m_Window->GetWindowSize().X;
-        auto height = m_Window->GetWindowSize().Y;
-        glViewport(0, 0, width, height);
-        glScissor(0, 0, width, height);
+        glViewport(0, 0, m_SwapchainWidth, m_SwapchainHeight);
+        glScissor(0, 0, m_SwapchainWidth, m_SwapchainHeight);
     }
 
     void SwapchainOpenGL::BindAsDrawTarget()

@@ -38,6 +38,4 @@ namespace Nexus
 
     template <typename T>
     using WeakRef = std::weak_ptr<T>;
-
-    typedef uint64_t ResourceHandle;
 }

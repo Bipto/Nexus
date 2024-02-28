@@ -1,5 +1,7 @@
 #include "AudioSourceOpenAL.hpp"
 
+#include "AudioBufferOpenAL.hpp"
+
 #if defined(NX_PLATFORM_OPENAL)
 
 namespace Nexus::Audio
@@ -7,6 +9,7 @@ namespace Nexus::Audio
     AudioSourceOpenAL::AudioSourceOpenAL(AudioBuffer *buffer)
     {
         m_Buffer = buffer;
+        auto bufferAL = (AudioBufferOpenAL *)buffer;
 
         alGenSources(1, &m_Source);
         alSourcef(m_Source, AL_PITCH, 1);
@@ -14,7 +17,7 @@ namespace Nexus::Audio
         alSource3f(m_Source, AL_POSITION, 0, 0, 0);
         alSource3f(m_Source, AL_VELOCITY, 0, 0, 0);
         alSourcei(m_Source, AL_LOOPING, AL_FALSE);
-        alSourcei(m_Source, AL_BUFFER, (ALint)m_Buffer->GetHandle());
+        alSourcei(m_Source, AL_BUFFER, bufferAL->GetHandle());
 
         if (alGetError() != AL_NO_ERROR)
         {

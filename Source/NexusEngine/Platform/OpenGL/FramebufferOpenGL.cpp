@@ -72,73 +72,6 @@ namespace Nexus::Graphics
 
     void FramebufferOpenGL::CreateTextures()
     {
-        /* m_ColorTextures.clear();
-
-        // color attachments
-        for (int i = 0; i < m_Specification.ColorAttachmentSpecification.Attachments.size(); i++)
-        {
-            auto colorSpec = m_Specification.ColorAttachmentSpecification.Attachments[i];
-
-            unsigned int texture;
-            glGenTextures(1, &texture);
-
-            auto textureFormat = GL::GetPixelType(colorSpec.TextureFormat);
-
-#if !defined(NX_PLATFORM_WEBGL2)
-            if (m_Specification.Samples != SampleCount::SampleCount1)
-            {
-                uint32_t samples = GetSampleCount(m_Specification.Samples);
-                glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, texture);
-                glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-                glTexStorage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, textureFormat, m_Specification.Width, m_Specification.Height, GL_FALSE);
-                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D_MULTISAMPLE, texture, 0);
-            }
-            else
-            {
-                glBindTexture(GL_TEXTURE_2D, texture);
-                glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-                glTexStorage2D(GL_TEXTURE_2D, 1, textureFormat, m_Specification.Width, m_Specification.Height);
-                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, texture, 0);
-            }
-#else
-            glBindTexture(GL_TEXTURE_2D, texture);
-            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-            glTexStorage2D(GL_TEXTURE_2D, 1, textureFormat, m_Specification.Width, m_Specification.Height);
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, texture, 0);
-#endif
-
-            m_ColorTextures.emplace_back(texture);
-    }
-
-    // depth attachment
-    if (m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::None)
-    {
-        glGenTextures(1, &m_DepthTexture);
-
-#if !defined(NX_PLATFORM_WEBGL2)
-        if (m_Specification.Samples != SampleCount::SampleCount1)
-        {
-            uint32_t samples = GetSampleCount(m_Specification.Samples);
-            glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_DepthTexture);
-            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-            glTexStorage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_DEPTH24_STENCIL8, m_Specification.Width, m_Specification.Height, GL_FALSE);
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE, m_DepthTexture, 0);
-        }
-        else
-        {
-            glBindTexture(GL_TEXTURE_2D, m_DepthTexture);
-            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-            glTexStorage2D(GL_FRAMEBUFFER, 1, GL_DEPTH24_STENCIL8, m_Specification.Width, m_Specification.Height);
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthTexture, 0);
-        }
-#else
-        glBindTexture(GL_TEXTURE_2D, m_DepthTexture);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glTexStorage2D(GL_FRAMEBUFFER, 1, GL_DEPTH24_STENCIL8, m_Specification.Width, m_Specification.Height);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthTexture, 0);
-#endif
-    } */
-
         m_ColorAttachments.clear();
 
         for (int i = 0; i < m_Specification.ColorAttachmentSpecification.Attachments.size(); i++)
@@ -182,16 +115,6 @@ namespace Nexus::Graphics
 
     void FramebufferOpenGL::DeleteTextures()
     {
-        /* glDeleteFramebuffers(1, &m_FBO);
-
-        for (auto texture : m_ColorTextures)
-        {
-            glDeleteTextures(1, &texture);
-        }
-
-        m_ColorTextures.clear();
-
-        glDeleteTextures(1, &m_DepthTexture);*/
     }
 }
 

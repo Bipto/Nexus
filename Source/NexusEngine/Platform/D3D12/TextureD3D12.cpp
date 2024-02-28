@@ -14,6 +14,8 @@ namespace Nexus::Graphics
         auto d3d12Device = device->GetDevice();
         m_TextureFormat = GetD3D12PixelFormat(spec.Format, isDepth);
 
+        uint32_t samples = GetSampleCount(spec.Samples);
+
         // staging buffer
         {
             D3D12_HEAP_PROPERTIES uploadProperties;
@@ -55,7 +57,7 @@ namespace Nexus::Graphics
             resourceDesc.DepthOrArraySize = 1;
             resourceDesc.MipLevels = 1;
             resourceDesc.Format = m_TextureFormat;
-            resourceDesc.SampleDesc.Count = 1;
+            resourceDesc.SampleDesc.Count = samples;
             resourceDesc.SampleDesc.Quality = 0;
             resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
             resourceDesc.Flags = flags;
@@ -65,11 +67,6 @@ namespace Nexus::Graphics
 
     TextureD3D12::~TextureD3D12()
     {
-    }
-
-    ResourceHandle TextureD3D12::GetHandle()
-    {
-        return ResourceHandle();
     }
 
     void TextureD3D12::SetData(const void *data, uint32_t size)

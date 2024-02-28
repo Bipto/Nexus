@@ -45,7 +45,7 @@ namespace Nexus::Graphics
 
     void PipelineD3D12::CreateRootSignature()
     {
-        D3D12_ROOT_SIGNATURE_DESC desc;
+        D3D12_ROOT_SIGNATURE_DESC desc = {};
         desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
         desc.NumParameters = 0;
         desc.NumStaticSamplers = 0;
