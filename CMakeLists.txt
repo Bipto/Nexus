@@ -50,7 +50,6 @@ endif()
 
 #external dependencies
 add_subdirectory(External/SDL)
-add_subdirectory(External/Lua)
 add_subdirectory(External/glad)
 add_subdirectory(External/glm)
 add_subdirectory(External/imgui)

@@ -28,7 +28,6 @@ add_library(NexusEngine ${ENGINE_HEADERS} ${ENGINE_SOURCES})
 #including dependencies
 target_include_directories(NexusEngine PUBLIC 
   ../../External/SDL/include
-  ../../External/Lua.lua-5.4.4
   ../../External/glm
   ../../External/stb
   ../../External/assimp/include
@@ -59,7 +58,6 @@ target_link_libraries(NexusEngine PUBLIC
   ${OPENGL_LIBRARIES} 
   SDL2main
   SDL2-static
-  lua_static
   glad
   assimp
   imgui
