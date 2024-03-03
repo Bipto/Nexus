@@ -42,8 +42,6 @@ add_subdirectory(Source/Demo)
 
 if(WIN32)
     add_subdirectory(Source/Test)
-    add_subdirectory(Source/NetworkingTest/Client)
-    add_subdirectory(Source/NetworkingTest/Server)
     add_subdirectory(Source/ShaderGen)
 endif()
     
@@ -73,7 +71,6 @@ if (WIN32)
     add_subdirectory(External/tinyfiledialogs)
     add_subdirectory(External/re2)
     add_subdirectory(External/effcee)
-    add_subdirectory(External/SDL_net)
 endif()
 
 if (WIN32 OR __ANDROID__)

@@ -45,7 +45,6 @@ target_include_directories(NexusEngine PUBLIC
 if (WIN32)
   target_include_directories(NexusEngine PUBLIC
     ../../External/tinyfiledialogs/tinyfiledialogs
-    ../../External/SDL_net
     ${VULKAN_INCLUDE_DIRS}
     ../../External/VulkanMemoryAllocator/include)
 endif()
@@ -56,8 +55,7 @@ target_include_directories(NexusEngine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 #linking dependencies
 target_link_libraries(NexusEngine PUBLIC
   ${OPENGL_LIBRARIES} 
-  SDL2main
-  SDL2-static
+  SDL3::SDL3
   glad
   assimp
   imgui
@@ -73,7 +71,6 @@ target_link_libraries(NexusEngine PUBLIC
 if(WIN32)
   target_link_libraries(NexusEngine PUBLIC 
     tinyfiledialogs
-    SDL2_net
     Vulkan::Vulkan
     VulkanMemoryAllocator
     )

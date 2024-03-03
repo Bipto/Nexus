@@ -27,7 +27,7 @@ if (EMSCRIPTEN)
       Demo
         PROPERTIES
         LINK_FLAGS
-        "--std=c++17 -Os -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sFULL_ES2=1 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS -lopenal -sGL_ENABLE_GET_PROC_ADDRESS --preload-file resources"
+        "--std=c++17 -Os -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sFULL_ES2=1 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS -lopenal -sGL_ENABLE_GET_PROC_ADDRESS -sASSERTIONS  -fexceptions --preload-file resources"
     )
 
     set_target_properties(NexusEngine PROPERTIES COMPILE_FLAGS "-Os")

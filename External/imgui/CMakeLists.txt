@@ -17,22 +17,9 @@ set (Files
 	"imgui/imgui_widgets.cpp"
 	"imgui/imstb_rectpack.h"
 	"imgui/imstb_textedit.h"
-	"imgui/imstb_truetype.h"
-	"imgui/backends/imgui_impl_opengl3.h"
-	"imgui/backends/imgui_impl_opengl3.cpp"
-	"imgui/backends/imgui_impl_sdl2.h"	
-	"imgui/backends/imgui_impl_sdl2.cpp"	
+	"imgui/imstb_truetype.h"	
 	"imgui/misc/cpp/imgui_stdlib.h"
 	"imgui/misc/cpp/imgui_stdlib.cpp")
-
-if (WIN32)
-	list(APPEND Files "imgui/backends/imgui_impl_dx11.h")
-	list(APPEND Files "imgui/backends/imgui_impl_dx11.cpp")
-	list(APPEND Files "imgui/backends/imgui_impl_vulkan.h")
-	list(APPEND Files "imgui/backends/imgui_impl_vulkan.cpp")
-	list(APPEND Files "imgui/backends/imgui_impl_dx12.h")
-	list(APPEND Files "imgui/backends/imgui_impl_dx12.cpp")
-endif()
 
 add_library(imgui
 	${Files}

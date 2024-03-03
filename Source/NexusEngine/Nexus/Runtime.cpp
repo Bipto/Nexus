@@ -1,9 +1,5 @@
 #include "Runtime.hpp"
 
-#if defined(NX_PLATFORM_SDL_NET)
-#include "SDL_net.h"
-#endif
-
 #include <iostream>
 #include <chrono>
 #include <vector>
@@ -70,17 +66,10 @@ namespace Nexus
 
     void Init(int argc, char **argv)
     {
-        if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) != 0)
+        if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD) != 0)
         {
             NX_LOG("Could not initialize SDL");
         }
-
-#if defined(NX_PLATFORM_SDL_NET)
-        if (SDLNet_Init() != 0)
-        {
-            NX_LOG("Could not initialize SDL_net");
-        }
-#endif
 
         SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4_RUMBLE, "1");
         SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5_RUMBLE, "1");
@@ -91,10 +80,6 @@ namespace Nexus
 
     void Shutdown()
     {
-#if defined(NX_PLATFORM_SDL_NET)
-        SDLNet_Quit();
-#endif
-
         SDL_Quit();
     }
 }

@@ -4,7 +4,6 @@
 #include "Nexus/Logging/Log.hpp"
 
 #include "SDL.h"
-#include "SDL_gamecontroller.h"
 
 #include "Keyboard.hpp"
 #include "Mouse.hpp"

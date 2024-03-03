@@ -2,7 +2,7 @@
 
 #include "glad/glad.h"
 
-#include "SDL_syswm.h"
+#include "SDL_system.h"
 
 #include "Nexus/Graphics/GraphicsDevice.hpp"
 
@@ -25,13 +25,15 @@ namespace Nexus
     {
         uint32_t flags = GetFlags(api, swapchainSpec);
 
+        m_Window = SDL_CreateWindow(windowProps.Title.c_str(), windowProps.Width, windowProps.Height, flags);
+
         // NOTE: Resizable flag MUST be set in order for Emscripten resizing to work correctly
-        m_Window = SDL_CreateWindow(windowProps.Title.c_str(),
+        /* m_Window = SDL_CreateWindow(windowProps.Title.c_str(),
                                     SDL_WINDOWPOS_UNDEFINED,
                                     SDL_WINDOWPOS_UNDEFINED,
                                     windowProps.Width,
                                     windowProps.Height,
-                                    flags);
+                                    flags); */
 
         m_Input = new InputState();
         m_WindowID = SDL_GetWindowID(m_Window);
@@ -87,7 +89,7 @@ namespace Nexus
     {
         int x, y;
 #ifndef __EMSCRIPTEN__
-        SDL_GetWindowSize(m_Window, &x, &y);
+        SDL_GetWindowSizeInPixels(m_Window, &x, &y);
 #else
         emscripten_get_canvas_element_size("canvas", &x, &y);
 #endif
@@ -138,10 +140,10 @@ namespace Nexus
         switch (visible)
         {
         case true:
-            SDL_ShowCursor(SDL_ENABLE);
+            SDL_ShowCursor();
             break;
         case false:
-            SDL_ShowCursor(SDL_DISABLE);
+            SDL_HideCursor();
             break;
         }
     }
@@ -234,7 +236,7 @@ namespace Nexus
     {
         auto flags = SDL_GetWindowFlags(m_Window);
 
-        if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP)
+        if (flags & SDL_WINDOW_FULLSCREEN)
         {
             return true;
         }
@@ -244,13 +246,12 @@ namespace Nexus
 
     void Window::SetFullscreen()
     {
-        SDL_SetWindowFullscreen(m_Window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-        SDL_SetWindowDisplayMode(m_Window, nullptr);
+        SDL_SetWindowFullscreen(m_Window, SDL_TRUE);
     }
 
     void Window::UnsetFullscreen()
     {
-        SDL_SetWindowFullscreen(m_Window, 0);
+        SDL_SetWindowFullscreen(m_Window, SDL_FALSE);
     }
 
     void Window::CreateSwapchain(Graphics::GraphicsDevice *device, const Graphics::SwapchainSpecification &swapchainSpec)
@@ -295,10 +296,19 @@ namespace Nexus
         return m_WindowID;
     }
 
+    float Window::GetDisplayScale()
+    {
+        float scale = SDL_GetWindowDisplayScale(m_Window);
+        return scale;
+    }
+
     uint32_t Window::GetFlags(Graphics::GraphicsAPI api, const Graphics::SwapchainSpecification &swapchainSpec)
     {
         // required for emscripten to handle resizing correctly
         uint32_t flags = SDL_WINDOW_RESIZABLE;
+#if !defined(__EMSCRIPTEN__)
+        flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
+#endif
 
         switch (api)
         {

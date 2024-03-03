@@ -51,8 +51,7 @@ namespace Nexus::Graphics
     void SwapchainOpenGL::ResizeIfNecessary()
     {
         int w, h;
-
-        SDL_GL_GetDrawableSize(m_Window->GetSDLWindowHandle(), &w, &h);
+        SDL_GetWindowSizeInPixels(m_Window->GetSDLWindowHandle(), &w, &h);
 
         glBindFramebuffer(GL_FRAMEBUFFER, m_Backbuffer);
         glViewport(0, 0, w, h);

@@ -1,7 +1,6 @@
 #include "NexusEngine.hpp"
 #include "Nexus/Graphics/MeshFactory.hpp"
 #include "Nexus/Graphics/Color.hpp"
-#include "Nexus/Networking/Socket.hpp"
 
 #include "Demos/ClearScreenDemo.hpp"
 #include "Demos/HelloTriangle.hpp"
@@ -309,7 +308,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
     spec.WindowProperties.Title = "Demo";
     spec.WindowProperties.Resizable = true;
 
-    spec.SwapchainSpecification.Samples = Nexus::Graphics::SampleCount::SampleCount1;
+    spec.SwapchainSpecification.Samples = Nexus::Graphics::SampleCount::SampleCount8;
 
     return new DemoApplication(spec);
 }

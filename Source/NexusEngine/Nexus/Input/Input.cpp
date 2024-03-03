@@ -162,30 +162,6 @@ namespace Nexus
         return s_Gamepads[index]->GetRightTrigger();
     }
 
-    bool Input::GamepadSupportsRumble(uint32_t index)
-    {
-        if (GetGamepadCount() == 0)
-            return false;
-
-        return s_Gamepads[index]->SupportsRumble();
-    }
-
-    bool Input::GamepadSupportsRumbleTriggers(uint32_t index)
-    {
-        if (GetGamepadCount() == 0)
-            return false;
-
-        return s_Gamepads[index]->SupportsRumbleTriggers();
-    }
-
-    bool Input::GamepadHasLED(uint32_t index)
-    {
-        if (GetGamepadCount() == 0)
-            return false;
-
-        return s_Gamepads[index]->HasLED();
-    }
-
     void Input::GamepadRumble(uint32_t index, uint16_t lowFrequency, uint16_t highFrequency, uint32_t milliseconds)
     {
         if (index > GetGamepadCount())

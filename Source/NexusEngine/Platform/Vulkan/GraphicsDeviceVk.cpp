@@ -813,9 +813,14 @@ namespace Nexus::Graphics
     std::vector<const char *> GraphicsDeviceVk::GetRequiredExtensions()
     {
         uint32_t sdlExtensionCount = 0;
-        SDL_Vulkan_GetInstanceExtensions(m_Window->GetSDLWindowHandle(), &sdlExtensionCount, nullptr);
+        SDL_Vulkan_GetInstanceExtensions(&sdlExtensionCount);
         std::vector<const char *> extensionNames(sdlExtensionCount);
-        SDL_Vulkan_GetInstanceExtensions(m_Window->GetSDLWindowHandle(), &sdlExtensionCount, extensionNames.data());
+        const char *const *sdlExtensions = SDL_Vulkan_GetInstanceExtensions(&sdlExtensionCount);
+
+        for (uint32_t i = 0; i < sdlExtensionCount; i++)
+        {
+            extensionNames[i] = sdlExtensions[i];
+        }
 
         if (enableValidationLayers)
         {

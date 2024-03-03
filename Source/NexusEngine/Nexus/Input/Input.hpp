@@ -141,21 +141,6 @@ namespace Nexus
         /// @return A floating point value representing the current position of the right trigger
         static float GetGamepadRightTrigger(uint32_t index);
 
-        /// @brief A static method to check whether the gamepad supports rumble
-        /// @param index The index of the controller to check
-        /// @return A boolean value representing whether the gamepad supports rumble
-        static bool GamepadSupportsRumble(uint32_t index);
-
-        /// @brief A static method to check whether the gamepad supports trigger rumble
-        /// @param index The index of the controller to check
-        /// @return A boolean value representing whether the gamepad supports trigger rumble
-        static bool GamepadSupportsRumbleTriggers(uint32_t index);
-
-        /// @brief A static method to check whether the gamepad contains an LED
-        /// @param index The index of the controller to check
-        /// @return A boolean value representing whether the gamepad contains an LED
-        static bool GamepadHasLED(uint32_t index);
-
         /// @brief A static method to rumble a controller
         /// @param index The index of the controller to rumble
         /// @param lowFrequency The low frequency to use for the rumble

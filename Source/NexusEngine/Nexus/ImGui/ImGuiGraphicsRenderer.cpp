@@ -242,7 +242,10 @@ namespace Nexus::ImGuiUtils
 
         auto windowSize = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize();
         io.DisplaySize = {(float)windowSize.X, (float)windowSize.Y};
-        io.DisplayFramebufferScale = {1.0f, 1.0f};
+        io.DisplayFramebufferScale = {1, 1};
+
+        float scale = m_GraphicsDevice->GetPrimaryWindow()->GetDisplayScale();
+        io.FontGlobalScale = scale;
 
         UpdateInput();
         ImGui::NewFrame();
@@ -317,7 +320,7 @@ namespace Nexus::ImGuiUtils
         io.DisplaySize = {
             (float)window->GetWindowSize().X,
             (float)window->GetWindowSize().Y};
-        io.DisplayFramebufferScale = {1.0f, 1.0f};
+        io.DisplayFramebufferScale = {1, 1};
         io.MousePos = {(float)mouse.GetMousePosition().X, (float)mouse.GetMousePosition().Y};
 
         io.MouseDown[0] = mouse.IsLeftMouseHeld();

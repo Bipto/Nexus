@@ -143,6 +143,8 @@ namespace Nexus
 
         uint32_t GetID();
 
+        float GetDisplayScale();
+
     private:
         /// @brief A method that returns a set of flags to use when creating the window
         /// @param api The graphics API to create the swapchain

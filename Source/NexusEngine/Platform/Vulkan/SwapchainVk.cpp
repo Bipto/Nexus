@@ -181,7 +181,7 @@ namespace Nexus::Graphics
 
     void SwapchainVk::CreateSurface()
     {
-        if (!SDL_Vulkan_CreateSurface(m_Window->GetSDLWindowHandle(), m_GraphicsDevice->m_Instance, &m_Surface))
+        if (!SDL_Vulkan_CreateSurface(m_Window->GetSDLWindowHandle(), m_GraphicsDevice->m_Instance, nullptr, &m_Surface))
         {
             throw std::runtime_error("Failed to create surface");
         }
@@ -213,7 +213,8 @@ namespace Nexus::Graphics
         }
 
         int width = 0, height = 0;
-        SDL_Vulkan_GetDrawableSize(m_Window->GetSDLWindowHandle(), &width, &height);
+        SDL_GetWindowSizeInPixels(m_Window->GetSDLWindowHandle(), &width, &height);
+        // SDL_Vulkan_GetDrawableSize(m_Window->GetSDLWindowHandle(), &width, &height);
         width = std::clamp(width, (int)m_SurfaceCapabilities.minImageExtent.width, (int)m_SurfaceCapabilities.maxImageExtent.width);
         height = std::clamp(height, (int)m_SurfaceCapabilities.minImageExtent.height, (int)m_SurfaceCapabilities.maxImageExtent.height);
 
