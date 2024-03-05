@@ -62,9 +62,7 @@ namespace Nexus::Graphics
         if (!data)
             return;
 
-        void *buffer = Map();
-        memcpy(buffer, data, m_Description.Size);
-        Unmap();
+        SetData(data, m_Description.Size, 0);
     }
 
     VertexBufferD3D12::~VertexBufferD3D12()
@@ -76,15 +74,14 @@ namespace Nexus::Graphics
         return m_VertexBufferView;
     }
 
-    void *VertexBufferD3D12::Map()
+    void VertexBufferD3D12::SetData(const void *data, uint32_t size, uint32_t offset)
     {
         void *buffer;
         m_UploadBuffer->Map(0, &m_UploadRange, &buffer);
-        return buffer;
-    }
 
-    void VertexBufferD3D12::Unmap()
-    {
+        void *offsetIntoBuffer = (void *)(((const char *)buffer) + offset);
+        memcpy((void *)offsetIntoBuffer, data, size);
+
         m_UploadBuffer->Unmap(0, &m_UploadRange);
         m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd)
                                   { cmd->CopyBufferRegion(m_VertexBuffer.Get(), 0, m_UploadBuffer.Get(), 0, m_Description.Size); });
@@ -148,9 +145,7 @@ namespace Nexus::Graphics
         if (!data)
             return;
 
-        void *buffer = Map();
-        memcpy(buffer, data, m_Description.Size);
-        Unmap();
+        SetData(data, m_Description.Size, 0);
     }
 
     IndexBufferD3D12::~IndexBufferD3D12()
@@ -175,15 +170,14 @@ namespace Nexus::Graphics
         return m_IndexBufferView;
     }
 
-    void *IndexBufferD3D12::Map()
+    void IndexBufferD3D12::SetData(const void *data, uint32_t size, uint32_t offset)
     {
         void *buffer;
         m_UploadBuffer->Map(0, &m_UploadRange, &buffer);
-        return buffer;
-    }
 
-    void IndexBufferD3D12::Unmap()
-    {
+        void *offsetIntoBuffer = (void *)(((const char *)buffer) + offset);
+        memcpy((void *)offsetIntoBuffer, data, size);
+
         m_UploadBuffer->Unmap(0, &m_UploadRange);
         m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd)
                                   { cmd->CopyBufferRegion(m_IndexBuffer.Get(), 0, m_UploadBuffer.Get(), 0, m_Description.Size); });
@@ -246,9 +240,7 @@ namespace Nexus::Graphics
         if (!data)
             return;
 
-        void *buffer = Map();
-        memcpy(buffer, data, m_Description.Size);
-        Unmap();
+        SetData(data, m_Description.Size, 0);
     }
 
     UniformBufferD3D12::~UniformBufferD3D12()
@@ -260,15 +252,14 @@ namespace Nexus::Graphics
         return m_ConstantBuffer.Get();
     }
 
-    void *UniformBufferD3D12::Map()
+    void UniformBufferD3D12::SetData(const void *data, uint32_t size, uint32_t offset)
     {
         void *buffer;
         m_UploadBuffer->Map(0, &m_UploadRange, &buffer);
-        return buffer;
-    }
 
-    void UniformBufferD3D12::Unmap()
-    {
+        void *offsetIntoBuffer = (void *)(((const char *)buffer) + offset);
+        memcpy((void *)offsetIntoBuffer, data, size);
+
         m_UploadBuffer->Unmap(0, &m_UploadRange);
         m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd)
                                   { cmd->CopyBufferRegion(m_ConstantBuffer.Get(), 0, m_UploadBuffer.Get(), 0, m_Description.Size); });

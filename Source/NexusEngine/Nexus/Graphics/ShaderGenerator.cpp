@@ -161,6 +161,8 @@ namespace Nexus::Graphics
         case ShaderLanguage::SPIRV:
             output.Source = source;
             break;
+        default:
+            throw std::runtime_error("Failed to find a valid shader format");
         }
 
         output.Successful = true;

@@ -372,31 +372,26 @@ namespace Nexus::ImGuiUtils
 
         // update vertex buffer
         {
-            ImDrawVert *vtxDst = (ImDrawVert *)m_VertexBuffer->Map();
+            uint32_t offset = 0;
 
             for (int i = 0; i < drawData->CmdListsCount; i++)
             {
                 const ImDrawList *cmdList = drawData->CmdLists[i];
-                memcpy(vtxDst, cmdList->VtxBuffer.Data, cmdList->VtxBuffer.size_in_bytes());
-
-                vtxDst += cmdList->VtxBuffer.Size;
+                m_VertexBuffer->SetData(cmdList->VtxBuffer.Data, cmdList->VtxBuffer.size_in_bytes(), offset);
+                offset += cmdList->VtxBuffer.size_in_bytes();
             }
-
-            m_VertexBuffer->Unmap();
         }
 
         // update index buffer
         {
-            ImDrawIdx *idxDst = (ImDrawIdx *)m_IndexBuffer->Map();
+            uint32_t offset = 0;
 
             for (int i = 0; i < drawData->CmdListsCount; i++)
             {
                 const ImDrawList *cmdList = drawData->CmdLists[i];
-                memcpy(idxDst, cmdList->IdxBuffer.Data, cmdList->IdxBuffer.size_in_bytes());
-                idxDst += cmdList->IdxBuffer.Size;
+                m_IndexBuffer->SetData(cmdList->IdxBuffer.Data, cmdList->IdxBuffer.size_in_bytes(), offset);
+                offset += cmdList->IdxBuffer.size_in_bytes();
             }
-
-            m_IndexBuffer->Unmap();
         }
     }
 
@@ -412,16 +407,13 @@ namespace Nexus::ImGuiUtils
             return;
 
         m_CommandList->Begin();
-
         m_CommandList->SetPipeline(m_Pipeline);
         m_CommandList->SetVertexBuffer(m_VertexBuffer);
         m_CommandList->SetIndexBuffer(m_IndexBuffer);
 
         auto &io = ImGui::GetIO();
         glm::mat4 mvp = glm::ortho<float>(0, io.DisplaySize.x, io.DisplaySize.y, 0, -1.f, 1.0f);
-        void *buffer = m_UniformBuffer->Map();
-        memcpy(buffer, &mvp, sizeof(mvp));
-        m_UniformBuffer->Unmap();
+        m_UniformBuffer->SetData(&mvp, sizeof(mvp), 0);
 
         for (auto &resourceSet : m_ResourceSets)
         {

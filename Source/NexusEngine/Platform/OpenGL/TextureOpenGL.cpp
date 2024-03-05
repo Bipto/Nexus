@@ -12,7 +12,7 @@ namespace Nexus::Graphics
         m_BaseType = GL::GetPixelType(spec.Format);
 
         glGenTextures(1, &m_Handle);
-#if !defined(NX_PLATFORM_WEBGL2)
+#if !defined(NX_PLATFORM_WEBGL2) && !defined(__ANDROID__)
         if (spec.Samples != SampleCount::SampleCount1)
         {
             uint32_t samples = GetSampleCount(spec.Samples);
@@ -30,7 +30,7 @@ namespace Nexus::Graphics
             glBindTexture(m_TextureType, m_Handle);
             glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
             glTexStorage2D(m_TextureType, 1, m_InternalFormat, spec.Width, spec.Height);
-#if !defined(NX_PLATFORM_WEBGL2)
+#if !defined(NX_PLATFORM_WEBGL2) && !defined(__ANDROID__)
         }
 #endif
     }

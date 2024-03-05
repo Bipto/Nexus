@@ -73,7 +73,7 @@ if (WIN32)
     add_subdirectory(External/effcee)
 endif()
 
-if (WIN32 OR __ANDROID__)
+if (WIN32 OR ANDROID)
     add_definitions(-DLIBTYPE=SHARED)
     add_subdirectory(External/OpenAL-Soft)
     remove_definitions(-DLIBTYPE)

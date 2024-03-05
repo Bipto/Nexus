@@ -298,16 +298,10 @@ namespace Nexus::Graphics
         glBindVertexArray(0);
     }
 
-    void *VertexBufferOpenGL::Map()
+    void VertexBufferOpenGL::SetData(const void *data, uint32_t size, uint32_t offset)
     {
         glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);
-        return glMapBufferRange(GL_ARRAY_BUFFER, 0, m_Description.Size, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-    }
-
-    void VertexBufferOpenGL::Unmap()
-    {
-        glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);
-        glUnmapBuffer(GL_ARRAY_BUFFER);
+        glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
     }
 
     IndexBufferOpenGL::IndexBufferOpenGL(const BufferDescription &description, const void *data, IndexBufferFormat format)
@@ -337,16 +331,10 @@ namespace Nexus::Graphics
         return m_Buffer;
     }
 
-    void *IndexBufferOpenGL::Map()
+    void IndexBufferOpenGL::SetData(const void *data, uint32_t size, uint32_t offset)
     {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer);
-        return glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, m_Description.Size, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-    }
-
-    void IndexBufferOpenGL::Unmap()
-    {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer);
-        glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
+        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset, size, data);
     }
 
     UniformBufferOpenGL::UniformBufferOpenGL(const BufferDescription &description, const void *data)
@@ -371,16 +359,10 @@ namespace Nexus::Graphics
         return m_Buffer;
     }
 
-    void *UniformBufferOpenGL::Map()
+    void UniformBufferOpenGL::SetData(const void *data, uint32_t size, uint32_t offset)
     {
         glBindBuffer(GL_UNIFORM_BUFFER, m_Buffer);
-        return glMapBufferRange(GL_UNIFORM_BUFFER, 0, m_Description.Size, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-    }
-
-    void UniformBufferOpenGL::Unmap()
-    {
-        glBindBuffer(GL_UNIFORM_BUFFER, m_Buffer);
-        glUnmapBuffer(GL_UNIFORM_BUFFER);
+        glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
     }
 }
 

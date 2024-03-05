@@ -13,14 +13,14 @@ layout (location = 2) out vec3 FragPos;
 layout (location = 3) out vec3 ViewPos;
 layout (location = 4) out mat3 TBN;
 
-layout (std140, binding = 0) uniform Camera
+layout (std140, binding = 0, set = 0) uniform Camera
 {
     mat4 u_View;
     mat4 u_Projection;
     vec3 u_ViewPos;
 };
 
-layout (std140, binding = 1) uniform Transform
+layout (std140,binding = 1, set = 0) uniform Transform
 {
     mat4 u_Transform;
 };
@@ -51,9 +51,9 @@ layout (location = 4) in mat3 TBN;
 
 layout (location = 0) out vec4 FragColor;
 
-layout (binding = 0) uniform sampler2D diffuseMapSampler;
-layout (binding = 1) uniform sampler2D normalMapSampler;
-layout (binding = 2) uniform sampler2D specularMapSampler;
+layout (binding = 0, set = 1) uniform sampler2D diffuseMapSampler;
+layout (binding = 1, set = 1) uniform sampler2D normalMapSampler;
+layout (binding = 2, set = 1) uniform sampler2D specularMapSampler;
 
 void main()
 {

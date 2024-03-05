@@ -65,17 +65,11 @@ namespace Demos
         virtual void Render(Nexus::Time time) override
         {
             m_TransformUniforms.Transform = glm::mat4(1.0f);
-
-            void *buffer = m_TransformUniformBuffer->Map();
-            memcpy(buffer, &m_TransformUniforms, sizeof(m_TransformUniforms));
-            m_TransformUniformBuffer->Unmap();
+            m_TransformUniformBuffer->SetData(&m_TransformUniforms, sizeof(m_TransformUniforms));
 
             m_CameraUniforms.View = m_Camera.GetView();
             m_CameraUniforms.Projection = m_Camera.GetProjection();
-
-            buffer = m_CameraUniformBuffer->Map();
-            memcpy(buffer, &m_CameraUniforms, sizeof(m_CameraUniforms));
-            m_CameraUniformBuffer->Unmap();
+            m_CameraUniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms));
 
             m_CommandList->Begin();
             m_CommandList->SetPipeline(m_Pipeline);

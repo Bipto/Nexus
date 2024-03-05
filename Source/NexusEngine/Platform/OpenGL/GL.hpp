@@ -2,9 +2,12 @@
 
 #if defined(NX_PLATFORM_OPENGL)
 
-#if defined(__EMSCRIPTEN__) || defined(__ANDROID__)
+#if defined(__EMSCRIPTEN__)
 #include <emscripten.h>
 #include <emscripten/html5.h>
+#include <GLES3/gl3.h>
+#include <GLES2/gl2ext.h>
+#elif defined(__ANDROID__)
 #include <GLES3/gl3.h>
 #include <GLES2/gl2ext.h>
 #else

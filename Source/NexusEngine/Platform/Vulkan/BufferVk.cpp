@@ -26,9 +26,7 @@ namespace Nexus::Graphics
         if (!data)
             return;
 
-        void *buffer = Map();
-        memcpy(buffer, data, m_Description.Size);
-        Unmap();
+        SetData(data, m_Description.Size, 0);
     }
 
     VertexBufferVk::~VertexBufferVk()
@@ -41,15 +39,14 @@ namespace Nexus::Graphics
         return m_Buffer.Buffer;
     }
 
-    void *VertexBufferVk::Map()
+    void VertexBufferVk::SetData(const void *data, uint32_t size, uint32_t offset)
     {
         void *buffer;
         vmaMapMemory(m_Device->GetAllocator(), m_Buffer.Allocation, &buffer);
-        return buffer;
-    }
 
-    void VertexBufferVk::Unmap()
-    {
+        void *offsetIntoBuffer = (void *)((const char *)buffer + offset);
+        memcpy(offsetIntoBuffer, data, size);
+
         vmaUnmapMemory(m_Device->GetAllocator(), m_Buffer.Allocation);
     }
 
@@ -74,9 +71,7 @@ namespace Nexus::Graphics
         if (!data)
             return;
 
-        void *buffer = Map();
-        memcpy(buffer, data, m_Description.Size);
-        Unmap();
+        SetData(data, m_Description.Size, 0);
     }
 
     IndexBufferVk::~IndexBufferVk()
@@ -89,15 +84,14 @@ namespace Nexus::Graphics
         return m_Buffer.Buffer;
     }
 
-    void *IndexBufferVk::Map()
+    void IndexBufferVk::SetData(const void *data, uint32_t size, uint32_t offset)
     {
         void *buffer;
         vmaMapMemory(m_Device->GetAllocator(), m_Buffer.Allocation, &buffer);
-        return buffer;
-    }
 
-    void IndexBufferVk::Unmap()
-    {
+        void *offsetIntoBuffer = (void *)((const char *)buffer + offset);
+        memcpy(offsetIntoBuffer, data, size);
+
         vmaUnmapMemory(m_Device->GetAllocator(), m_Buffer.Allocation);
     }
 
@@ -127,9 +121,7 @@ namespace Nexus::Graphics
         if (!data)
             return;
 
-        void *buffer = Map();
-        memcpy(buffer, data, m_Description.Size);
-        Unmap();
+        SetData(data, m_Description.Size, 0);
     }
 
     UniformBufferVk::~UniformBufferVk()
@@ -145,15 +137,14 @@ namespace Nexus::Graphics
         return m_Buffers[m_Device->GetCurrentFrameIndex()].Buffer;
     }
 
-    void *UniformBufferVk::Map()
+    void UniformBufferVk::SetData(const void *data, uint32_t size, uint32_t offset)
     {
         void *buffer;
         vmaMapMemory(m_Device->GetAllocator(), m_Buffers[m_Device->GetCurrentFrameIndex()].Allocation, &buffer);
-        return buffer;
-    }
 
-    void UniformBufferVk::Unmap()
-    {
+        void *offsetIntoBuffer = (void *)((const char *)buffer + offset);
+        memcpy(offsetIntoBuffer, data, size);
+
         vmaUnmapMemory(m_Device->GetAllocator(), m_Buffers[m_Device->GetCurrentFrameIndex()].Allocation);
     }
 }

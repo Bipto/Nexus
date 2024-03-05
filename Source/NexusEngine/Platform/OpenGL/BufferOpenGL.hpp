@@ -20,8 +20,7 @@ namespace Nexus::Graphics
         void SetupVertexArray(uint32_t offset = 0);
         static void UnbindVertexArray();
 
-        virtual void *Map() override;
-        virtual void Unmap() override;
+        virtual void SetData(const void *data, uint32_t size, uint32_t offset = 0) override;
 
     private:
         unsigned int m_Buffer = 0;
@@ -36,8 +35,7 @@ namespace Nexus::Graphics
         void Bind();
         unsigned int GetHandle();
 
-        virtual void *Map() override;
-        virtual void Unmap() override;
+        virtual void SetData(const void *data, uint32_t size, uint32_t offset = 0) override;
 
     private:
         unsigned int m_Buffer = 0;
@@ -50,8 +48,7 @@ namespace Nexus::Graphics
         virtual ~UniformBufferOpenGL();
         unsigned int GetHandle();
 
-        virtual void *Map() override;
-        virtual void Unmap() override;
+        virtual void SetData(const void *data, uint32_t size, uint32_t offset = 0) override;
 
     private:
         unsigned int m_Buffer = 0;

@@ -21,12 +21,8 @@ namespace Nexus::Graphics
                 glSamplerParameteri(m_Sampler, GL_TEXTURE_WRAP_T, GL::GetSamplerAddressMode(m_Specification.AddressModeV));
                 glSamplerParameteri(m_Sampler, GL_TEXTURE_WRAP_R, GL::GetSamplerAddressMode(m_Specification.AddressModeW));
 
-// texture anisotropy
-#if !defined(NX_PLATFORM_WEBGL2)
-                glSamplerParameterf(m_Sampler, GL_MAX_TEXTURE_MAX_ANISOTROPY, m_Specification.MaximumAnisotropy);
-#else
+                // texture anisotropy
                 glSamplerParameterf(m_Sampler, GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, m_Specification.MaximumAnisotropy);
-#endif
 
                 const glm::vec4 color = Nexus::Utils::ColorFromBorderColor(spec.BorderColor);
 
@@ -36,16 +32,12 @@ namespace Nexus::Graphics
                                     color.b,
                                     color.a};
 
-#if !defined(NX_PLATFORM_WEBGL2)
-                glSamplerParameterfv(m_Sampler, GL_TEXTURE_BORDER_COLOR, border);
-#else
                 glSamplerParameterfv(m_Sampler, GL_TEXTURE_BORDER_COLOR_EXT, border);
-#endif
                 // LOD
                 glSamplerParameterf(m_Sampler, GL_TEXTURE_MIN_LOD, m_Specification.MinimumLOD);
                 glSamplerParameterf(m_Sampler, GL_TEXTURE_MAX_LOD, m_Specification.MaximumLOD);
 
-#if !defined(NX_PLATFORM_WEBGL2)
+#if !defined(NX_PLATFORM_WEBGL2) && !defined(__ANDROID__)
                 glSamplerParameterf(m_Sampler, GL_TEXTURE_LOD_BIAS, m_Specification.LODBias);
 #endif
 

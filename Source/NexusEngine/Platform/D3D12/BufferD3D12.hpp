@@ -15,8 +15,7 @@ namespace Nexus::Graphics
         virtual ~VertexBufferD3D12();
         const D3D12_VERTEX_BUFFER_VIEW GetVertexBufferView() const;
 
-        virtual void *Map() override;
-        virtual void Unmap() override;
+        virtual void SetData(const void *data, uint32_t size, uint32_t offset = 0) override;
 
     private:
         Microsoft::WRL::ComPtr<ID3D12Resource2> m_VertexBuffer = nullptr;
@@ -34,8 +33,7 @@ namespace Nexus::Graphics
         void CreateIndexBufferFormat();
         const D3D12_INDEX_BUFFER_VIEW GetIndexBufferView() const;
 
-        virtual void *Map() override;
-        virtual void Unmap() override;
+        virtual void SetData(const void *data, uint32_t size, uint32_t offset = 0) override;
 
     private:
         Microsoft::WRL::ComPtr<ID3D12Resource2> m_IndexBuffer = nullptr;
@@ -53,8 +51,7 @@ namespace Nexus::Graphics
         virtual ~UniformBufferD3D12();
         ID3D12Resource2 *GetHandle();
 
-        virtual void *Map() override;
-        virtual void Unmap() override;
+        virtual void SetData(const void *data, uint32_t size, uint32_t offset = 0) override;
 
     private:
         Microsoft::WRL::ComPtr<ID3D12Resource2> m_ConstantBuffer = nullptr;

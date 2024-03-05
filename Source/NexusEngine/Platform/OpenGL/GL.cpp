@@ -153,19 +153,11 @@ namespace Nexus::GL
         case Nexus::Graphics::SamplerAddressMode::Wrap:
             return GL_REPEAT;
         case Nexus::Graphics::SamplerAddressMode::MirrorOnce:
-#if !defined(NX_PLATFORM_WEBGL2)
-            return GL_MIRROR_CLAMP_TO_EDGE;
-#else
             return GL_MIRROR_CLAMP_TO_EDGE_EXT;
-#endif
         case Nexus::Graphics::SamplerAddressMode::Mirror:
             return GL_MIRRORED_REPEAT;
         case Nexus::Graphics::SamplerAddressMode::Border:
-#if !defined(NX_PLATFORM_WEBGL2)
-            return GL_CLAMP_TO_BORDER;
-#else
             return GL_CLAMP_TO_BORDER_EXT;
-#endif
         case Nexus::Graphics::SamplerAddressMode::Clamp:
             return GL_CLAMP_TO_EDGE;
         default:
@@ -306,8 +298,8 @@ namespace Nexus::GL
 
         case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UNorm:
         case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UInt:
-#if defined(__EMSCRIPTEN__)
-            throw std::runtime_error("This format is not supported by WebGL");
+#if defined(__EMSCRIPTEN__) || defined(__ANDROID__)
+            throw std::runtime_error("This format is not supported by OpenGLES");
 #else
             return GL_UNSIGNED_INT_10_10_10_2_EXT;
 #endif

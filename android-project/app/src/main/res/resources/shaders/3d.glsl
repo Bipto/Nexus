@@ -6,13 +6,13 @@ layout (location = 1) in vec2 TexCoord;
 
 layout (location = 0) out vec2 OutTexCoord;
 
-layout (std140, binding = 0) uniform Camera
+layout (binding = 0, set = 0) uniform Camera
 {
     mat4 u_View;
     mat4 u_Projection;
 };
 
-layout (std140, binding = 1) uniform Transform
+layout (binding = 1, set = 0) uniform Transform
 {
     mat4 u_Transform;
 };
@@ -30,7 +30,7 @@ layout (location = 0) in vec2 OutTexCoord;
 
 layout (location = 0) out vec4 FragColor;
 
-layout (binding = 0) uniform sampler2D texSampler;
+layout (binding = 0, set = 1) uniform sampler2D texSampler;
 
 void main()
 {

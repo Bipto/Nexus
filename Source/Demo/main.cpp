@@ -140,6 +140,8 @@ public:
             window->ToggleFullscreen();
         }
 
+        ImGui::ShowDemoWindow();
+
         {
             ImGui::Begin("Demos");
 

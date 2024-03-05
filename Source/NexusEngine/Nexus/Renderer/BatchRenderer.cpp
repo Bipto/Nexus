@@ -198,10 +198,7 @@ namespace Nexus::Graphics
         m_ScissorRectangle.Height = m_RenderTarget.GetSize().Y;
 
         glm::mat4 projection = glm::ortho<float>(m_Viewport.X, m_Viewport.Width, m_Viewport.Height, m_Viewport.Y, -1.0f, 1.0f);
-
-        void *buffer = m_UniformBuffer->Map();
-        memcpy(buffer, &projection, sizeof(projection));
-        m_UniformBuffer->Unmap();
+        m_UniformBuffer->SetData(&projection, sizeof(projection));
 
         m_Textures.clear();
         m_Textures.push_back(m_BlankTexture);
@@ -227,10 +224,7 @@ namespace Nexus::Graphics
         m_ScissorRectangle = scissor;
 
         glm::mat4 projection = glm::ortho<float>(m_Viewport.X, m_Viewport.Width, m_Viewport.Height, m_Viewport.Y, -1.0f, 1.0f);
-
-        void *buffer = m_UniformBuffer->Map();
-        memcpy(buffer, &projection, sizeof(projection));
-        m_UniformBuffer->Unmap();
+        m_UniformBuffer->SetData(&projection, sizeof(projection));
 
         m_Textures.clear();
         m_Textures.push_back(m_BlankTexture);
@@ -936,13 +930,8 @@ namespace Nexus::Graphics
     {
         EnsureStarted();
 
-        void *buffer = m_VertexBuffer->Map();
-        memcpy(buffer, m_Vertices.data(), m_Vertices.size() * sizeof(VertexPositionTexCoordColorTexIndex));
-        m_VertexBuffer->Unmap();
-
-        buffer = m_IndexBuffer->Map();
-        memcpy(buffer, m_Indices.data(), m_Indices.size() * sizeof(uint32_t));
-        m_IndexBuffer->Unmap();
+        m_VertexBuffer->SetData(m_Vertices.data(), m_Vertices.size() * sizeof(VertexPositionTexCoordColorTexIndex));
+        m_IndexBuffer->SetData(m_Indices.data(), m_Vertices.size() * sizeof(VertexPositionTexCoordColorTexIndex));
 
         m_ResourceSet->WriteUniformBuffer(m_UniformBuffer, "MVP");
 

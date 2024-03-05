@@ -48,8 +48,7 @@ namespace Nexus::Graphics
         /// @brief A virtual destructor to cleanup resources
         virtual ~VertexBuffer() {}
 
-        virtual void *Map() = 0;
-        virtual void Unmap() = 0;
+        virtual void SetData(const void *data, uint32_t size, uint32_t offset = 0) = 0;
 
         /// @brief A method that returns the buffer description that was used to create the buffer
         /// @return A const reference to the BufferDescription
@@ -80,8 +79,7 @@ namespace Nexus::Graphics
         /// @brief A virtual destructor to cleanup resources
         virtual ~IndexBuffer() {}
 
-        virtual void *Map() = 0;
-        virtual void Unmap() = 0;
+        virtual void SetData(const void *data, uint32_t size, uint32_t offset = 0) = 0;
 
         /// @brief A method that returns the buffer description that was used to create the buffer
         /// @return A const reference to the BufferDescription
@@ -110,8 +108,7 @@ namespace Nexus::Graphics
         /// @brief A virtual destructor to cleanup resources
         virtual ~UniformBuffer() {}
 
-        virtual void *Map() = 0;
-        virtual void Unmap() = 0;
+        virtual void SetData(const void *data, uint32_t size, uint32_t offset = 0) = 0;
 
         /// @brief A method that returns the buffer description that was used to create the buffer
         /// @return A const reference to the BufferDescription
