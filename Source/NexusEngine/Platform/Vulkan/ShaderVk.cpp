@@ -4,8 +4,8 @@
 
 namespace Nexus::Graphics
 {
-    ShaderVk::ShaderVk(const std::vector<uint32_t> &vertexBytecode, std::vector<uint32_t> &fragmentBytecode, const std::string &vertexSource, const std::string &fragmentSource, const VertexBufferLayout &layout, GraphicsDeviceVk *graphicsDevice)
-        : m_VertexShaderSource(vertexSource), m_FragmentShaderSource(fragmentSource), m_Layout(layout), m_GraphicsDevice(graphicsDevice)
+    ShaderVk::ShaderVk(const std::vector<uint32_t> &vertexBytecode, std::vector<uint32_t> &fragmentBytecode, const std::string &vertexSource, const std::string &fragmentSource, GraphicsDeviceVk *graphicsDevice)
+        : m_VertexShaderSource(vertexSource), m_FragmentShaderSource(fragmentSource), m_GraphicsDevice(graphicsDevice)
     {
         bool success;
         m_VertexShader = CreateShaderModule(vertexBytecode, &success);
@@ -51,11 +51,6 @@ namespace Nexus::Graphics
     const std::string &ShaderVk::GetFragmentShaderSource()
     {
         return m_FragmentShaderSource;
-    }
-
-    const VertexBufferLayout &ShaderVk::GetLayout() const
-    {
-        return m_Layout;
     }
 
     const std::vector<VkPipelineShaderStageCreateInfo> &ShaderVk::GetShaderStages()

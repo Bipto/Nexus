@@ -5,6 +5,7 @@
 #include "Nexus/Graphics/CommandList.hpp"
 #include "Nexus/Graphics/GraphicsDevice.hpp"
 #include "Platform/OpenGL/BufferOpenGL.hpp"
+#include "PipelineOpenGL.hpp"
 
 #include "GL.hpp"
 
@@ -50,9 +51,9 @@ namespace Nexus::Graphics
         std::vector<RenderCommand> m_Commands;
         std::vector<RenderCommandData> m_CommandData;
         uint32_t m_CommandIndex = 0;
-        Pipeline *m_CurrentlyBoundPipeline;
+        PipelineOpenGL *m_CurrentlyBoundPipeline;
         RenderTarget m_CurrentRenderTarget;
-        Nexus::Graphics::VertexBufferOpenGL *m_CurrentlyBoundVertexBuffer = nullptr;
+        std::vector<Nexus::Graphics::VertexBufferOpenGL *> m_CurrentlyBoundVertexBuffers;
     };
 }
 

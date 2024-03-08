@@ -34,6 +34,9 @@ namespace Nexus::Graphics
 
         /// @brief The target to render to with the pipeline
         RenderTarget Target;
+
+        /// @brief The layout of data within bound vertex buffers
+        VertexBufferLayout Layout;
     };
 
     /// @brief A pure virtual class representing an API specific pipeline

@@ -15,6 +15,7 @@
 #endif
 
 #include "Nexus/Graphics/Texture.hpp"
+#include "Nexus/Vertex.hpp"
 
 #include "GL.hpp"
 
@@ -34,6 +35,8 @@ namespace Nexus::GL
     GLenum GetPixelType(Nexus::Graphics::PixelFormat format);
     GLenum GetPixelDataFormat(Nexus::Graphics::PixelFormat format);
     GLenum GetSizedInternalFormat(Nexus::Graphics::PixelFormat format, bool depthFormat);
+
+    void GetBaseType(const Graphics::VertexBufferElement &element, GLenum &baseType, uint32_t &componentCount, GLboolean &normalized);
 }
 
 #endif

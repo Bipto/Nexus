@@ -128,7 +128,7 @@ namespace Nexus::Graphics
         m_RenderTarget = target;
 
         m_CommandList = m_Device->CreateCommandList();
-        m_Shader = m_Device->CreateShaderFromSpirvSources(s_BatchVertexShaderSource, s_BatchFragmentShaderSource, Nexus::Graphics::VertexPositionTexCoordColorTexIndex::GetLayout());
+        m_Shader = m_Device->CreateShaderFromSpirvSources(s_BatchVertexShaderSource, s_BatchFragmentShaderSource);
         CreatePipeline();
 
         const uint32_t MAX_VERTEX_COUNT = 1024;
@@ -838,49 +838,9 @@ namespace Nexus::Graphics
         Nexus::Graphics::PipelineDescription description;
         description.Shader = m_Shader;
         description.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
+        description.Layout = Nexus::Graphics::VertexPositionTexCoordColorTexIndex::GetLayout();
 
         Nexus::Graphics::ResourceSetSpecification resourceSpec;
-        /*resourceSpec.TextureBindings =
-            {
-                {1, 0, "texture0"},
-                {1, 1, "texture1"},
-                {1, 2, "texture2"},
-                {1, 3, "texture3"},
-                {1, 4, "texture4"},
-                {1, 5, "texture5"},
-                {1, 6, "texture6"},
-                {1, 7, "texture7"},
-                {1, 8, "texture8"},
-                {1, 9, "texture9"},
-                {1, 10, "texture10"},
-                {1, 11, "texture11"},
-                {1, 12, "texture12"},
-                {1, 13, "texture13"},
-                {1, 14, "texture14"},
-                {1, 15, "texture15"},
-                {1, 16, "texture16"},
-                {1, 17, "texture17"},
-                {1, 18, "texture18"},
-                {1, 19, "texture19"},
-                {1, 20, "texture20"},
-                {1, 21, "texture21"},
-                {1, 22, "texture22"},
-                {1, 23, "texture23"},
-                {1, 24, "texture24"},
-                {1, 25, "texture25"},
-                {1, 26, "texture26"},
-                {1, 27, "texture27"},
-                {1, 28, "texture28"},
-                {1, 29, "texture29"},
-                {1, 30, "texture30"},
-                {1, 31, "texture31"},
-            };
-
-        Nexus::Graphics::UniformResourceBinding uniformResourceBinding;
-        uniformResourceBinding.Binding = 0;
-        uniformResourceBinding.Name = "MVP";
-        resourceSpec.UniformResourceBindings = {uniformResourceBinding}; */
-
         resourceSpec.Textures =
             {
                 {"texture0", 1, 0, Nexus::Graphics::ResourceType::CombinedImageSampler},

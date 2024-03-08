@@ -541,6 +541,222 @@ namespace Nexus::GL
         }
     }
 
+    void GetBaseType(const Graphics::VertexBufferElement &element, GLenum &baseType, uint32_t &componentCount, GLboolean &normalized)
+    {
+        switch (element.Type)
+        {
+        case Graphics::ShaderDataType::Byte:
+            baseType = GL_BYTE;
+            componentCount = 1;
+            normalized = false;
+            break;
+        case Graphics::ShaderDataType::Byte2:
+            baseType = GL_BYTE;
+            componentCount = 2;
+            normalized = false;
+            break;
+        case Graphics::ShaderDataType::Byte4:
+            baseType = GL_BYTE;
+            componentCount = 4;
+            normalized = false;
+            break;
+
+        case Graphics::ShaderDataType::NormByte:
+            baseType = GL_UNSIGNED_BYTE;
+            componentCount = 1;
+            normalized = true;
+            break;
+        case Graphics::ShaderDataType::NormByte2:
+            baseType = GL_UNSIGNED_BYTE;
+            componentCount = 2;
+            normalized = true;
+            break;
+
+        case Graphics::ShaderDataType::NormByte4:
+            baseType = GL_UNSIGNED_BYTE;
+            componentCount = 4;
+            normalized = true;
+            break;
+
+        case Graphics::ShaderDataType::Float:
+            baseType = GL_FLOAT;
+            componentCount = 1;
+            normalized = false;
+            break;
+        case Graphics::ShaderDataType::Float2:
+            baseType = GL_FLOAT;
+            componentCount = 2;
+            normalized = false;
+            break;
+        case Graphics::ShaderDataType::Float3:
+            baseType = GL_FLOAT;
+            componentCount = 3;
+            normalized = false;
+            break;
+        case Graphics::ShaderDataType::Float4:
+            baseType = GL_FLOAT;
+            componentCount = 4;
+            normalized = false;
+            break;
+
+        case Graphics::ShaderDataType::Half:
+            baseType = GL_HALF_FLOAT;
+            componentCount = 1;
+            normalized = true;
+            break;
+        case Graphics::ShaderDataType::Half2:
+            baseType = GL_HALF_FLOAT;
+            componentCount = 2;
+            normalized = true;
+            break;
+        case Graphics::ShaderDataType::Half4:
+            baseType = GL_HALF_FLOAT;
+            componentCount = 4;
+            normalized = true;
+            break;
+
+        case Graphics::ShaderDataType::Int:
+            baseType = GL_INT;
+            componentCount = 1;
+            normalized = false;
+            break;
+        case Graphics::ShaderDataType::Int2:
+            baseType = GL_INT;
+            componentCount = 2;
+            normalized = false;
+            break;
+        case Graphics::ShaderDataType::Int3:
+            baseType = GL_INT;
+            componentCount = 3;
+            normalized = false;
+            break;
+        case Graphics::ShaderDataType::Int4:
+            baseType = GL_INT;
+            componentCount = 4;
+            normalized = false;
+            break;
+
+        case Graphics::ShaderDataType::SignedByte:
+            baseType = GL_BYTE;
+            componentCount = 1;
+            normalized = false;
+            break;
+        case Graphics::ShaderDataType::SignedByte2:
+            baseType = GL_BYTE;
+            componentCount = 2;
+            normalized = false;
+            break;
+        case Graphics::ShaderDataType::SignedByte4:
+            baseType = GL_BYTE;
+            componentCount = 4;
+            normalized = false;
+            break;
+
+        case Graphics::ShaderDataType::SignedByteNormalized:
+            baseType = GL_BYTE;
+            componentCount = 1;
+            normalized = true;
+            break;
+        case Graphics::ShaderDataType::SignedByte2Normalized:
+            baseType = GL_BYTE;
+            componentCount = 2;
+            normalized = true;
+            break;
+        case Graphics::ShaderDataType::SignedByte4Normalized:
+            baseType = GL_BYTE;
+            componentCount = 4;
+            normalized = true;
+            break;
+
+        case Graphics::ShaderDataType::Short:
+            baseType = GL_SHORT;
+            componentCount = 1;
+            normalized = false;
+            break;
+        case Graphics::ShaderDataType::Short2:
+            baseType = GL_SHORT;
+            componentCount = 2;
+            normalized = false;
+            break;
+        case Graphics::ShaderDataType::Short4:
+            baseType = GL_SHORT;
+            componentCount = 4;
+            normalized = false;
+            break;
+
+        case Graphics::ShaderDataType::ShortNormalized:
+            baseType = GL_SHORT;
+            componentCount = 1;
+            normalized = true;
+            break;
+        case Graphics::ShaderDataType::Short2Normalized:
+            baseType = GL_SHORT;
+            componentCount = 2;
+            normalized = true;
+            break;
+        case Graphics::ShaderDataType::Short4Normalized:
+            baseType = GL_SHORT;
+            componentCount = 4;
+            normalized = true;
+            break;
+
+        case Graphics::ShaderDataType::UInt:
+            baseType = GL_UNSIGNED_INT;
+            componentCount = 1;
+            normalized = false;
+            break;
+        case Graphics::ShaderDataType::UInt2:
+            baseType = GL_UNSIGNED_INT;
+            componentCount = 2;
+            normalized = false;
+            break;
+        case Graphics::ShaderDataType::UInt3:
+            baseType = GL_UNSIGNED_INT;
+            componentCount = 3;
+            normalized = false;
+            break;
+        case Graphics::ShaderDataType::UInt4:
+            baseType = GL_UNSIGNED_INT;
+            componentCount = 4;
+            normalized = false;
+            break;
+
+        case Graphics::ShaderDataType::UShort:
+            baseType = GL_UNSIGNED_SHORT;
+            componentCount = 1;
+            normalized = false;
+            break;
+        case Graphics::ShaderDataType::UShort2:
+            baseType = GL_UNSIGNED_SHORT;
+            componentCount = 2;
+            normalized = false;
+            break;
+        case Graphics::ShaderDataType::UShort4:
+            baseType = GL_UNSIGNED_SHORT;
+            componentCount = 4;
+            normalized = false;
+            break;
+
+        case Graphics::ShaderDataType::UShortNormalized:
+            baseType = GL_UNSIGNED_SHORT;
+            componentCount = 1;
+            normalized = true;
+            break;
+        case Graphics::ShaderDataType::UShort2Normalized:
+            baseType = GL_UNSIGNED_SHORT;
+            componentCount = 2;
+            normalized = true;
+            break;
+        case Graphics::ShaderDataType::UShort4Normalized:
+            baseType = GL_UNSIGNED_SHORT;
+            componentCount = 4;
+            normalized = true;
+            break;
+        default:
+            throw std::runtime_error("Failed to find valid vertex buffer element type");
+        }
+    }
+
     GLenum GetSamplerState(Nexus::Graphics::SamplerState state)
     {
         switch (state)

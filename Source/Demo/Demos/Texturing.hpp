@@ -12,8 +12,7 @@ namespace Demos
         {
 
             m_CommandList = m_GraphicsDevice->CreateCommandList();
-            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile(Nexus::FileSystem::GetFilePathAbsolute("resources/shaders/texturing.glsl"),
-                                                                   Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
+            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile(Nexus::FileSystem::GetFilePathAbsolute("resources/shaders/texturing.glsl"));
 
             CreatePipeline();
 
@@ -107,6 +106,7 @@ namespace Demos
                     {"texSampler", 0, 0}};
 
             pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
+            pipelineDescription.Layout = Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout();
 
             m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
             m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);

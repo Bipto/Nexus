@@ -68,7 +68,7 @@ namespace Nexus::Graphics
 
         // vulkan functions
     private:
-        virtual Shader *CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout) override;
+        virtual Shader *CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource) override;
         void CreateInstance();
         void SetupDebugMessenger();
         void SelectPhysicalDevice();

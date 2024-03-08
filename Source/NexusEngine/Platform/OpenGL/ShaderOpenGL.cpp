@@ -6,10 +6,9 @@
 
 namespace Nexus::Graphics
 {
-    ShaderOpenGL::ShaderOpenGL(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout)
+    ShaderOpenGL::ShaderOpenGL(const std::string &vertexShaderSource, const std::string &fragmentShaderSource)
     {
         Compile(vertexShaderSource, fragmentShaderSource);
-        m_Layout = layout;
 
         m_VertexShaderSource = vertexShaderSource;
         m_FragmentShaderSource = fragmentShaderSource;
@@ -33,11 +32,6 @@ namespace Nexus::Graphics
     const std::string &ShaderOpenGL::GetFragmentShaderSource()
     {
         return m_FragmentShaderSource;
-    }
-
-    const VertexBufferLayout &ShaderOpenGL::GetLayout() const
-    {
-        return m_Layout;
     }
 
     void ShaderOpenGL::Compile(const std::string &vertexShaderSource, const std::string &fragmentShaderSource)

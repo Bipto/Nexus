@@ -17,14 +17,10 @@ namespace Nexus::Graphics
         void Bind();
         unsigned int GetHandle();
 
-        void SetupVertexArray(uint32_t offset = 0);
-        static void UnbindVertexArray();
-
         virtual void SetData(const void *data, uint32_t size, uint32_t offset = 0) override;
 
     private:
         unsigned int m_Buffer = 0;
-        unsigned int m_VAO = 0;
     };
 
     class IndexBufferOpenGL : public IndexBuffer

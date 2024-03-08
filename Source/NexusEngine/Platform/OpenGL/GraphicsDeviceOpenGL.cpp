@@ -195,9 +195,9 @@ namespace Nexus::Graphics
     {
     }
 
-    Shader *GraphicsDeviceOpenGL::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout)
+    Shader *GraphicsDeviceOpenGL::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource)
     {
-        return new ShaderOpenGL(vertexShaderSource, fragmentShaderSource, layout);
+        return new ShaderOpenGL(vertexShaderSource, fragmentShaderSource);
     }
 
     std::vector<std::string> GraphicsDeviceOpenGL::GetSupportedExtensions()

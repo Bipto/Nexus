@@ -10,13 +10,11 @@ namespace Nexus::Graphics
     class ShaderD3D12 : public Shader
     {
     public:
-        ShaderD3D12(std::string vertexShaderSource, std::string fragmentShaderSource, const VertexBufferLayout &layout);
+        ShaderD3D12(std::string vertexShaderSource, std::string fragmentShaderSource);
         virtual ~ShaderD3D12();
 
         virtual const std::string &GetVertexShaderSource() override;
         virtual const std::string &GetFragmentShaderSource() override;
-
-        virtual const VertexBufferLayout &GetLayout() const override { return m_BufferLayout; }
 
         IDxcBlob *GetVertexShaderBlob();
         IDxcBlob *GetFragmentShaderBlob();
@@ -26,7 +24,6 @@ namespace Nexus::Graphics
         void CreateFragmentShader();
 
     private:
-        VertexBufferLayout m_BufferLayout;
         std::string m_VertexShaderSource;
         std::string m_FragmentShaderSource;
 

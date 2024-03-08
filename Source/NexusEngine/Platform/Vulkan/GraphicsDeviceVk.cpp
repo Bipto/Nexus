@@ -108,7 +108,7 @@ namespace Nexus::Graphics
     {
     }
 
-    Shader *GraphicsDeviceVk::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout)
+    Shader *GraphicsDeviceVk::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource)
     {
         Nexus::Graphics::ShaderGenerator generator;
 
@@ -134,7 +134,7 @@ namespace Nexus::Graphics
             throw std::runtime_error(fragmentResult.Error);
         }
 
-        return new ShaderVk(vertexResult.SpirvBinary, fragmentResult.SpirvBinary, vertexShaderSource, fragmentShaderSource, layout, this);
+        return new ShaderVk(vertexResult.SpirvBinary, fragmentResult.SpirvBinary, vertexShaderSource, fragmentShaderSource, this);
     }
 
     Texture *GraphicsDeviceVk::CreateTexture(const TextureSpecification &spec)

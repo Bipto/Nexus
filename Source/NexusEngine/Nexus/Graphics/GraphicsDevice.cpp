@@ -18,15 +18,15 @@ namespace Nexus::Graphics
         m_API = createInfo.API;
     }
 
-    Shader *GraphicsDevice::CreateShaderFromSpirvFile(const std::string &filepath, const VertexBufferLayout &layout)
+    Shader *GraphicsDevice::CreateShaderFromSpirvFile(const std::string &filepath)
     {
         std::cout << "Creating shader: " << filepath << "\n";
         Nexus::Utils::ShaderSources sources = Nexus::Utils::ParseCustomShaderFile(filepath);
-        auto shader = CreateShaderFromSpirvSources(sources.VertexSource, sources.FragmentSource, layout, filepath, filepath);
+        auto shader = CreateShaderFromSpirvSources(sources.VertexSource, sources.FragmentSource, filepath, filepath);
         return shader;
     }
 
-    Shader *GraphicsDevice::CreateShaderFromSpirvSources(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout, const std::string &vertexShaderName, const std::string &fragmentShaderName)
+    Shader *GraphicsDevice::CreateShaderFromSpirvSources(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const std::string &vertexShaderName, const std::string &fragmentShaderName)
     {
         auto startTime = std::chrono::system_clock::now();
 
@@ -66,18 +66,19 @@ namespace Nexus::Graphics
                 std::stringstream ss;
                 ss << "Compilation of " << vertexShaderName << " and " << fragmentShaderName << " took " << totalTime << " milliseconds";
 
-                auto shader = this->CreateShaderFromSource(vertResult.Source, fragResult.Source, layout);
+                auto shader = this->CreateShaderFromSource(vertResult.Source, fragResult.Source);
                 return shader;
             }
             else
             {
                 NX_ERROR(errorMessage);
+                return nullptr;
             }
         }
 
         else
         {
-            auto shader = this->CreateShaderFromSource(vertexShaderSource, fragmentShaderSource, layout);
+            auto shader = this->CreateShaderFromSource(vertexShaderSource, fragmentShaderSource);
             return shader;
         }
     }

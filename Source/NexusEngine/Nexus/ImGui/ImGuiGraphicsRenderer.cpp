@@ -55,15 +55,9 @@ namespace Nexus::ImGuiUtils
 
         m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-        Nexus::Graphics::VertexBufferLayout layout =
-            {
-                {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
-                {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
-                {Nexus::Graphics::ShaderDataType::NormByte4, "TEXCOORD"}};
-
         auto vertexSource = GetImGuiShaderVertexSource();
         auto fragmentSource = GetImGuiShaderFragmentSource();
-        m_Shader = m_GraphicsDevice->CreateShaderFromSpirvSources(vertexSource, fragmentSource, layout, "imgui.vert", "imgui.frag");
+        m_Shader = m_GraphicsDevice->CreateShaderFromSpirvSources(vertexSource, fragmentSource, "imgui.vert", "imgui.frag");
 
         Nexus::Graphics::PipelineDescription pipelineDesc;
         pipelineDesc.Shader = m_Shader;
@@ -79,6 +73,12 @@ namespace Nexus::ImGuiUtils
         pipelineDesc.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
         pipelineDesc.RasterizerStateDescription.FillMode = Nexus::Graphics::FillMode::Solid;
         pipelineDesc.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
+
+        pipelineDesc.Layout =
+            {
+                {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
+                {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
+                {Nexus::Graphics::ShaderDataType::NormByte4, "TEXCOORD"}};
 
         Nexus::Graphics::BufferDescription uniformBufferDesc;
         uniformBufferDesc.Size = sizeof(glm::mat4);

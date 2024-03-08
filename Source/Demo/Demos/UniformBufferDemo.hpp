@@ -16,8 +16,7 @@ namespace Demos
             : Demo(name, app, imGuiRenderer)
         {
             m_CommandList = m_GraphicsDevice->CreateCommandList();
-            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile(Nexus::FileSystem::GetFilePathAbsolute("resources/shaders/uniform_buffers.glsl"),
-                                                                   Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
+            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile(Nexus::FileSystem::GetFilePathAbsolute("resources/shaders/uniform_buffers.glsl"));
 
             CreatePipeline();
 
@@ -116,6 +115,8 @@ namespace Demos
                     {"texSampler", 1, 0}};
 
             pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
+
+            pipelineDescription.Layout = Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout();
 
             m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
             m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);

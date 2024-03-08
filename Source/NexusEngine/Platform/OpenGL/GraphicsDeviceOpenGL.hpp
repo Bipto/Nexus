@@ -41,7 +41,7 @@ namespace Nexus::Graphics
         virtual float GetUVCorrection() { return 1.0f; }
 
     private:
-        virtual Shader *CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout) override;
+        virtual Shader *CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource) override;
         std::vector<std::string> GetSupportedExtensions();
 
     private:

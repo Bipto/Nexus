@@ -42,8 +42,7 @@ namespace Nexus::Graphics
         m_CommandIndex = 0;
         m_Commands.clear();
         m_CommandData.clear();
-
-        m_CurrentlyBoundVertexBuffer = nullptr;
+        m_CurrentlyBoundVertexBuffers = {};
     }
 
     void CommandListOpenGL::End()
@@ -60,7 +59,7 @@ namespace Nexus::Graphics
             const auto vertexBuffer = std::get<VertexBuffer *>(commandData);
             const auto vertexBufferGL = (VertexBufferOpenGL *)vertexBuffer;
             vertexBufferGL->Bind();
-            commandListGL->m_CurrentlyBoundVertexBuffer = vertexBufferGL;
+            commandListGL->m_CurrentlyBoundVertexBuffers = {vertexBufferGL};
         };
         m_Commands.push_back(renderCommand);
     }
@@ -124,12 +123,24 @@ namespace Nexus::Graphics
             auto commandListGL = (CommandListOpenGL *)commandList;
             const auto &commandData = commandListGL->GetCurrentCommandData();
             const auto &drawElementsCommand = std::get<DrawElementCommand>(commandData);
-            glDrawArrays(commandListGL->GetTopology(), drawElementsCommand.Start, drawElementsCommand.Count);
+
+            auto pipeline = commandListGL->m_CurrentlyBoundPipeline;
+
+            // we are only able to bind a vertex buffer if we know the layout of it
+            if (pipeline)
+            {
+                for (const auto &vertexBuffer : commandListGL->m_CurrentlyBoundVertexBuffers)
+                {
+                    pipeline->BindVertexBuffer(vertexBuffer, 0, 0);
+                }
+                glDrawArrays(commandListGL->GetTopology(), drawElementsCommand.Start, drawElementsCommand.Count);
+            }
         };
         m_Commands.push_back(renderCommand);
     }
 
-    void CommandListOpenGL::DrawIndexed(uint32_t count, uint32_t indexStart, uint32_t vertexStart)
+    void
+    CommandListOpenGL::DrawIndexed(uint32_t count, uint32_t indexStart, uint32_t vertexStart)
     {
         DrawIndexedCommand command;
         command.Count = count;
@@ -142,22 +153,29 @@ namespace Nexus::Graphics
             auto commandListGL = (CommandListOpenGL *)commandList;
             const auto &commandData = commandListGL->GetCurrentCommandData();
             const auto &drawIndexedCommand = std::get<DrawIndexedCommand>(commandData);
+            auto pipeline = commandListGL->m_CurrentlyBoundPipeline;
 
-            auto vertexBuffer = commandListGL->m_CurrentlyBoundVertexBuffer;
-            vertexBuffer->SetupVertexArray(drawIndexedCommand.VertexStart);
-
-            uint32_t indexSize = 0;
-            if (commandListGL->m_IndexBufferFormat == GL_UNSIGNED_SHORT)
+            // we are only able to bind a vertex buffer if we know the layout of it
+            if (pipeline)
             {
-                indexSize = sizeof(uint16_t);
-            }
-            else
-            {
-                indexSize = sizeof(uint32_t);
-            }
+                for (const auto &vertexBuffer : commandListGL->m_CurrentlyBoundVertexBuffers)
+                {
+                    pipeline->BindVertexBuffer(vertexBuffer, 0, drawIndexedCommand.VertexStart);
+                }
 
-            uint32_t offset = drawIndexedCommand.IndexStart * indexSize;
-            glDrawElements(commandListGL->GetTopology(), drawIndexedCommand.Count, commandListGL->m_IndexBufferFormat, (void *)offset);
+                uint32_t indexSize = 0;
+                if (commandListGL->m_IndexBufferFormat == GL_UNSIGNED_SHORT)
+                {
+                    indexSize = sizeof(uint16_t);
+                }
+                else
+                {
+                    indexSize = sizeof(uint32_t);
+                }
+
+                uint32_t offset = drawIndexedCommand.IndexStart * indexSize;
+                glDrawElements(commandListGL->GetTopology(), drawIndexedCommand.Count, commandListGL->m_IndexBufferFormat, (void *)offset);
+            }
         };
         m_Commands.push_back(renderCommand);
     }
@@ -404,7 +422,7 @@ namespace Nexus::Graphics
     {
         auto pipelineGL = (PipelineOpenGL *)pipeline;
         pipelineGL->Bind();
-        m_CurrentlyBoundPipeline = pipeline;
+        m_CurrentlyBoundPipeline = pipelineGL;
     }
 
     GraphicsDevice *CommandListOpenGL::GetGraphicsDevice()

@@ -10,12 +10,11 @@ namespace Nexus::Graphics
     class ShaderVk : public Shader
     {
     public:
-        ShaderVk(const std::vector<uint32_t> &vertexBytecode, std::vector<uint32_t> &fragmentBytecode, const std::string &vertexSource, const std::string &fragmentSource, const VertexBufferLayout &layout, GraphicsDeviceVk *graphicsDevice);
+        ShaderVk(const std::vector<uint32_t> &vertexBytecode, std::vector<uint32_t> &fragmentBytecode, const std::string &vertexSource, const std::string &fragmentSource, GraphicsDeviceVk *graphicsDevice);
         ~ShaderVk();
 
         virtual const std::string &GetVertexShaderSource() override;
         virtual const std::string &GetFragmentShaderSource() override;
-        virtual const VertexBufferLayout &GetLayout() const override;
         const std::vector<VkPipelineShaderStageCreateInfo> &GetShaderStages();
 
     private:
@@ -24,7 +23,6 @@ namespace Nexus::Graphics
     private:
         std::string m_VertexShaderSource;
         std::string m_FragmentShaderSource;
-        VertexBufferLayout m_Layout;
 
         VkShaderModule m_VertexShader;
         VkShaderModule m_FragmentShader;

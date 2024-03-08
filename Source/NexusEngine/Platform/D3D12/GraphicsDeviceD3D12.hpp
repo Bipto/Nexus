@@ -49,7 +49,7 @@ namespace Nexus::Graphics
         void ImmediateSubmit(std::function<void(ID3D12GraphicsCommandList7 *cmd)> &&function);
 
     private:
-        virtual Shader *CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout) override;
+        virtual Shader *CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource) override;
         void InitUploadCommandList();
         void DispatchUploadCommandList();
 

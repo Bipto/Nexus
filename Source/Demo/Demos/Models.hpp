@@ -27,8 +27,7 @@ namespace Demos
         {
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile(Nexus::FileSystem::GetFilePathAbsolute("resources/shaders/models.glsl"),
-                                                                   Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
+            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile(Nexus::FileSystem::GetFilePathAbsolute("resources/shaders/models.glsl"));
 
             Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
             m_Model = factory.CreateFrom3DModelFile(Nexus::FileSystem::GetFilePathAbsolute("resources/models/survival_backpack_2/survival_backpack_2.fbx"));
@@ -151,6 +150,7 @@ namespace Demos
             pipelineDescription.DepthStencilDescription.EnableDepthWrite = true;
             pipelineDescription.DepthStencilDescription.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;
             pipelineDescription.Shader = m_Shader;
+            pipelineDescription.Layout = Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout();
 
             pipelineDescription.ResourceSetSpecification.UniformBuffers =
                 {

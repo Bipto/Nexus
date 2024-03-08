@@ -144,9 +144,9 @@ namespace Nexus::Graphics
         /// @param filepath The filepath to load the GLSL shader from
         /// @param layout A vertex buffer layout to use to create the shader
         /// @return A pointer to a shader
-        Shader *CreateShaderFromSpirvFile(const std::string &filepath, const VertexBufferLayout &layout);
+        Shader *CreateShaderFromSpirvFile(const std::string &filepath);
 
-        Shader *CreateShaderFromSpirvSources(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout, const std::string &vertexShaderName = "VertexShader", const std::string &fragmentShaderName = "FragmentShader");
+        Shader *CreateShaderFromSpirvSources(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const std::string &vertexShaderName = "VertexShader", const std::string &fragmentShaderName = "FragmentShader");
 
         Window *GetPrimaryWindow();
 
@@ -156,7 +156,7 @@ namespace Nexus::Graphics
         /// @param fragmentShaderSource A fragment shader written in the native shading language of the backend
         /// @param layout A parameter specifying how data is laid out in the vertex buffer
         /// @return A pointer to a shader
-        virtual Shader *CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout) = 0;
+        virtual Shader *CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource) = 0;
 
     protected:
         /// @brief A pointer to the window to render graphics into

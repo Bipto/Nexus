@@ -27,8 +27,7 @@ namespace Demos
         {
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile(Nexus::FileSystem::GetFilePathAbsolute("resources/shaders/lighting.glsl"),
-                                                                   Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
+            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile(Nexus::FileSystem::GetFilePathAbsolute("resources/shaders/lighting.glsl"));
 
             Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
             m_CubeMesh = factory.CreateCube();
@@ -164,6 +163,8 @@ namespace Demos
                     {"diffuseMapSampler", 1, 0},
                     {"normalMapSampler", 1, 1},
                     {"specularMapSampler", 1, 2}};
+
+            pipelineDescription.Layout = Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout();
 
             pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
 

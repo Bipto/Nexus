@@ -44,3 +44,4 @@ android-project/app/src/main/libs/x86
 android-project/app/src/main/libs/x86_64
 android-project/.idea
 android-project/.gradle
+android-project/app/libs

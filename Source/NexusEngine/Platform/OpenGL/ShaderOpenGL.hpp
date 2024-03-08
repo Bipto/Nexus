@@ -23,14 +23,13 @@ namespace Nexus::Graphics
     class ShaderOpenGL : public Shader
     {
     public:
-        ShaderOpenGL(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout);
+        ShaderOpenGL(const std::string &vertexShaderSource, const std::string &fragmentShaderSource);
         virtual ~ShaderOpenGL();
         void Bind();
 
         virtual const std::string &GetVertexShaderSource() override;
         virtual const std::string &GetFragmentShaderSource() override;
 
-        virtual const VertexBufferLayout &GetLayout() const override;
         unsigned int GetHandle() { return m_ProgramHandle; }
 
     private:
@@ -38,8 +37,6 @@ namespace Nexus::Graphics
 
     private:
         unsigned int m_ProgramHandle;
-        VertexBufferLayout m_Layout;
-
         std::string m_VertexShaderSource;
         std::string m_FragmentShaderSource;
     };

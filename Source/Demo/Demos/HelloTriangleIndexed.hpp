@@ -11,8 +11,7 @@ namespace Demos
             : Demo(name, app, imGuiRenderer)
         {
             m_CommandList = m_GraphicsDevice->CreateCommandList();
-            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile(Nexus::FileSystem::GetFilePathAbsolute("resources/shaders/hello_triangle.glsl"),
-                                                                   Nexus::Graphics::VertexPosition::GetLayout());
+            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile(Nexus::FileSystem::GetFilePathAbsolute("resources/shaders/hello_triangle.glsl"));
 
             CreatePipeline();
 
@@ -104,6 +103,7 @@ namespace Demos
             pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
             pipelineDescription.Shader = m_Shader;
             pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
+            pipelineDescription.Layout = Nexus::Graphics::VertexPosition::GetLayout();
 
             m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
         }

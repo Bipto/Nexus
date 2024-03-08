@@ -12,8 +12,7 @@ namespace Demos
         {
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile(Nexus::FileSystem::GetFilePathAbsolute("resources/shaders/hello_triangle.glsl"),
-                                                                   Nexus::Graphics::VertexPosition::GetLayout());
+            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile(Nexus::FileSystem::GetFilePathAbsolute("resources/shaders/hello_triangle.glsl"));
 
             std::vector<Nexus::Graphics::VertexPosition> vertices =
                 {
@@ -88,6 +87,7 @@ namespace Demos
             pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
             pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
             pipelineDescription.Shader = m_Shader;
+            pipelineDescription.Layout = Nexus::Graphics::VertexPosition::GetLayout();
             pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
 
             m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);

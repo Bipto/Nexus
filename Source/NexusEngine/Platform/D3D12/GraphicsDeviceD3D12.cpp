@@ -136,9 +136,9 @@ namespace Nexus::Graphics
     {
     }
 
-    Shader *GraphicsDeviceD3D12::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const VertexBufferLayout &layout)
+    Shader *GraphicsDeviceD3D12::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource)
     {
-        return new ShaderD3D12(vertexShaderSource, fragmentShaderSource, layout);
+        return new ShaderD3D12(vertexShaderSource, fragmentShaderSource);
     }
 
     Texture *GraphicsDeviceD3D12::CreateTexture(const TextureSpecification &spec)

@@ -272,7 +272,7 @@ namespace Nexus::Graphics
     VkVertexInputBindingDescription PipelineVk::GetBindingDescription()
     {
         auto shader = m_Description.Shader;
-        auto layout = shader->GetLayout();
+        const auto &layout = m_Description.Layout;
 
         VkVertexInputBindingDescription bindingDescription = {};
         bindingDescription.binding = 0;
@@ -283,7 +283,7 @@ namespace Nexus::Graphics
 
     std::vector<VkVertexInputAttributeDescription> PipelineVk::GetAttributeDescriptions()
     {
-        const auto &layout = m_Description.Shader->GetLayout();
+        const auto &layout = m_Description.Layout;
 
         std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
         uint32_t index = 0;

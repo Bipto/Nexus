@@ -204,11 +204,9 @@ namespace Nexus::Graphics
     void PipelineD3D12::CreateInputLayout()
     {
         m_InputLayout.clear();
-        auto shader = m_Description.Shader;
-        const auto &bufferLayout = shader->GetLayout();
 
         unsigned int index = 0;
-        for (auto &element : bufferLayout)
+        for (auto &element : m_Description.Layout)
         {
             D3D12_INPUT_ELEMENT_DESC desc =
                 {

@@ -28,8 +28,7 @@ namespace Demos
         {
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile(Nexus::FileSystem::GetFilePathAbsolute("resources/shaders/3d.glsl"),
-                                                                   Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout());
+            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile(Nexus::FileSystem::GetFilePathAbsolute("resources/shaders/3d.glsl"));
 
             Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
             m_Mesh = factory.CreateCube();
@@ -138,6 +137,8 @@ namespace Demos
             pipelineDescription.ResourceSetSpecification.Textures =
                 {
                     {"texSampler", 1, 0}};
+
+            pipelineDescription.Layout = Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout();
 
             pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
 

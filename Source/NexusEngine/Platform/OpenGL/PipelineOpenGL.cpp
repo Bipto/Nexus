@@ -12,10 +12,13 @@ namespace Nexus::Graphics
     PipelineOpenGL::PipelineOpenGL(const PipelineDescription &description)
         : Pipeline(description)
     {
+        glGenVertexArrays(1, &m_VAO);
+        glBindVertexArray(0);
     }
 
     PipelineOpenGL::~PipelineOpenGL()
     {
+        glDeleteVertexArrays(1, &m_VAO);
     }
 
     const PipelineDescription &PipelineOpenGL::GetPipelineDescription() const
@@ -29,6 +32,7 @@ namespace Nexus::Graphics
         SetupRasterizer();
         SetupBlending();
         SetShader();
+        BindVertexArray();
     }
 
     void PipelineOpenGL::SetupDepthStencil()
@@ -168,6 +172,45 @@ namespace Nexus::Graphics
 
         auto shaderGL = (ShaderOpenGL *)m_Description.Shader;
         shaderGL->Bind();
+    }
+
+    void PipelineOpenGL::BindVertexArray()
+    {
+        glBindVertexArray(m_VAO);
+    }
+
+    void PipelineOpenGL::SetupVertexElements(uint32_t offset)
+    {
+        // this allows us to specify an offset into a vertex buffer without requiring OpenGL 4.5 functionality i.e. is cross platform
+        offset *= m_Description.Layout.GetStride();
+
+        glBindVertexArray(m_VAO);
+        int index = 0;
+        for (auto &element : m_Description.Layout)
+        {
+            GLenum baseType;
+            uint32_t componentCount;
+            GLboolean normalized;
+            GL::GetBaseType(element, baseType, componentCount, normalized);
+
+            glVertexAttribPointer(
+                index,
+                componentCount,
+                baseType,
+                normalized,
+                m_Description.Layout.GetStride(),
+                (void *)(element.Offset + offset));
+
+            glEnableVertexAttribArray(index);
+            index++;
+        }
+    }
+
+    void PipelineOpenGL::BindVertexBuffer(VertexBufferOpenGL *vertexBuffer, uint32_t index, uint32_t offset)
+    {
+        BindVertexArray();
+        glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer->GetHandle());
+        SetupVertexElements(offset);
     }
 }
 
