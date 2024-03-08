@@ -2,8 +2,6 @@
 
 #include "glad/glad.h"
 
-#include "SDL_system.h"
-
 #include "Nexus/Graphics/GraphicsDevice.hpp"
 
 #if defined(NX_PLATFORM_OPENGL)
@@ -23,17 +21,21 @@ namespace Nexus
 
     Window::Window(const WindowSpecification &windowProps, Graphics::GraphicsAPI api, const Graphics::SwapchainSpecification &swapchainSpec)
     {
-        uint32_t flags = GetFlags(api, swapchainSpec);
-
-        m_Window = SDL_CreateWindow(windowProps.Title.c_str(), windowProps.Width, windowProps.Height, flags);
+        uint32_t flags = GetFlags(api, windowProps, swapchainSpec);
 
         // NOTE: Resizable flag MUST be set in order for Emscripten resizing to work correctly
-        /* m_Window = SDL_CreateWindow(windowProps.Title.c_str(),
+        m_Window = SDL_CreateWindow(windowProps.Title.c_str(),
                                     SDL_WINDOWPOS_UNDEFINED,
                                     SDL_WINDOWPOS_UNDEFINED,
                                     windowProps.Width,
                                     windowProps.Height,
-                                    flags); */
+                                    flags);
+
+        if (m_Window == nullptr)
+        {
+            std::string errorCode = {SDL_GetError()};
+            NX_ERROR(errorCode);
+        }
 
         m_Input = new InputState();
         m_WindowID = SDL_GetWindowID(m_Window);
@@ -140,10 +142,10 @@ namespace Nexus
         switch (visible)
         {
         case true:
-            SDL_ShowCursor();
+            SDL_ShowCursor(SDL_ENABLE);
             break;
         case false:
-            SDL_HideCursor();
+            SDL_ShowCursor(SDL_DISABLE);
             break;
         }
     }
@@ -298,17 +300,28 @@ namespace Nexus
 
     float Window::GetDisplayScale()
     {
-        float scale = SDL_GetWindowDisplayScale(m_Window);
+        int ww, wh;
+        int pw, ph;
+
+        SDL_GetWindowSize(m_Window, &ww, &wh);
+        SDL_GetWindowSizeInPixels(m_Window, &pw, &ph);
+
+        float scale = (float)pw / (float)ww;
         return scale;
     }
 
-    uint32_t Window::GetFlags(Graphics::GraphicsAPI api, const Graphics::SwapchainSpecification &swapchainSpec)
+    uint32_t Window::GetFlags(Graphics::GraphicsAPI api, const WindowSpecification &windowSpec, const Graphics::SwapchainSpecification &swapchainSpec)
     {
         // required for emscripten to handle resizing correctly
-        uint32_t flags = SDL_WINDOW_RESIZABLE;
+        uint32_t flags = 0;
 #if !defined(__EMSCRIPTEN__)
-        flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
+        flags |= SDL_WINDOW_ALLOW_HIGHDPI;
 #endif
+
+        if (windowSpec.Resizable)
+        {
+            flags |= SDL_WINDOW_RESIZABLE;
+        }
 
         switch (api)
         {
@@ -316,18 +329,17 @@ namespace Nexus
 #if defined(NX_PLATFORM_OPENGL)
         case Graphics::GraphicsAPI::OpenGL:
         {
-#if defined(__EMSCRIPTEN__) || defined(__ANDROID__)
+#if defined(__EMSCRIPTEN__) || defined(__ANDROID) || defined(ANDROID)
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-#elif defined(__ANDROID)
+#elif defined(ANDROID) || defined(__ANDROID__)
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-#else
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
+#else SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
@@ -337,6 +349,7 @@ namespace Nexus
             SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
             SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
+#if defined(NX_PLATFORM_SUPPORTS_MULTI_WINDOW)
             if (swapchainSpec.Samples != Graphics::SampleCount::SampleCount1)
             {
                 uint32_t samples = Graphics::GetSampleCount(swapchainSpec.Samples);
@@ -357,6 +370,7 @@ namespace Nexus
             {
                 SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 0);
             }
+#endif
 
             flags |= SDL_WINDOW_OPENGL;
             return flags;

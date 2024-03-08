@@ -52,8 +52,8 @@ public:
 
         int size = 19;
 
-#if defined(__ANDROID__)
-        size = 48;
+#if defined(__ANDROID__) || defined(ANDROID)
+        size = 38;
 
 #endif
         auto &io = ImGui::GetIO();
@@ -61,8 +61,6 @@ public:
         std::string fontPath = Nexus::FileSystem::GetFilePathAbsolute("resources/fonts/roboto/roboto-regular.ttf");
         io.FontDefault = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), size);
         m_ImGuiRenderer->RebuildFontAtlas();
-
-        m_CommandList = m_GraphicsDevice->CreateCommandList();
 
         RegisterGraphicsDemo<Demos::ClearScreenDemo>("Clear Colour");
         RegisterGraphicsDemo<Demos::HelloTriangleDemo>("Hello Triangle");
@@ -77,6 +75,8 @@ public:
         RegisterGraphicsDemo<Demos::ModelDemo>("Models");
         RegisterAudioDemo<Demos::AudioDemo>("Audio");
         RegisterScriptingDemo<Demos::PythonDemo>("Python");
+
+        m_CommandList = m_GraphicsDevice->CreateCommandList();
     }
 
     template <typename T>
@@ -139,8 +139,6 @@ public:
             auto window = this->GetPrimaryWindow();
             window->ToggleFullscreen();
         }
-
-        ImGui::ShowDemoWindow();
 
         {
             ImGui::Begin("Demos");
@@ -310,7 +308,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
     spec.WindowProperties.Title = "Demo";
     spec.WindowProperties.Resizable = true;
 
-    spec.SwapchainSpecification.Samples = Nexus::Graphics::SampleCount::SampleCount8;
+    spec.SwapchainSpecification.Samples = Nexus::Graphics::SampleCount::SampleCount1;
 
     return new DemoApplication(spec);
 }

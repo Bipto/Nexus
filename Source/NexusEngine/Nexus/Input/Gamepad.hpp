@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SDL.h"
+#include "SDL_gamecontroller.h"
 
 #include "Nexus/Point.hpp"
 
@@ -58,16 +59,16 @@ namespace Nexus
         Misc,
 
         /// @brief The first of four optional paddle buttons
-        LeftPaddle1,
+        Paddle1,
 
         /// @brief The second of four optional paddle buttons
-        LeftPaddle2,
+        Paddle2,
 
         /// @brief The third of four optional paddle buttons
-        RightPaddle1,
+        Paddle3,
 
         /// @brief The last of the four optional paddle buttons
-        RightPaddle2,
+        Paddle4,
 
         /// @brief A touchpad button that some controllers may have
         Touchpad,
@@ -79,7 +80,7 @@ namespace Nexus
     /// @brief A method that returns an SDL_GameControllerButton from a nexus gamepad button
     /// @param button The button to convert to an SDL game controller button
     /// @return An enum value representing an underlying SDL_GameControllerButton
-    SDL_GamepadButton GetSDLGamepadButtonFromNexusKeyCode(GamepadButton button);
+    SDL_GameControllerButton GetSDLGamepadButtonFromNexusKeyCode(GamepadButton button);
 
     /// @brief A class representing a gamepad that can be used for input
     class Gamepad
@@ -141,6 +142,18 @@ namespace Nexus
         /// @return A boolean value representing whether a gamepad contains a touchpad
         bool HasTouchpad();
 
+        /// @brief A method that checks whether a gamepad supports rumbling or not
+        /// @return A boolean value representing whether a gamepad has support for rumbling
+        bool SupportsRumble();
+
+        /// @brief A method that checks whether a gamepad supports trigger rumbling
+        /// @return A boolean value representing whether a gamepad supports trigger rumbling
+        bool SupportsRumbleTriggers();
+
+        /// @brief A method that checks whether a gamepad contains an LED
+        /// @return A boolean value representing whether a gamepad contains an LED
+        bool HasLED();
+
         /// @brief A method that sets the colour of an LED in a controller
         /// @param red The red channel of the colour value
         /// @param green The green channel of the colour value
@@ -183,7 +196,7 @@ namespace Nexus
         std::map<GamepadButton, bool> m_PreviousButtons;
 
         /// @brief A pointer to an underlying SDL_GameController object
-        SDL_Gamepad *m_GameController = nullptr;
+        SDL_GameController *m_GameController = nullptr;
 
         /// @brief An integer containing the current deadzone of the controller
         int m_Deadzone = 8000;

@@ -8,10 +8,6 @@ else {
 }
 
 android {
-    compileOptions {
-        sourceCompatibility 1.8
-        targetCompatibility 1.8
-    }
     if (buildAsApplication) {
         namespace "org.libsdl.app"
     }
@@ -49,7 +45,7 @@ android {
                 path '../../CMakeLists.txt'
             }
         }
-
+       
     }
     lint {
         abortOnError false

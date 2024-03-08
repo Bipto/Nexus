@@ -298,7 +298,9 @@ namespace Nexus::GL
 
         case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UNorm:
         case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UInt:
-#if defined(__EMSCRIPTEN__) || defined(__ANDROID__)
+#if defined(__EMSCRIPTEN__)
+            throw std::runtime_error("This format is not supported by WebGL");
+#elif defined(__ANDROID__) || defined(ANDROID)
             throw std::runtime_error("This format is not supported by OpenGLES");
 #else
             return GL_UNSIGNED_INT_10_10_10_2_EXT;

@@ -37,7 +37,7 @@ namespace Nexus::Graphics
                 glSamplerParameterf(m_Sampler, GL_TEXTURE_MIN_LOD, m_Specification.MinimumLOD);
                 glSamplerParameterf(m_Sampler, GL_TEXTURE_MAX_LOD, m_Specification.MaximumLOD);
 
-#if !defined(NX_PLATFORM_WEBGL2) && !defined(__ANDROID__)
+#if !defined(__ANDROID__) && !defined(ANDROID) && !defined(__EMSCRIPTEN__)
                 glSamplerParameterf(m_Sampler, GL_TEXTURE_LOD_BIAS, m_Specification.LODBias);
 #endif
 

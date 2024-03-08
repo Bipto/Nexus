@@ -99,7 +99,7 @@ namespace Nexus::Graphics
             break;
         }
 
-#if !defined(__ANDROID__) && !defined(__EMSCRIPTEN__)
+#if !defined(__ANDROID__) && !defined(ANDROID) && !defined(__EMSCRIPTEN__)
         if (m_Description.RasterizerStateDescription.DepthClipEnabled)
         {
             glEnable(GL_DEPTH_CLAMP);
@@ -110,7 +110,7 @@ namespace Nexus::Graphics
         }
 #endif
 
-#if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
+#if !defined(__ANDROID__) && !defined(ANDROID) && !defined(__EMSCRIPTEN__)
         switch (m_Description.RasterizerStateDescription.FillMode)
         {
         case FillMode::Solid:

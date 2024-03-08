@@ -149,7 +149,7 @@ namespace Nexus
         /// @brief A method that returns a set of flags to use when creating the window
         /// @param api The graphics API to create the swapchain
         /// @return An unsigned int representing the flags
-        uint32_t GetFlags(Graphics::GraphicsAPI api, const Graphics::SwapchainSpecification &swapchainSpec);
+        uint32_t GetFlags(Graphics::GraphicsAPI api, const WindowSpecification &windowSpec, const Graphics::SwapchainSpecification &swapchainSpec);
 
     private:
         /// @brief A pointer to the underlying SDL window

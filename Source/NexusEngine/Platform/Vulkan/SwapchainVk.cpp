@@ -181,7 +181,7 @@ namespace Nexus::Graphics
 
     void SwapchainVk::CreateSurface()
     {
-        if (!SDL_Vulkan_CreateSurface(m_Window->GetSDLWindowHandle(), m_GraphicsDevice->m_Instance, nullptr, &m_Surface))
+        if (!SDL_Vulkan_CreateSurface(m_Window->GetSDLWindowHandle(), m_GraphicsDevice->m_Instance, &m_Surface))
         {
             throw std::runtime_error("Failed to create surface");
         }

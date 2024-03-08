@@ -13,6 +13,8 @@ namespace Nexus::Graphics
         m_SwapchainWidth = m_Window->GetWindowSize().X;
         m_SwapchainHeight = m_Window->GetWindowSize().Y;
 
+#if defined(NX_PLATFORM_SUPPORTS_MULTI_WINDOW)
+
         if (!s_ContextCreated)
         {
             s_ContextWindow = window->GetSDLWindowHandle();
@@ -20,6 +22,22 @@ namespace Nexus::Graphics
         }
 
         m_Context = SDL_GL_CreateContext(s_ContextWindow);
+        if (m_Context == NULL)
+        {
+            std::string error = {SDL_GetError()};
+            NX_ERROR(error);
+        }
+#else
+        s_ContextWindow = window->GetSDLWindowHandle();
+        s_ContextCreated = true;
+
+        m_Context = SDL_GL_CreateContext(s_ContextWindow);
+        if (m_Context == NULL)
+        {
+            std::string error = {SDL_GetError()};
+            NX_ERROR(error);
+        }
+#endif
 
         SDL_GL_MakeCurrent(window->GetSDLWindowHandle(), m_Context);
     }
