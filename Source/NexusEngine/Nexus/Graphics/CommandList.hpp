@@ -135,12 +135,27 @@ namespace Nexus::Graphics
         /// @brief A pure virtual method that submits a draw call using the bound vertex buffer
         /// @param start The offset to begin rendering at
         /// @param count The number of vertices to draw
-        virtual void DrawElements(uint32_t start, uint32_t count) = 0;
+        virtual void Draw(uint32_t start, uint32_t count) = 0;
 
         /// @brief A pure virtual method that submits an indexed draw call using the bound vertex buffer and index buffer
         /// @param count The number of vertices to draw
         /// @param offset The offset to begin rendering at
         virtual void DrawIndexed(uint32_t count, uint32_t indexStart, uint32_t vertexStart) = 0;
+
+        /// @brief A pure virtual method that submits an instanced draw call using bound vertex buffers
+        /// @param vertexCount The number of vertices to draw
+        /// @param instanceCount The number of instances to draw
+        /// @param vertexStart An offset into the vertex buffer to start rendering at
+        /// @param instanceStart An offset into the instance buffer to start rendering at
+        virtual void DrawInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t instanceStart) = 0;
+
+        /// @brief A pure virtual method that submits an instanced draw call using bound vertex buffers and an index buffer
+        /// @param indexCount The number of indices in the primitive
+        /// @param instanceCount The number of instances to draw
+        /// @param vertexStart An offset into the vertex buffer to start rendering at
+        /// @param indexStart An offset into the index buffer to start rendering at
+        /// @param instanceStart An offset into the instance buffer to start rendering at
+        virtual void DrawInstancedIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t indexStart, uint32_t instanceStart) = 0;
 
         /// @brief A pure virtual method that updates the resources bound within a pipeline
         /// @param resources A reference counted pointer to a ResourceSet

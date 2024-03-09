@@ -73,6 +73,8 @@ namespace Nexus::Graphics
         /// @return An unsigned 32 bit integer representing the number of elements within the layout
         const uint32_t GetNumberOfElements() const { return m_Elements.size(); }
 
+        const VertexBufferElement &GetElement(uint32_t index) const { return m_Elements.at(index); }
+
     private:
         /// @brief A private method that calculates the offset of each element within the buffer and the stride (total distance between elements)
         void CalculateOffsetsAndStride();

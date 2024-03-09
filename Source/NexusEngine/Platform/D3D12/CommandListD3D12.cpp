@@ -73,7 +73,7 @@ namespace Nexus::Graphics
         m_CommandList->IASetPrimitiveTopology(d3d12Pipeline->GetPrimitiveTopology());
     }
 
-    void CommandListD3D12::DrawElements(uint32_t start, uint32_t count)
+    void CommandListD3D12::Draw(uint32_t start, uint32_t count)
     {
         m_CommandList->DrawInstanced(count, 1, start, 0);
     }
@@ -81,6 +81,14 @@ namespace Nexus::Graphics
     void CommandListD3D12::DrawIndexed(uint32_t count, uint32_t indexStart, uint32_t vertexStart)
     {
         m_CommandList->DrawIndexedInstanced(count, 1, indexStart, vertexStart, 0);
+    }
+
+    void CommandListD3D12::DrawInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t instanceStart)
+    {
+    }
+
+    void CommandListD3D12::DrawInstancedIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t indexStart, uint32_t instanceStart)
+    {
     }
 
     void CommandListD3D12::SetResourceSet(ResourceSet *resources)

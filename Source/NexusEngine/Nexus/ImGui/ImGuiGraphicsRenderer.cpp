@@ -74,11 +74,11 @@ namespace Nexus::ImGuiUtils
         pipelineDesc.RasterizerStateDescription.FillMode = Nexus::Graphics::FillMode::Solid;
         pipelineDesc.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
-        pipelineDesc.Layout =
+        pipelineDesc.Layouts =
             {
-                {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
-                {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
-                {Nexus::Graphics::ShaderDataType::NormByte4, "TEXCOORD"}};
+                {{Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
+                 {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
+                 {Nexus::Graphics::ShaderDataType::NormByte4, "TEXCOORD"}}};
 
         Nexus::Graphics::BufferDescription uniformBufferDesc;
         uniformBufferDesc.Size = sizeof(glm::mat4);

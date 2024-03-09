@@ -25,8 +25,10 @@ namespace Nexus::Graphics
         virtual void SetIndexBuffer(IndexBuffer *indexBuffer) override;
         virtual void SetPipeline(Pipeline *pipeline) override;
 
-        virtual void DrawElements(uint32_t start, uint32_t count) override;
+        virtual void Draw(uint32_t start, uint32_t count) override;
         virtual void DrawIndexed(uint32_t count, uint32_t indexStart, uint32_t vertexStart) override;
+        virtual void DrawInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t instanceStart) override;
+        virtual void DrawInstancedIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t indexStart, uint32_t instanceStart) override;
 
         virtual void SetResourceSet(ResourceSet *resources) override;
 

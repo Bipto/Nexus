@@ -103,7 +103,7 @@ namespace Demos
             pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
             pipelineDescription.Shader = m_Shader;
             pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
-            pipelineDescription.Layout = Nexus::Graphics::VertexPosition::GetLayout();
+            pipelineDescription.Layouts = {Nexus::Graphics::VertexPosition::GetLayout()};
 
             m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
         }

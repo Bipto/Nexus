@@ -66,7 +66,7 @@ namespace Demos
 
             m_CommandList->SetVertexBuffer(m_VertexBuffer);
             auto vertexCount = m_VertexBuffer->GetDescription().Size / sizeof(Nexus::Graphics::VertexPosition);
-            m_CommandList->DrawElements(0, vertexCount);
+            m_CommandList->Draw(0, vertexCount);
             m_CommandList->End();
 
             m_GraphicsDevice->SubmitCommandList(m_CommandList);
@@ -87,7 +87,7 @@ namespace Demos
             pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
             pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
             pipelineDescription.Shader = m_Shader;
-            pipelineDescription.Layout = Nexus::Graphics::VertexPosition::GetLayout();
+            pipelineDescription.Layouts = {Nexus::Graphics::VertexPosition::GetLayout()};
             pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
 
             m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);

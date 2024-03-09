@@ -145,17 +145,24 @@ namespace Nexus::Graphics
         auto shaderD3D12 = (ShaderD3D12 *)m_Description.Shader;
 
         uint32_t sampleCount = 1;
+        std::vector<DXGI_FORMAT> rtvFormats;
 
         // multisampling is only supported on framebuffers
         if (m_Description.Target.GetType() == RenderTargetType::Framebuffer)
         {
             auto framebuffer = (FramebufferD3D12 *)m_Description.Target.GetData<Framebuffer *>();
             sampleCount = GetSampleCount(framebuffer->GetFramebufferSpecification().Samples);
+
+            for (uint32_t i = 0; i < framebuffer->GetColorTextureCount(); i++)
+            {
+                rtvFormats.push_back(DXGI_FORMAT_R8G8B8A8_UNORM);
+            }
         }
         else if (m_Description.Target.GetType() == RenderTargetType::Swapchain)
         {
             auto swapchain = (SwapchainD3D12 *)m_Description.Target.GetData<Swapchain *>();
             sampleCount = GetSampleCount(swapchain->GetSpecification().Samples);
+            rtvFormats.push_back(DXGI_FORMAT_R8G8B8A8_UNORM);
         }
         else
         {
@@ -180,8 +187,13 @@ namespace Nexus::Graphics
         pipelineDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
         pipelineDesc.RasterizerState = CreateRasterizerState();
         pipelineDesc.StreamOutput = CreateStreamOutputDesc();
-        pipelineDesc.NumRenderTargets = 1;
-        pipelineDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+        pipelineDesc.NumRenderTargets = rtvFormats.size();
+
+        for (uint32_t rtvIndex = 0; rtvIndex < rtvFormats.size(); rtvIndex++)
+        {
+            pipelineDesc.RTVFormats[rtvIndex] = rtvFormats.at(rtvIndex);
+        }
+
         pipelineDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
         pipelineDesc.BlendState = CreateBlendStateDesc();
         pipelineDesc.DepthStencilState = CreateDepthStencilDesc();
@@ -205,20 +217,25 @@ namespace Nexus::Graphics
     {
         m_InputLayout.clear();
 
-        unsigned int index = 0;
-        for (auto &element : m_Description.Layout)
+        for (uint32_t layoutIndex = 0; layoutIndex < m_Description.Layouts.size(); layoutIndex++)
         {
-            D3D12_INPUT_ELEMENT_DESC desc =
-                {
-                    element.Name.c_str(),
-                    index,
-                    GetD3D12BaseType(element),
-                    0,
-                    element.Offset,
-                    D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
-                    0};
-            m_InputLayout.push_back(desc);
-            index++;
+            const auto &layout = m_Description.Layouts.at(layoutIndex);
+
+            for (uint32_t elementIndex = 0; elementIndex < layout.GetNumberOfElements(); elementIndex++)
+            {
+                const auto &element = layout.GetElement(elementIndex);
+
+                D3D12_INPUT_ELEMENT_DESC desc =
+                    {
+                        element.Name.c_str(),
+                        elementIndex,
+                        GetD3D12BaseType(element),
+                        layoutIndex,
+                        element.Offset,
+                        D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
+                        0};
+                m_InputLayout.push_back(desc);
+            }
         }
     }
 

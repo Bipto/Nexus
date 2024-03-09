@@ -150,7 +150,7 @@ namespace Demos
             pipelineDescription.DepthStencilDescription.EnableDepthWrite = true;
             pipelineDescription.DepthStencilDescription.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;
             pipelineDescription.Shader = m_Shader;
-            pipelineDescription.Layout = Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout();
+            pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
             pipelineDescription.ResourceSetSpecification.UniformBuffers =
                 {

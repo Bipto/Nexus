@@ -147,16 +147,15 @@ namespace Nexus::Graphics
         return createInfo;
     }
 
-    VkPipelineVertexInputStateCreateInfo PipelineVk::CreateVertexInputStateCreateInfo(VkVertexInputBindingDescription bindingDescription, const std::vector<VkVertexInputAttributeDescription> &attributeDescriptions)
+    VkPipelineVertexInputStateCreateInfo PipelineVk::CreateVertexInputStateCreateInfo(const std::vector<VkVertexInputBindingDescription> &bindingDescriptions, const std::vector<VkVertexInputAttributeDescription> &attributeDescriptions)
     {
         VkPipelineVertexInputStateCreateInfo info = {};
         info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
         info.pNext = nullptr;
-        info.vertexBindingDescriptionCount = 1;
-        info.pVertexBindingDescriptions = &bindingDescription;
+        info.vertexBindingDescriptionCount = bindingDescriptions.size();
+        info.pVertexBindingDescriptions = bindingDescriptions.data();
 
-        uint32_t attributeCount = static_cast<uint32_t>(attributeDescriptions.size());
-        info.vertexAttributeDescriptionCount = attributeCount;
+        info.vertexAttributeDescriptionCount = attributeDescriptions.size();
         info.pVertexAttributeDescriptions = attributeDescriptions.data();
 
         return info;
@@ -269,34 +268,45 @@ namespace Nexus::Graphics
         return info;
     }
 
-    VkVertexInputBindingDescription PipelineVk::GetBindingDescription()
+    std::vector<VkVertexInputBindingDescription> PipelineVk::GetBindingDescription()
     {
-        auto shader = m_Description.Shader;
-        const auto &layout = m_Description.Layout;
+        std::vector<VkVertexInputBindingDescription> bindingDescriptions;
 
-        VkVertexInputBindingDescription bindingDescription = {};
-        bindingDescription.binding = 0;
-        bindingDescription.stride = layout.GetStride();
-        bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-        return bindingDescription;
+        auto shader = m_Description.Shader;
+
+        for (uint32_t i = 0; i < m_Description.Layouts.size(); i++)
+        {
+            const auto &layout = m_Description.Layouts.at(i);
+
+            VkVertexInputBindingDescription bindingDescription = {};
+            bindingDescription.binding = i;
+            bindingDescription.stride = layout.GetStride();
+            bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+            bindingDescriptions.push_back(bindingDescription);
+        }
+
+        return bindingDescriptions;
     }
 
     std::vector<VkVertexInputAttributeDescription> PipelineVk::GetAttributeDescriptions()
     {
-        const auto &layout = m_Description.Layout;
-
         std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
-        uint32_t index = 0;
 
-        for (const auto &element : layout)
+        for (uint32_t layoutIndex = 0; layoutIndex < m_Description.Layouts.size(); layoutIndex++)
         {
-            VkVertexInputAttributeDescription description;
-            description.binding = 0;
-            description.location = index;
-            description.format = GetShaderDataType(element.Type);
-            description.offset = element.Offset;
-            attributeDescriptions.push_back(description);
-            index++;
+            const auto &layout = m_Description.Layouts.at(layoutIndex);
+
+            for (uint32_t elementIndex = 0; elementIndex < layout.GetNumberOfElements(); elementIndex++)
+            {
+                const auto &element = layout.GetElement(elementIndex);
+
+                VkVertexInputAttributeDescription description = {};
+                description.binding = layoutIndex;
+                description.location = elementIndex;
+                description.format = GetShaderDataType(element.Type);
+                description.offset = element.Offset;
+                attributeDescriptions.push_back(description);
+            }
         }
 
         return attributeDescriptions;

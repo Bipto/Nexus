@@ -111,7 +111,7 @@ namespace Nexus::Graphics
         m_Commands.push_back(renderCommand);
     }
 
-    void CommandListOpenGL::DrawElements(uint32_t start, uint32_t count)
+    void CommandListOpenGL::Draw(uint32_t start, uint32_t count)
     {
         DrawElementCommand command;
         command.Start = start;
@@ -178,6 +178,14 @@ namespace Nexus::Graphics
             }
         };
         m_Commands.push_back(renderCommand);
+    }
+
+    void CommandListOpenGL::DrawInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t instanceStart)
+    {
+    }
+
+    void CommandListOpenGL::DrawInstancedIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t indexStart, uint32_t instanceStart)
+    {
     }
 
     void CommandListOpenGL::SetResourceSet(ResourceSet *resources)

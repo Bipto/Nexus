@@ -838,7 +838,7 @@ namespace Nexus::Graphics
         Nexus::Graphics::PipelineDescription description;
         description.Shader = m_Shader;
         description.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
-        description.Layout = Nexus::Graphics::VertexPositionTexCoordColorTexIndex::GetLayout();
+        description.Layouts = {Nexus::Graphics::VertexPositionTexCoordColorTexIndex::GetLayout()};
 
         Nexus::Graphics::ResourceSetSpecification resourceSpec;
         resourceSpec.Textures =

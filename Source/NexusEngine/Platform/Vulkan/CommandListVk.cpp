@@ -125,7 +125,7 @@ namespace Nexus::Graphics
         m_CurrentlyBoundPipeline = pipeline;
     }
 
-    void CommandListVk::DrawElements(uint32_t start, uint32_t count)
+    void CommandListVk::Draw(uint32_t start, uint32_t count)
     {
         if (!m_RenderPassStarted)
         {
@@ -143,6 +143,22 @@ namespace Nexus::Graphics
         }
 
         vkCmdDrawIndexed(m_CurrentCommandBuffer, count, 1, indexStart, vertexStart, 0);
+    }
+
+    void CommandListVk::DrawInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t instanceStart)
+    {
+        if (!m_RenderPassStarted)
+        {
+            return;
+        }
+    }
+
+    void CommandListVk::DrawInstancedIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t indexStart, uint32_t instanceStart)
+    {
+        if (!m_RenderPassStarted)
+        {
+            return;
+        }
     }
 
     void CommandListVk::SetResourceSet(ResourceSet *resources)

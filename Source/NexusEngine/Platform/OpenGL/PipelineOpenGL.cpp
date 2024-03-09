@@ -182,11 +182,12 @@ namespace Nexus::Graphics
     void PipelineOpenGL::SetupVertexElements(uint32_t offset)
     {
         // this allows us to specify an offset into a vertex buffer without requiring OpenGL 4.5 functionality i.e. is cross platform
-        offset *= m_Description.Layout.GetStride();
+        const auto &layout = m_Description.Layouts.at(offset);
+        offset *= layout.GetStride();
 
         glBindVertexArray(m_VAO);
         int index = 0;
-        for (auto &element : m_Description.Layout)
+        for (auto &element : layout)
         {
             GLenum baseType;
             uint32_t componentCount;
@@ -198,7 +199,7 @@ namespace Nexus::Graphics
                 componentCount,
                 baseType,
                 normalized,
-                m_Description.Layout.GetStride(),
+                layout.GetStride(),
                 (void *)(element.Offset + offset));
 
             glEnableVertexAttribArray(index);
