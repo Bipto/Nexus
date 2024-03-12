@@ -21,7 +21,7 @@ namespace Nexus::Graphics
         virtual void Begin() override;
         virtual void End() override;
 
-        virtual void SetVertexBuffer(VertexBuffer *vertexBuffer) override;
+        virtual void SetVertexBuffer(VertexBuffer *vertexBuffer, uint32_t slot) override;
         virtual void SetIndexBuffer(IndexBuffer *indexBuffer) override;
         virtual void SetPipeline(Pipeline *pipeline) override;
 
@@ -55,7 +55,7 @@ namespace Nexus::Graphics
         uint32_t m_CommandIndex = 0;
         PipelineOpenGL *m_CurrentlyBoundPipeline;
         RenderTarget m_CurrentRenderTarget;
-        std::vector<Nexus::Graphics::VertexBufferOpenGL *> m_CurrentlyBoundVertexBuffers;
+        std::map<uint32_t, Nexus::Graphics::VertexBufferOpenGL *> m_CurrentlyBoundVertexBuffers;
     };
 }
 

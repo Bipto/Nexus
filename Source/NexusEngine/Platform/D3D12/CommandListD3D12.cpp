@@ -47,11 +47,11 @@ namespace Nexus::Graphics
         m_CommandList->Close();
     }
 
-    void CommandListD3D12::SetVertexBuffer(VertexBuffer *vertexBuffer)
+    void CommandListD3D12::SetVertexBuffer(VertexBuffer *vertexBuffer, uint32_t slot)
     {
         VertexBufferD3D12 *d3d12VertexBuffer = (VertexBufferD3D12 *)vertexBuffer;
         auto vertexBufferView = d3d12VertexBuffer->GetVertexBufferView();
-        m_CommandList->IASetVertexBuffers(0, 1, &vertexBufferView);
+        m_CommandList->IASetVertexBuffers(slot, 1, &vertexBufferView);
     }
 
     void CommandListD3D12::SetIndexBuffer(IndexBuffer *indexBuffer)
@@ -85,10 +85,12 @@ namespace Nexus::Graphics
 
     void CommandListD3D12::DrawInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t instanceStart)
     {
+        m_CommandList->DrawInstanced(vertexCount, instanceCount, vertexStart, instanceStart);
     }
 
     void CommandListD3D12::DrawInstancedIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t indexStart, uint32_t instanceStart)
     {
+        m_CommandList->DrawIndexedInstanced(indexCount, instanceCount, indexStart, vertexStart, instanceStart);
     }
 
     void CommandListD3D12::SetResourceSet(ResourceSet *resources)

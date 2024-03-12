@@ -18,9 +18,7 @@ namespace Nexus::Graphics
     public:
         ResourceSetOpenGL(const ResourceSetSpecification &spec);
         virtual void PerformResourceUpdate() override;
-        virtual void WriteTexture(Texture *texture, const std::string &name) override;
         virtual void WriteUniformBuffer(UniformBuffer *uniformBuffer, const std::string &name) override;
-        virtual void WriteSampler(Sampler *sampler, const std::string &name) override;
         virtual void WriteCombinedImageSampler(Texture *texture, Sampler *sampler, const std::string &name) override;
 
         const std::map<std::string, TextureOpenGL *> &GetBoundTextures() const;

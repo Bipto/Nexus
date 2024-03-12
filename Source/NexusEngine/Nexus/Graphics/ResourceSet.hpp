@@ -44,9 +44,7 @@ namespace Nexus::Graphics
         virtual ~ResourceSet() {}
 
         virtual void PerformResourceUpdate() = 0;
-        virtual void WriteTexture(Texture *texture, const std::string &name) = 0;
         virtual void WriteUniformBuffer(UniformBuffer *uniformBuffer, const std::string &name) = 0;
-        virtual void WriteSampler(Sampler *sampler, const std::string &name) = 0;
         virtual void WriteCombinedImageSampler(Texture *texture, Sampler *sampler, const std::string &name) = 0;
 
         const ResourceSetSpecification &GetSpecification() const;

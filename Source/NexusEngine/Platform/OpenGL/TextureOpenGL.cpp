@@ -12,7 +12,7 @@ namespace Nexus::Graphics
         m_BaseType = GL::GetPixelType(spec.Format);
 
         glGenTextures(1, &m_Handle);
-#if !defined(__ANDROID__) && !defined(ANDROID) && !defined(__EMSCRIPTEN__)
+#if defined(NX_PLATFORM_GL_DESKTOP)
         if (spec.Samples != SampleCount::SampleCount1)
         {
             uint32_t samples = GetSampleCount(spec.Samples);
@@ -30,7 +30,7 @@ namespace Nexus::Graphics
             glBindTexture(m_TextureType, m_Handle);
             glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
             glTexStorage2D(m_TextureType, 1, m_InternalFormat, spec.Width, spec.Height);
-#if !defined(__ANDROID__) && !defined(ANDROID) && !defined(__EMSCRIPTEN__)
+#if defined(NX_PLATFORM_GL_DESKTOP)
         }
 #endif
     }

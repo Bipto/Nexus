@@ -349,7 +349,7 @@ namespace Nexus
             SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
             SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-#if defined(NX_PLATFORM_SUPPORTS_MULTI_WINDOW)
+#if defined(NX_PLATFORM_GL_MULTISAMPLE_SWAPCHAIN)
             if (swapchainSpec.Samples != Graphics::SampleCount::SampleCount1)
             {
                 uint32_t samples = Graphics::GetSampleCount(swapchainSpec.Samples);
@@ -361,7 +361,11 @@ namespace Nexus
                 SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
                 SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 1);
             }
+#else
+            swapchainSpec.Samples = Graphics::SampleCount::SampleCount1;
+#endif
 
+#if defined(NX_PLATFORM_SUPPORTS_MULTI_WINDOW)
             if (Graphics::SwapchainOpenGL::HasContextBeenCreated())
             {
                 SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);

@@ -116,7 +116,7 @@ namespace Demos
             auto &meshes = m_Model->GetMeshes();
             for (auto mesh : meshes)
             {
-                m_CommandList->SetVertexBuffer(mesh->GetVertexBuffer());
+                m_CommandList->SetVertexBuffer(mesh->GetVertexBuffer(), 0);
                 m_CommandList->SetIndexBuffer(mesh->GetIndexBuffer());
 
                 auto indexCount = mesh->GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);

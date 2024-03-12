@@ -264,11 +264,10 @@ namespace Nexus::Graphics
     const GraphicsCapabilities GraphicsDeviceOpenGL::GetGraphicsCapabilities() const
     {
         GraphicsCapabilities capabilities;
-        capabilities.SupportsMultisampledSwapchain = true;
 
-#if !defined(NX_PLATFORM_WEBGL2)
+#if defined(NX_PLATFORM_GL_DESKTOP)
         capabilities.SupportsLODBias = true;
-        capabilities.SupportsMultisampledFramebuffer = true;
+        capabilities.SupportsMultisampledTextures = true;
 #endif
 
         return capabilities;

@@ -919,7 +919,7 @@ namespace Nexus::Graphics
 
         m_CommandList->SetResourceSet(m_ResourceSet);
 
-        m_CommandList->SetVertexBuffer(m_VertexBuffer);
+        m_CommandList->SetVertexBuffer(m_VertexBuffer, 0);
         m_CommandList->SetIndexBuffer(m_IndexBuffer);
         m_CommandList->DrawIndexed(m_IndexCount, 0, 0);
 

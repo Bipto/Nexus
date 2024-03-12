@@ -57,11 +57,48 @@ namespace Nexus::Graphics
 
         const auto &shaderStages = vulkanShader->GetShaderStages();
 
-        auto bindingDescription = GetBindingDescription();
-        auto attributeDescriptions = GetAttributeDescriptions();
-        VkPipelineVertexInputStateCreateInfo vertexInputInfo = CreateVertexInputStateCreateInfo(bindingDescription, attributeDescriptions);
+        // create vertex input layout
+        std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
+        std::vector<VkVertexInputBindingDescription> bindingDescriptions;
+
+        uint32_t elementIndex = 0;
+        for (uint32_t layoutIndex = 0; layoutIndex < m_Description.Layouts.size(); layoutIndex++)
+        {
+            const auto &layout = m_Description.Layouts.at(layoutIndex);
+
+            // create attribute descriptions
+            for (uint32_t i = 0; i < layout.GetNumberOfElements(); i++)
+            {
+                const auto &element = layout.GetElement(i);
+
+                VkVertexInputAttributeDescription attributeDescription = {};
+                attributeDescription.binding = layoutIndex;
+                attributeDescription.location = elementIndex;
+                attributeDescription.format = GetShaderDataType(element.Type);
+                attributeDescription.offset = element.Offset;
+                attributeDescriptions.push_back(attributeDescription);
+                elementIndex++;
+            }
+
+            // create binding descriptions
+            VkVertexInputBindingDescription bindingDescription = {};
+            bindingDescription.binding = layoutIndex;
+            bindingDescription.stride = layout.GetStride();
+            bindingDescription.inputRate = (layout.GetInstanceStepRate() != 0) ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX;
+            bindingDescriptions.push_back(bindingDescription);
+        }
+
+        VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
+        vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+        vertexInputInfo.pNext = nullptr;
+        vertexInputInfo.vertexBindingDescriptionCount = bindingDescriptions.size();
+        vertexInputInfo.pVertexBindingDescriptions = bindingDescriptions.data();
+        vertexInputInfo.vertexAttributeDescriptionCount = attributeDescriptions.size();
+        vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo = CreateInputAssemblyCreateInfo(GetPrimitiveTopology());
 
+        // create pipeline
         VkGraphicsPipelineCreateInfo pipelineInfo = {};
         pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
         pipelineInfo.pNext = nullptr;
@@ -145,20 +182,6 @@ namespace Nexus::Graphics
         createInfo.module = module;
         createInfo.pName = "main";
         return createInfo;
-    }
-
-    VkPipelineVertexInputStateCreateInfo PipelineVk::CreateVertexInputStateCreateInfo(const std::vector<VkVertexInputBindingDescription> &bindingDescriptions, const std::vector<VkVertexInputAttributeDescription> &attributeDescriptions)
-    {
-        VkPipelineVertexInputStateCreateInfo info = {};
-        info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        info.pNext = nullptr;
-        info.vertexBindingDescriptionCount = bindingDescriptions.size();
-        info.pVertexBindingDescriptions = bindingDescriptions.data();
-
-        info.vertexAttributeDescriptionCount = attributeDescriptions.size();
-        info.pVertexAttributeDescriptions = attributeDescriptions.data();
-
-        return info;
     }
 
     VkPipelineInputAssemblyStateCreateInfo PipelineVk::CreateInputAssemblyCreateInfo(VkPrimitiveTopology topology)
@@ -266,50 +289,6 @@ namespace Nexus::Graphics
         info.stencilTestEnable = m_Description.DepthStencilDescription.EnableStencilTest;
 
         return info;
-    }
-
-    std::vector<VkVertexInputBindingDescription> PipelineVk::GetBindingDescription()
-    {
-        std::vector<VkVertexInputBindingDescription> bindingDescriptions;
-
-        auto shader = m_Description.Shader;
-
-        for (uint32_t i = 0; i < m_Description.Layouts.size(); i++)
-        {
-            const auto &layout = m_Description.Layouts.at(i);
-
-            VkVertexInputBindingDescription bindingDescription = {};
-            bindingDescription.binding = i;
-            bindingDescription.stride = layout.GetStride();
-            bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-            bindingDescriptions.push_back(bindingDescription);
-        }
-
-        return bindingDescriptions;
-    }
-
-    std::vector<VkVertexInputAttributeDescription> PipelineVk::GetAttributeDescriptions()
-    {
-        std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
-
-        for (uint32_t layoutIndex = 0; layoutIndex < m_Description.Layouts.size(); layoutIndex++)
-        {
-            const auto &layout = m_Description.Layouts.at(layoutIndex);
-
-            for (uint32_t elementIndex = 0; elementIndex < layout.GetNumberOfElements(); elementIndex++)
-            {
-                const auto &element = layout.GetElement(elementIndex);
-
-                VkVertexInputAttributeDescription description = {};
-                description.binding = layoutIndex;
-                description.location = elementIndex;
-                description.format = GetShaderDataType(element.Type);
-                description.offset = element.Offset;
-                attributeDescriptions.push_back(description);
-            }
-        }
-
-        return attributeDescriptions;
     }
 
     VkPrimitiveTopology PipelineVk::GetPrimitiveTopology()

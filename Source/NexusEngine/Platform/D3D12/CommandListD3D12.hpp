@@ -19,7 +19,7 @@ namespace Nexus::Graphics
         virtual void Begin() override;
         virtual void End() override;
 
-        virtual void SetVertexBuffer(VertexBuffer *vertexBuffer) override;
+        virtual void SetVertexBuffer(VertexBuffer *vertexBuffer, uint32_t slot) override;
         virtual void SetIndexBuffer(IndexBuffer *indexBuffer) override;
         virtual void SetPipeline(Pipeline *pipeline) override;
 

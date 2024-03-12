@@ -75,6 +75,14 @@ namespace Nexus::Graphics
 
         const VertexBufferElement &GetElement(uint32_t index) const { return m_Elements.at(index); }
 
+        bool IsVertexBuffer() const;
+
+        bool IsInstanceBuffer() const;
+
+        uint32_t GetInstanceStepRate() const;
+
+        void SetInstanceStepRate(uint32_t instanceStepRate) { m_InstanceStepRate = instanceStepRate; }
+
     private:
         /// @brief A private method that calculates the offset of each element within the buffer and the stride (total distance between elements)
         void CalculateOffsetsAndStride();
@@ -85,6 +93,9 @@ namespace Nexus::Graphics
 
         /// @brief An unsigned 32 bit integer representing the stride between each separate vertex buffer item
         uint32_t m_Stride = 0;
+
+        /// @brief An unsigned 32 bit integer representing how the data should be stepped through when using instancing
+        uint32_t m_InstanceStepRate = 0;
     };
 
     /// @brief A struct representing a vertex with 3D position in world space

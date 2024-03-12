@@ -19,7 +19,6 @@ namespace Nexus::Graphics
 
     private:
         VkPipelineShaderStageCreateInfo CreatePipelineShaderStageCreateInfo(VkShaderStageFlagBits stage, VkShaderModule module);
-        VkPipelineVertexInputStateCreateInfo CreateVertexInputStateCreateInfo(const std::vector<VkVertexInputBindingDescription> &bindingDescriptions, const std::vector<VkVertexInputAttributeDescription> &attributeDescriptions);
         VkPipelineInputAssemblyStateCreateInfo CreateInputAssemblyCreateInfo(VkPrimitiveTopology topology);
         VkPipelineRasterizationStateCreateInfo CreateRasterizationStateCreateInfo(VkPolygonMode polygonMode, VkCullModeFlags cullingFlags);
         VkPipelineMultisampleStateCreateInfo CreateMultisampleStateCreateInfo();
@@ -27,8 +26,6 @@ namespace Nexus::Graphics
         VkPipelineLayoutCreateInfo CreatePipelineLayoutCreateInfo(const std::vector<VkDescriptorSetLayout> &layouts);
         VkPipelineDepthStencilStateCreateInfo CreatePipelineDepthStencilStateCreateInfo();
 
-        std::vector<VkVertexInputBindingDescription> GetBindingDescription();
-        std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions();
         VkPrimitiveTopology GetPrimitiveTopology();
         VkPolygonMode GetPolygonMode();
         VkCullModeFlags GetCullMode();

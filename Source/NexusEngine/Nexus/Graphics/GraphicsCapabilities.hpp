@@ -4,8 +4,8 @@ namespace Nexus::Graphics
 {
     struct GraphicsCapabilities
     {
-        bool SupportsMultisampledFramebuffer = false;
-        bool SupportsMultisampledSwapchain = false;
+        bool SupportsMultisampledTextures = false;
         bool SupportsLODBias = false;
+        bool SupportsInstanceOffset = false;
     };
 }

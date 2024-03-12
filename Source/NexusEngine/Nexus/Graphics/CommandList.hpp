@@ -17,6 +17,12 @@
 
 namespace Nexus::Graphics
 {
+    struct SetVertexBufferCommand
+    {
+        VertexBuffer *VertexBuffer = nullptr;
+        uint32_t Slot = 0;
+    };
+
     /// @brief A struct representing a set of values to use  to clear the colour buffer
     struct ClearColorValue
     {
@@ -63,6 +69,23 @@ namespace Nexus::Graphics
         uint32_t IndexStart = 0;
 
         uint32_t VertexStart = 0;
+    };
+
+    struct DrawInstancedCommand
+    {
+        uint32_t VertexCount = 0;
+        uint32_t InstanceCount = 0;
+        uint32_t VertexStart = 0;
+        uint32_t InstanceStart = 0;
+    };
+
+    struct DrawInstancedIndexedCommand
+    {
+        uint32_t IndexCount = 0;
+        uint32_t InstanceCount = 0;
+        uint32_t VertexStart = 0;
+        uint32_t IndexStart = 0;
+        uint32_t InstanceStart = 0;
     };
 
     struct UpdateResourcesCommand
@@ -122,7 +145,7 @@ namespace Nexus::Graphics
 
         /// @brief A pure virtual method that binds a vertex buffer to the pipeline
         /// @param vertexBuffer A pointer to the vertex buffer to bind
-        virtual void SetVertexBuffer(VertexBuffer *vertexBuffer) = 0;
+        virtual void SetVertexBuffer(VertexBuffer *vertexBuffer, uint32_t slot) = 0;
 
         /// @brief A pure virtual method that binds an index buffer to the pipeline
         /// @param indexBuffer A pointer to the index buffer to bind
@@ -178,11 +201,13 @@ namespace Nexus::Graphics
     typedef void (*RenderCommand)(CommandList *commandList);
 
     typedef std::variant<
-        VertexBuffer *,
+        SetVertexBufferCommand,
         IndexBuffer *,
         Pipeline *,
         DrawElementCommand,
         DrawIndexedCommand,
+        DrawInstancedCommand,
+        DrawInstancedIndexedCommand,
         UpdateResourcesCommand,
         ClearColorTargetCommand,
         ClearDepthStencilTargetCommand,

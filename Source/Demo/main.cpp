@@ -15,6 +15,7 @@
 #include "Demos/PythonDemo.hpp"
 #include "Demos/BatchingDemo.hpp"
 #include "Demos/FramebufferDemo.hpp"
+#include "Demos/InstancingDemo.hpp"
 
 #include "Nexus/FileSystem/FileSystem.hpp"
 
@@ -73,6 +74,7 @@ public:
         RegisterGraphicsDemo<Demos::CameraDemo>("Camera");
         RegisterGraphicsDemo<Demos::LightingDemo>("Lighting");
         RegisterGraphicsDemo<Demos::ModelDemo>("Models");
+        RegisterGraphicsDemo<Demos::InstancingDemo>("Instancing");
         RegisterAudioDemo<Demos::AudioDemo>("Audio");
         RegisterScriptingDemo<Demos::PythonDemo>("Python");
 
@@ -300,7 +302,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;
@@ -308,7 +310,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
     spec.WindowProperties.Title = "Demo";
     spec.WindowProperties.Resizable = true;
 
-    spec.SwapchainSpecification.Samples = Nexus::Graphics::SampleCount::SampleCount1;
+    spec.SwapchainSpecification.Samples = Nexus::Graphics::SampleCount::SampleCount8;
 
     return new DemoApplication(spec);
 }

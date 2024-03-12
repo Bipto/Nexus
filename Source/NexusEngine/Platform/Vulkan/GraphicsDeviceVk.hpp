@@ -100,10 +100,15 @@ namespace Nexus::Graphics
         void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory);
 
         bool CheckValidationLayerSupport();
-        std::vector<const char *> GetRequiredExtensions();
         static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData);
         VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pDebugMessenger);
         void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT messenger, const VkAllocationCallbacks *pAllocator);
+
+        std::vector<const char *> GetRequiredInstanceExtensions();
+        std::vector<std::string> GetSupportedInstanceExtensions();
+
+        std::vector<const char *> GetRequiredDeviceExtensions();
+        std::vector<std::string> GetSupportedDeviceExtensions();
 
     private:
         // Vulkan types

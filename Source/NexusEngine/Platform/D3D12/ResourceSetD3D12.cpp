@@ -95,49 +95,6 @@ namespace Nexus::Graphics
     {
     }
 
-    void ResourceSetD3D12::WriteTexture(Texture *texture, const std::string &name)
-    {
-        const auto d3d12Device = m_Device->GetDevice();
-        TextureD3D12 *d3d12Texture = (TextureD3D12 *)texture;
-
-        const BindingInfo &info = m_TextureBindingInfos.at(name);
-        const uint32_t index = GetLinearDescriptorSlot(info.Set, info.Binding);
-
-        D3D12_SHADER_RESOURCE_VIEW_DESC srv;
-        srv.Format = d3d12Texture->GetFormat();
-        srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-        srv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-        srv.Texture2D.MipLevels = 1;
-        srv.Texture2D.MostDetailedMip = 0;
-        srv.Texture2D.PlaneSlice = 0;
-        srv.Texture2D.ResourceMinLODClamp = 0.0f;
-
-        D3D12_CPU_DESCRIPTOR_HANDLE textureHandle = m_TextureCPUDescriptors.at(index);
-        auto resourceHandle = d3d12Texture->GetD3D12ResourceHandle();
-        d3d12Device->CreateShaderResourceView(resourceHandle.Get(),
-                                              &srv,
-                                              textureHandle);
-        D3D12_SAMPLER_DESC sd;
-        sd.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-        sd.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-        sd.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-        sd.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-        sd.MipLODBias = 0;
-        sd.MaxAnisotropy = 1;
-        sd.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-        sd.BorderColor[0] = 0.0f;
-        sd.BorderColor[1] = 0.0f;
-        sd.BorderColor[2] = 0.0f;
-        sd.BorderColor[3] = 0.0f;
-        sd.MinLOD = 0.0f;
-        sd.MaxLOD = D3D12_FLOAT32_MAX;
-
-        D3D12_CPU_DESCRIPTOR_HANDLE samplerHandle = m_SamplerCPUDescriptors.at(index);
-        d3d12Device->CreateSampler(
-            &sd,
-            samplerHandle);
-    }
-
     void ResourceSetD3D12::WriteUniformBuffer(UniformBuffer *uniformBuffer, const std::string &name)
     {
         const BindingInfo &info = m_UniformBufferBindingInfos.at(name);
@@ -156,42 +113,82 @@ namespace Nexus::Graphics
             m_ConstantBufferCPUDescriptors.at(index));
     }
 
-    void ResourceSetD3D12::WriteSampler(Sampler *sampler, const std::string &name)
-    {
-        const BindingInfo &info = m_SamplerBindingInfos.at(name);
-        const uint32_t index = GetLinearDescriptorSlot(info.Set, info.Binding);
-        auto d3d12Device = m_Device->GetDevice();
-        SamplerD3D12 *d3d12Sampler = (SamplerD3D12 *)sampler;
-
-        const auto &spec = d3d12Sampler->GetSamplerSpecification();
-
-        const glm::vec4 color = Nexus::Utils::ColorFromBorderColor(spec.BorderColor);
-
-        D3D12_SAMPLER_DESC sd;
-        sd.Filter = d3d12Sampler->GetFilter();
-        sd.AddressU = d3d12Sampler->GetAddressModeU();
-        sd.AddressV = d3d12Sampler->GetAddressModeV();
-        sd.AddressW = d3d12Sampler->GetAddressModeW();
-        sd.MipLODBias = spec.LODBias;
-        sd.MaxAnisotropy = spec.MaximumAnisotropy;
-        sd.ComparisonFunc = d3d12Sampler->GetComparisonFunc();
-        sd.BorderColor[0] = color.r;
-        sd.BorderColor[1] = color.g;
-        sd.BorderColor[2] = color.b;
-        sd.BorderColor[3] = color.a;
-        sd.MinLOD = spec.MinimumLOD;
-        sd.MaxLOD = spec.MaximumLOD;
-
-        D3D12_CPU_DESCRIPTOR_HANDLE samplerHandle = m_SamplerCPUDescriptors.at(index);
-        d3d12Device->CreateSampler(
-            &sd,
-            samplerHandle);
-    }
-
     void ResourceSetD3D12::WriteCombinedImageSampler(Texture *texture, Sampler *sampler, const std::string &name)
     {
-        WriteTexture(texture, name);
-        WriteSampler(sampler, name);
+        const auto d3d12Device = m_Device->GetDevice();
+        // write texture
+        {
+            TextureD3D12 *d3d12Texture = (TextureD3D12 *)texture;
+
+            const BindingInfo &info = m_TextureBindingInfos.at(name);
+            const uint32_t index = GetLinearDescriptorSlot(info.Set, info.Binding);
+
+            D3D12_SHADER_RESOURCE_VIEW_DESC srv;
+            srv.Format = d3d12Texture->GetFormat();
+            srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+            srv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+            srv.Texture2D.MipLevels = 1;
+            srv.Texture2D.MostDetailedMip = 0;
+            srv.Texture2D.PlaneSlice = 0;
+            srv.Texture2D.ResourceMinLODClamp = 0.0f;
+
+            D3D12_CPU_DESCRIPTOR_HANDLE textureHandle = m_TextureCPUDescriptors.at(index);
+            auto resourceHandle = d3d12Texture->GetD3D12ResourceHandle();
+            d3d12Device->CreateShaderResourceView(resourceHandle.Get(),
+                                                  &srv,
+                                                  textureHandle);
+            D3D12_SAMPLER_DESC sd;
+            sd.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+            sd.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+            sd.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+            sd.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+            sd.MipLODBias = 0;
+            sd.MaxAnisotropy = 1;
+            sd.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+            sd.BorderColor[0] = 0.0f;
+            sd.BorderColor[1] = 0.0f;
+            sd.BorderColor[2] = 0.0f;
+            sd.BorderColor[3] = 0.0f;
+            sd.MinLOD = 0.0f;
+            sd.MaxLOD = D3D12_FLOAT32_MAX;
+
+            D3D12_CPU_DESCRIPTOR_HANDLE samplerHandle = m_SamplerCPUDescriptors.at(index);
+            d3d12Device->CreateSampler(
+                &sd,
+                samplerHandle);
+        }
+
+        // write sampler
+        {
+            const BindingInfo &info = m_SamplerBindingInfos.at(name);
+            const uint32_t index = GetLinearDescriptorSlot(info.Set, info.Binding);
+            auto d3d12Device = m_Device->GetDevice();
+            SamplerD3D12 *d3d12Sampler = (SamplerD3D12 *)sampler;
+
+            const auto &spec = d3d12Sampler->GetSamplerSpecification();
+
+            const glm::vec4 color = Nexus::Utils::ColorFromBorderColor(spec.BorderColor);
+
+            D3D12_SAMPLER_DESC sd;
+            sd.Filter = d3d12Sampler->GetFilter();
+            sd.AddressU = d3d12Sampler->GetAddressModeU();
+            sd.AddressV = d3d12Sampler->GetAddressModeV();
+            sd.AddressW = d3d12Sampler->GetAddressModeW();
+            sd.MipLODBias = spec.LODBias;
+            sd.MaxAnisotropy = spec.MaximumAnisotropy;
+            sd.ComparisonFunc = d3d12Sampler->GetComparisonFunc();
+            sd.BorderColor[0] = color.r;
+            sd.BorderColor[1] = color.g;
+            sd.BorderColor[2] = color.b;
+            sd.BorderColor[3] = color.a;
+            sd.MinLOD = spec.MinimumLOD;
+            sd.MaxLOD = spec.MaximumLOD;
+
+            D3D12_CPU_DESCRIPTOR_HANDLE samplerHandle = m_SamplerCPUDescriptors.at(index);
+            d3d12Device->CreateSampler(
+                &sd,
+                samplerHandle);
+        }
     }
 
     ID3D12DescriptorHeap *ResourceSetD3D12::GetSamplerDescriptorHeap()

@@ -13,25 +13,15 @@ namespace Nexus::Graphics
     {
     }
 
-    void Nexus::Graphics::ResourceSetOpenGL::WriteTexture(Texture *texture, const std::string &name)
-    {
-        m_BoundTextures[name] = (TextureOpenGL *)texture;
-    }
-
     void Nexus::Graphics::ResourceSetOpenGL::WriteUniformBuffer(UniformBuffer *uniformBuffer, const std::string &name)
     {
         m_BoundUniformBuffers[name] = (UniformBufferOpenGL *)uniformBuffer;
     }
 
-    void ResourceSetOpenGL::WriteSampler(Sampler *sampler, const std::string &name)
-    {
-        m_BoundSamplers[name] = (SamplerOpenGL *)sampler;
-    }
-
     void ResourceSetOpenGL::WriteCombinedImageSampler(Texture *texture, Sampler *sampler, const std::string &name)
     {
-        WriteTexture(texture, name);
-        WriteSampler(sampler, name);
+        m_BoundTextures[name] = (TextureOpenGL *)texture;
+        m_BoundSamplers[name] = (SamplerOpenGL *)sampler;
     }
 
     const std::map<std::string, TextureOpenGL *> &ResourceSetOpenGL::GetBoundTextures() const

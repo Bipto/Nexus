@@ -99,13 +99,13 @@ namespace Nexus::Graphics
         m_RenderPassStarted = false;
     }
 
-    void CommandListVk::SetVertexBuffer(VertexBuffer *vertexBuffer)
+    void CommandListVk::SetVertexBuffer(VertexBuffer *vertexBuffer, uint32_t slot)
     {
         auto vulkanVB = (VertexBufferVk *)vertexBuffer;
 
         VkBuffer vertexBuffers[] = {vulkanVB->GetBuffer()};
         VkDeviceSize offsets[] = {0};
-        vkCmdBindVertexBuffers(m_CurrentCommandBuffer, 0, 1, vertexBuffers, offsets);
+        vkCmdBindVertexBuffers(m_CurrentCommandBuffer, slot, 1, vertexBuffers, offsets);
     }
 
     void CommandListVk::SetIndexBuffer(IndexBuffer *indexBuffer)
@@ -151,6 +151,8 @@ namespace Nexus::Graphics
         {
             return;
         }
+
+        vkCmdDraw(m_CurrentCommandBuffer, vertexCount, instanceCount, vertexStart, instanceStart);
     }
 
     void CommandListVk::DrawInstancedIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t indexStart, uint32_t instanceStart)
@@ -159,6 +161,8 @@ namespace Nexus::Graphics
         {
             return;
         }
+
+        vkCmdDrawIndexed(m_CurrentCommandBuffer, indexCount, instanceCount, indexStart, vertexStart, instanceStart);
     }
 
     void CommandListVk::SetResourceSet(ResourceSet *resources)

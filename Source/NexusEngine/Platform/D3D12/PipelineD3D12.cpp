@@ -217,13 +217,16 @@ namespace Nexus::Graphics
     {
         m_InputLayout.clear();
 
+        uint32_t elementIndex = 0;
         for (uint32_t layoutIndex = 0; layoutIndex < m_Description.Layouts.size(); layoutIndex++)
         {
             const auto &layout = m_Description.Layouts.at(layoutIndex);
 
-            for (uint32_t elementIndex = 0; elementIndex < layout.GetNumberOfElements(); elementIndex++)
+            for (uint32_t i = 0; i < layout.GetNumberOfElements(); i++)
             {
-                const auto &element = layout.GetElement(elementIndex);
+                const auto &element = layout.GetElement(i);
+
+                D3D12_INPUT_CLASSIFICATION classification = (layout.GetInstanceStepRate() != 0) ? D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA : D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
 
                 D3D12_INPUT_ELEMENT_DESC desc =
                     {
@@ -232,9 +235,11 @@ namespace Nexus::Graphics
                         GetD3D12BaseType(element),
                         layoutIndex,
                         element.Offset,
-                        D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
-                        0};
+                        classification,
+                        layout.GetInstanceStepRate()};
+
                 m_InputLayout.push_back(desc);
+                elementIndex++;
             }
         }
     }

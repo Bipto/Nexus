@@ -109,7 +109,7 @@ namespace Demos
             m_ResourceSet->WriteCombinedImageSampler(m_Texture, m_Sampler, "texSampler");
             m_CommandList->SetResourceSet(m_ResourceSet);
 
-            m_CommandList->SetVertexBuffer(m_Mesh->GetVertexBuffer());
+            m_CommandList->SetVertexBuffer(m_Mesh->GetVertexBuffer(), 0);
             m_CommandList->SetIndexBuffer(m_Mesh->GetIndexBuffer());
 
             auto indexCount = m_Mesh->GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);

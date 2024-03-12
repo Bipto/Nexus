@@ -35,6 +35,9 @@ namespace Demos
 
             m_Texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/raw_plank_wall_diff_1k.jpg").c_str());
 
+            Nexus::Graphics::SamplerSpecification samplerSpec{};
+            m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
+
             Nexus::Graphics::BufferDescription cameraUniformBufferDesc;
             cameraUniformBufferDesc.Size = sizeof(VB_UNIFORM_CAMERA_DEMO_CAMERA);
             cameraUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
@@ -99,10 +102,10 @@ namespace Demos
 
             m_ResourceSet->WriteUniformBuffer(m_CameraUniformBuffer, "Camera");
             m_ResourceSet->WriteUniformBuffer(m_TransformUniformBuffer, "Transform");
-            m_ResourceSet->WriteTexture(m_Texture, "texSampler");
+            m_ResourceSet->WriteCombinedImageSampler(m_Texture, m_Sampler, "texSampler");
             m_CommandList->SetResourceSet(m_ResourceSet);
 
-            m_CommandList->SetVertexBuffer(m_Mesh->GetVertexBuffer());
+            m_CommandList->SetVertexBuffer(m_Mesh->GetVertexBuffer(), 0);
             m_CommandList->SetIndexBuffer(m_Mesh->GetIndexBuffer());
 
             auto indexCount = m_Mesh->GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
@@ -152,6 +155,7 @@ namespace Demos
         Nexus::Graphics::Pipeline *m_Pipeline;
         Nexus::Graphics::Mesh *m_Mesh;
         Nexus::Graphics::Texture *m_Texture;
+        Nexus::Graphics::Sampler *m_Sampler;
         glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
 
         Nexus::Graphics::ResourceSet *m_ResourceSet;

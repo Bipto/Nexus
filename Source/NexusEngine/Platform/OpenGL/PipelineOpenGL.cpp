@@ -179,10 +179,17 @@ namespace Nexus::Graphics
         glBindVertexArray(m_VAO);
     }
 
-    void PipelineOpenGL::SetupVertexElements(uint32_t offset)
+    void PipelineOpenGL::SetupVertexElements(uint32_t bufferIndex, uint32_t vertexOffset, uint32_t instanceOffset)
     {
         // this allows us to specify an offset into a vertex buffer without requiring OpenGL 4.5 functionality i.e. is cross platform
-        const auto &layout = m_Description.Layouts.at(offset);
+        const auto &layout = m_Description.Layouts.at(bufferIndex);
+
+        uint32_t offset = vertexOffset;
+        if (layout.IsInstanceBuffer())
+        {
+            offset = instanceOffset;
+        }
+
         offset *= layout.GetStride();
 
         glBindVertexArray(m_VAO);
@@ -202,16 +209,56 @@ namespace Nexus::Graphics
                 layout.GetStride(),
                 (void *)(element.Offset + offset));
 
+            glVertexAttribDivisor(index, layout.GetInstanceStepRate());
+
             glEnableVertexAttribArray(index);
             index++;
         }
     }
 
-    void PipelineOpenGL::BindVertexBuffer(VertexBufferOpenGL *vertexBuffer, uint32_t index, uint32_t offset)
+    void PipelineOpenGL::BindVertexBuffers(const std::map<uint32_t, Nexus::Graphics::VertexBufferOpenGL *> vertexBuffers, uint32_t vertexOffset, uint32_t instanceOffset)
     {
         BindVertexArray();
-        glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer->GetHandle());
-        SetupVertexElements(offset);
+
+        uint32_t index = 0;
+        for (const auto &vertexBufferBinding : vertexBuffers)
+        {
+            if (vertexBufferBinding.first < m_Description.Layouts.size())
+            {
+                // this allows us to specify an offset into a vertex buffer without requiring OpenGL 4.5 functionality i.e. is cross platform
+                const auto &layout = m_Description.Layouts.at(vertexBufferBinding.first);
+                const auto &vertexBuffer = vertexBuffers.at(vertexBufferBinding.first);
+
+                uint32_t offset = vertexOffset;
+                if (layout.IsInstanceBuffer())
+                {
+                    offset = instanceOffset;
+                }
+
+                offset *= layout.GetStride();
+
+                for (auto &element : layout)
+                {
+                    GLenum baseType;
+                    uint32_t componentCount;
+                    GLboolean normalized;
+                    GL::GetBaseType(element, baseType, componentCount, normalized);
+
+                    glEnableVertexAttribArray(index);
+                    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer->GetHandle());
+                    glVertexAttribPointer(
+                        index,
+                        componentCount,
+                        baseType,
+                        normalized,
+                        layout.GetStride(),
+                        (void *)(element.Offset + offset));
+                    glVertexAttribDivisor(index, layout.GetInstanceStepRate());
+
+                    index++;
+                }
+            }
+        }
     }
 }
 

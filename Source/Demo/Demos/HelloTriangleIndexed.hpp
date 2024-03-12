@@ -77,7 +77,7 @@ namespace Demos
                                              m_ClearColour.b,
                                              1.0f});
 
-            m_CommandList->SetVertexBuffer(m_VertexBuffer);
+            m_CommandList->SetVertexBuffer(m_VertexBuffer, 0);
             m_CommandList->SetIndexBuffer(m_IndexBuffer);
 
             auto indexCount = m_IndexBuffer->GetDescription().Size / sizeof(unsigned int);

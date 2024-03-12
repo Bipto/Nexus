@@ -30,6 +30,7 @@ namespace Nexus::Graphics
         SelectPhysicalDevice();
         SelectQueueFamilies();
         CreateDevice();
+        auto deviceExtensions = GetSupportedDeviceExtensions();
         CreateAllocator();
 
         SwapchainVk *swapchain = (SwapchainVk *)window->GetSwapchain();
@@ -186,8 +187,7 @@ namespace Nexus::Graphics
     {
         GraphicsCapabilities capabilities;
         capabilities.SupportsLODBias = true;
-        capabilities.SupportsMultisampledFramebuffer = true;
-        capabilities.SupportsMultisampledSwapchain = true;
+        capabilities.SupportsMultisampledTextures = true;
         return capabilities;
     }
 
@@ -316,7 +316,8 @@ namespace Nexus::Graphics
             instanceCreateInfo.enabledLayerCount = 0;
         }
 
-        auto extensions = GetRequiredExtensions();
+        auto instanceExtensions = GetSupportedInstanceExtensions();
+        auto extensions = GetRequiredInstanceExtensions();
         instanceCreateInfo.enabledExtensionCount = (uint32_t)extensions.size();
         instanceCreateInfo.ppEnabledExtensionNames = extensions.data();
 
@@ -414,7 +415,7 @@ namespace Nexus::Graphics
 
     void GraphicsDeviceVk::CreateDevice()
     {
-        const std::vector<const char *> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+        std::vector<const char *> deviceExtensions = GetRequiredDeviceExtensions();
         const float queuePriority[] = {1.0f};
 
         std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -810,7 +811,7 @@ namespace Nexus::Graphics
         return true;
     }
 
-    std::vector<const char *> GraphicsDeviceVk::GetRequiredExtensions()
+    std::vector<const char *> GraphicsDeviceVk::GetRequiredInstanceExtensions()
     {
         uint32_t sdlExtensionCount = 0;
         SDL_Vulkan_GetInstanceExtensions(m_Window->GetSDLWindowHandle(), &sdlExtensionCount, nullptr);
@@ -852,6 +853,57 @@ namespace Nexus::Graphics
         {
             func(instance, messenger, pAllocator);
         }
+    }
+
+    std::vector<std::string> GraphicsDeviceVk::GetSupportedInstanceExtensions()
+    {
+        uint32_t count = 0;
+        VkResult result = vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
+
+        std::vector<VkExtensionProperties> properties(count);
+        result = vkEnumerateInstanceExtensionProperties(nullptr, &count, properties.data());
+
+        if (result != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to get supported instance extensions");
+        }
+
+        std::vector<std::string> extensions;
+        for (const auto &property : properties)
+        {
+            extensions.push_back(property.extensionName);
+        }
+
+        return extensions;
+    }
+
+    std::vector<const char *> GraphicsDeviceVk::GetRequiredDeviceExtensions()
+    {
+        std::vector<const char *> extensions;
+        extensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+        return extensions;
+    }
+
+    std::vector<std::string> GraphicsDeviceVk::GetSupportedDeviceExtensions()
+    {
+        uint32_t count = 0;
+        VkResult result = vkEnumerateDeviceExtensionProperties(m_PhysicalDevice, nullptr, &count, nullptr);
+
+        std::vector<VkExtensionProperties> properties(count);
+        result = vkEnumerateDeviceExtensionProperties(m_PhysicalDevice, nullptr, &count, properties.data());
+
+        if (result != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to get supported device extensions");
+        }
+
+        std::vector<std::string> extensions;
+        for (const auto &property : properties)
+        {
+            extensions.push_back(property.extensionName);
+        }
+
+        return extensions;
     }
 
     AllocatedBuffer GraphicsDeviceVk::CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage)

@@ -64,7 +64,7 @@ namespace Demos
                                              m_ClearColour.b,
                                              1.0f});
 
-            m_CommandList->SetVertexBuffer(m_VertexBuffer);
+            m_CommandList->SetVertexBuffer(m_VertexBuffer, 0);
             auto vertexCount = m_VertexBuffer->GetDescription().Size / sizeof(Nexus::Graphics::VertexPosition);
             m_CommandList->Draw(0, vertexCount);
             m_CommandList->End();

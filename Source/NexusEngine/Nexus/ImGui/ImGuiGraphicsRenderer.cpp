@@ -408,7 +408,7 @@ namespace Nexus::ImGuiUtils
 
         m_CommandList->Begin();
         m_CommandList->SetPipeline(m_Pipeline);
-        m_CommandList->SetVertexBuffer(m_VertexBuffer);
+        m_CommandList->SetVertexBuffer(m_VertexBuffer, 0);
         m_CommandList->SetIndexBuffer(m_IndexBuffer);
 
         auto &io = ImGui::GetIO();

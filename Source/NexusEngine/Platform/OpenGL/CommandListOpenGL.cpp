@@ -49,17 +49,20 @@ namespace Nexus::Graphics
     {
     }
 
-    void CommandListOpenGL::SetVertexBuffer(VertexBuffer *vertexBuffer)
+    void CommandListOpenGL::SetVertexBuffer(VertexBuffer *vertexBuffer, uint32_t slot)
     {
-        m_CommandData.emplace_back(vertexBuffer);
+        SetVertexBufferCommand command;
+        command.VertexBuffer = vertexBuffer;
+        command.Slot = slot;
+        m_CommandData.emplace_back(command);
         auto renderCommand = [](CommandList *commandList)
         {
             auto commandListGL = (CommandListOpenGL *)commandList;
             const auto &commandData = commandListGL->GetCurrentCommandData();
-            const auto vertexBuffer = std::get<VertexBuffer *>(commandData);
-            const auto vertexBufferGL = (VertexBufferOpenGL *)vertexBuffer;
+            const auto &setVertexBufferCommand = std::get<SetVertexBufferCommand>(commandData);
+            const auto vertexBufferGL = (VertexBufferOpenGL *)setVertexBufferCommand.VertexBuffer;
             vertexBufferGL->Bind();
-            commandListGL->m_CurrentlyBoundVertexBuffers = {vertexBufferGL};
+            commandListGL->m_CurrentlyBoundVertexBuffers[setVertexBufferCommand.Slot] = vertexBufferGL;
         };
         m_Commands.push_back(renderCommand);
     }
@@ -131,7 +134,7 @@ namespace Nexus::Graphics
             {
                 for (const auto &vertexBuffer : commandListGL->m_CurrentlyBoundVertexBuffers)
                 {
-                    pipeline->BindVertexBuffer(vertexBuffer, 0, 0);
+                    pipeline->BindVertexBuffers(commandListGL->m_CurrentlyBoundVertexBuffers, 0, 0);
                 }
                 glDrawArrays(commandListGL->GetTopology(), drawElementsCommand.Start, drawElementsCommand.Count);
             }
@@ -158,10 +161,12 @@ namespace Nexus::Graphics
             // we are only able to bind a vertex buffer if we know the layout of it
             if (pipeline)
             {
-                for (const auto &vertexBuffer : commandListGL->m_CurrentlyBoundVertexBuffers)
+                /* for (const auto &vertexBuffer : commandListGL->m_CurrentlyBoundVertexBuffers)
                 {
-                    pipeline->BindVertexBuffer(vertexBuffer, 0, drawIndexedCommand.VertexStart);
-                }
+                    pipeline->BindVertexBuffer(vertexBuffer, drawIndexedCommand.VertexStart, drawIndexedCommand.IndexStart);
+                } */
+
+                pipeline->BindVertexBuffers(commandListGL->m_CurrentlyBoundVertexBuffers, drawIndexedCommand.VertexStart, 0);
 
                 uint32_t indexSize = 0;
                 if (commandListGL->m_IndexBufferFormat == GL_UNSIGNED_SHORT)
@@ -182,10 +187,78 @@ namespace Nexus::Graphics
 
     void CommandListOpenGL::DrawInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t instanceStart)
     {
+        DrawInstancedCommand command;
+        command.VertexCount = vertexCount;
+        command.InstanceCount = instanceCount;
+        command.VertexStart = vertexStart;
+        command.InstanceStart = instanceStart;
+        m_CommandData.emplace_back(command);
+
+        auto renderCommand = [](CommandList *commandList)
+        {
+            auto commandListGL = (CommandListOpenGL *)commandList;
+            const auto &commandData = commandListGL->GetCurrentCommandData();
+            const auto &drawInstancedCommand = std::get<DrawInstancedCommand>(commandData);
+            auto pipeline = commandListGL->m_CurrentlyBoundPipeline;
+
+            // we are only able to bind a vertex buffer if we know the layout of it
+            if (pipeline)
+            {
+                pipeline->BindVertexBuffers(commandListGL->m_CurrentlyBoundVertexBuffers, 0, drawInstancedCommand.InstanceStart);
+
+                uint32_t indexSize = 0;
+                if (commandListGL->m_IndexBufferFormat == GL_UNSIGNED_SHORT)
+                {
+                    indexSize = sizeof(uint16_t);
+                }
+                else
+                {
+                    indexSize = sizeof(uint32_t);
+                }
+
+                glDrawArraysInstanced(commandListGL->GetTopology(), drawInstancedCommand.VertexStart, drawInstancedCommand.VertexCount, drawInstancedCommand.InstanceCount);
+            }
+        };
+        m_Commands.push_back(renderCommand);
     }
 
     void CommandListOpenGL::DrawInstancedIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t indexStart, uint32_t instanceStart)
     {
+        DrawInstancedIndexedCommand command;
+        command.IndexCount = indexCount;
+        command.InstanceCount = instanceCount;
+        command.VertexStart = vertexStart;
+        command.IndexStart = indexStart;
+        command.InstanceStart = instanceStart;
+        m_CommandData.emplace_back(command);
+
+        auto renderCommand = [](CommandList *commandList)
+        {
+            auto commandListGL = (CommandListOpenGL *)commandList;
+            const auto &commandData = commandListGL->GetCurrentCommandData();
+            const auto &drawIndexedInstanceCommand = std::get<DrawInstancedIndexedCommand>(commandData);
+            auto pipeline = commandListGL->m_CurrentlyBoundPipeline;
+
+            // we are only able to bind a vertex buffer if we know the layout of it
+            if (pipeline)
+            {
+                pipeline->BindVertexBuffers(commandListGL->m_CurrentlyBoundVertexBuffers, drawIndexedInstanceCommand.VertexStart, drawIndexedInstanceCommand.InstanceStart);
+
+                uint32_t indexSize = 0;
+                if (commandListGL->m_IndexBufferFormat == GL_UNSIGNED_SHORT)
+                {
+                    indexSize = sizeof(uint16_t);
+                }
+                else
+                {
+                    indexSize = sizeof(uint32_t);
+                }
+
+                uint32_t offset = drawIndexedInstanceCommand.IndexStart * indexSize;
+                glDrawElementsInstanced(commandListGL->GetTopology(), drawIndexedInstanceCommand.IndexCount, commandListGL->m_IndexBufferFormat, (void *)offset, drawIndexedInstanceCommand.InstanceCount);
+            }
+        };
+        m_Commands.push_back(renderCommand);
     }
 
     void CommandListOpenGL::SetResourceSet(ResourceSet *resources)

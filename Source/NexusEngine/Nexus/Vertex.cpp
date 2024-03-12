@@ -9,32 +9,6 @@ namespace Nexus::Graphics
 
     uint32_t VertexBufferElement::GetComponentCount() const
     {
-        /* switch (Type)
-        {
-        case ShaderDataType::Float:
-            return 1;
-        case ShaderDataType::Float2:
-            return 2;
-        case ShaderDataType::Float3:
-            return 3;
-        case ShaderDataType::Float4:
-            return 4;
-        case ShaderDataType::Int:
-            return 1;
-        case ShaderDataType::Int2:
-            return 2;
-        case ShaderDataType::Int3:
-            return 3;
-        case ShaderDataType::Int4:
-            return 4;
-        case ShaderDataType::Byte:
-            return 1;
-        case ShaderDataType::Byte2:
-            return 2;
-        case ShaderDataType::Byte4:
-            return 4;
-        } */
-
         switch (Type)
         {
         case ShaderDataType::Byte:
@@ -160,6 +134,21 @@ namespace Nexus::Graphics
             return 1 * 4;
             break;
         }
+    }
+
+    bool VertexBufferLayout::IsVertexBuffer() const
+    {
+        return m_InstanceStepRate == 0;
+    }
+
+    bool VertexBufferLayout::IsInstanceBuffer() const
+    {
+        return m_InstanceStepRate != 0;
+    }
+
+    uint32_t VertexBufferLayout::GetInstanceStepRate() const
+    {
+        return m_InstanceStepRate;
     }
 
     void VertexBufferLayout::CalculateOffsetsAndStride()

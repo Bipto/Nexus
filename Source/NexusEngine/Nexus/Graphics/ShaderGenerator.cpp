@@ -110,7 +110,7 @@ namespace Nexus::Graphics
         case ShaderLanguage::GLSL:
         {
             spirv_cross::CompilerGLSL glsl(spirv_binary);
-            glOptions.version = 330;
+            glOptions.version = 450;
             glOptions.es = false;
             glsl.set_common_options(glOptions);
             ToLinearResourceSet(glsl, options.OutputFormat);
@@ -153,6 +153,7 @@ namespace Nexus::Graphics
             hlslOptions.use_entry_point_name = true;
             // modern HLSL
             hlslOptions.shader_model = 50;
+            hlslOptions.flatten_matrix_vertex_input_semantics = true;
             hlsl.set_hlsl_options(hlslOptions);
             ToLinearResourceSet(hlsl, options.OutputFormat);
             output.Source = hlsl.compile();
@@ -164,6 +165,8 @@ namespace Nexus::Graphics
         default:
             throw std::runtime_error("Failed to find a valid shader format");
         }
+
+        std::cout << output.Source << std::endl;
 
         output.Successful = true;
         return output;

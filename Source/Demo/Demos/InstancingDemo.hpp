@@ -7,27 +7,22 @@
 
 namespace Demos
 {
-    struct alignas(16) VB_UNIFORM_CAMERA_DEMO_LIGHTING
+    struct alignas(16) VB_UNIFORM_CAMERA_DEMO_INSTANCING
     {
         glm::mat4 View;
         glm::mat4 Projection;
         glm::vec3 CamPosition;
     };
 
-    struct alignas(16) VB_UNIFORM_TRANSFORM_DEMO_LIGHTING
-    {
-        glm::mat4 Transform;
-    };
-
-    class LightingDemo : public Demo
+    class InstancingDemo : public Demo
     {
     public:
-        LightingDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
+        InstancingDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
             : Demo(name, app, imGuiRenderer)
         {
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile(Nexus::FileSystem::GetFilePathAbsolute("resources/shaders/lighting.glsl"));
+            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile(Nexus::FileSystem::GetFilePathAbsolute("resources/shaders/instancing.glsl"));
 
             Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
             m_CubeMesh = factory.CreateCube();
@@ -37,14 +32,29 @@ namespace Demos
             m_SpecularMap = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/raw_plank_wall_spec_1k.jpg"));
 
             Nexus::Graphics::BufferDescription cameraUniformBufferDesc;
-            cameraUniformBufferDesc.Size = sizeof(VB_UNIFORM_CAMERA_DEMO_LIGHTING);
+            cameraUniformBufferDesc.Size = sizeof(VB_UNIFORM_CAMERA_DEMO_INSTANCING);
             cameraUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
             m_CameraUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(cameraUniformBufferDesc, nullptr);
 
-            Nexus::Graphics::BufferDescription transformUniformBufferDesc;
-            transformUniformBufferDesc.Size = sizeof(VB_UNIFORM_TRANSFORM_DEMO_LIGHTING);
-            transformUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
-            m_TransformUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(transformUniformBufferDesc, nullptr);
+            Nexus::Graphics::VertexBufferLayout instanceLayout =
+                {
+                    {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
+                    {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
+                    {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
+                    {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"}};
+            instanceLayout.SetInstanceStepRate(1);
+
+            Nexus::Graphics::BufferDescription vertexBufferDescription;
+            vertexBufferDescription.Size = m_InstanceCount * sizeof(glm::mat4);
+            vertexBufferDescription.Usage = Nexus::Graphics::BufferUsage::Dynamic;
+            m_InstanceBuffer = m_GraphicsDevice->CreateVertexBuffer(vertexBufferDescription, nullptr, instanceLayout);
+
+            std::vector<glm::mat4> mvps(m_InstanceCount);
+            for (uint32_t i = 0; i < m_InstanceCount; i++)
+            {
+                mvps[i] = glm::translate(glm::mat4(1.0f), glm::vec3(i * 2.0f, 0.0f, -5.0f));
+            }
+            m_InstanceBuffer->SetData(mvps.data(), mvps.size() * sizeof(glm::mat4), 0);
 
             CreatePipeline();
             m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, -2.5f));
@@ -53,7 +63,7 @@ namespace Demos
             m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
         }
 
-        virtual ~LightingDemo()
+        virtual ~InstancingDemo()
         {
             delete m_CommandList;
             delete m_Shader;
@@ -67,14 +77,10 @@ namespace Demos
             delete m_SpecularMap;
 
             delete m_CameraUniformBuffer;
-            delete m_TransformUniformBuffer;
         }
 
         virtual void Render(Nexus::Time time) override
         {
-            m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f)) * glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation), {1.0f, 1.0f, 0.0f});
-            m_TransformUniformBuffer->SetData(&m_TransformUniforms, sizeof(m_TransformUniforms));
-
             m_Rotation += time.GetSeconds();
             m_CameraUniforms.View = m_Camera.GetView();
             m_CameraUniforms.Projection = m_Camera.GetProjection();
@@ -109,7 +115,6 @@ namespace Demos
             // upload resources
             {
                 m_ResourceSet->WriteUniformBuffer(m_CameraUniformBuffer, "Camera");
-                m_ResourceSet->WriteUniformBuffer(m_TransformUniformBuffer, "Transform");
 
                 m_ResourceSet->WriteCombinedImageSampler(m_DiffuseMap, m_Sampler, "diffuseMapSampler");
                 m_ResourceSet->WriteCombinedImageSampler(m_NormalMap, m_Sampler, "normalMapSampler");
@@ -121,10 +126,12 @@ namespace Demos
             // draw cube
             {
                 m_CommandList->SetVertexBuffer(m_CubeMesh->GetVertexBuffer(), 0);
+                m_CommandList->SetVertexBuffer(m_InstanceBuffer, 1);
                 m_CommandList->SetIndexBuffer(m_CubeMesh->GetIndexBuffer());
 
                 auto indexCount = m_CubeMesh->GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
-                m_CommandList->DrawIndexed(indexCount, 0, 0);
+                // m_CommandList->DrawIndexed(indexCount, 0, 0);
+                m_CommandList->DrawInstancedIndexed(indexCount, m_InstanceCount, 0, 0, 0);
             }
 
             m_CommandList->SetPipeline(m_Pipeline);
@@ -155,8 +162,7 @@ namespace Demos
 
             pipelineDescription.ResourceSetSpecification.UniformBuffers =
                 {
-                    {"Camera", 0, 0},
-                    {"Transform", 0, 1}};
+                    {"Camera", 0, 0}};
 
             pipelineDescription.ResourceSetSpecification.Textures =
                 {
@@ -164,7 +170,23 @@ namespace Demos
                     {"normalMapSampler", 1, 1},
                     {"specularMapSampler", 1, 2}};
 
-            pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
+            Nexus::Graphics::VertexBufferLayout vertexLayout =
+                {
+                    {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
+                    {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
+                    {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
+                    {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
+                    {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}};
+
+            Nexus::Graphics::VertexBufferLayout instanceLayout =
+                {
+                    {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
+                    {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
+                    {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
+                    {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"}};
+            instanceLayout.SetInstanceStepRate(1);
+
+            pipelineDescription.Layouts = {vertexLayout, instanceLayout};
 
             pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
 
@@ -177,6 +199,7 @@ namespace Demos
         Nexus::Graphics::Shader *m_Shader;
         Nexus::Graphics::Pipeline *m_Pipeline;
         Nexus::Graphics::Mesh *m_CubeMesh;
+        Nexus::Graphics::VertexBuffer *m_InstanceBuffer;
 
         Nexus::Graphics::ResourceSet *m_ResourceSet;
         Nexus::Graphics::Texture *m_DiffuseMap;
@@ -184,15 +207,14 @@ namespace Demos
         Nexus::Graphics::Texture *m_SpecularMap;
         glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
 
-        VB_UNIFORM_CAMERA_DEMO_LIGHTING m_CameraUniforms;
+        VB_UNIFORM_CAMERA_DEMO_INSTANCING m_CameraUniforms;
         Nexus::Graphics::UniformBuffer *m_CameraUniformBuffer;
-
-        VB_UNIFORM_TRANSFORM_DEMO_LIGHTING m_TransformUniforms;
-        Nexus::Graphics::UniformBuffer *m_TransformUniformBuffer;
 
         Nexus::Graphics::Sampler *m_Sampler;
 
         Nexus::FirstPersonCamera m_Camera;
+
+        const uint32_t m_InstanceCount = 10;
 
         float m_Rotation = 0.0f;
     };
