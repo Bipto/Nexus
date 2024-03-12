@@ -188,6 +188,12 @@ namespace Demos
 
             pipelineDescription.Layouts = {vertexLayout, instanceLayout};
 
+            pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::Back;
+            pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
+            pipelineDescription.DepthStencilDescription.EnableDepthTest = true;
+            pipelineDescription.DepthStencilDescription.EnableDepthWrite = true;
+            pipelineDescription.DepthStencilDescription.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;
+
             pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
 
             m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
