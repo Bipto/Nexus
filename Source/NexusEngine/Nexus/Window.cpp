@@ -24,12 +24,14 @@ namespace Nexus
         uint32_t flags = GetFlags(api, windowProps, swapchainSpec);
 
         // NOTE: Resizable flag MUST be set in order for Emscripten resizing to work correctly
-        m_Window = SDL_CreateWindow(windowProps.Title.c_str(),
+        /* m_Window = SDL_CreateWindow(windowProps.Title.c_str(),
                                     SDL_WINDOWPOS_UNDEFINED,
                                     SDL_WINDOWPOS_UNDEFINED,
                                     windowProps.Width,
                                     windowProps.Height,
-                                    flags);
+                                    flags); */
+
+        m_Window = SDL_CreateWindow(windowProps.Title.c_str(), windowProps.Width, windowProps.Height, flags);
 
         if (m_Window == nullptr)
         {
@@ -142,10 +144,10 @@ namespace Nexus
         switch (visible)
         {
         case true:
-            SDL_ShowCursor(SDL_ENABLE);
+            SDL_ShowCursor();
             break;
         case false:
-            SDL_ShowCursor(SDL_DISABLE);
+            SDL_HideCursor();
             break;
         }
     }
@@ -315,7 +317,7 @@ namespace Nexus
         // required for emscripten to handle resizing correctly
         uint32_t flags = 0;
 #if !defined(__EMSCRIPTEN__)
-        flags |= SDL_WINDOW_ALLOW_HIGHDPI;
+        flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
 #endif
 
         if (windowSpec.Resizable)

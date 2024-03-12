@@ -403,19 +403,19 @@ namespace Nexus
 
             switch (event.type)
             {
-            case SDL_KEYDOWN:
+            case SDL_EVENT_KEY_DOWN:
             {
                 auto nexusKeyCode = SDLToNexusKeycode(event.key.keysym.sym);
                 window->m_Input->m_Keyboard.m_CurrentKeys[nexusKeyCode] = true;
                 break;
             }
-            case SDL_KEYUP:
+            case SDL_EVENT_KEY_UP:
             {
                 auto nexusKeyCode = SDLToNexusKeycode(event.key.keysym.sym);
                 window->m_Input->m_Keyboard.m_CurrentKeys[nexusKeyCode] = false;
                 break;
             }
-            case SDL_MOUSEBUTTONDOWN:
+            case SDL_EVENT_MOUSE_BUTTON_DOWN:
             {
                 switch (event.button.button)
                 {
@@ -437,7 +437,7 @@ namespace Nexus
                 }
                 break;
             }
-            case SDL_MOUSEBUTTONUP:
+            case SDL_EVENT_MOUSE_BUTTON_UP:
             {
                 switch (event.button.button)
                 {
@@ -459,7 +459,7 @@ namespace Nexus
                 }
                 break;
             }
-            case SDL_MOUSEMOTION:
+            case SDL_EVENT_MOUSE_MOTION:
             {
                 int mouseX = event.motion.x;
                 int mouseY = event.motion.y;
@@ -470,36 +470,35 @@ namespace Nexus
 
                 break;
             }
-            case SDL_MOUSEWHEEL:
+            case SDL_EVENT_MOUSE_WHEEL:
             {
                 auto &scroll = window->m_Input->m_Mouse.m_CurrentState.MouseWheel;
                 scroll.X += event.wheel.x;
                 scroll.Y += event.wheel.y;
                 break;
             }
-            case SDL_WINDOWEVENT:
+            case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
             {
-                if (event.window.event == SDL_WINDOWEVENT_CLOSE)
-                {
-                    window->Close();
-                    break;
-                }
+                window->Close();
+                break;
             }
-            case SDL_CONTROLLERDEVICEADDED:
+
+            case SDL_EVENT_GAMEPAD_ADDED:
             {
-                if (SDL_IsGameController(event.cdevice.which))
+
+                if (SDL_IsGamepad(event.cdevice.which))
                 {
                     Nexus::Input::AddController(event.cdevice.which);
                     break;
                 }
                 break;
             }
-            case SDL_CONTROLLERDEVICEREMOVED:
+            case SDL_EVENT_GAMEPAD_REMOVED:
             {
                 Nexus::Input::RemoveController(event.cdevice.which);
                 break;
             }
-            case SDL_TEXTINPUT:
+            case SDL_EVENT_TEXT_INPUT:
             {
                 window->m_Input->TextInput.Invoke(event.text.text[0]);
                 break;

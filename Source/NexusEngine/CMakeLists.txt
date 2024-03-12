@@ -27,7 +27,6 @@ add_library(NexusEngine ${ENGINE_HEADERS} ${ENGINE_SOURCES})
 
 #including dependencies
 target_include_directories(NexusEngine PUBLIC 
-  ../../External/SDL
   ../../External/glm
   ../../External/stb
   ../../External/assimp/include
@@ -55,8 +54,7 @@ target_include_directories(NexusEngine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 #linking dependencies
 target_link_libraries(NexusEngine PUBLIC
   ${OPENGL_LIBRARIES}
-  SDL2main
-  SDL2-static
+  SDL3::SDL3
   glad
   assimp
   imgui

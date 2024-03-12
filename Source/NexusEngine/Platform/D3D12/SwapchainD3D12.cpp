@@ -2,8 +2,6 @@
 
 #if defined(NX_PLATFORM_D3D12)
 
-#include "SDL_syswm.h"
-
 namespace Nexus::Graphics
 {
     SwapchainD3D12::SwapchainD3D12(Window *window, GraphicsDevice *device, const SwapchainSpecification &swapchainSpec)
@@ -184,10 +182,7 @@ namespace Nexus::Graphics
         m_CurrentTextureStates.clear();
 
         // retrieve the window's native handle
-        SDL_SysWMinfo wmInfo;
-        SDL_VERSION(&wmInfo.version);
-        SDL_GetWindowWMInfo(m_Window->GetSDLWindowHandle(), &wmInfo);
-        HWND hwnd = wmInfo.info.win.window;
+        HWND hwnd = (HWND)SDL_GetProperty(SDL_GetWindowProperties(m_Window->GetSDLWindowHandle()), SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr);
 
         // create the swapchain
         auto windowSize = m_Window->GetWindowSize();
