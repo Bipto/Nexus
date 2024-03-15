@@ -14,6 +14,7 @@ namespace Nexus::ImGuiUtils
     {
     public:
         ImGuiGraphicsRenderer(Nexus::Application *app);
+        virtual ~ImGuiGraphicsRenderer();
         void RebuildFontAtlas();
 
         ImTextureID BindTexture(Nexus::Graphics::Texture *texture);

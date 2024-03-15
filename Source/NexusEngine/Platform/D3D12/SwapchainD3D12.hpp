@@ -24,8 +24,7 @@ namespace Nexus::Graphics
         virtual void SetVSyncState(VSyncState vsyncState) override;
         virtual Window *GetWindow() override { return m_Window; }
         virtual void Prepare() override;
-
-        ID3D12Resource2 *RetrieveBufferHandle();
+        Microsoft::WRL::ComPtr<ID3D12Resource2> RetrieveBufferHandle();
         uint32_t GetCurrentBufferIndex();
 
         const D3D12_CPU_DESCRIPTOR_HANDLE RetrieveRenderTargetViewDescriptorHandle() const;
@@ -60,7 +59,7 @@ namespace Nexus::Graphics
         uint32_t m_SwapchainWidth = 0;
         uint32_t m_SwapchainHeight = 0;
 
-        std::vector<ID3D12Resource2 *> m_Buffers;
+        std::vector<Microsoft::WRL::ComPtr<ID3D12Resource2>> m_Buffers;
         uint32_t m_CurrentBufferIndex = 0;
         Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_RenderTargetViewDescriptorHeap = nullptr;
         std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_RenderTargetViewDescriptorHandles;

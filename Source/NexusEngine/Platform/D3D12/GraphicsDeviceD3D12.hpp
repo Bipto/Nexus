@@ -53,6 +53,8 @@ namespace Nexus::Graphics
         void InitUploadCommandList();
         void DispatchUploadCommandList();
 
+        inline static void ReportLiveObjects();
+
     private:
 #if defined(_DEBUG)
         Microsoft::WRL::ComPtr<ID3D12Debug6> m_D3D12Debug = nullptr;

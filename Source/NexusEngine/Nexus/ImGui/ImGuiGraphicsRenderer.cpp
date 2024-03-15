@@ -195,6 +195,10 @@ namespace Nexus::ImGuiUtils
         };
     }
 
+    ImGuiGraphicsRenderer::~ImGuiGraphicsRenderer()
+    {
+        }
+
     void ImGuiGraphicsRenderer::RebuildFontAtlas()
     {
         auto &io = ImGui::GetIO();

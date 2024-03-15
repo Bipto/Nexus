@@ -27,14 +27,9 @@ namespace Nexus::Graphics
         {
             // enable debugging of d3d12
             m_D3D12Debug->EnableDebugLayer();
-
-            // initialise dxgi debug layer
-            if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&m_DXGIDebug))))
-            {
-                // enable leak tracking
-                m_DXGIDebug->EnableLeakTrackingForThread();
-            }
         }
+
+        std::atexit(ReportLiveObjects);
 #endif
 
         if (SUCCEEDED(CreateDXGIFactory2(0, IID_PPV_ARGS(&m_DxgiFactory))))
@@ -70,31 +65,10 @@ namespace Nexus::Graphics
 
     GraphicsDeviceD3D12::~GraphicsDeviceD3D12()
     {
-        // release references to objects
-        /* m_CommandList->Release();
-        m_CommandAllocator->Release();
-        m_CommandQueue->Release(); */
-
         if (m_FenceEvent)
         {
             CloseHandle(m_FenceEvent);
         }
-
-        /* m_Fence->Release();
-        m_Device->Release(); */
-
-#if defined(_DEBUG)
-        // m_D3D12Debug->Release();
-        if (m_DXGIDebug)
-        {
-            // report any remaining live objects
-            OutputDebugStringW(L"Reporting live D3D12 objects:\n");
-            m_DXGIDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_DETAIL | DXGI_DEBUG_RLO_IGNORE_INTERNAL));
-            // m_DXGIDebug->Release();
-        }
-
-        // m_DxgiFactory->Release();
-#endif
     }
 
     void GraphicsDeviceD3D12::SetContext()
@@ -252,6 +226,17 @@ namespace Nexus::Graphics
             ID3D12CommandList *list[] = {m_UploadCommandList.Get()};
             m_CommandQueue->ExecuteCommandLists(1, list);
             SignalAndWait();
+        }
+    }
+
+    inline void GraphicsDeviceD3D12::ReportLiveObjects()
+    {
+        // initialise dxgi debug layer
+        Microsoft::WRL::ComPtr<IDXGIDebug1> debug;
+        if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug))))
+        {
+            OutputDebugStringW(L"Reporting live D3D12 objects:\n");
+            debug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_SUMMARY | DXGI_DEBUG_RLO_IGNORE_INTERNAL));
         }
     }
 }

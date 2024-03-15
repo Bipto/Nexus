@@ -259,7 +259,7 @@ namespace Nexus::Graphics
         D3D12_RESOURCE_BARRIER swapchainBarrier;
         swapchainBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
         swapchainBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-        swapchainBarrier.Transition.pResource = swapchainTexture;
+        swapchainBarrier.Transition.pResource = swapchainTexture.Get();
         swapchainBarrier.Transition.Subresource = 0;
         swapchainBarrier.Transition.StateBefore = swapchainState;
         swapchainBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RESOLVE_DEST;
@@ -270,7 +270,7 @@ namespace Nexus::Graphics
             resourceBarriers.data());
 
         m_CommandList->ResolveSubresource(
-            swapchainTexture,
+            swapchainTexture.Get(),
             0,
             framebufferTexture->GetD3D12ResourceHandle().Get(),
             0,
@@ -301,7 +301,7 @@ namespace Nexus::Graphics
                 D3D12_RESOURCE_BARRIER renderTargetBarrier;
                 renderTargetBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
                 renderTargetBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-                renderTargetBarrier.Transition.pResource = swapchain->RetrieveBufferHandle();
+                renderTargetBarrier.Transition.pResource = swapchain->RetrieveBufferHandle().Get();
                 renderTargetBarrier.Transition.Subresource = 0;
                 renderTargetBarrier.Transition.StateBefore = colorState;
                 renderTargetBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
@@ -413,7 +413,7 @@ namespace Nexus::Graphics
                 D3D12_RESOURCE_BARRIER presentBarrier;
                 presentBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
                 presentBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-                presentBarrier.Transition.pResource = d3d12Swapchain->RetrieveBufferHandle();
+                presentBarrier.Transition.pResource = d3d12Swapchain->RetrieveBufferHandle().Get();
                 presentBarrier.Transition.Subresource = 0;
                 presentBarrier.Transition.StateBefore = swapchainColourState;
                 presentBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;

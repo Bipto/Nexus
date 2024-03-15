@@ -23,6 +23,8 @@ namespace Nexus::Graphics
 
         // release the swapchain's buffers
         ReleaseBuffers();
+
+        delete m_MultisampledFramebuffer;
     }
 
     void SwapchainD3D12::SwapBuffers()
@@ -50,7 +52,7 @@ namespace Nexus::Graphics
         m_CurrentBufferIndex = m_Swapchain->GetCurrentBackBufferIndex();
     }
 
-    ID3D12Resource2 *SwapchainD3D12::RetrieveBufferHandle()
+    Microsoft::WRL::ComPtr<ID3D12Resource2> SwapchainD3D12::RetrieveBufferHandle()
     {
         return m_Buffers.at(m_CurrentBufferIndex);
     }
@@ -162,18 +164,14 @@ namespace Nexus::Graphics
             rtv.Texture2D.MipSlice = 0;
             rtv.Texture2D.PlaneSlice = 0;
 
-            d3d12Device->CreateRenderTargetView(m_Buffers[i], &rtv, m_RenderTargetViewDescriptorHandles[i]);
+            d3d12Device->CreateRenderTargetView(m_Buffers[i].Get(), &rtv, m_RenderTargetViewDescriptorHandles[i]);
         }
     }
 
     void SwapchainD3D12::ReleaseBuffers()
     {
-        // loop through retrieved buffers and clean them up
-        for (size_t i = 0; i < BUFFER_COUNT; ++i)
-        {
-            m_Buffers[i]->Release();
-        }
     }
+
     void SwapchainD3D12::CreateColourAttachments()
     {
         // resize the buffer vector to a suitable size
@@ -210,12 +208,10 @@ namespace Nexus::Graphics
         auto factory = m_Device->GetDXGIFactory();
 
         // create the swapchain and query for the correct swapchain type
-        IDXGISwapChain1 *sc1;
-        factory->CreateSwapChainForHwnd(m_Device->GetCommandQueue(), hwnd, &swapchainDesc, &fullscreenDesc, nullptr, &sc1);
+        Microsoft::WRL::ComPtr<IDXGISwapChain1> sc1;
+        factory->CreateSwapChainForHwnd(m_Device->GetCommandQueue(), hwnd, &swapchainDesc, &fullscreenDesc, nullptr, sc1.GetAddressOf());
         if (SUCCEEDED(sc1->QueryInterface(IID_PPV_ARGS(&m_Swapchain))))
         {
-            // release the original swapchain, otherwise we create a memory leak
-            sc1->Release();
         }
 
         // retrieve the ID3D12Device

@@ -25,7 +25,7 @@ public:
 
     virtual void Load() override
     {
-        m_CommandList = m_GraphicsDevice->CreateCommandList();
+        /* m_CommandList = m_GraphicsDevice->CreateCommandList(); */
     }
 
     virtual void Update(Nexus::Time time) override
@@ -34,7 +34,7 @@ public:
 
     virtual void Render(Nexus::Time time) override
     {
-        m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
+        /* m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
         m_GraphicsDevice->BeginFrame();
 
         m_CommandList->Begin();
@@ -43,7 +43,7 @@ public:
         m_CommandList->End();
         m_GraphicsDevice->SubmitCommandList(m_CommandList);
 
-        m_GraphicsDevice->EndFrame();
+        m_GraphicsDevice->EndFrame(); */
     }
 
     virtual void OnResize(Nexus::Point<uint32_t> size) override

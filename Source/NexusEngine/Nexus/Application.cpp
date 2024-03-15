@@ -285,6 +285,7 @@ namespace Nexus
 
     Application::~Application()
     {
+        delete m_Window;
         delete m_AudioDevice;
         delete m_GraphicsDevice;
     }

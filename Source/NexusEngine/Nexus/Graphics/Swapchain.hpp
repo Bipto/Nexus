@@ -20,6 +20,7 @@ namespace Nexus::Graphics
             : m_Specification(spec)
         {
         }
+        virtual ~Swapchain(){}
 
         virtual void Initialise() = 0;
         virtual void SwapBuffers() = 0;
