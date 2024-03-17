@@ -283,7 +283,7 @@ namespace Nexus::Graphics
         m_VertexCount += shapeVertexCount;
     }
 
-    void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Texture *texture)
+    void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture> texture)
     {
         EnsureStarted();
 
@@ -827,12 +827,6 @@ namespace Nexus::Graphics
             m_Pipeline = nullptr;
         }
 
-        if (m_ResourceSet)
-        {
-            delete m_ResourceSet;
-            m_ResourceSet = nullptr;
-        }
-
         auto swapchain = m_Device->GetPrimaryWindow();
 
         Nexus::Graphics::PipelineDescription description;
@@ -954,7 +948,7 @@ namespace Nexus::Graphics
         }
     }
 
-    bool BatchRenderer::FindTextureInBatch(Texture *texture, uint32_t *index)
+    bool BatchRenderer::FindTextureInBatch(Ref<Texture> texture, uint32_t *index)
     {
         for (int i = 0; i < m_Textures.size(); i++)
         {

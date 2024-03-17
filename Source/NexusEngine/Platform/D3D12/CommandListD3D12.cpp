@@ -93,9 +93,9 @@ namespace Nexus::Graphics
         m_CommandList->DrawIndexedInstanced(indexCount, instanceCount, indexStart, vertexStart, instanceStart);
     }
 
-    void CommandListD3D12::SetResourceSet(ResourceSet *resources)
+    void CommandListD3D12::SetResourceSet(Ref<ResourceSet> resources)
     {
-        ResourceSetD3D12 *d3d12ResourceSet = (ResourceSetD3D12 *)resources;
+        Ref<ResourceSetD3D12> d3d12ResourceSet = std::dynamic_pointer_cast<ResourceSetD3D12>(resources);
 
         std::vector<ID3D12DescriptorHeap *> heaps;
         if (d3d12ResourceSet->HasSamplerHeap())

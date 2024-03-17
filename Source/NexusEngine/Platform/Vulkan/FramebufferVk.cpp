@@ -33,22 +33,22 @@ namespace Nexus::Graphics
         return m_Framebuffer;
     }
 
-    Texture *FramebufferVk::GetColorTexture(uint32_t index)
+    Ref<Texture> FramebufferVk::GetColorTexture(uint32_t index)
     {
         return m_ColorAttachments.at(index);
     }
 
-    Texture *FramebufferVk::GetDepthTexture()
+    Ref<Texture> FramebufferVk::GetDepthTexture()
     {
         return m_DepthAttachment;
     }
 
-    TextureVk *FramebufferVk::GetVulkanColorTexture(uint32_t index)
+    Ref<TextureVk> FramebufferVk::GetVulkanColorTexture(uint32_t index)
     {
         return m_ColorAttachments.at(index);
     }
 
-    TextureVk *FramebufferVk::GetVulkanDepthTexture()
+    Ref<TextureVk> FramebufferVk::GetVulkanDepthTexture()
     {
         return m_DepthAttachment;
     }
@@ -86,7 +86,7 @@ namespace Nexus::Graphics
             spec.NumberOfChannels = 4;
             spec.Samples = m_Specification.Samples;
             spec.Usage = {TextureUsage::Sampled, TextureUsage::RenderTarget};
-            auto texture = (TextureVk *)m_Device->CreateTexture(spec);
+            auto texture = std::dynamic_pointer_cast<TextureVk>(m_Device->CreateTexture(spec));
             m_ColorAttachments.push_back(texture);
         }
     }
@@ -103,7 +103,7 @@ namespace Nexus::Graphics
             spec.NumberOfChannels = 2;
             spec.Samples = m_Specification.Samples;
             spec.Usage = {TextureUsage::DepthStencil};
-            m_DepthAttachment = (TextureVk *)m_Device->CreateTexture(spec);
+            m_DepthAttachment = std::dynamic_pointer_cast<TextureVk>(m_Device->CreateTexture(spec));
         }
     }
 

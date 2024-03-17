@@ -15,7 +15,7 @@ namespace Demos
 
         virtual ~ClearScreenDemo()
         {
-            delete m_CommandList;
+            
         }
 
         virtual void Update(Nexus::Time time) override
@@ -45,7 +45,7 @@ namespace Demos
         }
 
     private:
-        Nexus::Graphics::CommandList *m_CommandList;
+        Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
         glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
     };
 }

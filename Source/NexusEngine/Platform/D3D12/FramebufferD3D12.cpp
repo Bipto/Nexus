@@ -26,22 +26,22 @@ namespace Nexus::Graphics
     {
     }
 
-    Texture *FramebufferD3D12::GetColorTexture(uint32_t index)
+    Ref<Texture> FramebufferD3D12::GetColorTexture(uint32_t index)
     {
         return m_ColorAttachments.at(index);
     }
 
-    Texture *FramebufferD3D12::GetDepthTexture()
+    Ref<Texture> FramebufferD3D12::GetDepthTexture()
     {
         return m_DepthAttachment;
     }
 
-    TextureD3D12 *FramebufferD3D12::GetD3D12ColorTexture(uint32_t index)
+    Ref<TextureD3D12> FramebufferD3D12::GetD3D12ColorTexture(uint32_t index)
     {
         return m_ColorAttachments.at(index);
     }
 
-    TextureD3D12 *FramebufferD3D12::GetD3D12DepthTexture()
+    Ref<TextureD3D12> FramebufferD3D12::GetD3D12DepthTexture()
     {
         return m_DepthAttachment;
     }
@@ -95,7 +95,7 @@ namespace Nexus::Graphics
             spec.NumberOfChannels = 4;
             spec.Samples = m_Specification.Samples;
             spec.Usage = {TextureUsage::Sampled, TextureUsage::RenderTarget};
-            auto texture = (TextureD3D12 *)m_Device->CreateTexture(spec);
+            auto texture = std::dynamic_pointer_cast<TextureD3D12>(m_Device->CreateTexture(spec));
             m_ColorAttachments.push_back(texture);
         }
 
@@ -108,7 +108,7 @@ namespace Nexus::Graphics
             spec.NumberOfChannels = 2;
             spec.Samples = m_Specification.Samples;
             spec.Usage = {TextureUsage::DepthStencil};
-            m_DepthAttachment = (TextureD3D12 *)m_Device->CreateTexture(spec);
+            m_DepthAttachment = std::dynamic_pointer_cast<TextureD3D12>(m_Device->CreateTexture(spec));
         }
     }
 

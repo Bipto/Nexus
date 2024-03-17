@@ -23,8 +23,8 @@ namespace Nexus::Graphics
         virtual const FramebufferSpecification GetFramebufferSpecification() override;
         virtual void SetFramebufferSpecification(const FramebufferSpecification &spec) override;
 
-        virtual Texture *GetColorTexture(uint32_t index = 0) override;
-        virtual Texture *GetDepthTexture() override;
+        virtual Ref<Texture> GetColorTexture(uint32_t index = 0) override;
+        virtual Ref<Texture> GetDepthTexture() override;
 
     private:
         virtual void Recreate() override;
@@ -34,8 +34,8 @@ namespace Nexus::Graphics
     private:
         unsigned int m_FBO;
 
-        std::vector<Texture *> m_ColorAttachments;
-        Texture *m_DepthAttachment;
+        std::vector<Ref<Texture>> m_ColorAttachments;
+        Ref<Texture> m_DepthAttachment;
 
         GraphicsDeviceOpenGL *m_Device = nullptr;
     };

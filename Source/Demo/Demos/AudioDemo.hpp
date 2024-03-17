@@ -18,7 +18,6 @@ namespace Demos
 
         virtual ~AudioDemo()
         {
-            delete m_CommandList;
             delete m_AudioBuffer;
             delete m_AudioSource;
         }
@@ -53,7 +52,7 @@ namespace Demos
         }
 
     private:
-        Nexus::Graphics::CommandList *m_CommandList;
+        Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
         glm::vec3 m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 
         Nexus::Audio::AudioBuffer *m_AudioBuffer;

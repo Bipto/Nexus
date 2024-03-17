@@ -39,8 +39,6 @@ namespace Demos
 
         virtual ~HelloTriangleIndexedDemo()
         {
-            delete m_CommandList;
-            delete m_Shader;
             delete m_Pipeline;
             delete m_VertexBuffer;
             delete m_IndexBuffer;
@@ -109,8 +107,8 @@ namespace Demos
         }
 
     private:
-        Nexus::Graphics::CommandList *m_CommandList;
-        Nexus::Graphics::Shader *m_Shader;
+        Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
+        Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
         Nexus::Graphics::Pipeline *m_Pipeline;
         Nexus::Graphics::VertexBuffer *m_VertexBuffer;
         Nexus::Graphics::IndexBuffer *m_IndexBuffer;

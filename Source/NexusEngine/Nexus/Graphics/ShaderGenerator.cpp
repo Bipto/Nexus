@@ -166,8 +166,6 @@ namespace Nexus::Graphics
             throw std::runtime_error("Failed to find a valid shader format");
         }
 
-        std::cout << output.Source << std::endl;
-
         output.Successful = true;
         return output;
     }

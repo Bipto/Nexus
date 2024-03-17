@@ -79,9 +79,9 @@ namespace Nexus::Graphics
     {
     }
 
-    void GraphicsDeviceD3D12::SubmitCommandList(CommandList *commandList)
+    void GraphicsDeviceD3D12::SubmitCommandList(Ref<CommandList> commandList)
     {
-        CommandListD3D12 *d3d12CommandList = (CommandListD3D12 *)commandList;
+        Ref<CommandListD3D12> d3d12CommandList = std::dynamic_pointer_cast<CommandListD3D12>(commandList);
         ID3D12CommandList *lists[] = {d3d12CommandList->GetCommandList()};
         m_CommandQueue->ExecuteCommandLists(1, lists);
         SignalAndWait();
@@ -110,14 +110,14 @@ namespace Nexus::Graphics
     {
     }
 
-    Shader *GraphicsDeviceD3D12::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource)
+    Ref<Shader> GraphicsDeviceD3D12::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource)
     {
-        return new ShaderD3D12(vertexShaderSource, fragmentShaderSource);
+        return CreateRef<ShaderD3D12>(vertexShaderSource, fragmentShaderSource);
     }
 
-    Texture *GraphicsDeviceD3D12::CreateTexture(const TextureSpecification &spec)
+    Ref<Texture> GraphicsDeviceD3D12::CreateTexture(const TextureSpecification &spec)
     {
-        return new TextureD3D12(this, spec);
+        return CreateRef<TextureD3D12>(this, spec);
     }
 
     Pipeline *GraphicsDeviceD3D12::CreatePipeline(const PipelineDescription &description)
@@ -125,9 +125,9 @@ namespace Nexus::Graphics
         return new PipelineD3D12(m_Device.Get(), description);
     }
 
-    CommandList *GraphicsDeviceD3D12::CreateCommandList()
+    Ref<CommandList> GraphicsDeviceD3D12::CreateCommandList()
     {
-        return new CommandListD3D12(this);
+        return CreateRef<CommandListD3D12>(this);
     }
 
     VertexBuffer *GraphicsDeviceD3D12::CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
@@ -145,9 +145,9 @@ namespace Nexus::Graphics
         return new UniformBufferD3D12(this, description, data);
     }
 
-    ResourceSet *GraphicsDeviceD3D12::CreateResourceSet(const ResourceSetSpecification &spec)
+    Ref<ResourceSet> GraphicsDeviceD3D12::CreateResourceSet(const ResourceSetSpecification &spec)
     {
-        return new ResourceSetD3D12(spec, this);
+        return CreateRef<ResourceSetD3D12>(spec, this);
     }
 
     Framebuffer *GraphicsDeviceD3D12::CreateFramebuffer(const FramebufferSpecification &spec)
@@ -155,9 +155,9 @@ namespace Nexus::Graphics
         return new FramebufferD3D12(spec, this);
     }
 
-    Sampler *GraphicsDeviceD3D12::CreateSampler(const SamplerSpecification &spec)
+    Ref<Sampler> GraphicsDeviceD3D12::CreateSampler(const SamplerSpecification &spec)
     {
-        return new SamplerD3D12(spec);
+        return CreateRef<SamplerD3D12>(spec);
     }
 
     IDXGIFactory7 *GraphicsDeviceD3D12::GetDXGIFactory() const

@@ -60,12 +60,12 @@ namespace Nexus::Graphics
         Recreate();
     }
 
-    Texture *FramebufferOpenGL::GetColorTexture(uint32_t index)
+    Ref<Texture> FramebufferOpenGL::GetColorTexture(uint32_t index)
     {
         return m_ColorAttachments.at(index);
     }
 
-    Texture *FramebufferOpenGL::GetDepthTexture()
+    Ref<Texture> FramebufferOpenGL::GetDepthTexture()
     {
         return m_DepthAttachment;
     }
@@ -90,7 +90,7 @@ namespace Nexus::Graphics
             spec.NumberOfChannels = 4;
             spec.Samples = m_Specification.Samples;
             spec.Usage = {TextureUsage::Sampled, TextureUsage::RenderTarget};
-            auto texture = (TextureOpenGL *)m_Device->CreateTexture(spec);
+            auto texture = std::dynamic_pointer_cast<TextureOpenGL>(m_Device->CreateTexture(spec));
             m_ColorAttachments.push_back(texture);
 
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, texture->GetNativeHandle(), 0);
@@ -107,7 +107,7 @@ namespace Nexus::Graphics
             spec.Usage = {TextureUsage::DepthStencil};
             m_DepthAttachment = m_Device->CreateTexture(spec);
 
-            auto glTexture = (TextureOpenGL *)m_DepthAttachment;
+            auto glTexture = std::dynamic_pointer_cast<TextureOpenGL>(m_DepthAttachment);
 
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, glTexture->GetNativeHandle(), 0);
         }

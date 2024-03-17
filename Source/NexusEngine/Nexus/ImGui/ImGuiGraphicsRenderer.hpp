@@ -17,7 +17,7 @@ namespace Nexus::ImGuiUtils
         virtual ~ImGuiGraphicsRenderer();
         void RebuildFontAtlas();
 
-        ImTextureID BindTexture(Nexus::Graphics::Texture *texture);
+        ImTextureID BindTexture(Nexus::Ref<Nexus::Graphics::Texture> texture);
         void UnbindTexture(ImTextureID id);
 
         void BeforeLayout(Nexus::Time gameTime);
@@ -33,13 +33,13 @@ namespace Nexus::ImGuiUtils
 
     private:
         Nexus::Graphics::GraphicsDevice *m_GraphicsDevice = nullptr;
-        Nexus::Graphics::CommandList *m_CommandList = nullptr;
-        Nexus::Graphics::Shader *m_Shader = nullptr;
+        Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList = nullptr;
+        Nexus::Ref<Nexus::Graphics::Shader> m_Shader = nullptr;
         Nexus::Graphics::Pipeline *m_Pipeline = nullptr;
-        Nexus::Graphics::Texture *m_FontTexture = nullptr;
+        Nexus::Ref<Nexus::Graphics::Texture> m_FontTexture = nullptr;
 
-        std::map<ImTextureID, Nexus::Graphics::ResourceSet *> m_ResourceSets;
-        Nexus::Graphics::Sampler *m_Sampler = nullptr;
+        std::map<ImTextureID, Nexus::Ref<Nexus::Graphics::ResourceSet>> m_ResourceSets;
+        Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler = nullptr;
         uint64_t m_TextureID = 0;
         ImTextureID m_FontTextureID = 0;
 

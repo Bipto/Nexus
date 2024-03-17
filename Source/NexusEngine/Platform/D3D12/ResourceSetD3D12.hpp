@@ -15,7 +15,7 @@ namespace Nexus::Graphics
         ResourceSetD3D12(const ResourceSetSpecification &spec, GraphicsDeviceD3D12 *device);
         virtual void PerformResourceUpdate() override;
         virtual void WriteUniformBuffer(UniformBuffer *uniformBuffer, const std::string &name) override;
-        virtual void WriteCombinedImageSampler(Texture *texture, Sampler *sampler, const std::string &name) override;
+        virtual void WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name) override;
 
         ID3D12DescriptorHeap *GetSamplerDescriptorHeap();
         ID3D12DescriptorHeap *GetTextureConstantBufferDescriptorHeap();

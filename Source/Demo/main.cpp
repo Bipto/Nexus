@@ -39,17 +39,11 @@ public:
 
     virtual ~DemoApplication()
     {
-        delete m_CommandList;
-
-        if (m_CurrentDemo)
-        {
-            delete m_CurrentDemo;
-        }
     }
 
     virtual void Load() override
     {
-        m_ImGuiRenderer = new Nexus::ImGuiUtils::ImGuiGraphicsRenderer(this);
+        m_ImGuiRenderer = std::make_unique<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(this);
 
         int size = 19;
 
@@ -149,7 +143,6 @@ public:
             {
                 if (ImGui::Button("<- Back"))
                 {
-                    delete m_CurrentDemo;
                     m_CurrentDemo = nullptr;
                 }
 
@@ -186,11 +179,10 @@ public:
                             {
                                 if (m_CurrentDemo)
                                 {
-                                    delete m_CurrentDemo;
                                     m_CurrentDemo = nullptr;
                                 }
 
-                                m_CurrentDemo = pair.CreationFunction(this, pair.Name, m_ImGuiRenderer);
+                                m_CurrentDemo = std::unique_ptr<Demos::Demo>(pair.CreationFunction(this, pair.Name, m_ImGuiRenderer.get()));
                             }
 
                             ImGui::TreePop();
@@ -212,11 +204,10 @@ public:
                             {
                                 if (m_CurrentDemo)
                                 {
-                                    delete m_CurrentDemo;
                                     m_CurrentDemo = nullptr;
                                 }
 
-                                m_CurrentDemo = pair.CreationFunction(this, pair.Name, m_ImGuiRenderer);
+                                m_CurrentDemo = std::unique_ptr<Demos::Demo>(pair.CreationFunction(this, pair.Name, m_ImGuiRenderer.get()));
                             }
 
                             ImGui::TreePop();
@@ -238,11 +229,10 @@ public:
                             {
                                 if (m_CurrentDemo)
                                 {
-                                    delete m_CurrentDemo;
                                     m_CurrentDemo = nullptr;
                                 }
 
-                                m_CurrentDemo = pair.CreationFunction(this, pair.Name, m_ImGuiRenderer);
+                                m_CurrentDemo = std::unique_ptr<Demos::Demo>(pair.CreationFunction(this, pair.Name, m_ImGuiRenderer.get()));
                             }
 
                             ImGui::TreePop();
@@ -290,13 +280,13 @@ public:
     }
 
 private:
-    Nexus::Graphics::CommandList *m_CommandList;
-    Demos::Demo *m_CurrentDemo = nullptr;
+    Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
+    std::unique_ptr<Demos::Demo> m_CurrentDemo = nullptr;
     std::vector<DemoInfo> m_GraphicsDemos;
     std::vector<DemoInfo> m_AudioDemos;
     std::vector<DemoInfo> m_ScriptingDemos;
 
-    Nexus::ImGuiUtils::ImGuiGraphicsRenderer *m_ImGuiRenderer = nullptr;
+    std::unique_ptr<Nexus::ImGuiUtils::ImGuiGraphicsRenderer> m_ImGuiRenderer = nullptr;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)

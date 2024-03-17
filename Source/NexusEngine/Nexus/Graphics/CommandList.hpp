@@ -90,7 +90,7 @@ namespace Nexus::Graphics
 
     struct UpdateResourcesCommand
     {
-        ResourceSet *Resources;
+        Ref<ResourceSet> Resources;
     };
 
     struct ClearColorTargetCommand
@@ -182,7 +182,7 @@ namespace Nexus::Graphics
 
         /// @brief A pure virtual method that updates the resources bound within a pipeline
         /// @param resources A reference counted pointer to a ResourceSet
-        virtual void SetResourceSet(ResourceSet *resources) = 0;
+        virtual void SetResourceSet(Ref<ResourceSet> resources) = 0;
 
         virtual void ClearColorTarget(uint32_t index, const ClearColorValue &color) = 0;
 
@@ -198,7 +198,7 @@ namespace Nexus::Graphics
     };
 
     /// @brief A typedef to simplify creating function pointers to render commands
-    typedef void (*RenderCommand)(CommandList *commandList);
+    typedef void (*RenderCommand)(Ref<CommandList> commandList);
 
     typedef std::variant<
         SetVertexBufferCommand,

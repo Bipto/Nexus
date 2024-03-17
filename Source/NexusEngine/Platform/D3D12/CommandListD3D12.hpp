@@ -28,7 +28,7 @@ namespace Nexus::Graphics
         virtual void DrawInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t instanceStart) override;
         virtual void DrawInstancedIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t indexStart, uint32_t instanceStart) override;
 
-        virtual void SetResourceSet(ResourceSet *resources) override;
+        virtual void SetResourceSet(Ref<ResourceSet> resources) override;
 
         virtual void ClearColorTarget(uint32_t index, const ClearColorValue &color) override;
         virtual void ClearDepthTarget(const ClearDepthStencilValue &value) override;

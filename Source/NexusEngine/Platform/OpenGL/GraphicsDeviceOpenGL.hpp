@@ -17,7 +17,7 @@ namespace Nexus::Graphics
         void SetContext() override;
         void SetFramebuffer(Framebuffer *framebuffer);
         void SetSwapchain(Swapchain *swapchain);
-        virtual void SubmitCommandList(CommandList *commandList) override;
+        virtual void SubmitCommandList(Ref<CommandList> commandList) override;
 
         virtual const std::string GetAPIName() override;
         virtual const char *GetDeviceName() override;
@@ -26,22 +26,22 @@ namespace Nexus::Graphics
         virtual void BeginFrame() override;
         virtual void EndFrame() override;
 
-        virtual Texture *CreateTexture(const TextureSpecification &spec) override;
+        virtual Ref<Texture> CreateTexture(const TextureSpecification &spec) override;
         virtual Pipeline *CreatePipeline(const PipelineDescription &description) override;
-        virtual CommandList *CreateCommandList();
+        virtual Ref<CommandList> CreateCommandList();
         virtual VertexBuffer *CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout) override;
         virtual IndexBuffer *CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format = IndexBufferFormat::UInt32) override;
         virtual UniformBuffer *CreateUniformBuffer(const BufferDescription &description, const void *data) override;
-        virtual ResourceSet *CreateResourceSet(const ResourceSetSpecification &spec) override;
+        virtual Ref<ResourceSet> CreateResourceSet(const ResourceSetSpecification &spec) override;
         virtual Framebuffer *CreateFramebuffer(const FramebufferSpecification &spec) override;
-        virtual Sampler *CreateSampler(const SamplerSpecification &spec) override;
+        virtual Ref<Sampler> CreateSampler(const SamplerSpecification &spec) override;
         virtual const GraphicsCapabilities GetGraphicsCapabilities() const override;
 
         virtual ShaderLanguage GetSupportedShaderFormat() override;
         virtual float GetUVCorrection() { return 1.0f; }
 
     private:
-        virtual Shader *CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource) override;
+        virtual Ref<Shader> CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource) override;
         std::vector<std::string> GetSupportedExtensions();
 
     private:

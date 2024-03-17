@@ -85,7 +85,7 @@ namespace Nexus::Graphics
     {
     public:
         Font(const std::string &filepath, const std::vector<CharacterRange> &characterRanges, GraphicsDevice *device);
-        Nexus::Graphics::Texture *GetTexture();
+        Nexus::Ref<Nexus::Graphics::Texture> GetTexture();
         const Character &GetCharacter(char character);
         uint32_t GetSize() const;
         Nexus::Point<uint32_t> MeasureString(const std::string &text, uint32_t size);
@@ -93,7 +93,7 @@ namespace Nexus::Graphics
         const glm::vec2 &GetLargestCharacterSize();
 
     private:
-        Nexus::Graphics::Texture *m_Texture = nullptr;
+        Nexus::Ref<Nexus::Graphics::Texture> m_Texture = nullptr;
         std::vector<CharacterRange> m_CharacterRanges;
         std::map<char, Character> m_Characters;
         uint32_t m_TextureWidth = 0;

@@ -55,9 +55,9 @@ namespace Nexus::Graphics
         command.VertexBuffer = vertexBuffer;
         command.Slot = slot;
         m_CommandData.emplace_back(command);
-        auto renderCommand = [](CommandList *commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
-            auto commandListGL = (CommandListOpenGL *)commandList;
+            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             const auto &commandData = commandListGL->GetCurrentCommandData();
             const auto &setVertexBufferCommand = std::get<SetVertexBufferCommand>(commandData);
             const auto vertexBufferGL = (VertexBufferOpenGL *)setVertexBufferCommand.VertexBuffer;
@@ -70,9 +70,9 @@ namespace Nexus::Graphics
     void CommandListOpenGL::SetIndexBuffer(IndexBuffer *indexBuffer)
     {
         m_CommandData.emplace_back(indexBuffer);
-        auto renderCommand = [](CommandList *commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
-            auto commandListGL = (CommandListOpenGL *)commandList;
+            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             const auto &commandData = commandListGL->GetCurrentCommandData();
             const auto indexBuffer = std::get<IndexBuffer *>(commandData);
             const auto indexBufferGL = (IndexBufferOpenGL *)indexBuffer;
@@ -85,9 +85,9 @@ namespace Nexus::Graphics
     void CommandListOpenGL::SetPipeline(Pipeline *pipeline)
     {
         m_CommandData.emplace_back(pipeline);
-        auto renderCommand = [](CommandList *commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
-            auto commandListGL = (CommandListOpenGL *)commandList;
+            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             const auto &commandData = commandListGL->GetCurrentCommandData();
             const auto pipeline = std::get<Pipeline *>(commandData);
             auto graphicsDevice = (GraphicsDeviceOpenGL *)commandListGL->GetGraphicsDevice();
@@ -121,9 +121,9 @@ namespace Nexus::Graphics
         command.Count = count;
         m_CommandData.emplace_back(command);
 
-        auto renderCommand = [](CommandList *commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
-            auto commandListGL = (CommandListOpenGL *)commandList;
+            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             const auto &commandData = commandListGL->GetCurrentCommandData();
             const auto &drawElementsCommand = std::get<DrawElementCommand>(commandData);
 
@@ -151,9 +151,9 @@ namespace Nexus::Graphics
         command.IndexStart = indexStart;
         m_CommandData.emplace_back(command);
 
-        auto renderCommand = [](CommandList *commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
-            auto commandListGL = (CommandListOpenGL *)commandList;
+            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             const auto &commandData = commandListGL->GetCurrentCommandData();
             const auto &drawIndexedCommand = std::get<DrawIndexedCommand>(commandData);
             auto pipeline = commandListGL->m_CurrentlyBoundPipeline;
@@ -194,9 +194,9 @@ namespace Nexus::Graphics
         command.InstanceStart = instanceStart;
         m_CommandData.emplace_back(command);
 
-        auto renderCommand = [](CommandList *commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
-            auto commandListGL = (CommandListOpenGL *)commandList;
+            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             const auto &commandData = commandListGL->GetCurrentCommandData();
             const auto &drawInstancedCommand = std::get<DrawInstancedCommand>(commandData);
             auto pipeline = commandListGL->m_CurrentlyBoundPipeline;
@@ -232,9 +232,9 @@ namespace Nexus::Graphics
         command.InstanceStart = instanceStart;
         m_CommandData.emplace_back(command);
 
-        auto renderCommand = [](CommandList *commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
-            auto commandListGL = (CommandListOpenGL *)commandList;
+            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             const auto &commandData = commandListGL->GetCurrentCommandData();
             const auto &drawIndexedInstanceCommand = std::get<DrawInstancedIndexedCommand>(commandData);
             auto pipeline = commandListGL->m_CurrentlyBoundPipeline;
@@ -261,20 +261,20 @@ namespace Nexus::Graphics
         m_Commands.push_back(renderCommand);
     }
 
-    void CommandListOpenGL::SetResourceSet(ResourceSet *resources)
+    void CommandListOpenGL::SetResourceSet(Ref<ResourceSet> resources)
     {
         UpdateResourcesCommand command;
         command.Resources = resources;
         m_CommandData.emplace_back(command);
 
-        auto renderCommand = [](CommandList *commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
-            auto commandListGL = (CommandListOpenGL *)commandList;
+            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             auto pipeline = commandListGL->m_CurrentlyBoundPipeline;
             const auto &updateResourcesCommand = std::get<UpdateResourcesCommand>(commandListGL->GetCurrentCommandData());
 
-            auto shaderGL = (ShaderOpenGL *)pipeline->GetShader();
-            auto resourcesGL = (ResourceSetOpenGL *)updateResourcesCommand.Resources;
+            auto shaderGL = std::dynamic_pointer_cast<ShaderOpenGL>(pipeline->GetShader());
+            auto resourcesGL = std::dynamic_pointer_cast<ResourceSetOpenGL>(updateResourcesCommand.Resources);
 
             // upload resources
             const auto &textureBindings = resourcesGL->GetBoundTextures();
@@ -314,9 +314,9 @@ namespace Nexus::Graphics
         command.Color = color;
         m_CommandData.emplace_back(command);
 
-        auto renderCommand = [](CommandList *commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
-            auto commandListGL = (CommandListOpenGL *)commandList;
+            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             auto commandData = commandListGL->GetCurrentCommandData();
             auto clearColorCommand = std::get<ClearColorTargetCommand>(commandData);
             auto graphicsDevice = (GraphicsDeviceOpenGL *)commandListGL->GetGraphicsDevice();
@@ -336,9 +336,9 @@ namespace Nexus::Graphics
         command.Value = value;
         m_CommandData.emplace_back(command);
 
-        auto renderCommand = [](CommandList *commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
-            auto commandListGL = (CommandListOpenGL *)commandList;
+            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             auto commandData = commandListGL->GetCurrentCommandData();
             auto clearDepthCommand = std::get<ClearDepthStencilTargetCommand>(commandData);
             auto graphicsDevice = (GraphicsDeviceOpenGL *)commandListGL->GetGraphicsDevice();
@@ -353,9 +353,9 @@ namespace Nexus::Graphics
         SetRenderTargetCommand command{target};
         m_CommandData.emplace_back(command);
 
-        auto renderCommand = [](CommandList *commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
-            auto commandListGL = (CommandListOpenGL *)commandList;
+            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             auto commandData = commandListGL->GetCurrentCommandData();
             auto setRenderTargetCommand = std::get<SetRenderTargetCommand>(commandData);
             auto graphicsDevice = (GraphicsDeviceOpenGL *)commandListGL->GetGraphicsDevice();
@@ -386,9 +386,9 @@ namespace Nexus::Graphics
         command.Viewport = viewport;
         m_CommandData.emplace_back(command);
 
-        auto renderCommand = [](CommandList *commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
-            auto commandListGL = (CommandListOpenGL *)commandList;
+            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             auto commandData = commandListGL->GetCurrentCommandData();
             auto setViewportCommand = std::get<SetViewportCommand>(commandData);
 
@@ -411,9 +411,9 @@ namespace Nexus::Graphics
         command.Scissor = scissor;
         m_CommandData.emplace_back(command);
 
-        auto renderCommand = [](CommandList *commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
-            auto commandListGL = (CommandListOpenGL *)commandList;
+            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             auto commandData = commandListGL->GetCurrentCommandData();
             auto setScissorCommand = std::get<SetScissorCommand>(commandData);
 
@@ -436,9 +436,9 @@ namespace Nexus::Graphics
         command.Target = target;
         m_CommandData.emplace_back(command);
 
-        auto renderCommand = [](CommandList *commandList)
+        auto renderCommand = [](Ref<CommandList> commandList)
         {
-            auto commandListGL = (CommandListOpenGL *)commandList;
+            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             auto commandData = commandListGL->GetCurrentCommandData();
             auto resolveToSwapchainCommand = std::get<ResolveSamplesToSwapchainCommand>(commandData);
 

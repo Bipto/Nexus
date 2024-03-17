@@ -54,7 +54,7 @@ namespace Nexus::Graphics
 
         /// @brief A pure virtual method that will submit a command list for rendering
         /// @param commandList The command list to submit for rendering
-        virtual void SubmitCommandList(CommandList *commandList) = 0;
+        virtual void SubmitCommandList(Ref<CommandList> commandList) = 0;
 
         /// @brief A pure virtual method that returns a context for a graphics API
         /// @return A void pointer to the graphics context
@@ -96,39 +96,39 @@ namespace Nexus::Graphics
 
         /// @brief A pure virtual method that creates a new command list
         /// @return A pointer to a command list
-        virtual CommandList *CreateCommandList() = 0;
+        virtual Ref<CommandList> CreateCommandList() = 0;
 
         /// @brief A pure virtual method that creates a new texture from a given specification
         /// @param spec The properties to use when creating the texture
         /// @return A pointer to a texture
-        virtual Texture *CreateTexture(const TextureSpecification &spec) = 0;
+        virtual Ref<Texture> CreateTexture(const TextureSpecification &spec) = 0;
 
         /// @brief A method that loads a new texture from a image stored on disk
         /// @param filepath The filepath to load the image from
         /// @return A pointer to a texture
-        Texture *CreateTexture(const char *filepath);
+        Ref<Texture> CreateTexture(const char *filepath);
 
         /// @brief A method that loads a new texture from an image stored on disk
         /// @param filepath The filepath to load the image from
         /// @return A pointer to a texture
-        Texture *CreateTexture(const std::string &filepath);
+        Ref<Texture> CreateTexture(const std::string &filepath);
 
         virtual Framebuffer *CreateFramebuffer(const FramebufferSpecification &spec) = 0;
 
         /// @brief A pure virtual method that creates a new resource set from a given specification
         /// @param spec A set of properties to use when creating the resource set
         /// @return A pointer to a resource set
-        virtual ResourceSet *CreateResourceSet(const ResourceSetSpecification &spec) = 0;
+        virtual Ref<ResourceSet> CreateResourceSet(const ResourceSetSpecification &spec) = 0;
 
         /// @brief A method that creates a new resource set from a pipeline
         /// @param pipeline A pipeline to use when creating the resource set
         /// @return A pointer to a resource set
-        ResourceSet *CreateResourceSet(Pipeline *pipeline);
+        Ref<ResourceSet> CreateResourceSet(Pipeline *pipeline);
 
         /// @brief A pure virtual method that creates a new sampler from a given specification
         /// @param spec A set of properties to use when creating the sampler
         /// @return A pointer to a sampler
-        virtual Sampler *CreateSampler(const SamplerSpecification &spec) = 0;
+        virtual Ref<Sampler> CreateSampler(const SamplerSpecification &spec) = 0;
 
         /// @brief A pure virtual method that returns a ShaderFormat enum representing the supported shading language of the backend
         /// @return The supported shading language of the backend
@@ -144,9 +144,9 @@ namespace Nexus::Graphics
         /// @param filepath The filepath to load the GLSL shader from
         /// @param layout A vertex buffer layout to use to create the shader
         /// @return A pointer to a shader
-        Shader *CreateShaderFromSpirvFile(const std::string &filepath);
+        Ref<Shader> CreateShaderFromSpirvFile(const std::string &filepath);
 
-        Shader *CreateShaderFromSpirvSources(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const std::string &vertexShaderName = "VertexShader", const std::string &fragmentShaderName = "FragmentShader");
+        Ref<Shader> CreateShaderFromSpirvSources(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const std::string &vertexShaderName = "VertexShader", const std::string &fragmentShaderName = "FragmentShader");
 
         Window *GetPrimaryWindow();
 
@@ -156,7 +156,7 @@ namespace Nexus::Graphics
         /// @param fragmentShaderSource A fragment shader written in the native shading language of the backend
         /// @param layout A parameter specifying how data is laid out in the vertex buffer
         /// @return A pointer to a shader
-        virtual Shader *CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource) = 0;
+        virtual Ref<Shader> CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource) = 0;
 
     protected:
         /// @brief A pointer to the window to render graphics into

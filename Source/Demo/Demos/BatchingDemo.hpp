@@ -21,7 +21,6 @@ namespace Demos
 
         virtual ~BatchingDemo()
         {
-            delete m_CommandList;
         }
 
         void GenerateShapes()
@@ -130,7 +129,7 @@ namespace Demos
         };
 
     private:
-        Nexus::Graphics::CommandList *m_CommandList;
+        Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
         glm::vec3 m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 
         Nexus::Graphics::BatchRenderer *m_BatchRenderer = nullptr;

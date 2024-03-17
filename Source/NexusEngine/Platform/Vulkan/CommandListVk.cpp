@@ -165,10 +165,10 @@ namespace Nexus::Graphics
         vkCmdDrawIndexed(m_CurrentCommandBuffer, indexCount, instanceCount, indexStart, vertexStart, instanceStart);
     }
 
-    void CommandListVk::SetResourceSet(ResourceSet *resources)
+    void CommandListVk::SetResourceSet(Ref<ResourceSet> resources)
     {
         auto pipelineVk = (PipelineVk *)m_CurrentlyBoundPipeline;
-        auto resourceSetVk = (ResourceSetVk *)resources;
+        auto resourceSetVk = std::dynamic_pointer_cast<ResourceSetVk>(resources);
 
         const auto &descriptorSets = resourceSetVk->GetDescriptorSets()[m_Device->GetCurrentFrameIndex()];
         for (const auto &set : descriptorSets)
@@ -255,7 +255,7 @@ namespace Nexus::Graphics
 
                 if (framebuffer->HasDepthTexture())
                 {
-                    auto texture = (TextureVk *)framebuffer->GetDepthTexture();
+                    auto texture = std::dynamic_pointer_cast<TextureVk>(framebuffer->GetDepthTexture());
                     if (texture->GetLayout() != VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
                     {
                         TransitionImageLayout(texture->GetImage(), texture->GetLayout(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);

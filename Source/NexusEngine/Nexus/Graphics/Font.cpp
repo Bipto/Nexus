@@ -134,7 +134,7 @@ namespace Nexus::Graphics
         FT_Done_FreeType(ft);
     }
 
-    Nexus::Graphics::Texture *Font::GetTexture()
+    Nexus::Ref<Nexus::Graphics::Texture> Font::GetTexture()
     {
         return m_Texture;
     }

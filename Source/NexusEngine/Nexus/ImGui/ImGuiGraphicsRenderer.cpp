@@ -197,7 +197,7 @@ namespace Nexus::ImGuiUtils
 
     ImGuiGraphicsRenderer::~ImGuiGraphicsRenderer()
     {
-        }
+    }
 
     void ImGuiGraphicsRenderer::RebuildFontAtlas()
     {
@@ -222,7 +222,7 @@ namespace Nexus::ImGuiUtils
         io.Fonts->ClearTexData();
     }
 
-    ImTextureID ImGuiGraphicsRenderer::BindTexture(Nexus::Graphics::Texture *texture)
+    ImTextureID ImGuiGraphicsRenderer::BindTexture(Nexus::Ref<Nexus::Graphics::Texture> texture)
     {
         auto id = (ImTextureID)m_TextureID++;
 

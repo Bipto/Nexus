@@ -43,7 +43,7 @@ namespace Nexus::Graphics
         void Begin(const glm::mat4 &mvp);
         void Begin(Viewport viewport, Scissor scissor);
         void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color);
-        void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Texture *texture);
+        void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture> texture);
         void DrawQuadFill(const Rectangle &rectangle, const glm::vec4 &color);
         void DrawQuad(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, float thickness);
         void DrawCharacter(char character, const glm::vec2 &position, float scale, const glm::vec4 &color, Font *font);
@@ -64,20 +64,20 @@ namespace Nexus::Graphics
         void Flush();
         void EnsureStarted();
         void EnsureSpace(uint32_t shapeVertexCount, uint32_t shapeIndexCount);
-        bool FindTextureInBatch(Texture *texture, uint32_t *index);
+        bool FindTextureInBatch(Ref<Texture> texture, uint32_t *index);
 
     private:
         Nexus::Graphics::GraphicsDevice *m_Device = nullptr;
-        Nexus::Graphics::Shader *m_Shader = nullptr;
-        Nexus::Graphics::CommandList *m_CommandList = nullptr;
+        Nexus::Ref<Nexus::Graphics::Shader> m_Shader = nullptr;
+        Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList = nullptr;
 
         Nexus::Graphics::Pipeline *m_Pipeline = nullptr;
-        Nexus::Graphics::ResourceSet *m_ResourceSet = nullptr;
-        Nexus::Graphics::Sampler *m_Sampler = nullptr;
+        Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet = nullptr;
+        Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler = nullptr;
 
         std::vector<Nexus::Graphics::VertexPositionTexCoordColorTexIndex> m_Vertices;
         std::vector<uint32_t> m_Indices;
-        std::vector<Nexus::Graphics::Texture *> m_Textures;
+        std::vector<Nexus::Ref<Nexus::Graphics::Texture>> m_Textures;
 
         uint32_t m_ShapeCount = 0;
         uint32_t m_VertexCount = 0;
@@ -88,7 +88,7 @@ namespace Nexus::Graphics
         Nexus::Graphics::IndexBuffer *m_IndexBuffer = nullptr;
         Nexus::Graphics::UniformBuffer *m_UniformBuffer = nullptr;
 
-        Nexus::Graphics::Texture *m_BlankTexture = nullptr;
+        Nexus::Ref<Nexus::Graphics::Texture> m_BlankTexture = nullptr;
         const uint32_t MAX_TEXTURES = 16;
 
         uint32_t m_Width = 0;

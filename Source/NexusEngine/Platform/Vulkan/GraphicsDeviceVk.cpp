@@ -58,10 +58,10 @@ namespace Nexus::Graphics
     {
     }
 
-    void GraphicsDeviceVk::SubmitCommandList(CommandList *commandList)
+    void GraphicsDeviceVk::SubmitCommandList(Ref<CommandList> commandList)
     {
         VkPipelineStageFlags waitDestStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
-        auto vulkanCommandList = (CommandListVk *)commandList;
+        auto vulkanCommandList = std::dynamic_pointer_cast<CommandListVk>(commandList);
 
         vkWaitForFences(m_Device, 1, &GetCurrentFrame().RenderFence, VK_TRUE, 0);
         vkResetFences(m_Device, 1, &GetCurrentFrame().RenderFence);
@@ -109,7 +109,7 @@ namespace Nexus::Graphics
     {
     }
 
-    Shader *GraphicsDeviceVk::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource)
+    Ref<Shader> GraphicsDeviceVk::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource)
     {
         Nexus::Graphics::ShaderGenerator generator;
 
@@ -135,12 +135,12 @@ namespace Nexus::Graphics
             throw std::runtime_error(fragmentResult.Error);
         }
 
-        return new ShaderVk(vertexResult.SpirvBinary, fragmentResult.SpirvBinary, vertexShaderSource, fragmentShaderSource, this);
+        return CreateRef<ShaderVk>(vertexResult.SpirvBinary, fragmentResult.SpirvBinary, vertexShaderSource, fragmentShaderSource, this);
     }
 
-    Texture *GraphicsDeviceVk::CreateTexture(const TextureSpecification &spec)
+    Ref<Texture> GraphicsDeviceVk::CreateTexture(const TextureSpecification &spec)
     {
-        return new TextureVk(this, spec);
+        return CreateRef<TextureVk>(this, spec);
     }
 
     Pipeline *GraphicsDeviceVk::CreatePipeline(const PipelineDescription &description)
@@ -148,9 +148,9 @@ namespace Nexus::Graphics
         return new PipelineVk(description, this);
     }
 
-    CommandList *GraphicsDeviceVk::CreateCommandList()
+    Ref<CommandList> GraphicsDeviceVk::CreateCommandList()
     {
-        return new CommandListVk(this);
+        return CreateRef<CommandListVk>(this);
     }
 
     VertexBuffer *GraphicsDeviceVk::CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
@@ -168,9 +168,9 @@ namespace Nexus::Graphics
         return new UniformBufferVk(description, data, this);
     }
 
-    ResourceSet *GraphicsDeviceVk::CreateResourceSet(const ResourceSetSpecification &spec)
+    Ref<ResourceSet> GraphicsDeviceVk::CreateResourceSet(const ResourceSetSpecification &spec)
     {
-        return new ResourceSetVk(spec, this);
+        return CreateRef<ResourceSetVk>(spec, this);
     }
 
     Framebuffer *GraphicsDeviceVk::CreateFramebuffer(const FramebufferSpecification &spec)
@@ -178,9 +178,9 @@ namespace Nexus::Graphics
         return new FramebufferVk(spec, this);
     }
 
-    Sampler *GraphicsDeviceVk::CreateSampler(const SamplerSpecification &spec)
+    Ref<Sampler> GraphicsDeviceVk::CreateSampler(const SamplerSpecification &spec)
     {
-        return new SamplerVk(this, spec);
+        return CreateRef<SamplerVk>(this, spec);
     }
 
     const GraphicsCapabilities GraphicsDeviceVk::GetGraphicsCapabilities() const

@@ -170,6 +170,11 @@ namespace Nexus::Graphics
 
     void SwapchainD3D12::ReleaseBuffers()
     {
+        // loop through retrieved buffers and clean them up
+        for (size_t i = 0; i < BUFFER_COUNT; ++i)
+        {
+            m_Buffers[i] = nullptr;
+        }
     }
 
     void SwapchainD3D12::CreateColourAttachments()

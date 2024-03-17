@@ -17,7 +17,7 @@ namespace Nexus::Graphics
 
         virtual void PerformResourceUpdate() override;
         virtual void WriteUniformBuffer(UniformBuffer *uniformBuffer, const std::string &name) override;
-        virtual void WriteCombinedImageSampler(Texture *texture, Sampler *sampler, const std::string &name) override;
+        virtual void WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name) override;
 
         const std::map<uint32_t, VkDescriptorSetLayout> &GetDescriptorSetLayouts() const;
         const std::vector<std::map<uint32_t, VkDescriptorSet>> &GetDescriptorSets() const;

@@ -20,7 +20,7 @@ namespace Nexus
         /// @brief A method to return a reference counted pointer to a texture
         /// @param filepath A filepath to retrieve a texture from, if the texture has already been loaded then the cached one will be returned
         /// @return A reference counted pointer to a texture
-        Graphics::Texture *GetTexture(const std::string &filepath);
+        Ref<Graphics::Texture> GetTexture(const std::string &filepath);
 
     private:
         /// @brief A reference counted pointer to a graphics device

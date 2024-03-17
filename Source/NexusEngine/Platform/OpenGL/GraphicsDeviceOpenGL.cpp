@@ -160,9 +160,9 @@ namespace Nexus::Graphics
         }
     }
 
-    void GraphicsDeviceOpenGL::SubmitCommandList(CommandList *commandList)
+    void GraphicsDeviceOpenGL::SubmitCommandList(Ref<CommandList> commandList)
     {
-        auto commandListGL = (CommandListOpenGL *)commandList;
+        auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
         auto &commands = commandListGL->GetRenderCommands();
 
         for (auto &command : commands)
@@ -195,9 +195,9 @@ namespace Nexus::Graphics
     {
     }
 
-    Shader *GraphicsDeviceOpenGL::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource)
+    Ref<Shader> GraphicsDeviceOpenGL::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource)
     {
-        return new ShaderOpenGL(vertexShaderSource, fragmentShaderSource);
+        return CreateRef<ShaderOpenGL>(vertexShaderSource, fragmentShaderSource);
     }
 
     std::vector<std::string> GraphicsDeviceOpenGL::GetSupportedExtensions()
@@ -216,9 +216,9 @@ namespace Nexus::Graphics
         return extensions;
     }
 
-    Texture *GraphicsDeviceOpenGL::CreateTexture(const TextureSpecification &spec)
+    Ref<Texture> GraphicsDeviceOpenGL::CreateTexture(const TextureSpecification &spec)
     {
-        return new TextureOpenGL(spec);
+        return CreateRef<TextureOpenGL>(spec);
     }
 
     Pipeline *GraphicsDeviceOpenGL::CreatePipeline(const PipelineDescription &description)
@@ -226,9 +226,9 @@ namespace Nexus::Graphics
         return new PipelineOpenGL(description);
     }
 
-    CommandList *GraphicsDeviceOpenGL::CreateCommandList()
+    Ref<CommandList> GraphicsDeviceOpenGL::CreateCommandList()
     {
-        return new CommandListOpenGL(this);
+        return CreateRef<CommandListOpenGL>(this);
     }
 
     VertexBuffer *GraphicsDeviceOpenGL::CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
@@ -246,9 +246,9 @@ namespace Nexus::Graphics
         return new UniformBufferOpenGL(description, data);
     }
 
-    ResourceSet *GraphicsDeviceOpenGL::CreateResourceSet(const ResourceSetSpecification &spec)
+    Ref<ResourceSet> GraphicsDeviceOpenGL::CreateResourceSet(const ResourceSetSpecification &spec)
     {
-        return new ResourceSetOpenGL(spec);
+        return CreateRef<ResourceSetOpenGL>(spec);
     }
 
     Framebuffer *GraphicsDeviceOpenGL::CreateFramebuffer(const FramebufferSpecification &spec)
@@ -256,9 +256,9 @@ namespace Nexus::Graphics
         return new FramebufferOpenGL(spec, this);
     }
 
-    Sampler *GraphicsDeviceOpenGL::CreateSampler(const SamplerSpecification &spec)
+    Ref<Sampler> GraphicsDeviceOpenGL::CreateSampler(const SamplerSpecification &spec)
     {
-        return new SamplerOpenGL(spec);
+        return CreateRef<SamplerOpenGL>(spec);
     }
 
     const GraphicsCapabilities GraphicsDeviceOpenGL::GetGraphicsCapabilities() const

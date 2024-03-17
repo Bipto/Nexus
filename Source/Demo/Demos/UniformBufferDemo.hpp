@@ -31,11 +31,7 @@ namespace Demos
 
         virtual ~UniformBufferDemo()
         {
-            delete m_CommandList;
-            delete m_Shader;
             delete m_Pipeline;
-            delete m_Texture;
-            delete m_ResourceSet;
             delete m_Mesh;
             delete m_TransformUniformBuffer;
         }
@@ -123,13 +119,13 @@ namespace Demos
         }
 
     private:
-        Nexus::Graphics::CommandList *m_CommandList;
-        Nexus::Graphics::Shader *m_Shader;
+        Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
+        Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
         Nexus::Graphics::Pipeline *m_Pipeline;
-        Nexus::Graphics::Texture *m_Texture;
-        Nexus::Graphics::ResourceSet *m_ResourceSet;
+        Nexus::Ref<Nexus::Graphics::Texture> m_Texture;
+        Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
         Nexus::Graphics::Mesh *m_Mesh;
-        Nexus::Graphics::Sampler *m_Sampler;
+        Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler;
         glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
 
         glm::vec3 m_Position{0.0f, 0.0f, 0.0f};

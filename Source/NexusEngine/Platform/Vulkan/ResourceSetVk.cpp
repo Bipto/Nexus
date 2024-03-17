@@ -169,10 +169,10 @@ namespace Nexus::Graphics
         vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &uniformBufferToWrite, 0, nullptr);
     }
 
-    void ResourceSetVk::WriteCombinedImageSampler(Texture *texture, Sampler *sampler, const std::string &name)
+    void ResourceSetVk::WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name)
     {
-        TextureVk *textureVk = (TextureVk *)texture;
-        SamplerVk *samplerVk = (SamplerVk *)sampler;
+        Ref<TextureVk> textureVk = std::dynamic_pointer_cast<TextureVk>(texture);
+        Ref<SamplerVk> samplerVk = std::dynamic_pointer_cast<SamplerVk>(sampler);
         const auto &descriptorSets = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
 
         const BindingInfo &info = m_TextureBindingInfos.at(name);

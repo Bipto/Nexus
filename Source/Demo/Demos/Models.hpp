@@ -55,14 +55,8 @@ namespace Demos
 
         virtual ~ModelDemo()
         {
-            delete m_CommandList;
-            delete m_Shader;
             delete m_Pipeline;
             delete m_Model;
-            delete m_DiffuseMap;
-            delete m_NormalMap;
-            delete m_SpecularMap;
-            delete m_ResourceSet;
             delete m_CameraUniformBuffer;
             delete m_TransformUniformBuffer;
         }
@@ -170,16 +164,16 @@ namespace Demos
         }
 
     private:
-        Nexus::Graphics::CommandList *m_CommandList;
-        Nexus::Graphics::Shader *m_Shader;
+        Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
+        Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
         Nexus::Graphics::Pipeline *m_Pipeline;
         Nexus::Graphics::Model *m_Model;
-        Nexus::Graphics::Texture *m_DiffuseMap;
-        Nexus::Graphics::Texture *m_NormalMap;
-        Nexus::Graphics::Texture *m_SpecularMap;
+        Nexus::Ref<Nexus::Graphics::Texture> m_DiffuseMap;
+        Nexus::Ref<Nexus::Graphics::Texture> m_NormalMap;
+        Nexus::Ref<Nexus::Graphics::Texture> m_SpecularMap;
         glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
 
-        Nexus::Graphics::ResourceSet *m_ResourceSet;
+        Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
 
         VB_UNIFORM_CAMERA_DEMO_MODELS m_CameraUniforms;
         Nexus::Graphics::UniformBuffer *m_CameraUniformBuffer;
@@ -187,7 +181,7 @@ namespace Demos
         VB_UNIFORM_TRANSFORM_DEMO_MODELS m_TransformUniforms;
         Nexus::Graphics::UniformBuffer *m_TransformUniformBuffer;
 
-        Nexus::Graphics::Sampler *m_Sampler;
+        Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler;
 
         Nexus::FirstPersonCamera m_Camera;
 
