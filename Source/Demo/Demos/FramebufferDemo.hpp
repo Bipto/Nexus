@@ -66,7 +66,7 @@ namespace Demos
         Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
         glm::vec3 m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 
-        Nexus::Graphics::Framebuffer *m_Framebuffer = nullptr;
+        Nexus::Ref<Nexus::Graphics::Framebuffer> m_Framebuffer = nullptr;
         ImTextureID m_TextureID = 0;
         glm::vec3 m_RenderTargetClearColour = {0.75f, 0.35f, 0.42f};
     };

@@ -135,7 +135,7 @@ namespace Nexus::Graphics
         }
         else if (m_Description.Target.GetType() == RenderTargetType::Framebuffer)
         {
-            auto framebufferVk = (FramebufferVk *)m_Description.Target.GetData<Framebuffer *>();
+            auto framebufferVk = std::dynamic_pointer_cast<FramebufferVk>(m_Description.Target.GetData<Ref<Framebuffer>>());
             pipelineInfo.renderPass = framebufferVk->GetRenderPass();
         }
         else
@@ -220,7 +220,7 @@ namespace Nexus::Graphics
         // multisampling is only supported on framebuffers
         if (m_Description.Target.GetType() == RenderTargetType::Framebuffer)
         {
-            auto framebufferVk = (FramebufferVk *)m_Description.Target.GetData<Framebuffer *>();
+            auto framebufferVk = std::dynamic_pointer_cast<FramebufferVk>(m_Description.Target.GetData<Ref<Framebuffer>>());
             samples = GetVkSampleCount(framebufferVk->GetFramebufferSpecification().Samples);
         }
         else if (m_Description.Target.GetType() == RenderTargetType::Swapchain)

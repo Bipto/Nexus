@@ -99,28 +99,28 @@ namespace Nexus::Graphics
         m_RenderPassStarted = false;
     }
 
-    void CommandListVk::SetVertexBuffer(VertexBuffer *vertexBuffer, uint32_t slot)
+    void CommandListVk::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer, uint32_t slot)
     {
-        auto vulkanVB = (VertexBufferVk *)vertexBuffer;
+        auto vulkanVB = std::dynamic_pointer_cast<VertexBufferVk>(vertexBuffer);
 
         VkBuffer vertexBuffers[] = {vulkanVB->GetBuffer()};
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(m_CurrentCommandBuffer, slot, 1, vertexBuffers, offsets);
     }
 
-    void CommandListVk::SetIndexBuffer(IndexBuffer *indexBuffer)
+    void CommandListVk::SetIndexBuffer(Ref<IndexBuffer> indexBuffer)
     {
-        auto vulkanIB = (IndexBufferVk *)indexBuffer;
+        auto vulkanIB = std::dynamic_pointer_cast<IndexBufferVk>(indexBuffer);
 
         VkBuffer indexBufferRaw = vulkanIB->GetBuffer();
         VkIndexType indexType = GetVulkanIndexBufferFormat(vulkanIB->GetFormat());
         vkCmdBindIndexBuffer(m_CurrentCommandBuffer, indexBufferRaw, 0, indexType);
     }
 
-    void CommandListVk::SetPipeline(Pipeline *pipeline)
+    void CommandListVk::SetPipeline(Ref<Pipeline> pipeline)
     {
         SetRenderTarget(pipeline->GetPipelineDescription().Target);
-        auto vulkanPipeline = (PipelineVk *)pipeline;
+        auto vulkanPipeline = std::dynamic_pointer_cast<PipelineVk>(pipeline);
         vkCmdBindPipeline(m_CurrentCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanPipeline->GetPipeline());
         m_CurrentlyBoundPipeline = pipeline;
     }
@@ -167,7 +167,7 @@ namespace Nexus::Graphics
 
     void CommandListVk::SetResourceSet(Ref<ResourceSet> resources)
     {
-        auto pipelineVk = (PipelineVk *)m_CurrentlyBoundPipeline;
+        auto pipelineVk = std::dynamic_pointer_cast<PipelineVk>(m_CurrentlyBoundPipeline);
         auto resourceSetVk = std::dynamic_pointer_cast<ResourceSetVk>(resources);
 
         const auto &descriptorSets = resourceSetVk->GetDescriptorSets()[m_Device->GetCurrentFrameIndex()];
@@ -242,7 +242,7 @@ namespace Nexus::Graphics
 
             if (m_CurrentRenderTarget.GetType() == RenderTargetType::Framebuffer)
             {
-                auto framebuffer = (FramebufferVk *)m_CurrentRenderTarget.GetData<Framebuffer *>();
+                auto framebuffer = std::dynamic_pointer_cast<FramebufferVk>(m_CurrentRenderTarget.GetData<Ref<Framebuffer>>());
                 for (int i = 0; i < framebuffer->GetColorTextureCount(); i++)
                 {
                     auto texture = framebuffer->GetVulkanColorTexture(i);
@@ -316,31 +316,12 @@ namespace Nexus::Graphics
         }
         else
         {
-            auto framebuffer = target.GetData<Framebuffer *>();
-            auto vulkanFramebuffer = (FramebufferVk *)framebuffer;
+            auto framebuffer = target.GetData<Ref<Framebuffer>>();
+            auto vulkanFramebuffer = std::dynamic_pointer_cast<FramebufferVk>(framebuffer);
             auto renderPass = vulkanFramebuffer->GetRenderPass();
 
             // on first frame, put the framebuffer images into the correct layout
             {
-                /* for (int i = 0; i < vulkanFramebuffer->GetColorTextureCount(); i++)
-                {
-
-                    auto colorLayout = vulkanFramebuffer->GetColorImageLayouts()[i];
-                    if (colorLayout == VK_IMAGE_LAYOUT_UNDEFINED)
-                    {
-                        auto image = vulkanFramebuffer->GetColorTextureImage(i);
-                        TransitionImageLayout(image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
-                        vulkanFramebuffer->SetColorImageLayout(VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL, i);
-                    }
-                }
-
-                if (vulkanFramebuffer->HasDepthTexture() && vulkanFramebuffer->GetDepthImageLayout() == VK_IMAGE_LAYOUT_UNDEFINED)
-                {
-                    auto image = vulkanFramebuffer->GetDepthTextureImage();
-                    TransitionImageLayout(image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT));
-                    vulkanFramebuffer->SetDepthImageLayout(VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
-                } */
-
                 for (uint32_t i = 0; i < vulkanFramebuffer->GetColorTextureCount(); i++)
                 {
                     auto texture = vulkanFramebuffer->GetVulkanColorTexture(i);
@@ -415,7 +396,7 @@ namespace Nexus::Graphics
         vkCmdSetScissor(m_CurrentCommandBuffer, 0, 1, &rect);
     }
 
-    void CommandListVk::ResolveFramebuffer(Framebuffer *source, uint32_t sourceIndex, Swapchain *target)
+    void CommandListVk::ResolveFramebuffer(Ref<Framebuffer> source, uint32_t sourceIndex, Swapchain *target)
     {
         if (!m_RenderPassStarted)
         {
@@ -433,7 +414,7 @@ namespace Nexus::Graphics
             m_RenderPassStarted = false;
         }
 
-        auto framebufferVk = (FramebufferVk *)source;
+        auto framebufferVk = std::dynamic_pointer_cast<FramebufferVk>(source);
         auto swapchainVk = (SwapchainVk *)target;
 
         VkImage framebufferImage = framebufferVk->GetVulkanColorTexture(sourceIndex)->GetImage();

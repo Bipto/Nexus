@@ -150,7 +150,7 @@ namespace Nexus::Graphics
         // multisampling is only supported on framebuffers
         if (m_Description.Target.GetType() == RenderTargetType::Framebuffer)
         {
-            auto framebuffer = (FramebufferD3D12 *)m_Description.Target.GetData<Framebuffer *>();
+            auto framebuffer = std::dynamic_pointer_cast<FramebufferD3D12>(m_Description.Target.GetData<Ref<Framebuffer>>());
             sampleCount = GetSampleCount(framebuffer->GetFramebufferSpecification().Samples);
 
             for (uint32_t i = 0; i < framebuffer->GetColorTextureCount(); i++)

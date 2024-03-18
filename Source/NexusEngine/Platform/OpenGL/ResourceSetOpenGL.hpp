@@ -18,16 +18,16 @@ namespace Nexus::Graphics
     public:
         ResourceSetOpenGL(const ResourceSetSpecification &spec);
         virtual void PerformResourceUpdate() override;
-        virtual void WriteUniformBuffer(UniformBuffer *uniformBuffer, const std::string &name) override;
+        virtual void WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, const std::string &name) override;
         virtual void WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name) override;
 
         const std::map<std::string, Ref<TextureOpenGL>> &GetBoundTextures() const;
-        const std::map<std::string, UniformBufferOpenGL *> &GetBoundUniformBuffers() const;
+        const std::map<std::string, Ref<UniformBufferOpenGL>> &GetBoundUniformBuffers() const;
         const std::map<std::string, Ref<SamplerOpenGL>> &GetBoundSamplers() const;
 
     private:
         std::map<std::string, Ref<TextureOpenGL>> m_BoundTextures;
-        std::map<std::string, UniformBufferOpenGL *> m_BoundUniformBuffers;
+        std::map<std::string, Ref<UniformBufferOpenGL>> m_BoundUniformBuffers;
         std::map<std::string, Ref<SamplerOpenGL>> m_BoundSamplers;
     };
 }

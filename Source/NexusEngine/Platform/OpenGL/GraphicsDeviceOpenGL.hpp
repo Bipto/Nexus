@@ -15,7 +15,7 @@ namespace Nexus::Graphics
         GraphicsDeviceOpenGL(const GraphicsDeviceCreateInfo &createInfo, Window *window, const SwapchainSpecification &swapchainSpec);
         GraphicsDeviceOpenGL(const GraphicsDeviceOpenGL &) = delete;
         void SetContext() override;
-        void SetFramebuffer(Framebuffer *framebuffer);
+        void SetFramebuffer(Ref<Framebuffer> framebuffer);
         void SetSwapchain(Swapchain *swapchain);
         virtual void SubmitCommandList(Ref<CommandList> commandList) override;
 
@@ -27,13 +27,13 @@ namespace Nexus::Graphics
         virtual void EndFrame() override;
 
         virtual Ref<Texture> CreateTexture(const TextureSpecification &spec) override;
-        virtual Pipeline *CreatePipeline(const PipelineDescription &description) override;
+        virtual Ref<Pipeline> CreatePipeline(const PipelineDescription &description) override;
         virtual Ref<CommandList> CreateCommandList();
-        virtual VertexBuffer *CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout) override;
-        virtual IndexBuffer *CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format = IndexBufferFormat::UInt32) override;
-        virtual UniformBuffer *CreateUniformBuffer(const BufferDescription &description, const void *data) override;
+        virtual Ref<VertexBuffer> CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout) override;
+        virtual Ref<IndexBuffer> CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format = IndexBufferFormat::UInt32) override;
+        virtual Ref<UniformBuffer> CreateUniformBuffer(const BufferDescription &description, const void *data) override;
         virtual Ref<ResourceSet> CreateResourceSet(const ResourceSetSpecification &spec) override;
-        virtual Framebuffer *CreateFramebuffer(const FramebufferSpecification &spec) override;
+        virtual Ref<Framebuffer> CreateFramebuffer(const FramebufferSpecification &spec) override;
         virtual Ref<Sampler> CreateSampler(const SamplerSpecification &spec) override;
         virtual const GraphicsCapabilities GetGraphicsCapabilities() const override;
 
@@ -46,7 +46,7 @@ namespace Nexus::Graphics
 
     private:
         const char *m_GlslVersion;
-        FramebufferOpenGL *m_BoundFramebuffer = nullptr;
+        Ref<FramebufferOpenGL> m_BoundFramebuffer = nullptr;
         VSyncState m_VsyncState = VSyncState::Enabled;
 
         std::vector<std::string> m_Extensions;

@@ -47,25 +47,25 @@ namespace Nexus::Graphics
         m_CommandList->Close();
     }
 
-    void CommandListD3D12::SetVertexBuffer(VertexBuffer *vertexBuffer, uint32_t slot)
+    void CommandListD3D12::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer, uint32_t slot)
     {
-        VertexBufferD3D12 *d3d12VertexBuffer = (VertexBufferD3D12 *)vertexBuffer;
+        Ref<VertexBufferD3D12> d3d12VertexBuffer = std::dynamic_pointer_cast<VertexBufferD3D12>(vertexBuffer);
         auto vertexBufferView = d3d12VertexBuffer->GetVertexBufferView();
         m_CommandList->IASetVertexBuffers(slot, 1, &vertexBufferView);
     }
 
-    void CommandListD3D12::SetIndexBuffer(IndexBuffer *indexBuffer)
+    void CommandListD3D12::SetIndexBuffer(Ref<IndexBuffer> indexBuffer)
     {
-        IndexBufferD3D12 *d3d12IndexBuffer = (IndexBufferD3D12 *)indexBuffer;
+        Ref<IndexBufferD3D12> d3d12IndexBuffer = std::dynamic_pointer_cast<IndexBufferD3D12>(indexBuffer);
         auto indexBufferView = d3d12IndexBuffer->GetIndexBufferView();
         m_CommandList->IASetIndexBuffer(&indexBufferView);
     }
 
-    void CommandListD3D12::SetPipeline(Pipeline *pipeline)
+    void CommandListD3D12::SetPipeline(Ref<Pipeline> pipeline)
     {
         const auto &description = pipeline->GetPipelineDescription();
 
-        PipelineD3D12 *d3d12Pipeline = (PipelineD3D12 *)pipeline;
+        Ref<PipelineD3D12> d3d12Pipeline = std::dynamic_pointer_cast<PipelineD3D12>(pipeline);
         SetRenderTarget(pipeline->GetPipelineDescription().Target);
         m_CommandList->OMSetDepthBounds(description.DepthStencilDescription.MinDepth, description.DepthStencilDescription.MaxDepth);
         m_CommandList->SetPipelineState(d3d12Pipeline->GetPipelineState());
@@ -168,7 +168,7 @@ namespace Nexus::Graphics
         }
         else if (target.GetType() == RenderTargetType::Framebuffer)
         {
-            auto d3d12Framebuffer = (FramebufferD3D12 *)target.GetData<Framebuffer *>();
+            auto d3d12Framebuffer = std::dynamic_pointer_cast<FramebufferD3D12>(target.GetData<Ref<Framebuffer>>());
             SetFramebuffer(d3d12Framebuffer);
         }
         else
@@ -218,9 +218,9 @@ namespace Nexus::Graphics
         m_CommandList->RSSetScissorRects(1, &rect);
     }
 
-    void CommandListD3D12::ResolveFramebuffer(Framebuffer *source, uint32_t sourceIndex, Swapchain *target)
+    void CommandListD3D12::ResolveFramebuffer(Ref<Framebuffer> source, uint32_t sourceIndex, Swapchain *target)
     {
-        auto framebufferD3D12 = (FramebufferD3D12 *)source;
+        auto framebufferD3D12 = std::dynamic_pointer_cast<FramebufferD3D12>(source);
         auto swapchainD3D12 = (SwapchainD3D12 *)target;
 
         if (sourceIndex > framebufferD3D12->GetColorTextureCount())
@@ -330,11 +330,11 @@ namespace Nexus::Graphics
         }
         else
         {
-            SetFramebuffer((FramebufferD3D12 *)swapchain->GetMultisampledFramebuffer());
+            SetFramebuffer(std::dynamic_pointer_cast<FramebufferD3D12>(swapchain->GetMultisampledFramebuffer()));
         }
     }
 
-    void CommandListD3D12::SetFramebuffer(FramebufferD3D12 *framebuffer)
+    void CommandListD3D12::SetFramebuffer(Ref<FramebufferD3D12> framebuffer)
     {
         ResetPreviousRenderTargets();
 
@@ -424,7 +424,7 @@ namespace Nexus::Graphics
         }
         else if (m_CurrentRenderTarget.GetType() == RenderTargetType::Framebuffer)
         {
-            auto d3d12Framebuffer = (FramebufferD3D12 *)m_CurrentRenderTarget.GetData<Framebuffer *>();
+            auto d3d12Framebuffer = std::dynamic_pointer_cast<FramebufferD3D12>(m_CurrentRenderTarget.GetData<Ref<Framebuffer>>());
             std::vector<D3D12_RESOURCE_BARRIER> resourceBarriers;
 
             for (uint32_t i = 0; i < d3d12Framebuffer->GetColorTextureCount(); i++)

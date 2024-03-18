@@ -25,15 +25,15 @@ namespace Nexus::Graphics
         virtual void EndFrame() override;
 
         virtual Ref<Texture> CreateTexture(const TextureSpecification &spec) override;
-        virtual Pipeline *CreatePipeline(const PipelineDescription &description) override;
+        virtual Ref<Pipeline> CreatePipeline(const PipelineDescription &description) override;
         virtual Ref<CommandList> CreateCommandList() override;
 
-        virtual VertexBuffer *CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout) override;
-        virtual IndexBuffer *CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format = IndexBufferFormat::UInt32) override;
-        virtual UniformBuffer *CreateUniformBuffer(const BufferDescription &description, const void *data) override;
+        virtual Ref<VertexBuffer> CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout) override;
+        virtual Ref<IndexBuffer> CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format = IndexBufferFormat::UInt32) override;
+        virtual Ref<UniformBuffer> CreateUniformBuffer(const BufferDescription &description, const void *data) override;
         virtual Ref<ResourceSet> CreateResourceSet(const ResourceSetSpecification &spec) override;
 
-        virtual Framebuffer *CreateFramebuffer(const FramebufferSpecification &spec) override;
+        virtual Ref<Framebuffer> CreateFramebuffer(const FramebufferSpecification &spec) override;
         virtual Ref<Sampler> CreateSampler(const SamplerSpecification &spec) override;
 
         virtual ShaderLanguage GetSupportedShaderFormat() override { return ShaderLanguage::HLSL; }

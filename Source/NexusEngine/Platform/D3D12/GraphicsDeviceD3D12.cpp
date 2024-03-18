@@ -120,9 +120,9 @@ namespace Nexus::Graphics
         return CreateRef<TextureD3D12>(this, spec);
     }
 
-    Pipeline *GraphicsDeviceD3D12::CreatePipeline(const PipelineDescription &description)
+    Ref<Pipeline> GraphicsDeviceD3D12::CreatePipeline(const PipelineDescription &description)
     {
-        return new PipelineD3D12(m_Device.Get(), description);
+        return CreateRef<PipelineD3D12>(m_Device.Get(), description);
     }
 
     Ref<CommandList> GraphicsDeviceD3D12::CreateCommandList()
@@ -130,19 +130,19 @@ namespace Nexus::Graphics
         return CreateRef<CommandListD3D12>(this);
     }
 
-    VertexBuffer *GraphicsDeviceD3D12::CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
+    Ref<VertexBuffer> GraphicsDeviceD3D12::CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
     {
-        return new VertexBufferD3D12(this, description, data, layout);
+        return CreateRef<VertexBufferD3D12>(this, description, data, layout);
     }
 
-    IndexBuffer *GraphicsDeviceD3D12::CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format)
+    Ref<IndexBuffer> GraphicsDeviceD3D12::CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format)
     {
-        return new IndexBufferD3D12(this, description, data, format);
+        return CreateRef<IndexBufferD3D12>(this, description, data, format);
     }
 
-    UniformBuffer *GraphicsDeviceD3D12::CreateUniformBuffer(const BufferDescription &description, const void *data)
+    Ref<UniformBuffer> GraphicsDeviceD3D12::CreateUniformBuffer(const BufferDescription &description, const void *data)
     {
-        return new UniformBufferD3D12(this, description, data);
+        return CreateRef<UniformBufferD3D12>(this, description, data);
     }
 
     Ref<ResourceSet> GraphicsDeviceD3D12::CreateResourceSet(const ResourceSetSpecification &spec)
@@ -150,9 +150,9 @@ namespace Nexus::Graphics
         return CreateRef<ResourceSetD3D12>(spec, this);
     }
 
-    Framebuffer *GraphicsDeviceD3D12::CreateFramebuffer(const FramebufferSpecification &spec)
+    Ref<Framebuffer> GraphicsDeviceD3D12::CreateFramebuffer(const FramebufferSpecification &spec)
     {
-        return new FramebufferD3D12(spec, this);
+        return CreateRef<FramebufferD3D12>(spec, this);
     }
 
     Ref<Sampler> GraphicsDeviceD3D12::CreateSampler(const SamplerSpecification &spec)

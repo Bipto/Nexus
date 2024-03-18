@@ -19,9 +19,9 @@ namespace Nexus::Graphics
         virtual void Begin() override;
         virtual void End() override;
 
-        virtual void SetVertexBuffer(VertexBuffer *vertexBuffer, uint32_t slot) override;
-        virtual void SetIndexBuffer(IndexBuffer *indexBuffer) override;
-        virtual void SetPipeline(Pipeline *pipeline) override;
+        virtual void SetVertexBuffer(Ref<VertexBuffer> vertexBuffer, uint32_t slot) override;
+        virtual void SetIndexBuffer(Ref<IndexBuffer> indexBuffer) override;
+        virtual void SetPipeline(Ref<Pipeline> ipeline) override;
 
         virtual void Draw(uint32_t start, uint32_t count) override;
         virtual void DrawIndexed(uint32_t count, uint32_t indexStart, uint32_t vertexStart) override;
@@ -36,12 +36,12 @@ namespace Nexus::Graphics
 
         virtual void SetViewport(const Viewport &viewport) override;
         virtual void SetScissor(const Scissor &scissor) override;
-        virtual void ResolveFramebuffer(Framebuffer *source, uint32_t sourceIndex, Swapchain *target) override;
+        virtual void ResolveFramebuffer(Ref<Framebuffer> source, uint32_t sourceIndex, Swapchain *target) override;
 
         ID3D12GraphicsCommandList7 *GetCommandList();
 
         void SetSwapchain(SwapchainD3D12 *swapchain);
-        void SetFramebuffer(FramebufferD3D12 *framebuffer);
+        void SetFramebuffer(Ref<FramebufferD3D12> framebuffer);
         void ResetPreviousRenderTargets();
 
     private:

@@ -143,9 +143,9 @@ namespace Nexus::Graphics
         return CreateRef<TextureVk>(this, spec);
     }
 
-    Pipeline *GraphicsDeviceVk::CreatePipeline(const PipelineDescription &description)
+    Ref<Pipeline> GraphicsDeviceVk::CreatePipeline(const PipelineDescription &description)
     {
-        return new PipelineVk(description, this);
+        return CreateRef<PipelineVk>(description, this);
     }
 
     Ref<CommandList> GraphicsDeviceVk::CreateCommandList()
@@ -153,19 +153,19 @@ namespace Nexus::Graphics
         return CreateRef<CommandListVk>(this);
     }
 
-    VertexBuffer *GraphicsDeviceVk::CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
+    Ref<VertexBuffer> GraphicsDeviceVk::CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
     {
-        return new VertexBufferVk(description, data, layout, this);
+        return CreateRef<VertexBufferVk>(description, data, layout, this);
     }
 
-    IndexBuffer *GraphicsDeviceVk::CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format)
+    Ref<IndexBuffer> GraphicsDeviceVk::CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format)
     {
-        return new IndexBufferVk(description, data, this, format);
+        return CreateRef<IndexBufferVk>(description, data, this, format);
     }
 
-    UniformBuffer *GraphicsDeviceVk::CreateUniformBuffer(const BufferDescription &description, const void *data)
+    Ref<UniformBuffer> GraphicsDeviceVk::CreateUniformBuffer(const BufferDescription &description, const void *data)
     {
-        return new UniformBufferVk(description, data, this);
+        return CreateRef<UniformBufferVk>(description, data, this);
     }
 
     Ref<ResourceSet> GraphicsDeviceVk::CreateResourceSet(const ResourceSetSpecification &spec)
@@ -173,9 +173,9 @@ namespace Nexus::Graphics
         return CreateRef<ResourceSetVk>(spec, this);
     }
 
-    Framebuffer *GraphicsDeviceVk::CreateFramebuffer(const FramebufferSpecification &spec)
+    Ref<Framebuffer> GraphicsDeviceVk::CreateFramebuffer(const FramebufferSpecification &spec)
     {
-        return new FramebufferVk(spec, this);
+        return CreateRef<FramebufferVk>(spec, this);
     }
 
     Ref<Sampler> GraphicsDeviceVk::CreateSampler(const SamplerSpecification &spec)

@@ -35,7 +35,7 @@ namespace Nexus::ImGuiUtils
         Nexus::Graphics::GraphicsDevice *m_GraphicsDevice = nullptr;
         Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList = nullptr;
         Nexus::Ref<Nexus::Graphics::Shader> m_Shader = nullptr;
-        Nexus::Graphics::Pipeline *m_Pipeline = nullptr;
+        Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline = nullptr;
         Nexus::Ref<Nexus::Graphics::Texture> m_FontTexture = nullptr;
 
         std::map<ImTextureID, Nexus::Ref<Nexus::Graphics::ResourceSet>> m_ResourceSets;
@@ -43,13 +43,13 @@ namespace Nexus::ImGuiUtils
         uint64_t m_TextureID = 0;
         ImTextureID m_FontTextureID = 0;
 
-        Nexus::Graphics::VertexBuffer *m_VertexBuffer = nullptr;
+        Nexus::Ref<Nexus::Graphics::VertexBuffer> m_VertexBuffer = nullptr;
         uint32_t m_VertexBufferCount = 0;
 
-        Nexus::Graphics::IndexBuffer *m_IndexBuffer = nullptr;
+        Nexus::Ref<Nexus::Graphics::IndexBuffer> m_IndexBuffer = nullptr;
         uint32_t m_IndexBufferCount = 0;
 
-        Nexus::Graphics::UniformBuffer *m_UniformBuffer = nullptr;
+        Nexus::Ref<Nexus::Graphics::UniformBuffer> m_UniformBuffer = nullptr;
 
         std::vector<int> m_Keys;
     };

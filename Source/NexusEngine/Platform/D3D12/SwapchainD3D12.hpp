@@ -37,12 +37,12 @@ namespace Nexus::Graphics
         const D3D12_RESOURCE_STATES GetCurrentDepthState() const;
         void SetTextureState(D3D12_RESOURCE_STATES state);
         void SetDepthState(D3D12_RESOURCE_STATES state);
-        Framebuffer *GetMultisampledFramebuffer();
+        Ref<Framebuffer> GetMultisampledFramebuffer();
 
     private:
         void Flush();
         void RecreateSwapchainIfNecessary();
-        void ResizeBuffers(uint32_t width, uint32_t height);
+        void ResizeBuffers();
         void GetBuffers();
         void ReleaseBuffers();
 
@@ -70,7 +70,7 @@ namespace Nexus::Graphics
         std::vector<D3D12_RESOURCE_STATES> m_CurrentTextureStates;
         D3D12_RESOURCE_STATES m_CurrentDepthState;
 
-        Framebuffer *m_MultisampledFramebuffer = nullptr;
+        Nexus::Ref<Framebuffer> m_MultisampledFramebuffer = nullptr;
     };
 }
 #endif

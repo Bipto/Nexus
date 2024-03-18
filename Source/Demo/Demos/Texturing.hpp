@@ -31,9 +31,6 @@ namespace Demos
         virtual ~TexturingDemo()
         {
             m_ImGuiRenderer->UnbindTexture(m_TextureID);
-
-            delete m_Pipeline;
-            delete m_Mesh;
         }
 
         virtual void Update(Nexus::Time time) override
@@ -111,9 +108,9 @@ namespace Demos
     private:
         Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
         Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
-        Nexus::Graphics::Pipeline *m_Pipeline;
+        Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
         Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
-        Nexus::Graphics::Mesh *m_Mesh;
+        Nexus::Ref<Nexus::Graphics::Mesh> m_Mesh;
         Nexus::Ref<Nexus::Graphics::Texture> m_Texture;
         Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler;
         glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};

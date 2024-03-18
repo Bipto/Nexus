@@ -350,8 +350,6 @@ namespace Nexus::ImGuiUtils
 
         if (drawData->TotalVtxCount > m_VertexBufferCount)
         {
-            delete m_VertexBuffer;
-
             Nexus::Graphics::VertexBufferLayout layout =
                 {
                     {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
@@ -366,8 +364,6 @@ namespace Nexus::ImGuiUtils
 
         if (drawData->TotalIdxCount > m_IndexBufferCount)
         {
-            delete m_IndexBuffer;
-
             Nexus::Graphics::BufferDescription desc;
             desc.Size = drawData->TotalIdxCount * 1.5f * sizeof(ImDrawIdx);
             desc.Usage = Nexus::Graphics::BufferUsage::Dynamic;

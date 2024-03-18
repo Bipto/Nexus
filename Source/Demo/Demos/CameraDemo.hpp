@@ -54,11 +54,7 @@ namespace Demos
 
         virtual ~CameraDemo()
         {
-            delete m_Pipeline;
-            delete m_Mesh;
-            delete m_CameraUniformBuffer;
-            delete m_TransformUniformBuffer;
-        }
+                }
 
         virtual void Render(Nexus::Time time) override
         {
@@ -148,8 +144,8 @@ namespace Demos
     private:
         Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
         Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
-        Nexus::Graphics::Pipeline *m_Pipeline;
-        Nexus::Graphics::Mesh *m_Mesh;
+        Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
+        Nexus::Ref<Nexus::Graphics::Mesh> m_Mesh;
         Nexus::Ref<Nexus::Graphics::Texture> m_Texture;
         Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler;
         glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
@@ -157,10 +153,10 @@ namespace Demos
         Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
 
         VB_UNIFORM_CAMERA_DEMO_CAMERA m_CameraUniforms;
-        Nexus::Graphics::UniformBuffer *m_CameraUniformBuffer;
+        Nexus::Ref<Nexus::Graphics::UniformBuffer> m_CameraUniformBuffer;
 
         VB_UNIFORM_TRANSFORM_DEMO_CAMERA m_TransformUniforms;
-        Nexus::Graphics::UniformBuffer *m_TransformUniformBuffer;
+        Nexus::Ref<Nexus::Graphics::UniformBuffer> m_TransformUniformBuffer;
 
         Nexus::FirstPersonCamera m_Camera;
     };

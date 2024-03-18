@@ -55,10 +55,7 @@ namespace Demos
 
         virtual ~ModelDemo()
         {
-            delete m_Pipeline;
             delete m_Model;
-            delete m_CameraUniformBuffer;
-            delete m_TransformUniformBuffer;
         }
 
         virtual void Render(Nexus::Time time) override
@@ -166,7 +163,7 @@ namespace Demos
     private:
         Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
         Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
-        Nexus::Graphics::Pipeline *m_Pipeline;
+        Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
         Nexus::Graphics::Model *m_Model;
         Nexus::Ref<Nexus::Graphics::Texture> m_DiffuseMap;
         Nexus::Ref<Nexus::Graphics::Texture> m_NormalMap;
@@ -176,10 +173,10 @@ namespace Demos
         Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
 
         VB_UNIFORM_CAMERA_DEMO_MODELS m_CameraUniforms;
-        Nexus::Graphics::UniformBuffer *m_CameraUniformBuffer;
+        Nexus::Ref<Nexus::Graphics::UniformBuffer> m_CameraUniformBuffer;
 
         VB_UNIFORM_TRANSFORM_DEMO_MODELS m_TransformUniforms;
-        Nexus::Graphics::UniformBuffer *m_TransformUniformBuffer;
+        Nexus::Ref<Nexus::Graphics::UniformBuffer> m_TransformUniformBuffer;
 
         Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler;
 

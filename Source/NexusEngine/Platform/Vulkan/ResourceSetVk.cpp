@@ -145,9 +145,9 @@ namespace Nexus::Graphics
     {
     }
 
-    void ResourceSetVk::WriteUniformBuffer(UniformBuffer *uniformBuffer, const std::string &name)
+    void ResourceSetVk::WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, const std::string &name)
     {
-        UniformBufferVk *uniformBufferVk = (UniformBufferVk *)uniformBuffer;
+        Ref<UniformBufferVk> uniformBufferVk = std::dynamic_pointer_cast<UniformBufferVk>(uniformBuffer);
         const auto &descriptorSets = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
 
         const BindingInfo &info = m_UniformBufferBindingInfos.at(name);

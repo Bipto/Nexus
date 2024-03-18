@@ -821,12 +821,6 @@ namespace Nexus::Graphics
 
     void BatchRenderer::CreatePipeline()
     {
-        if (m_Pipeline)
-        {
-            delete m_Pipeline;
-            m_Pipeline = nullptr;
-        }
-
         auto swapchain = m_Device->GetPrimaryWindow();
 
         Nexus::Graphics::PipelineDescription description;

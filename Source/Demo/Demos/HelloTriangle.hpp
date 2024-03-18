@@ -31,9 +31,7 @@ namespace Demos
 
         virtual ~HelloTriangleDemo()
         {
-            delete m_Pipeline;
-            delete m_VertexBuffer;
-        }
+                }
 
         virtual void Render(Nexus::Time time) override
         {
@@ -94,8 +92,8 @@ namespace Demos
     private:
         Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
         Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
-        Nexus::Graphics::Pipeline *m_Pipeline;
-        Nexus::Graphics::VertexBuffer *m_VertexBuffer;
+        Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
+        Nexus::Ref<Nexus::Graphics::VertexBuffer> m_VertexBuffer;
         glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
     };
 }

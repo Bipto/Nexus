@@ -73,26 +73,26 @@ namespace Nexus::Graphics
         /// @brief A pure virtual method that creates a pipeline from a given pipeline description
         /// @param description The properties to use when creating the pipeline
         /// @return A pointer to a pipeline
-        virtual Pipeline *CreatePipeline(const PipelineDescription &description) = 0;
+        virtual Ref<Pipeline> CreatePipeline(const PipelineDescription &description) = 0;
 
         /// @brief A pure virtual method that creates a vertex buffer from a given description
         /// @param description The properties to use when creating the buffer
         /// @param data The initial data to store in the buffer
         /// @param layout The layout of the vertex buffer
         /// @return A pointer to a vertex buffer
-        virtual VertexBuffer *CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout) = 0;
+        virtual Ref<VertexBuffer> CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout) = 0;
 
         /// @brief A pure virtual method that creates an index buffer from a given description
         /// @param description The properties to use when creating the buffer
         /// @param data The initial data to store in the buffer
         /// @return A pointer to an index buffer
-        virtual IndexBuffer *CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format = IndexBufferFormat::UInt32) = 0;
+        virtual Ref<IndexBuffer> CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format = IndexBufferFormat::UInt32) = 0;
 
         /// @brief A pure virtual method that creates a uniform buffer from a given description
         /// @param description The properties to use when creating the buffer
         /// @param data The initial data to store in the buffer
         /// @return A pointer to a uniform buffer
-        virtual UniformBuffer *CreateUniformBuffer(const BufferDescription &description, const void *data) = 0;
+        virtual Ref<UniformBuffer> CreateUniformBuffer(const BufferDescription &description, const void *data) = 0;
 
         /// @brief A pure virtual method that creates a new command list
         /// @return A pointer to a command list
@@ -113,7 +113,7 @@ namespace Nexus::Graphics
         /// @return A pointer to a texture
         Ref<Texture> CreateTexture(const std::string &filepath);
 
-        virtual Framebuffer *CreateFramebuffer(const FramebufferSpecification &spec) = 0;
+        virtual Ref<Framebuffer> CreateFramebuffer(const FramebufferSpecification &spec) = 0;
 
         /// @brief A pure virtual method that creates a new resource set from a given specification
         /// @param spec A set of properties to use when creating the resource set
@@ -123,7 +123,7 @@ namespace Nexus::Graphics
         /// @brief A method that creates a new resource set from a pipeline
         /// @param pipeline A pipeline to use when creating the resource set
         /// @return A pointer to a resource set
-        Ref<ResourceSet> CreateResourceSet(Pipeline *pipeline);
+        Ref<ResourceSet> CreateResourceSet(Ref<Pipeline> pipeline);
 
         /// @brief A pure virtual method that creates a new sampler from a given specification
         /// @param spec A set of properties to use when creating the sampler

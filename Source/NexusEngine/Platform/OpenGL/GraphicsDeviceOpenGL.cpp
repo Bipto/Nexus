@@ -141,9 +141,9 @@ namespace Nexus::Graphics
     {
     }
 
-    void GraphicsDeviceOpenGL::SetFramebuffer(Framebuffer *framebuffer)
+    void GraphicsDeviceOpenGL::SetFramebuffer(Ref<Framebuffer> framebuffer)
     {
-        auto fb = (FramebufferOpenGL *)framebuffer;
+        auto fb = std::dynamic_pointer_cast<FramebufferOpenGL>(framebuffer);
         if (framebuffer)
         {
             fb->BindAsRenderTarget();
@@ -221,9 +221,9 @@ namespace Nexus::Graphics
         return CreateRef<TextureOpenGL>(spec);
     }
 
-    Pipeline *GraphicsDeviceOpenGL::CreatePipeline(const PipelineDescription &description)
+    Ref<Pipeline> GraphicsDeviceOpenGL::CreatePipeline(const PipelineDescription &description)
     {
-        return new PipelineOpenGL(description);
+        return CreateRef<PipelineOpenGL>(description);
     }
 
     Ref<CommandList> GraphicsDeviceOpenGL::CreateCommandList()
@@ -231,19 +231,19 @@ namespace Nexus::Graphics
         return CreateRef<CommandListOpenGL>(this);
     }
 
-    VertexBuffer *GraphicsDeviceOpenGL::CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
+    Ref<VertexBuffer> GraphicsDeviceOpenGL::CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
     {
-        return new VertexBufferOpenGL(description, data, layout);
+        return CreateRef<VertexBufferOpenGL>(description, data, layout);
     }
 
-    IndexBuffer *GraphicsDeviceOpenGL::CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format)
+    Ref<IndexBuffer> GraphicsDeviceOpenGL::CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format)
     {
-        return new IndexBufferOpenGL(description, data, format);
+        return CreateRef<IndexBufferOpenGL>(description, data, format);
     }
 
-    UniformBuffer *GraphicsDeviceOpenGL::CreateUniformBuffer(const BufferDescription &description, const void *data)
+    Ref<UniformBuffer> GraphicsDeviceOpenGL::CreateUniformBuffer(const BufferDescription &description, const void *data)
     {
-        return new UniformBufferOpenGL(description, data);
+        return CreateRef<UniformBufferOpenGL>(description, data);
     }
 
     Ref<ResourceSet> GraphicsDeviceOpenGL::CreateResourceSet(const ResourceSetSpecification &spec)
@@ -251,9 +251,9 @@ namespace Nexus::Graphics
         return CreateRef<ResourceSetOpenGL>(spec);
     }
 
-    Framebuffer *GraphicsDeviceOpenGL::CreateFramebuffer(const FramebufferSpecification &spec)
+    Ref<Framebuffer> GraphicsDeviceOpenGL::CreateFramebuffer(const FramebufferSpecification &spec)
     {
-        return new FramebufferOpenGL(spec, this);
+        return CreateRef<FramebufferOpenGL>(spec, this);
     }
 
     Ref<Sampler> GraphicsDeviceOpenGL::CreateSampler(const SamplerSpecification &spec)

@@ -504,6 +504,11 @@ namespace Nexus
                 window->m_Input->TextInput.Invoke(event.text.text[0]);
                 break;
             }
+            case SDL_EVENT_WINDOW_RESIZED:
+            {
+                window->OnResize.Invoke({event.window.data1, event.window.data2});
+                break;
+            }
             }
         }
     }

@@ -26,7 +26,7 @@ namespace Nexus::Graphics
             m_RenderTargetType = RenderTargetType::Swapchain;
         }
 
-        RenderTarget(Framebuffer *framebuffer)
+        RenderTarget(Ref<Framebuffer> framebuffer)
         {
             m_Target = framebuffer;
             m_RenderTargetType = RenderTargetType::Framebuffer;
@@ -56,7 +56,7 @@ namespace Nexus::Graphics
             }
             else if (m_RenderTargetType == RenderTargetType::Framebuffer)
             {
-                auto framebuffer = GetData<Framebuffer *>();
+                auto framebuffer = GetData<Ref<Framebuffer>>();
                 return framebuffer->GetColorTextureCount();
             }
             else
@@ -74,7 +74,7 @@ namespace Nexus::Graphics
             }
             else if (m_RenderTargetType == RenderTargetType::Framebuffer)
             {
-                auto framebuffer = GetData<Framebuffer *>();
+                auto framebuffer = GetData<Ref<Framebuffer>>();
                 const auto &framebufferSpec = framebuffer->GetFramebufferSpecification();
                 return {framebufferSpec.Width, framebufferSpec.Height};
             }
@@ -93,7 +93,7 @@ namespace Nexus::Graphics
             }
             else if (m_RenderTargetType == RenderTargetType::Framebuffer)
             {
-                auto framebuffer = GetData<Framebuffer *>();
+                auto framebuffer = GetData<Ref<Framebuffer>>();
                 const auto &framebufferSpec = framebuffer->GetFramebufferSpecification();
                 return framebufferSpec.DepthAttachmentSpecification.DepthFormat != PixelFormat::None;
             }
@@ -114,7 +114,7 @@ namespace Nexus::Graphics
         }
 
     private:
-        std::variant<Swapchain *, Framebuffer *> m_Target;
+        std::variant<Swapchain *, Ref<Framebuffer>> m_Target;
         RenderTargetType m_RenderTargetType;
     };
 }

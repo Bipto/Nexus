@@ -65,9 +65,6 @@ namespace Demos
 
         virtual ~InstancingDemo()
         {
-            delete m_Pipeline;
-            delete m_CubeMesh;
-            delete m_CameraUniformBuffer;
         }
 
         virtual void Render(Nexus::Time time) override
@@ -194,9 +191,9 @@ namespace Demos
     private:
         Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
         Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
-        Nexus::Graphics::Pipeline *m_Pipeline;
-        Nexus::Graphics::Mesh *m_CubeMesh;
-        Nexus::Graphics::VertexBuffer *m_InstanceBuffer;
+        Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
+        Nexus::Ref<Nexus::Graphics::Mesh> m_CubeMesh;
+        Nexus::Ref<Nexus::Graphics::VertexBuffer> m_InstanceBuffer;
 
         Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
         Nexus::Ref<Nexus::Graphics::Texture> m_DiffuseMap;
@@ -205,7 +202,7 @@ namespace Demos
         glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
 
         VB_UNIFORM_CAMERA_DEMO_INSTANCING m_CameraUniforms;
-        Nexus::Graphics::UniformBuffer *m_CameraUniformBuffer;
+        Nexus::Ref<Nexus::Graphics::UniformBuffer> m_CameraUniformBuffer;
 
         Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler;
 

@@ -8,7 +8,7 @@
 
 namespace Nexus::Graphics
 {
-    Mesh *MeshFactory::CreateCube()
+    Ref<Mesh> MeshFactory::CreateCube()
     {
         std::vector<VertexPositionTexCoordNormal> vertices =
             {
@@ -81,10 +81,10 @@ namespace Nexus::Graphics
         indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
         auto indexBuffer = m_Device->CreateIndexBuffer(indexBufferDesc, indices.data());
 
-        return new Mesh(vertexBuffer, indexBuffer);
+        return CreateRef<Mesh>(vertexBuffer, indexBuffer);
     }
 
-    Mesh *MeshFactory::CreateSprite()
+    Ref<Mesh> MeshFactory::CreateSprite()
     {
         std::vector<VertexPositionTexCoordNormalTangentBitangent> vertices =
             {
@@ -108,10 +108,10 @@ namespace Nexus::Graphics
         indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
         auto indexBuffer = m_Device->CreateIndexBuffer(indexBufferDesc, indices.data());
 
-        return new Mesh(vertexBuffer, indexBuffer);
+        return CreateRef<Mesh>(vertexBuffer, indexBuffer);
     }
 
-    Mesh *MeshFactory::CreateTriangle()
+    Ref<Mesh> MeshFactory::CreateTriangle()
     {
         std::vector<VertexPositionTexCoordNormalTangentBitangent> vertices =
             {
@@ -132,7 +132,7 @@ namespace Nexus::Graphics
         indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
         auto indexBuffer = m_Device->CreateIndexBuffer(indexBufferDesc, indices.data());
 
-        return new Mesh(vertexBuffer, indexBuffer);
+        return CreateRef<Mesh>(vertexBuffer, indexBuffer);
     }
 
     Mesh *ProcessMesh(aiMesh *mesh, const aiScene *scene, GraphicsDevice *device)

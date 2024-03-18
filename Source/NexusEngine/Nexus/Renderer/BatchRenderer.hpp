@@ -71,7 +71,7 @@ namespace Nexus::Graphics
         Nexus::Ref<Nexus::Graphics::Shader> m_Shader = nullptr;
         Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList = nullptr;
 
-        Nexus::Graphics::Pipeline *m_Pipeline = nullptr;
+        Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline = nullptr;
         Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet = nullptr;
         Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler = nullptr;
 
@@ -84,9 +84,9 @@ namespace Nexus::Graphics
         uint32_t m_IndexCount = 0;
         bool m_IsStarted = false;
 
-        Nexus::Graphics::VertexBuffer *m_VertexBuffer = nullptr;
-        Nexus::Graphics::IndexBuffer *m_IndexBuffer = nullptr;
-        Nexus::Graphics::UniformBuffer *m_UniformBuffer = nullptr;
+        Nexus::Ref<Nexus::Graphics::VertexBuffer> m_VertexBuffer = nullptr;
+        Nexus::Ref<Nexus::Graphics::IndexBuffer> m_IndexBuffer = nullptr;
+        Nexus::Ref<Nexus::Graphics::UniformBuffer> m_UniformBuffer = nullptr;
 
         Nexus::Ref<Nexus::Graphics::Texture> m_BlankTexture = nullptr;
         const uint32_t MAX_TEXTURES = 16;

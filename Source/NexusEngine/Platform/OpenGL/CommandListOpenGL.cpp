@@ -49,7 +49,7 @@ namespace Nexus::Graphics
     {
     }
 
-    void CommandListOpenGL::SetVertexBuffer(VertexBuffer *vertexBuffer, uint32_t slot)
+    void CommandListOpenGL::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer, uint32_t slot)
     {
         SetVertexBufferCommand command;
         command.VertexBuffer = vertexBuffer;
@@ -60,36 +60,36 @@ namespace Nexus::Graphics
             auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             const auto &commandData = commandListGL->GetCurrentCommandData();
             const auto &setVertexBufferCommand = std::get<SetVertexBufferCommand>(commandData);
-            const auto vertexBufferGL = (VertexBufferOpenGL *)setVertexBufferCommand.VertexBuffer;
+            const auto vertexBufferGL = std::dynamic_pointer_cast<VertexBufferOpenGL>(setVertexBufferCommand.VertexBuffer);
             vertexBufferGL->Bind();
             commandListGL->m_CurrentlyBoundVertexBuffers[setVertexBufferCommand.Slot] = vertexBufferGL;
         };
         m_Commands.push_back(renderCommand);
     }
 
-    void CommandListOpenGL::SetIndexBuffer(IndexBuffer *indexBuffer)
+    void CommandListOpenGL::SetIndexBuffer(Ref<IndexBuffer> indexBuffer)
     {
         m_CommandData.emplace_back(indexBuffer);
         auto renderCommand = [](Ref<CommandList> commandList)
         {
             auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             const auto &commandData = commandListGL->GetCurrentCommandData();
-            const auto indexBuffer = std::get<IndexBuffer *>(commandData);
-            const auto indexBufferGL = (IndexBufferOpenGL *)indexBuffer;
+            const auto indexBuffer = std::get<Ref<IndexBuffer>>(commandData);
+            const auto indexBufferGL = std::dynamic_pointer_cast<IndexBufferOpenGL>(indexBuffer);
             indexBufferGL->Bind();
             commandListGL->m_IndexBufferFormat = GetGLIndexBufferFormat(indexBufferGL->GetFormat());
         };
         m_Commands.push_back(renderCommand);
     }
 
-    void CommandListOpenGL::SetPipeline(Pipeline *pipeline)
+    void CommandListOpenGL::SetPipeline(Ref<Pipeline> pipeline)
     {
         m_CommandData.emplace_back(pipeline);
         auto renderCommand = [](Ref<CommandList> commandList)
         {
             auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             const auto &commandData = commandListGL->GetCurrentCommandData();
-            const auto pipeline = std::get<Pipeline *>(commandData);
+            const auto pipeline = std::get<Ref<Pipeline>>(commandData);
             auto graphicsDevice = (GraphicsDeviceOpenGL *)commandListGL->GetGraphicsDevice();
 
             auto target = pipeline->GetPipelineDescription().Target;
@@ -100,7 +100,7 @@ namespace Nexus::Graphics
             }
             else if (target.GetType() == RenderTargetType::Framebuffer)
             {
-                auto framebuffer = target.GetData<Framebuffer *>();
+                auto framebuffer = target.GetData<Ref<Framebuffer>>();
                 graphicsDevice->SetFramebuffer(framebuffer);
             }
             else
@@ -142,8 +142,7 @@ namespace Nexus::Graphics
         m_Commands.push_back(renderCommand);
     }
 
-    void
-    CommandListOpenGL::DrawIndexed(uint32_t count, uint32_t indexStart, uint32_t vertexStart)
+    void CommandListOpenGL::DrawIndexed(uint32_t count, uint32_t indexStart, uint32_t vertexStart)
     {
         DrawIndexedCommand command;
         command.Count = count;
@@ -367,7 +366,7 @@ namespace Nexus::Graphics
             }
             else if (setRenderTargetCommand.Target.GetType() == RenderTargetType::Framebuffer)
             {
-                auto framebuffer = setRenderTargetCommand.Target.GetData<Framebuffer *>();
+                auto framebuffer = setRenderTargetCommand.Target.GetData<Ref<Framebuffer>>();
                 graphicsDevice->SetFramebuffer(framebuffer);
             }
             else
@@ -428,7 +427,7 @@ namespace Nexus::Graphics
         m_Commands.push_back(renderCommand);
     }
 
-    void CommandListOpenGL::ResolveFramebuffer(Framebuffer *source, uint32_t sourceIndex, Swapchain *target)
+    void CommandListOpenGL::ResolveFramebuffer(Ref<Framebuffer> source, uint32_t sourceIndex, Swapchain *target)
     {
         ResolveSamplesToSwapchainCommand command;
         command.Source = source;
@@ -442,7 +441,7 @@ namespace Nexus::Graphics
             auto commandData = commandListGL->GetCurrentCommandData();
             auto resolveToSwapchainCommand = std::get<ResolveSamplesToSwapchainCommand>(commandData);
 
-            FramebufferOpenGL *framebufferGL = (FramebufferOpenGL *)resolveToSwapchainCommand.Source;
+            Ref<FramebufferOpenGL> framebufferGL = std::dynamic_pointer_cast<FramebufferOpenGL>(resolveToSwapchainCommand.Source);
             SwapchainOpenGL *swapchainGL = (SwapchainOpenGL *)resolveToSwapchainCommand.Target;
 
             framebufferGL->BindAsReadBuffer(resolveToSwapchainCommand.SourceIndex);
@@ -499,9 +498,9 @@ namespace Nexus::Graphics
         return drawMode;
     }
 
-    void CommandListOpenGL::BindPipeline(Pipeline *pipeline)
+    void CommandListOpenGL::BindPipeline(Ref<Pipeline> pipeline)
     {
-        auto pipelineGL = (PipelineOpenGL *)pipeline;
+        auto pipelineGL = std::dynamic_pointer_cast<PipelineOpenGL>(pipeline);
         pipelineGL->Bind();
         m_CurrentlyBoundPipeline = pipelineGL;
     }

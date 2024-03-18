@@ -73,6 +73,11 @@ public:
         RegisterScriptingDemo<Demos::PythonDemo>("Python");
 
         m_CommandList = m_GraphicsDevice->CreateCommandList();
+
+        this->GetPrimaryWindow()->OnResize += [](std::pair<uint32_t, uint32_t>)
+        {
+            std::cout << "Window resized!" << std::endl;
+        };
     }
 
     template <typename T>

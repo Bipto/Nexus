@@ -20,15 +20,15 @@ namespace Nexus::Graphics
 
         /// @brief A method that returns a mesh representing a cube with a size of 1 unit in all directions
         /// @return A mesh representing a cube
-        Mesh *CreateCube();
+        Ref<Mesh> CreateCube();
 
         /// @brief A method that returns a mesh representing a sprite with a width and height of 1
         /// @return A mesh representing a sprite
-        Mesh *CreateSprite();
+        Ref<Mesh> CreateSprite();
 
         /// @brief A method that returns a mesh representing a triangle with a width and height of 1
         /// @return A mesh representing a triangle
-        Mesh *CreateTriangle();
+        Ref<Mesh> CreateTriangle();
 
         /// @brief A method that returns a mesh representing a 3D model stored on disk
         /// @param filepath The filepath to load a model from

@@ -108,7 +108,7 @@ namespace Nexus::Graphics
         return CreateTexture(filepath.c_str());
     }
 
-    Ref<ResourceSet> GraphicsDevice::CreateResourceSet(Pipeline *pipeline)
+    Ref<ResourceSet> GraphicsDevice::CreateResourceSet(Ref<Pipeline> pipeline)
     {
         return CreateResourceSet(pipeline->GetPipelineDescription().ResourceSetSpecification);
     }

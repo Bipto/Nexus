@@ -216,7 +216,7 @@ namespace Nexus::Graphics
         }
     }
 
-    void PipelineOpenGL::BindVertexBuffers(const std::map<uint32_t, Nexus::Graphics::VertexBufferOpenGL *> vertexBuffers, uint32_t vertexOffset, uint32_t instanceOffset)
+    void PipelineOpenGL::BindVertexBuffers(const std::map<uint32_t, Nexus::Ref<Nexus::Graphics::VertexBufferOpenGL>> &vertexBuffers, uint32_t vertexOffset, uint32_t instanceOffset)
     {
         BindVertexArray();
 

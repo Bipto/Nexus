@@ -23,8 +23,6 @@ namespace Nexus::Graphics
 
         // release the swapchain's buffers
         ReleaseBuffers();
-
-        delete m_MultisampledFramebuffer;
     }
 
     void SwapchainD3D12::SwapBuffers()
@@ -102,7 +100,7 @@ namespace Nexus::Graphics
         m_CurrentDepthState = state;
     }
 
-    Framebuffer *SwapchainD3D12::GetMultisampledFramebuffer()
+    Ref<Framebuffer> SwapchainD3D12::GetMultisampledFramebuffer()
     {
         return m_MultisampledFramebuffer;
     }
@@ -122,19 +120,19 @@ namespace Nexus::Graphics
         auto windowHeight = m_Window->GetWindowSize().Y;
 
         // if the size of the window is the same, we do not need to do anything and can return
-        if (m_SwapchainWidth == windowWidth || m_SwapchainHeight == windowHeight)
+        if (m_SwapchainWidth == windowWidth && m_SwapchainHeight == windowHeight)
             return;
 
         m_SwapchainWidth = windowWidth;
         m_SwapchainHeight = windowHeight;
 
         // resize the swapchain
-        ResizeBuffers(m_SwapchainWidth, m_SwapchainHeight);
+        ResizeBuffers();
         CreateDepthAttachment();
         CreateMultisampledFramebuffer();
     }
 
-    void SwapchainD3D12::ResizeBuffers(uint32_t width, uint32_t height)
+    void SwapchainD3D12::ResizeBuffers()
     {
         // flush swapchain to ensure that buffers are not in use
         Flush();
@@ -143,7 +141,7 @@ namespace Nexus::Graphics
         ReleaseBuffers();
 
         // resize the swapchains buffers
-        m_Swapchain->ResizeBuffers(BUFFER_COUNT, width, height, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING);
+        m_Swapchain->ResizeBuffers(BUFFER_COUNT, m_SwapchainWidth, m_SwapchainHeight, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING);
 
         // retrieve the new buffers
         GetBuffers();

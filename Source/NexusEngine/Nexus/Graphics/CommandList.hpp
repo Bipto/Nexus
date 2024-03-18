@@ -19,7 +19,7 @@ namespace Nexus::Graphics
 {
     struct SetVertexBufferCommand
     {
-        VertexBuffer *VertexBuffer = nullptr;
+        Ref<VertexBuffer> VertexBuffer = nullptr;
         uint32_t Slot = 0;
     };
 
@@ -121,7 +121,7 @@ namespace Nexus::Graphics
 
     struct ResolveSamplesToSwapchainCommand
     {
-        Framebuffer *Source;
+        Ref<Framebuffer> Source;
         uint32_t SourceIndex;
         Swapchain *Target;
     };
@@ -145,15 +145,15 @@ namespace Nexus::Graphics
 
         /// @brief A pure virtual method that binds a vertex buffer to the pipeline
         /// @param vertexBuffer A pointer to the vertex buffer to bind
-        virtual void SetVertexBuffer(VertexBuffer *vertexBuffer, uint32_t slot) = 0;
+        virtual void SetVertexBuffer(Ref<VertexBuffer> vertexBuffer, uint32_t slot) = 0;
 
         /// @brief A pure virtual method that binds an index buffer to the pipeline
         /// @param indexBuffer A pointer to the index buffer to bind
-        virtual void SetIndexBuffer(IndexBuffer *indexBuffer) = 0;
+        virtual void SetIndexBuffer(Ref<IndexBuffer> indexBuffer) = 0;
 
         /// @brief A pure virtual method to bind a pipeline to a command list
         /// @param pipeline The pointer to the pipeline to bind
-        virtual void SetPipeline(Pipeline *pipeline) = 0;
+        virtual void SetPipeline(Ref<Pipeline> pipeline) = 0;
 
         /// @brief A pure virtual method that submits a draw call using the bound vertex buffer
         /// @param start The offset to begin rendering at
@@ -194,7 +194,7 @@ namespace Nexus::Graphics
 
         virtual void SetScissor(const Scissor &scissor) = 0;
 
-        virtual void ResolveFramebuffer(Framebuffer *source, uint32_t sourceIndex, Swapchain *target) = 0;
+        virtual void ResolveFramebuffer(Ref<Framebuffer> source, uint32_t sourceIndex, Swapchain *target) = 0;
     };
 
     /// @brief A typedef to simplify creating function pointers to render commands
@@ -202,8 +202,8 @@ namespace Nexus::Graphics
 
     typedef std::variant<
         SetVertexBufferCommand,
-        IndexBuffer *,
-        Pipeline *,
+        Ref<IndexBuffer>,
+        Ref<Pipeline>,
         DrawElementCommand,
         DrawIndexedCommand,
         DrawInstancedCommand,
