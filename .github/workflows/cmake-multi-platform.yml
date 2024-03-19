@@ -56,23 +56,21 @@ jobs:
           vulkan-query-version: 1.3.204.0
           vulkan-components: Vulkan-Headers, Vulkan-Loader
           vulkan-use-cache: true
-          
+
       - name: Setup Ninja
         uses: ashutoshvarma/setup-ninja@master
         with:
           # ninja version to download. Default: 1.10.0
           version: 1.10.0
-  
-      - name: Set reusable strings
-        # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
-        id: strings
-        shell: bash
-        run: |
-          echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
-  
-      - name: Build
-        # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
-        run: cmake --build -G Ninja --config ${{ matrix.build_type }}
+
+      - name: Build with CMake
+        uses: ashutoshvarma/action-cmake-build@master
+        with:
+          build-dir: ${{ runner.workspace }}/build
+          cc: ${{ matrix.config.cc }}
+          cxx: ${{ matrix.config.cxx }}
+          configure-options: -G Ninja
+          build-type: Release
   
       - name: Test
         working-directory: ${{ steps.strings.outputs.build-output-dir }}
