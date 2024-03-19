@@ -33,7 +33,7 @@ namespace Nexus::Graphics
         /// @brief A method that returns a mesh representing a 3D model stored on disk
         /// @param filepath The filepath to load a model from
         /// @return A mesh representing the model
-        Nexus::Graphics::Model *CreateFrom3DModelFile(const std::string &filepath);
+        Ref<Model> CreateFrom3DModelFile(const std::string &filepath);
 
     private:
         /// @brief A pointer to a graphics device to use to create the vertex buffer and index buffer

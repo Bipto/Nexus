@@ -55,8 +55,7 @@ namespace Demos
 
         virtual ~ModelDemo()
         {
-            delete m_Model;
-        }
+                }
 
         virtual void Render(Nexus::Time time) override
         {
@@ -164,7 +163,7 @@ namespace Demos
         Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
         Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
         Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
-        Nexus::Graphics::Model *m_Model;
+        Nexus::Ref<Nexus::Graphics::Model> m_Model;
         Nexus::Ref<Nexus::Graphics::Texture> m_DiffuseMap;
         Nexus::Ref<Nexus::Graphics::Texture> m_NormalMap;
         Nexus::Ref<Nexus::Graphics::Texture> m_SpecularMap;

@@ -135,7 +135,7 @@ namespace Nexus::Graphics
         return CreateRef<Mesh>(vertexBuffer, indexBuffer);
     }
 
-    Mesh *ProcessMesh(aiMesh *mesh, const aiScene *scene, GraphicsDevice *device)
+    Ref<Mesh> ProcessMesh(aiMesh *mesh, const aiScene *scene, GraphicsDevice *device)
     {
         std::vector<VertexPositionTexCoordNormalTangentBitangent> vertices;
         std::vector<unsigned int> indices;
@@ -184,10 +184,10 @@ namespace Nexus::Graphics
         indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
         auto indexBuffer = device->CreateIndexBuffer(indexBufferDesc, indices.data());
 
-        return new Mesh(vertexBuffer, indexBuffer, name);
+        return CreateRef<Mesh>(vertexBuffer, indexBuffer, name);
     }
 
-    void ProcessNode(aiNode *node, const aiScene *scene, std::vector<Mesh *> &meshes, GraphicsDevice *device)
+    void ProcessNode(aiNode *node, const aiScene *scene, std::vector<Ref<Mesh>> &meshes, GraphicsDevice *device)
     {
         for (unsigned int i = 0; i < node->mNumMeshes; i++)
         {
@@ -201,9 +201,9 @@ namespace Nexus::Graphics
         }
     }
 
-    Nexus::Graphics::Model *MeshFactory::CreateFrom3DModelFile(const std::string &filepath)
+    Ref<Model> MeshFactory::CreateFrom3DModelFile(const std::string &filepath)
     {
-        std::vector<Mesh *> meshes;
+        std::vector<Ref<Mesh>> meshes;
         Assimp::Importer importer;
         auto flags =
             aiProcess_FlipUVs |
@@ -228,6 +228,6 @@ namespace Nexus::Graphics
             std::cout << "Assimp error: " << importer.GetErrorString() << std::endl;
         }
         ProcessNode(scene->mRootNode, scene, meshes, m_Device);
-        return new Nexus::Graphics::Model(meshes);
+        return CreateRef<Model>(meshes);
     }
 }

@@ -18,8 +18,6 @@ namespace Demos
 
         virtual ~AudioDemo()
         {
-            delete m_AudioBuffer;
-            delete m_AudioSource;
         }
 
         virtual void Update(Nexus::Time time) override
@@ -55,7 +53,7 @@ namespace Demos
         Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
         glm::vec3 m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 
-        Nexus::Audio::AudioBuffer *m_AudioBuffer;
-        Nexus::Audio::AudioSource *m_AudioSource;
+        Nexus::Ref<Nexus::Audio::AudioBuffer> m_AudioBuffer;
+        Nexus::Ref<Nexus::Audio::AudioSource> m_AudioSource;
     };
 }

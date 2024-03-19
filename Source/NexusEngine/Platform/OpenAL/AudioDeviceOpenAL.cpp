@@ -79,7 +79,7 @@ namespace Nexus::Audio
         }
     }
 
-    AudioBuffer *AudioDeviceOpenAL::CreateAudioBufferFromWavFile(const std::string &filepath)
+    Ref<AudioBuffer> AudioDeviceOpenAL::CreateAudioBufferFromWavFile(const std::string &filepath)
     {
         nqr::WavDecoder decoder;
 
@@ -92,10 +92,10 @@ namespace Nexus::Audio
         auto format = GetOpenALAudioFormat(data.sourceFormat, data.channelCount);
         auto dataPtr = (ALvoid *)data.samples.data();
 
-        return new AudioBufferOpenAL(fileSize, sampleRate, format, dataPtr);
+        return CreateRef<AudioBufferOpenAL>(fileSize, sampleRate, format, dataPtr);
     }
 
-    AudioBuffer *AudioDeviceOpenAL::CreateAudioBufferFromMP3File(const std::string &filepath)
+    Ref<AudioBuffer> AudioDeviceOpenAL::CreateAudioBufferFromMP3File(const std::string &filepath)
     {
         nqr::Mp3Decoder decoder;
 
@@ -108,17 +108,17 @@ namespace Nexus::Audio
         auto format = GetOpenALAudioFormat(data.sourceFormat, data.channelCount);
         auto dataPtr = (ALvoid *)data.samples.data();
 
-        return new AudioBufferOpenAL(fileSize, sampleRate, format, dataPtr);
+        return CreateRef<AudioBufferOpenAL>(fileSize, sampleRate, format, dataPtr);
     }
 
-    Audio::AudioSource *AudioDeviceOpenAL::CreateAudioSource(Audio::AudioBuffer *buffer)
+    Ref<Audio::AudioSource> AudioDeviceOpenAL::CreateAudioSource(Ref<Audio::AudioBuffer> buffer)
     {
-        return new AudioSourceOpenAL(buffer);
+        return CreateRef<AudioSourceOpenAL>(buffer);
     }
 
-    void AudioDeviceOpenAL::PlaySource(Audio::AudioSource *source)
+    void AudioDeviceOpenAL::PlaySource(Ref<Audio::AudioSource> source)
     {
-        AudioSourceOpenAL *s = (Audio::AudioSourceOpenAL *)source;
+        Ref<AudioSourceOpenAL> s = std::dynamic_pointer_cast<Audio::AudioSourceOpenAL>(source);
         alSourcePlay(s->GetSource());
     }
 }

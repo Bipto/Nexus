@@ -24,20 +24,20 @@ namespace Nexus::Audio
         /// @brief A method that returns an AudioBuffer that is created from a .wav file
         /// @param filepath The path to the .wav file
         /// @return An audio buffer that can be used to create an AudioSource
-        virtual AudioBuffer *CreateAudioBufferFromWavFile(const std::string &filepath) = 0;
+        virtual Ref<AudioBuffer> CreateAudioBufferFromWavFile(const std::string &filepath) = 0;
 
         /// @brief A method that returns an AudioBuffer that is created from a .mp3 file
         /// @param filepath The path to the .mp3 file
         /// @return An audio buffer that can be used to create an AudioSource
-        virtual AudioBuffer *CreateAudioBufferFromMP3File(const std::string &filepath) = 0;
+        virtual Ref<AudioBuffer> CreateAudioBufferFromMP3File(const std::string &filepath) = 0;
 
         /// @brief A method that creates an AudioSource from an AudioBuffer
         /// @param buffer The buffer to create an AudioSource from
         /// @return The AudioSource that provides a context to play the sound
-        virtual AudioSource *CreateAudioSource(AudioBuffer *buffer) = 0;
+        virtual Ref<AudioSource> CreateAudioSource(Ref<AudioBuffer> buffer) = 0;
 
         /// @brief A method that will play a sound effect from an AudioSource
         /// @param source The AudioSource to play the effect from
-        virtual void PlaySource(AudioSource *source) = 0;
+        virtual void PlaySource(Ref<AudioSource> source) = 0;
     };
 }

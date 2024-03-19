@@ -14,7 +14,7 @@ namespace Nexus::Audio
     class AudioSourceOpenAL : public AudioSource
     {
     public:
-        AudioSourceOpenAL(AudioBuffer *buffer);
+        AudioSourceOpenAL(Ref<AudioBuffer> buffer);
         virtual ~AudioSourceOpenAL();
         virtual glm::vec3 &GetPosition() override;
         virtual void SetPosition(const glm::vec3 &position) override;
@@ -22,7 +22,7 @@ namespace Nexus::Audio
 
     private:
         glm::vec3 m_Position = {0.0f, 0.0f, 0.0f};
-        AudioBuffer *m_Buffer = nullptr;
+        Ref<AudioBuffer> m_Buffer = nullptr;
         ALuint m_Source = 0;
     };
 }

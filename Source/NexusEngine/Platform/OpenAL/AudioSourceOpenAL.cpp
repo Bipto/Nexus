@@ -6,10 +6,10 @@
 
 namespace Nexus::Audio
 {
-    AudioSourceOpenAL::AudioSourceOpenAL(AudioBuffer *buffer)
+    AudioSourceOpenAL::AudioSourceOpenAL(Ref<AudioBuffer> buffer)
     {
         m_Buffer = buffer;
-        auto bufferAL = (AudioBufferOpenAL *)buffer;
+        auto bufferAL = std::dynamic_pointer_cast<AudioBufferOpenAL>(buffer);
 
         alGenSources(1, &m_Source);
         alSourcef(m_Source, AL_PITCH, 1);
