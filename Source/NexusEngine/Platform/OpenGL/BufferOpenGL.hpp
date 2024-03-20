@@ -12,7 +12,7 @@ namespace Nexus::Graphics
     class VertexBufferOpenGL : public VertexBuffer
     {
     public:
-        VertexBufferOpenGL(const BufferDescription &description, const void *data, const VertexBufferLayout &layout);
+        VertexBufferOpenGL(const BufferDescription &description, const void *data);
         ~VertexBufferOpenGL();
         void Bind();
         unsigned int GetHandle();

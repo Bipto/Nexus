@@ -74,7 +74,7 @@ namespace Nexus::Graphics
         Nexus::Graphics::BufferDescription vertexBufferDesc;
         vertexBufferDesc.Size = vertices.size() * sizeof(VertexPositionTexCoordNormalTangentBitangent);
         vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-        auto vertexBuffer = m_Device->CreateVertexBuffer(vertexBufferDesc, fullVertices.data(), VertexPositionTexCoordNormalTangentBitangent::GetLayout());
+        auto vertexBuffer = m_Device->CreateVertexBuffer(vertexBufferDesc, fullVertices.data());
 
         Nexus::Graphics::BufferDescription indexBufferDesc;
         indexBufferDesc.Size = indices.size() * sizeof(unsigned int);
@@ -101,7 +101,7 @@ namespace Nexus::Graphics
         Nexus::Graphics::BufferDescription vertexBufferDesc;
         vertexBufferDesc.Size = vertices.size() * sizeof(VertexPositionTexCoordNormalTangentBitangent);
         vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-        auto vertexBuffer = m_Device->CreateVertexBuffer(vertexBufferDesc, vertices.data(), VertexPositionTexCoordNormalTangentBitangent::GetLayout());
+        auto vertexBuffer = m_Device->CreateVertexBuffer(vertexBufferDesc, vertices.data());
 
         Nexus::Graphics::BufferDescription indexBufferDesc;
         indexBufferDesc.Size = indices.size() * sizeof(unsigned int);
@@ -125,7 +125,7 @@ namespace Nexus::Graphics
         Nexus::Graphics::BufferDescription vertexBufferDesc;
         vertexBufferDesc.Size = vertices.size() * sizeof(VertexPositionTexCoordNormalTangentBitangent);
         vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-        auto vertexBuffer = m_Device->CreateVertexBuffer(vertexBufferDesc, vertices.data(), VertexPositionTexCoordNormalTangentBitangent::GetLayout());
+        auto vertexBuffer = m_Device->CreateVertexBuffer(vertexBufferDesc, vertices.data());
 
         Nexus::Graphics::BufferDescription indexBufferDesc;
         indexBufferDesc.Size = indices.size() * sizeof(unsigned int);
@@ -177,7 +177,7 @@ namespace Nexus::Graphics
         Nexus::Graphics::BufferDescription vertexBufferDesc;
         vertexBufferDesc.Size = vertices.size() * sizeof(VertexPositionTexCoordNormalTangentBitangent);
         vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-        auto vertexBuffer = device->CreateVertexBuffer(vertexBufferDesc, vertices.data(), VertexPositionTexCoordNormalTangentBitangent::GetLayout());
+        auto vertexBuffer = device->CreateVertexBuffer(vertexBufferDesc, vertices.data());
 
         Nexus::Graphics::BufferDescription indexBufferDesc;
         indexBufferDesc.Size = indices.size() * sizeof(unsigned int);

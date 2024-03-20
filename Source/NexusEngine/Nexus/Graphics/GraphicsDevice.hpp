@@ -80,7 +80,7 @@ namespace Nexus::Graphics
         /// @param data The initial data to store in the buffer
         /// @param layout The layout of the vertex buffer
         /// @return A pointer to a vertex buffer
-        virtual Ref<VertexBuffer> CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout) = 0;
+        virtual Ref<VertexBuffer> CreateVertexBuffer(const BufferDescription &description, const void *data) = 0;
 
         /// @brief A pure virtual method that creates an index buffer from a given description
         /// @param description The properties to use when creating the buffer

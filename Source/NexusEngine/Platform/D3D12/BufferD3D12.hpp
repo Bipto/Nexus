@@ -11,16 +11,16 @@ namespace Nexus::Graphics
     class VertexBufferD3D12 : public VertexBuffer
     {
     public:
-        VertexBufferD3D12(GraphicsDeviceD3D12 *device, const BufferDescription &description, const void *data, const VertexBufferLayout &layout);
+        VertexBufferD3D12(GraphicsDeviceD3D12 *device, const BufferDescription &description, const void *data);
         virtual ~VertexBufferD3D12();
-        const D3D12_VERTEX_BUFFER_VIEW GetVertexBufferView() const;
 
         virtual void SetData(const void *data, uint32_t size, uint32_t offset = 0) override;
+        ID3D12Resource2 *GetHandle();
 
     private:
         Microsoft::WRL::ComPtr<ID3D12Resource2> m_VertexBuffer = nullptr;
         Microsoft::WRL::ComPtr<ID3D12Resource2> m_UploadBuffer = nullptr;
-        D3D12_VERTEX_BUFFER_VIEW m_VertexBufferView;
+        // D3D12_VERTEX_BUFFER_VIEW m_VertexBufferView;
         D3D12_RANGE m_UploadRange;
         GraphicsDeviceD3D12 *m_Device = nullptr;
     };

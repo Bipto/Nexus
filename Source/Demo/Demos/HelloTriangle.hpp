@@ -26,12 +26,12 @@ namespace Demos
             Nexus::Graphics::BufferDescription vertexBufferDesc;
             vertexBufferDesc.Size = vertices.size() * sizeof(Nexus::Graphics::VertexPosition);
             vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-            m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(vertexBufferDesc, vertices.data(), Nexus::Graphics::VertexPosition::GetLayout());
+            m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(vertexBufferDesc, vertices.data());
         }
 
         virtual ~HelloTriangleDemo()
         {
-                }
+        }
 
         virtual void Render(Nexus::Time time) override
         {

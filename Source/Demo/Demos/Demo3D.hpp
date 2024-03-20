@@ -50,7 +50,7 @@ namespace Demos
 
         virtual ~Demo3D()
         {
-                }
+        }
 
         virtual void Update(Nexus::Time time) override
         {
@@ -99,6 +99,7 @@ namespace Demos
             m_ResourceSet->WriteUniformBuffer(m_CameraUniformBuffer, "Camera");
             m_ResourceSet->WriteUniformBuffer(m_TransformUniformBuffer, "Transform");
             m_ResourceSet->WriteCombinedImageSampler(m_Texture, m_Sampler, "texSampler");
+            m_ResourceSet->Flush();
             m_CommandList->SetResourceSet(m_ResourceSet);
 
             m_CommandList->SetVertexBuffer(m_Mesh->GetVertexBuffer(), 0);

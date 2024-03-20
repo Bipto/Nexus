@@ -130,9 +130,9 @@ namespace Nexus::Graphics
         return CreateRef<CommandListD3D12>(this);
     }
 
-    Ref<VertexBuffer> GraphicsDeviceD3D12::CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
+    Ref<VertexBuffer> GraphicsDeviceD3D12::CreateVertexBuffer(const BufferDescription &description, const void *data)
     {
-        return CreateRef<VertexBufferD3D12>(this, description, data, layout);
+        return CreateRef<VertexBufferD3D12>(this, description, data);
     }
 
     Ref<IndexBuffer> GraphicsDeviceD3D12::CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format)

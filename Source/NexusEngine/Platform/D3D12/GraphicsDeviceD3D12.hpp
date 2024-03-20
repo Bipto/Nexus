@@ -28,7 +28,7 @@ namespace Nexus::Graphics
         virtual Ref<Pipeline> CreatePipeline(const PipelineDescription &description) override;
         virtual Ref<CommandList> CreateCommandList() override;
 
-        virtual Ref<VertexBuffer> CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout) override;
+        virtual Ref<VertexBuffer> CreateVertexBuffer(const BufferDescription &description, const void *data) override;
         virtual Ref<IndexBuffer> CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format = IndexBufferFormat::UInt32) override;
         virtual Ref<UniformBuffer> CreateUniformBuffer(const BufferDescription &description, const void *data) override;
         virtual Ref<ResourceSet> CreateResourceSet(const ResourceSetSpecification &spec) override;

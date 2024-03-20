@@ -30,7 +30,6 @@ namespace Demos
 
         virtual ~TexturingDemo()
         {
-            m_ImGuiRenderer->UnbindTexture(m_TextureID);
         }
 
         virtual void Update(Nexus::Time time) override
@@ -65,6 +64,7 @@ namespace Demos
                                              1.0f});
 
             m_ResourceSet->WriteCombinedImageSampler(m_Texture, m_Sampler, "texSampler");
+            m_ResourceSet->Flush();
             m_CommandList->SetResourceSet(m_ResourceSet);
 
             m_CommandList->SetVertexBuffer(m_Mesh->GetVertexBuffer(), 0);
@@ -106,13 +106,13 @@ namespace Demos
         }
 
     private:
-        Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
-        Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
-        Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
-        Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
-        Nexus::Ref<Nexus::Graphics::Mesh> m_Mesh;
-        Nexus::Ref<Nexus::Graphics::Texture> m_Texture;
-        Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler;
+        Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList = nullptr;
+        Nexus::Ref<Nexus::Graphics::Shader> m_Shader = nullptr;
+        Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline = nullptr;
+        Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet = nullptr;
+        Nexus::Ref<Nexus::Graphics::Mesh> m_Mesh = nullptr;
+        Nexus::Ref<Nexus::Graphics::Texture> m_Texture = nullptr;
+        Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler = nullptr;
         glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
 
         ImTextureID m_TextureID = 0;

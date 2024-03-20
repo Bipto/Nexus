@@ -15,9 +15,9 @@ namespace Nexus::Graphics
         ResourceSetVk(const ResourceSetSpecification &spec, GraphicsDeviceVk *device);
         ~ResourceSetVk();
 
-        virtual void PerformResourceUpdate() override;
         virtual void WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, const std::string &name) override;
         virtual void WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name) override;
+        virtual void Flush() override;
 
         const std::map<uint32_t, VkDescriptorSetLayout> &GetDescriptorSetLayouts() const;
         const std::vector<std::map<uint32_t, VkDescriptorSet>> &GetDescriptorSets() const;
@@ -27,6 +27,9 @@ namespace Nexus::Graphics
 
         std::map<uint32_t, VkDescriptorSetLayout> m_DescriptorSetLayouts;
         std::vector<std::map<uint32_t, VkDescriptorSet>> m_DescriptorSets;
+
+        std::map<std::string, std::pair<Ref<Texture>, Ref<Sampler>>> m_BoundCombinedImageSamplers;
+        std::map<std::string, Ref<UniformBuffer>> m_BoundUniformBuffers;
 
         GraphicsDeviceVk *m_Device = nullptr;
     };

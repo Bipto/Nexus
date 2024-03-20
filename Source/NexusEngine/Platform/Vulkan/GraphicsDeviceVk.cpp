@@ -153,9 +153,9 @@ namespace Nexus::Graphics
         return CreateRef<CommandListVk>(this);
     }
 
-    Ref<VertexBuffer> GraphicsDeviceVk::CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
+    Ref<VertexBuffer> GraphicsDeviceVk::CreateVertexBuffer(const BufferDescription &description, const void *data)
     {
-        return CreateRef<VertexBufferVk>(description, data, layout, this);
+        return CreateRef<VertexBufferVk>(description, data, this);
     }
 
     Ref<IndexBuffer> GraphicsDeviceVk::CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format)

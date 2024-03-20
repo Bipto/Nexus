@@ -25,7 +25,7 @@ namespace Demos
             Nexus::Graphics::BufferDescription vertexBufferDesc;
             vertexBufferDesc.Size = vertices.size() * sizeof(Nexus::Graphics::VertexPosition);
             vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-            m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(vertexBufferDesc, vertices.data(), Nexus::Graphics::VertexPosition::GetLayout());
+            m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(vertexBufferDesc, vertices.data());
 
             std::vector<unsigned int> indices =
                 {
@@ -39,7 +39,7 @@ namespace Demos
 
         virtual ~HelloTriangleIndexedDemo()
         {
-                }
+        }
 
         virtual void Update(Nexus::Time time) override
         {

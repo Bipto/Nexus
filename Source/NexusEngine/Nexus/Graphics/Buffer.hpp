@@ -42,8 +42,8 @@ namespace Nexus::Graphics
         /// @param description A struct representing the properties to use when creating the buffer
         /// @param data A pointer to initial data to upload to the buffer
         /// @param layout A const reference to a vertex buffer layout, representing the contents of the vertex buffer
-        VertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
-            : m_Description(description), m_Layout(layout) {}
+        VertexBuffer(const BufferDescription &description, const void *data)
+            : m_Description(description) {}
 
         /// @brief A virtual destructor to cleanup resources
         virtual ~VertexBuffer() {}
@@ -54,16 +54,9 @@ namespace Nexus::Graphics
         /// @return A const reference to the BufferDescription
         const BufferDescription &GetDescription() { return m_Description; }
 
-        /// @brief A method that returns the layout of the contents of the buffer
-        /// @return A const reference to the VertexBufferLayout
-        const VertexBufferLayout &GetLayout() { return m_Layout; }
-
     protected:
         /// @brief A struct containing the properties that were used when creating the buffer
         BufferDescription m_Description;
-
-        /// @brief A struct containing the layout of the vertex buffer
-        VertexBufferLayout m_Layout;
     };
 
     /// @brief A class representing an API specific index buffer

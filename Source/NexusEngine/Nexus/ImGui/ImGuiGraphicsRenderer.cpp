@@ -359,7 +359,7 @@ namespace Nexus::ImGuiUtils
             Nexus::Graphics::BufferDescription desc;
             desc.Size = drawData->TotalVtxCount * 1.5f * sizeof(ImDrawVert);
             desc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
-            m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(desc, nullptr, layout);
+            m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(desc, nullptr);
         }
 
         if (drawData->TotalIdxCount > m_IndexBufferCount)
@@ -418,7 +418,7 @@ namespace Nexus::ImGuiUtils
         for (auto &resourceSet : m_ResourceSets)
         {
             resourceSet.second->WriteUniformBuffer(m_UniformBuffer, "MVP");
-            resourceSet.second->PerformResourceUpdate();
+            resourceSet.second->Flush();
         }
 
         auto windowSize = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize();

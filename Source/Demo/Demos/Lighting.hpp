@@ -55,8 +55,7 @@ namespace Demos
 
         virtual ~LightingDemo()
         {
-            
-        }
+                }
 
         virtual void Render(Nexus::Time time) override
         {
@@ -102,6 +101,8 @@ namespace Demos
                 m_ResourceSet->WriteCombinedImageSampler(m_DiffuseMap, m_Sampler, "diffuseMapSampler");
                 m_ResourceSet->WriteCombinedImageSampler(m_NormalMap, m_Sampler, "normalMapSampler");
                 m_ResourceSet->WriteCombinedImageSampler(m_SpecularMap, m_Sampler, "specularMapSampler");
+
+                m_ResourceSet->Flush();
 
                 m_CommandList->SetResourceSet(m_ResourceSet);
             }

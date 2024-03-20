@@ -9,19 +9,22 @@ namespace Nexus::Graphics
     {
     }
 
-    void ResourceSetOpenGL::PerformResourceUpdate()
-    {
-    }
-
     void Nexus::Graphics::ResourceSetOpenGL::WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, const std::string &name)
     {
-        m_BoundUniformBuffers[name] = std::dynamic_pointer_cast<UniformBufferOpenGL>(uniformBuffer);
+        m_CachedUniformBuffers[name] = std::dynamic_pointer_cast<UniformBufferOpenGL>(uniformBuffer);
     }
 
     void ResourceSetOpenGL::WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name)
     {
-        m_BoundTextures[name] = std::dynamic_pointer_cast<TextureOpenGL>(texture);
-        m_BoundSamplers[name] = std::dynamic_pointer_cast<SamplerOpenGL>(sampler);
+        m_CachedTextures[name] = std::dynamic_pointer_cast<TextureOpenGL>(texture);
+        m_CachedSamplers[name] = std::dynamic_pointer_cast<SamplerOpenGL>(sampler);
+    }
+
+    void ResourceSetOpenGL::Flush()
+    {
+        m_BoundTextures = m_CachedTextures;
+        m_BoundSamplers = m_CachedSamplers;
+        m_BoundUniformBuffers = m_CachedUniformBuffers;
     }
 
     const std::map<std::string, Ref<TextureOpenGL>> &ResourceSetOpenGL::GetBoundTextures() const

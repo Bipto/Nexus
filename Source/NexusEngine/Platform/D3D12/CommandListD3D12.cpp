@@ -50,8 +50,17 @@ namespace Nexus::Graphics
     void CommandListD3D12::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer, uint32_t slot)
     {
         Ref<VertexBufferD3D12> d3d12VertexBuffer = std::dynamic_pointer_cast<VertexBufferD3D12>(vertexBuffer);
-        auto vertexBufferView = d3d12VertexBuffer->GetVertexBufferView();
-        m_CommandList->IASetVertexBuffers(slot, 1, &vertexBufferView);
+        /* auto vertexBufferView = d3d12VertexBuffer->GetVertexBufferView();
+        m_CommandList->IASetVertexBuffers(slot, 1, &vertexBufferView); */
+
+        const auto &bufferLayout = m_CurrentlyBoundPipeline->GetPipelineDescription().Layouts.at(slot);
+
+        D3D12_VERTEX_BUFFER_VIEW bufferView;
+        bufferView.BufferLocation = d3d12VertexBuffer->GetHandle()->GetGPUVirtualAddress();
+        bufferView.SizeInBytes = d3d12VertexBuffer->GetDescription().Size;
+        bufferView.StrideInBytes = bufferLayout.GetStride();
+
+        m_CommandList->IASetVertexBuffers(slot, 1, &bufferView);
     }
 
     void CommandListD3D12::SetIndexBuffer(Ref<IndexBuffer> indexBuffer)
@@ -71,6 +80,8 @@ namespace Nexus::Graphics
         m_CommandList->SetPipelineState(d3d12Pipeline->GetPipelineState());
         m_CommandList->SetGraphicsRootSignature(d3d12Pipeline->GetRootSignature());
         m_CommandList->IASetPrimitiveTopology(d3d12Pipeline->GetPrimitiveTopology());
+
+        m_CurrentlyBoundPipeline = d3d12Pipeline;
     }
 
     void CommandListD3D12::Draw(uint32_t start, uint32_t count)

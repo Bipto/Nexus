@@ -231,9 +231,9 @@ namespace Nexus::Graphics
         return CreateRef<CommandListOpenGL>(this);
     }
 
-    Ref<VertexBuffer> GraphicsDeviceOpenGL::CreateVertexBuffer(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
+    Ref<VertexBuffer> GraphicsDeviceOpenGL::CreateVertexBuffer(const BufferDescription &description, const void *data)
     {
-        return CreateRef<VertexBufferOpenGL>(description, data, layout);
+        return CreateRef<VertexBufferOpenGL>(description, data);
     }
 
     Ref<IndexBuffer> GraphicsDeviceOpenGL::CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format)

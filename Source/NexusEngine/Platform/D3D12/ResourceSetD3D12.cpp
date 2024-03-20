@@ -89,86 +89,102 @@ namespace Nexus::Graphics
                 }
             }
         }
-    }
 
-    void ResourceSetD3D12::PerformResourceUpdate()
-    {
+        m_BoundCombinedImageSamplers.clear();
+        m_BoundUniformBuffers.clear();
     }
 
     void ResourceSetD3D12::WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, const std::string &name)
     {
-        const BindingInfo &info = m_UniformBufferBindingInfos.at(name);
-        const uint32_t index = GetLinearDescriptorSlot(info.Set, info.Binding);
-        auto d3d12Device = m_Device->GetDevice();
-        Ref<UniformBufferD3D12> d3d12UniformBuffer = std::dynamic_pointer_cast<UniformBufferD3D12>(uniformBuffer);
-
-        D3D12_CONSTANT_BUFFER_VIEW_DESC desc;
-        desc.BufferLocation = d3d12UniformBuffer->GetHandle()->GetGPUVirtualAddress();
-
-        // convert the size of the constant buffer to be 256 byte aligned
-        desc.SizeInBytes = (d3d12UniformBuffer->GetDescription().Size + 255) & ~255;
-
-        d3d12Device->CreateConstantBufferView(
-            &desc,
-            m_ConstantBufferCPUDescriptors.at(index));
+        m_BoundUniformBuffers[name] = uniformBuffer;
     }
 
     void ResourceSetD3D12::WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name)
     {
+        m_BoundCombinedImageSamplers[name] = {texture, sampler};
+
         const auto d3d12Device = m_Device->GetDevice();
-        // write texture
+    }
+
+    void ResourceSetD3D12::Flush()
+    {
+        auto d3d12Device = m_Device->GetDevice();
+
+        // write combined image samplers
+        for (const auto &combinedImageSampler : m_BoundCombinedImageSamplers)
         {
-            Ref<TextureD3D12> d3d12Texture = std::dynamic_pointer_cast<TextureD3D12>(texture);
+            // write texture
+            {
+                Ref<TextureD3D12> d3d12Texture = std::dynamic_pointer_cast<TextureD3D12>(combinedImageSampler.second.first);
 
-            const BindingInfo &info = m_TextureBindingInfos.at(name);
-            const uint32_t index = GetLinearDescriptorSlot(info.Set, info.Binding);
+                const BindingInfo &info = m_TextureBindingInfos.at(combinedImageSampler.first);
+                const uint32_t index = GetLinearDescriptorSlot(info.Set, info.Binding);
 
-            D3D12_SHADER_RESOURCE_VIEW_DESC srv;
-            srv.Format = d3d12Texture->GetFormat();
-            srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-            srv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-            srv.Texture2D.MipLevels = 1;
-            srv.Texture2D.MostDetailedMip = 0;
-            srv.Texture2D.PlaneSlice = 0;
-            srv.Texture2D.ResourceMinLODClamp = 0.0f;
+                D3D12_SHADER_RESOURCE_VIEW_DESC srv;
+                srv.Format = d3d12Texture->GetFormat();
+                srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+                srv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+                srv.Texture2D.MipLevels = 1;
+                srv.Texture2D.MostDetailedMip = 0;
+                srv.Texture2D.PlaneSlice = 0;
+                srv.Texture2D.ResourceMinLODClamp = 0.0f;
 
-            D3D12_CPU_DESCRIPTOR_HANDLE textureHandle = m_TextureCPUDescriptors.at(index);
-            auto resourceHandle = d3d12Texture->GetD3D12ResourceHandle();
-            d3d12Device->CreateShaderResourceView(resourceHandle.Get(),
-                                                  &srv,
-                                                  textureHandle);
+                D3D12_CPU_DESCRIPTOR_HANDLE textureHandle = m_TextureCPUDescriptors.at(index);
+                auto resourceHandle = d3d12Texture->GetD3D12ResourceHandle();
+                d3d12Device->CreateShaderResourceView(resourceHandle.Get(),
+                                                      &srv,
+                                                      textureHandle);
+            }
+
+            // write sampler
+            {
+                const BindingInfo &info = m_SamplerBindingInfos.at(combinedImageSampler.first);
+                const uint32_t index = GetLinearDescriptorSlot(info.Set, info.Binding);
+                auto d3d12Device = m_Device->GetDevice();
+                Ref<SamplerD3D12> d3d12Sampler = std::dynamic_pointer_cast<SamplerD3D12>(combinedImageSampler.second.second);
+
+                const auto &spec = d3d12Sampler->GetSamplerSpecification();
+
+                const glm::vec4 color = Nexus::Utils::ColorFromBorderColor(spec.BorderColor);
+
+                D3D12_SAMPLER_DESC sd;
+                sd.Filter = d3d12Sampler->GetFilter();
+                sd.AddressU = d3d12Sampler->GetAddressModeU();
+                sd.AddressV = d3d12Sampler->GetAddressModeV();
+                sd.AddressW = d3d12Sampler->GetAddressModeW();
+                sd.MipLODBias = spec.LODBias;
+                sd.MaxAnisotropy = spec.MaximumAnisotropy;
+                sd.ComparisonFunc = d3d12Sampler->GetComparisonFunc();
+                sd.BorderColor[0] = color.r;
+                sd.BorderColor[1] = color.g;
+                sd.BorderColor[2] = color.b;
+                sd.BorderColor[3] = color.a;
+                sd.MinLOD = spec.MinimumLOD;
+                sd.MaxLOD = spec.MaximumLOD;
+
+                D3D12_CPU_DESCRIPTOR_HANDLE samplerHandle = m_SamplerCPUDescriptors.at(index);
+                d3d12Device->CreateSampler(
+                    &sd,
+                    samplerHandle);
+            }
         }
 
-        // write sampler
+        // write uniform buffer
+        for (const auto &uniformBuffer : m_BoundUniformBuffers)
         {
-            const BindingInfo &info = m_SamplerBindingInfos.at(name);
+            const BindingInfo &info = m_UniformBufferBindingInfos.at(uniformBuffer.first);
             const uint32_t index = GetLinearDescriptorSlot(info.Set, info.Binding);
-            auto d3d12Device = m_Device->GetDevice();
-            Ref<SamplerD3D12> d3d12Sampler = std::dynamic_pointer_cast<SamplerD3D12>(sampler);
+            Ref<UniformBufferD3D12> d3d12UniformBuffer = std::dynamic_pointer_cast<UniformBufferD3D12>(uniformBuffer.second);
 
-            const auto &spec = d3d12Sampler->GetSamplerSpecification();
+            D3D12_CONSTANT_BUFFER_VIEW_DESC desc;
+            desc.BufferLocation = d3d12UniformBuffer->GetHandle()->GetGPUVirtualAddress();
 
-            const glm::vec4 color = Nexus::Utils::ColorFromBorderColor(spec.BorderColor);
+            // convert the size of the constant buffer to be 256 byte aligned
+            desc.SizeInBytes = (d3d12UniformBuffer->GetDescription().Size + 255) & ~255;
 
-            D3D12_SAMPLER_DESC sd;
-            sd.Filter = d3d12Sampler->GetFilter();
-            sd.AddressU = d3d12Sampler->GetAddressModeU();
-            sd.AddressV = d3d12Sampler->GetAddressModeV();
-            sd.AddressW = d3d12Sampler->GetAddressModeW();
-            sd.MipLODBias = spec.LODBias;
-            sd.MaxAnisotropy = spec.MaximumAnisotropy;
-            sd.ComparisonFunc = d3d12Sampler->GetComparisonFunc();
-            sd.BorderColor[0] = color.r;
-            sd.BorderColor[1] = color.g;
-            sd.BorderColor[2] = color.b;
-            sd.BorderColor[3] = color.a;
-            sd.MinLOD = spec.MinimumLOD;
-            sd.MaxLOD = spec.MaximumLOD;
-
-            D3D12_CPU_DESCRIPTOR_HANDLE samplerHandle = m_SamplerCPUDescriptors.at(index);
-            d3d12Device->CreateSampler(
-                &sd,
-                samplerHandle);
+            d3d12Device->CreateConstantBufferView(
+                &desc,
+                m_ConstantBufferCPUDescriptors.at(index));
         }
     }
 

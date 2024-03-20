@@ -4,8 +4,8 @@
 
 namespace Nexus::Graphics
 {
-    VertexBufferD3D12::VertexBufferD3D12(GraphicsDeviceD3D12 *device, const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
-        : VertexBuffer(description, data, layout), m_Device(device)
+    VertexBufferD3D12::VertexBufferD3D12(GraphicsDeviceD3D12 *device, const BufferDescription &description, const void *data)
+        : VertexBuffer(description, data), m_Device(device)
     {
         auto d3d12Device = device->GetDevice();
 
@@ -55,9 +55,9 @@ namespace Nexus::Graphics
         m_UploadRange.Begin = 0;
         m_UploadRange.End = m_Description.Size;
 
-        m_VertexBufferView.BufferLocation = m_VertexBuffer->GetGPUVirtualAddress();
+        /* m_VertexBufferView.BufferLocation = m_VertexBuffer->GetGPUVirtualAddress();
         m_VertexBufferView.SizeInBytes = m_Description.Size;
-        m_VertexBufferView.StrideInBytes = m_Layout.GetStride();
+        m_VertexBufferView.StrideInBytes = m_Layout.GetStride(); */
 
         if (!data)
             return;
@@ -67,11 +67,6 @@ namespace Nexus::Graphics
 
     VertexBufferD3D12::~VertexBufferD3D12()
     {
-    }
-
-    const D3D12_VERTEX_BUFFER_VIEW VertexBufferD3D12::GetVertexBufferView() const
-    {
-        return m_VertexBufferView;
     }
 
     void VertexBufferD3D12::SetData(const void *data, uint32_t size, uint32_t offset)
@@ -85,6 +80,11 @@ namespace Nexus::Graphics
         m_UploadBuffer->Unmap(0, &m_UploadRange);
         m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd)
                                   { cmd->CopyBufferRegion(m_VertexBuffer.Get(), 0, m_UploadBuffer.Get(), 0, m_Description.Size); });
+    }
+
+    ID3D12Resource2 *VertexBufferD3D12::GetHandle()
+    {
+        return m_VertexBuffer.Get();
     }
 
     IndexBufferD3D12::IndexBufferD3D12(GraphicsDeviceD3D12 *device, const BufferDescription &description, const void *data, IndexBufferFormat format)

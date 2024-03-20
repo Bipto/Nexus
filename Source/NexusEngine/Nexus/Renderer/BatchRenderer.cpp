@@ -139,7 +139,7 @@ namespace Nexus::Graphics
         Nexus::Graphics::BufferDescription vertexBufferDesc;
         vertexBufferDesc.Size = m_Vertices.size() * sizeof(VertexPositionTexCoordColorTexIndex);
         vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
-        m_VertexBuffer = m_Device->CreateVertexBuffer(vertexBufferDesc, nullptr, VertexPositionTexCoordColorTexIndex::GetLayout());
+        m_VertexBuffer = m_Device->CreateVertexBuffer(vertexBufferDesc, nullptr);
 
         Nexus::Graphics::BufferDescription indexBufferDesc;
         indexBufferDesc.Size = m_Indices.size() * sizeof(uint32_t);

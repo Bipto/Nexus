@@ -12,7 +12,7 @@ namespace Nexus::Graphics
     class VertexBufferVk : public VertexBuffer
     {
     public:
-        VertexBufferVk(const BufferDescription &description, const void *data, const VertexBufferLayout &layout, GraphicsDeviceVk *device);
+        VertexBufferVk(const BufferDescription &description, const void *data, GraphicsDeviceVk *device);
         virtual ~VertexBufferVk();
         VkBuffer GetBuffer();
 

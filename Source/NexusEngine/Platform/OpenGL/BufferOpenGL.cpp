@@ -18,8 +18,8 @@ namespace Nexus::Graphics
         }
     }
 
-    VertexBufferOpenGL::VertexBufferOpenGL(const BufferDescription &description, const void *data, const VertexBufferLayout &layout)
-        : VertexBuffer(description, data, layout)
+    VertexBufferOpenGL::VertexBufferOpenGL(const BufferDescription &description, const void *data)
+        : VertexBuffer(description, data)
     {
         GLenum bufferUsage = GetBufferUsage(m_Description.Usage);
 

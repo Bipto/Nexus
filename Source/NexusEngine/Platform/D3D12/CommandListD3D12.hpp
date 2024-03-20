@@ -7,6 +7,7 @@
 
 #include "SwapchainD3D12.hpp"
 #include "FramebufferD3D12.hpp"
+#include "PipelineD3D12.hpp"
 
 namespace Nexus::Graphics
 {
@@ -52,6 +53,7 @@ namespace Nexus::Graphics
         D3D12_CPU_DESCRIPTOR_HANDLE m_DepthHandle;
 
         RenderTarget m_CurrentRenderTarget = {};
+        Ref<PipelineD3D12> m_CurrentlyBoundPipeline = nullptr;
     };
 }
 #endif

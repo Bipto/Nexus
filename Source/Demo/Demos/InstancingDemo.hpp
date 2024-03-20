@@ -47,7 +47,7 @@ namespace Demos
             Nexus::Graphics::BufferDescription vertexBufferDescription;
             vertexBufferDescription.Size = m_InstanceCount * sizeof(glm::mat4);
             vertexBufferDescription.Usage = Nexus::Graphics::BufferUsage::Dynamic;
-            m_InstanceBuffer = m_GraphicsDevice->CreateVertexBuffer(vertexBufferDescription, nullptr, instanceLayout);
+            m_InstanceBuffer = m_GraphicsDevice->CreateVertexBuffer(vertexBufferDescription, nullptr);
 
             std::vector<glm::mat4> mvps(m_InstanceCount);
             for (uint32_t i = 0; i < m_InstanceCount; i++)
@@ -103,10 +103,10 @@ namespace Demos
             // upload resources
             {
                 m_ResourceSet->WriteUniformBuffer(m_CameraUniformBuffer, "Camera");
-
                 m_ResourceSet->WriteCombinedImageSampler(m_DiffuseMap, m_Sampler, "diffuseMapSampler");
                 m_ResourceSet->WriteCombinedImageSampler(m_NormalMap, m_Sampler, "normalMapSampler");
                 m_ResourceSet->WriteCombinedImageSampler(m_SpecularMap, m_Sampler, "specularMapSampler");
+                m_ResourceSet->Flush();
 
                 m_CommandList->SetResourceSet(m_ResourceSet);
             }

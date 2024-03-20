@@ -5,8 +5,8 @@
 
 namespace Nexus::Graphics
 {
-    VertexBufferVk::VertexBufferVk(const BufferDescription &description, const void *data, const VertexBufferLayout &layout, GraphicsDeviceVk *device)
-        : VertexBuffer(description, data, layout), m_Device(device)
+    VertexBufferVk::VertexBufferVk(const BufferDescription &description, const void *data, GraphicsDeviceVk *device)
+        : VertexBuffer(description, data), m_Device(device)
     {
         VkBufferCreateInfo bufferInfo = {};
         bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
