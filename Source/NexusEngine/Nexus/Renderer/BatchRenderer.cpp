@@ -829,7 +829,7 @@ namespace Nexus::Graphics
         description.Layouts = {Nexus::Graphics::VertexPositionTexCoordColorTexIndex::GetLayout()};
 
         Nexus::Graphics::ResourceSetSpecification resourceSpec;
-        resourceSpec.Textures =
+        resourceSpec.SampledImages =
             {
                 {"texture0", 1, 0, Nexus::Graphics::ResourceType::CombinedImageSampler},
                 {"texture1", 1, 1, Nexus::Graphics::ResourceType::CombinedImageSampler},

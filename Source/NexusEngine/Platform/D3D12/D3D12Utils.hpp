@@ -6,6 +6,7 @@
 #include "Nexus/Graphics/SamplerState.hpp"
 #include "Nexus/Vertex.hpp"
 #include "Nexus/Graphics/PixelFormat.hpp"
+#include "Nexus/Graphics/ShaderModule.hpp"
 
 #include "Nexus/Graphics/Texture.hpp"
 

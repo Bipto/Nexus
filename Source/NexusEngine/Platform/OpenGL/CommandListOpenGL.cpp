@@ -271,8 +271,6 @@ namespace Nexus::Graphics
             auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             auto pipeline = commandListGL->m_CurrentlyBoundPipeline;
             const auto &updateResourcesCommand = std::get<UpdateResourcesCommand>(commandListGL->GetCurrentCommandData());
-
-            auto shaderGL = std::dynamic_pointer_cast<ShaderOpenGL>(pipeline->GetShader());
             auto resourcesGL = std::dynamic_pointer_cast<ResourceSetOpenGL>(updateResourcesCommand.Resources);
 
             // upload resources
@@ -282,7 +280,7 @@ namespace Nexus::Graphics
 
             for (const auto &texture : textureBindings)
             {
-                GLint location = glGetUniformLocation(shaderGL->GetHandle(), texture.first.c_str());
+                GLint location = glGetUniformLocation(pipeline->GetShaderHandle(), texture.first.c_str());
                 glUniform1i(location, location);
                 glActiveTexture(GL_TEXTURE0 + location);
                 glBindTexture(GL_TEXTURE_2D, texture.second->GetNativeHandle());
@@ -290,15 +288,15 @@ namespace Nexus::Graphics
 
             for (const auto &sampler : samplerBindings)
             {
-                GLint location = glGetUniformLocation(shaderGL->GetHandle(), sampler.first.c_str());
+                GLint location = glGetUniformLocation(pipeline->GetShaderHandle(), sampler.first.c_str());
                 glBindSampler(location, sampler.second->GetHandle());
             }
 
             GLint uniformBufferSlot = 0;
             for (const auto &uniformBuffer : uniformBufferBindings)
             {
-                GLint location = glGetUniformBlockIndex(shaderGL->GetHandle(), uniformBuffer.first.c_str());
-                glUniformBlockBinding(shaderGL->GetHandle(), location, uniformBufferSlot);
+                GLint location = glGetUniformBlockIndex(pipeline->GetShaderHandle(), uniformBuffer.first.c_str());
+                glUniformBlockBinding(pipeline->GetShaderHandle(), location, uniformBufferSlot);
                 glBindBufferBase(GL_UNIFORM_BUFFER, uniformBufferSlot, uniformBuffer.second->GetHandle());
                 uniformBufferSlot++;
             }

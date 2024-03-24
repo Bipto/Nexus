@@ -541,6 +541,25 @@ namespace Nexus::GL
         }
     }
 
+    GLenum GetShaderStage(Nexus::Graphics::ShaderStage stage)
+    {
+        switch (stage)
+        {
+        case Nexus::Graphics::ShaderStage::Compute:
+            return GL_COMPUTE_SHADER;
+        case Nexus::Graphics::ShaderStage::Fragment:
+            return GL_FRAGMENT_SHADER;
+        case Nexus::Graphics::ShaderStage::Geometry:
+            return GL_GEOMETRY_SHADER;
+        case Nexus::Graphics::ShaderStage::TesselationControl:
+            return GL_TESS_CONTROL_SHADER;
+        case Nexus::Graphics::ShaderStage::Vertex:
+            return GL_VERTEX_SHADER;
+        default:
+            throw std::runtime_error("Failed to find a valid shader stage");
+        }
+    }
+
     void GetBaseType(const Graphics::VertexBufferElement &element, GLenum &baseType, uint32_t &componentCount, GLboolean &normalized)
     {
         switch (element.Type)

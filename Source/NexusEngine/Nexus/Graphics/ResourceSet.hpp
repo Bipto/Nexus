@@ -33,8 +33,21 @@ namespace Nexus::Graphics
 
     struct ResourceSetSpecification
     {
-        std::vector<ResourceBinding> Textures;
+        std::vector<ResourceBinding> SampledImages;
         std::vector<ResourceBinding> UniformBuffers;
+
+        ResourceSetSpecification &operator+(const ResourceSetSpecification &other)
+        {
+            SampledImages.insert(SampledImages.end(), other.SampledImages.begin(), other.SampledImages.end());
+            UniformBuffers.insert(UniformBuffers.end(), UniformBuffers.begin(), UniformBuffers.end());
+        }
+
+        ResourceSetSpecification &operator+=(const ResourceSetSpecification &other)
+        {
+            SampledImages.insert(SampledImages.end(), other.SampledImages.begin(), other.SampledImages.end());
+            UniformBuffers.insert(UniformBuffers.end(), other.UniformBuffers.begin(), other.UniformBuffers.end());
+            return *this;
+        }
     };
 
     class ResourceSet

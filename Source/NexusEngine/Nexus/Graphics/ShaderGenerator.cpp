@@ -6,18 +6,51 @@
 
 #include "Nexus/Logging/Log.hpp"
 
+#include "Platform/D3D12/D3D12Utils.hpp"
+
 #include "ResourceSet.hpp"
+
+spv::ExecutionModel GetShaderExecutionModel(Nexus::Graphics::ShaderStage stage)
+{
+    switch (stage)
+    {
+    case Nexus::Graphics::ShaderStage::Compute:
+        return spv::ExecutionModel::ExecutionModelGLCompute;
+    case Nexus::Graphics::ShaderStage::Fragment:
+        return spv::ExecutionModel::ExecutionModelFragment;
+    case Nexus::Graphics::ShaderStage::Geometry:
+        return spv::ExecutionModel::ExecutionModelGeometry;
+    case Nexus::Graphics::ShaderStage::TesselationControl:
+        return spv::ExecutionModel::ExecutionModelTessellationControl;
+    case Nexus::Graphics::ShaderStage::TesselationEvaluation:
+        return spv::ExecutionModel::ExecutionModelTessellationEvaluation;
+    case Nexus::Graphics::ShaderStage::Vertex:
+        return spv::ExecutionModel::ExecutionModelVertex;
+    default:
+        throw std::runtime_error("Failed to find a valid shader stage");
+    }
+}
 
 namespace Nexus::Graphics
 {
-    shaderc_shader_kind GetTypeOfShader(ShaderType type)
+    shaderc_shader_kind GetTypeOfShader(ShaderStage stage)
     {
-        switch (type)
+        switch (stage)
         {
-        case ShaderType::Vertex:
-            return shaderc_glsl_vertex_shader;
-        case ShaderType::Fragment:
+        case ShaderStage::Compute:
+            return shaderc_glsl_compute_shader;
+        case ShaderStage::Fragment:
             return shaderc_glsl_fragment_shader;
+        case ShaderStage::Geometry:
+            return shaderc_glsl_geometry_shader;
+        case ShaderStage::TesselationControl:
+            return shaderc_glsl_tess_control_shader;
+        case ShaderStage::TesselationEvaluation:
+            return shaderc_glsl_tess_evaluation_shader;
+        case ShaderStage::Vertex:
+            return shaderc_glsl_vertex_shader;
+        default:
+            throw std::runtime_error("Failed to find a valid shader stage");
         }
     }
 
@@ -25,20 +58,18 @@ namespace Nexus::Graphics
     {
         spirv_cross::ShaderResources resources = compiler.get_shader_resources();
 
-        ResourceSetSpecification resourceSpec;
-
         // find all resources in shaders
         for (const auto &image : resources.sampled_images)
         {
             uint32_t set = compiler.get_decoration(image.id, spv::DecorationDescriptorSet);
             uint32_t binding = compiler.get_decoration(image.id, spv::DecorationBinding);
 
-            ResourceBinding resource;
-            resource.Name = image.name;
-            resource.Set = set;
-            resource.Binding = binding;
-            resource.Type = ResourceType::CombinedImageSampler;
-            resourceSpec.Textures.push_back(resource);
+            // example of how to retrieve resource information
+            /* const auto &baseType = compiler.get_type(image.base_type_id);
+            const auto &type = compiler.get_type(image.type_id);
+            if (type.image.dim == spv::Dim2D)
+            {
+            } */
 
             uint32_t slot = (set * ResourceSet::DescriptorSetCount) + binding;
             compiler.unset_decoration(image.id, spv::DecorationDescriptorSet);
@@ -58,17 +89,10 @@ namespace Nexus::Graphics
             uint32_t set = compiler.get_decoration(uniformBuffer.id, spv::DecorationDescriptorSet);
             uint32_t binding = compiler.get_decoration(uniformBuffer.id, spv::DecorationBinding);
 
-            ResourceBinding resource;
-            resource.Name = uniformBuffer.name;
-            resource.Set = set;
-            resource.Binding = binding;
-            resource.Type = ResourceType::UniformBuffer;
-            resourceSpec.UniformBuffers.push_back(resource);
-
             uint32_t slot = (set * ResourceSet::DescriptorSetCount) + binding;
             compiler.unset_decoration(uniformBuffer.id, spv::DecorationDescriptorSet);
 
-            if (language == ShaderLanguage::GLSL | language == ShaderLanguage::GLSLES)
+            if (language == ShaderLanguage::GLSL || language == ShaderLanguage::GLSLES)
             {
                 compiler.unset_decoration(uniformBuffer.id, spv::DecorationBinding);
             }
@@ -79,7 +103,38 @@ namespace Nexus::Graphics
         }
     }
 
-    CompilationResult ShaderGenerator::Generate(const std::string &source, ShaderGenerationOptions options)
+    void CreateResourceSetSpecification(const spirv_cross::Compiler &compiler, ResourceSetSpecification &resources)
+    {
+        spirv_cross::ShaderResources shaderResources = compiler.get_shader_resources();
+
+        for (const auto &image : shaderResources.sampled_images)
+        {
+            uint32_t set = compiler.get_decoration(image.id, spv::DecorationDescriptorSet);
+            uint32_t binding = compiler.get_decoration(image.id, spv::DecorationBinding);
+
+            ResourceBinding resource;
+            resource.Name = image.name;
+            resource.Set = set;
+            resource.Binding = binding;
+            resource.Type = ResourceType::CombinedImageSampler;
+            resources.SampledImages.push_back(resource);
+        }
+
+        for (const auto &uniformBuffer : shaderResources.uniform_buffers)
+        {
+            uint32_t set = compiler.get_decoration(uniformBuffer.id, spv::DecorationDescriptorSet);
+            uint32_t binding = compiler.get_decoration(uniformBuffer.id, spv::DecorationBinding);
+
+            ResourceBinding resource;
+            resource.Name = uniformBuffer.name;
+            resource.Set = set;
+            resource.Binding = binding;
+            resource.Type = ResourceType::UniformBuffer;
+            resources.UniformBuffers.push_back(resource);
+        }
+    }
+
+    CompilationResult ShaderGenerator::Generate(const std::string &source, ShaderGenerationOptions options, ResourceSetSpecification &resources)
     {
         CompilationResult output;
         output.Successful = false;
@@ -89,7 +144,7 @@ namespace Nexus::Graphics
 
         // compile to SPIR-V
         shaderc::Compiler compiler;
-        auto shaderType = GetTypeOfShader(options.Type);
+        auto shaderType = GetTypeOfShader(options.Stage);
         shaderc::CompilationResult result = compiler.CompileGlslToSpv(source, shaderType, options.ShaderName.c_str());
 
         if (result.GetCompilationStatus() != shaderc_compilation_status_success)
@@ -109,44 +164,36 @@ namespace Nexus::Graphics
         {
         case ShaderLanguage::GLSL:
         {
-            spirv_cross::CompilerGLSL glsl(spirv_binary);
+            spirv_cross::CompilerGLSL compiler(spirv_binary);
             glOptions.version = 450;
             glOptions.es = false;
-            glsl.set_common_options(glOptions);
-            ToLinearResourceSet(glsl, options.OutputFormat);
-            output.Source = glsl.compile();
+            compiler.set_common_options(glOptions);
+            CreateResourceSetSpecification(compiler, resources);
+            ToLinearResourceSet(compiler, options.OutputFormat);
+            output.Source = compiler.compile();
             break;
         }
         case ShaderLanguage::GLSLES:
         {
-            spirv_cross::CompilerGLSL glsl(spirv_binary);
+            spirv_cross::CompilerGLSL compiler(spirv_binary);
             glOptions.version = 300;
             glOptions.es = true;
-            glsl.set_common_options(glOptions);
-            ToLinearResourceSet(glsl, options.OutputFormat);
-            output.Source = glsl.compile();
+            compiler.set_common_options(glOptions);
+            CreateResourceSetSpecification(compiler, resources);
+            ToLinearResourceSet(compiler, options.OutputFormat);
+            output.Source = compiler.compile();
             break;
         }
         case ShaderLanguage::HLSL:
         {
-            spirv_cross::CompilerHLSL hlsl(spirv_binary);
+            spirv_cross::CompilerHLSL compiler(spirv_binary);
 
-            if (options.Type == ShaderType::Vertex)
-            {
-                hlsl.rename_entry_point("main", "vs_main", spv::ExecutionModel::ExecutionModelVertex);
-            }
-            else if (options.Type == ShaderType::Fragment)
-            {
-                hlsl.rename_entry_point("main", "ps_main", spv::ExecutionModel::ExecutionModelFragment);
-            }
-            else
-            {
-                NX_ERROR("Unsupported shader type");
-            }
+            const std::string name = GetD3DShaderEntryPoint(options.Stage);
+            compiler.rename_entry_point("main", name.c_str(), GetShaderExecutionModel(options.Stage));
 
             glOptions.version = 330;
             glOptions.es = false;
-            hlsl.set_common_options(glOptions);
+            compiler.set_common_options(glOptions);
 
             spirv_cross::CompilerHLSL::Options hlslOptions;
             // allow the main method to be renamed
@@ -154,19 +201,59 @@ namespace Nexus::Graphics
             // modern HLSL
             hlslOptions.shader_model = 50;
             hlslOptions.flatten_matrix_vertex_input_semantics = true;
-            hlsl.set_hlsl_options(hlslOptions);
-            ToLinearResourceSet(hlsl, options.OutputFormat);
-            output.Source = hlsl.compile();
+            compiler.set_hlsl_options(hlslOptions);
+            CreateResourceSetSpecification(compiler, resources);
+            ToLinearResourceSet(compiler, options.OutputFormat);
+            output.Source = compiler.compile();
             break;
         }
         case ShaderLanguage::SPIRV:
+        {
+            spirv_cross::CompilerGLSL compiler(spirv_binary);
+            glOptions.version = 450;
+            glOptions.es = false;
+            compiler.set_common_options(glOptions);
+            CreateResourceSetSpecification(compiler, resources);
             output.Source = source;
             break;
+        }
+
         default:
             throw std::runtime_error("Failed to find a valid shader format");
         }
 
+        if (options.OutputFormat == ShaderLanguage::SPIRV)
+        {
+            shaderc::Compiler compiler;
+            auto shaderType = GetTypeOfShader(options.Stage);
+            shaderc::CompilationResult result = compiler.CompileGlslToSpv(output.Source, shaderType, options.ShaderName.c_str());
+
+            std::vector<uint32_t> spirv_binary = {result.begin(), result.end()};
+            output.SpirvBinary = spirv_binary;
+        }
+
         output.Successful = true;
         return output;
+    }
+
+    std::string GetD3DShaderEntryPoint(Nexus::Graphics::ShaderStage stage)
+    {
+        switch (stage)
+        {
+        case Nexus::Graphics::ShaderStage::Compute:
+            return "cs_main";
+        case Nexus::Graphics::ShaderStage::Fragment:
+            return "fs_main";
+        case Nexus::Graphics::ShaderStage::Geometry:
+            return "gs_main";
+        case Nexus::Graphics::ShaderStage::TesselationControl:
+            return "tcs_main";
+        case Nexus::Graphics::ShaderStage::TesselationEvaluation:
+            return "tes_main";
+        case Nexus::Graphics::ShaderStage::Vertex:
+            return "vs_main";
+        default:
+            throw std::runtime_error("Failed to find a valid shader stage");
+        }
     }
 }

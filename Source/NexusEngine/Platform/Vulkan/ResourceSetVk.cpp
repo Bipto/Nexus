@@ -16,7 +16,7 @@ namespace Nexus::Graphics
         std::map<VkDescriptorType, uint32_t> descriptorCounts;
 
         // create texture bindings
-        for (const auto &textureBinding : spec.Textures)
+        for (const auto &textureBinding : spec.SampledImages)
         {
             VkDescriptorSetLayoutBinding descriptorBinding = {};
             descriptorBinding.binding = textureBinding.Binding;

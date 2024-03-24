@@ -57,10 +57,16 @@ namespace Nexus::ImGuiUtils
 
         auto vertexSource = GetImGuiShaderVertexSource();
         auto fragmentSource = GetImGuiShaderFragmentSource();
-        m_Shader = m_GraphicsDevice->CreateShaderFromSpirvSources(vertexSource, fragmentSource, "imgui.vert", "imgui.frag");
+        // m_Shader = m_GraphicsDevice->CreateShaderFromSpirvSources(vertexSource, fragmentSource, "imgui.vert", "imgui.frag");
+
+        auto vertexModule = m_GraphicsDevice->CreateShaderModuleFromSpirvSource(vertexSource, "ImGui.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
+        auto fragmentModule = m_GraphicsDevice->CreateShaderModuleFromSpirvSource(fragmentSource, "ImGui.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 
         Nexus::Graphics::PipelineDescription pipelineDesc;
-        pipelineDesc.Shader = m_Shader;
+
+        pipelineDesc.VertexModule = vertexModule;
+        pipelineDesc.FragmentModule = fragmentModule;
+
         pipelineDesc.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
         pipelineDesc.BlendStateDescription.EnableBlending = true;
 
@@ -85,7 +91,7 @@ namespace Nexus::ImGuiUtils
         uniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
         m_UniformBuffer = m_GraphicsDevice->CreateUniformBuffer(uniformBufferDesc, nullptr);
 
-        Nexus::Graphics::ResourceBinding textureBinding;
+        /* Nexus::Graphics::ResourceBinding textureBinding;
         textureBinding.Name = "Texture";
         textureBinding.Set = 1;
         textureBinding.Binding = 0;
@@ -97,8 +103,14 @@ namespace Nexus::ImGuiUtils
         uniformBufferBinding.Binding = 0;
         uniformBufferBinding.Type = Nexus::Graphics::ResourceType::UniformBuffer;
 
-        pipelineDesc.ResourceSetSpecification.Textures = {textureBinding};
-        pipelineDesc.ResourceSetSpecification.UniformBuffers = {uniformBufferBinding};
+        pipelineDesc.ResourceSetSpecification.SampledImages = {textureBinding};
+        pipelineDesc.ResourceSetSpecification.UniformBuffers = {uniformBufferBinding}; */
+
+        Nexus::Graphics::ResourceSetSpecification resources;
+        resources += vertexModule->GetResourceSetSpecification();
+        resources += fragmentModule->GetResourceSetSpecification();
+
+        pipelineDesc.ResourceSetSpecification = resources;
 
         m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDesc);
 

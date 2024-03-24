@@ -6,7 +6,7 @@ namespace Nexus::Graphics
         : m_Specification(spec)
     {
 
-        for (const auto &texture : spec.Textures)
+        for (const auto &texture : spec.SampledImages)
         {
             BindingInfo info;
             info.Set = texture.Set;

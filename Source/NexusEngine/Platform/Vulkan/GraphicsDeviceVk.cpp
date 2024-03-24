@@ -9,6 +9,7 @@
 #include "ResourceSetVk.hpp"
 #include "FramebufferVk.hpp"
 #include "SamplerVk.hpp"
+#include "ShaderModuleVk.hpp"
 
 #include "SDL_vulkan.h"
 
@@ -112,11 +113,12 @@ namespace Nexus::Graphics
     Ref<Shader> GraphicsDeviceVk::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource)
     {
         Nexus::Graphics::ShaderGenerator generator;
+        Nexus::Graphics::ResourceSetSpecification resources;
 
         Nexus::Graphics::ShaderGenerationOptions vertOptions;
         vertOptions.OutputFormat = ShaderLanguage::SPIRV;
-        vertOptions.Type = Nexus::Graphics::ShaderType::Vertex;
-        auto vertexResult = generator.Generate(vertexShaderSource, vertOptions);
+        vertOptions.Stage = Nexus::Graphics::ShaderStage::Vertex;
+        auto vertexResult = generator.Generate(vertexShaderSource, vertOptions, resources);
 
         if (!vertexResult.Successful)
         {
@@ -126,8 +128,8 @@ namespace Nexus::Graphics
 
         Nexus::Graphics::ShaderGenerationOptions fragOptions;
         fragOptions.OutputFormat = ShaderLanguage::SPIRV;
-        fragOptions.Type = Nexus::Graphics::ShaderType::Fragment;
-        auto fragmentResult = generator.Generate(fragmentShaderSource, fragOptions);
+        fragOptions.Stage = Nexus::Graphics::ShaderStage::Fragment;
+        auto fragmentResult = generator.Generate(fragmentShaderSource, fragOptions, resources);
 
         if (!fragmentResult.Successful)
         {
@@ -136,6 +138,11 @@ namespace Nexus::Graphics
         }
 
         return CreateRef<ShaderVk>(vertexResult.SpirvBinary, fragmentResult.SpirvBinary, vertexShaderSource, fragmentShaderSource, this);
+    }
+
+    Ref<ShaderModule> GraphicsDeviceVk::CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources)
+    {
+        return CreateRef<ShaderModuleVk>(moduleSpec, resources, this);
     }
 
     Ref<Texture> GraphicsDeviceVk::CreateTexture(const TextureSpecification &spec)

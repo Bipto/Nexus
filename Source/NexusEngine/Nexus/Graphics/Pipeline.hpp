@@ -3,6 +3,7 @@
 #include "Shader.hpp"
 #include "Viewport.hpp"
 #include "Scissor.hpp"
+#include "ShaderModule.hpp"
 
 #include "ResourceSet.hpp"
 #include "RenderTarget.hpp"
@@ -37,6 +38,12 @@ namespace Nexus::Graphics
 
         /// @brief The layout of data within bound vertex buffers
         std::vector<VertexBufferLayout> Layouts;
+
+        Ref<ShaderModule> FragmentModule = nullptr;
+        Ref<ShaderModule> GeometryModule = nullptr;
+        Ref<ShaderModule> TesselationControlModule = nullptr;
+        Ref<ShaderModule> TesselationEvaluationModule = nullptr;
+        Ref<ShaderModule> VertexModule = nullptr;
     };
 
     /// @brief A pure virtual class representing an API specific pipeline

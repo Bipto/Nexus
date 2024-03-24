@@ -1,22 +1,11 @@
 #pragma once
 
+#include "ShaderModule.hpp"
+
 #include <string>
 
 namespace Nexus::Graphics
 {
-    /// @brief An enum representing the type of shader
-    enum class ShaderType
-    {
-        /// @brief Value representing an invalid shader type
-        None = -1,
-
-        /// @brief Value representing a vertex shader type
-        Vertex = 0,
-
-        /// @brief Value representing a fragment shader type
-        Fragment = 1
-    };
-
     /// @brief An enum representing different shader languages
     enum class ShaderLanguage
     {
@@ -37,7 +26,7 @@ namespace Nexus::Graphics
     struct ShaderGenerationOptions
     {
         /// @brief The type of shader that should be generated
-        ShaderType Type;
+        ShaderStage Stage;
 
         /// @brief The shader language to generate from the input text
         ShaderLanguage OutputFormat;
@@ -73,6 +62,8 @@ namespace Nexus::Graphics
         /// @param source An input string containing shader code to convert
         /// @param options A set of configuration options to use when generating a native shader string
         /// @return A compilation result returning the output of the shader generation
-        CompilationResult Generate(const std::string &source, ShaderGenerationOptions options);
+        CompilationResult Generate(const std::string &source, ShaderGenerationOptions options, ResourceSetSpecification &resources);
     };
+
+    std::string GetD3DShaderEntryPoint(Nexus::Graphics::ShaderStage stage);
 }

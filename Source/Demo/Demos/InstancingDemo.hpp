@@ -152,7 +152,7 @@ namespace Demos
                 {
                     {"Camera", 0, 0}};
 
-            pipelineDescription.ResourceSetSpecification.Textures =
+            pipelineDescription.ResourceSetSpecification.SampledImages =
                 {
                     {"diffuseMapSampler", 1, 0},
                     {"normalMapSampler", 1, 1},

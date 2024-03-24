@@ -55,7 +55,7 @@ namespace Demos
 
         virtual ~LightingDemo()
         {
-                }
+        }
 
         virtual void Render(Nexus::Time time) override
         {
@@ -147,7 +147,7 @@ namespace Demos
                     {"Camera", 0, 0},
                     {"Transform", 0, 1}};
 
-            pipelineDescription.ResourceSetSpecification.Textures =
+            pipelineDescription.ResourceSetSpecification.SampledImages =
                 {
                     {"diffuseMapSampler", 1, 0},
                     {"normalMapSampler", 1, 1},

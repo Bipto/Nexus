@@ -4,6 +4,7 @@
 
 #include "ShaderOpenGL.hpp"
 #include "BufferOpenGL.hpp"
+#include "ShaderModuleOpenGL.hpp"
 
 #include "GL.hpp"
 
@@ -14,6 +15,8 @@ namespace Nexus::Graphics
     {
         glGenVertexArrays(1, &m_VAO);
         glBindVertexArray(0);
+
+        CreateShader();
     }
 
     PipelineOpenGL::~PipelineOpenGL()
@@ -33,6 +36,11 @@ namespace Nexus::Graphics
         SetupBlending();
         SetShader();
         BindVertexArray();
+    }
+
+    uint32_t PipelineOpenGL::GetShaderHandle() const
+    {
+        return m_ShaderHandle;
     }
 
     void PipelineOpenGL::SetupDepthStencil()
@@ -165,13 +173,15 @@ namespace Nexus::Graphics
 
     void PipelineOpenGL::SetShader()
     {
-        if (!m_Description.Shader)
+        /* if (!m_Description.Shader)
         {
             throw std::runtime_error("A shader has not been assigned to this pipeline!");
         }
 
         auto shaderGL = std::dynamic_pointer_cast<ShaderOpenGL>(m_Description.Shader);
-        shaderGL->Bind();
+        shaderGL->Bind(); */
+
+        glUseProgram(m_ShaderHandle);
     }
 
     void PipelineOpenGL::BindVertexArray()
@@ -213,6 +223,75 @@ namespace Nexus::Graphics
 
             glEnableVertexAttribArray(index);
             index++;
+        }
+    }
+
+    void PipelineOpenGL::CreateShader()
+    {
+        m_ShaderHandle = glCreateProgram();
+
+        std::vector<Ref<ShaderModuleOpenGL>> modules;
+
+        if (m_Description.FragmentModule)
+        {
+            auto glFragmentModule = std::dynamic_pointer_cast<ShaderModuleOpenGL>(m_Description.FragmentModule);
+            NX_ASSERT(glFragmentModule->GetShaderStage() == ShaderStage::Fragment, "Shader module is not a fragment shader");
+            modules.push_back(glFragmentModule);
+            // glAttachShader(m_ShaderHandle, glFragmentModule->GetHandle());
+        }
+
+        if (m_Description.GeometryModule)
+        {
+            auto glGeometryModule = std::dynamic_pointer_cast<ShaderModuleOpenGL>(m_Description.GeometryModule);
+            NX_ASSERT(glGeometryModule->GetShaderStage() == ShaderStage::Geometry, "Shader module is not a geometry shader");
+            modules.push_back(glGeometryModule);
+            // glAttachShader(m_ShaderHandle, glGeometryModule->GetHandle());
+        }
+
+        if (m_Description.TesselationControlModule)
+        {
+            auto glTesselationControlModule = std::dynamic_pointer_cast<ShaderModuleOpenGL>(m_Description.TesselationControlModule);
+            NX_ASSERT(glTesselationControlModule->GetShaderStage() == ShaderStage::TesselationControl, "Shader module is not a tesselation control shader");
+            modules.push_back(glTesselationControlModule);
+            // glAttachShader(m_ShaderHandle, glTesselationControlModule->GetHandle());
+        }
+
+        if (m_Description.TesselationEvaluationModule)
+        {
+            auto glEvaluationModule = std::dynamic_pointer_cast<ShaderModuleOpenGL>(m_Description.TesselationEvaluationModule);
+            NX_ASSERT(glEvaluationModule->GetShaderStage() == ShaderStage::TesselationEvaluation, "Shader module is not a tesselation evaluation shader");
+            modules.push_back(glEvaluationModule);
+            // glAttachShader(m_ShaderHandle, glEvaluationModule->GetHandle());
+        }
+
+        if (m_Description.VertexModule)
+        {
+            auto glVertexModule = std::dynamic_pointer_cast<ShaderModuleOpenGL>(m_Description.VertexModule);
+            NX_ASSERT(glVertexModule->GetShaderStage() == ShaderStage::Vertex, "Shader module is not a vertex shader");
+            modules.push_back(glVertexModule);
+            // glAttachShader(m_ShaderHandle, glVertexModule->GetHandle());
+        }
+
+        for (const auto &module : modules)
+        {
+            glAttachShader(m_ShaderHandle, module->GetHandle());
+        }
+
+        glLinkProgram(m_ShaderHandle);
+
+        char infoLog[512];
+        int success;
+        glGetProgramiv(m_ShaderHandle, GL_LINK_STATUS, &success);
+        if (!success)
+        {
+            glGetProgramInfoLog(m_ShaderHandle, 512, nullptr, infoLog);
+            std::string errorMessage = "Error: Shader Program - " + std::string(infoLog);
+            NX_ERROR(errorMessage);
+        }
+
+        for (const auto &module : modules)
+        {
+            glDetachShader(m_ShaderHandle, module->GetHandle());
         }
     }
 

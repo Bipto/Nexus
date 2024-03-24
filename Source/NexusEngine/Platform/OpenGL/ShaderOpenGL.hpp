@@ -18,8 +18,6 @@ namespace Nexus::Graphics
         std::string FragmentSource;
     };
 
-    GLenum GetGLBaseType(const VertexBufferElement element);
-
     class ShaderOpenGL : public Shader
     {
     public:

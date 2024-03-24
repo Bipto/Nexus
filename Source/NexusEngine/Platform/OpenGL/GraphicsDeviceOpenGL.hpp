@@ -42,6 +42,7 @@ namespace Nexus::Graphics
 
     private:
         virtual Ref<Shader> CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource) override;
+        virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) override;
         std::vector<std::string> GetSupportedExtensions();
 
     private:

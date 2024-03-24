@@ -16,6 +16,7 @@
 #include "ResourceSet.hpp"
 #include "Sampler.hpp"
 #include "GraphicsCapabilities.hpp"
+#include "ShaderModule.hpp"
 
 namespace Nexus::Graphics
 {
@@ -148,6 +149,8 @@ namespace Nexus::Graphics
 
         Ref<Shader> CreateShaderFromSpirvSources(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const std::string &vertexShaderName = "VertexShader", const std::string &fragmentShaderName = "FragmentShader");
 
+        Ref<ShaderModule> CreateShaderModuleFromSpirvSource(const std::string &source, const std::string &name, ShaderStage stage);
+
         Window *GetPrimaryWindow();
 
     private:
@@ -157,6 +160,8 @@ namespace Nexus::Graphics
         /// @param layout A parameter specifying how data is laid out in the vertex buffer
         /// @return A pointer to a shader
         virtual Ref<Shader> CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource) = 0;
+
+        virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) = 0;
 
     protected:
         /// @brief A pointer to the window to render graphics into

@@ -11,6 +11,7 @@
 #include "ResourceSetD3D12.hpp"
 #include "FramebufferD3D12.hpp"
 #include "SamplerD3D12.hpp"
+#include "ShaderModuleD3D12.hpp"
 
 namespace Nexus::Graphics
 {
@@ -113,6 +114,11 @@ namespace Nexus::Graphics
     Ref<Shader> GraphicsDeviceD3D12::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource)
     {
         return CreateRef<ShaderD3D12>(vertexShaderSource, fragmentShaderSource);
+    }
+
+    Ref<ShaderModule> GraphicsDeviceD3D12::CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources)
+    {
+        return CreateRef<ShaderModuleD3D12>(moduleSpec, resources);
     }
 
     Ref<Texture> GraphicsDeviceD3D12::CreateTexture(const TextureSpecification &spec)

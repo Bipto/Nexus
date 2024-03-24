@@ -16,9 +16,9 @@ namespace Nexus::Graphics
         m_Device = device;
         auto d3d12Device = m_Device->GetDevice();
 
-        uint32_t textureCount = spec.Textures.size();
+        uint32_t textureCount = spec.SampledImages.size();
         uint32_t constantBufferCount = spec.UniformBuffers.size();
-        uint32_t textureConstantBufferCount = spec.Textures.size() + spec.UniformBuffers.size();
+        uint32_t textureConstantBufferCount = spec.SampledImages.size() + spec.UniformBuffers.size();
 
         if (textureCount > 0)
         {
@@ -35,7 +35,7 @@ namespace Nexus::Graphics
 
             for (int i = 0; i < textureCount; i++)
             {
-                const auto &textureInfo = spec.Textures.at(i);
+                const auto &textureInfo = spec.SampledImages.at(i);
                 const uint32_t slot = ResourceSet::GetLinearDescriptorSlot(textureInfo.Set, textureInfo.Binding);
 
                 m_SamplerCPUDescriptors[slot] = cpuLocation;
@@ -61,9 +61,9 @@ namespace Nexus::Graphics
 
             // create texture handles
             {
-                for (int i = 0; i < spec.Textures.size(); i++)
+                for (int i = 0; i < spec.SampledImages.size(); i++)
                 {
-                    const auto &textureInfo = spec.Textures.at(i);
+                    const auto &textureInfo = spec.SampledImages.at(i);
                     const uint32_t slot = ResourceSet::GetLinearDescriptorSlot(textureInfo.Set, textureInfo.Binding);
 
                     m_TextureCPUDescriptors[slot] = cpuLocation;

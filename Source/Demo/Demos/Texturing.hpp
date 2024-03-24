@@ -94,7 +94,7 @@ namespace Demos
             pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
             pipelineDescription.Shader = m_Shader;
 
-            pipelineDescription.ResourceSetSpecification.Textures =
+            pipelineDescription.ResourceSetSpecification.SampledImages =
                 {
                     {"texSampler", 0, 0}};
 

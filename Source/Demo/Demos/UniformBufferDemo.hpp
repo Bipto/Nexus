@@ -104,7 +104,7 @@ namespace Demos
                 {
                     {"Transform", 0, 0}};
 
-            pipelineDescription.ResourceSetSpecification.Textures =
+            pipelineDescription.ResourceSetSpecification.SampledImages =
                 {
                     {"texSampler", 1, 0}};
 

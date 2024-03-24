@@ -37,10 +37,11 @@ namespace Nexus::Graphics
             std::string errorMessage;
 
             ShaderGenerationOptions vertOptions;
-            vertOptions.Type = ShaderType::Vertex;
+            vertOptions.Stage = ShaderStage::Vertex;
             vertOptions.ShaderName = vertexShaderName;
             vertOptions.OutputFormat = this->GetSupportedShaderFormat();
-            auto vertResult = generator.Generate(vertexShaderSource, vertOptions);
+            ResourceSetSpecification resources;
+            auto vertResult = generator.Generate(vertexShaderSource, vertOptions, resources);
 
             if (!vertResult.Successful)
             {
@@ -48,10 +49,10 @@ namespace Nexus::Graphics
             }
 
             ShaderGenerationOptions fragOptions;
-            fragOptions.Type = ShaderType::Fragment;
+            fragOptions.Stage = ShaderStage::Fragment;
             fragOptions.ShaderName = fragmentShaderName;
             fragOptions.OutputFormat = this->GetSupportedShaderFormat();
-            auto fragResult = generator.Generate(fragmentShaderSource, fragOptions);
+            auto fragResult = generator.Generate(fragmentShaderSource, fragOptions, resources);
 
             if (!fragResult.Successful)
             {
@@ -81,6 +82,35 @@ namespace Nexus::Graphics
             auto shader = this->CreateShaderFromSource(vertexShaderSource, fragmentShaderSource);
             return shader;
         }
+    }
+
+    Ref<ShaderModule> GraphicsDevice::CreateShaderModuleFromSpirvSource(const std::string &source, const std::string &name, ShaderStage stage)
+    {
+        ShaderModuleSpecification moduleSpec;
+        ResourceSetSpecification resourceSetSpec;
+
+        auto startTime = std::chrono::system_clock::now();
+
+        ShaderGenerator generator;
+        std::string errorMessage;
+
+        ShaderGenerationOptions options;
+        options.Stage = stage;
+        options.ShaderName = name;
+        options.OutputFormat = GetSupportedShaderFormat();
+
+        auto result = generator.Generate(source, options, resourceSetSpec);
+        NX_ASSERT(result.Successful, result.Error.c_str());
+
+        auto endTime = std::chrono::system_clock::now();
+        auto totalTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+
+        moduleSpec.Name = name;
+        moduleSpec.Source = result.Source;
+        moduleSpec.Stage = stage;
+        moduleSpec.SpirvBinary = result.SpirvBinary;
+
+        return CreateShaderModule(moduleSpec, resourceSetSpec);
     }
 
     Window *GraphicsDevice::GetPrimaryWindow()
