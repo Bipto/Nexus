@@ -49,6 +49,9 @@ jobs:
         with:
           submodules: true
           lfs: true
+
+      - name : Install Windows SDK
+        uses : GuillaumeFalourd/setup-windows10-sdk-action@v2
     
       - name: Prepare Vulkan SDK
         uses: humbletim/setup-vulkan-sdk@v1.2.0
