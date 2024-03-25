@@ -40,6 +40,7 @@ namespace Nexus::Graphics
         {
             SampledImages.insert(SampledImages.end(), other.SampledImages.begin(), other.SampledImages.end());
             UniformBuffers.insert(UniformBuffers.end(), UniformBuffers.begin(), UniformBuffers.end());
+            return *this;
         }
 
         ResourceSetSpecification &operator+=(const ResourceSetSpecification &other)

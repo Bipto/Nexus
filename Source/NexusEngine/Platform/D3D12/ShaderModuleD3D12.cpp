@@ -1,3 +1,5 @@
+#if defined(NX_PLATFORM_D3D12)
+
 #include "ShaderModuleD3D12.hpp"
 
 #include "Nexus/Graphics/ShaderGenerator.hpp"
@@ -77,3 +79,5 @@ namespace Nexus::Graphics
         return m_ShaderBlob.Get();
     }
 }
+
+#endif

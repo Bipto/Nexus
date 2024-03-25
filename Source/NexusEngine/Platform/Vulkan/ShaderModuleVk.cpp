@@ -1,3 +1,5 @@
+#if defined(NX_PLATFORM_VULKAN)
+
 #include "ShaderModuleVk.hpp"
 #include "GraphicsDeviceVk.hpp"
 
@@ -28,3 +30,5 @@ namespace Nexus::Graphics
         }
     }
 }
+
+#endif

@@ -1,3 +1,5 @@
+#if defined(NX_PLATFORM_OPENGL)
+
 #include "ShaderModuleOpenGL.hpp"
 
 #include "Nexus/Logging/Log.hpp"
@@ -37,3 +39,5 @@ namespace Nexus::Graphics
         return m_Handle;
     }
 }
+
+#endif
