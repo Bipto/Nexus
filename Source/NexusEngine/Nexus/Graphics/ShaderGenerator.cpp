@@ -6,8 +6,6 @@
 
 #include "Nexus/Logging/Log.hpp"
 
-#include "Platform/D3D12/D3D12Utils.hpp"
-
 #include "ResourceSet.hpp"
 
 spv::ExecutionModel GetShaderExecutionModel(Nexus::Graphics::ShaderStage stage)
