@@ -46,7 +46,6 @@ add_subdirectory(Source/Demo)
 
 if(WIN32)
     add_subdirectory(Source/Test)
-    add_subdirectory(Source/ShaderGen)
 endif()
     
 
