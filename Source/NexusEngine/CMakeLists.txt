@@ -38,6 +38,7 @@ target_include_directories(NexusEngine PUBLIC
   ../../External/SPIRV-Reflect
   ../../External/Freetype/include
   ../../External/pocketpy/include
+  ../../Binaries/dxc_2023_08_14/inc
   )
 
 #dependencies when not building with emscripten
