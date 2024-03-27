@@ -103,12 +103,14 @@ namespace Nexus::Graphics
         vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo = CreateInputAssemblyCreateInfo(GetPrimitiveTopology());
-          
+
         VkPipelineVertexInputDivisorStateCreateInfoEXT divisorInfo = {};
         divisorInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO_EXT;
         divisorInfo.pNext = nullptr;
         divisorInfo.vertexBindingDivisorCount = divisorDescriptions.size();
         divisorInfo.pVertexBindingDivisors = divisorDescriptions.data();
+
+        const auto &shaderStages = GetShaderStages();
 
         // create pipeline
         VkGraphicsPipelineCreateInfo pipelineInfo = {};
