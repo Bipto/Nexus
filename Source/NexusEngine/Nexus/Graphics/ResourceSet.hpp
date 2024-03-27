@@ -59,7 +59,6 @@ namespace Nexus::Graphics
 
         virtual void WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, const std::string &name) = 0;
         virtual void WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name) = 0;
-        virtual void Flush() = 0;
 
         const ResourceSetSpecification &GetSpecification() const;
         static constexpr uint32_t DescriptorSetCount = 64;
