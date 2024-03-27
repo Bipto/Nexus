@@ -7,6 +7,7 @@
 #include "Nexus/Logging/Log.hpp"
 
 #include "ResourceSet.hpp"
+#include "ShaderDataType.hpp"
 
 spv::ExecutionModel GetShaderExecutionModel(Nexus::Graphics::ShaderStage stage)
 {
@@ -132,6 +133,171 @@ namespace Nexus::Graphics
         }
     }
 
+    ShaderDataType GetShaderDataTypeFromSpirvCrossType(const spirv_cross::Compiler &compiler, const spirv_cross::Resource &resource)
+    {
+        const auto &baseType = compiler.get_type(resource.base_type_id);
+        const auto &type = compiler.get_type(resource.type_id);
+
+        switch (type.basetype)
+        {
+        case spirv_cross::SPIRType::BaseType::SByte:
+        {
+            switch (type.vecsize)
+            {
+            case 1:
+                return ShaderDataType::SignedByte;
+            case 2:
+                return ShaderDataType::SignedByte2;
+            case 4:
+                return ShaderDataType::SignedByte4;
+            default:
+                throw std::runtime_error("Invalid variable count");
+            }
+        }
+        case spirv_cross::SPIRType::BaseType::UByte:
+        {
+            switch (type.vecsize)
+            {
+            case 1:
+                return ShaderDataType::Byte;
+            case 2:
+                return ShaderDataType::Byte2;
+            case 4:
+                return ShaderDataType::Byte4;
+            default:
+                throw std::runtime_error("Invalid variable count");
+            }
+        }
+        case spirv_cross::SPIRType::BaseType::Short:
+        {
+            switch (type.vecsize)
+            {
+            case 1:
+                return ShaderDataType::Short;
+            case 2:
+                return ShaderDataType::Short2;
+            case 4:
+                return ShaderDataType::Short4;
+            default:
+                throw std::runtime_error("Invalid variable count");
+            }
+        }
+        case spirv_cross::SPIRType::BaseType::UShort:
+        {
+            switch (type.vecsize)
+            {
+            case 1:
+                return ShaderDataType::UShort;
+            case 2:
+                return ShaderDataType::UShort2;
+            case 4:
+                return ShaderDataType::UShort4;
+            default:
+                throw std::runtime_error("Invalid variable count");
+            }
+        }
+        case spirv_cross::SPIRType::BaseType::Int:
+        {
+            switch (type.vecsize)
+            {
+            case 1:
+                return ShaderDataType::Int;
+            case 2:
+                return ShaderDataType::Int2;
+            case 3:
+                return ShaderDataType::Int3;
+            case 4:
+                return ShaderDataType::Int4;
+            default:
+                throw std::runtime_error("Invalid variable count");
+            }
+        }
+        case spirv_cross::SPIRType::BaseType::UInt:
+        {
+            switch (type.vecsize)
+            {
+            case 1:
+                return ShaderDataType::UShort;
+            case 2:
+                return ShaderDataType::UShort2;
+            case 4:
+                return ShaderDataType::UShort4;
+            default:
+                throw std::runtime_error("Invalid variable count");
+            }
+        }
+        case spirv_cross::SPIRType::BaseType::Half:
+        {
+            switch (type.vecsize)
+            {
+            case 1:
+                return ShaderDataType::Half;
+            case 2:
+                return ShaderDataType::Half2;
+            case 4:
+                return ShaderDataType::Half4;
+            default:
+                throw std::runtime_error("Invalid variable count");
+            }
+        }
+        case spirv_cross::SPIRType::BaseType::Float:
+        {
+            switch (type.vecsize)
+            {
+            case 1:
+                return ShaderDataType::Float;
+            case 2:
+                return ShaderDataType::Float2;
+            case 3:
+                return ShaderDataType::Float3;
+            case 4:
+                return ShaderDataType::Float4;
+            default:
+                throw std::runtime_error("Invalid variable count");
+            }
+        }
+        default:
+            throw std::runtime_error("Failed to find a valid shader data type");
+        }
+    }
+
+    void GetShaderInfo(const spirv_cross::Compiler &compiler, std::vector<ShaderAttribute> &inputs, std::vector<ShaderAttribute> &outputs)
+    {
+        const auto &resources = compiler.get_shader_resources();
+
+        /* for (const auto &uniformBuffer : resources.uniform_buffers)
+        {
+            const auto &type = compiler.get_type(uniformBuffer.base_type_id);
+            for (uint32_t i = 0; i < type.member_types.size(); i++)
+            {
+                const std::string &name = compiler.get_member_name(type.self, i);
+                std::cout << "  Name: " << name << "\n";
+            }
+        } */
+
+        for (const auto &input : resources.stage_inputs)
+        {
+            const auto &baseType = compiler.get_type(input.base_type_id);
+            const auto &type = compiler.get_type(input.type_id);
+
+            ShaderAttribute attribute;
+            attribute.Name = input.name;
+            attribute.Type = GetShaderDataTypeFromSpirvCrossType(compiler, input);
+            inputs.push_back(attribute);
+        }
+
+        for (const auto &output : resources.stage_outputs)
+        {
+            const auto &baseType = compiler.get_type(output.base_type_id);
+            const auto &type = compiler.get_type(output.type_id);
+
+            ShaderAttribute attribute;
+            attribute.Name = output.name;
+            attribute.Type = GetShaderDataTypeFromSpirvCrossType(compiler, output);
+            outputs.push_back(attribute);
+        }
+    }
+
     CompilationResult ShaderGenerator::Generate(const std::string &source, ShaderGenerationOptions options, ResourceSetSpecification &resources)
     {
         CompilationResult output;
@@ -166,6 +332,7 @@ namespace Nexus::Graphics
             glOptions.version = 450;
             glOptions.es = false;
             compiler.set_common_options(glOptions);
+            GetShaderInfo(compiler, output.InputAttributes, output.OutputAttributes);
             CreateResourceSetSpecification(compiler, resources);
             ToLinearResourceSet(compiler, options.OutputFormat);
             output.Source = compiler.compile();
@@ -177,6 +344,7 @@ namespace Nexus::Graphics
             glOptions.version = 300;
             glOptions.es = true;
             compiler.set_common_options(glOptions);
+            GetShaderInfo(compiler, output.InputAttributes, output.OutputAttributes);
             CreateResourceSetSpecification(compiler, resources);
             ToLinearResourceSet(compiler, options.OutputFormat);
             output.Source = compiler.compile();
@@ -200,6 +368,7 @@ namespace Nexus::Graphics
             hlslOptions.shader_model = 50;
             hlslOptions.flatten_matrix_vertex_input_semantics = true;
             compiler.set_hlsl_options(hlslOptions);
+            GetShaderInfo(compiler, output.InputAttributes, output.OutputAttributes);
             CreateResourceSetSpecification(compiler, resources);
             ToLinearResourceSet(compiler, options.OutputFormat);
             output.Source = compiler.compile();
@@ -211,6 +380,7 @@ namespace Nexus::Graphics
             glOptions.version = 450;
             glOptions.es = false;
             compiler.set_common_options(glOptions);
+            GetShaderInfo(compiler, output.InputAttributes, output.OutputAttributes);
             CreateResourceSetSpecification(compiler, resources);
             output.Source = source;
             break;

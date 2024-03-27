@@ -94,9 +94,15 @@ namespace Nexus::Graphics
             divisorDescriptions.push_back(divisorDescription);
         }
 
+        VkPipelineVertexInputDivisorStateCreateInfoEXT divisorInfo = {};
+        divisorInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO_EXT;
+        divisorInfo.pNext = nullptr;
+        divisorInfo.vertexBindingDivisorCount = divisorDescriptions.size();
+        divisorInfo.pVertexBindingDivisors = divisorDescriptions.data();
+
         VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        vertexInputInfo.pNext = nullptr;
+        vertexInputInfo.pNext = &divisorInfo;
         vertexInputInfo.vertexBindingDescriptionCount = bindingDescriptions.size();
         vertexInputInfo.pVertexBindingDescriptions = bindingDescriptions.data();
         vertexInputInfo.vertexAttributeDescriptionCount = attributeDescriptions.size();
@@ -104,18 +110,12 @@ namespace Nexus::Graphics
 
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo = CreateInputAssemblyCreateInfo(GetPrimitiveTopology());
 
-        VkPipelineVertexInputDivisorStateCreateInfoEXT divisorInfo = {};
-        divisorInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO_EXT;
-        divisorInfo.pNext = nullptr;
-        divisorInfo.vertexBindingDivisorCount = divisorDescriptions.size();
-        divisorInfo.pVertexBindingDivisors = divisorDescriptions.data();
-
         const auto &shaderStages = GetShaderStages();
 
         // create pipeline
         VkGraphicsPipelineCreateInfo pipelineInfo = {};
         pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-        pipelineInfo.pNext = &divisorInfo;
+        pipelineInfo.pNext = nullptr;
         pipelineInfo.stageCount = shaderStages.size();
         pipelineInfo.pStages = shaderStages.data();
         pipelineInfo.pVertexInputState = &vertexInputInfo;

@@ -55,6 +55,8 @@ namespace Nexus::Graphics
         moduleSpec.Source = result.Source;
         moduleSpec.Stage = stage;
         moduleSpec.SpirvBinary = result.SpirvBinary;
+        moduleSpec.InputAttributes = result.InputAttributes;
+        moduleSpec.OutputAttributes = result.OutputAttributes;
 
         return CreateShaderModule(moduleSpec, resourceSetSpec);
     }

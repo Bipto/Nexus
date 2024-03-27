@@ -34,14 +34,6 @@ namespace Demos
             cameraUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
             m_CameraUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(cameraUniformBufferDesc, nullptr);
 
-            Nexus::Graphics::VertexBufferLayout instanceLayout =
-                {
-                    {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
-                    {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
-                    {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
-                    {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"}};
-            instanceLayout.SetInstanceStepRate(1);
-
             Nexus::Graphics::BufferDescription vertexBufferDescription;
             vertexBufferDescription.Size = m_InstanceCount * sizeof(glm::mat4);
             vertexBufferDescription.Usage = Nexus::Graphics::BufferUsage::Dynamic;
@@ -104,7 +96,7 @@ namespace Demos
                 m_ResourceSet->WriteCombinedImageSampler(m_DiffuseMap, m_Sampler, "diffuseMapSampler");
                 m_ResourceSet->WriteCombinedImageSampler(m_NormalMap, m_Sampler, "normalMapSampler");
                 m_ResourceSet->WriteCombinedImageSampler(m_SpecularMap, m_Sampler, "specularMapSampler");
-                
+
                 m_CommandList->SetResourceSet(m_ResourceSet);
             }
 

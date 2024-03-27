@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ResourceSet.hpp"
+#include "ShaderDataType.hpp"
 
 #include <string>
 
@@ -17,12 +18,21 @@ namespace Nexus::Graphics
         Vertex
     };
 
+    struct ShaderAttribute
+    {
+        std::string Name;
+        ShaderDataType Type;
+    };
+
     struct ShaderModuleSpecification
     {
         std::string Name = "ShaderModule";
         std::string Source;
         ShaderStage Stage = ShaderStage::None;
         std::vector<uint32_t> SpirvBinary;
+
+        std::vector<ShaderAttribute> InputAttributes;
+        std::vector<ShaderAttribute> OutputAttributes;
     };
 
     class ShaderModule

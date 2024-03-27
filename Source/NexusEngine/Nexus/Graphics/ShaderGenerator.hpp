@@ -41,8 +41,11 @@ namespace Nexus::Graphics
         /// @brief A boolean value representing whether the generation was successful or not
         bool Successful;
 
-        /// @brief A string containing the outuput text of the shader in the language selected
+        /// @brief A string containing the input text of the shader
         std::string Source;
+
+        /// @brief A string containing the output text of the shader in the specified shader format
+        std::string CompiledShader;
 
         /// @brief A string containing an error message if an error was encountered
         std::string Error;
@@ -52,6 +55,12 @@ namespace Nexus::Graphics
 
         /// @brief A vector containing the SPIR-V binary bytecode
         std::vector<uint32_t> SpirvBinary;
+
+        /// @brief A vector containing the input attributes of the shader
+        std::vector<ShaderAttribute> InputAttributes;
+
+        /// @brief A vector containing the output attributes of the shader
+        std::vector<ShaderAttribute> OutputAttributes;
     };
 
     /// @brief A class representing a shader generator instance

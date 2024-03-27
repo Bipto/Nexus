@@ -74,7 +74,7 @@ namespace Demos
 
         virtual void RenderUI() override
         {
-        }
+                }
 
     private:
         void CreatePipeline()
