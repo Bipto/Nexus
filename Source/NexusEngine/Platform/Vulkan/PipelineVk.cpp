@@ -1,7 +1,6 @@
 #if defined(NX_PLATFORM_VULKAN)
 
 #include "PipelineVk.hpp"
-#include "ShaderVk.hpp"
 #include "ResourceSetVk.hpp"
 #include "FramebufferVk.hpp"
 #include "ShaderModuleVk.hpp"
@@ -11,7 +10,6 @@ namespace Nexus::Graphics
     PipelineVk::PipelineVk(const PipelineDescription &description, GraphicsDeviceVk *graphicsDevice)
         : Pipeline(description), m_GraphicsDevice(graphicsDevice)
     {
-        auto vulkanShader = std::dynamic_pointer_cast<ShaderVk>(description.Shader);
         auto resourceSet = new ResourceSetVk(description.ResourceSetSpecification, graphicsDevice);
 
         const auto &pipelineLayouts = resourceSet->GetDescriptorSetLayouts();

@@ -73,11 +73,6 @@ public:
         RegisterScriptingDemo<Demos::PythonDemo>("Python");
 
         m_CommandList = m_GraphicsDevice->CreateCommandList();
-
-        this->GetPrimaryWindow()->OnResize += [](std::pair<uint32_t, uint32_t>)
-        {
-            std::cout << "Window resized!" << std::endl;
-        };
     }
 
     template <typename T>
@@ -297,7 +292,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;

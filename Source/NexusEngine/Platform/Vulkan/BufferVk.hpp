@@ -5,10 +5,10 @@
 #include "Vk.hpp"
 #include "Nexus/Graphics/Buffer.hpp"
 
-#include "Platform/Vulkan/ShaderVk.hpp"
-
 namespace Nexus::Graphics
 {
+    class GraphicsDeviceVk;
+
     class VertexBufferVk : public VertexBuffer
     {
     public:

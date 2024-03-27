@@ -16,7 +16,6 @@ namespace Demos
             : Demo(name, app, imGuiRenderer)
         {
             m_CommandList = m_GraphicsDevice->CreateCommandList();
-            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile(Nexus::FileSystem::GetFilePathAbsolute("resources/shaders/uniform_buffers.glsl"));
 
             CreatePipeline();
 
@@ -93,7 +92,9 @@ namespace Demos
             Nexus::Graphics::PipelineDescription pipelineDescription;
             pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::Back;
             pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
-            pipelineDescription.Shader = m_Shader;
+
+            pipelineDescription.VertexModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/uniform_buffers.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
+            pipelineDescription.FragmentModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/uniform_buffers.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 
             Nexus::Graphics::BufferDescription transformUniformBufferDesc;
             transformUniformBufferDesc.Size = sizeof(VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO);
@@ -118,7 +119,6 @@ namespace Demos
 
     private:
         Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
-        Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
         Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
         Nexus::Ref<Nexus::Graphics::Texture> m_Texture;
         Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;

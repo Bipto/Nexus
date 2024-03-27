@@ -3,7 +3,6 @@
 #include "CommandListOpenGL.hpp"
 
 #include "PipelineOpenGL.hpp"
-#include "ShaderOpenGL.hpp"
 #include "BufferOpenGL.hpp"
 #include "TextureOpenGL.hpp"
 #include "GraphicsDeviceOpenGL.hpp"

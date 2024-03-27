@@ -128,7 +128,6 @@ namespace Nexus::Graphics
         m_RenderTarget = target;
 
         m_CommandList = m_Device->CreateCommandList();
-        m_Shader = m_Device->CreateShaderFromSpirvSources(s_BatchVertexShaderSource, s_BatchFragmentShaderSource);
         CreatePipeline();
 
         const uint32_t MAX_VERTEX_COUNT = 1024;
@@ -824,9 +823,11 @@ namespace Nexus::Graphics
         auto swapchain = m_Device->GetPrimaryWindow();
 
         Nexus::Graphics::PipelineDescription description;
-        description.Shader = m_Shader;
         description.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
         description.Layouts = {Nexus::Graphics::VertexPositionTexCoordColorTexIndex::GetLayout()};
+
+        description.VertexModule = m_Device->CreateShaderModuleFromSpirvSource(s_BatchVertexShaderSource, "Batch Renderer - Vertex Shader", Nexus::Graphics::ShaderStage::Vertex);
+        description.FragmentModule = m_Device->CreateShaderModuleFromSpirvSource(s_BatchFragmentShaderSource, "Batch Renderer - Fragment Shader", Nexus::Graphics::ShaderStage::Fragment);
 
         Nexus::Graphics::ResourceSetSpecification resourceSpec;
         resourceSpec.SampledImages =

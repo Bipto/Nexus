@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Shader.hpp"
 #include "Viewport.hpp"
 #include "Scissor.hpp"
 #include "ShaderModule.hpp"
@@ -26,9 +25,6 @@ namespace Nexus::Graphics
 
         /// @brief How the pipeline should handle the vertex buffer data
         Topology PrimitiveTopology = Topology::TriangleList;
-
-        /// @brief A pointer to a shader that should be used for rendering
-        Ref<Shader> Shader;
 
         /// @brief A resource set specification describing how resources are allocated in the pipeline
         ResourceSetSpecification ResourceSetSpecification;
@@ -65,10 +61,6 @@ namespace Nexus::Graphics
         /// @brief A pure virtual method returning a const reference to a pipeline description
         /// @return A const reference to a pipelinedescription
         virtual const PipelineDescription &GetPipelineDescription() const = 0;
-
-        /// @brief A method that returns a reference counted pointer to a shader
-        /// @return A pointer to the shader used by the pipeline
-        virtual Ref<Shader> GetShader() const { return m_Description.Shader; }
 
     protected:
         /// @brief The pipeline description used to create the pipeline

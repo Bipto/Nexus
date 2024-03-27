@@ -5,8 +5,6 @@
 #include "GL.hpp"
 #include "Nexus/Graphics/Buffer.hpp"
 
-#include "Platform/OpenGL/ShaderOpenGL.hpp"
-
 namespace Nexus::Graphics
 {
     class VertexBufferOpenGL : public VertexBuffer

@@ -1,8 +1,6 @@
 #if defined(NX_PLATFORM_OPENGL)
 
 #include "PipelineOpenGL.hpp"
-
-#include "ShaderOpenGL.hpp"
 #include "BufferOpenGL.hpp"
 #include "ShaderModuleOpenGL.hpp"
 

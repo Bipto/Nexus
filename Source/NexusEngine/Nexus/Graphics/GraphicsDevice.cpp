@@ -8,6 +8,8 @@
 #include "ShaderGenerator.hpp"
 #include "ShaderUtils.hpp"
 
+#include "Nexus/FileSystem/FileSystem.hpp"
+
 #include "stb_image.h"
 
 namespace Nexus::Graphics
@@ -18,70 +20,10 @@ namespace Nexus::Graphics
         m_API = createInfo.API;
     }
 
-    Ref<Shader> GraphicsDevice::CreateShaderFromSpirvFile(const std::string &filepath)
+    Ref<ShaderModule> GraphicsDevice::CreateShaderModuleFromSpirvFile(const std::string &filepath, ShaderStage stage)
     {
-        std::cout << "Creating shader: " << filepath << "\n";
-        Nexus::Utils::ShaderSources sources = Nexus::Utils::ParseCustomShaderFile(filepath);
-        auto shader = CreateShaderFromSpirvSources(sources.VertexSource, sources.FragmentSource, filepath, filepath);
-        return shader;
-    }
-
-    Ref<Shader> GraphicsDevice::CreateShaderFromSpirvSources(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const std::string &vertexShaderName, const std::string &fragmentShaderName)
-    {
-        auto startTime = std::chrono::system_clock::now();
-
-        // if we are using a SPIR_V bytecode we do not need to compile the GLSL to a native shader language
-        if (this->GetSupportedShaderFormat() != Nexus::Graphics::ShaderLanguage::SPIRV)
-        {
-            ShaderGenerator generator;
-            std::string errorMessage;
-
-            ShaderGenerationOptions vertOptions;
-            vertOptions.Stage = ShaderStage::Vertex;
-            vertOptions.ShaderName = vertexShaderName;
-            vertOptions.OutputFormat = this->GetSupportedShaderFormat();
-            ResourceSetSpecification resources;
-            auto vertResult = generator.Generate(vertexShaderSource, vertOptions, resources);
-
-            if (!vertResult.Successful)
-            {
-                errorMessage += "Error compiling vertex shader: " + vertResult.Error + "\n";
-            }
-
-            ShaderGenerationOptions fragOptions;
-            fragOptions.Stage = ShaderStage::Fragment;
-            fragOptions.ShaderName = fragmentShaderName;
-            fragOptions.OutputFormat = this->GetSupportedShaderFormat();
-            auto fragResult = generator.Generate(fragmentShaderSource, fragOptions, resources);
-
-            if (!fragResult.Successful)
-            {
-                errorMessage += "Error compiling fragment shader: " + fragResult.Error;
-            }
-
-            auto endTime = std::chrono::system_clock::now();
-            auto totalTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
-
-            if (vertResult.Successful && fragResult.Successful)
-            {
-                std::stringstream ss;
-                ss << "Compilation of " << vertexShaderName << " and " << fragmentShaderName << " took " << totalTime << " milliseconds";
-
-                auto shader = this->CreateShaderFromSource(vertResult.Source, fragResult.Source);
-                return shader;
-            }
-            else
-            {
-                NX_ERROR(errorMessage);
-                return nullptr;
-            }
-        }
-
-        else
-        {
-            auto shader = this->CreateShaderFromSource(vertexShaderSource, fragmentShaderSource);
-            return shader;
-        }
+        std::string shaderSource = Nexus::FileSystem::ReadFileToString(filepath);
+        return CreateShaderModuleFromSpirvSource(shaderSource, filepath, stage);
     }
 
     Ref<ShaderModule> GraphicsDevice::CreateShaderModuleFromSpirvSource(const std::string &source, const std::string &name, ShaderStage stage)
@@ -100,7 +42,11 @@ namespace Nexus::Graphics
         options.OutputFormat = GetSupportedShaderFormat();
 
         auto result = generator.Generate(source, options, resourceSetSpec);
-        NX_ASSERT(result.Successful, result.Error.c_str());
+
+        if (!result.Successful)
+        {
+            throw std::runtime_error(result.Error);
+        }
 
         auto endTime = std::chrono::system_clock::now();
         auto totalTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();

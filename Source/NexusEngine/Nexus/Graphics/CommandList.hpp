@@ -4,7 +4,6 @@
 #include "Pipeline.hpp"
 #include "Buffer.hpp"
 #include "Texture.hpp"
-#include "Shader.hpp"
 #include "Buffer.hpp"
 #include "Framebuffer.hpp"
 #include "Nexus/Types.hpp"

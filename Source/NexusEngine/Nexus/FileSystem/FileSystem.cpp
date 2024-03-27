@@ -15,15 +15,10 @@ std::string Nexus::FileSystem::ReadFileToStringAbsolute(const std::string &filep
     }
 
     std::ifstream stream(filepath);
+    std::stringstream buffer;
+    buffer << stream.rdbuf();
 
-    std::string line;
-    std::stringstream ss;
-    while (getline(stream, line))
-    {
-        ss << line;
-    }
-
-    return ss.str();
+    return buffer.str();
 }
 
 void Nexus::FileSystem::WriteFileAbsolute(const std::string &filepath, const std::string &text)

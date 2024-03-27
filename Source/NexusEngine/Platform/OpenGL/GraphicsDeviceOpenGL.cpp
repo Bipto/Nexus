@@ -3,7 +3,6 @@
 #include "GraphicsDeviceOpenGL.hpp"
 
 #include "PipelineOpenGL.hpp"
-#include "ShaderOpenGL.hpp"
 #include "BufferOpenGL.hpp"
 #include "TextureOpenGL.hpp"
 #include "CommandListOpenGL.hpp"
@@ -194,11 +193,6 @@ namespace Nexus::Graphics
 
     void GraphicsDeviceOpenGL::EndFrame()
     {
-    }
-
-    Ref<Shader> GraphicsDeviceOpenGL::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource)
-    {
-        return CreateRef<ShaderOpenGL>(vertexShaderSource, fragmentShaderSource);
     }
 
     Ref<ShaderModule> GraphicsDeviceOpenGL::CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources)

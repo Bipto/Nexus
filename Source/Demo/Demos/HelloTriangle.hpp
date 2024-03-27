@@ -12,7 +12,7 @@ namespace Demos
         {
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile(Nexus::FileSystem::GetFilePathAbsolute("resources/shaders/hello_triangle.glsl"));
+            // m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile(Nexus::FileSystem::GetFilePathAbsolute("resources/shaders/hello_triangle.glsl"));
 
             std::vector<Nexus::Graphics::VertexPosition> vertices =
                 {
@@ -82,16 +82,17 @@ namespace Demos
             Nexus::Graphics::PipelineDescription pipelineDescription;
             pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
             pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
-            pipelineDescription.Shader = m_Shader;
             pipelineDescription.Layouts = {Nexus::Graphics::VertexPosition::GetLayout()};
             pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
+
+            pipelineDescription.VertexModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/hello_triangle.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
+            pipelineDescription.FragmentModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/hello_triangle.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 
             m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
         }
 
     private:
         Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
-        Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
         Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
         Nexus::Ref<Nexus::Graphics::VertexBuffer> m_VertexBuffer;
         glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};

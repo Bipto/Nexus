@@ -3,7 +3,6 @@
 #include "Nexus/Window.hpp"
 #include "Nexus/Types.hpp"
 #include "SDL.h"
-#include "Shader.hpp"
 #include "Buffer.hpp"
 #include "Texture.hpp"
 #include "Framebuffer.hpp"
@@ -141,26 +140,13 @@ namespace Nexus::Graphics
 
         virtual const GraphicsCapabilities GetGraphicsCapabilities() const = 0;
 
-        /// @brief A method that generates a supported shader type from a GLSL file and a vertex buffer layout
-        /// @param filepath The filepath to load the GLSL shader from
-        /// @param layout A vertex buffer layout to use to create the shader
-        /// @return A pointer to a shader
-        Ref<Shader> CreateShaderFromSpirvFile(const std::string &filepath);
-
-        Ref<Shader> CreateShaderFromSpirvSources(const std::string &vertexShaderSource, const std::string &fragmentShaderSource, const std::string &vertexShaderName = "VertexShader", const std::string &fragmentShaderName = "FragmentShader");
+        Ref<ShaderModule> CreateShaderModuleFromSpirvFile(const std::string &filepath, ShaderStage stage);
 
         Ref<ShaderModule> CreateShaderModuleFromSpirvSource(const std::string &source, const std::string &name, ShaderStage stage);
 
         Window *GetPrimaryWindow();
 
     private:
-        /// @brief A pure virtual method that creates a new shader from a vertex and fragment shader and a vertex buffer layout
-        /// @param vertexShaderSource A vertex shader written in the native shading language of the backend
-        /// @param fragmentShaderSource A fragment shader written in the native shading language of the backend
-        /// @param layout A parameter specifying how data is laid out in the vertex buffer
-        /// @return A pointer to a shader
-        virtual Ref<Shader> CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource) = 0;
-
         virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) = 0;
 
     protected:

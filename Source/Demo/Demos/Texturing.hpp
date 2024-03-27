@@ -12,7 +12,6 @@ namespace Demos
         {
 
             m_CommandList = m_GraphicsDevice->CreateCommandList();
-            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile(Nexus::FileSystem::GetFilePathAbsolute("resources/shaders/texturing.glsl"));
 
             CreatePipeline();
 
@@ -92,7 +91,9 @@ namespace Demos
             Nexus::Graphics::PipelineDescription pipelineDescription;
             pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
             pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
-            pipelineDescription.Shader = m_Shader;
+
+            pipelineDescription.VertexModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/texturing.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
+            pipelineDescription.FragmentModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/texturing.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 
             pipelineDescription.ResourceSetSpecification.SampledImages =
                 {
@@ -107,7 +108,6 @@ namespace Demos
 
     private:
         Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList = nullptr;
-        Nexus::Ref<Nexus::Graphics::Shader> m_Shader = nullptr;
         Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline = nullptr;
         Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet = nullptr;
         Nexus::Ref<Nexus::Graphics::Mesh> m_Mesh = nullptr;

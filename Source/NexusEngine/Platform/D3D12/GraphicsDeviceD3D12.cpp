@@ -3,7 +3,6 @@
 #if defined(NX_PLATFORM_D3D12)
 
 #include "SwapchainD3D12.hpp"
-#include "ShaderD3D12.hpp"
 #include "PipelineD3D12.hpp"
 #include "BufferD3D12.hpp"
 #include "CommandListD3D12.hpp"
@@ -109,11 +108,6 @@ namespace Nexus::Graphics
 
     void GraphicsDeviceD3D12::EndFrame()
     {
-    }
-
-    Ref<Shader> GraphicsDeviceD3D12::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource)
-    {
-        return CreateRef<ShaderD3D12>(vertexShaderSource, fragmentShaderSource);
     }
 
     Ref<ShaderModule> GraphicsDeviceD3D12::CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources)

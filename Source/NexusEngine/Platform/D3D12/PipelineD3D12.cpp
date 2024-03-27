@@ -2,7 +2,6 @@
 
 #if defined(NX_PLATFORM_D3D12)
 
-#include "ShaderD3D12.hpp"
 #include "FramebufferD3D12.hpp"
 #include "SwapchainD3D12.hpp"
 #include "ShaderModuleD3D12.hpp"
@@ -143,8 +142,6 @@ namespace Nexus::Graphics
 
     void PipelineD3D12::CreatePipeline()
     {
-        auto shaderD3D12 = std::dynamic_pointer_cast<ShaderD3D12>(m_Description.Shader);
-
         uint32_t sampleCount = 1;
         std::vector<DXGI_FORMAT> rtvFormats;
 

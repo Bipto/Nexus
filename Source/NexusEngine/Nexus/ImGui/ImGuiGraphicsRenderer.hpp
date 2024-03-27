@@ -34,7 +34,6 @@ namespace Nexus::ImGuiUtils
     private:
         Nexus::Graphics::GraphicsDevice *m_GraphicsDevice = nullptr;
         Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList = nullptr;
-        Nexus::Ref<Nexus::Graphics::Shader> m_Shader = nullptr;
         Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline = nullptr;
         Nexus::Ref<Nexus::Graphics::Texture> m_FontTexture = nullptr;
 
