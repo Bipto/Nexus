@@ -60,6 +60,7 @@ namespace Nexus::Graphics
         // create vertex input layout
         std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
         std::vector<VkVertexInputBindingDescription> bindingDescriptions;
+        std::vector<VkVertexInputBindingDivisorDescriptionEXT> divisorDescriptions;
 
         uint32_t elementIndex = 0;
         for (uint32_t layoutIndex = 0; layoutIndex < m_Description.Layouts.size(); layoutIndex++)
@@ -77,6 +78,7 @@ namespace Nexus::Graphics
                 attributeDescription.format = GetShaderDataType(element.Type);
                 attributeDescription.offset = element.Offset;
                 attributeDescriptions.push_back(attributeDescription);
+
                 elementIndex++;
             }
 
@@ -86,6 +88,11 @@ namespace Nexus::Graphics
             bindingDescription.stride = layout.GetStride();
             bindingDescription.inputRate = (layout.GetInstanceStepRate() != 0) ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX;
             bindingDescriptions.push_back(bindingDescription);
+
+            VkVertexInputBindingDivisorDescriptionEXT divisorDescription = {};
+            divisorDescription.binding = layoutIndex;
+            divisorDescription.divisor = layout.GetInstanceStepRate();
+            divisorDescriptions.push_back(divisorDescription);
         }
 
         VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
@@ -98,10 +105,16 @@ namespace Nexus::Graphics
 
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo = CreateInputAssemblyCreateInfo(GetPrimitiveTopology());
 
+        VkPipelineVertexInputDivisorStateCreateInfoEXT divisorInfo = {};
+        divisorInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO_EXT;
+        divisorInfo.pNext = nullptr;
+        divisorInfo.vertexBindingDivisorCount = divisorDescriptions.size();
+        divisorInfo.pVertexBindingDivisors = divisorDescriptions.data();
+
         // create pipeline
         VkGraphicsPipelineCreateInfo pipelineInfo = {};
         pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-        pipelineInfo.pNext = nullptr;
+        pipelineInfo.pNext = &divisorInfo;
         pipelineInfo.stageCount = shaderStages.size();
         pipelineInfo.pStages = shaderStages.data();
         pipelineInfo.pVertexInputState = &vertexInputInfo;

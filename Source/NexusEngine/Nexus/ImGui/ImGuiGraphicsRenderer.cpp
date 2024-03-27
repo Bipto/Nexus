@@ -418,7 +418,6 @@ namespace Nexus::ImGuiUtils
         for (auto &resourceSet : m_ResourceSets)
         {
             resourceSet.second->WriteUniformBuffer(m_UniformBuffer, "MVP");
-            resourceSet.second->Flush();
         }
 
         auto windowSize = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize();

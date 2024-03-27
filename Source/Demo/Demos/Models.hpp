@@ -101,8 +101,6 @@ namespace Demos
             m_ResourceSet->WriteCombinedImageSampler(m_NormalMap, m_Sampler, "normalMapSampler");
             m_ResourceSet->WriteCombinedImageSampler(m_SpecularMap, m_Sampler, "specularMapSampler");
 
-            m_ResourceSet->Flush();
-
             m_CommandList->SetResourceSet(m_ResourceSet);
 
             auto &meshes = m_Model->GetMeshes();

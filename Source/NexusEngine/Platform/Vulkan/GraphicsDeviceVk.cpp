@@ -316,7 +316,6 @@ namespace Nexus::Graphics
             instanceCreateInfo.enabledLayerCount = 0;
         }
 
-        auto instanceExtensions = GetSupportedInstanceExtensions();
         auto extensions = GetRequiredInstanceExtensions();
         instanceCreateInfo.enabledExtensionCount = (uint32_t)extensions.size();
         instanceCreateInfo.ppEnabledExtensionNames = extensions.data();
@@ -886,6 +885,7 @@ namespace Nexus::Graphics
     {
         std::vector<const char *> extensions;
         extensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+        extensions.push_back(VK_KHR_VERTEX_ATTRIBUTE_DIVISOR_EXTENSION_NAME);
         return extensions;
     }
 
