@@ -27,8 +27,6 @@ namespace Demos
         {
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-            m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile(Nexus::FileSystem::GetFilePathAbsolute("resources/shaders/models.glsl"));
-
             Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
             m_Model = factory.CreateFrom3DModelFile(Nexus::FileSystem::GetFilePathAbsolute("resources/models/survival_backpack_2/survival_backpack_2.fbx"));
 
@@ -139,7 +137,10 @@ namespace Demos
             pipelineDescription.DepthStencilDescription.EnableDepthTest = true;
             pipelineDescription.DepthStencilDescription.EnableDepthWrite = true;
             pipelineDescription.DepthStencilDescription.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;
-            pipelineDescription.Shader = m_Shader;
+
+            pipelineDescription.VertexModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/models.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
+            pipelineDescription.FragmentModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/models.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
+
             pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
             pipelineDescription.ResourceSetSpecification.UniformBuffers =
@@ -147,7 +148,7 @@ namespace Demos
                     {"Camera", 0, 0},
                     {"Transform", 0, 1}};
 
-            pipelineDescription.ResourceSetSpecification.Textures =
+            pipelineDescription.ResourceSetSpecification.SampledImages =
                 {
                     {"diffuseMapSampler", 1, 0},
                     {"normalMapSampler", 1, 1},
@@ -161,7 +162,6 @@ namespace Demos
 
     private:
         Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
-        Nexus::Ref<Nexus::Graphics::Shader> m_Shader;
         Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
         Nexus::Ref<Nexus::Graphics::Model> m_Model;
         Nexus::Ref<Nexus::Graphics::Texture> m_DiffuseMap;

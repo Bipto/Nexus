@@ -30,6 +30,8 @@ namespace Nexus::Graphics
         VkPolygonMode GetPolygonMode();
         VkCullModeFlags GetCullMode();
 
+        std::vector<VkPipelineShaderStageCreateInfo> GetShaderStages();
+
     private:
         VkPipelineLayout m_PipelineLayout;
         VkPipeline m_Pipeline;

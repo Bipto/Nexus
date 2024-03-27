@@ -467,36 +467,6 @@ VkImageUsageFlagBits GetVkImageUsageFlags(const std::vector<Nexus::Graphics::Tex
     isDepth = false;
     VkImageUsageFlagBits flags = VkImageUsageFlagBits(VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
 
-    // if the texture has been created to use as a depth attachment
-    /* if (usage & Nexus::Graphics::TextureUsage::NX_TEXTURE_USAGE_DEPTH_STENCIL)
-    {
-        isDepth = true;
-        flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_SAMPLED_BIT);
-    }
-
-    // if the texture should be used as a render target
-    if (usage & Nexus::Graphics::TextureUsage::NX_TEXTURE_USAGE_RENDER_TARGET)
-    {
-        if (isDepth)
-        {
-            flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
-        }
-        else
-        {
-            flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
-        }
-    }
-
-    if (usage & Nexus::Graphics::TextureUsage::NX_TEXTURE_USAGE_SAMPLED)
-    {
-        flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_SAMPLED_BIT);
-    }
-
-    if (usage & Nexus::Graphics::TextureUsage::NX_TEXTURE_USAGE_STORAGE)
-    {
-        flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_STORAGE_BIT);
-    } */
-
     for (const auto &item : usage)
     {
         if (item == Nexus::Graphics::TextureUsage::DepthStencil)
@@ -536,6 +506,27 @@ VkImageUsageFlagBits GetVkImageUsageFlags(const std::vector<Nexus::Graphics::Tex
     }
 
     return flags;
+}
+
+VkShaderStageFlagBits GetVkShaderStageFlags(Nexus::Graphics::ShaderStage stage)
+{
+    switch (stage)
+    {
+    case Nexus::Graphics::ShaderStage::Fragment:
+        return VK_SHADER_STAGE_FRAGMENT_BIT;
+    case Nexus::Graphics::ShaderStage::Geometry:
+        return VK_SHADER_STAGE_GEOMETRY_BIT;
+    case Nexus::Graphics::ShaderStage::TesselationControl:
+        return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+    case Nexus::Graphics::ShaderStage::TesselationEvaluation:
+        return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+    case Nexus::Graphics::ShaderStage::Compute:
+        return VK_SHADER_STAGE_COMPUTE_BIT;
+    case Nexus::Graphics::ShaderStage::Vertex:
+        return VK_SHADER_STAGE_VERTEX_BIT;
+    default:
+        throw std::runtime_error("Failed to find a valid shader stage");
+    }
 }
 
 #endif

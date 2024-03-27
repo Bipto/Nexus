@@ -68,7 +68,6 @@ namespace Nexus::Graphics
 
     private:
         Nexus::Graphics::GraphicsDevice *m_Device = nullptr;
-        Nexus::Ref<Nexus::Graphics::Shader> m_Shader = nullptr;
         Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList = nullptr;
 
         Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline = nullptr;

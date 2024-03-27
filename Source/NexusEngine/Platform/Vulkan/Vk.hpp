@@ -9,7 +9,7 @@
 #include "Nexus/Graphics/ShaderDataType.hpp"
 #include "Nexus/Graphics/Multisample.hpp"
 #include "Nexus/Graphics/Texture.hpp"
-
+#include "Nexus/Graphics/ShaderModule.hpp"
 #include "Nexus/Graphics/SamplerState.hpp"
 
 const uint32_t FRAMES_IN_FLIGHT = 3;
@@ -26,6 +26,8 @@ VkBlendOp GetVkBlendOp(Nexus::Graphics::BlendEquation function);
 VkBlendFactor GetVkBlendFactor(Nexus::Graphics::BlendFunction function);
 VkBorderColor GetVkBorderColor(Nexus::Graphics::BorderColor color);
 VkImageUsageFlagBits GetVkImageUsageFlags(const std::vector<Nexus::Graphics::TextureUsage> &usage, bool &isDepth);
+
+VkShaderStageFlagBits GetVkShaderStageFlags(Nexus::Graphics::ShaderStage stage);
 
 struct AllocatedBuffer
 {

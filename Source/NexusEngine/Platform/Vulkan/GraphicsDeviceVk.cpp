@@ -2,13 +2,13 @@
 
 #include "GraphicsDeviceVk.hpp"
 #include "CommandListVk.hpp"
-#include "ShaderVk.hpp"
 #include "PipelineVk.hpp"
 #include "BufferVk.hpp"
 #include "TextureVk.hpp"
 #include "ResourceSetVk.hpp"
 #include "FramebufferVk.hpp"
 #include "SamplerVk.hpp"
+#include "ShaderModuleVk.hpp"
 
 #include "SDL_vulkan.h"
 
@@ -109,33 +109,9 @@ namespace Nexus::Graphics
     {
     }
 
-    Ref<Shader> GraphicsDeviceVk::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource)
+    Ref<ShaderModule> GraphicsDeviceVk::CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources)
     {
-        Nexus::Graphics::ShaderGenerator generator;
-
-        Nexus::Graphics::ShaderGenerationOptions vertOptions;
-        vertOptions.OutputFormat = ShaderLanguage::SPIRV;
-        vertOptions.Type = Nexus::Graphics::ShaderType::Vertex;
-        auto vertexResult = generator.Generate(vertexShaderSource, vertOptions);
-
-        if (!vertexResult.Successful)
-        {
-            NX_ERROR(vertexResult.Error);
-            throw std::runtime_error(vertexResult.Error);
-        }
-
-        Nexus::Graphics::ShaderGenerationOptions fragOptions;
-        fragOptions.OutputFormat = ShaderLanguage::SPIRV;
-        fragOptions.Type = Nexus::Graphics::ShaderType::Fragment;
-        auto fragmentResult = generator.Generate(fragmentShaderSource, fragOptions);
-
-        if (!fragmentResult.Successful)
-        {
-            NX_ERROR(fragmentResult.Error);
-            throw std::runtime_error(fragmentResult.Error);
-        }
-
-        return CreateRef<ShaderVk>(vertexResult.SpirvBinary, fragmentResult.SpirvBinary, vertexShaderSource, fragmentShaderSource, this);
+        return CreateRef<ShaderModuleVk>(moduleSpec, resources, this);
     }
 
     Ref<Texture> GraphicsDeviceVk::CreateTexture(const TextureSpecification &spec)

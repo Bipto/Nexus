@@ -2,9 +2,9 @@
 
 #if defined(NX_PLATFORM_D3D12)
 
-#include "ShaderD3D12.hpp"
 #include "FramebufferD3D12.hpp"
 #include "SwapchainD3D12.hpp"
+#include "ShaderModuleD3D12.hpp"
 
 #include "D3D12Utils.hpp"
 
@@ -53,9 +53,9 @@ namespace Nexus::Graphics
         std::vector<D3D12_DESCRIPTOR_RANGE> samplerRanges;
         std::vector<D3D12_DESCRIPTOR_RANGE> textureConstantBufferRanges;
 
-        for (int i = 0; i < m_Description.ResourceSetSpecification.Textures.size(); i++)
+        for (int i = 0; i < m_Description.ResourceSetSpecification.SampledImages.size(); i++)
         {
-            const auto &textureInfo = m_Description.ResourceSetSpecification.Textures.at(i);
+            const auto &textureInfo = m_Description.ResourceSetSpecification.SampledImages.at(i);
             uint32_t slot = ResourceSet::GetLinearDescriptorSlot(textureInfo.Set, textureInfo.Binding);
 
             D3D12_DESCRIPTOR_RANGE samplerRange = {};
@@ -142,8 +142,6 @@ namespace Nexus::Graphics
 
     void PipelineD3D12::CreatePipeline()
     {
-        auto shaderD3D12 = std::dynamic_pointer_cast<ShaderD3D12>(m_Description.Shader);
-
         uint32_t sampleCount = 1;
         std::vector<DXGI_FORMAT> rtvFormats;
 
@@ -174,16 +172,69 @@ namespace Nexus::Graphics
         pipelineDesc.InputLayout.NumElements = m_InputLayout.size();
         pipelineDesc.InputLayout.pInputElementDescs = m_InputLayout.data();
         pipelineDesc.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
-        pipelineDesc.VS.BytecodeLength = shaderD3D12->GetVertexShaderBlob()->GetBufferSize();
-        pipelineDesc.VS.pShaderBytecode = shaderD3D12->GetVertexShaderBlob()->GetBufferPointer();
-        pipelineDesc.PS.BytecodeLength = shaderD3D12->GetFragmentShaderBlob()->GetBufferSize();
-        pipelineDesc.PS.pShaderBytecode = shaderD3D12->GetFragmentShaderBlob()->GetBufferPointer();
+
+        // setup shaders
+        pipelineDesc.VS.BytecodeLength = 0;
+        pipelineDesc.VS.pShaderBytecode = nullptr;
+        pipelineDesc.PS.BytecodeLength = 0;
+        pipelineDesc.PS.pShaderBytecode = nullptr;
         pipelineDesc.DS.BytecodeLength = 0;
         pipelineDesc.DS.pShaderBytecode = nullptr;
         pipelineDesc.HS.BytecodeLength = 0;
         pipelineDesc.HS.pShaderBytecode = nullptr;
         pipelineDesc.GS.BytecodeLength = 0;
         pipelineDesc.GS.pShaderBytecode = nullptr;
+
+        if (m_Description.FragmentModule)
+        {
+            auto d3d12FragmentModule = std::dynamic_pointer_cast<ShaderModuleD3D12>(m_Description.FragmentModule);
+            NX_ASSERT(d3d12FragmentModule->GetShaderStage() == ShaderStage::Fragment, "Shader module is not a fragment shader");
+            auto blob = d3d12FragmentModule->GetBlob();
+
+            pipelineDesc.PS.BytecodeLength = blob->GetBufferSize();
+            pipelineDesc.PS.pShaderBytecode = blob->GetBufferPointer();
+        }
+
+        if (m_Description.GeometryModule)
+        {
+            auto d3d12GeometryModule = std::dynamic_pointer_cast<ShaderModuleD3D12>(m_Description.GeometryModule);
+            NX_ASSERT(d3d12GeometryModule->GetShaderStage() == ShaderStage::Geometry, "Shader module is not a geometry shader");
+            auto blob = d3d12GeometryModule->GetBlob();
+
+            pipelineDesc.GS.BytecodeLength = blob->GetBufferSize();
+            pipelineDesc.GS.pShaderBytecode = blob->GetBufferPointer();
+        }
+
+        if (m_Description.TesselationControlModule)
+        {
+            auto d3d12TesselationControlModule = std::dynamic_pointer_cast<ShaderModuleD3D12>(m_Description.TesselationControlModule);
+            NX_ASSERT(d3d12TesselationControlModule->GetShaderStage() == ShaderStage::TesselationControl, "Shader module is not a tesselation control shader");
+            auto blob = d3d12TesselationControlModule->GetBlob();
+
+            pipelineDesc.HS.BytecodeLength = blob->GetBufferSize();
+            pipelineDesc.HS.pShaderBytecode = blob->GetBufferPointer();
+        }
+
+        if (m_Description.TesselationEvaluationModule)
+        {
+            auto d3d12TesselationEvaluationModule = std::dynamic_pointer_cast<ShaderModuleD3D12>(m_Description.TesselationEvaluationModule);
+            NX_ASSERT(d3d12TesselationEvaluationModule->GetShaderStage() == ShaderStage::TesselationEvaluation, "Shader module is not a tesselation evaluation shader");
+            auto blob = d3d12TesselationEvaluationModule->GetBlob();
+
+            pipelineDesc.DS.BytecodeLength = blob->GetBufferSize();
+            pipelineDesc.DS.pShaderBytecode = blob->GetBufferPointer();
+        }
+
+        if (m_Description.VertexModule)
+        {
+            auto d3d12VertexModule = std::dynamic_pointer_cast<ShaderModuleD3D12>(m_Description.VertexModule);
+            NX_ASSERT(d3d12VertexModule->GetShaderStage() == ShaderStage::Vertex, "Shader module is not a vertex shader");
+            auto blob = d3d12VertexModule->GetBlob();
+
+            pipelineDesc.VS.BytecodeLength = blob->GetBufferSize();
+            pipelineDesc.VS.pShaderBytecode = blob->GetBufferPointer();
+        }
+
         pipelineDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
         pipelineDesc.RasterizerState = CreateRasterizerState();
         pipelineDesc.StreamOutput = CreateStreamOutputDesc();

@@ -3,12 +3,12 @@
 #include "GraphicsDeviceOpenGL.hpp"
 
 #include "PipelineOpenGL.hpp"
-#include "ShaderOpenGL.hpp"
 #include "BufferOpenGL.hpp"
 #include "TextureOpenGL.hpp"
 #include "CommandListOpenGL.hpp"
 #include "ResourceSetOpenGL.hpp"
 #include "SamplerOpenGL.hpp"
+#include "ShaderModuleOpenGL.hpp"
 
 #if defined(WIN32)
 void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
@@ -195,9 +195,9 @@ namespace Nexus::Graphics
     {
     }
 
-    Ref<Shader> GraphicsDeviceOpenGL::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource)
+    Ref<ShaderModule> GraphicsDeviceOpenGL::CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources)
     {
-        return CreateRef<ShaderOpenGL>(vertexShaderSource, fragmentShaderSource);
+        return CreateRef<ShaderModuleOpenGL>(moduleSpec, resources);
     }
 
     std::vector<std::string> GraphicsDeviceOpenGL::GetSupportedExtensions()

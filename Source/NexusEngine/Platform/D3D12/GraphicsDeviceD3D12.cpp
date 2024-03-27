@@ -3,7 +3,6 @@
 #if defined(NX_PLATFORM_D3D12)
 
 #include "SwapchainD3D12.hpp"
-#include "ShaderD3D12.hpp"
 #include "PipelineD3D12.hpp"
 #include "BufferD3D12.hpp"
 #include "CommandListD3D12.hpp"
@@ -11,6 +10,7 @@
 #include "ResourceSetD3D12.hpp"
 #include "FramebufferD3D12.hpp"
 #include "SamplerD3D12.hpp"
+#include "ShaderModuleD3D12.hpp"
 
 namespace Nexus::Graphics
 {
@@ -110,9 +110,9 @@ namespace Nexus::Graphics
     {
     }
 
-    Ref<Shader> GraphicsDeviceD3D12::CreateShaderFromSource(const std::string &vertexShaderSource, const std::string &fragmentShaderSource)
+    Ref<ShaderModule> GraphicsDeviceD3D12::CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources)
     {
-        return CreateRef<ShaderD3D12>(vertexShaderSource, fragmentShaderSource);
+        return CreateRef<ShaderModuleD3D12>(moduleSpec, resources);
     }
 
     Ref<Texture> GraphicsDeviceD3D12::CreateTexture(const TextureSpecification &spec)
