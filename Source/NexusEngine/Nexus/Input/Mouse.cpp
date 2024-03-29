@@ -2,6 +2,9 @@
 
 namespace Nexus
 {
+    Point<int> Mouse::s_GlobalMousePosition = {0, 0};
+    MouseState Mouse::s_GlobalMouseState;
+
     void Mouse::CacheInput()
     {
         m_PreviousState = m_CurrentState;
@@ -74,5 +77,25 @@ namespace Nexus
         return {
             m_CurrentState.MouseWheel.X - m_PreviousState.MouseWheel.X,
             m_CurrentState.MouseWheel.Y - m_PreviousState.MouseWheel.Y};
+    }
+
+    Point<int> Mouse::GetGlobalMousePosition()
+    {
+        return s_GlobalMousePosition;
+    }
+
+    bool Mouse::IsGlobalLeftMouseHeld()
+    {
+        return s_GlobalMouseState.LeftButton == MouseButtonState::Pressed;
+    }
+
+    bool Mouse::IsGlobalRightMouseHeld()
+    {
+        return s_GlobalMouseState.RightButton == MouseButtonState::Pressed;
+    }
+
+    bool Mouse::IsGlobalMiddleMouseHeld()
+    {
+        return s_GlobalMouseState.MiddleButton == MouseButtonState::Pressed;
     }
 }

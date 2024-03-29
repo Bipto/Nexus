@@ -132,6 +132,16 @@ namespace Nexus
         /// @brief A method that sets a window to be windowed
         void UnsetFullscreen();
 
+        void Show();
+
+        void Hide();
+
+        void SetWindowPosition(uint32_t x, uint32_t y);
+
+        void SetWindowSize(uint32_t width, uint32_t height);
+
+        void Focus();
+
         /// @brief A method that creates a new swapchain to support rendering to the window
         /// @param device The graphics device to use to create the swapchain
         /// @param vSyncState Whether or not vsync should be enabled for rendering
@@ -163,14 +173,11 @@ namespace Nexus
         /// @brief A pointer to the window's input state
         InputState *m_Input;
 
-        /// @brief A boolean value indicating whether the window is focussed
-        bool m_IsFocussed = true;
-
         /// @brief An enum value representing the current state of the window
         WindowState m_CurrentWindowState = WindowState::Normal;
 
         /// @brief A pointer to the window's swapchain
-        Graphics::Swapchain *m_Swapchain = nullptr;
+        std::unique_ptr<Graphics::Swapchain> m_Swapchain = nullptr;
 
         /// @brief A void pointer to the window's surface
         void *m_Surface = nullptr;

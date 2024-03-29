@@ -7,93 +7,95 @@ namespace Nexus
     // instatiate static vector
     std::vector<Gamepad *> Input::s_Gamepads;
 
+    InputState *Input::s_InputContext = nullptr;
+
     bool Input::IsLeftMousePressed()
     {
-        auto mouse = Nexus::GetApplication()->GetCoreInputState()->GetMouse();
+        auto mouse = s_InputContext->GetMouse();
         return mouse.WasLeftMouseClicked();
     }
 
     bool Input::IsLeftMouseReleased()
     {
-        auto mouse = Nexus::GetApplication()->GetCoreInputState()->GetMouse();
+        auto mouse = s_InputContext->GetMouse();
         return mouse.WasLeftMouseReleased();
     }
 
     bool Input::IsLeftMouseHeld()
     {
-        auto mouse = Nexus::GetApplication()->GetCoreInputState()->GetMouse();
+        auto mouse = s_InputContext->GetMouse();
         return mouse.IsLeftMouseHeld();
     }
 
     bool Input::IsRightMousePressed()
     {
-        auto mouse = Nexus::GetApplication()->GetCoreInputState()->GetMouse();
+        auto mouse = s_InputContext->GetMouse();
         return mouse.WasRightMouseClicked();
     }
 
     bool Input::IsRightMouseReleased()
     {
-        auto mouse = Nexus::GetApplication()->GetCoreInputState()->GetMouse();
+        auto mouse = s_InputContext->GetMouse();
         return mouse.WasRightMouseReleased();
     }
 
     bool Input::IsRightMouseHeld()
     {
-        auto mouse = Nexus::GetApplication()->GetCoreInputState()->GetMouse();
+        auto mouse = s_InputContext->GetMouse();
         return mouse.IsRightMouseHeld();
     }
 
     bool Input::IsMiddleMousePressed()
     {
-        auto mouse = Nexus::GetApplication()->GetCoreInputState()->GetMouse();
+        auto mouse = s_InputContext->GetMouse();
         return mouse.IsMiddleMouseHeld();
     }
 
     bool Input::IsMiddleMouseReleased()
     {
-        auto mouse = Nexus::GetApplication()->GetCoreInputState()->GetMouse();
+        auto mouse = s_InputContext->GetMouse();
         return mouse.WasMiddleMouseReleased();
     }
 
     bool Input::IsMiddleMouseHeld()
     {
-        auto mouse = Nexus::GetApplication()->GetCoreInputState()->GetMouse();
+        auto mouse = s_InputContext->GetMouse();
         return mouse.IsMiddleMouseHeld();
     }
 
     Point<int> Input::GetMousePosition()
     {
-        auto mouse = Nexus::GetApplication()->GetCoreInputState()->GetMouse();
+        auto mouse = s_InputContext->GetMouse();
         return mouse.GetMousePosition();
     }
 
     Point<int> Input::GetMouseMovement()
     {
-        auto mouse = Nexus::GetApplication()->GetCoreInputState()->GetMouse();
+        auto mouse = s_InputContext->GetMouse();
         return mouse.GetMouseMovement();
     }
 
     float Input::GetMouseScrollX()
     {
-        auto mouse = Nexus::GetApplication()->GetCoreInputState()->GetMouse();
+        auto mouse = s_InputContext->GetMouse();
         return mouse.GetScroll().X;
     }
 
     float Input::GetMouseScrollMovementX()
     {
-        auto mouse = Nexus::GetApplication()->GetCoreInputState()->GetMouse();
+        auto mouse = s_InputContext->GetMouse();
         return mouse.GetScrollMovement().X;
     }
 
     float Input::GetMouseScrollY()
     {
-        auto mouse = Nexus::GetApplication()->GetCoreInputState()->GetMouse();
+        auto mouse = s_InputContext->GetMouse();
         return mouse.GetScroll().Y;
     }
 
     float Input::GetMouseScrollMovementY()
     {
-        auto mouse = Nexus::GetApplication()->GetCoreInputState()->GetMouse();
+        auto mouse = s_InputContext->GetMouse();
         return mouse.GetScrollMovement().Y;
     }
 
@@ -186,6 +188,16 @@ namespace Nexus
         return s_Gamepads[index]->SetLED(red, green, blue);
     }
 
+    void Input::SetInputContext(InputState *input)
+    {
+        s_InputContext = input;
+    }
+
+    InputState *Input::GetCurrentInputContext()
+    {
+        return s_InputContext;
+    }
+
     Gamepad *Input::GetGamepadByIndex(uint32_t index)
     {
         for (int i = 0; i < s_Gamepads.size(); i++)
@@ -229,19 +241,19 @@ namespace Nexus
 
     bool Input::IsKeyPressed(KeyCode code)
     {
-        auto keyboard = Nexus::GetApplication()->GetCoreInputState()->GetKeyboard();
+        auto keyboard = s_InputContext->GetKeyboard();
         return keyboard.WasKeyPressed(code);
     }
 
     bool Input::IsKeyReleased(KeyCode code)
     {
-        auto keyboard = Nexus::GetApplication()->GetCoreInputState()->GetKeyboard();
+        auto keyboard = s_InputContext->GetKeyboard();
         return keyboard.WasKeyReleased(code);
     }
 
     bool Input::IsKeyHeld(KeyCode code)
     {
-        auto keyboard = Nexus::GetApplication()->GetCoreInputState()->GetKeyboard();
+        auto keyboard = s_InputContext->GetKeyboard();
         return keyboard.IsKeyHeld(code);
     }
 }

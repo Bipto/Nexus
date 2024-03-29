@@ -10,6 +10,18 @@
 
 namespace Nexus::ImGuiUtils
 {
+    struct ImGuiWindowInfo
+    {
+        Nexus::Window *Window = nullptr;
+        Nexus::Ref<Nexus::Graphics::Pipeline> Pipeline = nullptr;
+
+        virtual ~ImGuiWindowInfo()
+        {
+            Window->Close();
+            Pipeline = nullptr;
+        }
+    };
+
     class ImGuiGraphicsRenderer
     {
     public:
@@ -23,6 +35,8 @@ namespace Nexus::ImGuiUtils
         void BeforeLayout(Nexus::Time gameTime);
         void AfterLayout();
 
+        Ref<Graphics::Pipeline> GetPipeline() { return m_Pipeline; }
+
     private:
         void SetupInput();
         void UpdateInput();
@@ -30,6 +44,7 @@ namespace Nexus::ImGuiUtils
         void UpdateBuffers(ImDrawData *drawData);
         void RenderCommandLists(ImDrawData *drawData);
         void UpdateCursor();
+        void UpdateMonitors();
 
     private:
         Nexus::Graphics::GraphicsDevice *m_GraphicsDevice = nullptr;

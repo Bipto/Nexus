@@ -39,7 +39,11 @@ namespace Nexus::Graphics
         }
 #endif
 
-        SDL_GL_MakeCurrent(window->GetSDLWindowHandle(), m_Context);
+        if (SDL_GL_MakeCurrent(window->GetSDLWindowHandle(), m_Context) != 0)
+        {
+            std::string error = SDL_GetError();
+            throw std::runtime_error(error);
+        }
     }
 
     SwapchainOpenGL::~SwapchainOpenGL()
@@ -80,7 +84,12 @@ namespace Nexus::Graphics
 
     void SwapchainOpenGL::BindAsRenderTarget()
     {
-        SDL_GL_MakeCurrent(m_Window->GetSDLWindowHandle(), m_Context);
+        if (SDL_GL_MakeCurrent(m_Window->GetSDLWindowHandle(), m_Context) != 0)
+        {
+            std::string error = SDL_GetError();
+            throw std::runtime_error(error);
+        }
+
         ResizeIfNecessary();
         glBindFramebuffer(GL_FRAMEBUFFER, m_Backbuffer);
 
@@ -90,7 +99,12 @@ namespace Nexus::Graphics
 
     void SwapchainOpenGL::BindAsDrawTarget()
     {
-        SDL_GL_MakeCurrent(m_Window->GetSDLWindowHandle(), m_Context);
+        if (SDL_GL_MakeCurrent(m_Window->GetSDLWindowHandle(), m_Context) != 0)
+        {
+            std::string error = SDL_GetError();
+            throw std::runtime_error(error);
+        }
+
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_Backbuffer);
     }
 

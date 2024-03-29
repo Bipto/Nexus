@@ -92,12 +92,22 @@ namespace Nexus
         /// @return A Nexus::Point containing two integer values representing the scroll movement of the mouse
         Point<int> GetScrollMovement() const;
 
+        static Point<int> GetGlobalMousePosition();
+
+        static bool IsGlobalLeftMouseHeld();
+        static bool IsGlobalRightMouseHeld();
+        static bool IsGlobalMiddleMouseHeld();
+
     private:
         /// @brief A mouse state containing the current state of the mouse pointer and buttons
         MouseState m_CurrentState;
 
         /// @brief A mouse state containing the previous state of the mouse pointer and buttons
         MouseState m_PreviousState;
+
+        static Point<int> s_GlobalMousePosition;
+
+        static MouseState s_GlobalMouseState;
 
         /// @brief A friend class to allow a window to have access to the mouse's private members
         friend class Window;

@@ -11,7 +11,8 @@ namespace Nexus::GL
     void ClearErrors()
     {
         while (glGetError() != GL_NO_ERROR)
-            ;
+        {
+        }
     }
 
     bool CheckErrors()

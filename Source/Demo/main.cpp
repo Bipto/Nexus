@@ -244,6 +244,9 @@ public:
             }
 
             ImGui::End();
+
+            static bool pShowDemoWindow = true;
+            ImGui::ShowDemoWindow(&pShowDemoWindow);
         }
 
         if (m_CurrentDemo)
@@ -292,7 +295,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;

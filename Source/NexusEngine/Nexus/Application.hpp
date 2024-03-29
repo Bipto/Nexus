@@ -18,6 +18,8 @@
 #include "Nexus/Time.hpp"
 #include "Nexus/Types.hpp"
 
+#include "Nexus/Monitor.hpp"
+
 #include "Runtime/ECS/ComponentRegistry.hpp"
 
 #include "ApplicationSpecification.hpp"
@@ -149,6 +151,8 @@ namespace Nexus
         /// @brief A method that returns a pointer to the application's audio device
         /// @return A pointer to an audio device
         Audio::AudioDevice *GetAudioDevice();
+
+        static std::vector<Monitor> GetMonitors();
 
     private:
         void PollEvents();

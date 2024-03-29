@@ -73,13 +73,16 @@ namespace Nexus
         std::string Title = "My Window";
 
         /// @brief An integer containing the width of the window
-        int Width = 1280;
+        uint32_t Width = 1280;
 
         /// @brief An integer containing the height of the window
-        int Height = 720;
+        uint32_t Height = 720;
 
         /// @brief A boolean indicating whether the window can be resized or not
         bool Resizable = true;
+
+        /// @brief A boolean indicating whether the window should have a border
+        bool Borderless = false;
     };
 
     /// @brief A struct representing options to use when creating an application

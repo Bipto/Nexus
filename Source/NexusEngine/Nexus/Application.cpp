@@ -268,8 +268,8 @@ namespace Nexus
     {
         m_Specification = spec;
 
-        WindowSpecification props;
-        m_Window = CreateApplicationWindow(props, spec.SwapchainSpecification);
+        m_Window = CreateApplicationWindow(spec.WindowProperties, spec.SwapchainSpecification);
+        Nexus::Input::SetInputContext(m_Window->GetInput());
 
         Graphics::GraphicsDeviceCreateInfo graphicsDeviceCreateInfo;
         graphicsDeviceCreateInfo.API = spec.GraphicsAPI;
@@ -390,6 +390,36 @@ namespace Nexus
         return m_AudioDevice;
     }
 
+    std::vector<Monitor> Application::GetMonitors()
+    {
+        std::vector<Monitor> monitors;
+
+        int displayCount;
+        SDL_DisplayID *displays = SDL_GetDisplays(&displayCount);
+
+        for (int i = 0; i < displayCount; i++)
+        {
+            SDL_DisplayID id = displays[i];
+            SDL_Rect bounds;
+
+            Monitor monitor;
+            monitor.DPI = SDL_GetDisplayContentScale(id);
+            monitor.Name = SDL_GetDisplayName(id);
+
+            SDL_GetDisplayBounds(id, &bounds);
+            monitor.Position = {(uint32_t)bounds.x, (uint32_t)bounds.y};
+            monitor.Size = {(uint32_t)bounds.w, (uint32_t)bounds.h};
+
+            SDL_GetDisplayUsableBounds(id, &bounds);
+            monitor.WorkPosition = {(uint32_t)bounds.x, (uint32_t)bounds.y};
+            monitor.WorkSize = {(uint32_t)bounds.w, (uint32_t)bounds.h};
+
+            monitors.push_back(monitor);
+        }
+
+        return monitors;
+    }
+
     void Application::PollEvents()
     {
         for (auto window : m_Windows)
@@ -397,10 +427,46 @@ namespace Nexus
             window->m_Input->CacheInput();
         }
 
+        float x, y;
+        Uint32 buttons = SDL_GetGlobalMouseState(&x, &y);
+        Mouse::s_GlobalMousePosition.X = (int)x;
+        Mouse::s_GlobalMousePosition.Y = (int)y;
+
+        if (buttons & SDL_BUTTON_LEFT)
+        {
+            Mouse::s_GlobalMouseState.LeftButton = MouseButtonState::Pressed;
+        }
+        else
+        {
+            Mouse::s_GlobalMouseState.LeftButton = MouseButtonState::Released;
+        }
+
+        if (buttons & SDL_BUTTON_RIGHT)
+        {
+            Mouse::s_GlobalMouseState.RightButton = MouseButtonState::Pressed;
+        }
+        else
+        {
+            Mouse::s_GlobalMouseState.RightButton = MouseButtonState::Released;
+        }
+
+        if (buttons & SDL_BUTTON_MIDDLE)
+        {
+            Mouse::s_GlobalMouseState.MiddleButton = MouseButtonState::Pressed;
+        }
+        else
+        {
+            Mouse::s_GlobalMouseState.MiddleButton = MouseButtonState::Released;
+        }
+
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
             auto window = GetWindowFromHandle(event.window.windowID);
+            if (!window)
+            {
+                continue;
+            }
 
             switch (event.type)
             {

@@ -21,15 +21,8 @@ namespace Nexus
 
     Window::Window(const WindowSpecification &windowProps, Graphics::GraphicsAPI api, const Graphics::SwapchainSpecification &swapchainSpec)
     {
-        uint32_t flags = GetFlags(api, windowProps, swapchainSpec);
-
         // NOTE: Resizable flag MUST be set in order for Emscripten resizing to work correctly
-        /* m_Window = SDL_CreateWindow(windowProps.Title.c_str(),
-                                    SDL_WINDOWPOS_UNDEFINED,
-                                    SDL_WINDOWPOS_UNDEFINED,
-                                    windowProps.Width,
-                                    windowProps.Height,
-                                    flags); */
+        uint32_t flags = GetFlags(api, windowProps, swapchainSpec);
 
         m_Window = SDL_CreateWindow(windowProps.Title.c_str(), windowProps.Width, windowProps.Height, flags);
 
@@ -41,21 +34,10 @@ namespace Nexus
 
         m_Input = new InputState();
         m_WindowID = SDL_GetWindowID(m_Window);
-
-        if (!windowProps.Resizable)
-        {
-            SDL_SetWindowResizable(m_Window, SDL_FALSE);
-        }
     }
 
     Window::~Window()
     {
-        if (m_Swapchain)
-        {
-            delete m_Swapchain;
-            m_Swapchain = nullptr;
-        }
-
         SDL_DestroyWindow(this->m_Window);
     }
 
@@ -92,11 +74,7 @@ namespace Nexus
     Point<uint32_t> Window::GetWindowSize()
     {
         int x, y;
-#ifndef __EMSCRIPTEN__
-        SDL_GetWindowSizeInPixels(m_Window, &x, &y);
-#else
-        emscripten_get_canvas_element_size("canvas", &x, &y);
-#endif
+        SDL_GetWindowSize(m_Window, &x, &y);
 
         Point<uint32_t> size{};
         size.X = x;
@@ -114,14 +92,6 @@ namespace Nexus
     WindowState Window::GetCurrentWindowState()
     {
         Uint32 flags = SDL_GetWindowFlags(m_Window);
-        if (flags & SDL_WINDOW_INPUT_FOCUS)
-        {
-            m_IsFocussed = true;
-        }
-        else
-        {
-            m_IsFocussed = false;
-        }
 
         if (flags & SDL_WINDOW_MAXIMIZED)
         {
@@ -206,7 +176,7 @@ namespace Nexus
 
     bool Window::IsFocussed()
     {
-        return m_IsFocussed;
+        return SDL_GetWindowFlags(m_Window) & SDL_WINDOW_INPUT_FOCUS;
     }
 
     void Window::Maximize()
@@ -258,6 +228,31 @@ namespace Nexus
         SDL_SetWindowFullscreen(m_Window, SDL_FALSE);
     }
 
+    void Window::Show()
+    {
+        SDL_ShowWindow(m_Window);
+    }
+
+    void Window::Hide()
+    {
+        SDL_HideWindow(m_Window);
+    }
+
+    void Window::SetWindowPosition(uint32_t x, uint32_t y)
+    {
+        SDL_SetWindowPosition(m_Window, x, y);
+    }
+
+    void Window::SetWindowSize(uint32_t width, uint32_t height)
+    {
+        SDL_SetWindowSize(m_Window, width, height);
+    }
+
+    void Window::Focus()
+    {
+        SDL_RaiseWindow(m_Window);
+    }
+
     void Window::CreateSwapchain(Graphics::GraphicsDevice *device, const Graphics::SwapchainSpecification &swapchainSpec)
     {
         switch (device->GetGraphicsAPI())
@@ -265,21 +260,21 @@ namespace Nexus
 #if defined(NX_PLATFORM_OPENGL)
         case Graphics::GraphicsAPI::OpenGL:
         {
-            m_Swapchain = new Graphics::SwapchainOpenGL(this, swapchainSpec);
+            m_Swapchain = std::make_unique<Graphics::SwapchainOpenGL>(this, swapchainSpec);
             break;
         }
 #endif
 #if defined(NX_PLATFORM_VULKAN)
         case Graphics::GraphicsAPI::Vulkan:
         {
-            m_Swapchain = new Graphics::SwapchainVk(this, device, swapchainSpec);
+            m_Swapchain = std::make_unique<Graphics::SwapchainVk>(this, device, swapchainSpec);
             break;
         }
 #endif
 #if defined(NX_PLATFORM_D3D12)
         case Graphics::GraphicsAPI::D3D12:
         {
-            m_Swapchain = new Graphics::SwapchainD3D12(this, device, swapchainSpec);
+            m_Swapchain = std::make_unique<Graphics::SwapchainD3D12>(this, device, swapchainSpec);
             break;
         }
 #endif
@@ -292,7 +287,7 @@ namespace Nexus
 
     Graphics::Swapchain *Window::GetSwapchain()
     {
-        return m_Swapchain;
+        return m_Swapchain.get();
     }
 
     uint32_t Window::GetID()
@@ -302,14 +297,7 @@ namespace Nexus
 
     float Window::GetDisplayScale()
     {
-        int ww, wh;
-        int pw, ph;
-
-        SDL_GetWindowSize(m_Window, &ww, &wh);
-        SDL_GetWindowSizeInPixels(m_Window, &pw, &ph);
-
-        float scale = (float)pw / (float)ww;
-        return scale;
+        return SDL_GetWindowDisplayScale(m_Window);
     }
 
     uint32_t Window::GetFlags(Graphics::GraphicsAPI api, const WindowSpecification &windowSpec, const Graphics::SwapchainSpecification &swapchainSpec)
@@ -323,6 +311,11 @@ namespace Nexus
         if (windowSpec.Resizable)
         {
             flags |= SDL_WINDOW_RESIZABLE;
+        }
+
+        if (windowSpec.Borderless)
+        {
+            flags |= SDL_WINDOW_BORDERLESS;
         }
 
         switch (api)
