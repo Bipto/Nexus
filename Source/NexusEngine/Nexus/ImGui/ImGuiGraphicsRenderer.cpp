@@ -122,7 +122,7 @@ namespace Nexus::ImGuiUtils
         io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports;
         io.BackendFlags |= ImGuiBackendFlags_RendererHasViewports;
         io.Fonts->AddFontDefault();
-        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+        // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
         SetupInput();
 
@@ -486,8 +486,15 @@ namespace Nexus::ImGuiUtils
             (float)window->GetWindowSize().X,
             (float)window->GetWindowSize().Y};
         io.DisplayFramebufferScale = {1, 1};
-        // io.MousePos = {(float)mouse.GetMousePosition().X, (float)mouse.GetMousePosition().Y};
-        io.MousePos = {(float)Mouse::GetGlobalMousePosition().X, (float)Mouse::GetGlobalMousePosition().Y};
+
+        if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+        {
+            io.MousePos = {(float)Mouse::GetGlobalMousePosition().X, (float)Mouse::GetGlobalMousePosition().Y};
+        }
+        else
+        {
+            io.MousePos = {(float)mouse.GetMousePosition().X, (float)mouse.GetMousePosition().Y};
+        }
 
         io.MouseDown[0] = Mouse::IsGlobalLeftMouseHeld();
         io.MouseDown[1] = Mouse::IsGlobalRightMouseHeld();
