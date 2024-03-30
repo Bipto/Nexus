@@ -84,7 +84,7 @@ namespace Nexus::Graphics
     class Font
     {
     public:
-        Font(const std::string &filepath, const std::vector<CharacterRange> &characterRanges, GraphicsDevice *device);
+        Font(const std::string &filepath, uint32_t size, const std::vector<CharacterRange> &characterRanges, GraphicsDevice *device);
         Nexus::Ref<Nexus::Graphics::Texture> GetTexture();
         const Character &GetCharacter(char character);
         uint32_t GetSize() const;

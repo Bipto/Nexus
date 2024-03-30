@@ -72,8 +72,8 @@ Nexus::Point<uint32_t> FindLargestGlyphSize(const FT_Face &face, const std::vect
 
 namespace Nexus::Graphics
 {
-    Font::Font(const std::string &filepath, const std::vector<CharacterRange> &characterRanges, GraphicsDevice *device)
-        : m_CharacterRanges(characterRanges)
+    Font::Font(const std::string &filepath, uint32_t size, const std::vector<CharacterRange> &characterRanges, GraphicsDevice *device)
+        : m_CharacterRanges(characterRanges), m_Size(size)
     {
         FT_Library ft;
         if (FT_Init_FreeType(&ft))
@@ -89,14 +89,14 @@ namespace Nexus::Graphics
         FT_Set_Pixel_Sizes(face, 0, m_Size);
 
         uint32_t characterCount;
-        auto size = FindLargestGlyphSize(face, m_CharacterRanges, characterCount);
+        auto largestCharacterSize = FindLargestGlyphSize(face, m_CharacterRanges, characterCount);
 
-        m_LargestCharacterSize = {size.X, size.Y};
+        m_LargestCharacterSize = {largestCharacterSize.X, largestCharacterSize.Y};
 
         uint32_t columnCount = ceil(sqrt(characterCount));
 
-        m_TextureWidth = columnCount * size.X;
-        m_TextureHeight = columnCount * size.Y;
+        m_TextureWidth = columnCount * largestCharacterSize.X;
+        m_TextureHeight = columnCount * largestCharacterSize.Y;
 
         Nexus::Graphics::TextureSpecification textureSpec;
         textureSpec.NumberOfChannels = 4;
@@ -115,12 +115,12 @@ namespace Nexus::Graphics
             {
                 LoadCharacter((char)character, face, pixels, m_Characters, xPos, yPos, m_TextureWidth, m_TextureHeight);
 
-                xPos += size.X;
+                xPos += largestCharacterSize.X;
 
                 if (xPos >= m_TextureWidth)
                 {
                     xPos = 0;
-                    yPos += size.Y;
+                    yPos += largestCharacterSize.Y;
                 }
             }
         }

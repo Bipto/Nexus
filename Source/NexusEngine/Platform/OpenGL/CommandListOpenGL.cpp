@@ -388,9 +388,12 @@ namespace Nexus::Graphics
             auto commandData = commandListGL->GetCurrentCommandData();
             auto setViewportCommand = std::get<SetViewportCommand>(commandData);
 
+            float left = setViewportCommand.Viewport.X;
+            float bottom = commandListGL->m_CurrentRenderTarget.GetSize().Y - (setViewportCommand.Viewport.Y + setViewportCommand.Viewport.Height);
+
             glViewport(
-                setViewportCommand.Viewport.X,
-                setViewportCommand.Viewport.Y,
+                left,
+                bottom,
                 setViewportCommand.Viewport.Width,
                 setViewportCommand.Viewport.Height);
 

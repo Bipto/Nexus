@@ -45,6 +45,8 @@ public:
     {
         m_ImGuiRenderer = std::make_unique<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(this);
 
+        ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
         int size = 19;
 
 #if defined(__ANDROID__) || defined(ANDROID)
@@ -246,7 +248,10 @@ public:
             ImGui::End();
 
             static bool pShowDemoWindow = true;
-            ImGui::ShowDemoWindow(&pShowDemoWindow);
+            if (pShowDemoWindow)
+            {
+                ImGui::ShowDemoWindow(&pShowDemoWindow);
+            }
         }
 
         if (m_CurrentDemo)

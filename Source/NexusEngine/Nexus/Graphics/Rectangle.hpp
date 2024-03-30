@@ -9,6 +9,7 @@ namespace Nexus::Graphics
     {
     public:
         Rectangle() = default;
+        Rectangle(const Point<int> &position, const Point<int> &size);
         Rectangle(int x, int y, int width, int height);
 
         void SetX(int x);

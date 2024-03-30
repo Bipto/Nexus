@@ -903,9 +903,6 @@ namespace Nexus::Graphics
         m_CommandList->SetViewport(m_Viewport);
         m_CommandList->SetScissor(m_ScissorRectangle);
 
-        m_CommandList->SetViewport(m_Viewport);
-        m_CommandList->SetScissor(m_ScissorRectangle);
-
         m_CommandList->SetResourceSet(m_ResourceSet);
 
         m_CommandList->SetVertexBuffer(m_VertexBuffer, 0);

@@ -1,6 +1,11 @@
 #include "Rectangle.hpp"
 namespace Nexus::Graphics
 {
+    Rectangle::Rectangle(const Point<int> &position, const Point<int> &size)
+        : m_X(position.X), m_Y(position.Y), m_Width(size.X), m_Height(size.Y)
+    {
+    }
+
     Rectangle::Rectangle(int x, int y, int width, int height)
         : m_X(x), m_Y(y), m_Width(width), m_Height(height)
     {
