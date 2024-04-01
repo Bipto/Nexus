@@ -83,6 +83,8 @@ namespace Nexus
 
         /// @brief A boolean indicating whether the window should have a border
         bool Borderless = false;
+
+        bool Utility = false;
     };
 
     /// @brief A struct representing options to use when creating an application

@@ -407,12 +407,12 @@ namespace Nexus
             monitor.Name = SDL_GetDisplayName(id);
 
             SDL_GetDisplayBounds(id, &bounds);
-            monitor.Position = {(uint32_t)bounds.x, (uint32_t)bounds.y};
-            monitor.Size = {(uint32_t)bounds.w, (uint32_t)bounds.h};
+            monitor.Position = {bounds.x, bounds.y};
+            monitor.Size = {bounds.w, bounds.h};
 
             SDL_GetDisplayUsableBounds(id, &bounds);
-            monitor.WorkPosition = {(uint32_t)bounds.x, (uint32_t)bounds.y};
-            monitor.WorkSize = {(uint32_t)bounds.w, (uint32_t)bounds.h};
+            monitor.WorkPosition = {bounds.x, bounds.y};
+            monitor.WorkSize = {bounds.w, bounds.h};
 
             monitors.push_back(monitor);
         }

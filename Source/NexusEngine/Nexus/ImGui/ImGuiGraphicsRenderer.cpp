@@ -75,11 +75,12 @@ namespace Nexus::ImGuiUtils
         pipelineDesc.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
         pipelineDesc.BlendStateDescription.EnableBlending = true;
 
-        pipelineDesc.BlendStateDescription.SourceColourBlend = Nexus::Graphics::BlendFunction::SourceAlpha;
-        pipelineDesc.BlendStateDescription.DestinationColourBlend = Nexus::Graphics::BlendFunction::OneMinusSourceAlpha;
-        pipelineDesc.BlendStateDescription.BlendEquation = Nexus::Graphics::BlendEquation::Add;
-        pipelineDesc.BlendStateDescription.SourceAlphaBlend = Nexus::Graphics::BlendFunction::One;
-        pipelineDesc.BlendStateDescription.DestinationAlphaBlend = Nexus::Graphics::BlendFunction::OneMinusSourceAlpha;
+        pipelineDesc.BlendStateDescription.SourceColourBlend = Nexus::Graphics::BlendFactor::SourceAlpha;
+        pipelineDesc.BlendStateDescription.DestinationColourBlend = Nexus::Graphics::BlendFactor::OneMinusSourceAlpha;
+        pipelineDesc.BlendStateDescription.ColorBlendFunction = Nexus::Graphics::BlendEquation::Add;
+        pipelineDesc.BlendStateDescription.SourceAlphaBlend = Nexus::Graphics::BlendFactor::One;
+        pipelineDesc.BlendStateDescription.DestinationAlphaBlend = Nexus::Graphics::BlendFactor::OneMinusSourceAlpha;
+        pipelineDesc.BlendStateDescription.AlphaBlendFunction = Nexus::Graphics::BlendEquation::Add;
 
         pipelineDesc.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
         pipelineDesc.RasterizerStateDescription.FillMode = Nexus::Graphics::FillMode::Solid;
@@ -122,7 +123,6 @@ namespace Nexus::ImGuiUtils
         io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports;
         io.BackendFlags |= ImGuiBackendFlags_RendererHasViewports;
         io.Fonts->AddFontDefault();
-        // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
         SetupInput();
 
@@ -141,6 +141,7 @@ namespace Nexus::ImGuiUtils
             windowSpec.Width = vp->Size.x;
             windowSpec.Height = vp->Size.y;
             windowSpec.Borderless = true;
+            // windowSpec.Utility = true;
 
             Nexus::Graphics::SwapchainSpecification swapchainSpec = app->GetPrimaryWindow()->GetSwapchain()->GetSpecification();
 
@@ -394,14 +395,11 @@ namespace Nexus::ImGuiUtils
             {
                 if ((platform_io.Viewports[i]->Flags & ImGuiViewportFlags_Minimized) == 0)
                 {
-                    // RenderDrawData(platform_io.Viewports[i]->DrawData);
-
                     ImGuiWindowInfo *info = (ImGuiWindowInfo *)platform_io.Viewports[i]->PlatformUserData;
                     Nexus::Window *window = info->Window;
 
                     if (window && !window->IsClosing())
                     {
-
                         window->GetSwapchain()->Prepare();
                         m_CommandList->Begin();
                         m_CommandList->SetRenderTarget({window->GetSwapchain()});
@@ -698,7 +696,7 @@ namespace Nexus::ImGuiUtils
     void ImGuiGraphicsRenderer::UpdateMonitors()
     {
         auto &platformIo = ImGui::GetPlatformIO();
-        platformIo.Monitors.clear();
+        platformIo.Monitors.resize(0);
 
         std::vector<Monitor> monitors = Application::GetMonitors();
 

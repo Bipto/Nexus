@@ -265,16 +265,6 @@ namespace Nexus::Graphics
     {
         const auto &resources = compiler.get_shader_resources();
 
-        /* for (const auto &uniformBuffer : resources.uniform_buffers)
-        {
-            const auto &type = compiler.get_type(uniformBuffer.base_type_id);
-            for (uint32_t i = 0; i < type.member_types.size(); i++)
-            {
-                const std::string &name = compiler.get_member_name(type.self, i);
-                std::cout << "  Name: " << name << "\n";
-            }
-        } */
-
         for (const auto &input : resources.stage_inputs)
         {
             const auto &baseType = compiler.get_type(input.base_type_id);

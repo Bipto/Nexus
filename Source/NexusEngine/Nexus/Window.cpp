@@ -238,7 +238,7 @@ namespace Nexus
         SDL_HideWindow(m_Window);
     }
 
-    void Window::SetWindowPosition(uint32_t x, uint32_t y)
+    void Window::SetWindowPosition(int32_t x, int32_t y)
     {
         SDL_SetWindowPosition(m_Window, x, y);
     }
@@ -316,6 +316,11 @@ namespace Nexus
         if (windowSpec.Borderless)
         {
             flags |= SDL_WINDOW_BORDERLESS;
+        }
+
+        if (windowSpec.Utility)
+        {
+            flags |= SDL_WINDOW_UTILITY;
         }
 
         switch (api)

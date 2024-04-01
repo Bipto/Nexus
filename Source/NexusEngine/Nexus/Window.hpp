@@ -136,7 +136,7 @@ namespace Nexus
 
         void Hide();
 
-        void SetWindowPosition(uint32_t x, uint32_t y);
+        void SetWindowPosition(int32_t x, int32_t y);
 
         void SetWindowSize(uint32_t width, uint32_t height);
 

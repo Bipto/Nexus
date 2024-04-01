@@ -54,7 +54,7 @@ namespace Nexus::UI
         scissor.Height = m_Size.Y;
 
         m_BatchRenderer->Begin(vp, scissor);
-        Nexus::Graphics::Rectangle rect(m_Position.X, m_Position.Y, m_Size.X, m_Size.Y);
+        Nexus::Graphics::Rectangle<float> rect((float)m_Position.X, (float)m_Position.Y, (float)m_Size.X, (float)m_Size.Y);
         m_BatchRenderer->DrawQuadFill(rect, m_BackgroundColour);
         m_BatchRenderer->End();
 

@@ -23,7 +23,7 @@ VkSamplerAddressMode GetVkSamplerAddressMode(Nexus::Graphics::SamplerAddressMode
 
 VkCompareOp GetCompareOp(Nexus::Graphics::ComparisonFunction function);
 VkBlendOp GetVkBlendOp(Nexus::Graphics::BlendEquation function);
-VkBlendFactor GetVkBlendFactor(Nexus::Graphics::BlendFunction function);
+VkBlendFactor GetVkBlendFactor(Nexus::Graphics::BlendFactor function);
 VkBorderColor GetVkBorderColor(Nexus::Graphics::BorderColor color);
 VkImageUsageFlagBits GetVkImageUsageFlags(const std::vector<Nexus::Graphics::TextureUsage> &usage, bool &isDepth);
 

@@ -109,7 +109,7 @@ const std::string s_BatchFragmentShaderSource =
     "        case 31: alpha = texture(texture31, texCoord).r; break;\n"
     "    }\n"
 
-    "    if (alpha < 0.5)\n"
+    "    if (alpha < 0.45)\n"
     "    {\n"
     "        discard;\n"
     "    }\n"
@@ -161,6 +161,7 @@ namespace Nexus::Graphics
         m_UniformBuffer = m_Device->CreateUniformBuffer(uniformBufferDesc, nullptr);
 
         Nexus::Graphics::SamplerSpecification samplerSpec{};
+        samplerSpec.SampleFilter = Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipLinear;
         m_Sampler = m_Device->CreateSampler(samplerSpec);
     }
 
@@ -348,11 +349,18 @@ namespace Nexus::Graphics
         m_VertexCount += shapeVertexCount;
     }
 
-    void BatchRenderer::DrawQuadFill(const Rectangle &rectangle, const glm::vec4 &color)
+    void BatchRenderer::DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color)
     {
         glm::vec2 min = {(float)rectangle.GetLeft(), (float)rectangle.GetTop()};
         glm::vec2 max = {(float)rectangle.GetRight(), (float)rectangle.GetBottom()};
         DrawQuadFill(min, max, color);
+    }
+
+    void BatchRenderer::DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<Texture> texture)
+    {
+        glm::vec2 min = {(float)rectangle.GetLeft(), (float)rectangle.GetTop()};
+        glm::vec2 max = {(float)rectangle.GetRight(), (float)rectangle.GetBottom()};
+        DrawQuadFill(min, max, color, texture);
     }
 
     void BatchRenderer::DrawQuad(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, float thickness)
@@ -363,95 +371,25 @@ namespace Nexus::Graphics
         DrawLine({min.x, min.y}, {min.x, max.y}, color, thickness);
     }
 
-    void BatchRenderer::DrawCharacter(char character, const glm::vec2 &position, float scale, const glm::vec4 &color, Font *font)
+    void BatchRenderer::DrawQuad(const Rectangle<float> &rectangle, const glm::vec4 &color, float thickness)
     {
-        EnsureStarted();
-
-        const uint32_t shapeVertexCount = 4;
-        const uint32_t shapeIndexCount = 6;
-
-        EnsureSpace(shapeVertexCount, shapeIndexCount);
-
-        const auto &characterInfo = font->GetCharacter(character);
-        glm::vec2 min = position;
-        glm::vec2 max = {position.x + (characterInfo.Size.x * scale), position.y + (characterInfo.Size.y * scale)};
-
-        glm::vec3 a(min.x, max.y, 0.0f);
-        glm::vec3 b(max.x, max.y, 0.0f);
-        glm::vec3 c(max.x, min.y, 0.0f);
-        glm::vec3 d(min.x, min.y, 0.0f);
-
-        m_Indices.push_back(0 + m_VertexCount);
-        m_Indices.push_back(1 + m_VertexCount);
-        m_Indices.push_back(2 + m_VertexCount);
-        m_Indices.push_back(0 + m_VertexCount);
-        m_Indices.push_back(2 + m_VertexCount);
-        m_Indices.push_back(3 + m_VertexCount);
-
-        float texIndex = 0.0f;
-
-        uint32_t index;
-        auto texture = font->GetTexture();
-        if (FindTextureInBatch(texture, &index))
-        {
-            texIndex = (float)index;
-        }
-        else
-        {
-            texIndex = (float)m_Textures.size();
-            m_Textures.push_back(texture);
-        }
-
-        VertexPositionTexCoordColorTexIndex v0;
-        v0.Position = a;
-        v0.TexCoords = {characterInfo.TexCoordsMin.x, characterInfo.TexCoordsMin.y};
-        v0.Color = color;
-        v0.TexIndex = texIndex;
-        m_Vertices.push_back(v0);
-
-        VertexPositionTexCoordColorTexIndex v1;
-        v1.Position = b;
-        v1.TexCoords = {characterInfo.TexCoordsMax.x, characterInfo.TexCoordsMin.y};
-        v1.Color = color;
-        v1.TexIndex = texIndex;
-        m_Vertices.push_back(v1);
-
-        VertexPositionTexCoordColorTexIndex v2;
-        v2.Position = c;
-        v2.TexCoords = {characterInfo.TexCoordsMax.x, characterInfo.TexCoordsMax.y};
-        v2.Color = color;
-        v2.TexIndex = texIndex;
-        m_Vertices.push_back(v2);
-
-        VertexPositionTexCoordColorTexIndex v3;
-        v3.Position = d;
-        v3.TexCoords = {characterInfo.TexCoordsMin.x, characterInfo.TexCoordsMax.y};
-        v3.Color = color;
-        v3.TexIndex = texIndex;
-        m_Vertices.push_back(v3);
-
-        m_IndexCount += shapeIndexCount;
-        m_VertexCount += shapeVertexCount;
+        glm::vec2 min = {(float)rectangle.GetLeft(), (float)rectangle.GetTop()};
+        glm::vec2 max = {(float)rectangle.GetRight(), (float)rectangle.GetBottom()};
+        DrawQuad(min, max, color, thickness);
     }
 
-    void BatchRenderer::DrawCharacter(char character, const glm::vec2 &position, float scale, const glm::vec4 &color, Font *font, const Rectangle &clippingRectangle)
+    void BatchRenderer::DrawCharacter(char character, const glm::vec2 &position, const glm::vec2 &size, const glm::vec4 &color, Font *font)
     {
-        const auto &characterInfo = font->GetCharacter(character);
-        glm::vec2 min = position;
-        glm::vec2 max = {position.x + (characterInfo.Size.x * scale), position.y + (characterInfo.Size.y * scale)};
-
-        // if (min.x > clippingRectangle.GetRight() || max.x < clippingRectangle.GetLeft())
-        if (max.x > clippingRectangle.GetRight())
-        {
-            return;
-        }
-
         EnsureStarted();
 
         const uint32_t shapeVertexCount = 4;
         const uint32_t shapeIndexCount = 6;
 
         EnsureSpace(shapeVertexCount, shapeIndexCount);
+
+        const auto &characterInfo = font->GetCharacter(character);
+        glm::vec2 min = position;
+        glm::vec2 max = {position.x + size.x, position.y + size.y};
 
         glm::vec3 a(min.x, max.y, 0.0f);
         glm::vec3 b(max.x, max.y, 0.0f);
@@ -553,56 +491,11 @@ namespace Nexus::Graphics
                 float yPos = (characterInfo.Bearing.y) * scale;
                 yPos -= largestCharacterSize;
 
-                DrawCharacter(character, {xPos, y - yPos}, scale, color, font);
+                glm::vec2 size = {
+                    characterInfo.Size.x * scale,
+                    characterInfo.Size.y * scale};
 
-                x += (characterInfo.Advance.x / 64) * scale;
-            }
-        }
-    }
-
-    void BatchRenderer::DrawString(const std::string &text, const glm::vec2 &position, uint32_t size, const glm::vec4 &color, Font *font, const Rectangle &clippingRectangle)
-    {
-        float scale = 1.0f / font->GetSize() * size;
-
-        float x = position.x;
-        float y = position.y;
-
-        uint32_t largestCharacterSize = 0;
-        for (auto character : text)
-        {
-            const auto &characterInfo = font->GetCharacter(character);
-
-            auto characterHeight = characterInfo.Size.y * scale;
-            if (characterHeight > largestCharacterSize)
-            {
-                largestCharacterSize = characterHeight;
-            }
-        }
-
-        for (auto character : text)
-        {
-            if (character == ' ')
-            {
-                x += font->GetSpaceWidth() * scale;
-            }
-            else if (character == '\n')
-            {
-                x = position.x;
-                y += font->GetLargestCharacterSize().y * scale;
-            }
-            else if (character == '\t')
-            {
-                x += font->GetSpaceWidth() * scale * 4;
-            }
-            else
-            {
-                const auto &characterInfo = font->GetCharacter(character);
-
-                float xPos = x + characterInfo.Bearing.x * scale;
-                float yPos = (characterInfo.Bearing.y) * scale;
-                yPos -= largestCharacterSize;
-
-                DrawCharacter(character, {xPos, y - yPos}, scale, color, font, clippingRectangle);
+                DrawCharacter(character, {xPos, y - yPos}, size, color, font);
 
                 x += (characterInfo.Advance.x / 64) * scale;
             }
@@ -620,11 +513,9 @@ namespace Nexus::Graphics
 
         thickness = glm::clamp(thickness, 1.0f, 10.0f);
 
-        float halfThickness = thickness / 2.0f;
-
         glm::vec2 e1 = b - a;
         e1 = glm::normalize(e1);
-        e1 *= halfThickness;
+        e1 *= thickness;
 
         glm::vec2 e2 = -e1;
 
@@ -761,7 +652,7 @@ namespace Nexus::Graphics
         DrawCircleFill(circle.GetPosition(), circle.GetRadius(), color, numberOfPoints);
     }
 
-    void BatchRenderer::DrawCross(const Rectangle &rectangle, float thickness, const glm::vec4 &color)
+    void BatchRenderer::DrawCross(const Rectangle<float> &rectangle, float thickness, const glm::vec4 &color)
     {
         glm::vec2 topLeft = {rectangle.GetLeft() + thickness, rectangle.GetTop() + thickness};
         glm::vec2 bottomRight = {rectangle.GetRight() - thickness, rectangle.GetBottom() - thickness};
@@ -871,6 +762,15 @@ namespace Nexus::Graphics
 
         description.ResourceSetSpecification = resourceSpec;
         description.Target = {m_RenderTarget};
+
+        description.BlendStateDescription.EnableBlending = true;
+        description.BlendStateDescription.SourceColourBlend = BlendFactor::SourceAlpha;
+        description.BlendStateDescription.DestinationColourBlend = BlendFactor::OneMinusSourceAlpha;
+        description.BlendStateDescription.ColorBlendFunction = BlendEquation::Add;
+        description.BlendStateDescription.SourceAlphaBlend = BlendFactor::SourceAlpha;
+        description.BlendStateDescription.DestinationAlphaBlend = BlendFactor::OneMinusSourceAlpha;
+        description.BlendStateDescription.AlphaBlendFunction = BlendEquation::Add;
+
         m_Pipeline = m_Device->CreatePipeline(description);
         m_ResourceSet = m_Device->CreateResourceSet(m_Pipeline);
     }

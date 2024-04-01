@@ -48,6 +48,7 @@ namespace Nexus::Graphics
 
     SwapchainOpenGL::~SwapchainOpenGL()
     {
+        SDL_GL_MakeCurrent(m_Window->GetSDLWindowHandle(), nullptr);
         SDL_GL_DeleteContext(m_Context);
     }
 

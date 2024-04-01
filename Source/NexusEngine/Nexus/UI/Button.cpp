@@ -1,13 +1,13 @@
-#include "Label.hpp"
+#include "Button.hpp"
 
 namespace Nexus::UI
 {
-    void Label::Update()
+    void Button::Update()
     {
         Control::Update();
     }
 
-    void Label::Render(Graphics::BatchRenderer *batchRenderer)
+    void Button::Render(Graphics::BatchRenderer *batchRenderer)
     {
         Control::Render(batchRenderer);
 
@@ -46,12 +46,12 @@ namespace Nexus::UI
         batchRenderer->End();
     }
 
-    void Label::SetText(const std::string &text)
+    void Button::SetText(const std::string &text)
     {
         m_Text = text;
     }
 
-    const std::string &Label::GetText() const
+    const std::string &Button::GetText() const
     {
         return m_Text;
     }

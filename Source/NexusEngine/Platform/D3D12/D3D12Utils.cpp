@@ -208,29 +208,29 @@ D3D12_FILL_MODE GetFillMode(Nexus::Graphics::FillMode fillMode)
     }
 }
 
-D3D12_BLEND GetBlendFunction(Nexus::Graphics::BlendFunction function)
+D3D12_BLEND GetBlendFunction(Nexus::Graphics::BlendFactor function)
 {
     switch (function)
     {
-    case Nexus::Graphics::BlendFunction::Zero:
+    case Nexus::Graphics::BlendFactor::Zero:
         return D3D12_BLEND_ZERO;
-    case Nexus::Graphics::BlendFunction::One:
+    case Nexus::Graphics::BlendFactor::One:
         return D3D12_BLEND_ONE;
-    case Nexus::Graphics::BlendFunction::SourceColor:
+    case Nexus::Graphics::BlendFactor::SourceColor:
         return D3D12_BLEND_SRC_COLOR;
-    case Nexus::Graphics::BlendFunction::OneMinusSourceColor:
+    case Nexus::Graphics::BlendFactor::OneMinusSourceColor:
         return D3D12_BLEND_INV_SRC_COLOR;
-    case Nexus::Graphics::BlendFunction::DestinationColor:
+    case Nexus::Graphics::BlendFactor::DestinationColor:
         return D3D12_BLEND_DEST_COLOR;
-    case Nexus::Graphics::BlendFunction::OneMinusDestinationColor:
+    case Nexus::Graphics::BlendFactor::OneMinusDestinationColor:
         return D3D12_BLEND_INV_DEST_COLOR;
-    case Nexus::Graphics::BlendFunction::SourceAlpha:
+    case Nexus::Graphics::BlendFactor::SourceAlpha:
         return D3D12_BLEND_SRC_ALPHA;
-    case Nexus::Graphics::BlendFunction::OneMinusSourceAlpha:
+    case Nexus::Graphics::BlendFactor::OneMinusSourceAlpha:
         return D3D12_BLEND_INV_SRC_ALPHA;
-    case Nexus::Graphics::BlendFunction::DestinationAlpha:
+    case Nexus::Graphics::BlendFactor::DestinationAlpha:
         return D3D12_BLEND_DEST_ALPHA;
-    case Nexus::Graphics::BlendFunction::OneMinusDestinationAlpha:
+    case Nexus::Graphics::BlendFactor::OneMinusDestinationAlpha:
         return D3D12_BLEND_INV_DEST_ALPHA;
     default:
         throw std::runtime_error("Failed to find a valid blend function");

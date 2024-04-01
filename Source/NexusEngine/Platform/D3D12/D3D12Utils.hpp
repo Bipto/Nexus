@@ -17,7 +17,7 @@ D3D12_CULL_MODE GetCullMode(Nexus::Graphics::CullMode cullMode);
 D3D12_COMPARISON_FUNC GetComparisonFunction(Nexus::Graphics::ComparisonFunction function);
 D3D12_STENCIL_OP GetStencilOperation(Nexus::Graphics::StencilOperation operation);
 D3D12_FILL_MODE GetFillMode(Nexus::Graphics::FillMode fillMode);
-D3D12_BLEND GetBlendFunction(Nexus::Graphics::BlendFunction function);
+D3D12_BLEND GetBlendFunction(Nexus::Graphics::BlendFactor function);
 D3D12_BLEND_OP GetBlendEquation(Nexus::Graphics::BlendEquation equation);
 
 D3D12_RESOURCE_FLAGS GetD3D12ResourceFlags(const std::vector<Nexus::Graphics::TextureUsage> &usage, bool &isDepth);

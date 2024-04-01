@@ -99,36 +99,36 @@ namespace Nexus::GL
         throw std::runtime_error("Failed to find a valid comparison function");
     }
 
-    GLenum GetBlendFunction(Nexus::Graphics::BlendFunction function)
+    GLenum GetBlendFactor(Nexus::Graphics::BlendFactor function)
     {
         switch (function)
         {
-        case Nexus::Graphics::BlendFunction::Zero:
+        case Nexus::Graphics::BlendFactor::Zero:
             return GL_ZERO;
-        case Nexus::Graphics::BlendFunction::One:
+        case Nexus::Graphics::BlendFactor::One:
             return GL_ONE;
-        case Nexus::Graphics::BlendFunction::SourceColor:
+        case Nexus::Graphics::BlendFactor::SourceColor:
             return GL_SRC_COLOR;
-        case Nexus::Graphics::BlendFunction::OneMinusSourceColor:
+        case Nexus::Graphics::BlendFactor::OneMinusSourceColor:
             return GL_ONE_MINUS_SRC_COLOR;
-        case Nexus::Graphics::BlendFunction::DestinationColor:
+        case Nexus::Graphics::BlendFactor::DestinationColor:
             return GL_DST_COLOR;
-        case Nexus::Graphics::BlendFunction::OneMinusDestinationColor:
+        case Nexus::Graphics::BlendFactor::OneMinusDestinationColor:
             return GL_ONE_MINUS_DST_COLOR;
-        case Nexus::Graphics::BlendFunction::SourceAlpha:
+        case Nexus::Graphics::BlendFactor::SourceAlpha:
             return GL_SRC_ALPHA;
-        case Nexus::Graphics::BlendFunction::OneMinusSourceAlpha:
+        case Nexus::Graphics::BlendFactor::OneMinusSourceAlpha:
             return GL_ONE_MINUS_SRC_ALPHA;
-        case Nexus::Graphics::BlendFunction::DestinationAlpha:
+        case Nexus::Graphics::BlendFactor::DestinationAlpha:
             return GL_DST_ALPHA;
-        case Nexus::Graphics::BlendFunction::OneMinusDestinationAlpha:
+        case Nexus::Graphics::BlendFactor::OneMinusDestinationAlpha:
             return GL_ONE_MINUS_DST_ALPHA;
         }
 
         throw std::runtime_error("Failed to find a valid blend function");
     }
 
-    GLenum GetBlendEquation(Nexus::Graphics::BlendEquation equation)
+    GLenum GetBlendFunction(Nexus::Graphics::BlendEquation equation)
     {
         switch (equation)
         {

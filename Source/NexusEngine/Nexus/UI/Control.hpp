@@ -6,6 +6,8 @@
 
 #include "Nexus/Graphics/Font.hpp"
 
+#include "Nexus/Events/EventHandler.hpp"
+
 #include <glm/glm.hpp>
 
 namespace Nexus::UI
@@ -13,18 +15,24 @@ namespace Nexus::UI
     class Control
     {
     public:
-        virtual void Update() = 0;
-        virtual void Render(Graphics::BatchRenderer *batchRenderer) = 0;
+        virtual void Update();
+        virtual void Render(Graphics::BatchRenderer *batchRenderer);
 
         void SetPosition(const Point<int> &position);
         void SetSize(const Point<int> &size);
         void SetBackgroundColour(const glm::vec4 &colour);
+        void SetForegroundColour(const glm::vec4 &colour);
         void SetFont(Graphics::Font *font);
 
         const Point<int> &GetPosition() const;
         const Point<int> &GetSize() const;
         const glm::vec4 &GetBackgroundColour() const;
+        const glm::vec4 &GetForegroundColour() const;
         const Graphics::Font *GetFont() const;
+
+        EventHandler<Control *> OnClick;
+        EventHandler<Control *> OnMouseEnter;
+        EventHandler<Control *> OnMouseLeave;
 
     protected:
         Point<int> m_Position = {0, 0};
@@ -32,5 +40,7 @@ namespace Nexus::UI
         glm::vec4 m_BackgroundColour = {1, 1, 1, 1};
         glm::vec4 m_ForegroundColour = {0, 0, 0, 1};
         Graphics::Font *m_Font = nullptr;
+
+        bool m_Hovered = false;
     };
 }

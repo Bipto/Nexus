@@ -152,16 +152,19 @@ namespace Nexus::Graphics
         {
             glEnable(GL_BLEND);
 
-            auto sourceColourFunction = GL::GetBlendFunction(m_Description.BlendStateDescription.SourceColourBlend);
-            auto sourceAlphaFunction = GL::GetBlendFunction(m_Description.BlendStateDescription.SourceAlphaBlend);
+            auto sourceColourFunction = GL::GetBlendFactor(m_Description.BlendStateDescription.SourceColourBlend);
+            auto sourceAlphaFunction = GL::GetBlendFactor(m_Description.BlendStateDescription.SourceAlphaBlend);
 
-            auto destinationColourFunction = GL::GetBlendFunction(m_Description.BlendStateDescription.DestinationColourBlend);
-            auto destinationAlphaFunction = GL::GetBlendFunction(m_Description.BlendStateDescription.DestinationAlphaBlend);
+            auto destinationColourFunction = GL::GetBlendFactor(m_Description.BlendStateDescription.DestinationColourBlend);
+            auto destinationAlphaFunction = GL::GetBlendFactor(m_Description.BlendStateDescription.DestinationAlphaBlend);
             // glBlendFuncSeparate(destinationColourFunction, destinationColourFunction, destinationColourFunction, destinationAlphaFunction);
             glBlendFuncSeparate(sourceColourFunction, destinationColourFunction, sourceAlphaFunction, destinationAlphaFunction);
 
-            auto blendEquation = GL::GetBlendEquation(m_Description.BlendStateDescription.BlendEquation);
-            glBlendEquation(blendEquation);
+            auto colorBlendFunction = GL::GetBlendFunction(m_Description.BlendStateDescription.ColorBlendFunction);
+            auto alphaBlendFunction = GL::GetBlendFunction(m_Description.BlendStateDescription.AlphaBlendFunction);
+            // glBlendEquation(blendEquation);
+
+            glBlendEquationSeparate(colorBlendFunction, alphaBlendFunction);
         }
         else
         {

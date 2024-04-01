@@ -360,10 +360,10 @@ namespace Nexus::Graphics
         desc.RenderTarget[0].BlendEnable = m_Description.BlendStateDescription.EnableBlending;
         desc.RenderTarget[0].SrcBlend = GetBlendFunction(m_Description.BlendStateDescription.SourceColourBlend);
         desc.RenderTarget[0].DestBlend = GetBlendFunction(m_Description.BlendStateDescription.DestinationColourBlend);
-        desc.RenderTarget[0].BlendOp = GetBlendEquation(m_Description.BlendStateDescription.BlendEquation);
+        desc.RenderTarget[0].BlendOp = GetBlendEquation(m_Description.BlendStateDescription.ColorBlendFunction);
         desc.RenderTarget[0].SrcBlendAlpha = GetBlendFunction(m_Description.BlendStateDescription.SourceAlphaBlend);
         desc.RenderTarget[0].DestBlendAlpha = GetBlendFunction(m_Description.BlendStateDescription.DestinationAlphaBlend);
-        desc.RenderTarget[0].BlendOpAlpha = GetBlendEquation(m_Description.BlendStateDescription.BlendEquation);
+        desc.RenderTarget[0].BlendOpAlpha = GetBlendEquation(m_Description.BlendStateDescription.AlphaBlendFunction);
         desc.RenderTarget[0].LogicOpEnable = FALSE;
         desc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
         desc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;

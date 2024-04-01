@@ -9,8 +9,6 @@ namespace Nexus::Graphics
     ShaderModuleOpenGL::ShaderModuleOpenGL(const ShaderModuleSpecification &shaderModuleSpec, const ResourceSetSpecification &resourceSpec)
         : ShaderModule(shaderModuleSpec, resourceSpec)
     {
-        std::cout << shaderModuleSpec.Source << "\n";
-
         m_ShaderStage = GL::GetShaderStage(m_ModuleSpecification.Stage);
         m_Handle = glCreateShader(m_ShaderStage);
         const char *source = m_ModuleSpecification.Source.c_str();

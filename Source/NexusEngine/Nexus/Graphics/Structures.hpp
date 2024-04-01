@@ -31,7 +31,7 @@ namespace Nexus::Graphics
     };
 
     /// @brief An enum class representing how two values should be blended together
-    enum class BlendFunction
+    enum class BlendFactor
     {
         /// @brief All channels will use a value of zero
         Zero,
@@ -217,18 +217,20 @@ namespace Nexus::Graphics
         bool EnableBlending = false;
 
         /// @brief How to perform blending on the output of the source colour
-        BlendFunction SourceColourBlend = BlendFunction::SourceColor;
+        BlendFactor SourceColourBlend = BlendFactor::SourceColor;
 
         /// @brief How to perform blending on the output of the source alpha
-        BlendFunction SourceAlphaBlend = BlendFunction::One;
+        BlendFactor SourceAlphaBlend = BlendFactor::One;
 
         /// @brief How to perform blending on the output of the destination colour
-        BlendFunction DestinationColourBlend = BlendFunction::DestinationColor;
+        BlendFactor DestinationColourBlend = BlendFactor::DestinationColor;
 
         /// @brief How to perform blending on the output of the destination alpha
-        BlendFunction DestinationAlphaBlend = BlendFunction::DestinationAlpha;
+        BlendFactor DestinationAlphaBlend = BlendFactor::DestinationAlpha;
 
-        /// @brief How the two RGB colour and alpha values should be blended together
-        BlendEquation BlendEquation = BlendEquation::Add;
+        /// @brief How the two RGB colour values should be blended together
+        BlendEquation ColorBlendFunction = BlendEquation::Add;
+
+        BlendEquation AlphaBlendFunction = BlendEquation::Add;
     };
 }

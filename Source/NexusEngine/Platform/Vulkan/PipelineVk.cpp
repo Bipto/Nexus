@@ -267,10 +267,10 @@ namespace Nexus::Graphics
         colorBlendAttachment.blendEnable = m_Description.BlendStateDescription.EnableBlending;
         colorBlendAttachment.srcColorBlendFactor = GetVkBlendFactor(m_Description.BlendStateDescription.SourceColourBlend);
         colorBlendAttachment.dstColorBlendFactor = GetVkBlendFactor(m_Description.BlendStateDescription.DestinationColourBlend);
-        colorBlendAttachment.colorBlendOp = GetVkBlendOp(m_Description.BlendStateDescription.BlendEquation);
+        colorBlendAttachment.colorBlendOp = GetVkBlendOp(m_Description.BlendStateDescription.ColorBlendFunction);
         colorBlendAttachment.srcAlphaBlendFactor = GetVkBlendFactor(m_Description.BlendStateDescription.SourceAlphaBlend);
         colorBlendAttachment.dstAlphaBlendFactor = GetVkBlendFactor(m_Description.BlendStateDescription.DestinationAlphaBlend);
-        colorBlendAttachment.alphaBlendOp = GetVkBlendOp(m_Description.BlendStateDescription.BlendEquation);
+        colorBlendAttachment.alphaBlendOp = GetVkBlendOp(m_Description.BlendStateDescription.AlphaBlendFunction);
         return colorBlendAttachment;
     }
 

@@ -28,8 +28,8 @@ namespace Nexus::GL
 
     GLenum GetStencilOperation(Nexus::Graphics::StencilOperation operation);
     GLenum GetComparisonFunction(Nexus::Graphics::ComparisonFunction function);
-    GLenum GetBlendFunction(Nexus::Graphics::BlendFunction function);
-    GLenum GetBlendEquation(Nexus::Graphics::BlendEquation equation);
+    GLenum GetBlendFactor(Nexus::Graphics::BlendFactor function);
+    GLenum GetBlendFunction(Nexus::Graphics::BlendEquation equation);
 
     GLenum GetSamplerAddressMode(Nexus::Graphics::SamplerAddressMode addressMode);
     void GetSamplerFilter(Nexus::Graphics::SamplerFilter filter, GLenum &min, GLenum &max);
