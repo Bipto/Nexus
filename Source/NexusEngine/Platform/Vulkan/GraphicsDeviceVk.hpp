@@ -10,8 +10,6 @@ namespace Nexus::Graphics
 {
     struct FrameData
     {
-        VkSemaphore PresentSemaphore, RenderSemaphore;
-        VkFence RenderFence;
         VkCommandPool CommandPool;
         VkCommandBuffer MainCommandBuffer;
     };
@@ -79,20 +77,6 @@ namespace Nexus::Graphics
 
         void CreateCommandStructures();
         void CreateSynchronisationStructures();
-
-        bool AcquireNextImage();
-        void ResetCommandBuffer();
-        void BeginCommandBuffer();
-        void EndCommandBuffer();
-        void QueueSubmit();
-        void QueuePresent();
-
-        void BeginRenderPass(VkClearColorValue clear_color, VkClearDepthStencilValue clear_depth_stencil);
-        void EndRenderPass();
-
-        void RecreateSwapchain();
-        void CleanupSwapchain();
-        void CleanupDepthStencil();
 
     private:
         // utility functions

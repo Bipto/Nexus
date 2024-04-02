@@ -37,6 +37,8 @@ namespace Nexus::Graphics
         virtual void ResolveFramebuffer(Ref<Framebuffer> source, uint32_t sourceIndex, Swapchain *target) override;
 
         const VkCommandBuffer &GetCurrentCommandBuffer();
+        const VkFence &GetCurrentFence();
+        const VkSemaphore &GetCurrentSemaphore();
 
     private:
         void TransitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlagBits aspectMask);
@@ -53,6 +55,9 @@ namespace Nexus::Graphics
 
         uint32_t m_DepthAttachmentIndex = 0;
         RenderTarget m_CurrentRenderTarget;
+
+        VkSemaphore m_RenderSemaphores[FRAMES_IN_FLIGHT];
+        VkFence m_RenderFences[FRAMES_IN_FLIGHT];
     };
 }
 

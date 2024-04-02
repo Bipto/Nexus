@@ -43,6 +43,7 @@ namespace Nexus::Graphics
         void SetDepthImageLayout(VkImageLayout layout);
 
         bool IsSwapchainValid() const;
+        const VkSemaphore &GetSemaphore();
 
     private:
         void CreateSurface();
@@ -52,10 +53,13 @@ namespace Nexus::Graphics
         void CreateRenderPass();
         void CreateFramebuffers();
         void CreateResolveAttachment();
+        void CreateSemaphores();
 
         void CleanupSwapchain();
         void CleanupDepthStencil();
         void CleanupResolveAttachment();
+        void CleanupSemaphores();
+
         bool AcquireNextImage();
 
         VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
@@ -101,6 +105,8 @@ namespace Nexus::Graphics
         uint32_t m_CurrentFrameIndex = 0;
         VkImage m_CurrentImage = nullptr;
         bool m_SwapchainValid = false;
+
+        VkSemaphore m_PresentSemaphores[FRAMES_IN_FLIGHT];
 
         friend class GraphicsDeviceVk;
         friend class RenderPassVk;

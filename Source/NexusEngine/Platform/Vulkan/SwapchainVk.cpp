@@ -30,6 +30,7 @@ namespace Nexus::Graphics
         CleanupResolveAttachment();
         CleanupSwapchain();
         CleanupDepthStencil();
+        CleanupSemaphores();
         vkDestroySurfaceKHR(m_GraphicsDevice->m_Instance, m_Surface, nullptr);
     }
 
@@ -49,7 +50,7 @@ namespace Nexus::Graphics
         VkPresentInfoKHR presentInfo = {};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         presentInfo.waitSemaphoreCount = 1;
-        presentInfo.pWaitSemaphores = &m_GraphicsDevice->GetCurrentFrame().PresentSemaphore;
+        presentInfo.pWaitSemaphores = &m_PresentSemaphores[m_GraphicsDevice->GetCurrentFrameIndex()];
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = &m_Swapchain;
         presentInfo.pImageIndices = &m_CurrentFrameIndex;
@@ -57,7 +58,7 @@ namespace Nexus::Graphics
         VkResult result = vkQueuePresentKHR(m_GraphicsDevice->m_PresentQueue, &presentInfo);
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
         {
-            m_GraphicsDevice->RecreateSwapchain();
+            RecreateSwapchain();
         }
         else if (result != VK_SUCCESS)
         {
@@ -115,6 +116,7 @@ namespace Nexus::Graphics
             CreateRenderPass();
             CreateResolveAttachment();
             CreateFramebuffers();
+            CreateSemaphores();
             m_SwapchainValid = true;
         }
         else
@@ -130,6 +132,7 @@ namespace Nexus::Graphics
         CleanupResolveAttachment();
         CleanupSwapchain();
         CleanupDepthStencil();
+        CleanupSemaphores();
 
         Initialise();
     }
@@ -177,6 +180,11 @@ namespace Nexus::Graphics
     bool SwapchainVk::IsSwapchainValid() const
     {
         return m_SwapchainValid;
+    }
+
+    const VkSemaphore &SwapchainVk::GetSemaphore()
+    {
+        return m_PresentSemaphores[m_GraphicsDevice->GetCurrentFrameIndex()];
     }
 
     void SwapchainVk::CreateSurface()
@@ -437,6 +445,21 @@ namespace Nexus::Graphics
         m_ResolveImageView = CreateImageView(m_ResolveImage, m_SurfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT);
     }
 
+    void SwapchainVk::CreateSemaphores()
+    {
+        for (uint32_t i = 0; i < FRAMES_IN_FLIGHT; i++)
+        {
+            VkSemaphoreCreateInfo semaphoreCreateInfo = {};
+            semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+            semaphoreCreateInfo.flags = 0;
+
+            if (vkCreateSemaphore(m_GraphicsDevice->GetVkDevice(), &semaphoreCreateInfo, nullptr, &m_PresentSemaphores[i]) != VK_SUCCESS)
+            {
+                throw std::runtime_error("Failed to create semaphore");
+            }
+        }
+    }
+
     void SwapchainVk::CleanupSwapchain()
     {
         vkDeviceWaitIdle(m_GraphicsDevice->GetVkDevice());
@@ -468,9 +491,17 @@ namespace Nexus::Graphics
         vkFreeMemory(m_GraphicsDevice->m_Device, m_ResolveMemory, nullptr);
     }
 
+    void SwapchainVk::CleanupSemaphores()
+    {
+        for (uint32_t i = 0; i < FRAMES_IN_FLIGHT; i++)
+        {
+            vkDestroySemaphore(m_GraphicsDevice->GetVkDevice(), m_PresentSemaphores[i], nullptr);
+        }
+    }
+
     bool SwapchainVk::AcquireNextImage()
     {
-        VkResult result = vkAcquireNextImageKHR(m_GraphicsDevice->GetVkDevice(), m_Swapchain, 0, m_GraphicsDevice->GetCurrentFrame().PresentSemaphore, VK_NULL_HANDLE, &m_CurrentFrameIndex);
+        VkResult result = vkAcquireNextImageKHR(m_GraphicsDevice->GetVkDevice(), m_Swapchain, 0, m_PresentSemaphores[m_GraphicsDevice->GetCurrentFrameIndex()], VK_NULL_HANDLE, &m_CurrentFrameIndex);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR)
         {

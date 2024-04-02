@@ -50,6 +50,30 @@ namespace Nexus::Graphics
                 }
             }
         }
+
+        // create fences and semaphores
+        {
+            VkFenceCreateInfo fenceCreateInfo = {};
+            fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+            fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+            VkSemaphoreCreateInfo semaphoreCreateInfo = {};
+            semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+            semaphoreCreateInfo.flags = 0;
+
+            for (uint32_t i = 0; i < FRAMES_IN_FLIGHT; i++)
+            {
+                if (vkCreateFence(graphicsDevice->GetVkDevice(), &fenceCreateInfo, nullptr, &m_RenderFences[i]) != VK_SUCCESS)
+                {
+                    throw std::runtime_error("Failed to create fence");
+                }
+
+                if (vkCreateSemaphore(graphicsDevice->GetVkDevice(), &semaphoreCreateInfo, nullptr, &m_RenderSemaphores[i]) != VK_SUCCESS)
+                {
+                    throw std::runtime_error("Failed to create semaphore");
+                }
+            }
+        }
     }
 
     CommandListVk::~CommandListVk()
@@ -58,6 +82,8 @@ namespace Nexus::Graphics
         {
             vkFreeCommandBuffers(m_Device->GetVkDevice(), m_CommandPools[i], 1, &m_CommandBuffers[i]);
             vkDestroyCommandPool(m_Device->GetVkDevice(), m_CommandPools[i], nullptr);
+            vkDestroyFence(m_Device->GetVkDevice(), m_RenderFences[i], nullptr);
+            vkDestroySemaphore(m_Device->GetVkDevice(), m_RenderSemaphores[i], nullptr);
         }
     }
 
@@ -463,6 +489,16 @@ namespace Nexus::Graphics
     const VkCommandBuffer &CommandListVk::GetCurrentCommandBuffer()
     {
         return m_CurrentCommandBuffer;
+    }
+
+    const VkFence &CommandListVk::GetCurrentFence()
+    {
+        return m_RenderFences[m_Device->GetCurrentFrameIndex()];
+    }
+
+    const VkSemaphore &CommandListVk::GetCurrentSemaphore()
+    {
+        return m_RenderSemaphores[m_Device->GetCurrentFrameIndex()];
     }
 
     void CommandListVk::TransitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlagBits aspectMask)

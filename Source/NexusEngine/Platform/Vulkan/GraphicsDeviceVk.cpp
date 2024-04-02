@@ -48,7 +48,6 @@ namespace Nexus::Graphics
 
         for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
         {
-            vkDestroyFence(m_Device, m_Frames[i].RenderFence, nullptr);
             vkFreeCommandBuffers(m_Device, m_Frames[i].CommandPool, 1, &m_Frames[i].MainCommandBuffer);
             vkDestroyCommandPool(m_Device, m_Frames[i].CommandPool, nullptr);
         }
@@ -63,26 +62,26 @@ namespace Nexus::Graphics
         VkPipelineStageFlags waitDestStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
         auto vulkanCommandList = std::dynamic_pointer_cast<CommandListVk>(commandList);
 
-        vkWaitForFences(m_Device, 1, &GetCurrentFrame().RenderFence, VK_TRUE, 0);
-        vkResetFences(m_Device, 1, &GetCurrentFrame().RenderFence);
+        vkWaitForFences(m_Device, 1, &vulkanCommandList->GetCurrentFence(), VK_TRUE, 0);
+        vkResetFences(m_Device, 1, &vulkanCommandList->GetCurrentFence());
 
         VkSubmitInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = &GetCurrentFrame().PresentSemaphore;
+        submitInfo.pWaitSemaphores = &vulkanCommandList->GetCurrentSemaphore();
         submitInfo.pWaitDstStageMask = &waitDestStageMask;
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &vulkanCommandList->GetCurrentCommandBuffer();
         submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = &GetCurrentFrame().PresentSemaphore;
+        submitInfo.pSignalSemaphores = &vulkanCommandList->GetCurrentSemaphore();
 
-        if (vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, GetCurrentFrame().RenderFence) != VK_SUCCESS)
+        if (vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, vulkanCommandList->GetCurrentFence()) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to submit queue");
         }
 
-        vkWaitForFences(m_Device, 1, &GetCurrentFrame().RenderFence, VK_TRUE, UINT32_MAX);
-        vkResetFences(m_Device, 1, &GetCurrentFrame().RenderFence);
+        vkWaitForFences(m_Device, 1, &vulkanCommandList->GetCurrentFence(), VK_TRUE, UINT32_MAX);
+        vkResetFences(m_Device, 1, &vulkanCommandList->GetCurrentFence());
     }
 
     const std::string GraphicsDeviceVk::GetAPIName()
@@ -520,159 +519,10 @@ namespace Nexus::Graphics
         semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
         semaphoreCreateInfo.flags = 0;
 
-        for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
-        {
-            // create fence
-            if (vkCreateFence(m_Device, &fenceCreateInfo, nullptr, &m_Frames[i].RenderFence) != VK_SUCCESS)
-            {
-                throw std::runtime_error("Failed to create fence");
-            }
-
-            if (vkCreateSemaphore(m_Device, &semaphoreCreateInfo, nullptr, &m_Frames[i].PresentSemaphore) != VK_SUCCESS)
-            {
-                throw std::runtime_error("Failed to create semaphore");
-            }
-
-            if (vkCreateSemaphore(m_Device, &semaphoreCreateInfo, nullptr, &m_Frames[i].RenderSemaphore) != VK_SUCCESS)
-            {
-                throw std::runtime_error("Failed to create semaphore");
-            }
-        }
-
         if (vkCreateFence(m_Device, &fenceCreateInfo, nullptr, &m_UploadContext.UploadFence) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to create fence");
         }
-    }
-
-    VkImage image;
-    bool GraphicsDeviceVk::AcquireNextImage()
-    {
-        SwapchainVk *swapchain = (SwapchainVk *)m_Window->GetSwapchain();
-
-        VkResult result = vkAcquireNextImageKHR(m_Device, swapchain->m_Swapchain, 0, GetCurrentFrame().PresentSemaphore, VK_NULL_HANDLE, &m_CurrentFrameIndex);
-
-        if (result == VK_ERROR_OUT_OF_DATE_KHR)
-        {
-            RecreateSwapchain();
-            return false;
-        }
-        else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
-        {
-            throw std::runtime_error("Failed to acquire swapchain image");
-        }
-
-        vkWaitForFences(m_Device, 1, &GetCurrentFrame().RenderFence, VK_FALSE, 0);
-        vkResetFences(m_Device, 1, &GetCurrentFrame().RenderFence);
-
-        m_CurrentCommandBuffer = GetCurrentFrame().MainCommandBuffer;
-        image = swapchain->m_SwapchainImages[m_CurrentFrameIndex];
-
-        return true;
-    }
-
-    void GraphicsDeviceVk::ResetCommandBuffer()
-    {
-        vkResetCommandBuffer(m_CurrentCommandBuffer, 0);
-    }
-
-    void GraphicsDeviceVk::BeginCommandBuffer()
-    {
-        VkCommandBufferBeginInfo beginInfo = {};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-        if (vkBeginCommandBuffer(m_CurrentCommandBuffer, &beginInfo) != VK_SUCCESS)
-        {
-            throw std::runtime_error("Failed to begin command buffer");
-        }
-    }
-
-    void GraphicsDeviceVk::EndCommandBuffer()
-    {
-        vkEndCommandBuffer(m_CurrentCommandBuffer);
-    }
-
-    VkPipelineStageFlags waitDestStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
-    void GraphicsDeviceVk::QueueSubmit()
-    {
-        VkSubmitInfo submitInfo = {};
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = &GetCurrentFrame().PresentSemaphore;
-        submitInfo.pWaitDstStageMask = &waitDestStageMask;
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &m_CurrentCommandBuffer;
-        submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = &GetCurrentFrame().PresentSemaphore;
-        if (vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, GetCurrentFrame().RenderFence) != VK_SUCCESS)
-        {
-            throw std::runtime_error("Failed to submit queue");
-        }
-    }
-
-    void GraphicsDeviceVk::QueuePresent()
-    {
-        SwapchainVk *swapchain = (SwapchainVk *)m_Window->GetSwapchain();
-
-        VkPresentInfoKHR presentInfo = {};
-        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-        presentInfo.waitSemaphoreCount = 1;
-        presentInfo.pWaitSemaphores = &GetCurrentFrame().PresentSemaphore;
-        presentInfo.swapchainCount = 1;
-        presentInfo.pSwapchains = &swapchain->m_Swapchain;
-        presentInfo.pImageIndices = &m_CurrentFrameIndex;
-
-        VkResult result = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
-        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
-        {
-            RecreateSwapchain();
-        }
-        else if (result != VK_SUCCESS)
-        {
-            throw std::runtime_error("Failed to present swapchain image");
-        }
-
-        if (vkQueueWaitIdle(m_PresentQueue) != VK_SUCCESS)
-        {
-            throw std::runtime_error("Failed to wait for present queue");
-        }
-
-        m_FrameNumber++;
-    }
-
-    void GraphicsDeviceVk::BeginRenderPass(VkClearColorValue clear_color, VkClearDepthStencilValue clear_depth_stencil)
-    {
-        SwapchainVk *swapchain = (SwapchainVk *)m_Window->GetSwapchain();
-
-        VkRenderPassBeginInfo render_pass_info = {};
-        render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        render_pass_info.renderPass = swapchain->GetRenderPass();
-        render_pass_info.framebuffer = swapchain->m_SwapchainFramebuffers[m_CurrentFrameIndex];
-        render_pass_info.renderArea.offset = {0, 0};
-        render_pass_info.renderArea.extent = swapchain->m_SwapchainSize;
-        render_pass_info.clearValueCount = 1;
-
-        std::vector<VkClearValue> clearValues(2);
-        clearValues[0].color = clear_color;
-        clearValues[1].depthStencil = clear_depth_stencil;
-
-        render_pass_info.clearValueCount = (uint32_t)clearValues.size();
-        render_pass_info.pClearValues = clearValues.data();
-
-        vkCmdBeginRenderPass(m_CurrentCommandBuffer, &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
-    }
-
-    void GraphicsDeviceVk::EndRenderPass()
-    {
-        vkCmdEndRenderPass(m_CurrentCommandBuffer);
-    }
-
-    void GraphicsDeviceVk::RecreateSwapchain()
-    {
-        vkDeviceWaitIdle(m_Device);
-
-        SwapchainVk *swapchain = (SwapchainVk *)m_Window->GetSwapchain();
-        swapchain->RecreateSwapchain();
     }
 
     VkImageView GraphicsDeviceVk::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)

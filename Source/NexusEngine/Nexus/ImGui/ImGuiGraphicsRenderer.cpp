@@ -382,8 +382,6 @@ namespace Nexus::ImGuiUtils
     void ImGuiGraphicsRenderer::AfterLayout()
     {
         ImGui::Render();
-        RenderDrawData(ImGui::GetDrawData());
-        UpdateCursor();
 
         if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
         {
@@ -425,6 +423,9 @@ namespace Nexus::ImGuiUtils
                 }
             }
         }
+
+        RenderDrawData(ImGui::GetDrawData());
+        UpdateCursor();
     }
 
     void ImGuiGraphicsRenderer::SetupInput()
