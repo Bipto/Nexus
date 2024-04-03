@@ -5,6 +5,8 @@
 #include "GL.hpp"
 #include "SDL.h"
 
+#include "BufferOpenGL.hpp"
+
 namespace Nexus::Graphics
 {
     SwapchainOpenGL::SwapchainOpenGL(Window *window, const SwapchainSpecification &swapchainSpec)
@@ -15,13 +17,18 @@ namespace Nexus::Graphics
 
 #if defined(NX_PLATFORM_SUPPORTS_MULTI_WINDOW)
 
-        if (!s_ContextCreated)
+        if (!s_ContextWindow)
         {
             s_ContextWindow = window->GetSDLWindowHandle();
-            s_ContextCreated = true;
         }
 
         m_Context = SDL_GL_CreateContext(s_ContextWindow);
+
+        if (!s_MainContext)
+        {
+            s_MainContext = m_Context;
+        }
+
         if (m_Context == NULL)
         {
             std::string error = {SDL_GetError()};
@@ -29,7 +36,6 @@ namespace Nexus::Graphics
         }
 #else
         s_ContextWindow = window->GetSDLWindowHandle();
-        s_ContextCreated = true;
 
         m_Context = SDL_GL_CreateContext(s_ContextWindow);
         if (m_Context == NULL)
@@ -48,8 +54,6 @@ namespace Nexus::Graphics
 
     SwapchainOpenGL::~SwapchainOpenGL()
     {
-        SDL_GL_MakeCurrent(m_Window->GetSDLWindowHandle(), nullptr);
-        SDL_GL_DeleteContext(m_Context);
     }
 
     void SwapchainOpenGL::SwapBuffers()
@@ -109,9 +113,18 @@ namespace Nexus::Graphics
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_Backbuffer);
     }
 
+    void SwapchainOpenGL::BindDefaultSwapchain()
+    {
+        if (SDL_GL_MakeCurrent(s_ContextWindow, s_MainContext) != 0)
+        {
+            std::string error = SDL_GetError();
+            throw std::runtime_error(error);
+        }
+    }
+
     // static member initialisation
-    bool SwapchainOpenGL::s_ContextCreated = false;
     SDL_Window *SwapchainOpenGL::s_ContextWindow = nullptr;
+    SDL_GLContext SwapchainOpenGL::s_MainContext = nullptr;
 
     void SwapchainOpenGL::Prepare()
     {
@@ -119,7 +132,7 @@ namespace Nexus::Graphics
 
     bool SwapchainOpenGL::HasContextBeenCreated()
     {
-        return s_ContextCreated;
+        return s_MainContext;
     }
 }
 

@@ -177,7 +177,7 @@ namespace Nexus
         WindowState m_CurrentWindowState = WindowState::Normal;
 
         /// @brief A pointer to the window's swapchain
-        std::unique_ptr<Graphics::Swapchain> m_Swapchain = nullptr;
+        Graphics::Swapchain *m_Swapchain = nullptr;
 
         /// @brief A void pointer to the window's surface
         void *m_Surface = nullptr;

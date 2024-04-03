@@ -20,6 +20,8 @@ namespace Nexus::Graphics
         void BindAsRenderTarget();
         void BindAsDrawTarget();
 
+        static void BindDefaultSwapchain();
+
         virtual Window *GetWindow() override { return m_Window; }
         virtual void Prepare() override;
 
@@ -35,8 +37,8 @@ namespace Nexus::Graphics
         SDL_GLContext m_Context = nullptr;
         int m_Backbuffer = 0;
 
-        static bool s_ContextCreated;
         static SDL_Window *s_ContextWindow;
+        static SDL_GLContext s_MainContext;
     };
 }
 

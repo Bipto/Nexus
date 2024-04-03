@@ -121,7 +121,12 @@ namespace Nexus::ImGuiUtils
         auto &io = ImGui::GetIO();
         io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;
         io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports;
-        io.BackendFlags |= ImGuiBackendFlags_RendererHasViewports;
+
+        if (m_GraphicsDevice->GetGraphicsCapabilities().SupportsMultipleSwapchains)
+        {
+            io.BackendFlags |= ImGuiBackendFlags_RendererHasViewports;
+        }
+
         io.Fonts->AddFontDefault();
 
         SetupInput();
@@ -168,7 +173,6 @@ namespace Nexus::ImGuiUtils
             if (vp->PlatformUserData && vp->RendererUserData)
             {
                 ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
-                info->Window->Close();
                 delete info;
 
                 vp->PlatformUserData = nullptr;
@@ -386,7 +390,6 @@ namespace Nexus::ImGuiUtils
         if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
         {
             ImGui::UpdatePlatformWindows();
-            // ImGui::RenderPlatformWindowsDefault();
 
             const ImGuiPlatformIO &platform_io = ImGui::GetPlatformIO();
             for (int i = 1; i < platform_io.Viewports.Size; i++)
@@ -399,25 +402,7 @@ namespace Nexus::ImGuiUtils
                     if (window && !window->IsClosing())
                     {
                         window->GetSwapchain()->Prepare();
-                        m_CommandList->Begin();
-                        m_CommandList->SetRenderTarget({window->GetSwapchain()});
-                        m_CommandList->ClearColorTarget(0, {1.0f, 0.0f, 0.0f, 1.0f});
-                        m_CommandList->End();
-                        m_GraphicsDevice->SubmitCommandList(m_CommandList);
-
                         RenderDrawData(platform_io.Viewports[i]->DrawData);
-                    }
-                }
-            }
-            for (int i = 1; i < platform_io.Viewports.Size; i++)
-            {
-                if ((platform_io.Viewports[i]->Flags & ImGuiViewportFlags_Minimized) == 0)
-                {
-                    ImGuiWindowInfo *info = (ImGuiWindowInfo *)platform_io.Viewports[i]->PlatformUserData;
-                    Nexus::Window *window = info->Window;
-
-                    if (window && !window->IsClosing())
-                    {
                         window->GetSwapchain()->SwapBuffers();
                     }
                 }
@@ -528,6 +513,8 @@ namespace Nexus::ImGuiUtils
             desc.Size = drawData->TotalVtxCount * 1.5f * sizeof(ImDrawVert);
             desc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
             m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(desc, nullptr);
+
+            m_VertexBufferCount = drawData->TotalVtxCount * 1.5f;
         }
 
         if (drawData->TotalIdxCount > m_IndexBufferCount)
@@ -536,6 +523,8 @@ namespace Nexus::ImGuiUtils
             desc.Size = drawData->TotalIdxCount * 1.5f * sizeof(ImDrawIdx);
             desc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
             m_IndexBuffer = m_GraphicsDevice->CreateIndexBuffer(desc, nullptr, Nexus::Graphics::IndexBufferFormat::UInt16);
+
+            m_IndexBufferCount = drawData->TotalIdxCount * 1.5f;
         }
 
         // update vertex buffer

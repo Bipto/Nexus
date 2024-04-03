@@ -175,6 +175,8 @@ namespace Nexus::Graphics
         GraphicsCapabilities capabilities;
         capabilities.SupportsMultisampledTextures = true;
         capabilities.SupportsLODBias = true;
+        capabilities.SupportsInstanceOffset = true;
+        capabilities.SupportsMultipleSwapchains = true;
         return capabilities;
     }
 

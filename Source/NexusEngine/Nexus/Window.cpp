@@ -38,6 +38,7 @@ namespace Nexus
 
     Window::~Window()
     {
+        delete m_Swapchain;
         SDL_DestroyWindow(this->m_Window);
     }
 
@@ -260,21 +261,21 @@ namespace Nexus
 #if defined(NX_PLATFORM_OPENGL)
         case Graphics::GraphicsAPI::OpenGL:
         {
-            m_Swapchain = std::make_unique<Graphics::SwapchainOpenGL>(this, swapchainSpec);
+            m_Swapchain = new Graphics::SwapchainOpenGL(this, swapchainSpec);
             break;
         }
 #endif
 #if defined(NX_PLATFORM_VULKAN)
         case Graphics::GraphicsAPI::Vulkan:
         {
-            m_Swapchain = std::make_unique<Graphics::SwapchainVk>(this, device, swapchainSpec);
+            m_Swapchain = new Graphics::SwapchainVk(this, device, swapchainSpec);
             break;
         }
 #endif
 #if defined(NX_PLATFORM_D3D12)
         case Graphics::GraphicsAPI::D3D12:
         {
-            m_Swapchain = std::make_unique<Graphics::SwapchainD3D12>(this, device, swapchainSpec);
+            m_Swapchain = new Graphics::SwapchainD3D12(this, device, swapchainSpec);
             break;
         }
 #endif
@@ -287,7 +288,7 @@ namespace Nexus
 
     Graphics::Swapchain *Window::GetSwapchain()
     {
-        return m_Swapchain.get();
+        return m_Swapchain;
     }
 
     uint32_t Window::GetID()

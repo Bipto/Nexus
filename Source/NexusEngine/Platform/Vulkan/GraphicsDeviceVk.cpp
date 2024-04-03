@@ -161,8 +161,10 @@ namespace Nexus::Graphics
     const GraphicsCapabilities GraphicsDeviceVk::GetGraphicsCapabilities() const
     {
         GraphicsCapabilities capabilities;
-        capabilities.SupportsLODBias = true;
         capabilities.SupportsMultisampledTextures = true;
+        capabilities.SupportsLODBias = true;
+        capabilities.SupportsInstanceOffset = true;
+        capabilities.SupportsMultipleSwapchains = true;
         return capabilities;
     }
 

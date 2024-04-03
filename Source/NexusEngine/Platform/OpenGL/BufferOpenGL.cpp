@@ -40,6 +40,11 @@ namespace Nexus::Graphics
         glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);
     }
 
+    void VertexBufferOpenGL::Unbind()
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
     unsigned int VertexBufferOpenGL::GetHandle()
     {
         return m_Buffer;
@@ -73,6 +78,11 @@ namespace Nexus::Graphics
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer);
     }
 
+    void IndexBufferOpenGL::Unbind()
+    {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    }
+
     unsigned int IndexBufferOpenGL::GetHandle()
     {
         return m_Buffer;
@@ -104,6 +114,11 @@ namespace Nexus::Graphics
     unsigned int UniformBufferOpenGL::GetHandle()
     {
         return m_Buffer;
+    }
+
+    void UniformBufferOpenGL::Unbind()
+    {
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
 
     void UniformBufferOpenGL::SetData(const void *data, uint32_t size, uint32_t offset)

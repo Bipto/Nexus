@@ -7,5 +7,6 @@ namespace Nexus::Graphics
         bool SupportsMultisampledTextures = false;
         bool SupportsLODBias = false;
         bool SupportsInstanceOffset = false;
+        bool SupportsMultipleSwapchains = false;
     };
 }
