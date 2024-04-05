@@ -161,11 +161,6 @@ namespace Nexus::Graphics
             // we are only able to bind a vertex buffer if we know the layout of it
             if (pipeline)
             {
-                /* for (const auto &vertexBuffer : commandListGL->m_CurrentlyBoundVertexBuffers)
-                {
-                    pipeline->BindVertexBuffer(vertexBuffer, drawIndexedCommand.VertexStart, drawIndexedCommand.IndexStart);
-                } */
-
                 pipeline->BindVertexBuffers(commandListGL->m_CurrentlyBoundVertexBuffers, drawIndexedCommand.VertexStart, 0);
 
                 uint32_t indexSize = 0;
@@ -298,7 +293,9 @@ namespace Nexus::Graphics
             {
                 GLint location = glGetUniformBlockIndex(pipeline->GetShaderHandle(), uniformBuffer.first.c_str());
                 glUniformBlockBinding(pipeline->GetShaderHandle(), location, uniformBufferSlot);
-                glBindBufferBase(GL_UNIFORM_BUFFER, uniformBufferSlot, uniformBuffer.second->GetHandle());
+                // glBindBufferBase(GL_UNIFORM_BUFFER, uniformBufferSlot, uniformBuffer.second->GetHandle());
+
+                glBindBufferRange(GL_UNIFORM_BUFFER, uniformBufferSlot, uniformBuffer.second->GetHandle(), 0, uniformBuffer.second->GetDescription().Size);
                 uniformBufferSlot++;
             }
         };

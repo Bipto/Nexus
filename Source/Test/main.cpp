@@ -22,10 +22,10 @@ struct TestUniforms
     glm::mat4 Transform;
 };
 
-class TestApplication : public Nexus::Application
+class EditorApplication : public Nexus::Application
 {
 public:
-    TestApplication(const Nexus::ApplicationSpecification &spec)
+    EditorApplication(const Nexus::ApplicationSpecification &spec)
         : Nexus::Application(spec)
     {
     }
@@ -140,5 +140,5 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 
     spec.SwapchainSpecification.Samples = Nexus::Graphics::SampleCount::SampleCount8;
 
-    return new TestApplication(spec);
+    return new EditorApplication(spec);
 }

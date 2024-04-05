@@ -2,6 +2,9 @@
 
 #include "Nexus/Application.hpp"
 #include "Nexus/ImGui/ImGuiGraphicsRenderer.hpp"
+#include "Panel.hpp"
+
+#include <map>
 
 namespace Editor
 {
@@ -12,6 +15,14 @@ namespace Editor
         void Render(Nexus::Time time);
 
     private:
+        void RenderViewport();
+        void ApplyDarkTheme();
+        void RenderMainMenubar();
+
+    private:
         std::unique_ptr<Nexus::ImGuiUtils::ImGuiGraphicsRenderer> m_ImGuiRenderer = nullptr;
+        Nexus::Application *m_Application = nullptr;
+
+        std::map<const char *, std::unique_ptr<Panel>> m_Panels;
     };
 }

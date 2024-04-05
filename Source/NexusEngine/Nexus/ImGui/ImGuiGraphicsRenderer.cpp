@@ -1,8 +1,6 @@
 #include "ImGuiGraphicsRenderer.hpp"
 
 #include "Nexus/Input/Input.hpp"
-#include "Nexus/Runtime.hpp"
-#include "Nexus/Graphics/Swapchain.hpp"
 
 std::string GetImGuiShaderVertexSource()
 {
@@ -49,20 +47,17 @@ std::string GetImGuiShaderFragmentSource()
     return shader;
 }
 
-static Nexus::ImGuiUtils::ImGuiGraphicsRenderer *s_ImGuiRenderer = nullptr;
-
 namespace Nexus::ImGuiUtils
 {
     ImGuiGraphicsRenderer::ImGuiGraphicsRenderer(Nexus::Application *app)
     {
-        s_ImGuiRenderer = this;
-
         m_GraphicsDevice = app->GetGraphicsDevice();
 
         m_CommandList = m_GraphicsDevice->CreateCommandList();
 
         auto vertexSource = GetImGuiShaderVertexSource();
         auto fragmentSource = GetImGuiShaderFragmentSource();
+        // m_Shader = m_GraphicsDevice->CreateShaderFromSpirvSources(vertexSource, fragmentSource, "imgui.vert", "imgui.frag");
 
         auto vertexModule = m_GraphicsDevice->CreateShaderModuleFromSpirvSource(vertexSource, "ImGui.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
         auto fragmentModule = m_GraphicsDevice->CreateShaderModuleFromSpirvSource(fragmentSource, "ImGui.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
@@ -97,6 +92,21 @@ namespace Nexus::ImGuiUtils
         uniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
         m_UniformBuffer = m_GraphicsDevice->CreateUniformBuffer(uniformBufferDesc, nullptr);
 
+        /* Nexus::Graphics::ResourceBinding textureBinding;
+        textureBinding.Name = "Texture";
+        textureBinding.Set = 1;
+        textureBinding.Binding = 0;
+        textureBinding.Type = Nexus::Graphics::ResourceType::CombinedImageSampler;
+
+        Nexus::Graphics::ResourceBinding uniformBufferBinding;
+        uniformBufferBinding.Name = "MVP";
+        uniformBufferBinding.Set = 0;
+        uniformBufferBinding.Binding = 0;
+        uniformBufferBinding.Type = Nexus::Graphics::ResourceType::UniformBuffer;
+
+        pipelineDesc.ResourceSetSpecification.SampledImages = {textureBinding};
+        pipelineDesc.ResourceSetSpecification.UniformBuffers = {uniformBufferBinding}; */
+
         Nexus::Graphics::ResourceSetSpecification resources;
         resources += vertexModule->GetResourceSetSpecification();
         resources += fragmentModule->GetResourceSetSpecification();
@@ -120,207 +130,82 @@ namespace Nexus::ImGuiUtils
 
         auto &io = ImGui::GetIO();
         io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;
-        io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports;
-
-        if (m_GraphicsDevice->GetGraphicsCapabilities().SupportsMultipleSwapchains)
-        {
-            io.BackendFlags |= ImGuiBackendFlags_RendererHasViewports;
-        }
-
+        // io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports;
+        // io.BackendFlags |= ImGuiBackendFlags_RendererHasViewports;
         io.Fonts->AddFontDefault();
+        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
         SetupInput();
 
         // look into implementing viewports
-        UpdateMonitors();
-
-        ImGuiPlatformIO &platformIo = ImGui::GetPlatformIO();
+        auto &platformIo = ImGui::GetPlatformIO();
 
         // platform
-        platformIo.Platform_CreateWindow = [](ImGuiViewport *vp) -> void
-        {
-            auto app = Nexus::GetApplication();
-            auto graphicsDevice = app->GetGraphicsDevice();
+        platformIo.Platform_CreateWindow = [](ImGuiViewport *vp) -> void {
 
-            WindowSpecification windowSpec;
-            windowSpec.Width = vp->Size.x;
-            windowSpec.Height = vp->Size.y;
-            windowSpec.Borderless = true;
-            // windowSpec.Utility = true;
-
-            Nexus::Graphics::SwapchainSpecification swapchainSpec = app->GetPrimaryWindow()->GetSwapchain()->GetSpecification();
-
-            Nexus::Window *window = app->CreateApplicationWindow(windowSpec, swapchainSpec);
-            window->CreateSwapchain(app->GetGraphicsDevice(), swapchainSpec);
-            window->GetSwapchain()->Initialise();
-            window->SetWindowPosition(vp->Pos.x, vp->Pos.y);
-
-            ImGuiWindowInfo *info = new ImGuiWindowInfo();
-            info->Window = window;
-
-            Nexus::Graphics::PipelineDescription pipelineDesc = s_ImGuiRenderer->GetPipeline()->GetPipelineDescription();
-            pipelineDesc.Target = window->GetSwapchain();
-
-            Nexus::Ref<Nexus::Graphics::Pipeline> pipeline = graphicsDevice->CreatePipeline(pipelineDesc);
-            info->Pipeline = pipeline;
-
-            vp->PlatformUserData = info;
-            vp->RendererUserData = info;
         };
 
-        platformIo.Platform_DestroyWindow = [](ImGuiViewport *vp) -> void
-        {
-            if (vp->PlatformUserData && vp->RendererUserData)
-            {
-                ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
-                delete info;
+        platformIo.Platform_DestroyWindow = [](ImGuiViewport *vp) -> void {
 
-                vp->PlatformUserData = nullptr;
-                vp->RendererUserData = nullptr;
-            }
         };
 
-        platformIo.Platform_ShowWindow = [](ImGuiViewport *vp) -> void
-        {
-            if (vp->PlatformUserData && vp->RendererUserData)
-            {
-                ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
+        platformIo.Platform_ShowWindow = [](ImGuiViewport *vp) -> void {
 
-                if (!info->Window->IsClosing())
-                {
-                    info->Window->Show();
-                }
-            }
         };
 
-        platformIo.Platform_SetWindowPos = [](ImGuiViewport *vp, ImVec2 pos) -> void
-        {
-            if (vp->PlatformUserData && vp->RendererUserData)
-            {
-                ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
+        platformIo.Platform_SetWindowPos = [](ImGuiViewport *vp, ImVec2 pos) -> void {
 
-                if (!info->Window->IsClosing())
-                {
-                    info->Window->SetWindowPosition(pos.x, pos.y);
-                }
-            }
         };
 
-        platformIo.Platform_SetWindowSize = [](ImGuiViewport *vp, ImVec2 size) -> void
-        {
-            if (vp->PlatformUserData && vp->RendererUserData)
-            {
-                ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
+        platformIo.Platform_SetWindowSize = [](ImGuiViewport *vp, ImVec2 size) -> void {
 
-                if (!info->Window->IsClosing())
-                {
-                    info->Window->SetWindowSize(size.x, size.y);
-                }
-            }
         };
 
-        platformIo.Platform_SetWindowFocus = [](ImGuiViewport *vp) -> void
-        {
-            if (vp->PlatformUserData && vp->RendererUserData)
-            {
-                ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
+        platformIo.Platform_SetWindowFocus = [](ImGuiViewport *vp) -> void {
 
-                if (!info->Window->IsClosing())
-                {
-                    info->Window->Focus();
-                }
-            }
         };
 
         platformIo.Platform_GetWindowFocus = [](ImGuiViewport *vp) -> bool
         {
-            if (vp->PlatformUserData && vp->RendererUserData)
-            {
-                ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
-
-                if (!info->Window->IsClosing())
-                {
-                    return info->Window->IsFocussed();
-                }
-            }
             return false;
         };
 
         platformIo.Platform_GetWindowMinimized = [](ImGuiViewport *vp) -> bool
         {
-            if (vp->PlatformUserData && vp->RendererUserData)
-            {
-                ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
-                if (!info->Window->IsClosing())
-                {
-                    return info->Window->GetCurrentWindowState() == Nexus::WindowState::Minimized;
-                }
-            }
             return false;
         };
 
-        platformIo.Platform_SetWindowTitle = [](ImGuiViewport *vp, const char *str) -> void
-        {
-            if (vp->PlatformUserData && vp->RendererUserData)
-            {
-                ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
-                if (!info->Window->IsClosing())
-                {
-                    info->Window->SetTitle({str});
-                }
-            }
+        platformIo.Platform_SetWindowTitle = [](ImGuiViewport *vp, const char *str) -> void {
+
         };
 
         platformIo.Platform_GetWindowDpiScale = [](ImGuiViewport *vp) -> float
         {
-            if (vp->PlatformUserData && vp->RendererUserData)
-            {
-                ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
-                if (!info->Window->IsClosing())
-                {
-                    return info->Window->GetDisplayScale();
-                }
-            }
-            return 0.0f;
+            return 0;
+        };
+
+        platformIo.Platform_UpdateWindow = [](ImGuiViewport *vp) -> void {
+
         };
 
         platformIo.Platform_GetWindowPos = [](ImGuiViewport *vp) -> ImVec2
         {
-            if (vp->PlatformUserData && vp->RendererUserData)
-            {
-                ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
-
-                if (!info->Window->IsClosing())
-                {
-                    auto pos = info->Window->GetWindowPosition();
-                    return {(float)pos.X, (float)pos.Y};
-                }
-            }
-            return {0, 0};
+            return {};
         };
 
         platformIo.Platform_GetWindowSize = [](ImGuiViewport *vp) -> ImVec2
         {
-            if (vp->PlatformUserData && vp->RendererUserData)
-            {
-                ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
-
-                if (!info->Window->IsClosing())
-                {
-                    auto size = info->Window->GetWindowSize();
-                    return {(float)size.X, (float)size.Y};
-                }
-            }
-            return {0, 0};
+            return {};
         };
 
-        ImGuiViewport *vp = ImGui::GetMainViewport();
+        // rendering
+        platformIo.Platform_RenderWindow = [](ImGuiViewport *vp, void *render_arg) -> void {
 
-        ImGuiWindowInfo *info = new ImGuiWindowInfo();
-        info->Window = app->GetPrimaryWindow();
-        info->Pipeline = m_Pipeline;
-        vp->PlatformUserData = info;
-        vp->RendererUserData = info;
+        };
+
+        platformIo.Platform_SwapBuffers = [](ImGuiViewport *vp, void *render_arg) -> void {
+
+        };
     }
 
     ImGuiGraphicsRenderer::~ImGuiGraphicsRenderer()
@@ -386,31 +271,14 @@ namespace Nexus::ImGuiUtils
     void ImGuiGraphicsRenderer::AfterLayout()
     {
         ImGui::Render();
+        RenderDrawData(ImGui::GetDrawData());
+        UpdateCursor();
 
         if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
         {
             ImGui::UpdatePlatformWindows();
-
-            const ImGuiPlatformIO &platform_io = ImGui::GetPlatformIO();
-            for (int i = 1; i < platform_io.Viewports.Size; i++)
-            {
-                if ((platform_io.Viewports[i]->Flags & ImGuiViewportFlags_Minimized) == 0)
-                {
-                    ImGuiWindowInfo *info = (ImGuiWindowInfo *)platform_io.Viewports[i]->PlatformUserData;
-                    Nexus::Window *window = info->Window;
-
-                    if (window && !window->IsClosing())
-                    {
-                        window->GetSwapchain()->Prepare();
-                        RenderDrawData(platform_io.Viewports[i]->DrawData);
-                        window->GetSwapchain()->SwapBuffers();
-                    }
-                }
-            }
+            ImGui::RenderPlatformWindowsDefault();
         }
-
-        RenderDrawData(ImGui::GetDrawData());
-        UpdateCursor();
     }
 
     void ImGuiGraphicsRenderer::SetupInput()
@@ -453,8 +321,8 @@ namespace Nexus::ImGuiUtils
         auto window = m_GraphicsDevice->GetPrimaryWindow();
         auto &io = ImGui::GetIO();
 
-        auto keyboard = Input::GetCurrentInputContext()->GetKeyboard();
-        auto mouse = Input::GetCurrentInputContext()->GetMouse();
+        auto keyboard = m_GraphicsDevice->GetPrimaryWindow()->GetInput()->GetKeyboard();
+        auto mouse = m_GraphicsDevice->GetPrimaryWindow()->GetInput()->GetMouse();
 
         for (int i = 0; i < m_Keys.size(); i++)
         {
@@ -470,19 +338,11 @@ namespace Nexus::ImGuiUtils
             (float)window->GetWindowSize().X,
             (float)window->GetWindowSize().Y};
         io.DisplayFramebufferScale = {1, 1};
+        io.MousePos = {(float)mouse.GetMousePosition().X, (float)mouse.GetMousePosition().Y};
 
-        if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-        {
-            io.MousePos = {(float)Mouse::GetGlobalMousePosition().X, (float)Mouse::GetGlobalMousePosition().Y};
-        }
-        else
-        {
-            io.MousePos = {(float)mouse.GetMousePosition().X, (float)mouse.GetMousePosition().Y};
-        }
-
-        io.MouseDown[0] = Mouse::IsGlobalLeftMouseHeld();
-        io.MouseDown[1] = Mouse::IsGlobalRightMouseHeld();
-        io.MouseDown[2] = Mouse::IsGlobalMiddleMouseHeld();
+        io.MouseDown[0] = mouse.IsLeftMouseHeld();
+        io.MouseDown[1] = mouse.IsRightMouseHeld();
+        io.MouseDown[2] = mouse.IsMiddleMouseHeld();
 
         io.MouseWheel = mouse.GetScrollMovement().Y;
     }
@@ -513,8 +373,6 @@ namespace Nexus::ImGuiUtils
             desc.Size = drawData->TotalVtxCount * 1.5f * sizeof(ImDrawVert);
             desc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
             m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(desc, nullptr);
-
-            m_VertexBufferCount = drawData->TotalVtxCount * 1.5f;
         }
 
         if (drawData->TotalIdxCount > m_IndexBufferCount)
@@ -523,8 +381,6 @@ namespace Nexus::ImGuiUtils
             desc.Size = drawData->TotalIdxCount * 1.5f * sizeof(ImDrawIdx);
             desc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
             m_IndexBuffer = m_GraphicsDevice->CreateIndexBuffer(desc, nullptr, Nexus::Graphics::IndexBufferFormat::UInt16);
-
-            m_IndexBufferCount = drawData->TotalIdxCount * 1.5f;
         }
 
         // update vertex buffer
@@ -563,17 +419,13 @@ namespace Nexus::ImGuiUtils
         if (!m_IndexBuffer)
             return;
 
-        ImGuiWindowInfo *info = (ImGuiWindowInfo *)drawData->OwnerViewport->PlatformUserData;
-
         m_CommandList->Begin();
-        m_CommandList->SetPipeline(info->Pipeline);
+        m_CommandList->SetPipeline(m_Pipeline);
         m_CommandList->SetVertexBuffer(m_VertexBuffer, 0);
         m_CommandList->SetIndexBuffer(m_IndexBuffer);
 
-        ImVec2 pos = drawData->DisplayPos;
-
         auto &io = ImGui::GetIO();
-        glm::mat4 mvp = glm::ortho<float>(pos.x, pos.x + drawData->DisplaySize.x, pos.y + drawData->DisplaySize.y, pos.y, -1.f, 1.0f);
+        glm::mat4 mvp = glm::ortho<float>(0, io.DisplaySize.x, io.DisplaySize.y, 0, -1.f, 1.0f);
         m_UniformBuffer->SetData(&mvp, sizeof(mvp), 0);
 
         for (auto &resourceSet : m_ResourceSets)
@@ -581,13 +433,12 @@ namespace Nexus::ImGuiUtils
             resourceSet.second->WriteUniformBuffer(m_UniformBuffer, "MVP");
         }
 
-        ImGuiViewport *vp = drawData->OwnerViewport;
-
+        auto windowSize = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize();
         Nexus::Graphics::Viewport viewport;
         viewport.X = 0;
         viewport.Y = 0;
-        viewport.Width = drawData->DisplaySize.x;
-        viewport.Height = drawData->DisplaySize.y;
+        viewport.Width = windowSize.X;
+        viewport.Height = windowSize.Y;
         m_CommandList->SetViewport(viewport);
 
         int vtxOffset = 0;
@@ -604,8 +455,8 @@ namespace Nexus::ImGuiUtils
                 if (drawCmd.ElemCount > 0)
                 {
                     Nexus::Graphics::Scissor scissor;
-                    scissor.X = drawCmd.ClipRect.x - pos.x;
-                    scissor.Y = drawCmd.ClipRect.y - pos.y;
+                    scissor.X = drawCmd.ClipRect.x;
+                    scissor.Y = drawCmd.ClipRect.y;
                     scissor.Width = (uint32_t)(drawCmd.ClipRect.z - drawCmd.ClipRect.x);
                     scissor.Height = (uint32_t)(drawCmd.ClipRect.w - drawCmd.ClipRect.y);
                     m_CommandList->SetScissor(scissor);
@@ -680,26 +531,6 @@ namespace Nexus::ImGuiUtils
             break;
         }
         }
-        }
-    }
-
-    void ImGuiGraphicsRenderer::UpdateMonitors()
-    {
-        auto &platformIo = ImGui::GetPlatformIO();
-        platformIo.Monitors.resize(0);
-
-        std::vector<Monitor> monitors = Application::GetMonitors();
-
-        for (const auto &monitor : monitors)
-        {
-            ImGuiPlatformMonitor m;
-            m.DpiScale = monitor.DPI;
-            m.MainPos = {(float)monitor.Position.X, (float)monitor.Position.Y};
-            m.MainSize = {(float)monitor.Size.X, (float)monitor.Size.Y};
-            m.WorkPos = {(float)monitor.WorkPosition.X, (float)monitor.WorkPosition.Y};
-            m.WorkSize = {(float)monitor.WorkSize.X, (float)monitor.WorkSize.Y};
-
-            platformIo.Monitors.push_back(m);
         }
     }
 }
