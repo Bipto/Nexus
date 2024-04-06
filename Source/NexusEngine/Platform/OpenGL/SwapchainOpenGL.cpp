@@ -15,8 +15,6 @@ namespace Nexus::Graphics
         m_SwapchainWidth = m_Window->GetWindowSize().X;
         m_SwapchainHeight = m_Window->GetWindowSize().Y;
 
-#if defined(NX_PLATFORM_SUPPORTS_MULTI_WINDOW)
-
         if (!s_ContextWindow)
         {
             s_ContextWindow = window->GetSDLWindowHandle();
@@ -24,26 +22,7 @@ namespace Nexus::Graphics
 
         m_Context = SDL_GL_CreateContext(s_ContextWindow);
 
-        if (!s_MainContext)
-        {
-            s_MainContext = m_Context;
-        }
-
-        if (m_Context == NULL)
-        {
-            std::string error = {SDL_GetError()};
-            NX_ERROR(error);
-        }
-#else
-        s_ContextWindow = window->GetSDLWindowHandle();
-
-        m_Context = SDL_GL_CreateContext(s_ContextWindow);
-        if (m_Context == NULL)
-        {
-            std::string error = {SDL_GetError()};
-            NX_ERROR(error);
-        }
-#endif
+        SDL_GL_MakeCurrent(window->GetSDLWindowHandle(), m_Context);
 
         if (SDL_GL_MakeCurrent(window->GetSDLWindowHandle(), m_Context) != 0)
         {
@@ -115,18 +94,8 @@ namespace Nexus::Graphics
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_Backbuffer);
     }
 
-    void SwapchainOpenGL::BindDefaultSwapchain()
-    {
-        if (SDL_GL_MakeCurrent(s_ContextWindow, s_MainContext) != 0)
-        {
-            std::string error = SDL_GetError();
-            throw std::runtime_error(error);
-        }
-    }
-
     // static member initialisation
     SDL_Window *SwapchainOpenGL::s_ContextWindow = nullptr;
-    SDL_GLContext SwapchainOpenGL::s_MainContext = nullptr;
 
     void SwapchainOpenGL::Prepare()
     {
@@ -134,7 +103,7 @@ namespace Nexus::Graphics
 
     bool SwapchainOpenGL::HasContextBeenCreated()
     {
-        return s_MainContext;
+        return s_ContextWindow;
     }
 }
 

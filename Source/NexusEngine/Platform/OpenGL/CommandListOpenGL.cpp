@@ -43,7 +43,6 @@ namespace Nexus::Graphics
         m_CommandData.clear();
         m_CurrentlyBoundVertexBuffers = {};
         m_CurrentlyBoundPipeline = nullptr;
-        SwapchainOpenGL::BindDefaultSwapchain();
     }
 
     void CommandListOpenGL::End()

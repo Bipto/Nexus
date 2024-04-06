@@ -5,9 +5,9 @@
 #if defined(__EMSCRIPTEN__)
 #include <emscripten.h>
 #include <emscripten/html5.h>
-#include <GLES3/gl3.h>
-#include <GLES2/gl2ext.h>
-#elif defined(ANDROID) || defined(__ANDROID__)
+#endif
+
+#if defined(__EMSCRIPTEN__) || defined(ANDROID) || defined(__ANDROID__)
 #include <GLES3/gl3.h>
 #include <GLES2/gl2ext.h>
 #else
