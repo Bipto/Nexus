@@ -429,6 +429,12 @@ namespace Nexus
 
         float x, y;
         Uint32 buttons = SDL_GetGlobalMouseState(&x, &y);
+
+#if defined(__EMSCRIPTEN__)
+        x *= GetPrimaryWindow()->GetDisplayScale();
+        y *= GetPrimaryWindow()->GetDisplayScale();
+#endif
+
         Mouse::s_GlobalMousePosition.X = (int)x;
         Mouse::s_GlobalMousePosition.Y = (int)y;
 
@@ -530,6 +536,11 @@ namespace Nexus
             {
                 int mouseX = event.motion.x;
                 int mouseY = event.motion.y;
+
+#if defined(__EMSCRIPTEN__)
+                mouseX *= GetPrimaryWindow()->GetDisplayScale();
+                mouseY *= GetPrimaryWindow()->GetDisplayScale();
+#endif
 
                 window->m_Input->m_Mouse.m_CurrentState.MousePosition = {
                     mouseX,

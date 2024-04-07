@@ -54,7 +54,11 @@ namespace Nexus
 
     void Window::SetSize(Point<uint32_t> size)
     {
+#if !defined(__EMSCRIPTEN__)
         SDL_SetWindowSize(m_Window, size.X, size.Y);
+#else
+        SDL_SetWindowSize(m_Window, size.X * GetDisplayScale(), size.Y * GetDisplayScale());
+#endif
     }
 
     void Window::Close()
@@ -80,6 +84,12 @@ namespace Nexus
         Point<uint32_t> size{};
         size.X = x;
         size.Y = y;
+
+#if defined(__EMSCRIPTEN__)
+        size.X *= GetDisplayScale();
+        size.Y *= GetDisplayScale();
+#endif
+
         return size;
     }
 
@@ -244,11 +254,6 @@ namespace Nexus
         SDL_SetWindowPosition(m_Window, x, y);
     }
 
-    void Window::SetWindowSize(uint32_t width, uint32_t height)
-    {
-        SDL_SetWindowSize(m_Window, width, height);
-    }
-
     void Window::Focus()
     {
         SDL_RaiseWindow(m_Window);
@@ -305,9 +310,7 @@ namespace Nexus
     {
         // required for emscripten to handle resizing correctly
         uint32_t flags = 0;
-#if !defined(__EMSCRIPTEN__)
         flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
-#endif
 
         if (windowSpec.Resizable)
         {
