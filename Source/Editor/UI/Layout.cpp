@@ -14,7 +14,7 @@ namespace Editor
         ImGuiIO &io = ImGui::GetIO();
 
         std::string fontPath = Nexus::FileSystem::GetFilePathAbsolute("resources/fonts/roboto/roboto-regular.ttf");
-        const uint32_t size = 22;
+        const uint32_t size = 28;
         io.FontDefault = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), size);
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         m_ImGuiRenderer->RebuildFontAtlas();
@@ -102,6 +102,8 @@ namespace Editor
             {
                 if (ImGui::MenuItem("New Project"))
                 {
+                    std::unique_ptr<Panel> &panel = m_Panels.at(NEW_PROJECT_DIALOG_NAME);
+                    panel->Enable();
                 }
 
                 if (ImGui::MenuItem("New Scene"))

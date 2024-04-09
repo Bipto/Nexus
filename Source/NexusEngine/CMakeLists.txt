@@ -38,6 +38,7 @@ target_include_directories(NexusEngine PUBLIC
   ../../External/SPIRV-Reflect
   ../../External/Freetype/include
   ../../External/pocketpy/include
+  ../../External/yaml-cpp/include
   ../../Binaries/dxc_2023_08_14/inc
   )
 
@@ -66,6 +67,7 @@ target_link_libraries(NexusEngine PUBLIC
   spirv-cross-hlsl
   pocketpy
   freetype
+  yaml-cpp::yaml-cpp
   )
 
 if(WIN32)

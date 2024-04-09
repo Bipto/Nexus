@@ -1,83 +1,61 @@
 #include "Project.hpp"
 
-#include "nlohmann/json.hpp"
+#include "Nexus/FileSystem/FileSystem.hpp"
+
+#include "yaml-cpp/yaml.h"
+
+#include <ctime>
+#include <iomanip>
+
+const std::string DefaultSceneName = "Unnamed.scene";
 
 namespace Nexus
 {
-    void Project::Serialize(const std::string &directory)
+    Project::Project(const std::string &name, const std::string &projectDirectory)
+        : m_Name(name), m_ProjectDirectory(projectDirectory)
     {
-        std::string baseDirectory = directory + std::string("\\") + m_Name;
+        m_SceneDirectory = "\\Scenes";
+        m_AssetsDirectory = "\\Assets";
 
-        std::filesystem::path projectFile{baseDirectory};
-        projectFile /= m_Name + std::string(".proj");
-        std::filesystem::create_directories(projectFile.parent_path());
+        std::filesystem::path projectFile(projectDirectory);
+        m_ProjectDirectory = projectFile.parent_path().parent_path().string();
 
-        std::filesystem::path assetDirectory{baseDirectory + std::string("\\Assets")};
-        std::filesystem::create_directories(assetDirectory);
-
-        std::filesystem::create_directories(baseDirectory + std::string("\\Scenes"));
-
-        // creating json
-        {
-            std::ofstream ofs(projectFile);
-
-            nlohmann::json j;
-            j["name"] = m_Name;
-            j["scene_directory"] = m_SceneDirectory;
-            j["assets_directory"] = m_AssetsDirectory;
-            j["scenes"] = m_Scenes;
-            j["active_scene_index"] = m_ActiveSceneIndex;
-
-            // write to file
-            ofs << j.dump(1);
-            ofs.close();
-        }
-
-        // create scene subdirectories
-        std::string sceneDirectory = baseDirectory + "\\Scenes";
-        m_ActiveScene->Serialize(sceneDirectory);
-        /* for (auto scene : m_Scenes)
-            scene->Serialize(sceneDirectory); */
+        m_LoadedScene = std::make_unique<Scene>(DefaultSceneName);
+        m_SceneNames.push_back(m_LoadedScene->GetName());
     }
 
-    Ref<Project> Project::Deserialize(const std::string &filepath)
+    void Project::Serialize(const std::string &filepath)
     {
-        std::stringstream ss;
-        std::string line;
-        std::ifstream file(filepath);
-        auto projectDirectory = std::filesystem::path(filepath).parent_path();
+        YAML::Node root;
+        root["name"] = m_Name;
 
-        // read lines into buffer
-        if (file.is_open())
-            while (getline(file, line))
-                ss << line;
+        time_t curr_time = time(nullptr);
+        tm *tm_local = localtime(&curr_time);
 
-        nlohmann::json j = nlohmann::json::parse(ss.str());
+        std::string timestampString;
+        timestampString += std::to_string(tm_local->tm_mday) + "/";
 
-        auto name = j.value("name", "not found");
-        Ref<Project> project = CreateRef<Project>(name, filepath);
+        // months start at 0
+        timestampString += std::to_string(tm_local->tm_mon + 1) + "/";
 
-        std::string assetDir = j["assets_directory"].get<std::string>();
-        project->m_AssetsDirectory = assetDir;
+        // years start at 1900
+        timestampString += std::to_string(1900 + tm_local->tm_year) + "-";
 
-        std::string sceneDir = j["scene_directory"];
-        project->m_SceneDirectory = sceneDir;
+        timestampString += std::to_string(tm_local->tm_hour) + ":";
+        timestampString += std::to_string(tm_local->tm_min);
+        root["time-created"] = timestampString;
+        root["time-updated"] = timestampString;
 
-        std::vector<std::string> sceneNames;
-        sceneNames = j["scenes"];
-        project->m_Scenes = sceneNames;
+        root["scenes"] = m_SceneNames;
+        root["startup-scene"] = m_StartupScene;
 
-        project->m_ActiveSceneIndex = j["active_scene_index"].get<int>();
+        std::string timestring;
 
-        std::filesystem::path sceneDirectory(sceneDir);
-        std::vector<Scene *> scenes;
+        YAML::Emitter emitter;
+        emitter << root;
 
-        std::string &sceneName = project->m_Scenes[project->m_ActiveSceneIndex];
-        Scene *scene = new Scene(sceneName);
-        std::string scenePath(projectDirectory.string() + std::string("\\") + sceneDir + std::string("\\") + sceneName + std::string(".scene"));
-        scene->Deserialize(scenePath);
-        project->m_ActiveScene = scene;
+        std::string output = emitter.c_str();
 
-        return project;
+        FileSystem::WriteFileAbsolute(filepath, output);
     }
 }

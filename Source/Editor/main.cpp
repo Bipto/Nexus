@@ -2,6 +2,8 @@
 
 #include "UI/Layout.hpp"
 
+#include "Nexus/FileSystem/FileSystem.hpp"
+
 class EditorApplication : public Nexus::Application
 {
 public:

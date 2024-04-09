@@ -34,10 +34,13 @@ namespace Nexus
 
         m_Input = new InputState();
         m_WindowID = SDL_GetWindowID(m_Window);
+
+        SDL_StartTextInput();
     }
 
     Window::~Window()
     {
+        SDL_StopTextInput();
         delete m_Swapchain;
         SDL_DestroyWindow(this->m_Window);
     }

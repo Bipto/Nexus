@@ -3,8 +3,7 @@
 #include "Nexus/Application.hpp"
 #include "Nexus/Graphics/GraphicsDevice.hpp"
 
-#include "imgui.h"
-#include "misc/cpp/imgui_stdlib.h"
+#include "Nexus/ImGui/ImGuiInclude.hpp"
 
 #include <map>
 

@@ -4,9 +4,6 @@
 #include "Nexus/FileSystem/FileSystem.hpp"
 #include "Nexus/ImGui/ImGuiGraphicsRenderer.hpp"
 
-#include "imgui.h"
-#include "misc/cpp/imgui_stdlib.h"
-
 namespace Demos
 {
     class Demo

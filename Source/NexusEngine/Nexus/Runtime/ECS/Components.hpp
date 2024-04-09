@@ -11,7 +11,7 @@
 #include "Nexus/Graphics/Texture.hpp"
 #include "Nexus/Types.hpp"
 
-#include "imgui.h"
+#include "Nexus/ImGui/ImGuiInclude.hpp"
 #include "nlohmann/json.hpp"
 
 namespace Nexus

@@ -2,6 +2,8 @@
 
 #include "Defines.hpp"
 
+#include "Nexus/ImGui/ImGuiInclude.hpp"
+
 namespace Editor
 {
     class Panel
@@ -15,6 +17,6 @@ namespace Editor
         bool IsEnabled() { return m_Enabled; }
 
     protected:
-        bool m_Enabled = true;
+        bool m_Enabled = false;
     };
 }

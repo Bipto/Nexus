@@ -26,9 +26,8 @@
 
 #include "Nexus/EntryPoint.hpp"
 
-#include "Nexus/Runtime/Camera.hpp"
 #include "Nexus/Runtime/Project.hpp"
-#include "Nexus/Runtime/Scene.hpp"
+#include "Nexus/Runtime/Camera.hpp"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"

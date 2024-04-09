@@ -50,6 +50,8 @@ if(WIN32)
 endif()
     
 
+add_compile_definitions(IMGUI_DEFINE_MATH_OPERATORS)
+
 #external dependencies
 add_subdirectory(External/SDL)
 add_subdirectory(External/glad)
@@ -64,6 +66,7 @@ add_subdirectory(External/shaderc)
 add_subdirectory(External/libnyquist)
 add_subdirectory(External/freetype)
 add_subdirectory(External/pocketpy)
+add_subdirectory(External/yaml-cpp)
 
 if (WIN32)
     add_subdirectory(External/VulkanMemoryAllocator)

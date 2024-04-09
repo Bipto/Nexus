@@ -23,6 +23,6 @@ namespace Editor
         std::unique_ptr<Nexus::ImGuiUtils::ImGuiGraphicsRenderer> m_ImGuiRenderer = nullptr;
         Nexus::Application *m_Application = nullptr;
 
-        std::map<const char *, std::unique_ptr<Panel>> m_Panels;
+        std::map<std::string, std::unique_ptr<Panel>> m_Panels;
     };
 }

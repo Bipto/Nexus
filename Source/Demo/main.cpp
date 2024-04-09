@@ -45,7 +45,7 @@ public:
     {
         m_ImGuiRenderer = std::make_unique<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(this);
 
-        ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+        // ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
         int size = 19;
 
