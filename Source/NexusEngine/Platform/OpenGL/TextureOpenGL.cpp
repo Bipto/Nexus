@@ -7,8 +7,15 @@ namespace Nexus::Graphics
     TextureOpenGL::TextureOpenGL(const TextureSpecification &spec)
         : Texture(spec)
     {
+        bool isDepth = false;
+
+        if (std::find(spec.Usage.begin(), spec.Usage.end(), Nexus::Graphics::TextureUsage::DepthStencil) != spec.Usage.end())
+        {
+            isDepth = true;
+        }
+
         m_DataFormat = GL::GetPixelDataFormat(spec.Format);
-        m_InternalFormat = GL::GetSizedInternalFormat(spec.Format, false);
+        m_InternalFormat = GL::GetSizedInternalFormat(spec.Format, isDepth);
         m_BaseType = GL::GetPixelType(spec.Format);
 
         glGenTextures(1, &m_Handle);

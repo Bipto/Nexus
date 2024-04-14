@@ -5,6 +5,8 @@
 #include "Nexus/Types.hpp"
 #include "Nexus/Runtime/Project.hpp"
 
+#include "Editor.hpp"
+
 namespace Editor
 {
     void NewProjectDialog::OnLoad()
@@ -52,10 +54,11 @@ namespace Editor
                     {
                         std::string extension = ".proj";
                         std::filesystem::path fullpath = m_Path + std::string("\\") + m_Name + std::string("\\") + m_Name + extension;
-                        std::filesystem::create_directories(fullpath.parent_path());
 
-                        auto project = Nexus::CreateRef<Nexus::Project>(m_Name, fullpath.string());
+                        auto project = Nexus::CreateRef<Nexus::Project>(m_Name);
                         project->Serialize(fullpath.string());
+
+                        Nexus::Project::s_ActiveProject = project;
 
                         m_Name = {};
                         m_Path = {};

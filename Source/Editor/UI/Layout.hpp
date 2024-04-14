@@ -18,6 +18,7 @@ namespace Editor
         void RenderViewport();
         void ApplyDarkTheme();
         void RenderMainMenubar();
+        void OpenProject();
 
     private:
         std::unique_ptr<Nexus::ImGuiUtils::ImGuiGraphicsRenderer> m_ImGuiRenderer = nullptr;

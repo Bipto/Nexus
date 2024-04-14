@@ -1,8 +1,14 @@
 #include "Layout.hpp"
 
 #include "Nexus/FileSystem/FileSystem.hpp"
+#include "Nexus/FileSystem/FileDialogs.hpp"
 
 #include "Dialogs/NewProjectDialog.hpp"
+
+#include "SceneViewport.hpp"
+#include "SceneHierarchy.hpp"
+
+#include "Nexus/Runtime/Project.hpp"
 
 namespace Editor
 {
@@ -22,6 +28,8 @@ namespace Editor
         ApplyDarkTheme();
 
         m_Panels[NEW_PROJECT_DIALOG_NAME] = std::make_unique<NewProjectDialog>();
+        m_Panels[SCENE_VIEWPORT_NAME] = std::make_unique<SceneViewport>(app->GetGraphicsDevice(), m_ImGuiRenderer.get());
+        m_Panels[SCENE_HIERARCHY_NAME] = std::make_unique<SceneHierarchy>();
     }
 
     void Layout::Render(Nexus::Time time)
@@ -113,6 +121,10 @@ namespace Editor
                 ImGui::EndMenu();
             }
 
+            if (ImGui::MenuItem("Load Project"))
+            {
+            }
+
             if (ImGui::MenuItem("Quit"))
             {
                 m_Application->Close();
@@ -121,6 +133,36 @@ namespace Editor
             ImGui::EndMenu();
         }
 
+        if (ImGui::BeginMenu("Windows", true))
+        {
+            if (ImGui::MenuItem(SCENE_VIEWPORT_NAME))
+            {
+                std::unique_ptr<Panel> &panel = m_Panels.at(SCENE_VIEWPORT_NAME);
+                panel->Enable();
+            }
+
+            if (ImGui::MenuItem(SCENE_HIERARCHY_NAME))
+            {
+                std::unique_ptr<Panel> &panel = m_Panels.at(SCENE_HIERARCHY_NAME);
+                panel->Enable();
+            }
+
+            ImGui::EndMenu();
+        }
+
         ImGui::EndMainMenuBar();
+    }
+
+    void Layout::OpenProject()
+    {
+        std::vector<const char *> filters = {"*.proj"};
+        auto path = Nexus::FileDialogs::OpenFile(filters);
+
+        // check that the user didn't cancel the dialog
+        if (path)
+        {
+            Nexus::Ref<Nexus::Project> project = Nexus::Project::Deserialize(path);
+            Nexus::Project::s_ActiveProject = project;
+        }
     }
 }

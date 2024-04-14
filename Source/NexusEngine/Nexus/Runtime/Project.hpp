@@ -12,13 +12,21 @@ namespace Nexus
     class Project
     {
     public:
-        Project(const std::string &name, const std::string &projectDirectory);
+        Project(const std::string &name);
         void Serialize(const std::string &filepath);
-        const std::string &GetProjectDirectory() { return m_ProjectDirectory; }
+        static Ref<Project> Deserialize(const std::string &filepath);
+
+        Scene *GetLoadedScene() { return m_LoadedScene.get(); }
+
+    public:
+        static Ref<Project> s_ActiveProject;
+
+    private:
+        void WriteProjectFile(const std::string &filepath);
+        void WriteSceneFile(const std::string &rootpath, const std::string &sceneDirectory);
 
     private:
         std::string m_Name = {};
-        std::string m_ProjectDirectory = {};
         std::string m_SceneDirectory = {};
         std::string m_AssetsDirectory = {};
 
