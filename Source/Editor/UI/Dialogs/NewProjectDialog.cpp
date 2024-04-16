@@ -53,10 +53,11 @@ namespace Editor
                     if (ImGui::Button("Create project"))
                     {
                         std::string extension = ".proj";
-                        std::filesystem::path fullpath = m_Path + std::string("\\") + m_Name + std::string("\\") + m_Name + extension;
+                        std::string directory = m_Path + std::string("\\") + m_Name;
+                        std::filesystem::path fullpath = directory + std::string("\\") + m_Name + extension;
 
-                        auto project = Nexus::CreateRef<Nexus::Project>(m_Name);
-                        project->Serialize(fullpath.string());
+                        auto project = Nexus::CreateRef<Nexus::Project>(m_Name, directory);
+                        project->Serialize();
 
                         Nexus::Project::s_ActiveProject = project;
 

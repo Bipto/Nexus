@@ -13,8 +13,8 @@ namespace Nexus
 {
     Ref<Project> Project::s_ActiveProject = nullptr;
 
-    Project::Project(const std::string &name)
-        : m_Name(name)
+    Project::Project(const std::string &name, const std::string &directory)
+        : m_Name(name), m_RootDirectory(directory)
     {
         m_SceneDirectory = "\\Scenes";
         m_AssetsDirectory = "\\Assets";
@@ -23,32 +23,52 @@ namespace Nexus
         m_SceneNames.push_back(m_LoadedScene->GetName());
     }
 
-    void Project::Serialize(const std::string &filepath)
+    void Project::Serialize()
     {
         // std::filesystem::path projectFile(filepath);
         // std::string projectDirectory = projectFile.parent_path().parent_path().string();#
 
-        std::filesystem::path path = filepath;
-        std::filesystem::path root = path.parent_path();
-
-        WriteProjectFile(filepath);
-        WriteSceneFile(root.string(), m_SceneDirectory);
+        WriteProjectFile();
+        WriteSceneFile(m_RootDirectory + "/" + m_SceneDirectory);
     }
 
     Ref<Project> Project::Deserialize(const std::string &filepath)
     {
-        Ref<Project> project = CreateRef<Project>("");
+        std::string directory = std::filesystem::path(filepath).parent_path().string();
+
+        std::string input = Nexus::FileSystem::ReadFileToStringAbsolute(filepath);
+        YAML::Node node = YAML::Load(input);
+        YAML::Node projectNode = node["project"];
+
+        Ref<Project> project = CreateRef<Project>();
+        project->m_Name = projectNode["name"].as<std::string>();
+        project->m_StartupScene = projectNode["startup-scene"].as<uint32_t>();
+        project->m_SceneNames = projectNode["scenes"].as<std::vector<std::string>>();
+        project->m_SceneDirectory = projectNode["scene-directory"].as<std::string>();
+        project->m_AssetsDirectory = projectNode["assets-directory"].as<std::string>();
+        project->m_RootDirectory = directory;
+
+        project->LoadScene(project->m_StartupScene);
+
         return project;
     }
 
-    void Project::WriteProjectFile(const std::string &filepath)
+    void Project::LoadScene(uint32_t index)
+    {
+        std::string path = m_RootDirectory + m_SceneDirectory + "\\" + m_SceneNames[index] + ".scene";
+        Scene *scene = Scene::Deserialize(path);
+        m_LoadedScene = std::unique_ptr<Scene>(scene);
+    }
+
+    void Project::WriteProjectFile()
     {
         // create directories if they do not exist
-        std::filesystem::path path = filepath;
-        std::filesystem::create_directories(path.parent_path());
+        std::filesystem::path path = m_RootDirectory;
+        std::filesystem::create_directories(path);
 
         YAML::Node root;
-        root["name"] = m_Name;
+        YAML::Node projectNode = root["project"];
+        projectNode["name"] = m_Name;
 
         time_t curr_time = time(nullptr);
         tm *tm_local = localtime(&curr_time);
@@ -64,29 +84,29 @@ namespace Nexus
 
         timestampString += std::to_string(tm_local->tm_hour) + ":";
         timestampString += std::to_string(tm_local->tm_min);
-        root["time-created"] = timestampString;
-        root["time-updated"] = timestampString;
+        // projectNode["time-created"] = timestampString;
+        // projectNode["time-updated"] = timestampString;
 
-        root["scenes"] = m_SceneNames;
-        root["startup-scene"] = m_StartupScene;
+        projectNode["scenes"] = m_SceneNames;
+        projectNode["startup-scene"] = m_StartupScene;
 
-        root["scene-directory"] = m_SceneDirectory;
-        root["assets-directory"] = m_AssetsDirectory;
+        projectNode["scene-directory"] = m_SceneDirectory;
+        projectNode["assets-directory"] = m_AssetsDirectory;
 
         std::string timestring;
 
         YAML::Emitter emitter;
         emitter << root;
-
         std::string output = emitter.c_str();
 
+        std::string filepath = m_RootDirectory + "/" + m_Name + ".proj";
         FileSystem::WriteFileAbsolute(filepath, output);
     }
 
-    void Project::WriteSceneFile(const std::string &rootpath, const std::string &sceneDirectory)
+    void Project::WriteSceneFile(const std::string &sceneDirectory)
     {
         // create directories if they do not exist
-        std::filesystem::path path = rootpath + sceneDirectory;
+        std::filesystem::path path = sceneDirectory;
         std::filesystem::create_directories(path);
 
         if (m_LoadedScene)

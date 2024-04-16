@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Nexus/Types.hpp"
+
 #include "glm/glm.hpp"
 
 #include <string>
@@ -9,8 +11,7 @@ namespace Nexus
     class Scene
     {
     public:
-        Scene() = delete;
-        Scene(const std::string &name);
+        Scene(const std::string &name = "Untitled Scene");
 
         const std::string &GetName() const { return m_Name; }
         const glm::vec4 &GetClearColour() const { return m_ClearColour; }
@@ -19,6 +20,9 @@ namespace Nexus
         void SetClearColour(const glm::vec4 &clearColour) { m_ClearColour = clearColour; }
 
         void Serialize(const std::string &filepath);
+
+    public:
+        static Scene *Deserialize(const std::string &filepath);
 
     private:
         std::string m_Name;

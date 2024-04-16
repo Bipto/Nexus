@@ -14,12 +14,13 @@ namespace Nexus
     void Scene::Serialize(const std::string &filepath)
     {
         YAML::Node root;
-        root["name"] = m_Name;
+        YAML::Node sceneNode = root["scene"];
+        sceneNode["name"] = m_Name;
 
-        root["clear-colour"]["r"] = m_ClearColour.r;
-        root["clear-colour"]["g"] = m_ClearColour.g;
-        root["clear-colour"]["b"] = m_ClearColour.b;
-        root["clear-colour"]["a"] = m_ClearColour.a;
+        sceneNode["clear-colour"]["r"] = m_ClearColour.r;
+        sceneNode["clear-colour"]["g"] = m_ClearColour.g;
+        sceneNode["clear-colour"]["b"] = m_ClearColour.b;
+        sceneNode["clear-colour"]["a"] = m_ClearColour.a;
 
         YAML::Emitter emitter;
         emitter << root;
@@ -27,5 +28,21 @@ namespace Nexus
         std::string output = emitter.c_str();
 
         FileSystem::WriteFileAbsolute(filepath, output);
+    }
+
+    Scene *Scene::Deserialize(const std::string &filepath)
+    {
+        std::string input = Nexus::FileSystem::ReadFileToStringAbsolute(filepath);
+        YAML::Node node = YAML::Load(input);
+        YAML::Node sceneNode = node["scene"];
+
+        Scene *scene = new Scene();
+        scene->m_Name = sceneNode["name"].as<std::string>();
+        scene->m_ClearColour.r = sceneNode["clear-colour"]["r"].as<float>();
+        scene->m_ClearColour.g = sceneNode["clear-colour"]["g"].as<float>();
+        scene->m_ClearColour.b = sceneNode["clear-colour"]["b"].as<float>();
+        scene->m_ClearColour.a = sceneNode["clear-colour"]["a"].as<float>();
+
+        return scene;
     }
 }

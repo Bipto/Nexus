@@ -123,6 +123,7 @@ namespace Editor
 
             if (ImGui::MenuItem("Load Project"))
             {
+                OpenProject();
             }
 
             if (ImGui::MenuItem("Quit"))
@@ -163,6 +164,8 @@ namespace Editor
         {
             Nexus::Ref<Nexus::Project> project = Nexus::Project::Deserialize(path);
             Nexus::Project::s_ActiveProject = project;
+
+            std::string directory = std::filesystem::path(path).parent_path().string();
         }
     }
 }
