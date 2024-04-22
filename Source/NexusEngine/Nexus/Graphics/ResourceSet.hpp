@@ -6,7 +6,7 @@
 
 #include "Nexus/Types.hpp"
 #include "Nexus/Graphics/Texture.hpp"
-#include "Nexus/Graphics/Buffer.hpp"
+#include "Nexus/Graphics/GPUBuffer.hpp"
 #include "Nexus/Graphics/Sampler.hpp"
 
 namespace Nexus::Graphics

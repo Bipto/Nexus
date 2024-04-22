@@ -87,7 +87,6 @@ namespace Nexus::Graphics
             spec.Width = m_Specification.Width;
             spec.Height = m_Specification.Height;
             spec.Format = colorAttachmentSpec.TextureFormat;
-            spec.NumberOfChannels = 4;
             spec.Samples = m_Specification.Samples;
             spec.Usage = {TextureUsage::Sampled, TextureUsage::RenderTarget};
             auto texture = std::dynamic_pointer_cast<TextureOpenGL>(m_Device->CreateTexture(spec));
@@ -102,7 +101,6 @@ namespace Nexus::Graphics
             spec.Width = m_Specification.Width;
             spec.Height = m_Specification.Height;
             spec.Format = m_Specification.DepthAttachmentSpecification.DepthFormat;
-            spec.NumberOfChannels = 2;
             spec.Samples = m_Specification.Samples;
             spec.Usage = {TextureUsage::DepthStencil};
             m_DepthAttachment = m_Device->CreateTexture(spec);

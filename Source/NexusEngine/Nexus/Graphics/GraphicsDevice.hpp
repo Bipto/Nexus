@@ -3,7 +3,7 @@
 #include "Nexus/Window.hpp"
 #include "Nexus/Types.hpp"
 #include "SDL.h"
-#include "Buffer.hpp"
+#include "GPUBuffer.hpp"
 #include "Texture.hpp"
 #include "Framebuffer.hpp"
 #include "Pipeline.hpp"
@@ -106,12 +106,12 @@ namespace Nexus::Graphics
         /// @brief A method that loads a new texture from a image stored on disk
         /// @param filepath The filepath to load the image from
         /// @return A pointer to a texture
-        Ref<Texture> CreateTexture(const char *filepath);
+        Ref<Texture> CreateTexture(const char *filepath, bool generateMips = false);
 
         /// @brief A method that loads a new texture from an image stored on disk
         /// @param filepath The filepath to load the image from
         /// @return A pointer to a texture
-        Ref<Texture> CreateTexture(const std::string &filepath);
+        Ref<Texture> CreateTexture(const std::string &filepath, bool generateMips = false);
 
         virtual Ref<Framebuffer> CreateFramebuffer(const FramebufferSpecification &spec) = 0;
 

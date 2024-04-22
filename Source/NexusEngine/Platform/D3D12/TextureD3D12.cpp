@@ -25,10 +25,12 @@ namespace Nexus::Graphics
             uploadProperties.CreationNodeMask = 0;
             uploadProperties.VisibleNodeMask = 0;
 
+            uint32_t stride = GetPixelFormatSizeInBytes(m_Specification.Format);
+
             D3D12_RESOURCE_DESC uploadBufferDesc;
             uploadBufferDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
             uploadBufferDesc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
-            uploadBufferDesc.Width = spec.Width * spec.Height * spec.NumberOfChannels;
+            uploadBufferDesc.Width = spec.Width * spec.Height * stride + 1;
             uploadBufferDesc.Height = 1;
             uploadBufferDesc.DepthOrArraySize = 1;
             uploadBufferDesc.MipLevels = 1;
@@ -55,7 +57,7 @@ namespace Nexus::Graphics
             resourceDesc.Width = spec.Width;
             resourceDesc.Height = spec.Height;
             resourceDesc.DepthOrArraySize = 1;
-            resourceDesc.MipLevels = 1;
+            resourceDesc.MipLevels = m_Specification.Levels;
             resourceDesc.Format = m_TextureFormat;
             resourceDesc.SampleDesc.Count = samples;
             resourceDesc.SampleDesc.Quality = 0;
@@ -69,9 +71,9 @@ namespace Nexus::Graphics
     {
     }
 
-    void TextureD3D12::SetData(const void *data, uint32_t size)
+    void TextureD3D12::SetData(const void *data, uint32_t size, uint32_t level)
     {
-        uint32_t stride = m_Specification.Width * m_Specification.NumberOfChannels;
+        uint32_t stride = m_Specification.Width * GetPixelFormatSizeInBytes(m_Specification.Format);
 
         void *uploadBufferAddress;
         D3D12_RANGE uploadRange;
@@ -104,8 +106,13 @@ namespace Nexus::Graphics
 
                                       textureDestination.pResource = m_Texture.Get();
                                       textureDestination.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
-                                      textureDestination.SubresourceIndex = 0;
+                                      textureDestination.SubresourceIndex = level;
                                       cmd->CopyTextureRegion(&textureDestination, 0, 0, 0, &textureSource, &textureSizeAsBox); });
+    }
+
+    std::vector<std::byte> TextureD3D12::GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+    {
+        return std::vector<std::byte>();
     }
 
     DXGI_FORMAT TextureD3D12::GetFormat()

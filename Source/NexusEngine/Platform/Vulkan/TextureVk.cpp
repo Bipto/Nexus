@@ -7,8 +7,10 @@ namespace Nexus::Graphics
     TextureVk::TextureVk(GraphicsDeviceVk *graphicsDevice, const TextureSpecification &spec)
         : Texture(spec), m_GraphicsDevice(graphicsDevice)
     {
+        uint32_t numChannels = GetPixelFormatNumberOfChannels(m_Specification.Format);
+
         bool isDepth;
-        VkDeviceSize imageSize = spec.Width * spec.Height * spec.NumberOfChannels;
+        VkDeviceSize imageSize = spec.Width * spec.Height * numChannels;
         VkImageUsageFlagBits usage = GetVkImageUsageFlags(spec.Usage, isDepth);
         m_Format = GetVkPixelDataFormat(spec.Format, isDepth);
 
@@ -25,7 +27,7 @@ namespace Nexus::Graphics
         imageInfo.imageType = VK_IMAGE_TYPE_2D;
         imageInfo.format = m_Format;
         imageInfo.extent = imageExtent;
-        imageInfo.mipLevels = 1;
+        imageInfo.mipLevels = m_Specification.Levels;
         imageInfo.arrayLayers = 1;
         imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
         imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
@@ -46,7 +48,7 @@ namespace Nexus::Graphics
         createInfo.image = m_Image;
         createInfo.format = m_Format;
         createInfo.subresourceRange.baseMipLevel = 0;
-        createInfo.subresourceRange.levelCount = 1;
+        createInfo.subresourceRange.levelCount = m_Specification.Levels;
         createInfo.subresourceRange.baseArrayLayer = 0;
         createInfo.subresourceRange.layerCount = 1;
         createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -62,9 +64,10 @@ namespace Nexus::Graphics
         vmaDestroyImage(m_GraphicsDevice->GetAllocator(), m_Image, m_Allocation);
     }
 
-    void TextureVk::SetData(const void *data, uint32_t size)
+    void TextureVk::SetData(const void *data, uint32_t size, uint32_t level)
     {
-        VkDeviceSize imageSize = m_Specification.Width * m_Specification.Height * m_Specification.NumberOfChannels;
+        uint32_t numChannels = GetPixelFormatNumberOfChannels(m_Specification.Format);
+        VkDeviceSize imageSize = size;
 
         void *buffer;
         vmaMapMemory(m_GraphicsDevice->GetAllocator(), m_StagingBuffer.Allocation, &buffer);
@@ -82,7 +85,7 @@ namespace Nexus::Graphics
                                               {
                                                 VkImageSubresourceRange range;
                                                 range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-                                                range.baseMipLevel = 0;
+                                                range.baseMipLevel = level;
                                                 range.levelCount = 1;
                                                 range.baseArrayLayer = 0;
                                                 range.layerCount = 1;
@@ -115,6 +118,11 @@ namespace Nexus::Graphics
                                                 imageBarrierToReadable.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
                                                 vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TRANSFER_BIT,  VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageBarrierToReadable); });
         }
+    }
+
+    std::vector<std::byte> TextureVk::GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+    {
+        return std::vector<std::byte>();
     }
 
     VkImage TextureVk::GetImage()

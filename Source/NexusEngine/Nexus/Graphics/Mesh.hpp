@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Nexus/Graphics/Buffer.hpp"
+#include "Nexus/Graphics/GPUBuffer.hpp"
 #include "Nexus/Types.hpp"
 
 #include "Nexus/Vertex.hpp"
@@ -23,7 +23,7 @@ namespace Nexus::Graphics
 
         virtual ~Mesh()
         {
-                }
+        }
 
         /// @brief A method that returns a const reference to the meshes vertex buffer
         /// @return A const reference to the vertex buffer

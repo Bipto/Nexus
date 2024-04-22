@@ -48,7 +48,6 @@ if(WIN32)
     add_subdirectory(Source/Test)
     add_subdirectory(Source/Editor)
 endif()
-    
 
 add_compile_definitions(IMGUI_DEFINE_MATH_OPERATORS)
 

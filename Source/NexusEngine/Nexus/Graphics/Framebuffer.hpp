@@ -9,6 +9,8 @@
 #include "PixelFormat.hpp"
 #include "Nexus/Graphics/Texture.hpp"
 
+#include "Nexus/Buffer.hpp"
+
 namespace Nexus::Graphics
 {
     /// @brief A struct representing the settings to use when creating a framebuffer

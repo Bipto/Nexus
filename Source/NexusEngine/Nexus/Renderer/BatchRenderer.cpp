@@ -151,9 +151,9 @@ namespace Nexus::Graphics
         textureSpec.Width = 1;
         textureSpec.Height = 1;
         textureSpec.Format = PixelFormat::R8_G8_B8_A8_UNorm;
-        textureSpec.NumberOfChannels = 4;
         m_BlankTexture = m_Device->CreateTexture(textureSpec);
-        m_BlankTexture->SetData(&textureData, sizeof(uint32_t));
+        // m_BlankTexture->SetData(&textureData, 0, 0, 0, 1, 1);
+        m_BlankTexture->SetData(&textureData, sizeof(textureData), 0);
 
         Nexus::Graphics::BufferDescription uniformBufferDesc;
         uniformBufferDesc.Size = sizeof(glm::mat4);

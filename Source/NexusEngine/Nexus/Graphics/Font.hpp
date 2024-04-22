@@ -61,13 +61,12 @@ namespace Nexus::Graphics
             m_Pixels[offset] = value;
         }
 
-        operator std::vector<uint32_t>() const
-        {
-            return m_Pixels;
-        }
+        uint32_t GetWidth() const { return m_Width; }
+        uint32_t GetHeight() const { return m_Height; }
 
     private:
-        std::vector<uint32_t> m_Pixels;
+        std::vector<uint32_t>
+            m_Pixels;
         uint32_t m_Width = 0;
         uint32_t m_Height = 0;
     };

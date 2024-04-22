@@ -2,9 +2,8 @@
 
 #include "Color.hpp"
 #include "Pipeline.hpp"
-#include "Buffer.hpp"
+#include "GPUBuffer.hpp"
 #include "Texture.hpp"
-#include "Buffer.hpp"
 #include "Framebuffer.hpp"
 #include "Nexus/Types.hpp"
 #include "RenderTarget.hpp"

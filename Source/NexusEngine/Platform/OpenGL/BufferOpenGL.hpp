@@ -3,7 +3,7 @@
 #if defined(NX_PLATFORM_OPENGL)
 
 #include "GL.hpp"
-#include "Nexus/Graphics/Buffer.hpp"
+#include "Nexus/Graphics/GPUBuffer.hpp"
 
 namespace Nexus::Graphics
 {

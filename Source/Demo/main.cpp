@@ -16,6 +16,7 @@
 #include "Demos/BatchingDemo.hpp"
 #include "Demos/FramebufferDemo.hpp"
 #include "Demos/InstancingDemo.hpp"
+#include "Demos/MipmapDemo.hpp"
 
 #include "Nexus/FileSystem/FileSystem.hpp"
 
@@ -71,6 +72,7 @@ public:
         RegisterGraphicsDemo<Demos::LightingDemo>("Lighting");
         RegisterGraphicsDemo<Demos::ModelDemo>("Models");
         RegisterGraphicsDemo<Demos::InstancingDemo>("Instancing");
+        RegisterGraphicsDemo<Demos::MipmapDemo>("Mipmaps");
         RegisterAudioDemo<Demos::AudioDemo>("Audio");
         RegisterScriptingDemo<Demos::PythonDemo>("Python");
 
@@ -246,12 +248,6 @@ public:
             }
 
             ImGui::End();
-
-            static bool pShowDemoWindow = true;
-            if (pShowDemoWindow)
-            {
-                ImGui::ShowDemoWindow(&pShowDemoWindow);
-            }
         }
 
         if (m_CurrentDemo)

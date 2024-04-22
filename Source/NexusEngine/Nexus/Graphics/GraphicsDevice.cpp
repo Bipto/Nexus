@@ -10,6 +10,8 @@
 
 #include "Nexus/FileSystem/FileSystem.hpp"
 
+#include "Nexus/Graphics/MipmapGenerator.hpp"
+
 #include "stb_image.h"
 
 namespace Nexus::Graphics
@@ -66,22 +68,38 @@ namespace Nexus::Graphics
         return m_Window;
     }
 
-    Ref<Texture> GraphicsDevice::CreateTexture(const char *filepath)
+    Ref<Texture> GraphicsDevice::CreateTexture(const char *filepath, bool generateMips)
     {
         int desiredChannels = 4;
+        int receivedChannels = 0;
+        int width = 0;
+        int height = 0;
 
         TextureSpecification spec;
         spec.Format = PixelFormat::R8_G8_B8_A8_UNorm;
-        unsigned char *data = stbi_load(filepath, &spec.Width, &spec.Height, &spec.NumberOfChannels, desiredChannels);
-        spec.NumberOfChannels = desiredChannels;
+        unsigned char *data = stbi_load(filepath, &width, &height, &receivedChannels, desiredChannels);
+        spec.Width = (uint32_t)width;
+        spec.Height = (uint32_t)height;
+
+        if (generateMips)
+        {
+            uint32_t mipCount = Nexus::Graphics::MipmapGenerator::GetMaximumNumberOfMips(spec.Width, spec.Height);
+            spec.Levels = mipCount;
+        }
+        else
+        {
+            spec.Levels = 1;
+        }
 
         auto texture = CreateTexture(spec);
-        texture->SetData(data, spec.Width * spec.Height * spec.NumberOfChannels * sizeof(unsigned char));
-        delete[] data;
+        // texture->SetData(data, 0, 0, 0, spec.Width, spec.Height);
+        texture->SetData(data, spec.Width * spec.Height * sizeof(unsigned char), 0);
+
+        stbi_image_free(data);
         return texture;
     }
 
-    Ref<Texture> GraphicsDevice::CreateTexture(const std::string &filepath)
+    Ref<Texture> GraphicsDevice::CreateTexture(const std::string &filepath, bool generateMips)
     {
         return CreateTexture(filepath.c_str());
     }

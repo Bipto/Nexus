@@ -337,11 +337,11 @@ namespace Nexus::ImGuiUtils
         Nexus::Graphics::TextureSpecification spec;
         spec.Width = width;
         spec.Height = height;
-        spec.NumberOfChannels = channels;
         spec.Format = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
 
         m_FontTexture = m_GraphicsDevice->CreateTexture(spec);
-        m_FontTexture->SetData(pixels, width * height * channels * sizeof(unsigned char));
+        // m_FontTexture->SetData(pixels, 0, 0, 0, width, height);
+        m_FontTexture->SetData(pixels, spec.Width * spec.Height * sizeof(uint32_t), 0);
 
         UnbindTexture(m_FontTextureID);
 

@@ -99,7 +99,6 @@ namespace Nexus::Graphics
         m_TextureHeight = columnCount * largestCharacterSize.Y;
 
         Nexus::Graphics::TextureSpecification textureSpec;
-        textureSpec.NumberOfChannels = 4;
         textureSpec.Format = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
         textureSpec.Width = m_TextureWidth;
         textureSpec.Height = m_TextureHeight;
@@ -128,7 +127,8 @@ namespace Nexus::Graphics
         m_SpaceWidth = GetCharacter('i').Advance.x / 64;
 
         m_Texture = device->CreateTexture(textureSpec);
-        m_Texture->SetData(pixels.GetPixels().data(), pixels.GetPixels().size() * sizeof(uint32_t));
+        // m_Texture->SetData(pixels.GetPixels().data(), 0, 0, 0, pixels.GetWidth(), pixels.GetHeight());
+        m_Texture->SetData(pixels.GetPixels().data(), pixels.GetPixels().size(), 0);
 
         FT_Done_Face(face);
         FT_Done_FreeType(ft);

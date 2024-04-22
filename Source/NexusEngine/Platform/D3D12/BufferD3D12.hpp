@@ -2,7 +2,7 @@
 
 #if defined(NX_PLATFORM_D3D12)
 
-#include "Nexus/Graphics/Buffer.hpp"
+#include "Nexus/Graphics/GPUBuffer.hpp"
 #include "D3D12Include.hpp"
 #include "GraphicsDeviceD3D12.hpp"
 
