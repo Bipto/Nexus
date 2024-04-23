@@ -274,7 +274,7 @@ namespace Nexus::Graphics
                     auto texture = framebuffer->GetVulkanColorTexture(i);
                     if (texture->GetLayout() != VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
                     {
-                        TransitionImageLayout(texture->GetImage(), texture->GetLayout(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
+                        TransitionImageLayout(texture->GetImage(), 0, texture->GetLayout(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
                         texture->SetLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
                     }
                 }
@@ -284,7 +284,7 @@ namespace Nexus::Graphics
                     auto texture = std::dynamic_pointer_cast<TextureVk>(framebuffer->GetDepthTexture());
                     if (texture->GetLayout() != VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
                     {
-                        TransitionImageLayout(texture->GetImage(), texture->GetLayout(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
+                        TransitionImageLayout(texture->GetImage(), 0, texture->GetLayout(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
                         texture->SetLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
                     }
                 }
@@ -322,13 +322,13 @@ namespace Nexus::Graphics
             if (vulkanSwapchain->GetColorImageLayout() == VK_IMAGE_LAYOUT_UNDEFINED)
             {
                 auto swapchainColourImage = vulkanSwapchain->GetColourImage();
-                TransitionImageLayout(swapchainColourImage, vulkanSwapchain->GetColorImageLayout(), VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_IMAGE_ASPECT_COLOR_BIT);
+                TransitionImageLayout(swapchainColourImage, 0, vulkanSwapchain->GetColorImageLayout(), VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_IMAGE_ASPECT_COLOR_BIT);
             }
 
             if (vulkanSwapchain->GetDepthImageLayout() == VK_IMAGE_LAYOUT_UNDEFINED)
             {
                 auto swapchainDepthImage = vulkanSwapchain->GetDepthImage();
-                TransitionImageLayout(swapchainDepthImage, vulkanSwapchain->GetDepthImageLayout(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT));
+                TransitionImageLayout(swapchainDepthImage, 0, vulkanSwapchain->GetDepthImageLayout(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT));
             }
 
             vulkanSwapchain->SetColorImageLayout(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
@@ -353,7 +353,7 @@ namespace Nexus::Graphics
                     auto texture = vulkanFramebuffer->GetVulkanColorTexture(i);
                     if (texture->GetLayout() != VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
                     {
-                        TransitionImageLayout(texture->GetImage(), texture->GetLayout(), VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
+                        TransitionImageLayout(texture->GetImage(), 0, texture->GetLayout(), VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
                         texture->SetLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
                     }
                 }
@@ -363,7 +363,7 @@ namespace Nexus::Graphics
                     auto texture = vulkanFramebuffer->GetVulkanDepthTexture();
                     if (texture->GetLayout() != VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
                     {
-                        TransitionImageLayout(texture->GetImage(), texture->GetLayout(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT));
+                        TransitionImageLayout(texture->GetImage(), 0, texture->GetLayout(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT));
                         texture->SetLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
                     }
                 }
@@ -468,8 +468,8 @@ namespace Nexus::Graphics
         auto framebufferLayout = framebufferVk->GetVulkanColorTexture(sourceIndex)->GetLayout();
         auto swapchainLayout = swapchainVk->GetColorImageLayout();
 
-        TransitionImageLayout(framebufferImage, framebufferLayout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
-        TransitionImageLayout(swapchainImage, swapchainLayout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
+        TransitionImageLayout(framebufferImage, 0, framebufferLayout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
+        TransitionImageLayout(swapchainImage, 0, swapchainLayout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
 
         vkCmdResolveImage(
             m_CurrentCommandBuffer,
@@ -480,8 +480,8 @@ namespace Nexus::Graphics
             1,
             &resolve);
 
-        TransitionImageLayout(framebufferImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, framebufferLayout, VK_IMAGE_ASPECT_COLOR_BIT);
-        TransitionImageLayout(swapchainImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, swapchainLayout, VK_IMAGE_ASPECT_COLOR_BIT);
+        TransitionImageLayout(framebufferImage, 0, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, framebufferLayout, VK_IMAGE_ASPECT_COLOR_BIT);
+        TransitionImageLayout(swapchainImage, 0, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, swapchainLayout, VK_IMAGE_ASPECT_COLOR_BIT);
 
         SetRenderTarget(m_CurrentRenderTarget);
     }
@@ -501,7 +501,7 @@ namespace Nexus::Graphics
         return m_RenderSemaphores[m_Device->GetCurrentFrameIndex()];
     }
 
-    void CommandListVk::TransitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlagBits aspectMask)
+    void CommandListVk::TransitionImageLayout(VkImage image, uint32_t level, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlagBits aspectMask)
     {
         VkImageMemoryBarrier barrier{};
         barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -513,7 +513,7 @@ namespace Nexus::Graphics
 
         barrier.image = image;
         barrier.subresourceRange.aspectMask = aspectMask;
-        barrier.subresourceRange.baseMipLevel = 0;
+        barrier.subresourceRange.baseMipLevel = level;
         barrier.subresourceRange.levelCount = 1;
         barrier.subresourceRange.baseArrayLayer = 0;
         barrier.subresourceRange.layerCount = 1;

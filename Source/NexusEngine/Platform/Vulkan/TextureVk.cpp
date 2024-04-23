@@ -122,7 +122,38 @@ namespace Nexus::Graphics
 
     std::vector<std::byte> TextureVk::GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
     {
-        return std::vector<std::byte>();
+        uint32_t offset = x * y * GetPixelFormatSizeInBytes(m_Specification.Format);
+        VkDeviceSize size = width * height * GetPixelFormatSizeInBits(m_Specification.Format);
+
+        VkExtent3D extent = {};
+        extent.width = width;
+        extent.height = height;
+        extent.depth = 1;
+
+        // retrieve pixels from texture
+        {
+            m_GraphicsDevice->ImmediateSubmit([&](VkCommandBuffer cmd)
+                                              {                                              
+                                                VkBufferImageCopy copyRegion = {};
+                                                copyRegion.bufferOffset = offset;
+                                                copyRegion.bufferRowLength = 0;
+                                                copyRegion.bufferImageHeight = 0;
+                                                copyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                                                copyRegion.imageSubresource.mipLevel = level;
+                                                copyRegion.imageSubresource.baseArrayLayer = 0;
+                                                copyRegion.imageSubresource.layerCount = 1;
+                                                copyRegion.imageExtent = extent;
+                                                vkCmdCopyImageToBuffer(cmd, m_Image, m_Layout, m_StagingBuffer.Buffer, 1, &copyRegion); });
+        }
+
+        std::vector<std::byte> pixels(size);
+
+        void *buffer;
+        vmaMapMemory(m_GraphicsDevice->GetAllocator(), m_StagingBuffer.Allocation, &buffer);
+        memcpy(buffer, pixels.data(), pixels.size());
+        vmaUnmapMemory(m_GraphicsDevice->GetAllocator(), m_StagingBuffer.Allocation);
+
+        return pixels;
     }
 
     VkImage TextureVk::GetImage()

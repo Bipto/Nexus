@@ -59,7 +59,8 @@ namespace Nexus::Graphics
 
     void GraphicsDeviceVk::SubmitCommandList(Ref<CommandList> commandList)
     {
-        VkPipelineStageFlags waitDestStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
+        // VkPipelineStageFlags waitDestStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
+        VkPipelineStageFlags waitDestStageMask = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
         auto vulkanCommandList = std::dynamic_pointer_cast<CommandListVk>(commandList);
 
         vkWaitForFences(m_Device, 1, &vulkanCommandList->GetCurrentFence(), VK_TRUE, 0);
@@ -67,13 +68,13 @@ namespace Nexus::Graphics
 
         VkSubmitInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = &vulkanCommandList->GetCurrentSemaphore();
+        submitInfo.waitSemaphoreCount = 0;
+        submitInfo.pWaitSemaphores = nullptr;
         submitInfo.pWaitDstStageMask = &waitDestStageMask;
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &vulkanCommandList->GetCurrentCommandBuffer();
-        submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = &vulkanCommandList->GetCurrentSemaphore();
+        submitInfo.signalSemaphoreCount = 0;
+        submitInfo.pSignalSemaphores = nullptr;
 
         if (vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, vulkanCommandList->GetCurrentFence()) != VK_SUCCESS)
         {

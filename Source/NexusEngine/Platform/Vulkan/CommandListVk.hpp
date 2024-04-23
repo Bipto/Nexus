@@ -41,7 +41,7 @@ namespace Nexus::Graphics
         const VkSemaphore &GetCurrentSemaphore();
 
     private:
-        void TransitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlagBits aspectMask);
+        void TransitionImageLayout(VkImage image, uint32_t level, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlagBits aspectMask);
 
     private:
         VkCommandPool m_CommandPools[FRAMES_IN_FLIGHT];
