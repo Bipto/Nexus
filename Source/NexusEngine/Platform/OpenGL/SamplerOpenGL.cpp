@@ -37,7 +37,9 @@ namespace Nexus::Graphics
                 glSamplerParameterf(m_Sampler, GL_TEXTURE_MIN_LOD, m_Specification.MinimumLOD);
                 glSamplerParameterf(m_Sampler, GL_TEXTURE_MAX_LOD, m_Specification.MaximumLOD);
 
+#if defined(NX_PLATFORM_GL_DESKTOP)
                 glSamplerParameterf(m_Sampler, GL_TEXTURE_LOD_BIAS_EXT, m_Specification.LODBias);
+#endif
 
                 // texture comparison
                 auto comparisonFunction = GL::GetComparisonFunction(m_Specification.ComparisonFunction);

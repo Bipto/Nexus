@@ -58,9 +58,6 @@ namespace Nexus::Graphics
 
     std::vector<std::byte> TextureOpenGL::GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
     {
-        // make sure that resources are not in use on the GPU
-        glMemoryBarrier(GL_ALL_BARRIER_BITS);
-
         size_t bufferSize = (width - x) * (height - y) * GetPixelFormatSizeInBits(m_Specification.Format);
         std::vector<std::byte> data(bufferSize);
         // data.Size = (width - x) * (height - y) * GetPixelFormatSizeInBytes(m_Specification.Format);
