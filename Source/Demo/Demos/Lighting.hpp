@@ -30,9 +30,9 @@ namespace Demos
             Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
             m_CubeMesh = factory.CreateCube();
 
-            m_DiffuseMap = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/raw_plank_wall_diff_1k.jpg"));
-            m_NormalMap = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/raw_plank_wall_normal_1k.jpg"));
-            m_SpecularMap = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/raw_plank_wall_spec_1k.jpg"));
+            m_DiffuseMap = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/raw_plank_wall_diff_1k.jpg"), true);
+            m_NormalMap = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/raw_plank_wall_normal_1k.jpg"), true);
+            m_SpecularMap = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/raw_plank_wall_spec_1k.jpg"), true);
 
             Nexus::Graphics::BufferDescription cameraUniformBufferDesc;
             cameraUniformBufferDesc.Size = sizeof(VB_UNIFORM_CAMERA_DEMO_LIGHTING);

@@ -106,7 +106,7 @@ namespace Nexus::Graphics
         }
     }
 
-    std::vector<std::vector<std::byte>> MipmapGenerator::GenerateMips(Ref<Texture> texture, uint32_t mipCount)
+    void MipmapGenerator::GenerateMips(Ref<Texture> texture, uint32_t mipCount)
     {
         const uint32_t textureWidth = texture->GetTextureSpecification().Width;
         const uint32_t textureHeight = texture->GetTextureSpecification().Height;
@@ -114,19 +114,14 @@ namespace Nexus::Graphics
         uint32_t mipWidth = textureWidth;
         uint32_t mipHeight = textureHeight;
 
-        std::vector<std::vector<std::byte>> mips;
-
         Ref<ShaderModule> vertexModule = m_Device->CreateShaderModuleFromSpirvSource(c_MipmapVertexSource, "Mipmap-Gen.vert", Nexus::Graphics::ShaderStage::Vertex);
         Ref<ShaderModule> fragmentModule = m_Device->CreateShaderModuleFromSpirvSource(c_MipmapFragmentSource, "Mipmap-Gen.frag", Nexus::Graphics::ShaderStage::Fragment);
 
         Ref<Texture> mipTexture = texture;
 
         // iterate through each mip to generate
-        for (uint32_t i = 0; i < mipCount; i++)
+        for (uint32_t i = 1; i <= mipCount; i++)
         {
-            mipWidth /= 2;
-            mipHeight /= 2;
-
             // set up pipeline for rendering
             Nexus::Graphics::PipelineDescription pipelineDescription;
             pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
@@ -143,6 +138,9 @@ namespace Nexus::Graphics
 
             // create mip
             {
+                mipWidth /= 2;
+                mipHeight /= 2;
+
                 Nexus::Graphics::FramebufferSpecification framebufferSpec;
                 framebufferSpec.ColorAttachmentSpecification = {texture->GetTextureSpecification().Format};
                 framebufferSpec.Width = mipWidth;
@@ -173,21 +171,44 @@ namespace Nexus::Graphics
                 m_Device->SubmitCommandList(m_CommandList);
 
                 Ref<Texture> framebufferTexture = framebuffer->GetColorTexture(0);
+                uint32_t framebufferWidth = framebufferTexture->GetTextureSpecification().Width;
+                uint32_t framebufferHeight = framebufferTexture->GetTextureSpecification().Height;
+
                 std::vector<std::byte> pixels = framebufferTexture->GetData(0, 0, 0, mipWidth, mipHeight);
+                MipData mipData(pixels, framebufferWidth, framebufferHeight);
 
                 std::string name = "mip" + std::to_string(i) + ".png";
-                stbi_write_png(name.c_str(), mipWidth, mipHeight, 4, pixels.data(), mipWidth * 4);
+                stbi_write_png(name.c_str(), framebufferWidth, framebufferHeight, 4, pixels.data(), framebufferWidth * 4);
+
+                texture->SetData(mipData.GetData(), i, 0, 0, mipData.GetWidth(), mipData.GetHeight());
 
                 mipTexture = framebufferTexture;
-                mips.push_back(pixels);
             }
         }
-
-        return mips;
     }
 
     uint32_t MipmapGenerator::GetMaximumNumberOfMips(uint32_t width, uint32_t height)
     {
-        return 1 + std::floor(std::log2(std::max(width, height)));
+        return std::floor(std::log2(std::max(width, height)));
+    }
+
+    MipData::MipData(const std::vector<std::byte> &pixels, uint32_t width, uint32_t height)
+        : m_Pixels(pixels), m_Width(width), m_Height(height)
+    {
+    }
+
+    uint32_t MipData::GetWidth() const
+    {
+        return m_Width;
+    }
+
+    uint32_t MipData::GetHeight() const
+    {
+        return m_Height;
+    }
+
+    const void *MipData::GetData() const
+    {
+        return m_Pixels.data();
     }
 }

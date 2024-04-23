@@ -48,13 +48,11 @@ namespace Nexus::Graphics
         glDeleteTextures(1, &this->m_Handle);
     }
 
-    void TextureOpenGL::SetData(const void *data, uint32_t size, uint32_t level)
+    void TextureOpenGL::SetData(const void *data, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
     {
         GL::ClearErrors();
         glBindTexture(m_TextureType, m_Handle);
-
-        // NOTE: This should probably be the mip width/height!
-        glTexSubImage2D(m_TextureType, level, 0, 0, m_Specification.Width, m_Specification.Height, m_DataFormat, m_BaseType, data);
+        glTexSubImage2D(m_TextureType, level, x, y, width, height, m_DataFormat, m_BaseType, data);
         GL::CheckErrors();
     }
 
@@ -63,7 +61,7 @@ namespace Nexus::Graphics
         // make sure that resources are not in use on the GPU
         glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
-        size_t bufferSize = (width - x) * (height - y) * GetPixelFormatSizeInBytes(m_Specification.Format);
+        size_t bufferSize = (width - x) * (height - y) * GetPixelFormatSizeInBits(m_Specification.Format);
         std::vector<std::byte> data(bufferSize);
         // data.Size = (width - x) * (height - y) * GetPixelFormatSizeInBytes(m_Specification.Format);
         // data.Data = new char(data.Size);

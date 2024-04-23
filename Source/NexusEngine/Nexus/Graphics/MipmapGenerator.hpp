@@ -5,12 +5,28 @@
 
 namespace Nexus::Graphics
 {
+    struct MipData
+    {
+    public:
+        MipData() = delete;
+        MipData(const std::vector<std::byte> &pixels, uint32_t width, uint32_t height);
+
+        uint32_t GetWidth() const;
+        uint32_t GetHeight() const;
+        const void *GetData() const;
+
+    private:
+        std::vector<std::byte> m_Pixels;
+        uint32_t m_Width = 0;
+        uint32_t m_Height = 0;
+    };
+
     class MipmapGenerator
     {
     public:
         MipmapGenerator(GraphicsDevice *device);
         void GenerateMip(Ref<Texture> texture);
-        std::vector<std::vector<std::byte>> GenerateMips(Ref<Texture> texture, uint32_t mipCount);
+        void GenerateMips(Ref<Texture> texture, uint32_t mipCount);
 
         static uint32_t GetMaximumNumberOfMips(uint32_t width, uint32_t height);
 

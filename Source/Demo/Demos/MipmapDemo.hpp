@@ -19,21 +19,8 @@ namespace Demos
             Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
             m_Mesh = factory.CreateSprite();
 
-            m_Texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"));
-
-            Nexus::Graphics::SamplerSpecification samplerSpec{};
-            m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
-
+            m_Texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), true);
             m_TextureID = m_ImGuiRenderer->BindTexture(m_Texture);
-
-            uint32_t mipsToGenerate = Nexus::Graphics::MipmapGenerator::GetMaximumNumberOfMips(m_Texture->GetTextureSpecification().Width, m_Texture->GetTextureSpecification().Height) - 1;
-            std::vector<std::vector<std::byte>> mips = m_MipmapGenerator.GenerateMips(m_Texture, mipsToGenerate);
-
-            for (uint32_t mipLevel = 1; mipLevel < mips.size(); mipLevel++)
-            {
-                const auto &mipData = mips.at(mipLevel);
-                // m_Texture->SetData(mipData.data(), mipData.size(), mipLevel);
-            }
         }
 
         virtual ~MipmapDemo()
@@ -46,6 +33,11 @@ namespace Demos
 
         virtual void Render(Nexus::Time time) override
         {
+            Nexus::Graphics::SamplerSpecification samplerSpec{};
+            samplerSpec.MinimumLOD = m_SelectedMip;
+            samplerSpec.MaximumLOD = m_SelectedMip;
+            Nexus::Ref<Nexus::Graphics::Sampler> sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
+
             m_CommandList->Begin();
             m_CommandList->SetPipeline(m_Pipeline);
 
@@ -71,7 +63,7 @@ namespace Demos
                                              m_ClearColour.b,
                                              1.0f});
 
-            m_ResourceSet->WriteCombinedImageSampler(m_Texture, m_Sampler, "texSampler");
+            m_ResourceSet->WriteCombinedImageSampler(m_Texture, sampler, "texSampler");
 
             m_CommandList->SetResourceSet(m_ResourceSet);
             m_CommandList->SetVertexBuffer(m_Mesh->GetVertexBuffer(), 0);
@@ -91,6 +83,7 @@ namespace Demos
         virtual void RenderUI() override
         {
             ImGui::Image(m_TextureID, {256, 256});
+            ImGui::DragInt("Mip", &m_SelectedMip, 1.0f, 0, m_Texture->GetTextureSpecification().Levels);
         }
 
     private:
@@ -120,10 +113,10 @@ namespace Demos
         Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet = nullptr;
         Nexus::Ref<Nexus::Graphics::Mesh> m_Mesh = nullptr;
         Nexus::Ref<Nexus::Graphics::Texture> m_Texture = nullptr;
-        Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler = nullptr;
         glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
 
         ImTextureID m_TextureID = 0;
         Nexus::Graphics::MipmapGenerator m_MipmapGenerator;
+        int m_SelectedMip = 0;
     };
 }

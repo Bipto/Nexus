@@ -33,7 +33,7 @@ namespace Demos
             Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
             m_Mesh = factory.CreateCube();
 
-            m_Texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/raw_plank_wall_diff_1k.jpg").c_str());
+            m_Texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/raw_plank_wall_diff_1k.jpg").c_str(), false);
 
             Nexus::Graphics::SamplerSpecification samplerSpec{};
             m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);

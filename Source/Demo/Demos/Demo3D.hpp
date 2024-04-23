@@ -28,7 +28,7 @@ namespace Demos
 
             Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
             m_Mesh = factory.CreateCube();
-            m_Texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/raw_plank_wall_diff_1k.jpg").c_str());
+            m_Texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/raw_plank_wall_diff_1k.jpg").c_str(), true);
 
             Nexus::Graphics::BufferDescription cameraUniformBufferDesc;
             cameraUniformBufferDesc.Size = sizeof(VB_UNIFORM_CAMERA_DEMO_3D);

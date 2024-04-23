@@ -30,9 +30,9 @@ namespace Demos
             Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
             m_Model = factory.CreateFrom3DModelFile(Nexus::FileSystem::GetFilePathAbsolute("resources/models/survival_backpack_2/survival_backpack_2.fbx"));
 
-            m_DiffuseMap = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/models/survival_backpack_2/1001_albedo.jpg"));
-            m_NormalMap = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/models/survival_backpack_2/1001_normal.png"));
-            m_SpecularMap = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/models/survival_backpack_2/specular.jpg"));
+            m_DiffuseMap = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/models/survival_backpack_2/1001_albedo.jpg"), true);
+            m_NormalMap = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/models/survival_backpack_2/1001_normal.png"), true);
+            m_SpecularMap = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/models/survival_backpack_2/specular.jpg"), true);
 
             Nexus::Graphics::BufferDescription cameraUniformBufferDesc;
             cameraUniformBufferDesc.Size = sizeof(VB_UNIFORM_CAMERA_DEMO_LIGHTING);

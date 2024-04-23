@@ -64,10 +64,10 @@ namespace Nexus::Graphics
         vmaDestroyImage(m_GraphicsDevice->GetAllocator(), m_Image, m_Allocation);
     }
 
-    void TextureVk::SetData(const void *data, uint32_t size, uint32_t level)
+    void TextureVk::SetData(const void *data, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
     {
         uint32_t numChannels = GetPixelFormatNumberOfChannels(m_Specification.Format);
-        VkDeviceSize imageSize = size;
+        VkDeviceSize imageSize = width * height * GetPixelFormatSizeInBytes(m_Specification.Format);
 
         void *buffer;
         vmaMapMemory(m_GraphicsDevice->GetAllocator(), m_StagingBuffer.Allocation, &buffer);

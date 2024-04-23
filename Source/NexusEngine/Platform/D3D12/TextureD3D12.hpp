@@ -13,7 +13,7 @@ namespace Nexus::Graphics
     public:
         TextureD3D12(GraphicsDeviceD3D12 *device, const TextureSpecification &spec);
         virtual ~TextureD3D12();
-        virtual void SetData(const void *data, uint32_t size, uint32_t level) override;
+        virtual void SetData(const void *data, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
         virtual std::vector<std::byte> GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
         DXGI_FORMAT GetFormat();
         const Microsoft::WRL::ComPtr<ID3D12Resource2> &GetD3D12ResourceHandle();

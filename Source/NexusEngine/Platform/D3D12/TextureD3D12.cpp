@@ -25,12 +25,12 @@ namespace Nexus::Graphics
             uploadProperties.CreationNodeMask = 0;
             uploadProperties.VisibleNodeMask = 0;
 
-            uint32_t stride = GetPixelFormatSizeInBytes(m_Specification.Format);
+            uint32_t sizeInBytes = GetPixelFormatSizeInBytes(m_Specification.Format);
 
             D3D12_RESOURCE_DESC uploadBufferDesc;
             uploadBufferDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
             uploadBufferDesc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
-            uploadBufferDesc.Width = spec.Width * spec.Height * stride + 1;
+            uploadBufferDesc.Width = spec.Width * spec.Height * sizeInBytes + 1;
             uploadBufferDesc.Height = 1;
             uploadBufferDesc.DepthOrArraySize = 1;
             uploadBufferDesc.MipLevels = 1;
@@ -71,9 +71,10 @@ namespace Nexus::Graphics
     {
     }
 
-    void TextureD3D12::SetData(const void *data, uint32_t size, uint32_t level)
+    void TextureD3D12::SetData(const void *data, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
     {
-        uint32_t stride = m_Specification.Width * GetPixelFormatSizeInBytes(m_Specification.Format);
+        uint32_t stride = width * GetPixelFormatSizeInBytes(m_Specification.Format);
+        uint32_t size = width * height * GetPixelFormatSizeInBytes(m_Specification.Format);
 
         void *uploadBufferAddress;
         D3D12_RANGE uploadRange;
@@ -87,11 +88,11 @@ namespace Nexus::Graphics
         m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd)
                                   {
                                       D3D12_BOX textureSizeAsBox;
-                                      textureSizeAsBox.left = 0;
-                                      textureSizeAsBox.top = 0;
+                                      textureSizeAsBox.left = x;
+                                      textureSizeAsBox.top = y;
                                       textureSizeAsBox.front = 0;
-                                      textureSizeAsBox.right = m_Specification.Width;
-                                      textureSizeAsBox.bottom = m_Specification.Height;
+                                      textureSizeAsBox.right = width;
+                                      textureSizeAsBox.bottom = height;
                                       textureSizeAsBox.back = 1;
 
                                       D3D12_TEXTURE_COPY_LOCATION textureSource, textureDestination;
@@ -107,7 +108,7 @@ namespace Nexus::Graphics
                                       textureDestination.pResource = m_Texture.Get();
                                       textureDestination.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
                                       textureDestination.SubresourceIndex = level;
-                                      cmd->CopyTextureRegion(&textureDestination, 0, 0, 0, &textureSource, &textureSizeAsBox); });
+                                      cmd->CopyTextureRegion(&textureDestination, x, y, 0, &textureSource, &textureSizeAsBox); });
     }
 
     std::vector<std::byte> TextureD3D12::GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)

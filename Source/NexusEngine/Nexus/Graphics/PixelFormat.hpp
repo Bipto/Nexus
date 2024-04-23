@@ -66,7 +66,7 @@ namespace Nexus::Graphics
         R8_UNorm,
     };
 
-    static size_t GetPixelFormatSizeInBytes(PixelFormat format)
+    static size_t GetPixelFormatSizeInBits(PixelFormat format)
     {
         switch (format)
         {
@@ -150,6 +150,11 @@ namespace Nexus::Graphics
         case PixelFormat::None:
             throw std::runtime_error("Invalid pixel format selected");
         }
+    }
+
+    static size_t GetPixelFormatSizeInBytes(PixelFormat format)
+    {
+        return GetPixelFormatSizeInBits(format) / 8;
     }
 
     static size_t GetPixelFormatNumberOfChannels(PixelFormat format)

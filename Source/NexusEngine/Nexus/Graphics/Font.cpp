@@ -127,8 +127,8 @@ namespace Nexus::Graphics
         m_SpaceWidth = GetCharacter('i').Advance.x / 64;
 
         m_Texture = device->CreateTexture(textureSpec);
-        // m_Texture->SetData(pixels.GetPixels().data(), 0, 0, 0, pixels.GetWidth(), pixels.GetHeight());
-        m_Texture->SetData(pixels.GetPixels().data(), pixels.GetPixels().size(), 0);
+        m_Texture->SetData(pixels.GetPixels().data(), 0, 0, 0, pixels.GetWidth(), pixels.GetHeight());
+        // m_Texture->SetData(pixels.GetPixels().data(), pixels.GetPixels().size(), 0);
 
         FT_Done_Face(face);
         FT_Done_FreeType(ft);

@@ -340,8 +340,8 @@ namespace Nexus::ImGuiUtils
         spec.Format = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
 
         m_FontTexture = m_GraphicsDevice->CreateTexture(spec);
-        // m_FontTexture->SetData(pixels, 0, 0, 0, width, height);
-        m_FontTexture->SetData(pixels, spec.Width * spec.Height * sizeof(uint32_t), 0);
+        m_FontTexture->SetData(pixels, 0, 0, 0, width, height);
+        // m_FontTexture->SetData(pixels, spec.Width * spec.Height * sizeof(uint32_t), 0);
 
         UnbindTexture(m_FontTextureID);
 

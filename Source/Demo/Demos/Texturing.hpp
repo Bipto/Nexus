@@ -18,7 +18,7 @@ namespace Demos
             Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
             m_Mesh = factory.CreateSprite();
 
-            m_Texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"));
+            m_Texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), false);
 
             Nexus::Graphics::SamplerSpecification samplerSpec{};
             samplerSpec.MaximumAnisotropy = 8;
