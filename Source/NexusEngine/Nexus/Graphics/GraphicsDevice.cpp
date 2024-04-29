@@ -95,9 +95,12 @@ namespace Nexus::Graphics
         texture->SetData(data, 0, 0, 0, spec.Width, spec.Height);
         // texture->SetData(data, spec.Width * spec.Height * sizeof(unsigned char), 0);
 
-        uint32_t mipsToGenerate = spec.Levels - 1;
-        Nexus::Graphics::MipmapGenerator mipGenerator(this);
-        mipGenerator.GenerateMips(texture, mipsToGenerate);
+        if (generateMips)
+        {
+            uint32_t mipsToGenerate = spec.Levels - 1;
+            Nexus::Graphics::MipmapGenerator mipGenerator(this);
+            mipGenerator.GenerateMips(texture, mipsToGenerate);
+        }
 
         stbi_image_free(data);
         return texture;

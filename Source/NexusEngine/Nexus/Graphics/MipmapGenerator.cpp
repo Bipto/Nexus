@@ -111,6 +111,12 @@ namespace Nexus::Graphics
         const uint32_t textureWidth = texture->GetTextureSpecification().Width;
         const uint32_t textureHeight = texture->GetTextureSpecification().Height;
 
+        std::vector<std::byte> framebufferPixels = texture->GetData(0, 0, 0, textureWidth, textureHeight);
+        MipData mipData(framebufferPixels, textureWidth, textureHeight);
+
+        std::string name = "mip0.png";
+        stbi_write_png(name.c_str(), textureWidth, textureHeight, 4, framebufferPixels.data(), textureWidth * 4);
+
         uint32_t mipWidth = textureWidth;
         uint32_t mipHeight = textureHeight;
 
@@ -159,14 +165,28 @@ namespace Nexus::Graphics
                 Ref<Sampler> sampler = m_Device->CreateSampler(samplerSpec);
                 resourceSet->WriteCombinedImageSampler(mipTexture, sampler, "texSampler");
 
-                m_CommandList->Begin();
+                Nexus::Graphics::Scissor scissor;
+                scissor.X = 0;
+                scissor.Y = 0;
+                scissor.Width = mipWidth;
+                scissor.Height = mipHeight;
 
+                Nexus::Graphics::Viewport viewport;
+                viewport.X = 0;
+                viewport.Y = 0;
+                viewport.Width = mipWidth;
+                viewport.Height = mipHeight;
+                viewport.MinDepth = 0;
+                viewport.MaxDepth = 1;
+
+                m_CommandList->Begin();
+                m_CommandList->SetViewport(viewport);
+                m_CommandList->SetScissor(scissor);
                 m_CommandList->SetPipeline(pipeline);
                 m_CommandList->SetVertexBuffer(m_Quad.GetVertexBuffer(), 0);
                 m_CommandList->SetIndexBuffer(m_Quad.GetIndexBuffer());
                 m_CommandList->SetResourceSet(resourceSet);
                 m_CommandList->DrawIndexed(6, 0, 0);
-
                 m_CommandList->End();
                 m_Device->SubmitCommandList(m_CommandList);
 
@@ -174,13 +194,13 @@ namespace Nexus::Graphics
                 uint32_t framebufferWidth = framebufferTexture->GetTextureSpecification().Width;
                 uint32_t framebufferHeight = framebufferTexture->GetTextureSpecification().Height;
 
-                std::vector<std::byte> pixels = framebufferTexture->GetData(0, 0, 0, mipWidth, mipHeight);
+                std::vector<std::byte> pixels = framebufferTexture->GetData(0, 0, 0, framebufferWidth, framebufferHeight);
                 MipData mipData(pixels, framebufferWidth, framebufferHeight);
 
                 std::string name = "mip" + std::to_string(i) + ".png";
                 stbi_write_png(name.c_str(), framebufferWidth, framebufferHeight, 4, pixels.data(), framebufferWidth * 4);
 
-                texture->SetData(mipData.GetData(), i, 0, 0, mipData.GetWidth(), mipData.GetHeight());
+                texture->SetData(mipData.GetData(), i, 0, 0, framebufferWidth, framebufferHeight);
 
                 mipTexture = framebufferTexture;
             }

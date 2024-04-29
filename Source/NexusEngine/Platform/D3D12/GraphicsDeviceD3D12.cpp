@@ -212,7 +212,6 @@ namespace Nexus::Graphics
         InitUploadCommandList();
         function(m_UploadCommandList.Get());
         DispatchUploadCommandList();
-        SignalAndWait();
     }
 
     void GraphicsDeviceD3D12::InitUploadCommandList()

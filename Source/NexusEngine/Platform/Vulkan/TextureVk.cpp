@@ -1,6 +1,7 @@
 #if defined(NX_PLATFORM_VULKAN)
 
 #include "TextureVk.hpp"
+#include "CommandListVk.hpp"
 
 namespace Nexus::Graphics
 {
@@ -14,7 +15,7 @@ namespace Nexus::Graphics
         VkImageUsageFlagBits usage = GetVkImageUsageFlags(spec.Usage, isDepth);
         m_Format = GetVkPixelDataFormat(spec.Format, isDepth);
 
-        m_StagingBuffer = graphicsDevice->CreateBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
+        m_StagingBuffer = graphicsDevice->CreateBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
 
         VkExtent3D imageExtent;
         imageExtent.width = spec.Width;
@@ -56,6 +57,27 @@ namespace Nexus::Graphics
         {
             throw std::runtime_error("Failed to create image view");
         }
+
+        Ref<CommandListVk> commandList = std::dynamic_pointer_cast<CommandListVk>(m_GraphicsDevice->CreateCommandList());
+        commandList->Begin();
+
+        VkImageAspectFlagBits aspectFlags = {};
+        if (isDepth)
+        {
+            aspectFlags = VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
+        }
+        else
+        {
+            aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
+        }
+
+        for (uint32_t i = 0; i < m_Specification.Levels; i++)
+        {
+            commandList->TransitionImageLayout(m_Image, i, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, aspectFlags);
+        }
+
+        commandList->End();
+        m_GraphicsDevice->SubmitCommandList(commandList);
     }
 
     TextureVk::~TextureVk()
@@ -123,7 +145,7 @@ namespace Nexus::Graphics
     std::vector<std::byte> TextureVk::GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
     {
         uint32_t offset = x * y * GetPixelFormatSizeInBytes(m_Specification.Format);
-        VkDeviceSize size = width * height * GetPixelFormatSizeInBits(m_Specification.Format);
+        VkDeviceSize size = width * height * GetPixelFormatSizeInBytes(m_Specification.Format);
 
         VkExtent3D extent = {};
         extent.width = width;
@@ -133,9 +155,26 @@ namespace Nexus::Graphics
         // retrieve pixels from texture
         {
             m_GraphicsDevice->ImmediateSubmit([&](VkCommandBuffer cmd)
-                                              {                                              
+                                              {
+                                                VkImageSubresourceRange range;
+                                                range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                                                range.baseMipLevel = level;
+                                                range.levelCount = 1;
+                                                range.baseArrayLayer = 0;
+                                                range.layerCount = 1;
+
+                                                VkImageMemoryBarrier imageBarrierToTransfer = {};
+                                                imageBarrierToTransfer.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+                                                imageBarrierToTransfer.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+                                                imageBarrierToTransfer.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                                                imageBarrierToTransfer.image = m_Image;
+                                                imageBarrierToTransfer.subresourceRange = range;
+                                                imageBarrierToTransfer.srcAccessMask = 0;
+                                                imageBarrierToTransfer.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+                                                vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageBarrierToTransfer);
+
                                                 VkBufferImageCopy copyRegion = {};
-                                                copyRegion.bufferOffset = offset;
+                                                copyRegion.bufferOffset = 0;
                                                 copyRegion.bufferRowLength = 0;
                                                 copyRegion.bufferImageHeight = 0;
                                                 copyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -143,14 +182,24 @@ namespace Nexus::Graphics
                                                 copyRegion.imageSubresource.baseArrayLayer = 0;
                                                 copyRegion.imageSubresource.layerCount = 1;
                                                 copyRegion.imageExtent = extent;
-                                                vkCmdCopyImageToBuffer(cmd, m_Image, m_Layout, m_StagingBuffer.Buffer, 1, &copyRegion); });
+                                                copyRegion.imageOffset.x = x;
+                                                copyRegion.imageOffset.y = y;
+                                                copyRegion.imageOffset.z = 0;
+                                                vkCmdCopyImageToBuffer(cmd, m_Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, m_StagingBuffer.Buffer, 1, &copyRegion);
+
+                                                VkImageMemoryBarrier imageBarrierToReadable = imageBarrierToTransfer;
+                                                imageBarrierToReadable.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                                                imageBarrierToReadable.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                                                imageBarrierToReadable.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+                                                imageBarrierToReadable.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+                                                vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TRANSFER_BIT,  VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageBarrierToReadable); });
         }
 
         std::vector<std::byte> pixels(size);
 
         void *buffer;
         vmaMapMemory(m_GraphicsDevice->GetAllocator(), m_StagingBuffer.Allocation, &buffer);
-        memcpy(buffer, pixels.data(), pixels.size());
+        memcpy(pixels.data(), buffer, pixels.size());
         vmaUnmapMemory(m_GraphicsDevice->GetAllocator(), m_StagingBuffer.Allocation);
 
         return pixels;

@@ -39,8 +39,6 @@ namespace Nexus::Graphics
         const VkCommandBuffer &GetCurrentCommandBuffer();
         const VkFence &GetCurrentFence();
         const VkSemaphore &GetCurrentSemaphore();
-
-    private:
         void TransitionImageLayout(VkImage image, uint32_t level, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlagBits aspectMask);
 
     private:

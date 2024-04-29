@@ -17,6 +17,7 @@
 #include "Demos/FramebufferDemo.hpp"
 #include "Demos/InstancingDemo.hpp"
 #include "Demos/MipmapDemo.hpp"
+#include "Demos/TextureReadTest.hpp"
 
 #include "Nexus/FileSystem/FileSystem.hpp"
 
@@ -73,6 +74,7 @@ public:
         RegisterGraphicsDemo<Demos::ModelDemo>("Models");
         RegisterGraphicsDemo<Demos::InstancingDemo>("Instancing");
         RegisterGraphicsDemo<Demos::MipmapDemo>("Mipmaps");
+        RegisterGraphicsDemo<Demos::TextureReadTest>("Texture Read");
         RegisterAudioDemo<Demos::AudioDemo>("Audio");
         RegisterScriptingDemo<Demos::PythonDemo>("Python");
 
@@ -125,12 +127,6 @@ public:
     {
         m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
         m_GraphicsDevice->BeginFrame();
-
-        m_CommandList->Begin();
-        m_CommandList->SetRenderTarget({m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
-        m_CommandList->ClearColorTarget(0, {1.0f, 0.0f, 0.0f, 1.0f});
-        m_CommandList->End();
-        m_GraphicsDevice->SubmitCommandList(m_CommandList);
 
         m_ImGuiRenderer->BeforeLayout(time);
 
@@ -296,7 +292,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;
