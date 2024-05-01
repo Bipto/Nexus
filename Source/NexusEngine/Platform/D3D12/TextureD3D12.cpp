@@ -30,7 +30,7 @@ namespace Nexus::Graphics
             D3D12_RESOURCE_DESC uploadBufferDesc;
             uploadBufferDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
             uploadBufferDesc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
-            uploadBufferDesc.Width = spec.Width * spec.Height * sizeInBytes + 1;
+            uploadBufferDesc.Width = spec.Width * spec.Height * sizeInBytes;
             uploadBufferDesc.Height = 1;
             uploadBufferDesc.DepthOrArraySize = 1;
             uploadBufferDesc.MipLevels = 1;
@@ -113,68 +113,43 @@ namespace Nexus::Graphics
 
     std::vector<std::byte> TextureD3D12::GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
     {
-        uint32_t stride = width * GetPixelFormatSizeInBytes(m_Specification.Format);
-        uint32_t size = width * height * GetPixelFormatSizeInBytes(m_Specification.Format);
         ID3D12Device10 *d3d12Device = m_Device->GetDevice();
+        D3D12_RESOURCE_DESC textureDesc = m_Texture->GetDesc();
 
-        /* m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd)
-                                  {
-            D3D12_BOX textureSizeAsBox;
-            textureSizeAsBox.left = x;
-            textureSizeAsBox.top = y;
-            textureSizeAsBox.front = 1;
-            textureSizeAsBox.right = width;
-            textureSizeAsBox.bottom = height;
-            textureSizeAsBox.back = 1;
-
-            D3D12_TEXTURE_COPY_LOCATION textureSource, textureDestination;
-            textureSource.pResource = m_Texture.Get();
-            textureSource.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
-            textureSource.SubresourceIndex = level;
-
-            textureDestination.pResource = m_UploadBuffer.Get();
-            textureDestination.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
-            textureDestination.PlacedFootprint.Offset = 0;
-            textureDestination.PlacedFootprint.Footprint.Width = width;
-            textureDestination.PlacedFootprint.Footprint.Height = height;
-            textureDestination.PlacedFootprint.Footprint.Depth = 1;
-            textureDestination.PlacedFootprint.Footprint.RowPitch = stride;
-            textureDestination.PlacedFootprint.Footprint.Format = m_TextureFormat;
-
-            cmd->CopyTextureRegion(&textureDestination, x, y, 0, &textureSource, &textureSizeAsBox); });
-
-        void *uploadBufferAddress;
-        D3D12_RANGE readRange;
-        readRange.Begin = 0;
-        readRange.End = size;
-
-        m_UploadBuffer->Map(0, &readRange, &uploadBufferAddress);
-
-        std::vector<std::byte> pixels(size);
-
-        memcpy(pixels.data(), uploadBufferAddress, pixels.size());
-
-        D3D12_RANGE writeRange;
-        writeRange.Begin = 0;
-        writeRange.End = 0;
-        m_UploadBuffer->Unmap(0, &writeRange);
-
-        return pixels; */
+        D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
+        UINT numRows;
+        UINT64 rowSizeInBytes;
+        UINT64 totalBytes;
+        d3d12Device->GetCopyableFootprints(&textureDesc, 0, m_Specification.Levels, 0, &layout, &numRows, &rowSizeInBytes, &totalBytes);
 
         D3D12_HEAP_PROPERTIES readbackProperties = {};
         readbackProperties.Type = D3D12_HEAP_TYPE_READBACK;
         readbackProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
         readbackProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+        readbackProperties.CreationNodeMask = 0;
+        readbackProperties.VisibleNodeMask = 0;
 
         D3D12_RESOURCE_DESC readbackBufferDesc = {};
+        readbackBufferDesc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
+        readbackBufferDesc.DepthOrArraySize = 1;
         readbackBufferDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+        readbackBufferDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+        readbackBufferDesc.Format = DXGI_FORMAT_UNKNOWN;
+        readbackBufferDesc.Height = 1;
+        readbackBufferDesc.Width = totalBytes;
+        readbackBufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+        readbackBufferDesc.MipLevels = 1;
+        readbackBufferDesc.SampleDesc.Count = 1;
+        readbackBufferDesc.SampleDesc.Quality = 0;
+
+        /* readbackBufferDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
         readbackBufferDesc.Width = size;
         readbackBufferDesc.Height = 1;
         readbackBufferDesc.DepthOrArraySize = 1;
         readbackBufferDesc.MipLevels = 1;
         readbackBufferDesc.Format = DXGI_FORMAT_UNKNOWN;
         readbackBufferDesc.SampleDesc.Count = 1;
-        readbackBufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+        readbackBufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR; */
 
         Microsoft::WRL::ComPtr<ID3D12Resource2> readbackBuffer;
 
@@ -194,12 +169,7 @@ namespace Nexus::Graphics
         D3D12_TEXTURE_COPY_LOCATION dstLocation = {};
         dstLocation.pResource = readbackBuffer.Get();
         dstLocation.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
-        dstLocation.PlacedFootprint.Offset = 0;
-        dstLocation.PlacedFootprint.Footprint.Width = width;
-        dstLocation.PlacedFootprint.Footprint.Height = height;
-        dstLocation.PlacedFootprint.Footprint.Depth = 1;
-        dstLocation.PlacedFootprint.Footprint.Format = m_TextureFormat;
-        dstLocation.PlacedFootprint.Footprint.RowPitch = stride;
+        dstLocation.PlacedFootprint = layout;
 
         D3D12_BOX textureBounds = {};
         textureBounds.left = x;
@@ -226,26 +196,33 @@ namespace Nexus::Graphics
         toDefaultBarrier.Transition.StateAfter = m_CurrentResourceState;
 
         m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd)
-                                  { 
-                                    cmd->ResourceBarrier(1, &toReadBarrier);
-                                    cmd->CopyTextureRegion(&dstLocation, 0, 0, 0, &srcLocation, &textureBounds);
-                                    cmd->ResourceBarrier(1, &toDefaultBarrier); });
+                                  {
+                                      // cmd->ResourceBarrier(1, &toReadBarrier);
+                                      cmd->CopyTextureRegion(&dstLocation, 0, 0, 0, &srcLocation, &textureBounds);
+                                      // cmd->ResourceBarrier(1, &toDefaultBarrier);
+                                  });
 
-        std::vector<std::byte> pixels(size);
+        std::vector<std::byte> pixels(totalBytes);
 
         void *uploadBufferAddress;
         D3D12_RANGE readRange;
         readRange.Begin = 0;
-        readRange.End = size;
+        readRange.End = totalBytes;
 
-        m_UploadBuffer->Map(0, &readRange, &uploadBufferAddress);
+        readbackBuffer->Map(0, &readRange, &uploadBufferAddress);
 
         memcpy(pixels.data(), uploadBufferAddress, pixels.size());
 
         D3D12_RANGE writeRange;
         writeRange.Begin = 0;
-        writeRange.End = 0;
-        m_UploadBuffer->Unmap(0, &writeRange);
+        writeRange.End = totalBytes;
+        readbackBuffer->Unmap(0, &writeRange);
+
+        /* void *data;
+        UINT rowPitch;
+        UINT deothPitch;
+        UINT srcSubresource;
+        m_Texture->ReadFromSubresource() */
 
         return pixels;
     }

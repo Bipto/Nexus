@@ -60,8 +60,6 @@ namespace Nexus::Graphics
     {
         size_t bufferSize = (width - x) * (height - y) * GetPixelFormatSizeInBits(m_Specification.Format);
         std::vector<std::byte> data(bufferSize);
-        // data.Size = (width - x) * (height - y) * GetPixelFormatSizeInBytes(m_Specification.Format);
-        // data.Data = new char(data.Size);
 
         // OpenGL only allows pixel data to be read from a framebuffer so we create a temporary one
         uint32_t framebufferId = 0;

@@ -33,7 +33,6 @@ namespace Demos
             Nexus::Ref<Nexus::Graphics::Texture> colourTexture = m_Framebuffer->GetColorTexture(0);
             uint32_t textureWidth = colourTexture->GetTextureSpecification().Width;
             uint32_t textureHeight = colourTexture->GetTextureSpecification().Height;
-
             const std::vector<std::byte> &pixels = colourTexture->GetData(0, 0, 0, textureWidth, textureHeight);
             stbi_write_png("output.png", textureWidth, textureHeight, 4, pixels.data(), textureWidth * 4);
         }
@@ -48,6 +47,12 @@ namespace Demos
 
         virtual void Render(Nexus::Time time) override
         {
+            Nexus::Ref<Nexus::Graphics::Texture> colourTexture = m_Framebuffer->GetColorTexture(0);
+            uint32_t textureWidth = colourTexture->GetTextureSpecification().Width;
+            uint32_t textureHeight = colourTexture->GetTextureSpecification().Height;
+
+            const std::vector<std::byte> &pixels = colourTexture->GetData(0, 0, 0, textureWidth, textureHeight);
+
             m_CommandList->Begin();
             m_CommandList->SetRenderTarget({m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
             m_CommandList->ClearColorTarget(0, {m_ClearColour.r,
