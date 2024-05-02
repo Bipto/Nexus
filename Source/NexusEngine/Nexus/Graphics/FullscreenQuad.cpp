@@ -4,12 +4,14 @@ namespace Nexus::Graphics
 {
     FullscreenQuad::FullscreenQuad(GraphicsDevice *device)
     {
+        float correction = device->GetUVCorrection();
+
         std::vector<VertexPositionTexCoord> vertices =
             {
-                {{-1.0f, -1.0f, 0.0f}, {0.0f, 0.0f}},
-                {{1.0f, -1.0f, 0.0f}, {1.0f, 0.0f}},
-                {{1.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
-                {{-1.0f, 1.0f, 0.0f}, {0.0f, 1.0f}}};
+                {{-1.0f, -1.0f * correction, 0.0f}, {0.0f, 0.0f}},
+                {{1.0f, -1.0f * correction, 0.0f}, {1.0f, 0.0f}},
+                {{1.0f, 1.0f * correction, 0.0f}, {1.0f, 1.0f}},
+                {{-1.0f, 1.0f * correction, 0.0f}, {0.0f, 1.0f}}};
 
         std::vector<unsigned int> indices =
             {

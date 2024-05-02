@@ -12,13 +12,9 @@ const std::string c_MipmapVertexSource =
     "layout (location = 0) in vec3 Position;\n"
     "layout (location = 1) in vec2 TexCoord;\n"
     "layout (location = 0) out vec2 OutTexCoord;\n"
-    "layout (binding = 0, set = 0) uniform Transform\n"
-    "{\n"
-    "   mat4 u_Transform;"
-    "};\n"
     "void main()\n"
     "{\n"
-    "    gl_Position = u_Transform * vec4(Position, 1.0);\n"
+    "    gl_Position = vec4(Position, 1.0);\n"
     "    OutTexCoord = TexCoord;\n"
     "}";
 
@@ -26,7 +22,7 @@ const std::string c_MipmapFragmentSource =
     "#version 450 core\n"
     "layout(location = 0) in vec2 OutTexCoord;\n"
     "layout(location = 0) out vec4 FragColor;\n"
-    "layout(binding = 0, set = 1) uniform sampler2D texSampler;\n"
+    "layout(binding = 0, set = 0) uniform sampler2D texSampler;\n"
     "void main()\n"
     "{\n"
     "    FragColor = texture(texSampler, OutTexCoord);\n"
@@ -70,13 +66,9 @@ namespace Nexus::Graphics
             pipelineDescription.VertexModule = vertexModule;
             pipelineDescription.FragmentModule = fragmentModule;
 
-            pipelineDescription.ResourceSetSpecification.UniformBuffers =
-                {
-                    {"Transform", 0, 0}};
-
             pipelineDescription.ResourceSetSpecification.SampledImages =
                 {
-                    {"texSampler", 1, 0}};
+                    {"texSampler", 0, 0}};
 
             pipelineDescription.Layouts = {m_Quad.GetVertexBufferLayout()};
 
@@ -102,21 +94,6 @@ namespace Nexus::Graphics
                 samplerSpec.MaximumLOD = 0;
                 Ref<Sampler> sampler = m_Device->CreateSampler(samplerSpec);
                 resourceSet->WriteCombinedImageSampler(mipTexture, sampler, "texSampler");
-
-                // glm::mat4 transform = glm::ortho<float>(-1, 1, -1, 1, -1.0f, 1.0f);
-                glm::mat4 transform = glm::mat4(1.0f);
-
-                if (!m_Device->IsUVOriginTopLeft())
-                {
-                    glm::mat4 transform = glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), {0.0f, 1.0f, 0.0f});
-                }
-
-                Nexus::Graphics::BufferDescription bufferDesc{};
-                bufferDesc.Size = sizeof(transform);
-                bufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
-                Ref<UniformBuffer> uniformBuffer = m_Device->CreateUniformBuffer(bufferDesc, nullptr);
-                uniformBuffer->SetData(&transform, sizeof(transform), 0);
-                resourceSet->WriteUniformBuffer(uniformBuffer, "Transform");
 
                 Nexus::Graphics::Scissor scissor;
                 scissor.X = 0;
