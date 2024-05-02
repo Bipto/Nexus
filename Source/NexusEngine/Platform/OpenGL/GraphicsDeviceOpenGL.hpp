@@ -39,6 +39,7 @@ namespace Nexus::Graphics
 
         virtual ShaderLanguage GetSupportedShaderFormat() override;
         virtual float GetUVCorrection() { return 1.0f; }
+        virtual bool IsUVOriginTopLeft() override { return false; };
 
     private:
         virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) override;

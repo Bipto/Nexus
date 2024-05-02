@@ -81,7 +81,7 @@ namespace Nexus::Graphics
         uploadRange.Begin = 0;
         uploadRange.End = size;
 
-        m_UploadBuffer->Map(0, &uploadRange, &uploadBufferAddress);
+        m_UploadBuffer->Map(0, nullptr, &uploadBufferAddress);
         memcpy(uploadBufferAddress, data, size);
         m_UploadBuffer->Unmap(0, &uploadRange);
 
@@ -120,7 +120,7 @@ namespace Nexus::Graphics
         UINT numRows;
         UINT64 rowSizeInBytes;
         UINT64 totalBytes;
-        d3d12Device->GetCopyableFootprints(&textureDesc, 0, m_Specification.Levels, 0, &layout, &numRows, &rowSizeInBytes, &totalBytes);
+        d3d12Device->GetCopyableFootprints(&textureDesc, level, 1, 0, &layout, &numRows, &rowSizeInBytes, &totalBytes);
 
         D3D12_HEAP_PROPERTIES readbackProperties = {};
         readbackProperties.Type = D3D12_HEAP_TYPE_READBACK;
@@ -142,15 +142,6 @@ namespace Nexus::Graphics
         readbackBufferDesc.SampleDesc.Count = 1;
         readbackBufferDesc.SampleDesc.Quality = 0;
 
-        /* readbackBufferDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-        readbackBufferDesc.Width = size;
-        readbackBufferDesc.Height = 1;
-        readbackBufferDesc.DepthOrArraySize = 1;
-        readbackBufferDesc.MipLevels = 1;
-        readbackBufferDesc.Format = DXGI_FORMAT_UNKNOWN;
-        readbackBufferDesc.SampleDesc.Count = 1;
-        readbackBufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR; */
-
         Microsoft::WRL::ComPtr<ID3D12Resource2> readbackBuffer;
 
         d3d12Device->CreateCommittedResource(
@@ -166,10 +157,17 @@ namespace Nexus::Graphics
         srcLocation.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
         srcLocation.SubresourceIndex = level;
 
+        uint32_t stride = width * GetPixelFormatSizeInBytes(m_Specification.Format);
+
         D3D12_TEXTURE_COPY_LOCATION dstLocation = {};
         dstLocation.pResource = readbackBuffer.Get();
         dstLocation.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
-        dstLocation.PlacedFootprint = layout;
+        dstLocation.PlacedFootprint.Offset = 0;
+        dstLocation.PlacedFootprint.Footprint.Depth = 1;
+        dstLocation.PlacedFootprint.Footprint.Format = m_TextureFormat;
+        dstLocation.PlacedFootprint.Footprint.Width = width;
+        dstLocation.PlacedFootprint.Footprint.Height = height;
+        dstLocation.PlacedFootprint.Footprint.RowPitch = stride;
 
         D3D12_BOX textureBounds = {};
         textureBounds.left = x;
@@ -197,10 +195,9 @@ namespace Nexus::Graphics
 
         m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd)
                                   {
-                                      // cmd->ResourceBarrier(1, &toReadBarrier);
-                                      cmd->CopyTextureRegion(&dstLocation, 0, 0, 0, &srcLocation, &textureBounds);
-                                      // cmd->ResourceBarrier(1, &toDefaultBarrier);
-                                  });
+                                    cmd->ResourceBarrier(1, &toReadBarrier);
+                                    cmd->CopyTextureRegion(&dstLocation, 0, 0, 0, &srcLocation, &textureBounds);
+                                    cmd->ResourceBarrier(1, &toDefaultBarrier); });
 
         std::vector<std::byte> pixels(totalBytes);
 
@@ -210,13 +207,8 @@ namespace Nexus::Graphics
         readRange.End = totalBytes;
 
         readbackBuffer->Map(0, &readRange, &uploadBufferAddress);
-
         memcpy(pixels.data(), uploadBufferAddress, pixels.size());
-
-        D3D12_RANGE writeRange;
-        writeRange.Begin = 0;
-        writeRange.End = totalBytes;
-        readbackBuffer->Unmap(0, &writeRange);
+        readbackBuffer->Unmap(0, nullptr);
 
         /* void *data;
         UINT rowPitch;

@@ -138,6 +138,8 @@ namespace Nexus::Graphics
         /// @return A float representing the correction
         virtual float GetUVCorrection() = 0;
 
+        virtual bool IsUVOriginTopLeft() = 0;
+
         virtual const GraphicsCapabilities GetGraphicsCapabilities() const = 0;
 
         Ref<ShaderModule> CreateShaderModuleFromSpirvFile(const std::string &filepath, ShaderStage stage);

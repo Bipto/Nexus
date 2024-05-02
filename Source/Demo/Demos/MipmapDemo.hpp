@@ -33,6 +33,8 @@ namespace Demos
 
         virtual void Render(Nexus::Time time) override
         {
+            // m_Texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), true);
+
             Nexus::Graphics::SamplerSpecification samplerSpec{};
             samplerSpec.MinimumLOD = m_SelectedMip;
             samplerSpec.MaximumLOD = m_SelectedMip;

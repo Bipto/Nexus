@@ -25,7 +25,6 @@ namespace Nexus::Graphics
     {
     public:
         MipmapGenerator(GraphicsDevice *device);
-        void GenerateMip(Ref<Texture> texture);
         void GenerateMips(Ref<Texture> texture, uint32_t mipCount);
 
         static uint32_t GetMaximumNumberOfMips(uint32_t width, uint32_t height);

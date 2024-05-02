@@ -39,6 +39,7 @@ namespace Nexus::Graphics
         virtual ShaderLanguage GetSupportedShaderFormat() override { return ShaderLanguage::HLSL; }
         virtual float GetUVCorrection() { return -1.0f; }
         virtual const GraphicsCapabilities GetGraphicsCapabilities() const override;
+        virtual bool IsUVOriginTopLeft() override { return true; };
 
         IDXGIFactory7 *GetDXGIFactory() const;
         ID3D12CommandQueue *GetCommandQueue() const;
