@@ -196,7 +196,7 @@ namespace Nexus::Graphics
         m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd)
                                   {
                                     cmd->ResourceBarrier(1, &toReadBarrier);
-                                    cmd->CopyTextureRegion(&dstLocation, 0, 0, 0, &srcLocation, &textureBounds);
+                                    cmd->CopyTextureRegion(&dstLocation, x, y, 0, &srcLocation, &textureBounds);
                                     cmd->ResourceBarrier(1, &toDefaultBarrier); });
 
         std::vector<std::byte> pixels(totalBytes);
@@ -209,12 +209,6 @@ namespace Nexus::Graphics
         readbackBuffer->Map(0, &readRange, &uploadBufferAddress);
         memcpy(pixels.data(), uploadBufferAddress, pixels.size());
         readbackBuffer->Unmap(0, nullptr);
-
-        /* void *data;
-        UINT rowPitch;
-        UINT deothPitch;
-        UINT srcSubresource;
-        m_Texture->ReadFromSubresource() */
 
         return pixels;
     }

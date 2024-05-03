@@ -16,7 +16,7 @@ namespace Nexus::Graphics
         virtual const PipelineDescription &GetPipelineDescription() const override;
         ID3D12RootSignature *GetRootSignature();
         ID3D12PipelineState *GetPipelineState();
-        D3D_PRIMITIVE_TOPOLOGY GetPrimitiveTopology();
+        D3D_PRIMITIVE_TOPOLOGY GetD3DPrimitiveTopology();
 
     private:
         void CreateRootSignature();
@@ -27,6 +27,7 @@ namespace Nexus::Graphics
         D3D12_STREAM_OUTPUT_DESC CreateStreamOutputDesc();
         D3D12_BLEND_DESC CreateBlendStateDesc();
         D3D12_DEPTH_STENCIL_DESC CreateDepthStencilDesc();
+        D3D12_PRIMITIVE_TOPOLOGY_TYPE GetPipelinePrimitiveTopologyType();
 
         void CreatePipeline();
 

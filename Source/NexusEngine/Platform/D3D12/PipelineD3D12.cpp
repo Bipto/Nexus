@@ -38,7 +38,7 @@ namespace Nexus::Graphics
         return m_PipelineStateObject.Get();
     }
 
-    D3D_PRIMITIVE_TOPOLOGY PipelineD3D12::GetPrimitiveTopology()
+    D3D_PRIMITIVE_TOPOLOGY PipelineD3D12::GetD3DPrimitiveTopology()
     {
         return m_PrimitiveTopology;
     }
@@ -235,7 +235,7 @@ namespace Nexus::Graphics
             pipelineDesc.VS.pShaderBytecode = blob->GetBufferPointer();
         }
 
-        pipelineDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+        pipelineDesc.PrimitiveTopologyType = GetPipelinePrimitiveTopologyType();
         pipelineDesc.RasterizerState = CreateRasterizerState();
         pipelineDesc.StreamOutput = CreateStreamOutputDesc();
         pipelineDesc.NumRenderTargets = rtvFormats.size();
@@ -403,6 +403,28 @@ namespace Nexus::Graphics
         desc.BackFace.StencilFailOp = stencilFailOp;
         desc.BackFace.StencilPassOp = stencilPassOp;
         return desc;
+    }
+
+    D3D12_PRIMITIVE_TOPOLOGY_TYPE PipelineD3D12::GetPipelinePrimitiveTopologyType()
+    {
+        switch (m_Description.PrimitiveTopology)
+        {
+        case Topology::LineList:
+            return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+            break;
+        case Topology::LineStrip:
+            return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+            break;
+        case Topology::PointList:
+            return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+            break;
+        case Topology::TriangleList:
+            return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+            break;
+        case Topology::TriangleStrip:
+            return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+            break;
+        }
     }
 }
 

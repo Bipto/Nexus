@@ -79,7 +79,7 @@ namespace Nexus::Graphics
         m_CommandList->OMSetDepthBounds(description.DepthStencilDescription.MinDepth, description.DepthStencilDescription.MaxDepth);
         m_CommandList->SetPipelineState(d3d12Pipeline->GetPipelineState());
         m_CommandList->SetGraphicsRootSignature(d3d12Pipeline->GetRootSignature());
-        m_CommandList->IASetPrimitiveTopology(d3d12Pipeline->GetPrimitiveTopology());
+        m_CommandList->IASetPrimitiveTopology(d3d12Pipeline->GetD3DPrimitiveTopology());
 
         m_CurrentlyBoundPipeline = d3d12Pipeline;
     }
