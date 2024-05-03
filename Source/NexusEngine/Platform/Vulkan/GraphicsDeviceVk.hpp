@@ -50,7 +50,7 @@ namespace Nexus::Graphics
         virtual const GraphicsCapabilities GetGraphicsCapabilities() const override;
 
         virtual ShaderLanguage GetSupportedShaderFormat() override;
-        virtual float GetUVCorrection() { return 1.0f; }
+        virtual float GetUVCorrection() { return -1.0f; }
         virtual bool IsUVOriginTopLeft() override { return true; };
 
         VkDevice GetVkDevice();

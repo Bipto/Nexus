@@ -97,8 +97,8 @@ namespace Nexus::Graphics
         vmaUnmapMemory(m_GraphicsDevice->GetAllocator(), m_StagingBuffer.Allocation);
 
         VkExtent3D imageExtent;
-        imageExtent.width = m_Specification.Width;
-        imageExtent.height = m_Specification.Height;
+        imageExtent.width = width;
+        imageExtent.height = height;
         imageExtent.depth = 1;
 
         // upload texture to GPU
@@ -127,7 +127,7 @@ namespace Nexus::Graphics
                                                 copyRegion.bufferRowLength = 0;
                                                 copyRegion.bufferImageHeight = 0;
                                                 copyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-                                                copyRegion.imageSubresource.mipLevel = 0;
+                                                copyRegion.imageSubresource.mipLevel = level;
                                                 copyRegion.imageSubresource.baseArrayLayer = 0;
                                                 copyRegion.imageSubresource.layerCount = 1;
                                                 copyRegion.imageExtent = imageExtent;
