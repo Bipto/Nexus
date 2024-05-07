@@ -20,8 +20,6 @@
 
 #include "Nexus/Monitor.hpp"
 
-#include "Runtime/ECS/ComponentRegistry.hpp"
-
 #include "ApplicationSpecification.hpp"
 
 #include <chrono>

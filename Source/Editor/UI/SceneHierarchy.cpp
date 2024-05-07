@@ -45,5 +45,27 @@ namespace Editor
         {
             scene->SetClearColour(clearColour);
         }
+
+        ImGui::Separator();
+
+        if (ImGui::BeginPopupContextItem("PopupMenu", ImGuiPopupFlags_MouseButtonRight))
+        {
+            if (ImGui::MenuItem("New Entity"))
+            {
+                scene->AddEmptyEntity();
+            }
+
+            ImGui::EndPopup();
+        }
+
+        for (const auto &entity : scene->GetEntities())
+        {
+            ImGui::Text(entity.GetName().c_str());
+        }
+
+        /* if (ImGui::Button("New Entity"))
+        {
+            scene->AddEmptyEntity();
+        } */
     }
 }

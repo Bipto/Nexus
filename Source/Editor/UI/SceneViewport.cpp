@@ -39,6 +39,11 @@ namespace Editor
 
     void SceneViewport::ResizeViewport(uint32_t width, uint32_t height)
     {
+        if (width == 0 || height == 0)
+        {
+            return;
+        }
+
         if (m_ViewportFramebuffer)
         {
             m_ImGuiGraphicsRenderer->UnbindTexture(m_ViewportTextureID);

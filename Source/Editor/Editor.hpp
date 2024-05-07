@@ -17,6 +17,11 @@ public:
     virtual void Load() override
     {
         m_CommandList = m_GraphicsDevice->CreateCommandList();
+
+        GetPrimaryWindow()->OnFileDrop += [&](std::string file)
+        {
+            m_Layout.LoadProject(file);
+        };
     }
 
     virtual void Update(Nexus::Time time) override
@@ -27,12 +32,6 @@ public:
     {
         m_GraphicsDevice->BeginFrame();
         m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
-
-        m_CommandList->Begin();
-        m_CommandList->SetRenderTarget({m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
-        m_CommandList->ClearColorTarget(0, {1.0f, 0.0f, 0.0f, 1.0f});
-        m_CommandList->End();
-        m_GraphicsDevice->SubmitCommandList(m_CommandList);
 
         m_Layout.Render(time);
 

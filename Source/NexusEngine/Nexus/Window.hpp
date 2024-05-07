@@ -155,6 +155,8 @@ namespace Nexus
 
         EventHandler<std::pair<uint32_t, uint32_t>> OnResize;
 
+        EventHandler<std::string> OnFileDrop;
+
     private:
         /// @brief A method that returns a set of flags to use when creating the window
         /// @param api The graphics API to create the swapchain

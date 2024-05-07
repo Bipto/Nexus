@@ -586,6 +586,12 @@ namespace Nexus
                 window->OnResize.Invoke({event.window.data1, event.window.data2});
                 break;
             }
+            case SDL_EVENT_DROP_FILE:
+            {
+                std::string file = event.drop.data;
+                window->OnFileDrop.Invoke(file);
+                break;
+            }
             }
         }
     }

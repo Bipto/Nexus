@@ -4,6 +4,8 @@
 
 #include "glm/glm.hpp"
 
+#include "Entity.hpp"
+
 #include <string>
 
 namespace Nexus
@@ -21,11 +23,16 @@ namespace Nexus
 
         void Serialize(const std::string &filepath);
 
+        void AddEmptyEntity();
+        const std::vector<Entity> &GetEntities() const;
+
     public:
         static Scene *Deserialize(const std::string &filepath);
 
     private:
         std::string m_Name;
         glm::vec4 m_ClearColour = {1.0f, 1.0f, 1.0f, 1.0f};
+
+        std::vector<Entity> m_Entities;
     };
 }

@@ -22,12 +22,24 @@ namespace Nexus
         sceneNode["clear-colour"]["b"] = m_ClearColour.b;
         sceneNode["clear-colour"]["a"] = m_ClearColour.a;
 
+        sceneNode["entities"] = m_Entities;
+
         YAML::Emitter emitter;
         emitter << root;
 
         std::string output = emitter.c_str();
 
         FileSystem::WriteFileAbsolute(filepath, output);
+    }
+
+    void Scene::AddEmptyEntity()
+    {
+        m_Entities.push_back(Entity());
+    }
+
+    const std::vector<Entity> &Scene::GetEntities() const
+    {
+        return m_Entities;
     }
 
     Scene *Scene::Deserialize(const std::string &filepath)
@@ -42,6 +54,7 @@ namespace Nexus
         scene->m_ClearColour.g = sceneNode["clear-colour"]["g"].as<float>();
         scene->m_ClearColour.b = sceneNode["clear-colour"]["b"].as<float>();
         scene->m_ClearColour.a = sceneNode["clear-colour"]["a"].as<float>();
+        scene->m_Entities = sceneNode["entities"].as<std::vector<Entity>>();
 
         return scene;
     }

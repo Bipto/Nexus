@@ -39,6 +39,12 @@ namespace Editor
         m_ImGuiRenderer->AfterLayout();
     }
 
+    void Layout::LoadProject(const std::string &path)
+    {
+        Nexus::Ref<Nexus::Project> project = Nexus::Project::Deserialize(path);
+        Nexus::Project::s_ActiveProject = project;
+    }
+
     void Layout::RenderViewport()
     {
         ImGuiWindowFlags flags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar;
@@ -121,6 +127,14 @@ namespace Editor
                 ImGui::EndMenu();
             }
 
+            if (Nexus::Project::s_ActiveProject)
+            {
+                if (ImGui::MenuItem("Save"))
+                {
+                    Nexus::Project::s_ActiveProject->Serialize();
+                }
+            }
+
             if (ImGui::MenuItem("Load Project"))
             {
                 OpenProject();
@@ -162,10 +176,7 @@ namespace Editor
         // check that the user didn't cancel the dialog
         if (path)
         {
-            Nexus::Ref<Nexus::Project> project = Nexus::Project::Deserialize(path);
-            Nexus::Project::s_ActiveProject = project;
-
-            std::string directory = std::filesystem::path(path).parent_path().string();
+            LoadProject(path);
         }
     }
 }
