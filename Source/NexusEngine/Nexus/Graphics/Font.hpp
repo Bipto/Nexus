@@ -65,8 +65,7 @@ namespace Nexus::Graphics
         uint32_t GetHeight() const { return m_Height; }
 
     private:
-        std::vector<uint32_t>
-            m_Pixels;
+        std::vector<uint32_t> m_Pixels;
         uint32_t m_Width = 0;
         uint32_t m_Height = 0;
     };
@@ -88,8 +87,8 @@ namespace Nexus::Graphics
         const Character &GetCharacter(char character);
         uint32_t GetSize() const;
         Nexus::Point<uint32_t> MeasureString(const std::string &text, uint32_t size);
-        float GetSpaceWidth();
         const glm::vec2 &GetLargestCharacterSize();
+        const uint32_t GetLineHeight() const;
 
     private:
         Nexus::Ref<Nexus::Graphics::Texture> m_Texture = nullptr;
@@ -98,7 +97,7 @@ namespace Nexus::Graphics
         uint32_t m_TextureWidth = 0;
         uint32_t m_TextureHeight = 0;
         uint32_t m_Size = 96;
-        float m_SpaceWidth = 0;
         glm::vec2 m_LargestCharacterSize;
+        uint32_t m_LineHeight = 0;
     };
 }

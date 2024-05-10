@@ -1,5 +1,7 @@
 #include "Canvas.hpp"
 
+#include "Control.hpp"
+
 namespace Nexus::UI
 {
     Canvas::Canvas(Graphics::GraphicsDevice *device, Graphics::Swapchain *swapchain)
@@ -67,6 +69,7 @@ namespace Nexus::UI
 
     void Canvas::AddControl(Control *control)
     {
+        control->m_Canvas = this;
         m_Controls.push_back(control);
     }
 

@@ -38,7 +38,7 @@ void LoadCharacter(char character, FT_Face &face, Nexus::Graphics::FontData &dat
     c.Bearing = {face->glyph->bitmap_left, face->glyph->bitmap_top};
     c.TexCoordsMin = texCoordsMin;
     c.TexCoordsMax = texCoordsMax;
-    c.Advance = {face->glyph->advance.x, face->glyph->advance.y};
+    c.Advance = {face->glyph->advance.x / 64, face->glyph->advance.y / 64};
     characters[character] = c;
 }
 
@@ -88,6 +88,8 @@ namespace Nexus::Graphics
         }
         FT_Set_Pixel_Sizes(face, 0, m_Size);
 
+        m_LineHeight = face->size->metrics.height / 64;
+
         uint32_t characterCount;
         auto largestCharacterSize = FindLargestGlyphSize(face, m_CharacterRanges, characterCount);
 
@@ -124,8 +126,6 @@ namespace Nexus::Graphics
             }
         }
 
-        m_SpaceWidth = GetCharacter('i').Advance.x / 64;
-
         m_Texture = device->CreateTexture(textureSpec);
         m_Texture->SetData(pixels.GetPixels().data(), 0, 0, 0, pixels.GetWidth(), pixels.GetHeight());
         // m_Texture->SetData(pixels.GetPixels().data(), pixels.GetPixels().size(), 0);
@@ -152,10 +152,15 @@ namespace Nexus::Graphics
     Nexus::Point<uint32_t> Font::MeasureString(const std::string &text, uint32_t size)
     {
         float scale = 1.0f / GetSize() * size;
-        float xPos = 0.0f;
-        float yPos = 0.0f;
-        float width = 0.0f;
-        float height = GetLargestCharacterSize().y * scale;
+
+        float x = 0;
+        float y = 0;
+
+        if (text.length() > 0)
+        {
+            y = m_LineHeight * scale;
+            y += (m_LineHeight / 2) * scale;
+        }
 
         for (auto character : text)
         {
@@ -163,36 +168,42 @@ namespace Nexus::Graphics
 
             if (character == ' ')
             {
-                xPos += GetSpaceWidth() * scale;
-            }
-            else if (character == '\t')
-            {
-                xPos += GetSpaceWidth() * scale * 4;
+                x += characterInfo.Advance.x * scale;
             }
             else if (character == '\n')
             {
-                xPos = 0;
-                yPos += height;
-                height += GetLargestCharacterSize().y * scale;
+                x = 0;
+                y += GetLargestCharacterSize().y * scale;
+            }
+            else if (character == '\t')
+            {
+                x += characterInfo.Advance.x * scale * 4;
             }
             else
             {
-                xPos += characterInfo.Bearing.x * scale;
-                width = xPos + characterInfo.Size.x * scale;
-                xPos += characterInfo.Advance.x / 64 * scale;
+                const auto &characterInfo = GetCharacter(character);
+
+                float xPos = x + characterInfo.Bearing.x * scale;
+                float yPos = (characterInfo.Bearing.y) * scale;
+
+                glm::vec2 size = {
+                    characterInfo.Size.x * scale,
+                    characterInfo.Size.y * scale};
+
+                x += (characterInfo.Advance.x) * scale;
             }
         }
 
-        return {(uint32_t)width, (uint32_t)height};
-    }
-
-    float Font::GetSpaceWidth()
-    {
-        return m_SpaceWidth;
+        return {(uint32_t)x, (uint32_t)y};
     }
 
     const glm::vec2 &Font::GetLargestCharacterSize()
     {
         return m_LargestCharacterSize;
+    }
+
+    const uint32_t Font::GetLineHeight() const
+    {
+        return m_LineHeight;
     }
 }

@@ -11,21 +11,27 @@ namespace Nexus::UI
     {
         Control::Render(batchRenderer);
 
+        const Canvas *canvas = GetCanvas();
+
         Nexus::Graphics::Viewport vp;
-        vp.X = m_Position.X;
-        vp.Y = m_Position.Y;
-        vp.Width = m_Size.X;
-        vp.Height = m_Size.Y;
+        vp.X = 0;
+        vp.Y = 0;
+        vp.Width = canvas->GetSize().X;
+        vp.Height = canvas->GetSize().Y;
         vp.MinDepth = 0.0f;
         vp.MaxDepth = 1.0f;
 
         Nexus::Graphics::Scissor scissor;
-        scissor.X = m_Position.X;
-        scissor.Y = m_Position.Y;
-        scissor.Width = m_Size.X;
-        scissor.Height = m_Size.Y;
+        // scissor.X = m_Position.X;
+        // scissor.Y = m_Position.Y;
+        // scissor.Width = m_Size.X;
+        // scissor.Height = m_Size.Y;
+        scissor.X = 0;
+        scissor.Y = 0;
+        scissor.Width = canvas->GetSize().X;
+        scissor.Height = canvas->GetSize().Y;
 
-        Nexus::Graphics::Rectangle<float> rect((float)m_Position.X, (float)m_Position.Y, (float)m_Size.X, (float)m_Size.Y);
+        Nexus::Graphics::Rectangle<float> rect = GetRectangle();
 
         batchRenderer->Begin(vp, scissor);
 
@@ -36,11 +42,15 @@ namespace Nexus::UI
             color *= 0.5f;
         }
 
-        batchRenderer->DrawQuadFill(rect, color);
+        // batchRenderer->DrawQuadFill(rect, color);
+
+        const auto size = m_Font->MeasureString(m_Text, m_FontSize);
+        Nexus::Graphics::Rectangle<float> textRect = {(float)m_Position.X, (float)m_Position.Y, (float)size.X, (float)size.Y};
 
         if (m_Font)
         {
-            batchRenderer->DrawString(m_Text, {m_Position.X, m_Position.Y}, m_Font->GetSize(), m_ForegroundColour, m_Font);
+            batchRenderer->DrawQuadFill(textRect, {1.0f, 0.0f, 0.0f, 1.0f});
+            batchRenderer->DrawString(m_Text, {rect.GetLeft(), rect.GetTop()}, m_FontSize, m_ForegroundColour, m_Font);
         }
 
         batchRenderer->End();

@@ -62,6 +62,11 @@ namespace Nexus::UI
         m_Font = font;
     }
 
+    void Control::SetFontSize(uint32_t fontSize)
+    {
+        m_FontSize = fontSize;
+    }
+
     const Point<int> &Control::GetPosition() const
     {
         return m_Position;
@@ -82,5 +87,20 @@ namespace Nexus::UI
     const Graphics::Font *Control::GetFont() const
     {
         return m_Font;
+    }
+
+    const uint32_t Control::GetFontSize() const
+    {
+        return m_FontSize;
+    }
+
+    const Nexus::Graphics::Rectangle<float> Control::GetRectangle() const
+    {
+        return Nexus::Graphics::Rectangle<float>(m_Position.X, m_Position.Y, m_Size.X, m_Size.Y);
+    }
+
+    const Canvas *Control::GetCanvas() const
+    {
+        return m_Canvas;
     }
 }

@@ -3,14 +3,14 @@
 #include "Nexus/Renderer/BatchRenderer.hpp"
 #include "Nexus/Point.hpp"
 
-#include "Control.hpp"
-
 #include <glm/glm.hpp>
 
 #include <vector>
 
 namespace Nexus::UI
 {
+    class Control;
+
     class Canvas
     {
     public:

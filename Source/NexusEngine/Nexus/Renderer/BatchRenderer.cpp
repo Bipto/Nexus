@@ -451,53 +451,49 @@ namespace Nexus::Graphics
 
     void BatchRenderer::DrawString(const std::string &text, const glm::vec2 &position, uint32_t size, const glm::vec4 &color, Font *font)
     {
+        // because all fonts we use are SDFs, we need to calculate how big the generated quads should be from the original size of the glyph
         float scale = 1.0f / font->GetSize() * size;
 
-        float x = position.x;
-        float y = position.y;
+        // initial text position
+        float worldPosX = position.x;
+        float worldPosY = position.y;
 
-        uint32_t largestCharacterSize = 0;
-        for (auto character : text)
+        // y is up so by default text will render above the y position, we fix this by offsetting by half of a row
+        worldPosY += font->GetLineHeight() * scale;
+
+        // iterate through each character, retrieve its info and render it
+        for (const char c : text)
         {
-            const auto &characterInfo = font->GetCharacter(character);
+            const auto &characterInfo = font->GetCharacter(c);
 
-            auto characterHeight = characterInfo.Size.y * scale;
-            if (characterHeight > largestCharacterSize)
-            {
-                largestCharacterSize = characterHeight;
-            }
-        }
+            // calculate where to begin rendering the next glyph
+            float xPos = worldPosX + characterInfo.Bearing.x * scale;
+            float yPos = worldPosY - (characterInfo.Bearing.y) * scale;
 
-        for (auto character : text)
-        {
-            if (character == ' ')
+            // calculate width and height of new quad
+            float w = characterInfo.Size.x * scale;
+            float h = characterInfo.Size.y * scale;
+
+            if (c == ' ')
             {
-                x += font->GetSpaceWidth() * scale;
+                worldPosX += characterInfo.Advance.x * scale;
             }
-            else if (character == '\n')
+            else if (c == '\n')
             {
-                x = position.x;
-                y += font->GetLargestCharacterSize().y * scale;
+                worldPosX = position.x;
+                worldPosY += font->GetLineHeight() * scale;
             }
-            else if (character == '\t')
+            else if (c == '\t')
             {
-                x += font->GetSpaceWidth() * scale * 4;
+                worldPosX += characterInfo.Advance.x * scale * 4;
             }
             else
             {
-                const auto &characterInfo = font->GetCharacter(character);
+                // render glyph
+                DrawCharacter(c, {xPos, yPos}, {w, h}, color, font);
 
-                float xPos = x + characterInfo.Bearing.x * scale;
-                float yPos = (characterInfo.Bearing.y) * scale;
-                yPos -= largestCharacterSize;
-
-                glm::vec2 size = {
-                    characterInfo.Size.x * scale,
-                    characterInfo.Size.y * scale};
-
-                DrawCharacter(character, {xPos, y - yPos}, size, color, font);
-
-                x += (characterInfo.Advance.x / 64) * scale;
+                // remember to increase the x offset of the next character
+                worldPosX += (characterInfo.Advance.x) * scale;
             }
         }
     }

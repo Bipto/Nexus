@@ -4,7 +4,6 @@
 
 #include "Nexus/UI/Canvas.hpp"
 
-#include "Nexus/UI/Label.hpp"
 #include "Nexus/UI/Button.hpp"
 
 #include "Nexus/UI/UIRenderer.hpp"
@@ -38,31 +37,22 @@ public:
             {
                 {0x0020, 0x00FF}};
 
-        m_Font = new Nexus::Graphics::Font("C://Windows//Fonts//Arial.ttf", 96, fontRange, m_GraphicsDevice);
-
-        /* Nexus::UI::Label *label = new Nexus::UI::Label();
-        label->SetPosition({0, 0});
-        label->SetSize({450, 100});
-        label->SetFont(font);
-        label->SetText("Hello World");
-        label->SetBackgroundColour({1, 0, 1, 1});
-        m_Canvas->AddControl(label);
+        m_Font = new Nexus::Graphics::Font("C://Windows//Fonts//Arial.ttf", 72, fontRange, m_GraphicsDevice);
 
         Nexus::UI::Button *button = new Nexus::UI::Button();
-        button->SetPosition({50, 150});
-        button->SetSize({450, 250});
-        button->SetFont(font);
-        button->SetText("My Button");
+        button->SetPosition({0, 0});
+        button->SetSize({125, 150});
+        button->SetFont(m_Font);
+        button->SetText("My Button\nSome More Text");
         button->SetBackgroundColour({1, 0, 0, 1});
+        button->SetFontSize(18);
 
         button->OnClick += [&](Nexus::UI::Control *control)
         {
             std::cout << "Hello World!\n";
         };
 
-        m_Canvas->AddControl(button); */
-
-        m_UIRenderer = new Nexus::UI::UIRenderer(m_GraphicsDevice, {GetPrimaryWindow()->GetSwapchain()});
+        m_Canvas->AddControl(button);
     }
 
     virtual void Update(Nexus::Time time) override
@@ -74,37 +64,11 @@ public:
         m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
         m_GraphicsDevice->BeginFrame();
 
-        /* const auto &windowSize = GetPrimaryWindow()->GetWindowSize();
+        const auto &windowSize = GetPrimaryWindow()->GetWindowSize();
         m_Canvas->SetPosition({0, 0});
         m_Canvas->SetSize(windowSize);
         m_Canvas->SetBackgroundColour({0.42f, 0.52, 0.73f, 1.0f});
-        m_Canvas->Render(); */
-
-        m_UIRenderer->Begin();
-
-        const auto &windowSize = GetPrimaryWindow()->GetWindowSize();
-        Nexus::Graphics::Viewport vp;
-        vp.X = 0;
-        vp.Y = 0;
-        vp.Width = windowSize.X;
-        vp.Height = windowSize.Y;
-        vp.MinDepth = 0.0f;
-        vp.MaxDepth = 1.0f;
-
-        Nexus::Graphics::Scissor scissor;
-        scissor.X = 0;
-        scissor.Y = 0;
-        scissor.Width = windowSize.X;
-        scissor.Height = windowSize.Y;
-
-        m_UIRenderer->SetViewport(vp);
-        m_UIRenderer->SetScissor(scissor);
-        m_UIRenderer->DrawRectangle({0, 0, 250, 250}, {1, 0, 0, 1});
-        // m_UIRenderer->DrawRectangle({0, 0, 250, 250}, {0, 0}, {1, 1}, {1.0f, 0.0f, 0.0f, 1.0f}, m_Font->GetTexture());
-
-        m_UIRenderer->DrawCharacter('a', {0, 0, 250, 250}, {1, 0, 0, 1}, m_Font);
-        m_UIRenderer->End();
-        m_GraphicsDevice->SubmitCommandList(m_UIRenderer->GetCommandList());
+        m_Canvas->Render();
 
         m_GraphicsDevice->EndFrame();
     }
@@ -123,14 +87,13 @@ public:
 
 private:
     std::unique_ptr<Nexus::UI::Canvas> m_Canvas = nullptr;
-    Nexus::UI::UIRenderer *m_UIRenderer = nullptr;
     Nexus::Graphics::Font *m_Font = nullptr;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;
