@@ -147,7 +147,7 @@ namespace Nexus::Graphics
         case PixelFormat::R8_UNorm:
             return 8;
 
-        case PixelFormat::None:
+        default:
             throw std::runtime_error("Invalid pixel format selected");
         }
     }
@@ -238,7 +238,7 @@ namespace Nexus::Graphics
         case PixelFormat::R8_UNorm:
             return 1;
 
-        case PixelFormat::None:
+        default:
             throw std::runtime_error("Invalid pixel format selected");
         }
     }

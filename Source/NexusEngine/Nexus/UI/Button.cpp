@@ -22,14 +22,10 @@ namespace Nexus::UI
         vp.MaxDepth = 1.0f;
 
         Nexus::Graphics::Scissor scissor;
-        // scissor.X = m_Position.X;
-        // scissor.Y = m_Position.Y;
-        // scissor.Width = m_Size.X;
-        // scissor.Height = m_Size.Y;
-        scissor.X = 0;
-        scissor.Y = 0;
-        scissor.Width = canvas->GetSize().X;
-        scissor.Height = canvas->GetSize().Y;
+        scissor.X = m_Position.X;
+        scissor.Y = m_Position.Y;
+        scissor.Width = m_Size.X;
+        scissor.Height = m_Size.Y;
 
         Nexus::Graphics::Rectangle<float> rect = GetRectangle();
 
@@ -42,15 +38,12 @@ namespace Nexus::UI
             color *= 0.5f;
         }
 
-        // batchRenderer->DrawQuadFill(rect, color);
-
-        const auto size = m_Font->MeasureString(m_Text, m_FontSize);
-        Nexus::Graphics::Rectangle<float> textRect = {(float)m_Position.X, (float)m_Position.Y, (float)size.X, (float)size.Y};
-
         if (m_Font)
         {
-            batchRenderer->DrawQuadFill(textRect, {1.0f, 0.0f, 0.0f, 1.0f});
-            batchRenderer->DrawString(m_Text, {rect.GetLeft(), rect.GetTop()}, m_FontSize, m_ForegroundColour, m_Font);
+            const auto size = m_Font->MeasureString(m_Text, m_FontSize);
+            batchRenderer->DrawQuadFill(rect, color);
+            batchRenderer->DrawQuad(rect, {0.0f, 0.0f, 0.0f, 1.0f}, m_BorderThickness);
+            batchRenderer->DrawString(m_Text, {rect.GetLeft() + m_MarginLeft, rect.GetTop() + m_MarginTop}, m_FontSize, m_ForegroundColour, m_Font);
         }
 
         batchRenderer->End();
@@ -64,5 +57,15 @@ namespace Nexus::UI
     const std::string &Button::GetText() const
     {
         return m_Text;
+    }
+
+    void Button::SetBorderThickness(uint32_t thickness)
+    {
+        m_BorderThickness = thickness;
+    }
+
+    const uint32_t Button::GetBorderThickness() const
+    {
+        return m_BorderThickness;
     }
 }

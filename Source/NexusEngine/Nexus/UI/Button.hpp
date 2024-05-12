@@ -15,7 +15,11 @@ namespace Nexus::UI
         void SetText(const std::string &text);
         const std::string &GetText() const;
 
+        void SetBorderThickness(uint32_t thickness);
+        const uint32_t GetBorderThickness() const;
+
     private:
         std::string m_Text;
+        uint32_t m_BorderThickness = 1;
     };
 }

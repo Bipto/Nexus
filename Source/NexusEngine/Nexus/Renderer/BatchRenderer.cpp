@@ -459,7 +459,7 @@ namespace Nexus::Graphics
         float worldPosY = position.y;
 
         // y is up so by default text will render above the y position, we fix this by offsetting by half of a row
-        worldPosY += font->GetLineHeight() * scale;
+        worldPosY += font->GetLineHeight() * scale * 0.75f;
 
         // iterate through each character, retrieve its info and render it
         for (const char c : text)
@@ -467,25 +467,26 @@ namespace Nexus::Graphics
             const auto &characterInfo = font->GetCharacter(c);
 
             // calculate where to begin rendering the next glyph
-            float xPos = worldPosX + characterInfo.Bearing.x * scale;
-            float yPos = worldPosY - (characterInfo.Bearing.y) * scale;
+            float xPos = worldPosX + (characterInfo.Bearing.x * scale);
+            float yPos = worldPosY - (characterInfo.Bearing.y * scale);
 
             // calculate width and height of new quad
             float w = characterInfo.Size.x * scale;
             float h = characterInfo.Size.y * scale;
 
-            if (c == ' ')
-            {
-                worldPosX += characterInfo.Advance.x * scale;
-            }
-            else if (c == '\n')
+            if (c == '\n')
             {
                 worldPosX = position.x;
-                worldPosY += font->GetLineHeight() * scale;
+                worldPosY += font->GetMaxCharacterSize().Y * scale;
             }
             else if (c == '\t')
             {
-                worldPosX += characterInfo.Advance.x * scale * 4;
+                const auto &spaceInfo = font->GetCharacter(' ');
+                worldPosX += spaceInfo.Advance * scale * 4;
+            }
+            else if (c == '\r')
+            {
+                continue;
             }
             else
             {
@@ -493,7 +494,7 @@ namespace Nexus::Graphics
                 DrawCharacter(c, {xPos, yPos}, {w, h}, color, font);
 
                 // remember to increase the x offset of the next character
-                worldPosX += (characterInfo.Advance.x) * scale;
+                worldPosX += (characterInfo.Advance) * scale;
             }
         }
     }

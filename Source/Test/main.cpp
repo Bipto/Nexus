@@ -40,12 +40,14 @@ public:
         m_Font = new Nexus::Graphics::Font("C://Windows//Fonts//Arial.ttf", 72, fontRange, m_GraphicsDevice);
 
         Nexus::UI::Button *button = new Nexus::UI::Button();
-        button->SetPosition({0, 0});
-        button->SetSize({125, 150});
+        button->SetPosition({150, 150});
+        button->SetSize({500, 500});
         button->SetFont(m_Font);
-        button->SetText("My Button\nSome More Text");
-        button->SetBackgroundColour({1, 0, 0, 1});
-        button->SetFontSize(18);
+        button->SetText("My Button\n\tSome More Text");
+        button->SetBackgroundColour({0.75f, 0.75f, 0.75f, 1.0f});
+        button->SetFontSize(32);
+        button->SetBorderThickness(2);
+        button->SetMargin(5, 5, 5, 5);
 
         button->OnClick += [&](Nexus::UI::Control *control)
         {

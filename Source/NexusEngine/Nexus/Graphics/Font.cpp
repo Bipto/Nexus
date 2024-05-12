@@ -38,7 +38,7 @@ void LoadCharacter(char character, FT_Face &face, Nexus::Graphics::FontData &dat
     c.Bearing = {face->glyph->bitmap_left, face->glyph->bitmap_top};
     c.TexCoordsMin = texCoordsMin;
     c.TexCoordsMax = texCoordsMax;
-    c.Advance = {face->glyph->advance.x / 64, face->glyph->advance.y / 64};
+    c.Advance = face->glyph->advance.x / 64;
     characters[character] = c;
 }
 
@@ -73,7 +73,7 @@ Nexus::Point<uint32_t> FindLargestGlyphSize(const FT_Face &face, const std::vect
 namespace Nexus::Graphics
 {
     Font::Font(const std::string &filepath, uint32_t size, const std::vector<CharacterRange> &characterRanges, GraphicsDevice *device)
-        : m_CharacterRanges(characterRanges), m_Size(size)
+        : m_CharacterRanges(characterRanges), m_FontSize(size)
     {
         FT_Library ft;
         if (FT_Init_FreeType(&ft))
@@ -86,19 +86,17 @@ namespace Nexus::Graphics
         {
             std::cout << "Failed to load font" << std::endl;
         }
-        FT_Set_Pixel_Sizes(face, 0, m_Size);
+        FT_Set_Pixel_Sizes(face, 0, m_FontSize);
 
-        m_LineHeight = face->size->metrics.height / 64;
+        m_LineSpacing = face->size->metrics.height / 64;
+        m_UnderlinePosition = face->underline_position;
 
-        uint32_t characterCount;
-        auto largestCharacterSize = FindLargestGlyphSize(face, m_CharacterRanges, characterCount);
-
-        m_LargestCharacterSize = {largestCharacterSize.X, largestCharacterSize.Y};
-
+        uint32_t characterCount = 0;
+        m_MaxCharacterSize = FindLargestGlyphSize(face, characterRanges, characterCount);
         uint32_t columnCount = ceil(sqrt(characterCount));
 
-        m_TextureWidth = columnCount * largestCharacterSize.X;
-        m_TextureHeight = columnCount * largestCharacterSize.Y;
+        m_TextureWidth = columnCount * m_MaxCharacterSize.X;
+        m_TextureHeight = columnCount * m_MaxCharacterSize.Y;
 
         Nexus::Graphics::TextureSpecification textureSpec;
         textureSpec.Format = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
@@ -116,19 +114,18 @@ namespace Nexus::Graphics
             {
                 LoadCharacter((char)character, face, pixels, m_Characters, xPos, yPos, m_TextureWidth, m_TextureHeight);
 
-                xPos += largestCharacterSize.X;
+                xPos += m_MaxCharacterSize.X;
 
                 if (xPos >= m_TextureWidth)
                 {
                     xPos = 0;
-                    yPos += largestCharacterSize.Y;
+                    yPos += m_MaxCharacterSize.Y;
                 }
             }
         }
 
         m_Texture = device->CreateTexture(textureSpec);
         m_Texture->SetData(pixels.GetPixels().data(), 0, 0, 0, pixels.GetWidth(), pixels.GetHeight());
-        // m_Texture->SetData(pixels.GetPixels().data(), pixels.GetPixels().size(), 0);
 
         FT_Done_Face(face);
         FT_Done_FreeType(ft);
@@ -146,7 +143,7 @@ namespace Nexus::Graphics
 
     uint32_t Font::GetSize() const
     {
-        return m_Size;
+        return m_FontSize;
     }
 
     Nexus::Point<uint32_t> Font::MeasureString(const std::string &text, uint32_t size)
@@ -158,52 +155,40 @@ namespace Nexus::Graphics
 
         if (text.length() > 0)
         {
-            y = m_LineHeight * scale;
-            y += (m_LineHeight / 2) * scale;
+            y = m_LineSpacing * scale;
+            y += (m_LineSpacing / 2) * scale;
         }
 
         for (auto character : text)
         {
             const auto &characterInfo = GetCharacter(character);
 
-            if (character == ' ')
-            {
-                x += characterInfo.Advance.x * scale;
-            }
-            else if (character == '\n')
+            if (character == '\n')
             {
                 x = 0;
-                y += GetLargestCharacterSize().y * scale;
+                y += m_LineSpacing * scale;
             }
             else if (character == '\t')
             {
-                x += characterInfo.Advance.x * scale * 4;
+                const auto &spaceInfo = GetCharacter(character);
+                x += spaceInfo.Advance * scale * 4;
             }
             else
             {
-                const auto &characterInfo = GetCharacter(character);
-
-                float xPos = x + characterInfo.Bearing.x * scale;
-                float yPos = (characterInfo.Bearing.y) * scale;
-
-                glm::vec2 size = {
-                    characterInfo.Size.x * scale,
-                    characterInfo.Size.y * scale};
-
-                x += (characterInfo.Advance.x) * scale;
+                x += characterInfo.Advance * scale;
             }
         }
 
         return {(uint32_t)x, (uint32_t)y};
     }
 
-    const glm::vec2 &Font::GetLargestCharacterSize()
-    {
-        return m_LargestCharacterSize;
-    }
-
     const uint32_t Font::GetLineHeight() const
     {
-        return m_LineHeight;
+        return m_LineSpacing;
+    }
+
+    const Point<uint32_t> Font::GetMaxCharacterSize() const
+    {
+        return m_MaxCharacterSize;
     }
 }

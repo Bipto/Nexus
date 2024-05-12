@@ -76,7 +76,7 @@ namespace Nexus::Graphics
         glm::vec2 Bearing;
         glm::vec2 TexCoordsMin;
         glm::vec2 TexCoordsMax;
-        glm::vec2 Advance;
+        float Advance;
     };
 
     class Font
@@ -87,8 +87,8 @@ namespace Nexus::Graphics
         const Character &GetCharacter(char character);
         uint32_t GetSize() const;
         Nexus::Point<uint32_t> MeasureString(const std::string &text, uint32_t size);
-        const glm::vec2 &GetLargestCharacterSize();
         const uint32_t GetLineHeight() const;
+        const Point<uint32_t> GetMaxCharacterSize() const;
 
     private:
         Nexus::Ref<Nexus::Graphics::Texture> m_Texture = nullptr;
@@ -96,8 +96,9 @@ namespace Nexus::Graphics
         std::map<char, Character> m_Characters;
         uint32_t m_TextureWidth = 0;
         uint32_t m_TextureHeight = 0;
-        uint32_t m_Size = 96;
-        glm::vec2 m_LargestCharacterSize;
-        uint32_t m_LineHeight = 0;
+        uint32_t m_FontSize = 96;
+        uint32_t m_LineSpacing = 0;
+        uint32_t m_UnderlinePosition = 0;
+        Point<uint32_t> m_MaxCharacterSize = {0, 0};
     };
 }

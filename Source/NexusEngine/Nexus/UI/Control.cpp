@@ -67,6 +67,34 @@ namespace Nexus::UI
         m_FontSize = fontSize;
     }
 
+    void Control::SetMarginTop(uint32_t margin)
+    {
+        m_MarginTop = margin;
+    }
+
+    void Control::SetMarginBottom(uint32_t margin)
+    {
+        m_MarginBottom = margin;
+    }
+
+    void Control::SetMarginLeft(uint32_t margin)
+    {
+        m_MarginLeft = margin;
+    }
+
+    void Control::SetMarginRight(uint32_t margin)
+    {
+        m_MarginRight = margin;
+    }
+
+    void Control::SetMargin(uint32_t left, uint32_t right, uint32_t top, uint32_t bottom)
+    {
+        SetMarginTop(top);
+        SetMarginBottom(bottom);
+        SetMarginLeft(left);
+        SetMarginRight(right);
+    }
+
     const Point<int> &Control::GetPosition() const
     {
         return m_Position;
@@ -92,6 +120,26 @@ namespace Nexus::UI
     const uint32_t Control::GetFontSize() const
     {
         return m_FontSize;
+    }
+
+    const uint32_t Control::GetMarginTop() const
+    {
+        return m_MarginTop;
+    }
+
+    const uint32_t Control::GetMarginBottom() const
+    {
+        return m_MarginBottom;
+    }
+
+    const uint32_t Control::GetMarginLeft() const
+    {
+        return m_MarginLeft;
+    }
+
+    const uint32_t Control::GetMarginRight() const
+    {
+        return m_MarginRight;
     }
 
     const Nexus::Graphics::Rectangle<float> Control::GetRectangle() const
