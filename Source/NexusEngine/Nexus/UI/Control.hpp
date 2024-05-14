@@ -18,7 +18,7 @@ namespace Nexus::UI
     {
     public:
         virtual void Update();
-        virtual void Render(Graphics::BatchRenderer *batchRenderer);
+        virtual void Render(Graphics::BatchRenderer *batchRenderer) = 0;
 
         void SetPosition(const Point<int> &position);
         void SetSize(const Point<int> &size);

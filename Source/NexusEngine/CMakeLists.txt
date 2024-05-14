@@ -90,9 +90,6 @@ if (NOT EMSCRIPTEN)
     set(path ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     cmake_path(GET path PARENT_PATH parentDir)
     set_target_properties(NexusEngine PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${parentDir}/bin)
-    file (COPY
-        ${CMAKE_CURRENT_SOURCE_DIR}/resources
-        DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 endif()
 
 #flags required for emscripten

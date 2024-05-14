@@ -33,6 +33,23 @@ namespace Nexus::Graphics
         }
     };
 
+    struct BatchInfo
+    {
+        Nexus::Ref<Nexus::Graphics::Pipeline> Pipeline = nullptr;
+        Nexus::Ref<Nexus::Graphics::ResourceSet> ResourceSet = nullptr;
+
+        std::vector<Nexus::Graphics::VertexPositionTexCoordColorTexIndex> Vertices;
+        std::vector<uint32_t> Indices;
+        std::vector<Nexus::Ref<Nexus::Graphics::Texture>> Textures;
+
+        uint32_t ShapeCount = 0;
+        uint32_t VertexCount = 0;
+        uint32_t IndexCount = 0;
+
+        Nexus::Ref<Nexus::Graphics::VertexBuffer> VertexBuffer = nullptr;
+        Nexus::Ref<Nexus::Graphics::IndexBuffer> IndexBuffer = nullptr;
+    };
+
     class BatchRenderer
     {
     public:
@@ -60,35 +77,19 @@ namespace Nexus::Graphics
         void End();
 
     private:
-        void CreatePipeline();
         void Flush();
         void EnsureStarted();
-        void EnsureSpace(uint32_t shapeVertexCount, uint32_t shapeIndexCount);
-        bool FindTextureInBatch(Ref<Texture> texture, uint32_t *index);
+        void EnsureSpace(BatchInfo &info, uint32_t shapeVertexCount, uint32_t shapeIndexCount);
+        void PerformDraw(BatchInfo &info);
 
     private:
         Nexus::Graphics::GraphicsDevice *m_Device = nullptr;
         Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList = nullptr;
-
-        Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline = nullptr;
-        Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet = nullptr;
         Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler = nullptr;
-
-        std::vector<Nexus::Graphics::VertexPositionTexCoordColorTexIndex> m_Vertices;
-        std::vector<uint32_t> m_Indices;
-        std::vector<Nexus::Ref<Nexus::Graphics::Texture>> m_Textures;
-
-        uint32_t m_ShapeCount = 0;
-        uint32_t m_VertexCount = 0;
-        uint32_t m_IndexCount = 0;
         bool m_IsStarted = false;
 
-        Nexus::Ref<Nexus::Graphics::VertexBuffer> m_VertexBuffer = nullptr;
-        Nexus::Ref<Nexus::Graphics::IndexBuffer> m_IndexBuffer = nullptr;
-        Nexus::Ref<Nexus::Graphics::UniformBuffer> m_UniformBuffer = nullptr;
-
         Nexus::Ref<Nexus::Graphics::Texture> m_BlankTexture = nullptr;
-        const uint32_t MAX_TEXTURES = 16;
+        Nexus::Ref<Nexus::Graphics::UniformBuffer> m_UniformBuffer = nullptr;
 
         uint32_t m_Width = 0;
         uint32_t m_Height = 0;
@@ -96,5 +97,8 @@ namespace Nexus::Graphics
 
         Nexus::Graphics::Viewport m_Viewport;
         Nexus::Graphics::Scissor m_ScissorRectangle;
+
+        BatchInfo m_TextureBatchInfo;
+        BatchInfo m_SDFBatchInfo;
     };
 }

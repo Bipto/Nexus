@@ -6,7 +6,7 @@
 
 namespace Nexus::UI
 {
-    class Button : public Control
+    class Label : public Control
     {
     public:
         virtual void Render(Graphics::BatchRenderer *batchRenderer) override;
@@ -14,11 +14,7 @@ namespace Nexus::UI
         void SetText(const std::string &text);
         const std::string &GetText() const;
 
-        void SetBorderThickness(uint32_t thickness);
-        const uint32_t GetBorderThickness() const;
-
     private:
         std::string m_Text;
-        uint32_t m_BorderThickness = 1;
     };
 }

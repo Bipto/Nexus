@@ -27,7 +27,89 @@ const std::string s_BatchVertexShaderSource =
     "    texIndex = TexIndex;\n"
     "}";
 
-const std::string s_BatchFragmentShaderSource =
+const std::string s_BatchTextureFragmentShaderSource =
+    "#version 450 core\n"
+
+    "layout (location = 0) out vec4 FragColor;\n"
+
+    "layout (location = 0) in vec2 texCoord;\n"
+    "layout (location = 1) in vec4 outColor;\n"
+    "layout (location = 2) in flat float texIndex;\n"
+
+    "layout (set = 1, binding = 0) uniform sampler2D texture0;\n"
+    "layout (set = 1, binding = 1) uniform sampler2D texture1;\n"
+    "layout (set = 1, binding = 2) uniform sampler2D texture2;\n"
+    "layout (set = 1, binding = 3) uniform sampler2D texture3;\n"
+    "layout (set = 1, binding = 4) uniform sampler2D texture4;\n"
+    "layout (set = 1, binding = 5) uniform sampler2D texture5;\n"
+    "layout (set = 1, binding = 6) uniform sampler2D texture6;\n"
+    "layout (set = 1, binding = 7) uniform sampler2D texture7;\n"
+    "layout (set = 1, binding = 8) uniform sampler2D texture8;\n"
+    "layout (set = 1, binding = 9) uniform sampler2D texture9;\n"
+    "layout (set = 1, binding = 10) uniform sampler2D texture10;\n"
+    "layout (set = 1, binding = 11) uniform sampler2D texture11;\n"
+    "layout (set = 1, binding = 12) uniform sampler2D texture12;\n"
+    "layout (set = 1, binding = 13) uniform sampler2D texture13;\n"
+    "layout (set = 1, binding = 14) uniform sampler2D texture14;\n"
+    "layout (set = 1, binding = 15) uniform sampler2D texture15;\n"
+    "layout (set = 1, binding = 16) uniform sampler2D texture16;\n"
+    "layout (set = 1, binding = 17) uniform sampler2D texture17;\n"
+    "layout (set = 1, binding = 18) uniform sampler2D texture18;\n"
+    "layout (set = 1, binding = 19) uniform sampler2D texture19;\n"
+    "layout (set = 1, binding = 20) uniform sampler2D texture20;\n"
+    "layout (set = 1, binding = 21) uniform sampler2D texture21;\n"
+    "layout (set = 1, binding = 22) uniform sampler2D texture22;\n"
+    "layout (set = 1, binding = 23) uniform sampler2D texture23;\n"
+    "layout (set = 1, binding = 24) uniform sampler2D texture24;\n"
+    "layout (set = 1, binding = 25) uniform sampler2D texture25;\n"
+    "layout (set = 1, binding = 26) uniform sampler2D texture26;\n"
+    "layout (set = 1, binding = 27) uniform sampler2D texture27;\n"
+    "layout (set = 1, binding = 28) uniform sampler2D texture28;\n"
+    "layout (set = 1, binding = 29) uniform sampler2D texture29;\n"
+    "layout (set = 1, binding = 30) uniform sampler2D texture30;\n"
+    "layout (set = 1, binding = 31) uniform sampler2D texture31;\n"
+
+    "void main()\n"
+    "{\n"
+    "    switch (int(texIndex))\n"
+    "    {\n"
+    "        case 0: FragColor = texture(texture0, texCoord); break;\n"
+    "        case 1: FragColor = texture(texture1, texCoord); break;\n"
+    "        case 2: FragColor = texture(texture2, texCoord); break;\n"
+    "        case 3: FragColor = texture(texture3, texCoord); break;\n"
+    "        case 4: FragColor = texture(texture4, texCoord); break;\n"
+    "        case 5: FragColor = texture(texture5, texCoord); break;\n"
+    "        case 6: FragColor = texture(texture6, texCoord); break;\n"
+    "        case 7: FragColor = texture(texture7, texCoord); break;\n"
+    "        case 8: FragColor = texture(texture8, texCoord); break;\n"
+    "        case 9: FragColor = texture(texture9, texCoord); break;\n"
+    "        case 10: FragColor = texture(texture10, texCoord); break;\n"
+    "        case 11: FragColor = texture(texture11, texCoord); break;\n"
+    "        case 12: FragColor = texture(texture12, texCoord); break;\n"
+    "        case 13: FragColor = texture(texture13, texCoord); break;\n"
+    "        case 14: FragColor = texture(texture14, texCoord); break;\n"
+    "        case 15: FragColor = texture(texture15, texCoord); break;\n"
+    "        case 16: FragColor = texture(texture16, texCoord); break;\n"
+    "        case 17: FragColor = texture(texture17, texCoord); break;\n"
+    "        case 18: FragColor = texture(texture18, texCoord); break;\n"
+    "        case 19: FragColor = texture(texture19, texCoord); break;\n"
+    "        case 20: FragColor = texture(texture20, texCoord); break;\n"
+    "        case 21: FragColor = texture(texture21, texCoord); break;\n"
+    "        case 22: FragColor = texture(texture22, texCoord); break;\n"
+    "        case 23: FragColor = texture(texture23, texCoord); break;\n"
+    "        case 24: FragColor = texture(texture24, texCoord); break;\n"
+    "        case 25: FragColor = texture(texture25, texCoord); break;\n"
+    "        case 26: FragColor = texture(texture26, texCoord); break;\n"
+    "        case 27: FragColor = texture(texture27, texCoord); break;\n"
+    "        case 28: FragColor = texture(texture28, texCoord); break;\n"
+    "        case 29: FragColor = texture(texture29, texCoord); break;\n"
+    "        case 30: FragColor = texture(texture30, texCoord); break;\n"
+    "        case 31: FragColor = texture(texture31, texCoord); break;\n"
+    "    }\n"
+    "    FragColor *= outColor;\n"
+    "}\n";
+
+const std::string s_BatchSDFFragmentShaderSource =
     "#version 450 core\n"
 
     "layout (location = 0) out vec4 FragColor;\n"
@@ -122,29 +204,136 @@ const std::string s_BatchFragmentShaderSource =
 
 namespace Nexus::Graphics
 {
-    BatchRenderer::BatchRenderer(Nexus::Graphics::GraphicsDevice *device, Nexus::Graphics::RenderTarget target)
+    Nexus::Graphics::ResourceSetSpecification GetResourceSetSpecification()
     {
-        m_Device = device;
-        m_RenderTarget = target;
+        Nexus::Graphics::ResourceSetSpecification resourceSpec;
+        resourceSpec.SampledImages =
+            {
+                {"texture0", 1, 0, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture1", 1, 1, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture2", 1, 2, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture3", 1, 3, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture4", 1, 4, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture5", 1, 5, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture6", 1, 6, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture7", 1, 7, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture8", 1, 8, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture9", 1, 9, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture10", 1, 10, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture11", 1, 11, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture12", 1, 12, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture13", 1, 13, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture14", 1, 14, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture15", 1, 15, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture16", 1, 16, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture17", 1, 17, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture18", 1, 18, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture19", 1, 19, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture20", 1, 20, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture21", 1, 21, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture22", 1, 22, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture23", 1, 23, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture24", 1, 24, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture25", 1, 25, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture26", 1, 26, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture27", 1, 27, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture28", 1, 28, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture29", 1, 29, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture30", 1, 30, Nexus::Graphics::ResourceType::CombinedImageSampler},
+                {"texture31", 1, 31, Nexus::Graphics::ResourceType::CombinedImageSampler}};
 
-        m_CommandList = m_Device->CreateCommandList();
-        CreatePipeline();
+        resourceSpec.UniformBuffers =
+            {
+                {"MVP", 0, 0, Nexus::Graphics::ResourceType::UniformBuffer}};
 
-        const uint32_t MAX_VERTEX_COUNT = 1024;
-        m_Vertices.resize(MAX_VERTEX_COUNT);
-        m_Indices.resize(MAX_VERTEX_COUNT * 3);
-        m_Textures.resize(MAX_TEXTURES);
+        return resourceSpec;
+    }
+
+    const uint32_t MAX_VERTEX_COUNT = 1024;
+    const uint32_t MAX_TEXTURE_COUNT = 16;
+
+    bool FindTextureInBatch(BatchInfo &info, Ref<Texture> texture, uint32_t &index)
+    {
+        for (uint32_t i = 0; i < info.Textures.size(); i++)
+        {
+            if (info.Textures[i] == texture)
+            {
+                index = i;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    float GetOrCreateTexIndex(BatchInfo &info, Nexus::Ref<Nexus::Graphics::Texture> texture)
+    {
+        uint32_t index = 0;
+        if (FindTextureInBatch(info, texture, index))
+        {
+            return (float)index;
+        }
+        else
+        {
+            float texIndex = (float)info.Textures.size();
+            info.Textures.push_back(texture);
+            return texIndex;
+        }
+    }
+
+    void FlushTextures(BatchInfo &info, Nexus::Ref<Nexus::Graphics::Texture> blankTexture)
+    {
+        info.Textures.clear();
+        info.Textures.push_back(blankTexture);
+    }
+
+    void ResetBatcher(BatchInfo &info, Nexus::Ref<Nexus::Graphics::Texture> blankTexture)
+    {
+        info.Vertices.clear();
+        info.Indices.clear();
+        info.VertexCount = 0;
+        info.IndexCount = 0;
+        info.ShapeCount = 0;
+        FlushTextures(info, blankTexture);
+    }
+
+    void CreateSDFBatcher(BatchInfo &info, Nexus::Graphics::GraphicsDevice *device, Nexus::Graphics::RenderTarget target)
+    {
+        info.Vertices.resize(MAX_VERTEX_COUNT);
+        info.Indices.resize(MAX_VERTEX_COUNT * 3);
+        info.Textures.resize(MAX_TEXTURE_COUNT);
+
+        Nexus::Graphics::PipelineDescription description;
+        description.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
+        description.Layouts = {Nexus::Graphics::VertexPositionTexCoordColorTexIndex::GetLayout()};
+        description.VertexModule = device->CreateShaderModuleFromSpirvSource(s_BatchVertexShaderSource, "Batch Renderer - Vertex Shader", Nexus::Graphics::ShaderStage::Vertex);
+        description.FragmentModule = device->CreateShaderModuleFromSpirvSource(s_BatchSDFFragmentShaderSource, "Batch Renderer - SDF Fragment Shader", Nexus::Graphics::ShaderStage::Fragment);
+        description.ResourceSetSpecification = GetResourceSetSpecification();
+        description.Target = target;
+        description.BlendStateDescription.EnableBlending = true;
+        description.BlendStateDescription.SourceColourBlend = BlendFactor::SourceAlpha;
+        description.BlendStateDescription.DestinationColourBlend = BlendFactor::OneMinusSourceAlpha;
+        description.BlendStateDescription.ColorBlendFunction = BlendEquation::Add;
+        description.BlendStateDescription.SourceAlphaBlend = BlendFactor::SourceAlpha;
+        description.BlendStateDescription.DestinationAlphaBlend = BlendFactor::OneMinusSourceAlpha;
+        description.BlendStateDescription.AlphaBlendFunction = BlendEquation::Add;
+
+        info.Pipeline = device->CreatePipeline(description);
+        info.ResourceSet = device->CreateResourceSet(info.Pipeline);
 
         Nexus::Graphics::BufferDescription vertexBufferDesc;
-        vertexBufferDesc.Size = m_Vertices.size() * sizeof(VertexPositionTexCoordColorTexIndex);
-        vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
-        m_VertexBuffer = m_Device->CreateVertexBuffer(vertexBufferDesc, nullptr);
+        vertexBufferDesc.Size = info.Vertices.size() * sizeof(VertexPositionTexCoordColorTexIndex);
+        vertexBufferDesc.Usage = BufferUsage::Dynamic;
+        info.VertexBuffer = device->CreateVertexBuffer(vertexBufferDesc, nullptr);
 
         Nexus::Graphics::BufferDescription indexBufferDesc;
-        indexBufferDesc.Size = m_Indices.size() * sizeof(uint32_t);
-        indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
-        m_IndexBuffer = m_Device->CreateIndexBuffer(indexBufferDesc, nullptr);
+        indexBufferDesc.Size = info.Indices.size() * sizeof(uint32_t);
+        indexBufferDesc.Usage = BufferUsage::Dynamic;
+        info.IndexBuffer = device->CreateIndexBuffer(indexBufferDesc, nullptr);
+    }
 
+    BatchRenderer::BatchRenderer(Nexus::Graphics::GraphicsDevice *device, Nexus::Graphics::RenderTarget target)
+        : m_Device(device), m_RenderTarget(target), m_CommandList(m_Device->CreateCommandList())
+    {
         uint32_t textureData = 0xFFFFFFFF;
 
         Nexus::Graphics::TextureSpecification textureSpec;
@@ -153,7 +342,8 @@ namespace Nexus::Graphics
         textureSpec.Format = PixelFormat::R8_G8_B8_A8_UNorm;
         m_BlankTexture = m_Device->CreateTexture(textureSpec);
         m_BlankTexture->SetData(&textureData, 0, 0, 0, 1, 1);
-        // m_BlankTexture->SetData(&textureData, sizeof(textureData), 0);
+
+        CreateSDFBatcher(m_SDFBatchInfo, device, target);
 
         Nexus::Graphics::BufferDescription uniformBufferDesc;
         uniformBufferDesc.Size = sizeof(glm::mat4);
@@ -180,12 +370,7 @@ namespace Nexus::Graphics
 
         m_IsStarted = true;
 
-        m_Vertices.clear();
-        m_Indices.clear();
-
-        m_VertexCount = 0;
-        m_IndexCount = 0;
-        m_ShapeCount = 0;
+        ResetBatcher(m_SDFBatchInfo, m_BlankTexture);
 
         m_Viewport.X = 0;
         m_Viewport.Y = 0;
@@ -199,9 +384,6 @@ namespace Nexus::Graphics
 
         glm::mat4 projection = glm::ortho<float>(m_Viewport.X, m_Viewport.Width, m_Viewport.Height, m_Viewport.Y, -1.0f, 1.0f);
         m_UniformBuffer->SetData(&projection, sizeof(projection));
-
-        m_Textures.clear();
-        m_Textures.push_back(m_BlankTexture);
     }
 
     void BatchRenderer::Begin(Viewport viewport, Scissor scissor)
@@ -212,22 +394,13 @@ namespace Nexus::Graphics
         }
 
         m_IsStarted = true;
-
-        m_Vertices.clear();
-        m_Indices.clear();
-
-        m_VertexCount = 0;
-        m_IndexCount = 0;
-        m_ShapeCount = 0;
+        ResetBatcher(m_SDFBatchInfo, m_BlankTexture);
 
         m_Viewport = viewport;
         m_ScissorRectangle = scissor;
 
         glm::mat4 projection = glm::ortho<float>(m_Viewport.X, m_Viewport.Width, m_Viewport.Height, m_Viewport.Y, -1.0f, 1.0f);
         m_UniformBuffer->SetData(&projection, sizeof(projection));
-
-        m_Textures.clear();
-        m_Textures.push_back(m_BlankTexture);
     }
 
     void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color)
@@ -237,50 +410,50 @@ namespace Nexus::Graphics
         const uint32_t shapeVertexCount = 4;
         const uint32_t shapeIndexCount = 6;
 
-        EnsureSpace(shapeVertexCount, shapeIndexCount);
+        EnsureSpace(m_SDFBatchInfo, shapeVertexCount, shapeIndexCount);
 
         glm::vec3 a(min.x, max.y, 0.0f);
         glm::vec3 b(max.x, max.y, 0.0f);
         glm::vec3 c(max.x, min.y, 0.0f);
         glm::vec3 d(min.x, min.y, 0.0f);
 
-        m_Indices.push_back(0 + m_VertexCount);
-        m_Indices.push_back(1 + m_VertexCount);
-        m_Indices.push_back(2 + m_VertexCount);
-        m_Indices.push_back(0 + m_VertexCount);
-        m_Indices.push_back(2 + m_VertexCount);
-        m_Indices.push_back(3 + m_VertexCount);
+        m_SDFBatchInfo.Indices.push_back(0 + m_SDFBatchInfo.VertexCount);
+        m_SDFBatchInfo.Indices.push_back(1 + m_SDFBatchInfo.VertexCount);
+        m_SDFBatchInfo.Indices.push_back(2 + m_SDFBatchInfo.VertexCount);
+        m_SDFBatchInfo.Indices.push_back(0 + m_SDFBatchInfo.VertexCount);
+        m_SDFBatchInfo.Indices.push_back(2 + m_SDFBatchInfo.VertexCount);
+        m_SDFBatchInfo.Indices.push_back(3 + m_SDFBatchInfo.VertexCount);
 
         VertexPositionTexCoordColorTexIndex v0;
         v0.Position = a;
         v0.TexCoords = {0.0f, 0.0f};
         v0.Color = color;
         v0.TexIndex = 0;
-        m_Vertices.push_back(v0);
+        m_SDFBatchInfo.Vertices.push_back(v0);
 
         VertexPositionTexCoordColorTexIndex v1;
         v1.Position = b;
         v1.TexCoords = {1.0f, 0.0f};
         v1.Color = color;
         v1.TexIndex = 0;
-        m_Vertices.push_back(v1);
+        m_SDFBatchInfo.Vertices.push_back(v1);
 
         VertexPositionTexCoordColorTexIndex v2;
         v2.Position = c;
         v2.TexCoords = {1.0f, 1.0f};
         v2.Color = color;
         v2.TexIndex = 0;
-        m_Vertices.push_back(v2);
+        m_SDFBatchInfo.Vertices.push_back(v2);
 
         VertexPositionTexCoordColorTexIndex v3;
         v3.Position = d;
         v3.TexCoords = {0.0f, 1.0f};
         v3.Color = color;
         v3.TexIndex = 0;
-        m_Vertices.push_back(v3);
+        m_SDFBatchInfo.Vertices.push_back(v3);
 
-        m_IndexCount += shapeIndexCount;
-        m_VertexCount += shapeVertexCount;
+        m_SDFBatchInfo.IndexCount += shapeIndexCount;
+        m_SDFBatchInfo.VertexCount += shapeVertexCount;
     }
 
     void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture> texture)
@@ -290,63 +463,52 @@ namespace Nexus::Graphics
         const uint32_t shapeVertexCount = 4;
         const uint32_t shapeIndexCount = 6;
 
-        EnsureSpace(shapeVertexCount, shapeIndexCount);
+        EnsureSpace(m_SDFBatchInfo, shapeVertexCount, shapeIndexCount);
 
         glm::vec3 a(min.x, max.y, 0.0f);
         glm::vec3 b(max.x, max.y, 0.0f);
         glm::vec3 c(max.x, min.y, 0.0f);
         glm::vec3 d(min.x, min.y, 0.0f);
 
-        m_Indices.push_back(0 + m_VertexCount);
-        m_Indices.push_back(1 + m_VertexCount);
-        m_Indices.push_back(2 + m_VertexCount);
-        m_Indices.push_back(0 + m_VertexCount);
-        m_Indices.push_back(2 + m_VertexCount);
-        m_Indices.push_back(3 + m_VertexCount);
+        m_SDFBatchInfo.Indices.push_back(0 + m_SDFBatchInfo.VertexCount);
+        m_SDFBatchInfo.Indices.push_back(1 + m_SDFBatchInfo.VertexCount);
+        m_SDFBatchInfo.Indices.push_back(2 + m_SDFBatchInfo.VertexCount);
+        m_SDFBatchInfo.Indices.push_back(0 + m_SDFBatchInfo.VertexCount);
+        m_SDFBatchInfo.Indices.push_back(2 + m_SDFBatchInfo.VertexCount);
+        m_SDFBatchInfo.Indices.push_back(3 + m_SDFBatchInfo.VertexCount);
 
-        float texIndex = 0.0f;
-
-        uint32_t index;
-        if (FindTextureInBatch(texture, &index))
-        {
-            texIndex = (float)index;
-        }
-        else
-        {
-            texIndex = (float)m_Textures.size();
-            m_Textures.push_back(texture);
-        }
+        float texIndex = GetOrCreateTexIndex(m_SDFBatchInfo, texture);
 
         VertexPositionTexCoordColorTexIndex v0;
         v0.Position = a;
         v0.TexCoords = {0.0f, 0.0f};
         v0.Color = color;
         v0.TexIndex = texIndex;
-        m_Vertices.push_back(v0);
+        m_SDFBatchInfo.Vertices.push_back(v0);
 
         VertexPositionTexCoordColorTexIndex v1;
         v1.Position = b;
         v1.TexCoords = {1.0f, 0.0f};
         v1.Color = color;
         v1.TexIndex = texIndex;
-        m_Vertices.push_back(v1);
+        m_SDFBatchInfo.Vertices.push_back(v1);
 
         VertexPositionTexCoordColorTexIndex v2;
         v2.Position = c;
         v2.TexCoords = {1.0f, 1.0f};
         v2.Color = color;
         v2.TexIndex = texIndex;
-        m_Vertices.push_back(v2);
+        m_SDFBatchInfo.Vertices.push_back(v2);
 
         VertexPositionTexCoordColorTexIndex v3;
         v3.Position = d;
         v3.TexCoords = {0.0f, 1.0f};
         v3.Color = color;
         v3.TexIndex = texIndex;
-        m_Vertices.push_back(v3);
+        m_SDFBatchInfo.Vertices.push_back(v3);
 
-        m_IndexCount += shapeIndexCount;
-        m_VertexCount += shapeVertexCount;
+        m_SDFBatchInfo.IndexCount += shapeIndexCount;
+        m_SDFBatchInfo.VertexCount += shapeVertexCount;
     }
 
     void BatchRenderer::DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color)
@@ -385,7 +547,7 @@ namespace Nexus::Graphics
         const uint32_t shapeVertexCount = 4;
         const uint32_t shapeIndexCount = 6;
 
-        EnsureSpace(shapeVertexCount, shapeIndexCount);
+        EnsureSpace(m_SDFBatchInfo, shapeVertexCount, shapeIndexCount);
 
         const auto &characterInfo = font->GetCharacter(character);
         glm::vec2 min = position;
@@ -396,57 +558,45 @@ namespace Nexus::Graphics
         glm::vec3 c(max.x, min.y, 0.0f);
         glm::vec3 d(min.x, min.y, 0.0f);
 
-        m_Indices.push_back(0 + m_VertexCount);
-        m_Indices.push_back(1 + m_VertexCount);
-        m_Indices.push_back(2 + m_VertexCount);
-        m_Indices.push_back(0 + m_VertexCount);
-        m_Indices.push_back(2 + m_VertexCount);
-        m_Indices.push_back(3 + m_VertexCount);
+        m_SDFBatchInfo.Indices.push_back(0 + m_SDFBatchInfo.VertexCount);
+        m_SDFBatchInfo.Indices.push_back(1 + m_SDFBatchInfo.VertexCount);
+        m_SDFBatchInfo.Indices.push_back(2 + m_SDFBatchInfo.VertexCount);
+        m_SDFBatchInfo.Indices.push_back(0 + m_SDFBatchInfo.VertexCount);
+        m_SDFBatchInfo.Indices.push_back(2 + m_SDFBatchInfo.VertexCount);
+        m_SDFBatchInfo.Indices.push_back(3 + m_SDFBatchInfo.VertexCount);
 
-        float texIndex = 0.0f;
-
-        uint32_t index;
-        auto texture = font->GetTexture();
-        if (FindTextureInBatch(texture, &index))
-        {
-            texIndex = (float)index;
-        }
-        else
-        {
-            texIndex = (float)m_Textures.size();
-            m_Textures.push_back(texture);
-        }
+        float texIndex = GetOrCreateTexIndex(m_SDFBatchInfo, font->GetTexture());
 
         VertexPositionTexCoordColorTexIndex v0;
         v0.Position = a;
         v0.TexCoords = {characterInfo.TexCoordsMin.x, characterInfo.TexCoordsMin.y};
         v0.Color = color;
         v0.TexIndex = texIndex;
-        m_Vertices.push_back(v0);
+        m_SDFBatchInfo.Vertices.push_back(v0);
 
         VertexPositionTexCoordColorTexIndex v1;
         v1.Position = b;
         v1.TexCoords = {characterInfo.TexCoordsMax.x, characterInfo.TexCoordsMin.y};
         v1.Color = color;
         v1.TexIndex = texIndex;
-        m_Vertices.push_back(v1);
+        m_SDFBatchInfo.Vertices.push_back(v1);
 
         VertexPositionTexCoordColorTexIndex v2;
         v2.Position = c;
         v2.TexCoords = {characterInfo.TexCoordsMax.x, characterInfo.TexCoordsMax.y};
         v2.Color = color;
         v2.TexIndex = texIndex;
-        m_Vertices.push_back(v2);
+        m_SDFBatchInfo.Vertices.push_back(v2);
 
         VertexPositionTexCoordColorTexIndex v3;
         v3.Position = d;
         v3.TexCoords = {characterInfo.TexCoordsMin.x, characterInfo.TexCoordsMax.y};
         v3.Color = color;
         v3.TexIndex = texIndex;
-        m_Vertices.push_back(v3);
+        m_SDFBatchInfo.Vertices.push_back(v3);
 
-        m_IndexCount += shapeIndexCount;
-        m_VertexCount += shapeVertexCount;
+        m_SDFBatchInfo.IndexCount += shapeIndexCount;
+        m_SDFBatchInfo.VertexCount += shapeVertexCount;
     }
 
     void BatchRenderer::DrawString(const std::string &text, const glm::vec2 &position, uint32_t size, const glm::vec4 &color, Font *font)
@@ -506,7 +656,7 @@ namespace Nexus::Graphics
         const uint32_t shapeVertexCount = 4;
         const uint32_t shapeIndexCount = 6;
 
-        EnsureSpace(shapeVertexCount, shapeIndexCount);
+        EnsureSpace(m_SDFBatchInfo, shapeVertexCount, shapeIndexCount);
 
         thickness = glm::clamp(thickness, 1.0f, 10.0f);
 
@@ -524,43 +674,43 @@ namespace Nexus::Graphics
         glm::vec2 q3 = b + n2 + e1;
         glm::vec2 q4 = a + n2 + e2;
 
-        m_Indices.push_back(0 + m_VertexCount);
-        m_Indices.push_back(1 + m_VertexCount);
-        m_Indices.push_back(2 + m_VertexCount);
-        m_Indices.push_back(0 + m_VertexCount);
-        m_Indices.push_back(2 + m_VertexCount);
-        m_Indices.push_back(3 + m_VertexCount);
+        m_SDFBatchInfo.Indices.push_back(0 + m_SDFBatchInfo.VertexCount);
+        m_SDFBatchInfo.Indices.push_back(1 + m_SDFBatchInfo.VertexCount);
+        m_SDFBatchInfo.Indices.push_back(2 + m_SDFBatchInfo.VertexCount);
+        m_SDFBatchInfo.Indices.push_back(0 + m_SDFBatchInfo.VertexCount);
+        m_SDFBatchInfo.Indices.push_back(2 + m_SDFBatchInfo.VertexCount);
+        m_SDFBatchInfo.Indices.push_back(3 + m_SDFBatchInfo.VertexCount);
 
         VertexPositionTexCoordColorTexIndex v0;
         v0.Position = glm::vec3(q1, 0.0f);
         v0.TexCoords = {0.0f, 0.0f};
         v0.Color = color;
         v0.TexIndex = 0;
-        m_Vertices.push_back(v0);
+        m_SDFBatchInfo.Vertices.push_back(v0);
 
         VertexPositionTexCoordColorTexIndex v1;
         v1.Position = glm::vec3(q2, 0.0f);
         v1.TexCoords = {1.0f, 0.0f};
         v1.Color = color;
         v1.TexIndex = 0;
-        m_Vertices.push_back(v1);
+        m_SDFBatchInfo.Vertices.push_back(v1);
 
         VertexPositionTexCoordColorTexIndex v2;
         v2.Position = glm::vec3(q3, 0.0f);
         v2.TexCoords = {1.0f, 1.0f};
         v2.Color = color;
         v2.TexIndex = 0;
-        m_Vertices.push_back(v2);
+        m_SDFBatchInfo.Vertices.push_back(v2);
 
         VertexPositionTexCoordColorTexIndex v3;
         v3.Position = glm::vec3(q4, 0.0f);
         v3.TexCoords = {0.0f, 1.0f};
         v3.Color = color;
         v3.TexIndex = 0;
-        m_Vertices.push_back(v3);
+        m_SDFBatchInfo.Vertices.push_back(v3);
 
-        m_IndexCount += shapeIndexCount;
-        m_VertexCount += shapeVertexCount;
+        m_SDFBatchInfo.IndexCount += shapeIndexCount;
+        m_SDFBatchInfo.VertexCount += shapeVertexCount;
     }
 
     void BatchRenderer::DrawCircle(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, float thickness)
@@ -601,16 +751,16 @@ namespace Nexus::Graphics
         int shapeTriangleCount = shapeVertexCount - 2;
         int shapeIndexCount = shapeTriangleCount * 3;
 
-        EnsureSpace(shapeVertexCount, shapeIndexCount);
+        EnsureSpace(m_SDFBatchInfo, shapeVertexCount, shapeIndexCount);
 
         // create indices
         int index = 1;
 
         for (int i = 0; i < shapeTriangleCount; i++)
         {
-            m_Indices.push_back(0 + m_VertexCount);
-            m_Indices.push_back(index + m_VertexCount);
-            m_Indices.push_back(index + 1 + m_VertexCount);
+            m_SDFBatchInfo.Indices.push_back(0 + m_SDFBatchInfo.VertexCount);
+            m_SDFBatchInfo.Indices.push_back(index + m_SDFBatchInfo.VertexCount);
+            m_SDFBatchInfo.Indices.push_back(index + 1 + m_SDFBatchInfo.VertexCount);
 
             index++;
         }
@@ -634,14 +784,14 @@ namespace Nexus::Graphics
             vertex.TexCoords = {0.0f, 0.0f};
             vertex.Color = color;
             vertex.TexIndex = 0;
-            m_Vertices.push_back(vertex);
+            m_SDFBatchInfo.Vertices.push_back(vertex);
 
             ax = cos * x1 - sin * y1;
             ay = sin * x1 + cos * y1;
         }
 
-        m_IndexCount += shapeIndexCount;
-        m_VertexCount += shapeVertexCount;
+        m_SDFBatchInfo.IndexCount += shapeIndexCount;
+        m_SDFBatchInfo.VertexCount += shapeVertexCount;
     }
 
     void BatchRenderer::DrawCircleFill(const Circle &circle, const glm::vec4 &color, uint32_t numberOfPoints)
@@ -667,35 +817,35 @@ namespace Nexus::Graphics
         const uint32_t shapeVertexCount = 3;
         const uint32_t shapeIndexCount = 3;
 
-        EnsureSpace(shapeVertexCount, shapeIndexCount);
+        EnsureSpace(m_SDFBatchInfo, shapeVertexCount, shapeIndexCount);
 
-        m_Indices.push_back(0 + m_VertexCount);
-        m_Indices.push_back(1 + m_VertexCount);
-        m_Indices.push_back(2 + m_VertexCount);
+        m_SDFBatchInfo.Indices.push_back(0 + m_SDFBatchInfo.VertexCount);
+        m_SDFBatchInfo.Indices.push_back(1 + m_SDFBatchInfo.VertexCount);
+        m_SDFBatchInfo.Indices.push_back(2 + m_SDFBatchInfo.VertexCount);
 
         VertexPositionTexCoordColorTexIndex v0;
         v0.Position = {a, 0.0f};
         v0.TexCoords = {1.0f, 1.0f};
         v0.Color = color;
         v0.TexIndex = 0;
-        m_Vertices.push_back(v0);
+        m_SDFBatchInfo.Vertices.push_back(v0);
 
         VertexPositionTexCoordColorTexIndex v1;
         v1.Position = {b, 0.0f};
         v1.TexCoords = {1.0f, 1.0f};
         v1.Color = color;
         v1.TexIndex = 0;
-        m_Vertices.push_back(v1);
+        m_SDFBatchInfo.Vertices.push_back(v1);
 
         VertexPositionTexCoordColorTexIndex v2;
         v2.Position = {c, 0.0f};
         v2.TexCoords = {1.0f, 1.0f};
         v2.Color = color;
         v2.TexIndex = 0;
-        m_Vertices.push_back(v2);
+        m_SDFBatchInfo.Vertices.push_back(v2);
 
-        m_IndexCount += shapeIndexCount;
-        m_VertexCount += shapeVertexCount;
+        m_SDFBatchInfo.IndexCount += shapeIndexCount;
+        m_SDFBatchInfo.VertexCount += shapeVertexCount;
     }
 
     void BatchRenderer::End()
@@ -706,111 +856,10 @@ namespace Nexus::Graphics
         m_IsStarted = false;
     }
 
-    void BatchRenderer::CreatePipeline()
-    {
-        auto swapchain = m_Device->GetPrimaryWindow();
-
-        Nexus::Graphics::PipelineDescription description;
-        description.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
-        description.Layouts = {Nexus::Graphics::VertexPositionTexCoordColorTexIndex::GetLayout()};
-
-        description.VertexModule = m_Device->CreateShaderModuleFromSpirvSource(s_BatchVertexShaderSource, "Batch Renderer - Vertex Shader", Nexus::Graphics::ShaderStage::Vertex);
-        description.FragmentModule = m_Device->CreateShaderModuleFromSpirvSource(s_BatchFragmentShaderSource, "Batch Renderer - Fragment Shader", Nexus::Graphics::ShaderStage::Fragment);
-
-        Nexus::Graphics::ResourceSetSpecification resourceSpec;
-        resourceSpec.SampledImages =
-            {
-                {"texture0", 1, 0, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture1", 1, 1, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture2", 1, 2, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture3", 1, 3, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture4", 1, 4, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture5", 1, 5, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture6", 1, 6, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture7", 1, 7, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture8", 1, 8, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture9", 1, 9, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture10", 1, 10, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture11", 1, 11, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture12", 1, 12, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture13", 1, 13, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture14", 1, 14, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture15", 1, 15, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture16", 1, 16, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture17", 1, 17, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture18", 1, 18, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture19", 1, 19, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture20", 1, 20, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture21", 1, 21, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture22", 1, 22, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture23", 1, 23, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture24", 1, 24, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture25", 1, 25, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture26", 1, 26, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture27", 1, 27, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture28", 1, 28, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture29", 1, 29, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture30", 1, 30, Nexus::Graphics::ResourceType::CombinedImageSampler},
-                {"texture31", 1, 31, Nexus::Graphics::ResourceType::CombinedImageSampler}};
-
-        resourceSpec.UniformBuffers =
-            {
-                {"MVP", 0, 0, Nexus::Graphics::ResourceType::UniformBuffer}};
-
-        description.ResourceSetSpecification = resourceSpec;
-        description.Target = {m_RenderTarget};
-
-        description.BlendStateDescription.EnableBlending = true;
-        description.BlendStateDescription.SourceColourBlend = BlendFactor::SourceAlpha;
-        description.BlendStateDescription.DestinationColourBlend = BlendFactor::OneMinusSourceAlpha;
-        description.BlendStateDescription.ColorBlendFunction = BlendEquation::Add;
-        description.BlendStateDescription.SourceAlphaBlend = BlendFactor::SourceAlpha;
-        description.BlendStateDescription.DestinationAlphaBlend = BlendFactor::OneMinusSourceAlpha;
-        description.BlendStateDescription.AlphaBlendFunction = BlendEquation::Add;
-
-        m_Pipeline = m_Device->CreatePipeline(description);
-        m_ResourceSet = m_Device->CreateResourceSet(m_Pipeline);
-    }
-
     void BatchRenderer::Flush()
     {
         EnsureStarted();
-
-        m_VertexBuffer->SetData(m_Vertices.data(), m_Vertices.size() * sizeof(VertexPositionTexCoordColorTexIndex));
-        m_IndexBuffer->SetData(m_Indices.data(), m_Vertices.size() * sizeof(VertexPositionTexCoordColorTexIndex));
-
-        m_ResourceSet->WriteUniformBuffer(m_UniformBuffer, "MVP");
-
-        for (uint32_t i = 0; i < MAX_TEXTURES; i++)
-        {
-            std::string textureName = "texture" + std::to_string(i);
-            if (i < m_Textures.size())
-            {
-                m_ResourceSet->WriteCombinedImageSampler(m_Textures[i], m_Sampler, textureName.c_str());
-            }
-            else
-            {
-                m_ResourceSet->WriteCombinedImageSampler(m_BlankTexture, m_Sampler, textureName.c_str());
-            }
-        }
-
-        m_CommandList->Begin();
-        m_CommandList->SetPipeline(m_Pipeline);
-
-        m_CommandList->SetViewport(m_Viewport);
-        m_CommandList->SetScissor(m_ScissorRectangle);
-
-        m_CommandList->SetResourceSet(m_ResourceSet);
-
-        m_CommandList->SetVertexBuffer(m_VertexBuffer, 0);
-        m_CommandList->SetIndexBuffer(m_IndexBuffer);
-        m_CommandList->DrawIndexed(m_IndexCount, 0, 0);
-
-        m_CommandList->End();
-        m_Device->SubmitCommandList(m_CommandList);
-
-        m_Textures.clear();
-        m_Textures.push_back(m_BlankTexture);
+        PerformDraw(m_SDFBatchInfo);
     }
 
     void BatchRenderer::EnsureStarted()
@@ -821,37 +870,53 @@ namespace Nexus::Graphics
         }
     }
 
-    void BatchRenderer::EnsureSpace(uint32_t shapeVertexCount, uint32_t shapeIndexCount)
+    void BatchRenderer::EnsureSpace(BatchInfo &info, uint32_t shapeVertexCount, uint32_t shapeIndexCount)
     {
-        uint32_t maxVertexCount = m_Vertices.capacity();
-        uint32_t maxIndexCount = m_Indices.capacity();
+        uint32_t maxVertexCount = info.Vertices.capacity();
+        uint32_t maxIndexCount = info.Indices.capacity();
 
         if (shapeVertexCount > maxVertexCount || shapeIndexCount > maxIndexCount)
         {
             throw std::runtime_error("Max vertex or index count reached for one draw call");
         }
 
-        if (m_VertexCount + shapeVertexCount > maxVertexCount || m_IndexCount + shapeIndexCount > maxIndexCount || m_Textures.size() > MAX_TEXTURES)
+        if (info.VertexCount + shapeVertexCount > maxVertexCount || info.IndexCount + shapeIndexCount > maxIndexCount || info.Textures.size() > MAX_TEXTURE_COUNT)
         {
             Flush();
         }
     }
 
-    bool BatchRenderer::FindTextureInBatch(Ref<Texture> texture, uint32_t *index)
+    void BatchRenderer::PerformDraw(BatchInfo &info)
     {
-        for (int i = 0; i < m_Textures.size(); i++)
-        {
-            if (m_Textures[i] == texture)
-            {
-                if (index)
-                {
-                    *index = (uint32_t)i;
-                }
+        info.VertexBuffer->SetData(info.Vertices.data(), info.Vertices.size() * sizeof(VertexPositionTexCoordColorTexIndex));
+        info.IndexBuffer->SetData(info.Indices.data(), info.Indices.size() * sizeof(uint32_t));
 
-                return true;
+        info.ResourceSet->WriteUniformBuffer(m_UniformBuffer, "MVP");
+
+        for (uint32_t i = 0; i < MAX_TEXTURE_COUNT; i++)
+        {
+            std::string textureName = "texture" + std::to_string(i);
+            if (i < info.Textures.size())
+            {
+                info.ResourceSet->WriteCombinedImageSampler(info.Textures.at(i), m_Sampler, textureName);
+            }
+            else
+            {
+                info.ResourceSet->WriteCombinedImageSampler(m_BlankTexture, m_Sampler, textureName);
             }
         }
 
-        return false;
+        m_CommandList->Begin();
+        m_CommandList->SetPipeline(info.Pipeline);
+        m_CommandList->SetViewport(m_Viewport);
+        m_CommandList->SetScissor(m_ScissorRectangle);
+        m_CommandList->SetResourceSet(info.ResourceSet);
+        m_CommandList->SetVertexBuffer(info.VertexBuffer, 0);
+        m_CommandList->SetIndexBuffer(info.IndexBuffer);
+        m_CommandList->DrawIndexed(info.IndexCount, 0, 0);
+        m_CommandList->End();
+        m_Device->SubmitCommandList(m_CommandList);
+
+        FlushTextures(info, m_BlankTexture);
     }
 }

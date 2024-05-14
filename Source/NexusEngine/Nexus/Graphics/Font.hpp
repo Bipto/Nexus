@@ -33,7 +33,7 @@ namespace Nexus::Graphics
             m_Pixels.resize(m_Width * m_Height);
         }
 
-        std::vector<uint32_t> &GetPixels()
+        std::vector<uint8_t> &GetPixels()
         {
             return m_Pixels;
         }
@@ -55,8 +55,8 @@ namespace Nexus::Graphics
 
             uint32_t offset = x + (y * m_Width);
 
-            Color color = Nexus::Graphics::Color(255, 255, 255, 255);
-            m_Pixels[offset] = color.GetColor();
+            // Color color = Nexus::Graphics::Color(255, 255, 255, 255);
+            // m_Pixels[offset] = color.GetColor();
 
             m_Pixels[offset] = value;
         }
@@ -65,7 +65,7 @@ namespace Nexus::Graphics
         uint32_t GetHeight() const { return m_Height; }
 
     private:
-        std::vector<uint32_t> m_Pixels;
+        std::vector<uint8_t> m_Pixels;
         uint32_t m_Width = 0;
         uint32_t m_Height = 0;
     };
@@ -79,10 +79,16 @@ namespace Nexus::Graphics
         float Advance;
     };
 
+    enum class FontType
+    {
+        SDF,
+        Rasterized
+    };
+
     class Font
     {
     public:
-        Font(const std::string &filepath, uint32_t size, const std::vector<CharacterRange> &characterRanges, GraphicsDevice *device);
+        Font(const std::string &filepath, uint32_t size, const std::vector<CharacterRange> &characterRanges, FontType type, GraphicsDevice *device);
         Nexus::Ref<Nexus::Graphics::Texture> GetTexture();
         const Character &GetCharacter(char character);
         uint32_t GetSize() const;
@@ -100,5 +106,6 @@ namespace Nexus::Graphics
         uint32_t m_LineSpacing = 0;
         uint32_t m_UnderlinePosition = 0;
         Point<uint32_t> m_MaxCharacterSize = {0, 0};
+        FontType m_Type;
     };
 }

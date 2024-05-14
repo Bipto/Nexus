@@ -1,8 +1,8 @@
-#include "Button.hpp"
+#include "Label.hpp"
 
 namespace Nexus::UI
 {
-    void Button::Render(Graphics::BatchRenderer *batchRenderer)
+    void Label::Render(Graphics::BatchRenderer *batchRenderer)
     {
         const Canvas *canvas = GetCanvas();
 
@@ -24,40 +24,23 @@ namespace Nexus::UI
 
         batchRenderer->Begin(vp, scissor);
 
-        glm::vec4 color = m_BackgroundColour;
-
-        if (m_Hovered)
-        {
-            color *= 0.5f;
-        }
+        batchRenderer->DrawQuadFill(rect, m_BackgroundColour);
 
         if (m_Font)
         {
-            batchRenderer->DrawQuadFill(rect, color);
-            batchRenderer->DrawQuad(rect, {0.0f, 0.0f, 0.0f, 1.0f}, m_BorderThickness);
             batchRenderer->DrawString(m_Text, {rect.GetLeft() + m_MarginLeft, rect.GetTop() + m_MarginTop}, m_FontSize, m_ForegroundColour, m_Font);
         }
 
         batchRenderer->End();
     }
 
-    void Button::SetText(const std::string &text)
+    void Label::SetText(const std::string &text)
     {
         m_Text = text;
     }
 
-    const std::string &Button::GetText() const
+    const std::string &Label::GetText() const
     {
         return m_Text;
-    }
-
-    void Button::SetBorderThickness(uint32_t thickness)
-    {
-        m_BorderThickness = thickness;
-    }
-
-    const uint32_t Button::GetBorderThickness() const
-    {
-        return m_BorderThickness;
     }
 }

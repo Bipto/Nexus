@@ -3,7 +3,7 @@
 #include "ft2build.h"
 #include FT_FREETYPE_H
 
-void LoadCharacter(char character, FT_Face &face, Nexus::Graphics::FontData &data, std::map<char, Nexus::Graphics::Character> &characters, uint32_t xPos, uint32_t yPos, uint32_t textureWidth, uint32_t textureHeight)
+void LoadCharacter(char character, FT_Face &face, Nexus::Graphics::FontData &data, std::map<char, Nexus::Graphics::Character> &characters, uint32_t xPos, uint32_t yPos, uint32_t textureWidth, uint32_t textureHeight, FT_Render_Mode renderMode)
 {
     if (FT_Load_Char(face, character, FT_LOAD_DEFAULT))
     {
@@ -11,7 +11,7 @@ void LoadCharacter(char character, FT_Face &face, Nexus::Graphics::FontData &dat
     }
 
     FT_GlyphSlot slot = face->glyph;
-    FT_Render_Glyph(slot, FT_RENDER_MODE_SDF);
+    FT_Render_Glyph(slot, renderMode);
 
     for (int y = 0; y < face->glyph->bitmap.rows; y++)
     {
@@ -42,7 +42,7 @@ void LoadCharacter(char character, FT_Face &face, Nexus::Graphics::FontData &dat
     characters[character] = c;
 }
 
-Nexus::Point<uint32_t> FindLargestGlyphSize(const FT_Face &face, const std::vector<Nexus::Graphics::CharacterRange> &ranges, uint32_t &numberOfCharacters)
+Nexus::Point<uint32_t> FindLargestGlyphSize(const FT_Face &face, const std::vector<Nexus::Graphics::CharacterRange> &ranges, uint32_t &numberOfCharacters, FT_Render_Mode renderMode)
 {
     uint32_t width = 0;
     uint32_t height = 0;
@@ -52,8 +52,8 @@ Nexus::Point<uint32_t> FindLargestGlyphSize(const FT_Face &face, const std::vect
     {
         for (uint32_t i = range.Begin; i < range.End; i++)
         {
-            FT_Load_Char(face, (char)i, FT_LOAD_DEFAULT);
-            FT_Render_Glyph(face->glyph, FT_RENDER_MODE_SDF);
+            FT_Load_Char(face, (char)i, FT_LOAD_RENDER);
+            FT_Render_Glyph(face->glyph, renderMode);
             if (face->glyph->bitmap.width > width)
             {
                 width = face->glyph->bitmap.width;
@@ -72,8 +72,8 @@ Nexus::Point<uint32_t> FindLargestGlyphSize(const FT_Face &face, const std::vect
 
 namespace Nexus::Graphics
 {
-    Font::Font(const std::string &filepath, uint32_t size, const std::vector<CharacterRange> &characterRanges, GraphicsDevice *device)
-        : m_CharacterRanges(characterRanges), m_FontSize(size)
+    Font::Font(const std::string &filepath, uint32_t size, const std::vector<CharacterRange> &characterRanges, FontType type, GraphicsDevice *device)
+        : m_CharacterRanges(characterRanges), m_FontSize(size), m_Type(type)
     {
         FT_Library ft;
         if (FT_Init_FreeType(&ft))
@@ -91,15 +91,21 @@ namespace Nexus::Graphics
         m_LineSpacing = face->size->metrics.height / 64;
         m_UnderlinePosition = face->underline_position;
 
+        FT_Render_Mode renderMode = FT_RENDER_MODE_NORMAL;
+        if (type == FontType::SDF)
+        {
+            renderMode = FT_RENDER_MODE_SDF;
+        }
+
         uint32_t characterCount = 0;
-        m_MaxCharacterSize = FindLargestGlyphSize(face, characterRanges, characterCount);
+        m_MaxCharacterSize = FindLargestGlyphSize(face, characterRanges, characterCount, renderMode);
         uint32_t columnCount = ceil(sqrt(characterCount));
 
         m_TextureWidth = columnCount * m_MaxCharacterSize.X;
         m_TextureHeight = columnCount * m_MaxCharacterSize.Y;
 
         Nexus::Graphics::TextureSpecification textureSpec;
-        textureSpec.Format = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
+        textureSpec.Format = Nexus::Graphics::PixelFormat::R8_UNorm;
         textureSpec.Width = m_TextureWidth;
         textureSpec.Height = m_TextureHeight;
 
@@ -112,7 +118,7 @@ namespace Nexus::Graphics
         {
             for (int character = range.Begin; character < range.End; character++)
             {
-                LoadCharacter((char)character, face, pixels, m_Characters, xPos, yPos, m_TextureWidth, m_TextureHeight);
+                LoadCharacter((char)character, face, pixels, m_Characters, xPos, yPos, m_TextureWidth, m_TextureHeight, renderMode);
 
                 xPos += m_MaxCharacterSize.X;
 

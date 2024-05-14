@@ -5,8 +5,7 @@
 #include "Nexus/UI/Canvas.hpp"
 
 #include "Nexus/UI/Button.hpp"
-
-#include "Nexus/UI/UIRenderer.hpp"
+#include "Nexus/UI/Label.hpp"
 
 std::vector<Nexus::Graphics::VertexPositionTexCoord> vertices =
     {
@@ -37,7 +36,7 @@ public:
             {
                 {0x0020, 0x00FF}};
 
-        m_Font = new Nexus::Graphics::Font("C://Windows//Fonts//Arial.ttf", 72, fontRange, m_GraphicsDevice);
+        m_Font = new Nexus::Graphics::Font("C://Windows//Fonts//Calibri.ttf", 32, fontRange, Nexus::Graphics::FontType::SDF, m_GraphicsDevice);
 
         Nexus::UI::Button *button = new Nexus::UI::Button();
         button->SetPosition({150, 150});
@@ -45,16 +44,22 @@ public:
         button->SetFont(m_Font);
         button->SetText("My Button\n\tSome More Text");
         button->SetBackgroundColour({0.75f, 0.75f, 0.75f, 1.0f});
-        button->SetFontSize(32);
+        button->SetFontSize(m_Font->GetSize());
         button->SetBorderThickness(2);
         button->SetMargin(5, 5, 5, 5);
-
         button->OnClick += [&](Nexus::UI::Control *control)
         {
             std::cout << "Hello World!\n";
         };
-
         m_Canvas->AddControl(button);
+
+        Nexus::UI::Label *label = new Nexus::UI::Label();
+        label->SetPosition({0, 0});
+        label->SetSize({150, 75});
+        label->SetFont(m_Font);
+        label->SetText("My Label");
+        label->SetBackgroundColour({1, 0, 0, 1});
+        m_Canvas->AddControl(label);
     }
 
     virtual void Update(Nexus::Time time) override
@@ -95,7 +100,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;
