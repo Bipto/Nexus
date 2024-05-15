@@ -197,4 +197,9 @@ namespace Nexus::Graphics
     {
         return m_MaxCharacterSize;
     }
+
+    const FontType Font::GetFontType() const
+    {
+        return m_Type;
+    }
 }

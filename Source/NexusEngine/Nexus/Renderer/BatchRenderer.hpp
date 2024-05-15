@@ -57,7 +57,7 @@ namespace Nexus::Graphics
 
         void Resize();
 
-        void Begin(const glm::mat4 &mvp);
+        void Begin();
         void Begin(Viewport viewport, Scissor scissor);
         void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color);
         void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture> texture);
@@ -100,5 +100,6 @@ namespace Nexus::Graphics
 
         BatchInfo m_TextureBatchInfo;
         BatchInfo m_SDFBatchInfo;
+        BatchInfo m_FontBatchInfo;
     };
 }

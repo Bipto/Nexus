@@ -95,6 +95,7 @@ namespace Nexus::Graphics
         Nexus::Point<uint32_t> MeasureString(const std::string &text, uint32_t size);
         const uint32_t GetLineHeight() const;
         const Point<uint32_t> GetMaxCharacterSize() const;
+        const FontType GetFontType() const;
 
     private:
         Nexus::Ref<Nexus::Graphics::Texture> m_Texture = nullptr;

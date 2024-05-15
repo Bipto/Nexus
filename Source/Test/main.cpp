@@ -6,6 +6,9 @@
 
 #include "Nexus/UI/Button.hpp"
 #include "Nexus/UI/Label.hpp"
+#include "Nexus/UI/PictureBox.hpp"
+
+#include "Nexus/FileSystem/FileSystem.hpp"
 
 std::vector<Nexus::Graphics::VertexPositionTexCoord> vertices =
     {
@@ -36,11 +39,29 @@ public:
             {
                 {0x0020, 0x00FF}};
 
-        m_Font = new Nexus::Graphics::Font("C://Windows//Fonts//Calibri.ttf", 32, fontRange, Nexus::Graphics::FontType::SDF, m_GraphicsDevice);
+        m_Font = new Nexus::Graphics::Font("C://Windows//Fonts//Calibri.ttf", 32, fontRange, Nexus::Graphics::FontType::Rasterized, m_GraphicsDevice);
+
+        // Nexus::UI::Label *label = new Nexus::UI::Label();
+        // label->SetPosition({0, 0});
+        // label->SetSize({150, 75});
+        // label->SetFont(m_Font);
+        // label->SetText("My Label");
+        // label->SetBackgroundColour({1, 0, 0, 1});
+        // m_Canvas->AddControl(label);
+
+        Nexus::Ref<Nexus::Graphics::Texture> texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), false);
+
+        Nexus::UI::PictureBox *pbx = new Nexus::UI::PictureBox();
+        pbx->SetPosition({10, 10});
+        pbx->SetSize({350, 350});
+        pbx->SetBackgroundColour({1, 0, 0, 1});
+        pbx->SetTexture(texture);
+        pbx->SetMargin(5, 5, 5, 5);
+        m_Canvas->AddControl(pbx);
 
         Nexus::UI::Button *button = new Nexus::UI::Button();
-        button->SetPosition({150, 150});
-        button->SetSize({500, 500});
+        button->SetPosition({50, 50});
+        button->SetSize({150, 50});
         button->SetFont(m_Font);
         button->SetText("My Button\n\tSome More Text");
         button->SetBackgroundColour({0.75f, 0.75f, 0.75f, 1.0f});
@@ -52,14 +73,6 @@ public:
             std::cout << "Hello World!\n";
         };
         m_Canvas->AddControl(button);
-
-        Nexus::UI::Label *label = new Nexus::UI::Label();
-        label->SetPosition({0, 0});
-        label->SetSize({150, 75});
-        label->SetFont(m_Font);
-        label->SetText("My Label");
-        label->SetBackgroundColour({1, 0, 0, 1});
-        m_Canvas->AddControl(label);
     }
 
     virtual void Update(Nexus::Time time) override
