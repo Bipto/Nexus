@@ -14,26 +14,26 @@ namespace Nexus::UI
         vp.MinDepth = 0.0f;
         vp.MaxDepth = 1.0f;
 
-        Nexus::Graphics::Scissor scissor;
-        scissor.X = m_Position.X;
-        scissor.Y = m_Position.Y;
-        scissor.Width = m_Size.X;
-        scissor.Height = m_Size.Y;
-
         Nexus::Graphics::Rectangle<float> rect = GetRectangle();
+        Nexus::Graphics::Scissor scissor = GetScissor();
 
         batchRenderer->Begin(vp, scissor);
 
-        glm::vec4 color = m_BackgroundColour;
+        glm::vec4 colour = m_BackgroundColour;
 
         if (m_Hovered)
         {
-            color *= 0.5f;
+            colour = m_HoveredColour;
+        }
+
+        if (m_Pressed)
+        {
+            colour = m_ClickedColour;
         }
 
         if (m_Font)
         {
-            batchRenderer->DrawQuadFill(rect, color);
+            batchRenderer->DrawQuadFill(rect, colour);
             batchRenderer->DrawQuad(rect, {0.0f, 0.0f, 0.0f, 1.0f}, m_BorderThickness);
             batchRenderer->DrawString(m_Text, {rect.GetLeft() + m_MarginLeft, rect.GetTop() + m_MarginTop}, m_FontSize, m_ForegroundColour, m_Font);
         }

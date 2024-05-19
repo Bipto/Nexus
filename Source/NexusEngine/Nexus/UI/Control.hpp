@@ -44,7 +44,11 @@ namespace Nexus::UI
         const uint32_t GetMarginRight() const;
 
         const Nexus::Graphics::Rectangle<float> GetRectangle() const;
-        const Canvas *GetCanvas() const;
+        const Nexus::Graphics::Rectangle<float> GetScissor() const;
+        const Canvas *const GetCanvas() const;
+
+        void SetParent(Control *control);
+        const Control *const GetParent() const;
 
         EventHandler<Control *> OnClick;
         EventHandler<Control *> OnMouseEnter;
@@ -64,6 +68,8 @@ namespace Nexus::UI
         uint32_t m_MarginBottom = 0;
 
         bool m_Hovered = false;
+        bool m_Pressed = false;
+        Control *m_Parent = nullptr;
 
     private:
         Canvas *m_Canvas = nullptr;

@@ -7,6 +7,7 @@
 #include "Nexus/UI/Button.hpp"
 #include "Nexus/UI/Label.hpp"
 #include "Nexus/UI/PictureBox.hpp"
+#include "Nexus/UI/Panel.hpp"
 
 #include "Nexus/FileSystem/FileSystem.hpp"
 
@@ -41,18 +42,10 @@ public:
 
         m_Font = new Nexus::Graphics::Font("C://Windows//Fonts//Calibri.ttf", 32, fontRange, Nexus::Graphics::FontType::Rasterized, m_GraphicsDevice);
 
-        // Nexus::UI::Label *label = new Nexus::UI::Label();
-        // label->SetPosition({0, 0});
-        // label->SetSize({150, 75});
-        // label->SetFont(m_Font);
-        // label->SetText("My Label");
-        // label->SetBackgroundColour({1, 0, 0, 1});
-        // m_Canvas->AddControl(label);
-
         Nexus::Ref<Nexus::Graphics::Texture> texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), false);
 
         Nexus::UI::PictureBox *pbx = new Nexus::UI::PictureBox();
-        pbx->SetPosition({10, 10});
+        pbx->SetPosition({15, 250});
         pbx->SetSize({350, 350});
         pbx->SetBackgroundColour({1, 0, 0, 1});
         pbx->SetTexture(texture);
@@ -60,7 +53,7 @@ public:
         m_Canvas->AddControl(pbx);
 
         Nexus::UI::Button *button = new Nexus::UI::Button();
-        button->SetPosition({50, 50});
+        button->SetPosition({25, 25});
         button->SetSize({150, 50});
         button->SetFont(m_Font);
         button->SetText("My Button\n\tSome More Text");
@@ -72,7 +65,22 @@ public:
         {
             std::cout << "Hello World!\n";
         };
-        m_Canvas->AddControl(button);
+
+        Nexus::UI::Label *label = new Nexus::UI::Label();
+        label->SetPosition({125, 125});
+        label->SetSize({150, 75});
+        label->SetFont(m_Font);
+        label->SetText("My Label");
+        label->SetBackgroundColour({1, 0, 0, 1});
+
+        Nexus::UI::Panel *pnl = new Nexus::UI::Panel();
+        pnl->SetPosition({125, 25});
+        pnl->SetSize({350, 350});
+        pnl->SetBackgroundColour({0, 1, 0, 1});
+        pnl->AddControl(button);
+        pnl->AddControl(label);
+
+        m_Canvas->AddControl(pnl);
     }
 
     virtual void Update(Nexus::Time time) override

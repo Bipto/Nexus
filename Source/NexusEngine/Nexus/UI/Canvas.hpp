@@ -15,6 +15,7 @@ namespace Nexus::UI
     {
     public:
         Canvas(Graphics::GraphicsDevice *device, Graphics::Swapchain *swapchain);
+        virtual ~Canvas();
 
         void SetPosition(const Point<uint32_t> &position);
         void SetSize(const Point<uint32_t> &size);

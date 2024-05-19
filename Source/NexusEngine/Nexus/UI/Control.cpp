@@ -6,9 +6,10 @@ namespace Nexus::UI
 {
     void Control::Update()
     {
-        Graphics::Rectangle rect(m_Position.X, m_Position.Y, m_Size.X, m_Size.Y);
+        Graphics::Rectangle<float> rect = GetRectangle();
+        const Point<int> mousePos = Input::GetMousePosition();
 
-        if (rect.ContainsPoint(Input::GetMousePosition()))
+        if (rect.ContainsPoint({(float)mousePos.X, (float)mousePos.Y}))
         {
             if (!m_Hovered)
             {
@@ -16,6 +17,7 @@ namespace Nexus::UI
             }
 
             m_Hovered = true;
+            m_Pressed = Input::IsLeftMouseHeld();
         }
         else
         {
@@ -25,6 +27,7 @@ namespace Nexus::UI
             }
 
             m_Hovered = false;
+            m_Pressed = false;
         }
 
         if (m_Hovered && Input::IsLeftMouseReleased())
@@ -144,11 +147,71 @@ namespace Nexus::UI
 
     const Nexus::Graphics::Rectangle<float> Control::GetRectangle() const
     {
-        return Nexus::Graphics::Rectangle<float>(m_Position.X, m_Position.Y, m_Size.X, m_Size.Y);
+        Nexus::Graphics::Rectangle<float> rect(m_Position.X, m_Position.Y, m_Size.X, m_Size.Y);
+
+        if (m_Parent)
+        {
+            const auto &parentRectangle = m_Parent->GetRectangle();
+
+            rect.SetX(parentRectangle.GetLeft() + m_Position.X);
+            rect.SetY(parentRectangle.GetTop() + m_Position.Y);
+        }
+
+        return rect;
     }
 
-    const Canvas *Control::GetCanvas() const
+    const Nexus::Graphics::Rectangle<float> Control::GetScissor() const
     {
+        Nexus::Graphics::Rectangle<float> scissor = GetRectangle();
+
+        if (m_Parent)
+        {
+            const auto &parentRectangle = m_Parent->GetScissor();
+
+            if (parentRectangle.GetLeft() > scissor.GetLeft())
+            {
+                scissor.SetX(parentRectangle.GetLeft());
+            }
+
+            if (parentRectangle.GetTop() > scissor.GetTop())
+            {
+                scissor.SetY(parentRectangle.GetTop());
+            }
+
+            if (parentRectangle.GetRight() < scissor.GetRight())
+            {
+                float width = parentRectangle.GetRight() - scissor.GetLeft();
+                scissor.SetWidth(width);
+            }
+
+            if (parentRectangle.GetBottom() < scissor.GetBottom())
+            {
+                float height = parentRectangle.GetBottom() - scissor.GetTop();
+                scissor.SetHeight(height);
+            }
+        }
+
+        return scissor;
+    }
+
+    const Canvas *const Control::GetCanvas() const
+    {
+        if (m_Parent)
+        {
+            return m_Parent->GetCanvas();
+        }
+
         return m_Canvas;
+    }
+
+    void Control::SetParent(Control *control)
+    {
+        m_Parent = control;
+        m_Canvas = m_Parent->m_Canvas;
+    }
+
+    const Control *const Control::GetParent() const
+    {
+        return m_Parent;
     }
 }

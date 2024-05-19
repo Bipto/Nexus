@@ -20,5 +20,7 @@ namespace Nexus::UI
     private:
         std::string m_Text;
         uint32_t m_BorderThickness = 1;
+        glm::vec4 m_HoveredColour = {0.0f, 0.67f, 0.94f, 1.0f};
+        glm::vec4 m_ClickedColour = {0.0f, 0.57f, 0.84f, 1.0f};
     };
 }

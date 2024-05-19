@@ -1,8 +1,20 @@
-#include "PictureBox.hpp"
+#include "Panel.hpp"
+
+#include <algorithm>
 
 namespace Nexus::UI
 {
-    void PictureBox::Render(Graphics::BatchRenderer *batchRenderer)
+    Panel::~Panel()
+    {
+        for (auto control : m_Controls)
+        {
+            delete control;
+        }
+
+        m_Controls.clear();
+    }
+
+    void Nexus::UI::Panel::Render(Graphics::BatchRenderer *batchRenderer)
     {
         const Canvas *canvas = GetCanvas();
 
@@ -24,22 +36,32 @@ namespace Nexus::UI
 
         batchRenderer->Begin(vp, scissor);
         batchRenderer->DrawQuadFill(rect, m_BackgroundColour);
-
-        if (m_Texture)
-        {
-            batchRenderer->DrawQuadFill(textureRect, {1.0f, 1.0f, 1.0f, 1.0f}, m_Texture);
-        }
-
         batchRenderer->End();
+
+        for (const auto control : m_Controls)
+        {
+            control->Render(batchRenderer);
+        }
     }
 
-    void PictureBox::SetTexture(const Nexus::Ref<Nexus::Graphics::Texture> texture)
+    void Panel::Update()
     {
-        m_Texture = texture;
+        Control::Update();
+
+        for (const auto control : m_Controls)
+        {
+            control->Update();
+        }
     }
 
-    const Nexus::Ref<Nexus::Graphics::Texture> PictureBox::GetTexture() const
+    void Panel::AddControl(Control *control)
     {
-        return m_Texture;
+        m_Controls.push_back(control);
+        control->SetParent(this);
+    }
+
+    void Panel::RemoveControl(Control *control)
+    {
+        m_Controls.erase(std::remove(m_Controls.begin(), m_Controls.end(), control), m_Controls.end());
     }
 }

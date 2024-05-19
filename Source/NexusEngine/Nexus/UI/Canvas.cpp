@@ -9,6 +9,16 @@ namespace Nexus::UI
         m_BatchRenderer = std::make_unique<Nexus::Graphics::BatchRenderer>(device, Nexus::Graphics::RenderTarget{swapchain});
     }
 
+    Canvas::~Canvas()
+    {
+        for (auto control : m_Controls)
+        {
+            delete control;
+        }
+
+        m_Controls.clear();
+    }
+
     void Canvas::SetPosition(const Point<uint32_t> &position)
     {
         m_Position = position;
