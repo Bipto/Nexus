@@ -15,7 +15,11 @@ namespace Nexus::UI
         void SetTexture(const Nexus::Ref<Nexus::Graphics::Texture> texture);
         const Nexus::Ref<Nexus::Graphics::Texture> GetTexture() const;
 
+        void SetFilter(const glm::vec4 &filter);
+        const glm::vec4 &GetFilter() const;
+
     private:
         Nexus::Ref<Nexus::Graphics::Texture> m_Texture = nullptr;
+        glm::vec4 m_Filter = {1.0f, 1.0f, 1.0f, 1.0f};
     };
 }

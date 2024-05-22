@@ -26,6 +26,25 @@ namespace Nexus
         Point(T x, T y)
             : X(x), Y(y) {}
 
+        template <typename Other>
+        const Point<Other> To() const
+        {
+            return Point<Other>((Other)X, (Other)Y);
+        }
+
+        void Deconstruct(T *x, T *y)
+        {
+            if (x)
+            {
+                *x = X;
+            }
+
+            if (y)
+            {
+                *y = Y;
+            }
+        }
+
         /// @brief The first value stored within the point
         T X = 0;
 

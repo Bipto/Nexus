@@ -8,6 +8,8 @@
 
 #include "Nexus/Events/EventHandler.hpp"
 
+#include "Nexus/Input/Input.hpp"
+
 #include "Canvas.hpp"
 
 #include <glm/glm.hpp>
@@ -31,6 +33,7 @@ namespace Nexus::UI
         void SetMarginLeft(uint32_t margin);
         void SetMarginRight(uint32_t margin);
         void SetMargin(uint32_t left, uint32_t right, uint32_t top, uint32_t bottom);
+        void SetScrollSpeed(float speed);
 
         const Point<int> &GetPosition() const;
         const Point<int> &GetSize() const;
@@ -42,13 +45,18 @@ namespace Nexus::UI
         const uint32_t GetMarginBottom() const;
         const uint32_t GetMarginLeft() const;
         const uint32_t GetMarginRight() const;
+        const float GetScrollSpeed() const;
 
-        const Nexus::Graphics::Rectangle<float> GetRectangle() const;
+        const Nexus::Graphics::Rectangle<float> GetBoundingRectangle() const;
+        const Nexus::Graphics::Rectangle<float> GetBoundingRectangleTranslated() const;
         const Nexus::Graphics::Rectangle<float> GetScissor() const;
+        const Nexus::Graphics::Rectangle<float> GetContentRegionAvailable() const;
+
         const Canvas *const GetCanvas() const;
 
         void SetParent(Control *control);
         const Control *const GetParent() const;
+        const glm::vec2 &GetChildOffset() const;
 
         EventHandler<Control *> OnClick;
         EventHandler<Control *> OnMouseEnter;
@@ -66,6 +74,9 @@ namespace Nexus::UI
         uint32_t m_MarginTop = 0;
         uint32_t m_MarginRight = 0;
         uint32_t m_MarginBottom = 0;
+
+        glm::vec2 m_ChildOffset = {0, 0};
+        float m_ScrollSpeed = 25.0f;
 
         bool m_Hovered = false;
         bool m_Pressed = false;

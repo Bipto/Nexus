@@ -15,7 +15,7 @@ namespace Nexus::UI
         vp.MaxDepth = 1.0f;
 
         Nexus::Graphics::Scissor scissor = GetScissor();
-        Nexus::Graphics::Rectangle<float> rect = GetRectangle();
+        Nexus::Graphics::Rectangle<float> rect = GetBoundingRectangleTranslated();
 
         batchRenderer->Begin(vp, scissor);
 

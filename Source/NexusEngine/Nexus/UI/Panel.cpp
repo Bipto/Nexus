@@ -26,7 +26,7 @@ namespace Nexus::UI
         vp.MinDepth = 0.0f;
         vp.MaxDepth = 1.0f;
 
-        Nexus::Graphics::Rectangle<float> rect = GetRectangle();
+        Nexus::Graphics::Rectangle<float> rect = GetBoundingRectangleTranslated();
         Nexus::Graphics::Rectangle<float> textureRect = Nexus::Graphics::Rectangle<float>(rect.GetLeft() + m_MarginLeft,
                                                                                           rect.GetTop() + m_MarginTop,
                                                                                           rect.GetWidth() - m_MarginRight - m_MarginLeft,
@@ -47,6 +47,11 @@ namespace Nexus::UI
     void Panel::Update()
     {
         Control::Update();
+
+        if (m_Hovered)
+        {
+            m_ChildOffset.y -= (Nexus::Input::GetMouseScrollMovementY() * m_ScrollSpeed);
+        }
 
         for (const auto control : m_Controls)
         {

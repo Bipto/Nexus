@@ -1,15 +1,20 @@
 #include "Control.hpp"
 
-#include "Nexus/Input/Input.hpp"
-
 namespace Nexus::UI
 {
     void Control::Update()
     {
-        Graphics::Rectangle<float> rect = GetRectangle();
+        Graphics::Rectangle<float> scissor = GetScissor();
+        Graphics::Rectangle<float> rect = GetBoundingRectangleTranslated();
         const Point<int> mousePos = Input::GetMousePosition();
 
-        if (rect.ContainsPoint({(float)mousePos.X, (float)mousePos.Y}))
+        if (!scissor.Contains(mousePos.To<float>()))
+        {
+            m_Hovered = false;
+            return;
+        }
+
+        if (rect.Contains(mousePos.To<float>()))
         {
             if (!m_Hovered)
             {
@@ -98,6 +103,11 @@ namespace Nexus::UI
         SetMarginRight(right);
     }
 
+    void Control::SetScrollSpeed(float speed)
+    {
+        m_ScrollSpeed = speed;
+    }
+
     const Point<int> &Control::GetPosition() const
     {
         return m_Position;
@@ -145,16 +155,27 @@ namespace Nexus::UI
         return m_MarginRight;
     }
 
-    const Nexus::Graphics::Rectangle<float> Control::GetRectangle() const
+    const float Control::GetScrollSpeed() const
     {
-        Nexus::Graphics::Rectangle<float> rect(m_Position.X, m_Position.Y, m_Size.X, m_Size.Y);
+        return m_ScrollSpeed;
+    }
+
+    const Nexus::Graphics::Rectangle<float> Control::GetBoundingRectangle() const
+    {
+        return Nexus::Graphics::Rectangle<float>(m_Position.X, m_Position.Y, m_Size.X, m_Size.Y);
+    }
+
+    const Nexus::Graphics::Rectangle<float> Control::GetBoundingRectangleTranslated() const
+    {
+        Nexus::Graphics::Rectangle<float> rect = GetBoundingRectangle();
 
         if (m_Parent)
         {
-            const auto &parentRectangle = m_Parent->GetRectangle();
+            const auto &parentRectangle = m_Parent->GetBoundingRectangleTranslated();
+            const auto &childOffset = m_Parent->GetChildOffset();
 
-            rect.SetX(parentRectangle.GetLeft() + m_Position.X);
-            rect.SetY(parentRectangle.GetTop() + m_Position.Y);
+            rect.SetX(parentRectangle.GetLeft() + m_Position.X + childOffset.x);
+            rect.SetY(parentRectangle.GetTop() + m_Position.Y - childOffset.y);
         }
 
         return rect;
@@ -162,7 +183,7 @@ namespace Nexus::UI
 
     const Nexus::Graphics::Rectangle<float> Control::GetScissor() const
     {
-        Nexus::Graphics::Rectangle<float> scissor = GetRectangle();
+        Nexus::Graphics::Rectangle<float> scissor = GetBoundingRectangleTranslated();
 
         if (m_Parent)
         {
@@ -189,9 +210,30 @@ namespace Nexus::UI
                 float height = parentRectangle.GetBottom() - scissor.GetTop();
                 scissor.SetHeight(height);
             }
+
+            if (scissor.GetLeft() > parentRectangle.GetRight())
+            {
+                scissor.SetX(parentRectangle.GetLeft());
+                scissor.SetWidth(parentRectangle.GetWidth());
+            }
+
+            if (scissor.GetTop() > parentRectangle.GetBottom())
+            {
+                scissor.SetY(parentRectangle.GetTop());
+                scissor.SetHeight(parentRectangle.GetHeight());
+            }
         }
 
         return scissor;
+    }
+
+    const Nexus::Graphics::Rectangle<float> Control::GetContentRegionAvailable() const
+    {
+        Nexus::Graphics::Rectangle<float> rect = GetBoundingRectangleTranslated();
+        return Nexus::Graphics::Rectangle<float>(rect.GetLeft() + m_MarginLeft,
+                                                 rect.GetTop() + m_MarginTop,
+                                                 rect.GetWidth() - m_MarginRight - m_MarginLeft,
+                                                 rect.GetHeight() - m_MarginBottom - m_MarginTop);
     }
 
     const Canvas *const Control::GetCanvas() const
@@ -213,5 +255,10 @@ namespace Nexus::UI
     const Control *const Control::GetParent() const
     {
         return m_Parent;
+    }
+
+    const glm::vec2 &Control::GetChildOffset() const
+    {
+        return m_ChildOffset;
     }
 }

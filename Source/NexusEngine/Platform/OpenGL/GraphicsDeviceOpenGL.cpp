@@ -129,12 +129,6 @@ namespace Nexus::Graphics
 #endif
 
         m_Extensions = GetSupportedExtensions();
-
-        std::cout << "Extensions:\n";
-        for (const auto &extension : m_Extensions)
-        {
-            std::cout << extension << "\n";
-        }
     }
 
     void GraphicsDeviceOpenGL::SetContext()

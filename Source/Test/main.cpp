@@ -8,6 +8,8 @@
 #include "Nexus/UI/Label.hpp"
 #include "Nexus/UI/PictureBox.hpp"
 #include "Nexus/UI/Panel.hpp"
+#include "Nexus/UI/Scrollable.hpp"
+#include "Nexus/UI/ImageButton.hpp"
 
 #include "Nexus/FileSystem/FileSystem.hpp"
 
@@ -44,20 +46,24 @@ public:
 
         Nexus::Ref<Nexus::Graphics::Texture> texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), false);
 
-        Nexus::UI::PictureBox *pbx = new Nexus::UI::PictureBox();
-        pbx->SetPosition({15, 250});
-        pbx->SetSize({350, 350});
+        Nexus::UI::ImageButton *pbx = new Nexus::UI::ImageButton();
+        pbx->SetPosition({15, 600});
+        pbx->SetSize({300, 300});
         pbx->SetBackgroundColour({1, 0, 0, 1});
         pbx->SetTexture(texture);
         pbx->SetMargin(5, 5, 5, 5);
-        m_Canvas->AddControl(pbx);
+        pbx->SetFilter({0.15f, 0.75f, 0.15f, 1.0f});
+        pbx->OnClick += [&](Nexus::UI::Control *control)
+        {
+            std::cout << "Image Button clicked\n";
+        };
 
         Nexus::UI::Button *button = new Nexus::UI::Button();
         button->SetPosition({25, 25});
         button->SetSize({150, 50});
         button->SetFont(m_Font);
-        button->SetText("My Button\n\tSome More Text");
-        button->SetBackgroundColour({0.75f, 0.75f, 0.75f, 1.0f});
+        button->SetText("My Button");
+        button->SetBackgroundColour({0.55f, 0.55f, 0.55f, 1.0f});
         button->SetFontSize(m_Font->GetSize());
         button->SetBorderThickness(2);
         button->SetMargin(5, 5, 5, 5);
@@ -67,18 +73,19 @@ public:
         };
 
         Nexus::UI::Label *label = new Nexus::UI::Label();
-        label->SetPosition({125, 125});
+        label->SetPosition({125, 400});
         label->SetSize({150, 75});
         label->SetFont(m_Font);
-        label->SetText("My Label");
+        label->SetText("My Label\n\tSome More Text");
         label->SetBackgroundColour({1, 0, 0, 1});
 
-        Nexus::UI::Panel *pnl = new Nexus::UI::Panel();
+        Nexus::UI::Scrollable *pnl = new Nexus::UI::Scrollable();
         pnl->SetPosition({125, 25});
         pnl->SetSize({350, 350});
-        pnl->SetBackgroundColour({0, 1, 0, 1});
+        pnl->SetBackgroundColour({0.75f, 0.75f, 0.75f, 1});
         pnl->AddControl(button);
         pnl->AddControl(label);
+        pnl->AddControl(pbx);
 
         m_Canvas->AddControl(pnl);
     }

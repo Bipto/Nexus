@@ -1,8 +1,8 @@
-#include "PictureBox.hpp"
+#include "ImageButton.hpp"
 
 namespace Nexus::UI
 {
-    void PictureBox::Render(Graphics::BatchRenderer *batchRenderer)
+    void Nexus::UI::ImageButton::Render(Graphics::BatchRenderer *batchRenderer)
     {
         const Canvas *canvas = GetCanvas();
 
@@ -24,28 +24,42 @@ namespace Nexus::UI
 
         if (m_Texture)
         {
-            batchRenderer->DrawQuadFill(textureRect, m_Filter, m_Texture);
+            glm::vec4 colour = {1.0f, 1.0f, 1.0f, 1.0f};
+
+            if (m_Hovered)
+            {
+                colour = m_HoveredColour;
+            }
+
+            if (m_Pressed)
+            {
+                colour = m_ClickedColour;
+            }
+
+            colour *= m_Filter;
+
+            batchRenderer->DrawQuadFill(textureRect, colour, m_Texture);
         }
 
         batchRenderer->End();
     }
 
-    void PictureBox::SetTexture(const Nexus::Ref<Nexus::Graphics::Texture> texture)
+    void ImageButton::SetTexture(const Ref<Graphics::Texture> texture)
     {
         m_Texture = texture;
     }
 
-    const Nexus::Ref<Nexus::Graphics::Texture> PictureBox::GetTexture() const
+    const Ref<Graphics::Texture> ImageButton::GetTexture() const
     {
         return m_Texture;
     }
 
-    void PictureBox::SetFilter(const glm::vec4 &filter)
+    void ImageButton::SetFilter(const glm::vec4 &filter)
     {
         m_Filter = filter;
     }
 
-    const glm::vec4 &PictureBox::GetFilter() const
+    const glm::vec4 &ImageButton::GetFilter() const
     {
         return m_Filter;
     }

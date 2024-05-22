@@ -65,15 +65,88 @@ namespace Nexus::Graphics
             return m_Height;
         }
 
-        bool ContainsPoint(Nexus::Point<T> point)
-        {
-            return point.X >= m_X && point.X < m_X + m_Width &&
-                   point.Y >= m_Y && point.Y < m_Y + m_Height;
-        }
-
         const T GetWidth() const
         {
             return m_Width;
+        }
+
+        bool Contains(Nexus::Point<T> other)
+        {
+            return other.X >= this->m_X && other.X < this->m_X + this->m_Width &&
+                   other.Y >= this->m_Y && other.Y < this->m_Y + this->m_Height;
+        }
+
+        bool Contains(Rectangle<T> other)
+        {
+            return this->GetRight() <= other.GetLeft() &&
+                   other.GetRight() <= this->GetRight() &&
+                   this->GetTop() <= other.GetTop() &&
+                   other.GetBottom() <= this->GetBottom();
+        }
+
+        bool Intersects(const Rectangle &other)
+        {
+            return other.GetRight() < this->GetRight() &&
+                   this->GetLeft() < other.GetRight() &&
+                   other.GetTop() < this->GetBottom() &&
+                   this->GetTop() < other.GetBottom();
+        }
+
+        static Rectangle Union(const Rectangle &rect1, const Rectangle &rect2)
+        {
+            T x = glm::min(rect1.GetLeft(), rect2.GetLeft());
+            T y = glm::min(rect1.GetTop(), rect2.GetTop());
+            T width = glm::max(rect1.GetRight(), rect2.GetRight()) - x;
+            T height = glm::max(rect1.GetBottom(), rect2.GetBottom()) - y;
+
+            return Rectangle(x, y, width, height);
+        }
+
+        void Inflate(T horizontalAmount, T verticalAmount)
+        {
+            m_X -= horizontalAmount;
+            m_Y -= verticalAmount;
+            m_Width += horizontalAmount * 2;
+            m_Height += verticalAmount * 2;
+        }
+
+        template <typename Other>
+        const Rectangle To(const Rectangle<T> &rect)
+        {
+            return {
+                (Other)rect.GetLeft(),
+                (Other)rect.GetTop(),
+                (Other)rect.GetWidth(),
+                (Other)rect.GetHeight()};
+        }
+
+        void Offset(T x, T y)
+        {
+            m_X += x;
+            m_Y += y;
+        }
+
+        void Deconstruct(T *x, T *y, T *width, T *height)
+        {
+            if (x)
+            {
+                *x = m_X;
+            }
+
+            if (y)
+            {
+                *y = m_Y;
+            }
+
+            if (width)
+            {
+                *width = m_Width;
+            }
+
+            if (height)
+            {
+                *height = m_Height;
+            }
         }
 
     private:
