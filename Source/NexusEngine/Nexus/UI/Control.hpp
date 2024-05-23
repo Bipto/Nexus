@@ -51,6 +51,7 @@ namespace Nexus::UI
         const Nexus::Graphics::Rectangle<float> GetBoundingRectangleTranslated() const;
         const Nexus::Graphics::Rectangle<float> GetScissor() const;
         const Nexus::Graphics::Rectangle<float> GetContentRegionAvailable() const;
+        const Nexus::Graphics::Rectangle<float> GetContentRegionAvailableTranslated() const;
 
         const Canvas *const GetCanvas() const;
 

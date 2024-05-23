@@ -42,7 +42,7 @@ public:
             {
                 {0x0020, 0x00FF}};
 
-        m_Font = new Nexus::Graphics::Font("C://Windows//Fonts//Calibri.ttf", 32, fontRange, Nexus::Graphics::FontType::Rasterized, m_GraphicsDevice);
+        m_Font = new Nexus::Graphics::Font("C://Windows//Fonts//Calibri.ttf", 32, fontRange, Nexus::Graphics::FontType::Bitmap, m_GraphicsDevice);
 
         Nexus::Ref<Nexus::Graphics::Texture> texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), false);
 
@@ -81,7 +81,7 @@ public:
 
         Nexus::UI::Scrollable *pnl = new Nexus::UI::Scrollable();
         pnl->SetPosition({125, 25});
-        pnl->SetSize({350, 350});
+        pnl->SetSize({500, 500});
         pnl->SetBackgroundColour({0.75f, 0.75f, 0.75f, 1});
         pnl->AddControl(button);
         pnl->AddControl(label);

@@ -23,10 +23,12 @@ namespace Nexus::UI
         const Nexus::Graphics::Rectangle<float> GetScrollLimits() const;
         const Nexus::Graphics::Rectangle<float> GetScrollableArea() const;
         const Nexus::Graphics::Rectangle<float> GetScrollbar() const;
+        const bool RequiresScrollbar() const;
         void HandleScroll();
 
     private:
         std::vector<Control *> m_Controls;
         float m_ScrollbarWidth = 15.0f;
+        bool m_ScrollbarGrabbed = false;
     };
 }

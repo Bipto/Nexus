@@ -82,7 +82,7 @@ namespace Nexus::Graphics
     enum class FontType
     {
         SDF,
-        Rasterized
+        Bitmap
     };
 
     class Font

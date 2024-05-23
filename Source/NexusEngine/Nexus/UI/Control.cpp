@@ -229,6 +229,15 @@ namespace Nexus::UI
 
     const Nexus::Graphics::Rectangle<float> Control::GetContentRegionAvailable() const
     {
+        Nexus::Graphics::Rectangle<float> rect = GetBoundingRectangle();
+        return Nexus::Graphics::Rectangle<float>(rect.GetLeft() + m_MarginLeft,
+                                                 rect.GetTop() + m_MarginTop,
+                                                 rect.GetWidth() - m_MarginRight - m_MarginLeft,
+                                                 rect.GetHeight() - m_MarginBottom - m_MarginTop);
+    }
+
+    const Nexus::Graphics::Rectangle<float> Control::GetContentRegionAvailableTranslated() const
+    {
         Nexus::Graphics::Rectangle<float> rect = GetBoundingRectangleTranslated();
         return Nexus::Graphics::Rectangle<float>(rect.GetLeft() + m_MarginLeft,
                                                  rect.GetTop() + m_MarginTop,

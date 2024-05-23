@@ -70,13 +70,13 @@ namespace Nexus::Graphics
             return m_Width;
         }
 
-        bool Contains(Nexus::Point<T> other)
+        const bool Contains(const Nexus::Point<T> &other) const
         {
             return other.X >= this->m_X && other.X < this->m_X + this->m_Width &&
                    other.Y >= this->m_Y && other.Y < this->m_Y + this->m_Height;
         }
 
-        bool Contains(Rectangle<T> other)
+        const bool Contains(const Rectangle<T> &other) const
         {
             return this->GetRight() <= other.GetLeft() &&
                    other.GetRight() <= this->GetRight() &&
@@ -84,7 +84,7 @@ namespace Nexus::Graphics
                    other.GetBottom() <= this->GetBottom();
         }
 
-        bool Intersects(const Rectangle &other)
+        const bool Intersects(const Rectangle &other) const
         {
             return other.GetRight() < this->GetRight() &&
                    this->GetLeft() < other.GetRight() &&
@@ -111,7 +111,7 @@ namespace Nexus::Graphics
         }
 
         template <typename Other>
-        const Rectangle To(const Rectangle<T> &rect)
+        const Rectangle To(const Rectangle<T> &rect) const
         {
             return {
                 (Other)rect.GetLeft(),
@@ -126,7 +126,7 @@ namespace Nexus::Graphics
             m_Y += y;
         }
 
-        void Deconstruct(T *x, T *y, T *width, T *height)
+        const void Deconstruct(T *x, T *y, T *width, T *height) const
         {
             if (x)
             {
@@ -147,6 +147,11 @@ namespace Nexus::Graphics
             {
                 *height = m_Height;
             }
+        }
+
+        const bool IsEmpty() const
+        {
+            return m_X == 0 && m_Y == 0 && m_Width == 0 && m_Height == 0;
         }
 
     private:

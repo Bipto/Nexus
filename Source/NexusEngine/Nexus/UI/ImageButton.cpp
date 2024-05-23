@@ -15,7 +15,7 @@ namespace Nexus::UI
         vp.MaxDepth = 1.0f;
 
         Nexus::Graphics::Rectangle<float> rect = GetBoundingRectangleTranslated();
-        Nexus::Graphics::Rectangle<float> textureRect = GetContentRegionAvailable();
+        Nexus::Graphics::Rectangle<float> textureRect = GetContentRegionAvailableTranslated();
 
         Nexus::Graphics::Scissor scissor = GetScissor();
 

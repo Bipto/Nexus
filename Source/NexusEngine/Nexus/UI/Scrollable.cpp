@@ -36,6 +36,7 @@ namespace Nexus::UI
         }
 
         // scrollbar
+        if (RequiresScrollbar())
         {
             Nexus::Graphics::Rectangle<float> scrollbarFillRect = Nexus::Graphics::Rectangle<float>(textureRect.GetRight() - m_ScrollbarWidth,
                                                                                                     textureRect.GetTop(),
@@ -61,7 +62,10 @@ namespace Nexus::UI
     {
         Control::Update();
 
-        HandleScroll();
+        if (RequiresScrollbar())
+        {
+            HandleScroll();
+        }
 
         for (const auto control : m_Controls)
         {
@@ -132,36 +136,74 @@ namespace Nexus::UI
             }
         }
 
+        if (m_Size.X > width)
+        {
+            width = m_Size.X;
+        }
+
+        if (m_Size.Y > height)
+        {
+            height = m_Size.Y;
+        }
+
         return {width, height};
     }
 
     void Scrollable::HandleScroll()
     {
         const auto &size = GetSize();
-
         const auto &contentSize = GetScrollLimits();
-        const float maxScroll = glm::max<float>(contentSize.GetTop(), contentSize.GetHeight());
+        const float maxScroll = glm::max<float>(0, contentSize.GetHeight());
 
+        // handle scrolling with mouse wheel
         if (m_Hovered)
         {
             m_ChildOffset.y -= (Nexus::Input::GetMouseScrollMovementY() * m_ScrollSpeed);
+        }
 
-            if (m_ChildOffset.y < 0)
+        // handle scrolling with scroll bar
+        {
+            const Nexus::Graphics::Rectangle<float> scrollbarRect = GetScrollbar();
+            const Nexus::Point<int> mousePos = Nexus::Input::GetMousePosition();
+
+            if (scrollbarRect.Contains(mousePos.To<float>()))
             {
-                m_ChildOffset.y = 0;
+                if (Nexus::Input::IsLeftMousePressed())
+                {
+                    m_ScrollbarGrabbed = true;
+                }
             }
 
-            if (m_ChildOffset.y > maxScroll)
+            if (m_ScrollbarGrabbed)
             {
-                m_ChildOffset.y = maxScroll;
+                const Nexus::Graphics::Rectangle<float> contentRegion = GetContentRegionAvailable();
+                const Nexus::Graphics::Rectangle<float> scrollableLimits = GetScrollableArea();
+
+                float ratio = scrollableLimits.GetHeight() / contentRegion.GetHeight();
+                m_ChildOffset.y += Nexus::Input::GetMouseMovement().Y * ratio;
+
+                if (Nexus::Input::IsLeftMouseReleased())
+                {
+                    m_ScrollbarGrabbed = false;
+                }
             }
+        }
+
+        if (m_ChildOffset.y < 0)
+        {
+            m_ChildOffset.y = 0;
+        }
+
+        if (m_ChildOffset.y > maxScroll)
+        {
+            m_ChildOffset.y = maxScroll;
         }
     }
 
     const Nexus::Graphics::Rectangle<float> Scrollable::GetScrollbar() const
     {
         const Nexus::Graphics::Rectangle<float> contentRegion = GetContentRegionAvailable();
-        Nexus::Graphics::Rectangle<float> scrollableLimits = GetScrollableArea();
+        const Nexus::Graphics::Rectangle<float> scrollableLimits = GetScrollableArea();
 
         float ratio = contentRegion.GetHeight() / scrollableLimits.GetHeight();
         float scrollbarX = contentRegion.GetRight() - m_ScrollbarWidth;
@@ -174,5 +216,15 @@ namespace Nexus::UI
                                                                                                   scrollbarHeight);
 
         return scrollbarRect;
+    }
+
+    const bool Scrollable::RequiresScrollbar() const
+    {
+        const auto &contentSize = GetScrollableArea();
+        if (contentSize.GetHeight() > m_Size.Y)
+        {
+            return true;
+        }
+        return false;
     }
 }
