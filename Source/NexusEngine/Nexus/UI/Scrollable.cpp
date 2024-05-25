@@ -356,9 +356,9 @@ namespace Nexus::UI
         const float scrollableXOffset = 0 - scrollableLimits.GetLeft();
 
         const float ratio = contentRegion.GetWidth() / scrollableLimits.GetWidth();
-        const float scrollbarX = contentRegion.GetLeft() + (m_ChildOffset.x * ratio) + m_ScrollbarBorderThickness + m_ScrollbarPadding + (scrollableXOffset / 2) + 1;
+        const float scrollbarX = contentRegion.GetLeft() + (m_ChildOffset.x * ratio) + m_ScrollbarBorderThickness + m_ScrollbarPadding + (scrollableXOffset) + 1;
         const float scrollbarY = contentRegion.GetBottom() - m_ScrollbarWidth - (m_ScrollbarBorderThickness) - (m_ScrollbarPadding);
-        const float scrollbarWidth = (contentRegion.GetWidth() * ratio) - (m_ScrollbarBorderThickness * 2) - (m_ScrollbarPadding * 2) - (scrollableXOffset / 2) - 1;
+        const float scrollbarWidth = (contentRegion.GetWidth() * ratio) - (m_ScrollbarBorderThickness * 2) - (m_ScrollbarPadding * 2) - (scrollableXOffset)-1;
         const float scrollbarHeight = m_ScrollbarWidth;
 
         Nexus::Graphics::Rectangle<float> scrollbarRect = Nexus::Graphics::Rectangle<float>(scrollbarX,
