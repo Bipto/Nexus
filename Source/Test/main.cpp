@@ -47,7 +47,7 @@ public:
         Nexus::Ref<Nexus::Graphics::Texture> texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), false);
 
         Nexus::UI::ImageButton *pbx = new Nexus::UI::ImageButton();
-        pbx->SetPosition({300, 600});
+        pbx->SetPosition({-150, 600});
         pbx->SetSize({300, 300});
         pbx->SetBackgroundColour({1, 0, 0, 1});
         pbx->SetTexture(texture);
