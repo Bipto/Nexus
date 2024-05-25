@@ -47,7 +47,7 @@ public:
         Nexus::Ref<Nexus::Graphics::Texture> texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), false);
 
         Nexus::UI::ImageButton *pbx = new Nexus::UI::ImageButton();
-        pbx->SetPosition({5, 600});
+        pbx->SetPosition({300, 600});
         pbx->SetSize({300, 300});
         pbx->SetBackgroundColour({1, 0, 0, 1});
         pbx->SetTexture(texture);
@@ -89,7 +89,6 @@ public:
         pnl->SetScrollbarBorderThickness(1);
         pnl->SetScrollbarPadding(1.5f);
         pnl->SetScrollSpeed(45.0f);
-        pnl->SetScrollbarBackgroundColour({1.0f, 0.0f, 0.0f, 1.0f});
 
         m_Canvas->AddControl(pnl);
     }

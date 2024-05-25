@@ -58,23 +58,18 @@ namespace Nexus::UI
             batchRenderer->End();
         }
 
-        /* if (RequiresHorizontalScrollbar())
+        if (RequiresHorizontalScrollbar())
         {
-            Nexus::Graphics::Rectangle<float> scrollbarFillRect = Nexus::Graphics::Rectangle<float>(textureRect.GetLeft(),
-                                                                                                    textureRect.GetBottom() - m_ScrollbarWidth,
-                                                                                                    textureRect.GetWidth(),
-                                                                                                    m_ScrollbarWidth);
-
+            Nexus::Graphics::Rectangle<float> scrollbarFillRect = GetHorizontalScrollbarBackgroundArea();
             batchRenderer->Begin(vp, scissor);
             batchRenderer->DrawQuadFill(scrollbarFillRect, m_ScrollbarBackground);
 
-            Nexus::Graphics::Rectangle<float> scrollbarControlRect = GetHorizontalScrollbar();
-
+            Nexus::Graphics::Rectangle<float> scrollbarControlRect = GetHorizontalScrollbarControlArea();
             batchRenderer->DrawQuadFill(scrollbarControlRect, m_ScrollbarForeground);
             batchRenderer->DrawQuad(scrollbarControlRect, {0.35f, 0.35f, 0.35f, 1.0f}, m_ScrollbarBorderThickness);
 
             batchRenderer->End();
-        } */
+        }
     }
 
     void Scrollable::Update()
@@ -83,7 +78,12 @@ namespace Nexus::UI
 
         if (RequiresVerticalScrollbar())
         {
-            HandleScroll();
+            HandleVerticalScroll();
+        }
+
+        if (RequiresHorizontalScrollbar())
+        {
+            HandleHorizontalScroll();
         }
 
         for (const auto control : m_Controls)
@@ -208,7 +208,7 @@ namespace Nexus::UI
         return {x, y, width, height};
     }
 
-    void Scrollable::HandleScroll()
+    void Scrollable::HandleVerticalScroll()
     {
         const auto &size = GetSize();
         const auto &contentSize = GetScrollLimits();
@@ -260,22 +260,77 @@ namespace Nexus::UI
         }
     }
 
+    void Scrollable::HandleHorizontalScroll()
+    {
+        const auto &size = GetSize();
+        const auto &contentSize = GetScrollLimits();
+        const float maxScrollX = glm::max<float>(0, contentSize.GetWidth());
+        const float minScrollX = glm::min<float>(0, contentSize.GetLeft());
+
+        if (m_Hovered)
+        {
+        }
+
+        // handle scrolling with scroll bar
+        {
+            const Nexus::Graphics::Rectangle<float> horizontalScrollbarRect = GetHorizontalScrollbarControlArea();
+            const Nexus::Point<int> mousePos = Nexus::Input::GetMousePosition();
+
+            if (horizontalScrollbarRect.Contains(mousePos.To<float>()))
+            {
+                if (Nexus::Input::IsLeftMousePressed())
+                {
+                    m_ScrollbarXGrabbed = true;
+                }
+            }
+
+            if (m_ScrollbarXGrabbed)
+            {
+                const Nexus::Graphics::Rectangle<float> contentRegion = GetContentRegionAvailable();
+                const Nexus::Graphics::Rectangle<float> scrollableLimits = GetScrollableAreaInControlSpace();
+
+                float ratio = scrollableLimits.GetWidth() / contentRegion.GetWidth();
+                m_ChildOffset.x += Nexus::Input::GetMouseMovement().X * ratio;
+
+                if (Nexus::Input::IsLeftMouseReleased())
+                {
+                    m_ScrollbarXGrabbed = false;
+                }
+            }
+        }
+
+        if (m_ChildOffset.x < minScrollX)
+        {
+            m_ChildOffset.x = minScrollX;
+        }
+
+        if (m_ChildOffset.x > maxScrollX)
+        {
+            m_ChildOffset.x = maxScrollX;
+        }
+    }
+
     const Nexus::Graphics::Rectangle<float> Scrollable::GetVerticalScrollbarControlArea() const
     {
         const Nexus::Graphics::Rectangle<float> contentRegion = GetContentRegionAvailable();
         const Nexus::Graphics::Rectangle<float> scrollableLimits = GetScrollableAreaInControlSpace();
 
-        float scrollableYOffset = 0 - scrollableLimits.GetTop();
+        const float scrollableYOffset = 0 - scrollableLimits.GetTop();
 
-        float ratio = contentRegion.GetHeight() / scrollableLimits.GetHeight();
-        float scrollbarX = contentRegion.GetRight() - m_ScrollbarWidth - m_ScrollbarBorderThickness - m_ScrollbarPadding;
-        float scrollbarY = contentRegion.GetTop() + (m_ChildOffset.y * ratio) + m_ScrollbarBorderThickness + m_ScrollbarPadding + (scrollableYOffset / 2) + 1;
-        float scrollbarHeight = (contentRegion.GetHeight() * ratio) - (m_ScrollbarBorderThickness * 2) - (m_ScrollbarPadding * 2) - (scrollableYOffset / 2) - 1;
+        const float ratio = contentRegion.GetHeight() / scrollableLimits.GetHeight();
+        const float scrollbarX = contentRegion.GetRight() - m_ScrollbarWidth - m_ScrollbarBorderThickness - m_ScrollbarPadding;
+        const float scrollbarY = contentRegion.GetTop() + (m_ChildOffset.y * ratio) + m_ScrollbarBorderThickness + m_ScrollbarPadding + (scrollableYOffset / 2) + 1;
+        const float scrollbarHeight = (contentRegion.GetHeight() * ratio) - (m_ScrollbarBorderThickness * 2) - (m_ScrollbarPadding * 2) - (scrollableYOffset / 2) - 1;
 
-        const Nexus::Graphics::Rectangle<float> scrollbarRect = Nexus::Graphics::Rectangle<float>(scrollbarX,
-                                                                                                  scrollbarY,
-                                                                                                  m_ScrollbarWidth,
-                                                                                                  scrollbarHeight);
+        Nexus::Graphics::Rectangle<float> scrollbarRect = Nexus::Graphics::Rectangle<float>(scrollbarX,
+                                                                                            scrollbarY,
+                                                                                            m_ScrollbarWidth,
+                                                                                            scrollbarHeight);
+
+        if (RequiresHorizontalScrollbar())
+        {
+            scrollbarRect.SetHeight(scrollbarRect.GetHeight() - m_ScrollbarWidth - (m_ScrollbarBorderThickness * 2) - (m_ScrollbarPadding * 2));
+        }
 
         return scrollbarRect;
     }
@@ -293,23 +348,39 @@ namespace Nexus::UI
         return scrollbarFillRect;
     }
 
-    const Nexus::Graphics::Rectangle<float> Scrollable::GetHorizontalScrollbar() const
+    const Nexus::Graphics::Rectangle<float> Scrollable::GetHorizontalScrollbarControlArea() const
     {
         const Nexus::Graphics::Rectangle<float> contentRegion = GetContentRegionAvailable();
         const Nexus::Graphics::Rectangle<float> scrollableLimits = GetScrollableAreaInControlSpace();
 
-        float ratio = contentRegion.GetWidth() / scrollableLimits.GetWidth();
-        float scrollbarX = contentRegion.GetLeft() + m_ScrollbarBorderThickness + m_ScrollbarPadding;
-        float scrollbarY = contentRegion.GetBottom() - m_ScrollbarWidth - (m_ScrollbarBorderThickness * 2) - (m_ScrollbarPadding * 2);
-        float scrollbarHeight = m_ScrollbarWidth;
-        float scrollbarWidth = contentRegion.GetWidth() - (m_ScrollbarBorderThickness * 2) - (m_ScrollbarPadding * 2);
+        const float ratio = contentRegion.GetWidth() / scrollableLimits.GetWidth();
+        const float scrollbarX = contentRegion.GetLeft() + (m_ChildOffset.x * ratio) + m_ScrollbarBorderThickness + m_ScrollbarPadding;
+        const float scrollbarY = contentRegion.GetBottom() - m_ScrollbarWidth - (m_ScrollbarBorderThickness) - (m_ScrollbarPadding);
+        const float scrollbarWidth = (contentRegion.GetWidth() * ratio) - (m_ScrollbarBorderThickness * 2) - (m_ScrollbarPadding * 2);
+        const float scrollbarHeight = m_ScrollbarWidth;
 
-        const Nexus::Graphics::Rectangle<float> scrollbarRect = Nexus::Graphics::Rectangle<float>(scrollbarX,
-                                                                                                  scrollbarY,
-                                                                                                  scrollbarWidth,
-                                                                                                  scrollbarHeight);
+        Nexus::Graphics::Rectangle<float> scrollbarRect = Nexus::Graphics::Rectangle<float>(scrollbarX,
+                                                                                            scrollbarY,
+                                                                                            scrollbarWidth,
+                                                                                            scrollbarHeight);
+
+        if (RequiresVerticalScrollbar())
+        {
+            scrollbarRect.SetWidth(scrollbarRect.GetWidth() - m_ScrollbarWidth - (m_ScrollbarBorderThickness * 2) - (m_ScrollbarPadding * 2));
+        }
 
         return scrollbarRect;
+    }
+
+    const Nexus::Graphics::Rectangle<float> Scrollable::GetHorizontalScrollbarBackgroundArea() const
+    {
+        const Nexus::Graphics::Rectangle<float> contentRegion = GetContentRegionAvailable();
+
+        Nexus::Graphics::Rectangle<float> scrollbarFillRect = Nexus::Graphics::Rectangle<float>(contentRegion.GetLeft(),
+                                                                                                contentRegion.GetBottom() - m_ScrollbarWidth - (m_ScrollbarBorderThickness * 2) - (m_ScrollbarPadding * 2),
+                                                                                                contentRegion.GetWidth(),
+                                                                                                m_ScrollbarWidth + (m_ScrollbarBorderThickness * 2) + (m_ScrollbarPadding * 2));
+        return scrollbarFillRect;
     }
 
     const bool Scrollable::RequiresVerticalScrollbar() const

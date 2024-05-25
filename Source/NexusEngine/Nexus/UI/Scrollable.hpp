@@ -36,15 +36,19 @@ namespace Nexus::UI
         const Nexus::Graphics::Rectangle<float> GetScrollableAreaInControlSpace() const;
         const Nexus::Graphics::Rectangle<float> GetVerticalScrollbarControlArea() const;
         const Nexus::Graphics::Rectangle<float> GetVerticalScrollbarBackgroundArea() const;
-        const Nexus::Graphics::Rectangle<float> GetHorizontalScrollbar() const;
+        const Nexus::Graphics::Rectangle<float> GetHorizontalScrollbarControlArea() const;
+        const Nexus::Graphics::Rectangle<float> GetHorizontalScrollbarBackgroundArea() const;
+
         const bool RequiresVerticalScrollbar() const;
         const bool RequiresHorizontalScrollbar() const;
-        void HandleScroll();
+        void HandleVerticalScroll();
+        void HandleHorizontalScroll();
 
     private:
         std::vector<Control *> m_Controls;
         float m_ScrollbarWidth = 15.0f;
         bool m_ScrollbarYGrabbed = false;
+        bool m_ScrollbarXGrabbed = false;
         glm::vec4 m_ScrollbarBackground = {0.0f, 0.0f, 0.0f, 0.0f};
         glm::vec4 m_ScrollbarForeground = {0.55f, 0.55f, 0.55f, 1.0f};
         float m_ScrollbarBorderThickness = 1.0f;

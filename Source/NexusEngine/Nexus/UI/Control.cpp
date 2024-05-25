@@ -174,7 +174,7 @@ namespace Nexus::UI
             const auto &parentRectangle = m_Parent->GetBoundingRectangleTranslated();
             const auto &childOffset = m_Parent->GetChildOffset();
 
-            rect.SetX(parentRectangle.GetLeft() + m_Position.X + childOffset.x);
+            rect.SetX(parentRectangle.GetLeft() + m_Position.X - childOffset.x);
             rect.SetY(parentRectangle.GetTop() + m_Position.Y - childOffset.y);
         }
 
