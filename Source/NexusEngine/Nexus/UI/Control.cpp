@@ -103,11 +103,6 @@ namespace Nexus::UI
         SetMarginRight(right);
     }
 
-    void Control::SetScrollSpeed(float speed)
-    {
-        m_ScrollSpeed = speed;
-    }
-
     const Point<int> &Control::GetPosition() const
     {
         return m_Position;
@@ -153,11 +148,6 @@ namespace Nexus::UI
     const uint32_t Control::GetMarginRight() const
     {
         return m_MarginRight;
-    }
-
-    const float Control::GetScrollSpeed() const
-    {
-        return m_ScrollSpeed;
     }
 
     const Nexus::Graphics::Rectangle<float> Control::GetBoundingRectangle() const
@@ -243,6 +233,12 @@ namespace Nexus::UI
                                                  rect.GetTop() + m_MarginTop,
                                                  rect.GetWidth() - m_MarginRight - m_MarginLeft,
                                                  rect.GetHeight() - m_MarginBottom - m_MarginTop);
+    }
+
+    void Control::SetCanvas(Canvas *canvas)
+    {
+        m_Canvas = canvas;
+        OnAddedToCanvas.Invoke(this, canvas);
     }
 
     const Canvas *const Control::GetCanvas() const

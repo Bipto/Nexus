@@ -2,24 +2,60 @@
 
 #include "Nexus/Point.hpp"
 
-#include "glm/glm.hpp"
-
 namespace Nexus::Graphics
 {
+    template <typename T>
     class Circle
     {
     public:
         Circle() = default;
-        Circle(const glm::vec2 &position, float radius);
-        const glm::vec2 &GetPosition() const;
-        float GetRadius() const;
-        void SetPosition(const glm::vec2 &position);
-        void SetRadius(float radius);
 
-        bool ContainsPoint(Nexus::Point<int> point);
+        Circle(const Point<T> &position, float radius)
+        {
+            m_Position = position;
+            m_Radius = radius;
+        }
+
+        const Point<T> &GetPosition() const
+        {
+            return m_Position;
+        }
+
+        T GetRadius() const
+        {
+            return m_Radius;
+        }
+
+        void SetPosition(const Point<T> &position)
+        {
+            m_Position = position;
+        }
+
+        void SetRadius(T radius)
+        {
+            m_Radius = radius;
+        }
+
+        bool Contains(const Nexus::Point<T> &point) const
+        {
+            if ((point.X - m_Position.X) * (point.X - m_Position.X) +
+                    (point.Y - m_Position.Y) * (point.Y - m_Position.Y) <=
+                m_Radius * m_Radius)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        template <typename Other>
+        const Circle To() const
+        {
+            return {(Point<Other>)m_Position, (Other)m_Radius};
+        }
 
     private:
-        glm::vec2 m_Position = {0.0f, 0.0f};
-        float m_Radius = 0;
+        Point<T> m_Position = {0, 0};
+        T m_Radius = 0;
     };
 }

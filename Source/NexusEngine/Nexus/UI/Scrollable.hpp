@@ -31,6 +31,13 @@ namespace Nexus::UI
         void SetScrollbarPadding(const float padding);
         const float GetScrollbarPadding() const;
 
+        void SetScrollSpeed(const float speed);
+        const float GetScrollSpeed() const;
+
+    protected:
+        void SetAvailableScrollableArea(const Nexus::Graphics::Rectangle<float> &rect);
+        const Nexus::Graphics::Rectangle<float> GetAvailableScrollableArea() const;
+
     private:
         const Nexus::Graphics::Rectangle<float> GetScrollLimits() const;
         const Nexus::Graphics::Rectangle<float> GetScrollableAreaInControlSpace() const;
@@ -53,5 +60,7 @@ namespace Nexus::UI
         glm::vec4 m_ScrollbarForeground = {0.55f, 0.55f, 0.55f, 1.0f};
         float m_ScrollbarBorderThickness = 1.0f;
         float m_ScrollbarPadding = 1.0f;
+        float m_ScrollSpeed = 25.0f;
+        Nexus::Graphics::Rectangle<float> m_AvailableScrollableArea;
     };
 }

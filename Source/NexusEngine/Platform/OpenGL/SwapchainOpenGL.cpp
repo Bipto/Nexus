@@ -29,8 +29,6 @@ namespace Nexus::Graphics
             std::string error = SDL_GetError();
             throw std::runtime_error(error);
         }
-
-        std::cout << "Context address: " << m_Context << std::endl;
     }
 
     SwapchainOpenGL::~SwapchainOpenGL()

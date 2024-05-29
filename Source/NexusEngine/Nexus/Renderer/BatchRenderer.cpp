@@ -815,9 +815,10 @@ namespace Nexus::Graphics
         }
     }
 
-    void BatchRenderer::DrawCircle(const Circle &circle, const glm::vec4 &color, uint32_t numberOfPoints, float thickness)
+    void BatchRenderer::DrawCircle(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints, float thickness)
     {
-        DrawCircle(circle.GetPosition(), circle.GetRadius(), color, numberOfPoints, thickness);
+        const auto &circlePos = circle.GetPosition();
+        DrawCircle({circlePos.X, circlePos.Y}, circle.GetRadius(), color, numberOfPoints, thickness);
     }
 
     void BatchRenderer::DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints)
@@ -872,9 +873,10 @@ namespace Nexus::Graphics
         m_TextureBatchInfo.VertexCount += shapeVertexCount;
     }
 
-    void BatchRenderer::DrawCircleFill(const Circle &circle, const glm::vec4 &color, uint32_t numberOfPoints)
+    void BatchRenderer::DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints)
     {
-        DrawCircleFill(circle.GetPosition(), circle.GetRadius(), color, numberOfPoints);
+        const auto &pos = circle.GetPosition();
+        DrawCircleFill({pos.X, pos.Y}, circle.GetRadius(), color, numberOfPoints);
     }
 
     void BatchRenderer::DrawCross(const Rectangle<float> &rectangle, float thickness, const glm::vec4 &color)
@@ -968,6 +970,11 @@ namespace Nexus::Graphics
 
     void BatchRenderer::PerformDraw(BatchInfo &info)
     {
+        if (info.Vertices.size() == 0 || info.Indices.size() == 0)
+        {
+            return;
+        }
+
         info.VertexBuffer->SetData(info.Vertices.data(), info.Vertices.size() * sizeof(VertexPositionTexCoordColorTexIndex));
         info.IndexBuffer->SetData(info.Indices.data(), info.Indices.size() * sizeof(uint32_t));
 

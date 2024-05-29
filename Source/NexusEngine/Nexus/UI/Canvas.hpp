@@ -30,6 +30,8 @@ namespace Nexus::UI
         void AddControl(Control *control);
         void RemoveControl(Control *control);
 
+        Nexus::Window *GetWindow() const;
+
     private:
         Point<uint32_t> m_Position = {0, 0};
         Point<uint32_t> m_Size = {0, 0};
@@ -39,5 +41,6 @@ namespace Nexus::UI
         std::unique_ptr<Nexus::Graphics::BatchRenderer> m_BatchRenderer = nullptr;
 
         std::vector<Control *> m_Controls;
+        Nexus::Window *m_Window = nullptr;
     };
 }

@@ -111,13 +111,13 @@ namespace Nexus::Graphics
         }
 
         template <typename Other>
-        const Rectangle To(const Rectangle<T> &rect) const
+        const Rectangle To() const
         {
             return {
-                (Other)rect.GetLeft(),
-                (Other)rect.GetTop(),
-                (Other)rect.GetWidth(),
-                (Other)rect.GetHeight()};
+                (Other)GetLeft(),
+                (Other)GetTop(),
+                (Other)GetWidth(),
+                (Other)GetHeight()};
         }
 
         void Offset(T x, T y)

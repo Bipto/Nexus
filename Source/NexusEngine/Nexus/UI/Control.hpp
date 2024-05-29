@@ -33,7 +33,6 @@ namespace Nexus::UI
         void SetMarginLeft(uint32_t margin);
         void SetMarginRight(uint32_t margin);
         void SetMargin(uint32_t left, uint32_t right, uint32_t top, uint32_t bottom);
-        void SetScrollSpeed(float speed);
 
         const Point<int> &GetPosition() const;
         const Point<int> &GetSize() const;
@@ -45,7 +44,6 @@ namespace Nexus::UI
         const uint32_t GetMarginBottom() const;
         const uint32_t GetMarginLeft() const;
         const uint32_t GetMarginRight() const;
-        const float GetScrollSpeed() const;
 
         const Nexus::Graphics::Rectangle<float> GetBoundingRectangle() const;
         const Nexus::Graphics::Rectangle<float> GetBoundingRectangleTranslated() const;
@@ -53,15 +51,19 @@ namespace Nexus::UI
         const Nexus::Graphics::Rectangle<float> GetContentRegionAvailable() const;
         const Nexus::Graphics::Rectangle<float> GetContentRegionAvailableTranslated() const;
 
+        virtual void SetCanvas(Canvas *canvas);
         const Canvas *const GetCanvas() const;
 
         void SetParent(Control *control);
         const Control *const GetParent() const;
         const glm::vec2 &GetChildOffset() const;
 
+        // events
         EventHandler<Control *> OnClick;
         EventHandler<Control *> OnMouseEnter;
         EventHandler<Control *> OnMouseLeave;
+        EventHandler<Control *> OnClose;
+        EventHandler<Control *, Canvas *> OnAddedToCanvas;
 
     protected:
         Point<int> m_Position = {0, 0};
@@ -77,14 +79,13 @@ namespace Nexus::UI
         uint32_t m_MarginBottom = 0;
 
         glm::vec2 m_ChildOffset = {0, 0};
-        float m_ScrollSpeed = 25.0f;
 
         bool m_Hovered = false;
         bool m_Pressed = false;
         Control *m_Parent = nullptr;
+        Canvas *m_Canvas = nullptr;
 
     private:
-        Canvas *m_Canvas = nullptr;
         friend class Canvas;
     };
 }

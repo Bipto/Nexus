@@ -153,6 +153,26 @@ namespace Nexus::UI
         return m_ScrollbarPadding;
     }
 
+    void Scrollable::SetScrollSpeed(const float speed)
+    {
+        m_ScrollSpeed = speed;
+    }
+
+    const float Scrollable::GetScrollSpeed() const
+    {
+        return m_ScrollSpeed;
+    }
+
+    void Scrollable::SetAvailableScrollableArea(const Nexus::Graphics::Rectangle<float> &rect)
+    {
+        m_AvailableScrollableArea = rect;
+    }
+
+    const Nexus::Graphics::Rectangle<float> Scrollable::GetAvailableScrollableArea() const
+    {
+        return m_AvailableScrollableArea;
+    }
+
     const Nexus::Graphics::Rectangle<float> Scrollable::GetScrollLimits() const
     {
         Nexus::Graphics::Rectangle<float> scrollableArea = GetScrollableAreaInControlSpace();
@@ -387,22 +407,29 @@ namespace Nexus::UI
 
     const bool Scrollable::RequiresVerticalScrollbar() const
     {
-        const auto &contentSize = GetScrollableAreaInControlSpace();
-        const auto &contentRegionAvailable = GetContentRegionAvailableTranslated();
-        if (contentSize.GetHeight() > contentRegionAvailable.GetRight() || contentSize.GetTop() < contentRegionAvailable.GetTop())
+        if (m_Controls.size() > 0)
         {
-            return true;
+            const auto &contentSize = GetScrollableAreaInControlSpace();
+            const auto &contentRegionAvailable = GetContentRegionAvailableTranslated();
+            if (contentSize.GetHeight() > contentRegionAvailable.GetRight() || contentSize.GetTop() < contentRegionAvailable.GetTop())
+            {
+                return true;
+            }
         }
+
         return false;
     }
 
     const bool Scrollable::RequiresHorizontalScrollbar() const
     {
-        const auto &contentSize = GetScrollableAreaInControlSpace();
-        const auto &contentRegionAvailable = GetContentRegionAvailableTranslated();
-        if (contentSize.GetRight() > contentRegionAvailable.GetRight() || contentSize.GetLeft() < contentRegionAvailable.GetLeft())
+        if (m_Controls.size() > 0)
         {
-            return true;
+            const auto &contentSize = GetScrollableAreaInControlSpace();
+            const auto &contentRegionAvailable = GetContentRegionAvailableTranslated();
+            if (contentSize.GetRight() > contentRegionAvailable.GetRight() || contentSize.GetLeft() < contentRegionAvailable.GetLeft())
+            {
+                return true;
+            }
         }
 
         return false;

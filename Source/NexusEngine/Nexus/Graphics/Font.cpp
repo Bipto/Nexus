@@ -162,7 +162,7 @@ namespace Nexus::Graphics
         if (text.length() > 0)
         {
             y = m_LineSpacing * scale;
-            y += (m_LineSpacing / 2) * scale;
+            // y += (m_LineSpacing / 2) * scale;
         }
 
         for (auto character : text)

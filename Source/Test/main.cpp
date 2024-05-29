@@ -7,9 +7,9 @@
 #include "Nexus/UI/Button.hpp"
 #include "Nexus/UI/Label.hpp"
 #include "Nexus/UI/PictureBox.hpp"
-#include "Nexus/UI/Panel.hpp"
 #include "Nexus/UI/Scrollable.hpp"
 #include "Nexus/UI/ImageButton.hpp"
+#include "Nexus/UI/Window.hpp"
 
 #include "Nexus/FileSystem/FileSystem.hpp"
 
@@ -42,7 +42,7 @@ public:
             {
                 {0x0020, 0x00FF}};
 
-        m_Font = new Nexus::Graphics::Font("C://Windows//Fonts//Calibri.ttf", 32, fontRange, Nexus::Graphics::FontType::Bitmap, m_GraphicsDevice);
+        m_Font = new Nexus::Graphics::Font("resources/fonts/Roboto/Roboto-Regular.ttf", 24, fontRange, Nexus::Graphics::FontType::Bitmap, m_GraphicsDevice);
 
         Nexus::Ref<Nexus::Graphics::Texture> texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), false);
 
@@ -83,14 +83,21 @@ public:
         pnl->SetPosition({125, 25});
         pnl->SetSize({500, 500});
         pnl->SetBackgroundColour({0.75f, 0.75f, 0.75f, 1});
-        pnl->AddControl(button);
-        pnl->AddControl(label);
-        pnl->AddControl(pbx);
         pnl->SetScrollbarBorderThickness(1);
         pnl->SetScrollbarPadding(1.5f);
         pnl->SetScrollSpeed(45.0f);
-
         m_Canvas->AddControl(pnl);
+
+        Nexus::UI::Window *wnd = new Nexus::UI::Window();
+        wnd->SetPosition({25, 25});
+        wnd->SetSize({350, 350});
+        wnd->SetFont(m_Font);
+        m_Canvas->AddControl(wnd);
+
+        wnd->AddControl(button);
+        wnd->AddControl(label);
+        wnd->AddControl(pbx);
+        wnd->GetScrollable()->SetScrollSpeed(50);
     }
 
     virtual void Update(Nexus::Time time) override

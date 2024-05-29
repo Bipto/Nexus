@@ -7,6 +7,7 @@ namespace Nexus::UI
     Canvas::Canvas(Graphics::GraphicsDevice *device, Graphics::Swapchain *swapchain)
     {
         m_BatchRenderer = std::make_unique<Nexus::Graphics::BatchRenderer>(device, Nexus::Graphics::RenderTarget{swapchain});
+        m_Window = swapchain->GetWindow();
     }
 
     Canvas::~Canvas()
@@ -79,12 +80,23 @@ namespace Nexus::UI
 
     void Canvas::AddControl(Control *control)
     {
-        control->m_Canvas = this;
+        control->SetCanvas(this);
         m_Controls.push_back(control);
+
+        control->OnClose += [&](Control *control)
+        {
+            RemoveControl(control);
+        };
     }
 
     void Canvas::RemoveControl(Control *control)
     {
+        delete control;
         m_Controls.erase(std::remove(m_Controls.begin(), m_Controls.end(), control), m_Controls.end());
+    }
+
+    Nexus::Window *Canvas::GetWindow() const
+    {
+        return m_Window;
     }
 }

@@ -69,9 +69,9 @@ namespace Nexus::Graphics
         void DrawString(const std::string &text, const glm::vec2 &position, uint32_t size, const glm::vec4 &color, Font *font);
         void DrawLine(const glm::vec2 &a, const glm::vec2 &b, const glm::vec4 &color, float thickness);
         void DrawCircle(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, float thickness);
-        void DrawCircle(const Circle &circle, const glm::vec4 &color, uint32_t numberOfPoints, float thickness);
+        void DrawCircle(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints, float thickness);
         void DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints);
-        void DrawCircleFill(const Circle &circle, const glm::vec4 &color, uint32_t numberOfPoints);
+        void DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints);
         void DrawCross(const Rectangle<float> &rectangle, float thickness, const glm::vec4 &color);
         void DrawTriangle(const glm::vec2 &a, const glm::vec2 &b, const glm::vec2 &c, const glm::vec4 &color);
         void End();
