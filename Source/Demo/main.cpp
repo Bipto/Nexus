@@ -17,7 +17,6 @@
 #include "Demos/FramebufferDemo.hpp"
 #include "Demos/InstancingDemo.hpp"
 #include "Demos/MipmapDemo.hpp"
-#include "Demos/TextureReadTest.hpp"
 
 #include "Nexus/FileSystem/FileSystem.hpp"
 
@@ -47,7 +46,7 @@ public:
     {
         m_ImGuiRenderer = std::make_unique<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(this);
 
-        // ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+        ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
         int size = 19;
 
@@ -74,7 +73,6 @@ public:
         RegisterGraphicsDemo<Demos::ModelDemo>("Models");
         RegisterGraphicsDemo<Demos::InstancingDemo>("Instancing");
         RegisterGraphicsDemo<Demos::MipmapDemo>("Mipmaps");
-        RegisterGraphicsDemo<Demos::TextureReadTest>("Texture Read");
         RegisterAudioDemo<Demos::AudioDemo>("Audio");
         RegisterScriptingDemo<Demos::PythonDemo>("Python");
 
@@ -292,7 +290,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;
