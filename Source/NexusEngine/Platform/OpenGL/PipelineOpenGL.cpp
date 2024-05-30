@@ -11,15 +11,11 @@ namespace Nexus::Graphics
     PipelineOpenGL::PipelineOpenGL(const PipelineDescription &description)
         : Pipeline(description)
     {
-        // glGenVertexArrays(1, &m_VAO);
-        // glBindVertexArray(0);
-
         CreateShader();
     }
 
     PipelineOpenGL::~PipelineOpenGL()
     {
-        glDeleteVertexArrays(1, &m_VAO);
     }
 
     const PipelineDescription &PipelineOpenGL::GetPipelineDescription() const

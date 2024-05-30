@@ -40,14 +40,15 @@ namespace Nexus::Graphics
         virtual void SetViewport(const Viewport &viewport) override;
         virtual void SetScissor(const Scissor &scissor) override;
         virtual void ResolveFramebuffer(Ref<Framebuffer> source, uint32_t sourceIndex, Swapchain *target) override;
-
-    public:
         const std::vector<RenderCommand> &GetRenderCommands();
+
+    private:
         RenderCommandData &GetCurrentCommandData();
         GLenum GetTopology();
         void BindPipeline(Ref<Pipeline> pipeline);
         GraphicsDevice *GetGraphicsDevice();
         GLenum m_IndexBufferFormat;
+        void UnbindCurrentPipeline();
 
     private:
         GraphicsDevice *m_Device;

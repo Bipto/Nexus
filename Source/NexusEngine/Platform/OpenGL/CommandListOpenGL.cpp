@@ -38,10 +38,13 @@ namespace Nexus::Graphics
 
     CommandListOpenGL::~CommandListOpenGL()
     {
+        UnbindCurrentPipeline();
     }
 
     void CommandListOpenGL::Begin()
     {
+        UnbindCurrentPipeline();
+
         m_CommandIndex = 0;
         m_Commands.clear();
         m_CommandData.clear();
@@ -502,6 +505,7 @@ namespace Nexus::Graphics
 
     void CommandListOpenGL::BindPipeline(Ref<Pipeline> pipeline)
     {
+        UnbindCurrentPipeline();
         auto pipelineGL = std::dynamic_pointer_cast<PipelineOpenGL>(pipeline);
         pipelineGL->Bind();
         m_CurrentlyBoundPipeline = pipelineGL;
@@ -510,6 +514,14 @@ namespace Nexus::Graphics
     GraphicsDevice *CommandListOpenGL::GetGraphicsDevice()
     {
         return m_Device;
+    }
+
+    void CommandListOpenGL::UnbindCurrentPipeline()
+    {
+        if (m_CurrentlyBoundPipeline)
+        {
+            m_CurrentlyBoundPipeline->Unbind();
+        }
     }
 }
 
