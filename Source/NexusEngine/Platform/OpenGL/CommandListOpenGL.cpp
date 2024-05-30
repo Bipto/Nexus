@@ -36,6 +36,10 @@ namespace Nexus::Graphics
         m_CommandData.resize(initialCommandCount);
     }
 
+    CommandListOpenGL::~CommandListOpenGL()
+    {
+    }
+
     void CommandListOpenGL::Begin()
     {
         m_CommandIndex = 0;

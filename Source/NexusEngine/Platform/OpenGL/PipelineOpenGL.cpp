@@ -11,8 +11,8 @@ namespace Nexus::Graphics
     PipelineOpenGL::PipelineOpenGL(const PipelineDescription &description)
         : Pipeline(description)
     {
-        glGenVertexArrays(1, &m_VAO);
-        glBindVertexArray(0);
+        // glGenVertexArrays(1, &m_VAO);
+        // glBindVertexArray(0);
 
         CreateShader();
     }
@@ -29,11 +29,17 @@ namespace Nexus::Graphics
 
     void PipelineOpenGL::Bind()
     {
+        BindVertexArray();
         SetupDepthStencil();
         SetupRasterizer();
         SetupBlending();
         SetShader();
-        BindVertexArray();
+    }
+
+    void PipelineOpenGL::Unbind()
+    {
+        glBindVertexArray(0);
+        glDeleteVertexArrays(1, &m_VAO);
     }
 
     uint32_t PipelineOpenGL::GetShaderHandle() const
@@ -174,19 +180,12 @@ namespace Nexus::Graphics
 
     void PipelineOpenGL::SetShader()
     {
-        /* if (!m_Description.Shader)
-        {
-            throw std::runtime_error("A shader has not been assigned to this pipeline!");
-        }
-
-        auto shaderGL = std::dynamic_pointer_cast<ShaderOpenGL>(m_Description.Shader);
-        shaderGL->Bind(); */
-
         glUseProgram(m_ShaderHandle);
     }
 
     void PipelineOpenGL::BindVertexArray()
     {
+        glGenVertexArrays(1, &m_VAO);
         glBindVertexArray(m_VAO);
     }
 
@@ -298,7 +297,7 @@ namespace Nexus::Graphics
 
     void PipelineOpenGL::BindVertexBuffers(const std::map<uint32_t, Nexus::Ref<Nexus::Graphics::VertexBufferOpenGL>> &vertexBuffers, uint32_t vertexOffset, uint32_t instanceOffset)
     {
-        BindVertexArray();
+        glBindVertexArray(m_VAO);
 
         uint32_t index = 0;
         for (const auto &vertexBufferBinding : vertexBuffers)

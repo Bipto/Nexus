@@ -344,7 +344,6 @@ namespace Nexus::ImGuiUtils
 
         m_FontTexture = m_GraphicsDevice->CreateTexture(spec);
         m_FontTexture->SetData(pixels, 0, 0, 0, width, height);
-        // m_FontTexture->SetData(pixels, spec.Width * spec.Height * sizeof(uint32_t), 0);
 
         UnbindTexture(m_FontTextureID);
 
@@ -386,6 +385,7 @@ namespace Nexus::ImGuiUtils
     void ImGuiGraphicsRenderer::AfterLayout()
     {
         ImGui::Render();
+        RenderDrawData(ImGui::GetDrawData());
 
         if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
         {
@@ -399,7 +399,7 @@ namespace Nexus::ImGuiUtils
                     ImGuiWindowInfo *info = (ImGuiWindowInfo *)platform_io.Viewports[i]->PlatformUserData;
                     Nexus::Window *window = info->Window;
 
-                    if (window && !window->IsClosing())
+                    if (window)
                     {
                         window->GetSwapchain()->Prepare();
                         RenderDrawData(platform_io.Viewports[i]->DrawData);
@@ -409,7 +409,6 @@ namespace Nexus::ImGuiUtils
             }
         }
 
-        RenderDrawData(ImGui::GetDrawData());
         UpdateCursor();
     }
 

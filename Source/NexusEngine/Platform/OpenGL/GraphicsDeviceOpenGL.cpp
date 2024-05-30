@@ -262,6 +262,7 @@ namespace Nexus::Graphics
 #if defined(NX_PLATFORM_GL_DESKTOP)
         capabilities.SupportsLODBias = true;
         capabilities.SupportsMultisampledTextures = true;
+        capabilities.SupportsMultipleSwapchains = true;
 #endif
 
         return capabilities;

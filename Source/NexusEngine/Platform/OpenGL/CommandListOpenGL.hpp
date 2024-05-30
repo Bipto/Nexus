@@ -17,6 +17,7 @@ namespace Nexus::Graphics
     {
     public:
         CommandListOpenGL(GraphicsDevice *device);
+        virtual ~CommandListOpenGL();
 
         virtual void Begin() override;
         virtual void End() override;

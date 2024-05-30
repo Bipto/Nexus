@@ -15,6 +15,7 @@ namespace Nexus::Graphics
         virtual const PipelineDescription &GetPipelineDescription() const override;
         void BindVertexBuffers(const std::map<uint32_t, Nexus::Ref<Nexus::Graphics::VertexBufferOpenGL>> &vertexBuffers, uint32_t vertexOffset, uint32_t instanceOffset);
         void Bind();
+        void Unbind();
         uint32_t GetShaderHandle() const;
 
     private:

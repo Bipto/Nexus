@@ -41,12 +41,6 @@ namespace Nexus::Graphics
         const uint32_t textureWidth = texture->GetTextureSpecification().Width;
         const uint32_t textureHeight = texture->GetTextureSpecification().Height;
 
-        std::vector<std::byte> framebufferPixels = texture->GetData(0, 0, 0, textureWidth, textureHeight);
-        MipData mipData(framebufferPixels, textureWidth, textureHeight);
-
-        std::string name = "mip0.png";
-        stbi_write_png(name.c_str(), textureWidth, textureHeight, 4, framebufferPixels.data(), textureWidth * 4);
-
         uint32_t mipWidth = textureWidth;
         uint32_t mipHeight = textureHeight;
 
@@ -126,10 +120,6 @@ namespace Nexus::Graphics
 
                 std::vector<std::byte> pixels = framebufferTexture->GetData(0, 0, 0, framebufferWidth, framebufferHeight);
                 MipData mipData(pixels, framebufferWidth, framebufferHeight);
-
-                std::string name = "mip" + std::to_string(i) + ".png";
-                stbi_write_png(name.c_str(), framebufferWidth, framebufferHeight, 4, pixels.data(), framebufferWidth * 4);
-
                 texture->SetData(mipData.GetData(), i, 0, 0, framebufferWidth, framebufferHeight);
 
                 mipTexture = framebufferTexture;

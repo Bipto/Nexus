@@ -42,9 +42,12 @@ namespace Nexus::Graphics
 #endif
 
                 // texture comparison
-                auto comparisonFunction = GL::GetComparisonFunction(m_Specification.ComparisonFunction);
-                glSamplerParameteri(m_Sampler, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
-                glSamplerParameteri(m_Sampler, GL_TEXTURE_COMPARE_FUNC, comparisonFunction);
+                if (m_Specification.ComparisonFunction != ComparisonFunction::Never)
+                {
+                        auto comparisonFunction = GL::GetComparisonFunction(m_Specification.ComparisonFunction);
+                        glSamplerParameteri(m_Sampler, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+                        glSamplerParameteri(m_Sampler, GL_TEXTURE_COMPARE_FUNC, comparisonFunction);
+                }
         }
 
         SamplerOpenGL::~SamplerOpenGL()

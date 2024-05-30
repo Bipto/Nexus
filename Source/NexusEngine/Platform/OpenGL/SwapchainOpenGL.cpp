@@ -40,7 +40,7 @@ namespace Nexus::Graphics
         BindAsRenderTarget();
 
         SDL_GL_SwapWindow(m_Window->GetSDLWindowHandle());
-        ResizeIfNecessary();
+        // ResizeIfNecessary();
     }
 
     VSyncState SwapchainOpenGL::GetVsyncState()
@@ -61,6 +61,7 @@ namespace Nexus::Graphics
 
         glBindFramebuffer(GL_FRAMEBUFFER, m_Backbuffer);
         glViewport(0, 0, w, h);
+        glScissor(0, 0, w, h);
 
         m_SwapchainWidth = w;
         m_SwapchainHeight = h;
@@ -74,11 +75,11 @@ namespace Nexus::Graphics
             throw std::runtime_error(error);
         }
 
-        ResizeIfNecessary();
         glBindFramebuffer(GL_FRAMEBUFFER, m_Backbuffer);
+        ResizeIfNecessary();
 
-        glViewport(0, 0, m_SwapchainWidth, m_SwapchainHeight);
-        glScissor(0, 0, m_SwapchainWidth, m_SwapchainHeight);
+        // glViewport(0, 0, m_SwapchainWidth, m_SwapchainHeight);
+        // glScissor(0, 0, m_SwapchainWidth, m_SwapchainHeight);
     }
 
     void SwapchainOpenGL::BindAsDrawTarget()

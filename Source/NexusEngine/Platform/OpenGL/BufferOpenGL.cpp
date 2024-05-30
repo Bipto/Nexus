@@ -32,17 +32,23 @@ namespace Nexus::Graphics
 
     VertexBufferOpenGL::~VertexBufferOpenGL()
     {
+        GL::ClearErrors();
         glDeleteBuffers(1, &m_Buffer);
+        GL::CheckErrors();
     }
 
     void VertexBufferOpenGL::Bind()
     {
+        GL::ClearErrors();
         glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);
+        GL::CheckErrors();
     }
 
     void VertexBufferOpenGL::Unbind()
     {
+        GL::ClearErrors();
         glBindBuffer(GL_ARRAY_BUFFER, 0);
+        GL::CheckErrors();
     }
 
     unsigned int VertexBufferOpenGL::GetHandle()
@@ -52,8 +58,10 @@ namespace Nexus::Graphics
 
     void VertexBufferOpenGL::SetData(const void *data, uint32_t size, uint32_t offset)
     {
+        GL::ClearErrors();
         glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);
         glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
+        GL::CheckErrors();
     }
 
     IndexBufferOpenGL::IndexBufferOpenGL(const BufferDescription &description, const void *data, IndexBufferFormat format)
@@ -70,17 +78,23 @@ namespace Nexus::Graphics
 
     IndexBufferOpenGL::~IndexBufferOpenGL()
     {
+        GL::ClearErrors();
         glDeleteBuffers(1, &m_Buffer);
+        GL::CheckErrors();
     }
 
     void IndexBufferOpenGL::Bind()
     {
+        GL::ClearErrors();
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer);
+        GL::CheckErrors();
     }
 
     void IndexBufferOpenGL::Unbind()
     {
+        GL::ClearErrors();
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        GL::CheckErrors();
     }
 
     unsigned int IndexBufferOpenGL::GetHandle()
@@ -90,8 +104,10 @@ namespace Nexus::Graphics
 
     void IndexBufferOpenGL::SetData(const void *data, uint32_t size, uint32_t offset)
     {
+        GL::ClearErrors();
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer);
         glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset, size, data);
+        GL::CheckErrors();
     }
 
     UniformBufferOpenGL::UniformBufferOpenGL(const BufferDescription &description, const void *data)
@@ -108,7 +124,9 @@ namespace Nexus::Graphics
 
     UniformBufferOpenGL::~UniformBufferOpenGL()
     {
+        GL::ClearErrors();
         glDeleteBuffers(1, &m_Buffer);
+        GL::CheckErrors();
     }
 
     unsigned int UniformBufferOpenGL::GetHandle()
@@ -118,13 +136,17 @@ namespace Nexus::Graphics
 
     void UniformBufferOpenGL::Unbind()
     {
+        GL::ClearErrors();
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
+        GL::CheckErrors();
     }
 
     void UniformBufferOpenGL::SetData(const void *data, uint32_t size, uint32_t offset)
     {
+        GL::ClearErrors();
         glBindBuffer(GL_UNIFORM_BUFFER, m_Buffer);
         glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
+        GL::CheckErrors();
     }
 }
 

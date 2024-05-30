@@ -58,8 +58,8 @@ namespace Nexus::Graphics
         SamplerAddressMode AddressModeU = SamplerAddressMode::Wrap;
         SamplerAddressMode AddressModeV = SamplerAddressMode::Wrap;
         SamplerAddressMode AddressModeW = SamplerAddressMode::Wrap;
-        SamplerFilter SampleFilter = SamplerFilter::MinLinear_MagLinear_MipLinear;
-        ComparisonFunction ComparisonFunction = ComparisonFunction::Always;
+        SamplerFilter SampleFilter = SamplerFilter::MinPoint_MagLinear_MipLinear;
+        ComparisonFunction ComparisonFunction = ComparisonFunction::Never;
         uint32_t MaximumAnisotropy = 1;
         uint32_t MinimumLOD = 0;
         uint32_t MaximumLOD = std::numeric_limits<uint32_t>::max();
