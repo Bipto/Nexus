@@ -14,6 +14,11 @@ public:
     {
     }
 
+    ~EditorApplication()
+    {
+        m_Layout.SaveLayout("layout.ini");
+    }
+
     virtual void Load() override
     {
         m_CommandList = m_GraphicsDevice->CreateCommandList();
@@ -22,6 +27,8 @@ public:
         {
             m_Layout.LoadProject(file);
         };
+
+        m_Layout.LoadLayout("layout.ini");
     }
 
     virtual void Update(Nexus::Time time) override

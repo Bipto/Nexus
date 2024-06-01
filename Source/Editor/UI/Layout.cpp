@@ -22,12 +22,15 @@ namespace Editor
         std::string fontPath = Nexus::FileSystem::GetFilePathAbsolute("resources/fonts/roboto/roboto-regular.ttf");
         const uint32_t size = 28;
         io.FontDefault = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), size);
+        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+        io.IniFilename = nullptr;
+        io.LogFilename = nullptr;
         m_ImGuiRenderer->RebuildFontAtlas();
 
         ApplyDarkTheme();
 
-        m_Panels[NEW_PROJECT_DIALOG_NAME] = std::make_unique<NewProjectDialog>();
+        m_Dialogs[NEW_PROJECT_DIALOG_NAME] = std::make_unique<NewProjectDialog>();
         m_Panels[SCENE_VIEWPORT_NAME] = std::make_unique<SceneViewport>(app->GetGraphicsDevice(), m_ImGuiRenderer.get());
         m_Panels[SCENE_HIERARCHY_NAME] = std::make_unique<SceneHierarchy>();
     }
@@ -45,18 +48,32 @@ namespace Editor
         Nexus::Project::s_ActiveProject = project;
     }
 
+    void Layout::SaveLayout(const std::string &path) const
+    {
+        ImGui::SaveIniSettingsToDisk(path.c_str());
+    }
+
+    bool Layout::LoadLayout(const std::string &path)
+    {
+        if (std::filesystem::exists(path))
+        {
+            ImGui::LoadIniSettingsFromDisk(path.c_str());
+            return true;
+        }
+
+        return false;
+    }
+
     void Layout::RenderViewport()
     {
-        ImGuiWindowFlags flags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar;
-
         ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos, ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0.0f, 0.0f});
-        flags |= ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-                 ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
-                 ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_MenuBar;
+
+        ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar |
+                                 ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_MenuBar;
 
         if (ImGui::Begin("Dockspace", nullptr, flags))
         {
@@ -67,6 +84,11 @@ namespace Editor
             for (const auto &panel : m_Panels)
             {
                 panel.second->OnRender();
+            }
+
+            for (const auto &dialog : m_Dialogs)
+            {
+                dialog.second->OnRender();
             }
         }
         ImGui::End();
@@ -116,7 +138,7 @@ namespace Editor
             {
                 if (ImGui::MenuItem("New Project"))
                 {
-                    std::unique_ptr<Panel> &panel = m_Panels.at(NEW_PROJECT_DIALOG_NAME);
+                    std::unique_ptr<Panel> &panel = m_Dialogs.at(NEW_PROJECT_DIALOG_NAME);
                     panel->Enable();
                 }
 
@@ -150,16 +172,24 @@ namespace Editor
 
         if (ImGui::BeginMenu("Windows", true))
         {
-            if (ImGui::MenuItem(SCENE_VIEWPORT_NAME))
+            const bool leftMousePressed = ImGui::IsMouseClicked(0);
+            for (auto it = m_Panels.begin(); it != m_Panels.end(); it++)
             {
-                std::unique_ptr<Panel> &panel = m_Panels.at(SCENE_VIEWPORT_NAME);
-                panel->Enable();
-            }
+                std::unique_ptr<Panel> &panel = it->second;
 
-            if (ImGui::MenuItem(SCENE_HIERARCHY_NAME))
-            {
-                std::unique_ptr<Panel> &panel = m_Panels.at(SCENE_HIERARCHY_NAME);
-                panel->Enable();
+                bool enabled = panel->IsEnabled();
+
+                if (ImGui::Checkbox(it->first.c_str(), &enabled))
+                {
+                    if (enabled)
+                    {
+                        panel->Enable();
+                    }
+                    else
+                    {
+                        panel->Disable();
+                    }
+                }
             }
 
             ImGui::EndMenu();

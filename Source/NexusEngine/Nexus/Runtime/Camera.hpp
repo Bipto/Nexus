@@ -11,8 +11,6 @@
 
 #include "Nexus/Graphics/GraphicsDevice.hpp"
 
-#include "imgui.h"
-
 namespace Nexus
 {
     enum ProjectionType

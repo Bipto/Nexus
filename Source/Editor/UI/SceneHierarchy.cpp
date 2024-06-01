@@ -39,11 +39,21 @@ namespace Editor
             return;
         }
 
-        glm::vec4 clearColour = scene->GetClearColour();
-
-        if (ImGui::ColorPicker4("Clear Colour", glm::value_ptr(clearColour)))
+        if (ImGui::CollapsingHeader("Scene Properties", nullptr, ImGuiTreeNodeFlags_DefaultOpen))
         {
-            scene->SetClearColour(clearColour);
+            glm::vec4 clearColour = scene->GetClearColour();
+
+            if (ImGui::ColorEdit4("Clear Colour", glm::value_ptr(clearColour)))
+            {
+                scene->SetClearColour(clearColour);
+            }
+
+            std::string name = scene->GetName();
+
+            if (ImGui::InputText("Name", &name))
+            {
+                scene->SetName(name);
+            }
         }
 
         ImGui::Separator();
@@ -62,10 +72,5 @@ namespace Editor
         {
             ImGui::Text(entity.GetName().c_str());
         }
-
-        /* if (ImGui::Button("New Entity"))
-        {
-            scene->AddEmptyEntity();
-        } */
     }
 }

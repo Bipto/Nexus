@@ -18,6 +18,8 @@ namespace Editor
     {
         if (m_Enabled)
         {
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
+
             if (ImGui::Begin(SCENE_VIEWPORT_NAME, &m_Enabled))
             {
                 ImVec2 size = ImGui::GetContentRegionAvail();
@@ -32,6 +34,7 @@ namespace Editor
                     }
                 }
             }
+            ImGui::PopStyleVar();
 
             ImGui::End();
         }

@@ -89,6 +89,12 @@ namespace Nexus::ImGuiUtils
         pipelineDesc.RasterizerStateDescription.FillMode = Nexus::Graphics::FillMode::Solid;
         pipelineDesc.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
+        pipelineDesc.DepthStencilDescription.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Always;
+        pipelineDesc.DepthStencilDescription.EnableDepthTest = false;
+        pipelineDesc.DepthStencilDescription.EnableDepthWrite = false;
+        pipelineDesc.DepthStencilDescription.EnableStencilTest = false;
+        pipelineDesc.DepthStencilDescription.StencilComparisonFunction = Nexus::Graphics::ComparisonFunction::Always;
+
         pipelineDesc.Layouts =
             {
                 {{Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
@@ -149,7 +155,7 @@ namespace Nexus::ImGuiUtils
             windowSpec.Width = vp->Size.x;
             windowSpec.Height = vp->Size.y;
             windowSpec.Borderless = true;
-            // windowSpec.Utility = true;
+            windowSpec.Utility = true;
 
             Nexus::Graphics::SwapchainSpecification swapchainSpec = app->GetPrimaryWindow()->GetSwapchain()->GetSpecification();
 
@@ -328,6 +334,10 @@ namespace Nexus::ImGuiUtils
 
     ImGuiGraphicsRenderer::~ImGuiGraphicsRenderer()
     {
+        if (s_ImGuiRenderer == this)
+        {
+            s_ImGuiRenderer = nullptr;
+        }
     }
 
     void ImGuiGraphicsRenderer::RebuildFontAtlas()
@@ -394,16 +404,20 @@ namespace Nexus::ImGuiUtils
             const ImGuiPlatformIO &platform_io = ImGui::GetPlatformIO();
             for (int i = 1; i < platform_io.Viewports.Size; i++)
             {
-                if ((platform_io.Viewports[i]->Flags & ImGuiViewportFlags_Minimized) == 0)
+                if ((platform_io.Viewports[i]->Flags & ImGuiViewportFlags_IsMinimized) == 0)
                 {
                     ImGuiWindowInfo *info = (ImGuiWindowInfo *)platform_io.Viewports[i]->PlatformUserData;
                     Nexus::Window *window = info->Window;
 
-                    if (window)
+                    if (window && !window->IsClosing())
                     {
-                        window->GetSwapchain()->Prepare();
-                        RenderDrawData(platform_io.Viewports[i]->DrawData);
-                        window->GetSwapchain()->SwapBuffers();
+                        Nexus::Graphics::Swapchain *swapchain = window->GetSwapchain();
+                        if (swapchain)
+                        {
+                            swapchain->Prepare();
+                            RenderDrawData(platform_io.Viewports[i]->DrawData);
+                            swapchain->SwapBuffers();
+                        }
                     }
                 }
             }

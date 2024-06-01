@@ -167,7 +167,7 @@ namespace Nexus::Graphics
         bool EnableDepthTest = false;
 
         /// @brief How the pixel should be tested against the depth buffer
-        ComparisonFunction DepthComparisonFunction = ComparisonFunction::Never;
+        ComparisonFunction DepthComparisonFunction = ComparisonFunction::Always;
 
         /// @brief Whether the pipeline will use a stencil test when rendering
         bool EnableStencilTest = false;
@@ -176,7 +176,7 @@ namespace Nexus::Graphics
         uint8_t StencilMask = 0xFF;
 
         /// @brief How the pixel should be tested against the stencil buffer
-        ComparisonFunction StencilComparisonFunction = ComparisonFunction::Never;
+        ComparisonFunction StencilComparisonFunction = ComparisonFunction::Always;
 
         /// @brief The value that should be entered in the stencil buffer when the stencil test fails
         StencilOperation StencilFailOperation = StencilOperation::Keep;

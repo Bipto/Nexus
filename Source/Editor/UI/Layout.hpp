@@ -15,6 +15,9 @@ namespace Editor
         void Render(Nexus::Time time);
         void LoadProject(const std::string &path);
 
+        void SaveLayout(const std::string &path) const;
+        bool LoadLayout(const std::string &path);
+
     private:
         void OpenProject();
         void RenderViewport();
@@ -26,5 +29,6 @@ namespace Editor
         Nexus::Application *m_Application = nullptr;
 
         std::map<std::string, std::unique_ptr<Panel>> m_Panels;
+        std::map<std::string, std::unique_ptr<Panel>> m_Dialogs;
     };
 }
