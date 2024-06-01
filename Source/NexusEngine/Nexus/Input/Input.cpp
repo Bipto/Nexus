@@ -7,7 +7,7 @@ namespace Nexus
     // instatiate static vector
     std::vector<Gamepad *> Input::s_Gamepads;
 
-    InputState *Input::s_InputContext = nullptr;
+    const InputState *Input::s_InputContext = nullptr;
 
     bool Input::IsLeftMousePressed()
     {
@@ -188,12 +188,12 @@ namespace Nexus
         return s_Gamepads[index]->SetLED(red, green, blue);
     }
 
-    void Input::SetInputContext(InputState *input)
+    void Input::SetInputContext(const InputState *input)
     {
         s_InputContext = input;
     }
 
-    InputState *Input::GetCurrentInputContext()
+    const InputState *Input::GetCurrentInputContext()
     {
         return s_InputContext;
     }

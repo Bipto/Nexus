@@ -4,6 +4,7 @@
 #include "Nexus/FileSystem/FileDialogs.hpp"
 
 #include "Dialogs/NewProjectDialog.hpp"
+#include "Dialogs/SettingsDialog.hpp"
 
 #include "SceneViewport.hpp"
 #include "SceneHierarchy.hpp"
@@ -20,9 +21,9 @@ namespace Editor
         ImGuiIO &io = ImGui::GetIO();
 
         std::string fontPath = Nexus::FileSystem::GetFilePathAbsolute("resources/fonts/roboto/roboto-regular.ttf");
-        const uint32_t size = 28;
+        const uint32_t size = 22;
         io.FontDefault = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), size);
-        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+        // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         io.IniFilename = nullptr;
         io.LogFilename = nullptr;
@@ -31,6 +32,7 @@ namespace Editor
         ApplyDarkTheme();
 
         m_Dialogs[NEW_PROJECT_DIALOG_NAME] = std::make_unique<NewProjectDialog>();
+        m_Dialogs[SETTINGS_DIALOG_NAME] = std::make_unique<SettingsDialog>(&m_Panels);
         m_Panels[SCENE_VIEWPORT_NAME] = std::make_unique<SceneViewport>(app->GetGraphicsDevice(), m_ImGuiRenderer.get());
         m_Panels[SCENE_HIERARCHY_NAME] = std::make_unique<SceneHierarchy>();
     }
@@ -172,24 +174,10 @@ namespace Editor
 
         if (ImGui::BeginMenu("Windows", true))
         {
-            const bool leftMousePressed = ImGui::IsMouseClicked(0);
-            for (auto it = m_Panels.begin(); it != m_Panels.end(); it++)
+            if (ImGui::MenuItem("Settings"))
             {
-                std::unique_ptr<Panel> &panel = it->second;
-
-                bool enabled = panel->IsEnabled();
-
-                if (ImGui::Checkbox(it->first.c_str(), &enabled))
-                {
-                    if (enabled)
-                    {
-                        panel->Enable();
-                    }
-                    else
-                    {
-                        panel->Disable();
-                    }
-                }
+                std::unique_ptr<Panel> &panel = m_Dialogs.at(SETTINGS_DIALOG_NAME);
+                panel->Enable();
             }
 
             ImGui::EndMenu();

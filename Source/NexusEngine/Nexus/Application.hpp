@@ -140,7 +140,7 @@ namespace Nexus
 
         /// @brief A method that returns a pointer to the engine's core input state
         /// @return A pointer to an InputState
-        InputState *GetCoreInputState();
+        const InputState *GetCoreInputState() const;
 
         /// @brief A method that returns a pointer to the application's graphics device
         /// @return A pointer to a graphics device

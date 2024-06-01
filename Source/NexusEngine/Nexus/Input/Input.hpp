@@ -162,9 +162,9 @@ namespace Nexus
         /// @param blue The blue channel of the colour
         static void GamepadSetLED(uint32_t index, uint8_t red, uint8_t green, uint8_t blue);
 
-        static void SetInputContext(InputState *input);
+        static void SetInputContext(const InputState *input);
 
-        static InputState *GetCurrentInputContext();
+        static const InputState *GetCurrentInputContext();
 
         Gamepad *GetGamepadByIndex(uint32_t index);
 
@@ -175,7 +175,7 @@ namespace Nexus
         static void RemoveController(uint32_t index);
         void CacheInput();
 
-        static InputState *s_InputContext;
+        static const InputState *s_InputContext;
 
         friend class Application;
     };

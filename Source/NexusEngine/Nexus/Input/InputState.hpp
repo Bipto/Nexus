@@ -26,11 +26,11 @@ namespace Nexus
 
         /// @brief A method that returns the keyboard of the input state
         /// @return A const reference to the keyboard
-        const Keyboard &GetKeyboard() { return m_Keyboard; }
+        const Keyboard &GetKeyboard() const { return m_Keyboard; }
 
         /// @brief A method that returns the mouse of the input state
         /// @return A const reference to the mouse
-        const Mouse &GetMouse() { return m_Mouse; }
+        const Mouse &GetMouse() const { return m_Mouse; }
 
         Nexus::EventHandler<char *> TextInput;
 

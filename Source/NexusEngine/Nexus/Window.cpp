@@ -32,15 +32,11 @@ namespace Nexus
             NX_ERROR(errorCode);
         }
 
-        m_Input = new InputState();
         m_WindowID = SDL_GetWindowID(m_Window);
-
-        SDL_StartTextInput();
     }
 
     Window::~Window()
     {
-        SDL_StopTextInput();
         delete m_Swapchain;
         SDL_DestroyWindow(this->m_Window);
     }
@@ -183,9 +179,9 @@ namespace Nexus
         SDL_SetCursor(sdlCursor);
     }
 
-    InputState *Window::GetInput()
+    const InputState *Window::GetInput()
     {
-        return m_Input;
+        return &m_Input;
     }
 
     bool Window::IsFocussed()

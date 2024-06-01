@@ -105,7 +105,7 @@ namespace Nexus
 
         /// @brief A method that returns the window's input state
         /// @return A pointer to the input state
-        InputState *GetInput();
+        const InputState *GetInput();
 
         /// @brief A method that checks whether a window is focussed
         /// @return A boolean value indicating whether the window is focussed
@@ -176,7 +176,7 @@ namespace Nexus
         bool m_Closing = false;
 
         /// @brief A pointer to the window's input state
-        InputState *m_Input;
+        InputState m_Input;
 
         /// @brief An enum value representing the current state of the window
         WindowState m_CurrentWindowState = WindowState::Normal;

@@ -280,10 +280,13 @@ namespace Nexus
         swapchain->SetVSyncState(spec.SwapchainSpecification.VSyncState);
 
         m_AudioDevice = Nexus::CreateAudioDevice(spec.AudioAPI);
+
+        SDL_StartTextInput();
     }
 
     Application::~Application()
     {
+        SDL_StopTextInput();
         delete m_Window;
         delete m_AudioDevice;
         delete m_GraphicsDevice;
@@ -375,7 +378,7 @@ namespace Nexus
         return window;
     }
 
-    InputState *Application::GetCoreInputState()
+    const InputState *Application::GetCoreInputState() const
     {
         return m_Window->GetInput();
     }
@@ -429,7 +432,7 @@ namespace Nexus
     {
         for (auto window : m_Windows)
         {
-            window->m_Input->CacheInput();
+            window->m_Input.CacheInput();
         }
 
         float x, y;
@@ -484,14 +487,14 @@ namespace Nexus
             case SDL_EVENT_KEY_DOWN:
             {
                 auto nexusKeyCode = SDLToNexusKeycode(event.key.keysym.sym);
-                window->m_Input->m_Keyboard.m_CurrentKeys[nexusKeyCode] = true;
+                window->m_Input.m_Keyboard.m_CurrentKeys[nexusKeyCode] = true;
                 m_GlobalKeyboardState.m_CurrentKeys[nexusKeyCode] = true;
                 break;
             }
             case SDL_EVENT_KEY_UP:
             {
                 auto nexusKeyCode = SDLToNexusKeycode(event.key.keysym.sym);
-                window->m_Input->m_Keyboard.m_CurrentKeys[nexusKeyCode] = false;
+                window->m_Input.m_Keyboard.m_CurrentKeys[nexusKeyCode] = false;
                 m_GlobalKeyboardState.m_CurrentKeys[nexusKeyCode] = false;
                 break;
             }
@@ -501,17 +504,17 @@ namespace Nexus
                 {
                 case SDL_BUTTON_LEFT:
                 {
-                    window->m_Input->m_Mouse.m_CurrentState.LeftButton = MouseButtonState::Pressed;
+                    window->m_Input.m_Mouse.m_CurrentState.LeftButton = MouseButtonState::Pressed;
                     break;
                 }
                 case SDL_BUTTON_RIGHT:
                 {
-                    window->m_Input->m_Mouse.m_CurrentState.RightButton = MouseButtonState::Pressed;
+                    window->m_Input.m_Mouse.m_CurrentState.RightButton = MouseButtonState::Pressed;
                     break;
                 }
                 case SDL_BUTTON_MIDDLE:
                 {
-                    window->m_Input->m_Mouse.m_CurrentState.MiddleButton = MouseButtonState::Pressed;
+                    window->m_Input.m_Mouse.m_CurrentState.MiddleButton = MouseButtonState::Pressed;
                     break;
                 }
                 }
@@ -523,17 +526,17 @@ namespace Nexus
                 {
                 case SDL_BUTTON_LEFT:
                 {
-                    window->m_Input->m_Mouse.m_CurrentState.LeftButton = MouseButtonState::Released;
+                    window->m_Input.m_Mouse.m_CurrentState.LeftButton = MouseButtonState::Released;
                     break;
                 }
                 case SDL_BUTTON_RIGHT:
                 {
-                    window->m_Input->m_Mouse.m_CurrentState.RightButton = MouseButtonState::Released;
+                    window->m_Input.m_Mouse.m_CurrentState.RightButton = MouseButtonState::Released;
                     break;
                 }
                 case SDL_BUTTON_MIDDLE:
                 {
-                    window->m_Input->m_Mouse.m_CurrentState.MiddleButton = MouseButtonState::Released;
+                    window->m_Input.m_Mouse.m_CurrentState.MiddleButton = MouseButtonState::Released;
                     break;
                 }
                 }
@@ -549,7 +552,7 @@ namespace Nexus
                 mouseY *= GetPrimaryWindow()->GetDisplayScale();
 #endif
 
-                window->m_Input->m_Mouse.m_CurrentState.MousePosition = {
+                window->m_Input.m_Mouse.m_CurrentState.MousePosition = {
                     mouseX,
                     mouseY};
 
@@ -557,7 +560,7 @@ namespace Nexus
             }
             case SDL_EVENT_MOUSE_WHEEL:
             {
-                auto &scroll = window->m_Input->m_Mouse.m_CurrentState.MouseWheel;
+                auto &scroll = window->m_Input.m_Mouse.m_CurrentState.MouseWheel;
                 scroll.X += event.wheel.x;
                 scroll.Y += event.wheel.y;
                 break;
@@ -585,7 +588,7 @@ namespace Nexus
             }
             case SDL_EVENT_TEXT_INPUT:
             {
-                window->m_Input->TextInput.Invoke(event.text.text);
+                window->m_Input.TextInput.Invoke(event.text.text);
                 OnTextInput.Invoke(event.text.text);
                 break;
             }

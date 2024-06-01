@@ -419,14 +419,15 @@ namespace Nexus::ImGuiUtils
     void ImGuiGraphicsRenderer::AfterLayout()
     {
         ImGui::Render();
-        RenderDrawData(ImGui::GetDrawData());
 
         if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
         {
             ImGui::UpdatePlatformWindows();
 
             const ImGuiPlatformIO &platform_io = ImGui::GetPlatformIO();
-            for (int i = 1; i < platform_io.Viewports.Size; i++)
+
+            // iterating through the viewports backwards seems to solve a rendering issue
+            for (int i = platform_io.Viewports.Size - 1; i >= 1; i--)
             {
                 if ((platform_io.Viewports[i]->Flags & ImGuiViewportFlags_IsMinimized) == 0)
                 {
@@ -447,6 +448,7 @@ namespace Nexus::ImGuiUtils
             }
         }
 
+        RenderDrawData(ImGui::GetDrawData());
         UpdateCursor();
     }
 
