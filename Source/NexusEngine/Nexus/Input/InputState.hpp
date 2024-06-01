@@ -32,7 +32,7 @@ namespace Nexus
         /// @return A const reference to the mouse
         const Mouse &GetMouse() { return m_Mouse; }
 
-        Nexus::EventHandler<char> TextInput;
+        Nexus::EventHandler<char *> TextInput;
 
     private:
         /// @brief The keyboard associated with the input state

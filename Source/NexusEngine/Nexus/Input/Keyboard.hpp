@@ -135,17 +135,17 @@ namespace Nexus
         /// @brief A method that checks whether a key is currently held
         /// @param code The keycode to check the state of
         /// @return A boolean value representing whether a key was held
-        bool IsKeyHeld(KeyCode code);
+        const bool IsKeyHeld(KeyCode code) const;
 
         /// @brief A method that checks whether a key is currently pressed
         /// @param code The keycode to check the state of
         /// @return A boolean value representing whether a key was pressed
-        bool WasKeyPressed(KeyCode code);
+        const bool WasKeyPressed(KeyCode code) const;
 
         /// @brief A method that checks whether a key is currently released
         /// @param code The keycode to check the state of
         /// @return A boolean value representing whether a key was released
-        bool WasKeyReleased(KeyCode code);
+        const bool WasKeyReleased(KeyCode code) const;
 
         const std::map<KeyCode, bool> &GetKeys() const;
 

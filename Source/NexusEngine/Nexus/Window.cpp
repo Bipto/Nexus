@@ -309,6 +309,24 @@ namespace Nexus
         return SDL_GetWindowDisplayScale(m_Window);
     }
 
+    void Window::SetTextInputRect(const Nexus::Graphics::Rectangle<int> &rect)
+    {
+        SDL_Rect r;
+        r.x = rect.GetLeft();
+        r.y = rect.GetTop();
+        r.w = rect.GetWidth();
+        r.h = rect.GetHeight();
+        SDL_SetTextInputRect(&r);
+    }
+
+    void Window::StartTextInput()
+    {
+    }
+
+    void Window::StopTextInput()
+    {
+    }
+
     uint32_t Window::GetFlags(Graphics::GraphicsAPI api, const WindowSpecification &windowSpec, const Graphics::SwapchainSpecification &swapchainSpec)
     {
         // required for emscripten to handle resizing correctly

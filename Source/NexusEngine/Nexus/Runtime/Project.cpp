@@ -19,8 +19,7 @@ namespace Nexus
         m_SceneDirectory = "\\Scenes";
         m_AssetsDirectory = "\\Assets";
 
-        m_LoadedScene = std::make_unique<Scene>(DefaultSceneName);
-        m_SceneNames.push_back(m_LoadedScene->GetName());
+        CreateNewScene(DefaultSceneName);
     }
 
     void Project::Serialize()
@@ -43,7 +42,7 @@ namespace Nexus
         Ref<Project> project = CreateRef<Project>();
         project->m_Name = projectNode["name"].as<std::string>();
         project->m_StartupScene = projectNode["startup-scene"].as<uint32_t>();
-        project->m_SceneNames = projectNode["scenes"].as<std::vector<std::string>>();
+        project->m_Scenes = projectNode["scenes"].as<std::vector<SceneInfo>>();
         project->m_SceneDirectory = projectNode["scene-directory"].as<std::string>();
         project->m_AssetsDirectory = projectNode["assets-directory"].as<std::string>();
         project->m_RootDirectory = directory;
@@ -55,9 +54,38 @@ namespace Nexus
 
     void Project::LoadScene(uint32_t index)
     {
-        std::string path = m_RootDirectory + m_SceneDirectory + "\\" + m_SceneNames[index] + ".scene";
-        Scene *scene = Scene::Deserialize(path);
-        m_LoadedScene = std::unique_ptr<Scene>(scene);
+        if (m_Scenes.size() > index)
+        {
+            const SceneInfo &info = m_Scenes.at(index);
+            std::string path = m_RootDirectory + info.Path;
+            Scene *scene = Scene::Deserialize(path);
+            m_LoadedScene = std::unique_ptr<Scene>(scene);
+        }
+    }
+
+    void Project::LoadScene(const std::string &name)
+    {
+        for (size_t i = 0; i < m_Scenes.size(); i++)
+        {
+            const auto &sceneInfo = m_Scenes.at(i);
+            if (sceneInfo.Name == name)
+            {
+                LoadScene(i);
+                return;
+            }
+        }
+    }
+
+    void Project::CreateNewScene(const std::string &name)
+    {
+        std::string path = m_SceneDirectory + "\\" + name + ".scene";
+
+        SceneInfo info;
+        info.Name = name;
+        info.Path = path;
+        m_Scenes.push_back(info);
+
+        m_LoadedScene = std::make_unique<Scene>(name);
     }
 
     void Project::WriteProjectFile()
@@ -87,7 +115,7 @@ namespace Nexus
         // projectNode["time-created"] = timestampString;
         // projectNode["time-updated"] = timestampString;
 
-        projectNode["scenes"] = m_SceneNames;
+        projectNode["scenes"] = m_Scenes;
         projectNode["startup-scene"] = m_StartupScene;
 
         projectNode["scene-directory"] = m_SceneDirectory;

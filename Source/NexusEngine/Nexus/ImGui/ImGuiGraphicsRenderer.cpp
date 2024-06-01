@@ -54,9 +54,31 @@ std::string GetImGuiShaderFragmentSource()
 
 static Nexus::ImGuiUtils::ImGuiGraphicsRenderer *s_ImGuiRenderer = nullptr;
 
+static void ImGui_ImplNexus_SetPlatformImeData(ImGuiViewport *vp, ImGuiPlatformImeData *data)
+{
+    Nexus::ImGuiUtils::ImGuiWindowInfo *info = (Nexus::ImGuiUtils::ImGuiWindowInfo *)vp->PlatformUserData;
+    if (data->WantVisible)
+    {
+        Nexus::Graphics::Rectangle<int> rect =
+            {
+                (int)data->InputPos.x,
+                (int)data->InputPos.y,
+                1,
+                (int)data->InputLineHeight};
+
+        info->Window->SetTextInputRect(rect);
+        info->Window->StartTextInput();
+    }
+    else
+    {
+        info->Window->StopTextInput();
+    }
+}
+
 namespace Nexus::ImGuiUtils
 {
     ImGuiGraphicsRenderer::ImGuiGraphicsRenderer(Nexus::Application *app)
+        : m_Application(app)
     {
         s_ImGuiRenderer = this;
 
@@ -130,6 +152,8 @@ namespace Nexus::ImGuiUtils
         auto &io = ImGui::GetIO();
         io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;
         io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports;
+
+        io.SetPlatformImeDataFn = ImGui_ImplNexus_SetPlatformImeData;
 
         if (m_GraphicsDevice->GetGraphicsCapabilities().SupportsMultipleSwapchains)
         {
@@ -451,13 +475,10 @@ namespace Nexus::ImGuiUtils
         m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Y] = (int)KeyCode::Y);
         m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Z] = (int)KeyCode::Z);
 
-        auto input = m_GraphicsDevice->GetPrimaryWindow()->GetInput();
-        input->TextInput += [&](char c)
+        m_Application->OnTextInput += [&](char *text)
         {
-            if (c == '\t')
-                return;
-
-            io.AddInputCharacter(c);
+            ImGuiIO &io = ImGui::GetIO();
+            io.AddInputCharactersUTF8(text);
         };
     }
 
@@ -466,8 +487,8 @@ namespace Nexus::ImGuiUtils
         auto window = m_GraphicsDevice->GetPrimaryWindow();
         auto &io = ImGui::GetIO();
 
-        auto keyboard = Input::GetCurrentInputContext()->GetKeyboard();
-        auto mouse = Input::GetCurrentInputContext()->GetMouse();
+        const auto &mouse = Input::GetCurrentInputContext()->GetMouse();
+        const auto &keyboard = m_Application->GetGlobalKeyboardState();
 
         for (int i = 0; i < m_Keys.size(); i++)
         {

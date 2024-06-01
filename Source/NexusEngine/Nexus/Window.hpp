@@ -15,6 +15,7 @@
 
 #include "Nexus/Graphics/GraphicsAPI.hpp"
 #include "Nexus/Graphics/Swapchain.hpp"
+#include "Nexus/Graphics/Rectangle.hpp"
 #include "backends/imgui_impl_sdl2.h"
 
 #include "ApplicationSpecification.hpp"
@@ -152,6 +153,10 @@ namespace Nexus
         uint32_t GetID();
 
         float GetDisplayScale();
+
+        void SetTextInputRect(const Nexus::Graphics::Rectangle<int> &rect);
+        void StartTextInput();
+        void StopTextInput();
 
         EventHandler<std::pair<uint32_t, uint32_t>> OnResize;
 

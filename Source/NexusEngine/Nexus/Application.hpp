@@ -152,6 +152,10 @@ namespace Nexus
 
         static std::vector<Monitor> GetMonitors();
 
+        EventHandler<char *> OnTextInput;
+
+        const Keyboard &GetGlobalKeyboardState() const;
+
     private:
         void PollEvents();
         Window *GetWindowFromHandle(uint32_t handle);
@@ -183,5 +187,7 @@ namespace Nexus
 
         std::vector<Window *> m_Windows;
         std::vector<std::pair<Window *, uint32_t>> m_WindowsToClose;
+
+        Keyboard m_GlobalKeyboardState;
     };
 }

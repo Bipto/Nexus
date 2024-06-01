@@ -275,7 +275,6 @@ namespace Nexus
         graphicsDeviceCreateInfo.API = spec.GraphicsAPI;
 
         m_GraphicsDevice = Nexus::CreateGraphicsDevice(graphicsDeviceCreateInfo, m_Window, spec.SwapchainSpecification);
-        m_GraphicsDevice->SetContext();
 
         auto swapchain = m_Window->GetSwapchain();
         swapchain->SetVSyncState(spec.SwapchainSpecification.VSyncState);
@@ -301,6 +300,7 @@ namespace Nexus
         }
 
         this->PollEvents();
+        m_GlobalKeyboardState.CacheInput();
 
         // Allow user to block closing events, for example to display save prompt
         if (m_Window->m_Closing)
@@ -420,6 +420,11 @@ namespace Nexus
         return monitors;
     }
 
+    const Keyboard &Application::GetGlobalKeyboardState() const
+    {
+        return m_GlobalKeyboardState;
+    }
+
     void Application::PollEvents()
     {
         for (auto window : m_Windows)
@@ -480,12 +485,14 @@ namespace Nexus
             {
                 auto nexusKeyCode = SDLToNexusKeycode(event.key.keysym.sym);
                 window->m_Input->m_Keyboard.m_CurrentKeys[nexusKeyCode] = true;
+                m_GlobalKeyboardState.m_CurrentKeys[nexusKeyCode] = true;
                 break;
             }
             case SDL_EVENT_KEY_UP:
             {
                 auto nexusKeyCode = SDLToNexusKeycode(event.key.keysym.sym);
                 window->m_Input->m_Keyboard.m_CurrentKeys[nexusKeyCode] = false;
+                m_GlobalKeyboardState.m_CurrentKeys[nexusKeyCode] = false;
                 break;
             }
             case SDL_EVENT_MOUSE_BUTTON_DOWN:
@@ -578,7 +585,8 @@ namespace Nexus
             }
             case SDL_EVENT_TEXT_INPUT:
             {
-                window->m_Input->TextInput.Invoke(event.text.text[0]);
+                window->m_Input->TextInput.Invoke(event.text.text);
+                OnTextInput.Invoke(event.text.text);
                 break;
             }
             case SDL_EVENT_WINDOW_RESIZED:

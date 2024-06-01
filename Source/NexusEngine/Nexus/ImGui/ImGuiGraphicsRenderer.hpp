@@ -46,6 +46,7 @@ namespace Nexus::ImGuiUtils
         void UpdateMonitors();
 
     private:
+        Nexus::Application *m_Application = nullptr;
         Nexus::Graphics::GraphicsDevice *m_GraphicsDevice = nullptr;
         Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList = nullptr;
         Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline = nullptr;

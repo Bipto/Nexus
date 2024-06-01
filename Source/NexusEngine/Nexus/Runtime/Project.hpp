@@ -6,9 +6,16 @@
 #include "Scene.hpp"
 
 #include <filesystem>
+#include <map>
 
 namespace Nexus
 {
+    struct SceneInfo
+    {
+        std::string Name;
+        std::string Path;
+    };
+
     class Project
     {
     public:
@@ -22,6 +29,8 @@ namespace Nexus
         void SetName(const std::string &name) { m_Name = name; }
 
         void LoadScene(uint32_t index);
+        void LoadScene(const std::string &name);
+        void CreateNewScene(const std::string &name);
 
     public:
         static Ref<Project> s_ActiveProject;
@@ -36,8 +45,36 @@ namespace Nexus
         std::string m_SceneDirectory = {};
         std::string m_AssetsDirectory = {};
 
-        std::vector<std::string> m_SceneNames;
+        std::vector<SceneInfo> m_Scenes;
+
         std::unique_ptr<Scene> m_LoadedScene;
         uint32_t m_StartupScene = 0;
+    };
+}
+
+namespace YAML
+{
+    template <>
+    struct convert<Nexus::SceneInfo>
+    {
+        static Node encode(const Nexus::SceneInfo &rhs)
+        {
+            Node node;
+            node.push_back(rhs.Name);
+            node.push_back(rhs.Path);
+            return node;
+        }
+
+        static bool decode(const Node &node, Nexus::SceneInfo &rhs)
+        {
+            if (node.IsSequence() || node.size() != 2)
+            {
+                rhs.Name = node[0].as<std::string>();
+                rhs.Path = node[1].as<std::string>();
+                return true;
+            }
+
+            return false;
+        }
     };
 }
