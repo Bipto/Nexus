@@ -29,14 +29,17 @@ struct TestUniforms
 class EditorApplication : public Nexus::Application
 {
 public:
-    EditorApplication(const Nexus::ApplicationSpecification &spec)
+    explicit EditorApplication(const Nexus::ApplicationSpecification &spec)
         : Nexus::Application(spec)
     {
+        m_BatchRenderer = new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, {GetPrimaryWindow()->GetSwapchain()});
+
+        m_Texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), false);
     }
 
     virtual void Load() override
     {
-        m_Canvas = std::make_unique<Nexus::UI::Canvas>(m_GraphicsDevice, m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain());
+        /* m_Canvas = std::make_unique<Nexus::UI::Canvas>(m_GraphicsDevice, m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain());
 
         std::vector<Nexus::Graphics::CharacterRange> fontRange =
             {
@@ -59,7 +62,7 @@ public:
         };
 
         Nexus::UI::Button *button = new Nexus::UI::Button();
-        button->SetPosition({25, -15});
+        button->SetPosition({25, 15});
         button->SetSize({150, 50});
         button->SetFont(m_Font);
         button->SetText("My Button");
@@ -97,7 +100,7 @@ public:
         wnd->AddControl(button);
         wnd->AddControl(label);
         wnd->AddControl(pbx);
-        wnd->GetScrollable()->SetScrollSpeed(50);
+        wnd->GetScrollable()->SetScrollSpeed(50); */
     }
 
     virtual void Update(Nexus::Time time) override
@@ -109,11 +112,36 @@ public:
         m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
         m_GraphicsDevice->BeginFrame();
 
-        const auto &windowSize = GetPrimaryWindow()->GetWindowSize();
+        /* const auto &windowSize = GetPrimaryWindow()->GetWindowSize();
         m_Canvas->SetPosition({0, 0});
         m_Canvas->SetSize(windowSize);
         m_Canvas->SetBackgroundColour({0.42f, 0.52, 0.73f, 1.0f});
-        m_Canvas->Render();
+        m_Canvas->Render(); */
+
+        const auto &windowSize = GetPrimaryWindow()->GetWindowSize();
+
+        Nexus::Graphics::Viewport vp;
+        vp.X = 0;
+        vp.Y = 0;
+        vp.Width = windowSize.X;
+        vp.Height = windowSize.Y;
+        vp.MinDepth = 0.0f;
+        vp.MaxDepth = 1.0f;
+
+        Nexus::Graphics::Scissor scissor;
+        scissor.X = 0;
+        scissor.Y = 0;
+        scissor.Width = windowSize.X;
+        scissor.Height = windowSize.Y;
+
+        m_BatchRenderer->Begin(vp, scissor);
+
+        m_BatchRenderer->DrawQuadFill({0, 0, (float)windowSize.X, (float)windowSize.Y}, {1.0f, 0.0f, 0.0f, 1.0f});
+
+        Nexus::Graphics::Circle<float> circle({500.0f, 500.0f}, 500);
+        m_BatchRenderer->DrawCircleFill(circle, {1.0f, 1.0f, 1.0f, 1.0f}, 24, m_Texture);
+
+        m_BatchRenderer->End();
 
         m_GraphicsDevice->EndFrame();
     }
@@ -133,6 +161,10 @@ public:
 private:
     std::unique_ptr<Nexus::UI::Canvas> m_Canvas = nullptr;
     Nexus::Graphics::Font *m_Font = nullptr;
+
+    Nexus::Ref<Nexus::Graphics::Texture> m_Texture = nullptr;
+
+    Nexus::Graphics::BatchRenderer *m_BatchRenderer = nullptr;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)

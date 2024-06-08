@@ -57,7 +57,6 @@ namespace Nexus::Graphics
 
         void Resize();
 
-        void Begin();
         void Begin(Viewport viewport, Scissor scissor);
         void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color);
         void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture> texture);
@@ -71,9 +70,12 @@ namespace Nexus::Graphics
         void DrawCircle(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, float thickness);
         void DrawCircle(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints, float thickness);
         void DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints);
+        void DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture> texture);
         void DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints);
+        void DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture> texture);
         void DrawCross(const Rectangle<float> &rectangle, float thickness, const glm::vec4 &color);
         void DrawTriangle(const glm::vec2 &a, const glm::vec2 &b, const glm::vec2 &c, const glm::vec4 &color);
+        void DrawRoundedRectangle(const glm::vec2 &pos, const glm::vec2 &size, const glm::vec4 &color);
         void End();
 
     private:
@@ -101,5 +103,6 @@ namespace Nexus::Graphics
         BatchInfo m_TextureBatchInfo;
         BatchInfo m_SDFBatchInfo;
         BatchInfo m_FontBatchInfo;
+        BatchInfo m_RoundedRectBatchInfo;
     };
 }

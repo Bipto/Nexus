@@ -1,5 +1,7 @@
 #include "BatchRenderer.hpp"
 
+#include "Nexus/Utils/Utils.hpp"
+
 #include "glm/gtx/compatibility.hpp"
 
 const std::string s_BatchVertexShaderSource =
@@ -286,6 +288,99 @@ const std::string s_BatchSDFFragmentShaderSource =
     "    FragColor = vec4(outColor.rgb, opacity);\n"
     "}\n";
 
+const std::string s_RoundedRectFragmentShaderSource =
+    "#version 450 core\n"
+    "layout (location = 0) out vec4 FragColor;\n"
+    "layout(location = 0) in vec2 texCoord;\n"
+    "layout(location = 1) in vec4 outColor;\n"
+    "layout(location = 2) in flat float texIndex;\n"
+    "layout (set = 1, binding = 0) uniform sampler2D texture0;\n"
+    "layout (set = 1, binding = 1) uniform sampler2D texture1;\n"
+    "layout (set = 1, binding = 2) uniform sampler2D texture2;\n"
+    "layout (set = 1, binding = 3) uniform sampler2D texture3;\n"
+    "layout (set = 1, binding = 4) uniform sampler2D texture4;\n"
+    "layout (set = 1, binding = 5) uniform sampler2D texture5;\n"
+    "layout (set = 1, binding = 6) uniform sampler2D texture6;\n"
+    "layout (set = 1, binding = 7) uniform sampler2D texture7;\n"
+    "layout (set = 1, binding = 8) uniform sampler2D texture8;\n"
+    "layout (set = 1, binding = 9) uniform sampler2D texture9;\n"
+    "layout (set = 1, binding = 10) uniform sampler2D texture10;\n"
+    "layout (set = 1, binding = 11) uniform sampler2D texture11;\n"
+    "layout (set = 1, binding = 12) uniform sampler2D texture12;\n"
+    "layout (set = 1, binding = 13) uniform sampler2D texture13;\n"
+    "layout (set = 1, binding = 14) uniform sampler2D texture14;\n"
+    "layout (set = 1, binding = 15) uniform sampler2D texture15;\n"
+    "layout (set = 1, binding = 16) uniform sampler2D texture16;\n"
+    "layout (set = 1, binding = 17) uniform sampler2D texture17;\n"
+    "layout (set = 1, binding = 18) uniform sampler2D texture18;\n"
+    "layout (set = 1, binding = 19) uniform sampler2D texture19;\n"
+    "layout (set = 1, binding = 20) uniform sampler2D texture20;\n"
+    "layout (set = 1, binding = 21) uniform sampler2D texture21;\n"
+    "layout (set = 1, binding = 22) uniform sampler2D texture22;\n"
+    "layout (set = 1, binding = 23) uniform sampler2D texture23;\n"
+    "layout (set = 1, binding = 24) uniform sampler2D texture24;\n"
+    "layout (set = 1, binding = 25) uniform sampler2D texture25;\n"
+    "layout (set = 1, binding = 26) uniform sampler2D texture26;\n"
+    "layout (set = 1, binding = 27) uniform sampler2D texture27;\n"
+    "layout (set = 1, binding = 28) uniform sampler2D texture28;\n"
+    "layout (set = 1, binding = 29) uniform sampler2D texture29;\n"
+    "layout (set = 1, binding = 30) uniform sampler2D texture30;\n"
+    "layout (set = 1, binding = 31) uniform sampler2D texture31;\n"
+    "float roundedBoxSDF(vec2 CenterPosition, vec2 Size, float Radius) {\n"
+    "return length(max(abs(CenterPosition)-Size+Radius,0.0))-Radius;\n"
+    "}\n"
+    "void main()\n"
+    "{\n"
+    "    switch (int(texIndex))\n"
+    "    {\n"
+    "        case 0: FragColor = texture(texture0, texCoord); break;\n"
+    "        case 1: FragColor = texture(texture1, texCoord); break;\n"
+    "        case 2: FragColor = texture(texture2, texCoord); break;\n"
+    "        case 3: FragColor = texture(texture3, texCoord); break;\n"
+    "        case 4: FragColor = texture(texture4, texCoord); break;\n"
+    "        case 5: FragColor = texture(texture5, texCoord); break;\n"
+    "        case 6: FragColor = texture(texture6, texCoord); break;\n"
+    "        case 7: FragColor = texture(texture7, texCoord); break;\n"
+    "        case 8: FragColor = texture(texture8, texCoord); break;\n"
+    "        case 9: FragColor = texture(texture9, texCoord); break;\n"
+    "        case 10: FragColor = texture(texture10, texCoord); break;\n"
+    "        case 11: FragColor = texture(texture11, texCoord); break;\n"
+    "        case 12: FragColor = texture(texture12, texCoord); break;\n"
+    "        case 13: FragColor = texture(texture13, texCoord); break;\n"
+    "        case 14: FragColor = texture(texture14, texCoord); break;\n"
+    "        case 15: FragColor = texture(texture15, texCoord); break;\n"
+    "        case 16: FragColor = texture(texture16, texCoord); break;\n"
+    "        case 17: FragColor = texture(texture17, texCoord); break;\n"
+    "        case 18: FragColor = texture(texture18, texCoord); break;\n"
+    "        case 19: FragColor = texture(texture19, texCoord); break;\n"
+    "        case 20: FragColor = texture(texture20, texCoord); break;\n"
+    "        case 21: FragColor = texture(texture21, texCoord); break;\n"
+    "        case 22: FragColor = texture(texture22, texCoord); break;\n"
+    "        case 23: FragColor = texture(texture23, texCoord); break;\n"
+    "        case 24: FragColor = texture(texture24, texCoord); break;\n"
+    "        case 25: FragColor = texture(texture25, texCoord); break;\n"
+    "        case 26: FragColor = texture(texture26, texCoord); break;\n"
+    "        case 27: FragColor = texture(texture27, texCoord); break;\n"
+    "        case 28: FragColor = texture(texture28, texCoord); break;\n"
+    "        case 29: FragColor = texture(texture29, texCoord); break;\n"
+    "        case 30: FragColor = texture(texture30, texCoord); break;\n"
+    "        case 31: FragColor = texture(texture31, texCoord); break;\n"
+    "    }\n"
+    "    FragColor *= outColor;\n"
+    "	vec2 size = vec2(1, 1);\n"
+    "	vec2 location = vec2(0, 0);\n"
+    "	float edgeSoftness = 1.0f;\n"
+    "	float radius = 50.0f;\n"
+    "	float distance = roundedBoxSDF(texCoord.xy - location - (size / 2.0f), size / 2.0f, radius);\n"
+    "	float smoothedAlpha = 1.0f - smoothstep(0.0, edgeSoftness * 2.0f, distance);\n"
+    "	float shadowSoftness = 30.0f;\n"
+    "	vec2 shadowOffset = vec2(0.0f, 10.0f);\n"
+    "	float shadowDistance = roundedBoxSDF(texCoord.xy - location + shadowOffset - (size / 2.0f), size / 2.0f, radius);\n"
+    "	float shadowAlpha = 1.0f - smoothstep(-shadowSoftness, shadowSoftness, shadowDistance);\n"
+    "	vec4 shadowColor = vec4(0.4f, 0.4f, 0.4f, 1.0f);\n"
+    "	FragColor = mix(FragColor, shadowColor, shadowAlpha - smoothedAlpha);\n"
+    "}";
+
 namespace Nexus::Graphics
 {
     Nexus::Graphics::ResourceSetSpecification GetResourceSetSpecification()
@@ -431,10 +526,12 @@ namespace Nexus::Graphics
         Nexus::Ref<Nexus::Graphics::ShaderModule> sdfFragmentModule = device->CreateShaderModuleFromSpirvSource(s_BatchSDFFragmentShaderSource, "Batch Renderer - SDF Fragment Shader", Nexus::Graphics::ShaderStage::Fragment);
         Nexus::Ref<Nexus::Graphics::ShaderModule> textureFragmentModule = device->CreateShaderModuleFromSpirvSource(s_BatchTextureFragmentShaderSource, "Batch Renderer - Texture Fragment Shader", Nexus::Graphics::ShaderStage::Fragment);
         Nexus::Ref<Nexus::Graphics::ShaderModule> fontFragmentModule = device->CreateShaderModuleFromSpirvSource(s_BatchFontFragmentShaderSource, "Batch Renderer - Font Fragment Shader", Nexus::Graphics::ShaderStage::Fragment);
+        Nexus::Ref<Nexus::Graphics::ShaderModule> roundedRectangleFragmentModule = device->CreateShaderModuleFromSpirvSource(s_RoundedRectFragmentShaderSource, "Batch Renderer - Rounded Rectangles", Nexus::Graphics::ShaderStage::Fragment);
 
         CreateBatcher(m_SDFBatchInfo, device, target, vertexModule, sdfFragmentModule);
         CreateBatcher(m_TextureBatchInfo, device, target, vertexModule, textureFragmentModule);
         CreateBatcher(m_FontBatchInfo, device, target, vertexModule, fontFragmentModule);
+        CreateBatcher(m_RoundedRectBatchInfo, device, target, vertexModule, roundedRectangleFragmentModule);
 
         Nexus::Graphics::BufferDescription uniformBufferDesc;
         uniformBufferDesc.Size = sizeof(glm::mat4);
@@ -823,6 +920,10 @@ namespace Nexus::Graphics
 
     void BatchRenderer::DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints)
     {
+    }
+
+    void BatchRenderer::DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture> texture)
+    {
         const uint32_t minPoints = 3;
         const uint32_t maxPoints = 256;
 
@@ -844,6 +945,8 @@ namespace Nexus::Graphics
             index++;
         }
 
+        float texIndex = GetOrCreateTexIndex(m_TextureBatchInfo, texture);
+
         // create vertices
         float rotation = glm::two_pi<float>() / (float)shapeVertexCount;
 
@@ -853,6 +956,9 @@ namespace Nexus::Graphics
         float ax = radius;
         float ay = 0.0f;
 
+        glm::vec2 topLeft = {position.x - (radius / 2), position.y - (radius / 2)};
+        glm::vec2 bottomRight = {position.x + (radius / 2), position.y + (radius / 2)};
+
         for (int i = 0; i < shapeVertexCount; i++)
         {
             float x1 = ax;
@@ -860,9 +966,14 @@ namespace Nexus::Graphics
 
             VertexPositionTexCoordColorTexIndex vertex;
             vertex.Position = glm::vec3{x1 + position.x, y1 + position.y, 0.0f};
-            vertex.TexCoords = {0.0f, 0.0f};
+            // vertex.TexCoords = {0.0f, 0.0f};
+
+            float uvX = Nexus::Utils::ReMapRange(topLeft.x, bottomRight.x, 0.0f, 1.0f, vertex.Position.x);
+            float uvY = Nexus::Utils::ReMapRange(topLeft.y, bottomRight.y, 0.0f, 1.0f, vertex.Position.y);
+            vertex.TexCoords = {uvX, uvY};
+
             vertex.Color = color;
-            vertex.TexIndex = 0;
+            vertex.TexIndex = texIndex;
             m_TextureBatchInfo.Vertices.push_back(vertex);
 
             ax = cos * x1 - sin * y1;
@@ -875,8 +986,13 @@ namespace Nexus::Graphics
 
     void BatchRenderer::DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints)
     {
+        DrawCircleFill(circle, color, numberOfPoints, m_BlankTexture);
+    }
+
+    void BatchRenderer::DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture> texture)
+    {
         const auto &pos = circle.GetPosition();
-        DrawCircleFill({pos.X, pos.Y}, circle.GetRadius(), color, numberOfPoints);
+        DrawCircleFill({pos.X, pos.Y}, circle.GetRadius(), color, numberOfPoints, texture);
     }
 
     void BatchRenderer::DrawCross(const Rectangle<float> &rectangle, float thickness, const glm::vec4 &color)
@@ -926,6 +1042,10 @@ namespace Nexus::Graphics
 
         m_TextureBatchInfo.IndexCount += shapeIndexCount;
         m_TextureBatchInfo.VertexCount += shapeVertexCount;
+    }
+
+    void BatchRenderer::DrawRoundedRectangle(const glm::vec2 &pos, const glm::vec2 &size, const glm::vec4 &color)
+    {
     }
 
     void BatchRenderer::End()

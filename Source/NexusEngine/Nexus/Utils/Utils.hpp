@@ -5,6 +5,12 @@
 
 namespace Nexus::Utils
 {
-    const glm::vec4 ColorFromRGBA(float r, float g, float b, float a);
-    const glm::vec4 ColorFromBorderColor(Nexus::Graphics::BorderColor color);
+    glm::vec4 ColorFromRGBA(float r, float g, float b, float a);
+    glm::vec4 ColorFromBorderColor(Nexus::Graphics::BorderColor color);
+
+    template <typename T>
+    T ReMapRange(T oldMin, T oldMax, T newMin, T newMax, T value)
+    {
+        return newMin + (value - oldMin) * (newMax - newMin) / (oldMax - newMin);
+    }
 }
