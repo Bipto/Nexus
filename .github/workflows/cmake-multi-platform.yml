@@ -75,6 +75,7 @@ jobs:
           cc: ${{ matrix.config.cc }}
           cxx: ${{ matrix.config.cxx }}
           build-type: Release
+          build-options: ${{ runner.workspace }}/build
   
       - name: Test
         working-directory: ${{ steps.strings.outputs.build-output-dir }}
