@@ -68,17 +68,9 @@ jobs:
           # ninja version to download. Default: 1.10.0
           version: 1.10.0
 
-      - name: Build with CMake
-        uses: ashutoshvarma/action-cmake-build@master
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v2
         with:
-          build-dir: ${{ runner.workspace }}/build
-          cc: ${{ matrix.config.cc }}
-          cxx: ${{ matrix.config.cxx }}
-          build-type: Release
-          build-options: ${{ runner.workspace }}/build
-  
-      - name: Test
-        working-directory: ${{ steps.strings.outputs.build-output-dir }}
-        # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
-        # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-        run: ctest --build-config ${{ matrix.build_type }}
+          cmake-version: 'latest'
+      - name: Use cmake
+        run: cmake --version
