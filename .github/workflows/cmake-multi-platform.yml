@@ -68,13 +68,13 @@ jobs:
           # ninja version to download. Default: 1.10.0
           version: 1.10.0
 
-      - name: Setup cmake
-        uses: jwlawson/actions-setup-cmake@v2
+      - name: Configure and Build Project
+        uses: threeal/cmake-action@v1.3.0
         with:
-          cmake-version: 'latest'
+          run-build: true
+          source-dir: .
+          build-dir: build
+          generator: Ninja
 
-      - name: Cmake Cofigure
-        run: cmake -S . -B build
-
-      - name: Cmake Build
-        run: cmake --build build
+      - name: Test Project
+        uses: threeal/ctest-action@v1.0.0
