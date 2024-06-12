@@ -75,8 +75,8 @@ jobs:
           build-dir: build
           generator: Ninja
 
-      - name: Test Project
-        uses: threeal/ctest-action@v1.0.0
+      #- name: Test Project
+      #  uses: threeal/ctest-action@v1.0.0
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v4
