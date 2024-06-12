@@ -68,17 +68,13 @@ jobs:
           # ninja version to download. Default: 1.10.0
           version: 1.10.0
 
-      - name: Build with CMake
-        uses: ashutoshvarma/action-cmake-build@master
+      - name: Configure and Build Project
+        uses: threeal/cmake-action@v1.3.0
         with:
-          build-dir: ${{ runner.workspace }}/build
-          cc: ${{ matrix.config.cc }}
-          cxx: ${{ matrix.config.cxx }}
-          configure-options: -G Ninja
-          build-type: Release
-  
-      - name: Test
-        working-directory: ${{ steps.strings.outputs.build-output-dir }}
-        # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
-        # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-        run: ctest --build-config ${{ matrix.build_type }}
+          run-build: true
+          source-dir: .
+          build-dir: build
+          generator: Ninja
+
+      - name: Test Project
+        uses: threeal/ctest-action@v1.0.0
