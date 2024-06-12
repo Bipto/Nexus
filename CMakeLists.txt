@@ -85,9 +85,9 @@ if (WIN32 OR ANDROID)
     remove_definitions(-DLIBTYPE)
 endif()
 
-if (WIN32)
-    file(COPY Binaries/dxc_2023_08_14/bin/x64/dxcompiler.dll 
-        DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-    file(COPY Binaries/dxc_2023_08_14/bin/x64/dxil.dll 
-        DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-endif()
+#if (WIN32)
+#    file(COPY Binaries/dxc_2023_08_14/bin/x64/dxcompiler.dll 
+#        DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+#    file(COPY Binaries/dxc_2023_08_14/bin/x64/dxil.dll 
+#        DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+#endif()
