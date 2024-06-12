@@ -63,12 +63,12 @@ add_subdirectory(External/SPIRV-Headers)
 add_subdirectory(External/SPIRV-Tools)
 add_subdirectory(External/shaderc)
 add_subdirectory(External/libnyquist)
-add_subdirectory(External/freetype)
-add_subdirectory(External/pocketpy)
-add_subdirectory(External/yaml-cpp)
+#add_subdirectory(External/freetype)
+#add_subdirectory(External/pocketpy)
+#add_subdirectory(External/yaml-cpp)
 
 if (WIN32)
-    add_subdirectory(External/VulkanMemoryAllocator)
+    #add_subdirectory(External/VulkanMemoryAllocator)
 endif()
 
 #these libraries are only required if we are not building for emscripten
