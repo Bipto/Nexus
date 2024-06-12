@@ -85,16 +85,6 @@ if (WIN32 OR ANDROID)
     remove_definitions(-DLIBTYPE)
 endif()
 
-#google test - required for shaderc
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
-)
-# For Windows: Prevent overriding the parent project's compiler/linker settings
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
-
 if (WIN32)
     file(COPY Binaries/dxc_2023_08_14/bin/x64/dxcompiler.dll 
         DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
