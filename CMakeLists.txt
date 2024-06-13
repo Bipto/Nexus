@@ -42,7 +42,7 @@ endif()
 
 #set up engine projects
 add_subdirectory(Source/BuildConfig)
-#add_subdirectory(Source/NexusEngine)
+add_subdirectory(Source/NexusEngine)
 #add_subdirectory(Source/Demo)
 
 if(WIN32)
