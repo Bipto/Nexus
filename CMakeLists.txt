@@ -42,13 +42,13 @@ endif()
 
 #set up engine projects
 add_subdirectory(Source/BuildConfig)
-#add_subdirectory(Source/NexusEngine)
-#add_subdirectory(Source/Demo)
+add_subdirectory(Source/NexusEngine)
+add_subdirectory(Source/Demo)
 
-#if(WIN32)
-#    add_subdirectory(Source/Test)
-#    add_subdirectory(Source/Editor)
-#endif()
+if(WIN32)
+    add_subdirectory(Source/Test)
+    add_subdirectory(Source/Editor)
+endif()
 
 add_compile_definitions(IMGUI_DEFINE_MATH_OPERATORS)
 
