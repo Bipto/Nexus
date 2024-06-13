@@ -488,13 +488,13 @@ namespace Nexus::Graphics
         description.FragmentModule = fragmentModule;
         description.ResourceSetSpec = GetResourceSetSpecification();
         description.Target = target;
-        description.BlendStateDescription.EnableBlending = true;
-        description.BlendStateDescription.SourceColourBlend = BlendFactor::SourceAlpha;
-        description.BlendStateDescription.DestinationColourBlend = BlendFactor::OneMinusSourceAlpha;
-        description.BlendStateDescription.ColorBlendFunction = BlendEquation::Add;
-        description.BlendStateDescription.SourceAlphaBlend = BlendFactor::SourceAlpha;
-        description.BlendStateDescription.DestinationAlphaBlend = BlendFactor::OneMinusSourceAlpha;
-        description.BlendStateDescription.AlphaBlendFunction = BlendEquation::Add;
+        description.BlendStateDesc.EnableBlending = true;
+        description.BlendStateDesc.SourceColourBlend = BlendFactor::SourceAlpha;
+        description.BlendStateDesc.DestinationColourBlend = BlendFactor::OneMinusSourceAlpha;
+        description.BlendStateDesc.ColorBlendFunction = BlendEquation::Add;
+        description.BlendStateDesc.SourceAlphaBlend = BlendFactor::SourceAlpha;
+        description.BlendStateDesc.DestinationAlphaBlend = BlendFactor::OneMinusSourceAlpha;
+        description.BlendStateDesc.AlphaBlendFunction = BlendEquation::Add;
 
         info.Pipeline = device->CreatePipeline(description);
         info.ResourceSet = device->CreateResourceSet(info.Pipeline);

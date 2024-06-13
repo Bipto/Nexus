@@ -98,14 +98,14 @@ namespace Nexus::ImGuiUtils
         pipelineDesc.FragmentModule = fragmentModule;
 
         pipelineDesc.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
-        pipelineDesc.BlendStateDescription.EnableBlending = true;
+        pipelineDesc.BlendStateDesc.EnableBlending = true;
 
-        pipelineDesc.BlendStateDescription.SourceColourBlend = Nexus::Graphics::BlendFactor::SourceAlpha;
-        pipelineDesc.BlendStateDescription.DestinationColourBlend = Nexus::Graphics::BlendFactor::OneMinusSourceAlpha;
-        pipelineDesc.BlendStateDescription.ColorBlendFunction = Nexus::Graphics::BlendEquation::Add;
-        pipelineDesc.BlendStateDescription.SourceAlphaBlend = Nexus::Graphics::BlendFactor::One;
-        pipelineDesc.BlendStateDescription.DestinationAlphaBlend = Nexus::Graphics::BlendFactor::OneMinusSourceAlpha;
-        pipelineDesc.BlendStateDescription.AlphaBlendFunction = Nexus::Graphics::BlendEquation::Add;
+        pipelineDesc.BlendStateDesc.SourceColourBlend = Nexus::Graphics::BlendFactor::SourceAlpha;
+        pipelineDesc.BlendStateDesc.DestinationColourBlend = Nexus::Graphics::BlendFactor::OneMinusSourceAlpha;
+        pipelineDesc.BlendStateDesc.ColorBlendFunction = Nexus::Graphics::BlendEquation::Add;
+        pipelineDesc.BlendStateDesc.SourceAlphaBlend = Nexus::Graphics::BlendFactor::One;
+        pipelineDesc.BlendStateDesc.DestinationAlphaBlend = Nexus::Graphics::BlendFactor::OneMinusSourceAlpha;
+        pipelineDesc.BlendStateDesc.AlphaBlendFunction = Nexus::Graphics::BlendEquation::Add;
 
         pipelineDesc.RasterizerStateDesc.CullMode = Nexus::Graphics::CullMode::None;
         pipelineDesc.RasterizerStateDesc.TriangleFillMode = Nexus::Graphics::FillMode::Solid;

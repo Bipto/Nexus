@@ -21,7 +21,7 @@ namespace Nexus::Graphics
         RasterizerStateDescription RasterizerStateDesc;
 
         /// @brief How the pipeline should handle blending
-        BlendStateDescription BlendStateDescription;
+        BlendStateDescription BlendStateDesc;
 
         /// @brief How the pipeline should handle the vertex buffer data
         Topology PrimitiveTopology = Topology::TriangleList;

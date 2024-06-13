@@ -264,13 +264,13 @@ namespace Nexus::Graphics
     {
         VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
         colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-        colorBlendAttachment.blendEnable = m_Description.BlendStateDescription.EnableBlending;
-        colorBlendAttachment.srcColorBlendFactor = GetVkBlendFactor(m_Description.BlendStateDescription.SourceColourBlend);
-        colorBlendAttachment.dstColorBlendFactor = GetVkBlendFactor(m_Description.BlendStateDescription.DestinationColourBlend);
-        colorBlendAttachment.colorBlendOp = GetVkBlendOp(m_Description.BlendStateDescription.ColorBlendFunction);
-        colorBlendAttachment.srcAlphaBlendFactor = GetVkBlendFactor(m_Description.BlendStateDescription.SourceAlphaBlend);
-        colorBlendAttachment.dstAlphaBlendFactor = GetVkBlendFactor(m_Description.BlendStateDescription.DestinationAlphaBlend);
-        colorBlendAttachment.alphaBlendOp = GetVkBlendOp(m_Description.BlendStateDescription.AlphaBlendFunction);
+        colorBlendAttachment.blendEnable = m_Description.BlendStateDesc.EnableBlending;
+        colorBlendAttachment.srcColorBlendFactor = GetVkBlendFactor(m_Description.BlendStateDesc.SourceColourBlend);
+        colorBlendAttachment.dstColorBlendFactor = GetVkBlendFactor(m_Description.BlendStateDesc.DestinationColourBlend);
+        colorBlendAttachment.colorBlendOp = GetVkBlendOp(m_Description.BlendStateDesc.ColorBlendFunction);
+        colorBlendAttachment.srcAlphaBlendFactor = GetVkBlendFactor(m_Description.BlendStateDesc.SourceAlphaBlend);
+        colorBlendAttachment.dstAlphaBlendFactor = GetVkBlendFactor(m_Description.BlendStateDesc.DestinationAlphaBlend);
+        colorBlendAttachment.alphaBlendOp = GetVkBlendOp(m_Description.BlendStateDesc.AlphaBlendFunction);
         return colorBlendAttachment;
     }
 

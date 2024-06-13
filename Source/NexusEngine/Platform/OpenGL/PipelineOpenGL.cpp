@@ -150,20 +150,20 @@ namespace Nexus::Graphics
 
     void PipelineOpenGL::SetupBlending()
     {
-        if (m_Description.BlendStateDescription.EnableBlending)
+        if (m_Description.BlendStateDesc.EnableBlending)
         {
             glEnable(GL_BLEND);
 
-            auto sourceColourFunction = GL::GetBlendFactor(m_Description.BlendStateDescription.SourceColourBlend);
-            auto sourceAlphaFunction = GL::GetBlendFactor(m_Description.BlendStateDescription.SourceAlphaBlend);
+            auto sourceColourFunction = GL::GetBlendFactor(m_Description.BlendStateDesc.SourceColourBlend);
+            auto sourceAlphaFunction = GL::GetBlendFactor(m_Description.BlendStateDesc.SourceAlphaBlend);
 
-            auto destinationColourFunction = GL::GetBlendFactor(m_Description.BlendStateDescription.DestinationColourBlend);
-            auto destinationAlphaFunction = GL::GetBlendFactor(m_Description.BlendStateDescription.DestinationAlphaBlend);
+            auto destinationColourFunction = GL::GetBlendFactor(m_Description.BlendStateDesc.DestinationColourBlend);
+            auto destinationAlphaFunction = GL::GetBlendFactor(m_Description.BlendStateDesc.DestinationAlphaBlend);
             // glBlendFuncSeparate(destinationColourFunction, destinationColourFunction, destinationColourFunction, destinationAlphaFunction);
             glBlendFuncSeparate(sourceColourFunction, destinationColourFunction, sourceAlphaFunction, destinationAlphaFunction);
 
-            auto colorBlendFunction = GL::GetBlendFunction(m_Description.BlendStateDescription.ColorBlendFunction);
-            auto alphaBlendFunction = GL::GetBlendFunction(m_Description.BlendStateDescription.AlphaBlendFunction);
+            auto colorBlendFunction = GL::GetBlendFunction(m_Description.BlendStateDesc.ColorBlendFunction);
+            auto alphaBlendFunction = GL::GetBlendFunction(m_Description.BlendStateDesc.AlphaBlendFunction);
             // glBlendEquation(blendEquation);
 
             glBlendEquationSeparate(colorBlendFunction, alphaBlendFunction);
