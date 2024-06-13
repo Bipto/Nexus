@@ -132,23 +132,23 @@ namespace Demos
         void CreatePipeline()
         {
             Nexus::Graphics::PipelineDescription pipelineDescription;
-            pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::Back;
-            pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
-            pipelineDescription.DepthStencilDescription.EnableDepthTest = true;
-            pipelineDescription.DepthStencilDescription.EnableDepthWrite = true;
-            pipelineDescription.DepthStencilDescription.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;
+            pipelineDescription.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::Back;
+            pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
+            pipelineDescription.DepthStencilDesc.EnableDepthTest = true;
+            pipelineDescription.DepthStencilDesc.EnableDepthWrite = true;
+            pipelineDescription.DepthStencilDesc.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;
 
             pipelineDescription.VertexModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/models.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
             pipelineDescription.FragmentModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/models.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 
             pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
-            pipelineDescription.ResourceSetSpecification.UniformBuffers =
+            pipelineDescription.ResourceSetSpec.UniformBuffers =
                 {
                     {"Camera", 0, 0},
                     {"Transform", 0, 1}};
 
-            pipelineDescription.ResourceSetSpecification.SampledImages =
+            pipelineDescription.ResourceSetSpec.SampledImages =
                 {
                     {"diffuseMapSampler", 1, 0},
                     {"normalMapSampler", 1, 1},

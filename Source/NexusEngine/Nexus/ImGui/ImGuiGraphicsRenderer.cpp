@@ -107,15 +107,15 @@ namespace Nexus::ImGuiUtils
         pipelineDesc.BlendStateDescription.DestinationAlphaBlend = Nexus::Graphics::BlendFactor::OneMinusSourceAlpha;
         pipelineDesc.BlendStateDescription.AlphaBlendFunction = Nexus::Graphics::BlendEquation::Add;
 
-        pipelineDesc.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
-        pipelineDesc.RasterizerStateDescription.FillMode = Nexus::Graphics::FillMode::Solid;
-        pipelineDesc.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
+        pipelineDesc.RasterizerStateDesc.CullMode = Nexus::Graphics::CullMode::None;
+        pipelineDesc.RasterizerStateDesc.TriangleFillMode = Nexus::Graphics::FillMode::Solid;
+        pipelineDesc.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
-        pipelineDesc.DepthStencilDescription.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Always;
-        pipelineDesc.DepthStencilDescription.EnableDepthTest = false;
-        pipelineDesc.DepthStencilDescription.EnableDepthWrite = false;
-        pipelineDesc.DepthStencilDescription.EnableStencilTest = false;
-        pipelineDesc.DepthStencilDescription.StencilComparisonFunction = Nexus::Graphics::ComparisonFunction::Always;
+        pipelineDesc.DepthStencilDesc.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Always;
+        pipelineDesc.DepthStencilDesc.EnableDepthTest = false;
+        pipelineDesc.DepthStencilDesc.EnableDepthWrite = false;
+        pipelineDesc.DepthStencilDesc.EnableStencilTest = false;
+        pipelineDesc.DepthStencilDesc.StencilComparisonFunction = Nexus::Graphics::ComparisonFunction::Always;
 
         pipelineDesc.Layouts =
             {
@@ -132,7 +132,7 @@ namespace Nexus::ImGuiUtils
         resources += vertexModule->GetResourceSetSpecification();
         resources += fragmentModule->GetResourceSetSpecification();
 
-        pipelineDesc.ResourceSetSpecification = resources;
+        pipelineDesc.ResourceSetSpec = resources;
 
         m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDesc);
 

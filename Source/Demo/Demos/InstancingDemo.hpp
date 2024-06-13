@@ -133,17 +133,17 @@ namespace Demos
         void CreatePipeline()
         {
             Nexus::Graphics::PipelineDescription pipelineDescription;
-            pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::Back;
-            pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
+            pipelineDescription.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::Back;
+            pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
             pipelineDescription.VertexModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/instancing.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
             pipelineDescription.FragmentModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/instancing.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 
-            pipelineDescription.ResourceSetSpecification.UniformBuffers =
+            pipelineDescription.ResourceSetSpec.UniformBuffers =
                 {
                     {"Camera", 0, 0}};
 
-            pipelineDescription.ResourceSetSpecification.SampledImages =
+            pipelineDescription.ResourceSetSpec.SampledImages =
                 {
                     {"diffuseMapSampler", 1, 0},
                     {"normalMapSampler", 1, 1},
@@ -167,11 +167,11 @@ namespace Demos
 
             pipelineDescription.Layouts = {vertexLayout, instanceLayout};
 
-            pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::Back;
-            pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
-            pipelineDescription.DepthStencilDescription.EnableDepthTest = true;
-            pipelineDescription.DepthStencilDescription.EnableDepthWrite = true;
-            pipelineDescription.DepthStencilDescription.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;
+            pipelineDescription.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::Back;
+            pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
+            pipelineDescription.DepthStencilDesc.EnableDepthTest = true;
+            pipelineDescription.DepthStencilDesc.EnableDepthWrite = true;
+            pipelineDescription.DepthStencilDesc.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;
 
             pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
 

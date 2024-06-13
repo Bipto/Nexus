@@ -34,7 +34,7 @@ namespace Nexus::Graphics
         samplerInfo.borderColor = color;
         samplerInfo.unnormalizedCoordinates = VK_FALSE;
         samplerInfo.compareEnable = VK_TRUE;
-        samplerInfo.compareOp = GetCompareOp(spec.ComparisonFunction);
+        samplerInfo.compareOp = GetCompareOp(spec.SamplerComparisonFunction);
         samplerInfo.mipLodBias = mipmapMode;
         samplerInfo.mipLodBias = spec.LODBias;
         samplerInfo.minLod = spec.MinimumLOD;

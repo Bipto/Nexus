@@ -384,7 +384,7 @@ namespace Nexus::Graphics
     void CommandListOpenGL::SetViewport(const Viewport &viewport)
     {
         SetViewportCommand command;
-        command.Viewport = viewport;
+        command.NextViewport = viewport;
         m_CommandData.emplace_back(command);
 
         auto renderCommand = [](Ref<CommandList> commandList)
@@ -393,18 +393,18 @@ namespace Nexus::Graphics
             auto commandData = commandListGL->GetCurrentCommandData();
             auto setViewportCommand = std::get<SetViewportCommand>(commandData);
 
-            float left = setViewportCommand.Viewport.X;
-            float bottom = commandListGL->m_CurrentRenderTarget.GetSize().Y - (setViewportCommand.Viewport.Y + setViewportCommand.Viewport.Height);
+            float left = setViewportCommand.NextViewport.X;
+            float bottom = commandListGL->m_CurrentRenderTarget.GetSize().Y - (setViewportCommand.NextViewport.Y + setViewportCommand.NextViewport.Height);
 
             glViewport(
                 left,
                 bottom,
-                setViewportCommand.Viewport.Width,
-                setViewportCommand.Viewport.Height);
+                setViewportCommand.NextViewport.Width,
+                setViewportCommand.NextViewport.Height);
 
             glDepthRangef(
-                setViewportCommand.Viewport.MinDepth,
-                setViewportCommand.Viewport.MaxDepth);
+                setViewportCommand.NextViewport.MinDepth,
+                setViewportCommand.NextViewport.MaxDepth);
         };
         m_Commands.push_back(renderCommand);
     }
@@ -412,7 +412,7 @@ namespace Nexus::Graphics
     void CommandListOpenGL::SetScissor(const Scissor &scissor)
     {
         SetScissorCommand command;
-        command.Scissor = scissor;
+        command.NextScissor = scissor;
         m_CommandData.emplace_back(command);
 
         auto renderCommand = [](Ref<CommandList> commandList)
@@ -421,13 +421,13 @@ namespace Nexus::Graphics
             auto commandData = commandListGL->GetCurrentCommandData();
             auto setScissorCommand = std::get<SetScissorCommand>(commandData);
 
-            auto scissorMinY = commandListGL->m_CurrentRenderTarget.GetSize().Y - setScissorCommand.Scissor.Height - setScissorCommand.Scissor.Y;
+            auto scissorMinY = commandListGL->m_CurrentRenderTarget.GetSize().Y - setScissorCommand.NextScissor.Height - setScissorCommand.NextScissor.Y;
 
             glScissor(
-                setScissorCommand.Scissor.X,
+                setScissorCommand.NextScissor.X,
                 scissorMinY,
-                setScissorCommand.Scissor.Width,
-                setScissorCommand.Scissor.Height);
+                setScissorCommand.NextScissor.Width,
+                setScissorCommand.NextScissor.Height);
         };
         m_Commands.push_back(renderCommand);
     }

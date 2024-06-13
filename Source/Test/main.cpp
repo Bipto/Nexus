@@ -138,8 +138,12 @@ public:
 
         m_BatchRenderer->DrawQuadFill({0, 0, (float)windowSize.X, (float)windowSize.Y}, {1.0f, 0.0f, 0.0f, 1.0f});
 
-        Nexus::Graphics::Circle<float> circle({500.0f, 500.0f}, 500);
-        m_BatchRenderer->DrawCircleFill(circle, {1.0f, 1.0f, 1.0f, 1.0f}, 24, m_Texture);
+        Nexus::Graphics::Circle<float> circle({250.0f, 250.0f}, 150);
+        // m_BatchRenderer->DrawCircleFill(circle, {0.0f, 0.0f, 1.0f, 1.0f}, 32, m_Texture);
+        // m_BatchRenderer->DrawCircleRegionFill({250.0f, 250.0f}, 150, {0.0f, 0.0f, 1.0f, 1.0f}, 32, 180.0f);
+        m_BatchRenderer->DrawCircle(circle, {0.0f, 0.0f, 1.0f, 1.0f}, 32, 2.0f);
+
+        // m_BatchRenderer->DrawRoundedRectangle({50.0f, 50.0f}, {250.0f, 25.0f}, 50.0f, {0.0f, 0.0f, 1.0f, 1.0f}, 32);
 
         m_BatchRenderer->End();
 

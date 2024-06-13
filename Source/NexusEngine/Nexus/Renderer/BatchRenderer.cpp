@@ -482,11 +482,11 @@ namespace Nexus::Graphics
         info.Textures.resize(MAX_TEXTURE_COUNT);
 
         Nexus::Graphics::PipelineDescription description;
-        description.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
+        description.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::None;
         description.Layouts = {Nexus::Graphics::VertexPositionTexCoordColorTexIndex::GetLayout()};
         description.VertexModule = vertexModule;
         description.FragmentModule = fragmentModule;
-        description.ResourceSetSpecification = GetResourceSetSpecification();
+        description.ResourceSetSpec = GetResourceSetSpecification();
         description.Target = target;
         description.BlendStateDescription.EnableBlending = true;
         description.BlendStateDescription.SourceColourBlend = BlendFactor::SourceAlpha;
@@ -526,12 +526,10 @@ namespace Nexus::Graphics
         Nexus::Ref<Nexus::Graphics::ShaderModule> sdfFragmentModule = device->CreateShaderModuleFromSpirvSource(s_BatchSDFFragmentShaderSource, "Batch Renderer - SDF Fragment Shader", Nexus::Graphics::ShaderStage::Fragment);
         Nexus::Ref<Nexus::Graphics::ShaderModule> textureFragmentModule = device->CreateShaderModuleFromSpirvSource(s_BatchTextureFragmentShaderSource, "Batch Renderer - Texture Fragment Shader", Nexus::Graphics::ShaderStage::Fragment);
         Nexus::Ref<Nexus::Graphics::ShaderModule> fontFragmentModule = device->CreateShaderModuleFromSpirvSource(s_BatchFontFragmentShaderSource, "Batch Renderer - Font Fragment Shader", Nexus::Graphics::ShaderStage::Fragment);
-        Nexus::Ref<Nexus::Graphics::ShaderModule> roundedRectangleFragmentModule = device->CreateShaderModuleFromSpirvSource(s_RoundedRectFragmentShaderSource, "Batch Renderer - Rounded Rectangles", Nexus::Graphics::ShaderStage::Fragment);
 
         CreateBatcher(m_SDFBatchInfo, device, target, vertexModule, sdfFragmentModule);
         CreateBatcher(m_TextureBatchInfo, device, target, vertexModule, textureFragmentModule);
         CreateBatcher(m_FontBatchInfo, device, target, vertexModule, fontFragmentModule);
-        CreateBatcher(m_RoundedRectBatchInfo, device, target, vertexModule, roundedRectangleFragmentModule);
 
         Nexus::Graphics::BufferDescription uniformBufferDesc;
         uniformBufferDesc.Size = sizeof(glm::mat4);
@@ -895,8 +893,10 @@ namespace Nexus::Graphics
 
         numberOfPoints = glm::clamp<float>(numberOfPoints, minPoints, maxPoints);
 
-        float deltaAngle = glm::two_pi<float>() / (float)numberOfPoints;
-        float angle = 0.0f;
+        float deltaAngle = glm::radians(180.0f) / (float)numberOfPoints;
+
+        // float deltaAngle = glm::two_pi<float>() / (float)numberOfPoints;
+        float angle = glm::radians(180.0f);
 
         for (int i = 0; i < numberOfPoints; i++)
         {
@@ -920,9 +920,10 @@ namespace Nexus::Graphics
 
     void BatchRenderer::DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints)
     {
+        DrawCircleFill(position, radius, color, numberOfPoints, m_BlankTexture);
     }
 
-    void BatchRenderer::DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture> texture)
+    void BatchRenderer::DrawCircleRegionFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, float angle)
     {
         const uint32_t minPoints = 3;
         const uint32_t maxPoints = 256;
@@ -945,7 +946,7 @@ namespace Nexus::Graphics
             index++;
         }
 
-        float texIndex = GetOrCreateTexIndex(m_TextureBatchInfo, texture);
+        float texIndex = GetOrCreateTexIndex(m_TextureBatchInfo, m_BlankTexture);
 
         // create vertices
         float rotation = glm::two_pi<float>() / (float)shapeVertexCount;
@@ -959,7 +960,7 @@ namespace Nexus::Graphics
         glm::vec2 topLeft = {position.x - (radius / 2), position.y - (radius / 2)};
         glm::vec2 bottomRight = {position.x + (radius / 2), position.y + (radius / 2)};
 
-        for (int i = 0; i < shapeVertexCount; i++)
+        /* for (int i = 0; i < shapeVertexCount; i++)
         {
             float x1 = ax;
             float y1 = ay;
@@ -978,10 +979,51 @@ namespace Nexus::Graphics
 
             ax = cos * x1 - sin * y1;
             ay = sin * x1 + cos * y1;
+        } */
+
+        float theta = 360.0f / numberOfPoints;
+
+        for (int i = 0; i < shapeVertexCount; i += 3)
+        {
+            VertexPositionTexCoordColorTexIndex v1;
+            v1.Position = {glm::cos(theta) * radius, glm::sin(theta) * radius, 0.0f};
+            v1.TexCoords =
+                {
+                    Nexus::Utils::ReMapRange(topLeft.x, bottomRight.x, 0.0f, 1.0f, v1.Position.x),
+                    Nexus::Utils::ReMapRange(topLeft.y, bottomRight.y, 0.0f, 1.0f, v1.Position.y)};
+            v1.Color = color;
+            v1.TexIndex = texIndex;
+
+            VertexPositionTexCoordColorTexIndex v2;
+            v2.Position = {glm::cos(theta) * 2 * radius, glm::sin(theta) * 2 * radius, 0.0f};
+            v2.TexCoords =
+                {
+                    Nexus::Utils::ReMapRange(topLeft.x, bottomRight.x, 0.0f, 1.0f, v2.Position.x),
+                    Nexus::Utils::ReMapRange(topLeft.y, bottomRight.y, 0.0f, 1.0f, v2.Position.y)};
+            v2.Color = color;
+            v2.TexIndex = texIndex;
+
+            VertexPositionTexCoordColorTexIndex v3;
+            v3.Position = {glm::cos(theta) * 3 * radius, glm::sin(theta) * 3 * radius, 0.0f};
+            v3.TexCoords =
+                {
+                    Nexus::Utils::ReMapRange(topLeft.x, bottomRight.x, 0.0f, 1.0f, v3.Position.x),
+                    Nexus::Utils::ReMapRange(topLeft.y, bottomRight.y, 0.0f, 1.0f, v3.Position.y)};
+            v3.Color = color;
+            v3.TexIndex = texIndex;
+
+            m_TextureBatchInfo.Vertices.push_back(v1);
+            m_TextureBatchInfo.Vertices.push_back(v2);
+            m_TextureBatchInfo.Vertices.push_back(v3);
         }
 
         m_TextureBatchInfo.IndexCount += shapeIndexCount;
         m_TextureBatchInfo.VertexCount += shapeVertexCount;
+    }
+
+    void BatchRenderer::DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture> texture)
+    {
+        DrawCircleRegionFill(position, radius, color, numberOfPoints, 360.0f);
     }
 
     void BatchRenderer::DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints)
@@ -1044,8 +1086,66 @@ namespace Nexus::Graphics
         m_TextureBatchInfo.VertexCount += shapeVertexCount;
     }
 
-    void BatchRenderer::DrawRoundedRectangle(const glm::vec2 &pos, const glm::vec2 &size, const glm::vec4 &color)
+    void BatchRenderer::DrawRoundedRectangle(const glm::vec2 &position, const glm::vec2 &size, float radius, const glm::vec4 &color, uint32_t numberOfPoints)
     {
+        const uint32_t minPoints = 3;
+        const uint32_t maxPoints = 256;
+
+        int shapeVertexCount = glm::clamp(numberOfPoints, minPoints, maxPoints);
+        int shapeTriangleCount = shapeVertexCount - 2;
+        int shapeIndexCount = shapeTriangleCount * 3;
+
+        EnsureSpace(m_TextureBatchInfo, shapeVertexCount, shapeIndexCount);
+
+        // create indices
+        int index = 1;
+
+        for (int i = 0; i < shapeTriangleCount; i++)
+        {
+            m_TextureBatchInfo.Indices.push_back(0 + m_TextureBatchInfo.VertexCount);
+            m_TextureBatchInfo.Indices.push_back(index + m_TextureBatchInfo.VertexCount);
+            m_TextureBatchInfo.Indices.push_back(index + 1 + m_TextureBatchInfo.VertexCount);
+
+            index++;
+        }
+
+        float texIndex = GetOrCreateTexIndex(m_TextureBatchInfo, m_BlankTexture);
+
+        // create vertices
+        float rotation = glm::two_pi<float>() / (float)shapeVertexCount;
+
+        float sin = glm::sin(rotation);
+        float cos = glm::cos(rotation);
+
+        float ax = radius;
+        float ay = 0.0f;
+
+        glm::vec2 topLeft = {position.x - (radius / 2), position.y - (radius / 2)};
+        glm::vec2 bottomRight = {position.x + (radius / 2), position.y + (radius / 2)};
+
+        for (int i = 0; i < shapeVertexCount; i++)
+        {
+            float x1 = ax;
+            float y1 = ay;
+
+            VertexPositionTexCoordColorTexIndex vertex;
+            vertex.Position = glm::vec3{x1 + position.x, y1 + position.y, 0.0f};
+            // vertex.TexCoords = {0.0f, 0.0f};
+
+            float uvX = Nexus::Utils::ReMapRange(topLeft.x, bottomRight.x, 0.0f, 1.0f, vertex.Position.x);
+            float uvY = Nexus::Utils::ReMapRange(topLeft.y, bottomRight.y, 0.0f, 1.0f, vertex.Position.y);
+            vertex.TexCoords = {uvX, uvY};
+
+            vertex.Color = color;
+            vertex.TexIndex = texIndex;
+            m_TextureBatchInfo.Vertices.push_back(vertex);
+
+            ax = cos * x1 - sin * y1;
+            ay = sin * x1 + cos * y1;
+        }
+
+        m_TextureBatchInfo.IndexCount += shapeIndexCount;
+        m_TextureBatchInfo.VertexCount += shapeVertexCount;
     }
 
     void BatchRenderer::End()

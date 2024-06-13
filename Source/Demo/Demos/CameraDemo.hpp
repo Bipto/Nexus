@@ -120,18 +120,18 @@ namespace Demos
         void CreatePipeline()
         {
             Nexus::Graphics::PipelineDescription pipelineDescription;
-            pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::Back;
-            pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
+            pipelineDescription.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::Back;
+            pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
             pipelineDescription.VertexModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/3d.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
             pipelineDescription.FragmentModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/3d.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 
-            pipelineDescription.ResourceSetSpecification.UniformBuffers =
+            pipelineDescription.ResourceSetSpec.UniformBuffers =
                 {
                     {"Camera", 0, 0},
                     {"Transform", 0, 1}};
 
-            pipelineDescription.ResourceSetSpecification.SampledImages =
+            pipelineDescription.ResourceSetSpec.SampledImages =
                 {
                     {"texSampler", 1, 0}};
 

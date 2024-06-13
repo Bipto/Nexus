@@ -113,6 +113,6 @@ namespace Nexus::Graphics
 
     Ref<ResourceSet> GraphicsDevice::CreateResourceSet(Ref<Pipeline> pipeline)
     {
-        return CreateResourceSet(pipeline->GetPipelineDescription().ResourceSetSpecification);
+        return CreateResourceSet(pipeline->GetPipelineDescription().ResourceSetSpec);
     }
 }

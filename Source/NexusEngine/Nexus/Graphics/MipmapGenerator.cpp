@@ -54,13 +54,13 @@ namespace Nexus::Graphics
         {
             // set up pipeline for rendering
             Nexus::Graphics::PipelineDescription pipelineDescription;
-            pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
-            pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
+            pipelineDescription.RasterizerStateDesc.CullMode = Nexus::Graphics::CullMode::None;
+            pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
             pipelineDescription.VertexModule = vertexModule;
             pipelineDescription.FragmentModule = fragmentModule;
 
-            pipelineDescription.ResourceSetSpecification.SampledImages =
+            pipelineDescription.ResourceSetSpec.SampledImages =
                 {
                     {"texSampler", 0, 0}};
 

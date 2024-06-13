@@ -10,7 +10,7 @@ namespace Nexus::Graphics
     PipelineVk::PipelineVk(const PipelineDescription &description, GraphicsDeviceVk *graphicsDevice)
         : Pipeline(description), m_GraphicsDevice(graphicsDevice)
     {
-        auto resourceSet = new ResourceSetVk(description.ResourceSetSpecification, graphicsDevice);
+        auto resourceSet = new ResourceSetVk(description.ResourceSetSpec, graphicsDevice);
 
         const auto &pipelineLayouts = resourceSet->GetDescriptorSetLayouts();
         std::vector<VkDescriptorSetLayout> layouts;
@@ -292,15 +292,15 @@ namespace Nexus::Graphics
         VkPipelineDepthStencilStateCreateInfo info = {};
         info.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
         info.pNext = nullptr;
-        info.depthTestEnable = m_Description.DepthStencilDescription.EnableDepthTest;
-        info.depthWriteEnable = m_Description.DepthStencilDescription.EnableDepthWrite;
-        info.depthCompareOp = GetCompareOp(m_Description.DepthStencilDescription.DepthComparisonFunction);
+        info.depthTestEnable = m_Description.DepthStencilDesc.EnableDepthTest;
+        info.depthWriteEnable = m_Description.DepthStencilDesc.EnableDepthWrite;
+        info.depthCompareOp = GetCompareOp(m_Description.DepthStencilDesc.DepthComparisonFunction);
 
         info.depthBoundsTestEnable = VK_FALSE;
-        info.minDepthBounds = m_Description.DepthStencilDescription.MinDepth;
-        info.maxDepthBounds = m_Description.DepthStencilDescription.MaxDepth;
+        info.minDepthBounds = m_Description.DepthStencilDesc.MinDepth;
+        info.maxDepthBounds = m_Description.DepthStencilDesc.MaxDepth;
 
-        info.stencilTestEnable = m_Description.DepthStencilDescription.EnableStencilTest;
+        info.stencilTestEnable = m_Description.DepthStencilDesc.EnableStencilTest;
 
         return info;
     }
@@ -334,7 +334,7 @@ namespace Nexus::Graphics
 
     VkPolygonMode PipelineVk::GetPolygonMode()
     {
-        switch (m_Description.RasterizerStateDescription.FillMode)
+        switch (m_Description.RasterizerStateDesc.TriangleFillMode)
         {
         case Nexus::Graphics::FillMode::Solid:
             return VK_POLYGON_MODE_FILL;
@@ -350,7 +350,7 @@ namespace Nexus::Graphics
 
     VkCullModeFlags PipelineVk::GetCullMode()
     {
-        switch (m_Description.RasterizerStateDescription.CullMode)
+        switch (m_Description.RasterizerStateDesc.CullMode)
         {
         case Nexus::Graphics::CullMode::None:
             return VK_CULL_MODE_NONE;

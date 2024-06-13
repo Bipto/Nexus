@@ -76,7 +76,7 @@ namespace Nexus::Graphics
 
         Ref<PipelineD3D12> d3d12Pipeline = std::dynamic_pointer_cast<PipelineD3D12>(pipeline);
         SetRenderTarget(pipeline->GetPipelineDescription().Target);
-        m_CommandList->OMSetDepthBounds(description.DepthStencilDescription.MinDepth, description.DepthStencilDescription.MaxDepth);
+        m_CommandList->OMSetDepthBounds(description.DepthStencilDesc.MinDepth, description.DepthStencilDesc.MaxDepth);
         m_CommandList->SetPipelineState(d3d12Pipeline->GetPipelineState());
         m_CommandList->SetGraphicsRootSignature(d3d12Pipeline->GetRootSignature());
         m_CommandList->IASetPrimitiveTopology(d3d12Pipeline->GetD3DPrimitiveTopology());

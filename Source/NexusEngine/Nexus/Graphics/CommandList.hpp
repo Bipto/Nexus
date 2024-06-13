@@ -17,7 +17,7 @@ namespace Nexus::Graphics
 {
     struct SetVertexBufferCommand
     {
-        Ref<VertexBuffer> VertexBuffer = nullptr;
+        Ref<VertexBuffer> VertexBufferRef = nullptr;
         uint32_t Slot = 0;
     };
 
@@ -109,12 +109,12 @@ namespace Nexus::Graphics
 
     struct SetViewportCommand
     {
-        Viewport Viewport;
+        Viewport NextViewport;
     };
 
     struct SetScissorCommand
     {
-        Scissor Scissor;
+        Scissor NextScissor;
     };
 
     struct ResolveSamplesToSwapchainCommand

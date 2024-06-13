@@ -53,9 +53,9 @@ namespace Nexus::Graphics
         std::vector<D3D12_DESCRIPTOR_RANGE> samplerRanges;
         std::vector<D3D12_DESCRIPTOR_RANGE> textureConstantBufferRanges;
 
-        for (int i = 0; i < m_Description.ResourceSetSpecification.SampledImages.size(); i++)
+        for (int i = 0; i < m_Description.ResourceSetSpec.SampledImages.size(); i++)
         {
-            const auto &textureInfo = m_Description.ResourceSetSpecification.SampledImages.at(i);
+            const auto &textureInfo = m_Description.ResourceSetSpec.SampledImages.at(i);
             uint32_t slot = ResourceSet::GetLinearDescriptorSlot(textureInfo.Set, textureInfo.Binding);
 
             D3D12_DESCRIPTOR_RANGE samplerRange = {};
@@ -75,9 +75,9 @@ namespace Nexus::Graphics
             textureConstantBufferRanges.push_back(textureRange);
         }
 
-        for (int i = 0; i < m_Description.ResourceSetSpecification.UniformBuffers.size(); i++)
+        for (int i = 0; i < m_Description.ResourceSetSpec.UniformBuffers.size(); i++)
         {
-            const auto &uniformBufferInfo = m_Description.ResourceSetSpecification.UniformBuffers.at(i);
+            const auto &uniformBufferInfo = m_Description.ResourceSetSpec.UniformBuffers.at(i);
             uint32_t slot = ResourceSet::GetLinearDescriptorSlot(uniformBufferInfo.Set, uniformBufferInfo.Binding);
 
             D3D12_DESCRIPTOR_RANGE constantBufferRange = {};
@@ -321,9 +321,9 @@ namespace Nexus::Graphics
     {
         D3D12_RASTERIZER_DESC desc{};
         desc.FillMode = D3D12_FILL_MODE_SOLID;
-        desc.CullMode = GetCullMode(m_Description.RasterizerStateDescription.CullMode);
+        desc.CullMode = GetCullMode(m_Description.RasterizerStateDesc.CullMode);
 
-        if (m_Description.RasterizerStateDescription.FrontFace == Nexus::Graphics::FrontFace::CounterClockwise)
+        if (m_Description.RasterizerStateDesc.TriangleFrontFace == Nexus::Graphics::FrontFace::CounterClockwise)
         {
             desc.FrontCounterClockwise = true;
         }
@@ -373,10 +373,10 @@ namespace Nexus::Graphics
     D3D12_DEPTH_STENCIL_DESC PipelineD3D12::CreateDepthStencilDesc()
     {
         D3D12_DEPTH_STENCIL_DESC desc{};
-        desc.DepthEnable = m_Description.DepthStencilDescription.EnableDepthTest;
-        desc.DepthFunc = GetComparisonFunction(m_Description.DepthStencilDescription.DepthComparisonFunction);
+        desc.DepthEnable = m_Description.DepthStencilDesc.EnableDepthTest;
+        desc.DepthFunc = GetComparisonFunction(m_Description.DepthStencilDesc.DepthComparisonFunction);
 
-        if (m_Description.DepthStencilDescription.EnableDepthWrite)
+        if (m_Description.DepthStencilDesc.EnableDepthWrite)
         {
             desc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
         }
@@ -385,14 +385,14 @@ namespace Nexus::Graphics
             desc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
         }
 
-        desc.StencilEnable = m_Description.DepthStencilDescription.EnableStencilTest;
-        desc.StencilReadMask = m_Description.DepthStencilDescription.StencilMask;
-        desc.StencilWriteMask = m_Description.DepthStencilDescription.StencilMask;
+        desc.StencilEnable = m_Description.DepthStencilDesc.EnableStencilTest;
+        desc.StencilReadMask = m_Description.DepthStencilDesc.StencilMask;
+        desc.StencilWriteMask = m_Description.DepthStencilDesc.StencilMask;
 
-        auto stencilFailOp = GetStencilOperation(m_Description.DepthStencilDescription.StencilFailOperation);
-        auto stencilDepthFailOp = GetStencilOperation(m_Description.DepthStencilDescription.StencilSuccessDepthFailOperation);
-        auto stencilPassOp = GetStencilOperation(m_Description.DepthStencilDescription.StencilSuccessDepthSuccessOperation);
-        auto stencilFunc = GetComparisonFunction(m_Description.DepthStencilDescription.StencilComparisonFunction);
+        auto stencilFailOp = GetStencilOperation(m_Description.DepthStencilDesc.StencilFailOperation);
+        auto stencilDepthFailOp = GetStencilOperation(m_Description.DepthStencilDesc.StencilSuccessDepthFailOperation);
+        auto stencilPassOp = GetStencilOperation(m_Description.DepthStencilDesc.StencilSuccessDepthSuccessOperation);
+        auto stencilFunc = GetComparisonFunction(m_Description.DepthStencilDesc.StencilComparisonFunction);
 
         desc.FrontFace.StencilFunc = stencilFunc;
         desc.FrontFace.StencilDepthFailOp = stencilDepthFailOp;

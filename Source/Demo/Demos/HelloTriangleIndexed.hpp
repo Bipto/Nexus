@@ -93,8 +93,8 @@ namespace Demos
         void CreatePipeline()
         {
             Nexus::Graphics::PipelineDescription pipelineDescription;
-            pipelineDescription.RasterizerStateDescription.CullMode = Nexus::Graphics::CullMode::None;
-            pipelineDescription.RasterizerStateDescription.FrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
+            pipelineDescription.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::None;
+            pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
             // pipelineDescription.Shader = m_Shader;
             pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
             pipelineDescription.Layouts = {Nexus::Graphics::VertexPosition::GetLayout()};

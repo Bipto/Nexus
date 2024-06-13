@@ -198,13 +198,13 @@ namespace Nexus::Graphics
     struct RasterizerStateDescription
     {
         /// @brief How triangles should be culled during rendering
-        CullMode CullMode = CullMode::Back;
+        CullMode TriangleCullMode = CullMode::Back;
 
         /// @brief How triangles should be filled in during rendering
-        FillMode FillMode = FillMode::Solid;
+        FillMode TriangleFillMode = FillMode::Solid;
 
         /// @brief Which faces should be recognised as the front of a mesh
-        FrontFace FrontFace = FrontFace::Clockwise;
+        FrontFace TriangleFrontFace = FrontFace::Clockwise;
 
         /// @brief Whether the values of the depth buffer should be limited
         bool DepthClipEnabled = false;

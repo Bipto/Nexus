@@ -46,7 +46,7 @@ namespace Nexus::Graphics
     void PipelineOpenGL::SetupDepthStencil()
     {
         // enable/disable depth testing
-        if (m_Description.DepthStencilDescription.EnableDepthTest)
+        if (m_Description.DepthStencilDesc.EnableDepthTest)
         {
             glEnable(GL_DEPTH_TEST);
         }
@@ -56,7 +56,7 @@ namespace Nexus::Graphics
         }
 
         // enable/disable depth writing
-        if (m_Description.DepthStencilDescription.EnableDepthWrite)
+        if (m_Description.DepthStencilDesc.EnableDepthWrite)
         {
             glDepthMask(GL_TRUE);
         }
@@ -66,7 +66,7 @@ namespace Nexus::Graphics
         }
 
         // set up stencil options
-        if (m_Description.DepthStencilDescription.EnableStencilTest)
+        if (m_Description.DepthStencilDesc.EnableStencilTest)
         {
             glEnable(GL_STENCIL_TEST);
         }
@@ -75,24 +75,24 @@ namespace Nexus::Graphics
             glDisable(GL_STENCIL_TEST);
         }
 
-        GLenum sfail = GL::GetStencilOperation(m_Description.DepthStencilDescription.StencilFailOperation);
-        GLenum dpfail = GL::GetStencilOperation(m_Description.DepthStencilDescription.StencilSuccessDepthFailOperation);
-        GLenum dppass = GL::GetStencilOperation(m_Description.DepthStencilDescription.StencilSuccessDepthSuccessOperation);
+        GLenum sfail = GL::GetStencilOperation(m_Description.DepthStencilDesc.StencilFailOperation);
+        GLenum dpfail = GL::GetStencilOperation(m_Description.DepthStencilDesc.StencilSuccessDepthFailOperation);
+        GLenum dppass = GL::GetStencilOperation(m_Description.DepthStencilDesc.StencilSuccessDepthSuccessOperation);
 
         glStencilOp(sfail, dpfail, dppass);
-        GLenum stencilFunction = GL::GetComparisonFunction(m_Description.DepthStencilDescription.StencilComparisonFunction);
-        glStencilFunc(stencilFunction, 1, m_Description.DepthStencilDescription.StencilMask);
-        glStencilMask(m_Description.DepthStencilDescription.StencilMask);
+        GLenum stencilFunction = GL::GetComparisonFunction(m_Description.DepthStencilDesc.StencilComparisonFunction);
+        glStencilFunc(stencilFunction, 1, m_Description.DepthStencilDesc.StencilMask);
+        glStencilMask(m_Description.DepthStencilDesc.StencilMask);
 
-        GLenum depthFunction = GL::GetComparisonFunction(m_Description.DepthStencilDescription.DepthComparisonFunction);
+        GLenum depthFunction = GL::GetComparisonFunction(m_Description.DepthStencilDesc.DepthComparisonFunction);
         glDepthFunc(depthFunction);
 
-        glDepthRangef(m_Description.DepthStencilDescription.MinDepth, m_Description.DepthStencilDescription.MaxDepth);
+        glDepthRangef(m_Description.DepthStencilDesc.MinDepth, m_Description.DepthStencilDesc.MaxDepth);
     }
 
     void PipelineOpenGL::SetupRasterizer()
     {
-        if (m_Description.RasterizerStateDescription.CullMode == CullMode::None)
+        if (m_Description.RasterizerStateDesc.TriangleCullMode == CullMode::None)
         {
             glDisable(GL_CULL_FACE);
         }
@@ -101,7 +101,7 @@ namespace Nexus::Graphics
             glEnable(GL_CULL_FACE);
         }
 
-        switch (m_Description.RasterizerStateDescription.CullMode)
+        switch (m_Description.RasterizerStateDesc.TriangleCullMode)
         {
         case CullMode::Back:
             glCullFace(GL_BACK);
@@ -112,7 +112,7 @@ namespace Nexus::Graphics
         }
 
 #if !defined(__ANDROID__) && !defined(ANDROID) && !defined(__EMSCRIPTEN__)
-        if (m_Description.RasterizerStateDescription.DepthClipEnabled)
+        if (m_Description.RasterizerStateDesc.DepthClipEnabled)
         {
             glEnable(GL_DEPTH_CLAMP);
         }
@@ -123,7 +123,7 @@ namespace Nexus::Graphics
 #endif
 
 #if !defined(__ANDROID__) && !defined(ANDROID) && !defined(__EMSCRIPTEN__)
-        switch (m_Description.RasterizerStateDescription.FillMode)
+        switch (m_Description.RasterizerStateDesc.TriangleFillMode)
         {
         case FillMode::Solid:
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -134,7 +134,7 @@ namespace Nexus::Graphics
         }
 #endif
 
-        switch (m_Description.RasterizerStateDescription.FrontFace)
+        switch (m_Description.RasterizerStateDesc.TriangleFrontFace)
         {
         case FrontFace::Clockwise:
             glFrontFace(GL_CW);

@@ -15,10 +15,10 @@ namespace Nexus::Graphics
     struct PipelineDescription
     {
         /// @brief How the pipeline should handle depth and stencil testing
-        DepthStencilDescription DepthStencilDescription;
+        DepthStencilDescription DepthStencilDesc;
 
         /// @brief How the pipeline should handle rasterization
-        RasterizerStateDescription RasterizerStateDescription;
+        RasterizerStateDescription RasterizerStateDesc;
 
         /// @brief How the pipeline should handle blending
         BlendStateDescription BlendStateDescription;
@@ -27,7 +27,7 @@ namespace Nexus::Graphics
         Topology PrimitiveTopology = Topology::TriangleList;
 
         /// @brief A resource set specification describing how resources are allocated in the pipeline
-        ResourceSetSpecification ResourceSetSpecification;
+        ResourceSetSpecification ResourceSetSpec;
 
         /// @brief The target to render to with the pipeline
         RenderTarget Target;

@@ -59,11 +59,11 @@ namespace Nexus::Graphics
         SamplerAddressMode AddressModeV = SamplerAddressMode::Wrap;
         SamplerAddressMode AddressModeW = SamplerAddressMode::Wrap;
         SamplerFilter SampleFilter = SamplerFilter::MinPoint_MagLinear_MipLinear;
-        ComparisonFunction ComparisonFunction = ComparisonFunction::Never;
+        ComparisonFunction SamplerComparisonFunction = ComparisonFunction::Never;
         uint32_t MaximumAnisotropy = 1;
         uint32_t MinimumLOD = 0;
         uint32_t MaximumLOD = std::numeric_limits<uint32_t>::max();
         int32_t LODBias = 1;
-        BorderColor BorderColor = BorderColor::OpaqueBlack;
+        BorderColor TextureBorderColor = BorderColor::OpaqueBlack;
     };
 }
