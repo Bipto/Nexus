@@ -8,11 +8,11 @@ set(CMAKE_COMPILE_WARNING_AS_ERROR OFF)
 
 #if we are not building for emscripten, then output all executables into lib and bin folders
 #this is needed to ensure that dynamic libraries (.dll) are in the same folder as the executables
-#if (WIN32)
-#    set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-#    set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-#    find_package(Vulkan REQUIRED)
-#endif()
+if (NOT EMSCRIPTEN)
+    set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+    set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+    find_package(Vulkan REQUIRED)
+endif()
 
 if (WIN32 OR EMSCRIPTEN)
     find_package(OpenGL REQUIRED)
@@ -80,15 +80,15 @@ add_subdirectory(External/SPIRV-Tools)
 #    add_subdirectory(External/effcee)
 #endif()
 
-#if (WIN32 OR ANDROID)
-#    add_definitions(-DLIBTYPE=SHARED)
-#    add_subdirectory(External/OpenAL-Soft)
-#    remove_definitions(-DLIBTYPE)
-#endif()
+if (WIN32 OR ANDROID)
+    add_definitions(-DLIBTYPE=SHARED)
+    add_subdirectory(External/OpenAL-Soft)
+    remove_definitions(-DLIBTYPE)
+endif()
 
-#if (WIN32)
-#    file(COPY Binaries/dxc_2023_08_14/bin/x64/dxcompiler.dll 
-#        DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-#    file(COPY Binaries/dxc_2023_08_14/bin/x64/dxil.dll 
-#        DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-#endif()
+if (WIN32)
+    file(COPY Binaries/dxc_2023_08_14/bin/x64/dxcompiler.dll 
+        DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    file(COPY Binaries/dxc_2023_08_14/bin/x64/dxil.dll 
+        DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+endif()
