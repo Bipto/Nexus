@@ -350,7 +350,7 @@ namespace Nexus::Graphics
 
     VkCullModeFlags PipelineVk::GetCullMode()
     {
-        switch (m_Description.RasterizerStateDesc.CullMode)
+        switch (m_Description.RasterizerStateDesc.TriangleCullMode)
         {
         case Nexus::Graphics::CullMode::None:
             return VK_CULL_MODE_NONE;

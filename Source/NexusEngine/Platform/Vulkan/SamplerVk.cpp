@@ -10,7 +10,7 @@ namespace Nexus::Graphics
         VkFilter min, max;
         VkSamplerMipmapMode mipmapMode;
         GetVkFilterFromNexusFormat(spec.SampleFilter, min, max, mipmapMode);
-        VkBorderColor color = GetVkBorderColor(spec.BorderColor);
+        VkBorderColor color = GetVkBorderColor(spec.TextureBorderColor);
 
         VkSamplerCreateInfo samplerInfo = {};
         samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;

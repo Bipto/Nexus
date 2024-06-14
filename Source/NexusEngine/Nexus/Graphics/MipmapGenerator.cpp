@@ -54,7 +54,7 @@ namespace Nexus::Graphics
         {
             // set up pipeline for rendering
             Nexus::Graphics::PipelineDescription pipelineDescription;
-            pipelineDescription.RasterizerStateDesc.CullMode = Nexus::Graphics::CullMode::None;
+            pipelineDescription.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::None;
             pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
             pipelineDescription.VertexModule = vertexModule;

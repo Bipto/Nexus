@@ -107,7 +107,7 @@ namespace Nexus::ImGuiUtils
         pipelineDesc.BlendStateDesc.DestinationAlphaBlend = Nexus::Graphics::BlendFactor::OneMinusSourceAlpha;
         pipelineDesc.BlendStateDesc.AlphaBlendFunction = Nexus::Graphics::BlendEquation::Add;
 
-        pipelineDesc.RasterizerStateDesc.CullMode = Nexus::Graphics::CullMode::None;
+        pipelineDesc.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::None;
         pipelineDesc.RasterizerStateDesc.TriangleFillMode = Nexus::Graphics::FillMode::Solid;
         pipelineDesc.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 

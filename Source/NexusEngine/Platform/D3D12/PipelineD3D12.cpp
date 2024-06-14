@@ -321,7 +321,7 @@ namespace Nexus::Graphics
     {
         D3D12_RASTERIZER_DESC desc{};
         desc.FillMode = D3D12_FILL_MODE_SOLID;
-        desc.CullMode = GetCullMode(m_Description.RasterizerStateDesc.CullMode);
+        desc.CullMode = GetCullMode(m_Description.RasterizerStateDesc.TriangleCullMode);
 
         if (m_Description.RasterizerStateDesc.TriangleFrontFace == Nexus::Graphics::FrontFace::CounterClockwise)
         {

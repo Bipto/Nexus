@@ -59,7 +59,7 @@ namespace Nexus::Graphics
     void CommandListOpenGL::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer, uint32_t slot)
     {
         SetVertexBufferCommand command;
-        command.VertexBuffer = vertexBuffer;
+        command.VertexBufferRef = vertexBuffer;
         command.Slot = slot;
         m_CommandData.emplace_back(command);
         auto renderCommand = [](Ref<CommandList> commandList)
@@ -67,7 +67,7 @@ namespace Nexus::Graphics
             auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
             const auto &commandData = commandListGL->GetCurrentCommandData();
             const auto &setVertexBufferCommand = std::get<SetVertexBufferCommand>(commandData);
-            const auto vertexBufferGL = std::dynamic_pointer_cast<VertexBufferOpenGL>(setVertexBufferCommand.VertexBuffer);
+            const auto vertexBufferGL = std::dynamic_pointer_cast<VertexBufferOpenGL>(setVertexBufferCommand.VertexBufferRef);
             vertexBufferGL->Bind();
             commandListGL->m_CurrentlyBoundVertexBuffers[setVertexBufferCommand.Slot] = vertexBufferGL;
         };
