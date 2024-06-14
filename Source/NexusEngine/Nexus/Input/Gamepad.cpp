@@ -202,7 +202,7 @@ namespace Nexus
         return m_Index;
     }
 
-    SDL_GamepadButton Nexus::GetSDLGamepadButtonFromNexusKeyCode(GamepadButton button)
+    SDL_GamepadButton GetSDLGamepadButtonFromNexusKeyCode(GamepadButton button)
     {
         switch (button)
         {
