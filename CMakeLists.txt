@@ -45,7 +45,7 @@ add_subdirectory(Source/BuildConfig)
 add_subdirectory(Source/NexusEngine)
 add_subdirectory(Source/Demo)
 
-if(WIN32)
+if(WIN32 OR LINUX)
     add_subdirectory(Source/Test)
     add_subdirectory(Source/Editor)
 endif()
@@ -68,19 +68,19 @@ add_subdirectory(External/freetype)
 add_subdirectory(External/pocketpy)
 add_subdirectory(External/yaml-cpp)
 
-if (WIN32)
+if (WIN32 OR LINUX)
     add_subdirectory(External/VulkanMemoryAllocator)
 endif()
 
 #these libraries are only required if we are not building for emscripten
 #this is because these libraries are incompatible with emscripten
-if (WIN32)
+if (WIN32 OR LINUX)
     add_subdirectory(External/tinyfiledialogs)
     add_subdirectory(External/re2)
     add_subdirectory(External/effcee)
 endif()
 
-if (WIN32 OR ANDROID)
+if (WIN32 OR ANDROID OR LINUX)
     add_definitions(-DLIBTYPE=SHARED)
     add_subdirectory(External/OpenAL-Soft)
     remove_definitions(-DLIBTYPE)
