@@ -12,9 +12,13 @@ jobs:
   setup-opengl:
       runs-on: ubuntu-latest
       steps:
-        - uses: actions/checkout@v2
-        - uses: openrndr/setup-opengl@v1.1
-        - run: xvfb-run glxinfo
+        - name: Update packages
+          run: sudo apt-get update
+
+        - name: Install packages
+          run: sudo apt-get install --fix-missing libgl1-mesa-dev mesa-utils mesa-common-dev
+        
+      
   build:
     runs-on: ${{ matrix.os }}
 
