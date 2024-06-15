@@ -1,3 +1,5 @@
+#if defined(NX_PLATFORM_OPENGL)
+
 #include "SamplerOpenGL.hpp"
 
 #include "GL.hpp"
@@ -65,3 +67,5 @@ namespace Nexus::Graphics
                 return m_Sampler;
         }
 }
+
+#endif

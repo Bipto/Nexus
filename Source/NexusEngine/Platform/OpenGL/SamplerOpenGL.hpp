@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(NX_PLATFORM_OPENGL)
+
 #include "Nexus/Graphics/Sampler.hpp"
 
 namespace Nexus::Graphics
@@ -17,3 +19,5 @@ namespace Nexus::Graphics
         unsigned int m_Sampler = 0;
     };
 }
+
+#endif

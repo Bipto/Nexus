@@ -1,6 +1,6 @@
 # This starter workflow is for a CMake project running on multiple platforms. There is a different starter workflow if you just want a single platform.
 # See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-single-platform.yml
-name: CMake on multiple platforms
+name: CMake on multiple platforms  
 
 on:
   push:
@@ -50,6 +50,14 @@ jobs:
           submodules: recursive
           lfs: true
 
+      - name: Update packages
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get update
+
+      - name: Install packages
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get install --fix-missing libgl1-mesa-dev mesa-utils mesa-common-dev
+
       - name : Install Windows SDK
         uses : GuillaumeFalourd/setup-windows10-sdk-action@v2
         with:
@@ -59,7 +67,7 @@ jobs:
         uses: humbletim/setup-vulkan-sdk@v1.2.0
         with:
           vulkan-query-version: 1.3.204.0
-          vulkan-components: Vulkan-Headers, Vulkan-Loader
+          vulkan-components: Vulkan-Headers, Vulkan-Loader, Glslang
           vulkan-use-cache: true
 
       - name: Setup Ninja
