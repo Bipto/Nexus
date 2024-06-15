@@ -43,7 +43,7 @@ target_include_directories(NexusEngine PUBLIC
   )
 
 #dependencies when not building with emscripten
-if (WIN32)
+if (WIN32 OR LINUX)
   target_include_directories(NexusEngine PUBLIC
     ../../External/tinyfiledialogs/tinyfiledialogs
     ${VULKAN_INCLUDE_DIRS}
@@ -70,7 +70,7 @@ target_link_libraries(NexusEngine PUBLIC
   yaml-cpp::yaml-cpp
   )
 
-if(WIN32)
+if(WIN32 OR LINUX)
   target_link_libraries(NexusEngine PUBLIC 
     tinyfiledialogs
     Vulkan::Vulkan
@@ -78,7 +78,7 @@ if(WIN32)
     )
 endif()
 
-if(WIN32 OR ANDROID)
+if(WIN32 OR ANDROID OR LINUX)
   target_link_libraries(NexusEngine PUBLIC OpenAL)
 endif()
 
