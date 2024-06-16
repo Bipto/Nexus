@@ -11,5 +11,5 @@ set(path ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 cmake_path(GET path PARENT_PATH parentDir)
 set_target_properties(Test PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${parentDir}/bin)
 file (COPY
-    ${CMAKE_CURRENT_SOURCE_DIR}/resources
+    ${CMAKE_CURRENT_SOURCE_DIR}/Resources
     DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
