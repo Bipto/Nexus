@@ -893,9 +893,9 @@ namespace Nexus::Graphics
 
         numberOfPoints = glm::clamp<float>(numberOfPoints, minPoints, maxPoints);
 
-        float deltaAngle = glm::radians(180.0f) / (float)numberOfPoints;
+        // float deltaAngle = glm::radians(180.0f) / (float)numberOfPoints;
 
-        // float deltaAngle = glm::two_pi<float>() / (float)numberOfPoints;
+        float deltaAngle = glm::two_pi<float>() / (float)numberOfPoints;
         float angle = glm::radians(180.0f);
 
         for (int i = 0; i < numberOfPoints; i++)
@@ -923,107 +923,78 @@ namespace Nexus::Graphics
         DrawCircleFill(position, radius, color, numberOfPoints, m_BlankTexture);
     }
 
-    void BatchRenderer::DrawCircleRegionFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, float angle)
+    void BatchRenderer::DrawCircleRegionFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, float startAngle, float fillAngle)
+    {
+        DrawCircleRegionFill(
+            position,
+            radius,
+            color,
+            numberOfPoints,
+            startAngle,
+            fillAngle,
+            m_BlankTexture);
+    }
+
+    void BatchRenderer::DrawCircleRegionFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, float startAngle, float fillAngle, Ref<Texture> texture)
     {
         const uint32_t minPoints = 3;
         const uint32_t maxPoints = 256;
 
-        int shapeVertexCount = glm::clamp(numberOfPoints, minPoints, maxPoints);
-        int shapeTriangleCount = shapeVertexCount - 2;
-        int shapeIndexCount = shapeTriangleCount * 3;
+        numberOfPoints = glm::clamp<float>(numberOfPoints, minPoints, maxPoints);
+        float deltaAngle = glm::radians(fillAngle) / (float)numberOfPoints;
+        float currentAngle = glm::radians(startAngle) + glm::radians(180.0f); // start rendering the circle from the centre top
 
-        EnsureSpace(m_TextureBatchInfo, shapeVertexCount, shapeIndexCount);
+        const glm::vec2 topLeft = {position.x - (radius / 2), position.y - (radius / 2)};
+        const glm::vec2 bottomRight = {position.x + (radius / 2), position.y + (radius / 2)};
 
-        // create indices
-        int index = 1;
+        const glm::vec3 centre = {position.x, position.y, 0.0f};
 
-        for (int i = 0; i < shapeTriangleCount; i++)
+        glm::vec2 centreUV =
+            {
+                Nexus::Utils::ReMapRange(topLeft.x, bottomRight.x, 0.0f, 1.0f, centre.x),
+                Nexus::Utils::ReMapRange(topLeft.y, bottomRight.y, 0.0f, 1.0f, centre.y)};
+
+        for (int i = 0; i < numberOfPoints; i++)
         {
-            m_TextureBatchInfo.Indices.push_back(0 + m_TextureBatchInfo.VertexCount);
-            m_TextureBatchInfo.Indices.push_back(index + m_TextureBatchInfo.VertexCount);
-            m_TextureBatchInfo.Indices.push_back(index + 1 + m_TextureBatchInfo.VertexCount);
+            glm::vec3 posA =
+                {
+                    glm::sin(currentAngle) * radius + (position.x),
+                    glm::cos(currentAngle) * radius + (position.y),
+                    0.0f};
 
-            index++;
+            glm::vec2 uvA =
+                {
+                    Nexus::Utils::ReMapRange(topLeft.x, bottomRight.x, 0.0f, 1.0f, posA.x),
+                    Nexus::Utils::ReMapRange(topLeft.y, bottomRight.y, 0.0f, 1.0f, posA.y)};
+
+            currentAngle -= deltaAngle;
+
+            glm::vec3 posB =
+                {
+                    glm::sin(currentAngle) * radius + (position.x),
+                    glm::cos(currentAngle) * radius + (position.y),
+                    0.0f};
+
+            glm::vec2 uvB =
+                {
+                    Nexus::Utils::ReMapRange(topLeft.x, bottomRight.x, 0.0f, 1.0f, posB.x),
+                    Nexus::Utils::ReMapRange(topLeft.y, bottomRight.y, 0.0f, 1.0f, posB.y)};
+
+            DrawTriangle(
+                centre,
+                centreUV,
+                posA,
+                uvA,
+                posB,
+                uvB,
+                color,
+                texture);
         }
-
-        float texIndex = GetOrCreateTexIndex(m_TextureBatchInfo, m_BlankTexture);
-
-        // create vertices
-        float rotation = glm::two_pi<float>() / (float)shapeVertexCount;
-
-        float sin = glm::sin(rotation);
-        float cos = glm::cos(rotation);
-
-        float ax = radius;
-        float ay = 0.0f;
-
-        glm::vec2 topLeft = {position.x - (radius / 2), position.y - (radius / 2)};
-        glm::vec2 bottomRight = {position.x + (radius / 2), position.y + (radius / 2)};
-
-        /* for (int i = 0; i < shapeVertexCount; i++)
-        {
-            float x1 = ax;
-            float y1 = ay;
-
-            VertexPositionTexCoordColorTexIndex vertex;
-            vertex.Position = glm::vec3{x1 + position.x, y1 + position.y, 0.0f};
-            // vertex.TexCoords = {0.0f, 0.0f};
-
-            float uvX = Nexus::Utils::ReMapRange(topLeft.x, bottomRight.x, 0.0f, 1.0f, vertex.Position.x);
-            float uvY = Nexus::Utils::ReMapRange(topLeft.y, bottomRight.y, 0.0f, 1.0f, vertex.Position.y);
-            vertex.TexCoords = {uvX, uvY};
-
-            vertex.Color = color;
-            vertex.TexIndex = texIndex;
-            m_TextureBatchInfo.Vertices.push_back(vertex);
-
-            ax = cos * x1 - sin * y1;
-            ay = sin * x1 + cos * y1;
-        } */
-
-        float theta = 360.0f / numberOfPoints;
-
-        for (int i = 0; i < shapeVertexCount; i += 3)
-        {
-            VertexPositionTexCoordColorTexIndex v1;
-            v1.Position = {glm::cos(theta) * radius, glm::sin(theta) * radius, 0.0f};
-            v1.TexCoords =
-                {
-                    Nexus::Utils::ReMapRange(topLeft.x, bottomRight.x, 0.0f, 1.0f, v1.Position.x),
-                    Nexus::Utils::ReMapRange(topLeft.y, bottomRight.y, 0.0f, 1.0f, v1.Position.y)};
-            v1.Color = color;
-            v1.TexIndex = texIndex;
-
-            VertexPositionTexCoordColorTexIndex v2;
-            v2.Position = {glm::cos(theta) * 2 * radius, glm::sin(theta) * 2 * radius, 0.0f};
-            v2.TexCoords =
-                {
-                    Nexus::Utils::ReMapRange(topLeft.x, bottomRight.x, 0.0f, 1.0f, v2.Position.x),
-                    Nexus::Utils::ReMapRange(topLeft.y, bottomRight.y, 0.0f, 1.0f, v2.Position.y)};
-            v2.Color = color;
-            v2.TexIndex = texIndex;
-
-            VertexPositionTexCoordColorTexIndex v3;
-            v3.Position = {glm::cos(theta) * 3 * radius, glm::sin(theta) * 3 * radius, 0.0f};
-            v3.TexCoords =
-                {
-                    Nexus::Utils::ReMapRange(topLeft.x, bottomRight.x, 0.0f, 1.0f, v3.Position.x),
-                    Nexus::Utils::ReMapRange(topLeft.y, bottomRight.y, 0.0f, 1.0f, v3.Position.y)};
-            v3.Color = color;
-            v3.TexIndex = texIndex;
-
-            m_TextureBatchInfo.Vertices.push_back(v1);
-            m_TextureBatchInfo.Vertices.push_back(v2);
-            m_TextureBatchInfo.Vertices.push_back(v3);
-        }
-
-        m_TextureBatchInfo.IndexCount += shapeIndexCount;
-        m_TextureBatchInfo.VertexCount += shapeVertexCount;
     }
 
     void BatchRenderer::DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture> texture)
     {
-        DrawCircleRegionFill(position, radius, color, numberOfPoints, 360.0f);
+        DrawCircleRegionFill(position, radius, color, numberOfPoints, 0.0f, 360.0f);
     }
 
     void BatchRenderer::DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints)
@@ -1048,8 +1019,22 @@ namespace Nexus::Graphics
         DrawLine(bottomLeft, topRight, color, thickness);
     }
 
-    void BatchRenderer::DrawTriangle(const glm::vec2 &a, const glm::vec2 &b, const glm::vec2 &c, const glm::vec4 &color)
+    void BatchRenderer::DrawTriangle(const glm::vec3 &pos0, const glm::vec2 &uv0, const glm::vec3 &pos1, const glm::vec2 &uv1, const glm::vec3 &pos2, const glm::vec2 &uv2, const glm::vec4 &color)
     {
+        DrawTriangle(pos0,
+                     uv0,
+                     pos1,
+                     uv1,
+                     pos2,
+                     uv2,
+                     color,
+                     m_BlankTexture);
+    }
+
+    void BatchRenderer::DrawTriangle(const glm::vec3 &pos0, const glm::vec2 &uv0, const glm::vec3 &pos1, const glm::vec2 &uv1, const glm::vec3 &pos2, const glm::vec2 &uv2, const glm::vec4 &color, Ref<Texture> texture)
+    {
+        float texIndex = GetOrCreateTexIndex(m_TextureBatchInfo, texture);
+
         EnsureStarted();
 
         const uint32_t shapeVertexCount = 3;
@@ -1062,90 +1047,147 @@ namespace Nexus::Graphics
         m_TextureBatchInfo.Indices.push_back(2 + m_TextureBatchInfo.VertexCount);
 
         VertexPositionTexCoordColorTexIndex v0;
-        v0.Position = {a, 0.0f};
-        v0.TexCoords = {1.0f, 1.0f};
+        v0.Position = pos0;
+        v0.TexCoords = uv0;
         v0.Color = color;
-        v0.TexIndex = 0;
+        v0.TexIndex = texIndex;
         m_TextureBatchInfo.Vertices.push_back(v0);
 
         VertexPositionTexCoordColorTexIndex v1;
-        v1.Position = {b, 0.0f};
-        v1.TexCoords = {1.0f, 1.0f};
+        v1.Position = pos1;
+        v1.TexCoords = uv1;
         v1.Color = color;
-        v1.TexIndex = 0;
+        v1.TexIndex = texIndex;
         m_TextureBatchInfo.Vertices.push_back(v1);
 
         VertexPositionTexCoordColorTexIndex v2;
-        v2.Position = {c, 0.0f};
-        v2.TexCoords = {1.0f, 1.0f};
+        v2.Position = pos2;
+        v2.TexCoords = uv2;
         v2.Color = color;
-        v2.TexIndex = 0;
+        v2.TexIndex = texIndex;
         m_TextureBatchInfo.Vertices.push_back(v2);
 
         m_TextureBatchInfo.IndexCount += shapeIndexCount;
         m_TextureBatchInfo.VertexCount += shapeVertexCount;
     }
 
-    void BatchRenderer::DrawRoundedRectangle(const glm::vec2 &position, const glm::vec2 &size, float radius, const glm::vec4 &color, uint32_t numberOfPoints)
+    void BatchRenderer::DrawRoundedRectangle(const RoundedRectangle<float> &roundedRect, const glm::vec4 &color, uint32_t numberOfPoints)
     {
-        const uint32_t minPoints = 3;
-        const uint32_t maxPoints = 256;
+        const glm::vec2 tr = {
+            roundedRect.GetRight() - roundedRect.GetRadiusTopRight(),
+            roundedRect.GetTop() + roundedRect.GetRadiusTopRight()};
 
-        int shapeVertexCount = glm::clamp(numberOfPoints, minPoints, maxPoints);
-        int shapeTriangleCount = shapeVertexCount - 2;
-        int shapeIndexCount = shapeTriangleCount * 3;
+        const glm::vec2 tl = {
+            roundedRect.GetLeft() + roundedRect.GetRadiusTopLeft(),
+            roundedRect.GetTop() + roundedRect.GetRadiusTopLeft()};
 
-        EnsureSpace(m_TextureBatchInfo, shapeVertexCount, shapeIndexCount);
+        const glm::vec2 bl = {
+            roundedRect.GetLeft() + roundedRect.GetRadiusBottomLeft(),
+            roundedRect.GetBottom() - roundedRect.GetRadiusBottomLeft()};
 
-        // create indices
-        int index = 1;
+        const glm::vec2 br = {
+            roundedRect.GetRight() - roundedRect.GetRadiusBottomRight(),
+            roundedRect.GetBottom() - roundedRect.GetRadiusBottomRight()};
 
-        for (int i = 0; i < shapeTriangleCount; i++)
+        const glm::vec2 centre =
+            {
+                roundedRect.GetRight() - (roundedRect.GetWidth() / 2),
+                roundedRect.GetBottom() - (roundedRect.GetHeight() / 2)};
+
+        // draw top right rounding
+        if (roundedRect.GetRadiusTopRight() > 0.0f)
         {
-            m_TextureBatchInfo.Indices.push_back(0 + m_TextureBatchInfo.VertexCount);
-            m_TextureBatchInfo.Indices.push_back(index + m_TextureBatchInfo.VertexCount);
-            m_TextureBatchInfo.Indices.push_back(index + 1 + m_TextureBatchInfo.VertexCount);
-
-            index++;
+            DrawCircleRegionFill(
+                tr,
+                roundedRect.GetRadiusTopRight(),
+                color,
+                numberOfPoints,
+                0.0f,
+                90.0f);
         }
 
-        float texIndex = GetOrCreateTexIndex(m_TextureBatchInfo, m_BlankTexture);
-
-        // create vertices
-        float rotation = glm::two_pi<float>() / (float)shapeVertexCount;
-
-        float sin = glm::sin(rotation);
-        float cos = glm::cos(rotation);
-
-        float ax = radius;
-        float ay = 0.0f;
-
-        glm::vec2 topLeft = {position.x - (radius / 2), position.y - (radius / 2)};
-        glm::vec2 bottomRight = {position.x + (radius / 2), position.y + (radius / 2)};
-
-        for (int i = 0; i < shapeVertexCount; i++)
+        // draw top left rounding
+        if (roundedRect.GetRadiusTopLeft() > 0.0f)
         {
-            float x1 = ax;
-            float y1 = ay;
-
-            VertexPositionTexCoordColorTexIndex vertex;
-            vertex.Position = glm::vec3{x1 + position.x, y1 + position.y, 0.0f};
-            // vertex.TexCoords = {0.0f, 0.0f};
-
-            float uvX = Nexus::Utils::ReMapRange(topLeft.x, bottomRight.x, 0.0f, 1.0f, vertex.Position.x);
-            float uvY = Nexus::Utils::ReMapRange(topLeft.y, bottomRight.y, 0.0f, 1.0f, vertex.Position.y);
-            vertex.TexCoords = {uvX, uvY};
-
-            vertex.Color = color;
-            vertex.TexIndex = texIndex;
-            m_TextureBatchInfo.Vertices.push_back(vertex);
-
-            ax = cos * x1 - sin * y1;
-            ay = sin * x1 + cos * y1;
+            DrawCircleRegionFill(
+                tl,
+                roundedRect.GetRadiusTopLeft(),
+                color,
+                numberOfPoints,
+                90.0f,
+                90.0f);
         }
 
-        m_TextureBatchInfo.IndexCount += shapeIndexCount;
-        m_TextureBatchInfo.VertexCount += shapeVertexCount;
+        // draw bottom left rounding
+        if (roundedRect.GetRadiusBottomLeft() > 0.0f)
+        {
+            DrawCircleRegionFill(
+                bl,
+                roundedRect.GetRadiusBottomLeft(),
+                color,
+                numberOfPoints,
+                180.0f,
+                90.0f);
+        }
+
+        // draw bottom right rounding
+        if (roundedRect.GetRadiusBottomRight() > 0.0f)
+        {
+            DrawCircleRegionFill(
+                br,
+                roundedRect.GetRadiusBottomRight(),
+                color,
+                numberOfPoints,
+                270.0f,
+                90.0f);
+        }
+
+        // draw required rectangles
+        {
+            // draw rectangle from top left corner to top right corner
+            {
+                Rectangle<float> rectTLTR(
+                    tl.x,
+                    roundedRect.GetTop(),
+                    tr.x - tl.x,
+                    centre.y - roundedRect.GetTop());
+
+                DrawQuadFill(rectTLTR, color);
+            }
+
+            // draw rectangle from top left corner to bottom left corner
+            {
+                Rectangle<float> rectTLBL(
+                    roundedRect.GetLeft(),
+                    tl.y,
+                    br.x - bl.x,
+                    bl.y - tl.y);
+
+                DrawQuadFill(rectTLBL, color);
+            }
+
+            // draw rectangle from rectangle from bottom left corner to bottom right corner
+            {
+                Rectangle<float> rectBLBR(
+                    bl.x,
+                    tl.y,
+                    br.x - bl.x,
+                    bl.y - tl.y);
+
+                DrawQuadFill(rectBLBR, color);
+            }
+
+            // draw rectangle from top right corner to bottom right corner
+            {
+                Rectangle<float> rectTRBR(
+                    tr.x - (roundedRect.GetWidth() / 2),
+                    tr.y,
+                    (roundedRect.GetWidth() / 2) + roundedRect.GetRadiusTopRight(),
+                    br.y - tr.y);
+
+                DrawQuadFill(rectTRBR, color);
+            }
+        }
     }
 
     void BatchRenderer::End()

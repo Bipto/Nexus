@@ -3,13 +3,14 @@
 #include "Nexus/ImGui/ImGuiGraphicsRenderer.hpp"
 
 #include "Nexus/UI/Canvas.hpp"
-
 #include "Nexus/UI/Button.hpp"
 #include "Nexus/UI/Label.hpp"
 #include "Nexus/UI/PictureBox.hpp"
 #include "Nexus/UI/Scrollable.hpp"
 #include "Nexus/UI/ImageButton.hpp"
 #include "Nexus/UI/Window.hpp"
+
+#include "Nexus/Graphics/RoundedRectangle.hpp"
 
 #include "Nexus/FileSystem/FileSystem.hpp"
 
@@ -139,11 +140,13 @@ public:
         m_BatchRenderer->DrawQuadFill({0, 0, (float)windowSize.X, (float)windowSize.Y}, {1.0f, 0.0f, 0.0f, 1.0f});
 
         Nexus::Graphics::Circle<float> circle({250.0f, 250.0f}, 150);
-        // m_BatchRenderer->DrawCircleFill(circle, {0.0f, 0.0f, 1.0f, 1.0f}, 32, m_Texture);
-        // m_BatchRenderer->DrawCircleRegionFill({250.0f, 250.0f}, 150, {0.0f, 0.0f, 1.0f, 1.0f}, 32, 180.0f);
-        m_BatchRenderer->DrawCircle(circle, {0.0f, 0.0f, 1.0f, 1.0f}, 32, 2.0f);
+        // m_BatchRenderer->DrawCircleRegionFill({250.0f, 250.0f}, 150, {1.0f, 1.0f, 1.0f, 1.0f}, 32, 0.0f, 45.0f, m_Texture);
 
-        // m_BatchRenderer->DrawRoundedRectangle({50.0f, 50.0f}, {250.0f, 25.0f}, 50.0f, {0.0f, 0.0f, 1.0f, 1.0f}, 32);
+        Nexus::Graphics::RoundedRectangle<float> rrect({150.0f, 150.0f}, {450.0f, 250.0f}, 75.0f, 50.0f, 0.0f, 25.0f);
+        m_BatchRenderer->DrawRoundedRectangle(
+            rrect,
+            {0.0f, 0.0f, 1.0f, 1.0f},
+            32);
 
         m_BatchRenderer->End();
 
@@ -174,7 +177,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;

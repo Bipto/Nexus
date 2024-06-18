@@ -7,6 +7,8 @@
 #include "Nexus/Graphics/Rectangle.hpp"
 #include "Nexus/Graphics/Circle.hpp"
 
+#include "Nexus/Graphics/RoundedRectangle.hpp"
+
 namespace Nexus::Graphics
 {
     struct VertexPositionTexCoordColorTexIndex
@@ -70,13 +72,15 @@ namespace Nexus::Graphics
         void DrawCircle(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, float thickness);
         void DrawCircle(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints, float thickness);
         void DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints);
-        void DrawCircleRegionFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, float angle);
+        void DrawCircleRegionFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, float startAngle, float fillAngle);
+        void DrawCircleRegionFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, float startAngle, float fillAngle, Ref<Texture> texture);
         void DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture> texture);
         void DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints);
         void DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture> texture);
         void DrawCross(const Rectangle<float> &rectangle, float thickness, const glm::vec4 &color);
-        void DrawTriangle(const glm::vec2 &a, const glm::vec2 &b, const glm::vec2 &c, const glm::vec4 &color);
-        void DrawRoundedRectangle(const glm::vec2 &position, const glm::vec2 &size, float radius, const glm::vec4 &color, uint32_t numberOfPoints);
+        void DrawTriangle(const glm::vec3 &pos0, const glm::vec2 &uv0, const glm::vec3 &pos1, const glm::vec2 &uv1, const glm::vec3 &pos2, const glm::vec2 &uv2, const glm::vec4 &color);
+        void DrawTriangle(const glm::vec3 &pos0, const glm::vec2 &uv0, const glm::vec3 &pos1, const glm::vec2 &uv1, const glm::vec3 &pos2, const glm::vec2 &uv2, const glm::vec4 &color, Ref<Texture> texture);
+        void DrawRoundedRectangle(const RoundedRectangle<float> &roundedRect, const glm::vec4 &color, uint32_t numberOfPoints);
         void End();
 
     private:
