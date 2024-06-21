@@ -1071,123 +1071,49 @@ namespace Nexus::Graphics
         m_TextureBatchInfo.VertexCount += shapeVertexCount;
     }
 
-    void BatchRenderer::DrawRoundedRectangle(const RoundedRectangle<float> &roundedRect, const glm::vec4 &color, uint32_t numberOfPoints)
+    void BatchRenderer::DrawPolygon(const Polygon<float> &polygon, const glm::vec4 &color)
     {
-        const glm::vec2 tr = {
-            roundedRect.GetRight() - roundedRect.GetRadiusTopRight(),
-            roundedRect.GetTop() + roundedRect.GetRadiusTopRight()};
+        DrawPolygon(
+            polygon,
+            color,
+            m_BlankTexture);
+    }
 
-        const glm::vec2 tl = {
-            roundedRect.GetLeft() + roundedRect.GetRadiusTopLeft(),
-            roundedRect.GetTop() + roundedRect.GetRadiusTopLeft()};
+    void BatchRenderer::DrawPolygon(const Polygon<float> &polygon, const glm::vec4 &color, Ref<Texture> texture)
+    {
+        const auto &boundingRectangle = polygon.GetBoundingRectangle();
+        const std::vector<Triangle> &tris = polygon.GetTriangles();
 
-        const glm::vec2 bl = {
-            roundedRect.GetLeft() + roundedRect.GetRadiusBottomLeft(),
-            roundedRect.GetBottom() - roundedRect.GetRadiusBottomLeft()};
+        const glm::vec2 uvTL = {0.0f, 0.0f};
+        const glm::vec2 uvBR = {1.0f, 1.0f};
 
-        const glm::vec2 br = {
-            roundedRect.GetRight() - roundedRect.GetRadiusBottomRight(),
-            roundedRect.GetBottom() - roundedRect.GetRadiusBottomRight()};
-
-        const glm::vec2 centre =
-            {
-                roundedRect.GetRight() - (roundedRect.GetWidth() / 2),
-                roundedRect.GetBottom() - (roundedRect.GetHeight() / 2)};
-
-        // draw top right rounding
-        if (roundedRect.GetRadiusTopRight() > 0.0f)
+        for (const auto &tri : tris)
         {
-            DrawCircleRegionFill(
-                tr,
-                roundedRect.GetRadiusTopRight(),
-                color,
-                numberOfPoints,
-                0.0f,
-                90.0f);
+            const glm::vec2 uvA =
+                {Nexus::Utils::ReMapRange(boundingRectangle.GetLeft(), boundingRectangle.GetRight(), 0.0f, 1.0f, tri.A.x),
+                 Nexus::Utils::ReMapRange(boundingRectangle.GetTop(), boundingRectangle.GetBottom(), 0.0f, 1.0f, tri.A.y)};
+
+            const glm::vec2 uvB =
+                {Nexus::Utils::ReMapRange(boundingRectangle.GetLeft(), boundingRectangle.GetRight(), 0.0f, 1.0f, tri.B.x),
+                 Nexus::Utils::ReMapRange(boundingRectangle.GetTop(), boundingRectangle.GetBottom(), 0.0f, 1.0f, tri.B.y)};
+
+            const glm::vec2 uvC =
+                {Nexus::Utils::ReMapRange(boundingRectangle.GetLeft(), boundingRectangle.GetRight(), 0.0f, 1.0f, tri.C.x),
+                 Nexus::Utils::ReMapRange(boundingRectangle.GetTop(), boundingRectangle.GetBottom(), 0.0f, 1.0f, tri.C.y)};
+
+            DrawTriangle(tri.A, uvA, tri.B, uvB, tri.C, uvC, color, texture);
         }
+    }
 
-        // draw top left rounding
-        if (roundedRect.GetRadiusTopLeft() > 0.0f)
-        {
-            DrawCircleRegionFill(
-                tl,
-                roundedRect.GetRadiusTopLeft(),
-                color,
-                numberOfPoints,
-                90.0f,
-                90.0f);
-        }
+    void BatchRenderer::DrawRoundedRectangle(const RoundedRectangle<float> &roundedRectangle, const glm::vec4 &color)
+    {
+        DrawRoundedRectangle(roundedRectangle, color, m_BlankTexture);
+    }
 
-        // draw bottom left rounding
-        if (roundedRect.GetRadiusBottomLeft() > 0.0f)
-        {
-            DrawCircleRegionFill(
-                bl,
-                roundedRect.GetRadiusBottomLeft(),
-                color,
-                numberOfPoints,
-                180.0f,
-                90.0f);
-        }
-
-        // draw bottom right rounding
-        if (roundedRect.GetRadiusBottomRight() > 0.0f)
-        {
-            DrawCircleRegionFill(
-                br,
-                roundedRect.GetRadiusBottomRight(),
-                color,
-                numberOfPoints,
-                270.0f,
-                90.0f);
-        }
-
-        // draw required rectangles
-        {
-            // draw rectangle from top left corner to top right corner
-            {
-                Rectangle<float> rectTLTR(
-                    tl.x,
-                    roundedRect.GetTop(),
-                    tr.x - tl.x,
-                    centre.y - roundedRect.GetTop());
-
-                DrawQuadFill(rectTLTR, color);
-            }
-
-            // draw rectangle from top left corner to bottom left corner
-            {
-                Rectangle<float> rectTLBL(
-                    roundedRect.GetLeft(),
-                    tl.y,
-                    br.x - bl.x,
-                    bl.y - tl.y);
-
-                DrawQuadFill(rectTLBL, color);
-            }
-
-            // draw rectangle from rectangle from bottom left corner to bottom right corner
-            {
-                Rectangle<float> rectBLBR(
-                    bl.x,
-                    tl.y,
-                    br.x - bl.x,
-                    bl.y - tl.y);
-
-                DrawQuadFill(rectBLBR, color);
-            }
-
-            // draw rectangle from top right corner to bottom right corner
-            {
-                Rectangle<float> rectTRBR(
-                    tr.x - (roundedRect.GetWidth() / 2),
-                    tr.y,
-                    (roundedRect.GetWidth() / 2) + roundedRect.GetRadiusTopRight(),
-                    br.y - tr.y);
-
-                DrawQuadFill(rectTRBR, color);
-            }
-        }
+    void BatchRenderer::DrawRoundedRectangle(const RoundedRectangle<float> &roundedRectangle, const glm::vec4 &color, Ref<Texture> texture)
+    {
+        const Polygon<float> &poly = roundedRectangle.CreatePolygon();
+        DrawPolygon(poly, color, texture);
     }
 
     void BatchRenderer::End()

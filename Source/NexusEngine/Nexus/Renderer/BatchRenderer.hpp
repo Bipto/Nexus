@@ -8,6 +8,7 @@
 #include "Nexus/Graphics/Circle.hpp"
 
 #include "Nexus/Graphics/RoundedRectangle.hpp"
+#include "Nexus/Graphics/Polygon.hpp"
 
 namespace Nexus::Graphics
 {
@@ -80,7 +81,10 @@ namespace Nexus::Graphics
         void DrawCross(const Rectangle<float> &rectangle, float thickness, const glm::vec4 &color);
         void DrawTriangle(const glm::vec3 &pos0, const glm::vec2 &uv0, const glm::vec3 &pos1, const glm::vec2 &uv1, const glm::vec3 &pos2, const glm::vec2 &uv2, const glm::vec4 &color);
         void DrawTriangle(const glm::vec3 &pos0, const glm::vec2 &uv0, const glm::vec3 &pos1, const glm::vec2 &uv1, const glm::vec3 &pos2, const glm::vec2 &uv2, const glm::vec4 &color, Ref<Texture> texture);
-        void DrawRoundedRectangle(const RoundedRectangle<float> &roundedRect, const glm::vec4 &color, uint32_t numberOfPoints);
+        void DrawPolygon(const Polygon<float> &polygon, const glm::vec4 &color);
+        void DrawPolygon(const Polygon<float> &polygon, const glm::vec4 &color, Ref<Texture> texture);
+        void DrawRoundedRectangle(const RoundedRectangle<float> &roundedRectangle, const glm::vec4 &color);
+        void DrawRoundedRectangle(const RoundedRectangle<float> &roundedRectangle, const glm::vec4 &color, Ref<Texture> texture);
         void End();
 
     private:
