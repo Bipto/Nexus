@@ -8,116 +8,172 @@
 
 namespace Nexus::Graphics
 {
-    template <typename T>
     struct RoundedRectangle
     {
     public:
         RoundedRectangle() = default;
 
-        RoundedRectangle(const Point<T> &position, const Point<T> &size)
+        RoundedRectangle(const Point2D<float> &position, const Point2D<float> &size)
             : m_X(position.X), m_Y(position.Y),
               m_Width(size.X), m_Height(size.Y)
         {
         }
 
-        RoundedRectangle(const Point<T> &position, const Point<T> &size, T radiusTL, T radiusTR, T radiusBL, T radiusBR)
+        RoundedRectangle(const Point2D<float> &position, const Point2D<float> &size, float radiusTL, float radiusTR, float radiusBL, float radiusBR)
             : m_X(position.X), m_Y(position.Y),
               m_Width(size.X), m_Height(size.Y),
               m_RadiusTL(radiusTL), m_RadiusTR(radiusTR), m_RadiusBL(radiusBL), m_RadiusBR(radiusBR)
         {
         }
 
-        void SetX(T x)
+        void SetPointsPerCorner(float points)
+        {
+            m_PointsPerCorner = points;
+        }
+
+        const float GetPointsPerCorner() const
+        {
+            return m_PointsPerCorner;
+        }
+
+        void SetX(float x)
         {
             m_X = x;
         }
 
-        void SetY(T y)
+        void SetY(float y)
         {
             m_Y = y;
         }
 
-        void SetWidth(T width)
+        void SetWidth(float width)
         {
             m_Width = width;
         }
 
-        void SetHeight(T height)
+        void SetHeight(float height)
         {
             m_Height = height;
         }
 
-        void SetRadiusTopLeft(T radius)
+        void SetRadiusTopLeft(float radius)
         {
             m_RadiusTL = radius;
         }
 
-        void SetRadiusTopRight(T radius)
+        void SetRadiusTopRight(float radius)
         {
             m_RadiusTR = radius;
         }
 
-        void SetRadiusBottomLeft(T radius)
+        void SetRadiusBottomLeft(float radius)
         {
             m_RadiusBL = radius;
         }
 
-        void SetRadiusBottomRight(T radius)
+        void SetRadiusBottomRight(float radius)
         {
             m_RadiusBR = radius;
         }
 
-        const T GetLeft() const
+        const float GetLeft() const
         {
             return m_X;
         }
 
-        const T GetRight() const
+        const float GetRight() const
         {
             return m_X + m_Width;
         }
 
-        const T GetTop() const
+        const float GetTop() const
         {
             return m_Y;
         }
 
-        const T GetBottom() const
+        const float GetBottom() const
         {
             return m_Y + m_Height;
         }
 
-        const T GetHeight() const
+        const float GetHeight() const
         {
             return m_Height;
         }
 
-        const T GetWidth() const
+        const float GetWidth() const
         {
             return m_Width;
         }
 
-        const T GetRadiusTopLeft() const
+        const float GetRadiusTopLeft() const
         {
             return m_RadiusTL;
         }
 
-        const T GetRadiusTopRight() const
+        const float GetRadiusTopRight() const
         {
             return m_RadiusTR;
         }
 
-        const T GetRadiusBottomLeft() const
+        const float GetRadiusBottomLeft() const
         {
             return m_RadiusBL;
         }
 
-        const T GetRadiusBottomRight() const
+        const float GetRadiusBottomRight() const
         {
             return m_RadiusBR;
         }
 
-        Polygon<float> CreatePolygon() const
+        std::vector<glm::vec2> CreateBorder() const
+        {
+            const glm::vec2 tr = {
+                GetRight() - GetRadiusTopRight(),
+                GetTop() + GetRadiusTopRight()};
+
+            const glm::vec2 tl = {
+                GetLeft() + GetRadiusTopLeft(),
+                GetTop() + GetRadiusTopLeft()};
+
+            const glm::vec2 bl = {
+                GetLeft() + GetRadiusBottomLeft(),
+                GetBottom() - GetRadiusBottomLeft()};
+
+            const glm::vec2 br = {
+                GetRight() - GetRadiusBottomRight(),
+                GetBottom() - GetRadiusBottomRight()};
+
+            std::vector<glm::vec2> border;
+
+            if (GetRadiusTopLeft() > 0.0f)
+            {
+                std::vector<glm::vec2> triangleTL = CreateCircleRegion(tl, GetRadiusTopLeft(), 90.0f, 90.0f);
+                border.insert(border.end(), triangleTL.begin(), triangleTL.end());
+            }
+
+            if (GetRadiusTopRight() > 0.0f)
+            {
+                std::vector<glm::vec2> triangleTR = CreateCircleRegion(tr, GetRadiusTopRight(), 0.0f, 90.0f);
+                border.insert(border.end(), triangleTR.begin(), triangleTR.end());
+            }
+
+            if (GetRadiusBottomRight() > 0.0f)
+            {
+                std::vector<glm::vec2> triangleBR = CreateCircleRegion(br, GetRadiusBottomRight(), 270.0f, 90.0f);
+                border.insert(border.end(), triangleBR.begin(), triangleBR.end());
+            }
+
+            if (GetRadiusBottomLeft() > 0.0f)
+            {
+                std::vector<glm::vec2> triangleBL = CreateCircleRegion(bl, GetRadiusBottomLeft(), 180.0f, 90.0f);
+                border.insert(border.end(), triangleBL.begin(), triangleBL.end());
+            }
+
+            return border;
+        }
+
+        Polygon CreatePolygon() const
         {
             const glm::vec2 tr = {
                 GetRight() - GetRadiusTopRight(),
@@ -140,123 +196,59 @@ namespace Nexus::Graphics
                     GetRight() - (GetWidth() / 2),
                     GetBottom() - (GetHeight() / 2)};
 
-            std::vector<Triangle> triangles;
+            std::vector<glm::vec2> points = CreateBorder();
 
-            if (GetRadiusTopLeft() > 0.0f)
+            std::vector<Triangle2D> triangles;
+
+            // create corners
+            for (size_t i = 0; i < points.size(); i += 2)
             {
-                std::vector<Triangle> triangleTL = CreateCircleRegion(tl, GetRadiusTopLeft(), 90.0f, 90.0f);
-                triangles.insert(triangles.end(), triangleTL.begin(), triangleTL.end());
+                const glm::vec2 &p0 = points[i];
+                const glm::vec2 &p1 = points[(i + 1) % points.size()];
 
-                glm::vec3 connectionA = {tl.x, tl.y - GetRadiusTopLeft(), 0.0f};
-                glm::vec3 connectionB = {tl.x, tl.y, 0.0f};
-                glm::vec3 connectionC = {tl.x - GetRadiusTopLeft(), tl.y, 0.0f};
+                Triangle2D t;
+                t.A = p0;
+                t.B = p1;
+                t.C = centre;
 
-                Triangle circleToCentreA;
-                circleToCentreA.A = connectionA;
-                circleToCentreA.B = connectionB;
-                circleToCentreA.C = {centre.x, centre.y, 0.0f};
-                triangles.push_back(circleToCentreA);
-
-                Triangle circleToCentreB;
-                circleToCentreB.A = connectionB;
-                circleToCentreB.B = connectionC;
-                circleToCentreB.C = {centre.x, centre.y, 0.0f};
-                triangles.push_back(circleToCentreB);
+                triangles.push_back(t);
             }
 
-            if (GetRadiusTopRight() > 0.0f)
+            // fill in gaps
             {
-                std::vector<Triangle> triangleTR = CreateCircleRegion(tr, GetRadiusTopRight(), 0.0f, 90.0f);
-                triangles.insert(triangles.end(), triangleTR.begin(), triangleTR.end());
-
-                glm::vec3 connectionA = {tr.x, tr.y - GetRadiusTopRight(), 0.0f};
-                glm::vec3 connectionB = {tr.x, tr.y, 0.0f};
-                glm::vec3 connectionC = {tr.x + GetRadiusTopRight(), tr.y, 0.0f};
-
-                Triangle circleToCentreA;
-                circleToCentreA.A = connectionA;
-                circleToCentreA.B = connectionB;
-                circleToCentreA.C = {centre.x, centre.y, 0.0f};
-                triangles.push_back(circleToCentreA);
-
-                Triangle circleToCentreB;
-                circleToCentreB.A = connectionB;
-                circleToCentreB.B = connectionC;
-                circleToCentreB.C = {centre.x, centre.y, 0.0f};
-                triangles.push_back(circleToCentreB);
-            }
-
-            if (GetRadiusBottomLeft() > 0.0f)
-            {
-                std::vector<Triangle> triangleBL = CreateCircleRegion(bl, GetRadiusBottomLeft(), 180.0f, 90.0f);
-                triangles.insert(triangles.end(), triangleBL.begin(), triangleBL.end());
-
-                Triangle circleToCentreA;
-                circleToCentreA.A = {bl.x - GetRadiusBottomLeft(), bl.y, 0.0f};
-                circleToCentreA.B = {bl.x, bl.y, 0.0f};
-                circleToCentreA.C = {centre.x, centre.y, 0.0f};
-                triangles.push_back(circleToCentreA);
-
-                Triangle circleToCentreB;
-                circleToCentreB.A = {bl.x, bl.y, 0.0f};
-                circleToCentreB.B = {bl.x, bl.y + GetRadiusBottomLeft(), 0.0f};
-                circleToCentreB.C = {centre.x, centre.y, 0.0f};
-                triangles.push_back(circleToCentreB);
-            }
-
-            if (GetRadiusBottomRight() > 0.0f)
-            {
-                std::vector<Triangle> triangleBR = CreateCircleRegion(br, GetRadiusBottomRight(), 270.0f, 90.0f);
-                triangles.insert(triangles.end(), triangleBR.begin(), triangleBR.end());
-
-                Triangle circleToCentreA;
-                circleToCentreA.A = {br.x, br.y + GetRadiusBottomRight(), 0.0f};
-                circleToCentreA.B = {br.x, br.y, 0.0f};
-                circleToCentreA.C = {centre.x, centre.y, 0.0f};
-                triangles.push_back(circleToCentreA);
-
-                Triangle circleToCentreB;
-                circleToCentreB.A = {br.x, br.y, 0.0f};
-                circleToCentreB.B = {br.x + GetRadiusBottomRight(), br.y, 0.0f};
-                circleToCentreB.C = {centre.x, centre.y, 0.0f};
-                triangles.push_back(circleToCentreB);
-            }
-
-            // fill in missing gaps
-            {
-                Triangle top;
-                top.A = {tl.x, tl.y - GetRadiusTopLeft(), 0.0f};
-                top.B = {tr.x, tr.y - GetRadiusTopRight(), 0.0f};
-                top.C = {centre.x, centre.y, 0.0f};
+                Triangle2D top;
+                top.A = {tl.x, tl.y - GetRadiusTopLeft()};
+                top.B = {tr.x, tr.y - GetRadiusTopRight()};
+                top.C = {centre.x, centre.y};
                 triangles.push_back(top);
 
-                Triangle left;
-                left.A = {tl.x - GetRadiusTopLeft(), tl.y, 0.0f};
-                left.B = {bl.x - GetRadiusBottomLeft(), bl.y, 0.0f};
-                left.C = {centre.x, centre.y, 0.0f};
+                Triangle2D left;
+                left.A = {tl.x - GetRadiusTopLeft(), tl.y};
+                left.B = {bl.x - GetRadiusBottomLeft(), bl.y};
+                left.C = {centre.x, centre.y};
                 triangles.push_back(left);
 
-                Triangle right;
-                right.A = {tr.x + GetRadiusTopRight(), tr.y, 0.0f};
-                right.B = {br.x + GetRadiusBottomRight(), br.y, 0.0f};
-                right.C = {centre.x, centre.y, 0.0f};
+                Triangle2D right;
+                right.A = {tr.x + GetRadiusTopRight(), tr.y};
+                right.B = {br.x + GetRadiusBottomRight(), br.y};
+                right.C = {centre.x, centre.y};
                 triangles.push_back(right);
 
-                Triangle bottom;
-                bottom.A = {bl.x, bl.y + GetRadiusBottomLeft(), 0.0f};
-                bottom.B = {br.x, br.y + GetRadiusBottomRight(), 0.0f};
-                bottom.C = {centre.x, centre.y, 0.0f};
+                Triangle2D bottom;
+                bottom.A = {bl.x, bl.y + GetRadiusBottomLeft()};
+                bottom.B = {br.x, br.y + GetRadiusBottomRight()};
+                bottom.C = {centre.x, centre.y};
                 triangles.push_back(bottom);
             }
 
-            Polygon<float> poly(triangles);
+            Polygon poly(triangles);
             return poly;
         }
 
     private:
-        std::vector<Triangle> CreateCircleRegion(const glm::vec2 &position, float radius, float startAngle, float fillAngle) const
+        std::vector<glm::vec2> CreateCircleRegion(const glm::vec2 &position, float radius, float startAngle, float fillAngle) const
         {
-            std::vector<Triangle> triangles;
+            std::vector<glm::vec2> border;
 
             float deltaAngle = glm::radians(fillAngle) / (float)m_PointsPerCorner;
             float currentAngle = glm::radians(startAngle) + glm::radians(180.0f);
@@ -264,43 +256,38 @@ namespace Nexus::Graphics
             const glm::vec2 topLeft = {position.x - (radius / 2), position.y - (radius / 2)};
             const glm::vec2 bottomRight = {position.x + (radius / 2), position.y + (radius / 2)};
 
-            const glm::vec3 centre = {position.x, position.y, 0.0f};
+            const glm::vec2 centre = {position.x, position.y};
 
             for (size_t i = 0; i < m_PointsPerCorner; i++)
             {
-                glm::vec3 posA =
+                glm::vec2 posA =
                     {
                         glm::sin(currentAngle) * radius + (position.x),
-                        glm::cos(currentAngle) * radius + (position.y),
-                        0.0f};
+                        glm::cos(currentAngle) * radius + (position.y)};
 
                 currentAngle -= deltaAngle;
 
-                glm::vec3 posB =
+                glm::vec2 posB =
                     {
                         glm::sin(currentAngle) * radius + (position.x),
-                        glm::cos(currentAngle) * radius + (position.y),
-                        0.0f};
+                        glm::cos(currentAngle) * radius + (position.y)};
 
-                Triangle tri;
-                tri.A = centre;
-                tri.B = posA;
-                tri.C = posB;
-                triangles.push_back(tri);
+                border.push_back(posA);
+                border.push_back(posB);
             }
 
-            return triangles;
+            return border;
         }
 
     private:
-        T m_X = 0;
-        T m_Y = 0;
-        T m_Width = 0;
-        T m_Height = 0;
-        T m_RadiusTL = 0;
-        T m_RadiusTR = 0;
-        T m_RadiusBL = 0;
-        T m_RadiusBR = 0;
-        T m_PointsPerCorner = 16;
+        float m_X = 0;
+        float m_Y = 0;
+        float m_Width = 0;
+        float m_Height = 0;
+        float m_RadiusTL = 0;
+        float m_RadiusTR = 0;
+        float m_RadiusBL = 0;
+        float m_RadiusBR = 0;
+        float m_PointsPerCorner = 16;
     };
 }

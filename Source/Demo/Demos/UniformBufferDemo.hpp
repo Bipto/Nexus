@@ -81,7 +81,7 @@ namespace Demos
             ImGui::DragFloat2("Position", glm::value_ptr(m_Position), 0.1f, -1.0f, 1.0f);
         }
 
-        virtual void OnResize(Nexus::Point<uint32_t> size) override
+        virtual void OnResize(Nexus::Point2D<uint32_t> size) override
         {
         }
 

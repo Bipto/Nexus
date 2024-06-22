@@ -63,13 +63,13 @@ namespace Nexus
         return mouse.IsMiddleMouseHeld();
     }
 
-    Point<int> Input::GetMousePosition()
+    Point2D<int> Input::GetMousePosition()
     {
         auto mouse = s_InputContext->GetMouse();
         return mouse.GetMousePosition();
     }
 
-    Point<int> Input::GetMouseMovement()
+    Point2D<int> Input::GetMouseMovement()
     {
         auto mouse = s_InputContext->GetMouse();
         return mouse.GetMouseMovement();
@@ -130,7 +130,7 @@ namespace Nexus
         return s_Gamepads[index]->WasButtonReleased(button);
     }
 
-    Point<float> Input::GetGamepadAxisLeft(uint32_t index)
+    Point2D<float> Input::GetGamepadAxisLeft(uint32_t index)
     {
         if (GetGamepadCount() == 0)
             return {
@@ -139,7 +139,7 @@ namespace Nexus
         return s_Gamepads[index]->GetLeftStick();
     }
 
-    Point<float> Input::GetGamepadAxisRight(uint32_t index)
+    Point2D<float> Input::GetGamepadAxisRight(uint32_t index)
     {
         if (GetGamepadCount() == 0)
             return {

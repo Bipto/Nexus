@@ -27,10 +27,10 @@ namespace Nexus
         MouseButtonState MiddleButton;
 
         /// @brief A Nexus::Point containing two integers representing the position of the mouse cursor
-        Point<int> MousePosition;
+        Point2D<int> MousePosition;
 
         /// @brief A Nexus::Point containing two integers representing the current position of the mouse wheel
-        Point<int> MouseWheel;
+        Point2D<int> MouseWheel;
     };
 
     /// @brief A class representing the current state of the mouse
@@ -78,21 +78,21 @@ namespace Nexus
 
         /// @brief A method that returns the current position of the mouse pointer
         /// @return A Nexus::Point containing two integer values representing the position of the mouse
-        const Point<int> GetMousePosition() const;
+        const Point2D<int> GetMousePosition() const;
 
         /// @brief A method that returns the movement of the mouse pointer
         /// @return A Nexus::Point containing two integer values representing the movement of the mouse
-        const Point<int> GetMouseMovement() const;
+        const Point2D<int> GetMouseMovement() const;
 
         /// @brief A method that returns the current scroll value of the mouse
         /// @return A Nexus::Point containing two integer values representing the current scroll of the mouse
-        const Point<int> GetScroll() const;
+        const Point2D<int> GetScroll() const;
 
         /// @brief A method that returns the scroll movement of the mouse
         /// @return A Nexus::Point containing two integer values representing the scroll movement of the mouse
-        const Point<int> GetScrollMovement() const;
+        const Point2D<int> GetScrollMovement() const;
 
-        static Point<int> GetGlobalMousePosition();
+        static Point2D<int> GetGlobalMousePosition();
 
         static bool IsGlobalLeftMouseHeld();
         static bool IsGlobalRightMouseHeld();
@@ -105,7 +105,7 @@ namespace Nexus
         /// @brief A mouse state containing the previous state of the mouse pointer and buttons
         MouseState m_PreviousState;
 
-        static Point<int> s_GlobalMousePosition;
+        static Point2D<int> s_GlobalMousePosition;
 
         static MouseState s_GlobalMouseState;
 

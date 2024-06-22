@@ -20,12 +20,12 @@ namespace Nexus::UI
         m_Controls.clear();
     }
 
-    void Canvas::SetPosition(const Point<uint32_t> &position)
+    void Canvas::SetPosition(const Point2D<uint32_t> &position)
     {
         m_Position = position;
     }
 
-    void Canvas::SetSize(const Point<uint32_t> &size)
+    void Canvas::SetSize(const Point2D<uint32_t> &size)
     {
         m_Size = size;
     }
@@ -35,12 +35,12 @@ namespace Nexus::UI
         m_BackgroundColour = color;
     }
 
-    const Point<uint32_t> &Canvas::GetPosition() const
+    const Point2D<uint32_t> &Canvas::GetPosition() const
     {
         return m_Position;
     }
 
-    const Point<uint32_t> &Canvas::GetSize() const
+    const Point2D<uint32_t> &Canvas::GetSize() const
     {
         return m_Size;
     }

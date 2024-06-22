@@ -214,7 +214,7 @@ namespace Nexus::UI
 
     const Nexus::Graphics::Rectangle<float> Window::GetTitlebarRectangle() const
     {
-        Nexus::Point<uint32_t> titleSize = m_Font->MeasureString(m_Title, m_Font->GetSize());
+        Nexus::Point2D<uint32_t> titleSize = m_Font->MeasureString(m_Title, m_Font->GetSize());
         Nexus::Graphics::Rectangle<float> titlebarRect = {m_Position.To<float>(), {(float)m_Size.X, (float)titleSize.Y}};
         return titlebarRect;
     }

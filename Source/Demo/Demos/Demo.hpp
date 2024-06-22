@@ -25,7 +25,7 @@ namespace Demos
         }
         virtual void Render(Nexus::Time time) {}
 
-        virtual void OnResize(Nexus::Point<uint32_t> size) {}
+        virtual void OnResize(Nexus::Point2D<uint32_t> size) {}
         virtual void RenderUI() {}
 
         const std::string &GetName() { return m_Name; }

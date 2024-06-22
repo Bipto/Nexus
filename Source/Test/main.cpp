@@ -141,15 +141,16 @@ public:
 
         m_BatchRenderer->DrawCircleRegionFill({500.0f, 750.0f}, 150, {1.0f, 1.0f, 1.0f, 1.0f}, 32, 0.0f, 45.0f, m_Texture);
 
-        Nexus::Graphics::RoundedRectangle<float> rrect({150.0f, 150.0f}, {450.0f, 250.0f}, 50.0f, 50.0f, 50.0f, 50.0f);
-        m_BatchRenderer->DrawRoundedRectangle(rrect, {0.32f, 0.45f, 0.8f, 1.0f}, m_Texture);
+        Nexus::Graphics::RoundedRectangle rrect({150.0f, 150.0f}, {450.0f, 250.0f}, 50.0f, 50.0f, 50.0f, 50.0f);
+        m_BatchRenderer->DrawRoundedRectangleFill(rrect, {0.32f, 0.45f, 0.8f, 1.0f}, m_Texture);
+        // m_BatchRenderer->DrawRoundedRectangle(rrect, {0.0f, 1.0f, 0.0f, 1.0f}, 5.0f);
 
         m_BatchRenderer->End();
 
         m_GraphicsDevice->EndFrame();
     }
 
-    virtual void OnResize(Nexus::Point<uint32_t> size) override
+    virtual void OnResize(Nexus::Point2D<uint32_t> size) override
     {
     }
 

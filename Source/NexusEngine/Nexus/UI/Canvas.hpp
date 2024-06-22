@@ -17,12 +17,12 @@ namespace Nexus::UI
         Canvas(Graphics::GraphicsDevice *device, Graphics::Swapchain *swapchain);
         virtual ~Canvas();
 
-        void SetPosition(const Point<uint32_t> &position);
-        void SetSize(const Point<uint32_t> &size);
+        void SetPosition(const Point2D<uint32_t> &position);
+        void SetSize(const Point2D<uint32_t> &size);
         void SetBackgroundColour(const glm::vec4 &color);
 
-        const Point<uint32_t> &GetPosition() const;
-        const Point<uint32_t> &GetSize() const;
+        const Point2D<uint32_t> &GetPosition() const;
+        const Point2D<uint32_t> &GetSize() const;
         const glm::vec4 &GetBackgroundColour() const;
 
         void Render() const;
@@ -33,8 +33,8 @@ namespace Nexus::UI
         Nexus::Window *GetWindow() const;
 
     private:
-        Point<uint32_t> m_Position = {0, 0};
-        Point<uint32_t> m_Size = {0, 0};
+        Point2D<uint32_t> m_Position = {0, 0};
+        Point2D<uint32_t> m_Size = {0, 0};
 
         glm::vec4 m_BackgroundColour = {0, 0, 0, 0};
 

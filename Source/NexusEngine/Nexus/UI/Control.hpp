@@ -22,8 +22,8 @@ namespace Nexus::UI
         virtual void Update();
         virtual void Render(Graphics::BatchRenderer *batchRenderer) = 0;
 
-        void SetPosition(const Point<int> &position);
-        void SetSize(const Point<int> &size);
+        void SetPosition(const Point2D<int> &position);
+        void SetSize(const Point2D<int> &size);
         void SetBackgroundColour(const glm::vec4 &colour);
         void SetForegroundColour(const glm::vec4 &colour);
         void SetFont(Graphics::Font *font);
@@ -34,8 +34,8 @@ namespace Nexus::UI
         void SetMarginRight(uint32_t margin);
         void SetMargin(uint32_t left, uint32_t right, uint32_t top, uint32_t bottom);
 
-        const Point<int> &GetPosition() const;
-        const Point<int> &GetSize() const;
+        const Point2D<int> &GetPosition() const;
+        const Point2D<int> &GetSize() const;
         const glm::vec4 &GetBackgroundColour() const;
         const glm::vec4 &GetForegroundColour() const;
         const Graphics::Font *GetFont() const;
@@ -66,8 +66,8 @@ namespace Nexus::UI
         EventHandler<Control *, Canvas *> OnAddedToCanvas;
 
     protected:
-        Point<int> m_Position = {0, 0};
-        Point<int> m_Size = {0, 0};
+        Point2D<int> m_Position = {0, 0};
+        Point2D<int> m_Size = {0, 0};
         uint32_t m_FontSize = 24;
         glm::vec4 m_BackgroundColour = {1, 1, 1, 1};
         glm::vec4 m_ForegroundColour = {0, 0, 0, 1};

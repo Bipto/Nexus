@@ -50,11 +50,11 @@ namespace Nexus
 
         /// @brief A static method representing the current position of the mouse pointer
         /// @return A Nexus::Point containing two integer representing the position of the mouse pointer
-        static Point<int> GetMousePosition();
+        static Point2D<int> GetMousePosition();
 
         /// @brief A static method representing the movement of the mouse pointer between frames
         /// @return A Nexus::Point containing two integer representing the movement of the mouse pointer
-        static Point<int> GetMouseMovement();
+        static Point2D<int> GetMouseMovement();
 
         /// @brief A static method representing the current X position of the mouse scroll wheel
         /// @return A floating point value representing the mouse scroll X since the start of the application
@@ -124,12 +124,12 @@ namespace Nexus
         /// @brief A static method representing the current state of the gamepad left axis
         /// @param index The index of the controller to check
         /// @return A Nexus::Point containing two floating point values representing the position of the left axis
-        static Point<float> GetGamepadAxisLeft(uint32_t index);
+        static Point2D<float> GetGamepadAxisLeft(uint32_t index);
 
         /// @brief A static method representing the current state of the gamepad right axis
         /// @param index The index of the controller to check
         /// @return A Nexus::Point containing two floating point values representing the position of the right axis
-        static Point<float> GetGamepadAxisRight(uint32_t index);
+        static Point2D<float> GetGamepadAxisRight(uint32_t index);
 
         /// @brief A static method representing the current state of the gamepad left trigger
         /// @param index The index of the controller to check

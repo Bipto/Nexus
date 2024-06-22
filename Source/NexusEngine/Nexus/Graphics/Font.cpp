@@ -42,7 +42,7 @@ void LoadCharacter(char character, FT_Face &face, Nexus::Graphics::FontData &dat
     characters[character] = c;
 }
 
-Nexus::Point<uint32_t> FindLargestGlyphSize(const FT_Face &face, const std::vector<Nexus::Graphics::CharacterRange> &ranges, uint32_t &numberOfCharacters, FT_Render_Mode renderMode)
+Nexus::Point2D<uint32_t> FindLargestGlyphSize(const FT_Face &face, const std::vector<Nexus::Graphics::CharacterRange> &ranges, uint32_t &numberOfCharacters, FT_Render_Mode renderMode)
 {
     uint32_t width = 0;
     uint32_t height = 0;
@@ -67,7 +67,7 @@ Nexus::Point<uint32_t> FindLargestGlyphSize(const FT_Face &face, const std::vect
         }
     }
 
-    return Nexus::Point<uint32_t>(width, height);
+    return Nexus::Point2D<uint32_t>(width, height);
 }
 
 namespace Nexus::Graphics
@@ -152,7 +152,7 @@ namespace Nexus::Graphics
         return m_FontSize;
     }
 
-    Nexus::Point<uint32_t> Font::MeasureString(const std::string &text, uint32_t size)
+    Nexus::Point2D<uint32_t> Font::MeasureString(const std::string &text, uint32_t size)
     {
         float scale = 1.0f / GetSize() * size;
 
@@ -193,7 +193,7 @@ namespace Nexus::Graphics
         return m_LineSpacing;
     }
 
-    const Point<uint32_t> Font::GetMaxCharacterSize() const
+    const Point2D<uint32_t> Font::GetMaxCharacterSize() const
     {
         return m_MaxCharacterSize;
     }

@@ -2,7 +2,7 @@
 
 namespace Nexus
 {
-    Point<int> Mouse::s_GlobalMousePosition = {0, 0};
+    Point2D<int> Mouse::s_GlobalMousePosition = {0, 0};
     MouseState Mouse::s_GlobalMouseState;
 
     void Mouse::CacheInput()
@@ -55,31 +55,31 @@ namespace Nexus
         return m_CurrentState.MiddleButton == MouseButtonState::Pressed;
     }
 
-    const Point<int> Mouse::GetMousePosition() const
+    const Point2D<int> Mouse::GetMousePosition() const
     {
         return m_CurrentState.MousePosition;
     }
 
-    const Point<int> Mouse::GetMouseMovement() const
+    const Point2D<int> Mouse::GetMouseMovement() const
     {
         return {
             m_CurrentState.MousePosition.X - m_PreviousState.MousePosition.X,
             m_CurrentState.MousePosition.Y - m_PreviousState.MousePosition.Y};
     }
 
-    const Point<int> Mouse::GetScroll() const
+    const Point2D<int> Mouse::GetScroll() const
     {
         return m_CurrentState.MouseWheel;
     }
 
-    const Point<int> Mouse::GetScrollMovement() const
+    const Point2D<int> Mouse::GetScrollMovement() const
     {
         return {
             m_CurrentState.MouseWheel.X - m_PreviousState.MouseWheel.X,
             m_CurrentState.MouseWheel.Y - m_PreviousState.MouseWheel.Y};
     }
 
-    Point<int> Mouse::GetGlobalMousePosition()
+    Point2D<int> Mouse::GetGlobalMousePosition()
     {
         return s_GlobalMousePosition;
     }

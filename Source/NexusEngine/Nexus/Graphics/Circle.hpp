@@ -10,13 +10,13 @@ namespace Nexus::Graphics
     public:
         Circle() = default;
 
-        Circle(const Point<T> &position, float radius)
+        Circle(const Point2D<T> &position, float radius)
         {
             m_Position = position;
             m_Radius = radius;
         }
 
-        const Point<T> &GetPosition() const
+        const Point2D<T> &GetPosition() const
         {
             return m_Position;
         }
@@ -26,7 +26,7 @@ namespace Nexus::Graphics
             return m_Radius;
         }
 
-        void SetPosition(const Point<T> &position)
+        void SetPosition(const Point2D<T> &position)
         {
             m_Position = position;
         }
@@ -36,7 +36,7 @@ namespace Nexus::Graphics
             m_Radius = radius;
         }
 
-        bool Contains(const Nexus::Point<T> &point) const
+        bool Contains(const Nexus::Point2D<T> &point) const
         {
             if ((point.X - m_Position.X) * (point.X - m_Position.X) +
                     (point.Y - m_Position.Y) * (point.Y - m_Position.Y) <=
@@ -51,11 +51,11 @@ namespace Nexus::Graphics
         template <typename Other>
         const Circle To() const
         {
-            return {(Point<Other>)m_Position, (Other)m_Radius};
+            return {(Point2D<Other>)m_Position, (Other)m_Radius};
         }
 
     private:
-        Point<T> m_Position = {0, 0};
+        Point2D<T> m_Position = {0, 0};
         T m_Radius = 0;
     };
 }

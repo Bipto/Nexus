@@ -1071,7 +1071,7 @@ namespace Nexus::Graphics
         m_TextureBatchInfo.VertexCount += shapeVertexCount;
     }
 
-    void BatchRenderer::DrawPolygon(const Polygon<float> &polygon, const glm::vec4 &color)
+    void BatchRenderer::DrawPolygon(const Polygon &polygon, const glm::vec4 &color)
     {
         DrawPolygon(
             polygon,
@@ -1079,40 +1079,54 @@ namespace Nexus::Graphics
             m_BlankTexture);
     }
 
-    void BatchRenderer::DrawPolygon(const Polygon<float> &polygon, const glm::vec4 &color, Ref<Texture> texture)
+    void BatchRenderer::DrawPolygon(const Polygon &polygon, const glm::vec4 &color, Ref<Texture> texture)
     {
         const auto &boundingRectangle = polygon.GetBoundingRectangle();
-        const std::vector<Triangle> &tris = polygon.GetTriangles();
+        const std::vector<Triangle2D> &tris = polygon.GetTriangles();
 
         const glm::vec2 uvTL = {0.0f, 0.0f};
         const glm::vec2 uvBR = {1.0f, 1.0f};
 
-        for (const auto &tri : tris)
+        for (const auto &triangle2D : tris)
         {
+            const Triangle3D triToDraw = triangle2D;
+
             const glm::vec2 uvA =
-                {Nexus::Utils::ReMapRange(boundingRectangle.GetLeft(), boundingRectangle.GetRight(), 0.0f, 1.0f, tri.A.x),
-                 Nexus::Utils::ReMapRange(boundingRectangle.GetTop(), boundingRectangle.GetBottom(), 0.0f, 1.0f, tri.A.y)};
+                {Nexus::Utils::ReMapRange(boundingRectangle.GetLeft(), boundingRectangle.GetRight(), 0.0f, 1.0f, triToDraw.A.x),
+                 Nexus::Utils::ReMapRange(boundingRectangle.GetTop(), boundingRectangle.GetBottom(), 0.0f, 1.0f, triToDraw.A.y)};
 
             const glm::vec2 uvB =
-                {Nexus::Utils::ReMapRange(boundingRectangle.GetLeft(), boundingRectangle.GetRight(), 0.0f, 1.0f, tri.B.x),
-                 Nexus::Utils::ReMapRange(boundingRectangle.GetTop(), boundingRectangle.GetBottom(), 0.0f, 1.0f, tri.B.y)};
+                {Nexus::Utils::ReMapRange(boundingRectangle.GetLeft(), boundingRectangle.GetRight(), 0.0f, 1.0f, triToDraw.B.x),
+                 Nexus::Utils::ReMapRange(boundingRectangle.GetTop(), boundingRectangle.GetBottom(), 0.0f, 1.0f, triToDraw.B.y)};
 
             const glm::vec2 uvC =
-                {Nexus::Utils::ReMapRange(boundingRectangle.GetLeft(), boundingRectangle.GetRight(), 0.0f, 1.0f, tri.C.x),
-                 Nexus::Utils::ReMapRange(boundingRectangle.GetTop(), boundingRectangle.GetBottom(), 0.0f, 1.0f, tri.C.y)};
+                {Nexus::Utils::ReMapRange(boundingRectangle.GetLeft(), boundingRectangle.GetRight(), 0.0f, 1.0f, triToDraw.C.x),
+                 Nexus::Utils::ReMapRange(boundingRectangle.GetTop(), boundingRectangle.GetBottom(), 0.0f, 1.0f, triToDraw.C.y)};
 
-            DrawTriangle(tri.A, uvA, tri.B, uvB, tri.C, uvC, color, texture);
+            DrawTriangle(triToDraw.A, uvA, triToDraw.B, uvB, triToDraw.C, uvC, color, texture);
         }
     }
 
-    void BatchRenderer::DrawRoundedRectangle(const RoundedRectangle<float> &roundedRectangle, const glm::vec4 &color)
+    void BatchRenderer::DrawRoundedRectangle(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, float thickness)
     {
-        DrawRoundedRectangle(roundedRectangle, color, m_BlankTexture);
+        const std::vector<glm::vec2> points = roundedRectangle.CreateBorder();
+
+        for (size_t i = 0; i < points.size(); i++)
+        {
+            glm::vec2 p0 = points[i];
+            glm::vec2 p1 = points[(i + 1) % points.size()];
+            DrawLine(p0, p1, color, thickness);
+        }
     }
 
-    void BatchRenderer::DrawRoundedRectangle(const RoundedRectangle<float> &roundedRectangle, const glm::vec4 &color, Ref<Texture> texture)
+    void BatchRenderer::DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color)
     {
-        const Polygon<float> &poly = roundedRectangle.CreatePolygon();
+        DrawRoundedRectangleFill(roundedRectangle, color, m_BlankTexture);
+    }
+
+    void BatchRenderer::DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, Ref<Texture> texture)
+    {
+        const Polygon &poly = roundedRectangle.CreatePolygon();
         DrawPolygon(poly, color, texture);
     }
 

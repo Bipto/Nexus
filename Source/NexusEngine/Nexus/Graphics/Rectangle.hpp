@@ -13,7 +13,7 @@ namespace Nexus::Graphics
     public:
         Rectangle() = default;
 
-        Rectangle(const Point<T> &position, const Point<T> &size)
+        Rectangle(const Point2D<T> &position, const Point2D<T> &size)
             : m_X(position.X), m_Y(position.Y), m_Width(size.X), m_Height(size.Y)
         {
         }
@@ -72,7 +72,7 @@ namespace Nexus::Graphics
             return m_Width;
         }
 
-        const bool Contains(const Nexus::Point<T> &other) const
+        const bool Contains(const Nexus::Point2D<T> &other) const
         {
             return other.X >= this->m_X && other.X < this->m_X + this->m_Width &&
                    other.Y >= this->m_Y && other.Y < this->m_Y + this->m_Height;

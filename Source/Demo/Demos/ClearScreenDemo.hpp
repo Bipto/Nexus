@@ -15,8 +15,7 @@ namespace Demos
 
         virtual ~ClearScreenDemo()
         {
-            
-        }
+                }
 
         virtual void Update(Nexus::Time time) override
         {
@@ -35,7 +34,7 @@ namespace Demos
             m_GraphicsDevice->SubmitCommandList(m_CommandList);
         }
 
-        virtual void OnResize(Nexus::Point<uint32_t> size) override
+        virtual void OnResize(Nexus::Point2D<uint32_t> size) override
         {
         }
 

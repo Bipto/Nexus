@@ -65,7 +65,7 @@ namespace Nexus::Graphics
             }
         }
 
-        Nexus::Point<uint32_t> GetSize()
+        Nexus::Point2D<uint32_t> GetSize()
         {
             if (m_RenderTargetType == RenderTargetType::Swapchain)
             {

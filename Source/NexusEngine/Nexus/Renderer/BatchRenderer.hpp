@@ -81,10 +81,11 @@ namespace Nexus::Graphics
         void DrawCross(const Rectangle<float> &rectangle, float thickness, const glm::vec4 &color);
         void DrawTriangle(const glm::vec3 &pos0, const glm::vec2 &uv0, const glm::vec3 &pos1, const glm::vec2 &uv1, const glm::vec3 &pos2, const glm::vec2 &uv2, const glm::vec4 &color);
         void DrawTriangle(const glm::vec3 &pos0, const glm::vec2 &uv0, const glm::vec3 &pos1, const glm::vec2 &uv1, const glm::vec3 &pos2, const glm::vec2 &uv2, const glm::vec4 &color, Ref<Texture> texture);
-        void DrawPolygon(const Polygon<float> &polygon, const glm::vec4 &color);
-        void DrawPolygon(const Polygon<float> &polygon, const glm::vec4 &color, Ref<Texture> texture);
-        void DrawRoundedRectangle(const RoundedRectangle<float> &roundedRectangle, const glm::vec4 &color);
-        void DrawRoundedRectangle(const RoundedRectangle<float> &roundedRectangle, const glm::vec4 &color, Ref<Texture> texture);
+        void DrawPolygon(const Polygon &polygon, const glm::vec4 &color);
+        void DrawPolygon(const Polygon &polygon, const glm::vec4 &color, Ref<Texture> texture);
+        void DrawRoundedRectangle(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, float thickness);
+        void DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color);
+        void DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, Ref<Texture> texture);
         void End();
 
     private:

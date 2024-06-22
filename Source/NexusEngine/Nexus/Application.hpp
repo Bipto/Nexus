@@ -88,7 +88,7 @@ namespace Nexus
         // optional overridable methods
         /// @brief A virtual method that is called when the application's window is resized
         /// @param size The new size of the window
-        virtual void OnResize(Point<uint32_t> size) {}
+        virtual void OnResize(Point2D<uint32_t> size) {}
 
         /// @brief A virtual method that allows a client to block the application from closing (e.g. to prompt to save)
         /// @return A boolean value representing whether the application should close
@@ -103,11 +103,11 @@ namespace Nexus
 
         /// @brief A method that is used to retrieve the size of an application's window
         /// @return A Nexus::Point containing two integers representing the size of the window
-        Point<uint32_t> GetWindowSize();
+        Point2D<uint32_t> GetWindowSize();
 
         /// @brief A method that is used to retrieve the location of a window
         /// @return A Nexus::Point containing two integers representing the position of the window
-        Point<int> GetWindowPosition();
+        Point2D<int> GetWindowPosition();
 
         /// @brief A method that returns whether the application's window has focus
         /// @return A boolean value representing whether the window is focussed
@@ -177,10 +177,10 @@ namespace Nexus
         Nexus::Window *m_Window;
 
         /// @brief A set of two unsignd integers containing the size of the window
-        Point<uint32_t> m_PreviousWindowSize;
+        Point2D<uint32_t> m_PreviousWindowSize;
 
         /// @brief An event handler for when the window is resized
-        Nexus::EventHandler<Point<uint32_t>> m_WindowResizeEventHandler;
+        Nexus::EventHandler<Point2D<uint32_t>> m_WindowResizeEventHandler;
 
         /// @brief A clock to time when renders and updates occur
         Clock m_Clock;

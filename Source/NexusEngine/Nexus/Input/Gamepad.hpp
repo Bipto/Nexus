@@ -100,11 +100,11 @@ namespace Nexus
 
         /// @brief A method that returns the current position of the left stick
         /// @return A Nexus::Point containing two floating point values containing the position of the left stick
-        const Point<float> GetLeftStick() const;
+        const Point2D<float> GetLeftStick() const;
 
         /// @brief A method that returns the current position of the right stick
         /// @return A Nexus::Point containing two floating point values containing the position of the right stick
-        const Point<float> GetRightStick() const;
+        const Point2D<float> GetRightStick() const;
 
         /// @brief A method that returns the current position of the left trigger
         /// @return A floating point value representing the position of the left trigger
@@ -165,10 +165,10 @@ namespace Nexus
 
     private:
         /// @brief A Nexus::Point containing the current state of the left stick axis
-        Point<float> m_LeftStick;
+        Point2D<float> m_LeftStick;
 
         /// @brief A Nexus::Point containing the current state of the right stick axis
-        Point<float> m_RightStick;
+        Point2D<float> m_RightStick;
 
         /// @brief A floating point value containing the current state of the left trigger
         float m_LeftTrigger = 0.0f;

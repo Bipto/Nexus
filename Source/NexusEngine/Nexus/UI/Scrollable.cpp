@@ -244,7 +244,7 @@ namespace Nexus::UI
         // handle scrolling with scroll bar
         {
             const Nexus::Graphics::Rectangle<float> verticalScrollbarRect = GetVerticalScrollbarControlArea();
-            const Nexus::Point<int> mousePos = Nexus::Input::GetMousePosition();
+            const Nexus::Point2D<int> mousePos = Nexus::Input::GetMousePosition();
 
             if (verticalScrollbarRect.Contains(mousePos.To<float>()))
             {
@@ -294,7 +294,7 @@ namespace Nexus::UI
         // handle scrolling with scroll bar
         {
             const Nexus::Graphics::Rectangle<float> horizontalScrollbarRect = GetHorizontalScrollbarControlArea();
-            const Nexus::Point<int> mousePos = Nexus::Input::GetMousePosition();
+            const Nexus::Point2D<int> mousePos = Nexus::Input::GetMousePosition();
 
             if (horizontalScrollbarRect.Contains(mousePos.To<float>()))
             {

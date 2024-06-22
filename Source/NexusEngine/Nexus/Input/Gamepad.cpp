@@ -82,7 +82,7 @@ namespace Nexus
         }
     }
 
-    const Point<float> Gamepad::GetLeftStick() const
+    const Point2D<float> Gamepad::GetLeftStick() const
     {
         auto xAxis = m_LeftStick.X;
         auto yAxis = m_LeftStick.Y;
@@ -110,7 +110,7 @@ namespace Nexus
             (float)yAxis};
     }
 
-    const Point<float> Gamepad::GetRightStick() const
+    const Point2D<float> Gamepad::GetRightStick() const
     {
         auto xAxis = m_RightStick.X;
         auto yAxis = m_RightStick.Y;

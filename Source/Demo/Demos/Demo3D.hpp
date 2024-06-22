@@ -115,7 +115,7 @@ namespace Demos
         {
         }
 
-        virtual void OnResize(Nexus::Point<uint32_t> size) override
+        virtual void OnResize(Nexus::Point2D<uint32_t> size) override
         {
         }
 

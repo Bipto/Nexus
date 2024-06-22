@@ -18,8 +18,8 @@ namespace Nexus::Graphics
 
     struct CharacterTextureCoords
     {
-        Nexus::Point<float> Min;
-        Nexus::Point<float> Max;
+        Nexus::Point2D<float> Min;
+        Nexus::Point2D<float> Max;
     };
 
     struct FontData
@@ -92,9 +92,9 @@ namespace Nexus::Graphics
         Nexus::Ref<Nexus::Graphics::Texture> GetTexture();
         const Character &GetCharacter(char character);
         uint32_t GetSize() const;
-        Nexus::Point<uint32_t> MeasureString(const std::string &text, uint32_t size);
+        Nexus::Point2D<uint32_t> MeasureString(const std::string &text, uint32_t size);
         const uint32_t GetLineHeight() const;
-        const Point<uint32_t> GetMaxCharacterSize() const;
+        const Point2D<uint32_t> GetMaxCharacterSize() const;
         const FontType GetFontType() const;
 
     private:
@@ -106,7 +106,7 @@ namespace Nexus::Graphics
         uint32_t m_FontSize = 96;
         uint32_t m_LineSpacing = 0;
         uint32_t m_UnderlinePosition = 0;
-        Point<uint32_t> m_MaxCharacterSize = {0, 0};
+        Point2D<uint32_t> m_MaxCharacterSize = {0, 0};
         FontType m_Type;
     };
 }

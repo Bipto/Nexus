@@ -6,7 +6,7 @@ namespace Nexus::UI
     {
         Graphics::Rectangle<float> scissor = GetScissor();
         Graphics::Rectangle<float> rect = GetBoundingRectangleTranslated();
-        const Point<int> mousePos = Input::GetMousePosition();
+        const Point2D<int> mousePos = Input::GetMousePosition();
 
         if (!scissor.Contains(mousePos.To<float>()))
         {
@@ -45,12 +45,12 @@ namespace Nexus::UI
     {
     }
 
-    void Control::SetPosition(const Point<int> &position)
+    void Control::SetPosition(const Point2D<int> &position)
     {
         m_Position = position;
     }
 
-    void Control::SetSize(const Point<int> &size)
+    void Control::SetSize(const Point2D<int> &size)
     {
         m_Size = size;
     }
@@ -103,11 +103,11 @@ namespace Nexus::UI
         SetMarginRight(right);
     }
 
-    const Point<int> &Control::GetPosition() const
+    const Point2D<int> &Control::GetPosition() const
     {
         return m_Position;
     }
-    const Point<int> &Control::GetSize() const
+    const Point2D<int> &Control::GetSize() const
     {
         return m_Size;
     }
