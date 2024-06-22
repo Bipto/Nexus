@@ -150,7 +150,7 @@ public:
         bool containsMouse = rrect.Contains({(float)mousePos.X, (float)mousePos.Y});
         if (containsMouse)
         {
-            tilingFactor = 2.5f;
+            rrect.Inflate(20.0f, 20.0f);
         }
         m_BatchRenderer->DrawRoundedRectangleFill(rrect, {0.32f, 0.45f, 0.8f, 1.0f}, m_Texture, tilingFactor);
 

@@ -26,12 +26,12 @@ namespace Nexus::Graphics
         {
         }
 
-        void SetPointsPerCorner(float points)
+        void SetPointsPerCorner(size_t points)
         {
             m_PointsPerCorner = points;
         }
 
-        const float GetPointsPerCorner() const
+        const size_t GetPointsPerCorner() const
         {
             return m_PointsPerCorner;
         }
@@ -130,6 +130,68 @@ namespace Nexus::Graphics
         {
             Nexus::Graphics::Polygon poly = CreatePolygon();
             return poly.Contains(point);
+        }
+
+        void Inflate(float horizontalAmount, float verticalAmount)
+        {
+            m_X -= horizontalAmount;
+            m_Y -= verticalAmount;
+            m_Width += horizontalAmount * 2;
+            m_Height += verticalAmount * 2;
+        }
+
+        void Offset(float x, float y)
+        {
+            m_X += x;
+            m_Y += y;
+        }
+
+        const void Deconstruct(float *x, float *y, float *width, float *height, float *radiusTL, float *radiusTR, float *radiusBL, float *radiusBR, float *pointsPerCorner)
+        {
+            if (x)
+            {
+                *x = m_X;
+            }
+
+            if (y)
+            {
+                *y = m_Y;
+            }
+
+            if (width)
+            {
+                *width = m_Width;
+            }
+
+            if (height)
+            {
+                *height = m_Height;
+            }
+
+            if (radiusTL)
+            {
+                *radiusTL = m_RadiusTL;
+            }
+
+            if (radiusTR)
+            {
+                *radiusTR = m_RadiusTR;
+            }
+
+            if (radiusBL)
+            {
+                *radiusBL = m_RadiusBL;
+            }
+
+            if (radiusBR)
+            {
+                *radiusBR = m_RadiusBR;
+            }
+
+            if (pointsPerCorner)
+            {
+                *pointsPerCorner = m_PointsPerCorner;
+            }
         }
 
         std::vector<glm::vec2> CreateBorder() const
@@ -294,6 +356,6 @@ namespace Nexus::Graphics
         float m_RadiusTR = 0;
         float m_RadiusBL = 0;
         float m_RadiusBR = 0;
-        float m_PointsPerCorner = 16;
+        size_t m_PointsPerCorner = 16;
     };
 }
