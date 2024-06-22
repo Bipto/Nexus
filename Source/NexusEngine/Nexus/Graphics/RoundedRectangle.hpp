@@ -126,6 +126,12 @@ namespace Nexus::Graphics
             return m_RadiusBR;
         }
 
+        const bool Contains(const Nexus::Point2D<float> &point) const
+        {
+            Nexus::Graphics::Polygon poly = CreatePolygon();
+            return poly.Contains(point);
+        }
+
         std::vector<glm::vec2> CreateBorder() const
         {
             const glm::vec2 tr = {
@@ -223,8 +229,8 @@ namespace Nexus::Graphics
                 triangles.push_back(top);
 
                 Triangle2D left;
-                left.A = {tl.x - GetRadiusTopLeft(), tl.y};
-                left.B = {bl.x - GetRadiusBottomLeft(), bl.y};
+                left.A = {bl.x - GetRadiusBottomLeft(), bl.y};
+                left.B = {tl.x - GetRadiusTopLeft(), tl.y};
                 left.C = {centre.x, centre.y};
                 triangles.push_back(left);
 
@@ -235,8 +241,8 @@ namespace Nexus::Graphics
                 triangles.push_back(right);
 
                 Triangle2D bottom;
-                bottom.A = {bl.x, bl.y + GetRadiusBottomLeft()};
-                bottom.B = {br.x, br.y + GetRadiusBottomRight()};
+                bottom.A = {br.x, br.y + GetRadiusBottomRight()};
+                bottom.B = {bl.x, bl.y + GetRadiusBottomLeft()};
                 bottom.C = {centre.x, centre.y};
                 triangles.push_back(bottom);
             }

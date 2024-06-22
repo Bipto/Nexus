@@ -63,8 +63,10 @@ namespace Nexus::Graphics
         void Begin(Viewport viewport, Scissor scissor);
         void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color);
         void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture> texture);
+        void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture> texture, float tilingFactor);
         void DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color);
         void DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<Texture> texture);
+        void DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<Texture> texture, float tilingFactor);
         void DrawQuad(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, float thickness);
         void DrawQuad(const Rectangle<float> &rectangle, const glm::vec4 &color, float thickness);
         void DrawCharacter(char character, const glm::vec2 &position, const glm::vec2 &size, const glm::vec4 &color, Font *font);
@@ -75,17 +77,21 @@ namespace Nexus::Graphics
         void DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints);
         void DrawCircleRegionFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, float startAngle, float fillAngle);
         void DrawCircleRegionFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, float startAngle, float fillAngle, Ref<Texture> texture);
+        void DrawCircleRegionFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, float startAngle, float fillAngle, Ref<Texture> texture, float tilingFactor);
         void DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture> texture);
         void DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints);
         void DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture> texture);
+        void DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture> texture, float tilingFactor);
         void DrawCross(const Rectangle<float> &rectangle, float thickness, const glm::vec4 &color);
         void DrawTriangle(const glm::vec3 &pos0, const glm::vec2 &uv0, const glm::vec3 &pos1, const glm::vec2 &uv1, const glm::vec3 &pos2, const glm::vec2 &uv2, const glm::vec4 &color);
         void DrawTriangle(const glm::vec3 &pos0, const glm::vec2 &uv0, const glm::vec3 &pos1, const glm::vec2 &uv1, const glm::vec3 &pos2, const glm::vec2 &uv2, const glm::vec4 &color, Ref<Texture> texture);
         void DrawPolygon(const Polygon &polygon, const glm::vec4 &color);
         void DrawPolygon(const Polygon &polygon, const glm::vec4 &color, Ref<Texture> texture);
+        void DrawPolygon(const Polygon &polygon, const glm::vec4 &color, Ref<Texture> texture, float tilingFactor);
         void DrawRoundedRectangle(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, float thickness);
         void DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color);
         void DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, Ref<Texture> texture);
+        void DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, Ref<Texture> texture, float tilingFactor);
         void End();
 
     private:

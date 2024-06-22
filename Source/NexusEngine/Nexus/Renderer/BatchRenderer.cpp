@@ -569,59 +569,18 @@ namespace Nexus::Graphics
 
     void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color)
     {
-        EnsureStarted();
-
-        const uint32_t shapeVertexCount = 4;
-        const uint32_t shapeIndexCount = 6;
-
-        EnsureSpace(m_TextureBatchInfo, shapeVertexCount, shapeIndexCount);
-
-        glm::vec3 a(min.x, max.y, 0.0f);
-        glm::vec3 b(max.x, max.y, 0.0f);
-        glm::vec3 c(max.x, min.y, 0.0f);
-        glm::vec3 d(min.x, min.y, 0.0f);
-
-        m_TextureBatchInfo.Indices.push_back(0 + m_TextureBatchInfo.VertexCount);
-        m_TextureBatchInfo.Indices.push_back(1 + m_TextureBatchInfo.VertexCount);
-        m_TextureBatchInfo.Indices.push_back(2 + m_TextureBatchInfo.VertexCount);
-        m_TextureBatchInfo.Indices.push_back(0 + m_TextureBatchInfo.VertexCount);
-        m_TextureBatchInfo.Indices.push_back(2 + m_TextureBatchInfo.VertexCount);
-        m_TextureBatchInfo.Indices.push_back(3 + m_TextureBatchInfo.VertexCount);
-
-        VertexPositionTexCoordColorTexIndex v0;
-        v0.Position = a;
-        v0.TexCoords = {0.0f, 0.0f};
-        v0.Color = color;
-        v0.TexIndex = 0;
-        m_TextureBatchInfo.Vertices.push_back(v0);
-
-        VertexPositionTexCoordColorTexIndex v1;
-        v1.Position = b;
-        v1.TexCoords = {1.0f, 0.0f};
-        v1.Color = color;
-        v1.TexIndex = 0;
-        m_TextureBatchInfo.Vertices.push_back(v1);
-
-        VertexPositionTexCoordColorTexIndex v2;
-        v2.Position = c;
-        v2.TexCoords = {1.0f, 1.0f};
-        v2.Color = color;
-        v2.TexIndex = 0;
-        m_TextureBatchInfo.Vertices.push_back(v2);
-
-        VertexPositionTexCoordColorTexIndex v3;
-        v3.Position = d;
-        v3.TexCoords = {0.0f, 1.0f};
-        v3.Color = color;
-        v3.TexIndex = 0;
-        m_TextureBatchInfo.Vertices.push_back(v3);
-
-        m_TextureBatchInfo.IndexCount += shapeIndexCount;
-        m_TextureBatchInfo.VertexCount += shapeVertexCount;
+        DrawQuadFill(min, max, color, m_BlankTexture);
     }
 
     void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture> texture)
     {
+        DrawQuadFill(min, max, color, texture, 1.0f);
+    }
+
+    void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture> texture, float tilingFactor)
+    {
+        const float texIndex = GetOrCreateTexIndex(m_TextureBatchInfo, texture);
+
         EnsureStarted();
 
         const uint32_t shapeVertexCount = 4;
@@ -640,8 +599,6 @@ namespace Nexus::Graphics
         m_TextureBatchInfo.Indices.push_back(0 + m_TextureBatchInfo.VertexCount);
         m_TextureBatchInfo.Indices.push_back(2 + m_TextureBatchInfo.VertexCount);
         m_TextureBatchInfo.Indices.push_back(3 + m_TextureBatchInfo.VertexCount);
-
-        float texIndex = GetOrCreateTexIndex(m_TextureBatchInfo, texture);
 
         VertexPositionTexCoordColorTexIndex v0;
         v0.Position = a;
@@ -652,21 +609,21 @@ namespace Nexus::Graphics
 
         VertexPositionTexCoordColorTexIndex v1;
         v1.Position = b;
-        v1.TexCoords = {1.0f, 0.0f};
+        v1.TexCoords = {tilingFactor, 0.0f};
         v1.Color = color;
         v1.TexIndex = texIndex;
         m_TextureBatchInfo.Vertices.push_back(v1);
 
         VertexPositionTexCoordColorTexIndex v2;
         v2.Position = c;
-        v2.TexCoords = {1.0f, 1.0f};
+        v2.TexCoords = {tilingFactor, tilingFactor};
         v2.Color = color;
         v2.TexIndex = texIndex;
         m_TextureBatchInfo.Vertices.push_back(v2);
 
         VertexPositionTexCoordColorTexIndex v3;
         v3.Position = d;
-        v3.TexCoords = {0.0f, 1.0f};
+        v3.TexCoords = {0.0f, tilingFactor};
         v3.Color = color;
         v3.TexIndex = texIndex;
         m_TextureBatchInfo.Vertices.push_back(v3);
@@ -677,16 +634,19 @@ namespace Nexus::Graphics
 
     void BatchRenderer::DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color)
     {
-        glm::vec2 min = {(float)rectangle.GetLeft(), (float)rectangle.GetTop()};
-        glm::vec2 max = {(float)rectangle.GetRight(), (float)rectangle.GetBottom()};
-        DrawQuadFill(min, max, color);
+        DrawQuadFill(rectangle, color, m_BlankTexture);
     }
 
     void BatchRenderer::DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<Texture> texture)
     {
+        DrawQuadFill(rectangle, color, texture, 1.0f);
+    }
+
+    void BatchRenderer::DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<Texture> texture, float tilingFactor)
+    {
         glm::vec2 min = {(float)rectangle.GetLeft(), (float)rectangle.GetTop()};
         glm::vec2 max = {(float)rectangle.GetRight(), (float)rectangle.GetBottom()};
-        DrawQuadFill(min, max, color, texture);
+        DrawQuadFill(min, max, color, texture, tilingFactor);
     }
 
     void BatchRenderer::DrawQuad(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, float thickness)
@@ -937,6 +897,10 @@ namespace Nexus::Graphics
 
     void BatchRenderer::DrawCircleRegionFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, float startAngle, float fillAngle, Ref<Texture> texture)
     {
+    }
+
+    void BatchRenderer::DrawCircleRegionFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, float startAngle, float fillAngle, Ref<Texture> texture, float tilingFactor)
+    {
         const uint32_t minPoints = 3;
         const uint32_t maxPoints = 256;
 
@@ -948,11 +912,13 @@ namespace Nexus::Graphics
         const glm::vec2 bottomRight = {position.x + (radius / 2), position.y + (radius / 2)};
 
         const glm::vec3 centre = {position.x, position.y, 0.0f};
+        const glm::vec2 uvTL = {0.0f, 0.0f};
+        const glm::vec2 uvBR = {tilingFactor, tilingFactor};
 
         glm::vec2 centreUV =
             {
-                Nexus::Utils::ReMapRange(topLeft.x, bottomRight.x, 0.0f, 1.0f, centre.x),
-                Nexus::Utils::ReMapRange(topLeft.y, bottomRight.y, 0.0f, 1.0f, centre.y)};
+                Nexus::Utils::ReMapRange(topLeft.x, bottomRight.x, uvTL.x, uvBR.x, centre.x),
+                Nexus::Utils::ReMapRange(topLeft.y, bottomRight.y, uvTL.y, uvBR.y, centre.y)};
 
         for (int i = 0; i < numberOfPoints; i++)
         {
@@ -964,8 +930,8 @@ namespace Nexus::Graphics
 
             glm::vec2 uvA =
                 {
-                    Nexus::Utils::ReMapRange(topLeft.x, bottomRight.x, 0.0f, 1.0f, posA.x),
-                    Nexus::Utils::ReMapRange(topLeft.y, bottomRight.y, 0.0f, 1.0f, posA.y)};
+                    Nexus::Utils::ReMapRange(topLeft.x, bottomRight.x, uvTL.x, uvBR.x, posA.x),
+                    Nexus::Utils::ReMapRange(topLeft.y, bottomRight.y, uvTL.y, uvBR.y, posA.y)};
 
             currentAngle -= deltaAngle;
 
@@ -977,8 +943,8 @@ namespace Nexus::Graphics
 
             glm::vec2 uvB =
                 {
-                    Nexus::Utils::ReMapRange(topLeft.x, bottomRight.x, 0.0f, 1.0f, posB.x),
-                    Nexus::Utils::ReMapRange(topLeft.y, bottomRight.y, 0.0f, 1.0f, posB.y)};
+                    Nexus::Utils::ReMapRange(topLeft.x, bottomRight.x, uvTL.x, uvBR.x, posB.x),
+                    Nexus::Utils::ReMapRange(topLeft.y, bottomRight.y, uvTL.y, uvBR.y, posB.y)};
 
             DrawTriangle(
                 centre,
@@ -1006,6 +972,10 @@ namespace Nexus::Graphics
     {
         const auto &pos = circle.GetPosition();
         DrawCircleFill({pos.X, pos.Y}, circle.GetRadius(), color, numberOfPoints, texture);
+    }
+
+    void BatchRenderer::DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture> texture, float tilingFactor)
+    {
     }
 
     void BatchRenderer::DrawCross(const Rectangle<float> &rectangle, float thickness, const glm::vec4 &color)
@@ -1081,27 +1051,36 @@ namespace Nexus::Graphics
 
     void BatchRenderer::DrawPolygon(const Polygon &polygon, const glm::vec4 &color, Ref<Texture> texture)
     {
+        DrawPolygon(
+            polygon,
+            color,
+            m_BlankTexture,
+            1.0f);
+    }
+
+    void BatchRenderer::DrawPolygon(const Polygon &polygon, const glm::vec4 &color, Ref<Texture> texture, float tilingFactor)
+    {
         const auto &boundingRectangle = polygon.GetBoundingRectangle();
         const std::vector<Triangle2D> &tris = polygon.GetTriangles();
 
         const glm::vec2 uvTL = {0.0f, 0.0f};
-        const glm::vec2 uvBR = {1.0f, 1.0f};
+        const glm::vec2 uvBR = {tilingFactor, tilingFactor};
 
         for (const auto &triangle2D : tris)
         {
             const Triangle3D triToDraw = triangle2D;
 
             const glm::vec2 uvA =
-                {Nexus::Utils::ReMapRange(boundingRectangle.GetLeft(), boundingRectangle.GetRight(), 0.0f, 1.0f, triToDraw.A.x),
-                 Nexus::Utils::ReMapRange(boundingRectangle.GetTop(), boundingRectangle.GetBottom(), 0.0f, 1.0f, triToDraw.A.y)};
+                {Nexus::Utils::ReMapRange(boundingRectangle.GetLeft(), boundingRectangle.GetRight(), uvTL.y, uvBR.y, triToDraw.A.x),
+                 Nexus::Utils::ReMapRange(boundingRectangle.GetTop(), boundingRectangle.GetBottom(), uvTL.y, uvBR.y, triToDraw.A.y)};
 
             const glm::vec2 uvB =
-                {Nexus::Utils::ReMapRange(boundingRectangle.GetLeft(), boundingRectangle.GetRight(), 0.0f, 1.0f, triToDraw.B.x),
-                 Nexus::Utils::ReMapRange(boundingRectangle.GetTop(), boundingRectangle.GetBottom(), 0.0f, 1.0f, triToDraw.B.y)};
+                {Nexus::Utils::ReMapRange(boundingRectangle.GetLeft(), boundingRectangle.GetRight(), uvTL.y, uvBR.y, triToDraw.B.x),
+                 Nexus::Utils::ReMapRange(boundingRectangle.GetTop(), boundingRectangle.GetBottom(), uvTL.y, uvBR.y, triToDraw.B.y)};
 
             const glm::vec2 uvC =
-                {Nexus::Utils::ReMapRange(boundingRectangle.GetLeft(), boundingRectangle.GetRight(), 0.0f, 1.0f, triToDraw.C.x),
-                 Nexus::Utils::ReMapRange(boundingRectangle.GetTop(), boundingRectangle.GetBottom(), 0.0f, 1.0f, triToDraw.C.y)};
+                {Nexus::Utils::ReMapRange(boundingRectangle.GetLeft(), boundingRectangle.GetRight(), uvTL.y, uvBR.y, triToDraw.C.x),
+                 Nexus::Utils::ReMapRange(boundingRectangle.GetTop(), boundingRectangle.GetBottom(), uvTL.y, uvBR.y, triToDraw.C.y)};
 
             DrawTriangle(triToDraw.A, uvA, triToDraw.B, uvB, triToDraw.C, uvC, color, texture);
         }
@@ -1126,8 +1105,13 @@ namespace Nexus::Graphics
 
     void BatchRenderer::DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, Ref<Texture> texture)
     {
+        DrawRoundedRectangleFill(roundedRectangle, color, texture, 1.0f);
+    }
+
+    void BatchRenderer::DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, Ref<Texture> texture, float tilingFactor)
+    {
         const Polygon &poly = roundedRectangle.CreatePolygon();
-        DrawPolygon(poly, color, texture);
+        DrawPolygon(poly, color, texture, tilingFactor);
     }
 
     void BatchRenderer::End()

@@ -139,11 +139,27 @@ public:
 
         m_BatchRenderer->DrawQuadFill({0, 0, (float)windowSize.X, (float)windowSize.Y}, {1.0f, 0.0f, 0.0f, 1.0f});
 
-        m_BatchRenderer->DrawCircleRegionFill({500.0f, 750.0f}, 150, {1.0f, 1.0f, 1.0f, 1.0f}, 32, 0.0f, 45.0f, m_Texture);
+        m_BatchRenderer->DrawCircleRegionFill({500.0f, 750.0f}, 150, {1.0f, 1.0f, 1.0f, 1.0f}, 32, 0.0f, 45.0f, m_Texture, 10.0f);
 
         Nexus::Graphics::RoundedRectangle rrect({150.0f, 150.0f}, {450.0f, 250.0f}, 50.0f, 50.0f, 50.0f, 50.0f);
-        m_BatchRenderer->DrawRoundedRectangleFill(rrect, {0.32f, 0.45f, 0.8f, 1.0f}, m_Texture);
-        // m_BatchRenderer->DrawRoundedRectangle(rrect, {0.0f, 1.0f, 0.0f, 1.0f}, 5.0f);
+
+        float tilingFactor = 1.0f;
+
+        const Nexus::Point2D<int> mousePos = Nexus::Input::GetMousePosition();
+
+        bool containsMouse = rrect.Contains({(float)mousePos.X, (float)mousePos.Y});
+        if (containsMouse)
+        {
+            tilingFactor = 2.5f;
+        }
+        m_BatchRenderer->DrawRoundedRectangleFill(rrect, {0.32f, 0.45f, 0.8f, 1.0f}, m_Texture, tilingFactor);
+
+        if (containsMouse)
+        {
+            m_BatchRenderer->DrawRoundedRectangle(rrect, {0.0f, 1.0f, 0.0f, 1.0f}, 5.0f);
+        }
+
+        m_BatchRenderer->DrawQuadFill({900.0f, 150.0f, 250.0f, 250.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, m_Texture, 0.1f);
 
         m_BatchRenderer->End();
 

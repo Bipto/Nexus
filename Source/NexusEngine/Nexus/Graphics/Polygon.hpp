@@ -2,6 +2,7 @@
 
 #include "Triangle.hpp"
 #include "Rectangle.hpp"
+#include "Nexus/Point.hpp"
 
 #include "glm/glm.hpp"
 
@@ -29,11 +30,21 @@ namespace Nexus::Graphics
             return m_Triangles;
         }
 
+        bool Contains(const Nexus::Point2D<float> &point)
+        {
+            for (const auto &tri : m_Triangles)
+            {
+                if (tri.Contains({point.X, point.Y}))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         Rectangle<float> GetBoundingRectangle() const
         {
-            // glm::vec2 min = {std::numeric_limits<float>::max(), std::numeric_limits<float>::max()};
-            // glm::vec2 max = {-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max()};
-
             glm::vec2 min = {FLT_MAX, FLT_MAX};
             glm::vec2 max = {-FLT_MAX, -FLT_MAX};
 
