@@ -2,7 +2,16 @@
 
 namespace Nexus::UI
 {
-    void Label::Render(Graphics::BatchRenderer *batchRenderer)
+    void Nexus::UI::Label::OnUpdate()
+    {
+        if (m_AutoSize && m_Font)
+        {
+            Nexus::Point2D<float> size = m_Font->MeasureString(m_Text, m_FontSize);
+            m_Size = size;
+        }
+    }
+
+    void Nexus::UI::Label::OnRender(Nexus::Graphics::BatchRenderer *renderer)
     {
         const Canvas *canvas = GetCanvas();
 
@@ -14,19 +23,27 @@ namespace Nexus::UI
         vp.MinDepth = 0.0f;
         vp.MaxDepth = 1.0f;
 
-        Nexus::Graphics::Scissor scissor = GetScissor();
-        Nexus::Graphics::Rectangle<float> rect = GetBoundingRectangleTranslated();
+        Nexus::Graphics::Rectangle<float> rect = GetControlBounds();
 
-        batchRenderer->Begin(vp, scissor);
+        Nexus::Graphics::Scissor scissor;
+        scissor.X = 0;
+        scissor.Y = 0;
+        scissor.Width = rect.GetWidth();
+        scissor.Height = rect.GetHeight();
 
-        batchRenderer->DrawQuadFill(rect, m_BackgroundColour);
+        renderer->Begin(vp, scissor);
+
+        renderer->DrawQuadFill(rect, m_BackgroundColour);
 
         if (m_Font)
         {
-            batchRenderer->DrawString(m_Text, {rect.GetLeft() + m_MarginLeft, rect.GetTop() + m_MarginTop}, m_FontSize, m_ForegroundColour, m_Font);
+            renderer->DrawString(m_Text, {rect.GetLeft(), rect.GetTop()}, m_FontSize, m_ForegroundColour, m_Font);
+
+            const auto &size = m_Font->MeasureString(m_Text, m_FontSize);
+            renderer->DrawQuad({m_Position, size}, {0.0f, 0.0f, 0.0f, 1.0f}, 1.0f);
         }
 
-        batchRenderer->End();
+        renderer->End();
     }
 
     void Label::SetText(const std::string &text)

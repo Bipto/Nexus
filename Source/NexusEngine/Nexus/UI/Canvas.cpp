@@ -73,26 +73,21 @@ namespace Nexus::UI
 
         for (const auto &control : m_Controls)
         {
-            control->Update();
-            control->Render(m_BatchRenderer.get());
+            control->OnUpdate();
+            control->OnRender(m_BatchRenderer.get());
         }
     }
 
     void Canvas::AddControl(Control *control)
     {
-        control->SetCanvas(this);
         m_Controls.push_back(control);
-
-        control->OnClose += [&](Control *control)
-        {
-            RemoveControl(control);
-        };
+        control->SetCanvas(this);
     }
 
     void Canvas::RemoveControl(Control *control)
     {
-        delete control;
         m_Controls.erase(std::remove(m_Controls.begin(), m_Controls.end(), control), m_Controls.end());
+        delete control;
     }
 
     Nexus::Window *Canvas::GetWindow() const

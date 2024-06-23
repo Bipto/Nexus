@@ -38,7 +38,7 @@ void LoadCharacter(char character, FT_Face &face, Nexus::Graphics::FontData &dat
     c.Bearing = {face->glyph->bitmap_left, face->glyph->bitmap_top};
     c.TexCoordsMin = texCoordsMin;
     c.TexCoordsMax = texCoordsMax;
-    c.Advance = face->glyph->advance.x / 64;
+    c.Advance = face->glyph->advance.x;
     characters[character] = c;
 }
 
@@ -152,40 +152,47 @@ namespace Nexus::Graphics
         return m_FontSize;
     }
 
-    Nexus::Point2D<uint32_t> Font::MeasureString(const std::string &text, uint32_t size)
+    Nexus::Point2D<float> Font::MeasureString(const std::string &text, uint32_t size)
     {
         float scale = 1.0f / GetSize() * size;
 
         float x = 0;
         float y = 0;
+        float maxWidth = 0;
 
         if (text.length() > 0)
         {
-            y = m_LineSpacing * scale;
-            // y += (m_LineSpacing / 2) * scale;
+            y = (GetLineHeight() * scale);
         }
 
         for (auto character : text)
         {
             const auto &characterInfo = GetCharacter(character);
 
+            x += (characterInfo.Bearing.x * scale);
+
             if (character == '\n')
             {
                 x = 0;
-                y += m_LineSpacing * scale;
+                y += GetLineHeight() * scale;
             }
             else if (character == '\t')
             {
-                const auto &spaceInfo = GetCharacter(character);
-                x += spaceInfo.Advance * scale * 4;
+                const auto &spaceInfo = GetCharacter(' ');
+                x += ((spaceInfo.Advance >> 6) * scale) * 4;
             }
             else
             {
-                x += characterInfo.Advance * scale;
+                x += (characterInfo.Advance >> 6) * scale;
+            }
+
+            if (x > maxWidth)
+            {
+                maxWidth = x;
             }
         }
 
-        return {(uint32_t)x, (uint32_t)y};
+        return {maxWidth, y};
     }
 
     const uint32_t Font::GetLineHeight() const

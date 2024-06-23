@@ -738,34 +738,30 @@ namespace Nexus::Graphics
         float scale = 1.0f / font->GetSize() * size;
 
         // initial text position
-        float worldPosX = position.x;
-        float worldPosY = position.y;
+        float worldX = position.x;
+        float worldY = position.y + ((font->GetLineHeight() * scale) * 0.75f);
 
-        // y is up so by default text will render above the y position, we fix this by offsetting by half of a row
-        worldPosY += font->GetLineHeight() * scale * 0.75f;
-
-        // iterate through each character, retrieve its info and render it
         for (const char c : text)
         {
-            const auto &characterInfo = font->GetCharacter(c);
+            Character ch = font->GetCharacter(c);
 
-            // calculate where to begin rendering the next glyph
-            float xPos = worldPosX + (characterInfo.Bearing.x * scale);
-            float yPos = worldPosY - (characterInfo.Bearing.y * scale);
+            float xpos = worldX + (ch.Bearing.x * scale);
+            float ypos = worldY - (ch.Bearing.y) * scale;
 
-            // calculate width and height of new quad
-            float w = characterInfo.Size.x * scale;
-            float h = characterInfo.Size.y * scale;
+            float w = ch.Size.x * scale;
+            float h = ch.Size.y * scale;
+
+            // DrawCharacter(c, {xpos, ypos}, {w, h}, color, font);
 
             if (c == '\n')
             {
-                worldPosX = position.x;
-                worldPosY += font->GetMaxCharacterSize().Y * scale;
+                xpos = position.x;
+                worldY += font->GetLineHeight() * scale;
             }
             else if (c == '\t')
             {
                 const auto &spaceInfo = font->GetCharacter(' ');
-                worldPosX += spaceInfo.Advance * scale * 4;
+                xpos += ((spaceInfo.Advance >> 6) * scale) * 4;
             }
             else if (c == '\r')
             {
@@ -774,11 +770,13 @@ namespace Nexus::Graphics
             else
             {
                 // render glyph
-                DrawCharacter(c, {xPos, yPos}, {w, h}, color, font);
+                DrawCharacter(c, {xpos, ypos}, {w, h}, color, font);
 
                 // remember to increase the x offset of the next character
-                worldPosX += (characterInfo.Advance) * scale;
+                xpos += ((ch.Advance >> 6)) * scale;
             }
+
+            worldX = xpos;
         }
     }
 
@@ -897,6 +895,7 @@ namespace Nexus::Graphics
 
     void BatchRenderer::DrawCircleRegionFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, float startAngle, float fillAngle, Ref<Texture> texture)
     {
+        DrawCircleRegionFill(position, radius, color, numberOfPoints, startAngle, fillAngle, texture, 1.0f);
     }
 
     void BatchRenderer::DrawCircleRegionFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, float startAngle, float fillAngle, Ref<Texture> texture, float tilingFactor)
@@ -976,6 +975,15 @@ namespace Nexus::Graphics
 
     void BatchRenderer::DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture> texture, float tilingFactor)
     {
+        DrawCircleRegionFill(
+            {circle.GetPosition().X, circle.GetPosition().Y},
+            circle.GetRadius(),
+            color,
+            numberOfPoints,
+            0.0f,
+            360.0f,
+            texture,
+            tilingFactor);
     }
 
     void BatchRenderer::DrawCross(const Rectangle<float> &rectangle, float thickness, const glm::vec4 &color)

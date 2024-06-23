@@ -74,9 +74,9 @@ namespace Nexus::Graphics
     {
         glm::vec2 Size;
         glm::vec2 Bearing;
+        uint32_t Advance;
         glm::vec2 TexCoordsMin;
         glm::vec2 TexCoordsMax;
-        float Advance;
     };
 
     enum class FontType
@@ -92,7 +92,7 @@ namespace Nexus::Graphics
         Nexus::Ref<Nexus::Graphics::Texture> GetTexture();
         const Character &GetCharacter(char character);
         uint32_t GetSize() const;
-        Nexus::Point2D<uint32_t> MeasureString(const std::string &text, uint32_t size);
+        Nexus::Point2D<float> MeasureString(const std::string &text, uint32_t size);
         const uint32_t GetLineHeight() const;
         const Point2D<uint32_t> GetMaxCharacterSize() const;
         const FontType GetFontType() const;

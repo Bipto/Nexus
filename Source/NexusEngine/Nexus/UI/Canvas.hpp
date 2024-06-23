@@ -3,6 +3,8 @@
 #include "Nexus/Renderer/BatchRenderer.hpp"
 #include "Nexus/Point.hpp"
 
+#include "Canvas.hpp"
+
 #include <glm/glm.hpp>
 
 #include <vector>
