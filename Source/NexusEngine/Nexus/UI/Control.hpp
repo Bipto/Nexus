@@ -7,6 +7,8 @@
 #include "Nexus/Point.hpp"
 #include "Nexus/Graphics/Rectangle.hpp"
 
+#include "Nexus/Events/EventHandler.hpp"
+
 #include "Canvas.hpp"
 
 #include "glm/glm.hpp"
@@ -14,6 +16,14 @@
 namespace Nexus::UI
 {
     class Canvas;
+
+    struct Padding
+    {
+        float Left = 0.0f;
+        float Right = 0.0f;
+        float Top = 0.0f;
+        float Bottom = 0.0f;
+    };
 
     class Control
     {
@@ -32,6 +42,10 @@ namespace Nexus::UI
         void SetForegroundColour(const glm::vec4 &colour);
         void SetCanvas(Canvas *canvas);
         void SetAutoSize(bool enabled);
+        void SetCornerRounding(const float rounding);
+        void SetBorderThickness(const float thickness);
+        void SetBorderColour(const glm::vec4 &colour);
+        void SetPadding(const Padding &padding);
 
         // getters
         const Point2D<float> &GetPosition() const;
@@ -42,9 +56,18 @@ namespace Nexus::UI
         const glm::vec4 &GetForegroundColour() const;
         const Canvas *const GetCanvas() const;
         const bool IsAutoSized() const;
+        const float GetCornerRounding() const;
+        float GetBorderThickness() const;
+        const glm::vec4 &GetBorderColour() const;
+        const Padding &GetPadding() const;
 
         // utilities
         const Graphics::Rectangle<float> GetControlBounds() const;
+        const Graphics::Rectangle<float> GetDrawableBounds() const;
+
+        EventHandler<Control *> OnMouseEnter;
+        EventHandler<Control *> OnMouseLeave;
+        EventHandler<Control *> OnMouseClick;
 
     protected:
         Point2D<float> m_Position = {0, 0};
@@ -54,8 +77,14 @@ namespace Nexus::UI
 
         glm::vec4 m_BackgroundColour = {1.0f, 1.0f, 1.0f, 1.0f};
         glm::vec4 m_ForegroundColour = {0.0f, 0.0f, 0.0f, 1.0f};
+        glm::vec4 m_BorderColour = {0.0f, 0.0f, 0.0f, 1.0f};
 
         Canvas *m_Canvas = nullptr;
         bool m_AutoSize = false;
+        bool m_ContainsMouse = false;
+        float m_CornerRounding = 0.0f;
+        float m_BorderThickness = 0.0f;
+
+        Padding m_Padding;
     };
 }

@@ -751,8 +751,6 @@ namespace Nexus::Graphics
             float w = ch.Size.x * scale;
             float h = ch.Size.y * scale;
 
-            // DrawCharacter(c, {xpos, ypos}, {w, h}, color, font);
-
             if (c == '\n')
             {
                 xpos = position.x;

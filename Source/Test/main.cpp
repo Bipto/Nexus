@@ -42,7 +42,7 @@ public:
             {
                 {0x0020, 0x00FF}};
 
-        m_Font = new Nexus::Graphics::Font("resources/Fonts/JETBRAINSMONO-REGULAR.TTF", 8, fontRange, Nexus::Graphics::FontType::Bitmap, m_GraphicsDevice);
+        m_Font = new Nexus::Graphics::Font("resources/Fonts/JETBRAINSMONO-REGULAR.TTF", 18, fontRange, Nexus::Graphics::FontType::Bitmap, m_GraphicsDevice);
         Nexus::Ref<Nexus::Graphics::Texture> texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), false);
 
         Nexus::UI::Label *lbl = new Nexus::UI::Label();
@@ -51,7 +51,16 @@ public:
         lbl->SetSize({1200, 400});
         lbl->SetText("Hello World!Even more text...\n\tHopefully this second line is longer than the first:)");
         lbl->SetFontSize(m_Font->GetSize());
-        // lbl->SetAutoSize(true);
+        lbl->SetAutoSize(true);
+        lbl->SetCornerRounding(10.0f);
+
+        Nexus::UI::Padding padding;
+        padding.Left = 50.0f;
+        padding.Right = 50.0f;
+        padding.Top = 50.0f;
+        padding.Bottom = 50.0f;
+        lbl->SetPadding(padding);
+
         m_Canvas->AddControl(lbl);
     }
 

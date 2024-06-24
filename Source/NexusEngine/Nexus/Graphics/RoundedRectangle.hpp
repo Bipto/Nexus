@@ -19,9 +19,29 @@ namespace Nexus::Graphics
         {
         }
 
+        RoundedRectangle(float x, float y, float width, float height)
+            : m_X(x), m_Y(y),
+              m_Width(width), m_Height(height)
+        {
+        }
+
         RoundedRectangle(const Point2D<float> &position, const Point2D<float> &size, float radiusTL, float radiusTR, float radiusBL, float radiusBR)
             : m_X(position.X), m_Y(position.Y),
               m_Width(size.X), m_Height(size.Y),
+              m_RadiusTL(radiusTL), m_RadiusTR(radiusTR), m_RadiusBL(radiusBL), m_RadiusBR(radiusBR)
+        {
+        }
+
+        RoundedRectangle(float x, float y, float width, float height, float radiusTL, float radiusTR, float radiusBL, float radiusBR)
+            : m_X(x), m_Y(y),
+              m_Width(width), m_Height(height),
+              m_RadiusTL(radiusTL), m_RadiusTR(radiusTR), m_RadiusBL(radiusBL), m_RadiusBR(radiusBR)
+        {
+        }
+
+        RoundedRectangle(const Rectangle<float> &rect, float radiusTL, float radiusTR, float radiusBL, float radiusBR)
+            : m_X(rect.GetLeft()), m_Y(rect.GetTop()),
+              m_Width(rect.GetWidth()), m_Height(rect.GetHeight()),
               m_RadiusTL(radiusTL), m_RadiusTR(radiusTR), m_RadiusBL(radiusBL), m_RadiusBR(radiusBR)
         {
         }
