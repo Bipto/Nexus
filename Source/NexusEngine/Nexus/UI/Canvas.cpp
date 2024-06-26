@@ -81,7 +81,7 @@ namespace Nexus::UI
     void Canvas::AddControl(Control *control)
     {
         m_Controls.push_back(control);
-        control->SetCanvas(this);
+        control->m_Canvas = this;
     }
 
     void Canvas::RemoveControl(Control *control)

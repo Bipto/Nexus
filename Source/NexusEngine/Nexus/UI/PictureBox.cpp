@@ -60,11 +60,7 @@ namespace Nexus::UI
              rect.GetHeight() - (m_BorderThickness * 2)},
             m_CornerRounding, m_CornerRounding, m_CornerRounding, m_CornerRounding);
 
-        Nexus::Graphics::Scissor scissor;
-        scissor.X = rect.GetLeft();
-        scissor.Y = rect.GetTop();
-        scissor.Width = rect.GetWidth();
-        scissor.Height = rect.GetHeight();
+        Nexus::Graphics::Scissor scissor = GetScissorRectangle();
 
         renderer->Begin(vp, scissor);
 

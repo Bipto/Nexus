@@ -11,6 +11,7 @@
 #include "Nexus/UI/Label.hpp"
 #include "Nexus/UI/Button.hpp"
 #include "Nexus/UI/PictureBox.hpp"
+#include "Nexus/UI/Panel.hpp"
 
 #include "Nexus/Utils/Utils.hpp"
 
@@ -51,17 +52,16 @@ public:
 
         Nexus::UI::Label *lbl = new Nexus::UI::Label();
         lbl->SetFont(m_Font);
-        lbl->SetPosition({10, 10});
+        lbl->SetLocalPosition({10, 10});
         lbl->SetSize({1200, 400});
         lbl->SetText("Hello World!Even more text...\n\tHopefully this second line is longer than the first:)");
         lbl->SetFontSize(m_Font->GetSize());
         lbl->SetAutoSize(true);
         lbl->SetCornerRounding(10.0f);
-        m_Canvas->AddControl(lbl);
 
         Nexus::UI::Button *btn = new Nexus::UI::Button();
         btn->SetFont(m_Font);
-        btn->SetPosition({10, 600});
+        btn->SetLocalPosition({10, 175});
         btn->SetSize({1200, 400});
         btn->SetText("My Button");
         btn->SetFontSize(m_Font->GetSize());
@@ -69,10 +69,13 @@ public:
         btn->SetCornerRounding(10.0f);
         btn->SetHoveredColour({0.0f, 0.25f, 0.45f, 1.0f});
         btn->SetBorderThickness(1.0f);
-        m_Canvas->AddControl(btn);
+        btn->OnMouseClick += [&](Nexus::UI::Control *ctrl)
+        {
+            std::cout << "Button clicked\n";
+        };
 
         Nexus::UI::PictureBox *pbx = new Nexus::UI::PictureBox();
-        pbx->SetPosition({250, 600});
+        pbx->SetLocalPosition({25, 275});
         pbx->SetSize({350, 350});
         pbx->SetFontSize(m_Font->GetSize());
         pbx->SetCornerRounding(10.0f);
@@ -80,7 +83,6 @@ public:
         pbx->SetTexture(m_Texture);
         pbx->SetAutoSize(true);
         pbx->SetPadding(Nexus::UI::Padding(20.0f));
-        m_Canvas->AddControl(pbx);
 
         Nexus::UI::Padding padding;
         padding.Left = 50.0f;
@@ -88,6 +90,15 @@ public:
         padding.Top = 50.0f;
         padding.Bottom = 50.0f;
         lbl->SetPadding(padding);
+
+        Nexus::UI::Panel *pnl = new Nexus::UI::Panel();
+        pnl->SetLocalPosition({100, 100});
+        pnl->SetSize({500, 500});
+        pnl->SetBackgroundColour({0.0f, 0.0f, 1.0f, 1.0f});
+        pnl->AddControl(btn);
+        pnl->AddControl(lbl);
+        pnl->AddControl(pbx);
+        m_Canvas->AddControl(pnl);
     }
 
     virtual void Update(Nexus::Time time) override

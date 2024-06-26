@@ -52,13 +52,12 @@ namespace Nexus::UI
         virtual void OnRender(Nexus::Graphics::BatchRenderer *renderer) = 0;
 
         // setters
-        void SetPosition(const Point2D<float> position);
+        void SetLocalPosition(const Point2D<float> position);
         void SetSize(const Point2D<float> size);
         void SetFont(Graphics::Font *font);
         void SetFontSize(uint32_t size);
         void SetBackgroundColour(const glm::vec4 &colour);
         void SetForegroundColour(const glm::vec4 &colour);
-        void SetCanvas(Canvas *canvas);
         void SetAutoSize(bool enabled);
         void SetCornerRounding(const float rounding);
         void SetBorderThickness(const float thickness);
@@ -66,7 +65,8 @@ namespace Nexus::UI
         void SetPadding(const Padding &padding);
 
         // getters
-        const Point2D<float> &GetPosition() const;
+        const Point2D<float> GetLocalPosition() const;
+        const Point2D<float> GetScreenSpacePosition() const;
         const Point2D<float> &GetSize() const;
         const Graphics::Font *const GetFont() const;
         const uint32_t GetFontSize() const;
@@ -81,14 +81,19 @@ namespace Nexus::UI
 
         // utilities
         const Graphics::Rectangle<float> GetControlBounds() const;
-        const Graphics::Rectangle<float> GetDrawableBounds() const;
+        const Graphics::Rectangle<float> GetContentBounds() const;
+        const Graphics::Scissor GetScissorRectangle() const;
+
+        void AddControl(Control *control);
+        void RemoveControl(Control *control);
+        const std::vector<Control *> GetControls() const;
 
         EventHandler<Control *> OnMouseEnter;
         EventHandler<Control *> OnMouseLeave;
         EventHandler<Control *> OnMouseClick;
 
     protected:
-        Point2D<float> m_Position = {0, 0};
+        Point2D<float> m_LocalPosition = {0, 0};
         Point2D<float> m_Size = {0, 0};
         uint32_t m_FontSize = 24;
         Graphics::Font *m_Font = nullptr;
@@ -104,5 +109,9 @@ namespace Nexus::UI
         float m_BorderThickness = 0.0f;
 
         Padding m_Padding;
+        std::vector<Control *> m_Controls;
+        Control *m_Parent = nullptr;
+
+        friend class Canvas;
     };
 }

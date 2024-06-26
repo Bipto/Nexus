@@ -51,13 +51,9 @@ namespace Nexus::UI
 
         Nexus::Graphics::Rectangle<float> rect = GetControlBounds();
         Nexus::Graphics::RoundedRectangle rrect({rect.GetLeft() + m_BorderThickness, rect.GetTop() + m_BorderThickness, rect.GetWidth() - (m_BorderThickness * 2), rect.GetHeight() - (m_BorderThickness * 2)}, m_CornerRounding, m_CornerRounding, m_CornerRounding, m_CornerRounding);
-        Nexus::Graphics::Rectangle<float> drawable = GetDrawableBounds();
+        Nexus::Graphics::Rectangle<float> drawable = GetContentBounds();
 
-        Nexus::Graphics::Scissor scissor;
-        scissor.X = rect.GetLeft();
-        scissor.Y = rect.GetTop();
-        scissor.Width = rect.GetWidth();
-        scissor.Height = rect.GetHeight();
+        Nexus::Graphics::Scissor scissor = GetScissorRectangle();
 
         renderer->Begin(vp, scissor);
 

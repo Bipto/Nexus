@@ -1,10 +1,12 @@
 #include "Control.hpp"
 
+#include <algorithm>
+
 namespace Nexus::UI
 {
-    void Control::SetPosition(const Point2D<float> position)
+    void Control::SetLocalPosition(const Point2D<float> position)
     {
-        m_Position = position;
+        m_LocalPosition = position;
     }
 
     void Control::SetSize(const Point2D<float> size)
@@ -32,11 +34,6 @@ namespace Nexus::UI
         m_ForegroundColour = colour;
     }
 
-    void Control::SetCanvas(Canvas *canvas)
-    {
-        m_Canvas = canvas;
-    }
-
     void Control::SetAutoSize(bool enabled)
     {
         m_AutoSize = enabled;
@@ -62,9 +59,23 @@ namespace Nexus::UI
         m_Padding = padding;
     }
 
-    const Point2D<float> &Control::GetPosition() const
+    const Point2D<float> Control::GetLocalPosition() const
     {
-        return m_Position;
+        return m_LocalPosition;
+    }
+
+    const Point2D<float> Control::GetScreenSpacePosition() const
+    {
+        Point2D<float> pos = GetLocalPosition();
+
+        if (m_Parent)
+        {
+            Point2D<float> parentPos = m_Parent->GetScreenSpacePosition();
+            pos.X += parentPos.X;
+            pos.Y += parentPos.Y;
+        }
+
+        return pos;
     }
 
     const Point2D<float> &Control::GetSize() const
@@ -93,6 +104,11 @@ namespace Nexus::UI
 
     const Canvas *const Control::GetCanvas() const
     {
+        if (m_Parent)
+        {
+            return m_Parent->GetCanvas();
+        }
+
         return m_Canvas;
     }
 
@@ -123,19 +139,50 @@ namespace Nexus::UI
 
     const Graphics::Rectangle<float> Control::GetControlBounds() const
     {
+        Point2D<float> pos = GetScreenSpacePosition();
+
         return Graphics::Rectangle<float>(
-            m_Position.X,
-            m_Position.Y,
+            pos.X,
+            pos.Y,
             m_Size.X + m_CornerRounding + m_Padding.Left + m_Padding.Right,
             m_Size.Y + m_CornerRounding + m_Padding.Top + m_Padding.Bottom);
     }
 
-    const Graphics::Rectangle<float> Control::GetDrawableBounds() const
+    const Graphics::Rectangle<float> Control::GetContentBounds() const
     {
-        return Graphics::Rectangle<float>(
-            m_Position.X + (m_CornerRounding / 2) + m_Padding.Left,
-            m_Position.Y + (m_CornerRounding / 2) + m_Padding.Top,
-            m_Size.X + m_CornerRounding + m_Padding.Right,
-            m_Size.Y + m_CornerRounding + m_Padding.Bottom);
+        Graphics::Rectangle<float> bounds = GetControlBounds();
+        bounds.SetX(bounds.GetLeft() + (m_CornerRounding / 2) + m_Padding.Left);
+        bounds.SetY(bounds.GetTop() + (m_CornerRounding / 2) + m_Padding.Top);
+        bounds.SetWidth(bounds.GetWidth() + m_CornerRounding + m_Padding.Right);
+        bounds.SetHeight(bounds.GetHeight() + m_CornerRounding + m_Padding.Bottom);
+        return bounds;
+    }
+
+    const Graphics::Scissor Control::GetScissorRectangle() const
+    {
+        // if the control has a parent, use that control's scissor rectangle
+        if (m_Parent)
+        {
+            return m_Parent->GetScissorRectangle();
+        }
+
+        // otherwise use the bounds of this control
+        return GetControlBounds();
+    }
+
+    void Control::AddControl(Control *control)
+    {
+        control->m_Parent = this;
+        m_Controls.push_back(control);
+    }
+
+    void Control::RemoveControl(Control *control)
+    {
+        m_Controls.erase(std::remove(m_Controls.begin(), m_Controls.end(), control), m_Controls.end());
+    }
+
+    const std::vector<Control *> Control::GetControls() const
+    {
+        return m_Controls;
     }
 }
