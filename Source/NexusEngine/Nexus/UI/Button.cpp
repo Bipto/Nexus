@@ -1,8 +1,8 @@
-#include "Label.hpp"
+#include "Button.hpp"
 
 namespace Nexus::UI
 {
-    void Nexus::UI::Label::OnUpdate()
+    void Nexus::UI::Button::OnUpdate()
     {
         if (m_AutoSize && m_Font)
         {
@@ -37,7 +37,7 @@ namespace Nexus::UI
         }
     }
 
-    void Nexus::UI::Label::OnRender(Nexus::Graphics::BatchRenderer *renderer)
+    void Nexus::UI::Button::OnRender(Nexus::Graphics::BatchRenderer *renderer)
     {
         const Canvas *canvas = GetCanvas();
 
@@ -61,7 +61,14 @@ namespace Nexus::UI
 
         renderer->Begin(vp, scissor);
 
-        renderer->DrawRoundedRectangleFill(rrect, m_BackgroundColour);
+        if (m_ContainsMouse)
+        {
+            renderer->DrawRoundedRectangleFill(rrect, m_HoveredColour);
+        }
+        else
+        {
+            renderer->DrawRoundedRectangleFill(rrect, m_BackgroundColour);
+        }
 
         if (m_BorderThickness)
         {
@@ -77,13 +84,23 @@ namespace Nexus::UI
         renderer->End();
     }
 
-    void Label::SetText(const std::string &text)
+    void Button::SetText(const std::string &text)
     {
         m_Text = text;
     }
 
-    const std::string &Label::GetText() const
+    void Button::SetHoveredColour(const glm::vec4 &colour)
+    {
+        m_HoveredColour = colour;
+    }
+
+    const std::string &Button::GetText() const
     {
         return m_Text;
+    }
+
+    const glm::vec4 Button::GetHoveredColour() const
+    {
+        return m_HoveredColour;
     }
 }

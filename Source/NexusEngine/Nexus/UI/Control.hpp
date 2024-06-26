@@ -8,6 +8,7 @@
 #include "Nexus/Graphics/Rectangle.hpp"
 
 #include "Nexus/Events/EventHandler.hpp"
+#include "Nexus/Input/Input.hpp"
 
 #include "Canvas.hpp"
 
@@ -23,6 +24,23 @@ namespace Nexus::UI
         float Right = 0.0f;
         float Top = 0.0f;
         float Bottom = 0.0f;
+
+        Padding() = default;
+
+        explicit Padding(float padding)
+            : Left(padding), Right(padding), Top(padding), Bottom(padding)
+        {
+        }
+
+        explicit Padding(float left, float right, float top, float bottom)
+            : Left(left), Right(right), Top(top), Bottom(bottom)
+        {
+        }
+
+        explicit Padding(float vertical, float horizontal)
+            : Left(vertical), Right(vertical), Top(horizontal), Bottom(horizontal)
+        {
+        }
     };
 
     class Control

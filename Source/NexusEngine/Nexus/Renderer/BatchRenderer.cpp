@@ -905,8 +905,8 @@ namespace Nexus::Graphics
         float deltaAngle = glm::radians(fillAngle) / (float)numberOfPoints;
         float currentAngle = glm::radians(startAngle) + glm::radians(180.0f); // start rendering the circle from the centre top
 
-        const glm::vec2 topLeft = {position.x - (radius / 2), position.y - (radius / 2)};
-        const glm::vec2 bottomRight = {position.x + (radius / 2), position.y + (radius / 2)};
+        const glm::vec2 topLeft = {position.x - radius, position.y - radius};
+        const glm::vec2 bottomRight = {position.x + radius, position.y + radius};
 
         const glm::vec3 centre = {position.x, position.y, 0.0f};
         const glm::vec2 uvTL = {0.0f, 0.0f};
@@ -957,7 +957,7 @@ namespace Nexus::Graphics
 
     void BatchRenderer::DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture> texture)
     {
-        DrawCircleRegionFill(position, radius, color, numberOfPoints, 0.0f, 360.0f);
+        DrawCircleRegionFill(position, radius, color, numberOfPoints, 0.0f, 360.0f, texture);
     }
 
     void BatchRenderer::DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints)
@@ -1077,15 +1077,15 @@ namespace Nexus::Graphics
             const Triangle3D triToDraw = triangle2D;
 
             const glm::vec2 uvA =
-                {Nexus::Utils::ReMapRange(boundingRectangle.GetLeft(), boundingRectangle.GetRight(), uvTL.y, uvBR.y, triToDraw.A.x),
+                {Nexus::Utils::ReMapRange(boundingRectangle.GetLeft(), boundingRectangle.GetRight(), uvTL.x, uvBR.x, triToDraw.A.x),
                  Nexus::Utils::ReMapRange(boundingRectangle.GetTop(), boundingRectangle.GetBottom(), uvTL.y, uvBR.y, triToDraw.A.y)};
 
             const glm::vec2 uvB =
-                {Nexus::Utils::ReMapRange(boundingRectangle.GetLeft(), boundingRectangle.GetRight(), uvTL.y, uvBR.y, triToDraw.B.x),
+                {Nexus::Utils::ReMapRange(boundingRectangle.GetLeft(), boundingRectangle.GetRight(), uvTL.x, uvBR.x, triToDraw.B.x),
                  Nexus::Utils::ReMapRange(boundingRectangle.GetTop(), boundingRectangle.GetBottom(), uvTL.y, uvBR.y, triToDraw.B.y)};
 
             const glm::vec2 uvC =
-                {Nexus::Utils::ReMapRange(boundingRectangle.GetLeft(), boundingRectangle.GetRight(), uvTL.y, uvBR.y, triToDraw.C.x),
+                {Nexus::Utils::ReMapRange(boundingRectangle.GetLeft(), boundingRectangle.GetRight(), uvTL.x, uvBR.x, triToDraw.C.x),
                  Nexus::Utils::ReMapRange(boundingRectangle.GetTop(), boundingRectangle.GetBottom(), uvTL.y, uvBR.y, triToDraw.C.y)};
 
             DrawTriangle(triToDraw.A, uvA, triToDraw.B, uvB, triToDraw.C, uvC, color, texture);

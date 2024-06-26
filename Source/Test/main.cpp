@@ -9,6 +9,10 @@
 #include "Nexus/FileSystem/FileSystem.hpp"
 
 #include "Nexus/UI/Label.hpp"
+#include "Nexus/UI/Button.hpp"
+#include "Nexus/UI/PictureBox.hpp"
+
+#include "Nexus/Utils/Utils.hpp"
 
 std::vector<Nexus::Graphics::VertexPositionTexCoord> vertices =
     {
@@ -53,6 +57,30 @@ public:
         lbl->SetFontSize(m_Font->GetSize());
         lbl->SetAutoSize(true);
         lbl->SetCornerRounding(10.0f);
+        m_Canvas->AddControl(lbl);
+
+        Nexus::UI::Button *btn = new Nexus::UI::Button();
+        btn->SetFont(m_Font);
+        btn->SetPosition({10, 600});
+        btn->SetSize({1200, 400});
+        btn->SetText("My Button");
+        btn->SetFontSize(m_Font->GetSize());
+        btn->SetAutoSize(true);
+        btn->SetCornerRounding(10.0f);
+        btn->SetHoveredColour({0.0f, 0.25f, 0.45f, 1.0f});
+        btn->SetBorderThickness(1.0f);
+        m_Canvas->AddControl(btn);
+
+        Nexus::UI::PictureBox *pbx = new Nexus::UI::PictureBox();
+        pbx->SetPosition({250, 600});
+        pbx->SetSize({350, 350});
+        pbx->SetFontSize(m_Font->GetSize());
+        pbx->SetCornerRounding(10.0f);
+        pbx->SetBorderThickness(0.0f);
+        pbx->SetTexture(m_Texture);
+        pbx->SetAutoSize(true);
+        pbx->SetPadding(Nexus::UI::Padding(20.0f));
+        m_Canvas->AddControl(pbx);
 
         Nexus::UI::Padding padding;
         padding.Left = 50.0f;
@@ -60,8 +88,6 @@ public:
         padding.Top = 50.0f;
         padding.Bottom = 50.0f;
         lbl->SetPadding(padding);
-
-        m_Canvas->AddControl(lbl);
     }
 
     virtual void Update(Nexus::Time time) override

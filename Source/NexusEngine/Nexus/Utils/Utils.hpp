@@ -11,6 +11,6 @@ namespace Nexus::Utils
     template <typename T>
     T ReMapRange(T oldMin, T oldMax, T newMin, T newMax, T value)
     {
-        return newMin + (value - oldMin) * (newMax - newMin) / (oldMax - newMin);
+        return newMin + (newMax - newMin) * ((value - oldMin) / (oldMax - oldMin));
     }
 }
