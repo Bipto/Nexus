@@ -5,7 +5,7 @@
 namespace Nexus
 {
     /// @brief An enum representing the state of a mouse button
-    enum class MouseButtonState
+    enum class MouseButton
     {
         /// @brief A value representing that the button is currently released
         Released,
@@ -18,13 +18,13 @@ namespace Nexus
     struct MouseState
     {
         /// @brief A enum value representing the current state of the left mouse button
-        MouseButtonState LeftButton;
+        MouseButton LeftButton;
 
         /// @brief A enum value representing the current state of the right mouse button
-        MouseButtonState RightButton;
+        MouseButton RightButton;
 
         /// @brief An enum value representing the current state of the middle mouse button
-        MouseButtonState MiddleButton;
+        MouseButton MiddleButton;
 
         /// @brief A Nexus::Point containing two integers representing the position of the mouse cursor
         Point2D<int> MousePosition;

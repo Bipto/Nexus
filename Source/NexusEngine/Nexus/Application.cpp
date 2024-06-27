@@ -448,29 +448,29 @@ namespace Nexus
 
         if (buttons & SDL_BUTTON_LEFT)
         {
-            Mouse::s_GlobalMouseState.LeftButton = MouseButtonState::Pressed;
+            Mouse::s_GlobalMouseState.LeftButton = MouseButton::Pressed;
         }
         else
         {
-            Mouse::s_GlobalMouseState.LeftButton = MouseButtonState::Released;
+            Mouse::s_GlobalMouseState.LeftButton = MouseButton::Released;
         }
 
         if (buttons & SDL_BUTTON_RIGHT)
         {
-            Mouse::s_GlobalMouseState.RightButton = MouseButtonState::Pressed;
+            Mouse::s_GlobalMouseState.RightButton = MouseButton::Pressed;
         }
         else
         {
-            Mouse::s_GlobalMouseState.RightButton = MouseButtonState::Released;
+            Mouse::s_GlobalMouseState.RightButton = MouseButton::Released;
         }
 
         if (buttons & SDL_BUTTON_MIDDLE)
         {
-            Mouse::s_GlobalMouseState.MiddleButton = MouseButtonState::Pressed;
+            Mouse::s_GlobalMouseState.MiddleButton = MouseButton::Pressed;
         }
         else
         {
-            Mouse::s_GlobalMouseState.MiddleButton = MouseButtonState::Released;
+            Mouse::s_GlobalMouseState.MiddleButton = MouseButton::Released;
         }
 
         SDL_Event event;
@@ -504,17 +504,17 @@ namespace Nexus
                 {
                 case SDL_BUTTON_LEFT:
                 {
-                    window->m_Input.m_Mouse.m_CurrentState.LeftButton = MouseButtonState::Pressed;
+                    window->m_Input.m_Mouse.m_CurrentState.LeftButton = MouseButton::Pressed;
                     break;
                 }
                 case SDL_BUTTON_RIGHT:
                 {
-                    window->m_Input.m_Mouse.m_CurrentState.RightButton = MouseButtonState::Pressed;
+                    window->m_Input.m_Mouse.m_CurrentState.RightButton = MouseButton::Pressed;
                     break;
                 }
                 case SDL_BUTTON_MIDDLE:
                 {
-                    window->m_Input.m_Mouse.m_CurrentState.MiddleButton = MouseButtonState::Pressed;
+                    window->m_Input.m_Mouse.m_CurrentState.MiddleButton = MouseButton::Pressed;
                     break;
                 }
                 }
@@ -526,17 +526,17 @@ namespace Nexus
                 {
                 case SDL_BUTTON_LEFT:
                 {
-                    window->m_Input.m_Mouse.m_CurrentState.LeftButton = MouseButtonState::Released;
+                    window->m_Input.m_Mouse.m_CurrentState.LeftButton = MouseButton::Released;
                     break;
                 }
                 case SDL_BUTTON_RIGHT:
                 {
-                    window->m_Input.m_Mouse.m_CurrentState.RightButton = MouseButtonState::Released;
+                    window->m_Input.m_Mouse.m_CurrentState.RightButton = MouseButton::Released;
                     break;
                 }
                 case SDL_BUTTON_MIDDLE:
                 {
-                    window->m_Input.m_Mouse.m_CurrentState.MiddleButton = MouseButtonState::Released;
+                    window->m_Input.m_Mouse.m_CurrentState.MiddleButton = MouseButton::Released;
                     break;
                 }
                 }

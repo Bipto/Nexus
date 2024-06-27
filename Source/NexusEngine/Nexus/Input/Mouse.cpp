@@ -12,47 +12,47 @@ namespace Nexus
 
     const bool Mouse::WasLeftMouseClicked() const
     {
-        return m_CurrentState.LeftButton == MouseButtonState::Pressed && m_PreviousState.LeftButton == MouseButtonState::Released;
+        return m_CurrentState.LeftButton == MouseButton::Pressed && m_PreviousState.LeftButton == MouseButton::Released;
     }
 
     const bool Mouse::WasLeftMouseReleased() const
     {
-        return m_CurrentState.LeftButton == MouseButtonState::Released && m_PreviousState.LeftButton == MouseButtonState::Pressed;
+        return m_CurrentState.LeftButton == MouseButton::Released && m_PreviousState.LeftButton == MouseButton::Pressed;
     }
 
     const bool Mouse::IsLeftMouseHeld() const
     {
-        return m_CurrentState.LeftButton == MouseButtonState::Pressed;
+        return m_CurrentState.LeftButton == MouseButton::Pressed;
     }
 
     const bool Mouse::WasRightMouseClicked() const
     {
-        return m_CurrentState.RightButton == MouseButtonState::Pressed && m_PreviousState.RightButton == MouseButtonState::Released;
+        return m_CurrentState.RightButton == MouseButton::Pressed && m_PreviousState.RightButton == MouseButton::Released;
     }
 
     const bool Mouse::WasRightMouseReleased() const
     {
-        return m_CurrentState.RightButton == MouseButtonState::Released && m_PreviousState.RightButton == MouseButtonState::Pressed;
+        return m_CurrentState.RightButton == MouseButton::Released && m_PreviousState.RightButton == MouseButton::Pressed;
     }
 
     const bool Mouse::IsRightMouseHeld() const
     {
-        return m_CurrentState.RightButton == MouseButtonState::Pressed;
+        return m_CurrentState.RightButton == MouseButton::Pressed;
     }
 
     const bool Mouse::WasMiddleMouseClicked() const
     {
-        return m_CurrentState.MiddleButton == MouseButtonState::Pressed && m_PreviousState.MiddleButton == MouseButtonState::Released;
+        return m_CurrentState.MiddleButton == MouseButton::Pressed && m_PreviousState.MiddleButton == MouseButton::Released;
     }
 
     const bool Mouse::WasMiddleMouseReleased() const
     {
-        return m_CurrentState.MiddleButton == MouseButtonState::Released && m_PreviousState.MiddleButton == MouseButtonState::Pressed;
+        return m_CurrentState.MiddleButton == MouseButton::Released && m_PreviousState.MiddleButton == MouseButton::Pressed;
     }
 
     const bool Mouse::IsMiddleMouseHeld() const
     {
-        return m_CurrentState.MiddleButton == MouseButtonState::Pressed;
+        return m_CurrentState.MiddleButton == MouseButton::Pressed;
     }
 
     const Point2D<int> Mouse::GetMousePosition() const
@@ -86,16 +86,16 @@ namespace Nexus
 
     bool Mouse::IsGlobalLeftMouseHeld()
     {
-        return s_GlobalMouseState.LeftButton == MouseButtonState::Pressed;
+        return s_GlobalMouseState.LeftButton == MouseButton::Pressed;
     }
 
     bool Mouse::IsGlobalRightMouseHeld()
     {
-        return s_GlobalMouseState.RightButton == MouseButtonState::Pressed;
+        return s_GlobalMouseState.RightButton == MouseButton::Pressed;
     }
 
     bool Mouse::IsGlobalMiddleMouseHeld()
     {
-        return s_GlobalMouseState.MiddleButton == MouseButtonState::Pressed;
+        return s_GlobalMouseState.MiddleButton == MouseButton::Pressed;
     }
 }

@@ -4,10 +4,9 @@ namespace Nexus::UI
 {
     void Nexus::UI::Button::OnUpdate()
     {
-        if (m_AutoSize && m_Font)
+        if (m_AutoSize)
         {
-            Nexus::Point2D<float> size = m_Font->MeasureString(m_Text, m_FontSize);
-            m_Size = size;
+            OnAutoSize();
         }
 
         const auto &mousePos = Nexus::Input::GetMousePosition();
@@ -78,6 +77,19 @@ namespace Nexus::UI
         }
 
         renderer->End();
+    }
+
+    void Button::OnAutoSize()
+    {
+        if (m_Font)
+        {
+            Nexus::Point2D<float> size = m_Font->MeasureString(m_Text, m_FontSize);
+            m_Size = size;
+        }
+    }
+
+    void Button::HandleMouseClick(const MouseClick &e)
+    {
     }
 
     void Button::SetText(const std::string &text)

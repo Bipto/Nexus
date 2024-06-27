@@ -43,6 +43,12 @@ namespace Nexus::UI
         }
     };
 
+    struct MouseClick
+    {
+        Nexus::Mouse Button;
+        Point2D<int> Position;
+    };
+
     class Control
     {
     public:
@@ -50,6 +56,9 @@ namespace Nexus::UI
         virtual ~Control() {}
         virtual void OnUpdate() = 0;
         virtual void OnRender(Nexus::Graphics::BatchRenderer *renderer) = 0;
+
+        virtual void OnAutoSize() = 0;
+        virtual void HandleMouseClick(const MouseClick &e) = 0;
 
         // setters
         void SetLocalPosition(const Point2D<float> position);

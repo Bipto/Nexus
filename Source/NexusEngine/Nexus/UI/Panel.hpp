@@ -9,5 +9,7 @@ namespace Nexus::UI
     public:
         virtual void OnUpdate() override;
         virtual void OnRender(Nexus::Graphics::BatchRenderer *renderer) override;
+        virtual void OnAutoSize() override;
+        virtual void HandleMouseClick(const MouseClick &e) override;
     };
 }

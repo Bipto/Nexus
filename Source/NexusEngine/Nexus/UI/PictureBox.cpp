@@ -4,13 +4,9 @@ namespace Nexus::UI
 {
     void PictureBox::OnUpdate()
     {
-        if (m_AutoSize && m_Texture)
+        if (m_AutoSize)
         {
-            const Point2D<uint32_t> textureSize = {
-                m_Texture->GetTextureSpecification().Width,
-                m_Texture->GetTextureSpecification().Height};
-
-            m_Size = textureSize.To<float>();
+            OnAutoSize();
         }
 
         const auto &mousePos = Nexus::Input::GetMousePosition();
@@ -87,6 +83,22 @@ namespace Nexus::UI
         }
 
         renderer->End();
+    }
+
+    void PictureBox::OnAutoSize()
+    {
+        if (m_Texture)
+        {
+            const Point2D<uint32_t> textureSize = {
+                m_Texture->GetTextureSpecification().Width,
+                m_Texture->GetTextureSpecification().Height};
+
+            m_Size = textureSize.To<float>();
+        }
+    }
+
+    void PictureBox::HandleMouseClick(const MouseClick &e)
+    {
     }
 
     void PictureBox::SetTexture(Ref<Graphics::Texture> texture)

@@ -38,4 +38,12 @@ namespace Nexus::UI
             ctrl->OnRender(renderer);
         }
     }
+
+    void Panel::OnAutoSize()
+    {
+    }
+
+    void Panel::HandleMouseClick(const MouseClick &e)
+    {
+    }
 }
