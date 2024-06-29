@@ -24,9 +24,6 @@ namespace Nexus
 
     void Project::Serialize()
     {
-        // std::filesystem::path projectFile(filepath);
-        // std::string projectDirectory = projectFile.parent_path().parent_path().string();#
-
         WriteProjectFile();
         WriteSceneFile(m_RootDirectory + "/" + m_SceneDirectory);
     }
@@ -37,15 +34,26 @@ namespace Nexus
 
         std::string input = Nexus::FileSystem::ReadFileToStringAbsolute(filepath);
         YAML::Node node = YAML::Load(input);
-        YAML::Node projectNode = node["project"];
 
         Ref<Project> project = CreateRef<Project>();
-        project->m_Name = projectNode["name"].as<std::string>();
-        project->m_StartupScene = projectNode["startup-scene"].as<uint32_t>();
-        project->m_Scenes = projectNode["scenes"].as<std::vector<SceneInfo>>();
-        project->m_SceneDirectory = projectNode["scene-directory"].as<std::string>();
-        project->m_AssetsDirectory = projectNode["assets-directory"].as<std::string>();
+        project->m_Name = node["Project"].as<std::string>();
         project->m_RootDirectory = directory;
+
+        auto scenes = node["Scenes"];
+        if (scenes)
+        {
+            for (auto scene : scenes)
+            {
+                SceneInfo sceneInfo;
+                sceneInfo.Name = scene["Name"].as<std::string>();
+                sceneInfo.Path = scene["Path"].as<std::string>();
+                project->m_Scenes.push_back(sceneInfo);
+            }
+        }
+
+        project->m_StartupScene = node["StartupScene"].as<uint32_t>();
+        project->m_SceneDirectory = node["SceneDirectory"].as<std::string>();
+        project->m_AssetsDirectory = node["AssetsDirectory"].as<std::string>();
 
         project->LoadScene(project->m_StartupScene);
 
@@ -94,41 +102,27 @@ namespace Nexus
         std::filesystem::path path = m_RootDirectory;
         std::filesystem::create_directories(path);
 
-        YAML::Node root;
-        YAML::Node projectNode = root["project"];
-        projectNode["name"] = m_Name;
+        YAML::Emitter out;
+        out << YAML::BeginMap;
+        out << YAML::Key << "Project" << YAML::Value << m_Name;
 
-        time_t curr_time = time(nullptr);
-        tm *tm_local = localtime(&curr_time);
+        out << YAML::Key << "Scenes" << YAML::Value << YAML::BeginSeq;
+        for (const auto &scene : m_Scenes)
+        {
+            out << YAML::BeginMap;
+            out << YAML::Key << "Name" << YAML::Value << scene.Name;
+            out << YAML::Key << "Path" << YAML::Value << scene.Path;
+            out << YAML::EndMap;
+        }
+        out << YAML::EndSeq;
 
-        std::string timestampString;
-        timestampString += std::to_string(tm_local->tm_mday) + "/";
-
-        // months start at 0
-        timestampString += std::to_string(tm_local->tm_mon + 1) + "/";
-
-        // years start at 1900
-        timestampString += std::to_string(1900 + tm_local->tm_year) + "-";
-
-        timestampString += std::to_string(tm_local->tm_hour) + ":";
-        timestampString += std::to_string(tm_local->tm_min);
-        // projectNode["time-created"] = timestampString;
-        // projectNode["time-updated"] = timestampString;
-
-        projectNode["scenes"] = m_Scenes;
-        projectNode["startup-scene"] = m_StartupScene;
-
-        projectNode["scene-directory"] = m_SceneDirectory;
-        projectNode["assets-directory"] = m_AssetsDirectory;
-
-        std::string timestring;
-
-        YAML::Emitter emitter;
-        emitter << root;
-        std::string output = emitter.c_str();
+        out << YAML::Key << "StartupScene" << YAML::Value << m_StartupScene;
+        out << YAML::Key << "SceneDirectory" << YAML::Value << m_SceneDirectory;
+        out << YAML::Key << "AssetsDirectory" << YAML::Value << m_AssetsDirectory;
+        out << YAML::EndMap;
 
         std::string filepath = m_RootDirectory + "/" + m_Name + ".proj";
-        FileSystem::WriteFileAbsolute(filepath, output);
+        FileSystem::WriteFileAbsolute(filepath, out.c_str());
     }
 
     void Project::WriteSceneFile(const std::string &sceneDirectory)
@@ -143,18 +137,5 @@ namespace Nexus
             path /= filename;
             m_LoadedScene->Serialize(path.string());
         }
-
-        /* std::string filename = m_Name + ".scene";
-        path /= filename;
-
-        YAML::Node root;
-        root["name"] = m_Name;
-
-        YAML::Emitter emitter;
-        emitter << root;
-
-        std::string output = emitter.c_str();
-
-        FileSystem::WriteFileAbsolute(path.string(), output); */
     }
 }

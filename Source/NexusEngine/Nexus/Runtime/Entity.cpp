@@ -2,17 +2,17 @@
 
 namespace Nexus
 {
-    Entity::Entity(uint64_t id, const std::string &name)
+    Entity::Entity(GUID id, const std::string &name)
         : m_ID(id), m_Name(name)
     {
     }
 
-    void Entity::SetID(uint64_t id)
+    void Entity::SetID(GUID id)
     {
         m_ID = id;
     }
 
-    uint64_t Entity::GetID() const
+    GUID Entity::GetID() const
     {
         return m_ID;
     }
@@ -25,5 +25,18 @@ namespace Nexus
     const std::string &Entity::GetName() const
     {
         return m_Name;
+    }
+
+    void Entity::Serialize(YAML::Emitter &out) const
+    {
+        out << YAML::BeginMap;
+        out << YAML::Key << "Entity" << YAML::Value << m_ID.Value;
+        out << YAML::Key << "Name" << YAML::Value << m_Name;
+        out << YAML::EndMap;
+    }
+
+    bool Entity::Deserialize(YAML::Node &data)
+    {
+        return false;
     }
 }

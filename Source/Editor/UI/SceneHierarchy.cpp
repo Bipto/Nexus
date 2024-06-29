@@ -58,19 +58,17 @@ namespace Editor
 
         ImGui::Separator();
 
-        if (ImGui::BeginPopupContextItem("PopupMenu", ImGuiPopupFlags_MouseButtonRight))
+        if (ImGui::CollapsingHeader("Entities", nullptr, ImGuiTreeNodeFlags_DefaultOpen))
         {
-            if (ImGui::MenuItem("New Entity"))
+            for (const auto &entity : scene->GetEntities())
+            {
+                ImGui::Text(entity.GetName().c_str());
+            }
+
+            if (ImGui::Button("+"))
             {
                 scene->AddEmptyEntity();
             }
-
-            ImGui::EndPopup();
-        }
-
-        for (const auto &entity : scene->GetEntities())
-        {
-            ImGui::Text(entity.GetName().c_str());
         }
     }
 }
