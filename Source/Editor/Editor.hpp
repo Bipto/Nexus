@@ -9,7 +9,7 @@
 class EditorApplication : public Nexus::Application
 {
 public:
-    EditorApplication(const Nexus::ApplicationSpecification &spec)
+    explicit EditorApplication(const Nexus::ApplicationSpecification &spec)
         : Nexus::Application(spec)
     {
     }

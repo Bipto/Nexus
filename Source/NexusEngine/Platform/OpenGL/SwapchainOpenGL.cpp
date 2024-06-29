@@ -40,7 +40,7 @@ namespace Nexus::Graphics
         BindAsRenderTarget();
 
         SDL_GL_SwapWindow(m_Window->GetSDLWindowHandle());
-        // ResizeIfNecessary();
+        ResizeIfNecessary();
     }
 
     VSyncState SwapchainOpenGL::GetVsyncState()
@@ -77,9 +77,6 @@ namespace Nexus::Graphics
 
         glBindFramebuffer(GL_FRAMEBUFFER, m_Backbuffer);
         ResizeIfNecessary();
-
-        // glViewport(0, 0, m_SwapchainWidth, m_SwapchainHeight);
-        // glScissor(0, 0, m_SwapchainWidth, m_SwapchainHeight);
     }
 
     void SwapchainOpenGL::BindAsDrawTarget()

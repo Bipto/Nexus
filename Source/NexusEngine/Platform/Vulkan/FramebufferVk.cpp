@@ -100,7 +100,7 @@ namespace Nexus::Graphics
             spec.Height = m_Specification.Height;
             spec.Format = m_Specification.DepthAttachmentSpecification.DepthFormat;
             spec.Samples = m_Specification.Samples;
-            spec.Usage = {TextureUsage::DepthStencil};
+            spec.Usage = {TextureUsage::DepthStencil, TextureUsage::RenderTarget};
             m_DepthAttachment = std::dynamic_pointer_cast<TextureVk>(m_Device->CreateTexture(spec));
         }
     }

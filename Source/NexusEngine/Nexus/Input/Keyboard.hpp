@@ -150,11 +150,14 @@ namespace Nexus
         const std::map<KeyCode, bool> &GetKeys() const;
 
     private:
+        void CacheKeyIfNecessary(KeyCode code, bool value) const;
+
+    private:
         /// @brief A map containing the current state of the keyboard's keys
-        std::map<KeyCode, bool> m_CurrentKeys;
+        mutable std::map<KeyCode, bool> m_CurrentKeys;
 
         /// @brief A map containing the state of the keyboard's keys in the previous frame
-        std::map<KeyCode, bool> m_PreviousKeys;
+        mutable std::map<KeyCode, bool> m_PreviousKeys;
 
         /// @brief A friend class to allow a window to access the private properties of this class
         friend class Window;

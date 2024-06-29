@@ -88,10 +88,13 @@ namespace Nexus::Graphics
             bindingDescription.inputRate = (layout.GetInstanceStepRate() != 0) ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX;
             bindingDescriptions.push_back(bindingDescription);
 
-            VkVertexInputBindingDivisorDescriptionEXT divisorDescription = {};
-            divisorDescription.binding = layoutIndex;
-            divisorDescription.divisor = layout.GetInstanceStepRate();
-            divisorDescriptions.push_back(divisorDescription);
+            if (layout.IsInstanceBuffer())
+            {
+                VkVertexInputBindingDivisorDescriptionEXT divisorDescription = {};
+                divisorDescription.binding = layoutIndex;
+                divisorDescription.divisor = layout.GetInstanceStepRate();
+                divisorDescriptions.push_back(divisorDescription);
+            }
         }
 
         VkPipelineVertexInputDivisorStateCreateInfoEXT divisorInfo = {};
@@ -102,7 +105,13 @@ namespace Nexus::Graphics
 
         VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        vertexInputInfo.pNext = &divisorInfo;
+        vertexInputInfo.pNext = nullptr;
+
+        if (divisorInfo.vertexBindingDivisorCount > 0)
+        {
+            vertexInputInfo.pNext = &divisorInfo;
+        }
+
         vertexInputInfo.vertexBindingDescriptionCount = bindingDescriptions.size();
         vertexInputInfo.pVertexBindingDescriptions = bindingDescriptions.data();
         vertexInputInfo.vertexAttributeDescriptionCount = attributeDescriptions.size();

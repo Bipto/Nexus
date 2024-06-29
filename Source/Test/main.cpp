@@ -50,7 +50,7 @@ public:
         m_Font = new Nexus::Graphics::Font("resources/Fonts/JETBRAINSMONO-REGULAR.TTF", 18, fontRange, Nexus::Graphics::FontType::Bitmap, m_GraphicsDevice);
         Nexus::Ref<Nexus::Graphics::Texture> texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), false);
 
-        Nexus::UI::Label *lbl = new Nexus::UI::Label();
+        /* Nexus::UI::Label *lbl = new Nexus::UI::Label();
         lbl->SetFont(m_Font);
         lbl->SetLocalPosition({10, 10});
         lbl->SetSize({1200, 400});
@@ -98,11 +98,33 @@ public:
         pnl->AddControl(btn);
         pnl->AddControl(lbl);
         pnl->AddControl(pbx);
-        m_Canvas->AddControl(pnl);
+        m_Canvas->AddControl(pnl); */
+
+        r1 = Nexus::Graphics::RoundedRectangle({250, 250}, {250, 250}, 5.0f, 5.0f, 5.0f, 5.0f);
+        r2 = Nexus::Graphics::RoundedRectangle({150, 250}, {400, 400}, 5.0f, 5.0f, 5.0f, 5.0f);
     }
 
     virtual void Update(Nexus::Time time) override
     {
+        if (Nexus::Input::IsKeyHeld(Nexus::KeyCode::KeyLeft))
+        {
+            r1.SetX(r1.GetLeft() - 5);
+        }
+
+        if (Nexus::Input::IsKeyHeld(Nexus::KeyCode::KeyRight))
+        {
+            r1.SetX(r1.GetLeft() + 5);
+        }
+
+        if (Nexus::Input::IsKeyHeld(Nexus::KeyCode::KeyUp))
+        {
+            r1.SetY(r1.GetTop() - 5);
+        }
+
+        if (Nexus::Input::IsKeyHeld(Nexus::KeyCode::KeyDown))
+        {
+            r1.SetY(r1.GetTop() + 5);
+        }
     }
 
     virtual void Render(Nexus::Time time) override
@@ -110,11 +132,33 @@ public:
         m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
         m_GraphicsDevice->BeginFrame();
 
-        const auto &windowSize = GetPrimaryWindow()->GetWindowSize();
+        /* const auto &windowSize = GetPrimaryWindow()->GetWindowSize();
         m_Canvas->SetPosition({0, 0});
         m_Canvas->SetSize(windowSize);
         m_Canvas->SetBackgroundColour({0.42f, 0.52, 0.73f, 1.0f});
-        m_Canvas->Render();
+        m_Canvas->Render(); */
+
+        const auto &windowSize = GetPrimaryWindow()->GetWindowSize();
+
+        Nexus::Graphics::Viewport vp;
+        vp.X = 0;
+        vp.Y = 0;
+        vp.Width = windowSize.X;
+        vp.Height = windowSize.Y;
+        vp.MinDepth = 0;
+        vp.MaxDepth = 1;
+
+        Nexus::Graphics::Scissor scissor;
+        scissor.X = 0;
+        scissor.Y = 0;
+        scissor.Width = windowSize.X;
+        scissor.Height = windowSize.Y;
+
+        m_BatchRenderer->Begin(vp, scissor);
+        m_BatchRenderer->DrawQuadFill({0, 0}, {windowSize.X, windowSize.Y}, {0.35f, 0.35f, 0.35f, 1.0f});
+        m_BatchRenderer->DrawRoundedRectangleFill(r2, {1.0f, 0.0f, 0.0f, 1.0f});
+        m_BatchRenderer->DrawRoundedRectangleFill(r1, {0.0f, 0.0f, 1.0f, 1.0f});
+        m_BatchRenderer->End();
 
         m_GraphicsDevice->EndFrame();
     }
@@ -138,12 +182,15 @@ private:
     Nexus::Ref<Nexus::Graphics::Texture> m_Texture = nullptr;
 
     Nexus::Graphics::BatchRenderer *m_BatchRenderer = nullptr;
+
+    Nexus::Graphics::RoundedRectangle r1;
+    Nexus::Graphics::RoundedRectangle r2;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;

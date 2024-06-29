@@ -9,59 +9,30 @@ namespace Nexus
 
     const bool Keyboard::IsKeyHeld(KeyCode code) const
     {
-        const auto &it = m_CurrentKeys.find(code);
-
-        // we do not currently have a value stored for the key, so assume it is not held
-        if (it == m_CurrentKeys.end())
-        {
-            return false;
-        }
-
-        return it->second;
+        CacheKeyIfNecessary(code, false);
+        return m_CurrentKeys.at(code);
     }
 
     const bool Keyboard::WasKeyPressed(KeyCode code) const
     {
-        const auto &current = m_CurrentKeys.find(code);
-
-        // we do not currently have a value stored for the key, so assume it is not held
-        if (current == m_CurrentKeys.end())
-        {
-            return false;
-        }
-
-        const auto &previous = m_PreviousKeys.find(code);
-
-        if (previous == m_CurrentKeys.end())
-        {
-            return false;
-        }
-
-        return current->second && !previous->second;
+        CacheKeyIfNecessary(code, false);
+        return m_CurrentKeys.at(code) && !m_PreviousKeys.at(code);
     }
 
     const bool Keyboard::WasKeyReleased(KeyCode code) const
     {
-        const auto &current = m_CurrentKeys.find(code);
-
-        // we do not currently have a value stored for the key, so assume it is not held
-        if (current == m_CurrentKeys.end())
-        {
-            return false;
-        }
-
-        const auto &previous = m_PreviousKeys.find(code);
-
-        if (previous == m_CurrentKeys.end())
-        {
-            return false;
-        }
-
-        return !current->second && previous->second;
+        CacheKeyIfNecessary(code, false);
+        return !m_CurrentKeys.at(code) && m_PreviousKeys.at(code);
     }
 
     const std::map<KeyCode, bool> &Keyboard::GetKeys() const
     {
         return m_CurrentKeys;
+    }
+
+    void Keyboard::CacheKeyIfNecessary(KeyCode code, bool value) const
+    {
+        m_CurrentKeys.try_emplace(code, value);
+        m_PreviousKeys.try_emplace(code, value);
     }
 }
