@@ -5,7 +5,7 @@
 #include "Nexus/Graphics/ResourceSet.hpp"
 #include "Platform/D3D12/GraphicsDeviceD3D12.hpp"
 
-#include <unordered_map>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus::Graphics
 {

@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Nexus/Point.hpp"
+#include "Nexus/Utils/Utils.hpp"
 
 #include "Polygon.hpp"
 
-#include <glm/glm.hpp>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus::Graphics
 {
@@ -331,6 +332,69 @@ namespace Nexus::Graphics
 
             Polygon poly(triangles);
             return poly;
+        }
+
+        const RoundedRectangle ClipAgainst(const RoundedRectangle &clip, bool *visible)
+        {
+            RoundedRectangle rect(m_X, m_Y, m_Width, m_Height, m_RadiusTL, m_RadiusTR, m_RadiusBL, m_RadiusBR);
+
+            // perform clipping to left of clipping rect
+            if (rect.GetLeft() < clip.GetLeft())
+            {
+                float right = rect.GetRight();
+                rect.SetX(clip.GetLeft());
+                rect.SetWidth(right - rect.GetLeft());
+                rect.SetRadiusTopLeft(0);
+                rect.SetRadiusBottomLeft(0);
+            }
+
+            // perform clipping to right of clipping rect
+            if (rect.GetRight() > clip.GetRight())
+            {
+                rect.SetWidth(clip.GetRight() - rect.GetLeft());
+                rect.SetRadiusTopRight(0);
+                rect.SetRadiusBottomRight(0);
+            }
+
+            // peform clipping to top of clipping rect
+            if (rect.GetTop() < clip.GetTop())
+            {
+                float bottom = rect.GetBottom();
+                rect.SetY(clip.GetTop());
+                rect.SetHeight(bottom - rect.GetTop());
+                rect.SetRadiusTopLeft(0);
+                rect.SetRadiusTopRight(0);
+            }
+
+            // perform clipping to bottom of clipping rect
+            if (rect.GetBottom() > clip.GetBottom())
+            {
+                rect.SetHeight(clip.GetBottom() - rect.GetTop());
+                rect.SetRadiusBottomLeft(0);
+                rect.SetRadiusBottomRight(0);
+            }
+
+            // perform rounding of new rectangles corners
+            /* if (rect.GetRight() >= (clip.GetRight() - clip.GetRadiusTopLeft()) && rect.GetTop() >= clip.GetTop())
+            {
+                float radius = Nexus::Utils::ReMapRange<float>(clip.GetRight(), clip.GetRight() + clip.GetRadiusTopRight(), 0, clip.GetRadiusTopRight(), rect.GetLeft());
+                rect.SetRadiusTopLeft(radius);
+            } */
+
+            if (rect.GetRight() >= (clip.GetRight() - clip.GetRadiusTopRight()) && rect.GetTop() >= clip.GetTop())
+            {
+                // float radius = Nexus::Utils::ReMapRange<float>(clip.GetRight() - clip.GetRadiusTopRight(), clip.GetRight(), 0, clip.GetRadiusTopRight(), rect.GetRight());
+                // rect.SetRadiusTopRight(radius);
+                rect.SetRadiusTopRight(clip.GetRadiusTopRight());
+            }
+
+            if (rect.GetLeft() <= (clip.GetLeft() + clip.GetRadiusTopLeft()) && rect.GetTop() >= clip.GetTop())
+            {
+                // float radius = Nexus::Utils::ReMapRange<float>(clip.GetLeft() - clip.GetRadiusTopLeft(), clip.GetLeft(), 0, clip.GetRadiusTopLeft(), rect.GetLeft());
+                // rect.SetRadiusTopLeft(radius);
+            }
+
+            return rect;
         }
 
     private:

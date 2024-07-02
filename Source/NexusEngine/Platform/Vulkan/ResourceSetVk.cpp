@@ -5,7 +5,7 @@
 #include "BufferVk.hpp"
 #include "SamplerVk.hpp"
 
-#include <algorithm>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus::Graphics
 {

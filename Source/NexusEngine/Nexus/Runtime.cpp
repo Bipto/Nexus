@@ -1,9 +1,6 @@
 #include "Runtime.hpp"
 
-#include <iostream>
-#include <chrono>
-#include <vector>
-#include <inttypes.h>
+#include "Nexus/nxpch.hpp"
 
 Nexus::Application *appPtr = nullptr;
 Nexus::AssetManager *assetManager = nullptr;

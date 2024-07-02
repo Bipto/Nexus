@@ -4,7 +4,7 @@
 
 #include "Nexus/Renderer/BatchRenderer.hpp"
 
-#include <random>
+#include "Nexus/nxpch.hpp"
 
 namespace Demos
 {

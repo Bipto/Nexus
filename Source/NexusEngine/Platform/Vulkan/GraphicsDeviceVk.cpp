@@ -12,7 +12,7 @@
 
 #include "SDL_vulkan.h"
 
-#include <set>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus::Graphics
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus::FileSystem
 {

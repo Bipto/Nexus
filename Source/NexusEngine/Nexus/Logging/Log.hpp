@@ -2,7 +2,7 @@
 
 #include "Nexus/nxpch.hpp"
 
-#include <cassert>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus
 {

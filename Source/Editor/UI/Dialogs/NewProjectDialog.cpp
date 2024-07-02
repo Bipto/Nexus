@@ -1,11 +1,12 @@
 #include "NewProjectDialog.hpp"
 #include "Nexus/FileSystem/FileDialogs.hpp"
-#include <string>
 
 #include "Nexus/Types.hpp"
 #include "Nexus/Runtime/Project.hpp"
 
 #include "Editor.hpp"
+
+#include "Nexus/nxpch.hpp"
 
 namespace Editor
 {

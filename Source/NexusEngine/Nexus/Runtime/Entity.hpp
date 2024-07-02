@@ -1,7 +1,6 @@
 #pragma once
 
-#include <inttypes.h>
-#include <string>
+#include "Nexus/nxpch.hpp"
 
 #include "Nexus/Utils/GUID.hpp"
 

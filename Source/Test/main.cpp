@@ -101,7 +101,7 @@ public:
         m_Canvas->AddControl(pnl); */
 
         r1 = Nexus::Graphics::RoundedRectangle({250, 250}, {250, 250}, 5.0f, 5.0f, 5.0f, 5.0f);
-        r2 = Nexus::Graphics::RoundedRectangle({150, 250}, {400, 400}, 5.0f, 5.0f, 5.0f, 5.0f);
+        r2 = Nexus::Graphics::RoundedRectangle({150, 250}, {400, 400}, 25.0f, 25.0f, 25.0f, 25.0f);
     }
 
     virtual void Update(Nexus::Time time) override
@@ -154,10 +154,14 @@ public:
         scissor.Width = windowSize.X;
         scissor.Height = windowSize.Y;
 
+        Nexus::Graphics::RoundedRectangle r3 = r1.ClipAgainst(r2, nullptr);
+
         m_BatchRenderer->Begin(vp, scissor);
         m_BatchRenderer->DrawQuadFill({0, 0}, {windowSize.X, windowSize.Y}, {0.35f, 0.35f, 0.35f, 1.0f});
+
         m_BatchRenderer->DrawRoundedRectangleFill(r2, {1.0f, 0.0f, 0.0f, 1.0f});
-        m_BatchRenderer->DrawRoundedRectangleFill(r1, {0.0f, 0.0f, 1.0f, 1.0f});
+        m_BatchRenderer->DrawRoundedRectangleFill(r3, {0.0f, 0.0f, 1.0f, 1.0f});
+
         m_BatchRenderer->End();
 
         m_GraphicsDevice->EndFrame();
@@ -190,7 +194,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;

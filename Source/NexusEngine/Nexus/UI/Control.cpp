@@ -1,6 +1,6 @@
 #include "Control.hpp"
 
-#include <algorithm>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus::UI
 {

@@ -2,7 +2,7 @@
 
 #if defined(NX_PLATFORM_OPENAL)
 
-#include <iostream>
+#include "Nexus/nxpch.hpp"
 
 void CheckError()
 {

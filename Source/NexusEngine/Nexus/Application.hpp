@@ -22,7 +22,7 @@
 
 #include "ApplicationSpecification.hpp"
 
-#include <chrono>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus
 {

@@ -1,10 +1,6 @@
 #pragma once
 
-#include <vector>
-#include <functional>
-#include <algorithm>
-#include <iostream>
-#include <string>
+#include "Nexus/nxpch.hpp"
 
 #include "Event.hpp"
 

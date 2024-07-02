@@ -1,6 +1,6 @@
 #include "Log.hpp"
 
-#include <time.h>
+#include "Nexus/nxpch.hpp"
 
 Nexus::Logger *logger = new Nexus::Logger();
 

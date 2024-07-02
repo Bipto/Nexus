@@ -2,7 +2,7 @@
 
 #include "Nexus/Graphics/Multisample.hpp"
 
-#include <string>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus::Audio
 {

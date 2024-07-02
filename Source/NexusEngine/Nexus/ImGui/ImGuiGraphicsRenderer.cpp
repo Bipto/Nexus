@@ -4,9 +4,6 @@
 #include "Nexus/Runtime.hpp"
 #include "Nexus/Graphics/Swapchain.hpp"
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
 std::string GetImGuiShaderVertexSource()
 {
     std::string shader =

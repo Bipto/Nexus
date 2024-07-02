@@ -9,7 +9,7 @@
 
 #include "GL.hpp"
 
-#include <array>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus::Graphics
 {

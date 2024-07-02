@@ -1,8 +1,6 @@
 #pragma once
 
-#include <inttypes.h>
-#include <random>
-#include <cmath>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus
 {

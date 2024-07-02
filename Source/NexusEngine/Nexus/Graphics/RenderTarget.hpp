@@ -5,8 +5,7 @@
 #include "Nexus/Window.hpp"
 #include "Nexus/Point.hpp"
 
-#include <inttypes.h>
-#include <variant>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus::Graphics
 {

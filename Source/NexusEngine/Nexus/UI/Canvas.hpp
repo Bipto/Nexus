@@ -5,9 +5,7 @@
 
 #include "Canvas.hpp"
 
-#include <glm/glm.hpp>
-
-#include <vector>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus::UI
 {

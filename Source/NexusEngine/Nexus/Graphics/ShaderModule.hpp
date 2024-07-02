@@ -3,7 +3,7 @@
 #include "ResourceSet.hpp"
 #include "ShaderDataType.hpp"
 
-#include <string>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus::Graphics
 {

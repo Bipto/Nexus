@@ -6,8 +6,7 @@
 
 #include "OpenAL.hpp"
 
-#include <vector>
-#include <string>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus::Audio
 {

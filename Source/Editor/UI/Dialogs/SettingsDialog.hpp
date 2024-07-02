@@ -2,8 +2,7 @@
 
 #include "UI/Panel.hpp"
 
-#include <map>
-#include <memory>
+#include "Nexus/nxpch.hpp"
 
 namespace Editor
 {

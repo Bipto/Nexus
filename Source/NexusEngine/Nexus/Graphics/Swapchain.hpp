@@ -2,8 +2,7 @@
 
 #include "Nexus/ApplicationSpecification.hpp"
 
-#include <vector>
-#include <functional>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus
 {
@@ -20,7 +19,7 @@ namespace Nexus::Graphics
             : m_Specification(spec)
         {
         }
-        virtual ~Swapchain(){}
+        virtual ~Swapchain() {}
 
         virtual void Initialise() = 0;
         virtual void SwapBuffers() = 0;

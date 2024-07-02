@@ -2,7 +2,7 @@
 
 #include "Nexus/Logging/Log.hpp"
 
-#include <sstream>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus
 {

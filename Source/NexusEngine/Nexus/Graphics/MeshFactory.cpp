@@ -4,7 +4,7 @@
 #include "assimp/scene.h"
 #include "assimp/postprocess.h"
 
-#include <vector>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus::Graphics
 {

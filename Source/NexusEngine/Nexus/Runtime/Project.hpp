@@ -5,8 +5,7 @@
 
 #include "Scene.hpp"
 
-#include <filesystem>
-#include <map>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus
 {

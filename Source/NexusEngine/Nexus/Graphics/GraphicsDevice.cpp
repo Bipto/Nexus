@@ -1,8 +1,6 @@
 #include "GraphicsDevice.hpp"
 
-#include <fstream>
-#include <sstream>
-#include <chrono>
+#include "Nexus/nxpch.hpp"
 
 #include "Nexus/Logging/Log.hpp"
 #include "ShaderGenerator.hpp"

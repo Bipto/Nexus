@@ -4,7 +4,7 @@
 #include "Nexus/ImGui/ImGuiGraphicsRenderer.hpp"
 #include "Panel.hpp"
 
-#include <map>
+#include "Nexus/nxpch.hpp"
 
 namespace Editor
 {

@@ -6,7 +6,7 @@
 
 #include "Entity.hpp"
 
-#include <string>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus
 {

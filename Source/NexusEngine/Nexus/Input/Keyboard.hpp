@@ -1,6 +1,6 @@
 #pragma once
 
-#include <map>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus
 {
@@ -148,9 +148,6 @@ namespace Nexus
         const bool WasKeyReleased(KeyCode code) const;
 
         const std::map<KeyCode, bool> &GetKeys() const;
-
-    private:
-        void CacheKeyIfNecessary(KeyCode code, bool value) const;
 
     private:
         /// @brief A map containing the current state of the keyboard's keys

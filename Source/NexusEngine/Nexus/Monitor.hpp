@@ -2,8 +2,7 @@
 
 #include "Nexus/Point.hpp"
 
-#include <string>
-#include <inttypes.h>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus
 {

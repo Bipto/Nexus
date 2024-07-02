@@ -6,7 +6,7 @@
 
 #include "Nexus/ApplicationSpecification.hpp"
 
-#include <string>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus::Audio
 {

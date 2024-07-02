@@ -1,11 +1,8 @@
 #include "MipmapGenerator.hpp"
 
-#include <algorithm>
-
 #include "stb_image_write.h"
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+#include "Nexus/nxpch.hpp"
 
 const std::string c_MipmapVertexSource =
     "#version 450 core\n"

@@ -4,7 +4,7 @@
 
 #include "Nexus/Logging/Log.hpp"
 
-#include <cassert>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus::GL
 {

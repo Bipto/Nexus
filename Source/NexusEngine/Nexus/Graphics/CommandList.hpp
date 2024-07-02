@@ -10,8 +10,7 @@
 #include "Viewport.hpp"
 #include "Scissor.hpp"
 
-#include <functional>
-#include <variant>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus::Graphics
 {

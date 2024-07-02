@@ -4,8 +4,7 @@
 
 #include "yaml-cpp/yaml.h"
 
-#include <ctime>
-#include <iomanip>
+#include "Nexus/nxpch.hpp"
 
 const std::string DefaultSceneName = "UntitledScene";
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Structures.hpp"
-#include <glm/glm.hpp>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus::Graphics
 {

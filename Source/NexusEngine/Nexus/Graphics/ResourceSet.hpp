@@ -1,8 +1,6 @@
 #pragma once
 
-#include <string>
-#include <inttypes.h>
-#include <vector>
+#include "Nexus/nxpch.hpp"
 
 #include "Nexus/Types.hpp"
 #include "Nexus/Graphics/Texture.hpp"

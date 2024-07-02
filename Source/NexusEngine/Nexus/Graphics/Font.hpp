@@ -6,7 +6,7 @@
 #include "Nexus/Point.hpp"
 #include "Nexus/Graphics/Color.hpp"
 
-#include <string>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus::Graphics
 {

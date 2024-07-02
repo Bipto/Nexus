@@ -8,8 +8,7 @@
 #include "Platform/OpenGL/BufferOpenGL.hpp"
 #include "Platform/OpenGL/SamplerOpenGL.hpp"
 
-#include <unordered_map>
-#include <variant>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus::Graphics
 {

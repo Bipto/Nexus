@@ -2,7 +2,7 @@
 
 #include "Nexus/Graphics/GraphicsDevice.hpp"
 
-#include <string>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus
 {

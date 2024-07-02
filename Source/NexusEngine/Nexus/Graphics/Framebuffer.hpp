@@ -1,8 +1,6 @@
 #pragma once
 
-#include <vector>
-#include <initializer_list>
-#include <array>
+#include "Nexus/nxpch.hpp"
 
 #include "Nexus/Graphics/Multisample.hpp"
 #include "Nexus/Types.hpp"

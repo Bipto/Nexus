@@ -9,7 +9,7 @@
 
 #include "Nexus/Graphics/Framebuffer.hpp"
 
-#include <array>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus::Graphics
 {

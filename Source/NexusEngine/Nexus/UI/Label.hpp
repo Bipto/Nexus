@@ -2,7 +2,7 @@
 
 #include "Control.hpp"
 
-#include <string>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus::UI
 {

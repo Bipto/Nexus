@@ -1,6 +1,6 @@
 #include "Multisample.hpp"
 
-#include <stdexcept>
+#include "Nexus/nxpch.hpp"
 
 uint32_t Nexus::Graphics::GetSampleCount(SampleCount samples)
 {

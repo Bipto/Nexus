@@ -11,9 +11,7 @@
 
 #include "Nexus/Events/EventHandler.hpp"
 
-#include <map>
-#include <sstream>
-#include <vector>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus
 {

@@ -9,30 +9,21 @@ namespace Nexus
 
     const bool Keyboard::IsKeyHeld(KeyCode code) const
     {
-        CacheKeyIfNecessary(code, false);
-        return m_CurrentKeys.at(code);
+        return m_CurrentKeys[code];
     }
 
     const bool Keyboard::WasKeyPressed(KeyCode code) const
     {
-        CacheKeyIfNecessary(code, false);
-        return m_CurrentKeys.at(code) && !m_PreviousKeys.at(code);
+        return m_CurrentKeys[code] && !m_PreviousKeys[code];
     }
 
     const bool Keyboard::WasKeyReleased(KeyCode code) const
     {
-        CacheKeyIfNecessary(code, false);
-        return !m_CurrentKeys.at(code) && m_PreviousKeys.at(code);
+        return !m_CurrentKeys[code] && m_PreviousKeys[code];
     }
 
     const std::map<KeyCode, bool> &Keyboard::GetKeys() const
     {
         return m_CurrentKeys;
-    }
-
-    void Keyboard::CacheKeyIfNecessary(KeyCode code, bool value) const
-    {
-        m_CurrentKeys.try_emplace(code, value);
-        m_PreviousKeys.try_emplace(code, value);
     }
 }

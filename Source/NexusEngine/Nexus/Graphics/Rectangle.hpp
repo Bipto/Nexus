@@ -2,7 +2,7 @@
 
 #include "Nexus/Point.hpp"
 
-#include <glm/glm.hpp>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus::Graphics
 {

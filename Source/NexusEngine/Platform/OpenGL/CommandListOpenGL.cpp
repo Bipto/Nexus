@@ -10,8 +10,7 @@
 
 #include "GL.hpp"
 
-#include <memory>
-#include <stdexcept>
+#include "Nexus/nxpch.hpp"
 
 GLenum GetGLIndexBufferFormat(Nexus::Graphics::IndexBufferFormat format)
 {

@@ -2,7 +2,7 @@
 
 #include "ShaderModule.hpp"
 
-#include <string>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus::Graphics
 {

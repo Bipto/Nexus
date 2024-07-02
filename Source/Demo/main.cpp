@@ -22,9 +22,7 @@
 
 #include "Nexus/ImGui/ImGuiGraphicsRenderer.hpp"
 
-#include <iostream>
-#include <utility>
-#include <filesystem>
+#include "Nexus/nxpch.hpp"
 
 struct DemoInfo
 {

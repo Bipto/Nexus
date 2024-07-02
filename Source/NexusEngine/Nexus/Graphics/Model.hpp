@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Mesh.hpp"
-#include <vector>
+#include "Nexus/nxpch.hpp"
 
 namespace Nexus::Graphics
 {
