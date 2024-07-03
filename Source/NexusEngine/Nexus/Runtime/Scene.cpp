@@ -124,9 +124,9 @@ namespace Nexus
         out << YAML::Key << "ClearColour" << YAML::Value << m_ClearColour;
         out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
 
-        for (const auto &entity : m_Entities)
+        for (const auto &e : m_Entities)
         {
-            entity.Serialize(out);
+            e.Serialize(out);
         }
 
         out << YAML::EndSeq;
@@ -166,8 +166,8 @@ namespace Nexus
             {
                 uint64_t id = entity["Entity"].as<uint64_t>();
                 std::string name = entity["Name"].as<std::string>();
-                Entity entity(GUID(id), name);
-                scene->m_Entities.push_back(entity);
+                Entity e(GUID(id), name);
+                scene->m_Entities.push_back(e);
             }
         }
 
