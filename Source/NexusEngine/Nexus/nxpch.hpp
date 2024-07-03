@@ -10,6 +10,7 @@
 #include <vector>
 #include <initializer_list>
 #include <set>
+#include <span>
 
 #include <chrono>
 #include <map>

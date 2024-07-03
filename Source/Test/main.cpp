@@ -102,6 +102,16 @@ public:
 
         r1 = Nexus::Graphics::RoundedRectangle({250, 250}, {250, 250}, 5.0f, 5.0f, 5.0f, 5.0f);
         r2 = Nexus::Graphics::RoundedRectangle({150, 250}, {400, 400}, 25.0f, 25.0f, 25.0f, 25.0f);
+
+        std::vector<glm::vec2> poly = {{100, 150}, {200, 250}, {300, 200}};
+        std::vector<glm::vec2> clip = {{100, 300}, {300, 300}, {200, 100}};
+
+        std::vector<glm::vec2> clippedPoints = Nexus::Utils::SutherlandHodgman(poly, clip);
+
+        for (const auto &point : clippedPoints)
+        {
+            std::cout << "X: " << point.x << ", Y:" << point.y << "\n";
+        }
     }
 
     virtual void Update(Nexus::Time time) override
@@ -124,6 +134,17 @@ public:
         if (Nexus::Input::IsKeyHeld(Nexus::KeyCode::KeyDown))
         {
             r1.SetY(r1.GetTop() + 5);
+        }
+    }
+
+    void DrawPolygon(const std::vector<glm::vec2> &points, const glm::vec4 &color)
+    {
+        for (size_t i = 0; i < points.size(); i++)
+        {
+            glm::vec2 p1 = points[i];
+            glm::vec2 p2 = points[(i + 1) % points.size()];
+
+            m_BatchRenderer->DrawLine(p1, p2, color, 1.0f);
         }
     }
 
@@ -154,13 +175,22 @@ public:
         scissor.Width = windowSize.X;
         scissor.Height = windowSize.Y;
 
-        Nexus::Graphics::RoundedRectangle r3 = r1.ClipAgainst(r2, nullptr);
+        // Nexus::Graphics::RoundedRectangle r3 = r1.ClipAgainst(r2, nullptr);
 
         m_BatchRenderer->Begin(vp, scissor);
         m_BatchRenderer->DrawQuadFill({0, 0}, {windowSize.X, windowSize.Y}, {0.35f, 0.35f, 0.35f, 1.0f});
 
-        m_BatchRenderer->DrawRoundedRectangleFill(r2, {1.0f, 0.0f, 0.0f, 1.0f});
-        m_BatchRenderer->DrawRoundedRectangleFill(r3, {0.0f, 0.0f, 1.0f, 1.0f});
+        /* m_BatchRenderer->DrawRoundedRectangleFill(r2, {1.0f, 0.0f, 0.0f, 1.0f});
+        m_BatchRenderer->DrawRoundedRectangleFill(r1, {0.0f, 0.0f, 1.0f, 1.0f}); */
+
+        std::vector<glm::vec2> poly = {{100, 150}, {200, 250}, {300, 200}};
+        std::vector<glm::vec2> clip = {{100, 300}, {300, 300}, {200, 100}};
+
+        std::vector<glm::vec2> clippedPoints = Nexus::Utils::SutherlandHodgman(poly, clip);
+
+        DrawPolygon(poly, {0.0f, 1.0f, 0.0f, 1.0f});
+        DrawPolygon(clip, {1.0f, 0.0f, 0.0f, 1.0f});
+        DrawPolygon(clippedPoints, {0.0f, 0.0f, 1.0f, 1.0f});
 
         m_BatchRenderer->End();
 
