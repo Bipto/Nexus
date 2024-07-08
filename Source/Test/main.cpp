@@ -87,18 +87,8 @@ public:
         pnl->AddControl(pbx);
         m_Canvas->AddControl(pnl); */
 
-        r1 = Nexus::Graphics::RoundedRectangle({250, 400}, {250, 250}, 5.0f, 5.0f, 5.0f, 5.0f);
-        r2 = Nexus::Graphics::RoundedRectangle({150, 400}, {400, 400}, 25.0f, 25.0f, 25.0f, 25.0f);
-
-        std::vector<glm::vec2> poly = {{100, 150}, {200, 250}, {300, 200}};
-        std::vector<glm::vec2> clip = {{100, 300}, {300, 300}, {200, 100}};
-
-        std::vector<glm::vec2> clippedPoints = Nexus::Utils::SutherlandHodgman(poly, clip);
-
-        for (const auto &point : clippedPoints)
-        {
-            std::cout << "X: " << point.x << ", Y:" << point.y << "\n";
-        }
+        r1 = Nexus::Graphics::RoundedRectangle({450, 400}, {250, 250}, 5.0f, 5.0f, 5.0f, 5.0f);
+        r2 = Nexus::Graphics::RoundedRectangle({350, 400}, {400, 400}, 25.0f, 25.0f, 25.0f, 25.0f);
     }
 
     virtual void Update(Nexus::Time time) override
@@ -167,17 +157,44 @@ public:
         m_BatchRenderer->Begin(vp, scissor);
         m_BatchRenderer->DrawQuadFill({0, 0}, {windowSize.X, windowSize.Y}, {0.35f, 0.35f, 0.35f, 1.0f});
 
-        // m_BatchRenderer->DrawRoundedRectangle(r2, {1.0f, 0.0f, 0.0f, 1.0f}, 1.0f);
-        // m_BatchRenderer->DrawRoundedRectangle(r1, {0.0f, 0.0f, 1.0f, 1.0f}, 1.0f);
+        m_BatchRenderer->DrawRoundedRectangleFill(r2, {1.0f, 0.0f, 0.0f, 1.0f});
+        m_BatchRenderer->DrawRoundedRectangleFill(r1, {0.0f, 0.0f, 1.0f, 1.0f});
 
-        std::vector<glm::vec2> poly = {{100, 150}, {200, 250}, {300, 200}};
-        std::vector<glm::vec2> clip = {{100, 300}, {300, 300}, {200, 100}};
+        std::vector<glm::vec2> clip = {{500, 100}, {600, 300}, {400, 300}};
+        DrawPolygon(clip, {1.0f, 0.0f, 0.0f, 1.0f});
 
-        std::vector<glm::vec2> clippedPoints = Nexus::Utils::SutherlandHodgman(poly, clip);
+        std::vector<glm::vec2> rectPoints = Nexus::Utils::SutherlandHodgman(r1.CreateBorder(), clip);
+
+        if (rectPoints.size() > 0)
+        {
+            std::vector<uint32_t> rectIndices;
+            Nexus::Utils::Triangulate(rectPoints, rectIndices);
+
+            if (rectIndices.size() > 0)
+            {
+                std::vector<Nexus::Graphics::Triangle2D> triangles;
+                for (size_t i = 0; i < rectIndices.size(); i += 3)
+                {
+                    Nexus::Graphics::Triangle2D tri;
+                    tri.A = rectPoints[rectIndices[i]];
+                    tri.B = rectPoints[rectIndices[(i + 1) % rectIndices.size()]];
+                    tri.C = rectPoints[rectIndices[(i + 2) % rectIndices.size()]];
+                    triangles.push_back(tri);
+                }
+
+                Nexus::Graphics::Polygon polygon(triangles);
+                m_BatchRenderer->DrawPolygon(polygon, {0.0f, 1.0f, 1.0f, 1.0f});
+            }
+        }
+
+        std::vector<glm::vec2> poly = {{300, 200}, {200, 250}, {100, 150}};
+        std::vector<glm::vec2> clipTri = {{200, 100}, {300, 300}, {100, 300}};
+
+        std::vector<glm::vec2> clippedPoints = Nexus::Utils::SutherlandHodgman(poly, clipTri);
+        std::vector<Nexus::Graphics::Triangle2D> triangles;
 
         std::vector<uint32_t> indices;
         Nexus::Utils::Triangulate(clippedPoints, indices);
-        std::vector<Nexus::Graphics::Triangle2D> triangles;
 
         for (size_t i = 0; i < indices.size(); i += 3)
         {
@@ -189,11 +206,11 @@ public:
         }
 
         DrawPolygon(poly, {0.0f, 1.0f, 0.0f, 1.0f});
-        DrawPolygon(clip, {1.0f, 0.0f, 0.0f, 1.0f});
-        DrawPolygon(clippedPoints, {0.0f, 0.0f, 1.0f, 1.0f});
+        DrawPolygon(clipTri, {1.0f, 0.0f, 0.0f, 1.0f});
 
         Nexus::Graphics::Polygon polygon(triangles);
         m_BatchRenderer->DrawPolygon(polygon, {0.0f, 0.0f, 1.0f, 1.0f});
+        DrawPolygon(clippedPoints, {1.0f, 1.0f, 0.0f, 1.0f});
 
         m_BatchRenderer->End();
 

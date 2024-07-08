@@ -6,6 +6,12 @@
 
 namespace Nexus::Utils
 {
+    enum class WindingOrder
+    {
+        Clockwise,
+        CounterClockwise
+    };
+
     glm::vec4 ColorFromRGBA(float r, float g, float b, float a);
     glm::vec4 ColorFromBorderColor(Nexus::Graphics::BorderColor color);
 
@@ -47,5 +53,29 @@ namespace Nexus::Utils
 
     float FindPolygonArea(std::span<glm::vec2> polygon);
 
-    bool Triangulate(std::span<glm::vec2> polygon, std::vector<uint32_t>& triangles);
+    bool Triangulate(std::span<glm::vec2> polygon, std::vector<uint32_t> &triangles);
+
+    WindingOrder GetWindingOrder(glm::vec2 a, glm::vec2 b, glm::vec2 c);
+
+    std::vector<glm::vec2> ReverseWindingOrder(const std::vector<glm::vec2> &vertices);
+
+    template <typename T>
+    T GetItem(std::span<T> collection, int index)
+    {
+        int32_t size = static_cast<int32_t>(collection.size());
+
+        if (index >= size)
+        {
+            return collection[index % collection.size()];
+        }
+        else if (index < 0)
+        {
+            uint32_t i = collection.size() - (index * -1);
+            return collection[i];
+        }
+        else
+        {
+            return collection[index];
+        }
+    }
 }
