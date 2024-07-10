@@ -83,8 +83,8 @@ namespace Nexus::Utils
         assert(subjectPolygon.size() >= 3 && "The subject polygon must have at least 3 points");
         assert(clipPolygon.size() >= 3 && "The clipping polygon must have at least 3 points");
 
-        std::vector<glm::vec2> poly = subjectPolygon;
-        std::vector<glm::vec2> clip = clipPolygon;
+        std::vector<glm::vec2> poly(subjectPolygon);
+        std::vector<glm::vec2> clip(clipPolygon);
 
         WindingOrder subjectWindingOrder = GetWindingOrder(poly[0], poly[1], poly[2]);
         WindingOrder clipWindingOrder = GetWindingOrder(clip[0], clip[1], clip[2]);
@@ -152,69 +152,6 @@ namespace Nexus::Utils
 
     bool Triangulate(std::span<glm::vec2> polygon, std::vector<uint32_t> &triangles)
     {
-        /* std::vector<uint32_t> indexList;
-        for (size_t i = 0; i < polygon.size(); i++)
-        {
-            indexList.push_back(i);
-        }
-
-        while (indexList.size() > 3)
-        {
-            for (size_t i = 0; i < indexList.size(); i++)
-            {
-                uint32_t a = indexList[GetItemIndex(i, indexList.size())];
-                uint32_t b = indexList[GetItemIndex(i - 1, indexList.size())];
-                uint32_t c = indexList[GetItemIndex(i + 1, indexList.size())];
-
-                glm::vec2 va = polygon[a];
-                glm::vec2 vb = polygon[b];
-                glm::vec2 vc = polygon[c];
-
-                glm::vec2 va_to_vb = vb - va;
-                glm::vec2 va_to_vc = vc - va;
-
-                // vertex is convex
-                if (Cross(va_to_vb, va_to_vc) < 0.0f)
-                {
-                    continue;
-                }
-
-                bool isEar = true;
-
-                for (size_t j = 0; j < polygon.size(); j++)
-                {
-                    if (j == a || j == b || j == c)
-                    {
-                        continue;
-                    }
-
-                    glm::vec2 p = polygon[j];
-
-                    if (IsPointInTriangle(p, vb, va, vc))
-                    {
-                        isEar = false;
-                        break;
-                    }
-                }
-
-                if (isEar)
-                {
-                    triangles.push_back(b);
-                    triangles.push_back(a);
-                    triangles.push_back(c);
-
-                    indexList.erase(indexList.begin() + i);
-                    break;
-                }
-            }
-        }
-
-        triangles.push_back(indexList[0]);
-        triangles.push_back(indexList[1]);
-        triangles.push_back(indexList[2]);
-
-        return true; */
-
         std::vector<uint32_t> indexList;
         for (size_t i = 0; i < polygon.size(); i++)
         {

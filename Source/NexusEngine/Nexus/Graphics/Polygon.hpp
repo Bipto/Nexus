@@ -81,6 +81,13 @@ namespace Nexus::Graphics
             return rect;
         }
 
+        Polygon ReverseWindingOrder() const
+        {
+            std::vector<Triangle2D> triangles(m_Triangles);
+            std::reverse(triangles.begin(), triangles.end());
+            return Polygon(triangles);
+        }
+
     private:
         std::vector<Triangle2D> m_Triangles;
     };

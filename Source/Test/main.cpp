@@ -15,15 +15,16 @@
 
 #include "Nexus/Utils/Utils.hpp"
 
+#include "Nexus/Graphics/CatmullRom.hpp"
+
 class EditorApplication : public Nexus::Application
 {
 public:
     explicit EditorApplication(const Nexus::ApplicationSpecification &spec)
         : Nexus::Application(spec)
     {
-        m_BatchRenderer = new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, {GetPrimaryWindow()->GetSwapchain()});
-
         m_Texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), false);
+        m_BatchRenderer = new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, {GetPrimaryWindow()->GetSwapchain()});
     }
 
     virtual void Load() override
@@ -37,7 +38,7 @@ public:
         m_Font = new Nexus::Graphics::Font("resources/Fonts/JETBRAINSMONO-REGULAR.TTF", 18, fontRange, Nexus::Graphics::FontType::Bitmap, m_GraphicsDevice);
         Nexus::Ref<Nexus::Graphics::Texture> texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), false);
 
-        /* Nexus::UI::Label *lbl = new Nexus::UI::Label();
+        Nexus::UI::Label *lbl = new Nexus::UI::Label();
         lbl->SetFont(m_Font);
         lbl->SetLocalPosition({10, 10});
         lbl->SetSize({1200, 400});
@@ -85,15 +86,18 @@ public:
         pnl->AddControl(btn);
         pnl->AddControl(lbl);
         pnl->AddControl(pbx);
-        m_Canvas->AddControl(pnl); */
+        m_Canvas->AddControl(pnl);
 
         r1 = Nexus::Graphics::RoundedRectangle({450, 400}, {250, 250}, 5.0f, 5.0f, 5.0f, 5.0f);
         r2 = Nexus::Graphics::RoundedRectangle({350, 400}, {400, 400}, 25.0f, 25.0f, 25.0f, 25.0f);
+
+        m_Spline.SetPoints({{100, 410}, {400, 410}, {700, 410}, {1000, 410}});
+        m_Spline.SetLooped(true);
     }
 
     virtual void Update(Nexus::Time time) override
     {
-        if (Nexus::Input::IsKeyHeld(Nexus::KeyCode::KeyLeft))
+        /* if (Nexus::Input::IsKeyHeld(Nexus::KeyCode::KeyLeft))
         {
             r1.SetX(r1.GetLeft() - 5);
         }
@@ -111,18 +115,51 @@ public:
         if (Nexus::Input::IsKeyHeld(Nexus::KeyCode::KeyDown))
         {
             r1.SetY(r1.GetTop() + 5);
-        }
-    }
+        } */
 
-    void DrawPolygon(const std::vector<glm::vec2> &points, const glm::vec4 &color)
-    {
-        for (size_t i = 0; i < points.size(); i++)
+        if (Nexus::Input::IsKeyReleased(Nexus::KeyCode::KeyLeft))
         {
-            glm::vec2 p1 = points[i];
-            glm::vec2 p2 = points[(i + 1) % points.size()];
+            if (m_SelectedPoint == 0)
+            {
+                m_SelectedPoint = m_Spline.GetPoints().size();
+            }
 
-            m_BatchRenderer->DrawLine(p1, p2, color, 1.0f);
+            m_SelectedPoint--;
         }
+
+        if (Nexus::Input::IsKeyReleased(Nexus::KeyCode::KeyRight))
+        {
+            m_SelectedPoint++;
+
+            if (m_SelectedPoint == m_Spline.GetPoints().size())
+            {
+                m_SelectedPoint = 0;
+            }
+        }
+
+        std::vector<Nexus::Point2D<float>> points = m_Spline.GetPoints();
+        Nexus::Point2D<float> &point = points.at(m_SelectedPoint);
+        if (Nexus::Input::IsKeyHeld(Nexus::KeyCode::W))
+        {
+            point.Y -= 250.0f * time.GetSeconds();
+        }
+
+        if (Nexus::Input::IsKeyHeld(Nexus::KeyCode::S))
+        {
+            point.Y += 250.0f * time.GetSeconds();
+        }
+
+        if (Nexus::Input::IsKeyHeld(Nexus::KeyCode::A))
+        {
+            point.X -= 250.0f * time.GetSeconds();
+        }
+
+        if (Nexus::Input::IsKeyHeld(Nexus::KeyCode::D))
+        {
+            point.X += 250.0f * time.GetSeconds();
+        }
+
+        m_Spline.SetPoints(points);
     }
 
     virtual void Render(Nexus::Time time) override
@@ -135,6 +172,8 @@ public:
         m_Canvas->SetSize(windowSize);
         m_Canvas->SetBackgroundColour({0.42f, 0.52, 0.73f, 1.0f});
         m_Canvas->Render(); */
+
+        // Nexus::Graphics::RoundedRectangle r3 = r1.ClipAgainst(r2, nullptr);
 
         const auto &windowSize = GetPrimaryWindow()->GetWindowSize();
 
@@ -152,65 +191,39 @@ public:
         scissor.Width = windowSize.X;
         scissor.Height = windowSize.Y;
 
-        // Nexus::Graphics::RoundedRectangle r3 = r1.ClipAgainst(r2, nullptr);
+        Nexus::Graphics::RoundedRectangle r3 = r1.ClipAgainst(r2, nullptr);
 
         m_BatchRenderer->Begin(vp, scissor);
         m_BatchRenderer->DrawQuadFill({0, 0}, {windowSize.X, windowSize.Y}, {0.35f, 0.35f, 0.35f, 1.0f});
 
-        m_BatchRenderer->DrawRoundedRectangleFill(r2, {1.0f, 0.0f, 0.0f, 1.0f});
-        m_BatchRenderer->DrawRoundedRectangleFill(r1, {0.0f, 0.0f, 1.0f, 1.0f});
+        /*m_BatchRenderer->DrawRoundedRectangleFill(r2, {1.0f, 0.0f, 0.0f, 1.0f});
+        m_BatchRenderer->DrawRoundedRectangleFill(r3, {0.0f, 0.0f, 1.0f, 1.0f}); */
 
-        std::vector<glm::vec2> clip = {{500, 100}, {600, 300}, {400, 300}};
-        DrawPolygon(clip, {1.0f, 0.0f, 0.0f, 1.0f});
-
-        std::vector<glm::vec2> rectPoints = Nexus::Utils::SutherlandHodgman(r1.CreateBorder(), clip);
-
-        if (rectPoints.size() > 0)
+        const auto &points = m_Spline.GetPoints();
+        for (int i = 0; i < points.size(); i++)
         {
-            std::vector<uint32_t> rectIndices;
-            Nexus::Utils::Triangulate(rectPoints, rectIndices);
-
-            if (rectIndices.size() > 0)
-            {
-                std::vector<Nexus::Graphics::Triangle2D> triangles;
-                for (size_t i = 0; i < rectIndices.size(); i += 3)
-                {
-                    Nexus::Graphics::Triangle2D tri;
-                    tri.A = rectPoints[rectIndices[i]];
-                    tri.B = rectPoints[rectIndices[(i + 1) % rectIndices.size()]];
-                    tri.C = rectPoints[rectIndices[(i + 2) % rectIndices.size()]];
-                    triangles.push_back(tri);
-                }
-
-                Nexus::Graphics::Polygon polygon(triangles);
-                m_BatchRenderer->DrawPolygon(polygon, {0.0f, 1.0f, 1.0f, 1.0f});
-            }
+            Nexus::Graphics::Circle<float> circle(points.at(i), 25);
+            m_BatchRenderer->DrawCircleFill(circle, {1.0f, 1.0f, 1.0f, 1.0f}, 32);
         }
 
-        std::vector<glm::vec2> poly = {{300, 200}, {200, 250}, {100, 150}};
-        std::vector<glm::vec2> clipTri = {{200, 100}, {300, 300}, {100, 300}};
-
-        std::vector<glm::vec2> clippedPoints = Nexus::Utils::SutherlandHodgman(poly, clipTri);
-        std::vector<Nexus::Graphics::Triangle2D> triangles;
-
-        std::vector<uint32_t> indices;
-        Nexus::Utils::Triangulate(clippedPoints, indices);
-
-        for (size_t i = 0; i < indices.size(); i += 3)
         {
-            Nexus::Graphics::Triangle2D tri;
-            tri.A = clippedPoints[indices[i]];
-            tri.B = clippedPoints[indices[(i + 1) % indices.size()]];
-            tri.C = clippedPoints[indices[(i + 2) % indices.size()]];
-            triangles.push_back(tri);
+            const auto &selectedPoint = points.at(m_SelectedPoint);
+            Nexus::Graphics::Circle<float> circle(selectedPoint, 25);
+            m_BatchRenderer->DrawCircleFill(circle, {1.0f, 1.0f, 0.0f, 1.0f}, 32);
         }
 
-        DrawPolygon(poly, {0.0f, 1.0f, 0.0f, 1.0f});
-        DrawPolygon(clipTri, {1.0f, 0.0f, 0.0f, 1.0f});
+        for (float t = 0.0f; t < m_Spline.GetNumberOfPoints() - 0.05f; t += 0.05f)
+        {
+            float t0 = t;
+            float t1 = t + 0.05f;
 
-        Nexus::Graphics::Polygon polygon(triangles);
-        m_BatchRenderer->DrawPolygon(polygon, {0.0f, 0.0f, 1.0f, 1.0f});
-        DrawPolygon(clippedPoints, {1.0f, 1.0f, 0.0f, 1.0f});
+            Nexus::Point2D<float> pos0 = m_Spline.GetPoint(t0);
+            Nexus::Point2D<float> pos1 = m_Spline.GetPoint(t1);
+
+            m_BatchRenderer->DrawLine({pos0.X, pos0.Y}, {pos1.X, pos1.Y}, {1.0f, 0.0f, 0.0f, 1.0f}, 5.0f);
+
+            // m_BatchRenderer->DrawCircleFill(circle, {1.0f, 0.0f, 0.0f, 1.0f}, 32);
+        }
 
         m_BatchRenderer->End();
 
@@ -239,6 +252,10 @@ private:
 
     Nexus::Graphics::RoundedRectangle r1;
     Nexus::Graphics::RoundedRectangle r2;
+
+    Nexus::Graphics::CatmullRom<float> m_Spline;
+
+    uint32_t m_SelectedPoint = 0;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)

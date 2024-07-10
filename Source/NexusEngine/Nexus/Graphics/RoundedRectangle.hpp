@@ -381,7 +381,7 @@ namespace Nexus::Graphics
                 rect.SetRadiusTopLeft(radius);
             } */
 
-            if (rect.GetRight() >= (clip.GetRight() - clip.GetRadiusTopRight()) && rect.GetTop() >= clip.GetTop())
+            if (rect.GetRight() >= (clip.GetRight() - (clip.GetRadiusTopRight() / 2)) && rect.GetTop() <= clip.GetTop() + (clip.GetRadiusTopRight() / 2))
             {
                 // float radius = Nexus::Utils::ReMapRange<float>(clip.GetRight() - clip.GetRadiusTopRight(), clip.GetRight(), 0, clip.GetRadiusTopRight(), rect.GetRight());
                 // rect.SetRadiusTopRight(radius);
