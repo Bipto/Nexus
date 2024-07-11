@@ -62,7 +62,7 @@ namespace Nexus::Graphics
         ComparisonFunction SamplerComparisonFunction = ComparisonFunction::Never;
         uint32_t MaximumAnisotropy = 1;
         uint32_t MinimumLOD = 0;
-        uint32_t MaximumLOD = std::numeric_limits<uint32_t>::max();
+        uint32_t MaximumLOD = 1;
         int32_t LODBias = 1;
         BorderColor TextureBorderColor = BorderColor::OpaqueBlack;
     };

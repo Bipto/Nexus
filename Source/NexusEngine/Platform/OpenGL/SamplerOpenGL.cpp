@@ -13,8 +13,10 @@ namespace Nexus::Graphics
         {
                 glGenSamplers(1, &m_Sampler);
 
+                uint32_t levels = spec.MaximumLOD - spec.MinimumLOD;
+
                 GLenum min, max;
-                GL::GetSamplerFilter(m_Specification.SampleFilter, min, max);
+                GL::GetSamplerFilter(m_Specification.SampleFilter, min, max, levels > 1);
 
                 // texture sampling options
                 glSamplerParameteri(m_Sampler, GL_TEXTURE_MIN_FILTER, min);

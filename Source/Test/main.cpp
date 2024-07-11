@@ -91,7 +91,8 @@ public:
         r1 = Nexus::Graphics::RoundedRectangle({450, 400}, {250, 250}, 5.0f, 5.0f, 5.0f, 5.0f);
         r2 = Nexus::Graphics::RoundedRectangle({350, 400}, {400, 400}, 25.0f, 25.0f, 25.0f, 25.0f);
 
-        m_Spline.SetPoints({{100, 410}, {400, 410}, {700, 410}, {1000, 410}});
+        // m_Spline.SetPoints({{100, 410}, {400, 410}, {700, 410}, {1000, 410}});
+        m_Spline.SetPoints({{{100, 410}, {200, 410}, {300, 410}, {400, 410}, {500, 410}, {600, 410}, {700, 410}, {800, 410}, {900, 410}, {1000, 410}}});
         m_Spline.SetLooped(true);
     }
 
@@ -203,13 +204,13 @@ public:
         for (int i = 0; i < points.size(); i++)
         {
             Nexus::Graphics::Circle<float> circle(points.at(i), 25);
-            m_BatchRenderer->DrawCircleFill(circle, {1.0f, 1.0f, 1.0f, 1.0f}, 32);
+            m_BatchRenderer->DrawCircleFill(circle, {1.0f, 1.0f, 1.0f, 1.0f}, 16);
         }
 
         {
             const auto &selectedPoint = points.at(m_SelectedPoint);
             Nexus::Graphics::Circle<float> circle(selectedPoint, 25);
-            m_BatchRenderer->DrawCircleFill(circle, {1.0f, 1.0f, 0.0f, 1.0f}, 32);
+            m_BatchRenderer->DrawCircleFill(circle, {1.0f, 1.0f, 0.0f, 1.0f}, 16);
         }
 
         for (float t = 0.0f; t < m_Spline.GetNumberOfPoints() - 0.05f; t += 0.05f)
@@ -221,8 +222,6 @@ public:
             Nexus::Point2D<float> pos1 = m_Spline.GetPoint(t1);
 
             m_BatchRenderer->DrawLine({pos0.X, pos0.Y}, {pos1.X, pos1.Y}, {1.0f, 0.0f, 0.0f, 1.0f}, 5.0f);
-
-            // m_BatchRenderer->DrawCircleFill(circle, {1.0f, 0.0f, 0.0f, 1.0f}, 32);
         }
 
         m_BatchRenderer->End();

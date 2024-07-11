@@ -2,8 +2,6 @@
 
 #include "Nexus/nxpch.hpp"
 
-#include "Nexus/nxpch.hpp"
-
 namespace Nexus
 {
     /// @brief An enum representing the severity of a log message
@@ -48,15 +46,15 @@ namespace Nexus
     public:
         /// @brief A method that adds a new info log to the logger
         /// @param message The text of the error message
-        void LogInfo(const std::string &message);
+        void LogInfo(const std::string &message, const std::source_location location = std::source_location::current());
 
         /// @brief A method that adds a new warning log to the logger
         /// @param message The text of the error message
-        void LogWarning(const std::string &message);
+        void LogWarning(const std::string &message, const std::source_location location = std::source_location::current());
 
         /// @brief A method that adds a new error log to the logger
         /// @param message The text of the error message
-        void LogError(const std::string &message);
+        void LogError(const std::string &message, const std::source_location location = std::source_location::current());
 
         /// @brief A method that returns the logs stored within the logger
         /// @return A const reference to the vector of logs
@@ -65,7 +63,7 @@ namespace Nexus
     private:
         /// @brief A method that returns the current time as a string
         /// @return A const reference to a string containing the current time
-        static const std::string &GetTime();
+        static std::string GetTime();
 
     private:
         /// @brief A vector containing the logger's logs

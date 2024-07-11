@@ -21,7 +21,8 @@ namespace Nexus::GL
 
         while (GLenum error = glGetError())
         {
-            NX_ERROR(GetErrorMessageFromCode(error));
+            std::string message = GetErrorMessageFromCode(error);
+            NX_ERROR(message);
             errorEncountered = true;
         }
 
@@ -33,23 +34,23 @@ namespace Nexus::GL
         switch (error)
         {
         case GL_NO_ERROR:
-            return {"No error"};
+            return "No error";
         case GL_INVALID_ENUM:
-            return {"An invalid enum was entered"};
+            return "An invalid enum was entered";
         case GL_INVALID_VALUE:
-            return {"An invalid value was entered"};
+            return "An invalid value was entered";
         case GL_INVALID_OPERATION:
-            return {"An invalid operation was attempted"};
+            return "An invalid operation was attempted";
         /* case GL_STACK_OVERFLOW:
-            return {"A stack overflow has occured"};
+            return "A stack overflow has occured";
         case GL_STACK_UNDERFLOW:
-            return {"A stack underflow has occured"}; */
+            return "A stack underflow has occured"; */
         case GL_OUT_OF_MEMORY:
-            return {"Out of memory"};
+            return "Out of memory";
         case GL_INVALID_FRAMEBUFFER_OPERATION:
-            return {"An invalid framebuffer operation was attempted"};
+            return "An invalid framebuffer operation was attempted";
         default:
-            return {"An unknown error occurred"};
+            return "An unknown error occurred";
         }
     }
 
@@ -167,53 +168,105 @@ namespace Nexus::GL
         return GLenum();
     }
 
-    void GetSamplerFilter(Nexus::Graphics::SamplerFilter filter, GLenum &min, GLenum &max)
+    void GetSamplerFilter(Nexus::Graphics::SamplerFilter filter, GLenum &min, GLenum &max, bool mipmappingEnabled)
     {
-        switch (filter)
+        if (mipmappingEnabled)
         {
-        case Nexus::Graphics::SamplerFilter::MinPoint_MagPoint_MipPoint:
-            min = GL_NEAREST_MIPMAP_NEAREST;
-            max = GL_NEAREST_MIPMAP_NEAREST;
-            break;
+            switch (filter)
+            {
+            case Nexus::Graphics::SamplerFilter::MinPoint_MagPoint_MipPoint:
+                min = GL_NEAREST_MIPMAP_NEAREST;
+                max = GL_NEAREST_MIPMAP_NEAREST;
+                break;
 
-        case Nexus::Graphics::SamplerFilter::MinPoint_MagPoint_MipLinear:
-            min = GL_NEAREST_MIPMAP_LINEAR;
-            max = GL_NEAREST_MIPMAP_LINEAR;
-            break;
+            case Nexus::Graphics::SamplerFilter::MinPoint_MagPoint_MipLinear:
+                min = GL_NEAREST_MIPMAP_LINEAR;
+                max = GL_NEAREST_MIPMAP_LINEAR;
+                break;
 
-        case Nexus::Graphics::SamplerFilter::MinPoint_MagLinear_MipPoint:
-            min = GL_NEAREST_MIPMAP_NEAREST;
-            max = GL_LINEAR_MIPMAP_NEAREST;
-            break;
+            case Nexus::Graphics::SamplerFilter::MinPoint_MagLinear_MipPoint:
+                min = GL_NEAREST_MIPMAP_NEAREST;
+                max = GL_LINEAR_MIPMAP_NEAREST;
+                break;
 
-        case Nexus::Graphics::SamplerFilter::MinPoint_MagLinear_MipLinear:
-            min = GL_NEAREST_MIPMAP_LINEAR;
-            max = GL_LINEAR_MIPMAP_LINEAR;
-            break;
+            case Nexus::Graphics::SamplerFilter::MinPoint_MagLinear_MipLinear:
+                min = GL_NEAREST_MIPMAP_LINEAR;
+                max = GL_LINEAR_MIPMAP_LINEAR;
+                break;
 
-        case Nexus::Graphics::SamplerFilter::MinLinear_MagPoint_MipPoint:
-            min = GL_LINEAR_MIPMAP_NEAREST;
-            max = GL_NEAREST_MIPMAP_NEAREST;
-            break;
+            case Nexus::Graphics::SamplerFilter::MinLinear_MagPoint_MipPoint:
+                min = GL_LINEAR_MIPMAP_NEAREST;
+                max = GL_NEAREST_MIPMAP_NEAREST;
+                break;
 
-        case Nexus::Graphics::SamplerFilter::MinLinear_MagPoint_MipLinear:
-            min = GL_LINEAR_MIPMAP_LINEAR;
-            max = GL_NEAREST_MIPMAP_LINEAR;
-            break;
+            case Nexus::Graphics::SamplerFilter::MinLinear_MagPoint_MipLinear:
+                min = GL_LINEAR_MIPMAP_LINEAR;
+                max = GL_NEAREST_MIPMAP_LINEAR;
+                break;
 
-        case Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipPoint:
-            min = GL_LINEAR_MIPMAP_NEAREST;
-            max = GL_LINEAR_MIPMAP_NEAREST;
-            break;
+            case Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipPoint:
+                min = GL_LINEAR_MIPMAP_NEAREST;
+                max = GL_LINEAR_MIPMAP_NEAREST;
+                break;
 
-        case Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipLinear:
-        case Nexus::Graphics::SamplerFilter::Anisotropic:
-            min = GL_LINEAR_MIPMAP_LINEAR;
-            max = GL_LINEAR_MIPMAP_LINEAR;
-            break;
+            case Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipLinear:
+            case Nexus::Graphics::SamplerFilter::Anisotropic:
+                min = GL_LINEAR_MIPMAP_LINEAR;
+                max = GL_LINEAR_MIPMAP_LINEAR;
+                break;
 
-        default:
-            throw std::runtime_error("Failed to find a valid sample filter");
+            default:
+                throw std::runtime_error("Failed to find a valid sample filter");
+            }
+        }
+        else
+        {
+            switch (filter)
+            {
+            case Nexus::Graphics::SamplerFilter::MinPoint_MagPoint_MipPoint:
+                min = GL_NEAREST;
+                max = GL_NEAREST;
+                break;
+
+            case Nexus::Graphics::SamplerFilter::MinPoint_MagPoint_MipLinear:
+                min = GL_NEAREST;
+                max = GL_NEAREST;
+                break;
+
+            case Nexus::Graphics::SamplerFilter::MinPoint_MagLinear_MipPoint:
+                min = GL_NEAREST;
+                max = GL_LINEAR;
+                break;
+
+            case Nexus::Graphics::SamplerFilter::MinPoint_MagLinear_MipLinear:
+                min = GL_NEAREST;
+                max = GL_LINEAR;
+                break;
+
+            case Nexus::Graphics::SamplerFilter::MinLinear_MagPoint_MipPoint:
+                min = GL_LINEAR;
+                max = GL_NEAREST;
+                break;
+
+            case Nexus::Graphics::SamplerFilter::MinLinear_MagPoint_MipLinear:
+                min = GL_LINEAR;
+                max = GL_NEAREST;
+                break;
+
+            case Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipPoint:
+                min = GL_LINEAR;
+                max = GL_LINEAR;
+                break;
+
+            case Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipLinear:
+            case Nexus::Graphics::SamplerFilter::Anisotropic:
+                min = GL_LINEAR;
+                max = GL_LINEAR;
+                break;
+
+            default:
+                throw std::runtime_error("Failed to find a valid sample filter");
+            }
         }
     }
 
