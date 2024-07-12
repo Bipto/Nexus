@@ -24,9 +24,9 @@ namespace Nexus::Graphics
         {
             uint32_t samples = GetSampleCount(spec.Samples);
             m_TextureType = GL_TEXTURE_2D_MULTISAMPLE;
-            glBindTexture(m_TextureType, m_Handle);
-            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-            glTexStorage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, m_InternalFormat, m_Specification.Width, m_Specification.Height, GL_FALSE);
+            glCall(glBindTexture(m_TextureType, m_Handle));
+            glCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
+            glCall(glTexStorage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, m_InternalFormat, m_Specification.Width, m_Specification.Height, GL_FALSE));
         }
         else
         {
@@ -34,9 +34,9 @@ namespace Nexus::Graphics
             // if we do not support multisampling, then we force this to 1
             m_Specification.Samples = SampleCount::SampleCount1;
             m_TextureType = GL_TEXTURE_2D;
-            glBindTexture(m_TextureType, m_Handle);
-            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-            glTexStorage2D(m_TextureType, m_Specification.Levels, m_InternalFormat, spec.Width, spec.Height);
+            glCall(glBindTexture(m_TextureType, m_Handle));
+            glCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
+            glCall(glTexStorage2D(m_TextureType, m_Specification.Levels, m_InternalFormat, spec.Width, spec.Height));
 
 #if defined(NX_PLATFORM_GL_DESKTOP)
         }
@@ -45,15 +45,13 @@ namespace Nexus::Graphics
 
     TextureOpenGL::~TextureOpenGL()
     {
-        glDeleteTextures(1, &this->m_Handle);
+        glCall(glDeleteTextures(1, &this->m_Handle));
     }
 
     void TextureOpenGL::SetData(const void *data, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
     {
-        GL::ClearErrors();
-        glBindTexture(m_TextureType, m_Handle);
-        glTexSubImage2D(m_TextureType, level, x, y, width, height, m_DataFormat, m_BaseType, data);
-        GL::CheckErrors();
+        glCall(glBindTexture(m_TextureType, m_Handle));
+        glCall(glTexSubImage2D(m_TextureType, level, x, y, width, height, m_DataFormat, m_BaseType, data));
     }
 
     std::vector<std::byte> TextureOpenGL::GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
@@ -63,16 +61,16 @@ namespace Nexus::Graphics
 
         // OpenGL only allows pixel data to be read from a framebuffer so we create a temporary one
         uint32_t framebufferId = 0;
-        glGenFramebuffers(1, &framebufferId);
-        glBindFramebuffer(GL_FRAMEBUFFER, framebufferId);
+        glCall(glGenFramebuffers(1, &framebufferId));
+        glCall(glBindFramebuffer(GL_FRAMEBUFFER, framebufferId));
 
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_Handle, level);
+        glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_Handle, level));
 
-        glReadBuffer(GL_COLOR_ATTACHMENT0);
-        glReadPixels(x, y, width, height, m_DataFormat, m_BaseType, data.data());
+        glCall(glReadBuffer(GL_COLOR_ATTACHMENT0));
+        glCall(glReadPixels(x, y, width, height, m_DataFormat, m_BaseType, data.data()));
 
         // clean up framebuffer
-        glDeleteFramebuffers(1, &framebufferId);
+        glCall(glDeleteFramebuffers(1, &framebufferId));
 
         return data;
     }

@@ -91,8 +91,8 @@ public:
         r1 = Nexus::Graphics::RoundedRectangle({450, 400}, {250, 250}, 5.0f, 5.0f, 5.0f, 5.0f);
         r2 = Nexus::Graphics::RoundedRectangle({350, 400}, {400, 400}, 25.0f, 25.0f, 25.0f, 25.0f);
 
-        // m_Spline.SetPoints({{100, 410}, {400, 410}, {700, 410}, {1000, 410}});
-        m_Spline.SetPoints({{{100, 410}, {200, 410}, {300, 410}, {400, 410}, {500, 410}, {600, 410}, {700, 410}, {800, 410}, {900, 410}, {1000, 410}}});
+        m_Spline.SetPoints({{100, 410}, {400, 410}, {700, 410}, {1000, 410}});
+        // m_Spline.SetPoints({{{100, 410}, {200, 410}, {300, 410}, {400, 410}, {500, 410}, {600, 410}, {700, 410}, {800, 410}, {900, 410}, {1000, 410}}});
         m_Spline.SetLooped(true);
     }
 
@@ -260,7 +260,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;

@@ -18,12 +18,10 @@
 #include "Nexus/Graphics/ShaderModule.hpp"
 #include "Nexus/Vertex.hpp"
 
-#include "GL.hpp"
+#include "Nexus/Logging/Log.hpp"
 
 namespace Nexus::GL
 {
-    void ClearErrors();
-    bool CheckErrors();
     std::string GetErrorMessageFromCode(const GLenum error);
 
     GLenum GetStencilOperation(Nexus::Graphics::StencilOperation operation);
@@ -43,3 +41,20 @@ namespace Nexus::GL
 }
 
 #endif
+
+#define glClearErrors()                 \
+    while (glGetError() != GL_NO_ERROR) \
+    {                                   \
+    }
+
+#define glCheckErrors()                                                  \
+    while (GLenum error = glGetError())                                  \
+    {                                                                    \
+        std::string message = Nexus::GL::GetErrorMessageFromCode(error); \
+        NX_ERROR(message);                                               \
+    }
+
+#define glCall(x)    \
+    glClearErrors(); \
+    x;               \
+    glCheckErrors();

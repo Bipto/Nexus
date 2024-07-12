@@ -19,34 +19,34 @@ namespace Nexus::Graphics
 
     void FramebufferOpenGL::BindAsRenderTarget()
     {
-        glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
+        glCall(glBindFramebuffer(GL_FRAMEBUFFER, m_FBO));
 
         auto width = m_Specification.Width;
         auto height = m_Specification.Height;
-        glViewport(0, 0, width, height);
-        glScissor(0, 0, width, height);
+        glCall(glViewport(0, 0, width, height));
+        glCall(glScissor(0, 0, width, height));
     }
 
     void FramebufferOpenGL::BindAsReadBuffer(uint32_t texture)
     {
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, m_FBO);
-        glReadBuffer(GL_COLOR_ATTACHMENT0 + texture);
+        glCall(glBindFramebuffer(GL_READ_FRAMEBUFFER, m_FBO));
+        glCall(glReadBuffer(GL_COLOR_ATTACHMENT0 + texture));
     }
 
     void FramebufferOpenGL::Unbind()
     {
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
     }
 
     void FramebufferOpenGL::Recreate()
     {
         DeleteTextures();
 
-        glGenFramebuffers(1, &m_FBO);
-        glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
+        glCall(glGenFramebuffers(1, &m_FBO));
+        glCall(glBindFramebuffer(GL_FRAMEBUFFER, m_FBO));
 
         CreateTextures();
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
     }
 
     const FramebufferSpecification FramebufferOpenGL::GetFramebufferSpecification()
@@ -92,7 +92,7 @@ namespace Nexus::Graphics
             auto texture = std::dynamic_pointer_cast<TextureOpenGL>(m_Device->CreateTexture(spec));
             m_ColorAttachments.push_back(texture);
 
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, texture->GetNativeHandle(), 0);
+            glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, texture->GetNativeHandle(), 0));
         }
 
         if (m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::None)
@@ -107,7 +107,7 @@ namespace Nexus::Graphics
 
             auto glTexture = std::dynamic_pointer_cast<TextureOpenGL>(m_DepthAttachment);
 
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, glTexture->GetNativeHandle(), 0);
+            glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, glTexture->GetNativeHandle(), 0));
         }
     }
 

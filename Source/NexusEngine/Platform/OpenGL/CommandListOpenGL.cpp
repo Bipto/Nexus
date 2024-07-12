@@ -142,7 +142,9 @@ namespace Nexus::Graphics
                 {
                     pipeline->BindVertexBuffers(commandListGL->m_CurrentlyBoundVertexBuffers, 0, 0);
                 }
-                glDrawArrays(commandListGL->GetTopology(), drawElementsCommand.Start, drawElementsCommand.Count);
+                glCall(glDrawArrays(commandListGL->GetTopology(),
+                                    drawElementsCommand.Start,
+                                    drawElementsCommand.Count));
             }
         };
         m_Commands.push_back(renderCommand);
@@ -179,7 +181,10 @@ namespace Nexus::Graphics
                 }
 
                 uint32_t offset = drawIndexedCommand.IndexStart * indexSize;
-                glDrawElements(commandListGL->GetTopology(), drawIndexedCommand.Count, commandListGL->m_IndexBufferFormat, (void *)offset);
+                glCall(glDrawElements(commandListGL->GetTopology(),
+                                      drawIndexedCommand.Count,
+                                      commandListGL->m_IndexBufferFormat,
+                                      (void *)offset));
             }
         };
         m_Commands.push_back(renderCommand);
@@ -216,7 +221,10 @@ namespace Nexus::Graphics
                     indexSize = sizeof(uint32_t);
                 }
 
-                glDrawArraysInstanced(commandListGL->GetTopology(), drawInstancedCommand.VertexStart, drawInstancedCommand.VertexCount, drawInstancedCommand.InstanceCount);
+                glCall(glDrawArraysInstanced(commandListGL->GetTopology(),
+                                             drawInstancedCommand.VertexStart,
+                                             drawInstancedCommand.VertexCount,
+                                             drawInstancedCommand.InstanceCount));
             }
         };
         m_Commands.push_back(renderCommand);
@@ -255,7 +263,11 @@ namespace Nexus::Graphics
                 }
 
                 uint32_t offset = drawIndexedInstanceCommand.IndexStart * indexSize;
-                glDrawElementsInstanced(commandListGL->GetTopology(), drawIndexedInstanceCommand.IndexCount, commandListGL->m_IndexBufferFormat, (void *)offset, drawIndexedInstanceCommand.InstanceCount);
+                glCall(glDrawElementsInstanced(commandListGL->GetTopology(),
+                                               drawIndexedInstanceCommand.IndexCount,
+                                               commandListGL->m_IndexBufferFormat,
+                                               (void *)offset,
+                                               drawIndexedInstanceCommand.InstanceCount));
             }
         };
         m_Commands.push_back(renderCommand);
@@ -282,25 +294,28 @@ namespace Nexus::Graphics
             for (const auto &texture : textureBindings)
             {
                 GLint location = glGetUniformLocation(pipeline->GetShaderHandle(), texture.first.c_str());
-                glUniform1i(location, location);
-                glActiveTexture(GL_TEXTURE0 + location);
-                glBindTexture(GL_TEXTURE_2D, texture.second->GetNativeHandle());
+                glCall(glUniform1i(location, location));
+                glCall(glActiveTexture(GL_TEXTURE0 + location));
+                glCall(glBindTexture(GL_TEXTURE_2D, texture.second->GetNativeHandle()));
             }
 
             for (const auto &sampler : samplerBindings)
             {
                 GLint location = glGetUniformLocation(pipeline->GetShaderHandle(), sampler.first.c_str());
-                glBindSampler(location, sampler.second->GetHandle());
+                glCall(glBindSampler(location, sampler.second->GetHandle()));
             }
 
             GLint uniformBufferSlot = 0;
             for (const auto &uniformBuffer : uniformBufferBindings)
             {
                 GLint location = glGetUniformBlockIndex(pipeline->GetShaderHandle(), uniformBuffer.first.c_str());
-                glUniformBlockBinding(pipeline->GetShaderHandle(), location, uniformBufferSlot);
-                // glBindBufferBase(GL_UNIFORM_BUFFER, uniformBufferSlot, uniformBuffer.second->GetHandle());
+                glCall(glUniformBlockBinding(pipeline->GetShaderHandle(), location, uniformBufferSlot));
 
-                glBindBufferRange(GL_UNIFORM_BUFFER, uniformBufferSlot, uniformBuffer.second->GetHandle(), 0, uniformBuffer.second->GetDescription().Size);
+                glCall(glBindBufferRange(GL_UNIFORM_BUFFER,
+                                         uniformBufferSlot,
+                                         uniformBuffer.second->GetHandle(),
+                                         0,
+                                         uniformBuffer.second->GetDescription().Size));
                 uniformBufferSlot++;
             }
         };
@@ -325,7 +340,7 @@ namespace Nexus::Graphics
                              clearColorCommand.Color.Green,
                              clearColorCommand.Color.Blue,
                              clearColorCommand.Color.Alpha};
-            glClearBufferfv(GL_COLOR, 0, color);
+            glCall(glClearBufferfv(GL_COLOR, 0, color));
         };
         m_Commands.push_back(renderCommand);
     }
@@ -343,7 +358,7 @@ namespace Nexus::Graphics
             auto clearDepthCommand = std::get<ClearDepthStencilTargetCommand>(commandData);
             auto graphicsDevice = (GraphicsDeviceOpenGL *)commandListGL->GetGraphicsDevice();
 
-            glClearBufferfi(GL_DEPTH_STENCIL, 0, clearDepthCommand.Value.Depth, clearDepthCommand.Value.Stencil);
+            glCall(glClearBufferfi(GL_DEPTH_STENCIL, 0, clearDepthCommand.Value.Depth, clearDepthCommand.Value.Stencil));
         };
         m_Commands.push_back(renderCommand);
     }
@@ -395,15 +410,15 @@ namespace Nexus::Graphics
             float left = setViewportCommand.NextViewport.X;
             float bottom = commandListGL->m_CurrentRenderTarget.GetSize().Y - (setViewportCommand.NextViewport.Y + setViewportCommand.NextViewport.Height);
 
-            glViewport(
+            glCall(glViewport(
                 left,
                 bottom,
                 setViewportCommand.NextViewport.Width,
-                setViewportCommand.NextViewport.Height);
+                setViewportCommand.NextViewport.Height));
 
-            glDepthRangef(
+            glCall(glDepthRangef(
                 setViewportCommand.NextViewport.MinDepth,
-                setViewportCommand.NextViewport.MaxDepth);
+                setViewportCommand.NextViewport.MaxDepth));
         };
         m_Commands.push_back(renderCommand);
     }
@@ -422,11 +437,11 @@ namespace Nexus::Graphics
 
             auto scissorMinY = commandListGL->m_CurrentRenderTarget.GetSize().Y - setScissorCommand.NextScissor.Height - setScissorCommand.NextScissor.Y;
 
-            glScissor(
+            glCall(glScissor(
                 setScissorCommand.NextScissor.X,
                 scissorMinY,
                 setScissorCommand.NextScissor.Width,
-                setScissorCommand.NextScissor.Height);
+                setScissorCommand.NextScissor.Height));
         };
         m_Commands.push_back(renderCommand);
     }
@@ -458,7 +473,11 @@ namespace Nexus::Graphics
             uint32_t swapchainWidth = window->GetWindowSize().X;
             uint32_t swapchainHeight = window->GetWindowSize().Y;
 
-            glBlitFramebuffer(0, 0, swapchainWidth, swapchainHeight, 0, 0, swapchainWidth, swapchainHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+            glCall(glBlitFramebuffer(0, 0,
+                                     swapchainWidth, swapchainHeight,
+                                     0, 0,
+                                     swapchainWidth, swapchainHeight,
+                                     GL_COLOR_BUFFER_BIT, GL_LINEAR));
         };
         m_Commands.push_back(renderCommand);
     }

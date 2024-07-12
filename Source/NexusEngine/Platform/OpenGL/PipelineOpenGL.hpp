@@ -24,7 +24,6 @@ namespace Nexus::Graphics
         void SetupBlending();
         void SetShader();
         void BindVertexArray();
-        void SetupVertexElements(uint32_t bufferIndex, uint32_t vertexOffset, uint32_t instanceOffset);
         void CreateShader();
 
     private:

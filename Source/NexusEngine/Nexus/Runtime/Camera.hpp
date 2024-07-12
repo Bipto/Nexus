@@ -168,8 +168,7 @@ namespace Nexus
             m_Front = glm::normalize(cameraDirection);
         }
 
-        void
-        RecalculateProjection()
+        void RecalculateProjection()
         {
             float aspectRatio = (float)m_Width / (float)m_Height;
 
@@ -194,9 +193,9 @@ namespace Nexus
         }
 
     private:
-        glm::vec3 m_Position{0.0f, 0.0f, 5.0f};
+        glm::vec3 m_Position{0.0f, 0.0f, -5.0f};
         glm::vec3 m_Rotation{0.0f, 0.0f, 0.0f};
-        glm::vec3 m_Front{0.0f, 0.0f, 1.0f};
+        glm::vec3 m_Front{0.0f, 0.0f, -1.0f};
         glm::vec3 m_Up{0.0f, 1.0f, 0.0f};
 
         glm::mat4 m_Projection;

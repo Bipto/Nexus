@@ -7,21 +7,21 @@
 namespace Nexus::Graphics
 {
     ShaderModuleOpenGL::ShaderModuleOpenGL(const ShaderModuleSpecification &shaderModuleSpec, const ResourceSetSpecification &resourceSpec)
-        : ShaderModule(shaderModuleSpec, resourceSpec)
+        : ShaderModule(shaderModuleSpec, resourceSpec),
+          m_ShaderStage(GL::GetShaderStage(m_ModuleSpecification.Stage))
     {
-        m_ShaderStage = GL::GetShaderStage(m_ModuleSpecification.Stage);
         m_Handle = glCreateShader(m_ShaderStage);
         const char *source = m_ModuleSpecification.Source.c_str();
-        glShaderSource(m_Handle, 1, &source, nullptr);
-        glCompileShader(m_Handle);
+        glCall(glShaderSource(m_Handle, 1, &source, nullptr));
+        glCall(glCompileShader(m_Handle));
 
         int success;
-        char infoLog[512];
-        glGetShaderiv(m_Handle, GL_COMPILE_STATUS, &success);
+        glCall(glGetShaderiv(m_Handle, GL_COMPILE_STATUS, &success));
 
         if (!success)
         {
-            glGetShaderInfoLog(m_Handle, 512, NULL, infoLog);
+            char infoLog[512];
+            glCall(glGetShaderInfoLog(m_Handle, 512, NULL, infoLog));
             std::string errorMessage = "Error: Vertex Shader - " + std::string(infoLog);
             NX_ERROR(errorMessage);
         }

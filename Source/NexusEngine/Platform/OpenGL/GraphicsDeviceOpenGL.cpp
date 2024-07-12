@@ -131,8 +131,8 @@ namespace Nexus::Graphics
 
 #if defined(WIN32)
         gladLoadGL();
-        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-        glDebugMessageCallback(GLDebugMessageCallback, nullptr);
+        glCall(glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS));
+        // glDebugMessageCallback(GLDebugMessageCallback, nullptr);
 #endif
 
         m_Extensions = GetSupportedExtensions();
@@ -206,7 +206,7 @@ namespace Nexus::Graphics
         std::vector<std::string> extensions;
 
         GLint n = 0;
-        glGetIntegerv(GL_NUM_EXTENSIONS, &n);
+        glCall(glGetIntegerv(GL_NUM_EXTENSIONS, &n));
 
         for (GLint i = 0; i < n; i++)
         {

@@ -59,9 +59,9 @@ namespace Nexus::Graphics
         int w, h;
         SDL_GetWindowSizeInPixels(m_Window->GetSDLWindowHandle(), &w, &h);
 
-        glBindFramebuffer(GL_FRAMEBUFFER, m_Backbuffer);
-        glViewport(0, 0, w, h);
-        glScissor(0, 0, w, h);
+        glCall(glBindFramebuffer(GL_FRAMEBUFFER, m_Backbuffer));
+        glCall(glViewport(0, 0, w, h));
+        glCall(glScissor(0, 0, w, h));
 
         m_SwapchainWidth = w;
         m_SwapchainHeight = h;
@@ -75,7 +75,7 @@ namespace Nexus::Graphics
             throw std::runtime_error(error);
         }
 
-        glBindFramebuffer(GL_FRAMEBUFFER, m_Backbuffer);
+        glCall(glBindFramebuffer(GL_FRAMEBUFFER, m_Backbuffer));
         ResizeIfNecessary();
     }
 
@@ -87,7 +87,7 @@ namespace Nexus::Graphics
             throw std::runtime_error(error);
         }
 
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_Backbuffer);
+        glCall(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_Backbuffer));
     }
 
     // static member initialisation

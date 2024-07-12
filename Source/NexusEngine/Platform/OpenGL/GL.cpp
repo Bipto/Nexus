@@ -8,27 +8,6 @@
 
 namespace Nexus::GL
 {
-    void ClearErrors()
-    {
-        while (glGetError() != GL_NO_ERROR)
-        {
-        }
-    }
-
-    bool CheckErrors()
-    {
-        bool errorEncountered = false;
-
-        while (GLenum error = glGetError())
-        {
-            std::string message = GetErrorMessageFromCode(error);
-            NX_ERROR(message);
-            errorEncountered = true;
-        }
-
-        return errorEncountered;
-    }
-
     std::string GetErrorMessageFromCode(const GLenum error)
     {
         switch (error)

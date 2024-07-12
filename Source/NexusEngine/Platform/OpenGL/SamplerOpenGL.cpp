@@ -11,7 +11,7 @@ namespace Nexus::Graphics
         SamplerOpenGL::SamplerOpenGL(const SamplerSpecification &spec)
             : m_Specification(spec)
         {
-                glGenSamplers(1, &m_Sampler);
+                glCall(glGenSamplers(1, &m_Sampler));
 
                 uint32_t levels = spec.MaximumLOD - spec.MinimumLOD;
 
@@ -19,14 +19,14 @@ namespace Nexus::Graphics
                 GL::GetSamplerFilter(m_Specification.SampleFilter, min, max, levels > 1);
 
                 // texture sampling options
-                glSamplerParameteri(m_Sampler, GL_TEXTURE_MIN_FILTER, min);
-                glSamplerParameteri(m_Sampler, GL_TEXTURE_MAG_FILTER, max);
-                glSamplerParameteri(m_Sampler, GL_TEXTURE_WRAP_S, GL::GetSamplerAddressMode(m_Specification.AddressModeU));
-                glSamplerParameteri(m_Sampler, GL_TEXTURE_WRAP_T, GL::GetSamplerAddressMode(m_Specification.AddressModeV));
-                glSamplerParameteri(m_Sampler, GL_TEXTURE_WRAP_R, GL::GetSamplerAddressMode(m_Specification.AddressModeW));
+                glCall(glSamplerParameteri(m_Sampler, GL_TEXTURE_MIN_FILTER, min));
+                glCall(glSamplerParameteri(m_Sampler, GL_TEXTURE_MAG_FILTER, max));
+                glCall(glSamplerParameteri(m_Sampler, GL_TEXTURE_WRAP_S, GL::GetSamplerAddressMode(m_Specification.AddressModeU)));
+                glCall(glSamplerParameteri(m_Sampler, GL_TEXTURE_WRAP_T, GL::GetSamplerAddressMode(m_Specification.AddressModeV)));
+                glCall(glSamplerParameteri(m_Sampler, GL_TEXTURE_WRAP_R, GL::GetSamplerAddressMode(m_Specification.AddressModeW)));
 
                 // texture anisotropy
-                glSamplerParameterf(m_Sampler, GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, m_Specification.MaximumAnisotropy);
+                glCall(glSamplerParameterf(m_Sampler, GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, m_Specification.MaximumAnisotropy));
 
                 const glm::vec4 color = Nexus::Utils::ColorFromBorderColor(spec.TextureBorderColor);
 
@@ -36,27 +36,27 @@ namespace Nexus::Graphics
                                     color.b,
                                     color.a};
 
-                glSamplerParameterfv(m_Sampler, GL_TEXTURE_BORDER_COLOR_EXT, border);
+                glCall(glSamplerParameterfv(m_Sampler, GL_TEXTURE_BORDER_COLOR_EXT, border));
                 // LOD
-                glSamplerParameterf(m_Sampler, GL_TEXTURE_MIN_LOD, m_Specification.MinimumLOD);
-                glSamplerParameterf(m_Sampler, GL_TEXTURE_MAX_LOD, m_Specification.MaximumLOD);
+                glCall(glSamplerParameterf(m_Sampler, GL_TEXTURE_MIN_LOD, m_Specification.MinimumLOD));
+                glCall(glSamplerParameterf(m_Sampler, GL_TEXTURE_MAX_LOD, m_Specification.MaximumLOD));
 
 #if defined(NX_PLATFORM_GL_DESKTOP)
-                glSamplerParameterf(m_Sampler, GL_TEXTURE_LOD_BIAS_EXT, m_Specification.LODBias);
+                glCall(glSamplerParameterf(m_Sampler, GL_TEXTURE_LOD_BIAS_EXT, m_Specification.LODBias));
 #endif
 
                 // texture comparison
                 if (m_Specification.SamplerComparisonFunction != ComparisonFunction::Never)
                 {
                         auto comparisonFunction = GL::GetComparisonFunction(m_Specification.SamplerComparisonFunction);
-                        glSamplerParameteri(m_Sampler, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
-                        glSamplerParameteri(m_Sampler, GL_TEXTURE_COMPARE_FUNC, comparisonFunction);
+                        glCall(glSamplerParameteri(m_Sampler, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE));
+                        glCall(glSamplerParameteri(m_Sampler, GL_TEXTURE_COMPARE_FUNC, comparisonFunction));
                 }
         }
 
         SamplerOpenGL::~SamplerOpenGL()
         {
-                glDeleteSamplers(1, &m_Sampler);
+                glCall(glDeleteSamplers(1, &m_Sampler));
         }
 
         const SamplerSpecification &SamplerOpenGL::GetSamplerSpecification()
