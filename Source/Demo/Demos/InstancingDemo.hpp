@@ -47,7 +47,7 @@ namespace Demos
             m_InstanceBuffer->SetData(mvps.data(), mvps.size() * sizeof(glm::mat4), 0);
 
             CreatePipeline();
-            m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, -2.5f));
+            m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, 2.5f));
 
             Nexus::Graphics::SamplerSpecification samplerSpec{};
             m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
@@ -134,7 +134,7 @@ namespace Demos
         {
             Nexus::Graphics::PipelineDescription pipelineDescription;
             pipelineDescription.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::Back;
-            pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
+            pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::Clockwise;
 
             pipelineDescription.VertexModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/instancing.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
             pipelineDescription.FragmentModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/instancing.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
@@ -167,8 +167,6 @@ namespace Demos
 
             pipelineDescription.Layouts = {vertexLayout, instanceLayout};
 
-            pipelineDescription.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::Back;
-            pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
             pipelineDescription.DepthStencilDesc.EnableDepthTest = true;
             pipelineDescription.DepthStencilDesc.EnableDepthWrite = true;
             pipelineDescription.DepthStencilDesc.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;

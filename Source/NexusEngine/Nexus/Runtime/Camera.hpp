@@ -41,9 +41,6 @@ namespace Nexus
             m_Width = width;
             m_Height = height;
 
-            // m_Zoom -= Input::GetMouseScrollMovementY() * 5.0f;
-            // m_Zoom = glm::clamp<float>(m_Zoom, 1.0f, 90.0f);
-
             Move(time);
             m_View = glm::lookAt(m_Position, m_Position + m_Front, m_Up);
             Rotate();
@@ -129,12 +126,12 @@ namespace Nexus
 
             if (Input::IsKeyHeld(KeyCode::A))
             {
-                m_Position -= glm::normalize(glm::cross(m_Front, m_Up)) * speed;
+                m_Position += glm::normalize(glm::cross(m_Front, m_Up)) * speed;
             }
 
             if (Input::IsKeyHeld(KeyCode::D))
             {
-                m_Position += glm::normalize(glm::cross(m_Front, m_Up)) * speed;
+                m_Position -= glm::normalize(glm::cross(m_Front, m_Up)) * speed;
             }
 
             if (Input::IsGamepadConnected())
@@ -149,13 +146,13 @@ namespace Nexus
             if (Input::IsGamepadConnected())
             {
                 auto rightStick = Input::GetGamepadAxisRight(0);
-                m_Yaw += rightStick.X * 2.0f;
+                m_Yaw -= rightStick.X * 2.0f;
                 m_Pitch -= rightStick.Y * 2.0f;
             }
 
             if (Input::IsMiddleMouseHeld())
             {
-                m_Yaw += Input::GetMouseMovement().X;
+                m_Yaw -= Input::GetMouseMovement().X;
                 m_Pitch -= Input::GetMouseMovement().Y;
             }
 

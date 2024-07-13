@@ -133,7 +133,7 @@ namespace Demos
         {
             Nexus::Graphics::PipelineDescription pipelineDescription;
             pipelineDescription.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::Back;
-            pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
+            pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::Clockwise;
             pipelineDescription.DepthStencilDesc.EnableDepthTest = true;
             pipelineDescription.DepthStencilDesc.EnableDepthWrite = true;
             pipelineDescription.DepthStencilDesc.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;
