@@ -63,14 +63,15 @@ namespace Nexus::Utils
             {
                 float newX = XIntersect(x1, y1, x2, y2, pi.x, pi.y, pk.x, pk.y);
                 float newY = YIntersect(x1, y1, x2, y2, pi.x, pi.y, pk.x, pk.y);
-                newPoints.push_back(glm::vec2(newX, newY));
 
+                newPoints.push_back(glm::vec2(newX, newY));
                 newPoints.push_back(pk);
             }
             else if (i_pos < 0 && k_pos >= 0)
             {
                 float newX = XIntersect(x1, y1, x2, y2, pi.x, pi.y, pk.x, pk.y);
                 float newY = YIntersect(x1, y1, x2, y2, pi.x, pi.y, pk.x, pk.y);
+
                 newPoints.push_back(glm::vec2(newX, newY));
             }
         }

@@ -42,12 +42,12 @@ namespace Demos
             std::vector<glm::mat4> mvps(m_InstanceCount);
             for (uint32_t i = 0; i < m_InstanceCount; i++)
             {
-                mvps[i] = glm::translate(glm::mat4(1.0f), glm::vec3(i * 2.0f, 0.0f, -5.0f));
+                mvps[i] = glm::translate(glm::mat4(1.0f), glm::vec3(i * 2.0f, 0.0f, 2.5f));
             }
             m_InstanceBuffer->SetData(mvps.data(), mvps.size() * sizeof(glm::mat4), 0);
 
             CreatePipeline();
-            m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, 2.5f));
+            m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, -2.5f));
 
             Nexus::Graphics::SamplerSpecification samplerSpec{};
             m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);

@@ -201,6 +201,7 @@ public:
         m_BatchRenderer->DrawRoundedRectangleFill(r3, {0.0f, 0.0f, 1.0f, 1.0f}); */
 
         const auto &points = m_Spline.GetPoints();
+
         for (int i = 0; i < points.size(); i++)
         {
             Nexus::Graphics::Circle<float> circle(points.at(i), 25);

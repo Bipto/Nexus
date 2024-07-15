@@ -45,7 +45,7 @@ namespace Demos
             m_TransformUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(transformUniformBufferDesc, nullptr);
 
             CreatePipeline();
-            m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, -2.5f));
+            m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, 2.5f));
 
             Nexus::Graphics::SamplerSpecification samplerSpec{};
             m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
@@ -62,7 +62,8 @@ namespace Demos
             m_CameraUniforms.CamPosition = m_Camera.GetPosition();
             m_CameraUniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms));
 
-            m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), {0.0f, 0.0f, -10.0f});
+            m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), {0.0f, 0.0f, 10.0f}) *
+                                            glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), {0.0f, 1.0f, 0.0f});
             m_TransformUniformBuffer->SetData(&m_TransformUniforms, sizeof(m_TransformUniforms));
 
             m_CommandList->Begin();
@@ -101,7 +102,7 @@ namespace Demos
 
             m_CommandList->SetResourceSet(m_ResourceSet);
 
-            auto &meshes = m_Model->GetMeshes();
+            const auto &meshes = m_Model->GetMeshes();
             for (auto mesh : meshes)
             {
                 m_CommandList->SetVertexBuffer(mesh->GetVertexBuffer(), 0);

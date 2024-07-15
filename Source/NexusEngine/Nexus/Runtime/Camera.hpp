@@ -53,10 +53,14 @@ namespace Nexus
             RecalculateProjection();
         }
 
-        void SetRotation(const glm::vec3 &rotation)
+        void SetPitch(float pitch)
         {
-            m_Rotation = rotation;
-            RecalculateProjection();
+            m_Pitch = pitch;
+        }
+
+        void SetYaw(float yaw)
+        {
+            m_Yaw = yaw;
         }
 
         void SetFront(const glm::vec3 &front)
@@ -72,34 +76,39 @@ namespace Nexus
             RecalculateProjection();
         }
 
-        const glm::vec3 &GetPosition()
+        const glm::vec3 &GetPosition() const
         {
             return m_Position;
         }
 
-        const glm::vec3 &GetRotation()
-        {
-            return m_Rotation;
-        }
-
-        const glm::vec3 &GetFront()
+        const glm::vec3 &GetFront() const
         {
             return m_Front;
         }
 
-        const float GetZoom()
+        const float GetPitch() const
+        {
+            return m_Pitch;
+        }
+
+        const float GetYaw() const
+        {
+            return m_Yaw;
+        }
+
+        const float GetZoom() const
         {
             return m_Zoom;
         }
 
-        const glm::mat4 GetView()
+        const glm::mat4 GetView() const
         {
             return m_View;
         }
 
-        const glm::mat4 GetProjection() { return this->m_Projection; }
+        const glm::mat4 GetProjection() const { return this->m_Projection; }
 
-        glm::mat4 GetViewProjection()
+        glm::mat4 GetViewProjection() const
         {
             return GetView() * m_Projection;
         }
@@ -190,9 +199,8 @@ namespace Nexus
         }
 
     private:
-        glm::vec3 m_Position{0.0f, 0.0f, -5.0f};
-        glm::vec3 m_Rotation{0.0f, 0.0f, 0.0f};
-        glm::vec3 m_Front{0.0f, 0.0f, -1.0f};
+        glm::vec3 m_Position{0.0f, 0.0f, 5.0f};
+        glm::vec3 m_Front{0.0f, 0.0f, 1.0f};
         glm::vec3 m_Up{0.0f, 1.0f, 0.0f};
 
         glm::mat4 m_Projection;
@@ -201,7 +209,7 @@ namespace Nexus
         float m_Zoom = 45.0f;
 
         float m_Pitch = 180.0f;
-        float m_Yaw = 90.0f;
+        float m_Yaw = 270.0f;
 
         int m_Width = 0;
         int m_Height = 0;

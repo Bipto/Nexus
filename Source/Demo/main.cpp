@@ -17,6 +17,7 @@
 #include "Demos/FramebufferDemo.hpp"
 #include "Demos/InstancingDemo.hpp"
 #include "Demos/MipmapDemo.hpp"
+#include "Demos/ClippingAndTriangulationDemo.hpp"
 
 #include "Nexus/FileSystem/FileSystem.hpp"
 
@@ -73,6 +74,7 @@ public:
         RegisterGraphicsDemo<Demos::MipmapDemo>("Mipmaps");
         RegisterAudioDemo<Demos::AudioDemo>("Audio");
         RegisterScriptingDemo<Demos::PythonDemo>("Python");
+        RegisterUtilsDemo<Demos::ClippingAndTriangulationDemo>("Polygon clipping and triangulation");
 
         m_CommandList = m_GraphicsDevice->CreateCommandList();
     }
@@ -102,6 +104,18 @@ public:
     }
 
     template <typename T>
+    void RegisterUtilsDemo(const std::string &name)
+    {
+        DemoInfo info;
+        info.Name = name;
+        info.CreationFunction = [](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
+        {
+            return new T(name, app, imGuiRenderer);
+        };
+        m_UtilsDemos.push_back(info);
+    }
+
+    template <typename T>
     void RegisterScriptingDemo(const std::string &name)
     {
         DemoInfo info;
@@ -117,6 +131,29 @@ public:
     {
         if (m_CurrentDemo)
             m_CurrentDemo->Update(time);
+    }
+
+    void RenderDemoList(std::span<DemoInfo> demos, const std::string &menuName)
+    {
+        if (ImGui::TreeNodeEx(menuName.c_str(), ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth))
+        {
+            for (const auto &pair : demos)
+            {
+                auto flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Leaf;
+
+                if (ImGui::TreeNodeEx(pair.Name.c_str(), flags))
+                {
+                    if (ImGui::IsItemClicked())
+                    {
+                        m_CurrentDemo = std::unique_ptr<Demos::Demo>(pair.CreationFunction(this, pair.Name, m_ImGuiRenderer.get()));
+                    }
+
+                    ImGui::TreePop();
+                }
+            }
+
+            ImGui::TreePop();
+        }
     }
 
     virtual void Render(Nexus::Time time) override
@@ -163,80 +200,10 @@ public:
             }
             else
             {
-                if (ImGui::TreeNodeEx("Graphics", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth))
-                {
-                    for (auto &pair : m_GraphicsDemos)
-                    {
-                        auto flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Leaf;
-
-                        if (ImGui::TreeNodeEx(pair.Name.c_str(), flags))
-                        {
-                            if (ImGui::IsItemClicked())
-                            {
-                                if (m_CurrentDemo)
-                                {
-                                    m_CurrentDemo = nullptr;
-                                }
-
-                                m_CurrentDemo = std::unique_ptr<Demos::Demo>(pair.CreationFunction(this, pair.Name, m_ImGuiRenderer.get()));
-                            }
-
-                            ImGui::TreePop();
-                        }
-                    }
-
-                    ImGui::TreePop();
-                }
-
-                if (ImGui::TreeNodeEx("Audio", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth))
-                {
-                    for (auto &pair : m_AudioDemos)
-                    {
-                        auto flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Leaf;
-
-                        if (ImGui::TreeNodeEx(pair.Name.c_str(), flags))
-                        {
-                            if (ImGui::IsItemClicked())
-                            {
-                                if (m_CurrentDemo)
-                                {
-                                    m_CurrentDemo = nullptr;
-                                }
-
-                                m_CurrentDemo = std::unique_ptr<Demos::Demo>(pair.CreationFunction(this, pair.Name, m_ImGuiRenderer.get()));
-                            }
-
-                            ImGui::TreePop();
-                        }
-                    }
-
-                    ImGui::TreePop();
-                }
-
-                if (ImGui::TreeNodeEx("Scripting", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth))
-                {
-                    for (auto &pair : m_ScriptingDemos)
-                    {
-                        auto flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_Leaf;
-
-                        if (ImGui::TreeNodeEx(pair.Name.c_str(), flags))
-                        {
-                            if (ImGui::IsItemClicked())
-                            {
-                                if (m_CurrentDemo)
-                                {
-                                    m_CurrentDemo = nullptr;
-                                }
-
-                                m_CurrentDemo = std::unique_ptr<Demos::Demo>(pair.CreationFunction(this, pair.Name, m_ImGuiRenderer.get()));
-                            }
-
-                            ImGui::TreePop();
-                        }
-                    }
-
-                    ImGui::TreePop();
-                }
+                RenderDemoList(m_GraphicsDemos, "Graphics");
+                RenderDemoList(m_AudioDemos, "Audio");
+                RenderDemoList(m_ScriptingDemos, "Scripting");
+                RenderDemoList(m_UtilsDemos, "Utils");
             }
 
             ImGui::End();
@@ -281,6 +248,7 @@ private:
     std::vector<DemoInfo> m_GraphicsDemos;
     std::vector<DemoInfo> m_AudioDemos;
     std::vector<DemoInfo> m_ScriptingDemos;
+    std::vector<DemoInfo> m_UtilsDemos;
 
     std::unique_ptr<Nexus::ImGuiUtils::ImGuiGraphicsRenderer> m_ImGuiRenderer = nullptr;
 };

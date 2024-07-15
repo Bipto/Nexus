@@ -57,7 +57,7 @@ namespace Demos
 
         virtual void Render(Nexus::Time time) override
         {
-            m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f)) * glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation), {1.0f, 1.0f, 0.0f});
+            m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0)) * glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation), {1.0f, 1.0f, 0.0f});
             m_TransformUniformBuffer->SetData(&m_TransformUniforms, sizeof(m_TransformUniforms));
 
             m_Rotation += time.GetSeconds();
@@ -124,6 +124,10 @@ namespace Demos
                 time);
 
             m_Rotation += 0.05f * time.GetMilliseconds();
+
+            std::stringstream ss;
+            ss << "Camera - Pitch: " << m_Camera.GetPitch() << ", Yaw: " << m_Camera.GetYaw() << "\n";
+            NX_LOG(ss.str());
         }
 
         virtual void OnResize(Nexus::Point2D<uint32_t> size) override

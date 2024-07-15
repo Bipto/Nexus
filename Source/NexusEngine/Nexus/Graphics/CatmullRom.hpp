@@ -11,7 +11,7 @@ namespace Nexus::Graphics
     public:
         CatmullRom() = default;
 
-        Point2D<T> GetPoint(T t)
+        Point2D<T> GetPoint(T t) const
         {
             size_t p0, p1, p2, p3;
 

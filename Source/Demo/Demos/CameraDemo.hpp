@@ -49,7 +49,7 @@ namespace Demos
             m_TransformUniformBuffer = m_GraphicsDevice->CreateUniformBuffer(transformUniformBufferDesc, nullptr);
 
             CreatePipeline();
-            m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, 2.5f));
+            m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, -2.5f));
         }
 
         virtual ~CameraDemo()
@@ -110,6 +110,10 @@ namespace Demos
                 m_Window->GetWindowSize().X,
                 m_Window->GetWindowSize().Y,
                 time);
+
+            std::stringstream ss;
+            ss << "Camera Rotation:" << m_Camera.GetPitch() << ", " << m_Camera.GetYaw() << "\n";
+            NX_LOG(ss.str());
         }
 
         virtual void OnResize(Nexus::Point2D<uint32_t> size) override
