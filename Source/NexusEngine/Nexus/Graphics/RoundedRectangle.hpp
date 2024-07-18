@@ -4,6 +4,7 @@
 #include "Nexus/Utils/Utils.hpp"
 
 #include "Polygon.hpp"
+#include "Rectangle.hpp"
 
 #include "Nexus/nxpch.hpp"
 
@@ -147,6 +148,26 @@ namespace Nexus::Graphics
             return m_RadiusBR;
         }
 
+        glm::vec2 GetTopLeft() const
+        {
+            return {GetLeft(), GetTop()};
+        }
+
+        glm::vec2 GetTopRight() const
+        {
+            return {GetRight(), GetTop()};
+        }
+
+        glm::vec2 GetBottomLeft() const
+        {
+            return {GetLeft(), GetBottom()};
+        }
+
+        glm::vec2 GetBottomRight() const
+        {
+            return {GetRight(), GetBottom()};
+        }
+
         const bool Contains(const Nexus::Point2D<float> &point) const
         {
             Nexus::Graphics::Polygon poly = CreatePolygon();
@@ -215,7 +236,7 @@ namespace Nexus::Graphics
             }
         }
 
-        std::vector<glm::vec2> CreateBorder() const
+        std::vector<glm::vec2> CreateOutline() const
         {
             const glm::vec2 tr = {
                 GetRight() - GetRadiusTopRight(),
@@ -233,168 +254,71 @@ namespace Nexus::Graphics
                 GetRight() - GetRadiusBottomRight(),
                 GetBottom() - GetRadiusBottomRight()};
 
-            std::vector<glm::vec2> border;
+            std::vector<glm::vec2> points;
 
             if (GetRadiusTopLeft() > 0.0f)
             {
-                std::vector<glm::vec2> triangleTL = CreateCircleRegion(tl, GetRadiusTopLeft(), 90.0f, 90.0f);
-                border.insert(border.end(), triangleTL.begin(), triangleTL.end());
+                std::vector<glm::vec2> corner = CreateCircleRegion(tl, GetRadiusTopLeft(), 0.0f, 90.0f);
+                points.insert(points.end(), corner.begin(), corner.end());
             }
 
             if (GetRadiusTopRight() > 0.0f)
             {
-                std::vector<glm::vec2> triangleTR = CreateCircleRegion(tr, GetRadiusTopRight(), 0.0f, 90.0f);
-                border.insert(border.end(), triangleTR.begin(), triangleTR.end());
+                std::vector<glm::vec2> corner = CreateCircleRegion(tr, GetRadiusTopRight(), 90.0f, 90.0f);
+                points.insert(points.end(), corner.begin(), corner.end());
             }
 
             if (GetRadiusBottomRight() > 0.0f)
             {
-                std::vector<glm::vec2> triangleBR = CreateCircleRegion(br, GetRadiusBottomRight(), 270.0f, 90.0f);
-                border.insert(border.end(), triangleBR.begin(), triangleBR.end());
+                std::vector<glm::vec2> corner = CreateCircleRegion(br, GetRadiusBottomRight(), 180.0f, 90.0f);
+                points.insert(points.end(), corner.begin(), corner.end());
             }
 
             if (GetRadiusBottomLeft() > 0.0f)
             {
-                std::vector<glm::vec2> triangleBL = CreateCircleRegion(bl, GetRadiusBottomLeft(), 180.0f, 90.0f);
-                border.insert(border.end(), triangleBL.begin(), triangleBL.end());
+                std::vector<glm::vec2> corner = CreateCircleRegion(bl, GetRadiusBottomLeft(), 270.0f, 90.0f);
+                points.insert(points.end(), corner.begin(), corner.end());
             }
 
-            return border;
+            return points;
         }
 
         Polygon CreatePolygon() const
         {
-            const glm::vec2 tr = {
-                GetRight() - GetRadiusTopRight(),
-                GetTop() + GetRadiusTopRight()};
-
-            const glm::vec2 tl = {
-                GetLeft() + GetRadiusTopLeft(),
-                GetTop() + GetRadiusTopLeft()};
-
-            const glm::vec2 bl = {
-                GetLeft() + GetRadiusBottomLeft(),
-                GetBottom() - GetRadiusBottomLeft()};
-
-            const glm::vec2 br = {
-                GetRight() - GetRadiusBottomRight(),
-                GetBottom() - GetRadiusBottomRight()};
-
             const glm::vec2 centre =
                 {
                     GetRight() - (GetWidth() / 2),
                     GetBottom() - (GetHeight() / 2)};
 
-            std::vector<glm::vec2> points = CreateBorder();
+            std::vector<Nexus::Graphics::Triangle2D> tris;
 
-            std::vector<Triangle2D> triangles;
+            std::vector<glm::vec2> points = CreateOutline();
 
-            // create corners
-            for (size_t i = 0; i < points.size(); i += 2)
+            for (size_t i = 0; i < points.size(); i++)
             {
                 const glm::vec2 &p0 = points[i];
                 const glm::vec2 &p1 = points[(i + 1) % points.size()];
 
-                Triangle2D t;
-                t.A = p0;
-                t.B = p1;
-                t.C = centre;
+                Triangle2D tri;
+                tri.A = p0;
+                tri.B = p1;
+                tri.C = centre;
 
-                triangles.push_back(t);
+                tris.push_back(tri);
             }
 
-            // fill in gaps
-            {
-                Triangle2D top;
-                top.A = {tl.x, tl.y - GetRadiusTopLeft()};
-                top.B = {tr.x, tr.y - GetRadiusTopRight()};
-                top.C = {centre.x, centre.y};
-                triangles.push_back(top);
-
-                Triangle2D left;
-                left.A = {bl.x - GetRadiusBottomLeft(), bl.y};
-                left.B = {tl.x - GetRadiusTopLeft(), tl.y};
-                left.C = {centre.x, centre.y};
-                triangles.push_back(left);
-
-                Triangle2D right;
-                right.A = {tr.x + GetRadiusTopRight(), tr.y};
-                right.B = {br.x + GetRadiusBottomRight(), br.y};
-                right.C = {centre.x, centre.y};
-                triangles.push_back(right);
-
-                Triangle2D bottom;
-                bottom.A = {br.x, br.y + GetRadiusBottomRight()};
-                bottom.B = {bl.x, bl.y + GetRadiusBottomLeft()};
-                bottom.C = {centre.x, centre.y};
-                triangles.push_back(bottom);
-            }
-
-            Polygon poly(triangles);
-            return poly;
+            return Nexus::Graphics::Polygon(tris);
         }
 
-        const RoundedRectangle ClipAgainst(const RoundedRectangle &clip, bool *visible)
+        Rectangle<float> GetBoundingRectangle() const
         {
-            RoundedRectangle rect(m_X, m_Y, m_Width, m_Height, m_RadiusTL, m_RadiusTR, m_RadiusBL, m_RadiusBR);
+            return Rectangle<float>(m_X, m_Y, m_Width, m_Height);
+        }
 
-            // perform clipping to left of clipping rect
-            if (rect.GetLeft() < clip.GetLeft())
-            {
-                float right = rect.GetRight();
-                rect.SetX(clip.GetLeft());
-                rect.SetWidth(right - rect.GetLeft());
-                rect.SetRadiusTopLeft(0);
-                rect.SetRadiusBottomLeft(0);
-            }
-
-            // perform clipping to right of clipping rect
-            if (rect.GetRight() > clip.GetRight())
-            {
-                rect.SetWidth(clip.GetRight() - rect.GetLeft());
-                rect.SetRadiusTopRight(0);
-                rect.SetRadiusBottomRight(0);
-            }
-
-            // peform clipping to top of clipping rect
-            if (rect.GetTop() < clip.GetTop())
-            {
-                float bottom = rect.GetBottom();
-                rect.SetY(clip.GetTop());
-                rect.SetHeight(bottom - rect.GetTop());
-                rect.SetRadiusTopLeft(0);
-                rect.SetRadiusTopRight(0);
-            }
-
-            // perform clipping to bottom of clipping rect
-            if (rect.GetBottom() > clip.GetBottom())
-            {
-                rect.SetHeight(clip.GetBottom() - rect.GetTop());
-                rect.SetRadiusBottomLeft(0);
-                rect.SetRadiusBottomRight(0);
-            }
-
-            // perform rounding of new rectangles corners
-            /* if (rect.GetRight() >= (clip.GetRight() - clip.GetRadiusTopLeft()) && rect.GetTop() >= clip.GetTop())
-            {
-                float radius = Nexus::Utils::ReMapRange<float>(clip.GetRight(), clip.GetRight() + clip.GetRadiusTopRight(), 0, clip.GetRadiusTopRight(), rect.GetLeft());
-                rect.SetRadiusTopLeft(radius);
-            } */
-
-            if (rect.GetRight() >= (clip.GetRight() - (clip.GetRadiusTopRight() / 2)) && rect.GetTop() <= clip.GetTop() + (clip.GetRadiusTopRight() / 2))
-            {
-                // float radius = Nexus::Utils::ReMapRange<float>(clip.GetRight() - clip.GetRadiusTopRight(), clip.GetRight(), 0, clip.GetRadiusTopRight(), rect.GetRight());
-                // rect.SetRadiusTopRight(radius);
-                rect.SetRadiusTopRight(clip.GetRadiusTopRight());
-            }
-
-            if (rect.GetLeft() <= (clip.GetLeft() + clip.GetRadiusTopLeft()) && rect.GetTop() >= clip.GetTop())
-            {
-                // float radius = Nexus::Utils::ReMapRange<float>(clip.GetLeft() - clip.GetRadiusTopLeft(), clip.GetLeft(), 0, clip.GetRadiusTopLeft(), rect.GetLeft());
-                // rect.SetRadiusTopLeft(radius);
-            }
-
-            return rect;
+        Polygon ClipAgainst(const RoundedRectangle &clip)
+        {
+            std::vector<glm::vec2> points = Nexus::Utils::SutherlandHodgman(CreateOutline(), clip.CreateOutline());
+            return Nexus::Utils::GeneratePolygon(points);
         }
 
     private:
@@ -405,27 +329,15 @@ namespace Nexus::Graphics
             float deltaAngle = glm::radians(fillAngle) / (float)m_PointsPerCorner;
             float currentAngle = glm::radians(startAngle) + glm::radians(180.0f);
 
-            const glm::vec2 topLeft = {position.x - (radius / 2), position.y - (radius / 2)};
-            const glm::vec2 bottomRight = {position.x + (radius / 2), position.y + (radius / 2)};
-
             const glm::vec2 centre = {position.x, position.y};
 
-            for (size_t i = 0; i < m_PointsPerCorner; i++)
+            for (uint32_t i = 0; i < m_PointsPerCorner; i++)
             {
-                glm::vec2 posA =
-                    {
-                        glm::sin(currentAngle) * radius + (position.x),
-                        glm::cos(currentAngle) * radius + (position.y)};
+                glm::vec2 point = {glm::cos(currentAngle) * GetRadiusTopLeft() + position.x,
+                                   glm::sin(currentAngle) * GetRadiusTopLeft() + position.y};
 
-                currentAngle -= deltaAngle;
-
-                glm::vec2 posB =
-                    {
-                        glm::sin(currentAngle) * radius + (position.x),
-                        glm::cos(currentAngle) * radius + (position.y)};
-
-                border.push_back(posA);
-                border.push_back(posB);
+                border.push_back(point);
+                currentAngle += deltaAngle;
             }
 
             return border;

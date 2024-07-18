@@ -1047,24 +1047,24 @@ namespace Nexus::Graphics
         m_TextureBatchInfo.VertexCount += shapeVertexCount;
     }
 
-    void BatchRenderer::DrawPolygon(const Polygon &polygon, const glm::vec4 &color)
+    void BatchRenderer::DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color)
     {
-        DrawPolygon(
+        DrawPolygonFill(
             polygon,
             color,
             m_BlankTexture);
     }
 
-    void BatchRenderer::DrawPolygon(const Polygon &polygon, const glm::vec4 &color, Ref<Texture> texture)
+    void BatchRenderer::DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color, Ref<Texture> texture)
     {
-        DrawPolygon(
+        DrawPolygonFill(
             polygon,
             color,
             m_BlankTexture,
             1.0f);
     }
 
-    void BatchRenderer::DrawPolygon(const Polygon &polygon, const glm::vec4 &color, Ref<Texture> texture, float tilingFactor)
+    void BatchRenderer::DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color, Ref<Texture> texture, float tilingFactor)
     {
         const auto &boundingRectangle = polygon.GetBoundingRectangle();
         const std::vector<Triangle2D> &tris = polygon.GetTriangles();
@@ -1094,7 +1094,7 @@ namespace Nexus::Graphics
 
     void BatchRenderer::DrawRoundedRectangle(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, float thickness)
     {
-        const std::vector<glm::vec2> points = roundedRectangle.CreateBorder();
+        const std::vector<glm::vec2> points = roundedRectangle.CreateOutline();
 
         for (size_t i = 0; i < points.size(); i++)
         {
@@ -1117,7 +1117,7 @@ namespace Nexus::Graphics
     void BatchRenderer::DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, Ref<Texture> texture, float tilingFactor)
     {
         const Polygon &poly = roundedRectangle.CreatePolygon();
-        DrawPolygon(poly, color, texture, tilingFactor);
+        DrawPolygonFill(poly, color, texture, tilingFactor);
     }
 
     void BatchRenderer::End()

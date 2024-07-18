@@ -33,6 +33,8 @@
 #include <random>
 #include <cmath>
 
+#include <numbers>
+
 #include <source_location>
 
 #define GLM_FORCE_RADIANS

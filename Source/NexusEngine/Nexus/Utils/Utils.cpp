@@ -151,7 +151,7 @@ namespace Nexus::Utils
         return true;
     }
 
-    bool Triangulate(std::span<glm::vec2> polygon, std::vector<uint32_t> &triangles)
+    bool Triangulate(const std::vector<glm::vec2> &polygon, std::vector<uint32_t> &triangles)
     {
         std::vector<uint32_t> indexList;
         for (size_t i = 0; i < polygon.size(); i++)
@@ -207,6 +207,37 @@ namespace Nexus::Utils
         triangles.push_back(indexList[2]);
 
         return true;
+    }
+
+    std::vector<Nexus::Graphics::Triangle2D> GenerateGeometry(const std::vector<glm::vec2> &polygon, const std::vector<uint32_t> &indices)
+    {
+        std::vector<Nexus::Graphics::Triangle2D> triangles;
+
+        for (size_t i = 0; i < indices.size(); i += 3)
+        {
+            Nexus::Graphics::Triangle2D tri;
+            tri.A = polygon[indices[i]];
+            tri.B = polygon[indices[(i + 1) % indices.size()]];
+            tri.C = polygon[indices[(i + 2) % indices.size()]];
+
+            triangles.push_back(tri);
+        }
+
+        return triangles;
+    }
+
+    Nexus::Graphics::Polygon GeneratePolygon(const std::vector<glm::vec2> &polygon)
+    {
+        std::vector<uint32_t> indices;
+        if (Triangulate(polygon, indices))
+        {
+            std::vector<Nexus::Graphics::Triangle2D> tris = GenerateGeometry(polygon, indices);
+            Nexus::Graphics::Polygon poly(tris);
+            return poly;
+        }
+
+        // return an empty polygon if we are not able to create a valid one
+        return Nexus::Graphics::Polygon();
     }
 
     WindingOrder GetWindingOrder(glm::vec2 a, glm::vec2 b, glm::vec2 c)

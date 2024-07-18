@@ -2,6 +2,7 @@
 
 #include "Nexus/Graphics/SamplerState.hpp"
 #include "Nexus/Graphics/Triangle.hpp"
+#include "Nexus/Graphics/Polygon.hpp"
 #include "Nexus/nxpch.hpp"
 
 namespace Nexus::Utils
@@ -53,7 +54,11 @@ namespace Nexus::Utils
 
     float FindPolygonArea(std::span<glm::vec2> polygon);
 
-    bool Triangulate(std::span<glm::vec2> polygon, std::vector<uint32_t> &triangles);
+    bool Triangulate(const std::vector<glm::vec2> &polygon, std::vector<uint32_t> &triangles);
+
+    std::vector<Nexus::Graphics::Triangle2D> GenerateGeometry(const std::vector<glm::vec2> &polygon, const std::vector<uint32_t> &indices);
+
+    Nexus::Graphics::Polygon GeneratePolygon(const std::vector<glm::vec2> &polygon);
 
     WindingOrder GetWindingOrder(glm::vec2 a, glm::vec2 b, glm::vec2 c);
 

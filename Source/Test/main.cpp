@@ -192,13 +192,10 @@ public:
         scissor.Width = windowSize.X;
         scissor.Height = windowSize.Y;
 
-        Nexus::Graphics::RoundedRectangle r3 = r1.ClipAgainst(r2, nullptr);
+        Nexus::Graphics::Polygon poly = r1.ClipAgainst(r2);
 
         m_BatchRenderer->Begin(vp, scissor);
         m_BatchRenderer->DrawQuadFill({0, 0}, {windowSize.X, windowSize.Y}, {0.35f, 0.35f, 0.35f, 1.0f});
-
-        /*m_BatchRenderer->DrawRoundedRectangleFill(r2, {1.0f, 0.0f, 0.0f, 1.0f});
-        m_BatchRenderer->DrawRoundedRectangleFill(r3, {0.0f, 0.0f, 1.0f, 1.0f}); */
 
         const auto &points = m_Spline.GetPoints();
 
@@ -224,6 +221,10 @@ public:
 
             m_BatchRenderer->DrawLine({pos0.X, pos0.Y}, {pos1.X, pos1.Y}, {1.0f, 0.0f, 0.0f, 1.0f}, 5.0f);
         }
+
+        m_BatchRenderer->DrawRoundedRectangleFill(r1, {0.0f, 1.0f, 0.0f, 1.0f});
+        m_BatchRenderer->DrawRoundedRectangleFill(r2, {1.0f, 1.0f, 0.0f, 1.0f});
+        m_BatchRenderer->DrawPolygonFill(poly, {0.0f, 0.0f, 1.0f, 1.0f});
 
         m_BatchRenderer->End();
 
