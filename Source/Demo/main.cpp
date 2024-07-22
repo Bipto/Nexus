@@ -18,6 +18,7 @@
 #include "Demos/InstancingDemo.hpp"
 #include "Demos/MipmapDemo.hpp"
 #include "Demos/ClippingAndTriangulationDemo.hpp"
+#include "Demos/Splines.hpp"
 
 #include "Nexus/FileSystem/FileSystem.hpp"
 
@@ -75,6 +76,7 @@ public:
         RegisterAudioDemo<Demos::AudioDemo>("Audio");
         RegisterScriptingDemo<Demos::PythonDemo>("Python");
         RegisterUtilsDemo<Demos::ClippingAndTriangulationDemo>("Polygon clipping and triangulation");
+        RegisterUtilsDemo<Demos::Splines>("Splines");
 
         m_CommandList = m_GraphicsDevice->CreateCommandList();
     }

@@ -188,7 +188,7 @@ namespace Nexus::Graphics
             m_Y += y;
         }
 
-        const void Deconstruct(float *x, float *y, float *width, float *height, float *radiusTL, float *radiusTR, float *radiusBL, float *radiusBR, float *pointsPerCorner)
+        const void Deconstruct(float *x, float *y, float *width, float *height, float *radiusTL, float *radiusTR, float *radiusBL, float *radiusBR, float *pointsPerCorner) const
         {
             if (x)
             {
@@ -256,28 +256,44 @@ namespace Nexus::Graphics
 
             std::vector<glm::vec2> points;
 
-            if (GetRadiusTopLeft() > 0.0f)
+            if (m_RadiusTL > 0.0f)
             {
-                std::vector<glm::vec2> corner = CreateCircleRegion(tl, GetRadiusTopLeft(), 0.0f, 90.0f);
+                std::vector<glm::vec2> corner = CreateCircleRegion(tl, m_RadiusTL, 0.0f, 90.0f);
                 points.insert(points.end(), corner.begin(), corner.end());
             }
-
-            if (GetRadiusTopRight() > 0.0f)
+            else
             {
-                std::vector<glm::vec2> corner = CreateCircleRegion(tr, GetRadiusTopRight(), 90.0f, 90.0f);
-                points.insert(points.end(), corner.begin(), corner.end());
+                points.push_back({tl.x - m_RadiusTL, tl.y + m_RadiusTL});
             }
 
-            if (GetRadiusBottomRight() > 0.0f)
+            if (m_RadiusTR > 0.0f)
             {
-                std::vector<glm::vec2> corner = CreateCircleRegion(br, GetRadiusBottomRight(), 180.0f, 90.0f);
+                std::vector<glm::vec2> corner = CreateCircleRegion(tr, m_RadiusTR, 90.0f, 90.0f);
                 points.insert(points.end(), corner.begin(), corner.end());
             }
-
-            if (GetRadiusBottomLeft() > 0.0f)
+            else
             {
-                std::vector<glm::vec2> corner = CreateCircleRegion(bl, GetRadiusBottomLeft(), 270.0f, 90.0f);
+                points.push_back({tr.x + m_RadiusTR, tr.y + m_RadiusTR});
+            }
+
+            if (m_RadiusBR > 0.0f)
+            {
+                std::vector<glm::vec2> corner = CreateCircleRegion(br, m_RadiusBR, 180.0f, 90.0f);
                 points.insert(points.end(), corner.begin(), corner.end());
+            }
+            else
+            {
+                points.push_back({br.x + m_RadiusBR, br.y + m_RadiusBR});
+            }
+
+            if (m_RadiusBL > 0.0f)
+            {
+                std::vector<glm::vec2> corner = CreateCircleRegion(bl, m_RadiusBL, 270.0f, 90.0f);
+                points.insert(points.end(), corner.begin(), corner.end());
+            }
+            else
+            {
+                points.push_back({bl.x - m_RadiusBL, bl.y + m_RadiusBL});
             }
 
             return points;
@@ -285,29 +301,8 @@ namespace Nexus::Graphics
 
         Polygon CreatePolygon() const
         {
-            const glm::vec2 centre =
-                {
-                    GetRight() - (GetWidth() / 2),
-                    GetBottom() - (GetHeight() / 2)};
-
-            std::vector<Nexus::Graphics::Triangle2D> tris;
-
-            std::vector<glm::vec2> points = CreateOutline();
-
-            for (size_t i = 0; i < points.size(); i++)
-            {
-                const glm::vec2 &p0 = points[i];
-                const glm::vec2 &p1 = points[(i + 1) % points.size()];
-
-                Triangle2D tri;
-                tri.A = p0;
-                tri.B = p1;
-                tri.C = centre;
-
-                tris.push_back(tri);
-            }
-
-            return Nexus::Graphics::Polygon(tris);
+            const std::vector<glm::vec2> &points = CreateOutline();
+            return Nexus::Utils::GeneratePolygon(points);
         }
 
         Rectangle<float> GetBoundingRectangle() const
@@ -315,10 +310,12 @@ namespace Nexus::Graphics
             return Rectangle<float>(m_X, m_Y, m_Width, m_Height);
         }
 
-        Polygon ClipAgainst(const RoundedRectangle &clip)
+        std::vector<glm::vec2> ClipAgainst(RoundedRectangle clip) const
         {
-            std::vector<glm::vec2> points = Nexus::Utils::SutherlandHodgman(CreateOutline(), clip.CreateOutline());
-            return Nexus::Utils::GeneratePolygon(points);
+            std::vector<glm::vec2> subjectPoints = CreateOutline();
+            std::vector<glm::vec2> clipPoints = clip.CreateOutline();
+
+            return Nexus::Utils::SutherlandHodgman(subjectPoints, clipPoints);
         }
 
     private:
@@ -333,8 +330,8 @@ namespace Nexus::Graphics
 
             for (uint32_t i = 0; i < m_PointsPerCorner; i++)
             {
-                glm::vec2 point = {glm::cos(currentAngle) * GetRadiusTopLeft() + position.x,
-                                   glm::sin(currentAngle) * GetRadiusTopLeft() + position.y};
+                glm::vec2 point = {glm::cos(currentAngle) * radius + position.x,
+                                   glm::sin(currentAngle) * radius + position.y};
 
                 border.push_back(point);
                 currentAngle += deltaAngle;

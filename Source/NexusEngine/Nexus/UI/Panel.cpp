@@ -22,14 +22,22 @@ namespace Nexus::UI
         vp.MinDepth = 0.0f;
         vp.MaxDepth = 1.0f;
 
-        Nexus::Graphics::Rectangle<float> rect = GetControlBounds();
-        Nexus::Graphics::RoundedRectangle rrect({rect.GetLeft() + m_BorderThickness, rect.GetTop() + m_BorderThickness, rect.GetWidth() - (m_BorderThickness * 2), rect.GetHeight() - (m_BorderThickness * 2)}, m_CornerRounding, m_CornerRounding, m_CornerRounding, m_CornerRounding);
+        Nexus::Graphics::RoundedRectangle rrect = GetRoundedRectangle();
+        std::vector<glm::vec2> points = rrect.CreateOutline();
 
         Nexus::Graphics::Scissor scissor = GetScissorRectangle();
 
         renderer->Begin(vp, scissor);
 
-        renderer->DrawRoundedRectangleFill(rrect, m_BackgroundColour);
+        if (m_Parent)
+        {
+            Graphics::RoundedRectangle parentRect = m_Parent->GetRoundedRectangle();
+            points = rrect.ClipAgainst(parentRect);
+        }
+
+        auto poly = Nexus::Utils::GeneratePolygon(points);
+
+        renderer->DrawPolygonFill(poly, m_BackgroundColour);
 
         renderer->End();
 

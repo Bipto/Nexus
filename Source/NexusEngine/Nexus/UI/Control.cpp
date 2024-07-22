@@ -137,6 +137,12 @@ namespace Nexus::UI
         return m_Padding;
     }
 
+    Graphics::RoundedRectangle Control::GetRoundedRectangle() const
+    {
+        auto [x, y] = GetScreenSpacePosition();
+        return Graphics::RoundedRectangle(x, y, m_Size.X, m_Size.Y, m_CornerRounding, m_CornerRounding, m_CornerRounding, m_CornerRounding);
+    }
+
     const Graphics::Rectangle<float> Control::GetControlBounds() const
     {
         Point2D<float> pos = GetScreenSpacePosition();
@@ -144,8 +150,8 @@ namespace Nexus::UI
         return Graphics::Rectangle<float>(
             pos.X,
             pos.Y,
-            m_Size.X + m_CornerRounding + m_Padding.Left + m_Padding.Right,
-            m_Size.Y + m_CornerRounding + m_Padding.Top + m_Padding.Bottom);
+            m_Size.X + m_Padding.Left + m_Padding.Right,
+            m_Size.Y + m_Padding.Top + m_Padding.Bottom);
     }
 
     const Graphics::Rectangle<float> Control::GetContentBounds() const
@@ -160,19 +166,39 @@ namespace Nexus::UI
 
     const Graphics::Scissor Control::GetScissorRectangle() const
     {
-        // if the control has a parent, use that control's scissor rectangle
-        if (m_Parent)
+        Nexus::Graphics::Scissor scissor{};
+
+        if (m_Canvas)
         {
-            return m_Parent->GetScissorRectangle();
+            scissor.X = 0;
+            scissor.Y = 0;
+            scissor.Width = m_Canvas->GetSize().X;
+            scissor.Height = m_Canvas->GetSize().Y;
         }
 
-        // otherwise use the bounds of this control
-        return GetControlBounds();
+        return scissor;
+    }
+
+    const std::vector<glm::vec2> Control::GetDrawableArea() const
+    {
+        const Nexus::Point2D<float> &screenSpacePosition = GetScreenSpacePosition();
+        const Nexus::Point2D<float> &size = GetSize();
+
+        Nexus::Graphics::RoundedRectangle rrect(screenSpacePosition.X, screenSpacePosition.Y, m_Size.X, m_Size.Y, m_CornerRounding, m_CornerRounding, m_CornerRounding, m_CornerRounding);
+        std::vector<glm::vec2> points = rrect.CreateOutline();
+
+        if (m_Parent)
+        {
+            points = Nexus::Utils::SutherlandHodgman(points, GetDrawableArea());
+        }
+
+        return points;
     }
 
     void Control::AddControl(Control *control)
     {
         control->m_Parent = this;
+        control->m_Canvas = m_Canvas;
         m_Controls.push_back(control);
     }
 

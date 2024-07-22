@@ -1047,6 +1047,18 @@ namespace Nexus::Graphics
         m_TextureBatchInfo.VertexCount += shapeVertexCount;
     }
 
+    void BatchRenderer::DrawTriangle(const Graphics::Triangle2D &tri, const glm::vec4 &color)
+    {
+        DrawTriangle(
+            {tri.A.x, tri.A.y, 0.0f},
+            {0.0f, 0.0f},
+            {tri.B.x, tri.B.y, 0.0f},
+            {0.0f, 0.0f},
+            {tri.C.x, tri.C.y, 0.0f},
+            {0.0f, 0.0f},
+            color);
+    }
+
     void BatchRenderer::DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color)
     {
         DrawPolygonFill(

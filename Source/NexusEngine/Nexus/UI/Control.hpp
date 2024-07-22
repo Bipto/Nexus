@@ -87,11 +87,13 @@ namespace Nexus::UI
         float GetBorderThickness() const;
         const glm::vec4 &GetBorderColour() const;
         const Padding &GetPadding() const;
+        Graphics::RoundedRectangle GetRoundedRectangle() const;
 
         // utilities
         const Graphics::Rectangle<float> GetControlBounds() const;
         const Graphics::Rectangle<float> GetContentBounds() const;
         const Graphics::Scissor GetScissorRectangle() const;
+        const std::vector<glm::vec2> GetDrawableArea() const;
 
         void AddControl(Control *control);
         void RemoveControl(Control *control);

@@ -48,7 +48,7 @@ namespace Nexus::UI
         vp.MinDepth = 0.0f;
         vp.MaxDepth = 1.0f;
 
-        Nexus::Graphics::Rectangle<float> rect = GetControlBounds();
+        Nexus::Graphics::RoundedRectangle rect = GetRoundedRectangle();
         Nexus::Graphics::RoundedRectangle outlineRect(
             {rect.GetLeft() + m_BorderThickness,
              rect.GetTop() + m_BorderThickness,
@@ -56,11 +56,22 @@ namespace Nexus::UI
              rect.GetHeight() - (m_BorderThickness * 2)},
             m_CornerRounding, m_CornerRounding, m_CornerRounding, m_CornerRounding);
 
+        std::vector<glm::vec2> outlinePoints = outlineRect.CreateOutline();
+
+        if (m_Parent)
+        {
+            Graphics::RoundedRectangle parentRect = m_Parent->GetRoundedRectangle();
+            outlinePoints = outlineRect.ClipAgainst(parentRect);
+        }
+
+        Nexus::Graphics::Polygon outlinePoly = Nexus::Utils::GeneratePolygon(outlinePoints);
+
         Nexus::Graphics::Scissor scissor = GetScissorRectangle();
 
         renderer->Begin(vp, scissor);
 
-        renderer->DrawRoundedRectangleFill(outlineRect, m_BackgroundColour);
+        // renderer->DrawRoundedRectangleFill(outlineRect, m_BackgroundColour);
+        renderer->DrawPolygonFill(outlinePoly, m_BackgroundColour);
 
         if (m_Texture)
         {
@@ -74,13 +85,24 @@ namespace Nexus::UI
                 m_CornerRounding,
                 m_CornerRounding);
 
-            renderer->DrawRoundedRectangleFill(textureBoundsWidthPadding, {1.0f, 1.0f, 1.0f, 1.0f}, m_Texture, 1.0f);
+            std::vector<glm::vec2> textureBoundsOutlinePoints = textureBoundsWidthPadding.CreateOutline();
+
+            if (m_Parent)
+            {
+                Graphics::RoundedRectangle parentRect = m_Parent->GetRoundedRectangle();
+                textureBoundsOutlinePoints = textureBoundsWidthPadding.ClipAgainst(parentRect);
+            }
+
+            Nexus::Graphics::Polygon textureBoundsPoly = Nexus::Utils::GeneratePolygon(textureBoundsOutlinePoints);
+            renderer->DrawPolygonFill(textureBoundsPoly, {1.0f, 1.0f, 1.0f, 1.0f}, m_Texture, 1.0f);
+
+            // renderer->DrawRoundedRectangleFill(textureBoundsWidthPadding, {1.0f, 1.0f, 1.0f, 1.0f}, m_Texture, 1.0f);
         }
 
-        if (m_BorderThickness > 0.0f)
+        /* if (m_BorderThickness > 0.0f)
         {
             renderer->DrawRoundedRectangle(outlineRect, m_BorderColour, m_BorderThickness);
-        }
+        } */
 
         renderer->End();
     }

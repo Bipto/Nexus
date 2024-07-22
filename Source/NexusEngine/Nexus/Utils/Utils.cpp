@@ -87,15 +87,25 @@ namespace Nexus::Utils
         std::vector<glm::vec2> poly(subjectPolygon);
         std::vector<glm::vec2> clip(clipPolygon);
 
-        WindingOrder subjectWindingOrder = GetWindingOrder(poly[0], poly[1], poly[2]);
-        WindingOrder clipWindingOrder = GetWindingOrder(clip[0], clip[1], clip[2]);
+        Graphics::Triangle2D subjectTri;
+        subjectTri.A = poly[0];
+        subjectTri.B = poly[1];
+        subjectTri.C = poly[2];
 
-        if (subjectWindingOrder == WindingOrder::CounterClockwise)
+        Graphics::Triangle2D clipTri;
+        clipTri.A = clip[0];
+        clipTri.B = clip[1];
+        clipTri.C = clip[2];
+
+        Graphics::WindingOrder subjectWindingOrder = subjectTri.GetWindingOrder();
+        Graphics::WindingOrder clipWindingOrder = clipTri.GetWindingOrder();
+
+        if (subjectWindingOrder == Graphics::WindingOrder::CounterClockwise)
         {
             poly = ReverseWindingOrder(poly);
         }
 
-        if (clipWindingOrder == WindingOrder::CounterClockwise)
+        if (clipWindingOrder == Graphics::WindingOrder::CounterClockwise)
         {
             clip = ReverseWindingOrder(clipPolygon);
         }
@@ -202,6 +212,11 @@ namespace Nexus::Utils
             }
         }
 
+        if (triangles.empty())
+        {
+            return false;
+        }
+
         triangles.push_back(indexList[0]);
         triangles.push_back(indexList[1]);
         triangles.push_back(indexList[2]);
@@ -240,9 +255,9 @@ namespace Nexus::Utils
         return Nexus::Graphics::Polygon();
     }
 
-    WindingOrder GetWindingOrder(glm::vec2 a, glm::vec2 b, glm::vec2 c)
+    Graphics::WindingOrder GetWindingOrder(glm::vec2 a, glm::vec2 b, glm::vec2 c)
     {
-        return ((b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y)) < 0 ? WindingOrder::Clockwise : WindingOrder::CounterClockwise;
+        return ((b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y)) < 0 ? Graphics::WindingOrder::Clockwise : Graphics::WindingOrder::CounterClockwise;
     }
 
     std::vector<glm::vec2> ReverseWindingOrder(const std::vector<glm::vec2> &vertices)

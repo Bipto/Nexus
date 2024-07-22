@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Nexus/Point.hpp"
+#include "Nexus/Graphics/WindingOrder.hpp"
+
 #include "glm/glm.hpp"
 
 namespace Nexus::Graphics
@@ -19,11 +21,26 @@ namespace Nexus::Graphics
             float a2 = EdgeFunction(A, B, point);
 
             bool overlap = true;
-            overlap &= a0 > 0.0f;
-            overlap &= a1 > 0.0f;
-            overlap &= a2 > 0.0f;
+
+            if (GetWindingOrder() == Graphics::WindingOrder::Clockwise)
+            {
+                overlap &= a0 < 0.0f;
+                overlap &= a1 < 0.0f;
+                overlap &= a2 < 0.0f;
+            }
+            else
+            {
+                overlap &= a0 > 0.0f;
+                overlap &= a1 > 0.0f;
+                overlap &= a2 > 0.0f;
+            }
 
             return overlap;
+        }
+
+        WindingOrder GetWindingOrder() const
+        {
+            return ((B.x - A.x) * (C.y - A.y) - (C.x - A.x) * (B.y - A.y)) < 0 ? WindingOrder::Clockwise : WindingOrder::CounterClockwise;
         }
 
     private:

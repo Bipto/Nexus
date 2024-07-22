@@ -4,8 +4,6 @@
 #include "Rectangle.hpp"
 #include "Nexus/Point.hpp"
 
-#include "glm/glm.hpp"
-
 #include "Nexus/nxpch.hpp"
 
 namespace Nexus::Graphics
@@ -30,7 +28,7 @@ namespace Nexus::Graphics
             return m_Triangles;
         }
 
-        bool Contains(const Nexus::Point2D<float> &point)
+        bool Contains(const Nexus::Point2D<float> &point) const
         {
             for (const auto &tri : m_Triangles)
             {
@@ -41,6 +39,30 @@ namespace Nexus::Graphics
             }
 
             return false;
+        }
+
+        std::vector<glm::vec2> GetOutline() const
+        {
+            std::unordered_map<glm::vec2, uint32_t> vertexCounts;
+
+            for (const Triangle2D &triangle : m_Triangles)
+            {
+                vertexCounts[triangle.A]++;
+                vertexCounts[triangle.B]++;
+                vertexCounts[triangle.C]++;
+            }
+
+            std::vector<glm::vec2> outline;
+
+            for (const auto &[position, count] : vertexCounts)
+            {
+                if (count == 2)
+                {
+                    outline.push_back(position);
+                }
+            }
+
+            return outline;
         }
 
         Rectangle<float> GetBoundingRectangle() const

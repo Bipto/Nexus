@@ -3,16 +3,12 @@
 #include "Nexus/Graphics/SamplerState.hpp"
 #include "Nexus/Graphics/Triangle.hpp"
 #include "Nexus/Graphics/Polygon.hpp"
+#include "Nexus/Graphics/WindingOrder.hpp"
+
 #include "Nexus/nxpch.hpp"
 
 namespace Nexus::Utils
 {
-    enum class WindingOrder
-    {
-        Clockwise,
-        CounterClockwise
-    };
-
     glm::vec4 ColorFromRGBA(float r, float g, float b, float a);
     glm::vec4 ColorFromBorderColor(Nexus::Graphics::BorderColor color);
 
@@ -60,7 +56,7 @@ namespace Nexus::Utils
 
     Nexus::Graphics::Polygon GeneratePolygon(const std::vector<glm::vec2> &polygon);
 
-    WindingOrder GetWindingOrder(glm::vec2 a, glm::vec2 b, glm::vec2 c);
+    Graphics::WindingOrder GetWindingOrder(glm::vec2 a, glm::vec2 b, glm::vec2 c);
 
     std::vector<glm::vec2> ReverseWindingOrder(const std::vector<glm::vec2> &vertices);
 
