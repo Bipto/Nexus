@@ -70,7 +70,6 @@ namespace Nexus::UI
 
         renderer->Begin(vp, scissor);
 
-        // renderer->DrawRoundedRectangleFill(outlineRect, m_BackgroundColour);
         renderer->DrawPolygonFill(outlinePoly, m_BackgroundColour);
 
         if (m_Texture)
@@ -95,8 +94,6 @@ namespace Nexus::UI
 
             Nexus::Graphics::Polygon textureBoundsPoly = Nexus::Utils::GeneratePolygon(textureBoundsOutlinePoints);
             renderer->DrawPolygonFill(textureBoundsPoly, {1.0f, 1.0f, 1.0f, 1.0f}, m_Texture, 1.0f);
-
-            // renderer->DrawRoundedRectangleFill(textureBoundsWidthPadding, {1.0f, 1.0f, 1.0f, 1.0f}, m_Texture, 1.0f);
         }
 
         /* if (m_BorderThickness > 0.0f)

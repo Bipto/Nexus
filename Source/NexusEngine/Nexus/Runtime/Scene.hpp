@@ -24,7 +24,7 @@ namespace Nexus
         void Serialize(const std::string &filepath);
 
         void AddEmptyEntity();
-        const std::vector<Entity> &GetEntities() const;
+        std::vector<Entity> &GetEntities();
 
     public:
         static Scene *Deserialize(const std::string &filepath);

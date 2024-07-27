@@ -159,6 +159,11 @@ namespace Nexus::Graphics
         return CreateRef<SamplerVk>(this, spec);
     }
 
+    Ref<TimingQuery> GraphicsDeviceVk::CreateTimingQuery()
+    {
+        return nullptr;
+    }
+
     const GraphicsCapabilities GraphicsDeviceVk::GetGraphicsCapabilities() const
     {
         GraphicsCapabilities capabilities;

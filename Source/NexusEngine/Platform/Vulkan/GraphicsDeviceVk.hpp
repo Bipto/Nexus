@@ -47,6 +47,8 @@ namespace Nexus::Graphics
         virtual Ref<ResourceSet> CreateResourceSet(const ResourceSetSpecification &spec) override;
         virtual Ref<Framebuffer> CreateFramebuffer(const FramebufferSpecification &spec) override;
         virtual Ref<Sampler> CreateSampler(const SamplerSpecification &spec) override;
+        virtual Ref<TimingQuery> CreateTimingQuery() override;
+
         virtual const GraphicsCapabilities GetGraphicsCapabilities() const override;
 
         virtual ShaderLanguage GetSupportedShaderFormat() override;

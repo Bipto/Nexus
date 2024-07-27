@@ -4,6 +4,8 @@
 #include "Nexus/ImGui/ImGuiGraphicsRenderer.hpp"
 #include "Panel.hpp"
 
+#include "Nexus/Runtime/Entity.hpp"
+
 #include "Nexus/nxpch.hpp"
 
 namespace Editor
@@ -17,6 +19,9 @@ namespace Editor
 
         void SaveLayout(const std::string &path) const;
         bool LoadLayout(const std::string &path);
+
+    public:
+        static Nexus::Entity *s_SelectedEntity;
 
     private:
         void OpenProject();

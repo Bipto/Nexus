@@ -7,6 +7,7 @@
 #include "TextureOpenGL.hpp"
 #include "GraphicsDeviceOpenGL.hpp"
 #include "ResourceSetOpenGL.hpp"
+#include "TimingQueryOpenGL.hpp"
 
 #include "GL.hpp"
 
@@ -478,6 +479,45 @@ namespace Nexus::Graphics
                                      0, 0,
                                      swapchainWidth, swapchainHeight,
                                      GL_COLOR_BUFFER_BIT, GL_LINEAR));
+        };
+        m_Commands.push_back(renderCommand);
+    }
+
+    void CommandListOpenGL::StartTimingQuery(Ref<TimingQuery> query)
+    {
+        m_CommandData.emplace_back(query);
+
+        auto renderCommand = [](Ref<CommandList> commandList)
+        {
+            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
+            auto commandData = commandListGL->GetCurrentCommandData();
+            auto timingQuery = std::get<Ref<TimingQuery>>(commandData);
+            auto timingQueryGL = std::dynamic_pointer_cast<TimingQueryOpenGL>(timingQuery);
+
+            glFinish();
+            GLint64 timer;
+            glCall(glGetInteger64v(GL_TIMESTAMP, &timer));
+            timingQueryGL->m_Start = (uint64_t)timer;
+        };
+        m_Commands.push_back(renderCommand);
+    }
+
+    void CommandListOpenGL::StopTimingQuery(Ref<TimingQuery> query)
+    {
+        m_CommandData.emplace_back(query);
+
+        auto renderCommand = [](Ref<CommandList> commandList)
+        {
+            auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
+            auto commandData = commandListGL->GetCurrentCommandData();
+            auto timingQuery = std::get<Ref<TimingQuery>>(commandData);
+            auto timingQueryGL = std::dynamic_pointer_cast<TimingQueryOpenGL>(timingQuery);
+
+            glFinish();
+            GLint64 timer;
+            glCall(glGetInteger64v(GL_TIMESTAMP, &timer));
+            timingQueryGL->m_End = (uint64_t)timer;
+            timingQueryGL->m_ElapsedTime = (timingQueryGL->m_End - timingQueryGL->m_Start) / 1000000;
         };
         m_Commands.push_back(renderCommand);
     }

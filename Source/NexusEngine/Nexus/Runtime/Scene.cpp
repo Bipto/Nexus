@@ -140,7 +140,7 @@ namespace Nexus
         m_Entities.push_back(Entity());
     }
 
-    const std::vector<Entity> &Scene::GetEntities() const
+    std::vector<Entity> &Scene::GetEntities()
     {
         return m_Entities;
     }

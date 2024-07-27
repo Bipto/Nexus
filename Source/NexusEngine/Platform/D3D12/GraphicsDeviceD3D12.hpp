@@ -35,6 +35,7 @@ namespace Nexus::Graphics
 
         virtual Ref<Framebuffer> CreateFramebuffer(const FramebufferSpecification &spec) override;
         virtual Ref<Sampler> CreateSampler(const SamplerSpecification &spec) override;
+        virtual Ref<TimingQuery> CreateTimingQuery() override;
 
         virtual ShaderLanguage GetSupportedShaderFormat() override { return ShaderLanguage::HLSL; }
         virtual float GetUVCorrection() { return -1.0f; }

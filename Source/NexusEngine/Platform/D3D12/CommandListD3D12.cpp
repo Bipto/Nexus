@@ -291,6 +291,14 @@ namespace Nexus::Graphics
         swapchainD3D12->SetTextureState(D3D12_RESOURCE_STATE_RESOLVE_DEST);
     }
 
+    void CommandListD3D12::StartTimingQuery(Ref<TimingQuery> query)
+    {
+    }
+
+    void CommandListD3D12::StopTimingQuery(Ref<TimingQuery> query)
+    {
+    }
+
     ID3D12GraphicsCommandList7 *CommandListD3D12::GetCommandList()
     {
         return m_CommandList.Get();

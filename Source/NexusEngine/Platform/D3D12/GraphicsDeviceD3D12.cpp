@@ -160,6 +160,11 @@ namespace Nexus::Graphics
         return CreateRef<SamplerD3D12>(spec);
     }
 
+    Ref<TimingQuery> GraphicsDeviceD3D12::CreateTimingQuery()
+    {
+        return nullptr;
+    }
+
     IDXGIFactory7 *GraphicsDeviceD3D12::GetDXGIFactory() const
     {
         return m_DxgiFactory.Get();

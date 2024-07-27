@@ -486,6 +486,14 @@ namespace Nexus::Graphics
         SetRenderTarget(m_CurrentRenderTarget);
     }
 
+    void CommandListVk::StartTimingQuery(Ref<TimingQuery> query)
+    {
+    }
+
+    void CommandListVk::StopTimingQuery(Ref<TimingQuery> query)
+    {
+    }
+
     const VkCommandBuffer &CommandListVk::GetCurrentCommandBuffer()
     {
         return m_CurrentCommandBuffer;

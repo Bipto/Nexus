@@ -3,6 +3,7 @@
 #include "Nexus/Graphics/Color.hpp"
 
 #include "Demos/ClearScreenDemo.hpp"
+#include "Demos/TimingDemo.hpp"
 #include "Demos/HelloTriangle.hpp"
 #include "Demos/HelloTriangleIndexed.hpp"
 #include "Demos/Texturing.hpp"
@@ -61,6 +62,7 @@ public:
         m_ImGuiRenderer->RebuildFontAtlas();
 
         RegisterGraphicsDemo<Demos::ClearScreenDemo>("Clear Colour");
+        RegisterGraphicsDemo<Demos::TimingDemo>("Timings");
         RegisterGraphicsDemo<Demos::HelloTriangleDemo>("Hello Triangle");
         RegisterGraphicsDemo<Demos::HelloTriangleIndexedDemo>("Hello Triangle Indexed");
         RegisterGraphicsDemo<Demos::TexturingDemo>("Texturing");

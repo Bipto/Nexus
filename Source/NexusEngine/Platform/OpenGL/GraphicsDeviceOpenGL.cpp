@@ -9,6 +9,7 @@
 #include "ResourceSetOpenGL.hpp"
 #include "SamplerOpenGL.hpp"
 #include "ShaderModuleOpenGL.hpp"
+#include "TimingQueryOpenGL.hpp"
 
 #if defined(WIN32)
 void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
@@ -260,6 +261,11 @@ namespace Nexus::Graphics
     Ref<Sampler> GraphicsDeviceOpenGL::CreateSampler(const SamplerSpecification &spec)
     {
         return CreateRef<SamplerOpenGL>(spec);
+    }
+
+    Ref<TimingQuery> GraphicsDeviceOpenGL::CreateTimingQuery()
+    {
+        return CreateRef<TimingQueryOpenGL>();
     }
 
     const GraphicsCapabilities GraphicsDeviceOpenGL::GetGraphicsCapabilities() const

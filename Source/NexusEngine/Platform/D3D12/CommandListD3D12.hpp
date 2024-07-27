@@ -39,6 +39,9 @@ namespace Nexus::Graphics
         virtual void SetScissor(const Scissor &scissor) override;
         virtual void ResolveFramebuffer(Ref<Framebuffer> source, uint32_t sourceIndex, Swapchain *target) override;
 
+        virtual void StartTimingQuery(Ref<TimingQuery> query) override;
+        virtual void StopTimingQuery(Ref<TimingQuery> query) override;
+
         ID3D12GraphicsCommandList7 *GetCommandList();
 
         void SetSwapchain(SwapchainD3D12 *swapchain);

@@ -9,6 +9,7 @@
 #include "RenderTarget.hpp"
 #include "Viewport.hpp"
 #include "Scissor.hpp"
+#include "TimingQuery.hpp"
 
 #include "Nexus/nxpch.hpp"
 
@@ -192,6 +193,10 @@ namespace Nexus::Graphics
         virtual void SetScissor(const Scissor &scissor) = 0;
 
         virtual void ResolveFramebuffer(Ref<Framebuffer> source, uint32_t sourceIndex, Swapchain *target) = 0;
+
+        virtual void StartTimingQuery(Ref<TimingQuery> query) = 0;
+
+        virtual void StopTimingQuery(Ref<TimingQuery> query) = 0;
     };
 
     /// @brief A typedef to simplify creating function pointers to render commands
@@ -211,6 +216,7 @@ namespace Nexus::Graphics
         SetRenderTargetCommand,
         SetViewportCommand,
         SetScissorCommand,
-        ResolveSamplesToSwapchainCommand>
+        ResolveSamplesToSwapchainCommand,
+        Ref<TimingQuery>>
         RenderCommandData;
 }

@@ -103,6 +103,9 @@ namespace Nexus::UI
         EventHandler<Control *> OnMouseLeave;
         EventHandler<Control *> OnMouseClick;
 
+    private:
+        void SetCanvas(Canvas *canvas);
+
     protected:
         Point2D<float> m_LocalPosition = {0, 0};
         Point2D<float> m_Size = {0, 0};

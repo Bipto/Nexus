@@ -8,11 +8,14 @@
 
 #include "SceneViewport.hpp"
 #include "SceneHierarchy.hpp"
+#include "InspectorPanel.hpp"
 
 #include "Nexus/Runtime/Project.hpp"
 
 namespace Editor
 {
+    Nexus::Entity *Layout::s_SelectedEntity = nullptr;
+
     Layout::Layout(Nexus::Application *app)
         : m_Application(app)
     {
@@ -35,6 +38,7 @@ namespace Editor
         m_Dialogs[SETTINGS_DIALOG_NAME] = std::make_unique<SettingsDialog>(&m_Panels);
         m_Panels[SCENE_VIEWPORT_NAME] = std::make_unique<SceneViewport>(app->GetGraphicsDevice(), m_ImGuiRenderer.get());
         m_Panels[SCENE_HIERARCHY_NAME] = std::make_unique<SceneHierarchy>();
+        m_Panels[INSPECTOR_PANEL_NAME] = std::make_unique<Inspector>();
     }
 
     void Layout::Render(Nexus::Time time)

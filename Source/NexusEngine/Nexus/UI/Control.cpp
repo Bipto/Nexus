@@ -198,7 +198,7 @@ namespace Nexus::UI
     void Control::AddControl(Control *control)
     {
         control->m_Parent = this;
-        control->m_Canvas = m_Canvas;
+        control->SetCanvas(m_Canvas);
         m_Controls.push_back(control);
     }
 
@@ -210,5 +210,15 @@ namespace Nexus::UI
     const std::vector<Control *> Control::GetControls() const
     {
         return m_Controls;
+    }
+
+    void Control::SetCanvas(Canvas *canvas)
+    {
+        m_Canvas = canvas;
+
+        for (auto &child : m_Controls)
+        {
+            child->SetCanvas(canvas);
+        }
     }
 }

@@ -1,6 +1,7 @@
 #include "SceneHierarchy.hpp"
 
 #include "Nexus/Runtime/Project.hpp"
+#include "Layout.hpp"
 
 #include "glm/gtc/type_ptr.hpp"
 
@@ -60,9 +61,14 @@ namespace Editor
 
         if (ImGui::CollapsingHeader("Entities", nullptr, ImGuiTreeNodeFlags_DefaultOpen))
         {
-            for (const auto &entity : scene->GetEntities())
+            for (auto &entity : scene->GetEntities())
             {
-                ImGui::Text(entity.GetName().c_str());
+                ImGui::PushID(entity.GetID());
+                if (ImGui::Selectable(entity.GetName().c_str()))
+                {
+                    Layout::s_SelectedEntity = &entity;
+                }
+                ImGui::PopID();
             }
 
             if (ImGui::Button("+"))

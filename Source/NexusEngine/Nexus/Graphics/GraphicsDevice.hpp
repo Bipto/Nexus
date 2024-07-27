@@ -16,6 +16,7 @@
 #include "Sampler.hpp"
 #include "GraphicsCapabilities.hpp"
 #include "ShaderModule.hpp"
+#include "TimingQuery.hpp"
 
 namespace Nexus::Graphics
 {
@@ -129,6 +130,8 @@ namespace Nexus::Graphics
         /// @param spec A set of properties to use when creating the sampler
         /// @return A pointer to a sampler
         virtual Ref<Sampler> CreateSampler(const SamplerSpecification &spec) = 0;
+
+        virtual Ref<TimingQuery> CreateTimingQuery() = 0;
 
         /// @brief A pure virtual method that returns a ShaderFormat enum representing the supported shading language of the backend
         /// @return The supported shading language of the backend

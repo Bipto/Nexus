@@ -40,6 +40,10 @@ namespace Nexus::Graphics
         virtual void SetViewport(const Viewport &viewport) override;
         virtual void SetScissor(const Scissor &scissor) override;
         virtual void ResolveFramebuffer(Ref<Framebuffer> source, uint32_t sourceIndex, Swapchain *target) override;
+
+        virtual void StartTimingQuery(Ref<TimingQuery> query) override;
+        virtual void StopTimingQuery(Ref<TimingQuery> query) override;
+
         const std::vector<RenderCommand> &GetRenderCommands();
 
     private:
