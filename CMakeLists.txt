@@ -9,8 +9,6 @@ set(CMAKE_COMPILE_WARNING_AS_ERROR OFF)
 #if we are not building for emscripten, then output all executables into lib and bin folders
 #this is needed to ensure that dynamic libraries (.dll) are in the same folder as the executables
 if (NOT EMSCRIPTEN)
-    set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-    set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
     find_package(Vulkan REQUIRED)
 endif()
 
@@ -93,7 +91,7 @@ endif()
 
 if (WIN32)
     file(COPY Binaries/dxc_2023_08_14/bin/x64/dxcompiler.dll 
-        DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
     file(COPY Binaries/dxc_2023_08_14/bin/x64/dxil.dll 
-        DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif()

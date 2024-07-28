@@ -11,20 +11,6 @@ endif()
 target_include_directories(Demo PUBLIC NexusEngine)
 target_link_libraries(Demo PUBLIC NexusEngine)
 
-#resources need to be output into a separate folder if building for emscripten
-if (EMSCRIPTEN)
-    file (COPY 
-        ${CMAKE_CURRENT_SOURCE_DIR}/Resources
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-else()
-   set(path ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-   cmake_path(GET path PARENT_PATH parentDir)
-   set_target_properties(Demo PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${parentDir}/bin)
-   file (COPY
-       ${CMAKE_CURRENT_SOURCE_DIR}/Resources
-       DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-endif()
-
 #flags required for emscripten
 if (EMSCRIPTEN)
     set_target_properties(
@@ -46,3 +32,16 @@ if (ANDROID OR __ANDROID__)
         GLESv3
     )
 endif()
+
+#copy resources folder to output directory
+add_custom_command(
+  TARGET ${PROJECT_NAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/Resources
+    ${CMAKE_CURRENT_BINARY_DIR}/Resources)
+
+#copy all required libraries to output directory
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
+    COMMAND_EXPAND_LISTS
+  )
