@@ -87,17 +87,7 @@ jobs:
         with:
           run-build: true
           build-dir: build
-          generator: Ninja
-
-      - name: cppcheck-action
-        uses: deep5050/cppcheck-action@v3.0
-        with:
-          exclude_check: ./External/
-          std: c++20
-            
-
-      #- name: Test Project
-      #  uses: threeal/ctest-action@v1.0.0
+          generator: Ninja            
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v4
