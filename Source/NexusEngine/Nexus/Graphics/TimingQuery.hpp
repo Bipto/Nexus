@@ -8,6 +8,7 @@ namespace Nexus::Graphics
     {
     public:
         virtual ~TimingQuery() {}
+        virtual void Resolve() = 0;
         virtual float GetElapsedMilliseconds() = 0;
     };
 }

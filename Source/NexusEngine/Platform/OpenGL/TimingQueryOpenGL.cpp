@@ -12,7 +12,12 @@ namespace Nexus::Graphics
 
     float TimingQueryOpenGL::GetElapsedMilliseconds()
     {
-        return (m_End - m_Start) / 1000000.0f;
+        return m_ElapsedTime;
+    }
+
+    void TimingQueryOpenGL::Resolve()
+    {
+        m_ElapsedTime = (m_End - m_Start) / 1000000.0f;
     }
 }
 

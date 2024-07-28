@@ -7,6 +7,7 @@
 #include "BufferD3D12.hpp"
 #include "ResourceSetD3D12.hpp"
 #include "FramebufferD3D12.hpp"
+#include "TimingQueryD3D12.hpp"
 #include "D3D12Utils.hpp"
 
 namespace Nexus::Graphics
@@ -50,9 +51,6 @@ namespace Nexus::Graphics
     void CommandListD3D12::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer, uint32_t slot)
     {
         Ref<VertexBufferD3D12> d3d12VertexBuffer = std::dynamic_pointer_cast<VertexBufferD3D12>(vertexBuffer);
-        /* auto vertexBufferView = d3d12VertexBuffer->GetVertexBufferView();
-        m_CommandList->IASetVertexBuffers(slot, 1, &vertexBufferView); */
-
         const auto &bufferLayout = m_CurrentlyBoundPipeline->GetPipelineDescription().Layouts.at(slot);
 
         D3D12_VERTEX_BUFFER_VIEW bufferView;
@@ -293,10 +291,18 @@ namespace Nexus::Graphics
 
     void CommandListD3D12::StartTimingQuery(Ref<TimingQuery> query)
     {
+        Ref<TimingQueryD3D12> queryD3D12 = std::dynamic_pointer_cast<TimingQueryD3D12>(query);
+        Microsoft::WRL::ComPtr<ID3D12QueryHeap> heap = queryD3D12->GetQueryHeap();
+
+        m_CommandList->EndQuery(heap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 0);
     }
 
     void CommandListD3D12::StopTimingQuery(Ref<TimingQuery> query)
     {
+        Ref<TimingQueryD3D12> queryD3D12 = std::dynamic_pointer_cast<TimingQueryD3D12>(query);
+        Microsoft::WRL::ComPtr<ID3D12QueryHeap> heap = queryD3D12->GetQueryHeap();
+
+        m_CommandList->EndQuery(heap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 1);
     }
 
     ID3D12GraphicsCommandList7 *CommandListD3D12::GetCommandList()

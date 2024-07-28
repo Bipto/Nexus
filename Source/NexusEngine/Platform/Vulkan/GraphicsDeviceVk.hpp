@@ -62,6 +62,7 @@ namespace Nexus::Graphics
         uint32_t GetPresentFamily();
         uint32_t GetCurrentFrameIndex();
         VmaAllocator GetAllocator();
+        const VkPhysicalDeviceProperties &GetDeviceProperties();
 
         void ImmediateSubmit(std::function<void(VkCommandBuffer cmd)> &&function);
         uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
@@ -124,6 +125,8 @@ namespace Nexus::Graphics
 
         uint32_t m_FrameNumber = 0;
         uint32_t m_CurrentFrameIndex = 0;
+
+        VkPhysicalDeviceProperties m_DeviceProperties;
 
         VSyncState m_VsyncState = VSyncState::Enabled;
 

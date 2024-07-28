@@ -5,6 +5,7 @@
 #include "BufferVk.hpp"
 #include "ResourceSetVk.hpp"
 #include "FramebufferVk.hpp"
+#include "TimingQueryVk.hpp"
 
 VkIndexType GetVulkanIndexBufferFormat(Nexus::Graphics::IndexBufferFormat format)
 {
@@ -488,10 +489,14 @@ namespace Nexus::Graphics
 
     void CommandListVk::StartTimingQuery(Ref<TimingQuery> query)
     {
+        Ref<TimingQueryVk> queryVk = std::dynamic_pointer_cast<TimingQueryVk>(query);
+        vkCmdWriteTimestamp(m_CurrentCommandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, queryVk->GetQueryPool(), 0);
     }
 
     void CommandListVk::StopTimingQuery(Ref<TimingQuery> query)
     {
+        Ref<TimingQueryVk> queryVk = std::dynamic_pointer_cast<TimingQueryVk>(query);
+        vkCmdWriteTimestamp(m_CurrentCommandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, queryVk->GetQueryPool(), 1);
     }
 
     const VkCommandBuffer &CommandListVk::GetCurrentCommandBuffer()

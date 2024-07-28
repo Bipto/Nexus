@@ -9,6 +9,7 @@
 #include "FramebufferVk.hpp"
 #include "SamplerVk.hpp"
 #include "ShaderModuleVk.hpp"
+#include "TimingQueryVk.hpp"
 
 #include "SDL_vulkan.h"
 
@@ -38,6 +39,8 @@ namespace Nexus::Graphics
 
         CreateCommandStructures();
         CreateSynchronisationStructures();
+
+        vkGetPhysicalDeviceProperties(m_PhysicalDevice, &m_DeviceProperties);
     }
 
     GraphicsDeviceVk::~GraphicsDeviceVk()
@@ -161,7 +164,7 @@ namespace Nexus::Graphics
 
     Ref<TimingQuery> GraphicsDeviceVk::CreateTimingQuery()
     {
-        return nullptr;
+        return CreateRef<TimingQueryVk>(this);
     }
 
     const GraphicsCapabilities GraphicsDeviceVk::GetGraphicsCapabilities() const
@@ -213,6 +216,11 @@ namespace Nexus::Graphics
     VmaAllocator GraphicsDeviceVk::GetAllocator()
     {
         return m_Allocator;
+    }
+
+    const VkPhysicalDeviceProperties &GraphicsDeviceVk::GetDeviceProperties()
+    {
+        return m_DeviceProperties;
     }
 
     void GraphicsDeviceVk::ImmediateSubmit(std::function<void(VkCommandBuffer cmd)> &&function)

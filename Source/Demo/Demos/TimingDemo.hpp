@@ -46,6 +46,7 @@ namespace Demos
             // update the timings every half a second
             if (m_TimerCounter >= 0.5f)
             {
+                m_TimingQuery->Resolve();
                 m_Timing = m_TimingQuery->GetElapsedMilliseconds();
                 m_TimerCounter = 0.0f;
             }

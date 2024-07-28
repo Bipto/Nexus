@@ -11,6 +11,7 @@
 #include "FramebufferD3D12.hpp"
 #include "SamplerD3D12.hpp"
 #include "ShaderModuleD3D12.hpp"
+#include "TimingQueryD3D12.hpp"
 
 namespace Nexus::Graphics
 {
@@ -162,7 +163,7 @@ namespace Nexus::Graphics
 
     Ref<TimingQuery> GraphicsDeviceD3D12::CreateTimingQuery()
     {
-        return nullptr;
+        return CreateRef<TimingQueryD3D12>(this);
     }
 
     IDXGIFactory7 *GraphicsDeviceD3D12::GetDXGIFactory() const
