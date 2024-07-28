@@ -91,6 +91,9 @@ jobs:
 
       - name: cppcheck-action
         uses: deep5050/cppcheck-action@v3.0
+        with:
+          exclude_check: ./External/
+          std: c++20
             
 
       #- name: Test Project
