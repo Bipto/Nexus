@@ -49,7 +49,7 @@ add_subdirectory(Source/NexusEngine)
 add_subdirectory(Source/Demo)
 
 if(WIN32 OR LINUX)
-    add_subdirectory(Source/Test)
+    add_subdirectory(Source/Sandbox)
     add_subdirectory(Source/Editor)
 endif()
 
@@ -87,11 +87,4 @@ if (WIN32 OR ANDROID OR LINUX)
     add_definitions(-DLIBTYPE=SHARED)
     add_subdirectory(External/OpenAL-Soft)
     remove_definitions(-DLIBTYPE)
-endif()
-
-if (WIN32)
-    file(COPY Binaries/dxc_2023_08_14/bin/x64/dxcompiler.dll 
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-    file(COPY Binaries/dxc_2023_08_14/bin/x64/dxil.dll 
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif()

@@ -94,7 +94,7 @@ namespace Nexus::ImGuiUtils
         pipelineDesc.VertexModule = vertexModule;
         pipelineDesc.FragmentModule = fragmentModule;
 
-        pipelineDesc.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
+        pipelineDesc.Target = Nexus::Graphics::RenderTarget{m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
         pipelineDesc.BlendStateDesc.EnableBlending = true;
 
         pipelineDesc.BlendStateDesc.SourceColourBlend = Nexus::Graphics::BlendFactor::SourceAlpha;
@@ -189,7 +189,7 @@ namespace Nexus::ImGuiUtils
             info->Window = window;
 
             Nexus::Graphics::PipelineDescription pipelineDesc = s_ImGuiRenderer->GetPipeline()->GetPipelineDescription();
-            pipelineDesc.Target = window->GetSwapchain();
+            pipelineDesc.Target = Nexus::Graphics::RenderTarget{window->GetSwapchain()};
 
             Nexus::Ref<Nexus::Graphics::Pipeline> pipeline = graphicsDevice->CreatePipeline(pipelineDesc);
             info->Pipeline = pipeline;

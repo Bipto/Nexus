@@ -9,7 +9,7 @@ namespace Demos
     class Demo
     {
     public:
-        Demo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
+        explicit Demo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
             : m_Name(name),
               m_GraphicsDevice(app->GetGraphicsDevice()),
               m_AudioDevice(app->GetAudioDevice()),
@@ -20,6 +20,8 @@ namespace Demos
 
         virtual ~Demo() {}
 
+        virtual void Load() {}
+
         virtual void Update(Nexus::Time time)
         {
         }
@@ -28,7 +30,7 @@ namespace Demos
         virtual void OnResize(Nexus::Point2D<uint32_t> size) {}
         virtual void RenderUI() {}
 
-        const std::string &GetName() { return m_Name; }
+        const std::string &GetName() const { return m_Name; }
 
     protected:
         std::string m_Name;

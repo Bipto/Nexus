@@ -54,7 +54,7 @@ namespace Editor
         Nexus::Project::s_ActiveProject = project;
     }
 
-    void Layout::SaveLayout(const std::string &path) const
+    void Layout::SaveLayout(const std::string &path)
     {
         ImGui::SaveIniSettingsToDisk(path.c_str());
     }

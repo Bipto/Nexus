@@ -82,7 +82,7 @@ namespace Editor
         const glm::vec4 &clearColour = scene->GetClearColour();
 
         m_CommandList->Begin();
-        m_CommandList->SetRenderTarget({m_ViewportFramebuffer});
+        m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget{m_ViewportFramebuffer});
         m_CommandList->ClearColorTarget(0, {clearColour.r,
                                             clearColour.g,
                                             clearColour.b,

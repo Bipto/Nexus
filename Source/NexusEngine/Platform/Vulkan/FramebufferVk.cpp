@@ -181,6 +181,8 @@ namespace Nexus::Graphics
         subpass.colorAttachmentCount = colorAttachmentReferences.size();
         subpass.pColorAttachments = colorAttachmentReferences.data();
 
+        VkAttachmentReference depthReference = {};
+
         // create depth information for render pass
         if (m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::None)
         {
@@ -196,7 +198,6 @@ namespace Nexus::Graphics
             depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
             subpassAttachments.push_back(depthAttachment);
 
-            VkAttachmentReference depthReference = {};
             depthReference.attachment = attachmentIndex;
             depthReference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
             subpass.pDepthStencilAttachment = &depthReference;

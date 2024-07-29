@@ -11,6 +11,6 @@ namespace Editor
         virtual void OnRender() override;
 
     private:
-        void RenderControls();
+        static void RenderControls();
     };
 }

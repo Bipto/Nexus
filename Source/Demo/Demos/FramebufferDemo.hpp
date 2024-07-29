@@ -10,8 +10,16 @@ namespace Demos
         FramebufferDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
             : Demo(name, app, imGuiRenderer)
         {
-            m_CommandList = m_GraphicsDevice->CreateCommandList();
+        }
 
+        virtual ~FramebufferDemo()
+        {
+            m_ImGuiRenderer->UnbindTexture(m_TextureID);
+        }
+
+        virtual void Load() override
+        {
+            m_CommandList = m_GraphicsDevice->CreateCommandList();
             Nexus::Graphics::FramebufferSpecification spec;
             spec.Width = 1280;
             spec.Height = 720;
@@ -24,36 +32,23 @@ namespace Demos
             m_TextureID = m_ImGuiRenderer->BindTexture(texture);
         }
 
-        virtual ~FramebufferDemo()
-        {
-            m_ImGuiRenderer->UnbindTexture(m_TextureID);
-        }
-
-        virtual void Update(Nexus::Time time) override
-        {
-        }
-
         virtual void Render(Nexus::Time time) override
         {
             m_CommandList->Begin();
 
-            m_CommandList->SetRenderTarget({m_Framebuffer});
+            m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget{m_Framebuffer});
             m_CommandList->ClearColorTarget(0, {m_RenderTargetClearColour.r,
                                                 m_RenderTargetClearColour.g,
                                                 m_RenderTargetClearColour.b,
                                                 1.0f});
 
-            m_CommandList->SetRenderTarget({m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
+            m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget{m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
             m_CommandList->ClearColorTarget(0, {m_ClearColour.r,
                                                 m_ClearColour.g,
                                                 m_ClearColour.b,
                                                 1.0f});
             m_CommandList->End();
             m_GraphicsDevice->SubmitCommandList(m_CommandList);
-        }
-
-        virtual void OnResize(Nexus::Point2D<uint32_t> size) override
-        {
         }
 
         virtual void RenderUI() override

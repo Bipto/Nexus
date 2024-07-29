@@ -7,7 +7,8 @@ namespace Nexus::Graphics
     class FullscreenQuad
     {
     public:
-        FullscreenQuad(GraphicsDevice *device);
+        FullscreenQuad() = default;
+        explicit FullscreenQuad(GraphicsDevice *device);
 
         Ref<VertexBuffer> GetVertexBuffer();
         Ref<IndexBuffer> GetIndexBuffer();

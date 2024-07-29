@@ -123,6 +123,9 @@ namespace Nexus::Graphics
         case ShaderDataType::UShort4Normalized:
             return 2 * 4;
             break;
+        default:
+            return 0;
+            break;
         }
     }
 }

@@ -20,6 +20,14 @@ namespace Demos
         InstancingDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
             : Demo(name, app, imGuiRenderer)
         {
+        }
+
+        virtual ~InstancingDemo()
+        {
+        }
+
+        virtual void Load() override
+        {
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
             Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
@@ -51,10 +59,7 @@ namespace Demos
 
             Nexus::Graphics::SamplerSpecification samplerSpec{};
             m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
-        }
-
-        virtual ~InstancingDemo()
-        {
+            
         }
 
         virtual void Render(Nexus::Time time) override
@@ -125,10 +130,6 @@ namespace Demos
             m_Rotation += 0.05f * time.GetMilliseconds();
         }
 
-        virtual void OnResize(Nexus::Point2D<uint32_t> size) override
-        {
-        }
-
     private:
         void CreatePipeline()
         {
@@ -171,7 +172,7 @@ namespace Demos
             pipelineDescription.DepthStencilDesc.EnableDepthWrite = true;
             pipelineDescription.DepthStencilDesc.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;
 
-            pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
+            pipelineDescription.Target = Nexus::Graphics::RenderTarget{m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
 
             m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
             m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);

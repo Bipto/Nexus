@@ -15,6 +15,9 @@ namespace Nexus::Graphics
         virtual void SetData(const void *data, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
         virtual std::vector<std::byte> GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
 
+        virtual void SetLayout(ImageLayout layout, uint32_t level = 0) override;
+        virtual ImageLayout GetLayout(uint32_t level = 0) override;
+
         unsigned int GetNativeHandle();
         GLenum GetTextureType();
         GLenum GetDataFormat();

@@ -213,6 +213,10 @@ namespace Nexus::Graphics
         return pixels;
     }
 
+    void TextureD3D12::SetLayout(ImageLayout layout, uint32_t level)
+    {
+    }
+
     DXGI_FORMAT TextureD3D12::GetFormat()
     {
         return m_TextureFormat;
@@ -231,6 +235,11 @@ namespace Nexus::Graphics
     void TextureD3D12::SetCurrentResourceState(D3D12_RESOURCE_STATES state)
     {
         m_CurrentResourceState = state;
+    }
+
+    ImageLayout TextureD3D12::GetLayout(uint32_t level)
+    {
+        return ImageLayout();
     }
 }
 

@@ -14,13 +14,20 @@ namespace Demos
         BatchingDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
             : Demo(name, app, imGuiRenderer)
         {
-            m_CommandList = m_GraphicsDevice->CreateCommandList();
-            m_BatchRenderer = new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
-            GenerateShapes();
         }
 
         virtual ~BatchingDemo()
         {
+        }
+
+        virtual void Load() override
+        {
+            m_CommandList = m_GraphicsDevice->CreateCommandList();
+            m_BatchRenderer = Nexus::Scope<Nexus::Graphics::BatchRenderer>(
+                new Nexus::Graphics::BatchRenderer(
+                    m_GraphicsDevice,
+                    Nexus::Graphics::RenderTarget{m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()}));
+            GenerateShapes();
         }
 
         void GenerateShapes()
@@ -48,14 +55,10 @@ namespace Demos
             }
         }
 
-        virtual void Update(Nexus::Time time) override
-        {
-        }
-
         virtual void Render(Nexus::Time time) override
         {
             m_CommandList->Begin();
-            m_CommandList->SetRenderTarget({m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
+            m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget{m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
             m_CommandList->ClearColorTarget(0, {m_ClearColour.r,
                                                 m_ClearColour.g,
                                                 m_ClearColour.b,
@@ -132,7 +135,7 @@ namespace Demos
         Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
         glm::vec3 m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 
-        Nexus::Graphics::BatchRenderer *m_BatchRenderer = nullptr;
+        Nexus::Scope<Nexus::Graphics::BatchRenderer> m_BatchRenderer = nullptr;
 
         std::vector<QuadInfo> m_Quads;
         int m_QuadCount = 50;

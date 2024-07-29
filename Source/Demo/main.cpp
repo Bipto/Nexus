@@ -150,6 +150,7 @@ public:
                     if (ImGui::IsItemClicked())
                     {
                         m_CurrentDemo = std::unique_ptr<Demos::Demo>(pair.CreationFunction(this, pair.Name, m_ImGuiRenderer.get()));
+                        m_CurrentDemo->Load();
                     }
 
                     ImGui::TreePop();
@@ -190,7 +191,6 @@ public:
                     std::string label = std::string("Selected Demo - ") + m_CurrentDemo->GetName();
                     ImGui::Text("%s", label.c_str());
 
-                    auto n = m_GraphicsDevice->GetAPIName();
                     std::string apiName = std::string("Running on : ") + std::string(m_GraphicsDevice->GetAPIName());
                     ImGui::Text("%s", apiName.c_str());
 
@@ -221,7 +221,7 @@ public:
         {
             m_CommandList->Begin();
 
-            m_CommandList->SetRenderTarget({m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
+            m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget{m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
             m_CommandList->ClearColorTarget(0, {0.35f,
                                                 0.25f,
                                                 0.42f,
@@ -260,7 +260,7 @@ private:
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;

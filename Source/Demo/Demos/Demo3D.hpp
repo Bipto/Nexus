@@ -24,8 +24,15 @@ namespace Demos
         Demo3D(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
             : Demo(name, app, imGuiRenderer)
         {
-            m_CommandList = m_GraphicsDevice->CreateCommandList();
+        }
 
+        virtual ~Demo3D()
+        {
+        }
+
+        virtual void Load() override
+        {
+            m_CommandList = m_GraphicsDevice->CreateCommandList();
             Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
             m_Mesh = factory.CreateCube();
             m_Texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/raw_plank_wall_diff_1k.jpg").c_str(), true);
@@ -44,14 +51,6 @@ namespace Demos
 
             Nexus::Graphics::SamplerSpecification samplerSpec{};
             m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
-        }
-
-        virtual ~Demo3D()
-        {
-        }
-
-        virtual void Update(Nexus::Time time) override
-        {
         }
 
         virtual void Render(Nexus::Time time) override
@@ -111,14 +110,6 @@ namespace Demos
             m_ElapsedTime = m_ElapsedTime.GetNanoseconds() + time.GetNanoseconds();
         }
 
-        virtual void RenderUI() override
-        {
-        }
-
-        virtual void OnResize(Nexus::Point2D<uint32_t> size) override
-        {
-        }
-
     private:
         void CreatePipeline()
         {
@@ -138,7 +129,7 @@ namespace Demos
                 {
                     {"texSampler", 1, 0}};
 
-            pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
+            pipelineDescription.Target = Nexus::Graphics::RenderTarget{m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
 
             pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 

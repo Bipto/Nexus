@@ -42,7 +42,7 @@ namespace Nexus::Graphics
         const VkCommandBuffer &GetCurrentCommandBuffer();
         const VkFence &GetCurrentFence();
         const VkSemaphore &GetCurrentSemaphore();
-        void TransitionImageLayout(VkImage image, uint32_t level, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlagBits aspectMask);
+        void TransitionVulkanImageLayout(VkImage image, uint32_t level, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlagBits aspectMask);
 
     private:
         VkCommandPool m_CommandPools[FRAMES_IN_FLIGHT];

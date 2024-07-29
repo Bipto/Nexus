@@ -4,6 +4,7 @@
 #include "PixelFormat.hpp"
 #include "SamplerState.hpp"
 #include "Multisample.hpp"
+#include "ImageLayout.hpp"
 
 #include "Nexus/Buffer.hpp"
 
@@ -49,7 +50,7 @@ namespace Nexus::Graphics
         /// @brief A constructor that takes in a texture specification
         /// @param spec The specification to create a texture from
         Texture(const TextureSpecification &spec)
-            : m_Specification(spec){};
+            : m_Specification(spec) {};
 
         virtual ~Texture() {}
 
@@ -59,6 +60,11 @@ namespace Nexus::Graphics
         virtual std::vector<std::byte> GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
 
         const TextureSpecification &GetTextureSpecification() const { return m_Specification; }
+
+        virtual void SetLayout(ImageLayout layout, uint32_t level = 0) = 0;
+        virtual ImageLayout GetLayout(uint32_t level = 0) = 0;
+
+        uint32_t GetLevels() const { return m_Specification.Levels; }
 
     protected:
         /// @brief A specification describing the layout of the texture

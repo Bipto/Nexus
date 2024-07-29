@@ -17,20 +17,21 @@
 
 #include "Nexus/Graphics/CatmullRom.hpp"
 
-class EditorApplication : public Nexus::Application
+class Sandbox : public Nexus::Application
 {
 public:
-    explicit EditorApplication(const Nexus::ApplicationSpecification &spec)
+    explicit Sandbox(const Nexus::ApplicationSpecification &spec)
         : Nexus::Application(spec)
     {
-        m_Texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), false);
-        m_BatchRenderer = new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain());
-
-        rrect = Nexus::Graphics::RoundedRectangle(100, 100, 500, 500, 25, 25, 25, 25);
     }
 
     virtual void Load() override
     {
+        m_Texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), false);
+        m_BatchRenderer = new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, Nexus::Graphics::RenderTarget{m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
+
+        rrect = Nexus::Graphics::RoundedRectangle(100, 100, 500, 500, 25, 25, 25, 25);
+
         m_Canvas = std::make_unique<Nexus::UI::Canvas>(m_GraphicsDevice, m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain());
 
         std::vector<Nexus::Graphics::CharacterRange> fontRange =
@@ -148,9 +149,9 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
     spec.WindowProperties.Width = 1280;
     spec.WindowProperties.Height = 720;
     spec.WindowProperties.Resizable = true;
-    spec.WindowProperties.Title = "Test Application";
+    spec.WindowProperties.Title = "Sandbox";
 
     spec.SwapchainSpecification.Samples = Nexus::Graphics::SampleCount::SampleCount8;
 
-    return new EditorApplication(spec);
+    return new Sandbox(spec);
 }

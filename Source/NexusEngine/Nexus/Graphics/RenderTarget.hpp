@@ -19,21 +19,18 @@ namespace Nexus::Graphics
     class RenderTarget
     {
     public:
-        RenderTarget(Swapchain *swapchain)
+        RenderTarget() = default;
+
+        explicit RenderTarget(Swapchain *swapchain)
+            : m_Target(swapchain),
+              m_RenderTargetType(RenderTargetType::Swapchain)
         {
-            m_Target = swapchain;
-            m_RenderTargetType = RenderTargetType::Swapchain;
         }
 
-        RenderTarget(Ref<Framebuffer> framebuffer)
+        explicit RenderTarget(Ref<Framebuffer> framebuffer)
+            : m_Target(framebuffer),
+              m_RenderTargetType(RenderTargetType::Framebuffer)
         {
-            m_Target = framebuffer;
-            m_RenderTargetType = RenderTargetType::Framebuffer;
-        }
-
-        RenderTarget()
-        {
-            m_RenderTargetType = RenderTargetType::None;
         }
 
         template <typename T>
@@ -87,7 +84,6 @@ namespace Nexus::Graphics
         {
             if (m_RenderTargetType == RenderTargetType::Swapchain)
             {
-                auto swapchain = GetData<Swapchain *>();
                 return true;
             }
             else if (m_RenderTargetType == RenderTargetType::Framebuffer)
@@ -114,6 +110,6 @@ namespace Nexus::Graphics
 
     private:
         std::variant<Swapchain *, Ref<Framebuffer>> m_Target;
-        RenderTargetType m_RenderTargetType;
+        RenderTargetType m_RenderTargetType = RenderTargetType::None;
     };
 }

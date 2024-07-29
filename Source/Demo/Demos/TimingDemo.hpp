@@ -12,16 +12,16 @@ namespace Demos
         TimingDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
             : Demo(name, app, imGuiRenderer)
         {
-            m_CommandList = m_GraphicsDevice->CreateCommandList();
-            m_TimingQuery = m_GraphicsDevice->CreateTimingQuery();
         }
 
         virtual ~TimingDemo()
         {
         }
 
-        virtual void Update(Nexus::Time time) override
+        virtual void Load() override
         {
+            m_CommandList = m_GraphicsDevice->CreateCommandList();
+            m_TimingQuery = m_GraphicsDevice->CreateTimingQuery();
         }
 
         virtual void Render(Nexus::Time time) override
@@ -30,7 +30,7 @@ namespace Demos
 
             m_CommandList->StartTimingQuery(m_TimingQuery);
 
-            m_CommandList->SetRenderTarget({m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
+            m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget{m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
             m_CommandList->ClearColorTarget(0, {m_ClearColour.r,
                                                 m_ClearColour.g,
                                                 m_ClearColour.b,
@@ -50,10 +50,6 @@ namespace Demos
                 m_Timing = m_TimingQuery->GetElapsedMilliseconds();
                 m_TimerCounter = 0.0f;
             }
-        }
-
-        virtual void OnResize(Nexus::Point2D<uint32_t> size) override
-        {
         }
 
         virtual void RenderUI() override

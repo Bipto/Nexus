@@ -10,7 +10,14 @@ namespace Demos
         TexturingDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
             : Demo(name, app, imGuiRenderer)
         {
+        }
 
+        virtual ~TexturingDemo()
+        {
+        }
+
+        virtual void Load() override
+        {
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
             CreatePipeline();
@@ -25,14 +32,6 @@ namespace Demos
             m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
 
             m_TextureID = m_ImGuiRenderer->BindTexture(m_Texture);
-        }
-
-        virtual ~TexturingDemo()
-        {
-        }
-
-        virtual void Update(Nexus::Time time) override
-        {
         }
 
         virtual void Render(Nexus::Time time) override
@@ -75,10 +74,6 @@ namespace Demos
             m_GraphicsDevice->SubmitCommandList(m_CommandList);
         }
 
-        virtual void OnResize(Nexus::Point2D<uint32_t> size) override
-        {
-        }
-
         virtual void RenderUI() override
         {
             ImGui::Image(m_TextureID, {256, 256});
@@ -98,7 +93,7 @@ namespace Demos
                 {
                     {"texSampler", 0, 0}};
 
-            pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
+            pipelineDescription.Target = Nexus::Graphics::RenderTarget{m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
             pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
             m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);

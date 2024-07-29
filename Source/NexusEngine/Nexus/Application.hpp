@@ -30,6 +30,8 @@ namespace Nexus
     class Clock
     {
     public:
+        Clock() = default;
+
         /// @brief A method allowing the clock to be updating to the currently elapsed time
         void Tick();
 
@@ -42,7 +44,7 @@ namespace Nexus
         std::chrono::high_resolution_clock::time_point m_StartTime = std::chrono::high_resolution_clock::now();
 
         /// @brief A delta time representing how much time has elapsed since the clock was created
-        uint64_t m_DeltaTime;
+        uint64_t m_DeltaTime{};
     };
 
     /// @brief A static method to create a new graphics device from a set of options
@@ -164,30 +166,30 @@ namespace Nexus
 
     protected:
         /// @brief A pointer to a graphics device
-        Graphics::GraphicsDevice *m_GraphicsDevice;
+        Graphics::GraphicsDevice *m_GraphicsDevice = nullptr;
 
         /// @brief A pointer to an audio device
-        Audio::AudioDevice *m_AudioDevice;
+        Audio::AudioDevice *m_AudioDevice = nullptr;
 
     private:
         /// @brief The specification that the application was created with
-        ApplicationSpecification m_Specification;
+        ApplicationSpecification m_Specification{};
 
         /// @brief A pointer to the application's main window
-        Nexus::Window *m_Window;
+        Nexus::Window *m_Window = nullptr;
 
         /// @brief A set of two unsignd integers containing the size of the window
-        Point2D<uint32_t> m_PreviousWindowSize;
+        Point2D<uint32_t> m_PreviousWindowSize{};
 
         /// @brief An event handler for when the window is resized
-        Nexus::EventHandler<Point2D<uint32_t>> m_WindowResizeEventHandler;
+        Nexus::EventHandler<Point2D<uint32_t>> m_WindowResizeEventHandler{};
 
         /// @brief A clock to time when renders and updates occur
-        Clock m_Clock;
+        Clock m_Clock{};
 
-        std::vector<Window *> m_Windows;
-        std::vector<std::pair<Window *, uint32_t>> m_WindowsToClose;
+        std::vector<Window *> m_Windows{};
+        std::vector<std::pair<Window *, uint32_t>> m_WindowsToClose{};
 
-        Keyboard m_GlobalKeyboardState;
+        Keyboard m_GlobalKeyboardState{};
     };
 }

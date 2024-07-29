@@ -10,8 +10,15 @@ namespace Demos
         HelloTriangleIndexedDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
             : Demo(name, app, imGuiRenderer)
         {
-            m_CommandList = m_GraphicsDevice->CreateCommandList();
+        }
 
+        virtual ~HelloTriangleIndexedDemo()
+        {
+        }
+
+        virtual void Load() override
+        {
+            m_CommandList = m_GraphicsDevice->CreateCommandList();
             CreatePipeline();
 
             std::vector<Nexus::Graphics::VertexPosition> vertices =
@@ -35,15 +42,7 @@ namespace Demos
             indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
             m_IndexBuffer = m_GraphicsDevice->CreateIndexBuffer(indexBufferDesc, indices.data());
         }
-
-        virtual ~HelloTriangleIndexedDemo()
-        {
-        }
-
-        virtual void Update(Nexus::Time time) override
-        {
-        }
-
+        
         virtual void Render(Nexus::Time time) override
         {
             m_CommandList->Begin();
@@ -81,14 +80,6 @@ namespace Demos
             m_GraphicsDevice->SubmitCommandList(m_CommandList);
         }
 
-        virtual void OnResize(Nexus::Point2D<uint32_t> size) override
-        {
-        }
-
-        virtual void RenderUI() override
-        {
-        }
-
     private:
         void CreatePipeline()
         {
@@ -96,7 +87,7 @@ namespace Demos
             pipelineDescription.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::None;
             pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
             // pipelineDescription.Shader = m_Shader;
-            pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
+            pipelineDescription.Target = Nexus::Graphics::RenderTarget{m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
             pipelineDescription.Layouts = {Nexus::Graphics::VertexPosition::GetLayout()};
 
             pipelineDescription.VertexModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/hello_triangle.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);

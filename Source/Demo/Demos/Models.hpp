@@ -25,8 +25,15 @@ namespace Demos
         ModelDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
             : Demo(name, app, imGuiRenderer)
         {
-            m_CommandList = m_GraphicsDevice->CreateCommandList();
+        }
 
+        virtual ~ModelDemo()
+        {
+        }
+
+        virtual void Load() override
+        {
+            m_CommandList = m_GraphicsDevice->CreateCommandList();
             Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
             m_Model = factory.CreateFrom3DModelFile(Nexus::FileSystem::GetFilePathAbsolute("resources/models/survival_backpack_2/survival_backpack_2.fbx"));
 
@@ -49,10 +56,6 @@ namespace Demos
 
             Nexus::Graphics::SamplerSpecification samplerSpec{};
             m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
-        }
-
-        virtual ~ModelDemo()
-        {
         }
 
         virtual void Render(Nexus::Time time) override
@@ -124,11 +127,6 @@ namespace Demos
             m_Rotation += 0.05f * time.GetMilliseconds();
         }
 
-        virtual void OnResize(Nexus::Point2D<uint32_t> size) override
-        {
-            CreatePipeline();
-        }
-
     private:
         void CreatePipeline()
         {
@@ -155,7 +153,7 @@ namespace Demos
                     {"normalMapSampler", 1, 1},
                     {"specularMapSampler", 1, 2}};
 
-            pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
+            pipelineDescription.Target = Nexus::Graphics::RenderTarget{m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
 
             m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
             m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);

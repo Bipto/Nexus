@@ -12,16 +12,23 @@ namespace Demos
         ClippingAndTriangulationDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
             : Demo(name, app, imGuiRenderer)
         {
-            m_CommandList = m_GraphicsDevice->CreateCommandList();
-            m_BatchRenderer = new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
-            r1 = Nexus::Graphics::RoundedRectangle({450, 400}, {250, 250}, 15.0f, 15.0f, 15.0f, 15.0f);
-            r1.SetPointsPerCorner(8);
-            r2 = Nexus::Graphics::RoundedRectangle({350, 400}, {400, 400}, 35.0f, 35.0f, 35.0f, 35.0f);
-            r2.SetPointsPerCorner(8);
         }
 
         virtual ~ClippingAndTriangulationDemo()
         {
+        }
+
+        virtual void Load() override
+        {
+            m_CommandList = m_GraphicsDevice->CreateCommandList();
+            m_BatchRenderer = new Nexus::Graphics::BatchRenderer(
+                m_GraphicsDevice,
+                Nexus::Graphics::RenderTarget{m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
+
+            r1 = Nexus::Graphics::RoundedRectangle({450, 400}, {250, 250}, 15.0f, 15.0f, 15.0f, 15.0f);
+            r1.SetPointsPerCorner(8);
+            r2 = Nexus::Graphics::RoundedRectangle({350, 400}, {400, 400}, 35.0f, 35.0f, 35.0f, 35.0f);
+            r2.SetPointsPerCorner(8);
         }
 
         virtual void Update(Nexus::Time time) override
@@ -90,7 +97,7 @@ namespace Demos
         virtual void Render(Nexus::Time time) override
         {
             m_CommandList->Begin();
-            m_CommandList->SetRenderTarget({m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
+            m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget{m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
             m_CommandList->ClearColorTarget(0, {m_ClearColour.r,
                                                 m_ClearColour.g,
                                                 m_ClearColour.b,

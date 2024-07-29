@@ -10,21 +10,21 @@ namespace Demos
         ClearScreenDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
             : Demo(name, app, imGuiRenderer)
         {
-            m_CommandList = m_GraphicsDevice->CreateCommandList();
         }
 
         virtual ~ClearScreenDemo()
         {
-                }
+        }
 
-        virtual void Update(Nexus::Time time) override
+        virtual void Load() override
         {
+            m_CommandList = m_GraphicsDevice->CreateCommandList();
         }
 
         virtual void Render(Nexus::Time time) override
         {
             m_CommandList->Begin();
-            m_CommandList->SetRenderTarget({m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
+            m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget{m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
             m_CommandList->ClearColorTarget(0, {m_ClearColour.r,
                                                 m_ClearColour.g,
                                                 m_ClearColour.b,
@@ -32,10 +32,6 @@ namespace Demos
             m_CommandList->End();
 
             m_GraphicsDevice->SubmitCommandList(m_CommandList);
-        }
-
-        virtual void OnResize(Nexus::Point2D<uint32_t> size) override
-        {
         }
 
         virtual void RenderUI() override

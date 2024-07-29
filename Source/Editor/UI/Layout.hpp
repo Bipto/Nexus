@@ -13,12 +13,12 @@ namespace Editor
     class Layout
     {
     public:
-        Layout(Nexus::Application *app);
+        explicit Layout(Nexus::Application *app);
         void Render(Nexus::Time time);
-        void LoadProject(const std::string &path);
+        static void LoadProject(const std::string &path);
 
-        void SaveLayout(const std::string &path) const;
-        bool LoadLayout(const std::string &path);
+        static void SaveLayout(const std::string &path);
+        static bool LoadLayout(const std::string &path);
 
     public:
         static Nexus::Entity *s_SelectedEntity;
@@ -26,7 +26,7 @@ namespace Editor
     private:
         void OpenProject();
         void RenderViewport();
-        void ApplyDarkTheme();
+        static void ApplyDarkTheme();
         void RenderMainMenubar();
 
     private:

@@ -76,7 +76,7 @@ namespace Nexus::Graphics
 
                 Ref<Framebuffer> framebuffer = m_Device->CreateFramebuffer(framebufferSpec);
 
-                pipelineDescription.Target = {framebuffer};
+                pipelineDescription.Target = RenderTarget(framebuffer);
                 Ref<Pipeline> pipeline = m_Device->CreatePipeline(pipelineDescription);
                 Ref<ResourceSet> resourceSet = m_Device->CreateResourceSet(pipeline);
 

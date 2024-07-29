@@ -15,8 +15,15 @@ namespace Demos
         UniformBufferDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
             : Demo(name, app, imGuiRenderer)
         {
-            m_CommandList = m_GraphicsDevice->CreateCommandList();
+        }
 
+        virtual ~UniformBufferDemo()
+        {
+        }
+
+        virtual void Load() override
+        {
+            m_CommandList = m_GraphicsDevice->CreateCommandList();
             CreatePipeline();
 
             Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
@@ -26,14 +33,6 @@ namespace Demos
 
             Nexus::Graphics::SamplerSpecification samplerSpec{};
             m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
-        }
-
-        virtual ~UniformBufferDemo()
-        {
-        }
-
-        virtual void Update(Nexus::Time time) override
-        {
         }
 
         virtual void Render(Nexus::Time time) override
@@ -81,10 +80,6 @@ namespace Demos
             ImGui::DragFloat2("Position", glm::value_ptr(m_Position), 0.1f, -1.0f, 1.0f);
         }
 
-        virtual void OnResize(Nexus::Point2D<uint32_t> size) override
-        {
-        }
-
     private:
         void CreatePipeline()
         {
@@ -108,7 +103,7 @@ namespace Demos
                 {
                     {"texSampler", 1, 0}};
 
-            pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
+            pipelineDescription.Target = Nexus::Graphics::RenderTarget{m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
 
             pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 

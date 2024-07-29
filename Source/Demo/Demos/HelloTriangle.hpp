@@ -10,9 +10,15 @@ namespace Demos
         HelloTriangleDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
             : Demo(name, app, imGuiRenderer)
         {
-            m_CommandList = m_GraphicsDevice->CreateCommandList();
+        }
 
-            // m_Shader = m_GraphicsDevice->CreateShaderFromSpirvFile(Nexus::FileSystem::GetFilePathAbsolute("resources/shaders/hello_triangle.glsl"));
+        virtual ~HelloTriangleDemo()
+        {
+        }
+
+        virtual void Load() override
+        {
+            m_CommandList = m_GraphicsDevice->CreateCommandList();
 
             std::vector<Nexus::Graphics::VertexPosition> vertices =
                 {
@@ -27,10 +33,6 @@ namespace Demos
             vertexBufferDesc.Size = vertices.size() * sizeof(Nexus::Graphics::VertexPosition);
             vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
             m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(vertexBufferDesc, vertices.data());
-        }
-
-        virtual ~HelloTriangleDemo()
-        {
         }
 
         virtual void Render(Nexus::Time time) override
@@ -83,7 +85,7 @@ namespace Demos
             pipelineDescription.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::None;
             pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
             pipelineDescription.Layouts = {Nexus::Graphics::VertexPosition::GetLayout()};
-            pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
+            pipelineDescription.Target = Nexus::Graphics::RenderTarget{m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
 
             pipelineDescription.VertexModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/hello_triangle.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
             pipelineDescription.FragmentModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/hello_triangle.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);

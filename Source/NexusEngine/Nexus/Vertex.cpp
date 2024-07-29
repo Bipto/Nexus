@@ -35,26 +35,21 @@ namespace Nexus::Graphics
         case ShaderDataType::Float2:
             return 1 * 2;
             break;
-            ;
         case ShaderDataType::Float3:
             return 1 * 3;
             break;
-            ;
         case ShaderDataType::Float4:
             return 1 * 4;
             break;
-            ;
         case ShaderDataType::Half:
             return 1;
             break;
-            ;
         case ShaderDataType::Half2:
             return 1 * 2;
             break;
         case ShaderDataType::Half4:
             return 1 * 4;
             break;
-            ;
         case ShaderDataType::Int:
             return 1;
             break;
@@ -132,6 +127,9 @@ namespace Nexus::Graphics
             break;
         case ShaderDataType::UShort4Normalized:
             return 1 * 4;
+            break;
+        default:
+            return 0;
             break;
         }
     }

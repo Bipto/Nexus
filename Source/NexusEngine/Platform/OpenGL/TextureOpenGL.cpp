@@ -94,6 +94,15 @@ namespace Nexus::Graphics
     {
         return m_BaseType;
     }
+
+    void TextureOpenGL::SetLayout(ImageLayout layout, uint32_t level)
+    {
+    }
+
+    ImageLayout TextureOpenGL::GetLayout(uint32_t level)
+    {
+        return ImageLayout();
+    }
 }
 
 #endif

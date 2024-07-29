@@ -25,6 +25,14 @@ namespace Demos
         LightingDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
             : Demo(name, app, imGuiRenderer)
         {
+        }
+
+        virtual ~LightingDemo()
+        {
+        }
+
+        virtual void Load() override
+        {
             m_CommandList = m_GraphicsDevice->CreateCommandList();
 
             Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
@@ -49,10 +57,6 @@ namespace Demos
 
             Nexus::Graphics::SamplerSpecification samplerSpec{};
             m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
-        }
-
-        virtual ~LightingDemo()
-        {
         }
 
         virtual void Render(Nexus::Time time) override
@@ -157,7 +161,7 @@ namespace Demos
 
             pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
-            pipelineDescription.Target = {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
+            pipelineDescription.Target = Nexus::Graphics::RenderTarget{m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
 
             m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
             m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);

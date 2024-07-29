@@ -14,7 +14,7 @@ namespace Editor
 
         void Enable() { m_Enabled = true; }
         void Disable() { m_Enabled = false; };
-        bool IsEnabled() { return m_Enabled; }
+        bool IsEnabled() const { return m_Enabled; }
 
     protected:
         bool m_Enabled = false;

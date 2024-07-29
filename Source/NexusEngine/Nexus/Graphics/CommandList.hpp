@@ -10,6 +10,7 @@
 #include "Viewport.hpp"
 #include "Scissor.hpp"
 #include "TimingQuery.hpp"
+#include "ImageLayout.hpp"
 
 #include "Nexus/nxpch.hpp"
 

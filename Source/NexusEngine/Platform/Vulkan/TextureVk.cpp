@@ -82,7 +82,7 @@ namespace Nexus::Graphics
 
         for (uint32_t i = 0; i < m_Specification.Levels; i++)
         {
-            commandList->TransitionImageLayout(m_Image, i, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, aspectFlags);
+            commandList->TransitionVulkanImageLayout(m_Image, i, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, aspectFlags);
         }
 
         commandList->End();
@@ -214,6 +214,15 @@ namespace Nexus::Graphics
         return pixels;
     }
 
+    void TextureVk::SetLayout(ImageLayout layout, uint32_t level)
+    {
+    }
+
+    ImageLayout TextureVk::GetLayout(uint32_t level)
+    {
+        return ImageLayout();
+    }
+
     VkImage TextureVk::GetImage()
     {
         return m_Image;
@@ -224,7 +233,7 @@ namespace Nexus::Graphics
         return m_ImageView;
     }
 
-    VkImageLayout TextureVk::GetLayout()
+    VkImageLayout TextureVk::GetVulkanLayout()
     {
         return m_Layout;
     }
