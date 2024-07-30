@@ -20,6 +20,9 @@ namespace Nexus::Graphics
             return DXGI_FORMAT_R16_UINT;
         case Nexus::Graphics::IndexBufferFormat::UInt32:
             return DXGI_FORMAT_R32_UINT;
+        default:
+            NX_ASSERT(0, "Invalid index buffer format entered");
+            return DXGI_FORMAT();
         }
     }
 

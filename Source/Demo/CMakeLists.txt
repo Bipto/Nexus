@@ -47,13 +47,13 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 )
 
 #set the working directory to the executable directory
-set_property(TARGET Demo PROPERTY VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+set_property(TARGET Demo PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
 
 #copy required DXC libraries to executable directory
 if (WIN32)
   add_custom_command(
       TARGET ${PROJECT_NAME} POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      COMMAND ${CMAKE_COMMAND} -E copy
           ${CMAKE_SOURCE_DIR}/Binaries/dxc_2023_08_14/bin/x64/dxcompiler.dll
           $<TARGET_FILE_DIR:${PROJECT_NAME}>
   )

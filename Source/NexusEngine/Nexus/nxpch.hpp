@@ -49,3 +49,5 @@
 #include <glm/gtx/vector_angle.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/hash.hpp>
+
+#include "Nexus/Logging/Log.hpp"

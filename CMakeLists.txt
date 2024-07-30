@@ -60,7 +60,6 @@ add_subdirectory(External/SDL)
 add_subdirectory(External/glad)
 add_subdirectory(External/glm)
 add_subdirectory(External/imgui)
-add_subdirectory(External/assimp)
 add_subdirectory(External/glslang)
 add_subdirectory(External/SPIRV-Cross)
 add_subdirectory(External/SPIRV-Headers)
@@ -73,6 +72,7 @@ add_subdirectory(External/yaml-cpp)
 
 if (WIN32 OR LINUX)
     add_subdirectory(External/VulkanMemoryAllocator)
+    set_target_properties(VulkanMemoryAllocator PROPERTIES FOLDER "External")
 endif()
 
 #these libraries are only required if we are not building for emscripten
@@ -81,10 +81,37 @@ if (WIN32 OR LINUX)
     add_subdirectory(External/tinyfiledialogs)
     add_subdirectory(External/re2)
     add_subdirectory(External/effcee)
+    set_target_properties(tinyfiledialogs re2 effcee PROPERTIES FOLDER "External")
 endif()
 
+#include libraries to be built dynamically
+set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
+add_definitions(-DLIBTYPE=SHARED)
+add_subdirectory(External/assimp)
 if (WIN32 OR ANDROID OR LINUX)
-    add_definitions(-DLIBTYPE=SHARED)
     add_subdirectory(External/OpenAL-Soft)
-    remove_definitions(-DLIBTYPE)
+    set_target_properties(OpenAL PROPERTIES FOLDER "External")
 endif()
+remove_definitions(-DLIBTYPE)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+
+set_target_properties(SDL3-static SDL3_test PROPERTIES FOLDER "External")
+set_target_properties(glad PROPERTIES FOLDER "External")
+set_target_properties(imgui PROPERTIES FOLDER "External")
+set_target_properties(imguizmo PROPERTIES FOLDER "External")
+set_target_properties(glslc glslc_exe PROPERTIES FOLDER "External")
+set_target_properties(spirv-cross-c spirv-cross-core spirv-cross-cpp
+    spirv-cross-glsl spirv-cross-hlsl spirv-cross-msl spirv-cross-reflect
+    spirv-tools-pkg-config spirv-tools-shared-pkg-config
+    PROPERTIES FOLDER "External")
+set_target_properties(shaderc_shared shaderc_static-pkg-config shaderc_util shaderc-pkg-config
+    shaderc shaderc_combined_genfile shaderc_combined-pkg-config
+    PROPERTIES FOLDER "External")
+set_target_properties(libnyquist PROPERTIES FOLDER "External")
+set_target_properties(freetype PROPERTIES FOLDER "External")
+set_target_properties(pocketpy PROPERTIES FOLDER "External")
+set_target_properties(yaml-cpp yaml-cpp-parse yaml-cpp-read yaml-cpp-sandbox PROPERTIES FOLDER "External")
+set_target_properties(assimp UpdateAssimpLibsDebugSymbolsAndDLLs PROPERTIES FOLDER "External")
+set_target_properties(add-copyright build_version build-version check-copyright
+    common core_tables enum_string_mapping ex-common extinst_tables testdata uninstall zlibstatic
+    PROPERTIES FOLDER "External")

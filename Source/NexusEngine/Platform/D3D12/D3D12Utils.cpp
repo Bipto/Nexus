@@ -2,6 +2,8 @@
 
 #if defined(NX_PLATFORM_D3D12)
 
+#include "Nexus/nxpch.hpp"
+
 DXGI_FORMAT GetD3D12PixelFormat(Nexus::Graphics::PixelFormat format, bool isDepth)
 {
     switch (format)
@@ -194,6 +196,9 @@ D3D12_STENCIL_OP GetStencilOperation(Nexus::Graphics::StencilOperation operation
         return D3D12_STENCIL_OP_DECR;
     case Nexus::Graphics::StencilOperation::Invert:
         return D3D12_STENCIL_OP_INVERT;
+    default:
+        NX_ASSERT(0, "Invalid stencil operation entered");
+        return D3D12_STENCIL_OP();
     }
 }
 
@@ -205,6 +210,9 @@ D3D12_FILL_MODE GetFillMode(Nexus::Graphics::FillMode fillMode)
         return D3D12_FILL_MODE_SOLID;
     case Nexus::Graphics::FillMode::Wireframe:
         return D3D12_FILL_MODE_WIREFRAME;
+    default:
+        NX_ASSERT(0, "Invalid fill mode entered");
+        return D3D12_FILL_MODE();
     }
 }
 
@@ -448,7 +456,8 @@ D3D12_FILTER GetD3D12Filter(Nexus::Graphics::SamplerFilter filter)
         break;
 
     default:
-        throw std::runtime_error("Failed to find a valid sampler filter");
+        NX_ASSERT(0, "Invalid sampler filter entered");
+        return D3D12_FILTER();
     }
 }
 
