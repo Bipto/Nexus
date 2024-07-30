@@ -1,0 +1,45 @@
+#pragma once
+
+#include "Nexus-Core/nxpch.hpp"
+#include "Nexus-Core/Renderer/BatchRenderer.hpp"
+#include "Nexus-Core/Point.hpp"
+
+#include "Canvas.hpp"
+
+namespace Nexus::UI
+{
+    class Control;
+
+    class Canvas
+    {
+    public:
+        Canvas(Graphics::GraphicsDevice *device, Graphics::Swapchain *swapchain);
+        virtual ~Canvas();
+
+        void SetPosition(const Point2D<uint32_t> &position);
+        void SetSize(const Point2D<uint32_t> &size);
+        void SetBackgroundColour(const glm::vec4 &color);
+
+        const Point2D<uint32_t> &GetPosition() const;
+        const Point2D<uint32_t> &GetSize() const;
+        const glm::vec4 &GetBackgroundColour() const;
+
+        void Render() const;
+
+        void AddControl(Control *control);
+        void RemoveControl(Control *control);
+
+        Nexus::Window *GetWindow() const;
+
+    private:
+        Point2D<uint32_t> m_Position = {0, 0};
+        Point2D<uint32_t> m_Size = {0, 0};
+
+        glm::vec4 m_BackgroundColour = {0, 0, 0, 0};
+
+        std::unique_ptr<Nexus::Graphics::BatchRenderer> m_BatchRenderer = nullptr;
+
+        std::vector<Control *> m_Controls;
+        Nexus::Window *m_Window = nullptr;
+    };
+}

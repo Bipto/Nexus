@@ -1,0 +1,59 @@
+#pragma once
+
+#if defined(NX_PLATFORM_OPENGL)
+
+#if defined(__EMSCRIPTEN__)
+#include <emscripten.h>
+#include <emscripten/html5.h>
+#endif
+
+#if defined(__EMSCRIPTEN__) || defined(ANDROID) || defined(__ANDROID__)
+#include <GLES3/gl3.h>
+#include <GLES2/gl2ext.h>
+#else
+#include "glad/glad.h"
+#endif
+
+#include "Nexus-Core/Graphics/Texture.hpp"
+#include "Nexus-Core/Graphics/ShaderModule.hpp"
+#include "Nexus-Core/Vertex.hpp"
+#include "Nexus-Core/Logging/Log.hpp"
+
+namespace Nexus::GL
+{
+    std::string GetErrorMessageFromCode(const GLenum error);
+
+    GLenum GetStencilOperation(Nexus::Graphics::StencilOperation operation);
+    GLenum GetComparisonFunction(Nexus::Graphics::ComparisonFunction function);
+    GLenum GetBlendFactor(Nexus::Graphics::BlendFactor function);
+    GLenum GetBlendFunction(Nexus::Graphics::BlendEquation equation);
+
+    GLenum GetSamplerAddressMode(Nexus::Graphics::SamplerAddressMode addressMode);
+    void GetSamplerFilter(Nexus::Graphics::SamplerFilter filter, GLenum &min, GLenum &max, bool mipmappingEnabled);
+    GLenum GetPixelType(Nexus::Graphics::PixelFormat format);
+    GLenum GetPixelDataFormat(Nexus::Graphics::PixelFormat format);
+    GLenum GetSizedInternalFormat(Nexus::Graphics::PixelFormat format, bool depthFormat);
+
+    GLenum GetShaderStage(Nexus::Graphics::ShaderStage stage);
+
+    void GetBaseType(const Graphics::VertexBufferElement &element, GLenum &baseType, uint32_t &componentCount, GLboolean &normalized);
+}
+
+#endif
+
+#define glClearErrors()                 \
+    while (glGetError() != GL_NO_ERROR) \
+    {                                   \
+    }
+
+#define glCheckErrors()                                                  \
+    while (GLenum error = glGetError())                                  \
+    {                                                                    \
+        std::string message = Nexus::GL::GetErrorMessageFromCode(error); \
+        NX_ERROR(message);                                               \
+    }
+
+#define glCall(x)    \
+    glClearErrors(); \
+    x;               \
+    glCheckErrors();

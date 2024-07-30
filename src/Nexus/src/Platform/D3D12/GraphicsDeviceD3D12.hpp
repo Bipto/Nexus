@@ -1,0 +1,79 @@
+#pragma once
+
+#if defined(NX_PLATFORM_D3D12)
+
+#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
+#include "D3D12Include.hpp"
+
+namespace Nexus::Graphics
+{
+    class GraphicsDeviceD3D12 : public GraphicsDevice
+    {
+    public:
+        GraphicsDeviceD3D12(const GraphicsDeviceCreateInfo &createInfo, Window *window, const SwapchainSpecification &swapchainSpec);
+        ~GraphicsDeviceD3D12();
+
+        virtual void SetContext() override;
+        void SetFramebuffer(Framebuffer *framebuffer);
+        virtual void SubmitCommandList(Ref<CommandList> commandList) override;
+
+        virtual const std::string GetAPIName() override;
+        virtual const char *GetDeviceName() override;
+        virtual void *GetContext() override;
+
+        virtual void BeginFrame() override;
+        virtual void EndFrame() override;
+
+        virtual Ref<Texture> CreateTexture(const TextureSpecification &spec) override;
+        virtual Ref<Pipeline> CreatePipeline(const PipelineDescription &description) override;
+        virtual Ref<CommandList> CreateCommandList() override;
+
+        virtual Ref<VertexBuffer> CreateVertexBuffer(const BufferDescription &description, const void *data) override;
+        virtual Ref<IndexBuffer> CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format = IndexBufferFormat::UInt32) override;
+        virtual Ref<UniformBuffer> CreateUniformBuffer(const BufferDescription &description, const void *data) override;
+        virtual Ref<ResourceSet> CreateResourceSet(const ResourceSetSpecification &spec) override;
+
+        virtual Ref<Framebuffer> CreateFramebuffer(const FramebufferSpecification &spec) override;
+        virtual Ref<Sampler> CreateSampler(const SamplerSpecification &spec) override;
+        virtual Ref<TimingQuery> CreateTimingQuery() override;
+
+        virtual ShaderLanguage GetSupportedShaderFormat() override { return ShaderLanguage::HLSL; }
+        virtual float GetUVCorrection() { return -1.0f; }
+        virtual const GraphicsCapabilities GetGraphicsCapabilities() const override;
+        virtual bool IsUVOriginTopLeft() override { return true; };
+
+        IDXGIFactory7 *GetDXGIFactory() const;
+        ID3D12CommandQueue *GetCommandQueue() const;
+        ID3D12Device10 *GetDevice() const;
+        ID3D12GraphicsCommandList7 *GetUploadCommandList();
+
+        void SignalAndWait();
+        void ImmediateSubmit(std::function<void(ID3D12GraphicsCommandList7 *cmd)> &&function);
+
+    private:
+        virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) override;
+        void InitUploadCommandList();
+        void DispatchUploadCommandList();
+
+        inline static void ReportLiveObjects();
+
+    private:
+#if defined(_DEBUG)
+        Microsoft::WRL::ComPtr<ID3D12Debug6> m_D3D12Debug = nullptr;
+        Microsoft::WRL::ComPtr<IDXGIDebug1> m_DXGIDebug = nullptr;
+#endif
+
+        Microsoft::WRL::ComPtr<ID3D12Device10> m_Device = nullptr;
+        Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CommandQueue = nullptr;
+
+        Microsoft::WRL::ComPtr<ID3D12Fence1> m_Fence = nullptr;
+        uint64_t m_FenceValue = 0;
+        HANDLE m_FenceEvent = nullptr;
+
+        Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_UploadCommandAllocator = nullptr;
+        Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> m_UploadCommandList = nullptr;
+
+        Microsoft::WRL::ComPtr<IDXGIFactory7> m_DxgiFactory = nullptr;
+    };
+}
+#endif
