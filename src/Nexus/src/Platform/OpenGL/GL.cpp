@@ -573,6 +573,38 @@ namespace Nexus::GL
         }
     }
 
+    GLenum GetGLIndexBufferFormat(Nexus::Graphics::IndexBufferFormat format)
+    {
+        switch (format)
+        {
+        case Nexus::Graphics::IndexBufferFormat::UInt16:
+            return GL_UNSIGNED_SHORT;
+        case Nexus::Graphics::IndexBufferFormat::UInt32:
+            return GL_UNSIGNED_INT;
+        default:
+            throw std::runtime_error("Failed to find a valid index buffer format");
+        }
+    }
+
+    GLenum GetTopology(Nexus::Graphics::Topology topology)
+    {
+        switch (topology)
+        {
+        case Nexus::Graphics::Topology::LineList:
+            return GL_LINE_LOOP;
+        case Nexus::Graphics::Topology::LineStrip:
+            return GL_LINE_STRIP;
+        case Nexus::Graphics::Topology::PointList:
+            return GL_POINTS;
+        case Nexus::Graphics::Topology::TriangleList:
+            return GL_TRIANGLES;
+        case Nexus::Graphics::Topology::TriangleStrip:
+            return GL_TRIANGLE_STRIP;
+        default:
+            throw std::runtime_error("Invalid topology selected");
+        }
+    }
+
     GLenum GetShaderStage(Nexus::Graphics::ShaderStage stage)
     {
         switch (stage)

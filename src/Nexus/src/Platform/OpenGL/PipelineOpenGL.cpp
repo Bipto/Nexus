@@ -246,19 +246,25 @@ namespace Nexus::Graphics
         }
     }
 
-    void PipelineOpenGL::BindVertexBuffers(const std::map<uint32_t, Nexus::Ref<Nexus::Graphics::VertexBufferOpenGL>> &vertexBuffers, uint32_t vertexOffset, uint32_t instanceOffset)
+    void PipelineOpenGL::BindVertexBuffers(const std::map<uint32_t, Nexus::WeakRef<Nexus::Graphics::VertexBufferOpenGL>> &vertexBuffers, uint32_t vertexOffset, uint32_t instanceOffset)
     {
         glCall(glBindVertexArray(m_VAO));
 
         uint32_t index = 0;
         for (const auto &vertexBufferBinding : vertexBuffers)
         {
-            if (vertexBufferBinding.first < m_Description.Layouts.size())
+            if (vertexBufferBinding.first >= m_Description.Layouts.size())
             {
-                // this allows us to specify an offset into a vertex buffer without requiring OpenGL 4.5 functionality i.e. is cross platform
-                const auto &layout = m_Description.Layouts.at(vertexBufferBinding.first);
-                const auto &vertexBuffer = vertexBuffers.at(vertexBufferBinding.first);
+                std::string message = "Attempted to bind a vertex buffer to an invalid slot: (" + std::to_string(vertexBufferBinding.first) + ")";
+                NX_ERROR(message);
+            }
 
+            // this allows us to specify an offset into a vertex buffer without requiring OpenGL 4.5 functionality i.e. is cross platform
+            const auto &layout = m_Description.Layouts.at(vertexBufferBinding.first);
+
+            // check that the vertex buffer is still valid
+            if (const auto vertexBuffer = vertexBuffers.at(vertexBufferBinding.first).lock())
+            {
                 uint32_t offset = vertexOffset;
                 if (layout.IsInstanceBuffer())
                 {

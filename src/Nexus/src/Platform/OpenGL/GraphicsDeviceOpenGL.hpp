@@ -6,6 +6,7 @@
 #include "GL.hpp"
 #include "FramebufferOpenGL.hpp"
 #include "SwapchainOpenGL.hpp"
+#include "CommandExecutorOpenGL.hpp"
 
 namespace Nexus::Graphics
 {
@@ -52,7 +53,9 @@ namespace Nexus::Graphics
         Ref<FramebufferOpenGL> m_BoundFramebuffer = nullptr;
         VSyncState m_VsyncState = VSyncState::Enabled;
 
-        std::vector<std::string> m_Extensions;
+        std::vector<std::string> m_Extensions{};
+
+        CommandExecutorOpenGL m_CommandExecutor{};
     };
 }
 

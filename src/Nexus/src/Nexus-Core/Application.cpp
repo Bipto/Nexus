@@ -397,7 +397,7 @@ namespace Nexus
         std::vector<Monitor> monitors;
 
         int displayCount;
-        SDL_DisplayID *displays = SDL_GetDisplays(&displayCount);
+        const SDL_DisplayID *displays = SDL_GetDisplays(&displayCount);
 
         for (int i = 0; i < displayCount; i++)
         {

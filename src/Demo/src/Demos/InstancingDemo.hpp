@@ -59,7 +59,6 @@ namespace Demos
 
             Nexus::Graphics::SamplerSpecification samplerSpec{};
             m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
-            
         }
 
         virtual void Render(Nexus::Time time) override
@@ -112,11 +111,8 @@ namespace Demos
                 m_CommandList->SetIndexBuffer(m_CubeMesh->GetIndexBuffer());
 
                 auto indexCount = m_CubeMesh->GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
-                // m_CommandList->DrawIndexed(indexCount, 0, 0);
                 m_CommandList->DrawInstancedIndexed(indexCount, m_InstanceCount, 0, 0, 0);
             }
-
-            m_CommandList->SetPipeline(m_Pipeline);
 
             m_CommandList->End();
 

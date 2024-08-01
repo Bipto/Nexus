@@ -18,6 +18,7 @@ namespace Nexus::Graphics
         uint64_t m_End = 0;
         float m_ElapsedTime = 0;
         friend class CommandListOpenGL;
+        friend class CommandExecutorOpenGL;
     };
 
 }

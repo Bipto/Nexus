@@ -128,14 +128,6 @@ namespace Demos
                 time);
 
             m_Rotation += 0.05f * time.GetMilliseconds();
-
-            std::stringstream ss;
-            ss << "Camera - Pitch: " << m_Camera.GetPitch() << ", Yaw: " << m_Camera.GetYaw() << "\n";
-            NX_LOG(ss.str());
-        }
-
-        virtual void OnResize(Nexus::Point2D<uint32_t> size) override
-        {
         }
 
     private:

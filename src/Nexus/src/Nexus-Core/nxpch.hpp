@@ -11,6 +11,7 @@
 #include <initializer_list>
 #include <set>
 #include <span>
+#include <optional>
 
 #include <chrono>
 #include <map>

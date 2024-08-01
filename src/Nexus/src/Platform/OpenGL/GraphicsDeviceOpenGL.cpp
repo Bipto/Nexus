@@ -165,12 +165,10 @@ namespace Nexus::Graphics
     void GraphicsDeviceOpenGL::SubmitCommandList(Ref<CommandList> commandList)
     {
         auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
-        auto &commands = commandListGL->GetRenderCommands();
 
-        for (auto &command : commands)
-        {
-            command(commandList);
-        }
+        CommandRecorder &recorder = commandListGL->GetCommandRecorder();
+        m_CommandExecutor.ExecuteCommands(recorder.GetCommands(), this);
+        m_CommandExecutor.Reset();
     }
 
     const std::string GraphicsDeviceOpenGL::GetAPIName()

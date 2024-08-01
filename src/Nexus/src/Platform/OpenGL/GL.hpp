@@ -34,6 +34,9 @@ namespace Nexus::GL
     GLenum GetPixelDataFormat(Nexus::Graphics::PixelFormat format);
     GLenum GetSizedInternalFormat(Nexus::Graphics::PixelFormat format, bool depthFormat);
 
+    GLenum GetGLIndexBufferFormat(Nexus::Graphics::IndexBufferFormat format);
+    GLenum GetTopology(Nexus::Graphics::Topology topology);
+
     GLenum GetShaderStage(Nexus::Graphics::ShaderStage stage);
 
     void GetBaseType(const Graphics::VertexBufferElement &element, GLenum &baseType, uint32_t &componentCount, GLboolean &normalized);

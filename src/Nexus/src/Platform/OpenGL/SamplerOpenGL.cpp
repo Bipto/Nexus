@@ -37,6 +37,7 @@ namespace Nexus::Graphics
                                     color.a};
 
                 glCall(glSamplerParameterfv(m_Sampler, GL_TEXTURE_BORDER_COLOR_EXT, border));
+
                 // LOD
                 glCall(glSamplerParameterf(m_Sampler, GL_TEXTURE_MIN_LOD, m_Specification.MinimumLOD));
                 glCall(glSamplerParameterf(m_Sampler, GL_TEXTURE_MAX_LOD, m_Specification.MaximumLOD));

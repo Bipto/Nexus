@@ -39,6 +39,12 @@ namespace Nexus::Graphics
             return std::get<T>(m_Target);
         }
 
+        template <typename T>
+        T *GetDataIf()
+        {
+            return std::get_if<T>(&m_Target);
+        }
+
         RenderTargetType GetType()
         {
             return m_RenderTargetType;

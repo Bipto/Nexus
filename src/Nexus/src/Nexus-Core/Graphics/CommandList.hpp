@@ -89,40 +89,81 @@ namespace Nexus::Graphics
 
     struct UpdateResourcesCommand
     {
-        Ref<ResourceSet> Resources;
+        WeakRef<ResourceSet> Resources = {};
     };
 
     struct ClearColorTargetCommand
     {
-        uint32_t Index;
-        ClearColorValue Color;
+        uint32_t Index = {};
+        ClearColorValue Color = {};
     };
 
     struct ClearDepthStencilTargetCommand
     {
-        ClearDepthStencilValue Value;
+        ClearDepthStencilValue Value = {};
     };
 
     struct SetRenderTargetCommand
     {
-        RenderTarget Target{};
+        RenderTarget Target = {};
     };
 
     struct SetViewportCommand
     {
-        Viewport NextViewport;
+        Viewport Viewport = {};
     };
 
     struct SetScissorCommand
     {
-        Scissor NextScissor;
+        Scissor Scissor = {};
     };
 
     struct ResolveSamplesToSwapchainCommand
     {
-        Ref<Framebuffer> Source;
-        uint32_t SourceIndex;
-        Swapchain *Target;
+        WeakRef<Framebuffer> Source = {};
+        uint32_t SourceIndex = {};
+        Swapchain *Target = nullptr;
+    };
+
+    struct StartTimingQueryCommand
+    {
+        WeakRef<TimingQuery> Query = {};
+    };
+
+    struct StopTimingQueryCommand
+    {
+        WeakRef<TimingQuery> Query = {};
+    };
+
+    typedef std::variant<
+        SetVertexBufferCommand,
+        Ref<IndexBuffer>,
+        Ref<Pipeline>,
+        DrawElementCommand,
+        DrawIndexedCommand,
+        DrawInstancedCommand,
+        DrawInstancedIndexedCommand,
+        UpdateResourcesCommand,
+        ClearColorTargetCommand,
+        ClearDepthStencilTargetCommand,
+        SetRenderTargetCommand,
+        SetViewportCommand,
+        SetScissorCommand,
+        ResolveSamplesToSwapchainCommand,
+        StartTimingQueryCommand,
+        StopTimingQueryCommand>
+        RenderCommandData;
+
+    class CommandRecorder
+    {
+    public:
+        CommandRecorder() = default;
+        inline void Clear() { m_Commands.clear(); }
+        inline void PushCommand(RenderCommandData command) { m_Commands.push_back(command); }
+        inline const std::vector<RenderCommandData> &GetCommands() const { return m_Commands; }
+
+    private:
+        std::vector<RenderCommandData> m_Commands;
     };
 
     /// @brief A class representing a command list
@@ -202,22 +243,4 @@ namespace Nexus::Graphics
 
     /// @brief A typedef to simplify creating function pointers to render commands
     typedef void (*RenderCommand)(Ref<CommandList> commandList);
-
-    typedef std::variant<
-        SetVertexBufferCommand,
-        Ref<IndexBuffer>,
-        Ref<Pipeline>,
-        DrawElementCommand,
-        DrawIndexedCommand,
-        DrawInstancedCommand,
-        DrawInstancedIndexedCommand,
-        UpdateResourcesCommand,
-        ClearColorTargetCommand,
-        ClearDepthStencilTargetCommand,
-        SetRenderTargetCommand,
-        SetViewportCommand,
-        SetScissorCommand,
-        ResolveSamplesToSwapchainCommand,
-        Ref<TimingQuery>>
-        RenderCommandData;
 }

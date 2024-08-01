@@ -44,24 +44,16 @@ namespace Nexus::Graphics
         virtual void StartTimingQuery(Ref<TimingQuery> query) override;
         virtual void StopTimingQuery(Ref<TimingQuery> query) override;
 
-        const std::vector<RenderCommand> &GetRenderCommands();
+        CommandRecorder &GetCommandRecorder();
 
     private:
-        RenderCommandData &GetCurrentCommandData();
-        GLenum GetTopology();
-        void BindPipeline(Ref<Pipeline> pipeline);
         GraphicsDevice *GetGraphicsDevice();
-        GLenum m_IndexBufferFormat;
-        void UnbindCurrentPipeline();
 
     private:
-        GraphicsDevice *m_Device;
-        std::vector<RenderCommand> m_Commands;
-        std::vector<RenderCommandData> m_CommandData;
-        uint32_t m_CommandIndex = 0;
-        Ref<PipelineOpenGL> m_CurrentlyBoundPipeline;
-        RenderTarget m_CurrentRenderTarget;
-        std::map<uint32_t, Nexus::Ref<Nexus::Graphics::VertexBufferOpenGL>> m_CurrentlyBoundVertexBuffers;
+        GraphicsDevice *m_Device = nullptr;
+        GLenum m_IndexBufferFormat;
+
+        CommandRecorder m_CommandRecorder = {};
     };
 }
 
