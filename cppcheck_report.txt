@@ -1,715 +1,715 @@
-Source/Demo/main.cpp:39:5: style: Class 'DemoApplication' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+src/Demo/src/main.cpp:39:5: style: Class 'DemoApplication' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
     DemoApplication(const Nexus::ApplicationSpecification &spec)
     ^
-Source/Editor/UI/Dialogs/NewProjectDialog.cpp:58:56: style: Variable 'fullpath' is assigned a value that is never used. [unreadVariable]
+src/Editor/UI/Dialogs/NewProjectDialog.cpp:58:56: style: Variable 'fullpath' is assigned a value that is never used. [unreadVariable]
                         std::filesystem::path fullpath = directory + std::string("\\") + m_Name + extension;
                                                        ^
-Source/Editor/UI/Layout.cpp:22:9: performance: Variable 'm_ImGuiRenderer' is assigned in constructor body. Consider performing initialization in initialization list. [useInitializationList]
+src/Editor/UI/Layout.cpp:22:9: performance: Variable 'm_ImGuiRenderer' is assigned in constructor body. Consider performing initialization in initialization list. [useInitializationList]
         m_ImGuiRenderer = std::make_unique<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(app);
         ^
-Source/Editor/UI/Layout.hpp:27:14: performance:inconclusive: Technically the member function 'Editor::Layout::OpenProject' can be static (but you may consider moving to unnamed namespace). [functionStatic]
+src/Editor/UI/Layout.hpp:27:14: performance:inconclusive: Technically the member function 'Editor::Layout::OpenProject' can be static (but you may consider moving to unnamed namespace). [functionStatic]
         void OpenProject();
              ^
-Source/Editor/UI/Layout.cpp:193:18: note: Technically the member function 'Editor::Layout::OpenProject' can be static (but you may consider moving to unnamed namespace).
+src/Editor/UI/Layout.cpp:193:18: note: Technically the member function 'Editor::Layout::OpenProject' can be static (but you may consider moving to unnamed namespace).
     void Layout::OpenProject()
                  ^
-Source/Editor/UI/Layout.hpp:27:14: note: Technically the member function 'Editor::Layout::OpenProject' can be static (but you may consider moving to unnamed namespace).
+src/Editor/UI/Layout.hpp:27:14: note: Technically the member function 'Editor::Layout::OpenProject' can be static (but you may consider moving to unnamed namespace).
         void OpenProject();
              ^
-Source/NexusEngine/Nexus/Graphics/Pipeline.hpp:52:13: performance: Variable 'm_Description' is assigned in constructor body. Consider performing initialization in initialization list. [useInitializationList]
+src/Nexus/src/Nexus-Core/Graphics/Pipeline.hpp:52:13: performance: Variable 'm_Description' is assigned in constructor body. Consider performing initialization in initialization list. [useInitializationList]
             m_Description = description;
             ^
-Source/NexusEngine/Nexus/Application.cpp:269:9: performance: Variable 'm_Specification' is assigned in constructor body. Consider performing initialization in initialization list. [useInitializationList]
+src/Nexus/src/Nexus-Core/Application.cpp:268:9: performance: Variable 'm_Specification' is assigned in constructor body. Consider performing initialization in initialization list. [useInitializationList]
         m_Specification = spec;
         ^
-Source/NexusEngine/Nexus/Point.hpp:81:14: style:inconclusive: Technically the member function 'Nexus::Point3D::Deconstruct' can be const. [functionConst]
+src/Nexus/src/Nexus-Core/Point.hpp:81:14: style:inconclusive: Technically the member function 'Nexus::Point3D::Deconstruct' can be const. [functionConst]
         void Deconstruct(T *x, T *y, T *z)
              ^
-Source/NexusEngine/Nexus/Graphics/GPUBuffer.hpp:55:34: style:inconclusive: Technically the member function 'Nexus::Graphics::VertexBuffer::GetDescription' can be const. [functionConst]
+src/Nexus/src/Nexus-Core/Graphics/GPUBuffer.hpp:55:34: style:inconclusive: Technically the member function 'Nexus::Graphics::VertexBuffer::GetDescription' can be const. [functionConst]
         const BufferDescription &GetDescription() { return m_Description; }
                                  ^
-Source/NexusEngine/Nexus/Graphics/GPUBuffer.hpp:79:34: style:inconclusive: Technically the member function 'Nexus::Graphics::IndexBuffer::GetDescription' can be const. [functionConst]
+src/Nexus/src/Nexus-Core/Graphics/GPUBuffer.hpp:79:34: style:inconclusive: Technically the member function 'Nexus::Graphics::IndexBuffer::GetDescription' can be const. [functionConst]
         const BufferDescription &GetDescription() { return m_Description; }
                                  ^
-Source/NexusEngine/Nexus/Graphics/GPUBuffer.hpp:81:27: style:inconclusive: Technically the member function 'Nexus::Graphics::IndexBuffer::GetFormat' can be const. [functionConst]
+src/Nexus/src/Nexus-Core/Graphics/GPUBuffer.hpp:81:27: style:inconclusive: Technically the member function 'Nexus::Graphics::IndexBuffer::GetFormat' can be const. [functionConst]
         IndexBufferFormat GetFormat() { return m_Format; }
                           ^
-Source/NexusEngine/Nexus/Graphics/GPUBuffer.hpp:108:34: style:inconclusive: Technically the member function 'Nexus::Graphics::UniformBuffer::GetDescription' can be const. [functionConst]
+src/Nexus/src/Nexus-Core/Graphics/GPUBuffer.hpp:108:34: style:inconclusive: Technically the member function 'Nexus::Graphics::UniformBuffer::GetDescription' can be const. [functionConst]
         const BufferDescription &GetDescription() { return m_Description; }
                                  ^
-Source/NexusEngine/Nexus/Graphics/Framebuffer.hpp:91:13: style:inconclusive: Technically the member function 'Nexus::Graphics::Framebuffer::GetColorTextureCount' can be const. [functionConst]
+src/Nexus/src/Nexus-Core/Graphics/Framebuffer.hpp:91:13: style:inconclusive: Technically the member function 'Nexus::Graphics::Framebuffer::GetColorTextureCount' can be const. [functionConst]
         int GetColorTextureCount() { return m_Specification.ColorAttachmentSpecification.Attachments.size(); }
             ^
-Source/NexusEngine/Nexus/Graphics/Swapchain.hpp:31:39: style:inconclusive: Technically the member function 'Nexus::Graphics::Swapchain::GetSpecification' can be const. [functionConst]
+src/Nexus/src/Nexus-Core/Graphics/Swapchain.hpp:30:39: style:inconclusive: Technically the member function 'Nexus::Graphics::Swapchain::GetSpecification' can be const. [functionConst]
         const SwapchainSpecification &GetSpecification()
                                       ^
-Source/NexusEngine/Nexus/Graphics/RenderTarget.hpp:42:26: style:inconclusive: Technically the member function 'Nexus::Graphics::RenderTarget::GetType' can be const. [functionConst]
+src/Nexus/src/Nexus-Core/Graphics/RenderTarget.hpp:48:26: style:inconclusive: Technically the member function 'Nexus::Graphics::RenderTarget::GetType' can be const. [functionConst]
         RenderTargetType GetType()
                          ^
-Source/NexusEngine/Nexus/Graphics/RenderTarget.hpp:101:14: style:inconclusive: Technically the member function 'Nexus::Graphics::RenderTarget::IsValid' can be const. [functionConst]
+src/Nexus/src/Nexus-Core/Graphics/RenderTarget.hpp:107:14: style:inconclusive: Technically the member function 'Nexus::Graphics::RenderTarget::IsValid' can be const. [functionConst]
         bool IsValid()
              ^
-Source/NexusEngine/Nexus/Graphics/RenderTarget.hpp:106:24: style:inconclusive: Technically the member function 'Nexus::Graphics::RenderTarget::operator==' can be const. [functionConst]
+src/Nexus/src/Nexus-Core/Graphics/RenderTarget.hpp:112:24: style:inconclusive: Technically the member function 'Nexus::Graphics::RenderTarget::operator==' can be const. [functionConst]
         constexpr bool operator==(const RenderTarget &other)
                        ^
-Source/NexusEngine/Nexus/Graphics/GraphicsDevice.hpp:72:21: style:inconclusive: Technically the member function 'Nexus::Graphics::GraphicsDevice::GetGraphicsAPI' can be const. [functionConst]
+src/Nexus/src/Nexus-Core/Graphics/GraphicsDevice.hpp:72:21: style:inconclusive: Technically the member function 'Nexus::Graphics::GraphicsDevice::GetGraphicsAPI' can be const. [functionConst]
         GraphicsAPI GetGraphicsAPI() { return this->m_API; }
                     ^
-Source/NexusEngine/Nexus/Point.hpp:35:14: style:inconclusive: Technically the member function 'Point2D < uint32_t >::Deconstruct' can be const. [functionConst]
+src/Nexus/src/Nexus-Core/Point.hpp:35:14: style:inconclusive: Technically the member function 'Point2D < uint32_t >::Deconstruct' can be const. [functionConst]
         void Deconstruct(T *x, T *y)
              ^
-Source/NexusEngine/Nexus/Point.hpp:35:14: style:inconclusive: Technically the member function 'Point2D < int >::Deconstruct' can be const. [functionConst]
+src/Nexus/src/Nexus-Core/Point.hpp:35:14: style:inconclusive: Technically the member function 'Point2D < int >::Deconstruct' can be const. [functionConst]
         void Deconstruct(T *x, T *y)
              ^
-Source/NexusEngine/Nexus/Point.hpp:66:9: style: Struct 'Point3D' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+src/Nexus/src/Nexus-Core/Point.hpp:66:9: style: Struct 'Point3D' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         Point3D(T x)
         ^
-Source/NexusEngine/Nexus/Graphics/Framebuffer.hpp:22:9: style: Struct 'FramebufferTextureSpecification' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+src/Nexus/src/Nexus-Core/Graphics/Framebuffer.hpp:22:9: style: Struct 'FramebufferTextureSpecification' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         FramebufferTextureSpecification(PixelFormat format)
         ^
-Source/NexusEngine/Nexus/Graphics/Framebuffer.hpp:37:9: style: Struct 'FramebufferColorAttachmentSpecification' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+src/Nexus/src/Nexus-Core/Graphics/Framebuffer.hpp:37:9: style: Struct 'FramebufferColorAttachmentSpecification' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         FramebufferColorAttachmentSpecification(std::initializer_list<FramebufferTextureSpecification> attachments)
         ^
-Source/NexusEngine/Nexus/Graphics/Framebuffer.hpp:52:9: style: Struct 'FramebufferDepthAttachmentSpecification' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+src/Nexus/src/Nexus-Core/Graphics/Framebuffer.hpp:52:9: style: Struct 'FramebufferDepthAttachmentSpecification' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         FramebufferDepthAttachmentSpecification(PixelFormat format)
         ^
-Source/NexusEngine/Nexus/Graphics/Scissor.hpp:16:9: style: Struct 'Scissor' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
-        Scissor(const Rectangle<float> &rect)
-        ^
-Source/NexusEngine/Nexus/Point.hpp:20:9: style: Struct 'Point2D < uint32_t >' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+src/Nexus/src/Nexus-Core/Point.hpp:20:9: style: Struct 'Point2D < uint32_t >' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         Point2D(T x)
         ^
-Source/NexusEngine/Nexus/Point.hpp:20:9: style: Struct 'Point2D < int >' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+src/Nexus/src/Nexus-Core/Point.hpp:20:9: style: Struct 'Point2D < int >' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         Point2D(T x)
         ^
-Source/NexusEngine/Nexus/Application.cpp:624:32: style: Variable 'indexToRemove' is assigned a value that is never used. [unreadVariable]
+src/Nexus/src/Nexus-Core/Application.cpp:623:32: style: Variable 'indexToRemove' is assigned a value that is never used. [unreadVariable]
         uint32_t indexToRemove = 0;
                                ^
-Source/NexusEngine/Nexus/AssetManager.hpp:18:9: style: Class 'AssetManager' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+src/Nexus/src/Nexus-Core/AssetManager.hpp:17:9: style: Class 'AssetManager' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         AssetManager(Graphics::GraphicsDevice *graphicsDevice) : m_GraphicsDevice(graphicsDevice) {}
         ^
-Source/NexusEngine/Nexus/FileSystem/FileDialogs.cpp:10:52: performance: Function parameter 'filters' should be passed by const reference. [passedByValue]
+src/Nexus/src/Nexus-Core/FileSystem/FileDialogs.cpp:10:52: performance: Function parameter 'filters' should be passed by const reference. [passedByValue]
     const char *OpenFile(std::vector<const char *> filters)
                                                    ^
-Source/NexusEngine/Nexus/FileSystem/FileDialogs.cpp:22:9: style:inconclusive: Consecutive return, break, continue, goto or throw statements are unnecessary. [duplicateBreak]
+src/Nexus/src/Nexus-Core/FileSystem/FileDialogs.cpp:22:9: style:inconclusive: Consecutive return, break, continue, goto or throw statements are unnecessary. [duplicateBreak]
         return "";
         ^
-Source/NexusEngine/Nexus/FileSystem/FileDialogs.cpp:32:9: style:inconclusive: Consecutive return, break, continue, goto or throw statements are unnecessary. [duplicateBreak]
+src/Nexus/src/Nexus-Core/FileSystem/FileDialogs.cpp:32:9: style:inconclusive: Consecutive return, break, continue, goto or throw statements are unnecessary. [duplicateBreak]
         return "";
         ^
-Source/NexusEngine/Nexus/Graphics/Font.hpp:92:46: style:inconclusive: Technically the member function 'Nexus::Graphics::Font::GetTexture' can be const. [functionConst]
+src/Nexus/src/Nexus-Core/Graphics/Font.hpp:91:46: style:inconclusive: Technically the member function 'Nexus::Graphics::Font::GetTexture' can be const. [functionConst]
         Nexus::Ref<Nexus::Graphics::Texture> GetTexture();
                                              ^
-Source/NexusEngine/Nexus/Graphics/Font.cpp:140:48: note: Technically the member function 'Nexus::Graphics::Font::GetTexture' can be const.
+src/Nexus/src/Nexus-Core/Graphics/Font.cpp:140:48: note: Technically the member function 'Nexus::Graphics::Font::GetTexture' can be const.
     Nexus::Ref<Nexus::Graphics::Texture> Font::GetTexture()
                                                ^
-Source/NexusEngine/Nexus/Graphics/Font.hpp:92:46: note: Technically the member function 'Nexus::Graphics::Font::GetTexture' can be const.
+src/Nexus/src/Nexus-Core/Graphics/Font.hpp:91:46: note: Technically the member function 'Nexus::Graphics::Font::GetTexture' can be const.
         Nexus::Ref<Nexus::Graphics::Texture> GetTexture();
                                              ^
-Source/NexusEngine/Nexus/Graphics/FullscreenQuad.hpp:13:27: style:inconclusive: Technically the member function 'Nexus::Graphics::FullscreenQuad::GetVertexBuffer' can be const. [functionConst]
+src/Nexus/src/Nexus-Core/Graphics/FullscreenQuad.hpp:13:27: style:inconclusive: Technically the member function 'Nexus::Graphics::FullscreenQuad::GetVertexBuffer' can be const. [functionConst]
         Ref<VertexBuffer> GetVertexBuffer();
                           ^
-Source/NexusEngine/Nexus/Graphics/FullscreenQuad.cpp:32:39: note: Technically the member function 'Nexus::Graphics::FullscreenQuad::GetVertexBuffer' can be const.
+src/Nexus/src/Nexus-Core/Graphics/FullscreenQuad.cpp:32:39: note: Technically the member function 'Nexus::Graphics::FullscreenQuad::GetVertexBuffer' can be const.
     Ref<VertexBuffer> FullscreenQuad::GetVertexBuffer()
                                       ^
-Source/NexusEngine/Nexus/Graphics/FullscreenQuad.hpp:13:27: note: Technically the member function 'Nexus::Graphics::FullscreenQuad::GetVertexBuffer' can be const.
+src/Nexus/src/Nexus-Core/Graphics/FullscreenQuad.hpp:13:27: note: Technically the member function 'Nexus::Graphics::FullscreenQuad::GetVertexBuffer' can be const.
         Ref<VertexBuffer> GetVertexBuffer();
                           ^
-Source/NexusEngine/Nexus/Graphics/FullscreenQuad.hpp:14:26: style:inconclusive: Technically the member function 'Nexus::Graphics::FullscreenQuad::GetIndexBuffer' can be const. [functionConst]
+src/Nexus/src/Nexus-Core/Graphics/FullscreenQuad.hpp:14:26: style:inconclusive: Technically the member function 'Nexus::Graphics::FullscreenQuad::GetIndexBuffer' can be const. [functionConst]
         Ref<IndexBuffer> GetIndexBuffer();
                          ^
-Source/NexusEngine/Nexus/Graphics/FullscreenQuad.cpp:37:38: note: Technically the member function 'Nexus::Graphics::FullscreenQuad::GetIndexBuffer' can be const.
+src/Nexus/src/Nexus-Core/Graphics/FullscreenQuad.cpp:37:38: note: Technically the member function 'Nexus::Graphics::FullscreenQuad::GetIndexBuffer' can be const.
     Ref<IndexBuffer> FullscreenQuad::GetIndexBuffer()
                                      ^
-Source/NexusEngine/Nexus/Graphics/FullscreenQuad.hpp:14:26: note: Technically the member function 'Nexus::Graphics::FullscreenQuad::GetIndexBuffer' can be const.
+src/Nexus/src/Nexus-Core/Graphics/FullscreenQuad.hpp:14:26: note: Technically the member function 'Nexus::Graphics::FullscreenQuad::GetIndexBuffer' can be const.
         Ref<IndexBuffer> GetIndexBuffer();
                          ^
-Source/NexusEngine/Nexus/Graphics/FullscreenQuad.hpp:16:45: performance:inconclusive: Technically the member function 'Nexus::Graphics::FullscreenQuad::GetVertexBufferLayout' can be static (but you may consider moving to unnamed namespace). [functionStatic]
+src/Nexus/src/Nexus-Core/Graphics/FullscreenQuad.hpp:16:45: performance:inconclusive: Technically the member function 'Nexus::Graphics::FullscreenQuad::GetVertexBufferLayout' can be static (but you may consider moving to unnamed namespace). [functionStatic]
         Nexus::Graphics::VertexBufferLayout GetVertexBufferLayout();
                                             ^
-Source/NexusEngine/Nexus/Graphics/FullscreenQuad.cpp:42:57: note: Technically the member function 'Nexus::Graphics::FullscreenQuad::GetVertexBufferLayout' can be static (but you may consider moving to unnamed namespace).
+src/Nexus/src/Nexus-Core/Graphics/FullscreenQuad.cpp:42:57: note: Technically the member function 'Nexus::Graphics::FullscreenQuad::GetVertexBufferLayout' can be static (but you may consider moving to unnamed namespace).
     Nexus::Graphics::VertexBufferLayout FullscreenQuad::GetVertexBufferLayout()
                                                         ^
-Source/NexusEngine/Nexus/Graphics/FullscreenQuad.hpp:16:45: note: Technically the member function 'Nexus::Graphics::FullscreenQuad::GetVertexBufferLayout' can be static (but you may consider moving to unnamed namespace).
+src/Nexus/src/Nexus-Core/Graphics/FullscreenQuad.hpp:16:45: note: Technically the member function 'Nexus::Graphics::FullscreenQuad::GetVertexBufferLayout' can be static (but you may consider moving to unnamed namespace).
         Nexus::Graphics::VertexBufferLayout GetVertexBufferLayout();
                                             ^
-Source/NexusEngine/Nexus/Graphics/GraphicsDevice.cpp:20:9: performance: Variable 'm_API' is assigned in constructor body. Consider performing initialization in initialization list. [useInitializationList]
+src/Nexus/src/Nexus-Core/Graphics/GraphicsDevice.cpp:20:9: performance: Variable 'm_API' is assigned in constructor body. Consider performing initialization in initialization list. [useInitializationList]
         m_API = createInfo.API;
         ^
-Source/NexusEngine/Nexus/Graphics/GraphicsDevice.cpp:52:24: style: Variable 'totalTime' is assigned a value that is never used. [unreadVariable]
+src/Nexus/src/Nexus-Core/Graphics/GraphicsDevice.cpp:52:24: style: Variable 'totalTime' is assigned a value that is never used. [unreadVariable]
         auto totalTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
                        ^
-Source/NexusEngine/Nexus/Graphics/GraphicsDevice.cpp:37:21: style: Unused variable: errorMessage [unusedVariable]
+src/Nexus/src/Nexus-Core/Graphics/GraphicsDevice.cpp:37:21: style: Unused variable: errorMessage [unusedVariable]
         std::string errorMessage;
                     ^
-Source/NexusEngine/Nexus/Graphics/ShaderGenerator.cpp:76:50: style:inconclusive: Boolean expression 'language==ShaderLanguage::GLSL' is used in bitwise operation. Did you mean '||'? [bitwiseOnBoolean]
+src/Nexus/src/Nexus-Core/Graphics/ShaderGenerator.cpp:76:50: style:inconclusive: Boolean expression 'language==ShaderLanguage::GLSL' is used in bitwise operation. Did you mean '||'? [bitwiseOnBoolean]
             if (language == ShaderLanguage::GLSL | language == ShaderLanguage::GLSLES)
                                                  ^
-Source/NexusEngine/Nexus/Graphics/ShaderGenerator.hpp:74:27: performance:inconclusive: Technically the member function 'Nexus::Graphics::ShaderGenerator::Generate' can be static (but you may consider moving to unnamed namespace). [functionStatic]
+src/Nexus/src/Nexus-Core/Graphics/ShaderGenerator.hpp:74:27: performance:inconclusive: Technically the member function 'Nexus::Graphics::ShaderGenerator::Generate' can be static (but you may consider moving to unnamed namespace). [functionStatic]
         CompilationResult Generate(const std::string &source, ShaderGenerationOptions options, ResourceSetSpecification &resources);
                           ^
-Source/NexusEngine/Nexus/Graphics/ShaderGenerator.cpp:291:40: note: Technically the member function 'Nexus::Graphics::ShaderGenerator::Generate' can be static (but you may consider moving to unnamed namespace).
+src/Nexus/src/Nexus-Core/Graphics/ShaderGenerator.cpp:291:40: note: Technically the member function 'Nexus::Graphics::ShaderGenerator::Generate' can be static (but you may consider moving to unnamed namespace).
     CompilationResult ShaderGenerator::Generate(const std::string &source, ShaderGenerationOptions options, ResourceSetSpecification &resources)
                                        ^
-Source/NexusEngine/Nexus/Graphics/ShaderGenerator.hpp:74:27: note: Technically the member function 'Nexus::Graphics::ShaderGenerator::Generate' can be static (but you may consider moving to unnamed namespace).
+src/Nexus/src/Nexus-Core/Graphics/ShaderGenerator.hpp:74:27: note: Technically the member function 'Nexus::Graphics::ShaderGenerator::Generate' can be static (but you may consider moving to unnamed namespace).
         CompilationResult Generate(const std::string &source, ShaderGenerationOptions options, ResourceSetSpecification &resources);
                           ^
-Source/NexusEngine/Nexus/Graphics/ShaderGenerator.cpp:76:50: style: Boolean result is used in bitwise operation. Clarify expression with parentheses. [clarifyCondition]
+src/Nexus/src/Nexus-Core/Graphics/ShaderGenerator.cpp:76:50: style: Boolean result is used in bitwise operation. Clarify expression with parentheses. [clarifyCondition]
             if (language == ShaderLanguage::GLSL | language == ShaderLanguage::GLSLES)
                                                  ^
-Source/NexusEngine/Nexus/Graphics/ShaderGenerator.cpp:321:39: style: Local variable 'compiler' shadows outer variable [shadowVariable]
+src/Nexus/src/Nexus-Core/Graphics/ShaderGenerator.cpp:321:39: style: Local variable 'compiler' shadows outer variable [shadowVariable]
             spirv_cross::CompilerGLSL compiler(spirv_binary);
                                       ^
-Source/NexusEngine/Nexus/Graphics/ShaderGenerator.cpp:300:27: note: Shadowed declaration
+src/Nexus/src/Nexus-Core/Graphics/ShaderGenerator.cpp:300:27: note: Shadowed declaration
         shaderc::Compiler compiler;
                           ^
-Source/NexusEngine/Nexus/Graphics/ShaderGenerator.cpp:321:39: note: Shadow variable
+src/Nexus/src/Nexus-Core/Graphics/ShaderGenerator.cpp:321:39: note: Shadow variable
             spirv_cross::CompilerGLSL compiler(spirv_binary);
                                       ^
-Source/NexusEngine/Nexus/Graphics/ShaderGenerator.cpp:333:39: style: Local variable 'compiler' shadows outer variable [shadowVariable]
+src/Nexus/src/Nexus-Core/Graphics/ShaderGenerator.cpp:333:39: style: Local variable 'compiler' shadows outer variable [shadowVariable]
             spirv_cross::CompilerGLSL compiler(spirv_binary);
                                       ^
-Source/NexusEngine/Nexus/Graphics/ShaderGenerator.cpp:300:27: note: Shadowed declaration
+src/Nexus/src/Nexus-Core/Graphics/ShaderGenerator.cpp:300:27: note: Shadowed declaration
         shaderc::Compiler compiler;
                           ^
-Source/NexusEngine/Nexus/Graphics/ShaderGenerator.cpp:333:39: note: Shadow variable
+src/Nexus/src/Nexus-Core/Graphics/ShaderGenerator.cpp:333:39: note: Shadow variable
             spirv_cross::CompilerGLSL compiler(spirv_binary);
                                       ^
-Source/NexusEngine/Nexus/Graphics/ShaderGenerator.cpp:345:39: style: Local variable 'compiler' shadows outer variable [shadowVariable]
+src/Nexus/src/Nexus-Core/Graphics/ShaderGenerator.cpp:345:39: style: Local variable 'compiler' shadows outer variable [shadowVariable]
             spirv_cross::CompilerHLSL compiler(spirv_binary);
                                       ^
-Source/NexusEngine/Nexus/Graphics/ShaderGenerator.cpp:300:27: note: Shadowed declaration
+src/Nexus/src/Nexus-Core/Graphics/ShaderGenerator.cpp:300:27: note: Shadowed declaration
         shaderc::Compiler compiler;
                           ^
-Source/NexusEngine/Nexus/Graphics/ShaderGenerator.cpp:345:39: note: Shadow variable
+src/Nexus/src/Nexus-Core/Graphics/ShaderGenerator.cpp:345:39: note: Shadow variable
             spirv_cross::CompilerHLSL compiler(spirv_binary);
                                       ^
-Source/NexusEngine/Nexus/Graphics/ShaderGenerator.cpp:369:39: style: Local variable 'compiler' shadows outer variable [shadowVariable]
+src/Nexus/src/Nexus-Core/Graphics/ShaderGenerator.cpp:369:39: style: Local variable 'compiler' shadows outer variable [shadowVariable]
             spirv_cross::CompilerGLSL compiler(spirv_binary);
                                       ^
-Source/NexusEngine/Nexus/Graphics/ShaderGenerator.cpp:300:27: note: Shadowed declaration
+src/Nexus/src/Nexus-Core/Graphics/ShaderGenerator.cpp:300:27: note: Shadowed declaration
         shaderc::Compiler compiler;
                           ^
-Source/NexusEngine/Nexus/Graphics/ShaderGenerator.cpp:369:39: note: Shadow variable
+src/Nexus/src/Nexus-Core/Graphics/ShaderGenerator.cpp:369:39: note: Shadow variable
             spirv_cross::CompilerGLSL compiler(spirv_binary);
                                       ^
-Source/NexusEngine/Nexus/Graphics/ShaderGenerator.cpp:385:31: style: Local variable 'compiler' shadows outer variable [shadowVariable]
+src/Nexus/src/Nexus-Core/Graphics/ShaderGenerator.cpp:385:31: style: Local variable 'compiler' shadows outer variable [shadowVariable]
             shaderc::Compiler compiler;
                               ^
-Source/NexusEngine/Nexus/Graphics/ShaderGenerator.cpp:300:27: note: Shadowed declaration
+src/Nexus/src/Nexus-Core/Graphics/ShaderGenerator.cpp:300:27: note: Shadowed declaration
         shaderc::Compiler compiler;
                           ^
-Source/NexusEngine/Nexus/Graphics/ShaderGenerator.cpp:385:31: note: Shadow variable
+src/Nexus/src/Nexus-Core/Graphics/ShaderGenerator.cpp:385:31: note: Shadow variable
             shaderc::Compiler compiler;
                               ^
-Source/NexusEngine/Nexus/Graphics/ShaderGenerator.cpp:386:18: style: Local variable 'shaderType' shadows outer variable [shadowVariable]
+src/Nexus/src/Nexus-Core/Graphics/ShaderGenerator.cpp:386:18: style: Local variable 'shaderType' shadows outer variable [shadowVariable]
             auto shaderType = GetTypeOfShader(options.Stage);
                  ^
-Source/NexusEngine/Nexus/Graphics/ShaderGenerator.cpp:301:14: note: Shadowed declaration
+src/Nexus/src/Nexus-Core/Graphics/ShaderGenerator.cpp:301:14: note: Shadowed declaration
         auto shaderType = GetTypeOfShader(options.Stage);
              ^
-Source/NexusEngine/Nexus/Graphics/ShaderGenerator.cpp:386:18: note: Shadow variable
+src/Nexus/src/Nexus-Core/Graphics/ShaderGenerator.cpp:386:18: note: Shadow variable
             auto shaderType = GetTypeOfShader(options.Stage);
                  ^
-Source/NexusEngine/Nexus/Graphics/ShaderGenerator.cpp:387:40: style: Local variable 'result' shadows outer variable [shadowVariable]
+src/Nexus/src/Nexus-Core/Graphics/ShaderGenerator.cpp:387:40: style: Local variable 'result' shadows outer variable [shadowVariable]
             shaderc::CompilationResult result = compiler.CompileGlslToSpv(output.Source, shaderType, options.ShaderName.c_str());
                                        ^
-Source/NexusEngine/Nexus/Graphics/ShaderGenerator.cpp:302:36: note: Shadowed declaration
+src/Nexus/src/Nexus-Core/Graphics/ShaderGenerator.cpp:302:36: note: Shadowed declaration
         shaderc::CompilationResult result = compiler.CompileGlslToSpv(source, shaderType, options.ShaderName.c_str());
                                    ^
-Source/NexusEngine/Nexus/Graphics/ShaderGenerator.cpp:387:40: note: Shadow variable
+src/Nexus/src/Nexus-Core/Graphics/ShaderGenerator.cpp:387:40: note: Shadow variable
             shaderc::CompilationResult result = compiler.CompileGlslToSpv(output.Source, shaderType, options.ShaderName.c_str());
                                        ^
-Source/NexusEngine/Nexus/Graphics/ShaderGenerator.cpp:389:35: style: Local variable 'spirv_binary' shadows outer variable [shadowVariable]
+src/Nexus/src/Nexus-Core/Graphics/ShaderGenerator.cpp:389:35: style: Local variable 'spirv_binary' shadows outer variable [shadowVariable]
             std::vector<uint32_t> spirv_binary = {result.begin(), result.end()};
                                   ^
-Source/NexusEngine/Nexus/Graphics/ShaderGenerator.cpp:310:31: note: Shadowed declaration
+src/Nexus/src/Nexus-Core/Graphics/ShaderGenerator.cpp:310:31: note: Shadowed declaration
         std::vector<uint32_t> spirv_binary = {result.begin(), result.end()};
                               ^
-Source/NexusEngine/Nexus/Graphics/ShaderGenerator.cpp:389:35: note: Shadow variable
+src/Nexus/src/Nexus-Core/Graphics/ShaderGenerator.cpp:389:35: note: Shadow variable
             std::vector<uint32_t> spirv_binary = {result.begin(), result.end()};
                                   ^
-Source/NexusEngine/Nexus/ImGui/ImGuiGraphicsRenderer.hpp:37:33: style:inconclusive: Technically the member function 'Nexus::ImGuiUtils::ImGuiGraphicsRenderer::GetPipeline' can be const. [functionConst]
+src/Nexus/src/Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp:35:33: style:inconclusive: Technically the member function 'Nexus::ImGuiUtils::ImGuiGraphicsRenderer::GetPipeline' can be const. [functionConst]
         Ref<Graphics::Pipeline> GetPipeline() { return m_Pipeline; }
                                 ^
-Source/NexusEngine/Nexus/ImGui/ImGuiGraphicsRenderer.hpp:46:14: performance:inconclusive: Technically the member function 'Nexus::ImGuiUtils::ImGuiGraphicsRenderer::UpdateMonitors' can be static (but you may consider moving to unnamed namespace). [functionStatic]
+src/Nexus/src/Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp:44:14: performance:inconclusive: Technically the member function 'Nexus::ImGuiUtils::ImGuiGraphicsRenderer::UpdateMonitors' can be static (but you may consider moving to unnamed namespace). [functionStatic]
         void UpdateMonitors();
              ^
-Source/NexusEngine/Nexus/ImGui/ImGuiGraphicsRenderer.cpp:719:33: note: Technically the member function 'Nexus::ImGuiUtils::ImGuiGraphicsRenderer::UpdateMonitors' can be static (but you may consider moving to unnamed namespace).
+src/Nexus/src/Nexus-Core/ImGui/ImGuiGraphicsRenderer.cpp:719:33: note: Technically the member function 'Nexus::ImGuiUtils::ImGuiGraphicsRenderer::UpdateMonitors' can be static (but you may consider moving to unnamed namespace).
     void ImGuiGraphicsRenderer::UpdateMonitors()
                                 ^
-Source/NexusEngine/Nexus/ImGui/ImGuiGraphicsRenderer.hpp:46:14: note: Technically the member function 'Nexus::ImGuiUtils::ImGuiGraphicsRenderer::UpdateMonitors' can be static (but you may consider moving to unnamed namespace).
+src/Nexus/src/Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp:44:14: note: Technically the member function 'Nexus::ImGuiUtils::ImGuiGraphicsRenderer::UpdateMonitors' can be static (but you may consider moving to unnamed namespace).
         void UpdateMonitors();
              ^
-Source/NexusEngine/Nexus/ImGui/ImGuiGraphicsRenderer.hpp:27:9: style: Class 'ImGuiGraphicsRenderer' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+src/Nexus/src/Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp:25:9: style: Class 'ImGuiGraphicsRenderer' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         ImGuiGraphicsRenderer(Nexus::Application *app);
         ^
-Source/NexusEngine/Nexus/ImGui/ImGuiGraphicsRenderer.cpp:205:41: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Nexus-Core/ImGui/ImGuiGraphicsRenderer.cpp:205:41: style: C-style pointer casting [cstyleCast]
                 ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
                                         ^
-Source/NexusEngine/Nexus/ImGui/ImGuiGraphicsRenderer.cpp:217:41: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Nexus-Core/ImGui/ImGuiGraphicsRenderer.cpp:217:41: style: C-style pointer casting [cstyleCast]
                 ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
                                         ^
-Source/NexusEngine/Nexus/ImGui/ImGuiGraphicsRenderer.cpp:230:41: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Nexus-Core/ImGui/ImGuiGraphicsRenderer.cpp:230:41: style: C-style pointer casting [cstyleCast]
                 ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
                                         ^
-Source/NexusEngine/Nexus/ImGui/ImGuiGraphicsRenderer.cpp:243:41: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Nexus-Core/ImGui/ImGuiGraphicsRenderer.cpp:243:41: style: C-style pointer casting [cstyleCast]
                 ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
                                         ^
-Source/NexusEngine/Nexus/ImGui/ImGuiGraphicsRenderer.cpp:256:41: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Nexus-Core/ImGui/ImGuiGraphicsRenderer.cpp:256:41: style: C-style pointer casting [cstyleCast]
                 ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
                                         ^
-Source/NexusEngine/Nexus/ImGui/ImGuiGraphicsRenderer.cpp:269:41: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Nexus-Core/ImGui/ImGuiGraphicsRenderer.cpp:269:41: style: C-style pointer casting [cstyleCast]
                 ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
                                         ^
-Source/NexusEngine/Nexus/ImGui/ImGuiGraphicsRenderer.cpp:283:41: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Nexus-Core/ImGui/ImGuiGraphicsRenderer.cpp:283:41: style: C-style pointer casting [cstyleCast]
                 ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
                                         ^
-Source/NexusEngine/Nexus/ImGui/ImGuiGraphicsRenderer.cpp:296:41: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Nexus-Core/ImGui/ImGuiGraphicsRenderer.cpp:296:41: style: C-style pointer casting [cstyleCast]
                 ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
                                         ^
-Source/NexusEngine/Nexus/ImGui/ImGuiGraphicsRenderer.cpp:308:41: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Nexus-Core/ImGui/ImGuiGraphicsRenderer.cpp:308:41: style: C-style pointer casting [cstyleCast]
                 ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
                                         ^
-Source/NexusEngine/Nexus/ImGui/ImGuiGraphicsRenderer.cpp:321:41: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Nexus-Core/ImGui/ImGuiGraphicsRenderer.cpp:321:41: style: C-style pointer casting [cstyleCast]
                 ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
                                         ^
-Source/NexusEngine/Nexus/ImGui/ImGuiGraphicsRenderer.cpp:336:41: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Nexus-Core/ImGui/ImGuiGraphicsRenderer.cpp:336:41: style: C-style pointer casting [cstyleCast]
                 ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
                                         ^
-Source/NexusEngine/Nexus/ImGui/ImGuiGraphicsRenderer.cpp:431:45: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Nexus-Core/ImGui/ImGuiGraphicsRenderer.cpp:431:45: style: C-style pointer casting [cstyleCast]
                     ImGuiWindowInfo *info = (ImGuiWindowInfo *)platform_io.Viewports[i]->PlatformUserData;
                                             ^
-Source/NexusEngine/Nexus/ImGui/ImGuiGraphicsRenderer.cpp:599:33: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Nexus-Core/ImGui/ImGuiGraphicsRenderer.cpp:599:33: style: C-style pointer casting [cstyleCast]
         ImGuiWindowInfo *info = (ImGuiWindowInfo *)drawData->OwnerViewport->PlatformUserData;
                                 ^
-Source/NexusEngine/Nexus/ImGui/ImGuiGraphicsRenderer.cpp:539:56: style: Variable 'layout' is assigned a value that is never used. [unreadVariable]
+src/Nexus/src/Nexus-Core/ImGui/ImGuiGraphicsRenderer.cpp:539:56: style: Variable 'layout' is assigned a value that is never used. [unreadVariable]
             Nexus::Graphics::VertexBufferLayout layout =
                                                        ^
-Source/NexusEngine/Nexus/ImGui/ImGuiGraphicsRenderer.cpp:617:27: style: Variable 'vp' is assigned a value that is never used. [unreadVariable]
+src/Nexus/src/Nexus-Core/ImGui/ImGuiGraphicsRenderer.cpp:617:27: style: Variable 'vp' is assigned a value that is never used. [unreadVariable]
         ImGuiViewport *vp = drawData->OwnerViewport;
                           ^
-Source/NexusEngine/Nexus/Input/Gamepad.hpp:164:24: style:inconclusive: Technically the member function 'Nexus::Gamepad::GetControllerIndex' can be const. [functionConst]
+src/Nexus/src/Nexus-Core/Input/Gamepad.hpp:164:24: style:inconclusive: Technically the member function 'Nexus::Gamepad::GetControllerIndex' can be const. [functionConst]
         const uint32_t GetControllerIndex();
                        ^
-Source/NexusEngine/Nexus/Input/Gamepad.cpp:200:29: note: Technically the member function 'Nexus::Gamepad::GetControllerIndex' can be const.
+src/Nexus/src/Nexus-Core/Input/Gamepad.cpp:199:29: note: Technically the member function 'Nexus::Gamepad::GetControllerIndex' can be const.
     const uint32_t Gamepad::GetControllerIndex()
                             ^
-Source/NexusEngine/Nexus/Input/Gamepad.hpp:164:24: note: Technically the member function 'Nexus::Gamepad::GetControllerIndex' can be const.
+src/Nexus/src/Nexus-Core/Input/Gamepad.hpp:164:24: note: Technically the member function 'Nexus::Gamepad::GetControllerIndex' can be const.
         const uint32_t GetControllerIndex();
                        ^
-Source/NexusEngine/Nexus/Input/Gamepad.hpp:93:9: style: Class 'Gamepad' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+src/Nexus/src/Nexus-Core/Input/Gamepad.hpp:93:9: style: Class 'Gamepad' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         Gamepad(uint32_t index);
         ^
-Source/NexusEngine/Nexus/Input/Mouse.hpp:37:5: style: The class 'Mouse' does not have a constructor although it has private member variables. [noConstructor]
+src/Nexus/src/Nexus-Core/Input/Mouse.hpp:37:5: style: The class 'Mouse' does not have a constructor although it has private member variables. [noConstructor]
     class Mouse
     ^
-Source/NexusEngine/Nexus/Input/InputState.hpp:19:5: style: The class 'InputState' does not have a constructor although it has private member variables. [noConstructor]
+src/Nexus/src/Nexus-Core/Input/InputState.hpp:19:5: style: The class 'InputState' does not have a constructor although it has private member variables. [noConstructor]
     class InputState
     ^
-Source/NexusEngine/Nexus/Input/Input.hpp:176:14: performance:inconclusive: Technically the member function 'Nexus::Input::CacheInput' can be static (but you may consider moving to unnamed namespace). [functionStatic]
+src/Nexus/src/Nexus-Core/Input/Input.hpp:176:14: performance:inconclusive: Technically the member function 'Nexus::Input::CacheInput' can be static (but you may consider moving to unnamed namespace). [functionStatic]
         void CacheInput();
              ^
-Source/NexusEngine/Nexus/Input/Input.cpp:234:17: note: Technically the member function 'Nexus::Input::CacheInput' can be static (but you may consider moving to unnamed namespace).
+src/Nexus/src/Nexus-Core/Input/Input.cpp:234:17: note: Technically the member function 'Nexus::Input::CacheInput' can be static (but you may consider moving to unnamed namespace).
     void Input::CacheInput()
                 ^
-Source/NexusEngine/Nexus/Input/Input.hpp:176:14: note: Technically the member function 'Nexus::Input::CacheInput' can be static (but you may consider moving to unnamed namespace).
+src/Nexus/src/Nexus-Core/Input/Input.hpp:176:14: note: Technically the member function 'Nexus::Input::CacheInput' can be static (but you may consider moving to unnamed namespace).
         void CacheInput();
              ^
-Source/NexusEngine/Nexus/Input/Keyboard.hpp:133:14: style:inconclusive: Technically the member function 'Nexus::Keyboard::CacheInput' can be const. [functionConst]
+src/Nexus/src/Nexus-Core/Input/Keyboard.hpp:133:14: style:inconclusive: Technically the member function 'Nexus::Keyboard::CacheInput' can be const. [functionConst]
         void CacheInput();
              ^
-Source/NexusEngine/Nexus/Input/Keyboard.cpp:5:20: note: Technically the member function 'Nexus::Keyboard::CacheInput' can be const.
+src/Nexus/src/Nexus-Core/Input/Keyboard.cpp:5:20: note: Technically the member function 'Nexus::Keyboard::CacheInput' can be const.
     void Keyboard::CacheInput()
                    ^
-Source/NexusEngine/Nexus/Input/Keyboard.hpp:133:14: note: Technically the member function 'Nexus::Keyboard::CacheInput' can be const.
+src/Nexus/src/Nexus-Core/Input/Keyboard.hpp:133:14: note: Technically the member function 'Nexus::Keyboard::CacheInput' can be const.
         void CacheInput();
              ^
-Source/NexusEngine/Nexus/Logging/Log.hpp:66:28: style: Unused private function: 'Logger::GetTime' [unusedPrivateFunction]
+src/Nexus/src/Nexus-Core/Logging/Log.hpp:67:28: style: Unused private function: 'Logger::GetTime' [unusedPrivateFunction]
         static std::string GetTime();
                            ^
-Source/NexusEngine/Nexus/Logging/Log.hpp:61:40: style:inconclusive: Technically the member function 'Nexus::Logger::GetLogs' can be const. [functionConst]
+src/Nexus/src/Nexus-Core/Logging/Log.hpp:62:40: style:inconclusive: Technically the member function 'Nexus::Logger::GetLogs' can be const. [functionConst]
         const std::vector<Nexus::Log> &GetLogs();
                                        ^
-Source/NexusEngine/Nexus/Logging/Log.cpp:64:44: note: Technically the member function 'Nexus::Logger::GetLogs' can be const.
+src/Nexus/src/Nexus-Core/Logging/Log.cpp:64:44: note: Technically the member function 'Nexus::Logger::GetLogs' can be const.
     const std::vector<Nexus::Log> &Logger::GetLogs()
                                            ^
-Source/NexusEngine/Nexus/Logging/Log.hpp:61:40: note: Technically the member function 'Nexus::Logger::GetLogs' can be const.
+src/Nexus/src/Nexus-Core/Logging/Log.hpp:62:40: note: Technically the member function 'Nexus::Logger::GetLogs' can be const.
         const std::vector<Nexus::Log> &GetLogs();
                                        ^
-Source/NexusEngine/Nexus/Renderer.hpp:17:14: performance:inconclusive: Technically the member function 'Nexus::Renderer::End' can be static (but you may consider moving to unnamed namespace). [functionStatic]
+src/Nexus/src/Nexus-Core/Renderer.hpp:17:14: performance:inconclusive: Technically the member function 'Nexus::Renderer::End' can be static (but you may consider moving to unnamed namespace). [functionStatic]
         void End();
              ^
-Source/NexusEngine/Nexus/Renderer.cpp:10:20: note: Technically the member function 'Nexus::Renderer::End' can be static (but you may consider moving to unnamed namespace).
+src/Nexus/src/Nexus-Core/Renderer.cpp:10:20: note: Technically the member function 'Nexus::Renderer::End' can be static (but you may consider moving to unnamed namespace).
     void Renderer::End()
                    ^
-Source/NexusEngine/Nexus/Renderer.hpp:17:14: note: Technically the member function 'Nexus::Renderer::End' can be static (but you may consider moving to unnamed namespace).
+src/Nexus/src/Nexus-Core/Renderer.hpp:17:14: note: Technically the member function 'Nexus::Renderer::End' can be static (but you may consider moving to unnamed namespace).
         void End();
              ^
-Source/NexusEngine/Nexus/Renderer.hpp:28:9: style: Class 'Renderer' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+src/Nexus/src/Nexus-Core/Renderer.hpp:28:9: style: Class 'Renderer' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         Renderer(Graphics::GraphicsDevice *device);
         ^
-Source/NexusEngine/Nexus/Renderer/BatchRenderer.hpp:106:50: style:inconclusive: Member variable 'BatchRenderer::m_CommandList' is in the wrong place in the initializer list. [initializerList]
+src/Nexus/src/Nexus-Core/Renderer/BatchRenderer.hpp:106:50: style:inconclusive: Member variable 'BatchRenderer::m_CommandList' is in the wrong place in the initializer list. [initializerList]
         Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList = nullptr;
                                                  ^
-Source/NexusEngine/Nexus/Renderer/BatchRenderer.cpp:514:53: note: Member variable 'BatchRenderer::m_CommandList' is in the wrong place in the initializer list.
+src/Nexus/src/Nexus-Core/Renderer/BatchRenderer.cpp:513:53: note: Member variable 'BatchRenderer::m_CommandList' is in the wrong place in the initializer list.
         : m_Device(device), m_RenderTarget(target), m_CommandList(m_Device->CreateCommandList())
                                                     ^
-Source/NexusEngine/Nexus/Renderer/BatchRenderer.hpp:106:50: note: Member variable 'BatchRenderer::m_CommandList' is in the wrong place in the initializer list.
+src/Nexus/src/Nexus-Core/Renderer/BatchRenderer.hpp:106:50: note: Member variable 'BatchRenderer::m_CommandList' is in the wrong place in the initializer list.
         Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList = nullptr;
                                                  ^
-Source/NexusEngine/Nexus/Renderer/BatchRenderer.hpp:100:14: style:inconclusive: Technically the member function 'Nexus::Graphics::BatchRenderer::EnsureStarted' can be const. [functionConst]
+src/Nexus/src/Nexus-Core/Renderer/BatchRenderer.hpp:100:14: style:inconclusive: Technically the member function 'Nexus::Graphics::BatchRenderer::EnsureStarted' can be const. [functionConst]
         void EnsureStarted();
              ^
-Source/NexusEngine/Nexus/Renderer/BatchRenderer.cpp:1151:25: note: Technically the member function 'Nexus::Graphics::BatchRenderer::EnsureStarted' can be const.
+src/Nexus/src/Nexus-Core/Renderer/BatchRenderer.cpp:1150:25: note: Technically the member function 'Nexus::Graphics::BatchRenderer::EnsureStarted' can be const.
     void BatchRenderer::EnsureStarted()
                         ^
-Source/NexusEngine/Nexus/Renderer/BatchRenderer.hpp:100:14: note: Technically the member function 'Nexus::Graphics::BatchRenderer::EnsureStarted' can be const.
+src/Nexus/src/Nexus-Core/Renderer/BatchRenderer.hpp:100:14: note: Technically the member function 'Nexus::Graphics::BatchRenderer::EnsureStarted' can be const.
         void EnsureStarted();
              ^
-Source/NexusEngine/Nexus/Point.hpp:35:14: style:inconclusive: Technically the member function 'Point2D < float >::Deconstruct' can be const. [functionConst]
+src/Nexus/src/Nexus-Core/Point.hpp:35:14: style:inconclusive: Technically the member function 'Point2D < float >::Deconstruct' can be const. [functionConst]
         void Deconstruct(T *x, T *y)
              ^
-Source/NexusEngine/Nexus/Point.hpp:20:9: style: Struct 'Point2D < float >' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+src/Nexus/src/Nexus-Core/Point.hpp:20:9: style: Struct 'Point2D < float >' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         Point2D(T x)
         ^
-Source/NexusEngine/Nexus/Runtime/Entity.hpp:21:14: performance:inconclusive: Technically the member function 'Nexus::Entity::Deserialize' can be static (but you may consider moving to unnamed namespace). [functionStatic]
+src/Nexus/src/Nexus-Core/Runtime/Entity.hpp:20:14: performance:inconclusive: Technically the member function 'Nexus::Entity::Deserialize' can be static (but you may consider moving to unnamed namespace). [functionStatic]
         bool Deserialize(YAML::Node &data);
              ^
-Source/NexusEngine/Nexus/Runtime/Entity.cpp:38:18: note: Technically the member function 'Nexus::Entity::Deserialize' can be static (but you may consider moving to unnamed namespace).
+src/Nexus/src/Nexus-Core/Runtime/Entity.cpp:38:18: note: Technically the member function 'Nexus::Entity::Deserialize' can be static (but you may consider moving to unnamed namespace).
     bool Entity::Deserialize(YAML::Node &data)
                  ^
-Source/NexusEngine/Nexus/Runtime/Entity.hpp:21:14: note: Technically the member function 'Nexus::Entity::Deserialize' can be static (but you may consider moving to unnamed namespace).
+src/Nexus/src/Nexus-Core/Runtime/Entity.hpp:20:14: note: Technically the member function 'Nexus::Entity::Deserialize' can be static (but you may consider moving to unnamed namespace).
         bool Deserialize(YAML::Node &data);
              ^
-Source/NexusEngine/Nexus/Runtime/Project.cpp:18:9: performance: Variable 'm_SceneDirectory' is assigned in constructor body. Consider performing initialization in initialization list. [useInitializationList]
+src/Nexus/src/Nexus-Core/Runtime/Project.cpp:17:9: performance: Variable 'm_SceneDirectory' is assigned in constructor body. Consider performing initialization in initialization list. [useInitializationList]
         m_SceneDirectory = "\\Scenes";
         ^
-Source/NexusEngine/Nexus/Runtime/Project.cpp:19:9: performance: Variable 'm_AssetsDirectory' is assigned in constructor body. Consider performing initialization in initialization list. [useInitializationList]
+src/Nexus/src/Nexus-Core/Runtime/Project.cpp:18:9: performance: Variable 'm_AssetsDirectory' is assigned in constructor body. Consider performing initialization in initialization list. [useInitializationList]
         m_AssetsDirectory = "\\Assets";
         ^
-Source/NexusEngine/Nexus/Runtime/Project.hpp:38:14: style:inconclusive: Technically the member function 'Nexus::Project::WriteProjectFile' can be const. [functionConst]
+src/Nexus/src/Nexus-Core/Runtime/Project.hpp:36:14: style:inconclusive: Technically the member function 'Nexus::Project::WriteProjectFile' can be const. [functionConst]
         void WriteProjectFile();
              ^
-Source/NexusEngine/Nexus/Runtime/Project.cpp:98:19: note: Technically the member function 'Nexus::Project::WriteProjectFile' can be const.
+src/Nexus/src/Nexus-Core/Runtime/Project.cpp:97:19: note: Technically the member function 'Nexus::Project::WriteProjectFile' can be const.
     void Project::WriteProjectFile()
                   ^
-Source/NexusEngine/Nexus/Runtime/Project.hpp:38:14: note: Technically the member function 'Nexus::Project::WriteProjectFile' can be const.
+src/Nexus/src/Nexus-Core/Runtime/Project.hpp:36:14: note: Technically the member function 'Nexus::Project::WriteProjectFile' can be const.
         void WriteProjectFile();
              ^
-Source/NexusEngine/Nexus/Runtime/Scene.hpp:24:14: style:inconclusive: Technically the member function 'Nexus::Scene::Serialize' can be const. [functionConst]
+src/Nexus/src/Nexus-Core/Runtime/Scene.hpp:23:14: style:inconclusive: Technically the member function 'Nexus::Scene::Serialize' can be const. [functionConst]
         void Serialize(const std::string &filepath);
              ^
-Source/NexusEngine/Nexus/Runtime/Scene.cpp:119:17: note: Technically the member function 'Nexus::Scene::Serialize' can be const.
+src/Nexus/src/Nexus-Core/Runtime/Scene.cpp:119:17: note: Technically the member function 'Nexus::Scene::Serialize' can be const.
     void Scene::Serialize(const std::string &filepath)
                 ^
-Source/NexusEngine/Nexus/Runtime/Scene.hpp:24:14: note: Technically the member function 'Nexus::Scene::Serialize' can be const.
+src/Nexus/src/Nexus-Core/Runtime/Scene.hpp:23:14: note: Technically the member function 'Nexus::Scene::Serialize' can be const.
         void Serialize(const std::string &filepath);
              ^
-Source/NexusEngine/Nexus/UI/Canvas.cpp:9:9: performance: Variable 'm_BatchRenderer' is assigned in constructor body. Consider performing initialization in initialization list. [useInitializationList]
+src/Nexus/src/Nexus-Core/UI/Canvas.cpp:9:9: performance: Variable 'm_BatchRenderer' is assigned in constructor body. Consider performing initialization in initialization list. [useInitializationList]
         m_BatchRenderer = std::make_unique<Nexus::Graphics::BatchRenderer>(device, Nexus::Graphics::RenderTarget{swapchain});
         ^
-Source/NexusEngine/Nexus/Vertex.hpp:46:9: style: Struct 'VertexBufferLayout' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+src/Nexus/src/Nexus-Core/Vertex.hpp:46:9: style: Struct 'VertexBufferLayout' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         VertexBufferLayout(std::initializer_list<VertexBufferElement> elements)
         ^
-Source/NexusEngine/Nexus/Vertex.hpp:111:9: style: Struct 'VertexPosition' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+src/Nexus/src/Nexus-Core/Vertex.hpp:111:9: style: Struct 'VertexPosition' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         VertexPosition(const glm::vec3 &position)
         ^
-Source/NexusEngine/Nexus/Window.hpp:80:14: style:inconclusive: Technically the member function 'Nexus::Window::IsClosing' can be const. [functionConst]
+src/Nexus/src/Nexus-Core/Window.hpp:80:14: style:inconclusive: Technically the member function 'Nexus::Window::IsClosing' can be const. [functionConst]
         bool IsClosing();
              ^
-Source/NexusEngine/Nexus/Window.cpp:68:18: note: Technically the member function 'Nexus::Window::IsClosing' can be const.
+src/Nexus/src/Nexus-Core/Window.cpp:68:18: note: Technically the member function 'Nexus::Window::IsClosing' can be const.
     bool Window::IsClosing()
                  ^
-Source/NexusEngine/Nexus/Window.hpp:80:14: note: Technically the member function 'Nexus::Window::IsClosing' can be const.
+src/Nexus/src/Nexus-Core/Window.hpp:80:14: note: Technically the member function 'Nexus::Window::IsClosing' can be const.
         bool IsClosing();
              ^
-Source/NexusEngine/Nexus/Window.hpp:100:14: performance:inconclusive: Technically the member function 'Nexus::Window::SetIsMouseVisible' can be static (but you may consider moving to unnamed namespace). [functionStatic]
+src/Nexus/src/Nexus-Core/Window.hpp:100:14: performance:inconclusive: Technically the member function 'Nexus::Window::SetIsMouseVisible' can be static (but you may consider moving to unnamed namespace). [functionStatic]
         void SetIsMouseVisible(bool visible);
              ^
-Source/NexusEngine/Nexus/Window.cpp:122:18: note: Technically the member function 'Nexus::Window::SetIsMouseVisible' can be static (but you may consider moving to unnamed namespace).
+src/Nexus/src/Nexus-Core/Window.cpp:122:18: note: Technically the member function 'Nexus::Window::SetIsMouseVisible' can be static (but you may consider moving to unnamed namespace).
     void Window::SetIsMouseVisible(bool visible)
                  ^
-Source/NexusEngine/Nexus/Window.hpp:100:14: note: Technically the member function 'Nexus::Window::SetIsMouseVisible' can be static (but you may consider moving to unnamed namespace).
+src/Nexus/src/Nexus-Core/Window.hpp:100:14: note: Technically the member function 'Nexus::Window::SetIsMouseVisible' can be static (but you may consider moving to unnamed namespace).
         void SetIsMouseVisible(bool visible);
              ^
-Source/NexusEngine/Nexus/Window.hpp:104:14: performance:inconclusive: Technically the member function 'Nexus::Window::SetCursor' can be static (but you may consider moving to unnamed namespace). [functionStatic]
+src/Nexus/src/Nexus-Core/Window.hpp:104:14: performance:inconclusive: Technically the member function 'Nexus::Window::SetCursor' can be static (but you may consider moving to unnamed namespace). [functionStatic]
         void SetCursor(Cursor cursor);
              ^
-Source/NexusEngine/Nexus/Window.cpp:135:18: note: Technically the member function 'Nexus::Window::SetCursor' can be static (but you may consider moving to unnamed namespace).
+src/Nexus/src/Nexus-Core/Window.cpp:135:18: note: Technically the member function 'Nexus::Window::SetCursor' can be static (but you may consider moving to unnamed namespace).
     void Window::SetCursor(Cursor cursor)
                  ^
-Source/NexusEngine/Nexus/Window.hpp:104:14: note: Technically the member function 'Nexus::Window::SetCursor' can be static (but you may consider moving to unnamed namespace).
+src/Nexus/src/Nexus-Core/Window.hpp:104:14: note: Technically the member function 'Nexus::Window::SetCursor' can be static (but you may consider moving to unnamed namespace).
         void SetCursor(Cursor cursor);
              ^
-Source/NexusEngine/Nexus/Window.hpp:108:27: style:inconclusive: Technically the member function 'Nexus::Window::GetInput' can be const. [functionConst]
+src/Nexus/src/Nexus-Core/Window.hpp:108:27: style:inconclusive: Technically the member function 'Nexus::Window::GetInput' can be const. [functionConst]
         const InputState *GetInput();
                           ^
-Source/NexusEngine/Nexus/Window.cpp:182:31: note: Technically the member function 'Nexus::Window::GetInput' can be const.
+src/Nexus/src/Nexus-Core/Window.cpp:182:31: note: Technically the member function 'Nexus::Window::GetInput' can be const.
     const InputState *Window::GetInput()
                               ^
-Source/NexusEngine/Nexus/Window.hpp:108:27: note: Technically the member function 'Nexus::Window::GetInput' can be const.
+src/Nexus/src/Nexus-Core/Window.hpp:108:27: note: Technically the member function 'Nexus::Window::GetInput' can be const.
         const InputState *GetInput();
                           ^
-Source/NexusEngine/Nexus/Window.hpp:153:18: style:inconclusive: Technically the member function 'Nexus::Window::GetID' can be const. [functionConst]
+src/Nexus/src/Nexus-Core/Window.hpp:153:18: style:inconclusive: Technically the member function 'Nexus::Window::GetID' can be const. [functionConst]
         uint32_t GetID();
                  ^
-Source/NexusEngine/Nexus/Window.cpp:298:22: note: Technically the member function 'Nexus::Window::GetID' can be const.
+src/Nexus/src/Nexus-Core/Window.cpp:298:22: note: Technically the member function 'Nexus::Window::GetID' can be const.
     uint32_t Window::GetID()
                      ^
-Source/NexusEngine/Nexus/Window.hpp:153:18: note: Technically the member function 'Nexus::Window::GetID' can be const.
+src/Nexus/src/Nexus-Core/Window.hpp:153:18: note: Technically the member function 'Nexus::Window::GetID' can be const.
         uint32_t GetID();
                  ^
-Source/NexusEngine/Nexus/Window.hpp:157:14: performance:inconclusive: Technically the member function 'Nexus::Window::SetTextInputRect' can be static (but you may consider moving to unnamed namespace). [functionStatic]
+src/Nexus/src/Nexus-Core/Window.hpp:157:14: performance:inconclusive: Technically the member function 'Nexus::Window::SetTextInputRect' can be static (but you may consider moving to unnamed namespace). [functionStatic]
         void SetTextInputRect(const Nexus::Graphics::Rectangle<int> &rect);
              ^
-Source/NexusEngine/Nexus/Window.cpp:308:18: note: Technically the member function 'Nexus::Window::SetTextInputRect' can be static (but you may consider moving to unnamed namespace).
+src/Nexus/src/Nexus-Core/Window.cpp:308:18: note: Technically the member function 'Nexus::Window::SetTextInputRect' can be static (but you may consider moving to unnamed namespace).
     void Window::SetTextInputRect(const Nexus::Graphics::Rectangle<int> &rect)
                  ^
-Source/NexusEngine/Nexus/Window.hpp:157:14: note: Technically the member function 'Nexus::Window::SetTextInputRect' can be static (but you may consider moving to unnamed namespace).
+src/Nexus/src/Nexus-Core/Window.hpp:157:14: note: Technically the member function 'Nexus::Window::SetTextInputRect' can be static (but you may consider moving to unnamed namespace).
         void SetTextInputRect(const Nexus::Graphics::Rectangle<int> &rect);
              ^
-Source/NexusEngine/Nexus/Window.hpp:158:14: performance:inconclusive: Technically the member function 'Nexus::Window::StartTextInput' can be static (but you may consider moving to unnamed namespace). [functionStatic]
+src/Nexus/src/Nexus-Core/Window.hpp:158:14: performance:inconclusive: Technically the member function 'Nexus::Window::StartTextInput' can be static (but you may consider moving to unnamed namespace). [functionStatic]
         void StartTextInput();
              ^
-Source/NexusEngine/Nexus/Window.cpp:318:18: note: Technically the member function 'Nexus::Window::StartTextInput' can be static (but you may consider moving to unnamed namespace).
+src/Nexus/src/Nexus-Core/Window.cpp:318:18: note: Technically the member function 'Nexus::Window::StartTextInput' can be static (but you may consider moving to unnamed namespace).
     void Window::StartTextInput()
                  ^
-Source/NexusEngine/Nexus/Window.hpp:158:14: note: Technically the member function 'Nexus::Window::StartTextInput' can be static (but you may consider moving to unnamed namespace).
+src/Nexus/src/Nexus-Core/Window.hpp:158:14: note: Technically the member function 'Nexus::Window::StartTextInput' can be static (but you may consider moving to unnamed namespace).
         void StartTextInput();
              ^
-Source/NexusEngine/Nexus/Window.hpp:159:14: performance:inconclusive: Technically the member function 'Nexus::Window::StopTextInput' can be static (but you may consider moving to unnamed namespace). [functionStatic]
+src/Nexus/src/Nexus-Core/Window.hpp:159:14: performance:inconclusive: Technically the member function 'Nexus::Window::StopTextInput' can be static (but you may consider moving to unnamed namespace). [functionStatic]
         void StopTextInput();
              ^
-Source/NexusEngine/Nexus/Window.cpp:322:18: note: Technically the member function 'Nexus::Window::StopTextInput' can be static (but you may consider moving to unnamed namespace).
+src/Nexus/src/Nexus-Core/Window.cpp:322:18: note: Technically the member function 'Nexus::Window::StopTextInput' can be static (but you may consider moving to unnamed namespace).
     void Window::StopTextInput()
                  ^
-Source/NexusEngine/Nexus/Window.hpp:159:14: note: Technically the member function 'Nexus::Window::StopTextInput' can be static (but you may consider moving to unnamed namespace).
+src/Nexus/src/Nexus-Core/Window.hpp:159:14: note: Technically the member function 'Nexus::Window::StopTextInput' can be static (but you may consider moving to unnamed namespace).
         void StopTextInput();
              ^
-Source/NexusEngine/Platform/D3D12/CommandListD3D12.hpp:17:9: style: Class 'CommandListD3D12' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+src/Nexus/src/Platform/D3D12/CommandListD3D12.hpp:17:9: style: Class 'CommandListD3D12' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         CommandListD3D12(GraphicsDeviceD3D12 *device);
         ^
-Source/NexusEngine/Platform/D3D12/TimingQueryD3D12.hpp:14:9: style: Class 'TimingQueryD3D12' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+src/Nexus/src/Platform/D3D12/TimingQueryD3D12.hpp:14:9: style: Class 'TimingQueryD3D12' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         TimingQueryD3D12(GraphicsDeviceD3D12 *device);
         ^
-Source/NexusEngine/Platform/D3D12/CommandListD3D12.cpp:178:35: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Platform/D3D12/CommandListD3D12.cpp:178:35: style: C-style pointer casting [cstyleCast]
             auto d3d12Swapchain = (SwapchainD3D12 *)target.GetData<Swapchain *>();
                                   ^
-Source/NexusEngine/Platform/D3D12/CommandListD3D12.cpp:236:31: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Platform/D3D12/CommandListD3D12.cpp:236:31: style: C-style pointer casting [cstyleCast]
         auto swapchainD3D12 = (SwapchainD3D12 *)target;
                               ^
-Source/NexusEngine/Platform/D3D12/CommandListD3D12.cpp:431:35: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Platform/D3D12/CommandListD3D12.cpp:431:35: style: C-style pointer casting [cstyleCast]
             auto d3d12Swapchain = (SwapchainD3D12 *)m_CurrentRenderTarget.GetData<Swapchain *>();
                                   ^
-Source/NexusEngine/Platform/D3D12/CommandListD3D12.cpp:74:54: style:inconclusive: Function 'SetPipeline' argument 1 names different: declaration 'ipeline' definition 'pipeline'. [funcArgNamesDifferent]
+src/Nexus/src/Platform/D3D12/CommandListD3D12.cpp:74:54: style:inconclusive: Function 'SetPipeline' argument 1 names different: declaration 'ipeline' definition 'pipeline'. [funcArgNamesDifferent]
     void CommandListD3D12::SetPipeline(Ref<Pipeline> pipeline)
                                                      ^
-Source/NexusEngine/Platform/D3D12/CommandListD3D12.hpp:25:48: note: Function 'SetPipeline' argument 1 names different: declaration 'ipeline' definition 'pipeline'.
+src/Nexus/src/Platform/D3D12/CommandListD3D12.hpp:25:48: note: Function 'SetPipeline' argument 1 names different: declaration 'ipeline' definition 'pipeline'.
         virtual void SetPipeline(Ref<Pipeline> ipeline) override;
                                                ^
-Source/NexusEngine/Platform/D3D12/CommandListD3D12.cpp:74:54: note: Function 'SetPipeline' argument 1 names different: declaration 'ipeline' definition 'pipeline'.
+src/Nexus/src/Platform/D3D12/CommandListD3D12.cpp:74:54: note: Function 'SetPipeline' argument 1 names different: declaration 'ipeline' definition 'pipeline'.
     void CommandListD3D12::SetPipeline(Ref<Pipeline> pipeline)
                                                      ^
-Source/NexusEngine/Platform/D3D12/FramebufferD3D12.cpp:61:26: style: Variable 'd3d12Device' is assigned a value that is never used. [unreadVariable]
+src/Nexus/src/Platform/D3D12/FramebufferD3D12.cpp:61:26: style: Variable 'd3d12Device' is assigned a value that is never used. [unreadVariable]
         auto d3d12Device = m_Device->GetDevice();
                          ^
-Source/NexusEngine/Platform/D3D12/SamplerD3D12.hpp:13:9: style: Class 'SamplerD3D12' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+src/Nexus/src/Platform/D3D12/SamplerD3D12.hpp:13:9: style: Class 'SamplerD3D12' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         SamplerD3D12(const SamplerSpecification &spec);
         ^
-Source/NexusEngine/Platform/D3D12/GraphicsDeviceD3D12.cpp:22:37: style: Variable 'experimentalFeatures' is assigned a value that is never used. [unreadVariable]
+src/Nexus/src/Platform/D3D12/GraphicsDeviceD3D12.cpp:22:37: style: Variable 'experimentalFeatures' is assigned a value that is never used. [unreadVariable]
         UUID experimentalFeatures[] = {D3D12ExperimentalShaderModels};
                                     ^
-Source/NexusEngine/Platform/D3D12/PipelineD3D12.hpp:35:29: style:inconclusive: Member variable 'PipelineD3D12::m_Description' is in the wrong place in the initializer list. [initializerList]
+src/Nexus/src/Platform/D3D12/PipelineD3D12.hpp:35:29: style:inconclusive: Member variable 'PipelineD3D12::m_Description' is in the wrong place in the initializer list. [initializerList]
         PipelineDescription m_Description;
                             ^
-Source/NexusEngine/Platform/D3D12/PipelineD3D12.cpp:14:52: note: Member variable 'PipelineD3D12::m_Description' is in the wrong place in the initializer list.
+src/Nexus/src/Platform/D3D12/PipelineD3D12.cpp:14:52: note: Member variable 'PipelineD3D12::m_Description' is in the wrong place in the initializer list.
         : Pipeline(description), m_Device(device), m_Description(description)
                                                    ^
-Source/NexusEngine/Platform/D3D12/PipelineD3D12.hpp:35:29: note: Member variable 'PipelineD3D12::m_Description' is in the wrong place in the initializer list.
+src/Nexus/src/Platform/D3D12/PipelineD3D12.hpp:35:29: note: Member variable 'PipelineD3D12::m_Description' is in the wrong place in the initializer list.
         PipelineDescription m_Description;
                             ^
-Source/NexusEngine/Platform/D3D12/PipelineD3D12.cpp:161:30: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Platform/D3D12/PipelineD3D12.cpp:161:30: style: C-style pointer casting [cstyleCast]
             auto swapchain = (SwapchainD3D12 *)m_Description.Target.GetData<Swapchain *>();
                              ^
-Source/NexusEngine/Platform/D3D12/ResourceSetD3D12.cpp:142:18: style: Local variable 'd3d12Device' shadows outer variable [shadowVariable]
+src/Nexus/src/Platform/D3D12/ResourceSetD3D12.cpp:142:18: style: Local variable 'd3d12Device' shadows outer variable [shadowVariable]
             auto d3d12Device = m_Device->GetDevice();
                  ^
-Source/NexusEngine/Platform/D3D12/ResourceSetD3D12.cpp:114:20: note: Shadowed declaration
+src/Nexus/src/Platform/D3D12/ResourceSetD3D12.cpp:114:20: note: Shadowed declaration
         const auto d3d12Device = m_Device->GetDevice();
                    ^
-Source/NexusEngine/Platform/D3D12/ResourceSetD3D12.cpp:142:18: note: Shadow variable
+src/Nexus/src/Platform/D3D12/ResourceSetD3D12.cpp:142:18: note: Shadow variable
             auto d3d12Device = m_Device->GetDevice();
                  ^
-Source/NexusEngine/Platform/D3D12/ResourceSetD3D12.cpp:20:38: style: Variable 'constantBufferCount' is assigned a value that is never used. [unreadVariable]
+src/Nexus/src/Platform/D3D12/ResourceSetD3D12.cpp:20:38: style: Variable 'constantBufferCount' is assigned a value that is never used. [unreadVariable]
         uint32_t constantBufferCount = spec.UniformBuffers.size();
                                      ^
-Source/NexusEngine/Platform/D3D12/SamplerD3D12.cpp:12:9: performance: Variable 'm_SamplerFilter' is assigned in constructor body. Consider performing initialization in initialization list. [useInitializationList]
+src/Nexus/src/Platform/D3D12/SamplerD3D12.cpp:12:9: performance: Variable 'm_SamplerFilter' is assigned in constructor body. Consider performing initialization in initialization list. [useInitializationList]
         m_SamplerFilter = GetD3D12Filter(spec.SampleFilter);
         ^
-Source/NexusEngine/Platform/D3D12/ShaderModuleD3D12.cpp:67:26: style: Variable 'hr' is assigned a value that is never used. [unreadVariable]
+src/Nexus/src/Platform/D3D12/ShaderModuleD3D12.cpp:67:26: style: Variable 'hr' is assigned a value that is never used. [unreadVariable]
         const HRESULT hr = compiler->Compile(
                          ^
-Source/NexusEngine/Platform/D3D12/SwapchainD3D12.cpp:11:20: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Platform/D3D12/SwapchainD3D12.cpp:11:20: style: C-style pointer casting [cstyleCast]
         m_Device = (GraphicsDeviceD3D12 *)device;
                    ^
-Source/NexusEngine/Platform/D3D12/TimingQueryD3D12.cpp:10:37: style: Variable 'd3d12Device' is assigned a value that is never used. [unreadVariable]
+src/Nexus/src/Platform/D3D12/TimingQueryD3D12.cpp:10:37: style: Variable 'd3d12Device' is assigned a value that is never used. [unreadVariable]
         ID3D12Device10 *d3d12Device = m_Device->GetDevice();
                                     ^
-Source/NexusEngine/Platform/OpenAL/AudioSourceOpenAL.hpp:17:9: style: Class 'AudioSourceOpenAL' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+src/Nexus/src/Platform/OpenAL/AudioSourceOpenAL.hpp:17:9: style: Class 'AudioSourceOpenAL' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         AudioSourceOpenAL(Ref<AudioBuffer> buffer);
         ^
-Source/NexusEngine/Platform/OpenAL/AudioDeviceOpenAL.cpp:89:28: style: Variable 'bitsPerSample' is assigned a value that is never used. [unreadVariable]
+src/Nexus/src/Platform/OpenAL/AudioDeviceOpenAL.cpp:89:28: style: Variable 'bitsPerSample' is assigned a value that is never used. [unreadVariable]
         auto bitsPerSample = nqr::GetFormatBitsPerSample(data.sourceFormat);
                            ^
-Source/NexusEngine/Platform/OpenAL/AudioDeviceOpenAL.cpp:105:28: style: Variable 'bitsPerSample' is assigned a value that is never used. [unreadVariable]
+src/Nexus/src/Platform/OpenAL/AudioDeviceOpenAL.cpp:105:28: style: Variable 'bitsPerSample' is assigned a value that is never used. [unreadVariable]
         auto bitsPerSample = nqr::GetFormatBitsPerSample(data.sourceFormat);
                            ^
-Source/NexusEngine/Platform/OpenAL/AudioSourceOpenAL.cpp:11:9: performance: Variable 'm_Buffer' is assigned in constructor body. Consider performing initialization in initialization list. [useInitializationList]
+src/Nexus/src/Platform/OpenAL/AudioSourceOpenAL.cpp:11:9: performance: Variable 'm_Buffer' is assigned in constructor body. Consider performing initialization in initialization list. [useInitializationList]
         m_Buffer = buffer;
         ^
-Source/NexusEngine/Platform/OpenGL/PipelineOpenGL.hpp:13:9: style: Class 'PipelineOpenGL' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+src/Nexus/src/Platform/OpenGL/CommandExecutorOpenGL.hpp:30:14: performance:inconclusive: Technically the member function 'Nexus::Graphics::CommandExecutorOpenGL::ExecuteCommand' can be static (but you may consider moving to unnamed namespace). [functionStatic]
+        void ExecuteCommand(ClearColorTargetCommand command, GraphicsDeviceOpenGL *device);
+             ^
+src/Nexus/src/Platform/OpenGL/CommandExecutorOpenGL.cpp:236:33: note: Technically the member function 'Nexus::Graphics::CommandExecutorOpenGL::ExecuteCommand' can be static (but you may consider moving to unnamed namespace).
+    void CommandExecutorOpenGL::ExecuteCommand(ClearColorTargetCommand command, GraphicsDeviceOpenGL *device)
+                                ^
+src/Nexus/src/Platform/OpenGL/CommandExecutorOpenGL.hpp:30:14: note: Technically the member function 'Nexus::Graphics::CommandExecutorOpenGL::ExecuteCommand' can be static (but you may consider moving to unnamed namespace).
+        void ExecuteCommand(ClearColorTargetCommand command, GraphicsDeviceOpenGL *device);
+             ^
+src/Nexus/src/Platform/OpenGL/CommandExecutorOpenGL.hpp:31:14: performance:inconclusive: Technically the member function 'Nexus::Graphics::CommandExecutorOpenGL::ExecuteCommand' can be static (but you may consider moving to unnamed namespace). [functionStatic]
+        void ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDeviceOpenGL *device);
+             ^
+src/Nexus/src/Platform/OpenGL/CommandExecutorOpenGL.cpp:251:33: note: Technically the member function 'Nexus::Graphics::CommandExecutorOpenGL::ExecuteCommand' can be static (but you may consider moving to unnamed namespace).
+    void CommandExecutorOpenGL::ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDeviceOpenGL *device)
+                                ^
+src/Nexus/src/Platform/OpenGL/CommandExecutorOpenGL.hpp:31:14: note: Technically the member function 'Nexus::Graphics::CommandExecutorOpenGL::ExecuteCommand' can be static (but you may consider moving to unnamed namespace).
+        void ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDeviceOpenGL *device);
+             ^
+src/Nexus/src/Platform/OpenGL/PipelineOpenGL.hpp:13:9: style: Class 'PipelineOpenGL' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         PipelineOpenGL(const PipelineDescription &description);
         ^
-Source/NexusEngine/Platform/OpenGL/CommandListOpenGL.hpp:19:9: style: Class 'CommandListOpenGL' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
-        CommandListOpenGL(GraphicsDevice *device);
-        ^
-Source/NexusEngine/Platform/OpenGL/TextureOpenGL.hpp:13:9: style: Class 'TextureOpenGL' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+src/Nexus/src/Platform/OpenGL/TextureOpenGL.hpp:13:9: style: Class 'TextureOpenGL' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         TextureOpenGL(const TextureSpecification &spec);
         ^
-Source/NexusEngine/Platform/OpenGL/ResourceSetOpenGL.hpp:18:9: style: Class 'ResourceSetOpenGL' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+src/Nexus/src/Platform/OpenGL/ResourceSetOpenGL.hpp:17:9: style: Class 'ResourceSetOpenGL' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         ResourceSetOpenGL(const ResourceSetSpecification &spec);
         ^
-Source/NexusEngine/Platform/OpenGL/CommandListOpenGL.cpp:100:35: style: C-style pointer casting [cstyleCast]
-            auto graphicsDevice = (GraphicsDeviceOpenGL *)commandListGL->GetGraphicsDevice();
-                                  ^
-Source/NexusEngine/Platform/OpenGL/CommandListOpenGL.cpp:338:35: style: C-style pointer casting [cstyleCast]
-            auto graphicsDevice = (GraphicsDeviceOpenGL *)commandListGL->GetGraphicsDevice();
-                                  ^
-Source/NexusEngine/Platform/OpenGL/CommandListOpenGL.cpp:360:35: style: C-style pointer casting [cstyleCast]
-            auto graphicsDevice = (GraphicsDeviceOpenGL *)commandListGL->GetGraphicsDevice();
-                                  ^
-Source/NexusEngine/Platform/OpenGL/CommandListOpenGL.cpp:377:35: style: C-style pointer casting [cstyleCast]
-            auto graphicsDevice = (GraphicsDeviceOpenGL *)commandListGL->GetGraphicsDevice();
-                                  ^
-Source/NexusEngine/Platform/OpenGL/CommandListOpenGL.cpp:465:44: style: C-style pointer casting [cstyleCast]
-            SwapchainOpenGL *swapchainGL = (SwapchainOpenGL *)resolveToSwapchainCommand.Target;
-                                           ^
-Source/NexusEngine/Platform/OpenGL/SamplerOpenGL.hpp:12:9: style: Class 'SamplerOpenGL' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+src/Nexus/src/Platform/OpenGL/CommandExecutorOpenGL.cpp:320:38: style: C-style pointer casting [cstyleCast]
+        SwapchainOpenGL *swapchain = (SwapchainOpenGL *)command.Target;
+                                     ^
+src/Nexus/src/Platform/OpenGL/CommandListOpenGL.hpp:19:9: style: Class 'CommandListOpenGL' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+        CommandListOpenGL(GraphicsDevice *device);
+        ^
+src/Nexus/src/Platform/OpenGL/SamplerOpenGL.hpp:12:9: style: Class 'SamplerOpenGL' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         SamplerOpenGL(const SamplerSpecification &spec);
         ^
-Source/NexusEngine/Platform/OpenGL/GraphicsDeviceOpenGL.cpp:158:28: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Platform/OpenGL/GraphicsDeviceOpenGL.cpp:158:28: style: C-style pointer casting [cstyleCast]
         auto glSwapchain = (SwapchainOpenGL *)swapchain;
                            ^
-Source/NexusEngine/Platform/OpenGL/GraphicsDeviceOpenGL.cpp:168:15: style: Variable 'commands' can be declared with const [constVariable]
-        auto &commands = commandListGL->GetRenderCommands();
-              ^
-Source/NexusEngine/Platform/Vulkan/CommandListVk.hpp:14:9: style: Class 'CommandListVk' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+src/Nexus/src/Platform/Vulkan/CommandListVk.hpp:14:9: style: Class 'CommandListVk' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         CommandListVk(GraphicsDeviceVk *graphicsDevice);
         ^
-Source/NexusEngine/Platform/Vulkan/TimingQueryVk.hpp:14:9: style: Class 'TimingQueryVk' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+src/Nexus/src/Platform/Vulkan/TimingQueryVk.hpp:14:9: style: Class 'TimingQueryVk' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         TimingQueryVk(GraphicsDeviceVk *device);
         ^
-Source/NexusEngine/Platform/Vulkan/CommandListVk.cpp:300:36: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Platform/Vulkan/CommandListVk.cpp:300:36: style: C-style pointer casting [cstyleCast]
             auto vulkanSwapchain = (SwapchainVk *)swapchain;
                                    ^
-Source/NexusEngine/Platform/Vulkan/CommandListVk.cpp:445:28: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Platform/Vulkan/CommandListVk.cpp:445:28: style: C-style pointer casting [cstyleCast]
         auto swapchainVk = (SwapchainVk *)target;
                            ^
-Source/NexusEngine/Platform/Vulkan/FramebufferVk.cpp:113:25: style: Consider using std::transform algorithm instead of a raw loop. [useStlAlgorithm]
+src/Nexus/src/Platform/Vulkan/FramebufferVk.cpp:113:25: style: Consider using std::transform algorithm instead of a raw loop. [useStlAlgorithm]
             attachments.push_back(texture->GetImageView());
                         ^
-Source/NexusEngine/Platform/Vulkan/GraphicsDeviceVk.cpp:37:34: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:37:34: style: C-style pointer casting [cstyleCast]
         SwapchainVk *swapchain = (SwapchainVk *)window->GetSwapchain();
                                  ^
-Source/NexusEngine/Platform/Vulkan/GraphicsDeviceVk.cpp:187:34: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:187:34: style: C-style pointer casting [cstyleCast]
         SwapchainVk *swapchain = (SwapchainVk *)m_Window->GetSwapchain();
                                  ^
-Source/NexusEngine/Platform/Vulkan/GraphicsDeviceVk.cpp:382:38: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:382:38: style: C-style pointer casting [cstyleCast]
             SwapchainVk *swapchain = (SwapchainVk *)m_Window->GetSwapchain();
                                      ^
-Source/NexusEngine/Platform/Vulkan/GraphicsDeviceVk.cpp:470:34: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:470:34: style: C-style pointer casting [cstyleCast]
         SwapchainVk *swapchain = (SwapchainVk *)m_Window->GetSwapchain();
                                  ^
-Source/NexusEngine/Platform/Vulkan/GraphicsDeviceVk.cpp:710:16: style: Redundant initialization for 'result'. The initialized value is overwritten before it is read. [redundantInitialization]
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:710:16: style: Redundant initialization for 'result'. The initialized value is overwritten before it is read. [redundantInitialization]
         result = vkEnumerateInstanceExtensionProperties(nullptr, &count, properties.data());
                ^
-Source/NexusEngine/Platform/Vulkan/GraphicsDeviceVk.cpp:707:25: note: result is initialized
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:707:25: note: result is initialized
         VkResult result = vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
                         ^
-Source/NexusEngine/Platform/Vulkan/GraphicsDeviceVk.cpp:710:16: note: result is overwritten
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:710:16: note: result is overwritten
         result = vkEnumerateInstanceExtensionProperties(nullptr, &count, properties.data());
                ^
-Source/NexusEngine/Platform/Vulkan/GraphicsDeviceVk.cpp:740:16: style: Redundant initialization for 'result'. The initialized value is overwritten before it is read. [redundantInitialization]
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:740:16: style: Redundant initialization for 'result'. The initialized value is overwritten before it is read. [redundantInitialization]
         result = vkEnumerateDeviceExtensionProperties(m_PhysicalDevice, nullptr, &count, properties.data());
                ^
-Source/NexusEngine/Platform/Vulkan/GraphicsDeviceVk.cpp:737:25: note: result is initialized
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:737:25: note: result is initialized
         VkResult result = vkEnumerateDeviceExtensionProperties(m_PhysicalDevice, nullptr, &count, nullptr);
                         ^
-Source/NexusEngine/Platform/Vulkan/GraphicsDeviceVk.cpp:740:16: note: result is overwritten
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:740:16: note: result is overwritten
         result = vkEnumerateDeviceExtensionProperties(m_PhysicalDevice, nullptr, &count, properties.data());
                ^
-Source/NexusEngine/Platform/Vulkan/GraphicsDeviceVk.cpp:720:24: style: Consider using std::transform algorithm instead of a raw loop. [useStlAlgorithm]
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:720:24: style: Consider using std::transform algorithm instead of a raw loop. [useStlAlgorithm]
             extensions.push_back(property.extensionName);
                        ^
-Source/NexusEngine/Platform/Vulkan/GraphicsDeviceVk.cpp:750:24: style: Consider using std::transform algorithm instead of a raw loop. [useStlAlgorithm]
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:750:24: style: Consider using std::transform algorithm instead of a raw loop. [useStlAlgorithm]
             extensions.push_back(property.extensionName);
                        ^
-Source/NexusEngine/Platform/Vulkan/GraphicsDeviceVk.cpp:34:31: style: Variable 'deviceExtensions' is assigned a value that is never used. [unreadVariable]
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:34:31: style: Variable 'deviceExtensions' is assigned a value that is never used. [unreadVariable]
         auto deviceExtensions = GetSupportedDeviceExtensions();
                               ^
-Source/NexusEngine/Platform/Vulkan/PipelineVk.cpp:156:32: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Platform/Vulkan/PipelineVk.cpp:156:32: style: C-style pointer casting [cstyleCast]
             auto swapchainVk = (SwapchainVk *)m_Description.Target.GetData<Swapchain *>();
                                ^
-Source/NexusEngine/Platform/Vulkan/PipelineVk.cpp:251:32: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Platform/Vulkan/PipelineVk.cpp:251:32: style: C-style pointer casting [cstyleCast]
             auto swapchainVk = (SwapchainVk *)m_Description.Target.GetData<Swapchain *>();
                                ^
-Source/NexusEngine/Platform/Vulkan/PipelineVk.cpp:19:21: style: Consider using std::transform algorithm instead of a raw loop. [useStlAlgorithm]
+src/Nexus/src/Platform/Vulkan/PipelineVk.cpp:19:21: style: Consider using std::transform algorithm instead of a raw loop. [useStlAlgorithm]
             layouts.push_back(layout.second);
                     ^
-Source/NexusEngine/Platform/Vulkan/ResourceSetVk.cpp:30:44: performance: Searching before insertion is not necessary. [stlFindInsert]
+src/Nexus/src/Platform/Vulkan/ResourceSetVk.cpp:30:44: performance: Searching before insertion is not necessary. [stlFindInsert]
                 sets[textureBinding.Set] = {};
                                            ^
-Source/NexusEngine/Platform/Vulkan/ResourceSetVk.cpp:36:70: performance: Searching before insertion is not necessary. [stlFindInsert]
+src/Nexus/src/Platform/Vulkan/ResourceSetVk.cpp:36:70: performance: Searching before insertion is not necessary. [stlFindInsert]
                 descriptorCounts[descriptorBinding.descriptorType] = 0;
                                                                      ^
-Source/NexusEngine/Platform/Vulkan/ResourceSetVk.cpp:55:50: performance: Searching before insertion is not necessary. [stlFindInsert]
+src/Nexus/src/Platform/Vulkan/ResourceSetVk.cpp:55:50: performance: Searching before insertion is not necessary. [stlFindInsert]
                 sets[uniformBufferBinding.Set] = {};
                                                  ^
-Source/NexusEngine/Platform/Vulkan/ResourceSetVk.cpp:61:70: performance: Searching before insertion is not necessary. [stlFindInsert]
+src/Nexus/src/Platform/Vulkan/ResourceSetVk.cpp:61:70: performance: Searching before insertion is not necessary. [stlFindInsert]
                 descriptorCounts[descriptorBinding.descriptorType] = 0;
                                                                      ^
-Source/NexusEngine/Platform/Vulkan/SamplerVk.cpp:39:32: style: Variable 'samplerInfo.mipLodBias' is reassigned a value before the old one has been used. [redundantAssignment]
+src/Nexus/src/Platform/Vulkan/SamplerVk.cpp:39:32: style: Variable 'samplerInfo.mipLodBias' is reassigned a value before the old one has been used. [redundantAssignment]
         samplerInfo.mipLodBias = spec.LODBias;
                                ^
-Source/NexusEngine/Platform/Vulkan/SamplerVk.cpp:38:32: note: samplerInfo.mipLodBias is assigned
+src/Nexus/src/Platform/Vulkan/SamplerVk.cpp:38:32: note: samplerInfo.mipLodBias is assigned
         samplerInfo.mipLodBias = mipmapMode;
                                ^
-Source/NexusEngine/Platform/Vulkan/SamplerVk.cpp:39:32: note: samplerInfo.mipLodBias is overwritten
+src/Nexus/src/Platform/Vulkan/SamplerVk.cpp:39:32: note: samplerInfo.mipLodBias is overwritten
         samplerInfo.mipLodBias = spec.LODBias;
                                ^
-Source/NexusEngine/Platform/Vulkan/SwapchainVk.cpp:23:28: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Platform/Vulkan/SwapchainVk.cpp:23:28: style: C-style pointer casting [cstyleCast]
         m_GraphicsDevice = (GraphicsDeviceVk *)graphicsDevice;
                            ^
-Source/NexusEngine/Platform/Vulkan/SwapchainVk.cpp:253:39: style: Variable 'queueFamilyIndices' is assigned a value that is never used. [unreadVariable]
+src/Nexus/src/Platform/Vulkan/SwapchainVk.cpp:253:39: style: Variable 'queueFamilyIndices' is assigned a value that is never used. [unreadVariable]
         uint32_t queueFamilyIndices[] = {m_GraphicsDevice->m_GraphicsQueueFamilyIndex, m_GraphicsDevice->m_PresentQueueFamilyIndex};
                                       ^
-Source/NexusEngine/Platform/Vulkan/SwapchainVk.cpp:256:24: style: Variable 'imageCount' is assigned a value that is never used. [unreadVariable]
+src/Nexus/src/Platform/Vulkan/SwapchainVk.cpp:256:24: style: Variable 'imageCount' is assigned a value that is never used. [unreadVariable]
             imageCount = m_SurfaceCapabilities.maxImageCount;
                        ^
-Source/NexusEngine/Platform/Vulkan/SwapchainVk.cpp:291:35: style: Variable 'validDepthFormat' is assigned a value that is never used. [unreadVariable]
+src/Nexus/src/Platform/Vulkan/SwapchainVk.cpp:291:35: style: Variable 'validDepthFormat' is assigned a value that is never used. [unreadVariable]
         VkBool32 validDepthFormat = GetSupportedDepthFormat(m_GraphicsDevice->m_PhysicalDevice, &m_DepthFormat);
                                   ^
-Source/NexusEngine/Platform/Vulkan/TextureVk.cpp:76:25: style: Redundant initialization for 'aspectFlags'. The initialized value is overwritten before it is read. [redundantInitialization]
+src/Nexus/src/Platform/Vulkan/TextureVk.cpp:76:25: style: Redundant initialization for 'aspectFlags'. The initialized value is overwritten before it is read. [redundantInitialization]
             aspectFlags = VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
                         ^
-Source/NexusEngine/Platform/Vulkan/TextureVk.cpp:73:43: note: aspectFlags is initialized
+src/Nexus/src/Platform/Vulkan/TextureVk.cpp:73:43: note: aspectFlags is initialized
         VkImageAspectFlagBits aspectFlags = {};
                                           ^
-Source/NexusEngine/Platform/Vulkan/TextureVk.cpp:76:25: note: aspectFlags is overwritten
+src/Nexus/src/Platform/Vulkan/TextureVk.cpp:76:25: note: aspectFlags is overwritten
             aspectFlags = VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
                         ^
-Source/NexusEngine/Platform/Vulkan/Vk.cpp:474:21: style: Consider using std::any_of, std::all_of, std::none_of, or std::accumulate algorithm instead of a raw loop. [useStlAlgorithm]
+src/Nexus/src/Platform/Vulkan/Vk.cpp:474:21: style: Consider using std::any_of, std::all_of, std::none_of, or std::accumulate algorithm instead of a raw loop. [useStlAlgorithm]
             isDepth = true;
                     ^
 nofile:0:0: information: Cppcheck cannot find all the include files (use --check-config for details) [missingInclude]
