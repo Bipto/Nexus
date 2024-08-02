@@ -1,64 +1,64 @@
-[submodule "external/SDL"]
-	path = external/SDL
+[submodule "External/SDL"]
+	path = External/SDL
 	url = https://github.com/libsdl-org/SDL.git
-[submodule "external/glm"]
-	path = external/glm
+[submodule "External/glm"]
+	path = External/glm
 	url = https://github.com/g-truc/glm.git
-[submodule "external/stb"]
-	path = external/stb
+[submodule "External/stb"]
+	path = External/stb
 	url = https://github.com/nothings/stb.git
-[submodule "external/assimp"]
-	path = external/assimp
+[submodule "External/assimp"]
+	path = External/assimp
 	url = https://github.com/assimp/assimp.git
-[submodule "external/imgui/imgui"]
-	path = external/imgui/imgui
+[submodule "External/imgui/imgui"]
+	path = External/imgui/imgui
 	url = https://github.com/ocornut/imgui.git
 	branch = docking
-[submodule "external/imgui/imguizmo"]
-	path = external/imgui/imguizmo
+[submodule "External/imgui/imguizmo"]
+	path = External/imgui/imguizmo
 	url = https://github.com/CedricGuillemet/ImGuizmo.git
-[submodule "external/json"]
-	path = external/json
+[submodule "External/json"]
+	path = External/json
 	url = https://github.com/nlohmann/json.git
-[submodule "external/shaderc"]
-	path = external/shaderc
+[submodule "External/shaderc"]
+	path = External/shaderc
 	url = https://github.com/google/shaderc.git
-[submodule "external/SPIRV-Tools"]
-	path = external/SPIRV-Tools
+[submodule "External/SPIRV-Tools"]
+	path = External/SPIRV-Tools
 	url = https://github.com/KhronosGroup/SPIRV-Tools.git
-[submodule "external/SPIRV-Headers"]
-	path = external/SPIRV-Headers
+[submodule "External/SPIRV-Headers"]
+	path = External/SPIRV-Headers
 	url = https://github.com/KhronosGroup/SPIRV-Headers.git
-[submodule "external/glslang"]
-	path = external/glslang
+[submodule "External/glslang"]
+	path = External/glslang
 	url = https://github.com/KhronosGroup/glslang.git
-[submodule "external/effcee"]
-	path = external/effcee
+[submodule "External/effcee"]
+	path = External/effcee
 	url = https://github.com/google/effcee.git
-[submodule "external/re2"]
-	path = external/re2
+[submodule "External/re2"]
+	path = External/re2
 	url = https://github.com/google/re2.git
-[submodule "external/SPIRV-Cross"]
-	path = external/SPIRV-Cross
+[submodule "External/SPIRV-Cross"]
+	path = External/SPIRV-Cross
 	url = https://github.com/KhronosGroup/SPIRV-Cross.git
-[submodule "external/OpenAL-Soft"]
-	path = external/OpenAL-Soft
+[submodule "External/OpenAL-Soft"]
+	path = External/OpenAL-Soft
 	url = https://github.com/kcat/openal-soft.git
-[submodule "external/libnyquist"]
-	path = external/libnyquist
+[submodule "External/libnyquist"]
+	path = External/libnyquist
 	url = https://github.com/ddiakopoulos/libnyquist.git
-[submodule "external/SDL_net"]
-	path = external/SDL_net
+[submodule "External/SDL_net"]
+	path = External/SDL_net
 	url = https://github.com/libsdl-org/SDL_net.git
-[submodule "external/VulkanMemoryAllocator"]
-	path = external/VulkanMemoryAllocator
+[submodule "External/VulkanMemoryAllocator"]
+	path = External/VulkanMemoryAllocator
 	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
-[submodule "external/freetype"]
-	path = external/freetype
+[submodule "External/freetype"]
+	path = External/freetype
 	url = https://github.com/freetype/freetype.git
-[submodule "external/pocketpy"]
-	path = external/pocketpy
+[submodule "External/pocketpy"]
+	path = External/pocketpy
 	url = https://github.com/blueloveTH/pocketpy.git
-[submodule "external/yaml-cpp"]
-	path = external/yaml-cpp
+[submodule "External/yaml-cpp"]
+	path = External/yaml-cpp
 	url = https://github.com/jbeder/yaml-cpp.git
