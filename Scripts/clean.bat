@@ -1,1 +1,0 @@
-python Python/clean.py
