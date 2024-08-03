@@ -814,7 +814,7 @@ src/Nexus/src/Platform/OpenAL/AudioSourceOpenAL.cpp:11:9: performance: Variable 
 src/Nexus/src/Platform/OpenGL/CommandExecutorOpenGL.hpp:30:14: performance:inconclusive: Technically the member function 'Nexus::Graphics::CommandExecutorOpenGL::ExecuteCommand' can be static (but you may consider moving to unnamed namespace). [functionStatic]
         void ExecuteCommand(ClearColorTargetCommand command, GraphicsDeviceOpenGL *device);
              ^
-src/Nexus/src/Platform/OpenGL/CommandExecutorOpenGL.cpp:236:33: note: Technically the member function 'Nexus::Graphics::CommandExecutorOpenGL::ExecuteCommand' can be static (but you may consider moving to unnamed namespace).
+src/Nexus/src/Platform/OpenGL/CommandExecutorOpenGL.cpp:245:33: note: Technically the member function 'Nexus::Graphics::CommandExecutorOpenGL::ExecuteCommand' can be static (but you may consider moving to unnamed namespace).
     void CommandExecutorOpenGL::ExecuteCommand(ClearColorTargetCommand command, GraphicsDeviceOpenGL *device)
                                 ^
 src/Nexus/src/Platform/OpenGL/CommandExecutorOpenGL.hpp:30:14: note: Technically the member function 'Nexus::Graphics::CommandExecutorOpenGL::ExecuteCommand' can be static (but you may consider moving to unnamed namespace).
@@ -823,7 +823,7 @@ src/Nexus/src/Platform/OpenGL/CommandExecutorOpenGL.hpp:30:14: note: Technically
 src/Nexus/src/Platform/OpenGL/CommandExecutorOpenGL.hpp:31:14: performance:inconclusive: Technically the member function 'Nexus::Graphics::CommandExecutorOpenGL::ExecuteCommand' can be static (but you may consider moving to unnamed namespace). [functionStatic]
         void ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDeviceOpenGL *device);
              ^
-src/Nexus/src/Platform/OpenGL/CommandExecutorOpenGL.cpp:251:33: note: Technically the member function 'Nexus::Graphics::CommandExecutorOpenGL::ExecuteCommand' can be static (but you may consider moving to unnamed namespace).
+src/Nexus/src/Platform/OpenGL/CommandExecutorOpenGL.cpp:260:33: note: Technically the member function 'Nexus::Graphics::CommandExecutorOpenGL::ExecuteCommand' can be static (but you may consider moving to unnamed namespace).
     void CommandExecutorOpenGL::ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDeviceOpenGL *device)
                                 ^
 src/Nexus/src/Platform/OpenGL/CommandExecutorOpenGL.hpp:31:14: note: Technically the member function 'Nexus::Graphics::CommandExecutorOpenGL::ExecuteCommand' can be static (but you may consider moving to unnamed namespace).
@@ -838,7 +838,7 @@ src/Nexus/src/Platform/OpenGL/TextureOpenGL.hpp:13:9: style: Class 'TextureOpenG
 src/Nexus/src/Platform/OpenGL/ResourceSetOpenGL.hpp:17:9: style: Class 'ResourceSetOpenGL' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         ResourceSetOpenGL(const ResourceSetSpecification &spec);
         ^
-src/Nexus/src/Platform/OpenGL/CommandExecutorOpenGL.cpp:320:38: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Platform/OpenGL/CommandExecutorOpenGL.cpp:329:38: style: C-style pointer casting [cstyleCast]
         SwapchainOpenGL *swapchain = (SwapchainOpenGL *)command.Target;
                                      ^
 src/Nexus/src/Platform/OpenGL/CommandListOpenGL.hpp:19:9: style: Class 'CommandListOpenGL' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
@@ -850,6 +850,9 @@ src/Nexus/src/Platform/OpenGL/SamplerOpenGL.hpp:12:9: style: Class 'SamplerOpenG
 src/Nexus/src/Platform/OpenGL/GraphicsDeviceOpenGL.cpp:158:28: style: C-style pointer casting [cstyleCast]
         auto glSwapchain = (SwapchainOpenGL *)swapchain;
                            ^
+src/Nexus/src/Platform/OpenGL/SamplerOpenGL.cpp:16:33: style: Variable 'levels' is assigned a value that is never used. [unreadVariable]
+                uint32_t levels = spec.MaximumLOD - spec.MinimumLOD;
+                                ^
 src/Nexus/src/Platform/Vulkan/CommandListVk.hpp:14:9: style: Class 'CommandListVk' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         CommandListVk(GraphicsDeviceVk *graphicsDevice);
         ^
