@@ -68,7 +68,7 @@ target_include_directories(Nexus PUBLIC
   external/Freetype/include
   external/pocketpy/include
   external/yaml-cpp/include
-  ../../Binaries/dxc_2023_08_14/inc
+  binaries/dxc_2023_08_14/inc
   )
 
 #dependencies when not building with emscripten
@@ -124,26 +124,26 @@ set_target_properties(libnyquist PROPERTIES FOLDER "src/Nexus/external")
 set_target_properties(freetype PROPERTIES FOLDER "src/Nexus/external")
 set_target_properties(pocketpy PROPERTIES FOLDER "src/Nexus/external")
 set_target_properties(yaml-cpp yaml-cpp-parse yaml-cpp-read yaml-cpp-sandbox PROPERTIES FOLDER "src/Nexus/external")
-set_target_properties(assimp UpdateAssimpLibsDebugSymbolsAndDLLs PROPERTIES FOLDER "src/Nexus/external")
+set_target_properties(assimp PROPERTIES FOLDER "src/Nexus/external")
 set_target_properties(add-copyright build_version build-version check-copyright
     common core_tables enum_string_mapping ex-common extinst_tables testdata uninstall zlibstatic
     PROPERTIES FOLDER "src/Nexus/external")
 
 #linking dependencies
 target_link_libraries(Nexus PUBLIC
-${OPENGL_LIBRARIES}
-SDL3::SDL3
-glad
-assimp
-imgui
-imguizmo
-shaderc
-libnyquist
-spirv-cross-cpp
-spirv-cross-hlsl
-pocketpy
-freetype
-yaml-cpp::yaml-cpp
+  ${OPENGL_LIBRARIES}
+  SDL3::SDL3
+  glad
+  assimp
+  imgui
+  imguizmo
+  shaderc
+  libnyquist
+  spirv-cross-cpp
+  spirv-cross-hlsl
+  pocketpy
+  freetype
+  yaml-cpp::yaml-cpp
 )
 
 if(WIN32 OR LINUX)

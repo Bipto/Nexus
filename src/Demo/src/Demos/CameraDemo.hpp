@@ -112,14 +112,6 @@ namespace Demos
                 m_Window->GetWindowSize().X,
                 m_Window->GetWindowSize().Y,
                 time);
-
-            std::stringstream ss;
-            ss << "Camera Rotation:" << m_Camera.GetPitch() << ", " << m_Camera.GetYaw() << "\n";
-            NX_LOG(ss.str());
-        }
-
-        virtual void OnResize(Nexus::Point2D<uint32_t> size) override
-        {
         }
 
     private:
