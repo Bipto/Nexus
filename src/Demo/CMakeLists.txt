@@ -8,7 +8,7 @@ else()
     add_executable(Demo src/main.cpp)
 endif()
 
-target_include_directories(Demo PUBLIC ../../src/Nexus/src)
+target_include_directories(Demo PUBLIC ../Nexus/src)
 target_link_libraries(Demo PUBLIC Nexus)
 
 #flags required for emscripten

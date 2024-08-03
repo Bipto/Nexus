@@ -4,7 +4,7 @@ project("Sandbox")
 
 add_executable(Sandbox src/main.cpp)
 
-target_include_directories(Sandbox PUBLIC ../../src/Nexus/src)
+target_include_directories(Sandbox PUBLIC ../Nexus/src)
 target_link_libraries(Sandbox PUBLIC Nexus)
 
 #copy resources folder to output directory

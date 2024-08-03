@@ -9,8 +9,8 @@ file (GLOB_RECURSE APP_SOURCES
 
 add_executable(Editor main.cpp ${APP_SOURCES})
 
-target_include_directories(Editor PUBLIC NexusEngine)
-target_link_libraries(Editor PUBLIC NexusEngine)
+target_include_directories(Editor PUBLIC ../Nexus/src)
+target_link_libraries(Editor PUBLIC Nexus)
 
 target_include_directories(Editor PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
