@@ -29,18 +29,4 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:${PROJECT_NAME}>)
 
-#copy required DXC libraries to executable directory
-if (WIN32)
-  add_custom_command(
-      TARGET ${PROJECT_NAME} POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy
-          ${CMAKE_SOURCE_DIR}/Binaries/dxc_2023_08_14/bin/x64/dxcompiler.dll
-          $<TARGET_FILE_DIR:${PROJECT_NAME}>
-  )
-  add_custom_command(
-      TARGET ${PROJECT_NAME} POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy
-          ${CMAKE_SOURCE_DIR}/Binaries/dxc_2023_08_14/bin/x64/dxil.dll
-          $<TARGET_FILE_DIR:${PROJECT_NAME}>
-  )
-endif()
+nexus_copy_required_binaries()

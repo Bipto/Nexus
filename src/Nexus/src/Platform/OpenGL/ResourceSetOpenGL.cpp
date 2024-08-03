@@ -20,17 +20,17 @@ namespace Nexus::Graphics
         m_BoundSamplers[name] = std::dynamic_pointer_cast<SamplerOpenGL>(sampler);
     }
 
-    const std::map<std::string, Ref<TextureOpenGL>> &ResourceSetOpenGL::GetBoundTextures() const
+    const std::map<std::string, WeakRef<TextureOpenGL>> &ResourceSetOpenGL::GetBoundTextures() const
     {
         return m_BoundTextures;
     }
 
-    const std::map<std::string, Ref<UniformBufferOpenGL>> &ResourceSetOpenGL::GetBoundUniformBuffers() const
+    const std::map<std::string, WeakRef<UniformBufferOpenGL>> &ResourceSetOpenGL::GetBoundUniformBuffers() const
     {
         return m_BoundUniformBuffers;
     }
 
-    const std::map<std::string, Ref<SamplerOpenGL>> &ResourceSetOpenGL::GetBoundSamplers() const
+    const std::map<std::string, WeakRef<SamplerOpenGL>> &ResourceSetOpenGL::GetBoundSamplers() const
     {
         return m_BoundSamplers;
     }

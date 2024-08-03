@@ -50,7 +50,7 @@ namespace Nexus::Graphics
 
     private:
         const char *m_GlslVersion;
-        Ref<FramebufferOpenGL> m_BoundFramebuffer = nullptr;
+        WeakRef<FramebufferOpenGL> m_BoundFramebuffer = {};
         VSyncState m_VsyncState = VSyncState::Enabled;
 
         std::vector<std::string> m_Extensions{};

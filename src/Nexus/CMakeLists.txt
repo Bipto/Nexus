@@ -28,9 +28,7 @@ endif()
 #this is because these libraries are incompatible with emscripten
 if (WIN32 OR LINUX)
     add_subdirectory(external/tinyfiledialogs)
-    add_subdirectory(external/re2)
-    add_subdirectory(external/effcee)
-    set_target_properties(tinyfiledialogs re2 effcee PROPERTIES FOLDER "external")
+    set_target_properties(tinyfiledialogs PROPERTIES FOLDER "external")
 endif()
 
 #adds cpp and h files from engine
@@ -159,3 +157,23 @@ endif()
 if(WIN32 OR ANDROID OR LINUX)
 target_link_libraries(Nexus PUBLIC OpenAL)
 endif()
+
+macro(nexus_copy_required_binaries)
+  if (WIN32)
+    get_target_property(Nexus_SOURCE_DIR Nexus SOURCE_DIR)
+
+    add_custom_command(
+      TARGET ${PROJECT_NAME} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy
+          ${Nexus_SOURCE_DIR}/binaries/dxc_2023_08_14/bin/x64/dxcompiler.dll
+          $<TARGET_FILE_DIR:${PROJECT_NAME}>
+  )
+
+  add_custom_command(
+      TARGET ${PROJECT_NAME} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy
+          ${Nexus_SOURCE_DIR}/binaries/dxc_2023_08_14/bin/x64/dxil.dll
+          $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    )
+  endif()
+endmacro()

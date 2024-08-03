@@ -202,34 +202,43 @@ namespace Nexus::Graphics
 
         for (const auto &texture : textureBindings)
         {
-            GLint location = glGetUniformLocation(pipeline->GetShaderHandle(), texture.first.c_str());
-            glCall(glUniform1i(location, location));
-            glCall(glActiveTexture(GL_TEXTURE0 + location));
-            glCall(glBindTexture(GL_TEXTURE_2D, texture.second->GetNativeHandle()));
+            if (Ref<TextureOpenGL> textureGL = texture.second.lock())
+            {
+                GLint location = glGetUniformLocation(pipeline->GetShaderHandle(), texture.first.c_str());
+                glCall(glUniform1i(location, location));
+                glCall(glActiveTexture(GL_TEXTURE0 + location));
+                glCall(glBindTexture(GL_TEXTURE_2D, textureGL->GetNativeHandle()));
+            }
         }
 
         for (const auto &sampler : samplerBindings)
         {
-            GLint location = glGetUniformLocation(pipeline->GetShaderHandle(), sampler.first.c_str());
-            glCall(glBindSampler(location, sampler.second->GetHandle()));
+            if (Ref<SamplerOpenGL> samplerGL = sampler.second.lock())
+            {
+                GLint location = glGetUniformLocation(pipeline->GetShaderHandle(), sampler.first.c_str());
+                glCall(glBindSampler(location, samplerGL->GetHandle()));
+            }
         }
 
         GLuint uniformBufferSlot = 0;
         for (const auto &uniformBuffer : uniformBufferBindings)
         {
-            GLint location = glGetUniformBlockIndex(pipeline->GetShaderHandle(), uniformBuffer.first.c_str());
+            if (Ref<UniformBufferOpenGL> uniformBufferGL = uniformBuffer.second.lock())
+            {
+                GLint location = glGetUniformBlockIndex(pipeline->GetShaderHandle(), uniformBuffer.first.c_str());
 
-            glCall(glUniformBlockBinding(pipeline->GetShaderHandle(),
-                                         location,
-                                         uniformBufferSlot));
+                glCall(glUniformBlockBinding(pipeline->GetShaderHandle(),
+                                             location,
+                                             uniformBufferSlot));
 
-            glCall(glBindBufferRange(GL_UNIFORM_BUFFER,
-                                     uniformBufferSlot,
-                                     uniformBuffer.second->GetHandle(),
-                                     0,
-                                     uniformBuffer.second->GetDescription().Size));
+                glCall(glBindBufferRange(GL_UNIFORM_BUFFER,
+                                         uniformBufferSlot,
+                                         uniformBufferGL->GetHandle(),
+                                         0,
+                                         uniformBufferGL->GetDescription().Size));
 
-            uniformBufferSlot++;
+                uniformBufferSlot++;
+            }
         }
     }
 
