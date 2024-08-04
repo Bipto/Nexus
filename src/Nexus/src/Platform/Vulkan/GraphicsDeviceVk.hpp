@@ -6,6 +6,8 @@
 #include "SwapchainVk.hpp"
 #include "Vk.hpp"
 
+#include "CommandExecutorVk.hpp"
+
 namespace Nexus::Graphics
 {
     struct FrameData
@@ -65,6 +67,7 @@ namespace Nexus::Graphics
         const VkPhysicalDeviceProperties &GetDeviceProperties();
 
         void ImmediateSubmit(std::function<void(VkCommandBuffer cmd)> &&function);
+        void TransitionVulkanImageLayout(VkImage image, uint32_t level, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlagBits aspectMask);
         uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
         AllocatedBuffer CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
 
@@ -129,6 +132,8 @@ namespace Nexus::Graphics
         VkPhysicalDeviceProperties m_DeviceProperties;
 
         VSyncState m_VsyncState = VSyncState::Enabled;
+
+        CommandExecutorVk m_CommandExecutor;
 
         friend class SwapchainVk;
     };

@@ -67,9 +67,6 @@ namespace Nexus::Graphics
             throw std::runtime_error("Failed to create image view");
         }
 
-        Ref<CommandListVk> commandList = std::dynamic_pointer_cast<CommandListVk>(m_GraphicsDevice->CreateCommandList());
-        commandList->Begin();
-
         VkImageAspectFlagBits aspectFlags = {};
         if (isDepth)
         {
@@ -82,11 +79,8 @@ namespace Nexus::Graphics
 
         for (uint32_t i = 0; i < m_Specification.Levels; i++)
         {
-            commandList->TransitionVulkanImageLayout(m_Image, i, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, aspectFlags);
+            m_GraphicsDevice->TransitionVulkanImageLayout(m_Image, i, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, aspectFlags);
         }
-
-        commandList->End();
-        m_GraphicsDevice->SubmitCommandList(commandList);
     }
 
     TextureVk::~TextureVk()

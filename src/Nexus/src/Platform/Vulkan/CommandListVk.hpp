@@ -6,6 +6,8 @@
 #include "GraphicsDeviceVk.hpp"
 #include "PipelineVk.hpp"
 
+#include "CommandExecutorVk.hpp"
+
 namespace Nexus::Graphics
 {
     class CommandListVk : public CommandList
@@ -39,24 +41,18 @@ namespace Nexus::Graphics
         virtual void StartTimingQuery(Ref<TimingQuery> query) override;
         virtual void StopTimingQuery(Ref<TimingQuery> query) override;
 
-        const VkCommandBuffer &GetCurrentCommandBuffer();
-        const VkFence &GetCurrentFence();
-        const VkSemaphore &GetCurrentSemaphore();
-        void TransitionVulkanImageLayout(VkImage image, uint32_t level, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlagBits aspectMask);
+        const CommandRecorder &GetCommandRecorder();
+
+        VkCommandBuffer &GetCurrentCommandBuffer();
+        VkSemaphore &GetCurrentSemaphore();
+        VkFence &GetCurrentFence();
 
     private:
+        GraphicsDeviceVk *m_Device;
+        CommandRecorder m_CommandRecorder{};
+
         VkCommandPool m_CommandPools[FRAMES_IN_FLIGHT];
         VkCommandBuffer m_CommandBuffers[FRAMES_IN_FLIGHT];
-        VkCommandBuffer m_CurrentCommandBuffer;
-        GraphicsDeviceVk *m_Device;
-
-        Ref<Pipeline> m_CurrentlyBoundPipeline = nullptr;
-        bool m_RenderPassStarted = false;
-        VkExtent2D m_RenderSize = {0, 0};
-
-        uint32_t m_DepthAttachmentIndex = 0;
-        RenderTarget m_CurrentRenderTarget;
-
         VkSemaphore m_RenderSemaphores[FRAMES_IN_FLIGHT];
         VkFence m_RenderFences[FRAMES_IN_FLIGHT];
     };

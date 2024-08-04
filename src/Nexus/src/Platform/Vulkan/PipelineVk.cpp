@@ -54,8 +54,6 @@ namespace Nexus::Graphics
         colorBlending.attachmentCount = blendStates.size();
         colorBlending.pAttachments = blendStates.data();
 
-        // const auto &shaderStages = vulkanShader->GetShaderStages();
-
         // create vertex input layout
         std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
         std::vector<VkVertexInputBindingDescription> bindingDescriptions;
@@ -232,6 +230,8 @@ namespace Nexus::Graphics
         info.depthBiasConstantFactor = 0.0f;
         info.depthBiasClamp = 0.0f;
         info.depthBiasSlopeFactor = 0.0f;
+
+        info.frontFace = GetFrontFace(m_Description.RasterizerStateDesc.TriangleFrontFace);
 
         return info;
     }

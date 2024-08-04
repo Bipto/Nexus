@@ -18,7 +18,7 @@ namespace Nexus::Graphics
 {
     struct SetVertexBufferCommand
     {
-        Ref<VertexBuffer> VertexBufferRef = nullptr;
+        WeakRef<VertexBuffer> VertexBufferRef = {};
         uint32_t Slot = 0;
     };
 
@@ -137,8 +137,8 @@ namespace Nexus::Graphics
 
     typedef std::variant<
         SetVertexBufferCommand,
-        Ref<IndexBuffer>,
-        Ref<Pipeline>,
+        WeakRef<IndexBuffer>,
+        WeakRef<Pipeline>,
         DrawElementCommand,
         DrawIndexedCommand,
         DrawInstancedCommand,

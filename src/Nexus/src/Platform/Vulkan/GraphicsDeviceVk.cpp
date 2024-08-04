@@ -18,7 +18,7 @@
 namespace Nexus::Graphics
 {
     GraphicsDeviceVk::GraphicsDeviceVk(const GraphicsDeviceCreateInfo &createInfo, Window *window, const SwapchainSpecification &swapchainSpec)
-        : GraphicsDevice(createInfo, window, swapchainSpec)
+        : GraphicsDevice(createInfo, window, swapchainSpec), m_CommandExecutor(this)
     {
         CreateInstance();
 
@@ -62,8 +62,7 @@ namespace Nexus::Graphics
 
     void GraphicsDeviceVk::SubmitCommandList(Ref<CommandList> commandList)
     {
-        // VkPipelineStageFlags waitDestStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
-        VkPipelineStageFlags waitDestStageMask = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
+        /* VkPipelineStageFlags waitDestStageMask = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
         auto vulkanCommandList = std::dynamic_pointer_cast<CommandListVk>(commandList);
 
         vkWaitForFences(m_Device, 1, &vulkanCommandList->GetCurrentFence(), VK_TRUE, 0);
@@ -85,7 +84,36 @@ namespace Nexus::Graphics
         }
 
         vkWaitForFences(m_Device, 1, &vulkanCommandList->GetCurrentFence(), VK_TRUE, UINT32_MAX);
-        vkResetFences(m_Device, 1, &vulkanCommandList->GetCurrentFence());
+        vkResetFences(m_Device, 1, &vulkanCommandList->GetCurrentFence()); */
+
+        VkPipelineStageFlags waitDestStageMask = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
+        Ref<CommandListVk> commandListVk = std::dynamic_pointer_cast<CommandListVk>(commandList);
+
+        vkWaitForFences(m_Device, 1, &commandListVk->GetCurrentFence(), VK_TRUE, 0);
+        vkResetFences(m_Device, 1, &commandListVk->GetCurrentFence());
+
+        const CommandRecorder &commandRecorder = commandListVk->GetCommandRecorder();
+        m_CommandExecutor.SetCommandBuffer(commandListVk->GetCurrentCommandBuffer());
+        m_CommandExecutor.ExecuteCommands(commandRecorder.GetCommands(), this);
+        m_CommandExecutor.Reset();
+
+        VkSubmitInfo submitInfo = {};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.waitSemaphoreCount = 0;
+        submitInfo.pWaitSemaphores = nullptr;
+        submitInfo.pWaitDstStageMask = &waitDestStageMask;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &commandListVk->GetCurrentCommandBuffer();
+        submitInfo.signalSemaphoreCount = 0;
+        submitInfo.pSignalSemaphores = nullptr;
+
+        if (vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, commandListVk->GetCurrentFence()) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to submit queue");
+        }
+
+        vkWaitForFences(m_Device, 1, &commandListVk->GetCurrentFence(), VK_TRUE, UINT32_MAX);
+        vkResetFences(m_Device, 1, &commandListVk->GetCurrentFence());
     }
 
     const std::string GraphicsDeviceVk::GetAPIName()
@@ -265,6 +293,41 @@ namespace Nexus::Graphics
 
         vkDeviceWaitIdle(m_Device);
         vkQueueWaitIdle(m_GraphicsQueue);
+    }
+
+    void GraphicsDeviceVk::TransitionVulkanImageLayout(VkImage image, uint32_t level, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlagBits aspectMask)
+    {
+        ImmediateSubmit([&](VkCommandBuffer cmd)
+                        {
+            VkImageMemoryBarrier barrier{};
+            barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+            barrier.oldLayout = oldLayout;
+            barrier.newLayout = newLayout;
+
+            barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+            barrier.image = image;
+            barrier.subresourceRange.aspectMask = aspectMask;
+            barrier.subresourceRange.baseMipLevel = level;
+            barrier.subresourceRange.levelCount = 1;
+            barrier.subresourceRange.baseArrayLayer = 0;
+            barrier.subresourceRange.layerCount = 1;
+
+            barrier.srcAccessMask = 0;
+            barrier.dstAccessMask = 0;
+
+            vkCmdPipelineBarrier(
+                cmd,
+                VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                VK_DEPENDENCY_BY_REGION_BIT,
+                0,
+                nullptr,
+                0,
+                nullptr,
+                1,
+                &barrier); });
     }
 
     const std::vector<const char *> validationLayers =

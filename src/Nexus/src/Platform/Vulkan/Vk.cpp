@@ -529,4 +529,28 @@ VkShaderStageFlagBits GetVkShaderStageFlags(Nexus::Graphics::ShaderStage stage)
     }
 }
 
+VkIndexType GetVulkanIndexBufferFormat(Nexus::Graphics::IndexBufferFormat format)
+{
+    switch (format)
+    {
+    case Nexus::Graphics::IndexBufferFormat::UInt16:
+        return VK_INDEX_TYPE_UINT16;
+    case Nexus::Graphics::IndexBufferFormat::UInt32:
+        return VK_INDEX_TYPE_UINT32;
+    }
+}
+
+VkFrontFace GetFrontFace(Nexus::Graphics::FrontFace frontFace)
+{
+    switch (frontFace)
+    {
+    case Nexus::Graphics::FrontFace::Clockwise:
+        return VK_FRONT_FACE_CLOCKWISE;
+    case Nexus::Graphics::FrontFace::CounterClockwise:
+        return VK_FRONT_FACE_COUNTER_CLOCKWISE;
+    default:
+        throw std::runtime_error("Failed to find a valid front face");
+    }
+}
+
 #endif

@@ -29,6 +29,9 @@ VkImageUsageFlagBits GetVkImageUsageFlags(const std::vector<Nexus::Graphics::Tex
 
 VkShaderStageFlagBits GetVkShaderStageFlags(Nexus::Graphics::ShaderStage stage);
 
+VkIndexType GetVulkanIndexBufferFormat(Nexus::Graphics::IndexBufferFormat format);
+VkFrontFace GetFrontFace(Nexus::Graphics::FrontFace frontFace);
+
 struct AllocatedBuffer
 {
     VkBuffer Buffer;

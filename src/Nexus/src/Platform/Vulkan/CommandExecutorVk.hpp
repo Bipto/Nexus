@@ -1,22 +1,28 @@
 #pragma once
 
-#if defined(NX_PLATFORM_OPENGL)
+#if defined(NX_PLATFORM_VULKAN)
 
 #include "Nexus-Core/Graphics/CommandExecutor.hpp"
-#include "Nexus-Core/Graphics/CommandList.hpp"
 
-#include "BufferOpenGL.hpp"
-#include "PipelineOpenGL.hpp"
+#include "Vk.hpp"
 
 namespace Nexus::Graphics
 {
-    class CommandExecutorOpenGL : public CommandExecutor
+    class GraphicsDeviceVk;
+
+    class CommandExecutorVk : public CommandExecutor
     {
     public:
-        CommandExecutorOpenGL() = default;
-        virtual ~CommandExecutorOpenGL();
+        explicit CommandExecutorVk(GraphicsDeviceVk *device);
+        virtual ~CommandExecutorVk();
         virtual void ExecuteCommands(const std::vector<RenderCommandData> &commands, GraphicsDevice *device) override;
         virtual void Reset() override;
+
+        void SetCommandBuffer(VkCommandBuffer commandBuffer);
+
+        const VkCommandBuffer &GetCurrentCommandBuffer();
+        const VkFence &GetCurrentFence();
+        const VkSemaphore &GetCurrentSemaphore();
 
     private:
         virtual void ExecuteCommand(SetVertexBufferCommand command, GraphicsDevice *device) override;
@@ -36,11 +42,19 @@ namespace Nexus::Graphics
         virtual void ExecuteCommand(StartTimingQueryCommand command, GraphicsDevice *device) override;
         virtual void ExecuteCommand(StopTimingQueryCommand command, GraphicsDevice *device) override;
 
+        void TransitionVulkanImageLayout(VkImage image, uint32_t level, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlagBits aspectMask);
+
     private:
-        WeakRef<PipelineOpenGL> m_CurrentlyBoundPipeline = {};
-        RenderTarget m_CurrentRenderTarget = {};
-        std::map<uint32_t, Nexus::WeakRef<Nexus::Graphics::VertexBufferOpenGL>> m_CurrentlyBoundVertexBuffers = {};
-        GLenum m_IndexBufferFormat;
+        GraphicsDeviceVk *m_Device = nullptr;
+
+        Ref<Pipeline> m_CurrentlyBoundPipeline = nullptr;
+        bool m_RenderPassStarted = false;
+        VkExtent2D m_RenderSize = {0, 0};
+
+        uint32_t m_DepthAttachmentIndex = 0;
+        RenderTarget m_CurrentRenderTarget;
+
+        VkCommandBuffer m_CommandBuffer = nullptr;
     };
 }
 

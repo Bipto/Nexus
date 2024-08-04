@@ -13,7 +13,7 @@ namespace Nexus::Graphics
         Reset();
     }
 
-    void CommandExecutorOpenGL::ExecuteCommands(const std::vector<RenderCommandData> &commands, GraphicsDeviceOpenGL *device)
+    void CommandExecutorOpenGL::ExecuteCommands(const std::vector<RenderCommandData> &commands, GraphicsDevice *device)
     {
         for (const auto &element : commands)
         {
@@ -33,39 +33,66 @@ namespace Nexus::Graphics
         m_CurrentRenderTarget = {};
     }
 
-    void CommandExecutorOpenGL::ExecuteCommand(SetVertexBufferCommand command, GraphicsDeviceOpenGL *device)
+    void CommandExecutorOpenGL::ExecuteCommand(SetVertexBufferCommand command, GraphicsDevice *device)
     {
-        auto vertexBufferGL = std::dynamic_pointer_cast<VertexBufferOpenGL>(command.VertexBufferRef);
-        vertexBufferGL->Bind();
-        m_CurrentlyBoundVertexBuffers[command.Slot] = vertexBufferGL;
-    }
-
-    void CommandExecutorOpenGL::ExecuteCommand(Ref<IndexBuffer> command, GraphicsDeviceOpenGL *device)
-    {
-        auto indexBufferGL = std::dynamic_pointer_cast<IndexBufferOpenGL>(command);
-        indexBufferGL->Bind();
-        m_IndexBufferFormat = GL::GetGLIndexBufferFormat(indexBufferGL->GetFormat());
-    }
-
-    void CommandExecutorOpenGL::ExecuteCommand(Ref<Pipeline> command, GraphicsDeviceOpenGL *device)
-    {
-        auto pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(command);
-        auto target = pipeline->GetPipelineDescription().Target;
-
-        ExecuteCommand(SetRenderTargetCommand{target}, device);
-
-        // unbind the current pipeline before binding the new one
-        if (Ref<PipelineOpenGL> oldPipeline = m_CurrentlyBoundPipeline.lock())
+        if (command.VertexBufferRef.expired())
         {
-            oldPipeline->Unbind();
+            NX_ERROR("Attempting to bind an invalid vertex buffer");
+            return;
         }
 
-        // bind the pipeline
-        pipeline->Bind();
-        m_CurrentlyBoundPipeline = pipeline;
+        if (Ref<VertexBuffer> vb = command.VertexBufferRef.lock())
+        {
+            Ref<VertexBufferOpenGL> vertexBufferGL = std::dynamic_pointer_cast<VertexBufferOpenGL>(vb);
+            vertexBufferGL->Bind();
+            m_CurrentlyBoundVertexBuffers[command.Slot] = vertexBufferGL;
+        }
     }
 
-    void CommandExecutorOpenGL::ExecuteCommand(DrawElementCommand command, GraphicsDeviceOpenGL *device)
+    void CommandExecutorOpenGL::ExecuteCommand(WeakRef<IndexBuffer> command, GraphicsDevice *device)
+    {
+        if (command.expired())
+        {
+            NX_ERROR("Attempting to bind an invalid index buffer");
+            return;
+        }
+
+        if (Ref<IndexBuffer> ib = command.lock())
+        {
+            auto indexBufferGL = std::dynamic_pointer_cast<IndexBufferOpenGL>(ib);
+            indexBufferGL->Bind();
+            m_IndexBufferFormat = GL::GetGLIndexBufferFormat(indexBufferGL->GetFormat());
+        }
+    }
+
+    void CommandExecutorOpenGL::ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device)
+    {
+        if (command.expired())
+        {
+            NX_ERROR("Attempting to bind an invalid pipeline");
+            return;
+        }
+
+        if (Ref<Pipeline> pl = command.lock())
+        {
+            auto pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(pl);
+            auto target = pipeline->GetPipelineDescription().Target;
+
+            ExecuteCommand(SetRenderTargetCommand{target}, device);
+
+            // unbind the current pipeline before binding the new one
+            if (Ref<PipelineOpenGL> oldPipeline = m_CurrentlyBoundPipeline.lock())
+            {
+                oldPipeline->Unbind();
+            }
+
+            // bind the pipeline
+            pipeline->Bind();
+            m_CurrentlyBoundPipeline = pipeline;
+        }
+    }
+
+    void CommandExecutorOpenGL::ExecuteCommand(DrawElementCommand command, GraphicsDevice *device)
     {
         if (m_CurrentlyBoundPipeline.expired())
         {
@@ -84,7 +111,7 @@ namespace Nexus::Graphics
         }
     }
 
-    void CommandExecutorOpenGL::ExecuteCommand(DrawIndexedCommand command, GraphicsDeviceOpenGL *device)
+    void CommandExecutorOpenGL::ExecuteCommand(DrawIndexedCommand command, GraphicsDevice *device)
     {
         if (m_CurrentlyBoundPipeline.expired())
         {
@@ -121,7 +148,7 @@ namespace Nexus::Graphics
         }
     }
 
-    void CommandExecutorOpenGL::ExecuteCommand(DrawInstancedCommand command, GraphicsDeviceOpenGL *device)
+    void CommandExecutorOpenGL::ExecuteCommand(DrawInstancedCommand command, GraphicsDevice *device)
     {
         if (m_CurrentlyBoundPipeline.expired())
         {
@@ -141,7 +168,7 @@ namespace Nexus::Graphics
         }
     }
 
-    void CommandExecutorOpenGL::ExecuteCommand(DrawInstancedIndexedCommand command, GraphicsDeviceOpenGL *device)
+    void CommandExecutorOpenGL::ExecuteCommand(DrawInstancedIndexedCommand command, GraphicsDevice *device)
     {
         if (m_CurrentlyBoundPipeline.expired())
         {
@@ -179,7 +206,7 @@ namespace Nexus::Graphics
         }
     }
 
-    void CommandExecutorOpenGL::ExecuteCommand(UpdateResourcesCommand command, GraphicsDeviceOpenGL *device)
+    void CommandExecutorOpenGL::ExecuteCommand(UpdateResourcesCommand command, GraphicsDevice *device)
     {
         if (m_CurrentlyBoundPipeline.expired())
         {
@@ -242,7 +269,7 @@ namespace Nexus::Graphics
         }
     }
 
-    void CommandExecutorOpenGL::ExecuteCommand(ClearColorTargetCommand command, GraphicsDeviceOpenGL *device)
+    void CommandExecutorOpenGL::ExecuteCommand(ClearColorTargetCommand command, GraphicsDevice *device)
     {
         float color[] =
             {
@@ -257,28 +284,30 @@ namespace Nexus::Graphics
             color));
     }
 
-    void CommandExecutorOpenGL::ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDeviceOpenGL *device)
+    void CommandExecutorOpenGL::ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDevice *device)
     {
         glCall(glClearBufferfi(GL_DEPTH_STENCIL, 0, command.Value.Depth, command.Value.Stencil));
     }
 
-    void CommandExecutorOpenGL::ExecuteCommand(SetRenderTargetCommand command, GraphicsDeviceOpenGL *device)
+    void CommandExecutorOpenGL::ExecuteCommand(SetRenderTargetCommand command, GraphicsDevice *device)
     {
+        GraphicsDeviceOpenGL *deviceGL = (GraphicsDeviceOpenGL *)device;
+
         // handle different options of render targets
         if (Nexus::Graphics::Swapchain **swapchain = command.Target.GetDataIf<Swapchain *>())
         {
-            device->SetSwapchain(*swapchain);
+            deviceGL->SetSwapchain(*swapchain);
         }
 
         if (Nexus::Ref<Nexus::Graphics::Framebuffer> *framebuffer = command.Target.GetDataIf<Nexus::Ref<Nexus::Graphics::Framebuffer>>())
         {
-            device->SetFramebuffer(*framebuffer);
+            deviceGL->SetFramebuffer(*framebuffer);
         }
 
         m_CurrentRenderTarget = command.Target;
     }
 
-    void CommandExecutorOpenGL::ExecuteCommand(SetViewportCommand command, GraphicsDeviceOpenGL *device)
+    void CommandExecutorOpenGL::ExecuteCommand(SetViewportCommand command, GraphicsDevice *device)
     {
         if (m_CurrentRenderTarget.GetType() == RenderTargetType::None)
         {
@@ -300,7 +329,7 @@ namespace Nexus::Graphics
             command.Viewport.MaxDepth));
     }
 
-    void CommandExecutorOpenGL::ExecuteCommand(SetScissorCommand command, GraphicsDeviceOpenGL *device)
+    void CommandExecutorOpenGL::ExecuteCommand(SetScissorCommand command, GraphicsDevice *device)
     {
         if (m_CurrentRenderTarget.GetType() == RenderTargetType::None)
         {
@@ -317,7 +346,7 @@ namespace Nexus::Graphics
             command.Scissor.Height));
     }
 
-    void CommandExecutorOpenGL::ExecuteCommand(ResolveSamplesToSwapchainCommand command, GraphicsDeviceOpenGL *device)
+    void CommandExecutorOpenGL::ExecuteCommand(ResolveSamplesToSwapchainCommand command, GraphicsDevice *device)
     {
         if (command.Source.expired())
         {
@@ -347,7 +376,7 @@ namespace Nexus::Graphics
             GL_LINEAR));
     }
 
-    void CommandExecutorOpenGL::ExecuteCommand(StartTimingQueryCommand command, GraphicsDeviceOpenGL *device)
+    void CommandExecutorOpenGL::ExecuteCommand(StartTimingQueryCommand command, GraphicsDevice *device)
     {
         if (command.Query.expired())
         {
@@ -363,7 +392,7 @@ namespace Nexus::Graphics
         query->m_Start = (uint64_t)timer;
     }
 
-    void CommandExecutorOpenGL::ExecuteCommand(StopTimingQueryCommand command, GraphicsDeviceOpenGL *device)
+    void CommandExecutorOpenGL::ExecuteCommand(StopTimingQueryCommand command, GraphicsDevice *device)
     {
         if (command.Query.expired())
         {
