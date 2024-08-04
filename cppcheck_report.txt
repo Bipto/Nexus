@@ -850,9 +850,6 @@ src/Nexus/src/Platform/OpenGL/SamplerOpenGL.hpp:12:9: style: Class 'SamplerOpenG
 src/Nexus/src/Platform/OpenGL/GraphicsDeviceOpenGL.cpp:158:28: style: C-style pointer casting [cstyleCast]
         auto glSwapchain = (SwapchainOpenGL *)swapchain;
                            ^
-src/Nexus/src/Platform/OpenGL/SamplerOpenGL.cpp:16:33: style: Variable 'levels' is assigned a value that is never used. [unreadVariable]
-                uint32_t levels = spec.MaximumLOD - spec.MinimumLOD;
-                                ^
 src/Nexus/src/Platform/Vulkan/CommandListVk.hpp:14:9: style: Class 'CommandListVk' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         CommandListVk(GraphicsDeviceVk *graphicsDevice);
         ^
