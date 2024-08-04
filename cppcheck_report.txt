@@ -811,24 +811,6 @@ src/Nexus/src/Platform/OpenAL/AudioDeviceOpenAL.cpp:105:28: style: Variable 'bit
 src/Nexus/src/Platform/OpenAL/AudioSourceOpenAL.cpp:11:9: performance: Variable 'm_Buffer' is assigned in constructor body. Consider performing initialization in initialization list. [useInitializationList]
         m_Buffer = buffer;
         ^
-src/Nexus/src/Platform/OpenGL/CommandExecutorOpenGL.hpp:30:14: performance:inconclusive: Technically the member function 'Nexus::Graphics::CommandExecutorOpenGL::ExecuteCommand' can be static (but you may consider moving to unnamed namespace). [functionStatic]
-        void ExecuteCommand(ClearColorTargetCommand command, GraphicsDeviceOpenGL *device);
-             ^
-src/Nexus/src/Platform/OpenGL/CommandExecutorOpenGL.cpp:245:33: note: Technically the member function 'Nexus::Graphics::CommandExecutorOpenGL::ExecuteCommand' can be static (but you may consider moving to unnamed namespace).
-    void CommandExecutorOpenGL::ExecuteCommand(ClearColorTargetCommand command, GraphicsDeviceOpenGL *device)
-                                ^
-src/Nexus/src/Platform/OpenGL/CommandExecutorOpenGL.hpp:30:14: note: Technically the member function 'Nexus::Graphics::CommandExecutorOpenGL::ExecuteCommand' can be static (but you may consider moving to unnamed namespace).
-        void ExecuteCommand(ClearColorTargetCommand command, GraphicsDeviceOpenGL *device);
-             ^
-src/Nexus/src/Platform/OpenGL/CommandExecutorOpenGL.hpp:31:14: performance:inconclusive: Technically the member function 'Nexus::Graphics::CommandExecutorOpenGL::ExecuteCommand' can be static (but you may consider moving to unnamed namespace). [functionStatic]
-        void ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDeviceOpenGL *device);
-             ^
-src/Nexus/src/Platform/OpenGL/CommandExecutorOpenGL.cpp:260:33: note: Technically the member function 'Nexus::Graphics::CommandExecutorOpenGL::ExecuteCommand' can be static (but you may consider moving to unnamed namespace).
-    void CommandExecutorOpenGL::ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDeviceOpenGL *device)
-                                ^
-src/Nexus/src/Platform/OpenGL/CommandExecutorOpenGL.hpp:31:14: note: Technically the member function 'Nexus::Graphics::CommandExecutorOpenGL::ExecuteCommand' can be static (but you may consider moving to unnamed namespace).
-        void ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDeviceOpenGL *device);
-             ^
 src/Nexus/src/Platform/OpenGL/PipelineOpenGL.hpp:13:9: style: Class 'PipelineOpenGL' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         PipelineOpenGL(const PipelineDescription &description);
         ^
@@ -838,7 +820,10 @@ src/Nexus/src/Platform/OpenGL/TextureOpenGL.hpp:13:9: style: Class 'TextureOpenG
 src/Nexus/src/Platform/OpenGL/ResourceSetOpenGL.hpp:17:9: style: Class 'ResourceSetOpenGL' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         ResourceSetOpenGL(const ResourceSetSpecification &spec);
         ^
-src/Nexus/src/Platform/OpenGL/CommandExecutorOpenGL.cpp:329:38: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Platform/OpenGL/CommandExecutorOpenGL.cpp:294:42: style: C-style pointer casting [cstyleCast]
+        GraphicsDeviceOpenGL *deviceGL = (GraphicsDeviceOpenGL *)device;
+                                         ^
+src/Nexus/src/Platform/OpenGL/CommandExecutorOpenGL.cpp:358:38: style: C-style pointer casting [cstyleCast]
         SwapchainOpenGL *swapchain = (SwapchainOpenGL *)command.Target;
                                      ^
 src/Nexus/src/Platform/OpenGL/CommandListOpenGL.hpp:19:9: style: Class 'CommandListOpenGL' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
@@ -850,61 +835,61 @@ src/Nexus/src/Platform/OpenGL/SamplerOpenGL.hpp:12:9: style: Class 'SamplerOpenG
 src/Nexus/src/Platform/OpenGL/GraphicsDeviceOpenGL.cpp:158:28: style: C-style pointer casting [cstyleCast]
         auto glSwapchain = (SwapchainOpenGL *)swapchain;
                            ^
-src/Nexus/src/Platform/Vulkan/CommandListVk.hpp:14:9: style: Class 'CommandListVk' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
-        CommandListVk(GraphicsDeviceVk *graphicsDevice);
-        ^
 src/Nexus/src/Platform/Vulkan/TimingQueryVk.hpp:14:9: style: Class 'TimingQueryVk' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         TimingQueryVk(GraphicsDeviceVk *device);
         ^
-src/Nexus/src/Platform/Vulkan/CommandListVk.cpp:300:36: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Platform/Vulkan/CommandExecutorVk.cpp:270:36: style: C-style pointer casting [cstyleCast]
             auto vulkanSwapchain = (SwapchainVk *)swapchain;
                                    ^
-src/Nexus/src/Platform/Vulkan/CommandListVk.cpp:445:28: style: C-style pointer casting [cstyleCast]
-        auto swapchainVk = (SwapchainVk *)target;
+src/Nexus/src/Platform/Vulkan/CommandExecutorVk.cpp:407:28: style: C-style pointer casting [cstyleCast]
+        auto swapchainVk = (SwapchainVk *)command.Target;
                            ^
+src/Nexus/src/Platform/Vulkan/CommandListVk.hpp:16:9: style: Class 'CommandListVk' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+        CommandListVk(GraphicsDeviceVk *graphicsDevice);
+        ^
 src/Nexus/src/Platform/Vulkan/FramebufferVk.cpp:113:25: style: Consider using std::transform algorithm instead of a raw loop. [useStlAlgorithm]
             attachments.push_back(texture->GetImageView());
                         ^
 src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:37:34: style: C-style pointer casting [cstyleCast]
         SwapchainVk *swapchain = (SwapchainVk *)window->GetSwapchain();
                                  ^
-src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:187:34: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:215:34: style: C-style pointer casting [cstyleCast]
         SwapchainVk *swapchain = (SwapchainVk *)m_Window->GetSwapchain();
                                  ^
-src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:382:38: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:445:38: style: C-style pointer casting [cstyleCast]
             SwapchainVk *swapchain = (SwapchainVk *)m_Window->GetSwapchain();
                                      ^
-src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:470:34: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:533:34: style: C-style pointer casting [cstyleCast]
         SwapchainVk *swapchain = (SwapchainVk *)m_Window->GetSwapchain();
                                  ^
-src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:710:16: style: Redundant initialization for 'result'. The initialized value is overwritten before it is read. [redundantInitialization]
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:773:16: style: Redundant initialization for 'result'. The initialized value is overwritten before it is read. [redundantInitialization]
         result = vkEnumerateInstanceExtensionProperties(nullptr, &count, properties.data());
                ^
-src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:707:25: note: result is initialized
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:770:25: note: result is initialized
         VkResult result = vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
                         ^
-src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:710:16: note: result is overwritten
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:773:16: note: result is overwritten
         result = vkEnumerateInstanceExtensionProperties(nullptr, &count, properties.data());
                ^
-src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:740:16: style: Redundant initialization for 'result'. The initialized value is overwritten before it is read. [redundantInitialization]
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:803:16: style: Redundant initialization for 'result'. The initialized value is overwritten before it is read. [redundantInitialization]
         result = vkEnumerateDeviceExtensionProperties(m_PhysicalDevice, nullptr, &count, properties.data());
                ^
-src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:737:25: note: result is initialized
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:800:25: note: result is initialized
         VkResult result = vkEnumerateDeviceExtensionProperties(m_PhysicalDevice, nullptr, &count, nullptr);
                         ^
-src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:740:16: note: result is overwritten
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:803:16: note: result is overwritten
         result = vkEnumerateDeviceExtensionProperties(m_PhysicalDevice, nullptr, &count, properties.data());
                ^
-src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:720:24: style: Consider using std::transform algorithm instead of a raw loop. [useStlAlgorithm]
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:783:24: style: Consider using std::transform algorithm instead of a raw loop. [useStlAlgorithm]
             extensions.push_back(property.extensionName);
                        ^
-src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:750:24: style: Consider using std::transform algorithm instead of a raw loop. [useStlAlgorithm]
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:813:24: style: Consider using std::transform algorithm instead of a raw loop. [useStlAlgorithm]
             extensions.push_back(property.extensionName);
                        ^
 src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:34:31: style: Variable 'deviceExtensions' is assigned a value that is never used. [unreadVariable]
         auto deviceExtensions = GetSupportedDeviceExtensions();
                               ^
-src/Nexus/src/Platform/Vulkan/PipelineVk.cpp:156:32: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Platform/Vulkan/PipelineVk.cpp:154:32: style: C-style pointer casting [cstyleCast]
             auto swapchainVk = (SwapchainVk *)m_Description.Target.GetData<Swapchain *>();
                                ^
 src/Nexus/src/Platform/Vulkan/PipelineVk.cpp:251:32: style: C-style pointer casting [cstyleCast]
@@ -946,13 +931,13 @@ src/Nexus/src/Platform/Vulkan/SwapchainVk.cpp:256:24: style: Variable 'imageCoun
 src/Nexus/src/Platform/Vulkan/SwapchainVk.cpp:291:35: style: Variable 'validDepthFormat' is assigned a value that is never used. [unreadVariable]
         VkBool32 validDepthFormat = GetSupportedDepthFormat(m_GraphicsDevice->m_PhysicalDevice, &m_DepthFormat);
                                   ^
-src/Nexus/src/Platform/Vulkan/TextureVk.cpp:76:25: style: Redundant initialization for 'aspectFlags'. The initialized value is overwritten before it is read. [redundantInitialization]
+src/Nexus/src/Platform/Vulkan/TextureVk.cpp:73:25: style: Redundant initialization for 'aspectFlags'. The initialized value is overwritten before it is read. [redundantInitialization]
             aspectFlags = VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
                         ^
-src/Nexus/src/Platform/Vulkan/TextureVk.cpp:73:43: note: aspectFlags is initialized
+src/Nexus/src/Platform/Vulkan/TextureVk.cpp:70:43: note: aspectFlags is initialized
         VkImageAspectFlagBits aspectFlags = {};
                                           ^
-src/Nexus/src/Platform/Vulkan/TextureVk.cpp:76:25: note: aspectFlags is overwritten
+src/Nexus/src/Platform/Vulkan/TextureVk.cpp:73:25: note: aspectFlags is overwritten
             aspectFlags = VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
                         ^
 src/Nexus/src/Platform/Vulkan/Vk.cpp:474:21: style: Consider using std::any_of, std::all_of, std::none_of, or std::accumulate algorithm instead of a raw loop. [useStlAlgorithm]
