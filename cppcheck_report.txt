@@ -340,6 +340,15 @@ src/Nexus/src/Nexus-Core/FileSystem/FileDialogs.cpp:22:9: style:inconclusive: Co
 src/Nexus/src/Nexus-Core/FileSystem/FileDialogs.cpp:32:9: style:inconclusive: Consecutive return, break, continue, goto or throw statements are unnecessary. [duplicateBreak]
         return "";
         ^
+src/Nexus/src/Nexus-Core/Graphics/CommandList.hpp:164:14: performance:inconclusive: Technically the member function 'Nexus::Graphics::CommandList::End' can be static (but you may consider moving to unnamed namespace). [functionStatic]
+        void End();
+             ^
+src/Nexus/src/Nexus-Core/Graphics/CommandList.cpp:10:23: note: Technically the member function 'Nexus::Graphics::CommandList::End' can be static (but you may consider moving to unnamed namespace).
+    void CommandList::End()
+                      ^
+src/Nexus/src/Nexus-Core/Graphics/CommandList.hpp:164:14: note: Technically the member function 'Nexus::Graphics::CommandList::End' can be static (but you may consider moving to unnamed namespace).
+        void End();
+             ^
 src/Nexus/src/Nexus-Core/Graphics/Font.hpp:91:46: style:inconclusive: Technically the member function 'Nexus::Graphics::Font::GetTexture' can be const. [functionConst]
         Nexus::Ref<Nexus::Graphics::Texture> GetTexture();
                                              ^
@@ -733,27 +742,18 @@ src/Nexus/src/Nexus-Core/Window.hpp:159:14: note: Technically the member functio
 src/Nexus/src/Platform/D3D12/TimingQueryD3D12.hpp:14:9: style: Class 'TimingQueryD3D12' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         TimingQueryD3D12(GraphicsDeviceD3D12 *device);
         ^
-src/Nexus/src/Platform/D3D12/CommandExecutorD3D12.cpp:170:35: style: C-style pointer casting [cstyleCast]
-            auto d3d12Swapchain = (SwapchainD3D12 *)command.Target.GetData<Swapchain *>();
+src/Nexus/src/Platform/D3D12/CommandExecutorD3D12.cpp:169:35: style: C-style pointer casting [cstyleCast]
+            auto d3d12Swapchain = (SwapchainD3D12 *)command.GetData<Swapchain *>();
                                   ^
-src/Nexus/src/Platform/D3D12/CommandExecutorD3D12.cpp:228:31: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Platform/D3D12/CommandExecutorD3D12.cpp:227:31: style: C-style pointer casting [cstyleCast]
         auto swapchainD3D12 = (SwapchainD3D12 *)command.Target;
                               ^
-src/Nexus/src/Platform/D3D12/CommandExecutorD3D12.cpp:418:35: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Platform/D3D12/CommandExecutorD3D12.cpp:417:35: style: C-style pointer casting [cstyleCast]
             auto d3d12Swapchain = (SwapchainD3D12 *)m_CurrentRenderTarget.GetData<Swapchain *>();
                                   ^
 src/Nexus/src/Platform/D3D12/CommandListD3D12.hpp:17:9: style: Class 'CommandListD3D12' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         CommandListD3D12(GraphicsDeviceD3D12 *device);
         ^
-src/Nexus/src/Platform/D3D12/CommandListD3D12.cpp:49:54: style:inconclusive: Function 'SetPipeline' argument 1 names different: declaration 'ipeline' definition 'pipeline'. [funcArgNamesDifferent]
-    void CommandListD3D12::SetPipeline(Ref<Pipeline> pipeline)
-                                                     ^
-src/Nexus/src/Platform/D3D12/CommandListD3D12.hpp:25:48: note: Function 'SetPipeline' argument 1 names different: declaration 'ipeline' definition 'pipeline'.
-        virtual void SetPipeline(Ref<Pipeline> ipeline) override;
-                                               ^
-src/Nexus/src/Platform/D3D12/CommandListD3D12.cpp:49:54: note: Function 'SetPipeline' argument 1 names different: declaration 'ipeline' definition 'pipeline'.
-    void CommandListD3D12::SetPipeline(Ref<Pipeline> pipeline)
-                                                     ^
 src/Nexus/src/Platform/D3D12/FramebufferD3D12.cpp:61:26: style: Variable 'd3d12Device' is assigned a value that is never used. [unreadVariable]
         auto d3d12Device = m_Device->GetDevice();
                          ^
@@ -826,9 +826,6 @@ src/Nexus/src/Platform/OpenGL/CommandExecutorOpenGL.cpp:294:42: style: C-style p
 src/Nexus/src/Platform/OpenGL/CommandExecutorOpenGL.cpp:358:38: style: C-style pointer casting [cstyleCast]
         SwapchainOpenGL *swapchain = (SwapchainOpenGL *)command.Target;
                                      ^
-src/Nexus/src/Platform/OpenGL/CommandListOpenGL.hpp:19:9: style: Class 'CommandListOpenGL' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
-        CommandListOpenGL(GraphicsDevice *device);
-        ^
 src/Nexus/src/Platform/OpenGL/SamplerOpenGL.hpp:12:9: style: Class 'SamplerOpenGL' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         SamplerOpenGL(const SamplerSpecification &spec);
         ^
