@@ -26,12 +26,12 @@ namespace Nexus::Graphics
         virtual void ExecuteCommand(DrawIndexedCommand command, GraphicsDevice *device) override;
         virtual void ExecuteCommand(DrawInstancedCommand command, GraphicsDevice *device) override;
         virtual void ExecuteCommand(DrawInstancedIndexedCommand command, GraphicsDevice *device) override;
-        virtual void ExecuteCommand(UpdateResourcesCommand command, GraphicsDevice *device) override;
+        virtual void ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device) override;
         virtual void ExecuteCommand(ClearColorTargetCommand command, GraphicsDevice *device) override;
         virtual void ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDevice *device) override;
-        virtual void ExecuteCommand(SetRenderTargetCommand command, GraphicsDevice *device) override;
-        virtual void ExecuteCommand(SetViewportCommand command, GraphicsDevice *device) override;
-        virtual void ExecuteCommand(SetScissorCommand command, GraphicsDevice *device) override;
+        virtual void ExecuteCommand(RenderTarget command, GraphicsDevice *device) override;
+        virtual void ExecuteCommand(const Viewport &command, GraphicsDevice *device) override;
+        virtual void ExecuteCommand(const Scissor &command, GraphicsDevice *device) override;
         virtual void ExecuteCommand(ResolveSamplesToSwapchainCommand command, GraphicsDevice *device) override;
         virtual void ExecuteCommand(StartTimingQueryCommand command, GraphicsDevice *device) override;
         virtual void ExecuteCommand(StopTimingQueryCommand command, GraphicsDevice *device) override;

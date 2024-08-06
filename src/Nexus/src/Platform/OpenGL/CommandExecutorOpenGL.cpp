@@ -78,7 +78,7 @@ namespace Nexus::Graphics
             auto pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(pl);
             auto target = pipeline->GetPipelineDescription().Target;
 
-            ExecuteCommand(SetRenderTargetCommand{target}, device);
+            ExecuteCommand(target, device);
 
             // unbind the current pipeline before binding the new one
             if (Ref<PipelineOpenGL> oldPipeline = m_CurrentlyBoundPipeline.lock())
@@ -206,7 +206,7 @@ namespace Nexus::Graphics
         }
     }
 
-    void CommandExecutorOpenGL::ExecuteCommand(UpdateResourcesCommand command, GraphicsDevice *device)
+    void CommandExecutorOpenGL::ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)
     {
         if (m_CurrentlyBoundPipeline.expired())
         {
@@ -214,14 +214,14 @@ namespace Nexus::Graphics
             return;
         }
 
-        if (command.Resources.expired())
+        if (!command)
         {
             NX_ERROR("Attempting to update pipeline with invalid resources");
             return;
         }
 
         Nexus::Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.lock());
-        Nexus::Ref<ResourceSetOpenGL> resourceSet = std::dynamic_pointer_cast<ResourceSetOpenGL>(command.Resources.lock());
+        Nexus::Ref<ResourceSetOpenGL> resourceSet = std::dynamic_pointer_cast<ResourceSetOpenGL>(command);
 
         const auto &textureBindings = resourceSet->GetBoundTextures();
         const auto &uniformBufferBindings = resourceSet->GetBoundUniformBuffers();
@@ -289,25 +289,25 @@ namespace Nexus::Graphics
         glCall(glClearBufferfi(GL_DEPTH_STENCIL, 0, command.Value.Depth, command.Value.Stencil));
     }
 
-    void CommandExecutorOpenGL::ExecuteCommand(SetRenderTargetCommand command, GraphicsDevice *device)
+    void CommandExecutorOpenGL::ExecuteCommand(RenderTarget command, GraphicsDevice *device)
     {
         GraphicsDeviceOpenGL *deviceGL = (GraphicsDeviceOpenGL *)device;
 
         // handle different options of render targets
-        if (Nexus::Graphics::Swapchain **swapchain = command.Target.GetDataIf<Swapchain *>())
+        if (Nexus::Graphics::Swapchain **swapchain = command.GetDataIf<Swapchain *>())
         {
             deviceGL->SetSwapchain(*swapchain);
         }
 
-        if (Nexus::Ref<Nexus::Graphics::Framebuffer> *framebuffer = command.Target.GetDataIf<Nexus::Ref<Nexus::Graphics::Framebuffer>>())
+        if (Nexus::Ref<Nexus::Graphics::Framebuffer> *framebuffer = command.GetDataIf<Nexus::Ref<Nexus::Graphics::Framebuffer>>())
         {
             deviceGL->SetFramebuffer(*framebuffer);
         }
 
-        m_CurrentRenderTarget = command.Target;
+        m_CurrentRenderTarget = command;
     }
 
-    void CommandExecutorOpenGL::ExecuteCommand(SetViewportCommand command, GraphicsDevice *device)
+    void CommandExecutorOpenGL::ExecuteCommand(const Viewport &command, GraphicsDevice *device)
     {
         if (m_CurrentRenderTarget.GetType() == RenderTargetType::None)
         {
@@ -315,21 +315,21 @@ namespace Nexus::Graphics
             return;
         }
 
-        float left = command.Viewport.X;
-        float bottom = m_CurrentRenderTarget.GetSize().Y - (command.Viewport.Y + command.Viewport.Height);
+        float left = command.X;
+        float bottom = m_CurrentRenderTarget.GetSize().Y - (command.Y + command.Height);
 
         glCall(glViewport(
             left,
             bottom,
-            command.Viewport.Width,
-            command.Viewport.Height));
+            command.Width,
+            command.Height));
 
         glCall(glDepthRangef(
-            command.Viewport.MinDepth,
-            command.Viewport.MaxDepth));
+            command.MinDepth,
+            command.MaxDepth));
     }
 
-    void CommandExecutorOpenGL::ExecuteCommand(SetScissorCommand command, GraphicsDevice *device)
+    void CommandExecutorOpenGL::ExecuteCommand(const Scissor &command, GraphicsDevice *device)
     {
         if (m_CurrentRenderTarget.GetType() == RenderTargetType::None)
         {
@@ -337,13 +337,13 @@ namespace Nexus::Graphics
             return;
         }
 
-        float scissorY = m_CurrentRenderTarget.GetSize().Y - command.Scissor.Height - command.Scissor.Y;
+        float scissorY = m_CurrentRenderTarget.GetSize().Y - command.Height - command.Y;
 
         glCall(glScissor(
-            command.Scissor.X,
+            command.X,
             scissorY,
-            command.Scissor.Width,
-            command.Scissor.Height));
+            command.Width,
+            command.Height));
     }
 
     void CommandExecutorOpenGL::ExecuteCommand(ResolveSamplesToSwapchainCommand command, GraphicsDevice *device)

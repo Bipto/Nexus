@@ -117,7 +117,7 @@ namespace Nexus::Graphics
 
         auto vulkanPipeline = std::dynamic_pointer_cast<PipelineVk>(command.lock());
 
-        ExecuteCommand(SetRenderTargetCommand{vulkanPipeline->GetPipelineDescription().Target}, device);
+        ExecuteCommand(vulkanPipeline->GetPipelineDescription().Target, device);
         vkCmdBindPipeline(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanPipeline->GetPipeline());
         m_CurrentlyBoundPipeline = vulkanPipeline;
     }
@@ -162,10 +162,10 @@ namespace Nexus::Graphics
         vkCmdDrawIndexed(m_CommandBuffer, command.IndexCount, command.InstanceCount, command.IndexStart, command.VertexStart, command.InstanceStart);
     }
 
-    void CommandExecutorVk::ExecuteCommand(UpdateResourcesCommand command, GraphicsDevice *device)
+    void CommandExecutorVk::ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)
     {
         auto pipelineVk = std::dynamic_pointer_cast<PipelineVk>(m_CurrentlyBoundPipeline);
-        auto resourceSetVk = std::dynamic_pointer_cast<ResourceSetVk>(command.Resources.lock());
+        auto resourceSetVk = std::dynamic_pointer_cast<ResourceSetVk>(command);
 
         const auto &descriptorSets = resourceSetVk->GetDescriptorSets()[m_Device->GetCurrentFrameIndex()];
         for (const auto &set : descriptorSets)
@@ -231,7 +231,7 @@ namespace Nexus::Graphics
         vkCmdClearAttachments(m_CommandBuffer, 1, &clearAttachment, 1, &clearRect);
     }
 
-    void CommandExecutorVk::ExecuteCommand(SetRenderTargetCommand command, GraphicsDevice *device)
+    void CommandExecutorVk::ExecuteCommand(RenderTarget command, GraphicsDevice *device)
     {
         if (m_RenderPassStarted)
         {
@@ -262,7 +262,7 @@ namespace Nexus::Graphics
             }
         }
 
-        m_CurrentRenderTarget = command.Target;
+        m_CurrentRenderTarget = command;
 
         if (m_CurrentRenderTarget.GetType() == RenderTargetType::Swapchain)
         {
@@ -359,29 +359,29 @@ namespace Nexus::Graphics
         }
     }
 
-    void CommandExecutorVk::ExecuteCommand(SetViewportCommand command, GraphicsDevice *device)
+    void CommandExecutorVk::ExecuteCommand(const Viewport &command, GraphicsDevice *device)
     {
-        if (command.Viewport.Width == 0 || command.Viewport.Height == 0)
+        if (command.Width == 0 || command.Height == 0)
             return;
 
         VkViewport vp;
-        vp.x = command.Viewport.X;
-        vp.y = command.Viewport.Height + command.Viewport.Y;
-        vp.width = command.Viewport.Width;
-        vp.height = -command.Viewport.Height;
-        vp.minDepth = command.Viewport.MinDepth;
-        vp.maxDepth = command.Viewport.MaxDepth;
+        vp.x = command.X;
+        vp.y = command.Height + command.Y;
+        vp.width = command.Width;
+        vp.height = -command.Height;
+        vp.minDepth = command.MinDepth;
+        vp.maxDepth = command.MaxDepth;
         vkCmdSetViewport(m_CommandBuffer, 0, 1, &vp);
     }
 
-    void CommandExecutorVk::ExecuteCommand(SetScissorCommand command, GraphicsDevice *device)
+    void CommandExecutorVk::ExecuteCommand(const Scissor &command, GraphicsDevice *device)
     {
-        if (command.Scissor.Width == 0 || command.Scissor.Height == 0)
+        if (command.Width == 0 || command.Height == 0)
             return;
 
         VkRect2D rect;
-        rect.offset = {(int32_t)command.Scissor.X, (int32_t)command.Scissor.Y};
-        rect.extent = {(uint32_t)command.Scissor.Width, (uint32_t)command.Scissor.Height};
+        rect.offset = {(int32_t)command.X, (int32_t)command.Y};
+        rect.extent = {(uint32_t)command.Width, (uint32_t)command.Height};
         vkCmdSetScissor(m_CommandBuffer, 0, 1, &rect);
     }
 
@@ -446,7 +446,7 @@ namespace Nexus::Graphics
         TransitionVulkanImageLayout(framebufferImage, 0, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, framebufferLayout, VK_IMAGE_ASPECT_COLOR_BIT);
         TransitionVulkanImageLayout(swapchainImage, 0, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, swapchainLayout, VK_IMAGE_ASPECT_COLOR_BIT);
 
-        ExecuteCommand(SetRenderTargetCommand{m_CurrentRenderTarget}, device);
+        ExecuteCommand(m_CurrentRenderTarget, device);
     }
 
     void CommandExecutorVk::ExecuteCommand(StartTimingQueryCommand command, GraphicsDevice *device)

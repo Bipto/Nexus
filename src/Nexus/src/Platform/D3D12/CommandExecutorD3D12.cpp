@@ -66,8 +66,7 @@ namespace Nexus::Graphics
         Ref<PipelineD3D12> d3d12Pipeline = std::dynamic_pointer_cast<PipelineD3D12>(command.lock());
         const auto &description = d3d12Pipeline->GetPipelineDescription();
 
-        SetRenderTargetCommand srtCommand{d3d12Pipeline->GetPipelineDescription().Target};
-        ExecuteCommand(srtCommand, device);
+        ExecuteCommand(d3d12Pipeline->GetPipelineDescription().Target, device);
 
         m_CommandList->OMSetDepthBounds(description.DepthStencilDesc.MinDepth, description.DepthStencilDesc.MaxDepth);
         m_CommandList->SetPipelineState(d3d12Pipeline->GetPipelineState());
@@ -97,9 +96,9 @@ namespace Nexus::Graphics
         m_CommandList->DrawIndexedInstanced(command.IndexCount, command.InstanceCount, command.IndexStart, command.VertexStart, command.InstanceStart);
     }
 
-    void CommandExecutorD3D12::ExecuteCommand(UpdateResourcesCommand command, GraphicsDevice *device)
+    void CommandExecutorD3D12::ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)
     {
-        Ref<ResourceSetD3D12> d3d12ResourceSet = std::dynamic_pointer_cast<ResourceSetD3D12>(command.Resources.lock());
+        Ref<ResourceSetD3D12> d3d12ResourceSet = std::dynamic_pointer_cast<ResourceSetD3D12>(command);
 
         std::vector<ID3D12DescriptorHeap *> heaps;
         if (d3d12ResourceSet->HasSamplerHeap())
@@ -163,16 +162,16 @@ namespace Nexus::Graphics
         }
     }
 
-    void CommandExecutorD3D12::ExecuteCommand(SetRenderTargetCommand command, GraphicsDevice *device)
+    void CommandExecutorD3D12::ExecuteCommand(RenderTarget command, GraphicsDevice *device)
     {
-        if (command.Target.GetType() == RenderTargetType::Swapchain)
+        if (command.GetType() == RenderTargetType::Swapchain)
         {
-            auto d3d12Swapchain = (SwapchainD3D12 *)command.Target.GetData<Swapchain *>();
+            auto d3d12Swapchain = (SwapchainD3D12 *)command.GetData<Swapchain *>();
             SetSwapchain(d3d12Swapchain, device);
         }
-        else if (command.Target.GetType() == RenderTargetType::Framebuffer)
+        else if (command.GetType() == RenderTargetType::Framebuffer)
         {
-            auto d3d12Framebuffer = std::dynamic_pointer_cast<FramebufferD3D12>(command.Target.GetData<Ref<Framebuffer>>());
+            auto d3d12Framebuffer = std::dynamic_pointer_cast<FramebufferD3D12>(command.GetData<Ref<Framebuffer>>());
             SetFramebuffer(d3d12Framebuffer, device);
         }
         else
@@ -180,7 +179,7 @@ namespace Nexus::Graphics
             throw std::runtime_error("Invalid render target type selected");
         }
 
-        m_CurrentRenderTarget = command.Target;
+        m_CurrentRenderTarget = command;
 
         if (m_CurrentRenderTarget.HasDepthAttachment())
         {
@@ -200,25 +199,25 @@ namespace Nexus::Graphics
         }
     }
 
-    void CommandExecutorD3D12::ExecuteCommand(SetViewportCommand command, GraphicsDevice *device)
+    void CommandExecutorD3D12::ExecuteCommand(const Viewport &command, GraphicsDevice *device)
     {
         D3D12_VIEWPORT vp;
-        vp.TopLeftX = command.Viewport.X;
-        vp.TopLeftY = command.Viewport.Y;
-        vp.Width = command.Viewport.Width;
-        vp.Height = command.Viewport.Height;
-        vp.MinDepth = command.Viewport.MinDepth;
-        vp.MaxDepth = command.Viewport.MaxDepth;
+        vp.TopLeftX = command.X;
+        vp.TopLeftY = command.Y;
+        vp.Width = command.Width;
+        vp.Height = command.Height;
+        vp.MinDepth = command.MinDepth;
+        vp.MaxDepth = command.MaxDepth;
         m_CommandList->RSSetViewports(1, &vp);
     }
 
-    void CommandExecutorD3D12::ExecuteCommand(SetScissorCommand command, GraphicsDevice *device)
+    void CommandExecutorD3D12::ExecuteCommand(const Scissor &command, GraphicsDevice *device)
     {
         RECT rect;
-        rect.left = command.Scissor.X;
-        rect.top = command.Scissor.Y;
-        rect.right = command.Scissor.Width + command.Scissor.X;
-        rect.bottom = command.Scissor.Height + command.Scissor.Y;
+        rect.left = command.X;
+        rect.top = command.Y;
+        rect.right = command.Width + command.X;
+        rect.bottom = command.Height + command.Y;
         m_CommandList->RSSetScissorRects(1, &rect);
     }
 
