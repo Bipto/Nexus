@@ -730,28 +730,28 @@ src/Nexus/src/Nexus-Core/Window.cpp:322:18: note: Technically the member functio
 src/Nexus/src/Nexus-Core/Window.hpp:159:14: note: Technically the member function 'Nexus::Window::StopTextInput' can be static (but you may consider moving to unnamed namespace).
         void StopTextInput();
              ^
-src/Nexus/src/Platform/D3D12/CommandListD3D12.hpp:17:9: style: Class 'CommandListD3D12' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
-        CommandListD3D12(GraphicsDeviceD3D12 *device);
-        ^
 src/Nexus/src/Platform/D3D12/TimingQueryD3D12.hpp:14:9: style: Class 'TimingQueryD3D12' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
         TimingQueryD3D12(GraphicsDeviceD3D12 *device);
         ^
-src/Nexus/src/Platform/D3D12/CommandListD3D12.cpp:178:35: style: C-style pointer casting [cstyleCast]
-            auto d3d12Swapchain = (SwapchainD3D12 *)target.GetData<Swapchain *>();
+src/Nexus/src/Platform/D3D12/CommandExecutorD3D12.cpp:170:35: style: C-style pointer casting [cstyleCast]
+            auto d3d12Swapchain = (SwapchainD3D12 *)command.Target.GetData<Swapchain *>();
                                   ^
-src/Nexus/src/Platform/D3D12/CommandListD3D12.cpp:236:31: style: C-style pointer casting [cstyleCast]
-        auto swapchainD3D12 = (SwapchainD3D12 *)target;
+src/Nexus/src/Platform/D3D12/CommandExecutorD3D12.cpp:228:31: style: C-style pointer casting [cstyleCast]
+        auto swapchainD3D12 = (SwapchainD3D12 *)command.Target;
                               ^
-src/Nexus/src/Platform/D3D12/CommandListD3D12.cpp:431:35: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Platform/D3D12/CommandExecutorD3D12.cpp:418:35: style: C-style pointer casting [cstyleCast]
             auto d3d12Swapchain = (SwapchainD3D12 *)m_CurrentRenderTarget.GetData<Swapchain *>();
                                   ^
-src/Nexus/src/Platform/D3D12/CommandListD3D12.cpp:74:54: style:inconclusive: Function 'SetPipeline' argument 1 names different: declaration 'ipeline' definition 'pipeline'. [funcArgNamesDifferent]
+src/Nexus/src/Platform/D3D12/CommandListD3D12.hpp:17:9: style: Class 'CommandListD3D12' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+        CommandListD3D12(GraphicsDeviceD3D12 *device);
+        ^
+src/Nexus/src/Platform/D3D12/CommandListD3D12.cpp:49:54: style:inconclusive: Function 'SetPipeline' argument 1 names different: declaration 'ipeline' definition 'pipeline'. [funcArgNamesDifferent]
     void CommandListD3D12::SetPipeline(Ref<Pipeline> pipeline)
                                                      ^
 src/Nexus/src/Platform/D3D12/CommandListD3D12.hpp:25:48: note: Function 'SetPipeline' argument 1 names different: declaration 'ipeline' definition 'pipeline'.
         virtual void SetPipeline(Ref<Pipeline> ipeline) override;
                                                ^
-src/Nexus/src/Platform/D3D12/CommandListD3D12.cpp:74:54: note: Function 'SetPipeline' argument 1 names different: declaration 'ipeline' definition 'pipeline'.
+src/Nexus/src/Platform/D3D12/CommandListD3D12.cpp:49:54: note: Function 'SetPipeline' argument 1 names different: declaration 'ipeline' definition 'pipeline'.
     void CommandListD3D12::SetPipeline(Ref<Pipeline> pipeline)
                                                      ^
 src/Nexus/src/Platform/D3D12/FramebufferD3D12.cpp:61:26: style: Variable 'd3d12Device' is assigned a value that is never used. [unreadVariable]
@@ -793,7 +793,7 @@ src/Nexus/src/Platform/D3D12/SamplerD3D12.cpp:12:9: performance: Variable 'm_Sam
 src/Nexus/src/Platform/D3D12/ShaderModuleD3D12.cpp:67:26: style: Variable 'hr' is assigned a value that is never used. [unreadVariable]
         const HRESULT hr = compiler->Compile(
                          ^
-src/Nexus/src/Platform/D3D12/SwapchainD3D12.cpp:11:20: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Platform/D3D12/SwapchainD3D12.cpp:15:20: style: C-style pointer casting [cstyleCast]
         m_Device = (GraphicsDeviceD3D12 *)device;
                    ^
 src/Nexus/src/Platform/D3D12/TimingQueryD3D12.cpp:10:37: style: Variable 'd3d12Device' is assigned a value that is never used. [unreadVariable]
@@ -853,37 +853,37 @@ src/Nexus/src/Platform/Vulkan/FramebufferVk.cpp:113:25: style: Consider using st
 src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:37:34: style: C-style pointer casting [cstyleCast]
         SwapchainVk *swapchain = (SwapchainVk *)window->GetSwapchain();
                                  ^
-src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:215:34: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:191:34: style: C-style pointer casting [cstyleCast]
         SwapchainVk *swapchain = (SwapchainVk *)m_Window->GetSwapchain();
                                  ^
-src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:445:38: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:421:38: style: C-style pointer casting [cstyleCast]
             SwapchainVk *swapchain = (SwapchainVk *)m_Window->GetSwapchain();
                                      ^
-src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:533:34: style: C-style pointer casting [cstyleCast]
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:509:34: style: C-style pointer casting [cstyleCast]
         SwapchainVk *swapchain = (SwapchainVk *)m_Window->GetSwapchain();
                                  ^
-src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:773:16: style: Redundant initialization for 'result'. The initialized value is overwritten before it is read. [redundantInitialization]
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:749:16: style: Redundant initialization for 'result'. The initialized value is overwritten before it is read. [redundantInitialization]
         result = vkEnumerateInstanceExtensionProperties(nullptr, &count, properties.data());
                ^
-src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:770:25: note: result is initialized
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:746:25: note: result is initialized
         VkResult result = vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
                         ^
-src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:773:16: note: result is overwritten
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:749:16: note: result is overwritten
         result = vkEnumerateInstanceExtensionProperties(nullptr, &count, properties.data());
                ^
-src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:803:16: style: Redundant initialization for 'result'. The initialized value is overwritten before it is read. [redundantInitialization]
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:779:16: style: Redundant initialization for 'result'. The initialized value is overwritten before it is read. [redundantInitialization]
         result = vkEnumerateDeviceExtensionProperties(m_PhysicalDevice, nullptr, &count, properties.data());
                ^
-src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:800:25: note: result is initialized
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:776:25: note: result is initialized
         VkResult result = vkEnumerateDeviceExtensionProperties(m_PhysicalDevice, nullptr, &count, nullptr);
                         ^
-src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:803:16: note: result is overwritten
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:779:16: note: result is overwritten
         result = vkEnumerateDeviceExtensionProperties(m_PhysicalDevice, nullptr, &count, properties.data());
                ^
-src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:783:24: style: Consider using std::transform algorithm instead of a raw loop. [useStlAlgorithm]
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:759:24: style: Consider using std::transform algorithm instead of a raw loop. [useStlAlgorithm]
             extensions.push_back(property.extensionName);
                        ^
-src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:813:24: style: Consider using std::transform algorithm instead of a raw loop. [useStlAlgorithm]
+src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:789:24: style: Consider using std::transform algorithm instead of a raw loop. [useStlAlgorithm]
             extensions.push_back(property.extensionName);
                        ^
 src/Nexus/src/Platform/Vulkan/GraphicsDeviceVk.cpp:34:31: style: Variable 'deviceExtensions' is assigned a value that is never used. [unreadVariable]
