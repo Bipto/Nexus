@@ -5,6 +5,8 @@
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 #include "D3D12Include.hpp"
 
+#include "CommandExecutorD3D12.hpp"
+
 namespace Nexus::Graphics
 {
     class GraphicsDeviceD3D12 : public GraphicsDevice
@@ -74,6 +76,8 @@ namespace Nexus::Graphics
         Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> m_UploadCommandList = nullptr;
 
         Microsoft::WRL::ComPtr<IDXGIFactory7> m_DxgiFactory = nullptr;
+
+        CommandExecutorD3D12 m_CommandExecutor{};
     };
 }
 #endif

@@ -4,10 +4,11 @@
 
 #include "Nexus-Core/Graphics/GPUBuffer.hpp"
 #include "D3D12Include.hpp"
-#include "GraphicsDeviceD3D12.hpp"
 
 namespace Nexus::Graphics
 {
+    class GraphicsDeviceD3D12;
+
     class VertexBufferD3D12 : public VertexBuffer
     {
     public:

@@ -24,4 +24,6 @@ D3D12_RESOURCE_FLAGS GetD3D12ResourceFlags(const std::vector<Nexus::Graphics::Te
 D3D12_FILTER GetD3D12Filter(Nexus::Graphics::SamplerFilter filter);
 D3D12_TEXTURE_ADDRESS_MODE GetD3D12TextureAddressMode(Nexus::Graphics::SamplerAddressMode addressMode);
 
+DXGI_FORMAT GetD3D12IndexBufferFormat(Nexus::Graphics::IndexBufferFormat format);
+
 #endif

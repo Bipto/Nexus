@@ -5,10 +5,11 @@
 #include "Nexus-Core/Graphics/Framebuffer.hpp"
 #include "GraphicsDeviceD3D12.hpp"
 #include "D3D12Include.hpp"
-#include "TextureD3D12.hpp"
 
 namespace Nexus::Graphics
 {
+    class TextureD3D12;
+
     class FramebufferD3D12 : public Framebuffer
     {
     public:

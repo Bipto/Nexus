@@ -485,4 +485,19 @@ D3D12_TEXTURE_ADDRESS_MODE GetD3D12TextureAddressMode(Nexus::Graphics::SamplerAd
     }
 }
 
+DXGI_FORMAT GetD3D12IndexBufferFormat(Nexus::Graphics::IndexBufferFormat format)
+{
+
+    switch (format)
+    {
+    case Nexus::Graphics::IndexBufferFormat::UInt16:
+        return DXGI_FORMAT_R16_UINT;
+    case Nexus::Graphics::IndexBufferFormat::UInt32:
+        return DXGI_FORMAT_R32_UINT;
+    default:
+        NX_ASSERT(0, "Invalid index buffer format entered");
+        return DXGI_FORMAT();
+    }
+}
+
 #endif

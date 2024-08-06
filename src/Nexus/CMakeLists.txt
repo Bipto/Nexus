@@ -126,7 +126,7 @@ set_target_properties(pocketpy PROPERTIES FOLDER "src/Nexus/external")
 set_target_properties(yaml-cpp yaml-cpp-parse yaml-cpp-read yaml-cpp-sandbox PROPERTIES FOLDER "src/Nexus/external")
 set_target_properties(assimp PROPERTIES FOLDER "src/Nexus/external")
 set_target_properties(add-copyright build_version build-version check-copyright
-    common core_tables enum_string_mapping ex-common extinst_tables testdata uninstall zlibstatic
+    common core_tables enum_string_mapping ex-common extinst_tables testdata uninstall
     PROPERTIES FOLDER "src/Nexus/external")
 
 #linking dependencies

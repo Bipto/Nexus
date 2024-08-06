@@ -83,8 +83,19 @@ namespace Nexus::Graphics
     void GraphicsDeviceD3D12::SubmitCommandList(Ref<CommandList> commandList)
     {
         Ref<CommandListD3D12> d3d12CommandList = std::dynamic_pointer_cast<CommandListD3D12>(commandList);
-        ID3D12CommandList *lists[] = {d3d12CommandList->GetCommandList()};
+
+        CommandRecorder &recorder = d3d12CommandList->GetCommandRecorder();
+        ID3D12GraphicsCommandList7 *cmdList = d3d12CommandList->GetCommandList();
+
+        d3d12CommandList->Reset();
+        m_CommandExecutor.SetCommandList(cmdList);
+        m_CommandExecutor.ExecuteCommands(recorder.GetCommands(), this);
+        d3d12CommandList->Close();
+        m_CommandExecutor.Reset();
+
+        ID3D12CommandList *lists[] = {cmdList};
         m_CommandQueue->ExecuteCommandLists(1, lists);
+
         SignalAndWait();
     }
 

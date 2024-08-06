@@ -6,17 +6,19 @@
 #include "Nexus-Core/Graphics/Swapchain.hpp"
 #include "Nexus-Core/Window.hpp"
 #include "Nexus-Core/Graphics/Framebuffer.hpp"
-#include "GraphicsDeviceD3D12.hpp"
 #include "D3D12Include.hpp"
 
 namespace Nexus::Graphics
 {
+    class GraphicsDevice;
+    class GraphicsDeviceD3D12;
+
     class SwapchainD3D12 : public Swapchain
     {
     public:
         SwapchainD3D12(Window *window, GraphicsDevice *device, const SwapchainSpecification &swapchainSpec);
         virtual ~SwapchainD3D12();
-        virtual void Initialise() override{};
+        virtual void Initialise() override {};
         virtual void SwapBuffers() override;
         virtual VSyncState GetVsyncState() override;
         virtual void SetVSyncState(VSyncState vsyncState) override;
@@ -47,6 +49,8 @@ namespace Nexus::Graphics
         void CreateColourAttachments();
         void CreateDepthAttachment();
         void CreateMultisampledFramebuffer();
+
+        void Resolve();
 
     private:
         Window *m_Window = nullptr;

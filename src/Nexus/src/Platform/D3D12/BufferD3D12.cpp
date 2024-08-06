@@ -1,5 +1,7 @@
 #include "BufferD3D12.hpp"
 
+#include "GraphicsDeviceD3D12.hpp"
+
 #if defined(NX_PLATFORM_D3D12)
 
 namespace Nexus::Graphics

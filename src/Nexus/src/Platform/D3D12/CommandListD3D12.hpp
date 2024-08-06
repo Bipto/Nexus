@@ -44,19 +44,15 @@ namespace Nexus::Graphics
 
         ID3D12GraphicsCommandList7 *GetCommandList();
 
-        void SetSwapchain(SwapchainD3D12 *swapchain);
-        void SetFramebuffer(Ref<FramebufferD3D12> framebuffer);
-        void ResetPreviousRenderTargets();
+        void Reset();
+        void Close();
+        CommandRecorder &GetCommandRecorder();
 
     private:
         Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_CommandAllocator = nullptr;
         Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> m_CommandList = nullptr;
 
-        std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_DescriptorHandles;
-        D3D12_CPU_DESCRIPTOR_HANDLE m_DepthHandle;
-
-        RenderTarget m_CurrentRenderTarget = {};
-        Ref<PipelineD3D12> m_CurrentlyBoundPipeline = nullptr;
+        CommandRecorder m_CommandRecorder;
     };
 }
 #endif
