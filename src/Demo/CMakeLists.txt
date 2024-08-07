@@ -17,7 +17,7 @@ if (EMSCRIPTEN)
       Demo
         PROPERTIES
         LINK_FLAGS
-        "--std=c++17 -Os -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sFULL_ES2=1 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS -lopenal -sGL_ENABLE_GET_PROC_ADDRESS --preload-file resources"
+        "--std=c++20 -fsanitize=address -sSTACK_SIZE=5MB -Os -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sFULL_ES2=1 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS -lopenal -sGL_ENABLE_GET_PROC_ADDRESS -sASSERTIONS --preload-file resources"
     )
 
     set_target_properties(Nexus PROPERTIES COMPILE_FLAGS "-Os")
@@ -33,18 +33,35 @@ if (ANDROID OR __ANDROID__)
     )
 endif()
 
-#copy resources folder to output directory
-add_custom_command(
-  TARGET ${PROJECT_NAME} POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_CURRENT_SOURCE_DIR}/resources
-    $<TARGET_FILE_DIR:${PROJECT_NAME}>/resources)
+if (EMSCRIPTEN)
+    add_custom_command(
+    TARGET ${PROJECT_NAME} PRE_LINK
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/html
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>)
 
-#copy all required libraries to output directory
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
-    COMMAND_EXPAND_LISTS
-)
+    #copy resources folder to output directory
+    add_custom_command(
+    TARGET ${PROJECT_NAME} PRE_LINK
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/resources
+        ${CMAKE_BINARY_DIR}/resources)
+
+else()
+    #copy resources folder to output directory
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/resources
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/resources)
+
+    #copy all required libraries to output directory
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
+        COMMAND_EXPAND_LISTS)
+
+
+endif()
 
 #set the working directory to the executable directory
 #this ONLY applied to Visual Studio

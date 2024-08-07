@@ -91,7 +91,7 @@ if (EMSCRIPTEN)
       Nexus
         PROPERTIES
         LINK_FLAGS
-        "--std=c++17 -Os -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sFULL_ES2=1 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS -lopenal -sGL_ENABLE_GET_PROC_ADDRESS"
+        "--std=c++20 -Os -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sFULL_ES2=1 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS -lopenal -sGL_ENABLE_GET_PROC_ADDRESS"
     )
 
     set_target_properties(Nexus PROPERTIES COMPILE_FLAGS "-Os")
@@ -125,9 +125,6 @@ set_target_properties(freetype PROPERTIES FOLDER "src/Nexus/external")
 set_target_properties(pocketpy PROPERTIES FOLDER "src/Nexus/external")
 set_target_properties(yaml-cpp yaml-cpp-parse yaml-cpp-read yaml-cpp-sandbox PROPERTIES FOLDER "src/Nexus/external")
 set_target_properties(assimp PROPERTIES FOLDER "src/Nexus/external")
-set_target_properties(add-copyright build_version build-version check-copyright
-    common core_tables enum_string_mapping ex-common extinst_tables testdata uninstall
-    PROPERTIES FOLDER "src/Nexus/external")
 
 #linking dependencies
 target_link_libraries(Nexus PUBLIC

@@ -1,3 +1,5 @@
+#if defined(NX_PLATFORM_D3D12)
+
 #include "CommandExecutorD3D12.hpp"
 
 #include "SwapchainD3D12.hpp"
@@ -484,3 +486,5 @@ namespace Nexus::Graphics
         m_DepthHandle = {};
     }
 }
+
+#endif

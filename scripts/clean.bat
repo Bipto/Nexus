@@ -1,1 +1,1 @@
-python Python/clean.py
+python clean.py

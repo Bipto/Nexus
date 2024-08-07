@@ -1,1 +1,1 @@
-python Python/build_emscripten.py
+python build_emscripten.py

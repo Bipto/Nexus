@@ -1,5 +1,7 @@
 #if defined(NX_PLATFORM_OPENGL)
 
+#include "Nexus-Core/nxpch.hpp"
+
 #include "CommandExecutorOpenGL.hpp"
 #include "TextureOpenGL.hpp"
 #include "GraphicsDeviceOpenGL.hpp"
@@ -386,10 +388,16 @@ namespace Nexus::Graphics
 
         Ref<TimingQueryOpenGL> query = std::dynamic_pointer_cast<TimingQueryOpenGL>(command.Query.lock());
 
+#if defined(__EMSCRIPTEN__)
+        glFinish();
+        uint64_t now = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        query->m_Start = now;
+#else
         glFinish();
         GLint64 timer;
         glCall(glGetInteger64v(GL_TIMESTAMP, &timer));
         query->m_Start = (uint64_t)timer;
+#endif
     }
 
     void CommandExecutorOpenGL::ExecuteCommand(StopTimingQueryCommand command, GraphicsDevice *device)
@@ -402,10 +410,16 @@ namespace Nexus::Graphics
 
         Ref<TimingQueryOpenGL> query = std::dynamic_pointer_cast<TimingQueryOpenGL>(command.Query.lock());
 
+#if defined(__EMSCRIPTEN__)
+        glFinish();
+        uint64_t now = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        query->m_End = now;
+#else
         glFinish();
         GLint64 timer;
         glCall(glGetInteger64v(GL_TIMESTAMP, &timer));
         query->m_End = (uint64_t)timer;
+#endif
     }
 }
 
