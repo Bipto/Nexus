@@ -4,7 +4,7 @@ namespace Nexus::Graphics
 {
     enum class ImageLayout
     {
-        Undefined,
+        Undefined = 0,
         General,
         Colour,
         DepthRead,

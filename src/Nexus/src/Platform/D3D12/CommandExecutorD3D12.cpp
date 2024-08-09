@@ -301,6 +301,10 @@ namespace Nexus::Graphics
         m_CommandList->EndQuery(heap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 1);
     }
 
+    void CommandExecutorD3D12::ExecuteCommand(const TransitionImageLayoutCommand &command, GraphicsDevice *device)
+    {
+    }
+
     void CommandExecutorD3D12::SetSwapchain(SwapchainD3D12 *swapchain, GraphicsDevice *device)
     {
         if (swapchain->GetSpecification().Samples == SampleCount::SampleCount1)

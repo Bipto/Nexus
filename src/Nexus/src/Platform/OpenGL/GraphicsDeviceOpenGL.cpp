@@ -218,7 +218,7 @@ namespace Nexus::Graphics
 
     Ref<Texture> GraphicsDeviceOpenGL::CreateTexture(const TextureSpecification &spec)
     {
-        return CreateRef<TextureOpenGL>(spec);
+        return CreateRef<TextureOpenGL>(spec, this);
     }
 
     Ref<Pipeline> GraphicsDeviceOpenGL::CreatePipeline(const PipelineDescription &description)

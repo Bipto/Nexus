@@ -6,7 +6,7 @@
 namespace Nexus::Graphics
 {
     TextureVk::TextureVk(GraphicsDeviceVk *graphicsDevice, const TextureSpecification &spec)
-        : Texture(spec), m_GraphicsDevice(graphicsDevice)
+        : Texture(spec, graphicsDevice), m_GraphicsDevice(graphicsDevice)
     {
         uint32_t numChannels = GetPixelFormatNumberOfChannels(m_Specification.Format);
 
@@ -206,15 +206,6 @@ namespace Nexus::Graphics
         vmaUnmapMemory(m_GraphicsDevice->GetAllocator(), m_StagingBuffer.Allocation);
 
         return pixels;
-    }
-
-    void TextureVk::SetLayout(ImageLayout layout, uint32_t level)
-    {
-    }
-
-    ImageLayout TextureVk::GetLayout(uint32_t level)
-    {
-        return ImageLayout();
     }
 
     VkImage TextureVk::GetImage()

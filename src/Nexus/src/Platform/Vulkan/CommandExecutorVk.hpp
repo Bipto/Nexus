@@ -41,6 +41,7 @@ namespace Nexus::Graphics
         virtual void ExecuteCommand(ResolveSamplesToSwapchainCommand command, GraphicsDevice *device) override;
         virtual void ExecuteCommand(StartTimingQueryCommand command, GraphicsDevice *device) override;
         virtual void ExecuteCommand(StopTimingQueryCommand command, GraphicsDevice *device) override;
+        virtual void ExecuteCommand(const TransitionImageLayoutCommand &command, GraphicsDevice *device) override;
 
         void TransitionVulkanImageLayout(VkImage image, uint32_t level, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlagBits aspectMask);
 

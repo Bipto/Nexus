@@ -4,8 +4,8 @@
 
 namespace Nexus::Graphics
 {
-    TextureOpenGL::TextureOpenGL(const TextureSpecification &spec)
-        : Texture(spec)
+    TextureOpenGL::TextureOpenGL(const TextureSpecification &spec, GraphicsDevice *graphicsDevice)
+        : Texture(spec, graphicsDevice)
     {
         bool isDepth = false;
 
@@ -93,15 +93,6 @@ namespace Nexus::Graphics
     GLenum TextureOpenGL::GetPixelType()
     {
         return m_BaseType;
-    }
-
-    void TextureOpenGL::SetLayout(ImageLayout layout, uint32_t level)
-    {
-    }
-
-    ImageLayout TextureOpenGL::GetLayout(uint32_t level)
-    {
-        return ImageLayout();
     }
 }
 

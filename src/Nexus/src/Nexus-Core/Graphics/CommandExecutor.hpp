@@ -13,6 +13,12 @@ namespace Nexus::Graphics
         virtual void ExecuteCommands(const std::vector<RenderCommandData> &commands, GraphicsDevice *device) = 0;
         virtual void Reset() = 0;
 
+    protected:
+        inline void SetImageLayout(Ref<Texture> texture, uint32_t level, ImageLayout layout)
+        {
+            texture->SetImageLayout(level, layout);
+        }
+
     private:
         virtual void ExecuteCommand(SetVertexBufferCommand command, GraphicsDevice *device) = 0;
         virtual void ExecuteCommand(WeakRef<IndexBuffer> command, GraphicsDevice *device) = 0;
@@ -30,5 +36,6 @@ namespace Nexus::Graphics
         virtual void ExecuteCommand(ResolveSamplesToSwapchainCommand command, GraphicsDevice *device) = 0;
         virtual void ExecuteCommand(StartTimingQueryCommand command, GraphicsDevice *device) = 0;
         virtual void ExecuteCommand(StopTimingQueryCommand command, GraphicsDevice *device) = 0;
+        virtual void ExecuteCommand(const TransitionImageLayoutCommand &command, GraphicsDevice *device) = 0;
     };
 };

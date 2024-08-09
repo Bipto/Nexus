@@ -461,6 +461,10 @@ namespace Nexus::Graphics
         vkCmdWriteTimestamp(m_CommandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, queryVk->GetQueryPool(), 1);
     }
 
+    void CommandExecutorVk::ExecuteCommand(const TransitionImageLayoutCommand &command, GraphicsDevice *device)
+    {
+    }
+
     void CommandExecutorVk::TransitionVulkanImageLayout(VkImage image, uint32_t level, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlagBits aspectMask)
     {
         VkImageMemoryBarrier barrier{};

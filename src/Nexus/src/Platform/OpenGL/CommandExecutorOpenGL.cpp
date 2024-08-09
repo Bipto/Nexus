@@ -390,7 +390,7 @@ namespace Nexus::Graphics
 
 #if defined(__EMSCRIPTEN__)
         glFinish();
-        uint64_t now = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         query->m_Start = now;
 #else
         glFinish();
@@ -412,7 +412,7 @@ namespace Nexus::Graphics
 
 #if defined(__EMSCRIPTEN__)
         glFinish();
-        uint64_t now = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         query->m_End = now;
 #else
         glFinish();
@@ -420,6 +420,17 @@ namespace Nexus::Graphics
         glCall(glGetInteger64v(GL_TIMESTAMP, &timer));
         query->m_End = (uint64_t)timer;
 #endif
+    }
+
+    void CommandExecutorOpenGL::ExecuteCommand(const TransitionImageLayoutCommand &command, GraphicsDevice *device)
+    {
+        if (Ref<Texture> texture = command.TransitionTexture.lock())
+        {
+            for (size_t i = command.BaseLevel; i < command.BaseLevel + command.NumLevels; i++)
+            {
+                SetImageLayout(texture, i, command.TextureLayout);
+            }
+        }
     }
 }
 

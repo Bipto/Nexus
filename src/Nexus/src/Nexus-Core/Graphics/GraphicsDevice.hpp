@@ -151,17 +151,20 @@ namespace Nexus::Graphics
 
         Window *GetPrimaryWindow();
 
+        void ImmediateSubmit(std::function<void(Ref<CommandList> cmd)> &&function);
+
+        void TransitionImageLayout(WeakRef<Texture> texture, uint32_t baseLevel, uint32_t numLevels, ImageLayout layout);
+
     private:
         virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) = 0;
 
     protected:
         /// @brief A pointer to the window to render graphics into
-        Nexus::Window *m_Window;
+        Nexus::Window *m_Window = nullptr;
 
         /// @brief A value representing the graphics API being used by the GraphicsDevice
-        GraphicsAPI m_API;
+        GraphicsAPI m_API{};
 
-        /// @brief The currently used viewport
-        Viewport m_Viewport;
+        Ref<CommandList> m_ImmediateCommandList = nullptr;
     };
 }

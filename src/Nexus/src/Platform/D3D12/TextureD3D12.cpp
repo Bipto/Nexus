@@ -7,7 +7,7 @@
 namespace Nexus::Graphics
 {
     TextureD3D12::TextureD3D12(GraphicsDeviceD3D12 *device, const TextureSpecification &spec)
-        : Texture(spec), m_Specification(spec), m_Device(device)
+        : Texture(spec, device), m_Specification(spec), m_Device(device)
     {
         bool isDepth;
         D3D12_RESOURCE_FLAGS flags = GetD3D12ResourceFlags(spec.Usage, isDepth);
@@ -213,10 +213,6 @@ namespace Nexus::Graphics
         return pixels;
     }
 
-    void TextureD3D12::SetLayout(ImageLayout layout, uint32_t level)
-    {
-    }
-
     DXGI_FORMAT TextureD3D12::GetFormat()
     {
         return m_TextureFormat;
@@ -235,11 +231,6 @@ namespace Nexus::Graphics
     void TextureD3D12::SetCurrentResourceState(D3D12_RESOURCE_STATES state)
     {
         m_CurrentResourceState = state;
-    }
-
-    ImageLayout TextureD3D12::GetLayout(uint32_t level)
-    {
-        return ImageLayout();
     }
 }
 

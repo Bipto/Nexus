@@ -66,6 +66,39 @@ namespace Nexus::Graphics
         return m_Window;
     }
 
+    void GraphicsDevice::ImmediateSubmit(std::function<void(Ref<CommandList>)> &&function)
+    {
+        if (!m_ImmediateCommandList)
+        {
+            m_ImmediateCommandList = CreateCommandList();
+        }
+
+        m_ImmediateCommandList->Begin();
+        function(m_ImmediateCommandList);
+        m_ImmediateCommandList->End();
+        SubmitCommandList(m_ImmediateCommandList);
+    }
+
+    void GraphicsDevice::TransitionImageLayout(WeakRef<Texture> texture, uint32_t baseLevel, uint32_t numLevels, ImageLayout layout)
+    {
+        if (texture.expired())
+        {
+            NX_ERROR("Attempting to transition layout of an invalid texture");
+            return;
+        }
+
+        Ref<Texture> lockedTexture = texture.lock();
+
+        if (baseLevel + numLevels > lockedTexture->GetTextureSpecification().Levels)
+        {
+            NX_ERROR("Attempting to transition an invalid mip level");
+            return;
+        }
+
+        ImmediateSubmit([&](Nexus::Ref<Nexus::Graphics::CommandList> cmd)
+                        { cmd->TransitionImageLayout(lockedTexture, baseLevel, numLevels, layout); });
+    }
+
     Ref<Texture> GraphicsDevice::CreateTexture(const char *filepath, bool generateMips)
     {
         int desiredChannels = 4;

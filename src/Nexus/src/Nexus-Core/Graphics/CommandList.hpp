@@ -115,6 +115,14 @@ namespace Nexus::Graphics
         WeakRef<TimingQuery> Query = {};
     };
 
+    struct TransitionImageLayoutCommand
+    {
+        uint32_t BaseLevel = 0;
+        uint32_t NumLevels = 0;
+        WeakRef<Texture> TransitionTexture = {};
+        ImageLayout TextureLayout = {};
+    };
+
     typedef std::variant<
         SetVertexBufferCommand,
         WeakRef<IndexBuffer>,
@@ -131,7 +139,8 @@ namespace Nexus::Graphics
         Scissor,
         ResolveSamplesToSwapchainCommand,
         StartTimingQueryCommand,
-        StopTimingQueryCommand>
+        StopTimingQueryCommand,
+        TransitionImageLayoutCommand>
         RenderCommandData;
 
     class CommandRecorder
@@ -219,6 +228,8 @@ namespace Nexus::Graphics
         void StartTimingQuery(Ref<TimingQuery> query);
 
         void StopTimingQuery(Ref<TimingQuery> query);
+
+        void TransitionImageLayout(Ref<Texture> texture, uint32_t baseLevel, uint32_t numLevels, ImageLayout layout);
 
         CommandRecorder &GetCommandRecorder();
 

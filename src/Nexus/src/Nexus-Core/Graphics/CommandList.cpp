@@ -125,6 +125,16 @@ namespace Nexus::Graphics
         m_CommandRecorder.PushCommand(command);
     }
 
+    void CommandList::TransitionImageLayout(Ref<Texture> texture, uint32_t baseLevel, uint32_t numLevels, ImageLayout layout)
+    {
+        TransitionImageLayoutCommand command;
+        command.TransitionTexture = texture;
+        command.BaseLevel = baseLevel;
+        command.NumLevels = numLevels;
+        command.TextureLayout = layout;
+        m_CommandRecorder.PushCommand(command);
+    }
+
     CommandRecorder &CommandList::GetCommandRecorder()
     {
         return m_CommandRecorder;

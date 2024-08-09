@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Nexus-Core/nxpch.hpp"
+
 #include "Nexus-Core/Types.hpp"
 #include "PixelFormat.hpp"
 #include "SamplerState.hpp"
@@ -40,6 +42,8 @@ namespace Nexus::Graphics
         SampleCount Samples = SampleCount::SampleCount1;
     };
 
+    class GraphicsDevice;
+
     /// @brief A pure virtual class that represents an API specific texture
     class Texture
     {
@@ -49,8 +53,7 @@ namespace Nexus::Graphics
 
         /// @brief A constructor that takes in a texture specification
         /// @param spec The specification to create a texture from
-        Texture(const TextureSpecification &spec)
-            : m_Specification(spec) {};
+        Texture(const TextureSpecification &spec, GraphicsDevice *device);
 
         virtual ~Texture() {}
 
@@ -59,15 +62,23 @@ namespace Nexus::Graphics
 
         virtual std::vector<std::byte> GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
 
-        const TextureSpecification &GetTextureSpecification() const { return m_Specification; }
+        const TextureSpecification &GetTextureSpecification();
+        uint32_t GetLevels() const;
+        std::optional<ImageLayout> GetImageLayout(uint32_t level);
 
-        virtual void SetLayout(ImageLayout layout, uint32_t level = 0) = 0;
-        virtual ImageLayout GetLayout(uint32_t level = 0) = 0;
-
-        uint32_t GetLevels() const { return m_Specification.Levels; }
+    private:
+        void InitialiseLayouts();
+        void SetImageLayout(uint32_t level, ImageLayout layout);
 
     protected:
         /// @brief A specification describing the layout of the texture
-        TextureSpecification m_Specification;
+        TextureSpecification m_Specification{};
+
+    private:
+        GraphicsDevice *m_Device = nullptr;
+
+        std::map<uint32_t, ImageLayout> m_Layouts = {};
+
+        friend class CommandExecutor;
     };
 }
