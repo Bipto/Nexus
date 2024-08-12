@@ -176,7 +176,6 @@ namespace Nexus::ImGuiUtils
             windowSpec.Width = vp->Size.x;
             windowSpec.Height = vp->Size.y;
             windowSpec.Borderless = true;
-            windowSpec.Utility = true;
 
             Nexus::Graphics::SwapchainSpecification swapchainSpec = app->GetPrimaryWindow()->GetSwapchain()->GetSpecification();
 

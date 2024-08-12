@@ -9,17 +9,17 @@ namespace Nexus::Graphics
     {
         VkFilter min, max;
         VkSamplerMipmapMode mipmapMode;
-        GetVkFilterFromNexusFormat(spec.SampleFilter, min, max, mipmapMode);
-        VkBorderColor color = GetVkBorderColor(spec.TextureBorderColor);
+        Vk::GetVkFilterFromNexusFormat(spec.SampleFilter, min, max, mipmapMode);
+        VkBorderColor color = Vk::GetVkBorderColor(spec.TextureBorderColor);
 
         VkSamplerCreateInfo samplerInfo = {};
         samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
         samplerInfo.minFilter = min;
         samplerInfo.magFilter = max;
         samplerInfo.mipmapMode = mipmapMode;
-        samplerInfo.addressModeU = GetVkSamplerAddressMode(spec.AddressModeU);
-        samplerInfo.addressModeV = GetVkSamplerAddressMode(spec.AddressModeV);
-        samplerInfo.addressModeW = GetVkSamplerAddressMode(spec.AddressModeW);
+        samplerInfo.addressModeU = Vk::GetVkSamplerAddressMode(spec.AddressModeU);
+        samplerInfo.addressModeV = Vk::GetVkSamplerAddressMode(spec.AddressModeV);
+        samplerInfo.addressModeW = Vk::GetVkSamplerAddressMode(spec.AddressModeW);
 
         if (spec.SampleFilter == Nexus::Graphics::SamplerFilter::Anisotropic)
         {
@@ -34,7 +34,7 @@ namespace Nexus::Graphics
         samplerInfo.borderColor = color;
         samplerInfo.unnormalizedCoordinates = VK_FALSE;
         samplerInfo.compareEnable = VK_TRUE;
-        samplerInfo.compareOp = GetCompareOp(spec.SamplerComparisonFunction);
+        samplerInfo.compareOp = Vk::GetCompareOp(spec.SamplerComparisonFunction);
         samplerInfo.mipLodBias = mipmapMode;
         samplerInfo.mipLodBias = spec.LODBias;
         samplerInfo.minLod = spec.MinimumLOD;

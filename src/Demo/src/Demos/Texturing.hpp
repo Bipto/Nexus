@@ -61,6 +61,8 @@ namespace Demos
                                              m_ClearColour.b,
                                              1.0f});
 
+            m_CommandList->TransitionImageLayout(m_Texture, 0, 1, Nexus::Graphics::ImageLayout::ShaderRead);
+
             m_ResourceSet->WriteCombinedImageSampler(m_Texture, m_Sampler, "texSampler");
 
             m_CommandList->SetResourceSet(m_ResourceSet);

@@ -14,10 +14,10 @@
 
 namespace Nexus::Graphics
 {
-    GraphicsDevice::GraphicsDevice(const GraphicsDeviceCreateInfo &createInfo, Window *window, const SwapchainSpecification &swapchainSpec)
+    GraphicsDevice::GraphicsDevice(const GraphicsDeviceSpecification &specification, Window *window, const SwapchainSpecification &swapchainSpec)
     {
         m_Window = window;
-        m_API = createInfo.API;
+        m_Specification = specification;
     }
 
     Ref<ShaderModule> GraphicsDevice::CreateShaderModuleFromSpirvFile(const std::string &filepath, ShaderStage stage)
@@ -97,6 +97,11 @@ namespace Nexus::Graphics
 
         ImmediateSubmit([&](Nexus::Ref<Nexus::Graphics::CommandList> cmd)
                         { cmd->TransitionImageLayout(lockedTexture, baseLevel, numLevels, layout); });
+    }
+
+    const GraphicsDeviceSpecification &GraphicsDevice::GetSpecification() const
+    {
+        return m_Specification;
     }
 
     Ref<Texture> GraphicsDevice::CreateTexture(const char *filepath, bool generateMips)

@@ -103,7 +103,7 @@ namespace Nexus::Graphics
         auto vulkanIB = std::dynamic_pointer_cast<IndexBufferVk>(command.lock());
 
         VkBuffer indexBufferRaw = vulkanIB->GetBuffer();
-        VkIndexType indexType = GetVulkanIndexBufferFormat(vulkanIB->GetFormat());
+        VkIndexType indexType = Vk::GetVulkanIndexBufferFormat(vulkanIB->GetFormat());
         vkCmdBindIndexBuffer(m_CommandBuffer, indexBufferRaw, 0, indexType);
     }
 
@@ -463,6 +463,51 @@ namespace Nexus::Graphics
 
     void CommandExecutorVk::ExecuteCommand(const TransitionImageLayoutCommand &command, GraphicsDevice *device)
     {
+        if (command.TransitionTexture.expired())
+        {
+            NX_ERROR("Attempting to transition an invalid texture");
+            return;
+        }
+
+        if (Ref<TextureVk> texture = std::dynamic_pointer_cast<TextureVk>(command.TransitionTexture.lock()))
+        {
+            for (uint32_t i = command.BaseLevel; i < command.BaseLevel + command.NumLevels; i++)
+            {
+                ImageLayout layout = texture->GetImageLayout(i).value();
+
+                VkImageMemoryBarrier barrier{};
+                barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+                barrier.oldLayout = Vk::GetVkImageLayoutFromNxImageLayout(layout);
+                barrier.newLayout = Vk::GetVkImageLayoutFromNxImageLayout(command.TextureLayout);
+
+                barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+                barrier.image = texture->GetImage();
+                barrier.subresourceRange.aspectMask = Vk::GetVkAspectFlagsFromNxImageLayout(command.TextureLayout);
+                barrier.subresourceRange.baseMipLevel = i;
+                barrier.subresourceRange.levelCount = 1;
+                barrier.subresourceRange.baseArrayLayer = 0;
+                barrier.subresourceRange.layerCount = 1;
+
+                barrier.srcAccessMask = 0;
+                barrier.dstAccessMask = 0;
+
+                vkCmdPipelineBarrier(
+                    m_CommandBuffer,
+                    VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                    VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                    VK_DEPENDENCY_BY_REGION_BIT,
+                    0,
+                    nullptr,
+                    0,
+                    nullptr,
+                    1,
+                    &barrier);
+
+                SetImageLayout(texture, i, command.TextureLayout);
+            }
+        }
     }
 
     void CommandExecutorVk::TransitionVulkanImageLayout(VkImage image, uint32_t level, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlagBits aspectMask)

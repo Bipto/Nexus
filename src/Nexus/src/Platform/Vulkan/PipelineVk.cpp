@@ -72,7 +72,7 @@ namespace Nexus::Graphics
                 VkVertexInputAttributeDescription attributeDescription = {};
                 attributeDescription.binding = layoutIndex;
                 attributeDescription.location = elementIndex;
-                attributeDescription.format = GetShaderDataType(element.Type);
+                attributeDescription.format = Vk::GetShaderDataType(element.Type);
                 attributeDescription.offset = element.Offset;
                 attributeDescriptions.push_back(attributeDescription);
 
@@ -231,7 +231,7 @@ namespace Nexus::Graphics
         info.depthBiasClamp = 0.0f;
         info.depthBiasSlopeFactor = 0.0f;
 
-        info.frontFace = GetFrontFace(m_Description.RasterizerStateDesc.TriangleFrontFace);
+        info.frontFace = Vk::GetFrontFace(m_Description.RasterizerStateDesc.TriangleFrontFace);
 
         return info;
     }
@@ -244,12 +244,12 @@ namespace Nexus::Graphics
         if (m_Description.Target.GetType() == RenderTargetType::Framebuffer)
         {
             auto framebufferVk = std::dynamic_pointer_cast<FramebufferVk>(m_Description.Target.GetData<Ref<Framebuffer>>());
-            samples = GetVkSampleCount(framebufferVk->GetFramebufferSpecification().Samples);
+            samples = Vk::GetVkSampleCount(framebufferVk->GetFramebufferSpecification().Samples);
         }
         else if (m_Description.Target.GetType() == RenderTargetType::Swapchain)
         {
             auto swapchainVk = (SwapchainVk *)m_Description.Target.GetData<Swapchain *>();
-            samples = GetVkSampleCount(swapchainVk->GetSpecification().Samples);
+            samples = Vk::GetVkSampleCount(swapchainVk->GetSpecification().Samples);
         }
         else
         {
@@ -274,12 +274,12 @@ namespace Nexus::Graphics
         VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
         colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
         colorBlendAttachment.blendEnable = m_Description.BlendStateDesc.EnableBlending;
-        colorBlendAttachment.srcColorBlendFactor = GetVkBlendFactor(m_Description.BlendStateDesc.SourceColourBlend);
-        colorBlendAttachment.dstColorBlendFactor = GetVkBlendFactor(m_Description.BlendStateDesc.DestinationColourBlend);
-        colorBlendAttachment.colorBlendOp = GetVkBlendOp(m_Description.BlendStateDesc.ColorBlendFunction);
-        colorBlendAttachment.srcAlphaBlendFactor = GetVkBlendFactor(m_Description.BlendStateDesc.SourceAlphaBlend);
-        colorBlendAttachment.dstAlphaBlendFactor = GetVkBlendFactor(m_Description.BlendStateDesc.DestinationAlphaBlend);
-        colorBlendAttachment.alphaBlendOp = GetVkBlendOp(m_Description.BlendStateDesc.AlphaBlendFunction);
+        colorBlendAttachment.srcColorBlendFactor = Vk::GetVkBlendFactor(m_Description.BlendStateDesc.SourceColourBlend);
+        colorBlendAttachment.dstColorBlendFactor = Vk::GetVkBlendFactor(m_Description.BlendStateDesc.DestinationColourBlend);
+        colorBlendAttachment.colorBlendOp = Vk::GetVkBlendOp(m_Description.BlendStateDesc.ColorBlendFunction);
+        colorBlendAttachment.srcAlphaBlendFactor = Vk::GetVkBlendFactor(m_Description.BlendStateDesc.SourceAlphaBlend);
+        colorBlendAttachment.dstAlphaBlendFactor = Vk::GetVkBlendFactor(m_Description.BlendStateDesc.DestinationAlphaBlend);
+        colorBlendAttachment.alphaBlendOp = Vk::GetVkBlendOp(m_Description.BlendStateDesc.AlphaBlendFunction);
         return colorBlendAttachment;
     }
 
@@ -303,7 +303,7 @@ namespace Nexus::Graphics
         info.pNext = nullptr;
         info.depthTestEnable = m_Description.DepthStencilDesc.EnableDepthTest;
         info.depthWriteEnable = m_Description.DepthStencilDesc.EnableDepthWrite;
-        info.depthCompareOp = GetCompareOp(m_Description.DepthStencilDesc.DepthComparisonFunction);
+        info.depthCompareOp = Vk::GetCompareOp(m_Description.DepthStencilDesc.DepthComparisonFunction);
 
         info.depthBoundsTestEnable = VK_FALSE;
         info.minDepthBounds = m_Description.DepthStencilDesc.MinDepth;
@@ -381,7 +381,7 @@ namespace Nexus::Graphics
         VkPipelineShaderStageCreateInfo createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         createInfo.pNext = nullptr;
-        createInfo.stage = GetVkShaderStageFlags(module->GetModuleSpecification().Stage);
+        createInfo.stage = Vk::GetVkShaderStageFlags(module->GetModuleSpecification().Stage);
         createInfo.module = module->GetShaderModule();
         createInfo.pName = "main";
         return createInfo;

@@ -15,7 +15,7 @@
 
 namespace Nexus::Graphics
 {
-    GraphicsDeviceD3D12::GraphicsDeviceD3D12(const GraphicsDeviceCreateInfo &createInfo, Window *window, const SwapchainSpecification &swapchainSpec)
+    GraphicsDeviceD3D12::GraphicsDeviceD3D12(const GraphicsDeviceSpecification &createInfo, Window *window, const SwapchainSpecification &swapchainSpec)
         : GraphicsDevice(createInfo, window, swapchainSpec)
     {
         // this has to be enabled to support newer HLSL versions and DXIL bytecode
@@ -72,14 +72,6 @@ namespace Nexus::Graphics
         }
     }
 
-    void GraphicsDeviceD3D12::SetContext()
-    {
-    }
-
-    void GraphicsDeviceD3D12::SetFramebuffer(Framebuffer *framebuffer)
-    {
-    }
-
     void GraphicsDeviceD3D12::SubmitCommandList(Ref<CommandList> commandList)
     {
         Ref<CommandListD3D12> d3d12CommandList = std::dynamic_pointer_cast<CommandListD3D12>(commandList);
@@ -107,19 +99,6 @@ namespace Nexus::Graphics
     const char *GraphicsDeviceD3D12::GetDeviceName()
     {
         return nullptr;
-    }
-
-    void *GraphicsDeviceD3D12::GetContext()
-    {
-        return nullptr;
-    }
-
-    void GraphicsDeviceD3D12::BeginFrame()
-    {
-    }
-
-    void GraphicsDeviceD3D12::EndFrame()
-    {
     }
 
     Ref<ShaderModule> GraphicsDeviceD3D12::CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources)

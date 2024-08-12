@@ -105,15 +105,12 @@ public:
     virtual void Render(Nexus::Time time) override
     {
         m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
-        m_GraphicsDevice->BeginFrame();
 
         const auto &windowSize = GetPrimaryWindow()->GetWindowSize();
         m_Canvas->SetPosition({0, 0});
         m_Canvas->SetSize(windowSize);
         m_Canvas->SetBackgroundColour({0.42f, 0.52, 0.73f, 1.0f});
         m_Canvas->Render();
-
-        m_GraphicsDevice->EndFrame();
     }
 
     virtual void OnResize(Nexus::Point2D<uint32_t> size) override

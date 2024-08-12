@@ -270,7 +270,7 @@ namespace Nexus
         m_Window = CreateApplicationWindow(spec.WindowProperties, spec.SwapchainSpecification);
         Nexus::Input::SetInputContext(m_Window->GetInput());
 
-        Graphics::GraphicsDeviceCreateInfo graphicsDeviceCreateInfo;
+        Graphics::GraphicsDeviceSpecification graphicsDeviceCreateInfo;
         graphicsDeviceCreateInfo.API = spec.GraphicsAPI;
 
         m_GraphicsDevice = Nexus::CreateGraphicsDevice(graphicsDeviceCreateInfo, m_Window, spec.SwapchainSpecification);
@@ -666,7 +666,7 @@ namespace Nexus
         }
     }
 
-    Graphics::GraphicsDevice *CreateGraphicsDevice(const Graphics::GraphicsDeviceCreateInfo &createInfo, Window *window, const Graphics::SwapchainSpecification &swapchainSpec)
+    Graphics::GraphicsDevice *CreateGraphicsDevice(const Graphics::GraphicsDeviceSpecification &createInfo, Window *window, const Graphics::SwapchainSpecification &swapchainSpec)
     {
         switch (createInfo.API)
         {

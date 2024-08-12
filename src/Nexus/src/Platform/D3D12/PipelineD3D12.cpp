@@ -283,7 +283,7 @@ namespace Nexus::Graphics
                     {
                         element.Name.c_str(),
                         elementIndex,
-                        GetD3D12BaseType(element),
+                        D3D12::GetD3D12BaseType(element),
                         layoutIndex,
                         element.Offset,
                         classification,
@@ -321,7 +321,7 @@ namespace Nexus::Graphics
     {
         D3D12_RASTERIZER_DESC desc{};
         desc.FillMode = D3D12_FILL_MODE_SOLID;
-        desc.CullMode = GetCullMode(m_Description.RasterizerStateDesc.TriangleCullMode);
+        desc.CullMode = D3D12::GetCullMode(m_Description.RasterizerStateDesc.TriangleCullMode);
 
         if (m_Description.RasterizerStateDesc.TriangleFrontFace == Nexus::Graphics::FrontFace::CounterClockwise)
         {
@@ -358,12 +358,12 @@ namespace Nexus::Graphics
         desc.AlphaToCoverageEnable = FALSE;
         desc.IndependentBlendEnable = FALSE;
         desc.RenderTarget[0].BlendEnable = m_Description.BlendStateDesc.EnableBlending;
-        desc.RenderTarget[0].SrcBlend = GetBlendFunction(m_Description.BlendStateDesc.SourceColourBlend);
-        desc.RenderTarget[0].DestBlend = GetBlendFunction(m_Description.BlendStateDesc.DestinationColourBlend);
-        desc.RenderTarget[0].BlendOp = GetBlendEquation(m_Description.BlendStateDesc.ColorBlendFunction);
-        desc.RenderTarget[0].SrcBlendAlpha = GetBlendFunction(m_Description.BlendStateDesc.SourceAlphaBlend);
-        desc.RenderTarget[0].DestBlendAlpha = GetBlendFunction(m_Description.BlendStateDesc.DestinationAlphaBlend);
-        desc.RenderTarget[0].BlendOpAlpha = GetBlendEquation(m_Description.BlendStateDesc.AlphaBlendFunction);
+        desc.RenderTarget[0].SrcBlend = D3D12::GetBlendFunction(m_Description.BlendStateDesc.SourceColourBlend);
+        desc.RenderTarget[0].DestBlend = D3D12::GetBlendFunction(m_Description.BlendStateDesc.DestinationColourBlend);
+        desc.RenderTarget[0].BlendOp = D3D12::GetBlendEquation(m_Description.BlendStateDesc.ColorBlendFunction);
+        desc.RenderTarget[0].SrcBlendAlpha = D3D12::GetBlendFunction(m_Description.BlendStateDesc.SourceAlphaBlend);
+        desc.RenderTarget[0].DestBlendAlpha = D3D12::GetBlendFunction(m_Description.BlendStateDesc.DestinationAlphaBlend);
+        desc.RenderTarget[0].BlendOpAlpha = D3D12::GetBlendEquation(m_Description.BlendStateDesc.AlphaBlendFunction);
         desc.RenderTarget[0].LogicOpEnable = FALSE;
         desc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
         desc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
@@ -374,7 +374,7 @@ namespace Nexus::Graphics
     {
         D3D12_DEPTH_STENCIL_DESC desc{};
         desc.DepthEnable = m_Description.DepthStencilDesc.EnableDepthTest;
-        desc.DepthFunc = GetComparisonFunction(m_Description.DepthStencilDesc.DepthComparisonFunction);
+        desc.DepthFunc = D3D12::GetComparisonFunction(m_Description.DepthStencilDesc.DepthComparisonFunction);
 
         if (m_Description.DepthStencilDesc.EnableDepthWrite)
         {
@@ -389,10 +389,10 @@ namespace Nexus::Graphics
         desc.StencilReadMask = m_Description.DepthStencilDesc.StencilMask;
         desc.StencilWriteMask = m_Description.DepthStencilDesc.StencilMask;
 
-        auto stencilFailOp = GetStencilOperation(m_Description.DepthStencilDesc.StencilFailOperation);
-        auto stencilDepthFailOp = GetStencilOperation(m_Description.DepthStencilDesc.StencilSuccessDepthFailOperation);
-        auto stencilPassOp = GetStencilOperation(m_Description.DepthStencilDesc.StencilSuccessDepthSuccessOperation);
-        auto stencilFunc = GetComparisonFunction(m_Description.DepthStencilDesc.StencilComparisonFunction);
+        auto stencilFailOp = D3D12::GetStencilOperation(m_Description.DepthStencilDesc.StencilFailOperation);
+        auto stencilDepthFailOp = D3D12::GetStencilOperation(m_Description.DepthStencilDesc.StencilSuccessDepthFailOperation);
+        auto stencilPassOp = D3D12::GetStencilOperation(m_Description.DepthStencilDesc.StencilSuccessDepthSuccessOperation);
+        auto stencilFunc = D3D12::GetComparisonFunction(m_Description.DepthStencilDesc.StencilComparisonFunction);
 
         desc.FrontFace.StencilFunc = stencilFunc;
         desc.FrontFace.StencilDepthFailOp = stencilDepthFailOp;

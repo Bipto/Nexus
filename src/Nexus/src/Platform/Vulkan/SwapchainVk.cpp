@@ -287,7 +287,7 @@ namespace Nexus::Graphics
 
     void SwapchainVk::CreateDepthStencil()
     {
-        auto samples = GetVkSampleCount(m_Specification.Samples);
+        auto samples = Vk::GetVkSampleCount(m_Specification.Samples);
         VkBool32 validDepthFormat = GetSupportedDepthFormat(m_GraphicsDevice->m_PhysicalDevice, &m_DepthFormat);
         CreateImage(m_SwapchainSize.width, m_SwapchainSize.height, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_DepthImage, m_DepthImageMemory, samples);
         m_DepthImageView = CreateImageView(m_DepthImage, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_IMAGE_ASPECT_DEPTH_BIT);
@@ -296,7 +296,7 @@ namespace Nexus::Graphics
 
     void SwapchainVk::CreateRenderPass()
     {
-        auto samples = GetVkSampleCount(m_Specification.Samples);
+        auto samples = Vk::GetVkSampleCount(m_Specification.Samples);
 
         VkAttachmentDescription colorAttachment = {};
         colorAttachment.format = m_SurfaceFormat.format;
@@ -430,7 +430,7 @@ namespace Nexus::Graphics
 
     void SwapchainVk::CreateResolveAttachment()
     {
-        auto samples = GetVkSampleCount(m_Specification.Samples);
+        auto samples = Vk::GetVkSampleCount(m_Specification.Samples);
 
         CreateImage(m_SwapchainSize.width,
                     m_SwapchainSize.height,

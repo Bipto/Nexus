@@ -36,12 +36,9 @@ public:
 
     virtual void Render(Nexus::Time time) override
     {
-        m_GraphicsDevice->BeginFrame();
         m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
 
         m_Layout.Render(time);
-
-        m_GraphicsDevice->EndFrame();
     }
 
     virtual void OnResize(Nexus::Point2D<uint32_t> size) override

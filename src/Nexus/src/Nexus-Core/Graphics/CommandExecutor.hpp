@@ -19,6 +19,35 @@ namespace Nexus::Graphics
             texture->SetImageLayout(level, layout);
         }
 
+        inline bool ValidateImageLayout(Ref<Texture> texture, uint32_t baseLevel, uint32_t numLevels, ImageLayout expectedLayout)
+        {
+            bool valid = true;
+
+            for (uint32_t i = baseLevel; i < baseLevel + numLevels; i++)
+            {
+                std::optional<ImageLayout> textureLayout = texture->GetImageLayout(i);
+
+                if (!textureLayout)
+                {
+                    NX_ERROR("Attempting to validate an invalid texture layer");
+                    valid = false;
+                }
+
+                if (textureLayout.value() != expectedLayout)
+                {
+                    std::stringstream ss;
+                    ss << "A level of the texture does not match the expected ImageLayout: ";
+                    ss << "Expected level (" << i << ") to be in layout (" << ImageLayoutToString(expectedLayout);
+                    ss << ") but was in layout: (" << ImageLayoutToString(textureLayout.value()) << ")";
+
+                    NX_ERROR(ss.str());
+                    valid = false;
+                }
+            }
+
+            return valid;
+        }
+
     private:
         virtual void ExecuteCommand(SetVertexBufferCommand command, GraphicsDevice *device) = 0;
         virtual void ExecuteCommand(WeakRef<IndexBuffer> command, GraphicsDevice *device) = 0;

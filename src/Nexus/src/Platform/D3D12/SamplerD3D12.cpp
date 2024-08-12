@@ -9,11 +9,11 @@ namespace Nexus::Graphics
     SamplerD3D12::SamplerD3D12(const SamplerSpecification &spec)
         : m_Specification(spec)
     {
-        m_SamplerFilter = GetD3D12Filter(spec.SampleFilter);
-        m_AddressModeU = GetD3D12TextureAddressMode(spec.AddressModeU);
-        m_AddressModeV = GetD3D12TextureAddressMode(spec.AddressModeV);
-        m_AddressModeW = GetD3D12TextureAddressMode(spec.AddressModeW);
-        m_ComparisonFunc = GetComparisonFunction(spec.SamplerComparisonFunction);
+        m_SamplerFilter = D3D12::GetD3D12Filter(spec.SampleFilter);
+        m_AddressModeU = D3D12::GetD3D12TextureAddressMode(spec.AddressModeU);
+        m_AddressModeV = D3D12::GetD3D12TextureAddressMode(spec.AddressModeV);
+        m_AddressModeW = D3D12::GetD3D12TextureAddressMode(spec.AddressModeW);
+        m_ComparisonFunc = D3D12::GetComparisonFunction(spec.SamplerComparisonFunction);
     }
 
     SamplerD3D12::~SamplerD3D12()

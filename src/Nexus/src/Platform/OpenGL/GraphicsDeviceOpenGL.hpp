@@ -13,19 +13,15 @@ namespace Nexus::Graphics
     class GraphicsDeviceOpenGL : public GraphicsDevice
     {
     public:
-        GraphicsDeviceOpenGL(const GraphicsDeviceCreateInfo &createInfo, Window *window, const SwapchainSpecification &swapchainSpec);
+        GraphicsDeviceOpenGL(const GraphicsDeviceSpecification &createInfo, Window *window, const SwapchainSpecification &swapchainSpec);
         GraphicsDeviceOpenGL(const GraphicsDeviceOpenGL &) = delete;
-        void SetContext() override;
+
         void SetFramebuffer(Ref<Framebuffer> framebuffer);
         void SetSwapchain(Swapchain *swapchain);
         virtual void SubmitCommandList(Ref<CommandList> commandList) override;
 
         virtual const std::string GetAPIName() override;
         virtual const char *GetDeviceName() override;
-        virtual void *GetContext() override;
-
-        virtual void BeginFrame() override;
-        virtual void EndFrame() override;
 
         virtual Ref<Texture> CreateTexture(const TextureSpecification &spec) override;
         virtual Ref<Pipeline> CreatePipeline(const PipelineDescription &description) override;
@@ -43,6 +39,8 @@ namespace Nexus::Graphics
         virtual ShaderLanguage GetSupportedShaderFormat() override;
         virtual float GetUVCorrection() { return 1.0f; }
         virtual bool IsUVOriginTopLeft() override { return false; };
+
+        void OpenGLCall(std::function<void()> func);
 
     private:
         virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) override;

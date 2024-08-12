@@ -19,7 +19,7 @@ namespace Nexus::Graphics
         virtual void SetData(const void *data, uint32_t size, uint32_t offset = 0) override;
 
     private:
-        AllocatedBuffer m_Buffer;
+        Vk::AllocatedBuffer m_Buffer;
         GraphicsDeviceVk *m_Device;
     };
 
@@ -33,7 +33,7 @@ namespace Nexus::Graphics
         virtual void SetData(const void *data, uint32_t size, uint32_t offset = 0) override;
 
     private:
-        AllocatedBuffer m_Buffer;
+        Vk::AllocatedBuffer m_Buffer;
         GraphicsDeviceVk *m_Device;
     };
 
@@ -47,7 +47,7 @@ namespace Nexus::Graphics
         virtual void SetData(const void *data, uint32_t size, uint32_t offset = 0) override;
 
     private:
-        std::vector<AllocatedBuffer> m_Buffers;
+        std::vector<Vk::AllocatedBuffer> m_Buffers;
         GraphicsDeviceVk *m_Device;
     };
 }

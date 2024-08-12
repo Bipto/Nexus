@@ -137,7 +137,7 @@ namespace Nexus::Graphics
             m_ColorAttachmentCPUHandles.push_back(cpuHandle);
 
             D3D12_RENDER_TARGET_VIEW_DESC rtvDesc;
-            rtvDesc.Format = GetD3D12PixelFormat(m_Specification.ColorAttachmentSpecification.Attachments[i].TextureFormat, false);
+            rtvDesc.Format = D3D12::GetD3D12PixelFormat(m_Specification.ColorAttachmentSpecification.Attachments[i].TextureFormat, false);
 
             if (m_Specification.Samples != SampleCount::SampleCount1)
             {
@@ -165,7 +165,7 @@ namespace Nexus::Graphics
             auto texture = m_DepthAttachment;
 
             D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
-            dsvDesc.Format = GetD3D12PixelFormat(m_Specification.DepthAttachmentSpecification.DepthFormat, true);
+            dsvDesc.Format = D3D12::GetD3D12PixelFormat(m_Specification.DepthAttachmentSpecification.DepthFormat, true);
 
             if (m_Specification.Samples != SampleCount::SampleCount1)
             {

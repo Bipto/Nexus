@@ -17,7 +17,7 @@
 
 namespace Nexus::Graphics
 {
-    GraphicsDeviceVk::GraphicsDeviceVk(const GraphicsDeviceCreateInfo &createInfo, Window *window, const SwapchainSpecification &swapchainSpec)
+    GraphicsDeviceVk::GraphicsDeviceVk(const GraphicsDeviceSpecification &createInfo, Window *window, const SwapchainSpecification &swapchainSpec)
         : GraphicsDevice(createInfo, window, swapchainSpec), m_CommandExecutor(this)
     {
         CreateInstance();
@@ -54,10 +54,6 @@ namespace Nexus::Graphics
             vkFreeCommandBuffers(m_Device, m_Frames[i].CommandPool, 1, &m_Frames[i].MainCommandBuffer);
             vkDestroyCommandPool(m_Device, m_Frames[i].CommandPool, nullptr);
         }
-    }
-
-    void GraphicsDeviceVk::SetContext()
-    {
     }
 
     void GraphicsDeviceVk::SubmitCommandList(Ref<CommandList> commandList)
@@ -100,20 +96,6 @@ namespace Nexus::Graphics
     const char *GraphicsDeviceVk::GetDeviceName()
     {
         return nullptr;
-    }
-
-    void *GraphicsDeviceVk::GetContext()
-    {
-        return nullptr;
-    }
-
-    void GraphicsDeviceVk::BeginFrame()
-    {
-        // AcquireNextImage();
-    }
-
-    void GraphicsDeviceVk::EndFrame()
-    {
     }
 
     Ref<ShaderModule> GraphicsDeviceVk::CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources)
@@ -792,7 +774,7 @@ namespace Nexus::Graphics
         return extensions;
     }
 
-    AllocatedBuffer GraphicsDeviceVk::CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage)
+    Vk::AllocatedBuffer GraphicsDeviceVk::CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage)
     {
         VkBufferCreateInfo bufferInfo = {};
         bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -805,7 +787,7 @@ namespace Nexus::Graphics
         vmaAllocInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
         vmaAllocInfo.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
 
-        AllocatedBuffer buffer;
+        Vk::AllocatedBuffer buffer;
 
         if (vmaCreateBuffer(m_Allocator, &bufferInfo, &vmaAllocInfo, &buffer.Buffer, &buffer.Allocation, nullptr) != VK_SUCCESS)
         {

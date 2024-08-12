@@ -233,6 +233,8 @@ namespace Nexus::Graphics
         {
             if (Ref<TextureOpenGL> textureGL = texture.second.lock())
             {
+                ValidateImageLayout(textureGL, 0, textureGL->GetLevels(), Nexus::Graphics::ImageLayout::ShaderRead);
+
                 GLint location = glGetUniformLocation(pipeline->GetShaderHandle(), texture.first.c_str());
                 glCall(glUniform1i(location, location));
                 glCall(glActiveTexture(GL_TEXTURE0 + location));
@@ -364,6 +366,9 @@ namespace Nexus::Graphics
 
         uint32_t framebufferWidth = framebuffer->GetFramebufferSpecification().Width;
         uint32_t framebufferHeight = framebuffer->GetFramebufferSpecification().Height;
+
+        Ref<Texture> framebufferTexture = framebuffer->GetColorTexture(command.SourceIndex);
+        ValidateImageLayout(framebufferTexture, 0, 1, Nexus::Graphics::ImageLayout::ResolveSource);
 
         Nexus::Window *window = swapchain->GetWindow();
         uint32_t swapchainWidth = window->GetWindowSize().X;

@@ -10,9 +10,9 @@ namespace Nexus::Graphics
         : Texture(spec, device), m_Specification(spec), m_Device(device)
     {
         bool isDepth;
-        D3D12_RESOURCE_FLAGS flags = GetD3D12ResourceFlags(spec.Usage, isDepth);
+        D3D12_RESOURCE_FLAGS flags = D3D12::GetD3D12ResourceFlags(spec.Usage, isDepth);
         auto d3d12Device = device->GetDevice();
-        m_TextureFormat = GetD3D12PixelFormat(spec.Format, isDepth);
+        m_TextureFormat = D3D12::GetD3D12PixelFormat(spec.Format, isDepth);
 
         uint32_t samples = GetSampleCount(spec.Samples);
 

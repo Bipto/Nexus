@@ -11,120 +11,9 @@
 #include "ShaderModuleOpenGL.hpp"
 #include "TimingQueryOpenGL.hpp"
 
-#if defined(WIN32)
-void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
-                                     GLenum severity, GLsizei length,
-                                     const GLchar *msg, const void *data)
-{
-    std::string textText;
-    std::string typeText;
-    std::string severityText;
-
-    switch (source)
-    {
-    case GL_DEBUG_SOURCE_API:
-        textText = "API";
-        break;
-
-    case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
-        textText = "WINDOW SYSTEM";
-        break;
-
-    case GL_DEBUG_SOURCE_SHADER_COMPILER:
-        textText = "SHADER COMPILER";
-        break;
-
-    case GL_DEBUG_SOURCE_THIRD_PARTY:
-        textText = "THIRD PARTY";
-        break;
-
-    case GL_DEBUG_SOURCE_APPLICATION:
-        textText = "APPLICATION";
-        break;
-
-    case GL_DEBUG_SOURCE_OTHER:
-        textText = "UNKNOWN";
-        break;
-
-    default:
-        textText = "UNKNOWN";
-        break;
-    }
-
-    switch (type)
-    {
-    case GL_DEBUG_TYPE_ERROR:
-        typeText = "ERROR";
-        break;
-
-    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
-        typeText = "DEPRECATED BEHAVIOR";
-        break;
-
-    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
-        typeText = "UDEFINED BEHAVIOR";
-        break;
-
-    case GL_DEBUG_TYPE_PORTABILITY:
-        typeText = "PORTABILITY";
-        break;
-
-    case GL_DEBUG_TYPE_PERFORMANCE:
-        typeText = "PERFORMANCE";
-        break;
-
-    case GL_DEBUG_TYPE_OTHER:
-        typeText = "OTHER";
-        break;
-
-    case GL_DEBUG_TYPE_MARKER:
-        typeText = "MARKER";
-        break;
-
-    default:
-        typeText = "UNKNOWN";
-        break;
-    }
-
-    switch (severity)
-    {
-    case GL_DEBUG_SEVERITY_HIGH:
-        severityText = "HIGH";
-        break;
-
-    case GL_DEBUG_SEVERITY_MEDIUM:
-        severityText = "MEDIUM";
-        break;
-
-    case GL_DEBUG_SEVERITY_LOW:
-        severityText = "LOW";
-        break;
-
-    case GL_DEBUG_SEVERITY_NOTIFICATION:
-        severityText = "NOTIFICATION";
-        break;
-
-    default:
-        severityText = "UNKNOWN";
-        break;
-    }
-
-    if (type != GL_DEBUG_TYPE_OTHER)
-    {
-        std::stringstream ss;
-        ss << "GL error of :";
-        ss << severityText;
-        ss << ", raised from ";
-        ss << textText;
-
-        NX_ERROR(ss.str());
-    }
-}
-#endif
-
 namespace Nexus::Graphics
 {
-    GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(const GraphicsDeviceCreateInfo &createInfo, Window *window, const SwapchainSpecification &swapchainSpec)
+    GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(const GraphicsDeviceSpecification &createInfo, Window *window, const SwapchainSpecification &swapchainSpec)
         : GraphicsDevice(createInfo, window, swapchainSpec)
     {
 
@@ -132,15 +21,9 @@ namespace Nexus::Graphics
 
 #if defined(WIN32)
         gladLoadGL();
-        glCall(glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS));
-        // glDebugMessageCallback(GLDebugMessageCallback, nullptr);
 #endif
 
         m_Extensions = GetSupportedExtensions();
-    }
-
-    void GraphicsDeviceOpenGL::SetContext()
-    {
     }
 
     void GraphicsDeviceOpenGL::SetFramebuffer(Ref<Framebuffer> framebuffer)
@@ -182,17 +65,14 @@ namespace Nexus::Graphics
         return (const char *)glGetString(GL_RENDERER);
     }
 
-    void *GraphicsDeviceOpenGL::GetContext()
+    void GraphicsDeviceOpenGL::OpenGLCall(std::function<void()> func)
     {
-        return nullptr;
-    }
-
-    void GraphicsDeviceOpenGL::BeginFrame()
-    {
-    }
-
-    void GraphicsDeviceOpenGL::EndFrame()
-    {
+        glClearErrors();
+        func();
+        if (m_Specification.DebugLayer)
+        {
+            glCheckErrors();
+        }
     }
 
     Ref<ShaderModule> GraphicsDeviceOpenGL::CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources)

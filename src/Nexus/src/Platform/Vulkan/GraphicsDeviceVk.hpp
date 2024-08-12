@@ -26,19 +26,14 @@ namespace Nexus::Graphics
     class GraphicsDeviceVk : public GraphicsDevice
     {
     public:
-        GraphicsDeviceVk(const GraphicsDeviceCreateInfo &createInfo, Window *window, const SwapchainSpecification &swapchainSpec);
+        GraphicsDeviceVk(const GraphicsDeviceSpecification &createInfo, Window *window, const SwapchainSpecification &swapchainSpec);
         GraphicsDeviceVk(const GraphicsDeviceVk &) = delete;
         virtual ~GraphicsDeviceVk();
 
-        void SetContext() override;
         virtual void SubmitCommandList(Ref<CommandList> commandList) override;
 
         virtual const std::string GetAPIName() override;
         virtual const char *GetDeviceName() override;
-        virtual void *GetContext() override;
-
-        virtual void BeginFrame() override;
-        virtual void EndFrame() override;
 
         virtual Ref<Texture> CreateTexture(const TextureSpecification &spec) override;
         virtual Ref<Pipeline> CreatePipeline(const PipelineDescription &description) override;
@@ -69,7 +64,7 @@ namespace Nexus::Graphics
         void ImmediateSubmit(std::function<void(VkCommandBuffer cmd)> &&function);
         void TransitionVulkanImageLayout(VkImage image, uint32_t level, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlagBits aspectMask);
         uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
-        AllocatedBuffer CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
+        Vk::AllocatedBuffer CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
 
         // vulkan functions
     private:

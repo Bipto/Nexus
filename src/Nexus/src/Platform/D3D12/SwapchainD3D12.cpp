@@ -322,7 +322,7 @@ namespace Nexus::Graphics
     {
         Ref<TextureD3D12> framebufferTexture = std::dynamic_pointer_cast<TextureD3D12>(m_MultisampledFramebuffer->GetColorTexture());
 
-        auto format = GetD3D12PixelFormat(Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm, false);
+        auto format = D3D12::GetD3D12PixelFormat(Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm, false);
         auto framebufferState = framebufferTexture->GetCurrentResourceState();
         auto swapchainState = GetCurrentTextureState();
 
@@ -385,8 +385,7 @@ namespace Nexus::Graphics
 
                                       cmd->ResourceBarrier(
                                           2,
-                                          fromResolveBarriers);
-                                  });
+                                          fromResolveBarriers); });
     }
 }
 #endif

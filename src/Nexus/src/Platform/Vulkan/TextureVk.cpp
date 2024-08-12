@@ -12,8 +12,8 @@ namespace Nexus::Graphics
 
         bool isDepth;
         VkDeviceSize imageSize = spec.Width * spec.Height * numChannels;
-        VkImageUsageFlagBits usage = GetVkImageUsageFlags(spec.Usage, isDepth);
-        m_Format = GetVkPixelDataFormat(spec.Format, isDepth);
+        VkImageUsageFlagBits usage = Vk::GetVkImageUsageFlags(spec.Usage, isDepth);
+        m_Format = Vk::GetVkPixelDataFormat(spec.Format, isDepth);
 
         m_StagingBuffer = graphicsDevice->CreateBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
 

@@ -50,7 +50,7 @@ namespace Nexus
     /// @brief A static method to create a new graphics device from a set of options
     /// @param createInfo Options to use to configure the graphics device
     /// @return A pointer to a graphics device
-    static Graphics::GraphicsDevice *CreateGraphicsDevice(const Graphics::GraphicsDeviceCreateInfo &createInfo, Window *window, const Graphics::SwapchainSpecification &swapchainSpec);
+    static Graphics::GraphicsDevice *CreateGraphicsDevice(const Graphics::GraphicsDeviceSpecification &createInfo, Window *window, const Graphics::SwapchainSpecification &swapchainSpec);
 
     /// @brief A static method to create a new audio device from a selected audio API
     /// @param api The audio API to use to manage audio resources

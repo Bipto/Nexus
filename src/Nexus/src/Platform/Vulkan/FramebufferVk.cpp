@@ -141,12 +141,12 @@ namespace Nexus::Graphics
         std::vector<VkAttachmentDescription> subpassAttachments;
 
         uint32_t attachmentIndex = 0;
-        VkSampleCountFlagBits samples = GetVkSampleCount(m_Specification.Samples);
+        VkSampleCountFlagBits samples = Vk::GetVkSampleCount(m_Specification.Samples);
 
         for (const auto &colorAttachment : m_Specification.ColorAttachmentSpecification.Attachments)
         {
             VkAttachmentDescription attachment = {};
-            attachment.format = GetVkPixelDataFormat(colorAttachment.TextureFormat, false);
+            attachment.format = Vk::GetVkPixelDataFormat(colorAttachment.TextureFormat, false);
             attachment.samples = samples;
             attachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
             attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -188,7 +188,7 @@ namespace Nexus::Graphics
         {
             VkAttachmentDescription depthAttachment = {};
             depthAttachment.flags = 0;
-            depthAttachment.format = GetVkPixelDataFormat(m_Specification.DepthAttachmentSpecification.DepthFormat, true);
+            depthAttachment.format = Vk::GetVkPixelDataFormat(m_Specification.DepthAttachmentSpecification.DepthFormat, true);
             depthAttachment.samples = samples;
             depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
             depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;

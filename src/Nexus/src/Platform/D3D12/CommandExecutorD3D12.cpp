@@ -235,7 +235,7 @@ namespace Nexus::Graphics
 
         auto framebufferTexture = framebufferD3D12->GetD3D12ColorTexture(command.SourceIndex);
         auto swapchainTexture = swapchainD3D12->RetrieveBufferHandle();
-        auto format = GetD3D12PixelFormat(Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm, false);
+        auto format = D3D12::GetD3D12PixelFormat(Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm, false);
         auto framebufferState = framebufferTexture->GetCurrentResourceState();
         auto swapchainState = swapchainD3D12->GetCurrentTextureState();
 
@@ -303,6 +303,33 @@ namespace Nexus::Graphics
 
     void CommandExecutorD3D12::ExecuteCommand(const TransitionImageLayoutCommand &command, GraphicsDevice *device)
     {
+        if (command.TransitionTexture.expired())
+        {
+            NX_ERROR("Attempting to transition an invalid texture");
+            return;
+        }
+
+        if (Ref<TextureD3D12> texture = std::dynamic_pointer_cast<TextureD3D12>(command.TransitionTexture.lock()))
+        {
+            for (uint32_t i = command.BaseLevel; i < command.BaseLevel + command.NumLevels; i++)
+            {
+                ImageLayout layout = texture->GetImageLayout(i).value();
+                D3D12_RESOURCE_STATES beforeState = D3D12::GetD3D12ResourceStatesFromNxImageLayout(layout);
+                D3D12_RESOURCE_STATES afterState = D3D12::GetD3D12ResourceStatesFromNxImageLayout(command.TextureLayout);
+
+                D3D12_RESOURCE_BARRIER barrier{};
+                barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+                barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+                barrier.Transition.pResource = texture->GetD3D12ResourceHandle().Get();
+                barrier.Transition.Subresource = 0;
+                barrier.Transition.StateBefore = beforeState;
+                barrier.Transition.StateAfter = afterState;
+
+                m_CommandList->ResourceBarrier(1, &barrier);
+
+                SetImageLayout(texture, i, command.TextureLayout);
+            }
+        }
     }
 
     void CommandExecutorD3D12::SetSwapchain(SwapchainD3D12 *swapchain, GraphicsDevice *device)

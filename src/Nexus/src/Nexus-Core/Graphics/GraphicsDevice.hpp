@@ -21,19 +21,22 @@
 namespace Nexus::Graphics
 {
     /// @brief A class representing properties needed to create a new graphics device
-    struct GraphicsDeviceCreateInfo
+    struct GraphicsDeviceSpecification
     {
         /// @brief The chosen graphics API to use to create the GraphicsDevice with
         GraphicsAPI API;
+
+        /// @brief Debugging will be enabled for the native graphics API
+        bool DebugLayer = false;
     };
 
     /// @brief A class representing an abstraction over a graphics API
     class GraphicsDevice
     {
     public:
-        /// @brief A constructor taking in a const reference to a GraphicsDeviceCreateInfo
+        /// @brief A constructor taking in a const reference to a GraphicsDeviceSpecification
         /// @param createInfo The options to use when creating the GraphicsDevice
-        GraphicsDevice(const GraphicsDeviceCreateInfo &createInfo, Window *window, const SwapchainSpecification &swapchainSpec);
+        GraphicsDevice(const GraphicsDeviceSpecification &createInfo, Window *window, const SwapchainSpecification &swapchainSpec);
 
         /// @brief A virtual destructor allowing resources to be deleted
         virtual ~GraphicsDevice() {}
@@ -41,9 +44,6 @@ namespace Nexus::Graphics
         /// @brief Copying a GraphicsDevice is not supported
         /// @param Another GraphicsDevice taken by const reference
         GraphicsDevice(const GraphicsDevice &) = delete;
-
-        /// @brief A pure virtual method that sets makes the current graphics context current
-        virtual void SetContext() = 0;
 
         /// @brief A pure virtual method that returns the name of the graphics API as a string
         /// @return A string containing the API name
@@ -57,19 +57,9 @@ namespace Nexus::Graphics
         /// @param commandList The command list to submit for rendering
         virtual void SubmitCommandList(Ref<CommandList> commandList) = 0;
 
-        /// @brief A pure virtual method that returns a context for a graphics API
-        /// @return A void pointer to the graphics context
-        virtual void *GetContext() = 0;
-
-        /// @brief A pure virtual method that will execute instructions to begin a frame
-        virtual void BeginFrame() = 0;
-
-        /// @brief A pure virtual method that will execute instructions to end a frame
-        virtual void EndFrame() = 0;
-
         /// @brief A method that returns an enum value representing the currently running graphics API backend
         /// @return A GraphicsAPI enum containing the current backend
-        GraphicsAPI GetGraphicsAPI() { return this->m_API; }
+        GraphicsAPI GetGraphicsAPI() { return m_Specification.API; }
 
         /// @brief A pure virtual method that creates a pipeline from a given pipeline description
         /// @param description The properties to use when creating the pipeline
@@ -155,6 +145,8 @@ namespace Nexus::Graphics
 
         void TransitionImageLayout(WeakRef<Texture> texture, uint32_t baseLevel, uint32_t numLevels, ImageLayout layout);
 
+        const GraphicsDeviceSpecification &GetSpecification() const;
+
     private:
         virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) = 0;
 
@@ -162,8 +154,7 @@ namespace Nexus::Graphics
         /// @brief A pointer to the window to render graphics into
         Nexus::Window *m_Window = nullptr;
 
-        /// @brief A value representing the graphics API being used by the GraphicsDevice
-        GraphicsAPI m_API{};
+        GraphicsDeviceSpecification m_Specification;
 
         Ref<CommandList> m_ImmediateCommandList = nullptr;
     };

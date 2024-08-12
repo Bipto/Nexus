@@ -12,19 +12,13 @@ namespace Nexus::Graphics
     class GraphicsDeviceD3D12 : public GraphicsDevice
     {
     public:
-        GraphicsDeviceD3D12(const GraphicsDeviceCreateInfo &createInfo, Window *window, const SwapchainSpecification &swapchainSpec);
+        GraphicsDeviceD3D12(const GraphicsDeviceSpecification &createInfo, Window *window, const SwapchainSpecification &swapchainSpec);
         ~GraphicsDeviceD3D12();
 
-        virtual void SetContext() override;
-        void SetFramebuffer(Framebuffer *framebuffer);
         virtual void SubmitCommandList(Ref<CommandList> commandList) override;
 
         virtual const std::string GetAPIName() override;
         virtual const char *GetDeviceName() override;
-        virtual void *GetContext() override;
-
-        virtual void BeginFrame() override;
-        virtual void EndFrame() override;
 
         virtual Ref<Texture> CreateTexture(const TextureSpecification &spec) override;
         virtual Ref<Pipeline> CreatePipeline(const PipelineDescription &description) override;
