@@ -2,9 +2,9 @@
 
 namespace Nexus
 {
-    void InputState::CacheInput()
-    {
-        m_Keyboard.CacheInput();
-        m_Mouse.CacheInput();
-    }
+void InputState::CacheInput()
+{
+    m_Keyboard.CacheInput();
+    m_Mouse.CacheInput();
 }
+} // namespace Nexus

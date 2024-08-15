@@ -4,13 +4,13 @@
 
 namespace Editor
 {
-    class SceneHierarchy : public Panel
-    {
-    public:
-        virtual void OnLoad() override;
-        virtual void OnRender() override;
+class SceneHierarchy : public Panel
+{
+  public:
+    virtual void OnLoad() override;
+    virtual void OnRender() override;
 
-    private:
-        static void RenderControls();
-    };
-}
+  private:
+    static void RenderControls();
+};
+} // namespace Editor

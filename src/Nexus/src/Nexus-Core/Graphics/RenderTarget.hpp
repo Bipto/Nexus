@@ -3,119 +3,113 @@
 #include "Framebuffer.hpp"
 #include "Swapchain.hpp"
 
-#include "Nexus-Core/Window.hpp"
 #include "Nexus-Core/Point.hpp"
+#include "Nexus-Core/Window.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
 namespace Nexus::Graphics
 {
-    enum class RenderTargetType
+enum class RenderTargetType
+{
+    Swapchain,
+    Framebuffer,
+    None
+};
+
+class RenderTarget
+{
+  public:
+    RenderTarget() = default;
+
+    explicit RenderTarget(Swapchain *swapchain) : m_Target(swapchain), m_RenderTargetType(RenderTargetType::Swapchain)
     {
-        Swapchain,
-        Framebuffer,
-        None
-    };
+    }
 
-    class RenderTarget
+    explicit RenderTarget(Ref<Framebuffer> framebuffer) : m_Target(framebuffer), m_RenderTargetType(RenderTargetType::Framebuffer)
     {
-    public:
-        RenderTarget() = default;
+    }
 
-        explicit RenderTarget(Swapchain *swapchain)
-            : m_Target(swapchain),
-              m_RenderTargetType(RenderTargetType::Swapchain)
+    template <typename T> T GetData()
+    {
+        return std::get<T>(m_Target);
+    }
+
+    template <typename T> T *GetDataIf()
+    {
+        return std::get_if<T>(&m_Target);
+    }
+
+    RenderTargetType GetType()
+    {
+        return m_RenderTargetType;
+    }
+
+    uint32_t GetColorAttachmentCount()
+    {
+        if (m_RenderTargetType == RenderTargetType::Swapchain)
         {
+            return 1;
         }
-
-        explicit RenderTarget(Ref<Framebuffer> framebuffer)
-            : m_Target(framebuffer),
-              m_RenderTargetType(RenderTargetType::Framebuffer)
+        else if (m_RenderTargetType == RenderTargetType::Framebuffer)
         {
+            auto framebuffer = GetData<Ref<Framebuffer>>();
+            return framebuffer->GetColorTextureCount();
         }
-
-        template <typename T>
-        T GetData()
+        else
         {
-            return std::get<T>(m_Target);
+            throw std::runtime_error("An invalid render target was selected");
         }
+    }
 
-        template <typename T>
-        T *GetDataIf()
+    Nexus::Point2D<uint32_t> GetSize()
+    {
+        if (m_RenderTargetType == RenderTargetType::Swapchain)
         {
-            return std::get_if<T>(&m_Target);
+            auto swapchain = GetData<Swapchain *>();
+            return swapchain->GetWindow()->GetWindowSize();
         }
-
-        RenderTargetType GetType()
+        else if (m_RenderTargetType == RenderTargetType::Framebuffer)
         {
-            return m_RenderTargetType;
+            auto framebuffer = GetData<Ref<Framebuffer>>();
+            const auto &framebufferSpec = framebuffer->GetFramebufferSpecification();
+            return {framebufferSpec.Width, framebufferSpec.Height};
         }
-
-        uint32_t GetColorAttachmentCount()
+        else
         {
-            if (m_RenderTargetType == RenderTargetType::Swapchain)
-            {
-                return 1;
-            }
-            else if (m_RenderTargetType == RenderTargetType::Framebuffer)
-            {
-                auto framebuffer = GetData<Ref<Framebuffer>>();
-                return framebuffer->GetColorTextureCount();
-            }
-            else
-            {
-                throw std::runtime_error("An invalid render target was selected");
-            }
+            throw std::runtime_error("An invalid render target was selected");
         }
+    }
 
-        Nexus::Point2D<uint32_t> GetSize()
+    bool HasDepthAttachment()
+    {
+        if (m_RenderTargetType == RenderTargetType::Swapchain)
         {
-            if (m_RenderTargetType == RenderTargetType::Swapchain)
-            {
-                auto swapchain = GetData<Swapchain *>();
-                return swapchain->GetWindow()->GetWindowSize();
-            }
-            else if (m_RenderTargetType == RenderTargetType::Framebuffer)
-            {
-                auto framebuffer = GetData<Ref<Framebuffer>>();
-                const auto &framebufferSpec = framebuffer->GetFramebufferSpecification();
-                return {framebufferSpec.Width, framebufferSpec.Height};
-            }
-            else
-            {
-                throw std::runtime_error("An invalid render target was selected");
-            }
+            return true;
         }
-
-        bool HasDepthAttachment()
+        else if (m_RenderTargetType == RenderTargetType::Framebuffer)
         {
-            if (m_RenderTargetType == RenderTargetType::Swapchain)
-            {
-                return true;
-            }
-            else if (m_RenderTargetType == RenderTargetType::Framebuffer)
-            {
-                auto framebuffer = GetData<Ref<Framebuffer>>();
-                const auto &framebufferSpec = framebuffer->GetFramebufferSpecification();
-                return framebufferSpec.DepthAttachmentSpecification.DepthFormat != PixelFormat::None;
-            }
-            else
-            {
-                throw std::runtime_error("An invalid render target was selected");
-            }
+            auto framebuffer = GetData<Ref<Framebuffer>>();
+            const auto &framebufferSpec = framebuffer->GetFramebufferSpecification();
+            return framebufferSpec.DepthAttachmentSpecification.DepthFormat != PixelFormat::None;
         }
-
-        bool IsValid()
+        else
         {
-            return m_RenderTargetType != RenderTargetType::None;
+            throw std::runtime_error("An invalid render target was selected");
         }
+    }
 
-        constexpr bool operator==(const RenderTarget &other)
-        {
-            return m_Target == other.m_Target;
-        }
+    bool IsValid()
+    {
+        return m_RenderTargetType != RenderTargetType::None;
+    }
 
-    private:
-        std::variant<Swapchain *, Ref<Framebuffer>> m_Target;
-        RenderTargetType m_RenderTargetType = RenderTargetType::None;
-    };
-}
+    constexpr bool operator==(const RenderTarget &other)
+    {
+        return m_Target == other.m_Target;
+    }
+
+  private:
+    std::variant<Swapchain *, Ref<Framebuffer>> m_Target;
+    RenderTargetType m_RenderTargetType = RenderTargetType::None;
+};
+} // namespace Nexus::Graphics

@@ -7,17 +7,17 @@
 
 namespace Nexus::Graphics
 {
-    class ShaderModuleOpenGL : public ShaderModule
-    {
-    public:
-        ShaderModuleOpenGL(const ShaderModuleSpecification &shaderModuleSpec, const ResourceSetSpecification &resourceSpec);
-        GLenum GetGLShaderStage();
-        uint32_t GetHandle();
+class ShaderModuleOpenGL : public ShaderModule
+{
+  public:
+    ShaderModuleOpenGL(const ShaderModuleSpecification &shaderModuleSpec, const ResourceSetSpecification &resourceSpec);
+    GLenum GetGLShaderStage();
+    uint32_t GetHandle();
 
-    private:
-        uint32_t m_Handle = 0;
-        GLenum m_ShaderStage = 0;
-    };
-}
+  private:
+    uint32_t m_Handle = 0;
+    GLenum m_ShaderStage = 0;
+};
+} // namespace Nexus::Graphics
 
 #endif

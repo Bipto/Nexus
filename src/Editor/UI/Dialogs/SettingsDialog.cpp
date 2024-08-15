@@ -2,42 +2,41 @@
 
 namespace Editor
 {
-    SettingsDialog::SettingsDialog(std::map<std::string, std::unique_ptr<Panel>> *panels)
-        : m_Panels(panels)
-    {
-    }
+SettingsDialog::SettingsDialog(std::map<std::string, std::unique_ptr<Panel>> *panels) : m_Panels(panels)
+{
+}
 
-    void SettingsDialog::OnLoad()
-    {
-    }
+void SettingsDialog::OnLoad()
+{
+}
 
-    void SettingsDialog::OnRender()
+void SettingsDialog::OnRender()
+{
+    if (m_Enabled)
     {
-        if (m_Enabled)
+        if (ImGui::Begin(SETTINGS_DIALOG_NAME, &m_Enabled))
         {
-            if (ImGui::Begin(SETTINGS_DIALOG_NAME, &m_Enabled))
+            for (auto it = m_Panels->begin(); it != m_Panels->end(); it++)
             {
-                for (auto it = m_Panels->begin(); it != m_Panels->end(); it++)
+                std::unique_ptr<Panel> &panel = it->second;
+
+                bool enabled = panel->IsEnabled();
+
+                if (ImGui::Checkbox(it->first.c_str(), &enabled))
                 {
-                    std::unique_ptr<Panel> &panel = it->second;
-
-                    bool enabled = panel->IsEnabled();
-
-                    if (ImGui::Checkbox(it->first.c_str(), &enabled))
+                    if (enabled)
                     {
-                        if (enabled)
-                        {
-                            panel->Enable();
-                        }
-                        else
-                        {
-                            panel->Disable();
-                        }
+                        panel->Enable();
+                    }
+                    else
+                    {
+                        panel->Disable();
                     }
                 }
             }
-
-            ImGui::End();
         }
+
+        ImGui::End();
     }
 }
+} // namespace Editor

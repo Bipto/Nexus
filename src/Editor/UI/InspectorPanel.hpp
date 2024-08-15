@@ -5,10 +5,10 @@
 
 namespace Editor
 {
-    class Inspector : public Panel
-    {
-    public:
-        virtual void OnLoad() override;
-        virtual void OnRender() override;
-    };
-}
+class Inspector : public Panel
+{
+  public:
+    virtual void OnLoad() override;
+    virtual void OnRender() override;
+};
+} // namespace Editor

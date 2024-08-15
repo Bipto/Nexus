@@ -7,48 +7,59 @@
 
 namespace Nexus::Graphics
 {
-    enum class ShaderStage
+enum class ShaderStage
+{
+    None = 0,
+    Compute,
+    Fragment,
+    Geometry,
+    TesselationControl,
+    TesselationEvaluation,
+    Vertex
+};
+
+struct ShaderAttribute
+{
+    std::string Name;
+    ShaderDataType Type;
+};
+
+struct ShaderModuleSpecification
+{
+    std::string Name = "ShaderModule";
+    std::string Source;
+    ShaderStage Stage = ShaderStage::None;
+    std::vector<uint32_t> SpirvBinary;
+
+    std::vector<ShaderAttribute> InputAttributes;
+    std::vector<ShaderAttribute> OutputAttributes;
+};
+
+class ShaderModule
+{
+  public:
+    ShaderModule(const ShaderModuleSpecification &shaderModuleSpec, const ResourceSetSpecification &resourceSpec)
+        : m_ModuleSpecification(shaderModuleSpec), m_ResourceSetSpecification(resourceSpec)
     {
-        None = 0,
-        Compute,
-        Fragment,
-        Geometry,
-        TesselationControl,
-        TesselationEvaluation,
-        Vertex
-    };
+    }
 
-    struct ShaderAttribute
+    virtual ~ShaderModule() = default;
+
+    ShaderStage GetShaderStage() const
     {
-        std::string Name;
-        ShaderDataType Type;
-    };
-
-    struct ShaderModuleSpecification
+        return m_ModuleSpecification.Stage;
+    }
+    const ShaderModuleSpecification &GetModuleSpecification() const
     {
-        std::string Name = "ShaderModule";
-        std::string Source;
-        ShaderStage Stage = ShaderStage::None;
-        std::vector<uint32_t> SpirvBinary;
-
-        std::vector<ShaderAttribute> InputAttributes;
-        std::vector<ShaderAttribute> OutputAttributes;
-    };
-
-    class ShaderModule
+        return m_ModuleSpecification;
+    }
+    const ResourceSetSpecification &GetResourceSetSpecification() const
     {
-    public:
-        ShaderModule(const ShaderModuleSpecification &shaderModuleSpec, const ResourceSetSpecification &resourceSpec)
-            : m_ModuleSpecification(shaderModuleSpec), m_ResourceSetSpecification(resourceSpec) {}
+        return m_ResourceSetSpecification;
+    }
 
-        virtual ~ShaderModule() = default;
-
-        ShaderStage GetShaderStage() const { return m_ModuleSpecification.Stage; }
-        const ShaderModuleSpecification &GetModuleSpecification() const { return m_ModuleSpecification; }
-        const ResourceSetSpecification &GetResourceSetSpecification() const { return m_ResourceSetSpecification; }
-
-    protected:
-        ShaderModuleSpecification m_ModuleSpecification;
-        ResourceSetSpecification m_ResourceSetSpecification;
-    };
-}
+  protected:
+    ShaderModuleSpecification m_ModuleSpecification;
+    ResourceSetSpecification m_ResourceSetSpecification;
+};
+} // namespace Nexus::Graphics

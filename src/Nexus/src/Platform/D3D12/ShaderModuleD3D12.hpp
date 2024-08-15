@@ -7,15 +7,15 @@
 
 namespace Nexus::Graphics
 {
-    class ShaderModuleD3D12 : public ShaderModule
-    {
-    public:
-        ShaderModuleD3D12(const ShaderModuleSpecification &shaderModuleSpec, const ResourceSetSpecification &resourceSpec);
-        IDxcBlob* GetBlob() const;
+class ShaderModuleD3D12 : public ShaderModule
+{
+  public:
+    ShaderModuleD3D12(const ShaderModuleSpecification &shaderModuleSpec, const ResourceSetSpecification &resourceSpec);
+    IDxcBlob *GetBlob() const;
 
-    private:
-        Microsoft::WRL::ComPtr<IDxcBlob> m_ShaderBlob = nullptr;
-    };
-}
+  private:
+    Microsoft::WRL::ComPtr<IDxcBlob> m_ShaderBlob = nullptr;
+};
+} // namespace Nexus::Graphics
 
 #endif

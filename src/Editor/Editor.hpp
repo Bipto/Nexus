@@ -7,9 +7,8 @@
 
 class EditorApplication : public Nexus::Application
 {
-public:
-    explicit EditorApplication(const Nexus::ApplicationSpecification &spec)
-        : Nexus::Application(spec)
+  public:
+    explicit EditorApplication(const Nexus::ApplicationSpecification &spec) : Nexus::Application(spec)
     {
     }
 
@@ -22,10 +21,7 @@ public:
     {
         m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-        GetPrimaryWindow()->OnFileDrop += [&](std::string file)
-        {
-            m_Layout.LoadProject(file);
-        };
+        GetPrimaryWindow()->OnFileDrop += [&](std::string file) { m_Layout.LoadProject(file); };
 
         m_Layout.LoadLayout("layout.ini");
     }
@@ -53,7 +49,7 @@ public:
     {
     }
 
-private:
+  private:
     Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList = nullptr;
     Editor::Layout m_Layout{this};
 };

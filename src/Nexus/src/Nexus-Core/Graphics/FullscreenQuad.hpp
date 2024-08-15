@@ -4,19 +4,19 @@
 
 namespace Nexus::Graphics
 {
-    class FullscreenQuad
-    {
-    public:
-        FullscreenQuad() = default;
-        explicit FullscreenQuad(GraphicsDevice *device);
+class FullscreenQuad
+{
+  public:
+    FullscreenQuad() = default;
+    explicit FullscreenQuad(GraphicsDevice *device);
 
-        Ref<VertexBuffer> GetVertexBuffer();
-        Ref<IndexBuffer> GetIndexBuffer();
+    Ref<VertexBuffer> GetVertexBuffer();
+    Ref<IndexBuffer> GetIndexBuffer();
 
-        Nexus::Graphics::VertexBufferLayout GetVertexBufferLayout();
+    Nexus::Graphics::VertexBufferLayout GetVertexBufferLayout();
 
-    private:
-        Ref<VertexBuffer> m_VertexBuffer = nullptr;
-        Ref<IndexBuffer> m_IndexBuffer = nullptr;
-    };
-}
+  private:
+    Ref<VertexBuffer> m_VertexBuffer = nullptr;
+    Ref<IndexBuffer> m_IndexBuffer = nullptr;
+};
+} // namespace Nexus::Graphics

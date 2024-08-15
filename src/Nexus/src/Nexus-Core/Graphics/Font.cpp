@@ -3,7 +3,8 @@
 #include "ft2build.h"
 #include FT_FREETYPE_H
 
-void LoadCharacter(char character, FT_Face &face, Nexus::Graphics::FontData &data, std::map<char, Nexus::Graphics::Character> &characters, uint32_t xPos, uint32_t yPos, uint32_t textureWidth, uint32_t textureHeight, FT_Render_Mode renderMode)
+void LoadCharacter(char character, FT_Face &face, Nexus::Graphics::FontData &data, std::map<char, Nexus::Graphics::Character> &characters, uint32_t xPos, uint32_t yPos,
+                   uint32_t textureWidth, uint32_t textureHeight, FT_Render_Mode renderMode)
 {
     if (FT_Load_Char(face, character, FT_LOAD_DEFAULT))
     {
@@ -42,7 +43,8 @@ void LoadCharacter(char character, FT_Face &face, Nexus::Graphics::FontData &dat
     characters[character] = c;
 }
 
-Nexus::Point2D<uint32_t> FindLargestGlyphSize(const FT_Face &face, const std::vector<Nexus::Graphics::CharacterRange> &ranges, uint32_t &numberOfCharacters, FT_Render_Mode renderMode)
+Nexus::Point2D<uint32_t> FindLargestGlyphSize(const FT_Face &face, const std::vector<Nexus::Graphics::CharacterRange> &ranges, uint32_t &numberOfCharacters,
+                                              FT_Render_Mode renderMode)
 {
     uint32_t width = 0;
     uint32_t height = 0;
@@ -72,141 +74,141 @@ Nexus::Point2D<uint32_t> FindLargestGlyphSize(const FT_Face &face, const std::ve
 
 namespace Nexus::Graphics
 {
-    Font::Font(const std::string &filepath, uint32_t size, const std::vector<CharacterRange> &characterRanges, FontType type, GraphicsDevice *device)
-        : m_CharacterRanges(characterRanges), m_FontSize(size), m_Type(type)
+Font::Font(const std::string &filepath, uint32_t size, const std::vector<CharacterRange> &characterRanges, FontType type, GraphicsDevice *device)
+    : m_CharacterRanges(characterRanges), m_FontSize(size), m_Type(type)
+{
+    FT_Library ft;
+    if (FT_Init_FreeType(&ft))
     {
-        FT_Library ft;
-        if (FT_Init_FreeType(&ft))
+        std::cout << "Could not initialise FreeType" << std::endl;
+    }
+
+    FT_Face face;
+    if (FT_New_Face(ft, filepath.c_str(), 0, &face))
+    {
+        std::cout << "Failed to load font" << std::endl;
+    }
+    FT_Set_Pixel_Sizes(face, 0, m_FontSize);
+
+    m_LineSpacing = face->size->metrics.height / 64;
+    m_UnderlinePosition = face->underline_position;
+
+    FT_Render_Mode renderMode = FT_RENDER_MODE_NORMAL;
+    if (type == FontType::SDF)
+    {
+        renderMode = FT_RENDER_MODE_SDF;
+    }
+
+    uint32_t characterCount = 0;
+    m_MaxCharacterSize = FindLargestGlyphSize(face, characterRanges, characterCount, renderMode);
+    uint32_t columnCount = ceil(sqrt(characterCount));
+
+    m_TextureWidth = columnCount * m_MaxCharacterSize.X;
+    m_TextureHeight = columnCount * m_MaxCharacterSize.Y;
+
+    Nexus::Graphics::TextureSpecification textureSpec;
+    textureSpec.Format = Nexus::Graphics::PixelFormat::R8_UNorm;
+    textureSpec.Width = m_TextureWidth;
+    textureSpec.Height = m_TextureHeight;
+
+    FontData pixels(textureSpec.Width, textureSpec.Height);
+    pixels.Clear(0);
+
+    uint32_t xPos = 0;
+    uint32_t yPos = 0;
+    for (const auto &range : m_CharacterRanges)
+    {
+        for (int character = range.Begin; character < range.End; character++)
         {
-            std::cout << "Could not initialise FreeType" << std::endl;
-        }
+            LoadCharacter((char)character, face, pixels, m_Characters, xPos, yPos, m_TextureWidth, m_TextureHeight, renderMode);
 
-        FT_Face face;
-        if (FT_New_Face(ft, filepath.c_str(), 0, &face))
-        {
-            std::cout << "Failed to load font" << std::endl;
-        }
-        FT_Set_Pixel_Sizes(face, 0, m_FontSize);
+            xPos += m_MaxCharacterSize.X;
 
-        m_LineSpacing = face->size->metrics.height / 64;
-        m_UnderlinePosition = face->underline_position;
-
-        FT_Render_Mode renderMode = FT_RENDER_MODE_NORMAL;
-        if (type == FontType::SDF)
-        {
-            renderMode = FT_RENDER_MODE_SDF;
-        }
-
-        uint32_t characterCount = 0;
-        m_MaxCharacterSize = FindLargestGlyphSize(face, characterRanges, characterCount, renderMode);
-        uint32_t columnCount = ceil(sqrt(characterCount));
-
-        m_TextureWidth = columnCount * m_MaxCharacterSize.X;
-        m_TextureHeight = columnCount * m_MaxCharacterSize.Y;
-
-        Nexus::Graphics::TextureSpecification textureSpec;
-        textureSpec.Format = Nexus::Graphics::PixelFormat::R8_UNorm;
-        textureSpec.Width = m_TextureWidth;
-        textureSpec.Height = m_TextureHeight;
-
-        FontData pixels(textureSpec.Width, textureSpec.Height);
-        pixels.Clear(0);
-
-        uint32_t xPos = 0;
-        uint32_t yPos = 0;
-        for (const auto &range : m_CharacterRanges)
-        {
-            for (int character = range.Begin; character < range.End; character++)
+            if (xPos >= m_TextureWidth)
             {
-                LoadCharacter((char)character, face, pixels, m_Characters, xPos, yPos, m_TextureWidth, m_TextureHeight, renderMode);
-
-                xPos += m_MaxCharacterSize.X;
-
-                if (xPos >= m_TextureWidth)
-                {
-                    xPos = 0;
-                    yPos += m_MaxCharacterSize.Y;
-                }
+                xPos = 0;
+                yPos += m_MaxCharacterSize.Y;
             }
         }
-
-        m_Texture = device->CreateTexture(textureSpec);
-        m_Texture->SetData(pixels.GetPixels().data(), 0, 0, 0, pixels.GetWidth(), pixels.GetHeight());
-
-        FT_Done_Face(face);
-        FT_Done_FreeType(ft);
     }
 
-    Nexus::Ref<Nexus::Graphics::Texture> Font::GetTexture()
-    {
-        return m_Texture;
-    }
+    m_Texture = device->CreateTexture(textureSpec);
+    m_Texture->SetData(pixels.GetPixels().data(), 0, 0, 0, pixels.GetWidth(), pixels.GetHeight());
 
-    const Character &Font::GetCharacter(char character)
-    {
-        return m_Characters[character];
-    }
-
-    uint32_t Font::GetSize() const
-    {
-        return m_FontSize;
-    }
-
-    Nexus::Point2D<float> Font::MeasureString(const std::string &text, uint32_t size)
-    {
-        float scale = 1.0f / GetSize() * size;
-
-        float x = 0;
-        float y = 0;
-        float maxWidth = 0;
-
-        if (text.length() > 0)
-        {
-            y = (GetLineHeight() * scale);
-        }
-
-        for (auto character : text)
-        {
-            const auto &characterInfo = GetCharacter(character);
-
-            x += (characterInfo.Bearing.x * scale);
-
-            if (character == '\n')
-            {
-                x = 0;
-                y += GetLineHeight() * scale;
-            }
-            else if (character == '\t')
-            {
-                const auto &spaceInfo = GetCharacter(' ');
-                x += ((spaceInfo.Advance >> 6) * scale) * 4;
-            }
-            else
-            {
-                x += (characterInfo.Advance >> 6) * scale;
-            }
-
-            if (x > maxWidth)
-            {
-                maxWidth = x;
-            }
-        }
-
-        return {maxWidth, y};
-    }
-
-    const uint32_t Font::GetLineHeight() const
-    {
-        return m_LineSpacing;
-    }
-
-    const Point2D<uint32_t> Font::GetMaxCharacterSize() const
-    {
-        return m_MaxCharacterSize;
-    }
-
-    const FontType Font::GetFontType() const
-    {
-        return m_Type;
-    }
+    FT_Done_Face(face);
+    FT_Done_FreeType(ft);
 }
+
+Nexus::Ref<Nexus::Graphics::Texture> Font::GetTexture()
+{
+    return m_Texture;
+}
+
+const Character &Font::GetCharacter(char character)
+{
+    return m_Characters[character];
+}
+
+uint32_t Font::GetSize() const
+{
+    return m_FontSize;
+}
+
+Nexus::Point2D<float> Font::MeasureString(const std::string &text, uint32_t size)
+{
+    float scale = 1.0f / GetSize() * size;
+
+    float x = 0;
+    float y = 0;
+    float maxWidth = 0;
+
+    if (text.length() > 0)
+    {
+        y = (GetLineHeight() * scale);
+    }
+
+    for (auto character : text)
+    {
+        const auto &characterInfo = GetCharacter(character);
+
+        x += (characterInfo.Bearing.x * scale);
+
+        if (character == '\n')
+        {
+            x = 0;
+            y += GetLineHeight() * scale;
+        }
+        else if (character == '\t')
+        {
+            const auto &spaceInfo = GetCharacter(' ');
+            x += ((spaceInfo.Advance >> 6) * scale) * 4;
+        }
+        else
+        {
+            x += (characterInfo.Advance >> 6) * scale;
+        }
+
+        if (x > maxWidth)
+        {
+            maxWidth = x;
+        }
+    }
+
+    return {maxWidth, y};
+}
+
+const uint32_t Font::GetLineHeight() const
+{
+    return m_LineSpacing;
+}
+
+const Point2D<uint32_t> Font::GetMaxCharacterSize() const
+{
+    return m_MaxCharacterSize;
+}
+
+const FontType Font::GetFontType() const
+{
+    return m_Type;
+}
+} // namespace Nexus::Graphics

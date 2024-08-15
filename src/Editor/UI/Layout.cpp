@@ -1,204 +1,203 @@
 #include "Layout.hpp"
 
-#include "Nexus-Core/FileSystem/FileSystem.hpp"
 #include "Nexus-Core/FileSystem/FileDialogs.hpp"
+#include "Nexus-Core/FileSystem/FileSystem.hpp"
 
 #include "Dialogs/NewProjectDialog.hpp"
 #include "Dialogs/SettingsDialog.hpp"
 
-#include "SceneViewport.hpp"
-#include "SceneHierarchy.hpp"
 #include "InspectorPanel.hpp"
+#include "SceneHierarchy.hpp"
+#include "SceneViewport.hpp"
 
 #include "Nexus-Core/Runtime/Project.hpp"
 
 namespace Editor
 {
-    Nexus::Entity *Layout::s_SelectedEntity = nullptr;
+Nexus::Entity *Layout::s_SelectedEntity = nullptr;
 
-    Layout::Layout(Nexus::Application *app)
-        : m_Application(app)
+Layout::Layout(Nexus::Application *app) : m_Application(app)
+{
+    m_ImGuiRenderer = std::make_unique<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(app);
+
+    ImGuiIO &io = ImGui::GetIO();
+
+    std::string fontPath = Nexus::FileSystem::GetFilePathAbsolute("resources/fonts/roboto/roboto-regular.ttf");
+    const uint32_t size = 22;
+    io.FontDefault = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), size);
+    // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    io.IniFilename = nullptr;
+    io.LogFilename = nullptr;
+    m_ImGuiRenderer->RebuildFontAtlas();
+
+    ApplyDarkTheme();
+
+    m_Dialogs[NEW_PROJECT_DIALOG_NAME] = std::make_unique<NewProjectDialog>();
+    m_Dialogs[SETTINGS_DIALOG_NAME] = std::make_unique<SettingsDialog>(&m_Panels);
+    m_Panels[SCENE_VIEWPORT_NAME] = std::make_unique<SceneViewport>(app->GetGraphicsDevice(), m_ImGuiRenderer.get());
+    m_Panels[SCENE_HIERARCHY_NAME] = std::make_unique<SceneHierarchy>();
+    m_Panels[INSPECTOR_PANEL_NAME] = std::make_unique<Inspector>();
+}
+
+void Layout::Render(Nexus::Time time)
+{
+    m_ImGuiRenderer->BeforeLayout(time);
+    RenderViewport();
+    m_ImGuiRenderer->AfterLayout();
+}
+
+void Layout::LoadProject(const std::string &path)
+{
+    Nexus::Ref<Nexus::Project> project = Nexus::Project::Deserialize(path);
+    Nexus::Project::s_ActiveProject = project;
+}
+
+void Layout::SaveLayout(const std::string &path)
+{
+    ImGui::SaveIniSettingsToDisk(path.c_str());
+}
+
+bool Layout::LoadLayout(const std::string &path)
+{
+    if (std::filesystem::exists(path))
     {
-        m_ImGuiRenderer = std::make_unique<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(app);
-
-        ImGuiIO &io = ImGui::GetIO();
-
-        std::string fontPath = Nexus::FileSystem::GetFilePathAbsolute("resources/fonts/roboto/roboto-regular.ttf");
-        const uint32_t size = 22;
-        io.FontDefault = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), size);
-        // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-        io.IniFilename = nullptr;
-        io.LogFilename = nullptr;
-        m_ImGuiRenderer->RebuildFontAtlas();
-
-        ApplyDarkTheme();
-
-        m_Dialogs[NEW_PROJECT_DIALOG_NAME] = std::make_unique<NewProjectDialog>();
-        m_Dialogs[SETTINGS_DIALOG_NAME] = std::make_unique<SettingsDialog>(&m_Panels);
-        m_Panels[SCENE_VIEWPORT_NAME] = std::make_unique<SceneViewport>(app->GetGraphicsDevice(), m_ImGuiRenderer.get());
-        m_Panels[SCENE_HIERARCHY_NAME] = std::make_unique<SceneHierarchy>();
-        m_Panels[INSPECTOR_PANEL_NAME] = std::make_unique<Inspector>();
+        ImGui::LoadIniSettingsFromDisk(path.c_str());
+        return true;
     }
 
-    void Layout::Render(Nexus::Time time)
-    {
-        m_ImGuiRenderer->BeforeLayout(time);
-        RenderViewport();
-        m_ImGuiRenderer->AfterLayout();
-    }
+    return false;
+}
 
-    void Layout::LoadProject(const std::string &path)
-    {
-        Nexus::Ref<Nexus::Project> project = Nexus::Project::Deserialize(path);
-        Nexus::Project::s_ActiveProject = project;
-    }
+void Layout::RenderViewport()
+{
+    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos, ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0.0f, 0.0f});
 
-    void Layout::SaveLayout(const std::string &path)
-    {
-        ImGui::SaveIniSettingsToDisk(path.c_str());
-    }
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar |
+                             ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_MenuBar;
 
-    bool Layout::LoadLayout(const std::string &path)
+    if (ImGui::Begin("Dockspace", nullptr, flags))
     {
-        if (std::filesystem::exists(path))
+        RenderMainMenubar();
+        ImGui::PopStyleVar(3);
+        ImGui::DockSpace(ImGui::GetID("Dockspace"));
+
+        for (const auto &panel : m_Panels)
         {
-            ImGui::LoadIniSettingsFromDisk(path.c_str());
-            return true;
+            panel.second->OnRender();
         }
 
-        return false;
-    }
-
-    void Layout::RenderViewport()
-    {
-        ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos, ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0.0f, 0.0f});
-
-        ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar |
-                                 ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_MenuBar;
-
-        if (ImGui::Begin("Dockspace", nullptr, flags))
+        for (const auto &dialog : m_Dialogs)
         {
-            RenderMainMenubar();
-            ImGui::PopStyleVar(3);
-            ImGui::DockSpace(ImGui::GetID("Dockspace"));
-
-            for (const auto &panel : m_Panels)
-            {
-                panel.second->OnRender();
-            }
-
-            for (const auto &dialog : m_Dialogs)
-            {
-                dialog.second->OnRender();
-            }
+            dialog.second->OnRender();
         }
-        ImGui::End();
     }
+    ImGui::End();
+}
 
-    void Layout::ApplyDarkTheme()
+void Layout::ApplyDarkTheme()
+{
+    auto &colors = ImGui::GetStyle().Colors;
+    colors[ImGuiCol_WindowBg] = {0.05f, 0.055f, 0.06f, 1.0f};
+
+    colors[ImGuiCol_Header] = {0.15f, 0.15f, 0.16f, 1.0f};
+    colors[ImGuiCol_HeaderHovered] = {0.3f, 0.3f, 0.31f, 1.0f};
+    colors[ImGuiCol_HeaderActive] = {0.3f, 0.3f, 0.31f, 1.0f};
+
+    colors[ImGuiCol_Button] = {0.15f, 0.15f, 0.15f, 1.0f};
+    colors[ImGuiCol_ButtonHovered] = {0.25f, 0.25f, 0.25f, 1.0f};
+    colors[ImGuiCol_ButtonActive] = {0.1f, 0.1f, 0.1f, 1.0f};
+
+    colors[ImGuiCol_FrameBg] = {0.3f, 0.3f, 0.31f, 1.0f};
+    colors[ImGuiCol_FrameBgHovered] = {0.4f, 0.4f, 0.41f, 1.0f};
+    colors[ImGuiCol_FrameBgActive] = {0.3f, 0.3f, 0.31f, 1.0f};
+
+    colors[ImGuiCol_Tab] = {0.15f, 0.15f, 0.15f, 1.0f};
+    colors[ImGuiCol_TabHovered] = {0.3f, 0.3f, 0.31f, 1.0f};
+    colors[ImGuiCol_TabActive] = {0.15f, 0.15f, 0.16f, 1.0f};
+    colors[ImGuiCol_TabUnfocused] = {0.15f, 0.15f, 0.16f, 1.0f};
+    colors[ImGuiCol_TabUnfocusedActive] = {0.15f, 0.15f, 0.16f, 1.0f};
+
+    colors[ImGuiCol_MenuBarBg] = {0.08f, 0.085f, 0.09f, 1.0f};
+    colors[ImGuiCol_TitleBg] = {0.05f, 0.055f, 0.05f, 1.0f};
+    colors[ImGuiCol_TitleBgActive] = {0.08f, 0.085f, 0.09f, 1.0f};
+    colors[ImGuiCol_TitleBgCollapsed] = {0.05f, 0.055f, 0.06f, 1.0f};
+
+    colors[ImGuiCol_CheckMark] = {0.55f, 0.55f, 0.55f, 1.0f};
+    colors[ImGuiCol_Text] = {0.85f, 0.85f, 0.85f, 1.0f};
+    colors[ImGuiCol_SliderGrab] = {0.55f, 0.55f, 0.55f, 1.0f};
+    colors[ImGuiCol_SliderGrabActive] = {0.55f, 0.55f, 0.55f, 1.0f};
+}
+
+void Layout::RenderMainMenubar()
+{
+    ImGui::BeginMainMenuBar();
+
+    if (ImGui::BeginMenu("File", true))
     {
-        auto &colors = ImGui::GetStyle().Colors;
-        colors[ImGuiCol_WindowBg] = {0.05f, 0.055f, 0.06f, 1.0f};
-
-        colors[ImGuiCol_Header] = {0.15f, 0.15f, 0.16f, 1.0f};
-        colors[ImGuiCol_HeaderHovered] = {0.3f, 0.3f, 0.31f, 1.0f};
-        colors[ImGuiCol_HeaderActive] = {0.3f, 0.3f, 0.31f, 1.0f};
-
-        colors[ImGuiCol_Button] = {0.15f, 0.15f, 0.15f, 1.0f};
-        colors[ImGuiCol_ButtonHovered] = {0.25f, 0.25f, 0.25f, 1.0f};
-        colors[ImGuiCol_ButtonActive] = {0.1f, 0.1f, 0.1f, 1.0f};
-
-        colors[ImGuiCol_FrameBg] = {0.3f, 0.3f, 0.31f, 1.0f};
-        colors[ImGuiCol_FrameBgHovered] = {0.4f, 0.4f, 0.41f, 1.0f};
-        colors[ImGuiCol_FrameBgActive] = {0.3f, 0.3f, 0.31f, 1.0f};
-
-        colors[ImGuiCol_Tab] = {0.15f, 0.15f, 0.15f, 1.0f};
-        colors[ImGuiCol_TabHovered] = {0.3f, 0.3f, 0.31f, 1.0f};
-        colors[ImGuiCol_TabActive] = {0.15f, 0.15f, 0.16f, 1.0f};
-        colors[ImGuiCol_TabUnfocused] = {0.15f, 0.15f, 0.16f, 1.0f};
-        colors[ImGuiCol_TabUnfocusedActive] = {0.15f, 0.15f, 0.16f, 1.0f};
-
-        colors[ImGuiCol_MenuBarBg] = {0.08f, 0.085f, 0.09f, 1.0f};
-        colors[ImGuiCol_TitleBg] = {0.05f, 0.055f, 0.05f, 1.0f};
-        colors[ImGuiCol_TitleBgActive] = {0.08f, 0.085f, 0.09f, 1.0f};
-        colors[ImGuiCol_TitleBgCollapsed] = {0.05f, 0.055f, 0.06f, 1.0f};
-
-        colors[ImGuiCol_CheckMark] = {0.55f, 0.55f, 0.55f, 1.0f};
-        colors[ImGuiCol_Text] = {0.85f, 0.85f, 0.85f, 1.0f};
-        colors[ImGuiCol_SliderGrab] = {0.55f, 0.55f, 0.55f, 1.0f};
-        colors[ImGuiCol_SliderGrabActive] = {0.55f, 0.55f, 0.55f, 1.0f};
-    }
-
-    void Layout::RenderMainMenubar()
-    {
-        ImGui::BeginMainMenuBar();
-
-        if (ImGui::BeginMenu("File", true))
+        if (ImGui::BeginMenu("New...", true))
         {
-            if (ImGui::BeginMenu("New...", true))
+            if (ImGui::MenuItem("New Project"))
             {
-                if (ImGui::MenuItem("New Project"))
-                {
-                    std::unique_ptr<Panel> &panel = m_Dialogs.at(NEW_PROJECT_DIALOG_NAME);
-                    panel->Enable();
-                }
-
-                if (ImGui::MenuItem("New Scene"))
-                {
-                }
-
-                ImGui::EndMenu();
-            }
-
-            if (Nexus::Project::s_ActiveProject)
-            {
-                if (ImGui::MenuItem("Save"))
-                {
-                    Nexus::Project::s_ActiveProject->Serialize();
-                }
-            }
-
-            if (ImGui::MenuItem("Load Project"))
-            {
-                OpenProject();
-            }
-
-            if (ImGui::MenuItem("Quit"))
-            {
-                m_Application->Close();
-            }
-
-            ImGui::EndMenu();
-        }
-
-        if (ImGui::BeginMenu("Windows", true))
-        {
-            if (ImGui::MenuItem("Settings"))
-            {
-                std::unique_ptr<Panel> &panel = m_Dialogs.at(SETTINGS_DIALOG_NAME);
+                std::unique_ptr<Panel> &panel = m_Dialogs.at(NEW_PROJECT_DIALOG_NAME);
                 panel->Enable();
             }
 
+            if (ImGui::MenuItem("New Scene"))
+            {
+            }
+
             ImGui::EndMenu();
         }
 
-        ImGui::EndMainMenuBar();
+        if (Nexus::Project::s_ActiveProject)
+        {
+            if (ImGui::MenuItem("Save"))
+            {
+                Nexus::Project::s_ActiveProject->Serialize();
+            }
+        }
+
+        if (ImGui::MenuItem("Load Project"))
+        {
+            OpenProject();
+        }
+
+        if (ImGui::MenuItem("Quit"))
+        {
+            m_Application->Close();
+        }
+
+        ImGui::EndMenu();
     }
 
-    void Layout::OpenProject()
+    if (ImGui::BeginMenu("Windows", true))
     {
-        std::vector<const char *> filters = {"*.proj"};
-        auto path = Nexus::FileDialogs::OpenFile(filters);
-
-        // check that the user didn't cancel the dialog
-        if (path)
+        if (ImGui::MenuItem("Settings"))
         {
-            LoadProject(path);
+            std::unique_ptr<Panel> &panel = m_Dialogs.at(SETTINGS_DIALOG_NAME);
+            panel->Enable();
         }
+
+        ImGui::EndMenu();
+    }
+
+    ImGui::EndMainMenuBar();
+}
+
+void Layout::OpenProject()
+{
+    std::vector<const char *> filters = {"*.proj"};
+    auto path = Nexus::FileDialogs::OpenFile(filters);
+
+    // check that the user didn't cancel the dialog
+    if (path)
+    {
+        LoadProject(path);
     }
 }
+} // namespace Editor

@@ -5,3 +5,7 @@ def build():
 
 if (__name__ == "__main__"):
     build()
+    
+    #wait for user to do something before closing
+    print("Done!")
+    input()

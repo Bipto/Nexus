@@ -8,55 +8,55 @@
 #endif
 
 #if defined(__EMSCRIPTEN__) || defined(ANDROID) || defined(__ANDROID__)
-#include <GLES3/gl3.h>
 #include <GLES2/gl2ext.h>
+#include <GLES3/gl3.h>
 #else
 #include "glad/glad.h"
 #endif
 
-#include "Nexus-Core/Graphics/Texture.hpp"
 #include "Nexus-Core/Graphics/ShaderModule.hpp"
-#include "Nexus-Core/Vertex.hpp"
+#include "Nexus-Core/Graphics/Texture.hpp"
 #include "Nexus-Core/Logging/Log.hpp"
+#include "Nexus-Core/Vertex.hpp"
 
 namespace Nexus::GL
 {
-    std::string GetErrorMessageFromCode(const GLenum error);
+std::string GetErrorMessageFromCode(const GLenum error);
 
-    GLenum GetStencilOperation(Nexus::Graphics::StencilOperation operation);
-    GLenum GetComparisonFunction(Nexus::Graphics::ComparisonFunction function);
-    GLenum GetBlendFactor(Nexus::Graphics::BlendFactor function);
-    GLenum GetBlendFunction(Nexus::Graphics::BlendEquation equation);
+GLenum GetStencilOperation(Nexus::Graphics::StencilOperation operation);
+GLenum GetComparisonFunction(Nexus::Graphics::ComparisonFunction function);
+GLenum GetBlendFactor(Nexus::Graphics::BlendFactor function);
+GLenum GetBlendFunction(Nexus::Graphics::BlendEquation equation);
 
-    GLenum GetSamplerAddressMode(Nexus::Graphics::SamplerAddressMode addressMode);
-    void GetSamplerFilter(Nexus::Graphics::SamplerFilter filter, GLenum &min, GLenum &max);
-    GLenum GetPixelType(Nexus::Graphics::PixelFormat format);
-    GLenum GetPixelDataFormat(Nexus::Graphics::PixelFormat format);
-    GLenum GetSizedInternalFormat(Nexus::Graphics::PixelFormat format, bool depthFormat);
+GLenum GetSamplerAddressMode(Nexus::Graphics::SamplerAddressMode addressMode);
+void GetSamplerFilter(Nexus::Graphics::SamplerFilter filter, GLenum &min, GLenum &max);
+GLenum GetPixelType(Nexus::Graphics::PixelFormat format);
+GLenum GetPixelDataFormat(Nexus::Graphics::PixelFormat format);
+GLenum GetSizedInternalFormat(Nexus::Graphics::PixelFormat format, bool depthFormat);
 
-    GLenum GetGLIndexBufferFormat(Nexus::Graphics::IndexBufferFormat format);
-    GLenum GetTopology(Nexus::Graphics::Topology topology);
+GLenum GetGLIndexBufferFormat(Nexus::Graphics::IndexBufferFormat format);
+GLenum GetTopology(Nexus::Graphics::Topology topology);
 
-    GLenum GetShaderStage(Nexus::Graphics::ShaderStage stage);
+GLenum GetShaderStage(Nexus::Graphics::ShaderStage stage);
 
-    void GetBaseType(const Graphics::VertexBufferElement &element, GLenum &baseType, uint32_t &componentCount, GLboolean &normalized);
-}
+void GetBaseType(const Graphics::VertexBufferElement &element, GLenum &baseType, uint32_t &componentCount, GLboolean &normalized);
+} // namespace Nexus::GL
 
 #endif
 
-#define glClearErrors()                 \
-    while (glGetError() != GL_NO_ERROR) \
-    {                                   \
+#define glClearErrors()                                                                                                                                                            \
+    while (glGetError() != GL_NO_ERROR)                                                                                                                                            \
+    {                                                                                                                                                                              \
     }
 
-#define glCheckErrors()                                                  \
-    while (GLenum error = glGetError())                                  \
-    {                                                                    \
-        std::string message = Nexus::GL::GetErrorMessageFromCode(error); \
-        NX_ERROR(message);                                               \
+#define glCheckErrors()                                                                                                                                                            \
+    while (GLenum error = glGetError())                                                                                                                                            \
+    {                                                                                                                                                                              \
+        std::string message = Nexus::GL::GetErrorMessageFromCode(error);                                                                                                           \
+        NX_ERROR(message);                                                                                                                                                         \
     }
 
-#define glCall(x)    \
-    glClearErrors(); \
-    x;               \
+#define glCall(x)                                                                                                                                                                  \
+    glClearErrors();                                                                                                                                                               \
+    x;                                                                                                                                                                             \
     glCheckErrors();

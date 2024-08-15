@@ -1,77 +1,85 @@
 #pragma once
 
-#include "Nexus-Core/nxpch.hpp"
 #include "Nexus-Core/Types.hpp"
+#include "Nexus-Core/nxpch.hpp"
 
 #include "Scene.hpp"
 
 namespace Nexus
 {
-    struct SceneInfo
+struct SceneInfo
+{
+    std::string Name;
+    std::string Path;
+};
+
+class Project
+{
+  public:
+    Project(const std::string &name = "Untitled Project", const std::string &directory = "");
+    void Serialize();
+    static Ref<Project> Deserialize(const std::string &filepath);
+
+    Scene *GetLoadedScene()
     {
-        std::string Name;
-        std::string Path;
-    };
+        return m_LoadedScene.get();
+    }
 
-    class Project
+    const std::string &GetName() const
     {
-    public:
-        Project(const std::string &name = "Untitled Project", const std::string &directory = "");
-        void Serialize();
-        static Ref<Project> Deserialize(const std::string &filepath);
+        return m_Name;
+    }
+    void SetName(const std::string &name)
+    {
+        m_Name = name;
+    }
 
-        Scene *GetLoadedScene() { return m_LoadedScene.get(); }
+    void LoadScene(uint32_t index);
+    void LoadScene(const std::string &name);
+    void CreateNewScene(const std::string &name);
 
-        const std::string &GetName() const { return m_Name; }
-        void SetName(const std::string &name) { m_Name = name; }
+  public:
+    static Ref<Project> s_ActiveProject;
 
-        void LoadScene(uint32_t index);
-        void LoadScene(const std::string &name);
-        void CreateNewScene(const std::string &name);
+  private:
+    void WriteProjectFile();
+    void WriteSceneFile(const std::string &sceneDirectory);
 
-    public:
-        static Ref<Project> s_ActiveProject;
+  private:
+    std::string m_Name = {};
+    std::string m_RootDirectory = {};
+    std::string m_SceneDirectory = {};
+    std::string m_AssetsDirectory = {};
 
-    private:
-        void WriteProjectFile();
-        void WriteSceneFile(const std::string &sceneDirectory);
+    std::vector<SceneInfo> m_Scenes;
 
-    private:
-        std::string m_Name = {};
-        std::string m_RootDirectory = {};
-        std::string m_SceneDirectory = {};
-        std::string m_AssetsDirectory = {};
-
-        std::vector<SceneInfo> m_Scenes;
-
-        std::unique_ptr<Scene> m_LoadedScene;
-        uint32_t m_StartupScene = 0;
-    };
-}
+    std::unique_ptr<Scene> m_LoadedScene;
+    uint32_t m_StartupScene = 0;
+};
+} // namespace Nexus
 
 namespace YAML
 {
-    template <>
-    struct convert<Nexus::SceneInfo>
+template <> struct convert<Nexus::SceneInfo>
+{
+    static Node encode(const Nexus::SceneInfo &rhs)
     {
-        static Node encode(const Nexus::SceneInfo &rhs)
+        Node node;
+        node.push_back(rhs.Name);
+        node.push_back(rhs.Path);
+        return node;
+    }
+
+    static bool decode(const Node &node, Nexus::SceneInfo &rhs)
+    {
+        if (node.IsSequence() || node.size() != 2)
         {
-            Node node;
-            node.push_back(rhs.Name);
-            node.push_back(rhs.Path);
-            return node;
+            rhs.Name = node[0].as<std::string>();
+            rhs.Path = node[1].as<std::string>();
+            return true;
         }
 
-        static bool decode(const Node &node, Nexus::SceneInfo &rhs)
-        {
-            if (node.IsSequence() || node.size() != 2)
-            {
-                rhs.Name = node[0].as<std::string>();
-                rhs.Path = node[1].as<std::string>();
-                return true;
-            }
-
-            return false;
-        }
-    };
-}
+        return false;
+    }
+};
+} // namespace YAML

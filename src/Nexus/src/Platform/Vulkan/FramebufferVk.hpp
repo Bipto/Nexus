@@ -2,47 +2,47 @@
 
 #if defined(NX_PLATFORM_VULKAN)
 
-#include "Vk.hpp"
-#include "Nexus-Core/Graphics/Framebuffer.hpp"
 #include "GraphicsDeviceVk.hpp"
+#include "Nexus-Core/Graphics/Framebuffer.hpp"
 #include "TextureVk.hpp"
+#include "Vk.hpp"
 
 namespace Nexus::Graphics
 {
-    class FramebufferVk : public Framebuffer
-    {
-    public:
-        FramebufferVk(const FramebufferSpecification &spec, GraphicsDeviceVk *device);
-        ~FramebufferVk();
+class FramebufferVk : public Framebuffer
+{
+  public:
+    FramebufferVk(const FramebufferSpecification &spec, GraphicsDeviceVk *device);
+    ~FramebufferVk();
 
-        virtual const FramebufferSpecification GetFramebufferSpecification() override;
-        virtual void SetFramebufferSpecification(const FramebufferSpecification &spec) override;
-        VkFramebuffer GetVkFramebuffer();
+    virtual const FramebufferSpecification GetFramebufferSpecification() override;
+    virtual void SetFramebufferSpecification(const FramebufferSpecification &spec) override;
+    VkFramebuffer GetVkFramebuffer();
 
-        virtual Ref<Texture> GetColorTexture(uint32_t index = 0) override;
-        virtual Ref<Texture> GetDepthTexture() override;
+    virtual Ref<Texture> GetColorTexture(uint32_t index = 0) override;
+    virtual Ref<Texture> GetDepthTexture() override;
 
-        Ref<TextureVk> GetVulkanColorTexture(uint32_t index = 0);
-        Ref<TextureVk> GetVulkanDepthTexture();
+    Ref<TextureVk> GetVulkanColorTexture(uint32_t index = 0);
+    Ref<TextureVk> GetVulkanDepthTexture();
 
-        VkRenderPass GetRenderPass();
+    VkRenderPass GetRenderPass();
 
-    private:
-        virtual void Recreate() override;
+  private:
+    virtual void Recreate() override;
 
-        void CreateColorTargets();
-        void CreateDepthTargets();
-        void CreateFramebuffer();
-        void CreateRenderPass();
+    void CreateColorTargets();
+    void CreateDepthTargets();
+    void CreateFramebuffer();
+    void CreateRenderPass();
 
-    private:
-        VkFramebuffer m_Framebuffer;
-        GraphicsDeviceVk *m_Device;
-        VkRenderPass m_FramebufferRenderPass;
+  private:
+    VkFramebuffer m_Framebuffer;
+    GraphicsDeviceVk *m_Device;
+    VkRenderPass m_FramebufferRenderPass;
 
-        std::vector<Ref<TextureVk>> m_ColorAttachments;
-        Ref<TextureVk> m_DepthAttachment = nullptr;
-    };
-}
+    std::vector<Ref<TextureVk>> m_ColorAttachments;
+    Ref<TextureVk> m_DepthAttachment = nullptr;
+};
+} // namespace Nexus::Graphics
 
 #endif

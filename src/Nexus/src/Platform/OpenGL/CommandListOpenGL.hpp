@@ -8,14 +8,17 @@
 
 namespace Nexus::Graphics
 {
-    class CommandListOpenGL : public CommandList
+class CommandListOpenGL : public CommandList
+{
+  public:
+    CommandListOpenGL(const CommandListSpecification &spec) : CommandList(spec)
     {
-    public:
-        CommandListOpenGL(const CommandListSpecification& spec) 
-            : CommandList(spec) {}
+    }
 
-        virtual ~CommandListOpenGL() {}
-    };
-}
+    virtual ~CommandListOpenGL()
+    {
+    }
+};
+} // namespace Nexus::Graphics
 
 #endif

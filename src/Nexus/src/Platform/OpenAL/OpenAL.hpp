@@ -4,9 +4,9 @@
 #endif
 
 #if defined(__EMSCRIPTEN__)
-#include <emscripten.h>
 #include <AL/al.h>
 #include <AL/alc.h>
+#include <emscripten.h>
 #endif
 
 #if !defined(__EMSCRIPTEN__)

@@ -16,24 +16,24 @@ void CheckError()
 
 namespace Nexus::Audio
 {
-    AudioBufferOpenAL::AudioBufferOpenAL(ALsizei size, ALsizei frequency, ALenum format, ALvoid *data, ALboolean loop)
-    {
-        alGenBuffers(1, &m_Buffer);
-        CheckError();
+AudioBufferOpenAL::AudioBufferOpenAL(ALsizei size, ALsizei frequency, ALenum format, ALvoid *data, ALboolean loop)
+{
+    alGenBuffers(1, &m_Buffer);
+    CheckError();
 
-        alBufferData(m_Buffer, format, data, size, frequency);
-        CheckError();
-    }
-
-    AudioBufferOpenAL::~AudioBufferOpenAL()
-    {
-        alDeleteBuffers(1, &m_Buffer);
-    }
-
-    const ALuint AudioBufferOpenAL::GetHandle() const
-    {
-        return m_Buffer;
-    }
+    alBufferData(m_Buffer, format, data, size, frequency);
+    CheckError();
 }
+
+AudioBufferOpenAL::~AudioBufferOpenAL()
+{
+    alDeleteBuffers(1, &m_Buffer);
+}
+
+const ALuint AudioBufferOpenAL::GetHandle() const
+{
+    return m_Buffer;
+}
+} // namespace Nexus::Audio
 
 #endif

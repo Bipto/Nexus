@@ -2,71 +2,70 @@
 
 namespace Nexus::Graphics
 {
-    ResourceSet::ResourceSet(const ResourceSetSpecification &spec)
-        : m_Specification(spec)
+ResourceSet::ResourceSet(const ResourceSetSpecification &spec) : m_Specification(spec)
+{
+
+    for (const auto &texture : spec.SampledImages)
     {
-
-        for (const auto &texture : spec.SampledImages)
-        {
-            BindingInfo info;
-            info.Set = texture.Set;
-            info.Binding = texture.Binding;
-            m_CombinedImageSamplerBindingInfos[texture.Name] = info;
-        }
-
-        for (const auto &uniformBuffer : spec.UniformBuffers)
-        {
-            BindingInfo info;
-            info.Set = uniformBuffer.Set;
-            info.Binding = uniformBuffer.Binding;
-            m_UniformBufferBindingInfos[uniformBuffer.Name] = info;
-        }
+        BindingInfo info;
+        info.Set = texture.Set;
+        info.Binding = texture.Binding;
+        m_CombinedImageSamplerBindingInfos[texture.Name] = info;
     }
 
-    void ResourceSet::WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, const std::string &name)
+    for (const auto &uniformBuffer : spec.UniformBuffers)
     {
-        m_BoundUniformBuffers[name] = uniformBuffer;
+        BindingInfo info;
+        info.Set = uniformBuffer.Set;
+        info.Binding = uniformBuffer.Binding;
+        m_UniformBufferBindingInfos[uniformBuffer.Name] = info;
+    }
+}
+
+void ResourceSet::WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, const std::string &name)
+{
+    m_BoundUniformBuffers[name] = uniformBuffer;
+}
+
+void ResourceSet::WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name)
+{
+    CombinedImageSampler ciSampler{};
+    ciSampler.ImageTexture = texture;
+    ciSampler.ImageSampler = sampler;
+    m_BoundCombinedImageSamplers[name] = ciSampler;
+}
+
+const ResourceSetSpecification &ResourceSet::GetSpecification() const
+{
+    return m_Specification;
+}
+
+uint32_t ResourceSet::GetLinearDescriptorSlot(uint32_t set, uint32_t binding)
+{
+    return (set * DescriptorSetCount) + binding;
+}
+
+std::map<std::string, uint32_t> ResourceSet::RemapToLinearBindings(const std::vector<ResourceBinding> &resources)
+{
+    uint32_t resourceIndex = 0;
+    std::map<std::string, uint32_t> bindings;
+
+    for (const auto &resource : resources)
+    {
+        uint32_t remappedBinding = GetLinearDescriptorSlot(resource.Set, resource.Binding);
+        bindings[resource.Name] = resourceIndex++;
     }
 
-    void ResourceSet::WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name)
-    {
-        CombinedImageSampler ciSampler{};
-        ciSampler.ImageTexture = texture;
-        ciSampler.ImageSampler = sampler;
-        m_BoundCombinedImageSamplers[name] = ciSampler;
-    }
+    return bindings;
+}
 
-    const ResourceSetSpecification &ResourceSet::GetSpecification() const
-    {
-        return m_Specification;
-    }
+const std::map<std::string, WeakRef<UniformBuffer>> &ResourceSet::GetBoundUniformBuffers() const
+{
+    return m_BoundUniformBuffers;
+}
 
-    uint32_t ResourceSet::GetLinearDescriptorSlot(uint32_t set, uint32_t binding)
-    {
-        return (set * DescriptorSetCount) + binding;
-    }
-
-    std::map<std::string, uint32_t> ResourceSet::RemapToLinearBindings(const std::vector<ResourceBinding> &resources)
-    {
-        uint32_t resourceIndex = 0;
-        std::map<std::string, uint32_t> bindings;
-
-        for (const auto &resource : resources)
-        {
-            uint32_t remappedBinding = GetLinearDescriptorSlot(resource.Set, resource.Binding);
-            bindings[resource.Name] = resourceIndex++;
-        }
-
-        return bindings;
-    }
-
-    const std::map<std::string, WeakRef<UniformBuffer>> &ResourceSet::GetBoundUniformBuffers() const
-    {
-        return m_BoundUniformBuffers;
-    }
-
-    const std::map<std::string, CombinedImageSampler> &ResourceSet::GetBoundCombinedImageSamplers() const
-    {
-        return m_BoundCombinedImageSamplers;
-    }
-    } // namespace Nexus::Graphics
+const std::map<std::string, CombinedImageSampler> &ResourceSet::GetBoundCombinedImageSamplers() const
+{
+    return m_BoundCombinedImageSamplers;
+}
+} // namespace Nexus::Graphics

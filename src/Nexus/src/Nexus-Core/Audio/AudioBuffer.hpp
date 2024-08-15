@@ -5,11 +5,13 @@
 
 namespace Nexus::Audio
 {
-    /// @brief A pure virtual class representing a buffer of audio data
-    class AudioBuffer
+/// @brief A pure virtual class representing a buffer of audio data
+class AudioBuffer
+{
+  public:
+    /// @brief A virtual destructor to allow resources to be cleaned up
+    virtual ~AudioBuffer()
     {
-    public:
-        /// @brief A virtual destructor to allow resources to be cleaned up
-        virtual ~AudioBuffer() {}
-    };
-}
+    }
+};
+} // namespace Nexus::Audio

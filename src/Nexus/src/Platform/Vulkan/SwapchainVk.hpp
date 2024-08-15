@@ -9,110 +9,114 @@
 
 namespace Nexus::Graphics
 {
-    // forward declaration
-    class GraphicsDeviceVk;
+// forward declaration
+class GraphicsDeviceVk;
 
-    class SwapchainVk : public Swapchain
+class SwapchainVk : public Swapchain
+{
+  public:
+    SwapchainVk(Window *window, GraphicsDevice *graphicsDevice, const SwapchainSpecification &swapchainSpec);
+    virtual ~SwapchainVk();
+
+    virtual void SwapBuffers() override;
+    virtual VSyncState GetVsyncState() override;
+    virtual void SetVSyncState(VSyncState vsyncState) override;
+    const VkFramebuffer &GetCurrentFramebuffer();
+    VkSurfaceFormatKHR GetSurfaceFormat();
+    VkFormat GetDepthFormat();
+
+    virtual Window *GetWindow() override
     {
-    public:
-        SwapchainVk(Window *window, GraphicsDevice *graphicsDevice, const SwapchainSpecification &swapchainSpec);
-        virtual ~SwapchainVk();
+        return m_Window;
+    }
+    virtual void Prepare() override;
 
-        virtual void SwapBuffers() override;
-        virtual VSyncState GetVsyncState() override;
-        virtual void SetVSyncState(VSyncState vsyncState) override;
-        const VkFramebuffer &GetCurrentFramebuffer();
-        VkSurfaceFormatKHR GetSurfaceFormat();
-        VkFormat GetDepthFormat();
+    virtual void Initialise() override;
+    void RecreateSwapchain();
 
-        virtual Window *GetWindow() override { return m_Window; }
-        virtual void Prepare() override;
+    VkRenderPass GetRenderPass();
+    uint32_t GetImageCount();
 
-        virtual void Initialise() override;
-        void RecreateSwapchain();
+    VkImage GetColourImage();
+    VkImage GetDepthImage();
 
-        VkRenderPass GetRenderPass();
-        uint32_t GetImageCount();
+    VkImageLayout GetColorImageLayout();
+    VkImageLayout GetDepthImageLayout();
+    void SetColorImageLayout(VkImageLayout layout);
+    void SetDepthImageLayout(VkImageLayout layout);
 
-        VkImage GetColourImage();
-        VkImage GetDepthImage();
+    bool IsSwapchainValid() const;
+    const VkSemaphore &GetSemaphore();
 
-        VkImageLayout GetColorImageLayout();
-        VkImageLayout GetDepthImageLayout();
-        void SetColorImageLayout(VkImageLayout layout);
-        void SetDepthImageLayout(VkImageLayout layout);
+  private:
+    void CreateSurface();
+    bool CreateSwapchain();
+    void CreateSwapchainImageViews();
+    void CreateDepthStencil();
+    void CreateRenderPass();
+    void CreateFramebuffers();
+    void CreateResolveAttachment();
+    void CreateSemaphores();
 
-        bool IsSwapchainValid() const;
-        const VkSemaphore &GetSemaphore();
+    void CleanupSwapchain();
+    void CleanupDepthStencil();
+    void CleanupResolveAttachment();
+    void CleanupSemaphores();
 
-    private:
-        void CreateSurface();
-        bool CreateSwapchain();
-        void CreateSwapchainImageViews();
-        void CreateDepthStencil();
-        void CreateRenderPass();
-        void CreateFramebuffers();
-        void CreateResolveAttachment();
-        void CreateSemaphores();
+    bool AcquireNextImage();
 
-        void CleanupSwapchain();
-        void CleanupDepthStencil();
-        void CleanupResolveAttachment();
-        void CleanupSemaphores();
+    VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+    VkBool32 GetSupportedDepthFormat(VkPhysicalDevice physicalDevice, VkFormat *depthFormat);
+    void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage &image,
+                     VkDeviceMemory &imageMemory, VkSampleCountFlagBits samples);
+    uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+    uint32_t GetCurrentFrameIndex();
 
-        bool AcquireNextImage();
+  private:
+    Window *m_Window;
+    VSyncState m_VsyncState;
 
-        VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
-        VkBool32 GetSupportedDepthFormat(VkPhysicalDevice physicalDevice, VkFormat *depthFormat);
-        void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory, VkSampleCountFlagBits samples);
-        uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
-        uint32_t GetCurrentFrameIndex();
+    // vulkan types
+    VkSurfaceKHR m_Surface;
 
-    private:
-        Window *m_Window;
-        VSyncState m_VsyncState;
+    VkSwapchainKHR m_Swapchain;
+    VkSurfaceCapabilitiesKHR m_SurfaceCapabilities;
+    VkSurfaceFormatKHR m_SurfaceFormat;
+    VkExtent2D m_SwapchainSize;
 
-        // vulkan types
-        VkSurfaceKHR m_Surface;
+    std::vector<VkImage> m_SwapchainImages;
+    uint32_t m_SwapchainImageCount;
+    std::vector<VkImageView> m_SwapchainImageViews;
+    std::vector<VkImageLayout> m_ImageLayouts;
 
-        VkSwapchainKHR m_Swapchain;
-        VkSurfaceCapabilitiesKHR m_SurfaceCapabilities;
-        VkSurfaceFormatKHR m_SurfaceFormat;
-        VkExtent2D m_SwapchainSize;
+    VkImage m_ResolveImage;
+    VkDeviceMemory m_ResolveMemory;
+    VkImageView m_ResolveImageView;
 
-        std::vector<VkImage> m_SwapchainImages;
-        uint32_t m_SwapchainImageCount;
-        std::vector<VkImageView> m_SwapchainImageViews;
-        std::vector<VkImageLayout> m_ImageLayouts;
+    VkFormat m_DepthFormat;
+    VkImage m_DepthImage;
+    VkDeviceMemory m_DepthImageMemory;
+    VkImageView m_DepthImageView;
+    VkImageLayout m_DepthLayout;
 
-        VkImage m_ResolveImage;
-        VkDeviceMemory m_ResolveMemory;
-        VkImageView m_ResolveImageView;
+    std::vector<VkFramebuffer> m_SwapchainFramebuffers;
 
-        VkFormat m_DepthFormat;
-        VkImage m_DepthImage;
-        VkDeviceMemory m_DepthImageMemory;
-        VkImageView m_DepthImageView;
-        VkImageLayout m_DepthLayout;
+    VkRenderPass m_SwapchainRenderPass;
 
-        std::vector<VkFramebuffer> m_SwapchainFramebuffers;
+    GraphicsDeviceVk *m_GraphicsDevice;
 
-        VkRenderPass m_SwapchainRenderPass;
+    uint32_t m_FrameNumber = 0;
+    uint32_t m_CurrentFrameIndex = 0;
+    VkImage m_CurrentImage = nullptr;
+    bool m_SwapchainValid = false;
 
-        GraphicsDeviceVk *m_GraphicsDevice;
+    VkSemaphore m_PresentSemaphores[FRAMES_IN_FLIGHT];
 
-        uint32_t m_FrameNumber = 0;
-        uint32_t m_CurrentFrameIndex = 0;
-        VkImage m_CurrentImage = nullptr;
-        bool m_SwapchainValid = false;
-
-        VkSemaphore m_PresentSemaphores[FRAMES_IN_FLIGHT];
-
-        friend class GraphicsDeviceVk;
-        friend class RenderPassVk;
-        friend class CommandListVk;
-        friend class CommandExecutorVk;
-    };
-}
+    friend class GraphicsDeviceVk;
+    friend class RenderPassVk;
+    friend class CommandListVk;
+    friend class CommandExecutorVk;
+};
+} // namespace Nexus::Graphics
 
 #endif

@@ -12,40 +12,40 @@ typedef std::vector<std::string> CommandLineArguments;
 
 namespace Nexus
 {
-    /// @brief A method that creates an application and is required to be created by the client
-    /// @param arguments A vector of strings containing the arguments that were entered to the application
-    /// @return A pointer to a created application
-    extern Application *CreateApplication(const CommandLineArguments &arguments);
+/// @brief A method that creates an application and is required to be created by the client
+/// @param arguments A vector of strings containing the arguments that were entered to the application
+/// @return A pointer to a created application
+extern Application *CreateApplication(const CommandLineArguments &arguments);
 
-    /// @brief A method representing the main entry point of the application
-    /// @param arguments A const reference to the options passed to the application
-    /// @return An integer value representing whether the application was able to execute successfully
-    int Main(const CommandLineArguments &arguments)
-    {
-        Nexus::Init();
+/// @brief A method representing the main entry point of the application
+/// @param arguments A const reference to the options passed to the application
+/// @return An integer value representing whether the application was able to execute successfully
+int Main(const CommandLineArguments &arguments)
+{
+    Nexus::Init();
 
-        Application *app = CreateApplication(arguments);
-        Nexus::Run(app);
-        delete app;
+    Application *app = CreateApplication(arguments);
+    Nexus::Run(app);
+    delete app;
 
-        Nexus::Shutdown();
+    Nexus::Shutdown();
 
-        return 0;
-    }
+    return 0;
 }
+} // namespace Nexus
 
 namespace
 {
-    const std::vector<std::string> InputParametersToStringVector(int argc, char **argv)
+const std::vector<std::string> InputParametersToStringVector(int argc, char **argv)
+{
+    std::vector<std::string> commandLineArgs;
+    for (int i = 0; i < argc; i++)
     {
-        std::vector<std::string> commandLineArgs;
-        for (int i = 0; i < argc; i++)
-        {
-            commandLineArgs.push_back(argv[i]);
-        }
-        return commandLineArgs;
+        commandLineArgs.push_back(argv[i]);
     }
+    return commandLineArgs;
 }
+} // namespace
 
 #if defined(NX_NO_CONSOLE)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nCmdShow)

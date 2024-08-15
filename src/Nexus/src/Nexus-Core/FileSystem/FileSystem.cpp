@@ -1,7 +1,7 @@
 #include "FileSystem.hpp"
 
-#include "Nexus-Core/nxpch.hpp"
 #include "Nexus-Core/Logging/Log.hpp"
+#include "Nexus-Core/nxpch.hpp"
 
 std::string Nexus::FileSystem::ReadFileToStringAbsolute(const std::string &filepath)
 {

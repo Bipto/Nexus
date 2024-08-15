@@ -5,81 +5,81 @@
 
 namespace Nexus::Graphics
 {
-    class CommandExecutor
+class CommandExecutor
+{
+  public:
+    CommandExecutor() = default;
+    virtual ~CommandExecutor() {};
+    virtual void ExecuteCommands(const std::vector<RenderCommandData> &commands, GraphicsDevice *device) = 0;
+    virtual void Reset() = 0;
+
+    inline void SetCommandListSpecification(const CommandListSpecification &spec)
     {
-    public:
-        CommandExecutor() = default;
-        virtual ~CommandExecutor() {};
-        virtual void ExecuteCommands(const std::vector<RenderCommandData> &commands, GraphicsDevice *device) = 0;
-        virtual void Reset() = 0;
+        m_CommandListSpecification = spec;
+    }
 
-        inline void SetCommandListSpecification(const CommandListSpecification &spec)
+  protected:
+    inline void SetImageLayout(Ref<Texture> texture, uint32_t level, ImageLayout layout)
+    {
+        texture->SetImageLayout(level, layout);
+    }
+
+    inline bool ValidateImageLayout(WeakRef<Texture> texture, uint32_t baseLevel, uint32_t numLevels, ImageLayout expectedLayout)
+    {
+        if (texture.expired())
         {
-            m_CommandListSpecification = spec;
+            NX_ERROR("Attempting to validate an invalid texture");
+            return false;
         }
 
-    protected:
-        inline void SetImageLayout(Ref<Texture> texture, uint32_t level, ImageLayout layout)
-        {
-            texture->SetImageLayout(level, layout);
-        }
+        Ref<Texture> lockedTexture = texture.lock();
+        bool valid = true;
 
-        inline bool ValidateImageLayout(WeakRef<Texture> texture, uint32_t baseLevel, uint32_t numLevels, ImageLayout expectedLayout)
+        for (uint32_t i = baseLevel; i < baseLevel + numLevels; i++)
         {
-            if (texture.expired())
+            std::optional<ImageLayout> textureLayout = lockedTexture->GetImageLayout(i);
+
+            if (!textureLayout)
             {
-                NX_ERROR("Attempting to validate an invalid texture");
-                return false;
+                NX_ERROR("Attempting to validate an invalid texture layer");
+                valid = false;
             }
 
-            Ref<Texture> lockedTexture = texture.lock();
-            bool valid = true;
-
-            for (uint32_t i = baseLevel; i < baseLevel + numLevels; i++)
+            if (textureLayout.value() != expectedLayout)
             {
-                std::optional<ImageLayout> textureLayout = lockedTexture->GetImageLayout(i);
+                std::stringstream ss;
+                ss << "A level of the texture does not match the expected ImageLayout: ";
+                ss << "Expected level (" << i << ") to be in layout (" << ImageLayoutToString(expectedLayout);
+                ss << ") but was in layout: (" << ImageLayoutToString(textureLayout.value()) << ")";
 
-                if (!textureLayout)
-                {
-                    NX_ERROR("Attempting to validate an invalid texture layer");
-                    valid = false;
-                }
-
-                if (textureLayout.value() != expectedLayout)
-                {
-                    std::stringstream ss;
-                    ss << "A level of the texture does not match the expected ImageLayout: ";
-                    ss << "Expected level (" << i << ") to be in layout (" << ImageLayoutToString(expectedLayout);
-                    ss << ") but was in layout: (" << ImageLayoutToString(textureLayout.value()) << ")";
-
-                    NX_ERROR(ss.str());
-                    valid = false;
-                }
+                NX_ERROR(ss.str());
+                valid = false;
             }
-
-            return valid;
         }
 
-      protected:
-        CommandListSpecification m_CommandListSpecification{};
+        return valid;
+    }
 
-      private:
-        virtual void ExecuteCommand(SetVertexBufferCommand command, GraphicsDevice *device) = 0;
-        virtual void ExecuteCommand(WeakRef<IndexBuffer> command, GraphicsDevice *device) = 0;
-        virtual void ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device) = 0;
-        virtual void ExecuteCommand(DrawElementCommand command, GraphicsDevice *device) = 0;
-        virtual void ExecuteCommand(DrawIndexedCommand command, GraphicsDevice *device) = 0;
-        virtual void ExecuteCommand(DrawInstancedCommand command, GraphicsDevice *device) = 0;
-        virtual void ExecuteCommand(DrawInstancedIndexedCommand command, GraphicsDevice *device) = 0;
-        virtual void ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device) = 0;
-        virtual void ExecuteCommand(ClearColorTargetCommand command, GraphicsDevice *device) = 0;
-        virtual void ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDevice *device) = 0;
-        virtual void ExecuteCommand(RenderTarget command, GraphicsDevice *device) = 0;
-        virtual void ExecuteCommand(const Viewport &command, GraphicsDevice *device) = 0;
-        virtual void ExecuteCommand(const Scissor &command, GraphicsDevice *device) = 0;
-        virtual void ExecuteCommand(ResolveSamplesToSwapchainCommand command, GraphicsDevice *device) = 0;
-        virtual void ExecuteCommand(StartTimingQueryCommand command, GraphicsDevice *device) = 0;
-        virtual void ExecuteCommand(StopTimingQueryCommand command, GraphicsDevice *device) = 0;
-        virtual void ExecuteCommand(const TransitionImageLayoutCommand &command, GraphicsDevice *device) = 0;
-    };
+  protected:
+    CommandListSpecification m_CommandListSpecification{};
+
+  private:
+    virtual void ExecuteCommand(SetVertexBufferCommand command, GraphicsDevice *device) = 0;
+    virtual void ExecuteCommand(WeakRef<IndexBuffer> command, GraphicsDevice *device) = 0;
+    virtual void ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device) = 0;
+    virtual void ExecuteCommand(DrawElementCommand command, GraphicsDevice *device) = 0;
+    virtual void ExecuteCommand(DrawIndexedCommand command, GraphicsDevice *device) = 0;
+    virtual void ExecuteCommand(DrawInstancedCommand command, GraphicsDevice *device) = 0;
+    virtual void ExecuteCommand(DrawInstancedIndexedCommand command, GraphicsDevice *device) = 0;
+    virtual void ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device) = 0;
+    virtual void ExecuteCommand(ClearColorTargetCommand command, GraphicsDevice *device) = 0;
+    virtual void ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDevice *device) = 0;
+    virtual void ExecuteCommand(RenderTarget command, GraphicsDevice *device) = 0;
+    virtual void ExecuteCommand(const Viewport &command, GraphicsDevice *device) = 0;
+    virtual void ExecuteCommand(const Scissor &command, GraphicsDevice *device) = 0;
+    virtual void ExecuteCommand(ResolveSamplesToSwapchainCommand command, GraphicsDevice *device) = 0;
+    virtual void ExecuteCommand(StartTimingQueryCommand command, GraphicsDevice *device) = 0;
+    virtual void ExecuteCommand(StopTimingQueryCommand command, GraphicsDevice *device) = 0;
+    virtual void ExecuteCommand(const TransitionImageLayoutCommand &command, GraphicsDevice *device) = 0;
 };
+}; // namespace Nexus::Graphics

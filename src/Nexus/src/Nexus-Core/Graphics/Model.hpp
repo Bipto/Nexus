@@ -5,16 +5,22 @@
 
 namespace Nexus::Graphics
 {
-    class Model
+class Model
+{
+  public:
+    Model(std::vector<Ref<Mesh>> meshes) : m_Meshes(meshes)
     {
-    public:
-        Model(std::vector<Ref<Mesh>> meshes)
-            : m_Meshes(meshes) {}
-        Model() {}
+    }
+    Model()
+    {
+    }
 
-        const std::vector<Ref<Mesh>> &GetMeshes() { return m_Meshes; }
+    const std::vector<Ref<Mesh>> &GetMeshes()
+    {
+        return m_Meshes;
+    }
 
-    private:
-        std::vector<Ref<Mesh>> m_Meshes;
-    };
+  private:
+    std::vector<Ref<Mesh>> m_Meshes;
 };
+}; // namespace Nexus::Graphics

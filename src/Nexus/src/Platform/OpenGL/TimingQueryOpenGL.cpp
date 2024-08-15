@@ -6,19 +6,19 @@
 
 namespace Nexus::Graphics
 {
-    TimingQueryOpenGL::TimingQueryOpenGL()
-    {
-    }
-
-    float TimingQueryOpenGL::GetElapsedMilliseconds()
-    {
-        return m_ElapsedTime;
-    }
-
-    void TimingQueryOpenGL::Resolve()
-    {
-        m_ElapsedTime = (m_End - m_Start) / 1000000.0f;
-    }
+TimingQueryOpenGL::TimingQueryOpenGL()
+{
 }
+
+float TimingQueryOpenGL::GetElapsedMilliseconds()
+{
+    return m_ElapsedTime;
+}
+
+void TimingQueryOpenGL::Resolve()
+{
+    m_ElapsedTime = (m_End - m_Start) / 1000000.0f;
+}
+} // namespace Nexus::Graphics
 
 #endif

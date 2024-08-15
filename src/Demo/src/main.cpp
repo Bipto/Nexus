@@ -1,25 +1,25 @@
-#include "NexusEngine.hpp"
-#include "Nexus-Core/Graphics/MeshFactory.hpp"
 #include "Nexus-Core/Graphics/Color.hpp"
+#include "Nexus-Core/Graphics/MeshFactory.hpp"
+#include "NexusEngine.hpp"
 
+#include "Demos/AudioDemo.hpp"
+#include "Demos/BatchingDemo.hpp"
+#include "Demos/CameraDemo.hpp"
 #include "Demos/ClearScreenDemo.hpp"
-#include "Demos/TimingDemo.hpp"
+#include "Demos/ClippingAndTriangulationDemo.hpp"
+#include "Demos/Demo3D.hpp"
+#include "Demos/FramebufferDemo.hpp"
 #include "Demos/HelloTriangle.hpp"
 #include "Demos/HelloTriangleIndexed.hpp"
-#include "Demos/Texturing.hpp"
-#include "Demos/UniformBufferDemo.hpp"
-#include "Demos/Demo3D.hpp"
-#include "Demos/CameraDemo.hpp"
-#include "Demos/Lighting.hpp"
-#include "Demos/Models.hpp"
-#include "Demos/AudioDemo.hpp"
-#include "Demos/PythonDemo.hpp"
-#include "Demos/BatchingDemo.hpp"
-#include "Demos/FramebufferDemo.hpp"
 #include "Demos/InstancingDemo.hpp"
+#include "Demos/Lighting.hpp"
 #include "Demos/MipmapDemo.hpp"
-#include "Demos/ClippingAndTriangulationDemo.hpp"
+#include "Demos/Models.hpp"
+#include "Demos/PythonDemo.hpp"
 #include "Demos/Splines.hpp"
+#include "Demos/Texturing.hpp"
+#include "Demos/TimingDemo.hpp"
+#include "Demos/UniformBufferDemo.hpp"
 
 #include "Nexus-Core/FileSystem/FileSystem.hpp"
 
@@ -35,9 +35,10 @@ struct DemoInfo
 
 class DemoApplication : public Nexus::Application
 {
-public:
-    DemoApplication(const Nexus::ApplicationSpecification &spec)
-        : Application(spec) {}
+  public:
+    DemoApplication(const Nexus::ApplicationSpecification &spec) : Application(spec)
+    {
+    }
 
     virtual ~DemoApplication()
     {
@@ -83,8 +84,7 @@ public:
         m_CommandList = m_GraphicsDevice->CreateCommandList();
     }
 
-    template <typename T>
-    void RegisterGraphicsDemo(const std::string &name)
+    template <typename T> void RegisterGraphicsDemo(const std::string &name)
     {
         DemoInfo info;
         info.Name = name;
@@ -94,37 +94,31 @@ public:
         m_GraphicsDemos.push_back(info);
     }
 
-    template <typename T>
-    void RegisterAudioDemo(const std::string &name)
+    template <typename T> void RegisterAudioDemo(const std::string &name)
     {
         DemoInfo info;
         info.Name = name;
-        info.CreationFunction = [](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
-        {
+        info.CreationFunction = [](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo * {
             return new T(name, app, imGuiRenderer);
         };
         m_AudioDemos.push_back(info);
     }
 
-    template <typename T>
-    void RegisterUtilsDemo(const std::string &name)
+    template <typename T> void RegisterUtilsDemo(const std::string &name)
     {
         DemoInfo info;
         info.Name = name;
-        info.CreationFunction = [](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
-        {
+        info.CreationFunction = [](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo * {
             return new T(name, app, imGuiRenderer);
         };
         m_UtilsDemos.push_back(info);
     }
 
-    template <typename T>
-    void RegisterScriptingDemo(const std::string &name)
+    template <typename T> void RegisterScriptingDemo(const std::string &name)
     {
         DemoInfo info;
         info.Name = name;
-        info.CreationFunction = [](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
-        {
+        info.CreationFunction = [](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo * {
             return new T(name, app, imGuiRenderer);
         };
         m_ScriptingDemos.push_back(info);
@@ -220,10 +214,7 @@ public:
             m_CommandList->Begin();
 
             m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget{m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
-            m_CommandList->ClearColorTarget(0, {0.35f,
-                                                0.25f,
-                                                0.42f,
-                                                1.0f});
+            m_CommandList->ClearColorTarget(0, {0.35f, 0.25f, 0.42f, 1.0f});
 
             m_CommandList->End();
             m_GraphicsDevice->SubmitCommandList(m_CommandList);
@@ -242,7 +233,7 @@ public:
     {
     }
 
-private:
+  private:
     Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
     std::unique_ptr<Demos::Demo> m_CurrentDemo = nullptr;
     std::vector<DemoInfo> m_GraphicsDemos;

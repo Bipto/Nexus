@@ -1,80 +1,80 @@
 #include "SceneHierarchy.hpp"
 
-#include "Nexus-Core/Runtime/Project.hpp"
 #include "Layout.hpp"
+#include "Nexus-Core/Runtime/Project.hpp"
 
 #include "glm/gtc/type_ptr.hpp"
 
 namespace Editor
 {
-    void SceneHierarchy::OnLoad()
+void SceneHierarchy::OnLoad()
+{
+}
+
+void SceneHierarchy::OnRender()
+{
+    if (m_Enabled)
     {
+        if (ImGui::Begin(SCENE_HIERARCHY_NAME, &m_Enabled))
+        {
+            RenderControls();
+        }
+
+        ImGui::End();
+    }
+}
+
+void SceneHierarchy::RenderControls()
+{
+    Nexus::Ref<Nexus::Project> project = Nexus::Project::s_ActiveProject;
+
+    if (!project)
+    {
+        return;
     }
 
-    void SceneHierarchy::OnRender()
-    {
-        if (m_Enabled)
-        {
-            if (ImGui::Begin(SCENE_HIERARCHY_NAME, &m_Enabled))
-            {
-                RenderControls();
-            }
+    Nexus::Scene *scene = project->GetLoadedScene();
 
-            ImGui::End();
+    if (!scene)
+    {
+        return;
+    }
+
+    if (ImGui::CollapsingHeader("Scene Properties", nullptr, ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        glm::vec4 clearColour = scene->GetClearColour();
+
+        if (ImGui::ColorEdit4("Clear Colour", glm::value_ptr(clearColour)))
+        {
+            scene->SetClearColour(clearColour);
+        }
+
+        std::string name = scene->GetName();
+
+        if (ImGui::InputText("Name", &name))
+        {
+            scene->SetName(name);
         }
     }
 
-    void SceneHierarchy::RenderControls()
+    ImGui::Separator();
+
+    if (ImGui::CollapsingHeader("Entities", nullptr, ImGuiTreeNodeFlags_DefaultOpen))
     {
-        Nexus::Ref<Nexus::Project> project = Nexus::Project::s_ActiveProject;
-
-        if (!project)
+        for (auto &entity : scene->GetEntities())
         {
-            return;
+            ImGui::PushID(entity.GetID());
+            if (ImGui::Selectable(entity.GetName().c_str()))
+            {
+                Layout::s_SelectedEntity = &entity;
+            }
+            ImGui::PopID();
         }
 
-        Nexus::Scene *scene = project->GetLoadedScene();
-
-        if (!scene)
+        if (ImGui::Button("+"))
         {
-            return;
-        }
-
-        if (ImGui::CollapsingHeader("Scene Properties", nullptr, ImGuiTreeNodeFlags_DefaultOpen))
-        {
-            glm::vec4 clearColour = scene->GetClearColour();
-
-            if (ImGui::ColorEdit4("Clear Colour", glm::value_ptr(clearColour)))
-            {
-                scene->SetClearColour(clearColour);
-            }
-
-            std::string name = scene->GetName();
-
-            if (ImGui::InputText("Name", &name))
-            {
-                scene->SetName(name);
-            }
-        }
-
-        ImGui::Separator();
-
-        if (ImGui::CollapsingHeader("Entities", nullptr, ImGuiTreeNodeFlags_DefaultOpen))
-        {
-            for (auto &entity : scene->GetEntities())
-            {
-                ImGui::PushID(entity.GetID());
-                if (ImGui::Selectable(entity.GetName().c_str()))
-                {
-                    Layout::s_SelectedEntity = &entity;
-                }
-                ImGui::PopID();
-            }
-
-            if (ImGui::Button("+"))
-            {
-                scene->AddEmptyEntity();
-            }
+            scene->AddEmptyEntity();
         }
     }
 }
+} // namespace Editor

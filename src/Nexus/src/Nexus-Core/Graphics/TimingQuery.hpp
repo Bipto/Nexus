@@ -4,11 +4,13 @@
 
 namespace Nexus::Graphics
 {
-    class TimingQuery
+class TimingQuery
+{
+  public:
+    virtual ~TimingQuery()
     {
-    public:
-        virtual ~TimingQuery() {}
-        virtual void Resolve() = 0;
-        virtual float GetElapsedMilliseconds() = 0;
-    };
-}
+    }
+    virtual void Resolve() = 0;
+    virtual float GetElapsedMilliseconds() = 0;
+};
+} // namespace Nexus::Graphics

@@ -12,115 +12,112 @@
 
 namespace Nexus::Audio
 {
-    AudioDeviceOpenAL::AudioDeviceOpenAL()
+AudioDeviceOpenAL::AudioDeviceOpenAL()
+{
+    m_Device = alcOpenDevice(nullptr);
+    if (!m_Device)
     {
-        m_Device = alcOpenDevice(nullptr);
-        if (!m_Device)
-        {
-            throw std::runtime_error("Failed to create audio device");
-        }
-
-        m_Context = alcCreateContext(m_Device, nullptr);
-        alcMakeContextCurrent(m_Context);
+        throw std::runtime_error("Failed to create audio device");
     }
 
-    AudioDeviceOpenAL::~AudioDeviceOpenAL()
-    {
-        alcDestroyContext(m_Context);
-        alcCloseDevice(m_Device);
-    }
+    m_Context = alcCreateContext(m_Device, nullptr);
+    alcMakeContextCurrent(m_Context);
+}
 
-    ALenum GetOpenALAudioFormat(nqr::PCMFormat format, int channelCount)
+AudioDeviceOpenAL::~AudioDeviceOpenAL()
+{
+    alcDestroyContext(m_Context);
+    alcCloseDevice(m_Device);
+}
+
+ALenum GetOpenALAudioFormat(nqr::PCMFormat format, int channelCount)
+{
+    bool stereo = channelCount > 1;
+    switch (format)
     {
-        bool stereo = channelCount > 1;
-        switch (format)
+        if (stereo)
         {
+        case nqr::PCMFormat::PCM_U8:
+        case nqr::PCMFormat::PCM_S8: {
             if (stereo)
             {
-            case nqr::PCMFormat::PCM_U8:
-            case nqr::PCMFormat::PCM_S8:
-            {
-                if (stereo)
-                {
-                    return AL_FORMAT_STEREO8;
-                }
-                else
-                {
-                    return AL_FORMAT_MONO8;
-                }
+                return AL_FORMAT_STEREO8;
             }
-            case nqr::PCMFormat::PCM_16:
-            case nqr::PCMFormat::PCM_24:
+            else
             {
-                if (stereo)
-                {
-                    return AL_FORMAT_STEREO16;
-                }
-                else
-                {
-                    return AL_FORMAT_MONO16;
-                }
-            }
-            case nqr::PCMFormat::PCM_32:
-            case nqr::PCMFormat::PCM_64:
-            case nqr::PCMFormat::PCM_FLT:
-            case nqr::PCMFormat::PCM_DBL:
-            {
-                if (stereo)
-                {
-                    return AL_FORMAT_STEREO_FLOAT32;
-                }
-                else
-                {
-                    return AL_FORMAT_MONO_FLOAT32;
-                }
-            }
+                return AL_FORMAT_MONO8;
             }
         }
-    }
-
-    Ref<AudioBuffer> AudioDeviceOpenAL::CreateAudioBufferFromWavFile(const std::string &filepath)
-    {
-        nqr::WavDecoder decoder;
-
-        nqr::AudioData data;
-        decoder.LoadFromPath(&data, filepath);
-
-        auto bitsPerSample = nqr::GetFormatBitsPerSample(data.sourceFormat);
-        auto fileSize = data.samples.size() * sizeof(float);
-        auto sampleRate = data.sampleRate;
-        auto format = GetOpenALAudioFormat(data.sourceFormat, data.channelCount);
-        auto dataPtr = (ALvoid *)data.samples.data();
-
-        return CreateRef<AudioBufferOpenAL>(fileSize, sampleRate, format, dataPtr);
-    }
-
-    Ref<AudioBuffer> AudioDeviceOpenAL::CreateAudioBufferFromMP3File(const std::string &filepath)
-    {
-        nqr::Mp3Decoder decoder;
-
-        nqr::AudioData data;
-        decoder.LoadFromPath(&data, filepath);
-
-        auto bitsPerSample = nqr::GetFormatBitsPerSample(data.sourceFormat);
-        auto fileSize = data.samples.size() * sizeof(float);
-        auto sampleRate = data.sampleRate;
-        auto format = GetOpenALAudioFormat(data.sourceFormat, data.channelCount);
-        auto dataPtr = (ALvoid *)data.samples.data();
-
-        return CreateRef<AudioBufferOpenAL>(fileSize, sampleRate, format, dataPtr);
-    }
-
-    Ref<Audio::AudioSource> AudioDeviceOpenAL::CreateAudioSource(Ref<Audio::AudioBuffer> buffer)
-    {
-        return CreateRef<AudioSourceOpenAL>(buffer);
-    }
-
-    void AudioDeviceOpenAL::PlaySource(Ref<Audio::AudioSource> source)
-    {
-        Ref<AudioSourceOpenAL> s = std::dynamic_pointer_cast<Audio::AudioSourceOpenAL>(source);
-        alSourcePlay(s->GetSource());
+        case nqr::PCMFormat::PCM_16:
+        case nqr::PCMFormat::PCM_24: {
+            if (stereo)
+            {
+                return AL_FORMAT_STEREO16;
+            }
+            else
+            {
+                return AL_FORMAT_MONO16;
+            }
+        }
+        case nqr::PCMFormat::PCM_32:
+        case nqr::PCMFormat::PCM_64:
+        case nqr::PCMFormat::PCM_FLT:
+        case nqr::PCMFormat::PCM_DBL: {
+            if (stereo)
+            {
+                return AL_FORMAT_STEREO_FLOAT32;
+            }
+            else
+            {
+                return AL_FORMAT_MONO_FLOAT32;
+            }
+        }
+        }
     }
 }
+
+Ref<AudioBuffer> AudioDeviceOpenAL::CreateAudioBufferFromWavFile(const std::string &filepath)
+{
+    nqr::WavDecoder decoder;
+
+    nqr::AudioData data;
+    decoder.LoadFromPath(&data, filepath);
+
+    auto bitsPerSample = nqr::GetFormatBitsPerSample(data.sourceFormat);
+    auto fileSize = data.samples.size() * sizeof(float);
+    auto sampleRate = data.sampleRate;
+    auto format = GetOpenALAudioFormat(data.sourceFormat, data.channelCount);
+    auto dataPtr = (ALvoid *)data.samples.data();
+
+    return CreateRef<AudioBufferOpenAL>(fileSize, sampleRate, format, dataPtr);
+}
+
+Ref<AudioBuffer> AudioDeviceOpenAL::CreateAudioBufferFromMP3File(const std::string &filepath)
+{
+    nqr::Mp3Decoder decoder;
+
+    nqr::AudioData data;
+    decoder.LoadFromPath(&data, filepath);
+
+    auto bitsPerSample = nqr::GetFormatBitsPerSample(data.sourceFormat);
+    auto fileSize = data.samples.size() * sizeof(float);
+    auto sampleRate = data.sampleRate;
+    auto format = GetOpenALAudioFormat(data.sourceFormat, data.channelCount);
+    auto dataPtr = (ALvoid *)data.samples.data();
+
+    return CreateRef<AudioBufferOpenAL>(fileSize, sampleRate, format, dataPtr);
+}
+
+Ref<Audio::AudioSource> AudioDeviceOpenAL::CreateAudioSource(Ref<Audio::AudioBuffer> buffer)
+{
+    return CreateRef<AudioSourceOpenAL>(buffer);
+}
+
+void AudioDeviceOpenAL::PlaySource(Ref<Audio::AudioSource> source)
+{
+    Ref<AudioSourceOpenAL> s = std::dynamic_pointer_cast<Audio::AudioSourceOpenAL>(source);
+    alSourcePlay(s->GetSource());
+}
+} // namespace Nexus::Audio
 
 #endif

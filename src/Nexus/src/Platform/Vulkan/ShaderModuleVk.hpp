@@ -7,21 +7,21 @@
 
 namespace Nexus::Graphics
 {
-    class GraphicsDeviceVk;
+class GraphicsDeviceVk;
 
-    class ShaderModuleVk : public ShaderModule
-    {
-    public:
-        ShaderModuleVk(const ShaderModuleSpecification &shaderModuleSpec, const ResourceSetSpecification &resourceSpec, GraphicsDeviceVk *device);
-        VkShaderModule GetShaderModule();
+class ShaderModuleVk : public ShaderModule
+{
+  public:
+    ShaderModuleVk(const ShaderModuleSpecification &shaderModuleSpec, const ResourceSetSpecification &resourceSpec, GraphicsDeviceVk *device);
+    VkShaderModule GetShaderModule();
 
-    private:
-        void CreateShaderModule();
+  private:
+    void CreateShaderModule();
 
-    private:
-        GraphicsDeviceVk *m_GraphicsDevice = nullptr;
-        VkShaderModule m_ShaderModule;
-    };
-}
+  private:
+    GraphicsDeviceVk *m_GraphicsDevice = nullptr;
+    VkShaderModule m_ShaderModule;
+};
+} // namespace Nexus::Graphics
 
 #endif

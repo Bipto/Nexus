@@ -7,19 +7,18 @@
 
 #include "Nexus-Core/FileSystem/FileSystem.hpp"
 
+#include "Nexus-Core/UI/Button.hpp"
 #include "Nexus-Core/UI/Canvas.hpp"
 #include "Nexus-Core/UI/Label.hpp"
-#include "Nexus-Core/UI/Button.hpp"
-#include "Nexus-Core/UI/PictureBox.hpp"
 #include "Nexus-Core/UI/Panel.hpp"
+#include "Nexus-Core/UI/PictureBox.hpp"
 
 #include "Nexus-Core/Utils/Utils.hpp"
 
 class Sandbox : public Nexus::Application
 {
-public:
-    explicit Sandbox(const Nexus::ApplicationSpecification &spec)
-        : Nexus::Application(spec)
+  public:
+    explicit Sandbox(const Nexus::ApplicationSpecification &spec) : Nexus::Application(spec)
     {
     }
 
@@ -32,9 +31,7 @@ public:
 
         m_Canvas = std::make_unique<Nexus::UI::Canvas>(m_GraphicsDevice, m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain());
 
-        std::vector<Nexus::Graphics::CharacterRange> fontRange =
-            {
-                {0x0020, 0x00FF}};
+        std::vector<Nexus::Graphics::CharacterRange> fontRange = {{0x0020, 0x00FF}};
 
         m_Font = new Nexus::Graphics::Font("resources/Fonts/JETBRAINSMONO-REGULAR.TTF", 18, fontRange, Nexus::Graphics::FontType::Bitmap, m_GraphicsDevice);
         Nexus::Ref<Nexus::Graphics::Texture> texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), false);
@@ -58,10 +55,7 @@ public:
         btn->SetCornerRounding(10.0f);
         btn->SetHoveredColour({0.0f, 0.25f, 0.45f, 1.0f});
         btn->SetBorderThickness(1.0f);
-        btn->OnMouseClick += [&](Nexus::UI::Control *ctrl)
-        {
-            std::cout << "Button clicked\n";
-        };
+        btn->OnMouseClick += [&](Nexus::UI::Control *ctrl) { std::cout << "Button clicked\n"; };
 
         Nexus::UI::PictureBox *pbx = new Nexus::UI::PictureBox();
         pbx->SetLocalPosition({25, 275});
@@ -125,7 +119,7 @@ public:
     {
     }
 
-private:
+  private:
     std::unique_ptr<Nexus::UI::Canvas> m_Canvas = nullptr;
     Nexus::Graphics::Font *m_Font = nullptr;
 
