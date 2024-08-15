@@ -28,7 +28,7 @@ namespace Nexus::Graphics
         VkImageView m_ImageView;
         VkFormat m_Format;
         Vk::AllocatedBuffer m_StagingBuffer;
-        VkImageLayout m_Layout = VK_IMAGE_LAYOUT_UNDEFINED;
+        VkImageLayout m_Layout = VK_IMAGE_LAYOUT_GENERAL;
     };
 }
 

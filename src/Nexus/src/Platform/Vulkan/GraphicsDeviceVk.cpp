@@ -65,6 +65,7 @@ namespace Nexus::Graphics
         vkResetFences(m_Device, 1, &commandListVk->GetCurrentFence());
 
         const CommandRecorder &commandRecorder = commandListVk->GetCommandRecorder();
+        m_CommandExecutor.SetCommandListSpecification(commandList->GetSpecification());
         m_CommandExecutor.SetCommandBuffer(commandListVk->GetCurrentCommandBuffer());
         m_CommandExecutor.ExecuteCommands(commandRecorder.GetCommands(), this);
         m_CommandExecutor.Reset();
@@ -113,9 +114,9 @@ namespace Nexus::Graphics
         return CreateRef<PipelineVk>(description, this);
     }
 
-    Ref<CommandList> GraphicsDeviceVk::CreateCommandList()
+    Ref<CommandList> GraphicsDeviceVk::CreateCommandList(const CommandListSpecification& spec)
     {
-        return CreateRef<CommandListVk>(this);
+        return CreateRef<CommandListVk>(this, spec);
     }
 
     Ref<VertexBuffer> GraphicsDeviceVk::CreateVertexBuffer(const BufferDescription &description, const void *data)

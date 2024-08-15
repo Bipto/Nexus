@@ -14,7 +14,7 @@ namespace Nexus::Graphics
     class CommandListD3D12 : public CommandList
     {
     public:
-        CommandListD3D12(GraphicsDeviceD3D12 *device);
+        CommandListD3D12(GraphicsDeviceD3D12 *device, const CommandListSpecification& spec);
         virtual ~CommandListD3D12();
 
         ID3D12GraphicsCommandList7 *GetCommandList();

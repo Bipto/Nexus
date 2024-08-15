@@ -155,15 +155,22 @@ namespace Nexus::Graphics
         std::vector<RenderCommandData> m_Commands;
     };
 
+    struct CommandListSpecification
+    {
+        bool AutomaticLayoutManagement = true;
+    };
+
     /// @brief A class representing a command list
     class CommandList
     {
     public:
         /// @brief A constructor creating a new command list
-        CommandList() = default;
+      CommandList(const CommandListSpecification &spec);
 
-        /// @brief A virtual destructor allowing resources to be cleaned up
-        virtual ~CommandList() {}
+      /// @brief A virtual destructor allowing resources to be cleaned up
+      virtual ~CommandList()
+      {
+      }
 
         /// @brief A method that begins a command list
         /// @param beginInfo A parameter containing information about how to begin the command list
@@ -229,11 +236,14 @@ namespace Nexus::Graphics
 
         void StopTimingQuery(Ref<TimingQuery> query);
 
-        void TransitionImageLayout(Ref<Texture> texture, uint32_t baseLevel, uint32_t numLevels, ImageLayout layout);
+        void TransitionImageLayout(WeakRef<Texture> texture, uint32_t baseLevel, uint32_t numLevels, ImageLayout layout);
 
         CommandRecorder &GetCommandRecorder();
 
-    private:
+        const CommandListSpecification &GetSpecification();
+
+      private:
+        CommandListSpecification m_Specification = {};
         CommandRecorder m_CommandRecorder = {};
     };
 

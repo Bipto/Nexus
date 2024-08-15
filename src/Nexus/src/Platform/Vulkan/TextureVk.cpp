@@ -79,7 +79,7 @@ namespace Nexus::Graphics
 
         for (uint32_t i = 0; i < m_Specification.Levels; i++)
         {
-            m_GraphicsDevice->TransitionVulkanImageLayout(m_Image, i, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, aspectFlags);
+            m_GraphicsDevice->TransitionVulkanImageLayout(m_Image, i, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL, aspectFlags);
         }
     }
 

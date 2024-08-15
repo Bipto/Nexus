@@ -35,7 +35,7 @@ namespace Nexus::Graphics
     {
         for (uint32_t i = 0; i < m_Specification.Levels; i++)
         {
-            m_Layouts[i] = ImageLayout::Undefined;
+            m_Layouts[i] = ImageLayout::General;
         }
     }
 

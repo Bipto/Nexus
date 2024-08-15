@@ -13,19 +13,31 @@ namespace Nexus::Graphics
         virtual void ExecuteCommands(const std::vector<RenderCommandData> &commands, GraphicsDevice *device) = 0;
         virtual void Reset() = 0;
 
+        inline void SetCommandListSpecification(const CommandListSpecification &spec)
+        {
+            m_CommandListSpecification = spec;
+        }
+
     protected:
         inline void SetImageLayout(Ref<Texture> texture, uint32_t level, ImageLayout layout)
         {
             texture->SetImageLayout(level, layout);
         }
 
-        inline bool ValidateImageLayout(Ref<Texture> texture, uint32_t baseLevel, uint32_t numLevels, ImageLayout expectedLayout)
+        inline bool ValidateImageLayout(WeakRef<Texture> texture, uint32_t baseLevel, uint32_t numLevels, ImageLayout expectedLayout)
         {
+            if (texture.expired())
+            {
+                NX_ERROR("Attempting to validate an invalid texture");
+                return false;
+            }
+
+            Ref<Texture> lockedTexture = texture.lock();
             bool valid = true;
 
             for (uint32_t i = baseLevel; i < baseLevel + numLevels; i++)
             {
-                std::optional<ImageLayout> textureLayout = texture->GetImageLayout(i);
+                std::optional<ImageLayout> textureLayout = lockedTexture->GetImageLayout(i);
 
                 if (!textureLayout)
                 {
@@ -48,7 +60,10 @@ namespace Nexus::Graphics
             return valid;
         }
 
-    private:
+      protected:
+        CommandListSpecification m_CommandListSpecification{};
+
+      private:
         virtual void ExecuteCommand(SetVertexBufferCommand command, GraphicsDevice *device) = 0;
         virtual void ExecuteCommand(WeakRef<IndexBuffer> command, GraphicsDevice *device) = 0;
         virtual void ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device) = 0;

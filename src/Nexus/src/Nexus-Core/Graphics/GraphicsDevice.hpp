@@ -87,7 +87,7 @@ namespace Nexus::Graphics
 
         /// @brief A pure virtual method that creates a new command list
         /// @return A pointer to a command list
-        virtual Ref<CommandList> CreateCommandList() = 0;
+        virtual Ref<CommandList> CreateCommandList(const CommandListSpecification &spec = {}) = 0;
 
         /// @brief A pure virtual method that creates a new texture from a given specification
         /// @param spec The properties to use when creating the texture

@@ -11,8 +11,10 @@ namespace Nexus::Graphics
     {
         bool isDepth;
         D3D12_RESOURCE_FLAGS flags = D3D12::GetD3D12ResourceFlags(spec.Usage, isDepth);
-        auto d3d12Device = device->GetDevice();
+        ID3D12Device10 *d3d12Device = device->GetDevice();
         m_TextureFormat = D3D12::GetD3D12PixelFormat(spec.Format, isDepth);
+
+        const D3D12_RESOURCE_STATES initialState = D3D12_RESOURCE_STATE_COMMON;
 
         uint32_t samples = GetSampleCount(spec.Samples);
 
@@ -39,7 +41,7 @@ namespace Nexus::Graphics
             uploadBufferDesc.SampleDesc.Quality = 0;
             uploadBufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
             uploadBufferDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
-            d3d12Device->CreateCommittedResource(&uploadProperties, D3D12_HEAP_FLAG_NONE, &uploadBufferDesc, m_CurrentResourceState, nullptr, IID_PPV_ARGS(&m_UploadBuffer));
+            d3d12Device->CreateCommittedResource(&uploadProperties, D3D12_HEAP_FLAG_NONE, &uploadBufferDesc, initialState, nullptr, IID_PPV_ARGS(&m_UploadBuffer));
         }
 
         // texture
@@ -63,7 +65,7 @@ namespace Nexus::Graphics
             resourceDesc.SampleDesc.Quality = 0;
             resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
             resourceDesc.Flags = flags;
-            d3d12Device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, m_CurrentResourceState, nullptr, IID_PPV_ARGS(&m_Texture));
+            d3d12Device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, initialState, nullptr, IID_PPV_ARGS(&m_Texture));
         }
     }
 
@@ -85,30 +87,51 @@ namespace Nexus::Graphics
         memcpy(uploadBufferAddress, data, size);
         m_UploadBuffer->Unmap(0, &uploadRange);
 
-        m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd)
-                                  {
-                                      D3D12_BOX textureSizeAsBox;
-                                      textureSizeAsBox.left = x;
-                                      textureSizeAsBox.top = y;
-                                      textureSizeAsBox.front = 0;
-                                      textureSizeAsBox.right = width;
-                                      textureSizeAsBox.bottom = height;
-                                      textureSizeAsBox.back = 1;
+        D3D12_RESOURCE_STATES resourceState = Nexus::D3D12::GetD3D12ResourceStatesFromNxImageLayout(GetImageLayout(level).value());
 
-                                      D3D12_TEXTURE_COPY_LOCATION textureSource, textureDestination;
-                                      textureSource.pResource = m_UploadBuffer.Get();
-                                      textureSource.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
-                                      textureSource.PlacedFootprint.Offset = 0;
-                                      textureSource.PlacedFootprint.Footprint.Width = width;
-                                      textureSource.PlacedFootprint.Footprint.Height = height;
-                                      textureSource.PlacedFootprint.Footprint.Depth = 1;
-                                      textureSource.PlacedFootprint.Footprint.RowPitch = stride;
-                                      textureSource.PlacedFootprint.Footprint.Format = m_TextureFormat;
+        D3D12_RESOURCE_BARRIER toDestBarrier = {};
+        toDestBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+        toDestBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+        toDestBarrier.Transition.pResource = m_Texture.Get();
+        toDestBarrier.Transition.Subresource = level;
+        toDestBarrier.Transition.StateBefore = resourceState;
+        toDestBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
 
-                                      textureDestination.pResource = m_Texture.Get();
-                                      textureDestination.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
-                                      textureDestination.SubresourceIndex = level;
-                                      cmd->CopyTextureRegion(&textureDestination, x, y, 0, &textureSource, &textureSizeAsBox); });
+        D3D12_RESOURCE_BARRIER toDefaultBarrier = {};
+        toDefaultBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+        toDefaultBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+        toDefaultBarrier.Transition.pResource = m_Texture.Get();
+        toDefaultBarrier.Transition.Subresource = level;
+        toDefaultBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+        toDefaultBarrier.Transition.StateAfter = resourceState;
+
+        m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd) {
+            D3D12_BOX textureSizeAsBox;
+            textureSizeAsBox.left = x;
+            textureSizeAsBox.top = y;
+            textureSizeAsBox.front = 0;
+            textureSizeAsBox.right = width;
+            textureSizeAsBox.bottom = height;
+            textureSizeAsBox.back = 1;
+
+            D3D12_TEXTURE_COPY_LOCATION textureSource, textureDestination;
+            textureSource.pResource = m_UploadBuffer.Get();
+            textureSource.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+            textureSource.PlacedFootprint.Offset = 0;
+            textureSource.PlacedFootprint.Footprint.Width = width;
+            textureSource.PlacedFootprint.Footprint.Height = height;
+            textureSource.PlacedFootprint.Footprint.Depth = 1;
+            textureSource.PlacedFootprint.Footprint.RowPitch = stride;
+            textureSource.PlacedFootprint.Footprint.Format = m_TextureFormat;
+
+            textureDestination.pResource = m_Texture.Get();
+            textureDestination.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+            textureDestination.SubresourceIndex = level;
+
+            cmd->ResourceBarrier(1, &toDestBarrier);
+            cmd->CopyTextureRegion(&textureDestination, x, y, 0, &textureSource, &textureSizeAsBox);
+            cmd->ResourceBarrier(1, &toDefaultBarrier);
+        });
     }
 
     std::vector<std::byte> TextureD3D12::GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
@@ -177,12 +200,14 @@ namespace Nexus::Graphics
         textureBounds.front = 0;
         textureBounds.back = 1;
 
+        D3D12_RESOURCE_STATES resourceState = Nexus::D3D12::GetD3D12ResourceStatesFromNxImageLayout(GetImageLayout(level).value());
+
         D3D12_RESOURCE_BARRIER toReadBarrier = {};
         toReadBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
         toReadBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
         toReadBarrier.Transition.pResource = m_Texture.Get();
         toReadBarrier.Transition.Subresource = level;
-        toReadBarrier.Transition.StateBefore = m_CurrentResourceState;
+        toReadBarrier.Transition.StateBefore = resourceState;
         toReadBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_SOURCE;
 
         D3D12_RESOURCE_BARRIER toDefaultBarrier = {};
@@ -191,13 +216,13 @@ namespace Nexus::Graphics
         toDefaultBarrier.Transition.pResource = m_Texture.Get();
         toDefaultBarrier.Transition.Subresource = level;
         toDefaultBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_SOURCE;
-        toDefaultBarrier.Transition.StateAfter = m_CurrentResourceState;
+        toDefaultBarrier.Transition.StateAfter = resourceState;
 
-        m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd)
-                                  {
-                                    cmd->ResourceBarrier(1, &toReadBarrier);
-                                    cmd->CopyTextureRegion(&dstLocation, x, y, 0, &srcLocation, &textureBounds);
-                                    cmd->ResourceBarrier(1, &toDefaultBarrier); });
+        m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd) {
+            cmd->ResourceBarrier(1, &toReadBarrier);
+            cmd->CopyTextureRegion(&dstLocation, x, y, 0, &srcLocation, &textureBounds);
+            cmd->ResourceBarrier(1, &toDefaultBarrier);
+        });
 
         std::vector<std::byte> pixels(totalBytes);
 
@@ -221,16 +246,6 @@ namespace Nexus::Graphics
     const Microsoft::WRL::ComPtr<ID3D12Resource2> &TextureD3D12::GetD3D12ResourceHandle()
     {
         return m_Texture;
-    }
-
-    D3D12_RESOURCE_STATES TextureD3D12::GetCurrentResourceState()
-    {
-        return m_CurrentResourceState;
-    }
-
-    void TextureD3D12::SetCurrentResourceState(D3D12_RESOURCE_STATES state)
-    {
-        m_CurrentResourceState = state;
     }
 }
 

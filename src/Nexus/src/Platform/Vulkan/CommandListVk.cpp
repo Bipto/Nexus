@@ -9,8 +9,8 @@
 
 namespace Nexus::Graphics
 {
-    CommandListVk::CommandListVk(GraphicsDeviceVk *graphicsDevice)
-        : m_Device(graphicsDevice)
+    CommandListVk::CommandListVk(GraphicsDeviceVk *graphicsDevice, const CommandListSpecification& spec)
+        : CommandList(spec), m_Device(graphicsDevice)
     {
         for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
         {

@@ -35,7 +35,6 @@ namespace Nexus::Vk
     VkFrontFace GetFrontFace(Nexus::Graphics::FrontFace frontFace);
 
     VkImageLayout GetVkImageLayoutFromNxImageLayout(Nexus::Graphics::ImageLayout layout);
-    Nexus::Graphics::ImageLayout GetNxImageLayoutFromVkImageLayout(VkImageLayout layout);
     VkImageAspectFlagBits GetVkAspectFlagsFromNxImageLayout(Nexus::Graphics::ImageLayout layout);
 
     struct AllocatedBuffer

@@ -107,6 +107,8 @@ namespace Nexus::Graphics
         d3d12Device->CreateConstantBufferView(
             &desc,
             m_ConstantBufferCPUDescriptors.at(index));
+
+        m_BoundUniformBuffers[name] = uniformBuffer;
     }
 
     void ResourceSetD3D12::WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name)
@@ -116,7 +118,7 @@ namespace Nexus::Graphics
         {
             Ref<TextureD3D12> d3d12Texture = std::dynamic_pointer_cast<TextureD3D12>(texture);
 
-            const BindingInfo &info = m_TextureBindingInfos.at(name);
+            const BindingInfo &info = m_CombinedImageSamplerBindingInfos.at(name);
             const uint32_t index = GetLinearDescriptorSlot(info.Set, info.Binding);
 
             D3D12_SHADER_RESOURCE_VIEW_DESC srv;
@@ -137,7 +139,7 @@ namespace Nexus::Graphics
 
         // write sampler
         {
-            const BindingInfo &info = m_SamplerBindingInfos.at(name);
+            const BindingInfo &info = m_CombinedImageSamplerBindingInfos.at(name);
             const uint32_t index = GetLinearDescriptorSlot(info.Set, info.Binding);
             auto d3d12Device = m_Device->GetDevice();
             Ref<SamplerD3D12> d3d12Sampler = std::dynamic_pointer_cast<SamplerD3D12>(sampler);
@@ -166,6 +168,11 @@ namespace Nexus::Graphics
                 &sd,
                 samplerHandle);
         }
+
+        CombinedImageSampler ciSampler{};
+        ciSampler.ImageTexture = texture;
+        ciSampler.ImageSampler = sampler;
+        m_BoundCombinedImageSamplers[name] = ciSampler;
     }
 
     ID3D12DescriptorHeap *ResourceSetD3D12::GetSamplerDescriptorHeap()

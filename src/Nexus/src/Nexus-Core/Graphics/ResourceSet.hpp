@@ -49,6 +49,12 @@ namespace Nexus::Graphics
         }
     };
 
+    struct CombinedImageSampler
+    {
+        WeakRef<Texture> ImageTexture = {};
+        WeakRef<Sampler> ImageSampler = {};
+    };
+
     class ResourceSet
     {
     public:
@@ -64,10 +70,15 @@ namespace Nexus::Graphics
 
         static std::map<std::string, uint32_t> RemapToLinearBindings(const std::vector<ResourceBinding> &resources);
 
-    protected:
+        const std::map<std::string, WeakRef<UniformBuffer>> &GetBoundUniformBuffers() const;
+        const std::map<std::string, CombinedImageSampler> &GetBoundCombinedImageSamplers() const;
+
+      protected:
         ResourceSetSpecification m_Specification;
-        std::map<std::string, BindingInfo> m_TextureBindingInfos;
+        std::map<std::string, BindingInfo> m_CombinedImageSamplerBindingInfos;
         std::map<std::string, BindingInfo> m_UniformBufferBindingInfos;
-        std::map<std::string, BindingInfo> m_SamplerBindingInfos;
+
+        std::map<std::string, WeakRef<UniformBuffer>> m_BoundUniformBuffers;
+        std::map<std::string, CombinedImageSampler> m_BoundCombinedImageSamplers;
     };
 }

@@ -2,6 +2,10 @@
 
 namespace Nexus::Graphics
 {
+CommandList::CommandList(const CommandListSpecification &spec) : m_Specification(spec)
+{
+}
+
     void CommandList::Begin()
     {
         m_CommandRecorder.Clear();
@@ -125,7 +129,7 @@ namespace Nexus::Graphics
         m_CommandRecorder.PushCommand(command);
     }
 
-    void CommandList::TransitionImageLayout(Ref<Texture> texture, uint32_t baseLevel, uint32_t numLevels, ImageLayout layout)
+    void CommandList::TransitionImageLayout(WeakRef<Texture> texture, uint32_t baseLevel, uint32_t numLevels, ImageLayout layout)
     {
         TransitionImageLayoutCommand command;
         command.TransitionTexture = texture;
@@ -138,5 +142,10 @@ namespace Nexus::Graphics
     CommandRecorder &CommandList::GetCommandRecorder()
     {
         return m_CommandRecorder;
+    }
+
+    const CommandListSpecification &CommandList::GetSpecification()
+    {
+        return m_Specification;
     }
 }

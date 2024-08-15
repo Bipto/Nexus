@@ -559,8 +559,6 @@ namespace Nexus::Vk
     {
         switch (layout)
         {
-        case Nexus::Graphics::ImageLayout::Undefined:
-            return VK_IMAGE_LAYOUT_UNDEFINED;
         case Nexus::Graphics::ImageLayout::General:
             return VK_IMAGE_LAYOUT_GENERAL;
         case Nexus::Graphics::ImageLayout::Colour:
@@ -575,37 +573,14 @@ namespace Nexus::Vk
             return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
         case Nexus::Graphics::ImageLayout::ResolveDestination:
             return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        case Nexus::Graphics::ImageLayout::CopySource:
+            return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+        case Nexus::Graphics::ImageLayout::CopyDestination:
+            return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
         case Nexus::Graphics::ImageLayout::Present:
             return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
         default:
             throw std::runtime_error("Failed to find a valid Vulkan image layout");
-        }
-    }
-
-    Nexus::Graphics::ImageLayout GetNxImageLayoutFromVkImageLayout(VkImageLayout layout)
-    {
-        switch (layout)
-        {
-        case VK_IMAGE_LAYOUT_UNDEFINED:
-            return Nexus::Graphics::ImageLayout::Undefined;
-        case VK_IMAGE_LAYOUT_GENERAL:
-            return Nexus::Graphics::ImageLayout::General;
-        case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
-            return Nexus::Graphics::ImageLayout::Colour;
-        case VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL:
-            return Nexus::Graphics::ImageLayout::DepthRead;
-        case VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL:
-            return Nexus::Graphics::ImageLayout::DepthReadWrite;
-        case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
-            return Nexus::Graphics::ImageLayout::ShaderRead;
-        case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
-            return Nexus::Graphics::ImageLayout::ResolveSource;
-        case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
-            return Nexus::Graphics::ImageLayout::ResolveDestination;
-        case VK_IMAGE_LAYOUT_PRESENT_SRC_KHR:
-            return Nexus::Graphics::ImageLayout::Present;
-        default:
-            throw std::runtime_error("Failed to find a valid Nexus image layout");
         }
     }
 

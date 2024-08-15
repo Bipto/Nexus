@@ -11,8 +11,10 @@ namespace Nexus::Graphics
     class CommandListOpenGL : public CommandList
     {
     public:
-        CommandListOpenGL() {};
-        virtual ~CommandListOpenGL() {};
+        CommandListOpenGL(const CommandListSpecification& spec) 
+            : CommandList(spec) {}
+
+        virtual ~CommandListOpenGL() {}
     };
 }
 

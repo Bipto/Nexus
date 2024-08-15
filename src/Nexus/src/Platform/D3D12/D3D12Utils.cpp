@@ -513,13 +513,17 @@ namespace Nexus::D3D12
         case Nexus::Graphics::ImageLayout::DepthRead:
             return D3D12_RESOURCE_STATE_DEPTH_READ;
         case Nexus::Graphics::ImageLayout::DepthReadWrite:
-            return D3D12_RESOURCE_STATE_DEPTH_READ | D3D12_RESOURCE_STATE_DEPTH_WRITE;
+            return D3D12_RESOURCE_STATE_DEPTH_WRITE;
         case Nexus::Graphics::ImageLayout::ShaderRead:
             return D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
         case Nexus::Graphics::ImageLayout::ResolveSource:
             return D3D12_RESOURCE_STATE_RESOLVE_SOURCE;
         case Nexus::Graphics::ImageLayout::ResolveDestination:
             return D3D12_RESOURCE_STATE_RESOLVE_DEST;
+        case Nexus::Graphics::ImageLayout::CopySource:
+            return D3D12_RESOURCE_STATE_COPY_SOURCE;
+        case Nexus::Graphics::ImageLayout::CopyDestination:
+            return D3D12_RESOURCE_STATE_COPY_DEST;
         case Nexus::Graphics::ImageLayout::Present:
             return D3D12_RESOURCE_STATE_PRESENT;
         default:

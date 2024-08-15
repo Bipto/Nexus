@@ -36,6 +36,21 @@ namespace Nexus::Graphics
             Resolve();
         }
 
+        if (this->GetCurrentTextureState() != D3D12_RESOURCE_STATE_PRESENT)
+        {
+            D3D12_RESOURCE_BARRIER barrier;
+            barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+            barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+            barrier.Transition.pResource = m_Buffers[m_CurrentBufferIndex].Get();
+            barrier.Transition.Subresource = 0;
+            barrier.Transition.StateBefore = this->GetCurrentTextureState();
+            barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+
+            m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd) { cmd->ResourceBarrier(1, &barrier); });
+
+            SetTextureState(D3D12_RESOURCE_STATE_PRESENT);
+        }
+
         // swap the swapchain's buffers and present to the display
         m_Swapchain->Present((uint32_t)m_VsyncState, 0);
     }
@@ -320,12 +335,6 @@ namespace Nexus::Graphics
 
     void SwapchainD3D12::Resolve()
     {
-        Ref<TextureD3D12> framebufferTexture = std::dynamic_pointer_cast<TextureD3D12>(m_MultisampledFramebuffer->GetColorTexture());
-
-        auto format = D3D12::GetD3D12PixelFormat(Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm, false);
-        auto framebufferState = framebufferTexture->GetCurrentResourceState();
-        auto swapchainState = GetCurrentTextureState();
-
         if (m_MultisampledFramebuffer->GetFramebufferSpecification().Width > GetWindow()->GetWindowSize().X)
         {
             return;
@@ -336,56 +345,53 @@ namespace Nexus::Graphics
             return;
         }
 
+        Ref<TextureD3D12> framebufferTexture = std::dynamic_pointer_cast<TextureD3D12>(m_MultisampledFramebuffer->GetColorTexture());
+
+        DXGI_FORMAT format = D3D12::GetD3D12PixelFormat(Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm, false);
+        D3D12_RESOURCE_STATES framebufferState = D3D12::GetD3D12ResourceStatesFromNxImageLayout(framebufferTexture->GetImageLayout(0).value());
+        D3D12_RESOURCE_STATES swapchainState = GetCurrentTextureState();
+
         std::vector<D3D12_RESOURCE_BARRIER> resourceBarriers;
 
         auto swapchainTexture = RetrieveBufferHandle();
 
-        m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd)
-                                  {
-                                      D3D12_RESOURCE_BARRIER toResolveBarriers[2];
-                                      toResolveBarriers[0].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-                                      toResolveBarriers[0].Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-                                      toResolveBarriers[0].Transition.pResource = framebufferTexture->GetD3D12ResourceHandle().Get();
-                                      toResolveBarriers[0].Transition.Subresource = 0;
-                                      toResolveBarriers[0].Transition.StateBefore = framebufferState;
-                                      toResolveBarriers[0].Transition.StateAfter = D3D12_RESOURCE_STATE_RESOLVE_SOURCE;
+        m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd) {
+            D3D12_RESOURCE_BARRIER toResolveBarriers[2];
+            toResolveBarriers[0].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+            toResolveBarriers[0].Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+            toResolveBarriers[0].Transition.pResource = framebufferTexture->GetD3D12ResourceHandle().Get();
+            toResolveBarriers[0].Transition.Subresource = 0;
+            toResolveBarriers[0].Transition.StateBefore = framebufferState;
+            toResolveBarriers[0].Transition.StateAfter = D3D12_RESOURCE_STATE_RESOLVE_SOURCE;
 
-                                      toResolveBarriers[1].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-                                      toResolveBarriers[1].Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-                                      toResolveBarriers[1].Transition.pResource = swapchainTexture.Get();
-                                      toResolveBarriers[1].Transition.Subresource = 0;
-                                      toResolveBarriers[1].Transition.StateBefore = swapchainState;
-                                      toResolveBarriers[1].Transition.StateAfter = D3D12_RESOURCE_STATE_RESOLVE_DEST;
+            toResolveBarriers[1].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+            toResolveBarriers[1].Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+            toResolveBarriers[1].Transition.pResource = swapchainTexture.Get();
+            toResolveBarriers[1].Transition.Subresource = 0;
+            toResolveBarriers[1].Transition.StateBefore = swapchainState;
+            toResolveBarriers[1].Transition.StateAfter = D3D12_RESOURCE_STATE_RESOLVE_DEST;
 
-                                      cmd->ResourceBarrier(
-                                          2,
-                                          toResolveBarriers);
+            cmd->ResourceBarrier(2, toResolveBarriers);
 
-                                      cmd->ResolveSubresource(
-                                          swapchainTexture.Get(),
-                                          0,
-                                          framebufferTexture->GetD3D12ResourceHandle().Get(),
-                                          0,
-                                          format);
+            cmd->ResolveSubresource(swapchainTexture.Get(), 0, framebufferTexture->GetD3D12ResourceHandle().Get(), 0, format);
 
-                                      D3D12_RESOURCE_BARRIER fromResolveBarriers[2];
-                                      fromResolveBarriers[0].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-                                      fromResolveBarriers[0].Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-                                      fromResolveBarriers[0].Transition.pResource = framebufferTexture->GetD3D12ResourceHandle().Get();
-                                      fromResolveBarriers[0].Transition.Subresource = 0;
-                                      fromResolveBarriers[0].Transition.StateBefore = D3D12_RESOURCE_STATE_RESOLVE_SOURCE;
-                                      fromResolveBarriers[0].Transition.StateAfter = framebufferState;
+            D3D12_RESOURCE_BARRIER fromResolveBarriers[2];
+            fromResolveBarriers[0].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+            fromResolveBarriers[0].Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+            fromResolveBarriers[0].Transition.pResource = framebufferTexture->GetD3D12ResourceHandle().Get();
+            fromResolveBarriers[0].Transition.Subresource = 0;
+            fromResolveBarriers[0].Transition.StateBefore = D3D12_RESOURCE_STATE_RESOLVE_SOURCE;
+            fromResolveBarriers[0].Transition.StateAfter = framebufferState;
 
-                                      fromResolveBarriers[1].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-                                      fromResolveBarriers[1].Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-                                      fromResolveBarriers[1].Transition.pResource = swapchainTexture.Get();
-                                      fromResolveBarriers[1].Transition.Subresource = 0;
-                                      fromResolveBarriers[1].Transition.StateBefore = D3D12_RESOURCE_STATE_RESOLVE_DEST;
-                                      fromResolveBarriers[1].Transition.StateAfter = swapchainState;
+            fromResolveBarriers[1].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+            fromResolveBarriers[1].Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+            fromResolveBarriers[1].Transition.pResource = swapchainTexture.Get();
+            fromResolveBarriers[1].Transition.Subresource = 0;
+            fromResolveBarriers[1].Transition.StateBefore = D3D12_RESOURCE_STATE_RESOLVE_DEST;
+            fromResolveBarriers[1].Transition.StateAfter = swapchainState;
 
-                                      cmd->ResourceBarrier(
-                                          2,
-                                          fromResolveBarriers); });
+            cmd->ResourceBarrier(2, fromResolveBarriers);
+        });
     }
 }
 #endif

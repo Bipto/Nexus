@@ -80,6 +80,7 @@ namespace Nexus::Graphics
         ID3D12GraphicsCommandList7 *cmdList = d3d12CommandList->GetCommandList();
 
         d3d12CommandList->Reset();
+        m_CommandExecutor.SetCommandListSpecification(d3d12CommandList->GetSpecification());
         m_CommandExecutor.SetCommandList(cmdList);
         m_CommandExecutor.ExecuteCommands(recorder.GetCommands(), this);
         d3d12CommandList->Close();
@@ -116,9 +117,9 @@ namespace Nexus::Graphics
         return CreateRef<PipelineD3D12>(m_Device.Get(), description);
     }
 
-    Ref<CommandList> GraphicsDeviceD3D12::CreateCommandList()
+    Ref<CommandList> GraphicsDeviceD3D12::CreateCommandList(const CommandListSpecification& spec)
     {
-        return CreateRef<CommandListD3D12>(this);
+        return CreateRef<CommandListD3D12>(this, spec);
     }
 
     Ref<VertexBuffer> GraphicsDeviceD3D12::CreateVertexBuffer(const BufferDescription &description, const void *data)

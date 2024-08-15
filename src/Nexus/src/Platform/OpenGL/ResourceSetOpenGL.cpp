@@ -16,23 +16,10 @@ namespace Nexus::Graphics
 
     void ResourceSetOpenGL::WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name)
     {
-        m_BoundTextures[name] = std::dynamic_pointer_cast<TextureOpenGL>(texture);
-        m_BoundSamplers[name] = std::dynamic_pointer_cast<SamplerOpenGL>(sampler);
-    }
-
-    const std::map<std::string, WeakRef<TextureOpenGL>> &ResourceSetOpenGL::GetBoundTextures() const
-    {
-        return m_BoundTextures;
-    }
-
-    const std::map<std::string, WeakRef<UniformBufferOpenGL>> &ResourceSetOpenGL::GetBoundUniformBuffers() const
-    {
-        return m_BoundUniformBuffers;
-    }
-
-    const std::map<std::string, WeakRef<SamplerOpenGL>> &ResourceSetOpenGL::GetBoundSamplers() const
-    {
-        return m_BoundSamplers;
+        CombinedImageSampler ciSampler{};
+        ciSampler.ImageTexture = texture;
+        ciSampler.ImageSampler = sampler;
+        m_BoundCombinedImageSamplers[name] = ciSampler;
     }
 }
 

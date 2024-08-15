@@ -22,7 +22,7 @@ namespace Nexus::Graphics
 
         virtual Ref<Texture> CreateTexture(const TextureSpecification &spec) override;
         virtual Ref<Pipeline> CreatePipeline(const PipelineDescription &description) override;
-        virtual Ref<CommandList> CreateCommandList() override;
+        virtual Ref<CommandList> CreateCommandList(const CommandListSpecification& spec = {}) override;
 
         virtual Ref<VertexBuffer> CreateVertexBuffer(const BufferDescription &description, const void *data) override;
         virtual Ref<IndexBuffer> CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format = IndexBufferFormat::UInt32) override;

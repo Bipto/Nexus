@@ -50,6 +50,7 @@ namespace Nexus::Graphics
         auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
 
         CommandRecorder &recorder = commandListGL->GetCommandRecorder();
+        m_CommandExecutor.SetCommandListSpecification(commandListGL->GetSpecification());
         m_CommandExecutor.ExecuteCommands(recorder.GetCommands(), this);
         m_CommandExecutor.Reset();
     }
@@ -106,9 +107,9 @@ namespace Nexus::Graphics
         return CreateRef<PipelineOpenGL>(description);
     }
 
-    Ref<CommandList> GraphicsDeviceOpenGL::CreateCommandList()
+    Ref<CommandList> GraphicsDeviceOpenGL::CreateCommandList(const CommandListSpecification& spec)
     {
-        return CreateRef<CommandListOpenGL>();
+        return CreateRef<CommandListOpenGL>(spec);
     }
 
     Ref<VertexBuffer> GraphicsDeviceOpenGL::CreateVertexBuffer(const BufferDescription &description, const void *data)

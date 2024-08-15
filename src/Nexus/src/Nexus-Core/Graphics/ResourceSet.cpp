@@ -11,8 +11,7 @@ namespace Nexus::Graphics
             BindingInfo info;
             info.Set = texture.Set;
             info.Binding = texture.Binding;
-            m_TextureBindingInfos[texture.Name] = info;
-            m_SamplerBindingInfos[texture.Name] = info;
+            m_CombinedImageSamplerBindingInfos[texture.Name] = info;
         }
 
         for (const auto &uniformBuffer : spec.UniformBuffers)
@@ -22,6 +21,19 @@ namespace Nexus::Graphics
             info.Binding = uniformBuffer.Binding;
             m_UniformBufferBindingInfos[uniformBuffer.Name] = info;
         }
+    }
+
+    void ResourceSet::WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, const std::string &name)
+    {
+        m_BoundUniformBuffers[name] = uniformBuffer;
+    }
+
+    void ResourceSet::WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name)
+    {
+        CombinedImageSampler ciSampler{};
+        ciSampler.ImageTexture = texture;
+        ciSampler.ImageSampler = sampler;
+        m_BoundCombinedImageSamplers[name] = ciSampler;
     }
 
     const ResourceSetSpecification &ResourceSet::GetSpecification() const
@@ -47,4 +59,14 @@ namespace Nexus::Graphics
 
         return bindings;
     }
-}
+
+    const std::map<std::string, WeakRef<UniformBuffer>> &ResourceSet::GetBoundUniformBuffers() const
+    {
+        return m_BoundUniformBuffers;
+    }
+
+    const std::map<std::string, CombinedImageSampler> &ResourceSet::GetBoundCombinedImageSamplers() const
+    {
+        return m_BoundCombinedImageSamplers;
+    }
+    } // namespace Nexus::Graphics

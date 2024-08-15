@@ -239,7 +239,7 @@ namespace Nexus::Graphics
 
             if (m_CurrentRenderTarget.GetType() == RenderTargetType::Framebuffer)
             {
-                auto framebuffer = std::dynamic_pointer_cast<FramebufferVk>(m_CurrentRenderTarget.GetData<Ref<Framebuffer>>());
+                /* auto framebuffer = std::dynamic_pointer_cast<FramebufferVk>(m_CurrentRenderTarget.GetData<Ref<Framebuffer>>());
                 for (int i = 0; i < framebuffer->GetColorTextureCount(); i++)
                 {
                     auto texture = framebuffer->GetVulkanColorTexture(i);
@@ -258,7 +258,7 @@ namespace Nexus::Graphics
                         TransitionVulkanImageLayout(texture->GetImage(), 0, texture->GetVulkanLayout(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
                         texture->SetLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
                     }
-                }
+                } */
             }
         }
 
@@ -319,7 +319,7 @@ namespace Nexus::Graphics
 
             // on first frame, put the framebuffer images into the correct layout
             {
-                for (uint32_t i = 0; i < vulkanFramebuffer->GetColorTextureCount(); i++)
+                /* for (uint32_t i = 0; i < vulkanFramebuffer->GetColorTextureCount(); i++)
                 {
                     auto texture = vulkanFramebuffer->GetVulkanColorTexture(i);
                     if (texture->GetVulkanLayout() != VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
@@ -334,10 +334,10 @@ namespace Nexus::Graphics
                     auto texture = vulkanFramebuffer->GetVulkanDepthTexture();
                     if (texture->GetVulkanLayout() != VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
                     {
-                        TransitionVulkanImageLayout(texture->GetImage(), 0, texture->GetVulkanLayout(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT));
-                        texture->SetLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+                        TransitionVulkanImageLayout(texture->GetImage(), 0, texture->GetVulkanLayout(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT)); texture->SetLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
                     }
-                }
+                } */
             }
 
             m_RenderSize = {vulkanFramebuffer->GetFramebufferSpecification().Width, vulkanFramebuffer->GetFramebufferSpecification().Height};
@@ -431,7 +431,7 @@ namespace Nexus::Graphics
         auto framebufferLayout = framebufferVk->GetVulkanColorTexture(command.SourceIndex)->GetVulkanLayout();
         auto swapchainLayout = swapchainVk->GetColorImageLayout();
 
-        TransitionVulkanImageLayout(framebufferImage, 0, framebufferLayout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
+        /* TransitionVulkanImageLayout(framebufferImage, 0, framebufferLayout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
         TransitionVulkanImageLayout(swapchainImage, 0, swapchainLayout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
 
         vkCmdResolveImage(
@@ -446,7 +446,7 @@ namespace Nexus::Graphics
         TransitionVulkanImageLayout(framebufferImage, 0, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, framebufferLayout, VK_IMAGE_ASPECT_COLOR_BIT);
         TransitionVulkanImageLayout(swapchainImage, 0, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, swapchainLayout, VK_IMAGE_ASPECT_COLOR_BIT);
 
-        ExecuteCommand(m_CurrentRenderTarget, device);
+        ExecuteCommand(m_CurrentRenderTarget, device); */
     }
 
     void CommandExecutorVk::ExecuteCommand(StartTimingQueryCommand command, GraphicsDevice *device)

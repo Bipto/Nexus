@@ -225,38 +225,72 @@ namespace Nexus::Graphics
         Nexus::Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.lock());
         Nexus::Ref<ResourceSetOpenGL> resourceSet = std::dynamic_pointer_cast<ResourceSetOpenGL>(command);
 
-        const auto &textureBindings = resourceSet->GetBoundTextures();
+        const auto &combinedImageSamplers = resourceSet->GetBoundCombinedImageSamplers();
         const auto &uniformBufferBindings = resourceSet->GetBoundUniformBuffers();
-        const auto &samplerBindings = resourceSet->GetBoundSamplers();
 
-        for (const auto &texture : textureBindings)
+        for (const auto [name, combinedImageSampler] : combinedImageSamplers)
         {
-            if (Ref<TextureOpenGL> textureGL = texture.second.lock())
-            {
-                ValidateImageLayout(textureGL, 0, textureGL->GetLevels(), Nexus::Graphics::ImageLayout::ShaderRead);
+            bool valid = true;
 
-                GLint location = glGetUniformLocation(pipeline->GetShaderHandle(), texture.first.c_str());
+            if (combinedImageSampler.ImageTexture.expired())
+            {
+                NX_ERROR("Attempting to bind an invalid texture");
+                valid = false;
+            }
+
+            if (combinedImageSampler.ImageSampler.expired())
+            {
+                NX_ERROR("Attempting to bind an invalid sampler");
+                valid = false;
+            }
+
+            if (!valid)
+            {
+                continue;
+            }
+
+            Ref<TextureOpenGL> glTexture = std::dynamic_pointer_cast<TextureOpenGL>(combinedImageSampler.ImageTexture.lock());
+            Ref<SamplerOpenGL> glSampler = std::dynamic_pointer_cast<SamplerOpenGL>(combinedImageSampler.ImageSampler.lock());
+
+            if (m_CommandListSpecification.AutomaticLayoutManagement)
+            {
+                TransitionImageLayoutCommand transition;
+                transition.TransitionTexture = glTexture;
+                transition.TextureLayout = Nexus::Graphics::ImageLayout::ShaderRead;
+                transition.BaseLevel = 0;
+                transition.NumLevels = glTexture->GetLevels();
+                ExecuteCommand(transition, device);
+            }
+
+            ValidateImageLayout(glTexture, 0, glTexture->GetLevels(), Nexus::Graphics::ImageLayout::ShaderRead);
+
+            // bind texture
+            {
+                GLint location = glGetUniformLocation(pipeline->GetShaderHandle(), name.c_str());
                 glCall(glUniform1i(location, location));
                 glCall(glActiveTexture(GL_TEXTURE0 + location));
-                glCall(glBindTexture(GL_TEXTURE_2D, textureGL->GetNativeHandle()));
+                glCall(glBindTexture(GL_TEXTURE_2D, glTexture->GetNativeHandle()));
             }
-        }
 
-        for (const auto &sampler : samplerBindings)
-        {
-            if (Ref<SamplerOpenGL> samplerGL = sampler.second.lock())
+            // bind sampler
             {
-                GLint location = glGetUniformLocation(pipeline->GetShaderHandle(), sampler.first.c_str());
-                glCall(glBindSampler(location, samplerGL->GetHandle()));
+                GLint location = glGetUniformLocation(pipeline->GetShaderHandle(), name.c_str());
+                glCall(glBindSampler(location, glSampler->GetHandle()));
             }
         }
 
         GLuint uniformBufferSlot = 0;
-        for (const auto &uniformBuffer : uniformBufferBindings)
+        for (const auto [name, uniformBuffer] : uniformBufferBindings)
         {
-            if (Ref<UniformBufferOpenGL> uniformBufferGL = uniformBuffer.second.lock())
+            if (uniformBuffer.expired())
             {
-                GLint location = glGetUniformBlockIndex(pipeline->GetShaderHandle(), uniformBuffer.first.c_str());
+                NX_ERROR("Attempting to bind an invalid uniform buffer");
+                continue;
+            }
+
+            if (Ref<UniformBufferOpenGL> uniformBufferGL = std::dynamic_pointer_cast<UniformBufferOpenGL>(uniformBuffer.lock()))
+            {
+                GLint location = glGetUniformBlockIndex(pipeline->GetShaderHandle(), name.c_str());
 
                 glCall(glUniformBlockBinding(pipeline->GetShaderHandle(),
                                              location,

@@ -163,6 +163,8 @@ namespace Nexus::Graphics
         uniformBufferToWrite.dstSet = descriptorSets.at(info.Set);
 
         vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &uniformBufferToWrite, 0, nullptr);
+
+        m_BoundUniformBuffers[name] = uniformBuffer;
     }
 
     void ResourceSetVk::WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name)
@@ -171,7 +173,7 @@ namespace Nexus::Graphics
         Ref<SamplerVk> samplerVk = std::dynamic_pointer_cast<SamplerVk>(sampler);
         const auto &descriptorSets = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
 
-        const BindingInfo &info = m_TextureBindingInfos.at(name);
+        const BindingInfo &info = m_CombinedImageSamplerBindingInfos.at(name);
 
         VkDescriptorImageInfo imageBufferInfo = {};
         imageBufferInfo.imageView = textureVk->GetImageView();
@@ -188,6 +190,11 @@ namespace Nexus::Graphics
         textureToWrite.pImageInfo = &imageBufferInfo;
 
         vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &textureToWrite, 0, nullptr);
+
+        CombinedImageSampler ciSampler{};
+        ciSampler.ImageTexture = texture;
+        ciSampler.ImageSampler = sampler;
+        m_BoundCombinedImageSamplers[name] = ciSampler;
     }
 
     const std::map<uint32_t, VkDescriptorSetLayout> &ResourceSetVk::GetDescriptorSetLayouts() const

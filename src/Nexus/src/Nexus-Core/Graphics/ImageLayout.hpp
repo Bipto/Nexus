@@ -6,14 +6,15 @@ namespace Nexus::Graphics
 {
     enum class ImageLayout
     {
-        Undefined = 0,
-        General,
+        General = 0,
         Colour,
         DepthRead,
         DepthReadWrite,
         ShaderRead,
         ResolveSource,
         ResolveDestination,
+        CopySource,
+        CopyDestination,
         Present
     };
 
@@ -21,8 +22,6 @@ namespace Nexus::Graphics
     {
         switch (layout)
         {
-        case ImageLayout::Undefined:
-            return "ImageLayout::Undefined";
         case ImageLayout::General:
             return "ImageLayout::General";
         case ImageLayout::Colour:
@@ -37,6 +36,10 @@ namespace Nexus::Graphics
             return "ImageLayout::ResolveSource";
         case ImageLayout::ResolveDestination:
             return "ImageLayout::ResolveDestination";
+        case ImageLayout::CopySource:
+            return "ImageLayout::CopySource";
+        case ImageLayout::CopyDestination:
+            return "ImageLayout::CopyDestination";
         case ImageLayout::Present:
             return "ImageLayout::Present";
         default:
