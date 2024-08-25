@@ -24,7 +24,7 @@ class Sandbox : public Nexus::Application
 
     virtual void Load() override
     {
-        m_Texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), false);
+        /* m_Texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), false);
         m_BatchRenderer = new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, Nexus::Graphics::RenderTarget{m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
 
         rrect = Nexus::Graphics::RoundedRectangle(100, 100, 500, 500, 25, 25, 25, 25);
@@ -78,18 +78,13 @@ class Sandbox : public Nexus::Application
         pnl->SetLocalPosition({100, 100});
         pnl->SetSize({500, 500});
         pnl->SetBackgroundColour({0.0f, 0.0f, 1.0f, 1.0f});
-        // pnl->AddControl(btn);
-        // pnl->AddControl(lbl);
+        pnl->AddControl(btn);
+        pnl->AddControl(lbl);
         pnl->AddControl(pbx);
         pnl->SetCornerRounding(35.0f);
-        m_Canvas->AddControl(pnl);
+        m_Canvas->AddControl(pnl); */
 
-        Nexus::UI::Panel *pnl2 = new Nexus::UI::Panel();
-        pnl2->SetLocalPosition({200, 200});
-        pnl2->SetSize({500, 500});
-        pnl2->SetCornerRounding(25.0f);
-        pnl2->SetBackgroundColour({1.0f, 0.0f, 1.0f, 1.0f});
-        // pnl->AddControl(pnl2);
+        m_CommandList = m_GraphicsDevice->CreateCommandList();
     }
 
     virtual void Update(Nexus::Time time) override
@@ -100,11 +95,19 @@ class Sandbox : public Nexus::Application
     {
         m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
 
-        const auto &windowSize = GetPrimaryWindow()->GetWindowSize();
+        /* const auto &windowSize = GetPrimaryWindow()->GetWindowSize();
         m_Canvas->SetPosition({0, 0});
         m_Canvas->SetSize(windowSize);
         m_Canvas->SetBackgroundColour({0.42f, 0.52, 0.73f, 1.0f});
-        m_Canvas->Render();
+        m_Canvas->Render(); */
+
+        m_CommandList->Begin();
+
+        m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()));
+        m_CommandList->ClearColorTarget(0, {1.0f, 0.0f, 0.0f, 1.0f});
+
+        m_CommandList->End();
+        m_GraphicsDevice->SubmitCommandList(m_CommandList);
     }
 
     virtual void OnResize(Nexus::Point2D<uint32_t> size) override
@@ -127,12 +130,13 @@ class Sandbox : public Nexus::Application
     Nexus::Graphics::BatchRenderer *m_BatchRenderer = nullptr;
 
     Nexus::Graphics::RoundedRectangle rrect;
+    Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList = nullptr;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;

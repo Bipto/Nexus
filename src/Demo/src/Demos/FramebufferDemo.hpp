@@ -13,7 +13,6 @@ class FramebufferDemo : public Demo
 
     virtual ~FramebufferDemo()
     {
-        m_ImGuiRenderer->UnbindTexture(m_TextureID);
     }
 
     virtual void Load() override
@@ -33,8 +32,9 @@ class FramebufferDemo : public Demo
 
     virtual void Render(Nexus::Time time) override
     {
-        m_CommandList->Begin();
+        Nexus::Ref<Nexus::Graphics::Texture> texture = m_Framebuffer->GetColorTexture(0);
 
+        m_CommandList->Begin();
         m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget{m_Framebuffer});
         m_CommandList->ClearColorTarget(0, {m_RenderTargetClearColour.r, m_RenderTargetClearColour.g, m_RenderTargetClearColour.b, 1.0f});
 

@@ -443,6 +443,7 @@ void CommandExecutorVk::ExecuteCommand(ResolveSamplesToSwapchainCommand command,
 void CommandExecutorVk::ExecuteCommand(StartTimingQueryCommand command, GraphicsDevice *device)
 {
     Ref<TimingQueryVk> queryVk = std::dynamic_pointer_cast<TimingQueryVk>(command.Query.lock());
+    vkCmdResetQueryPool(m_CommandBuffer, queryVk->GetQueryPool(), 0, 2);
     vkCmdWriteTimestamp(m_CommandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, queryVk->GetQueryPool(), 0);
 }
 
