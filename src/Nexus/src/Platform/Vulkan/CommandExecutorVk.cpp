@@ -226,30 +226,6 @@ void CommandExecutorVk::ExecuteCommand(RenderTarget command, GraphicsDevice *dev
     if (m_RenderPassStarted)
     {
         vkCmdEndRenderPass(m_CommandBuffer);
-
-        if (m_CurrentRenderTarget.GetType() == RenderTargetType::Framebuffer)
-        {
-            /* auto framebuffer = std::dynamic_pointer_cast<FramebufferVk>(m_CurrentRenderTarget.GetData<Ref<Framebuffer>>());
-            for (int i = 0; i < framebuffer->GetColorTextureCount(); i++)
-            {
-                auto texture = framebuffer->GetVulkanColorTexture(i);
-                if (texture->GetVulkanLayout() != VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
-                {
-                    TransitionVulkanImageLayout(texture->GetImage(), 0, texture->GetVulkanLayout(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
-                    texture->SetLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-                }
-            }
-
-            if (framebuffer->HasDepthTexture())
-            {
-                auto texture = std::dynamic_pointer_cast<TextureVk>(framebuffer->GetDepthTexture());
-                if (texture->GetVulkanLayout() != VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
-                {
-                    TransitionVulkanImageLayout(texture->GetImage(), 0, texture->GetVulkanLayout(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
-                    texture->SetLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-                }
-            } */
-        }
     }
 
     m_CurrentRenderTarget = command;
@@ -308,29 +284,6 @@ void CommandExecutorVk::ExecuteCommand(RenderTarget command, GraphicsDevice *dev
         auto vulkanFramebuffer = std::dynamic_pointer_cast<FramebufferVk>(framebuffer);
         auto renderPass = vulkanFramebuffer->GetRenderPass();
 
-        // on first frame, put the framebuffer images into the correct layout
-        {
-            /* for (uint32_t i = 0; i < vulkanFramebuffer->GetColorTextureCount(); i++)
-            {
-                auto texture = vulkanFramebuffer->GetVulkanColorTexture(i);
-                if (texture->GetVulkanLayout() != VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
-                {
-                    TransitionVulkanImageLayout(texture->GetImage(), 0, texture->GetVulkanLayout(), VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
-                    texture->SetLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-                }
-            }
-
-            if (vulkanFramebuffer->HasDepthTexture())
-            {
-                auto texture = vulkanFramebuffer->GetVulkanDepthTexture();
-                if (texture->GetVulkanLayout() != VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
-                {
-                    TransitionVulkanImageLayout(texture->GetImage(), 0, texture->GetVulkanLayout(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-            VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT)); texture->SetLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
-                }
-            } */
-        }
-
         m_RenderSize = {vulkanFramebuffer->GetFramebufferSpecification().Width, vulkanFramebuffer->GetFramebufferSpecification().Height};
 
         VkRenderPassBeginInfo info;
@@ -378,7 +331,7 @@ void CommandExecutorVk::ExecuteCommand(const Scissor &command, GraphicsDevice *d
 
 void CommandExecutorVk::ExecuteCommand(ResolveSamplesToSwapchainCommand command, GraphicsDevice *device)
 {
-    if (!m_RenderPassStarted)
+    /* if (!m_RenderPassStarted)
     {
         return;
     }
@@ -422,7 +375,7 @@ void CommandExecutorVk::ExecuteCommand(ResolveSamplesToSwapchainCommand command,
     auto framebufferLayout = framebufferVk->GetVulkanColorTexture(command.SourceIndex)->GetVulkanLayout();
     auto swapchainLayout = swapchainVk->GetColorImageLayout();
 
-    /* TransitionVulkanImageLayout(framebufferImage, 0, framebufferLayout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
+    TransitionVulkanImageLayout(framebufferImage, 0, framebufferLayout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
     TransitionVulkanImageLayout(swapchainImage, 0, swapchainLayout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
 
     vkCmdResolveImage(
@@ -485,8 +438,8 @@ void CommandExecutorVk::ExecuteCommand(const TransitionImageLayoutCommand &comma
             barrier.srcAccessMask = 0;
             barrier.dstAccessMask = 0;
 
-            vkCmdPipelineBarrier(m_CommandBuffer, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1,
-                                 &barrier);
+            vkCmdPipelineBarrier(m_CommandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr,
+                                 1, &barrier);
 
             SetImageLayout(texture, i, command.TextureLayout);
         }

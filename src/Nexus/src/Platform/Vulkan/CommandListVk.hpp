@@ -22,8 +22,6 @@ class CommandListVk : public CommandList
 
   private:
     GraphicsDeviceVk *m_Device;
-    CommandRecorder m_CommandRecorder{};
-
     VkCommandPool m_CommandPools[FRAMES_IN_FLIGHT];
     VkCommandBuffer m_CommandBuffers[FRAMES_IN_FLIGHT];
     VkSemaphore m_RenderSemaphores[FRAMES_IN_FLIGHT];

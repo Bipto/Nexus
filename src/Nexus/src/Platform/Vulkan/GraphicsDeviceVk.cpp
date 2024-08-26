@@ -64,10 +64,10 @@ void GraphicsDeviceVk::SubmitCommandList(Ref<CommandList> commandList)
     vkWaitForFences(m_Device, 1, &commandListVk->GetCurrentFence(), VK_TRUE, 0);
     vkResetFences(m_Device, 1, &commandListVk->GetCurrentFence());
 
-    const CommandRecorder &commandRecorder = commandListVk->GetCommandRecorder();
+    const std::vector<Nexus::Graphics::RenderCommandData> &commands = commandListVk->ProcessCommands();
     m_CommandExecutor.SetCommandListSpecification(commandList->GetSpecification());
     m_CommandExecutor.SetCommandBuffer(commandListVk->GetCurrentCommandBuffer());
-    m_CommandExecutor.ExecuteCommands(commandRecorder.GetCommands(), this);
+    m_CommandExecutor.ExecuteCommands(commands, this);
     m_CommandExecutor.Reset();
 
     VkSubmitInfo submitInfo = {};
@@ -302,7 +302,7 @@ void GraphicsDeviceVk::CreateInstance()
     appInfo.applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
     appInfo.pEngineName = "Nexus";
     appInfo.engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
-    appInfo.apiVersion = VK_API_VERSION_1_2;
+    appInfo.apiVersion = VK_API_VERSION_1_3;
 
     VkInstanceCreateInfo instanceCreateInfo = {};
     instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -437,8 +437,14 @@ void GraphicsDeviceVk::CreateDevice()
     deviceFeatures.samplerAnisotropy = VK_TRUE;
     deviceFeatures.sampleRateShading = VK_TRUE;
 
+    VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures = {};
+    dynamicRenderingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
+    dynamicRenderingFeatures.pNext = nullptr;
+    dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
+
     VkDeviceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    createInfo.pNext = &dynamicRenderingFeatures;
     createInfo.pQueueCreateInfos = &queueCreateInfo;
     createInfo.queueCreateInfoCount = queueCreateInfos.size();
     createInfo.pQueueCreateInfos = queueCreateInfos.data();
@@ -730,6 +736,7 @@ std::vector<const char *> GraphicsDeviceVk::GetRequiredDeviceExtensions()
     std::vector<const char *> extensions;
     extensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
     extensions.push_back(VK_EXT_VERTEX_ATTRIBUTE_DIVISOR_EXTENSION_NAME);
+    extensions.push_back(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME);
     return extensions;
 }
 

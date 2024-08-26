@@ -6,6 +6,7 @@
 #include <memory>
 #include <utility>
 
+#include <deque>
 #include <initializer_list>
 #include <optional>
 #include <set>

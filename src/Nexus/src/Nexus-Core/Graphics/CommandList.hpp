@@ -128,27 +128,6 @@ typedef std::variant<SetVertexBufferCommand, WeakRef<IndexBuffer>, WeakRef<Pipel
                      StartTimingQueryCommand, StopTimingQueryCommand, TransitionImageLayoutCommand>
     RenderCommandData;
 
-class CommandRecorder
-{
-  public:
-    CommandRecorder() = default;
-    inline void Clear()
-    {
-        m_Commands.clear();
-    }
-    inline void PushCommand(RenderCommandData command)
-    {
-        m_Commands.push_back(command);
-    }
-    inline const std::vector<RenderCommandData> &GetCommands() const
-    {
-        return m_Commands;
-    }
-
-  private:
-    std::vector<RenderCommandData> m_Commands;
-};
-
 struct CommandListSpecification
 {
     bool AutomaticLayoutManagement = true;
@@ -164,6 +143,7 @@ class CommandList
     /// @brief A virtual destructor allowing resources to be cleaned up
     virtual ~CommandList()
     {
+        m_Commands.clear();
     }
 
     /// @brief A method that begins a command list
@@ -232,13 +212,14 @@ class CommandList
 
     void TransitionImageLayout(WeakRef<Texture> texture, uint32_t baseLevel, uint32_t numLevels, ImageLayout layout);
 
-    CommandRecorder &GetCommandRecorder();
+    std::vector<RenderCommandData> ProcessCommands();
 
+    const std::vector<RenderCommandData> &GetCommandData() const;
     const CommandListSpecification &GetSpecification();
 
   private:
     CommandListSpecification m_Specification = {};
-    CommandRecorder m_CommandRecorder = {};
+    std::vector<RenderCommandData> m_Commands;
 };
 
 /// @brief A typedef to simplify creating function pointers to render commands

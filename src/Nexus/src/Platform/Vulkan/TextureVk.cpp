@@ -76,6 +76,7 @@ TextureVk::TextureVk(GraphicsDeviceVk *graphicsDevice, const TextureSpecificatio
         aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
     }
 
+    // transition mips so that they match the engine's initial texture state
     for (uint32_t i = 0; i < m_Specification.Levels; i++)
     {
         m_GraphicsDevice->TransitionVulkanImageLayout(m_Image, i, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL, aspectFlags);
@@ -105,24 +106,11 @@ void TextureVk::SetData(const void *data, uint32_t level, uint32_t x, uint32_t y
 
     // upload texture to GPU
     {
+        VkImageLayout before = Vk::GetVkImageLayoutFromNxImageLayout(GetImageLayout(level).value());
+
+        m_GraphicsDevice->TransitionVulkanImageLayout(m_Image, level, before, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
+
         m_GraphicsDevice->ImmediateSubmit([&](VkCommandBuffer cmd) {
-            VkImageSubresourceRange range;
-            range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            range.baseMipLevel = level;
-            range.levelCount = 1;
-            range.baseArrayLayer = 0;
-            range.layerCount = 1;
-
-            VkImageMemoryBarrier imageBarrierToTransfer = {};
-            imageBarrierToTransfer.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-            imageBarrierToTransfer.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-            imageBarrierToTransfer.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-            imageBarrierToTransfer.image = m_Image;
-            imageBarrierToTransfer.subresourceRange = range;
-            imageBarrierToTransfer.srcAccessMask = 0;
-            imageBarrierToTransfer.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-            vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageBarrierToTransfer);
-
             VkBufferImageCopy copyRegion = {};
             copyRegion.bufferOffset = 0;
             copyRegion.bufferRowLength = 0;
@@ -133,14 +121,9 @@ void TextureVk::SetData(const void *data, uint32_t level, uint32_t x, uint32_t y
             copyRegion.imageSubresource.layerCount = 1;
             copyRegion.imageExtent = imageExtent;
             vkCmdCopyBufferToImage(cmd, m_StagingBuffer.Buffer, m_Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
-
-            VkImageMemoryBarrier imageBarrierToReadable = imageBarrierToTransfer;
-            imageBarrierToReadable.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-            imageBarrierToReadable.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            imageBarrierToReadable.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-            imageBarrierToReadable.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-            vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageBarrierToReadable);
         });
+
+        m_GraphicsDevice->TransitionVulkanImageLayout(m_Image, level, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, before, VK_IMAGE_ASPECT_COLOR_BIT);
     }
 }
 
@@ -156,24 +139,11 @@ std::vector<std::byte> TextureVk::GetData(uint32_t level, uint32_t x, uint32_t y
 
     // retrieve pixels from texture
     {
+        VkImageLayout before = Vk::GetVkImageLayoutFromNxImageLayout(GetImageLayout(0).value());
+
+        m_GraphicsDevice->TransitionVulkanImageLayout(m_Image, 0, before, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
+
         m_GraphicsDevice->ImmediateSubmit([&](VkCommandBuffer cmd) {
-            VkImageSubresourceRange range;
-            range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            range.baseMipLevel = level;
-            range.levelCount = 1;
-            range.baseArrayLayer = 0;
-            range.layerCount = 1;
-
-            VkImageMemoryBarrier imageBarrierToTransfer = {};
-            imageBarrierToTransfer.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-            imageBarrierToTransfer.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-            imageBarrierToTransfer.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-            imageBarrierToTransfer.image = m_Image;
-            imageBarrierToTransfer.subresourceRange = range;
-            imageBarrierToTransfer.srcAccessMask = 0;
-            imageBarrierToTransfer.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-            vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageBarrierToTransfer);
-
             VkBufferImageCopy copyRegion = {};
             copyRegion.bufferOffset = 0;
             copyRegion.bufferRowLength = 0;
@@ -187,14 +157,9 @@ std::vector<std::byte> TextureVk::GetData(uint32_t level, uint32_t x, uint32_t y
             copyRegion.imageOffset.y = y;
             copyRegion.imageOffset.z = 0;
             vkCmdCopyImageToBuffer(cmd, m_Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, m_StagingBuffer.Buffer, 1, &copyRegion);
-
-            VkImageMemoryBarrier imageBarrierToReadable = imageBarrierToTransfer;
-            imageBarrierToReadable.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-            imageBarrierToReadable.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            imageBarrierToReadable.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-            imageBarrierToReadable.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-            vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageBarrierToReadable);
         });
+
+        m_GraphicsDevice->TransitionVulkanImageLayout(m_Image, 0, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, before, VK_IMAGE_ASPECT_COLOR_BIT);
     }
 
     std::vector<std::byte> pixels(size);
@@ -215,16 +180,6 @@ VkImage TextureVk::GetImage()
 VkImageView TextureVk::GetImageView()
 {
     return m_ImageView;
-}
-
-VkImageLayout TextureVk::GetVulkanLayout()
-{
-    return m_Layout;
-}
-
-void TextureVk::SetLayout(VkImageLayout layout)
-{
-    m_Layout = layout;
 }
 } // namespace Nexus::Graphics
 

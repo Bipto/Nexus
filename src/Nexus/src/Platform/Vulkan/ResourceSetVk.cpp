@@ -173,11 +173,12 @@ void ResourceSetVk::WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler>
     const auto &descriptorSets = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
 
     const BindingInfo &info = m_CombinedImageSamplerBindingInfos.at(name);
+    m_Device->TransitionImageLayout(texture, 0, texture->GetLevels(), ImageLayout::ShaderRead);
 
     VkDescriptorImageInfo imageBufferInfo = {};
     imageBufferInfo.imageView = textureVk->GetImageView();
     imageBufferInfo.sampler = samplerVk->GetSampler();
-    imageBufferInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    imageBufferInfo.imageLayout = Vk::GetVkImageLayoutFromNxImageLayout(texture->GetImageLayout(0).value());
 
     VkWriteDescriptorSet textureToWrite = {};
     textureToWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;

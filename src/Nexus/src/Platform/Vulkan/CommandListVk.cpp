@@ -74,8 +74,6 @@ CommandListVk::~CommandListVk()
         vkDestroyFence(m_Device->GetVkDevice(), m_RenderFences[i], nullptr);
         vkDestroySemaphore(m_Device->GetVkDevice(), m_RenderSemaphores[i], nullptr);
     }
-
-    m_CommandRecorder.Clear();
 }
 
 VkCommandBuffer &CommandListVk::GetCurrentCommandBuffer()

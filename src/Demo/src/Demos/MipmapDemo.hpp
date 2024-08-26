@@ -28,12 +28,11 @@ class MipmapDemo : public Demo
 
         m_Texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), true);
         m_TextureID = m_ImGuiRenderer->BindTexture(m_Texture);
-
-        m_MipmapGenerator = Nexus::Graphics::MipmapGenerator(m_GraphicsDevice);
     }
 
     virtual void Render(Nexus::Time time) override
     {
+
         Nexus::Graphics::SamplerSpecification samplerSpec{};
         samplerSpec.MinimumLOD = m_SelectedMip;
         samplerSpec.MaximumLOD = m_SelectedMip;
@@ -60,6 +59,7 @@ class MipmapDemo : public Demo
 
         m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 
+        m_GraphicsDevice->TransitionImageLayout(m_Texture, 0, m_Texture->GetLevels(), Nexus::Graphics::ImageLayout::ShaderRead);
         m_ResourceSet->WriteCombinedImageSampler(m_Texture, sampler, "texSampler");
 
         m_CommandList->SetResourceSet(m_ResourceSet);
@@ -107,7 +107,6 @@ class MipmapDemo : public Demo
     glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
 
     ImTextureID m_TextureID = 0;
-    Nexus::Graphics::MipmapGenerator m_MipmapGenerator{};
     int m_SelectedMip = 0;
 };
 } // namespace Demos

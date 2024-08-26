@@ -49,9 +49,9 @@ void GraphicsDeviceOpenGL::SubmitCommandList(Ref<CommandList> commandList)
 {
     auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
 
-    CommandRecorder &recorder = commandListGL->GetCommandRecorder();
+    const std::vector<Nexus::Graphics::RenderCommandData> &commands = commandListGL->GetCommandData();
     m_CommandExecutor.SetCommandListSpecification(commandListGL->GetSpecification());
-    m_CommandExecutor.ExecuteCommands(recorder.GetCommands(), this);
+    m_CommandExecutor.ExecuteCommands(commands, this);
     m_CommandExecutor.Reset();
 }
 

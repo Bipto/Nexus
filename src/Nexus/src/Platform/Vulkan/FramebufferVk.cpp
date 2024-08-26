@@ -147,9 +147,9 @@ void FramebufferVk::CreateRenderPass()
         VkAttachmentDescription attachment = {};
         attachment.format = Vk::GetVkPixelDataFormat(colorAttachment.TextureFormat, false);
         attachment.samples = samples;
-        attachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+        attachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+        attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
         attachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
         attachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;

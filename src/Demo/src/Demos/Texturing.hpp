@@ -35,6 +35,8 @@ class TexturingDemo : public Demo
 
     virtual void Render(Nexus::Time time) override
     {
+        m_GraphicsDevice->TransitionImageLayout(m_Texture, 0, m_Texture->GetLevels(), Nexus::Graphics::ImageLayout::ShaderRead);
+
         m_CommandList->Begin();
         m_CommandList->SetPipeline(m_Pipeline);
 
@@ -55,8 +57,6 @@ class TexturingDemo : public Demo
         m_CommandList->SetScissor(scissor);
 
         m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
-
-        m_CommandList->TransitionImageLayout(m_Texture, 0, 1, Nexus::Graphics::ImageLayout::ShaderRead);
 
         m_ResourceSet->WriteCombinedImageSampler(m_Texture, m_Sampler, "texSampler");
 

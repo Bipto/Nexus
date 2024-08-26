@@ -96,6 +96,11 @@ void GraphicsDevice::TransitionImageLayout(WeakRef<Texture> texture, uint32_t ba
     }
 
     ImmediateSubmit([&](Nexus::Ref<Nexus::Graphics::CommandList> cmd) { cmd->TransitionImageLayout(lockedTexture, baseLevel, numLevels, layout); });
+
+    for (uint32_t i = baseLevel; i < baseLevel + numLevels; i++)
+    {
+        lockedTexture->SetImageLayout(i, layout);
+    }
 }
 
 const GraphicsDeviceSpecification &GraphicsDevice::GetSpecification() const

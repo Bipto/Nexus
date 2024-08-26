@@ -94,7 +94,8 @@
         "ranges": "cpp",
         "regex": "cpp",
         "stack": "cpp",
-        "typeindex": "cpp"
+        "typeindex": "cpp",
+        "expected": "cpp"
     },
     "cmake.loggingLevel": "info"
 }

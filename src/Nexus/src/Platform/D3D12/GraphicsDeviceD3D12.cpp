@@ -76,13 +76,13 @@ void GraphicsDeviceD3D12::SubmitCommandList(Ref<CommandList> commandList)
 {
     Ref<CommandListD3D12> d3d12CommandList = std::dynamic_pointer_cast<CommandListD3D12>(commandList);
 
-    CommandRecorder &recorder = d3d12CommandList->GetCommandRecorder();
+    const std::vector<Nexus::Graphics::RenderCommandData> &commands = d3d12CommandList->GetCommandData();
     ID3D12GraphicsCommandList7 *cmdList = d3d12CommandList->GetCommandList();
 
     d3d12CommandList->Reset();
     m_CommandExecutor.SetCommandListSpecification(d3d12CommandList->GetSpecification());
     m_CommandExecutor.SetCommandList(cmdList);
-    m_CommandExecutor.ExecuteCommands(recorder.GetCommands(), this);
+    m_CommandExecutor.ExecuteCommands(commands, this);
     d3d12CommandList->Close();
     m_CommandExecutor.Reset();
 

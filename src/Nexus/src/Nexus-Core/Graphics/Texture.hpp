@@ -68,9 +68,11 @@ class Texture
     uint32_t GetLevels() const;
     std::optional<ImageLayout> GetImageLayout(uint32_t level);
 
+  protected:
+    void SetImageLayout(uint32_t level, ImageLayout layout);
+
   private:
     void InitialiseLayouts();
-    void SetImageLayout(uint32_t level, ImageLayout layout);
 
   protected:
     /// @brief A specification describing the layout of the texture
@@ -82,5 +84,6 @@ class Texture
     std::map<uint32_t, ImageLayout> m_Layouts = {};
 
     friend class CommandExecutor;
+    friend class GraphicsDevice;
 };
 } // namespace Nexus::Graphics

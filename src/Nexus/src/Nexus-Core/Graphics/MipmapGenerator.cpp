@@ -77,6 +77,11 @@ void MipmapGenerator::GenerateMips(Ref<Texture> texture, uint32_t mipCount)
             samplerSpec.MinimumLOD = 0;
             samplerSpec.MaximumLOD = 0;
             Ref<Sampler> sampler = m_Device->CreateSampler(samplerSpec);
+
+            Ref<Texture> framebufferTexture = framebuffer->GetColorTexture(0);
+            m_Device->TransitionImageLayout(framebufferTexture, 0, framebufferTexture->GetLevels(), ImageLayout::Colour);
+            m_Device->TransitionImageLayout(mipTexture, 0, mipTexture->GetLevels(), ImageLayout::ShaderRead);
+
             resourceSet->WriteCombinedImageSampler(mipTexture, sampler, "texSampler");
 
             Nexus::Graphics::Scissor scissor;
@@ -104,7 +109,6 @@ void MipmapGenerator::GenerateMips(Ref<Texture> texture, uint32_t mipCount)
             m_CommandList->End();
             m_Device->SubmitCommandList(m_CommandList);
 
-            Ref<Texture> framebufferTexture = framebuffer->GetColorTexture(0);
             uint32_t framebufferWidth = framebufferTexture->GetTextureSpecification().Width;
             uint32_t framebufferHeight = framebufferTexture->GetTextureSpecification().Height;
 
