@@ -232,18 +232,6 @@ void CommandExecutorOpenGL::ExecuteCommand(Ref<ResourceSet> command, GraphicsDev
         Ref<TextureOpenGL> glTexture = std::dynamic_pointer_cast<TextureOpenGL>(combinedImageSampler.ImageTexture.lock());
         Ref<SamplerOpenGL> glSampler = std::dynamic_pointer_cast<SamplerOpenGL>(combinedImageSampler.ImageSampler.lock());
 
-        if (m_CommandListSpecification.AutomaticLayoutManagement)
-        {
-            TransitionImageLayoutCommand transition;
-            transition.TransitionTexture = glTexture;
-            transition.TextureLayout = Nexus::Graphics::ImageLayout::ShaderRead;
-            transition.BaseLevel = 0;
-            transition.NumLevels = glTexture->GetLevels();
-            ExecuteCommand(transition, device);
-        }
-
-        ValidateImageLayout(glTexture, 0, glTexture->GetLevels(), Nexus::Graphics::ImageLayout::ShaderRead);
-
         // bind texture
         {
             GLint location = glGetUniformLocation(pipeline->GetShaderHandle(), name.c_str());
@@ -358,7 +346,6 @@ void CommandExecutorOpenGL::ExecuteCommand(ResolveSamplesToSwapchainCommand comm
     uint32_t framebufferHeight = framebuffer->GetFramebufferSpecification().Height;
 
     Ref<Texture> framebufferTexture = framebuffer->GetColorTexture(command.SourceIndex);
-    ValidateImageLayout(framebufferTexture, 0, 1, Nexus::Graphics::ImageLayout::ResolveSource);
 
     Nexus::Window *window = swapchain->GetWindow();
     uint32_t swapchainWidth = window->GetWindowSize().X;
@@ -409,17 +396,6 @@ void CommandExecutorOpenGL::ExecuteCommand(StopTimingQueryCommand command, Graph
     glCall(glGetInteger64v(GL_TIMESTAMP, &timer));
     query->m_End = (uint64_t)timer;
 #endif
-}
-
-void CommandExecutorOpenGL::ExecuteCommand(const TransitionImageLayoutCommand &command, GraphicsDevice *device)
-{
-    if (Ref<Texture> texture = command.TransitionTexture.lock())
-    {
-        for (size_t i = command.BaseLevel; i < command.BaseLevel + command.NumLevels; i++)
-        {
-            SetImageLayout(texture, i, command.TextureLayout);
-        }
-    }
 }
 } // namespace Nexus::Graphics
 

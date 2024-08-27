@@ -27,7 +27,6 @@ D3D12_FILTER GetD3D12Filter(Nexus::Graphics::SamplerFilter filter);
 D3D12_TEXTURE_ADDRESS_MODE GetD3D12TextureAddressMode(Nexus::Graphics::SamplerAddressMode addressMode);
 
 DXGI_FORMAT GetD3D12IndexBufferFormat(Nexus::Graphics::IndexBufferFormat format);
-D3D12_RESOURCE_STATES GetD3D12ResourceStatesFromNxImageLayout(Nexus::Graphics::ImageLayout layout);
 } // namespace Nexus::D3D12
 
 #endif

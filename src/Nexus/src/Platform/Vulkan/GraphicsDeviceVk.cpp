@@ -64,7 +64,7 @@ void GraphicsDeviceVk::SubmitCommandList(Ref<CommandList> commandList)
     vkWaitForFences(m_Device, 1, &commandListVk->GetCurrentFence(), VK_TRUE, 0);
     vkResetFences(m_Device, 1, &commandListVk->GetCurrentFence());
 
-    const std::vector<Nexus::Graphics::RenderCommandData> &commands = commandListVk->ProcessCommands();
+    const std::vector<Nexus::Graphics::RenderCommandData> &commands = commandListVk->GetCommandData();
     m_CommandExecutor.SetCommandListSpecification(commandList->GetSpecification());
     m_CommandExecutor.SetCommandBuffer(commandListVk->GetCurrentCommandBuffer());
     m_CommandExecutor.ExecuteCommands(commands, this);
@@ -254,29 +254,33 @@ void GraphicsDeviceVk::ImmediateSubmit(std::function<void(VkCommandBuffer cmd)> 
     vkQueueWaitIdle(m_GraphicsQueue);
 }
 
-void GraphicsDeviceVk::TransitionVulkanImageLayout(VkImage image, uint32_t level, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlagBits aspectMask)
+void GraphicsDeviceVk::TransitionVulkanImageLayout(VkCommandBuffer cmdBuffer, VkImage image, uint32_t level, VkImageLayout oldLayout, VkImageLayout newLayout,
+                                                   VkImageAspectFlagBits aspectMask)
 {
-    ImmediateSubmit([&](VkCommandBuffer cmd) {
-        VkImageMemoryBarrier barrier{};
-        barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-        barrier.oldLayout = oldLayout;
-        barrier.newLayout = newLayout;
+    if (oldLayout == newLayout)
+    {
+        return;
+    }
 
-        barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    VkImageMemoryBarrier barrier{};
+    barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    barrier.oldLayout = oldLayout;
+    barrier.newLayout = newLayout;
 
-        barrier.image = image;
-        barrier.subresourceRange.aspectMask = aspectMask;
-        barrier.subresourceRange.baseMipLevel = level;
-        barrier.subresourceRange.levelCount = 1;
-        barrier.subresourceRange.baseArrayLayer = 0;
-        barrier.subresourceRange.layerCount = 1;
+    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 
-        barrier.srcAccessMask = 0;
-        barrier.dstAccessMask = 0;
+    barrier.image = image;
+    barrier.subresourceRange.aspectMask = aspectMask;
+    barrier.subresourceRange.baseMipLevel = level;
+    barrier.subresourceRange.levelCount = 1;
+    barrier.subresourceRange.baseArrayLayer = 0;
+    barrier.subresourceRange.layerCount = 1;
 
-        vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1, &barrier);
-    });
+    barrier.srcAccessMask = 0;
+    barrier.dstAccessMask = 0;
+
+    vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1, &barrier);
 }
 
 const std::vector<const char *> validationLayers = {

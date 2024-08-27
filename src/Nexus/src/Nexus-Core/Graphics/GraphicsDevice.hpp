@@ -148,8 +148,6 @@ class GraphicsDevice
 
     void ImmediateSubmit(std::function<void(Ref<CommandList> cmd)> &&function);
 
-    void TransitionImageLayout(WeakRef<Texture> texture, uint32_t baseLevel, uint32_t numLevels, ImageLayout layout);
-
     const GraphicsDeviceSpecification &GetSpecification() const;
 
   private:

@@ -554,47 +554,6 @@ VkFrontFace GetFrontFace(Nexus::Graphics::FrontFace frontFace)
         throw std::runtime_error("Failed to find a valid front face");
     }
 }
-
-VkImageLayout GetVkImageLayoutFromNxImageLayout(Nexus::Graphics::ImageLayout layout)
-{
-    switch (layout)
-    {
-    case Nexus::Graphics::ImageLayout::General:
-        return VK_IMAGE_LAYOUT_GENERAL;
-    case Nexus::Graphics::ImageLayout::Colour:
-        return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-    case Nexus::Graphics::ImageLayout::DepthRead:
-        return VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL;
-    case Nexus::Graphics::ImageLayout::DepthReadWrite:
-        return VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
-    case Nexus::Graphics::ImageLayout::ShaderRead:
-        return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    case Nexus::Graphics::ImageLayout::ResolveSource:
-        return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-    case Nexus::Graphics::ImageLayout::ResolveDestination:
-        return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-    case Nexus::Graphics::ImageLayout::CopySource:
-        return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-    case Nexus::Graphics::ImageLayout::CopyDestination:
-        return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-    case Nexus::Graphics::ImageLayout::Present:
-        return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-    default:
-        throw std::runtime_error("Failed to find a valid Vulkan image layout");
-    }
-}
-
-VkImageAspectFlagBits GetVkAspectFlagsFromNxImageLayout(Nexus::Graphics::ImageLayout layout)
-{
-    switch (layout)
-    {
-    case Nexus::Graphics::ImageLayout::DepthRead:
-    case Nexus::Graphics::ImageLayout::DepthReadWrite:
-        return VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
-    default:
-        return VK_IMAGE_ASPECT_COLOR_BIT;
-    }
-}
 } // namespace Nexus::Vk
 
 #endif

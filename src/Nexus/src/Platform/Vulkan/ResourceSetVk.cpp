@@ -173,12 +173,19 @@ void ResourceSetVk::WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler>
     const auto &descriptorSets = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
 
     const BindingInfo &info = m_CombinedImageSamplerBindingInfos.at(name);
-    m_Device->TransitionImageLayout(texture, 0, texture->GetLevels(), ImageLayout::ShaderRead);
+
+    m_Device->ImmediateSubmit([&](VkCommandBuffer cmd) {
+        for (uint32_t i = 0; i < textureVk->GetLevels(); i++)
+        {
+            m_Device->TransitionVulkanImageLayout(cmd, textureVk->GetImage(), i, textureVk->GetImageLayout(i), VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_ASPECT_COLOR_BIT);
+            textureVk->SetImageLayout(i, VK_IMAGE_LAYOUT_GENERAL);
+        }
+    });
 
     VkDescriptorImageInfo imageBufferInfo = {};
     imageBufferInfo.imageView = textureVk->GetImageView();
     imageBufferInfo.sampler = samplerVk->GetSampler();
-    imageBufferInfo.imageLayout = Vk::GetVkImageLayoutFromNxImageLayout(texture->GetImageLayout(0).value());
+    imageBufferInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
     VkWriteDescriptorSet textureToWrite = {};
     textureToWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;

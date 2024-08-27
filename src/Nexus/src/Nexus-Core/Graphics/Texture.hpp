@@ -2,7 +2,6 @@
 
 #include "Nexus-Core/nxpch.hpp"
 
-#include "ImageLayout.hpp"
 #include "Multisample.hpp"
 #include "Nexus-Core/Types.hpp"
 #include "PixelFormat.hpp"
@@ -66,13 +65,6 @@ class Texture
 
     const TextureSpecification &GetTextureSpecification();
     uint32_t GetLevels() const;
-    std::optional<ImageLayout> GetImageLayout(uint32_t level);
-
-  protected:
-    void SetImageLayout(uint32_t level, ImageLayout layout);
-
-  private:
-    void InitialiseLayouts();
 
   protected:
     /// @brief A specification describing the layout of the texture
@@ -81,9 +73,6 @@ class Texture
   private:
     GraphicsDevice *m_Device = nullptr;
 
-    std::map<uint32_t, ImageLayout> m_Layouts = {};
-
     friend class CommandExecutor;
-    friend class GraphicsDevice;
 };
 } // namespace Nexus::Graphics

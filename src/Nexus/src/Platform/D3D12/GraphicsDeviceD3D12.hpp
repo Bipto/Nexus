@@ -9,6 +9,8 @@
 
 namespace Nexus::Graphics
 {
+class TextureD3D12;
+
 class GraphicsDeviceD3D12 : public GraphicsDevice
 {
   public:
@@ -54,6 +56,10 @@ class GraphicsDeviceD3D12 : public GraphicsDevice
 
     void SignalAndWait();
     void ImmediateSubmit(std::function<void(ID3D12GraphicsCommandList7 *cmd)> &&function);
+    void ResourceBarrier(ID3D12GraphicsCommandList7 *cmd, ID3D12Resource *resource, uint32_t level, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after);
+    void ResourceBarrier(ID3D12GraphicsCommandList7 *cmd, Ref<TextureD3D12> resource, uint32_t level, D3D12_RESOURCE_STATES after);
+    void ResourceBarrierSwapchainColour(ID3D12GraphicsCommandList7 *cmd, SwapchainD3D12 *resource, D3D12_RESOURCE_STATES after);
+    void ResourceBarrierSwapchainDepth(ID3D12GraphicsCommandList7 *cmd, SwapchainD3D12 *resource, D3D12_RESOURCE_STATES after);
 
   private:
     virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) override;

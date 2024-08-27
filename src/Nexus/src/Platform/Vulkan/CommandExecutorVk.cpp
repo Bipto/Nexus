@@ -161,6 +161,17 @@ void CommandExecutorVk::ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice 
     auto pipelineVk = std::dynamic_pointer_cast<PipelineVk>(m_CurrentlyBoundPipeline);
     auto resourceSetVk = std::dynamic_pointer_cast<ResourceSetVk>(command);
 
+    for (const auto [name, combinedImageSampler] : resourceSetVk->GetBoundCombinedImageSamplers())
+    {
+        Ref<TextureVk> texture = std::dynamic_pointer_cast<TextureVk>(combinedImageSampler.ImageTexture.lock());
+
+        for (uint32_t level = 0; level < texture->GetLevels(); level++)
+        {
+            m_Device->TransitionVulkanImageLayout(m_CommandBuffer, texture->GetImage(), level, texture->GetImageLayout(level), VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_ASPECT_COLOR_BIT);
+            texture->SetImageLayout(level, VK_IMAGE_LAYOUT_GENERAL);
+        }
+    }
+
     const auto &descriptorSets = resourceSetVk->GetDescriptorSets()[m_Device->GetCurrentFrameIndex()];
     for (const auto &set : descriptorSets)
     {
@@ -256,17 +267,23 @@ void CommandExecutorVk::ExecuteCommand(RenderTarget command, GraphicsDevice *dev
         info.pClearValues = nullptr;
 
         // transition image layouts if required
-        if (vulkanSwapchain->GetColorImageLayout() == VK_IMAGE_LAYOUT_UNDEFINED)
+        if (vulkanSwapchain->GetColorImageLayout() != VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
         {
             auto swapchainColourImage = vulkanSwapchain->GetColourImage();
-            TransitionVulkanImageLayout(swapchainColourImage, 0, vulkanSwapchain->GetColorImageLayout(), VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_IMAGE_ASPECT_COLOR_BIT);
+
+            m_Device->ImmediateSubmit([&](VkCommandBuffer cmd) {
+                m_Device->TransitionVulkanImageLayout(cmd, swapchainColourImage, 0, vulkanSwapchain->GetColorImageLayout(), VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                                                      VK_IMAGE_ASPECT_COLOR_BIT);
+            });
         }
 
-        if (vulkanSwapchain->GetDepthImageLayout() == VK_IMAGE_LAYOUT_UNDEFINED)
+        if (vulkanSwapchain->GetDepthImageLayout() != VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
         {
             auto swapchainDepthImage = vulkanSwapchain->GetDepthImage();
-            TransitionVulkanImageLayout(swapchainDepthImage, 0, vulkanSwapchain->GetDepthImageLayout(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-                                        VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT));
+            m_Device->ImmediateSubmit([&](VkCommandBuffer cmd) {
+                m_Device->TransitionVulkanImageLayout(cmd, swapchainDepthImage, 0, vulkanSwapchain->GetDepthImageLayout(), VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
+                                                      VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT));
+            });
         }
 
         vulkanSwapchain->SetColorImageLayout(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
@@ -285,6 +302,28 @@ void CommandExecutorVk::ExecuteCommand(RenderTarget command, GraphicsDevice *dev
         auto renderPass = vulkanFramebuffer->GetRenderPass();
 
         m_RenderSize = {vulkanFramebuffer->GetFramebufferSpecification().Width, vulkanFramebuffer->GetFramebufferSpecification().Height};
+
+        for (size_t i = 0; i < vulkanFramebuffer->GetColorTextureCount(); i++)
+        {
+            Ref<TextureVk> framebufferTexture = vulkanFramebuffer->GetVulkanColorTexture(i);
+
+            for (uint32_t j = 0; j < framebufferTexture->GetLevels(); j++)
+            {
+                m_Device->TransitionVulkanImageLayout(m_CommandBuffer, framebufferTexture->GetImage(), j, framebufferTexture->GetImageLayout(j), VK_IMAGE_LAYOUT_GENERAL,
+                                                      VK_IMAGE_ASPECT_COLOR_BIT);
+            }
+        }
+
+        if (vulkanFramebuffer->HasDepthTexture())
+        {
+            Ref<TextureVk> depthTexture = vulkanFramebuffer->GetVulkanDepthTexture();
+
+            for (size_t level = 0; level < depthTexture->GetLevels(); level++)
+            {
+                m_Device->TransitionVulkanImageLayout(m_CommandBuffer, depthTexture->GetImage(), level, depthTexture->GetImageLayout(level), VK_IMAGE_LAYOUT_GENERAL,
+                                                      VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT));
+            }
+        }
 
         VkRenderPassBeginInfo info;
         info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -331,7 +370,7 @@ void CommandExecutorVk::ExecuteCommand(const Scissor &command, GraphicsDevice *d
 
 void CommandExecutorVk::ExecuteCommand(ResolveSamplesToSwapchainCommand command, GraphicsDevice *device)
 {
-    /* if (!m_RenderPassStarted)
+    if (!m_RenderPassStarted)
     {
         return;
     }
@@ -372,25 +411,12 @@ void CommandExecutorVk::ExecuteCommand(ResolveSamplesToSwapchainCommand command,
     resolve.srcOffset = {0, 0, 0};
     resolve.srcSubresource = src;
 
-    auto framebufferLayout = framebufferVk->GetVulkanColorTexture(command.SourceIndex)->GetVulkanLayout();
+    auto framebufferLayout = framebufferVk->GetVulkanColorTexture(command.SourceIndex)->GetImageLayout(0);
     auto swapchainLayout = swapchainVk->GetColorImageLayout();
 
-    TransitionVulkanImageLayout(framebufferImage, 0, framebufferLayout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
-    TransitionVulkanImageLayout(swapchainImage, 0, swapchainLayout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
+    vkCmdResolveImage(m_CommandBuffer, framebufferImage, framebufferLayout, swapchainImage, swapchainLayout, 1, &resolve);
 
-    vkCmdResolveImage(
-        m_CommandBuffer,
-        framebufferImage,
-        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-        swapchainImage,
-        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-        1,
-        &resolve);
-
-    TransitionVulkanImageLayout(framebufferImage, 0, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, framebufferLayout, VK_IMAGE_ASPECT_COLOR_BIT);
-    TransitionVulkanImageLayout(swapchainImage, 0, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, swapchainLayout, VK_IMAGE_ASPECT_COLOR_BIT);
-
-    ExecuteCommand(m_CurrentRenderTarget, device); */
+    ExecuteCommand(m_CurrentRenderTarget, device);
 }
 
 void CommandExecutorVk::ExecuteCommand(StartTimingQueryCommand command, GraphicsDevice *device)
@@ -404,69 +430,6 @@ void CommandExecutorVk::ExecuteCommand(StopTimingQueryCommand command, GraphicsD
 {
     Ref<TimingQueryVk> queryVk = std::dynamic_pointer_cast<TimingQueryVk>(command.Query.lock());
     vkCmdWriteTimestamp(m_CommandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, queryVk->GetQueryPool(), 1);
-}
-
-void CommandExecutorVk::ExecuteCommand(const TransitionImageLayoutCommand &command, GraphicsDevice *device)
-{
-    if (command.TransitionTexture.expired())
-    {
-        NX_ERROR("Attempting to transition an invalid texture");
-        return;
-    }
-
-    if (Ref<TextureVk> texture = std::dynamic_pointer_cast<TextureVk>(command.TransitionTexture.lock()))
-    {
-        for (uint32_t i = command.BaseLevel; i < command.BaseLevel + command.NumLevels; i++)
-        {
-            ImageLayout layout = texture->GetImageLayout(i).value();
-
-            VkImageMemoryBarrier barrier{};
-            barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-            barrier.oldLayout = Vk::GetVkImageLayoutFromNxImageLayout(layout);
-            barrier.newLayout = Vk::GetVkImageLayoutFromNxImageLayout(command.TextureLayout);
-
-            barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-            barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-
-            barrier.image = texture->GetImage();
-            barrier.subresourceRange.aspectMask = Vk::GetVkAspectFlagsFromNxImageLayout(command.TextureLayout);
-            barrier.subresourceRange.baseMipLevel = i;
-            barrier.subresourceRange.levelCount = 1;
-            barrier.subresourceRange.baseArrayLayer = 0;
-            barrier.subresourceRange.layerCount = 1;
-
-            barrier.srcAccessMask = 0;
-            barrier.dstAccessMask = 0;
-
-            vkCmdPipelineBarrier(m_CommandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr,
-                                 1, &barrier);
-
-            SetImageLayout(texture, i, command.TextureLayout);
-        }
-    }
-}
-
-void CommandExecutorVk::TransitionVulkanImageLayout(VkImage image, uint32_t level, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlagBits aspectMask)
-{
-    VkImageMemoryBarrier barrier{};
-    barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-    barrier.oldLayout = oldLayout;
-    barrier.newLayout = newLayout;
-
-    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-
-    barrier.image = image;
-    barrier.subresourceRange.aspectMask = aspectMask;
-    barrier.subresourceRange.baseMipLevel = level;
-    barrier.subresourceRange.levelCount = 1;
-    barrier.subresourceRange.baseArrayLayer = 0;
-    barrier.subresourceRange.layerCount = 1;
-
-    barrier.srcAccessMask = 0;
-    barrier.dstAccessMask = 0;
-
-    vkCmdPipelineBarrier(m_CommandBuffer, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1, &barrier);
 }
 } // namespace Nexus::Graphics
 

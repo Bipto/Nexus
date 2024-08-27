@@ -35,7 +35,6 @@ class CommandExecutorOpenGL : public CommandExecutor
     virtual void ExecuteCommand(ResolveSamplesToSwapchainCommand command, GraphicsDevice *device) override;
     virtual void ExecuteCommand(StartTimingQueryCommand command, GraphicsDevice *device) override;
     virtual void ExecuteCommand(StopTimingQueryCommand command, GraphicsDevice *device) override;
-    virtual void ExecuteCommand(const TransitionImageLayoutCommand &command, GraphicsDevice *device) override;
 
   private:
     WeakRef<PipelineOpenGL> m_CurrentlyBoundPipeline = {};

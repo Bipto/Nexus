@@ -247,7 +247,7 @@ class DemoApplication : public Nexus::Application
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;
@@ -255,7 +255,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
     spec.WindowProperties.Title = "Demo";
     spec.WindowProperties.Resizable = true;
 
-    spec.SwapchainSpecification.Samples = Nexus::Graphics::SampleCount::SampleCount1;
+    spec.SwapchainSpecification.Samples = Nexus::Graphics::SampleCount::SampleCount8;
 
     return new DemoApplication(spec);
 }

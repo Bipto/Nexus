@@ -34,9 +34,6 @@ VkShaderStageFlagBits GetVkShaderStageFlags(Nexus::Graphics::ShaderStage stage);
 VkIndexType GetVulkanIndexBufferFormat(Nexus::Graphics::IndexBufferFormat format);
 VkFrontFace GetFrontFace(Nexus::Graphics::FrontFace frontFace);
 
-VkImageLayout GetVkImageLayoutFromNxImageLayout(Nexus::Graphics::ImageLayout layout);
-VkImageAspectFlagBits GetVkAspectFlagsFromNxImageLayout(Nexus::Graphics::ImageLayout layout);
-
 struct AllocatedBuffer
 {
     VkBuffer Buffer;

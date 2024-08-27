@@ -41,9 +41,6 @@ class CommandExecutorVk : public CommandExecutor
     virtual void ExecuteCommand(ResolveSamplesToSwapchainCommand command, GraphicsDevice *device) override;
     virtual void ExecuteCommand(StartTimingQueryCommand command, GraphicsDevice *device) override;
     virtual void ExecuteCommand(StopTimingQueryCommand command, GraphicsDevice *device) override;
-    virtual void ExecuteCommand(const TransitionImageLayoutCommand &command, GraphicsDevice *device) override;
-
-    void TransitionVulkanImageLayout(VkImage image, uint32_t level, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlagBits aspectMask);
 
   private:
     GraphicsDeviceVk *m_Device = nullptr;

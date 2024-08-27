@@ -75,11 +75,9 @@ TextureVk::TextureVk(GraphicsDeviceVk *graphicsDevice, const TextureSpecificatio
     {
         aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
     }
-
-    // transition mips so that they match the engine's initial texture state
-    for (uint32_t i = 0; i < m_Specification.Levels; i++)
+    for (size_t i = 0; i < spec.Levels; i++)
     {
-        m_GraphicsDevice->TransitionVulkanImageLayout(m_Image, i, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL, aspectFlags);
+        m_Layouts.push_back(VK_IMAGE_LAYOUT_UNDEFINED);
     }
 }
 
@@ -106,11 +104,11 @@ void TextureVk::SetData(const void *data, uint32_t level, uint32_t x, uint32_t y
 
     // upload texture to GPU
     {
-        VkImageLayout before = Vk::GetVkImageLayoutFromNxImageLayout(GetImageLayout(level).value());
-
-        m_GraphicsDevice->TransitionVulkanImageLayout(m_Image, level, before, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
+        VkImageLayout before = m_Layouts.at(level);
 
         m_GraphicsDevice->ImmediateSubmit([&](VkCommandBuffer cmd) {
+            m_GraphicsDevice->TransitionVulkanImageLayout(cmd, m_Image, level, before, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
+
             VkBufferImageCopy copyRegion = {};
             copyRegion.bufferOffset = 0;
             copyRegion.bufferRowLength = 0;
@@ -121,9 +119,9 @@ void TextureVk::SetData(const void *data, uint32_t level, uint32_t x, uint32_t y
             copyRegion.imageSubresource.layerCount = 1;
             copyRegion.imageExtent = imageExtent;
             vkCmdCopyBufferToImage(cmd, m_StagingBuffer.Buffer, m_Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
+            
+            SetImageLayout(level, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
         });
-
-        m_GraphicsDevice->TransitionVulkanImageLayout(m_Image, level, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, before, VK_IMAGE_ASPECT_COLOR_BIT);
     }
 }
 
@@ -139,11 +137,11 @@ std::vector<std::byte> TextureVk::GetData(uint32_t level, uint32_t x, uint32_t y
 
     // retrieve pixels from texture
     {
-        VkImageLayout before = Vk::GetVkImageLayoutFromNxImageLayout(GetImageLayout(0).value());
-
-        m_GraphicsDevice->TransitionVulkanImageLayout(m_Image, 0, before, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
+        VkImageLayout before = m_Layouts.at(level);
 
         m_GraphicsDevice->ImmediateSubmit([&](VkCommandBuffer cmd) {
+            m_GraphicsDevice->TransitionVulkanImageLayout(cmd, m_Image, level, before, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
+
             VkBufferImageCopy copyRegion = {};
             copyRegion.bufferOffset = 0;
             copyRegion.bufferRowLength = 0;
@@ -158,8 +156,6 @@ std::vector<std::byte> TextureVk::GetData(uint32_t level, uint32_t x, uint32_t y
             copyRegion.imageOffset.z = 0;
             vkCmdCopyImageToBuffer(cmd, m_Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, m_StagingBuffer.Buffer, 1, &copyRegion);
         });
-
-        m_GraphicsDevice->TransitionVulkanImageLayout(m_Image, 0, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, before, VK_IMAGE_ASPECT_COLOR_BIT);
     }
 
     std::vector<std::byte> pixels(size);
@@ -180,6 +176,16 @@ VkImage TextureVk::GetImage()
 VkImageView TextureVk::GetImageView()
 {
     return m_ImageView;
+}
+
+VkImageLayout TextureVk::GetImageLayout(uint32_t level)
+{
+    return m_Layouts.at(level);
+}
+
+void TextureVk::SetImageLayout(uint32_t level, VkImageLayout layout)
+{
+    m_Layouts[level] = layout;
 }
 } // namespace Nexus::Graphics
 

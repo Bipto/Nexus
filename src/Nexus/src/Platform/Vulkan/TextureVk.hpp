@@ -18,6 +18,9 @@ class TextureVk : public Texture
     VkImage GetImage();
     VkImageView GetImageView();
 
+    VkImageLayout GetImageLayout(uint32_t level);
+    void SetImageLayout(uint32_t level, VkImageLayout layout);
+
   private:
     GraphicsDeviceVk *m_GraphicsDevice;
     VkImage m_Image;
@@ -25,6 +28,7 @@ class TextureVk : public Texture
     VkImageView m_ImageView;
     VkFormat m_Format;
     Vk::AllocatedBuffer m_StagingBuffer;
+    std::vector<VkImageLayout> m_Layouts;
 };
 } // namespace Nexus::Graphics
 

@@ -58,8 +58,6 @@ class MipmapDemo : public Demo
         m_CommandList->SetScissor(scissor);
 
         m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
-
-        m_GraphicsDevice->TransitionImageLayout(m_Texture, 0, m_Texture->GetLevels(), Nexus::Graphics::ImageLayout::ShaderRead);
         m_ResourceSet->WriteCombinedImageSampler(m_Texture, sampler, "texSampler");
 
         m_CommandList->SetResourceSet(m_ResourceSet);

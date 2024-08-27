@@ -66,6 +66,11 @@ TextureD3D12::TextureD3D12(GraphicsDeviceD3D12 *device, const TextureSpecificati
         resourceDesc.Flags = flags;
         d3d12Device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, initialState, nullptr, IID_PPV_ARGS(&m_Texture));
     }
+
+    for (uint32_t level = 0; level < spec.Levels; level++)
+    {
+        m_ResourceStates.push_back(D3D12_RESOURCE_STATE_COMMON);
+    }
 }
 
 TextureD3D12::~TextureD3D12()
@@ -86,7 +91,7 @@ void TextureD3D12::SetData(const void *data, uint32_t level, uint32_t x, uint32_
     memcpy(uploadBufferAddress, data, size);
     m_UploadBuffer->Unmap(0, &uploadRange);
 
-    D3D12_RESOURCE_STATES resourceState = Nexus::D3D12::GetD3D12ResourceStatesFromNxImageLayout(GetImageLayout(level).value());
+    D3D12_RESOURCE_STATES resourceState = GetResourceState(level);
 
     D3D12_RESOURCE_BARRIER toDestBarrier = {};
     toDestBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -193,7 +198,7 @@ std::vector<std::byte> TextureD3D12::GetData(uint32_t level, uint32_t x, uint32_
     textureBounds.front = 0;
     textureBounds.back = 1;
 
-    D3D12_RESOURCE_STATES resourceState = Nexus::D3D12::GetD3D12ResourceStatesFromNxImageLayout(GetImageLayout(level).value());
+    D3D12_RESOURCE_STATES resourceState = GetResourceState(level);
 
     D3D12_RESOURCE_BARRIER toReadBarrier = {};
     toReadBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -239,6 +244,16 @@ DXGI_FORMAT TextureD3D12::GetFormat()
 const Microsoft::WRL::ComPtr<ID3D12Resource2> &TextureD3D12::GetD3D12ResourceHandle()
 {
     return m_Texture;
+}
+
+void TextureD3D12::SetResourceState(uint32_t level, D3D12_RESOURCE_STATES state)
+{
+    m_ResourceStates[level] = state;
+}
+
+D3D12_RESOURCE_STATES TextureD3D12::GetResourceState(uint32_t level)
+{
+    return m_ResourceStates[level];
 }
 } // namespace Nexus::Graphics
 

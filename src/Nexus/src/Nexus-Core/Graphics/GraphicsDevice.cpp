@@ -79,30 +79,6 @@ void GraphicsDevice::ImmediateSubmit(std::function<void(Ref<CommandList>)> &&fun
     SubmitCommandList(m_ImmediateCommandList);
 }
 
-void GraphicsDevice::TransitionImageLayout(WeakRef<Texture> texture, uint32_t baseLevel, uint32_t numLevels, ImageLayout layout)
-{
-    if (texture.expired())
-    {
-        NX_ERROR("Attempting to transition layout of an invalid texture");
-        return;
-    }
-
-    Ref<Texture> lockedTexture = texture.lock();
-
-    if (baseLevel + numLevels > lockedTexture->GetTextureSpecification().Levels)
-    {
-        NX_ERROR("Attempting to transition an invalid mip level");
-        return;
-    }
-
-    ImmediateSubmit([&](Nexus::Ref<Nexus::Graphics::CommandList> cmd) { cmd->TransitionImageLayout(lockedTexture, baseLevel, numLevels, layout); });
-
-    for (uint32_t i = baseLevel; i < baseLevel + numLevels; i++)
-    {
-        lockedTexture->SetImageLayout(i, layout);
-    }
-}
-
 const GraphicsDeviceSpecification &GraphicsDevice::GetSpecification() const
 {
     return m_Specification;

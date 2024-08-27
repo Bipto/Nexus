@@ -32,16 +32,11 @@ class FramebufferDemo : public Demo
 
     virtual void Render(Nexus::Time time) override
     {
-        Nexus::Ref<Nexus::Graphics::Texture> texture = m_Framebuffer->GetColorTexture(0);
-        m_GraphicsDevice->TransitionImageLayout(texture, 0, texture->GetLevels(), Nexus::Graphics::ImageLayout::Colour);
-
         m_CommandList->Begin();
         m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget{m_Framebuffer});
         m_CommandList->ClearColorTarget(0, {m_RenderTargetClearColour.r, m_RenderTargetClearColour.g, m_RenderTargetClearColour.b, 1.0f});
         m_CommandList->End();
         m_GraphicsDevice->SubmitCommandList(m_CommandList);
-
-        m_GraphicsDevice->TransitionImageLayout(texture, 0, texture->GetLevels(), Nexus::Graphics::ImageLayout::ShaderRead);
 
         m_CommandList->Begin();
         m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget{m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});

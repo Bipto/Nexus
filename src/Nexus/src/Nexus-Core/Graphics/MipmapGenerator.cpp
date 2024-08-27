@@ -79,8 +79,6 @@ void MipmapGenerator::GenerateMips(Ref<Texture> texture, uint32_t mipCount)
             Ref<Sampler> sampler = m_Device->CreateSampler(samplerSpec);
 
             Ref<Texture> framebufferTexture = framebuffer->GetColorTexture(0);
-            m_Device->TransitionImageLayout(framebufferTexture, 0, framebufferTexture->GetLevels(), ImageLayout::Colour);
-            m_Device->TransitionImageLayout(mipTexture, 0, mipTexture->GetLevels(), ImageLayout::ShaderRead);
 
             resourceSet->WriteCombinedImageSampler(mipTexture, sampler, "texSampler");
 

@@ -151,15 +151,15 @@ void FramebufferVk::CreateRenderPass()
         attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
-        attachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        attachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        attachment.initialLayout = VK_IMAGE_LAYOUT_GENERAL;
+        attachment.finalLayout = VK_IMAGE_LAYOUT_GENERAL;
 
         colorAttachmentDescriptions.push_back(attachment);
         subpassAttachments.push_back(attachment);
 
         VkAttachmentReference colorReference = {};
         colorReference.attachment = attachmentIndex;
-        colorReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        colorReference.layout = VK_IMAGE_LAYOUT_GENERAL;
         colorAttachmentReferences.push_back(colorReference);
 
         VkSubpassDependency dependency = {};

@@ -19,48 +19,6 @@ class CommandExecutor
     }
 
   protected:
-    inline void SetImageLayout(Ref<Texture> texture, uint32_t level, ImageLayout layout)
-    {
-        texture->SetImageLayout(level, layout);
-    }
-
-    inline bool ValidateImageLayout(WeakRef<Texture> texture, uint32_t baseLevel, uint32_t numLevels, ImageLayout expectedLayout)
-    {
-        if (texture.expired())
-        {
-            NX_ERROR("Attempting to validate an invalid texture");
-            return false;
-        }
-
-        Ref<Texture> lockedTexture = texture.lock();
-        bool valid = true;
-
-        for (uint32_t i = baseLevel; i < baseLevel + numLevels; i++)
-        {
-            std::optional<ImageLayout> textureLayout = lockedTexture->GetImageLayout(i);
-
-            if (!textureLayout)
-            {
-                NX_ERROR("Attempting to validate an invalid texture layer");
-                valid = false;
-            }
-
-            if (textureLayout.value() != expectedLayout)
-            {
-                std::stringstream ss;
-                ss << "A level of the texture does not match the expected ImageLayout: ";
-                ss << "Expected level (" << i << ") to be in layout (" << ImageLayoutToString(expectedLayout);
-                ss << ") but was in layout: (" << ImageLayoutToString(textureLayout.value()) << ")";
-
-                NX_ERROR(ss.str());
-                valid = false;
-            }
-        }
-
-        return valid;
-    }
-
-  protected:
     CommandListSpecification m_CommandListSpecification{};
 
   private:
@@ -80,6 +38,5 @@ class CommandExecutor
     virtual void ExecuteCommand(ResolveSamplesToSwapchainCommand command, GraphicsDevice *device) = 0;
     virtual void ExecuteCommand(StartTimingQueryCommand command, GraphicsDevice *device) = 0;
     virtual void ExecuteCommand(StopTimingQueryCommand command, GraphicsDevice *device) = 0;
-    virtual void ExecuteCommand(const TransitionImageLayoutCommand &command, GraphicsDevice *device) = 0;
 };
 }; // namespace Nexus::Graphics

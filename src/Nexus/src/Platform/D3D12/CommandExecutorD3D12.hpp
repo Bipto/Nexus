@@ -42,7 +42,6 @@ class CommandExecutorD3D12 : public CommandExecutor
     virtual void ExecuteCommand(ResolveSamplesToSwapchainCommand command, GraphicsDevice *device) override;
     virtual void ExecuteCommand(StartTimingQueryCommand command, GraphicsDevice *device) override;
     virtual void ExecuteCommand(StopTimingQueryCommand command, GraphicsDevice *device) override;
-    virtual void ExecuteCommand(const TransitionImageLayoutCommand &command, GraphicsDevice *device) override;
 
     void SetSwapchain(SwapchainD3D12 *swapchain, GraphicsDevice *device);
     void SetFramebuffer(Ref<FramebufferD3D12> framebuffer, GraphicsDevice *device);

@@ -3,7 +3,6 @@
 #include "Color.hpp"
 #include "Framebuffer.hpp"
 #include "GPUBuffer.hpp"
-#include "ImageLayout.hpp"
 #include "Nexus-Core/Types.hpp"
 #include "Pipeline.hpp"
 #include "RenderTarget.hpp"
@@ -115,17 +114,9 @@ struct StopTimingQueryCommand
     WeakRef<TimingQuery> Query = {};
 };
 
-struct TransitionImageLayoutCommand
-{
-    uint32_t BaseLevel = 0;
-    uint32_t NumLevels = 0;
-    WeakRef<Texture> TransitionTexture = {};
-    ImageLayout TextureLayout = {};
-};
-
 typedef std::variant<SetVertexBufferCommand, WeakRef<IndexBuffer>, WeakRef<Pipeline>, DrawElementCommand, DrawIndexedCommand, DrawInstancedCommand, DrawInstancedIndexedCommand,
                      Ref<ResourceSet>, ClearColorTargetCommand, ClearDepthStencilTargetCommand, RenderTarget, Viewport, Scissor, ResolveSamplesToSwapchainCommand,
-                     StartTimingQueryCommand, StopTimingQueryCommand, TransitionImageLayoutCommand>
+                     StartTimingQueryCommand, StopTimingQueryCommand>
     RenderCommandData;
 
 struct CommandListSpecification
@@ -209,10 +200,6 @@ class CommandList
     void StartTimingQuery(Ref<TimingQuery> query);
 
     void StopTimingQuery(Ref<TimingQuery> query);
-
-    void TransitionImageLayout(WeakRef<Texture> texture, uint32_t baseLevel, uint32_t numLevels, ImageLayout layout);
-
-    std::vector<RenderCommandData> ProcessCommands();
 
     const std::vector<RenderCommandData> &GetCommandData() const;
     const CommandListSpecification &GetSpecification();

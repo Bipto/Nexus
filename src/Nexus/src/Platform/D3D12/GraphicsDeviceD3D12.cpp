@@ -211,6 +211,41 @@ void GraphicsDeviceD3D12::ImmediateSubmit(std::function<void(ID3D12GraphicsComma
     DispatchUploadCommandList();
 }
 
+void GraphicsDeviceD3D12::ResourceBarrier(ID3D12GraphicsCommandList7 *cmd, ID3D12Resource *resource, uint32_t level, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after)
+{
+    if (before == after)
+    {
+        return;
+    }
+
+    D3D12_RESOURCE_BARRIER barrier = {};
+    barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+    barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+    barrier.Transition.pResource = resource;
+    barrier.Transition.Subresource = level;
+    barrier.Transition.StateBefore = before;
+    barrier.Transition.StateAfter = after;
+    cmd->ResourceBarrier(1, &barrier);
+}
+
+void GraphicsDeviceD3D12::ResourceBarrier(ID3D12GraphicsCommandList7 *cmd, Ref<TextureD3D12> resource, uint32_t level, D3D12_RESOURCE_STATES after)
+{
+    ResourceBarrier(cmd, resource->GetD3D12ResourceHandle().Get(), level, resource->GetResourceState(level), after);
+    resource->SetResourceState(level, after);
+}
+
+void GraphicsDeviceD3D12::ResourceBarrierSwapchainColour(ID3D12GraphicsCommandList7 *cmd, SwapchainD3D12 *resource, D3D12_RESOURCE_STATES after)
+{
+    ResourceBarrier(cmd, resource->RetrieveBufferHandle().Get(), 0, resource->GetCurrentTextureState(), after);
+    resource->SetTextureState(after);
+}
+
+void GraphicsDeviceD3D12::ResourceBarrierSwapchainDepth(ID3D12GraphicsCommandList7 *cmd, SwapchainD3D12 *resource, D3D12_RESOURCE_STATES after)
+{
+    ResourceBarrier(cmd, resource->RetrieveDepthBufferHandle(), 0, resource->GetCurrentDepthState(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
+    resource->SetDepthState(after);
+}
+
 void GraphicsDeviceD3D12::InitUploadCommandList()
 {
     m_UploadCommandAllocator->Reset();

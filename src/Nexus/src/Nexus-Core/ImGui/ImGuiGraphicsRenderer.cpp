@@ -357,8 +357,6 @@ void ImGuiGraphicsRenderer::RebuildFontAtlas()
     m_FontTextureID = BindTexture(m_FontTexture);
     io.Fonts->SetTexID(m_FontTextureID);
     io.Fonts->ClearTexData();
-
-    m_GraphicsDevice->TransitionImageLayout(m_FontTexture, 0, m_FontTexture->GetLevels(), Nexus::Graphics::ImageLayout::ShaderRead);
 }
 
 ImTextureID ImGuiGraphicsRenderer::BindTexture(Nexus::Ref<Nexus::Graphics::Texture> texture)
@@ -366,7 +364,6 @@ ImTextureID ImGuiGraphicsRenderer::BindTexture(Nexus::Ref<Nexus::Graphics::Textu
     auto id = (ImTextureID)m_TextureID++;
 
     auto resourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
-    m_GraphicsDevice->TransitionImageLayout(texture, 0, texture->GetLevels(), Nexus::Graphics::ImageLayout::ShaderRead);
     resourceSet->WriteCombinedImageSampler(texture, m_Sampler, "Texture");
 
     m_ResourceSets.insert({id, resourceSet});

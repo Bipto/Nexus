@@ -18,6 +18,9 @@ class TextureD3D12 : public Texture
     DXGI_FORMAT GetFormat();
     const Microsoft::WRL::ComPtr<ID3D12Resource2> &GetD3D12ResourceHandle();
 
+    void SetResourceState(uint32_t level, D3D12_RESOURCE_STATES state);
+    D3D12_RESOURCE_STATES GetResourceState(uint32_t level);
+
   private:
     Microsoft::WRL::ComPtr<ID3D12Resource2> m_Texture = nullptr;
     Microsoft::WRL::ComPtr<ID3D12Resource2> m_UploadBuffer = nullptr;
@@ -26,6 +29,8 @@ class TextureD3D12 : public Texture
 
     TextureSpecification m_Specification;
     GraphicsDeviceD3D12 *m_Device = nullptr;
+
+    std::vector<D3D12_RESOURCE_STATES> m_ResourceStates;
 };
 } // namespace Nexus::Graphics
 

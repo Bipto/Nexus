@@ -35,8 +35,6 @@ class TexturingDemo : public Demo
 
     virtual void Render(Nexus::Time time) override
     {
-        m_GraphicsDevice->TransitionImageLayout(m_Texture, 0, m_Texture->GetLevels(), Nexus::Graphics::ImageLayout::ShaderRead);
-
         m_CommandList->Begin();
         m_CommandList->SetPipeline(m_Pipeline);
 
