@@ -24,7 +24,7 @@ class TexturingDemo : public Demo
         Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
         m_Mesh = factory.CreateSprite();
 
-        m_Texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), false);
+        m_Texture = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), false);
 
         Nexus::Graphics::SamplerSpecification samplerSpec{};
         samplerSpec.MaximumAnisotropy = 8;
@@ -98,7 +98,7 @@ class TexturingDemo : public Demo
     Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline = nullptr;
     Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet = nullptr;
     Nexus::Ref<Nexus::Graphics::Mesh> m_Mesh = nullptr;
-    Nexus::Ref<Nexus::Graphics::Texture> m_Texture = nullptr;
+    Nexus::Ref<Nexus::Graphics::Texture2D> m_Texture = nullptr;
     Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler = nullptr;
     glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
 

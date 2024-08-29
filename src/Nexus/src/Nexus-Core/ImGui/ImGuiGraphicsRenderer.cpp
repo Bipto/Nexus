@@ -344,12 +344,12 @@ void ImGuiGraphicsRenderer::RebuildFontAtlas()
     int width, height, channels;
     io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height, &channels);
 
-    Nexus::Graphics::TextureSpecification spec;
+    Nexus::Graphics::Texture2DSpecification spec;
     spec.Width = width;
     spec.Height = height;
     spec.Format = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
 
-    m_FontTexture = m_GraphicsDevice->CreateTexture(spec);
+    m_FontTexture = m_GraphicsDevice->CreateTexture2D(spec);
     m_FontTexture->SetData(pixels, 0, 0, 0, width, height);
 
     UnbindTexture(m_FontTextureID);
@@ -359,7 +359,7 @@ void ImGuiGraphicsRenderer::RebuildFontAtlas()
     io.Fonts->ClearTexData();
 }
 
-ImTextureID ImGuiGraphicsRenderer::BindTexture(Nexus::Ref<Nexus::Graphics::Texture> texture)
+ImTextureID ImGuiGraphicsRenderer::BindTexture(Nexus::Ref<Nexus::Graphics::Texture2D> texture)
 {
     auto id = (ImTextureID)m_TextureID++;
 

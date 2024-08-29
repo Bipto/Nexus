@@ -51,7 +51,7 @@ struct ResourceSetSpecification
 
 struct CombinedImageSampler
 {
-    WeakRef<Texture> ImageTexture = {};
+    std::variant<WeakRef<Texture2D>, WeakRef<Cubemap>> ImageTexture = {};
     WeakRef<Sampler> ImageSampler = {};
 };
 
@@ -64,7 +64,8 @@ class ResourceSet
     }
 
     virtual void WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, const std::string &name) = 0;
-    virtual void WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name) = 0;
+    virtual void WriteCombinedImageSampler(Ref<Texture2D> texture, Ref<Sampler> sampler, const std::string &name) = 0;
+    virtual void WriteCombinedImageSampler(Ref<Cubemap> cubemap, Ref<Sampler> sampler, const std::string &name) = 0;
 
     const ResourceSetSpecification &GetSpecification() const;
     static constexpr uint32_t DescriptorSetCount = 64;

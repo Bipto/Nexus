@@ -108,12 +108,12 @@ void ResourceSetD3D12::WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, cons
     m_BoundUniformBuffers[name] = uniformBuffer;
 }
 
-void ResourceSetD3D12::WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name)
+void ResourceSetD3D12::WriteCombinedImageSampler(Ref<Texture2D> texture, Ref<Sampler> sampler, const std::string &name)
 {
     const auto d3d12Device = m_Device->GetDevice();
     // write texture
     {
-        Ref<TextureD3D12> d3d12Texture = std::dynamic_pointer_cast<TextureD3D12>(texture);
+        Ref<Texture2D_D3D12> d3d12Texture = std::dynamic_pointer_cast<Texture2D_D3D12>(texture);
 
         const BindingInfo &info = m_CombinedImageSamplerBindingInfos.at(name);
         const uint32_t index = GetLinearDescriptorSlot(info.Set, info.Binding);
@@ -122,7 +122,7 @@ void ResourceSetD3D12::WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampl
         srv.Format = d3d12Texture->GetFormat();
         srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
         srv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-        srv.Texture2D.MipLevels = texture->GetTextureSpecification().Levels;
+        srv.Texture2D.MipLevels = texture->GetSpecification().MipLevels;
         srv.Texture2D.MostDetailedMip = 0;
         srv.Texture2D.PlaneSlice = 0;
         srv.Texture2D.ResourceMinLODClamp = 0.0f;
@@ -166,6 +166,10 @@ void ResourceSetD3D12::WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampl
     ciSampler.ImageTexture = texture;
     ciSampler.ImageSampler = sampler;
     m_BoundCombinedImageSamplers[name] = ciSampler;
+}
+
+void ResourceSetD3D12::WriteCombinedImageSampler(Ref<Cubemap> cubemap, Ref<Sampler> sampler, const std::string &name)
+{
 }
 
 ID3D12DescriptorHeap *ResourceSetD3D12::GetSamplerDescriptorHeap()

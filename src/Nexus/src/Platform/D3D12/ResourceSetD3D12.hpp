@@ -13,7 +13,8 @@ class ResourceSetD3D12 : public ResourceSet
   public:
     ResourceSetD3D12(const ResourceSetSpecification &spec, GraphicsDeviceD3D12 *device);
     virtual void WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, const std::string &name) override;
-    virtual void WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name) override;
+    virtual void WriteCombinedImageSampler(Ref<Texture2D> texture, Ref<Sampler> sampler, const std::string &name) override;
+    virtual void WriteCombinedImageSampler(Ref<Cubemap> cubemap, Ref<Sampler> sampler, const std::string &name) override;
 
     ID3D12DescriptorHeap *GetSamplerDescriptorHeap();
     ID3D12DescriptorHeap *GetTextureConstantBufferDescriptorHeap();

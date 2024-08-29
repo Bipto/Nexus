@@ -107,9 +107,14 @@ Ref<ShaderModule> GraphicsDeviceD3D12::CreateShaderModule(const ShaderModuleSpec
     return CreateRef<ShaderModuleD3D12>(moduleSpec, resources);
 }
 
-Ref<Texture> GraphicsDeviceD3D12::CreateTexture(const TextureSpecification &spec)
+Ref<Texture2D> GraphicsDeviceD3D12::CreateTexture2D(const Texture2DSpecification &spec)
 {
-    return CreateRef<TextureD3D12>(this, spec);
+    return CreateRef<Texture2D_D3D12>(this, spec);
+}
+
+Ref<Cubemap> GraphicsDeviceD3D12::CreateCubemap(const CubemapSpecification &spec)
+{
+    return Ref<Cubemap>();
 }
 
 Ref<Pipeline> GraphicsDeviceD3D12::CreatePipeline(const PipelineDescription &description)
@@ -228,7 +233,7 @@ void GraphicsDeviceD3D12::ResourceBarrier(ID3D12GraphicsCommandList7 *cmd, ID3D1
     cmd->ResourceBarrier(1, &barrier);
 }
 
-void GraphicsDeviceD3D12::ResourceBarrier(ID3D12GraphicsCommandList7 *cmd, Ref<TextureD3D12> resource, uint32_t level, D3D12_RESOURCE_STATES after)
+void GraphicsDeviceD3D12::ResourceBarrier(ID3D12GraphicsCommandList7 *cmd, Ref<Texture2D_D3D12> resource, uint32_t level, D3D12_RESOURCE_STATES after)
 {
     ResourceBarrier(cmd, resource->GetD3D12ResourceHandle().Get(), level, resource->GetResourceState(level), after);
     resource->SetResourceState(level, after);

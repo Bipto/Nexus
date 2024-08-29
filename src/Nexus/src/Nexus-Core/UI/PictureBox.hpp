@@ -13,10 +13,10 @@ class PictureBox : public Control
     virtual void OnAutoSize() override;
     virtual void HandleMouseClick(const MouseClick &e) override;
 
-    void SetTexture(Ref<Graphics::Texture> texture);
-    const Ref<Graphics::Texture> GetTexture() const;
+    void SetTexture(Ref<Graphics::Texture2D> texture);
+    const Ref<Graphics::Texture2D> GetTexture() const;
 
   private:
-    Ref<Graphics::Texture> m_Texture = nullptr;
+    Ref<Graphics::Texture2D> m_Texture = nullptr;
 };
 } // namespace Nexus::UI

@@ -26,7 +26,7 @@ class MipmapGenerator
   public:
     MipmapGenerator() = default;
     explicit MipmapGenerator(GraphicsDevice *device);
-    void GenerateMips(Ref<Texture> texture, uint32_t mipCount);
+    void GenerateMips(Ref<Texture2D> texture, uint32_t mipCount);
 
     static uint32_t GetMaximumNumberOfMips(uint32_t width, uint32_t height);
 

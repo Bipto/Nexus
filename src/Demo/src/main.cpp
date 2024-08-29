@@ -7,6 +7,7 @@
 #include "Demos/CameraDemo.hpp"
 #include "Demos/ClearScreenDemo.hpp"
 #include "Demos/ClippingAndTriangulationDemo.hpp"
+#include "Demos/CubemapDemo.hpp"
 #include "Demos/Demo3D.hpp"
 #include "Demos/FramebufferDemo.hpp"
 #include "Demos/HelloTriangle.hpp"
@@ -76,6 +77,7 @@ class DemoApplication : public Nexus::Application
         RegisterGraphicsDemo<Demos::ModelDemo>("Models");
         RegisterGraphicsDemo<Demos::InstancingDemo>("Instancing");
         RegisterGraphicsDemo<Demos::MipmapDemo>("Mipmaps");
+        RegisterGraphicsDemo<Demos::CubemapDemo>("Cubemaps");
         RegisterAudioDemo<Demos::AudioDemo>("Audio");
         RegisterScriptingDemo<Demos::PythonDemo>("Python");
         RegisterUtilsDemo<Demos::ClippingAndTriangulationDemo>("Polygon clipping and triangulation");
@@ -247,7 +249,7 @@ class DemoApplication : public Nexus::Application
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
     Nexus::ApplicationSpecification spec;
-    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
+    spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
     spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
     spec.WindowProperties.Width = 1280;

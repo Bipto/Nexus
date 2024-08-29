@@ -32,9 +32,9 @@ class InstancingDemo : public Demo
         Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
         m_CubeMesh = factory.CreateCube();
 
-        m_DiffuseMap = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/raw_plank_wall_diff_1k.jpg"), true);
-        m_NormalMap = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/raw_plank_wall_normal_1k.jpg"), true);
-        m_SpecularMap = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/raw_plank_wall_spec_1k.jpg"), true);
+        m_DiffuseMap = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/raw_plank_wall_diff_1k.jpg"), true);
+        m_NormalMap = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/raw_plank_wall_normal_1k.jpg"), true);
+        m_SpecularMap = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/raw_plank_wall_spec_1k.jpg"), true);
 
         Nexus::Graphics::BufferDescription cameraUniformBufferDesc;
         cameraUniformBufferDesc.Size = sizeof(VB_UNIFORM_CAMERA_DEMO_INSTANCING);
@@ -164,9 +164,9 @@ class InstancingDemo : public Demo
     Nexus::Ref<Nexus::Graphics::VertexBuffer> m_InstanceBuffer;
 
     Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
-    Nexus::Ref<Nexus::Graphics::Texture> m_DiffuseMap;
-    Nexus::Ref<Nexus::Graphics::Texture> m_NormalMap;
-    Nexus::Ref<Nexus::Graphics::Texture> m_SpecularMap;
+    Nexus::Ref<Nexus::Graphics::Texture2D> m_DiffuseMap;
+    Nexus::Ref<Nexus::Graphics::Texture2D> m_NormalMap;
+    Nexus::Ref<Nexus::Graphics::Texture2D> m_SpecularMap;
     glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
 
     VB_UNIFORM_CAMERA_DEMO_INSTANCING m_CameraUniforms;

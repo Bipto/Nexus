@@ -16,11 +16,12 @@ enum class TextureUsage : uint8_t
     DepthStencil,
     RenderTarget,
     Sampled,
-    Storage
+    Storage,
+    Cubemap
 };
 
 /// @brief A struct that represents a set of values to use to create a texture
-struct TextureSpecification
+struct Texture2DSpecification
 {
     /// @brief An unsigned 32 bit integer representing the width of the texture
     uint32_t Width = 512;
@@ -29,7 +30,10 @@ struct TextureSpecification
     uint32_t Height = 512;
 
     /// @brief An unsigned 32 bit integer representing the number of mips in the texture
-    uint32_t Levels = 1;
+    uint32_t MipLevels = 1;
+
+    /// @brief An unsigned 32 bit integer representing how many array layers to store in the texture
+    uint32_t ArrayLayers = 1;
 
     /// @brief A value representing how many bits will be allocated for the texture
     PixelFormat Format = PixelFormat::R8_G8_B8_A8_UNorm;
@@ -41,38 +45,73 @@ struct TextureSpecification
     SampleCount Samples = SampleCount::SampleCount1;
 };
 
+struct CubemapSpecification
+{
+    uint32_t Width = 512;
+    uint32_t Height = 512;
+    uint32_t MipLevels = 1;
+    PixelFormat Format = PixelFormat::R8_G8_B8_A8_UNorm;
+};
+
 class GraphicsDevice;
 
 /// @brief A pure virtual class that represents an API specific texture
-class Texture
+class Texture2D
 {
   public:
     /// @brief A texture cannot be created without a texture specification
-    Texture() = delete;
+    Texture2D() = delete;
 
     /// @brief A constructor that takes in a texture specification
     /// @param spec The specification to create a texture from
-    Texture(const TextureSpecification &spec, GraphicsDevice *device);
+    Texture2D(const Texture2DSpecification &spec, GraphicsDevice *device);
 
-    virtual ~Texture()
-    {
-    }
+    virtual ~Texture2D();
 
     // virtual void SetData(const void *data, uint32_t size, uint32_t level) = 0;
     virtual void SetData(const void *data, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
 
     virtual std::vector<std::byte> GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
 
-    const TextureSpecification &GetTextureSpecification();
+    const Texture2DSpecification &GetSpecification();
     uint32_t GetLevels() const;
 
   protected:
     /// @brief A specification describing the layout of the texture
-    TextureSpecification m_Specification{};
+    Texture2DSpecification m_Specification{};
 
   private:
     GraphicsDevice *m_Device = nullptr;
-
-    friend class CommandExecutor;
 };
+
+enum class CubemapFace
+{
+    PositiveX = 0,
+    NegativeX = 1,
+    PositiveY = 2,
+    NegativeY = 3,
+    PositiveZ = 4,
+    NegativeZ = 5
+};
+
+class Cubemap
+{
+  public:
+    Cubemap() = delete;
+    Cubemap(const CubemapSpecification &spec, GraphicsDevice *device);
+    virtual ~Cubemap();
+
+    virtual void SetData(const void *data, CubemapFace face, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
+    virtual std::vector<std::byte> GetData(CubemapFace face, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
+
+    const CubemapSpecification &GetSpecification() const;
+    uint32_t GetLevels() const;
+
+  protected:
+    CubemapSpecification m_Specification{};
+
+  private:
+    GraphicsDevice *m_Device = nullptr;
+};
+
 } // namespace Nexus::Graphics

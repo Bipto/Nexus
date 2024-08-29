@@ -339,7 +339,7 @@ void SwapchainD3D12::Resolve()
         return;
     }
 
-    Ref<TextureD3D12> framebufferTexture = std::dynamic_pointer_cast<TextureD3D12>(m_MultisampledFramebuffer->GetColorTexture());
+    Ref<Texture2D_D3D12> framebufferTexture = std::dynamic_pointer_cast<Texture2D_D3D12>(m_MultisampledFramebuffer->GetColorTexture());
 
     DXGI_FORMAT format = D3D12::GetD3D12PixelFormat(Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm, false);
     D3D12_RESOURCE_STATES framebufferState = framebufferTexture->GetResourceState(0);

@@ -155,6 +155,14 @@ if(WIN32 OR ANDROID OR LINUX)
 target_link_libraries(Nexus PUBLIC OpenAL)
 endif()
 
+macro (nexus_copy_resources)
+  #copy engine resources to output
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${Nexus_SOURCE_DIR}/engine-resources
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/engine-resources)
+endmacro()
+
 macro(nexus_copy_required_binaries)
   if (WIN32)
     get_target_property(Nexus_SOURCE_DIR Nexus SOURCE_DIR)

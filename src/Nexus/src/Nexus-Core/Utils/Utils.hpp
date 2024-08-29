@@ -75,4 +75,10 @@ template <typename T> T GetItem(std::span<T> collection, int index)
         return collection[index];
     }
 }
+
+template <typename T> inline bool Contains(std::vector<T> items, T toFind)
+{
+    return std::find(items.begin(), items.end(), toFind) != items.end();
+}
+
 } // namespace Nexus::Utils

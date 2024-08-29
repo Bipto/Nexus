@@ -59,12 +59,12 @@ void FramebufferOpenGL::SetFramebufferSpecification(const FramebufferSpecificati
     Recreate();
 }
 
-Ref<Texture> FramebufferOpenGL::GetColorTexture(uint32_t index)
+Ref<Texture2D> FramebufferOpenGL::GetColorTexture(uint32_t index)
 {
     return m_ColorAttachments.at(index);
 }
 
-Ref<Texture> FramebufferOpenGL::GetDepthTexture()
+Ref<Texture2D> FramebufferOpenGL::GetDepthTexture()
 {
     return m_DepthAttachment;
 }
@@ -82,31 +82,31 @@ void FramebufferOpenGL::CreateTextures()
             NX_ASSERT(0, "Pixel format cannot be PixelFormat::None for a color attachment");
         }
 
-        Nexus::Graphics::TextureSpecification spec;
+        Nexus::Graphics::Texture2DSpecification spec;
         spec.Width = m_Specification.Width;
         spec.Height = m_Specification.Height;
         spec.Format = colorAttachmentSpec.TextureFormat;
         spec.Samples = m_Specification.Samples;
         spec.Usage = {TextureUsage::Sampled, TextureUsage::RenderTarget};
-        auto texture = std::dynamic_pointer_cast<TextureOpenGL>(m_Device->CreateTexture(spec));
+        auto texture = std::dynamic_pointer_cast<Texture2DOpenGL>(m_Device->CreateTexture2D(spec));
         m_ColorAttachments.push_back(texture);
 
-        glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, texture->GetNativeHandle(), 0));
+        glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, texture->GetHandle(), 0));
     }
 
     if (m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::None)
     {
-        Nexus::Graphics::TextureSpecification spec;
+        Nexus::Graphics::Texture2DSpecification spec;
         spec.Width = m_Specification.Width;
         spec.Height = m_Specification.Height;
         spec.Format = m_Specification.DepthAttachmentSpecification.DepthFormat;
         spec.Samples = m_Specification.Samples;
         spec.Usage = {TextureUsage::DepthStencil};
-        m_DepthAttachment = m_Device->CreateTexture(spec);
+        m_DepthAttachment = m_Device->CreateTexture2D(spec);
 
-        auto glTexture = std::dynamic_pointer_cast<TextureOpenGL>(m_DepthAttachment);
+        auto glTexture = std::dynamic_pointer_cast<Texture2DOpenGL>(m_DepthAttachment);
 
-        glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, glTexture->GetNativeHandle(), 0));
+        glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, glTexture->GetHandle(), 0));
     }
 }
 

@@ -5,7 +5,7 @@
 
 namespace Nexus::Graphics
 {
-TextureVk::TextureVk(GraphicsDeviceVk *graphicsDevice, const TextureSpecification &spec) : Texture(spec, graphicsDevice), m_GraphicsDevice(graphicsDevice)
+Texture2D_Vk::Texture2D_Vk(GraphicsDeviceVk *graphicsDevice, const Texture2DSpecification &spec) : Texture2D(spec, graphicsDevice), m_GraphicsDevice(graphicsDevice)
 {
     uint32_t numChannels = GetPixelFormatNumberOfChannels(m_Specification.Format);
 
@@ -27,7 +27,7 @@ TextureVk::TextureVk(GraphicsDeviceVk *graphicsDevice, const TextureSpecificatio
     imageInfo.imageType = VK_IMAGE_TYPE_2D;
     imageInfo.format = m_Format;
     imageInfo.extent = imageExtent;
-    imageInfo.mipLevels = m_Specification.Levels;
+    imageInfo.mipLevels = m_Specification.MipLevels;
     imageInfo.arrayLayers = 1;
     imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
     imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
@@ -48,7 +48,7 @@ TextureVk::TextureVk(GraphicsDeviceVk *graphicsDevice, const TextureSpecificatio
     createInfo.image = m_Image;
     createInfo.format = m_Format;
     createInfo.subresourceRange.baseMipLevel = 0;
-    createInfo.subresourceRange.levelCount = m_Specification.Levels;
+    createInfo.subresourceRange.levelCount = m_Specification.MipLevels;
     createInfo.subresourceRange.baseArrayLayer = 0;
     createInfo.subresourceRange.layerCount = 1;
 
@@ -75,19 +75,19 @@ TextureVk::TextureVk(GraphicsDeviceVk *graphicsDevice, const TextureSpecificatio
     {
         aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
     }
-    for (size_t i = 0; i < spec.Levels; i++)
+    for (size_t i = 0; i < spec.MipLevels; i++)
     {
         m_Layouts.push_back(VK_IMAGE_LAYOUT_UNDEFINED);
     }
 }
 
-TextureVk::~TextureVk()
+Texture2D_Vk::~Texture2D_Vk()
 {
     vkDestroyImageView(m_GraphicsDevice->GetVkDevice(), m_ImageView, nullptr);
     vmaDestroyImage(m_GraphicsDevice->GetAllocator(), m_Image, m_Allocation);
 }
 
-void TextureVk::SetData(const void *data, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+void Texture2D_Vk::SetData(const void *data, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 {
     uint32_t numChannels = GetPixelFormatNumberOfChannels(m_Specification.Format);
     VkDeviceSize imageSize = width * height * GetPixelFormatSizeInBytes(m_Specification.Format);
@@ -125,7 +125,7 @@ void TextureVk::SetData(const void *data, uint32_t level, uint32_t x, uint32_t y
     }
 }
 
-std::vector<std::byte> TextureVk::GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+std::vector<std::byte> Texture2D_Vk::GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 {
     uint32_t offset = x * y * GetPixelFormatSizeInBytes(m_Specification.Format);
     VkDeviceSize size = width * height * GetPixelFormatSizeInBytes(m_Specification.Format);
@@ -168,22 +168,22 @@ std::vector<std::byte> TextureVk::GetData(uint32_t level, uint32_t x, uint32_t y
     return pixels;
 }
 
-VkImage TextureVk::GetImage()
+VkImage Texture2D_Vk::GetImage()
 {
     return m_Image;
 }
 
-VkImageView TextureVk::GetImageView()
+VkImageView Texture2D_Vk::GetImageView()
 {
     return m_ImageView;
 }
 
-VkImageLayout TextureVk::GetImageLayout(uint32_t level)
+VkImageLayout Texture2D_Vk::GetImageLayout(uint32_t level)
 {
     return m_Layouts.at(level);
 }
 
-void TextureVk::SetImageLayout(uint32_t level, VkImageLayout layout)
+void Texture2D_Vk::SetImageLayout(uint32_t level, VkImageLayout layout)
 {
     m_Layouts[level] = layout;
 }

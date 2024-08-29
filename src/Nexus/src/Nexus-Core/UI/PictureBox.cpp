@@ -99,7 +99,7 @@ void PictureBox::OnAutoSize()
 {
     if (m_Texture)
     {
-        const Point2D<uint32_t> textureSize = {m_Texture->GetTextureSpecification().Width, m_Texture->GetTextureSpecification().Height};
+        const Point2D<uint32_t> textureSize = {m_Texture->GetSpecification().Width, m_Texture->GetSpecification().Height};
 
         m_Size = textureSize.To<float>();
     }
@@ -109,12 +109,12 @@ void PictureBox::HandleMouseClick(const MouseClick &e)
 {
 }
 
-void PictureBox::SetTexture(Ref<Graphics::Texture> texture)
+void PictureBox::SetTexture(Ref<Graphics::Texture2D> texture)
 {
     m_Texture = texture;
 }
 
-const Ref<Graphics::Texture> PictureBox::GetTexture() const
+const Ref<Graphics::Texture2D> PictureBox::GetTexture() const
 {
     return m_Texture;
 }

@@ -29,7 +29,7 @@ GLenum GetBlendFactor(Nexus::Graphics::BlendFactor function);
 GLenum GetBlendFunction(Nexus::Graphics::BlendEquation equation);
 
 GLenum GetSamplerAddressMode(Nexus::Graphics::SamplerAddressMode addressMode);
-void GetSamplerFilter(Nexus::Graphics::SamplerFilter filter, GLenum &min, GLenum &max);
+void GetSamplerFilter(Nexus::Graphics::SamplerFilter filter, GLenum &min, GLenum &max, bool hasMips);
 GLenum GetPixelType(Nexus::Graphics::PixelFormat format);
 GLenum GetPixelDataFormat(Nexus::Graphics::PixelFormat format);
 GLenum GetSizedInternalFormat(Nexus::Graphics::PixelFormat format, bool depthFormat);
@@ -38,6 +38,7 @@ GLenum GetGLIndexBufferFormat(Nexus::Graphics::IndexBufferFormat format);
 GLenum GetTopology(Nexus::Graphics::Topology topology);
 
 GLenum GetShaderStage(Nexus::Graphics::ShaderStage stage);
+GLenum GLCubemapFace(Nexus::Graphics::CubemapFace face);
 
 void GetBaseType(const Graphics::VertexBufferElement &element, GLenum &baseType, uint32_t &componentCount, GLboolean &normalized);
 } // namespace Nexus::GL

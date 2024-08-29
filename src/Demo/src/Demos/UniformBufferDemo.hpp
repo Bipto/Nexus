@@ -28,7 +28,7 @@ class UniformBufferDemo : public Demo
         Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
         m_Mesh = factory.CreateSprite();
 
-        m_Texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), false);
+        m_Texture = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), false);
 
         Nexus::Graphics::SamplerSpecification samplerSpec{};
         m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
@@ -111,7 +111,7 @@ class UniformBufferDemo : public Demo
   private:
     Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
     Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
-    Nexus::Ref<Nexus::Graphics::Texture> m_Texture;
+    Nexus::Ref<Nexus::Graphics::Texture2D> m_Texture;
     Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
     Nexus::Ref<Nexus::Graphics::Mesh> m_Mesh;
     Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler;

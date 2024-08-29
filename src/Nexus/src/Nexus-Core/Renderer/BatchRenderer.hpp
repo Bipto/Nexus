@@ -43,7 +43,7 @@ struct BatchInfo
 
     std::vector<Nexus::Graphics::VertexPositionTexCoordColorTexIndex> Vertices;
     std::vector<uint32_t> Indices;
-    std::vector<Nexus::Ref<Nexus::Graphics::Texture>> Textures;
+    std::vector<Nexus::Ref<Nexus::Graphics::Texture2D>> Textures;
 
     uint32_t ShapeCount = 0;
     uint32_t VertexCount = 0;
@@ -62,11 +62,11 @@ class BatchRenderer
 
     void Begin(Viewport viewport, Scissor scissor);
     void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color);
-    void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture> texture);
-    void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture> texture, float tilingFactor);
+    void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture2D> texture);
+    void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture2D> texture, float tilingFactor);
     void DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color);
-    void DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<Texture> texture);
-    void DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<Texture> texture, float tilingFactor);
+    void DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<Texture2D> texture);
+    void DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<Texture2D> texture, float tilingFactor);
     void DrawQuad(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, float thickness);
     void DrawQuad(const Rectangle<float> &rectangle, const glm::vec4 &color, float thickness);
     void DrawCharacter(char character, const glm::vec2 &position, const glm::vec2 &size, const glm::vec4 &color, Font *font);
@@ -76,26 +76,26 @@ class BatchRenderer
     void DrawCircle(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints, float thickness);
     void DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints);
     void DrawCircleRegionFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, float startAngle, float fillAngle);
-    void DrawCircleRegionFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, float startAngle, float fillAngle, Ref<Texture> texture);
-    void DrawCircleRegionFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, float startAngle, float fillAngle, Ref<Texture> texture,
+    void DrawCircleRegionFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, float startAngle, float fillAngle, Ref<Texture2D> texture);
+    void DrawCircleRegionFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, float startAngle, float fillAngle, Ref<Texture2D> texture,
                               float tilingFactor);
-    void DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture> texture);
+    void DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture2D> texture);
     void DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints);
-    void DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture> texture);
-    void DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture> texture, float tilingFactor);
+    void DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture2D> texture);
+    void DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture2D> texture, float tilingFactor);
     void DrawCross(const Rectangle<float> &rectangle, float thickness, const glm::vec4 &color);
     void DrawTriangle(const glm::vec3 &pos0, const glm::vec2 &uv0, const glm::vec3 &pos1, const glm::vec2 &uv1, const glm::vec3 &pos2, const glm::vec2 &uv2,
                       const glm::vec4 &color);
     void DrawTriangle(const glm::vec3 &pos0, const glm::vec2 &uv0, const glm::vec3 &pos1, const glm::vec2 &uv1, const glm::vec3 &pos2, const glm::vec2 &uv2, const glm::vec4 &color,
-                      Ref<Texture> texture);
+                      Ref<Texture2D> texture);
     void DrawTriangle(const Graphics::Triangle2D &tri, const glm::vec4 &color);
     void DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color);
-    void DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color, Ref<Texture> texture);
-    void DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color, Ref<Texture> texture, float tilingFactor);
+    void DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color, Ref<Texture2D> texture);
+    void DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color, Ref<Texture2D> texture, float tilingFactor);
     void DrawRoundedRectangle(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, float thickness);
     void DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color);
-    void DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, Ref<Texture> texture);
-    void DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, Ref<Texture> texture, float tilingFactor);
+    void DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, Ref<Texture2D> texture);
+    void DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, Ref<Texture2D> texture, float tilingFactor);
     void End();
 
   private:
@@ -110,7 +110,7 @@ class BatchRenderer
     Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler = nullptr;
     bool m_IsStarted = false;
 
-    Nexus::Ref<Nexus::Graphics::Texture> m_BlankTexture = nullptr;
+    Nexus::Ref<Nexus::Graphics::Texture2D> m_BlankTexture = nullptr;
     Nexus::Ref<Nexus::Graphics::UniformBuffer> m_UniformBuffer = nullptr;
 
     uint32_t m_Width = 0;

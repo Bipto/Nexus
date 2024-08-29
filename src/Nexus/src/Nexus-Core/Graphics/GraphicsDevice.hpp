@@ -97,17 +97,19 @@ class GraphicsDevice
     /// @brief A pure virtual method that creates a new texture from a given specification
     /// @param spec The properties to use when creating the texture
     /// @return A pointer to a texture
-    virtual Ref<Texture> CreateTexture(const TextureSpecification &spec) = 0;
+    virtual Ref<Texture2D> CreateTexture2D(const Texture2DSpecification &spec) = 0;
 
     /// @brief A method that loads a new texture from a image stored on disk
     /// @param filepath The filepath to load the image from
     /// @return A pointer to a texture
-    Ref<Texture> CreateTexture(const char *filepath, bool generateMips);
+    Ref<Texture2D> CreateTexture2D(const char *filepath, bool generateMips);
 
     /// @brief A method that loads a new texture from an image stored on disk
     /// @param filepath The filepath to load the image from
     /// @return A pointer to a texture
-    Ref<Texture> CreateTexture(const std::string &filepath, bool generateMips);
+    Ref<Texture2D> CreateTexture2D(const std::string &filepath, bool generateMips);
+
+    virtual Ref<Cubemap> CreateCubemap(const CubemapSpecification &spec) = 0;
 
     virtual Ref<Framebuffer> CreateFramebuffer(const FramebufferSpecification &spec) = 0;
 

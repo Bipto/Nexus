@@ -104,9 +104,14 @@ Ref<ShaderModule> GraphicsDeviceVk::CreateShaderModule(const ShaderModuleSpecifi
     return CreateRef<ShaderModuleVk>(moduleSpec, resources, this);
 }
 
-Ref<Texture> GraphicsDeviceVk::CreateTexture(const TextureSpecification &spec)
+Ref<Texture2D> GraphicsDeviceVk::CreateTexture2D(const Texture2DSpecification &spec)
 {
-    return CreateRef<TextureVk>(this, spec);
+    return CreateRef<Texture2D_Vk>(this, spec);
+}
+
+Ref<Cubemap> GraphicsDeviceVk::CreateCubemap(const CubemapSpecification &spec)
+{
+    return Ref<Cubemap>();
 }
 
 Ref<Pipeline> GraphicsDeviceVk::CreatePipeline(const PipelineDescription &description)

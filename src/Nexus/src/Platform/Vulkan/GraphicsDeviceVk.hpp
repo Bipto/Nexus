@@ -35,7 +35,8 @@ class GraphicsDeviceVk : public GraphicsDevice
     virtual const std::string GetAPIName() override;
     virtual const char *GetDeviceName() override;
 
-    virtual Ref<Texture> CreateTexture(const TextureSpecification &spec) override;
+    virtual Ref<Texture2D> CreateTexture2D(const Texture2DSpecification &spec) override;
+    virtual Ref<Cubemap> CreateCubemap(const CubemapSpecification &spec) override;
     virtual Ref<Pipeline> CreatePipeline(const PipelineDescription &description) override;
     virtual Ref<CommandList> CreateCommandList(const CommandListSpecification &spec = {});
     virtual Ref<VertexBuffer> CreateVertexBuffer(const BufferDescription &description, const void *data) override;

@@ -34,7 +34,7 @@ class Sandbox : public Nexus::Application
         std::vector<Nexus::Graphics::CharacterRange> fontRange = {{0x0020, 0x00FF}};
 
         m_Font = new Nexus::Graphics::Font("resources/Fonts/JETBRAINSMONO-REGULAR.TTF", 18, fontRange, Nexus::Graphics::FontType::Bitmap, m_GraphicsDevice);
-        Nexus::Ref<Nexus::Graphics::Texture> texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), false);
+        Nexus::Ref<Nexus::Graphics::Texture2D> texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), false);
 
         Nexus::UI::Label *lbl = new Nexus::UI::Label();
         lbl->SetFont(m_Font);
@@ -126,7 +126,7 @@ class Sandbox : public Nexus::Application
     std::unique_ptr<Nexus::UI::Canvas> m_Canvas = nullptr;
     Nexus::Graphics::Font *m_Font = nullptr;
 
-    Nexus::Ref<Nexus::Graphics::Texture> m_Texture = nullptr;
+    Nexus::Ref<Nexus::Graphics::Texture2D> m_Texture = nullptr;
     Nexus::Graphics::BatchRenderer *m_BatchRenderer = nullptr;
 
     Nexus::Graphics::RoundedRectangle rrect;

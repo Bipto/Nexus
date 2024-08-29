@@ -94,7 +94,7 @@ class Font
 {
   public:
     Font(const std::string &filepath, uint32_t size, const std::vector<CharacterRange> &characterRanges, FontType type, GraphicsDevice *device);
-    Nexus::Ref<Nexus::Graphics::Texture> GetTexture();
+    Nexus::Ref<Nexus::Graphics::Texture2D> GetTexture();
     const Character &GetCharacter(char character);
     uint32_t GetSize() const;
     Nexus::Point2D<float> MeasureString(const std::string &text, uint32_t size);
@@ -103,7 +103,7 @@ class Font
     const FontType GetFontType() const;
 
   private:
-    Nexus::Ref<Nexus::Graphics::Texture> m_Texture = nullptr;
+    Nexus::Ref<Nexus::Graphics::Texture2D> m_Texture = nullptr;
     std::vector<CharacterRange> m_CharacterRanges;
     std::map<char, Character> m_Characters;
     uint32_t m_TextureWidth = 0;

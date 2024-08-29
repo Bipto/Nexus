@@ -34,7 +34,7 @@ class Demo3D : public Demo
         m_CommandList = m_GraphicsDevice->CreateCommandList();
         Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
         m_Mesh = factory.CreateCube();
-        m_Texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/raw_plank_wall_diff_1k.jpg").c_str(), true);
+        m_Texture = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/raw_plank_wall_diff_1k.jpg").c_str(), true);
 
         Nexus::Graphics::BufferDescription cameraUniformBufferDesc;
         cameraUniformBufferDesc.Size = sizeof(VB_UNIFORM_CAMERA_DEMO_3D);
@@ -129,7 +129,7 @@ class Demo3D : public Demo
     Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
     Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
     Nexus::Ref<Nexus::Graphics::Mesh> m_Mesh;
-    Nexus::Ref<Nexus::Graphics::Texture> m_Texture;
+    Nexus::Ref<Nexus::Graphics::Texture2D> m_Texture;
     Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler;
     glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
 

@@ -22,19 +22,6 @@ ResourceSet::ResourceSet(const ResourceSetSpecification &spec) : m_Specification
     }
 }
 
-void ResourceSet::WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, const std::string &name)
-{
-    m_BoundUniformBuffers[name] = uniformBuffer;
-}
-
-void ResourceSet::WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name)
-{
-    CombinedImageSampler ciSampler{};
-    ciSampler.ImageTexture = texture;
-    ciSampler.ImageSampler = sampler;
-    m_BoundCombinedImageSamplers[name] = ciSampler;
-}
-
 const ResourceSetSpecification &ResourceSet::GetSpecification() const
 {
     return m_Specification;

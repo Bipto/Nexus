@@ -122,11 +122,11 @@ class Framebuffer
     /// @brief A pure virtual method to retrieve a color texture from the framebuffer at the specified index
     /// @param index The index of the texture to retrieve
     /// @return A pointer to a texture object
-    virtual Ref<Texture> GetColorTexture(uint32_t index = 0) = 0;
+    virtual Ref<Texture2D> GetColorTexture(uint32_t index = 0) = 0;
 
     /// @brief A pure virtual method to retrieve the depth texture from the framebuffer
     /// @return A pointer to a texture object
-    virtual Ref<Texture> GetDepthTexture() = 0;
+    virtual Ref<Texture2D> GetDepthTexture() = 0;
 
   protected:
     /// @brief An object containing the specification of a framebuffer

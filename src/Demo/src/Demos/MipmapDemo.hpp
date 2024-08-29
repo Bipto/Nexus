@@ -26,7 +26,7 @@ class MipmapDemo : public Demo
         Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
         m_Mesh = factory.CreateSprite();
 
-        m_Texture = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), true);
+        m_Texture = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), true);
         m_TextureID = m_ImGuiRenderer->BindTexture(m_Texture);
     }
 
@@ -74,7 +74,7 @@ class MipmapDemo : public Demo
     virtual void RenderUI() override
     {
         ImGui::Image(m_TextureID, {256, 256});
-        ImGui::DragInt("Mip", &m_SelectedMip, 1.0f, 0, m_Texture->GetTextureSpecification().Levels);
+        ImGui::DragInt("Mip", &m_SelectedMip, 1.0f, 0, m_Texture->GetSpecification().MipLevels);
     }
 
   private:
@@ -101,7 +101,7 @@ class MipmapDemo : public Demo
     Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline = nullptr;
     Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet = nullptr;
     Nexus::Ref<Nexus::Graphics::Mesh> m_Mesh = nullptr;
-    Nexus::Ref<Nexus::Graphics::Texture> m_Texture = nullptr;
+    Nexus::Ref<Nexus::Graphics::Texture2D> m_Texture = nullptr;
     glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
 
     ImTextureID m_TextureID = 0;

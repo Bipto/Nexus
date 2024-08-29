@@ -14,9 +14,12 @@ class SamplerOpenGL : public Sampler
     virtual const SamplerSpecification &GetSamplerSpecification() override;
     unsigned int GetHandle() const;
 
+    void Bind(uint32_t slot, bool hasMips);
+    void Setup(bool hasMips);
+
   private:
     SamplerSpecification m_Specification;
-    unsigned int m_Sampler = 0;
+    unsigned int m_Handle = 0;
 };
 } // namespace Nexus::Graphics
 

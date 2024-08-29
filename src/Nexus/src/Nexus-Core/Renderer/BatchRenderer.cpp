@@ -406,7 +406,7 @@ Nexus::Graphics::ResourceSetSpecification GetResourceSetSpecification()
 const uint32_t MAX_VERTEX_COUNT = 1024;
 const uint32_t MAX_TEXTURE_COUNT = 16;
 
-bool FindTextureInBatch(BatchInfo &info, Ref<Texture> texture, uint32_t &index)
+bool FindTextureInBatch(BatchInfo &info, Ref<Texture2D> texture, uint32_t &index)
 {
     for (uint32_t i = 0; i < info.Textures.size(); i++)
     {
@@ -419,7 +419,7 @@ bool FindTextureInBatch(BatchInfo &info, Ref<Texture> texture, uint32_t &index)
     return false;
 }
 
-float GetOrCreateTexIndex(BatchInfo &info, Nexus::Ref<Nexus::Graphics::Texture> texture)
+float GetOrCreateTexIndex(BatchInfo &info, Nexus::Ref<Nexus::Graphics::Texture2D> texture)
 {
     uint32_t index = 0;
     if (FindTextureInBatch(info, texture, index))
@@ -434,13 +434,13 @@ float GetOrCreateTexIndex(BatchInfo &info, Nexus::Ref<Nexus::Graphics::Texture> 
     }
 }
 
-void FlushTextures(BatchInfo &info, Nexus::Ref<Nexus::Graphics::Texture> blankTexture)
+void FlushTextures(BatchInfo &info, Nexus::Ref<Nexus::Graphics::Texture2D> blankTexture)
 {
     info.Textures.clear();
     info.Textures.push_back(blankTexture);
 }
 
-void ResetBatcher(BatchInfo &info, Nexus::Ref<Nexus::Graphics::Texture> blankTexture)
+void ResetBatcher(BatchInfo &info, Nexus::Ref<Nexus::Graphics::Texture2D> blankTexture)
 {
     info.Vertices.clear();
     info.Indices.clear();
@@ -491,11 +491,11 @@ BatchRenderer::BatchRenderer(Nexus::Graphics::GraphicsDevice *device, Nexus::Gra
 {
     uint32_t textureData = 0xFFFFFFFF;
 
-    Nexus::Graphics::TextureSpecification textureSpec;
+    Nexus::Graphics::Texture2DSpecification textureSpec;
     textureSpec.Width = 1;
     textureSpec.Height = 1;
     textureSpec.Format = PixelFormat::R8_G8_B8_A8_UNorm;
-    m_BlankTexture = m_Device->CreateTexture(textureSpec);
+    m_BlankTexture = m_Device->CreateTexture2D(textureSpec);
     m_BlankTexture->SetData(&textureData, 0, 0, 0, 1, 1);
 
     Nexus::Ref<Nexus::Graphics::ShaderModule> vertexModule =
@@ -552,12 +552,12 @@ void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, con
     DrawQuadFill(min, max, color, m_BlankTexture);
 }
 
-void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture> texture)
+void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture2D> texture)
 {
     DrawQuadFill(min, max, color, texture, 1.0f);
 }
 
-void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture> texture, float tilingFactor)
+void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture2D> texture, float tilingFactor)
 {
     const float texIndex = GetOrCreateTexIndex(m_TextureBatchInfo, texture);
 
@@ -617,12 +617,12 @@ void BatchRenderer::DrawQuadFill(const Rectangle<float> &rectangle, const glm::v
     DrawQuadFill(rectangle, color, m_BlankTexture);
 }
 
-void BatchRenderer::DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<Texture> texture)
+void BatchRenderer::DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<Texture2D> texture)
 {
     DrawQuadFill(rectangle, color, texture, 1.0f);
 }
 
-void BatchRenderer::DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<Texture> texture, float tilingFactor)
+void BatchRenderer::DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<Texture2D> texture, float tilingFactor)
 {
     glm::vec2 min = {(float)rectangle.GetLeft(), (float)rectangle.GetTop()};
     glm::vec2 max = {(float)rectangle.GetRight(), (float)rectangle.GetBottom()};
@@ -865,13 +865,13 @@ void BatchRenderer::DrawCircleRegionFill(const glm::vec2 &position, float radius
 }
 
 void BatchRenderer::DrawCircleRegionFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, float startAngle, float fillAngle,
-                                         Ref<Texture> texture)
+                                         Ref<Texture2D> texture)
 {
     DrawCircleRegionFill(position, radius, color, numberOfPoints, startAngle, fillAngle, texture, 1.0f);
 }
 
 void BatchRenderer::DrawCircleRegionFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, float startAngle, float fillAngle,
-                                         Ref<Texture> texture, float tilingFactor)
+                                         Ref<Texture2D> texture, float tilingFactor)
 {
     const uint32_t minPoints = 3;
     const uint32_t maxPoints = 256;
@@ -906,7 +906,7 @@ void BatchRenderer::DrawCircleRegionFill(const glm::vec2 &position, float radius
     }
 }
 
-void BatchRenderer::DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture> texture)
+void BatchRenderer::DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture2D> texture)
 {
     DrawCircleRegionFill(position, radius, color, numberOfPoints, 0.0f, 360.0f, texture);
 }
@@ -916,13 +916,13 @@ void BatchRenderer::DrawCircleFill(const Circle<float> &circle, const glm::vec4 
     DrawCircleFill(circle, color, numberOfPoints, m_BlankTexture);
 }
 
-void BatchRenderer::DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture> texture)
+void BatchRenderer::DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture2D> texture)
 {
     const auto &pos = circle.GetPosition();
     DrawCircleFill({pos.X, pos.Y}, circle.GetRadius(), color, numberOfPoints, texture);
 }
 
-void BatchRenderer::DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture> texture, float tilingFactor)
+void BatchRenderer::DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture2D> texture, float tilingFactor)
 {
     DrawCircleRegionFill({circle.GetPosition().X, circle.GetPosition().Y}, circle.GetRadius(), color, numberOfPoints, 0.0f, 360.0f, texture, tilingFactor);
 }
@@ -945,7 +945,7 @@ void BatchRenderer::DrawTriangle(const glm::vec3 &pos0, const glm::vec2 &uv0, co
 }
 
 void BatchRenderer::DrawTriangle(const glm::vec3 &pos0, const glm::vec2 &uv0, const glm::vec3 &pos1, const glm::vec2 &uv1, const glm::vec3 &pos2, const glm::vec2 &uv2,
-                                 const glm::vec4 &color, Ref<Texture> texture)
+                                 const glm::vec4 &color, Ref<Texture2D> texture)
 {
     float texIndex = GetOrCreateTexIndex(m_TextureBatchInfo, texture);
 
@@ -995,12 +995,12 @@ void BatchRenderer::DrawPolygonFill(const Polygon &polygon, const glm::vec4 &col
     DrawPolygonFill(polygon, color, m_BlankTexture);
 }
 
-void BatchRenderer::DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color, Ref<Texture> texture)
+void BatchRenderer::DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color, Ref<Texture2D> texture)
 {
     DrawPolygonFill(polygon, color, m_BlankTexture, 1.0f);
 }
 
-void BatchRenderer::DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color, Ref<Texture> texture, float tilingFactor)
+void BatchRenderer::DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color, Ref<Texture2D> texture, float tilingFactor)
 {
     const auto &boundingRectangle = polygon.GetBoundingRectangle();
     const std::vector<Triangle2D> &tris = polygon.GetTriangles();
@@ -1042,12 +1042,12 @@ void BatchRenderer::DrawRoundedRectangleFill(const RoundedRectangle &roundedRect
     DrawRoundedRectangleFill(roundedRectangle, color, m_BlankTexture);
 }
 
-void BatchRenderer::DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, Ref<Texture> texture)
+void BatchRenderer::DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, Ref<Texture2D> texture)
 {
     DrawRoundedRectangleFill(roundedRectangle, color, texture, 1.0f);
 }
 
-void BatchRenderer::DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, Ref<Texture> texture, float tilingFactor)
+void BatchRenderer::DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, Ref<Texture2D> texture, float tilingFactor)
 {
     const Polygon &poly = roundedRectangle.CreatePolygon();
     DrawPolygonFill(poly, color, texture, tilingFactor);

@@ -32,22 +32,22 @@ VkFramebuffer FramebufferVk::GetVkFramebuffer()
     return m_Framebuffer;
 }
 
-Ref<Texture> FramebufferVk::GetColorTexture(uint32_t index)
+Ref<Texture2D> FramebufferVk::GetColorTexture(uint32_t index)
 {
     return m_ColorAttachments.at(index);
 }
 
-Ref<Texture> FramebufferVk::GetDepthTexture()
+Ref<Texture2D> FramebufferVk::GetDepthTexture()
 {
     return m_DepthAttachment;
 }
 
-Ref<TextureVk> FramebufferVk::GetVulkanColorTexture(uint32_t index)
+Ref<Texture2D_Vk> FramebufferVk::GetVulkanColorTexture(uint32_t index)
 {
     return m_ColorAttachments.at(index);
 }
 
-Ref<TextureVk> FramebufferVk::GetVulkanDepthTexture()
+Ref<Texture2D_Vk> FramebufferVk::GetVulkanDepthTexture()
 {
     return m_DepthAttachment;
 }
@@ -78,13 +78,13 @@ void FramebufferVk::CreateColorTargets()
             NX_ASSERT(0, "Pixel format cannot be PixelFormat::None for a color attachment");
         }
 
-        Nexus::Graphics::TextureSpecification spec;
+        Nexus::Graphics::Texture2DSpecification spec;
         spec.Width = m_Specification.Width;
         spec.Height = m_Specification.Height;
         spec.Format = colorAttachmentSpec.TextureFormat;
         spec.Samples = m_Specification.Samples;
         spec.Usage = {TextureUsage::Sampled, TextureUsage::RenderTarget};
-        auto texture = std::dynamic_pointer_cast<TextureVk>(m_Device->CreateTexture(spec));
+        auto texture = std::dynamic_pointer_cast<Texture2D_Vk>(m_Device->CreateTexture2D(spec));
         m_ColorAttachments.push_back(texture);
     }
 }
@@ -94,13 +94,13 @@ void FramebufferVk::CreateDepthTargets()
     // the specification does not contain a depth attachment, so we do not create one
     if (m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::None)
     {
-        Nexus::Graphics::TextureSpecification spec;
+        Nexus::Graphics::Texture2DSpecification spec;
         spec.Width = m_Specification.Width;
         spec.Height = m_Specification.Height;
         spec.Format = m_Specification.DepthAttachmentSpecification.DepthFormat;
         spec.Samples = m_Specification.Samples;
         spec.Usage = {TextureUsage::DepthStencil, TextureUsage::RenderTarget};
-        m_DepthAttachment = std::dynamic_pointer_cast<TextureVk>(m_Device->CreateTexture(spec));
+        m_DepthAttachment = std::dynamic_pointer_cast<Texture2D_Vk>(m_Device->CreateTexture2D(spec));
     }
 }
 

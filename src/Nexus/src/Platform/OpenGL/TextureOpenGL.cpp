@@ -1,14 +1,17 @@
 #if defined(NX_PLATFORM_OPENGL)
 
 #include "TextureOpenGL.hpp"
+#include "Nexus-Core/Utils/Utils.hpp"
+
+#include "GL.hpp"
 
 namespace Nexus::Graphics
 {
-TextureOpenGL::TextureOpenGL(const TextureSpecification &spec, GraphicsDevice *graphicsDevice) : Texture(spec, graphicsDevice)
+Texture2DOpenGL::Texture2DOpenGL(const Texture2DSpecification &spec, GraphicsDevice *graphicsDevice) : Texture2D(spec, graphicsDevice)
 {
     bool isDepth = false;
 
-    if (std::find(spec.Usage.begin(), spec.Usage.end(), Nexus::Graphics::TextureUsage::DepthStencil) != spec.Usage.end())
+    if (Utils::Contains(spec.Usage, TextureUsage::DepthStencil))
     {
         isDepth = true;
     }
@@ -35,25 +38,25 @@ TextureOpenGL::TextureOpenGL(const TextureSpecification &spec, GraphicsDevice *g
         m_TextureType = GL_TEXTURE_2D;
         glCall(glBindTexture(m_TextureType, m_Handle));
         glCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
-        glCall(glTexStorage2D(m_TextureType, m_Specification.Levels, m_InternalFormat, spec.Width, spec.Height));
+        glCall(glTexStorage2D(m_TextureType, m_Specification.MipLevels, m_InternalFormat, spec.Width, spec.Height));
 
 #if defined(NX_PLATFORM_GL_DESKTOP)
     }
 #endif
 }
 
-TextureOpenGL::~TextureOpenGL()
+Texture2DOpenGL::~Texture2DOpenGL()
 {
     glCall(glDeleteTextures(1, &this->m_Handle));
 }
 
-void TextureOpenGL::SetData(const void *data, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+void Texture2DOpenGL::SetData(const void *data, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 {
     glCall(glBindTexture(m_TextureType, m_Handle));
     glCall(glTexSubImage2D(m_TextureType, level, x, y, width, height, m_DataFormat, m_BaseType, data));
 }
 
-std::vector<std::byte> TextureOpenGL::GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+std::vector<std::byte> Texture2DOpenGL::GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 {
     size_t bufferSize = (width - x) * (height - y) * GetPixelFormatSizeInBits(m_Specification.Format);
     std::vector<std::byte> data(bufferSize);
@@ -74,24 +77,91 @@ std::vector<std::byte> TextureOpenGL::GetData(uint32_t level, uint32_t x, uint32
     return data;
 }
 
-unsigned int TextureOpenGL::GetNativeHandle()
+unsigned int Texture2DOpenGL::GetHandle()
 {
     return m_Handle;
 }
 
-GLenum TextureOpenGL::GetTextureType()
+void Texture2DOpenGL::Bind(uint32_t slot)
+{
+    glCall(glUniform1i(slot, slot));
+    glCall(glActiveTexture(GL_TEXTURE0 + slot));
+    glCall(glBindTexture(GL_TEXTURE_2D, m_Handle));
+}
+
+GLenum Texture2DOpenGL::GetTextureType()
 {
     return m_TextureType;
 }
 
-GLenum TextureOpenGL::GetDataFormat()
+GLenum Texture2DOpenGL::GetDataFormat()
 {
     return m_DataFormat;
 }
 
-GLenum TextureOpenGL::GetPixelType()
+GLenum Texture2DOpenGL::GetPixelType()
 {
     return m_BaseType;
+}
+
+CubemapOpenGL::CubemapOpenGL(const CubemapSpecification &spec, GraphicsDevice *graphicsDevice) : Cubemap(spec, graphicsDevice)
+{
+    m_DataFormat = GL::GetPixelDataFormat(spec.Format);
+    m_InternalFormat = GL::GetSizedInternalFormat(spec.Format, false);
+    m_BaseType = GL::GetPixelType(spec.Format);
+
+    glGenTextures(1, &m_Handle);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_Handle);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    for (size_t i = 0; i < 6; i++)
+    {
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, m_InternalFormat, m_Specification.Width, m_Specification.Height, 0, m_DataFormat, m_BaseType, nullptr);
+    }
+}
+
+CubemapOpenGL::~CubemapOpenGL()
+{
+    glCall(glDeleteTextures(1, &m_Handle));
+}
+
+void CubemapOpenGL::SetData(const void *data, CubemapFace face, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+{
+    glCall(glBindTexture(GL_TEXTURE_CUBE_MAP, m_Handle));
+    GLenum glFace = GL::GLCubemapFace(face);
+    glCall(glTexSubImage2D(glFace, level, x, y, width, height, m_DataFormat, m_BaseType, data));
+}
+
+std::vector<std::byte> CubemapOpenGL::GetData(CubemapFace face, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+{
+    GLenum glFace = GL::GLCubemapFace(face);
+    size_t bufferSize = (width - x) * (height - y) * GetPixelFormatSizeInBits(m_Specification.Format);
+    std::vector<std::byte> data(bufferSize);
+
+    uint32_t framebufferId = 0;
+    glCall(glGenFramebuffers(1, &framebufferId));
+    glCall(glBindFramebuffer(GL_FRAMEBUFFER, framebufferId));
+
+    glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, glFace, GL_TEXTURE_2D, m_Handle, level));
+
+    glCall(glReadBuffer(glFace));
+    glCall(glReadPixels(x, y, width, height, m_DataFormat, m_BaseType, data.data()));
+
+    glCall(glDeleteFramebuffers(1, &framebufferId));
+
+    return data;
+}
+
+unsigned int CubemapOpenGL::GetHandle()
+{
+    return m_Handle;
+}
+
+void CubemapOpenGL::Bind(uint32_t slot)
+{
+    glCall(glUniform1i(slot, slot));
+    glCall(glActiveTexture(GL_TEXTURE0 + slot));
+    glCall(glBindTexture(GL_TEXTURE_CUBE_MAP, m_Handle));
 }
 } // namespace Nexus::Graphics
 

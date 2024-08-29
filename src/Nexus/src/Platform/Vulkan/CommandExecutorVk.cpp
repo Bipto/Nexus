@@ -163,13 +163,13 @@ void CommandExecutorVk::ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice 
 
     for (const auto [name, combinedImageSampler] : resourceSetVk->GetBoundCombinedImageSamplers())
     {
-        Ref<TextureVk> texture = std::dynamic_pointer_cast<TextureVk>(combinedImageSampler.ImageTexture.lock());
+        /* Ref<Texture2D_Vk> texture = std::dynamic_pointer_cast<Texture2D_Vk>(combinedImageSampler.ImageTexture.lock());
 
         for (uint32_t level = 0; level < texture->GetLevels(); level++)
         {
             m_Device->TransitionVulkanImageLayout(m_CommandBuffer, texture->GetImage(), level, texture->GetImageLayout(level), VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_ASPECT_COLOR_BIT);
             texture->SetImageLayout(level, VK_IMAGE_LAYOUT_GENERAL);
-        }
+        } */
     }
 
     const auto &descriptorSets = resourceSetVk->GetDescriptorSets()[m_Device->GetCurrentFrameIndex()];
@@ -305,7 +305,7 @@ void CommandExecutorVk::ExecuteCommand(RenderTarget command, GraphicsDevice *dev
 
         for (size_t i = 0; i < vulkanFramebuffer->GetColorTextureCount(); i++)
         {
-            Ref<TextureVk> framebufferTexture = vulkanFramebuffer->GetVulkanColorTexture(i);
+            Ref<Texture2D_Vk> framebufferTexture = vulkanFramebuffer->GetVulkanColorTexture(i);
 
             for (uint32_t j = 0; j < framebufferTexture->GetLevels(); j++)
             {
@@ -316,7 +316,7 @@ void CommandExecutorVk::ExecuteCommand(RenderTarget command, GraphicsDevice *dev
 
         if (vulkanFramebuffer->HasDepthTexture())
         {
-            Ref<TextureVk> depthTexture = vulkanFramebuffer->GetVulkanDepthTexture();
+            Ref<Texture2D_Vk> depthTexture = vulkanFramebuffer->GetVulkanDepthTexture();
 
             for (size_t level = 0; level < depthTexture->GetLevels(); level++)
             {

@@ -19,11 +19,11 @@ class FramebufferVk : public Framebuffer
     virtual void SetFramebufferSpecification(const FramebufferSpecification &spec) override;
     VkFramebuffer GetVkFramebuffer();
 
-    virtual Ref<Texture> GetColorTexture(uint32_t index = 0) override;
-    virtual Ref<Texture> GetDepthTexture() override;
+    virtual Ref<Texture2D> GetColorTexture(uint32_t index = 0) override;
+    virtual Ref<Texture2D> GetDepthTexture() override;
 
-    Ref<TextureVk> GetVulkanColorTexture(uint32_t index = 0);
-    Ref<TextureVk> GetVulkanDepthTexture();
+    Ref<Texture2D_Vk> GetVulkanColorTexture(uint32_t index = 0);
+    Ref<Texture2D_Vk> GetVulkanDepthTexture();
 
     VkRenderPass GetRenderPass();
 
@@ -40,8 +40,8 @@ class FramebufferVk : public Framebuffer
     GraphicsDeviceVk *m_Device;
     VkRenderPass m_FramebufferRenderPass;
 
-    std::vector<Ref<TextureVk>> m_ColorAttachments;
-    Ref<TextureVk> m_DepthAttachment = nullptr;
+    std::vector<Ref<Texture2D_Vk>> m_ColorAttachments;
+    Ref<Texture2D_Vk> m_DepthAttachment = nullptr;
 };
 } // namespace Nexus::Graphics
 

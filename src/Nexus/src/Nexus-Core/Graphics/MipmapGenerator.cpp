@@ -28,10 +28,10 @@ MipmapGenerator::MipmapGenerator(GraphicsDevice *device) : m_Device(device), m_Q
     m_CommandList = m_Device->CreateCommandList();
 }
 
-void MipmapGenerator::GenerateMips(Ref<Texture> texture, uint32_t mipCount)
+void MipmapGenerator::GenerateMips(Ref<Texture2D> texture, uint32_t mipCount)
 {
-    const uint32_t textureWidth = texture->GetTextureSpecification().Width;
-    const uint32_t textureHeight = texture->GetTextureSpecification().Height;
+    const uint32_t textureWidth = texture->GetSpecification().Width;
+    const uint32_t textureHeight = texture->GetSpecification().Height;
 
     uint32_t mipWidth = textureWidth;
     uint32_t mipHeight = textureHeight;
@@ -39,7 +39,7 @@ void MipmapGenerator::GenerateMips(Ref<Texture> texture, uint32_t mipCount)
     Ref<ShaderModule> vertexModule = m_Device->CreateShaderModuleFromSpirvSource(c_MipmapVertexSource, "Mipmap-Gen.vert", Nexus::Graphics::ShaderStage::Vertex);
     Ref<ShaderModule> fragmentModule = m_Device->CreateShaderModuleFromSpirvSource(c_MipmapFragmentSource, "Mipmap-Gen.frag", Nexus::Graphics::ShaderStage::Fragment);
 
-    Ref<Texture> mipTexture = texture;
+    Ref<Texture2D> mipTexture = texture;
 
     // iterate through each mip to generate
     for (uint32_t i = 1; i <= mipCount; i++)
@@ -62,10 +62,10 @@ void MipmapGenerator::GenerateMips(Ref<Texture> texture, uint32_t mipCount)
             mipHeight /= 2;
 
             Nexus::Graphics::FramebufferSpecification framebufferSpec;
-            framebufferSpec.ColorAttachmentSpecification = {texture->GetTextureSpecification().Format};
+            framebufferSpec.ColorAttachmentSpecification = {texture->GetSpecification().Format};
             framebufferSpec.Width = mipWidth;
             framebufferSpec.Height = mipHeight;
-            framebufferSpec.Samples = texture->GetTextureSpecification().Samples;
+            framebufferSpec.Samples = texture->GetSpecification().Samples;
 
             Ref<Framebuffer> framebuffer = m_Device->CreateFramebuffer(framebufferSpec);
 
@@ -78,7 +78,7 @@ void MipmapGenerator::GenerateMips(Ref<Texture> texture, uint32_t mipCount)
             samplerSpec.MaximumLOD = 0;
             Ref<Sampler> sampler = m_Device->CreateSampler(samplerSpec);
 
-            Ref<Texture> framebufferTexture = framebuffer->GetColorTexture(0);
+            Ref<Texture2D> framebufferTexture = framebuffer->GetColorTexture(0);
 
             resourceSet->WriteCombinedImageSampler(mipTexture, sampler, "texSampler");
 
@@ -107,8 +107,8 @@ void MipmapGenerator::GenerateMips(Ref<Texture> texture, uint32_t mipCount)
             m_CommandList->End();
             m_Device->SubmitCommandList(m_CommandList);
 
-            uint32_t framebufferWidth = framebufferTexture->GetTextureSpecification().Width;
-            uint32_t framebufferHeight = framebufferTexture->GetTextureSpecification().Height;
+            uint32_t framebufferWidth = framebufferTexture->GetSpecification().Width;
+            uint32_t framebufferHeight = framebufferTexture->GetSpecification().Height;
 
             std::vector<std::byte> pixels = framebufferTexture->GetData(0, 0, 0, framebufferWidth, framebufferHeight);
             MipData mipData(pixels, framebufferWidth, framebufferHeight);

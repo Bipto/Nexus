@@ -84,14 +84,14 @@ const GraphicsDeviceSpecification &GraphicsDevice::GetSpecification() const
     return m_Specification;
 }
 
-Ref<Texture> GraphicsDevice::CreateTexture(const char *filepath, bool generateMips)
+Ref<Texture2D> GraphicsDevice::CreateTexture2D(const char *filepath, bool generateMips)
 {
     int desiredChannels = 4;
     int receivedChannels = 0;
     int width = 0;
     int height = 0;
 
-    TextureSpecification spec;
+    Texture2DSpecification spec;
     spec.Format = PixelFormat::R8_G8_B8_A8_UNorm;
     unsigned char *data = stbi_load(filepath, &width, &height, &receivedChannels, desiredChannels);
     spec.Width = (uint32_t)width;
@@ -100,20 +100,20 @@ Ref<Texture> GraphicsDevice::CreateTexture(const char *filepath, bool generateMi
     if (generateMips)
     {
         uint32_t mipCount = Nexus::Graphics::MipmapGenerator::GetMaximumNumberOfMips(spec.Width, spec.Height);
-        spec.Levels = mipCount;
+        spec.MipLevels = mipCount;
     }
     else
     {
-        spec.Levels = 1;
+        spec.MipLevels = 1;
     }
 
-    auto texture = CreateTexture(spec);
+    auto texture = CreateTexture2D(spec);
     texture->SetData(data, 0, 0, 0, spec.Width, spec.Height);
     // texture->SetData(data, spec.Width * spec.Height * sizeof(unsigned char), 0);
 
     if (generateMips)
     {
-        uint32_t mipsToGenerate = spec.Levels - 1;
+        uint32_t mipsToGenerate = spec.MipLevels - 1;
         Nexus::Graphics::MipmapGenerator mipGenerator(this);
         mipGenerator.GenerateMips(texture, mipsToGenerate);
     }
@@ -122,9 +122,9 @@ Ref<Texture> GraphicsDevice::CreateTexture(const char *filepath, bool generateMi
     return texture;
 }
 
-Ref<Texture> GraphicsDevice::CreateTexture(const std::string &filepath, bool generateMips)
+Ref<Texture2D> GraphicsDevice::CreateTexture2D(const std::string &filepath, bool generateMips)
 {
-    return CreateTexture(filepath.c_str(), generateMips);
+    return CreateTexture2D(filepath.c_str(), generateMips);
 }
 
 Ref<ResourceSet> GraphicsDevice::CreateResourceSet(Ref<Pipeline> pipeline)

@@ -106,7 +106,7 @@ Font::Font(const std::string &filepath, uint32_t size, const std::vector<Charact
     m_TextureWidth = columnCount * m_MaxCharacterSize.X;
     m_TextureHeight = columnCount * m_MaxCharacterSize.Y;
 
-    Nexus::Graphics::TextureSpecification textureSpec;
+    Nexus::Graphics::Texture2DSpecification textureSpec;
     textureSpec.Format = Nexus::Graphics::PixelFormat::R8_UNorm;
     textureSpec.Width = m_TextureWidth;
     textureSpec.Height = m_TextureHeight;
@@ -132,14 +132,14 @@ Font::Font(const std::string &filepath, uint32_t size, const std::vector<Charact
         }
     }
 
-    m_Texture = device->CreateTexture(textureSpec);
+    m_Texture = device->CreateTexture2D(textureSpec);
     m_Texture->SetData(pixels.GetPixels().data(), 0, 0, 0, pixels.GetWidth(), pixels.GetHeight());
 
     FT_Done_Face(face);
     FT_Done_FreeType(ft);
 }
 
-Nexus::Ref<Nexus::Graphics::Texture> Font::GetTexture()
+Nexus::Ref<Nexus::Graphics::Texture2D> Font::GetTexture()
 {
     return m_Texture;
 }

@@ -212,12 +212,6 @@ void CommandExecutorOpenGL::ExecuteCommand(Ref<ResourceSet> command, GraphicsDev
     {
         bool valid = true;
 
-        if (combinedImageSampler.ImageTexture.expired())
-        {
-            NX_ERROR("Attempting to bind an invalid texture");
-            valid = false;
-        }
-
         if (combinedImageSampler.ImageSampler.expired())
         {
             NX_ERROR("Attempting to bind an invalid sampler");
@@ -229,21 +223,36 @@ void CommandExecutorOpenGL::ExecuteCommand(Ref<ResourceSet> command, GraphicsDev
             continue;
         }
 
-        Ref<TextureOpenGL> glTexture = std::dynamic_pointer_cast<TextureOpenGL>(combinedImageSampler.ImageTexture.lock());
         Ref<SamplerOpenGL> glSampler = std::dynamic_pointer_cast<SamplerOpenGL>(combinedImageSampler.ImageSampler.lock());
 
         // bind texture
         {
             GLint location = glGetUniformLocation(pipeline->GetShaderHandle(), name.c_str());
-            glCall(glUniform1i(location, location));
-            glCall(glActiveTexture(GL_TEXTURE0 + location));
-            glCall(glBindTexture(GL_TEXTURE_2D, glTexture->GetNativeHandle()));
         }
 
-        // bind sampler
+        // find the slot in the shader where the uniform is located
+        GLint location = glGetUniformLocation(pipeline->GetShaderHandle(), name.c_str());
+
+        // bind texture2D if needed
+        if (std::holds_alternative<WeakRef<Texture2D>>(combinedImageSampler.ImageTexture))
         {
-            GLint location = glGetUniformLocation(pipeline->GetShaderHandle(), name.c_str());
-            glCall(glBindSampler(location, glSampler->GetHandle()));
+            WeakRef<Texture2D> texture = std::get<WeakRef<Texture2D>>(combinedImageSampler.ImageTexture);
+            if (Ref<Texture2DOpenGL> glTexture = std::dynamic_pointer_cast<Texture2DOpenGL>(texture.lock()))
+            {
+                glTexture->Bind(location);
+                glSampler->Bind(location, glTexture->GetLevels() > 1);
+            }
+        }
+
+        // bind cubemap if needed
+        if (std::holds_alternative<WeakRef<Cubemap>>(combinedImageSampler.ImageTexture))
+        {
+            WeakRef<Cubemap> cubemap = std::get<WeakRef<Cubemap>>(combinedImageSampler.ImageTexture);
+            if (Ref<CubemapOpenGL> glCubemap = std::dynamic_pointer_cast<CubemapOpenGL>(cubemap.lock()))
+            {
+                glCubemap->Bind(location);
+                glSampler->Bind(location, glCubemap->GetLevels() > 1);
+            }
         }
     }
 
@@ -345,7 +354,7 @@ void CommandExecutorOpenGL::ExecuteCommand(ResolveSamplesToSwapchainCommand comm
     uint32_t framebufferWidth = framebuffer->GetFramebufferSpecification().Width;
     uint32_t framebufferHeight = framebuffer->GetFramebufferSpecification().Height;
 
-    Ref<Texture> framebufferTexture = framebuffer->GetColorTexture(command.SourceIndex);
+    Ref<Texture2D> framebufferTexture = framebuffer->GetColorTexture(command.SourceIndex);
 
     Nexus::Window *window = swapchain->GetWindow();
     uint32_t swapchainWidth = window->GetWindowSize().X;

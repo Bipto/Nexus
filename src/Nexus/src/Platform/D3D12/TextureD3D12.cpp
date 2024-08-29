@@ -6,7 +6,7 @@
 
 namespace Nexus::Graphics
 {
-TextureD3D12::TextureD3D12(GraphicsDeviceD3D12 *device, const TextureSpecification &spec) : Texture(spec, device), m_Specification(spec), m_Device(device)
+Texture2D_D3D12::Texture2D_D3D12(GraphicsDeviceD3D12 *device, const Texture2DSpecification &spec) : Texture2D(spec, device), m_Specification(spec), m_Device(device)
 {
     bool isDepth;
     D3D12_RESOURCE_FLAGS flags = D3D12::GetD3D12ResourceFlags(spec.Usage, isDepth);
@@ -58,7 +58,7 @@ TextureD3D12::TextureD3D12(GraphicsDeviceD3D12 *device, const TextureSpecificati
         resourceDesc.Width = spec.Width;
         resourceDesc.Height = spec.Height;
         resourceDesc.DepthOrArraySize = 1;
-        resourceDesc.MipLevels = m_Specification.Levels;
+        resourceDesc.MipLevels = m_Specification.MipLevels;
         resourceDesc.Format = m_TextureFormat;
         resourceDesc.SampleDesc.Count = samples;
         resourceDesc.SampleDesc.Quality = 0;
@@ -67,17 +67,17 @@ TextureD3D12::TextureD3D12(GraphicsDeviceD3D12 *device, const TextureSpecificati
         d3d12Device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, initialState, nullptr, IID_PPV_ARGS(&m_Texture));
     }
 
-    for (uint32_t level = 0; level < spec.Levels; level++)
+    for (uint32_t level = 0; level < spec.MipLevels; level++)
     {
         m_ResourceStates.push_back(D3D12_RESOURCE_STATE_COMMON);
     }
 }
 
-TextureD3D12::~TextureD3D12()
+Texture2D_D3D12::~Texture2D_D3D12()
 {
 }
 
-void TextureD3D12::SetData(const void *data, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+void Texture2D_D3D12::SetData(const void *data, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 {
     uint32_t stride = width * GetPixelFormatSizeInBytes(m_Specification.Format);
     uint32_t size = width * height * GetPixelFormatSizeInBytes(m_Specification.Format);
@@ -138,7 +138,7 @@ void TextureD3D12::SetData(const void *data, uint32_t level, uint32_t x, uint32_
     });
 }
 
-std::vector<std::byte> TextureD3D12::GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+std::vector<std::byte> Texture2D_D3D12::GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 {
     ID3D12Device10 *d3d12Device = m_Device->GetDevice();
     D3D12_RESOURCE_DESC textureDesc = m_Texture->GetDesc();
@@ -236,22 +236,22 @@ std::vector<std::byte> TextureD3D12::GetData(uint32_t level, uint32_t x, uint32_
     return pixels;
 }
 
-DXGI_FORMAT TextureD3D12::GetFormat()
+DXGI_FORMAT Texture2D_D3D12::GetFormat()
 {
     return m_TextureFormat;
 }
 
-const Microsoft::WRL::ComPtr<ID3D12Resource2> &TextureD3D12::GetD3D12ResourceHandle()
+const Microsoft::WRL::ComPtr<ID3D12Resource2> &Texture2D_D3D12::GetD3D12ResourceHandle()
 {
     return m_Texture;
 }
 
-void TextureD3D12::SetResourceState(uint32_t level, D3D12_RESOURCE_STATES state)
+void Texture2D_D3D12::SetResourceState(uint32_t level, D3D12_RESOURCE_STATES state)
 {
     m_ResourceStates[level] = state;
 }
 
-D3D12_RESOURCE_STATES TextureD3D12::GetResourceState(uint32_t level)
+D3D12_RESOURCE_STATES Texture2D_D3D12::GetResourceState(uint32_t level)
 {
     return m_ResourceStates[level];
 }

@@ -36,9 +36,9 @@ class ModelDemo : public Demo
         Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
         m_Model = factory.CreateFrom3DModelFile(Nexus::FileSystem::GetFilePathAbsolute("resources/models/survival_backpack_2/survival_backpack_2.fbx"));
 
-        m_DiffuseMap = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/models/survival_backpack_2/1001_albedo.jpg"), true);
-        m_NormalMap = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/models/survival_backpack_2/1001_normal.png"), true);
-        m_SpecularMap = m_GraphicsDevice->CreateTexture(Nexus::FileSystem::GetFilePathAbsolute("resources/models/survival_backpack_2/specular.jpg"), true);
+        m_DiffuseMap = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/models/survival_backpack_2/1001_albedo.jpg"), true);
+        m_NormalMap = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/models/survival_backpack_2/1001_normal.png"), true);
+        m_SpecularMap = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/models/survival_backpack_2/specular.jpg"), true);
 
         Nexus::Graphics::BufferDescription cameraUniformBufferDesc;
         cameraUniformBufferDesc.Size = sizeof(VB_UNIFORM_CAMERA_DEMO_LIGHTING);
@@ -148,9 +148,9 @@ class ModelDemo : public Demo
     Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
     Nexus::Ref<Nexus::Graphics::Pipeline> m_Pipeline;
     Nexus::Ref<Nexus::Graphics::Model> m_Model;
-    Nexus::Ref<Nexus::Graphics::Texture> m_DiffuseMap;
-    Nexus::Ref<Nexus::Graphics::Texture> m_NormalMap;
-    Nexus::Ref<Nexus::Graphics::Texture> m_SpecularMap;
+    Nexus::Ref<Nexus::Graphics::Texture2D> m_DiffuseMap;
+    Nexus::Ref<Nexus::Graphics::Texture2D> m_NormalMap;
+    Nexus::Ref<Nexus::Graphics::Texture2D> m_SpecularMap;
     glm::vec3 m_ClearColour = {0.7f, 0.2f, 0.3f};
 
     Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;

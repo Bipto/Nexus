@@ -23,8 +23,8 @@ class FramebufferOpenGL : public Framebuffer
     virtual const FramebufferSpecification GetFramebufferSpecification() override;
     virtual void SetFramebufferSpecification(const FramebufferSpecification &spec) override;
 
-    virtual Ref<Texture> GetColorTexture(uint32_t index = 0) override;
-    virtual Ref<Texture> GetDepthTexture() override;
+    virtual Ref<Texture2D> GetColorTexture(uint32_t index = 0) override;
+    virtual Ref<Texture2D> GetDepthTexture() override;
 
   private:
     virtual void Recreate() override;
@@ -34,8 +34,8 @@ class FramebufferOpenGL : public Framebuffer
   private:
     unsigned int m_FBO;
 
-    std::vector<Ref<Texture>> m_ColorAttachments;
-    Ref<Texture> m_DepthAttachment;
+    std::vector<Ref<Texture2D>> m_ColorAttachments;
+    Ref<Texture2D> m_DepthAttachment;
 
     GraphicsDeviceOpenGL *m_Device = nullptr;
 };

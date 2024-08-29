@@ -166,9 +166,9 @@ void ResourceSetVk::WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, const s
     m_BoundUniformBuffers[name] = uniformBuffer;
 }
 
-void ResourceSetVk::WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name)
+void ResourceSetVk::WriteCombinedImageSampler(Ref<Texture2D> texture, Ref<Sampler> sampler, const std::string &name)
 {
-    Ref<TextureVk> textureVk = std::dynamic_pointer_cast<TextureVk>(texture);
+    Ref<Texture2D_Vk> textureVk = std::dynamic_pointer_cast<Texture2D_Vk>(texture);
     Ref<SamplerVk> samplerVk = std::dynamic_pointer_cast<SamplerVk>(sampler);
     const auto &descriptorSets = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
 
@@ -202,6 +202,10 @@ void ResourceSetVk::WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler>
     ciSampler.ImageTexture = texture;
     ciSampler.ImageSampler = sampler;
     m_BoundCombinedImageSamplers[name] = ciSampler;
+}
+
+void ResourceSetVk::WriteCombinedImageSampler(Ref<Cubemap> cubemap, Ref<Sampler> sampler, const std::string &name)
+{
 }
 
 const std::map<uint32_t, VkDescriptorSetLayout> &ResourceSetVk::GetDescriptorSetLayouts() const

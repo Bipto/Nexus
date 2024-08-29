@@ -97,9 +97,14 @@ std::vector<std::string> GraphicsDeviceOpenGL::GetSupportedExtensions()
     return extensions;
 }
 
-Ref<Texture> GraphicsDeviceOpenGL::CreateTexture(const TextureSpecification &spec)
+Ref<Texture2D> GraphicsDeviceOpenGL::CreateTexture2D(const Texture2DSpecification &spec)
 {
-    return CreateRef<TextureOpenGL>(spec, this);
+    return CreateRef<Texture2DOpenGL>(spec, this);
+}
+
+Ref<Cubemap> GraphicsDeviceOpenGL::CreateCubemap(const CubemapSpecification &spec)
+{
+    return CreateRef<CubemapOpenGL>(spec, this);
 }
 
 Ref<Pipeline> GraphicsDeviceOpenGL::CreatePipeline(const PipelineDescription &description)

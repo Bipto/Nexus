@@ -205,7 +205,7 @@ void CommandExecutorD3D12::ExecuteCommand(ResolveSamplesToSwapchainCommand comma
         return;
     }
 
-    Nexus::Ref<Nexus::Graphics::TextureD3D12> framebufferTexture = framebufferD3D12->GetD3D12ColorTexture(command.SourceIndex);
+    Nexus::Ref<Nexus::Graphics::Texture2D_D3D12> framebufferTexture = framebufferD3D12->GetD3D12ColorTexture(command.SourceIndex);
     Microsoft::WRL::ComPtr<ID3D12Resource2> swapchainTexture = swapchainD3D12->RetrieveBufferHandle();
     DXGI_FORMAT format = D3D12::GetD3D12PixelFormat(Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm, false);
     D3D12_RESOURCE_STATES swapchainState = swapchainD3D12->GetCurrentTextureState();
@@ -272,7 +272,7 @@ void CommandExecutorD3D12::SetFramebuffer(Ref<FramebufferD3D12> framebuffer, Gra
 
     for (size_t i = 0; i < framebuffer->GetColorTextureCount(); i++)
     {
-        Ref<TextureD3D12> texture = framebuffer->GetD3D12ColorTexture(i);
+        Ref<Texture2D_D3D12> texture = framebuffer->GetD3D12ColorTexture(i);
         deviceD3D12->ResourceBarrier(m_CommandList.Get(), texture, 0, D3D12_RESOURCE_STATE_RENDER_TARGET);
     }
 
@@ -280,7 +280,7 @@ void CommandExecutorD3D12::SetFramebuffer(Ref<FramebufferD3D12> framebuffer, Gra
     {
         m_DepthHandle = framebuffer->GetDepthAttachmentCPUHandle();
 
-        Ref<TextureD3D12> depthBuffer = framebuffer->GetD3D12DepthTexture();
+        Ref<Texture2D_D3D12> depthBuffer = framebuffer->GetD3D12DepthTexture();
         deviceD3D12->ResourceBarrier(m_CommandList.Get(), depthBuffer, 0, D3D12_RESOURCE_STATE_DEPTH_WRITE);
     }
     else

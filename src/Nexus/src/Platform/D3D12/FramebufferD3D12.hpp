@@ -8,7 +8,7 @@
 
 namespace Nexus::Graphics
 {
-class TextureD3D12;
+class Texture2D_D3D12;
 
 class FramebufferD3D12 : public Framebuffer
 {
@@ -17,11 +17,11 @@ class FramebufferD3D12 : public Framebuffer
     virtual ~FramebufferD3D12();
     virtual const FramebufferSpecification GetFramebufferSpecification() override;
     virtual void SetFramebufferSpecification(const FramebufferSpecification &spec) override;
-    virtual Ref<Texture> GetColorTexture(uint32_t index = 0) override;
-    virtual Ref<Texture> GetDepthTexture() override;
+    virtual Ref<Texture2D> GetColorTexture(uint32_t index = 0) override;
+    virtual Ref<Texture2D> GetDepthTexture() override;
 
-    Ref<TextureD3D12> GetD3D12ColorTexture(uint32_t index = 0);
-    Ref<TextureD3D12> GetD3D12DepthTexture();
+    Ref<Texture2D_D3D12> GetD3D12ColorTexture(uint32_t index = 0);
+    Ref<Texture2D_D3D12> GetD3D12DepthTexture();
 
     const std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> &GetColorAttachmentCPUHandles();
     D3D12_CPU_DESCRIPTOR_HANDLE GetDepthAttachmentCPUHandle();
@@ -41,8 +41,8 @@ class FramebufferD3D12 : public Framebuffer
     std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_ColorAttachmentCPUHandles;
     D3D12_CPU_DESCRIPTOR_HANDLE m_DepthAttachmentCPUHandle{};
 
-    std::vector<Ref<TextureD3D12>> m_ColorAttachments;
-    Ref<TextureD3D12> m_DepthAttachment = nullptr;
+    std::vector<Ref<Texture2D_D3D12>> m_ColorAttachments;
+    Ref<Texture2D_D3D12> m_DepthAttachment = nullptr;
 };
 } // namespace Nexus::Graphics
 
