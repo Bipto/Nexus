@@ -26,13 +26,12 @@ class MipmapDemo : public Demo
         Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
         m_Mesh = factory.CreateSprite();
 
-        m_Texture = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), true);
+        m_Texture = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/brick.jpg"), true);
         m_TextureID = m_ImGuiRenderer->BindTexture(m_Texture);
     }
 
     virtual void Render(Nexus::Time time) override
     {
-
         Nexus::Graphics::SamplerSpecification samplerSpec{};
         samplerSpec.MinimumLOD = m_SelectedMip;
         samplerSpec.MaximumLOD = m_SelectedMip;
@@ -84,8 +83,9 @@ class MipmapDemo : public Demo
         pipelineDescription.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::None;
         pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
-        pipelineDescription.VertexModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/texturing.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
-        pipelineDescription.FragmentModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/texturing.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
+        pipelineDescription.VertexModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/texturing.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
+        pipelineDescription.FragmentModule =
+            m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/texturing.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 
         pipelineDescription.ResourceSetSpec.SampledImages = {{"texSampler", 0, 0}};
 

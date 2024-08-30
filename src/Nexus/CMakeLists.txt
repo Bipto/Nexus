@@ -159,8 +159,8 @@ macro (nexus_copy_resources)
   #copy engine resources to output
   add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${Nexus_SOURCE_DIR}/engine-resources
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/engine-resources)
+        ${Nexus_SOURCE_DIR}/resources/engine
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/resources/engine)
 endmacro()
 
 macro(nexus_copy_required_binaries)

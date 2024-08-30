@@ -35,6 +35,7 @@ void SamplerOpenGL::Setup(bool hasMips)
 
     // texture sampling options
     glCall(glSamplerParameteri(m_Handle, GL_TEXTURE_MIN_FILTER, min));
+
     glCall(glSamplerParameteri(m_Handle, GL_TEXTURE_MAG_FILTER, max));
     glCall(glSamplerParameteri(m_Handle, GL_TEXTURE_WRAP_S, GL::GetSamplerAddressMode(m_Specification.AddressModeU)));
     glCall(glSamplerParameteri(m_Handle, GL_TEXTURE_WRAP_T, GL::GetSamplerAddressMode(m_Specification.AddressModeV)));
@@ -72,6 +73,13 @@ void SamplerOpenGL::Setup(bool hasMips)
 
 void SamplerOpenGL::Bind(uint32_t slot, bool hasMips)
 {
+    // prevent the case where we only want to view a specific mip giving
+    // errors when binding with a texture with multiple levels
+    if (m_Specification.MaximumLOD == m_Specification.MinimumLOD)
+    {
+        hasMips = false;
+    }
+
     glCall(glBindSampler(slot, m_Handle));
     Setup(hasMips);
 }

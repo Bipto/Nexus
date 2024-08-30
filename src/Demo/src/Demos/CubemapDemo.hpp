@@ -40,15 +40,15 @@ class CubemapDemo : public Demo
         m_Camera.SetPosition(glm::vec3(0, 0, 0));
 
         Nexus::Graphics::SamplerSpecification samplerSpec{};
-        samplerSpec.AddressModeU = Nexus::Graphics::SamplerAddressMode::Border;
-        samplerSpec.AddressModeV = Nexus::Graphics::SamplerAddressMode::Border;
-        samplerSpec.AddressModeW = Nexus::Graphics::SamplerAddressMode::Border;
+        samplerSpec.AddressModeU = Nexus::Graphics::SamplerAddressMode::Clamp;
+        samplerSpec.AddressModeV = Nexus::Graphics::SamplerAddressMode::Clamp;
+        samplerSpec.AddressModeW = Nexus::Graphics::SamplerAddressMode::Clamp;
         m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
 
         Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
         m_Cube = factory.CreateCube();
 
-        Nexus::Graphics::HdriProcessor processor("resources/hdri/cobblestone_street_night_2k.hdr", m_GraphicsDevice);
+        Nexus::Graphics::HdriProcessor processor("resources/demo/hdri/hangar_interior_4k.hdr", m_GraphicsDevice);
         m_Cubemap = processor.Generate(2048);
     }
 
@@ -111,8 +111,8 @@ class CubemapDemo : public Demo
         pipelineDescription.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::Back;
         pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
-        pipelineDescription.VertexModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/cubemap.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
-        pipelineDescription.FragmentModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/cubemap.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
+        pipelineDescription.VertexModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/cubemap.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
+        pipelineDescription.FragmentModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/cubemap.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 
         pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Camera", 0, 0}};
 

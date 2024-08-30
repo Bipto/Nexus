@@ -28,7 +28,7 @@ class UniformBufferDemo : public Demo
         Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
         m_Mesh = factory.CreateSprite();
 
-        m_Texture = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), false);
+        m_Texture = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/brick.jpg"), false);
 
         Nexus::Graphics::SamplerSpecification samplerSpec{};
         m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
@@ -87,9 +87,10 @@ class UniformBufferDemo : public Demo
         pipelineDescription.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::Back;
         pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
-        pipelineDescription.VertexModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/uniform_buffers.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
+        pipelineDescription.VertexModule =
+            m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/uniform_buffers.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
         pipelineDescription.FragmentModule =
-            m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/uniform_buffers.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
+            m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/uniform_buffers.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 
         Nexus::Graphics::BufferDescription transformUniformBufferDesc;
         transformUniformBufferDesc.Size = sizeof(VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO);

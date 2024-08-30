@@ -86,7 +86,7 @@ void Texture2DOpenGL::Bind(uint32_t slot)
 {
     glCall(glUniform1i(slot, slot));
     glCall(glActiveTexture(GL_TEXTURE0 + slot));
-    glCall(glBindTexture(GL_TEXTURE_2D, m_Handle));
+    glCall(glBindTexture(m_TextureType, m_Handle));
 }
 
 GLenum Texture2DOpenGL::GetTextureType()

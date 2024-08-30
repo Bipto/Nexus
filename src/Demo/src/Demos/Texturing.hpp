@@ -24,7 +24,7 @@ class TexturingDemo : public Demo
         Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
         m_Mesh = factory.CreateSprite();
 
-        m_Texture = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/textures/brick.jpg"), false);
+        m_Texture = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/brick.jpg"), false);
 
         Nexus::Graphics::SamplerSpecification samplerSpec{};
         samplerSpec.MaximumAnisotropy = 8;
@@ -81,8 +81,9 @@ class TexturingDemo : public Demo
         pipelineDescription.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::None;
         pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
-        pipelineDescription.VertexModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/texturing.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
-        pipelineDescription.FragmentModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/texturing.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
+        pipelineDescription.VertexModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/texturing.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
+        pipelineDescription.FragmentModule =
+            m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/texturing.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 
         pipelineDescription.ResourceSetSpec.SampledImages = {{"texSampler", 0, 0}};
 

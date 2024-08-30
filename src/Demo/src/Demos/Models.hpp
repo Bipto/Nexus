@@ -34,11 +34,11 @@ class ModelDemo : public Demo
     {
         m_CommandList = m_GraphicsDevice->CreateCommandList();
         Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
-        m_Model = factory.CreateFrom3DModelFile(Nexus::FileSystem::GetFilePathAbsolute("resources/models/survival_backpack_2/survival_backpack_2.fbx"));
+        m_Model = factory.CreateFrom3DModelFile(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/models/survival_backpack_2/survival_backpack_2.fbx"));
 
-        m_DiffuseMap = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/models/survival_backpack_2/1001_albedo.jpg"), true);
-        m_NormalMap = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/models/survival_backpack_2/1001_normal.png"), true);
-        m_SpecularMap = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/models/survival_backpack_2/specular.jpg"), true);
+        m_DiffuseMap = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/models/survival_backpack_2/1001_albedo.jpg"), true);
+        m_NormalMap = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/models/survival_backpack_2/1001_normal.png"), true);
+        m_SpecularMap = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/models/survival_backpack_2/specular.jpg"), true);
 
         Nexus::Graphics::BufferDescription cameraUniformBufferDesc;
         cameraUniformBufferDesc.Size = sizeof(VB_UNIFORM_CAMERA_DEMO_LIGHTING);
@@ -129,8 +129,8 @@ class ModelDemo : public Demo
         pipelineDescription.DepthStencilDesc.EnableDepthWrite = true;
         pipelineDescription.DepthStencilDesc.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;
 
-        pipelineDescription.VertexModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/models.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
-        pipelineDescription.FragmentModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/models.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
+        pipelineDescription.VertexModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/models.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
+        pipelineDescription.FragmentModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/models.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 
         pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 

@@ -245,7 +245,7 @@ void CommandExecutorOpenGL::ExecuteCommand(Ref<ResourceSet> command, GraphicsDev
         }
 
         // bind cubemap if needed
-        if (std::holds_alternative<WeakRef<Cubemap>>(combinedImageSampler.ImageTexture))
+        else if (std::holds_alternative<WeakRef<Cubemap>>(combinedImageSampler.ImageTexture))
         {
             WeakRef<Cubemap> cubemap = std::get<WeakRef<Cubemap>>(combinedImageSampler.ImageTexture);
             if (Ref<CubemapOpenGL> glCubemap = std::dynamic_pointer_cast<CubemapOpenGL>(cubemap.lock()))

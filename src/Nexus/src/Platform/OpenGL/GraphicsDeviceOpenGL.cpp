@@ -24,6 +24,7 @@ GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(const GraphicsDeviceSpecification &cr
 #endif
 
     m_Extensions = GetSupportedExtensions();
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 }
 
 void GraphicsDeviceOpenGL::SetFramebuffer(Ref<Framebuffer> framebuffer)

@@ -57,7 +57,7 @@ struct SamplerSpecification
     SamplerAddressMode AddressModeU = SamplerAddressMode::Wrap;
     SamplerAddressMode AddressModeV = SamplerAddressMode::Wrap;
     SamplerAddressMode AddressModeW = SamplerAddressMode::Wrap;
-    SamplerFilter SampleFilter = SamplerFilter::MinPoint_MagLinear_MipLinear;
+    SamplerFilter SampleFilter = SamplerFilter::MinLinear_MagLinear_MipLinear;
     ComparisonFunction SamplerComparisonFunction = ComparisonFunction::Never;
     uint32_t MaximumAnisotropy = 1;
     uint32_t MinimumLOD = 0;

@@ -17,7 +17,6 @@ struct alignas(16) VB_UNIFORM_HDRI_PROCESSOR_CAMERA
 
 HdriProcessor::HdriProcessor(const std::string &filepath, GraphicsDevice *device) : m_Device(device)
 {
-    stbi_set_flip_vertically_on_load(true);
     m_Data = stbi_loadf(filepath.c_str(), &m_Width, &m_Height, &m_Channels, 4);
 
     Nexus::Graphics::Texture2DSpecification textureSpec{};
@@ -55,17 +54,20 @@ Ref<Cubemap> HdriProcessor::Generate(uint32_t size)
     pipelineDescription.VertexModule = m_Device->CreateShaderModuleFromSpirvFile("engine-resources/shaders/hdri.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
     pipelineDescription.FragmentModule = m_Device->CreateShaderModuleFromSpirvFile("engine-resources/shaders/hdri.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
     pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Camera", 0, 0}};
-    pipelineDescription.ResourceSetSpec.SampledImages = {{"skybox", 1, 0}};
+    pipelineDescription.ResourceSetSpec.SampledImages = {{"equirectangularMap", 1, 0}};
     pipelineDescription.Target = Nexus::Graphics::RenderTarget{framebuffer};
     pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
     Ref<Pipeline> pipeline = m_Device->CreatePipeline(pipelineDescription);
     Ref<ResourceSet> resourceSet = m_Device->CreateResourceSet(pipeline);
 
     Nexus::Graphics::SamplerSpecification samplerSpec{};
+    samplerSpec.AddressModeU = Nexus::Graphics::SamplerAddressMode::Clamp;
+    samplerSpec.AddressModeV = Nexus::Graphics::SamplerAddressMode::Clamp;
+    samplerSpec.AddressModeW = Nexus::Graphics::SamplerAddressMode::Clamp;
     Ref<Sampler> sampler = m_Device->CreateSampler(samplerSpec);
 
     Nexus::Graphics::MeshFactory factory(m_Device);
-    Nexus::Ref<Nexus::Graphics::Model> sphere = factory.CreateFrom3DModelFile("resources/models/sphere.fbx");
+    Nexus::Ref<Nexus::Graphics::Mesh> cube = factory.CreateCube();
 
     VB_UNIFORM_HDRI_PROCESSOR_CAMERA cameraUniforms;
 
@@ -98,7 +100,7 @@ Ref<Cubemap> HdriProcessor::Generate(uint32_t size)
 
         uniformBuffer->SetData(&cameraUniforms, sizeof(cameraUniforms), 0);
         resourceSet->WriteUniformBuffer(uniformBuffer, "Camera");
-        resourceSet->WriteCombinedImageSampler(m_HdriImage, sampler, "skybox");
+        resourceSet->WriteCombinedImageSampler(m_HdriImage, sampler, "equirectangularMap");
 
         commandList->Begin();
         commandList->SetPipeline(pipeline);
@@ -121,13 +123,10 @@ Ref<Cubemap> HdriProcessor::Generate(uint32_t size)
 
         commandList->SetResourceSet(resourceSet);
 
-        for (const Nexus::Ref<Nexus::Graphics::Mesh> &mesh : sphere->GetMeshes())
-        {
-            commandList->SetVertexBuffer(mesh->GetVertexBuffer(), 0);
-            commandList->SetIndexBuffer(mesh->GetIndexBuffer());
-            auto indexCount = mesh->GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
-            commandList->DrawIndexed(indexCount, 0, 0);
-        }
+        commandList->SetVertexBuffer(cube->GetVertexBuffer(), 0);
+        commandList->SetIndexBuffer(cube->GetIndexBuffer());
+        auto indexCount = cube->GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
+        commandList->DrawIndexed(indexCount, 0, 0);
 
         commandList->End();
         m_Device->SubmitCommandList(commandList);

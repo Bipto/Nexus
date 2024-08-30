@@ -82,9 +82,10 @@ class HelloTriangleIndexedDemo : public Demo
         pipelineDescription.Target = Nexus::Graphics::RenderTarget{m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
         pipelineDescription.Layouts = {Nexus::Graphics::VertexPosition::GetLayout()};
 
-        pipelineDescription.VertexModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/hello_triangle.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
+        pipelineDescription.VertexModule =
+            m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/hello_triangle.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
         pipelineDescription.FragmentModule =
-            m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/shaders/hello_triangle.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
+            m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/hello_triangle.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 
         m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
     }
