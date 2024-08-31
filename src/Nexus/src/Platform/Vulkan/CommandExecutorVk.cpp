@@ -272,7 +272,7 @@ void CommandExecutorVk::ExecuteCommand(RenderTarget command, GraphicsDevice *dev
             auto swapchainColourImage = vulkanSwapchain->GetColourImage();
 
             m_Device->ImmediateSubmit([&](VkCommandBuffer cmd) {
-                m_Device->TransitionVulkanImageLayout(cmd, swapchainColourImage, 0, vulkanSwapchain->GetColorImageLayout(), VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                m_Device->TransitionVulkanImageLayout(cmd, swapchainColourImage, 0, 0, vulkanSwapchain->GetColorImageLayout(), VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
                                                       VK_IMAGE_ASPECT_COLOR_BIT);
             });
         }
@@ -281,13 +281,13 @@ void CommandExecutorVk::ExecuteCommand(RenderTarget command, GraphicsDevice *dev
         {
             auto swapchainDepthImage = vulkanSwapchain->GetDepthImage();
             m_Device->ImmediateSubmit([&](VkCommandBuffer cmd) {
-                m_Device->TransitionVulkanImageLayout(cmd, swapchainDepthImage, 0, vulkanSwapchain->GetDepthImageLayout(), VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
+                m_Device->TransitionVulkanImageLayout(cmd, swapchainDepthImage, 0, 0, vulkanSwapchain->GetDepthImageLayout(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
                                                       VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT));
             });
         }
 
         vulkanSwapchain->SetColorImageLayout(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
-        vulkanSwapchain->SetDepthImageLayout(VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
+        vulkanSwapchain->SetDepthImageLayout(VK_IMAGE_LAYOUT_GENERAL);
 
         vkCmdBeginRenderPass(m_CommandBuffer, &info, VK_SUBPASS_CONTENTS_INLINE);
 
@@ -309,7 +309,7 @@ void CommandExecutorVk::ExecuteCommand(RenderTarget command, GraphicsDevice *dev
 
             for (uint32_t j = 0; j < framebufferTexture->GetLevels(); j++)
             {
-                m_Device->TransitionVulkanImageLayout(m_CommandBuffer, framebufferTexture->GetImage(), j, framebufferTexture->GetImageLayout(j), VK_IMAGE_LAYOUT_GENERAL,
+                m_Device->TransitionVulkanImageLayout(m_CommandBuffer, framebufferTexture->GetImage(), j, 0, framebufferTexture->GetImageLayout(j), VK_IMAGE_LAYOUT_GENERAL,
                                                       VK_IMAGE_ASPECT_COLOR_BIT);
             }
         }
@@ -320,7 +320,7 @@ void CommandExecutorVk::ExecuteCommand(RenderTarget command, GraphicsDevice *dev
 
             for (size_t level = 0; level < depthTexture->GetLevels(); level++)
             {
-                m_Device->TransitionVulkanImageLayout(m_CommandBuffer, depthTexture->GetImage(), level, depthTexture->GetImageLayout(level), VK_IMAGE_LAYOUT_GENERAL,
+                m_Device->TransitionVulkanImageLayout(m_CommandBuffer, depthTexture->GetImage(), level, 0, depthTexture->GetImageLayout(level), VK_IMAGE_LAYOUT_GENERAL,
                                                       VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT));
             }
         }

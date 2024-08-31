@@ -16,8 +16,7 @@ enum class TextureUsage : uint8_t
     DepthStencil,
     RenderTarget,
     Sampled,
-    Storage,
-    Cubemap
+    Storage
 };
 
 /// @brief A struct that represents a set of values to use to create a texture

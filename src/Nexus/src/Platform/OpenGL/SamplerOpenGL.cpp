@@ -35,7 +35,6 @@ void SamplerOpenGL::Setup(bool hasMips)
 
     // texture sampling options
     glCall(glSamplerParameteri(m_Handle, GL_TEXTURE_MIN_FILTER, min));
-
     glCall(glSamplerParameteri(m_Handle, GL_TEXTURE_MAG_FILTER, max));
     glCall(glSamplerParameteri(m_Handle, GL_TEXTURE_WRAP_S, GL::GetSamplerAddressMode(m_Specification.AddressModeU)));
     glCall(glSamplerParameteri(m_Handle, GL_TEXTURE_WRAP_T, GL::GetSamplerAddressMode(m_Specification.AddressModeV)));

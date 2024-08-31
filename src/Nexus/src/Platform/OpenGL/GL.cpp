@@ -202,43 +202,43 @@ void GetSamplerFilter(Nexus::Graphics::SamplerFilter filter, GLenum &min, GLenum
         switch (filter)
         {
         case Nexus::Graphics::SamplerFilter::MinPoint_MagPoint_MipPoint:
-            min = GL_NEAREST_MIPMAP_NEAREST;
+            min = GL_NEAREST;
             max = GL_NEAREST;
             break;
 
         case Nexus::Graphics::SamplerFilter::MinPoint_MagPoint_MipLinear:
-            min = GL_NEAREST_MIPMAP_LINEAR;
+            min = GL_NEAREST;
             max = GL_NEAREST;
             break;
 
         case Nexus::Graphics::SamplerFilter::MinPoint_MagLinear_MipPoint:
-            min = GL_NEAREST_MIPMAP_NEAREST;
+            min = GL_NEAREST;
             max = GL_LINEAR;
             break;
 
         case Nexus::Graphics::SamplerFilter::MinPoint_MagLinear_MipLinear:
-            min = GL_NEAREST_MIPMAP_LINEAR;
+            min = GL_NEAREST;
             max = GL_LINEAR;
             break;
 
         case Nexus::Graphics::SamplerFilter::MinLinear_MagPoint_MipPoint:
-            min = GL_LINEAR_MIPMAP_NEAREST;
+            min = GL_LINEAR;
             max = GL_NEAREST;
             break;
 
         case Nexus::Graphics::SamplerFilter::MinLinear_MagPoint_MipLinear:
-            min = GL_LINEAR_MIPMAP_LINEAR;
+            min = GL_LINEAR;
             max = GL_NEAREST;
             break;
 
         case Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipPoint:
-            min = GL_LINEAR_MIPMAP_NEAREST;
+            min = GL_LINEAR;
             max = GL_LINEAR;
             break;
 
         case Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipLinear:
         case Nexus::Graphics::SamplerFilter::Anisotropic:
-            min = GL_LINEAR_MIPMAP_LINEAR;
+            min = GL_LINEAR;
             max = GL_LINEAR;
             break;
 

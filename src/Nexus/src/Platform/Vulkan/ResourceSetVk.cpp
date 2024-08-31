@@ -177,7 +177,7 @@ void ResourceSetVk::WriteCombinedImageSampler(Ref<Texture2D> texture, Ref<Sample
     m_Device->ImmediateSubmit([&](VkCommandBuffer cmd) {
         for (uint32_t i = 0; i < textureVk->GetLevels(); i++)
         {
-            m_Device->TransitionVulkanImageLayout(cmd, textureVk->GetImage(), i, textureVk->GetImageLayout(i), VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_ASPECT_COLOR_BIT);
+            m_Device->TransitionVulkanImageLayout(cmd, textureVk->GetImage(), i, 0, textureVk->GetImageLayout(i), VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_ASPECT_COLOR_BIT);
             textureVk->SetImageLayout(i, VK_IMAGE_LAYOUT_GENERAL);
         }
     });
@@ -206,6 +206,44 @@ void ResourceSetVk::WriteCombinedImageSampler(Ref<Texture2D> texture, Ref<Sample
 
 void ResourceSetVk::WriteCombinedImageSampler(Ref<Cubemap> cubemap, Ref<Sampler> sampler, const std::string &name)
 {
+    Ref<Cubemap_Vk> cubemapVk = std::dynamic_pointer_cast<Cubemap_Vk>(cubemap);
+    Ref<SamplerVk> samplerVk = std::dynamic_pointer_cast<SamplerVk>(sampler);
+    const auto &descriptorSets = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
+
+    const BindingInfo &info = m_CombinedImageSamplerBindingInfos.at(name);
+
+    m_Device->ImmediateSubmit([&](VkCommandBuffer cmd) {
+        for (uint32_t arrayLayer = 0; arrayLayer < 6; arrayLayer++)
+        {
+            for (uint32_t mipLevel = 0; mipLevel < cubemapVk->GetLevels(); mipLevel++)
+            {
+                m_Device->TransitionVulkanImageLayout(cmd, cubemapVk->GetImage(), mipLevel, arrayLayer, cubemapVk->GetImageLayout(arrayLayer, mipLevel), VK_IMAGE_LAYOUT_GENERAL,
+                                                      VK_IMAGE_ASPECT_COLOR_BIT);
+                cubemapVk->SetImageLayout(arrayLayer, mipLevel, VK_IMAGE_LAYOUT_GENERAL);
+            }
+        }
+
+        VkDescriptorImageInfo imageBufferInfo = {};
+        imageBufferInfo.imageView = cubemapVk->GetImageView();
+        imageBufferInfo.sampler = samplerVk->GetSampler();
+        imageBufferInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+        VkWriteDescriptorSet textureToWrite = {};
+        textureToWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        textureToWrite.pNext = nullptr;
+        textureToWrite.dstBinding = info.Binding;
+        textureToWrite.dstSet = descriptorSets.at(info.Set);
+        textureToWrite.descriptorCount = 1;
+        textureToWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        textureToWrite.pImageInfo = &imageBufferInfo;
+
+        vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &textureToWrite, 0, nullptr);
+
+        CombinedImageSampler ciSampler{};
+        ciSampler.ImageTexture = cubemapVk;
+        ciSampler.ImageSampler = sampler;
+        m_BoundCombinedImageSamplers[name] = ciSampler;
+    });
 }
 
 const std::map<uint32_t, VkDescriptorSetLayout> &ResourceSetVk::GetDescriptorSetLayouts() const

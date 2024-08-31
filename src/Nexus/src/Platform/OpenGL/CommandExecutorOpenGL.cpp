@@ -254,6 +254,11 @@ void CommandExecutorOpenGL::ExecuteCommand(Ref<ResourceSet> command, GraphicsDev
                 glSampler->Bind(location, glCubemap->GetLevels() > 1);
             }
         }
+
+        else
+        {
+            throw std::runtime_error("Attempting to bind invalid texture type");
+        }
     }
 
     GLuint uniformBufferSlot = 0;

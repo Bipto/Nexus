@@ -69,7 +69,8 @@ class GraphicsDeviceVk : public GraphicsDevice
     const VkPhysicalDeviceProperties &GetDeviceProperties();
 
     void ImmediateSubmit(std::function<void(VkCommandBuffer cmd)> &&function);
-    void TransitionVulkanImageLayout(VkCommandBuffer cmdBuffer, VkImage image, uint32_t level, VkImageLayout oldLayout, VkImageLayout newLayout, VkImageAspectFlagBits aspectMask);
+    void TransitionVulkanImageLayout(VkCommandBuffer cmdBuffer, VkImage image, uint32_t mipLevel, uint32_t arrayLayer, VkImageLayout oldLayout, VkImageLayout newLayout,
+                                     VkImageAspectFlagBits aspectMask);
     uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
     Vk::AllocatedBuffer CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
 
