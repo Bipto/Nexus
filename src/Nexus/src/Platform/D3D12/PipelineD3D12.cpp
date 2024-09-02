@@ -141,29 +141,13 @@ void PipelineD3D12::CreateRootSignature()
 
 void PipelineD3D12::CreatePipeline()
 {
-    uint32_t sampleCount = 1;
+    uint32_t sampleCount = GetSampleCount(m_Description.ColourTargetSampleCount);
     std::vector<DXGI_FORMAT> rtvFormats;
 
-    // multisampling is only supported on framebuffers
-    if (m_Description.Target.GetType() == RenderTargetType::Framebuffer)
+    for (uint32_t index = 0; index < m_Description.ColourTargetCount; index++)
     {
-        auto framebuffer = std::dynamic_pointer_cast<FramebufferD3D12>(m_Description.Target.GetData<Ref<Framebuffer>>());
-        sampleCount = GetSampleCount(framebuffer->GetFramebufferSpecification().Samples);
-
-        for (uint32_t i = 0; i < framebuffer->GetColorTextureCount(); i++)
-        {
-            rtvFormats.push_back(DXGI_FORMAT_R8G8B8A8_UNORM);
-        }
-    }
-    else if (m_Description.Target.GetType() == RenderTargetType::Swapchain)
-    {
-        auto swapchain = (SwapchainD3D12 *)m_Description.Target.GetData<Swapchain *>();
-        sampleCount = GetSampleCount(swapchain->GetSpecification().Samples);
-        rtvFormats.push_back(DXGI_FORMAT_R8G8B8A8_UNORM);
-    }
-    else
-    {
-        throw std::runtime_error("Failed to find a valid render target type");
+        DXGI_FORMAT colourFormat = D3D12::GetD3D12PixelFormat(m_Description.ColourFormats.at(index), false);
+        rtvFormats.push_back(colourFormat);
     }
 
     D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineDesc{};
@@ -244,7 +228,8 @@ void PipelineD3D12::CreatePipeline()
         pipelineDesc.RTVFormats[rtvIndex] = rtvFormats.at(rtvIndex);
     }
 
-    pipelineDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    DXGI_FORMAT depthFormat = D3D12::GetD3D12PixelFormat(m_Description.DepthFormat, true);
+    pipelineDesc.DSVFormat = depthFormat;
     pipelineDesc.BlendState = CreateBlendStateDesc();
     pipelineDesc.DepthStencilState = CreateDepthStencilDesc();
     pipelineDesc.SampleMask = 0xFFFFFFFF;

@@ -55,7 +55,11 @@ Ref<Cubemap> HdriProcessor::Generate(uint32_t size)
     pipelineDescription.FragmentModule = m_Device->CreateShaderModuleFromSpirvFile("engine-resources/shaders/hdri.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
     pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Camera", 0, 0}};
     pipelineDescription.ResourceSetSpec.SampledImages = {{"equirectangularMap", 1, 0}};
-    pipelineDescription.Target = Nexus::Graphics::RenderTarget{framebuffer};
+
+    pipelineDescription.ColourFormats[0] = Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float;
+    pipelineDescription.ColourTargetCount = 1;
+    pipelineDescription.DepthFormat = Nexus::Graphics::PixelFormat::D32_Float_S8_UInt;
+
     pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
     Ref<Pipeline> pipeline = m_Device->CreatePipeline(pipelineDescription);
     Ref<ResourceSet> resourceSet = m_Device->CreateResourceSet(pipeline);
@@ -104,6 +108,7 @@ Ref<Cubemap> HdriProcessor::Generate(uint32_t size)
 
         commandList->Begin();
         commandList->SetPipeline(pipeline);
+        commandList->SetRenderTarget(Nexus::Graphics::RenderTarget(framebuffer));
 
         Nexus::Graphics::Viewport vp{};
         vp.X = 0;

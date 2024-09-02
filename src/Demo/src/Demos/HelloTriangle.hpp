@@ -37,6 +37,7 @@ class HelloTriangleDemo : public Demo
     {
         m_CommandList->Begin();
         m_CommandList->SetPipeline(m_Pipeline);
+        m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()));
 
         Nexus::Graphics::Viewport vp;
         vp.X = 0;
@@ -79,7 +80,10 @@ class HelloTriangleDemo : public Demo
         pipelineDescription.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::None;
         pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
         pipelineDescription.Layouts = {Nexus::Graphics::VertexPosition::GetLayout()};
-        pipelineDescription.Target = Nexus::Graphics::RenderTarget{m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
+
+        pipelineDescription.ColourTargetCount = 1;
+        pipelineDescription.ColourFormats[0] = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
+        pipelineDescription.ColourTargetSampleCount = m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->GetSpecification().Samples;
 
         pipelineDescription.VertexModule =
             m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/hello_triangle.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);

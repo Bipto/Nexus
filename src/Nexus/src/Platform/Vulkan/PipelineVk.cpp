@@ -40,7 +40,7 @@ PipelineVk::PipelineVk(const PipelineDescription &description, GraphicsDeviceVk 
     viewportState.pScissors = nullptr;
 
     std::vector<VkPipelineColorBlendAttachmentState> blendStates;
-    for (int i = 0; i < m_Description.Target.GetColorAttachmentCount(); i++)
+    for (int i = 0; i < m_Description.ColourTargetCount; i++)
     {
         blendStates.push_back(CreateColorBlendAttachmentState());
     }
@@ -145,7 +145,7 @@ PipelineVk::PipelineVk(const PipelineDescription &description, GraphicsDeviceVk 
 
     pipelineInfo.pDynamicState = &dynamicInfo;
 
-    if (m_Description.Target.GetType() == RenderTargetType::Swapchain)
+    /* if (m_Description.Target.GetType() == RenderTargetType::Swapchain)
     {
         auto swapchainVk = (SwapchainVk *)m_Description.Target.GetData<Swapchain *>();
         pipelineInfo.renderPass = swapchainVk->GetRenderPass();
@@ -158,7 +158,7 @@ PipelineVk::PipelineVk(const PipelineDescription &description, GraphicsDeviceVk 
     else
     {
         throw std::runtime_error("Invalid render target entered");
-    }
+    } */
 
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
@@ -237,7 +237,7 @@ VkPipelineMultisampleStateCreateInfo PipelineVk::CreateMultisampleStateCreateInf
     VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT;
 
     // multisampling is only supported on framebuffers
-    if (m_Description.Target.GetType() == RenderTargetType::Framebuffer)
+    /* if (m_Description.Target.GetType() == RenderTargetType::Framebuffer)
     {
         auto framebufferVk = std::dynamic_pointer_cast<FramebufferVk>(m_Description.Target.GetData<Ref<Framebuffer>>());
         samples = Vk::GetVkSampleCount(framebufferVk->GetFramebufferSpecification().Samples);
@@ -250,7 +250,7 @@ VkPipelineMultisampleStateCreateInfo PipelineVk::CreateMultisampleStateCreateInf
     else
     {
         throw std::runtime_error("Failed to find a valid render target type");
-    }
+    } */
 
     VkPipelineMultisampleStateCreateInfo info = {};
     info.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;

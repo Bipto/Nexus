@@ -110,8 +110,6 @@ void CommandExecutorVk::ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice
     }
 
     auto vulkanPipeline = std::dynamic_pointer_cast<PipelineVk>(command.lock());
-
-    ExecuteCommand(vulkanPipeline->GetPipelineDescription().Target, device);
     vkCmdBindPipeline(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanPipeline->GetPipeline());
     m_CurrentlyBoundPipeline = vulkanPipeline;
 }

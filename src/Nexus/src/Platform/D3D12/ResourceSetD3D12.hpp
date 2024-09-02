@@ -6,6 +6,8 @@
 #include "Nexus-Core/nxpch.hpp"
 #include "Platform/D3D12/GraphicsDeviceD3D12.hpp"
 
+#include "SamplerD3D12.hpp"
+
 namespace Nexus::Graphics
 {
 class ResourceSetD3D12 : public ResourceSet

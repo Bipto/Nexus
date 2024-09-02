@@ -63,8 +63,6 @@ void CommandExecutorD3D12::ExecuteCommand(WeakRef<Pipeline> command, GraphicsDev
     Ref<PipelineD3D12> d3d12Pipeline = std::dynamic_pointer_cast<PipelineD3D12>(command.lock());
     const auto &description = d3d12Pipeline->GetPipelineDescription();
 
-    ExecuteCommand(d3d12Pipeline->GetPipelineDescription().Target, device);
-
     m_CommandList->OMSetDepthBounds(description.DepthStencilDesc.MinDepth, description.DepthStencilDesc.MaxDepth);
     m_CommandList->SetPipelineState(d3d12Pipeline->GetPipelineState());
     m_CommandList->SetGraphicsRootSignature(d3d12Pipeline->GetRootSignature());
@@ -254,6 +252,9 @@ void CommandExecutorD3D12::SetSwapchain(SwapchainD3D12 *swapchain, GraphicsDevic
 
         ResetPreviousRenderTargets(device);
 
+        m_DescriptorHandles = {swapchain->RetrieveRenderTargetViewDescriptorHandle()};
+        m_DepthHandle = swapchain->RetrieveDepthBufferDescriptorHandle();
+
         deviceD3D12->ResourceBarrierSwapchainColour(m_CommandList.Get(), swapchain, D3D12_RESOURCE_STATE_RENDER_TARGET);
         deviceD3D12->ResourceBarrierSwapchainDepth(m_CommandList.Get(), swapchain, D3D12_RESOURCE_STATE_DEPTH_WRITE);
     }
@@ -269,6 +270,7 @@ void CommandExecutorD3D12::SetFramebuffer(Ref<FramebufferD3D12> framebuffer, Gra
     GraphicsDeviceD3D12 *deviceD3D12 = (GraphicsDeviceD3D12 *)device;
 
     m_DescriptorHandles = framebuffer->GetColorAttachmentCPUHandles();
+    m_DepthHandle = framebuffer->GetDepthAttachmentCPUHandle();
 
     for (size_t i = 0; i < framebuffer->GetColorTextureCount(); i++)
     {
@@ -278,8 +280,6 @@ void CommandExecutorD3D12::SetFramebuffer(Ref<FramebufferD3D12> framebuffer, Gra
 
     if (framebuffer->HasDepthTexture())
     {
-        m_DepthHandle = framebuffer->GetDepthAttachmentCPUHandle();
-
         Ref<Texture2D_D3D12> depthBuffer = framebuffer->GetD3D12DepthTexture();
         deviceD3D12->ResourceBarrier(m_CommandList.Get(), depthBuffer, 0, D3D12_RESOURCE_STATE_DEPTH_WRITE);
     }

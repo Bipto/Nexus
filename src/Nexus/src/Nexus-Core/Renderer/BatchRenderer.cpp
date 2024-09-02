@@ -51,22 +51,6 @@ const std::string s_BatchTextureFragmentShaderSource = "#version 450 core\n"
                                                        "layout (set = 1, binding = 13) uniform sampler2D texture13;\n"
                                                        "layout (set = 1, binding = 14) uniform sampler2D texture14;\n"
                                                        "layout (set = 1, binding = 15) uniform sampler2D texture15;\n"
-                                                       "layout (set = 1, binding = 16) uniform sampler2D texture16;\n"
-                                                       "layout (set = 1, binding = 17) uniform sampler2D texture17;\n"
-                                                       "layout (set = 1, binding = 18) uniform sampler2D texture18;\n"
-                                                       "layout (set = 1, binding = 19) uniform sampler2D texture19;\n"
-                                                       "layout (set = 1, binding = 20) uniform sampler2D texture20;\n"
-                                                       "layout (set = 1, binding = 21) uniform sampler2D texture21;\n"
-                                                       "layout (set = 1, binding = 22) uniform sampler2D texture22;\n"
-                                                       "layout (set = 1, binding = 23) uniform sampler2D texture23;\n"
-                                                       "layout (set = 1, binding = 24) uniform sampler2D texture24;\n"
-                                                       "layout (set = 1, binding = 25) uniform sampler2D texture25;\n"
-                                                       "layout (set = 1, binding = 26) uniform sampler2D texture26;\n"
-                                                       "layout (set = 1, binding = 27) uniform sampler2D texture27;\n"
-                                                       "layout (set = 1, binding = 28) uniform sampler2D texture28;\n"
-                                                       "layout (set = 1, binding = 29) uniform sampler2D texture29;\n"
-                                                       "layout (set = 1, binding = 30) uniform sampler2D texture30;\n"
-                                                       "layout (set = 1, binding = 31) uniform sampler2D texture31;\n"
 
                                                        "void main()\n"
                                                        "{\n"
@@ -88,22 +72,6 @@ const std::string s_BatchTextureFragmentShaderSource = "#version 450 core\n"
                                                        "        case 13: FragColor = texture(texture13, texCoord); break;\n"
                                                        "        case 14: FragColor = texture(texture14, texCoord); break;\n"
                                                        "        case 15: FragColor = texture(texture15, texCoord); break;\n"
-                                                       "        case 16: FragColor = texture(texture16, texCoord); break;\n"
-                                                       "        case 17: FragColor = texture(texture17, texCoord); break;\n"
-                                                       "        case 18: FragColor = texture(texture18, texCoord); break;\n"
-                                                       "        case 19: FragColor = texture(texture19, texCoord); break;\n"
-                                                       "        case 20: FragColor = texture(texture20, texCoord); break;\n"
-                                                       "        case 21: FragColor = texture(texture21, texCoord); break;\n"
-                                                       "        case 22: FragColor = texture(texture22, texCoord); break;\n"
-                                                       "        case 23: FragColor = texture(texture23, texCoord); break;\n"
-                                                       "        case 24: FragColor = texture(texture24, texCoord); break;\n"
-                                                       "        case 25: FragColor = texture(texture25, texCoord); break;\n"
-                                                       "        case 26: FragColor = texture(texture26, texCoord); break;\n"
-                                                       "        case 27: FragColor = texture(texture27, texCoord); break;\n"
-                                                       "        case 28: FragColor = texture(texture28, texCoord); break;\n"
-                                                       "        case 29: FragColor = texture(texture29, texCoord); break;\n"
-                                                       "        case 30: FragColor = texture(texture30, texCoord); break;\n"
-                                                       "        case 31: FragColor = texture(texture31, texCoord); break;\n"
                                                        "    }\n"
                                                        "    FragColor *= outColor;\n"
                                                        "}\n";
@@ -132,22 +100,6 @@ const std::string s_BatchFontFragmentShaderSource = "#version 450 core\n"
                                                     "layout (set = 1, binding = 13) uniform sampler2D texture13;\n"
                                                     "layout (set = 1, binding = 14) uniform sampler2D texture14;\n"
                                                     "layout (set = 1, binding = 15) uniform sampler2D texture15;\n"
-                                                    "layout (set = 1, binding = 16) uniform sampler2D texture16;\n"
-                                                    "layout (set = 1, binding = 17) uniform sampler2D texture17;\n"
-                                                    "layout (set = 1, binding = 18) uniform sampler2D texture18;\n"
-                                                    "layout (set = 1, binding = 19) uniform sampler2D texture19;\n"
-                                                    "layout (set = 1, binding = 20) uniform sampler2D texture20;\n"
-                                                    "layout (set = 1, binding = 21) uniform sampler2D texture21;\n"
-                                                    "layout (set = 1, binding = 22) uniform sampler2D texture22;\n"
-                                                    "layout (set = 1, binding = 23) uniform sampler2D texture23;\n"
-                                                    "layout (set = 1, binding = 24) uniform sampler2D texture24;\n"
-                                                    "layout (set = 1, binding = 25) uniform sampler2D texture25;\n"
-                                                    "layout (set = 1, binding = 26) uniform sampler2D texture26;\n"
-                                                    "layout (set = 1, binding = 27) uniform sampler2D texture27;\n"
-                                                    "layout (set = 1, binding = 28) uniform sampler2D texture28;\n"
-                                                    "layout (set = 1, binding = 29) uniform sampler2D texture29;\n"
-                                                    "layout (set = 1, binding = 30) uniform sampler2D texture30;\n"
-                                                    "layout (set = 1, binding = 31) uniform sampler2D texture31;\n"
 
                                                     "void main()\n"
                                                     "{\n"
@@ -171,22 +123,6 @@ const std::string s_BatchFontFragmentShaderSource = "#version 450 core\n"
                                                     "        case 13: alpha = texture(texture13, texCoord).r; break;\n"
                                                     "        case 14: alpha = texture(texture14, texCoord).r; break;\n"
                                                     "        case 15: alpha = texture(texture15, texCoord).r; break;\n"
-                                                    "        case 16: alpha = texture(texture16, texCoord).r; break;\n"
-                                                    "        case 17: alpha = texture(texture17, texCoord).r; break;\n"
-                                                    "        case 18: alpha = texture(texture18, texCoord).r; break;\n"
-                                                    "        case 19: alpha = texture(texture19, texCoord).r; break;\n"
-                                                    "        case 20: alpha = texture(texture20, texCoord).r; break;\n"
-                                                    "        case 21: alpha = texture(texture21, texCoord).r; break;\n"
-                                                    "        case 22: alpha = texture(texture22, texCoord).r; break;\n"
-                                                    "        case 23: alpha = texture(texture23, texCoord).r; break;\n"
-                                                    "        case 24: alpha = texture(texture24, texCoord).r; break;\n"
-                                                    "        case 25: alpha = texture(texture25, texCoord).r; break;\n"
-                                                    "        case 26: alpha = texture(texture26, texCoord).r; break;\n"
-                                                    "        case 27: alpha = texture(texture27, texCoord).r; break;\n"
-                                                    "        case 28: alpha = texture(texture28, texCoord).r; break;\n"
-                                                    "        case 29: alpha = texture(texture29, texCoord).r; break;\n"
-                                                    "        case 30: alpha = texture(texture30, texCoord).r; break;\n"
-                                                    "        case 31: alpha = texture(texture31, texCoord).r; break;\n"
                                                     "    }\n"
                                                     "    FragColor = vec4(outColor.rgb, alpha);\n"
                                                     "}\n";
@@ -215,22 +151,6 @@ const std::string s_BatchSDFFragmentShaderSource = "#version 450 core\n"
                                                    "layout (set = 1, binding = 13) uniform sampler2D texture13;\n"
                                                    "layout (set = 1, binding = 14) uniform sampler2D texture14;\n"
                                                    "layout (set = 1, binding = 15) uniform sampler2D texture15;\n"
-                                                   "layout (set = 1, binding = 16) uniform sampler2D texture16;\n"
-                                                   "layout (set = 1, binding = 17) uniform sampler2D texture17;\n"
-                                                   "layout (set = 1, binding = 18) uniform sampler2D texture18;\n"
-                                                   "layout (set = 1, binding = 19) uniform sampler2D texture19;\n"
-                                                   "layout (set = 1, binding = 20) uniform sampler2D texture20;\n"
-                                                   "layout (set = 1, binding = 21) uniform sampler2D texture21;\n"
-                                                   "layout (set = 1, binding = 22) uniform sampler2D texture22;\n"
-                                                   "layout (set = 1, binding = 23) uniform sampler2D texture23;\n"
-                                                   "layout (set = 1, binding = 24) uniform sampler2D texture24;\n"
-                                                   "layout (set = 1, binding = 25) uniform sampler2D texture25;\n"
-                                                   "layout (set = 1, binding = 26) uniform sampler2D texture26;\n"
-                                                   "layout (set = 1, binding = 27) uniform sampler2D texture27;\n"
-                                                   "layout (set = 1, binding = 28) uniform sampler2D texture28;\n"
-                                                   "layout (set = 1, binding = 29) uniform sampler2D texture29;\n"
-                                                   "layout (set = 1, binding = 30) uniform sampler2D texture30;\n"
-                                                   "layout (set = 1, binding = 31) uniform sampler2D texture31;\n"
 
                                                    "void main()\n"
                                                    "{\n"
@@ -254,22 +174,6 @@ const std::string s_BatchSDFFragmentShaderSource = "#version 450 core\n"
                                                    "        case 13: alpha = texture(texture13, texCoord).r; break;\n"
                                                    "        case 14: alpha = texture(texture14, texCoord).r; break;\n"
                                                    "        case 15: alpha = texture(texture15, texCoord).r; break;\n"
-                                                   "        case 16: alpha = texture(texture16, texCoord).r; break;\n"
-                                                   "        case 17: alpha = texture(texture17, texCoord).r; break;\n"
-                                                   "        case 18: alpha = texture(texture18, texCoord).r; break;\n"
-                                                   "        case 19: alpha = texture(texture19, texCoord).r; break;\n"
-                                                   "        case 20: alpha = texture(texture20, texCoord).r; break;\n"
-                                                   "        case 21: alpha = texture(texture21, texCoord).r; break;\n"
-                                                   "        case 22: alpha = texture(texture22, texCoord).r; break;\n"
-                                                   "        case 23: alpha = texture(texture23, texCoord).r; break;\n"
-                                                   "        case 24: alpha = texture(texture24, texCoord).r; break;\n"
-                                                   "        case 25: alpha = texture(texture25, texCoord).r; break;\n"
-                                                   "        case 26: alpha = texture(texture26, texCoord).r; break;\n"
-                                                   "        case 27: alpha = texture(texture27, texCoord).r; break;\n"
-                                                   "        case 28: alpha = texture(texture28, texCoord).r; break;\n"
-                                                   "        case 29: alpha = texture(texture29, texCoord).r; break;\n"
-                                                   "        case 30: alpha = texture(texture30, texCoord).r; break;\n"
-                                                   "        case 31: alpha = texture(texture31, texCoord).r; break;\n"
                                                    "    }\n"
 
                                                    "    if (alpha < 0.45)\n"
@@ -304,22 +208,6 @@ const std::string s_RoundedRectFragmentShaderSource = "#version 450 core\n"
                                                       "layout (set = 1, binding = 13) uniform sampler2D texture13;\n"
                                                       "layout (set = 1, binding = 14) uniform sampler2D texture14;\n"
                                                       "layout (set = 1, binding = 15) uniform sampler2D texture15;\n"
-                                                      "layout (set = 1, binding = 16) uniform sampler2D texture16;\n"
-                                                      "layout (set = 1, binding = 17) uniform sampler2D texture17;\n"
-                                                      "layout (set = 1, binding = 18) uniform sampler2D texture18;\n"
-                                                      "layout (set = 1, binding = 19) uniform sampler2D texture19;\n"
-                                                      "layout (set = 1, binding = 20) uniform sampler2D texture20;\n"
-                                                      "layout (set = 1, binding = 21) uniform sampler2D texture21;\n"
-                                                      "layout (set = 1, binding = 22) uniform sampler2D texture22;\n"
-                                                      "layout (set = 1, binding = 23) uniform sampler2D texture23;\n"
-                                                      "layout (set = 1, binding = 24) uniform sampler2D texture24;\n"
-                                                      "layout (set = 1, binding = 25) uniform sampler2D texture25;\n"
-                                                      "layout (set = 1, binding = 26) uniform sampler2D texture26;\n"
-                                                      "layout (set = 1, binding = 27) uniform sampler2D texture27;\n"
-                                                      "layout (set = 1, binding = 28) uniform sampler2D texture28;\n"
-                                                      "layout (set = 1, binding = 29) uniform sampler2D texture29;\n"
-                                                      "layout (set = 1, binding = 30) uniform sampler2D texture30;\n"
-                                                      "layout (set = 1, binding = 31) uniform sampler2D texture31;\n"
                                                       "float roundedBoxSDF(vec2 CenterPosition, vec2 Size, float Radius) {\n"
                                                       "return length(max(abs(CenterPosition)-Size+Radius,0.0))-Radius;\n"
                                                       "}\n"
@@ -343,22 +231,6 @@ const std::string s_RoundedRectFragmentShaderSource = "#version 450 core\n"
                                                       "        case 13: FragColor = texture(texture13, texCoord); break;\n"
                                                       "        case 14: FragColor = texture(texture14, texCoord); break;\n"
                                                       "        case 15: FragColor = texture(texture15, texCoord); break;\n"
-                                                      "        case 16: FragColor = texture(texture16, texCoord); break;\n"
-                                                      "        case 17: FragColor = texture(texture17, texCoord); break;\n"
-                                                      "        case 18: FragColor = texture(texture18, texCoord); break;\n"
-                                                      "        case 19: FragColor = texture(texture19, texCoord); break;\n"
-                                                      "        case 20: FragColor = texture(texture20, texCoord); break;\n"
-                                                      "        case 21: FragColor = texture(texture21, texCoord); break;\n"
-                                                      "        case 22: FragColor = texture(texture22, texCoord); break;\n"
-                                                      "        case 23: FragColor = texture(texture23, texCoord); break;\n"
-                                                      "        case 24: FragColor = texture(texture24, texCoord); break;\n"
-                                                      "        case 25: FragColor = texture(texture25, texCoord); break;\n"
-                                                      "        case 26: FragColor = texture(texture26, texCoord); break;\n"
-                                                      "        case 27: FragColor = texture(texture27, texCoord); break;\n"
-                                                      "        case 28: FragColor = texture(texture28, texCoord); break;\n"
-                                                      "        case 29: FragColor = texture(texture29, texCoord); break;\n"
-                                                      "        case 30: FragColor = texture(texture30, texCoord); break;\n"
-                                                      "        case 31: FragColor = texture(texture31, texCoord); break;\n"
                                                       "    }\n"
                                                       "    FragColor *= outColor;\n"
                                                       "	vec2 size = vec2(1, 1);\n"
@@ -388,15 +260,7 @@ Nexus::Graphics::ResourceSetSpecification GetResourceSetSpecification()
         {"texture8", 1, 8, Nexus::Graphics::ResourceType::CombinedImageSampler},   {"texture9", 1, 9, Nexus::Graphics::ResourceType::CombinedImageSampler},
         {"texture10", 1, 10, Nexus::Graphics::ResourceType::CombinedImageSampler}, {"texture11", 1, 11, Nexus::Graphics::ResourceType::CombinedImageSampler},
         {"texture12", 1, 12, Nexus::Graphics::ResourceType::CombinedImageSampler}, {"texture13", 1, 13, Nexus::Graphics::ResourceType::CombinedImageSampler},
-        {"texture14", 1, 14, Nexus::Graphics::ResourceType::CombinedImageSampler}, {"texture15", 1, 15, Nexus::Graphics::ResourceType::CombinedImageSampler},
-        {"texture16", 1, 16, Nexus::Graphics::ResourceType::CombinedImageSampler}, {"texture17", 1, 17, Nexus::Graphics::ResourceType::CombinedImageSampler},
-        {"texture18", 1, 18, Nexus::Graphics::ResourceType::CombinedImageSampler}, {"texture19", 1, 19, Nexus::Graphics::ResourceType::CombinedImageSampler},
-        {"texture20", 1, 20, Nexus::Graphics::ResourceType::CombinedImageSampler}, {"texture21", 1, 21, Nexus::Graphics::ResourceType::CombinedImageSampler},
-        {"texture22", 1, 22, Nexus::Graphics::ResourceType::CombinedImageSampler}, {"texture23", 1, 23, Nexus::Graphics::ResourceType::CombinedImageSampler},
-        {"texture24", 1, 24, Nexus::Graphics::ResourceType::CombinedImageSampler}, {"texture25", 1, 25, Nexus::Graphics::ResourceType::CombinedImageSampler},
-        {"texture26", 1, 26, Nexus::Graphics::ResourceType::CombinedImageSampler}, {"texture27", 1, 27, Nexus::Graphics::ResourceType::CombinedImageSampler},
-        {"texture28", 1, 28, Nexus::Graphics::ResourceType::CombinedImageSampler}, {"texture29", 1, 29, Nexus::Graphics::ResourceType::CombinedImageSampler},
-        {"texture30", 1, 30, Nexus::Graphics::ResourceType::CombinedImageSampler}, {"texture31", 1, 31, Nexus::Graphics::ResourceType::CombinedImageSampler}};
+        {"texture14", 1, 14, Nexus::Graphics::ResourceType::CombinedImageSampler}, {"texture15", 1, 15, Nexus::Graphics::ResourceType::CombinedImageSampler}};
 
     resourceSpec.UniformBuffers = {{"MVP", 0, 0, Nexus::Graphics::ResourceType::UniformBuffer}};
 
@@ -463,7 +327,11 @@ void CreateBatcher(BatchInfo &info, Nexus::Graphics::GraphicsDevice *device, Nex
     description.VertexModule = vertexModule;
     description.FragmentModule = fragmentModule;
     description.ResourceSetSpec = GetResourceSetSpecification();
-    description.Target = target;
+
+    description.ColourFormats[0] = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
+    description.ColourTargetCount = 1;
+    description.DepthFormat = Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt;
+
     description.BlendStateDesc.EnableBlending = true;
     description.BlendStateDesc.SourceColourBlend = BlendFactor::SourceAlpha;
     description.BlendStateDesc.DestinationColourBlend = BlendFactor::OneMinusSourceAlpha;
@@ -471,6 +339,8 @@ void CreateBatcher(BatchInfo &info, Nexus::Graphics::GraphicsDevice *device, Nex
     description.BlendStateDesc.SourceAlphaBlend = BlendFactor::SourceAlpha;
     description.BlendStateDesc.DestinationAlphaBlend = BlendFactor::OneMinusSourceAlpha;
     description.BlendStateDesc.AlphaBlendFunction = BlendEquation::Add;
+
+    description.ColourTargetSampleCount = device->GetPrimaryWindow()->GetSwapchain()->GetSpecification().Samples;
 
     info.Pipeline = device->CreatePipeline(description);
     info.ResourceSet = device->CreateResourceSet(info.Pipeline);
@@ -1120,6 +990,7 @@ void BatchRenderer::PerformDraw(BatchInfo &info)
 
     m_CommandList->Begin();
     m_CommandList->SetPipeline(info.Pipeline);
+    m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(m_Device->GetPrimaryWindow()->GetSwapchain()));
     m_CommandList->SetViewport(m_Viewport);
     m_CommandList->SetScissor(m_ScissorRectangle);
     m_CommandList->SetResourceSet(info.ResourceSet);

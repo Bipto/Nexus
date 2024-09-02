@@ -86,9 +86,12 @@ ImGuiGraphicsRenderer::ImGuiGraphicsRenderer(Nexus::Application *app) : m_Applic
     pipelineDesc.VertexModule = vertexModule;
     pipelineDesc.FragmentModule = fragmentModule;
 
-    pipelineDesc.Target = Nexus::Graphics::RenderTarget{m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
-    pipelineDesc.BlendStateDesc.EnableBlending = true;
+    pipelineDesc.ColourFormats[0] = Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
+    pipelineDesc.ColourTargetCount = 1;
+    pipelineDesc.ColourTargetSampleCount = m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->GetSpecification().Samples;
+    pipelineDesc.DepthFormat = Graphics::PixelFormat::D24_UNorm_S8_UInt;
 
+    pipelineDesc.BlendStateDesc.EnableBlending = true;
     pipelineDesc.BlendStateDesc.SourceColourBlend = Nexus::Graphics::BlendFactor::SourceAlpha;
     pipelineDesc.BlendStateDesc.DestinationColourBlend = Nexus::Graphics::BlendFactor::OneMinusSourceAlpha;
     pipelineDesc.BlendStateDesc.ColorBlendFunction = Nexus::Graphics::BlendEquation::Add;
@@ -174,12 +177,6 @@ ImGuiGraphicsRenderer::ImGuiGraphicsRenderer(Nexus::Application *app) : m_Applic
 
         ImGuiWindowInfo *info = new ImGuiWindowInfo();
         info->Window = window;
-
-        Nexus::Graphics::PipelineDescription pipelineDesc = s_ImGuiRenderer->GetPipeline()->GetPipelineDescription();
-        pipelineDesc.Target = Nexus::Graphics::RenderTarget{window->GetSwapchain()};
-
-        Nexus::Ref<Nexus::Graphics::Pipeline> pipeline = graphicsDevice->CreatePipeline(pipelineDesc);
-        info->Pipeline = pipeline;
 
         vp->PlatformUserData = info;
         vp->RendererUserData = info;
@@ -324,7 +321,6 @@ ImGuiGraphicsRenderer::ImGuiGraphicsRenderer(Nexus::Application *app) : m_Applic
 
     ImGuiWindowInfo *info = new ImGuiWindowInfo();
     info->Window = app->GetPrimaryWindow();
-    info->Pipeline = m_Pipeline;
     vp->PlatformUserData = info;
     vp->RendererUserData = info;
 }
@@ -569,7 +565,8 @@ void ImGuiGraphicsRenderer::RenderCommandLists(ImDrawData *drawData)
     ImGuiWindowInfo *info = (ImGuiWindowInfo *)drawData->OwnerViewport->PlatformUserData;
 
     m_CommandList->Begin();
-    m_CommandList->SetPipeline(info->Pipeline);
+    m_CommandList->SetPipeline(m_Pipeline);
+    m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(info->Window->GetSwapchain()));
     m_CommandList->SetVertexBuffer(m_VertexBuffer, 0);
     m_CommandList->SetIndexBuffer(m_IndexBuffer);
 
