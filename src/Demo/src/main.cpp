@@ -257,7 +257,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
     spec.WindowProperties.Title = "Demo";
     spec.WindowProperties.Resizable = true;
 
-    spec.SwapchainSpecification.Samples = Nexus::Graphics::SampleCount::SampleCount1;
+    spec.SwapchainSpecification.Samples = Nexus::Graphics::SampleCount::SampleCount8;
 
     return new DemoApplication(spec);
 }

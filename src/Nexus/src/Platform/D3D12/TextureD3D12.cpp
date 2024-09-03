@@ -345,13 +345,25 @@ void Cubemap_D3D12::SetData(const void *data, CubemapFace face, uint32_t level, 
     D3D12_RESOURCE_DESC1 uploadBufferDesc = m_UploadBuffer->GetDesc1();
     D3D12_RESOURCE_DESC1 cubemapDesc = m_Texture->GetDesc1();
 
+    D3D12_PLACED_SUBRESOURCE_FOOTPRINT uploadFootprint;
+    UINT uploadRows;
+    UINT64 uploadBytesPerRow;
+    UINT64 uploadTotalBytes;
+    d3d12Device->GetCopyableFootprints1(&uploadBufferDesc, 0, 1, 0, &uploadFootprint, &uploadRows, &uploadBytesPerRow, &uploadTotalBytes);
+
+    D3D12_PLACED_SUBRESOURCE_FOOTPRINT cubemapFootprint;
+    UINT cubemapRows;
+    UINT64 cubemapBytesPerRow;
+    UINT64 cubemapTotalBytes;
+    d3d12Device->GetCopyableFootprints1(&cubemapDesc, 0, 1, 0, &cubemapFootprint, &cubemapRows, &cubemapBytesPerRow, &cubemapTotalBytes);
+
     // upload data to staging buffer
     {
-        D3D12_RANGE uploadRange{.Begin = 0, .End = sizeInBytes};
+        D3D12_RANGE uploadRange{.Begin = 0, .End = uploadTotalBytes};
 
         void *uploadBufferAddress;
         m_UploadBuffer->Map(0, nullptr, &uploadBufferAddress);
-        memcpy(uploadBufferAddress, data, sizeInBytes);
+        memcpy(uploadBufferAddress, data, uploadTotalBytes);
         m_UploadBuffer->Unmap(0, &uploadRange);
     }
 
@@ -380,12 +392,6 @@ void Cubemap_D3D12::SetData(const void *data, CubemapFace face, uint32_t level, 
     textureBounds.bottom = textureBounds.top + height;
     textureBounds.front = 0;
     textureBounds.back = 1;
-
-    D3D12_PLACED_SUBRESOURCE_FOOTPRINT cubemapFootprint;
-    UINT cubemapRows;
-    UINT64 cubemapBytesPerRow;
-    UINT64 cubemapTotalBytes;
-    d3d12Device->GetCopyableFootprints1(&cubemapDesc, 0, 1, 0, &cubemapFootprint, &cubemapRows, &cubemapBytesPerRow, &cubemapTotalBytes);
 
     D3D12_TEXTURE_COPY_LOCATION textureSource;
     textureSource.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;

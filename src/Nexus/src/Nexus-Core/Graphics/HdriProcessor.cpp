@@ -51,8 +51,8 @@ Ref<Cubemap> HdriProcessor::Generate(uint32_t size)
     Nexus::Graphics::PipelineDescription pipelineDescription;
     pipelineDescription.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::Back;
     pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
-    pipelineDescription.VertexModule = m_Device->CreateShaderModuleFromSpirvFile("engine-resources/shaders/hdri.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
-    pipelineDescription.FragmentModule = m_Device->CreateShaderModuleFromSpirvFile("engine-resources/shaders/hdri.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
+    pipelineDescription.VertexModule = m_Device->CreateShaderModuleFromSpirvFile("resources/engine/shaders/hdri.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
+    pipelineDescription.FragmentModule = m_Device->CreateShaderModuleFromSpirvFile("resources/engine/shaders/hdri.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
     pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Camera", 0, 0}};
     pipelineDescription.ResourceSetSpec.SampledImages = {{"equirectangularMap", 1, 0}};
 
