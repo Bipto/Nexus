@@ -41,6 +41,7 @@ class Cubemap_D3D12 : public Cubemap
 
     virtual void SetData(const void *data, CubemapFace face, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
     virtual std::vector<std::byte> GetData(CubemapFace face, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
+
     DXGI_FORMAT GetFormat();
     const Microsoft::WRL::ComPtr<ID3D12Resource2> &GetD3D12ResourceHandle();
 
@@ -57,6 +58,7 @@ class Cubemap_D3D12 : public Cubemap
     GraphicsDeviceD3D12 *m_Device = nullptr;
 
     std::vector<std::vector<D3D12_RESOURCE_STATES>> m_ResourceStates;
+    const uint32_t m_MipLevels = 1;
 };
 
 } // namespace Nexus::Graphics

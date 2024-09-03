@@ -81,4 +81,9 @@ template <typename T> inline bool Contains(std::vector<T> items, T toFind)
     return std::find(items.begin(), items.end(), toFind) != items.end();
 }
 
+inline uint32_t CalculateSubresource(uint32_t mipLevel, uint32_t arrayLayer, uint32_t totalMipLevels)
+{
+    return mipLevel + arrayLayer * totalMipLevels;
+}
+
 } // namespace Nexus::Utils
