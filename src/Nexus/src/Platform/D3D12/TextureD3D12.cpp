@@ -142,13 +142,13 @@ void Texture2D_D3D12::SetData(const void *data, uint32_t level, uint32_t x, uint
 std::vector<std::byte> Texture2D_D3D12::GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 {
     ID3D12Device10 *d3d12Device = m_Device->GetDevice();
-    D3D12_RESOURCE_DESC textureDesc = m_Texture->GetDesc();
+    D3D12_RESOURCE_DESC1 textureDesc = m_Texture->GetDesc1();
 
     D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
     UINT numRows;
     UINT64 rowSizeInBytes;
     UINT64 totalBytes;
-    d3d12Device->GetCopyableFootprints(&textureDesc, level, 1, 0, &layout, &numRows, &rowSizeInBytes, &totalBytes);
+    d3d12Device->GetCopyableFootprints1(&textureDesc, level, 1, 0, &layout, &numRows, &rowSizeInBytes, &totalBytes);
 
     D3D12_HEAP_PROPERTIES readbackProperties = {};
     readbackProperties.Type = D3D12_HEAP_TYPE_READBACK;
@@ -417,7 +417,99 @@ void Cubemap_D3D12::SetData(const void *data, CubemapFace face, uint32_t level, 
 
 std::vector<std::byte> Cubemap_D3D12::GetData(CubemapFace face, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 {
-    return std::vector<std::byte>();
+    ID3D12Device10 *d3d12Device = m_Device->GetDevice();
+    D3D12_RESOURCE_DESC1 textureDesc = m_Texture->GetDesc1();
+    uint32_t faceIndex = (uint32_t)face;
+
+    D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
+    UINT numRows;
+    UINT64 rowSizeInBytes;
+    UINT64 totalBytes;
+    d3d12Device->GetCopyableFootprints1(&textureDesc, faceIndex, 1, 0, &layout, &numRows, &rowSizeInBytes, &totalBytes);
+
+    D3D12_HEAP_PROPERTIES readbackProperties = {};
+    readbackProperties.Type = D3D12_HEAP_TYPE_READBACK;
+    readbackProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+    readbackProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+    readbackProperties.CreationNodeMask = 0;
+    readbackProperties.VisibleNodeMask = 0;
+
+    D3D12_RESOURCE_DESC readbackBufferDesc = {};
+    readbackBufferDesc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
+    readbackBufferDesc.DepthOrArraySize = 1;
+    readbackBufferDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+    readbackBufferDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+    readbackBufferDesc.Format = DXGI_FORMAT_UNKNOWN;
+    readbackBufferDesc.Height = 1;
+    readbackBufferDesc.Width = totalBytes;
+    readbackBufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+    readbackBufferDesc.MipLevels = 1;
+    readbackBufferDesc.SampleDesc.Count = 1;
+    readbackBufferDesc.SampleDesc.Quality = 0;
+
+    Microsoft::WRL::ComPtr<ID3D12Resource2> readbackBuffer;
+
+    d3d12Device->CreateCommittedResource(&readbackProperties, D3D12_HEAP_FLAG_NONE, &readbackBufferDesc, D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&readbackBuffer));
+
+    D3D12_TEXTURE_COPY_LOCATION srcLocation = {};
+    srcLocation.pResource = m_Texture.Get();
+    srcLocation.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+    srcLocation.SubresourceIndex = faceIndex;
+
+    D3D12_TEXTURE_COPY_LOCATION dstLocation = {};
+    dstLocation.pResource = readbackBuffer.Get();
+    dstLocation.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+    dstLocation.PlacedFootprint.Offset = 0;
+    dstLocation.PlacedFootprint.Footprint.Depth = 1;
+    dstLocation.PlacedFootprint.Footprint.Format = m_TextureFormat;
+    dstLocation.PlacedFootprint.Footprint.Width = width;
+    dstLocation.PlacedFootprint.Footprint.Height = height;
+    dstLocation.PlacedFootprint.Footprint.RowPitch = rowSizeInBytes;
+
+    D3D12_BOX textureBounds = {};
+    textureBounds.left = x;
+    textureBounds.right = textureBounds.left + width;
+    textureBounds.top = y;
+    textureBounds.bottom = textureBounds.top + height;
+    textureBounds.front = 0;
+    textureBounds.back = 1;
+
+    D3D12_RESOURCE_STATES resourceState = GetResourceState(faceIndex, level);
+
+    D3D12_RESOURCE_BARRIER toReadBarrier = {};
+    toReadBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+    toReadBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+    toReadBarrier.Transition.pResource = m_Texture.Get();
+    toReadBarrier.Transition.Subresource = faceIndex;
+    toReadBarrier.Transition.StateBefore = resourceState;
+    toReadBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_SOURCE;
+
+    D3D12_RESOURCE_BARRIER toDefaultBarrier = {};
+    toDefaultBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+    toDefaultBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+    toDefaultBarrier.Transition.pResource = m_Texture.Get();
+    toDefaultBarrier.Transition.Subresource = faceIndex;
+    toDefaultBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_SOURCE;
+    toDefaultBarrier.Transition.StateAfter = resourceState;
+
+    m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd) {
+        cmd->ResourceBarrier(1, &toReadBarrier);
+        cmd->CopyTextureRegion(&dstLocation, x, y, 0, &srcLocation, &textureBounds);
+        cmd->ResourceBarrier(1, &toDefaultBarrier);
+    });
+
+    std::vector<std::byte> pixels(totalBytes);
+
+    void *uploadBufferAddress;
+    D3D12_RANGE readRange;
+    readRange.Begin = 0;
+    readRange.End = totalBytes;
+
+    readbackBuffer->Map(0, &readRange, &uploadBufferAddress);
+    memcpy(pixels.data(), uploadBufferAddress, pixels.size());
+    readbackBuffer->Unmap(0, nullptr);
+
+    return pixels;
 }
 
 DXGI_FORMAT Cubemap_D3D12::GetFormat()
