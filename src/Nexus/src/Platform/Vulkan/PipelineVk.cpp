@@ -118,10 +118,26 @@ PipelineVk::PipelineVk(const PipelineDescription &description, GraphicsDeviceVk 
 
     const auto &shaderStages = GetShaderStages();
 
+    std::vector<VkFormat> colourFormats;
+
+    for (uint32_t i = 0; i < m_Description.ColourTargetCount; i++)
+    {
+        colourFormats.push_back(Vk::GetVkPixelDataFormat(m_Description.ColourFormats[i], false));
+    }
+
+    VkFormat depthStencilFormat = Vk::GetVkPixelDataFormat(m_Description.DepthFormat, true);
+
+    VkPipelineRenderingCreateInfo pipelineRenderingCreateInfo = {};
+    pipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
+    pipelineRenderingCreateInfo.colorAttachmentCount = colourFormats.size();
+    pipelineRenderingCreateInfo.pColorAttachmentFormats = colourFormats.data();
+    pipelineRenderingCreateInfo.depthAttachmentFormat = depthStencilFormat;
+    pipelineRenderingCreateInfo.stencilAttachmentFormat = depthStencilFormat;
+
     // create pipeline
     VkGraphicsPipelineCreateInfo pipelineInfo = {};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-    pipelineInfo.pNext = nullptr;
+    pipelineInfo.pNext = &pipelineRenderingCreateInfo;
     pipelineInfo.stageCount = shaderStages.size();
     pipelineInfo.pStages = shaderStages.data();
     pipelineInfo.pVertexInputState = &vertexInputInfo;

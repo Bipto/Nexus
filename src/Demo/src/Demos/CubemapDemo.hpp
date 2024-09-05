@@ -50,6 +50,9 @@ class CubemapDemo : public Demo
 
         Nexus::Graphics::HdriProcessor processor("resources/demo/hdri/hangar_interior_4k.hdr", m_GraphicsDevice);
         m_Cubemap = processor.Generate(2048);
+
+        std::vector<std::byte> pixels =
+            m_Cubemap->GetData(Nexus::Graphics::CubemapFace::PositiveY, 0, 0, 0, m_Cubemap->GetSpecification().Width, m_Cubemap->GetSpecification().Height);
     }
 
     virtual void Render(Nexus::Time time) override

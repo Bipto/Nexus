@@ -307,7 +307,7 @@ Cubemap_D3D12::Cubemap_D3D12(const CubemapSpecification &spec, GraphicsDeviceD3D
         resourceDesc.Width = spec.Width;
         resourceDesc.Height = spec.Height;
         resourceDesc.DepthOrArraySize = 6;
-        resourceDesc.MipLevels = m_MipLevels;
+        resourceDesc.MipLevels = m_Specification.MipLevels;
         resourceDesc.Format = m_TextureFormat;
         resourceDesc.SampleDesc.Count = 1;
         resourceDesc.SampleDesc.Quality = 0;
@@ -322,7 +322,7 @@ Cubemap_D3D12::Cubemap_D3D12(const CubemapSpecification &spec, GraphicsDeviceD3D
         {
             std::vector<D3D12_RESOURCE_STATES> states;
 
-            for (uint32_t mipLevel = 0; mipLevel < m_MipLevels; mipLevel++)
+            for (uint32_t mipLevel = 0; mipLevel < m_Specification.MipLevels; mipLevel++)
             {
                 states.push_back(D3D12_RESOURCE_STATE_COMMON);
             }
@@ -341,6 +341,7 @@ void Cubemap_D3D12::SetData(const void *data, CubemapFace face, uint32_t level, 
     ID3D12Device10 *d3d12Device = m_Device->GetDevice();
     uint32_t faceIndex = (uint32_t)face;
     uint32_t sizeInBytes = (width - x) * (height - y) * GetPixelFormatSizeInBytes(m_Specification.Format);
+    uint32_t subresource = Utils::CalculateSubresource(level, faceIndex, m_Specification.MipLevels);
 
     D3D12_RESOURCE_DESC1 uploadBufferDesc = m_UploadBuffer->GetDesc1();
     D3D12_RESOURCE_DESC1 cubemapDesc = m_Texture->GetDesc1();
@@ -355,7 +356,7 @@ void Cubemap_D3D12::SetData(const void *data, CubemapFace face, uint32_t level, 
     UINT cubemapRows;
     UINT64 cubemapBytesPerRow;
     UINT64 cubemapTotalBytes;
-    d3d12Device->GetCopyableFootprints1(&cubemapDesc, 0, 1, 0, &cubemapFootprint, &cubemapRows, &cubemapBytesPerRow, &cubemapTotalBytes);
+    d3d12Device->GetCopyableFootprints1(&cubemapDesc, subresource, 1, 0, &cubemapFootprint, &cubemapRows, &cubemapBytesPerRow, &cubemapTotalBytes);
 
     // upload data to staging buffer
     {
@@ -373,7 +374,7 @@ void Cubemap_D3D12::SetData(const void *data, CubemapFace face, uint32_t level, 
     toDestBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
     toDestBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
     toDestBarrier.Transition.pResource = m_Texture.Get();
-    toDestBarrier.Transition.Subresource = Utils::CalculateSubresource(level, faceIndex, m_MipLevels);
+    toDestBarrier.Transition.Subresource = subresource;
     toDestBarrier.Transition.StateBefore = resourceState;
     toDestBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
 
@@ -381,7 +382,7 @@ void Cubemap_D3D12::SetData(const void *data, CubemapFace face, uint32_t level, 
     toDefaultBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
     toDefaultBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
     toDefaultBarrier.Transition.pResource = m_Texture.Get();
-    toDefaultBarrier.Transition.Subresource = Utils::CalculateSubresource(level, faceIndex, m_MipLevels);
+    toDefaultBarrier.Transition.Subresource = subresource;
     toDefaultBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
     toDefaultBarrier.Transition.StateAfter = resourceState;
 
@@ -406,7 +407,7 @@ void Cubemap_D3D12::SetData(const void *data, CubemapFace face, uint32_t level, 
     D3D12_TEXTURE_COPY_LOCATION textureDestination;
     textureDestination.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
     textureDestination.pResource = m_Texture.Get();
-    textureDestination.SubresourceIndex = Nexus::Utils::CalculateSubresource(0, faceIndex, m_MipLevels);
+    textureDestination.SubresourceIndex = subresource;
 
     m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd) {
         cmd->ResourceBarrier(1, &toDestBarrier);
@@ -420,12 +421,13 @@ std::vector<std::byte> Cubemap_D3D12::GetData(CubemapFace face, uint32_t level, 
     ID3D12Device10 *d3d12Device = m_Device->GetDevice();
     D3D12_RESOURCE_DESC1 textureDesc = m_Texture->GetDesc1();
     uint32_t faceIndex = (uint32_t)face;
+    uint32_t subresource = Utils::CalculateSubresource(level, faceIndex, m_Specification.MipLevels);
 
     D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
     UINT numRows;
     UINT64 rowSizeInBytes;
     UINT64 totalBytes;
-    d3d12Device->GetCopyableFootprints1(&textureDesc, faceIndex, 1, 0, &layout, &numRows, &rowSizeInBytes, &totalBytes);
+    d3d12Device->GetCopyableFootprints1(&textureDesc, subresource, 1, 0, &layout, &numRows, &rowSizeInBytes, &totalBytes);
 
     D3D12_HEAP_PROPERTIES readbackProperties = {};
     readbackProperties.Type = D3D12_HEAP_TYPE_READBACK;
@@ -454,7 +456,7 @@ std::vector<std::byte> Cubemap_D3D12::GetData(CubemapFace face, uint32_t level, 
     D3D12_TEXTURE_COPY_LOCATION srcLocation = {};
     srcLocation.pResource = m_Texture.Get();
     srcLocation.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
-    srcLocation.SubresourceIndex = faceIndex;
+    srcLocation.SubresourceIndex = subresource;
 
     D3D12_TEXTURE_COPY_LOCATION dstLocation = {};
     dstLocation.pResource = readbackBuffer.Get();
@@ -480,7 +482,7 @@ std::vector<std::byte> Cubemap_D3D12::GetData(CubemapFace face, uint32_t level, 
     toReadBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
     toReadBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
     toReadBarrier.Transition.pResource = m_Texture.Get();
-    toReadBarrier.Transition.Subresource = faceIndex;
+    toReadBarrier.Transition.Subresource = subresource;
     toReadBarrier.Transition.StateBefore = resourceState;
     toReadBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_SOURCE;
 
@@ -488,7 +490,7 @@ std::vector<std::byte> Cubemap_D3D12::GetData(CubemapFace face, uint32_t level, 
     toDefaultBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
     toDefaultBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
     toDefaultBarrier.Transition.pResource = m_Texture.Get();
-    toDefaultBarrier.Transition.Subresource = faceIndex;
+    toDefaultBarrier.Transition.Subresource = subresource;
     toDefaultBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_SOURCE;
     toDefaultBarrier.Transition.StateAfter = resourceState;
 

@@ -58,7 +58,6 @@ class Cubemap_D3D12 : public Cubemap
     GraphicsDeviceD3D12 *m_Device = nullptr;
 
     std::vector<std::vector<D3D12_RESOURCE_STATES>> m_ResourceStates;
-    const uint32_t m_MipLevels = 1;
 };
 
 } // namespace Nexus::Graphics

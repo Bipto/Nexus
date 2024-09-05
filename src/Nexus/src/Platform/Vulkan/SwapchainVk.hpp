@@ -40,6 +40,9 @@ class SwapchainVk : public Swapchain
     VkImage GetColourImage();
     VkImage GetDepthImage();
 
+    VkImageView GetColourImageView();
+    VkImageView GetDepthImageView();
+
     VkImageLayout GetColorImageLayout();
     VkImageLayout GetDepthImageLayout();
     void SetColorImageLayout(VkImageLayout layout);

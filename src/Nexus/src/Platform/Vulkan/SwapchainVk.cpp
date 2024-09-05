@@ -47,6 +47,11 @@ void SwapchainVk::SwapBuffers()
         return;
     }
 
+    m_GraphicsDevice->ImmediateSubmit([&](VkCommandBuffer cmd) {
+        m_GraphicsDevice->TransitionVulkanImageLayout(cmd, GetColourImage(), 0, 0, GetColorImageLayout(), VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_IMAGE_ASPECT_COLOR_BIT);
+        SetColorImageLayout(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+    });
+
     VkPresentInfoKHR presentInfo = {};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     presentInfo.waitSemaphoreCount = 1;
@@ -155,6 +160,16 @@ VkImage SwapchainVk::GetColourImage()
 VkImage SwapchainVk::GetDepthImage()
 {
     return m_DepthImage;
+}
+
+VkImageView SwapchainVk::GetColourImageView()
+{
+    return m_SwapchainImageViews[m_CurrentFrameIndex];
+}
+
+VkImageView SwapchainVk::GetDepthImageView()
+{
+    return m_DepthImageView;
 }
 
 VkImageLayout SwapchainVk::GetColorImageLayout()
@@ -291,8 +306,8 @@ void SwapchainVk::CreateDepthStencil()
     VkBool32 validDepthFormat = GetSupportedDepthFormat(m_GraphicsDevice->m_PhysicalDevice, &m_DepthFormat);
     CreateImage(m_SwapchainSize.width, m_SwapchainSize.height, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_IMAGE_TILING_OPTIMAL,
                 VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_DepthImage, m_DepthImageMemory, samples);
-    m_DepthImageView = CreateImageView(m_DepthImage, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_IMAGE_ASPECT_DEPTH_BIT);
-    m_DepthLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+    m_DepthImageView = CreateImageView(m_DepthImage, VK_FORMAT_D24_UNORM_S8_UINT, VK_IMAGE_ASPECT_DEPTH_BIT);
+    m_DepthLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 }
 
 void SwapchainVk::CreateRenderPass()
