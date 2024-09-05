@@ -17,6 +17,7 @@ struct alignas(16) VB_UNIFORM_HDRI_PROCESSOR_CAMERA
 
 HdriProcessor::HdriProcessor(const std::string &filepath, GraphicsDevice *device) : m_Device(device)
 {
+    stbi_set_flip_vertically_on_load(true);
     m_Data = stbi_loadf(filepath.c_str(), &m_Width, &m_Height, &m_Channels, 4);
 
     Nexus::Graphics::Texture2DSpecification textureSpec{};
@@ -92,6 +93,11 @@ Ref<Cubemap> HdriProcessor::Generate(uint32_t size)
         glm::quat rotP = glm::angleAxis(glm::radians(pitch), glm::vec3(1.0f, 0.0f, 0.0f));
         glm::quat rotY = glm::angleAxis(glm::radians(yaw), glm::vec3(0.0f, 1.0f, 0.0f));
         glm::mat4 view = glm::mat4_cast(rotY) * glm::mat4_cast(rotP);
+
+        if (!m_Device->IsUVOriginTopLeft())
+        {
+            view *= glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        }
 
         float fov = 90.0f;
         float aspectRatio = 1.0f;
