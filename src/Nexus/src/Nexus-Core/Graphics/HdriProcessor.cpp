@@ -57,9 +57,9 @@ Ref<Cubemap> HdriProcessor::Generate(uint32_t size)
     pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Camera", 0, 0}};
     pipelineDescription.ResourceSetSpec.SampledImages = {{"equirectangularMap", 1, 0}};
 
-    pipelineDescription.ColourFormats[0] = Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float;
+    pipelineDescription.ColourFormats[0] = framebufferSpec.ColorAttachmentSpecification.Attachments[0].TextureFormat;
     pipelineDescription.ColourTargetCount = 1;
-    pipelineDescription.DepthFormat = Nexus::Graphics::PixelFormat::D32_Float_S8_UInt;
+    pipelineDescription.DepthFormat = framebufferSpec.DepthAttachmentSpecification.DepthFormat;
 
     pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
     Ref<Pipeline> pipeline = m_Device->CreatePipeline(pipelineDescription);

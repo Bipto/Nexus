@@ -21,7 +21,6 @@ class SwapchainVk : public Swapchain
     virtual void SwapBuffers() override;
     virtual VSyncState GetVsyncState() override;
     virtual void SetVSyncState(VSyncState vsyncState) override;
-    const VkFramebuffer &GetCurrentFramebuffer();
     VkSurfaceFormatKHR GetSurfaceFormat();
     VkFormat GetDepthFormat();
 
@@ -34,7 +33,6 @@ class SwapchainVk : public Swapchain
     virtual void Initialise() override;
     void RecreateSwapchain();
 
-    VkRenderPass GetRenderPass();
     uint32_t GetImageCount();
 
     VkImage GetColourImage();
@@ -56,8 +54,6 @@ class SwapchainVk : public Swapchain
     bool CreateSwapchain();
     void CreateSwapchainImageViews();
     void CreateDepthStencil();
-    void CreateRenderPass();
-    void CreateFramebuffers();
     void CreateResolveAttachment();
     void CreateSemaphores();
 
@@ -101,10 +97,6 @@ class SwapchainVk : public Swapchain
     VkDeviceMemory m_DepthImageMemory;
     VkImageView m_DepthImageView;
     VkImageLayout m_DepthLayout;
-
-    std::vector<VkFramebuffer> m_SwapchainFramebuffers;
-
-    VkRenderPass m_SwapchainRenderPass;
 
     GraphicsDeviceVk *m_GraphicsDevice;
 

@@ -69,6 +69,7 @@ class ModelDemo : public Demo
 
         m_CommandList->Begin();
         m_CommandList->SetPipeline(m_Pipeline);
+        m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()));
 
         Nexus::Graphics::Viewport vp;
         vp.X = 0;

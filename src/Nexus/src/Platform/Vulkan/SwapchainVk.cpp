@@ -23,6 +23,8 @@ SwapchainVk::SwapchainVk(Window *window, GraphicsDevice *graphicsDevice, const S
     m_GraphicsDevice = (GraphicsDeviceVk *)graphicsDevice;
 
     CreateSurface();
+
+    window->OnResize += [&](std::pair<uint32_t, uint32_t> size) { RecreateSwapchain(); };
 }
 
 SwapchainVk::~SwapchainVk()
@@ -87,11 +89,6 @@ void SwapchainVk::SetVSyncState(VSyncState vsyncState)
 {
 }
 
-const VkFramebuffer &SwapchainVk::GetCurrentFramebuffer()
-{
-    return m_SwapchainFramebuffers[m_CurrentFrameIndex];
-}
-
 VkSurfaceFormatKHR SwapchainVk::GetSurfaceFormat()
 {
     return m_SurfaceFormat;
@@ -118,9 +115,7 @@ void SwapchainVk::Initialise()
     {
         CreateSwapchainImageViews();
         CreateDepthStencil();
-        CreateRenderPass();
         CreateResolveAttachment();
-        CreateFramebuffers();
         CreateSemaphores();
         m_SwapchainValid = true;
     }
@@ -140,11 +135,6 @@ void SwapchainVk::RecreateSwapchain()
     CleanupSemaphores();
 
     Initialise();
-}
-
-VkRenderPass SwapchainVk::GetRenderPass()
-{
-    return m_SwapchainRenderPass;
 }
 
 uint32_t SwapchainVk::GetImageCount()
@@ -304,144 +294,10 @@ void SwapchainVk::CreateDepthStencil()
 {
     auto samples = Vk::GetVkSampleCount(m_Specification.Samples);
     VkBool32 validDepthFormat = GetSupportedDepthFormat(m_GraphicsDevice->m_PhysicalDevice, &m_DepthFormat);
-    CreateImage(m_SwapchainSize.width, m_SwapchainSize.height, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_IMAGE_TILING_OPTIMAL,
+    CreateImage(m_SwapchainSize.width, m_SwapchainSize.height, VK_FORMAT_D24_UNORM_S8_UINT, VK_IMAGE_TILING_OPTIMAL,
                 VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_DepthImage, m_DepthImageMemory, samples);
     m_DepthImageView = CreateImageView(m_DepthImage, VK_FORMAT_D24_UNORM_S8_UINT, VK_IMAGE_ASPECT_DEPTH_BIT);
     m_DepthLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-}
-
-void SwapchainVk::CreateRenderPass()
-{
-    auto samples = Vk::GetVkSampleCount(m_Specification.Samples);
-
-    VkAttachmentDescription colorAttachment = {};
-    colorAttachment.format = m_SurfaceFormat.format;
-    colorAttachment.samples = samples;
-    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-    VkAttachmentReference colorAttachmentReference = {};
-    colorAttachmentReference.attachment = 0;
-    colorAttachmentReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-    VkAttachmentDescription depthAttachment = {};
-    depthAttachment.flags = 0;
-    depthAttachment.format = m_DepthFormat;
-    depthAttachment.samples = samples;
-    depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-    VkAttachmentReference depthAttachmentReference = {};
-    depthAttachmentReference.attachment = 1;
-    depthAttachmentReference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-    VkAttachmentDescription resolveAttachment = {};
-    resolveAttachment.format = m_SurfaceFormat.format;
-    resolveAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-    resolveAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    resolveAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    resolveAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    resolveAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    resolveAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    resolveAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-    VkAttachmentReference resolveAttachmentReference = {};
-    resolveAttachmentReference.attachment = 2;
-    resolveAttachmentReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-    VkSubpassDescription subpass = {};
-    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-    subpass.colorAttachmentCount = 1;
-    subpass.pColorAttachments = &colorAttachmentReference;
-    subpass.pDepthStencilAttachment = &depthAttachmentReference;
-
-    if (m_Specification.Samples != SampleCount::SampleCount1)
-    {
-        subpass.pResolveAttachments = &resolveAttachmentReference;
-    }
-
-    VkSubpassDependency dependency = {};
-    dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-    dependency.dstSubpass = 0;
-    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    dependency.srcAccessMask = 0;
-    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-    dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
-    VkSubpassDependency depthDependency;
-    depthDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-    depthDependency.dstSubpass = 0;
-    depthDependency.srcStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
-    depthDependency.srcAccessMask = 0;
-    depthDependency.dstStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
-    depthDependency.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-    depthDependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
-    std::vector<VkSubpassDependency> dependencies = {dependency, depthDependency};
-    std::vector<VkAttachmentDescription> attachments = {colorAttachment, depthAttachment};
-
-    if (m_Specification.Samples != SampleCount::SampleCount1)
-    {
-        attachments.push_back(resolveAttachment);
-    }
-
-    VkRenderPassCreateInfo renderPassInfo = {};
-    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    renderPassInfo.attachmentCount = attachments.size();
-    renderPassInfo.pAttachments = attachments.data();
-    renderPassInfo.subpassCount = 1;
-    renderPassInfo.pSubpasses = &subpass;
-    renderPassInfo.dependencyCount = dependencies.size();
-    renderPassInfo.pDependencies = dependencies.data();
-
-    if (vkCreateRenderPass(m_GraphicsDevice->GetVkDevice(), &renderPassInfo, nullptr, &m_SwapchainRenderPass) != VK_SUCCESS)
-    {
-        throw std::runtime_error("Failed to create render pass");
-    }
-}
-
-void SwapchainVk::CreateFramebuffers()
-{
-    m_SwapchainFramebuffers.resize(m_SwapchainImageViews.size());
-
-    for (size_t i = 0; i < m_SwapchainImageViews.size(); i++)
-    {
-        std::vector<VkImageView> attachments;
-        if (m_Specification.Samples == SampleCount::SampleCount1)
-        {
-            attachments.push_back(m_SwapchainImageViews[i]);
-            attachments.push_back(m_DepthImageView);
-        }
-        else
-        {
-            attachments.push_back(m_ResolveImageView);
-            attachments.push_back(m_DepthImageView);
-            attachments.push_back(m_SwapchainImageViews[i]);
-        }
-
-        VkFramebufferCreateInfo framebufferInfo = {};
-        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebufferInfo.renderPass = m_SwapchainRenderPass;
-        framebufferInfo.attachmentCount = (uint32_t)attachments.size();
-        framebufferInfo.pAttachments = attachments.data();
-        framebufferInfo.width = m_SwapchainSize.width;
-        framebufferInfo.height = m_SwapchainSize.height;
-        framebufferInfo.layers = 1;
-
-        if (vkCreateFramebuffer(m_GraphicsDevice->m_Device, &framebufferInfo, nullptr, &m_SwapchainFramebuffers[i]) != VK_SUCCESS)
-        {
-            throw std::runtime_error("Failed to create framebuffer");
-        }
-    }
 }
 
 void SwapchainVk::CreateResolveAttachment()
@@ -472,11 +328,6 @@ void SwapchainVk::CreateSemaphores()
 void SwapchainVk::CleanupSwapchain()
 {
     vkDeviceWaitIdle(m_GraphicsDevice->GetVkDevice());
-
-    for (size_t i = 0; i < m_SwapchainFramebuffers.size(); i++)
-    {
-        vkDestroyFramebuffer(m_GraphicsDevice->m_Device, m_SwapchainFramebuffers[i], nullptr);
-    }
 
     for (size_t i = 0; i < m_SwapchainImageViews.size(); i++)
     {

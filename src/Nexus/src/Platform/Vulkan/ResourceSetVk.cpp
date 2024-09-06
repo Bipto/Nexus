@@ -177,15 +177,16 @@ void ResourceSetVk::WriteCombinedImageSampler(Ref<Texture2D> texture, Ref<Sample
     m_Device->ImmediateSubmit([&](VkCommandBuffer cmd) {
         for (uint32_t i = 0; i < textureVk->GetLevels(); i++)
         {
-            m_Device->TransitionVulkanImageLayout(cmd, textureVk->GetImage(), i, 0, textureVk->GetImageLayout(i), VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_ASPECT_COLOR_BIT);
-            textureVk->SetImageLayout(i, VK_IMAGE_LAYOUT_GENERAL);
+            m_Device->TransitionVulkanImageLayout(cmd, textureVk->GetImage(), i, 0, textureVk->GetImageLayout(i), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                                  VK_IMAGE_ASPECT_COLOR_BIT);
+            textureVk->SetImageLayout(i, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
         }
     });
 
     VkDescriptorImageInfo imageBufferInfo = {};
     imageBufferInfo.imageView = textureVk->GetImageView();
     imageBufferInfo.sampler = samplerVk->GetSampler();
-    imageBufferInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+    imageBufferInfo.imageLayout = textureVk->GetImageLayout(0);
 
     VkWriteDescriptorSet textureToWrite = {};
     textureToWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -217,16 +218,16 @@ void ResourceSetVk::WriteCombinedImageSampler(Ref<Cubemap> cubemap, Ref<Sampler>
         {
             for (uint32_t mipLevel = 0; mipLevel < cubemapVk->GetLevels(); mipLevel++)
             {
-                m_Device->TransitionVulkanImageLayout(cmd, cubemapVk->GetImage(), mipLevel, arrayLayer, cubemapVk->GetImageLayout(arrayLayer, mipLevel), VK_IMAGE_LAYOUT_GENERAL,
-                                                      VK_IMAGE_ASPECT_COLOR_BIT);
-                cubemapVk->SetImageLayout(arrayLayer, mipLevel, VK_IMAGE_LAYOUT_GENERAL);
+                m_Device->TransitionVulkanImageLayout(cmd, cubemapVk->GetImage(), mipLevel, arrayLayer, cubemapVk->GetImageLayout(arrayLayer, mipLevel),
+                                                      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
+                cubemapVk->SetImageLayout(arrayLayer, mipLevel, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
             }
         }
 
         VkDescriptorImageInfo imageBufferInfo = {};
         imageBufferInfo.imageView = cubemapVk->GetImageView();
         imageBufferInfo.sampler = samplerVk->GetSampler();
-        imageBufferInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+        imageBufferInfo.imageLayout = cubemapVk->GetImageLayout(0, 0);
 
         VkWriteDescriptorSet textureToWrite = {};
         textureToWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;

@@ -155,6 +155,8 @@ std::vector<std::byte> Texture2D_Vk::GetData(uint32_t level, uint32_t x, uint32_
             copyRegion.imageOffset.y = y;
             copyRegion.imageOffset.z = 0;
             vkCmdCopyImageToBuffer(cmd, m_Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, m_StagingBuffer.Buffer, 1, &copyRegion);
+
+            SetImageLayout(level, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
         });
     }
 
@@ -198,17 +200,17 @@ Cubemap_Vk::Cubemap_Vk(GraphicsDeviceVk *graphicsDevice, const CubemapSpecificat
 
     VkExtent3D imageExtent{.width = spec.Width, .height = spec.Height, .depth = 1};
 
-    VkImageCreateInfo imageInfo{.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
-                                .pNext = nullptr,
-                                .flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT,
-                                .imageType = VK_IMAGE_TYPE_2D,
-                                .format = m_Format,
-                                .extent = imageExtent,
-                                .mipLevels = m_Specification.MipLevels,
-                                .arrayLayers = 6,
-                                .samples = VK_SAMPLE_COUNT_1_BIT,
-                                .tiling = VK_IMAGE_TILING_OPTIMAL,
-                                .usage = VK_IMAGE_USAGE_SAMPLED_BIT};
+    VkImageCreateInfo imageInfo = {};
+    imageInfo.pNext = nullptr;
+    imageInfo.flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
+    imageInfo.imageType = VK_IMAGE_TYPE_2D;
+    imageInfo.format = m_Format;
+    imageInfo.extent = imageExtent;
+    imageInfo.mipLevels = m_Specification.MipLevels;
+    imageInfo.arrayLayers = 6;
+    imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+    imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+    imageInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
     VmaAllocationCreateInfo imageAllocInfo = {.usage = VMA_MEMORY_USAGE_AUTO};
 

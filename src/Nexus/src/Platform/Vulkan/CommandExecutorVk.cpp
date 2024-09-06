@@ -229,102 +229,13 @@ void CommandExecutorVk::ExecuteCommand(RenderTarget command, GraphicsDevice *dev
         auto vulkanSwapchain = (SwapchainVk *)swapchain;
 
         StartRenderingToSwapchain(vulkanSwapchain);
-
-        /* auto renderPass = vulkanSwapchain->GetRenderPass();
-        auto framebuffer = vulkanSwapchain->GetCurrentFramebuffer();
-
-        if (!vulkanSwapchain->IsSwapchainValid())
-        {
-            m_RenderPassStarted = false;
-            return;
-        }
-
-        m_RenderSize = vulkanSwapchain->m_SwapchainSize;
-
-        VkRenderPassBeginInfo info;
-        info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        info.pNext = nullptr;
-        info.framebuffer = framebuffer;
-        info.renderPass = renderPass;
-        info.renderArea.offset = {0, 0};
-        info.renderArea.extent = vulkanSwapchain->m_SwapchainSize;
-        info.clearValueCount = 0;
-        info.pClearValues = nullptr;
-
-        // transition image layouts if required
-        if (vulkanSwapchain->GetColorImageLayout() != VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
-        {
-            auto swapchainColourImage = vulkanSwapchain->GetColourImage();
-
-            m_Device->ImmediateSubmit([&](VkCommandBuffer cmd) {
-                m_Device->TransitionVulkanImageLayout(cmd, swapchainColourImage, 0, 0, vulkanSwapchain->GetColorImageLayout(), VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-                                                      VK_IMAGE_ASPECT_COLOR_BIT);
-            });
-        }
-
-        if (vulkanSwapchain->GetDepthImageLayout() != VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
-        {
-            auto swapchainDepthImage = vulkanSwapchain->GetDepthImage();
-            m_Device->ImmediateSubmit([&](VkCommandBuffer cmd) {
-                m_Device->TransitionVulkanImageLayout(cmd, swapchainDepthImage, 0, 0, vulkanSwapchain->GetDepthImageLayout(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-                                                      VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT));
-            });
-        }
-
-        vulkanSwapchain->SetColorImageLayout(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
-        vulkanSwapchain->SetDepthImageLayout(VK_IMAGE_LAYOUT_GENERAL);
-
-        vkCmdBeginRenderPass(m_CommandBuffer, &info, VK_SUBPASS_CONTENTS_INLINE);
-
-        m_DepthAttachmentIndex = 1;
-
-        m_RenderPassStarted = true; */
     }
     else
     {
         auto framebuffer = m_CurrentRenderTarget.GetData<Ref<Framebuffer>>();
         auto vulkanFramebuffer = std::dynamic_pointer_cast<FramebufferVk>(framebuffer);
 
-        /* auto renderPass = vulkanFramebuffer->GetRenderPass();
-
-        m_RenderSize = {vulkanFramebuffer->GetFramebufferSpecification().Width, vulkanFramebuffer->GetFramebufferSpecification().Height};
-
-        for (size_t i = 0; i < vulkanFramebuffer->GetColorTextureCount(); i++)
-        {
-            Ref<Texture2D_Vk> framebufferTexture = vulkanFramebuffer->GetVulkanColorTexture(i);
-
-            for (uint32_t j = 0; j < framebufferTexture->GetLevels(); j++)
-            {
-                m_Device->TransitionVulkanImageLayout(m_CommandBuffer, framebufferTexture->GetImage(), j, 0, framebufferTexture->GetImageLayout(j), VK_IMAGE_LAYOUT_GENERAL,
-                                                      VK_IMAGE_ASPECT_COLOR_BIT);
-            }
-        }
-
-        if (vulkanFramebuffer->HasDepthTexture())
-        {
-            Ref<Texture2D_Vk> depthTexture = vulkanFramebuffer->GetVulkanDepthTexture();
-
-            for (size_t level = 0; level < depthTexture->GetLevels(); level++)
-            {
-                m_Device->TransitionVulkanImageLayout(m_CommandBuffer, depthTexture->GetImage(), level, 0, depthTexture->GetImageLayout(level), VK_IMAGE_LAYOUT_GENERAL,
-                                                      VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT));
-            }
-        }
-
-        VkRenderPassBeginInfo info;
-        info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        info.pNext = nullptr;
-        info.framebuffer = vulkanFramebuffer->GetVkFramebuffer();
-        info.renderPass = renderPass;
-        info.renderArea.offset = {0, 0};
-        info.renderArea.extent = m_RenderSize;
-        info.clearValueCount = 0;
-        info.pClearValues = nullptr;
-
-        vkCmdBeginRenderPass(m_CommandBuffer, &info, VK_SUBPASS_CONTENTS_INLINE);
-
-        m_DepthAttachmentIndex = framebuffer->GetColorTextureCount() + 1;
-        m_RenderPassStarted = true; */
+        StartRenderingToFramebuffer(vulkanFramebuffer);
     }
 }
 
@@ -459,6 +370,89 @@ void CommandExecutorVk::StartRenderingToSwapchain(SwapchainVk *swapchain)
 
 void CommandExecutorVk::StartRenderingToFramebuffer(Ref<Framebuffer> framebuffer)
 {
+    Ref<FramebufferVk> vulkanFramebuffer = std::dynamic_pointer_cast<FramebufferVk>(framebuffer);
+
+    // transition colour layouts
+    for (size_t textureIndex = 0; textureIndex < vulkanFramebuffer->GetColorTextureCount(); textureIndex++)
+    {
+        Ref<Texture2D_Vk> texture = vulkanFramebuffer->GetVulkanColorTexture(textureIndex);
+
+        for (uint32_t mipLevel = 0; mipLevel < texture->GetLevels(); mipLevel++)
+        {
+            m_Device->TransitionVulkanImageLayout(m_CommandBuffer, texture->GetImage(), mipLevel, 0, texture->GetImageLayout(mipLevel), VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                                  VK_IMAGE_ASPECT_COLOR_BIT);
+            texture->SetImageLayout(mipLevel, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+        }
+    }
+
+    // transition depth layout if needed
+    if (vulkanFramebuffer->HasDepthTexture())
+    {
+        Ref<Texture2D_Vk> texture = vulkanFramebuffer->GetVulkanDepthTexture();
+
+        for (uint32_t mipLevel = 0; mipLevel < texture->GetLevels(); mipLevel++)
+        {
+            m_Device->TransitionVulkanImageLayout(m_CommandBuffer, texture->GetImage(), mipLevel, 0, texture->GetImageLayout(mipLevel),
+                                                  VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT));
+            texture->SetImageLayout(mipLevel, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+        }
+    }
+
+    VkRect2D renderArea{};
+    renderArea.offset = {0, 0};
+    renderArea.extent = {vulkanFramebuffer->GetFramebufferSpecification().Width, vulkanFramebuffer->GetFramebufferSpecification().Height};
+
+    std::vector<VkRenderingAttachmentInfo> colourAttachments;
+
+    // attach colour textures
+    for (uint32_t colourAttachmentIndex = 0; colourAttachmentIndex < vulkanFramebuffer->GetColorTextureCount(); colourAttachmentIndex++)
+    {
+        Ref<Texture2D_Vk> texture = vulkanFramebuffer->GetVulkanColorTexture(colourAttachmentIndex);
+
+        VkRenderingAttachmentInfo colourAttachment = {};
+        colourAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+        colourAttachment.imageView = texture->GetImageView();
+        colourAttachment.imageLayout = texture->GetImageLayout(0);
+        colourAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+        colourAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        colourAttachment.clearValue = {};
+        colourAttachments.push_back(colourAttachment);
+    }
+
+    // set up depth attachment (may be unused)
+    VkRenderingAttachmentInfo depthAttachment = {};
+    if (framebuffer->HasDepthTexture())
+    {
+        Ref<Texture2D_Vk> texture = vulkanFramebuffer->GetVulkanDepthTexture();
+
+        depthAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+        depthAttachment.imageView = texture->GetImageView();
+        depthAttachment.imageLayout = texture->GetImageLayout(0);
+        depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+        depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        depthAttachment.clearValue = {};
+    }
+
+    VkRenderingInfo renderingInfo = {};
+    renderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
+    renderingInfo.renderArea = renderArea;
+    renderingInfo.layerCount = 1;
+    renderingInfo.colorAttachmentCount = colourAttachments.size();
+    renderingInfo.pColorAttachments = colourAttachments.data();
+
+    if (vulkanFramebuffer->HasDepthTexture())
+    {
+        renderingInfo.pDepthAttachment = &depthAttachment;
+        renderingInfo.pStencilAttachment = &depthAttachment;
+    }
+    else
+    {
+        renderingInfo.pDepthAttachment = nullptr;
+        renderingInfo.pStencilAttachment = nullptr;
+    }
+
+    vkCmdBeginRendering(m_CommandBuffer, &renderingInfo);
+    m_Rendering = true;
 }
 
 void CommandExecutorVk::StopRendering()
