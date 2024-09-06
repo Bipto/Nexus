@@ -111,7 +111,7 @@ Ref<Texture2D> GraphicsDeviceVk::CreateTexture2D(const Texture2DSpecification &s
 
 Ref<Cubemap> GraphicsDeviceVk::CreateCubemap(const CubemapSpecification &spec)
 {
-    return Ref<Cubemap>();
+    return CreateRef<Cubemap_Vk>(this, spec);
 }
 
 Ref<Pipeline> GraphicsDeviceVk::CreatePipeline(const PipelineDescription &description)
@@ -259,8 +259,8 @@ void GraphicsDeviceVk::ImmediateSubmit(std::function<void(VkCommandBuffer cmd)> 
     vkQueueWaitIdle(m_GraphicsQueue);
 }
 
-void GraphicsDeviceVk::TransitionVulkanImageLayout(VkCommandBuffer cmdBuffer, VkImage image, uint32_t level, VkImageLayout oldLayout, VkImageLayout newLayout,
-                                                   VkImageAspectFlagBits aspectMask)
+void GraphicsDeviceVk::TransitionVulkanImageLayout(VkCommandBuffer cmdBuffer, VkImage image, uint32_t mipLevel, uint32_t arrayLayer, VkImageLayout oldLayout,
+                                                   VkImageLayout newLayout, VkImageAspectFlagBits aspectMask)
 {
     if (oldLayout == newLayout)
     {
@@ -277,9 +277,9 @@ void GraphicsDeviceVk::TransitionVulkanImageLayout(VkCommandBuffer cmdBuffer, Vk
 
     barrier.image = image;
     barrier.subresourceRange.aspectMask = aspectMask;
-    barrier.subresourceRange.baseMipLevel = level;
+    barrier.subresourceRange.baseMipLevel = mipLevel;
     barrier.subresourceRange.levelCount = 1;
-    barrier.subresourceRange.baseArrayLayer = 0;
+    barrier.subresourceRange.baseArrayLayer = arrayLayer;
     barrier.subresourceRange.layerCount = 1;
 
     barrier.srcAccessMask = 0;
@@ -580,23 +580,6 @@ VkImageView GraphicsDeviceVk::CreateImageView(VkImage image, VkFormat format, Vk
         throw std::runtime_error("Failed to create texture image view");
     }
     return imageView;
-}
-
-VkBool32 GraphicsDeviceVk::GetSupportedDepthFormat(VkPhysicalDevice physicalDevice, VkFormat *depthFormat)
-{
-    std::vector<VkFormat> depthFormats = {VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D32_SFLOAT, VK_FORMAT_D24_UNORM_S8_UINT, VK_FORMAT_D16_UNORM_S8_UINT, VK_FORMAT_D16_UNORM};
-
-    for (auto &format : depthFormats)
-    {
-        VkFormatProperties formatProps;
-        vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &formatProps);
-        if (formatProps.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
-        {
-            *depthFormat = format;
-            return true;
-        }
-    }
-    return false;
 }
 
 void GraphicsDeviceVk::CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties,

@@ -170,6 +170,62 @@ void ResourceSetD3D12::WriteCombinedImageSampler(Ref<Texture2D> texture, Ref<Sam
 
 void ResourceSetD3D12::WriteCombinedImageSampler(Ref<Cubemap> cubemap, Ref<Sampler> sampler, const std::string &name)
 {
+    const auto d3d12Device = m_Device->GetDevice();
+
+    // write cubemap
+    {
+        Ref<Cubemap_D3D12> d3d12Cubemap = std::dynamic_pointer_cast<Cubemap_D3D12>(cubemap);
+
+        const BindingInfo &info = m_CombinedImageSamplerBindingInfos.at(name);
+        const uint32_t index = GetLinearDescriptorSlot(info.Set, info.Binding);
+
+        D3D12_SHADER_RESOURCE_VIEW_DESC srv;
+        srv.Format = d3d12Cubemap->GetFormat();
+        srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+        srv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+        srv.TextureCube.MipLevels = d3d12Cubemap->GetSpecification().MipLevels;
+        srv.TextureCube.MostDetailedMip = 0;
+        srv.TextureCube.ResourceMinLODClamp = 0;
+
+        D3D12_CPU_DESCRIPTOR_HANDLE cubemapHandle = m_TextureCPUDescriptors.at(index);
+        auto resourceHandle = d3d12Cubemap->GetD3D12ResourceHandle();
+        d3d12Device->CreateShaderResourceView(resourceHandle.Get(), &srv, cubemapHandle);
+    }
+
+    // write sampler
+    {
+        const BindingInfo &info = m_CombinedImageSamplerBindingInfos.at(name);
+        const uint32_t index = GetLinearDescriptorSlot(info.Set, info.Binding);
+        auto d3d12Device = m_Device->GetDevice();
+        Ref<SamplerD3D12> d3d12Sampler = std::dynamic_pointer_cast<SamplerD3D12>(sampler);
+
+        const auto &spec = d3d12Sampler->GetSamplerSpecification();
+
+        const glm::vec4 color = Nexus::Utils::ColorFromBorderColor(spec.TextureBorderColor);
+
+        D3D12_SAMPLER_DESC sd;
+        sd.Filter = d3d12Sampler->GetFilter();
+        sd.AddressU = d3d12Sampler->GetAddressModeU();
+        sd.AddressV = d3d12Sampler->GetAddressModeV();
+        sd.AddressW = d3d12Sampler->GetAddressModeW();
+        sd.MipLODBias = spec.LODBias;
+        sd.MaxAnisotropy = spec.MaximumAnisotropy;
+        sd.ComparisonFunc = d3d12Sampler->GetComparisonFunc();
+        sd.BorderColor[0] = color.r;
+        sd.BorderColor[1] = color.g;
+        sd.BorderColor[2] = color.b;
+        sd.BorderColor[3] = color.a;
+        sd.MinLOD = spec.MinimumLOD;
+        sd.MaxLOD = spec.MaximumLOD;
+
+        D3D12_CPU_DESCRIPTOR_HANDLE samplerHandle = m_SamplerCPUDescriptors.at(index);
+        d3d12Device->CreateSampler(&sd, samplerHandle);
+    }
+
+    CombinedImageSampler ciSampler{};
+    ciSampler.ImageTexture = cubemap;
+    ciSampler.ImageSampler = sampler;
+    m_BoundCombinedImageSamplers[name] = ciSampler;
 }
 
 ID3D12DescriptorHeap *ResourceSetD3D12::GetSamplerDescriptorHeap()

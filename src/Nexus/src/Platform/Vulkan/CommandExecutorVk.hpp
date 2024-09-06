@@ -4,6 +4,7 @@
 
 #include "Nexus-Core/Graphics/CommandExecutor.hpp"
 
+#include "SwapchainVk.hpp"
 #include "Vk.hpp"
 
 namespace Nexus::Graphics
@@ -42,11 +43,15 @@ class CommandExecutorVk : public CommandExecutor
     virtual void ExecuteCommand(StartTimingQueryCommand command, GraphicsDevice *device) override;
     virtual void ExecuteCommand(StopTimingQueryCommand command, GraphicsDevice *device) override;
 
+    void StartRenderingToSwapchain(SwapchainVk *swapchain);
+    void StartRenderingToFramebuffer(Ref<Framebuffer> framebuffer);
+    void StopRendering();
+
   private:
     GraphicsDeviceVk *m_Device = nullptr;
 
     Ref<Pipeline> m_CurrentlyBoundPipeline = nullptr;
-    bool m_RenderPassStarted = false;
+    bool m_Rendering = false;
     VkExtent2D m_RenderSize = {0, 0};
 
     uint32_t m_DepthAttachmentIndex = 0;

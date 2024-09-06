@@ -16,8 +16,7 @@ enum class TextureUsage : uint8_t
     DepthStencil,
     RenderTarget,
     Sampled,
-    Storage,
-    Cubemap
+    Storage
 };
 
 /// @brief A struct that represents a set of values to use to create a texture
@@ -88,8 +87,8 @@ enum class CubemapFace
 {
     PositiveX = 0,
     NegativeX = 1,
-    PositiveY = 2,
-    NegativeY = 3,
+    NegativeY = 2,
+    PositiveY = 3,
     PositiveZ = 4,
     NegativeZ = 5
 };

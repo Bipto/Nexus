@@ -17,6 +17,7 @@ struct alignas(16) VB_UNIFORM_HDRI_PROCESSOR_CAMERA
 
 HdriProcessor::HdriProcessor(const std::string &filepath, GraphicsDevice *device) : m_Device(device)
 {
+    stbi_set_flip_vertically_on_load(true);
     m_Data = stbi_loadf(filepath.c_str(), &m_Width, &m_Height, &m_Channels, 4);
 
     Nexus::Graphics::Texture2DSpecification textureSpec{};
@@ -51,11 +52,15 @@ Ref<Cubemap> HdriProcessor::Generate(uint32_t size)
     Nexus::Graphics::PipelineDescription pipelineDescription;
     pipelineDescription.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::Back;
     pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
-    pipelineDescription.VertexModule = m_Device->CreateShaderModuleFromSpirvFile("engine-resources/shaders/hdri.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
-    pipelineDescription.FragmentModule = m_Device->CreateShaderModuleFromSpirvFile("engine-resources/shaders/hdri.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
+    pipelineDescription.VertexModule = m_Device->CreateShaderModuleFromSpirvFile("resources/engine/shaders/hdri.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
+    pipelineDescription.FragmentModule = m_Device->CreateShaderModuleFromSpirvFile("resources/engine/shaders/hdri.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
     pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Camera", 0, 0}};
     pipelineDescription.ResourceSetSpec.SampledImages = {{"equirectangularMap", 1, 0}};
-    pipelineDescription.Target = Nexus::Graphics::RenderTarget{framebuffer};
+
+    pipelineDescription.ColourFormats[0] = framebufferSpec.ColorAttachmentSpecification.Attachments[0].TextureFormat;
+    pipelineDescription.ColourTargetCount = 1;
+    pipelineDescription.DepthFormat = framebufferSpec.DepthAttachmentSpecification.DepthFormat;
+
     pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
     Ref<Pipeline> pipeline = m_Device->CreatePipeline(pipelineDescription);
     Ref<ResourceSet> resourceSet = m_Device->CreateResourceSet(pipeline);
@@ -89,6 +94,11 @@ Ref<Cubemap> HdriProcessor::Generate(uint32_t size)
         glm::quat rotY = glm::angleAxis(glm::radians(yaw), glm::vec3(0.0f, 1.0f, 0.0f));
         glm::mat4 view = glm::mat4_cast(rotY) * glm::mat4_cast(rotP);
 
+        if (!m_Device->IsUVOriginTopLeft())
+        {
+            view *= glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        }
+
         float fov = 90.0f;
         float aspectRatio = 1.0f;
         float near = 0.1f;
@@ -104,6 +114,7 @@ Ref<Cubemap> HdriProcessor::Generate(uint32_t size)
 
         commandList->Begin();
         commandList->SetPipeline(pipeline);
+        commandList->SetRenderTarget(Nexus::Graphics::RenderTarget(framebuffer));
 
         Nexus::Graphics::Viewport vp{};
         vp.X = 0;

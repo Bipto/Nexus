@@ -17,7 +17,6 @@ class FramebufferVk : public Framebuffer
 
     virtual const FramebufferSpecification GetFramebufferSpecification() override;
     virtual void SetFramebufferSpecification(const FramebufferSpecification &spec) override;
-    VkFramebuffer GetVkFramebuffer();
 
     virtual Ref<Texture2D> GetColorTexture(uint32_t index = 0) override;
     virtual Ref<Texture2D> GetDepthTexture() override;
@@ -25,20 +24,14 @@ class FramebufferVk : public Framebuffer
     Ref<Texture2D_Vk> GetVulkanColorTexture(uint32_t index = 0);
     Ref<Texture2D_Vk> GetVulkanDepthTexture();
 
-    VkRenderPass GetRenderPass();
-
   private:
     virtual void Recreate() override;
 
     void CreateColorTargets();
     void CreateDepthTargets();
-    void CreateFramebuffer();
-    void CreateRenderPass();
 
   private:
-    VkFramebuffer m_Framebuffer;
     GraphicsDeviceVk *m_Device;
-    VkRenderPass m_FramebufferRenderPass;
 
     std::vector<Ref<Texture2D_Vk>> m_ColorAttachments;
     Ref<Texture2D_Vk> m_DepthAttachment = nullptr;

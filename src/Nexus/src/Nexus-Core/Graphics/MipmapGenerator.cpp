@@ -69,7 +69,10 @@ void MipmapGenerator::GenerateMips(Ref<Texture2D> texture, uint32_t mipCount)
 
             Ref<Framebuffer> framebuffer = m_Device->CreateFramebuffer(framebufferSpec);
 
-            pipelineDescription.Target = RenderTarget(framebuffer);
+            pipelineDescription.ColourFormats[0] = PixelFormat::R8_G8_B8_A8_UNorm;
+            pipelineDescription.ColourTargetCount = 1;
+            pipelineDescription.DepthFormat = PixelFormat::D24_UNorm_S8_UInt;
+
             Ref<Pipeline> pipeline = m_Device->CreatePipeline(pipelineDescription);
             Ref<ResourceSet> resourceSet = m_Device->CreateResourceSet(pipeline);
 
@@ -98,6 +101,7 @@ void MipmapGenerator::GenerateMips(Ref<Texture2D> texture, uint32_t mipCount)
 
             m_CommandList->Begin();
             m_CommandList->SetPipeline(pipeline);
+            m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(framebuffer));
             m_CommandList->SetViewport(viewport);
             m_CommandList->SetScissor(scissor);
             m_CommandList->SetVertexBuffer(m_Quad.GetVertexBuffer(), 0);

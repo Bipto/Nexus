@@ -73,9 +73,6 @@ void CommandExecutorOpenGL::ExecuteCommand(WeakRef<Pipeline> command, GraphicsDe
     if (Ref<Pipeline> pl = command.lock())
     {
         auto pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(pl);
-        auto target = pipeline->GetPipelineDescription().Target;
-
-        ExecuteCommand(target, device);
 
         // unbind the current pipeline before binding the new one
         if (Ref<PipelineOpenGL> oldPipeline = m_CurrentlyBoundPipeline.lock())
@@ -253,6 +250,11 @@ void CommandExecutorOpenGL::ExecuteCommand(Ref<ResourceSet> command, GraphicsDev
                 glCubemap->Bind(location);
                 glSampler->Bind(location, glCubemap->GetLevels() > 1);
             }
+        }
+
+        else
+        {
+            throw std::runtime_error("Attempting to bind invalid texture type");
         }
     }
 

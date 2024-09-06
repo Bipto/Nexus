@@ -114,7 +114,7 @@ Ref<Texture2D> GraphicsDeviceD3D12::CreateTexture2D(const Texture2DSpecification
 
 Ref<Cubemap> GraphicsDeviceD3D12::CreateCubemap(const CubemapSpecification &spec)
 {
-    return Ref<Cubemap>();
+    return CreateRef<Cubemap_D3D12>(spec, this);
 }
 
 Ref<Pipeline> GraphicsDeviceD3D12::CreatePipeline(const PipelineDescription &description)

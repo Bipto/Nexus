@@ -27,7 +27,6 @@ class TexturingDemo : public Demo
         m_Texture = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/brick.jpg"), false);
 
         Nexus::Graphics::SamplerSpecification samplerSpec{};
-        samplerSpec.MaximumAnisotropy = 8;
         m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
 
         m_TextureID = m_ImGuiRenderer->BindTexture(m_Texture);
@@ -37,6 +36,7 @@ class TexturingDemo : public Demo
     {
         m_CommandList->Begin();
         m_CommandList->SetPipeline(m_Pipeline);
+        m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()));
 
         Nexus::Graphics::Viewport vp;
         vp.X = 0;
@@ -87,7 +87,9 @@ class TexturingDemo : public Demo
 
         pipelineDescription.ResourceSetSpec.SampledImages = {{"texSampler", 0, 0}};
 
-        pipelineDescription.Target = Nexus::Graphics::RenderTarget{m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
+        pipelineDescription.ColourTargetCount = 1;
+        pipelineDescription.ColourFormats[0] = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
+        pipelineDescription.ColourTargetSampleCount = m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->GetSpecification().Samples;
         pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
         m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);

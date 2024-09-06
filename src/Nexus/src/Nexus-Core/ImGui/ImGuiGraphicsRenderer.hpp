@@ -10,12 +10,10 @@ namespace Nexus::ImGuiUtils
 struct ImGuiWindowInfo
 {
     Nexus::Window *Window = nullptr;
-    Nexus::Ref<Nexus::Graphics::Pipeline> Pipeline = nullptr;
 
     virtual ~ImGuiWindowInfo()
     {
         Window->Close();
-        Pipeline = nullptr;
     }
 };
 

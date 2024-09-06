@@ -109,7 +109,6 @@ Ref<Texture2D> GraphicsDevice::CreateTexture2D(const char *filepath, bool genera
 
     auto texture = CreateTexture2D(spec);
     texture->SetData(data, 0, 0, 0, spec.Width, spec.Height);
-    // texture->SetData(data, spec.Width * spec.Height * sizeof(unsigned char), 0);
 
     if (generateMips)
     {

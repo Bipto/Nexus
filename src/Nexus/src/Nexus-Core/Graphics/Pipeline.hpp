@@ -29,8 +29,10 @@ struct PipelineDescription
     /// @brief A resource set specification describing how resources are allocated in the pipeline
     ResourceSetSpecification ResourceSetSpec;
 
-    /// @brief The target to render to with the pipeline
-    RenderTarget Target;
+    std::array<PixelFormat, 8> ColourFormats;
+    uint32_t ColourTargetCount = 1;
+    SampleCount ColourTargetSampleCount = SampleCount::SampleCount1;
+    PixelFormat DepthFormat = PixelFormat::D24_UNorm_S8_UInt;
 
     /// @brief The layout of data within bound vertex buffers
     std::vector<VertexBufferLayout> Layouts;

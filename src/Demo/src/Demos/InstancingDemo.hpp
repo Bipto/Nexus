@@ -70,6 +70,7 @@ class InstancingDemo : public Demo
 
         m_CommandList->Begin();
         m_CommandList->SetPipeline(m_Pipeline);
+        m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()));
 
         Nexus::Graphics::Viewport vp;
         vp.X = 0;
@@ -152,7 +153,9 @@ class InstancingDemo : public Demo
         pipelineDescription.DepthStencilDesc.EnableDepthWrite = true;
         pipelineDescription.DepthStencilDesc.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;
 
-        pipelineDescription.Target = Nexus::Graphics::RenderTarget{m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()};
+        pipelineDescription.ColourTargetCount = 1;
+        pipelineDescription.ColourFormats[0] = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
+        pipelineDescription.ColourTargetSampleCount = m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->GetSpecification().Samples;
 
         m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
         m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
