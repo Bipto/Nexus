@@ -157,6 +157,8 @@ endif()
 
 macro (nexus_copy_resources)
   #copy engine resources to output
+  get_target_property(Nexus_SOURCE_DIR Nexus SOURCE_DIR)
+
   add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${Nexus_SOURCE_DIR}/resources/engine
