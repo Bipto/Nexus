@@ -161,6 +161,8 @@ macro (nexus_copy_resources)
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${Nexus_SOURCE_DIR}/resources/engine
         $<TARGET_FILE_DIR:${PROJECT_NAME}>/resources/engine)
+
+  message($<TARGET_FILE_DIR:${PROJECT_NAME}>/resources/engine)
 endmacro()
 
 macro(nexus_copy_required_binaries)
