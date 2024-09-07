@@ -8,20 +8,18 @@
 
 #include "Nexus-Core/Graphics/Sampler.hpp"
 
-namespace Nexus::Graphics
-{
-class SamplerVk : public Sampler
-{
-  public:
-    SamplerVk(GraphicsDeviceVk *device, const SamplerSpecification &spec);
-    virtual ~SamplerVk();
-    virtual const SamplerSpecification &GetSamplerSpecification() override;
-    VkSampler GetSampler();
+namespace Nexus::Graphics {
+class SamplerVk : public Sampler {
+public:
+  SamplerVk(GraphicsDeviceVk *device, const SamplerSpecification &spec);
+  virtual ~SamplerVk();
+  virtual const SamplerSpecification &GetSamplerSpecification() override;
+  VkSampler GetSampler();
 
-  private:
-    SamplerSpecification m_Specification;
-    VkSampler m_Sampler;
-    GraphicsDeviceVk *m_Device = nullptr;
+private:
+  SamplerSpecification m_Specification;
+  VkSampler m_Sampler;
+  GraphicsDeviceVk *m_Device = nullptr;
 };
 } // namespace Nexus::Graphics
 

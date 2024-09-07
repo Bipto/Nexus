@@ -19,8 +19,7 @@
 #include "Nexus-Core/Logging/Log.hpp"
 #include "Nexus-Core/Vertex.hpp"
 
-namespace Nexus::GL
-{
+namespace Nexus::GL {
 std::string GetErrorMessageFromCode(const GLenum error);
 
 GLenum GetStencilOperation(Nexus::Graphics::StencilOperation operation);
@@ -29,10 +28,12 @@ GLenum GetBlendFactor(Nexus::Graphics::BlendFactor function);
 GLenum GetBlendFunction(Nexus::Graphics::BlendEquation equation);
 
 GLenum GetSamplerAddressMode(Nexus::Graphics::SamplerAddressMode addressMode);
-void GetSamplerFilter(Nexus::Graphics::SamplerFilter filter, GLenum &min, GLenum &max, bool hasMips);
+void GetSamplerFilter(Nexus::Graphics::SamplerFilter filter, GLenum &min,
+                      GLenum &max, bool hasMips);
 GLenum GetPixelType(Nexus::Graphics::PixelFormat format);
 GLenum GetPixelDataFormat(Nexus::Graphics::PixelFormat format);
-GLenum GetSizedInternalFormat(Nexus::Graphics::PixelFormat format, bool depthFormat);
+GLenum GetSizedInternalFormat(Nexus::Graphics::PixelFormat format,
+                              bool depthFormat);
 
 GLenum GetGLIndexBufferFormat(Nexus::Graphics::IndexBufferFormat format);
 GLenum GetTopology(Nexus::Graphics::Topology topology);
@@ -40,24 +41,23 @@ GLenum GetTopology(Nexus::Graphics::Topology topology);
 GLenum GetShaderStage(Nexus::Graphics::ShaderStage stage);
 GLenum GLCubemapFace(Nexus::Graphics::CubemapFace face);
 
-void GetBaseType(const Graphics::VertexBufferElement &element, GLenum &baseType, uint32_t &componentCount, GLboolean &normalized);
+void GetBaseType(const Graphics::VertexBufferElement &element, GLenum &baseType,
+                 uint32_t &componentCount, GLboolean &normalized);
 } // namespace Nexus::GL
 
 #endif
 
-#define glClearErrors()                                                                                                                                                            \
-    while (glGetError() != GL_NO_ERROR)                                                                                                                                            \
-    {                                                                                                                                                                              \
-    }
+#define glClearErrors()                                                        \
+  while (glGetError() != GL_NO_ERROR) {                                        \
+  }
 
-#define glCheckErrors()                                                                                                                                                            \
-    while (GLenum error = glGetError())                                                                                                                                            \
-    {                                                                                                                                                                              \
-        std::string message = Nexus::GL::GetErrorMessageFromCode(error);                                                                                                           \
-        NX_ERROR(message);                                                                                                                                                         \
-    }
+#define glCheckErrors()                                                        \
+  while (GLenum error = glGetError()) {                                        \
+    std::string message = Nexus::GL::GetErrorMessageFromCode(error);           \
+    NX_ERROR(message);                                                         \
+  }
 
-#define glCall(x)                                                                                                                                                                  \
-    glClearErrors();                                                                                                                                                               \
-    x;                                                                                                                                                                             \
-    glCheckErrors();
+#define glCall(x)                                                              \
+  glClearErrors();                                                             \
+  x;                                                                           \
+  glCheckErrors();

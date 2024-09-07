@@ -17,8 +17,7 @@
 // CORE ENGINE FUNCTIONS
 //-----------------------------------------------------------------------------
 
-namespace Nexus
-{
+namespace Nexus {
 /// @brief A method that initializes the engine
 /// @param argc A pointer to a string containing the input arguments
 /// @param argv An integer containing the number of arguments
@@ -35,8 +34,7 @@ void Shutdown();
 /// @brief A method that runs the main loop and is used on emscripten platforms
 void main_loop();
 
-namespace Nexus
-{
+namespace Nexus {
 /// @brief A method that runs an application
 /// @param app A pointer to an application to run
 void Run(Nexus::Application *app);

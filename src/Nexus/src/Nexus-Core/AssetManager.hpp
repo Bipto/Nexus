@@ -3,28 +3,27 @@
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
-namespace Nexus
-{
+namespace Nexus {
 /// @brief A class representing an asset manager to load and retrieve assets
-class AssetManager
-{
-  public:
-    /// @brief An AssetManager cannot be created without a graphics device
-    AssetManager() = delete;
+class AssetManager {
+public:
+  /// @brief An AssetManager cannot be created without a graphics device
+  AssetManager() = delete;
 
-    /// @brief A constructor taking in a reference counted pointer to a graphics device
-    /// @param graphicsDevice A pointer to a graphics device
-    AssetManager(Graphics::GraphicsDevice *graphicsDevice) : m_GraphicsDevice(graphicsDevice)
-    {
-    }
+  /// @brief A constructor taking in a reference counted pointer to a graphics
+  /// device
+  /// @param graphicsDevice A pointer to a graphics device
+  AssetManager(Graphics::GraphicsDevice *graphicsDevice)
+      : m_GraphicsDevice(graphicsDevice) {}
 
-    /// @brief A method to return a reference counted pointer to a texture
-    /// @param filepath A filepath to retrieve a texture from, if the texture has already been loaded then the cached one will be returned
-    /// @return A reference counted pointer to a texture
-    Ref<Graphics::Texture2D> GetTexture(const std::string &filepath);
+  /// @brief A method to return a reference counted pointer to a texture
+  /// @param filepath A filepath to retrieve a texture from, if the texture has
+  /// already been loaded then the cached one will be returned
+  /// @return A reference counted pointer to a texture
+  Ref<Graphics::Texture2D> GetTexture(const std::string &filepath);
 
-  private:
-    /// @brief A reference counted pointer to a graphics device
-    Graphics::GraphicsDevice *m_GraphicsDevice;
+private:
+  /// @brief A reference counted pointer to a graphics device
+  Graphics::GraphicsDevice *m_GraphicsDevice;
 };
 } // namespace Nexus

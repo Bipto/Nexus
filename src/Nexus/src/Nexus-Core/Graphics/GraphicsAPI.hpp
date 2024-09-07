@@ -1,6 +1,3 @@
 #pragma once
 
-namespace Nexus::Graphics
-{
-
-}
+namespace Nexus::Graphics {}

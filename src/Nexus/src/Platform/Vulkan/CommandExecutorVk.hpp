@@ -7,58 +7,80 @@
 #include "SwapchainVk.hpp"
 #include "Vk.hpp"
 
-namespace Nexus::Graphics
-{
+namespace Nexus::Graphics {
 class GraphicsDeviceVk;
 
-class CommandExecutorVk : public CommandExecutor
-{
-  public:
-    explicit CommandExecutorVk(GraphicsDeviceVk *device);
-    virtual ~CommandExecutorVk();
-    virtual void ExecuteCommands(const std::vector<RenderCommandData> &commands, GraphicsDevice *device) override;
-    virtual void Reset() override;
+class CommandExecutorVk : public CommandExecutor {
+public:
+  explicit CommandExecutorVk(GraphicsDeviceVk *device);
+  virtual ~CommandExecutorVk();
+  virtual void ExecuteCommands(const std::vector<RenderCommandData> &commands,
+                               GraphicsDevice *device) override;
+  virtual void Reset() override;
 
-    void SetCommandBuffer(VkCommandBuffer commandBuffer);
+  void SetCommandBuffer(VkCommandBuffer commandBuffer);
 
-    const VkCommandBuffer &GetCurrentCommandBuffer();
-    const VkFence &GetCurrentFence();
-    const VkSemaphore &GetCurrentSemaphore();
+  const VkCommandBuffer &GetCurrentCommandBuffer();
+  const VkFence &GetCurrentFence();
+  const VkSemaphore &GetCurrentSemaphore();
 
-  private:
-    virtual void ExecuteCommand(SetVertexBufferCommand command, GraphicsDevice *device) override;
-    virtual void ExecuteCommand(WeakRef<IndexBuffer> command, GraphicsDevice *device) override;
-    virtual void ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device) override;
-    virtual void ExecuteCommand(DrawElementCommand command, GraphicsDevice *device) override;
-    virtual void ExecuteCommand(DrawIndexedCommand command, GraphicsDevice *device) override;
-    virtual void ExecuteCommand(DrawInstancedCommand command, GraphicsDevice *device) override;
-    virtual void ExecuteCommand(DrawInstancedIndexedCommand command, GraphicsDevice *device) override;
-    virtual void ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device) override;
-    virtual void ExecuteCommand(ClearColorTargetCommand command, GraphicsDevice *device) override;
-    virtual void ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDevice *device) override;
-    virtual void ExecuteCommand(RenderTarget command, GraphicsDevice *device) override;
-    virtual void ExecuteCommand(const Viewport &command, GraphicsDevice *device) override;
-    virtual void ExecuteCommand(const Scissor &command, GraphicsDevice *device) override;
-    virtual void ExecuteCommand(ResolveSamplesToSwapchainCommand command, GraphicsDevice *device) override;
-    virtual void ExecuteCommand(StartTimingQueryCommand command, GraphicsDevice *device) override;
-    virtual void ExecuteCommand(StopTimingQueryCommand command, GraphicsDevice *device) override;
+private:
+  virtual void ExecuteCommand(SetVertexBufferCommand command,
+                              GraphicsDevice *device) override;
+  virtual void ExecuteCommand(WeakRef<IndexBuffer> command,
+                              GraphicsDevice *device) override;
+  virtual void ExecuteCommand(WeakRef<Pipeline> command,
+                              GraphicsDevice *device) override;
+  virtual void ExecuteCommand(DrawElementCommand command,
+                              GraphicsDevice *device) override;
+  virtual void ExecuteCommand(DrawIndexedCommand command,
+                              GraphicsDevice *device) override;
+  virtual void ExecuteCommand(DrawInstancedCommand command,
+                              GraphicsDevice *device) override;
+  virtual void ExecuteCommand(DrawInstancedIndexedCommand command,
+                              GraphicsDevice *device) override;
+  virtual void ExecuteCommand(Ref<ResourceSet> command,
+                              GraphicsDevice *device) override;
+  virtual void ExecuteCommand(ClearColorTargetCommand command,
+                              GraphicsDevice *device) override;
+  virtual void ExecuteCommand(ClearDepthStencilTargetCommand command,
+                              GraphicsDevice *device) override;
+  virtual void ExecuteCommand(RenderTarget command,
+                              GraphicsDevice *device) override;
+  virtual void ExecuteCommand(const Viewport &command,
+                              GraphicsDevice *device) override;
+  virtual void ExecuteCommand(const Scissor &command,
+                              GraphicsDevice *device) override;
+  virtual void ExecuteCommand(ResolveSamplesToSwapchainCommand command,
+                              GraphicsDevice *device) override;
+  virtual void ExecuteCommand(StartTimingQueryCommand command,
+                              GraphicsDevice *device) override;
+  virtual void ExecuteCommand(StopTimingQueryCommand command,
+                              GraphicsDevice *device) override;
+  virtual void ExecuteCommand(SetStencilRefCommand command,
+                              GraphicsDevice *device) override;
+  virtual void ExecuteCommand(SetDepthBoundsCommand command,
+                              GraphicsDevice *device) override;
+  virtual void ExecuteCommand(SetBlendFactorCommand command,
+                              GraphicsDevice *device) override;
 
-    void StartRenderingToSwapchain(SwapchainVk *swapchain);
-    void StartRenderingToFramebuffer(Ref<Framebuffer> framebuffer);
-    void StopRendering();
-    void TransitionFramebufferToShaderReadonly(Ref<Framebuffer> framebuffer);
+  void StartRenderingToSwapchain(SwapchainVk *swapchain);
+  void StartRenderingToFramebuffer(Ref<Framebuffer> framebuffer);
+  void StopRendering();
+  void TransitionFramebufferToShaderReadonly(Ref<Framebuffer> framebuffer);
+  bool ValidateIsRendering();
 
-  private:
-    GraphicsDeviceVk *m_Device = nullptr;
+private:
+  GraphicsDeviceVk *m_Device = nullptr;
 
-    Ref<Pipeline> m_CurrentlyBoundPipeline = nullptr;
-    bool m_Rendering = false;
-    VkExtent2D m_RenderSize = {0, 0};
+  Ref<Pipeline> m_CurrentlyBoundPipeline = nullptr;
+  bool m_Rendering = false;
+  VkExtent2D m_RenderSize = {0, 0};
 
-    uint32_t m_DepthAttachmentIndex = 0;
-    RenderTarget m_CurrentRenderTarget;
+  uint32_t m_DepthAttachmentIndex = 0;
+  RenderTarget m_CurrentRenderTarget;
 
-    VkCommandBuffer m_CommandBuffer = nullptr;
+  VkCommandBuffer m_CommandBuffer = nullptr;
 };
 } // namespace Nexus::Graphics
 

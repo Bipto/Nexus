@@ -5,22 +5,20 @@
 #include "tinyfiledialogs.h"
 #endif
 
-namespace Nexus::FileDialogs
-{
-const char *OpenFile(std::vector<const char *> filters)
-{
+namespace Nexus::FileDialogs {
+const char *OpenFile(std::vector<const char *> filters) {
 #if defined(WIN32)
-    return tinyfd_openFileDialog("Select a file", "", filters.size(), filters.data(), NULL, 0);
+  return tinyfd_openFileDialog("Select a file", "", filters.size(),
+                               filters.data(), NULL, 0);
 #endif
 
-    return "";
+  return "";
 }
 
-const char *OpenFolder(const char *title, const char *defaultDirectory)
-{
+const char *OpenFolder(const char *title, const char *defaultDirectory) {
 #if defined(WIN32)
-    return tinyfd_selectFolderDialog(title, defaultDirectory);
+  return tinyfd_selectFolderDialog(title, defaultDirectory);
 #endif
-    return "";
+  return "";
 }
 } // namespace Nexus::FileDialogs

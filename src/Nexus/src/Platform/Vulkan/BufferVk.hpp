@@ -5,50 +5,52 @@
 #include "Nexus-Core/Graphics/GPUBuffer.hpp"
 #include "Vk.hpp"
 
-namespace Nexus::Graphics
-{
+namespace Nexus::Graphics {
 class GraphicsDeviceVk;
 
-class VertexBufferVk : public VertexBuffer
-{
-  public:
-    VertexBufferVk(const BufferDescription &description, const void *data, GraphicsDeviceVk *device);
-    virtual ~VertexBufferVk();
-    VkBuffer GetBuffer();
+class VertexBufferVk : public VertexBuffer {
+public:
+  VertexBufferVk(const BufferDescription &description, const void *data,
+                 GraphicsDeviceVk *device);
+  virtual ~VertexBufferVk();
+  VkBuffer GetBuffer();
 
-    virtual void SetData(const void *data, uint32_t size, uint32_t offset = 0) override;
+  virtual void SetData(const void *data, uint32_t size,
+                       uint32_t offset = 0) override;
 
-  private:
-    Vk::AllocatedBuffer m_Buffer;
-    GraphicsDeviceVk *m_Device;
+private:
+  Vk::AllocatedBuffer m_Buffer;
+  GraphicsDeviceVk *m_Device;
 };
 
-class IndexBufferVk : public IndexBuffer
-{
-  public:
-    IndexBufferVk(const BufferDescription &description, const void *data, GraphicsDeviceVk *device, IndexBufferFormat format);
-    virtual ~IndexBufferVk();
-    VkBuffer GetBuffer();
+class IndexBufferVk : public IndexBuffer {
+public:
+  IndexBufferVk(const BufferDescription &description, const void *data,
+                GraphicsDeviceVk *device, IndexBufferFormat format);
+  virtual ~IndexBufferVk();
+  VkBuffer GetBuffer();
 
-    virtual void SetData(const void *data, uint32_t size, uint32_t offset = 0) override;
+  virtual void SetData(const void *data, uint32_t size,
+                       uint32_t offset = 0) override;
 
-  private:
-    Vk::AllocatedBuffer m_Buffer;
-    GraphicsDeviceVk *m_Device;
+private:
+  Vk::AllocatedBuffer m_Buffer;
+  GraphicsDeviceVk *m_Device;
 };
 
-class UniformBufferVk : public UniformBuffer
-{
-  public:
-    UniformBufferVk(const BufferDescription &description, const void *data, GraphicsDeviceVk *device);
-    virtual ~UniformBufferVk();
-    VkBuffer GetBuffer();
+class UniformBufferVk : public UniformBuffer {
+public:
+  UniformBufferVk(const BufferDescription &description, const void *data,
+                  GraphicsDeviceVk *device);
+  virtual ~UniformBufferVk();
+  VkBuffer GetBuffer();
 
-    virtual void SetData(const void *data, uint32_t size, uint32_t offset = 0) override;
+  virtual void SetData(const void *data, uint32_t size,
+                       uint32_t offset = 0) override;
 
-  private:
-    std::vector<Vk::AllocatedBuffer> m_Buffers;
-    GraphicsDeviceVk *m_Device;
+private:
+  std::vector<Vk::AllocatedBuffer> m_Buffers;
+  GraphicsDeviceVk *m_Device;
 };
 } // namespace Nexus::Graphics
 

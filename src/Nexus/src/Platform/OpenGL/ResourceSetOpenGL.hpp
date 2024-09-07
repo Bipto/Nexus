@@ -9,15 +9,18 @@
 #include "Platform/OpenGL/SamplerOpenGL.hpp"
 #include "Platform/OpenGL/TextureOpenGL.hpp"
 
-namespace Nexus::Graphics
-{
-class ResourceSetOpenGL : public ResourceSet
-{
-  public:
-    ResourceSetOpenGL(const ResourceSetSpecification &spec);
-    virtual void WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, const std::string &name) override;
-    virtual void WriteCombinedImageSampler(Ref<Texture2D> texture, Ref<Sampler> sampler, const std::string &name) override;
-    virtual void WriteCombinedImageSampler(Ref<Cubemap> cubemap, Ref<Sampler> sampler, const std::string &name) override;
+namespace Nexus::Graphics {
+class ResourceSetOpenGL : public ResourceSet {
+public:
+  ResourceSetOpenGL(const ResourceSetSpecification &spec);
+  virtual void WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer,
+                                  const std::string &name) override;
+  virtual void WriteCombinedImageSampler(Ref<Texture2D> texture,
+                                         Ref<Sampler> sampler,
+                                         const std::string &name) override;
+  virtual void WriteCombinedImageSampler(Ref<Cubemap> cubemap,
+                                         Ref<Sampler> sampler,
+                                         const std::string &name) override;
 };
 } // namespace Nexus::Graphics
 

@@ -21,671 +21,623 @@
 #include "Nexus-Core/Input/Input.hpp"
 #include "Nexus-Core/Logging/Log.hpp"
 
-namespace Nexus
-{
-static KeyCode SDLToNexusKeycode(SDL_Keycode keycode)
-{
-    switch (keycode)
-    {
-    case SDLK_ESCAPE:
-        return KeyCode::Escape;
+namespace Nexus {
+static KeyCode SDLToNexusKeycode(SDL_Keycode keycode) {
+  switch (keycode) {
+  case SDLK_ESCAPE:
+    return KeyCode::Escape;
 
-    case SDLK_F1:
-        return KeyCode::F1;
-    case SDLK_F2:
-        return KeyCode::F2;
-    case SDLK_F3:
-        return KeyCode::F3;
-    case SDLK_F4:
-        return KeyCode::F4;
-    case SDLK_F5:
-        return KeyCode::F5;
-    case SDLK_F6:
-        return KeyCode::F6;
-    case SDLK_F7:
-        return KeyCode::F7;
-    case SDLK_F8:
-        return KeyCode::F8;
-    case SDLK_F9:
-        return KeyCode::F9;
-    case SDLK_F10:
-        return KeyCode::F10;
-    case SDLK_F11:
-        return KeyCode::F11;
-    case SDLK_F12:
-        return KeyCode::F12;
+  case SDLK_F1:
+    return KeyCode::F1;
+  case SDLK_F2:
+    return KeyCode::F2;
+  case SDLK_F3:
+    return KeyCode::F3;
+  case SDLK_F4:
+    return KeyCode::F4;
+  case SDLK_F5:
+    return KeyCode::F5;
+  case SDLK_F6:
+    return KeyCode::F6;
+  case SDLK_F7:
+    return KeyCode::F7;
+  case SDLK_F8:
+    return KeyCode::F8;
+  case SDLK_F9:
+    return KeyCode::F9;
+  case SDLK_F10:
+    return KeyCode::F10;
+  case SDLK_F11:
+    return KeyCode::F11;
+  case SDLK_F12:
+    return KeyCode::F12;
 
-    case SDLK_PRINTSCREEN:
-        return KeyCode::PrintScreen;
-    case SDLK_SCROLLLOCK:
-        return KeyCode::ScrollLock;
-    case SDLK_PAUSE:
-        return KeyCode::PauseBreak;
+  case SDLK_PRINTSCREEN:
+    return KeyCode::PrintScreen;
+  case SDLK_SCROLLLOCK:
+    return KeyCode::ScrollLock;
+  case SDLK_PAUSE:
+    return KeyCode::PauseBreak;
 
-    case SDLK_BACKQUOTE:
-        return KeyCode::Tilde;
-    case SDLK_1:
-        return KeyCode::One;
-    case SDLK_2:
-        return KeyCode::Two;
-    case SDLK_3:
-        return KeyCode::Three;
-    case SDLK_4:
-        return KeyCode::Four;
-    case SDLK_5:
-        return KeyCode::Five;
-    case SDLK_6:
-        return KeyCode::Six;
-    case SDLK_7:
-        return KeyCode::Seven;
-    case SDLK_8:
-        return KeyCode::Eight;
-    case SDLK_9:
-        return KeyCode::Nine;
-    case SDLK_0:
-        return KeyCode::Zero;
-    case SDLK_UNDERSCORE:
-        return KeyCode::Underscore;
-    case SDLK_EQUALS:
-        return KeyCode::Equals;
-    case SDLK_BACKSPACE:
-        return KeyCode::Back;
+  case SDLK_BACKQUOTE:
+    return KeyCode::Tilde;
+  case SDLK_1:
+    return KeyCode::One;
+  case SDLK_2:
+    return KeyCode::Two;
+  case SDLK_3:
+    return KeyCode::Three;
+  case SDLK_4:
+    return KeyCode::Four;
+  case SDLK_5:
+    return KeyCode::Five;
+  case SDLK_6:
+    return KeyCode::Six;
+  case SDLK_7:
+    return KeyCode::Seven;
+  case SDLK_8:
+    return KeyCode::Eight;
+  case SDLK_9:
+    return KeyCode::Nine;
+  case SDLK_0:
+    return KeyCode::Zero;
+  case SDLK_UNDERSCORE:
+    return KeyCode::Underscore;
+  case SDLK_EQUALS:
+    return KeyCode::Equals;
+  case SDLK_BACKSPACE:
+    return KeyCode::Back;
 
-    case SDLK_TAB:
-        return KeyCode::Tab;
-    case SDLK_q:
-        return KeyCode::Q;
-    case SDLK_w:
-        return KeyCode::W;
-    case SDLK_e:
-        return KeyCode::E;
-    case SDLK_r:
-        return KeyCode::R;
-    case SDLK_t:
-        return KeyCode::T;
-    case SDLK_y:
-        return KeyCode::Y;
-    case SDLK_u:
-        return KeyCode::U;
-    case SDLK_i:
-        return KeyCode::I;
-    case SDLK_o:
-        return KeyCode::O;
-    case SDLK_p:
-        return KeyCode::P;
-    case SDLK_LEFTBRACKET:
-        return KeyCode::LeftBracket;
-    case SDLK_RIGHTBRACKET:
-        return KeyCode::RightBracket;
-    case SDLK_RETURN:
-        return KeyCode::Enter;
+  case SDLK_TAB:
+    return KeyCode::Tab;
+  case SDLK_q:
+    return KeyCode::Q;
+  case SDLK_w:
+    return KeyCode::W;
+  case SDLK_e:
+    return KeyCode::E;
+  case SDLK_r:
+    return KeyCode::R;
+  case SDLK_t:
+    return KeyCode::T;
+  case SDLK_y:
+    return KeyCode::Y;
+  case SDLK_u:
+    return KeyCode::U;
+  case SDLK_i:
+    return KeyCode::I;
+  case SDLK_o:
+    return KeyCode::O;
+  case SDLK_p:
+    return KeyCode::P;
+  case SDLK_LEFTBRACKET:
+    return KeyCode::LeftBracket;
+  case SDLK_RIGHTBRACKET:
+    return KeyCode::RightBracket;
+  case SDLK_RETURN:
+    return KeyCode::Enter;
 
-    case SDLK_CAPSLOCK:
-        return KeyCode::CapsLock;
-    case SDLK_a:
-        return KeyCode::A;
-    case SDLK_s:
-        return KeyCode::S;
-    case SDLK_d:
-        return KeyCode::D;
-    case SDLK_f:
-        return KeyCode::F;
-    case SDLK_g:
-        return KeyCode::G;
-    case SDLK_h:
-        return KeyCode::H;
-    case SDLK_j:
-        return KeyCode::J;
-    case SDLK_k:
-        return KeyCode::K;
-    case SDLK_l:
-        return KeyCode::L;
-    case SDLK_SEMICOLON:
-        return KeyCode::SemiColon;
-    case SDLK_QUOTE:
-        return KeyCode::Apostrophe;
-    case SDLK_HASH:
-        return KeyCode::Hash;
+  case SDLK_CAPSLOCK:
+    return KeyCode::CapsLock;
+  case SDLK_a:
+    return KeyCode::A;
+  case SDLK_s:
+    return KeyCode::S;
+  case SDLK_d:
+    return KeyCode::D;
+  case SDLK_f:
+    return KeyCode::F;
+  case SDLK_g:
+    return KeyCode::G;
+  case SDLK_h:
+    return KeyCode::H;
+  case SDLK_j:
+    return KeyCode::J;
+  case SDLK_k:
+    return KeyCode::K;
+  case SDLK_l:
+    return KeyCode::L;
+  case SDLK_SEMICOLON:
+    return KeyCode::SemiColon;
+  case SDLK_QUOTE:
+    return KeyCode::Apostrophe;
+  case SDLK_HASH:
+    return KeyCode::Hash;
 
-    case SDLK_LSHIFT:
-        return KeyCode::LeftShift;
-    case SDLK_BACKSLASH:
-        return KeyCode::Backslash;
-    case SDLK_z:
-        return KeyCode::Z;
-    case SDLK_x:
-        return KeyCode::X;
-    case SDLK_c:
-        return KeyCode::C;
-    case SDLK_v:
-        return KeyCode::V;
-    case SDLK_b:
-        return KeyCode::B;
-    case SDLK_n:
-        return KeyCode::N;
-    case SDLK_m:
-        return KeyCode::M;
-    case SDLK_COMMA:
-        return KeyCode::Comma;
-    case SDLK_PERIOD:
-        return KeyCode::Period;
-    case SDLK_SLASH:
-        return KeyCode::Slash;
-    case SDLK_RSHIFT:
-        return KeyCode::RightShift;
+  case SDLK_LSHIFT:
+    return KeyCode::LeftShift;
+  case SDLK_BACKSLASH:
+    return KeyCode::Backslash;
+  case SDLK_z:
+    return KeyCode::Z;
+  case SDLK_x:
+    return KeyCode::X;
+  case SDLK_c:
+    return KeyCode::C;
+  case SDLK_v:
+    return KeyCode::V;
+  case SDLK_b:
+    return KeyCode::B;
+  case SDLK_n:
+    return KeyCode::N;
+  case SDLK_m:
+    return KeyCode::M;
+  case SDLK_COMMA:
+    return KeyCode::Comma;
+  case SDLK_PERIOD:
+    return KeyCode::Period;
+  case SDLK_SLASH:
+    return KeyCode::Slash;
+  case SDLK_RSHIFT:
+    return KeyCode::RightShift;
 
-    case SDLK_LCTRL:
-        return KeyCode::LeftControl;
-    case SDLK_LGUI:
-        return KeyCode::LeftWin;
-    case SDLK_LALT:
-        return KeyCode::LeftAlt;
-    case SDLK_SPACE:
-        return KeyCode::Space;
-    case SDLK_RALT:
-        return KeyCode::RightWin;
-    case SDLK_RGUI:
-        return KeyCode::PrintScreen;
-    case SDLK_RCTRL:
-        return KeyCode::RightControl;
+  case SDLK_LCTRL:
+    return KeyCode::LeftControl;
+  case SDLK_LGUI:
+    return KeyCode::LeftWin;
+  case SDLK_LALT:
+    return KeyCode::LeftAlt;
+  case SDLK_SPACE:
+    return KeyCode::Space;
+  case SDLK_RALT:
+    return KeyCode::RightWin;
+  case SDLK_RGUI:
+    return KeyCode::PrintScreen;
+  case SDLK_RCTRL:
+    return KeyCode::RightControl;
 
-    case SDLK_INSERT:
-        return KeyCode::Insert;
-    case SDLK_HOME:
-        return KeyCode::Home;
-    case SDLK_PAGEUP:
-        return KeyCode::PageUp;
-    case SDLK_DELETE:
-        return KeyCode::Delete;
-    case SDLK_END:
-        return KeyCode::End;
-    case SDLK_PAGEDOWN:
-        return KeyCode::PageDown;
+  case SDLK_INSERT:
+    return KeyCode::Insert;
+  case SDLK_HOME:
+    return KeyCode::Home;
+  case SDLK_PAGEUP:
+    return KeyCode::PageUp;
+  case SDLK_DELETE:
+    return KeyCode::Delete;
+  case SDLK_END:
+    return KeyCode::End;
+  case SDLK_PAGEDOWN:
+    return KeyCode::PageDown;
 
-    case SDLK_LEFT:
-        return KeyCode::KeyLeft;
-    case SDLK_UP:
-        return KeyCode::KeyUp;
-    case SDLK_DOWN:
-        return KeyCode::KeyDown;
-    case SDLK_RIGHT:
-        return KeyCode::KeyRight;
+  case SDLK_LEFT:
+    return KeyCode::KeyLeft;
+  case SDLK_UP:
+    return KeyCode::KeyUp;
+  case SDLK_DOWN:
+    return KeyCode::KeyDown;
+  case SDLK_RIGHT:
+    return KeyCode::KeyRight;
 
-    case SDLK_NUMLOCKCLEAR:
-        return KeyCode::NumLock;
-    case SDLK_KP_DIVIDE:
-        return KeyCode::KeyDivide;
-    case SDLK_KP_MULTIPLY:
-        return KeyCode::NumMultiply;
-    case SDLK_KP_MEMSUBTRACT:
-        return KeyCode::NumSubstract;
-    case SDLK_KP_7:
-        return KeyCode::Num7;
-    case SDLK_KP_8:
-        return KeyCode::Num8;
-    case SDLK_KP_9:
-        return KeyCode::Num9;
-    case SDLK_KP_PLUS:
-        return KeyCode::NumPlus;
-    case SDLK_KP_4:
-        return KeyCode::Num4;
-    case SDLK_KP_5:
-        return KeyCode::Num5;
-    case SDLK_KP_6:
-        return KeyCode::Num6;
-    case SDLK_KP_1:
-        return KeyCode::Num1;
-    case SDLK_KP_2:
-        return KeyCode::Num2;
-    case SDLK_KP_3:
-        return KeyCode::Num3;
-    case SDLK_RETURN2:
-        return KeyCode::NumEnter;
-    case SDLK_KP_0:
-        return KeyCode::Num0;
-    case SDLK_KP_PERIOD:
-        return KeyCode::NumDelete;
+  case SDLK_NUMLOCKCLEAR:
+    return KeyCode::NumLock;
+  case SDLK_KP_DIVIDE:
+    return KeyCode::KeyDivide;
+  case SDLK_KP_MULTIPLY:
+    return KeyCode::NumMultiply;
+  case SDLK_KP_MEMSUBTRACT:
+    return KeyCode::NumSubstract;
+  case SDLK_KP_7:
+    return KeyCode::Num7;
+  case SDLK_KP_8:
+    return KeyCode::Num8;
+  case SDLK_KP_9:
+    return KeyCode::Num9;
+  case SDLK_KP_PLUS:
+    return KeyCode::NumPlus;
+  case SDLK_KP_4:
+    return KeyCode::Num4;
+  case SDLK_KP_5:
+    return KeyCode::Num5;
+  case SDLK_KP_6:
+    return KeyCode::Num6;
+  case SDLK_KP_1:
+    return KeyCode::Num1;
+  case SDLK_KP_2:
+    return KeyCode::Num2;
+  case SDLK_KP_3:
+    return KeyCode::Num3;
+  case SDLK_RETURN2:
+    return KeyCode::NumEnter;
+  case SDLK_KP_0:
+    return KeyCode::Num0;
+  case SDLK_KP_PERIOD:
+    return KeyCode::NumDelete;
 
-    default:
-        return KeyCode::Unknown;
-    }
+  default:
+    return KeyCode::Unknown;
+  }
 }
 
-void Clock::Tick()
-{
-    std::chrono::high_resolution_clock::time_point tickTime = std::chrono::high_resolution_clock::now();
-    m_DeltaTime = std::chrono::duration_cast<std::chrono::nanoseconds>(tickTime - m_StartTime).count();
-    m_StartTime = tickTime;
+void Clock::Tick() {
+  std::chrono::high_resolution_clock::time_point tickTime =
+      std::chrono::high_resolution_clock::now();
+  m_DeltaTime = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                    tickTime - m_StartTime)
+                    .count();
+  m_StartTime = tickTime;
 }
 
-Nexus::Time Clock::GetTime()
-{
-    return Nexus::Time(m_DeltaTime);
+Nexus::Time Clock::GetTime() { return Nexus::Time(m_DeltaTime); }
+
+Application::Application(const ApplicationSpecification &spec) {
+  m_Specification = spec;
+
+  m_Window = CreateApplicationWindow(spec.WindowProperties,
+                                     spec.SwapchainSpecification);
+  Nexus::Input::SetInputContext(m_Window->GetInput());
+
+  Graphics::GraphicsDeviceSpecification graphicsDeviceCreateInfo;
+  graphicsDeviceCreateInfo.API = spec.GraphicsAPI;
+
+  m_GraphicsDevice = Nexus::CreateGraphicsDevice(
+      graphicsDeviceCreateInfo, m_Window, spec.SwapchainSpecification);
+
+  auto swapchain = m_Window->GetSwapchain();
+  swapchain->SetVSyncState(spec.SwapchainSpecification.VSyncState);
+
+  m_AudioDevice = Nexus::CreateAudioDevice(spec.AudioAPI);
+
+  SDL_StartTextInput();
 }
 
-Application::Application(const ApplicationSpecification &spec)
-{
-    m_Specification = spec;
+Application::~Application() {
+  SDL_StopTextInput();
+  delete m_Window;
+  delete m_AudioDevice;
+  delete m_GraphicsDevice;
+}
 
-    m_Window = CreateApplicationWindow(spec.WindowProperties, spec.SwapchainSpecification);
-    Nexus::Input::SetInputContext(m_Window->GetInput());
+void Application::MainLoop() {
+  CloseWindows();
 
-    Graphics::GraphicsDeviceSpecification graphicsDeviceCreateInfo;
-    graphicsDeviceCreateInfo.API = spec.GraphicsAPI;
+  auto windowSize = m_Window->GetWindowSize();
+  if (windowSize.X != m_PreviousWindowSize.X ||
+      windowSize.Y != m_PreviousWindowSize.Y) {
+    OnResize(windowSize);
+  }
 
-    m_GraphicsDevice = Nexus::CreateGraphicsDevice(graphicsDeviceCreateInfo, m_Window, spec.SwapchainSpecification);
+  this->PollEvents();
+  m_GlobalKeyboardState.CacheInput();
+
+  // Allow user to block closing events, for example to display save prompt
+  if (m_Window->m_Closing)
+    m_Window->m_Closing = this->OnClose();
+
+  m_Clock.Tick();
+  auto time = m_Clock.GetTime();
+
+  this->Update(time);
+
+  // run render functions
+  {
+    this->Render(time);
 
     auto swapchain = m_Window->GetSwapchain();
-    swapchain->SetVSyncState(spec.SwapchainSpecification.VSyncState);
+    swapchain->SwapBuffers();
+  }
 
-    m_AudioDevice = Nexus::CreateAudioDevice(spec.AudioAPI);
-
-    SDL_StartTextInput();
+  CheckForClosingWindows();
+  m_PreviousWindowSize = windowSize;
 }
 
-Application::~Application()
-{
-    SDL_StopTextInput();
-    delete m_Window;
-    delete m_AudioDevice;
-    delete m_GraphicsDevice;
+Nexus::Window *Application::GetPrimaryWindow() { return m_Window; }
+
+Point2D<uint32_t> Application::GetWindowSize() {
+  return this->m_Window->GetWindowSize();
 }
 
-void Application::MainLoop()
-{
-    CloseWindows();
-
-    auto windowSize = m_Window->GetWindowSize();
-    if (windowSize.X != m_PreviousWindowSize.X || windowSize.Y != m_PreviousWindowSize.Y)
-    {
-        OnResize(windowSize);
-    }
-
-    this->PollEvents();
-    m_GlobalKeyboardState.CacheInput();
-
-    // Allow user to block closing events, for example to display save prompt
-    if (m_Window->m_Closing)
-        m_Window->m_Closing = this->OnClose();
-
-    m_Clock.Tick();
-    auto time = m_Clock.GetTime();
-
-    this->Update(time);
-
-    // run render functions
-    {
-        this->Render(time);
-
-        auto swapchain = m_Window->GetSwapchain();
-        swapchain->SwapBuffers();
-    }
-
-    CheckForClosingWindows();
-    m_PreviousWindowSize = windowSize;
+Point2D<int> Application::GetWindowPosition() {
+  return this->m_Window->GetWindowPosition();
 }
 
-Nexus::Window *Application::GetPrimaryWindow()
-{
-    return m_Window;
+bool Application::IsWindowFocussed() { return m_Window->IsFocussed(); }
+
+WindowState Application::GetCurrentWindowState() {
+  return m_Window->GetCurrentWindowState();
 }
 
-Point2D<uint32_t> Application::GetWindowSize()
-{
-    return this->m_Window->GetWindowSize();
+void Application::SetIsMouseVisible(bool visible) {
+  m_Window->SetIsMouseVisible(visible);
 }
 
-Point2D<int> Application::GetWindowPosition()
-{
-    return this->m_Window->GetWindowPosition();
+void Application::SetCursor(Cursor cursor) { m_Window->SetCursor(cursor); }
+
+void Application::Close() { m_Window->Close(); }
+
+bool Application::ShouldClose() { return m_Window->IsClosing(); }
+
+Window *Application::CreateApplicationWindow(
+    const WindowSpecification &windowProps,
+    const Graphics::SwapchainSpecification &swapchainSpec) {
+  Window *window = new Nexus::Window(windowProps, m_Specification.GraphicsAPI,
+                                     swapchainSpec);
+  m_Windows.push_back(window);
+  return window;
 }
 
-bool Application::IsWindowFocussed()
-{
-    return m_Window->IsFocussed();
+const InputState *Application::GetCoreInputState() const {
+  return m_Window->GetInput();
 }
 
-WindowState Application::GetCurrentWindowState()
-{
-    return m_Window->GetCurrentWindowState();
+Graphics::GraphicsDevice *Application::GetGraphicsDevice() {
+  return m_GraphicsDevice;
 }
 
-void Application::SetIsMouseVisible(bool visible)
-{
-    m_Window->SetIsMouseVisible(visible);
+Audio::AudioDevice *Application::GetAudioDevice() { return m_AudioDevice; }
+
+std::vector<Monitor> Application::GetMonitors() {
+  std::vector<Monitor> monitors;
+
+  int displayCount;
+  const SDL_DisplayID *displays = SDL_GetDisplays(&displayCount);
+
+  for (int i = 0; i < displayCount; i++) {
+    SDL_DisplayID id = displays[i];
+    SDL_Rect bounds;
+
+    Monitor monitor;
+    monitor.DPI = SDL_GetDisplayContentScale(id);
+    monitor.Name = SDL_GetDisplayName(id);
+
+    SDL_GetDisplayBounds(id, &bounds);
+    monitor.Position = {bounds.x, bounds.y};
+    monitor.Size = {bounds.w, bounds.h};
+
+    SDL_GetDisplayUsableBounds(id, &bounds);
+    monitor.WorkPosition = {bounds.x, bounds.y};
+    monitor.WorkSize = {bounds.w, bounds.h};
+
+    monitors.push_back(monitor);
+  }
+
+  return monitors;
 }
 
-void Application::SetCursor(Cursor cursor)
-{
-    m_Window->SetCursor(cursor);
+const Keyboard &Application::GetGlobalKeyboardState() const {
+  return m_GlobalKeyboardState;
 }
 
-void Application::Close()
-{
-    m_Window->Close();
-}
+void Application::PollEvents() {
+  for (auto window : m_Windows) {
+    window->m_Input.CacheInput();
+  }
 
-bool Application::ShouldClose()
-{
-    return m_Window->IsClosing();
-}
-
-Window *Application::CreateApplicationWindow(const WindowSpecification &windowProps, const Graphics::SwapchainSpecification &swapchainSpec)
-{
-    Window *window = new Nexus::Window(windowProps, m_Specification.GraphicsAPI, swapchainSpec);
-    m_Windows.push_back(window);
-    return window;
-}
-
-const InputState *Application::GetCoreInputState() const
-{
-    return m_Window->GetInput();
-}
-
-Graphics::GraphicsDevice *Application::GetGraphicsDevice()
-{
-    return m_GraphicsDevice;
-}
-
-Audio::AudioDevice *Application::GetAudioDevice()
-{
-    return m_AudioDevice;
-}
-
-std::vector<Monitor> Application::GetMonitors()
-{
-    std::vector<Monitor> monitors;
-
-    int displayCount;
-    const SDL_DisplayID *displays = SDL_GetDisplays(&displayCount);
-
-    for (int i = 0; i < displayCount; i++)
-    {
-        SDL_DisplayID id = displays[i];
-        SDL_Rect bounds;
-
-        Monitor monitor;
-        monitor.DPI = SDL_GetDisplayContentScale(id);
-        monitor.Name = SDL_GetDisplayName(id);
-
-        SDL_GetDisplayBounds(id, &bounds);
-        monitor.Position = {bounds.x, bounds.y};
-        monitor.Size = {bounds.w, bounds.h};
-
-        SDL_GetDisplayUsableBounds(id, &bounds);
-        monitor.WorkPosition = {bounds.x, bounds.y};
-        monitor.WorkSize = {bounds.w, bounds.h};
-
-        monitors.push_back(monitor);
-    }
-
-    return monitors;
-}
-
-const Keyboard &Application::GetGlobalKeyboardState() const
-{
-    return m_GlobalKeyboardState;
-}
-
-void Application::PollEvents()
-{
-    for (auto window : m_Windows)
-    {
-        window->m_Input.CacheInput();
-    }
-
-    float x, y;
-    Uint32 buttons = SDL_GetGlobalMouseState(&x, &y);
+  float x, y;
+  Uint32 buttons = SDL_GetGlobalMouseState(&x, &y);
 
 #if defined(__EMSCRIPTEN__)
-    x *= GetPrimaryWindow()->GetDisplayScale();
-    y *= GetPrimaryWindow()->GetDisplayScale();
+  x *= GetPrimaryWindow()->GetDisplayScale();
+  y *= GetPrimaryWindow()->GetDisplayScale();
 #endif
 
-    Mouse::s_GlobalMousePosition.X = (int)x;
-    Mouse::s_GlobalMousePosition.Y = (int)y;
+  Mouse::s_GlobalMousePosition.X = (int)x;
+  Mouse::s_GlobalMousePosition.Y = (int)y;
 
-    if (buttons & SDL_BUTTON_LEFT)
-    {
-        Mouse::s_GlobalMouseState.LeftButton = MouseButton::Pressed;
-    }
-    else
-    {
-        Mouse::s_GlobalMouseState.LeftButton = MouseButton::Released;
-    }
+  if (buttons & SDL_BUTTON_LEFT) {
+    Mouse::s_GlobalMouseState.LeftButton = MouseButton::Pressed;
+  } else {
+    Mouse::s_GlobalMouseState.LeftButton = MouseButton::Released;
+  }
 
-    if (buttons & SDL_BUTTON_RIGHT)
-    {
-        Mouse::s_GlobalMouseState.RightButton = MouseButton::Pressed;
-    }
-    else
-    {
-        Mouse::s_GlobalMouseState.RightButton = MouseButton::Released;
-    }
+  if (buttons & SDL_BUTTON_RIGHT) {
+    Mouse::s_GlobalMouseState.RightButton = MouseButton::Pressed;
+  } else {
+    Mouse::s_GlobalMouseState.RightButton = MouseButton::Released;
+  }
 
-    if (buttons & SDL_BUTTON_MIDDLE)
-    {
-        Mouse::s_GlobalMouseState.MiddleButton = MouseButton::Pressed;
-    }
-    else
-    {
-        Mouse::s_GlobalMouseState.MiddleButton = MouseButton::Released;
+  if (buttons & SDL_BUTTON_MIDDLE) {
+    Mouse::s_GlobalMouseState.MiddleButton = MouseButton::Pressed;
+  } else {
+    Mouse::s_GlobalMouseState.MiddleButton = MouseButton::Released;
+  }
+
+  SDL_Event event;
+  while (SDL_PollEvent(&event)) {
+    auto window = GetWindowFromHandle(event.window.windowID);
+    if (!window) {
+      continue;
     }
 
-    SDL_Event event;
-    while (SDL_PollEvent(&event))
-    {
-        auto window = GetWindowFromHandle(event.window.windowID);
-        if (!window)
-        {
-            continue;
-        }
-
-        switch (event.type)
-        {
-        case SDL_EVENT_KEY_DOWN: {
-            auto nexusKeyCode = SDLToNexusKeycode(event.key.keysym.sym);
-            window->m_Input.m_Keyboard.m_CurrentKeys[nexusKeyCode] = true;
-            m_GlobalKeyboardState.m_CurrentKeys[nexusKeyCode] = true;
-            break;
-        }
-        case SDL_EVENT_KEY_UP: {
-            auto nexusKeyCode = SDLToNexusKeycode(event.key.keysym.sym);
-            window->m_Input.m_Keyboard.m_CurrentKeys[nexusKeyCode] = false;
-            m_GlobalKeyboardState.m_CurrentKeys[nexusKeyCode] = false;
-            break;
-        }
-        case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-            switch (event.button.button)
-            {
-            case SDL_BUTTON_LEFT: {
-                window->m_Input.m_Mouse.m_CurrentState.LeftButton = MouseButton::Pressed;
-                break;
-            }
-            case SDL_BUTTON_RIGHT: {
-                window->m_Input.m_Mouse.m_CurrentState.RightButton = MouseButton::Pressed;
-                break;
-            }
-            case SDL_BUTTON_MIDDLE: {
-                window->m_Input.m_Mouse.m_CurrentState.MiddleButton = MouseButton::Pressed;
-                break;
-            }
-            }
-            break;
-        }
-        case SDL_EVENT_MOUSE_BUTTON_UP: {
-            switch (event.button.button)
-            {
-            case SDL_BUTTON_LEFT: {
-                window->m_Input.m_Mouse.m_CurrentState.LeftButton = MouseButton::Released;
-                break;
-            }
-            case SDL_BUTTON_RIGHT: {
-                window->m_Input.m_Mouse.m_CurrentState.RightButton = MouseButton::Released;
-                break;
-            }
-            case SDL_BUTTON_MIDDLE: {
-                window->m_Input.m_Mouse.m_CurrentState.MiddleButton = MouseButton::Released;
-                break;
-            }
-            }
-            break;
-        }
-        case SDL_EVENT_MOUSE_MOTION: {
-            int mouseX = event.motion.x;
-            int mouseY = event.motion.y;
-
-#if defined(__EMSCRIPTEN__)
-            mouseX *= GetPrimaryWindow()->GetDisplayScale();
-            mouseY *= GetPrimaryWindow()->GetDisplayScale();
-#endif
-
-            window->m_Input.m_Mouse.m_CurrentState.MousePosition = {mouseX, mouseY};
-
-            break;
-        }
-        case SDL_EVENT_MOUSE_WHEEL: {
-            auto &scroll = window->m_Input.m_Mouse.m_CurrentState.MouseWheel;
-            scroll.X += event.wheel.x;
-            scroll.Y += event.wheel.y;
-            break;
-        }
-        case SDL_EVENT_WINDOW_CLOSE_REQUESTED: {
-            window->Close();
-            break;
-        }
-
-        case SDL_EVENT_GAMEPAD_ADDED: {
-
-            if (SDL_IsGamepad(event.cdevice.which))
-            {
-                Nexus::Input::AddController(event.cdevice.which);
-                break;
-            }
-            break;
-        }
-        case SDL_EVENT_GAMEPAD_REMOVED: {
-            Nexus::Input::RemoveController(event.cdevice.which);
-            break;
-        }
-        case SDL_EVENT_TEXT_INPUT: {
-            window->m_Input.TextInput.Invoke(event.text.text);
-            OnTextInput.Invoke(event.text.text);
-            break;
-        }
-        case SDL_EVENT_WINDOW_RESIZED: {
-            window->OnResize.Invoke({event.window.data1, event.window.data2});
-            break;
-        }
-        case SDL_EVENT_DROP_FILE: {
-            std::string file = event.drop.data;
-            window->OnFileDrop.Invoke(file);
-            break;
-        }
-        }
+    switch (event.type) {
+    case SDL_EVENT_KEY_DOWN: {
+      auto nexusKeyCode = SDLToNexusKeycode(event.key.keysym.sym);
+      window->m_Input.m_Keyboard.m_CurrentKeys[nexusKeyCode] = true;
+      m_GlobalKeyboardState.m_CurrentKeys[nexusKeyCode] = true;
+      break;
     }
-}
-
-Window *Application::GetWindowFromHandle(uint32_t handle)
-{
-    for (int i = 0; i < m_Windows.size(); i++)
-    {
-        if (m_Windows[i]->GetID() == handle)
-        {
-            return m_Windows[i];
-        }
+    case SDL_EVENT_KEY_UP: {
+      auto nexusKeyCode = SDLToNexusKeycode(event.key.keysym.sym);
+      window->m_Input.m_Keyboard.m_CurrentKeys[nexusKeyCode] = false;
+      m_GlobalKeyboardState.m_CurrentKeys[nexusKeyCode] = false;
+      break;
     }
-    return nullptr;
-}
-
-void Application::CheckForClosingWindows()
-{
-    uint32_t indexToRemove = 0;
-    for (uint32_t i = 0; i < m_Windows.size(); i++)
-    {
-        if (m_Windows[i]->IsClosing())
-        {
-            auto window = m_Windows[i];
-
-            auto pair = std::make_pair(window, 0);
-            m_WindowsToClose.push_back(pair);
-        }
-    }
-}
-
-void Application::CloseWindows()
-{
-    // this is required because the swapchain's framebuffer may still be in use on the GPU
-    // we need to wait until we are certain that the swapchain is no longer in use before we delete it
-    for (uint32_t i = 0; i < m_WindowsToClose.size(); i++)
-    {
-        m_WindowsToClose[i].second++;
-    }
-
-    for (uint32_t closingWindowIndex = 0; closingWindowIndex < m_WindowsToClose.size(); closingWindowIndex++)
-    {
-        auto pair = m_WindowsToClose[closingWindowIndex];
-
-        auto window = pair.first;
-        auto count = pair.second;
-
-        if (count > 10)
-        {
-            for (uint32_t windowIndex = 0; windowIndex < m_Windows.size(); windowIndex++)
-            {
-                if (window == m_Windows[windowIndex])
-                {
-                    delete window;
-                    window = nullptr;
-
-                    m_WindowsToClose.erase(m_WindowsToClose.begin() + closingWindowIndex);
-                    m_Windows.erase(m_Windows.begin() + windowIndex);
-                }
-            }
-        }
-    }
-}
-
-Graphics::GraphicsDevice *CreateGraphicsDevice(const Graphics::GraphicsDeviceSpecification &createInfo, Window *window, const Graphics::SwapchainSpecification &swapchainSpec)
-{
-    switch (createInfo.API)
-    {
-#if defined(NX_PLATFORM_D3D12)
-    case Graphics::GraphicsAPI::D3D12:
-        return new Graphics::GraphicsDeviceD3D12(createInfo, window, swapchainSpec);
+    case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+      switch (event.button.button) {
+      case SDL_BUTTON_LEFT: {
+        window->m_Input.m_Mouse.m_CurrentState.LeftButton =
+            MouseButton::Pressed;
         break;
+      }
+      case SDL_BUTTON_RIGHT: {
+        window->m_Input.m_Mouse.m_CurrentState.RightButton =
+            MouseButton::Pressed;
+        break;
+      }
+      case SDL_BUTTON_MIDDLE: {
+        window->m_Input.m_Mouse.m_CurrentState.MiddleButton =
+            MouseButton::Pressed;
+        break;
+      }
+      }
+      break;
+    }
+    case SDL_EVENT_MOUSE_BUTTON_UP: {
+      switch (event.button.button) {
+      case SDL_BUTTON_LEFT: {
+        window->m_Input.m_Mouse.m_CurrentState.LeftButton =
+            MouseButton::Released;
+        break;
+      }
+      case SDL_BUTTON_RIGHT: {
+        window->m_Input.m_Mouse.m_CurrentState.RightButton =
+            MouseButton::Released;
+        break;
+      }
+      case SDL_BUTTON_MIDDLE: {
+        window->m_Input.m_Mouse.m_CurrentState.MiddleButton =
+            MouseButton::Released;
+        break;
+      }
+      }
+      break;
+    }
+    case SDL_EVENT_MOUSE_MOTION: {
+      int mouseX = event.motion.x;
+      int mouseY = event.motion.y;
+
+#if defined(__EMSCRIPTEN__)
+      mouseX *= GetPrimaryWindow()->GetDisplayScale();
+      mouseY *= GetPrimaryWindow()->GetDisplayScale();
+#endif
+
+      window->m_Input.m_Mouse.m_CurrentState.MousePosition = {mouseX, mouseY};
+
+      break;
+    }
+    case SDL_EVENT_MOUSE_WHEEL: {
+      auto &scroll = window->m_Input.m_Mouse.m_CurrentState.MouseWheel;
+      scroll.X += event.wheel.x;
+      scroll.Y += event.wheel.y;
+      break;
+    }
+    case SDL_EVENT_WINDOW_CLOSE_REQUESTED: {
+      window->Close();
+      break;
+    }
+
+    case SDL_EVENT_GAMEPAD_ADDED: {
+
+      if (SDL_IsGamepad(event.cdevice.which)) {
+        Nexus::Input::AddController(event.cdevice.which);
+        break;
+      }
+      break;
+    }
+    case SDL_EVENT_GAMEPAD_REMOVED: {
+      Nexus::Input::RemoveController(event.cdevice.which);
+      break;
+    }
+    case SDL_EVENT_TEXT_INPUT: {
+      window->m_Input.TextInput.Invoke(event.text.text);
+      OnTextInput.Invoke(event.text.text);
+      break;
+    }
+    case SDL_EVENT_WINDOW_RESIZED: {
+      window->OnResize.Invoke({event.window.data1, event.window.data2});
+      break;
+    }
+    case SDL_EVENT_DROP_FILE: {
+      std::string file = event.drop.data;
+      window->OnFileDrop.Invoke(file);
+      break;
+    }
+    }
+  }
+}
+
+Window *Application::GetWindowFromHandle(uint32_t handle) {
+  for (int i = 0; i < m_Windows.size(); i++) {
+    if (m_Windows[i]->GetID() == handle) {
+      return m_Windows[i];
+    }
+  }
+  return nullptr;
+}
+
+void Application::CheckForClosingWindows() {
+  uint32_t indexToRemove = 0;
+  for (uint32_t i = 0; i < m_Windows.size(); i++) {
+    if (m_Windows[i]->IsClosing()) {
+      auto window = m_Windows[i];
+
+      auto pair = std::make_pair(window, 0);
+      m_WindowsToClose.push_back(pair);
+    }
+  }
+}
+
+void Application::CloseWindows() {
+  // this is required because the swapchain's framebuffer may still be in use on
+  // the GPU we need to wait until we are certain that the swapchain is no
+  // longer in use before we delete it
+  for (uint32_t i = 0; i < m_WindowsToClose.size(); i++) {
+    m_WindowsToClose[i].second++;
+  }
+
+  for (uint32_t closingWindowIndex = 0;
+       closingWindowIndex < m_WindowsToClose.size(); closingWindowIndex++) {
+    auto pair = m_WindowsToClose[closingWindowIndex];
+
+    auto window = pair.first;
+    auto count = pair.second;
+
+    if (count > 10) {
+      for (uint32_t windowIndex = 0; windowIndex < m_Windows.size();
+           windowIndex++) {
+        if (window == m_Windows[windowIndex]) {
+          delete window;
+          window = nullptr;
+
+          m_WindowsToClose.erase(m_WindowsToClose.begin() + closingWindowIndex);
+          m_Windows.erase(m_Windows.begin() + windowIndex);
+        }
+      }
+    }
+  }
+}
+
+Graphics::GraphicsDevice *
+CreateGraphicsDevice(const Graphics::GraphicsDeviceSpecification &createInfo,
+                     Window *window,
+                     const Graphics::SwapchainSpecification &swapchainSpec) {
+  switch (createInfo.API) {
+#if defined(NX_PLATFORM_D3D12)
+  case Graphics::GraphicsAPI::D3D12:
+    return new Graphics::GraphicsDeviceD3D12(createInfo, window, swapchainSpec);
+    break;
 #endif
 
 #if defined(NX_PLATFORM_OPENGL)
-    case Graphics::GraphicsAPI::OpenGL:
-        return new Graphics::GraphicsDeviceOpenGL(createInfo, window, swapchainSpec);
-        break;
+  case Graphics::GraphicsAPI::OpenGL:
+    return new Graphics::GraphicsDeviceOpenGL(createInfo, window,
+                                              swapchainSpec);
+    break;
 #endif
 
 #if defined(NX_PLATFORM_VULKAN)
-    case Graphics::GraphicsAPI::Vulkan:
-        return new Graphics::GraphicsDeviceVk(createInfo, window, swapchainSpec);
-        break;
+  case Graphics::GraphicsAPI::Vulkan:
+    return new Graphics::GraphicsDeviceVk(createInfo, window, swapchainSpec);
+    break;
 #endif
-    default:
-        throw std::runtime_error("Attempting to run application with unsupported graphics API");
-        return nullptr;
-        break;
-    }
+  default:
+    throw std::runtime_error(
+        "Attempting to run application with unsupported graphics API");
+    return nullptr;
+    break;
+  }
 }
 
-Audio::AudioDevice *CreateAudioDevice(Audio::AudioAPI api)
-{
-    switch (api)
-    {
+Audio::AudioDevice *CreateAudioDevice(Audio::AudioAPI api) {
+  switch (api) {
 #if defined(NX_PLATFORM_OPENAL)
-    case Audio::AudioAPI::OpenAL:
-        return new Audio::AudioDeviceOpenAL();
+  case Audio::AudioAPI::OpenAL:
+    return new Audio::AudioDeviceOpenAL();
 #endif
 
-    default:
-        throw std::runtime_error("Attempting to run application with unsupported audio API");
-        return nullptr;
-    }
+  default:
+    throw std::runtime_error(
+        "Attempting to run application with unsupported audio API");
+    return nullptr;
+  }
 }
 } // namespace Nexus
