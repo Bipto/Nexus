@@ -46,6 +46,7 @@ class CommandExecutorVk : public CommandExecutor
     void StartRenderingToSwapchain(SwapchainVk *swapchain);
     void StartRenderingToFramebuffer(Ref<Framebuffer> framebuffer);
     void StopRendering();
+    void TransitionFramebufferToShaderReadonly(Ref<Framebuffer> framebuffer);
 
   private:
     GraphicsDeviceVk *m_Device = nullptr;

@@ -53,6 +53,11 @@ void SwapchainOpenGL::SetVSyncState(VSyncState vsyncState)
     SDL_GL_SetSwapInterval((unsigned int)m_VsyncState);
 }
 
+Nexus::Point2D<uint32_t> SwapchainOpenGL::GetSize()
+{
+    return {m_SwapchainWidth, m_SwapchainHeight};
+}
+
 void SwapchainOpenGL::ResizeIfNecessary()
 {
     int w, h;

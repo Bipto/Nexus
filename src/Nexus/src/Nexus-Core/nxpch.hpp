@@ -53,3 +53,4 @@
 #include <glm/trigonometric.hpp>
 
 #include "Nexus-Core/Logging/Log.hpp"
+#include "Nexus-Core/Point.hpp"

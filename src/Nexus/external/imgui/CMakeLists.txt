@@ -45,6 +45,6 @@ if (ANDROID OR __ANDROID__)
 		android
 		EGL
         GLESv3
-		NexusEngine
+		Nexus
     )
 endif()

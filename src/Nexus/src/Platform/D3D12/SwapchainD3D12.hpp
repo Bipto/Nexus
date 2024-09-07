@@ -26,6 +26,7 @@ class SwapchainD3D12 : public Swapchain
     {
         return m_Window;
     }
+    virtual Nexus::Point2D<uint32_t> GetSize() override;
     virtual void Prepare() override;
     Microsoft::WRL::ComPtr<ID3D12Resource2> RetrieveBufferHandle();
     uint32_t GetCurrentBufferIndex();

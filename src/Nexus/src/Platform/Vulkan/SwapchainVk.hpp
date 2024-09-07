@@ -21,6 +21,7 @@ class SwapchainVk : public Swapchain
     virtual void SwapBuffers() override;
     virtual VSyncState GetVsyncState() override;
     virtual void SetVSyncState(VSyncState vsyncState) override;
+    virtual Nexus::Point2D<uint32_t> GetSize() override;
     VkSurfaceFormatKHR GetSurfaceFormat();
     VkFormat GetDepthFormat();
 
@@ -34,17 +35,23 @@ class SwapchainVk : public Swapchain
     void RecreateSwapchain();
 
     uint32_t GetImageCount();
+    VkExtent2D GetSwapchainSize() const;
 
     VkImage GetColourImage();
     VkImage GetDepthImage();
+    VkImage GetResolveImage();
 
     VkImageView GetColourImageView();
     VkImageView GetDepthImageView();
+    VkImageView GetResolveImageView();
 
     VkImageLayout GetColorImageLayout();
     VkImageLayout GetDepthImageLayout();
+    VkImageLayout GetResolveImageLayout();
+
     void SetColorImageLayout(VkImageLayout layout);
     void SetDepthImageLayout(VkImageLayout layout);
+    void SetResolveImageLayout(VkImageLayout layout);
 
     bool IsSwapchainValid() const;
     const VkSemaphore &GetSemaphore();
@@ -91,6 +98,7 @@ class SwapchainVk : public Swapchain
     VkImage m_ResolveImage;
     VkDeviceMemory m_ResolveMemory;
     VkImageView m_ResolveImageView;
+    VkImageLayout m_ResolveImageLayout;
 
     VkFormat m_DepthFormat;
     VkImage m_DepthImage;

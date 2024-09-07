@@ -250,23 +250,7 @@ VkPipelineRasterizationStateCreateInfo PipelineVk::CreateRasterizationStateCreat
 
 VkPipelineMultisampleStateCreateInfo PipelineVk::CreateMultisampleStateCreateInfo()
 {
-    VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT;
-
-    // multisampling is only supported on framebuffers
-    /* if (m_Description.Target.GetType() == RenderTargetType::Framebuffer)
-    {
-        auto framebufferVk = std::dynamic_pointer_cast<FramebufferVk>(m_Description.Target.GetData<Ref<Framebuffer>>());
-        samples = Vk::GetVkSampleCount(framebufferVk->GetFramebufferSpecification().Samples);
-    }
-    else if (m_Description.Target.GetType() == RenderTargetType::Swapchain)
-    {
-        auto swapchainVk = (SwapchainVk *)m_Description.Target.GetData<Swapchain *>();
-        samples = Vk::GetVkSampleCount(swapchainVk->GetSpecification().Samples);
-    }
-    else
-    {
-        throw std::runtime_error("Failed to find a valid render target type");
-    } */
+    VkSampleCountFlagBits samples = Vk::GetVkSampleCount(m_Description.ColourTargetSampleCount);
 
     VkPipelineMultisampleStateCreateInfo info = {};
     info.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;

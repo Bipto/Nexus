@@ -192,16 +192,25 @@ bool Window::IsFocussed()
 void Window::Maximize()
 {
     SDL_MaximizeWindow(m_Window);
+
+    auto [width, height] = GetWindowSize();
+    OnResize.Invoke({width, height});
 }
 
 void Window::Minimize()
 {
     SDL_MinimizeWindow(m_Window);
+
+    auto [width, height] = GetWindowSize();
+    OnResize.Invoke({width, height});
 }
 
 void Window::Restore()
 {
     SDL_RestoreWindow(m_Window);
+
+    auto [width, height] = GetWindowSize();
+    OnResize.Invoke({width, height});
 }
 
 void Window::ToggleFullscreen()

@@ -59,7 +59,7 @@ class DemoApplication : public Nexus::Application
 #endif
         auto &io = ImGui::GetIO();
 
-        std::string fontPath = Nexus::FileSystem::GetFilePathAbsolute("resources/fonts/roboto/roboto-regular.ttf");
+        std::string fontPath = Nexus::FileSystem::GetFilePathAbsolute("resources/demo/fonts/roboto/roboto-regular.ttf");
         io.FontDefault = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), size);
         m_ImGuiRenderer->RebuildFontAtlas();
 
@@ -257,7 +257,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
     spec.WindowProperties.Title = "Demo";
     spec.WindowProperties.Resizable = true;
 
-    spec.SwapchainSpecification.Samples = Nexus::Graphics::SampleCount::SampleCount1;
+    spec.SwapchainSpecification.Samples = Nexus::Graphics::SampleCount::SampleCount8;
 
     return new DemoApplication(spec);
 }

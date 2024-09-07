@@ -66,7 +66,7 @@ class RenderTarget
         if (m_RenderTargetType == RenderTargetType::Swapchain)
         {
             auto swapchain = GetData<Swapchain *>();
-            return swapchain->GetWindow()->GetWindowSize();
+            return swapchain->GetSize();
         }
         else if (m_RenderTargetType == RenderTargetType::Framebuffer)
         {

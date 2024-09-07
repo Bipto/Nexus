@@ -27,6 +27,7 @@ class Swapchain
     virtual void SetVSyncState(VSyncState vsyncState) = 0;
     virtual Window *GetWindow() = 0;
     virtual void Prepare() = 0;
+    virtual Nexus::Point2D<uint32_t> GetSize() = 0;
 
     const SwapchainSpecification &GetSpecification()
     {

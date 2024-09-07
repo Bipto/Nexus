@@ -65,6 +65,11 @@ void SwapchainD3D12::SetVSyncState(VSyncState vsyncState)
     m_VsyncState = vsyncState;
 }
 
+Nexus::Point2D<uint32_t> SwapchainD3D12::GetSize()
+{
+    return {m_SwapchainWidth, m_SwapchainHeight};
+}
+
 void SwapchainD3D12::Prepare()
 {
     // recreate the swapchain if the window's size has changed

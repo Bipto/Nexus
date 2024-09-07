@@ -23,8 +23,6 @@ SwapchainVk::SwapchainVk(Window *window, GraphicsDevice *graphicsDevice, const S
     m_GraphicsDevice = (GraphicsDeviceVk *)graphicsDevice;
 
     CreateSurface();
-
-    window->OnResize += [&](std::pair<uint32_t, uint32_t> size) { RecreateSwapchain(); };
 }
 
 SwapchainVk::~SwapchainVk()
@@ -89,6 +87,11 @@ void SwapchainVk::SetVSyncState(VSyncState vsyncState)
 {
 }
 
+Nexus::Point2D<uint32_t> SwapchainVk::GetSize()
+{
+    return {m_SwapchainSize.width, m_SwapchainSize.height};
+}
+
 VkSurfaceFormatKHR SwapchainVk::GetSurfaceFormat()
 {
     return m_SurfaceFormat;
@@ -142,6 +145,11 @@ uint32_t SwapchainVk::GetImageCount()
     return m_SwapchainImageCount;
 }
 
+VkExtent2D SwapchainVk::GetSwapchainSize() const
+{
+    return m_SwapchainSize;
+}
+
 VkImage SwapchainVk::GetColourImage()
 {
     return m_SwapchainImages[m_CurrentFrameIndex];
@@ -150,6 +158,11 @@ VkImage SwapchainVk::GetColourImage()
 VkImage SwapchainVk::GetDepthImage()
 {
     return m_DepthImage;
+}
+
+VkImage SwapchainVk::GetResolveImage()
+{
+    return m_ResolveImage;
 }
 
 VkImageView SwapchainVk::GetColourImageView()
@@ -162,6 +175,11 @@ VkImageView SwapchainVk::GetDepthImageView()
     return m_DepthImageView;
 }
 
+VkImageView SwapchainVk::GetResolveImageView()
+{
+    return m_ResolveImageView;
+}
+
 VkImageLayout SwapchainVk::GetColorImageLayout()
 {
     return m_ImageLayouts[m_CurrentFrameIndex];
@@ -172,6 +190,11 @@ VkImageLayout SwapchainVk::GetDepthImageLayout()
     return m_DepthLayout;
 }
 
+VkImageLayout SwapchainVk::GetResolveImageLayout()
+{
+    return m_ResolveImageLayout;
+}
+
 void SwapchainVk::SetColorImageLayout(VkImageLayout layout)
 {
     m_ImageLayouts[m_CurrentFrameIndex] = layout;
@@ -180,6 +203,11 @@ void SwapchainVk::SetColorImageLayout(VkImageLayout layout)
 void SwapchainVk::SetDepthImageLayout(VkImageLayout layout)
 {
     m_DepthLayout = layout;
+}
+
+void SwapchainVk::SetResolveImageLayout(VkImageLayout layout)
+{
+    m_ResolveImageLayout = layout;
 }
 
 bool SwapchainVk::IsSwapchainValid() const
@@ -308,6 +336,7 @@ void SwapchainVk::CreateResolveAttachment()
                 VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_ResolveImage, m_ResolveMemory, samples);
 
     m_ResolveImageView = CreateImageView(m_ResolveImage, m_SurfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT);
+    m_ResolveImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 }
 
 void SwapchainVk::CreateSemaphores()

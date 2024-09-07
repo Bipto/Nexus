@@ -18,6 +18,7 @@ class SwapchainOpenGL : public Swapchain
     virtual void SwapBuffers() override;
     virtual VSyncState GetVsyncState() override;
     virtual void SetVSyncState(VSyncState vsyncState) override;
+    virtual Nexus::Point2D<uint32_t> GetSize() override;
     void ResizeIfNecessary();
     void BindAsRenderTarget();
     void BindAsDrawTarget();

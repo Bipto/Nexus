@@ -336,14 +336,34 @@ void CommandExecutorVk::StartRenderingToSwapchain(SwapchainVk *swapchain)
     swapchain->SetColorImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
     swapchain->SetDepthImageLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
+    VkExtent2D swapchainSize = swapchain->GetSwapchainSize();
+
     VkRect2D renderArea;
     renderArea.offset = {0, 0};
-    renderArea.extent = {swapchain->GetWindow()->GetWindowSize().X, swapchain->GetWindow()->GetWindowSize().Y};
+    renderArea.extent = swapchainSize;
 
     VkRenderingAttachmentInfo colourAttachment = {};
     colourAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-    colourAttachment.imageView = swapchain->GetColourImageView();
-    colourAttachment.imageLayout = swapchain->GetColorImageLayout();
+
+    if (swapchain->GetSpecification().Samples == SampleCount::SampleCount1)
+    {
+        colourAttachment.imageView = swapchain->GetColourImageView();
+        colourAttachment.imageLayout = swapchain->GetColorImageLayout();
+    }
+    else
+    {
+        m_Device->TransitionVulkanImageLayout(m_CommandBuffer, swapchain->GetResolveImage(), 0, 0, swapchain->GetResolveImageLayout(), VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                              VK_IMAGE_ASPECT_COLOR_BIT);
+        swapchain->SetResolveImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+
+        colourAttachment.imageView = swapchain->GetResolveImageView();
+        colourAttachment.imageLayout = swapchain->GetResolveImageLayout();
+
+        colourAttachment.resolveImageView = swapchain->GetColourImageView();
+        colourAttachment.resolveImageLayout = swapchain->GetResolveImageLayout();
+        colourAttachment.resolveMode = VK_RESOLVE_MODE_AVERAGE_BIT;
+    }
+
     colourAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
     colourAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
     colourAttachment.clearValue = {};
@@ -460,9 +480,31 @@ void CommandExecutorVk::StopRendering()
     if (m_Rendering)
     {
         vkCmdEndRendering(m_CommandBuffer);
+
+        if (Nexus::Ref<Nexus::Graphics::Framebuffer> *framebuffer = m_CurrentRenderTarget.GetDataIf<Ref<Framebuffer>>())
+        {
+            TransitionFramebufferToShaderReadonly(*framebuffer);
+        }
     }
 
     m_Rendering = false;
+}
+
+void CommandExecutorVk::TransitionFramebufferToShaderReadonly(Ref<Framebuffer> framebuffer)
+{
+    Ref<FramebufferVk> vulkanFramebuffer = std::dynamic_pointer_cast<FramebufferVk>(framebuffer);
+
+    for (uint32_t colourAttachment = 0; colourAttachment < vulkanFramebuffer->GetColorTextureCount(); colourAttachment++)
+    {
+        Ref<Texture2D_Vk> texture = vulkanFramebuffer->GetVulkanColorTexture(colourAttachment);
+
+        for (uint32_t level = 0; level < texture->GetLevels(); level++)
+        {
+            m_Device->TransitionVulkanImageLayout(m_CommandBuffer, texture->GetImage(), level, 0, texture->GetImageLayout(level), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                                  VK_IMAGE_ASPECT_COLOR_BIT);
+            texture->SetImageLayout(level, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+        }
+    }
 }
 } // namespace Nexus::Graphics
 
