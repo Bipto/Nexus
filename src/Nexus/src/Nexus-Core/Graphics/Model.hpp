@@ -3,15 +3,24 @@
 #include "Mesh.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
-namespace Nexus::Graphics {
-class Model {
-public:
-  Model(std::vector<Ref<Mesh>> meshes) : m_Meshes(meshes) {}
-  Model() {}
+namespace Nexus::Graphics
+{
+	class Model
+	{
+	  public:
+		Model(std::vector<Ref<Mesh>> meshes) : m_Meshes(meshes)
+		{
+		}
+		Model()
+		{
+		}
 
-  const std::vector<Ref<Mesh>> &GetMeshes() { return m_Meshes; }
+		const std::vector<Ref<Mesh>> &GetMeshes()
+		{
+			return m_Meshes;
+		}
 
-private:
-  std::vector<Ref<Mesh>> m_Meshes;
-};
-}; // namespace Nexus::Graphics
+	  private:
+		std::vector<Ref<Mesh>> m_Meshes;
+	};
+};	  // namespace Nexus::Graphics

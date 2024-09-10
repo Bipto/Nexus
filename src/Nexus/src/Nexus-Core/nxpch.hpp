@@ -1,43 +1,36 @@
 #pragma once
 
-#include <algorithm>
-#include <functional>
-#include <iostream>
-#include <memory>
-#include <utility>
-
-#include <deque>
-#include <initializer_list>
-#include <optional>
-#include <set>
-#include <span>
-#include <string>
-#include <vector>
-
-#include <chrono>
-#include <map>
+#include <inttypes.h>
 #include <time.h>
-#include <unordered_map>
 
-#include <filesystem>
-#include <fstream>
-#include <sstream>
-#include <variant>
-
+#include <algorithm>
 #include <array>
 #include <cassert>
-#include <ctime>
-#include <iomanip>
-
-#include <stdexcept>
-
+#include <chrono>
 #include <cmath>
-#include <inttypes.h>
-#include <random>
-
+#include <ctime>
+#include <deque>
+#include <filesystem>
+#include <fstream>
+#include <functional>
+#include <initializer_list>
+#include <iomanip>
+#include <iostream>
+#include <map>
+#include <memory>
 #include <numbers>
-
+#include <optional>
+#include <random>
+#include <set>
 #include <source_location>
+#include <span>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <variant>
+#include <vector>
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_LEFT_HANDED

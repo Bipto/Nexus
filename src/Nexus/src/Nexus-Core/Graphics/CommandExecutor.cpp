@@ -1,199 +1,213 @@
 #include "CommandExecutor.hpp"
 
-namespace Nexus::Graphics {
-bool Nexus::Graphics::CommandExecutor::ValidateForGraphicsCall(
-    std::optional<Ref<Pipeline>> pipeline,
-    std::optional<RenderTarget> renderTarget) {
-  bool valid = true;
+namespace Nexus::Graphics
+{
+	bool Nexus::Graphics::CommandExecutor::ValidateForGraphicsCall(std::optional<Ref<Pipeline>> pipeline, std::optional<RenderTarget> renderTarget)
+	{
+		bool valid = true;
 
-  if (!renderTarget.has_value()) {
-    NX_ERROR(
-        "Attempting to execute graphics command without a bound render target");
-    valid = false;
-  }
+		if (!renderTarget.has_value())
+		{
+			NX_ERROR("Attempting to execute graphics command without a bound render target");
+			valid = false;
+		}
 
-  if (!pipeline.has_value()) {
-    NX_ERROR("Attempting to execute graphics command without a bound pipeline");
-    valid = false;
-  }
+		if (!pipeline.has_value())
+		{
+			NX_ERROR("Attempting to execute graphics command without a bound pipeline");
+			valid = false;
+		}
 
-  return valid;
-}
+		return valid;
+	}
 
-bool Nexus::Graphics::CommandExecutor::ValidateForClearColour(
-    std::optional<RenderTarget> target, uint32_t colourIndex) {
-  bool valid = true;
+	bool Nexus::Graphics::CommandExecutor::ValidateForClearColour(std::optional<RenderTarget> target, uint32_t colourIndex)
+	{
+		bool valid = true;
 
-  if (!target.has_value()) {
-    NX_ERROR(
-        "Attempting to clear a colour target but no render target is bound");
-    valid = false;
-  }
+		if (!target.has_value())
+		{
+			NX_ERROR("Attempting to clear a colour target but no render target is bound");
+			valid = false;
+		}
 
-  if (target.has_value()) {
-    RenderTarget t = target.value();
-    if (colourIndex > t.GetColorAttachmentCount()) {
-      std::stringstream ss;
-      ss << "Attempting to clear colour attachment at index: " << colourIndex
-         << ", but render target contains " << t.GetColorAttachmentCount()
-         << " colour targets";
-      NX_ERROR(ss.str());
-      valid = false;
-    }
-  }
+		if (target.has_value())
+		{
+			RenderTarget t = target.value();
+			if (colourIndex > t.GetColorAttachmentCount())
+			{
+				std::stringstream ss;
+				ss << "Attempting to clear colour attachment at index: " << colourIndex << ", but render target contains "
+				   << t.GetColorAttachmentCount() << " colour targets";
+				NX_ERROR(ss.str());
+				valid = false;
+			}
+		}
 
-  return valid;
-}
+		return valid;
+	}
 
-bool CommandExecutor::ValidateForClearDepth(
-    std::optional<RenderTarget> target) {
-  bool valid = true;
+	bool CommandExecutor::ValidateForClearDepth(std::optional<RenderTarget> target)
+	{
+		bool valid = true;
 
-  if (!target.has_value()) {
-    NX_ERROR("Attempting to clear a depth/stencil target but none is bound");
-    valid = false;
-  }
+		if (!target.has_value())
+		{
+			NX_ERROR("Attempting to clear a depth/stencil target but none is bound");
+			valid = false;
+		}
 
-  if (target.has_value()) {
-    RenderTarget t = target.value();
-    if (!t.HasDepthAttachment()) {
-      NX_ERROR("Attempting to clear depth/stencil target but render target "
-               "does not contain depth attachment");
-      valid = false;
-    }
-  }
+		if (target.has_value())
+		{
+			RenderTarget t = target.value();
+			if (!t.HasDepthAttachment())
+			{
+				NX_ERROR("Attempting to clear depth/stencil target but render target "
+						 "does not contain depth attachment");
+				valid = false;
+			}
+		}
 
-  return valid;
-}
+		return valid;
+	}
 
-bool CommandExecutor::ValidateForSetViewport(std::optional<RenderTarget> target,
-                                             const Viewport &viewport) {
-  bool valid = true;
+	bool CommandExecutor::ValidateForSetViewport(std::optional<RenderTarget> target, const Viewport &viewport)
+	{
+		bool valid = true;
 
-  if (!target.has_value()) {
-    NX_ERROR(
-        "Attempting to set viewport but no render target has been specified");
-    valid = false;
-  }
+		if (!target.has_value())
+		{
+			NX_ERROR("Attempting to set viewport but no render target has been specified");
+			valid = false;
+		}
 
-  if (viewport.Width == 0) {
-    NX_ERROR("Attempting to set a viewport with a width of 0");
-    valid = false;
-  }
+		if (viewport.Width == 0)
+		{
+			NX_ERROR("Attempting to set a viewport with a width of 0");
+			valid = false;
+		}
 
-  if (viewport.Height == 0) {
-    NX_ERROR("Attempting to set a viewport with a height of 0");
-    valid = false;
-  }
+		if (viewport.Height == 0)
+		{
+			NX_ERROR("Attempting to set a viewport with a height of 0");
+			valid = false;
+		}
 
-  if (target.has_value()) {
-    RenderTarget t = target.value();
+		if (target.has_value())
+		{
+			RenderTarget t = target.value();
 
-    if (viewport.X + viewport.Width > t.GetSize().X) {
-      NX_ERROR("Attempting to set a viewport with a total width that is "
-               "greater than the width of the bound render target");
-      valid = false;
-    }
+			if (viewport.X + viewport.Width > t.GetSize().X)
+			{
+				NX_ERROR("Attempting to set a viewport with a total width that is "
+						 "greater than the width of the bound render target");
+				valid = false;
+			}
 
-    if (viewport.Y + viewport.Height > t.GetSize().Y) {
-      NX_ERROR("Attempting to set a viewport with a total height that is "
-               "greater than the height of the bound render target");
-      valid = false;
-    }
-  }
+			if (viewport.Y + viewport.Height > t.GetSize().Y)
+			{
+				NX_ERROR("Attempting to set a viewport with a total height that is "
+						 "greater than the height of the bound render target");
+				valid = false;
+			}
+		}
 
-  return valid;
-}
+		return valid;
+	}
 
-bool CommandExecutor::ValidateForSetScissor(std::optional<RenderTarget> target,
-                                            const Scissor &scissor) {
-  bool valid = true;
+	bool CommandExecutor::ValidateForSetScissor(std::optional<RenderTarget> target, const Scissor &scissor)
+	{
+		bool valid = true;
 
-  if (!target.has_value()) {
-    NX_ERROR(
-        "Attempting to set scissor but no render target has been specified");
-    valid = false;
-  }
+		if (!target.has_value())
+		{
+			NX_ERROR("Attempting to set scissor but no render target has been specified");
+			valid = false;
+		}
 
-  if (scissor.Width == 0) {
-    NX_ERROR("Attempting to set a scissor with a width of 0");
-    valid = false;
-  }
+		if (scissor.Width == 0)
+		{
+			NX_ERROR("Attempting to set a scissor with a width of 0");
+			valid = false;
+		}
 
-  if (scissor.Height == 0) {
-    NX_ERROR("Attempting to set a scissor with a height of 0");
-    valid = false;
-  }
+		if (scissor.Height == 0)
+		{
+			NX_ERROR("Attempting to set a scissor with a height of 0");
+			valid = false;
+		}
 
-  if (target.has_value()) {
-    RenderTarget t = target.value();
+		if (target.has_value())
+		{
+			RenderTarget t = target.value();
 
-    if (scissor.X + scissor.Width > t.GetSize().X) {
-      NX_ERROR("Attempting to set a scissor with a total width that is greater "
-               "than the width of the bound render target");
-      valid = false;
-    }
+			if (scissor.X + scissor.Width > t.GetSize().X)
+			{
+				NX_ERROR("Attempting to set a scissor with a total width that is greater "
+						 "than the width of the bound render target");
+				valid = false;
+			}
 
-    if (scissor.Y + scissor.Height > t.GetSize().Y) {
-      NX_ERROR("Attempting to set a scissor with a total height that is "
-               "greater than the height of the bound render target");
-      valid = false;
-    }
-  }
+			if (scissor.Y + scissor.Height > t.GetSize().Y)
+			{
+				NX_ERROR("Attempting to set a scissor with a total height that is "
+						 "greater than the height of the bound render target");
+				valid = false;
+			}
+		}
 
-  return valid;
-}
+		return valid;
+	}
 
-bool CommandExecutor::ValidateForResolveToSwapchain(
-    const ResolveSamplesToSwapchainCommand &command) {
-  bool valid = true;
+	bool CommandExecutor::ValidateForResolveToSwapchain(const ResolveSamplesToSwapchainCommand &command)
+	{
+		bool valid = true;
 
-  if (command.Source.expired()) {
-    NX_ERROR("Attempting to resolve from an invalid framebuffer");
-    valid = false;
-  }
+		if (command.Source.expired())
+		{
+			NX_ERROR("Attempting to resolve from an invalid framebuffer");
+			valid = false;
+		}
 
-  if (!command.Target) {
-    NX_ERROR("Attempting to resolve to an invalid swapchain");
-    valid = false;
-  }
+		if (!command.Target)
+		{
+			NX_ERROR("Attempting to resolve to an invalid swapchain");
+			valid = false;
+		}
 
-  if (Ref<Framebuffer> framebuffer = command.Source.lock()) {
-    if (command.SourceIndex > framebuffer->GetColorTextureCount()) {
-      std::stringstream ss;
-      ss << "Attempting to resolve from colour attachment: "
-         << command.SourceIndex << " but supplied framebuffer has "
-         << framebuffer->GetColorTextureCount() << " colour attachments";
-      NX_ERROR(ss.str());
-      valid = false;
-    }
+		if (Ref<Framebuffer> framebuffer = command.Source.lock())
+		{
+			if (command.SourceIndex > framebuffer->GetColorTextureCount())
+			{
+				std::stringstream ss;
+				ss << "Attempting to resolve from colour attachment: " << command.SourceIndex << " but supplied framebuffer has "
+				   << framebuffer->GetColorTextureCount() << " colour attachments";
+				NX_ERROR(ss.str());
+				valid = false;
+			}
 
-    if (framebuffer->GetFramebufferSpecification().Width !=
-        command.Target->GetSize().X) {
-      std::stringstream ss;
-      ss << "Attempting to resolve from a framebuffer to a swapchain of "
-            "mismatching widths. The width of the framebuffer is "
-         << framebuffer->GetFramebufferSpecification().Width
-         << " and the width of the swapchain is "
-         << command.Target->GetSize().X;
-      NX_ERROR(ss.str());
-      valid = false;
-    }
+			if (framebuffer->GetFramebufferSpecification().Width != command.Target->GetSize().X)
+			{
+				std::stringstream ss;
+				ss << "Attempting to resolve from a framebuffer to a swapchain of "
+					  "mismatching widths. The width of the framebuffer is "
+				   << framebuffer->GetFramebufferSpecification().Width << " and the width of the swapchain is " << command.Target->GetSize().X;
+				NX_ERROR(ss.str());
+				valid = false;
+			}
 
-    if (framebuffer->GetFramebufferSpecification().Height !=
-        command.Target->GetSize().Y) {
-      std::stringstream ss;
-      ss << "Attempting to resolve from a framebuffer to a swapchain of "
-            "mismatching heights. The height of the framebuffer is "
-         << framebuffer->GetFramebufferSpecification().Height
-         << " and the height of the swapchain is "
-         << command.Target->GetSize().Y;
-      NX_ERROR(ss.str());
-      valid = false;
-    }
-  }
+			if (framebuffer->GetFramebufferSpecification().Height != command.Target->GetSize().Y)
+			{
+				std::stringstream ss;
+				ss << "Attempting to resolve from a framebuffer to a swapchain of "
+					  "mismatching heights. The height of the framebuffer is "
+				   << framebuffer->GetFramebufferSpecification().Height << " and the height of the swapchain is " << command.Target->GetSize().Y;
+				NX_ERROR(ss.str());
+				valid = false;
+			}
+		}
 
-  return valid;
-}
+		return valid;
+	}
 
-} // namespace Nexus::Graphics
+}	 // namespace Nexus::Graphics

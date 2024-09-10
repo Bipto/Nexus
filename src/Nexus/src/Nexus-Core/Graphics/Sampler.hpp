@@ -2,10 +2,14 @@
 
 #include "SamplerState.hpp"
 
-namespace Nexus::Graphics {
-class Sampler {
-public:
-  virtual ~Sampler() {}
-  virtual const SamplerSpecification &GetSamplerSpecification() = 0;
-};
-} // namespace Nexus::Graphics
+namespace Nexus::Graphics
+{
+	class Sampler
+	{
+	  public:
+		virtual ~Sampler()
+		{
+		}
+		virtual const SamplerSpecification &GetSamplerSpecification() = 0;
+	};
+}	 // namespace Nexus::Graphics
