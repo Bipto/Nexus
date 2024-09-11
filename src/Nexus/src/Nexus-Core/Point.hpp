@@ -74,7 +74,7 @@ namespace Nexus
 		/// @brief A constructor that takes in a pair of values
 		/// @param x The first value to assign
 		/// @param y The second value to assign
-		Point3D(T x, T y, T z) : X(x), Y(y), T(z)
+		Point3D(T x, T y, T z) : X(x), Y(y), Z(z)
 		{
 		}
 

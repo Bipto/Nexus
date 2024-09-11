@@ -9,6 +9,12 @@ add_subdirectory(external/googletest)
 target_include_directories(Tests PUBLIC external/googletest/googletest/include)
 target_link_libraries(Tests PUBLIC gtest gtest_main)
 
+target_include_directories(
+    Tests PUBLIC ../../Nexus/src
+)
+
+target_link_libraries(Tests PUBLIC Nexus)
+
 add_test(
     NAME Tests
     COMMAND Tests

@@ -20,10 +20,8 @@
 #include "Nexus-Core/Types.hpp"
 #include "Nexus-Core/Vertex.hpp"
 #include "Nexus-Core/Window.hpp"
+
 #include "Nexus-Core/nxpch.hpp"
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtc/type_ptr.hpp"
 
 /// @brief A struct that is used to track the allocations of the engine
 struct AllocationTracker

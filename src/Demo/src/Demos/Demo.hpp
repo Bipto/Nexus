@@ -2,7 +2,7 @@
 
 #include "Nexus-Core/FileSystem/FileSystem.hpp"
 #include "Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp"
-#include "NexusEngine.hpp"
+#include "Nexus.hpp"
 
 namespace Demos
 {

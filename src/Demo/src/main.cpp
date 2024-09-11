@@ -22,7 +22,7 @@
 #include "Nexus-Core/Graphics/MeshFactory.hpp"
 #include "Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp"
 #include "Nexus-Core/nxpch.hpp"
-#include "NexusEngine.hpp"
+#include "Nexus.hpp"
 
 struct DemoInfo
 {

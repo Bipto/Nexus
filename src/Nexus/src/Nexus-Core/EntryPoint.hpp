@@ -47,17 +47,19 @@ namespace
 	}
 }	 // namespace
 
-#if defined(NX_NO_CONSOLE)
+#if !defined(NX_NO_ENTRY_POINT)
+	#if defined(NX_NO_CONSOLE)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nCmdShow)
 {
 	auto commandLineArgs = InputParametersToStringVector(__argc, __argv);
 	return Nexus::Main(commandLineArgs);
 }
-#else
+	#else
 int main(int argc, char **argv)
 {
 	auto commandLineArgs = InputParametersToStringVector(argc, argv);
 	std::cout << commandLineArgs[0] << std::endl;
 	return Nexus::Main(commandLineArgs);
 }
+#endif
 #endif

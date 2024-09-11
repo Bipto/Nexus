@@ -1,5 +1,5 @@
 #include "Editor.hpp"
-#include "NexusEngine.hpp"
+#include "Nexus.hpp"
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {

@@ -8,7 +8,7 @@
 #include "Nexus-Core/UI/Panel.hpp"
 #include "Nexus-Core/UI/PictureBox.hpp"
 #include "Nexus-Core/Utils/Utils.hpp"
-#include "NexusEngine.hpp"
+#include "Nexus.hpp"
 
 class Sandbox : public Nexus::Application
 {
