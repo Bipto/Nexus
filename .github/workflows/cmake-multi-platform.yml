@@ -45,10 +45,17 @@ jobs:
             c_compiler: cl
 
     steps:
+      - name: Cache git folder
+        uses: actions/cache@v3
+        with:
+          path: '/.git'
+          key: git-folder          
+    
       - uses: actions/checkout@v4
         with:
           submodules: recursive
           lfs: true
+          path: ''
 
       - name: Update packages
         if: matrix.os == 'ubuntu-latest'
