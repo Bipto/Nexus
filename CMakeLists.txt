@@ -48,6 +48,9 @@ add_subdirectory(src/BuildConfig)
 add_subdirectory(src/Nexus)
 add_subdirectory(src/Demo)
 
+enable_testing()
+add_subdirectory(src/Tests)
+
 if(WIN32 OR LINUX)
     add_subdirectory(src/Sandbox)
     add_subdirectory(src/Editor)

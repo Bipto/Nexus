@@ -81,13 +81,17 @@ jobs:
         uses: TheMrMilchmann/setup-msvc-dev@v3
         with:
           arch: x64
+          
+      - name: actions-setup-cmake
+        uses: jwlawson/actions-setup-cmake@v2.0.2
 
-      - name: Configure and Build Project
-        uses: threeal/cmake-action@v1.3.0
-        with:
-          run-build: true
-          build-dir: build
-          generator: Ninja            
+      - name: Build with CMake
+        run: >  
+            cmake -S . -B build
+            cmake --build build
+
+      - name: Run Tests
+        run: ctest -C Release
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v4
