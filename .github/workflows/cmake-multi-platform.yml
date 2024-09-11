@@ -77,12 +77,6 @@ jobs:
           vulkan-components: Vulkan-Headers, Vulkan-Loader, Glslang
           vulkan-use-cache: true
 
-      - name: Setup Ninja
-        uses: ashutoshvarma/setup-ninja@master
-        with:
-          # ninja version to download. Default: 1.10.0
-          version: 1.10.0
-
       - name: Setup MSVC on Windows
         if: matrix.os == 'windows-latest'
         uses: TheMrMilchmann/setup-msvc-dev@v3
@@ -97,7 +91,6 @@ jobs:
         with:
           run-build: true
           build-dir: build
-          generator: Ninja
 
       - name: Test Project
         uses: threeal/ctest-action@v1.1.0
