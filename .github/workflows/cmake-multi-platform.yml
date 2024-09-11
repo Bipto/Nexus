@@ -88,7 +88,8 @@ jobs:
       - name: Build with CMake
         run: >  
             cmake -S . -B build
-            cmake --build build
+            cd build
+            cmake --build
 
       - name: Run Tests
         run: ctest -C Release
