@@ -172,20 +172,20 @@ namespace Nexus::Graphics
 		const BindingInfo &info = m_CombinedImageSamplerBindingInfos.at(name);
 
 		m_Device->ImmediateSubmit(
-			[&](VkCommandBuffer cmd)
+		[&](VkCommandBuffer cmd)
+		{
+			for (uint32_t i = 0; i < textureVk->GetLevels(); i++)
 			{
-				for (uint32_t i = 0; i < textureVk->GetLevels(); i++)
-				{
-					m_Device->TransitionVulkanImageLayout(cmd,
-														  textureVk->GetImage(),
-														  i,
-														  0,
-														  textureVk->GetImageLayout(i),
-														  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-														  VK_IMAGE_ASPECT_COLOR_BIT);
-					textureVk->SetImageLayout(i, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-				}
-			});
+				m_Device->TransitionVulkanImageLayout(cmd,
+													  textureVk->GetImage(),
+													  i,
+													  0,
+													  textureVk->GetImageLayout(i),
+													  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+													  VK_IMAGE_ASPECT_COLOR_BIT);
+				textureVk->SetImageLayout(i, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+			}
+		});
 
 		VkDescriptorImageInfo imageBufferInfo = {};
 		imageBufferInfo.imageView			  = textureVk->GetImageView();
@@ -218,44 +218,44 @@ namespace Nexus::Graphics
 		const BindingInfo &info = m_CombinedImageSamplerBindingInfos.at(name);
 
 		m_Device->ImmediateSubmit(
-			[&](VkCommandBuffer cmd)
+		[&](VkCommandBuffer cmd)
+		{
+			for (uint32_t arrayLayer = 0; arrayLayer < 6; arrayLayer++)
 			{
-				for (uint32_t arrayLayer = 0; arrayLayer < 6; arrayLayer++)
+				for (uint32_t mipLevel = 0; mipLevel < cubemapVk->GetLevels(); mipLevel++)
 				{
-					for (uint32_t mipLevel = 0; mipLevel < cubemapVk->GetLevels(); mipLevel++)
-					{
-						m_Device->TransitionVulkanImageLayout(cmd,
-															  cubemapVk->GetImage(),
-															  mipLevel,
-															  arrayLayer,
-															  cubemapVk->GetImageLayout(arrayLayer, mipLevel),
-															  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-															  VK_IMAGE_ASPECT_COLOR_BIT);
-						cubemapVk->SetImageLayout(arrayLayer, mipLevel, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-					}
+					m_Device->TransitionVulkanImageLayout(cmd,
+														  cubemapVk->GetImage(),
+														  mipLevel,
+														  arrayLayer,
+														  cubemapVk->GetImageLayout(arrayLayer, mipLevel),
+														  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+														  VK_IMAGE_ASPECT_COLOR_BIT);
+					cubemapVk->SetImageLayout(arrayLayer, mipLevel, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 				}
+			}
 
-				VkDescriptorImageInfo imageBufferInfo = {};
-				imageBufferInfo.imageView			  = cubemapVk->GetImageView();
-				imageBufferInfo.sampler				  = samplerVk->GetSampler();
-				imageBufferInfo.imageLayout			  = cubemapVk->GetImageLayout(0, 0);
+			VkDescriptorImageInfo imageBufferInfo = {};
+			imageBufferInfo.imageView			  = cubemapVk->GetImageView();
+			imageBufferInfo.sampler				  = samplerVk->GetSampler();
+			imageBufferInfo.imageLayout			  = cubemapVk->GetImageLayout(0, 0);
 
-				VkWriteDescriptorSet textureToWrite = {};
-				textureToWrite.sType				= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-				textureToWrite.pNext				= nullptr;
-				textureToWrite.dstBinding			= info.Binding;
-				textureToWrite.dstSet				= descriptorSets.at(info.Set);
-				textureToWrite.descriptorCount		= 1;
-				textureToWrite.descriptorType		= VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-				textureToWrite.pImageInfo			= &imageBufferInfo;
+			VkWriteDescriptorSet textureToWrite = {};
+			textureToWrite.sType				= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			textureToWrite.pNext				= nullptr;
+			textureToWrite.dstBinding			= info.Binding;
+			textureToWrite.dstSet				= descriptorSets.at(info.Set);
+			textureToWrite.descriptorCount		= 1;
+			textureToWrite.descriptorType		= VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			textureToWrite.pImageInfo			= &imageBufferInfo;
 
-				vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &textureToWrite, 0, nullptr);
+			vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &textureToWrite, 0, nullptr);
 
-				CombinedImageSampler ciSampler {};
-				ciSampler.ImageTexture			   = cubemapVk;
-				ciSampler.ImageSampler			   = sampler;
-				m_BoundCombinedImageSamplers[name] = ciSampler;
-			});
+			CombinedImageSampler ciSampler {};
+			ciSampler.ImageTexture			   = cubemapVk;
+			ciSampler.ImageSampler			   = sampler;
+			m_BoundCombinedImageSamplers[name] = ciSampler;
+		});
 	}
 
 	const std::map<uint32_t, VkDescriptorSetLayout> &ResourceSetVk::GetDescriptorSetLayouts() const

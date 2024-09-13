@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Nexus-Core/nxpch.hpp"
+
 #include "Audio/AudioDevice.hpp"
 #include "Graphics/GraphicsDevice.hpp"
 #include "Window.hpp"
@@ -12,11 +14,11 @@
 #include "ApplicationSpecification.hpp"
 #include "Nexus-Core/Events/Event.hpp"
 #include "Nexus-Core/Events/EventHandler.hpp"
+#include "Nexus-Core/Input/InputEvent.hpp"
 #include "Nexus-Core/Input/InputState.hpp"
 #include "Nexus-Core/Monitor.hpp"
 #include "Nexus-Core/Time.hpp"
 #include "Nexus-Core/Types.hpp"
-#include "Nexus-Core/nxpch.hpp"
 #include "Point.hpp"
 
 namespace Nexus
@@ -173,6 +175,8 @@ namespace Nexus
 		static std::vector<Monitor> GetMonitors();
 
 		EventHandler<char *> OnTextInput;
+
+		EventHandler<KeyPressedEvent, Window *> OnKeyPressed;
 
 		const Keyboard &GetGlobalKeyboardState() const;
 

@@ -302,6 +302,15 @@ namespace Nexus
 	{
 	}
 
+#if defined(NX_PLATFORM_WINDOWS)
+	const HWND Window::GetHwnd() const
+	{
+		HWND hwnd = (HWND)SDL_GetProperty(SDL_GetWindowProperties(m_Window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr);
+		return hwnd;
+	}
+
+#endif
+
 	uint32_t Window::GetFlags(Graphics::GraphicsAPI api, const WindowSpecification &windowSpec, const Graphics::SwapchainSpecification &swapchainSpec)
 	{
 		// required for emscripten to handle resizing correctly

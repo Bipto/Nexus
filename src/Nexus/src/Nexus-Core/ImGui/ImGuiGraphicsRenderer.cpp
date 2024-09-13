@@ -79,9 +79,9 @@ namespace Nexus::ImGuiUtils
 		auto fragmentSource = GetImGuiShaderFragmentSource();
 
 		auto vertexModule =
-			m_GraphicsDevice->CreateShaderModuleFromSpirvSource(vertexSource, "ImGui.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
+		m_GraphicsDevice->CreateShaderModuleFromSpirvSource(vertexSource, "ImGui.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
 		auto fragmentModule =
-			m_GraphicsDevice->CreateShaderModuleFromSpirvSource(fragmentSource, "ImGui.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
+		m_GraphicsDevice->CreateShaderModuleFromSpirvSource(fragmentSource, "ImGui.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 
 		Nexus::Graphics::PipelineDescription pipelineDesc;
 

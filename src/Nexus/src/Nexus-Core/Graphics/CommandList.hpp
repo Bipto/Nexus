@@ -155,7 +155,7 @@ namespace Nexus::Graphics
 						 SetStencilRefCommand,
 						 SetDepthBoundsCommand,
 						 SetBlendFactorCommand>
-		RenderCommandData;
+	RenderCommandData;
 
 	struct CommandListSpecification
 	{

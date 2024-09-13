@@ -8,15 +8,19 @@
 	#include <emscripten/html5.h>
 #endif
 
+#if defined(NX_PLATFORM_WINDOWS)
+	#include "Platform/Windows/WindowsInclude.hpp"
+#endif
+
 #include "ApplicationSpecification.hpp"
 #include "Nexus-Core/Events/Event.hpp"
 #include "Nexus-Core/Events/EventHandler.hpp"
 #include "Nexus-Core/Graphics/GraphicsAPI.hpp"
 #include "Nexus-Core/Graphics/Rectangle.hpp"
 #include "Nexus-Core/Graphics/Swapchain.hpp"
+#include "Nexus-Core/Input/InputEvent.hpp"
 #include "Nexus-Core/Input/InputState.hpp"
 #include "Point.hpp"
-#include "backends/imgui_impl_sdl2.h"
 
 namespace Nexus
 {
@@ -163,6 +167,10 @@ namespace Nexus
 		void SetTextInputRect(const Nexus::Graphics::Rectangle<int> &rect);
 		void StartTextInput();
 		void StopTextInput();
+
+#if defined(NX_PLATFORM_WINDOWS)
+		const HWND GetHwnd() const;
+#endif
 
 		EventHandler<std::pair<uint32_t, uint32_t>> OnResize;
 

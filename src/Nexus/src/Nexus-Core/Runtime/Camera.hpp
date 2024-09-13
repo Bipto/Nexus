@@ -148,7 +148,7 @@ namespace Nexus
 			{
 				m_Position -= speed * m_Front * (Input::GetGamepadAxisLeft(0).Y * (Input::GetGamepadRightTrigger(0) + 1));
 				m_Position +=
-					glm::normalize(glm::cross(m_Front, m_Up)) * (Input::GetGamepadAxisLeft(0).X / 50.0f * (Input::GetGamepadRightTrigger(0) + 1));
+				glm::normalize(glm::cross(m_Front, m_Up)) * (Input::GetGamepadAxisLeft(0).X / 50.0f * (Input::GetGamepadRightTrigger(0) + 1));
 			}
 		}
 

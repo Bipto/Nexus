@@ -7,6 +7,7 @@ add_compile_definitions(IMGUI_DEFINE_MATH_OPERATORS)
 #external dependencies
 add_subdirectory(external/SDL)
 add_subdirectory(external/glad)
+add_subdirectory(external/glad_wgl)
 add_subdirectory(external/glm)
 add_subdirectory(external/imgui)
 add_subdirectory(external/glslang)
@@ -110,6 +111,7 @@ set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
 set_target_properties(SDL3-static SDL3_test PROPERTIES FOLDER "src/Nexus/external")
 set_target_properties(glad PROPERTIES FOLDER "src/Nexus/external")
+set_target_properties(glad_wgl PROPERTIES FOLDER "src/Nexus/external")
 set_target_properties(imgui PROPERTIES FOLDER "src/Nexus/external")
 set_target_properties(imguizmo PROPERTIES FOLDER "src/Nexus/external")
 set_target_properties(glslc glslc_exe PROPERTIES FOLDER "src/Nexus/external")
@@ -131,6 +133,7 @@ target_link_libraries(Nexus PUBLIC
   ${OPENGL_LIBRARIES}
   SDL3::SDL3
   glad
+  glad_wgl
   assimp
   imgui
   imguizmo

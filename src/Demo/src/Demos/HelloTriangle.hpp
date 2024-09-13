@@ -21,9 +21,9 @@ namespace Demos
 			m_CommandList = m_GraphicsDevice->CreateCommandList();
 
 			std::vector<Nexus::Graphics::VertexPosition> vertices = {
-				{{-0.5f, -0.5f, 0.0f}},	   // bottom left
-				{{0.0f, 0.5f, 0.0f}},	   // top left
-				{{0.5f, -0.5f, 0.0f}},	   // bottom right
+			{{-0.5f, -0.5f, 0.0f}},	   // bottom left
+			{{0.0f, 0.5f, 0.0f}},	   // top left
+			{{0.5f, -0.5f, 0.0f}},	   // bottom right
 			};
 
 			CreatePipeline();

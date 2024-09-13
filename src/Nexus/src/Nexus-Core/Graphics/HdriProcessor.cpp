@@ -94,9 +94,9 @@ namespace Nexus::Graphics
 		pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::Back;
 		pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 		pipelineDescription.VertexModule =
-			m_Device->CreateShaderModuleFromSpirvSource(HdriVertexShaderSource, "hdri.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
+		m_Device->CreateShaderModuleFromSpirvSource(HdriVertexShaderSource, "hdri.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
 		pipelineDescription.FragmentModule =
-			m_Device->CreateShaderModuleFromSpirvSource(HdriFragmentShaderSource, "hdri.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
+		m_Device->CreateShaderModuleFromSpirvSource(HdriFragmentShaderSource, "hdri.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 		pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Camera", 0, 0}};
 		pipelineDescription.ResourceSetSpec.SampledImages  = {{"equirectangularMap", 1, 0}};
 
@@ -144,9 +144,9 @@ namespace Nexus::Graphics
 
 			float	  fov		  = 90.0f;
 			float	  aspectRatio = 1.0f;
-			float	  near		  = 0.1f;
-			float	  far		  = 100.0f;
-			glm::mat4 projection  = glm::perspective(glm::radians(fov), aspectRatio, 0.1f, 100.0f);
+			float	  camNear	  = 0.1f;
+			float	  camFar	  = 100.0f;
+			glm::mat4 projection  = glm::perspective(glm::radians(fov), aspectRatio, camNear, camFar);
 
 			cameraUniforms.View		  = view;
 			cameraUniforms.Projection = projection;

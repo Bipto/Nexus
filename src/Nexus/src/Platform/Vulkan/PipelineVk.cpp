@@ -256,7 +256,7 @@ namespace Nexus::Graphics
 	{
 		VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
 		colorBlendAttachment.colorWriteMask =
-			VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+		VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 		colorBlendAttachment.blendEnable		 = m_Description.BlendStateDesc.EnableBlending;
 		colorBlendAttachment.srcColorBlendFactor = Vk::GetVkBlendFactor(m_Description.BlendStateDesc.SourceColourBlend);
 		colorBlendAttachment.dstColorBlendFactor = Vk::GetVkBlendFactor(m_Description.BlendStateDesc.DestinationColourBlend);

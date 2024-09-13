@@ -88,7 +88,7 @@ class DemoApplication : public Nexus::Application
 		DemoInfo info;
 		info.Name = name;
 		info.CreationFunction =
-			[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
+		[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
 		{ return new T(name, app, imGuiRenderer); };
 		m_GraphicsDemos.push_back(info);
 	}
@@ -99,7 +99,7 @@ class DemoApplication : public Nexus::Application
 		DemoInfo info;
 		info.Name = name;
 		info.CreationFunction =
-			[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
+		[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
 		{ return new T(name, app, imGuiRenderer); };
 		m_AudioDemos.push_back(info);
 	}
@@ -110,7 +110,7 @@ class DemoApplication : public Nexus::Application
 		DemoInfo info;
 		info.Name = name;
 		info.CreationFunction =
-			[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
+		[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
 		{ return new T(name, app, imGuiRenderer); };
 		m_UtilsDemos.push_back(info);
 	}
@@ -121,7 +121,7 @@ class DemoApplication : public Nexus::Application
 		DemoInfo info;
 		info.Name = name;
 		info.CreationFunction =
-			[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
+		[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
 		{ return new T(name, app, imGuiRenderer); };
 		m_ScriptingDemos.push_back(info);
 	}

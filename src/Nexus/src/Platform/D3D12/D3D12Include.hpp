@@ -1,8 +1,7 @@
 #if defined(NX_PLATFORM_D3D12)
 
-	#define NOMINMAX
+	#include <Platform/Windows/WindowsInclude.hpp>
 
-	#include <Windows.h>
 	#include <comdef.h>
 	#include <d3d12.h>
 	#include <d3d12sdklayers.h>

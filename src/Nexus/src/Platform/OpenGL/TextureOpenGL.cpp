@@ -28,12 +28,8 @@ namespace Nexus::Graphics
 			m_TextureType	 = GL_TEXTURE_2D_MULTISAMPLE;
 			glCall(glBindTexture(m_TextureType, m_Handle));
 			glCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
-			glCall(glTexStorage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE,
-											 samples,
-											 m_InternalFormat,
-											 m_Specification.Width,
-											 m_Specification.Height,
-											 GL_FALSE));
+			glCall(
+			glTexStorage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, m_InternalFormat, m_Specification.Width, m_Specification.Height, GL_FALSE));
 		}
 		else
 		{

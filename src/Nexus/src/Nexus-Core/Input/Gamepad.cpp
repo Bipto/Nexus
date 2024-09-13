@@ -23,11 +23,11 @@ namespace Nexus
 			// this is required because a map is empty when constructed
 			{
 				std::vector<GamepadButton> enumValues = {
-					DpadUp,	  DpadDown,	   DpadLeft,	DpadRight,	  A,
-					B,		  X,		   Y,			Back,		  Guide,
-					Start,	  LeftStick,   RightStick,	LeftShoulder, RightShoulder,
-					Misc,	  LeftPaddle1, LeftPaddle2, RightPaddle1, RightPaddle2,
-					Touchpad, Max,
+				DpadUp,	  DpadDown,	   DpadLeft,	DpadRight,	  A,
+				B,		  X,		   Y,			Back,		  Guide,
+				Start,	  LeftStick,   RightStick,	LeftShoulder, RightShoulder,
+				Misc,	  LeftPaddle1, LeftPaddle2, RightPaddle1, RightPaddle2,
+				Touchpad, Max,
 				};
 
 				for (auto val : enumValues) { m_CurrentButtons[val] = false; }

@@ -1,5 +1,7 @@
 #include "Application.hpp"
 
+#include "Nexus-Core/Input/Platform.hpp"
+
 // graphics headers
 #if defined(NX_PLATFORM_OPENGL)
 	#include "Platform/OpenGL/GraphicsDeviceOpenGL.hpp"
@@ -380,6 +382,10 @@ namespace Nexus
 					auto nexusKeyCode									   = SDLToNexusKeycode(event.key.keysym.sym);
 					window->m_Input.m_Keyboard.m_CurrentKeys[nexusKeyCode] = true;
 					m_GlobalKeyboardState.m_CurrentKeys[nexusKeyCode]	   = true;
+
+					KeyPressedEvent e {.Key = nexusKeyCode};
+					Platform::OnKeyPressed.Invoke(e, window);
+
 					break;
 				}
 				case SDL_EVENT_KEY_UP:
@@ -387,6 +393,10 @@ namespace Nexus
 					auto nexusKeyCode									   = SDLToNexusKeycode(event.key.keysym.sym);
 					window->m_Input.m_Keyboard.m_CurrentKeys[nexusKeyCode] = false;
 					m_GlobalKeyboardState.m_CurrentKeys[nexusKeyCode]	   = false;
+
+					KeyReleasedEvent e {.Key = nexusKeyCode};
+					Platform::OnKeyReleased.Invoke(e, window);
+
 					break;
 				}
 				case SDL_EVENT_MOUSE_BUTTON_DOWN:

@@ -22,9 +22,9 @@ namespace Demos
 			CreatePipeline();
 
 			std::vector<Nexus::Graphics::VertexPosition> vertices = {
-				{{-0.5f, -0.5f, 0.0f}},	   // bottom left
-				{{0.0f, 0.5f, 0.0f}},	   // top left
-				{{0.5f, -0.5f, 0.0f}},	   // bottom right
+			{{-0.5f, -0.5f, 0.0f}},	   // bottom left
+			{{0.0f, 0.5f, 0.0f}},	   // top left
+			{{0.5f, -0.5f, 0.0f}},	   // bottom right
 			};
 
 			Nexus::Graphics::BufferDescription vertexBufferDesc;

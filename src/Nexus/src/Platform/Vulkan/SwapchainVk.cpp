@@ -49,17 +49,17 @@ namespace Nexus::Graphics
 		}
 
 		m_GraphicsDevice->ImmediateSubmit(
-			[&](VkCommandBuffer cmd)
-			{
-				m_GraphicsDevice->TransitionVulkanImageLayout(cmd,
-															  GetColourImage(),
-															  0,
-															  0,
-															  GetColorImageLayout(),
-															  VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-															  VK_IMAGE_ASPECT_COLOR_BIT);
-				SetColorImageLayout(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
-			});
+		[&](VkCommandBuffer cmd)
+		{
+			m_GraphicsDevice->TransitionVulkanImageLayout(cmd,
+														  GetColourImage(),
+														  0,
+														  0,
+														  GetColorImageLayout(),
+														  VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+														  VK_IMAGE_ASPECT_COLOR_BIT);
+			SetColorImageLayout(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+		});
 
 		VkPresentInfoKHR presentInfo   = {};
 		presentInfo.sType			   = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
