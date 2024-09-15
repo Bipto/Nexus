@@ -1,7 +1,5 @@
 #include "Application.hpp"
 
-#include "Nexus-Core/Input/Platform.hpp"
-
 // graphics headers
 #if defined(NX_PLATFORM_OPENGL)
 	#include "Platform/OpenGL/GraphicsDeviceOpenGL.hpp"
@@ -324,6 +322,16 @@ namespace Nexus
 		return m_GlobalKeyboardState;
 	}
 
+	void Application::DispatchEvent(InputEvent &event, Window *window)
+	{
+		OnEvent(event, window);
+
+		if (!event.Handled)
+		{
+			window->OnEvent(event);
+		}
+	}
+
 	void Application::PollEvents()
 	{
 		for (auto window : m_Windows) { window->m_Input.CacheInput(); }
@@ -341,29 +349,29 @@ namespace Nexus
 
 		if (buttons & SDL_BUTTON_LEFT)
 		{
-			Mouse::s_GlobalMouseState.LeftButton = MouseButton::Pressed;
+			Mouse::s_GlobalMouseState.LeftButton = MouseButtonState::Pressed;
 		}
 		else
 		{
-			Mouse::s_GlobalMouseState.LeftButton = MouseButton::Released;
+			Mouse::s_GlobalMouseState.LeftButton = MouseButtonState::Released;
 		}
 
 		if (buttons & SDL_BUTTON_RIGHT)
 		{
-			Mouse::s_GlobalMouseState.RightButton = MouseButton::Pressed;
+			Mouse::s_GlobalMouseState.RightButton = MouseButtonState::Pressed;
 		}
 		else
 		{
-			Mouse::s_GlobalMouseState.RightButton = MouseButton::Released;
+			Mouse::s_GlobalMouseState.RightButton = MouseButtonState::Released;
 		}
 
 		if (buttons & SDL_BUTTON_MIDDLE)
 		{
-			Mouse::s_GlobalMouseState.MiddleButton = MouseButton::Pressed;
+			Mouse::s_GlobalMouseState.MiddleButton = MouseButtonState::Pressed;
 		}
 		else
 		{
-			Mouse::s_GlobalMouseState.MiddleButton = MouseButton::Released;
+			Mouse::s_GlobalMouseState.MiddleButton = MouseButtonState::Released;
 		}
 
 		SDL_Event event;
@@ -383,8 +391,8 @@ namespace Nexus
 					window->m_Input.m_Keyboard.m_CurrentKeys[nexusKeyCode] = true;
 					m_GlobalKeyboardState.m_CurrentKeys[nexusKeyCode]	   = true;
 
-					KeyPressedEvent e {.Key = nexusKeyCode};
-					Platform::OnKeyPressed.Invoke(e, window);
+					InputEvent e {.Event = KeyPressedEvent {.Key = nexusKeyCode}};
+					DispatchEvent(e, window);
 
 					break;
 				}
@@ -394,28 +402,31 @@ namespace Nexus
 					window->m_Input.m_Keyboard.m_CurrentKeys[nexusKeyCode] = false;
 					m_GlobalKeyboardState.m_CurrentKeys[nexusKeyCode]	   = false;
 
-					KeyReleasedEvent e {.Key = nexusKeyCode};
-					Platform::OnKeyReleased.Invoke(e, window);
+					InputEvent e {.Event = KeyReleasedEvent {.Key = nexusKeyCode}};
+					DispatchEvent(e, window);
 
 					break;
 				}
 				case SDL_EVENT_MOUSE_BUTTON_DOWN:
 				{
+					InputEvent e {.Event = MouseButtonPressedEvent {.MouseButton = event.button.button}};
+					DispatchEvent(e, window);
+
 					switch (event.button.button)
 					{
 						case SDL_BUTTON_LEFT:
 						{
-							window->m_Input.m_Mouse.m_CurrentState.LeftButton = MouseButton::Pressed;
+							window->m_Input.m_Mouse.m_CurrentState.LeftButton = MouseButtonState::Pressed;
 							break;
 						}
 						case SDL_BUTTON_RIGHT:
 						{
-							window->m_Input.m_Mouse.m_CurrentState.RightButton = MouseButton::Pressed;
+							window->m_Input.m_Mouse.m_CurrentState.RightButton = MouseButtonState::Pressed;
 							break;
 						}
 						case SDL_BUTTON_MIDDLE:
 						{
-							window->m_Input.m_Mouse.m_CurrentState.MiddleButton = MouseButton::Pressed;
+							window->m_Input.m_Mouse.m_CurrentState.MiddleButton = MouseButtonState::Pressed;
 							break;
 						}
 					}
@@ -427,20 +438,24 @@ namespace Nexus
 					{
 						case SDL_BUTTON_LEFT:
 						{
-							window->m_Input.m_Mouse.m_CurrentState.LeftButton = MouseButton::Released;
+							window->m_Input.m_Mouse.m_CurrentState.LeftButton = MouseButtonState::Released;
 							break;
 						}
 						case SDL_BUTTON_RIGHT:
 						{
-							window->m_Input.m_Mouse.m_CurrentState.RightButton = MouseButton::Released;
+							window->m_Input.m_Mouse.m_CurrentState.RightButton = MouseButtonState::Released;
 							break;
 						}
 						case SDL_BUTTON_MIDDLE:
 						{
-							window->m_Input.m_Mouse.m_CurrentState.MiddleButton = MouseButton::Released;
+							window->m_Input.m_Mouse.m_CurrentState.MiddleButton = MouseButtonState::Released;
 							break;
 						}
 					}
+
+					InputEvent e {.Event = MouseButtonReleasedEvent {.MouseButton = event.button.button}};
+					DispatchEvent(e, window);
+
 					break;
 				}
 				case SDL_EVENT_MOUSE_MOTION:
@@ -455,6 +470,13 @@ namespace Nexus
 
 					window->m_Input.m_Mouse.m_CurrentState.MousePosition = {mouseX, mouseY};
 
+					float  xPos, yPos;
+					Uint32 state = SDL_GetMouseState(&xPos, &yPos);
+
+					InputEvent e {.Event =
+								  MouseMovedEvent {.Position = {(int)xPos, (int)yPos}, .Movement = {(int)event.motion.x, (int)event.motion.y}}};
+					DispatchEvent(e, window);
+
 					break;
 				}
 				case SDL_EVENT_MOUSE_WHEEL:
@@ -462,6 +484,10 @@ namespace Nexus
 					auto &scroll = window->m_Input.m_Mouse.m_CurrentState.MouseWheel;
 					scroll.X += event.wheel.x;
 					scroll.Y += event.wheel.y;
+
+					InputEvent e {.Event = MouseScrolledEvent {.ScrollX = event.wheel.x, .ScrollY = event.wheel.y}};
+					DispatchEvent(e, window);
+
 					break;
 				}
 				case SDL_EVENT_WINDOW_CLOSE_REQUESTED:

@@ -24,4 +24,27 @@ namespace Nexus
 		Nexus::Point2D<int> Position;
 		Nexus::Point2D<int> Movement;
 	};
+
+	struct MouseButtonPressedEvent
+	{
+		uint8_t MouseButton;
+	};
+
+	struct MouseButtonReleasedEvent
+	{
+		uint8_t MouseButton;
+	};
+
+	struct MouseScrolledEvent
+	{
+		float ScrollX;
+		float ScrollY;
+	};
+
+	struct InputEvent
+	{
+		std::variant<KeyPressedEvent, KeyReleasedEvent, MouseMovedEvent, MouseButtonPressedEvent, MouseButtonReleasedEvent, MouseScrolledEvent> Event;
+		bool Handled = false;
+	};
+
 }	 // namespace Nexus

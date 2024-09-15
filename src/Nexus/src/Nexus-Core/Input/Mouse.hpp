@@ -5,7 +5,7 @@
 namespace Nexus
 {
 	/// @brief An enum representing the state of a mouse button
-	enum class MouseButton
+	enum class MouseButtonState
 	{
 		/// @brief A value representing that the button is currently released
 		Released,
@@ -19,23 +19,23 @@ namespace Nexus
 	{
 		/// @brief A enum value representing the current state of the left mouse
 		/// button
-		MouseButton LeftButton;
+		MouseButtonState LeftButton;
 
 		/// @brief A enum value representing the current state of the right mouse
 		/// button
-		MouseButton RightButton;
+		MouseButtonState RightButton;
 
 		/// @brief An enum value representing the current state of the middle mouse
 		/// button
-		MouseButton MiddleButton;
+		MouseButtonState MiddleButton;
 
 		/// @brief A Nexus::Point containing two integers representing the position of
 		/// the mouse cursor
 		Point2D<int> MousePosition;
 
-		/// @brief A Nexus::Point containing two integers representing the current
+		/// @brief A Nexus::Point containing two floats representing the current
 		/// position of the mouse wheel
-		Point2D<int> MouseWheel;
+		Point2D<float> MouseWheel;
 	};
 
 	/// @brief A class representing the current state of the mouse
@@ -95,14 +95,14 @@ namespace Nexus
 		const Point2D<int> GetMouseMovement() const;
 
 		/// @brief A method that returns the current scroll value of the mouse
-		/// @return A Nexus::Point containing two integer values representing the
+		/// @return A Nexus::Point containing two float values representing the
 		/// current scroll of the mouse
-		const Point2D<int> GetScroll() const;
+		const Point2D<float> GetScroll() const;
 
 		/// @brief A method that returns the scroll movement of the mouse
-		/// @return A Nexus::Point containing two integer values representing the
+		/// @return A Nexus::Point containing two float values representing the
 		/// scroll movement of the mouse
-		const Point2D<int> GetScrollMovement() const;
+		const Point2D<float> GetScrollMovement() const;
 
 		static Point2D<int> GetGlobalMousePosition();
 

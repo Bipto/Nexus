@@ -302,6 +302,10 @@ namespace Nexus
 	{
 	}
 
+	void Window::OnEvent(InputEvent &event)
+	{
+	}
+
 #if defined(NX_PLATFORM_WINDOWS)
 	const HWND Window::GetHwnd() const
 	{

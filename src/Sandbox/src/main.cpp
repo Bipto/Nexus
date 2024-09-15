@@ -119,6 +119,20 @@ class Sandbox : public Nexus::Application
 	{
 	}
 
+	virtual void OnEvent(Nexus::InputEvent &event, Nexus::Window *window)
+	{
+		if (!event.Handled)
+		{
+			if (std::holds_alternative<Nexus::MouseScrolledEvent>(event.Event))
+			{
+				Nexus::MouseScrolledEvent e = std::get<Nexus::MouseScrolledEvent>(event.Event);
+				std::cout << e.ScrollY << std::endl;
+
+				event.Handled = true;
+			}
+		}
+	}
+
 	void CreatePipeline()
 	{
 	}

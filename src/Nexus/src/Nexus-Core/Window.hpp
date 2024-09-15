@@ -168,6 +168,8 @@ namespace Nexus
 		void StartTextInput();
 		void StopTextInput();
 
+		void OnEvent(InputEvent &event);
+
 #if defined(NX_PLATFORM_WINDOWS)
 		const HWND GetHwnd() const;
 #endif
