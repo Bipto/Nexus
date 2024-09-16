@@ -90,6 +90,16 @@ class Sandbox : public Nexus::Application
 		m_Canvas->AddControl(pnl); */
 
 		m_CommandList = m_GraphicsDevice->CreateCommandList();
+
+		GetPrimaryWindow()->OnWindowGainFocus += [&]() { std::cout << "Window focussed\n"; };
+
+		GetPrimaryWindow()->OnWindowLostFocus += [&]() { std::cout << "Window lost focus\n"; };
+
+		GetPrimaryWindow()->OnWindowMaximized += [&]() { std::cout << "Window maximized\n"; };
+
+		GetPrimaryWindow()->OnWindowMinimized += [&]() { std::cout << "Window minimized\n"; };
+
+		GetPrimaryWindow()->OnWindowRestored += [&]() { std::cout << "Window restored\n"; };
 	}
 
 	virtual void Update(Nexus::Time time) override
@@ -119,17 +129,14 @@ class Sandbox : public Nexus::Application
 	{
 	}
 
-	virtual void OnEvent(Nexus::InputEvent &event, Nexus::Window *window)
+	virtual bool OnEvent(const Nexus::InputEvent &event, Nexus::Window *window) override
 	{
-		if (!event.Handled)
+		if (std::holds_alternative<Nexus::MouseScrolledEvent>(event))
 		{
-			if (std::holds_alternative<Nexus::MouseScrolledEvent>(event.Event))
-			{
-				Nexus::MouseScrolledEvent e = std::get<Nexus::MouseScrolledEvent>(event.Event);
-				std::cout << e.ScrollY << std::endl;
+			Nexus::MouseScrolledEvent e = std::get<Nexus::MouseScrolledEvent>(event);
+			std::cout << e.ScrollY << std::endl;
 
-				event.Handled = true;
-			}
+			return true;
 		}
 	}
 

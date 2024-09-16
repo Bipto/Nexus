@@ -302,7 +302,7 @@ namespace Nexus
 	{
 	}
 
-	void Window::OnEvent(InputEvent &event)
+	void Window::OnEvent(const InputEvent &event)
 	{
 	}
 

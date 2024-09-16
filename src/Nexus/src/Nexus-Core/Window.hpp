@@ -168,7 +168,7 @@ namespace Nexus
 		void StartTextInput();
 		void StopTextInput();
 
-		void OnEvent(InputEvent &event);
+		void OnEvent(const InputEvent &event);
 
 #if defined(NX_PLATFORM_WINDOWS)
 		const HWND GetHwnd() const;
@@ -177,6 +177,11 @@ namespace Nexus
 		EventHandler<std::pair<uint32_t, uint32_t>> OnResize;
 
 		EventHandler<std::string> OnFileDrop;
+		EventHandler<>			  OnWindowGainFocus;
+		EventHandler<>			  OnWindowLostFocus;
+		EventHandler<>			  OnWindowMaximized;
+		EventHandler<>			  OnWindowMinimized;
+		EventHandler<>			  OnWindowRestored;
 
 	  private:
 		/// @brief A method that returns a set of flags to use when creating the

@@ -322,11 +322,9 @@ namespace Nexus
 		return m_GlobalKeyboardState;
 	}
 
-	void Application::DispatchEvent(InputEvent &event, Window *window)
+	void Application::DispatchEvent(const InputEvent &event, Window *window)
 	{
-		OnEvent(event, window);
-
-		if (!event.Handled)
+		if (!OnEvent(event, window))
 		{
 			window->OnEvent(event);
 		}
@@ -390,10 +388,7 @@ namespace Nexus
 					auto nexusKeyCode									   = SDLToNexusKeycode(event.key.keysym.sym);
 					window->m_Input.m_Keyboard.m_CurrentKeys[nexusKeyCode] = true;
 					m_GlobalKeyboardState.m_CurrentKeys[nexusKeyCode]	   = true;
-
-					InputEvent e {.Event = KeyPressedEvent {.Key = nexusKeyCode}};
-					DispatchEvent(e, window);
-
+					DispatchEvent(KeyPressedEvent {.Key = nexusKeyCode}, window);
 					break;
 				}
 				case SDL_EVENT_KEY_UP:
@@ -401,16 +396,12 @@ namespace Nexus
 					auto nexusKeyCode									   = SDLToNexusKeycode(event.key.keysym.sym);
 					window->m_Input.m_Keyboard.m_CurrentKeys[nexusKeyCode] = false;
 					m_GlobalKeyboardState.m_CurrentKeys[nexusKeyCode]	   = false;
-
-					InputEvent e {.Event = KeyReleasedEvent {.Key = nexusKeyCode}};
-					DispatchEvent(e, window);
-
+					DispatchEvent(KeyReleasedEvent {.Key = nexusKeyCode}, window);
 					break;
 				}
 				case SDL_EVENT_MOUSE_BUTTON_DOWN:
 				{
-					InputEvent e {.Event = MouseButtonPressedEvent {.MouseButton = event.button.button}};
-					DispatchEvent(e, window);
+					DispatchEvent({MouseButtonPressedEvent {.MouseButton = event.button.button}}, window);
 
 					switch (event.button.button)
 					{
@@ -453,8 +444,7 @@ namespace Nexus
 						}
 					}
 
-					InputEvent e {.Event = MouseButtonReleasedEvent {.MouseButton = event.button.button}};
-					DispatchEvent(e, window);
+					DispatchEvent(MouseButtonReleasedEvent {.MouseButton = event.button.button}, window);
 
 					break;
 				}
@@ -473,8 +463,7 @@ namespace Nexus
 					float  xPos, yPos;
 					Uint32 state = SDL_GetMouseState(&xPos, &yPos);
 
-					InputEvent e {.Event =
-								  MouseMovedEvent {.Position = {(int)xPos, (int)yPos}, .Movement = {(int)event.motion.x, (int)event.motion.y}}};
+					MouseMovedEvent e {.Position = {(int)xPos, (int)yPos}, .Movement = {(int)event.motion.x, (int)event.motion.y}};
 					DispatchEvent(e, window);
 
 					break;
@@ -485,9 +474,7 @@ namespace Nexus
 					scroll.X += event.wheel.x;
 					scroll.Y += event.wheel.y;
 
-					InputEvent e {.Event = MouseScrolledEvent {.ScrollX = event.wheel.x, .ScrollY = event.wheel.y}};
-					DispatchEvent(e, window);
-
+					DispatchEvent(MouseScrolledEvent {.ScrollX = event.wheel.x, .ScrollY = event.wheel.y}, window);
 					break;
 				}
 				case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
@@ -525,6 +512,31 @@ namespace Nexus
 				{
 					std::string file = event.drop.data;
 					window->OnFileDrop.Invoke(file);
+					break;
+				}
+				case SDL_EVENT_WINDOW_FOCUS_GAINED:
+				{
+					window->OnWindowGainFocus.Invoke();
+					break;
+				}
+				case SDL_EVENT_WINDOW_FOCUS_LOST:
+				{
+					window->OnWindowLostFocus.Invoke();
+					break;
+				}
+				case SDL_EVENT_WINDOW_MAXIMIZED:
+				{
+					window->OnWindowMaximized.Invoke();
+					break;
+				}
+				case SDL_EVENT_WINDOW_MINIMIZED:
+				{
+					window->OnWindowMinimized.Invoke();
+					break;
+				}
+				case SDL_EVENT_WINDOW_RESTORED:
+				{
+					window->OnWindowRestored.Invoke();
 					break;
 				}
 			}

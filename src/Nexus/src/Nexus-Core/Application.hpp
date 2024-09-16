@@ -180,12 +180,13 @@ namespace Nexus
 
 		const Keyboard &GetGlobalKeyboardState() const;
 
-		virtual void OnEvent(InputEvent &e, Window *window)
+		virtual bool OnEvent(const InputEvent &e, Window *window)
 		{
+			return false;
 		}
 
 	  private:
-		void	DispatchEvent(InputEvent &event, Window *window);
+		void	DispatchEvent(const InputEvent &event, Window *window);
 		void	PollEvents();
 		Window *GetWindowFromHandle(uint32_t handle);
 		void	CheckForClosingWindows();

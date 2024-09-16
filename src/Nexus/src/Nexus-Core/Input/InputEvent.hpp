@@ -41,10 +41,7 @@ namespace Nexus
 		float ScrollY;
 	};
 
-	struct InputEvent
-	{
-		std::variant<KeyPressedEvent, KeyReleasedEvent, MouseMovedEvent, MouseButtonPressedEvent, MouseButtonReleasedEvent, MouseScrolledEvent> Event;
-		bool Handled = false;
-	};
+	using InputEvent =
+	std::variant<KeyPressedEvent, KeyReleasedEvent, MouseMovedEvent, MouseButtonPressedEvent, MouseButtonReleasedEvent, MouseScrolledEvent>;
 
 }	 // namespace Nexus
