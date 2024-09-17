@@ -40,7 +40,7 @@ namespace Demos
 			m_IndexBuffer		  = m_GraphicsDevice->CreateIndexBuffer(indexBufferDesc, indices.data());
 		}
 
-		virtual void Render(Nexus::Time time) override
+		virtual void Render(Nexus::TimeSpan time) override
 		{
 			m_CommandList->Begin();
 			m_CommandList->SetPipeline(m_Pipeline);

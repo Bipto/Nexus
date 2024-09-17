@@ -26,10 +26,10 @@ namespace Demos
 		{
 		}
 
-		virtual void Update(Nexus::Time time)
+		virtual void Update(Nexus::TimeSpan time)
 		{
 		}
-		virtual void Render(Nexus::Time time)
+		virtual void Render(Nexus::TimeSpan time)
 		{
 		}
 

@@ -31,7 +31,7 @@ namespace Demos
 			m_TextureID	 = m_ImGuiRenderer->BindTexture(texture);
 		}
 
-		virtual void Render(Nexus::Time time) override
+		virtual void Render(Nexus::TimeSpan time) override
 		{
 			m_CommandList->Begin();
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {m_Framebuffer});

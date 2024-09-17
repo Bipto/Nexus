@@ -37,7 +37,7 @@ namespace Editor
 		m_Panels[INSPECTOR_PANEL_NAME]	   = std::make_unique<Inspector>();
 	}
 
-	void Layout::Render(Nexus::Time time)
+	void Layout::Render(Nexus::TimeSpan time)
 	{
 		m_ImGuiRenderer->BeforeLayout(time);
 		RenderViewport();

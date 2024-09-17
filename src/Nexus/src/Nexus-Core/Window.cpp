@@ -33,6 +33,14 @@ namespace Nexus
 		}
 
 		m_WindowID = SDL_GetWindowID(m_Window);
+
+		double secondsPerRender = 1.0 / windowProps.RendersPerSecond;
+		double secondsPerUpdate = 1.0 / windowProps.UpdatesPerSecond;
+		double secondsPerTick	= 1.0 / windowProps.TicksPerSecond;
+
+		m_Timer.Every([&](Nexus::TimeSpan time) { OnRender.Invoke(time); }, secondsPerRender);
+		m_Timer.Every([&](Nexus::TimeSpan time) { OnUpdate.Invoke(time); }, secondsPerUpdate);
+		m_Timer.Every([&](Nexus::TimeSpan time) { OnTick.Invoke(time); }, secondsPerTick);
 	}
 
 	Window::~Window()

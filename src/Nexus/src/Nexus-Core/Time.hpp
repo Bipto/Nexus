@@ -3,16 +3,16 @@
 namespace Nexus
 {
 	/// @brief A class representing a time
-	class Time
+	class TimeSpan
 	{
 	  public:
 		/// @brief A default constructor that creates a time set to zero
-		Time() = default;
+		TimeSpan() = default;
 
 		/// @brief A constructor that takes in nanoseconds to represent
 		/// @param nanoseconds A double representing the number of nanoseconds to
 		/// represent
-		Time(double nanoseconds)
+		explicit TimeSpan(double nanoseconds)
 		{
 			m_Nanoseconds = nanoseconds;
 		}
@@ -36,6 +36,12 @@ namespace Nexus
 		double GetSeconds()
 		{
 			return m_Nanoseconds / 1000000000;
+		}
+
+		TimeSpan &operator+=(const TimeSpan &other)
+		{
+			m_Nanoseconds += other.m_Nanoseconds;
+			return *this;
 		}
 
 	  private:

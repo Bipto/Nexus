@@ -27,7 +27,7 @@ namespace Nexus::ImGuiUtils
 		ImTextureID BindTexture(Nexus::Ref<Nexus::Graphics::Texture2D> texture);
 		void		UnbindTexture(ImTextureID id);
 
-		void BeforeLayout(Nexus::Time gameTime);
+		void BeforeLayout(Nexus::TimeSpan gameTime);
 		void AfterLayout();
 
 		Ref<Graphics::Pipeline> GetPipeline()

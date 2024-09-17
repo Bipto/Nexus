@@ -55,7 +55,7 @@ namespace Demos
 			m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, -2.5f));
 		}
 
-		virtual void Render(Nexus::Time time) override
+		virtual void Render(Nexus::TimeSpan time) override
 		{
 			m_TransformUniforms.Transform = glm::mat4(1.0f);
 			m_TransformUniformBuffer->SetData(&m_TransformUniforms, sizeof(m_TransformUniforms));

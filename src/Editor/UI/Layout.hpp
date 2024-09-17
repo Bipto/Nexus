@@ -12,7 +12,7 @@ namespace Editor
 	{
 	  public:
 		explicit Layout(Nexus::Application *app);
-		void		Render(Nexus::Time time);
+		void		Render(Nexus::TimeSpan time);
 		static void LoadProject(const std::string &path);
 
 		static void SaveLayout(const std::string &path);

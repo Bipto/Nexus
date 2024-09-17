@@ -61,7 +61,7 @@ namespace Demos
 			m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
 		}
 
-		virtual void Render(Nexus::Time time) override
+		virtual void Render(Nexus::TimeSpan time) override
 		{
 			m_TransformUniforms.Transform =
 			glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0)) * glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation), {1.0f, 1.0f, 0.0f});

@@ -54,7 +54,7 @@ namespace Demos
 			m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
 		}
 
-		virtual void Render(Nexus::Time time) override
+		virtual void Render(Nexus::TimeSpan time) override
 		{
 			m_TransformUniforms.Transform =
 			glm::rotate(glm::mat4(1.0f), glm::radians((float)m_ElapsedTime.GetSeconds() * 100.0f), glm::vec3(0.0f, 1.0f, 1.0f));
@@ -105,7 +105,7 @@ namespace Demos
 
 			m_GraphicsDevice->SubmitCommandList(m_CommandList);
 
-			m_ElapsedTime = m_ElapsedTime.GetNanoseconds() + time.GetNanoseconds();
+			m_ElapsedTime += time;
 		}
 
 	  private:
@@ -150,6 +150,6 @@ namespace Demos
 		VB_UNIFORM_TRANSFORM_DEMO_3D			   m_TransformUniforms;
 		Nexus::Ref<Nexus::Graphics::UniformBuffer> m_TransformUniformBuffer;
 
-		Nexus::Time m_ElapsedTime = 0;
+		Nexus::TimeSpan m_ElapsedTime = {};
 	};
 }	 // namespace Demos

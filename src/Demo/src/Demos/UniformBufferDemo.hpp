@@ -35,7 +35,7 @@ namespace Demos
 			m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
 		}
 
-		virtual void Render(Nexus::Time time) override
+		virtual void Render(Nexus::TimeSpan time) override
 		{
 			m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), m_Position);
 			m_TransformUniformBuffer->SetData(&m_TransformUniforms, sizeof(m_TransformUniforms));

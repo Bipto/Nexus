@@ -387,7 +387,7 @@ namespace Nexus::ImGuiUtils
 		m_ResourceSets.erase(id);
 	}
 
-	void ImGuiGraphicsRenderer::BeforeLayout(Nexus::Time gameTime)
+	void ImGuiGraphicsRenderer::BeforeLayout(Nexus::TimeSpan gameTime)
 	{
 		auto &io	 = ImGui::GetIO();
 		io.DeltaTime = (float)gameTime.GetSeconds();

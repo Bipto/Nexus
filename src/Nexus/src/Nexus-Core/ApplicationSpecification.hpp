@@ -85,6 +85,10 @@ namespace Nexus
 		bool Borderless = false;
 
 		bool Utility = false;
+
+		uint32_t RendersPerSecond = 60;
+		uint32_t UpdatesPerSecond = 60;
+		uint32_t TicksPerSecond	  = 60;
 	};
 
 	/// @brief A struct representing options to use when creating an application

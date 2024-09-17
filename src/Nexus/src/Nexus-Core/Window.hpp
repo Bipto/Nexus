@@ -20,6 +20,7 @@
 #include "Nexus-Core/Graphics/Swapchain.hpp"
 #include "Nexus-Core/Input/InputEvent.hpp"
 #include "Nexus-Core/Input/InputState.hpp"
+#include "Nexus-Core/Timer.hpp"
 #include "Point.hpp"
 
 namespace Nexus
@@ -183,6 +184,10 @@ namespace Nexus
 		EventHandler<>			  OnWindowMinimized;
 		EventHandler<>			  OnWindowRestored;
 
+		EventHandler<TimeSpan> OnRender;
+		EventHandler<TimeSpan> OnUpdate;
+		EventHandler<TimeSpan> OnTick;
+
 	  private:
 		/// @brief A method that returns a set of flags to use when creating the
 		/// window
@@ -211,6 +216,8 @@ namespace Nexus
 
 		/// @brief The underlying SDL window ID
 		uint32_t m_WindowID = 0;
+
+		Nexus::Timer m_Timer = {};
 
 		/// @brief A friend class to allow an application to access private members of
 		/// this class

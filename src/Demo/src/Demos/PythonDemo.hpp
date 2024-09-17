@@ -22,7 +22,7 @@ namespace Demos
 			m_CommandList = m_GraphicsDevice->CreateCommandList();
 		}
 
-		virtual void Render(Nexus::Time time) override
+		virtual void Render(Nexus::TimeSpan time) override
 		{
 			m_CommandList->Begin();
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});

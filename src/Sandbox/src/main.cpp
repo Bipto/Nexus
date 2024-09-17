@@ -102,11 +102,11 @@ class Sandbox : public Nexus::Application
 		GetPrimaryWindow()->OnWindowRestored += [&]() { std::cout << "Window restored\n"; };
 	}
 
-	virtual void Update(Nexus::Time time) override
+	virtual void Update(Nexus::TimeSpan time) override
 	{
 	}
 
-	virtual void Render(Nexus::Time time) override
+	virtual void Render(Nexus::TimeSpan time) override
 	{
 		m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
 

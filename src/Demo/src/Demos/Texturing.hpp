@@ -33,7 +33,7 @@ namespace Demos
 			m_TextureID = m_ImGuiRenderer->BindTexture(m_Texture);
 		}
 
-		virtual void Render(Nexus::Time time) override
+		virtual void Render(Nexus::TimeSpan time) override
 		{
 			m_CommandList->Begin();
 			m_CommandList->SetPipeline(m_Pipeline);

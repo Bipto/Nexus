@@ -51,7 +51,7 @@ namespace Demos
 			m_Cubemap = processor.Generate(2048);
 		}
 
-		virtual void Render(Nexus::Time time) override
+		virtual void Render(Nexus::TimeSpan time) override
 		{
 			m_CameraUniforms.Projection = m_Camera.GetProjection();
 			m_CameraUniforms.View		= glm::mat4(glm::mat3(m_Camera.GetView()));

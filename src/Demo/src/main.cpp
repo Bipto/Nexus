@@ -126,7 +126,7 @@ class DemoApplication : public Nexus::Application
 		m_ScriptingDemos.push_back(info);
 	}
 
-	virtual void Update(Nexus::Time time) override
+	virtual void Update(Nexus::TimeSpan time) override
 	{
 		if (m_CurrentDemo)
 			m_CurrentDemo->Update(time);
@@ -156,7 +156,7 @@ class DemoApplication : public Nexus::Application
 		}
 	}
 
-	virtual void Render(Nexus::Time time) override
+	virtual void Render(Nexus::TimeSpan time) override
 	{
 		m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
 
@@ -223,6 +223,8 @@ class DemoApplication : public Nexus::Application
 		}
 
 		m_ImGuiRenderer->AfterLayout();
+
+		m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->SwapBuffers();
 	}
 
 	virtual void OnResize(Nexus::Point2D<uint32_t> size) override
@@ -256,6 +258,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 	spec.WindowProperties.Height	= 720;
 	spec.WindowProperties.Title		= "Demo";
 	spec.WindowProperties.Resizable = true;
+	spec.WindowProperties.RendersPerSecond = 30;
 
 	spec.SwapchainSpecification.Samples = Nexus::Graphics::SampleCount::SampleCount8;
 

@@ -24,7 +24,7 @@ namespace Demos
 			m_TimingQuery = m_GraphicsDevice->CreateTimingQuery();
 		}
 
-		virtual void Render(Nexus::Time time) override
+		virtual void Render(Nexus::TimeSpan time) override
 		{
 			m_CommandList->Begin();
 

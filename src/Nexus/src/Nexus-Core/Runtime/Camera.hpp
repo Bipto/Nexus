@@ -34,7 +34,7 @@ namespace Nexus
 			RecalculateProjection();
 		}
 
-		void Update(int width, int height, Time time)
+		void Update(int width, int height, TimeSpan time)
 		{
 			m_Width	 = width;
 			m_Height = height;
@@ -115,7 +115,7 @@ namespace Nexus
 		}
 
 	  private:
-		void Move(Time time)
+		void Move(TimeSpan time)
 		{
 			float speed = 2.0f * time.GetSeconds();
 

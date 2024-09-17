@@ -146,18 +146,6 @@ namespace Nexus
 		}
 	}
 
-	void Clock::Tick()
-	{
-		std::chrono::high_resolution_clock::time_point tickTime = std::chrono::high_resolution_clock::now();
-		m_DeltaTime = std::chrono::duration_cast<std::chrono::nanoseconds>(tickTime - m_StartTime).count();
-		m_StartTime = tickTime;
-	}
-
-	Nexus::Time Clock::GetTime()
-	{
-		return Nexus::Time(m_DeltaTime);
-	}
-
 	Application::Application(const ApplicationSpecification &spec)
 	{
 		m_Specification = spec;
@@ -176,6 +164,10 @@ namespace Nexus
 		m_AudioDevice = Nexus::CreateAudioDevice(spec.AudioAPI);
 
 		SDL_StartTextInput();
+
+		m_Window->OnRender += [&](Nexus::TimeSpan time) { Render(time); };
+		m_Window->OnUpdate += [&](Nexus::TimeSpan time) { Update(time); };
+		m_Window->OnTick += [&](Nexus::TimeSpan time) { Tick(time); };
 	}
 
 	Application::~Application()
@@ -206,16 +198,7 @@ namespace Nexus
 		m_Clock.Tick();
 		auto time = m_Clock.GetTime();
 
-		this->Update(time);
-
-		// run render functions
-		{
-			this->Render(time);
-
-			auto swapchain = m_Window->GetSwapchain();
-			swapchain->SwapBuffers();
-		}
-
+		UpdateWindowTimers();
 		CheckForClosingWindows();
 		m_PreviousWindowSize = windowSize;
 	}
@@ -599,6 +582,11 @@ namespace Nexus
 				}
 			}
 		}
+	}
+
+	void Application::UpdateWindowTimers()
+	{
+		for (auto window : m_Windows) { window->m_Timer.Update(); }
 	}
 
 	Graphics::GraphicsDevice *CreateGraphicsDevice(const Graphics::GraphicsDeviceSpecification &createInfo,

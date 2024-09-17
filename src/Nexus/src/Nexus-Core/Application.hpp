@@ -12,6 +12,7 @@
 #endif
 
 #include "ApplicationSpecification.hpp"
+#include "Nexus-Core/Clock.hpp"
 #include "Nexus-Core/Events/Event.hpp"
 #include "Nexus-Core/Events/EventHandler.hpp"
 #include "Nexus-Core/Input/InputEvent.hpp"
@@ -23,29 +24,6 @@
 
 namespace Nexus
 {
-	/// @brief A class represenging a clock to use for timings
-	class Clock
-	{
-	  public:
-		Clock() = default;
-
-		/// @brief A method allowing the clock to be updating to the currently elapsed
-		/// time
-		void Tick();
-
-		/// @brief A method allowing the clock to return a structure representing the
-		/// elapsed time
-		/// @return A Nexus::Time object containing the currently elapsed time
-		Nexus::Time GetTime();
-
-	  private:
-		/// @brief A variable containing the time that the clock was created
-		std::chrono::high_resolution_clock::time_point m_StartTime = std::chrono::high_resolution_clock::now();
-
-		/// @brief A delta time representing how much time has elapsed since the clock
-		/// was created
-		uint64_t m_DeltaTime {};
-	};
 
 	/// @brief A static method to create a new graphics device from a set of options
 	/// @param createInfo Options to use to configure the graphics device
@@ -82,12 +60,14 @@ namespace Nexus
 		/// @brief A pure virtual method that is called every time that the
 		/// application should update
 		/// @param time The elapsed time since the last update
-		virtual void Update(Nexus::Time time) = 0;
+		virtual void Update(Nexus::TimeSpan time) = 0;
 
 		/// @brief A pure virtual method that is called every time that the
 		/// application should render
 		/// @param time The elapsed time since the last render
-		virtual void Render(Nexus::Time time) = 0;
+		virtual void Render(Nexus::TimeSpan time) = 0;
+
+		virtual void Tick(Nexus::TimeSpan time) {};
 
 		/// @brief A pure virtual method that is called once the application is
 		/// closing
@@ -191,6 +171,7 @@ namespace Nexus
 		Window *GetWindowFromHandle(uint32_t handle);
 		void	CheckForClosingWindows();
 		void	CloseWindows();
+		void	UpdateWindowTimers();
 
 	  protected:
 		/// @brief A pointer to a graphics device

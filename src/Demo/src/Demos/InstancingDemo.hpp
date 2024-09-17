@@ -60,7 +60,7 @@ namespace Demos
 			m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
 		}
 
-		virtual void Render(Nexus::Time time) override
+		virtual void Render(Nexus::TimeSpan time) override
 		{
 			m_Rotation += time.GetSeconds();
 			m_CameraUniforms.View		 = m_Camera.GetView();
