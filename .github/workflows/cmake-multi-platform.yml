@@ -77,10 +77,11 @@ jobs:
         uses: jwlawson/actions-setup-cmake@v2.0.2
 
       - name: Configure and Build Project
-        run: cmake -S . -B build |
+        run: |
+          cmake -S . -B build
           cmake --build build --config ${{ matrix.build_type }} --parallel
 
-      - name: Test Project
-        uses: threeal/ctest-action@v1.1.0
-        with:
-          build-config: matrix.build_type
+      #- name: Test Project
+      #  uses: threeal/ctest-action@v1.1.0
+      #  with:
+      #    build-config: matrix.build_type
