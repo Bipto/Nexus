@@ -120,6 +120,12 @@ namespace Nexus
 		/// @return A boolean value indicating whether the window is focussed
 		bool IsFocussed();
 
+		bool IsMinimized();
+
+		bool IsMaximized();
+
+		bool IsFullscreen();
+
 		/// @brief A method that maximizes a window
 		void Maximize();
 
@@ -131,11 +137,6 @@ namespace Nexus
 
 		/// @brief A method that toggles a window between fullscreen and windowed
 		void ToggleFullscreen();
-
-		/// @brief A method that returns a boolean value indicating whether the window
-		/// is currently fullscreen or windowed
-		/// @return A boolean indicating whether the window is fullscreen
-		bool IsFullscreen();
 
 		/// @brief A method that sets a window to be fullscreen
 		void SetFullscreen();
@@ -169,6 +170,10 @@ namespace Nexus
 		void StartTextInput();
 		void StopTextInput();
 
+		void SetRendersPerSecond(uint32_t amount);
+		void SetUpdatesPerSecond(uint32_t amount);
+		void SetTicksPerSecond(uint32_t amount);
+
 		void OnEvent(const InputEvent &event);
 
 #if defined(NX_PLATFORM_WINDOWS)
@@ -195,7 +200,13 @@ namespace Nexus
 		/// @return An unsigned int representing the flags
 		uint32_t GetFlags(Graphics::GraphicsAPI api, const WindowSpecification &windowSpec, const Graphics::SwapchainSpecification &swapchainSpec);
 
+		void SetupTimer();
+
+		const WindowSpecification &GetSpecification() const;
+
 	  private:
+		WindowSpecification m_Specification = {};
+
 		/// @brief A pointer to the underlying SDL window
 		SDL_Window *m_Window;
 
@@ -218,6 +229,8 @@ namespace Nexus
 		uint32_t m_WindowID = 0;
 
 		Nexus::Timer m_Timer = {};
+
+		bool m_Minimized = false;
 
 		/// @brief A friend class to allow an application to access private members of
 		/// this class

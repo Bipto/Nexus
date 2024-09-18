@@ -190,8 +190,8 @@ class DemoApplication : public Nexus::Application
 
 					// render framerate
 					std::stringstream ss;
-					ss.precision(2);
-					ss << "Running at " << ImGui::GetIO().Framerate << " FPS";
+					float			  fps = ImGui::GetIO().Framerate;
+					ss << "Running at " << std::to_string(fps) << " FPS";
 					ImGui::Text("%s", ss.str().c_str());
 					m_CurrentDemo->RenderUI();
 				}
@@ -225,12 +225,25 @@ class DemoApplication : public Nexus::Application
 		m_ImGuiRenderer->AfterLayout();
 
 		m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->SwapBuffers();
+
+		std::cout << std::fixed << std::setprecision(3) << Nexus::Input::GetMouseMovement().X << std::endl;
 	}
 
 	virtual void OnResize(Nexus::Point2D<uint32_t> size) override
 	{
 		if (m_CurrentDemo)
 			m_CurrentDemo->OnResize(size);
+	}
+
+	virtual bool OnEvent(const Nexus::InputEvent &event, Nexus::Window *window) override
+	{
+		if (std::holds_alternative<Nexus::MouseMovedEvent>(event))
+		{
+			Nexus::MouseMovedEvent e = std::get<Nexus::MouseMovedEvent>(event);
+			return true;
+		}
+
+		return false;
 	}
 
 	virtual void Unload() override
@@ -251,16 +264,18 @@ class DemoApplication : public Nexus::Application
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
 	Nexus::ApplicationSpecification spec;
-	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
+	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
 	spec.AudioAPI	 = Nexus::Audio::AudioAPI::OpenAL;
 
 	spec.WindowProperties.Width		= 1280;
 	spec.WindowProperties.Height	= 720;
 	spec.WindowProperties.Title		= "Demo";
 	spec.WindowProperties.Resizable = true;
-	spec.WindowProperties.RendersPerSecond = 30;
+	spec.WindowProperties.RendersPerSecond = 75;
+	spec.WindowProperties.UpdatesPerSecond = 60;
 
 	spec.SwapchainSpecification.Samples = Nexus::Graphics::SampleCount::SampleCount8;
+	spec.SwapchainSpecification.VSyncState = Nexus::Graphics::VSyncState::Enabled;
 
 	return new DemoApplication(spec);
 }

@@ -95,7 +95,10 @@ namespace Demos
 			m_CommandList->End();
 
 			m_GraphicsDevice->SubmitCommandList(m_CommandList);
+		}
 
+		virtual void Update(Nexus::TimeSpan time) override
+		{
 			m_Camera.Update(m_Window->GetWindowSize().X, m_Window->GetWindowSize().Y, time);
 		}
 

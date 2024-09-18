@@ -123,9 +123,12 @@ namespace Demos
 
 			m_GraphicsDevice->SubmitCommandList(m_CommandList);
 
-			m_Camera.Update(m_Window->GetWindowSize().X, m_Window->GetWindowSize().Y, time);
-
 			m_Rotation += 0.05f * time.GetMilliseconds();
+		}
+
+		virtual void Update(Nexus::TimeSpan time) override
+		{
+			m_Camera.Update(m_Window->GetWindowSize().X, m_Window->GetWindowSize().Y, time);
 		}
 
 	  private:

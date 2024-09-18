@@ -36,6 +36,11 @@ namespace Nexus
 			}
 		}
 
+		inline void Clear()
+		{
+			m_Functions.clear();
+		}
+
 		inline void After(std::function<void(Nexus::TimeSpan)> function, double seconds)
 		{
 			AddFunction(function, seconds, ExecutionPolicy::After);

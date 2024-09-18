@@ -19,6 +19,7 @@ namespace Nexus
 {
 
 	Window::Window(const WindowSpecification &windowProps, Graphics::GraphicsAPI api, const Graphics::SwapchainSpecification &swapchainSpec)
+		: m_Specification(windowProps)
 	{
 		// NOTE: Resizable flag MUST be set in order for Emscripten resizing to work
 		// correctly
@@ -33,14 +34,7 @@ namespace Nexus
 		}
 
 		m_WindowID = SDL_GetWindowID(m_Window);
-
-		double secondsPerRender = 1.0 / windowProps.RendersPerSecond;
-		double secondsPerUpdate = 1.0 / windowProps.UpdatesPerSecond;
-		double secondsPerTick	= 1.0 / windowProps.TicksPerSecond;
-
-		m_Timer.Every([&](Nexus::TimeSpan time) { OnRender.Invoke(time); }, secondsPerRender);
-		m_Timer.Every([&](Nexus::TimeSpan time) { OnUpdate.Invoke(time); }, secondsPerUpdate);
-		m_Timer.Every([&](Nexus::TimeSpan time) { OnTick.Invoke(time); }, secondsPerTick);
+		SetupTimer();
 	}
 
 	Window::~Window()
@@ -169,28 +163,34 @@ namespace Nexus
 		return SDL_GetWindowFlags(m_Window) & SDL_WINDOW_INPUT_FOCUS;
 	}
 
+	bool Window::IsMinimized()
+	{
+		return SDL_GetWindowFlags(m_Window) & SDL_WINDOW_MINIMIZED;
+	}
+
+	bool Window::IsMaximized()
+	{
+		return SDL_GetWindowFlags(m_Window) & SDL_WINDOW_MAXIMIZED;
+	}
+
+	bool Window::IsFullscreen()
+	{
+		return SDL_GetWindowFlags(m_Window) & SDL_WINDOW_FULLSCREEN;
+	}
+
 	void Window::Maximize()
 	{
 		SDL_MaximizeWindow(m_Window);
-
-		auto [width, height] = GetWindowSize();
-		OnResize.Invoke({width, height});
 	}
 
 	void Window::Minimize()
 	{
 		SDL_MinimizeWindow(m_Window);
-
-		auto [width, height] = GetWindowSize();
-		OnResize.Invoke({width, height});
 	}
 
 	void Window::Restore()
 	{
 		SDL_RestoreWindow(m_Window);
-
-		auto [width, height] = GetWindowSize();
-		OnResize.Invoke({width, height});
 	}
 
 	void Window::ToggleFullscreen()
@@ -203,18 +203,6 @@ namespace Nexus
 		{
 			SetFullscreen();
 		}
-	}
-
-	bool Window::IsFullscreen()
-	{
-		auto flags = SDL_GetWindowFlags(m_Window);
-
-		if (flags & SDL_WINDOW_FULLSCREEN)
-		{
-			return true;
-		}
-
-		return false;
 	}
 
 	void Window::SetFullscreen()
@@ -304,10 +292,30 @@ namespace Nexus
 
 	void Window::StartTextInput()
 	{
+		SDL_StartTextInput();
 	}
 
 	void Window::StopTextInput()
 	{
+		SDL_StopTextInput();
+	}
+
+	void Window::SetRendersPerSecond(uint32_t amount)
+	{
+		m_Specification.RendersPerSecond = amount;
+		SetupTimer();
+	}
+
+	void Window::SetUpdatesPerSecond(uint32_t amount)
+	{
+		m_Specification.UpdatesPerSecond = amount;
+		SetupTimer();
+	}
+
+	void Window::SetTicksPerSecond(uint32_t amount)
+	{
+		m_Specification.TicksPerSecond = amount;
+		SetupTimer();
 	}
 
 	void Window::OnEvent(const InputEvent &event)
@@ -404,5 +412,46 @@ namespace Nexus
 			}
 			default: return flags;
 		}
+	}
+
+	void Window::SetupTimer()
+	{
+		m_Timer.Clear();
+
+		double secondsPerRender = 1.0 / m_Specification.RendersPerSecond;
+		double secondsPerUpdate = 1.0 / m_Specification.UpdatesPerSecond;
+		double secondsPerTick	= 1.0 / m_Specification.TicksPerSecond;
+
+		m_Timer.Every(
+		[&](Nexus::TimeSpan time)
+		{
+			if (IsMinimized())
+				return;
+			OnRender.Invoke(time);
+		},
+		secondsPerRender);
+
+		m_Timer.Every(
+		[&](Nexus::TimeSpan time)
+		{
+			if (IsMinimized())
+				return;
+			OnUpdate.Invoke(time);
+		},
+		secondsPerUpdate);
+
+		m_Timer.Every(
+		[&](Nexus::TimeSpan time)
+		{
+			if (IsMinimized())
+				return;
+			OnTick.Invoke(time);
+		},
+		secondsPerTick);
+	}
+
+	const WindowSpecification &Window::GetSpecification() const
+	{
+		return m_Specification;
 	}
 }	 // namespace Nexus
