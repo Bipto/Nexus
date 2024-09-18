@@ -44,13 +44,7 @@ jobs:
           - os: ubuntu-latest
             c_compiler: cl
 
-    steps:
-      - name: Cache git folder
-        uses: actions/cache@v3
-        with:
-          path: '/.git'
-          key: git-folder          
-    
+    steps:   
       - uses: actions/checkout@v4
         with:
           submodules: recursive
@@ -93,11 +87,8 @@ jobs:
         uses: jwlawson/actions-setup-cmake@v2.0.2
 
       - name: Configure and Build Project
-        uses: threeal/cmake-action@v1.3.0
-        with:
-          run-build: true
-          build-dir: build
-          generator: Ninja
+        run: cmake -S . -B build |
+          cmake --build build --parallel
 
       - name: Test Project
         uses: threeal/ctest-action@v1.1.0
