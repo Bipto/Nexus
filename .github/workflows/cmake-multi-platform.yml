@@ -1,5 +1,3 @@
-# This starter workflow is for a CMake project running on multiple platforms. There is a different starter workflow if you just want a single platform.
-# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-single-platform.yml
 name: CMake on multiple platforms  
 
 on:
@@ -13,15 +11,8 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
-      # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
       fail-fast: false
-
-      # Set up a matrix to run the following 3 configurations:
-      # 1. <Windows, Release, latest MSVC compiler toolchain on the default runner image, default generator>
-      # 2. <Linux, Release, latest GCC compiler toolchain on the default runner image, default generator>
-      # 3. <Linux, Release, latest Clang compiler toolchain on the default runner image, default generator>
-      #
-      # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
+      
       matrix:
         os: [ubuntu-latest, windows-latest]
         build_type: [Release]
@@ -74,7 +65,6 @@ jobs:
       - name: Setup Ninja
         uses: ashutoshvarma/setup-ninja@master
         with:
-          # ninja version to download. Default: 1.10.0
           version: 1.10.0
 
       - name: Setup MSVC on Windows
@@ -88,7 +78,7 @@ jobs:
 
       - name: Configure and Build Project
         run: cmake -S . -B build |
-          cmake --build build --parallel
+          cmake --build build --config ${{ matrix.build_type }} --parallel
 
       - name: Test Project
         uses: threeal/ctest-action@v1.1.0
