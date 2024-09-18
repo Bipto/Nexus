@@ -78,7 +78,7 @@ jobs:
 
       - name: Configure and Build Project
         run: |
-          cmake -S . -B build
+          cmake -S . -B build -G Ninja
           cmake --build build --config ${{ matrix.build_type }} --parallel
 
       #- name: Test Project
