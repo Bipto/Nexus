@@ -138,6 +138,8 @@ class Sandbox : public Nexus::Application
 
 			return true;
 		}
+
+		return false;
 	}
 
 	void CreatePipeline()

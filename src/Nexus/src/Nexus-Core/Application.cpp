@@ -433,8 +433,8 @@ namespace Nexus
 				}
 				case SDL_EVENT_MOUSE_MOTION:
 				{
-					int mouseX = event.motion.x;
-					int mouseY = event.motion.y;
+					float mouseX = event.motion.x;
+					float mouseY = event.motion.y;
 
 #if defined(__EMSCRIPTEN__)
 					mouseX *= GetPrimaryWindow()->GetDisplayScale();
@@ -446,7 +446,12 @@ namespace Nexus
 					float  xPos, yPos;
 					Uint32 state = SDL_GetMouseState(&xPos, &yPos);
 
-					MouseMovedEvent e {.Position = {(int)xPos, (int)yPos}, .Movement = {(int)event.motion.x, (int)event.motion.y}};
+					float movementX = xPos - window->m_Input.m_Mouse.m_CurrentState.MousePosition.X;
+					float movementY = yPos - window->m_Input.m_Mouse.m_CurrentState.MousePosition.Y;
+
+					Mouse::s_GlobalMouseMovement = {event.motion.xrel, event.motion.yrel};
+
+					MouseMovedEvent e {.Position = {xPos, yPos}, .Movement = {movementX, movementY}};
 					DispatchEvent(e, window);
 
 					break;

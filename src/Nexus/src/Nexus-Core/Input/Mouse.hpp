@@ -31,7 +31,7 @@ namespace Nexus
 
 		/// @brief A Nexus::Point containing two integers representing the position of
 		/// the mouse cursor
-		Point2D<int> MousePosition;
+		Point2D<float> MousePosition;
 
 		/// @brief A Nexus::Point containing two floats representing the current
 		/// position of the mouse wheel
@@ -87,12 +87,12 @@ namespace Nexus
 		/// @brief A method that returns the current position of the mouse pointer
 		/// @return A Nexus::Point containing two integer values representing the
 		/// position of the mouse
-		const Point2D<int> GetMousePosition() const;
+		const Point2D<float> GetMousePosition() const;
 
 		/// @brief A method that returns the movement of the mouse pointer
 		/// @return A Nexus::Point containing two integer values representing the
 		/// movement of the mouse
-		const Point2D<int> GetMouseMovement() const;
+		const Point2D<float> GetMouseMovement() const;
 
 		/// @brief A method that returns the current scroll value of the mouse
 		/// @return A Nexus::Point containing two float values representing the
@@ -104,7 +104,8 @@ namespace Nexus
 		/// scroll movement of the mouse
 		const Point2D<float> GetScrollMovement() const;
 
-		static Point2D<int> GetGlobalMousePosition();
+		static Point2D<float> GetGlobalMousePosition();
+		static Point2D<float> GetGlobalMouseMovement();
 
 		static bool IsGlobalLeftMouseHeld();
 		static bool IsGlobalRightMouseHeld();
@@ -119,9 +120,11 @@ namespace Nexus
 		/// and buttons
 		MouseState m_PreviousState;
 
-		static Point2D<int> s_GlobalMousePosition;
+		inline static Point2D<float> s_GlobalMousePosition = {0, 0};
 
-		static MouseState s_GlobalMouseState;
+		inline static Point2D<float> s_GlobalMouseMovement = {0, 0};
+
+		inline static MouseState s_GlobalMouseState = {};
 
 		/// @brief A friend class to allow a window to have access to the mouse's
 		/// private members

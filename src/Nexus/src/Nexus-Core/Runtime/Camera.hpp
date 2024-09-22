@@ -41,7 +41,7 @@ namespace Nexus
 
 			Move(time);
 			m_View = glm::lookAt(m_Position, m_Position + m_Front, m_Up);
-			Rotate();
+			Rotate(time);
 			RecalculateProjection();
 		}
 
@@ -115,7 +115,7 @@ namespace Nexus
 		}
 
 	  private:
-		void Move(TimeSpan time)
+		inline void Move(TimeSpan time)
 		{
 			float speed = 2.0f * time.GetSeconds();
 
@@ -152,7 +152,7 @@ namespace Nexus
 			}
 		}
 
-		void Rotate()
+		inline void Rotate(TimeSpan time)
 		{
 			if (Input::IsGamepadConnected())
 			{
@@ -163,8 +163,20 @@ namespace Nexus
 
 			if (Input::IsMiddleMouseHeld())
 			{
-				m_Yaw -= Input::GetMouseMovement().X;
-				m_Pitch -= Input::GetMouseMovement().Y;
+				const float sensitivity = 150;
+
+				float mouseMovementX = Mouse::GetGlobalMouseMovement().X;
+				float mouseMovementY = Mouse::GetGlobalMouseMovement().Y;
+
+				if (mouseMovementX > 1 || mouseMovementX < -1)
+				{
+					m_Yaw -= time.GetSeconds() * Mouse::GetGlobalMouseMovement().X * sensitivity;
+				}
+
+				if (mouseMovementY > 1 || mouseMovementY < -1)
+				{
+					m_Pitch -= time.GetSeconds() * Mouse::GetGlobalMouseMovement().Y * sensitivity;
+				}
 			}
 
 			m_Pitch				 = glm::clamp(m_Pitch, 91.0f, 269.0f);
@@ -176,7 +188,7 @@ namespace Nexus
 			m_Front = glm::normalize(cameraDirection);
 		}
 
-		void RecalculateProjection()
+		inline void RecalculateProjection()
 		{
 			float aspectRatio = (float)m_Width / (float)m_Height;
 

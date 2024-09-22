@@ -225,8 +225,6 @@ class DemoApplication : public Nexus::Application
 		m_ImGuiRenderer->AfterLayout();
 
 		m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->SwapBuffers();
-
-		std::cout << std::fixed << std::setprecision(3) << Nexus::Input::GetMouseMovement().X << std::endl;
 	}
 
 	virtual void OnResize(Nexus::Point2D<uint32_t> size) override
@@ -237,12 +235,6 @@ class DemoApplication : public Nexus::Application
 
 	virtual bool OnEvent(const Nexus::InputEvent &event, Nexus::Window *window) override
 	{
-		if (std::holds_alternative<Nexus::MouseMovedEvent>(event))
-		{
-			Nexus::MouseMovedEvent e = std::get<Nexus::MouseMovedEvent>(event);
-			return true;
-		}
-
 		return false;
 	}
 
@@ -271,11 +263,11 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 	spec.WindowProperties.Height	= 720;
 	spec.WindowProperties.Title		= "Demo";
 	spec.WindowProperties.Resizable = true;
-	spec.WindowProperties.RendersPerSecond = 75;
+	spec.WindowProperties.RendersPerSecond = 120;
 	spec.WindowProperties.UpdatesPerSecond = 60;
 
 	spec.SwapchainSpecification.Samples = Nexus::Graphics::SampleCount::SampleCount8;
-	spec.SwapchainSpecification.VSyncState = Nexus::Graphics::VSyncState::Enabled;
+	spec.SwapchainSpecification.VSyncState = Nexus::Graphics::VSyncState::Disabled;
 
 	return new DemoApplication(spec);
 }

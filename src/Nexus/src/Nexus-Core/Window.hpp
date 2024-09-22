@@ -173,6 +173,7 @@ namespace Nexus
 		void SetRendersPerSecond(uint32_t amount);
 		void SetUpdatesPerSecond(uint32_t amount);
 		void SetTicksPerSecond(uint32_t amount);
+		void SetRelativeMouseMode(bool enabled);
 
 		void OnEvent(const InputEvent &event);
 

@@ -21,8 +21,8 @@ namespace Nexus
 
 	struct MouseMovedEvent
 	{
-		Nexus::Point2D<int> Position;
-		Nexus::Point2D<int> Movement;
+		Nexus::Point2D<float> Position;
+		Nexus::Point2D<float> Movement;
 	};
 
 	struct MouseButtonPressedEvent

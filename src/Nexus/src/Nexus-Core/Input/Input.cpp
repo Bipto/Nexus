@@ -58,13 +58,13 @@ namespace Nexus
 		return mouse.IsMiddleMouseHeld();
 	}
 
-	Point2D<int> Input::GetMousePosition()
+	Point2D<float> Input::GetMousePosition()
 	{
 		auto mouse = s_InputContext->GetMouse();
 		return mouse.GetMousePosition();
 	}
 
-	Point2D<int> Input::GetMouseMovement()
+	Point2D<float> Input::GetMouseMovement()
 	{
 		auto mouse = s_InputContext->GetMouse();
 		return mouse.GetMouseMovement();

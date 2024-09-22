@@ -318,6 +318,11 @@ namespace Nexus
 		SetupTimer();
 	}
 
+	void Window::SetRelativeMouseMode(bool enabled)
+	{
+		SDL_SetRelativeMouseMode(enabled);
+	}
+
 	void Window::OnEvent(const InputEvent &event)
 	{
 	}
