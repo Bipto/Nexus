@@ -79,7 +79,7 @@ namespace Nexus
 
 	Point2D<float> Mouse::GetGlobalMouseMovement()
 	{
-		return s_GlobalMouseMovement;
+		return Point2D<float>(s_GlobalMousePosition.X - s_PreviousGlobalMousePosition.X, s_GlobalMousePosition.Y - s_PreviousGlobalMousePosition.Y);
 	}
 
 	bool Mouse::IsGlobalLeftMouseHeld()

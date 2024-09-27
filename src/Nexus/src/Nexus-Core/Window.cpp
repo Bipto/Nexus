@@ -423,15 +423,32 @@ namespace Nexus
 	{
 		m_Timer.Clear();
 
-		double secondsPerRender = 1.0 / m_Specification.RendersPerSecond;
-		double secondsPerUpdate = 1.0 / m_Specification.UpdatesPerSecond;
-		double secondsPerTick	= 1.0 / m_Specification.TicksPerSecond;
+		double secondsPerRender = {};
+		double secondsPerUpdate = {};
+		double secondsPerTick	= {};
+
+		if (m_Specification.RendersPerSecond.has_value())
+		{
+			secondsPerRender = 1.0 / m_Specification.RendersPerSecond.value();
+		}
+
+		if (m_Specification.UpdatesPerSecond.has_value())
+		{
+			secondsPerUpdate = 1.0 / m_Specification.UpdatesPerSecond.value();
+		}
+
+		if (m_Specification.TicksPerSecond.has_value())
+		{
+			secondsPerTick = 1.0 / m_Specification.TicksPerSecond.value();
+		}
 
 		m_Timer.Every(
 		[&](Nexus::TimeSpan time)
 		{
 			if (IsMinimized())
 				return;
+
+			m_RenderFrameRateMonitor.Update();
 			OnRender.Invoke(time);
 		},
 		secondsPerRender);
@@ -441,6 +458,8 @@ namespace Nexus
 		{
 			if (IsMinimized())
 				return;
+
+			m_UpdateFrameRateMonitor.Update();
 			OnUpdate.Invoke(time);
 		},
 		secondsPerUpdate);
@@ -450,6 +469,8 @@ namespace Nexus
 		{
 			if (IsMinimized())
 				return;
+
+			m_TickFrameRateMonitor.Update();
 			OnTick.Invoke(time);
 		},
 		secondsPerTick);

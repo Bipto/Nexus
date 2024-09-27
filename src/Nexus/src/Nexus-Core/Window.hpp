@@ -22,6 +22,7 @@
 #include "Nexus-Core/Input/InputState.hpp"
 #include "Nexus-Core/Timer.hpp"
 #include "Point.hpp"
+#include "Utils/FramerateMonitor.hpp"
 
 namespace Nexus
 {
@@ -190,6 +191,11 @@ namespace Nexus
 		EventHandler<>			  OnWindowMinimized;
 		EventHandler<>			  OnWindowRestored;
 
+		EventHandler<Point2D<float>> OnMouseMoved;
+		EventHandler<KeyCode>		 OnKeyPressed;
+		EventHandler<KeyCode>		 OnKeyReleased;
+		EventHandler<KeyCode>		 OnKeyHeld;
+
 		EventHandler<TimeSpan> OnRender;
 		EventHandler<TimeSpan> OnUpdate;
 		EventHandler<TimeSpan> OnTick;
@@ -229,9 +235,13 @@ namespace Nexus
 		/// @brief The underlying SDL window ID
 		uint32_t m_WindowID = 0;
 
-		Nexus::Timer m_Timer = {};
+		Nexus::Timings::Timer m_Timer = {};
 
 		bool m_Minimized = false;
+
+		Utils::FrameRateMonitor m_RenderFrameRateMonitor = {};
+		Utils::FrameRateMonitor m_UpdateFrameRateMonitor = {};
+		Utils::FrameRateMonitor m_TickFrameRateMonitor	 = {};
 
 		/// @brief A friend class to allow an application to access private members of
 		/// this class

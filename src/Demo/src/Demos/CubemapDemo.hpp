@@ -17,7 +17,8 @@ namespace Demos
 	{
 	  public:
 		CubemapDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
-			: Demo(name, app, imGuiRenderer)
+			: Demo(name, app, imGuiRenderer),
+			  m_Camera(m_GraphicsDevice)
 		{
 		}
 

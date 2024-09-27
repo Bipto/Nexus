@@ -188,9 +188,6 @@ namespace Nexus
 			OnResize(windowSize);
 		}
 
-		this->PollEvents();
-		m_GlobalKeyboardState.CacheInput();
-
 		// Allow user to block closing events, for example to display save prompt
 		if (m_Window->m_Closing)
 			m_Window->m_Closing = this->OnClose();
@@ -201,6 +198,9 @@ namespace Nexus
 		UpdateWindowTimers();
 		CheckForClosingWindows();
 		m_PreviousWindowSize = windowSize;
+
+		this->PollEvents();
+		m_GlobalKeyboardState.CacheInput();
 	}
 
 	Nexus::Window *Application::GetPrimaryWindow()
@@ -315,6 +315,9 @@ namespace Nexus
 
 	void Application::PollEvents()
 	{
+		// cache the previous frame's input
+		Mouse::s_PreviousGlobalMousePosition = Mouse::s_GlobalMousePosition;
+
 		for (auto window : m_Windows) { window->m_Input.CacheInput(); }
 
 		float  x, y;
@@ -325,8 +328,8 @@ namespace Nexus
 		y *= GetPrimaryWindow()->GetDisplayScale();
 #endif
 
-		Mouse::s_GlobalMousePosition.X = (int)x;
-		Mouse::s_GlobalMousePosition.Y = (int)y;
+		Mouse::s_GlobalMousePosition.X = x;
+		Mouse::s_GlobalMousePosition.Y = y;
 
 		if (buttons & SDL_BUTTON_LEFT)
 		{
@@ -369,6 +372,16 @@ namespace Nexus
 				case SDL_EVENT_KEY_DOWN:
 				{
 					auto nexusKeyCode									   = SDLToNexusKeycode(event.key.keysym.sym);
+
+					if (window->m_Input.m_Keyboard.m_CurrentKeys[nexusKeyCode])
+					{
+						window->OnKeyHeld.Invoke(nexusKeyCode);
+					}
+					else
+					{
+						window->OnKeyPressed.Invoke(nexusKeyCode);
+					}
+
 					window->m_Input.m_Keyboard.m_CurrentKeys[nexusKeyCode] = true;
 					m_GlobalKeyboardState.m_CurrentKeys[nexusKeyCode]	   = true;
 					DispatchEvent(KeyPressedEvent {.Key = nexusKeyCode}, window);
@@ -380,6 +393,7 @@ namespace Nexus
 					window->m_Input.m_Keyboard.m_CurrentKeys[nexusKeyCode] = false;
 					m_GlobalKeyboardState.m_CurrentKeys[nexusKeyCode]	   = false;
 					DispatchEvent(KeyReleasedEvent {.Key = nexusKeyCode}, window);
+					window->OnKeyReleased.Invoke(nexusKeyCode);
 					break;
 				}
 				case SDL_EVENT_MOUSE_BUTTON_DOWN:
@@ -449,10 +463,10 @@ namespace Nexus
 					float movementX = xPos - window->m_Input.m_Mouse.m_CurrentState.MousePosition.X;
 					float movementY = yPos - window->m_Input.m_Mouse.m_CurrentState.MousePosition.Y;
 
-					Mouse::s_GlobalMouseMovement = {event.motion.xrel, event.motion.yrel};
-
 					MouseMovedEvent e {.Position = {xPos, yPos}, .Movement = {movementX, movementY}};
 					DispatchEvent(e, window);
+
+					window->OnMouseMoved.Invoke(Nexus::Point2D<float>(event.motion.xrel, event.motion.yrel));
 
 					break;
 				}

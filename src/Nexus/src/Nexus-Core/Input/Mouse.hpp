@@ -122,7 +122,7 @@ namespace Nexus
 
 		inline static Point2D<float> s_GlobalMousePosition = {0, 0};
 
-		inline static Point2D<float> s_GlobalMouseMovement = {0, 0};
+		inline static Point2D<float> s_PreviousGlobalMousePosition = {0, 0};
 
 		inline static MouseState s_GlobalMouseState = {};
 

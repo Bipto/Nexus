@@ -1,13 +1,8 @@
 #pragma once
 
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
-#include "Nexus-Core/Input/Input.hpp"
-#include "Nexus-Core/Logging/Log.hpp"
-#include "Nexus-Core/Time.hpp"
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtc/type_ptr.hpp"
-#include "glm/gtx/transform.hpp"
+#include "Nexus-Core/Utils/FramerateMonitor.hpp"
+#include "Nexus-Core/nxpch.hpp"
 
 namespace Nexus
 {
@@ -20,10 +15,12 @@ namespace Nexus
 	class FirstPersonCamera
 	{
 	  public:
-		FirstPersonCamera(int width = 1280, int height = 720, const glm::vec3 &position = {0, 0, 0})
+		FirstPersonCamera(Graphics::GraphicsDevice *device, int width = 1280, int height = 720, const glm::vec3 &position = {0, 0, 0})
 		{
 			this->Resize(width, height);
 			this->m_Position = position;
+
+			device->GetPrimaryWindow()->OnMouseMoved += [&](Nexus::Point2D<float> movement) { Rotate(movement.X, movement.Y); };
 		}
 
 		void Resize(int width, int height)
@@ -36,12 +33,13 @@ namespace Nexus
 
 		void Update(int width, int height, TimeSpan time)
 		{
+			m_Timer.Update();
+
 			m_Width	 = width;
 			m_Height = height;
 
 			Move(time);
 			m_View = glm::lookAt(m_Position, m_Position + m_Front, m_Up);
-			Rotate(time);
 			RecalculateProjection();
 		}
 
@@ -152,7 +150,7 @@ namespace Nexus
 			}
 		}
 
-		inline void Rotate(TimeSpan time)
+		inline void Rotate(float x, float y)
 		{
 			if (Input::IsGamepadConnected())
 			{
@@ -163,20 +161,8 @@ namespace Nexus
 
 			if (Input::IsMiddleMouseHeld())
 			{
-				const float sensitivity = 150;
-
-				float mouseMovementX = Mouse::GetGlobalMouseMovement().X;
-				float mouseMovementY = Mouse::GetGlobalMouseMovement().Y;
-
-				if (mouseMovementX > 1 || mouseMovementX < -1)
-				{
-					m_Yaw -= time.GetSeconds() * Mouse::GetGlobalMouseMovement().X * sensitivity;
-				}
-
-				if (mouseMovementY > 1 || mouseMovementY < -1)
-				{
-					m_Pitch -= time.GetSeconds() * Mouse::GetGlobalMouseMovement().Y * sensitivity;
-				}
+				m_Yaw -= x;
+				m_Pitch -= y;
 			}
 
 			m_Pitch				 = glm::clamp(m_Pitch, 91.0f, 269.0f);
@@ -229,5 +215,6 @@ namespace Nexus
 		int m_Height = 0;
 
 		ProjectionType m_ProjectionType = ProjectionType::Perspective;
+		Utils::FrameRateMonitor m_Timer			 = {};
 	};
 }	 // namespace Nexus
