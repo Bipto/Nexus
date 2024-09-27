@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Nexus-Core/Time.hpp"
-#include "nxpch.hpp"
+#include "Nexus-Core/nxpch.hpp"
+#include "Timespan.hpp"
 
 namespace Nexus
 {

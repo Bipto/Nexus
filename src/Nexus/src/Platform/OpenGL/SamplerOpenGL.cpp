@@ -27,10 +27,10 @@ namespace Nexus::Graphics
 		return m_Handle;
 	}
 
-	void SamplerOpenGL::Setup(bool hasMips)
+	void SamplerOpenGL::Setup()
 	{
 		GLenum min, max;
-		GL::GetSamplerFilter(m_Specification.SampleFilter, min, max, hasMips);
+		GL::GetSamplerFilter(m_Specification.SampleFilter, min, max);
 
 		// texture sampling options
 		glCall(glSamplerParameteri(m_Handle, GL_TEXTURE_MIN_FILTER, min));
@@ -69,17 +69,10 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void SamplerOpenGL::Bind(uint32_t slot, bool hasMips)
+	void SamplerOpenGL::Bind(uint32_t slot)
 	{
-		// prevent the case where we only want to view a specific mip giving
-		// errors when binding with a texture with multiple levels
-		if (m_Specification.MaximumLOD == m_Specification.MinimumLOD)
-		{
-			hasMips = false;
-		}
-
 		glCall(glBindSampler(slot, m_Handle));
-		Setup(hasMips);
+		Setup();
 	}
 }	 // namespace Nexus::Graphics
 

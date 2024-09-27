@@ -29,7 +29,7 @@ namespace Nexus::GL
 	GLenum GetBlendFunction(Nexus::Graphics::BlendEquation equation);
 
 	GLenum GetSamplerAddressMode(Nexus::Graphics::SamplerAddressMode addressMode);
-	void   GetSamplerFilter(Nexus::Graphics::SamplerFilter filter, GLenum &min, GLenum &max, bool hasMips);
+	void   GetSamplerFilter(Nexus::Graphics::SamplerFilter filter, GLenum &min, GLenum &max);
 	GLenum GetPixelType(Nexus::Graphics::PixelFormat format);
 	GLenum GetPixelDataFormat(Nexus::Graphics::PixelFormat format);
 	GLenum GetSizedInternalFormat(Nexus::Graphics::PixelFormat format, bool depthFormat);

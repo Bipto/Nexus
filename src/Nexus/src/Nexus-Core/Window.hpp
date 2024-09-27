@@ -20,7 +20,7 @@
 #include "Nexus-Core/Graphics/Swapchain.hpp"
 #include "Nexus-Core/Input/InputEvent.hpp"
 #include "Nexus-Core/Input/InputState.hpp"
-#include "Nexus-Core/Timer.hpp"
+#include "Nexus-Core/Timings/Timer.hpp"
 #include "Point.hpp"
 #include "Utils/FramerateMonitor.hpp"
 
@@ -235,7 +235,7 @@ namespace Nexus
 		/// @brief The underlying SDL window ID
 		uint32_t m_WindowID = 0;
 
-		Nexus::Timings::Timer m_Timer = {};
+		Nexus::Timings::ExecutionTimer m_Timer = {};
 
 		bool m_Minimized = false;
 

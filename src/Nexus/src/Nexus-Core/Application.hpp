@@ -12,13 +12,13 @@
 #endif
 
 #include "ApplicationSpecification.hpp"
-#include "Nexus-Core/Clock.hpp"
 #include "Nexus-Core/Events/Event.hpp"
 #include "Nexus-Core/Events/EventHandler.hpp"
 #include "Nexus-Core/Input/InputEvent.hpp"
 #include "Nexus-Core/Input/InputState.hpp"
 #include "Nexus-Core/Monitor.hpp"
-#include "Nexus-Core/Time.hpp"
+#include "Nexus-Core/Timings/Clock.hpp"
+#include "Nexus-Core/Timings/Timespan.hpp"
 #include "Nexus-Core/Types.hpp"
 #include "Point.hpp"
 

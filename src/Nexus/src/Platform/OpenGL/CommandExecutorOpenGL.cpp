@@ -239,7 +239,7 @@ namespace Nexus::Graphics
 				if (Ref<Texture2DOpenGL> glTexture = std::dynamic_pointer_cast<Texture2DOpenGL>(texture.lock()))
 				{
 					glTexture->Bind(location);
-					glSampler->Bind(location, glTexture->GetLevels() > 1);
+					glSampler->Bind(location);
 				}
 			}
 
@@ -250,7 +250,7 @@ namespace Nexus::Graphics
 				if (Ref<CubemapOpenGL> glCubemap = std::dynamic_pointer_cast<CubemapOpenGL>(cubemap.lock()))
 				{
 					glCubemap->Bind(location);
-					glSampler->Bind(location, glCubemap->GetLevels() > 1);
+					glSampler->Bind(location);
 				}
 			}
 

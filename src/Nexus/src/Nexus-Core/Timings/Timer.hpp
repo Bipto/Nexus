@@ -1,27 +1,29 @@
 #pragma once
 
 #include "Clock.hpp"
-#include "Time.hpp"
+#include "Timespan.hpp"
 #include "nxpch.hpp"
 
 namespace Nexus::Timings
 {
-	enum class ExecutionPolicy
+	class ExecutionTimer
 	{
-		Every,
-		After
-	};
+	  public:
+		enum class ExecutionPolicy
+		{
+			Every,
+			After
+		};
 
-	struct FunctionToExecute
-	{
-		std::function<void(Nexus::TimeSpan)> Func		   = {};
-		std::optional<double>				 WhenToExecute = 0;
-		Nexus::TimeSpan						 Timer		   = {};
-		ExecutionPolicy						 Policy		   = {};
-	};
+	  private:
+		struct FunctionToExecute
+		{
+			std::function<void(Nexus::TimeSpan)> Func		   = {};
+			std::optional<double>				 WhenToExecute = 0;
+			Nexus::TimeSpan						 Timer		   = {};
+			ExecutionPolicy						 Policy		   = {};
+		};
 
-	class Timer
-	{
 	  public:
 		inline void Update()
 		{
@@ -60,6 +62,7 @@ namespace Nexus::Timings
 				FunctionToExecute &func = m_Functions[index];
 				func.Timer += time;
 
+				// if no time has been provided for when to execute
 				if (!func.WhenToExecute.has_value())
 				{
 					func.Func(func.Timer);
@@ -67,6 +70,7 @@ namespace Nexus::Timings
 					return;
 				}
 
+				// execute a timed query
 				if (func.Timer.GetSeconds() >= func.WhenToExecute.value())
 				{
 					func.Func(func.Timer);
@@ -88,4 +92,33 @@ namespace Nexus::Timings
 		Clock						   m_Clock	   = {};
 		std::vector<FunctionToExecute> m_Functions = {};
 	};
-}	 // namespace Nexus
+
+	class ProfilingTimer
+	{
+	  public:
+		ProfilingTimer(const char *name) : m_Name(name), m_StartTimepoint(std::chrono::high_resolution_clock::now()), m_Stopped(false)
+		{
+		}
+
+		~ProfilingTimer()
+		{
+			if (!m_Stopped)
+				Stop();
+		}
+
+		void Stop()
+		{
+			std::chrono::steady_clock::time_point endTimepoint = std::chrono::high_resolution_clock::now();
+			uint64_t elapsed	= std::chrono::duration_cast<std::chrono::nanoseconds>(m_StartTimepoint - endTimepoint).count();
+			m_Stopped			= true;
+			double milliseconds = (double)elapsed / 1000000000.0;
+
+			std::cout << "Duration: " << std::fixed << std::setprecision(3) << milliseconds << std::endl;
+		}
+
+	  private:
+		const char										  *m_Name			= {};
+		std::chrono::time_point<std::chrono::steady_clock> m_StartTimepoint = std::chrono::high_resolution_clock::now();
+		bool											   m_Stopped		= false;
+	};
+}	 // namespace Nexus::Timings

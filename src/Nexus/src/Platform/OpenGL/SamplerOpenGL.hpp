@@ -14,8 +14,8 @@ namespace Nexus::Graphics
 		virtual const SamplerSpecification &GetSamplerSpecification() override;
 		unsigned int						GetHandle() const;
 
-		void Bind(uint32_t slot, bool hasMips);
-		void Setup(bool hasMips);
+		void Bind(uint32_t slot);
+		void Setup();
 
 	  private:
 		SamplerSpecification m_Specification;

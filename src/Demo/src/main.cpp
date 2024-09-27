@@ -256,18 +256,18 @@ class DemoApplication : public Nexus::Application
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
 	Nexus::ApplicationSpecification spec;
-	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
+	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
 	spec.AudioAPI	 = Nexus::Audio::AudioAPI::OpenAL;
 
 	spec.WindowProperties.Width		= 1280;
 	spec.WindowProperties.Height	= 720;
 	spec.WindowProperties.Title		= "Demo";
 	spec.WindowProperties.Resizable = true;
-	spec.WindowProperties.RendersPerSecond = 60;
+	spec.WindowProperties.RendersPerSecond = {};
 	spec.WindowProperties.UpdatesPerSecond = {};
 
 	spec.SwapchainSpecification.Samples	   = Nexus::Graphics::SampleCount::SampleCount8;
-	spec.SwapchainSpecification.VSyncState = Nexus::Graphics::VSyncState::Enabled;
+	spec.SwapchainSpecification.VSyncState = Nexus::Graphics::VSyncState::Disabled;
 
 	return new DemoApplication(spec);
 }

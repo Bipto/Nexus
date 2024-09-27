@@ -23,6 +23,8 @@ namespace Demos
 
 		virtual void Render(Nexus::TimeSpan time) override
 		{
+			Nexus::Timings::ProfilingTimer timer("Render");
+
 			m_CommandList->Begin();
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
 			m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
