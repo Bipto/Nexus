@@ -109,11 +109,16 @@ namespace Nexus::Timings
 		void Stop()
 		{
 			std::chrono::steady_clock::time_point endTimepoint = std::chrono::high_resolution_clock::now();
-			uint64_t elapsed	= std::chrono::duration_cast<std::chrono::nanoseconds>(m_StartTimepoint - endTimepoint).count();
+
+			uint64_t start = std::chrono::time_point_cast<std::chrono::nanoseconds>(m_StartTimepoint).time_since_epoch().count();
+			uint64_t end   = std::chrono::time_point_cast<std::chrono::nanoseconds>(endTimepoint).time_since_epoch().count();
+
+			uint64_t elapsed = end - start;
+
 			m_Stopped			= true;
 			double milliseconds = (double)elapsed / 1000000000.0;
 
-			std::cout << "Duration: " << std::fixed << std::setprecision(3) << milliseconds << std::endl;
+			std::cout << m_Name << ": " << std::fixed << std::setprecision(3) << milliseconds << "Ms" << std::endl;
 		}
 
 	  private:
