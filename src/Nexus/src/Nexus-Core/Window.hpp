@@ -18,6 +18,7 @@
 #include "Nexus-Core/Graphics/GraphicsAPI.hpp"
 #include "Nexus-Core/Graphics/Rectangle.hpp"
 #include "Nexus-Core/Graphics/Swapchain.hpp"
+#include "Nexus-Core/Input/InputContext.hpp"
 #include "Nexus-Core/Input/InputEvent.hpp"
 #include "Nexus-Core/Input/InputState.hpp"
 #include "Nexus-Core/Timings/Timer.hpp"
@@ -117,6 +118,8 @@ namespace Nexus
 		/// @return A pointer to the input state
 		const InputState *GetInput();
 
+		const InputNew::InputContext &GetInputContext() const;
+
 		/// @brief A method that checks whether a window is focussed
 		/// @return A boolean value indicating whether the window is focussed
 		bool IsFocussed();
@@ -208,6 +211,7 @@ namespace Nexus
 		uint32_t GetFlags(Graphics::GraphicsAPI api, const WindowSpecification &windowSpec, const Graphics::SwapchainSpecification &swapchainSpec);
 
 		void SetupTimer();
+		void SetupInput();
 
 		const WindowSpecification &GetSpecification() const;
 
@@ -242,6 +246,8 @@ namespace Nexus
 		Utils::FrameRateMonitor m_RenderFrameRateMonitor = {};
 		Utils::FrameRateMonitor m_UpdateFrameRateMonitor = {};
 		Utils::FrameRateMonitor m_TickFrameRateMonitor	 = {};
+
+		InputNew::InputContext m_InputContext = {};
 
 		/// @brief A friend class to allow an application to access private members of
 		/// this class

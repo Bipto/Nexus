@@ -14,6 +14,7 @@
 #include "ApplicationSpecification.hpp"
 #include "Nexus-Core/Events/Event.hpp"
 #include "Nexus-Core/Events/EventHandler.hpp"
+#include "Nexus-Core/Input/InputContext.hpp"
 #include "Nexus-Core/Input/InputEvent.hpp"
 #include "Nexus-Core/Input/InputState.hpp"
 #include "Nexus-Core/Monitor.hpp"
@@ -164,6 +165,10 @@ namespace Nexus
 		{
 			return false;
 		}
+
+		static std::vector<InputNew::Keyboard> GetKeyboards();
+		static std::vector<InputNew::Mouse>	   GetMice();
+		static std::vector<InputNew::Gamepad>  GetGamepads();
 
 	  private:
 		void	DispatchEvent(const InputEvent &event, Window *window);

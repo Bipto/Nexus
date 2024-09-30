@@ -32,7 +32,7 @@ namespace Demos
 
 		virtual void Update(Nexus::TimeSpan time) override
 		{
-			if (Nexus::Input::IsKeyReleased(Nexus::KeyCode::KeyLeft))
+			if (Nexus::Input::IsKeyReleased(Nexus::KeyCode::Left))
 			{
 				if (m_SelectedPoint == 0)
 				{
@@ -42,7 +42,7 @@ namespace Demos
 				m_SelectedPoint--;
 			}
 
-			if (Nexus::Input::IsKeyReleased(Nexus::KeyCode::KeyRight))
+			if (Nexus::Input::IsKeyReleased(Nexus::KeyCode::Right))
 			{
 				m_SelectedPoint++;
 

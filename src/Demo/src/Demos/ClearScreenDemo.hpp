@@ -23,7 +23,7 @@ namespace Demos
 
 		virtual void Render(Nexus::TimeSpan time) override
 		{
-			Nexus::Timings::ProfilingTimer timer("Render");
+			// Nexus::Timings::ProfilingTimer timer("Render");
 
 			m_CommandList->Begin();
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});

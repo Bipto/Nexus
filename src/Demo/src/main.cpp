@@ -235,6 +235,12 @@ class DemoApplication : public Nexus::Application
 
 	virtual bool OnEvent(const Nexus::InputEvent &event, Nexus::Window *window) override
 	{
+		if (const Nexus::KeyPressedEvent *keyPressedEvent = std::get_if<Nexus::KeyPressedEvent>(&event))
+		{
+			int i = 0;
+			int n = 4;
+		}
+
 		return false;
 	}
 

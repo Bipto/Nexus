@@ -15,6 +15,8 @@
 	#include "Platform/D3D12/SwapchainD3D12.hpp"
 #endif
 
+#include "Nexus-Core/Application.hpp"
+
 namespace Nexus
 {
 
@@ -156,6 +158,11 @@ namespace Nexus
 	const InputState *Window::GetInput()
 	{
 		return &m_Input;
+	}
+
+	const InputNew::InputContext &Window::GetInputContext() const
+	{
+		return m_InputContext;
 	}
 
 	bool Window::IsFocussed()
@@ -474,6 +481,13 @@ namespace Nexus
 			OnTick.Invoke(time);
 		},
 		secondsPerTick);
+	}
+
+	void Window::SetupInput()
+	{
+		m_InputContext.AddKeyboards(Application::GetKeyboards());
+		Application::GetMice();
+		Application::GetGamepads();
 	}
 
 	const WindowSpecification &Window::GetSpecification() const

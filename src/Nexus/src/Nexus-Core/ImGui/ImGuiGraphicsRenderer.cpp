@@ -442,17 +442,17 @@ namespace Nexus::ImGuiUtils
 		auto &io = ImGui::GetIO();
 
 		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Tab] = (int)KeyCode::Tab);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_LeftArrow] = (int)KeyCode::KeyLeft);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_RightArrow] = (int)KeyCode::KeyRight);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_UpArrow] = (int)KeyCode::KeyUp);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_DownArrow] = (int)KeyCode::KeyDown);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_LeftArrow] = (int)KeyCode::Left);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_RightArrow] = (int)KeyCode::Right);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_UpArrow] = (int)KeyCode::Up);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_DownArrow] = (int)KeyCode::Down);
 		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_PageUp] = (int)KeyCode::PageUp);
 		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_PageDown] = (int)KeyCode::PageDown);
 		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Home] = (int)KeyCode::Home);
 		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_End] = (int)KeyCode::End);
 		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Delete] = (int)KeyCode::Delete);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Backspace] = (int)KeyCode::Back);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Enter] = (int)KeyCode::Enter);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Backspace] = (int)KeyCode::Backspace);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Enter] = (int)KeyCode::Return);
 		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Escape] = (int)KeyCode::Escape);
 		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Space] = (int)KeyCode::Space);
 		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_A] = (int)KeyCode::A);
@@ -482,7 +482,7 @@ namespace Nexus::ImGuiUtils
 		io.KeyShift = keyboard.IsKeyHeld(KeyCode::LeftShift) || keyboard.IsKeyHeld(KeyCode::RightShift);
 		io.KeyCtrl	= keyboard.IsKeyHeld(KeyCode::LeftControl) || keyboard.IsKeyHeld(KeyCode::RightControl);
 		io.KeyAlt	= keyboard.IsKeyHeld(KeyCode::LeftAlt) || keyboard.IsKeyHeld(KeyCode::RightAlt);
-		io.KeySuper = keyboard.IsKeyHeld(KeyCode::LeftWin) || keyboard.IsKeyHeld(KeyCode::RightWin);
+		io.KeySuper = keyboard.IsKeyHeld(KeyCode::LeftGUI) || keyboard.IsKeyHeld(KeyCode::RightGUI);
 
 		io.DisplaySize			   = {(float)window->GetWindowSize().X, (float)window->GetWindowSize().Y};
 		io.DisplayFramebufferScale = {1, 1};
