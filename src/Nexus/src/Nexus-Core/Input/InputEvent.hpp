@@ -11,11 +11,12 @@ namespace Nexus
 {
 	struct KeyPressedEvent
 	{
-		Nexus::KeyCode	KeyCode;
-		Nexus::ScanCode ScanCode;
-		uint8_t			Repeat;
-		int32_t			Unicode;
-		uint32_t		KeyboardID;
+		Nexus::KeyCode		KeyCode;
+		Nexus::ScanCode		ScanCode;
+		uint8_t				Repeat;
+		int32_t				Unicode;
+		Keyboard::Modifiers Mods;
+		uint32_t			KeyboardID;
 	};
 
 	struct KeyReleasedEvent

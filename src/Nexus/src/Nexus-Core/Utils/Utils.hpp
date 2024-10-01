@@ -91,3 +91,5 @@ namespace Nexus::Utils
 	}
 
 }	 // namespace Nexus::Utils
+
+#define BIT(x) (1 << x)

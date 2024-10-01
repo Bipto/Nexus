@@ -237,8 +237,14 @@ class DemoApplication : public Nexus::Application
 	{
 		if (const Nexus::KeyPressedEvent *keyPressedEvent = std::get_if<Nexus::KeyPressedEvent>(&event))
 		{
-			int i = 0;
-			int n = 4;
+			if (keyPressedEvent->KeyCode == Nexus::KeyCode::S)
+			{
+				if (keyPressedEvent->Mods & Nexus::Keyboard::Modifier::LeftShift)
+				{
+					int i = 0;
+					int n = 4;
+				}
+			}
 		}
 
 		return false;

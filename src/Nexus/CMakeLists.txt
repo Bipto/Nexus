@@ -55,6 +55,7 @@ file (GLOB_RECURSE ENGINE_SOURCES
  src/Platform/OpenGL/*.cpp
  src/Platform/D3D11/*.cpp
  src/Platform/D3D12/*.cpp
+ src/Platform/SDL3/*.cpp
  )
 
 add_library(Nexus ${ENGINE_HEADERS} ${ENGINE_SOURCES})
