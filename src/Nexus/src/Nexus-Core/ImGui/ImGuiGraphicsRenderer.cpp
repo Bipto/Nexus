@@ -4,6 +4,8 @@
 #include "Nexus-Core/Input/Input.hpp"
 #include "Nexus-Core/Runtime.hpp"
 
+#include "Platform/SDL3/SDL3Include.hpp"
+
 std::string GetImGuiShaderVertexSource()
 {
 	std::string shader = "#version 450 core\n"
@@ -697,7 +699,7 @@ namespace Nexus::ImGuiUtils
 		auto &platformIo = ImGui::GetPlatformIO();
 		platformIo.Monitors.resize(0);
 
-		std::vector<Monitor> monitors = Application::GetMonitors();
+		std::vector<Monitor> monitors = Nexus::SDL3::GetMonitors();
 
 		for (const auto &monitor : monitors)
 		{

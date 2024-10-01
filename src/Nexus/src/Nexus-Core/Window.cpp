@@ -483,15 +483,43 @@ namespace Nexus
 		secondsPerTick);
 	}
 
-	void Window::SetupInput()
-	{
-		m_InputContext.AddKeyboards(Application::GetKeyboards());
-		Application::GetMice();
-		Application::GetGamepads();
-	}
-
 	const WindowSpecification &Window::GetSpecification() const
 	{
 		return m_Specification;
+	}
+
+	void Window::OnMouseMovedEventFunc(const MouseMovedEvent &event)
+	{
+		OnMouseMoved.Invoke(event);
+	}
+
+	void Window::OnKeyPressedEventFunc(const KeyPressedEvent &event)
+	{
+		OnKeyPressed.Invoke(event);
+	}
+
+	void Nexus::Window::OnKeyReleasedEventFunc(const KeyReleasedEvent &event)
+	{
+		OnKeyReleased.Invoke(event);
+	}
+
+	void Nexus::Window::OnMousePressedEventFunc(const MouseButtonPressedEvent &event)
+	{
+		OnMousePressed.Invoke(event);
+	}
+
+	void Nexus::Window::OnMouseReleasedEventFunc(const MouseButtonReleasedEvent &event)
+	{
+		OnMouseReleased.Invoke(event);
+	}
+
+	void Nexus::Window::OnScrollEventFunc(const MouseScrolledEvent &event)
+	{
+		OnScroll.Invoke(event);
+	}
+	
+	void Window::OnFileDropEventFunc(const FileDropEvent &event)
+	{
+		OnFileDrop.Invoke(event);
 	}
 }	 // namespace Nexus

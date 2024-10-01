@@ -9,41 +9,85 @@
 
 namespace Nexus
 {
+	enum class MouseType
+	{
+		Mouse,
+		Touch
+	};
+
+	enum class ScrollDirection
+	{
+		Normal,
+		Flipped
+	};
+
 	struct KeyPressedEvent
 	{
-		Nexus::KeyCode		KeyCode;
-		Nexus::ScanCode		ScanCode;
-		uint8_t				Repeat;
-		int32_t				Unicode;
-		Keyboard::Modifiers Mods;
-		uint32_t			KeyboardID;
+		Nexus::KeyCode		KeyCode	   = {};
+		Nexus::ScanCode		ScanCode   = {};
+		uint8_t				Repeat	   = {};
+		int32_t				Unicode	   = {};
+		Keyboard::Modifiers Mods	   = {};
+		uint32_t			KeyboardID = {};
 	};
 
 	struct KeyReleasedEvent
 	{
-		Nexus::KeyCode Key;
+		Nexus::KeyCode	KeyCode	   = {};
+		Nexus::ScanCode ScanCode   = {};
+		int32_t			Unicode	   = {};
+		uint32_t		KeyboardID = {};
 	};
 
 	struct MouseMovedEvent
 	{
-		Nexus::Point2D<float> Position;
-		Nexus::Point2D<float> Movement;
+		Nexus::Point2D<float> Position = {};
+		Nexus::Point2D<float> Movement = {};
+		uint32_t			  MouseID  = {};
+		MouseType			  Type	   = {};
 	};
 
 	struct MouseButtonPressedEvent
 	{
-		uint8_t MouseButton;
+		uint8_t				  MouseButton = {};
+		Nexus::Point2D<float> Position	  = {};
+		uint32_t			  Clicks	  = {};
+		uint32_t			  MouseID	  = {};
+		MouseType			  Type		  = {};
 	};
 
 	struct MouseButtonReleasedEvent
 	{
-		uint8_t MouseButton;
+		uint8_t				  MouseButton = {};
+		Nexus::Point2D<float> Position	  = {};
+		uint32_t			  MouseID	  = {};
+		MouseType			  Type		  = {};
 	};
 
 	struct MouseScrolledEvent
 	{
-		float ScrollX;
-		float ScrollY;
+		Nexus::Point2D<float> Scroll	= {};
+		Nexus::Point2D<float> Position	= {};
+		uint32_t			  MouseID	= {};
+		MouseType			  Type		= {};
+		ScrollDirection		  Direction = {};
+	};
+
+	enum class FileDropType
+	{
+		Begin,
+		Complete,
+		File,
+		Text,
+		Position
+	};
+
+	struct FileDropEvent
+	{
+		FileDropType   Type		 = {};
+		Point2D<float> Position	 = {};
+		std::string	   SourceApp = {};
+		std::string	   Data		 = {};
 	};
 
 	using InputEvent =

@@ -474,4 +474,157 @@ namespace Nexus::SDL3
 
 		return mods;
 	}
+
+	std::vector<InputNew::Keyboard> GetKeyboards()
+	{
+		std::vector<InputNew::Keyboard> keyboards;
+
+		int				count;
+		SDL_KeyboardID *sdlKeyboards = SDL_GetKeyboards(&count);
+
+		for (int i = 0; i < count; i++)
+		{
+			uint32_t id = sdlKeyboards[i];
+
+			if (const char *instanceName = SDL_GetKeyboardInstanceName(id))
+			{
+				std::string name = instanceName;
+				keyboards.emplace_back(sdlKeyboards[i], name);
+			}
+			else
+			{
+				NX_ERROR(SDL_GetError());
+			}
+		}
+
+		return keyboards;
+	}
+	std::vector<InputNew::Mouse> GetMice()
+	{
+		std::vector<InputNew::Mouse> mice;
+
+		int			 count;
+		SDL_MouseID *sdlMice = SDL_GetMice(&count);
+
+		for (int i = 0; i < count; i++)
+		{
+			uint32_t id = sdlMice[i];
+
+			if (const char *instanceName = SDL_GetMouseInstanceName(id))
+			{
+				std::string name = instanceName;
+				mice.emplace_back(sdlMice[i], name);
+			}
+			else
+			{
+				NX_ERROR(SDL_GetError());
+			}
+		}
+
+		return mice;
+	}
+
+	std::vector<InputNew::Gamepad> GetGamepads()
+	{
+		std::vector<InputNew::Gamepad> gamepads;
+
+		int				count;
+		SDL_JoystickID *sdlGamepads = SDL_GetGamepads(&count);
+
+		for (int i = 0; i < count; i++)
+		{
+			if (SDL_IsGamepad(sdlGamepads[i]))
+			{
+				uint32_t id = sdlGamepads[i];
+
+				if (const char *instanceName = SDL_GetGamepadInstanceName(id))
+				{
+					std::string name = instanceName;
+					gamepads.emplace_back(sdlGamepads[i], name);
+				}
+			}
+		}
+
+		return gamepads;
+	}
+
+	std::vector<Nexus::Monitor> GetMonitors()
+	{
+		std::vector<Monitor> monitors;
+
+		int					 displayCount;
+		const SDL_DisplayID *displays = SDL_GetDisplays(&displayCount);
+
+		for (int i = 0; i < displayCount; i++)
+		{
+			SDL_DisplayID id = displays[i];
+
+			// Monitor monitor;
+			float		dpi	 = SDL_GetDisplayContentScale(id);
+			std::string name = SDL_GetDisplayName(id);
+
+			SDL_Rect displayBounds;
+			SDL_GetDisplayBounds(id, &displayBounds);
+
+			SDL_Rect usableBounds;
+			SDL_GetDisplayUsableBounds(id, &usableBounds);
+
+			const SDL_DisplayMode *displayMode = SDL_GetCurrentDisplayMode(id);
+
+			Monitor monitor {.Position	   = {displayBounds.x, displayBounds.y},
+							 .Size		   = {displayBounds.w, displayBounds.h},
+							 .WorkPosition = {usableBounds.x, usableBounds.y},
+							 .WorkSize	   = {usableBounds.w, usableBounds.h},
+							 .DPI		   = dpi,
+							 .RefreshRate  = displayMode->refresh_rate,
+							 .Name		   = name};
+
+			monitors.push_back(monitor);
+		}
+
+		return monitors;
+	}
+
+	FileDropType GetFileDropType(SDL_EventType type)
+	{
+		switch (type)
+		{
+			case SDL_EVENT_DROP_BEGIN: return FileDropType::Begin;
+			case SDL_EVENT_DROP_COMPLETE: return FileDropType::Complete;
+			case SDL_EVENT_DROP_FILE: return FileDropType::File;
+			case SDL_EVENT_DROP_TEXT: return FileDropType::Text;
+			case SDL_EVENT_DROP_POSITION: return FileDropType::Position;
+
+			default: throw std::runtime_error("Failed to find valid event type");
+		}
+	}
+
+	std::tuple<MouseType, uint32_t> GetMouseInfo(SDL_MouseID mouseId)
+	{
+		uint32_t  id		= 0;
+		MouseType mouseType = MouseType::Mouse;
+
+		if (mouseId == SDL_TOUCH_MOUSEID)
+		{
+			mouseType = MouseType::Touch;
+		}
+		else
+		{
+			id = mouseId;
+		}
+
+		return {mouseType, id};
+	}
+
+	ScrollDirection GetScrollDirection(SDL_MouseWheelDirection scrollDirection)
+	{
+		ScrollDirection direction = ScrollDirection::Normal;
+
+		if (scrollDirection == SDL_MOUSEWHEEL_FLIPPED)
+		{
+			direction = ScrollDirection::Flipped;
+		}
+
+		return direction;
+	}
 }	 // namespace Nexus::SDL3

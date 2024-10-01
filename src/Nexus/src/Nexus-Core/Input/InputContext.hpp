@@ -85,6 +85,13 @@ namespace Nexus::InputNew
 	class InputContext
 	{
 	  public:
+		static const std::vector<InputNew::Keyboard> &GetKeyboards();
+		static const std::vector<InputNew::Mouse>	 &GetMice();
+		static const std::vector<InputNew::Gamepad>	 &GetGamepads();
+
+		static void Initialise();
+
+	  public:
 		InputContext() = default;
 
 	  private:
@@ -99,9 +106,9 @@ namespace Nexus::InputNew
 		void RemoveGamepad(uint32_t id);
 
 	  private:
-		std::vector<InputNew::Keyboard> m_Keyboards = {};
-		std::vector<InputNew::Mouse>	m_Mice		= {};
-		std::vector<InputNew::Gamepad>	m_Gamepads	= {};
+		inline static std::vector<InputNew::Keyboard> m_Keyboards = {};
+		inline static std::vector<InputNew::Mouse>	  m_Mice	  = {};
+		inline static std::vector<InputNew::Gamepad>  m_Gamepads  = {};
 
 		friend class Nexus::Window;
 	};

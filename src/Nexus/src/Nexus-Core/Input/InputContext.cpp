@@ -1,7 +1,31 @@
 #include "InputContext.hpp"
 
+#include "Platform/SDL3/SDL3Include.hpp"
+
 namespace Nexus::InputNew
 {
+	const std::vector<InputNew::Keyboard> &InputContext::GetKeyboards()
+	{
+		return m_Keyboards;
+	}
+
+	const std::vector<InputNew::Mouse> &InputContext::GetMice()
+	{
+		return m_Mice;
+	}
+
+	const std::vector<InputNew::Gamepad> &InputContext::GetGamepads()
+	{
+		return m_Gamepads;
+	}
+
+	void InputContext::Initialise()
+	{
+		m_Keyboards = Nexus::SDL3::GetKeyboards();
+		m_Mice		= Nexus::SDL3::GetMice();
+		m_Gamepads	= Nexus::SDL3::GetGamepads();
+	}
+
 	void InputContext::AddKeyboard(const InputNew::Keyboard &keyboard)
 	{
 		m_Keyboards.push_back(keyboard);

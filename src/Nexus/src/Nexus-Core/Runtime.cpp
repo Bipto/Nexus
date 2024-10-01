@@ -1,5 +1,6 @@
 #include "Runtime.hpp"
 
+#include "Nexus-Core/Input/InputContext.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
 Nexus::Application	*appPtr		  = nullptr;
@@ -58,6 +59,8 @@ namespace Nexus
 		SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4_RUMBLE, "1");
 		SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5_RUMBLE, "1");
 		SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5_PLAYER_LED, "1");
+
+		InputNew::InputContext::Initialise();
 	}
 
 	void Shutdown()

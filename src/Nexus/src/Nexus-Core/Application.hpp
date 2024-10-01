@@ -153,8 +153,6 @@ namespace Nexus
 		/// @return A pointer to an audio device
 		Audio::AudioDevice *GetAudioDevice();
 
-		static std::vector<Monitor> GetMonitors();
-
 		EventHandler<char *> OnTextInput;
 
 		EventHandler<KeyPressedEvent, Window *> OnKeyPressed;
@@ -166,12 +164,7 @@ namespace Nexus
 			return false;
 		}
 
-		static std::vector<InputNew::Keyboard> GetKeyboards();
-		static std::vector<InputNew::Mouse>	   GetMice();
-		static std::vector<InputNew::Gamepad>  GetGamepads();
-
 	  private:
-		void	DispatchEvent(const InputEvent &event, Window *window);
 		void	PollEvents();
 		Window *GetWindowFromHandle(uint32_t handle);
 		void	CheckForClosingWindows();

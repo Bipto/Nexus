@@ -80,6 +80,8 @@ class DemoApplication : public Nexus::Application
 		RegisterUtilsDemo<Demos::Splines>("Splines");
 
 		m_CommandList = m_GraphicsDevice->CreateCommandList();
+
+		m_GraphicsDevice->GetPrimaryWindow()->OnFileDrop += [&](const Nexus::FileDropEvent &event) { std::cout << event.Data << std::endl; };
 	}
 
 	template<typename T>
@@ -241,10 +243,14 @@ class DemoApplication : public Nexus::Application
 			{
 				if (keyPressedEvent->Mods & Nexus::Keyboard::Modifier::LeftShift)
 				{
-					int i = 0;
-					int n = 4;
+					std::cout << std::to_string(keyPressedEvent->Repeat) << std::endl;
 				}
 			}
+		}
+
+		if (const Nexus::MouseButtonPressedEvent *mousePressedEvent = std::get_if<Nexus::MouseButtonPressedEvent>(&event))
+		{
+			std::cout << std::to_string(mousePressedEvent->Clicks) << std::endl;
 		}
 
 		return false;

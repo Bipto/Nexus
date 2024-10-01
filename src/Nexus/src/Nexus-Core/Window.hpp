@@ -187,17 +187,20 @@ namespace Nexus
 
 		EventHandler<std::pair<uint32_t, uint32_t>> OnResize;
 
-		EventHandler<std::string> OnFileDrop;
+		EventHandler<const FileDropEvent &> OnFileDrop;
 		EventHandler<>			  OnWindowGainFocus;
 		EventHandler<>			  OnWindowLostFocus;
 		EventHandler<>			  OnWindowMaximized;
 		EventHandler<>			  OnWindowMinimized;
 		EventHandler<>			  OnWindowRestored;
 
-		EventHandler<Point2D<float>> OnMouseMoved;
-		EventHandler<KeyCode>		 OnKeyPressed;
-		EventHandler<KeyCode>		 OnKeyReleased;
-		EventHandler<KeyCode>		 OnKeyHeld;
+		EventHandler<const KeyPressedEvent &>  OnKeyPressed;
+		EventHandler<const KeyReleasedEvent &> OnKeyReleased;
+
+		EventHandler<const MouseButtonPressedEvent &>  OnMousePressed;
+		EventHandler<const MouseButtonReleasedEvent &> OnMouseReleased;
+		EventHandler<const MouseMovedEvent &>		   OnMouseMoved;
+		EventHandler<const MouseScrolledEvent &>	   OnScroll;
 
 		EventHandler<TimeSpan> OnRender;
 		EventHandler<TimeSpan> OnUpdate;
@@ -211,9 +214,16 @@ namespace Nexus
 		uint32_t GetFlags(Graphics::GraphicsAPI api, const WindowSpecification &windowSpec, const Graphics::SwapchainSpecification &swapchainSpec);
 
 		void SetupTimer();
-		void SetupInput();
 
 		const WindowSpecification &GetSpecification() const;
+
+		void OnMouseMovedEventFunc(const MouseMovedEvent &event);
+		void OnKeyPressedEventFunc(const KeyPressedEvent &event);
+		void OnKeyReleasedEventFunc(const KeyReleasedEvent &event);
+		void OnMousePressedEventFunc(const MouseButtonPressedEvent &event);
+		void OnMouseReleasedEventFunc(const MouseButtonReleasedEvent &event);
+		void OnScrollEventFunc(const MouseScrolledEvent &event);
+		void OnFileDropEventFunc(const FileDropEvent &event);
 
 	  private:
 		WindowSpecification m_Specification = {};

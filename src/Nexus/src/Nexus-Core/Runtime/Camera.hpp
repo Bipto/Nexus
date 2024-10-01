@@ -20,7 +20,7 @@ namespace Nexus
 			this->Resize(width, height);
 			this->m_Position = position;
 
-			device->GetPrimaryWindow()->OnMouseMoved += [&](Nexus::Point2D<float> movement) { Rotate(movement.X, movement.Y); };
+			device->GetPrimaryWindow()->OnMouseMoved += [&](const MouseMovedEvent &event) { Rotate(event.Movement.X, event.Movement.Y); };
 		}
 
 		void Resize(int width, int height)
