@@ -2,9 +2,8 @@
 
 #include "Nexus-Core/Graphics/Swapchain.hpp"
 #include "Nexus-Core/Input/Input.hpp"
+#include "Nexus-Core/Platform.hpp"
 #include "Nexus-Core/Runtime.hpp"
-
-#include "Platform/SDL3/SDL3Include.hpp"
 
 std::string GetImGuiShaderVertexSource()
 {
@@ -699,7 +698,7 @@ namespace Nexus::ImGuiUtils
 		auto &platformIo = ImGui::GetPlatformIO();
 		platformIo.Monitors.resize(0);
 
-		std::vector<Monitor> monitors = Nexus::SDL3::GetMonitors();
+		std::vector<Monitor> monitors = Nexus::Platform::GetMonitors();
 
 		for (const auto &monitor : monitors)
 		{

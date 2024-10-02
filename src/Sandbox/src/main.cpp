@@ -91,15 +91,15 @@ class Sandbox : public Nexus::Application
 
 		m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-		GetPrimaryWindow()->OnWindowGainFocus += [&]() { std::cout << "Window focussed\n"; };
+		GetPrimaryWindow()->OnGainFocus += [&]() { std::cout << "Window focussed\n"; };
 
-		GetPrimaryWindow()->OnWindowLostFocus += [&]() { std::cout << "Window lost focus\n"; };
+		GetPrimaryWindow()->OnLostFocus += [&]() { std::cout << "Window lost focus\n"; };
 
-		GetPrimaryWindow()->OnWindowMaximized += [&]() { std::cout << "Window maximized\n"; };
+		GetPrimaryWindow()->OnMaximized += [&]() { std::cout << "Window maximized\n"; };
 
-		GetPrimaryWindow()->OnWindowMinimized += [&]() { std::cout << "Window minimized\n"; };
+		GetPrimaryWindow()->OnMinimized += [&]() { std::cout << "Window minimized\n"; };
 
-		GetPrimaryWindow()->OnWindowRestored += [&]() { std::cout << "Window restored\n"; };
+		GetPrimaryWindow()->OnRestored += [&]() { std::cout << "Window restored\n"; };
 	}
 
 	virtual void Update(Nexus::TimeSpan time) override

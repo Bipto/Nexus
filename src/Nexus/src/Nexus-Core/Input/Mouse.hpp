@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Nexus-Core/Point.hpp"
+#include "Nexus-Core/Utils/Utils.hpp"
 
 namespace Nexus
 {
@@ -12,6 +13,16 @@ namespace Nexus
 
 		/// @brief A value representing that the button is currently pressed
 		Pressed,
+	};
+
+	enum class MouseButton
+	{
+		None = 0,
+		Left,
+		Middle,
+		Right,
+		X1,
+		X2
 	};
 
 	/// @brief A struct containing the current state of the mouse

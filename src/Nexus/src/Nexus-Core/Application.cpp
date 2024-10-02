@@ -245,6 +245,16 @@ namespace Nexus
 					window->OnKeyReleased.Invoke(keyReleasedEvent);
 					break;
 				}
+				case SDL_EVENT_WINDOW_HIDDEN:
+				{
+					window->OnHide.Invoke();
+					break;
+				}
+				case SDL_EVENT_WINDOW_SHOWN:
+				{
+					window->OnShow.Invoke();
+					break;
+				}
 				case SDL_EVENT_MOUSE_BUTTON_DOWN:
 				{
 					switch (event.button.button)
@@ -267,12 +277,13 @@ namespace Nexus
 					}
 
 					auto [mouseType, mouseId] = SDL3::GetMouseInfo(event.button.which);
+					MouseButton button		  = SDL3::GetMouseButton(event.button.button);
 
-					MouseButtonPressedEvent mousePressedEvent {.MouseButton = event.button.button,
-															   .Position	= {event.button.x, event.button.y},
-															   .Clicks		= event.button.clicks,
-															   .MouseID		= mouseId,
-															   .Type		= mouseType};
+					MouseButtonPressedEvent mousePressedEvent {.Button	 = button,
+															   .Position = {event.button.x, event.button.y},
+															   .Clicks	 = event.button.clicks,
+															   .MouseID	 = mouseId,
+															   .Type	 = mouseType};
 
 					window->OnMousePressed.Invoke(mousePressedEvent);
 					break;
@@ -299,11 +310,12 @@ namespace Nexus
 					}
 
 					auto [mouseType, mouseId] = SDL3::GetMouseInfo(event.button.which);
+					MouseButton button		  = SDL3::GetMouseButton(event.button.button);
 
-					MouseButtonReleasedEvent mouseReleasedEvent {.MouseButton = event.button.button,
-																 .Position	  = {event.button.x, event.button.y},
-																 .MouseID	  = mouseId,
-																 .Type		  = mouseType};
+					MouseButtonReleasedEvent mouseReleasedEvent {.Button   = button,
+																 .Position = {event.button.x, event.button.y},
+																 .MouseID  = mouseId,
+																 .Type	   = mouseType};
 
 					window->OnMouseReleased.Invoke(mouseReleasedEvent);
 					break;
@@ -353,8 +365,6 @@ namespace Nexus
 													.Direction = direction};
 
 					window->OnScroll.Invoke(scrollEvent);
-
-					SDL_MouseWheelDirection;
 					break;
 				}
 				case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
@@ -372,6 +382,21 @@ namespace Nexus
 					}
 					break;
 				}
+				case SDL_EVENT_GAMEPAD_REMAPPED:
+				{
+					event.gdevice.which;
+					break;
+				}
+				case SDL_EVENT_GAMEPAD_UPDATE_COMPLETE:
+				{
+					event.gdevice.which;
+					break;
+				}
+				case SDL_EVENT_GAMEPAD_STEAM_HANDLE_UPDATED:
+				{
+					event.gdevice.which;
+					break;
+				}
 				case SDL_EVENT_GAMEPAD_REMOVED:
 				{
 					Nexus::Input::RemoveController(event.cdevice.which);
@@ -379,6 +404,7 @@ namespace Nexus
 				}
 				case SDL_EVENT_TEXT_INPUT:
 				{
+					window->OnTextInput.Invoke(event.text.text);
 					window->m_Input.TextInput.Invoke(event.text.text);
 					OnTextInput.Invoke(event.text.text);
 					break;
@@ -411,27 +437,77 @@ namespace Nexus
 				}
 				case SDL_EVENT_WINDOW_FOCUS_GAINED:
 				{
-					window->OnWindowGainFocus.Invoke();
+					window->OnGainFocus.Invoke();
 					break;
 				}
 				case SDL_EVENT_WINDOW_FOCUS_LOST:
 				{
-					window->OnWindowLostFocus.Invoke();
+					window->OnLostFocus.Invoke();
 					break;
 				}
 				case SDL_EVENT_WINDOW_MAXIMIZED:
 				{
-					window->OnWindowMaximized.Invoke();
+					window->OnMaximized.Invoke();
 					break;
 				}
 				case SDL_EVENT_WINDOW_MINIMIZED:
 				{
-					window->OnWindowMinimized.Invoke();
+					window->OnMinimized.Invoke();
 					break;
 				}
 				case SDL_EVENT_WINDOW_RESTORED:
 				{
-					window->OnWindowRestored.Invoke();
+					window->OnRestored.Invoke();
+					break;
+				}
+				case SDL_EVENT_WINDOW_MOUSE_ENTER:
+				{
+					window->OnMouseEnter.Invoke();
+					break;
+				}
+				case SDL_EVENT_WINDOW_MOUSE_LEAVE:
+				{
+					window->OnMouseLeave.Invoke();
+					break;
+				}
+				case SDL_EVENT_DISPLAY_ORIENTATION:
+				{
+					break;
+				}
+				case SDL_EVENT_DISPLAY_ADDED:
+				{
+					break;
+				}
+				case SDL_EVENT_DISPLAY_CONTENT_SCALE_CHANGED:
+				{
+					break;
+				}
+				case SDL_EVENT_DISPLAY_REMOVED:
+				{
+					break;
+				}
+				case SDL_EVENT_DISPLAY_HDR_STATE_CHANGED:
+				{
+					break;
+				}
+				case SDL_EVENT_KEYBOARD_ADDED:
+				{
+					event.kdevice.which;
+					break;
+				}
+				case SDL_EVENT_KEYBOARD_REMOVED:
+				{
+					event.kdevice.which;
+					break;
+				}
+				case SDL_EVENT_MOUSE_ADDED:
+				{
+					event.mdevice.which;
+					break;
+				}
+				case SDL_EVENT_MOUSE_REMOVED:
+				{
+					event.mdevice.which;
 					break;
 				}
 			}

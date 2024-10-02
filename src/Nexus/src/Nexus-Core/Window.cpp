@@ -509,6 +509,73 @@ namespace Nexus
 
 				break;
 			}
+			case SDL_EVENT_KEY_UP:
+			{
+				auto nexusKeyCode  = Nexus::SDL3::GetNexusKeyCodeFromSDLKeyCode(event.key.keysym.sym);
+				auto nexusScanCode = Nexus::SDL3::GetNexusScanCodeFromSDLScanCode(event.key.keysym.scancode);
+
+				KeyReleasedEvent keyReleasedEvent {.KeyCode	   = nexusKeyCode,
+												   .ScanCode   = nexusScanCode,
+												   .Unicode	   = event.key.keysym.sym,
+												   .KeyboardID = event.kdevice.which};
+
+				OnKeyReleased.Invoke(keyReleasedEvent);
+
+				break;
+			}
+			case SDL_EVENT_MOUSE_BUTTON_DOWN:
+			{
+				auto [mouseType, mouseId] = SDL3::GetMouseInfo(event.button.which);
+				MouseButton button		  = SDL3::GetMouseButton(event.button.button);
+
+				MouseButtonPressedEvent mousePressedEvent {.Button	 = button,
+														   .Position = {event.button.x, event.button.y},
+														   .Clicks	 = event.button.clicks,
+														   .MouseID	 = mouseId,
+														   .Type	 = mouseType};
+
+				OnMousePressed.Invoke(mousePressedEvent);
+				break;
+			}
+			case SDL_EVENT_MOUSE_BUTTON_UP:
+			{
+				auto [mouseType, mouseId] = SDL3::GetMouseInfo(event.button.which);
+				MouseButton button		  = SDL3::GetMouseButton(event.button.button);
+
+				MouseButtonReleasedEvent mouseReleasedEvent {.Button   = button,
+															 .Position = {event.button.x, event.button.y},
+															 .MouseID  = mouseId,
+															 .Type	   = mouseType};
+
+				OnMouseReleased.Invoke(mouseReleasedEvent);
+				break;
+			}
+			case SDL_EVENT_MOUSE_MOTION:
+			{
+				auto [mouseType, mouseId] = SDL3::GetMouseInfo(event.motion.which);
+
+				MouseMovedEvent mouseMovedEvent {.Position = {event.motion.x, event.motion.y},
+												 .Movement = {event.motion.xrel, event.motion.yrel},
+												 .MouseID  = mouseId,
+												 .Type	   = mouseType};
+
+				OnMouseMoved.Invoke(mouseMovedEvent);
+				break;
+			}
+			case SDL_EVENT_MOUSE_WHEEL:
+			{
+				auto [mouseType, mouseId] = SDL3::GetMouseInfo(event.wheel.which);
+				ScrollDirection direction = SDL3::GetScrollDirection(event.wheel.direction);
+
+				MouseScrolledEvent scrollEvent {.Scroll	   = {event.wheel.x, event.wheel.y},
+												.Position  = {event.wheel.mouse_x, event.wheel.mouse_y},
+												.MouseID   = mouseId,
+												.Type	   = mouseType,
+												.Direction = direction};
+
+				OnScroll.Invoke(scrollEvent);
+				break;
+			}
 		}
 	}
 }	 // namespace Nexus

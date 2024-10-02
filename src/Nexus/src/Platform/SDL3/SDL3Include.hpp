@@ -15,12 +15,9 @@ namespace Nexus::SDL3
 	ScanCode			GetNexusScanCodeFromSDLScanCode(SDL_Scancode scancode);
 	Keyboard::Modifiers GetNexusModifiersFromSDLModifiers(Uint16 modifiers);
 
-	std::vector<InputNew::Keyboard> GetKeyboards();
-	std::vector<InputNew::Mouse>	GetMice();
-	std::vector<InputNew::Gamepad>	GetGamepads();
-	std::vector<Monitor>			GetMonitors();
-
 	FileDropType					GetFileDropType(SDL_EventType type);
 	std::tuple<MouseType, uint32_t> GetMouseInfo(SDL_MouseID mouseId);
 	ScrollDirection					GetScrollDirection(SDL_MouseWheelDirection scrollDirection);
+
+	MouseButton GetMouseButton(Uint8 mouseButton);
 }	 // namespace Nexus::SDL3

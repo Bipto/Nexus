@@ -49,7 +49,7 @@ namespace Nexus
 
 	struct MouseButtonPressedEvent
 	{
-		uint8_t				  MouseButton = {};
+		MouseButton			  Button	  = {};
 		Nexus::Point2D<float> Position	  = {};
 		uint32_t			  Clicks	  = {};
 		uint32_t			  MouseID	  = {};
@@ -58,7 +58,7 @@ namespace Nexus
 
 	struct MouseButtonReleasedEvent
 	{
-		uint8_t				  MouseButton = {};
+		MouseButton			  Button	  = {};
 		Nexus::Point2D<float> Position	  = {};
 		uint32_t			  MouseID	  = {};
 		MouseType			  Type		  = {};

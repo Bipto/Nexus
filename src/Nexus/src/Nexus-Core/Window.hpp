@@ -187,20 +187,26 @@ namespace Nexus
 
 		EventHandler<std::pair<uint32_t, uint32_t>> OnResize;
 
-		EventHandler<const FileDropEvent &> OnFileDrop;
-		EventHandler<>			  OnWindowGainFocus;
-		EventHandler<>			  OnWindowLostFocus;
-		EventHandler<>			  OnWindowMaximized;
-		EventHandler<>			  OnWindowMinimized;
-		EventHandler<>			  OnWindowRestored;
+		EventHandler<> OnGainFocus;
+		EventHandler<> OnLostFocus;
+		EventHandler<> OnMaximized;
+		EventHandler<> OnMinimized;
+		EventHandler<> OnRestored;
+		EventHandler<> OnShow;
+		EventHandler<> OnHide;
 
 		EventHandler<const KeyPressedEvent &>  OnKeyPressed;
 		EventHandler<const KeyReleasedEvent &> OnKeyReleased;
+		EventHandler<char *>				   OnTextInput;
 
 		EventHandler<const MouseButtonPressedEvent &>  OnMousePressed;
 		EventHandler<const MouseButtonReleasedEvent &> OnMouseReleased;
 		EventHandler<const MouseMovedEvent &>		   OnMouseMoved;
 		EventHandler<const MouseScrolledEvent &>	   OnScroll;
+		EventHandler<>								   OnMouseEnter;
+		EventHandler<>								   OnMouseLeave;
+
+		EventHandler<const FileDropEvent &> OnFileDrop;
 
 		EventHandler<TimeSpan> OnRender;
 		EventHandler<TimeSpan> OnUpdate;

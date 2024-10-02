@@ -1,6 +1,6 @@
 #include "InputContext.hpp"
 
-#include "Platform/SDL3/SDL3Include.hpp"
+#include "Nexus-Core/Platform.hpp"
 
 namespace Nexus::InputNew
 {
@@ -21,9 +21,9 @@ namespace Nexus::InputNew
 
 	void InputContext::Initialise()
 	{
-		m_Keyboards = Nexus::SDL3::GetKeyboards();
-		m_Mice		= Nexus::SDL3::GetMice();
-		m_Gamepads	= Nexus::SDL3::GetGamepads();
+		m_Keyboards = Platform::GetKeyboards();
+		m_Mice		= Platform::GetMice();
+		m_Gamepads	= Platform::GetGamepads();
 	}
 
 	void InputContext::AddKeyboard(const InputNew::Keyboard &keyboard)
