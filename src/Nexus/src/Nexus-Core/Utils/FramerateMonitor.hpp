@@ -9,7 +9,7 @@ namespace Nexus::Utils
 	  public:
 		inline void Update()
 		{
-			std::chrono::high_resolution_clock::time_point now	   = std::chrono::high_resolution_clock::now();
+			std::chrono::steady_clock::time_point		   now	   = std::chrono::steady_clock::now();
 			std::chrono::duration<double, std::milli>	   elapsed = now - m_LastFrameTime;
 			m_LastFrameTime										   = now;
 
@@ -32,7 +32,7 @@ namespace Nexus::Utils
 		}
 
 	  private:
-		std::chrono::high_resolution_clock::time_point m_LastFrameTime = std::chrono::high_resolution_clock::now();
+		std::chrono::steady_clock::time_point		   m_LastFrameTime = std::chrono::steady_clock::now();
 		double										   m_Elapsed	   = 0.0;
 	};
 }	 // namespace Nexus::Utils

@@ -97,7 +97,7 @@ namespace Nexus::Timings
 	class ProfilingTimer
 	{
 	  public:
-		ProfilingTimer(const char *name) : m_Name(name), m_StartTimepoint(std::chrono::high_resolution_clock::now()), m_Stopped(false)
+		ProfilingTimer(const char *name) : m_Name(name), m_StartTimepoint(std::chrono::steady_clock::now()), m_Stopped(false)
 		{
 		}
 
@@ -109,7 +109,7 @@ namespace Nexus::Timings
 
 		void Stop()
 		{
-			std::chrono::steady_clock::time_point endTimepoint = std::chrono::high_resolution_clock::now();
+			std::chrono::steady_clock::time_point endTimepoint = std::chrono::steady_clock::now();
 
 			uint64_t start = std::chrono::time_point_cast<std::chrono::nanoseconds>(m_StartTimepoint).time_since_epoch().count();
 			uint64_t end   = std::chrono::time_point_cast<std::chrono::nanoseconds>(endTimepoint).time_since_epoch().count();
@@ -124,7 +124,7 @@ namespace Nexus::Timings
 
 	  private:
 		const char										  *m_Name			= {};
-		std::chrono::time_point<std::chrono::steady_clock> m_StartTimepoint = std::chrono::high_resolution_clock::now();
+		std::chrono::time_point<std::chrono::steady_clock> m_StartTimepoint = std::chrono::steady_clock::now();
 		bool											   m_Stopped		= false;
 	};
 }	 // namespace Nexus::Timings

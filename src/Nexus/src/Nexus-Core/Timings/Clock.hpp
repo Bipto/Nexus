@@ -15,7 +15,7 @@ namespace Nexus
 		/// time
 		inline void Tick()
 		{
-			std::chrono::high_resolution_clock::time_point tickTime = std::chrono::high_resolution_clock::now();
+			std::chrono::steady_clock::time_point tickTime = std::chrono::steady_clock::now();
 			m_DeltaTime = std::chrono::duration_cast<std::chrono::nanoseconds>(tickTime - m_StartTime).count();
 			m_StartTime = tickTime;
 		}
@@ -30,7 +30,7 @@ namespace Nexus
 
 	  private:
 		/// @brief A variable containing the time that the clock was created
-		std::chrono::high_resolution_clock::time_point m_StartTime = std::chrono::high_resolution_clock::now();
+		std::chrono::steady_clock::time_point m_StartTime = std::chrono::steady_clock::now();
 
 		/// @brief A delta time representing how much time has elapsed since the clock
 		/// was created
