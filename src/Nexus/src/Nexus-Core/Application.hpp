@@ -5,7 +5,6 @@
 #include "Audio/AudioDevice.hpp"
 #include "Graphics/GraphicsDevice.hpp"
 #include "Window.hpp"
-#include "nxpch.hpp"
 
 #ifdef __EMSCRIPTEN__
 	#include <emscripten.h>

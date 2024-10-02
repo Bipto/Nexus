@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Clock.hpp"
+#include "Nexus-Core/nxpch.hpp"
 #include "Timespan.hpp"
-#include "nxpch.hpp"
+
 
 namespace Nexus::Timings
 {

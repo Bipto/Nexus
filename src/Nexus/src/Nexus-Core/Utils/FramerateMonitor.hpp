@@ -1,6 +1,6 @@
 #pragma once
 
-#include "nxpch.hpp"
+#include "Nexus-Core/nxpch.hpp"
 
 namespace Nexus::Utils
 {

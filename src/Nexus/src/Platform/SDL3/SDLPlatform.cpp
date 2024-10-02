@@ -122,4 +122,21 @@ namespace Nexus::Platform
 
 		return monitors;
 	}
+
+	void Initialise()
+	{
+		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD) != 0)
+		{
+			NX_LOG("Could not initialize SDL");
+		}
+
+		SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4_RUMBLE, "1");
+		SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5_RUMBLE, "1");
+		SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5_PLAYER_LED, "1");
+	}
+
+	void Shutdown()
+	{
+		SDL_Quit();
+	}
 }	 // namespace Nexus::Platform

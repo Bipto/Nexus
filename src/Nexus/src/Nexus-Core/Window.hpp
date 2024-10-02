@@ -1,7 +1,7 @@
 #pragma once
 
+#include "Nexus-Core/nxpch.hpp"
 #include "Platform/SDL3/SDL3Include.hpp"
-#include "nxpch.hpp"
 
 #ifdef __EMSCRIPTEN__
 	#include <emscripten.h>

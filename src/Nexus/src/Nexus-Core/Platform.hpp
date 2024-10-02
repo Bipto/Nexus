@@ -13,4 +13,7 @@ namespace Nexus::Platform
 	std::vector<InputNew::Mouse>	GetMice();
 	std::vector<InputNew::Gamepad>	GetGamepads();
 	std::vector<Monitor>			GetMonitors();
+
+	void Initialise();
+	void Shutdown();
 }	 // namespace Nexus::Platform
