@@ -1,7 +1,7 @@
 #pragma once
 
-#include "SDL.h"
-#include "nxpch.hpp"
+#include "Nexus-Core/nxpch.hpp"
+#include "Platform/SDL3/SDL3Include.hpp"
 
 #ifdef __EMSCRIPTEN__
 	#include <emscripten.h>
@@ -18,10 +18,12 @@
 #include "Nexus-Core/Graphics/GraphicsAPI.hpp"
 #include "Nexus-Core/Graphics/Rectangle.hpp"
 #include "Nexus-Core/Graphics/Swapchain.hpp"
+#include "Nexus-Core/Input/InputContext.hpp"
 #include "Nexus-Core/Input/InputEvent.hpp"
 #include "Nexus-Core/Input/InputState.hpp"
-#include "Nexus-Core/Timer.hpp"
+#include "Nexus-Core/Timings/Timer.hpp"
 #include "Point.hpp"
+#include "Utils/FramerateMonitor.hpp"
 
 namespace Nexus
 {
@@ -116,9 +118,17 @@ namespace Nexus
 		/// @return A pointer to the input state
 		const InputState *GetInput();
 
+		const InputNew::InputContext &GetInputContext() const;
+
 		/// @brief A method that checks whether a window is focussed
 		/// @return A boolean value indicating whether the window is focussed
 		bool IsFocussed();
+
+		bool IsMinimized();
+
+		bool IsMaximized();
+
+		bool IsFullscreen();
 
 		/// @brief A method that maximizes a window
 		void Maximize();
@@ -131,11 +141,6 @@ namespace Nexus
 
 		/// @brief A method that toggles a window between fullscreen and windowed
 		void ToggleFullscreen();
-
-		/// @brief A method that returns a boolean value indicating whether the window
-		/// is currently fullscreen or windowed
-		/// @return A boolean indicating whether the window is fullscreen
-		bool IsFullscreen();
 
 		/// @brief A method that sets a window to be fullscreen
 		void SetFullscreen();
@@ -169,6 +174,11 @@ namespace Nexus
 		void StartTextInput();
 		void StopTextInput();
 
+		void SetRendersPerSecond(uint32_t amount);
+		void SetUpdatesPerSecond(uint32_t amount);
+		void SetTicksPerSecond(uint32_t amount);
+		void SetRelativeMouseMode(bool enabled);
+
 		void OnEvent(const InputEvent &event);
 
 #if defined(NX_PLATFORM_WINDOWS)
@@ -177,12 +187,26 @@ namespace Nexus
 
 		EventHandler<std::pair<uint32_t, uint32_t>> OnResize;
 
-		EventHandler<std::string> OnFileDrop;
-		EventHandler<>			  OnWindowGainFocus;
-		EventHandler<>			  OnWindowLostFocus;
-		EventHandler<>			  OnWindowMaximized;
-		EventHandler<>			  OnWindowMinimized;
-		EventHandler<>			  OnWindowRestored;
+		EventHandler<> OnGainFocus;
+		EventHandler<> OnLostFocus;
+		EventHandler<> OnMaximized;
+		EventHandler<> OnMinimized;
+		EventHandler<> OnRestored;
+		EventHandler<> OnShow;
+		EventHandler<> OnHide;
+
+		EventHandler<const KeyPressedEvent &>  OnKeyPressed;
+		EventHandler<const KeyReleasedEvent &> OnKeyReleased;
+		EventHandler<char *>				   OnTextInput;
+
+		EventHandler<const MouseButtonPressedEvent &>  OnMousePressed;
+		EventHandler<const MouseButtonReleasedEvent &> OnMouseReleased;
+		EventHandler<const MouseMovedEvent &>		   OnMouseMoved;
+		EventHandler<const MouseScrolledEvent &>	   OnScroll;
+		EventHandler<>								   OnMouseEnter;
+		EventHandler<>								   OnMouseLeave;
+
+		EventHandler<const FileDropEvent &> OnFileDrop;
 
 		EventHandler<TimeSpan> OnRender;
 		EventHandler<TimeSpan> OnUpdate;
@@ -195,7 +219,15 @@ namespace Nexus
 		/// @return An unsigned int representing the flags
 		uint32_t GetFlags(Graphics::GraphicsAPI api, const WindowSpecification &windowSpec, const Graphics::SwapchainSpecification &swapchainSpec);
 
+		void SetupTimer();
+
+		const WindowSpecification &GetSpecification() const;
+
+		void HandleEvent(SDL_Event &event);
+
 	  private:
+		WindowSpecification m_Specification = {};
+
 		/// @brief A pointer to the underlying SDL window
 		SDL_Window *m_Window;
 
@@ -217,7 +249,15 @@ namespace Nexus
 		/// @brief The underlying SDL window ID
 		uint32_t m_WindowID = 0;
 
-		Nexus::Timer m_Timer = {};
+		Nexus::Timings::ExecutionTimer m_Timer = {};
+
+		bool m_Minimized = false;
+
+		Utils::FrameRateMonitor m_RenderFrameRateMonitor = {};
+		Utils::FrameRateMonitor m_UpdateFrameRateMonitor = {};
+		Utils::FrameRateMonitor m_TickFrameRateMonitor	 = {};
+
+		InputNew::InputContext m_InputContext = {};
 
 		/// @brief A friend class to allow an application to access private members of
 		/// this class

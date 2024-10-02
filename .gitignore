@@ -1,2 +1,3 @@
 ﻿build
 cppcheck_report.txt
+.vs

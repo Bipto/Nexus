@@ -1,13 +1,8 @@
 #pragma once
 
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
-#include "Nexus-Core/Input/Input.hpp"
-#include "Nexus-Core/Logging/Log.hpp"
-#include "Nexus-Core/Time.hpp"
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtc/type_ptr.hpp"
-#include "glm/gtx/transform.hpp"
+#include "Nexus-Core/Utils/FramerateMonitor.hpp"
+#include "Nexus-Core/nxpch.hpp"
 
 namespace Nexus
 {
@@ -20,10 +15,12 @@ namespace Nexus
 	class FirstPersonCamera
 	{
 	  public:
-		FirstPersonCamera(int width = 1280, int height = 720, const glm::vec3 &position = {0, 0, 0})
+		FirstPersonCamera(Graphics::GraphicsDevice *device, int width = 1280, int height = 720, const glm::vec3 &position = {0, 0, 0})
 		{
 			this->Resize(width, height);
 			this->m_Position = position;
+
+			device->GetPrimaryWindow()->OnMouseMoved += [&](const MouseMovedEvent &event) { Rotate(event.Movement.X, event.Movement.Y); };
 		}
 
 		void Resize(int width, int height)
@@ -36,12 +33,13 @@ namespace Nexus
 
 		void Update(int width, int height, TimeSpan time)
 		{
+			m_Timer.Update();
+
 			m_Width	 = width;
 			m_Height = height;
 
 			Move(time);
 			m_View = glm::lookAt(m_Position, m_Position + m_Front, m_Up);
-			Rotate();
 			RecalculateProjection();
 		}
 
@@ -115,7 +113,7 @@ namespace Nexus
 		}
 
 	  private:
-		void Move(TimeSpan time)
+		inline void Move(TimeSpan time)
 		{
 			float speed = 2.0f * time.GetSeconds();
 
@@ -152,7 +150,7 @@ namespace Nexus
 			}
 		}
 
-		void Rotate()
+		inline void Rotate(float x, float y)
 		{
 			if (Input::IsGamepadConnected())
 			{
@@ -163,8 +161,8 @@ namespace Nexus
 
 			if (Input::IsMiddleMouseHeld())
 			{
-				m_Yaw -= Input::GetMouseMovement().X;
-				m_Pitch -= Input::GetMouseMovement().Y;
+				m_Yaw -= x;
+				m_Pitch -= y;
 			}
 
 			m_Pitch				 = glm::clamp(m_Pitch, 91.0f, 269.0f);
@@ -176,7 +174,7 @@ namespace Nexus
 			m_Front = glm::normalize(cameraDirection);
 		}
 
-		void RecalculateProjection()
+		inline void RecalculateProjection()
 		{
 			float aspectRatio = (float)m_Width / (float)m_Height;
 
@@ -217,5 +215,6 @@ namespace Nexus
 		int m_Height = 0;
 
 		ProjectionType m_ProjectionType = ProjectionType::Perspective;
+		Utils::FrameRateMonitor m_Timer			 = {};
 	};
 }	 // namespace Nexus

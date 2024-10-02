@@ -71,13 +71,6 @@ namespace Nexus::Graphics
 
 	void SamplerOpenGL::Bind(uint32_t slot, bool hasMips)
 	{
-		// prevent the case where we only want to view a specific mip giving
-		// errors when binding with a texture with multiple levels
-		if (m_Specification.MaximumLOD == m_Specification.MinimumLOD)
-		{
-			hasMips = false;
-		}
-
 		glCall(glBindSampler(slot, m_Handle));
 		Setup(hasMips);
 	}

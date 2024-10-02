@@ -5,20 +5,20 @@
 #include "Audio/AudioDevice.hpp"
 #include "Graphics/GraphicsDevice.hpp"
 #include "Window.hpp"
-#include "nxpch.hpp"
 
 #ifdef __EMSCRIPTEN__
 	#include <emscripten.h>
 #endif
 
 #include "ApplicationSpecification.hpp"
-#include "Nexus-Core/Clock.hpp"
 #include "Nexus-Core/Events/Event.hpp"
 #include "Nexus-Core/Events/EventHandler.hpp"
+#include "Nexus-Core/Input/InputContext.hpp"
 #include "Nexus-Core/Input/InputEvent.hpp"
 #include "Nexus-Core/Input/InputState.hpp"
 #include "Nexus-Core/Monitor.hpp"
-#include "Nexus-Core/Time.hpp"
+#include "Nexus-Core/Timings/Clock.hpp"
+#include "Nexus-Core/Timings/Timespan.hpp"
 #include "Nexus-Core/Types.hpp"
 #include "Point.hpp"
 
@@ -152,8 +152,6 @@ namespace Nexus
 		/// @return A pointer to an audio device
 		Audio::AudioDevice *GetAudioDevice();
 
-		static std::vector<Monitor> GetMonitors();
-
 		EventHandler<char *> OnTextInput;
 
 		EventHandler<KeyPressedEvent, Window *> OnKeyPressed;
@@ -166,7 +164,6 @@ namespace Nexus
 		}
 
 	  private:
-		void	DispatchEvent(const InputEvent &event, Window *window);
 		void	PollEvents();
 		Window *GetWindowFromHandle(uint32_t handle);
 		void	CheckForClosingWindows();

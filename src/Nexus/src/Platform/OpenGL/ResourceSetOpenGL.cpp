@@ -23,6 +23,10 @@ namespace Nexus::Graphics
 
 	void ResourceSetOpenGL::WriteCombinedImageSampler(Ref<Cubemap> cubemap, Ref<Sampler> sampler, const std::string &name)
 	{
+		CombinedImageSampler ciSampler {};
+		ciSampler.ImageTexture			   = cubemap;
+		ciSampler.ImageSampler			   = sampler;
+		m_BoundCombinedImageSamplers[name] = ciSampler;
 	}
 
 }	 // namespace Nexus::Graphics

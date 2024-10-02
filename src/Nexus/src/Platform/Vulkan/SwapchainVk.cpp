@@ -23,6 +23,8 @@ namespace Nexus::Graphics
 		m_GraphicsDevice = (GraphicsDeviceVk *)graphicsDevice;
 
 		CreateSurface();
+
+		window->OnResize += [&](std::pair<uint32_t, uint32_t> size) { RecreateSwapchain(); };
 	}
 
 	SwapchainVk::~SwapchainVk()

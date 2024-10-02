@@ -69,13 +69,13 @@ namespace Nexus
 		/// pointer
 		/// @return A Nexus::Point containing two integer representing the position of
 		/// the mouse pointer
-		static Point2D<int> GetMousePosition();
+		static Point2D<float> GetMousePosition();
 
 		/// @brief A static method representing the movement of the mouse pointer
 		/// between frames
 		/// @return A Nexus::Point containing two integer representing the movement of
 		/// the mouse pointer
-		static Point2D<int> GetMouseMovement();
+		static Point2D<float> GetMouseMovement();
 
 		/// @brief A static method representing the current X position of the mouse
 		/// scroll wheel

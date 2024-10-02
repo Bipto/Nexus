@@ -21,131 +21,10 @@
 #include "Nexus-Core/Input/Input.hpp"
 #include "Nexus-Core/Logging/Log.hpp"
 
+#include "Platform/SDL3/SDL3Include.hpp"
+
 namespace Nexus
 {
-	static KeyCode SDLToNexusKeycode(SDL_Keycode keycode)
-	{
-		switch (keycode)
-		{
-			case SDLK_ESCAPE: return KeyCode::Escape;
-
-			case SDLK_F1: return KeyCode::F1;
-			case SDLK_F2: return KeyCode::F2;
-			case SDLK_F3: return KeyCode::F3;
-			case SDLK_F4: return KeyCode::F4;
-			case SDLK_F5: return KeyCode::F5;
-			case SDLK_F6: return KeyCode::F6;
-			case SDLK_F7: return KeyCode::F7;
-			case SDLK_F8: return KeyCode::F8;
-			case SDLK_F9: return KeyCode::F9;
-			case SDLK_F10: return KeyCode::F10;
-			case SDLK_F11: return KeyCode::F11;
-			case SDLK_F12: return KeyCode::F12;
-
-			case SDLK_PRINTSCREEN: return KeyCode::PrintScreen;
-			case SDLK_SCROLLLOCK: return KeyCode::ScrollLock;
-			case SDLK_PAUSE: return KeyCode::PauseBreak;
-
-			case SDLK_BACKQUOTE: return KeyCode::Tilde;
-			case SDLK_1: return KeyCode::One;
-			case SDLK_2: return KeyCode::Two;
-			case SDLK_3: return KeyCode::Three;
-			case SDLK_4: return KeyCode::Four;
-			case SDLK_5: return KeyCode::Five;
-			case SDLK_6: return KeyCode::Six;
-			case SDLK_7: return KeyCode::Seven;
-			case SDLK_8: return KeyCode::Eight;
-			case SDLK_9: return KeyCode::Nine;
-			case SDLK_0: return KeyCode::Zero;
-			case SDLK_UNDERSCORE: return KeyCode::Underscore;
-			case SDLK_EQUALS: return KeyCode::Equals;
-			case SDLK_BACKSPACE: return KeyCode::Back;
-
-			case SDLK_TAB: return KeyCode::Tab;
-			case SDLK_q: return KeyCode::Q;
-			case SDLK_w: return KeyCode::W;
-			case SDLK_e: return KeyCode::E;
-			case SDLK_r: return KeyCode::R;
-			case SDLK_t: return KeyCode::T;
-			case SDLK_y: return KeyCode::Y;
-			case SDLK_u: return KeyCode::U;
-			case SDLK_i: return KeyCode::I;
-			case SDLK_o: return KeyCode::O;
-			case SDLK_p: return KeyCode::P;
-			case SDLK_LEFTBRACKET: return KeyCode::LeftBracket;
-			case SDLK_RIGHTBRACKET: return KeyCode::RightBracket;
-			case SDLK_RETURN: return KeyCode::Enter;
-
-			case SDLK_CAPSLOCK: return KeyCode::CapsLock;
-			case SDLK_a: return KeyCode::A;
-			case SDLK_s: return KeyCode::S;
-			case SDLK_d: return KeyCode::D;
-			case SDLK_f: return KeyCode::F;
-			case SDLK_g: return KeyCode::G;
-			case SDLK_h: return KeyCode::H;
-			case SDLK_j: return KeyCode::J;
-			case SDLK_k: return KeyCode::K;
-			case SDLK_l: return KeyCode::L;
-			case SDLK_SEMICOLON: return KeyCode::SemiColon;
-			case SDLK_QUOTE: return KeyCode::Apostrophe;
-			case SDLK_HASH: return KeyCode::Hash;
-
-			case SDLK_LSHIFT: return KeyCode::LeftShift;
-			case SDLK_BACKSLASH: return KeyCode::Backslash;
-			case SDLK_z: return KeyCode::Z;
-			case SDLK_x: return KeyCode::X;
-			case SDLK_c: return KeyCode::C;
-			case SDLK_v: return KeyCode::V;
-			case SDLK_b: return KeyCode::B;
-			case SDLK_n: return KeyCode::N;
-			case SDLK_m: return KeyCode::M;
-			case SDLK_COMMA: return KeyCode::Comma;
-			case SDLK_PERIOD: return KeyCode::Period;
-			case SDLK_SLASH: return KeyCode::Slash;
-			case SDLK_RSHIFT: return KeyCode::RightShift;
-
-			case SDLK_LCTRL: return KeyCode::LeftControl;
-			case SDLK_LGUI: return KeyCode::LeftWin;
-			case SDLK_LALT: return KeyCode::LeftAlt;
-			case SDLK_SPACE: return KeyCode::Space;
-			case SDLK_RALT: return KeyCode::RightWin;
-			case SDLK_RGUI: return KeyCode::PrintScreen;
-			case SDLK_RCTRL: return KeyCode::RightControl;
-
-			case SDLK_INSERT: return KeyCode::Insert;
-			case SDLK_HOME: return KeyCode::Home;
-			case SDLK_PAGEUP: return KeyCode::PageUp;
-			case SDLK_DELETE: return KeyCode::Delete;
-			case SDLK_END: return KeyCode::End;
-			case SDLK_PAGEDOWN: return KeyCode::PageDown;
-
-			case SDLK_LEFT: return KeyCode::KeyLeft;
-			case SDLK_UP: return KeyCode::KeyUp;
-			case SDLK_DOWN: return KeyCode::KeyDown;
-			case SDLK_RIGHT: return KeyCode::KeyRight;
-
-			case SDLK_NUMLOCKCLEAR: return KeyCode::NumLock;
-			case SDLK_KP_DIVIDE: return KeyCode::KeyDivide;
-			case SDLK_KP_MULTIPLY: return KeyCode::NumMultiply;
-			case SDLK_KP_MEMSUBTRACT: return KeyCode::NumSubstract;
-			case SDLK_KP_7: return KeyCode::Num7;
-			case SDLK_KP_8: return KeyCode::Num8;
-			case SDLK_KP_9: return KeyCode::Num9;
-			case SDLK_KP_PLUS: return KeyCode::NumPlus;
-			case SDLK_KP_4: return KeyCode::Num4;
-			case SDLK_KP_5: return KeyCode::Num5;
-			case SDLK_KP_6: return KeyCode::Num6;
-			case SDLK_KP_1: return KeyCode::Num1;
-			case SDLK_KP_2: return KeyCode::Num2;
-			case SDLK_KP_3: return KeyCode::Num3;
-			case SDLK_RETURN2: return KeyCode::NumEnter;
-			case SDLK_KP_0: return KeyCode::Num0;
-			case SDLK_KP_PERIOD: return KeyCode::NumDelete;
-
-			default: return KeyCode::Unknown;
-		}
-	}
-
 	Application::Application(const ApplicationSpecification &spec)
 	{
 		m_Specification = spec;
@@ -188,9 +67,6 @@ namespace Nexus
 			OnResize(windowSize);
 		}
 
-		this->PollEvents();
-		m_GlobalKeyboardState.CacheInput();
-
 		// Allow user to block closing events, for example to display save prompt
 		if (m_Window->m_Closing)
 			m_Window->m_Closing = this->OnClose();
@@ -201,6 +77,9 @@ namespace Nexus
 		UpdateWindowTimers();
 		CheckForClosingWindows();
 		m_PreviousWindowSize = windowSize;
+
+		this->PollEvents();
+		m_GlobalKeyboardState.CacheInput();
 	}
 
 	Nexus::Window *Application::GetPrimaryWindow()
@@ -270,51 +149,16 @@ namespace Nexus
 		return m_AudioDevice;
 	}
 
-	std::vector<Monitor> Application::GetMonitors()
-	{
-		std::vector<Monitor> monitors;
-
-		int					 displayCount;
-		const SDL_DisplayID *displays = SDL_GetDisplays(&displayCount);
-
-		for (int i = 0; i < displayCount; i++)
-		{
-			SDL_DisplayID id = displays[i];
-			SDL_Rect	  bounds;
-
-			Monitor monitor;
-			monitor.DPI	 = SDL_GetDisplayContentScale(id);
-			monitor.Name = SDL_GetDisplayName(id);
-
-			SDL_GetDisplayBounds(id, &bounds);
-			monitor.Position = {bounds.x, bounds.y};
-			monitor.Size	 = {bounds.w, bounds.h};
-
-			SDL_GetDisplayUsableBounds(id, &bounds);
-			monitor.WorkPosition = {bounds.x, bounds.y};
-			monitor.WorkSize	 = {bounds.w, bounds.h};
-
-			monitors.push_back(monitor);
-		}
-
-		return monitors;
-	}
-
 	const Keyboard &Application::GetGlobalKeyboardState() const
 	{
 		return m_GlobalKeyboardState;
 	}
 
-	void Application::DispatchEvent(const InputEvent &event, Window *window)
-	{
-		if (!OnEvent(event, window))
-		{
-			window->OnEvent(event);
-		}
-	}
-
 	void Application::PollEvents()
 	{
+		// cache the previous frame's input
+		Mouse::s_PreviousGlobalMousePosition = Mouse::s_GlobalMousePosition;
+
 		for (auto window : m_Windows) { window->m_Input.CacheInput(); }
 
 		float  x, y;
@@ -325,8 +169,8 @@ namespace Nexus
 		y *= GetPrimaryWindow()->GetDisplayScale();
 #endif
 
-		Mouse::s_GlobalMousePosition.X = (int)x;
-		Mouse::s_GlobalMousePosition.Y = (int)y;
+		Mouse::s_GlobalMousePosition.X = x;
+		Mouse::s_GlobalMousePosition.Y = y;
 
 		if (buttons & SDL_BUTTON_LEFT)
 		{
@@ -368,24 +212,51 @@ namespace Nexus
 			{
 				case SDL_EVENT_KEY_DOWN:
 				{
-					auto nexusKeyCode									   = SDLToNexusKeycode(event.key.keysym.sym);
+					auto nexusKeyCode  = Nexus::SDL3::GetNexusKeyCodeFromSDLKeyCode(event.key.keysym.sym);
+					auto nexusScanCode = Nexus::SDL3::GetNexusScanCodeFromSDLScanCode(event.key.keysym.scancode);
+					auto mods		   = Nexus::SDL3::GetNexusModifiersFromSDLModifiers(event.key.keysym.mod);
+
 					window->m_Input.m_Keyboard.m_CurrentKeys[nexusKeyCode] = true;
 					m_GlobalKeyboardState.m_CurrentKeys[nexusKeyCode]	   = true;
-					DispatchEvent(KeyPressedEvent {.Key = nexusKeyCode}, window);
+
+					KeyPressedEvent keyPressedEvent {.KeyCode	 = nexusKeyCode,
+													 .ScanCode	 = nexusScanCode,
+													 .Repeat	 = event.key.repeat,
+													 .Unicode	 = event.key.keysym.sym,
+													 .Mods		 = mods,
+													 .KeyboardID = event.kdevice.which};
+
+					window->OnKeyPressed.Invoke(keyPressedEvent);
 					break;
 				}
 				case SDL_EVENT_KEY_UP:
 				{
-					auto nexusKeyCode									   = SDLToNexusKeycode(event.key.keysym.sym);
+					auto nexusKeyCode  = Nexus::SDL3::GetNexusKeyCodeFromSDLKeyCode(event.key.keysym.sym);
+					auto nexusScanCode = Nexus::SDL3::GetNexusScanCodeFromSDLScanCode(event.key.keysym.scancode);
+
 					window->m_Input.m_Keyboard.m_CurrentKeys[nexusKeyCode] = false;
 					m_GlobalKeyboardState.m_CurrentKeys[nexusKeyCode]	   = false;
-					DispatchEvent(KeyReleasedEvent {.Key = nexusKeyCode}, window);
+
+					KeyReleasedEvent keyReleasedEvent {.KeyCode	   = nexusKeyCode,
+													   .ScanCode   = nexusScanCode,
+													   .Unicode	   = event.key.keysym.sym,
+													   .KeyboardID = event.kdevice.which};
+
+					window->OnKeyReleased.Invoke(keyReleasedEvent);
+					break;
+				}
+				case SDL_EVENT_WINDOW_HIDDEN:
+				{
+					window->OnHide.Invoke();
+					break;
+				}
+				case SDL_EVENT_WINDOW_SHOWN:
+				{
+					window->OnShow.Invoke();
 					break;
 				}
 				case SDL_EVENT_MOUSE_BUTTON_DOWN:
 				{
-					DispatchEvent({MouseButtonPressedEvent {.MouseButton = event.button.button}}, window);
-
 					switch (event.button.button)
 					{
 						case SDL_BUTTON_LEFT:
@@ -404,6 +275,17 @@ namespace Nexus
 							break;
 						}
 					}
+
+					auto [mouseType, mouseId] = SDL3::GetMouseInfo(event.button.which);
+					MouseButton button		  = SDL3::GetMouseButton(event.button.button);
+
+					MouseButtonPressedEvent mousePressedEvent {.Button	 = button,
+															   .Position = {event.button.x, event.button.y},
+															   .Clicks	 = event.button.clicks,
+															   .MouseID	 = mouseId,
+															   .Type	 = mouseType};
+
+					window->OnMousePressed.Invoke(mousePressedEvent);
 					break;
 				}
 				case SDL_EVENT_MOUSE_BUTTON_UP:
@@ -427,14 +309,21 @@ namespace Nexus
 						}
 					}
 
-					DispatchEvent(MouseButtonReleasedEvent {.MouseButton = event.button.button}, window);
+					auto [mouseType, mouseId] = SDL3::GetMouseInfo(event.button.which);
+					MouseButton button		  = SDL3::GetMouseButton(event.button.button);
 
+					MouseButtonReleasedEvent mouseReleasedEvent {.Button   = button,
+																 .Position = {event.button.x, event.button.y},
+																 .MouseID  = mouseId,
+																 .Type	   = mouseType};
+
+					window->OnMouseReleased.Invoke(mouseReleasedEvent);
 					break;
 				}
 				case SDL_EVENT_MOUSE_MOTION:
 				{
-					int mouseX = event.motion.x;
-					int mouseY = event.motion.y;
+					float mouseX = event.motion.x;
+					float mouseY = event.motion.y;
 
 #if defined(__EMSCRIPTEN__)
 					mouseX *= GetPrimaryWindow()->GetDisplayScale();
@@ -446,8 +335,17 @@ namespace Nexus
 					float  xPos, yPos;
 					Uint32 state = SDL_GetMouseState(&xPos, &yPos);
 
-					MouseMovedEvent e {.Position = {(int)xPos, (int)yPos}, .Movement = {(int)event.motion.x, (int)event.motion.y}};
-					DispatchEvent(e, window);
+					float movementX = xPos - window->m_Input.m_Mouse.m_CurrentState.MousePosition.X;
+					float movementY = yPos - window->m_Input.m_Mouse.m_CurrentState.MousePosition.Y;
+
+					auto [mouseType, mouseId] = SDL3::GetMouseInfo(event.motion.which);
+
+					MouseMovedEvent mouseMovedEvent {.Position = {event.motion.x, event.motion.y},
+													 .Movement = {event.motion.xrel, event.motion.yrel},
+													 .MouseID  = mouseId,
+													 .Type	   = mouseType};
+
+					window->OnMouseMoved.Invoke(mouseMovedEvent);
 
 					break;
 				}
@@ -457,7 +355,16 @@ namespace Nexus
 					scroll.X += event.wheel.x;
 					scroll.Y += event.wheel.y;
 
-					DispatchEvent(MouseScrolledEvent {.ScrollX = event.wheel.x, .ScrollY = event.wheel.y}, window);
+					auto [mouseType, mouseId] = SDL3::GetMouseInfo(event.wheel.which);
+					ScrollDirection direction = SDL3::GetScrollDirection(event.wheel.direction);
+
+					MouseScrolledEvent scrollEvent {.Scroll	   = {event.wheel.x, event.wheel.y},
+													.Position  = {event.wheel.mouse_x, event.wheel.mouse_y},
+													.MouseID   = mouseId,
+													.Type	   = mouseType,
+													.Direction = direction};
+
+					window->OnScroll.Invoke(scrollEvent);
 					break;
 				}
 				case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
@@ -475,6 +382,21 @@ namespace Nexus
 					}
 					break;
 				}
+				case SDL_EVENT_GAMEPAD_REMAPPED:
+				{
+					event.gdevice.which;
+					break;
+				}
+				case SDL_EVENT_GAMEPAD_UPDATE_COMPLETE:
+				{
+					event.gdevice.which;
+					break;
+				}
+				case SDL_EVENT_GAMEPAD_STEAM_HANDLE_UPDATED:
+				{
+					event.gdevice.which;
+					break;
+				}
 				case SDL_EVENT_GAMEPAD_REMOVED:
 				{
 					Nexus::Input::RemoveController(event.cdevice.which);
@@ -482,6 +404,7 @@ namespace Nexus
 				}
 				case SDL_EVENT_TEXT_INPUT:
 				{
+					window->OnTextInput.Invoke(event.text.text);
 					window->m_Input.TextInput.Invoke(event.text.text);
 					OnTextInput.Invoke(event.text.text);
 					break;
@@ -493,33 +416,98 @@ namespace Nexus
 				}
 				case SDL_EVENT_DROP_FILE:
 				{
-					std::string file = event.drop.data;
-					window->OnFileDrop.Invoke(file);
+					FileDropType type		= SDL3::GetFileDropType(event.drop.type);
+					std::string	 sourceApp	= {};
+					std::string	 sourceData = {};
+
+					if (event.drop.source)
+					{
+						sourceApp = event.drop.source;
+					}
+
+					if (event.drop.data)
+					{
+						sourceData = event.drop.data;
+					}
+
+					FileDropEvent fileDropEvent {.Type = type, .Position = {event.drop.x, event.drop.y}, .SourceApp = sourceApp, .Data = sourceData};
+
+					window->OnFileDrop.Invoke(fileDropEvent);
 					break;
 				}
 				case SDL_EVENT_WINDOW_FOCUS_GAINED:
 				{
-					window->OnWindowGainFocus.Invoke();
+					window->OnGainFocus.Invoke();
 					break;
 				}
 				case SDL_EVENT_WINDOW_FOCUS_LOST:
 				{
-					window->OnWindowLostFocus.Invoke();
+					window->OnLostFocus.Invoke();
 					break;
 				}
 				case SDL_EVENT_WINDOW_MAXIMIZED:
 				{
-					window->OnWindowMaximized.Invoke();
+					window->OnMaximized.Invoke();
 					break;
 				}
 				case SDL_EVENT_WINDOW_MINIMIZED:
 				{
-					window->OnWindowMinimized.Invoke();
+					window->OnMinimized.Invoke();
 					break;
 				}
 				case SDL_EVENT_WINDOW_RESTORED:
 				{
-					window->OnWindowRestored.Invoke();
+					window->OnRestored.Invoke();
+					break;
+				}
+				case SDL_EVENT_WINDOW_MOUSE_ENTER:
+				{
+					window->OnMouseEnter.Invoke();
+					break;
+				}
+				case SDL_EVENT_WINDOW_MOUSE_LEAVE:
+				{
+					window->OnMouseLeave.Invoke();
+					break;
+				}
+				case SDL_EVENT_DISPLAY_ORIENTATION:
+				{
+					break;
+				}
+				case SDL_EVENT_DISPLAY_ADDED:
+				{
+					break;
+				}
+				case SDL_EVENT_DISPLAY_CONTENT_SCALE_CHANGED:
+				{
+					break;
+				}
+				case SDL_EVENT_DISPLAY_REMOVED:
+				{
+					break;
+				}
+				case SDL_EVENT_DISPLAY_HDR_STATE_CHANGED:
+				{
+					break;
+				}
+				case SDL_EVENT_KEYBOARD_ADDED:
+				{
+					event.kdevice.which;
+					break;
+				}
+				case SDL_EVENT_KEYBOARD_REMOVED:
+				{
+					event.kdevice.which;
+					break;
+				}
+				case SDL_EVENT_MOUSE_ADDED:
+				{
+					event.mdevice.which;
+					break;
+				}
+				case SDL_EVENT_MOUSE_REMOVED:
+				{
+					event.mdevice.which;
 					break;
 				}
 			}

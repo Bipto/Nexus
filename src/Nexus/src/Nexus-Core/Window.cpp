@@ -15,10 +15,13 @@
 	#include "Platform/D3D12/SwapchainD3D12.hpp"
 #endif
 
+#include "Nexus-Core/Application.hpp"
+
 namespace Nexus
 {
 
 	Window::Window(const WindowSpecification &windowProps, Graphics::GraphicsAPI api, const Graphics::SwapchainSpecification &swapchainSpec)
+		: m_Specification(windowProps)
 	{
 		// NOTE: Resizable flag MUST be set in order for Emscripten resizing to work
 		// correctly
@@ -33,14 +36,7 @@ namespace Nexus
 		}
 
 		m_WindowID = SDL_GetWindowID(m_Window);
-
-		double secondsPerRender = 1.0 / windowProps.RendersPerSecond;
-		double secondsPerUpdate = 1.0 / windowProps.UpdatesPerSecond;
-		double secondsPerTick	= 1.0 / windowProps.TicksPerSecond;
-
-		m_Timer.Every([&](Nexus::TimeSpan time) { OnRender.Invoke(time); }, secondsPerRender);
-		m_Timer.Every([&](Nexus::TimeSpan time) { OnUpdate.Invoke(time); }, secondsPerUpdate);
-		m_Timer.Every([&](Nexus::TimeSpan time) { OnTick.Invoke(time); }, secondsPerTick);
+		SetupTimer();
 	}
 
 	Window::~Window()
@@ -164,33 +160,44 @@ namespace Nexus
 		return &m_Input;
 	}
 
+	const InputNew::InputContext &Window::GetInputContext() const
+	{
+		return m_InputContext;
+	}
+
 	bool Window::IsFocussed()
 	{
 		return SDL_GetWindowFlags(m_Window) & SDL_WINDOW_INPUT_FOCUS;
 	}
 
+	bool Window::IsMinimized()
+	{
+		return SDL_GetWindowFlags(m_Window) & SDL_WINDOW_MINIMIZED;
+	}
+
+	bool Window::IsMaximized()
+	{
+		return SDL_GetWindowFlags(m_Window) & SDL_WINDOW_MAXIMIZED;
+	}
+
+	bool Window::IsFullscreen()
+	{
+		return SDL_GetWindowFlags(m_Window) & SDL_WINDOW_FULLSCREEN;
+	}
+
 	void Window::Maximize()
 	{
 		SDL_MaximizeWindow(m_Window);
-
-		auto [width, height] = GetWindowSize();
-		OnResize.Invoke({width, height});
 	}
 
 	void Window::Minimize()
 	{
 		SDL_MinimizeWindow(m_Window);
-
-		auto [width, height] = GetWindowSize();
-		OnResize.Invoke({width, height});
 	}
 
 	void Window::Restore()
 	{
 		SDL_RestoreWindow(m_Window);
-
-		auto [width, height] = GetWindowSize();
-		OnResize.Invoke({width, height});
 	}
 
 	void Window::ToggleFullscreen()
@@ -203,18 +210,6 @@ namespace Nexus
 		{
 			SetFullscreen();
 		}
-	}
-
-	bool Window::IsFullscreen()
-	{
-		auto flags = SDL_GetWindowFlags(m_Window);
-
-		if (flags & SDL_WINDOW_FULLSCREEN)
-		{
-			return true;
-		}
-
-		return false;
 	}
 
 	void Window::SetFullscreen()
@@ -304,10 +299,35 @@ namespace Nexus
 
 	void Window::StartTextInput()
 	{
+		SDL_StartTextInput();
 	}
 
 	void Window::StopTextInput()
 	{
+		SDL_StopTextInput();
+	}
+
+	void Window::SetRendersPerSecond(uint32_t amount)
+	{
+		m_Specification.RendersPerSecond = amount;
+		SetupTimer();
+	}
+
+	void Window::SetUpdatesPerSecond(uint32_t amount)
+	{
+		m_Specification.UpdatesPerSecond = amount;
+		SetupTimer();
+	}
+
+	void Window::SetTicksPerSecond(uint32_t amount)
+	{
+		m_Specification.TicksPerSecond = amount;
+		SetupTimer();
+	}
+
+	void Window::SetRelativeMouseMode(bool enabled)
+	{
+		SDL_SetRelativeMouseMode(enabled);
 	}
 
 	void Window::OnEvent(const InputEvent &event)
@@ -403,6 +423,159 @@ namespace Nexus
 				return flags;
 			}
 			default: return flags;
+		}
+	}
+
+	void Window::SetupTimer()
+	{
+		m_Timer.Clear();
+
+		double secondsPerRender = {};
+		double secondsPerUpdate = {};
+		double secondsPerTick	= {};
+
+		if (m_Specification.RendersPerSecond.has_value())
+		{
+			secondsPerRender = 1.0 / m_Specification.RendersPerSecond.value();
+		}
+
+		if (m_Specification.UpdatesPerSecond.has_value())
+		{
+			secondsPerUpdate = 1.0 / m_Specification.UpdatesPerSecond.value();
+		}
+
+		if (m_Specification.TicksPerSecond.has_value())
+		{
+			secondsPerTick = 1.0 / m_Specification.TicksPerSecond.value();
+		}
+
+		m_Timer.Every(
+		[&](Nexus::TimeSpan time)
+		{
+			if (IsMinimized())
+				return;
+
+			m_RenderFrameRateMonitor.Update();
+			OnRender.Invoke(time);
+		},
+		secondsPerRender);
+
+		m_Timer.Every(
+		[&](Nexus::TimeSpan time)
+		{
+			if (IsMinimized())
+				return;
+
+			m_UpdateFrameRateMonitor.Update();
+			OnUpdate.Invoke(time);
+		},
+		secondsPerUpdate);
+
+		m_Timer.Every(
+		[&](Nexus::TimeSpan time)
+		{
+			if (IsMinimized())
+				return;
+
+			m_TickFrameRateMonitor.Update();
+			OnTick.Invoke(time);
+		},
+		secondsPerTick);
+	}
+
+	const WindowSpecification &Window::GetSpecification() const
+	{
+		return m_Specification;
+	}
+
+	void Window::HandleEvent(SDL_Event &event)
+	{
+		switch (event.type)
+		{
+			case SDL_EVENT_KEY_DOWN:
+			{
+				auto nexusKeyCode  = Nexus::SDL3::GetNexusKeyCodeFromSDLKeyCode(event.key.keysym.sym);
+				auto nexusScanCode = Nexus::SDL3::GetNexusScanCodeFromSDLScanCode(event.key.keysym.scancode);
+				auto mods		   = Nexus::SDL3::GetNexusModifiersFromSDLModifiers(event.key.keysym.mod);
+
+				KeyPressedEvent keyPressedEvent {.KeyCode	 = nexusKeyCode,
+												 .ScanCode	 = nexusScanCode,
+												 .Repeat	 = event.key.repeat,
+												 .Unicode	 = event.key.keysym.sym,
+												 .Mods		 = mods,
+												 .KeyboardID = event.kdevice.which};
+
+				OnKeyPressed.Invoke(keyPressedEvent);
+
+				break;
+			}
+			case SDL_EVENT_KEY_UP:
+			{
+				auto nexusKeyCode  = Nexus::SDL3::GetNexusKeyCodeFromSDLKeyCode(event.key.keysym.sym);
+				auto nexusScanCode = Nexus::SDL3::GetNexusScanCodeFromSDLScanCode(event.key.keysym.scancode);
+
+				KeyReleasedEvent keyReleasedEvent {.KeyCode	   = nexusKeyCode,
+												   .ScanCode   = nexusScanCode,
+												   .Unicode	   = event.key.keysym.sym,
+												   .KeyboardID = event.kdevice.which};
+
+				OnKeyReleased.Invoke(keyReleasedEvent);
+
+				break;
+			}
+			case SDL_EVENT_MOUSE_BUTTON_DOWN:
+			{
+				auto [mouseType, mouseId] = SDL3::GetMouseInfo(event.button.which);
+				MouseButton button		  = SDL3::GetMouseButton(event.button.button);
+
+				MouseButtonPressedEvent mousePressedEvent {.Button	 = button,
+														   .Position = {event.button.x, event.button.y},
+														   .Clicks	 = event.button.clicks,
+														   .MouseID	 = mouseId,
+														   .Type	 = mouseType};
+
+				OnMousePressed.Invoke(mousePressedEvent);
+				break;
+			}
+			case SDL_EVENT_MOUSE_BUTTON_UP:
+			{
+				auto [mouseType, mouseId] = SDL3::GetMouseInfo(event.button.which);
+				MouseButton button		  = SDL3::GetMouseButton(event.button.button);
+
+				MouseButtonReleasedEvent mouseReleasedEvent {.Button   = button,
+															 .Position = {event.button.x, event.button.y},
+															 .MouseID  = mouseId,
+															 .Type	   = mouseType};
+
+				OnMouseReleased.Invoke(mouseReleasedEvent);
+				break;
+			}
+			case SDL_EVENT_MOUSE_MOTION:
+			{
+				auto [mouseType, mouseId] = SDL3::GetMouseInfo(event.motion.which);
+
+				MouseMovedEvent mouseMovedEvent {.Position = {event.motion.x, event.motion.y},
+												 .Movement = {event.motion.xrel, event.motion.yrel},
+												 .MouseID  = mouseId,
+												 .Type	   = mouseType};
+
+				OnMouseMoved.Invoke(mouseMovedEvent);
+				break;
+			}
+			case SDL_EVENT_MOUSE_WHEEL:
+			{
+				auto [mouseType, mouseId] = SDL3::GetMouseInfo(event.wheel.which);
+				ScrollDirection direction = SDL3::GetScrollDirection(event.wheel.direction);
+
+				MouseScrolledEvent scrollEvent {.Scroll	   = {event.wheel.x, event.wheel.y},
+												.Position  = {event.wheel.mouse_x, event.wheel.mouse_y},
+												.MouseID   = mouseId,
+												.Type	   = mouseType,
+												.Direction = direction};
+
+				OnScroll.Invoke(scrollEvent);
+				break;
+			}
 		}
 	}
 }	 // namespace Nexus

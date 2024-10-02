@@ -17,7 +17,8 @@ namespace Demos
 	{
 	  public:
 		CubemapDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
-			: Demo(name, app, imGuiRenderer)
+			: Demo(name, app, imGuiRenderer),
+			  m_Camera(m_GraphicsDevice)
 		{
 		}
 
@@ -95,7 +96,10 @@ namespace Demos
 			m_CommandList->End();
 
 			m_GraphicsDevice->SubmitCommandList(m_CommandList);
+		}
 
+		virtual void Update(Nexus::TimeSpan time) override
+		{
 			m_Camera.Update(m_Window->GetWindowSize().X, m_Window->GetWindowSize().Y, time);
 		}
 

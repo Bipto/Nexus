@@ -86,9 +86,9 @@ namespace Nexus
 
 		bool Utility = false;
 
-		uint32_t RendersPerSecond = 60;
-		uint32_t UpdatesPerSecond = 60;
-		uint32_t TicksPerSecond	  = 60;
+		std::optional<uint32_t> RendersPerSecond = {};
+		std::optional<uint32_t> UpdatesPerSecond = {};
+		std::optional<uint32_t> TicksPerSecond	 = {};
 	};
 
 	/// @brief A struct representing options to use when creating an application
