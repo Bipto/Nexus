@@ -488,38 +488,27 @@ namespace Nexus
 		return m_Specification;
 	}
 
-	void Window::OnMouseMovedEventFunc(const MouseMovedEvent &event)
+	void Window::HandleEvent(SDL_Event &event)
 	{
-		OnMouseMoved.Invoke(event);
-	}
+		switch (event.type)
+		{
+			case SDL_EVENT_KEY_DOWN:
+			{
+				auto nexusKeyCode  = Nexus::SDL3::GetNexusKeyCodeFromSDLKeyCode(event.key.keysym.sym);
+				auto nexusScanCode = Nexus::SDL3::GetNexusScanCodeFromSDLScanCode(event.key.keysym.scancode);
+				auto mods		   = Nexus::SDL3::GetNexusModifiersFromSDLModifiers(event.key.keysym.mod);
 
-	void Window::OnKeyPressedEventFunc(const KeyPressedEvent &event)
-	{
-		OnKeyPressed.Invoke(event);
-	}
+				KeyPressedEvent keyPressedEvent {.KeyCode	 = nexusKeyCode,
+												 .ScanCode	 = nexusScanCode,
+												 .Repeat	 = event.key.repeat,
+												 .Unicode	 = event.key.keysym.sym,
+												 .Mods		 = mods,
+												 .KeyboardID = event.kdevice.which};
 
-	void Nexus::Window::OnKeyReleasedEventFunc(const KeyReleasedEvent &event)
-	{
-		OnKeyReleased.Invoke(event);
-	}
+				OnKeyPressed.Invoke(keyPressedEvent);
 
-	void Nexus::Window::OnMousePressedEventFunc(const MouseButtonPressedEvent &event)
-	{
-		OnMousePressed.Invoke(event);
-	}
-
-	void Nexus::Window::OnMouseReleasedEventFunc(const MouseButtonReleasedEvent &event)
-	{
-		OnMouseReleased.Invoke(event);
-	}
-
-	void Nexus::Window::OnScrollEventFunc(const MouseScrolledEvent &event)
-	{
-		OnScroll.Invoke(event);
-	}
-	
-	void Window::OnFileDropEventFunc(const FileDropEvent &event)
-	{
-		OnFileDrop.Invoke(event);
+				break;
+			}
+		}
 	}
 }	 // namespace Nexus

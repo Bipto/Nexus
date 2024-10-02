@@ -226,7 +226,7 @@ namespace Nexus
 													 .Mods		 = mods,
 													 .KeyboardID = event.kdevice.which};
 
-					window->OnKeyPressedEventFunc(keyPressedEvent);
+					window->OnKeyPressed.Invoke(keyPressedEvent);
 					break;
 				}
 				case SDL_EVENT_KEY_UP:
@@ -242,7 +242,7 @@ namespace Nexus
 													   .Unicode	   = event.key.keysym.sym,
 													   .KeyboardID = event.kdevice.which};
 
-					window->OnKeyReleasedEventFunc(keyReleasedEvent);
+					window->OnKeyReleased.Invoke(keyReleasedEvent);
 					break;
 				}
 				case SDL_EVENT_MOUSE_BUTTON_DOWN:
@@ -274,7 +274,7 @@ namespace Nexus
 															   .MouseID		= mouseId,
 															   .Type		= mouseType};
 
-					window->OnMousePressedEventFunc(mousePressedEvent);
+					window->OnMousePressed.Invoke(mousePressedEvent);
 					break;
 				}
 				case SDL_EVENT_MOUSE_BUTTON_UP:
@@ -305,7 +305,7 @@ namespace Nexus
 																 .MouseID	  = mouseId,
 																 .Type		  = mouseType};
 
-					window->OnMouseReleasedEventFunc(mouseReleasedEvent);
+					window->OnMouseReleased.Invoke(mouseReleasedEvent);
 					break;
 				}
 				case SDL_EVENT_MOUSE_MOTION:
@@ -333,7 +333,7 @@ namespace Nexus
 													 .MouseID  = mouseId,
 													 .Type	   = mouseType};
 
-					window->OnMouseMovedEventFunc(mouseMovedEvent);
+					window->OnMouseMoved.Invoke(mouseMovedEvent);
 
 					break;
 				}
@@ -352,7 +352,7 @@ namespace Nexus
 													.Type	   = mouseType,
 													.Direction = direction};
 
-					window->OnScrollEventFunc(scrollEvent);
+					window->OnScroll.Invoke(scrollEvent);
 
 					SDL_MouseWheelDirection;
 					break;
@@ -406,7 +406,7 @@ namespace Nexus
 
 					FileDropEvent fileDropEvent {.Type = type, .Position = {event.drop.x, event.drop.y}, .SourceApp = sourceApp, .Data = sourceData};
 
-					window->OnFileDropEventFunc(fileDropEvent);
+					window->OnFileDrop.Invoke(fileDropEvent);
 					break;
 				}
 				case SDL_EVENT_WINDOW_FOCUS_GAINED:

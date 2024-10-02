@@ -27,10 +27,10 @@ namespace Nexus::Graphics
 		return m_Handle;
 	}
 
-	void SamplerOpenGL::Setup()
+	void SamplerOpenGL::Setup(bool hasMips)
 	{
 		GLenum min, max;
-		GL::GetSamplerFilter(m_Specification.SampleFilter, min, max);
+		GL::GetSamplerFilter(m_Specification.SampleFilter, min, max, hasMips);
 
 		// texture sampling options
 		glCall(glSamplerParameteri(m_Handle, GL_TEXTURE_MIN_FILTER, min));
@@ -69,10 +69,10 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void SamplerOpenGL::Bind(uint32_t slot)
+	void SamplerOpenGL::Bind(uint32_t slot, bool hasMips)
 	{
 		glCall(glBindSampler(slot, m_Handle));
-		Setup();
+		Setup(hasMips);
 	}
 }	 // namespace Nexus::Graphics
 

@@ -39,22 +39,36 @@ endif()
 #adds cpp and h files from engine
 file (GLOB_RECURSE ENGINE_HEADERS src/Nexus-Core/*.h)
 file (GLOB_RECURSE ENGINE_SOURCES 
+ src/Nexus-Core/*.hpp
  src/Nexus-Core/*.cpp
+ src/Nexus-Core/FileSystem/*.hpp
  src/Nexus-Core/FileSystem/*.cpp
+ src/Nexus-Core/Graphics/*.hpp
  src/Nexus-Core/Graphics/*.cpp
+ src/Nexus-Core/ImGui/*.hpp
  src/Nexus-Core/ImGui/*.cpp
+ src/Nexus-Core/Input/*.hpp
  src/Nexus-Core/Input/*.cpp
- src/Nexus-Core/Input/*.cpp
+ src/Nexus-Core/Logging/*.hpp
  src/Nexus-Core/Logging/*.cpp
+ src/Nexus-Core/Renderer/*.hpp
  src/Nexus-Core/Renderer/*.cpp
+ src/Nexus-Core/Runtime/*.hpp
  src/Nexus-Core/Runtime/*.cpp
+ src/Nexus-Core/Runtime/ECS/*.hpp
  src/Nexus-Core/Runtime/ECS/*.cpp
  
+ src/Platform/*.hpp
  src/Platform/*.cpp
+ src/Platform/Vulkan/*.hpp
  src/Platform/Vulkan/*.cpp
+ src/Platform/OpenGL/*.hpp
  src/Platform/OpenGL/*.cpp
+ src/Platform/D3D11/*.hpp
  src/Platform/D3D11/*.cpp
+ src/Platform/D3D12/*.hpp
  src/Platform/D3D12/*.cpp
+ src/Platform/SDL3/*.hpp
  src/Platform/SDL3/*.cpp
  )
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SDL.h"
+#include "Platform/SDL3/SDL3Include.hpp"
 #include "nxpch.hpp"
 
 #ifdef __EMSCRIPTEN__
@@ -217,13 +217,7 @@ namespace Nexus
 
 		const WindowSpecification &GetSpecification() const;
 
-		void OnMouseMovedEventFunc(const MouseMovedEvent &event);
-		void OnKeyPressedEventFunc(const KeyPressedEvent &event);
-		void OnKeyReleasedEventFunc(const KeyReleasedEvent &event);
-		void OnMousePressedEventFunc(const MouseButtonPressedEvent &event);
-		void OnMouseReleasedEventFunc(const MouseButtonReleasedEvent &event);
-		void OnScrollEventFunc(const MouseScrolledEvent &event);
-		void OnFileDropEventFunc(const FileDropEvent &event);
+		void HandleEvent(SDL_Event &event);
 
 	  private:
 		WindowSpecification m_Specification = {};

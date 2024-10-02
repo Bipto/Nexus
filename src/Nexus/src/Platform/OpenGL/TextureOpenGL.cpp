@@ -112,21 +112,24 @@ namespace Nexus::Graphics
 		m_InternalFormat = GL::GetSizedInternalFormat(spec.Format, false);
 		m_BaseType		 = GL::GetPixelType(spec.Format);
 
-		glGenTextures(1, &m_Handle);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, m_Handle);
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		glCall(glGenTextures(1, &m_Handle));
+		glCall(glBindTexture(GL_TEXTURE_CUBE_MAP, m_Handle));
+		glCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
 
 		for (size_t i = 0; i < 6; i++)
 		{
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-						 0,
-						 m_InternalFormat,
-						 m_Specification.Width,
-						 m_Specification.Height,
-						 0,
-						 m_DataFormat,
-						 m_BaseType,
-						 nullptr);
+			for (uint32_t level = 0; level < spec.MipLevels; level++)
+			{
+				glCall(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+									level,
+									m_InternalFormat,
+									m_Specification.Width,
+									m_Specification.Height,
+									0,
+									m_DataFormat,
+									m_BaseType,
+									nullptr));
+			}
 		}
 	}
 
