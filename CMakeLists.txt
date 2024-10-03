@@ -53,5 +53,4 @@ add_subdirectory(src/Tests)
 
 if(WIN32 OR LINUX)
     add_subdirectory(src/Sandbox)
-    add_subdirectory(src/Editor)
 endif()
