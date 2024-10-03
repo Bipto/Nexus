@@ -123,6 +123,8 @@ class Sandbox : public Nexus::Application
 
 		m_CommandList->End();
 		m_GraphicsDevice->SubmitCommandList(m_CommandList);
+
+		m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->SwapBuffers();
 	}
 
 	virtual void OnResize(Nexus::Point2D<uint32_t> size) override
@@ -131,14 +133,6 @@ class Sandbox : public Nexus::Application
 
 	virtual bool OnEvent(const Nexus::InputEvent &event, Nexus::Window *window) override
 	{
-		if (std::holds_alternative<Nexus::MouseScrolledEvent>(event))
-		{
-			Nexus::MouseScrolledEvent e = std::get<Nexus::MouseScrolledEvent>(event);
-			std::cout << e.ScrollY << std::endl;
-
-			return true;
-		}
-
 		return false;
 	}
 
