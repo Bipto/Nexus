@@ -20,7 +20,7 @@ namespace Nexus::Graphics
 	{
 		window->CreateSwapchain(this, swapchainSpec);
 
-	#if defined(WIN32)
+	#if defined(NX_PLATFORM_GL_GLAD)
 		gladLoadGL();
 	#endif
 
