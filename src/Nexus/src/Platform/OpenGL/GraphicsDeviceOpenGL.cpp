@@ -22,10 +22,15 @@ namespace Nexus::Graphics
 
 	#if defined(NX_PLATFORM_GL_GLAD)
 		gladLoadGL();
+
+		if (!gladLoadGLLoader((GLADloadprc)SDL_GL_GetProcAddress))
+		{
+			NX_ERROR("Failed to load GLAD");
+		}
 	#endif
 
 		m_Extensions = GetSupportedExtensions();
-		glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+		// glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 	}
 
 	void GraphicsDeviceOpenGL::SetFramebuffer(Ref<Framebuffer> framebuffer)
