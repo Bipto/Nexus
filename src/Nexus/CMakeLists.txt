@@ -27,6 +27,8 @@ add_subdirectory(external/yaml-cpp)
 if (WIN32 OR LINUX)
     add_subdirectory(external/VulkanMemoryAllocator)
     set_target_properties(VulkanMemoryAllocator PROPERTIES FOLDER "external")
+    set_target_properties(VulkanMemoryAllocator PROPERTIES CXX_STANDARD 20
+      CXX_EXTENSIONS OFF)
 endif()
 
 #these libraries are only required if we are not building for emscripten

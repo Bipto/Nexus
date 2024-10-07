@@ -12,7 +12,8 @@ namespace Nexus::Audio
 {
 	AudioDeviceOpenAL::AudioDeviceOpenAL()
 	{
-		m_Device = alcOpenDevice(nullptr);
+		std::string deviceName = alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
+		m_Device			   = alcOpenDevice(deviceName.c_str());
 		if (!m_Device)
 		{
 			throw std::runtime_error("Failed to create audio device");

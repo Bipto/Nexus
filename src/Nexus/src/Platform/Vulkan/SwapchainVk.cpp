@@ -250,13 +250,19 @@ namespace Nexus::Graphics
 		vkGetPhysicalDeviceSurfaceFormatsKHR(m_GraphicsDevice->m_PhysicalDevice, m_Surface, &surfaceFormatCount, surfaceFormats.data());
 
 		bool found = false;
-		for (const auto &format : surfaceFormats)
+		// for (const auto &format : surfaceFormats)
+		//{
+		//		if (format.format == VK_FORMAT_R8G8B8A8_UNORM)
+		//		{
+		//			m_SurfaceFormat = format;
+		//			found			= true;
+		//		}
+		//	}
+
+		if (surfaceFormats.size() > 0)
 		{
-			if (format.format == VK_FORMAT_R8G8B8A8_UNORM)
-			{
-				m_SurfaceFormat = format;
-				found			= true;
-			}
+			m_SurfaceFormat = surfaceFormats[0];
+			found			= true;
 		}
 
 		if (!found)
