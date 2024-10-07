@@ -8,8 +8,8 @@
 	#endif
 
 	#if defined(__EMSCRIPTEN__) || defined(ANDROID) || defined(__ANDROID__)
-		#include <GLES2/gl2ext.h>
 		#include <GLES3/gl3.h>
+		#include <GLES2/gl2ext.h>
 	#else
 		#include "glad/glad.h"
 	#endif
