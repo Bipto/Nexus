@@ -23,7 +23,7 @@ namespace Nexus::Graphics
 	#if defined(NX_PLATFORM_GL_GLAD)
 		gladLoadGL();
 
-		if (!gladLoadGLLoader((GLADloadprc)SDL_GL_GetProcAddress))
+		if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress))
 		{
 			NX_ERROR("Failed to load GLAD");
 		}
