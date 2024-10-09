@@ -19,21 +19,21 @@ namespace Nexus
 
 		/// @brief A method to return the number of nanoseconds
 		/// @return A double representing the number of nanoseconds
-		double GetNanoseconds()
+		double GetNanoseconds() const
 		{
 			return m_Nanoseconds;
 		}
 
 		/// @brief A method to return the number of milliseconds
 		/// @return A double representing the number of milliseconds
-		double GetMilliseconds()
+		double GetMilliseconds() const
 		{
 			return m_Nanoseconds / 1000000;
 		}
 
 		/// @brief A method to return the number of seconds
 		/// @return A double representing the number of seconds
-		double GetSeconds()
+		double GetSeconds() const
 		{
 			return m_Nanoseconds / 1000000000;
 		}

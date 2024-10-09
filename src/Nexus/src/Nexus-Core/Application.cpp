@@ -80,6 +80,8 @@ namespace Nexus
 
 		this->PollEvents();
 		m_GlobalKeyboardState.CacheInput();
+
+		// Timings::Profiler::Get().Reset();
 	}
 
 	Nexus::Window *Application::GetPrimaryWindow()

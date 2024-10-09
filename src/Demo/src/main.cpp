@@ -158,6 +158,57 @@ class DemoApplication : public Nexus::Application
 		}
 	}
 
+	void RenderDemoInfo()
+	{
+		if (m_CurrentDemo)
+		{
+			if (ImGui::Button("<- Back"))
+			{
+				m_CurrentDemo = nullptr;
+			}
+
+			// required because demo could be deleted in the previous if statement
+			if (m_CurrentDemo)
+			{
+				// render demo name
+				std::string label = std::string("Selected Demo - ") + m_CurrentDemo->GetName();
+				ImGui::Text("%s", label.c_str());
+
+				std::string apiName = std::string("Running on : ") + std::string(m_GraphicsDevice->GetAPIName());
+				ImGui::Text("%s", apiName.c_str());
+
+				// render framerate
+				std::stringstream ss;
+				float			  fps = ImGui::GetIO().Framerate;
+				ss << "Running at " << std::to_string(fps) << " FPS";
+				ImGui::Text("%s", ss.str().c_str());
+				m_CurrentDemo->RenderUI();
+			}
+		}
+			else
+			{
+				RenderDemoList(m_GraphicsDemos, "Graphics");
+				RenderDemoList(m_AudioDemos, "Audio");
+				RenderDemoList(m_ScriptingDemos, "Scripting");
+				RenderDemoList(m_UtilsDemos, "Utils");
+			}
+	}
+
+	void RenderPerformanceInfo()
+	{
+		if (ImGui::CollapsingHeader("Performance"))
+		{
+			const auto &results = Nexus::Timings::Profiler::Get().GetResults();
+			for (const auto &profileResult : results)
+			{
+				std::string output =
+				std::string(profileResult.Name) + std::string(": ") + std::to_string(profileResult.Time.GetMilliseconds()) + std::string(" Ms");
+				ImGui::Text(output.c_str());
+			}
+			Nexus::Timings::Profiler::Get().Reset();
+		}
+	}
+
 	virtual void Render(Nexus::TimeSpan time) override
 	{
 		m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
@@ -172,40 +223,8 @@ class DemoApplication : public Nexus::Application
 
 		{
 			ImGui::Begin("Demos");
-
-			if (m_CurrentDemo)
-			{
-				if (ImGui::Button("<- Back"))
-				{
-					m_CurrentDemo = nullptr;
-				}
-
-				// required because demo could be deleted in the previous if statement
-				if (m_CurrentDemo)
-				{
-					// render demo name
-					std::string label = std::string("Selected Demo - ") + m_CurrentDemo->GetName();
-					ImGui::Text("%s", label.c_str());
-
-					std::string apiName = std::string("Running on : ") + std::string(m_GraphicsDevice->GetAPIName());
-					ImGui::Text("%s", apiName.c_str());
-
-					// render framerate
-					std::stringstream ss;
-					float			  fps = ImGui::GetIO().Framerate;
-					ss << "Running at " << std::to_string(fps) << " FPS";
-					ImGui::Text("%s", ss.str().c_str());
-					m_CurrentDemo->RenderUI();
-				}
-			}
-			else
-			{
-				RenderDemoList(m_GraphicsDemos, "Graphics");
-				RenderDemoList(m_AudioDemos, "Audio");
-				RenderDemoList(m_ScriptingDemos, "Scripting");
-				RenderDemoList(m_UtilsDemos, "Utils");
-			}
-
+			RenderDemoInfo();
+			RenderPerformanceInfo();
 			ImGui::End();
 		}
 
@@ -274,7 +293,7 @@ class DemoApplication : public Nexus::Application
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
 	Nexus::ApplicationSpecification spec;
-	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
+	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
 	spec.AudioAPI	 = Nexus::Audio::AudioAPI::OpenAL;
 
 	spec.WindowProperties.Width			   = 1280;

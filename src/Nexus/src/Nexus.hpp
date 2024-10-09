@@ -17,6 +17,7 @@
 #include "Nexus-Core/Runtime.hpp"
 #include "Nexus-Core/Runtime/Camera.hpp"
 #include "Nexus-Core/Runtime/Project.hpp"
+#include "Nexus-Core/Timings/Timespan.hpp"
 #include "Nexus-Core/Types.hpp"
 #include "Nexus-Core/Vertex.hpp"
 #include "Nexus-Core/Window.hpp"

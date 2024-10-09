@@ -18,6 +18,7 @@
 #include "Nexus-Core/Input/InputState.hpp"
 #include "Nexus-Core/Monitor.hpp"
 #include "Nexus-Core/Timings/Clock.hpp"
+#include "Nexus-Core/Timings/Profiler.hpp"
 #include "Nexus-Core/Timings/Timespan.hpp"
 #include "Nexus-Core/Types.hpp"
 #include "Point.hpp"
