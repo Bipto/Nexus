@@ -66,6 +66,10 @@ file (GLOB_RECURSE ENGINE_SOURCES
  src/Platform/Vulkan/*.cpp
  src/Platform/OpenGL/*.hpp
  src/Platform/OpenGL/*.cpp
+ src/Platform/OpenGL/PBuffer/*.hpp
+ src/Platform/OpenGL/PBuffer/*.cpp
+ src/Platform/OpenGL/FBO/*.hpp
+ src/Platform/OPenGL/FBO/*.cpp
  src/Platform/D3D11/*.hpp
  src/Platform/D3D11/*.cpp
  src/Platform/D3D12/*.hpp

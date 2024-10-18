@@ -249,7 +249,7 @@ namespace Nexus
 #if defined(NX_PLATFORM_OPENGL)
 			case Graphics::GraphicsAPI::OpenGL:
 			{
-				m_Swapchain = new Graphics::SwapchainOpenGL(this, swapchainSpec);
+				m_Swapchain = new Graphics::SwapchainOpenGL(this, swapchainSpec, device);
 				break;
 			}
 #endif
@@ -366,57 +366,6 @@ namespace Nexus
 
 		switch (api)
 		{
-			// setup for OpenGL
-#if defined(NX_PLATFORM_OPENGL)
-			case Graphics::GraphicsAPI::OpenGL:
-			{
-	#if defined(__EMSCRIPTEN__) || defined(__ANDROID) || defined(ANDROID)
-				SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
-				SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-				SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-				SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-	#else
-				SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
-				SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-				SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-				SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
-
-		#if defined(_DEBUG)
-				SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
-		#endif
-	#endif
-
-				SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-				SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-				SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-
-				if (swapchainSpec.Samples != Graphics::SampleCount::SampleCount1)
-				{
-					uint32_t samples = Graphics::GetSampleCount(swapchainSpec.Samples);
-					SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-					SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, samples);
-				}
-				else
-				{
-					SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
-					SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 1);
-				}
-
-	#if defined(NX_PLATFORM_SUPPORTS_MULTI_WINDOW)
-				if (Graphics::SwapchainOpenGL::HasContextBeenCreated())
-				{
-					SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
-				}
-				else
-				{
-					SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 0);
-				}
-	#endif
-
-				flags |= SDL_WINDOW_OPENGL;
-				return flags;
-			}
-#endif
 			case Graphics::GraphicsAPI::Vulkan:
 			{
 				flags |= SDL_WINDOW_VULKAN;

@@ -18,19 +18,15 @@ namespace Nexus::Graphics
 											   const SwapchainSpecification		 &swapchainSpec)
 		: GraphicsDevice(createInfo, window, swapchainSpec)
 	{
-		window->CreateSwapchain(this, swapchainSpec);
-
-	#if defined(NX_PLATFORM_GL_GLAD)
-		gladLoadGL();
-
-		if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress))
-		{
-			NX_ERROR("Failed to load GLAD");
-		}
-	#endif
-
+		m_PBuffer = GL::CreatePBuffer();
+		m_PBuffer->MakeCurrent();
 		m_Extensions = GetSupportedExtensions();
-		// glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
+		m_APIName	   = std::string("OpenGL - ") + std::string((const char *)glGetString(GL_VERSION));
+		m_RendererName = (const char *)glGetString(GL_RENDERER);
+
+		window->CreateSwapchain(this, swapchainSpec);
+		glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 	}
 
 	void GraphicsDeviceOpenGL::SetFramebuffer(Ref<Framebuffer> framebuffer)
@@ -63,13 +59,12 @@ namespace Nexus::Graphics
 
 	const std::string GraphicsDeviceOpenGL::GetAPIName()
 	{
-		std::string name = std::string("OpenGL - ") + std::string((const char *)glGetString(GL_VERSION));
-		return name;
+		return m_APIName;
 	}
 
 	const char *GraphicsDeviceOpenGL::GetDeviceName()
 	{
-		return (const char *)glGetString(GL_RENDERER);
+		return m_RendererName.c_str();
 	}
 
 	void GraphicsDeviceOpenGL::OpenGLCall(std::function<void()> func)
@@ -80,6 +75,11 @@ namespace Nexus::Graphics
 		{
 			glCheckErrors();
 		}
+	}
+
+	GL::PBuffer *GraphicsDeviceOpenGL::GetPBuffer()
+	{
+		return m_PBuffer.get();
 	}
 
 	Ref<ShaderModule> GraphicsDeviceOpenGL::CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources)

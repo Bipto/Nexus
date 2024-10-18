@@ -80,8 +80,6 @@ class DemoApplication : public Nexus::Application
 		RegisterUtilsDemo<Demos::Splines>("Splines");
 
 		m_CommandList = m_GraphicsDevice->CreateCommandList();
-
-		m_GraphicsDevice->GetPrimaryWindow()->OnFileDrop += [&](const Nexus::FileDropEvent &event) { std::cout << event.Data << std::endl; };
 	}
 
 	template<typename T>

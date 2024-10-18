@@ -50,12 +50,14 @@ namespace Nexus::Graphics
 		};
 
 		void OpenGLCall(std::function<void()> func);
+		GL::PBuffer *GetPBuffer();
 
 	  private:
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) override;
 		std::vector<std::string>  GetSupportedExtensions();
 
 	  private:
+		std::unique_ptr<GL::PBuffer> m_PBuffer = {};
 		const char				  *m_GlslVersion;
 		WeakRef<FramebufferOpenGL> m_BoundFramebuffer = {};
 		VSyncState				   m_VsyncState		  = VSyncState::Enabled;
@@ -63,6 +65,9 @@ namespace Nexus::Graphics
 		std::vector<std::string> m_Extensions {};
 
 		CommandExecutorOpenGL m_CommandExecutor {};
+
+		std::string m_APIName	   = {};
+		std::string m_RendererName = {};
 	};
 }	 // namespace Nexus::Graphics
 

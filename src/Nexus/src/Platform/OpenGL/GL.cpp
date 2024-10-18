@@ -5,6 +5,9 @@
 	#include "Nexus-Core/Logging/Log.hpp"
 	#include "Nexus-Core/nxpch.hpp"
 
+	#include "PBuffer/PBufferWGL.hpp"
+	#include "FBO/FBO_WGL.hpp"
+
 namespace Nexus::GL
 {
 	std::string GetErrorMessageFromCode(const GLenum error)
@@ -656,6 +659,17 @@ namespace Nexus::GL
 				break;
 			default: throw std::runtime_error("Failed to find valid vertex buffer element type");
 		}
+	}
+
+	std::unique_ptr<PBuffer> CreatePBuffer()
+	{
+		return std::make_unique<PBufferWGL>();
+	}
+
+	std::unique_ptr<FBO> CreateFBO(Window *window, PBuffer *pbuffer)
+	{
+		PBufferWGL *pbufferWGL = (PBufferWGL *)pbuffer;
+		return std::make_unique<FBO_WGL>(window->GetHwnd(), pbufferWGL);
 	}
 
 	GLenum GetSamplerState(Nexus::Graphics::SamplerState state)

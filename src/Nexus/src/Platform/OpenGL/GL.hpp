@@ -19,6 +19,11 @@
 	#include "Nexus-Core/Logging/Log.hpp"
 	#include "Nexus-Core/Vertex.hpp"
 
+	#include "Nexus-Core/Window.hpp"
+
+	#include "PBuffer/PBuffer.hpp"
+	#include "FBO/FBO.hpp"
+
 namespace Nexus::GL
 {
 	std::string GetErrorMessageFromCode(const GLenum error);
@@ -41,6 +46,10 @@ namespace Nexus::GL
 	GLenum GLCubemapFace(Nexus::Graphics::CubemapFace face);
 
 	void GetBaseType(const Graphics::VertexBufferElement &element, GLenum &baseType, uint32_t &componentCount, GLboolean &normalized);
+
+	std::unique_ptr<PBuffer> CreatePBuffer();
+	std::unique_ptr<FBO>	 CreateFBO(Window *window, PBuffer *pbuffer);
+
 }	 // namespace Nexus::GL
 
 #endif

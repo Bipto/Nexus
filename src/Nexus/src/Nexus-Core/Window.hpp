@@ -263,4 +263,9 @@ namespace Nexus
 		/// this class
 		friend class Application;
 	};
+
+	class IWindow
+	{
+	  public:
+	};
 }	 // namespace Nexus

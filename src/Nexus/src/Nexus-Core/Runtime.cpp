@@ -4,6 +4,8 @@
 #include "Nexus-Core/Platform.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
+#include "Platform/OpenGL/PBuffer/PBufferWGL.hpp"
+
 Nexus::Application	*appPtr		  = nullptr;
 Nexus::AssetManager *assetManager = nullptr;
 
@@ -54,6 +56,10 @@ namespace Nexus
 	{
 		Platform::Initialise();
 		InputNew::InputContext::Initialise();
+
+		GL::PBuffer *pbuffer = new GL::PBufferWGL();
+		pbuffer->MakeCurrent();
+		delete pbuffer;
 	}
 
 	void Shutdown()

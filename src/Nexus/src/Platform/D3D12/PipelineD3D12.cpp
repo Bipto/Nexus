@@ -248,7 +248,7 @@ namespace Nexus::Graphics
 		if (FAILED(hr))
 		{
 			_com_error error(hr);
-			std::cout << "Failed to create pipeline state: " << error.ErrorMessage() << std::endl;
+			//std::cout << "Failed to create pipeline state: " << error.ErrorMessage() << std::endl;
 		}
 	}
 
