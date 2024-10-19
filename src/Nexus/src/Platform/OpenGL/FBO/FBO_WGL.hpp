@@ -11,14 +11,15 @@ namespace Nexus::GL
 	class FBO_WGL : public FBO
 	{
 	  public:
-		FBO_WGL(HWND hwnd, PBufferWGL *pbuffer);
+		FBO_WGL(HWND hwnd, PBufferWGL *pbuffer, const ContextSpecification &spec);
 		virtual ~FBO_WGL();
 		virtual void MakeCurrent() override;
 		virtual void Swap() override;
 		virtual void SetVSync(bool enabled) override;
+		virtual const ContextSpecification &GetSpecification() const override;
 
 	  private:
-		HGLRC CreateSharedContext(HDC hdc, HGLRC sharedContext);
+		HGLRC CreateSharedContext(HDC hdc, HGLRC sharedContext, const ContextSpecification &spec);
 
 	  private:
 		HWND  m_HWND  = {};
@@ -26,5 +27,6 @@ namespace Nexus::GL
 		HGLRC m_HGLRC = {};
 
 		PBufferWGL *m_PBuffer = {};
+		ContextSpecification m_Specification = {};
 	};
 }	 // namespace Nexus::GL

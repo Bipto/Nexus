@@ -10,6 +10,10 @@ add_subdirectory(external/glad)
 
 if (WIN32)
   add_subdirectory(external/glad_wgl)
+elseif(LINUX)
+  add_subdirectory(external/glad_glx)
+elseif(EMSCRIPTEN OR ANDROID OR __ANDROID__)
+  add_subdirectory(external/glad_egl)
 endif()
 
 add_subdirectory(external/glm)

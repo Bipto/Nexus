@@ -668,8 +668,12 @@ namespace Nexus::GL
 
 	std::unique_ptr<FBO> CreateFBO(Window *window, PBuffer *pbuffer)
 	{
+		GL::ContextSpecification spec = {};
+		spec.Debug					  = true;
+		spec.Samples				  = Graphics::SampleCount::SampleCount8;
+
 		PBufferWGL *pbufferWGL = (PBufferWGL *)pbuffer;
-		return std::make_unique<FBO_WGL>(window->GetHwnd(), pbufferWGL);
+		return std::make_unique<FBO_WGL>(window->GetHwnd(), pbufferWGL, spec);
 	}
 
 	GLenum GetSamplerState(Nexus::Graphics::SamplerState state)

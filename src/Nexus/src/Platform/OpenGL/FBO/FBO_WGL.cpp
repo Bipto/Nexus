@@ -2,12 +2,14 @@
 
 #include "glad/glad_wgl.h"
 
+#include "Nexus-Core/Graphics/Multisample.hpp"
+
 namespace Nexus::GL
 {
-	FBO_WGL::FBO_WGL(HWND hwnd, PBufferWGL *pbuffer) : m_HWND(hwnd)
+	FBO_WGL::FBO_WGL(HWND hwnd, PBufferWGL *pbuffer, const ContextSpecification &spec) : m_HWND(hwnd), m_Specification(spec)
 	{
 		m_HDC	= GetDC(m_HWND);
-		m_HGLRC = CreateSharedContext(m_HDC, pbuffer->GetHGLRC());
+		m_HGLRC = CreateSharedContext(m_HDC, pbuffer->GetHGLRC(), spec);
 		MakeCurrent();
 	}
 
@@ -32,7 +34,12 @@ namespace Nexus::GL
 		wglSwapIntervalEXT(enabled);
 	}
 
-	HGLRC FBO_WGL::CreateSharedContext(HDC hdc, HGLRC sharedContext)
+	const ContextSpecification &FBO_WGL::GetSpecification() const
+	{
+		return m_Specification;
+	}
+
+	HGLRC FBO_WGL::CreateSharedContext(HDC hdc, HGLRC sharedContext, const ContextSpecification &spec)
 	{
 		PIXELFORMATDESCRIPTOR pfd = {sizeof(PIXELFORMATDESCRIPTOR),
 									 1,
@@ -64,43 +71,73 @@ namespace Nexus::GL
 		int	  pixelFormat;
 		UINT  numFormats;
 		float fAttributes[] = {0, 0};
-		int	  iAttributes[] = {WGL_DRAW_TO_WINDOW_ARB,
-							   GL_TRUE,
-							   WGL_SAMPLE_BUFFERS_ARB,
-							   GL_TRUE,
-							   WGL_SAMPLES_ARB,
-							   8,
-							   WGL_DOUBLE_BUFFER_ARB,
-							   GL_TRUE,
-							   WGL_SAMPLE_BUFFERS_ARB,
-							   GL_TRUE,
-							   WGL_SAMPLES_ARB,
-							   8,
-							   WGL_SUPPORT_OPENGL_ARB,
-							   GL_TRUE,
-							   WGL_PIXEL_TYPE_ARB,
-							   WGL_TYPE_RGBA_ARB,
-							   WGL_RED_BITS_ARB,
-							   8,
-							   WGL_GREEN_BITS_ARB,
-							   8,
-							   WGL_BLUE_BITS_ARB,
-							   8,
-							   WGL_ALPHA_BITS_ARB,
-							   8,
-							   WGL_DEPTH_BITS_ARB,
-							   24,
-							   WGL_STENCIL_BITS_ARB,
-							   8,
-							   0};
+		std::vector<int> iAttributes   = {};
 
-		wglChoosePixelFormatARB(hdc, iAttributes, fAttributes, 1, &pixelFormat, &numFormats);
+		iAttributes.push_back(WGL_DRAW_TO_WINDOW_ARB);
+		iAttributes.push_back(GL_TRUE);
+
+		if (spec.Samples != Graphics::SampleCount::SampleCount1)
+		{
+			uint32_t samples = Graphics::GetSampleCount(spec.Samples);
+			iAttributes.push_back(WGL_SAMPLE_BUFFERS_ARB);
+			iAttributes.push_back(GL_TRUE);
+			iAttributes.push_back(WGL_SAMPLES_ARB);
+			iAttributes.push_back(samples);
+		}
+
+		if (spec.DoubleBuffered)
+		{
+			iAttributes.push_back(WGL_DOUBLE_BUFFER_ARB);
+			iAttributes.push_back(GL_TRUE);
+		}
+		iAttributes.push_back(WGL_SUPPORT_OPENGL_ARB);
+		iAttributes.push_back(GL_TRUE);
+		iAttributes.push_back(WGL_PIXEL_TYPE_ARB);
+		iAttributes.push_back(WGL_TYPE_RGBA_ARB);
+
+		iAttributes.push_back(WGL_RED_BITS_ARB);
+		iAttributes.push_back(spec.RedBits);
+		iAttributes.push_back(WGL_GREEN_BITS_ARB);
+		iAttributes.push_back(spec.GreenBits);
+		iAttributes.push_back(WGL_BLUE_BITS_ARB);
+		iAttributes.push_back(spec.BlueBits);
+		iAttributes.push_back(WGL_ALPHA_BITS_ARB);
+		iAttributes.push_back(spec.AlphaBits);
+		iAttributes.push_back(WGL_DEPTH_BITS_ARB);
+		iAttributes.push_back(spec.DepthBits);
+		iAttributes.push_back(WGL_STENCIL_BITS_ARB);
+		iAttributes.push_back(spec.StencilBits);
+		iAttributes.push_back(0);
+
+		wglChoosePixelFormatARB(hdc, iAttributes.data(), fAttributes, 1, &pixelFormat, &numFormats);
 		SetPixelFormat(hdc, pixelFormat, &pfd);
 
-		int attributes[] =
-		{WGL_CONTEXT_MAJOR_VERSION_ARB, 4, WGL_CONTEXT_MINOR_VERSION_ARB, 6, WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB, 0};
+		std::vector<int> attributes = {};
+		attributes.push_back(WGL_CONTEXT_MAJOR_VERSION_ARB);
+		attributes.push_back(spec.VersionMajor);
+		attributes.push_back(WGL_CONTEXT_MINOR_VERSION_ARB);
+		attributes.push_back(spec.VersionMinor);
 
-		HGLRC hglrc = wglCreateContextAttribsARB(hdc, sharedContext, attributes);
+		if (spec.UseCoreProfile)
+		{
+			attributes.push_back(WGL_CONTEXT_FLAGS_ARB);
+			attributes.push_back(WGL_CONTEXT_CORE_PROFILE_BIT_ARB);
+		}
+		else
+		{
+			attributes.push_back(WGL_CONTEXT_FLAGS_ARB);
+			attributes.push_back(WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB);
+		}
+
+		if (spec.Debug)
+		{
+			attributes.push_back(WGL_CONTEXT_FLAGS_ARB);
+			attributes.push_back(WGL_CONTEXT_DEBUG_BIT_ARB);
+		}
+
+		attributes.push_back(0);
+
+		HGLRC hglrc = wglCreateContextAttribsARB(hdc, sharedContext, attributes.data());
 
 		NX_ASSERT(hglrc, "Failed to create hglrc");
 

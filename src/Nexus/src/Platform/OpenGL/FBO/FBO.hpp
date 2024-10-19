@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Platform/OpenGL/ContextSpecification.hpp"
+
 namespace Nexus::GL
 {
 	class FBO
@@ -11,5 +13,6 @@ namespace Nexus::GL
 		virtual void MakeCurrent()			= 0;
 		virtual void Swap()					= 0;
 		virtual void SetVSync(bool enabled) = 0;
+		virtual const ContextSpecification &GetSpecification() const = 0;
 	};
 }	 // namespace Nexus::GL
