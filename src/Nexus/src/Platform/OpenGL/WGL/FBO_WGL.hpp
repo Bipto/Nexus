@@ -1,10 +1,13 @@
 #pragma once
 
-#include "FBO.hpp"
-#include "Nexus-Core/nxpch.hpp"
-#include "Platform/OpenGL/PBuffer/PBufferWGL.hpp"
+#if defined(NX_PLATFORM_WGL)
 
-#include "Platform/Windows/WindowsInclude.hpp"
+	#include "Nexus-Core/nxpch.hpp"
+
+	#include "PBufferWGL.hpp"
+	#include "Platform/OpenGL/FBO.hpp"
+
+	#include "Platform/Windows/WindowsInclude.hpp"
 
 namespace Nexus::GL
 {
@@ -13,9 +16,9 @@ namespace Nexus::GL
 	  public:
 		FBO_WGL(HWND hwnd, PBufferWGL *pbuffer, const ContextSpecification &spec);
 		virtual ~FBO_WGL();
-		virtual void MakeCurrent() override;
-		virtual void Swap() override;
-		virtual void SetVSync(bool enabled) override;
+		virtual bool						MakeCurrent() override;
+		virtual void						Swap() override;
+		virtual void						SetVSync(bool enabled) override;
 		virtual const ContextSpecification &GetSpecification() const override;
 
 	  private:
@@ -26,7 +29,9 @@ namespace Nexus::GL
 		HDC	  m_HDC	  = {};
 		HGLRC m_HGLRC = {};
 
-		PBufferWGL *m_PBuffer = {};
+		PBufferWGL			*m_PBuffer		 = {};
 		ContextSpecification m_Specification = {};
 	};
 }	 // namespace Nexus::GL
+
+#endif

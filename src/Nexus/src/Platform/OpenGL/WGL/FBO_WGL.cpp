@@ -1,8 +1,10 @@
-#include "FBO_WGL.hpp"
+#if defined(NX_PLATFORM_WGL)
 
-#include "glad/glad_wgl.h"
+	#include "FBO_WGL.hpp"
 
-#include "Nexus-Core/Graphics/Multisample.hpp"
+	#include "glad/glad_wgl.h"
+
+	#include "Nexus-Core/Graphics/Multisample.hpp"
 
 namespace Nexus::GL
 {
@@ -19,18 +21,20 @@ namespace Nexus::GL
 		wglDeleteContext(m_HGLRC);
 	}
 
-	void FBO_WGL::MakeCurrent()
+	bool FBO_WGL::MakeCurrent()
 	{
-		wglMakeCurrent(m_HDC, m_HGLRC);
+		return wglMakeCurrent(m_HDC, m_HGLRC);
 	}
 
 	void FBO_WGL::Swap()
 	{
+		MakeCurrent();
 		SwapBuffers(m_HDC);
 	}
 
 	void FBO_WGL::SetVSync(bool enabled)
 	{
+		MakeCurrent();
 		wglSwapIntervalEXT(enabled);
 	}
 
@@ -68,9 +72,9 @@ namespace Nexus::GL
 									 0,
 									 0};
 
-		int	  pixelFormat;
-		UINT  numFormats;
-		float fAttributes[] = {0, 0};
+		int				 pixelFormat;
+		UINT			 numFormats;
+		float			 fAttributes[] = {0, 0};
 		std::vector<int> iAttributes   = {};
 
 		iAttributes.push_back(WGL_DRAW_TO_WINDOW_ARB);
@@ -144,3 +148,5 @@ namespace Nexus::GL
 		return hglrc;
 	}
 }	 // namespace Nexus::GL
+
+#endif

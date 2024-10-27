@@ -43,7 +43,7 @@ class DemoApplication : public Nexus::Application
 
 	virtual void Load() override
 	{
-		m_ImGuiRenderer = std::make_unique<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(this);
+		/* m_ImGuiRenderer = std::make_unique<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(this);
 
 		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
@@ -79,7 +79,7 @@ class DemoApplication : public Nexus::Application
 		RegisterUtilsDemo<Demos::ClippingAndTriangulationDemo>("Polygon clipping and triangulation");
 		RegisterUtilsDemo<Demos::Splines>("Splines");
 
-		m_CommandList = m_GraphicsDevice->CreateCommandList();
+		m_CommandList = m_GraphicsDevice->CreateCommandList(); */
 	}
 
 	template<typename T>
@@ -209,7 +209,7 @@ class DemoApplication : public Nexus::Application
 
 	virtual void Render(Nexus::TimeSpan time) override
 	{
-		m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
+		/* m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
 
 		m_ImGuiRenderer->BeforeLayout(time);
 
@@ -243,7 +243,7 @@ class DemoApplication : public Nexus::Application
 
 		m_ImGuiRenderer->AfterLayout();
 
-		m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->SwapBuffers();
+		m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->SwapBuffers(); */
 	}
 
 	virtual void OnResize(Nexus::Point2D<uint32_t> size) override

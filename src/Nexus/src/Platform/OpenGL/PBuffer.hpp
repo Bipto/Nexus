@@ -8,6 +8,6 @@ namespace Nexus::GL
 		virtual ~PBuffer()
 		{
 		}
-		virtual void MakeCurrent() = 0;
+		virtual bool MakeCurrent() = 0;
 	};
 }	 // namespace Nexus::GL

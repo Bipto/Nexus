@@ -175,7 +175,7 @@ namespace Nexus::ImGuiUtils
 
 			Nexus::Graphics::SwapchainSpecification swapchainSpec = app->GetPrimaryWindow()->GetSwapchain()->GetSpecification();
 
-			Nexus::Window *window = app->CreateApplicationWindow(windowSpec, swapchainSpec);
+			Nexus::Window *window = Platform::CreatePlatformWindow(windowSpec, app->GetGraphicsDevice()->GetGraphicsAPI(), swapchainSpec);
 			window->CreateSwapchain(app->GetGraphicsDevice(), swapchainSpec);
 			window->GetSwapchain()->Initialise();
 			window->SetWindowPosition(vp->Pos.x, vp->Pos.y);

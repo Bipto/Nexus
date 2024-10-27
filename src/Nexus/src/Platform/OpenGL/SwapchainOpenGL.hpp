@@ -5,8 +5,8 @@
 	#include "Nexus-Core/Graphics/Swapchain.hpp"
 	#include "Nexus-Core/Window.hpp"
 
-	#include "PBuffer/PBuffer.hpp"
-	#include "FBO/FBO.hpp"
+	#include "PBuffer.hpp"
+	#include "FBO.hpp"
 
 namespace Nexus::Graphics
 {

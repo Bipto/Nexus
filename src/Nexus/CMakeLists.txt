@@ -12,7 +12,7 @@ if (WIN32)
   add_subdirectory(external/glad_wgl)
 elseif(LINUX)
   add_subdirectory(external/glad_glx)
-elseif(EMSCRIPTEN OR ANDROID OR __ANDROID__)
+elseif(ANDROID OR __ANDROID__)
   add_subdirectory(external/glad_egl)
 endif()
 
@@ -70,10 +70,10 @@ file (GLOB_RECURSE ENGINE_SOURCES
  src/Platform/Vulkan/*.cpp
  src/Platform/OpenGL/*.hpp
  src/Platform/OpenGL/*.cpp
- src/Platform/OpenGL/PBuffer/*.hpp
- src/Platform/OpenGL/PBuffer/*.cpp
- src/Platform/OpenGL/FBO/*.hpp
- src/Platform/OPenGL/FBO/*.cpp
+ src/Platform/OpenGL/WGL/*.hpp
+ src/Platform/OpenGL/WGL/*.cpp
+ src/Platform/OpenGL/WebGL/*.hpp
+ src/Platform/OpenGL/WebGL/*.cpp
  src/Platform/D3D11/*.hpp
  src/Platform/D3D11/*.cpp
  src/Platform/D3D12/*.hpp
@@ -180,6 +180,10 @@ target_link_libraries(Nexus PUBLIC
 
 if (WIN32)
   target_link_libraries(Nexus PUBLIC glad_wgl)
+endif()
+
+if (ANDROID OR __ANDROID__)
+  target_link_libraries(Nexus PUBLIC glad_egl)
 endif()
 
 if(WIN32 OR LINUX)

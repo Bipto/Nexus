@@ -45,6 +45,16 @@ namespace Nexus
 		SDL_DestroyWindow(this->m_Window);
 	}
 
+	void Window::CacheInput()
+	{
+		m_Input.CacheInput();
+	}
+
+	void Window::Update()
+	{
+		m_Timer.Update();
+	}
+
 	void Window::SetResizable(bool isResizable)
 	{
 		SDL_SetWindowResizable(this->m_Window, (SDL_bool)isResizable);
@@ -155,12 +165,12 @@ namespace Nexus
 		SDL_SetCursor(sdlCursor);
 	}
 
-	const InputState *Window::GetInput()
+	InputState *Window::GetInput()
 	{
 		return &m_Input;
 	}
 
-	const InputNew::InputContext &Window::GetInputContext() const
+	const Nexus::InputNew::InputContext &Window::GetInputContext() const
 	{
 		return m_InputContext;
 	}

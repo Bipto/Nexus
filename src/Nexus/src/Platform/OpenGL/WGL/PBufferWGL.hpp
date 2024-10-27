@@ -1,10 +1,12 @@
 #pragma once
 
-#include "Nexus-Core/nxpch.hpp"
-#include "PBuffer.hpp"
+#if defined(NX_PLATFORM_WGL)
 
-#include "Platform/Windows/WindowsInclude.hpp"
-#include "glad/glad_wgl.h"
+	#include "Nexus-Core/nxpch.hpp"
+	#include "Platform/OpenGL/PBuffer.hpp"
+
+	#include "Platform/Windows/WindowsInclude.hpp"
+	#include "glad/glad_wgl.h"
 
 namespace Nexus::GL
 {
@@ -13,7 +15,7 @@ namespace Nexus::GL
 	  public:
 		PBufferWGL();
 		virtual ~PBufferWGL();
-		virtual void MakeCurrent() override;
+		virtual bool MakeCurrent() override;
 
 		HGLRC GetHGLRC();
 
@@ -31,3 +33,5 @@ namespace Nexus::GL
 		inline static bool s_GLFunctionsLoaded = false;
 	};
 }	 // namespace Nexus::GL
+
+#endif

@@ -1,9 +1,6 @@
-#include "PBufferWGL.hpp"
+#if defined(NX_PLATFORM_WGL)
 
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	return DefWindowProc(hwnd, uMsg, wParam, lParam);
-}
+	#include "PBufferWGL.hpp"
 
 namespace Nexus::GL
 {
@@ -33,9 +30,9 @@ namespace Nexus::GL
 		wglDestroyPbufferARB(m_PBuffer);
 	}
 
-	void PBufferWGL::MakeCurrent()
+	bool PBufferWGL::MakeCurrent()
 	{
-		wglMakeCurrent(m_HDC, m_HGLRC);
+		return wglMakeCurrent(m_HDC, m_HGLRC);
 	}
 
 	HGLRC PBufferWGL::GetHGLRC()
@@ -68,7 +65,7 @@ namespace Nexus::GL
 		const char className[] = "Temporary OpenGL Window";
 
 		WNDCLASS wc		 = {};
-		wc.lpfnWndProc	 = WindowProc;
+		wc.lpfnWndProc	 = DefWindowProc;
 		wc.hInstance	 = NULL;
 		wc.lpszClassName = className;
 		wc.style		 = CS_OWNDC;
@@ -165,3 +162,5 @@ namespace Nexus::GL
 		return {pbuffer, pbufferDC, hglrc};
 	}
 }	 // namespace Nexus::GL
+
+#endif

@@ -1,22 +1,20 @@
 #pragma once
 
-#if defined(NX_PLATFORM_OPENGL)
+#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 
-	#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
-
-	#include "CommandExecutorOpenGL.hpp"
-	#include "FramebufferOpenGL.hpp"
-	#include "GL.hpp"
-	#include "SwapchainOpenGL.hpp"
+#include "CommandExecutorOpenGL.hpp"
+#include "FramebufferOpenGL.hpp"
+#include "GL.hpp"
+#include "SwapchainOpenGL.hpp"
 
 namespace Nexus::Graphics
 {
-	class GraphicsDeviceOpenGL : public GraphicsDevice
+	class GraphicsDeviceWebGL : public GraphicsDevice
 	{
 	  public:
-		GraphicsDeviceOpenGL(const GraphicsDeviceSpecification &createInfo, Window *window, const SwapchainSpecification &swapchainSpec);
-		GraphicsDeviceOpenGL(const GraphicsDeviceOpenGL &) = delete;
-		virtual ~GraphicsDeviceOpenGL();
+		GraphicsDeviceWebGL(const GraphicsDeviceSpecification &createInfo, Window *window, const SwapchainSpecification &swapchainSpec);
+		GraphicsDeviceWebGL(const GraphicsDeviceWebGL &) = delete;
+		virtual ~GraphicsDeviceWebGL();
 
 		void		 SetFramebuffer(Ref<Framebuffer> framebuffer);
 		void		 SetSwapchain(Swapchain *swapchain);
@@ -49,16 +47,13 @@ namespace Nexus::Graphics
 		virtual bool IsUVOriginTopLeft() override
 		{
 			return false;
-		};
-
-		GL::PBuffer *GetPBuffer();
+		}
 
 	  private:
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) override;
 		std::vector<std::string>  GetSupportedExtensions();
 
 	  private:
-		std::unique_ptr<GL::PBuffer> m_PBuffer = {};
 		const char				  *m_GlslVersion;
 		WeakRef<FramebufferOpenGL> m_BoundFramebuffer = {};
 		VSyncState				   m_VsyncState		  = VSyncState::Enabled;
@@ -71,5 +66,3 @@ namespace Nexus::Graphics
 		std::string m_RendererName = {};
 	};
 }	 // namespace Nexus::Graphics
-
-#endif

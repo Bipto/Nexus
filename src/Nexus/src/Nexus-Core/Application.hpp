@@ -133,13 +133,6 @@ namespace Nexus
 		/// @return A boolean value that represents whether a window should close
 		bool ShouldClose();
 
-		/// @brief A method that returns a pointer to a newly created window
-		/// @param props A set of options to use to create a new window
-		/// @param swapchainSpec A struct containing information about how to create a
-		/// swapchain for the window
-		/// @return A pointer to a new window
-		Window *CreateApplicationWindow(const WindowSpecification &windowProps, const Graphics::SwapchainSpecification &swapchainSpec);
-
 		/// @brief A method that returns a pointer to the engine's core input state
 		/// @return A pointer to an InputState
 		const InputState *GetCoreInputState() const;
@@ -164,13 +157,6 @@ namespace Nexus
 			return false;
 		}
 
-	  private:
-		void	PollEvents();
-		Window *GetWindowFromHandle(uint32_t handle);
-		void	CheckForClosingWindows();
-		void	CloseWindows();
-		void	UpdateWindowTimers();
-
 	  protected:
 		/// @brief A pointer to a graphics device
 		Graphics::GraphicsDevice *m_GraphicsDevice = nullptr;
@@ -185,17 +171,8 @@ namespace Nexus
 		/// @brief A pointer to the application's main window
 		Nexus::Window *m_Window = nullptr;
 
-		/// @brief A set of two unsignd integers containing the size of the window
-		Point2D<uint32_t> m_PreviousWindowSize {};
-
-		/// @brief An event handler for when the window is resized
-		Nexus::EventHandler<Point2D<uint32_t>> m_WindowResizeEventHandler {};
-
 		/// @brief A clock to time when renders and updates occur
 		Clock m_Clock {};
-
-		std::vector<Window *>					   m_Windows {};
-		std::vector<std::pair<Window *, uint32_t>> m_WindowsToClose {};
 
 		Keyboard m_GlobalKeyboardState {};
 	};

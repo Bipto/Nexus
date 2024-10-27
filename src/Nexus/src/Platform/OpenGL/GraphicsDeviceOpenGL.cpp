@@ -26,7 +26,11 @@ namespace Nexus::Graphics
 		m_RendererName = (const char *)glGetString(GL_RENDERER);
 
 		window->CreateSwapchain(this, swapchainSpec);
-		glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+		// glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+	}
+
+	GraphicsDeviceOpenGL::~GraphicsDeviceOpenGL()
+	{
 	}
 
 	void GraphicsDeviceOpenGL::SetFramebuffer(Ref<Framebuffer> framebuffer)
@@ -65,16 +69,6 @@ namespace Nexus::Graphics
 	const char *GraphicsDeviceOpenGL::GetDeviceName()
 	{
 		return m_RendererName.c_str();
-	}
-
-	void GraphicsDeviceOpenGL::OpenGLCall(std::function<void()> func)
-	{
-		glClearErrors();
-		func();
-		if (m_Specification.DebugLayer)
-		{
-			glCheckErrors();
-		}
 	}
 
 	GL::PBuffer *GraphicsDeviceOpenGL::GetPBuffer()

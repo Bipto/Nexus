@@ -6,6 +6,7 @@
 #include "Nexus-Core/Input/Keyboard.hpp"
 #include "Nexus-Core/Input/Mouse.hpp"
 #include "Nexus-Core/Monitor.hpp"
+#include "Nexus-Core/Window.hpp"
 
 namespace Nexus::Platform
 {
@@ -16,4 +17,8 @@ namespace Nexus::Platform
 
 	void Initialise();
 	void Shutdown();
+	void	Update();
+	Window *CreatePlatformWindow(const WindowSpecification				&windowProps,
+								 Graphics::GraphicsAPI					 api,
+								 const Graphics::SwapchainSpecification &swapchainSpec);
 }	 // namespace Nexus::Platform

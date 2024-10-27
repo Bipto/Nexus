@@ -5,8 +5,14 @@
 	#include "Nexus-Core/Logging/Log.hpp"
 	#include "Nexus-Core/nxpch.hpp"
 
-	#include "PBuffer/PBufferWGL.hpp"
-	#include "FBO/FBO_WGL.hpp"
+	#if defined(NX_PLATFORM_WGL)
+		#include "WGL/PBufferWGL.hpp"
+		#include "WGL/FBO_WGL.hpp"
+	#elif defined(NX_PLATFORM_EGL)
+		#include "EGL/PBufferEGL.hpp"
+	#elif defined(NX_PLATFORM_WEBGL)
+		#include "WebGL/PBufferWebGL.hpp"
+	#endif
 
 namespace Nexus::GL
 {
@@ -663,7 +669,15 @@ namespace Nexus::GL
 
 	std::unique_ptr<PBuffer> CreatePBuffer()
 	{
+	#if defined(NX_PLATFORM_WGL)
 		return std::make_unique<PBufferWGL>();
+	#elif defined(NX_PLATFORM_EGL)
+		return std::make_unique<PBufferEGL>();
+	#elif defined(NX_PLATFORM_WEBGL)
+		return std::make_unique<PBufferWebGL>("#canvas");
+	#else
+		#error No OpenGL backend selected
+	#endif
 	}
 
 	std::unique_ptr<FBO> CreateFBO(Window *window, PBuffer *pbuffer)
@@ -672,8 +686,16 @@ namespace Nexus::GL
 		spec.Debug					  = true;
 		spec.Samples				  = Graphics::SampleCount::SampleCount8;
 
+	#if defined(NX_PLATFORM_WGL)
 		PBufferWGL *pbufferWGL = (PBufferWGL *)pbuffer;
 		return std::make_unique<FBO_WGL>(window->GetHwnd(), pbufferWGL, spec);
+	#elif defined(NX_PLATFORM_EGL)
+		return nullptr;
+	#elif defined(NX_PLATFORM_WEBGL)
+		return nullptr;
+	#else
+		#error No OpenGL backend selected
+	#endif
 	}
 
 	GLenum GetSamplerState(Nexus::Graphics::SamplerState state)
