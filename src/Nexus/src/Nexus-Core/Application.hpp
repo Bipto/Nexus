@@ -11,10 +11,9 @@
 #endif
 
 #include "ApplicationSpecification.hpp"
-#include "Nexus-Core/Events/Event.hpp"
 #include "Nexus-Core/Events/EventHandler.hpp"
+#include "Nexus-Core/Input/Event.hpp"
 #include "Nexus-Core/Input/InputContext.hpp"
-#include "Nexus-Core/Input/InputEvent.hpp"
 #include "Nexus-Core/Input/InputState.hpp"
 #include "Nexus-Core/Monitor.hpp"
 #include "Nexus-Core/Timings/Clock.hpp"
@@ -146,16 +145,7 @@ namespace Nexus
 		/// @return A pointer to an audio device
 		Audio::AudioDevice *GetAudioDevice();
 
-		EventHandler<char *> OnTextInput;
-
-		EventHandler<KeyPressedEvent, Window *> OnKeyPressed;
-
 		const Keyboard &GetGlobalKeyboardState() const;
-
-		virtual bool OnEvent(const InputEvent &e, Window *window)
-		{
-			return false;
-		}
 
 	  protected:
 		/// @brief A pointer to a graphics device

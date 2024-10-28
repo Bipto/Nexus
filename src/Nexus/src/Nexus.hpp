@@ -3,7 +3,6 @@
 #include "Nexus-Core/Application.hpp"
 #include "Nexus-Core/Audio/AudioDevice.hpp"
 #include "Nexus-Core/EntryPoint.hpp"
-#include "Nexus-Core/Events/Event.hpp"
 #include "Nexus-Core/Events/EventHandler.hpp"
 #include "Nexus-Core/Graphics/Framebuffer.hpp"
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"

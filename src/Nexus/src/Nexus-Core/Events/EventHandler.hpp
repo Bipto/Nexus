@@ -1,34 +1,41 @@
 #pragma once
 
-#include "Event.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
 namespace Nexus
 {
+	enum class EventPermissions
+	{
+		Default,
+		Locked
+	};
+
 	/// @brief A class that is used to call a group of functions when an event
 	/// occurs
 	/// @tparam Args The parameters to use when invoking the event functions
 	template<typename... Args>
 	class EventHandler
 	{
+		using EventFunction = std::function<void(Args...)>;
+
 	  public:
 		/// @brief A method that calls the functions using a templated parameter
 		/// @param param The payload to use for the functions
 		void Invoke(Args... param)
 		{
-			for (auto delegate : m_EventFunctions) delegate(param...);
+			for (const auto &[delegate, permissions] : m_EventFunctions) { delegate(param...); }
 		}
 
 		/// @brief A method to bind a new function to the event handler
 		/// @param function The function to bind to the event handler
-		void Bind(std::function<void(Args...)> function)
+		void Bind(EventFunction function, EventPermissions permissions = EventPermissions::Default)
 		{
-			m_EventFunctions.push_back(function);
+			m_EventFunctions.emplace_back(function, permissions);
 		}
 
 		/// @brief A method that removes a function from the event handler
 		/// @param function The function to unbind from the event handler
-		void Unbind(std::function<void(Args...)> function)
+		void Unbind(EventFunction function)
 		{
 			auto position = std::find(m_EventFunctions.begin(), m_EventFunctions.end(), function);
 			if (position != m_EventFunctions.end())
@@ -39,9 +46,9 @@ namespace Nexus
 		/// handler
 		/// @param function The function to bind to the event handler
 		/// @return The new event handler with the function bound
-		EventHandler &operator+=(std::function<void(Args...)> function)
+		EventHandler &operator+=(EventFunction function)
 		{
-			Bind(function);
+			Bind(function, EventPermissions::Default);
 			return *this;
 		}
 
@@ -49,7 +56,7 @@ namespace Nexus
 		/// event handler
 		/// @param function The functio nto unbind from the event handler
 		/// @return The new event handler with the function unbound
-		EventHandler &operator-=(std::function<void(Args...)> function)
+		EventHandler &operator-=(EventFunction function)
 		{
 			Unbind(function);
 			return *this;
@@ -63,8 +70,19 @@ namespace Nexus
 			return m_EventFunctions.size();
 		}
 
+		void Clear()
+		{
+			for (auto it = m_EventFunctions.begin(); it != m_EventFunctions.end();)
+			{
+				if (it->second == EventPermissions::Default)
+				{
+					it = m_EventFunctions.erase(it);
+				}
+			}
+		}
+
 	  private:
 		/// @brief A vector containing the bound delegates to call
-		std::vector<std::function<void(Args...)>> m_EventFunctions;
+		std::vector<std::pair<EventFunction, EventPermissions>> m_EventFunctions;
 	};
 }	 // namespace Nexus

@@ -4,7 +4,6 @@
 #include "Nexus-Core/Input/Keyboard.hpp"
 #include "Nexus-Core/Input/Mouse.hpp"
 
-#include "Nexus-Core/Events/Event.hpp"
 #include "Nexus-Core/Point.hpp"
 
 namespace Nexus
@@ -21,7 +20,7 @@ namespace Nexus
 		Flipped
 	};
 
-	struct KeyPressedEvent
+	struct KeyPressedEventArgs
 	{
 		Nexus::KeyCode		KeyCode	   = {};
 		Nexus::ScanCode		ScanCode   = {};
@@ -31,7 +30,7 @@ namespace Nexus
 		uint32_t			KeyboardID = {};
 	};
 
-	struct KeyReleasedEvent
+	struct KeyReleasedEventArgs
 	{
 		Nexus::KeyCode	KeyCode	   = {};
 		Nexus::ScanCode ScanCode   = {};
@@ -39,7 +38,7 @@ namespace Nexus
 		uint32_t		KeyboardID = {};
 	};
 
-	struct MouseMovedEvent
+	struct MouseMovedEventArgs
 	{
 		Nexus::Point2D<float> Position = {};
 		Nexus::Point2D<float> Movement = {};
@@ -47,24 +46,24 @@ namespace Nexus
 		MouseType			  Type	   = {};
 	};
 
-	struct MouseButtonPressedEvent
+	struct MouseButtonPressedEventArgs
 	{
-		MouseButton			  Button	  = {};
-		Nexus::Point2D<float> Position	  = {};
-		uint32_t			  Clicks	  = {};
-		uint32_t			  MouseID	  = {};
-		MouseType			  Type		  = {};
+		MouseButton			  Button   = {};
+		Nexus::Point2D<float> Position = {};
+		uint32_t			  Clicks   = {};
+		uint32_t			  MouseID  = {};
+		MouseType			  Type	   = {};
 	};
 
-	struct MouseButtonReleasedEvent
+	struct MouseButtonReleasedEventArgs
 	{
-		MouseButton			  Button	  = {};
-		Nexus::Point2D<float> Position	  = {};
-		uint32_t			  MouseID	  = {};
-		MouseType			  Type		  = {};
+		MouseButton			  Button   = {};
+		Nexus::Point2D<float> Position = {};
+		uint32_t			  MouseID  = {};
+		MouseType			  Type	   = {};
 	};
 
-	struct MouseScrolledEvent
+	struct MouseScrolledEventArgs
 	{
 		Nexus::Point2D<float> Scroll	= {};
 		Nexus::Point2D<float> Position	= {};
@@ -82,7 +81,7 @@ namespace Nexus
 		Position
 	};
 
-	struct FileDropEvent
+	struct FileDropEventArgs
 	{
 		FileDropType   Type		 = {};
 		Point2D<float> Position	 = {};
@@ -90,7 +89,20 @@ namespace Nexus
 		std::string	   Data		 = {};
 	};
 
-	using InputEvent =
-	std::variant<KeyPressedEvent, KeyReleasedEvent, MouseMovedEvent, MouseButtonPressedEvent, MouseButtonReleasedEvent, MouseScrolledEvent>;
+	struct WindowResizedEventArgs
+	{
+		Nexus::Point2D<uint32_t> Size = {};
+	};
 
+	struct WindowMovedEventArgs
+	{
+		Nexus::Point2D<int32_t> Position = {};
+	};
+
+	struct TextEditEventArgs
+	{
+		const char *Text   = {};
+		int32_t		Start  = {};
+		int32_t		Length = {};
+	};
 }	 // namespace Nexus

@@ -53,7 +53,6 @@ namespace Nexus
 	void Init(int argc, char **argv)
 	{
 		Platform::Initialise();
-		InputNew::InputContext::Initialise();
 	}
 
 	void Shutdown()

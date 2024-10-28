@@ -3,10 +3,9 @@
 #include "SDL3Include.hpp"
 #include "SDL3Window.hpp"
 
-#include "Nexus-Core/Events/Event.hpp"
 #include "Nexus-Core/Events/EventHandler.hpp"
+#include "Nexus-Core/Input/Event.hpp"
 #include "Nexus-Core/Input/InputContext.hpp"
-#include "Nexus-Core/Input/InputEvent.hpp"
 #include "Nexus-Core/Input/InputState.hpp"
 
 std::vector<Nexus::Window *>					  m_Windows {};
@@ -94,12 +93,12 @@ void PollEvents()
 				/* window->m_Input.m_Keyboard.m_CurrentKeys[nexusKeyCode] = true;
 				m_GlobalKeyboardState.m_CurrentKeys[nexusKeyCode]	   = true; */
 
-				Nexus::KeyPressedEvent keyPressedEvent {.KeyCode	= nexusKeyCode,
-														.ScanCode	= nexusScanCode,
-														.Repeat		= event.key.repeat,
-														.Unicode	= event.key.keysym.sym,
-														.Mods		= mods,
-														.KeyboardID = event.kdevice.which};
+				Nexus::KeyPressedEventArgs keyPressedEvent {.KeyCode	= nexusKeyCode,
+															.ScanCode	= nexusScanCode,
+															.Repeat		= event.key.repeat,
+															.Unicode	= event.key.keysym.sym,
+															.Mods		= mods,
+															.KeyboardID = event.kdevice.which};
 
 				window->OnKeyPressed.Invoke(keyPressedEvent);
 				break;
@@ -112,10 +111,10 @@ void PollEvents()
 				/* window->m_Input.m_Keyboard.m_CurrentKeys[nexusKeyCode] = false;
 				m_GlobalKeyboardState.m_CurrentKeys[nexusKeyCode]	   = false; */
 
-				Nexus::KeyReleasedEvent keyReleasedEvent {.KeyCode	  = nexusKeyCode,
-														  .ScanCode	  = nexusScanCode,
-														  .Unicode	  = event.key.keysym.sym,
-														  .KeyboardID = event.kdevice.which};
+				Nexus::KeyReleasedEventArgs keyReleasedEvent {.KeyCode	  = nexusKeyCode,
+															  .ScanCode	  = nexusScanCode,
+															  .Unicode	  = event.key.keysym.sym,
+															  .KeyboardID = event.kdevice.which};
 
 				window->OnKeyReleased.Invoke(keyReleasedEvent);
 				break;
@@ -151,48 +150,37 @@ void PollEvents()
 					}
 				} */
 
-				auto [mouseType, mouseId] = Nexus::SDL3::GetMouseInfo(event.button.which);
-				Nexus::MouseButton button = Nexus::SDL3::GetMouseButton(event.button.button);
+				auto [mouseType, mouseId]				 = Nexus::SDL3::GetMouseInfo(event.button.which);
+				std::optional<Nexus::MouseButton> button = Nexus::SDL3::GetMouseButton(event.button.button);
 
-				Nexus::MouseButtonPressedEvent mousePressedEvent {.Button	= button,
-																  .Position = {event.button.x, event.button.y},
-																  .Clicks	= event.button.clicks,
-																  .MouseID	= mouseId,
-																  .Type		= mouseType};
+				if (button.has_value())
+				{
+					Nexus::MouseButtonPressedEventArgs mousePressedEvent {.Button	= button.value(),
+																		  .Position = {event.button.x, event.button.y},
+																		  .Clicks	= event.button.clicks,
+																		  .MouseID	= mouseId,
+																		  .Type		= mouseType};
 
-				window->OnMousePressed.Invoke(mousePressedEvent);
+					window->OnMousePressed.Invoke(mousePressedEvent);
+				}
+
 				break;
 			}
 			case SDL_EVENT_MOUSE_BUTTON_UP:
 			{
-				/* switch (event.button.button)
+				auto [mouseType, mouseId]				 = Nexus::SDL3::GetMouseInfo(event.button.which);
+				std::optional<Nexus::MouseButton> button = Nexus::SDL3::GetMouseButton(event.button.button);
+
+				if (button.has_value())
 				{
-					case SDL_BUTTON_LEFT:
-					{
-						window->m_Input.m_Mouse.m_CurrentState.LeftButton = Nexus::MouseButtonState::Released;
-						break;
-					}
-					case SDL_BUTTON_RIGHT:
-					{
-						window->m_Input.m_Mouse.m_CurrentState.RightButton = Nexus::MouseButtonState::Released;
-						break;
-					}
-					case SDL_BUTTON_MIDDLE:
-					{
-						window->m_Input.m_Mouse.m_CurrentState.MiddleButton = Nexus::MouseButtonState::Released;
-						break;
-					}
-				} */
+					Nexus::MouseButtonReleasedEventArgs mouseReleasedEvent {.Button	  = button.value(),
+																			.Position = {event.button.x, event.button.y},
+																			.MouseID  = mouseId,
+																			.Type	  = mouseType};
 
-				auto [mouseType, mouseId] = Nexus::SDL3::GetMouseInfo(event.button.which);
-				Nexus::MouseButton button = Nexus::SDL3::GetMouseButton(event.button.button);
+					window->OnMouseReleased.Invoke(mouseReleasedEvent);
+				}
 
-				Nexus::MouseButtonReleasedEvent mouseReleasedEvent {.Button	  = button,
-																	.Position = {event.button.x, event.button.y},
-																	.MouseID  = mouseId,
-																	.Type	  = mouseType};
-
-				window->OnMouseReleased.Invoke(mouseReleasedEvent);
 				break;
 			}
 			case SDL_EVENT_MOUSE_MOTION:
@@ -215,13 +203,12 @@ void PollEvents()
 
 				auto [mouseType, mouseId] = Nexus::SDL3::GetMouseInfo(event.motion.which);
 
-				Nexus::MouseMovedEvent mouseMovedEvent {.Position = {event.motion.x, event.motion.y},
-														.Movement = {event.motion.xrel, event.motion.yrel},
-														.MouseID  = mouseId,
-														.Type	  = mouseType};
+				Nexus::MouseMovedEventArgs mouseMovedEvent {.Position = {event.motion.x, event.motion.y},
+															.Movement = {event.motion.xrel, event.motion.yrel},
+															.MouseID  = mouseId,
+															.Type	  = mouseType};
 
 				window->OnMouseMoved.Invoke(mouseMovedEvent);
-
 				break;
 			}
 			case SDL_EVENT_MOUSE_WHEEL:
@@ -233,11 +220,11 @@ void PollEvents()
 				auto [mouseType, mouseId]		 = Nexus::SDL3::GetMouseInfo(event.wheel.which);
 				Nexus::ScrollDirection direction = Nexus::SDL3::GetScrollDirection(event.wheel.direction);
 
-				Nexus::MouseScrolledEvent scrollEvent {.Scroll	  = {event.wheel.x, event.wheel.y},
-													   .Position  = {event.wheel.mouse_x, event.wheel.mouse_y},
-													   .MouseID	  = mouseId,
-													   .Type	  = mouseType,
-													   .Direction = direction};
+				Nexus::MouseScrolledEventArgs scrollEvent {.Scroll	  = {event.wheel.x, event.wheel.y},
+														   .Position  = {event.wheel.mouse_x, event.wheel.mouse_y},
+														   .MouseID	  = mouseId,
+														   .Type	  = mouseType,
+														   .Direction = direction};
 
 				window->OnScroll.Invoke(scrollEvent);
 				break;
@@ -247,46 +234,27 @@ void PollEvents()
 				window->Close();
 				break;
 			}
-
-			case SDL_EVENT_GAMEPAD_ADDED:
-			{
-				/* if (SDL_IsGamepad(event.cdevice.which))
-				{
-					Nexus::Input::AddController(event.cdevice.which);
-					break;
-				} */
-				break;
-			}
-			case SDL_EVENT_GAMEPAD_REMAPPED:
-			{
-				event.gdevice.which;
-				break;
-			}
-			case SDL_EVENT_GAMEPAD_UPDATE_COMPLETE:
-			{
-				event.gdevice.which;
-				break;
-			}
-			case SDL_EVENT_GAMEPAD_STEAM_HANDLE_UPDATED:
-			{
-				event.gdevice.which;
-				break;
-			}
-			case SDL_EVENT_GAMEPAD_REMOVED:
-			{
-				/* Nexus::Input::RemoveController(event.cdevice.which); */
-				break;
-			}
 			case SDL_EVENT_TEXT_INPUT:
 			{
-				/* window->OnTextInput.Invoke(event.text.text);
-				window->m_Input.TextInput.Invoke(event.text.text);
-				OnTextInput.Invoke(event.text.text);*/
+				window->OnTextInput.Invoke(event.text.text);
+				break;
+			}
+			case SDL_EVENT_TEXT_EDITING:
+			{
+				Nexus::TextEditEventArgs textEditArgs {.Text = event.edit.text, .Start = event.edit.start, .Length = event.edit.length};
+				window->OnTextEdit.Invoke(textEditArgs);
 				break;
 			}
 			case SDL_EVENT_WINDOW_RESIZED:
 			{
-				window->OnResize.Invoke({event.window.data1, event.window.data2});
+				Nexus::WindowResizedEventArgs resizeEventArgs {.Size = {(uint32_t)event.window.data1, (uint32_t)event.window.data2}};
+				window->OnResize.Invoke(resizeEventArgs);
+				break;
+			}
+			case SDL_EVENT_WINDOW_MOVED:
+			{
+				Nexus::WindowMovedEventArgs movedEventArgs {.Position = {event.window.data1, event.window.data2}};
+				window->OnMove.Invoke(movedEventArgs);
 				break;
 			}
 			case SDL_EVENT_DROP_FILE:
@@ -305,10 +273,10 @@ void PollEvents()
 					sourceData = event.drop.data;
 				}
 
-				Nexus::FileDropEvent fileDropEvent {.Type	   = type,
-													.Position  = {event.drop.x, event.drop.y},
-													.SourceApp = sourceApp,
-													.Data	   = sourceData};
+				Nexus::FileDropEventArgs fileDropEvent {.Type	   = type,
+														.Position  = {event.drop.x, event.drop.y},
+														.SourceApp = sourceApp,
+														.Data	   = sourceData};
 
 				window->OnFileDrop.Invoke(fileDropEvent);
 				break;
@@ -348,44 +316,34 @@ void PollEvents()
 				window->OnMouseLeave.Invoke();
 				break;
 			}
-			case SDL_EVENT_DISPLAY_ORIENTATION:
-			{
-				break;
-			}
-			case SDL_EVENT_DISPLAY_ADDED:
-			{
-				break;
-			}
-			case SDL_EVENT_DISPLAY_CONTENT_SCALE_CHANGED:
-			{
-				break;
-			}
-			case SDL_EVENT_DISPLAY_REMOVED:
-			{
-				break;
-			}
-			case SDL_EVENT_DISPLAY_HDR_STATE_CHANGED:
-			{
-				break;
-			}
 			case SDL_EVENT_KEYBOARD_ADDED:
 			{
-				event.kdevice.which;
+				Nexus::Platform::OnKeyboardAdded.Invoke(event.kdevice.which);
 				break;
 			}
 			case SDL_EVENT_KEYBOARD_REMOVED:
 			{
-				event.kdevice.which;
+				Nexus::Platform::OnKeyboardRemoved.Invoke(event.kdevice.which);
 				break;
 			}
 			case SDL_EVENT_MOUSE_ADDED:
 			{
-				event.mdevice.which;
+				Nexus::Platform::OnMouseAdded.Invoke(event.mdevice.which);
 				break;
 			}
 			case SDL_EVENT_MOUSE_REMOVED:
 			{
-				event.mdevice.which;
+				Nexus::Platform::OnMouseRemoved.Invoke(event.mdevice.which);
+				break;
+			}
+			case SDL_EVENT_GAMEPAD_ADDED:
+			{
+				Nexus::Platform::OnGamepadAdded.Invoke(event.cdevice.which);
+				break;
+			}
+			case SDL_EVENT_GAMEPAD_REMOVED:
+			{
+				Nexus::Platform::OnGamepadRemoved.Invoke(event.cdevice.which);
 				break;
 			}
 		}
@@ -513,6 +471,51 @@ namespace Nexus::Platform
 		return monitors;
 	}
 
+	std::optional<InputNew::Keyboard> GetKeyboardById(uint32_t id)
+	{
+		const std::vector<InputNew::Keyboard> &keyboards = Platform::GetKeyboards();
+
+		for (const auto &keyboard : keyboards)
+		{
+			if (keyboard.GetId() == id)
+			{
+				return keyboard;
+			}
+		}
+
+		return {};
+	}
+
+	std::optional<InputNew::Mouse> GetMouseById(uint32_t id)
+	{
+		const std::vector<InputNew::Mouse> &mice = Platform::GetMice();
+
+		for (const auto &mouse : mice)
+		{
+			if (mouse.GetId() == id)
+			{
+				return mouse;
+			}
+		}
+
+		return {};
+	}
+
+	std::optional<InputNew::Gamepad> GetGamepadById(uint32_t id)
+	{
+		const std::vector<InputNew::Gamepad> &gamepads = Platform::GetGamepads();
+
+		for (const auto &gamepad : gamepads)
+		{
+			if (gamepad.GetId() == id)
+			{
+				return gamepad;
+			}
+		}
+
+		return {};
+	}
+
 	void Initialise()
 	{
 		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD) != 0)
@@ -538,11 +541,73 @@ namespace Nexus::Platform
 		PollEvents();
 	}
 
-	Window *CreatePlatformWindow(const WindowSpecification &windowProps, Graphics::GraphicsAPI api, const Graphics::SwapchainSpecification &swapchainSpec)
+	Window *CreatePlatformWindow(const WindowSpecification				&windowProps,
+								 Graphics::GraphicsAPI					 api,
+								 const Graphics::SwapchainSpecification &swapchainSpec)
 	{
 		Window *window = new Window(windowProps, api, swapchainSpec);
 		m_Windows.push_back(window);
 		return window;
 	}
 
+	GlobalMouseState GetGlobalMouseState()
+	{
+		GlobalMouseState state = {};
+
+		float  x, y;
+		Uint32 buttons = SDL_GetGlobalMouseState(&x, &y);
+
+#if defined(__EMSCRIPTEN__)
+		x *= GetPrimaryWindow()->GetDisplayScale();
+		y *= GetPrimaryWindow()->GetDisplayScale();
+#endif
+
+		state.Position.X = (int32_t)x;
+		state.Position.Y = (int32_t)y;
+
+		state.Buttons[MouseButton::Left]   = buttons & SDL_BUTTON_LEFT ? Nexus::MouseButtonState::Pressed : Nexus::MouseButtonState::Released;
+		state.Buttons[MouseButton::Middle] = buttons & SDL_BUTTON_MIDDLE ? Nexus::MouseButtonState::Pressed : Nexus::MouseButtonState::Released;
+		state.Buttons[MouseButton::Right]  = buttons & SDL_BUTTON_RIGHT ? Nexus::MouseButtonState::Pressed : Nexus::MouseButtonState::Released;
+		state.Buttons[MouseButton::X1]	   = buttons & SDL_BUTTON_X1 ? Nexus::MouseButtonState::Pressed : Nexus::MouseButtonState::Released;
+		state.Buttons[MouseButton::X2]	   = buttons & SDL_BUTTON_X2 ? Nexus::MouseButtonState::Pressed : Nexus::MouseButtonState::Released;
+		return state;
+	}
+
+	std::optional<Window *> GetMouseFocus()
+	{
+		SDL_Window *focusWindow = SDL_GetMouseFocus();
+		if (focusWindow == nullptr)
+		{
+			return {};
+		}
+
+		for (auto window : m_Windows)
+		{
+			if (window->GetSDLWindowHandle() == focusWindow)
+			{
+				return window;
+			}
+		}
+
+		return {};
+	}
+
+	std::optional<Window *> GetKeyboardFocus()
+	{
+		SDL_Window *focusWindow = SDL_GetKeyboardFocus();
+		if (focusWindow == nullptr)
+		{
+			return {};
+		}
+
+		for (auto window : m_Windows)
+		{
+			if (window->GetSDLWindowHandle() == focusWindow)
+			{
+				return window;
+			}
+		}
+
+		return {};
+	}
 }	 // namespace Nexus::Platform

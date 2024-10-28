@@ -43,7 +43,7 @@ class DemoApplication : public Nexus::Application
 
 	virtual void Load() override
 	{
-		/* m_ImGuiRenderer = std::make_unique<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(this);
+		m_ImGuiRenderer = std::make_unique<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(this);
 
 		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
@@ -79,7 +79,7 @@ class DemoApplication : public Nexus::Application
 		RegisterUtilsDemo<Demos::ClippingAndTriangulationDemo>("Polygon clipping and triangulation");
 		RegisterUtilsDemo<Demos::Splines>("Splines");
 
-		m_CommandList = m_GraphicsDevice->CreateCommandList(); */
+		m_CommandList = m_GraphicsDevice->CreateCommandList();
 	}
 
 	template<typename T>
@@ -183,13 +183,13 @@ class DemoApplication : public Nexus::Application
 				m_CurrentDemo->RenderUI();
 			}
 		}
-			else
-			{
-				RenderDemoList(m_GraphicsDemos, "Graphics");
-				RenderDemoList(m_AudioDemos, "Audio");
-				RenderDemoList(m_ScriptingDemos, "Scripting");
-				RenderDemoList(m_UtilsDemos, "Utils");
-			}
+		else
+		{
+			RenderDemoList(m_GraphicsDemos, "Graphics");
+			RenderDemoList(m_AudioDemos, "Audio");
+			RenderDemoList(m_ScriptingDemos, "Scripting");
+			RenderDemoList(m_UtilsDemos, "Utils");
+		}
 	}
 
 	void RenderPerformanceInfo()
@@ -209,7 +209,7 @@ class DemoApplication : public Nexus::Application
 
 	virtual void Render(Nexus::TimeSpan time) override
 	{
-		/* m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
+		m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
 
 		m_ImGuiRenderer->BeforeLayout(time);
 
@@ -243,34 +243,13 @@ class DemoApplication : public Nexus::Application
 
 		m_ImGuiRenderer->AfterLayout();
 
-		m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->SwapBuffers(); */
+		m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->SwapBuffers();
 	}
 
 	virtual void OnResize(Nexus::Point2D<uint32_t> size) override
 	{
 		if (m_CurrentDemo)
 			m_CurrentDemo->OnResize(size);
-	}
-
-	virtual bool OnEvent(const Nexus::InputEvent &event, Nexus::Window *window) override
-	{
-		if (const Nexus::KeyPressedEvent *keyPressedEvent = std::get_if<Nexus::KeyPressedEvent>(&event))
-		{
-			if (keyPressedEvent->KeyCode == Nexus::KeyCode::S)
-			{
-				if (keyPressedEvent->Mods & Nexus::Keyboard::Modifier::LeftShift)
-				{
-					std::cout << std::to_string(keyPressedEvent->Repeat) << std::endl;
-				}
-			}
-		}
-
-		if (const Nexus::MouseButtonPressedEvent *mousePressedEvent = std::get_if<Nexus::MouseButtonPressedEvent>(&event))
-		{
-			std::cout << std::to_string(mousePressedEvent->Clicks) << std::endl;
-		}
-
-		return false;
 	}
 
 	virtual void Unload() override

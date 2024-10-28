@@ -13,12 +13,11 @@
 #endif
 
 #include "ApplicationSpecification.hpp"
-#include "Nexus-Core/Events/Event.hpp"
 #include "Nexus-Core/Events/EventHandler.hpp"
 #include "Nexus-Core/Graphics/Rectangle.hpp"
 #include "Nexus-Core/Graphics/Swapchain.hpp"
+#include "Nexus-Core/Input/Event.hpp"
 #include "Nexus-Core/Input/InputContext.hpp"
-#include "Nexus-Core/Input/InputEvent.hpp"
 #include "Nexus-Core/Input/InputState.hpp"
 #include "Nexus-Core/Timings/Timer.hpp"
 #include "Point.hpp"
@@ -184,13 +183,12 @@ namespace Nexus
 		void SetTicksPerSecond(uint32_t amount);
 		void SetRelativeMouseMode(bool enabled);
 
-		void OnEvent(const InputEvent &event);
-
 #if defined(NX_PLATFORM_WINDOWS)
 		const HWND GetHwnd() const;
 #endif
 
-		EventHandler<std::pair<uint32_t, uint32_t>> OnResize;
+		EventHandler<const WindowResizedEventArgs &> OnResize;
+		EventHandler<const WindowMovedEventArgs &>	 OnMove;
 
 		EventHandler<> OnGainFocus;
 		EventHandler<> OnLostFocus;
@@ -199,19 +197,22 @@ namespace Nexus
 		EventHandler<> OnRestored;
 		EventHandler<> OnShow;
 		EventHandler<> OnHide;
+		EventHandler<> OnExpose;
 
-		EventHandler<const KeyPressedEvent &>  OnKeyPressed;
-		EventHandler<const KeyReleasedEvent &> OnKeyReleased;
+		EventHandler<const KeyPressedEventArgs &>  OnKeyPressed;
+		EventHandler<const KeyReleasedEventArgs &> OnKeyReleased;
+
 		EventHandler<char *>				   OnTextInput;
+		EventHandler<const TextEditEventArgs &> OnTextEdit;
 
-		EventHandler<const MouseButtonPressedEvent &>  OnMousePressed;
-		EventHandler<const MouseButtonReleasedEvent &> OnMouseReleased;
-		EventHandler<const MouseMovedEvent &>		   OnMouseMoved;
-		EventHandler<const MouseScrolledEvent &>	   OnScroll;
+		EventHandler<const MouseButtonPressedEventArgs &>  OnMousePressed;
+		EventHandler<const MouseButtonReleasedEventArgs &> OnMouseReleased;
+		EventHandler<const MouseMovedEventArgs &>		   OnMouseMoved;
+		EventHandler<const MouseScrolledEventArgs &>	   OnScroll;
 		EventHandler<>								   OnMouseEnter;
 		EventHandler<>								   OnMouseLeave;
 
-		EventHandler<const FileDropEvent &> OnFileDrop;
+		EventHandler<const FileDropEventArgs &> OnFileDrop;
 
 		EventHandler<TimeSpan> OnRender;
 		EventHandler<TimeSpan> OnUpdate;
@@ -227,8 +228,6 @@ namespace Nexus
 		void SetupTimer();
 
 		const WindowSpecification &GetSpecification() const;
-
-		void HandleEvent(SDL_Event &event);
 
 	  private:
 		WindowSpecification m_Specification = {};
@@ -262,7 +261,7 @@ namespace Nexus
 		Utils::FrameRateMonitor m_UpdateFrameRateMonitor = {};
 		Utils::FrameRateMonitor m_TickFrameRateMonitor	 = {};
 
-		InputNew::InputContext m_InputContext = {};
+		InputNew::InputContext m_InputContext;
 
 		/// @brief A friend class to allow an application to access private members of
 		/// this class

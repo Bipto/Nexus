@@ -11,6 +11,12 @@
 
 namespace Nexus
 {
+	struct GlobalMouseState
+	{
+		Nexus::Point2D<int>						Position = {};
+		std::map<MouseButton, MouseButtonState> Buttons	 = {};
+	};
+
 	/// @brief A class representing an input state of  a window
 	class InputState
 	{
