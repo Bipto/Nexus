@@ -15,9 +15,34 @@ namespace Nexus::InputNew
 		for (const auto &keyboard : keyboards) { m_KeyboardStates[keyboard.GetId()] = {}; }
 		for (const auto &mouse : mice) { m_MouseStates[mouse.GetId()] = {}; };
 
-		Platform::OnKeyboardAdded.Bind([&](uint32_t id) { m_KeyboardStates[id] = {}; }, EventPermissions::Locked);
-		Platform::OnKeyboardRemoved.Bind([&](uint32_t id) { m_KeyboardStates.erase(id); }, EventPermissions::Locked);
-		Platform::OnMouseAdded.Bind([&](uint32_t id) { m_MouseStates[id] = {}; }, EventPermissions::Locked);
-		Platform::OnMouseRemoved.Bind([&](uint32_t id) { m_MouseStates[id] = {}; }, EventPermissions::Locked);
+		m_OnKeyboardAdded	= Platform::OnKeyboardAdded.Bind([this](uint32_t id) { m_KeyboardStates[id] = {}; }, EventPermissions::Locked);
+		m_OnKeyboardRemoved = Platform::OnKeyboardRemoved.Bind([this](uint32_t id) { m_KeyboardStates.erase(id); }, EventPermissions::Locked);
+		m_OnMouseAdded		= Platform::OnMouseAdded.Bind([this](uint32_t id) { m_MouseStates[id] = {}; }, EventPermissions::Locked);
+		m_OnMouseRemoved	= Platform::OnMouseRemoved.Bind([this](uint32_t id) { m_MouseStates.erase(id); }, EventPermissions::Locked);
+
+		window->OnKeyPressed.Bind(
+		[this](const KeyPressedEventArgs &args)
+		{
+			ButtonState state = args.Repeat > 0 ? ButtonState::Held : ButtonState::Pressed;
+			UpdateKeyboardState(args.KeyboardID, args.ScanCode, state);
+		},
+		EventPermissions::Locked);
+
+		window->OnKeyReleased.Bind([this](const KeyReleasedEventArgs &args)
+								   { UpdateKeyboardState(args.KeyboardID, args.ScanCode, ButtonState::Released); },
+								   EventPermissions::Locked);
+	}
+
+	InputContext::~InputContext()
+	{
+		Platform::OnKeyboardAdded.Unbind(m_OnKeyboardAdded);
+		Platform::OnKeyboardRemoved.Unbind(m_OnKeyboardRemoved);
+		Platform::OnMouseAdded.Unbind(m_OnMouseAdded);
+		Platform::OnMouseRemoved.Unbind(m_OnMouseRemoved);
+	}
+
+	void InputContext::UpdateKeyboardState(uint32_t id, ScanCode scancode, ButtonState state)
+	{
+		m_KeyboardStates[id].Keys[scancode] = state;
 	}
 }	 // namespace Nexus::InputNew

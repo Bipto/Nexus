@@ -24,7 +24,7 @@ namespace Nexus::Graphics
 
 		CreateSurface();
 
-		window->OnResize += [&](const WindowResizedEventArgs &args) { RecreateSwapchain(); };
+		window->OnResize.Bind([&](const WindowResizedEventArgs &args) { RecreateSwapchain(); });
 	}
 
 	SwapchainVk::~SwapchainVk()

@@ -111,11 +111,20 @@ namespace Nexus::InputNew
 	{
 	  public:
 		InputContext(Nexus::Window *window);
+		virtual ~InputContext();
+
+	  private:
+		void UpdateKeyboardState(uint32_t id, ScanCode scancode, ButtonState state);
 
 	  private:
 		Nexus::Window *m_Window = nullptr;
 
 		std::map<uint32_t, KeyboardState> m_KeyboardStates;
 		std::map<uint32_t, MouseState>	  m_MouseStates;
+
+		uint64_t m_OnKeyboardAdded	 = {};
+		uint64_t m_OnKeyboardRemoved = {};
+		uint64_t m_OnMouseAdded		 = {};
+		uint64_t m_OnMouseRemoved	 = {};
 	};
 }	 // namespace Nexus::InputNew

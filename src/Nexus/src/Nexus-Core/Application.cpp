@@ -49,9 +49,9 @@ namespace Nexus
 
 		SDL_StartTextInput();
 
-		m_Window->OnRender += [&](Nexus::TimeSpan time) { Render(time); };
-		m_Window->OnUpdate += [&](Nexus::TimeSpan time) { Update(time); };
-		m_Window->OnTick += [&](Nexus::TimeSpan time) { Tick(time); };
+		m_Window->OnRender.Bind([&](Nexus::TimeSpan time) { Render(time); });
+		m_Window->OnUpdate.Bind([&](Nexus::TimeSpan time) { Update(time); });
+		m_Window->OnTick.Bind([&](Nexus::TimeSpan time) { Tick(time); });
 	}
 
 	Application::~Application()

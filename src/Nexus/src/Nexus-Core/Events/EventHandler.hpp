@@ -2,11 +2,13 @@
 
 #include "Nexus-Core/nxpch.hpp"
 
+#include "Nexus-Core/Utils/Utils.hpp"
+
 namespace Nexus
 {
 	enum class EventPermissions
 	{
-		Default,
+		Default = 0,
 		Locked
 	};
 
@@ -16,50 +18,45 @@ namespace Nexus
 	template<typename... Args>
 	class EventHandler
 	{
+		using EventID		= uint64_t;
 		using EventFunction = std::function<void(Args...)>;
+
+		struct BoundEvent
+		{
+			EventID			 ID			 = {};
+			EventFunction	 Func		 = {};
+			EventPermissions Permissions = {};
+		};
 
 	  public:
 		/// @brief A method that calls the functions using a templated parameter
 		/// @param param The payload to use for the functions
 		void Invoke(Args... param)
 		{
-			for (const auto &[delegate, permissions] : m_EventFunctions) { delegate(param...); }
+			for (const auto &[id, delegate, permissions] : m_EventFunctions) { delegate(param...); }
 		}
 
 		/// @brief A method to bind a new function to the event handler
 		/// @param function The function to bind to the event handler
-		void Bind(EventFunction function, EventPermissions permissions = EventPermissions::Default)
+		EventID Bind(EventFunction function, EventPermissions permissions = EventPermissions::Default)
 		{
-			m_EventFunctions.emplace_back(function, permissions);
+			EventID id = Utils::GetCurrentTimeAsInt();
+			m_EventFunctions.emplace_back(id, function, permissions);
+			return id;
 		}
 
 		/// @brief A method that removes a function from the event handler
-		/// @param function The function to unbind from the event handler
-		void Unbind(EventFunction function)
+		/// @param id The ID of the function to unbind from the event handler
+		void Unbind(EventID id)
 		{
-			auto position = std::find(m_EventFunctions.begin(), m_EventFunctions.end(), function);
-			if (position != m_EventFunctions.end())
-				m_EventFunctions.erase(position);
-		}
-
-		/// @brief A custom operator that can be used to bind a function to the event
-		/// handler
-		/// @param function The function to bind to the event handler
-		/// @return The new event handler with the function bound
-		EventHandler &operator+=(EventFunction function)
-		{
-			Bind(function, EventPermissions::Default);
-			return *this;
-		}
-
-		/// @brief A custom operator that can be used to unbind a function from the
-		/// event handler
-		/// @param function The functio nto unbind from the event handler
-		/// @return The new event handler with the function unbound
-		EventHandler &operator-=(EventFunction function)
-		{
-			Unbind(function);
-			return *this;
+			for (size_t i = 0; i < m_EventFunctions.size(); i++)
+			{
+				if (m_EventFunctions[i].ID == id)
+				{
+					m_EventFunctions.erase(m_EventFunctions.begin() + i);
+					i--;
+				}
+			}
 		}
 
 		/// @brief A method that returns the amount of delegates bound to the event
@@ -72,17 +69,18 @@ namespace Nexus
 
 		void Clear()
 		{
-			for (auto it = m_EventFunctions.begin(); it != m_EventFunctions.end();)
+			for (size_t i = 0; i < m_EventFunctions.size(); i++)
 			{
-				if (it->second == EventPermissions::Default)
+				if (m_EventFunctions[i].Permissions == EventPermissions::Default)
 				{
-					it = m_EventFunctions.erase(it);
+					m_EventFunctions.erase(m_EventFunctions.begin() + i);
+					i--;
 				}
 			}
 		}
 
 	  private:
 		/// @brief A vector containing the bound delegates to call
-		std::vector<std::pair<EventFunction, EventPermissions>> m_EventFunctions;
+		std::vector<BoundEvent> m_EventFunctions;
 	};
 }	 // namespace Nexus

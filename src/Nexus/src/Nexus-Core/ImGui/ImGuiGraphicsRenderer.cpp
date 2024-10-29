@@ -463,11 +463,12 @@ namespace Nexus::ImGuiUtils
 		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Y] = (int)KeyCode::Y);
 		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Z] = (int)KeyCode::Z);
 
-		m_Application->GetPrimaryWindow()->OnTextInput += [&](char *text)
+		m_Application->GetPrimaryWindow()->OnTextInput.Bind(
+		[&](char *text)
 		{
 			ImGuiIO &io = ImGui::GetIO();
 			io.AddInputCharactersUTF8(text);
-		};
+		});
 	}
 
 	void ImGuiGraphicsRenderer::UpdateInput()
