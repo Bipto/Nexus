@@ -550,9 +550,9 @@ namespace Nexus::Platform
 		return window;
 	}
 
-	GlobalMouseState GetGlobalMouseState()
+	InputNew::MouseInfo GetGlobalMouseInfo()
 	{
-		GlobalMouseState state = {};
+		InputNew::MouseInfo state = {};
 
 		float  x, y;
 		Uint32 buttons = SDL_GetGlobalMouseState(&x, &y);

@@ -122,7 +122,7 @@ namespace Nexus
 		/// @return A pointer to the input state
 		InputState *GetInput();
 
-		const Nexus::InputNew::InputContext &GetInputContext() const;
+		Nexus::InputNew::InputContext &GetInputContext();
 
 		/// @brief A method that checks whether a window is focussed
 		/// @return A boolean value indicating whether the window is focussed

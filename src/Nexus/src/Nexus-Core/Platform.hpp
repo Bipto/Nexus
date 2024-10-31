@@ -27,7 +27,7 @@ namespace Nexus::Platform
 								 Graphics::GraphicsAPI					 api,
 								 const Graphics::SwapchainSpecification &swapchainSpec);
 
-	GlobalMouseState		GetGlobalMouseState();
+	InputNew::MouseInfo		GetGlobalMouseInfo();
 	std::optional<Window *> GetKeyboardFocus();
 	std::optional<Window *> GetMouseFocus();
 

@@ -6,11 +6,7 @@
 
 namespace Nexus
 {
-	enum class EventPermissions
-	{
-		Default = 0,
-		Locked
-	};
+	using EventID = uint64_t;
 
 	/// @brief A class that is used to call a group of functions when an event
 	/// occurs
@@ -18,14 +14,12 @@ namespace Nexus
 	template<typename... Args>
 	class EventHandler
 	{
-		using EventID		= uint64_t;
 		using EventFunction = std::function<void(Args...)>;
 
 		struct BoundEvent
 		{
 			EventID			 ID			 = {};
 			EventFunction	 Func		 = {};
-			EventPermissions Permissions = {};
 		};
 
 	  public:
@@ -33,15 +27,15 @@ namespace Nexus
 		/// @param param The payload to use for the functions
 		void Invoke(Args... param)
 		{
-			for (const auto &[id, delegate, permissions] : m_EventFunctions) { delegate(param...); }
+			for (const auto &[id, delegate] : m_EventFunctions) { delegate(param...); }
 		}
 
 		/// @brief A method to bind a new function to the event handler
 		/// @param function The function to bind to the event handler
-		EventID Bind(EventFunction function, EventPermissions permissions = EventPermissions::Default)
+		EventID Bind(EventFunction function)
 		{
 			EventID id = Utils::GetCurrentTimeAsInt();
-			m_EventFunctions.emplace_back(id, function, permissions);
+			m_EventFunctions.emplace_back(id, function);
 			return id;
 		}
 
@@ -69,18 +63,34 @@ namespace Nexus
 
 		void Clear()
 		{
-			for (size_t i = 0; i < m_EventFunctions.size(); i++)
-			{
-				if (m_EventFunctions[i].Permissions == EventPermissions::Default)
-				{
-					m_EventFunctions.erase(m_EventFunctions.begin() + i);
-					i--;
-				}
-			}
+			m_EventFunctions.clear();
 		}
 
 	  private:
 		/// @brief A vector containing the bound delegates to call
 		std::vector<BoundEvent> m_EventFunctions;
+	};
+
+	template<typename... Args>
+	class ScopedEvent
+	{
+	  public:
+		ScopedEvent() = default;
+		ScopedEvent(EventHandler<Args...> *eventHandler, std::function<void(Args...)> func) : m_EventHandler(eventHandler)
+		{
+			m_BoundEvent = eventHandler->Bind(func);
+		}
+
+		~ScopedEvent()
+		{
+			if (m_EventHandler)
+			{
+				m_EventHandler->Unbind(m_BoundEvent);
+			}
+		}
+
+	  private:
+		EventHandler<Args...> *m_EventHandler = nullptr;
+		EventID				   m_BoundEvent	  = 0;
 	};
 }	 // namespace Nexus

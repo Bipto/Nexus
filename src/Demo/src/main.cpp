@@ -80,6 +80,8 @@ class DemoApplication : public Nexus::Application
 		RegisterUtilsDemo<Demos::Splines>("Splines");
 
 		m_CommandList = m_GraphicsDevice->CreateCommandList();
+
+		Nexus::Window *window = m_GraphicsDevice->GetPrimaryWindow();
 	}
 
 	template<typename T>
@@ -209,6 +211,13 @@ class DemoApplication : public Nexus::Application
 
 	virtual void Render(Nexus::TimeSpan time) override
 	{
+		Nexus::Window				  *window  = m_GraphicsDevice->GetPrimaryWindow();
+		Nexus::InputNew::InputContext &context = window->GetInputContext();
+
+		std::stringstream ss;
+		ss << context.GetMousePosition(0).X << ", " << context.GetMousePosition(0).Y;
+		std::cout << ss.str() << std::endl;
+
 		m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
 
 		m_ImGuiRenderer->BeforeLayout(time);

@@ -11,11 +11,10 @@ namespace Nexus
 
 namespace Nexus::InputNew
 {
-	enum class ButtonState
+	struct MouseInfo
 	{
-		Released = 0,
-		Pressed,
-		Held
+		Nexus::Point2D<float>					Position = {};
+		std::map<MouseButton, MouseButtonState> Buttons	 = {};
 	};
 
 	class Keyboard
@@ -92,19 +91,14 @@ namespace Nexus::InputNew
 
 	struct KeyboardState
 	{
-		std::map<ScanCode, ButtonState> Keys;
+		std::map<ScanCode, bool> Keys = {};
 	};
 
 	struct MouseState
 	{
-		Point2D<int32_t> Position = {};
-		Point2D<int32_t> Movement = {};
-		MouseButton		 Left	  = {};
-		MouseButton		 Right	  = {};
-		MouseButton		 Middle	  = {};
-		MouseButton		 X1		  = {};
-		MouseButton		 X2		  = {};
-		Point2D<float>	 Scroll	  = {};
+		Point2D<float>				Position = {};
+		std::map<MouseButton, bool> Buttons	 = {};
+		Point2D<float>				Scroll	 = {};
 	};
 
 	class InputContext
@@ -113,8 +107,23 @@ namespace Nexus::InputNew
 		InputContext(Nexus::Window *window);
 		virtual ~InputContext();
 
+		bool		   IsMouseButtonDown(uint32_t id, MouseButton button);
+		bool		   IsMouseButtonUp(uint32_t id, MouseButton button);
+		bool		   IsKeyDown(uint32_t id, ScanCode scancode);
+		bool		   IsKeyUp(uint32_t id, ScanCode scancode);
+		Point2D<float> GetMousePosition(uint32_t id);
+		Point2D<float> GetScroll(uint32_t id);
+
+		Point2D<float> GetCursorPosition();
+		Point2D<float> GetGlobalCursorPosition();
+
 	  private:
-		void UpdateKeyboardState(uint32_t id, ScanCode scancode, ButtonState state);
+		void OnKeyPressed(const KeyPressedEventArgs &args);
+		void OnKeyReleased(const KeyReleasedEventArgs &args);
+		void OnMouseButtonPressed(const MouseButtonPressedEventArgs &args);
+		void OnMouseButtonReleased(const MouseButtonReleasedEventArgs &args);
+		void OnMouseMoved(const MouseMovedEventArgs &args);
+		void OnScroll(const MouseScrolledEventArgs &args);
 
 	  private:
 		Nexus::Window *m_Window = nullptr;
@@ -122,9 +131,13 @@ namespace Nexus::InputNew
 		std::map<uint32_t, KeyboardState> m_KeyboardStates;
 		std::map<uint32_t, MouseState>	  m_MouseStates;
 
-		uint64_t m_OnKeyboardAdded	 = {};
-		uint64_t m_OnKeyboardRemoved = {};
-		uint64_t m_OnMouseAdded		 = {};
-		uint64_t m_OnMouseRemoved	 = {};
+		Point2D<float> m_CursorPosition = {};
+
+		ScopedEvent<const KeyPressedEventArgs &>		  m_OnKeyPressed;
+		ScopedEvent<const KeyReleasedEventArgs &>		  m_OnKeyReleased;
+		ScopedEvent<const MouseButtonPressedEventArgs &>  m_OnMouseButtonPressed;
+		ScopedEvent<const MouseButtonReleasedEventArgs &> m_OnMouseButtonReleased;
+		ScopedEvent<const MouseMovedEventArgs &>		  m_OnMouseMoved;
+		ScopedEvent<const MouseScrolledEventArgs &>		  m_OnMouseScrolled;
 	};
 }	 // namespace Nexus::InputNew

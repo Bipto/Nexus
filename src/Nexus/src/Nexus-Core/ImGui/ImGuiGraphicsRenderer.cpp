@@ -497,7 +497,7 @@ namespace Nexus::ImGuiUtils
 		io.DisplaySize			   = {(float)mainWindow->GetWindowSize().X, (float)mainWindow->GetWindowSize().Y};
 		io.DisplayFramebufferScale = {1, 1};
 
-		GlobalMouseState globalMouseState = Platform::GetGlobalMouseState();
+		InputNew::MouseInfo globalMouseState = Platform::GetGlobalMouseInfo();
 
 		if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{

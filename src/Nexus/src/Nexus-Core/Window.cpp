@@ -171,7 +171,7 @@ namespace Nexus
 		return &m_Input;
 	}
 
-	const Nexus::InputNew::InputContext &Window::GetInputContext() const
+	Nexus::InputNew::InputContext &Window::GetInputContext()
 	{
 		return m_InputContext;
 	}

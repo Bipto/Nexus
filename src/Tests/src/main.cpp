@@ -3,6 +3,8 @@
 #include "Nexus-Core/Graphics/Circle.hpp"
 #include "Nexus-Core/Utils/Utils.hpp"
 
+#include "Nexus-Core/Events/EventHandler.hpp"
+
 TEST(Point2D, To)
 {
 	Nexus::Point2D<int>	  value(5, 7);
@@ -80,4 +82,18 @@ TEST(Circle, Deconstruct)
 	EXPECT_EQ(x, 50);
 	EXPECT_EQ(y, 50);
 	EXPECT_EQ(radius, 25);
+}
+
+TEST(ScopedEvent, Behaviour)
+{
+	Nexus::EventHandler<> eventHandler;
+
+	EXPECT_EQ(eventHandler.GetDelegateCount(), 0);
+
+	{
+		Nexus::ScopedEvent<> event(&eventHandler, []() {});
+		EXPECT_EQ(eventHandler.GetDelegateCount(), 1);
+	}
+
+	EXPECT_EQ(eventHandler.GetDelegateCount(), 0);
 }
