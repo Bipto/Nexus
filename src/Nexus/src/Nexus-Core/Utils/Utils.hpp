@@ -90,6 +90,8 @@ namespace Nexus::Utils
 		return mipLevel + arrayLayer * totalMipLevels;
 	}
 
+	uint64_t GetCurrentTimeAsInt();
+
 }	 // namespace Nexus::Utils
 
 #define BIT(x) (1 << x)

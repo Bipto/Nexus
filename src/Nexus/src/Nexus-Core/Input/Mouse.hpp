@@ -9,7 +9,7 @@ namespace Nexus
 	enum class MouseButtonState
 	{
 		/// @brief A value representing that the button is currently released
-		Released,
+		Released = 0,
 
 		/// @brief A value representing that the button is currently pressed
 		Pressed,
@@ -17,7 +17,6 @@ namespace Nexus
 
 	enum class MouseButton
 	{
-		None = 0,
 		Left,
 		Middle,
 		Right,

@@ -4,11 +4,12 @@
 
 	#include "BufferOpenGL.hpp"
 	#include "GL.hpp"
-	#include "SDL.h"
+
+	#include "GraphicsDeviceOpenGL.hpp"
 
 namespace Nexus::Graphics
 {
-	SwapchainOpenGL::SwapchainOpenGL(Window *window, const SwapchainSpecification &swapchainSpec)
+	SwapchainOpenGL::SwapchainOpenGL(Window *window, const SwapchainSpecification &swapchainSpec, GraphicsDevice *graphicsDevice)
 		: Swapchain(swapchainSpec),
 		  m_Window(window),
 		  m_VsyncState(swapchainSpec.VSyncState)
@@ -16,20 +17,11 @@ namespace Nexus::Graphics
 		m_SwapchainWidth  = m_Window->GetWindowSize().X;
 		m_SwapchainHeight = m_Window->GetWindowSize().Y;
 
-		if (!s_ContextWindow)
-		{
-			s_ContextWindow = window->GetSDLWindowHandle();
-		}
+		GraphicsDeviceOpenGL *graphicsDeviceOpenGL = (GraphicsDeviceOpenGL *)graphicsDevice;
 
-		m_Context = SDL_GL_CreateContext(s_ContextWindow);
-
-		SDL_GL_MakeCurrent(window->GetSDLWindowHandle(), m_Context);
-
-		if (SDL_GL_MakeCurrent(window->GetSDLWindowHandle(), m_Context) != 0)
-		{
-			std::string error = SDL_GetError();
-			throw std::runtime_error(error);
-		}
+		m_FBO = GL::CreateFBO(window, graphicsDeviceOpenGL->GetPBuffer());
+		m_FBO->MakeCurrent();
+		SetVSyncState(swapchainSpec.VSyncState);
 	}
 
 	SwapchainOpenGL::~SwapchainOpenGL()
@@ -39,8 +31,7 @@ namespace Nexus::Graphics
 	void SwapchainOpenGL::SwapBuffers()
 	{
 		BindAsRenderTarget();
-
-		SDL_GL_SwapWindow(m_Window->GetSDLWindowHandle());
+		m_FBO->Swap();
 		ResizeIfNecessary();
 	}
 
@@ -52,7 +43,15 @@ namespace Nexus::Graphics
 	void SwapchainOpenGL::SetVSyncState(VSyncState vsyncState)
 	{
 		m_VsyncState = vsyncState;
-		SDL_GL_SetSwapInterval((unsigned int)m_VsyncState);
+
+		if (vsyncState == VSyncState::Enabled)
+		{
+			m_FBO->SetVSync(true);
+		}
+		else
+		{
+			m_FBO->SetVSync(false);
+		}
 	}
 
 	Nexus::Point2D<uint32_t> SwapchainOpenGL::GetSize()
@@ -75,11 +74,7 @@ namespace Nexus::Graphics
 
 	void SwapchainOpenGL::BindAsRenderTarget()
 	{
-		if (SDL_GL_MakeCurrent(m_Window->GetSDLWindowHandle(), m_Context) != 0)
-		{
-			std::string error = SDL_GetError();
-			throw std::runtime_error(error);
-		}
+		m_FBO->MakeCurrent();
 
 		glCall(glBindFramebuffer(GL_FRAMEBUFFER, m_Backbuffer));
 		ResizeIfNecessary();
@@ -87,25 +82,12 @@ namespace Nexus::Graphics
 
 	void SwapchainOpenGL::BindAsDrawTarget()
 	{
-		if (SDL_GL_MakeCurrent(m_Window->GetSDLWindowHandle(), m_Context) != 0)
-		{
-			std::string error = SDL_GetError();
-			throw std::runtime_error(error);
-		}
-
+		m_FBO->MakeCurrent();
 		glCall(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_Backbuffer));
 	}
 
-	// static member initialisation
-	SDL_Window *SwapchainOpenGL::s_ContextWindow = nullptr;
-
 	void SwapchainOpenGL::Prepare()
 	{
-	}
-
-	bool SwapchainOpenGL::HasContextBeenCreated()
-	{
-		return s_ContextWindow;
 	}
 }	 // namespace Nexus::Graphics
 

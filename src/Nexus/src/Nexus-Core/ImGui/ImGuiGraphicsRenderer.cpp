@@ -175,7 +175,7 @@ namespace Nexus::ImGuiUtils
 
 			Nexus::Graphics::SwapchainSpecification swapchainSpec = app->GetPrimaryWindow()->GetSwapchain()->GetSpecification();
 
-			Nexus::Window *window = app->CreateApplicationWindow(windowSpec, swapchainSpec);
+			Nexus::Window *window = Platform::CreatePlatformWindow(windowSpec, app->GetGraphicsDevice()->GetGraphicsAPI(), swapchainSpec);
 			window->CreateSwapchain(app->GetGraphicsDevice(), swapchainSpec);
 			window->GetSwapchain()->Initialise();
 			window->SetWindowPosition(vp->Pos.x, vp->Pos.y);
@@ -463,20 +463,29 @@ namespace Nexus::ImGuiUtils
 		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Y] = (int)KeyCode::Y);
 		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Z] = (int)KeyCode::Z);
 
-		m_Application->OnTextInput += [&](char *text)
+		m_Application->GetPrimaryWindow()->OnTextInput.Bind(
+		[&](char *text)
 		{
 			ImGuiIO &io = ImGui::GetIO();
 			io.AddInputCharactersUTF8(text);
-		};
+		});
 	}
 
 	void ImGuiGraphicsRenderer::UpdateInput()
 	{
-		auto  window = m_GraphicsDevice->GetPrimaryWindow();
+		auto  mainWindow = m_GraphicsDevice->GetPrimaryWindow();
 		auto &io	 = ImGui::GetIO();
 
+		std::optional<Window *> window = Platform::GetKeyboardFocus();
+		if (!window.has_value())
+		{
+			return;
+		}
+
+		Input::SetInputContext(window.value()->GetInput());
+
 		const auto &mouse	 = Input::GetCurrentInputContext()->GetMouse();
-		const auto &keyboard = m_Application->GetGlobalKeyboardState();
+		const auto &keyboard = Input::GetCurrentInputContext()->GetKeyboard();
 
 		for (int i = 0; i < m_Keys.size(); i++) { io.KeysDown[m_Keys[i]] = keyboard.IsKeyHeld((KeyCode)m_Keys[i]); }
 
@@ -485,21 +494,23 @@ namespace Nexus::ImGuiUtils
 		io.KeyAlt	= keyboard.IsKeyHeld(KeyCode::LeftAlt) || keyboard.IsKeyHeld(KeyCode::RightAlt);
 		io.KeySuper = keyboard.IsKeyHeld(KeyCode::LeftGUI) || keyboard.IsKeyHeld(KeyCode::RightGUI);
 
-		io.DisplaySize			   = {(float)window->GetWindowSize().X, (float)window->GetWindowSize().Y};
+		io.DisplaySize			   = {(float)mainWindow->GetWindowSize().X, (float)mainWindow->GetWindowSize().Y};
 		io.DisplayFramebufferScale = {1, 1};
+
+		InputNew::MouseInfo globalMouseState = Platform::GetGlobalMouseInfo();
 
 		if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
-			io.MousePos = {(float)Mouse::GetGlobalMousePosition().X, (float)Mouse::GetGlobalMousePosition().Y};
+			io.MousePos = {(float)globalMouseState.Position.X, (float)globalMouseState.Position.Y};
 		}
 		else
 		{
 			io.MousePos = {(float)mouse.GetMousePosition().X, (float)mouse.GetMousePosition().Y};
 		}
 
-		io.MouseDown[0] = Mouse::IsGlobalLeftMouseHeld();
-		io.MouseDown[1] = Mouse::IsGlobalRightMouseHeld();
-		io.MouseDown[2] = Mouse::IsGlobalMiddleMouseHeld();
+		io.MouseDown[0] = globalMouseState.Buttons[MouseButton::Left] == MouseButtonState::Pressed;
+		io.MouseDown[1] = globalMouseState.Buttons[MouseButton::Right] == MouseButtonState::Pressed;
+		io.MouseDown[2] = globalMouseState.Buttons[MouseButton::Middle] == MouseButtonState::Pressed;
 
 		io.MouseWheel = mouse.GetScrollMovement().Y;
 	}

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Nexus-Core/Events/EventHandler.hpp"
+#include "Nexus-Core/Input/Event.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
 namespace Nexus
@@ -10,6 +11,12 @@ namespace Nexus
 
 namespace Nexus::InputNew
 {
+	struct MouseInfo
+	{
+		Nexus::Point2D<float>					Position = {};
+		std::map<MouseButton, MouseButtonState> Buttons	 = {};
+	};
+
 	class Keyboard
 	{
 	  public:
@@ -82,34 +89,55 @@ namespace Nexus::InputNew
 		std::string m_Name;
 	};
 
+	struct KeyboardState
+	{
+		std::map<ScanCode, bool> Keys = {};
+	};
+
+	struct MouseState
+	{
+		Point2D<float>				Position = {};
+		std::map<MouseButton, bool> Buttons	 = {};
+		Point2D<float>				Scroll	 = {};
+	};
+
 	class InputContext
 	{
 	  public:
-		static const std::vector<InputNew::Keyboard> &GetKeyboards();
-		static const std::vector<InputNew::Mouse>	 &GetMice();
-		static const std::vector<InputNew::Gamepad>	 &GetGamepads();
+		InputContext(Nexus::Window *window);
+		virtual ~InputContext();
 
-		static void Initialise();
+		bool		   IsMouseButtonDown(uint32_t id, MouseButton button);
+		bool		   IsMouseButtonUp(uint32_t id, MouseButton button);
+		bool		   IsKeyDown(uint32_t id, ScanCode scancode);
+		bool		   IsKeyUp(uint32_t id, ScanCode scancode);
+		Point2D<float> GetMousePosition(uint32_t id);
+		Point2D<float> GetScroll(uint32_t id);
 
-	  public:
-		InputContext() = default;
-
-	  private:
-		void AddKeyboard(const InputNew::Keyboard &keyboard);
-		void AddMouse(const InputNew::Mouse &mouse);
-		void AddGamepad(const InputNew::Gamepad &gamepad);
-
-		void AddKeyboards(const std::vector<InputNew::Keyboard> &keyboards);
-
-		void RemoveKeyboard(uint32_t id);
-		void RemoveMouse(uint32_t id);
-		void RemoveGamepad(uint32_t id);
+		Point2D<float> GetCursorPosition();
+		Point2D<float> GetGlobalCursorPosition();
 
 	  private:
-		inline static std::vector<InputNew::Keyboard> m_Keyboards = {};
-		inline static std::vector<InputNew::Mouse>	  m_Mice	  = {};
-		inline static std::vector<InputNew::Gamepad>  m_Gamepads  = {};
+		void OnKeyPressed(const KeyPressedEventArgs &args);
+		void OnKeyReleased(const KeyReleasedEventArgs &args);
+		void OnMouseButtonPressed(const MouseButtonPressedEventArgs &args);
+		void OnMouseButtonReleased(const MouseButtonReleasedEventArgs &args);
+		void OnMouseMoved(const MouseMovedEventArgs &args);
+		void OnScroll(const MouseScrolledEventArgs &args);
 
-		friend class Nexus::Window;
+	  private:
+		Nexus::Window *m_Window = nullptr;
+
+		std::map<uint32_t, KeyboardState> m_KeyboardStates;
+		std::map<uint32_t, MouseState>	  m_MouseStates;
+
+		Point2D<float> m_CursorPosition = {};
+
+		ScopedEvent<const KeyPressedEventArgs &>		  m_OnKeyPressed;
+		ScopedEvent<const KeyReleasedEventArgs &>		  m_OnKeyReleased;
+		ScopedEvent<const MouseButtonPressedEventArgs &>  m_OnMouseButtonPressed;
+		ScopedEvent<const MouseButtonReleasedEventArgs &> m_OnMouseButtonReleased;
+		ScopedEvent<const MouseMovedEventArgs &>		  m_OnMouseMoved;
+		ScopedEvent<const MouseScrolledEventArgs &>		  m_OnMouseScrolled;
 	};
 }	 // namespace Nexus::InputNew

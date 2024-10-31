@@ -13,13 +13,11 @@
 #endif
 
 #include "ApplicationSpecification.hpp"
-#include "Nexus-Core/Events/Event.hpp"
 #include "Nexus-Core/Events/EventHandler.hpp"
-#include "Nexus-Core/Graphics/GraphicsAPI.hpp"
 #include "Nexus-Core/Graphics/Rectangle.hpp"
 #include "Nexus-Core/Graphics/Swapchain.hpp"
+#include "Nexus-Core/Input/Event.hpp"
 #include "Nexus-Core/Input/InputContext.hpp"
-#include "Nexus-Core/Input/InputEvent.hpp"
 #include "Nexus-Core/Input/InputState.hpp"
 #include "Nexus-Core/Timings/Timer.hpp"
 #include "Point.hpp"
@@ -51,6 +49,8 @@ namespace Nexus
 		Hand
 	};
 
+	using WindowHandle = void *;
+
 	/// @brief A class representing a window
 	class Window
 	{
@@ -66,6 +66,10 @@ namespace Nexus
 
 		/// @brief A destructor to allow resources to be freed
 		~Window();
+
+		void CacheInput();
+
+		void Update();
 
 		/// @brief A method that allows a window to be resized
 		/// @param isResizable Whether the window should be resizable
@@ -116,9 +120,9 @@ namespace Nexus
 
 		/// @brief A method that returns the window's input state
 		/// @return A pointer to the input state
-		const InputState *GetInput();
+		InputState *GetInput();
 
-		const InputNew::InputContext &GetInputContext() const;
+		Nexus::InputNew::InputContext &GetInputContext();
 
 		/// @brief A method that checks whether a window is focussed
 		/// @return A boolean value indicating whether the window is focussed
@@ -179,13 +183,12 @@ namespace Nexus
 		void SetTicksPerSecond(uint32_t amount);
 		void SetRelativeMouseMode(bool enabled);
 
-		void OnEvent(const InputEvent &event);
-
 #if defined(NX_PLATFORM_WINDOWS)
 		const HWND GetHwnd() const;
 #endif
 
-		EventHandler<std::pair<uint32_t, uint32_t>> OnResize;
+		EventHandler<const WindowResizedEventArgs &> OnResize;
+		EventHandler<const WindowMovedEventArgs &>	 OnMove;
 
 		EventHandler<> OnGainFocus;
 		EventHandler<> OnLostFocus;
@@ -194,19 +197,22 @@ namespace Nexus
 		EventHandler<> OnRestored;
 		EventHandler<> OnShow;
 		EventHandler<> OnHide;
+		EventHandler<> OnExpose;
 
-		EventHandler<const KeyPressedEvent &>  OnKeyPressed;
-		EventHandler<const KeyReleasedEvent &> OnKeyReleased;
+		EventHandler<const KeyPressedEventArgs &>  OnKeyPressed;
+		EventHandler<const KeyReleasedEventArgs &> OnKeyReleased;
+
 		EventHandler<char *>				   OnTextInput;
+		EventHandler<const TextEditEventArgs &> OnTextEdit;
 
-		EventHandler<const MouseButtonPressedEvent &>  OnMousePressed;
-		EventHandler<const MouseButtonReleasedEvent &> OnMouseReleased;
-		EventHandler<const MouseMovedEvent &>		   OnMouseMoved;
-		EventHandler<const MouseScrolledEvent &>	   OnScroll;
+		EventHandler<const MouseButtonPressedEventArgs &>  OnMousePressed;
+		EventHandler<const MouseButtonReleasedEventArgs &> OnMouseReleased;
+		EventHandler<const MouseMovedEventArgs &>		   OnMouseMoved;
+		EventHandler<const MouseScrolledEventArgs &>	   OnScroll;
 		EventHandler<>								   OnMouseEnter;
 		EventHandler<>								   OnMouseLeave;
 
-		EventHandler<const FileDropEvent &> OnFileDrop;
+		EventHandler<const FileDropEventArgs &> OnFileDrop;
 
 		EventHandler<TimeSpan> OnRender;
 		EventHandler<TimeSpan> OnUpdate;
@@ -222,8 +228,6 @@ namespace Nexus
 		void SetupTimer();
 
 		const WindowSpecification &GetSpecification() const;
-
-		void HandleEvent(SDL_Event &event);
 
 	  private:
 		WindowSpecification m_Specification = {};
@@ -257,10 +261,88 @@ namespace Nexus
 		Utils::FrameRateMonitor m_UpdateFrameRateMonitor = {};
 		Utils::FrameRateMonitor m_TickFrameRateMonitor	 = {};
 
-		InputNew::InputContext m_InputContext = {};
+		InputNew::InputContext m_InputContext;
 
 		/// @brief A friend class to allow an application to access private members of
 		/// this class
 		friend class Application;
 	};
+
+	/* class IWindow
+	{
+	  public:
+		virtual ~IWindow()
+		{
+		}
+
+		virtual void SetPosition(int32_t x, int32_t y)		= 0;
+		virtual void SetResizable(bool resizable)			= 0;
+		virtual void SetTitle(const std::string &title)		= 0;
+		virtual void SetSize(const Point2D<uint32_t> &size) = 0;
+		virtual void SetMouseVisible(bool enabled)			= 0;
+		virtual void SetRelativeMouse(bool enabled)			= 0;
+		virtual void SetCursor(Cursor cursor)				= 0;
+
+		virtual void SetRendersPerSecond(uint32_t time) = 0;
+		virtual void SetUpdatesPerSecond(uint32_t time) = 0;
+		virtual void SetTicksPerSecond(uint32_t time)	= 0;
+
+		virtual InputState					 *GetInput()			  = 0;
+		virtual const InputNew::InputContext &GetInputContext() const = 0;
+
+		virtual bool IsFocussed() const	  = 0;
+		virtual bool IsMinimised() const  = 0;
+		virtual bool IsMaximised() const  = 0;
+		virtual bool IsFullscreen() const = 0;
+
+		virtual float			  GetDPI() const	  = 0;
+		virtual Point2D<uint32_t> GetSize() const	  = 0;
+		virtual Point2D<int>	  GetPosition() const = 0;
+		virtual WindowState		  GetState() const	  = 0;
+
+		virtual void		 Close()		   = 0;
+		virtual bool		 IsClosing() const = 0;
+		virtual WindowHandle GetHandle() const = 0;
+
+		virtual void Maximise()					 = 0;
+		virtual void Minimise()					 = 0;
+		virtual void Restore()					 = 0;
+		virtual void SetFullscreen(bool enabled) = 0;
+		virtual void Show()						 = 0;
+		virtual void Hide()						 = 0;
+		virtual void Focus()					 = 0;
+
+		virtual void				 CreateSwapchain(Graphics::GraphicsDevice *device, const Graphics::SwapchainSpecification &swapchainSpec) = 0;
+		virtual Graphics::Swapchain *GetSwapchain()																							  = 0;
+
+		virtual const WindowSpecification &GetSpecification() const = 0;
+
+	  public:
+		EventHandler<std::pair<uint32_t, uint32_t>> OnResize;
+
+		EventHandler<> OnGainFocus;
+		EventHandler<> OnLostFocus;
+		EventHandler<> OnMaximized;
+		EventHandler<> OnMinimized;
+		EventHandler<> OnRestored;
+		EventHandler<> OnShow;
+		EventHandler<> OnHide;
+
+		EventHandler<const KeyPressedEvent &>  OnKeyPressed;
+		EventHandler<const KeyReleasedEvent &> OnKeyReleased;
+		EventHandler<char *>				   OnTextInput;
+
+		EventHandler<const MouseButtonPressedEvent &>  OnMousePressed;
+		EventHandler<const MouseButtonReleasedEvent &> OnMouseReleased;
+		EventHandler<const MouseMovedEvent &>		   OnMouseMoved;
+		EventHandler<const MouseScrolledEvent &>	   OnScroll;
+		EventHandler<>								   OnMouseEnter;
+		EventHandler<>								   OnMouseLeave;
+
+		EventHandler<const FileDropEvent &> OnFileDrop;
+
+		EventHandler<TimeSpan> OnRender;
+		EventHandler<TimeSpan> OnUpdate;
+		EventHandler<TimeSpan> OnTick;
+	}; */
 }	 // namespace Nexus

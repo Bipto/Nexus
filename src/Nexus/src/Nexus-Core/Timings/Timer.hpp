@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Clock.hpp"
+#include "Nexus-Core/Events/EventHandler.hpp"
 #include "Nexus-Core/nxpch.hpp"
 #include "Timespan.hpp"
-
 
 namespace Nexus::Timings
 {
@@ -97,7 +97,11 @@ namespace Nexus::Timings
 	class ProfilingTimer
 	{
 	  public:
-		ProfilingTimer(const char *name) : m_Name(name), m_StartTimepoint(std::chrono::steady_clock::now()), m_Stopped(false)
+		ProfilingTimer(const char *name, const std::source_location location = std::source_location::current())
+			: m_Name(name),
+			  m_StartTimepoint(std::chrono::steady_clock::now()),
+			  m_Stopped(false),
+			  m_Location(location)
 		{
 		}
 
@@ -115,16 +119,37 @@ namespace Nexus::Timings
 			uint64_t end   = std::chrono::time_point_cast<std::chrono::nanoseconds>(endTimepoint).time_since_epoch().count();
 
 			uint64_t elapsed = end - start;
-
-			m_Stopped			= true;
-			double milliseconds = (double)elapsed / 1000000000.0;
-
-			std::cout << m_Name << ": " << std::fixed << std::setprecision(3) << milliseconds << "Ms" << std::endl;
+			m_Stopped		 = true;
+			OnStop.Invoke(TimeSpan(elapsed));
 		}
+
+		const char *GetName() const
+		{
+			return m_Name;
+		}
+
+		const std::source_location &GetSourceLocation() const
+		{
+			return m_Location;
+		}
+
+		std::string GenerateName() const
+		{
+			std::stringstream ss;
+			ss << m_Name << ": ";
+			ss << m_Location.function_name() << " ";
+			ss << m_Location.line() << ", " << m_Location.column();
+
+			return ss.str();
+		}
+
+	  public:
+		EventHandler<TimeSpan> OnStop;
 
 	  private:
 		const char										  *m_Name			= {};
 		std::chrono::time_point<std::chrono::steady_clock> m_StartTimepoint = std::chrono::steady_clock::now();
 		bool											   m_Stopped		= false;
+		std::source_location							   m_Location		= {};
 	};
 }	 // namespace Nexus::Timings

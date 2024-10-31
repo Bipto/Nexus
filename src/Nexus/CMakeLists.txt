@@ -10,6 +10,10 @@ add_subdirectory(external/glad)
 
 if (WIN32)
   add_subdirectory(external/glad_wgl)
+elseif(LINUX)
+  add_subdirectory(external/glad_glx)
+elseif(ANDROID OR __ANDROID__)
+  add_subdirectory(external/glad_egl)
 endif()
 
 add_subdirectory(external/glm)
@@ -27,6 +31,8 @@ add_subdirectory(external/yaml-cpp)
 if (WIN32 OR LINUX)
     add_subdirectory(external/VulkanMemoryAllocator)
     set_target_properties(VulkanMemoryAllocator PROPERTIES FOLDER "external")
+    set_target_properties(VulkanMemoryAllocator PROPERTIES CXX_STANDARD 20
+      CXX_EXTENSIONS OFF)
 endif()
 
 #these libraries are only required if we are not building for emscripten
@@ -64,6 +70,10 @@ file (GLOB_RECURSE ENGINE_SOURCES
  src/Platform/Vulkan/*.cpp
  src/Platform/OpenGL/*.hpp
  src/Platform/OpenGL/*.cpp
+ src/Platform/OpenGL/WGL/*.hpp
+ src/Platform/OpenGL/WGL/*.cpp
+ src/Platform/OpenGL/WebGL/*.hpp
+ src/Platform/OpenGL/WebGL/*.cpp
  src/Platform/D3D11/*.hpp
  src/Platform/D3D11/*.cpp
  src/Platform/D3D12/*.hpp
@@ -170,6 +180,10 @@ target_link_libraries(Nexus PUBLIC
 
 if (WIN32)
   target_link_libraries(Nexus PUBLIC glad_wgl)
+endif()
+
+if (ANDROID OR __ANDROID__)
+  target_link_libraries(Nexus PUBLIC glad_egl)
 endif()
 
 if(WIN32 OR LINUX)

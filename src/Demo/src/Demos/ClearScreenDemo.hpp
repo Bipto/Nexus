@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Demo.hpp"
+#include "Nexus-Core/Timings/Profiler.hpp"
 
 namespace Demos
 {
@@ -23,14 +24,20 @@ namespace Demos
 
 		virtual void Render(Nexus::TimeSpan time) override
 		{
-			// Nexus::Timings::ProfilingTimer timer("Render");
+			NX_PROFILE_FUNCTION();
 
-			m_CommandList->Begin();
-			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
-			m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
-			m_CommandList->End();
+			{
+				NX_PROFILE_SCOPE("Command recording");
+				m_CommandList->Begin();
+				m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
+				m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
+				m_CommandList->End();
+			}
 
-			m_GraphicsDevice->SubmitCommandList(m_CommandList);
+			{
+				NX_PROFILE_SCOPE("Command submission");
+				m_GraphicsDevice->SubmitCommandList(m_CommandList);
+			}
 		}
 
 		virtual void RenderUI() override

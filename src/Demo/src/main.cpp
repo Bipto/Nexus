@@ -81,7 +81,7 @@ class DemoApplication : public Nexus::Application
 
 		m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-		m_GraphicsDevice->GetPrimaryWindow()->OnFileDrop += [&](const Nexus::FileDropEvent &event) { std::cout << event.Data << std::endl; };
+		Nexus::Window *window = m_GraphicsDevice->GetPrimaryWindow();
 	}
 
 	template<typename T>
@@ -158,8 +158,66 @@ class DemoApplication : public Nexus::Application
 		}
 	}
 
+	void RenderDemoInfo()
+	{
+		if (m_CurrentDemo)
+		{
+			if (ImGui::Button("<- Back"))
+			{
+				m_CurrentDemo = nullptr;
+			}
+
+			// required because demo could be deleted in the previous if statement
+			if (m_CurrentDemo)
+			{
+				// render demo name
+				std::string label = std::string("Selected Demo - ") + m_CurrentDemo->GetName();
+				ImGui::Text("%s", label.c_str());
+
+				std::string apiName = std::string("Running on : ") + std::string(m_GraphicsDevice->GetAPIName());
+				ImGui::Text("%s", apiName.c_str());
+
+				// render framerate
+				std::stringstream ss;
+				float			  fps = ImGui::GetIO().Framerate;
+				ss << "Running at " << std::to_string(fps) << " FPS";
+				ImGui::Text("%s", ss.str().c_str());
+				m_CurrentDemo->RenderUI();
+			}
+		}
+		else
+		{
+			RenderDemoList(m_GraphicsDemos, "Graphics");
+			RenderDemoList(m_AudioDemos, "Audio");
+			RenderDemoList(m_ScriptingDemos, "Scripting");
+			RenderDemoList(m_UtilsDemos, "Utils");
+		}
+	}
+
+	void RenderPerformanceInfo()
+	{
+		if (ImGui::CollapsingHeader("Performance"))
+		{
+			const auto &results = Nexus::Timings::Profiler::Get().GetResults();
+			for (const auto &profileResult : results)
+			{
+				std::string output =
+				std::string(profileResult.Name) + std::string(": ") + std::to_string(profileResult.Time.GetMilliseconds()) + std::string(" Ms");
+				ImGui::Text(output.c_str());
+			}
+			Nexus::Timings::Profiler::Get().Reset();
+		}
+	}
+
 	virtual void Render(Nexus::TimeSpan time) override
 	{
+		Nexus::Window				  *window  = m_GraphicsDevice->GetPrimaryWindow();
+		Nexus::InputNew::InputContext &context = window->GetInputContext();
+
+		std::stringstream ss;
+		ss << context.GetMousePosition(0).X << ", " << context.GetMousePosition(0).Y;
+		std::cout << ss.str() << std::endl;
+
 		m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
 
 		m_ImGuiRenderer->BeforeLayout(time);
@@ -172,40 +230,8 @@ class DemoApplication : public Nexus::Application
 
 		{
 			ImGui::Begin("Demos");
-
-			if (m_CurrentDemo)
-			{
-				if (ImGui::Button("<- Back"))
-				{
-					m_CurrentDemo = nullptr;
-				}
-
-				// required because demo could be deleted in the previous if statement
-				if (m_CurrentDemo)
-				{
-					// render demo name
-					std::string label = std::string("Selected Demo - ") + m_CurrentDemo->GetName();
-					ImGui::Text("%s", label.c_str());
-
-					std::string apiName = std::string("Running on : ") + std::string(m_GraphicsDevice->GetAPIName());
-					ImGui::Text("%s", apiName.c_str());
-
-					// render framerate
-					std::stringstream ss;
-					float			  fps = ImGui::GetIO().Framerate;
-					ss << "Running at " << std::to_string(fps) << " FPS";
-					ImGui::Text("%s", ss.str().c_str());
-					m_CurrentDemo->RenderUI();
-				}
-			}
-			else
-			{
-				RenderDemoList(m_GraphicsDemos, "Graphics");
-				RenderDemoList(m_AudioDemos, "Audio");
-				RenderDemoList(m_ScriptingDemos, "Scripting");
-				RenderDemoList(m_UtilsDemos, "Utils");
-			}
-
+			RenderDemoInfo();
+			RenderPerformanceInfo();
 			ImGui::End();
 		}
 
@@ -235,27 +261,6 @@ class DemoApplication : public Nexus::Application
 			m_CurrentDemo->OnResize(size);
 	}
 
-	virtual bool OnEvent(const Nexus::InputEvent &event, Nexus::Window *window) override
-	{
-		if (const Nexus::KeyPressedEvent *keyPressedEvent = std::get_if<Nexus::KeyPressedEvent>(&event))
-		{
-			if (keyPressedEvent->KeyCode == Nexus::KeyCode::S)
-			{
-				if (keyPressedEvent->Mods & Nexus::Keyboard::Modifier::LeftShift)
-				{
-					std::cout << std::to_string(keyPressedEvent->Repeat) << std::endl;
-				}
-			}
-		}
-
-		if (const Nexus::MouseButtonPressedEvent *mousePressedEvent = std::get_if<Nexus::MouseButtonPressedEvent>(&event))
-		{
-			std::cout << std::to_string(mousePressedEvent->Clicks) << std::endl;
-		}
-
-		return false;
-	}
-
 	virtual void Unload() override
 	{
 	}
@@ -277,10 +282,10 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
 	spec.AudioAPI	 = Nexus::Audio::AudioAPI::OpenAL;
 
-	spec.WindowProperties.Width		= 1280;
-	spec.WindowProperties.Height	= 720;
-	spec.WindowProperties.Title		= "Demo";
-	spec.WindowProperties.Resizable = true;
+	spec.WindowProperties.Width			   = 1280;
+	spec.WindowProperties.Height		   = 720;
+	spec.WindowProperties.Title			   = "Demo";
+	spec.WindowProperties.Resizable		   = true;
 	spec.WindowProperties.RendersPerSecond = {};
 	spec.WindowProperties.UpdatesPerSecond = {};
 

@@ -2,104 +2,94 @@
 
 #include "Nexus-Core/Platform.hpp"
 
+#include "Nexus-Core/Window.hpp"
+
 namespace Nexus::InputNew
 {
-	const std::vector<InputNew::Keyboard> &InputContext::GetKeyboards()
+	InputContext::InputContext(Nexus::Window *window) : m_Window(window),
+	m_OnKeyPressed(&window->OnKeyPressed, [this](const KeyPressedEventArgs& args){OnKeyPressed(args);}),
+	m_OnKeyReleased(&window->OnKeyReleased, [this](const KeyReleasedEventArgs& args){OnKeyReleased(args);}),
+	m_OnMouseButtonPressed(&window->OnMousePressed, [this](const MouseButtonPressedEventArgs& args) {OnMouseButtonPressed(args);}),
+	m_OnMouseButtonReleased(&window->OnMouseReleased, [this](const MouseButtonReleasedEventArgs& args) { OnMouseButtonReleased(args);}),
+	m_OnMouseMoved(&window->OnMouseMoved, [this](const MouseMovedEventArgs& args) { OnMouseMoved(args);}),
+	m_OnMouseScrolled(&window->OnScroll, [this](const MouseScrolledEventArgs& args) { OnScroll(args);})
 	{
-		return m_Keyboards;
+
 	}
 
-	const std::vector<InputNew::Mouse> &InputContext::GetMice()
+	InputContext::~InputContext()
 	{
-		return m_Mice;
+
 	}
 
-	const std::vector<InputNew::Gamepad> &InputContext::GetGamepads()
+	bool InputContext::IsMouseButtonDown(uint32_t id, MouseButton button)
 	{
-		return m_Gamepads;
+		return m_MouseStates[id].Buttons[button];
 	}
 
-	void InputContext::Initialise()
+	bool InputContext::IsMouseButtonUp(uint32_t id, MouseButton button)
 	{
-		m_Keyboards = Platform::GetKeyboards();
-		m_Mice		= Platform::GetMice();
-		m_Gamepads	= Platform::GetGamepads();
+		return !m_MouseStates[id].Buttons[button];
 	}
 
-	void InputContext::AddKeyboard(const InputNew::Keyboard &keyboard)
+	bool InputContext::IsKeyDown(uint32_t id, ScanCode scancode)
 	{
-		m_Keyboards.push_back(keyboard);
+		return m_KeyboardStates[id].Keys[scancode];
 	}
 
-	void InputContext::AddMouse(const InputNew::Mouse &mouse)
+	bool InputContext::IsKeyUp(uint32_t id, ScanCode scancode)
 	{
-		m_Mice.push_back(mouse);
+		return !m_KeyboardStates[id].Keys[scancode];
 	}
 
-	void InputContext::AddGamepad(const InputNew::Gamepad &gamepad)
+	Point2D<float> InputContext::GetMousePosition(uint32_t id)
 	{
-		m_Gamepads.push_back(gamepad);
+		return m_MouseStates[id].Position;
 	}
 
-	void InputContext::AddKeyboards(const std::vector<InputNew::Keyboard> &keyboards)
+	Point2D<float> InputContext::GetScroll(uint32_t id)
 	{
-		m_Keyboards.insert(m_Keyboards.end(), keyboards.begin(), keyboards.end());
+		return m_MouseStates[id].Scroll;
 	}
 
-	void InputContext::RemoveKeyboard(uint32_t id)
+	Point2D<float> InputContext::GetCursorPosition()
 	{
-		int index = -1;
-
-		for (size_t i = 0; i < m_Keyboards.size(); i++)
-		{
-			if (m_Keyboards[i].GetId() == id)
-			{
-				index = i;
-				break;
-			}
-		}
-
-		if (index != -1)
-		{
-			m_Keyboards.erase(m_Keyboards.begin() + index);
-		}
+		return m_CursorPosition;
 	}
 
-	void InputContext::RemoveMouse(uint32_t id)
+	Point2D<float> Nexus::InputNew::InputContext::GetGlobalCursorPosition()
 	{
-		int index = -1;
-
-		for (size_t i = 0; i < m_Mice.size(); i++)
-		{
-			if (m_Mice[i].GetId() == id)
-			{
-				index = i;
-				break;
-			}
-		}
-
-		if (index != -1)
-		{
-			m_Mice.erase(m_Mice.begin() + index);
-		}
+		return Platform::GetGlobalMouseInfo().Position;
+	}
+	
+	void InputContext::OnKeyPressed(const KeyPressedEventArgs &args)
+	{
+		m_KeyboardStates[args.KeyboardID].Keys[args.ScanCode] = true;
 	}
 
-	void InputContext::RemoveGamepad(uint32_t id)
+	void InputContext::OnKeyReleased(const KeyReleasedEventArgs &args)
 	{
-		int index = -1;
+		m_KeyboardStates[args.KeyboardID].Keys[args.ScanCode] = false;
+	}
 
-		for (size_t i = 0; i < m_Gamepads.size(); i++)
-		{
-			if (m_Gamepads[i].GetId() == id)
-			{
-				index = i;
-				break;
-			}
-		}
+	void InputContext::OnMouseButtonPressed(const MouseButtonPressedEventArgs &args)
+	{
+		m_MouseStates[args.MouseID].Buttons[args.Button] = true;
+	}
 
-		if (index != -1)
-		{
-			m_Gamepads.erase(m_Gamepads.begin() + index);
-		}
+	void InputContext::OnMouseButtonReleased(const MouseButtonReleasedEventArgs &args)
+	{
+		m_MouseStates[args.MouseID].Buttons[args.Button] = false;
+	}
+
+	void InputContext::OnMouseMoved(const MouseMovedEventArgs &args)
+	{
+		m_MouseStates[args.MouseID].Position = args.Position;
+		m_CursorPosition = args.Position;
+	}
+
+	void InputContext::OnScroll(const MouseScrolledEventArgs &args)
+	{
+		m_MouseStates[args.MouseID].Scroll = args.Scroll;
 	}
 }	 // namespace Nexus::InputNew

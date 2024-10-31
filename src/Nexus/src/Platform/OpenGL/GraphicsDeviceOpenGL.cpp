@@ -18,14 +18,19 @@ namespace Nexus::Graphics
 											   const SwapchainSpecification		 &swapchainSpec)
 		: GraphicsDevice(createInfo, window, swapchainSpec)
 	{
-		window->CreateSwapchain(this, swapchainSpec);
-
-	#if defined(WIN32)
-		gladLoadGL();
-	#endif
-
+		m_PBuffer = GL::CreatePBuffer();
+		m_PBuffer->MakeCurrent();
 		m_Extensions = GetSupportedExtensions();
-		glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
+		m_APIName	   = std::string("OpenGL - ") + std::string((const char *)glGetString(GL_VERSION));
+		m_RendererName = (const char *)glGetString(GL_RENDERER);
+
+		window->CreateSwapchain(this, swapchainSpec);
+		// glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+	}
+
+	GraphicsDeviceOpenGL::~GraphicsDeviceOpenGL()
+	{
 	}
 
 	void GraphicsDeviceOpenGL::SetFramebuffer(Ref<Framebuffer> framebuffer)
@@ -58,23 +63,17 @@ namespace Nexus::Graphics
 
 	const std::string GraphicsDeviceOpenGL::GetAPIName()
 	{
-		std::string name = std::string("OpenGL - ") + std::string((const char *)glGetString(GL_VERSION));
-		return name;
+		return m_APIName;
 	}
 
 	const char *GraphicsDeviceOpenGL::GetDeviceName()
 	{
-		return (const char *)glGetString(GL_RENDERER);
+		return m_RendererName.c_str();
 	}
 
-	void GraphicsDeviceOpenGL::OpenGLCall(std::function<void()> func)
+	GL::PBuffer *GraphicsDeviceOpenGL::GetPBuffer()
 	{
-		glClearErrors();
-		func();
-		if (m_Specification.DebugLayer)
-		{
-			glCheckErrors();
-		}
+		return m_PBuffer.get();
 	}
 
 	Ref<ShaderModule> GraphicsDeviceOpenGL::CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources)

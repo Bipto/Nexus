@@ -2,7 +2,7 @@
 
 #include "Nexus-Core/FileSystem/FileSystem.hpp"
 #include "Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp"
-#include "Nexus-Core/Input/InputEvent.hpp"
+#include "Nexus-Core/Input/Event.hpp"
 #include "Nexus.hpp"
 
 namespace Demos
@@ -39,10 +39,6 @@ namespace Demos
 		}
 
 		virtual void RenderUI()
-		{
-		}
-
-		virtual void OnEvent(const Nexus::InputEvent &event)
 		{
 		}
 

@@ -5,12 +5,15 @@
 	#include "Nexus-Core/Graphics/Swapchain.hpp"
 	#include "Nexus-Core/Window.hpp"
 
+	#include "PBuffer.hpp"
+	#include "FBO.hpp"
+
 namespace Nexus::Graphics
 {
 	class SwapchainOpenGL : public Swapchain
 	{
 	  public:
-		SwapchainOpenGL(Window *window, const SwapchainSpecification &swapchainSpec);
+		SwapchainOpenGL(Window *window, const SwapchainSpecification &swapchainSpec, GraphicsDevice *graphicsDevice);
 		virtual ~SwapchainOpenGL();
 		virtual void Initialise() override
 		{
@@ -29,8 +32,6 @@ namespace Nexus::Graphics
 		}
 		virtual void Prepare() override;
 
-		static bool HasContextBeenCreated();
-
 	  private:
 		Window	  *m_Window;
 		VSyncState m_VsyncState;
@@ -38,10 +39,9 @@ namespace Nexus::Graphics
 		uint32_t m_SwapchainWidth  = 0;
 		uint32_t m_SwapchainHeight = 0;
 
-		SDL_GLContext m_Context	   = nullptr;
 		int			  m_Backbuffer = 0;
 
-		static SDL_Window *s_ContextWindow;
+		std::unique_ptr<GL::FBO> m_FBO = {};
 	};
 }	 // namespace Nexus::Graphics
 

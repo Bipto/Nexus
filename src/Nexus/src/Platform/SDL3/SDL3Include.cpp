@@ -517,35 +517,30 @@ namespace Nexus::SDL3
 
 		return direction;
 	}
-	MouseButton GetMouseButton(Uint8 mouseButton)
-	{
-		MouseButton button = MouseButton::None;
 
+	std::optional<MouseButton> GetMouseButton(Uint8 mouseButton)
+	{
 		if (mouseButton & SDL_BUTTON_LEFT)
 		{
-			button = MouseButton::Left;
+			return MouseButton::Left;
 		}
-
-		if (mouseButton & SDL_BUTTON_MIDDLE)
+		else if (mouseButton & SDL_BUTTON_MIDDLE)
 		{
-			button = MouseButton::Middle;
+			return MouseButton::Middle;
 		}
-
-		if (mouseButton & SDL_BUTTON_RIGHT)
+		else if (mouseButton & SDL_BUTTON_RIGHT)
 		{
-			button = MouseButton::Right;
+			return MouseButton::Right;
 		}
-
-		if (mouseButton & SDL_BUTTON_X1)
+		else if (mouseButton & SDL_BUTTON_X1)
 		{
-			button = MouseButton::X1;
+			return MouseButton::X1;
 		}
-
-		if (mouseButton & SDL_BUTTON_X2)
+		else if (mouseButton & SDL_BUTTON_X2)
 		{
-			button = MouseButton::X2;
+			return MouseButton::X2;
 		}
 
-		return button;
+		return {};
 	}
 }	 // namespace Nexus::SDL3

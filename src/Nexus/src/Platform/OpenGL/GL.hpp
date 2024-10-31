@@ -8,8 +8,8 @@
 	#endif
 
 	#if defined(__EMSCRIPTEN__) || defined(ANDROID) || defined(__ANDROID__)
-		#include <GLES2/gl2ext.h>
 		#include <GLES3/gl3.h>
+		#include <GLES2/gl2ext.h>
 	#else
 		#include "glad/glad.h"
 	#endif
@@ -18,6 +18,11 @@
 	#include "Nexus-Core/Graphics/Texture.hpp"
 	#include "Nexus-Core/Logging/Log.hpp"
 	#include "Nexus-Core/Vertex.hpp"
+
+	#include "Nexus-Core/Window.hpp"
+
+	#include "PBuffer.hpp"
+	#include "FBO.hpp"
 
 namespace Nexus::GL
 {
@@ -41,6 +46,10 @@ namespace Nexus::GL
 	GLenum GLCubemapFace(Nexus::Graphics::CubemapFace face);
 
 	void GetBaseType(const Graphics::VertexBufferElement &element, GLenum &baseType, uint32_t &componentCount, GLboolean &normalized);
+
+	std::unique_ptr<PBuffer> CreatePBuffer();
+	std::unique_ptr<FBO>	 CreateFBO(Window *window, PBuffer *pbuffer);
+
 }	 // namespace Nexus::GL
 
 #endif
