@@ -1,44 +1,53 @@
 #pragma once
 
-#include "Canvas.hpp"
-#include "Nexus-Core/Point.hpp"
+#include "Nexus-Core/Layers/Layer.hpp"
+#include "Nexus.hpp"
+
 #include "Nexus-Core/Renderer/BatchRenderer.hpp"
-#include "Nexus-Core/nxpch.hpp"
 
-namespace Nexus::UI
+namespace Nexus
 {
-	class Control;
-
-	class Canvas
+	class Canvas : public Layer
 	{
 	  public:
-		Canvas(Graphics::GraphicsDevice *device, Graphics::Swapchain *swapchain);
-		virtual ~Canvas();
+		Canvas(Graphics::GraphicsDevice *device) : m_Device(device)
+		{
+			m_BatchRenderer = std::unique_ptr<Nexus::Graphics::BatchRenderer>(
+			new Nexus::Graphics::BatchRenderer(device, Nexus::Graphics::RenderTarget(device->GetPrimaryWindow()->GetSwapchain())));
+		}
 
-		void SetPosition(const Point2D<uint32_t> &position);
-		void SetSize(const Point2D<uint32_t> &size);
-		void SetBackgroundColour(const glm::vec4 &color);
+		virtual ~Canvas()
+		{
+		}
 
-		const Point2D<uint32_t> &GetPosition() const;
-		const Point2D<uint32_t> &GetSize() const;
-		const glm::vec4			&GetBackgroundColour() const;
+		virtual void OnRender(TimeSpan time) override
+		{
+			auto [width, height] = m_Device->GetPrimaryWindow()->GetWindowSize();
 
-		void Render() const;
+			Graphics::Viewport vp;
+			vp.X		= 0;
+			vp.Y		= 0;
+			vp.Width	= width;
+			vp.Height	= height;
+			vp.MinDepth = 0;
+			vp.MaxDepth = 1;
 
-		void AddControl(Control *control);
-		void RemoveControl(Control *control);
+			Graphics::Scissor scissor;
+			scissor.X	   = 0;
+			scissor.Y	   = 0;
+			scissor.Width  = width;
+			scissor.Height = height;
 
-		Nexus::Window *GetWindow() const;
+			m_BatchRenderer->Begin(vp, scissor);
+
+			Graphics::Rectangle<float> rect(0, 0, width, height);
+			m_BatchRenderer->DrawQuadFill(rect, {1.0f, 0.0f, 0.0f, 1.0f});
+
+			m_BatchRenderer->End();
+		}
 
 	  private:
-		Point2D<uint32_t> m_Position = {0, 0};
-		Point2D<uint32_t> m_Size	 = {0, 0};
-
-		glm::vec4 m_BackgroundColour = {0, 0, 0, 0};
-
+		Graphics::GraphicsDevice					   *m_Device		= nullptr;
 		std::unique_ptr<Nexus::Graphics::BatchRenderer> m_BatchRenderer = nullptr;
-
-		std::vector<Control *> m_Controls;
-		Nexus::Window		  *m_Window = nullptr;
 	};
-}	 // namespace Nexus::UI
+}	 // namespace Nexus

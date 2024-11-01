@@ -236,7 +236,9 @@ void PollEvents()
 			}
 			case SDL_EVENT_TEXT_INPUT:
 			{
-				window->OnTextInput.Invoke(event.text.text);
+				Nexus::TextInputEventArgs args {.Text = event.text.text};
+
+				window->OnTextInput.Invoke(args);
 				break;
 			}
 			case SDL_EVENT_TEXT_EDITING:

@@ -211,18 +211,11 @@ class DemoApplication : public Nexus::Application
 
 	virtual void Render(Nexus::TimeSpan time) override
 	{
-		Nexus::Window				  *window  = m_GraphicsDevice->GetPrimaryWindow();
-		Nexus::InputNew::InputContext &context = window->GetInputContext();
-
-		std::stringstream ss;
-		ss << context.GetMousePosition(0).X << ", " << context.GetMousePosition(0).Y;
-		std::cout << ss.str() << std::endl;
-
 		m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
 
 		m_ImGuiRenderer->BeforeLayout(time);
 
-		if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::F11))
+		if (Nexus::Input::IsKeyDown(0, Nexus::ScanCode::F11))
 		{
 			auto window = this->GetPrimaryWindow();
 			window->ToggleFullscreen();

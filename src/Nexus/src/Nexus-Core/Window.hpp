@@ -23,6 +23,8 @@
 #include "Point.hpp"
 #include "Utils/FramerateMonitor.hpp"
 
+#include "Nexus-Core/Layers/LayerStack.hpp"
+
 namespace Nexus
 {
 	namespace Graphics
@@ -122,7 +124,9 @@ namespace Nexus
 		/// @return A pointer to the input state
 		InputState *GetInput();
 
-		Nexus::InputNew::InputContext &GetInputContext();
+		Nexus::InputNew::InputContext *GetInputContext();
+
+		LayerStack &GetLayerStack();
 
 		/// @brief A method that checks whether a window is focussed
 		/// @return A boolean value indicating whether the window is focussed
@@ -202,7 +206,7 @@ namespace Nexus
 		EventHandler<const KeyPressedEventArgs &>  OnKeyPressed;
 		EventHandler<const KeyReleasedEventArgs &> OnKeyReleased;
 
-		EventHandler<char *>				   OnTextInput;
+		EventHandler<const TextInputEventArgs &> OnTextInput;
 		EventHandler<const TextEditEventArgs &> OnTextEdit;
 
 		EventHandler<const MouseButtonPressedEventArgs &>  OnMousePressed;
@@ -262,10 +266,7 @@ namespace Nexus
 		Utils::FrameRateMonitor m_TickFrameRateMonitor	 = {};
 
 		InputNew::InputContext m_InputContext;
-
-		/// @brief A friend class to allow an application to access private members of
-		/// this class
-		friend class Application;
+		LayerStack			   m_LayerStack;
 	};
 
 	/* class IWindow

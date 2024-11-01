@@ -442,39 +442,39 @@ namespace Nexus::ImGuiUtils
 	{
 		auto &io = ImGui::GetIO();
 
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Tab] = (int)KeyCode::Tab);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_LeftArrow] = (int)KeyCode::Left);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_RightArrow] = (int)KeyCode::Right);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_UpArrow] = (int)KeyCode::Up);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_DownArrow] = (int)KeyCode::Down);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_PageUp] = (int)KeyCode::PageUp);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_PageDown] = (int)KeyCode::PageDown);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Home] = (int)KeyCode::Home);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_End] = (int)KeyCode::End);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Delete] = (int)KeyCode::Delete);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Backspace] = (int)KeyCode::Backspace);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Enter] = (int)KeyCode::Return);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Escape] = (int)KeyCode::Escape);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Space] = (int)KeyCode::Space);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_A] = (int)KeyCode::A);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_C] = (int)KeyCode::C);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_V] = (int)KeyCode::V);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_X] = (int)KeyCode::X);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Y] = (int)KeyCode::Y);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Z] = (int)KeyCode::Z);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Tab] = (int)ScanCode::Tab);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_LeftArrow] = (int)ScanCode::Left);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_RightArrow] = (int)ScanCode::Right);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_UpArrow] = (int)ScanCode::Up);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_DownArrow] = (int)ScanCode::Down);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_PageUp] = (int)ScanCode::PageUp);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_PageDown] = (int)ScanCode::PageDown);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Home] = (int)ScanCode::Home);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_End] = (int)ScanCode::End);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Delete] = (int)ScanCode::Delete);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Backspace] = (int)ScanCode::Backspace);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Enter] = (int)ScanCode::Return);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Escape] = (int)ScanCode::Escape);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Space] = (int)ScanCode::Space);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_A] = (int)ScanCode::A);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_C] = (int)ScanCode::C);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_V] = (int)ScanCode::V);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_X] = (int)ScanCode::X);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Y] = (int)ScanCode::Y);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Z] = (int)ScanCode::Z);
 
 		m_Application->GetPrimaryWindow()->OnTextInput.Bind(
-		[&](char *text)
+		[&](const TextInputEventArgs &args)
 		{
 			ImGuiIO &io = ImGui::GetIO();
-			io.AddInputCharactersUTF8(text);
+			io.AddInputCharactersUTF8(args.Text);
 		});
 	}
 
 	void ImGuiGraphicsRenderer::UpdateInput()
 	{
 		auto  mainWindow = m_GraphicsDevice->GetPrimaryWindow();
-		auto &io	 = ImGui::GetIO();
+		auto &io		 = ImGui::GetIO();
 
 		std::optional<Window *> window = Platform::GetKeyboardFocus();
 		if (!window.has_value())
@@ -482,17 +482,14 @@ namespace Nexus::ImGuiUtils
 			return;
 		}
 
-		Input::SetInputContext(window.value()->GetInput());
+		InputNew::InputContext *context = window.value()->GetInputContext();
 
-		const auto &mouse	 = Input::GetCurrentInputContext()->GetMouse();
-		const auto &keyboard = Input::GetCurrentInputContext()->GetKeyboard();
+		for (int i = 0; i < m_Keys.size(); i++) { io.KeysDown[m_Keys[i]] = context->IsKeyDown(0, (ScanCode)m_Keys[i]); }
 
-		for (int i = 0; i < m_Keys.size(); i++) { io.KeysDown[m_Keys[i]] = keyboard.IsKeyHeld((KeyCode)m_Keys[i]); }
-
-		io.KeyShift = keyboard.IsKeyHeld(KeyCode::LeftShift) || keyboard.IsKeyHeld(KeyCode::RightShift);
-		io.KeyCtrl	= keyboard.IsKeyHeld(KeyCode::LeftControl) || keyboard.IsKeyHeld(KeyCode::RightControl);
-		io.KeyAlt	= keyboard.IsKeyHeld(KeyCode::LeftAlt) || keyboard.IsKeyHeld(KeyCode::RightAlt);
-		io.KeySuper = keyboard.IsKeyHeld(KeyCode::LeftGUI) || keyboard.IsKeyHeld(KeyCode::RightGUI);
+		io.KeyShift = context->IsKeyDown(0, ScanCode::LeftShift) || context->IsKeyDown(0, ScanCode::RightShift);
+		io.KeyCtrl	= context->IsKeyDown(0, ScanCode::LeftControl) || context->IsKeyDown(0, ScanCode::RightControl);
+		io.KeyAlt	= context->IsKeyDown(0, ScanCode::LeftAlt) || context->IsKeyDown(0, ScanCode::RightAlt);
+		io.KeySuper = context->IsKeyDown(0, ScanCode::LeftGUI) || context->IsKeyDown(0, ScanCode::RightGUI);
 
 		io.DisplaySize			   = {(float)mainWindow->GetWindowSize().X, (float)mainWindow->GetWindowSize().Y};
 		io.DisplayFramebufferScale = {1, 1};
@@ -505,14 +502,14 @@ namespace Nexus::ImGuiUtils
 		}
 		else
 		{
-			io.MousePos = {(float)mouse.GetMousePosition().X, (float)mouse.GetMousePosition().Y};
+			io.MousePos = {(float)context->GetCursorPosition().X, (float)context->GetCursorPosition().Y};
 		}
 
 		io.MouseDown[0] = globalMouseState.Buttons[MouseButton::Left] == MouseButtonState::Pressed;
 		io.MouseDown[1] = globalMouseState.Buttons[MouseButton::Right] == MouseButtonState::Pressed;
 		io.MouseDown[2] = globalMouseState.Buttons[MouseButton::Middle] == MouseButtonState::Pressed;
 
-		io.MouseWheel = mouse.GetScrollMovement().Y;
+		io.MouseWheel = context->GetScroll(0).Y;
 	}
 
 	void ImGuiGraphicsRenderer::RenderDrawData(ImDrawData *drawData)

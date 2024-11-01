@@ -63,6 +63,8 @@ file (GLOB_RECURSE ENGINE_SOURCES
  src/Nexus-Core/Runtime/*.cpp
  src/Nexus-Core/Runtime/ECS/*.hpp
  src/Nexus-Core/Runtime/ECS/*.cpp
+ src/Nexus-Core/Layers/*.hpp
+ src/Nexus-Core/Layers/*.cpp
  
  src/Platform/*.hpp
  src/Platform/*.cpp

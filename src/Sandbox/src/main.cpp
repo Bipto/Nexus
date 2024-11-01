@@ -2,21 +2,18 @@
 #include "Nexus-Core/Graphics/CatmullRom.hpp"
 #include "Nexus-Core/Graphics/RoundedRectangle.hpp"
 #include "Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp"
-#include "Nexus-Core/UI/Button.hpp"
-#include "Nexus-Core/UI/Canvas.hpp"
-#include "Nexus-Core/UI/Label.hpp"
-#include "Nexus-Core/UI/Panel.hpp"
-#include "Nexus-Core/UI/PictureBox.hpp"
 #include "Nexus-Core/Utils/Utils.hpp"
 #include "Nexus.hpp"
 
-#include "Nexus-Core/Platform.hpp"
+#include "Nexus-Core/UI/Canvas.hpp"
 
 class Sandbox : public Nexus::Application
 {
   public:
 	explicit Sandbox(const Nexus::ApplicationSpecification &spec) : Nexus::Application(spec)
 	{
+		Nexus::LayerStack &layerStack = m_GraphicsDevice->GetPrimaryWindow()->GetLayerStack();
+		layerStack.PushOverlay(new Nexus::Canvas(m_GraphicsDevice));
 	}
 
 	virtual void Load() override

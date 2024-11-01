@@ -61,7 +61,16 @@ namespace Nexus::InputNew
 	{
 		return Platform::GetGlobalMouseInfo().Position;
 	}
-	
+
+	void InputContext::Reset()
+	{
+		for (auto &[id, mouseState] : m_MouseStates)
+		{
+			mouseState.Movement		  = {};
+			mouseState.ScrollMovement = {};
+		}
+	}
+
 	void InputContext::OnKeyPressed(const KeyPressedEventArgs &args)
 	{
 		m_KeyboardStates[args.KeyboardID].Keys[args.ScanCode] = true;
@@ -85,11 +94,14 @@ namespace Nexus::InputNew
 	void InputContext::OnMouseMoved(const MouseMovedEventArgs &args)
 	{
 		m_MouseStates[args.MouseID].Position = args.Position;
+		m_MouseStates[args.MouseID].Movement = args.Movement;
 		m_CursorPosition = args.Position;
 	}
 
 	void InputContext::OnScroll(const MouseScrolledEventArgs &args)
 	{
-		m_MouseStates[args.MouseID].Scroll = args.Scroll;
+		m_MouseStates[args.MouseID].Scroll.X += args.Scroll.X;
+		m_MouseStates[args.MouseID].Scroll.Y += args.Scroll.Y;
+		m_MouseStates[args.MouseID].ScrollMovement = args.Scroll;
 	}
 }	 // namespace Nexus::InputNew

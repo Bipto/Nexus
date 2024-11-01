@@ -97,8 +97,10 @@ namespace Nexus::InputNew
 	struct MouseState
 	{
 		Point2D<float>				Position = {};
+		Point2D<float>				Movement	   = {};
 		std::map<MouseButton, bool> Buttons	 = {};
 		Point2D<float>				Scroll	 = {};
+		Point2D<float>				ScrollMovement = {};
 	};
 
 	class InputContext
@@ -116,6 +118,8 @@ namespace Nexus::InputNew
 
 		Point2D<float> GetCursorPosition();
 		Point2D<float> GetGlobalCursorPosition();
+
+		void Reset();
 
 	  private:
 		void OnKeyPressed(const KeyPressedEventArgs &args);

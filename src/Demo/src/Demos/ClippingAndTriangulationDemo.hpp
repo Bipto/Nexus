@@ -35,22 +35,22 @@ namespace Demos
 		{
 			// move rectangle
 			{
-				if (Nexus::Input::IsKeyHeld(Nexus::KeyCode::A))
+				if (Nexus::Input::IsKeyDown(0, Nexus::ScanCode::A))
 				{
 					r1.SetX(r1.GetLeft() - 5);
 				}
 
-				if (Nexus::Input::IsKeyHeld(Nexus::KeyCode::D))
+				if (Nexus::Input::IsKeyDown(0, Nexus::ScanCode::D))
 				{
 					r1.SetX(r1.GetLeft() + 5);
 				}
 
-				if (Nexus::Input::IsKeyHeld(Nexus::KeyCode::W))
+				if (Nexus::Input::IsKeyDown(0, Nexus::ScanCode::W))
 				{
 					r1.SetY(r1.GetTop() - 5);
 				}
 
-				if (Nexus::Input::IsKeyHeld(Nexus::KeyCode::S))
+				if (Nexus::Input::IsKeyDown(0, Nexus::ScanCode::S))
 				{
 					r1.SetY(r1.GetTop() + 5);
 				}
@@ -60,7 +60,7 @@ namespace Demos
 			{
 				const auto &points = r2.CreateOutline();
 				{
-					if (Nexus::Input::IsKeyReleased(Nexus::KeyCode::Left))
+					if (Nexus::Input::IsKeyUp(0, Nexus::ScanCode::Left))
 					{
 						if (m_SelectedPoint == 0)
 						{
@@ -70,7 +70,7 @@ namespace Demos
 						m_SelectedPoint--;
 					}
 
-					if (Nexus::Input::IsKeyReleased(Nexus::KeyCode::Right))
+					if (Nexus::Input::IsKeyUp(0, Nexus::ScanCode::Right))
 					{
 						m_SelectedPoint++;
 

@@ -117,49 +117,49 @@ namespace Nexus
 		{
 			float speed = 2.0f * time.GetSeconds();
 
-			if (Input::IsKeyHeld(KeyCode::LeftShift) || Input::IsKeyHeld(KeyCode::RightShift))
+			if (Input::IsKeyDown(3, ScanCode::LeftShift) || Input::IsKeyDown(3, ScanCode::RightShift))
 			{
 				speed *= 2.0f;
 			}
 
-			if (Input::IsKeyHeld(KeyCode::W))
+			if (Input::IsKeyDown(3, ScanCode::W))
 			{
 				m_Position += speed * m_Front;
 			}
 
-			if (Input::IsKeyHeld(KeyCode::S))
+			if (Input::IsKeyDown(3, ScanCode::S))
 			{
 				m_Position -= speed * m_Front;
 			}
 
-			if (Input::IsKeyHeld(KeyCode::A))
+			if (Input::IsKeyDown(3, ScanCode::A))
 			{
 				m_Position += glm::normalize(glm::cross(m_Front, m_Up)) * speed;
 			}
 
-			if (Input::IsKeyHeld(KeyCode::D))
+			if (Input::IsKeyDown(3, ScanCode::D))
 			{
 				m_Position -= glm::normalize(glm::cross(m_Front, m_Up)) * speed;
 			}
 
-			if (Input::IsGamepadConnected())
+			/* if (Input::IsGamepadConnected())
 			{
 				m_Position -= speed * m_Front * (Input::GetGamepadAxisLeft(0).Y * (Input::GetGamepadRightTrigger(0) + 1));
 				m_Position +=
 				glm::normalize(glm::cross(m_Front, m_Up)) * (Input::GetGamepadAxisLeft(0).X / 50.0f * (Input::GetGamepadRightTrigger(0) + 1));
-			}
+			} */
 		}
 
 		inline void Rotate(float x, float y)
 		{
-			if (Input::IsGamepadConnected())
+			/* if (Input::IsGamepadConnected())
 			{
 				auto rightStick = Input::GetGamepadAxisRight(0);
 				m_Yaw -= rightStick.X * 2.0f;
 				m_Pitch -= rightStick.Y * 2.0f;
-			}
+			} */
 
-			if (Input::IsMiddleMouseHeld())
+			if (Input::IsMouseButtonDown(0, MouseButton::Middle))
 			{
 				m_Yaw -= x;
 				m_Pitch -= y;

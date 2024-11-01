@@ -35,7 +35,7 @@ namespace Nexus
 		m_Specification = spec;
 
 		m_Window = Platform::CreatePlatformWindow(spec.WindowProperties, spec.GraphicsAPI, spec.SwapchainSpecification);
-		Nexus::Input::SetInputContext(m_Window->GetInput());
+		Nexus::Input::SetContext(m_Window->GetInputContext());
 
 		Graphics::GraphicsDeviceSpecification graphicsDeviceCreateInfo;
 		graphicsDeviceCreateInfo.API = spec.GraphicsAPI;

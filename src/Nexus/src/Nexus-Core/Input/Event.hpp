@@ -99,6 +99,11 @@ namespace Nexus
 		Nexus::Point2D<int32_t> Position = {};
 	};
 
+	struct TextInputEventArgs
+	{
+		const char *Text = {};
+	};
+
 	struct TextEditEventArgs
 	{
 		const char *Text   = {};

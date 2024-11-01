@@ -17,6 +17,8 @@
 
 #include "Nexus-Core/Application.hpp"
 
+#include "Nexus-Core/Input/Input.hpp"
+
 namespace Nexus
 {
 
@@ -53,6 +55,7 @@ namespace Nexus
 
 	void Window::Update()
 	{
+		m_InputContext.Reset();
 		m_Timer.Update();
 	}
 
@@ -171,9 +174,14 @@ namespace Nexus
 		return &m_Input;
 	}
 
-	Nexus::InputNew::InputContext &Window::GetInputContext()
+	Nexus::InputNew::InputContext *Window::GetInputContext()
 	{
-		return m_InputContext;
+		return &m_InputContext;
+	}
+
+	LayerStack &Window::GetLayerStack()
+	{
+		return m_LayerStack;
 	}
 
 	bool Window::IsFocussed()
@@ -411,8 +419,10 @@ namespace Nexus
 			if (IsMinimized())
 				return;
 
+			Input::SetContext(&m_InputContext);
 			m_RenderFrameRateMonitor.Update();
 			OnRender.Invoke(time);
+			m_LayerStack.OnRender(time);
 		},
 		secondsPerRender);
 
@@ -422,8 +432,10 @@ namespace Nexus
 			if (IsMinimized())
 				return;
 
+			Input::SetContext(&m_InputContext);
 			m_UpdateFrameRateMonitor.Update();
 			OnUpdate.Invoke(time);
+			m_LayerStack.OnUpdate(time);
 		},
 		secondsPerUpdate);
 
@@ -433,8 +445,10 @@ namespace Nexus
 			if (IsMinimized())
 				return;
 
+			Input::SetContext(&m_InputContext);
 			m_TickFrameRateMonitor.Update();
 			OnTick.Invoke(time);
+			m_LayerStack.OnTick(time);
 		},
 		secondsPerTick);
 	}
