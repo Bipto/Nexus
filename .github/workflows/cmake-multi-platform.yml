@@ -51,7 +51,15 @@ jobs:
 
       - name: Update packages
         if: matrix.os == 'ubuntu-latest'
-        run: sudo apt-get update
+        run: sudo apt-get update && sudo apt-get upgrade
+
+      - name: Install GCC
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get install g++
+
+      - name: Install Clang
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt install clang
 
       - name: Install packages
         if: matrix.os == 'ubuntu-latest'
