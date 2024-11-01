@@ -58,9 +58,11 @@ jobs:
         run: sudo apt-get install --fix-missing libgl1-mesa-dev mesa-utils mesa-common-dev
 
       - name : Install Windows SDK
-        uses : GuillaumeFalourd/setup-windows10-sdk-action@v2
+        if: matrix.of == 'windows-latest'
+        uses: ChristopheLav/windows-sdk-install@v1
         with:
-            sdk-version: 22621
+          version-sdk: 26100
+          features: 'OptionId.DesktopCPPx64'
     
       - name: Prepare Vulkan SDK
         uses: humbletim/setup-vulkan-sdk@v1.2.0
