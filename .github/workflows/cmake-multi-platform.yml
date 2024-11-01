@@ -59,10 +59,9 @@ jobs:
 
       - name : Install Windows SDK
         if: matrix.of == 'windows-latest'
-        uses: ChristopheLav/windows-sdk-install@v1
+        uses: GuillaumeFalourd/setup-windows10-sdk-action@v2
         with:
-          version-sdk: 26100
-          features: 'OptionId.DesktopCPPx64'
+          sdk-version: 20348
     
       - name: Prepare Vulkan SDK
         uses: humbletim/setup-vulkan-sdk@v1.2.0
@@ -97,7 +96,7 @@ jobs:
 
       - name: Build
         # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
-        run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+        run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} -DCMAKE_SYSTEM_VERSION=10.0.20348.0
 
       - name: Test
         working-directory: ${{ steps.strings.outputs.build-output-dir }}
