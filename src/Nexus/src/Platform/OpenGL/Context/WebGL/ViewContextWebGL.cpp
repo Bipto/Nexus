@@ -12,34 +12,39 @@ namespace Nexus::GL
 
 		for (var i = 0; i < width * height * 4; ++i) { data[i] = Module.HEAPU8[pixels + i]; }
 
+		// Flip the image horizontally
 		// for (var y = 0; y < height; ++y)
 		//{
-		//	for (var x = 0; x < width; ++x)
+		//	for (var x = 0; x < width / 2; ++x)
 		//	{
-		//		var i		= x * y * 4;
-		//		data[i]		= Module.HEAPU8[pixels + i];
-		//		data[i + 1] = Module.HEAPU8[pixels + i + 1];
-		//		data[i + 2] = Module.HEAPU8[pixels + i + 2];
-		//		data[i + 3] = Module.HEAPU8[pixels + i + 3];
+		//		var index1 = (y * width + x) * 4;
+		//		var index2 = (y * width + (width - 1 - x)) * 4;
+		//		for (var i = 0; i < 4; ++i)
+		//		{
+		//			var temp		 = data[index1 + i];
+		//			data[index1 + i] = data[index2 + i];
+		//			data[index2 + i] = temp;
+		//		}
 		//	}
-		// }
+		//}
 
-		// for (var y = 0; y < height; y++)
-		//{
-		//	for (var x = 0; x < width; x++)
-		//	{
-		//		var index		 = (y * width + x) * 4;
-		//		var flippedIndex = ((height - 1 - y) * width * x) * 4;
-		//
-		//		data[flippedIndex + 0] = Module.HEAPU8[index + 0];
-		//		data[flippedIndex + 1] = Module.HEAPU8[index + 1];
-		//		data[flippedIndex + 2] = Module.HEAPU8[index + 2];
-		//		data[flippedIndex + 3] = Module.HEAPU8[index + 3];
-		//	}
-		//
+		// Flip the image vertically
+		for (var y = 0; y < height / 2; ++y)
+		{
+			for (var x = 0; x < width; ++x)
+			{
+				var index1 = (y * width + x) * 4;
+				var index2 = ((height - 1 - y) * width + x) * 4;
+				for (var i = 0; i < 4; ++i)
+				{
+					var temp		 = data[index1 + i];
+					data[index1 + i] = data[index2 + i];
+					data[index2 + i] = temp;
+				}
+			}
+		}
 
 		ctx.putImageData(imageData, 0, 0);
-		// ctx.scale(1, -1);
 	});
 
 	ViewContextWebGL::ViewContextWebGL(const std::string					 &canvasName,
