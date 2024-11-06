@@ -80,9 +80,9 @@ namespace Nexus::ImGuiUtils
 		auto fragmentSource = GetImGuiShaderFragmentSource();
 
 		auto vertexModule =
-		m_GraphicsDevice->CreateShaderModuleFromSpirvSource(vertexSource, "ImGui.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
+			m_GraphicsDevice->CreateShaderModuleFromSpirvSource(vertexSource, "ImGui.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
 		auto fragmentModule =
-		m_GraphicsDevice->CreateShaderModuleFromSpirvSource(fragmentSource, "ImGui.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
+			m_GraphicsDevice->CreateShaderModuleFromSpirvSource(fragmentSource, "ImGui.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 
 		Nexus::Graphics::PipelineDescription pipelineDesc;
 
@@ -464,11 +464,11 @@ namespace Nexus::ImGuiUtils
 		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Z] = (int)ScanCode::Z);
 
 		m_Application->GetPrimaryWindow()->OnTextInput.Bind(
-		[&](const TextInputEventArgs &args)
-		{
-			ImGuiIO &io = ImGui::GetIO();
-			io.AddInputCharactersUTF8(args.Text);
-		});
+			[&](const TextInputEventArgs &args)
+			{
+				ImGuiIO &io = ImGui::GetIO();
+				io.AddInputCharactersUTF8(args.Text);
+			});
 	}
 
 	void ImGuiGraphicsRenderer::UpdateInput()

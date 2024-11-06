@@ -3,18 +3,18 @@
 #if defined(NX_PLATFORM_WGL)
 
 	#include "Nexus-Core/nxpch.hpp"
-	#include "Platform/OpenGL/PBuffer.hpp"
+	#include "Platform/OpenGL/Context/IOffscreenContext.hpp"
 
 	#include "Platform/Windows/WindowsInclude.hpp"
 	#include "glad/glad_wgl.h"
 
 namespace Nexus::GL
 {
-	class PBufferWGL : public PBuffer
+	class OffscreenContextWGL : public IOffscreenContext
 	{
 	  public:
-		PBufferWGL();
-		virtual ~PBufferWGL();
+		OffscreenContextWGL();
+		virtual ~OffscreenContextWGL();
 		virtual bool MakeCurrent() override;
 
 		HGLRC GetHGLRC();

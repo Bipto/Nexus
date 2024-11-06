@@ -188,10 +188,10 @@ void PollEvents()
 				float mouseX = event.motion.x;
 				float mouseY = event.motion.y;
 
-#if defined(__EMSCRIPTEN__)
-				mouseX *= GetPrimaryWindow()->GetDisplayScale();
-				mouseY *= GetPrimaryWindow()->GetDisplayScale();
-#endif
+				/* #if defined(__EMSCRIPTEN__)
+								mouseX *= GetPrimaryWindow()->GetDisplayScale();
+								mouseY *= GetPrimaryWindow()->GetDisplayScale();
+				#endif */
 
 				/* window->m_Input.m_Mouse.m_CurrentState.MousePosition = {mouseX, mouseY};
 
@@ -559,10 +559,10 @@ namespace Nexus::Platform
 		float  x, y;
 		Uint32 buttons = SDL_GetGlobalMouseState(&x, &y);
 
-#if defined(__EMSCRIPTEN__)
-		x *= GetPrimaryWindow()->GetDisplayScale();
-		y *= GetPrimaryWindow()->GetDisplayScale();
-#endif
+		/* #if defined(__EMSCRIPTEN__)
+				x *= GetPrimaryWindow()->GetDisplayScale();
+				y *= GetPrimaryWindow()->GetDisplayScale();
+		#endif */
 
 		state.Position.X = (int32_t)x;
 		state.Position.Y = (int32_t)y;

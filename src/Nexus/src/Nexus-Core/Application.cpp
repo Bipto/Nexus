@@ -5,8 +5,6 @@
 	#include "Platform/OpenGL/GraphicsDeviceOpenGL.hpp"
 #endif
 
-#include "Platform/OpenGL/GraphicsDeviceWebGL.hpp"
-
 #if defined(NX_PLATFORM_D3D12)
 	#include "Platform/D3D12/GraphicsDeviceD3D12.hpp"
 #endif
@@ -194,9 +192,6 @@ namespace Nexus
 #if defined(NX_PLATFORM_VULKAN)
 			case Graphics::GraphicsAPI::Vulkan: return new Graphics::GraphicsDeviceVk(createInfo, window, swapchainSpec);
 #endif
-
-			case Graphics::GraphicsAPI::WebGL: return new Graphics::GraphicsDeviceWebGL(createInfo, window, swapchainSpec);
-
 			default: throw std::runtime_error("Attempting to run application with unsupported graphics API"); return nullptr;
 		}
 	}

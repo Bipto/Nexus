@@ -248,7 +248,7 @@ namespace Nexus::Graphics
 		if (FAILED(hr))
 		{
 			_com_error error(hr);
-			//std::cout << "Failed to create pipeline state: " << error.ErrorMessage() << std::endl;
+			// std::cout << "Failed to create pipeline state: " << error.ErrorMessage() << std::endl;
 		}
 	}
 
@@ -266,7 +266,7 @@ namespace Nexus::Graphics
 				const auto &element = layout.GetElement(i);
 
 				D3D12_INPUT_CLASSIFICATION classification =
-				(layout.GetInstanceStepRate() != 0) ? D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA : D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+					(layout.GetInstanceStepRate() != 0) ? D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA : D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
 
 				D3D12_INPUT_ELEMENT_DESC desc = {element.Name.c_str(),
 												 elementIndex,

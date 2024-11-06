@@ -4,19 +4,21 @@
 
 	#include "Nexus-Core/nxpch.hpp"
 
-	#include "PBufferWGL.hpp"
-	#include "Platform/OpenGL/FBO.hpp"
+	#include "Platform/OpenGL/Context/IViewContext.hpp"
+	#include "OffscreenContextWGL.hpp"
 
 	#include "Platform/Windows/WindowsInclude.hpp"
 
 namespace Nexus::GL
 {
-	class FBO_WGL : public FBO
+	class ViewContextWGL : public IViewContext
 	{
 	  public:
-		FBO_WGL(HWND hwnd, PBufferWGL *pbuffer, const ContextSpecification &spec);
-		virtual ~FBO_WGL();
+		ViewContextWGL(HWND hwnd, OffscreenContextWGL *pbuffer, const ContextSpecification &spec);
+		virtual ~ViewContextWGL();
 		virtual bool						MakeCurrent() override;
+		virtual void						BindAsRenderTarget() override;
+		virtual void						BindAsDrawTarget() override;
 		virtual void						Swap() override;
 		virtual void						SetVSync(bool enabled) override;
 		virtual const ContextSpecification &GetSpecification() const override;
@@ -29,7 +31,7 @@ namespace Nexus::GL
 		HDC	  m_HDC	  = {};
 		HGLRC m_HGLRC = {};
 
-		PBufferWGL			*m_PBuffer		 = {};
+		OffscreenContextWGL *m_PBuffer		 = {};
 		ContextSpecification m_Specification = {};
 	};
 }	 // namespace Nexus::GL

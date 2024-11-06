@@ -37,9 +37,9 @@ namespace Nexus::Graphics
 		uint32_t mipHeight = textureHeight;
 
 		Ref<ShaderModule> vertexModule =
-		m_Device->CreateShaderModuleFromSpirvSource(c_MipmapVertexSource, "Mipmap-Gen.vert", Nexus::Graphics::ShaderStage::Vertex);
+			m_Device->CreateShaderModuleFromSpirvSource(c_MipmapVertexSource, "Mipmap-Gen.vert", Nexus::Graphics::ShaderStage::Vertex);
 		Ref<ShaderModule> fragmentModule =
-		m_Device->CreateShaderModuleFromSpirvSource(c_MipmapFragmentSource, "Mipmap-Gen.frag", Nexus::Graphics::ShaderStage::Fragment);
+			m_Device->CreateShaderModuleFromSpirvSource(c_MipmapFragmentSource, "Mipmap-Gen.frag", Nexus::Graphics::ShaderStage::Fragment);
 
 		Ref<Texture2D> mipTexture = texture;
 

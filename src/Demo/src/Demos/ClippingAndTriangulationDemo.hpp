@@ -22,8 +22,8 @@ namespace Demos
 		{
 			m_CommandList = m_GraphicsDevice->CreateCommandList();
 			m_BatchRenderer =
-			new Nexus::Graphics::BatchRenderer(m_GraphicsDevice,
-											   Nexus::Graphics::RenderTarget {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
+				new Nexus::Graphics::BatchRenderer(m_GraphicsDevice,
+												   Nexus::Graphics::RenderTarget {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
 
 			r1 = Nexus::Graphics::RoundedRectangle({450, 400}, {250, 250}, 15.0f, 15.0f, 15.0f, 15.0f);
 			r1.SetPointsPerCorner(8);

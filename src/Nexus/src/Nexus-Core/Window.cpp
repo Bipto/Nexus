@@ -414,43 +414,43 @@ namespace Nexus
 		}
 
 		m_Timer.Every(
-		[&](Nexus::TimeSpan time)
-		{
-			if (IsMinimized())
-				return;
+			[&](Nexus::TimeSpan time)
+			{
+				if (IsMinimized())
+					return;
 
-			Input::SetContext(&m_InputContext);
-			m_RenderFrameRateMonitor.Update();
-			OnRender.Invoke(time);
-			m_LayerStack.OnRender(time);
-		},
-		secondsPerRender);
-
-		m_Timer.Every(
-		[&](Nexus::TimeSpan time)
-		{
-			if (IsMinimized())
-				return;
-
-			Input::SetContext(&m_InputContext);
-			m_UpdateFrameRateMonitor.Update();
-			OnUpdate.Invoke(time);
-			m_LayerStack.OnUpdate(time);
-		},
-		secondsPerUpdate);
+				Input::SetContext(&m_InputContext);
+				m_RenderFrameRateMonitor.Update();
+				OnRender.Invoke(time);
+				m_LayerStack.OnRender(time);
+			},
+			secondsPerRender);
 
 		m_Timer.Every(
-		[&](Nexus::TimeSpan time)
-		{
-			if (IsMinimized())
-				return;
+			[&](Nexus::TimeSpan time)
+			{
+				if (IsMinimized())
+					return;
 
-			Input::SetContext(&m_InputContext);
-			m_TickFrameRateMonitor.Update();
-			OnTick.Invoke(time);
-			m_LayerStack.OnTick(time);
-		},
-		secondsPerTick);
+				Input::SetContext(&m_InputContext);
+				m_UpdateFrameRateMonitor.Update();
+				OnUpdate.Invoke(time);
+				m_LayerStack.OnUpdate(time);
+			},
+			secondsPerUpdate);
+
+		m_Timer.Every(
+			[&](Nexus::TimeSpan time)
+			{
+				if (IsMinimized())
+					return;
+
+				Input::SetContext(&m_InputContext);
+				m_TickFrameRateMonitor.Update();
+				OnTick.Invoke(time);
+				m_LayerStack.OnTick(time);
+			},
+			secondsPerTick);
 	}
 
 	const WindowSpecification &Window::GetSpecification() const

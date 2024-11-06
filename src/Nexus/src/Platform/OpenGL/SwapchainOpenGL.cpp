@@ -1,5 +1,7 @@
 #if defined(NX_PLATFORM_OPENGL)
 
+	#include "Nexus-Core/nxpch.hpp"
+
 	#include "SwapchainOpenGL.hpp"
 
 	#include "BufferOpenGL.hpp"
@@ -19,7 +21,7 @@ namespace Nexus::Graphics
 
 		GraphicsDeviceOpenGL *graphicsDeviceOpenGL = (GraphicsDeviceOpenGL *)graphicsDevice;
 
-		m_FBO = GL::CreateFBO(window, graphicsDeviceOpenGL->GetPBuffer());
+		m_FBO = GL::CreateViewContext(window, graphicsDeviceOpenGL);
 		m_FBO->MakeCurrent();
 		SetVSyncState(swapchainSpec.VSyncState);
 	}
@@ -64,7 +66,6 @@ namespace Nexus::Graphics
 		int w, h;
 		SDL_GetWindowSizeInPixels(m_Window->GetSDLWindowHandle(), &w, &h);
 
-		glCall(glBindFramebuffer(GL_FRAMEBUFFER, m_Backbuffer));
 		glCall(glViewport(0, 0, w, h));
 		glCall(glScissor(0, 0, w, h));
 
@@ -75,15 +76,14 @@ namespace Nexus::Graphics
 	void SwapchainOpenGL::BindAsRenderTarget()
 	{
 		m_FBO->MakeCurrent();
-
-		glCall(glBindFramebuffer(GL_FRAMEBUFFER, m_Backbuffer));
+		m_FBO->BindAsRenderTarget();
 		ResizeIfNecessary();
 	}
 
 	void SwapchainOpenGL::BindAsDrawTarget()
 	{
 		m_FBO->MakeCurrent();
-		glCall(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_Backbuffer));
+		m_FBO->BindAsDrawTarget();
 	}
 
 	void SwapchainOpenGL::Prepare()

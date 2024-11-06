@@ -21,8 +21,8 @@
 
 	#include "Nexus-Core/Window.hpp"
 
-	#include "PBuffer.hpp"
-	#include "FBO.hpp"
+	#include "Context/IOffscreenContext.hpp"
+	#include "Context/IViewContext.hpp"
 
 namespace Nexus::GL
 {
@@ -47,8 +47,8 @@ namespace Nexus::GL
 
 	void GetBaseType(const Graphics::VertexBufferElement &element, GLenum &baseType, uint32_t &componentCount, GLboolean &normalized);
 
-	std::unique_ptr<PBuffer> CreatePBuffer();
-	std::unique_ptr<FBO>	 CreateFBO(Window *window, PBuffer *pbuffer);
+	std::unique_ptr<IOffscreenContext> CreateOffscreenContext();
+	std::unique_ptr<IViewContext>	   CreateViewContext(Window *window, Graphics::GraphicsDevice *device);
 
 }	 // namespace Nexus::GL
 

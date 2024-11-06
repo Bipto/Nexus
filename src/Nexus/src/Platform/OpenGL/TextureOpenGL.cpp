@@ -28,8 +28,12 @@ namespace Nexus::Graphics
 			m_TextureType	 = GL_TEXTURE_2D_MULTISAMPLE;
 			glCall(glBindTexture(m_TextureType, m_Handle));
 			glCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
-			glCall(
-			glTexStorage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, m_InternalFormat, m_Specification.Width, m_Specification.Height, GL_FALSE));
+			glCall(glTexStorage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE,
+											 samples,
+											 m_InternalFormat,
+											 m_Specification.Width,
+											 m_Specification.Height,
+											 GL_FALSE));
 		}
 		else
 		{
@@ -40,6 +44,8 @@ namespace Nexus::Graphics
 			glCall(glBindTexture(m_TextureType, m_Handle));
 			glCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
 			glCall(glTexStorage2D(m_TextureType, m_Specification.MipLevels, m_InternalFormat, spec.Width, spec.Height));
+
+			std::cout << m_TextureType << std::endl;
 
 	#if defined(NX_PLATFORM_GL_DESKTOP)
 		}
@@ -68,8 +74,7 @@ namespace Nexus::Graphics
 		glCall(glGenFramebuffers(1, &framebufferId));
 		glCall(glBindFramebuffer(GL_FRAMEBUFFER, framebufferId));
 
-		glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_Handle, level));
-
+		glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_TextureType, m_Handle, level));
 		glCall(glReadBuffer(GL_COLOR_ATTACHMENT0));
 		glCall(glReadPixels(x, y, width, height, m_DataFormat, m_BaseType, data.data()));
 

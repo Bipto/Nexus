@@ -341,6 +341,6 @@ namespace Nexus::Graphics
 	namespace Utilities
 	{
 		std::vector<VertexPositionTexCoordNormalTangentBitangent> GenerateTangentAndBinormals(
-		const std::vector<Nexus::Graphics::VertexPositionTexCoordNormal> &vertices);
+			const std::vector<Nexus::Graphics::VertexPositionTexCoordNormal> &vertices);
 	}
 }	 // namespace Nexus::Graphics

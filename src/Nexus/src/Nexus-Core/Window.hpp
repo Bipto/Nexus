@@ -207,14 +207,14 @@ namespace Nexus
 		EventHandler<const KeyReleasedEventArgs &> OnKeyReleased;
 
 		EventHandler<const TextInputEventArgs &> OnTextInput;
-		EventHandler<const TextEditEventArgs &> OnTextEdit;
+		EventHandler<const TextEditEventArgs &>	 OnTextEdit;
 
 		EventHandler<const MouseButtonPressedEventArgs &>  OnMousePressed;
 		EventHandler<const MouseButtonReleasedEventArgs &> OnMouseReleased;
 		EventHandler<const MouseMovedEventArgs &>		   OnMouseMoved;
 		EventHandler<const MouseScrolledEventArgs &>	   OnScroll;
-		EventHandler<>								   OnMouseEnter;
-		EventHandler<>								   OnMouseLeave;
+		EventHandler<>									   OnMouseEnter;
+		EventHandler<>									   OnMouseLeave;
 
 		EventHandler<const FileDropEventArgs &> OnFileDrop;
 

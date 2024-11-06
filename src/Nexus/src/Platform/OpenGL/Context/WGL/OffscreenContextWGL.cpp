@@ -1,10 +1,10 @@
 #if defined(NX_PLATFORM_WGL)
 
-	#include "PBufferWGL.hpp"
+	#include "OffscreenContextWGL.hpp"
 
 namespace Nexus::GL
 {
-	PBufferWGL::PBufferWGL()
+	OffscreenContextWGL::OffscreenContextWGL()
 	{
 		auto [tempWindow, tempHglrc, tempHdc] = CreateTemporaryWindow();
 		wglMakeCurrent(tempHdc, tempHglrc);
@@ -23,24 +23,24 @@ namespace Nexus::GL
 		DestroyWindow(tempWindow);
 	}
 
-	PBufferWGL::~PBufferWGL()
+	OffscreenContextWGL::~OffscreenContextWGL()
 	{
 		wglMakeCurrent(NULL, NULL);
 		wglDeleteContext(m_HGLRC);
 		wglDestroyPbufferARB(m_PBuffer);
 	}
 
-	bool PBufferWGL::MakeCurrent()
+	bool OffscreenContextWGL::MakeCurrent()
 	{
 		return wglMakeCurrent(m_HDC, m_HGLRC);
 	}
 
-	HGLRC PBufferWGL::GetHGLRC()
+	HGLRC OffscreenContextWGL::GetHGLRC()
 	{
 		return m_HGLRC;
 	}
 
-	inline void PBufferWGL::LoadGLFunctionsIfNeeded(HDC hdc)
+	inline void OffscreenContextWGL::LoadGLFunctionsIfNeeded(HDC hdc)
 	{
 		if (s_GLFunctionsLoaded)
 		{
@@ -60,7 +60,7 @@ namespace Nexus::GL
 		s_GLFunctionsLoaded = true;
 	}
 
-	std::tuple<HWND, HGLRC, HDC> PBufferWGL::CreateTemporaryWindow()
+	std::tuple<HWND, HGLRC, HDC> OffscreenContextWGL::CreateTemporaryWindow()
 	{
 		const char className[] = "Temporary OpenGL Window";
 
@@ -130,7 +130,7 @@ namespace Nexus::GL
 		return {hwnd, hglrc, hdc};
 	}
 
-	std::tuple<HPBUFFERARB, HDC, HGLRC> PBufferWGL::CreatePBufferContext(HDC hdc)
+	std::tuple<HPBUFFERARB, HDC, HGLRC> OffscreenContextWGL::CreatePBufferContext(HDC hdc)
 	{
 		int	  pixelFormat;
 		UINT  numFormats;

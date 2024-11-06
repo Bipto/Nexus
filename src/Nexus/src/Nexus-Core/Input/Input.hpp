@@ -8,21 +8,21 @@ namespace Nexus
 	class Input
 	{
 	  public:
-		  static bool			 IsMouseButtonDown(uint32_t id, MouseButton button);
-		  static bool			 IsMouseButtonUp(uint32_t id, MouseButton button);
-		  static bool			 IsKeyDown(uint32_t id, ScanCode scancode);
-		  static bool			 IsKeyUp(uint32_t id, ScanCode scancode);
-		  static Point2D<float> GetMousePosition(uint32_t id);
-		  static Point2D<float> GetScroll(uint32_t id);
+		static bool			  IsMouseButtonDown(uint32_t id, MouseButton button);
+		static bool			  IsMouseButtonUp(uint32_t id, MouseButton button);
+		static bool			  IsKeyDown(uint32_t id, ScanCode scancode);
+		static bool			  IsKeyUp(uint32_t id, ScanCode scancode);
+		static Point2D<float> GetMousePosition(uint32_t id);
+		static Point2D<float> GetScroll(uint32_t id);
 
-		  static Point2D<float> GetCursorPosition();
-		  static Point2D<float> GetGlobalCursorPosition();
+		static Point2D<float> GetCursorPosition();
+		static Point2D<float> GetGlobalCursorPosition();
 
-		public:
-		  static InputNew::InputContext *GetContext();
-		  static void					 SetContext(InputNew::InputContext *context);
+	  public:
+		static InputNew::InputContext *GetContext();
+		static void					   SetContext(InputNew::InputContext *context);
 
-		private:
-		  static inline InputNew::InputContext *s_InputContext = nullptr;
+	  private:
+		static inline InputNew::InputContext *s_InputContext = nullptr;
 	};
 };	  // namespace Nexus

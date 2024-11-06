@@ -26,9 +26,6 @@ class Sandbox : public Nexus::Application
 
 	virtual void Render(Nexus::TimeSpan time) override
 	{
-		m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
-
-		m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->SwapBuffers();
 	}
 
 	virtual void OnResize(Nexus::Point2D<uint32_t> size) override

@@ -6,20 +6,19 @@
 
 namespace Nexus::InputNew
 {
-	InputContext::InputContext(Nexus::Window *window) : m_Window(window),
-	m_OnKeyPressed(&window->OnKeyPressed, [this](const KeyPressedEventArgs& args){OnKeyPressed(args);}),
-	m_OnKeyReleased(&window->OnKeyReleased, [this](const KeyReleasedEventArgs& args){OnKeyReleased(args);}),
-	m_OnMouseButtonPressed(&window->OnMousePressed, [this](const MouseButtonPressedEventArgs& args) {OnMouseButtonPressed(args);}),
-	m_OnMouseButtonReleased(&window->OnMouseReleased, [this](const MouseButtonReleasedEventArgs& args) { OnMouseButtonReleased(args);}),
-	m_OnMouseMoved(&window->OnMouseMoved, [this](const MouseMovedEventArgs& args) { OnMouseMoved(args);}),
-	m_OnMouseScrolled(&window->OnScroll, [this](const MouseScrolledEventArgs& args) { OnScroll(args);})
+	InputContext::InputContext(Nexus::Window *window)
+		: m_Window(window),
+		  m_OnKeyPressed(&window->OnKeyPressed, [this](const KeyPressedEventArgs &args) { OnKeyPressed(args); }),
+		  m_OnKeyReleased(&window->OnKeyReleased, [this](const KeyReleasedEventArgs &args) { OnKeyReleased(args); }),
+		  m_OnMouseButtonPressed(&window->OnMousePressed, [this](const MouseButtonPressedEventArgs &args) { OnMouseButtonPressed(args); }),
+		  m_OnMouseButtonReleased(&window->OnMouseReleased, [this](const MouseButtonReleasedEventArgs &args) { OnMouseButtonReleased(args); }),
+		  m_OnMouseMoved(&window->OnMouseMoved, [this](const MouseMovedEventArgs &args) { OnMouseMoved(args); }),
+		  m_OnMouseScrolled(&window->OnScroll, [this](const MouseScrolledEventArgs &args) { OnScroll(args); })
 	{
-
 	}
 
 	InputContext::~InputContext()
 	{
-
 	}
 
 	bool InputContext::IsMouseButtonDown(uint32_t id, MouseButton button)
@@ -95,7 +94,7 @@ namespace Nexus::InputNew
 	{
 		m_MouseStates[args.MouseID].Position = args.Position;
 		m_MouseStates[args.MouseID].Movement = args.Movement;
-		m_CursorPosition = args.Position;
+		m_CursorPosition					 = args.Position;
 	}
 
 	void InputContext::OnScroll(const MouseScrolledEventArgs &args)

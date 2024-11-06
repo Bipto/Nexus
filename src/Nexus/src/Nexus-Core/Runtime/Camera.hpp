@@ -214,7 +214,7 @@ namespace Nexus
 		int m_Width	 = 0;
 		int m_Height = 0;
 
-		ProjectionType m_ProjectionType = ProjectionType::Perspective;
+		ProjectionType			m_ProjectionType = ProjectionType::Perspective;
 		Utils::FrameRateMonitor m_Timer			 = {};
 	};
 }	 // namespace Nexus

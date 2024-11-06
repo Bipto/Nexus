@@ -16,9 +16,11 @@ namespace Nexus::Graphics
 		FramebufferOpenGL(const FramebufferSpecification &spec, GraphicsDeviceOpenGL *graphicsDevice);
 		~FramebufferOpenGL();
 
-		void BindAsRenderTarget();
-		void BindAsReadBuffer(uint32_t texture);
-		void Unbind();
+		void	BindAsRenderTarget();
+		void	BindAsReadBuffer(uint32_t texture);
+		void	BindAsDrawBuffer();
+		void	Unbind();
+		int32_t GetHandle();
 
 		virtual const FramebufferSpecification GetFramebufferSpecification() override;
 		virtual void						   SetFramebufferSpecification(const FramebufferSpecification &spec) override;

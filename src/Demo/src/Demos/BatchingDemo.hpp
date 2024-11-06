@@ -22,8 +22,8 @@ namespace Demos
 		{
 			m_CommandList	= m_GraphicsDevice->CreateCommandList();
 			m_BatchRenderer = Nexus::Scope<Nexus::Graphics::BatchRenderer>(
-			new Nexus::Graphics::BatchRenderer(m_GraphicsDevice,
-											   Nexus::Graphics::RenderTarget {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()}));
+				new Nexus::Graphics::BatchRenderer(m_GraphicsDevice,
+												   Nexus::Graphics::RenderTarget {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()}));
 			GenerateShapes();
 		}
 

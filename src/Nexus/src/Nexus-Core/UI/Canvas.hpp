@@ -13,7 +13,7 @@ namespace Nexus
 		Canvas(Graphics::GraphicsDevice *device) : m_Device(device)
 		{
 			m_BatchRenderer = std::unique_ptr<Nexus::Graphics::BatchRenderer>(
-			new Nexus::Graphics::BatchRenderer(device, Nexus::Graphics::RenderTarget(device->GetPrimaryWindow()->GetSwapchain())));
+				new Nexus::Graphics::BatchRenderer(device, Nexus::Graphics::RenderTarget(device->GetPrimaryWindow()->GetSwapchain())));
 		}
 
 		virtual ~Canvas()

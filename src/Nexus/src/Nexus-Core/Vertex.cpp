@@ -92,7 +92,7 @@ namespace Nexus::Graphics
 	}
 
 	std::vector<VertexPositionTexCoordNormalTangentBitangent> Utilities::GenerateTangentAndBinormals(
-	const std::vector<VertexPositionTexCoordNormal> &vertices)
+		const std::vector<VertexPositionTexCoordNormal> &vertices)
 	{
 		if (vertices.size() % 3 != 0)
 		{

@@ -6,13 +6,16 @@
 	#include "Nexus-Core/nxpch.hpp"
 
 	#if defined(NX_PLATFORM_WGL)
-		#include "WGL/PBufferWGL.hpp"
-		#include "WGL/FBO_WGL.hpp"
+		#include "Context/WGL/OffscreenContextWGL.hpp"
+		#include "Context/WGL/ViewContextWGL.hpp"
 	#elif defined(NX_PLATFORM_EGL)
-		#include "EGL/PBufferEGL.hpp"
+		#error Not implemented yet
 	#elif defined(NX_PLATFORM_WEBGL)
-		#include "WebGL/PBufferWebGL.hpp"
+		#include "Context/WebGL/OffscreenContextWebGL.hpp"
+		#include "Context/WebGL/ViewContextWebGL.hpp"
 	#endif
+
+	#include "Platform/OpenGL/GraphicsDeviceOpenGL.hpp"
 
 namespace Nexus::GL
 {
@@ -667,32 +670,34 @@ namespace Nexus::GL
 		}
 	}
 
-	std::unique_ptr<PBuffer> CreatePBuffer()
+	std::unique_ptr<IOffscreenContext> CreateOffscreenContext()
 	{
 	#if defined(NX_PLATFORM_WGL)
-		return std::make_unique<PBufferWGL>();
+		return std::make_unique<OffscreenContextWGL>();
 	#elif defined(NX_PLATFORM_EGL)
-		return std::make_unique<PBufferEGL>();
+		#error Not implemented
 	#elif defined(NX_PLATFORM_WEBGL)
-		return std::make_unique<PBufferWebGL>("#canvas");
+		return std::make_unique<OffscreenContextWebGL>();
 	#else
 		#error No OpenGL backend selected
 	#endif
 	}
 
-	std::unique_ptr<FBO> CreateFBO(Window *window, PBuffer *pbuffer)
+	std::unique_ptr<IViewContext> CreateViewContext(Window *window, Graphics::GraphicsDevice *device)
 	{
 		GL::ContextSpecification spec = {};
 		spec.Debug					  = true;
 		spec.Samples				  = Graphics::SampleCount::SampleCount8;
 
+		Graphics::GraphicsDeviceOpenGL *deviceOpenGL = (Graphics::GraphicsDeviceOpenGL *)device;
+
 	#if defined(NX_PLATFORM_WGL)
-		PBufferWGL *pbufferWGL = (PBufferWGL *)pbuffer;
-		return std::make_unique<FBO_WGL>(window->GetHwnd(), pbufferWGL, spec);
+		OffscreenContextWGL *pbufferWGL = (OffscreenContextWGL *)deviceOpenGL->GetOffscreenContext();
+		return std::make_unique<ViewContextWGL>(window->GetHwnd(), pbufferWGL, spec);
 	#elif defined(NX_PLATFORM_EGL)
 		return nullptr;
 	#elif defined(NX_PLATFORM_WEBGL)
-		return nullptr;
+		return std::make_unique<ViewContextWebGL>("canvas", deviceOpenGL, spec);
 	#else
 		#error No OpenGL backend selected
 	#endif

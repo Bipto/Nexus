@@ -35,9 +35,19 @@ namespace Nexus::Graphics
 		glCall(glReadBuffer(GL_COLOR_ATTACHMENT0 + texture));
 	}
 
+	void FramebufferOpenGL::BindAsDrawBuffer()
+	{
+		glCall(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_FBO));
+	}
+
 	void FramebufferOpenGL::Unbind()
 	{
 		glCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+	}
+
+	int32_t FramebufferOpenGL::GetHandle()
+	{
+		return m_FBO;
 	}
 
 	void FramebufferOpenGL::Recreate()
@@ -48,6 +58,13 @@ namespace Nexus::Graphics
 		glCall(glBindFramebuffer(GL_FRAMEBUFFER, m_FBO));
 
 		CreateTextures();
+
+		GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		if (status != GL_FRAMEBUFFER_COMPLETE)
+		{
+			std::cout << "Failed to create framebuffer" << std::endl;
+		}
+
 		glCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 	}
 

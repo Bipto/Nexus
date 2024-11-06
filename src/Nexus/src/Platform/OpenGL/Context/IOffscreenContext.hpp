@@ -2,10 +2,10 @@
 
 namespace Nexus::GL
 {
-	class PBuffer
+	class IOffscreenContext
 	{
 	  public:
-		virtual ~PBuffer()
+		virtual ~IOffscreenContext()
 		{
 		}
 		virtual bool MakeCurrent() = 0;

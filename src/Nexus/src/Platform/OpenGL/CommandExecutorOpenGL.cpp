@@ -276,7 +276,7 @@ namespace Nexus::Graphics
 				glCall(glUniformBlockBinding(pipeline->GetShaderHandle(), location, uniformBufferSlot));
 
 				glCall(
-				glBindBufferRange(GL_UNIFORM_BUFFER, uniformBufferSlot, uniformBufferGL->GetHandle(), 0, uniformBufferGL->GetDescription().Size));
+					glBindBufferRange(GL_UNIFORM_BUFFER, uniformBufferSlot, uniformBufferGL->GetHandle(), 0, uniformBufferGL->GetDescription().Size));
 
 				uniformBufferSlot++;
 			}

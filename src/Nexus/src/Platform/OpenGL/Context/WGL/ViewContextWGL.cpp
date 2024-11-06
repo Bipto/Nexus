@@ -1,6 +1,6 @@
 #if defined(NX_PLATFORM_WGL)
 
-	#include "FBO_WGL.hpp"
+	#include "ViewContextWGL.hpp"
 
 	#include "glad/glad_wgl.h"
 
@@ -8,42 +8,50 @@
 
 namespace Nexus::GL
 {
-	FBO_WGL::FBO_WGL(HWND hwnd, PBufferWGL *pbuffer, const ContextSpecification &spec) : m_HWND(hwnd), m_Specification(spec)
+	ViewContextWGL::ViewContextWGL(HWND hwnd, OffscreenContextWGL *context, const ContextSpecification &spec) : m_HWND(hwnd), m_Specification(spec)
 	{
 		m_HDC	= GetDC(m_HWND);
-		m_HGLRC = CreateSharedContext(m_HDC, pbuffer->GetHGLRC(), spec);
+		m_HGLRC = CreateSharedContext(m_HDC, context->GetHGLRC(), spec);
 		MakeCurrent();
 	}
 
-	FBO_WGL::~FBO_WGL()
+	ViewContextWGL::~ViewContextWGL()
 	{
 		wglMakeCurrent(NULL, NULL);
 		wglDeleteContext(m_HGLRC);
 	}
 
-	bool FBO_WGL::MakeCurrent()
+	bool ViewContextWGL::MakeCurrent()
 	{
 		return wglMakeCurrent(m_HDC, m_HGLRC);
 	}
 
-	void FBO_WGL::Swap()
+	void ViewContextWGL::BindAsRenderTarget()
+	{
+	}
+
+	void ViewContextWGL::BindAsDrawTarget()
+	{
+	}
+
+	void ViewContextWGL::Swap()
 	{
 		MakeCurrent();
 		SwapBuffers(m_HDC);
 	}
 
-	void FBO_WGL::SetVSync(bool enabled)
+	void ViewContextWGL::SetVSync(bool enabled)
 	{
 		MakeCurrent();
 		wglSwapIntervalEXT(enabled);
 	}
 
-	const ContextSpecification &FBO_WGL::GetSpecification() const
+	const ContextSpecification &ViewContextWGL::GetSpecification() const
 	{
 		return m_Specification;
 	}
 
-	HGLRC FBO_WGL::CreateSharedContext(HDC hdc, HGLRC sharedContext, const ContextSpecification &spec)
+	HGLRC ViewContextWGL::CreateSharedContext(HDC hdc, HGLRC sharedContext, const ContextSpecification &spec)
 	{
 		PIXELFORMATDESCRIPTOR pfd = {sizeof(PIXELFORMATDESCRIPTOR),
 									 1,

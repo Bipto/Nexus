@@ -90,7 +90,7 @@ class DemoApplication : public Nexus::Application
 		DemoInfo info;
 		info.Name = name;
 		info.CreationFunction =
-		[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
+			[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
 		{ return new T(name, app, imGuiRenderer); };
 		m_GraphicsDemos.push_back(info);
 	}
@@ -101,7 +101,7 @@ class DemoApplication : public Nexus::Application
 		DemoInfo info;
 		info.Name = name;
 		info.CreationFunction =
-		[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
+			[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
 		{ return new T(name, app, imGuiRenderer); };
 		m_AudioDemos.push_back(info);
 	}
@@ -112,7 +112,7 @@ class DemoApplication : public Nexus::Application
 		DemoInfo info;
 		info.Name = name;
 		info.CreationFunction =
-		[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
+			[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
 		{ return new T(name, app, imGuiRenderer); };
 		m_UtilsDemos.push_back(info);
 	}
@@ -123,7 +123,7 @@ class DemoApplication : public Nexus::Application
 		DemoInfo info;
 		info.Name = name;
 		info.CreationFunction =
-		[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
+			[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
 		{ return new T(name, app, imGuiRenderer); };
 		m_ScriptingDemos.push_back(info);
 	}
@@ -202,7 +202,7 @@ class DemoApplication : public Nexus::Application
 			for (const auto &profileResult : results)
 			{
 				std::string output =
-				std::string(profileResult.Name) + std::string(": ") + std::to_string(profileResult.Time.GetMilliseconds()) + std::string(" Ms");
+					std::string(profileResult.Name) + std::string(": ") + std::to_string(profileResult.Time.GetMilliseconds()) + std::string(" Ms");
 				ImGui::Text(output.c_str());
 			}
 			Nexus::Timings::Profiler::Get().Reset();

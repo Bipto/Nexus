@@ -34,11 +34,12 @@ namespace Demos
 			m_CubeMesh = factory.CreateCube();
 
 			m_DiffuseMap =
-			m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_diff_1k.jpg"), true);
+				m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_diff_1k.jpg"), true);
 			m_NormalMap =
-			m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_normal_1k.jpg"), true);
+				m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_normal_1k.jpg"),
+												  true);
 			m_SpecularMap =
-			m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_spec_1k.jpg"), true);
+				m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_spec_1k.jpg"), true);
 
 			Nexus::Graphics::BufferDescription cameraUniformBufferDesc;
 			cameraUniformBufferDesc.Size  = sizeof(VB_UNIFORM_CAMERA_DEMO_INSTANCING);
@@ -131,10 +132,10 @@ namespace Demos
 			pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::Back;
 			pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::Clockwise;
 
-			pipelineDescription.VertexModule =
-			m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/instancing.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
-			pipelineDescription.FragmentModule =
-			m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/instancing.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
+			pipelineDescription.VertexModule   = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/instancing.vert.glsl",
+																								   Nexus::Graphics::ShaderStage::Vertex);
+			pipelineDescription.FragmentModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/instancing.frag.glsl",
+																								   Nexus::Graphics::ShaderStage::Fragment);
 
 			pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Camera", 0, 0}};
 

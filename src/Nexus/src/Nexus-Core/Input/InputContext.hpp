@@ -96,10 +96,10 @@ namespace Nexus::InputNew
 
 	struct MouseState
 	{
-		Point2D<float>				Position = {};
+		Point2D<float>				Position	   = {};
 		Point2D<float>				Movement	   = {};
-		std::map<MouseButton, bool> Buttons	 = {};
-		Point2D<float>				Scroll	 = {};
+		std::map<MouseButton, bool> Buttons		   = {};
+		Point2D<float>				Scroll		   = {};
 		Point2D<float>				ScrollMovement = {};
 	};
 

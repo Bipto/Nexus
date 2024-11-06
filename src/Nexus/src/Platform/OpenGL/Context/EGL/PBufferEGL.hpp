@@ -9,7 +9,7 @@
 
 namespace Nexus::GL
 {
-	class PBufferEGL : public PBuffer
+	class PBufferEGL : public IOffscreenContext
 	{
 	  public:
 		PBufferEGL();

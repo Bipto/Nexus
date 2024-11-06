@@ -18,8 +18,8 @@ namespace Nexus
 
 		struct BoundEvent
 		{
-			EventID			 ID			 = {};
-			EventFunction	 Func		 = {};
+			EventID		  ID   = {};
+			EventFunction Func = {};
 		};
 
 	  public:

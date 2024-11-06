@@ -18,7 +18,7 @@ namespace Nexus::Graphics
 											   const SwapchainSpecification		 &swapchainSpec)
 		: GraphicsDevice(createInfo, window, swapchainSpec)
 	{
-		m_PBuffer = GL::CreatePBuffer();
+		m_PBuffer = GL::CreateOffscreenContext();
 		m_PBuffer->MakeCurrent();
 		m_Extensions = GetSupportedExtensions();
 
@@ -71,7 +71,7 @@ namespace Nexus::Graphics
 		return m_RendererName.c_str();
 	}
 
-	GL::PBuffer *GraphicsDeviceOpenGL::GetPBuffer()
+	GL::IOffscreenContext *GraphicsDeviceOpenGL::GetOffscreenContext()
 	{
 		return m_PBuffer.get();
 	}
