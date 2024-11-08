@@ -45,8 +45,6 @@ namespace Nexus::Graphics
 			glCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
 			glCall(glTexStorage2D(m_TextureType, m_Specification.MipLevels, m_InternalFormat, spec.Width, spec.Height));
 
-			std::cout << m_TextureType << std::endl;
-
 	#if defined(NX_PLATFORM_GL_DESKTOP)
 		}
 	#endif

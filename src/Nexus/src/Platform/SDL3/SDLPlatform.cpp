@@ -90,9 +90,6 @@ void PollEvents()
 				auto nexusScanCode = Nexus::SDL3::GetNexusScanCodeFromSDLScanCode(event.key.keysym.scancode);
 				auto mods		   = Nexus::SDL3::GetNexusModifiersFromSDLModifiers(event.key.keysym.mod);
 
-				/* window->m_Input.m_Keyboard.m_CurrentKeys[nexusKeyCode] = true;
-				m_GlobalKeyboardState.m_CurrentKeys[nexusKeyCode]	   = true; */
-
 				Nexus::KeyPressedEventArgs keyPressedEvent {.KeyCode	= nexusKeyCode,
 															.ScanCode	= nexusScanCode,
 															.Repeat		= event.key.repeat,
@@ -107,9 +104,6 @@ void PollEvents()
 			{
 				auto nexusKeyCode  = Nexus::SDL3::GetNexusKeyCodeFromSDLKeyCode(event.key.keysym.sym);
 				auto nexusScanCode = Nexus::SDL3::GetNexusScanCodeFromSDLScanCode(event.key.keysym.scancode);
-
-				/* window->m_Input.m_Keyboard.m_CurrentKeys[nexusKeyCode] = false;
-				m_GlobalKeyboardState.m_CurrentKeys[nexusKeyCode]	   = false; */
 
 				Nexus::KeyReleasedEventArgs keyReleasedEvent {.KeyCode	  = nexusKeyCode,
 															  .ScanCode	  = nexusScanCode,
@@ -131,25 +125,6 @@ void PollEvents()
 			}
 			case SDL_EVENT_MOUSE_BUTTON_DOWN:
 			{
-				/* switch (event.button.button)
-				{
-					case SDL_BUTTON_LEFT:
-					{
-						window->m_Input.m_Mouse.m_CurrentState.LeftButton = Nexus::MouseButtonState::Pressed;
-						break;
-					}
-					case SDL_BUTTON_RIGHT:
-					{
-						window->m_Input.m_Mouse.m_CurrentState.RightButton = Nexus::MouseButtonState::Pressed;
-						break;
-					}
-					case SDL_BUTTON_MIDDLE:
-					{
-						window->m_Input.m_Mouse.m_CurrentState.MiddleButton = Nexus::MouseButtonState::Pressed;
-						break;
-					}
-				} */
-
 				auto [mouseType, mouseId]				 = Nexus::SDL3::GetMouseInfo(event.button.which);
 				std::optional<Nexus::MouseButton> button = Nexus::SDL3::GetMouseButton(event.button.button);
 
@@ -187,24 +162,21 @@ void PollEvents()
 			{
 				float mouseX = event.motion.x;
 				float mouseY = event.motion.y;
+				float movementX = event.motion.xrel;
+				float movementY = event.motion.yrel;
 
-				/* #if defined(__EMSCRIPTEN__)
-								mouseX *= GetPrimaryWindow()->GetDisplayScale();
-								mouseY *= GetPrimaryWindow()->GetDisplayScale();
-				#endif */
-
-				/* window->m_Input.m_Mouse.m_CurrentState.MousePosition = {mouseX, mouseY};
-
-				float  xPos, yPos;
-				Uint32 state = SDL_GetMouseState(&xPos, &yPos);
-
-				float movementX = xPos - window->m_Input.m_Mouse.m_CurrentState.MousePosition.X;
-				float movementY = yPos - window->m_Input.m_Mouse.m_CurrentState.MousePosition.Y;*/
+#if defined(__EMSCRIPTEN__)
+				float scale = window->GetDisplayScale();
+				mouseX *= scale;
+				mouseY *= scale;
+				movementX *= scale;
+				movementY *= scale;
+#endif
 
 				auto [mouseType, mouseId] = Nexus::SDL3::GetMouseInfo(event.motion.which);
 
-				Nexus::MouseMovedEventArgs mouseMovedEvent {.Position = {event.motion.x, event.motion.y},
-															.Movement = {event.motion.xrel, event.motion.yrel},
+				Nexus::MouseMovedEventArgs mouseMovedEvent {.Position = {mouseX, mouseY},
+															.Movement = {movementX, movementY},
 															.MouseID  = mouseId,
 															.Type	  = mouseType};
 
@@ -213,10 +185,6 @@ void PollEvents()
 			}
 			case SDL_EVENT_MOUSE_WHEEL:
 			{
-				/* auto &scroll = window->m_Input.m_Mouse.m_CurrentState.MouseWheel;
-				scroll.X += event.wheel.x;
-				scroll.Y += event.wheel.y; */
-
 				auto [mouseType, mouseId]		 = Nexus::SDL3::GetMouseInfo(event.wheel.which);
 				Nexus::ScrollDirection direction = Nexus::SDL3::GetScrollDirection(event.wheel.direction);
 
@@ -558,11 +526,6 @@ namespace Nexus::Platform
 
 		float  x, y;
 		Uint32 buttons = SDL_GetGlobalMouseState(&x, &y);
-
-		/* #if defined(__EMSCRIPTEN__)
-				x *= GetPrimaryWindow()->GetDisplayScale();
-				y *= GetPrimaryWindow()->GetDisplayScale();
-		#endif */
 
 		state.Position.X = (int32_t)x;
 		state.Position.Y = (int32_t)y;
