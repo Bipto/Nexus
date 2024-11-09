@@ -134,7 +134,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	std::vector<std::byte> Texture2D_Vk::GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+	void Texture2D_Vk::GetData(std::vector<std::byte> &pixels, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 	{
 		uint32_t	 offset = x * y * GetPixelFormatSizeInBits(m_Specification.Format);
 		VkDeviceSize size	= width * height * GetPixelFormatSizeInBytes(m_Specification.Format);
@@ -177,14 +177,12 @@ namespace Nexus::Graphics
 				});
 		}
 
-		std::vector<std::byte> pixels(size);
+		pixels.resize(size);
 
 		void *buffer;
 		vmaMapMemory(m_GraphicsDevice->GetAllocator(), m_StagingBuffer.Allocation, &buffer);
 		memcpy(pixels.data(), buffer, pixels.size());
 		vmaUnmapMemory(m_GraphicsDevice->GetAllocator(), m_StagingBuffer.Allocation);
-
-		return pixels;
 	}
 
 	VkImage Texture2D_Vk::GetImage()
@@ -318,7 +316,13 @@ namespace Nexus::Graphics
 		}
 	}
 
-	std::vector<std::byte> Cubemap_Vk::GetData(CubemapFace face, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+	void Cubemap_Vk::GetData(std::vector<std::byte> &pixels,
+							 CubemapFace			 face,
+							 uint32_t				 level,
+							 uint32_t				 x,
+							 uint32_t				 y,
+							 uint32_t				 width,
+							 uint32_t				 height)
 	{
 		uint32_t	 faceIndex = (uint32_t)face;
 		uint32_t	 offset	   = x * y * GetPixelFormatSizeInBytes(m_Specification.Format);
@@ -359,17 +363,13 @@ namespace Nexus::Graphics
 					vkCmdCopyImageToBuffer(cmd, m_Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, m_StagingBuffer.Buffer, 1, &copyRegion);
 				});
 
-			std::vector<std::byte> pixels(size);
+			pixels.resize(size);
 
 			void *buffer;
 			vmaMapMemory(m_GraphicsDevice->GetAllocator(), m_StagingBuffer.Allocation, &buffer);
 			memcpy(pixels.data(), buffer, pixels.size());
 			vmaUnmapMemory(m_GraphicsDevice->GetAllocator(), m_StagingBuffer.Allocation);
-
-			return pixels;
 		}
-
-		return std::vector<std::byte>();
 	}
 
 	VkImage Cubemap_Vk::GetImage()

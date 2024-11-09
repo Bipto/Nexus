@@ -154,9 +154,9 @@ namespace Nexus::GL
 		uint32_t				 textureWidth  = m_Framebuffer->GetFramebufferSpecification().Width;
 		uint32_t				 textureHeight = m_Framebuffer->GetFramebufferSpecification().Height;
 		Ref<Graphics::Texture2D> texture	   = m_Framebuffer->GetColorTexture(0);
-		std::vector<std::byte>	 pixels		   = texture->GetData(0, 0, 0, textureWidth, textureHeight);
+		texture->GetData(m_Pixels, 0, 0, 0, textureWidth, textureHeight);
 
-		transfer_pixels_to_canvas(m_CanvasName.c_str(), pixels.data(), (int)textureWidth, (int)textureHeight);
+		transfer_pixels_to_canvas(m_CanvasName.c_str(), m_Pixels.data(), (int)textureWidth, (int)textureHeight);
 	}
 
 	void Nexus::GL::ViewContextWebGL::SetVSync(bool enabled)

@@ -71,7 +71,8 @@ namespace Nexus::Graphics
 		// virtual void SetData(const void *data, uint32_t size, uint32_t level) = 0;
 		virtual void SetData(const void *data, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
 
-		virtual std::vector<std::byte> GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
+		virtual void		   GetData(std::vector<std::byte> &pixels, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
+		std::vector<std::byte> GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height);
 
 		const Texture2DSpecification &GetSpecification();
 		uint32_t					  GetLevels() const;
@@ -102,7 +103,14 @@ namespace Nexus::Graphics
 		virtual ~Cubemap();
 
 		virtual void SetData(const void *data, CubemapFace face, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
-		virtual std::vector<std::byte> GetData(CubemapFace face, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
+		std::vector<std::byte> GetData(CubemapFace face, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height);
+		virtual void		   GetData(std::vector<std::byte> &pixels,
+									   CubemapFace			   face,
+									   uint32_t				   level,
+									   uint32_t				   x,
+									   uint32_t				   y,
+									   uint32_t				   width,
+									   uint32_t				   height) = 0;
 
 		const CubemapSpecification &GetSpecification() const;
 		uint32_t					GetLevels() const;

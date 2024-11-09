@@ -26,6 +26,7 @@ namespace Nexus::GL
 		std::string							   m_CanvasName	   = {};
 
 		Ref<Graphics::Framebuffer> m_Framebuffer = nullptr;
+		std::vector<std::byte>	   m_Pixels		 = {};
 	};
 };	  // namespace Nexus::GL
 

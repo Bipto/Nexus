@@ -147,7 +147,7 @@ namespace Nexus::Graphics
 			});
 	}
 
-	std::vector<std::byte> Texture2D_D3D12::GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+	void Texture2D_D3D12::GetData(std::vector<std::byte> &pixels, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 	{
 		ID3D12Device10		*d3d12Device = m_Device->GetDevice();
 		D3D12_RESOURCE_DESC1 textureDesc = m_Texture->GetDesc1();
@@ -238,7 +238,7 @@ namespace Nexus::Graphics
 				cmd->ResourceBarrier(1, &toDefaultBarrier);
 			});
 
-		std::vector<std::byte> pixels(totalBytes);
+		pixels.resize(totalBytes);
 
 		void	   *uploadBufferAddress;
 		D3D12_RANGE readRange;
@@ -248,8 +248,6 @@ namespace Nexus::Graphics
 		readbackBuffer->Map(0, &readRange, &uploadBufferAddress);
 		memcpy(pixels.data(), uploadBufferAddress, pixels.size());
 		readbackBuffer->Unmap(0, nullptr);
-
-		return pixels;
 	}
 
 	DXGI_FORMAT Texture2D_D3D12::GetFormat()
@@ -437,7 +435,13 @@ namespace Nexus::Graphics
 			});
 	}
 
-	std::vector<std::byte> Cubemap_D3D12::GetData(CubemapFace face, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+	void Cubemap_D3D12::GetData(std::vector<std::byte> &pixels,
+								CubemapFace				face,
+								uint32_t				level,
+								uint32_t				x,
+								uint32_t				y,
+								uint32_t				width,
+								uint32_t				height)
 	{
 		ID3D12Device10		*d3d12Device = m_Device->GetDevice();
 		D3D12_RESOURCE_DESC1 textureDesc = m_Texture->GetDesc1();
@@ -528,7 +532,7 @@ namespace Nexus::Graphics
 				cmd->ResourceBarrier(1, &toDefaultBarrier);
 			});
 
-		std::vector<std::byte> pixels(totalBytes);
+		pixels.resize(totalBytes);
 
 		void	   *uploadBufferAddress;
 		D3D12_RANGE readRange;
@@ -538,8 +542,6 @@ namespace Nexus::Graphics
 		readbackBuffer->Map(0, &readRange, &uploadBufferAddress);
 		memcpy(pixels.data(), uploadBufferAddress, pixels.size());
 		readbackBuffer->Unmap(0, nullptr);
-
-		return pixels;
 	}
 
 	DXGI_FORMAT Cubemap_D3D12::GetFormat()

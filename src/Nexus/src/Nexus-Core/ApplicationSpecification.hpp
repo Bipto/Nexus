@@ -34,12 +34,6 @@ namespace Nexus::Graphics
 		/// @brief Graphics will be created using OpenGL
 		OpenGL,
 
-		/// @brief Graphics will be created using OpenGLES
-		OpenGLES,
-
-		/// @brief Graphics will be created using WebGL
-		WebGL,
-
 		/// @brief Graphics will be created using Direct3D12
 		D3D12,
 

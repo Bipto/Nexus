@@ -12,6 +12,7 @@ namespace Nexus::Graphics
 		{
 			case VSyncState::Enabled: return VK_PRESENT_MODE_FIFO_KHR;
 			case VSyncState::Disabled: return VK_PRESENT_MODE_IMMEDIATE_KHR;
+			default: throw std::runtime_error("Failed to find a valid present mode");
 		}
 	}
 

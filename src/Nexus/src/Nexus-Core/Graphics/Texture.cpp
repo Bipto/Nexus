@@ -12,6 +12,13 @@ namespace Nexus::Graphics
 	{
 	}
 
+	std::vector<std::byte> Texture2D::GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+	{
+		std::vector<std::byte> pixels;
+		GetData(pixels, level, x, y, width, height);
+		return pixels;
+	}
+
 	const Texture2DSpecification &Texture2D::GetSpecification()
 	{
 		return m_Specification;
@@ -28,6 +35,13 @@ namespace Nexus::Graphics
 
 	Cubemap::~Cubemap()
 	{
+	}
+
+	std::vector<std::byte> Cubemap::GetData(CubemapFace face, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+	{
+		std::vector<std::byte> pixels;
+		GetData(pixels, face, level, x, y, width, height);
+		return pixels;
 	}
 
 	const CubemapSpecification &Cubemap::GetSpecification() const

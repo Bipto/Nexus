@@ -76,6 +76,8 @@ namespace Nexus::Audio
 				}
 			}
 		}
+
+		throw std::runtime_error("Failed to find a valid audio format");
 	}
 
 	Ref<AudioBuffer> AudioDeviceOpenAL::CreateAudioBufferFromWavFile(const std::string &filepath)

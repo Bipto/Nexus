@@ -53,6 +53,11 @@ namespace Nexus::Graphics
 	Texture2DOpenGL::~Texture2DOpenGL()
 	{
 		glCall(glDeleteTextures(1, &this->m_Handle));
+
+		if (m_Framebuffer)
+		{
+			glCall(glDeleteFramebuffers(1, &m_Framebuffer));
+		}
 	}
 
 	void Texture2DOpenGL::SetData(const void *data, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
@@ -61,25 +66,25 @@ namespace Nexus::Graphics
 		glCall(glTexSubImage2D(m_TextureType, level, x, y, width, height, m_DataFormat, m_BaseType, data));
 	}
 
-	std::vector<std::byte> Texture2DOpenGL::GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+	void Texture2DOpenGL::GetData(std::vector<std::byte> &pixels, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 	{
-		size_t				   bufferSize = (width - x) * (height - y) * GetPixelFormatSizeInBits(m_Specification.Format);
-		std::vector<std::byte> data(bufferSize);
+		size_t bufferSize = (width - x) * (height - y) * GetPixelFormatSizeInBits(m_Specification.Format);
 
-		// OpenGL only allows pixel data to be read from a framebuffer so we create a
-		// temporary one
-		uint32_t framebufferId = 0;
-		glCall(glGenFramebuffers(1, &framebufferId));
-		glCall(glBindFramebuffer(GL_FRAMEBUFFER, framebufferId));
+		if (pixels.size() < bufferSize)
+		{
+			pixels.resize(bufferSize);
+		}
 
-		glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_TextureType, m_Handle, level));
+		// create the framebuffer if it does not exist
+		if (!m_Framebuffer)
+		{
+			glCall(glGenFramebuffers(1, &m_Framebuffer));
+			glCall(glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer));
+			glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_TextureType, m_Handle, level));
+		}
+
 		glCall(glReadBuffer(GL_COLOR_ATTACHMENT0));
-		glCall(glReadPixels(x, y, width, height, m_DataFormat, m_BaseType, data.data()));
-
-		// clean up framebuffer
-		glCall(glDeleteFramebuffers(1, &framebufferId));
-
-		return data;
+		glCall(glReadPixels(x, y, width, height, m_DataFormat, m_BaseType, pixels.data()));
 	}
 
 	unsigned int Texture2DOpenGL::GetHandle()
@@ -139,6 +144,11 @@ namespace Nexus::Graphics
 	CubemapOpenGL::~CubemapOpenGL()
 	{
 		glCall(glDeleteTextures(1, &m_Handle));
+
+		if (m_Framebuffer)
+		{
+			glCall(glDeleteFramebuffers(1, &m_Framebuffer));
+		}
 	}
 
 	void CubemapOpenGL::SetData(const void *data, CubemapFace face, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
@@ -148,24 +158,31 @@ namespace Nexus::Graphics
 		glCall(glTexSubImage2D(glFace, level, x, y, width, height, m_DataFormat, m_BaseType, data));
 	}
 
-	std::vector<std::byte> CubemapOpenGL::GetData(CubemapFace face, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+	void CubemapOpenGL::GetData(std::vector<std::byte> &pixels,
+								CubemapFace				face,
+								uint32_t				level,
+								uint32_t				x,
+								uint32_t				y,
+								uint32_t				width,
+								uint32_t				height)
 	{
-		GLenum				   glFace	  = GL::GLCubemapFace(face);
-		size_t				   bufferSize = (width - x) * (height - y) * GetPixelFormatSizeInBits(m_Specification.Format);
-		std::vector<std::byte> data(bufferSize);
+		size_t bufferSize = (width - x) * (height - y) * GetPixelFormatSizeInBits(m_Specification.Format);
+		GLenum glFace	  = GL::GLCubemapFace(face);
 
-		uint32_t framebufferId = 0;
-		glCall(glGenFramebuffers(1, &framebufferId));
-		glCall(glBindFramebuffer(GL_FRAMEBUFFER, framebufferId));
+		if (pixels.size() < bufferSize)
+		{
+			pixels.resize(bufferSize);
+		}
 
-		glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, glFace, GL_TEXTURE_2D, m_Handle, level));
+		if (!m_Framebuffer)
+		{
+			glCall(glGenFramebuffers(1, &m_Framebuffer));
+			glCall(glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer));
+			glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, glFace, GL_TEXTURE_2D, m_Handle, level));
+		}
 
 		glCall(glReadBuffer(glFace));
-		glCall(glReadPixels(x, y, width, height, m_DataFormat, m_BaseType, data.data()));
-
-		glCall(glDeleteFramebuffers(1, &framebufferId));
-
-		return data;
+		glCall(glReadPixels(x, y, width, height, m_DataFormat, m_BaseType, pixels.data()));
 	}
 
 	unsigned int CubemapOpenGL::GetHandle()
