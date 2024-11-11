@@ -82,6 +82,8 @@ file (GLOB_RECURSE ENGINE_SOURCES
  src/Platform/D3D12/*.cpp
  src/Platform/SDL3/*.hpp
  src/Platform/SDL3/*.cpp
+ src/Platform/Software/*.hpp
+ src/Platform/Software/*.cpp
  )
 
 add_library(Nexus ${ENGINE_HEADERS} ${ENGINE_SOURCES})
@@ -123,7 +125,7 @@ if (EMSCRIPTEN)
       Nexus
         PROPERTIES
         LINK_FLAGS
-        "--std=c++20 -Os -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sFULL_ES2=1 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS -sNO_DISABLE_EXCEPTION_CATCHING -lopenal -sGL_ENABLE_GET_PROC_ADDRESS"
+        "--std=c++20 -Os -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sFULL_ES2=1 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS -sNO_DISABLE_EXCEPTION_CATCHING -lopenal -lembind -sGL_ENABLE_GET_PROC_ADDRESS"
     )
 
     set_target_properties(Nexus PROPERTIES COMPILE_FLAGS "-Os")

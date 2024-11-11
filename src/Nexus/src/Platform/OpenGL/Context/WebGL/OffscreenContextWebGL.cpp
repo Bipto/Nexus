@@ -5,8 +5,15 @@
 namespace Nexus::GL
 {
 	EM_JS(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE, create_offscreen_context, (int width, int height), {
-		var offscreenCanvas = new OffscreenCanvas(width, height);
-		var gl				= offscreenCanvas.getContext('webgl2');
+		var newCanvas	 = document.createElement('canvas');
+		newCanvas.width	 = width;
+		newCanvas.height = height;
+		newCanvas.id	 = 'offscreenCanvas';
+
+		document.body.appendChild(newCanvas);
+
+		var gl = newCanvas.getContext('webgl2');
+
 		return GL.registerContext(gl, {majorVersion: 2, minorVersion: 0});
 	});
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SDL.h"
+#include "SDL_surface.h"
 
 #include "Nexus-Core/Input/Event.hpp"
 #include "Nexus-Core/Input/Gamepad.hpp"

@@ -38,7 +38,10 @@ namespace Nexus::Graphics
 		D3D12,
 
 		/// @brief Graphics will be created using Vulkan
-		Vulkan
+		Vulkan,
+
+		/// @brief Graphics will be created using software rendering
+		Software
 	};
 
 	struct SwapchainSpecification

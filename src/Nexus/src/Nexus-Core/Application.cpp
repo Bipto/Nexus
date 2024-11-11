@@ -18,6 +18,8 @@
 	#include "Platform/OpenAL/AudioDeviceOpenAL.hpp"
 #endif
 
+#include "Platform/Software/GraphicsDeviceSoftware.hpp"
+
 #include "Nexus-Core/Input/Input.hpp"
 #include "Nexus-Core/Logging/Log.hpp"
 
@@ -192,6 +194,9 @@ namespace Nexus
 #if defined(NX_PLATFORM_VULKAN)
 			case Graphics::GraphicsAPI::Vulkan: return new Graphics::GraphicsDeviceVk(createInfo, window, swapchainSpec);
 #endif
+
+			case Graphics::GraphicsAPI::Software: return new Graphics::GraphicsDeviceSoftware(createInfo, window, swapchainSpec);
+
 			default: throw std::runtime_error("Attempting to run application with unsupported graphics API"); return nullptr;
 		}
 	}

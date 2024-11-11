@@ -5,15 +5,11 @@
 #include "Nexus-Core/Utils/Utils.hpp"
 #include "Nexus.hpp"
 
-#include "Nexus-Core/UI/Canvas.hpp"
-
 class Sandbox : public Nexus::Application
 {
   public:
 	explicit Sandbox(const Nexus::ApplicationSpecification &spec) : Nexus::Application(spec)
 	{
-		Nexus::LayerStack &layerStack = m_GraphicsDevice->GetPrimaryWindow()->GetLayerStack();
-		layerStack.PushOverlay(new Nexus::Canvas(m_GraphicsDevice));
 	}
 
 	virtual void Load() override
@@ -26,6 +22,8 @@ class Sandbox : public Nexus::Application
 
 	virtual void Render(Nexus::TimeSpan time) override
 	{
+		m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
+		m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->SwapBuffers();
 	}
 
 	virtual void OnResize(Nexus::Point2D<uint32_t> size) override
@@ -44,7 +42,7 @@ class Sandbox : public Nexus::Application
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
 	Nexus::ApplicationSpecification spec;
-	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
+	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Software;
 	spec.AudioAPI	 = Nexus::Audio::AudioAPI::OpenAL;
 
 	spec.WindowProperties.Width		= 1280;

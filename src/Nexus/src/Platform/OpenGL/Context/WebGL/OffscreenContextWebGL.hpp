@@ -6,8 +6,10 @@
 	#include "Platform/OpenGL/Context/IOffscreenContext.hpp"
 
 	#include <GLES3/gl3.h>
+
 	#include <emscripten/emscripten.h>
 	#include <emscripten/html5.h>
+	#include <emscripten/val.h>
 
 namespace Nexus::GL
 {
