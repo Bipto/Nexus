@@ -14,6 +14,7 @@ class Sandbox : public Nexus::Application
 
 	virtual void Load() override
 	{
+		m_CommandList = m_GraphicsDevice->CreateCommandList();
 	}
 
 	virtual void Update(Nexus::TimeSpan time) override
@@ -23,6 +24,9 @@ class Sandbox : public Nexus::Application
 	virtual void Render(Nexus::TimeSpan time) override
 	{
 		m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
+
+		m_GraphicsDevice->SubmitCommandList(m_CommandList);
+
 		m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->SwapBuffers();
 	}
 
@@ -37,6 +41,9 @@ class Sandbox : public Nexus::Application
 	virtual void Unload() override
 	{
 	}
+
+  private:
+	Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList = nullptr;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)

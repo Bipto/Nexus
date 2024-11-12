@@ -34,5 +34,7 @@ namespace Nexus::Graphics
 
 		SDL_Surface	  *m_ScreenSurface = nullptr;
 		Nexus::EventID m_ResizeEvent   = 0;
+
+		uint8_t *m_Pixels = nullptr;
 	};
 }	 // namespace Nexus::Graphics

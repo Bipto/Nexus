@@ -58,21 +58,6 @@ namespace Nexus::D3D12
 			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_SInt: return DXGI_FORMAT_R32G32B32A32_SINT;
 			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float: return DXGI_FORMAT_R32G32B32A32_FLOAT;
 
-			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm:
-			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm: return DXGI_FORMAT_BC1_UNORM;
-			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm_SRGB:
-			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm_SRGB: return DXGI_FORMAT_BC1_UNORM_SRGB;
-			case Nexus::Graphics::PixelFormat::BC2_UNorm: return DXGI_FORMAT_BC2_UNORM;
-			case Nexus::Graphics::PixelFormat::BC2_UNorm_SRGB: return DXGI_FORMAT_BC2_UNORM_SRGB;
-			case Nexus::Graphics::PixelFormat::BC3_UNorm: return DXGI_FORMAT_BC3_UNORM;
-			case Nexus::Graphics::PixelFormat::BC3_UNorm_SRGB: return DXGI_FORMAT_BC3_UNORM_SRGB;
-			case Nexus::Graphics::PixelFormat::BC4_UNorm: return DXGI_FORMAT_BC4_UNORM;
-			case Nexus::Graphics::PixelFormat::BC4_SNorm: return DXGI_FORMAT_BC4_SNORM;
-			case Nexus::Graphics::PixelFormat::BC5_UNorm: return DXGI_FORMAT_BC5_UNORM;
-			case Nexus::Graphics::PixelFormat::BC5_SNorm: return DXGI_FORMAT_BC5_SNORM;
-			case Nexus::Graphics::PixelFormat::BC7_UNorm: return DXGI_FORMAT_BC7_UNORM;
-			case Nexus::Graphics::PixelFormat::BC7_UNorm_SRGB: return DXGI_FORMAT_BC7_UNORM_SRGB;
-
 			case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt: assert(isDepth); return DXGI_FORMAT_D24_UNORM_S8_UINT;
 			case Nexus::Graphics::PixelFormat::D32_Float_S8_UInt: assert(isDepth); return DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
 

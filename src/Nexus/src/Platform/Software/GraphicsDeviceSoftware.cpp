@@ -1,5 +1,8 @@
 #include "GraphicsDeviceSoftware.hpp"
 
+#include "Platform/Software/CommandExecutorSoftware.hpp"
+#include "Platform/Software/CommandListSoftware.hpp"
+
 namespace Nexus::Graphics
 {
 	GraphicsDeviceSoftware::GraphicsDeviceSoftware(const GraphicsDeviceSpecification &createInfo,
@@ -26,6 +29,11 @@ namespace Nexus::Graphics
 
 	void GraphicsDeviceSoftware::SubmitCommandList(Ref<CommandList> commandList)
 	{
+		auto commandListSoftware = std::dynamic_pointer_cast<CommandListSoftware>(commandList);
+
+		const std::vector<Nexus::Graphics::RenderCommandData> &commands = commandListSoftware->GetCommandData();
+		m_CommandExecutor.ExecuteCommands(commands, this);
+		m_CommandExecutor.Reset();
 	}
 
 	Ref<Pipeline> GraphicsDeviceSoftware::CreatePipeline(const PipelineDescription &description)
@@ -50,7 +58,7 @@ namespace Nexus::Graphics
 
 	Ref<CommandList> GraphicsDeviceSoftware::CreateCommandList(const CommandListSpecification &spec)
 	{
-		return Ref<CommandList>();
+		return CreateRef<CommandListSoftware>(spec);
 	}
 
 	Ref<Texture2D> GraphicsDeviceSoftware::CreateTexture2D(const Texture2DSpecification &spec)

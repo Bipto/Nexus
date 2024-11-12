@@ -1,5 +1,6 @@
 #pragma once
 
+#include "CommandExecutorSoftware.hpp"
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 
 namespace Nexus::Graphics
@@ -37,5 +38,8 @@ namespace Nexus::Graphics
 
 	  private:
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) override;
+
+	  private:
+		CommandExecutorSoftware m_CommandExecutor = {};
 	};
 }	 // namespace Nexus::Graphics

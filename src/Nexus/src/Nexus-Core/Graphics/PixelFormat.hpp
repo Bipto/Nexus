@@ -7,20 +7,6 @@ namespace Nexus::Graphics
 		None = 0,
 		B8_G8_R8_A8_UNorm,
 		B8_G8_R8_A8_UNorm_SRGB,
-		BC1_Rgb_UNorm,
-		BC1_Rgb_UNorm_SRGB,
-		BC1_Rgba_UNorm,
-		BC1_Rgba_UNorm_SRGB,
-		BC2_UNorm,
-		BC2_UNorm_SRGB,
-		BC3_UNorm,
-		BC3_UNorm_SRGB,
-		BC4_SNorm,
-		BC4_UNorm,
-		BC5_SNorm,
-		BC5_UNorm,
-		BC7_UNorm,
-		BC7_UNorm_SRGB,
 		D24_UNorm_S8_UInt,
 		D32_Float_S8_UInt,
 		R10_G10_B10_A2_UInt,
@@ -72,20 +58,6 @@ namespace Nexus::Graphics
 		{
 			case PixelFormat::B8_G8_R8_A8_UNorm:
 			case PixelFormat::B8_G8_R8_A8_UNorm_SRGB: return 32;
-			case PixelFormat::BC1_Rgb_UNorm:
-			case PixelFormat::BC1_Rgb_UNorm_SRGB:
-			case PixelFormat::BC1_Rgba_UNorm:
-			case PixelFormat::BC1_Rgba_UNorm_SRGB:
-			case PixelFormat::BC2_UNorm:
-			case PixelFormat::BC2_UNorm_SRGB:
-			case PixelFormat::BC3_UNorm:
-			case PixelFormat::BC3_UNorm_SRGB:
-			case PixelFormat::BC4_SNorm:
-			case PixelFormat::BC4_UNorm:
-			case PixelFormat::BC5_SNorm:
-			case PixelFormat::BC5_UNorm:
-			case PixelFormat::BC7_UNorm:
-			case PixelFormat::BC7_UNorm_SRGB: throw std::runtime_error("Getting a size in bytes is not supported on compressed formats");
 
 			case PixelFormat::D24_UNorm_S8_UInt: return 32;
 			case PixelFormat::D32_Float_S8_UInt: return 40;
@@ -144,25 +116,6 @@ namespace Nexus::Graphics
 	{
 		switch (format)
 		{
-			case PixelFormat::B8_G8_R8_A8_UNorm:
-			case PixelFormat::B8_G8_R8_A8_UNorm_SRGB: return 4;
-			case PixelFormat::BC1_Rgb_UNorm:
-			case PixelFormat::BC1_Rgb_UNorm_SRGB:
-			case PixelFormat::BC1_Rgba_UNorm:
-			case PixelFormat::BC1_Rgba_UNorm_SRGB:
-			case PixelFormat::BC2_UNorm:
-			case PixelFormat::BC2_UNorm_SRGB:
-			case PixelFormat::BC3_UNorm:
-			case PixelFormat::BC3_UNorm_SRGB:
-			case PixelFormat::BC4_SNorm:
-			case PixelFormat::BC4_UNorm:
-			case PixelFormat::BC5_SNorm:
-			case PixelFormat::BC5_UNorm:
-			case PixelFormat::BC7_UNorm:
-			case PixelFormat::BC7_UNorm_SRGB:
-				throw std::runtime_error("Getting the number of channels is not supported "
-										 "on compressed formats");
-
 			case PixelFormat::D24_UNorm_S8_UInt: return 2;
 			case PixelFormat::D32_Float_S8_UInt: return 2;
 			case PixelFormat::R10_G10_B10_A2_UInt:
