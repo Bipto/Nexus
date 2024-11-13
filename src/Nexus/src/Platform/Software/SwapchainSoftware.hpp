@@ -29,9 +29,6 @@ namespace Nexus::Graphics
 		Window	  *m_Window;
 		VSyncState m_VsyncState;
 
-		uint32_t m_SwapchainWidth  = 0;
-		uint32_t m_SwapchainHeight = 0;
-
 		SDL_Surface	  *m_ScreenSurface = nullptr;
 		Nexus::EventID m_ResizeEvent   = 0;
 

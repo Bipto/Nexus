@@ -7,19 +7,20 @@ namespace Nexus::Graphics
 		  m_Window(window)
 	{
 		GetScreenSurface();
-		m_Pixels = new uint8_t[m_SwapchainWidth * m_SwapchainHeight * 4];
+		m_Pixels = new uint8_t[m_ScreenSurface->w * m_ScreenSurface->h * 4];
 
 		m_ResizeEvent = window->OnResize.Bind(
 			[&](const WindowResizedEventArgs &args)
 			{
 				GetScreenSurface();
 				delete[] m_Pixels;
-				m_Pixels = new uint8_t[m_SwapchainWidth * m_SwapchainHeight * 4];
+				m_Pixels = new uint8_t[m_ScreenSurface->w * m_ScreenSurface->h * 4];
 			});
 	}
 
 	SwapchainSoftware::~SwapchainSoftware()
 	{
+		delete[] m_Pixels;
 		m_Window->OnResize.Unbind(m_ResizeEvent);
 	}
 
@@ -31,11 +32,11 @@ namespace Nexus::Graphics
 	{
 		for (int y = 0; y < m_ScreenSurface->h; y++)
 		{
-			for (int x = 0; x < m_ScreenSurface->w * 4; x += 4)
+			for (int x = 0; x < m_ScreenSurface->w; x++)
 			{
-				int index = y * m_SwapchainWidth + x;
+				int index = (y * m_ScreenSurface->w + x) * 4;
 
-				if (x == 100)
+				if (x > 100 && x < 500 && y > 100 && y < 500)
 				{
 					m_Pixels[index + 0] = 255;
 					m_Pixels[index + 1] = 0;
@@ -57,19 +58,17 @@ namespace Nexus::Graphics
 		Uint32 *pixels	   = (Uint32 *)m_ScreenSurface->pixels;
 		int		pixelCount = m_ScreenSurface->w * m_ScreenSurface->h;
 
+		uint32_t total = 0;
+
 		for (int y = 0; y < m_ScreenSurface->h; y++)
 		{
 			for (int x = 0; x < m_ScreenSurface->w; x++)
 			{
-				int surfaceIndex	 = y * m_SwapchainWidth + x;
-				int framebufferIndex = y * m_SwapchainWidth + (x * 4);
+				int		 index = (y * m_ScreenSurface->w + x) * 4;
+				uint32_t col   = SDL_MapRGBA(m_ScreenSurface->format, m_Pixels[index], m_Pixels[index + 1], m_Pixels[index + 2], m_Pixels[index + 3]);
+				pixels[y * m_ScreenSurface->w + x] = col;
 
-				uint8_t r = m_Pixels[framebufferIndex + 0];
-				uint8_t g = m_Pixels[framebufferIndex + 1];
-				uint8_t b = m_Pixels[framebufferIndex + 2];
-				uint8_t a = m_Pixels[framebufferIndex + 3];
-
-				pixels[surfaceIndex] = SDL_MapRGBA(m_ScreenSurface->format, r, g, b, a);
+				total++;
 			}
 		}
 
@@ -98,8 +97,6 @@ namespace Nexus::Graphics
 
 	void SwapchainSoftware::GetScreenSurface()
 	{
-		m_ScreenSurface	  = SDL_GetWindowSurface(m_Window->GetSDLWindowHandle());
-		m_SwapchainWidth  = m_ScreenSurface->w;
-		m_SwapchainHeight = m_ScreenSurface->h;
+		m_ScreenSurface = SDL_GetWindowSurface(m_Window->GetSDLWindowHandle());
 	}
 }	 // namespace Nexus::Graphics
