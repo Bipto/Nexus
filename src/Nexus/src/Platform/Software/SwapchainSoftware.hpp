@@ -24,6 +24,8 @@ namespace Nexus::Graphics
 		virtual void Prepare() override;
 
 		void GetScreenSurface();
+		void Clear(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+		void DrawQuad(uint32_t xPos, uint32_t yPos, uint32_t width, uint32_t height, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 
 	  private:
 		Window	  *m_Window;

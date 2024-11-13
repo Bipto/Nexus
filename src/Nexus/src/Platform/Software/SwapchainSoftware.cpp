@@ -30,28 +30,9 @@ namespace Nexus::Graphics
 
 	void SwapchainSoftware::SwapBuffers()
 	{
-		for (int y = 0; y < m_ScreenSurface->h; y++)
-		{
-			for (int x = 0; x < m_ScreenSurface->w; x++)
-			{
-				int index = (y * m_ScreenSurface->w + x) * 4;
-
-				if (x > 100 && x < 500 && y > 100 && y < 500)
-				{
-					m_Pixels[index + 0] = 255;
-					m_Pixels[index + 1] = 0;
-					m_Pixels[index + 2] = 0;
-					m_Pixels[index + 3] = 255;
-				}
-				else
-				{
-					m_Pixels[index + 0] = 0;
-					m_Pixels[index + 1] = 255;
-					m_Pixels[index + 2] = 0;
-					m_Pixels[index + 3] = 255;
-				}
-			}
-		}
+		Clear(255, 0, 0, 255);
+		DrawQuad(100, 100, 500, 500, 0, 255, 0, 255);
+		DrawQuad(500, 900, 200, 200, 0, 0, 255, 255);
 
 		SDL_LockSurface(m_ScreenSurface);
 
@@ -98,5 +79,40 @@ namespace Nexus::Graphics
 	void SwapchainSoftware::GetScreenSurface()
 	{
 		m_ScreenSurface = SDL_GetWindowSurface(m_Window->GetSDLWindowHandle());
+	}
+
+	void SwapchainSoftware::Clear(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+	{
+		for (int y = 0; y < m_ScreenSurface->h; y++)
+		{
+			for (int x = 0; x < m_ScreenSurface->w; x++)
+			{
+				int index = (y * m_ScreenSurface->w + x) * 4;
+
+				m_Pixels[index + 0] = r;
+				m_Pixels[index + 1] = g;
+				m_Pixels[index + 2] = b;
+				m_Pixels[index + 3] = a;
+			}
+		}
+	}
+
+	void SwapchainSoftware::DrawQuad(uint32_t xPos, uint32_t yPos, uint32_t width, uint32_t height, uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+	{
+		for (int y = 0; y < m_ScreenSurface->h; y++)
+		{
+			for (int x = 0; x < m_ScreenSurface->w; x++)
+			{
+				int index = (y * m_ScreenSurface->w + x) * 4;
+
+				if (x >= xPos && x <= xPos + width && y >= yPos && y <= yPos + height)
+				{
+					m_Pixels[index + 0] = r;
+					m_Pixels[index + 1] = g;
+					m_Pixels[index + 2] = b;
+					m_Pixels[index + 3] = a;
+				}
+			}
+		}
 	}
 }	 // namespace Nexus::Graphics
