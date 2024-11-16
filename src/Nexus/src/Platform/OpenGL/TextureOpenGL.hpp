@@ -13,7 +13,7 @@ namespace Nexus::Graphics
 		Texture2DOpenGL(const Texture2DSpecification &spec, GraphicsDevice *graphicsDevice);
 		~Texture2DOpenGL();
 		virtual void				   SetData(const void *data, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
-		virtual void GetData(std::vector<std::byte> &pixels, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
+		virtual void GetData(std::vector<unsigned char> &pixels, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
 
 		void Bind(uint32_t slot);
 
@@ -38,13 +38,13 @@ namespace Nexus::Graphics
 		CubemapOpenGL(const CubemapSpecification &spec, GraphicsDevice *graphicsDevice);
 		~CubemapOpenGL();
 		virtual void SetData(const void *data, CubemapFace face, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
-		virtual void GetData(std::vector<std::byte> &pixels,
-							 CubemapFace			 face,
-							 uint32_t				 level,
-							 uint32_t				 x,
-							 uint32_t				 y,
-							 uint32_t				 width,
-							 uint32_t				 height) override;
+		virtual void GetData(std::vector<unsigned char> &pixels,
+							 CubemapFace				 face,
+							 uint32_t					 level,
+							 uint32_t					 x,
+							 uint32_t					 y,
+							 uint32_t					 width,
+							 uint32_t					 height) override;
 
 		unsigned int GetHandle();
 		void		 Bind(uint32_t slot);

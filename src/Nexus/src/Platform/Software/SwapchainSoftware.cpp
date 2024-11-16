@@ -7,20 +7,18 @@ namespace Nexus::Graphics
 		  m_Window(window)
 	{
 		GetScreenSurface();
-		m_Pixels = new uint8_t[m_ScreenSurface->w * m_ScreenSurface->h * 4];
+		m_PixelBuffer = PixelBuffer(m_ScreenSurface->w, m_ScreenSurface->h);
 
 		m_ResizeEvent = window->OnResize.Bind(
 			[&](const WindowResizedEventArgs &args)
 			{
 				GetScreenSurface();
-				delete[] m_Pixels;
-				m_Pixels = new uint8_t[m_ScreenSurface->w * m_ScreenSurface->h * 4];
+				m_PixelBuffer = PixelBuffer(m_ScreenSurface->w, m_ScreenSurface->h);
 			});
 	}
 
 	SwapchainSoftware::~SwapchainSoftware()
 	{
-		delete[] m_Pixels;
 		m_Window->OnResize.Unbind(m_ResizeEvent);
 	}
 
@@ -30,6 +28,8 @@ namespace Nexus::Graphics
 
 	void SwapchainSoftware::SwapBuffers()
 	{
+		glm::vec2 points[] = {glm::vec2(0.3f, 0.3f), glm::vec2(0.7f, 0.3f), glm::vec2(0.5f, 0.7f)};
+
 		Clear(255, 0, 0, 255);
 		DrawQuad(100, 100, 500, 500, 0, 255, 0, 255);
 		DrawQuad(500, 900, 200, 200, 0, 0, 255, 255);
@@ -45,8 +45,8 @@ namespace Nexus::Graphics
 		{
 			for (int x = 0; x < m_ScreenSurface->w; x++)
 			{
-				int		 index = (y * m_ScreenSurface->w + x) * 4;
-				uint32_t col   = SDL_MapRGBA(m_ScreenSurface->format, m_Pixels[index], m_Pixels[index + 1], m_Pixels[index + 2], m_Pixels[index + 3]);
+				PixelR8G8B8A8 pixel				   = m_PixelBuffer.GetPixel(x, y);
+				uint32_t	  col				   = SDL_MapRGBA(m_ScreenSurface->format, pixel.r, pixel.g, pixel.b, pixel.a);
 				pixels[y * m_ScreenSurface->w + x] = col;
 
 				total++;
@@ -85,15 +85,7 @@ namespace Nexus::Graphics
 	{
 		for (int y = 0; y < m_ScreenSurface->h; y++)
 		{
-			for (int x = 0; x < m_ScreenSurface->w; x++)
-			{
-				int index = (y * m_ScreenSurface->w + x) * 4;
-
-				m_Pixels[index + 0] = r;
-				m_Pixels[index + 1] = g;
-				m_Pixels[index + 2] = b;
-				m_Pixels[index + 3] = a;
-			}
+			for (int x = 0; x < m_ScreenSurface->w; x++) { m_PixelBuffer.SetPixel(x, y, r, g, b, a); }
 		}
 	}
 
@@ -103,14 +95,9 @@ namespace Nexus::Graphics
 		{
 			for (int x = 0; x < m_ScreenSurface->w; x++)
 			{
-				int index = (y * m_ScreenSurface->w + x) * 4;
-
 				if (x >= xPos && x <= xPos + width && y >= yPos && y <= yPos + height)
 				{
-					m_Pixels[index + 0] = r;
-					m_Pixels[index + 1] = g;
-					m_Pixels[index + 2] = b;
-					m_Pixels[index + 3] = a;
+					m_PixelBuffer.SetPixel(x, y, r, g, b, a);
 				}
 			}
 		}

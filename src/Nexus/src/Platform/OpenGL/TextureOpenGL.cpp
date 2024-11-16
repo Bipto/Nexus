@@ -66,7 +66,7 @@ namespace Nexus::Graphics
 		glCall(glTexSubImage2D(m_TextureType, level, x, y, width, height, m_DataFormat, m_BaseType, data));
 	}
 
-	void Texture2DOpenGL::GetData(std::vector<std::byte> &pixels, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+	void Texture2DOpenGL::GetData(std::vector<unsigned char> &pixels, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 	{
 		size_t bufferSize = (width - x) * (height - y) * GetPixelFormatSizeInBits(m_Specification.Format);
 
@@ -158,13 +158,13 @@ namespace Nexus::Graphics
 		glCall(glTexSubImage2D(glFace, level, x, y, width, height, m_DataFormat, m_BaseType, data));
 	}
 
-	void CubemapOpenGL::GetData(std::vector<std::byte> &pixels,
-								CubemapFace				face,
-								uint32_t				level,
-								uint32_t				x,
-								uint32_t				y,
-								uint32_t				width,
-								uint32_t				height)
+	void CubemapOpenGL::GetData(std::vector<unsigned char> &pixels,
+								CubemapFace					face,
+								uint32_t					level,
+								uint32_t					x,
+								uint32_t					y,
+								uint32_t					width,
+								uint32_t					height)
 	{
 		size_t bufferSize = (width - x) * (height - y) * GetPixelFormatSizeInBits(m_Specification.Format);
 		GLenum glFace	  = GL::GLCubemapFace(face);

@@ -12,9 +12,9 @@ namespace Nexus::Graphics
 	{
 	}
 
-	std::vector<std::byte> Texture2D::GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+	std::vector<unsigned char> Texture2D::GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 	{
-		std::vector<std::byte> pixels;
+		std::vector<unsigned char> pixels;
 		GetData(pixels, level, x, y, width, height);
 		return pixels;
 	}
@@ -37,9 +37,9 @@ namespace Nexus::Graphics
 	{
 	}
 
-	std::vector<std::byte> Cubemap::GetData(CubemapFace face, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+	std::vector<unsigned char> Cubemap::GetData(CubemapFace face, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 	{
-		std::vector<std::byte> pixels;
+		std::vector<unsigned char> pixels;
 		GetData(pixels, face, level, x, y, width, height);
 		return pixels;
 	}

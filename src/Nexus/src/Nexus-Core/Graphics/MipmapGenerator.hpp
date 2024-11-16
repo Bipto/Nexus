@@ -9,14 +9,14 @@ namespace Nexus::Graphics
 	{
 	  public:
 		MipData() = delete;
-		MipData(const std::vector<std::byte> &pixels, uint32_t width, uint32_t height);
+		MipData(const std::vector<unsigned char> &pixels, uint32_t width, uint32_t height);
 
 		uint32_t	GetWidth() const;
 		uint32_t	GetHeight() const;
 		const void *GetData() const;
 
 	  private:
-		std::vector<std::byte> m_Pixels;
+		std::vector<unsigned char> m_Pixels;
 		uint32_t			   m_Width	= 0;
 		uint32_t			   m_Height = 0;
 	};

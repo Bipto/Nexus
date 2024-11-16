@@ -186,7 +186,7 @@ namespace Nexus::Graphics
 			m_Device->SubmitCommandList(commandList);
 
 			Ref<Texture2D>		   colourTexture = framebuffer->GetColorTexture(0);
-			std::vector<std::byte> pixels		 = colourTexture->GetData(0, 0, 0, size, size);
+			std::vector<unsigned char> pixels		 = colourTexture->GetData(0, 0, 0, size, size);
 
 			cubemap->SetData(pixels.data(), face, 0, 0, 0, size, size);
 		}

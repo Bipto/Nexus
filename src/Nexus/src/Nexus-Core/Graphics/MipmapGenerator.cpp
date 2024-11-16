@@ -116,7 +116,7 @@ namespace Nexus::Graphics
 				uint32_t framebufferWidth  = framebufferTexture->GetSpecification().Width;
 				uint32_t framebufferHeight = framebufferTexture->GetSpecification().Height;
 
-				std::vector<std::byte> pixels = framebufferTexture->GetData(0, 0, 0, framebufferWidth, framebufferHeight);
+				std::vector<unsigned char> pixels = framebufferTexture->GetData(0, 0, 0, framebufferWidth, framebufferHeight);
 				MipData				   mipData(pixels, framebufferWidth, framebufferHeight);
 				texture->SetData(mipData.GetData(), i, 0, 0, framebufferWidth, framebufferHeight);
 
@@ -130,7 +130,7 @@ namespace Nexus::Graphics
 		return std::floor(std::log2(std::max(width, height)));
 	}
 
-	MipData::MipData(const std::vector<std::byte> &pixels, uint32_t width, uint32_t height) : m_Pixels(pixels), m_Width(width), m_Height(height)
+	MipData::MipData(const std::vector<unsigned char> &pixels, uint32_t width, uint32_t height) : m_Pixels(pixels), m_Width(width), m_Height(height)
 	{
 	}
 

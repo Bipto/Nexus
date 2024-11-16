@@ -3,6 +3,8 @@
 #include "Nexus-Core/Graphics/Swapchain.hpp"
 #include "Nexus-Core/Window.hpp"
 
+#include "PixelBuffer.hpp"
+
 #include "Platform/SDL3/SDL3Include.hpp"
 
 namespace Nexus::Graphics
@@ -34,6 +36,6 @@ namespace Nexus::Graphics
 		SDL_Surface	  *m_ScreenSurface = nullptr;
 		Nexus::EventID m_ResizeEvent   = 0;
 
-		uint8_t *m_Pixels = nullptr;
+		PixelBuffer m_PixelBuffer = {};
 	};
 }	 // namespace Nexus::Graphics
