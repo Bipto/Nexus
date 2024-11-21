@@ -626,7 +626,7 @@ namespace Nexus::GL
 	#elif defined(NX_PLATFORM_EGL)
 		#error Not implemented
 	#elif defined(NX_PLATFORM_WEBGL)
-		return std::make_unique<OffscreenContextWebGL>();
+		return std::make_unique<OffscreenContextWebGL>("offscreenContext");
 	#else
 		#error No OpenGL backend selected
 	#endif
