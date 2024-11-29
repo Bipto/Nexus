@@ -4,37 +4,53 @@
 
 namespace Nexus::GL
 {
-	EM_JS(void, create_offscreen_context, (const char *id, int width, int height), {
-		var newCanvas	 = document.createElement('canvas');
-		newCanvas.width	 = width;
-		newCanvas.height = height;
-		newCanvas.id			= UTF8ToString(id);
-		newCanvas.style.display = 'none';
+	EM_JS(void, create_offscreen_context, (const char *id), {
+		var canvasId				  = UTF8ToString(id);
+		var newCanvas				  = document.createElement('canvas');
+		newCanvas.id				  = canvasId;
+		newCanvas.style.left		  = '0px';
+		newCanvas.style.top			  = '0px';
+		newCanvas.style.zIndex		  = '1000';
+		newCanvas.style.position	  = 'fixed';
+		newCanvas.style.zIndex		  = '1000';
+		newCanvas.style.display		  = 'inline';
+		newCanvas.style.pointerEvents = 'none';
 
-		document.body.appendChild(newCanvas);
-	});
+		// document.body.appendChild(newCanvas);
 
-	EM_JS(void, resize_canvas_element, (const char *canvasId, int width, int height), {
-		var canvas	  = document.getElementById(UTF8ToString(canvasId));
-		canvas.width  = width;
-		canvas.height = height;
+		newCanvas.width		   = window.innerWidth * window.devicePixelRatio;
+		newCanvas.height	   = window.innerHeight * window.devicePixelRatio;
+		newCanvas.style.width  = window.innerWidth + 'px';
+		newCanvas.style.height = window.innerHeight + 'px';
+
+		document.body.prepend(newCanvas);
+
+		window.addEventListener(
+			'resize',
+			function(event) {
+				var element = document.getElementById(UTF8ToString(id));
+
+				// style.width/height resizes the physical control, .width/height resizes the OpenGL virtual canvas
+				//.width/height need to be scaled to physical pixels while style.width/height needs to be in CSS pixel units
+				element.width		 = window.innerWidth * window.devicePixelRatio;
+				element.height		 = window.innerHeight * window.devicePixelRatio;
+				element.style.width	 = window.innerWidth + 'px';
+				element.style.height = window.innerHeight + 'px';
+			},
+			true);
 	});
 
 	OffscreenContextWebGL::OffscreenContextWebGL(const std::string &canvasName) : m_CanvasName(canvasName)
 	{
 		m_CSS_Selector = std::string("#") + m_CanvasName;
 
-		create_offscreen_context(m_CanvasName.c_str(), m_Width, m_Height);
+		create_offscreen_context(m_CanvasName.c_str());
 
 		EmscriptenWebGLContextAttributes attr = {};
 		emscripten_webgl_init_context_attributes(&attr);
-		attr.antialias			   = EM_FALSE;
-		attr.majorVersion		   = 2;
-		attr.minorVersion		   = 0;
-		attr.preserveDrawingBuffer = EM_FALSE;
-		attr.antialias			   = EM_FALSE;
-		attr.powerPreference	   = EM_WEBGL_POWER_PREFERENCE_HIGH_PERFORMANCE;
-		// attr.renderViaOffscreenBackBuffer = EM_TRUE;
+		attr.antialias	  = EM_FALSE;
+		attr.majorVersion = 2;
+		attr.minorVersion = 0;
 
 		std::string cssSelector = GetCSS_SelectorString();
 
@@ -53,7 +69,8 @@ namespace Nexus::GL
 
 	bool OffscreenContextWebGL::MakeCurrent()
 	{
-		return emscripten_webgl_make_context_current(m_Context);
+		emscripten_webgl_make_context_current(m_Context);
+		return true;
 	}
 
 	const std::string &Nexus::GL::OffscreenContextWebGL::GetCanvasName()
@@ -66,20 +83,28 @@ namespace Nexus::GL
 		return m_CSS_Selector;
 	}
 
-	void Nexus::GL::OffscreenContextWebGL::Resize(uint32_t width, uint32_t height)
+	void Nexus::GL::OffscreenContextWebGL::Resize()
 	{
-		if (width > m_Width)
+		emscripten::val document = emscripten::val::global("document");
+		emscripten::val element	 = document.call<emscripten::val>("getElementById", m_CanvasName);
+
+		emscripten::val window = emscripten::val::global("window");
+
+		if (element.isUndefined() || element.isNull())
 		{
-			m_Width = width;
+			std::cout << "Could not find element" << std::endl;
+			return;
 		}
 
-		if (height > m_Height)
-		{
-			m_Height = height;
-		}
+		emscripten::val style = element["style"];
 
-		resize_canvas_element(m_CanvasName.c_str(), (int)m_Width, (int)m_Height);
+		int windowWidth	 = window["innerWidth"].as<int>();
+		int windowHeight = window["innerHeight"].as<int>();
+
+		style.set("width", windowWidth);
+		style.set("height", windowHeight);
 	}
+
 }	 // namespace Nexus::GL
 
 #endif

@@ -11,6 +11,8 @@
 	#include <emscripten/html5.h>
 	#include <emscripten/val.h>
 
+	#include "Nexus-Core/Point.hpp"
+
 namespace Nexus::GL
 {
 	class OffscreenContextWebGL : public IOffscreenContext
@@ -22,7 +24,7 @@ namespace Nexus::GL
 
 		const std::string &GetCanvasName();
 		const std::string &GetCSS_SelectorString();
-		void			   Resize(uint32_t width, uint32_t height);
+		void			   Resize();
 
 	  private:
 		std::string m_CanvasName   = {};

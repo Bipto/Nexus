@@ -21,12 +21,22 @@ namespace Nexus::GL
 		virtual const ContextSpecification &GetSpecification() const override;
 
 	  private:
+		unsigned int CreateShader();
+		unsigned int CreateVBO();
+		unsigned int CreateVAO();
+		unsigned int CreateShaderStage(const std::string &shader, GLenum stage);
+
+	  private:
 		Nexus::Graphics::GraphicsDeviceOpenGL *m_Device		   = nullptr;
 		ContextSpecification				   m_Specification = {};
 		std::string							   m_CanvasName	   = {};
 
 		Ref<Graphics::Framebuffer> m_Framebuffer = nullptr;
 		std::vector<unsigned char> m_Pixels		 = {};
+
+		unsigned int m_ShaderHandle = 0;
+		unsigned int m_VBO			= 0;
+		unsigned int m_VAO			= 0;
 	};
 };	  // namespace Nexus::GL
 
