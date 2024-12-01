@@ -63,14 +63,6 @@ namespace Nexus::GL
 		destCtx.transferFromImageBitmap(imageBitmap);
 	});
 
-	struct BoundingClientRect
-	{
-		double Left	  = 0;
-		double Top	  = 0;
-		double Width  = 0;
-		double Height = 0;
-	};
-
 	BoundingClientRect GetBoundingClientRect(const std::string &id)
 	{
 		emscripten::val document = emscripten::val::global("document");
@@ -95,11 +87,6 @@ namespace Nexus::GL
 		double top		  = rect["y"].as<double>();
 		double width	  = rect["width"].as<double>();
 		double height	  = rect["height"].as<double>();
-
-		/* 		emscripten::val ownerDocument = element["ownerDocument"];
-				emscripten::val defaultView	  = ownerDocument["defaultView"];
-
-				top += defaultView["pageYOffset"].as<double>(); */
 
 		return BoundingClientRect {.Left = left * pixelRatio, .Top = top * pixelRatio, .Width = width * pixelRatio, .Height = height * pixelRatio};
 	}
@@ -158,23 +145,7 @@ namespace Nexus::GL
 		  m_Specification(spec),
 		  m_CanvasName(canvasName)
 	{
-		BoundingClientRect rect = GetBoundingClientRect(m_CanvasName);
-
-		int width  = get_element_width(m_CanvasName.c_str());
-		int height = get_element_height(m_CanvasName.c_str());
-
-		Graphics::FramebufferSpecification framebufferSpec		 = {};
-		framebufferSpec.Width									 = (uint32_t)width;
-		framebufferSpec.Height									 = (uint32_t)height;
-		framebufferSpec.ColorAttachmentSpecification.Attachments = {Graphics::PixelFormat::R8_G8_B8_A8_UNorm};
-		framebufferSpec.DepthAttachmentSpecification			 = Graphics::PixelFormat::D24_UNorm_S8_UInt;
-		framebufferSpec.Samples									 = Graphics::SampleCount::SampleCount1;
-		m_Framebuffer											 = graphicsDevice->CreateFramebuffer(framebufferSpec);
-
-		m_ShaderHandle = CreateShader();
-		m_VBO		   = CreateVBO();
-		m_VAO		   = CreateVAO();
-
+		CreateFramebuffer();
 		attach_resize_handler(m_CanvasName.c_str());
 	}
 
@@ -228,65 +199,33 @@ namespace Nexus::GL
 
 		{
 			NX_PROFILE_SCOPE("Blit framebuffer");
-			// glBlitFramebuffer(0, 0, textureWidth, textureHeight, 0, 0, textureWidth, textureHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
 			BoundingClientRect fullscreenRect = GetBoundingClientRect(offscreenCanvasName);
 			BoundingClientRect viewRect		  = GetBoundingClientRect(m_CanvasName);
 
-			emscripten::val window		 = emscripten::val::global("window");
-			double			windowHeight = window["innerHeight"].as<double>();
+			std::chrono::steady_clock::time_point tickTime = std::chrono::steady_clock::now();
+			if (std::chrono::duration_cast<std::chrono::nanoseconds>(tickTime - m_Start).count() > 2)
+			{
+				if (viewRect.Width != m_BoundingClientRect.Width || viewRect.Height != m_BoundingClientRect.Height)
+				{
+					CreateFramebuffer();
+					m_BoundingClientRect = viewRect;
+				}
+				m_Start = std::chrono::steady_clock::now();
+			}
 
-			float left = viewRect.Left;
-			// float bottom = fullscreenRect.Height - (viewRect.Top + viewRect.Height);
-			// float viewportY = fullscreenRect.Height - (viewRect.Top + viewRect.Height);
-			float viewportY = windowHeight - (viewRect.Top + viewRect.Height);
-			// float scissorY	= fullscreenRect.Height - (viewRect.Height - viewRect.Top);
-			float scissorY = fullscreenRect.Height - (viewRect.Top + viewRect.Height);
-			float width	   = viewRect.Width;
-			float height   = viewRect.Height;
+			float x		 = viewRect.Left;
+			float y		 = fullscreenRect.Height - (viewRect.Top + viewRect.Height);
+			float width	 = viewRect.Width;
+			float height = viewRect.Height;
 
 			glEnable(GL_SCISSOR_TEST);
-			glViewport(left, scissorY, width, height);
-			glScissor(left, scissorY, width, height);
+			glViewport(x, y, width, height);
+			glScissor(x, y, width, height);
 
-			glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
+			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 			glClear(GL_COLOR_BUFFER_BIT);
-
-			/* glBlitFramebuffer(0,
-							  0,
-							  viewRect.Width,
-							  viewRect.Height,
-							  viewRect.Left,
-							  viewRect.Top,
-							  viewRect.Width,
-							  viewRect.Height,
-							  GL_COLOR_BUFFER_BIT,
-							  GL_NEAREST); */
-
-			/* glUseProgram(m_ShaderHandle);
-			Ref<Graphics::Texture2DOpenGL> colourTexture =
-				std::dynamic_pointer_cast<Graphics::Texture2DOpenGL>(framebufferOpenGL->GetColorTexture(0));
-			colourTexture->Bind(0);
-
-			glBindVertexArray(m_VAO);
-			glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-			glBindVertexArray(0);
-			glBindBuffer(GL_ARRAY_BUFFER, 0); */
-
-			glBlitFramebuffer(0, 0, textureWidth, textureHeight, left, scissorY, textureWidth, textureHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-		}
-
-		{
-			NX_PROFILE_SCOPE("Commit frame");
-			emscripten_webgl_commit_frame();
-		}
-
-		{
-			NX_PROFILE_SCOPE("Copy to 2D canvas");
-			// copy_webgl_canvas_to_2d_canvas(offscreenCanvasName.c_str(), m_CanvasName.c_str(), 0, 0, textureWidth, textureHeight);
-			// copyToBitmapContext(offscreenCanvasName.c_str(), m_CanvasName.c_str());
-			// copy_webgl_canvas_to_bitmap_renderer(offscreenCanvasName.c_str(), m_CanvasName.c_str(), 0, 0, textureWidth, textureHeight);
+			glBlitFramebuffer(0, 0, textureWidth, textureHeight, x, y, x + width, y + height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 		}
 	}
 
@@ -299,80 +238,22 @@ namespace Nexus::GL
 		return m_Specification;
 	}
 
-	unsigned int Nexus::GL::ViewContextWebGL::CreateShaderStage(const std::string &shader, GLenum stage)
+	void Nexus::GL::ViewContextWebGL::HandleResize()
 	{
-		unsigned int handle = glCreateShader(stage);
-		const char	*source = shader.c_str();
-		glShaderSource(handle, 1, &source, nullptr);
-		glCompileShader(handle);
-
-		int success;
-		glGetShaderiv(handle, GL_COMPILE_STATUS, &success);
-
-		if (!success)
-		{
-			char infoLog[512];
-			glGetShaderInfoLog(handle, 512, NULL, infoLog);
-			std::cout << infoLog << std::endl;
-		}
-
-		return handle;
+		CreateFramebuffer();
 	}
 
-	unsigned int Nexus::GL::ViewContextWebGL::CreateShader()
+	void Nexus::GL::ViewContextWebGL::CreateFramebuffer()
 	{
-		unsigned int vertexShader	= CreateShaderStage(c_VertexShader, GL_VERTEX_SHADER);
-		unsigned int fragmentShader = CreateShaderStage(c_FragmentShader, GL_FRAGMENT_SHADER);
+		BoundingClientRect rect = GetBoundingClientRect(m_CanvasName);
 
-		unsigned int program = glCreateProgram();
-
-		glAttachShader(program, vertexShader);
-		glAttachShader(program, fragmentShader);
-		glLinkProgram(program);
-
-		int success;
-		glGetProgramiv(program, GL_LINK_STATUS, &success);
-		if (!success)
-		{
-			char infoLog[512];
-			glGetProgramInfoLog(program, 512, nullptr, infoLog);
-			std::cout << infoLog << std::endl;
-		}
-
-		glDetachShader(program, vertexShader);
-		glDetachShader(program, fragmentShader);
-
-		return program;
-	}
-
-	unsigned int Nexus::GL::ViewContextWebGL::CreateVBO()
-	{
-		// layout: vec2 position - vec2 texCoord
-		float quadVertices[] = {-1.0f, 1.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, -1.0f, 1.0f, 0.0f,
-								-1.0f, 1.0f, 0.0f, 1.0f, 1.0f,	-1.0f, 1.0f, 0.0f, 1.0f, 1.0f,	1.0f, 1.0f};
-
-		unsigned int vbo = 0;
-
-		glGenBuffers(1, &vbo);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-		return vbo;
-	}
-
-	unsigned int Nexus::GL::ViewContextWebGL::CreateVAO()
-	{
-		unsigned int vao = 0;
-		glGenVertexArrays(1, &vao);
-
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(3 * sizeof(float)));
-		glBindVertexArray(0);
-
-		return vao;
+		Graphics::FramebufferSpecification framebufferSpec		 = {};
+		framebufferSpec.Width									 = (uint32_t)rect.Width;
+		framebufferSpec.Height									 = (uint32_t)rect.Height;
+		framebufferSpec.ColorAttachmentSpecification.Attachments = {Graphics::PixelFormat::R8_G8_B8_A8_UNorm};
+		framebufferSpec.DepthAttachmentSpecification			 = Graphics::PixelFormat::D24_UNorm_S8_UInt;
+		framebufferSpec.Samples									 = Graphics::SampleCount::SampleCount1;
+		m_Framebuffer											 = m_Device->CreateFramebuffer(framebufferSpec);
 	}
 
 }	 // namespace Nexus::GL

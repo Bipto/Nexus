@@ -8,6 +8,13 @@
 
 namespace Nexus::GL
 {
+	struct BoundingClientRect
+	{
+		double Left	  = 0;
+		double Top	  = 0;
+		double Width  = 0;
+		double Height = 0;
+	};
 	class ViewContextWebGL : public IViewContext
 	{
 	  public:
@@ -19,12 +26,10 @@ namespace Nexus::GL
 		virtual void						Swap() override;
 		virtual void						SetVSync(bool enabled) override;
 		virtual const ContextSpecification &GetSpecification() const override;
+		void								HandleResize();
 
 	  private:
-		unsigned int CreateShader();
-		unsigned int CreateVBO();
-		unsigned int CreateVAO();
-		unsigned int CreateShaderStage(const std::string &shader, GLenum stage);
+		void CreateFramebuffer();
 
 	  private:
 		Nexus::Graphics::GraphicsDeviceOpenGL *m_Device		   = nullptr;
@@ -32,11 +37,9 @@ namespace Nexus::GL
 		std::string							   m_CanvasName	   = {};
 
 		Ref<Graphics::Framebuffer> m_Framebuffer = nullptr;
-		std::vector<unsigned char> m_Pixels		 = {};
+		BoundingClientRect		   m_BoundingClientRect = {};
 
-		unsigned int m_ShaderHandle = 0;
-		unsigned int m_VBO			= 0;
-		unsigned int m_VAO			= 0;
+		std::chrono::steady_clock::time_point m_Start = std::chrono::steady_clock::now();
 	};
 };	  // namespace Nexus::GL
 
