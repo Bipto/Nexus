@@ -36,10 +36,9 @@ namespace Nexus::GL
 		ContextSpecification				   m_Specification = {};
 		std::string							   m_CanvasName	   = {};
 
-		Ref<Graphics::Framebuffer> m_Framebuffer = nullptr;
-		BoundingClientRect		   m_BoundingClientRect = {};
-
-		std::chrono::steady_clock::time_point m_Start = std::chrono::steady_clock::now();
+		Ref<Graphics::Framebuffer> m_Framebuffer			= nullptr;
+		BoundingClientRect		   m_BoundingClientRect		= {};
+		inline static bool		   s_WindowResizeRegistered = false;
 	};
 };	  // namespace Nexus::GL
 
