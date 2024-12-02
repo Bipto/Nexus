@@ -122,32 +122,26 @@ namespace Nexus::GL
 		uint32_t textureHeight = m_Framebuffer->GetFramebufferSpecification().Height;
 
 		Ref<Graphics::FramebufferOpenGL> framebufferOpenGL = std::dynamic_pointer_cast<Graphics::FramebufferOpenGL>(m_Framebuffer);
-		{
-			NX_PROFILE_SCOPE("Binding framebuffers");
 
-			glBindFramebuffer(GL_READ_FRAMEBUFFER, framebufferOpenGL->GetHandle());
-			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-		}
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, framebufferOpenGL->GetHandle());
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
-		{
-			NX_PROFILE_SCOPE("Blit framebuffer");
+		BoundingClientRect fullscreenRect = GetBoundingClientRect(offscreenCanvasName);
+		BoundingClientRect viewRect		  = GetBoundingClientRect(m_CanvasName);
 
-			BoundingClientRect fullscreenRect = GetBoundingClientRect(offscreenCanvasName);
-			BoundingClientRect viewRect		  = GetBoundingClientRect(m_CanvasName);
+		float x		 = viewRect.Left;
+		float y		 = fullscreenRect.Height - (viewRect.Top + viewRect.Height);
+		float width	 = viewRect.Width;
+		float height = viewRect.Height;
 
-			float x		 = viewRect.Left;
-			float y		 = fullscreenRect.Height - (viewRect.Top + viewRect.Height);
-			float width	 = viewRect.Width;
-			float height = viewRect.Height;
+		glEnable(GL_SCISSOR_TEST);
+		glViewport(x, y, width, height);
+		glScissor(x, y, width, height);
 
-			glEnable(GL_SCISSOR_TEST);
-			glViewport(x, y, width, height);
-			glScissor(x, y, width, height);
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
 
-			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-			glClear(GL_COLOR_BUFFER_BIT);
-			glBlitFramebuffer(0, 0, textureWidth, textureHeight, x, y, x + width, y + height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-		}
+		glBlitFramebuffer(0, 0, textureWidth, textureHeight, x, y, x + width, y + height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 	}
 
 	void Nexus::GL::ViewContextWebGL::SetVSync(bool enabled)

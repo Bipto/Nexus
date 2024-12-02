@@ -116,6 +116,13 @@ namespace Nexus::InputNew
 		Point2D<float> GetMousePosition(uint32_t id);
 		Point2D<float> GetScroll(uint32_t id);
 
+		bool		   IsMouseButtonDown(MouseButton button);
+		bool		   IsMouseButtonUp(MouseButton button);
+		bool		   IsKeyDown(ScanCode scancode);
+		bool		   IsKeyUp(ScanCode scancode);
+		Point2D<float> GetMousePosition();
+		Point2D<float> GetScroll();
+
 		Point2D<float> GetCursorPosition();
 		Point2D<float> GetGlobalCursorPosition();
 

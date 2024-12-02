@@ -51,6 +51,78 @@ namespace Nexus::InputNew
 		return m_MouseStates[id].Scroll;
 	}
 
+	bool InputContext::IsMouseButtonDown(MouseButton button)
+	{
+		std::optional<uint32_t> activeMouse = Platform::GetActiveMouseId();
+
+		if (activeMouse.has_value())
+		{
+			return m_MouseStates[activeMouse.value()].Buttons[button];
+		}
+
+		return false;
+	}
+
+	bool InputContext::IsMouseButtonUp(MouseButton button)
+	{
+		std::optional<uint32_t> activeMouse = Platform::GetActiveMouseId();
+
+		if (activeMouse.has_value())
+		{
+			return !m_MouseStates[activeMouse.value()].Buttons[button];
+		}
+
+		return false;
+	}
+
+	bool InputContext::IsKeyDown(ScanCode scancode)
+	{
+		std::optional<uint32_t> activeKeyboard = Platform::GetActiveKeyboardId();
+
+		if (activeKeyboard.has_value())
+		{
+			return m_KeyboardStates[activeKeyboard.value()].Keys[scancode];
+		}
+
+		return false;
+	}
+
+	bool InputContext::IsKeyUp(ScanCode scancode)
+	{
+		std::optional<uint32_t> activeKeyboard = Platform::GetActiveKeyboardId();
+
+		if (activeKeyboard.has_value())
+		{
+			return !m_KeyboardStates[activeKeyboard.value()].Keys[scancode];
+		}
+
+		return false;
+	}
+
+	Point2D<float> InputContext::GetMousePosition()
+	{
+		std::optional<uint32_t> activeMouse = Platform::GetActiveMouseId();
+
+		if (activeMouse.has_value())
+		{
+			return m_MouseStates[activeMouse.value()].Position;
+		}
+
+		return {0.0f, 0.0f};
+	}
+
+	Point2D<float> InputContext::GetScroll()
+	{
+		std::optional<uint32_t> activeMouse = Platform::GetActiveMouseId();
+
+		if (activeMouse.has_value())
+		{
+			return m_MouseStates[activeMouse.value()].Scroll;
+		}
+
+		return {0.0f, 0.0f};
+	}
+
 	Point2D<float> InputContext::GetCursorPosition()
 	{
 		return m_CursorPosition;

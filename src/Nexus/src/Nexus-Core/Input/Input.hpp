@@ -15,6 +15,13 @@ namespace Nexus
 		static Point2D<float> GetMousePosition(uint32_t id);
 		static Point2D<float> GetScroll(uint32_t id);
 
+		static bool			  IsMouseButtonDown(MouseButton button);
+		static bool			  IsMouseButtonUp(MouseButton button);
+		static bool			  IsKeyDown(ScanCode scancode);
+		static bool			  IsKeyUp(ScanCode scancode);
+		static Point2D<float> GetMousePosition();
+		static Point2D<float> GetScroll();
+
 		static Point2D<float> GetCursorPosition();
 		static Point2D<float> GetGlobalCursorPosition();
 

@@ -205,8 +205,9 @@ class DemoApplication : public Nexus::Application
 					std::string(profileResult.Name) + std::string(": ") + std::to_string(profileResult.Time.GetMilliseconds()) + std::string(" Ms");
 				ImGui::Text(output.c_str());
 			}
-			Nexus::Timings::Profiler::Get().Reset();
 		}
+
+		Nexus::Timings::Profiler::Get().Reset();
 	}
 
 	virtual void Render(Nexus::TimeSpan time) override

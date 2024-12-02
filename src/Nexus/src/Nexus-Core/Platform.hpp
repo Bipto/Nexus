@@ -31,6 +31,10 @@ namespace Nexus::Platform
 	std::optional<Window *> GetKeyboardFocus();
 	std::optional<Window *> GetMouseFocus();
 
+	std::optional<uint32_t> GetActiveMouseId();
+	std::optional<uint32_t> GetActiveKeyboardId();
+	std::optional<uint32_t> GetActiveGamepadId();
+
 	inline EventHandler<uint32_t> OnKeyboardAdded;
 	inline EventHandler<uint32_t> OnKeyboardRemoved;
 	inline EventHandler<uint32_t> OnMouseAdded;

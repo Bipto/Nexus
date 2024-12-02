@@ -108,8 +108,6 @@ namespace Nexus
 		}
 
 		Platform::Update();
-
-		// Timings::Profiler::Get().Reset();
 	}
 
 	Nexus::Window *Application::GetPrimaryWindow()

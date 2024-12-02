@@ -64,6 +64,66 @@ namespace Nexus
 		return s_InputContext->GetScroll(id);
 	}
 
+	bool Input::IsMouseButtonDown(MouseButton button)
+	{
+		if (!s_InputContext)
+		{
+			return false;
+		}
+
+		return s_InputContext->IsMouseButtonDown(button);
+	}
+
+	bool Input::IsMouseButtonUp(MouseButton button)
+	{
+		if (!s_InputContext)
+		{
+			return false;
+		}
+
+		return s_InputContext->IsMouseButtonUp(button);
+	}
+
+	bool Input::IsKeyDown(ScanCode scancode)
+	{
+		if (!s_InputContext)
+		{
+			return false;
+		}
+
+		return s_InputContext->IsKeyDown(scancode);
+	}
+
+	bool Input::IsKeyUp(ScanCode scancode)
+	{
+		if (!s_InputContext)
+		{
+			return false;
+		}
+
+		return s_InputContext->IsKeyUp(scancode);
+	}
+
+	Point2D<float> Input::GetMousePosition()
+	{
+		if (!s_InputContext)
+		{
+			return {};
+		}
+
+		return s_InputContext->GetMousePosition();
+	}
+
+	Point2D<float> Input::GetScroll()
+	{
+		if (!s_InputContext)
+		{
+			return {};
+		}
+
+		return s_InputContext->GetScroll();
+	}
+
 	Point2D<float> Input::GetCursorPosition()
 	{
 		if (!s_InputContext)

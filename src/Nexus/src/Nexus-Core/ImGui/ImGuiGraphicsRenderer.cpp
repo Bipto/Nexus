@@ -484,12 +484,12 @@ namespace Nexus::ImGuiUtils
 
 		InputNew::InputContext *context = window.value()->GetInputContext();
 
-		for (int i = 0; i < m_Keys.size(); i++) { io.KeysDown[m_Keys[i]] = context->IsKeyDown(0, (ScanCode)m_Keys[i]); }
+		for (int i = 0; i < m_Keys.size(); i++) { io.KeysDown[m_Keys[i]] = context->IsKeyDown((ScanCode)m_Keys[i]); }
 
-		io.KeyShift = context->IsKeyDown(0, ScanCode::LeftShift) || context->IsKeyDown(0, ScanCode::RightShift);
-		io.KeyCtrl	= context->IsKeyDown(0, ScanCode::LeftControl) || context->IsKeyDown(0, ScanCode::RightControl);
-		io.KeyAlt	= context->IsKeyDown(0, ScanCode::LeftAlt) || context->IsKeyDown(0, ScanCode::RightAlt);
-		io.KeySuper = context->IsKeyDown(0, ScanCode::LeftGUI) || context->IsKeyDown(0, ScanCode::RightGUI);
+		io.KeyShift = context->IsKeyDown(ScanCode::LeftShift) || context->IsKeyDown(ScanCode::RightShift);
+		io.KeyCtrl	= context->IsKeyDown(ScanCode::LeftControl) || context->IsKeyDown(ScanCode::RightControl);
+		io.KeyAlt	= context->IsKeyDown(ScanCode::LeftAlt) || context->IsKeyDown(ScanCode::RightAlt);
+		io.KeySuper = context->IsKeyDown(ScanCode::LeftGUI) || context->IsKeyDown(ScanCode::RightGUI);
 
 		io.DisplaySize			   = {(float)mainWindow->GetWindowSize().X, (float)mainWindow->GetWindowSize().Y};
 		io.DisplayFramebufferScale = {1, 1};

@@ -7,9 +7,14 @@
 #include "Nexus-Core/Input/Event.hpp"
 #include "Nexus-Core/Input/InputContext.hpp"
 #include "Nexus-Core/Input/InputState.hpp"
+#include "Nexus-Core/Platform.hpp"
 
 std::vector<Nexus::Window *>					  m_Windows {};
 std::vector<std::pair<Nexus::Window *, uint32_t>> m_WindowsToClose {};
+
+std::optional<uint32_t> m_ActiveMouse	 = {};
+std::optional<uint32_t> m_ActiveKeyboard = {};
+std::optional<uint32_t> m_ActiveGamepad	 = {};
 
 Nexus::Window *GetWindowFromHandle(uint32_t handle)
 {
@@ -97,6 +102,7 @@ void PollEvents()
 															.Mods		= mods,
 															.KeyboardID = event.kdevice.which};
 
+				m_ActiveKeyboard = event.kdevice.which;
 				window->OnKeyPressed.Invoke(keyPressedEvent);
 				break;
 			}
@@ -110,6 +116,7 @@ void PollEvents()
 															  .Unicode	  = event.key.keysym.sym,
 															  .KeyboardID = event.kdevice.which};
 
+				m_ActiveKeyboard = event.kdevice.which;
 				window->OnKeyReleased.Invoke(keyReleasedEvent);
 				break;
 			}
@@ -136,6 +143,7 @@ void PollEvents()
 																		  .MouseID	= mouseId,
 																		  .Type		= mouseType};
 
+					m_ActiveMouse = mouseId;
 					window->OnMousePressed.Invoke(mousePressedEvent);
 				}
 
@@ -153,6 +161,7 @@ void PollEvents()
 																			.MouseID  = mouseId,
 																			.Type	  = mouseType};
 
+					m_ActiveMouse = mouseId;
 					window->OnMouseReleased.Invoke(mouseReleasedEvent);
 				}
 
@@ -180,6 +189,7 @@ void PollEvents()
 															.MouseID  = mouseId,
 															.Type	  = mouseType};
 
+				m_ActiveMouse = mouseId;
 				window->OnMouseMoved.Invoke(mouseMovedEvent);
 				break;
 			}
@@ -194,6 +204,7 @@ void PollEvents()
 														   .Type	  = mouseType,
 														   .Direction = direction};
 
+				m_ActiveMouse = mouseId;
 				window->OnScroll.Invoke(scrollEvent);
 				break;
 			}
@@ -555,6 +566,21 @@ namespace Nexus::Platform
 		}
 
 		return {};
+	}
+
+	std::optional<uint32_t> GetActiveMouseId()
+	{
+		return m_ActiveMouse;
+	}
+
+	std::optional<uint32_t> GetActiveKeyboardId()
+	{
+		return m_ActiveKeyboard;
+	}
+
+	std::optional<uint32_t> GetActiveGamepadId()
+	{
+		return m_ActiveGamepad;
 	}
 
 	std::optional<Window *> GetKeyboardFocus()

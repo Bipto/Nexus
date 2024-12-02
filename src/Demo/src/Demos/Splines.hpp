@@ -32,7 +32,7 @@ namespace Demos
 
 		virtual void Update(Nexus::TimeSpan time) override
 		{
-			if (Nexus::Input::IsKeyUp(0, Nexus::ScanCode::Left))
+			if (Nexus::Input::IsKeyUp(Nexus::ScanCode::Left))
 			{
 				if (m_SelectedPoint == 0)
 				{
@@ -42,7 +42,7 @@ namespace Demos
 				m_SelectedPoint--;
 			}
 
-			if (Nexus::Input::IsKeyUp(0, Nexus::ScanCode::Right))
+			if (Nexus::Input::IsKeyUp(Nexus::ScanCode::Right))
 			{
 				m_SelectedPoint++;
 
@@ -54,22 +54,22 @@ namespace Demos
 
 			std::vector<Nexus::Point2D<float>> points = m_Spline.GetPoints();
 			Nexus::Point2D<float>			  &point  = points.at(m_SelectedPoint);
-			if (Nexus::Input::IsKeyDown(0, Nexus::ScanCode::W))
+			if (Nexus::Input::IsKeyDown(Nexus::ScanCode::W))
 			{
 				point.Y -= 250.0f * time.GetSeconds();
 			}
 
-			if (Nexus::Input::IsKeyDown(0, Nexus::ScanCode::S))
+			if (Nexus::Input::IsKeyDown(Nexus::ScanCode::S))
 			{
 				point.Y += 250.0f * time.GetSeconds();
 			}
 
-			if (Nexus::Input::IsKeyDown(0, Nexus::ScanCode::A))
+			if (Nexus::Input::IsKeyDown(Nexus::ScanCode::A))
 			{
 				point.X -= 250.0f * time.GetSeconds();
 			}
 
-			if (Nexus::Input::IsKeyDown(0, Nexus::ScanCode::D))
+			if (Nexus::Input::IsKeyDown(Nexus::ScanCode::D))
 			{
 				point.X += 250.0f * time.GetSeconds();
 			}

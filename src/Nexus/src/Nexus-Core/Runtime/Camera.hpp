@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
+#include "Nexus-Core/Platform.hpp"
 #include "Nexus-Core/Utils/FramerateMonitor.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
@@ -117,27 +118,32 @@ namespace Nexus
 		{
 			float speed = 2.0f * time.GetSeconds();
 
-			if (Input::IsKeyDown(3, ScanCode::LeftShift) || Input::IsKeyDown(3, ScanCode::RightShift))
+			std::optional<uint32_t> defaultKeyboard = Platform::GetActiveKeyboardId();
+
+			if (!defaultKeyboard.has_value())
+				return;
+
+			if (Input::IsKeyDown(defaultKeyboard.value(), ScanCode::LeftShift) || Input::IsKeyDown(3, ScanCode::RightShift))
 			{
 				speed *= 2.0f;
 			}
 
-			if (Input::IsKeyDown(3, ScanCode::W))
+			if (Input::IsKeyDown(defaultKeyboard.value(), ScanCode::W))
 			{
 				m_Position += speed * m_Front;
 			}
 
-			if (Input::IsKeyDown(3, ScanCode::S))
+			if (Input::IsKeyDown(defaultKeyboard.value(), ScanCode::S))
 			{
 				m_Position -= speed * m_Front;
 			}
 
-			if (Input::IsKeyDown(3, ScanCode::A))
+			if (Input::IsKeyDown(defaultKeyboard.value(), ScanCode::A))
 			{
 				m_Position += glm::normalize(glm::cross(m_Front, m_Up)) * speed;
 			}
 
-			if (Input::IsKeyDown(3, ScanCode::D))
+			if (Input::IsKeyDown(defaultKeyboard.value(), ScanCode::D))
 			{
 				m_Position -= glm::normalize(glm::cross(m_Front, m_Up)) * speed;
 			}
@@ -159,7 +165,12 @@ namespace Nexus
 				m_Pitch -= rightStick.Y * 2.0f;
 			} */
 
-			if (Input::IsMouseButtonDown(0, MouseButton::Middle))
+			std::optional<uint32_t> defaultMouse = Platform::GetActiveMouseId();
+
+			if (!defaultMouse.has_value())
+				return;
+
+			if (Input::IsMouseButtonDown(defaultMouse.value(), MouseButton::Middle))
 			{
 				m_Yaw -= x;
 				m_Pitch -= y;
