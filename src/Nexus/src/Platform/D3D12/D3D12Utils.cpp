@@ -248,8 +248,10 @@ namespace Nexus::D3D12
 			case Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipPoint: return D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT; break;
 			case Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipLinear: return D3D12_FILTER_MIN_MAG_MIP_LINEAR; break;
 
-			default: NX_ASSERT(0, "Invalid sampler filter entered"); return D3D12_FILTER();
+			default: throw std::runtime_error("Failed to find a valid filter");
 		}
+
+		return {};
 	}
 
 	D3D12_TEXTURE_ADDRESS_MODE
@@ -273,7 +275,7 @@ namespace Nexus::D3D12
 		{
 			case Nexus::Graphics::IndexBufferFormat::UInt16: return DXGI_FORMAT_R16_UINT;
 			case Nexus::Graphics::IndexBufferFormat::UInt32: return DXGI_FORMAT_R32_UINT;
-			default: NX_ASSERT(0, "Invalid index buffer format entered"); return DXGI_FORMAT();
+			default: throw std::runtime_error("Invalid index buffer format entered");
 		}
 	}
 
@@ -287,6 +289,7 @@ namespace Nexus::D3D12
 			case Nexus::Graphics::Topology::PointList: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT; break;
 			case Nexus::Graphics::Topology::TriangleList: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE; break;
 			case Nexus::Graphics::Topology::TriangleStrip: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE; break;
+			default: throw std::runtime_error("Could not find a valid topology");
 		}
 	}
 

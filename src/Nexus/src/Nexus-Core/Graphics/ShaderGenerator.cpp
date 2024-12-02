@@ -342,6 +342,20 @@ namespace Nexus::Graphics
 		return output;
 	}
 
+	std::string ShaderLanguageToString(ShaderLanguage language)
+	{
+		switch (language)
+		{
+			case ShaderLanguage::GLSL: return "GLSL";
+			case ShaderLanguage::GLSLES: return "GLSLES";
+			case ShaderLanguage::HLSL: return "HLSL";
+			case ShaderLanguage::SPIRV: return "SPIRV";
+			default: throw std::runtime_error("Failed to find a valid ShaderLanguage");
+		}
+
+		return {};
+	}
+
 	std::string GetD3DShaderEntryPoint(Nexus::Graphics::ShaderStage stage)
 	{
 		switch (stage)

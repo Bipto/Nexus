@@ -161,6 +161,8 @@ namespace Nexus::Graphics
 
 		Ref<ShaderModule> CreateShaderModuleFromSpirvSource(const std::string &source, const std::string &name, ShaderStage stage);
 
+		Ref<ShaderModule> GetOrCreateCachedShader(const std::string &source, const std::string &name, ShaderStage stage);
+
 		Window *GetPrimaryWindow();
 
 		void ImmediateSubmit(std::function<void(Ref<CommandList> cmd)> &&function);

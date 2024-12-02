@@ -15,8 +15,6 @@
 	#include "Platform/D3D12/SwapchainD3D12.hpp"
 #endif
 
-#include "Platform/Software/SwapchainSoftware.hpp"
-
 #include "Nexus-Core/Application.hpp"
 
 #include "Nexus-Core/Input/Input.hpp"
@@ -288,12 +286,6 @@ namespace Nexus
 				break;
 			}
 #endif
-
-			case Graphics::GraphicsAPI::Software:
-			{
-				m_Swapchain = new Graphics::SwapchainSoftware(this, swapchainSpec, device);
-				break;
-			}
 
 			default: NX_ERROR("Failed to create swapchain"); throw std::runtime_error("Failed to create swapchain");
 		}

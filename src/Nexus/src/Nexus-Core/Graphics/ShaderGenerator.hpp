@@ -21,6 +21,8 @@ namespace Nexus::Graphics
 		SPIRV
 	};
 
+	std::string ShaderLanguageToString(ShaderLanguage language);
+
 	/// @brief A struct representing a set of options when generating a shader
 	struct ShaderGenerationOptions
 	{

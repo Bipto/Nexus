@@ -8,6 +8,8 @@
 #include "ShaderUtils.hpp"
 #include "stb_image.h"
 
+#include "yaml-cpp/yaml.h"
+
 namespace Nexus::Graphics
 {
 	GraphicsDevice::GraphicsDevice(const GraphicsDeviceSpecification &specification, Window *window, const SwapchainSpecification &swapchainSpec)
@@ -55,6 +57,36 @@ namespace Nexus::Graphics
 		moduleSpec.OutputAttributes = result.OutputAttributes;
 
 		return CreateShaderModule(moduleSpec, resourceSetSpec);
+	}
+
+	Ref<ShaderModule> GraphicsDevice::GetOrCreateCachedShader(const std::string &source, const std::string &name, ShaderStage stage)
+	{
+		std::size_t		  hash	 = std::hash<std::string> {}(source);
+		Ref<ShaderModule> module = CreateShaderModuleFromSpirvSource(source, name, stage);
+
+		// std::string outputText = std::to_string(hash) + std::string("\n") + module->GetModuleSpecification().Source;
+
+		ShaderLanguage language		  = GetSupportedShaderFormat();
+		std::string	   languageString = ShaderLanguageToString(language);
+
+		std::string filepath = "cache/shaders/" + languageString + "/" + name;
+
+		// FileSystem::WriteFileAbsolute(filepath, outputText);
+
+		const ShaderModuleSpecification &spec = module->GetModuleSpecification();
+
+		YAML::Emitter root;
+		root << YAML::BeginMap;
+		root << YAML::Key << "Name" << YAML::Value << spec.Name;
+		root << YAML::Key << "Hash" << YAML::Value << hash;
+		root << YAML::Key << "Source" << YAML::Value << spec.Source;
+		root << YAML::Key << "Stage" << YAML::Value << (uint32_t)spec.Stage;
+		root << YAML::Key << "SPIRV" << YAML::Value << spec.SpirvBinary;
+		root << YAML::EndMap;
+
+		FileSystem::WriteFileAbsolute(filepath, root.c_str());
+
+		return module;
 	}
 
 	Window *GraphicsDevice::GetPrimaryWindow()

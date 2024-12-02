@@ -49,10 +49,12 @@ namespace Nexus::Graphics
 		{
 			return m_ModuleSpecification.Stage;
 		}
+
 		const ShaderModuleSpecification &GetModuleSpecification() const
 		{
 			return m_ModuleSpecification;
 		}
+
 		const ResourceSetSpecification &GetResourceSetSpecification() const
 		{
 			return m_ResourceSetSpecification;
