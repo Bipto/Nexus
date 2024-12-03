@@ -87,10 +87,12 @@ namespace Demos
 
 			pipelineDescription.Layouts = {Nexus::Graphics::VertexPosition::GetLayout()};
 
-			pipelineDescription.VertexModule   = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/hello_triangle.vert.glsl",
-																								   Nexus::Graphics::ShaderStage::Vertex);
-			pipelineDescription.FragmentModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/hello_triangle.frag.glsl",
-																								   Nexus::Graphics::ShaderStage::Fragment);
+			pipelineDescription.VertexModule =
+				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/hello_triangle.vert.glsl",
+																	   Nexus::Graphics::ShaderStage::Vertex);
+			pipelineDescription.FragmentModule =
+				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/hello_triangle.frag.glsl",
+																	   Nexus::Graphics::ShaderStage::Fragment);
 
 			m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
 		}

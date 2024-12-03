@@ -92,6 +92,15 @@ namespace Nexus::Utils
 
 	uint64_t GetCurrentTimeAsInt();
 
+	// djb2 algorithm
+	inline size_t Hash(const std::string &text)
+	{
+		size_t hash = 5381;
+		for (char c : text) { hash = ((hash << 5) + hash) + c; }
+
+		return hash;
+	}
+
 }	 // namespace Nexus::Utils
 
 #define BIT(x) (1 << x)

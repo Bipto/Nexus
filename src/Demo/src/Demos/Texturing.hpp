@@ -82,10 +82,10 @@ namespace Demos
 			pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::None;
 			pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
-			pipelineDescription.VertexModule =
-				m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/texturing.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
-			pipelineDescription.FragmentModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/texturing.frag.glsl",
-																								   Nexus::Graphics::ShaderStage::Fragment);
+			pipelineDescription.VertexModule   = m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/texturing.vert.glsl",
+																										Nexus::Graphics::ShaderStage::Vertex);
+			pipelineDescription.FragmentModule = m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/texturing.frag.glsl",
+																										Nexus::Graphics::ShaderStage::Fragment);
 
 			pipelineDescription.ResourceSetSpec.SampledImages = {{"texSampler", 0, 0}};
 

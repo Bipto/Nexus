@@ -384,21 +384,21 @@ namespace Nexus::Graphics
 		m_BlankTexture	   = m_Device->CreateTexture2D(textureSpec);
 		m_BlankTexture->SetData(&textureData, 0, 0, 0, 1, 1);
 
-		Nexus::Ref<Nexus::Graphics::ShaderModule> vertexModule = device->CreateShaderModuleFromSpirvSource(s_BatchVertexShaderSource,
-																										   "Batch Renderer - Vertex Shader",
-																										   Nexus::Graphics::ShaderStage::Vertex);
+		Nexus::Ref<Nexus::Graphics::ShaderModule> vertexModule = device->GetOrCreateCachedShaderFromSpirvSource(s_BatchVertexShaderSource,
+																												"Batch Renderer - Vertex Shader",
+																												Nexus::Graphics::ShaderStage::Vertex);
 		Nexus::Ref<Nexus::Graphics::ShaderModule> sdfFragmentModule =
-			device->CreateShaderModuleFromSpirvSource(s_BatchSDFFragmentShaderSource,
-													  "Batch Renderer - SDF Fragment Shader",
-													  Nexus::Graphics::ShaderStage::Fragment);
+			device->GetOrCreateCachedShaderFromSpirvSource(s_BatchSDFFragmentShaderSource,
+														   "Batch Renderer - SDF Fragment Shader",
+														   Nexus::Graphics::ShaderStage::Fragment);
 		Nexus::Ref<Nexus::Graphics::ShaderModule> textureFragmentModule =
-			device->CreateShaderModuleFromSpirvSource(s_BatchTextureFragmentShaderSource,
-													  "Batch Renderer - Texture Fragment Shader",
-													  Nexus::Graphics::ShaderStage::Fragment);
+			device->GetOrCreateCachedShaderFromSpirvSource(s_BatchTextureFragmentShaderSource,
+														   "Batch Renderer - Texture Fragment Shader",
+														   Nexus::Graphics::ShaderStage::Fragment);
 		Nexus::Ref<Nexus::Graphics::ShaderModule> fontFragmentModule =
-			device->CreateShaderModuleFromSpirvSource(s_BatchFontFragmentShaderSource,
-													  "Batch Renderer - Font Fragment Shader",
-													  Nexus::Graphics::ShaderStage::Fragment);
+			device->GetOrCreateCachedShaderFromSpirvSource(s_BatchFontFragmentShaderSource,
+														   "Batch Renderer - Font Fragment Shader",
+														   Nexus::Graphics::ShaderStage::Fragment);
 
 		CreateBatcher(m_SDFBatchInfo, device, target, vertexModule, sdfFragmentModule);
 		CreateBatcher(m_TextureBatchInfo, device, target, vertexModule, textureFragmentModule);

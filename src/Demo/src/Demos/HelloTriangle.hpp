@@ -86,10 +86,12 @@ namespace Demos
 			pipelineDescription.ColourFormats[0]		= Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
 			pipelineDescription.ColourTargetSampleCount = m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->GetSpecification().Samples;
 
-			pipelineDescription.VertexModule   = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/hello_triangle.vert.glsl",
-																								   Nexus::Graphics::ShaderStage::Vertex);
-			pipelineDescription.FragmentModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/hello_triangle.frag.glsl",
-																								   Nexus::Graphics::ShaderStage::Fragment);
+			pipelineDescription.VertexModule =
+				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/hello_triangle.vert.glsl",
+																	   Nexus::Graphics::ShaderStage::Vertex);
+			pipelineDescription.FragmentModule =
+				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/hello_triangle.frag.glsl",
+																	   Nexus::Graphics::ShaderStage::Fragment);
 
 			m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
 		}

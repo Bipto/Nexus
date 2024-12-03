@@ -116,9 +116,9 @@ namespace Demos
 			pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::Clockwise;
 
 			pipelineDescription.VertexModule =
-				m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/3d.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
+				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/3d.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
 			pipelineDescription.FragmentModule =
-				m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/3d.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
+				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/3d.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 
 			pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Camera", 0, 0}, {"Transform", 0, 1}};
 

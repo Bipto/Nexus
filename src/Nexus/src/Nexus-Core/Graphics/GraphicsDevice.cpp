@@ -1,14 +1,15 @@
+#include "Nexus-Core/nxpch.hpp"
+
 #include "GraphicsDevice.hpp"
 
 #include "Nexus-Core/FileSystem/FileSystem.hpp"
 #include "Nexus-Core/Graphics/MipmapGenerator.hpp"
 #include "Nexus-Core/Logging/Log.hpp"
-#include "Nexus-Core/nxpch.hpp"
 #include "ShaderGenerator.hpp"
 #include "ShaderUtils.hpp"
 #include "stb_image.h"
 
-#include "yaml-cpp/yaml.h"
+#include "CachedShader.hpp"
 
 namespace Nexus::Graphics
 {
@@ -59,34 +60,42 @@ namespace Nexus::Graphics
 		return CreateShaderModule(moduleSpec, resourceSetSpec);
 	}
 
-	Ref<ShaderModule> GraphicsDevice::GetOrCreateCachedShader(const std::string &source, const std::string &name, ShaderStage stage)
+	Ref<ShaderModule> GraphicsDevice::GetOrCreateCachedShaderFromSpirvSource(const std::string &source, const std::string &name, ShaderStage stage)
 	{
-		std::size_t		  hash	 = std::hash<std::string> {}(source);
-		Ref<ShaderModule> module = CreateShaderModuleFromSpirvSource(source, name, stage);
-
-		// std::string outputText = std::to_string(hash) + std::string("\n") + module->GetModuleSpecification().Source;
-
+		std::size_t	   hash			  = Utils::Hash(source);
 		ShaderLanguage language		  = GetSupportedShaderFormat();
 		std::string	   languageString = ShaderLanguageToString(language);
+		std::string	   filepath		  = "cache/shaders/" + languageString + "/" + name;
 
-		std::string filepath = "cache/shaders/" + languageString + "/" + name;
+		bool			  shaderCreated = false;
+		Ref<ShaderModule> module		= nullptr;
 
-		// FileSystem::WriteFileAbsolute(filepath, outputText);
+		if (std::filesystem::exists(filepath))
+		{
+			CachedShader cache = CachedShader::LoadFromFile(filepath);
+			if (cache.Validate(hash))
+			{
+				const ShaderModuleSpecification &shaderSpec	  = cache.GetShaderSpecification();
+				const ResourceSetSpecification	&resourceSpec = cache.GetResourceSpecification();
+				module										  = CreateShaderModule(shaderSpec, resourceSpec);
+				shaderCreated								  = true;
+			}
+		}
 
-		const ShaderModuleSpecification &spec = module->GetModuleSpecification();
-
-		YAML::Emitter root;
-		root << YAML::BeginMap;
-		root << YAML::Key << "Name" << YAML::Value << spec.Name;
-		root << YAML::Key << "Hash" << YAML::Value << hash;
-		root << YAML::Key << "Source" << YAML::Value << spec.Source;
-		root << YAML::Key << "Stage" << YAML::Value << (uint32_t)spec.Stage;
-		root << YAML::Key << "SPIRV" << YAML::Value << spec.SpirvBinary;
-		root << YAML::EndMap;
-
-		FileSystem::WriteFileAbsolute(filepath, root.c_str());
+		if (!shaderCreated)
+		{
+			module			   = CreateShaderModuleFromSpirvSource(source, name, stage);
+			CachedShader cache = CachedShader::FromModule(module->GetModuleSpecification(), module->GetResourceSetSpecification(), hash);
+			cache.Cache(filepath);
+		}
 
 		return module;
+	}
+
+	Ref<ShaderModule> GraphicsDevice::GetOrCreateCachedShaderFromSpirvFile(const std::string &filepath, ShaderStage stage)
+	{
+		std::string source = Nexus::FileSystem::ReadFileToString(filepath);
+		return GetOrCreateCachedShaderFromSpirvSource(source, filepath, stage);
 	}
 
 	Window *GraphicsDevice::GetPrimaryWindow()
