@@ -18,6 +18,8 @@ namespace Nexus::GL
 	ViewContextWGL::~ViewContextWGL()
 	{
 		wglMakeCurrent(NULL, NULL);
+
+		// TODO: Why does this crash sometimes???
 		wglDeleteContext(m_HGLRC);
 	}
 

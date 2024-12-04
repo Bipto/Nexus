@@ -2,6 +2,11 @@
 
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 
+#include "Nexus-Core/nxpch.hpp"
+
+#include "Nexus-Core/FileSystem/FileSystem.hpp"
+#include "yaml-cpp/yaml.h"
+
 namespace Nexus::Graphics
 {
 	Texture2D::Texture2D(const Texture2DSpecification &spec, GraphicsDevice *device) : m_Specification(spec), m_Device(device)

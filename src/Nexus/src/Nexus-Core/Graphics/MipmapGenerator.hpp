@@ -26,7 +26,7 @@ namespace Nexus::Graphics
 	  public:
 		MipmapGenerator() = default;
 		explicit MipmapGenerator(GraphicsDevice *device);
-		void GenerateMips(Ref<Texture2D> texture, uint32_t mipCount);
+		std::vector<unsigned char> GenerateMip(Ref<Texture2D> texture, uint32_t levelToGenerate, uint32_t levelToGenerateFrom);
 
 		static uint32_t GetMaximumNumberOfMips(uint32_t width, uint32_t height);
 
@@ -34,5 +34,11 @@ namespace Nexus::Graphics
 		GraphicsDevice	*m_Device	   = nullptr;
 		Ref<CommandList> m_CommandList = nullptr;
 		FullscreenQuad	 m_Quad {};
+
+		Ref<ShaderModule> m_VertexModule   = nullptr;
+		Ref<ShaderModule> m_FragmentModule = nullptr;
+
+		Ref<Pipeline>	 m_Pipeline	   = nullptr;
+		Ref<ResourceSet> m_ResourceSet = nullptr;
 	};
 }	 // namespace Nexus::Graphics

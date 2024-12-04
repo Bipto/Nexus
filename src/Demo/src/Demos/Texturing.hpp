@@ -25,7 +25,10 @@ namespace Demos
 			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
 			m_Mesh = factory.CreateSprite();
 
-			m_Texture = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/brick.jpg"), false);
+			// m_Texture = m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/brick.jpg"), false);
+			m_Texture =
+				m_GraphicsDevice->GetOrCreateCachedTexture2DFromImage(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/brick.jpg"),
+																	  false);
 
 			Nexus::Graphics::SamplerSpecification samplerSpec {};
 			m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);

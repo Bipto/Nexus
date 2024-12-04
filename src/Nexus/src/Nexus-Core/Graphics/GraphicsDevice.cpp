@@ -10,6 +10,7 @@
 #include "stb_image.h"
 
 #include "CachedShader.hpp"
+#include "CachedTexture.hpp"
 
 namespace Nexus::Graphics
 {
@@ -98,6 +99,13 @@ namespace Nexus::Graphics
 		return GetOrCreateCachedShaderFromSpirvSource(source, filepath, stage);
 	}
 
+	Ref<Texture2D> GraphicsDevice::GetOrCreateCachedTexture2DFromImage(const std::string &filepath, bool generateMips)
+	{
+		Ref<Texture2D> texture = CreateTexture2D(filepath, generateMips);
+		std::string	   outPath = "cache/texture2d" + filepath;
+		return texture;
+	}
+
 	Window *GraphicsDevice::GetPrimaryWindow()
 	{
 		return m_Window;
@@ -149,9 +157,14 @@ namespace Nexus::Graphics
 
 		if (generateMips)
 		{
-			uint32_t						 mipsToGenerate = spec.MipLevels - 1;
 			Nexus::Graphics::MipmapGenerator mipGenerator(this);
-			mipGenerator.GenerateMips(texture, mipsToGenerate);
+
+			for (uint32_t i = 1; i < spec.MipLevels; i++)
+			{
+				auto [width, height]			  = Utils::GetMipSize(spec.Width, spec.Height, i);
+				std::vector<unsigned char> pixels = mipGenerator.GenerateMip(texture, i, i - 1);
+				texture->SetData(pixels.data(), i, 0, 0, width, height);
+			}
 		}
 
 		stbi_image_free(data);

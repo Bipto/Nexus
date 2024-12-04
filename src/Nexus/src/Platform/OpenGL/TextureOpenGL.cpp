@@ -68,7 +68,8 @@ namespace Nexus::Graphics
 
 	void Texture2DOpenGL::GetData(std::vector<unsigned char> &pixels, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 	{
-		size_t bufferSize = (width - x) * (height - y) * GetPixelFormatSizeInBits(m_Specification.Format);
+		size_t sizeInBytes = GetPixelFormatSizeInBytes(m_Specification.Format);
+		size_t bufferSize  = (width - x) * (height - y) * sizeInBytes;
 
 		if (pixels.size() < bufferSize)
 		{

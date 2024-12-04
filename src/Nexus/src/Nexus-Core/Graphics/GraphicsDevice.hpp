@@ -165,6 +165,8 @@ namespace Nexus::Graphics
 
 		Ref<ShaderModule> GetOrCreateCachedShaderFromSpirvFile(const std::string &filepath, ShaderStage stage);
 
+		Ref<Texture2D> GetOrCreateCachedTexture2DFromImage(const std::string &filepath, bool generateMips);
+
 		Window *GetPrimaryWindow();
 
 		void ImmediateSubmit(std::function<void(Ref<CommandList> cmd)> &&function);

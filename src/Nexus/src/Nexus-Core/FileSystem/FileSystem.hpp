@@ -24,6 +24,9 @@ namespace Nexus::FileSystem
 	/// @param text A const reference to the text to write
 	void WriteFile(const std::string &filepath, const std::string &text);
 
+	void WriteBuffer(const std::string &filepath, const void *data, size_t size);
+	void WriteBufferAbsolute(const std::string &filepath, const void *data, size_t size);
+
 	/// @brief A method that gets the absolute path of the file from a filesystem
 	/// relative filepath
 	/// @param filepath A filepath relative to the root of the filesystem
@@ -33,4 +36,5 @@ namespace Nexus::FileSystem
 	/// @brief A method returning the root directory of the filesystem
 	/// @return A string containing the root directory
 	std::string GetRootDirectory();
+
 }	 // namespace Nexus::FileSystem
