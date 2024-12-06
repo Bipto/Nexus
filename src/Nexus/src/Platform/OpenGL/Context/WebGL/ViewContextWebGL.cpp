@@ -89,25 +89,8 @@ namespace Nexus::GL
 	{
 		IOffscreenContext *context = m_Device->GetOffscreenContext();
 		context->MakeCurrent();
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 		return true;
-	}
-
-	void ViewContextWebGL::BindAsRenderTarget()
-	{
-		Ref<Graphics::FramebufferOpenGL> framebufferGL = std::dynamic_pointer_cast<Graphics::FramebufferOpenGL>(m_Framebuffer);
-		if (framebufferGL)
-		{
-			framebufferGL->BindAsRenderTarget();
-		}
-	}
-
-	void ViewContextWebGL::BindAsDrawTarget()
-	{
-		Ref<Graphics::FramebufferOpenGL> framebufferGL = std::dynamic_pointer_cast<Graphics::FramebufferOpenGL>(m_Framebuffer);
-		if (framebufferGL)
-		{
-			framebufferGL->BindAsDrawBuffer();
-		}
 	}
 
 	void Nexus::GL::ViewContextWebGL::Swap()

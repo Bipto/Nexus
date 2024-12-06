@@ -8,19 +8,24 @@
 
 namespace Nexus::GL
 {
-	ViewContextWGL::ViewContextWGL(HWND hwnd, OffscreenContextWGL *context, const ContextSpecification &spec) : m_HWND(hwnd), m_Specification(spec)
+	ViewContextWGL::ViewContextWGL(HWND hwnd, OffscreenContextWGL *context, const ContextSpecification &spec)
+		: m_HWND(hwnd),
+		  m_Specification(spec),
+		  m_PBuffer(context)
 	{
 		m_HDC	= GetDC(m_HWND);
 		m_HGLRC = CreateSharedContext(m_HDC, context->GetHGLRC(), spec);
-		MakeCurrent();
+		// MakeCurrent();
 	}
 
 	ViewContextWGL::~ViewContextWGL()
 	{
-		wglMakeCurrent(NULL, NULL);
+		// wglMakeCurrent(NULL, NULL);
 
 		// TODO: Why does this crash sometimes???
-		wglDeleteContext(m_HGLRC);
+		// wglDeleteContext(m_HGLRC);
+
+		m_PBuffer->MakeCurrent();
 	}
 
 	void PrintErrorMessage(DWORD error)
@@ -51,20 +56,13 @@ namespace Nexus::GL
 			PrintErrorMessage(errorCode);
 		}
 
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
 		return success;
-	}
-
-	void ViewContextWGL::BindAsRenderTarget()
-	{
-	}
-
-	void ViewContextWGL::BindAsDrawTarget()
-	{
 	}
 
 	void ViewContextWGL::Swap()
 	{
-		MakeCurrent();
 		SwapBuffers(m_HDC);
 	}
 

@@ -17,8 +17,6 @@ namespace Nexus::GL
 		ViewContextWGL(HWND hwnd, OffscreenContextWGL *pbuffer, const ContextSpecification &spec);
 		virtual ~ViewContextWGL();
 		virtual bool						MakeCurrent() override;
-		virtual void						BindAsRenderTarget() override;
-		virtual void						BindAsDrawTarget() override;
 		virtual void						Swap() override;
 		virtual void						SetVSync(bool enabled) override;
 		virtual const ContextSpecification &GetSpecification() const override;

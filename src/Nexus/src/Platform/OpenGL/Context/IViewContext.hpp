@@ -12,8 +12,6 @@ namespace Nexus::GL
 		}
 		virtual bool						MakeCurrent()			 = 0;
 		virtual void						Swap()					 = 0;
-		virtual void						BindAsRenderTarget()	 = 0;
-		virtual void						BindAsDrawTarget()		 = 0;
 		virtual void						SetVSync(bool enabled)	 = 0;
 		virtual const ContextSpecification &GetSpecification() const = 0;
 	};

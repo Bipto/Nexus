@@ -21,8 +21,6 @@ namespace Nexus::GL
 		ViewContextWebGL(const std::string &canvasName, Nexus::Graphics::GraphicsDeviceOpenGL *graphicsDevice, const ContextSpecification &spec);
 		virtual ~ViewContextWebGL();
 		virtual bool						MakeCurrent() override;
-		virtual void						BindAsRenderTarget() override;
-		virtual void						BindAsDrawTarget() override;
 		virtual void						Swap() override;
 		virtual void						SetVSync(bool enabled) override;
 		virtual const ContextSpecification &GetSpecification() const override;

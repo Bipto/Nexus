@@ -38,7 +38,7 @@ namespace Nexus::Graphics
 		auto fb = std::dynamic_pointer_cast<FramebufferOpenGL>(framebuffer);
 		if (framebuffer)
 		{
-			fb->BindAsRenderTarget();
+			fb->BindAsDrawBuffer();
 			m_BoundFramebuffer = fb;
 		}
 	}
@@ -48,7 +48,7 @@ namespace Nexus::Graphics
 		auto glSwapchain = (SwapchainOpenGL *)swapchain;
 		if (glSwapchain)
 		{
-			glSwapchain->BindAsRenderTarget();
+			glSwapchain->BindAsDrawTarget();
 		}
 	}
 

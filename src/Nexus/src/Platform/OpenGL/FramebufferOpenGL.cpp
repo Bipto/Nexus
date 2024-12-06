@@ -19,16 +19,6 @@ namespace Nexus::Graphics
 		DeleteTextures();
 	}
 
-	void FramebufferOpenGL::BindAsRenderTarget()
-	{
-		glCall(glBindFramebuffer(GL_FRAMEBUFFER, m_FBO));
-
-		auto width	= m_Specification.Width;
-		auto height = m_Specification.Height;
-		glCall(glViewport(0, 0, width, height));
-		glCall(glScissor(0, 0, width, height));
-	}
-
 	void FramebufferOpenGL::BindAsReadBuffer(uint32_t texture)
 	{
 		glCall(glBindFramebuffer(GL_READ_FRAMEBUFFER, m_FBO));
@@ -38,6 +28,10 @@ namespace Nexus::Graphics
 	void FramebufferOpenGL::BindAsDrawBuffer()
 	{
 		glCall(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_FBO));
+		auto width	= m_Specification.Width;
+		auto height = m_Specification.Height;
+		glCall(glViewport(0, 0, width, height));
+		glCall(glScissor(0, 0, width, height));
 	}
 
 	void FramebufferOpenGL::Unbind()

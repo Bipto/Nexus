@@ -21,6 +21,12 @@ namespace Nexus::Graphics
 		{
 			std::visit([&](auto &&arg) { ExecuteCommand(arg, device); }, element);
 		}
+
+		GLint drawId = 0, readId = 0;
+		glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &drawId);
+		glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &readId);
+
+		std::cout << "Draw buffer:" << drawId << ", read buffer:" << readId << std::endl;
 	}
 
 	void CommandExecutorOpenGL::Reset()
@@ -311,10 +317,9 @@ namespace Nexus::Graphics
 
 		if (m_CurrentRenderTarget.has_value())
 		{
-			if (Nexus::Graphics::Swapchain **previousSwapchain = command.GetDataIf<Swapchain *>())
+			if (Nexus::Graphics::Swapchain **previousSwapchain = m_CurrentRenderTarget.value().GetDataIf<Swapchain *>())
 			{
-				GraphicsDeviceOpenGL *deviceOpenGL = (GraphicsDeviceOpenGL *)device;
-				deviceOpenGL->GetOffscreenContext()->MakeCurrent();
+				deviceGL->GetOffscreenContext()->MakeCurrent();
 			}
 		}
 

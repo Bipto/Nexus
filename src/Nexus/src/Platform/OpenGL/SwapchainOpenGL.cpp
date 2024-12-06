@@ -21,8 +21,8 @@ namespace Nexus::Graphics
 
 		GraphicsDeviceOpenGL *graphicsDeviceOpenGL = (GraphicsDeviceOpenGL *)graphicsDevice;
 
-		m_FBO = GL::CreateViewContext(window, graphicsDeviceOpenGL);
-		m_FBO->MakeCurrent();
+		ViewContext = GL::CreateViewContext(window, graphicsDeviceOpenGL);
+		ViewContext->MakeCurrent();
 		SetVSyncState(swapchainSpec.VSyncState);
 	}
 
@@ -32,8 +32,7 @@ namespace Nexus::Graphics
 
 	void SwapchainOpenGL::SwapBuffers()
 	{
-		BindAsRenderTarget();
-		m_FBO->Swap();
+		ViewContext->Swap();
 		ResizeIfNecessary();
 	}
 
@@ -48,11 +47,11 @@ namespace Nexus::Graphics
 
 		if (vsyncState == VSyncState::Enabled)
 		{
-			m_FBO->SetVSync(true);
+			ViewContext->SetVSync(true);
 		}
 		else
 		{
-			m_FBO->SetVSync(false);
+			ViewContext->SetVSync(false);
 		}
 	}
 
@@ -73,17 +72,9 @@ namespace Nexus::Graphics
 		m_SwapchainHeight = h;
 	}
 
-	void SwapchainOpenGL::BindAsRenderTarget()
-	{
-		m_FBO->MakeCurrent();
-		m_FBO->BindAsRenderTarget();
-		ResizeIfNecessary();
-	}
-
 	void SwapchainOpenGL::BindAsDrawTarget()
 	{
-		m_FBO->MakeCurrent();
-		m_FBO->BindAsDrawTarget();
+		ViewContext->MakeCurrent();
 		ResizeIfNecessary();
 	}
 
