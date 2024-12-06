@@ -42,6 +42,11 @@ namespace Demos
 			}
 		}
 
+		virtual std::string GetInfo() const override
+		{
+			return "Playing a sound effect loaded from a .wav file";
+		}
+
 	  private:
 		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
 		glm::vec3								 m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};

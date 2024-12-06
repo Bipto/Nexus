@@ -138,11 +138,6 @@ namespace Nexus
 		m_Window->SetIsMouseVisible(visible);
 	}
 
-	void Application::SetCursor(Cursor cursor)
-	{
-		m_Window->SetCursor(cursor);
-	}
-
 	void Application::Close()
 	{
 		m_Window->Close();

@@ -110,6 +110,12 @@ namespace Demos
 		{
 		}
 
+		virtual std::string GetInfo() const override
+		{
+			return "3D scene with a cube\nControls: Right click in the scene to activate the camera, use escape to return the mouse cursor.\nUse "
+				   "WASD to move the camera.";
+		}
+
 	  private:
 		void CreatePipeline()
 		{

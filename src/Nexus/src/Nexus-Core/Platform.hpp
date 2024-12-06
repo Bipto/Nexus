@@ -11,6 +11,27 @@
 
 namespace Nexus::Platform
 {
+
+	/// @brief An enum representing the different default cursors that can be
+	/// selected
+	enum class Cursor
+	{
+		Arrow,
+		IBeam,
+		Wait,
+		Crosshair,
+		WaitArrow,
+		ArrowNWSE,
+		ArrowNESW,
+		ArrowWE,
+		ArrowNS,
+		ArrowAllDir,
+		No,
+		Hand
+	};
+
+	void SetCursor(Cursor cursor);
+
 	std::vector<InputNew::Keyboard> GetKeyboards();
 	std::vector<InputNew::Mouse>	GetMice();
 	std::vector<InputNew::Gamepad>	GetGamepads();

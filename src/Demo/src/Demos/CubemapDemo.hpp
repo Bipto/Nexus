@@ -132,6 +132,11 @@ namespace Demos
 			m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
 		}
 
+		virtual std::string GetInfo() const override
+		{
+			return "Creating and rendering a cubemap to provide an environment.";
+		}
+
 	  private:
 		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
 		Nexus::Ref<Nexus::Graphics::Cubemap>	 m_Cubemap;

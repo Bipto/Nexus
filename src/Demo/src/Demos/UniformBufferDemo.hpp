@@ -115,6 +115,11 @@ namespace Demos
 			m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
 		}
 
+		virtual std::string GetInfo() const override
+		{
+			return "Rendering a textured quad and uploading matrix transforms to the GPU to change the position.";
+		}
+
 	  private:
 		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
 		Nexus::Ref<Nexus::Graphics::Pipeline>	 m_Pipeline;

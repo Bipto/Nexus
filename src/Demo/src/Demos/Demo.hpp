@@ -42,6 +42,11 @@ namespace Demos
 		{
 		}
 
+		virtual std::string GetInfo() const
+		{
+			return "";
+		}
+
 		const std::string &GetName() const
 		{
 			return m_Name;

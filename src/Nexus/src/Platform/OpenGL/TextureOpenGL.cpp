@@ -68,7 +68,7 @@ namespace Nexus::Graphics
 
 	void Texture2DOpenGL::GetData(std::vector<unsigned char> &pixels, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 	{
-		size_t sizeInBytes = GetPixelFormatSizeInBytes(m_Specification.Format);
+		size_t sizeInBytes = GetPixelFormatSizeInBits(m_Specification.Format);
 		size_t bufferSize  = (width - x) * (height - y) * sizeInBytes;
 
 		if (pixels.size() < bufferSize)
@@ -84,8 +84,11 @@ namespace Nexus::Graphics
 			glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_TextureType, m_Handle, level));
 		}
 
-		glCall(glReadBuffer(GL_COLOR_ATTACHMENT0));
-		glCall(glReadPixels(x, y, width, height, m_DataFormat, m_BaseType, pixels.data()));
+		if (m_Framebuffer)
+		{
+			glCall(glReadBuffer(GL_COLOR_ATTACHMENT0));
+			glCall(glReadPixels(x, y, width, height, m_DataFormat, m_BaseType, pixels.data()));
+		}
 	}
 
 	unsigned int Texture2DOpenGL::GetHandle()

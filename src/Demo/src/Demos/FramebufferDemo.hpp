@@ -52,6 +52,11 @@ namespace Demos
 			ImGui::Image(m_TextureID, {256, 256});
 		}
 
+		virtual std::string GetInfo() const override
+		{
+			return "Rendering into a framebuffer and displaying the texture onto the screen";
+		}
+
 	  private:
 		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
 		glm::vec3								 m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};

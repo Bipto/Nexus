@@ -84,6 +84,7 @@ namespace Nexus::Graphics
 	{
 		m_FBO->MakeCurrent();
 		m_FBO->BindAsDrawTarget();
+		ResizeIfNecessary();
 	}
 
 	void SwapchainOpenGL::Prepare()

@@ -121,10 +121,6 @@ namespace Nexus
 		/// visible
 		void SetIsMouseVisible(bool visible);
 
-		/// @brief A method that sets the cursor style
-		/// @param cursor An enum value representing the cursor style to use
-		void SetCursor(Cursor cursor);
-
 		/// @brief A method that closes the application
 		void Close();
 

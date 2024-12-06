@@ -655,48 +655,48 @@ namespace Nexus::ImGuiUtils
 		{
 			case ImGuiMouseCursor_Arrow:
 			{
-				window->SetCursor(Nexus::Cursor::Arrow);
+				Platform::SetCursor(Nexus::Platform::Cursor::Arrow);
 				break;
 			}
 			case ImGuiMouseCursor_TextInput:
 			{
-				window->SetCursor(Nexus::Cursor::IBeam);
+				Platform::SetCursor(Nexus::Platform::Cursor::IBeam);
 				break;
-				case ImGuiMouseCursor_ResizeAll:
-				{
-					window->SetCursor(Nexus::Cursor::ArrowAllDir);
-					break;
-				}
-				case ImGuiMouseCursor_ResizeNS:
-				{
-					window->SetCursor(Nexus::Cursor::ArrowNS);
-					break;
-				}
-				case ImGuiMouseCursor_ResizeEW:
-				{
-					window->SetCursor(Nexus::Cursor::ArrowWE);
-					break;
-				}
-				case ImGuiMouseCursor_ResizeNESW:
-				{
-					window->SetCursor(Nexus::Cursor::ArrowNESW);
-					break;
-				}
-				case ImGuiMouseCursor_ResizeNWSE:
-				{
-					window->SetCursor(Nexus::Cursor::ArrowNWSE);
-					break;
-				}
-				case ImGuiMouseCursor_Hand:
-				{
-					window->SetCursor(Nexus::Cursor::Hand);
-					break;
-				}
-				case ImGuiMouseCursor_NotAllowed:
-				{
-					window->SetCursor(Nexus::Cursor::No);
-					break;
-				}
+			}
+			case ImGuiMouseCursor_ResizeAll:
+			{
+				Platform::SetCursor(Nexus::Platform::Cursor::ArrowAllDir);
+				break;
+			}
+			case ImGuiMouseCursor_ResizeNS:
+			{
+				Platform::SetCursor(Nexus::Platform::Cursor::ArrowNS);
+				break;
+			}
+			case ImGuiMouseCursor_ResizeEW:
+			{
+				Platform::SetCursor(Nexus::Platform::Cursor::ArrowWE);
+				break;
+			}
+			case ImGuiMouseCursor_ResizeNESW:
+			{
+				Platform::SetCursor(Nexus::Platform::Cursor::ArrowNESW);
+				break;
+			}
+			case ImGuiMouseCursor_ResizeNWSE:
+			{
+				Platform::SetCursor(Nexus::Platform::Cursor::ArrowNWSE);
+				break;
+			}
+			case ImGuiMouseCursor_Hand:
+			{
+				Platform::SetCursor(Nexus::Platform::Cursor::Hand);
+				break;
+			}
+			case ImGuiMouseCursor_NotAllowed:
+			{
+				Platform::SetCursor(Nexus::Platform::Cursor::No);
+				break;
 			}
 		}
 	}

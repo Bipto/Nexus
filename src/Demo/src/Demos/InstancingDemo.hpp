@@ -125,6 +125,12 @@ namespace Demos
 			m_Camera.Update(m_Window->GetWindowSize().X, m_Window->GetWindowSize().Y, time);
 		}
 
+		virtual std::string GetInfo() const override
+		{
+			return "Rendering a series of textured cubes using a vertex buffer containing vertices, an index buffer\nand a second vertex buffer "
+				   "containing matrix transformations per cube.";
+		}
+
 	  private:
 		void CreatePipeline()
 		{

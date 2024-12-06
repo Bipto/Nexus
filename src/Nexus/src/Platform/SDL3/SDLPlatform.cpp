@@ -16,6 +16,8 @@ std::optional<uint32_t> m_ActiveMouse	 = {};
 std::optional<uint32_t> m_ActiveKeyboard = {};
 std::optional<uint32_t> m_ActiveGamepad	 = {};
 
+std::map<Nexus::Platform::Cursor, SDL_Cursor *> m_Cursors;
+
 Nexus::Window *GetWindowFromHandle(uint32_t handle)
 {
 	for (int i = 0; i < m_Windows.size(); i++)
@@ -169,8 +171,8 @@ void PollEvents()
 			}
 			case SDL_EVENT_MOUSE_MOTION:
 			{
-				float mouseX = event.motion.x;
-				float mouseY = event.motion.y;
+				float mouseX	= event.motion.x;
+				float mouseY	= event.motion.y;
 				float movementX = event.motion.xrel;
 				float movementY = event.motion.yrel;
 
@@ -333,6 +335,11 @@ void PollEvents()
 
 namespace Nexus::Platform
 {
+	void SetCursor(Cursor cursor)
+	{
+		SDL_SetCursor(m_Cursors[cursor]);
+	}
+
 	std::vector<InputNew::Keyboard> GetKeyboards()
 	{
 		std::vector<InputNew::Keyboard> keyboards;
@@ -497,6 +504,28 @@ namespace Nexus::Platform
 		return {};
 	}
 
+	void CreateCursors(std::map<Cursor, SDL_Cursor *> &cursors)
+	{
+		m_Cursors[Cursor::Arrow]	   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+		m_Cursors[Cursor::IBeam]	   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM);
+		m_Cursors[Cursor::Wait]		   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_WAIT);
+		m_Cursors[Cursor::Crosshair]   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_CROSSHAIR);
+		m_Cursors[Cursor::WaitArrow]   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_WAITARROW);
+		m_Cursors[Cursor::ArrowNWSE]   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENWSE);
+		m_Cursors[Cursor::ArrowNESW]   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENESW);
+		m_Cursors[Cursor::ArrowWE]	   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEWE);
+		m_Cursors[Cursor::ArrowNS]	   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENS);
+		m_Cursors[Cursor::ArrowAllDir] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEALL);
+		m_Cursors[Cursor::No]		   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NO);
+		m_Cursors[Cursor::Hand]		   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+	}
+
+	void ReleaseCursors(std::map<Cursor, SDL_Cursor *> &cursors)
+	{
+		for (auto &pair : cursors) { SDL_DestroyCursor(pair.second); }
+		cursors.clear();
+	}
+
 	void Initialise()
 	{
 		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD) != 0)
@@ -507,10 +536,13 @@ namespace Nexus::Platform
 		SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4_RUMBLE, "1");
 		SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5_RUMBLE, "1");
 		SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5_PLAYER_LED, "1");
+
+		CreateCursors(m_Cursors);
 	}
 
 	void Shutdown()
 	{
+		ReleaseCursors(m_Cursors);
 		SDL_Quit();
 	}
 

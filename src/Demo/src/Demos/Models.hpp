@@ -132,6 +132,11 @@ namespace Demos
 			m_Camera.Update(m_Window->GetWindowSize().X, m_Window->GetWindowSize().Y, time);
 		}
 
+		virtual std::string GetInfo() const override
+		{
+			return "Loading and rendering a 3D model.";
+		}
+
 	  private:
 		void CreatePipeline()
 		{

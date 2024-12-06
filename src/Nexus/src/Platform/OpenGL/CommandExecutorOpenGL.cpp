@@ -309,6 +309,15 @@ namespace Nexus::Graphics
 	{
 		GraphicsDeviceOpenGL *deviceGL = (GraphicsDeviceOpenGL *)device;
 
+		if (m_CurrentRenderTarget.has_value())
+		{
+			if (Nexus::Graphics::Swapchain **previousSwapchain = command.GetDataIf<Swapchain *>())
+			{
+				GraphicsDeviceOpenGL *deviceOpenGL = (GraphicsDeviceOpenGL *)device;
+				deviceOpenGL->GetOffscreenContext()->MakeCurrent();
+			}
+		}
+
 		// handle different options of render targets
 		if (Nexus::Graphics::Swapchain **swapchain = command.GetDataIf<Swapchain *>())
 		{

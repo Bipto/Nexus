@@ -33,24 +33,6 @@ namespace Nexus
 		class GraphicsDevice;
 	}	 // namespace Graphics
 
-	/// @brief An enum representing the different default cursors that can be
-	/// selected
-	enum class Cursor
-	{
-		Arrow,
-		IBeam,
-		Wait,
-		Crosshair,
-		WaitArrow,
-		ArrowNWSE,
-		ArrowNESW,
-		ArrowWE,
-		ArrowNS,
-		ArrowAllDir,
-		No,
-		Hand
-	};
-
 	using WindowHandle = void *;
 
 	/// @brief A class representing a window
@@ -115,10 +97,6 @@ namespace Nexus
 		/// @param visible A boolean value indicating whether the mouse should be
 		/// visible
 		void SetIsMouseVisible(bool visible);
-
-		/// @brief A method that sets the cursor used within the window
-		/// @param cursor An enum value representing the cursor to use
-		void SetCursor(Cursor cursor);
 
 		/// @brief A method that returns the window's input state
 		/// @return A pointer to the input state

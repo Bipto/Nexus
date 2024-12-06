@@ -55,6 +55,11 @@ namespace Demos
 			ImGui::Text("Time taken: %1.2f Ms", m_Timing);
 		}
 
+		virtual std::string GetInfo() const override
+		{
+			return "Inserting GPU timestamps into CommandList recording";
+		}
+
 	  private:
 		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
 		glm::vec3								 m_ClearColour = {0.7f, 0.2f, 0.3f};

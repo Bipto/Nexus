@@ -77,6 +77,11 @@ namespace Demos
 			ImGui::DragInt("Mip", &m_SelectedMip, 1.0f, 0, m_Texture->GetSpecification().MipLevels);
 		}
 
+		virtual std::string GetInfo() const override
+		{
+			return "Dynamically switching which mip level to use.";
+		}
+
 	  private:
 		void CreatePipeline()
 		{

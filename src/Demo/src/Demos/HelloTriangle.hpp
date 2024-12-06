@@ -74,6 +74,11 @@ namespace Demos
 		{
 		}
 
+		virtual std::string GetInfo() const override
+		{
+			return "Rendering a triangle using a vertex buffer";
+		}
+
 	  private:
 		void CreatePipeline()
 		{

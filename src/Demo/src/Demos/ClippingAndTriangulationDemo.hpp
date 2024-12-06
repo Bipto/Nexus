@@ -138,6 +138,12 @@ namespace Demos
 		{
 		}
 
+		virtual std::string GetInfo() const override
+		{
+			return "Clipping a polygon against another using the Sutherland-Hodgman algorithm\nand triangulating the resulting polygon using "
+				   "ear-clipping.";
+		}
+
 	  private:
 		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
 		glm::vec3								 m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};

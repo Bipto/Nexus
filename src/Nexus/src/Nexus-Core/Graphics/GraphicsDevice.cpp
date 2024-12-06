@@ -63,10 +63,47 @@ namespace Nexus::Graphics
 
 	Ref<ShaderModule> GraphicsDevice::GetOrCreateCachedShaderFromSpirvSource(const std::string &source, const std::string &name, ShaderStage stage)
 	{
-		std::size_t	   hash			  = Utils::Hash(source);
-		ShaderLanguage language		  = GetSupportedShaderFormat();
-		std::string	   languageString = ShaderLanguageToString(language);
-		std::string	   filepath		  = "cache/shaders/" + languageString + "/" + name;
+		TryLoadCachedShader(source, name, stage, ShaderLanguage::GLSLES);
+		return TryLoadCachedShader(source, name, stage, GetSupportedShaderFormat());
+	}
+
+	Ref<ShaderModule> GraphicsDevice::GetOrCreateCachedShaderFromSpirvFile(const std::string &filepath, ShaderStage stage)
+	{
+		std::string source = Nexus::FileSystem::ReadFileToString(filepath);
+		return GetOrCreateCachedShaderFromSpirvSource(source, filepath, stage);
+	}
+
+	Window *GraphicsDevice::GetPrimaryWindow()
+	{
+		return m_Window;
+	}
+
+	void GraphicsDevice::ImmediateSubmit(std::function<void(Ref<CommandList>)> &&function)
+	{
+		if (!m_ImmediateCommandList)
+		{
+			m_ImmediateCommandList = CreateCommandList();
+		}
+
+		m_ImmediateCommandList->Begin();
+		function(m_ImmediateCommandList);
+		m_ImmediateCommandList->End();
+		SubmitCommandList(m_ImmediateCommandList);
+	}
+
+	const GraphicsDeviceSpecification &GraphicsDevice::GetSpecification() const
+	{
+		return m_Specification;
+	}
+
+	Ref<ShaderModule> GraphicsDevice::TryLoadCachedShader(const std::string &source,
+														  const std::string &name,
+														  ShaderStage		 stage,
+														  ShaderLanguage	 language)
+	{
+		std::size_t hash		   = Utils::Hash(source);
+		std::string languageString = ShaderLanguageToString(language);
+		std::string filepath	   = "cache/shaders/" + languageString + "/" + name;
 
 		bool			  shaderCreated = false;
 		Ref<ShaderModule> module		= nullptr;
@@ -91,42 +128,6 @@ namespace Nexus::Graphics
 		}
 
 		return module;
-	}
-
-	Ref<ShaderModule> GraphicsDevice::GetOrCreateCachedShaderFromSpirvFile(const std::string &filepath, ShaderStage stage)
-	{
-		std::string source = Nexus::FileSystem::ReadFileToString(filepath);
-		return GetOrCreateCachedShaderFromSpirvSource(source, filepath, stage);
-	}
-
-	Ref<Texture2D> GraphicsDevice::GetOrCreateCachedTexture2DFromImage(const std::string &filepath, bool generateMips)
-	{
-		Ref<Texture2D> texture = CreateTexture2D(filepath, generateMips);
-		std::string	   outPath = "cache/texture2d" + filepath;
-		return texture;
-	}
-
-	Window *GraphicsDevice::GetPrimaryWindow()
-	{
-		return m_Window;
-	}
-
-	void GraphicsDevice::ImmediateSubmit(std::function<void(Ref<CommandList>)> &&function)
-	{
-		if (!m_ImmediateCommandList)
-		{
-			m_ImmediateCommandList = CreateCommandList();
-		}
-
-		m_ImmediateCommandList->Begin();
-		function(m_ImmediateCommandList);
-		m_ImmediateCommandList->End();
-		SubmitCommandList(m_ImmediateCommandList);
-	}
-
-	const GraphicsDeviceSpecification &GraphicsDevice::GetSpecification() const
-	{
-		return m_Specification;
 	}
 
 	Ref<Texture2D> GraphicsDevice::CreateTexture2D(const char *filepath, bool generateMips)

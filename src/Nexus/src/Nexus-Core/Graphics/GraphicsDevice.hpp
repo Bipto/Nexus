@@ -165,8 +165,6 @@ namespace Nexus::Graphics
 
 		Ref<ShaderModule> GetOrCreateCachedShaderFromSpirvFile(const std::string &filepath, ShaderStage stage);
 
-		Ref<Texture2D> GetOrCreateCachedTexture2DFromImage(const std::string &filepath, bool generateMips);
-
 		Window *GetPrimaryWindow();
 
 		void ImmediateSubmit(std::function<void(Ref<CommandList> cmd)> &&function);
@@ -175,6 +173,7 @@ namespace Nexus::Graphics
 
 	  private:
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) = 0;
+		Ref<ShaderModule>		  TryLoadCachedShader(const std::string &source, const std::string &name, ShaderStage stage, ShaderLanguage language);
 
 	  protected:
 		/// @brief A pointer to the window to render graphics into

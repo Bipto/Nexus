@@ -134,6 +134,11 @@ namespace Demos
 			m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
 		}
 
+		virtual std::string GetInfo() const override
+		{
+			return "Rendering a rotating textured cube using matrices";
+		}
+
 	  private:
 		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
 		Nexus::Ref<Nexus::Graphics::Pipeline>	 m_Pipeline;

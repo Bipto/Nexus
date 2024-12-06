@@ -142,6 +142,11 @@ namespace Demos
 		{
 		}
 
+		virtual std::string GetInfo() const override
+		{
+			return "Calculating and rendering customisable splines.";
+		}
+
 	  private:
 		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
 		glm::vec3								 m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};

@@ -17,11 +17,41 @@ namespace Nexus
 	{
 	  public:
 		FirstPersonCamera(Graphics::GraphicsDevice *device, int width = 1280, int height = 720, const glm::vec3 &position = {0, 0, 0})
+			: m_Device(device)
 		{
 			this->Resize(width, height);
 			this->m_Position = position;
 
-			device->GetPrimaryWindow()->OnMouseMoved.Bind([&](const MouseMovedEventArgs &event) { Rotate(event.Movement.X, event.Movement.Y); });
+			m_Device->GetPrimaryWindow()->OnMouseMoved.Bind([&](const MouseMovedEventArgs &event) { Rotate(event.Movement.X, event.Movement.Y); });
+			// m_Device->GetPrimaryWindow()->SetRelativeMouseMode(true);
+
+			m_Device->GetPrimaryWindow()->OnMousePressed.Bind(
+				[&](const MouseButtonPressedEventArgs &event)
+				{
+					if (event.Button == MouseButton::Right)
+					{
+						Window *window = m_Device->GetPrimaryWindow();
+						if (window)
+						{
+							window->SetRelativeMouseMode(true);
+						}
+						m_RotationActive = true;
+					}
+				});
+
+			m_Device->GetPrimaryWindow()->OnKeyPressed.Bind(
+				[&](const KeyPressedEventArgs &event)
+				{
+					if (event.ScanCode == ScanCode::Escape)
+					{
+						Window *window = m_Device->GetPrimaryWindow();
+						if (window)
+						{
+							window->SetRelativeMouseMode(false);
+						}
+						m_RotationActive = false;
+					}
+				});
 		}
 
 		void Resize(int width, int height)
@@ -116,6 +146,9 @@ namespace Nexus
 	  private:
 		inline void Move(TimeSpan time)
 		{
+			if (!m_RotationActive)
+				return;
+
 			float speed = 2.0f * time.GetSeconds();
 
 			std::optional<uint32_t> defaultKeyboard = Platform::GetActiveKeyboardId();
@@ -170,7 +203,7 @@ namespace Nexus
 			if (!defaultMouse.has_value())
 				return;
 
-			if (Input::IsMouseButtonDown(defaultMouse.value(), MouseButton::Middle))
+			if (m_RotationActive)
 			{
 				m_Yaw -= x;
 				m_Pitch -= y;
@@ -210,6 +243,7 @@ namespace Nexus
 		}
 
 	  private:
+		Graphics::GraphicsDevice *m_Device = nullptr;
 		glm::vec3 m_Position {0.0f, 0.0f, 5.0f};
 		glm::vec3 m_Front {0.0f, 0.0f, 1.0f};
 		glm::vec3 m_Up {0.0f, 1.0f, 0.0f};
@@ -227,5 +261,6 @@ namespace Nexus
 
 		ProjectionType			m_ProjectionType = ProjectionType::Perspective;
 		Utils::FrameRateMonitor m_Timer			 = {};
+		bool					m_RotationActive = false;
 	};
 }	 // namespace Nexus

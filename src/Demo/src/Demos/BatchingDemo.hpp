@@ -110,6 +110,11 @@ namespace Demos
 			}
 		}
 
+		virtual std::string GetInfo() const override
+		{
+			return "Rendering 2D geometry efficiently using a batch renderer";
+		}
+
 	  private:
 		struct QuadInfo
 		{

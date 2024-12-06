@@ -146,29 +146,6 @@ namespace Nexus
 		}
 	}
 
-	void Window::SetCursor(Cursor cursor)
-	{
-		SDL_Cursor *sdlCursor;
-
-		switch (cursor)
-		{
-			case Cursor::Arrow: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW); break;
-			case Cursor::IBeam: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM); break;
-			case Cursor::Wait: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_WAIT); break;
-			case Cursor::Crosshair: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_CROSSHAIR); break;
-			case Cursor::WaitArrow: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_WAITARROW); break;
-			case Cursor::ArrowNWSE: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENWSE); break;
-			case Cursor::ArrowNESW: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENESW); break;
-			case Cursor::ArrowWE: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEWE); break;
-			case Cursor::ArrowNS: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENS); break;
-			case Cursor::ArrowAllDir: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEALL); break;
-			case Cursor::No: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NO); break;
-			case Cursor::Hand: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND); break;
-		}
-
-		SDL_SetCursor(sdlCursor);
-	}
-
 	InputState *Window::GetInput()
 	{
 		return &m_Input;

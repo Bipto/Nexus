@@ -74,6 +74,11 @@ namespace Demos
 			m_GraphicsDevice->SubmitCommandList(m_CommandList);
 		}
 
+		virtual std::string GetInfo() const override
+		{
+			return "Rendering a triangle using a vertex buffer and an index buffer";
+		}
+
 	  private:
 		void CreatePipeline()
 		{
