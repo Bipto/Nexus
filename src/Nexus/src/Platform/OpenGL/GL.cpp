@@ -621,8 +621,12 @@ namespace Nexus::GL
 
 	std::unique_ptr<IOffscreenContext> CreateOffscreenContext()
 	{
+		GL::ContextSpecification spec = {};
+		spec.Debug					  = true;
+		spec.Samples				  = Graphics::SampleCount::SampleCount8;
+
 	#if defined(NX_PLATFORM_WGL)
-		return std::make_unique<OffscreenContextWGL>();
+		return std::make_unique<OffscreenContextWGL>(spec);
 	#elif defined(NX_PLATFORM_EGL)
 		#error Not implemented
 	#elif defined(NX_PLATFORM_WEBGL)

@@ -158,12 +158,12 @@ namespace Nexus::GL
 
 		if (spec.UseCoreProfile)
 		{
-			attributes.push_back(WGL_CONTEXT_FLAGS_ARB);
+			attributes.push_back(WGL_CONTEXT_PROFILE_MASK_ARB);
 			attributes.push_back(WGL_CONTEXT_CORE_PROFILE_BIT_ARB);
 		}
 		else
 		{
-			attributes.push_back(WGL_CONTEXT_FLAGS_ARB);
+			attributes.push_back(WGL_CONTEXT_PROFILE_MASK_ARB);
 			attributes.push_back(WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB);
 		}
 

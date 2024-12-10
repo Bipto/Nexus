@@ -4,6 +4,7 @@
 
 	#include "Nexus-Core/nxpch.hpp"
 	#include "Platform/OpenGL/Context/IOffscreenContext.hpp"
+	#include "Platform/OpenGL/ContextSpecification.hpp"
 
 	#include "Platform/Windows/WindowsInclude.hpp"
 	#include "glad/glad_wgl.h"
@@ -13,7 +14,7 @@ namespace Nexus::GL
 	class OffscreenContextWGL : public IOffscreenContext
 	{
 	  public:
-		OffscreenContextWGL();
+		OffscreenContextWGL(const ContextSpecification &spec);
 		virtual ~OffscreenContextWGL();
 		virtual bool MakeCurrent() override;
 
@@ -22,7 +23,7 @@ namespace Nexus::GL
 	  private:
 		inline static void					LoadGLFunctionsIfNeeded(HDC hdc);
 		std::tuple<HWND, HGLRC, HDC>		CreateTemporaryWindow();
-		std::tuple<HPBUFFERARB, HDC, HGLRC> CreatePBufferContext(HDC hdc);
+		std::tuple<HPBUFFERARB, HDC, HGLRC> CreatePBufferContext(HDC hdc, const ContextSpecification &spec);
 
 	  private:
 		HGLRC		m_HGLRC	  = {};

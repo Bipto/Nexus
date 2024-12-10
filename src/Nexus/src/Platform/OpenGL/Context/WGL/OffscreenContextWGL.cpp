@@ -4,13 +4,13 @@
 
 namespace Nexus::GL
 {
-	OffscreenContextWGL::OffscreenContextWGL()
+	OffscreenContextWGL::OffscreenContextWGL(const ContextSpecification &spec)
 	{
 		auto [tempWindow, tempHglrc, tempHdc] = CreateTemporaryWindow();
 		wglMakeCurrent(tempHdc, tempHglrc);
 		LoadGLFunctionsIfNeeded(tempHdc);
 
-		auto [pbuffer, hdc, hglrc] = CreatePBufferContext(tempHdc);
+		auto [pbuffer, hdc, hglrc] = CreatePBufferContext(tempHdc, spec);
 
 		m_PBuffer = pbuffer;
 		m_HDC	  = hdc;
@@ -130,36 +130,59 @@ namespace Nexus::GL
 		return {hwnd, hglrc, hdc};
 	}
 
-	std::tuple<HPBUFFERARB, HDC, HGLRC> OffscreenContextWGL::CreatePBufferContext(HDC hdc)
+	std::tuple<HPBUFFERARB, HDC, HGLRC> OffscreenContextWGL::CreatePBufferContext(HDC hdc, const ContextSpecification &spec)
 	{
-		int	  pixelFormat;
-		UINT  numFormats;
-		float fAttributes[] = {0, 0};
-		int	  iAttributes[] = {WGL_DRAW_TO_PBUFFER_ARB,
-							   GL_TRUE,
-							   WGL_SUPPORT_OPENGL_ARB,
-							   GL_TRUE,
-							   WGL_PIXEL_TYPE_ARB,
-							   WGL_TYPE_RGBA_ARB,
-							   WGL_RED_BITS_ARB,
-							   8,
-							   WGL_GREEN_BITS_ARB,
-							   8,
-							   WGL_BLUE_BITS_ARB,
-							   8,
-							   WGL_ALPHA_BITS_ARB,
-							   8,
-							   WGL_DEPTH_BITS_ARB,
-							   24,
-							   0};
+		int	 pixelFormat;
+		UINT numFormats;
+		int	 attributes[] = {WGL_DRAW_TO_PBUFFER_ARB,
+							 GL_TRUE,
+							 WGL_SUPPORT_OPENGL_ARB,
+							 GL_TRUE,
+							 WGL_PIXEL_TYPE_ARB,
+							 WGL_TYPE_RGBA_ARB,
+							 WGL_ACCELERATION_ARB,
+							 WGL_FULL_ACCELERATION_ARB,
+							 WGL_COLOR_BITS_ARB,
+							 24,
+							 WGL_DEPTH_BITS_ARB,
+							 16,
+							 0};
 
-		wglChoosePixelFormatARB(hdc, iAttributes, fAttributes, 1, &pixelFormat, &numFormats);
+		if (!wglChoosePixelFormatARB(hdc, attributes, NULL, 1, &pixelFormat, &numFormats))
+		{
+			std::cout << "Failed to choose pixel format" << std::endl;
+		}
 
-		HPBUFFERARB pbuffer	  = wglCreatePbufferARB(hdc, pixelFormat, 1, 1, NULL);
-		HDC			pbufferDC = wglGetPbufferDCARB(pbuffer);
-		HGLRC		hglrc	  = wglCreateContext(pbufferDC);
+		int pbufferAttributes[] = {0};
 
-		return {pbuffer, pbufferDC, hglrc};
+		HPBUFFERARB pbuffer = wglCreatePbufferARB(hdc, pixelFormat, 1, 1, pbufferAttributes);
+		NX_ASSERT(pbuffer, "Failed to create PBuffer");
+
+		HDC pbufferDC = wglGetPbufferDCARB(pbuffer);
+		NX_ASSERT(pbufferDC, "Failed to create DC for PBuffer");
+
+		std::vector<int> contextAttributes;
+		contextAttributes.push_back(WGL_CONTEXT_MAJOR_VERSION_ARB);
+		contextAttributes.push_back(spec.VersionMajor);
+		contextAttributes.push_back(WGL_CONTEXT_MINOR_VERSION_ARB);
+		contextAttributes.push_back(spec.VersionMinor);
+		contextAttributes.push_back(WGL_CONTEXT_PROFILE_MASK_ARB);
+
+		if (spec.UseCoreProfile)
+		{
+			contextAttributes.push_back(WGL_CONTEXT_CORE_PROFILE_BIT_ARB);
+		}
+		else
+		{
+			contextAttributes.push_back(WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB);
+		}
+
+		contextAttributes.push_back(0);
+
+		HGLRC pbufferContext = wglCreateContextAttribsARB(pbufferDC, NULL, contextAttributes.data());
+		NX_ASSERT(pbufferContext, "Failed to create OpenGL context");
+
+		return {pbuffer, pbufferDC, pbufferContext};
 	}
 }	 // namespace Nexus::GL
 
