@@ -13,19 +13,22 @@ namespace Nexus::Graphics
 		PipelineOpenGL(const PipelineDescription &description);
 		virtual ~PipelineOpenGL();
 		virtual const PipelineDescription &GetPipelineDescription() const override;
-		void	 BindVertexBuffers(const std::map<uint32_t, Nexus::WeakRef<Nexus::Graphics::VertexBufferOpenGL>> &vertexBuffers,
-								   uint32_t																		  vertexOffset,
-								   uint32_t																		  instanceOffset);
+		void							   BindBuffers(const std::map<uint32_t, Nexus::WeakRef<Nexus::Graphics::VertexBufferOpenGL>> &vertexBuffers,
+													   Nexus::WeakRef<Nexus::Graphics::IndexBufferOpenGL>							  indexBuffer,
+													   uint32_t																		  vertexOffset,
+													   uint32_t																		  instanceOffset);
 		void	 Bind();
 		void	 Unbind();
 		uint32_t GetShaderHandle() const;
+
+		void CreateVAO();
+		void DestroyVAO();
 
 	  private:
 		void SetupDepthStencil();
 		void SetupRasterizer();
 		void SetupBlending();
 		void SetShader();
-		void BindVertexArray();
 		void CreateShader();
 
 	  private:

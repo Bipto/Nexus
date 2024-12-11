@@ -6,6 +6,7 @@
 	#include "Nexus-Core/Graphics/CommandExecutor.hpp"
 	#include "Nexus-Core/Graphics/CommandList.hpp"
 	#include "PipelineOpenGL.hpp"
+	#include "ResourceSetOpenGL.hpp"
 
 namespace Nexus::Graphics
 {
@@ -38,11 +39,15 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(SetDepthBoundsCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(SetBlendFactorCommand command, GraphicsDevice *device) override;
 
+		void BindResourceSet(Ref<ResourceSetOpenGL> resourceSet);
+
 	  private:
 		std::optional<Ref<PipelineOpenGL>>										m_CurrentlyBoundPipeline	  = {};
 		std::optional<RenderTarget>												m_CurrentRenderTarget		  = {};
 		std::map<uint32_t, Nexus::WeakRef<Nexus::Graphics::VertexBufferOpenGL>> m_CurrentlyBoundVertexBuffers = {};
+		Nexus::WeakRef<Nexus::Graphics::IndexBufferOpenGL>							m_BoundIndexBuffer			  = {};
 		GLenum																	m_IndexBufferFormat;
+		Nexus::Ref<Nexus::Graphics::ResourceSetOpenGL>							m_BoundResourceSet = {};
 	};
 }	 // namespace Nexus::Graphics
 
