@@ -31,6 +31,8 @@ namespace Nexus::Graphics
 		static void	 Unbind();
 		unsigned int GetHandle();
 
+		GLenum GetGLIndexFormat() const;
+
 		virtual void SetData(const void *data, uint32_t size, uint32_t offset = 0) override;
 
 	  private:

@@ -54,9 +54,8 @@ namespace Nexus::Graphics
 		}
 		if (Ref<IndexBuffer> ib = command.lock())
 		{
-			auto indexBufferGL	= std::dynamic_pointer_cast<IndexBufferOpenGL>(ib);
-			m_IndexBufferFormat = GL::GetGLIndexBufferFormat(indexBufferGL->GetFormat());
-			m_BoundIndexBuffer	= indexBufferGL;
+			auto indexBufferGL = std::dynamic_pointer_cast<IndexBufferOpenGL>(ib);
+			m_BoundIndexBuffer = indexBufferGL;
 		}
 	}
 
@@ -113,33 +112,21 @@ namespace Nexus::Graphics
 
 		if (Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value()))
 		{
-			pipeline->CreateVAO();
-			pipeline->BindBuffers(m_CurrentlyBoundVertexBuffers, m_BoundIndexBuffer, command.VertexStart, 0);
-			pipeline->Bind();
-			BindResourceSet(m_BoundResourceSet);
-
-			uint32_t indexSize = 0;
-			if (m_IndexBufferFormat == GL_UNSIGNED_SHORT)
+			if (Ref<IndexBufferOpenGL> indexBuffer = m_BoundIndexBuffer.lock())
 			{
-				indexSize = sizeof(uint16_t);
-			}
-			else if (m_IndexBufferFormat == GL_UNSIGNED_INT)
-			{
-				indexSize = sizeof(uint32_t);
-			}
-			else
-			{
-				NX_ERROR("Undefined index buffer format supplied");
-				return;
-			}
+				pipeline->CreateVAO();
+				pipeline->BindBuffers(m_CurrentlyBoundVertexBuffers, indexBuffer, command.VertexStart, 0);
+				pipeline->Bind();
+				BindResourceSet(m_BoundResourceSet);
 
-			uint32_t offset = command.IndexStart * indexSize;
+				uint32_t offset = command.IndexStart * indexBuffer->GetElementSizeInBytes();
 
-			glCall(glDrawElements(GL::GetTopology(pipeline->GetPipelineDescription().PrimitiveTopology),
-								  command.Count,
-								  m_IndexBufferFormat,
-								  (void *)offset));
-			pipeline->DestroyVAO();
+				glCall(glDrawElements(GL::GetTopology(pipeline->GetPipelineDescription().PrimitiveTopology),
+									  command.Count,
+									  indexBuffer->GetGLIndexFormat(),
+									  (void *)offset));
+				pipeline->DestroyVAO();
+			}
 		}
 	}
 
@@ -174,34 +161,22 @@ namespace Nexus::Graphics
 
 		if (Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value()))
 		{
-			pipeline->CreateVAO();
-			pipeline->BindBuffers(m_CurrentlyBoundVertexBuffers, m_BoundIndexBuffer, command.VertexStart, command.InstanceStart);
-			pipeline->Bind();
-			BindResourceSet(m_BoundResourceSet);
-
-			uint32_t indexSize = 0;
-			if (m_IndexBufferFormat == GL_UNSIGNED_SHORT)
+			if (Ref<IndexBufferOpenGL> indexBuffer = m_BoundIndexBuffer.lock())
 			{
-				indexSize = sizeof(uint16_t);
-			}
-			else if (m_IndexBufferFormat == GL_UNSIGNED_INT)
-			{
-				indexSize = sizeof(uint32_t);
-			}
-			else
-			{
-				NX_ERROR("Undefined index buffer format supplied");
-				return;
-			}
+				pipeline->CreateVAO();
+				pipeline->BindBuffers(m_CurrentlyBoundVertexBuffers, indexBuffer, command.VertexStart, command.InstanceStart);
+				pipeline->Bind();
+				BindResourceSet(m_BoundResourceSet);
 
-			uint32_t offset = command.IndexStart * indexSize;
+				uint32_t offset = command.IndexStart * indexBuffer->GetElementSizeInBytes();
 
-			glCall(glDrawElementsInstanced(GL::GetTopology(pipeline->GetPipelineDescription().PrimitiveTopology),
-										   command.IndexCount,
-										   m_IndexBufferFormat,
-										   (void *)offset,
-										   command.InstanceCount));
-			pipeline->DestroyVAO();
+				glCall(glDrawElementsInstanced(GL::GetTopology(pipeline->GetPipelineDescription().PrimitiveTopology),
+											   command.IndexCount,
+											   indexBuffer->GetGLIndexFormat(),
+											   (void *)offset,
+											   command.InstanceCount));
+				pipeline->DestroyVAO();
+			}
 		}
 	}
 

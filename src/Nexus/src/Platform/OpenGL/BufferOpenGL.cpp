@@ -81,6 +81,11 @@ namespace Nexus::Graphics
 		return m_Buffer;
 	}
 
+	GLenum IndexBufferOpenGL::GetGLIndexFormat() const
+	{
+		return GL::GetGLIndexBufferFormat(m_Format);
+	}
+
 	void IndexBufferOpenGL::SetData(const void *data, uint32_t size, uint32_t offset)
 	{
 		glCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer));

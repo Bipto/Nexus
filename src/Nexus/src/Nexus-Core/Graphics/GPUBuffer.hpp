@@ -103,6 +103,28 @@ namespace Nexus::Graphics
 			return m_Format;
 		}
 
+		uint32_t GetElementSizeInBytes() const
+		{
+			if (m_Format == IndexBufferFormat::UInt16)
+			{
+				return sizeof(uint16_t);
+			}
+			else if (m_Format == IndexBufferFormat::UInt32)
+			{
+				return sizeof(uint32_t);
+			}
+			else
+			{
+				throw std::runtime_error("Failed to find a valid index buffer element size");
+				return 0;
+			}
+		}
+
+		uint32_t GetCount() const
+		{
+			return m_Description.Size / GetElementSizeInBytes();
+		}
+
 	  protected:
 		/// @brief A struct containing the properties that were used when creating the
 		/// buffer

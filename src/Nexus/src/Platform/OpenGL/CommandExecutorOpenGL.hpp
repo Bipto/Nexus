@@ -45,8 +45,7 @@ namespace Nexus::Graphics
 		std::optional<Ref<PipelineOpenGL>>										m_CurrentlyBoundPipeline	  = {};
 		std::optional<RenderTarget>												m_CurrentRenderTarget		  = {};
 		std::map<uint32_t, Nexus::WeakRef<Nexus::Graphics::VertexBufferOpenGL>> m_CurrentlyBoundVertexBuffers = {};
-		Nexus::WeakRef<Nexus::Graphics::IndexBufferOpenGL>							m_BoundIndexBuffer			  = {};
-		GLenum																	m_IndexBufferFormat;
+		Nexus::WeakRef<Nexus::Graphics::IndexBufferOpenGL>						m_BoundIndexBuffer			  = {};
 		Nexus::Ref<Nexus::Graphics::ResourceSetOpenGL>							m_BoundResourceSet = {};
 	};
 }	 // namespace Nexus::Graphics
