@@ -345,42 +345,6 @@ namespace Nexus
 		unsigned long windowNumber = (unsigned long)SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0);
 
 		return XWindowInfo {.display = display, .screen = screenIndex, .window = (Window)windowNumber};
-
-		/* if (!display)
-		{
-			std::cout << "Window does not have a X11 Display" << std::endl;
-			return {};
-		}
-
-		Window root = RootWindow(display, screenIndex);
-
-		Window		 root_ret;
-		Window		 parent_ret;
-		Window		*children_ret;
-		unsigned int nChildren;
-
-		if (XQueryTree(display, root, &root_ret, &parent_ret, &children_ret, &nChildren) == 0)
-		{
-			std::cout << "Failed to query window tree" << std::endl;
-			return {};
-		}
-
-		if (windowIndex >= 0 && windowIndex < nChildren)
-		{
-			Window target = children_ret[windowIndex];
-
-			XWindowAttributes attribs;
-			if (XGetWindowAttributes(display, target, &attribs) == 0)
-			{
-				std::cout << "Invalid window handle" << std::endl;
-				return {};
-			}
-
-			XWindowInfo info {.display = display, .screen = screenIndex, .window = target};
-			return info;
-		}
-		std::cout << "Window index out of bounds" << std::endl;
-		return {}; */
 	}
 #endif
 
@@ -412,10 +376,6 @@ namespace Nexus
 			case Graphics::GraphicsAPI::Vulkan:
 			{
 				flags |= SDL_WINDOW_VULKAN;
-			}
-			case Graphics::GraphicsAPI::OpenGL:
-			{
-				flags |= SDL_WINDOW_OPENGL;
 			}
 		}
 
