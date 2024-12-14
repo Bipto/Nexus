@@ -39,8 +39,7 @@ namespace Nexus::Graphics
 
 		if (Ref<VertexBuffer> vb = command.VertexBufferRef.lock())
 		{
-			Ref<VertexBufferOpenGL> vertexBufferGL = std::dynamic_pointer_cast<VertexBufferOpenGL>(vb);
-			vertexBufferGL->Bind();
+			Ref<VertexBufferOpenGL> vertexBufferGL		= std::dynamic_pointer_cast<VertexBufferOpenGL>(vb);
 			m_CurrentlyBoundVertexBuffers[command.Slot] = vertexBufferGL;
 		}
 	}
@@ -54,8 +53,7 @@ namespace Nexus::Graphics
 		if (Ref<IndexBuffer> ib = command.lock())
 		{
 			auto indexBufferGL = std::dynamic_pointer_cast<IndexBufferOpenGL>(ib);
-			indexBufferGL->Bind();
-			m_IndexBufferFormat = GL::GetGLIndexBufferFormat(indexBufferGL->GetFormat());
+			m_BoundIndexBuffer = indexBufferGL;
 		}
 	}
 
@@ -79,7 +77,7 @@ namespace Nexus::Graphics
 			}
 
 			// bind the pipeline
-			pipeline->Bind();
+			// pipeline->Bind();
 			m_CurrentlyBoundPipeline = pipeline;
 		}
 	}
@@ -93,9 +91,13 @@ namespace Nexus::Graphics
 
 		if (Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value()))
 		{
-			pipeline->BindVertexBuffers(m_CurrentlyBoundVertexBuffers, 0, 0);
+			pipeline->CreateVAO();
+			pipeline->BindBuffers(m_CurrentlyBoundVertexBuffers, m_BoundIndexBuffer, 0, 0);
+			pipeline->Bind();
+			BindResourceSet(m_BoundResourceSet);
 
 			glCall(glDrawArrays(GL::GetTopology(pipeline->GetPipelineDescription().PrimitiveTopology), command.Start, command.Count));
+			pipeline->DestroyVAO();
 		}
 	}
 
@@ -108,29 +110,21 @@ namespace Nexus::Graphics
 
 		if (Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value()))
 		{
-			pipeline->BindVertexBuffers(m_CurrentlyBoundVertexBuffers, command.VertexStart, 0);
-
-			uint32_t indexSize = 0;
-			if (m_IndexBufferFormat == GL_UNSIGNED_SHORT)
+			if (Ref<IndexBufferOpenGL> indexBuffer = m_BoundIndexBuffer.lock())
 			{
-				indexSize = sizeof(uint16_t);
-			}
-			else if (m_IndexBufferFormat == GL_UNSIGNED_INT)
-			{
-				indexSize = sizeof(uint32_t);
-			}
-			else
-			{
-				NX_ERROR("Undefined index buffer format supplied");
-				return;
-			}
+				pipeline->CreateVAO();
+				pipeline->BindBuffers(m_CurrentlyBoundVertexBuffers, indexBuffer, command.VertexStart, 0);
+				pipeline->Bind();
+				BindResourceSet(m_BoundResourceSet);
 
-			uint32_t offset = command.IndexStart * indexSize;
+				uint32_t offset = command.IndexStart * indexBuffer->GetElementSizeInBytes();
 
-			glCall(glDrawElements(GL::GetTopology(pipeline->GetPipelineDescription().PrimitiveTopology),
-								  command.Count,
-								  m_IndexBufferFormat,
-								  (void *)offset));
+				glCall(glDrawElements(GL::GetTopology(pipeline->GetPipelineDescription().PrimitiveTopology),
+									  command.Count,
+									  indexBuffer->GetGLIndexFormat(),
+									  (void *)offset));
+				pipeline->DestroyVAO();
+			}
 		}
 	}
 
@@ -143,12 +137,16 @@ namespace Nexus::Graphics
 
 		if (Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value()))
 		{
-			pipeline->BindVertexBuffers(m_CurrentlyBoundVertexBuffers, 0, command.InstanceStart);
+			pipeline->CreateVAO();
+			pipeline->BindBuffers(m_CurrentlyBoundVertexBuffers, m_BoundIndexBuffer, 0, command.InstanceStart);
+			pipeline->Bind();
+			BindResourceSet(m_BoundResourceSet);
 
 			glCall(glDrawArraysInstanced(GL::GetTopology(pipeline->GetPipelineDescription().PrimitiveTopology),
 										 command.VertexStart,
 										 command.VertexCount,
 										 command.InstanceCount));
+			pipeline->DestroyVAO();
 		}
 	}
 
@@ -161,30 +159,22 @@ namespace Nexus::Graphics
 
 		if (Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value()))
 		{
-			pipeline->BindVertexBuffers(m_CurrentlyBoundVertexBuffers, command.VertexStart, command.InstanceStart);
-
-			uint32_t indexSize = 0;
-			if (m_IndexBufferFormat == GL_UNSIGNED_SHORT)
+			if (Ref<IndexBufferOpenGL> indexBuffer = m_BoundIndexBuffer.lock())
 			{
-				indexSize = sizeof(uint16_t);
-			}
-			else if (m_IndexBufferFormat == GL_UNSIGNED_INT)
-			{
-				indexSize = sizeof(uint32_t);
-			}
-			else
-			{
-				NX_ERROR("Undefined index buffer format supplied");
-				return;
-			}
+				pipeline->CreateVAO();
+				pipeline->BindBuffers(m_CurrentlyBoundVertexBuffers, indexBuffer, command.VertexStart, command.InstanceStart);
+				pipeline->Bind();
+				BindResourceSet(m_BoundResourceSet);
 
-			uint32_t offset = command.IndexStart * indexSize;
+				uint32_t offset = command.IndexStart * indexBuffer->GetElementSizeInBytes();
 
-			glCall(glDrawElementsInstanced(GL::GetTopology(pipeline->GetPipelineDescription().PrimitiveTopology),
-										   command.IndexCount,
-										   m_IndexBufferFormat,
-										   (void *)offset,
-										   command.InstanceCount));
+				glCall(glDrawElementsInstanced(GL::GetTopology(pipeline->GetPipelineDescription().PrimitiveTopology),
+											   command.IndexCount,
+											   indexBuffer->GetGLIndexFormat(),
+											   (void *)offset,
+											   command.InstanceCount));
+				pipeline->DestroyVAO();
+			}
 		}
 	}
 
@@ -201,86 +191,9 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		Nexus::Ref<PipelineOpenGL>	  pipeline	  = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());
-		Nexus::Ref<ResourceSetOpenGL> resourceSet = std::dynamic_pointer_cast<ResourceSetOpenGL>(command);
-
-		const auto &combinedImageSamplers = resourceSet->GetBoundCombinedImageSamplers();
-		const auto &uniformBufferBindings = resourceSet->GetBoundUniformBuffers();
-
-		for (const auto [name, combinedImageSampler] : combinedImageSamplers)
-		{
-			bool valid = true;
-
-			if (combinedImageSampler.ImageSampler.expired())
-			{
-				NX_ERROR("Attempting to bind an invalid sampler");
-				valid = false;
-			}
-
-			if (!valid)
-			{
-				continue;
-			}
-
-			Ref<SamplerOpenGL> glSampler = std::dynamic_pointer_cast<SamplerOpenGL>(combinedImageSampler.ImageSampler.lock());
-
-			// bind texture
-			{
-				GLint location = glGetUniformLocation(pipeline->GetShaderHandle(), name.c_str());
-			}
-
-			// find the slot in the shader where the uniform is located
-			GLint location = glGetUniformLocation(pipeline->GetShaderHandle(), name.c_str());
-
-			// bind texture2D if needed
-			if (std::holds_alternative<WeakRef<Texture2D>>(combinedImageSampler.ImageTexture))
-			{
-				WeakRef<Texture2D> texture = std::get<WeakRef<Texture2D>>(combinedImageSampler.ImageTexture);
-				if (Ref<Texture2DOpenGL> glTexture = std::dynamic_pointer_cast<Texture2DOpenGL>(texture.lock()))
-				{
-					glTexture->Bind(location);
-					glSampler->Bind(location, glTexture->GetLevels() > 1);
-				}
-			}
-
-			// bind cubemap if needed
-			else if (std::holds_alternative<WeakRef<Cubemap>>(combinedImageSampler.ImageTexture))
-			{
-				WeakRef<Cubemap> cubemap = std::get<WeakRef<Cubemap>>(combinedImageSampler.ImageTexture);
-				if (Ref<CubemapOpenGL> glCubemap = std::dynamic_pointer_cast<CubemapOpenGL>(cubemap.lock()))
-				{
-					glCubemap->Bind(location);
-					glSampler->Bind(location, glCubemap->GetLevels() > 1);
-				}
-			}
-
-			else
-			{
-				throw std::runtime_error("Attempting to bind invalid texture type");
-			}
-		}
-
-		GLuint uniformBufferSlot = 0;
-		for (const auto [name, uniformBuffer] : uniformBufferBindings)
-		{
-			if (uniformBuffer.expired())
-			{
-				NX_ERROR("Attempting to bind an invalid uniform buffer");
-				continue;
-			}
-
-			if (Ref<UniformBufferOpenGL> uniformBufferGL = std::dynamic_pointer_cast<UniformBufferOpenGL>(uniformBuffer.lock()))
-			{
-				GLint location = glGetUniformBlockIndex(pipeline->GetShaderHandle(), name.c_str());
-
-				glCall(glUniformBlockBinding(pipeline->GetShaderHandle(), location, uniformBufferSlot));
-
-				glCall(
-				glBindBufferRange(GL_UNIFORM_BUFFER, uniformBufferSlot, uniformBufferGL->GetHandle(), 0, uniformBufferGL->GetDescription().Size));
-
-				uniformBufferSlot++;
-			}
-		}
+		Ref<ResourceSetOpenGL> resourceSet = std::dynamic_pointer_cast<ResourceSetOpenGL>(command);
+		m_BoundResourceSet				   = resourceSet;
+		// BindResourceSet(resourceSet);
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(ClearColorTargetCommand command, GraphicsDevice *device)
@@ -308,6 +221,14 @@ namespace Nexus::Graphics
 	void CommandExecutorOpenGL::ExecuteCommand(RenderTarget command, GraphicsDevice *device)
 	{
 		GraphicsDeviceOpenGL *deviceGL = (GraphicsDeviceOpenGL *)device;
+
+		if (m_CurrentRenderTarget.has_value())
+		{
+			if (Nexus::Graphics::Swapchain **previousSwapchain = m_CurrentRenderTarget.value().GetDataIf<Swapchain *>())
+			{
+				deviceGL->GetOffscreenContext()->MakeCurrent();
+			}
+		}
 
 		// handle different options of render targets
 		if (Nexus::Graphics::Swapchain **swapchain = command.GetDataIf<Swapchain *>())
@@ -371,9 +292,9 @@ namespace Nexus::Graphics
 
 		Ref<Texture2D> framebufferTexture = framebuffer->GetColorTexture(command.SourceIndex);
 
-		Nexus::Window *window		   = swapchain->GetWindow();
-		uint32_t	   swapchainWidth  = window->GetWindowSize().X;
-		uint32_t	   swapchainHeight = window->GetWindowSize().Y;
+		Nexus::IWindow *window			= swapchain->GetWindow();
+		uint32_t		swapchainWidth	= window->GetWindowSize().X;
+		uint32_t		swapchainHeight = window->GetWindowSize().Y;
 
 		glCall(glBlitFramebuffer(0, 0, framebufferWidth, framebufferHeight, 0, 0, swapchainWidth, swapchainHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR));
 	}
@@ -450,6 +371,95 @@ namespace Nexus::Graphics
 		}
 
 		glBlendColor(command.R, command.G, command.B, command.A);
+	}
+
+	void CommandExecutorOpenGL::BindResourceSet(Ref<ResourceSetOpenGL> resourceSet)
+	{
+		Nexus::Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());
+
+		pipeline->Bind();
+
+		const auto &combinedImageSamplers = resourceSet->GetBoundCombinedImageSamplers();
+		const auto &uniformBufferBindings = resourceSet->GetBoundUniformBuffers();
+
+		for (const auto [name, combinedImageSampler] : combinedImageSamplers)
+		{
+			bool valid = true;
+
+			if (combinedImageSampler.ImageSampler.expired())
+			{
+				NX_ERROR("Attempting to bind an invalid sampler");
+				valid = false;
+			}
+
+			if (!valid)
+			{
+				continue;
+			}
+
+			Ref<SamplerOpenGL> glSampler = std::dynamic_pointer_cast<SamplerOpenGL>(combinedImageSampler.ImageSampler.lock());
+
+			// find the slot in the shader where the uniform is located
+			GLint location = glGetUniformLocation(pipeline->GetShaderHandle(), name.c_str());
+
+			if (location != -1)
+			{
+				// bind texture2D if needed
+				if (std::holds_alternative<WeakRef<Texture2D>>(combinedImageSampler.ImageTexture))
+				{
+					WeakRef<Texture2D> texture = std::get<WeakRef<Texture2D>>(combinedImageSampler.ImageTexture);
+					if (Ref<Texture2DOpenGL> glTexture = std::dynamic_pointer_cast<Texture2DOpenGL>(texture.lock()))
+					{
+						glTexture->Bind(location);
+						glSampler->Bind(location, glTexture->GetLevels() > 1);
+					}
+				}
+
+				// bind cubemap if needed
+				else if (std::holds_alternative<WeakRef<Cubemap>>(combinedImageSampler.ImageTexture))
+				{
+					WeakRef<Cubemap> cubemap = std::get<WeakRef<Cubemap>>(combinedImageSampler.ImageTexture);
+					if (Ref<CubemapOpenGL> glCubemap = std::dynamic_pointer_cast<CubemapOpenGL>(cubemap.lock()))
+					{
+						glCubemap->Bind(location);
+						glSampler->Bind(location, glCubemap->GetLevels() > 1);
+					}
+				}
+
+				else
+				{
+					throw std::runtime_error("Attempting to bind invalid texture type");
+				}
+			}
+		}
+
+		GLuint uniformBufferSlot = 0;
+		for (const auto [name, uniformBuffer] : uniformBufferBindings)
+		{
+			if (uniformBuffer.expired())
+			{
+				NX_ERROR("Attempting to bind an invalid uniform buffer");
+				continue;
+			}
+
+			if (Ref<UniformBufferOpenGL> uniformBufferGL = std::dynamic_pointer_cast<UniformBufferOpenGL>(uniformBuffer.lock()))
+			{
+				GLint location = glGetUniformBlockIndex(pipeline->GetShaderHandle(), name.c_str());
+
+				if (location != -1)
+				{
+					glCall(glUniformBlockBinding(pipeline->GetShaderHandle(), location, uniformBufferSlot));
+
+					glCall(glBindBufferRange(GL_UNIFORM_BUFFER,
+											 uniformBufferSlot,
+											 uniformBufferGL->GetHandle(),
+											 0,
+											 uniformBufferGL->GetDescription().Size));
+
+					uniformBufferSlot++;
+				}
+			}
+		}
 	}
 }	 // namespace Nexus::Graphics
 

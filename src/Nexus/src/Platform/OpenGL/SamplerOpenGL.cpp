@@ -50,13 +50,12 @@ namespace Nexus::Graphics
 		// border colour
 		GLfloat border[] = {color.r, color.g, color.b, color.a};
 
-		glCall(glSamplerParameterfv(m_Handle, GL_TEXTURE_BORDER_COLOR_EXT, border));
-
 		// LOD
 		glCall(glSamplerParameterf(m_Handle, GL_TEXTURE_MIN_LOD, m_Specification.MinimumLOD));
 		glCall(glSamplerParameterf(m_Handle, GL_TEXTURE_MAX_LOD, m_Specification.MaximumLOD));
 
 	#if defined(NX_PLATFORM_GL_DESKTOP)
+		glCall(glSamplerParameterfv(m_Handle, GL_TEXTURE_BORDER_COLOR_EXT, border));
 		glCall(glSamplerParameterf(m_Handle, GL_TEXTURE_LOD_BIAS_EXT, m_Specification.LODBias));
 	#endif
 

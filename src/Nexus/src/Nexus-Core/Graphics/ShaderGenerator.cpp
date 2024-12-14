@@ -221,7 +221,7 @@ namespace Nexus::Graphics
 
 			ShaderAttribute attribute;
 			attribute.Name = input.name;
-			attribute.Type = GetShaderDataTypeFromSpirvCrossType(compiler, input);
+			attribute.DataType = GetShaderDataTypeFromSpirvCrossType(compiler, input);
 			inputs.push_back(attribute);
 		}
 
@@ -232,7 +232,7 @@ namespace Nexus::Graphics
 
 			ShaderAttribute attribute;
 			attribute.Name = output.name;
-			attribute.Type = GetShaderDataTypeFromSpirvCrossType(compiler, output);
+			attribute.DataType = GetShaderDataTypeFromSpirvCrossType(compiler, output);
 			outputs.push_back(attribute);
 		}
 	}
@@ -340,6 +340,20 @@ namespace Nexus::Graphics
 
 		output.Successful = true;
 		return output;
+	}
+
+	std::string ShaderLanguageToString(ShaderLanguage language)
+	{
+		switch (language)
+		{
+			case ShaderLanguage::GLSL: return "GLSL";
+			case ShaderLanguage::GLSLES: return "GLSLES";
+			case ShaderLanguage::HLSL: return "HLSL";
+			case ShaderLanguage::SPIRV: return "SPIRV";
+			default: throw std::runtime_error("Failed to find a valid ShaderLanguage");
+		}
+
+		return {};
 	}
 
 	std::string GetD3DShaderEntryPoint(Nexus::Graphics::ShaderStage stage)

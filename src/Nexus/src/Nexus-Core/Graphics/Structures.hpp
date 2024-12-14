@@ -7,7 +7,7 @@ namespace Nexus::Graphics
 	enum class ComparisonFunction
 	{
 		/// @brief The test will always pass
-		Always,
+		AlwaysPass,
 
 		/// @brief The test will pass if the values are equal
 		Equal,
@@ -98,7 +98,7 @@ namespace Nexus::Graphics
 		Front,
 
 		/// @brief All faces will be rendered
-		None
+		CullNone
 	};
 
 	/// @brief An enum class representing how faces will be filled in
@@ -194,7 +194,7 @@ namespace Nexus::Graphics
 		bool EnableDepthTest = false;
 
 		/// @brief How the pixel should be tested against the depth buffer
-		ComparisonFunction DepthComparisonFunction = ComparisonFunction::Always;
+		ComparisonFunction DepthComparisonFunction = ComparisonFunction::AlwaysPass;
 
 		/// @brief Whether the pipeline will use a stencil test when rendering
 		bool EnableStencilTest = false;
@@ -203,7 +203,7 @@ namespace Nexus::Graphics
 		uint8_t StencilMask = 0xFF;
 
 		/// @brief How the pixel should be tested against the stencil buffer
-		ComparisonFunction StencilComparisonFunction = ComparisonFunction::Always;
+		ComparisonFunction StencilComparisonFunction = ComparisonFunction::AlwaysPass;
 
 		/// @brief The value that should be entered in the stencil buffer when the
 		/// stencil test fails

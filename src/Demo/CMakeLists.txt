@@ -17,10 +17,8 @@ if (EMSCRIPTEN)
       Demo
         PROPERTIES
         LINK_FLAGS
-        "--std=c++20 -fsanitize=address -sSTACK_SIZE=5MB -Os -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sFULL_ES2=1 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS -lopenal -sGL_ENABLE_GET_PROC_ADDRESS -sASSERTIONS --preload-file resources"
+        "--std=c++20 -fsanitize=address -sSTACK_SIZE=5MB -O3 -flto -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sNO_DISABLE_EXCEPTION_CATCHING -sFULL_ES2=1 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS -lopenal -lembind -sGL_ENABLE_GET_PROC_ADDRESS -sASSERTIONS --preload-file resources"
     )
-
-    set_target_properties(Nexus PROPERTIES COMPILE_FLAGS "-Os")
 endif()
 
 if (ANDROID OR __ANDROID__)

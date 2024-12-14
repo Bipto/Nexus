@@ -28,14 +28,24 @@ namespace Nexus
 		/// @return A double representing the number of milliseconds
 		double GetMilliseconds() const
 		{
-			return m_Nanoseconds / 1000000;
+			return GetNanoseconds() / 1000000;
 		}
 
 		/// @brief A method to return the number of seconds
 		/// @return A double representing the number of seconds
 		double GetSeconds() const
 		{
-			return m_Nanoseconds / 1000000000;
+			return GetMilliseconds() / 1000;
+		}
+
+		double GetMinutes() const
+		{
+			return GetSeconds() / 60;
+		}
+
+		double GetHours() const
+		{
+			return GetMinutes() / 60;
 		}
 
 		TimeSpan &operator+=(const TimeSpan &other)

@@ -14,12 +14,12 @@
 namespace Nexus::Graphics
 {
 	GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(const GraphicsDeviceSpecification &createInfo,
-											   Window							 *window,
+											   IWindow							 *window,
 											   const SwapchainSpecification		 &swapchainSpec)
 		: GraphicsDevice(createInfo, window, swapchainSpec)
 	{
-		m_PBuffer = GL::CreatePBuffer();
-		m_PBuffer->MakeCurrent();
+		m_PBuffer	 = GL::CreateOffscreenContext();
+		bool success = m_PBuffer->MakeCurrent();
 		m_Extensions = GetSupportedExtensions();
 
 		m_APIName	   = std::string("OpenGL - ") + std::string((const char *)glGetString(GL_VERSION));
@@ -38,7 +38,7 @@ namespace Nexus::Graphics
 		auto fb = std::dynamic_pointer_cast<FramebufferOpenGL>(framebuffer);
 		if (framebuffer)
 		{
-			fb->BindAsRenderTarget();
+			fb->BindAsDrawBuffer();
 			m_BoundFramebuffer = fb;
 		}
 	}
@@ -48,7 +48,7 @@ namespace Nexus::Graphics
 		auto glSwapchain = (SwapchainOpenGL *)swapchain;
 		if (glSwapchain)
 		{
-			glSwapchain->BindAsRenderTarget();
+			glSwapchain->BindAsDrawTarget();
 		}
 	}
 
@@ -71,7 +71,7 @@ namespace Nexus::Graphics
 		return m_RendererName.c_str();
 	}
 
-	GL::PBuffer *GraphicsDeviceOpenGL::GetPBuffer()
+	GL::IOffscreenContext *GraphicsDeviceOpenGL::GetOffscreenContext()
 	{
 		return m_PBuffer.get();
 	}

@@ -5,8 +5,6 @@
 	#include "Platform/OpenGL/GraphicsDeviceOpenGL.hpp"
 #endif
 
-#include "Platform/OpenGL/GraphicsDeviceWebGL.hpp"
-
 #if defined(NX_PLATFORM_D3D12)
 	#include "Platform/D3D12/GraphicsDeviceD3D12.hpp"
 #endif
@@ -35,7 +33,7 @@ namespace Nexus
 		m_Specification = spec;
 
 		m_Window = Platform::CreatePlatformWindow(spec.WindowProperties, spec.GraphicsAPI, spec.SwapchainSpecification);
-		Nexus::Input::SetInputContext(m_Window->GetInput());
+		Nexus::Input::SetContext(m_Window->GetInputContext());
 
 		Graphics::GraphicsDeviceSpecification graphicsDeviceCreateInfo;
 		graphicsDeviceCreateInfo.API = spec.GraphicsAPI;
@@ -108,11 +106,9 @@ namespace Nexus
 		}
 
 		Platform::Update();
-
-		// Timings::Profiler::Get().Reset();
 	}
 
-	Nexus::Window *Application::GetPrimaryWindow()
+	Nexus::IWindow *Application::GetPrimaryWindow()
 	{
 		return m_Window;
 	}
@@ -140,11 +136,6 @@ namespace Nexus
 	void Application::SetIsMouseVisible(bool visible)
 	{
 		m_Window->SetIsMouseVisible(visible);
-	}
-
-	void Application::SetCursor(Cursor cursor)
-	{
-		m_Window->SetCursor(cursor);
 	}
 
 	void Application::Close()
@@ -178,7 +169,7 @@ namespace Nexus
 	}
 
 	Graphics::GraphicsDevice *CreateGraphicsDevice(const Graphics::GraphicsDeviceSpecification &createInfo,
-												   Window									   *window,
+												   IWindow									   *window,
 												   const Graphics::SwapchainSpecification	   &swapchainSpec)
 	{
 		switch (createInfo.API)
@@ -194,8 +185,6 @@ namespace Nexus
 #if defined(NX_PLATFORM_VULKAN)
 			case Graphics::GraphicsAPI::Vulkan: return new Graphics::GraphicsDeviceVk(createInfo, window, swapchainSpec);
 #endif
-
-			case Graphics::GraphicsAPI::WebGL: return new Graphics::GraphicsDeviceWebGL(createInfo, window, swapchainSpec);
 
 			default: throw std::runtime_error("Attempting to run application with unsupported graphics API"); return nullptr;
 		}

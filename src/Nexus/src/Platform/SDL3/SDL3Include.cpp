@@ -520,23 +520,23 @@ namespace Nexus::SDL3
 
 	std::optional<MouseButton> GetMouseButton(Uint8 mouseButton)
 	{
-		if (mouseButton & SDL_BUTTON_LEFT)
+		if (mouseButton == SDL_BUTTON_LEFT)
 		{
 			return MouseButton::Left;
 		}
-		else if (mouseButton & SDL_BUTTON_MIDDLE)
+		else if (mouseButton == SDL_BUTTON_MIDDLE)
 		{
 			return MouseButton::Middle;
 		}
-		else if (mouseButton & SDL_BUTTON_RIGHT)
+		else if (mouseButton == SDL_BUTTON_RIGHT)
 		{
 			return MouseButton::Right;
 		}
-		else if (mouseButton & SDL_BUTTON_X1)
+		else if (mouseButton == SDL_BUTTON_X1)
 		{
 			return MouseButton::X1;
 		}
-		else if (mouseButton & SDL_BUTTON_X2)
+		else if (mouseButton == SDL_BUTTON_X2)
 		{
 			return MouseButton::X2;
 		}

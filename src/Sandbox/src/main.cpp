@@ -2,15 +2,8 @@
 #include "Nexus-Core/Graphics/CatmullRom.hpp"
 #include "Nexus-Core/Graphics/RoundedRectangle.hpp"
 #include "Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp"
-#include "Nexus-Core/UI/Button.hpp"
-#include "Nexus-Core/UI/Canvas.hpp"
-#include "Nexus-Core/UI/Label.hpp"
-#include "Nexus-Core/UI/Panel.hpp"
-#include "Nexus-Core/UI/PictureBox.hpp"
 #include "Nexus-Core/Utils/Utils.hpp"
 #include "Nexus.hpp"
-
-#include "Nexus-Core/Platform.hpp"
 
 class Sandbox : public Nexus::Application
 {
@@ -21,6 +14,7 @@ class Sandbox : public Nexus::Application
 
 	virtual void Load() override
 	{
+		m_CommandList = m_GraphicsDevice->CreateCommandList();
 	}
 
 	virtual void Update(Nexus::TimeSpan time) override
@@ -30,6 +24,8 @@ class Sandbox : public Nexus::Application
 	virtual void Render(Nexus::TimeSpan time) override
 	{
 		m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
+
+		m_GraphicsDevice->SubmitCommandList(m_CommandList);
 
 		m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->SwapBuffers();
 	}
@@ -45,12 +41,15 @@ class Sandbox : public Nexus::Application
 	virtual void Unload() override
 	{
 	}
+
+  private:
+	Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList = nullptr;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
 	Nexus::ApplicationSpecification spec;
-	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
+	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
 	spec.AudioAPI	 = Nexus::Audio::AudioAPI::OpenAL;
 
 	spec.WindowProperties.Width		= 1280;

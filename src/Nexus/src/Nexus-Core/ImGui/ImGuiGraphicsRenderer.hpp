@@ -9,7 +9,7 @@ namespace Nexus::ImGuiUtils
 {
 	struct ImGuiWindowInfo
 	{
-		Nexus::Window *Window = nullptr;
+		Nexus::IWindow *Window = nullptr;
 
 		virtual ~ImGuiWindowInfo()
 		{

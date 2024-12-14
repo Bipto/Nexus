@@ -7,7 +7,7 @@
 
 namespace Nexus::Graphics
 {
-	SwapchainD3D12::SwapchainD3D12(Window *window, GraphicsDevice *device, const SwapchainSpecification &swapchainSpec)
+	SwapchainD3D12::SwapchainD3D12(IWindow *window, GraphicsDevice *device, const SwapchainSpecification &swapchainSpec)
 		: Swapchain(swapchainSpec),
 		  m_Window(window),
 		  m_VsyncState(swapchainSpec.VSyncState)
@@ -364,24 +364,24 @@ namespace Nexus::Graphics
 		auto swapchainTexture = RetrieveBufferHandle();
 
 		m_Device->ImmediateSubmit(
-		[&](ID3D12GraphicsCommandList7 *cmd)
-		{
-			m_Device->ResourceBarrier(cmd,
-									  framebufferTexture->GetD3D12ResourceHandle().Get(),
-									  0,
-									  framebufferState,
-									  D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
-			m_Device->ResourceBarrier(cmd, swapchainTexture.Get(), 0, swapchainState, D3D12_RESOURCE_STATE_RESOLVE_DEST);
+			[&](ID3D12GraphicsCommandList7 *cmd)
+			{
+				m_Device->ResourceBarrier(cmd,
+										  framebufferTexture->GetD3D12ResourceHandle().Get(),
+										  0,
+										  framebufferState,
+										  D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
+				m_Device->ResourceBarrier(cmd, swapchainTexture.Get(), 0, swapchainState, D3D12_RESOURCE_STATE_RESOLVE_DEST);
 
-			cmd->ResolveSubresource(swapchainTexture.Get(), 0, framebufferTexture->GetD3D12ResourceHandle().Get(), 0, format);
+				cmd->ResolveSubresource(swapchainTexture.Get(), 0, framebufferTexture->GetD3D12ResourceHandle().Get(), 0, format);
 
-			m_Device->ResourceBarrier(cmd,
-									  framebufferTexture->GetD3D12ResourceHandle().Get(),
-									  0,
-									  D3D12_RESOURCE_STATE_RESOLVE_SOURCE,
-									  framebufferState);
-			m_Device->ResourceBarrier(cmd, swapchainTexture.Get(), 0, D3D12_RESOURCE_STATE_RESOLVE_DEST, swapchainState);
-		});
+				m_Device->ResourceBarrier(cmd,
+										  framebufferTexture->GetD3D12ResourceHandle().Get(),
+										  0,
+										  D3D12_RESOURCE_STATE_RESOLVE_SOURCE,
+										  framebufferState);
+				m_Device->ResourceBarrier(cmd, swapchainTexture.Get(), 0, D3D12_RESOURCE_STATE_RESOLVE_DEST, swapchainState);
+			});
 	}
 }	 // namespace Nexus::Graphics
 #endif

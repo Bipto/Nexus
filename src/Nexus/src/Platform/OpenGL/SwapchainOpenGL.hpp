@@ -5,15 +5,15 @@
 	#include "Nexus-Core/Graphics/Swapchain.hpp"
 	#include "Nexus-Core/Window.hpp"
 
-	#include "PBuffer.hpp"
-	#include "FBO.hpp"
+	#include "Context/IOffscreenContext.hpp"
+	#include "Context/IViewContext.hpp"
 
 namespace Nexus::Graphics
 {
 	class SwapchainOpenGL : public Swapchain
 	{
 	  public:
-		SwapchainOpenGL(Window *window, const SwapchainSpecification &swapchainSpec, GraphicsDevice *graphicsDevice);
+		SwapchainOpenGL(IWindow *window, const SwapchainSpecification &swapchainSpec, GraphicsDevice *graphicsDevice);
 		virtual ~SwapchainOpenGL();
 		virtual void Initialise() override
 		{
@@ -23,25 +23,21 @@ namespace Nexus::Graphics
 		virtual void					 SetVSyncState(VSyncState vsyncState) override;
 		virtual Nexus::Point2D<uint32_t> GetSize() override;
 		void							 ResizeIfNecessary();
-		void							 BindAsRenderTarget();
 		void							 BindAsDrawTarget();
 
-		virtual Window *GetWindow() override
+		virtual IWindow *GetWindow() override
 		{
 			return m_Window;
 		}
 		virtual void Prepare() override;
 
 	  private:
-		Window	  *m_Window;
+		IWindow	  *m_Window;
 		VSyncState m_VsyncState;
 
-		uint32_t m_SwapchainWidth  = 0;
-		uint32_t m_SwapchainHeight = 0;
-
-		int			  m_Backbuffer = 0;
-
-		std::unique_ptr<GL::FBO> m_FBO = {};
+		uint32_t						  m_SwapchainWidth	= 0;
+		uint32_t						  m_SwapchainHeight = 0;
+		std::unique_ptr<GL::IViewContext> ViewContext		= {};
 	};
 }	 // namespace Nexus::Graphics
 

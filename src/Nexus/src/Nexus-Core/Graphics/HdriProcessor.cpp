@@ -94,9 +94,9 @@ namespace Nexus::Graphics
 		pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::Back;
 		pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 		pipelineDescription.VertexModule =
-		m_Device->CreateShaderModuleFromSpirvSource(HdriVertexShaderSource, "hdri.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
+			m_Device->CreateShaderModuleFromSpirvSource(HdriVertexShaderSource, "hdri.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
 		pipelineDescription.FragmentModule =
-		m_Device->CreateShaderModuleFromSpirvSource(HdriFragmentShaderSource, "hdri.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
+			m_Device->CreateShaderModuleFromSpirvSource(HdriFragmentShaderSource, "hdri.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 		pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Camera", 0, 0}};
 		pipelineDescription.ResourceSetSpec.SampledImages  = {{"equirectangularMap", 1, 0}};
 
@@ -186,7 +186,7 @@ namespace Nexus::Graphics
 			m_Device->SubmitCommandList(commandList);
 
 			Ref<Texture2D>		   colourTexture = framebuffer->GetColorTexture(0);
-			std::vector<std::byte> pixels		 = colourTexture->GetData(0, 0, 0, size, size);
+			std::vector<unsigned char> pixels		 = colourTexture->GetData(0, 0, 0, size, size);
 
 			cubemap->SetData(pixels.data(), face, 0, 0, 0, size, size);
 		}

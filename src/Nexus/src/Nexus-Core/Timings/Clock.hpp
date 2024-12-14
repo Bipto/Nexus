@@ -16,8 +16,8 @@ namespace Nexus
 		inline void Tick()
 		{
 			std::chrono::steady_clock::time_point tickTime = std::chrono::steady_clock::now();
-			m_DeltaTime = std::chrono::duration_cast<std::chrono::nanoseconds>(tickTime - m_StartTime).count();
-			m_StartTime = tickTime;
+			m_DeltaTime									   = std::chrono::duration_cast<std::chrono::nanoseconds>(tickTime - m_StartTime).count();
+			m_StartTime									   = tickTime;
 		}
 
 		/// @brief A method allowing the clock to return a structure representing the

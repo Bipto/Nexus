@@ -6,7 +6,7 @@
 
 namespace Nexus
 {
-	class Window;
+	class IWindow;
 }
 
 namespace Nexus::InputNew
@@ -96,15 +96,17 @@ namespace Nexus::InputNew
 
 	struct MouseState
 	{
-		Point2D<float>				Position = {};
-		std::map<MouseButton, bool> Buttons	 = {};
-		Point2D<float>				Scroll	 = {};
+		Point2D<float>				Position	   = {};
+		Point2D<float>				Movement	   = {};
+		std::map<MouseButton, bool> Buttons		   = {};
+		Point2D<float>				Scroll		   = {};
+		Point2D<float>				ScrollMovement = {};
 	};
 
 	class InputContext
 	{
 	  public:
-		InputContext(Nexus::Window *window);
+		InputContext(Nexus::IWindow *window);
 		virtual ~InputContext();
 
 		bool		   IsMouseButtonDown(uint32_t id, MouseButton button);
@@ -114,8 +116,17 @@ namespace Nexus::InputNew
 		Point2D<float> GetMousePosition(uint32_t id);
 		Point2D<float> GetScroll(uint32_t id);
 
+		bool		   IsMouseButtonDown(MouseButton button);
+		bool		   IsMouseButtonUp(MouseButton button);
+		bool		   IsKeyDown(ScanCode scancode);
+		bool		   IsKeyUp(ScanCode scancode);
+		Point2D<float> GetMousePosition();
+		Point2D<float> GetScroll();
+
 		Point2D<float> GetCursorPosition();
 		Point2D<float> GetGlobalCursorPosition();
+
+		void Reset();
 
 	  private:
 		void OnKeyPressed(const KeyPressedEventArgs &args);
@@ -126,7 +137,7 @@ namespace Nexus::InputNew
 		void OnScroll(const MouseScrolledEventArgs &args);
 
 	  private:
-		Nexus::Window *m_Window = nullptr;
+		Nexus::IWindow *m_Window = nullptr;
 
 		std::map<uint32_t, KeyboardState> m_KeyboardStates;
 		std::map<uint32_t, MouseState>	  m_MouseStates;

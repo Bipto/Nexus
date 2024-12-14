@@ -1,16 +1,20 @@
+#include "Nexus-Core/nxpch.hpp"
+
 #include "GraphicsDevice.hpp"
 
 #include "Nexus-Core/FileSystem/FileSystem.hpp"
 #include "Nexus-Core/Graphics/MipmapGenerator.hpp"
 #include "Nexus-Core/Logging/Log.hpp"
-#include "Nexus-Core/nxpch.hpp"
 #include "ShaderGenerator.hpp"
 #include "ShaderUtils.hpp"
 #include "stb_image.h"
 
+#include "CachedShader.hpp"
+#include "CachedTexture.hpp"
+
 namespace Nexus::Graphics
 {
-	GraphicsDevice::GraphicsDevice(const GraphicsDeviceSpecification &specification, Window *window, const SwapchainSpecification &swapchainSpec)
+	GraphicsDevice::GraphicsDevice(const GraphicsDeviceSpecification &specification, IWindow *window, const SwapchainSpecification &swapchainSpec)
 	{
 		m_Window		= window;
 		m_Specification = specification;
@@ -49,7 +53,7 @@ namespace Nexus::Graphics
 
 		moduleSpec.Name				= name;
 		moduleSpec.Source			= result.Source;
-		moduleSpec.Stage			= stage;
+		moduleSpec.ShadingStage		= stage;
 		moduleSpec.SpirvBinary		= result.SpirvBinary;
 		moduleSpec.InputAttributes	= result.InputAttributes;
 		moduleSpec.OutputAttributes = result.OutputAttributes;
@@ -57,7 +61,19 @@ namespace Nexus::Graphics
 		return CreateShaderModule(moduleSpec, resourceSetSpec);
 	}
 
-	Window *GraphicsDevice::GetPrimaryWindow()
+	Ref<ShaderModule> GraphicsDevice::GetOrCreateCachedShaderFromSpirvSource(const std::string &source, const std::string &name, ShaderStage stage)
+	{
+		TryLoadCachedShader(source, name, stage, ShaderLanguage::GLSLES);
+		return TryLoadCachedShader(source, name, stage, GetSupportedShaderFormat());
+	}
+
+	Ref<ShaderModule> GraphicsDevice::GetOrCreateCachedShaderFromSpirvFile(const std::string &filepath, ShaderStage stage)
+	{
+		std::string source = Nexus::FileSystem::ReadFileToString(filepath);
+		return GetOrCreateCachedShaderFromSpirvSource(source, filepath, stage);
+	}
+
+	IWindow *GraphicsDevice::GetPrimaryWindow()
 	{
 		return m_Window;
 	}
@@ -78,6 +94,40 @@ namespace Nexus::Graphics
 	const GraphicsDeviceSpecification &GraphicsDevice::GetSpecification() const
 	{
 		return m_Specification;
+	}
+
+	Ref<ShaderModule> GraphicsDevice::TryLoadCachedShader(const std::string &source,
+														  const std::string &name,
+														  ShaderStage		 stage,
+														  ShaderLanguage	 language)
+	{
+		std::size_t hash		   = Utils::Hash(source);
+		std::string languageString = ShaderLanguageToString(language);
+		std::string filepath	   = "cache/shaders/" + languageString + "/" + name;
+
+		bool			  shaderCreated = false;
+		Ref<ShaderModule> module		= nullptr;
+
+		if (std::filesystem::exists(filepath))
+		{
+			CachedShader cache = CachedShader::LoadFromFile(filepath);
+			if (cache.Validate(hash))
+			{
+				const ShaderModuleSpecification &shaderSpec	  = cache.GetShaderSpecification();
+				const ResourceSetSpecification	&resourceSpec = cache.GetResourceSpecification();
+				module										  = CreateShaderModule(shaderSpec, resourceSpec);
+				shaderCreated								  = true;
+			}
+		}
+
+		if (!shaderCreated)
+		{
+			module			   = CreateShaderModuleFromSpirvSource(source, name, stage);
+			CachedShader cache = CachedShader::FromModule(module->GetModuleSpecification(), module->GetResourceSetSpecification(), hash);
+			cache.Cache(filepath);
+		}
+
+		return module;
 	}
 
 	Ref<Texture2D> GraphicsDevice::CreateTexture2D(const char *filepath, bool generateMips)
@@ -108,9 +158,14 @@ namespace Nexus::Graphics
 
 		if (generateMips)
 		{
-			uint32_t						 mipsToGenerate = spec.MipLevels - 1;
 			Nexus::Graphics::MipmapGenerator mipGenerator(this);
-			mipGenerator.GenerateMips(texture, mipsToGenerate);
+
+			for (uint32_t i = 1; i < spec.MipLevels; i++)
+			{
+				auto [width, height]			  = Utils::GetMipSize(spec.Width, spec.Height, i);
+				std::vector<unsigned char> pixels = mipGenerator.GenerateMip(texture, i, i - 1);
+				texture->SetData(pixels.data(), i, 0, 0, width, height);
+			}
 		}
 
 		stbi_image_free(data);

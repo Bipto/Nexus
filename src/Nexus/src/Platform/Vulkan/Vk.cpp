@@ -56,21 +56,6 @@ namespace Nexus::Vk
 			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_SInt: return VK_FORMAT_R32G32B32A32_SINT;
 			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float: return VK_FORMAT_R32G32B32A32_SFLOAT;
 
-			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm: return VK_FORMAT_BC1_RGB_UNORM_BLOCK;
-			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm_SRGB: return VK_FORMAT_BC1_RGB_SRGB_BLOCK;
-			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm: return VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
-			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm_SRGB: return VK_FORMAT_BC1_RGBA_SRGB_BLOCK;
-			case Nexus::Graphics::PixelFormat::BC2_UNorm: return VK_FORMAT_BC2_UNORM_BLOCK;
-			case Nexus::Graphics::PixelFormat::BC2_UNorm_SRGB: return VK_FORMAT_BC2_SRGB_BLOCK;
-			case Nexus::Graphics::PixelFormat::BC3_UNorm: return VK_FORMAT_BC3_UNORM_BLOCK;
-			case Nexus::Graphics::PixelFormat::BC3_UNorm_SRGB: return VK_FORMAT_BC3_SRGB_BLOCK;
-			case Nexus::Graphics::PixelFormat::BC4_UNorm: return VK_FORMAT_BC4_UNORM_BLOCK;
-			case Nexus::Graphics::PixelFormat::BC4_SNorm: return VK_FORMAT_BC4_SNORM_BLOCK;
-			case Nexus::Graphics::PixelFormat::BC5_UNorm: return VK_FORMAT_BC5_UNORM_BLOCK;
-			case Nexus::Graphics::PixelFormat::BC5_SNorm: return VK_FORMAT_BC5_SNORM_BLOCK;
-			case Nexus::Graphics::PixelFormat::BC7_UNorm: return VK_FORMAT_BC7_UNORM_BLOCK;
-			case Nexus::Graphics::PixelFormat::BC7_UNorm_SRGB: return VK_FORMAT_BC7_SRGB_BLOCK;
-
 			case Nexus::Graphics::PixelFormat::D32_Float_S8_UInt: return VK_FORMAT_D32_SFLOAT_S8_UINT;
 			case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt: return VK_FORMAT_D24_UNORM_S8_UINT;
 
@@ -230,7 +215,7 @@ namespace Nexus::Vk
 	{
 		switch (function)
 		{
-			case Nexus::Graphics::ComparisonFunction::Always: return VK_COMPARE_OP_ALWAYS;
+			case Nexus::Graphics::ComparisonFunction::AlwaysPass: return VK_COMPARE_OP_ALWAYS;
 			case Nexus::Graphics::ComparisonFunction::Equal: return VK_COMPARE_OP_EQUAL;
 			case Nexus::Graphics::ComparisonFunction::Greater: return VK_COMPARE_OP_GREATER;
 			case Nexus::Graphics::ComparisonFunction::GreaterEqual: return VK_COMPARE_OP_GREATER_OR_EQUAL;

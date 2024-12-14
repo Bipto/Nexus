@@ -113,10 +113,10 @@ namespace Demos
 			pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::Back;
 			pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
-			pipelineDescription.VertexModule =
-			m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/cubemap.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
-			pipelineDescription.FragmentModule =
-			m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/cubemap.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
+			pipelineDescription.VertexModule = m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/cubemap.vert.glsl",
+																									  Nexus::Graphics::ShaderStage::Vertex);
+			pipelineDescription.FragmentModule = m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/cubemap.frag.glsl",
+																										Nexus::Graphics::ShaderStage::Fragment);
 
 			pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Camera", 0, 0}};
 
@@ -130,6 +130,11 @@ namespace Demos
 
 			m_Pipeline	  = m_GraphicsDevice->CreatePipeline(pipelineDescription);
 			m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
+		}
+
+		virtual std::string GetInfo() const override
+		{
+			return "Creating and rendering a cubemap to provide an environment.";
 		}
 
 	  private:

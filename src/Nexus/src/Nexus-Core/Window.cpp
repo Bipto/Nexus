@@ -17,10 +17,11 @@
 
 #include "Nexus-Core/Application.hpp"
 
+#include "Nexus-Core/Input/Input.hpp"
+
 namespace Nexus
 {
-
-	Window::Window(const WindowSpecification &windowProps, Graphics::GraphicsAPI api, const Graphics::SwapchainSpecification &swapchainSpec)
+	IWindow::IWindow(const WindowSpecification &windowProps, Graphics::GraphicsAPI api, const Graphics::SwapchainSpecification &swapchainSpec)
 		: m_Specification(windowProps),
 		  m_InputContext(this)
 	{
@@ -40,33 +41,34 @@ namespace Nexus
 		SetupTimer();
 	}
 
-	Window::~Window()
+	IWindow::~IWindow()
 	{
 		delete m_Swapchain;
 		SDL_DestroyWindow(this->m_Window);
 	}
 
-	void Window::CacheInput()
+	void IWindow::CacheInput()
 	{
 		m_Input.CacheInput();
 	}
 
-	void Window::Update()
+	void IWindow::Update()
 	{
+		m_InputContext.Reset();
 		m_Timer.Update();
 	}
 
-	void Window::SetResizable(bool isResizable)
+	void IWindow::SetResizable(bool isResizable)
 	{
 		SDL_SetWindowResizable(this->m_Window, (SDL_bool)isResizable);
 	}
 
-	void Window::SetTitle(const std::string &title)
+	void IWindow::SetTitle(const std::string &title)
 	{
 		SDL_SetWindowTitle(this->m_Window, title.c_str());
 	}
 
-	void Window::SetSize(Point2D<uint32_t> size)
+	void IWindow::SetSize(Point2D<uint32_t> size)
 	{
 #if !defined(__EMSCRIPTEN__)
 		SDL_SetWindowSize(m_Window, size.X, size.Y);
@@ -75,22 +77,22 @@ namespace Nexus
 #endif
 	}
 
-	void Window::Close()
+	void IWindow::Close()
 	{
 		m_Closing = true;
 	}
 
-	bool Window::IsClosing()
+	bool IWindow::IsClosing()
 	{
 		return m_Closing;
 	}
 
-	SDL_Window *Window::GetSDLWindowHandle()
+	SDL_Window *IWindow::GetSDLWindowHandle()
 	{
 		return m_Window;
 	}
 
-	Point2D<uint32_t> Window::GetWindowSize()
+	Point2D<uint32_t> IWindow::GetWindowSize()
 	{
 		int x, y;
 		SDL_GetWindowSize(m_Window, &x, &y);
@@ -107,14 +109,14 @@ namespace Nexus
 		return size;
 	}
 
-	Point2D<int> Window::GetWindowPosition()
+	Point2D<int> IWindow::GetWindowPosition()
 	{
 		Point2D<int> position {};
 		SDL_GetWindowPosition(m_Window, &position.X, &position.Y);
 		return position;
 	}
 
-	WindowState Window::GetCurrentWindowState()
+	WindowState IWindow::GetCurrentWindowState()
 	{
 		Uint32 flags = SDL_GetWindowFlags(m_Window);
 
@@ -134,7 +136,7 @@ namespace Nexus
 		return m_CurrentWindowState;
 	}
 
-	void Window::SetIsMouseVisible(bool visible)
+	void IWindow::SetIsMouseVisible(bool visible)
 	{
 		switch (visible)
 		{
@@ -143,75 +145,57 @@ namespace Nexus
 		}
 	}
 
-	void Window::SetCursor(Cursor cursor)
-	{
-		SDL_Cursor *sdlCursor;
-
-		switch (cursor)
-		{
-			case Cursor::Arrow: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW); break;
-			case Cursor::IBeam: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM); break;
-			case Cursor::Wait: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_WAIT); break;
-			case Cursor::Crosshair: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_CROSSHAIR); break;
-			case Cursor::WaitArrow: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_WAITARROW); break;
-			case Cursor::ArrowNWSE: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENWSE); break;
-			case Cursor::ArrowNESW: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENESW); break;
-			case Cursor::ArrowWE: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEWE); break;
-			case Cursor::ArrowNS: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENS); break;
-			case Cursor::ArrowAllDir: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEALL); break;
-			case Cursor::No: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NO); break;
-			case Cursor::Hand: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND); break;
-		}
-
-		SDL_SetCursor(sdlCursor);
-	}
-
-	InputState *Window::GetInput()
+	InputState *IWindow::GetInput()
 	{
 		return &m_Input;
 	}
 
-	Nexus::InputNew::InputContext &Window::GetInputContext()
+	Nexus::InputNew::InputContext *IWindow::GetInputContext()
 	{
-		return m_InputContext;
+		return &m_InputContext;
 	}
 
-	bool Window::IsFocussed()
+	LayerStack &IWindow::GetLayerStack()
+	{
+		return m_LayerStack;
+	}
+
+	bool IWindow::IsFocussed()
 	{
 		return SDL_GetWindowFlags(m_Window) & SDL_WINDOW_INPUT_FOCUS;
 	}
 
-	bool Window::IsMinimized()
+	bool IWindow::IsMinimized()
 	{
 		return SDL_GetWindowFlags(m_Window) & SDL_WINDOW_MINIMIZED;
 	}
 
-	bool Window::IsMaximized()
+	bool IWindow::IsMaximized()
 	{
 		return SDL_GetWindowFlags(m_Window) & SDL_WINDOW_MAXIMIZED;
 	}
 
-	bool Window::IsFullscreen()
+	bool IWindow::IsFullscreen()
 	{
 		return SDL_GetWindowFlags(m_Window) & SDL_WINDOW_FULLSCREEN;
 	}
 
-	void Window::Maximize()
+	void IWindow::Maximize()
 	{
 		SDL_MaximizeWindow(m_Window);
 	}
 
-	void Window::Minimize()
+	void IWindow::Minimize()
 	{
 		SDL_MinimizeWindow(m_Window);
 	}
 
-	void Window::Restore()
+	void IWindow::Restore()
 	{
 		SDL_RestoreWindow(m_Window);
 	}
 
-	void Window::ToggleFullscreen()
+	void IWindow::ToggleFullscreen()
 	{
 		if (IsFullscreen())
 		{
@@ -223,37 +207,37 @@ namespace Nexus
 		}
 	}
 
-	void Window::SetFullscreen()
+	void IWindow::SetFullscreen()
 	{
 		SDL_SetWindowFullscreen(m_Window, SDL_TRUE);
 	}
 
-	void Window::UnsetFullscreen()
+	void IWindow::UnsetFullscreen()
 	{
 		SDL_SetWindowFullscreen(m_Window, SDL_FALSE);
 	}
 
-	void Window::Show()
+	void IWindow::Show()
 	{
 		SDL_ShowWindow(m_Window);
 	}
 
-	void Window::Hide()
+	void IWindow::Hide()
 	{
 		SDL_HideWindow(m_Window);
 	}
 
-	void Window::SetWindowPosition(int32_t x, int32_t y)
+	void IWindow::SetWindowPosition(int32_t x, int32_t y)
 	{
 		SDL_SetWindowPosition(m_Window, x, y);
 	}
 
-	void Window::Focus()
+	void IWindow::Focus()
 	{
 		SDL_RaiseWindow(m_Window);
 	}
 
-	void Window::CreateSwapchain(Graphics::GraphicsDevice *device, const Graphics::SwapchainSpecification &swapchainSpec)
+	void IWindow::CreateSwapchain(Graphics::GraphicsDevice *device, const Graphics::SwapchainSpecification &swapchainSpec)
 	{
 		switch (device->GetGraphicsAPI())
 		{
@@ -283,22 +267,22 @@ namespace Nexus
 		}
 	}
 
-	Graphics::Swapchain *Window::GetSwapchain()
+	Graphics::Swapchain *IWindow::GetSwapchain()
 	{
 		return m_Swapchain;
 	}
 
-	uint32_t Window::GetID()
+	uint32_t IWindow::GetID()
 	{
 		return m_WindowID;
 	}
 
-	float Window::GetDisplayScale()
+	float IWindow::GetDisplayScale()
 	{
 		return SDL_GetWindowDisplayScale(m_Window);
 	}
 
-	void Window::SetTextInputRect(const Nexus::Graphics::Rectangle<int> &rect)
+	void IWindow::SetTextInputRect(const Nexus::Graphics::Rectangle<int> &rect)
 	{
 		SDL_Rect r;
 		r.x = rect.GetLeft();
@@ -308,49 +292,65 @@ namespace Nexus
 		SDL_SetTextInputRect(&r);
 	}
 
-	void Window::StartTextInput()
+	void IWindow::StartTextInput()
 	{
 		SDL_StartTextInput();
 	}
 
-	void Window::StopTextInput()
+	void IWindow::StopTextInput()
 	{
 		SDL_StopTextInput();
 	}
 
-	void Window::SetRendersPerSecond(uint32_t amount)
+	void IWindow::SetRendersPerSecond(uint32_t amount)
 	{
 		m_Specification.RendersPerSecond = amount;
 		SetupTimer();
 	}
 
-	void Window::SetUpdatesPerSecond(uint32_t amount)
+	void IWindow::SetUpdatesPerSecond(uint32_t amount)
 	{
 		m_Specification.UpdatesPerSecond = amount;
 		SetupTimer();
 	}
 
-	void Window::SetTicksPerSecond(uint32_t amount)
+	void IWindow::SetTicksPerSecond(uint32_t amount)
 	{
 		m_Specification.TicksPerSecond = amount;
 		SetupTimer();
 	}
 
-	void Window::SetRelativeMouseMode(bool enabled)
+	void IWindow::SetRelativeMouseMode(bool enabled)
 	{
 		SDL_SetRelativeMouseMode(enabled);
 	}
 
 #if defined(NX_PLATFORM_WINDOWS)
-	const HWND Window::GetHwnd() const
+	const HWND IWindow::GetHwnd() const
 	{
 		HWND hwnd = (HWND)SDL_GetProperty(SDL_GetWindowProperties(m_Window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr);
 		return hwnd;
 	}
-
 #endif
 
-	uint32_t Window::GetFlags(Graphics::GraphicsAPI api, const WindowSpecification &windowSpec, const Graphics::SwapchainSpecification &swapchainSpec)
+#if defined(NX_PLATFORM_LINUX)
+	const XWindowInfo IWindow::GetXWindow() const
+	{
+		SDL_PropertiesID properties = SDL_GetWindowProperties(m_Window);
+
+		const char *driver = SDL_GetCurrentVideoDriver();
+
+		Display		 *display	   = (Display *)SDL_GetProperty(properties, SDL_PROP_WINDOW_X11_DISPLAY_POINTER, nullptr);
+		int			  screenIndex  = (int)(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_SCREEN_NUMBER, 0));
+		unsigned long windowNumber = (unsigned long)SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0);
+
+		return XWindowInfo {.display = display, .screen = screenIndex, .window = (Window)windowNumber};
+	}
+#endif
+
+	uint32_t IWindow::GetFlags(Graphics::GraphicsAPI				   api,
+							   const WindowSpecification			  &windowSpec,
+							   const Graphics::SwapchainSpecification &swapchainSpec)
 	{
 		// required for emscripten to handle resizing correctly
 		uint32_t flags = 0;
@@ -376,13 +376,13 @@ namespace Nexus
 			case Graphics::GraphicsAPI::Vulkan:
 			{
 				flags |= SDL_WINDOW_VULKAN;
-				return flags;
 			}
-			default: return flags;
 		}
+
+		return flags;
 	}
 
-	void Window::SetupTimer()
+	void IWindow::SetupTimer()
 	{
 		m_Timer.Clear();
 
@@ -406,40 +406,46 @@ namespace Nexus
 		}
 
 		m_Timer.Every(
-		[&](Nexus::TimeSpan time)
-		{
-			if (IsMinimized())
-				return;
+			[&](Nexus::TimeSpan time)
+			{
+				if (IsMinimized())
+					return;
 
-			m_RenderFrameRateMonitor.Update();
-			OnRender.Invoke(time);
-		},
-		secondsPerRender);
-
-		m_Timer.Every(
-		[&](Nexus::TimeSpan time)
-		{
-			if (IsMinimized())
-				return;
-
-			m_UpdateFrameRateMonitor.Update();
-			OnUpdate.Invoke(time);
-		},
-		secondsPerUpdate);
+				Input::SetContext(&m_InputContext);
+				m_RenderFrameRateMonitor.Update();
+				OnRender.Invoke(time);
+				m_LayerStack.OnRender(time);
+			},
+			secondsPerRender);
 
 		m_Timer.Every(
-		[&](Nexus::TimeSpan time)
-		{
-			if (IsMinimized())
-				return;
+			[&](Nexus::TimeSpan time)
+			{
+				if (IsMinimized())
+					return;
 
-			m_TickFrameRateMonitor.Update();
-			OnTick.Invoke(time);
-		},
-		secondsPerTick);
+				Input::SetContext(&m_InputContext);
+				m_UpdateFrameRateMonitor.Update();
+				OnUpdate.Invoke(time);
+				m_LayerStack.OnUpdate(time);
+			},
+			secondsPerUpdate);
+
+		m_Timer.Every(
+			[&](Nexus::TimeSpan time)
+			{
+				if (IsMinimized())
+					return;
+
+				Input::SetContext(&m_InputContext);
+				m_TickFrameRateMonitor.Update();
+				OnTick.Invoke(time);
+				m_LayerStack.OnTick(time);
+			},
+			secondsPerTick);
 	}
 
-	const WindowSpecification &Window::GetSpecification() const
+	const WindowSpecification &IWindow::GetSpecification() const
 	{
 		return m_Specification;
 	}

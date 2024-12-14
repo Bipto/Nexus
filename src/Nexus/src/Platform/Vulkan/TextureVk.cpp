@@ -18,7 +18,7 @@ namespace Nexus::Graphics
 		m_Format					   = Vk::GetVkPixelDataFormat(spec.Format, isDepth);
 
 		m_StagingBuffer =
-		graphicsDevice->CreateBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
+			graphicsDevice->CreateBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
 
 		VkExtent3D imageExtent;
 		imageExtent.width  = spec.Width;
@@ -108,28 +108,33 @@ namespace Nexus::Graphics
 			VkImageLayout before = m_Layouts.at(level);
 
 			m_GraphicsDevice->ImmediateSubmit(
-			[&](VkCommandBuffer cmd)
-			{
-				m_GraphicsDevice
-				->TransitionVulkanImageLayout(cmd, m_Image, level, 0, before, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
+				[&](VkCommandBuffer cmd)
+				{
+					m_GraphicsDevice->TransitionVulkanImageLayout(cmd,
+																  m_Image,
+																  level,
+																  0,
+																  before,
+																  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+																  VK_IMAGE_ASPECT_COLOR_BIT);
 
-				VkBufferImageCopy copyRegion			   = {};
-				copyRegion.bufferOffset					   = 0;
-				copyRegion.bufferRowLength				   = 0;
-				copyRegion.bufferImageHeight			   = 0;
-				copyRegion.imageSubresource.aspectMask	   = VK_IMAGE_ASPECT_COLOR_BIT;
-				copyRegion.imageSubresource.mipLevel	   = level;
-				copyRegion.imageSubresource.baseArrayLayer = 0;
-				copyRegion.imageSubresource.layerCount	   = 1;
-				copyRegion.imageExtent					   = imageExtent;
-				vkCmdCopyBufferToImage(cmd, m_StagingBuffer.Buffer, m_Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
+					VkBufferImageCopy copyRegion			   = {};
+					copyRegion.bufferOffset					   = 0;
+					copyRegion.bufferRowLength				   = 0;
+					copyRegion.bufferImageHeight			   = 0;
+					copyRegion.imageSubresource.aspectMask	   = VK_IMAGE_ASPECT_COLOR_BIT;
+					copyRegion.imageSubresource.mipLevel	   = level;
+					copyRegion.imageSubresource.baseArrayLayer = 0;
+					copyRegion.imageSubresource.layerCount	   = 1;
+					copyRegion.imageExtent					   = imageExtent;
+					vkCmdCopyBufferToImage(cmd, m_StagingBuffer.Buffer, m_Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
 
-				SetImageLayout(level, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-			});
+					SetImageLayout(level, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+				});
 		}
 	}
 
-	std::vector<std::byte> Texture2D_Vk::GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+	void Texture2D_Vk::GetData(std::vector<unsigned char> &pixels, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 	{
 		uint32_t	 offset = x * y * GetPixelFormatSizeInBits(m_Specification.Format);
 		VkDeviceSize size	= width * height * GetPixelFormatSizeInBytes(m_Specification.Format);
@@ -144,37 +149,40 @@ namespace Nexus::Graphics
 			VkImageLayout before = m_Layouts.at(level);
 
 			m_GraphicsDevice->ImmediateSubmit(
-			[&](VkCommandBuffer cmd)
-			{
-				m_GraphicsDevice
-				->TransitionVulkanImageLayout(cmd, m_Image, level, 0, before, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_ASPECT_COLOR_BIT);
+				[&](VkCommandBuffer cmd)
+				{
+					m_GraphicsDevice->TransitionVulkanImageLayout(cmd,
+																  m_Image,
+																  level,
+																  0,
+																  before,
+																  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+																  VK_IMAGE_ASPECT_COLOR_BIT);
 
-				VkBufferImageCopy copyRegion			   = {};
-				copyRegion.bufferOffset					   = 0;
-				copyRegion.bufferRowLength				   = 0;
-				copyRegion.bufferImageHeight			   = 0;
-				copyRegion.imageSubresource.aspectMask	   = VK_IMAGE_ASPECT_COLOR_BIT;
-				copyRegion.imageSubresource.mipLevel	   = level;
-				copyRegion.imageSubresource.baseArrayLayer = 0;
-				copyRegion.imageSubresource.layerCount	   = 1;
-				copyRegion.imageExtent					   = extent;
-				copyRegion.imageOffset.x				   = x;
-				copyRegion.imageOffset.y				   = y;
-				copyRegion.imageOffset.z				   = 0;
-				vkCmdCopyImageToBuffer(cmd, m_Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, m_StagingBuffer.Buffer, 1, &copyRegion);
+					VkBufferImageCopy copyRegion			   = {};
+					copyRegion.bufferOffset					   = 0;
+					copyRegion.bufferRowLength				   = 0;
+					copyRegion.bufferImageHeight			   = 0;
+					copyRegion.imageSubresource.aspectMask	   = VK_IMAGE_ASPECT_COLOR_BIT;
+					copyRegion.imageSubresource.mipLevel	   = level;
+					copyRegion.imageSubresource.baseArrayLayer = 0;
+					copyRegion.imageSubresource.layerCount	   = 1;
+					copyRegion.imageExtent					   = extent;
+					copyRegion.imageOffset.x				   = x;
+					copyRegion.imageOffset.y				   = y;
+					copyRegion.imageOffset.z				   = 0;
+					vkCmdCopyImageToBuffer(cmd, m_Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, m_StagingBuffer.Buffer, 1, &copyRegion);
 
-				SetImageLayout(level, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-			});
+					SetImageLayout(level, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+				});
 		}
 
-		std::vector<std::byte> pixels(size);
+		pixels.resize(size);
 
 		void *buffer;
 		vmaMapMemory(m_GraphicsDevice->GetAllocator(), m_StagingBuffer.Allocation, &buffer);
 		memcpy(pixels.data(), buffer, pixels.size());
 		vmaUnmapMemory(m_GraphicsDevice->GetAllocator(), m_StagingBuffer.Allocation);
-
-		return pixels;
 	}
 
 	VkImage Texture2D_Vk::GetImage()
@@ -206,7 +214,7 @@ namespace Nexus::Graphics
 		m_Format				= Vk::GetVkPixelDataFormat(m_Specification.Format, false);
 
 		m_StagingBuffer =
-		graphicsDevice->CreateBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
+			graphicsDevice->CreateBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
 
 		VkExtent3D imageExtent {.width = spec.Width, .height = spec.Height, .depth = 1};
 
@@ -282,33 +290,39 @@ namespace Nexus::Graphics
 			VkImageLayout before = m_Layouts.at(faceIndex).at(level);
 
 			m_GraphicsDevice->ImmediateSubmit(
-			[&](VkCommandBuffer cmd)
-			{
-				m_GraphicsDevice->TransitionVulkanImageLayout(cmd,
-															  m_Image,
-															  level,
-															  faceIndex,
-															  before,
-															  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-															  VK_IMAGE_ASPECT_COLOR_BIT);
+				[&](VkCommandBuffer cmd)
+				{
+					m_GraphicsDevice->TransitionVulkanImageLayout(cmd,
+																  m_Image,
+																  level,
+																  faceIndex,
+																  before,
+																  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+																  VK_IMAGE_ASPECT_COLOR_BIT);
 
-				VkBufferImageCopy copyRegion			   = {};
-				copyRegion.bufferOffset					   = 0;
-				copyRegion.bufferRowLength				   = 0;
-				copyRegion.bufferImageHeight			   = 0;
-				copyRegion.imageSubresource.aspectMask	   = VK_IMAGE_ASPECT_COLOR_BIT;
-				copyRegion.imageSubresource.mipLevel	   = level;
-				copyRegion.imageSubresource.baseArrayLayer = faceIndex;
-				copyRegion.imageSubresource.layerCount	   = 1;
-				copyRegion.imageExtent					   = imageExtent;
-				vkCmdCopyBufferToImage(cmd, m_StagingBuffer.Buffer, m_Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
+					VkBufferImageCopy copyRegion			   = {};
+					copyRegion.bufferOffset					   = 0;
+					copyRegion.bufferRowLength				   = 0;
+					copyRegion.bufferImageHeight			   = 0;
+					copyRegion.imageSubresource.aspectMask	   = VK_IMAGE_ASPECT_COLOR_BIT;
+					copyRegion.imageSubresource.mipLevel	   = level;
+					copyRegion.imageSubresource.baseArrayLayer = faceIndex;
+					copyRegion.imageSubresource.layerCount	   = 1;
+					copyRegion.imageExtent					   = imageExtent;
+					vkCmdCopyBufferToImage(cmd, m_StagingBuffer.Buffer, m_Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
 
-				SetImageLayout(faceIndex, level, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-			});
+					SetImageLayout(faceIndex, level, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+				});
 		}
 	}
 
-	std::vector<std::byte> Cubemap_Vk::GetData(CubemapFace face, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+	void Cubemap_Vk::GetData(std::vector<unsigned char> &pixels,
+							 CubemapFace				 face,
+							 uint32_t					 level,
+							 uint32_t					 x,
+							 uint32_t					 y,
+							 uint32_t					 width,
+							 uint32_t					 height)
 	{
 		uint32_t	 faceIndex = (uint32_t)face;
 		uint32_t	 offset	   = x * y * GetPixelFormatSizeInBytes(m_Specification.Format);
@@ -324,42 +338,38 @@ namespace Nexus::Graphics
 			VkImageLayout before = m_Layouts.at(faceIndex).at(level);
 
 			m_GraphicsDevice->ImmediateSubmit(
-			[&](VkCommandBuffer cmd)
-			{
-				m_GraphicsDevice->TransitionVulkanImageLayout(cmd,
-															  m_Image,
-															  level,
-															  faceIndex,
-															  before,
-															  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-															  VK_IMAGE_ASPECT_COLOR_BIT);
+				[&](VkCommandBuffer cmd)
+				{
+					m_GraphicsDevice->TransitionVulkanImageLayout(cmd,
+																  m_Image,
+																  level,
+																  faceIndex,
+																  before,
+																  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+																  VK_IMAGE_ASPECT_COLOR_BIT);
 
-				VkBufferImageCopy copyRegion			   = {};
-				copyRegion.bufferOffset					   = 0;
-				copyRegion.bufferRowLength				   = 0;
-				copyRegion.bufferImageHeight			   = 0;
-				copyRegion.imageSubresource.aspectMask	   = VK_IMAGE_ASPECT_COLOR_BIT;
-				copyRegion.imageSubresource.mipLevel	   = level;
-				copyRegion.imageSubresource.baseArrayLayer = faceIndex;
-				copyRegion.imageSubresource.layerCount	   = 1;
-				copyRegion.imageExtent					   = extent;
-				copyRegion.imageOffset.x				   = x;
-				copyRegion.imageOffset.y				   = y;
-				copyRegion.imageOffset.z				   = 0;
-				vkCmdCopyImageToBuffer(cmd, m_Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, m_StagingBuffer.Buffer, 1, &copyRegion);
-			});
+					VkBufferImageCopy copyRegion			   = {};
+					copyRegion.bufferOffset					   = 0;
+					copyRegion.bufferRowLength				   = 0;
+					copyRegion.bufferImageHeight			   = 0;
+					copyRegion.imageSubresource.aspectMask	   = VK_IMAGE_ASPECT_COLOR_BIT;
+					copyRegion.imageSubresource.mipLevel	   = level;
+					copyRegion.imageSubresource.baseArrayLayer = faceIndex;
+					copyRegion.imageSubresource.layerCount	   = 1;
+					copyRegion.imageExtent					   = extent;
+					copyRegion.imageOffset.x				   = x;
+					copyRegion.imageOffset.y				   = y;
+					copyRegion.imageOffset.z				   = 0;
+					vkCmdCopyImageToBuffer(cmd, m_Image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, m_StagingBuffer.Buffer, 1, &copyRegion);
+				});
 
-			std::vector<std::byte> pixels(size);
+			pixels.resize(size);
 
 			void *buffer;
 			vmaMapMemory(m_GraphicsDevice->GetAllocator(), m_StagingBuffer.Allocation, &buffer);
 			memcpy(pixels.data(), buffer, pixels.size());
 			vmaUnmapMemory(m_GraphicsDevice->GetAllocator(), m_StagingBuffer.Allocation);
-
-			return pixels;
 		}
-
-		return std::vector<std::byte>();
 	}
 
 	VkImage Cubemap_Vk::GetImage()

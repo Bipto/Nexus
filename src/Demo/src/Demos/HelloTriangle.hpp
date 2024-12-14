@@ -21,9 +21,9 @@ namespace Demos
 			m_CommandList = m_GraphicsDevice->CreateCommandList();
 
 			std::vector<Nexus::Graphics::VertexPosition> vertices = {
-			{{-0.5f, -0.5f, 0.0f}},	   // bottom left
-			{{0.0f, 0.5f, 0.0f}},	   // top left
-			{{0.5f, -0.5f, 0.0f}},	   // bottom right
+				{{-0.5f, -0.5f, 0.0f}},	   // bottom left
+				{{0.0f, 0.5f, 0.0f}},	   // top left
+				{{0.5f, -0.5f, 0.0f}},	   // bottom right
 			};
 
 			CreatePipeline();
@@ -74,11 +74,16 @@ namespace Demos
 		{
 		}
 
+		virtual std::string GetInfo() const override
+		{
+			return "Rendering a triangle using a vertex buffer";
+		}
+
 	  private:
 		void CreatePipeline()
 		{
 			Nexus::Graphics::PipelineDescription pipelineDescription;
-			pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::None;
+			pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::CullNone;
 			pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 			pipelineDescription.Layouts								  = {Nexus::Graphics::VertexPosition::GetLayout()};
 
@@ -86,10 +91,12 @@ namespace Demos
 			pipelineDescription.ColourFormats[0]		= Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
 			pipelineDescription.ColourTargetSampleCount = m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->GetSpecification().Samples;
 
-			pipelineDescription.VertexModule   = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/hello_triangle.vert.glsl",
-																								   Nexus::Graphics::ShaderStage::Vertex);
-			pipelineDescription.FragmentModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/hello_triangle.frag.glsl",
-																								   Nexus::Graphics::ShaderStage::Fragment);
+			pipelineDescription.VertexModule =
+				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/hello_triangle.vert.glsl",
+																	   Nexus::Graphics::ShaderStage::Vertex);
+			pipelineDescription.FragmentModule =
+				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/hello_triangle.frag.glsl",
+																	   Nexus::Graphics::ShaderStage::Fragment);
 
 			m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
 		}

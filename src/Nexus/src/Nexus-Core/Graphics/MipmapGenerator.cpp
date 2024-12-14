@@ -26,103 +26,89 @@ namespace Nexus::Graphics
 	MipmapGenerator::MipmapGenerator(GraphicsDevice *device) : m_Device(device), m_Quad(device)
 	{
 		m_CommandList = m_Device->CreateCommandList();
+
+		Ref<ShaderModule> m_VertexModule =
+			m_Device->GetOrCreateCachedShaderFromSpirvSource(c_MipmapVertexSource, "Mipmap-Gen.vert", Nexus::Graphics::ShaderStage::Vertex);
+		Ref<ShaderModule> m_FragmentModule =
+			m_Device->GetOrCreateCachedShaderFromSpirvSource(c_MipmapFragmentSource, "Mipmap-Gen.frag", Nexus::Graphics::ShaderStage::Fragment);
+
+		// set up pipeline for rendering
+		Nexus::Graphics::PipelineDescription pipelineDescription;
+		pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::CullNone;
+		pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
+
+		pipelineDescription.VertexModule   = m_VertexModule;
+		pipelineDescription.FragmentModule = m_FragmentModule;
+
+		pipelineDescription.ColourFormats[0]  = PixelFormat::R8_G8_B8_A8_UNorm;
+		pipelineDescription.ColourTargetCount = 1;
+		pipelineDescription.DepthFormat		  = PixelFormat::D24_UNorm_S8_UInt;
+
+		pipelineDescription.ResourceSetSpec.SampledImages = {{"texSampler", 0, 0}};
+
+		pipelineDescription.Layouts = {m_Quad.GetVertexBufferLayout()};
+		m_Pipeline					= m_Device->CreatePipeline(pipelineDescription);
+		m_ResourceSet				= m_Device->CreateResourceSet(m_Pipeline);
 	}
 
-	void MipmapGenerator::GenerateMips(Ref<Texture2D> texture, uint32_t mipCount)
+	std::vector<unsigned char> MipmapGenerator::GenerateMip(Ref<Texture2D> texture, uint32_t levelToGenerate, uint32_t levelToGenerateFrom)
 	{
+		std::vector<unsigned char> pixels = {};
+
 		const uint32_t textureWidth	 = texture->GetSpecification().Width;
 		const uint32_t textureHeight = texture->GetSpecification().Height;
 
-		uint32_t mipWidth  = textureWidth;
-		uint32_t mipHeight = textureHeight;
+		auto [mipWidth, mipHeight] = Utils::GetMipSize(textureWidth, textureHeight, levelToGenerate);
 
-		Ref<ShaderModule> vertexModule =
-		m_Device->CreateShaderModuleFromSpirvSource(c_MipmapVertexSource, "Mipmap-Gen.vert", Nexus::Graphics::ShaderStage::Vertex);
-		Ref<ShaderModule> fragmentModule =
-		m_Device->CreateShaderModuleFromSpirvSource(c_MipmapFragmentSource, "Mipmap-Gen.frag", Nexus::Graphics::ShaderStage::Fragment);
-
-		Ref<Texture2D> mipTexture = texture;
-
-		// iterate through each mip to generate
-		for (uint32_t i = 1; i <= mipCount; i++)
+		// generate mip
 		{
-			// set up pipeline for rendering
-			Nexus::Graphics::PipelineDescription pipelineDescription;
-			pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::None;
-			pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
+			Nexus::Graphics::FramebufferSpecification framebufferSpec;
+			framebufferSpec.ColorAttachmentSpecification = {texture->GetSpecification().Format};
+			framebufferSpec.Width						 = mipWidth;
+			framebufferSpec.Height						 = mipHeight;
+			framebufferSpec.Samples						 = texture->GetSpecification().Samples;
 
-			pipelineDescription.VertexModule   = vertexModule;
-			pipelineDescription.FragmentModule = fragmentModule;
+			Ref<Framebuffer> framebuffer = m_Device->CreateFramebuffer(framebufferSpec);
 
-			pipelineDescription.ResourceSetSpec.SampledImages = {{"texSampler", 0, 0}};
+			Nexus::Graphics::SamplerSpecification samplerSpec;
+			samplerSpec.MinimumLOD = levelToGenerateFrom;
+			samplerSpec.MaximumLOD = levelToGenerateFrom;
+			Ref<Sampler> sampler   = m_Device->CreateSampler(samplerSpec);
 
-			pipelineDescription.Layouts = {m_Quad.GetVertexBufferLayout()};
+			Ref<Texture2D> framebufferTexture = framebuffer->GetColorTexture(0);
 
-			// create mip
-			{
-				mipWidth /= 2;
-				mipHeight /= 2;
+			m_ResourceSet->WriteCombinedImageSampler(texture, sampler, "texSampler");
 
-				Nexus::Graphics::FramebufferSpecification framebufferSpec;
-				framebufferSpec.ColorAttachmentSpecification = {texture->GetSpecification().Format};
-				framebufferSpec.Width						 = mipWidth;
-				framebufferSpec.Height						 = mipHeight;
-				framebufferSpec.Samples						 = texture->GetSpecification().Samples;
+			Nexus::Graphics::Scissor scissor;
+			scissor.X	   = 0;
+			scissor.Y	   = 0;
+			scissor.Width  = mipWidth;
+			scissor.Height = mipHeight;
 
-				Ref<Framebuffer> framebuffer = m_Device->CreateFramebuffer(framebufferSpec);
+			Nexus::Graphics::Viewport viewport;
+			viewport.X		  = 0;
+			viewport.Y		  = 0;
+			viewport.Width	  = mipWidth;
+			viewport.Height	  = mipHeight;
+			viewport.MinDepth = 0;
+			viewport.MaxDepth = 1;
 
-				pipelineDescription.ColourFormats[0]  = PixelFormat::R8_G8_B8_A8_UNorm;
-				pipelineDescription.ColourTargetCount = 1;
-				pipelineDescription.DepthFormat		  = PixelFormat::D24_UNorm_S8_UInt;
+			m_CommandList->Begin();
+			m_CommandList->SetPipeline(m_Pipeline);
+			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(framebuffer));
+			m_CommandList->SetViewport(viewport);
+			m_CommandList->SetScissor(scissor);
+			m_CommandList->SetVertexBuffer(m_Quad.GetVertexBuffer(), 0);
+			m_CommandList->SetIndexBuffer(m_Quad.GetIndexBuffer());
+			m_CommandList->SetResourceSet(m_ResourceSet);
+			m_CommandList->DrawIndexed(6, 0, 0);
+			m_CommandList->End();
+			m_Device->SubmitCommandList(m_CommandList);
 
-				Ref<Pipeline>	 pipeline	 = m_Device->CreatePipeline(pipelineDescription);
-				Ref<ResourceSet> resourceSet = m_Device->CreateResourceSet(pipeline);
-
-				Nexus::Graphics::SamplerSpecification samplerSpec;
-				samplerSpec.MinimumLOD = 0;
-				samplerSpec.MaximumLOD = 0;
-				Ref<Sampler> sampler   = m_Device->CreateSampler(samplerSpec);
-
-				Ref<Texture2D> framebufferTexture = framebuffer->GetColorTexture(0);
-
-				resourceSet->WriteCombinedImageSampler(mipTexture, sampler, "texSampler");
-
-				Nexus::Graphics::Scissor scissor;
-				scissor.X	   = 0;
-				scissor.Y	   = 0;
-				scissor.Width  = mipWidth;
-				scissor.Height = mipHeight;
-
-				Nexus::Graphics::Viewport viewport;
-				viewport.X		  = 0;
-				viewport.Y		  = 0;
-				viewport.Width	  = mipWidth;
-				viewport.Height	  = mipHeight;
-				viewport.MinDepth = 0;
-				viewport.MaxDepth = 1;
-
-				m_CommandList->Begin();
-				m_CommandList->SetPipeline(pipeline);
-				m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(framebuffer));
-				m_CommandList->SetViewport(viewport);
-				m_CommandList->SetScissor(scissor);
-				m_CommandList->SetVertexBuffer(m_Quad.GetVertexBuffer(), 0);
-				m_CommandList->SetIndexBuffer(m_Quad.GetIndexBuffer());
-				m_CommandList->SetResourceSet(resourceSet);
-				m_CommandList->DrawIndexed(6, 0, 0);
-				m_CommandList->End();
-				m_Device->SubmitCommandList(m_CommandList);
-
-				uint32_t framebufferWidth  = framebufferTexture->GetSpecification().Width;
-				uint32_t framebufferHeight = framebufferTexture->GetSpecification().Height;
-
-				std::vector<std::byte> pixels = framebufferTexture->GetData(0, 0, 0, framebufferWidth, framebufferHeight);
-				MipData				   mipData(pixels, framebufferWidth, framebufferHeight);
-				texture->SetData(mipData.GetData(), i, 0, 0, framebufferWidth, framebufferHeight);
-
-				mipTexture = framebufferTexture;
-			}
+			pixels = framebufferTexture->GetData(0, 0, 0, mipWidth, mipHeight);
 		}
+
+		return pixels;
 	}
 
 	uint32_t MipmapGenerator::GetMaximumNumberOfMips(uint32_t width, uint32_t height)
@@ -130,7 +116,7 @@ namespace Nexus::Graphics
 		return std::floor(std::log2(std::max(width, height)));
 	}
 
-	MipData::MipData(const std::vector<std::byte> &pixels, uint32_t width, uint32_t height) : m_Pixels(pixels), m_Width(width), m_Height(height)
+	MipData::MipData(const std::vector<unsigned char> &pixels, uint32_t width, uint32_t height) : m_Pixels(pixels), m_Width(width), m_Height(height)
 	{
 	}
 

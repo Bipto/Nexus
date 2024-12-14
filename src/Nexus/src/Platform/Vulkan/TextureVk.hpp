@@ -14,7 +14,8 @@ namespace Nexus::Graphics
 		Texture2D_Vk(GraphicsDeviceVk *graphicsDevice, const Texture2DSpecification &spec);
 		~Texture2D_Vk();
 		virtual void				   SetData(const void *data, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
-		virtual std::vector<std::byte> GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
+		virtual void GetData(std::vector<unsigned char> &pixels, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
+
 		VkImage						   GetImage();
 		VkImageView					   GetImageView();
 
@@ -37,7 +38,13 @@ namespace Nexus::Graphics
 		Cubemap_Vk(GraphicsDeviceVk *graphicsDevice, const CubemapSpecification &spec);
 		~Cubemap_Vk();
 		virtual void SetData(const void *data, CubemapFace face, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
-		virtual std::vector<std::byte> GetData(CubemapFace face, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
+		virtual void GetData(std::vector<unsigned char> &pixels,
+							 CubemapFace				 face,
+							 uint32_t					 level,
+							 uint32_t					 x,
+							 uint32_t					 y,
+							 uint32_t					 width,
+							 uint32_t					 height) override;
 
 		VkImage		GetImage();
 		VkImageView GetImageView();

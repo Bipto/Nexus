@@ -2,6 +2,8 @@
 
 #if defined(NX_PLATFORM_OPENGL)
 
+	#include "Nexus-Core/nxpch.hpp"
+
 	#if defined(__EMSCRIPTEN__)
 		#include <emscripten.h>
 		#include <emscripten/html5.h>
@@ -21,8 +23,8 @@
 
 	#include "Nexus-Core/Window.hpp"
 
-	#include "PBuffer.hpp"
-	#include "FBO.hpp"
+	#include "Context/IOffscreenContext.hpp"
+	#include "Context/IViewContext.hpp"
 
 namespace Nexus::GL
 {
@@ -47,8 +49,8 @@ namespace Nexus::GL
 
 	void GetBaseType(const Graphics::VertexBufferElement &element, GLenum &baseType, uint32_t &componentCount, GLboolean &normalized);
 
-	std::unique_ptr<PBuffer> CreatePBuffer();
-	std::unique_ptr<FBO>	 CreateFBO(Window *window, PBuffer *pbuffer);
+	std::unique_ptr<IOffscreenContext> CreateOffscreenContext();
+	std::unique_ptr<IViewContext>	   CreateViewContext(IWindow *window, Graphics::GraphicsDevice *device);
 
 }	 // namespace Nexus::GL
 
@@ -64,7 +66,12 @@ namespace Nexus::GL
 		NX_ERROR(message);                                                                                                                           \
 	}
 
-#define glCall(x)                                                                                                                                    \
-	glClearErrors();                                                                                                                                 \
-	x;                                                                                                                                               \
-	glCheckErrors();
+#define NX_GL_DEBUG
+#if defined(NX_GL_DEBUG)
+	#define glCall(x)                                                                                                                                \
+		glClearErrors();                                                                                                                             \
+		x;                                                                                                                                           \
+		glCheckErrors();
+#else
+	#define glCall(x) x;
+#endif

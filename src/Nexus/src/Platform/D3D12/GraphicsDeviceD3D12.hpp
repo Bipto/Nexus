@@ -13,7 +13,7 @@ namespace Nexus::Graphics
 	class GraphicsDeviceD3D12 : public GraphicsDevice
 	{
 	  public:
-		GraphicsDeviceD3D12(const GraphicsDeviceSpecification &createInfo, Window *window, const SwapchainSpecification &swapchainSpec);
+		GraphicsDeviceD3D12(const GraphicsDeviceSpecification &createInfo, IWindow *window, const SwapchainSpecification &swapchainSpec);
 		~GraphicsDeviceD3D12();
 
 		virtual void SubmitCommandList(Ref<CommandList> commandList) override;

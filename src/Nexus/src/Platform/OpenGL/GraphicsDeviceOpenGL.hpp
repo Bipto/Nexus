@@ -14,7 +14,7 @@ namespace Nexus::Graphics
 	class GraphicsDeviceOpenGL : public GraphicsDevice
 	{
 	  public:
-		GraphicsDeviceOpenGL(const GraphicsDeviceSpecification &createInfo, Window *window, const SwapchainSpecification &swapchainSpec);
+		GraphicsDeviceOpenGL(const GraphicsDeviceSpecification &createInfo, IWindow *window, const SwapchainSpecification &swapchainSpec);
 		GraphicsDeviceOpenGL(const GraphicsDeviceOpenGL &) = delete;
 		virtual ~GraphicsDeviceOpenGL();
 
@@ -51,17 +51,17 @@ namespace Nexus::Graphics
 			return false;
 		};
 
-		GL::PBuffer *GetPBuffer();
+		GL::IOffscreenContext *GetOffscreenContext();
 
 	  private:
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) override;
 		std::vector<std::string>  GetSupportedExtensions();
 
 	  private:
-		std::unique_ptr<GL::PBuffer> m_PBuffer = {};
-		const char				  *m_GlslVersion;
-		WeakRef<FramebufferOpenGL> m_BoundFramebuffer = {};
-		VSyncState				   m_VsyncState		  = VSyncState::Enabled;
+		std::unique_ptr<GL::IOffscreenContext> m_PBuffer = {};
+		const char							  *m_GlslVersion;
+		WeakRef<FramebufferOpenGL>			   m_BoundFramebuffer = {};
+		VSyncState							   m_VsyncState		  = VSyncState::Enabled;
 
 		std::vector<std::string> m_Extensions {};
 

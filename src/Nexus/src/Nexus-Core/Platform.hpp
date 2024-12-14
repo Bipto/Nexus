@@ -11,6 +11,27 @@
 
 namespace Nexus::Platform
 {
+
+	/// @brief An enum representing the different default cursors that can be
+	/// selected
+	enum class Cursor
+	{
+		Arrow,
+		IBeam,
+		Wait,
+		Crosshair,
+		WaitArrow,
+		ArrowNWSE,
+		ArrowNESW,
+		ArrowWE,
+		ArrowNS,
+		ArrowAllDir,
+		No,
+		Hand
+	};
+
+	void SetCursor(Cursor cursor);
+
 	std::vector<InputNew::Keyboard> GetKeyboards();
 	std::vector<InputNew::Mouse>	GetMice();
 	std::vector<InputNew::Gamepad>	GetGamepads();
@@ -20,16 +41,20 @@ namespace Nexus::Platform
 	std::optional<InputNew::Mouse>	  GetMouseById(uint32_t id);
 	std::optional<InputNew::Gamepad>  GetGamepadById(uint32_t id);
 
-	void	Initialise();
-	void	Shutdown();
-	void	Update();
-	Window *CreatePlatformWindow(const WindowSpecification				&windowProps,
-								 Graphics::GraphicsAPI					 api,
-								 const Graphics::SwapchainSpecification &swapchainSpec);
+	void	 Initialise();
+	void	 Shutdown();
+	void	 Update();
+	IWindow *CreatePlatformWindow(const WindowSpecification				 &windowProps,
+								  Graphics::GraphicsAPI					  api,
+								  const Graphics::SwapchainSpecification &swapchainSpec);
 
-	InputNew::MouseInfo		GetGlobalMouseInfo();
-	std::optional<Window *> GetKeyboardFocus();
-	std::optional<Window *> GetMouseFocus();
+	InputNew::MouseInfo		 GetGlobalMouseInfo();
+	std::optional<IWindow *> GetKeyboardFocus();
+	std::optional<IWindow *> GetMouseFocus();
+
+	std::optional<uint32_t> GetActiveMouseId();
+	std::optional<uint32_t> GetActiveKeyboardId();
+	std::optional<uint32_t> GetActiveGamepadId();
 
 	inline EventHandler<uint32_t> OnKeyboardAdded;
 	inline EventHandler<uint32_t> OnKeyboardRemoved;

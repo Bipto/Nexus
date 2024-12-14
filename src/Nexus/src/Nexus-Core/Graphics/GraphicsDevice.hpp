@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Nexus-Core/nxpch.hpp"
+
 #include "CommandList.hpp"
 #include "Framebuffer.hpp"
 #include "GPUBuffer.hpp"
@@ -37,7 +39,7 @@ namespace Nexus::Graphics
 		/// @brief A constructor taking in a const reference to a
 		/// GraphicsDeviceSpecification
 		/// @param createInfo The options to use when creating the GraphicsDevice
-		GraphicsDevice(const GraphicsDeviceSpecification &createInfo, Window *window, const SwapchainSpecification &swapchainSpec);
+		GraphicsDevice(const GraphicsDeviceSpecification &createInfo, IWindow *window, const SwapchainSpecification &swapchainSpec);
 
 		/// @brief A virtual destructor allowing resources to be deleted
 		virtual ~GraphicsDevice()
@@ -161,7 +163,11 @@ namespace Nexus::Graphics
 
 		Ref<ShaderModule> CreateShaderModuleFromSpirvSource(const std::string &source, const std::string &name, ShaderStage stage);
 
-		Window *GetPrimaryWindow();
+		Ref<ShaderModule> GetOrCreateCachedShaderFromSpirvSource(const std::string &source, const std::string &name, ShaderStage stage);
+
+		Ref<ShaderModule> GetOrCreateCachedShaderFromSpirvFile(const std::string &filepath, ShaderStage stage);
+
+		IWindow *GetPrimaryWindow();
 
 		void ImmediateSubmit(std::function<void(Ref<CommandList> cmd)> &&function);
 
@@ -169,10 +175,11 @@ namespace Nexus::Graphics
 
 	  private:
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) = 0;
+		Ref<ShaderModule>		  TryLoadCachedShader(const std::string &source, const std::string &name, ShaderStage stage, ShaderLanguage language);
 
 	  protected:
 		/// @brief A pointer to the window to render graphics into
-		Nexus::Window *m_Window = nullptr;
+		Nexus::IWindow *m_Window = nullptr;
 
 		GraphicsDeviceSpecification m_Specification;
 

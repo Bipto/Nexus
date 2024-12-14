@@ -10,9 +10,9 @@ add_subdirectory(external/glad)
 
 if (WIN32)
   add_subdirectory(external/glad_wgl)
-elseif(LINUX)
-  add_subdirectory(external/glad_glx)
-elseif(ANDROID OR __ANDROID__)
+endif()
+
+if(ANDROID OR __ANDROID__ OR LINUX)
   add_subdirectory(external/glad_egl)
 endif()
 
@@ -63,6 +63,8 @@ file (GLOB_RECURSE ENGINE_SOURCES
  src/Nexus-Core/Runtime/*.cpp
  src/Nexus-Core/Runtime/ECS/*.hpp
  src/Nexus-Core/Runtime/ECS/*.cpp
+ src/Nexus-Core/Layers/*.hpp
+ src/Nexus-Core/Layers/*.cpp
  
  src/Platform/*.hpp
  src/Platform/*.cpp
@@ -80,6 +82,8 @@ file (GLOB_RECURSE ENGINE_SOURCES
  src/Platform/D3D12/*.cpp
  src/Platform/SDL3/*.hpp
  src/Platform/SDL3/*.cpp
+ src/Platform/Software/*.hpp
+ src/Platform/Software/*.cpp
  )
 
 add_library(Nexus ${ENGINE_HEADERS} ${ENGINE_SOURCES})
@@ -121,10 +125,8 @@ if (EMSCRIPTEN)
       Nexus
         PROPERTIES
         LINK_FLAGS
-        "--std=c++20 -Os -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sFULL_ES2=1 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS -lopenal -sGL_ENABLE_GET_PROC_ADDRESS"
+        "--std=c++20 -O3 -flto -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sFULL_ES2=1 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS -sNO_DISABLE_EXCEPTION_CATCHING -lopenal -lembind -sGL_ENABLE_GET_PROC_ADDRESS"
     )
-
-    set_target_properties(Nexus PROPERTIES COMPILE_FLAGS "-Os")
 endif()
 
 #include libraries to be built dynamically
@@ -182,8 +184,19 @@ if (WIN32)
   target_link_libraries(Nexus PUBLIC glad_wgl)
 endif()
 
-if (ANDROID OR __ANDROID__)
+if (ANDROID OR __ANDROID__ OR LINUX)
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(EGL REQUIRED egl)
+
   target_link_libraries(Nexus PUBLIC glad_egl)
+  target_include_directories(Nexus PUBLIC ${EGL_INCLUDE_DIRS})
+  target_link_libraries(Nexus PUBLIC ${EGL_LIBRARIES})
+endif()
+
+if (LINUX)
+  find_package(X11 REQUIRED)
+  target_link_libraries(Nexus PUBLIC ${X11_LIBRARIES})
+  include_directories(${X11_INCLUDE_DIR})
 endif()
 
 if(WIN32 OR LINUX)

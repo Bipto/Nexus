@@ -37,10 +37,15 @@ namespace Demos
 			ImGui::InputTextMultiline("Python Script: ", &m_PythonScript);
 			if (ImGui::Button("Execute"))
 			{
-				pkpy::VM *vm = new pkpy::VM();
-				vm->exec(m_PythonScript);
-				delete vm;
+				py_initialize();
+				py_exec(m_PythonScript.c_str(), "<string>", EXEC_MODE, NULL);
+				py_finalize();
 			}
+		}
+
+		virtual std::string GetInfo() const override
+		{
+			return "Customisable scripting using Python.";
 		}
 
 	  private:

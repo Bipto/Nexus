@@ -215,6 +215,6 @@ namespace Nexus
 
 		/// @brief A friend class to allow a window to access the private members of
 		/// this class
-		friend class Window;
+		friend class IWindow;
 	};
 }	 // namespace Nexus

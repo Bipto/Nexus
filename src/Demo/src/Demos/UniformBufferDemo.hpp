@@ -89,10 +89,12 @@ namespace Demos
 			pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::Back;
 			pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
-			pipelineDescription.VertexModule   = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/uniform_buffers.vert.glsl",
-																								   Nexus::Graphics::ShaderStage::Vertex);
-			pipelineDescription.FragmentModule = m_GraphicsDevice->CreateShaderModuleFromSpirvFile("resources/demo/shaders/uniform_buffers.frag.glsl",
-																								   Nexus::Graphics::ShaderStage::Fragment);
+			pipelineDescription.VertexModule =
+				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/uniform_buffers.vert.glsl",
+																	   Nexus::Graphics::ShaderStage::Vertex);
+			pipelineDescription.FragmentModule =
+				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/uniform_buffers.frag.glsl",
+																	   Nexus::Graphics::ShaderStage::Fragment);
 
 			Nexus::Graphics::BufferDescription transformUniformBufferDesc;
 			transformUniformBufferDesc.Size	 = sizeof(VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO);
@@ -111,6 +113,11 @@ namespace Demos
 
 			m_Pipeline	  = m_GraphicsDevice->CreatePipeline(pipelineDescription);
 			m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
+		}
+
+		virtual std::string GetInfo() const override
+		{
+			return "Rendering a textured quad and uploading matrix transforms to the GPU to change the position.";
 		}
 
 	  private:

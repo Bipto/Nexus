@@ -3,16 +3,23 @@
 	#include "GL.hpp"
 
 	#include "Nexus-Core/Logging/Log.hpp"
-	#include "Nexus-Core/nxpch.hpp"
 
 	#if defined(NX_PLATFORM_WGL)
-		#include "WGL/PBufferWGL.hpp"
-		#include "WGL/FBO_WGL.hpp"
+		#include "Context/WGL/OffscreenContextWGL.hpp"
+		#include "Context/WGL/ViewContextWGL.hpp"
 	#elif defined(NX_PLATFORM_EGL)
-		#include "EGL/PBufferEGL.hpp"
+		#include "Context/EGL/OffscreenContextEGL.hpp"
+		#include "Context/EGL/ViewContextEGL.hpp"
 	#elif defined(NX_PLATFORM_WEBGL)
-		#include "WebGL/PBufferWebGL.hpp"
+		#include "Context/WebGL/OffscreenContextWebGL.hpp"
+		#include "Context/WebGL/ViewContextWebGL.hpp"
+	#elif defined(NX_PLATFORM_GLX)
+		#include "Context/GLX/OffscreenContextGLX.hpp"
+		#include "Context/GLX/ViewContextGLX.hpp"
 	#endif
+
+	#include "Platform/OpenGL/GraphicsDeviceOpenGL.hpp"
+	#include "Nexus-Core/Platform.hpp"
 
 namespace Nexus::GL
 {
@@ -53,7 +60,7 @@ namespace Nexus::GL
 	{
 		switch (function)
 		{
-			case Nexus::Graphics::ComparisonFunction::Always: return GL_ALWAYS;
+			case Nexus::Graphics::ComparisonFunction::AlwaysPass: return GL_ALWAYS;
 			case Nexus::Graphics::ComparisonFunction::Equal: return GL_EQUAL;
 			case Nexus::Graphics::ComparisonFunction::Greater: return GL_GREATER;
 			case Nexus::Graphics::ComparisonFunction::GreaterEqual: return GL_GEQUAL;
@@ -176,15 +183,6 @@ namespace Nexus::GL
 			case Nexus::Graphics::PixelFormat::B8_G8_R8_A8_UNorm:
 			case Nexus::Graphics::PixelFormat::B8_G8_R8_A8_UNorm_SRGB: return GL_UNSIGNED_BYTE;
 
-			case Nexus::Graphics::PixelFormat::R8_SNorm:
-			case Nexus::Graphics::PixelFormat::R8_SInt:
-			case Nexus::Graphics::PixelFormat::R8_G8_SNorm:
-			case Nexus::Graphics::PixelFormat::R8_G8_SInt:
-			case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_SNorm:
-			case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_SInt:
-			case Nexus::Graphics::PixelFormat::BC4_SNorm:
-			case Nexus::Graphics::PixelFormat::BC5_SNorm: return GL_BYTE;
-
 			case Nexus::Graphics::PixelFormat::R16_UNorm:
 			case Nexus::Graphics::PixelFormat::R16_UInt:
 			case Nexus::Graphics::PixelFormat::R16_G16_UNorm:
@@ -215,19 +213,6 @@ namespace Nexus::GL
 			case Nexus::Graphics::PixelFormat::R32_G32_Float:
 			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float: return GL_FLOAT;
 
-			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm:
-			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm_SRGB:
-			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm:
-			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm_SRGB:
-			case Nexus::Graphics::PixelFormat::BC2_UNorm:
-			case Nexus::Graphics::PixelFormat::BC2_UNorm_SRGB:
-			case Nexus::Graphics::PixelFormat::BC3_UNorm:
-			case Nexus::Graphics::PixelFormat::BC3_UNorm_SRGB:
-			case Nexus::Graphics::PixelFormat::BC4_UNorm:
-			case Nexus::Graphics::PixelFormat::BC5_UNorm:
-			case Nexus::Graphics::PixelFormat::BC7_UNorm:
-			case Nexus::Graphics::PixelFormat::BC7_UNorm_SRGB: return GL_UNSIGNED_BYTE;
-
 			case Nexus::Graphics::PixelFormat::D32_Float_S8_UInt: return GL_FLOAT_32_UNSIGNED_INT_24_8_REV;
 			case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt: return GL_UNSIGNED_INT_24_8;
 
@@ -253,8 +238,7 @@ namespace Nexus::GL
 			case Nexus::Graphics::PixelFormat::R8_UNorm:
 			case Nexus::Graphics::PixelFormat::R16_UNorm:
 			case Nexus::Graphics::PixelFormat::R16_Float:
-			case Nexus::Graphics::PixelFormat::R32_Float:
-			case Nexus::Graphics::PixelFormat::BC4_UNorm: return GL_RED;
+			case Nexus::Graphics::PixelFormat::R32_Float: return GL_RED;
 
 			case Nexus::Graphics::PixelFormat::R8_SNorm:
 			case Nexus::Graphics::PixelFormat::R8_UInt:
@@ -263,14 +247,12 @@ namespace Nexus::GL
 			case Nexus::Graphics::PixelFormat::R16_UInt:
 			case Nexus::Graphics::PixelFormat::R16_SInt:
 			case Nexus::Graphics::PixelFormat::R32_UInt:
-			case Nexus::Graphics::PixelFormat::R32_SInt:
-			case Nexus::Graphics::PixelFormat::BC4_SNorm: return GL_RED_INTEGER;
+			case Nexus::Graphics::PixelFormat::R32_SInt: return GL_RED_INTEGER;
 
 			case Nexus::Graphics::PixelFormat::R8_G8_UNorm:
 			case Nexus::Graphics::PixelFormat::R16_G16_UNorm:
 			case Nexus::Graphics::PixelFormat::R16_G16_Float:
-			case Nexus::Graphics::PixelFormat::R32_G32_Float:
-			case Nexus::Graphics::PixelFormat::BC5_UNorm: return GL_RG;
+			case Nexus::Graphics::PixelFormat::R32_G32_Float: return GL_RG;
 
 			case Nexus::Graphics::PixelFormat::R8_G8_SNorm:
 			case Nexus::Graphics::PixelFormat::R8_G8_UInt:
@@ -279,8 +261,7 @@ namespace Nexus::GL
 			case Nexus::Graphics::PixelFormat::R16_G16_UInt:
 			case Nexus::Graphics::PixelFormat::R16_G16_SInt:
 			case Nexus::Graphics::PixelFormat::R32_G32_UInt:
-			case Nexus::Graphics::PixelFormat::R32_G32_SInt:
-			case Nexus::Graphics::PixelFormat::BC5_SNorm: return GL_RG_INTEGER;
+			case Nexus::Graphics::PixelFormat::R32_G32_SInt: return GL_RG_INTEGER;
 
 			case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm:
 			case Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm_SRGB:
@@ -299,16 +280,6 @@ namespace Nexus::GL
 			case Nexus::Graphics::PixelFormat::R16_G16_B16_A16_SInt:
 			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_UInt:
 			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_SInt: return GL_RGBA_INTEGER;
-
-			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm:
-			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm_SRGB: return GL_RGB;
-
-			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm:
-			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm_SRGB:
-			case Nexus::Graphics::PixelFormat::BC2_UNorm:
-			case Nexus::Graphics::PixelFormat::BC3_UNorm:
-			case Nexus::Graphics::PixelFormat::BC3_UNorm_SRGB:
-			case Nexus::Graphics::PixelFormat::BC7_UNorm_SRGB: return GL_RGBA;
 
 			case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt:
 			case Nexus::Graphics::PixelFormat::D32_Float_S8_UInt: return GL_DEPTH_STENCIL;
@@ -372,21 +343,6 @@ namespace Nexus::GL
 			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_UInt: return GL_RGBA32UI;
 			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_SInt: return GL_RGBA32I;
 			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float: return GL_RGBA32F;
-
-			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm: return GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
-			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm_SRGB: return GL_COMPRESSED_SRGB_S3TC_DXT1_EXT;
-			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm: return GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
-			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm_SRGB: return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT;
-			case Nexus::Graphics::PixelFormat::BC2_UNorm: return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT;
-			case Nexus::Graphics::PixelFormat::BC2_UNorm_SRGB: return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT;
-			case Nexus::Graphics::PixelFormat::BC3_UNorm: return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-			case Nexus::Graphics::PixelFormat::BC3_UNorm_SRGB: return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
-			case Nexus::Graphics::PixelFormat::BC4_UNorm: return GL_COMPRESSED_RED_RGTC1_EXT;
-			case Nexus::Graphics::PixelFormat::BC4_SNorm: return GL_COMPRESSED_SIGNED_RED_RGTC1_EXT;
-			case Nexus::Graphics::PixelFormat::BC5_UNorm: return GL_COMPRESSED_RED_GREEN_RGTC2_EXT;
-			case Nexus::Graphics::PixelFormat::BC5_SNorm: return GL_COMPRESSED_SIGNED_RED_GREEN_RGTC2_EXT;
-			case Nexus::Graphics::PixelFormat::BC7_UNorm: return GL_COMPRESSED_RGBA_BPTC_UNORM_EXT;
-			case Nexus::Graphics::PixelFormat::BC7_UNorm_SRGB: return GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM_EXT;
 
 			case Nexus::Graphics::PixelFormat::D32_Float_S8_UInt: assert(depthFormat); return GL_DEPTH32F_STENCIL8;
 			case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt: assert(depthFormat); return GL_DEPTH24_STENCIL8;
@@ -667,34 +623,64 @@ namespace Nexus::GL
 		}
 	}
 
-	std::unique_ptr<PBuffer> CreatePBuffer()
-	{
-	#if defined(NX_PLATFORM_WGL)
-		return std::make_unique<PBufferWGL>();
-	#elif defined(NX_PLATFORM_EGL)
-		return std::make_unique<PBufferEGL>();
-	#elif defined(NX_PLATFORM_WEBGL)
-		return std::make_unique<PBufferWebGL>("#canvas");
-	#else
-		#error No OpenGL backend selected
-	#endif
-	}
-
-	std::unique_ptr<FBO> CreateFBO(Window *window, PBuffer *pbuffer)
+	std::unique_ptr<IOffscreenContext> CreateOffscreenContext()
 	{
 		GL::ContextSpecification spec = {};
 		spec.Debug					  = true;
 		spec.Samples				  = Graphics::SampleCount::SampleCount8;
 
 	#if defined(NX_PLATFORM_WGL)
-		PBufferWGL *pbufferWGL = (PBufferWGL *)pbuffer;
-		return std::make_unique<FBO_WGL>(window->GetHwnd(), pbufferWGL, spec);
+		return std::make_unique<OffscreenContextWGL>(spec);
 	#elif defined(NX_PLATFORM_EGL)
-		return nullptr;
+
+		Nexus::WindowSpecification windowSpec {};
+		windowSpec.Width	 = 1;
+		windowSpec.Height	 = 1;
+		windowSpec.Resizable = false;
+
+		Nexus::Graphics::SwapchainSpecification swapchainSpec {};
+
+		IWindow *window = Platform::CreatePlatformWindow(windowSpec, Graphics::GraphicsAPI::OpenGL, swapchainSpec);
+		window->Hide();
+
+		XWindowInfo info	= window->GetXWindow();
+		EGLDisplay	display = eglGetDisplay(info.display);
+
+		return std::make_unique<OffscreenContextEGL>(display, spec);
 	#elif defined(NX_PLATFORM_WEBGL)
-		return nullptr;
+		return std::make_unique<OffscreenContextWebGL>("offscreenContext");
+	#elif defined(NX_PLATFORM_GLX)
+		return std::make_unique<OffscreenContextGLX>(spec);
 	#else
 		#error No OpenGL backend selected
+	#endif
+	}
+
+	std::unique_ptr<IViewContext> CreateViewContext(IWindow *window, Graphics::GraphicsDevice *device)
+	{
+		GL::ContextSpecification spec = {};
+		spec.Debug					  = true;
+		spec.Samples				  = Graphics::SampleCount::SampleCount8;
+
+		Graphics::GraphicsDeviceOpenGL *deviceOpenGL = (Graphics::GraphicsDeviceOpenGL *)device;
+
+	#if defined(NX_PLATFORM_WGL)
+		OffscreenContextWGL *pbufferWGL = (OffscreenContextWGL *)deviceOpenGL->GetOffscreenContext();
+		return std::make_unique<ViewContextWGL>(window->GetHwnd(), pbufferWGL, spec);
+	#elif defined(NX_PLATFORM_EGL)
+		OffscreenContextEGL *pbufferEGL	  = (OffscreenContextEGL *)deviceOpenGL->GetOffscreenContext();
+		XWindowInfo			 info		  = window->GetXWindow();
+		EGLDisplay			 display	  = eglGetDisplay(info.display);
+		EGLNativeWindowType	 nativeWindow = (EGLNativeWindowType)info.window;
+		return std::make_unique<ViewContextEGL>(display, nativeWindow, pbufferEGL, spec);
+	#elif defined(NX_PLATFORM_WEBGL)
+		return std::make_unique<ViewContextWebGL>("canvas", deviceOpenGL, spec);
+	#elif defined(NX_PLATFORM_GLX)
+		OffscreenContextGLX *pbufferGLX = (OffscreenContextGLX *)deviceOpenGL->GetOffscreenContext();
+		XWindowInfo			 info		= window->GetXWindow();
+		return std::make_unique<ViewContextGLX>(info.display, info.screen, info.window, pbufferGLX, spec);
+	#else
+		return
 	#endif
 	}
 

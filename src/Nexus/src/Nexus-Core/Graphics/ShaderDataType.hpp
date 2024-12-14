@@ -8,7 +8,7 @@ namespace Nexus::Graphics
 	/// a vertex buffer
 	enum class ShaderDataType
 	{
-		None = 0,
+		Invalid = 0,
 		Byte,
 		Byte2,
 		Byte4,

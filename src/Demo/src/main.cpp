@@ -81,7 +81,7 @@ class DemoApplication : public Nexus::Application
 
 		m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-		Nexus::Window *window = m_GraphicsDevice->GetPrimaryWindow();
+		Nexus::IWindow *window = m_GraphicsDevice->GetPrimaryWindow();
 	}
 
 	template<typename T>
@@ -90,7 +90,7 @@ class DemoApplication : public Nexus::Application
 		DemoInfo info;
 		info.Name = name;
 		info.CreationFunction =
-		[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
+			[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
 		{ return new T(name, app, imGuiRenderer); };
 		m_GraphicsDemos.push_back(info);
 	}
@@ -101,7 +101,7 @@ class DemoApplication : public Nexus::Application
 		DemoInfo info;
 		info.Name = name;
 		info.CreationFunction =
-		[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
+			[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
 		{ return new T(name, app, imGuiRenderer); };
 		m_AudioDemos.push_back(info);
 	}
@@ -112,7 +112,7 @@ class DemoApplication : public Nexus::Application
 		DemoInfo info;
 		info.Name = name;
 		info.CreationFunction =
-		[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
+			[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
 		{ return new T(name, app, imGuiRenderer); };
 		m_UtilsDemos.push_back(info);
 	}
@@ -123,7 +123,7 @@ class DemoApplication : public Nexus::Application
 		DemoInfo info;
 		info.Name = name;
 		info.CreationFunction =
-		[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
+			[](Nexus::Application *app, const std::string &name, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer) -> Demos::Demo *
 		{ return new T(name, app, imGuiRenderer); };
 		m_ScriptingDemos.push_back(info);
 	}
@@ -174,6 +174,15 @@ class DemoApplication : public Nexus::Application
 				std::string label = std::string("Selected Demo - ") + m_CurrentDemo->GetName();
 				ImGui::Text("%s", label.c_str());
 
+				std::string info = m_CurrentDemo->GetInfo();
+				if (!info.empty())
+				{
+					std::string description = std::string("Description: ") + info;
+					ImGui::Text("%s", description.c_str());
+				}
+
+				ImGui::Separator();
+
 				std::string apiName = std::string("Running on : ") + std::string(m_GraphicsDevice->GetAPIName());
 				ImGui::Text("%s", apiName.c_str());
 
@@ -202,27 +211,21 @@ class DemoApplication : public Nexus::Application
 			for (const auto &profileResult : results)
 			{
 				std::string output =
-				std::string(profileResult.Name) + std::string(": ") + std::to_string(profileResult.Time.GetMilliseconds()) + std::string(" Ms");
-				ImGui::Text(output.c_str());
+					std::string(profileResult.Name) + std::string(": ") + std::to_string(profileResult.Time.GetMilliseconds()) + std::string(" Ms");
+				ImGui::Text("%s", output.c_str());
 			}
-			Nexus::Timings::Profiler::Get().Reset();
 		}
+
+		Nexus::Timings::Profiler::Get().Reset();
 	}
 
 	virtual void Render(Nexus::TimeSpan time) override
 	{
-		Nexus::Window				  *window  = m_GraphicsDevice->GetPrimaryWindow();
-		Nexus::InputNew::InputContext &context = window->GetInputContext();
-
-		std::stringstream ss;
-		ss << context.GetMousePosition(0).X << ", " << context.GetMousePosition(0).Y;
-		std::cout << ss.str() << std::endl;
-
 		m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
 
 		m_ImGuiRenderer->BeforeLayout(time);
 
-		if (Nexus::Input::IsKeyPressed(Nexus::KeyCode::F11))
+		if (Nexus::Input::IsKeyDown(Nexus::ScanCode::F11))
 		{
 			auto window = this->GetPrimaryWindow();
 			window->ToggleFullscreen();

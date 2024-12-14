@@ -56,7 +56,7 @@ namespace Nexus::Graphics
 		}
 
 		/// @brief The depth attachment to use to create the depth attachment
-		PixelFormat DepthFormat = PixelFormat::None;
+		PixelFormat DepthFormat = PixelFormat::Invalid;
 	};
 
 	/// @brief A struct representing a framebuffer configuration
@@ -110,7 +110,7 @@ namespace Nexus::Graphics
 		/// attachment
 		virtual bool HasDepthTexture()
 		{
-			return m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::None;
+			return m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::Invalid;
 		}
 
 		/// @brief A pure virtual method to return the FramebufferSpecification

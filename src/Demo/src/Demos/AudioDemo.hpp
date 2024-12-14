@@ -20,7 +20,7 @@ namespace Demos
 		{
 			m_CommandList = m_GraphicsDevice->CreateCommandList();
 			m_AudioBuffer =
-			m_AudioDevice->CreateAudioBufferFromWavFile({Nexus::FileSystem::GetFilePathAbsolute("resources/demo/audio/laser_shoot.wav")});
+				m_AudioDevice->CreateAudioBufferFromWavFile({Nexus::FileSystem::GetFilePathAbsolute("resources/demo/audio/laser_shoot.wav")});
 			m_AudioSource = m_AudioDevice->CreateAudioSource(m_AudioBuffer);
 		}
 
@@ -40,6 +40,11 @@ namespace Demos
 			{
 				m_AudioDevice->PlaySource(m_AudioSource);
 			}
+		}
+
+		virtual std::string GetInfo() const override
+		{
+			return "Playing a sound effect loaded from a .wav file";
 		}
 
 	  private:

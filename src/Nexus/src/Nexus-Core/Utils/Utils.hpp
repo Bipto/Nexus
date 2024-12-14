@@ -4,6 +4,7 @@
 #include "Nexus-Core/Graphics/SamplerState.hpp"
 #include "Nexus-Core/Graphics/Triangle.hpp"
 #include "Nexus-Core/Graphics/WindingOrder.hpp"
+#include "Nexus-Core/Point.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
 namespace Nexus::Utils
@@ -91,6 +92,36 @@ namespace Nexus::Utils
 	}
 
 	uint64_t GetCurrentTimeAsInt();
+
+	// djb2 algorithm
+	inline size_t Hash(const std::string &text)
+	{
+		size_t hash = 5381;
+		for (char c : text) { hash = ((hash << 5) + hash) + c; }
+
+		return hash;
+	}
+
+	inline Point2D<uint32_t> GetMipSize(uint32_t baseWidth, uint32_t baseHeight, uint32_t level)
+	{
+		uint32_t width	= baseWidth;
+		uint32_t height = baseHeight;
+
+		for (uint32_t i = 0; i < level; i++)
+		{
+			width /= 2;
+			height /= 2;
+		}
+
+		return {width, height};
+	}
+
+	inline size_t Hash(const std::vector<unsigned char> &buffer)
+	{
+		size_t hash = 5381;
+		for (unsigned char c : buffer) { hash = ((hash << 5) + hash + c); }
+		return hash;
+	}
 
 }	 // namespace Nexus::Utils
 

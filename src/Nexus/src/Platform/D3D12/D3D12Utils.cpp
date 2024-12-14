@@ -58,21 +58,6 @@ namespace Nexus::D3D12
 			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_SInt: return DXGI_FORMAT_R32G32B32A32_SINT;
 			case Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float: return DXGI_FORMAT_R32G32B32A32_FLOAT;
 
-			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm:
-			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm: return DXGI_FORMAT_BC1_UNORM;
-			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm_SRGB:
-			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm_SRGB: return DXGI_FORMAT_BC1_UNORM_SRGB;
-			case Nexus::Graphics::PixelFormat::BC2_UNorm: return DXGI_FORMAT_BC2_UNORM;
-			case Nexus::Graphics::PixelFormat::BC2_UNorm_SRGB: return DXGI_FORMAT_BC2_UNORM_SRGB;
-			case Nexus::Graphics::PixelFormat::BC3_UNorm: return DXGI_FORMAT_BC3_UNORM;
-			case Nexus::Graphics::PixelFormat::BC3_UNorm_SRGB: return DXGI_FORMAT_BC3_UNORM_SRGB;
-			case Nexus::Graphics::PixelFormat::BC4_UNorm: return DXGI_FORMAT_BC4_UNORM;
-			case Nexus::Graphics::PixelFormat::BC4_SNorm: return DXGI_FORMAT_BC4_SNORM;
-			case Nexus::Graphics::PixelFormat::BC5_UNorm: return DXGI_FORMAT_BC5_UNORM;
-			case Nexus::Graphics::PixelFormat::BC5_SNorm: return DXGI_FORMAT_BC5_SNORM;
-			case Nexus::Graphics::PixelFormat::BC7_UNorm: return DXGI_FORMAT_BC7_UNORM;
-			case Nexus::Graphics::PixelFormat::BC7_UNorm_SRGB: return DXGI_FORMAT_BC7_UNORM_SRGB;
-
 			case Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt: assert(isDepth); return DXGI_FORMAT_D24_UNORM_S8_UINT;
 			case Nexus::Graphics::PixelFormat::D32_Float_S8_UInt: assert(isDepth); return DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
 
@@ -89,7 +74,7 @@ namespace Nexus::D3D12
 		{
 			case Nexus::Graphics::CullMode::Back: return D3D12_CULL_MODE_BACK;
 			case Nexus::Graphics::CullMode::Front: return D3D12_CULL_MODE_FRONT;
-			case Nexus::Graphics::CullMode::None: return D3D12_CULL_MODE_NONE;
+			case Nexus::Graphics::CullMode::CullNone: return D3D12_CULL_MODE_NONE;
 			default: throw std::runtime_error("Failed to find a valid format");
 		}
 	}
@@ -99,7 +84,7 @@ namespace Nexus::D3D12
 	{
 		switch (function)
 		{
-			case Nexus::Graphics::ComparisonFunction::Always: return D3D12_COMPARISON_FUNC_ALWAYS;
+			case Nexus::Graphics::ComparisonFunction::AlwaysPass: return D3D12_COMPARISON_FUNC_ALWAYS;
 			case Nexus::Graphics::ComparisonFunction::Equal: return D3D12_COMPARISON_FUNC_EQUAL;
 			case Nexus::Graphics::ComparisonFunction::Greater: return D3D12_COMPARISON_FUNC_GREATER;
 			case Nexus::Graphics::ComparisonFunction::GreaterEqual: return D3D12_COMPARISON_FUNC_GREATER_EQUAL;
@@ -263,8 +248,10 @@ namespace Nexus::D3D12
 			case Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipPoint: return D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT; break;
 			case Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipLinear: return D3D12_FILTER_MIN_MAG_MIP_LINEAR; break;
 
-			default: NX_ASSERT(0, "Invalid sampler filter entered"); return D3D12_FILTER();
+			default: throw std::runtime_error("Failed to find a valid filter");
 		}
+
+		return {};
 	}
 
 	D3D12_TEXTURE_ADDRESS_MODE
@@ -288,7 +275,7 @@ namespace Nexus::D3D12
 		{
 			case Nexus::Graphics::IndexBufferFormat::UInt16: return DXGI_FORMAT_R16_UINT;
 			case Nexus::Graphics::IndexBufferFormat::UInt32: return DXGI_FORMAT_R32_UINT;
-			default: NX_ASSERT(0, "Invalid index buffer format entered"); return DXGI_FORMAT();
+			default: throw std::runtime_error("Invalid index buffer format entered");
 		}
 	}
 
@@ -302,6 +289,7 @@ namespace Nexus::D3D12
 			case Nexus::Graphics::Topology::PointList: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT; break;
 			case Nexus::Graphics::Topology::TriangleList: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE; break;
 			case Nexus::Graphics::Topology::TriangleStrip: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE; break;
+			default: throw std::runtime_error("Could not find a valid topology");
 		}
 	}
 

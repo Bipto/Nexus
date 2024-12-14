@@ -80,9 +80,9 @@ namespace Nexus::ImGuiUtils
 		auto fragmentSource = GetImGuiShaderFragmentSource();
 
 		auto vertexModule =
-		m_GraphicsDevice->CreateShaderModuleFromSpirvSource(vertexSource, "ImGui.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
+			m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvSource(vertexSource, "ImGui.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
 		auto fragmentModule =
-		m_GraphicsDevice->CreateShaderModuleFromSpirvSource(fragmentSource, "ImGui.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
+			m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvSource(fragmentSource, "ImGui.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 
 		Nexus::Graphics::PipelineDescription pipelineDesc;
 
@@ -102,15 +102,15 @@ namespace Nexus::ImGuiUtils
 		pipelineDesc.BlendStateDesc.DestinationAlphaBlend  = Nexus::Graphics::BlendFactor::OneMinusSourceAlpha;
 		pipelineDesc.BlendStateDesc.AlphaBlendFunction	   = Nexus::Graphics::BlendEquation::Add;
 
-		pipelineDesc.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::None;
+		pipelineDesc.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::CullNone;
 		pipelineDesc.RasterizerStateDesc.TriangleFillMode  = Nexus::Graphics::FillMode::Solid;
 		pipelineDesc.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
-		pipelineDesc.DepthStencilDesc.DepthComparisonFunction	= Nexus::Graphics::ComparisonFunction::Always;
+		pipelineDesc.DepthStencilDesc.DepthComparisonFunction	= Nexus::Graphics::ComparisonFunction::AlwaysPass;
 		pipelineDesc.DepthStencilDesc.EnableDepthTest			= false;
 		pipelineDesc.DepthStencilDesc.EnableDepthWrite			= false;
 		pipelineDesc.DepthStencilDesc.EnableStencilTest			= false;
-		pipelineDesc.DepthStencilDesc.StencilComparisonFunction = Nexus::Graphics::ComparisonFunction::Always;
+		pipelineDesc.DepthStencilDesc.StencilComparisonFunction = Nexus::Graphics::ComparisonFunction::AlwaysPass;
 
 		pipelineDesc.Layouts = {{{Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
 								 {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
@@ -175,7 +175,7 @@ namespace Nexus::ImGuiUtils
 
 			Nexus::Graphics::SwapchainSpecification swapchainSpec = app->GetPrimaryWindow()->GetSwapchain()->GetSpecification();
 
-			Nexus::Window *window = Platform::CreatePlatformWindow(windowSpec, app->GetGraphicsDevice()->GetGraphicsAPI(), swapchainSpec);
+			Nexus::IWindow *window = Platform::CreatePlatformWindow(windowSpec, app->GetGraphicsDevice()->GetGraphicsAPI(), swapchainSpec);
 			window->CreateSwapchain(app->GetGraphicsDevice(), swapchainSpec);
 			window->GetSwapchain()->Initialise();
 			window->SetWindowPosition(vp->Pos.x, vp->Pos.y);
@@ -418,7 +418,7 @@ namespace Nexus::ImGuiUtils
 				if ((platform_io.Viewports[i]->Flags & ImGuiViewportFlags_IsMinimized) == 0)
 				{
 					ImGuiWindowInfo *info	= (ImGuiWindowInfo *)platform_io.Viewports[i]->PlatformUserData;
-					Nexus::Window	*window = info->Window;
+					Nexus::IWindow	*window = info->Window;
 
 					if (window && !window->IsClosing())
 					{
@@ -442,57 +442,54 @@ namespace Nexus::ImGuiUtils
 	{
 		auto &io = ImGui::GetIO();
 
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Tab] = (int)KeyCode::Tab);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_LeftArrow] = (int)KeyCode::Left);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_RightArrow] = (int)KeyCode::Right);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_UpArrow] = (int)KeyCode::Up);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_DownArrow] = (int)KeyCode::Down);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_PageUp] = (int)KeyCode::PageUp);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_PageDown] = (int)KeyCode::PageDown);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Home] = (int)KeyCode::Home);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_End] = (int)KeyCode::End);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Delete] = (int)KeyCode::Delete);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Backspace] = (int)KeyCode::Backspace);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Enter] = (int)KeyCode::Return);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Escape] = (int)KeyCode::Escape);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Space] = (int)KeyCode::Space);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_A] = (int)KeyCode::A);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_C] = (int)KeyCode::C);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_V] = (int)KeyCode::V);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_X] = (int)KeyCode::X);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Y] = (int)KeyCode::Y);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Z] = (int)KeyCode::Z);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Tab] = (int)ScanCode::Tab);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_LeftArrow] = (int)ScanCode::Left);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_RightArrow] = (int)ScanCode::Right);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_UpArrow] = (int)ScanCode::Up);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_DownArrow] = (int)ScanCode::Down);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_PageUp] = (int)ScanCode::PageUp);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_PageDown] = (int)ScanCode::PageDown);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Home] = (int)ScanCode::Home);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_End] = (int)ScanCode::End);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Delete] = (int)ScanCode::Delete);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Backspace] = (int)ScanCode::Backspace);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Enter] = (int)ScanCode::Return);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Escape] = (int)ScanCode::Escape);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Space] = (int)ScanCode::Space);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_A] = (int)ScanCode::A);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_C] = (int)ScanCode::C);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_V] = (int)ScanCode::V);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_X] = (int)ScanCode::X);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Y] = (int)ScanCode::Y);
+		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Z] = (int)ScanCode::Z);
 
 		m_Application->GetPrimaryWindow()->OnTextInput.Bind(
-		[&](char *text)
-		{
-			ImGuiIO &io = ImGui::GetIO();
-			io.AddInputCharactersUTF8(text);
-		});
+			[&](const TextInputEventArgs &args)
+			{
+				ImGuiIO &io = ImGui::GetIO();
+				io.AddInputCharactersUTF8(args.Text);
+			});
 	}
 
 	void ImGuiGraphicsRenderer::UpdateInput()
 	{
 		auto  mainWindow = m_GraphicsDevice->GetPrimaryWindow();
-		auto &io	 = ImGui::GetIO();
+		auto &io		 = ImGui::GetIO();
 
-		std::optional<Window *> window = Platform::GetKeyboardFocus();
+		std::optional<IWindow *> window = Platform::GetKeyboardFocus();
 		if (!window.has_value())
 		{
 			return;
 		}
 
-		Input::SetInputContext(window.value()->GetInput());
+		InputNew::InputContext *context = window.value()->GetInputContext();
 
-		const auto &mouse	 = Input::GetCurrentInputContext()->GetMouse();
-		const auto &keyboard = Input::GetCurrentInputContext()->GetKeyboard();
+		for (int i = 0; i < m_Keys.size(); i++) { io.KeysDown[m_Keys[i]] = context->IsKeyDown((ScanCode)m_Keys[i]); }
 
-		for (int i = 0; i < m_Keys.size(); i++) { io.KeysDown[m_Keys[i]] = keyboard.IsKeyHeld((KeyCode)m_Keys[i]); }
-
-		io.KeyShift = keyboard.IsKeyHeld(KeyCode::LeftShift) || keyboard.IsKeyHeld(KeyCode::RightShift);
-		io.KeyCtrl	= keyboard.IsKeyHeld(KeyCode::LeftControl) || keyboard.IsKeyHeld(KeyCode::RightControl);
-		io.KeyAlt	= keyboard.IsKeyHeld(KeyCode::LeftAlt) || keyboard.IsKeyHeld(KeyCode::RightAlt);
-		io.KeySuper = keyboard.IsKeyHeld(KeyCode::LeftGUI) || keyboard.IsKeyHeld(KeyCode::RightGUI);
+		io.KeyShift = context->IsKeyDown(ScanCode::LeftShift) || context->IsKeyDown(ScanCode::RightShift);
+		io.KeyCtrl	= context->IsKeyDown(ScanCode::LeftControl) || context->IsKeyDown(ScanCode::RightControl);
+		io.KeyAlt	= context->IsKeyDown(ScanCode::LeftAlt) || context->IsKeyDown(ScanCode::RightAlt);
+		io.KeySuper = context->IsKeyDown(ScanCode::LeftGUI) || context->IsKeyDown(ScanCode::RightGUI);
 
 		io.DisplaySize			   = {(float)mainWindow->GetWindowSize().X, (float)mainWindow->GetWindowSize().Y};
 		io.DisplayFramebufferScale = {1, 1};
@@ -505,14 +502,14 @@ namespace Nexus::ImGuiUtils
 		}
 		else
 		{
-			io.MousePos = {(float)mouse.GetMousePosition().X, (float)mouse.GetMousePosition().Y};
+			io.MousePos = {(float)context->GetCursorPosition().X, (float)context->GetCursorPosition().Y};
 		}
 
 		io.MouseDown[0] = globalMouseState.Buttons[MouseButton::Left] == MouseButtonState::Pressed;
 		io.MouseDown[1] = globalMouseState.Buttons[MouseButton::Right] == MouseButtonState::Pressed;
 		io.MouseDown[2] = globalMouseState.Buttons[MouseButton::Middle] == MouseButtonState::Pressed;
 
-		io.MouseWheel = mouse.GetScrollMovement().Y;
+		io.MouseWheel = context->GetScroll(0).Y;
 	}
 
 	void ImGuiGraphicsRenderer::RenderDrawData(ImDrawData *drawData)
@@ -658,48 +655,48 @@ namespace Nexus::ImGuiUtils
 		{
 			case ImGuiMouseCursor_Arrow:
 			{
-				window->SetCursor(Nexus::Cursor::Arrow);
+				Platform::SetCursor(Nexus::Platform::Cursor::Arrow);
 				break;
 			}
 			case ImGuiMouseCursor_TextInput:
 			{
-				window->SetCursor(Nexus::Cursor::IBeam);
+				Platform::SetCursor(Nexus::Platform::Cursor::IBeam);
 				break;
-				case ImGuiMouseCursor_ResizeAll:
-				{
-					window->SetCursor(Nexus::Cursor::ArrowAllDir);
-					break;
-				}
-				case ImGuiMouseCursor_ResizeNS:
-				{
-					window->SetCursor(Nexus::Cursor::ArrowNS);
-					break;
-				}
-				case ImGuiMouseCursor_ResizeEW:
-				{
-					window->SetCursor(Nexus::Cursor::ArrowWE);
-					break;
-				}
-				case ImGuiMouseCursor_ResizeNESW:
-				{
-					window->SetCursor(Nexus::Cursor::ArrowNESW);
-					break;
-				}
-				case ImGuiMouseCursor_ResizeNWSE:
-				{
-					window->SetCursor(Nexus::Cursor::ArrowNWSE);
-					break;
-				}
-				case ImGuiMouseCursor_Hand:
-				{
-					window->SetCursor(Nexus::Cursor::Hand);
-					break;
-				}
-				case ImGuiMouseCursor_NotAllowed:
-				{
-					window->SetCursor(Nexus::Cursor::No);
-					break;
-				}
+			}
+			case ImGuiMouseCursor_ResizeAll:
+			{
+				Platform::SetCursor(Nexus::Platform::Cursor::ArrowAllDir);
+				break;
+			}
+			case ImGuiMouseCursor_ResizeNS:
+			{
+				Platform::SetCursor(Nexus::Platform::Cursor::ArrowNS);
+				break;
+			}
+			case ImGuiMouseCursor_ResizeEW:
+			{
+				Platform::SetCursor(Nexus::Platform::Cursor::ArrowWE);
+				break;
+			}
+			case ImGuiMouseCursor_ResizeNESW:
+			{
+				Platform::SetCursor(Nexus::Platform::Cursor::ArrowNESW);
+				break;
+			}
+			case ImGuiMouseCursor_ResizeNWSE:
+			{
+				Platform::SetCursor(Nexus::Platform::Cursor::ArrowNWSE);
+				break;
+			}
+			case ImGuiMouseCursor_Hand:
+			{
+				Platform::SetCursor(Nexus::Platform::Cursor::Hand);
+				break;
+			}
+			case ImGuiMouseCursor_NotAllowed:
+			{
+				Platform::SetCursor(Nexus::Platform::Cursor::No);
+				break;
 			}
 		}
 	}

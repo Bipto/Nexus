@@ -82,7 +82,7 @@ namespace Nexus::Graphics
 			{
 				auto		framebuffer		= GetData<Ref<Framebuffer>>();
 				const auto &framebufferSpec = framebuffer->GetFramebufferSpecification();
-				return framebufferSpec.DepthAttachmentSpecification.DepthFormat != PixelFormat::None;
+				return framebufferSpec.DepthAttachmentSpecification.DepthFormat != PixelFormat::Invalid;
 			}
 		}
 

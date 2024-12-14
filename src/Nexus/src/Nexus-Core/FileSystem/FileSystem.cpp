@@ -22,10 +22,16 @@ std::string Nexus::FileSystem::ReadFileToStringAbsolute(const std::string &filep
 void Nexus::FileSystem::WriteFileAbsolute(const std::string &filepath, const std::string &text)
 {
 	std::filesystem::path path = {filepath};
+	std::filesystem::path directory = path.parent_path();
 
-	std::ofstream ofs(path);
-	ofs << text;
-	ofs.close();
+	if (!std::filesystem::exists(directory))
+	{
+		std::filesystem::create_directories(directory);
+	}
+
+	std::fstream file;
+	file.open(path, std::ios::app);
+	file.write(text.c_str(), text.size());
 }
 
 std::string Nexus::FileSystem::ReadFileToString(const std::string &filepath)
@@ -38,6 +44,30 @@ void Nexus::FileSystem::WriteFile(const std::string &filepath, const std::string
 {
 	std::string fullpath = GetRootDirectory() + filepath;
 	WriteFileAbsolute(fullpath, text);
+}
+
+void Nexus::FileSystem::WriteBuffer(const std::string &filepath, const void *data, size_t size)
+{
+	std::string fullpath = GetRootDirectory() + filepath;
+	WriteBufferAbsolute(filepath, data, size);
+}
+
+void Nexus::FileSystem::WriteBufferAbsolute(const std::string &filepath, const void *data, size_t size)
+{
+	std::filesystem::path path		= {filepath};
+	std::filesystem::path directory = path.parent_path();
+
+	if (!directory.empty())
+	{
+		if (!std::filesystem::exists(directory))
+		{
+			std::filesystem::create_directories(directory);
+		}
+	}
+
+	std::fstream file;
+	file.open(path, std::ios::app | std::ios::binary);
+	file.write((const char *)data, size);
 }
 
 std::string Nexus::FileSystem::GetFilePathAbsolute(const std::string &filepath)

@@ -22,8 +22,8 @@ namespace Demos
 		{
 			m_CommandList = m_GraphicsDevice->CreateCommandList();
 			m_BatchRenderer =
-			new Nexus::Graphics::BatchRenderer(m_GraphicsDevice,
-											   Nexus::Graphics::RenderTarget {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
+				new Nexus::Graphics::BatchRenderer(m_GraphicsDevice,
+												   Nexus::Graphics::RenderTarget {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
 
 			r1 = Nexus::Graphics::RoundedRectangle({450, 400}, {250, 250}, 15.0f, 15.0f, 15.0f, 15.0f);
 			r1.SetPointsPerCorner(8);
@@ -35,24 +35,24 @@ namespace Demos
 		{
 			// move rectangle
 			{
-				if (Nexus::Input::IsKeyHeld(Nexus::KeyCode::A))
+				if (Nexus::Input::IsKeyDown(Nexus::ScanCode::A))
 				{
-					r1.SetX(r1.GetLeft() - 5);
+					r1.SetX(r1.GetLeft() - (100 * time.GetSeconds()));
 				}
 
-				if (Nexus::Input::IsKeyHeld(Nexus::KeyCode::D))
+				if (Nexus::Input::IsKeyDown(Nexus::ScanCode::D))
 				{
-					r1.SetX(r1.GetLeft() + 5);
+					r1.SetX(r1.GetLeft() + (100 * time.GetSeconds()));
 				}
 
-				if (Nexus::Input::IsKeyHeld(Nexus::KeyCode::W))
+				if (Nexus::Input::IsKeyDown(Nexus::ScanCode::W))
 				{
-					r1.SetY(r1.GetTop() - 5);
+					r1.SetY(r1.GetTop() - (100 * time.GetSeconds()));
 				}
 
-				if (Nexus::Input::IsKeyHeld(Nexus::KeyCode::S))
+				if (Nexus::Input::IsKeyDown(Nexus::ScanCode::S))
 				{
-					r1.SetY(r1.GetTop() + 5);
+					r1.SetY(r1.GetTop() + (100 * time.GetSeconds()));
 				}
 			}
 
@@ -60,7 +60,7 @@ namespace Demos
 			{
 				const auto &points = r2.CreateOutline();
 				{
-					if (Nexus::Input::IsKeyReleased(Nexus::KeyCode::Left))
+					if (Nexus::Input::IsKeyUp(Nexus::ScanCode::Left))
 					{
 						if (m_SelectedPoint == 0)
 						{
@@ -70,7 +70,7 @@ namespace Demos
 						m_SelectedPoint--;
 					}
 
-					if (Nexus::Input::IsKeyReleased(Nexus::KeyCode::Right))
+					if (Nexus::Input::IsKeyUp(Nexus::ScanCode::Right))
 					{
 						m_SelectedPoint++;
 
@@ -136,6 +136,12 @@ namespace Demos
 
 		virtual void RenderUI() override
 		{
+		}
+
+		virtual std::string GetInfo() const override
+		{
+			return "Clipping a polygon against another using the Sutherland-Hodgman algorithm\nand triangulating the resulting polygon using "
+				   "ear-clipping.";
 		}
 
 	  private:

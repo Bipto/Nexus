@@ -12,6 +12,10 @@
 	#include "Platform/Windows/WindowsInclude.hpp"
 #endif
 
+#if defined(NX_PLATFORM_LINUX)
+	#include "Platform/X11/X11Include.hpp"
+#endif
+
 #include "ApplicationSpecification.hpp"
 #include "Nexus-Core/Events/EventHandler.hpp"
 #include "Nexus-Core/Graphics/Rectangle.hpp"
@@ -23,6 +27,17 @@
 #include "Point.hpp"
 #include "Utils/FramerateMonitor.hpp"
 
+#include "Nexus-Core/Layers/LayerStack.hpp"
+
+#if defined(NX_PLATFORM_LINUX)
+struct XWindowInfo
+{
+	Display *display;
+	int		 screen;
+	Window	 window;
+};
+#endif
+
 namespace Nexus
 {
 	namespace Graphics
@@ -31,41 +46,23 @@ namespace Nexus
 		class GraphicsDevice;
 	}	 // namespace Graphics
 
-	/// @brief An enum representing the different default cursors that can be
-	/// selected
-	enum class Cursor
-	{
-		Arrow,
-		IBeam,
-		Wait,
-		Crosshair,
-		WaitArrow,
-		ArrowNWSE,
-		ArrowNESW,
-		ArrowWE,
-		ArrowNS,
-		ArrowAllDir,
-		No,
-		Hand
-	};
-
 	using WindowHandle = void *;
 
 	/// @brief A class representing a window
-	class Window
+	class IWindow
 	{
 	  public:
 		/// @brief A constructor taking in a window properties struct
 		/// @param windowProps A structure containing options controlling how the
 		/// window is created
-		Window(const WindowSpecification &windowProps, Graphics::GraphicsAPI api, const Graphics::SwapchainSpecification &swapchainSpec);
+		IWindow(const WindowSpecification &windowProps, Graphics::GraphicsAPI api, const Graphics::SwapchainSpecification &swapchainSpec);
 
 		/// @brief Copying a window is not supported
 		/// @param A const reference to a window
-		Window(const Window &) = delete;
+		IWindow(const Window &) = delete;
 
 		/// @brief A destructor to allow resources to be freed
-		~Window();
+		~IWindow();
 
 		void CacheInput();
 
@@ -114,15 +111,13 @@ namespace Nexus
 		/// visible
 		void SetIsMouseVisible(bool visible);
 
-		/// @brief A method that sets the cursor used within the window
-		/// @param cursor An enum value representing the cursor to use
-		void SetCursor(Cursor cursor);
-
 		/// @brief A method that returns the window's input state
 		/// @return A pointer to the input state
 		InputState *GetInput();
 
-		Nexus::InputNew::InputContext &GetInputContext();
+		Nexus::InputNew::InputContext *GetInputContext();
+
+		LayerStack &GetLayerStack();
 
 		/// @brief A method that checks whether a window is focussed
 		/// @return A boolean value indicating whether the window is focussed
@@ -187,6 +182,10 @@ namespace Nexus
 		const HWND GetHwnd() const;
 #endif
 
+#if defined(NX_PLATFORM_LINUX)
+		const XWindowInfo GetXWindow() const;
+#endif
+
 		EventHandler<const WindowResizedEventArgs &> OnResize;
 		EventHandler<const WindowMovedEventArgs &>	 OnMove;
 
@@ -202,15 +201,15 @@ namespace Nexus
 		EventHandler<const KeyPressedEventArgs &>  OnKeyPressed;
 		EventHandler<const KeyReleasedEventArgs &> OnKeyReleased;
 
-		EventHandler<char *>				   OnTextInput;
-		EventHandler<const TextEditEventArgs &> OnTextEdit;
+		EventHandler<const TextInputEventArgs &> OnTextInput;
+		EventHandler<const TextEditEventArgs &>	 OnTextEdit;
 
 		EventHandler<const MouseButtonPressedEventArgs &>  OnMousePressed;
 		EventHandler<const MouseButtonReleasedEventArgs &> OnMouseReleased;
 		EventHandler<const MouseMovedEventArgs &>		   OnMouseMoved;
 		EventHandler<const MouseScrolledEventArgs &>	   OnScroll;
-		EventHandler<>								   OnMouseEnter;
-		EventHandler<>								   OnMouseLeave;
+		EventHandler<>									   OnMouseEnter;
+		EventHandler<>									   OnMouseLeave;
 
 		EventHandler<const FileDropEventArgs &> OnFileDrop;
 
@@ -262,10 +261,7 @@ namespace Nexus
 		Utils::FrameRateMonitor m_TickFrameRateMonitor	 = {};
 
 		InputNew::InputContext m_InputContext;
-
-		/// @brief A friend class to allow an application to access private members of
-		/// this class
-		friend class Application;
+		LayerStack			   m_LayerStack;
 	};
 
 	/* class IWindow

@@ -12,10 +12,11 @@ namespace Nexus::Graphics
 		{
 			case VSyncState::Enabled: return VK_PRESENT_MODE_FIFO_KHR;
 			case VSyncState::Disabled: return VK_PRESENT_MODE_IMMEDIATE_KHR;
+			default: throw std::runtime_error("Failed to find a valid present mode");
 		}
 	}
 
-	SwapchainVk::SwapchainVk(Window *window, GraphicsDevice *graphicsDevice, const SwapchainSpecification &swapchainSpec)
+	SwapchainVk::SwapchainVk(IWindow *window, GraphicsDevice *graphicsDevice, const SwapchainSpecification &swapchainSpec)
 		: Swapchain(swapchainSpec),
 		  m_Window(window),
 		  m_VsyncState(swapchainSpec.VSyncState)
@@ -51,17 +52,17 @@ namespace Nexus::Graphics
 		}
 
 		m_GraphicsDevice->ImmediateSubmit(
-		[&](VkCommandBuffer cmd)
-		{
-			m_GraphicsDevice->TransitionVulkanImageLayout(cmd,
-														  GetColourImage(),
-														  0,
-														  0,
-														  GetColorImageLayout(),
-														  VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-														  VK_IMAGE_ASPECT_COLOR_BIT);
-			SetColorImageLayout(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
-		});
+			[&](VkCommandBuffer cmd)
+			{
+				m_GraphicsDevice->TransitionVulkanImageLayout(cmd,
+															  GetColourImage(),
+															  0,
+															  0,
+															  GetColorImageLayout(),
+															  VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+															  VK_IMAGE_ASPECT_COLOR_BIT);
+				SetColorImageLayout(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+			});
 
 		VkPresentInfoKHR presentInfo   = {};
 		presentInfo.sType			   = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -249,25 +250,9 @@ namespace Nexus::Graphics
 		surfaceFormats.resize(surfaceFormatCount);
 		vkGetPhysicalDeviceSurfaceFormatsKHR(m_GraphicsDevice->m_PhysicalDevice, m_Surface, &surfaceFormatCount, surfaceFormats.data());
 
-		bool found = false;
-		// for (const auto &format : surfaceFormats)
-		//{
-		//		if (format.format == VK_FORMAT_R8G8B8A8_UNORM)
-		//		{
-		//			m_SurfaceFormat = format;
-		//			found			= true;
-		//		}
-		//	}
-
 		if (surfaceFormats.size() > 0)
 		{
 			m_SurfaceFormat = surfaceFormats[0];
-			found			= true;
-		}
-
-		if (!found)
-		{
-			throw std::runtime_error("Could not find surface format: VK_FORMAT_R8G8B8A8_UNORM");
 		}
 
 		int width = 0, height = 0;

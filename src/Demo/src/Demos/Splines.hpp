@@ -23,8 +23,8 @@ namespace Demos
 		{
 			m_CommandList	= m_GraphicsDevice->CreateCommandList();
 			m_BatchRenderer = Nexus::Scope<Nexus::Graphics::BatchRenderer>(
-			new Nexus::Graphics::BatchRenderer(m_GraphicsDevice,
-											   Nexus::Graphics::RenderTarget {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()}));
+				new Nexus::Graphics::BatchRenderer(m_GraphicsDevice,
+												   Nexus::Graphics::RenderTarget {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()}));
 
 			m_Spline.SetPoints({{100, 410}, {400, 410}, {700, 410}, {1000, 410}});
 			m_Spline.SetLooped(true);
@@ -32,7 +32,7 @@ namespace Demos
 
 		virtual void Update(Nexus::TimeSpan time) override
 		{
-			if (Nexus::Input::IsKeyReleased(Nexus::KeyCode::Left))
+			if (Nexus::Input::IsKeyUp(Nexus::ScanCode::Left))
 			{
 				if (m_SelectedPoint == 0)
 				{
@@ -42,7 +42,7 @@ namespace Demos
 				m_SelectedPoint--;
 			}
 
-			if (Nexus::Input::IsKeyReleased(Nexus::KeyCode::Right))
+			if (Nexus::Input::IsKeyUp(Nexus::ScanCode::Right))
 			{
 				m_SelectedPoint++;
 
@@ -54,22 +54,22 @@ namespace Demos
 
 			std::vector<Nexus::Point2D<float>> points = m_Spline.GetPoints();
 			Nexus::Point2D<float>			  &point  = points.at(m_SelectedPoint);
-			if (Nexus::Input::IsKeyHeld(Nexus::KeyCode::W))
+			if (Nexus::Input::IsKeyDown(Nexus::ScanCode::W))
 			{
 				point.Y -= 250.0f * time.GetSeconds();
 			}
 
-			if (Nexus::Input::IsKeyHeld(Nexus::KeyCode::S))
+			if (Nexus::Input::IsKeyDown(Nexus::ScanCode::S))
 			{
 				point.Y += 250.0f * time.GetSeconds();
 			}
 
-			if (Nexus::Input::IsKeyHeld(Nexus::KeyCode::A))
+			if (Nexus::Input::IsKeyDown(Nexus::ScanCode::A))
 			{
 				point.X -= 250.0f * time.GetSeconds();
 			}
 
-			if (Nexus::Input::IsKeyHeld(Nexus::KeyCode::D))
+			if (Nexus::Input::IsKeyDown(Nexus::ScanCode::D))
 			{
 				point.X += 250.0f * time.GetSeconds();
 			}
@@ -140,6 +140,11 @@ namespace Demos
 
 		virtual void RenderUI() override
 		{
+		}
+
+		virtual std::string GetInfo() const override
+		{
+			return "Calculating and rendering customisable splines.";
 		}
 
 	  private:

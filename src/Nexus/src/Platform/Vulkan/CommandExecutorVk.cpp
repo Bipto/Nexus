@@ -417,7 +417,7 @@ namespace Nexus::Graphics
 			colourAttachment.imageLayout = swapchain->GetResolveImageLayout();
 
 			colourAttachment.resolveImageView	= swapchain->GetColourImageView();
-			colourAttachment.resolveImageLayout = swapchain->GetResolveImageLayout();
+			colourAttachment.resolveImageLayout = swapchain->GetColorImageLayout();
 			colourAttachment.resolveMode		= VK_RESOLVE_MODE_AVERAGE_BIT;
 		}
 

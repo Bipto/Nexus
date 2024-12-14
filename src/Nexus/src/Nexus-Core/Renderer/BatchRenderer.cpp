@@ -336,7 +336,7 @@ namespace Nexus::Graphics
 		info.Textures.resize(MAX_TEXTURE_COUNT);
 
 		Nexus::Graphics::PipelineDescription description;
-		description.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::None;
+		description.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::CullNone;
 		description.Layouts								 = {Nexus::Graphics::VertexPositionTexCoordColorTexIndex::GetLayout()};
 		description.VertexModule						 = vertexModule;
 		description.FragmentModule						 = fragmentModule;
@@ -384,20 +384,21 @@ namespace Nexus::Graphics
 		m_BlankTexture	   = m_Device->CreateTexture2D(textureSpec);
 		m_BlankTexture->SetData(&textureData, 0, 0, 0, 1, 1);
 
-		Nexus::Ref<Nexus::Graphics::ShaderModule> vertexModule =
-		device->CreateShaderModuleFromSpirvSource(s_BatchVertexShaderSource, "Batch Renderer - Vertex Shader", Nexus::Graphics::ShaderStage::Vertex);
+		Nexus::Ref<Nexus::Graphics::ShaderModule> vertexModule = device->GetOrCreateCachedShaderFromSpirvSource(s_BatchVertexShaderSource,
+																												"Batch Renderer - Vertex Shader",
+																												Nexus::Graphics::ShaderStage::Vertex);
 		Nexus::Ref<Nexus::Graphics::ShaderModule> sdfFragmentModule =
-		device->CreateShaderModuleFromSpirvSource(s_BatchSDFFragmentShaderSource,
-												  "Batch Renderer - SDF Fragment Shader",
-												  Nexus::Graphics::ShaderStage::Fragment);
+			device->GetOrCreateCachedShaderFromSpirvSource(s_BatchSDFFragmentShaderSource,
+														   "Batch Renderer - SDF Fragment Shader",
+														   Nexus::Graphics::ShaderStage::Fragment);
 		Nexus::Ref<Nexus::Graphics::ShaderModule> textureFragmentModule =
-		device->CreateShaderModuleFromSpirvSource(s_BatchTextureFragmentShaderSource,
-												  "Batch Renderer - Texture Fragment Shader",
-												  Nexus::Graphics::ShaderStage::Fragment);
+			device->GetOrCreateCachedShaderFromSpirvSource(s_BatchTextureFragmentShaderSource,
+														   "Batch Renderer - Texture Fragment Shader",
+														   Nexus::Graphics::ShaderStage::Fragment);
 		Nexus::Ref<Nexus::Graphics::ShaderModule> fontFragmentModule =
-		device->CreateShaderModuleFromSpirvSource(s_BatchFontFragmentShaderSource,
-												  "Batch Renderer - Font Fragment Shader",
-												  Nexus::Graphics::ShaderStage::Fragment);
+			device->GetOrCreateCachedShaderFromSpirvSource(s_BatchFontFragmentShaderSource,
+														   "Batch Renderer - Font Fragment Shader",
+														   Nexus::Graphics::ShaderStage::Fragment);
 
 		CreateBatcher(m_SDFBatchInfo, device, target, vertexModule, sdfFragmentModule);
 		CreateBatcher(m_TextureBatchInfo, device, target, vertexModule, textureFragmentModule);
@@ -950,16 +951,16 @@ namespace Nexus::Graphics
 			const Triangle3D triToDraw = triangle2D;
 
 			const glm::vec2 uvA = {
-			Nexus::Utils::ReMapRange(boundingRectangle.GetLeft(), boundingRectangle.GetRight(), uvTL.x, uvBR.x, triToDraw.A.x),
-			Nexus::Utils::ReMapRange(boundingRectangle.GetTop(), boundingRectangle.GetBottom(), uvTL.y, uvBR.y, triToDraw.A.y)};
+				Nexus::Utils::ReMapRange(boundingRectangle.GetLeft(), boundingRectangle.GetRight(), uvTL.x, uvBR.x, triToDraw.A.x),
+				Nexus::Utils::ReMapRange(boundingRectangle.GetTop(), boundingRectangle.GetBottom(), uvTL.y, uvBR.y, triToDraw.A.y)};
 
 			const glm::vec2 uvB = {
-			Nexus::Utils::ReMapRange(boundingRectangle.GetLeft(), boundingRectangle.GetRight(), uvTL.x, uvBR.x, triToDraw.B.x),
-			Nexus::Utils::ReMapRange(boundingRectangle.GetTop(), boundingRectangle.GetBottom(), uvTL.y, uvBR.y, triToDraw.B.y)};
+				Nexus::Utils::ReMapRange(boundingRectangle.GetLeft(), boundingRectangle.GetRight(), uvTL.x, uvBR.x, triToDraw.B.x),
+				Nexus::Utils::ReMapRange(boundingRectangle.GetTop(), boundingRectangle.GetBottom(), uvTL.y, uvBR.y, triToDraw.B.y)};
 
 			const glm::vec2 uvC = {
-			Nexus::Utils::ReMapRange(boundingRectangle.GetLeft(), boundingRectangle.GetRight(), uvTL.x, uvBR.x, triToDraw.C.x),
-			Nexus::Utils::ReMapRange(boundingRectangle.GetTop(), boundingRectangle.GetBottom(), uvTL.y, uvBR.y, triToDraw.C.y)};
+				Nexus::Utils::ReMapRange(boundingRectangle.GetLeft(), boundingRectangle.GetRight(), uvTL.x, uvBR.x, triToDraw.C.x),
+				Nexus::Utils::ReMapRange(boundingRectangle.GetTop(), boundingRectangle.GetBottom(), uvTL.y, uvBR.y, triToDraw.C.y)};
 
 			DrawTriangle(triToDraw.A, uvA, triToDraw.B, uvB, triToDraw.C, uvC, color, texture);
 		}

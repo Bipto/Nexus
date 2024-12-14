@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
+#include "Nexus-Core/Platform.hpp"
 #include "Nexus-Core/Utils/FramerateMonitor.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
@@ -16,11 +17,41 @@ namespace Nexus
 	{
 	  public:
 		FirstPersonCamera(Graphics::GraphicsDevice *device, int width = 1280, int height = 720, const glm::vec3 &position = {0, 0, 0})
+			: m_Device(device)
 		{
 			this->Resize(width, height);
 			this->m_Position = position;
 
-			device->GetPrimaryWindow()->OnMouseMoved.Bind([&](const MouseMovedEventArgs &event) { Rotate(event.Movement.X, event.Movement.Y); });
+			m_Device->GetPrimaryWindow()->OnMouseMoved.Bind([&](const MouseMovedEventArgs &event) { Rotate(event.Movement.X, event.Movement.Y); });
+			// m_Device->GetPrimaryWindow()->SetRelativeMouseMode(true);
+
+			m_Device->GetPrimaryWindow()->OnMousePressed.Bind(
+				[&](const MouseButtonPressedEventArgs &event)
+				{
+					if (event.Button == MouseButton::Right)
+					{
+						IWindow *window = m_Device->GetPrimaryWindow();
+						if (window)
+						{
+							window->SetRelativeMouseMode(true);
+						}
+						m_RotationActive = true;
+					}
+				});
+
+			m_Device->GetPrimaryWindow()->OnKeyPressed.Bind(
+				[&](const KeyPressedEventArgs &event)
+				{
+					if (event.ScanCode == ScanCode::Escape)
+					{
+						IWindow *window = m_Device->GetPrimaryWindow();
+						if (window)
+						{
+							window->SetRelativeMouseMode(false);
+						}
+						m_RotationActive = false;
+					}
+				});
 		}
 
 		void Resize(int width, int height)
@@ -115,51 +146,64 @@ namespace Nexus
 	  private:
 		inline void Move(TimeSpan time)
 		{
+			if (!m_RotationActive)
+				return;
+
 			float speed = 2.0f * time.GetSeconds();
 
-			if (Input::IsKeyHeld(KeyCode::LeftShift) || Input::IsKeyHeld(KeyCode::RightShift))
+			std::optional<uint32_t> defaultKeyboard = Platform::GetActiveKeyboardId();
+
+			if (!defaultKeyboard.has_value())
+				return;
+
+			if (Input::IsKeyDown(defaultKeyboard.value(), ScanCode::LeftShift) || Input::IsKeyDown(3, ScanCode::RightShift))
 			{
 				speed *= 2.0f;
 			}
 
-			if (Input::IsKeyHeld(KeyCode::W))
+			if (Input::IsKeyDown(defaultKeyboard.value(), ScanCode::W))
 			{
 				m_Position += speed * m_Front;
 			}
 
-			if (Input::IsKeyHeld(KeyCode::S))
+			if (Input::IsKeyDown(defaultKeyboard.value(), ScanCode::S))
 			{
 				m_Position -= speed * m_Front;
 			}
 
-			if (Input::IsKeyHeld(KeyCode::A))
+			if (Input::IsKeyDown(defaultKeyboard.value(), ScanCode::A))
 			{
 				m_Position += glm::normalize(glm::cross(m_Front, m_Up)) * speed;
 			}
 
-			if (Input::IsKeyHeld(KeyCode::D))
+			if (Input::IsKeyDown(defaultKeyboard.value(), ScanCode::D))
 			{
 				m_Position -= glm::normalize(glm::cross(m_Front, m_Up)) * speed;
 			}
 
-			if (Input::IsGamepadConnected())
+			/* if (Input::IsGamepadConnected())
 			{
 				m_Position -= speed * m_Front * (Input::GetGamepadAxisLeft(0).Y * (Input::GetGamepadRightTrigger(0) + 1));
 				m_Position +=
 				glm::normalize(glm::cross(m_Front, m_Up)) * (Input::GetGamepadAxisLeft(0).X / 50.0f * (Input::GetGamepadRightTrigger(0) + 1));
-			}
+			} */
 		}
 
 		inline void Rotate(float x, float y)
 		{
-			if (Input::IsGamepadConnected())
+			/* if (Input::IsGamepadConnected())
 			{
 				auto rightStick = Input::GetGamepadAxisRight(0);
 				m_Yaw -= rightStick.X * 2.0f;
 				m_Pitch -= rightStick.Y * 2.0f;
-			}
+			} */
 
-			if (Input::IsMiddleMouseHeld())
+			std::optional<uint32_t> defaultMouse = Platform::GetActiveMouseId();
+
+			if (!defaultMouse.has_value())
+				return;
+
+			if (m_RotationActive)
 			{
 				m_Yaw -= x;
 				m_Pitch -= y;
@@ -199,6 +243,7 @@ namespace Nexus
 		}
 
 	  private:
+		Graphics::GraphicsDevice *m_Device = nullptr;
 		glm::vec3 m_Position {0.0f, 0.0f, 5.0f};
 		glm::vec3 m_Front {0.0f, 0.0f, 1.0f};
 		glm::vec3 m_Up {0.0f, 1.0f, 0.0f};
@@ -214,7 +259,8 @@ namespace Nexus
 		int m_Width	 = 0;
 		int m_Height = 0;
 
-		ProjectionType m_ProjectionType = ProjectionType::Perspective;
+		ProjectionType			m_ProjectionType = ProjectionType::Perspective;
 		Utils::FrameRateMonitor m_Timer			 = {};
+		bool					m_RotationActive = false;
 	};
 }	 // namespace Nexus

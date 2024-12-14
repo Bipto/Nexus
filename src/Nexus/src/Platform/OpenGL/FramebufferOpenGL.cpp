@@ -19,25 +19,29 @@ namespace Nexus::Graphics
 		DeleteTextures();
 	}
 
-	void FramebufferOpenGL::BindAsRenderTarget()
-	{
-		glCall(glBindFramebuffer(GL_FRAMEBUFFER, m_FBO));
-
-		auto width	= m_Specification.Width;
-		auto height = m_Specification.Height;
-		glCall(glViewport(0, 0, width, height));
-		glCall(glScissor(0, 0, width, height));
-	}
-
 	void FramebufferOpenGL::BindAsReadBuffer(uint32_t texture)
 	{
 		glCall(glBindFramebuffer(GL_READ_FRAMEBUFFER, m_FBO));
 		glCall(glReadBuffer(GL_COLOR_ATTACHMENT0 + texture));
 	}
 
+	void FramebufferOpenGL::BindAsDrawBuffer()
+	{
+		glCall(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_FBO));
+		auto width	= m_Specification.Width;
+		auto height = m_Specification.Height;
+		glCall(glViewport(0, 0, width, height));
+		glCall(glScissor(0, 0, width, height));
+	}
+
 	void FramebufferOpenGL::Unbind()
 	{
 		glCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+	}
+
+	int32_t FramebufferOpenGL::GetHandle()
+	{
+		return m_FBO;
 	}
 
 	void FramebufferOpenGL::Recreate()
@@ -48,6 +52,13 @@ namespace Nexus::Graphics
 		glCall(glBindFramebuffer(GL_FRAMEBUFFER, m_FBO));
 
 		CreateTextures();
+
+		GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		if (status != GL_FRAMEBUFFER_COMPLETE)
+		{
+			std::cout << "Failed to create framebuffer" << std::endl;
+		}
+
 		glCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 	}
 
@@ -80,7 +91,7 @@ namespace Nexus::Graphics
 		{
 			const auto &colorAttachmentSpec = m_Specification.ColorAttachmentSpecification.Attachments[i];
 
-			if (colorAttachmentSpec.TextureFormat == PixelFormat::None)
+			if (colorAttachmentSpec.TextureFormat == PixelFormat::Invalid)
 			{
 				NX_ASSERT(0, "Pixel format cannot be PixelFormat::None for a color attachment");
 			}
@@ -97,7 +108,7 @@ namespace Nexus::Graphics
 			glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, texture->GetHandle(), 0));
 		}
 
-		if (m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::None)
+		if (m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::Invalid)
 		{
 			Nexus::Graphics::Texture2DSpecification spec;
 			spec.Width		  = m_Specification.Width;
