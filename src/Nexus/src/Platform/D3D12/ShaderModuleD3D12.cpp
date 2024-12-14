@@ -34,10 +34,10 @@ namespace Nexus::Graphics
 		Microsoft::WRL::ComPtr<IDxcBlobEncoding> sourceBlob;
 		utils->CreateBlob(m_ModuleSpecification.Source.c_str(), m_ModuleSpecification.Source.length(), CP_UTF8, sourceBlob.GetAddressOf());
 
-		std::string	 entryPoint = GetD3DShaderEntryPoint(shaderModuleSpec.Stage);
+		std::string	 entryPoint = GetD3DShaderEntryPoint(shaderModuleSpec.ShadingStage);
 		std::wstring wsEntryPoint(entryPoint.begin(), entryPoint.end());
 
-		std::string	 shaderVersion = GetShaderVersion(shaderModuleSpec.Stage);
+		std::string	 shaderVersion = GetShaderVersion(shaderModuleSpec.ShadingStage);
 		std::wstring wsShaderVersion(shaderVersion.begin(), shaderVersion.end());
 
 		std::vector<LPCWSTR> compilationArguments = {L"-E", wsEntryPoint.c_str(), L"-T", wsShaderVersion.c_str(), DXC_ARG_WARNINGS_ARE_ERRORS};

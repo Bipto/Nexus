@@ -9,8 +9,6 @@
 #include "Nexus-Core/Input/InputState.hpp"
 #include "Nexus-Core/Platform.hpp"
 
-#include "Platform/X11/X11Include.hpp"
-
 std::vector<Nexus::IWindow *>					   m_Windows {};
 std::vector<std::pair<Nexus::IWindow *, uint32_t>> m_WindowsToClose {};
 
@@ -530,8 +528,6 @@ namespace Nexus::Platform
 
 	void Initialise()
 	{
-		setenv("SDL_VIDEODRIVER", "x11", 1);
-
 		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD) != 0)
 		{
 			NX_LOG("Could not initialize SDL");

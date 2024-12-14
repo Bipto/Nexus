@@ -16,7 +16,7 @@
 namespace Nexus::Graphics
 {
 	GraphicsDeviceD3D12::GraphicsDeviceD3D12(const GraphicsDeviceSpecification &createInfo,
-											 Window							   *window,
+											 IWindow						   *window,
 											 const SwapchainSpecification	   &swapchainSpec)
 		: GraphicsDevice(createInfo, window, swapchainSpec)
 	{

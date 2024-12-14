@@ -74,7 +74,7 @@ namespace Nexus::D3D12
 		{
 			case Nexus::Graphics::CullMode::Back: return D3D12_CULL_MODE_BACK;
 			case Nexus::Graphics::CullMode::Front: return D3D12_CULL_MODE_FRONT;
-			case Nexus::Graphics::CullMode::None: return D3D12_CULL_MODE_NONE;
+			case Nexus::Graphics::CullMode::CullNone: return D3D12_CULL_MODE_NONE;
 			default: throw std::runtime_error("Failed to find a valid format");
 		}
 	}
@@ -84,7 +84,7 @@ namespace Nexus::D3D12
 	{
 		switch (function)
 		{
-			case Nexus::Graphics::ComparisonFunction::Always: return D3D12_COMPARISON_FUNC_ALWAYS;
+			case Nexus::Graphics::ComparisonFunction::AlwaysPass: return D3D12_COMPARISON_FUNC_ALWAYS;
 			case Nexus::Graphics::ComparisonFunction::Equal: return D3D12_COMPARISON_FUNC_EQUAL;
 			case Nexus::Graphics::ComparisonFunction::Greater: return D3D12_COMPARISON_FUNC_GREATER;
 			case Nexus::Graphics::ComparisonFunction::GreaterEqual: return D3D12_COMPARISON_FUNC_GREATER_EQUAL;

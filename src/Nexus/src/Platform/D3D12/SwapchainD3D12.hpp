@@ -22,7 +22,7 @@ namespace Nexus::Graphics
 		virtual void	   SwapBuffers() override;
 		virtual VSyncState GetVsyncState() override;
 		virtual void	   SetVSyncState(VSyncState vsyncState) override;
-		virtual Window	  *GetWindow() override
+		virtual IWindow	  *GetWindow() override
 		{
 			return m_Window;
 		}
@@ -57,7 +57,7 @@ namespace Nexus::Graphics
 		void Resolve();
 
 	  private:
-		Window								   *m_Window	= nullptr;
+		IWindow								   *m_Window	= nullptr;
 		Microsoft::WRL::ComPtr<IDXGISwapChain3> m_Swapchain = nullptr;
 		VSyncState								m_VsyncState;
 		GraphicsDeviceD3D12					   *m_Device = nullptr;

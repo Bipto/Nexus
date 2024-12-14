@@ -79,7 +79,7 @@ namespace Nexus::Graphics
 		{
 			const auto &colorAttachmentSpec = m_Specification.ColorAttachmentSpecification.Attachments.at(i);
 
-			if (colorAttachmentSpec.TextureFormat == PixelFormat::None)
+			if (colorAttachmentSpec.TextureFormat == PixelFormat::Invalid)
 			{
 				NX_ASSERT(0, "Pixel format cannot be PixelFormat::None for a color attachment");
 			}
@@ -94,7 +94,7 @@ namespace Nexus::Graphics
 			m_ColorAttachments.push_back(texture);
 		}
 
-		if (m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::None)
+		if (m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::Invalid)
 		{
 			Nexus::Graphics::Texture2DSpecification spec;
 			spec.Width		  = m_Specification.Width;
@@ -156,7 +156,7 @@ namespace Nexus::Graphics
 
 		m_DepthAttachmentCPUHandle = m_DepthDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 
-		if (m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::None)
+		if (m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::Invalid)
 		{
 			auto texture = m_DepthAttachment;
 
