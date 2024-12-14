@@ -13,7 +13,7 @@ namespace Nexus::Graphics
 	class SwapchainOpenGL : public Swapchain
 	{
 	  public:
-		SwapchainOpenGL(Window *window, const SwapchainSpecification &swapchainSpec, GraphicsDevice *graphicsDevice);
+		SwapchainOpenGL(IWindow *window, const SwapchainSpecification &swapchainSpec, GraphicsDevice *graphicsDevice);
 		virtual ~SwapchainOpenGL();
 		virtual void Initialise() override
 		{
@@ -25,18 +25,18 @@ namespace Nexus::Graphics
 		void							 ResizeIfNecessary();
 		void							 BindAsDrawTarget();
 
-		virtual Window *GetWindow() override
+		virtual IWindow *GetWindow() override
 		{
 			return m_Window;
 		}
 		virtual void Prepare() override;
 
 	  private:
-		Window	  *m_Window;
+		IWindow	  *m_Window;
 		VSyncState m_VsyncState;
 
-		uint32_t m_SwapchainWidth  = 0;
-		uint32_t m_SwapchainHeight = 0;
+		uint32_t						  m_SwapchainWidth	= 0;
+		uint32_t						  m_SwapchainHeight = 0;
 		std::unique_ptr<GL::IViewContext> ViewContext		= {};
 	};
 }	 // namespace Nexus::Graphics

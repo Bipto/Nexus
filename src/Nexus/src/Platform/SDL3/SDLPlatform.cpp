@@ -9,8 +9,10 @@
 #include "Nexus-Core/Input/InputState.hpp"
 #include "Nexus-Core/Platform.hpp"
 
-std::vector<Nexus::Window *>					  m_Windows {};
-std::vector<std::pair<Nexus::Window *, uint32_t>> m_WindowsToClose {};
+#include "Platform/X11/X11Include.hpp"
+
+std::vector<Nexus::IWindow *>					   m_Windows {};
+std::vector<std::pair<Nexus::IWindow *, uint32_t>> m_WindowsToClose {};
 
 std::optional<uint32_t> m_ActiveMouse	 = {};
 std::optional<uint32_t> m_ActiveKeyboard = {};
@@ -18,7 +20,7 @@ std::optional<uint32_t> m_ActiveGamepad	 = {};
 
 std::map<Nexus::Platform::Cursor, SDL_Cursor *> m_Cursors;
 
-Nexus::Window *GetWindowFromHandle(uint32_t handle)
+Nexus::IWindow *GetWindowFromHandle(uint32_t handle)
 {
 	for (int i = 0; i < m_Windows.size(); i++)
 	{
@@ -528,6 +530,8 @@ namespace Nexus::Platform
 
 	void Initialise()
 	{
+		setenv("SDL_VIDEODRIVER", "x11", 1);
+
 		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD) != 0)
 		{
 			NX_LOG("Could not initialize SDL");
@@ -554,11 +558,11 @@ namespace Nexus::Platform
 		PollEvents();
 	}
 
-	Window *CreatePlatformWindow(const WindowSpecification				&windowProps,
-								 Graphics::GraphicsAPI					 api,
-								 const Graphics::SwapchainSpecification &swapchainSpec)
+	IWindow *CreatePlatformWindow(const WindowSpecification				 &windowProps,
+								  Graphics::GraphicsAPI					  api,
+								  const Graphics::SwapchainSpecification &swapchainSpec)
 	{
-		Window *window = new Window(windowProps, api, swapchainSpec);
+		IWindow *window = new IWindow(windowProps, api, swapchainSpec);
 		m_Windows.push_back(window);
 		return window;
 	}
@@ -581,7 +585,7 @@ namespace Nexus::Platform
 		return state;
 	}
 
-	std::optional<Window *> GetMouseFocus()
+	std::optional<IWindow *> GetMouseFocus()
 	{
 		SDL_Window *focusWindow = SDL_GetMouseFocus();
 		if (focusWindow == nullptr)
@@ -615,7 +619,7 @@ namespace Nexus::Platform
 		return m_ActiveGamepad;
 	}
 
-	std::optional<Window *> GetKeyboardFocus()
+	std::optional<IWindow *> GetKeyboardFocus()
 	{
 		SDL_Window *focusWindow = SDL_GetKeyboardFocus();
 		if (focusWindow == nullptr)

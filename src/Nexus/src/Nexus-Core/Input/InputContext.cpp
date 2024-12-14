@@ -6,7 +6,7 @@
 
 namespace Nexus::InputNew
 {
-	InputContext::InputContext(Nexus::Window *window)
+	InputContext::InputContext(Nexus::IWindow *window)
 		: m_Window(window),
 		  m_OnKeyPressed(&window->OnKeyPressed, [this](const KeyPressedEventArgs &args) { OnKeyPressed(args); }),
 		  m_OnKeyReleased(&window->OnKeyReleased, [this](const KeyReleasedEventArgs &args) { OnKeyReleased(args); }),

@@ -158,7 +158,7 @@ namespace Nexus::Graphics
 
 	void PipelineOpenGL::SetupRasterizer()
 	{
-		if (m_Description.RasterizerStateDesc.TriangleCullMode == CullMode::None)
+		if (m_Description.RasterizerStateDesc.TriangleCullMode == CullMode::CullNone)
 		{
 			glCall(glDisable(GL_CULL_FACE));
 		}

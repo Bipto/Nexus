@@ -8,8 +8,6 @@
 	#include "TextureOpenGL.hpp"
 	#include "TimingQueryOpenGL.hpp"
 
-	#include "Platform/Windows/WindowsInclude.hpp"
-
 namespace Nexus::Graphics
 {
 	CommandExecutorOpenGL::~CommandExecutorOpenGL()
@@ -294,9 +292,9 @@ namespace Nexus::Graphics
 
 		Ref<Texture2D> framebufferTexture = framebuffer->GetColorTexture(command.SourceIndex);
 
-		Nexus::Window *window		   = swapchain->GetWindow();
-		uint32_t	   swapchainWidth  = window->GetWindowSize().X;
-		uint32_t	   swapchainHeight = window->GetWindowSize().Y;
+		Nexus::IWindow *window			= swapchain->GetWindow();
+		uint32_t		swapchainWidth	= window->GetWindowSize().X;
+		uint32_t		swapchainHeight = window->GetWindowSize().Y;
 
 		glCall(glBlitFramebuffer(0, 0, framebufferWidth, framebufferHeight, 0, 0, swapchainWidth, swapchainHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR));
 	}

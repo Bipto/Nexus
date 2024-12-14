@@ -21,8 +21,7 @@
 
 namespace Nexus
 {
-
-	Window::Window(const WindowSpecification &windowProps, Graphics::GraphicsAPI api, const Graphics::SwapchainSpecification &swapchainSpec)
+	IWindow::IWindow(const WindowSpecification &windowProps, Graphics::GraphicsAPI api, const Graphics::SwapchainSpecification &swapchainSpec)
 		: m_Specification(windowProps),
 		  m_InputContext(this)
 	{
@@ -42,34 +41,34 @@ namespace Nexus
 		SetupTimer();
 	}
 
-	Window::~Window()
+	IWindow::~IWindow()
 	{
 		delete m_Swapchain;
 		SDL_DestroyWindow(this->m_Window);
 	}
 
-	void Window::CacheInput()
+	void IWindow::CacheInput()
 	{
 		m_Input.CacheInput();
 	}
 
-	void Window::Update()
+	void IWindow::Update()
 	{
 		m_InputContext.Reset();
 		m_Timer.Update();
 	}
 
-	void Window::SetResizable(bool isResizable)
+	void IWindow::SetResizable(bool isResizable)
 	{
 		SDL_SetWindowResizable(this->m_Window, (SDL_bool)isResizable);
 	}
 
-	void Window::SetTitle(const std::string &title)
+	void IWindow::SetTitle(const std::string &title)
 	{
 		SDL_SetWindowTitle(this->m_Window, title.c_str());
 	}
 
-	void Window::SetSize(Point2D<uint32_t> size)
+	void IWindow::SetSize(Point2D<uint32_t> size)
 	{
 #if !defined(__EMSCRIPTEN__)
 		SDL_SetWindowSize(m_Window, size.X, size.Y);
@@ -78,22 +77,22 @@ namespace Nexus
 #endif
 	}
 
-	void Window::Close()
+	void IWindow::Close()
 	{
 		m_Closing = true;
 	}
 
-	bool Window::IsClosing()
+	bool IWindow::IsClosing()
 	{
 		return m_Closing;
 	}
 
-	SDL_Window *Window::GetSDLWindowHandle()
+	SDL_Window *IWindow::GetSDLWindowHandle()
 	{
 		return m_Window;
 	}
 
-	Point2D<uint32_t> Window::GetWindowSize()
+	Point2D<uint32_t> IWindow::GetWindowSize()
 	{
 		int x, y;
 		SDL_GetWindowSize(m_Window, &x, &y);
@@ -110,14 +109,14 @@ namespace Nexus
 		return size;
 	}
 
-	Point2D<int> Window::GetWindowPosition()
+	Point2D<int> IWindow::GetWindowPosition()
 	{
 		Point2D<int> position {};
 		SDL_GetWindowPosition(m_Window, &position.X, &position.Y);
 		return position;
 	}
 
-	WindowState Window::GetCurrentWindowState()
+	WindowState IWindow::GetCurrentWindowState()
 	{
 		Uint32 flags = SDL_GetWindowFlags(m_Window);
 
@@ -137,7 +136,7 @@ namespace Nexus
 		return m_CurrentWindowState;
 	}
 
-	void Window::SetIsMouseVisible(bool visible)
+	void IWindow::SetIsMouseVisible(bool visible)
 	{
 		switch (visible)
 		{
@@ -146,57 +145,57 @@ namespace Nexus
 		}
 	}
 
-	InputState *Window::GetInput()
+	InputState *IWindow::GetInput()
 	{
 		return &m_Input;
 	}
 
-	Nexus::InputNew::InputContext *Window::GetInputContext()
+	Nexus::InputNew::InputContext *IWindow::GetInputContext()
 	{
 		return &m_InputContext;
 	}
 
-	LayerStack &Window::GetLayerStack()
+	LayerStack &IWindow::GetLayerStack()
 	{
 		return m_LayerStack;
 	}
 
-	bool Window::IsFocussed()
+	bool IWindow::IsFocussed()
 	{
 		return SDL_GetWindowFlags(m_Window) & SDL_WINDOW_INPUT_FOCUS;
 	}
 
-	bool Window::IsMinimized()
+	bool IWindow::IsMinimized()
 	{
 		return SDL_GetWindowFlags(m_Window) & SDL_WINDOW_MINIMIZED;
 	}
 
-	bool Window::IsMaximized()
+	bool IWindow::IsMaximized()
 	{
 		return SDL_GetWindowFlags(m_Window) & SDL_WINDOW_MAXIMIZED;
 	}
 
-	bool Window::IsFullscreen()
+	bool IWindow::IsFullscreen()
 	{
 		return SDL_GetWindowFlags(m_Window) & SDL_WINDOW_FULLSCREEN;
 	}
 
-	void Window::Maximize()
+	void IWindow::Maximize()
 	{
 		SDL_MaximizeWindow(m_Window);
 	}
 
-	void Window::Minimize()
+	void IWindow::Minimize()
 	{
 		SDL_MinimizeWindow(m_Window);
 	}
 
-	void Window::Restore()
+	void IWindow::Restore()
 	{
 		SDL_RestoreWindow(m_Window);
 	}
 
-	void Window::ToggleFullscreen()
+	void IWindow::ToggleFullscreen()
 	{
 		if (IsFullscreen())
 		{
@@ -208,37 +207,37 @@ namespace Nexus
 		}
 	}
 
-	void Window::SetFullscreen()
+	void IWindow::SetFullscreen()
 	{
 		SDL_SetWindowFullscreen(m_Window, SDL_TRUE);
 	}
 
-	void Window::UnsetFullscreen()
+	void IWindow::UnsetFullscreen()
 	{
 		SDL_SetWindowFullscreen(m_Window, SDL_FALSE);
 	}
 
-	void Window::Show()
+	void IWindow::Show()
 	{
 		SDL_ShowWindow(m_Window);
 	}
 
-	void Window::Hide()
+	void IWindow::Hide()
 	{
 		SDL_HideWindow(m_Window);
 	}
 
-	void Window::SetWindowPosition(int32_t x, int32_t y)
+	void IWindow::SetWindowPosition(int32_t x, int32_t y)
 	{
 		SDL_SetWindowPosition(m_Window, x, y);
 	}
 
-	void Window::Focus()
+	void IWindow::Focus()
 	{
 		SDL_RaiseWindow(m_Window);
 	}
 
-	void Window::CreateSwapchain(Graphics::GraphicsDevice *device, const Graphics::SwapchainSpecification &swapchainSpec)
+	void IWindow::CreateSwapchain(Graphics::GraphicsDevice *device, const Graphics::SwapchainSpecification &swapchainSpec)
 	{
 		switch (device->GetGraphicsAPI())
 		{
@@ -268,22 +267,22 @@ namespace Nexus
 		}
 	}
 
-	Graphics::Swapchain *Window::GetSwapchain()
+	Graphics::Swapchain *IWindow::GetSwapchain()
 	{
 		return m_Swapchain;
 	}
 
-	uint32_t Window::GetID()
+	uint32_t IWindow::GetID()
 	{
 		return m_WindowID;
 	}
 
-	float Window::GetDisplayScale()
+	float IWindow::GetDisplayScale()
 	{
 		return SDL_GetWindowDisplayScale(m_Window);
 	}
 
-	void Window::SetTextInputRect(const Nexus::Graphics::Rectangle<int> &rect)
+	void IWindow::SetTextInputRect(const Nexus::Graphics::Rectangle<int> &rect)
 	{
 		SDL_Rect r;
 		r.x = rect.GetLeft();
@@ -293,49 +292,101 @@ namespace Nexus
 		SDL_SetTextInputRect(&r);
 	}
 
-	void Window::StartTextInput()
+	void IWindow::StartTextInput()
 	{
 		SDL_StartTextInput();
 	}
 
-	void Window::StopTextInput()
+	void IWindow::StopTextInput()
 	{
 		SDL_StopTextInput();
 	}
 
-	void Window::SetRendersPerSecond(uint32_t amount)
+	void IWindow::SetRendersPerSecond(uint32_t amount)
 	{
 		m_Specification.RendersPerSecond = amount;
 		SetupTimer();
 	}
 
-	void Window::SetUpdatesPerSecond(uint32_t amount)
+	void IWindow::SetUpdatesPerSecond(uint32_t amount)
 	{
 		m_Specification.UpdatesPerSecond = amount;
 		SetupTimer();
 	}
 
-	void Window::SetTicksPerSecond(uint32_t amount)
+	void IWindow::SetTicksPerSecond(uint32_t amount)
 	{
 		m_Specification.TicksPerSecond = amount;
 		SetupTimer();
 	}
 
-	void Window::SetRelativeMouseMode(bool enabled)
+	void IWindow::SetRelativeMouseMode(bool enabled)
 	{
 		SDL_SetRelativeMouseMode(enabled);
 	}
 
 #if defined(NX_PLATFORM_WINDOWS)
-	const HWND Window::GetHwnd() const
+	const HWND IWindow::GetHwnd() const
 	{
 		HWND hwnd = (HWND)SDL_GetProperty(SDL_GetWindowProperties(m_Window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr);
 		return hwnd;
 	}
-
 #endif
 
-	uint32_t Window::GetFlags(Graphics::GraphicsAPI api, const WindowSpecification &windowSpec, const Graphics::SwapchainSpecification &swapchainSpec)
+#if defined(NX_PLATFORM_LINUX)
+	const XWindowInfo IWindow::GetXWindow() const
+	{
+		SDL_PropertiesID properties = SDL_GetWindowProperties(m_Window);
+
+		const char *driver = SDL_GetCurrentVideoDriver();
+
+		Display		 *display	   = (Display *)SDL_GetProperty(properties, SDL_PROP_WINDOW_X11_DISPLAY_POINTER, nullptr);
+		int			  screenIndex  = (int)(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_SCREEN_NUMBER, 0));
+		unsigned long windowNumber = (unsigned long)SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0);
+
+		return XWindowInfo {.display = display, .screen = screenIndex, .window = (Window)windowNumber};
+
+		/* if (!display)
+		{
+			std::cout << "Window does not have a X11 Display" << std::endl;
+			return {};
+		}
+
+		Window root = RootWindow(display, screenIndex);
+
+		Window		 root_ret;
+		Window		 parent_ret;
+		Window		*children_ret;
+		unsigned int nChildren;
+
+		if (XQueryTree(display, root, &root_ret, &parent_ret, &children_ret, &nChildren) == 0)
+		{
+			std::cout << "Failed to query window tree" << std::endl;
+			return {};
+		}
+
+		if (windowIndex >= 0 && windowIndex < nChildren)
+		{
+			Window target = children_ret[windowIndex];
+
+			XWindowAttributes attribs;
+			if (XGetWindowAttributes(display, target, &attribs) == 0)
+			{
+				std::cout << "Invalid window handle" << std::endl;
+				return {};
+			}
+
+			XWindowInfo info {.display = display, .screen = screenIndex, .window = target};
+			return info;
+		}
+		std::cout << "Window index out of bounds" << std::endl;
+		return {}; */
+	}
+#endif
+
+	uint32_t IWindow::GetFlags(Graphics::GraphicsAPI				   api,
+							   const WindowSpecification			  &windowSpec,
+							   const Graphics::SwapchainSpecification &swapchainSpec)
 	{
 		// required for emscripten to handle resizing correctly
 		uint32_t flags = 0;
@@ -361,13 +412,17 @@ namespace Nexus
 			case Graphics::GraphicsAPI::Vulkan:
 			{
 				flags |= SDL_WINDOW_VULKAN;
-				return flags;
 			}
-			default: return flags;
+			case Graphics::GraphicsAPI::OpenGL:
+			{
+				flags |= SDL_WINDOW_OPENGL;
+			}
 		}
+
+		return flags;
 	}
 
-	void Window::SetupTimer()
+	void IWindow::SetupTimer()
 	{
 		m_Timer.Clear();
 
@@ -430,7 +485,7 @@ namespace Nexus
 			secondsPerTick);
 	}
 
-	const WindowSpecification &Window::GetSpecification() const
+	const WindowSpecification &IWindow::GetSpecification() const
 	{
 		return m_Specification;
 	}

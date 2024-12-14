@@ -7,7 +7,7 @@
 
 namespace Nexus::Graphics
 {
-	SwapchainD3D12::SwapchainD3D12(Window *window, GraphicsDevice *device, const SwapchainSpecification &swapchainSpec)
+	SwapchainD3D12::SwapchainD3D12(IWindow *window, GraphicsDevice *device, const SwapchainSpecification &swapchainSpec)
 		: Swapchain(swapchainSpec),
 		  m_Window(window),
 		  m_VsyncState(swapchainSpec.VSyncState)

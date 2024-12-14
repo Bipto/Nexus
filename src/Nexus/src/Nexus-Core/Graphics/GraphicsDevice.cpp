@@ -14,7 +14,7 @@
 
 namespace Nexus::Graphics
 {
-	GraphicsDevice::GraphicsDevice(const GraphicsDeviceSpecification &specification, Window *window, const SwapchainSpecification &swapchainSpec)
+	GraphicsDevice::GraphicsDevice(const GraphicsDeviceSpecification &specification, IWindow *window, const SwapchainSpecification &swapchainSpec)
 	{
 		m_Window		= window;
 		m_Specification = specification;
@@ -53,7 +53,7 @@ namespace Nexus::Graphics
 
 		moduleSpec.Name				= name;
 		moduleSpec.Source			= result.Source;
-		moduleSpec.Stage			= stage;
+		moduleSpec.ShadingStage		= stage;
 		moduleSpec.SpirvBinary		= result.SpirvBinary;
 		moduleSpec.InputAttributes	= result.InputAttributes;
 		moduleSpec.OutputAttributes = result.OutputAttributes;
@@ -73,7 +73,7 @@ namespace Nexus::Graphics
 		return GetOrCreateCachedShaderFromSpirvSource(source, filepath, stage);
 	}
 
-	Window *GraphicsDevice::GetPrimaryWindow()
+	IWindow *GraphicsDevice::GetPrimaryWindow()
 	{
 		return m_Window;
 	}

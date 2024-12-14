@@ -41,16 +41,16 @@ namespace Nexus::Platform
 	std::optional<InputNew::Mouse>	  GetMouseById(uint32_t id);
 	std::optional<InputNew::Gamepad>  GetGamepadById(uint32_t id);
 
-	void	Initialise();
-	void	Shutdown();
-	void	Update();
-	Window *CreatePlatformWindow(const WindowSpecification				&windowProps,
-								 Graphics::GraphicsAPI					 api,
-								 const Graphics::SwapchainSpecification &swapchainSpec);
+	void	 Initialise();
+	void	 Shutdown();
+	void	 Update();
+	IWindow *CreatePlatformWindow(const WindowSpecification				 &windowProps,
+								  Graphics::GraphicsAPI					  api,
+								  const Graphics::SwapchainSpecification &swapchainSpec);
 
-	InputNew::MouseInfo		GetGlobalMouseInfo();
-	std::optional<Window *> GetKeyboardFocus();
-	std::optional<Window *> GetMouseFocus();
+	InputNew::MouseInfo		 GetGlobalMouseInfo();
+	std::optional<IWindow *> GetKeyboardFocus();
+	std::optional<IWindow *> GetMouseFocus();
 
 	std::optional<uint32_t> GetActiveMouseId();
 	std::optional<uint32_t> GetActiveKeyboardId();

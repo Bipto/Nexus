@@ -102,15 +102,15 @@ namespace Nexus::ImGuiUtils
 		pipelineDesc.BlendStateDesc.DestinationAlphaBlend  = Nexus::Graphics::BlendFactor::OneMinusSourceAlpha;
 		pipelineDesc.BlendStateDesc.AlphaBlendFunction	   = Nexus::Graphics::BlendEquation::Add;
 
-		pipelineDesc.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::None;
+		pipelineDesc.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::CullNone;
 		pipelineDesc.RasterizerStateDesc.TriangleFillMode  = Nexus::Graphics::FillMode::Solid;
 		pipelineDesc.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
-		pipelineDesc.DepthStencilDesc.DepthComparisonFunction	= Nexus::Graphics::ComparisonFunction::Always;
+		pipelineDesc.DepthStencilDesc.DepthComparisonFunction	= Nexus::Graphics::ComparisonFunction::AlwaysPass;
 		pipelineDesc.DepthStencilDesc.EnableDepthTest			= false;
 		pipelineDesc.DepthStencilDesc.EnableDepthWrite			= false;
 		pipelineDesc.DepthStencilDesc.EnableStencilTest			= false;
-		pipelineDesc.DepthStencilDesc.StencilComparisonFunction = Nexus::Graphics::ComparisonFunction::Always;
+		pipelineDesc.DepthStencilDesc.StencilComparisonFunction = Nexus::Graphics::ComparisonFunction::AlwaysPass;
 
 		pipelineDesc.Layouts = {{{Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
 								 {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
@@ -175,7 +175,7 @@ namespace Nexus::ImGuiUtils
 
 			Nexus::Graphics::SwapchainSpecification swapchainSpec = app->GetPrimaryWindow()->GetSwapchain()->GetSpecification();
 
-			Nexus::Window *window = Platform::CreatePlatformWindow(windowSpec, app->GetGraphicsDevice()->GetGraphicsAPI(), swapchainSpec);
+			Nexus::IWindow *window = Platform::CreatePlatformWindow(windowSpec, app->GetGraphicsDevice()->GetGraphicsAPI(), swapchainSpec);
 			window->CreateSwapchain(app->GetGraphicsDevice(), swapchainSpec);
 			window->GetSwapchain()->Initialise();
 			window->SetWindowPosition(vp->Pos.x, vp->Pos.y);
@@ -418,7 +418,7 @@ namespace Nexus::ImGuiUtils
 				if ((platform_io.Viewports[i]->Flags & ImGuiViewportFlags_IsMinimized) == 0)
 				{
 					ImGuiWindowInfo *info	= (ImGuiWindowInfo *)platform_io.Viewports[i]->PlatformUserData;
-					Nexus::Window	*window = info->Window;
+					Nexus::IWindow	*window = info->Window;
 
 					if (window && !window->IsClosing())
 					{
@@ -476,7 +476,7 @@ namespace Nexus::ImGuiUtils
 		auto  mainWindow = m_GraphicsDevice->GetPrimaryWindow();
 		auto &io		 = ImGui::GetIO();
 
-		std::optional<Window *> window = Platform::GetKeyboardFocus();
+		std::optional<IWindow *> window = Platform::GetKeyboardFocus();
 		if (!window.has_value())
 		{
 			return;

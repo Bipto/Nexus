@@ -221,7 +221,7 @@ namespace Nexus::Graphics
 
 			ShaderAttribute attribute;
 			attribute.Name = input.name;
-			attribute.Type = GetShaderDataTypeFromSpirvCrossType(compiler, input);
+			attribute.DataType = GetShaderDataTypeFromSpirvCrossType(compiler, input);
 			inputs.push_back(attribute);
 		}
 
@@ -232,7 +232,7 @@ namespace Nexus::Graphics
 
 			ShaderAttribute attribute;
 			attribute.Name = output.name;
-			attribute.Type = GetShaderDataTypeFromSpirvCrossType(compiler, output);
+			attribute.DataType = GetShaderDataTypeFromSpirvCrossType(compiler, output);
 			outputs.push_back(attribute);
 		}
 	}

@@ -108,7 +108,7 @@ namespace Nexus
 		Platform::Update();
 	}
 
-	Nexus::Window *Application::GetPrimaryWindow()
+	Nexus::IWindow *Application::GetPrimaryWindow()
 	{
 		return m_Window;
 	}
@@ -169,7 +169,7 @@ namespace Nexus
 	}
 
 	Graphics::GraphicsDevice *CreateGraphicsDevice(const Graphics::GraphicsDeviceSpecification &createInfo,
-												   Window									   *window,
+												   IWindow									   *window,
 												   const Graphics::SwapchainSpecification	   &swapchainSpec)
 	{
 		switch (createInfo.API)

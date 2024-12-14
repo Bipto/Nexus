@@ -8,7 +8,7 @@ namespace Nexus::Graphics
 {
 	enum class ShaderStage
 	{
-		None = 0,
+		Invalid = 0,
 		Compute,
 		Fragment,
 		Geometry,
@@ -20,14 +20,14 @@ namespace Nexus::Graphics
 	struct ShaderAttribute
 	{
 		std::string	   Name;
-		ShaderDataType Type;
+		ShaderDataType DataType;
 	};
 
 	struct ShaderModuleSpecification
 	{
 		std::string			  Name = "ShaderModule";
 		std::string			  Source;
-		ShaderStage			  Stage = ShaderStage::None;
+		ShaderStage			  ShadingStage = ShaderStage::Invalid;
 		std::vector<uint32_t> SpirvBinary;
 
 		std::vector<ShaderAttribute> InputAttributes;
@@ -47,7 +47,7 @@ namespace Nexus::Graphics
 
 		ShaderStage GetShaderStage() const
 		{
-			return m_ModuleSpecification.Stage;
+			return m_ModuleSpecification.ShadingStage;
 		}
 
 		const ShaderModuleSpecification &GetModuleSpecification() const

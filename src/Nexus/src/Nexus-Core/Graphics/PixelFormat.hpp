@@ -4,7 +4,7 @@ namespace Nexus::Graphics
 {
 	enum class PixelFormat
 	{
-		None = 0,
+		Invalid = 0,
 		B8_G8_R8_A8_UNorm,
 		B8_G8_R8_A8_UNorm_SRGB,
 		D24_UNorm_S8_UInt,

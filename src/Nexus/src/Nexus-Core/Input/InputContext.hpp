@@ -6,7 +6,7 @@
 
 namespace Nexus
 {
-	class Window;
+	class IWindow;
 }
 
 namespace Nexus::InputNew
@@ -106,7 +106,7 @@ namespace Nexus::InputNew
 	class InputContext
 	{
 	  public:
-		InputContext(Nexus::Window *window);
+		InputContext(Nexus::IWindow *window);
 		virtual ~InputContext();
 
 		bool		   IsMouseButtonDown(uint32_t id, MouseButton button);
@@ -137,7 +137,7 @@ namespace Nexus::InputNew
 		void OnScroll(const MouseScrolledEventArgs &args);
 
 	  private:
-		Nexus::Window *m_Window = nullptr;
+		Nexus::IWindow *m_Window = nullptr;
 
 		std::map<uint32_t, KeyboardState> m_KeyboardStates;
 		std::map<uint32_t, MouseState>	  m_MouseStates;

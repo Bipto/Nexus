@@ -56,7 +56,7 @@ namespace Demos
 		std::string								  m_Name;
 		Nexus::Graphics::GraphicsDevice			 *m_GraphicsDevice = nullptr;
 		Nexus::Audio::AudioDevice				 *m_AudioDevice	   = nullptr;
-		Nexus::Window							 *m_Window		   = nullptr;
+		Nexus::IWindow							 *m_Window		   = nullptr;
 		Nexus::ImGuiUtils::ImGuiGraphicsRenderer *m_ImGuiRenderer  = nullptr;
 	};
 }	 // namespace Demos

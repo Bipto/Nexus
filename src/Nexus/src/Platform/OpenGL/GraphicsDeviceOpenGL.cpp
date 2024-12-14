@@ -14,12 +14,12 @@
 namespace Nexus::Graphics
 {
 	GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(const GraphicsDeviceSpecification &createInfo,
-											   Window							 *window,
+											   IWindow							 *window,
 											   const SwapchainSpecification		 &swapchainSpec)
 		: GraphicsDevice(createInfo, window, swapchainSpec)
 	{
-		m_PBuffer = GL::CreateOffscreenContext();
-		m_PBuffer->MakeCurrent();
+		m_PBuffer	 = GL::CreateOffscreenContext();
+		bool success = m_PBuffer->MakeCurrent();
 		m_Extensions = GetSupportedExtensions();
 
 		m_APIName	   = std::string("OpenGL - ") + std::string((const char *)glGetString(GL_VERSION));

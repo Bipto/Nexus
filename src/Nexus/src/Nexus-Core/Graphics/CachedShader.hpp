@@ -63,7 +63,7 @@ namespace Nexus::Graphics
 			shaderYAML["Hash"]	 = m_Hash;
 			shaderYAML["Name"]	 = m_ShaderSpec.Name;
 			shaderYAML["Source"] = m_ShaderSpec.Source;
-			shaderYAML["Stage"]	 = (uint32_t)m_ShaderSpec.Stage;
+			shaderYAML["Stage"]	 = (uint32_t)m_ShaderSpec.ShadingStage;
 			shaderYAML["SPIRV"]	 = m_ShaderSpec.SpirvBinary;
 			container["Shader"]	 = shaderYAML;
 
@@ -125,10 +125,10 @@ namespace Nexus::Graphics
 
 			m_Hash = hash;
 
-			m_ShaderSpec.Name		 = name;
-			m_ShaderSpec.Source		 = source;
-			m_ShaderSpec.Stage		 = stage;
-			m_ShaderSpec.SpirvBinary = spirv;
+			m_ShaderSpec.Name		  = name;
+			m_ShaderSpec.Source		  = source;
+			m_ShaderSpec.ShadingStage = stage;
+			m_ShaderSpec.SpirvBinary  = spirv;
 
 			m_ResourceSpec.SampledImages  = sampledImages;
 			m_ResourceSpec.UniformBuffers = uniformBuffers;

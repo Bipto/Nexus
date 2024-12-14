@@ -138,7 +138,7 @@ namespace Nexus
 
 		/// @brief A friend class to allow a window to have access to the mouse's
 		/// private members
-		friend class Window;
+		friend class IWindow;
 
 		friend class Application;
 	};

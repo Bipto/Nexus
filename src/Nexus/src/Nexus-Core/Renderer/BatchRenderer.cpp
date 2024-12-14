@@ -336,7 +336,7 @@ namespace Nexus::Graphics
 		info.Textures.resize(MAX_TEXTURE_COUNT);
 
 		Nexus::Graphics::PipelineDescription description;
-		description.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::None;
+		description.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::CullNone;
 		description.Layouts								 = {Nexus::Graphics::VertexPositionTexCoordColorTexIndex::GetLayout()};
 		description.VertexModule						 = vertexModule;
 		description.FragmentModule						 = fragmentModule;

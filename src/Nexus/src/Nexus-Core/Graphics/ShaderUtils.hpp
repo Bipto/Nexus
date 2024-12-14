@@ -25,14 +25,14 @@ namespace Nexus::Utils
 
 		enum class ShaderType
 		{
-			None	 = -1,
+			Invalid	 = -1,
 			Vertex	 = 0,
 			Fragment = 1,
 		};
 
 		std::string		  line;
 		std::stringstream ss[2];
-		ShaderType		  type = ShaderType::None;
+		ShaderType		  type = ShaderType::Invalid;
 
 		while (getline(stream, line))
 		{

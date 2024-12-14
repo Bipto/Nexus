@@ -95,7 +95,12 @@
         "regex": "cpp",
         "stack": "cpp",
         "typeindex": "cpp",
-        "expected": "cpp"
+        "expected": "cpp",
+        "*.tcc": "cpp",
+        "cwctype": "cpp",
+        "memory_resource": "cpp",
+        "string_view": "cpp",
+        "semaphore": "cpp"
     },
     "cmake.loggingLevel": "info"
 }

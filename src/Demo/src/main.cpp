@@ -81,7 +81,7 @@ class DemoApplication : public Nexus::Application
 
 		m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-		Nexus::Window *window = m_GraphicsDevice->GetPrimaryWindow();
+		Nexus::IWindow *window = m_GraphicsDevice->GetPrimaryWindow();
 	}
 
 	template<typename T>

@@ -91,7 +91,7 @@ namespace Nexus::Graphics
 		{
 			const auto &colorAttachmentSpec = m_Specification.ColorAttachmentSpecification.Attachments[i];
 
-			if (colorAttachmentSpec.TextureFormat == PixelFormat::None)
+			if (colorAttachmentSpec.TextureFormat == PixelFormat::Invalid)
 			{
 				NX_ASSERT(0, "Pixel format cannot be PixelFormat::None for a color attachment");
 			}
@@ -108,7 +108,7 @@ namespace Nexus::Graphics
 			glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, texture->GetHandle(), 0));
 		}
 
-		if (m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::None)
+		if (m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::Invalid)
 		{
 			Nexus::Graphics::Texture2DSpecification spec;
 			spec.Width		  = m_Specification.Width;

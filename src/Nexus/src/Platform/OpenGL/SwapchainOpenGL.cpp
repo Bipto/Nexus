@@ -11,7 +11,7 @@
 
 namespace Nexus::Graphics
 {
-	SwapchainOpenGL::SwapchainOpenGL(Window *window, const SwapchainSpecification &swapchainSpec, GraphicsDevice *graphicsDevice)
+	SwapchainOpenGL::SwapchainOpenGL(IWindow *window, const SwapchainSpecification &swapchainSpec, GraphicsDevice *graphicsDevice)
 		: Swapchain(swapchainSpec),
 		  m_Window(window),
 		  m_VsyncState(swapchainSpec.VSyncState)

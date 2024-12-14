@@ -2,6 +2,8 @@
 
 #if defined(NX_PLATFORM_OPENGL)
 
+	#include "Nexus-Core/nxpch.hpp"
+
 	#if defined(__EMSCRIPTEN__)
 		#include <emscripten.h>
 		#include <emscripten/html5.h>
@@ -48,7 +50,7 @@ namespace Nexus::GL
 	void GetBaseType(const Graphics::VertexBufferElement &element, GLenum &baseType, uint32_t &componentCount, GLboolean &normalized);
 
 	std::unique_ptr<IOffscreenContext> CreateOffscreenContext();
-	std::unique_ptr<IViewContext>	   CreateViewContext(Window *window, Graphics::GraphicsDevice *device);
+	std::unique_ptr<IViewContext>	   CreateViewContext(IWindow *window, Graphics::GraphicsDevice *device);
 
 }	 // namespace Nexus::GL
 

@@ -2,6 +2,8 @@
 
 #if defined(NX_PLATFORM_VULKAN)
 
+	#include "Nexus-Core/nxpch.hpp"
+
 	#include "Nexus-Core/Graphics/Swapchain.hpp"
 	#include "Nexus-Core/Window.hpp"
 	#include "SDL_vulkan.h"
@@ -15,7 +17,7 @@ namespace Nexus::Graphics
 	class SwapchainVk : public Swapchain
 	{
 	  public:
-		SwapchainVk(Window *window, GraphicsDevice *graphicsDevice, const SwapchainSpecification &swapchainSpec);
+		SwapchainVk(IWindow *window, GraphicsDevice *graphicsDevice, const SwapchainSpecification &swapchainSpec);
 		virtual ~SwapchainVk();
 
 		virtual void					 SwapBuffers() override;
@@ -25,7 +27,7 @@ namespace Nexus::Graphics
 		VkSurfaceFormatKHR				 GetSurfaceFormat();
 		VkFormat						 GetDepthFormat();
 
-		virtual Window *GetWindow() override
+		virtual IWindow *GetWindow() override
 		{
 			return m_Window;
 		}
@@ -86,7 +88,7 @@ namespace Nexus::Graphics
 		uint32_t	GetCurrentFrameIndex();
 
 	  private:
-		Window	  *m_Window;
+		IWindow	  *m_Window;
 		VSyncState m_VsyncState;
 
 		// vulkan types

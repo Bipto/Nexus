@@ -30,7 +30,7 @@ namespace Nexus
 				{
 					if (event.Button == MouseButton::Right)
 					{
-						Window *window = m_Device->GetPrimaryWindow();
+						IWindow *window = m_Device->GetPrimaryWindow();
 						if (window)
 						{
 							window->SetRelativeMouseMode(true);
@@ -44,7 +44,7 @@ namespace Nexus
 				{
 					if (event.ScanCode == ScanCode::Escape)
 					{
-						Window *window = m_Device->GetPrimaryWindow();
+						IWindow *window = m_Device->GetPrimaryWindow();
 						if (window)
 						{
 							window->SetRelativeMouseMode(false);

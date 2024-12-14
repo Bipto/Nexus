@@ -10,9 +10,9 @@ add_subdirectory(external/glad)
 
 if (WIN32)
   add_subdirectory(external/glad_wgl)
-elseif(LINUX)
-  add_subdirectory(external/glad_glx)
-elseif(ANDROID OR __ANDROID__)
+endif()
+
+if(ANDROID OR __ANDROID__ OR LINUX)
   add_subdirectory(external/glad_egl)
 endif()
 
@@ -184,8 +184,19 @@ if (WIN32)
   target_link_libraries(Nexus PUBLIC glad_wgl)
 endif()
 
-if (ANDROID OR __ANDROID__)
+if (ANDROID OR __ANDROID__ OR LINUX)
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(EGL REQUIRED egl)
+
   target_link_libraries(Nexus PUBLIC glad_egl)
+  target_include_directories(Nexus PUBLIC ${EGL_INCLUDE_DIRS})
+  target_link_libraries(Nexus PUBLIC ${EGL_LIBRARIES})
+endif()
+
+if (LINUX)
+  find_package(X11 REQUIRED)
+  target_link_libraries(Nexus PUBLIC ${X11_LIBRARIES})
+  include_directories(${X11_INCLUDE_DIR})
 endif()
 
 if(WIN32 OR LINUX)

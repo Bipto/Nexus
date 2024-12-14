@@ -16,7 +16,7 @@
 
 namespace Nexus::Graphics
 {
-	GraphicsDeviceVk::GraphicsDeviceVk(const GraphicsDeviceSpecification &createInfo, Window *window, const SwapchainSpecification &swapchainSpec)
+	GraphicsDeviceVk::GraphicsDeviceVk(const GraphicsDeviceSpecification &createInfo, IWindow *window, const SwapchainSpecification &swapchainSpec)
 		: GraphicsDevice(createInfo, window, swapchainSpec),
 		  m_CommandExecutor(this)
 	{

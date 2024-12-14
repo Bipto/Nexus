@@ -327,7 +327,7 @@ namespace Nexus::Graphics
 	{
 		switch (m_Description.RasterizerStateDesc.TriangleCullMode)
 		{
-			case Nexus::Graphics::CullMode::None: return VK_CULL_MODE_NONE; break;
+			case Nexus::Graphics::CullMode::CullNone: return VK_CULL_MODE_NONE; break;
 			case Nexus::Graphics::CullMode::Back: return VK_CULL_MODE_BACK_BIT; break;
 			case Nexus::Graphics::CullMode::Front: return VK_CULL_MODE_FRONT_BIT; break;
 			default: throw std::runtime_error("An invalid culling mode was entered"); break;
@@ -339,7 +339,7 @@ namespace Nexus::Graphics
 		VkPipelineShaderStageCreateInfo createInfo = {};
 		createInfo.sType						   = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 		createInfo.pNext						   = nullptr;
-		createInfo.stage						   = Vk::GetVkShaderStageFlags(module->GetModuleSpecification().Stage);
+		createInfo.stage						   = Vk::GetVkShaderStageFlags(module->GetModuleSpecification().ShadingStage);
 		createInfo.module						   = module->GetShaderModule();
 		createInfo.pName						   = "main";
 		return createInfo;

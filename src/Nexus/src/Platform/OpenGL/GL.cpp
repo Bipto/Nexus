@@ -3,19 +3,23 @@
 	#include "GL.hpp"
 
 	#include "Nexus-Core/Logging/Log.hpp"
-	#include "Nexus-Core/nxpch.hpp"
 
 	#if defined(NX_PLATFORM_WGL)
 		#include "Context/WGL/OffscreenContextWGL.hpp"
 		#include "Context/WGL/ViewContextWGL.hpp"
 	#elif defined(NX_PLATFORM_EGL)
-		#error Not implemented yet
+		#include "Context/EGL/OffscreenContextEGL.hpp"
+		#include "Context/EGL/ViewContextEGL.hpp"
 	#elif defined(NX_PLATFORM_WEBGL)
 		#include "Context/WebGL/OffscreenContextWebGL.hpp"
 		#include "Context/WebGL/ViewContextWebGL.hpp"
+	#elif defined(NX_PLATFORM_GLX)
+		#include "Context/GLX/OffscreenContextGLX.hpp"
+		#include "Context/GLX/ViewContextGLX.hpp"
 	#endif
 
 	#include "Platform/OpenGL/GraphicsDeviceOpenGL.hpp"
+	#include "Nexus-Core/Platform.hpp"
 
 namespace Nexus::GL
 {
@@ -56,7 +60,7 @@ namespace Nexus::GL
 	{
 		switch (function)
 		{
-			case Nexus::Graphics::ComparisonFunction::Always: return GL_ALWAYS;
+			case Nexus::Graphics::ComparisonFunction::AlwaysPass: return GL_ALWAYS;
 			case Nexus::Graphics::ComparisonFunction::Equal: return GL_EQUAL;
 			case Nexus::Graphics::ComparisonFunction::Greater: return GL_GREATER;
 			case Nexus::Graphics::ComparisonFunction::GreaterEqual: return GL_GEQUAL;
@@ -628,15 +632,31 @@ namespace Nexus::GL
 	#if defined(NX_PLATFORM_WGL)
 		return std::make_unique<OffscreenContextWGL>(spec);
 	#elif defined(NX_PLATFORM_EGL)
-		#error Not implemented
+
+		Nexus::WindowSpecification windowSpec {};
+		windowSpec.Width	 = 1;
+		windowSpec.Height	 = 1;
+		windowSpec.Resizable = false;
+
+		Nexus::Graphics::SwapchainSpecification swapchainSpec {};
+
+		IWindow *window = Platform::CreatePlatformWindow(windowSpec, Graphics::GraphicsAPI::OpenGL, swapchainSpec);
+		window->Hide();
+
+		XWindowInfo info	= window->GetXWindow();
+		EGLDisplay	display = eglGetDisplay(info.display);
+
+		return std::make_unique<OffscreenContextEGL>(display, spec);
 	#elif defined(NX_PLATFORM_WEBGL)
 		return std::make_unique<OffscreenContextWebGL>("offscreenContext");
+	#elif defined(NX_PLATFORM_GLX)
+		return std::make_unique<OffscreenContextGLX>(spec);
 	#else
 		#error No OpenGL backend selected
 	#endif
 	}
 
-	std::unique_ptr<IViewContext> CreateViewContext(Window *window, Graphics::GraphicsDevice *device)
+	std::unique_ptr<IViewContext> CreateViewContext(IWindow *window, Graphics::GraphicsDevice *device)
 	{
 		GL::ContextSpecification spec = {};
 		spec.Debug					  = true;
@@ -648,11 +668,19 @@ namespace Nexus::GL
 		OffscreenContextWGL *pbufferWGL = (OffscreenContextWGL *)deviceOpenGL->GetOffscreenContext();
 		return std::make_unique<ViewContextWGL>(window->GetHwnd(), pbufferWGL, spec);
 	#elif defined(NX_PLATFORM_EGL)
-		return nullptr;
+		OffscreenContextEGL *pbufferEGL	  = (OffscreenContextEGL *)deviceOpenGL->GetOffscreenContext();
+		XWindowInfo			 info		  = window->GetXWindow();
+		EGLDisplay			 display	  = eglGetDisplay(info.display);
+		EGLNativeWindowType	 nativeWindow = (EGLNativeWindowType)info.window;
+		return std::make_unique<ViewContextEGL>(display, nativeWindow, pbufferEGL, spec);
 	#elif defined(NX_PLATFORM_WEBGL)
 		return std::make_unique<ViewContextWebGL>("canvas", deviceOpenGL, spec);
+	#elif defined(NX_PLATFORM_GLX)
+		OffscreenContextGLX *pbufferGLX = (OffscreenContextGLX *)deviceOpenGL->GetOffscreenContext();
+		XWindowInfo			 info		= window->GetXWindow();
+		return std::make_unique<ViewContextGLX>(info.display, info.screen, info.window, pbufferGLX, spec);
 	#else
-		#error No OpenGL backend selected
+		return
 	#endif
 	}
 

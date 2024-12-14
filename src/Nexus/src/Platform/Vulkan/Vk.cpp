@@ -215,7 +215,7 @@ namespace Nexus::Vk
 	{
 		switch (function)
 		{
-			case Nexus::Graphics::ComparisonFunction::Always: return VK_COMPARE_OP_ALWAYS;
+			case Nexus::Graphics::ComparisonFunction::AlwaysPass: return VK_COMPARE_OP_ALWAYS;
 			case Nexus::Graphics::ComparisonFunction::Equal: return VK_COMPARE_OP_EQUAL;
 			case Nexus::Graphics::ComparisonFunction::Greater: return VK_COMPARE_OP_GREATER;
 			case Nexus::Graphics::ComparisonFunction::GreaterEqual: return VK_COMPARE_OP_GREATER_OR_EQUAL;

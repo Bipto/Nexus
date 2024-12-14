@@ -12,6 +12,10 @@
 	#include "Platform/Windows/WindowsInclude.hpp"
 #endif
 
+#if defined(NX_PLATFORM_LINUX)
+	#include "Platform/X11/X11Include.hpp"
+#endif
+
 #include "ApplicationSpecification.hpp"
 #include "Nexus-Core/Events/EventHandler.hpp"
 #include "Nexus-Core/Graphics/Rectangle.hpp"
@@ -25,6 +29,15 @@
 
 #include "Nexus-Core/Layers/LayerStack.hpp"
 
+#if defined(NX_PLATFORM_LINUX)
+struct XWindowInfo
+{
+	Display *display;
+	int		 screen;
+	Window	 window;
+};
+#endif
+
 namespace Nexus
 {
 	namespace Graphics
@@ -36,20 +49,20 @@ namespace Nexus
 	using WindowHandle = void *;
 
 	/// @brief A class representing a window
-	class Window
+	class IWindow
 	{
 	  public:
 		/// @brief A constructor taking in a window properties struct
 		/// @param windowProps A structure containing options controlling how the
 		/// window is created
-		Window(const WindowSpecification &windowProps, Graphics::GraphicsAPI api, const Graphics::SwapchainSpecification &swapchainSpec);
+		IWindow(const WindowSpecification &windowProps, Graphics::GraphicsAPI api, const Graphics::SwapchainSpecification &swapchainSpec);
 
 		/// @brief Copying a window is not supported
 		/// @param A const reference to a window
-		Window(const Window &) = delete;
+		IWindow(const Window &) = delete;
 
 		/// @brief A destructor to allow resources to be freed
-		~Window();
+		~IWindow();
 
 		void CacheInput();
 
@@ -167,6 +180,10 @@ namespace Nexus
 
 #if defined(NX_PLATFORM_WINDOWS)
 		const HWND GetHwnd() const;
+#endif
+
+#if defined(NX_PLATFORM_LINUX)
+		const XWindowInfo GetXWindow() const;
 #endif
 
 		EventHandler<const WindowResizedEventArgs &> OnResize;
