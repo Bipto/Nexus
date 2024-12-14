@@ -97,7 +97,7 @@ namespace Nexus::Timings
 	class ProfilingTimer
 	{
 	  public:
-		ProfilingTimer(const char *name, const std::source_location location = std::source_location::current())
+		ProfilingTimer(const char *name, const source_location location = source_location::current())
 			: m_Name(name),
 			  m_StartTimepoint(std::chrono::steady_clock::now()),
 			  m_Stopped(false),
@@ -128,7 +128,7 @@ namespace Nexus::Timings
 			return m_Name;
 		}
 
-		const std::source_location &GetSourceLocation() const
+		const source_location &GetSourceLocation() const
 		{
 			return m_Location;
 		}
@@ -150,6 +150,6 @@ namespace Nexus::Timings
 		const char										  *m_Name			= {};
 		std::chrono::time_point<std::chrono::steady_clock> m_StartTimepoint = std::chrono::steady_clock::now();
 		bool											   m_Stopped		= false;
-		std::source_location							   m_Location		= {};
+		source_location									   m_Location		= {};
 	};
 }	 // namespace Nexus::Timings

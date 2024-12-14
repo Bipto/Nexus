@@ -27,9 +27,10 @@
 
 #if defined(__clang__)
 	#include <experimental/source_location>
-using std::source_location = std::experimental::source_location;
+using source_location = std::experimental::source_location;
 #else
 	#include <source_location>
+using source_location = std::source_location;
 #endif
 
 #include <span>
