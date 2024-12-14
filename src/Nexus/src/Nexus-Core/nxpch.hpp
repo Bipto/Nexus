@@ -24,7 +24,13 @@
 #include <optional>
 #include <random>
 #include <set>
-#include <source_location>
+
+#if defined(__clang__)
+	#include <experimental/source_location>
+#else
+	#include <source_location>
+#endif
+
 #include <span>
 #include <sstream>
 #include <stdexcept>
