@@ -12,6 +12,7 @@
 	#include "SwapchainD3D12.hpp"
 	#include "TextureD3D12.hpp"
 	#include "TimingQueryD3D12.hpp"
+	#include "SwapchainD3D12.hpp"
 
 namespace Nexus::Graphics
 {
@@ -179,6 +180,11 @@ namespace Nexus::Graphics
 		capabilities.SupportsInstanceOffset		  = true;
 		capabilities.SupportsMultipleSwapchains	  = true;
 		return capabilities;
+	}
+
+	Swapchain *GraphicsDeviceD3D12::CreateSwapchain(IWindow *window, const SwapchainSpecification &spec)
+	{
+		return new SwapchainD3D12(window, this, spec);
 	}
 
 	ID3D12Device10 *GraphicsDeviceD3D12::GetDevice() const

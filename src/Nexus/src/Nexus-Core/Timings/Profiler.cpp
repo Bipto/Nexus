@@ -4,7 +4,9 @@ namespace Nexus::Timings
 {
 	void Profiler::AddResult(const std::string &name, TimeSpan timespan)
 	{
-		m_Results.emplace_back(name, timespan);
+		ProfileResult result {.Name = name, .Time = timespan};
+
+		m_Results.push_back(result);
 	}
 
 	const std::vector<ProfileResult> &Profiler::GetResults() const

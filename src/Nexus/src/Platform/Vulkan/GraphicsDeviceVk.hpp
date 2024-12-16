@@ -49,6 +49,7 @@ namespace Nexus::Graphics
 		virtual Ref<TimingQuery>   CreateTimingQuery() override;
 
 		virtual const GraphicsCapabilities GetGraphicsCapabilities() const override;
+		virtual Swapchain				  *CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) override;
 
 		virtual ShaderLanguage GetSupportedShaderFormat() override;
 		virtual float		   GetUVCorrection() override
