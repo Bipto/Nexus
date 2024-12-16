@@ -13,6 +13,7 @@
 	#include "ShaderModuleVk.hpp"
 	#include "TextureVk.hpp"
 	#include "TimingQueryVk.hpp"
+	#include "SwapchainVk.hpp"
 
 namespace Nexus::Graphics
 {
@@ -166,6 +167,11 @@ namespace Nexus::Graphics
 		capabilities.SupportsInstanceOffset		  = true;
 		capabilities.SupportsMultipleSwapchains	  = true;
 		return capabilities;
+	}
+
+	Swapchain *GraphicsDeviceVk::CreateSwapchain(IWindow *window, const SwapchainSpecification &spec)
+	{
+		return new SwapchainVk(window, this, spec);
 	}
 
 	ShaderLanguage GraphicsDeviceVk::GetSupportedShaderFormat()

@@ -28,6 +28,9 @@
 #include "Utils/FramerateMonitor.hpp"
 
 #include "Nexus-Core/Layers/LayerStack.hpp"
+#include "Nexus-Core/Types.hpp"
+
+#include "WindowInfo.hpp"
 
 #if defined(NX_PLATFORM_LINUX)
 struct XWindowInfo

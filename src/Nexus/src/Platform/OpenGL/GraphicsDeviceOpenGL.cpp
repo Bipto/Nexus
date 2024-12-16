@@ -10,6 +10,7 @@
 	#include "ShaderModuleOpenGL.hpp"
 	#include "TextureOpenGL.hpp"
 	#include "TimingQueryOpenGL.hpp"
+	#include "SwapchainOpenGL.hpp"
 
 namespace Nexus::Graphics
 {
@@ -163,6 +164,11 @@ namespace Nexus::Graphics
 	#endif
 
 		return capabilities;
+	}
+
+	Swapchain *GraphicsDeviceOpenGL::CreateSwapchain(IWindow *window, const SwapchainSpecification &spec)
+	{
+		return new SwapchainOpenGL(window, spec, this);
 	}
 
 	ShaderLanguage GraphicsDeviceOpenGL::GetSupportedShaderFormat()

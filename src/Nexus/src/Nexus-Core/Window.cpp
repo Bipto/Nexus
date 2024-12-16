@@ -43,7 +43,6 @@ namespace Nexus
 
 	IWindow::~IWindow()
 	{
-		delete m_Swapchain;
 		SDL_DestroyWindow(this->m_Window);
 	}
 
@@ -239,32 +238,7 @@ namespace Nexus
 
 	void IWindow::CreateSwapchain(Graphics::GraphicsDevice *device, const Graphics::SwapchainSpecification &swapchainSpec)
 	{
-		switch (device->GetGraphicsAPI())
-		{
-#if defined(NX_PLATFORM_OPENGL)
-			case Graphics::GraphicsAPI::OpenGL:
-			{
-				m_Swapchain = new Graphics::SwapchainOpenGL(this, swapchainSpec, device);
-				break;
-			}
-#endif
-#if defined(NX_PLATFORM_VULKAN)
-			case Graphics::GraphicsAPI::Vulkan:
-			{
-				m_Swapchain = new Graphics::SwapchainVk(this, device, swapchainSpec);
-				break;
-			}
-#endif
-#if defined(NX_PLATFORM_D3D12)
-			case Graphics::GraphicsAPI::D3D12:
-			{
-				m_Swapchain = new Graphics::SwapchainD3D12(this, device, swapchainSpec);
-				break;
-			}
-#endif
-
-			default: NX_ERROR("Failed to create swapchain"); throw std::runtime_error("Failed to create swapchain");
-		}
+		m_Swapchain = device->CreateSwapchain(this, swapchainSpec);
 	}
 
 	Graphics::Swapchain *IWindow::GetSwapchain()

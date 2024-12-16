@@ -46,6 +46,7 @@ namespace Nexus::Graphics
 			return -1.0f;
 		}
 		virtual const GraphicsCapabilities GetGraphicsCapabilities() const override;
+		virtual Swapchain				  *CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) override;
 		virtual bool					   IsUVOriginTopLeft() override
 		{
 			return true;

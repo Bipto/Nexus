@@ -354,7 +354,7 @@ namespace Nexus::Platform
 			if (const char *instanceName = SDL_GetKeyboardInstanceName(id))
 			{
 				std::string name = instanceName;
-				keyboards.emplace_back(sdlKeyboards[i], name);
+				keyboards.push_back(InputNew::Keyboard(sdlKeyboards[i], name));
 			}
 			else
 			{
@@ -381,7 +381,7 @@ namespace Nexus::Platform
 			if (const char *instanceName = SDL_GetMouseInstanceName(id))
 			{
 				std::string name = instanceName;
-				mice.emplace_back(sdlMice[i], name);
+				mice.push_back(InputNew::Mouse(sdlMice[i], name));
 			}
 			else
 			{
@@ -410,7 +410,7 @@ namespace Nexus::Platform
 				if (const char *instanceName = SDL_GetGamepadInstanceName(id))
 				{
 					std::string name = instanceName;
-					gamepads.emplace_back(sdlGamepads[i], name);
+					gamepads.push_back(InputNew::Gamepad(sdlGamepads[i], name));
 				}
 			}
 		}

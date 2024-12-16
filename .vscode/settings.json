@@ -100,7 +100,8 @@
         "cwctype": "cpp",
         "memory_resource": "cpp",
         "string_view": "cpp",
-        "semaphore": "cpp"
+        "semaphore": "cpp",
+        "cfenv": "cpp"
     },
     "cmake.loggingLevel": "info"
 }
