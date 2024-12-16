@@ -51,7 +51,7 @@ namespace Nexus::Graphics
 		virtual const GraphicsCapabilities GetGraphicsCapabilities() const override;
 
 		virtual ShaderLanguage GetSupportedShaderFormat() override;
-		virtual float		   GetUVCorrection()
+		virtual float		   GetUVCorrection() override
 		{
 			return -1.0f;
 		}
