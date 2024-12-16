@@ -28,7 +28,7 @@ namespace Nexus::Graphics
 		virtual Ref<Texture2D>	   CreateTexture2D(const Texture2DSpecification &spec) override;
 		virtual Ref<Cubemap>	   CreateCubemap(const CubemapSpecification &spec) override;
 		virtual Ref<Pipeline>	   CreatePipeline(const PipelineDescription &description) override;
-		virtual Ref<CommandList>   CreateCommandList(const CommandListSpecification &spec = {});
+		virtual Ref<CommandList>   CreateCommandList(const CommandListSpecification &spec = {}) override;
 		virtual Ref<VertexBuffer>  CreateVertexBuffer(const BufferDescription &description, const void *data) override;
 		virtual Ref<IndexBuffer>   CreateIndexBuffer(const BufferDescription &description,
 													 const void				 *data,
@@ -42,7 +42,7 @@ namespace Nexus::Graphics
 		virtual const GraphicsCapabilities GetGraphicsCapabilities() const override;
 
 		virtual ShaderLanguage GetSupportedShaderFormat() override;
-		virtual float		   GetUVCorrection()
+		virtual float		   GetUVCorrection() override
 		{
 			return 1.0f;
 		}

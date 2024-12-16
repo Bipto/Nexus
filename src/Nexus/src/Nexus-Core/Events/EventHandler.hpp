@@ -35,7 +35,8 @@ namespace Nexus
 		EventID Bind(EventFunction function)
 		{
 			EventID id = Utils::GetCurrentTimeAsInt();
-			m_EventFunctions.emplace_back(id, function);
+			BoundEvent event {.ID = id, .Func = function};
+			m_EventFunctions.push_back(event);
 			return id;
 		}
 
