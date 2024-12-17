@@ -84,9 +84,26 @@ jobs:
       - name: actions-setup-cmake
         uses: jwlawson/actions-setup-cmake@v2.0.2
 
-      - name: Configure CMake
+      - name: Configure CMake Clang
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+        if: matrix.c_compiler == 'clang'
+        run: >
+          cmake -B ${{ steps.strings.outputs.build-output-dir }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DCMAKE_SYSTEM_VERSION=10.0.20348.0
+          -DCMAKE_CXX_LINKER_FLAGS="-fuse-ld=lld"
+          -DCMAKE_C_LINKER_FLAGS="-fuse-ld=lld"
+          -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=lld"
+          -DCMAKE_SHARED_LINKER_FLAGS="-fuse-ld=lld"
+          -S ${{ github.workspace }}
+
+      - name: Configure CMake Default
+      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+        if: matrix.c_compiler != 'clang'
         run: >
           cmake -B ${{ steps.strings.outputs.build-output-dir }}
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
@@ -94,6 +111,7 @@ jobs:
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
           -DCMAKE_SYSTEM_VERSION=10.0.20348.0
           -S ${{ github.workspace }}
+
 
       - name: Build
         # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
