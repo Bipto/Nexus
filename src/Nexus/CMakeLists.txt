@@ -4,6 +4,60 @@ project ("Nexus")
 
 add_compile_definitions(IMGUI_DEFINE_MATH_OPERATORS)
 
+add_compile_definitions(NX_SYSTEM_NAME=${CMAKE_SYSTEM_NAME})
+add_compile_definitions(NX_BUILD_TYPE=${CMAKE_BUILD_TYPE})
+
+if (DEFINED NX_PLATFORM_OPENGL)
+    find_package(OpenGL REQUIRED)
+    add_compile_definitions(NX_PLATFORM_OPENGL)
+endif()
+
+if (DEFINED NX_PLATFORM_D3D12)
+    add_compile_definitions(NX_PLATFORM_D3D12)
+endif()
+
+if (DEFINED NX_PLATFORM_VULKAN)
+    find_package(Vulkan REQUIRED)
+    add_compile_definitions(NX_PLATFORM_VULKAN)
+endif()
+
+if (DEFINED NX_PLATFORM_WGL)
+    add_compile_definitions(NX_PLATFORM_WGL)
+endif()
+
+if (DEFINED NX_PLATFORM_EGL)
+    add_compile_definitions(NX_PLATFORM_EGL)
+endif()
+
+if (DEFINED NX_PLATFORM_WEBGL)
+    add_compile_definitions(NX_PLATFORM_WEBGL)
+endif()
+
+if (DEFINED NX_PLATFORM_GL_GLAD)
+    add_compile_definitions(NX_PLATFORM_GL_GLAD)
+endif()
+
+if (DEFINED NX_PLATFORM_OPENAL)
+    add_compile_definitions(NX_PLATFORM_OPENAL)
+endif()
+
+#platform specific configurations
+if (WIN32)
+    add_compile_definitions(NX_PLATFORM_WINDOWS)
+    add_compile_definitions(NX_PLATFORM_GL_DESKTOP)
+elseif(LINUX)
+    add_compile_definitions(NX_PLATFORM_LINUX)
+elseif(EMSCRIPTEN)
+    add_compile_definitions(NX_PLATFORM_WEB)
+endif()
+
+if (ANDROID)
+    add_compile_definitions(NX_PLATFORM_OPENGL)
+    add_compile_definitions(NX_PLATFORM_OPENAL)
+    add_compile_definitions(NX_PLATFORM_GL_GLAD)
+    add_compile_definitions(NX_PLATFORM_EGL)
+endif()
+
 #external dependencies
 add_subdirectory(external/SDL)
 add_subdirectory(external/glad)
@@ -42,51 +96,305 @@ if (WIN32 OR LINUX)
     set_target_properties(tinyfiledialogs PROPERTIES FOLDER "external")
 endif()
 
-#adds cpp and h files from engine
-file (GLOB_RECURSE ENGINE_HEADERS src/Nexus-Core/*.h)
-file (GLOB_RECURSE ENGINE_SOURCES 
- src/Nexus-Core/*.hpp
- src/Nexus-Core/*.cpp
- src/Nexus-Core/FileSystem/*.hpp
- src/Nexus-Core/FileSystem/*.cpp
- src/Nexus-Core/Graphics/*.hpp
- src/Nexus-Core/Graphics/*.cpp
- src/Nexus-Core/ImGui/*.hpp
- src/Nexus-Core/ImGui/*.cpp
- src/Nexus-Core/Input/*.hpp
- src/Nexus-Core/Input/*.cpp
- src/Nexus-Core/Logging/*.hpp
- src/Nexus-Core/Logging/*.cpp
- src/Nexus-Core/Renderer/*.hpp
- src/Nexus-Core/Renderer/*.cpp
- src/Nexus-Core/Runtime/*.hpp
- src/Nexus-Core/Runtime/*.cpp
- src/Nexus-Core/Runtime/ECS/*.hpp
- src/Nexus-Core/Runtime/ECS/*.cpp
- src/Nexus-Core/Layers/*.hpp
- src/Nexus-Core/Layers/*.cpp
- 
- src/Platform/*.hpp
- src/Platform/*.cpp
- src/Platform/Vulkan/*.hpp
- src/Platform/Vulkan/*.cpp
- src/Platform/OpenGL/*.hpp
- src/Platform/OpenGL/*.cpp
- src/Platform/OpenGL/WGL/*.hpp
- src/Platform/OpenGL/WGL/*.cpp
- src/Platform/OpenGL/WebGL/*.hpp
- src/Platform/OpenGL/WebGL/*.cpp
- src/Platform/D3D11/*.hpp
- src/Platform/D3D11/*.cpp
- src/Platform/D3D12/*.hpp
- src/Platform/D3D12/*.cpp
- src/Platform/SDL3/*.hpp
- src/Platform/SDL3/*.cpp
- src/Platform/Software/*.hpp
- src/Platform/Software/*.cpp
- )
+set (ENGINE_SOURCES
+  src/Nexus-Core/Application.cpp
+  src/Nexus-Core/Application.hpp
+  src/Nexus-Core/ApplicationSpecification.hpp
+  src/Nexus-Core/AssetManager.cpp
+  src/Nexus-Core/AssetManager.hpp
+  src/Nexus-Core/Buffer.hpp
+  src/Nexus-Core/EntryPoint.hpp
+  src/Nexus-Core/IView.hpp
+  src/Nexus-Core/Monitor.hpp
+  src/Nexus-Core/nxpch.cpp
+  src/Nexus-Core/nxpch.hpp
+  src/Nexus-Core/Platform.cpp
+  src/Nexus-Core/Platform.hpp
+  src/Nexus-Core/Point.hpp
+  src/Nexus-Core/Renderer.cpp
+  src/Nexus-Core/Renderer.hpp
+  src/Nexus-Core/Runtime.cpp
+  src/Nexus-Core/Runtime.hpp
+  src/Nexus-Core/Types.hpp
+  src/Nexus-Core/Vertex.cpp
+  src/Nexus-Core/Vertex.hpp
+  src/Nexus-Core/Window.cpp
+  src/Nexus-Core/Window.hpp
+  src/Nexus-Core/WindowInfo.hpp
+)
 
-add_library(Nexus ${ENGINE_HEADERS} ${ENGINE_SOURCES})
+list (APPEND ENGINE_SOURCES
+  src/Nexus-Core/Audio/AudioBuffer.hpp
+  src/Nexus-Core/Audio/AudioDevice.hpp
+  src/Nexus-Core/Audio/AudioSource.hpp)
+
+list (APPEND ENGINE_SOURCES
+  src/Nexus-Core/Events/EventHandler.hpp)
+
+list (APPEND ENGINE_SOURCES
+  src/Nexus-Core/FileSystem/FileDialogs.cpp
+  src/Nexus-Core/FileSystem/FileDialogs.hpp
+  src/Nexus-Core/FileSystem/FileSystem.cpp
+  src/Nexus-Core/FileSystem/FileSystem.hpp
+  src/Nexus-Core/FileSystem/FileSystemNew.hpp)
+
+list (APPEND ENGINE_SOURCES 
+  src/Nexus-Core/Graphics/CachedShader.hpp
+  src/Nexus-Core/Graphics/CachedTexture.hpp
+  src/Nexus-Core/Graphics/CatmullRom.hpp
+  src/Nexus-Core/Graphics/Circle.hpp
+  src/Nexus-Core/Graphics/Color.hpp
+  src/Nexus-Core/Graphics/CommandExecutor.cpp
+  src/Nexus-Core/Graphics/CommandExecutor.hpp
+  src/Nexus-Core/Graphics/CommandList.cpp
+  src/Nexus-Core/Graphics/CommandList.hpp
+  src/Nexus-Core/Graphics/Font.cpp
+  src/Nexus-Core/Graphics/Font.hpp
+  src/Nexus-Core/Graphics/Framebuffer.hpp
+  src/Nexus-Core/Graphics/FullscreenQuad.cpp
+  src/Nexus-Core/Graphics/FullscreenQuad.hpp
+  src/Nexus-Core/Graphics/GPUBuffer.hpp
+  src/Nexus-Core/Graphics/GraphicsCapabilities.hpp
+  src/Nexus-Core/Graphics/GraphicsDevice.cpp
+  src/Nexus-Core/Graphics/GraphicsDevice.hpp
+  src/Nexus-Core/Graphics/HdriProcessor.cpp
+  src/Nexus-Core/Graphics/HdriProcessor.hpp
+  src/Nexus-Core/Graphics/IResource.hpp
+  src/Nexus-Core/Graphics/Mesh.hpp
+  src/Nexus-Core/Graphics/MeshFactory.cpp
+  src/Nexus-Core/Graphics/MeshFactory.hpp
+  src/Nexus-Core/Graphics/MipmapGenerator.cpp
+  src/Nexus-Core/Graphics/MipmapGenerator.hpp
+  src/Nexus-Core/Graphics/Model.hpp
+  src/Nexus-Core/Graphics/Multisample.cpp
+  src/Nexus-Core/Graphics/Multisample.hpp
+  src/Nexus-Core/Graphics/Pipeline.hpp
+  src/Nexus-Core/Graphics/PixelFormat.hpp
+  src/Nexus-Core/Graphics/Polygon.hpp
+  src/Nexus-Core/Graphics/Rectangle.hpp
+  src/Nexus-Core/Graphics/RenderTarget.hpp
+  src/Nexus-Core/Graphics/ResourceSet.cpp
+  src/Nexus-Core/Graphics/ResourceSet.hpp
+  src/Nexus-Core/Graphics/RoundedRectangle.hpp
+  src/Nexus-Core/Graphics/Sampler.hpp
+  src/Nexus-Core/Graphics/SamplerState.hpp
+  src/Nexus-Core/Graphics/Scissor.hpp
+  src/Nexus-Core/Graphics/ShaderDataType.cpp
+  src/Nexus-Core/Graphics/ShaderDataType.hpp
+  src/Nexus-Core/Graphics/ShaderGenerator.cpp
+  src/Nexus-Core/Graphics/ShaderGenerator.hpp
+  src/Nexus-Core/Graphics/ShaderModule.hpp
+  src/Nexus-Core/Graphics/ShaderUtils.hpp
+  src/Nexus-Core/Graphics/stb.cpp
+  src/Nexus-Core/Graphics/Structures.hpp
+  src/Nexus-Core/Graphics/Swapchain.hpp
+  src/Nexus-Core/Graphics/Texture.cpp
+  src/Nexus-Core/Graphics/Texture.hpp
+  src/Nexus-Core/Graphics/TimingQuery.hpp
+  src/Nexus-Core/Graphics/Triangle.hpp
+  src/Nexus-Core/Graphics/Viewport.hpp
+  src/Nexus-Core/Graphics/WindingOrder.hpp)
+
+list (APPEND ENGINE_SOURCES
+  src/Nexus-Core/ImGui/ImGuiGraphicsRenderer.cpp
+  src/Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp
+  src/Nexus-Core/ImGui/ImGuiInclude.hpp  
+)
+
+list (APPEND ENGINE_SOURCES
+  src/Nexus-Core/Input/Event.hpp
+  src/Nexus-Core/Input/Gamepad.cpp
+  src/Nexus-Core/Input/Gamepad.hpp
+  src/Nexus-Core/Input/Input.cpp
+  src/Nexus-Core/Input/Input.hpp
+  src/Nexus-Core/Input/InputContext.cpp
+  src/Nexus-Core/Input/InputContext.hpp
+  src/Nexus-Core/Input/InputState.cpp
+  src/Nexus-Core/Input/InputState.hpp
+  src/Nexus-Core/Input/Keyboard.cpp
+  src/Nexus-Core/Input/Keyboard.hpp
+  src/Nexus-Core/Input/Mouse.cpp
+  src/Nexus-Core/Input/Mouse.hpp)
+
+list (APPEND ENGINE_SOURCES
+  src/Nexus-Core/Layers/Layer.hpp
+  src/Nexus-Core/Layers/LayerStack.cpp
+  src/Nexus-Core/Layers/LayerStack.hpp)
+
+list (APPEND ENGINE_SOURCES
+  src/Nexus-Core/Logging/Log.cpp
+  src/Nexus-Core/Logging/Log.hpp)
+
+list (APPEND ENGINE_SOURCES
+  src/Nexus-Core/Renderer/BatchRenderer.cpp
+  src/Nexus-Core/Renderer/BatchRenderer.hpp
+)
+
+list (APPEND ENGINE_SOURCES
+  src/Nexus-Core/Runtime/Camera.hpp
+  src/Nexus-Core/Runtime/Entity.cpp
+  src/Nexus-Core/Runtime/Entity.hpp
+  src/Nexus-Core/Runtime/Project.cpp
+  src/Nexus-Core/Runtime/Project.hpp
+  src/Nexus-Core/Runtime/Scene.cpp
+  src/Nexus-Core/Runtime/Scene.hpp)
+
+list (APPEND ENGINE_SOURCES
+  src/Nexus-Core/Timings/Clock.hpp
+  src/Nexus-Core/Timings/Profiler.cpp
+  src/Nexus-Core/Timings/Profiler.hpp
+  src/Nexus-Core/Timings/Timer.hpp
+  src/Nexus-Core/Timings/Timespan.hpp)
+
+list (APPEND ENGINE_SOURCES
+  src/Nexus-Core/UI/Canvas.hpp)
+
+list (APPEND ENGINE_SOURCES
+  src/Nexus-Core/Utils/FramerateMonitor.hpp
+  src/Nexus-Core/Utils/GUID.hpp
+  src/Nexus-Core/Utils/Utils.cpp
+  src/Nexus-Core/Utils/Utils.hpp)
+
+list (APPEND ENGINE_SOURCES
+  src/Platform/D3D12/BufferD3D12.cpp
+  src/Platform/D3D12/BufferD3D12.hpp
+  src/Platform/D3D12/CommandExecutorD3D12.cpp
+  src/Platform/D3D12/CommandExecutorD3D12.hpp
+  src/Platform/D3D12/CommandListD3D12.cpp
+  src/Platform/D3D12/CommandListD3D12.hpp
+  src/Platform/D3D12/D3D12Include.hpp
+  src/Platform/D3D12/D3D12Utils.cpp
+  src/Platform/D3D12/D3D12Utils.hpp
+  src/Platform/D3D12/FramebufferD3D12.cpp
+  src/Platform/D3D12/FramebufferD3D12.hpp
+  src/Platform/D3D12/GraphicsDeviceD3D12.cpp
+  src/Platform/D3D12/GraphicsDeviceD3D12.hpp
+  src/Platform/D3D12/PipelineD3D12.cpp
+  src/Platform/D3D12/PipelineD3D12.hpp
+  src/Platform/D3D12/ResourceSetD3D12.cpp
+  src/Platform/D3D12/ResourceSetD3D12.hpp
+  src/Platform/D3D12/SamplerD3D12.cpp
+  src/Platform/D3D12/SamplerD3D12.hpp
+  src/Platform/D3D12/ShaderModuleD3D12.cpp
+  src/Platform/D3D12/ShaderModuleD3D12.hpp
+  src/Platform/D3D12/SwapchainD3D12.cpp
+  src/Platform/D3D12/SwapchainD3D12.hpp
+  src/Platform/D3D12/TextureD3D12.cpp
+  src/Platform/D3D12/TextureD3D12.hpp
+  src/Platform/D3D12/TimingQueryD3D12.cpp
+  src/Platform/D3D12/TimingQueryD3D12.hpp)
+
+list (APPEND ENGINE_SOURCES
+  src/Platform/OpenAL/AudioBufferOpenAL.cpp
+  src/Platform/OpenAL/AudioBufferOpenAL.hpp
+  src/Platform/OpenAL/AudioDeviceOpenAL.cpp
+  src/Platform/OpenAL/AudioDeviceOpenAL.hpp
+  src/Platform/OpenAL/AudioSourceOpenAL.cpp
+  src/Platform/OpenAL/AudioSourceOpenAL.hpp
+  src/Platform/OpenAL/OpenAL.hpp)
+
+list (APPEND ENGINE_SOURCES
+  src/Platform/OpenGL/BufferOpenGL.cpp
+  src/Platform/OpenGL/BufferOpenGL.hpp
+  src/Platform/OpenGL/CommandExecutorOpenGL.cpp
+  src/Platform/OpenGL/CommandExecutorOpenGL.hpp
+  src/Platform/OpenGL/CommandListOpenGL.hpp
+  src/Platform/OpenGL/ContextSpecification.hpp
+  src/Platform/OpenGL/FramebufferOpenGL.cpp
+  src/Platform/OpenGL/FramebufferOpenGL.hpp
+  src/Platform/OpenGL/GL.cpp
+  src/Platform/OpenGL/GL.hpp
+  src/Platform/OpenGL/GraphicsDeviceOpenGL.cpp
+  src/Platform/OpenGL/GraphicsDeviceOpenGL.hpp
+  src/Platform/OpenGL/PipelineOpenGL.cpp
+  src/Platform/OpenGL/PipelineOpenGL.hpp
+  src/Platform/OpenGL/ResourceSetOpenGL.cpp
+  src/Platform/OpenGL/ResourceSetOpenGL.hpp
+  src/Platform/OpenGL/SamplerOpenGL.cpp
+  src/Platform/OpenGL/SamplerOpenGL.hpp
+  src/Platform/OpenGL/ShaderModuleOpenGL.cpp
+  src/Platform/OpenGL/ShaderModuleOpenGL.hpp
+  src/Platform/OpenGL/SwapchainOpenGL.cpp
+  src/Platform/OpenGL/SwapchainOpenGL.hpp
+  src/Platform/OpenGL/TextureOpenGL.cpp
+  src/Platform/OpenGL/TextureOpenGL.hpp
+  src/Platform/OpenGL/TimingQueryOpenGL.cpp
+  src/Platform/OpenGL/TimingQueryOpenGL.hpp)
+
+list (APPEND ENGINE_SOURCES
+  src/Platform/OpenGL/Context/IOffscreenContext.hpp
+  src/Platform/OpenGL/Context/IViewContext.hpp)
+
+list (APPEND ENGINE_SOURCES
+  src/Platform/OpenGL/Context/EGL/EGLUtils.hpp
+  src/Platform/OpenGL/Context/EGL/OffscreenContextEGL.cpp
+  src/Platform/OpenGL/Context/EGL/OffscreenContextEGL.hpp
+  src/Platform/OpenGL/Context/EGL/ViewContextEGL.cpp
+  src/Platform/OpenGL/Context/EGL/ViewContextEGL.hpp)
+
+list (APPEND ENGINE_SOURCES
+  src/Platform/OpenGL/Context/WebGL/OffscreenContextWebGL.cpp
+  src/Platform/OpenGL/Context/WebGL/OffscreenContextWebGL.hpp
+  src/Platform/OpenGL/Context/WebGL/ViewContextWebGL.cpp
+  src/Platform/OpenGL/Context/WebGL/ViewContextWebGL.hpp)
+
+list (APPEND ENGINE_SOURCES
+  src/Platform/OpenGL/Context/WGL/OffscreenContextWGL.cpp
+  src/Platform/OpenGL/Context/WGL/OffscreenContextWGL.hpp
+  src/Platform/OpenGL/Context/WGL/ViewContextWGL.cpp
+  src/Platform/OpenGL/Context/WGL/ViewContextWGL.hpp
+  )
+
+list (APPEND ENGINE_SOURCES
+  src/Platform/SDL3/SDL3Include.cpp
+  src/Platform/SDL3/SDL3Include.hpp
+  src/Platform/SDL3/SDL3Window.cpp
+  src/Platform/SDL3/SDL3Window.hpp
+  src/Platform/SDL3/SDLPlatform.cpp)
+
+list (APPEND ENGINE_SOURCES
+  src/Platform/Standard/FileSystemStandard.cpp)
+
+list (APPEND ENGINE_SOURCES
+  src/Platform/Vulkan/BufferVk.cpp
+  src/Platform/Vulkan/BufferVk.hpp
+  src/Platform/Vulkan/CommandExecutorVk.cpp
+  src/Platform/Vulkan/CommandExecutorVk.hpp
+  src/Platform/Vulkan/CommandListVk.cpp
+  src/Platform/Vulkan/CommandListVk.hpp
+  src/Platform/Vulkan/FramebufferVk.cpp
+  src/Platform/Vulkan/FramebufferVk.hpp
+  src/Platform/Vulkan/GraphicsDeviceVk.cpp
+  src/Platform/Vulkan/GraphicsDeviceVk.hpp
+  src/Platform/Vulkan/PipelineVk.cpp
+  src/Platform/Vulkan/PipelineVk.hpp
+  src/Platform/Vulkan/ResourceSetVk.cpp
+  src/Platform/Vulkan/ResourceSetVk.hpp
+  src/Platform/Vulkan/SamplerVk.cpp
+  src/Platform/Vulkan/SamplerVk.hpp
+  src/Platform/Vulkan/ShaderModuleVk.cpp
+  src/Platform/Vulkan/ShaderModuleVk.hpp
+  src/Platform/Vulkan/SwapchainVk.cpp
+  src/Platform/Vulkan/SwapchainVk.hpp
+  src/Platform/Vulkan/TextureVk.cpp
+  src/Platform/Vulkan/TextureVk.hpp
+  src/Platform/Vulkan/TimingQueryVk.cpp
+  src/Platform/Vulkan/TimingQueryVk.hpp
+  src/Platform/Vulkan/Vk.cpp
+  src/Platform/Vulkan/Vk.hpp)
+
+list (APPEND ENGINE_SOURCES
+  src/Platform/Windows/FileSystemWindows.cpp
+  src/Platform/Windows/WindowsInclude.hpp)
+
+list (APPEND ENGINE_SOURCES
+  src/Platform/X11/X11Include.hpp)
+
+if (WIN32)
+  add_library(Nexus ${ENGINE_SOURCES})
+else()
+  add_library(Nexus ${ENGINE_SOURCES})
+endif()
 
 #including dependencies
 target_include_directories(Nexus PUBLIC 

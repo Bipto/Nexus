@@ -24,6 +24,8 @@
 #include "Nexus-Core/nxpch.hpp"
 #include "Nexus.hpp"
 
+#include "Nexus-Core/FileSystem/FileSystemNew.hpp"
+
 struct DemoInfo
 {
 	std::string Name;
@@ -86,6 +88,15 @@ class DemoApplication : public Nexus::Application
 		std::string title = std::string("Demo - (") + std::string(Nexus::Platform::GetSystemName()) + std::string(":") +
 							std::string(Nexus::Platform::GetBuildConfiguration()) + std::string(")");
 		window->SetTitle(title);
+
+		const char		   *text = "Hello World";
+		Nexus::Buffer<char> textBuffer;
+		textBuffer.Count = strlen(text);
+		textBuffer.Data	 = new char[textBuffer.Count];
+		strcpy(textBuffer.Data, text);
+
+		// Nexus::FileSystemNew::WriteBufferToFile(textBuffer, "test.txt", Nexus::FileSystemNew::FileMode::Text);
+		Nexus::FileSystemNew::WriteBufferToFile(textBuffer, "test2.bin", Nexus::FileSystemNew::FileMode::Binary);
 	}
 
 	template<typename T>
