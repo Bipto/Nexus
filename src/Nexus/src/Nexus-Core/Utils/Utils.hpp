@@ -123,6 +123,9 @@ namespace Nexus::Utils
 		return hash;
 	}
 
+#define STRINGIFY(x) #x
+#define TOSTRING(x)	 STRINGIFY(x)
+
 }	 // namespace Nexus::Utils
 
 #define BIT(x) (1 << x)

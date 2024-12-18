@@ -30,6 +30,9 @@ namespace Nexus::Platform
 		Hand
 	};
 
+	const char *GetSystemName();
+	const char *GetBuildConfiguration();
+
 	void SetCursor(Cursor cursor);
 
 	std::vector<InputNew::Keyboard> GetKeyboards();

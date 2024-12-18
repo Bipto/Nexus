@@ -87,9 +87,8 @@ namespace Nexus::GL
 
 	bool Nexus::GL::ViewContextWebGL::MakeCurrent()
 	{
-		IOffscreenContext *context = m_Device->GetOffscreenContext();
-		context->MakeCurrent();
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		Ref<Graphics::FramebufferOpenGL> framebufferOpenGL = std::dynamic_pointer_cast<Graphics::FramebufferOpenGL>(m_Framebuffer);
+		framebufferOpenGL->BindAsDrawBuffer();
 		return true;
 	}
 
@@ -120,9 +119,6 @@ namespace Nexus::GL
 		glEnable(GL_SCISSOR_TEST);
 		glViewport(x, y, width, height);
 		glScissor(x, y, width, height);
-
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
 
 		glBlitFramebuffer(0, 0, textureWidth, textureHeight, x, y, x + width, y + height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 	}

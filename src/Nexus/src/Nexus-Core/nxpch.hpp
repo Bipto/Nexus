@@ -25,7 +25,7 @@
 #include <random>
 #include <set>
 
-#if defined(__clang__)
+#if defined(__clang__) && !defined(__EMSCRIPTEN__)
 	#include <experimental/source_location>
 using source_location = std::experimental::source_location;
 #else

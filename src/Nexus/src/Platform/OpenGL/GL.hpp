@@ -66,7 +66,6 @@ namespace Nexus::GL
 		NX_ERROR(message);                                                                                                                           \
 	}
 
-#define NX_GL_DEBUG
 #if defined(NX_GL_DEBUG)
 	#define glCall(x)                                                                                                                                \
 		glClearErrors();                                                                                                                             \

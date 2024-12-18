@@ -82,6 +82,10 @@ class DemoApplication : public Nexus::Application
 		m_CommandList = m_GraphicsDevice->CreateCommandList();
 
 		Nexus::IWindow *window = m_GraphicsDevice->GetPrimaryWindow();
+
+		std::string title = std::string("Demo - (") + std::string(Nexus::Platform::GetSystemName()) + std::string(":") +
+							std::string(Nexus::Platform::GetBuildConfiguration()) + std::string(")");
+		window->SetTitle(title);
 	}
 
 	template<typename T>

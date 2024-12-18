@@ -171,6 +171,7 @@ namespace Nexus::Graphics
 		{
 			case CullMode::Back: glCall(glCullFace(GL_BACK)); break;
 			case CullMode::Front: glCall(glCullFace(GL_FRONT)); break;
+			default: glCall(glCullFace(GL_FRONT_AND_BACK)); break;
 		}
 
 	#if !defined(__ANDROID__) && !defined(ANDROID) && !defined(__EMSCRIPTEN__)

@@ -62,7 +62,7 @@ namespace Nexus
 
 		/// @brief Copying a window is not supported
 		/// @param A const reference to a window
-		IWindow(const Window &) = delete;
+		IWindow(const IWindow &) = delete;
 
 		/// @brief A destructor to allow resources to be freed
 		~IWindow();
