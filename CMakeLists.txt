@@ -27,6 +27,15 @@ if (DEFINED NX_PLATFORM_WGL)
     add_compile_definitions(NX_PLATFORM_WGL)
 endif()
 
+if (DEFINED NX_PLATFORM_EGL)
+    add_compile_definitions(NX_PLATFORM_EGL)
+endif()
+
+if (DEFINED NX_PLATFORM_WEBGL)
+    add_compile_definitions(NX_PLATFORM_WEBGL)
+endif()
+
+
 if (DEFINED NX_PLATFORM_GL_GLAD)
     add_compile_definitions(NX_PLATFORM_GL_GLAD)
 endif()
@@ -45,11 +54,7 @@ elseif(EMSCRIPTEN)
     add_compile_definitions(NX_PLATFORM_WEB)
 endif()
 
-if (EMSCRIPTEN)
-    add_compile_definitions(NX_PLATFORM_OPENGL)
-    add_compile_definitions(NX_PLATFORM_WEBGL)
-    add_compile_definitions(NX_PLATFORM_OPENAL)
-elseif (ANDROID)
+if (ANDROID)
     add_compile_definitions(NX_PLATFORM_OPENGL)
     add_compile_definitions(NX_PLATFORM_OPENAL)
     add_compile_definitions(NX_PLATFORM_GL_GLAD)

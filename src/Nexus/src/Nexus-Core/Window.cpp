@@ -137,10 +137,13 @@ namespace Nexus
 
 	void IWindow::SetIsMouseVisible(bool visible)
 	{
-		switch (visible)
+		if (visible)
 		{
-			case true: SDL_ShowCursor(); break;
-			case false: SDL_HideCursor(); break;
+			SDL_ShowCursor();
+		}
+		else
+		{
+			SDL_HideCursor();
 		}
 	}
 
