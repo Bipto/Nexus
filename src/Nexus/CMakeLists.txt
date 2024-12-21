@@ -1,15 +1,48 @@
 cmake_minimum_required(VERSION 3.16)
 
+add_subdirectory(cmake)
 project ("Nexus")
 
 add_compile_definitions(IMGUI_DEFINE_MATH_OPERATORS)
 
 add_compile_definitions(NX_SYSTEM_NAME=${CMAKE_SYSTEM_NAME})
 add_compile_definitions(NX_BUILD_TYPE=${CMAKE_BUILD_TYPE})
+add_compile_definitions(NX_SYSTEM_PROCESSOR=${CMAKE_HOST_SYSTEM_PROCESSOR})
+
+set(NEXUS_INCLUDE_DIRS "")
+set(NEXUS_LINKED_LIBRARIES "")
+
+if (NOT EMSCRIPTEN)
+  list (APPEND NEXUS_INCLUDE_DIRS external/tinyfiledialogs/tinyfiledialogs)
+  list (APPEND NEXUS_LINKED_LIBRARIES tinyfiledialogs)
+endif()
 
 if (DEFINED NX_PLATFORM_OPENGL)
-    find_package(OpenGL REQUIRED)
-    add_compile_definitions(NX_PLATFORM_OPENGL)
+  find_package(OpenGL REQUIRED)
+  add_compile_definitions(NX_PLATFORM_OPENGL)
+
+  if (WIN32)
+      add_compile_definitions(NX_PLATFORM_WGL)
+      add_compile_definitions(NX_PLATFORM_GL_GLAD)
+      add_compile_definitions(NX_PLATFORM_GL_DESKTOP)
+      add_subdirectory(external/glad_wgl)
+      list(APPEND NEXUS_LINKED_LIBRARIES glad_wgl)
+  elseif(LINUX OR ANDROID OR __ANDROID__)
+    if (LINUX)
+      add_compile_definitions(NX_PLATFORM_GL_DESKTOP)
+    endif()
+
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(EGL REQUIRED egl)
+    add_compile_definitions(NX_PLATFORM_EGL)
+    add_compile_definitions(NX_PLATFORM_GL_GLAD)
+    list (APPEND NEXUS_INCLUDE_DIRS ${EGL_INCLUDE_DIRS})
+    list(APPEND NEXUS_LINKED_LIBRARIES glad_egl ${EGL_LIBRARIES})
+    add_subdirectory(external/glad_egl)
+  elseif (EMSCRIPTEN)
+      add_compile_definitions(NX_PLATFORM_WEBGL)
+  endif()
+
 endif()
 
 if (DEFINED NX_PLATFORM_D3D12)
@@ -17,59 +50,40 @@ if (DEFINED NX_PLATFORM_D3D12)
 endif()
 
 if (DEFINED NX_PLATFORM_VULKAN)
-    find_package(Vulkan REQUIRED)
-    add_compile_definitions(NX_PLATFORM_VULKAN)
-endif()
+  add_compile_definitions(NX_PLATFORM_VULKAN)
+  find_package(Vulkan REQUIRED)
+  add_subdirectory(external/VulkanMemoryAllocator)
+  set_target_properties(VulkanMemoryAllocator PROPERTIES FOLDER "external")
+  set_target_properties(VulkanMemoryAllocator PROPERTIES CXX_STANDARD 20 CXX_EXTENSIONS OFF)
 
-if (DEFINED NX_PLATFORM_WGL)
-    add_compile_definitions(NX_PLATFORM_WGL)
-endif()
-
-if (DEFINED NX_PLATFORM_EGL)
-    add_compile_definitions(NX_PLATFORM_EGL)
-endif()
-
-if (DEFINED NX_PLATFORM_WEBGL)
-    add_compile_definitions(NX_PLATFORM_WEBGL)
-endif()
-
-if (DEFINED NX_PLATFORM_GL_GLAD)
-    add_compile_definitions(NX_PLATFORM_GL_GLAD)
+  list(APPEND NEXUS_LINKED_LIBRARIES Vulkan::Vulkan VulkanMemoryAllocator)
+  list (APPEND NEXUS_INCLUDE_DIRS ${VULKAN_INCLUDE_DIRS} external/VulkanMemoryAllocator/include)
 endif()
 
 if (DEFINED NX_PLATFORM_OPENAL)
     add_compile_definitions(NX_PLATFORM_OPENAL)
+
+    if (NOT EMSCRIPTEN)
+      nexus_add_shared_library("external/OpenAL-Soft")
+      list (APPEND NEXUS_LINKED_LIBRARIES OpenAL)
+    endif()
+    
 endif()
 
 #platform specific configurations
 if (WIN32)
     add_compile_definitions(NX_PLATFORM_WINDOWS)
-    add_compile_definitions(NX_PLATFORM_GL_DESKTOP)
 elseif(LINUX)
     add_compile_definitions(NX_PLATFORM_LINUX)
 elseif(EMSCRIPTEN)
     add_compile_definitions(NX_PLATFORM_WEB)
-endif()
+elseif(ANDROID)
 
-if (ANDROID)
-    add_compile_definitions(NX_PLATFORM_OPENGL)
-    add_compile_definitions(NX_PLATFORM_OPENAL)
-    add_compile_definitions(NX_PLATFORM_GL_GLAD)
-    add_compile_definitions(NX_PLATFORM_EGL)
 endif()
 
 #external dependencies
 add_subdirectory(external/SDL)
 add_subdirectory(external/glad)
-
-if (WIN32)
-  add_subdirectory(external/glad_wgl)
-endif()
-
-if(ANDROID OR __ANDROID__ OR LINUX)
-  add_subdirectory(external/glad_egl)
-endif()
-
 add_subdirectory(external/glm)
 add_subdirectory(external/imgui)
 add_subdirectory(external/glslang)
@@ -81,13 +95,7 @@ add_subdirectory(external/libnyquist)
 add_subdirectory(external/freetype)
 add_subdirectory(external/pocketpy)
 add_subdirectory(external/yaml-cpp)
-
-if (WIN32 OR LINUX)
-    add_subdirectory(external/VulkanMemoryAllocator)
-    set_target_properties(VulkanMemoryAllocator PROPERTIES FOLDER "external")
-    set_target_properties(VulkanMemoryAllocator PROPERTIES CXX_STANDARD 20
-      CXX_EXTENSIONS OFF)
-endif()
+nexus_add_shared_library("external/assimp")
 
 #these libraries are only required if we are not building for emscripten
 #this is because these libraries are incompatible with emscripten
@@ -353,9 +361,6 @@ list (APPEND ENGINE_SOURCES
   src/Platform/SDL3/SDLPlatform.cpp)
 
 list (APPEND ENGINE_SOURCES
-  src/Platform/Standard/FileSystemStandard.cpp)
-
-list (APPEND ENGINE_SOURCES
   src/Platform/Vulkan/BufferVk.cpp
   src/Platform/Vulkan/BufferVk.hpp
   src/Platform/Vulkan/CommandExecutorVk.cpp
@@ -390,39 +395,41 @@ list (APPEND ENGINE_SOURCES
 list (APPEND ENGINE_SOURCES
   src/Platform/X11/X11Include.hpp)
 
-if (WIN32)
-  add_library(Nexus ${ENGINE_SOURCES})
-else()
-  add_library(Nexus ${ENGINE_SOURCES})
-endif()
+add_library(Nexus ${ENGINE_SOURCES})
+nexus_setup_filters(${ENGINE_SOURCES})
 
 #including dependencies
-target_include_directories(Nexus PUBLIC 
-  external/glm
-  external/stb
-  external/assimp/include
-  external/json/single_include
-  external/OpenAL-Soft/include
-  external/shaderc/libshaderc
-  external/libnyquist/include
-  external/SPIRV-Cross/include
-  external/SPIRV-Reflect
-  external/Freetype/include
-  external/pocketpy/include
-  external/yaml-cpp/include
-  binaries/dxc_2023_08_14/inc
-  )
+list (APPEND NEXUS_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src)
+list (APPEND NEXUS_INCLUDE_DIRS external/SDL/include/SDL3)
+list (APPEND NEXUS_INCLUDE_DIRS external/glm)
+list (APPEND NEXUS_INCLUDE_DIRS external/stb)
+list (APPEND NEXUS_INCLUDE_DIRS external/assimip/include)
+list (APPEND NEXUS_INCLUDE_DIRS external/json/single_include)
+list (APPEND NEXUS_INCLUDE_DIRS external/OpenAL-Soft/include)
+list (APPEND NEXUS_INCLUDE_DIRS external/shaderc/libshaderc)
+list (APPEND NEXUS_INCLUDE_DIRS external/libnyquist/include)
+list (APPEND NEXUS_INCLUDE_DIRS external/SPIRV-Cross/include)
+list (APPEND NEXUS_INCLUDE_DIRS external/SPIRV-Reflect)
+list (APPEND NEXUS_INCLUDE_DIRS external/Freetype/include)
+list (APPEND NEXUS_INCLUDE_DIRS external/pocketpy/include)
+list (APPEND NEXUS_INCLUDE_DIRS external/yaml-cpp/include)
+list (APPEND NEXUS_INCLUDE_DIRS binaries/dxc_2023_08_14/inc)
+target_include_directories(Nexus PUBLIC ${NEXUS_INCLUDE_DIRS})
 
-#dependencies when not building with emscripten
-if (WIN32 OR LINUX)
-  target_include_directories(Nexus PUBLIC
-    external/tinyfiledialogs/tinyfiledialogs
-    ${VULKAN_INCLUDE_DIRS}
-    external/VulkanMemoryAllocator/include)
-endif()
-
-#add the engines headers to the include path
-target_include_directories(Nexus PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+list (APPEND NEXUS_LINKED_LIBRARIES ${OPENGL_LIBRARIES})
+list (APPEND NEXUS_LINKED_LIBRARIES SDL3::SDL3)
+list (APPEND NEXUS_LINKED_LIBRARIES glad)
+list (APPEND NEXUS_LINKED_LIBRARIES assimp)
+list (APPEND NEXUS_LINKED_LIBRARIES imgui)
+list (APPEND NEXUS_LINKED_LIBRARIES imguizmo)
+list (APPEND NEXUS_LINKED_LIBRARIES shaderc)
+list (APPEND NEXUS_LINKED_LIBRARIES libnyquist)
+list (APPEND NEXUS_LINKED_LIBRARIES spirv-cross-cpp)
+list (APPEND NEXUS_LINKED_LIBRARIES spirv-cross-hlsl)
+list (APPEND NEXUS_LINKED_LIBRARIES pocketpy)
+list (APPEND NEXUS_LINKED_LIBRARIES freetype)
+list (APPEND NEXUS_LINKED_LIBRARIES yaml-cpp::yaml-cpp)
+target_link_libraries(Nexus PUBLIC ${NEXUS_LINKED_LIBRARIES})
 
 #precompiled header
 target_precompile_headers(Nexus PUBLIC src/Nexus-Core/nxpch.hpp)
@@ -436,17 +443,6 @@ if (EMSCRIPTEN)
         "--std=c++20 -O3 -flto -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sFULL_ES2=1 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS -sNO_DISABLE_EXCEPTION_CATCHING -lopenal -lembind -sGL_ENABLE_GET_PROC_ADDRESS"
     )
 endif()
-
-#include libraries to be built dynamically
-set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
-add_definitions(-DLIBTYPE=SHARED)
-add_subdirectory(external/assimp)
-if (WIN32 OR ANDROID OR LINUX)
-    add_subdirectory(external/OpenAL-Soft)
-    set_target_properties(OpenAL PROPERTIES FOLDER "src/Nexus/external")
-endif()
-remove_definitions(-DLIBTYPE)
-set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
 set_target_properties(SDL3-static SDL3_test PROPERTIES FOLDER "src/Nexus/external")
 set_target_properties(glad PROPERTIES FOLDER "src/Nexus/external")
@@ -471,82 +467,4 @@ set_target_properties(pocketpy PROPERTIES FOLDER "src/Nexus/external")
 set_target_properties(yaml-cpp yaml-cpp-parse yaml-cpp-read yaml-cpp-sandbox PROPERTIES FOLDER "src/Nexus/external")
 set_target_properties(assimp PROPERTIES FOLDER "src/Nexus/external")
 
-#linking dependencies
-target_link_libraries(Nexus PUBLIC
-  ${OPENGL_LIBRARIES}
-  SDL3::SDL3
-  glad
-  assimp
-  imgui
-  imguizmo
-  shaderc
-  libnyquist
-  spirv-cross-cpp
-  spirv-cross-hlsl
-  pocketpy
-  freetype
-  yaml-cpp::yaml-cpp
-)
-
-if (WIN32)
-  target_link_libraries(Nexus PUBLIC glad_wgl)
-endif()
-
-if (ANDROID OR __ANDROID__ OR LINUX)
-  find_package(PkgConfig REQUIRED)
-  pkg_check_modules(EGL REQUIRED egl)
-
-  target_link_libraries(Nexus PUBLIC glad_egl)
-  target_include_directories(Nexus PUBLIC ${EGL_INCLUDE_DIRS})
-  target_link_libraries(Nexus PUBLIC ${EGL_LIBRARIES})
-endif()
-
-if (LINUX)
-  find_package(X11 REQUIRED)
-  target_link_libraries(Nexus PUBLIC ${X11_LIBRARIES})
-  include_directories(${X11_INCLUDE_DIR})
-endif()
-
-if(WIN32 OR LINUX)
-target_link_libraries(Nexus PUBLIC 
-  tinyfiledialogs
-  Vulkan::Vulkan
-  VulkanMemoryAllocator
-  )
-endif()
-
-if(WIN32 OR ANDROID OR LINUX)
-target_link_libraries(Nexus PUBLIC OpenAL)
-endif()
-
-macro (nexus_copy_resources)
-  #copy engine resources to output
-  get_target_property(Nexus_SOURCE_DIR Nexus SOURCE_DIR)
-
-  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${Nexus_SOURCE_DIR}/resources/engine
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/resources/engine)
-
-  message($<TARGET_FILE_DIR:${PROJECT_NAME}>/resources/engine)
-endmacro()
-
-macro(nexus_copy_required_binaries)
-  if (WIN32)
-    get_target_property(Nexus_SOURCE_DIR Nexus SOURCE_DIR)
-
-    add_custom_command(
-      TARGET ${PROJECT_NAME} POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy
-          ${Nexus_SOURCE_DIR}/binaries/dxc_2023_08_14/bin/x64/dxcompiler.dll
-          $<TARGET_FILE_DIR:${PROJECT_NAME}>
-  )
-
-  add_custom_command(
-      TARGET ${PROJECT_NAME} POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy
-          ${Nexus_SOURCE_DIR}/binaries/dxc_2023_08_14/bin/x64/dxil.dll
-          $<TARGET_FILE_DIR:${PROJECT_NAME}>
-    )
-  endif()
-endmacro()
+nexus_structure_folders()

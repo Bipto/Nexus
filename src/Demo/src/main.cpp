@@ -85,8 +85,9 @@ class DemoApplication : public Nexus::Application
 
 		Nexus::IWindow *window = m_GraphicsDevice->GetPrimaryWindow();
 
-		std::string title = std::string("Demo - (") + std::string(Nexus::Platform::GetSystemName()) + std::string(":") +
-							std::string(Nexus::Platform::GetBuildConfiguration()) + std::string(")");
+		std::string title = std::string("Demo - ") + std::string(Nexus::Platform::GetSystemName()) + std::string(":") +
+							std::string(Nexus::Platform::GetBuildConfiguration()) + std::string("(") +
+							std::string(Nexus::Platform::GetProcessorType()) + std::string(")");
 		window->SetTitle(title);
 
 		const char		   *text = "Hello World";

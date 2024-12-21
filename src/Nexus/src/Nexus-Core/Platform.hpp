@@ -32,6 +32,7 @@ namespace Nexus::Platform
 
 	const char *GetSystemName();
 	const char *GetBuildConfiguration();
+	const char *GetProcessorType();
 
 	void SetCursor(Cursor cursor);
 

@@ -14,4 +14,9 @@ namespace Nexus::Platform
 		return TOSTRING(NX_BUILD_TYPE);
 	}
 
+	const char *GetProcessorType()
+	{
+		return TOSTRING(NX_SYSTEM_PROCESSOR);
+	}
+
 }	 // namespace Nexus::Platform
