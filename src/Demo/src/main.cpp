@@ -90,7 +90,7 @@ class DemoApplication : public Nexus::Application
 		window->SetTitle(title);
 
 		std::string text = "Hello World";
-		Nexus::FileSystemNew::WriteBufferToFile(text.data(), text.length(), "test.txt", Nexus::FileSystemNew::FileMode::Text);
+		Nexus::FileSystemNew::WriteStringToFile(text, "hello.txt");
 	}
 
 	template<typename T>

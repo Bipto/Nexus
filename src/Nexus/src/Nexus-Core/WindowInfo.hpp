@@ -7,6 +7,7 @@ namespace Nexus
 	struct WindowInfo
 	{
 		HWND hwnd = {};
+		HINSTANCE instance = {};
 	};
 #elif defined(NX_PLATFORM_LINUX)
 	#include "Platform/X11/X11Include.hpp"
@@ -19,7 +20,9 @@ namespace Nexus
 	#include <string>
 	struct WindowInfo
 	{
-		const char *id = {};
+		const std::string id = {};
 	};
+#else
+	#error Unknown platform
 #endif
 }	 // namespace Nexus

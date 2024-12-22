@@ -2,7 +2,7 @@
 
 namespace Nexus::FileSystemNew
 {
-	void WriteBufferToFile(void *data, size_t size, const std::string &filepath, FileMode mode)
+	void CreateDirectoriesIfNeeded(const std::string &filepath)
 	{
 		std::filesystem::path path		= {filepath};
 		std::filesystem::path directory = path.parent_path();
@@ -14,20 +14,19 @@ namespace Nexus::FileSystemNew
 				std::filesystem::create_directories(directory);
 			}
 		}
+	}
+
+	void WriteStringToFile(const std::string &data, const std::string &filepath)
+	{
+		CreateDirectoriesIfNeeded(filepath);
 
 		std::ios_base::openmode openMode = std::ofstream::out;
-
-		if (mode == FileMode::Binary)
-		{
-			openMode |= std::ofstream::binary;
-		}
-
-		std::ofstream out(filepath, openMode);
-		out.write((const char *)data, size);
+		std::ofstream			out(filepath, openMode);
+		out.write(data.data(), data.length());
 		out.close();
 	}
 
-	std::vector<char> ReadBufferFromFile(const std::string &filepath, FileMode mode)
+	std::string ReadStringFromFile(const std::string &filepath)
 	{
 		if (!std::filesystem::exists(filepath))
 		{
@@ -36,14 +35,33 @@ namespace Nexus::FileSystemNew
 			return {};
 		}
 
-		std::ios_base::openmode openMode = std::ifstream::in;
+		std::ifstream	  stream(filepath);
+		std::stringstream buffer;
+		buffer << stream.rdbuf();
+		return buffer.str();
+	}
 
-		if (mode == FileMode::Binary)
+	void WriteBufferToFile(void *data, size_t size, const std::string &filepath)
+	{
+		CreateDirectoriesIfNeeded(filepath);
+
+		std::ios_base::openmode openMode = std::ofstream::out | std::ofstream::binary;
+		std::ofstream			out(filepath, openMode);
+		out.write((const char *)data, size);
+		out.close();
+	}
+
+	std::vector<char> ReadBufferFromFile(const std::string &filepath)
+	{
+		if (!std::filesystem::exists(filepath))
 		{
-			openMode |= std::ifstream::binary;
+			std::string message = "File " + filepath + " does not exist!";
+			NX_ERROR(message);
+			return {};
 		}
 
-		std::ifstream in(filepath, openMode);
+		std::ios_base::openmode openMode = std::ifstream::in | std::ifstream::binary;
+		std::ifstream			in(filepath, openMode);
 
 		in.seekg(0, std::ios::end);
 		std::streamsize size = in.tellg();

@@ -4,12 +4,9 @@
 
 namespace Nexus::FileSystemNew
 {
-	enum class FileMode
-	{
-		Binary,
-		Text
-	};
+	void		WriteStringToFile(const std::string &data, const std::string &filepath);
+	std::string ReadStringFromFile(const std::string &filepath);
 
-	void			  WriteBufferToFile(void *data, size_t size, const std::string &filepath, FileMode mode);
-	std::vector<char> ReadBufferFromFile(const std::string &filepath, FileMode mode);
+	void			  WriteBufferToFile(void *data, size_t size, const std::string &filepath);
+	std::vector<char> ReadBufferFromFile(const std::string &filepath);
 }	 // namespace Nexus::FileSystemNew

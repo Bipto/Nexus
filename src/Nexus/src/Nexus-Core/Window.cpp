@@ -302,6 +302,12 @@ namespace Nexus
 		SDL_SetRelativeMouseMode(enabled);
 	}
 
+	WindowInfo IWindow::GetWindowInfo()
+	{
+		WindowInfo info = {};
+		return info;
+	}
+
 #if defined(NX_PLATFORM_WINDOWS)
 	const HWND IWindow::GetHwnd() const
 	{

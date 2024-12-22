@@ -181,6 +181,8 @@ namespace Nexus
 		void SetTicksPerSecond(uint32_t amount);
 		void SetRelativeMouseMode(bool enabled);
 
+		WindowInfo GetWindowInfo();
+
 #if defined(NX_PLATFORM_WINDOWS)
 		const HWND GetHwnd() const;
 #endif
