@@ -73,3 +73,19 @@ macro(nexus_structure_folders)
     endif()
   endforeach()
 endmacro()
+
+#macro(nexus_disable_warnings_for_dependencies)
+#  get_all_targets(all_targets)
+#  foreach (_target IN LISTS all_targets)
+#    if (NOT _target STREQUAL "Nexus")
+#      set_target_properties(${_target} PROPERTIES FOLDER "external")
+#      get_target_property(target_type ${_target} TYPE)
+#      if (target_type STREQUAL "EXECUTABLE" OR
+#        target_type STREQUAL "STATIC_LIBRARY" OR
+#        target_type STREQUAL "SHARED_LIBRARY" OR
+#        target_type STREQUAL "MODULE_LIBRARY")
+#        target_compile_options(${_target} PUBLIC "-w" "")
+#      endif()
+#    endif()
+#  endforeach()
+#endmacro()

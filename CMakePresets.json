@@ -13,8 +13,6 @@
                 "NX_PLATFORM_OPENGL": "1",
                 "NX_PLATFORM_D3D12": "1",
                 "NX_PLATFORM_VULKAN": "1",
-                "NX_PLATFORM_WGL": "1",
-                "NX_PLATFORM_GL_GLAD": "1",
                 "NX_PLATFORM_OPENAL": "1"
             },
             "condition": {

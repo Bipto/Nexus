@@ -6,7 +6,6 @@ project ("Nexus")
 add_compile_definitions(IMGUI_DEFINE_MATH_OPERATORS)
 
 add_compile_definitions(NX_SYSTEM_NAME=${CMAKE_SYSTEM_NAME})
-add_compile_definitions(NX_BUILD_TYPE=${CMAKE_BUILD_TYPE})
 add_compile_definitions(NX_SYSTEM_PROCESSOR=${CMAKE_HOST_SYSTEM_PROCESSOR})
 
 set(NEXUS_INCLUDE_DIRS "")
@@ -53,8 +52,7 @@ if (DEFINED NX_PLATFORM_VULKAN)
   add_compile_definitions(NX_PLATFORM_VULKAN)
   find_package(Vulkan REQUIRED)
   add_subdirectory(external/VulkanMemoryAllocator)
-  set_target_properties(VulkanMemoryAllocator PROPERTIES FOLDER "external")
-  set_target_properties(VulkanMemoryAllocator PROPERTIES CXX_STANDARD 20 CXX_EXTENSIONS OFF)
+  #set_target_properties(VulkanMemoryAllocator PROPERTIES CXX_STANDARD 20 CXX_EXTENSIONS OFF)
 
   list(APPEND NEXUS_LINKED_LIBRARIES Vulkan::Vulkan VulkanMemoryAllocator)
   list (APPEND NEXUS_INCLUDE_DIRS ${VULKAN_INCLUDE_DIRS} external/VulkanMemoryAllocator/include)
@@ -101,7 +99,6 @@ nexus_add_shared_library("external/assimp")
 #this is because these libraries are incompatible with emscripten
 if (WIN32 OR LINUX)
     add_subdirectory(external/tinyfiledialogs)
-    set_target_properties(tinyfiledialogs PROPERTIES FOLDER "external")
 endif()
 
 set (ENGINE_SOURCES
@@ -414,7 +411,7 @@ list (APPEND NEXUS_INCLUDE_DIRS external/Freetype/include)
 list (APPEND NEXUS_INCLUDE_DIRS external/pocketpy/include)
 list (APPEND NEXUS_INCLUDE_DIRS external/yaml-cpp/include)
 list (APPEND NEXUS_INCLUDE_DIRS binaries/dxc_2023_08_14/inc)
-target_include_directories(Nexus PUBLIC ${NEXUS_INCLUDE_DIRS})
+target_include_directories(Nexus PUBLIC SYSTEM ${NEXUS_INCLUDE_DIRS})
 
 list (APPEND NEXUS_LINKED_LIBRARIES ${OPENGL_LIBRARIES})
 list (APPEND NEXUS_LINKED_LIBRARIES SDL3::SDL3)
@@ -444,27 +441,5 @@ if (EMSCRIPTEN)
     )
 endif()
 
-set_target_properties(SDL3-static SDL3_test PROPERTIES FOLDER "src/Nexus/external")
-set_target_properties(glad PROPERTIES FOLDER "src/Nexus/external")
-
-if (WIN32)
-  set_target_properties(glad_wgl PROPERTIES FOLDER "src/Nexus/external")
-endif()
-
-set_target_properties(imgui PROPERTIES FOLDER "src/Nexus/external")
-set_target_properties(imguizmo PROPERTIES FOLDER "src/Nexus/external")
-set_target_properties(glslc glslc_exe PROPERTIES FOLDER "src/Nexus/external")
-set_target_properties(spirv-cross-c spirv-cross-core spirv-cross-cpp
-    spirv-cross-glsl spirv-cross-hlsl spirv-cross-msl spirv-cross-reflect
-    spirv-tools-pkg-config spirv-tools-shared-pkg-config
-    PROPERTIES FOLDER "src/Nexus/external")
-set_target_properties(shaderc_shared shaderc_static-pkg-config shaderc_util shaderc-pkg-config
-    shaderc shaderc_combined_genfile shaderc_combined-pkg-config
-    PROPERTIES FOLDER "src/Nexus/external")
-set_target_properties(libnyquist PROPERTIES FOLDER "src/Nexus/external")
-set_target_properties(freetype PROPERTIES FOLDER "src/Nexus/external")
-set_target_properties(pocketpy PROPERTIES FOLDER "src/Nexus/external")
-set_target_properties(yaml-cpp yaml-cpp-parse yaml-cpp-read yaml-cpp-sandbox PROPERTIES FOLDER "src/Nexus/external")
-set_target_properties(assimp PROPERTIES FOLDER "src/Nexus/external")
-
 nexus_structure_folders()
+#nexus_disable_warnings_for_dependencies()
