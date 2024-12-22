@@ -4,12 +4,13 @@ add_subdirectory(cmake)
 project ("Nexus")
 
 add_compile_definitions(IMGUI_DEFINE_MATH_OPERATORS)
-
 add_compile_definitions(NX_SYSTEM_NAME=${CMAKE_SYSTEM_NAME})
 add_compile_definitions(NX_SYSTEM_PROCESSOR=${CMAKE_HOST_SYSTEM_PROCESSOR})
 
 set(NEXUS_INCLUDE_DIRS "")
 set(NEXUS_LINKED_LIBRARIES "")
+set(NEXUS_LIBRARY_SUBDIRECTORIES "")
+set(NEXUS_SHARED_LIBRARY_SUBDIRECTORIES "")
 
 if (NOT EMSCRIPTEN)
   list (APPEND NEXUS_INCLUDE_DIRS external/tinyfiledialogs/tinyfiledialogs)
@@ -24,8 +25,10 @@ if (DEFINED NX_PLATFORM_OPENGL)
       add_compile_definitions(NX_PLATFORM_WGL)
       add_compile_definitions(NX_PLATFORM_GL_GLAD)
       add_compile_definitions(NX_PLATFORM_GL_DESKTOP)
-      add_subdirectory(external/glad_wgl)
+      list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glad_wgl)
       list(APPEND NEXUS_LINKED_LIBRARIES glad_wgl)
+      set(NX_PLATFORM_WGL ON CACHE BOOL "")
+
   elseif(LINUX OR ANDROID OR __ANDROID__)
     if (LINUX)
       add_compile_definitions(NX_PLATFORM_GL_DESKTOP)
@@ -37,9 +40,12 @@ if (DEFINED NX_PLATFORM_OPENGL)
     add_compile_definitions(NX_PLATFORM_GL_GLAD)
     list (APPEND NEXUS_INCLUDE_DIRS ${EGL_INCLUDE_DIRS})
     list(APPEND NEXUS_LINKED_LIBRARIES glad_egl ${EGL_LIBRARIES})
-    add_subdirectory(external/glad_egl)
+    list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glad_egl)
+    set(NX_PLATFORM_EGL ON CACHE BOOL "")
+
   elseif (EMSCRIPTEN)
       add_compile_definitions(NX_PLATFORM_WEBGL)
+      set(NX_PLATFORM_WEBGL ON CACHE BOOL "")
   endif()
 
 endif()
@@ -51,9 +57,7 @@ endif()
 if (DEFINED NX_PLATFORM_VULKAN)
   add_compile_definitions(NX_PLATFORM_VULKAN)
   find_package(Vulkan REQUIRED)
-  add_subdirectory(external/VulkanMemoryAllocator)
-  #set_target_properties(VulkanMemoryAllocator PROPERTIES CXX_STANDARD 20 CXX_EXTENSIONS OFF)
-
+  list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/VulkanMemoryAllocator)
   list(APPEND NEXUS_LINKED_LIBRARIES Vulkan::Vulkan VulkanMemoryAllocator)
   list (APPEND NEXUS_INCLUDE_DIRS ${VULKAN_INCLUDE_DIRS} external/VulkanMemoryAllocator/include)
 endif()
@@ -62,7 +66,7 @@ if (DEFINED NX_PLATFORM_OPENAL)
     add_compile_definitions(NX_PLATFORM_OPENAL)
 
     if (NOT EMSCRIPTEN)
-      nexus_add_shared_library("external/OpenAL-Soft")
+      list (APPEND NEXUS_SHARED_LIBRARY_SUBDIRECTORIES external/OpenAL-Soft)
       list (APPEND NEXUS_LINKED_LIBRARIES OpenAL)
     endif()
     
@@ -71,34 +75,38 @@ endif()
 #platform specific configurations
 if (WIN32)
     add_compile_definitions(NX_PLATFORM_WINDOWS)
+    set(NX_PLATFORM_WINDOWS ON CACHE BOOL "")
 elseif(LINUX)
     add_compile_definitions(NX_PLATFORM_LINUX)
 elseif(EMSCRIPTEN)
     add_compile_definitions(NX_PLATFORM_WEB)
+    set(NX_PLATFORM_WEB ON CACHE BOOL "")
 elseif(ANDROID)
 
 endif()
 
 #external dependencies
-add_subdirectory(external/SDL)
-add_subdirectory(external/glad)
-add_subdirectory(external/glm)
-add_subdirectory(external/imgui)
-add_subdirectory(external/glslang)
-add_subdirectory(external/SPIRV-Cross)
-add_subdirectory(external/SPIRV-Headers)
-add_subdirectory(external/SPIRV-Tools)
-add_subdirectory(external/shaderc)
-add_subdirectory(external/libnyquist)
-add_subdirectory(external/freetype)
-add_subdirectory(external/pocketpy)
-add_subdirectory(external/yaml-cpp)
-nexus_add_shared_library("external/assimp")
+list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES 
+  external/SDL
+  external/glad
+  external/glm
+  external/imgui
+  external/glslang
+  external/SPIRV-Cross
+  external/SPIRV-Headers
+  external/SPIRV-Tools
+  external/shaderc
+  external/libnyquist
+  external/freetype
+  external/pocketpy
+  external/yaml-cpp)
+  
+list(APPEND NEXUS_SHARED_LIBRARY_SUBDIRECTORIES external/assimp)
 
 #these libraries are only required if we are not building for emscripten
 #this is because these libraries are incompatible with emscripten
 if (WIN32 OR LINUX)
-    add_subdirectory(external/tinyfiledialogs)
+  list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/tinyfiledialogs)
 endif()
 
 set (ENGINE_SOURCES
@@ -107,7 +115,6 @@ set (ENGINE_SOURCES
   src/Nexus-Core/ApplicationSpecification.hpp
   src/Nexus-Core/AssetManager.cpp
   src/Nexus-Core/AssetManager.hpp
-  src/Nexus-Core/Buffer.hpp
   src/Nexus-Core/EntryPoint.hpp
   src/Nexus-Core/IView.hpp
   src/Nexus-Core/Monitor.hpp
@@ -260,95 +267,107 @@ list (APPEND ENGINE_SOURCES
   src/Nexus-Core/Utils/Utils.cpp
   src/Nexus-Core/Utils/Utils.hpp)
 
-list (APPEND ENGINE_SOURCES
-  src/Platform/D3D12/BufferD3D12.cpp
-  src/Platform/D3D12/BufferD3D12.hpp
-  src/Platform/D3D12/CommandExecutorD3D12.cpp
-  src/Platform/D3D12/CommandExecutorD3D12.hpp
-  src/Platform/D3D12/CommandListD3D12.cpp
-  src/Platform/D3D12/CommandListD3D12.hpp
-  src/Platform/D3D12/D3D12Include.hpp
-  src/Platform/D3D12/D3D12Utils.cpp
-  src/Platform/D3D12/D3D12Utils.hpp
-  src/Platform/D3D12/FramebufferD3D12.cpp
-  src/Platform/D3D12/FramebufferD3D12.hpp
-  src/Platform/D3D12/GraphicsDeviceD3D12.cpp
-  src/Platform/D3D12/GraphicsDeviceD3D12.hpp
-  src/Platform/D3D12/PipelineD3D12.cpp
-  src/Platform/D3D12/PipelineD3D12.hpp
-  src/Platform/D3D12/ResourceSetD3D12.cpp
-  src/Platform/D3D12/ResourceSetD3D12.hpp
-  src/Platform/D3D12/SamplerD3D12.cpp
-  src/Platform/D3D12/SamplerD3D12.hpp
-  src/Platform/D3D12/ShaderModuleD3D12.cpp
-  src/Platform/D3D12/ShaderModuleD3D12.hpp
-  src/Platform/D3D12/SwapchainD3D12.cpp
-  src/Platform/D3D12/SwapchainD3D12.hpp
-  src/Platform/D3D12/TextureD3D12.cpp
-  src/Platform/D3D12/TextureD3D12.hpp
-  src/Platform/D3D12/TimingQueryD3D12.cpp
-  src/Platform/D3D12/TimingQueryD3D12.hpp)
+if (DEFINED NX_PLATFORM_D3D12)
+  list (APPEND ENGINE_SOURCES
+    src/Platform/D3D12/BufferD3D12.cpp
+    src/Platform/D3D12/BufferD3D12.hpp
+    src/Platform/D3D12/CommandExecutorD3D12.cpp
+    src/Platform/D3D12/CommandExecutorD3D12.hpp
+    src/Platform/D3D12/CommandListD3D12.cpp
+    src/Platform/D3D12/CommandListD3D12.hpp
+    src/Platform/D3D12/D3D12Include.hpp
+    src/Platform/D3D12/D3D12Utils.cpp
+    src/Platform/D3D12/D3D12Utils.hpp
+    src/Platform/D3D12/FramebufferD3D12.cpp
+    src/Platform/D3D12/FramebufferD3D12.hpp
+    src/Platform/D3D12/GraphicsDeviceD3D12.cpp
+    src/Platform/D3D12/GraphicsDeviceD3D12.hpp
+    src/Platform/D3D12/PipelineD3D12.cpp
+    src/Platform/D3D12/PipelineD3D12.hpp
+    src/Platform/D3D12/ResourceSetD3D12.cpp
+    src/Platform/D3D12/ResourceSetD3D12.hpp
+    src/Platform/D3D12/SamplerD3D12.cpp
+    src/Platform/D3D12/SamplerD3D12.hpp
+    src/Platform/D3D12/ShaderModuleD3D12.cpp
+    src/Platform/D3D12/ShaderModuleD3D12.hpp
+    src/Platform/D3D12/SwapchainD3D12.cpp
+    src/Platform/D3D12/SwapchainD3D12.hpp
+    src/Platform/D3D12/TextureD3D12.cpp
+    src/Platform/D3D12/TextureD3D12.hpp
+    src/Platform/D3D12/TimingQueryD3D12.cpp
+    src/Platform/D3D12/TimingQueryD3D12.hpp)
+  endif()
 
-list (APPEND ENGINE_SOURCES
-  src/Platform/OpenAL/AudioBufferOpenAL.cpp
-  src/Platform/OpenAL/AudioBufferOpenAL.hpp
-  src/Platform/OpenAL/AudioDeviceOpenAL.cpp
-  src/Platform/OpenAL/AudioDeviceOpenAL.hpp
-  src/Platform/OpenAL/AudioSourceOpenAL.cpp
-  src/Platform/OpenAL/AudioSourceOpenAL.hpp
-  src/Platform/OpenAL/OpenAL.hpp)
+if (DEFINED NX_PLATFORM_OPENAL)
+  list (APPEND ENGINE_SOURCES
+    src/Platform/OpenAL/AudioBufferOpenAL.cpp
+    src/Platform/OpenAL/AudioBufferOpenAL.hpp
+    src/Platform/OpenAL/AudioDeviceOpenAL.cpp
+    src/Platform/OpenAL/AudioDeviceOpenAL.hpp
+    src/Platform/OpenAL/AudioSourceOpenAL.cpp
+    src/Platform/OpenAL/AudioSourceOpenAL.hpp
+    src/Platform/OpenAL/OpenAL.hpp)
+endif()
 
-list (APPEND ENGINE_SOURCES
-  src/Platform/OpenGL/BufferOpenGL.cpp
-  src/Platform/OpenGL/BufferOpenGL.hpp
-  src/Platform/OpenGL/CommandExecutorOpenGL.cpp
-  src/Platform/OpenGL/CommandExecutorOpenGL.hpp
-  src/Platform/OpenGL/CommandListOpenGL.hpp
-  src/Platform/OpenGL/ContextSpecification.hpp
-  src/Platform/OpenGL/FramebufferOpenGL.cpp
-  src/Platform/OpenGL/FramebufferOpenGL.hpp
-  src/Platform/OpenGL/GL.cpp
-  src/Platform/OpenGL/GL.hpp
-  src/Platform/OpenGL/GraphicsDeviceOpenGL.cpp
-  src/Platform/OpenGL/GraphicsDeviceOpenGL.hpp
-  src/Platform/OpenGL/PipelineOpenGL.cpp
-  src/Platform/OpenGL/PipelineOpenGL.hpp
-  src/Platform/OpenGL/ResourceSetOpenGL.cpp
-  src/Platform/OpenGL/ResourceSetOpenGL.hpp
-  src/Platform/OpenGL/SamplerOpenGL.cpp
-  src/Platform/OpenGL/SamplerOpenGL.hpp
-  src/Platform/OpenGL/ShaderModuleOpenGL.cpp
-  src/Platform/OpenGL/ShaderModuleOpenGL.hpp
-  src/Platform/OpenGL/SwapchainOpenGL.cpp
-  src/Platform/OpenGL/SwapchainOpenGL.hpp
-  src/Platform/OpenGL/TextureOpenGL.cpp
-  src/Platform/OpenGL/TextureOpenGL.hpp
-  src/Platform/OpenGL/TimingQueryOpenGL.cpp
-  src/Platform/OpenGL/TimingQueryOpenGL.hpp)
+if (DEFINED NX_PLATFORM_OPENGL)
+  list (APPEND ENGINE_SOURCES
+    src/Platform/OpenGL/BufferOpenGL.cpp
+    src/Platform/OpenGL/BufferOpenGL.hpp
+    src/Platform/OpenGL/CommandExecutorOpenGL.cpp
+    src/Platform/OpenGL/CommandExecutorOpenGL.hpp
+    src/Platform/OpenGL/CommandListOpenGL.hpp
+    src/Platform/OpenGL/ContextSpecification.hpp
+    src/Platform/OpenGL/FramebufferOpenGL.cpp
+    src/Platform/OpenGL/FramebufferOpenGL.hpp
+    src/Platform/OpenGL/GL.cpp
+    src/Platform/OpenGL/GL.hpp
+    src/Platform/OpenGL/GraphicsDeviceOpenGL.cpp
+    src/Platform/OpenGL/GraphicsDeviceOpenGL.hpp
+    src/Platform/OpenGL/PipelineOpenGL.cpp
+    src/Platform/OpenGL/PipelineOpenGL.hpp
+    src/Platform/OpenGL/ResourceSetOpenGL.cpp
+    src/Platform/OpenGL/ResourceSetOpenGL.hpp
+    src/Platform/OpenGL/SamplerOpenGL.cpp
+    src/Platform/OpenGL/SamplerOpenGL.hpp
+    src/Platform/OpenGL/ShaderModuleOpenGL.cpp
+    src/Platform/OpenGL/ShaderModuleOpenGL.hpp
+    src/Platform/OpenGL/SwapchainOpenGL.cpp
+    src/Platform/OpenGL/SwapchainOpenGL.hpp
+    src/Platform/OpenGL/TextureOpenGL.cpp
+    src/Platform/OpenGL/TextureOpenGL.hpp
+    src/Platform/OpenGL/TimingQueryOpenGL.cpp
+    src/Platform/OpenGL/TimingQueryOpenGL.hpp)
+endif()
 
 list (APPEND ENGINE_SOURCES
   src/Platform/OpenGL/Context/IOffscreenContext.hpp
   src/Platform/OpenGL/Context/IViewContext.hpp)
 
-list (APPEND ENGINE_SOURCES
-  src/Platform/OpenGL/Context/EGL/EGLUtils.hpp
-  src/Platform/OpenGL/Context/EGL/OffscreenContextEGL.cpp
-  src/Platform/OpenGL/Context/EGL/OffscreenContextEGL.hpp
-  src/Platform/OpenGL/Context/EGL/ViewContextEGL.cpp
-  src/Platform/OpenGL/Context/EGL/ViewContextEGL.hpp)
+if (DEFINED NX_PLATFORM_EGL)
+  list (APPEND ENGINE_SOURCES
+    src/Platform/OpenGL/Context/EGL/EGLUtils.hpp
+    src/Platform/OpenGL/Context/EGL/OffscreenContextEGL.cpp
+    src/Platform/OpenGL/Context/EGL/OffscreenContextEGL.hpp
+    src/Platform/OpenGL/Context/EGL/ViewContextEGL.cpp
+    src/Platform/OpenGL/Context/EGL/ViewContextEGL.hpp)
+endif()
 
-list (APPEND ENGINE_SOURCES
-  src/Platform/OpenGL/Context/WebGL/OffscreenContextWebGL.cpp
-  src/Platform/OpenGL/Context/WebGL/OffscreenContextWebGL.hpp
-  src/Platform/OpenGL/Context/WebGL/ViewContextWebGL.cpp
-  src/Platform/OpenGL/Context/WebGL/ViewContextWebGL.hpp)
+if (DEFINED NX_PLATFORM_WEBGL)
+  list (APPEND ENGINE_SOURCES
+    src/Platform/OpenGL/Context/WebGL/OffscreenContextWebGL.cpp
+    src/Platform/OpenGL/Context/WebGL/OffscreenContextWebGL.hpp
+    src/Platform/OpenGL/Context/WebGL/ViewContextWebGL.cpp
+    src/Platform/OpenGL/Context/WebGL/ViewContextWebGL.hpp)
+endif()
 
-list (APPEND ENGINE_SOURCES
-  src/Platform/OpenGL/Context/WGL/OffscreenContextWGL.cpp
-  src/Platform/OpenGL/Context/WGL/OffscreenContextWGL.hpp
-  src/Platform/OpenGL/Context/WGL/ViewContextWGL.cpp
-  src/Platform/OpenGL/Context/WGL/ViewContextWGL.hpp
-  )
+if (DEFINED NX_PLATFORM_WGL)
+  list (APPEND ENGINE_SOURCES
+    src/Platform/OpenGL/Context/WGL/OffscreenContextWGL.cpp
+    src/Platform/OpenGL/Context/WGL/OffscreenContextWGL.hpp
+    src/Platform/OpenGL/Context/WGL/ViewContextWGL.cpp
+    src/Platform/OpenGL/Context/WGL/ViewContextWGL.hpp
+    )
+endif()
 
 list (APPEND ENGINE_SOURCES
   src/Platform/SDL3/SDL3Include.cpp
@@ -357,76 +376,80 @@ list (APPEND ENGINE_SOURCES
   src/Platform/SDL3/SDL3Window.hpp
   src/Platform/SDL3/SDLPlatform.cpp)
 
-list (APPEND ENGINE_SOURCES
-  src/Platform/Vulkan/BufferVk.cpp
-  src/Platform/Vulkan/BufferVk.hpp
-  src/Platform/Vulkan/CommandExecutorVk.cpp
-  src/Platform/Vulkan/CommandExecutorVk.hpp
-  src/Platform/Vulkan/CommandListVk.cpp
-  src/Platform/Vulkan/CommandListVk.hpp
-  src/Platform/Vulkan/FramebufferVk.cpp
-  src/Platform/Vulkan/FramebufferVk.hpp
-  src/Platform/Vulkan/GraphicsDeviceVk.cpp
-  src/Platform/Vulkan/GraphicsDeviceVk.hpp
-  src/Platform/Vulkan/PipelineVk.cpp
-  src/Platform/Vulkan/PipelineVk.hpp
-  src/Platform/Vulkan/ResourceSetVk.cpp
-  src/Platform/Vulkan/ResourceSetVk.hpp
-  src/Platform/Vulkan/SamplerVk.cpp
-  src/Platform/Vulkan/SamplerVk.hpp
-  src/Platform/Vulkan/ShaderModuleVk.cpp
-  src/Platform/Vulkan/ShaderModuleVk.hpp
-  src/Platform/Vulkan/SwapchainVk.cpp
-  src/Platform/Vulkan/SwapchainVk.hpp
-  src/Platform/Vulkan/TextureVk.cpp
-  src/Platform/Vulkan/TextureVk.hpp
-  src/Platform/Vulkan/TimingQueryVk.cpp
-  src/Platform/Vulkan/TimingQueryVk.hpp
-  src/Platform/Vulkan/Vk.cpp
-  src/Platform/Vulkan/Vk.hpp)
+if (DEFINED NX_PLATFORM_VULKAN)
+  list (APPEND ENGINE_SOURCES
+    src/Platform/Vulkan/BufferVk.cpp
+    src/Platform/Vulkan/BufferVk.hpp
+    src/Platform/Vulkan/CommandExecutorVk.cpp
+    src/Platform/Vulkan/CommandExecutorVk.hpp
+    src/Platform/Vulkan/CommandListVk.cpp
+    src/Platform/Vulkan/CommandListVk.hpp
+    src/Platform/Vulkan/FramebufferVk.cpp
+    src/Platform/Vulkan/FramebufferVk.hpp
+    src/Platform/Vulkan/GraphicsDeviceVk.cpp
+    src/Platform/Vulkan/GraphicsDeviceVk.hpp
+    src/Platform/Vulkan/PipelineVk.cpp
+    src/Platform/Vulkan/PipelineVk.hpp
+    src/Platform/Vulkan/ResourceSetVk.cpp
+    src/Platform/Vulkan/ResourceSetVk.hpp
+    src/Platform/Vulkan/SamplerVk.cpp
+    src/Platform/Vulkan/SamplerVk.hpp
+    src/Platform/Vulkan/ShaderModuleVk.cpp
+    src/Platform/Vulkan/ShaderModuleVk.hpp
+    src/Platform/Vulkan/SwapchainVk.cpp
+    src/Platform/Vulkan/SwapchainVk.hpp
+    src/Platform/Vulkan/TextureVk.cpp
+    src/Platform/Vulkan/TextureVk.hpp
+    src/Platform/Vulkan/TimingQueryVk.cpp
+    src/Platform/Vulkan/TimingQueryVk.hpp
+    src/Platform/Vulkan/Vk.cpp
+    src/Platform/Vulkan/Vk.hpp)
+endif()
 
-list (APPEND ENGINE_SOURCES
-  src/Platform/Windows/FileSystemWindows.cpp
-  src/Platform/Windows/WindowsInclude.hpp)
+if (DEFINED NX_PLATFORM_WINDOWS)
+  list (APPEND ENGINE_SOURCES
+    src/Platform/Windows/FileSystemWindows.cpp
+    src/Platform/Windows/WindowsInclude.hpp)
+endif()
 
-list (APPEND ENGINE_SOURCES
-  src/Platform/X11/X11Include.hpp)
+if (DEFINED NX_PLATFORM_LINUX)
+  list (APPEND ENGINE_SOURCES src/Platform/X11/X11Include.hpp)
+endif()
 
 add_library(Nexus ${ENGINE_SOURCES})
 nexus_setup_filters(${ENGINE_SOURCES})
 
 #including dependencies
-list (APPEND NEXUS_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src)
-list (APPEND NEXUS_INCLUDE_DIRS external/SDL/include/SDL3)
-list (APPEND NEXUS_INCLUDE_DIRS external/glm)
-list (APPEND NEXUS_INCLUDE_DIRS external/stb)
-list (APPEND NEXUS_INCLUDE_DIRS external/assimip/include)
-list (APPEND NEXUS_INCLUDE_DIRS external/json/single_include)
-list (APPEND NEXUS_INCLUDE_DIRS external/OpenAL-Soft/include)
-list (APPEND NEXUS_INCLUDE_DIRS external/shaderc/libshaderc)
-list (APPEND NEXUS_INCLUDE_DIRS external/libnyquist/include)
-list (APPEND NEXUS_INCLUDE_DIRS external/SPIRV-Cross/include)
-list (APPEND NEXUS_INCLUDE_DIRS external/SPIRV-Reflect)
-list (APPEND NEXUS_INCLUDE_DIRS external/Freetype/include)
-list (APPEND NEXUS_INCLUDE_DIRS external/pocketpy/include)
-list (APPEND NEXUS_INCLUDE_DIRS external/yaml-cpp/include)
-list (APPEND NEXUS_INCLUDE_DIRS binaries/dxc_2023_08_14/inc)
-target_include_directories(Nexus PUBLIC SYSTEM ${NEXUS_INCLUDE_DIRS})
+list (APPEND NEXUS_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
+  external/SDL/include/SDL3
+  external/glm
+  external/stb
+  external/assimip/include
+  external/json/single_include
+  external/OpenAL-Soft/include
+  external/shaderc/libshaderc
+  external/libnyquist/include
+  external/SPIRV-Cross/include
+  external/SPIRV-Reflect
+  external/Freetype/include
+  external/pocketpy/include
+  external/yaml-cpp/include
+  binaries/dxc_2023_08_14/inc)
 
-list (APPEND NEXUS_LINKED_LIBRARIES ${OPENGL_LIBRARIES})
-list (APPEND NEXUS_LINKED_LIBRARIES SDL3::SDL3)
-list (APPEND NEXUS_LINKED_LIBRARIES glad)
-list (APPEND NEXUS_LINKED_LIBRARIES assimp)
-list (APPEND NEXUS_LINKED_LIBRARIES imgui)
-list (APPEND NEXUS_LINKED_LIBRARIES imguizmo)
-list (APPEND NEXUS_LINKED_LIBRARIES shaderc)
-list (APPEND NEXUS_LINKED_LIBRARIES libnyquist)
-list (APPEND NEXUS_LINKED_LIBRARIES spirv-cross-cpp)
-list (APPEND NEXUS_LINKED_LIBRARIES spirv-cross-hlsl)
-list (APPEND NEXUS_LINKED_LIBRARIES pocketpy)
-list (APPEND NEXUS_LINKED_LIBRARIES freetype)
-list (APPEND NEXUS_LINKED_LIBRARIES yaml-cpp::yaml-cpp)
-target_link_libraries(Nexus PUBLIC ${NEXUS_LINKED_LIBRARIES})
+list (APPEND NEXUS_LINKED_LIBRARIES 
+  ${OPENGL_LIBRARIES}
+  SDL3::SDL3
+  glad
+  assimp
+  imgui
+  imguizmo
+  shaderc
+  libnyquist
+  spirv-cross-cpp
+  spirv-cross-hlsl
+  pocketpy
+  freetype
+  yaml-cpp::yaml-cpp)
 
 #precompiled header
 target_precompile_headers(Nexus PUBLIC src/Nexus-Core/nxpch.hpp)
@@ -441,5 +464,9 @@ if (EMSCRIPTEN)
     )
 endif()
 
+nexus_add_all_subdirs("${NEXUS_LIBRARY_SUBDIRECTORIES}")
+nexus_add_all_shared_lib_subdirs("${NEXUS_SHARED_LIBRARY_SUBDIRECTORIES}")
+target_include_directories(Nexus PUBLIC SYSTEM ${NEXUS_INCLUDE_DIRS})
+target_link_libraries(Nexus PUBLIC ${NEXUS_LINKED_LIBRARIES})
 nexus_structure_folders()
-#nexus_disable_warnings_for_dependencies()
+nexus_setup_filters("${ENGINE_SOURCES}")

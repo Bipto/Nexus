@@ -17,3 +17,5 @@ add_subdirectory(src/Tests)
 if(WIN32 OR LINUX)
     add_subdirectory(src/Sandbox)
 endif()
+
+set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT Demo)

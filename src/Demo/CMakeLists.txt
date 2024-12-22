@@ -61,7 +61,7 @@ else()
 
 endif()
 
-#set the working directory to the executable directory
+#set the working directory to the executable directory and startup project to the Demo project
 #this ONLY applies to Visual Studio
 set_property(TARGET Demo PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
 

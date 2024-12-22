@@ -85,18 +85,12 @@ class DemoApplication : public Nexus::Application
 
 		Nexus::IWindow *window = m_GraphicsDevice->GetPrimaryWindow();
 
-		std::string title = std::string("Demo - ") + std::string(Nexus::Platform::GetSystemName()) + std::string(":") + std::string("(") +
+		std::string title = std::string("Demo - ") + std::string(Nexus::Platform::GetSystemName()) + std::string("(") +
 							std::string(Nexus::Platform::GetProcessorType()) + std::string(")");
 		window->SetTitle(title);
 
-		const char		   *text = "Hello World";
-		Nexus::Buffer<char> textBuffer;
-		textBuffer.Count = strlen(text);
-		textBuffer.Data	 = new char[textBuffer.Count];
-		strcpy(textBuffer.Data, text);
-
-		// Nexus::FileSystemNew::WriteBufferToFile(textBuffer, "test.txt", Nexus::FileSystemNew::FileMode::Text);
-		Nexus::FileSystemNew::WriteBufferToFile(textBuffer, "test2.bin", Nexus::FileSystemNew::FileMode::Binary);
+		std::string text = "Hello World";
+		Nexus::FileSystemNew::WriteBufferToFile(text.data(), text.length(), "test.txt", Nexus::FileSystemNew::FileMode::Text);
 	}
 
 	template<typename T>

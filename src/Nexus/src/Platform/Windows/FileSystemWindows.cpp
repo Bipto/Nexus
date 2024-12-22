@@ -2,7 +2,7 @@
 
 namespace Nexus::FileSystemNew
 {
-	void WriteBufferToFile(Buffer<char> buffer, const std::string &filepath, FileMode mode)
+	void WriteBufferToFile(void *data, size_t size, const std::string &filepath, FileMode mode)
 	{
 		std::filesystem::path path		= {filepath};
 		std::filesystem::path directory = path.parent_path();
@@ -23,11 +23,11 @@ namespace Nexus::FileSystemNew
 		}
 
 		std::ofstream out(filepath, openMode);
-		out.write(buffer.Data, buffer.GetSizeInBytes());
+		out.write((const char *)data, size);
 		out.close();
 	}
 
-	Buffer<char> ReadBufferFromFile(const std::string &filepath, FileMode mode)
+	std::vector<char> ReadBufferFromFile(const std::string &filepath, FileMode mode)
 	{
 		if (!std::filesystem::exists(filepath))
 		{
@@ -49,13 +49,10 @@ namespace Nexus::FileSystemNew
 		std::streamsize size = in.tellg();
 		in.seekg(0, std::ios::beg);
 
-		Buffer<char> buffer;
-		buffer.Count = size;
-		buffer.Data	 = new char[buffer.Count];
-		in.read(buffer.Data, buffer.Count);
+		std::vector<char> buffer(size);
+		in.read(buffer.data(), buffer.size());
+		in.close();
 
 		return buffer;
-
-		in.close();
 	}
 }	 // namespace Nexus::FileSystemNew

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Multisample.hpp"
-#include "Nexus-Core/Buffer.hpp"
 #include "Nexus-Core/Types.hpp"
 #include "Nexus-Core/nxpch.hpp"
 #include "PixelFormat.hpp"

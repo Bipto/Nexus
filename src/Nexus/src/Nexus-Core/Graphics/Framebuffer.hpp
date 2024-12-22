@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Nexus-Core/Buffer.hpp"
 #include "Nexus-Core/Graphics/Multisample.hpp"
 #include "Nexus-Core/Graphics/Texture.hpp"
 #include "Nexus-Core/Types.hpp"

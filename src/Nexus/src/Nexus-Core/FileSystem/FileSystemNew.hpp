@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Nexus-Core/Buffer.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
 namespace Nexus::FileSystemNew
@@ -11,6 +10,6 @@ namespace Nexus::FileSystemNew
 		Text
 	};
 
-	void		 WriteBufferToFile(Buffer<char> buffer, const std::string &filepath, FileMode mode);
-	Buffer<char> ReadBufferFromFile(const std::string &filepath, FileMode mode);
+	void			  WriteBufferToFile(void *data, size_t size, const std::string &filepath, FileMode mode);
+	std::vector<char> ReadBufferFromFile(const std::string &filepath, FileMode mode);
 }	 // namespace Nexus::FileSystemNew
