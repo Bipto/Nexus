@@ -76,8 +76,6 @@
                 "CMAKE_CXX_COMPILER": "g++",
                 "NX_PLATFORM_OPENGL": "1",
                 "NX_PLATFORM_VULKAN": "1",
-                "NX_PLATFORM_EGL": "1",
-                "NX_PLATFORM_GL_GLAD": "1",
                 "NX_PLATFORM_OPENAL": "1"
             },
             "condition": {

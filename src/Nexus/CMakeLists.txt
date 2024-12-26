@@ -3,14 +3,27 @@ cmake_minimum_required(VERSION 3.16)
 add_subdirectory(cmake)
 project ("Nexus")
 
-add_compile_definitions(IMGUI_DEFINE_MATH_OPERATORS)
-add_compile_definitions(NX_SYSTEM_NAME=${CMAKE_SYSTEM_NAME})
-add_compile_definitions(NX_SYSTEM_PROCESSOR=${CMAKE_HOST_SYSTEM_PROCESSOR})
+add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS=1)
+add_definitions(-DNX_SYSTEM_NAME=${CMAKE_SYSTEM_NAME})
+add_definitions(-DNX_SYSTEM_PROCESSOR=${CMAKE_HOST_SYSTEM_PROCESSOR})
 
 set(NEXUS_INCLUDE_DIRS "")
 set(NEXUS_LINKED_LIBRARIES "")
 set(NEXUS_LIBRARY_SUBDIRECTORIES "")
 set(NEXUS_SHARED_LIBRARY_SUBDIRECTORIES "")
+
+#platform specific configurations
+if (WIN32)
+    add_definitions(-DNX_PLATFORM_WINDOWS=1)
+    set(NX_PLATFORM_WINDOWS ON CACHE BOOL "")
+elseif(LINUX)
+  add_definitions(-DNX_PLATFORM_LINUX=1)
+elseif(EMSCRIPTEN)
+  add_definitions(-DNX_PLATFORM_WEB=1)
+    set(NX_PLATFORM_WEB ON CACHE BOOL "")
+elseif(ANDROID)
+
+endif()
 
 if (NOT EMSCRIPTEN)
   list (APPEND NEXUS_INCLUDE_DIRS external/tinyfiledialogs/tinyfiledialogs)
@@ -19,43 +32,43 @@ endif()
 
 if (DEFINED NX_PLATFORM_OPENGL)
   find_package(OpenGL REQUIRED)
-  add_compile_definitions(NX_PLATFORM_OPENGL)
+  add_definitions(-DNX_PLATFORM_OPENGL=1)
 
   if (WIN32)
-      add_compile_definitions(NX_PLATFORM_WGL)
-      add_compile_definitions(NX_PLATFORM_GL_GLAD)
-      add_compile_definitions(NX_PLATFORM_GL_DESKTOP)
+      add_definitions(-DNX_PLATFORM_WGL=1)
+      add_definitions(-DNX_PLATFORM_GL_GLAD=1)
+      add_definitions(-DNX_PLATFORM_GL_DESKTOP=1)
       list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glad_wgl)
       list(APPEND NEXUS_LINKED_LIBRARIES glad_wgl)
       set(NX_PLATFORM_WGL ON CACHE BOOL "")
 
   elseif(LINUX OR ANDROID OR __ANDROID__)
     if (LINUX)
-      add_compile_definitions(NX_PLATFORM_GL_DESKTOP)
+      add_definitions(-DNX_PLATFORM_GL_DESKTOP=1)
     endif()
 
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(EGL REQUIRED egl)
-    add_compile_definitions(NX_PLATFORM_EGL)
-    add_compile_definitions(NX_PLATFORM_GL_GLAD)
+    add_definitions(-DNX_PLATFORM_EGL=1)
+    add_definitions(-DNX_PLATFORM_GL_GLAD=1)
     list (APPEND NEXUS_INCLUDE_DIRS ${EGL_INCLUDE_DIRS})
     list(APPEND NEXUS_LINKED_LIBRARIES glad_egl ${EGL_LIBRARIES})
     list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glad_egl)
     set(NX_PLATFORM_EGL ON CACHE BOOL "")
 
   elseif (EMSCRIPTEN)
-      add_compile_definitions(NX_PLATFORM_WEBGL)
+      add_definitions(-DNX_PLATFORM_WEBGL=1)
       set(NX_PLATFORM_WEBGL ON CACHE BOOL "")
   endif()
 
 endif()
 
 if (DEFINED NX_PLATFORM_D3D12)
-    add_compile_definitions(NX_PLATFORM_D3D12)
+    add_definitions(-DNX_PLATFORM_D3D12=1)
 endif()
 
 if (DEFINED NX_PLATFORM_VULKAN)
-  add_compile_definitions(NX_PLATFORM_VULKAN)
+  add_definitions(-DNX_PLATFORM_VULKAN=1)
   find_package(Vulkan REQUIRED)
   list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/VulkanMemoryAllocator)
   list(APPEND NEXUS_LINKED_LIBRARIES Vulkan::Vulkan VulkanMemoryAllocator)
@@ -63,26 +76,13 @@ if (DEFINED NX_PLATFORM_VULKAN)
 endif()
 
 if (DEFINED NX_PLATFORM_OPENAL)
-    add_compile_definitions(NX_PLATFORM_OPENAL)
+    add_definitions(-DNX_PLATFORM_OPENAL=1)
 
     if (NOT EMSCRIPTEN)
       list (APPEND NEXUS_SHARED_LIBRARY_SUBDIRECTORIES external/OpenAL-Soft)
       list (APPEND NEXUS_LINKED_LIBRARIES OpenAL)
     endif()
     
-endif()
-
-#platform specific configurations
-if (WIN32)
-    add_compile_definitions(NX_PLATFORM_WINDOWS)
-    set(NX_PLATFORM_WINDOWS ON CACHE BOOL "")
-elseif(LINUX)
-    add_compile_definitions(NX_PLATFORM_LINUX)
-elseif(EMSCRIPTEN)
-    add_compile_definitions(NX_PLATFORM_WEB)
-    set(NX_PLATFORM_WEB ON CACHE BOOL "")
-elseif(ANDROID)
-
 endif()
 
 #external dependencies
@@ -416,6 +416,10 @@ if (DEFINED NX_PLATFORM_LINUX)
   list (APPEND ENGINE_SOURCES src/Platform/X11/X11Include.hpp)
 endif()
 
+if (DEFINED NX_PLATFORM_WEB)
+  list (APPEND ENGINE_SOURCES src/Platform/Emscripten/FileSystemEmscripten.cpp)
+endif()
+
 add_library(Nexus ${ENGINE_SOURCES})
 nexus_setup_filters(${ENGINE_SOURCES})
 
@@ -462,6 +466,8 @@ if (EMSCRIPTEN)
         LINK_FLAGS
         "--std=c++20 -O3 -flto -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sFULL_ES2=1 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS -sNO_DISABLE_EXCEPTION_CATCHING -lopenal -lembind -sGL_ENABLE_GET_PROC_ADDRESS"
     )
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lidbfs.js")
+    target_link_options(Nexus PRIVATE -lidbfs.js)
 endif()
 
 nexus_add_all_subdirs("${NEXUS_LIBRARY_SUBDIRECTORIES}")

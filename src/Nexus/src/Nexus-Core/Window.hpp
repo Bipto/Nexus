@@ -31,16 +31,6 @@
 #include "Nexus-Core/Types.hpp"
 
 #include "WindowInfo.hpp"
-
-#if defined(NX_PLATFORM_LINUX)
-struct XWindowInfo
-{
-	Display *display;
-	int		 screen;
-	Window	 window;
-};
-#endif
-
 namespace Nexus
 {
 	namespace Graphics
@@ -48,8 +38,6 @@ namespace Nexus
 		// forward declaration
 		class GraphicsDevice;
 	}	 // namespace Graphics
-
-	using WindowHandle = void *;
 
 	/// @brief A class representing a window
 	class IWindow
@@ -181,15 +169,7 @@ namespace Nexus
 		void SetTicksPerSecond(uint32_t amount);
 		void SetRelativeMouseMode(bool enabled);
 
-		WindowInfo GetWindowInfo();
-
-#if defined(NX_PLATFORM_WINDOWS)
-		const HWND GetHwnd() const;
-#endif
-
-#if defined(NX_PLATFORM_LINUX)
-		const XWindowInfo GetXWindow() const;
-#endif
+		NativeWindowInfo GetNativeWindowInfo();
 
 		EventHandler<const WindowResizedEventArgs &> OnResize;
 		EventHandler<const WindowMovedEventArgs &>	 OnMove;

@@ -88,9 +88,6 @@ class DemoApplication : public Nexus::Application
 		std::string title = std::string("Demo - ") + std::string(Nexus::Platform::GetSystemName()) + std::string("(") +
 							std::string(Nexus::Platform::GetProcessorType()) + std::string(")");
 		window->SetTitle(title);
-
-		std::string text = "Hello World";
-		Nexus::FileSystemNew::WriteStringToFile(text, "hello.txt");
 	}
 
 	template<typename T>

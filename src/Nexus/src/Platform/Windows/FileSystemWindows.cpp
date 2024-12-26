@@ -16,6 +16,10 @@ namespace Nexus::FileSystemNew
 		}
 	}
 
+	void Initialise()
+	{
+	}
+
 	void WriteStringToFile(const std::string &data, const std::string &filepath)
 	{
 		CreateDirectoriesIfNeeded(filepath);
@@ -72,5 +76,20 @@ namespace Nexus::FileSystemNew
 		in.close();
 
 		return buffer;
+	}
+
+	bool IsWritingFilesSupported()
+	{
+		return true;
+	}
+
+	bool DoesFileExist(const std::string &filepath)
+	{
+		return std::filesystem::exists(std::filesystem::path(filepath));
+	}
+
+	bool DoesDirectoryExist(const std::string &directory)
+	{
+		return std::filesystem::exists(std::filesystem::path(directory));
 	}
 }	 // namespace Nexus::FileSystemNew

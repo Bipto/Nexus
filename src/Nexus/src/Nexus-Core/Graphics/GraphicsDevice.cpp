@@ -63,7 +63,6 @@ namespace Nexus::Graphics
 
 	Ref<ShaderModule> GraphicsDevice::GetOrCreateCachedShaderFromSpirvSource(const std::string &source, const std::string &name, ShaderStage stage)
 	{
-		TryLoadCachedShader(source, name, stage, ShaderLanguage::GLSLES);
 		return TryLoadCachedShader(source, name, stage, GetSupportedShaderFormat());
 	}
 

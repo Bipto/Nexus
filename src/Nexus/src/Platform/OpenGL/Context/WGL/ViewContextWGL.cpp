@@ -8,14 +8,13 @@
 
 namespace Nexus::GL
 {
-	ViewContextWGL::ViewContextWGL(HWND hwnd, OffscreenContextWGL *context, const ContextSpecification &spec)
+	ViewContextWGL::ViewContextWGL(HWND hwnd, HDC hdc, OffscreenContextWGL *context, const ContextSpecification &spec)
 		: m_HWND(hwnd),
+		  m_HDC(hdc),
 		  m_Specification(spec),
 		  m_PBuffer(context)
 	{
-		m_HDC	= GetDC(m_HWND);
 		m_HGLRC = CreateSharedContext(m_HDC, context->GetHGLRC(), spec);
-		// MakeCurrent();
 	}
 
 	ViewContextWGL::~ViewContextWGL()

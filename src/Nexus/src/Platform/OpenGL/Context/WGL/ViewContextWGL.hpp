@@ -14,7 +14,7 @@ namespace Nexus::GL
 	class ViewContextWGL : public IViewContext
 	{
 	  public:
-		ViewContextWGL(HWND hwnd, OffscreenContextWGL *pbuffer, const ContextSpecification &spec);
+		ViewContextWGL(HWND hwnd, HDC hdc, OffscreenContextWGL *pbuffer, const ContextSpecification &spec);
 		virtual ~ViewContextWGL();
 		virtual bool						MakeCurrent() override;
 		virtual void						Swap() override;

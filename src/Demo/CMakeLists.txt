@@ -11,15 +11,14 @@ endif()
 target_include_directories(Demo PUBLIC ../Nexus/src)
 target_link_libraries(Demo PUBLIC Nexus)
 
-#flags required for emscripten
-if (EMSCRIPTEN)
-    set_target_properties(
+set_target_properties(
       Demo
         PROPERTIES
         LINK_FLAGS
-        "--std=c++20 -fsanitize=address -sSTACK_SIZE=5MB -O3 -flto -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sNO_DISABLE_EXCEPTION_CATCHING -sFULL_ES2=1 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS -lopenal -lembind -sGL_ENABLE_GET_PROC_ADDRESS -sASSERTIONS --preload-file resources"
+        "--std=c++20 -O3 -flto -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sFULL_ES2=1 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS -sNO_DISABLE_EXCEPTION_CATCHING -lopenal -lembind -sGL_ENABLE_GET_PROC_ADDRESS --preload-file resources"
     )
-endif()
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lidbfs.js")
+    target_link_options(Demo PRIVATE -lidbfs.js)
 
 if (ANDROID OR __ANDROID__)
     target_link_libraries(
