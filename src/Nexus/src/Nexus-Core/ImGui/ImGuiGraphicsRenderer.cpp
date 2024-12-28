@@ -154,6 +154,7 @@ namespace Nexus::ImGuiUtils
 		}
 
 		io.Fonts->AddFontDefault();
+		RebuildFontAtlas();
 
 		SetupInput();
 

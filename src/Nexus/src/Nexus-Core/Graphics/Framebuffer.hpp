@@ -39,7 +39,7 @@ namespace Nexus::Graphics
 		}
 
 		/// @brief A vector containing the colour attachments
-		std::vector<FramebufferTextureSpecification> Attachments;
+		std::vector<FramebufferTextureSpecification> Attachments = {};
 	};
 
 	/// @brief A struct representing a depth attachment of a framebuffer

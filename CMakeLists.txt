@@ -11,11 +11,11 @@ add_subdirectory(src/BuildConfig)
 add_subdirectory(src/Nexus)
 add_subdirectory(src/Demo)
 
+if (NOT EMSCRIPTEN)
+    add_subdirectory(src/Editor)
+endif()
+
 enable_testing()
 add_subdirectory(src/Tests)
-
-if(WIN32 OR LINUX)
-    add_subdirectory(src/Sandbox)
-endif()
 
 set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT Demo)
