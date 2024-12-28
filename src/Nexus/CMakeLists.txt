@@ -147,8 +147,7 @@ list (APPEND ENGINE_SOURCES
   src/Nexus-Core/FileSystem/FileDialogs.cpp
   src/Nexus-Core/FileSystem/FileDialogs.hpp
   src/Nexus-Core/FileSystem/FileSystem.cpp
-  src/Nexus-Core/FileSystem/FileSystem.hpp
-  src/Nexus-Core/FileSystem/FileSystemNew.hpp)
+  src/Nexus-Core/FileSystem/FileSystem.hpp)
 
 list (APPEND ENGINE_SOURCES 
   src/Nexus-Core/Graphics/CachedShader.hpp
@@ -408,16 +407,11 @@ endif()
 
 if (DEFINED NX_PLATFORM_WINDOWS)
   list (APPEND ENGINE_SOURCES
-    src/Platform/Windows/FileSystemWindows.cpp
     src/Platform/Windows/WindowsInclude.hpp)
 endif()
 
 if (DEFINED NX_PLATFORM_LINUX)
   list (APPEND ENGINE_SOURCES src/Platform/X11/X11Include.hpp)
-endif()
-
-if (DEFINED NX_PLATFORM_WEB)
-  list (APPEND ENGINE_SOURCES src/Platform/Emscripten/FileSystemEmscripten.cpp)
 endif()
 
 add_library(Nexus ${ENGINE_SOURCES})

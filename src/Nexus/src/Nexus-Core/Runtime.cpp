@@ -1,6 +1,5 @@
 #include "Runtime.hpp"
 
-#include "Nexus-Core/FileSystem/FileSystemNew.hpp"
 #include "Nexus-Core/Input/InputContext.hpp"
 #include "Nexus-Core/Platform.hpp"
 #include "Nexus-Core/nxpch.hpp"
@@ -54,7 +53,6 @@ namespace Nexus
 	void Init(int argc, char **argv)
 	{
 		Platform::Initialise();
-		FileSystemNew::Initialise();
 	}
 
 	void Shutdown()

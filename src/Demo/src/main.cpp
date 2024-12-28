@@ -24,8 +24,6 @@
 #include "Nexus-Core/nxpch.hpp"
 #include "Nexus.hpp"
 
-#include "Nexus-Core/FileSystem/FileSystemNew.hpp"
-
 struct DemoInfo
 {
 	std::string Name;
