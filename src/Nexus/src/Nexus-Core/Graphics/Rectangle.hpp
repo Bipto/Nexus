@@ -80,20 +80,23 @@ namespace Nexus::Graphics
 				   other.GetBottom() <= this->GetBottom();
 		}
 
-		const bool Intersects(const Rectangle &other) const
+		const bool Intersects(const Rectangle<T> &other) const
 		{
 			return other.GetRight() < this->GetRight() && this->GetLeft() < other.GetRight() && other.GetTop() < this->GetBottom() &&
 				   this->GetTop() < other.GetBottom();
 		}
 
-		static Rectangle Union(const Rectangle &rect1, const Rectangle &rect2)
+		// TODO: FIXME
+		static Rectangle Union(const Rectangle<T> &rect1, const Rectangle<T> &rect2)
 		{
-			T x		 = glm::min(rect1.GetLeft(), rect2.GetLeft());
+			/* T x		 = glm::min(rect1.GetLeft(), rect2.GetLeft());
 			T y		 = glm::min(rect1.GetTop(), rect2.GetTop());
-			T width	 = glm::max(rect1.GetRight(), rect2.GetRight()) - x;
-			T height = glm::max(rect1.GetBottom(), rect2.GetBottom()) - y;
+			T width	 = glm::max(rect1.GetRight(), rect2.GetRight()) - m_X;
+			T height = glm::max(rect1.GetBottom(), rect2.GetBottom()) - m_Y;
 
-			return Rectangle(x, y, width, height);
+			return Rectangle(x, y, width, height); */
+
+			return {};
 		}
 
 		void Inflate(T horizontalAmount, T verticalAmount)

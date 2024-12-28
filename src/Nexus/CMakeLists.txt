@@ -389,6 +389,7 @@ if (DEFINED NX_PLATFORM_VULKAN)
     src/Platform/Vulkan/GraphicsDeviceVk.hpp
     src/Platform/Vulkan/PipelineVk.cpp
     src/Platform/Vulkan/PipelineVk.hpp
+    src/Platform/Vulkan/PlatformVk.hpp
     src/Platform/Vulkan/ResourceSetVk.cpp
     src/Platform/Vulkan/ResourceSetVk.hpp
     src/Platform/Vulkan/SamplerVk.cpp
@@ -403,6 +404,12 @@ if (DEFINED NX_PLATFORM_VULKAN)
     src/Platform/Vulkan/TimingQueryVk.hpp
     src/Platform/Vulkan/Vk.cpp
     src/Platform/Vulkan/Vk.hpp)
+
+    if (WIN32)
+      list (APPEND ENGINE_SOURCES
+        src/Platform/Vulkan/Windows/PlatformVkWindows.cpp)
+      add_definitions(-DVK_USE_PLATFORM_WIN32_KHR=1)
+    endif()
 endif()
 
 if (DEFINED NX_PLATFORM_WINDOWS)

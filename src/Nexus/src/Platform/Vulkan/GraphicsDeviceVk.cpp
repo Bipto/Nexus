@@ -14,6 +14,7 @@
 	#include "TextureVk.hpp"
 	#include "TimingQueryVk.hpp"
 	#include "SwapchainVk.hpp"
+	#include "PlatformVk.hpp"
 
 namespace Nexus::Graphics
 {
@@ -684,12 +685,14 @@ namespace Nexus::Graphics
 
 	std::vector<const char *> GraphicsDeviceVk::GetRequiredInstanceExtensions()
 	{
-		uint32_t sdlExtensionCount = 0;
-		SDL_Vulkan_GetInstanceExtensions(&sdlExtensionCount);
-		std::vector<const char *> extensionNames(sdlExtensionCount);
-		const char *const		 *names = SDL_Vulkan_GetInstanceExtensions(&sdlExtensionCount);
+		// uint32_t sdlExtensionCount = 0;
+		// SDL_Vulkan_GetInstanceExtensions(&sdlExtensionCount);
+		// std::vector<const char *> extensionNames(sdlExtensionCount);
+		// const char *const		 *names = SDL_Vulkan_GetInstanceExtensions(&sdlExtensionCount);
 
-		for (uint32_t i = 0; i < sdlExtensionCount; i++) { extensionNames[i] = names[i]; }
+		std::vector<const char *> extensionNames = PlatformVk::GetRequiredExtensions();
+
+		// for (uint32_t i = 0; i < sdlExtensionCount; i++) { extensionNames[i] = names[i]; }
 
 		if (enableValidationLayers)
 		{

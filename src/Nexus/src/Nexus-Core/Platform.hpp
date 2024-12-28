@@ -65,4 +65,5 @@ namespace Nexus::Platform
 	inline EventHandler<uint32_t> OnMouseRemoved;
 	inline EventHandler<uint32_t> OnGamepadAdded;
 	inline EventHandler<uint32_t> OnGamepadRemoved;
+
 }	 // namespace Nexus::Platform
