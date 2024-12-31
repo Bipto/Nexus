@@ -3,6 +3,7 @@
 	#include "SwapchainVk.hpp"
 
 	#include "GraphicsDeviceVk.hpp"
+	#include "PlatformVk.hpp"
 
 namespace Nexus::Graphics
 {
@@ -140,6 +141,11 @@ namespace Nexus::Graphics
 		}
 	}
 
+	PixelFormat SwapchainVk::GetColourFormat()
+	{
+		return Vk::GetNxPixelFormatFromVkPixelFormat(m_SurfaceFormat.format);
+	}
+
 	void SwapchainVk::RecreateSwapchain()
 	{
 		vkDeviceWaitIdle(m_GraphicsDevice->GetVkDevice());
@@ -234,10 +240,12 @@ namespace Nexus::Graphics
 
 	void SwapchainVk::CreateSurface()
 	{
-		if (!SDL_Vulkan_CreateSurface(m_Window->GetSDLWindowHandle(), m_GraphicsDevice->m_Instance, nullptr, &m_Surface))
+		/* if (!SDL_Vulkan_CreateSurface(m_Window->GetSDLWindowHandle(), m_GraphicsDevice->m_Instance, nullptr, &m_Surface))
 		{
 			throw std::runtime_error("Failed to create surface");
-		}
+		} */
+
+		m_Surface = PlatformVk::CreateSurface(m_GraphicsDevice->m_Instance, m_Window);
 	}
 
 	bool SwapchainVk::CreateSwapchain()

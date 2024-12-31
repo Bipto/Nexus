@@ -16,25 +16,23 @@
 
 namespace Nexus::Graphics
 {
-	GraphicsDeviceD3D12::GraphicsDeviceD3D12(const GraphicsDeviceSpecification &createInfo,
-											 IWindow						   *window,
-											 const SwapchainSpecification	   &swapchainSpec)
-		: GraphicsDevice(createInfo, window, swapchainSpec)
+	GraphicsDeviceD3D12::GraphicsDeviceD3D12(const GraphicsDeviceSpecification &createInfo) : GraphicsDevice(createInfo)
 	{
 		// this has to be enabled to support newer HLSL versions and DXIL bytecode
 		UUID experimentalFeatures[] = {D3D12ExperimentalShaderModels};
 		D3D12EnableExperimentalFeatures(0, nullptr, NULL, NULL);
 
-	#if defined(_DEBUG)
-		// retrieve the debug interface
-		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&m_D3D12Debug))))
+		if (createInfo.DebugLayer)
 		{
-			// enable debugging of d3d12
-			m_D3D12Debug->EnableDebugLayer();
-		}
+			// retrieve the debug interface
+			if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&m_D3D12Debug))))
+			{
+				// enable debugging of d3d12
+				m_D3D12Debug->EnableDebugLayer();
+			}
 
-		std::atexit(ReportLiveObjects);
-	#endif
+			std::atexit(ReportLiveObjects);
+		}
 
 		if (SUCCEEDED(CreateDXGIFactory2(0, IID_PPV_ARGS(&m_DxgiFactory)))) {}
 
@@ -61,8 +59,6 @@ namespace Nexus::Graphics
 				m_Device->CreateCommandList1(0, D3D12_COMMAND_LIST_TYPE_DIRECT, D3D12_COMMAND_LIST_FLAG_NONE, IID_PPV_ARGS(&m_UploadCommandList));
 			}
 		}
-
-		window->CreateSwapchain(this, swapchainSpec);
 	}
 
 	GraphicsDeviceD3D12::~GraphicsDeviceD3D12()
@@ -261,6 +257,16 @@ namespace Nexus::Graphics
 	{
 		ResourceBarrier(cmd, resource->RetrieveDepthBufferHandle(), 0, resource->GetCurrentDepthState(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
 		resource->SetDepthState(after);
+	}
+
+	bool GraphicsDeviceD3D12::Validate()
+	{
+		return m_Device && m_CommandQueue && m_Fence && m_UploadCommandAllocator && m_UploadCommandList && m_DxgiFactory;
+	}
+
+	void GraphicsDeviceD3D12::SetName(const std::string &name)
+	{
+		GraphicsDevice::SetName(name);
 	}
 
 	void GraphicsDeviceD3D12::InitUploadCommandList()

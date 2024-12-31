@@ -86,6 +86,8 @@ namespace Nexus
 		std::optional<uint32_t> RendersPerSecond = {};
 		std::optional<uint32_t> UpdatesPerSecond = {};
 		std::optional<uint32_t> TicksPerSecond	 = {};
+
+		std::string CanvasId = "canvas";
 	};
 
 	/// @brief A struct representing options to use when creating an application

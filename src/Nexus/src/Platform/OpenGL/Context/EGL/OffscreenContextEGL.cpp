@@ -103,6 +103,11 @@ namespace Nexus::GL
 		return m_Context;
 	}
 
+	bool OffscreenContextEGL::Validate()
+	{
+		return m_EGLDisplay != nullptr && m_Context != nullptr;
+	}
+
 }	 // namespace Nexus::GL
 
 #endif

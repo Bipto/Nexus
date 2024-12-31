@@ -5,6 +5,8 @@
 
 #include "Nexus-Core/Events/EventHandler.hpp"
 
+#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
+
 TEST(Point2D, To)
 {
 	Nexus::Point2D<int>	  value(5, 7);
@@ -96,4 +98,40 @@ TEST(ScopedEvent, Behaviour)
 	}
 
 	EXPECT_EQ(eventHandler.GetDelegateCount(), 0);
+}
+
+TEST(CreateGraphicsDeviceOpenGL, Valid)
+{
+	Nexus::Graphics::GraphicsDeviceSpecification spec;
+	spec.API = Nexus::Graphics::GraphicsAPI::OpenGL;
+
+	if (Nexus::Graphics::GraphicsDevice::IsApiSupported(Nexus::Graphics::GraphicsAPI::OpenGL))
+	{
+		Nexus::Graphics::GraphicsDevice *device = Nexus::Graphics::GraphicsDevice::CreateGraphicsDevice(spec);
+		EXPECT_EQ(device->Validate(), true);
+	}
+}
+
+TEST(CreateGraphicsDeviceD3D12, Valid)
+{
+	Nexus::Graphics::GraphicsDeviceSpecification spec;
+	spec.API = Nexus::Graphics::GraphicsAPI::D3D12;
+
+	if (Nexus::Graphics::GraphicsDevice::IsApiSupported(Nexus::Graphics::GraphicsAPI::D3D12))
+	{
+		Nexus::Graphics::GraphicsDevice *device = Nexus::Graphics::GraphicsDevice::CreateGraphicsDevice(spec);
+		EXPECT_EQ(device->Validate(), true);
+	}
+}
+
+TEST(CreateGraphicsDeviceVulkan, Valid)
+{
+	Nexus::Graphics::GraphicsDeviceSpecification spec;
+	spec.API = Nexus::Graphics::GraphicsAPI::Vulkan;
+
+	if (Nexus::Graphics::GraphicsDevice::IsApiSupported(Nexus::Graphics::GraphicsAPI::Vulkan))
+	{
+		Nexus::Graphics::GraphicsDevice *device = Nexus::Graphics::GraphicsDevice::CreateGraphicsDevice(spec);
+		EXPECT_EQ(device->Validate(), true);
+	}
 }

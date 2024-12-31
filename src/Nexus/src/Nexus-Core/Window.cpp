@@ -137,10 +137,13 @@ namespace Nexus
 
 	void IWindow::SetIsMouseVisible(bool visible)
 	{
-		switch (visible)
+		if (visible)
 		{
-			case true: SDL_ShowCursor(); break;
-			case false: SDL_HideCursor(); break;
+			SDL_ShowCursor();
+		}
+		else
+		{
+			SDL_HideCursor();
 		}
 	}
 
@@ -236,16 +239,6 @@ namespace Nexus
 		SDL_RaiseWindow(m_Window);
 	}
 
-	void IWindow::CreateSwapchain(Graphics::GraphicsDevice *device, const Graphics::SwapchainSpecification &swapchainSpec)
-	{
-		m_Swapchain = device->CreateSwapchain(this, swapchainSpec);
-	}
-
-	Graphics::Swapchain *IWindow::GetSwapchain()
-	{
-		return m_Swapchain;
-	}
-
 	uint32_t IWindow::GetID()
 	{
 		return m_WindowID;
@@ -299,28 +292,26 @@ namespace Nexus
 		SDL_SetRelativeMouseMode(enabled);
 	}
 
-#if defined(NX_PLATFORM_WINDOWS)
-	const HWND IWindow::GetHwnd() const
+	NativeWindowInfo IWindow::GetNativeWindowInfo()
 	{
-		HWND hwnd = (HWND)SDL_GetProperty(SDL_GetWindowProperties(m_Window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr);
-		return hwnd;
-	}
-#endif
+		NativeWindowInfo info = {};
 
-#if defined(NX_PLATFORM_LINUX)
-	const XWindowInfo IWindow::GetXWindow() const
-	{
 		SDL_PropertiesID properties = SDL_GetWindowProperties(m_Window);
 
-		const char *driver = SDL_GetCurrentVideoDriver();
-
-		Display		 *display	   = (Display *)SDL_GetProperty(properties, SDL_PROP_WINDOW_X11_DISPLAY_POINTER, nullptr);
-		int			  screenIndex  = (int)(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_SCREEN_NUMBER, 0));
-		unsigned long windowNumber = (unsigned long)SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0);
-
-		return XWindowInfo {.display = display, .screen = screenIndex, .window = (Window)windowNumber};
-	}
+#if defined(NX_PLATFORM_WINDOWS)
+		info.hwnd	  = (HWND)SDL_GetProperty(properties, SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr);
+		info.hdc	  = (HDC)SDL_GetProperty(properties, SDL_PROP_WINDOW_WIN32_HDC_POINTER, nullptr);
+		info.instance = (HINSTANCE)SDL_GetProperty(properties, SDL_PROP_WINDOW_WIN32_INSTANCE_POINTER, nullptr);
+#elif defined(NX_PLATFORM_LINUX)
+		info.display = (Display *)SDL_GetProperty(properties, SDL_PROP_WINDOW_X11_DISPLAY_POINTER, nullptr);
+		info.screen	 = (int)SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_SCREEN_NUMBER);
+		info.window	 = (Window)(unsigned long)SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_WINDOW_NUMBER);
+#elif defined(NX_PLATFORM_WEB)
+		info.canvasId = m_Specification.CanvasId;
 #endif
+
+		return info;
+	}
 
 	uint32_t IWindow::GetFlags(Graphics::GraphicsAPI				   api,
 							   const WindowSpecification			  &windowSpec,

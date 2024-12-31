@@ -14,29 +14,23 @@
 	#include "TextureVk.hpp"
 	#include "TimingQueryVk.hpp"
 	#include "SwapchainVk.hpp"
+	#include "PlatformVk.hpp"
 
 namespace Nexus::Graphics
 {
-	GraphicsDeviceVk::GraphicsDeviceVk(const GraphicsDeviceSpecification &createInfo, IWindow *window, const SwapchainSpecification &swapchainSpec)
-		: GraphicsDevice(createInfo, window, swapchainSpec),
-		  m_CommandExecutor(this)
+	GraphicsDeviceVk::GraphicsDeviceVk(const GraphicsDeviceSpecification &createInfo) : GraphicsDevice(createInfo), m_CommandExecutor(this)
 	{
 		CreateInstance();
 
-	#if defined(_DEBUG)
-		SetupDebugMessenger();
-	#endif
-
-		window->CreateSwapchain(this, swapchainSpec);
+		if (createInfo.DebugLayer)
+		{
+			SetupDebugMessenger();
+		}
 
 		SelectPhysicalDevice();
-		SelectQueueFamilies();
 		CreateDevice();
 		auto deviceExtensions = GetSupportedDeviceExtensions();
 		CreateAllocator();
-
-		SwapchainVk *swapchain = (SwapchainVk *)window->GetSwapchain();
-		swapchain->Initialise();
 
 		CreateCommandStructures();
 		CreateSynchronisationStructures();
@@ -49,12 +43,6 @@ namespace Nexus::Graphics
 		vkDestroyFence(m_Device, m_UploadContext.UploadFence, nullptr);
 		vkFreeCommandBuffers(m_Device, m_UploadContext.CommandPool, 1, &m_UploadContext.CommandBuffer);
 		vkDestroyCommandPool(m_Device, m_UploadContext.CommandPool, nullptr);
-
-		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
-		{
-			vkFreeCommandBuffers(m_Device, m_Frames[i].CommandPool, 1, &m_Frames[i].MainCommandBuffer);
-			vkDestroyCommandPool(m_Device, m_Frames[i].CommandPool, nullptr);
-		}
 	}
 
 	void GraphicsDeviceVk::SubmitCommandList(Ref<CommandList> commandList)
@@ -171,18 +159,22 @@ namespace Nexus::Graphics
 
 	Swapchain *GraphicsDeviceVk::CreateSwapchain(IWindow *window, const SwapchainSpecification &spec)
 	{
-		return new SwapchainVk(window, this, spec);
+		SwapchainVk *swapchain = new SwapchainVk(window, this, spec);
+
+		VkBool32 presentSupport = false;
+		vkGetPhysicalDeviceSurfaceSupportKHR(m_PhysicalDevice, m_PresentQueueFamilyIndex, swapchain->m_Surface, &presentSupport);
+
+		if (!presentSupport)
+		{
+			throw std::runtime_error("Device is unable to present to this swapchain");
+		}
+
+		return swapchain;
 	}
 
 	ShaderLanguage GraphicsDeviceVk::GetSupportedShaderFormat()
 	{
 		return ShaderLanguage::SPIRV;
-	}
-
-	uint32_t GraphicsDeviceVk::GetSwapchainImageCount()
-	{
-		SwapchainVk *swapchain = (SwapchainVk *)m_Window->GetSwapchain();
-		return swapchain->GetImageCount();
 	}
 
 	VkDevice GraphicsDeviceVk::GetVkDevice()
@@ -311,15 +303,9 @@ namespace Nexus::Graphics
 		"VK_LAYER_KHRONOS_validation",
 	};
 
-	#if defined(_DEBUG)
-	const bool enableValidationLayers = true;
-	#else
-	const bool enableValidationLayers = false;
-	#endif
-
 	void GraphicsDeviceVk::CreateInstance()
 	{
-		if (enableValidationLayers && !CheckValidationLayerSupport())
+		if (m_Specification.DebugLayer && !CheckValidationLayerSupport())
 		{
 			throw std::runtime_error("Validation layers were requested, but were not available");
 		}
@@ -336,7 +322,7 @@ namespace Nexus::Graphics
 		instanceCreateInfo.sType				= VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 		instanceCreateInfo.pApplicationInfo		= &appInfo;
 
-		if (enableValidationLayers)
+		if (m_Specification.DebugLayer)
 		{
 			instanceCreateInfo.enabledLayerCount   = validationLayers.size();
 			instanceCreateInfo.ppEnabledLayerNames = validationLayers.data();
@@ -418,11 +404,7 @@ namespace Nexus::Graphics
 				graphicsIndex = i;
 			}
 
-			VkBool32	 presentSupport = false;
-			SwapchainVk *swapchain		= (SwapchainVk *)m_Window->GetSwapchain();
-
-			vkGetPhysicalDeviceSurfaceSupportKHR(m_PhysicalDevice, i, swapchain->m_Surface, &presentSupport);
-			if (queueFamily.queueCount > 0 && presentSupport)
+			if (queueFamily.queueCount > 0)
 			{
 				presentIndex = i;
 			}
@@ -445,6 +427,8 @@ namespace Nexus::Graphics
 
 	void GraphicsDeviceVk::CreateDevice()
 	{
+		SelectQueueFamilies();
+
 		std::vector<const char *> deviceExtensions = GetRequiredDeviceExtensions();
 		const float				  queuePriority[]  = {1.0f};
 
@@ -513,36 +497,8 @@ namespace Nexus::Graphics
 
 	void GraphicsDeviceVk::CreateCommandStructures()
 	{
-		SwapchainVk *swapchain = (SwapchainVk *)m_Window->GetSwapchain();
-
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
-			// create command pools
-			{
-				VkCommandPoolCreateInfo createInfo = {};
-				createInfo.sType				   = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-				createInfo.flags				   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT | VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
-				createInfo.queueFamilyIndex		   = m_GraphicsQueueFamilyIndex;
-				if (vkCreateCommandPool(m_Device, &createInfo, nullptr, &m_Frames[i].CommandPool) != VK_SUCCESS)
-				{
-					throw std::runtime_error("Failed to create command pool");
-				}
-			}
-
-			// allocate command buffers
-			{
-				VkCommandBufferAllocateInfo allocateInfo = {};
-				allocateInfo.sType						 = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-				allocateInfo.commandPool				 = m_Frames[i].CommandPool;
-				allocateInfo.level						 = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-				allocateInfo.commandBufferCount			 = swapchain->m_SwapchainImageCount;
-
-				if (vkAllocateCommandBuffers(m_Device, &allocateInfo, &m_Frames[i].MainCommandBuffer) != VK_SUCCESS)
-				{
-					throw std::runtime_error("Failed to allocate command buffers");
-				}
-			}
-
 			// upload command pool
 			{
 				VkCommandPoolCreateInfo createInfo = {};
@@ -561,7 +517,7 @@ namespace Nexus::Graphics
 				allocateInfo.sType						 = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 				allocateInfo.commandPool				 = m_UploadContext.CommandPool;
 				allocateInfo.level						 = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-				allocateInfo.commandBufferCount			 = swapchain->m_SwapchainImageCount;
+				allocateInfo.commandBufferCount			 = FRAMES_IN_FLIGHT;
 
 				if (vkAllocateCommandBuffers(m_Device, &allocateInfo, &m_UploadContext.CommandBuffer) != VK_SUCCESS)
 				{
@@ -684,14 +640,9 @@ namespace Nexus::Graphics
 
 	std::vector<const char *> GraphicsDeviceVk::GetRequiredInstanceExtensions()
 	{
-		uint32_t sdlExtensionCount = 0;
-		SDL_Vulkan_GetInstanceExtensions(&sdlExtensionCount);
-		std::vector<const char *> extensionNames(sdlExtensionCount);
-		const char *const		 *names = SDL_Vulkan_GetInstanceExtensions(&sdlExtensionCount);
+		std::vector<const char *> extensionNames = PlatformVk::GetRequiredExtensions();
 
-		for (uint32_t i = 0; i < sdlExtensionCount; i++) { extensionNames[i] = names[i]; }
-
-		if (enableValidationLayers)
+		if (m_Specification.DebugLayer)
 		{
 			extensionNames.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 		}
@@ -806,6 +757,40 @@ namespace Nexus::Graphics
 		return buffer;
 	}
 
+	bool GraphicsDeviceVk::Validate()
+	{
+		return m_Instance != VK_NULL_HANDLE && m_PhysicalDevice != VK_NULL_HANDLE && m_Device != VK_NULL_HANDLE && m_Allocator != VK_NULL_HANDLE;
+	}
+
+	void GraphicsDeviceVk::SetName(const std::string &name)
+	{
+		GraphicsDevice::SetName(name);
+
+		std::string instanceName = name + std::string(" - Instance");
+		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_INSTANCE, (uint64_t)m_Instance, instanceName.c_str());
+
+		std::string physicalDeviceName = name + std::string(" - PhysicalDevice");
+		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_PHYSICAL_DEVICE, (uint64_t)m_PhysicalDevice, physicalDeviceName.c_str());
+
+		std::string deviceName = name + std::string(" - Device");
+		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_DEVICE, (uint64_t)m_Device, deviceName.c_str());
+
+		if (m_Specification.DebugLayer)
+		{
+			std::string debugName = name + std::string(" - Debug Messenger");
+			Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_DEBUG_UTILS_MESSENGER_EXT, (uint64_t)m_DebugMessenger, debugName.c_str());
+		}
+
+		std::string uploadFenceName = name + std::string(" - Upload Context Fence");
+		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_FENCE, (uint64_t)m_UploadContext.UploadFence, uploadFenceName.c_str());
+
+		std::string uploadCmdPoolName = name + std::string(" - Upload Command Pool");
+		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_COMMAND_POOL, (uint64_t)m_UploadContext.CommandPool, uploadCmdPoolName.c_str());
+
+		std::string uploadCmdBufferName = name + std::string(" - Upload Commamd Buffer");
+		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_COMMAND_BUFFER, (uint64_t)m_UploadContext.UploadFence, uploadCmdBufferName.c_str());
+	}
+
 	uint32_t GraphicsDeviceVk::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
 	{
 		VkPhysicalDeviceMemoryProperties memProperties;
@@ -820,11 +805,6 @@ namespace Nexus::Graphics
 		}
 
 		throw std::runtime_error("Failed to find suitable memory type");
-	}
-
-	FrameData &GraphicsDeviceVk::GetCurrentFrame()
-	{
-		return m_Frames[m_FrameNumber % FRAMES_IN_FLIGHT];
 	}
 }	 // namespace Nexus::Graphics
 

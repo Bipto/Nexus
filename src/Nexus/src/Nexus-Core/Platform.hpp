@@ -30,6 +30,9 @@ namespace Nexus::Platform
 		Hand
 	};
 
+	const char *GetSystemName();
+	const char *GetProcessorType();
+
 	void SetCursor(Cursor cursor);
 
 	std::vector<InputNew::Keyboard> GetKeyboards();
@@ -62,4 +65,5 @@ namespace Nexus::Platform
 	inline EventHandler<uint32_t> OnMouseRemoved;
 	inline EventHandler<uint32_t> OnGamepadAdded;
 	inline EventHandler<uint32_t> OnGamepadRemoved;
+
 }	 // namespace Nexus::Platform

@@ -89,9 +89,9 @@ namespace Nexus::ImGuiUtils
 		pipelineDesc.VertexModule	= vertexModule;
 		pipelineDesc.FragmentModule = fragmentModule;
 
-		pipelineDesc.ColourFormats[0]		 = Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
+		pipelineDesc.ColourFormats[0]		 = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
 		pipelineDesc.ColourTargetCount		 = 1;
-		pipelineDesc.ColourTargetSampleCount = m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->GetSpecification().Samples;
+		pipelineDesc.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification().Samples;
 		pipelineDesc.DepthFormat			 = Graphics::PixelFormat::D24_UNorm_S8_UInt;
 
 		pipelineDesc.BlendStateDesc.EnableBlending		   = true;
@@ -154,6 +154,7 @@ namespace Nexus::ImGuiUtils
 		}
 
 		io.Fonts->AddFontDefault();
+		RebuildFontAtlas();
 
 		SetupInput();
 
@@ -173,15 +174,16 @@ namespace Nexus::ImGuiUtils
 			windowSpec.Height	  = vp->Size.y;
 			windowSpec.Borderless = true;
 
-			Nexus::Graphics::SwapchainSpecification swapchainSpec = app->GetPrimaryWindow()->GetSwapchain()->GetSpecification();
+			Nexus::Graphics::SwapchainSpecification swapchainSpec = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification();
 
 			Nexus::IWindow *window = Platform::CreatePlatformWindow(windowSpec, app->GetGraphicsDevice()->GetGraphicsAPI(), swapchainSpec);
-			window->CreateSwapchain(app->GetGraphicsDevice(), swapchainSpec);
-			window->GetSwapchain()->Initialise();
+			Nexus::Graphics::Swapchain *swapchain = app->GetGraphicsDevice()->CreateSwapchain(window, swapchainSpec);
+			swapchain->Initialise();
 			window->SetWindowPosition(vp->Pos.x, vp->Pos.y);
 
 			ImGuiWindowInfo *info = new ImGuiWindowInfo();
 			info->Window		  = window;
+			info->Swapchain		  = swapchain;
 
 			vp->PlatformUserData = info;
 			vp->RendererUserData = info;
@@ -337,6 +339,7 @@ namespace Nexus::ImGuiUtils
 
 		ImGuiWindowInfo *info = new ImGuiWindowInfo();
 		info->Window		  = app->GetPrimaryWindow();
+		info->Swapchain		  = app->GetPrimarySwapchain();
 		vp->PlatformUserData  = info;
 		vp->RendererUserData  = info;
 	}
@@ -393,7 +396,7 @@ namespace Nexus::ImGuiUtils
 		auto &io	 = ImGui::GetIO();
 		io.DeltaTime = (float)gameTime.GetSeconds();
 
-		auto windowSize			   = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize();
+		auto windowSize			   = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
 		io.DisplaySize			   = {(float)windowSize.X, (float)windowSize.Y};
 		io.DisplayFramebufferScale = {1, 1};
 
@@ -419,10 +422,10 @@ namespace Nexus::ImGuiUtils
 				{
 					ImGuiWindowInfo *info	= (ImGuiWindowInfo *)platform_io.Viewports[i]->PlatformUserData;
 					Nexus::IWindow	*window = info->Window;
+					Nexus::Graphics::Swapchain *swapchain = info->Swapchain;
 
 					if (window && !window->IsClosing())
 					{
-						Nexus::Graphics::Swapchain *swapchain = window->GetSwapchain();
 						if (swapchain)
 						{
 							swapchain->Prepare();
@@ -473,7 +476,7 @@ namespace Nexus::ImGuiUtils
 
 	void ImGuiGraphicsRenderer::UpdateInput()
 	{
-		auto  mainWindow = m_GraphicsDevice->GetPrimaryWindow();
+		auto  mainWindow = Nexus::GetApplication()->GetPrimaryWindow();
 		auto &io		 = ImGui::GetIO();
 
 		std::optional<IWindow *> window = Platform::GetKeyboardFocus();
@@ -590,7 +593,7 @@ namespace Nexus::ImGuiUtils
 
 		m_CommandList->Begin();
 		m_CommandList->SetPipeline(m_Pipeline);
-		m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(info->Window->GetSwapchain()));
+		m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(info->Swapchain));
 		m_CommandList->SetVertexBuffer(m_VertexBuffer, 0);
 		m_CommandList->SetIndexBuffer(m_IndexBuffer);
 
@@ -649,7 +652,7 @@ namespace Nexus::ImGuiUtils
 
 	void ImGuiGraphicsRenderer::UpdateCursor()
 	{
-		auto window = m_GraphicsDevice->GetPrimaryWindow();
+		auto window = Nexus::GetApplication()->GetPrimaryWindow();
 
 		switch (ImGui::GetMouseCursor())
 		{

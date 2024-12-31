@@ -101,7 +101,8 @@
         "memory_resource": "cpp",
         "string_view": "cpp",
         "semaphore": "cpp",
-        "cfenv": "cpp"
+        "cfenv": "cpp",
+        "resumable": "cpp"
     },
     "cmake.loggingLevel": "info"
 }

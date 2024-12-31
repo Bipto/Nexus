@@ -652,7 +652,7 @@ namespace Nexus::GL
 	#elif defined(NX_PLATFORM_GLX)
 		return std::make_unique<OffscreenContextGLX>(spec);
 	#else
-		#error No OpenGL backend selected
+		#error No OpenGL backend available
 	#endif
 	}
 
@@ -663,24 +663,20 @@ namespace Nexus::GL
 		spec.Samples				  = Graphics::SampleCount::SampleCount8;
 
 		Graphics::GraphicsDeviceOpenGL *deviceOpenGL = (Graphics::GraphicsDeviceOpenGL *)device;
+		NativeWindowInfo				windowInfo	 = window->GetNativeWindowInfo();
 
 	#if defined(NX_PLATFORM_WGL)
 		OffscreenContextWGL *pbufferWGL = (OffscreenContextWGL *)deviceOpenGL->GetOffscreenContext();
-		return std::make_unique<ViewContextWGL>(window->GetHwnd(), pbufferWGL, spec);
+		return std::make_unique<ViewContextWGL>(windowInfo.hwnd, windowInfo.hdc, pbufferWGL, spec);
 	#elif defined(NX_PLATFORM_EGL)
 		OffscreenContextEGL *pbufferEGL	  = (OffscreenContextEGL *)deviceOpenGL->GetOffscreenContext();
-		XWindowInfo			 info		  = window->GetXWindow();
-		EGLDisplay			 display	  = eglGetDisplay(info.display);
-		EGLNativeWindowType	 nativeWindow = (EGLNativeWindowType)info.window;
+		EGLDisplay			 display	  = eglGetDisplay(windowInfo.display);
+		EGLNativeWindowType	 nativeWindow = (EGLNativeWindowType)windowInfo.window;
 		return std::make_unique<ViewContextEGL>(display, nativeWindow, pbufferEGL, spec);
 	#elif defined(NX_PLATFORM_WEBGL)
-		return std::make_unique<ViewContextWebGL>("canvas", deviceOpenGL, spec);
-	#elif defined(NX_PLATFORM_GLX)
-		OffscreenContextGLX *pbufferGLX = (OffscreenContextGLX *)deviceOpenGL->GetOffscreenContext();
-		XWindowInfo			 info		= window->GetXWindow();
-		return std::make_unique<ViewContextGLX>(info.display, info.screen, info.window, pbufferGLX, spec);
+		return std::make_unique<ViewContextWebGL>(windowInfo.canvasId.c_str(), deviceOpenGL, spec);
 	#else
-		return
+		#error No OpenGL backend available
 	#endif
 	}
 

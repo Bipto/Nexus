@@ -1,5 +1,6 @@
 #include "BatchRenderer.hpp"
 
+#include "Nexus-Core/Runtime.hpp"
 #include "Nexus-Core/Utils/Utils.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
@@ -342,7 +343,7 @@ namespace Nexus::Graphics
 		description.FragmentModule						 = fragmentModule;
 		description.ResourceSetSpec						 = GetResourceSetSpecification();
 
-		description.ColourFormats[0]  = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
+		description.ColourFormats[0]  = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
 		description.ColourTargetCount = 1;
 		description.DepthFormat		  = Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt;
 
@@ -354,7 +355,7 @@ namespace Nexus::Graphics
 		description.BlendStateDesc.DestinationAlphaBlend  = BlendFactor::OneMinusSourceAlpha;
 		description.BlendStateDesc.AlphaBlendFunction	  = BlendEquation::Add;
 
-		description.ColourTargetSampleCount = device->GetPrimaryWindow()->GetSwapchain()->GetSpecification().Samples;
+		description.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification().Samples;
 
 		info.Pipeline	 = device->CreatePipeline(description);
 		info.ResourceSet = device->CreateResourceSet(info.Pipeline);
@@ -416,8 +417,8 @@ namespace Nexus::Graphics
 
 	void BatchRenderer::Resize()
 	{
-		m_Width	 = m_Device->GetPrimaryWindow()->GetWindowSize().X;
-		m_Height = m_Device->GetPrimaryWindow()->GetWindowSize().Y;
+		m_Width	 = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().X;
+		m_Height = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().Y;
 	}
 
 	void BatchRenderer::Begin(Viewport viewport, Scissor scissor)
@@ -1065,7 +1066,7 @@ namespace Nexus::Graphics
 
 		m_CommandList->Begin();
 		m_CommandList->SetPipeline(info.Pipeline);
-		m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(m_Device->GetPrimaryWindow()->GetSwapchain()));
+		m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(Nexus::GetApplication()->GetPrimarySwapchain()));
 		m_CommandList->SetViewport(m_Viewport);
 		m_CommandList->SetScissor(m_ScissorRectangle);
 		m_CommandList->SetResourceSet(info.ResourceSet);

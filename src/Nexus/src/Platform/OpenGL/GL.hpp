@@ -13,6 +13,7 @@
 		#include <GLES3/gl3.h>
 		#include <GLES2/gl2ext.h>
 	#else
+		#include "Platform/Windows/WindowsInclude.hpp"
 		#include "glad/glad.h"
 	#endif
 
@@ -66,7 +67,6 @@ namespace Nexus::GL
 		NX_ERROR(message);                                                                                                                           \
 	}
 
-#define NX_GL_DEBUG
 #if defined(NX_GL_DEBUG)
 	#define glCall(x)                                                                                                                                \
 		glClearErrors();                                                                                                                             \

@@ -38,13 +38,13 @@ namespace Demos
 		{
 			m_CommandList->Begin();
 			m_CommandList->SetPipeline(m_Pipeline);
-			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()));
+			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(Nexus::GetApplication()->GetPrimarySwapchain()));
 
 			Nexus::Graphics::Viewport vp;
 			vp.X		= 0;
 			vp.Y		= 0;
-			vp.Width	= m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize().X;
-			vp.Height	= m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize().Y;
+			vp.Width	= Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().X;
+			vp.Height	= Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().Y;
 			vp.MinDepth = 0.0f;
 			vp.MaxDepth = 1.0f;
 			m_CommandList->SetViewport(vp);
@@ -52,8 +52,8 @@ namespace Demos
 			Nexus::Graphics::Scissor scissor;
 			scissor.X	   = 0;
 			scissor.Y	   = 0;
-			scissor.Width  = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize().X;
-			scissor.Height = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize().Y;
+			scissor.Width  = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().X;
+			scissor.Height = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().Y;
 			m_CommandList->SetScissor(scissor);
 
 			m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
@@ -91,8 +91,8 @@ namespace Demos
 			pipelineDescription.ResourceSetSpec.SampledImages = {{"texSampler", 0, 0}};
 
 			pipelineDescription.ColourTargetCount		= 1;
-			pipelineDescription.ColourFormats[0]		= Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
-			pipelineDescription.ColourTargetSampleCount = m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->GetSpecification().Samples;
+			pipelineDescription.ColourFormats[0]		= Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
+			pipelineDescription.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification().Samples;
 			pipelineDescription.Layouts					= {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
 			m_Pipeline	  = m_GraphicsDevice->CreatePipeline(pipelineDescription);

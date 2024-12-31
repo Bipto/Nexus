@@ -122,7 +122,7 @@ namespace Nexus::Graphics
 				glCall(glDrawElements(GL::GetTopology(pipeline->GetPipelineDescription().PrimitiveTopology),
 									  command.Count,
 									  indexBuffer->GetGLIndexFormat(),
-									  (void *)offset));
+									  (void *)(uint64_t)offset));
 				pipeline->DestroyVAO();
 			}
 		}
@@ -171,7 +171,7 @@ namespace Nexus::Graphics
 				glCall(glDrawElementsInstanced(GL::GetTopology(pipeline->GetPipelineDescription().PrimitiveTopology),
 											   command.IndexCount,
 											   indexBuffer->GetGLIndexFormat(),
-											   (void *)offset,
+											   (void *)(uint64_t)offset,
 											   command.InstanceCount));
 				pipeline->DestroyVAO();
 			}

@@ -13,7 +13,7 @@ namespace Nexus::Graphics
 	class GraphicsDeviceD3D12 : public GraphicsDevice
 	{
 	  public:
-		GraphicsDeviceD3D12(const GraphicsDeviceSpecification &createInfo, IWindow *window, const SwapchainSpecification &swapchainSpec);
+		GraphicsDeviceD3D12(const GraphicsDeviceSpecification &createInfo);
 		~GraphicsDeviceD3D12();
 
 		virtual void SubmitCommandList(Ref<CommandList> commandList) override;
@@ -67,6 +67,9 @@ namespace Nexus::Graphics
 		void ResourceBarrier(ID3D12GraphicsCommandList7 *cmd, Ref<Texture2D_D3D12> resource, uint32_t level, D3D12_RESOURCE_STATES after);
 		void ResourceBarrierSwapchainColour(ID3D12GraphicsCommandList7 *cmd, SwapchainD3D12 *resource, D3D12_RESOURCE_STATES after);
 		void ResourceBarrierSwapchainDepth(ID3D12GraphicsCommandList7 *cmd, SwapchainD3D12 *resource, D3D12_RESOURCE_STATES after);
+
+		virtual bool Validate() override;
+		virtual void SetName(const std::string &name) override;
 
 	  private:
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) override;

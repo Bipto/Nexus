@@ -184,6 +184,11 @@ namespace Nexus::GL
 
 		return {pbuffer, pbufferDC, pbufferContext};
 	}
+
+	bool OffscreenContextWGL::Validate()
+	{
+		return m_HGLRC != nullptr && m_PBuffer != nullptr && m_HDC != nullptr;
+	}
 }	 // namespace Nexus::GL
 
 #endif
