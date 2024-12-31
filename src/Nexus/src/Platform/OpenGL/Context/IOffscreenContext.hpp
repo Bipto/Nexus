@@ -9,5 +9,6 @@ namespace Nexus::GL
 		{
 		}
 		virtual bool MakeCurrent() = 0;
+		virtual bool Validate()	   = 0;
 	};
 }	 // namespace Nexus::GL

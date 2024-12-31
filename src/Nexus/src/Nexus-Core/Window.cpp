@@ -239,16 +239,6 @@ namespace Nexus
 		SDL_RaiseWindow(m_Window);
 	}
 
-	void IWindow::CreateSwapchain(Graphics::GraphicsDevice *device, const Graphics::SwapchainSpecification &swapchainSpec)
-	{
-		m_Swapchain = device->CreateSwapchain(this, swapchainSpec);
-	}
-
-	Graphics::Swapchain *IWindow::GetSwapchain()
-	{
-		return m_Swapchain;
-	}
-
 	uint32_t IWindow::GetID()
 	{
 		return m_WindowID;

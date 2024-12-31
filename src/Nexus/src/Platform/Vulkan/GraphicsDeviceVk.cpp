@@ -22,9 +22,10 @@ namespace Nexus::Graphics
 	{
 		CreateInstance();
 
-	#if defined(_DEBUG)
-		SetupDebugMessenger();
-	#endif
+		if (createInfo.DebugLayer)
+		{
+			SetupDebugMessenger();
+		}
 
 		SelectPhysicalDevice();
 		CreateDevice();
@@ -302,15 +303,9 @@ namespace Nexus::Graphics
 		"VK_LAYER_KHRONOS_validation",
 	};
 
-	#if defined(_DEBUG)
-	const bool enableValidationLayers = true;
-	#else
-	const bool enableValidationLayers = false;
-	#endif
-
 	void GraphicsDeviceVk::CreateInstance()
 	{
-		if (enableValidationLayers && !CheckValidationLayerSupport())
+		if (m_Specification.DebugLayer && !CheckValidationLayerSupport())
 		{
 			throw std::runtime_error("Validation layers were requested, but were not available");
 		}
@@ -327,7 +322,7 @@ namespace Nexus::Graphics
 		instanceCreateInfo.sType				= VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 		instanceCreateInfo.pApplicationInfo		= &appInfo;
 
-		if (enableValidationLayers)
+		if (m_Specification.DebugLayer)
 		{
 			instanceCreateInfo.enabledLayerCount   = validationLayers.size();
 			instanceCreateInfo.ppEnabledLayerNames = validationLayers.data();
@@ -645,16 +640,9 @@ namespace Nexus::Graphics
 
 	std::vector<const char *> GraphicsDeviceVk::GetRequiredInstanceExtensions()
 	{
-		// uint32_t sdlExtensionCount = 0;
-		// SDL_Vulkan_GetInstanceExtensions(&sdlExtensionCount);
-		// std::vector<const char *> extensionNames(sdlExtensionCount);
-		// const char *const		 *names = SDL_Vulkan_GetInstanceExtensions(&sdlExtensionCount);
-
 		std::vector<const char *> extensionNames = PlatformVk::GetRequiredExtensions();
 
-		// for (uint32_t i = 0; i < sdlExtensionCount; i++) { extensionNames[i] = names[i]; }
-
-		if (enableValidationLayers)
+		if (m_Specification.DebugLayer)
 		{
 			extensionNames.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 		}
@@ -767,6 +755,40 @@ namespace Nexus::Graphics
 		}
 
 		return buffer;
+	}
+
+	bool GraphicsDeviceVk::Validate()
+	{
+		return m_Instance != VK_NULL_HANDLE && m_PhysicalDevice != VK_NULL_HANDLE && m_Device != VK_NULL_HANDLE && m_Allocator != VK_NULL_HANDLE;
+	}
+
+	void GraphicsDeviceVk::SetName(const std::string &name)
+	{
+		GraphicsDevice::SetName(name);
+
+		std::string instanceName = name + std::string(" - Instance");
+		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_INSTANCE, (uint64_t)m_Instance, instanceName.c_str());
+
+		std::string physicalDeviceName = name + std::string(" - PhysicalDevice");
+		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_PHYSICAL_DEVICE, (uint64_t)m_PhysicalDevice, physicalDeviceName.c_str());
+
+		std::string deviceName = name + std::string(" - Device");
+		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_DEVICE, (uint64_t)m_Device, deviceName.c_str());
+
+		if (m_Specification.DebugLayer)
+		{
+			std::string debugName = name + std::string(" - Debug Messenger");
+			Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_DEBUG_UTILS_MESSENGER_EXT, (uint64_t)m_DebugMessenger, debugName.c_str());
+		}
+
+		std::string uploadFenceName = name + std::string(" - Upload Context Fence");
+		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_FENCE, (uint64_t)m_UploadContext.UploadFence, uploadFenceName.c_str());
+
+		std::string uploadCmdPoolName = name + std::string(" - Upload Command Pool");
+		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_COMMAND_POOL, (uint64_t)m_UploadContext.CommandPool, uploadCmdPoolName.c_str());
+
+		std::string uploadCmdBufferName = name + std::string(" - Upload Commamd Buffer");
+		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_COMMAND_BUFFER, (uint64_t)m_UploadContext.UploadFence, uploadCmdBufferName.c_str());
 	}
 
 	uint32_t GraphicsDeviceVk::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)

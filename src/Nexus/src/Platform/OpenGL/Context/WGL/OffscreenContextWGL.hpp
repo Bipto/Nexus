@@ -17,6 +17,7 @@ namespace Nexus::GL
 		OffscreenContextWGL(const ContextSpecification &spec);
 		virtual ~OffscreenContextWGL();
 		virtual bool MakeCurrent() override;
+		virtual bool Validate() override;
 
 		HGLRC GetHGLRC();
 

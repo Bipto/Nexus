@@ -20,6 +20,7 @@ namespace Nexus::GL
 		virtual void						Swap() override;
 		virtual void						SetVSync(bool enabled) override;
 		virtual const ContextSpecification &GetSpecification() const override;
+		virtual bool						Validate() override;
 
 	  private:
 		HGLRC CreateSharedContext(HDC hdc, HGLRC sharedContext, const ContextSpecification &spec);

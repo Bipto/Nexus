@@ -21,6 +21,7 @@ namespace Nexus::GL
 		OffscreenContextWebGL(const std::string &canvasName);
 		virtual ~OffscreenContextWebGL();
 		virtual bool MakeCurrent() override;
+		virtual bool Validate() override;
 
 		const std::string &GetCanvasName();
 		const std::string &GetCSS_SelectorString();

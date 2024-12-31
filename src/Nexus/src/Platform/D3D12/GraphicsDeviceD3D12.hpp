@@ -68,6 +68,9 @@ namespace Nexus::Graphics
 		void ResourceBarrierSwapchainColour(ID3D12GraphicsCommandList7 *cmd, SwapchainD3D12 *resource, D3D12_RESOURCE_STATES after);
 		void ResourceBarrierSwapchainDepth(ID3D12GraphicsCommandList7 *cmd, SwapchainD3D12 *resource, D3D12_RESOURCE_STATES after);
 
+		virtual bool Validate() override;
+		virtual void SetName(const std::string &name) override;
+
 	  private:
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) override;
 		void					  InitUploadCommandList();

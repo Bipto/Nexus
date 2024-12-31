@@ -19,6 +19,8 @@
 #include "TimingQuery.hpp"
 #include "Viewport.hpp"
 
+#include "Nexus-Core/IResource.hpp"
+
 namespace Nexus::Graphics
 {
 	/// @brief A class representing properties needed to create a new graphics
@@ -33,9 +35,13 @@ namespace Nexus::Graphics
 	};
 
 	/// @brief A class representing an abstraction over a graphics API
-	class GraphicsDevice
+	class GraphicsDevice : public IResource
 	{
 	  public:
+		static GraphicsDevice *CreateGraphicsDevice(const Graphics::GraphicsDeviceSpecification &spec);
+
+		static bool IsApiSupported(GraphicsAPI api);
+
 		/// @brief A constructor taking in a const reference to a
 		/// GraphicsDeviceSpecification
 		/// @param createInfo The options to use when creating the GraphicsDevice
@@ -173,6 +179,10 @@ namespace Nexus::Graphics
 
 		const GraphicsDeviceSpecification &GetSpecification() const;
 
+		virtual bool			   Validate() override;
+		virtual void			   SetName(const std::string &name) override;
+		virtual const std::string &GetName() override;
+
 	  private:
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) = 0;
 		Ref<ShaderModule>		  TryLoadCachedShader(const std::string &source, const std::string &name, ShaderStage stage, ShaderLanguage language);
@@ -181,5 +191,6 @@ namespace Nexus::Graphics
 		GraphicsDeviceSpecification m_Specification;
 
 		Ref<CommandList> m_ImmediateCommandList = nullptr;
+		std::string		 m_Name					= "GraphicsDevice";
 	};
 }	 // namespace Nexus::Graphics

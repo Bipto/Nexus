@@ -150,6 +150,11 @@ namespace Nexus::GL
 		m_Framebuffer											 = m_Device->CreateFramebuffer(framebufferSpec);
 	}
 
+	bool ViewContextWebGL::Validate()
+	{
+		return true;
+	}
+
 }	 // namespace Nexus::GL
 
 #endif

@@ -16,6 +16,7 @@ const uint32_t FRAMES_IN_FLIGHT = 3;
 namespace Nexus::Vk
 {
 	VkFormat			  GetVkPixelDataFormat(Nexus::Graphics::PixelFormat format, bool depthFormat);
+	Nexus::Graphics::PixelFormat GetNxPixelFormatFromVkPixelFormat(VkFormat format);
 	VkFormat			  GetShaderDataType(Nexus::Graphics::ShaderDataType type);
 	VkSampleCountFlagBits GetVkSampleCount(Nexus::Graphics::SampleCount samples);
 
@@ -32,6 +33,8 @@ namespace Nexus::Vk
 
 	VkIndexType GetVulkanIndexBufferFormat(Nexus::Graphics::IndexBufferFormat format);
 	VkFrontFace GetFrontFace(Nexus::Graphics::FrontFace frontFace);
+
+	bool SetObjectName(VkDevice device, VkObjectType type, uint64_t objectHandle, const char *name);
 
 	struct AllocatedBuffer
 	{

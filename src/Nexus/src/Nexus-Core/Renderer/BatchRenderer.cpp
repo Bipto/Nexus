@@ -343,7 +343,7 @@ namespace Nexus::Graphics
 		description.FragmentModule						 = fragmentModule;
 		description.ResourceSetSpec						 = GetResourceSetSpecification();
 
-		description.ColourFormats[0]  = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
+		description.ColourFormats[0]  = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
 		description.ColourTargetCount = 1;
 		description.DepthFormat		  = Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt;
 

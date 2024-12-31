@@ -81,6 +81,11 @@ namespace Nexus::Graphics
 		m_CurrentBufferIndex = m_Swapchain->GetCurrentBackBufferIndex();
 	}
 
+	PixelFormat SwapchainD3D12::GetColourFormat()
+	{
+		return PixelFormat::R8_G8_B8_A8_UNorm;
+	}
+
 	Microsoft::WRL::ComPtr<ID3D12Resource2> SwapchainD3D12::RetrieveBufferHandle()
 	{
 		return m_Buffers.at(m_CurrentBufferIndex);

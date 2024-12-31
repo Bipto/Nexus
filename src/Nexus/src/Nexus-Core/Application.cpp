@@ -1,18 +1,5 @@
 #include "Application.hpp"
 
-// graphics headers
-#if defined(NX_PLATFORM_OPENGL)
-	#include "Platform/OpenGL/GraphicsDeviceOpenGL.hpp"
-#endif
-
-#if defined(NX_PLATFORM_D3D12)
-	#include "Platform/D3D12/GraphicsDeviceD3D12.hpp"
-#endif
-
-#if defined(NX_PLATFORM_VULKAN)
-	#include "Platform/Vulkan/GraphicsDeviceVk.hpp"
-#endif
-
 // audio headers
 #if defined(NX_PLATFORM_OPENAL)
 	#include "Platform/OpenAL/AudioDeviceOpenAL.hpp"
@@ -38,13 +25,15 @@ namespace Nexus
 		Graphics::GraphicsDeviceSpecification graphicsDeviceCreateInfo;
 		graphicsDeviceCreateInfo.API = spec.GraphicsAPI;
 
-		m_GraphicsDevice = Nexus::CreateGraphicsDevice(graphicsDeviceCreateInfo);
+		m_GraphicsDevice = Nexus::Graphics::GraphicsDevice::CreateGraphicsDevice(graphicsDeviceCreateInfo);
 
-		m_Window->CreateSwapchain(m_GraphicsDevice, spec.SwapchainSpecification);
-		m_Window->GetSwapchain()->Initialise();
+		m_GraphicsDevice->SetName("Test");
 
-		auto swapchain = m_Window->GetSwapchain();
-		swapchain->SetVSyncState(spec.SwapchainSpecification.VSyncState);
+		bool valid = m_GraphicsDevice->Validate();
+
+		m_Swapchain = m_GraphicsDevice->CreateSwapchain(m_Window, spec.SwapchainSpecification);
+		m_Swapchain->Initialise();
+		m_Swapchain->SetVSyncState(spec.SwapchainSpecification.VSyncState);
 
 		m_AudioDevice = Nexus::CreateAudioDevice(spec.AudioAPI);
 
@@ -118,7 +107,7 @@ namespace Nexus
 
 	Nexus::Graphics::Swapchain *Application::GetPrimarySwapchain()
 	{
-		return m_Window->GetSwapchain();
+		return m_Swapchain;
 	}
 
 	Point2D<uint32_t> Application::GetWindowSize()
@@ -174,26 +163,6 @@ namespace Nexus
 	const Keyboard &Application::GetGlobalKeyboardState() const
 	{
 		return m_GlobalKeyboardState;
-	}
-
-	Graphics::GraphicsDevice *CreateGraphicsDevice(const Graphics::GraphicsDeviceSpecification &createInfo)
-	{
-		switch (createInfo.API)
-		{
-#if defined(NX_PLATFORM_D3D12)
-			case Graphics::GraphicsAPI::D3D12: return new Graphics::GraphicsDeviceD3D12(createInfo);
-#endif
-
-#if defined(NX_PLATFORM_OPENGL)
-			case Graphics::GraphicsAPI::OpenGL: return new Graphics::GraphicsDeviceOpenGL(createInfo);
-#endif
-
-#if defined(NX_PLATFORM_VULKAN)
-			case Graphics::GraphicsAPI::Vulkan: return new Graphics::GraphicsDeviceVk(createInfo);
-#endif
-
-			default: throw std::runtime_error("Attempting to run application with unsupported graphics API"); return nullptr;
-		}
 	}
 
 	Audio::AudioDevice *CreateAudioDevice(Audio::AudioAPI api)

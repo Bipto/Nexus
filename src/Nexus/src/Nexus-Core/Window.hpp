@@ -146,16 +146,6 @@ namespace Nexus
 
 		void Focus();
 
-		/// @brief A method that creates a new swapchain to support rendering to the
-		/// window
-		/// @param device The graphics device to use to create the swapchain
-		/// @param vSyncState Whether or not vsync should be enabled for rendering
-		void CreateSwapchain(Graphics::GraphicsDevice *device, const Graphics::SwapchainSpecification &swapchainSpec);
-
-		/// @brief A method that returns a pointer to the window's swapchain
-		/// @return A pointer to a swapchain
-		Graphics::Swapchain *GetSwapchain();
-
 		uint32_t GetID();
 
 		float GetDisplayScale();
@@ -227,12 +217,6 @@ namespace Nexus
 
 		/// @brief An enum value representing the current state of the window
 		WindowState m_CurrentWindowState = WindowState::Normal;
-
-		/// @brief A pointer to the window's swapchain
-		Graphics::Swapchain *m_Swapchain = nullptr;
-
-		/// @brief A void pointer to the window's surface
-		void *m_Surface = nullptr;
 
 		/// @brief The underlying SDL window ID
 		uint32_t m_WindowID = 0;

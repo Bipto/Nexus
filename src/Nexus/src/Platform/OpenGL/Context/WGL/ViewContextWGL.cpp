@@ -180,6 +180,11 @@ namespace Nexus::GL
 
 		return hglrc;
 	}
+
+	bool ViewContextWGL::Validate()
+	{
+		return m_HWND != nullptr && m_HDC != nullptr && m_HGLRC != nullptr;
+	}
 }	 // namespace Nexus::GL
 
 #endif

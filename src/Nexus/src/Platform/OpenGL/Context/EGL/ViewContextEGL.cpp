@@ -96,6 +96,11 @@ namespace Nexus::GL
 	{
 		return m_Specification;
 	}
+
+	bool ViewContextEGL::Validate()
+	{
+		return m_EGLDisplay != nullptr && m_NativeWindow != nullptr && m_Surface != nullptr && m_Context != nullptr;
+	}
 }	 // namespace Nexus::GL
 
 #endif

@@ -141,6 +141,11 @@ namespace Nexus::Graphics
 		}
 	}
 
+	PixelFormat SwapchainVk::GetColourFormat()
+	{
+		return Vk::GetNxPixelFormatFromVkPixelFormat(m_SurfaceFormat.format);
+	}
+
 	void SwapchainVk::RecreateSwapchain()
 	{
 		vkDeviceWaitIdle(m_GraphicsDevice->GetVkDevice());

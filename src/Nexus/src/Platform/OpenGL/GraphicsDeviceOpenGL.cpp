@@ -175,6 +175,11 @@ namespace Nexus::Graphics
 		return ShaderLanguage::GLSL;
 	#endif
 	}
+
+	bool GraphicsDeviceOpenGL::Validate()
+	{
+		return m_PBuffer->Validate();
+	}
 }	 // namespace Nexus::Graphics
 
 #endif

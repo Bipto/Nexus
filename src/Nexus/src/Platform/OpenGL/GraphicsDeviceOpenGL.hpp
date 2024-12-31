@@ -51,6 +51,8 @@ namespace Nexus::Graphics
 			return false;
 		};
 
+		virtual bool Validate() override;
+
 		GL::IOffscreenContext *GetOffscreenContext();
 
 	  private:

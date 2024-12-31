@@ -28,7 +28,7 @@ class EditorApplication : public Nexus::Application
 		Nexus::Graphics::FramebufferSpecification framebufferSpec = {};
 		framebufferSpec.Width									  = 1280;
 		framebufferSpec.Height									  = 720;
-		framebufferSpec.ColorAttachmentSpecification.Attachments  = {{Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm}};
+		framebufferSpec.ColorAttachmentSpecification.Attachments  = {{Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat()}};
 
 		m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(framebufferSpec);
 

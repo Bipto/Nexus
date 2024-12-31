@@ -12,8 +12,61 @@
 #include "CachedShader.hpp"
 #include "CachedTexture.hpp"
 
+// graphics headers
+#if defined(NX_PLATFORM_OPENGL)
+	#include "Platform/OpenGL/GraphicsDeviceOpenGL.hpp"
+#endif
+
+#if defined(NX_PLATFORM_D3D12)
+	#include "Platform/D3D12/GraphicsDeviceD3D12.hpp"
+#endif
+
+#if defined(NX_PLATFORM_VULKAN)
+	#include "Platform/Vulkan/GraphicsDeviceVk.hpp"
+#endif
+
 namespace Nexus::Graphics
 {
+	GraphicsDevice *GraphicsDevice::CreateGraphicsDevice(const Graphics::GraphicsDeviceSpecification &spec)
+	{
+		switch (spec.API)
+		{
+#if defined(NX_PLATFORM_D3D12)
+			case Graphics::GraphicsAPI::D3D12: return new Graphics::GraphicsDeviceD3D12(spec);
+#endif
+
+#if defined(NX_PLATFORM_OPENGL)
+			case Graphics::GraphicsAPI::OpenGL: return new Graphics::GraphicsDeviceOpenGL(spec);
+#endif
+
+#if defined(NX_PLATFORM_VULKAN)
+			case Graphics::GraphicsAPI::Vulkan: return new Graphics::GraphicsDeviceVk(spec);
+#endif
+
+			default: throw std::runtime_error("Attempting to run application with unsupported graphics API"); return nullptr;
+		}
+	}
+
+	bool GraphicsDevice::IsApiSupported(GraphicsAPI api)
+	{
+		switch (api)
+		{
+#if defined(NX_PLATFORM_D3D12)
+			return true;
+#endif
+
+#if defined(NX_PLATFORM_OPENGL)
+			return true;
+#endif
+
+#if defined(NX_PLATFORM_VULKAN)
+			return true;
+#endif
+
+			return false;
+		}
+	}
+
 	GraphicsDevice::GraphicsDevice(const GraphicsDeviceSpecification &specification) : m_Specification(specification)
 	{
 	}
@@ -86,6 +139,21 @@ namespace Nexus::Graphics
 	const GraphicsDeviceSpecification &GraphicsDevice::GetSpecification() const
 	{
 		return m_Specification;
+	}
+
+	bool GraphicsDevice::Validate()
+	{
+		return true;
+	}
+
+	void GraphicsDevice::SetName(const std::string &name)
+	{
+		m_Name = name;
+	}
+
+	const std::string &GraphicsDevice::GetName()
+	{
+		return m_Name;
 	}
 
 	Ref<ShaderModule> GraphicsDevice::TryLoadCachedShader(const std::string &source,

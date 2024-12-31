@@ -105,6 +105,11 @@ namespace Nexus::GL
 		style.set("height", windowHeight);
 	}
 
+	bool Validate()
+	{
+		return m_Context != 0;
+	}
+
 }	 // namespace Nexus::GL
 
 #endif

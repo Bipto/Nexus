@@ -74,6 +74,9 @@ namespace Nexus::Graphics
 		uint32_t			FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 		Vk::AllocatedBuffer CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
 
+		virtual bool Validate() override;
+		virtual void SetName(const std::string &name) override;
+
 		// vulkan functions
 	  private:
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) override;

@@ -60,6 +60,11 @@ namespace Nexus::Graphics
 		return {m_SwapchainWidth, m_SwapchainHeight};
 	}
 
+	PixelFormat SwapchainOpenGL::GetColourFormat()
+	{
+		return PixelFormat::R8_G8_B8_A8_UNorm;
+	}
+
 	void SwapchainOpenGL::ResizeIfNecessary()
 	{
 		int w, h;

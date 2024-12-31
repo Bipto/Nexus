@@ -34,6 +34,8 @@ namespace Nexus::Graphics
 		virtual void Prepare() override;
 
 		virtual void Initialise() override;
+		virtual PixelFormat GetColourFormat() override;
+
 		void		 RecreateSwapchain();
 
 		uint32_t   GetImageCount();

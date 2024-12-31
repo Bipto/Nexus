@@ -2,6 +2,7 @@
 
 #include "Nexus-Core/ApplicationSpecification.hpp"
 #include "Nexus-Core/nxpch.hpp"
+#include "PixelFormat.hpp"
 
 namespace Nexus
 {
@@ -28,6 +29,7 @@ namespace Nexus::Graphics
 		virtual IWindow					*GetWindow()						  = 0;
 		virtual void					 Prepare()							  = 0;
 		virtual Nexus::Point2D<uint32_t> GetSize()							  = 0;
+		virtual PixelFormat				 GetColourFormat()					  = 0;
 
 		const SwapchainSpecification &GetSpecification()
 		{

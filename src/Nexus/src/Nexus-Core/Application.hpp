@@ -24,12 +24,6 @@
 
 namespace Nexus
 {
-
-	/// @brief A static method to create a new graphics device from a set of options
-	/// @param createInfo Options to use to configure the graphics device
-	/// @return A pointer to a graphics device
-	static Graphics::GraphicsDevice *CreateGraphicsDevice(const Graphics::GraphicsDeviceSpecification &createInfo);
-
 	/// @brief A static method to create a new audio device from a selected audio
 	/// API
 	/// @param api The audio API to use to manage audio resources
@@ -156,6 +150,8 @@ namespace Nexus
 
 		/// @brief A pointer to the application's main window
 		Nexus::IWindow *m_Window = nullptr;
+
+		Nexus::Graphics::Swapchain *m_Swapchain = nullptr;
 
 		/// @brief A clock to time when renders and updates occur
 		Clock m_Clock {};
