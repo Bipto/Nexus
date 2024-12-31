@@ -304,8 +304,8 @@ namespace Nexus
 		info.instance = (HINSTANCE)SDL_GetProperty(properties, SDL_PROP_WINDOW_WIN32_INSTANCE_POINTER, nullptr);
 #elif defined(NX_PLATFORM_LINUX)
 		info.display = (Display *)SDL_GetProperty(properties, SDL_PROP_WINDOW_X11_DISPLAY_POINTER, nullptr);
-		info.screen	 = (int)SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_SCREEN_NUMBER);
-		info.window	 = (Window)(unsigned long)SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_WINDOW_NUMBER);
+		info.screen	 = (int)SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_SCREEN_NUMBER.0);
+		info.window	 = (Window)(unsigned long)SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0);
 #elif defined(NX_PLATFORM_WEB)
 		info.canvasId = m_Specification.CanvasId;
 #endif
