@@ -125,10 +125,10 @@ class EditorApplication : public Nexus::Application
 
 	virtual void Render(Nexus::TimeSpan time) override
 	{
-		m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
+		Nexus::GetApplication()->GetPrimarySwapchain()->Prepare();
 
 		m_CommandList->Begin();
-		m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()));
+		m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(Nexus::GetApplication()->GetPrimarySwapchain()));
 		m_CommandList->ClearColorTarget(0, {1.0f, 0.0f, 0.0f, 1.0f});
 		m_CommandList->End();
 		m_GraphicsDevice->SubmitCommandList(m_CommandList);
@@ -143,7 +143,7 @@ class EditorApplication : public Nexus::Application
 		RenderDockspace();
 		m_ImGuiRenderer->AfterLayout();
 
-		m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->SwapBuffers();
+		Nexus::GetApplication()->GetPrimarySwapchain()->SwapBuffers();
 	}
 
 	virtual void Unload() override

@@ -32,7 +32,7 @@ namespace Nexus::Graphics
 				allocateInfo.sType						 = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 				allocateInfo.commandPool				 = m_CommandPools[i];
 				allocateInfo.level						 = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-				allocateInfo.commandBufferCount			 = m_Device->GetSwapchainImageCount();
+				allocateInfo.commandBufferCount			 = FRAMES_IN_FLIGHT;
 
 				if (vkAllocateCommandBuffers(m_Device->GetVkDevice(), &allocateInfo, &m_CommandBuffers[i]) != VK_SUCCESS)
 				{

@@ -28,9 +28,7 @@ namespace Nexus
 	/// @brief A static method to create a new graphics device from a set of options
 	/// @param createInfo Options to use to configure the graphics device
 	/// @return A pointer to a graphics device
-	static Graphics::GraphicsDevice *CreateGraphicsDevice(const Graphics::GraphicsDeviceSpecification &createInfo,
-														  IWindow									  *window,
-														  const Graphics::SwapchainSpecification	  &swapchainSpec);
+	static Graphics::GraphicsDevice *CreateGraphicsDevice(const Graphics::GraphicsDeviceSpecification &createInfo);
 
 	/// @brief A static method to create a new audio device from a selected audio
 	/// API
@@ -96,6 +94,8 @@ namespace Nexus
 		/// @brief A method that gets access to the application's window
 		/// @return A handle to the application's main window
 		Nexus::IWindow *GetPrimaryWindow();
+
+		Nexus::Graphics::Swapchain *GetPrimarySwapchain();
 
 		/// @brief A method that is used to retrieve the size of an application's
 		/// window

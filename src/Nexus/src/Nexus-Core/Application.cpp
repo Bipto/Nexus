@@ -38,7 +38,10 @@ namespace Nexus
 		Graphics::GraphicsDeviceSpecification graphicsDeviceCreateInfo;
 		graphicsDeviceCreateInfo.API = spec.GraphicsAPI;
 
-		m_GraphicsDevice = Nexus::CreateGraphicsDevice(graphicsDeviceCreateInfo, m_Window, spec.SwapchainSpecification);
+		m_GraphicsDevice = Nexus::CreateGraphicsDevice(graphicsDeviceCreateInfo);
+
+		m_Window->CreateSwapchain(m_GraphicsDevice, spec.SwapchainSpecification);
+		m_Window->GetSwapchain()->Initialise();
 
 		auto swapchain = m_Window->GetSwapchain();
 		swapchain->SetVSyncState(spec.SwapchainSpecification.VSyncState);
@@ -113,6 +116,11 @@ namespace Nexus
 		return m_Window;
 	}
 
+	Nexus::Graphics::Swapchain *Application::GetPrimarySwapchain()
+	{
+		return m_Window->GetSwapchain();
+	}
+
 	Point2D<uint32_t> Application::GetWindowSize()
 	{
 		return this->m_Window->GetWindowSize();
@@ -168,22 +176,20 @@ namespace Nexus
 		return m_GlobalKeyboardState;
 	}
 
-	Graphics::GraphicsDevice *CreateGraphicsDevice(const Graphics::GraphicsDeviceSpecification &createInfo,
-												   IWindow									   *window,
-												   const Graphics::SwapchainSpecification	   &swapchainSpec)
+	Graphics::GraphicsDevice *CreateGraphicsDevice(const Graphics::GraphicsDeviceSpecification &createInfo)
 	{
 		switch (createInfo.API)
 		{
 #if defined(NX_PLATFORM_D3D12)
-			case Graphics::GraphicsAPI::D3D12: return new Graphics::GraphicsDeviceD3D12(createInfo, window, swapchainSpec);
+			case Graphics::GraphicsAPI::D3D12: return new Graphics::GraphicsDeviceD3D12(createInfo);
 #endif
 
 #if defined(NX_PLATFORM_OPENGL)
-			case Graphics::GraphicsAPI::OpenGL: return new Graphics::GraphicsDeviceOpenGL(createInfo, window, swapchainSpec);
+			case Graphics::GraphicsAPI::OpenGL: return new Graphics::GraphicsDeviceOpenGL(createInfo);
 #endif
 
 #if defined(NX_PLATFORM_VULKAN)
-			case Graphics::GraphicsAPI::Vulkan: return new Graphics::GraphicsDeviceVk(createInfo, window, swapchainSpec);
+			case Graphics::GraphicsAPI::Vulkan: return new Graphics::GraphicsDeviceVk(createInfo);
 #endif
 
 			default: throw std::runtime_error("Attempting to run application with unsupported graphics API"); return nullptr;

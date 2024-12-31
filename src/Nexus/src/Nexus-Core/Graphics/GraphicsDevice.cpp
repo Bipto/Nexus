@@ -14,10 +14,8 @@
 
 namespace Nexus::Graphics
 {
-	GraphicsDevice::GraphicsDevice(const GraphicsDeviceSpecification &specification, IWindow *window, const SwapchainSpecification &swapchainSpec)
+	GraphicsDevice::GraphicsDevice(const GraphicsDeviceSpecification &specification) : m_Specification(specification)
 	{
-		m_Window		= window;
-		m_Specification = specification;
 	}
 
 	Ref<ShaderModule> GraphicsDevice::CreateShaderModuleFromSpirvFile(const std::string &filepath, ShaderStage stage)
@@ -70,11 +68,6 @@ namespace Nexus::Graphics
 	{
 		std::string source = Nexus::FileSystem::ReadFileToString(filepath);
 		return GetOrCreateCachedShaderFromSpirvSource(source, filepath, stage);
-	}
-
-	IWindow *GraphicsDevice::GetPrimaryWindow()
-	{
-		return m_Window;
 	}
 
 	void GraphicsDevice::ImmediateSubmit(std::function<void(Ref<CommandList>)> &&function)

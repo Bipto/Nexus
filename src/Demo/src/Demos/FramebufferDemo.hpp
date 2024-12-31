@@ -40,7 +40,7 @@ namespace Demos
 			m_GraphicsDevice->SubmitCommandList(m_CommandList);
 
 			m_CommandList->Begin();
-			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
+			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()});
 			m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 			m_CommandList->End();
 			m_GraphicsDevice->SubmitCommandList(m_CommandList);

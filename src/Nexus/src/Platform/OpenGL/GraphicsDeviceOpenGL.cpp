@@ -14,10 +14,7 @@
 
 namespace Nexus::Graphics
 {
-	GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(const GraphicsDeviceSpecification &createInfo,
-											   IWindow							 *window,
-											   const SwapchainSpecification		 &swapchainSpec)
-		: GraphicsDevice(createInfo, window, swapchainSpec)
+	GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(const GraphicsDeviceSpecification &createInfo) : GraphicsDevice(createInfo)
 	{
 		m_PBuffer	 = GL::CreateOffscreenContext();
 		bool success = m_PBuffer->MakeCurrent();
@@ -26,7 +23,6 @@ namespace Nexus::Graphics
 		m_APIName	   = std::string("OpenGL - ") + std::string((const char *)glGetString(GL_VERSION));
 		m_RendererName = (const char *)glGetString(GL_RENDERER);
 
-		window->CreateSwapchain(this, swapchainSpec);
 		// glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 	}
 

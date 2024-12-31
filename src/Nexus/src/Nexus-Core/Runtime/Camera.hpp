@@ -5,6 +5,8 @@
 #include "Nexus-Core/Utils/FramerateMonitor.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
+#include "Nexus-Core/Runtime.hpp"
+
 namespace Nexus
 {
 	enum ProjectionType
@@ -22,15 +24,16 @@ namespace Nexus
 			this->Resize(width, height);
 			this->m_Position = position;
 
-			m_Device->GetPrimaryWindow()->OnMouseMoved.Bind([&](const MouseMovedEventArgs &event) { Rotate(event.Movement.X, event.Movement.Y); });
+			Nexus::GetApplication()->GetPrimaryWindow()->OnMouseMoved.Bind([&](const MouseMovedEventArgs &event)
+																		   { Rotate(event.Movement.X, event.Movement.Y); });
 			// m_Device->GetPrimaryWindow()->SetRelativeMouseMode(true);
 
-			m_Device->GetPrimaryWindow()->OnMousePressed.Bind(
+			Nexus::GetApplication()->GetPrimaryWindow()->OnMousePressed.Bind(
 				[&](const MouseButtonPressedEventArgs &event)
 				{
 					if (event.Button == MouseButton::Right)
 					{
-						IWindow *window = m_Device->GetPrimaryWindow();
+						IWindow *window = Nexus::GetApplication()->GetPrimaryWindow();
 						if (window)
 						{
 							window->SetRelativeMouseMode(true);
@@ -39,12 +42,12 @@ namespace Nexus
 					}
 				});
 
-			m_Device->GetPrimaryWindow()->OnKeyPressed.Bind(
+			Nexus::GetApplication()->GetPrimaryWindow()->OnKeyPressed.Bind(
 				[&](const KeyPressedEventArgs &event)
 				{
 					if (event.ScanCode == ScanCode::Escape)
 					{
-						IWindow *window = m_Device->GetPrimaryWindow();
+						IWindow *window = Nexus::GetApplication()->GetPrimaryWindow();
 						if (window)
 						{
 							window->SetRelativeMouseMode(false);

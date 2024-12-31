@@ -9,12 +9,6 @@
 
 namespace Nexus::Graphics
 {
-	struct FrameData
-	{
-		VkCommandPool	CommandPool;
-		VkCommandBuffer MainCommandBuffer;
-	};
-
 	struct UploadContext
 	{
 		VkFence			UploadFence;
@@ -25,7 +19,7 @@ namespace Nexus::Graphics
 	class GraphicsDeviceVk : public GraphicsDevice
 	{
 	  public:
-		GraphicsDeviceVk(const GraphicsDeviceSpecification &createInfo, IWindow *window, const SwapchainSpecification &swapchainSpec);
+		GraphicsDeviceVk(const GraphicsDeviceSpecification &createInfo);
 		GraphicsDeviceVk(const GraphicsDeviceVk &) = delete;
 		virtual ~GraphicsDeviceVk();
 
@@ -63,7 +57,6 @@ namespace Nexus::Graphics
 
 		VkDevice						  GetVkDevice();
 		VkPhysicalDevice				  GetPhysicalDevice();
-		uint32_t						  GetSwapchainImageCount();
 		uint32_t						  GetGraphicsFamily();
 		uint32_t						  GetPresentFamily();
 		uint32_t						  GetCurrentFrameIndex();
@@ -136,11 +129,6 @@ namespace Nexus::Graphics
 		VkDevice m_Device;
 		VkQueue	 m_GraphicsQueue;
 		VkQueue	 m_PresentQueue;
-
-		// synchronisation
-		FrameData		m_Frames[FRAMES_IN_FLIGHT];
-		FrameData	   &GetCurrentFrame();
-		VkCommandBuffer m_CurrentCommandBuffer;
 
 		// VMA types
 		VmaAllocator m_Allocator;

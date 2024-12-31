@@ -81,7 +81,7 @@ class DemoApplication : public Nexus::Application
 
 		m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-		Nexus::IWindow *window = m_GraphicsDevice->GetPrimaryWindow();
+		Nexus::IWindow *window = Nexus::GetApplication()->GetPrimaryWindow();
 
 		std::string title = std::string("Demo - ") + std::string(Nexus::Platform::GetSystemName()) + std::string("(") +
 							std::string(Nexus::Platform::GetProcessorType()) + std::string(")");
@@ -225,7 +225,7 @@ class DemoApplication : public Nexus::Application
 
 	virtual void Render(Nexus::TimeSpan time) override
 	{
-		m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->Prepare();
+		Nexus::GetApplication()->GetPrimarySwapchain()->Prepare();
 
 		m_ImGuiRenderer->BeforeLayout(time);
 
@@ -250,7 +250,7 @@ class DemoApplication : public Nexus::Application
 		{
 			m_CommandList->Begin();
 
-			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
+			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()});
 			m_CommandList->ClearColorTarget(0, {0.35f, 0.25f, 0.42f, 1.0f});
 
 			m_CommandList->End();
@@ -259,7 +259,7 @@ class DemoApplication : public Nexus::Application
 
 		m_ImGuiRenderer->AfterLayout();
 
-		m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->SwapBuffers();
+		Nexus::GetApplication()->GetPrimarySwapchain()->SwapBuffers();
 	}
 
 	virtual void OnResize(Nexus::Point2D<uint32_t> size) override
@@ -273,12 +273,12 @@ class DemoApplication : public Nexus::Application
 	}
 
   private:
-	Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
-	std::unique_ptr<Demos::Demo>			 m_CurrentDemo = nullptr;
-	std::vector<DemoInfo>					 m_GraphicsDemos;
-	std::vector<DemoInfo>					 m_AudioDemos;
-	std::vector<DemoInfo>					 m_ScriptingDemos;
-	std::vector<DemoInfo>					 m_UtilsDemos;
+	Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList	  = nullptr;
+	std::unique_ptr<Demos::Demo>			 m_CurrentDemo	  = nullptr;
+	std::vector<DemoInfo>					 m_GraphicsDemos  = {};
+	std::vector<DemoInfo>					 m_AudioDemos	  = {};
+	std::vector<DemoInfo>					 m_ScriptingDemos = {};
+	std::vector<DemoInfo>					 m_UtilsDemos	  = {};
 
 	std::unique_ptr<Nexus::ImGuiUtils::ImGuiGraphicsRenderer> m_ImGuiRenderer = nullptr;
 };
@@ -286,7 +286,7 @@ class DemoApplication : public Nexus::Application
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
 	Nexus::ApplicationSpecification spec;
-	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
+	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
 	spec.AudioAPI	 = Nexus::Audio::AudioAPI::OpenAL;
 
 	spec.WindowProperties.Width			   = 1280;

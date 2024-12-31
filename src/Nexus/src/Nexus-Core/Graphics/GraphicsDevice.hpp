@@ -39,7 +39,7 @@ namespace Nexus::Graphics
 		/// @brief A constructor taking in a const reference to a
 		/// GraphicsDeviceSpecification
 		/// @param createInfo The options to use when creating the GraphicsDevice
-		GraphicsDevice(const GraphicsDeviceSpecification &createInfo, IWindow *window, const SwapchainSpecification &swapchainSpec);
+		GraphicsDevice(const GraphicsDeviceSpecification &createInfo);
 
 		/// @brief A virtual destructor allowing resources to be deleted
 		virtual ~GraphicsDevice()
@@ -169,8 +169,6 @@ namespace Nexus::Graphics
 
 		Ref<ShaderModule> GetOrCreateCachedShaderFromSpirvFile(const std::string &filepath, ShaderStage stage);
 
-		IWindow *GetPrimaryWindow();
-
 		void ImmediateSubmit(std::function<void(Ref<CommandList> cmd)> &&function);
 
 		const GraphicsDeviceSpecification &GetSpecification() const;
@@ -180,9 +178,6 @@ namespace Nexus::Graphics
 		Ref<ShaderModule>		  TryLoadCachedShader(const std::string &source, const std::string &name, ShaderStage stage, ShaderLanguage language);
 
 	  protected:
-		/// @brief A pointer to the window to render graphics into
-		Nexus::IWindow *m_Window = nullptr;
-
 		GraphicsDeviceSpecification m_Specification;
 
 		Ref<CommandList> m_ImmediateCommandList = nullptr;

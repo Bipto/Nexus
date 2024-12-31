@@ -22,14 +22,13 @@ namespace Demos
 		{
 			m_CommandList	= m_GraphicsDevice->CreateCommandList();
 			m_BatchRenderer = Nexus::Scope<Nexus::Graphics::BatchRenderer>(
-				new Nexus::Graphics::BatchRenderer(m_GraphicsDevice,
-												   Nexus::Graphics::RenderTarget {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()}));
+				new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()}));
 			GenerateShapes();
 		}
 
 		void GenerateShapes()
 		{
-			auto size = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize();
+			auto size = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
 			m_Quads.clear();
 
 			std::random_device					  dev;
@@ -55,12 +54,12 @@ namespace Demos
 		virtual void Render(Nexus::TimeSpan time) override
 		{
 			m_CommandList->Begin();
-			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()});
+			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()});
 			m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 			m_CommandList->End();
 			m_GraphicsDevice->SubmitCommandList(m_CommandList);
 
-			auto size = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize();
+			auto size = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
 
 			Nexus::Graphics::Viewport vp;
 			vp.X		= 0;

@@ -91,7 +91,7 @@ namespace Nexus::ImGuiUtils
 
 		pipelineDesc.ColourFormats[0]		 = Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
 		pipelineDesc.ColourTargetCount		 = 1;
-		pipelineDesc.ColourTargetSampleCount = m_GraphicsDevice->GetPrimaryWindow()->GetSwapchain()->GetSpecification().Samples;
+		pipelineDesc.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification().Samples;
 		pipelineDesc.DepthFormat			 = Graphics::PixelFormat::D24_UNorm_S8_UInt;
 
 		pipelineDesc.BlendStateDesc.EnableBlending		   = true;
@@ -394,7 +394,7 @@ namespace Nexus::ImGuiUtils
 		auto &io	 = ImGui::GetIO();
 		io.DeltaTime = (float)gameTime.GetSeconds();
 
-		auto windowSize			   = m_GraphicsDevice->GetPrimaryWindow()->GetWindowSize();
+		auto windowSize			   = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
 		io.DisplaySize			   = {(float)windowSize.X, (float)windowSize.Y};
 		io.DisplayFramebufferScale = {1, 1};
 
@@ -474,7 +474,7 @@ namespace Nexus::ImGuiUtils
 
 	void ImGuiGraphicsRenderer::UpdateInput()
 	{
-		auto  mainWindow = m_GraphicsDevice->GetPrimaryWindow();
+		auto  mainWindow = Nexus::GetApplication()->GetPrimaryWindow();
 		auto &io		 = ImGui::GetIO();
 
 		std::optional<IWindow *> window = Platform::GetKeyboardFocus();
@@ -650,7 +650,7 @@ namespace Nexus::ImGuiUtils
 
 	void ImGuiGraphicsRenderer::UpdateCursor()
 	{
-		auto window = m_GraphicsDevice->GetPrimaryWindow();
+		auto window = Nexus::GetApplication()->GetPrimaryWindow();
 
 		switch (ImGui::GetMouseCursor())
 		{

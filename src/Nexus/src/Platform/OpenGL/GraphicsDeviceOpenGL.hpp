@@ -14,7 +14,7 @@ namespace Nexus::Graphics
 	class GraphicsDeviceOpenGL : public GraphicsDevice
 	{
 	  public:
-		GraphicsDeviceOpenGL(const GraphicsDeviceSpecification &createInfo, IWindow *window, const SwapchainSpecification &swapchainSpec);
+		GraphicsDeviceOpenGL(const GraphicsDeviceSpecification &createInfo);
 		GraphicsDeviceOpenGL(const GraphicsDeviceOpenGL &) = delete;
 		virtual ~GraphicsDeviceOpenGL();
 

@@ -16,10 +16,7 @@
 
 namespace Nexus::Graphics
 {
-	GraphicsDeviceD3D12::GraphicsDeviceD3D12(const GraphicsDeviceSpecification &createInfo,
-											 IWindow						   *window,
-											 const SwapchainSpecification	   &swapchainSpec)
-		: GraphicsDevice(createInfo, window, swapchainSpec)
+	GraphicsDeviceD3D12::GraphicsDeviceD3D12(const GraphicsDeviceSpecification &createInfo) : GraphicsDevice(createInfo)
 	{
 		// this has to be enabled to support newer HLSL versions and DXIL bytecode
 		UUID experimentalFeatures[] = {D3D12ExperimentalShaderModels};
@@ -61,8 +58,6 @@ namespace Nexus::Graphics
 				m_Device->CreateCommandList1(0, D3D12_COMMAND_LIST_TYPE_DIRECT, D3D12_COMMAND_LIST_FLAG_NONE, IID_PPV_ARGS(&m_UploadCommandList));
 			}
 		}
-
-		window->CreateSwapchain(this, swapchainSpec);
 	}
 
 	GraphicsDeviceD3D12::~GraphicsDeviceD3D12()
