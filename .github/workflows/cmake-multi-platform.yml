@@ -120,7 +120,6 @@ jobs:
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
           -DNX_PLATFORM_OPENGL=1
           -DNX_PLATFORM_VULKAN=1
-          -DNX_PLATFORM_D3D12=1
           -DNX_PLATFORM_OPENAL=1
           -S ${{ github.workspace }}         
 
