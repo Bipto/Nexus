@@ -40,8 +40,6 @@ namespace Nexus::Graphics
 	  public:
 		static GraphicsDevice *CreateGraphicsDevice(const Graphics::GraphicsDeviceSpecification &spec);
 
-		static bool IsApiSupported(GraphicsAPI api);
-
 		/// @brief A constructor taking in a const reference to a
 		/// GraphicsDeviceSpecification
 		/// @param createInfo The options to use when creating the GraphicsDevice

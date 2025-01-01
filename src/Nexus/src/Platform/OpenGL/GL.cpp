@@ -643,9 +643,8 @@ namespace Nexus::GL
 		IWindow *window = Platform::CreatePlatformWindow(windowSpec, Graphics::GraphicsAPI::OpenGL, swapchainSpec);
 		window->Hide();
 
-		XWindowInfo info	= window->GetXWindow();
-		EGLDisplay	display = eglGetDisplay(info.display);
-
+		NativeWindowInfo windowInfo = window->GetNativeWindowInfo();
+		EGLDisplay		 display	= eglGetDisplay(windowInfo.display);
 		return std::make_unique<OffscreenContextEGL>(display, spec);
 	#elif defined(NX_PLATFORM_WEBGL)
 		return std::make_unique<OffscreenContextWebGL>("offscreenContext");

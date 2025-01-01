@@ -47,26 +47,6 @@ namespace Nexus::Graphics
 		}
 	}
 
-	bool GraphicsDevice::IsApiSupported(GraphicsAPI api)
-	{
-		switch (api)
-		{
-#if defined(NX_PLATFORM_D3D12)
-			return true;
-#endif
-
-#if defined(NX_PLATFORM_OPENGL)
-			return true;
-#endif
-
-#if defined(NX_PLATFORM_VULKAN)
-			return true;
-#endif
-
-			return false;
-		}
-	}
-
 	GraphicsDevice::GraphicsDevice(const GraphicsDeviceSpecification &specification) : m_Specification(specification)
 	{
 	}

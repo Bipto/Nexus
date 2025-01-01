@@ -34,45 +34,42 @@ namespace Nexus::Audio
 		bool stereo = channelCount > 1;
 		switch (format)
 		{
-			if (stereo)
+			case nqr::PCMFormat::PCM_U8:
+			case nqr::PCMFormat::PCM_S8:
 			{
-				case nqr::PCMFormat::PCM_U8:
-				case nqr::PCMFormat::PCM_S8:
+				if (stereo)
 				{
-					if (stereo)
-					{
-						return AL_FORMAT_STEREO8;
-					}
-					else
-					{
-						return AL_FORMAT_MONO8;
-					}
+					return AL_FORMAT_STEREO8;
 				}
-				case nqr::PCMFormat::PCM_16:
-				case nqr::PCMFormat::PCM_24:
+				else
 				{
-					if (stereo)
-					{
-						return AL_FORMAT_STEREO16;
-					}
-					else
-					{
-						return AL_FORMAT_MONO16;
-					}
+					return AL_FORMAT_MONO8;
 				}
-				case nqr::PCMFormat::PCM_32:
-				case nqr::PCMFormat::PCM_64:
-				case nqr::PCMFormat::PCM_FLT:
-				case nqr::PCMFormat::PCM_DBL:
+			}
+			case nqr::PCMFormat::PCM_16:
+			case nqr::PCMFormat::PCM_24:
+			{
+				if (stereo)
 				{
-					if (stereo)
-					{
-						return AL_FORMAT_STEREO_FLOAT32;
-					}
-					else
-					{
-						return AL_FORMAT_MONO_FLOAT32;
-					}
+					return AL_FORMAT_STEREO16;
+				}
+				else
+				{
+					return AL_FORMAT_MONO16;
+				}
+			}
+			case nqr::PCMFormat::PCM_32:
+			case nqr::PCMFormat::PCM_64:
+			case nqr::PCMFormat::PCM_FLT:
+			case nqr::PCMFormat::PCM_DBL:
+			{
+				if (stereo)
+				{
+					return AL_FORMAT_STEREO_FLOAT32;
+				}
+				else
+				{
+					return AL_FORMAT_MONO_FLOAT32;
 				}
 			}
 		}
