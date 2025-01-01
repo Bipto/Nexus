@@ -105,7 +105,7 @@ namespace Nexus::GL
 
 	bool OffscreenContextEGL::Validate()
 	{
-		return m_EGLDisplay != nullptr && m_Context != nullptr;
+		return m_EGLDisplay != 0 && m_Context != 0;
 	}
 
 }	 // namespace Nexus::GL
