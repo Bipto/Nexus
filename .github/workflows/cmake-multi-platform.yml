@@ -60,7 +60,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         uses: GuillaumeFalourd/setup-windows10-sdk-action@v2
         with:
-          sdk-version: 20348
+          sdk-version: 22621
     
       - name: Prepare Vulkan SDK
         uses: humbletim/setup-vulkan-sdk@v1.2.0

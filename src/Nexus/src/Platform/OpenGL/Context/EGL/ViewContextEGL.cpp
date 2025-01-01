@@ -99,7 +99,7 @@ namespace Nexus::GL
 
 	bool ViewContextEGL::Validate()
 	{
-		return m_EGLDisplay != nullptr && m_NativeWindow != nullptr && m_Surface != nullptr && m_Context != nullptr;
+		return m_EGLDisplay != 0 && m_NativeWindow != 0 && m_Surface != 0 && m_Context != 0;
 	}
 }	 // namespace Nexus::GL
 
