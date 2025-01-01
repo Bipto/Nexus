@@ -420,8 +420,8 @@ namespace Nexus::ImGuiUtils
 			{
 				if ((platform_io.Viewports[i]->Flags & ImGuiViewportFlags_IsMinimized) == 0)
 				{
-					ImGuiWindowInfo *info	= (ImGuiWindowInfo *)platform_io.Viewports[i]->PlatformUserData;
-					Nexus::IWindow	*window = info->Window;
+					ImGuiWindowInfo			   *info	  = (ImGuiWindowInfo *)platform_io.Viewports[i]->PlatformUserData;
+					Nexus::IWindow			   *window	  = info->Window;
 					Nexus::Graphics::Swapchain *swapchain = info->Swapchain;
 
 					if (window && !window->IsClosing())

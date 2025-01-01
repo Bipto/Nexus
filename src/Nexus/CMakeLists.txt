@@ -3,6 +3,11 @@ cmake_minimum_required(VERSION 3.16)
 add_subdirectory(cmake)
 project ("Nexus")
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_COMPILE_WARNING_AS_ERROR OFF)
+
 add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS=1)
 add_definitions(-DNX_SYSTEM_NAME=${CMAKE_SYSTEM_NAME})
 add_definitions(-DNX_SYSTEM_PROCESSOR=${CMAKE_HOST_SYSTEM_PROCESSOR})
@@ -410,6 +415,12 @@ if (DEFINED NX_PLATFORM_VULKAN)
         src/Platform/Vulkan/Windows/PlatformVkWindows.cpp)
       add_definitions(-DVK_USE_PLATFORM_WIN32_KHR=1)
     endif()
+
+    if (LINUX)
+      list (APPEND ENGINE_SOURCES
+        src/Platform/Vulkan/Xlib/PlatformVkXlib.cpp)
+        add_definitions(-DVK_USE_PLATFORM_XLIB_KHR=1)
+    endif()
 endif()
 
 if (DEFINED NX_PLATFORM_WINDOWS)
@@ -477,3 +488,7 @@ target_include_directories(Nexus PUBLIC SYSTEM ${NEXUS_INCLUDE_DIRS})
 target_link_libraries(Nexus PUBLIC ${NEXUS_LINKED_LIBRARIES})
 nexus_structure_folders()
 nexus_setup_filters("${ENGINE_SOURCES}")
+
+if (DEFINED NX_PLATFORM_VULKAN)
+  set_target_properties(VulkanMemoryAllocator PROPERTIES CXX_STANDARD 20)
+endif()

@@ -387,9 +387,9 @@ namespace Nexus::SDL3
 		}
 	}
 
-	Keyboard::Modifiers GetNexusModifiersFromSDLModifiers(Uint16 modifiers)
+	uint16_t GetNexusModifiersFromSDLModifiers(Uint16 modifiers)
 	{
-		Keyboard::Modifiers mods = 0;
+		uint16_t mods = 0;
 
 		if (modifiers & SDL_KMOD_LSHIFT)
 		{

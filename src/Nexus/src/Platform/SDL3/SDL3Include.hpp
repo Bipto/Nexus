@@ -13,9 +13,9 @@
 
 namespace Nexus::SDL3
 {
-	KeyCode				GetNexusKeyCodeFromSDLKeyCode(SDL_Keycode keycode);
-	ScanCode			GetNexusScanCodeFromSDLScanCode(SDL_Scancode scancode);
-	Keyboard::Modifiers GetNexusModifiersFromSDLModifiers(Uint16 modifiers);
+	KeyCode	 GetNexusKeyCodeFromSDLKeyCode(SDL_Keycode keycode);
+	ScanCode GetNexusScanCodeFromSDLScanCode(SDL_Scancode scancode);
+	uint16_t GetNexusModifiersFromSDLModifiers(Uint16 modifiers);
 
 	FileDropType					GetFileDropType(SDL_EventType type);
 	std::tuple<MouseType, uint32_t> GetMouseInfo(SDL_MouseID mouseId);

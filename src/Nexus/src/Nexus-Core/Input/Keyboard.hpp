@@ -549,7 +549,6 @@ namespace Nexus
 	  public:
 		enum Modifier
 		{
-			None		 = 0,
 			LeftShift	 = BIT(1),
 			RightShift	 = BIT(2),
 			LeftControl	 = BIT(3),
@@ -567,8 +566,6 @@ namespace Nexus
 			Alt			 = BIT(15),
 			GUI			 = BIT(16)
 		};
-
-		using Modifiers = uint16_t;
 
 	  public:
 		/// @brief A method that caches the previous frames key states
