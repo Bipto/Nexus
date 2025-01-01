@@ -61,6 +61,19 @@ jobs:
         uses: GuillaumeFalourd/setup-windows10-sdk-action@v2
         with:
           sdk-version: 22621
+
+      - name: Download DirectX Agility SDK
+        if: matrix.os == 'windows-latest'
+        run: | 
+          curl -L -o agility-sdk.zip https://example.com/path/to/agility-sdk.zip
+          mkdir -p ${{ github.workspace }}/agility-sdk
+          unzip agility-sdk.zip -d ${{ github.workspace }}/agility-sdk
+
+      - name: Set up Agility SDK
+        if: matrix.os == 'windows-latest'
+        run: |
+         setx DX12_AGILITY_SDK_PATH "%{github.workspace}/agility-sdk"
+         setx PATH "%PATH%;%DX12_AGILITY_SDK_PATH%"
     
       - name: Prepare Vulkan SDK
         uses: humbletim/setup-vulkan-sdk@v1.2.0
