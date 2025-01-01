@@ -62,15 +62,15 @@ jobs:
         with:
           sdk-version: 22621
 
-      - name: Setup vcpkg
-        uses: microsoft/vcpkg-action@v1
+      - name: vcpkg build
+        if: matrix.os == 'windows-latest'
+        uses: johnwason/vcpkg-action@v6
+        id: vcpkg
         with:
-          vcpkgDirectory: '${{ github.workspace }}/vcpkg'
-          vcpkgTriplet: 'x64-windows-static'
-
-      - name: Install DirectX 12 Agility SDK
-        run: |
-          vcpkg install directx12-agility
+          pkgs: directx12-agility
+          triplet: x64-windows-release
+          token: ${{ github.token }}
+          github-binarycache: true
     
       - name: Prepare Vulkan SDK
         uses: humbletim/setup-vulkan-sdk@v1.2.0
