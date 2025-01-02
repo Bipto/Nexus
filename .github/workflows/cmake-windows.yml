@@ -1,0 +1,86 @@
+name: CMake on Windows
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    strategy:
+      fail-fast: true
+      
+      matrix:
+            build_type: [Debug]
+            c_compiler: [cl]
+            cpp_compiler: [cl]
+
+    steps:
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          lfs: true
+          path: ''
+
+      - name: Set reusable strings
+        id: strings
+        shell: bash
+        run: |
+          echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+      - name : Install Windows SDK
+        uses: GuillaumeFalourd/setup-windows10-sdk-action@v2
+        with:
+          sdk-version: 22621
+
+      - name: Download DirectX Agility SDK
+        run: | 
+          curl -L -o agility-sdk.zip https://example.com/path/to/agility-sdk.zip
+          mkdir -p ${{ github.workspace }}/agility-sdk
+          unzip agility-sdk.zip -d ${{ github.workspace }}/agility-sdk
+
+      - name: Set up Agility SDK
+        run: |
+          setx DX12_AGILITY_SDK_PATH "%{github.workspace}/agility-sdk"
+          setx PATH "%PATH%;%DX12_AGILITY_SDK_PATH%"
+      
+      - name: Prepare Vulkan SDK
+        uses: humbletim/setup-vulkan-sdk@v1.2.0
+        with:
+          vulkan-query-version: 1.3.204.0
+          vulkan-components: Vulkan-Headers, Vulkan-Loader, Glslang
+          vulkan-use-cache: true
+  
+      - name: Setup Ninja
+        uses: ashutoshvarma/setup-ninja@master
+        with:
+          version: 1.10.0
+
+      - name: actions-setup-cmake
+        uses: jwlawson/actions-setup-cmake@v2.0.2
+
+      - name: Configure CMake MSVC
+        if: matrix.c_compiler == 'cl'
+        run: >
+          cmake -B ${{ steps.strings.outputs.build-output-dir}}
+          -G "Ninja"
+          -DCMAKE_C_COMPILER=${{ matrix.c_compiler}}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DNX_PLATFORM_OPENGL=1
+          -DNX_PLATFORM_VULKAN=1
+          -DNX_PLATFORM_D3D12=1
+          -DNX_PLATFORM_OPENAL=1
+          -S ${{ github.workspace }}         
+
+
+      - name: Build
+        run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+  
+      - name: Test
+        working-directory: ${{ steps.strings.outputs.build-output-dir }}
+        run: ctest --build-config ${{ matrix.build_type }} --test-dir ${{ steps.strings.outputs.build-output-dir }}
