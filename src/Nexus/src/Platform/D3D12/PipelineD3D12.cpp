@@ -9,7 +9,7 @@
 
 namespace Nexus::Graphics
 {
-	PipelineD3D12::PipelineD3D12(ID3D12Device10 *device, const PipelineDescription &description)
+	PipelineD3D12::PipelineD3D12(ID3D12Device9 *device, const PipelineDescription &description)
 		: Pipeline(description),
 		  m_Device(device),
 		  m_Description(description)

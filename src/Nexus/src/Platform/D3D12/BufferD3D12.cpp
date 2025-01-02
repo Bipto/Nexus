@@ -91,7 +91,7 @@ namespace Nexus::Graphics
 		memcpy((void *)offsetIntoBuffer, data, size);
 
 		m_UploadBuffer->Unmap(0, &m_UploadRange);
-		m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd)
+		m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList6 *cmd)
 								  { cmd->CopyBufferRegion(m_VertexBuffer.Get(), 0, m_UploadBuffer.Get(), 0, m_Description.Size); });
 	}
 
@@ -199,7 +199,7 @@ namespace Nexus::Graphics
 		memcpy((void *)offsetIntoBuffer, data, size);
 
 		m_UploadBuffer->Unmap(0, &m_UploadRange);
-		m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd)
+		m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList6 *cmd)
 								  { cmd->CopyBufferRegion(m_IndexBuffer.Get(), 0, m_UploadBuffer.Get(), 0, m_Description.Size); });
 	}
 
@@ -292,7 +292,7 @@ namespace Nexus::Graphics
 		memcpy((void *)offsetIntoBuffer, data, size);
 
 		m_UploadBuffer->Unmap(0, &m_UploadRange);
-		m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd)
+		m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList6 *cmd)
 								  { cmd->CopyBufferRegion(m_ConstantBuffer.Get(), 0, m_UploadBuffer.Get(), 0, m_Description.Size); });
 	}
 }	 // namespace Nexus::Graphics

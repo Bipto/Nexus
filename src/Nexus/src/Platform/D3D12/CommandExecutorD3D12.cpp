@@ -32,7 +32,7 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void CommandExecutorD3D12::SetCommandList(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList)
+	void CommandExecutorD3D12::SetCommandList(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6> commandList)
 	{
 		m_CommandList = commandList;
 	}
