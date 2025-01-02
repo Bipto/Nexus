@@ -1,4 +1,4 @@
-name: CMake on Windows MSVC
+name: CMake on Windows Emscripten
 
 on:
   push:
