@@ -22,7 +22,7 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommands(const std::vector<RenderCommandData> &commands, GraphicsDevice *device) override;
 		virtual void Reset() override;
 
-		void SetCommandList(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList);
+		void SetCommandList(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6> commandList);
 
 	  private:
 		virtual void ExecuteCommand(SetVertexBufferCommand command, GraphicsDevice *device) override;
@@ -50,7 +50,7 @@ namespace Nexus::Graphics
 		void ResetPreviousRenderTargets(GraphicsDevice *device);
 
 	  private:
-		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> m_CommandList = nullptr;
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6> m_CommandList = nullptr;
 
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_DescriptorHandles;
 		D3D12_CPU_DESCRIPTOR_HANDLE				 m_DepthHandle;

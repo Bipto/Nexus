@@ -24,7 +24,7 @@ namespace Nexus::Graphics
 	{
 	}
 
-	ID3D12GraphicsCommandList7 *CommandListD3D12::GetCommandList()
+	ID3D12GraphicsCommandList6 *CommandListD3D12::GetCommandList()
 	{
 		return m_CommandList.Get();
 	}

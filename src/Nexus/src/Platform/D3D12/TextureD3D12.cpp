@@ -14,7 +14,7 @@ namespace Nexus::Graphics
 	{
 		bool				 isDepth;
 		D3D12_RESOURCE_FLAGS flags		 = D3D12::GetD3D12ResourceFlags(spec.Usage, isDepth);
-		ID3D12Device10		*d3d12Device = device->GetDevice();
+		ID3D12Device9		*d3d12Device = device->GetDevice();
 		m_TextureFormat					 = D3D12::GetD3D12PixelFormat(spec.Format, isDepth);
 
 		const D3D12_RESOURCE_STATES initialState = D3D12_RESOURCE_STATE_COMMON;
@@ -117,7 +117,7 @@ namespace Nexus::Graphics
 		toDefaultBarrier.Transition.StateAfter	= resourceState;
 
 		m_Device->ImmediateSubmit(
-			[&](ID3D12GraphicsCommandList7 *cmd)
+			[&](ID3D12GraphicsCommandList6 *cmd)
 			{
 				D3D12_BOX textureBounds = {};
 				textureBounds.left		= x;
@@ -149,7 +149,7 @@ namespace Nexus::Graphics
 
 	void Texture2D_D3D12::GetData(std::vector<unsigned char> &pixels, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 	{
-		ID3D12Device10		*d3d12Device = m_Device->GetDevice();
+		ID3D12Device9		*d3d12Device = m_Device->GetDevice();
 		D3D12_RESOURCE_DESC1 textureDesc = m_Texture->GetDesc1();
 
 		D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout;
@@ -231,7 +231,7 @@ namespace Nexus::Graphics
 		toDefaultBarrier.Transition.StateAfter	= resourceState;
 
 		m_Device->ImmediateSubmit(
-			[&](ID3D12GraphicsCommandList7 *cmd)
+			[&](ID3D12GraphicsCommandList6 *cmd)
 			{
 				cmd->ResourceBarrier(1, &toReadBarrier);
 				cmd->CopyTextureRegion(&dstLocation, x, y, 0, &srcLocation, &textureBounds);
@@ -272,7 +272,7 @@ namespace Nexus::Graphics
 
 	Cubemap_D3D12::Cubemap_D3D12(const CubemapSpecification &spec, GraphicsDeviceD3D12 *device) : Cubemap(spec, device), m_Device(device)
 	{
-		ID3D12Device10		*d3d12Device = device->GetDevice();
+		ID3D12Device9		*d3d12Device = device->GetDevice();
 		D3D12_RESOURCE_FLAGS flags		 = D3D12_RESOURCE_FLAG_NONE;
 		m_TextureFormat					 = D3D12::GetD3D12PixelFormat(spec.Format, false);
 
@@ -354,7 +354,7 @@ namespace Nexus::Graphics
 
 	void Cubemap_D3D12::SetData(const void *data, CubemapFace face, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 	{
-		ID3D12Device10 *d3d12Device = m_Device->GetDevice();
+		ID3D12Device9  *d3d12Device = m_Device->GetDevice();
 		uint32_t		faceIndex	= (uint32_t)face;
 		uint32_t		sizeInBytes = (width - x) * (height - y) * GetPixelFormatSizeInBytes(m_Specification.Format);
 		uint32_t		subresource = Utils::CalculateSubresource(level, faceIndex, m_Specification.MipLevels);
@@ -427,7 +427,7 @@ namespace Nexus::Graphics
 		textureDestination.SubresourceIndex = subresource;
 
 		m_Device->ImmediateSubmit(
-			[&](ID3D12GraphicsCommandList7 *cmd)
+			[&](ID3D12GraphicsCommandList6 *cmd)
 			{
 				cmd->ResourceBarrier(1, &toDestBarrier);
 				cmd->CopyTextureRegion(&textureDestination, x, y, 0, &textureSource, &textureBounds);
@@ -443,7 +443,7 @@ namespace Nexus::Graphics
 								uint32_t					width,
 								uint32_t					height)
 	{
-		ID3D12Device10		*d3d12Device = m_Device->GetDevice();
+		ID3D12Device9		*d3d12Device = m_Device->GetDevice();
 		D3D12_RESOURCE_DESC1 textureDesc = m_Texture->GetDesc1();
 		uint32_t			 faceIndex	 = (uint32_t)face;
 		uint32_t			 subresource = Utils::CalculateSubresource(level, faceIndex, m_Specification.MipLevels);
@@ -525,7 +525,7 @@ namespace Nexus::Graphics
 		toDefaultBarrier.Transition.StateAfter	= resourceState;
 
 		m_Device->ImmediateSubmit(
-			[&](ID3D12GraphicsCommandList7 *cmd)
+			[&](ID3D12GraphicsCommandList6 *cmd)
 			{
 				cmd->ResourceBarrier(1, &toReadBarrier);
 				cmd->CopyTextureRegion(&dstLocation, x, y, 0, &srcLocation, &textureBounds);

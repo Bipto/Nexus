@@ -11,7 +11,7 @@ namespace Nexus::Graphics
 	class PipelineD3D12 : public Pipeline
 	{
 	  public:
-		PipelineD3D12(ID3D12Device10 *device, const PipelineDescription &description);
+		PipelineD3D12(ID3D12Device9 *device, const PipelineDescription &description);
 		virtual ~PipelineD3D12();
 		virtual const PipelineDescription &GetPipelineDescription() const override;
 		ID3D12RootSignature				  *GetRootSignature();
@@ -32,7 +32,7 @@ namespace Nexus::Graphics
 
 	  private:
 		PipelineDescription m_Description;
-		ID3D12Device10	   *m_Device;
+		ID3D12Device9	   *m_Device;
 
 		Microsoft::WRL::ComPtr<ID3DBlob>			m_RootSignatureBlob;
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> m_RootSignature;
