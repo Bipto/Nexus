@@ -49,6 +49,11 @@ jobs:
         with:
           version: 1.10.0
 
+      - name: Setup MSVC on Windows
+        uses: TheMrMilchmann/setup-msvc-dev@v3
+        with:
+          arch: x64
+
       - name: actions-setup-cmake
         uses: jwlawson/actions-setup-cmake@v2.0.2
 
