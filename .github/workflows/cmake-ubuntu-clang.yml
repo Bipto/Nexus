@@ -1,4 +1,4 @@
-name: CMake on Ubuntu GCC  
+name: CMake on Ubuntu Clang  
 
 on:
   push:
@@ -15,8 +15,8 @@ jobs:
       
       matrix:
         build_type: [Debug]
-        c_compiler: [gcc]
-        cpp_compiler: [g++]
+        c_compiler: [clang]
+        cpp_compiler: [clang++]
 
     steps:   
       - uses: actions/checkout@v4
@@ -67,7 +67,6 @@ jobs:
           -DNX_PLATFORM_VULKAN=1
           -DNX_PLATFORM_OPENAL=1
           -S ${{ github.workspace }}
-
 
       - name: Build
         run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
