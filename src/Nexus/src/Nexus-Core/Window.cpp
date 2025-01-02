@@ -336,14 +336,6 @@ namespace Nexus
 			flags |= SDL_WINDOW_UTILITY;
 		}
 
-		switch (api)
-		{
-			case Graphics::GraphicsAPI::Vulkan:
-			{
-				flags |= SDL_WINDOW_VULKAN;
-			}
-		}
-
 		return flags;
 	}
 

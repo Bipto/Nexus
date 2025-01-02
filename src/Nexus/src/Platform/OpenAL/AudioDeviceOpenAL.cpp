@@ -72,9 +72,9 @@ namespace Nexus::Audio
 					return AL_FORMAT_MONO_FLOAT32;
 				}
 			}
+			case nqr::PCMFormat::PCM_END: throw std::runtime_error("Invalid audio format");
+			default: throw std::runtime_error("Failed to find a valid audio format");
 		}
-
-		throw std::runtime_error("Failed to find a valid audio format");
 	}
 
 	Ref<AudioBuffer> AudioDeviceOpenAL::CreateAudioBufferFromWavFile(const std::string &filepath)
