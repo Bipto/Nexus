@@ -51,9 +51,9 @@ jobs:
       - name: Verify
         run: emcc -v
 
-      - name: Configure CMake MSVC
+      - name: Configure CMake Emscripten
         run: >
-          emcmake -B ${{ steps.strings.outputs.build-output-dir}}
+          emcmake cmake -B ${{ steps.strings.outputs.build-output-dir}}
           -G "Ninja"
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
           -DNX_PLATFORM_OPENGL=1
@@ -62,7 +62,7 @@ jobs:
 
 
       - name: Build
-        run: emcmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+        run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
   
       - name: Test
         working-directory: ${{ steps.strings.outputs.build-output-dir }}
