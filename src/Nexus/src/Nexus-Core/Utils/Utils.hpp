@@ -123,6 +123,8 @@ namespace Nexus::Utils
 		return hash;
 	}
 
+	void FlipPixelsHorizontally(std::vector<unsigned char> &pixels, int width, int height, int bytesPerChannel, int channels);
+
 #define STRINGIFY(x) #x
 #define TOSTRING(x)	 STRINGIFY(x)
 

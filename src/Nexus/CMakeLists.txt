@@ -212,6 +212,10 @@ list (APPEND ENGINE_SOURCES
   src/Nexus-Core/Graphics/WindingOrder.hpp)
 
 list (APPEND ENGINE_SOURCES
+  src/Nexus-Core/Importers/AssimpImporter.hpp
+  src/Nexus-Core/Importers/AssimpImporter.cpp)
+
+list (APPEND ENGINE_SOURCES
   src/Nexus-Core/ImGui/ImGuiGraphicsRenderer.cpp
   src/Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp
   src/Nexus-Core/ImGui/ImGuiInclude.hpp  

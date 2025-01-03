@@ -11,6 +11,7 @@ namespace Nexus::Graphics
 	  public:
 		HdriProcessor() = delete;
 		HdriProcessor(const std::string &filepath, GraphicsDevice *device);
+		~HdriProcessor() = default;
 		Ref<Cubemap> Generate(uint32_t size);
 
 	  private:
@@ -18,10 +19,8 @@ namespace Nexus::Graphics
 
 	  private:
 		GraphicsDevice *m_Device   = nullptr;
-		float		   *m_Data	   = nullptr;
 		int32_t			m_Width	   = 0;
 		int32_t			m_Height   = 0;
-		int32_t			m_Channels = 0;
 
 		Nexus::Ref<Nexus::Graphics::Texture2D> m_HdriImage = nullptr;
 	};

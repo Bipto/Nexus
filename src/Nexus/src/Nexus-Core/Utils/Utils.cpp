@@ -261,4 +261,25 @@ namespace Nexus::Utils
 		auto duration = now.time_since_epoch();
 		return std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
 	}
+
+	void FlipPixelsHorizontally(std::vector<unsigned char> &pixels, int width, int height, int bytesPerChannel, int channels)
+	{
+		int bytesPerPixel = bytesPerChannel * channels;
+
+		for (int j = 0; j < height; ++j)
+		{
+			for (int i = 0; i < width / 2; ++i)
+			{
+				for (int k = 0; k < channels; ++k)
+				{
+					for (int b = 0; b < bytesPerChannel; ++b)
+					{
+						std::swap(pixels[j * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b],
+								  pixels[j * width * bytesPerPixel + (width - 1 - i) * bytesPerPixel + k * bytesPerChannel + b]);
+					}
+				}
+			}
+		}
+	}
+
 }	 // namespace Nexus::Utils
