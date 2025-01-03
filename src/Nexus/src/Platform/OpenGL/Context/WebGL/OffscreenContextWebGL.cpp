@@ -105,7 +105,7 @@ namespace Nexus::GL
 		style.set("height", windowHeight);
 	}
 
-	bool Validate()
+	bool Nexus::GL::OffscreenContextWebGL::Validate()
 	{
 		return m_Context != 0;
 	}
