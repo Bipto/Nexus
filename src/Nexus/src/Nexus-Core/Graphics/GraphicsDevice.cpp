@@ -178,10 +178,10 @@ namespace Nexus::Graphics
 		int height			 = 0;
 
 		Texture2DSpecification spec;
-		spec.Format			= PixelFormat::R8_G8_B8_A8_UNorm;
 		unsigned char *data = stbi_load(filepath, &width, &height, &receivedChannels, desiredChannels);
 		spec.Width			= (uint32_t)width;
 		spec.Height			= (uint32_t)height;
+		spec.Format					= PixelFormat::R8_G8_B8_A8_UNorm;
 
 		if (generateMips)
 		{

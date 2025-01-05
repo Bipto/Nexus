@@ -35,8 +35,12 @@ namespace Demos
 		{
 			m_CommandList = m_GraphicsDevice->CreateCommandList();
 			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
-			m_Model = factory.CreateFrom3DModelFile(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/models/The Boss/"
-																						   "The Boss.dae"));
+			m_Model = factory.CreateFrom3DModelFile(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/models/The Boss/The Boss.dae"));
+
+			Nexus::Ref<Nexus::Graphics::Mesh>	  mesh	   = m_Model->GetMeshes()[0];
+			Nexus::Ref<Nexus::Graphics::Material> material = mesh->GetMaterial();
+
+			material->NormalTexture = m_GraphicsDevice->CreateTexture2D("resources/demo/models/The Boss/textures/Boss_normal.png", true);
 
 			Nexus::Graphics::BufferDescription cameraUniformBufferDesc;
 			cameraUniformBufferDesc.Size  = sizeof(VB_UNIFORM_CAMERA_DEMO_LIGHTING);
@@ -94,11 +98,22 @@ namespace Demos
 			m_ResourceSet->WriteUniformBuffer(m_CameraUniformBuffer, "Camera");
 			m_ResourceSet->WriteUniformBuffer(m_TransformUniformBuffer, "Transform");
 
-			Nexus::Graphics::Material mat = m_Model->GetMeshes()[0]->GetMaterial();
+			Nexus::Ref<Nexus::Graphics::Material> mat = m_Model->GetMeshes()[0]->GetMaterial();
 
-			m_ResourceSet->WriteCombinedImageSampler(mat.DiffuseTexture, m_Sampler, "diffuseMapSampler");
-			m_ResourceSet->WriteCombinedImageSampler(mat.NormalTexture, m_Sampler, "normalMapSampler");
-			m_ResourceSet->WriteCombinedImageSampler(mat.SpecularTexture, m_Sampler, "specularMapSampler");
+			if (mat->DiffuseTexture)
+			{
+				m_ResourceSet->WriteCombinedImageSampler(mat->DiffuseTexture, m_Sampler, "diffuseMapSampler");
+			}
+
+			if (mat->NormalTexture)
+			{
+				m_ResourceSet->WriteCombinedImageSampler(mat->NormalTexture, m_Sampler, "normalMapSampler");
+			}
+
+			if (mat->SpecularTexture)
+			{
+				m_ResourceSet->WriteCombinedImageSampler(mat->SpecularTexture, m_Sampler, "specularMapSampler");
+			}
 
 			m_CommandList->SetResourceSet(m_ResourceSet);
 

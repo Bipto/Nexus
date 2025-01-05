@@ -75,7 +75,7 @@ namespace Nexus::Graphics
 		indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
 		auto indexBuffer	  = m_Device->CreateIndexBuffer(indexBufferDesc, indices.data());
 
-		return CreateRef<Mesh>(vertexBuffer, indexBuffer, Graphics::Material {});
+		return CreateRef<Mesh>(vertexBuffer, indexBuffer, nullptr);
 	}
 
 	Ref<Mesh> MeshFactory::CreateSprite()
@@ -98,7 +98,7 @@ namespace Nexus::Graphics
 		indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
 		auto indexBuffer	  = m_Device->CreateIndexBuffer(indexBufferDesc, indices.data());
 
-		return CreateRef<Mesh>(vertexBuffer, indexBuffer, Graphics::Material {});
+		return CreateRef<Mesh>(vertexBuffer, indexBuffer, nullptr);
 	}
 
 	Ref<Mesh> MeshFactory::CreateTriangle()
@@ -120,7 +120,7 @@ namespace Nexus::Graphics
 		indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
 		auto indexBuffer	  = m_Device->CreateIndexBuffer(indexBufferDesc, indices.data());
 
-		return CreateRef<Mesh>(vertexBuffer, indexBuffer, Graphics::Material {});
+		return CreateRef<Mesh>(vertexBuffer, indexBuffer, nullptr);
 	}
 
 	Ref<Model> MeshFactory::CreateFrom3DModelFile(const std::string &filepath)
