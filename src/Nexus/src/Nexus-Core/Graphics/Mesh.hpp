@@ -4,6 +4,8 @@
 #include "Nexus-Core/Types.hpp"
 #include "Nexus-Core/Vertex.hpp"
 
+#include "Nexus-Core/Graphics/Material.hpp"
+
 namespace Nexus::Graphics
 {
 	/// @brief A class representing a mesh containing a vertex buffer and an index
@@ -18,9 +20,10 @@ namespace Nexus::Graphics
 		/// @param vertexBuffer A set of vertices to use for the mesh
 		/// @param indexBuffer A set of indices to use for the mesh
 		/// @param name A string representing the name of the mesh
-		Mesh(Ref<VertexBuffer> vertexBuffer, Ref<IndexBuffer> indexBuffer, const std::string &name = "Mesh")
+		Mesh(Ref<VertexBuffer> vertexBuffer, Ref<IndexBuffer> indexBuffer, Material material, const std::string &name = "Mesh")
 			: m_VertexBuffer(vertexBuffer),
 			  m_IndexBuffer(indexBuffer),
+			  m_Material(material),
 			  m_Name(name)
 		{
 		}
@@ -43,6 +46,11 @@ namespace Nexus::Graphics
 			return m_IndexBuffer;
 		}
 
+		Material GetMaterial()
+		{
+			return m_Material;
+		}
+
 		const std::string &GetName()
 		{
 			return m_Name;
@@ -54,6 +62,8 @@ namespace Nexus::Graphics
 
 		/// @brief A reference counted pointer to an index buffer
 		Ref<IndexBuffer> m_IndexBuffer = nullptr;
+
+		Material m_Material = {};
 
 		std::string m_Name;
 	};

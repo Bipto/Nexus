@@ -6,7 +6,10 @@
 
 namespace Nexus
 {
-	Ref<Graphics::Mesh> ProcessMesh(aiMesh *mesh, const aiScene *scene, Graphics::GraphicsDevice *device)
+	Ref<Graphics::Mesh> ProcessMesh(aiMesh										 *mesh,
+									const aiScene								 *scene,
+									const std::vector<Nexus::Graphics::Material> &materials,
+									Graphics::GraphicsDevice					 *device)
 	{
 		std::vector<Graphics::VertexPositionTexCoordNormalTangentBitangent> vertices;
 		std::vector<unsigned int>											indices;
@@ -52,18 +55,67 @@ namespace Nexus
 		indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
 		auto indexBuffer	  = device->CreateIndexBuffer(indexBufferDesc, indices.data());
 
-		return CreateRef<Graphics::Mesh>(vertexBuffer, indexBuffer, name);
+		Graphics::Material mat = materials[mesh->mMaterialIndex];
+
+		return CreateRef<Graphics::Mesh>(vertexBuffer, indexBuffer, mat, name);
 	}
 
-	void ProcessNode(aiNode *node, const aiScene *scene, std::vector<Ref<Graphics::Mesh>> &meshes, Graphics::GraphicsDevice *device)
+	void ProcessNode(aiNode										  *node,
+					 const aiScene								  *scene,
+					 std::vector<Ref<Graphics::Mesh>>			  &meshes,
+					 const std::vector<Nexus::Graphics::Material> &materials,
+					 Graphics::GraphicsDevice					  *device)
 	{
 		for (unsigned int i = 0; i < node->mNumMeshes; i++)
 		{
 			aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-			meshes.push_back(ProcessMesh(mesh, scene, device));
+			meshes.push_back(ProcessMesh(mesh, scene, materials, device));
 		}
 
-		for (unsigned int i = 0; i < node->mNumChildren; i++) { ProcessNode(node->mChildren[i], scene, meshes, device); }
+		for (unsigned int i = 0; i < node->mNumChildren; i++) { ProcessNode(node->mChildren[i], scene, meshes, materials, device); }
+	}
+
+	Nexus::Ref<Nexus::Graphics::Texture2D> LoadTexture(aiMaterial					   *material,
+													   aiTextureType					type,
+													   int								index,
+													   const std::string			   &directory,
+													   bool								generateMips,
+													   Nexus::Graphics::GraphicsDevice *device)
+	{
+		aiString textureName;
+		material->GetTexture(type, index, &textureName);
+		std::string texturePath = directory + std::string("/") + std::string(textureName.data);
+
+		Nexus::Ref<Nexus::Graphics::Texture2D> texture = nullptr;
+
+		if (std::filesystem::exists(texturePath))
+		{
+			texture = device->CreateTexture2D(texturePath, generateMips);
+		}
+
+		return texture;
+	}
+
+	std::vector<Nexus::Graphics::Material> ImportMaterials(const aiScene				   *scene,
+														   const std::string			   &directory,
+														   Nexus::Graphics::GraphicsDevice *device)
+	{
+		std::vector<Nexus::Graphics::Material> materials;
+		materials.reserve(scene->mNumMaterials);
+
+		for (uint32_t i = 0; i < scene->mNumMaterials; i++)
+		{
+			aiMaterial							  *material = scene->mMaterials[i];
+			Nexus::Ref<Nexus::Graphics::Texture2D> diffuse	= LoadTexture(material, aiTextureType_DIFFUSE, 0, directory, true, device);
+			Nexus::Ref<Nexus::Graphics::Texture2D> normal	= LoadTexture(material, aiTextureType_NORMALS, 0, directory, true, device);
+			Nexus::Ref<Nexus::Graphics::Texture2D> specular = LoadTexture(material, aiTextureType_SPECULAR, 0, directory, true, device);
+
+			Nexus::Graphics::Material mat {.DiffuseTexture = diffuse, .NormalTexture = normal, .SpecularTexture = specular};
+
+			materials.push_back(mat);
+		}
+
+		return materials;
 	}
 
 	Ref<Graphics::Model> AssimpImporter::Import(const std::string &filepath, Graphics::GraphicsDevice *device)
@@ -86,7 +138,10 @@ namespace Nexus
 			return {};
 		}
 
-		ProcessNode(scene->mRootNode, scene, meshes, device);
+		std::filesystem::path			path	  = filepath;
+		std::vector<Graphics::Material> materials = ImportMaterials(scene, path.parent_path().string(), device);
+
+		ProcessNode(scene->mRootNode, scene, meshes, materials, device);
 		return CreateRef<Graphics::Model>(meshes);
 	}
 }	 // namespace Nexus

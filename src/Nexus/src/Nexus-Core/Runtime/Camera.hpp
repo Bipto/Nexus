@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
+#include "Nexus-Core/Input/Input.hpp"
 #include "Nexus-Core/Platform.hpp"
 #include "Nexus-Core/Utils/FramerateMonitor.hpp"
 #include "Nexus-Core/nxpch.hpp"
@@ -18,6 +19,8 @@ namespace Nexus
 	class FirstPersonCamera
 	{
 	  public:
+		FirstPersonCamera() = default;
+
 		FirstPersonCamera(Graphics::GraphicsDevice *device, int width = 1280, int height = 720, const glm::vec3 &position = {0, 0, 0})
 			: m_Device(device)
 		{

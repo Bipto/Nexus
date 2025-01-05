@@ -248,6 +248,8 @@ list (APPEND ENGINE_SOURCES
 list (APPEND ENGINE_SOURCES
   src/Nexus-Core/Renderer/BatchRenderer.cpp
   src/Nexus-Core/Renderer/BatchRenderer.hpp
+  src/Nexus-Core/Renderer/Renderer3D.cpp
+  src/Nexus-Core/Renderer/Renderer3D.hpp
 )
 
 list (APPEND ENGINE_SOURCES

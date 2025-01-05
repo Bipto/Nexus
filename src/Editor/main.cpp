@@ -1,6 +1,7 @@
 #include "Nexus.hpp"
 
 #include "Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp"
+#include "Nexus-Core/Renderer/Renderer3D.hpp"
 
 class EditorApplication : public Nexus::Application
 {
@@ -15,12 +16,14 @@ class EditorApplication : public Nexus::Application
 
 	virtual void Load() override
 	{
+		m_Renderer = std::make_unique<Nexus::Graphics::Renderer3D>(m_GraphicsDevice);
+
 		m_CommandList = m_GraphicsDevice->CreateCommandList();
 
 		m_ImGuiRenderer = std::unique_ptr<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(new Nexus::ImGuiUtils::ImGuiGraphicsRenderer(this));
 
 		auto &io = ImGui::GetIO();
-		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+		// io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
 		ApplyDarkTheme();
@@ -133,11 +136,11 @@ class EditorApplication : public Nexus::Application
 		m_CommandList->End();
 		m_GraphicsDevice->SubmitCommandList(m_CommandList);
 
-		m_CommandList->Begin();
-		m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(m_Framebuffer));
-		m_CommandList->ClearColorTarget(0, {1.0f, 0.0f, 0.0f, 1.0f});
-		m_CommandList->End();
-		m_GraphicsDevice->SubmitCommandList(m_CommandList);
+		Nexus::Graphics::Scene		  scene {.Environment = nullptr, .EnvironmentSampler = nullptr, .EnvironmentColour = {1.0f, 0.0f, 0.0f, 1.0f}};
+		Nexus::Graphics::RenderTarget target(m_Framebuffer);
+
+		m_Renderer->Begin(scene, target);
+		m_Renderer->End();
 
 		m_ImGuiRenderer->BeforeLayout(time);
 		RenderDockspace();
@@ -156,6 +159,8 @@ class EditorApplication : public Nexus::Application
 	Nexus::Ref<Nexus::Graphics::Framebuffer>				  m_Framebuffer	  = nullptr;
 
 	ImTextureID m_FramebufferTextureID = {};
+
+	std::unique_ptr<Nexus::Graphics::Renderer3D> m_Renderer;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
