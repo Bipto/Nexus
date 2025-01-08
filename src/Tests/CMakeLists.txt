@@ -13,16 +13,13 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 add_executable(Tests src/main.cpp)
-
-target_include_directories(Tests PUBLIC external/googletest/googletest/include)
-target_link_libraries(Tests PUBLIC gtest gtest_main)
+target_link_libraries(Tests PRIVATE gtest gtest_main)
 
 target_include_directories(
     Tests PUBLIC ../../Nexus/src
 )
 
-
-target_link_libraries(Tests PUBLIC Nexus)
+target_link_libraries(Tests PRIVATE Nexus)
 
 add_test(
     NAME Tests
