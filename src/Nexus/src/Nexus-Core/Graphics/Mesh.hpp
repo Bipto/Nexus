@@ -20,7 +20,7 @@ namespace Nexus::Graphics
 		/// @param vertexBuffer A set of vertices to use for the mesh
 		/// @param indexBuffer A set of indices to use for the mesh
 		/// @param name A string representing the name of the mesh
-		Mesh(Ref<VertexBuffer> vertexBuffer, Ref<IndexBuffer> indexBuffer, Ref<Material> material, const std::string &name = "Mesh")
+		Mesh(Ref<VertexBuffer> vertexBuffer, Ref<IndexBuffer> indexBuffer, const Material &material, const std::string &name = "Mesh")
 			: m_VertexBuffer(vertexBuffer),
 			  m_IndexBuffer(indexBuffer),
 			  m_Material(material),
@@ -46,7 +46,12 @@ namespace Nexus::Graphics
 			return m_IndexBuffer;
 		}
 
-		Ref<Material> GetMaterial()
+		void SetMaterial(const Material &material)
+		{
+			m_Material = material;
+		}
+
+		const Material &GetMaterial()
 		{
 			return m_Material;
 		}
@@ -63,7 +68,7 @@ namespace Nexus::Graphics
 		/// @brief A reference counted pointer to an index buffer
 		Ref<IndexBuffer> m_IndexBuffer = nullptr;
 
-		Ref<Material> m_Material = nullptr;
+		Material m_Material = {};
 
 		std::string m_Name;
 	};

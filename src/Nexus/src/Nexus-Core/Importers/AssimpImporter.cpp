@@ -6,10 +6,10 @@
 
 namespace Nexus
 {
-	Ref<Graphics::Mesh> ProcessMesh(aiMesh													 *mesh,
-									const aiScene											 *scene,
-									const std::vector<Nexus::Ref<Nexus::Graphics::Material>> &materials,
-									Graphics::GraphicsDevice								 *device)
+	Ref<Graphics::Mesh> ProcessMesh(aiMesh										 *mesh,
+									const aiScene								 *scene,
+									const std::vector<Nexus::Graphics::Material> &materials,
+									Graphics::GraphicsDevice					 *device)
 	{
 		std::vector<Graphics::VertexPositionTexCoordNormalTangentBitangent> vertices;
 		std::vector<unsigned int>											indices;
@@ -55,16 +55,15 @@ namespace Nexus
 		indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
 		auto indexBuffer	  = device->CreateIndexBuffer(indexBufferDesc, indices.data());
 
-		Ref<Graphics::Material> mat = materials[mesh->mMaterialIndex];
-
+		Graphics::Material mat = materials[mesh->mMaterialIndex];
 		return CreateRef<Graphics::Mesh>(vertexBuffer, indexBuffer, mat, name);
 	}
 
-	void ProcessNode(aiNode													  *node,
-					 const aiScene											  *scene,
-					 std::vector<Ref<Graphics::Mesh>>						  &meshes,
-					 const std::vector<Nexus::Ref<Nexus::Graphics::Material>> &materials,
-					 Graphics::GraphicsDevice								  *device)
+	void ProcessNode(aiNode										  *node,
+					 const aiScene								  *scene,
+					 std::vector<Ref<Graphics::Mesh>>			  &meshes,
+					 const std::vector<Nexus::Graphics::Material> &materials,
+					 Graphics::GraphicsDevice					  *device)
 	{
 		for (unsigned int i = 0; i < node->mNumMeshes; i++)
 		{
@@ -96,26 +95,33 @@ namespace Nexus
 		return texture;
 	}
 
-	std::vector<Nexus::Ref<Nexus::Graphics::Material>> ImportMaterials(const aiScene				   *scene,
-																	   const std::string			   &directory,
-																	   Nexus::Graphics::GraphicsDevice *device)
+	std::vector<Nexus::Graphics::Material> ImportMaterials(const aiScene				   *scene,
+														   const std::string			   &directory,
+														   Nexus::Graphics::GraphicsDevice *device)
 	{
-		std::vector<Nexus::Ref<Nexus::Graphics::Material>> materials;
+		std::vector<Nexus::Graphics::Material> materials;
 		materials.reserve(scene->mNumMaterials);
 
 		for (uint32_t i = 0; i < scene->mNumMaterials; i++)
 		{
-			aiMaterial							  *material = scene->mMaterials[i];
-			Nexus::Ref<Nexus::Graphics::Texture2D> diffuse	= LoadTexture(material, aiTextureType_DIFFUSE, 0, directory, true, device);
-			Nexus::Ref<Nexus::Graphics::Texture2D> normal	= LoadTexture(material, aiTextureType_NORMALS, 0, directory, true, device);
-			Nexus::Ref<Nexus::Graphics::Texture2D> specular = LoadTexture(material, aiTextureType_SPECULAR, 0, directory, true, device);
+			aiMaterial							  *material		   = scene->mMaterials[i];
+			Nexus::Ref<Nexus::Graphics::Texture2D> diffuseTexture  = LoadTexture(material, aiTextureType_DIFFUSE, 0, directory, true, device);
+			Nexus::Ref<Nexus::Graphics::Texture2D> normalTexture   = LoadTexture(material, aiTextureType_NORMALS, 0, directory, true, device);
+			Nexus::Ref<Nexus::Graphics::Texture2D> specularTexture = LoadTexture(material, aiTextureType_SPECULAR, 0, directory, true, device);
 
-			// Nexus::Graphics::Material mat {.DiffuseTexture = diffuse, .NormalTexture = normal, .SpecularTexture = specular};
+			aiColor3D diffuseColour;
+			aiColor3D specularColour;
 
-			Nexus::Ref<Nexus::Graphics::Material> mat = CreateRef<Nexus::Graphics::Material>();
-			mat->DiffuseTexture						  = diffuse;
-			// mat->NormalTexture						  = normal;
-			mat->SpecularTexture = specular;
+			material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColour);
+			material->Get(AI_MATKEY_COLOR_SPECULAR, specularColour);
+
+			Nexus::Graphics::Material mat = {};
+			mat.DiffuseTexture			  = diffuseTexture;
+			mat.NormalTexture			  = normalTexture;
+			mat.SpecularTexture			  = specularTexture;
+
+			mat.DiffuseColour  = {diffuseColour.r, diffuseColour.g, diffuseColour.b};
+			mat.SpecularColour = {specularColour.r, specularColour.g, specularColour.b};
 
 			materials.push_back(mat);
 		}
@@ -144,7 +150,7 @@ namespace Nexus
 		}
 
 		std::filesystem::path			path	  = filepath;
-		std::vector<Ref<Graphics::Material>> materials = ImportMaterials(scene, path.parent_path().string(), device);
+		std::vector<Graphics::Material> materials = ImportMaterials(scene, path.parent_path().string(), device);
 
 		ProcessNode(scene->mRootNode, scene, meshes, materials, device);
 		return CreateRef<Graphics::Model>(meshes);
