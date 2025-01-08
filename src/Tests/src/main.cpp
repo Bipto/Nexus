@@ -1,4 +1,4 @@
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 #include "Nexus-Core/Graphics/Circle.hpp"
 #include "Nexus-Core/Utils/Utils.hpp"

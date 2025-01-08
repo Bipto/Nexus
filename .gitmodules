@@ -62,6 +62,3 @@
 [submodule "External/yaml-cpp"]
 	path = src/Nexus/external/yaml-cpp
 	url = https://github.com/jbeder/yaml-cpp.git
-[submodule "src/Tests/external/googletest"]
-	path = src/Tests/external/googletest
-	url = https://github.com/google/googletest.git
