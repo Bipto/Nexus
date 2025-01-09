@@ -220,7 +220,8 @@ namespace Nexus::Graphics
 		m_CurrentTextureStates.clear();
 
 		// retrieve the window's native handle
-		HWND hwnd = (HWND)SDL_GetProperty(SDL_GetWindowProperties(m_Window->GetSDLWindowHandle()), SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr);
+		NativeWindowInfo info = m_Window->GetNativeWindowInfo();
+		HWND			 hwnd = info.hwnd;
 
 		// create the swapchain
 		auto windowSize = m_Window->GetWindowSize();

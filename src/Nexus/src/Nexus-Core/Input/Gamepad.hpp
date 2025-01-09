@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Nexus-Core/Point.hpp"
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 namespace Nexus
 {
@@ -69,10 +69,7 @@ namespace Nexus
 		RightPaddle2,
 
 		/// @brief A touchpad button that some controllers may have
-		Touchpad,
-
-		/// @brief The max button that some controllers may have
-		Max,
+		Touchpad
 	};
 
 	/// @brief A method that returns an SDL_GameControllerButton from a nexus

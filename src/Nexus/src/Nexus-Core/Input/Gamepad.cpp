@@ -27,7 +27,7 @@ namespace Nexus
 					B,		  X,		   Y,			Back,		  Guide,
 					Start,	  LeftStick,   RightStick,	LeftShoulder, RightShoulder,
 					Misc,	  LeftPaddle1, LeftPaddle2, RightPaddle1, RightPaddle2,
-					Touchpad, Max,
+					Touchpad,
 				};
 
 				for (auto val : enumValues) { m_CurrentButtons[val] = false; }
@@ -201,7 +201,6 @@ namespace Nexus
 			case GamepadButton::RightPaddle1: return SDL_GAMEPAD_BUTTON_RIGHT_PADDLE1;
 			case GamepadButton::RightPaddle2: return SDL_GAMEPAD_BUTTON_RIGHT_PADDLE2;
 			case GamepadButton::Touchpad: return SDL_GAMEPAD_BUTTON_TOUCHPAD;
-			case GamepadButton::Max: return SDL_GAMEPAD_BUTTON_MAX;
 			default: return SDL_GAMEPAD_BUTTON_INVALID;
 		}
 	}

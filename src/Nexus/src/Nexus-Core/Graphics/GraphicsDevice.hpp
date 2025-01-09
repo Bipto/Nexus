@@ -11,7 +11,6 @@
 #include "Nexus-Core/Window.hpp"
 #include "Pipeline.hpp"
 #include "ResourceSet.hpp"
-#include "SDL.h"
 #include "Sampler.hpp"
 #include "ShaderModule.hpp"
 #include "Swapchain.hpp"

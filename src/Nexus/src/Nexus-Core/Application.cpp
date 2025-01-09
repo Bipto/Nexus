@@ -37,8 +37,6 @@ namespace Nexus
 
 		m_AudioDevice = Nexus::CreateAudioDevice(spec.AudioAPI);
 
-		SDL_StartTextInput();
-
 		m_Window->OnRender.Bind([&](Nexus::TimeSpan time) { Render(time); });
 		m_Window->OnUpdate.Bind([&](Nexus::TimeSpan time) { Update(time); });
 		m_Window->OnTick.Bind([&](Nexus::TimeSpan time) { Tick(time); });
@@ -46,7 +44,6 @@ namespace Nexus
 
 	Application::~Application()
 	{
-		SDL_StopTextInput();
 		delete m_Window;
 		delete m_AudioDevice;
 		delete m_GraphicsDevice;

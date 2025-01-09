@@ -59,7 +59,7 @@ namespace Nexus
 
 	void IWindow::SetResizable(bool isResizable)
 	{
-		SDL_SetWindowResizable(this->m_Window, (SDL_bool)isResizable);
+		SDL_SetWindowResizable(this->m_Window, isResizable);
 	}
 
 	void IWindow::SetTitle(const std::string &title)
@@ -211,12 +211,12 @@ namespace Nexus
 
 	void IWindow::SetFullscreen()
 	{
-		SDL_SetWindowFullscreen(m_Window, SDL_TRUE);
+		SDL_SetWindowFullscreen(m_Window, true);
 	}
 
 	void IWindow::UnsetFullscreen()
 	{
-		SDL_SetWindowFullscreen(m_Window, SDL_FALSE);
+		SDL_SetWindowFullscreen(m_Window, false);
 	}
 
 	void IWindow::Show()
@@ -256,17 +256,17 @@ namespace Nexus
 		r.y = rect.GetTop();
 		r.w = rect.GetWidth();
 		r.h = rect.GetHeight();
-		SDL_SetTextInputRect(&r);
+		SDL_SetTextInputArea(m_Window, &r, 0);
 	}
 
 	void IWindow::StartTextInput()
 	{
-		SDL_StartTextInput();
+		SDL_StartTextInput(m_Window);
 	}
 
 	void IWindow::StopTextInput()
 	{
-		SDL_StopTextInput();
+		SDL_StopTextInput(m_Window);
 	}
 
 	void IWindow::SetRendersPerSecond(uint32_t amount)
@@ -289,7 +289,7 @@ namespace Nexus
 
 	void IWindow::SetRelativeMouseMode(bool enabled)
 	{
-		SDL_SetRelativeMouseMode(enabled);
+		SDL_SetWindowRelativeMouseMode(m_Window, enabled);
 	}
 
 	NativeWindowInfo IWindow::GetNativeWindowInfo()
@@ -299,11 +299,11 @@ namespace Nexus
 		SDL_PropertiesID properties = SDL_GetWindowProperties(m_Window);
 
 #if defined(NX_PLATFORM_WINDOWS)
-		info.hwnd	  = (HWND)SDL_GetProperty(properties, SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr);
-		info.hdc	  = (HDC)SDL_GetProperty(properties, SDL_PROP_WINDOW_WIN32_HDC_POINTER, nullptr);
-		info.instance = (HINSTANCE)SDL_GetProperty(properties, SDL_PROP_WINDOW_WIN32_INSTANCE_POINTER, nullptr);
+		info.hwnd	  = (HWND)SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr);
+		info.hdc	  = (HDC)SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WIN32_HDC_POINTER, nullptr);
+		info.instance = (HINSTANCE)SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WIN32_INSTANCE_POINTER, nullptr);
 #elif defined(NX_PLATFORM_LINUX)
-		info.display = (Display *)SDL_GetProperty(properties, SDL_PROP_WINDOW_X11_DISPLAY_POINTER, nullptr);
+		info.display = (Display *)SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_X11_DISPLAY_POINTER, nullptr);
 		info.screen	 = (int)SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_SCREEN_NUMBER, 0);
 		info.window	 = (Window)(unsigned long)SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0);
 #elif defined(NX_PLATFORM_WEB)

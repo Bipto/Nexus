@@ -7,7 +7,6 @@
 #include "Nexus-Core/Logging/Log.hpp"
 #include "Nexus-Core/Point.hpp"
 #include "Nexus-Core/nxpch.hpp"
-#include "SDL.h"
 
 namespace Nexus
 {

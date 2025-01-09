@@ -93,14 +93,14 @@ void PollEvents()
 		{
 			case SDL_EVENT_KEY_DOWN:
 			{
-				auto nexusKeyCode  = Nexus::SDL3::GetNexusKeyCodeFromSDLKeyCode(event.key.keysym.sym);
-				auto nexusScanCode = Nexus::SDL3::GetNexusScanCodeFromSDLScanCode(event.key.keysym.scancode);
-				auto mods		   = Nexus::SDL3::GetNexusModifiersFromSDLModifiers(event.key.keysym.mod);
+				auto nexusKeyCode  = Nexus::SDL3::GetNexusKeyCodeFromSDLKeyCode(event.key.key);
+				auto nexusScanCode = Nexus::SDL3::GetNexusScanCodeFromSDLScanCode(event.key.scancode);
+				auto mods		   = Nexus::SDL3::GetNexusModifiersFromSDLModifiers(event.key.mod);
 
 				Nexus::KeyPressedEventArgs keyPressedEvent {.KeyCode	= nexusKeyCode,
 															.ScanCode	= nexusScanCode,
 															.Repeat		= event.key.repeat,
-															.Unicode	= event.key.keysym.sym,
+															.Unicode	= event.key.raw,
 															.Mods		= mods,
 															.KeyboardID = event.kdevice.which};
 
@@ -110,12 +110,12 @@ void PollEvents()
 			}
 			case SDL_EVENT_KEY_UP:
 			{
-				auto nexusKeyCode  = Nexus::SDL3::GetNexusKeyCodeFromSDLKeyCode(event.key.keysym.sym);
-				auto nexusScanCode = Nexus::SDL3::GetNexusScanCodeFromSDLScanCode(event.key.keysym.scancode);
+				auto nexusKeyCode  = Nexus::SDL3::GetNexusKeyCodeFromSDLKeyCode(event.key.key);
+				auto nexusScanCode = Nexus::SDL3::GetNexusScanCodeFromSDLScanCode(event.key.scancode);
 
 				Nexus::KeyReleasedEventArgs keyReleasedEvent {.KeyCode	  = nexusKeyCode,
 															  .ScanCode	  = nexusScanCode,
-															  .Unicode	  = event.key.keysym.sym,
+															  .Unicode	  = event.key.raw,
 															  .KeyboardID = event.kdevice.which};
 
 				m_ActiveKeyboard = event.kdevice.which;
@@ -351,7 +351,7 @@ namespace Nexus::Platform
 		{
 			uint32_t id = sdlKeyboards[i];
 
-			if (const char *instanceName = SDL_GetKeyboardInstanceName(id))
+			if (const char *instanceName = SDL_GetKeyboardNameForID(id))
 			{
 				std::string name = instanceName;
 				keyboards.push_back(InputNew::Keyboard(sdlKeyboards[i], name));
@@ -378,7 +378,7 @@ namespace Nexus::Platform
 		{
 			uint32_t id = sdlMice[i];
 
-			if (const char *instanceName = SDL_GetMouseInstanceName(id))
+			if (const char *instanceName = SDL_GetMouseNameForID(id))
 			{
 				std::string name = instanceName;
 				mice.push_back(InputNew::Mouse(sdlMice[i], name));
@@ -407,7 +407,7 @@ namespace Nexus::Platform
 			{
 				uint32_t id = sdlGamepads[i];
 
-				if (const char *instanceName = SDL_GetGamepadInstanceName(id))
+				if (const char *instanceName = SDL_GetGamepadNameForID(id))
 				{
 					std::string name = instanceName;
 					gamepads.push_back(InputNew::Gamepad(sdlGamepads[i], name));
@@ -506,18 +506,18 @@ namespace Nexus::Platform
 
 	void CreateCursors(std::map<Cursor, SDL_Cursor *> &cursors)
 	{
-		m_Cursors[Cursor::Arrow]	   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
-		m_Cursors[Cursor::IBeam]	   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM);
+		m_Cursors[Cursor::Arrow]	   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_DEFAULT);
+		m_Cursors[Cursor::IBeam]	   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_TEXT);
 		m_Cursors[Cursor::Wait]		   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_WAIT);
 		m_Cursors[Cursor::Crosshair]   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_CROSSHAIR);
-		m_Cursors[Cursor::WaitArrow]   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_WAITARROW);
-		m_Cursors[Cursor::ArrowNWSE]   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENWSE);
-		m_Cursors[Cursor::ArrowNESW]   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENESW);
-		m_Cursors[Cursor::ArrowWE]	   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEWE);
-		m_Cursors[Cursor::ArrowNS]	   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENS);
-		m_Cursors[Cursor::ArrowAllDir] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEALL);
-		m_Cursors[Cursor::No]		   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NO);
-		m_Cursors[Cursor::Hand]		   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+		m_Cursors[Cursor::WaitArrow]   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_PROGRESS);
+		m_Cursors[Cursor::ArrowNWSE]   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NWSE_RESIZE);
+		m_Cursors[Cursor::ArrowNESW]   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NESW_RESIZE);
+		m_Cursors[Cursor::ArrowWE]	   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_EW_RESIZE);
+		m_Cursors[Cursor::ArrowNS]	   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NS_RESIZE);
+		m_Cursors[Cursor::ArrowAllDir] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_MOVE);
+		m_Cursors[Cursor::No]		   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NOT_ALLOWED);
+		m_Cursors[Cursor::Hand]		   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_POINTER);
 	}
 
 	void ReleaseCursors(std::map<Cursor, SDL_Cursor *> &cursors)
@@ -533,8 +533,7 @@ namespace Nexus::Platform
 			NX_LOG("Could not initialize SDL");
 		}
 
-		SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4_RUMBLE, "1");
-		SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5_RUMBLE, "1");
+		SDL_SetHint(SDL_HINT_JOYSTICK_ENHANCED_REPORTS, "1");
 		SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5_PLAYER_LED, "1");
 
 		CreateCursors(m_Cursors);
