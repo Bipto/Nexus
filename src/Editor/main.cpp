@@ -3,6 +3,9 @@
 #include "Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp"
 #include "Nexus-Core/Renderer/Renderer3D.hpp"
 
+#include "Nexus-Core/FileSystem/FileDialogs.hpp"
+#include "Nexus-Core/Graphics/HdriProcessor.hpp"
+
 class EditorApplication : public Nexus::Application
 {
   public:
@@ -31,6 +34,7 @@ class EditorApplication : public Nexus::Application
 		Nexus::Graphics::FramebufferSpecification framebufferSpec = {};
 		framebufferSpec.Width									  = 1280;
 		framebufferSpec.Height									  = 720;
+		framebufferSpec.DepthAttachmentSpecification			  = {Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt};
 		framebufferSpec.ColorAttachmentSpecification.Attachments  = {{Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat()}};
 
 		m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(framebufferSpec);
@@ -49,6 +53,18 @@ class EditorApplication : public Nexus::Application
 		if (ImGui::BeginMenu("File", true))
 		{
 			if (ImGui::MenuItem("New")) {}
+
+			if (ImGui::MenuItem("Open Cubemap"))
+			{
+				std::vector<const char *> filters  = {"*.hdr"};
+				const char				 *filepath = Nexus::FileDialogs::OpenFile(filters);
+
+				if (filepath)
+				{
+					Nexus::Graphics::HdriProcessor processor(filepath, m_GraphicsDevice);
+					m_Cubemap = processor.Generate(2048);
+				}
+			}
 
 			if (ImGui::MenuItem("Quit"))
 			{
@@ -139,7 +155,7 @@ class EditorApplication : public Nexus::Application
 		Nexus::Graphics::Scene		  scene {.Environment = nullptr, .EnvironmentSampler = nullptr, .EnvironmentColour = {1.0f, 0.0f, 0.0f, 1.0f}};
 		Nexus::Graphics::RenderTarget target(m_Framebuffer);
 
-		m_Renderer->Begin(scene, target);
+		m_Renderer->Begin(scene, target, m_Cubemap, time);
 		m_Renderer->End();
 
 		m_ImGuiRenderer->BeforeLayout(time);
@@ -161,6 +177,7 @@ class EditorApplication : public Nexus::Application
 	ImTextureID m_FramebufferTextureID = {};
 
 	std::unique_ptr<Nexus::Graphics::Renderer3D> m_Renderer;
+	Nexus::Ref<Nexus::Graphics::Cubemap>		 m_Cubemap = nullptr;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
