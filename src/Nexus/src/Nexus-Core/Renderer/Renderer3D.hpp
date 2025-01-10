@@ -10,15 +10,28 @@ namespace Nexus::Graphics
 {
 	struct Scene
 	{
-		Ref<Cubemap> Environment		= nullptr;
-		Ref<Sampler> EnvironmentSampler = nullptr;
-		glm::vec4	 EnvironmentColour	= {1.0f, 1.0f, 1.0f, 1.0f};
+		Ref<Cubemap>									Environment		   = nullptr;
+		Ref<Sampler>									EnvironmentSampler = nullptr;
+		glm::vec4										EnvironmentColour  = {1.0f, 1.0f, 1.0f, 1.0f};
+		std::vector<Nexus::Ref<Nexus::Graphics::Model>> Models			   = {};
 	};
 
-	struct CameraUniforms
+	struct alignas(16) CubemapCameraUniforms
 	{
 		glm::mat4 View		 = {};
 		glm::mat4 Projection = {};
+	};
+
+	struct alignas(16) ModelCameraUniforms
+	{
+		glm::mat4 View		  = {};
+		glm::mat4 Projection  = {};
+		glm::vec3 CamPosition = {};
+	};
+
+	struct alignas(16) ModelTransformUniforms
+	{
+		glm::mat4 Transform = {};
 	};
 
 	class Renderer3D
@@ -31,7 +44,10 @@ namespace Nexus::Graphics
 		void End();
 
 	  private:
+		void RenderCubemap();
+		void RenderModel(Nexus::Ref<Nexus::Graphics::Model> model);
 		void CreateCubemapPipeline();
+		void CreateModelPipeline();
 
 	  private:
 		GraphicsDevice *m_Device	   = nullptr;
@@ -45,10 +61,15 @@ namespace Nexus::Graphics
 
 		Nexus::FirstPersonCamera m_Camera;
 
-		Nexus::Ref<Nexus::Graphics::Sampler>	 m_Sampler			  = nullptr;
-		Nexus::Ref<Nexus::Graphics::Pipeline>	 m_CubemapPipeline	  = nullptr;
-		Nexus::Ref<Nexus::Graphics::ResourceSet> m_CubemapResourceSet = nullptr;
-
+		Nexus::Ref<Nexus::Graphics::Sampler>	   m_CubemapSampler		 = nullptr;
+		Nexus::Ref<Nexus::Graphics::Pipeline>	   m_CubemapPipeline	 = nullptr;
 		Nexus::Ref<Nexus::Graphics::UniformBuffer> m_CameraUniformBuffer = nullptr;
+		Nexus::Ref<Nexus::Graphics::ResourceSet>   m_CubemapResourceSet	 = nullptr;
+
+		Nexus::Ref<Nexus::Graphics::Sampler>	   m_ModelSampler				 = nullptr;
+		Nexus::Ref<Nexus::Graphics::Pipeline>	   m_ModelPipeline				 = nullptr;
+		Nexus::Ref<Nexus::Graphics::UniformBuffer> m_ModelCameraUniformBuffer	 = nullptr;
+		Nexus::Ref<Nexus::Graphics::UniformBuffer> m_ModelTransformUniformBuffer = nullptr;
+		Nexus::Ref<Nexus::Graphics::ResourceSet>   m_ModelResourceSet			 = nullptr;
 	};
 }	 // namespace Nexus::Graphics

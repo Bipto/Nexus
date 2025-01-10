@@ -77,7 +77,7 @@ namespace Nexus
 
 			Move(time);
 			m_View = glm::lookAt(m_Position, m_Position + m_Front, m_Up);
-			RecalculateProjection();
+			Resize(width, height);
 		}
 
 		void SetPosition(const glm::vec3 &position)

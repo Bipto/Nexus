@@ -34,6 +34,14 @@ namespace Nexus
 				vertex.TexCoords.y = mesh->mTextureCoords[0][i].y;
 			}
 
+			vertex.Tangent.x = mesh->mTangents[i].x;
+			vertex.Tangent.y = mesh->mTangents[i].y;
+			vertex.Tangent.z = mesh->mTangents[i].z;
+
+			vertex.Bitangent.x = mesh->mBitangents[i].x;
+			vertex.Bitangent.y = mesh->mBitangents[i].y;
+			vertex.Bitangent.z = mesh->mBitangents[i].z;
+
 			vertices.push_back(vertex);
 		}
 

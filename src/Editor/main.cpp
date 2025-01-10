@@ -66,6 +66,18 @@ class EditorApplication : public Nexus::Application
 				}
 			}
 
+			if (ImGui::MenuItem("Open Model"))
+			{
+				std::vector<const char *> filters  = {"*.*"};
+				const char				 *filepath = Nexus::FileDialogs::OpenFile(filters);
+
+				if (filepath)
+				{
+					Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
+					m_Model = factory.CreateFrom3DModelFile(filepath);
+				}
+			}
+
 			if (ImGui::MenuItem("Quit"))
 			{
 				this->Close();
@@ -133,7 +145,15 @@ class EditorApplication : public Nexus::Application
 		if (ImGui::Begin("Viewport"))
 		{
 			ImVec2 size = ImGui::GetWindowSize();
-			ImGui::Image(m_FramebufferTextureID, size);
+			ImVec2 uv0	= {0, 0};
+			ImVec2 uv1	= {1, 1};
+
+			if (m_GraphicsDevice->GetGraphicsAPI() == Nexus::Graphics::GraphicsAPI::OpenGL)
+			{
+				uv0 = {0, 1};
+				uv1 = {1, 0};
+			}
+			ImGui::Image(m_FramebufferTextureID, size, uv0, uv1);
 		}
 		ImGui::End();
 
@@ -154,6 +174,11 @@ class EditorApplication : public Nexus::Application
 
 		Nexus::Graphics::Scene		  scene {.Environment = nullptr, .EnvironmentSampler = nullptr, .EnvironmentColour = {1.0f, 0.0f, 0.0f, 1.0f}};
 		Nexus::Graphics::RenderTarget target(m_Framebuffer);
+
+		if (m_Model)
+		{
+			scene.Models.push_back(m_Model);
+		}
 
 		m_Renderer->Begin(scene, target, m_Cubemap, time);
 		m_Renderer->End();
@@ -178,6 +203,7 @@ class EditorApplication : public Nexus::Application
 
 	std::unique_ptr<Nexus::Graphics::Renderer3D> m_Renderer;
 	Nexus::Ref<Nexus::Graphics::Cubemap>		 m_Cubemap = nullptr;
+	Nexus::Ref<Nexus::Graphics::Model>			 m_Model   = nullptr;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
