@@ -96,32 +96,8 @@ layout (binding = 2, set = 1) uniform sampler2D specularMapSampler;
 
 void main()
 {
-    vec3 lightPos = vec3(0.0, -2.0, -2.0);
-	vec3 lightColor	   = vec3(5.0, 5.0, 5.0);
 	vec3 objectColor = texture(diffuseMapSampler, OutTexCoord).rgb;
-    vec3 specularColor = texture(specularMapSampler, OutTexCoord).rgb;
-
-    float ambientStrength = 0.8;
-    vec3 ambient = ambientStrength * lightColor;
-
-    vec3 normal = texture(normalMapSampler, OutTexCoord).rgb;
-    normal = normal * 2.0 - 1.0;
-    normal = normalize(TBN * normal);    
-
-    //vec3 normal = normalize(OutNormal);
-    vec3 lightDir = normalize(lightPos - FragPos);
-    float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = diff * lightColor;
-
-    float specularStrength = 0.5;
-    vec3 viewDir = normalize(ViewPos - FragPos);
-    vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    vec3 specular = specularStrength * spec * lightColor;
-
-    vec3 result = (ambient + diffuse + specular) * objectColor * specularColor;
-
-    FragColor = vec4(result, 1.0);
+    FragColor = vec4(objectColor, 1.0);
 })";
 
 namespace Nexus::Graphics
@@ -129,8 +105,6 @@ namespace Nexus::Graphics
 	Renderer3D::Renderer3D(GraphicsDevice *device) : m_Device(device), m_Camera(m_Device)
 	{
 		m_CommandList = m_Device->CreateCommandList();
-
-		m_Camera.SetPosition(glm::vec3(0, 0, 2.5f));
 
 		CreateCubemapPipeline();
 		CreateModelPipeline();
@@ -155,8 +129,6 @@ namespace Nexus::Graphics
 
 	void Nexus::Graphics::Renderer3D::End()
 	{
-		Nexus::Point2D<uint32_t> size = m_RenderTarget.GetSize();
-
 		CubemapCameraUniforms cubemapCameraUniforms = {};
 		cubemapCameraUniforms.Projection			= m_Camera.GetProjection();
 		cubemapCameraUniforms.View					= glm::mat4(glm::mat3(m_Camera.GetView()));
@@ -172,6 +144,13 @@ namespace Nexus::Graphics
 		modelTransformUniforms.Transform			  = glm::mat4(1.0f);
 		m_ModelTransformUniformBuffer->SetData(&modelTransformUniforms, sizeof(modelTransformUniforms));
 
+		RenderCubemap();
+		for (Nexus::Ref<Nexus::Graphics::Model> model : m_Scene.Models) { RenderModel(model); }
+	}
+
+	void Renderer3D::RenderCubemap()
+	{
+		Nexus::Point2D<uint32_t> size = m_RenderTarget.GetSize();
 		m_CommandList->Begin();
 		m_CommandList->SetRenderTarget(m_RenderTarget);
 
@@ -196,29 +175,43 @@ namespace Nexus::Graphics
 
 		if (m_Cubemap)
 		{
-			RenderCubemap();
+			m_CommandList->SetPipeline(m_CubemapPipeline);
+			m_CubemapResourceSet->WriteUniformBuffer(m_CameraUniformBuffer, "Camera");
+			m_CubemapResourceSet->WriteCombinedImageSampler(m_Cubemap, m_CubemapSampler, "skybox");
+			m_CommandList->SetResourceSet(m_CubemapResourceSet);
 
-			for (Nexus::Ref<Nexus::Graphics::Model> model : m_Scene.Models) { RenderModel(model); }
+			m_CommandList->SetVertexBuffer(m_Cube->GetVertexBuffer(), 0);
+			m_CommandList->SetIndexBuffer(m_Cube->GetIndexBuffer());
+			m_CommandList->DrawIndexed(m_Cube->GetIndexBuffer()->GetCount(), 0, 0);
 		}
 
 		m_CommandList->End();
+
 		m_Device->SubmitCommandList(m_CommandList);
-	}
-
-	void Renderer3D::RenderCubemap()
-	{
-		m_CommandList->SetPipeline(m_CubemapPipeline);
-		m_CubemapResourceSet->WriteUniformBuffer(m_CameraUniformBuffer, "Camera");
-		m_CubemapResourceSet->WriteCombinedImageSampler(m_Cubemap, m_CubemapSampler, "skybox");
-		m_CommandList->SetResourceSet(m_CubemapResourceSet);
-
-		m_CommandList->SetVertexBuffer(m_Cube->GetVertexBuffer(), 0);
-		m_CommandList->SetIndexBuffer(m_Cube->GetIndexBuffer());
-		m_CommandList->DrawIndexed(m_Cube->GetIndexBuffer()->GetCount(), 0, 0);
 	}
 
 	void Renderer3D::RenderModel(Nexus::Ref<Nexus::Graphics::Model> model)
 	{
+		Nexus::Point2D<uint32_t> size = m_RenderTarget.GetSize();
+		m_CommandList->Begin();
+		m_CommandList->SetRenderTarget(m_RenderTarget);
+
+		Nexus::Graphics::Viewport vp;
+		vp.X		= 0;
+		vp.Y		= 0;
+		vp.Width	= size.X;
+		vp.Height	= size.Y;
+		vp.MinDepth = 0.0f;
+		vp.MaxDepth = 1.0f;
+		m_CommandList->SetViewport(vp);
+
+		Nexus::Graphics::Scissor scissor;
+		scissor.X	   = 0;
+		scissor.Y	   = 0;
+		scissor.Width  = size.X;
+		scissor.Height = size.Y;
+		m_CommandList->SetScissor(scissor);
+
 		m_CommandList->SetPipeline(m_ModelPipeline);
 		m_ModelResourceSet->WriteUniformBuffer(m_ModelCameraUniformBuffer, "Camera");
 		m_ModelResourceSet->WriteUniformBuffer(m_ModelTransformUniformBuffer, "Transform");
@@ -249,6 +242,9 @@ namespace Nexus::Graphics
 			m_CommandList->SetIndexBuffer(mesh->GetIndexBuffer());
 			m_CommandList->DrawIndexed(mesh->GetIndexBuffer()->GetCount(), 0, 0);
 		}
+
+		m_CommandList->End();
+		m_Device->SubmitCommandList(m_CommandList);
 	}
 
 	void Renderer3D::CreateCubemapPipeline()

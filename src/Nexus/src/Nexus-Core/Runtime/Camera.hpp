@@ -58,6 +58,8 @@ namespace Nexus
 						m_RotationActive = false;
 					}
 				});
+
+			RecalculateProjection();
 		}
 
 		void Resize(int width, int height)

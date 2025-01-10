@@ -52,6 +52,7 @@ namespace Nexus::Graphics
 
 	Texture2DOpenGL::~Texture2DOpenGL()
 	{
+		glCall(glBindTexture(m_TextureType, m_Handle));
 		glCall(glDeleteTextures(1, &this->m_Handle));
 
 		if (m_Framebuffer)
@@ -64,6 +65,7 @@ namespace Nexus::Graphics
 	{
 		glCall(glBindTexture(m_TextureType, m_Handle));
 		glCall(glTexSubImage2D(m_TextureType, level, x, y, width, height, m_DataFormat, m_BaseType, data));
+		glCall(glBindTexture(m_TextureType, m_Handle));
 	}
 
 	void Texture2DOpenGL::GetData(std::vector<unsigned char> &pixels, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
@@ -89,6 +91,8 @@ namespace Nexus::Graphics
 			glCall(glReadBuffer(GL_COLOR_ATTACHMENT0));
 			glCall(glReadPixels(x, y, width, height, m_DataFormat, m_BaseType, pixels.data()));
 		}
+
+		glCall(glBindTexture(m_TextureType, m_Handle));
 	}
 
 	unsigned int Texture2DOpenGL::GetHandle()
@@ -147,6 +151,7 @@ namespace Nexus::Graphics
 
 	CubemapOpenGL::~CubemapOpenGL()
 	{
+		glCall(glBindTexture(GL_TEXTURE_CUBE_MAP, m_Handle));
 		glCall(glDeleteTextures(1, &m_Handle));
 
 		if (m_Framebuffer)
@@ -187,6 +192,7 @@ namespace Nexus::Graphics
 
 		glCall(glReadBuffer(glFace));
 		glCall(glReadPixels(x, y, width, height, m_DataFormat, m_BaseType, pixels.data()));
+		glCall(glBindTexture(GL_TEXTURE_CUBE_MAP, m_Handle));
 	}
 
 	unsigned int CubemapOpenGL::GetHandle()

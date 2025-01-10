@@ -177,6 +177,8 @@ namespace Nexus::Graphics
 		int width			 = 0;
 		int height			 = 0;
 
+		stbi_set_flip_vertically_on_load(true);
+
 		Texture2DSpecification spec;
 		unsigned char *data = stbi_load(filepath, &width, &height, &receivedChannels, desiredChannels);
 		spec.Width			= (uint32_t)width;

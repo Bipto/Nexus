@@ -142,10 +142,9 @@ namespace Nexus
 		std::vector<Ref<Graphics::Mesh>> meshes;
 		Assimp::Importer				 importer = {};
 
-		auto flags = aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_FindInvalidData |
-					 aiProcess_GenSmoothNormals | aiProcess_ImproveCacheLocality | aiProcess_CalcTangentSpace | aiProcess_GenUVCoords |
-					 aiProcess_ValidateDataStructure | aiProcess_FindInstances | aiProcess_GlobalScale | aiProcess_PreTransformVertices |
-					 aiProcess_TransformUVCoords | aiProcess_FixInfacingNormals;
+		unsigned int flags = aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_FindInvalidData | aiProcess_GenSmoothNormals |
+							 aiProcess_ImproveCacheLocality | aiProcess_CalcTangentSpace | aiProcess_ValidateDataStructure | aiProcess_FindInstances |
+							 aiProcess_GlobalScale | aiProcess_PreTransformVertices | aiProcess_TransformUVCoords | aiProcess_FixInfacingNormals;
 
 		const aiScene *scene = importer.ReadFile(filepath, flags);
 

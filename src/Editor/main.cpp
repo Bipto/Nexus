@@ -21,29 +21,31 @@ class EditorApplication : public Nexus::Application
 	{
 		m_Renderer = std::make_unique<Nexus::Graphics::Renderer3D>(m_GraphicsDevice);
 
-		m_CommandList = m_GraphicsDevice->CreateCommandList();
-
 		m_ImGuiRenderer = std::unique_ptr<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(new Nexus::ImGuiUtils::ImGuiGraphicsRenderer(this));
 
 		auto &io = ImGui::GetIO();
 		// io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
+		CreateFramebuffer(ImVec2(1280, 720));
 		ApplyDarkTheme();
+	}
 
+	virtual void Update(Nexus::TimeSpan time) override
+	{
+	}
+
+	void CreateFramebuffer(ImVec2 size)
+	{
 		Nexus::Graphics::FramebufferSpecification framebufferSpec = {};
-		framebufferSpec.Width									  = 1280;
-		framebufferSpec.Height									  = 720;
+		framebufferSpec.Width									  = size.x;
+		framebufferSpec.Height									  = size.y;
 		framebufferSpec.DepthAttachmentSpecification			  = {Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt};
 		framebufferSpec.ColorAttachmentSpecification.Attachments  = {{Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat()}};
 
 		m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(framebufferSpec);
 
 		m_FramebufferTextureID = m_ImGuiRenderer->BindTexture(m_Framebuffer->GetColorTexture(0));
-	}
-
-	virtual void Update(Nexus::TimeSpan time) override
-	{
 	}
 
 	void RenderMainMenuBar()
@@ -154,6 +156,13 @@ class EditorApplication : public Nexus::Application
 				uv1 = {1, 0};
 			}
 			ImGui::Image(m_FramebufferTextureID, size, uv0, uv1);
+
+			if (m_PreviousViewportSize.x != size.x || m_PreviousViewportSize.y != size.y)
+			{
+				CreateFramebuffer(size);
+			}
+
+			m_PreviousViewportSize = size;
 		}
 		ImGui::End();
 
@@ -165,12 +174,6 @@ class EditorApplication : public Nexus::Application
 	virtual void Render(Nexus::TimeSpan time) override
 	{
 		Nexus::GetApplication()->GetPrimarySwapchain()->Prepare();
-
-		m_CommandList->Begin();
-		m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(Nexus::GetApplication()->GetPrimarySwapchain()));
-		m_CommandList->ClearColorTarget(0, {1.0f, 0.0f, 0.0f, 1.0f});
-		m_CommandList->End();
-		m_GraphicsDevice->SubmitCommandList(m_CommandList);
 
 		Nexus::Graphics::Scene		  scene {.Environment = nullptr, .EnvironmentSampler = nullptr, .EnvironmentColour = {1.0f, 0.0f, 0.0f, 1.0f}};
 		Nexus::Graphics::RenderTarget target(m_Framebuffer);
@@ -196,7 +199,6 @@ class EditorApplication : public Nexus::Application
 
   private:
 	std::unique_ptr<Nexus::ImGuiUtils::ImGuiGraphicsRenderer> m_ImGuiRenderer = nullptr;
-	Nexus::Ref<Nexus::Graphics::CommandList>				  m_CommandList	  = nullptr;
 	Nexus::Ref<Nexus::Graphics::Framebuffer>				  m_Framebuffer	  = nullptr;
 
 	ImTextureID m_FramebufferTextureID = {};
@@ -204,6 +206,8 @@ class EditorApplication : public Nexus::Application
 	std::unique_ptr<Nexus::Graphics::Renderer3D> m_Renderer;
 	Nexus::Ref<Nexus::Graphics::Cubemap>		 m_Cubemap = nullptr;
 	Nexus::Ref<Nexus::Graphics::Model>			 m_Model   = nullptr;
+
+	ImVec2 m_PreviousViewportSize = {0, 0};
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
