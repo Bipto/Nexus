@@ -48,13 +48,67 @@ class EditorApplication : public Nexus::Application
 		m_FramebufferTextureID = m_ImGuiRenderer->BindTexture(m_Framebuffer->GetColorTexture(0));
 	}
 
+	void RenderNewProjectWindow()
+	{
+		if (!m_NewProjectWindowOpen)
+		{
+			return;
+		}
+
+		if (ImGui::Begin("New Project", &m_NewProjectWindowOpen))
+		{
+			static std::string s_ProjectName;
+			static std::string s_ProjectDirectory;
+
+			ImGui::InputText("Name", &s_ProjectName);
+			ImGui::Text("Directory");
+			ImGui::SameLine();
+			ImGui::Text(s_ProjectDirectory.c_str());
+			ImGui::SameLine();
+			if (ImGui::Button("..."))
+			{
+				const char *directory = Nexus::FileDialogs::OpenFolder("Select a directory", "");
+				if (directory)
+				{
+					s_ProjectDirectory = directory;
+				}
+			}
+
+			if (ImGui::Button("Create"))
+			{
+				m_Project = Nexus::CreateRef<Nexus::Project>(s_ProjectName, s_ProjectDirectory, true);
+				m_Project->Serialize();
+			}
+		}
+
+		ImGui::End();
+	}
+
 	void RenderMainMenuBar()
 	{
 		ImGui::BeginMainMenuBar();
 
 		if (ImGui::BeginMenu("File", true))
 		{
-			if (ImGui::MenuItem("New")) {}
+			if (ImGui::BeginMenu("New"))
+			{
+				if (ImGui::MenuItem("New Project"))
+				{
+					m_NewProjectWindowOpen = true;
+				}
+
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::MenuItem("Open Project"))
+			{
+				std::vector<const char *> filters  = {"*.proj"};
+				const char				 *filepath = Nexus::FileDialogs::OpenFile(filters);
+				if (filepath)
+				{
+					m_Project = Nexus::Project::Deserialize(filepath);
+				}
+			}
 
 			if (ImGui::MenuItem("Open Cubemap"))
 			{
@@ -144,9 +198,12 @@ class EditorApplication : public Nexus::Application
 
 		RenderMainMenuBar();
 
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0);
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {0, 0});
+
 		if (ImGui::Begin("Viewport"))
 		{
-			ImVec2 size = ImGui::GetWindowSize();
+			ImVec2 size = ImGui::GetContentRegionAvail();
 			ImVec2 uv0	= {0, 0};
 			ImVec2 uv1	= {1, 1};
 
@@ -165,8 +222,10 @@ class EditorApplication : public Nexus::Application
 			m_PreviousViewportSize = size;
 		}
 		ImGui::End();
+		ImGui::PopStyleVar(2);
 
 		ImGui::ShowDemoWindow();
+		RenderNewProjectWindow();
 
 		ImGui::End();
 	}
@@ -208,6 +267,9 @@ class EditorApplication : public Nexus::Application
 	Nexus::Ref<Nexus::Graphics::Model>			 m_Model   = nullptr;
 
 	ImVec2 m_PreviousViewportSize = {0, 0};
+	bool   m_NewProjectWindowOpen = false;
+
+	Nexus::Ref<Nexus::Project> m_Project = nullptr;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)

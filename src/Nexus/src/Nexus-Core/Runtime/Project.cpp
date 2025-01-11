@@ -10,18 +10,23 @@ namespace Nexus
 {
 	Ref<Project> Project::s_ActiveProject = nullptr;
 
-	Project::Project(const std::string &name, const std::string &directory) : m_Name(name), m_RootDirectory(directory)
+	Project::Project(const std::string &name, const std::string &directory, bool createDefaultScene)
+		: m_Name(name),
+		  m_RootDirectory(directory + std::string("\\") + name)
 	{
 		m_SceneDirectory  = "\\Scenes";
 		m_AssetsDirectory = "\\Assets";
 
-		CreateNewScene(DefaultSceneName);
+		if (createDefaultScene)
+		{
+			CreateNewScene(DefaultSceneName);
+		}
 	}
 
 	void Project::Serialize()
 	{
 		WriteProjectFile();
-		WriteSceneFile(m_RootDirectory + "/" + m_SceneDirectory);
+		WriteSceneFile(m_RootDirectory + "\\" + m_SceneDirectory);
 	}
 
 	Ref<Project> Project::Deserialize(const std::string &filepath)

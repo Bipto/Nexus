@@ -15,7 +15,7 @@ namespace Nexus
 	class Project
 	{
 	  public:
-		Project(const std::string &name = "Untitled Project", const std::string &directory = "");
+		Project(const std::string &name = "Untitled Project", const std::string &directory = "", bool createDefaultScene = false);
 		void				Serialize();
 		static Ref<Project> Deserialize(const std::string &filepath);
 
@@ -50,9 +50,9 @@ namespace Nexus
 		std::string m_SceneDirectory  = {};
 		std::string m_AssetsDirectory = {};
 
-		std::vector<SceneInfo> m_Scenes;
+		std::vector<SceneInfo> m_Scenes = {};
 
-		std::unique_ptr<Scene> m_LoadedScene;
+		std::unique_ptr<Scene> m_LoadedScene  = nullptr;
 		uint32_t			   m_StartupScene = 0;
 	};
 }	 // namespace Nexus
