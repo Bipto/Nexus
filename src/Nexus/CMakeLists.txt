@@ -443,11 +443,13 @@ nexus_setup_filters(${ENGINE_SOURCES})
 
 #including dependencies
 list (APPEND NEXUS_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
-  external/SDL/include/SDL3
+  external/SDL/include
   external/glm
   external/stb
   external/assimip/include
   external/json/single_include
+  external/imgui/imgui
+  external/imgui/imguizmo
   external/OpenAL-Soft/include
   external/shaderc/libshaderc
   external/libnyquist/include
@@ -491,7 +493,7 @@ endif()
 nexus_add_all_subdirs("${NEXUS_LIBRARY_SUBDIRECTORIES}")
 nexus_add_all_shared_lib_subdirs("${NEXUS_SHARED_LIBRARY_SUBDIRECTORIES}")
 target_include_directories(Nexus PUBLIC SYSTEM ${NEXUS_INCLUDE_DIRS})
-target_link_libraries(Nexus PUBLIC ${NEXUS_LINKED_LIBRARIES})
+target_link_libraries(Nexus PRIVATE ${NEXUS_LINKED_LIBRARIES})
 nexus_structure_folders()
 nexus_setup_filters("${ENGINE_SOURCES}")
 

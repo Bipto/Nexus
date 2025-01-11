@@ -8,9 +8,6 @@
 #include "Nexus-Core/Input/Input.hpp"
 #include "Nexus-Core/Logging/Log.hpp"
 
-#include "Platform/SDL3/SDL3Include.hpp"
-#include "Platform/SDL3/SDL3Window.hpp"
-
 #include "Platform.hpp"
 
 namespace Nexus
@@ -26,10 +23,6 @@ namespace Nexus
 		graphicsDeviceCreateInfo.API = spec.GraphicsAPI;
 
 		m_GraphicsDevice = Nexus::Graphics::GraphicsDevice::CreateGraphicsDevice(graphicsDeviceCreateInfo);
-
-		m_GraphicsDevice->SetName("Test");
-
-		bool valid = m_GraphicsDevice->Validate();
 
 		m_Swapchain = m_GraphicsDevice->CreateSwapchain(m_Window, spec.SwapchainSpecification);
 		m_Swapchain->Initialise();
