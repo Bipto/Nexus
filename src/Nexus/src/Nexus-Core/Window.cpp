@@ -25,8 +25,6 @@ namespace Nexus
 		: m_Specification(windowProps),
 		  m_InputContext(this)
 	{
-		// NOTE: Resizable flag MUST be set in order for Emscripten resizing to work
-		// correctly
 		uint32_t flags = GetFlags(api, windowProps, swapchainSpec);
 
 		m_Window = SDL_CreateWindow(windowProps.Title.c_str(), windowProps.Width, windowProps.Height, flags);
@@ -155,11 +153,6 @@ namespace Nexus
 	Nexus::InputNew::InputContext *IWindow::GetInputContext()
 	{
 		return &m_InputContext;
-	}
-
-	LayerStack &IWindow::GetLayerStack()
-	{
-		return m_LayerStack;
 	}
 
 	bool IWindow::IsFocussed()
@@ -371,7 +364,6 @@ namespace Nexus
 				Input::SetContext(&m_InputContext);
 				m_RenderFrameRateMonitor.Update();
 				OnRender.Invoke(time);
-				m_LayerStack.OnRender(time);
 			},
 			secondsPerRender);
 
@@ -384,7 +376,6 @@ namespace Nexus
 				Input::SetContext(&m_InputContext);
 				m_UpdateFrameRateMonitor.Update();
 				OnUpdate.Invoke(time);
-				m_LayerStack.OnUpdate(time);
 			},
 			secondsPerUpdate);
 
@@ -397,7 +388,6 @@ namespace Nexus
 				Input::SetContext(&m_InputContext);
 				m_TickFrameRateMonitor.Update();
 				OnTick.Invoke(time);
-				m_LayerStack.OnTick(time);
 			},
 			secondsPerTick);
 	}

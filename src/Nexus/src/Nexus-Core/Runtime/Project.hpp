@@ -28,10 +28,15 @@ namespace Nexus
 		{
 			return m_Name;
 		}
+
 		void SetName(const std::string &name)
 		{
 			m_Name = name;
 		}
+
+		const std::vector<SceneInfo> &GetScenes() const;
+		size_t						  GetNumberOfScenes() const;
+		bool						  IsSceneLoaded() const;
 
 		void LoadScene(uint32_t index);
 		void LoadScene(const std::string &name);

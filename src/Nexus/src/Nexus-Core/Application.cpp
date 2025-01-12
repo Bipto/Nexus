@@ -44,6 +44,7 @@ namespace Nexus
 
 	void Application::MainLoop()
 	{
+		Platform::Update();
 		m_GlobalKeyboardState.CacheInput();
 
 		// cache the previous frame's input
@@ -86,8 +87,6 @@ namespace Nexus
 		{
 			Nexus::Mouse::s_GlobalMouseState.MiddleButton = Nexus::MouseButtonState::Released;
 		}
-
-		Platform::Update();
 	}
 
 	Nexus::IWindow *Application::GetPrimaryWindow()

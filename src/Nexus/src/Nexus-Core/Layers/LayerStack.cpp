@@ -9,6 +9,7 @@ namespace Nexus
 			layer->OnDetach();
 			delete layer;
 		}
+		m_Layers.clear();
 	}
 
 	void LayerStack::PushLayer(Layer *layer)

@@ -32,7 +32,7 @@ Nexus::IWindow *GetWindowFromHandle(uint32_t handle)
 
 void CheckForClosingWindows()
 {
-	uint32_t indexToRemove = 0;
+	/* uint32_t indexToRemove = 0;
 	for (uint32_t i = 0; i < m_Windows.size(); i++)
 	{
 		if (m_Windows[i]->IsClosing())
@@ -42,38 +42,25 @@ void CheckForClosingWindows()
 			auto pair = std::make_pair(window, 0);
 			m_WindowsToClose.push_back(pair);
 		}
+	} */
+
+	for (uint32_t i = 0; i < m_Windows.size(); i++)
+	{
+		Nexus::IWindow *window = m_Windows[i];
+		if (window->IsClosing())
+		{
+			std::vector<Nexus::IWindow *>::iterator position = std::find(m_Windows.begin(), m_Windows.end(), window);
+			if (position != m_Windows.end())
+			{
+				m_Windows.erase(position);
+				delete window;
+			}
+		}
 	}
 }
 
 void CloseWindows()
 {
-	// this is required because the swapchain's framebuffer may still be in use on
-	// the GPU we need to wait until we are certain that the swapchain is no
-	// longer in use before we delete it
-	for (uint32_t i = 0; i < m_WindowsToClose.size(); i++) { m_WindowsToClose[i].second++; }
-
-	for (uint32_t closingWindowIndex = 0; closingWindowIndex < m_WindowsToClose.size(); closingWindowIndex++)
-	{
-		auto pair = m_WindowsToClose[closingWindowIndex];
-
-		auto window = pair.first;
-		auto count	= pair.second;
-
-		if (count > 10)
-		{
-			for (uint32_t windowIndex = 0; windowIndex < m_Windows.size(); windowIndex++)
-			{
-				if (window == m_Windows[windowIndex])
-				{
-					delete window;
-					window = nullptr;
-
-					m_WindowsToClose.erase(m_WindowsToClose.begin() + closingWindowIndex);
-					m_Windows.erase(m_Windows.begin() + windowIndex);
-				}
-			}
-		}
-	}
 }
 
 void PollEvents()
@@ -548,7 +535,16 @@ namespace Nexus::Platform
 	void Update()
 	{
 		CloseWindows();
-		for (auto window : m_Windows) { window->Update(); }
+		// for (auto window : m_Windows) { window->Update(); }
+
+		// for (Nexus::IWindow *window : m_Windows) { window->Update(); }
+
+		for (size_t i = 0; i < m_Windows.size(); i++)
+		{
+			IWindow *window = m_Windows[i];
+			window->Update();
+		}
+
 		CheckForClosingWindows();
 		PollEvents();
 	}

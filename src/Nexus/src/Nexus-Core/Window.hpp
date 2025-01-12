@@ -27,7 +27,6 @@
 #include "Point.hpp"
 #include "Utils/FramerateMonitor.hpp"
 
-#include "Nexus-Core/Layers/LayerStack.hpp"
 #include "Nexus-Core/Types.hpp"
 
 #include "WindowInfo.hpp"
@@ -107,8 +106,6 @@ namespace Nexus
 		InputState *GetInput();
 
 		Nexus::InputNew::InputContext *GetInputContext();
-
-		LayerStack &GetLayerStack();
 
 		/// @brief A method that checks whether a window is focussed
 		/// @return A boolean value indicating whether the window is focussed
@@ -229,8 +226,7 @@ namespace Nexus
 		Utils::FrameRateMonitor m_UpdateFrameRateMonitor = {};
 		Utils::FrameRateMonitor m_TickFrameRateMonitor	 = {};
 
-		InputNew::InputContext m_InputContext;
-		LayerStack			   m_LayerStack;
+		InputNew::InputContext m_InputContext = {nullptr};
 	};
 
 	/* class IWindow

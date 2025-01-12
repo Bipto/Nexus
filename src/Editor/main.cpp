@@ -6,6 +6,9 @@
 #include "Nexus-Core/FileSystem/FileDialogs.hpp"
 #include "Nexus-Core/Graphics/HdriProcessor.hpp"
 
+#include "ProjectViewPanel.hpp"
+#include "SceneViewPanel.hpp"
+
 class EditorApplication : public Nexus::Application
 {
   public:
@@ -24,11 +27,14 @@ class EditorApplication : public Nexus::Application
 		m_ImGuiRenderer = std::unique_ptr<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(new Nexus::ImGuiUtils::ImGuiGraphicsRenderer(this));
 
 		auto &io = ImGui::GetIO();
-		// io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
 		CreateFramebuffer(ImVec2(1280, 720));
 		ApplyDarkTheme();
+
+		m_Panels.push_back(new ProjectViewPanel());
+		m_Panels.push_back(new SceneViewPanel());
 	}
 
 	virtual void Update(Nexus::TimeSpan time) override
@@ -86,7 +92,7 @@ class EditorApplication : public Nexus::Application
 
 	void RenderMainMenuBar()
 	{
-		ImGui::BeginMainMenuBar();
+		ImGui::BeginMenuBar();
 
 		if (ImGui::BeginMenu("File", true))
 		{
@@ -107,6 +113,11 @@ class EditorApplication : public Nexus::Application
 				if (filepath)
 				{
 					m_Project = Nexus::Project::Deserialize(filepath);
+					if (m_Project->GetNumberOfScenes() > 0)
+					{
+						m_Project->LoadScene(0);
+					}
+					for (auto panel : m_Panels) { panel->LoadProject(m_Project); }
 				}
 			}
 
@@ -141,7 +152,29 @@ class EditorApplication : public Nexus::Application
 			ImGui::EndMenu();
 		}
 
-		ImGui::EndMainMenuBar();
+		if (ImGui::BeginMenu("Editor", true))
+		{
+			for (auto panel : m_Panels)
+			{
+				bool			   open = panel->IsOpen();
+				const std::string &name = panel->GetName();
+
+				ImGui::Checkbox(name.c_str(), &open);
+
+				if (open)
+				{
+					panel->Open();
+				}
+				else
+				{
+					panel->Close();
+				}
+			}
+
+			ImGui::EndMenu();
+		}
+
+		ImGui::EndMenuBar();
 	}
 
 	void ApplyDarkTheme()
@@ -196,10 +229,10 @@ class EditorApplication : public Nexus::Application
 		ImGui::PopStyleVar(3);
 		ImGui::DockSpace(ImGui::GetID("Dockspace"));
 
-		RenderMainMenuBar();
-
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0);
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {0, 0});
+
+		RenderMainMenuBar();
 
 		if (ImGui::Begin("Viewport"))
 		{
@@ -222,10 +255,11 @@ class EditorApplication : public Nexus::Application
 			m_PreviousViewportSize = size;
 		}
 		ImGui::End();
+
 		ImGui::PopStyleVar(2);
 
-		ImGui::ShowDemoWindow();
 		RenderNewProjectWindow();
+		for (auto panel : m_Panels) { panel->Render(); }
 
 		ImGui::End();
 	}
@@ -270,6 +304,7 @@ class EditorApplication : public Nexus::Application
 	bool   m_NewProjectWindowOpen = false;
 
 	Nexus::Ref<Nexus::Project> m_Project = nullptr;
+	std::vector<Panel *>	   m_Panels	 = {};
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)

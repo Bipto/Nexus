@@ -61,6 +61,21 @@ namespace Nexus
 		return project;
 	}
 
+	const std::vector<SceneInfo> &Project::GetScenes() const
+	{
+		return m_Scenes;
+	}
+
+	size_t Project::GetNumberOfScenes() const
+	{
+		return m_Scenes.size();
+	}
+
+	bool Project::IsSceneLoaded() const
+	{
+		return m_LoadedScene != nullptr;
+	}
+
 	void Project::LoadScene(uint32_t index)
 	{
 		if (m_Scenes.size() > index)
