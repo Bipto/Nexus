@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Nexus-Core/Types.hpp"
+#include "Nexus-Core/Utils/GUID.hpp"
 #include "Nexus-Core/nxpch.hpp"
 #include "Scene.hpp"
 
@@ -8,8 +9,9 @@ namespace Nexus
 {
 	struct SceneInfo
 	{
-		std::string Name;
-		std::string Path;
+		GUID		Guid = {};
+		std::string Name = {};
+		std::string Path = {};
 	};
 
 	class Project
@@ -41,6 +43,9 @@ namespace Nexus
 		void LoadScene(uint32_t index);
 		void LoadScene(const std::string &name);
 		void CreateNewScene(const std::string &name);
+
+		std::string GetFullSceneDirectory();
+		std::string GetFullAssetsDirectory();
 
 	  public:
 		static Ref<Project> s_ActiveProject;

@@ -22,7 +22,7 @@ namespace Nexus
 			Value = v;
 		}
 
-		operator uint64_t()
+		operator uint64_t() const
 		{
 			return Value;
 		}

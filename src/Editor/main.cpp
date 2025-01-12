@@ -29,6 +29,8 @@ class EditorApplication : public Nexus::Application
 		auto &io = ImGui::GetIO();
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+		io.FontDefault = io.Fonts->AddFontFromFileTTF("fonts/roboto/roboto-black.ttf", 24);
+		m_ImGuiRenderer->RebuildFontAtlas();
 
 		CreateFramebuffer(ImVec2(1280, 720));
 		ApplyDarkTheme();
@@ -84,10 +86,18 @@ class EditorApplication : public Nexus::Application
 			{
 				m_Project = Nexus::CreateRef<Nexus::Project>(s_ProjectName, s_ProjectDirectory, true);
 				m_Project->Serialize();
+				LoadProject(m_Project);
 			}
 		}
 
 		ImGui::End();
+	}
+
+	void LoadProject(Nexus::Ref<Nexus::Project> project)
+	{
+		m_Project = project;
+
+		for (auto panel : m_Panels) { panel->LoadProject(m_Project); }
 	}
 
 	void RenderMainMenuBar()
@@ -106,31 +116,33 @@ class EditorApplication : public Nexus::Application
 				ImGui::EndMenu();
 			}
 
-			if (ImGui::MenuItem("Open Project"))
+			if (ImGui::BeginMenu("Project"))
 			{
-				std::vector<const char *> filters  = {"*.proj"};
-				const char				 *filepath = Nexus::FileDialogs::OpenFile(filters);
-				if (filepath)
+				if (ImGui::MenuItem("Open"))
 				{
-					m_Project = Nexus::Project::Deserialize(filepath);
-					if (m_Project->GetNumberOfScenes() > 0)
+					std::vector<const char *> filters  = {"*.proj"};
+					const char				 *filepath = Nexus::FileDialogs::OpenFile(filters);
+					if (filepath)
 					{
-						m_Project->LoadScene(0);
+						m_Project = Nexus::Project::Deserialize(filepath);
+						if (m_Project->GetNumberOfScenes() > 0)
+						{
+							m_Project->LoadScene(0);
+						}
+						LoadProject(m_Project);
 					}
-					for (auto panel : m_Panels) { panel->LoadProject(m_Project); }
 				}
-			}
 
-			if (ImGui::MenuItem("Open Cubemap"))
-			{
-				std::vector<const char *> filters  = {"*.hdr"};
-				const char				 *filepath = Nexus::FileDialogs::OpenFile(filters);
-
-				if (filepath)
+				bool selected = false;
+				if (ImGui::MenuItem("Save Project", "", &selected, m_Project != nullptr))
 				{
-					Nexus::Graphics::HdriProcessor processor(filepath, m_GraphicsDevice);
-					m_Cubemap = processor.Generate(2048);
+					if (m_Project)
+					{
+						m_Project->Serialize();
+					}
 				}
+
+				ImGui::EndMenu();
 			}
 
 			if (ImGui::MenuItem("Open Model"))
@@ -259,7 +271,13 @@ class EditorApplication : public Nexus::Application
 		ImGui::PopStyleVar(2);
 
 		RenderNewProjectWindow();
-		for (auto panel : m_Panels) { panel->Render(); }
+		for (auto panel : m_Panels)
+		{
+			if (panel->IsOpen())
+			{
+				panel->Render();
+			}
+		}
 
 		ImGui::End();
 	}
@@ -268,16 +286,14 @@ class EditorApplication : public Nexus::Application
 	{
 		Nexus::GetApplication()->GetPrimarySwapchain()->Prepare();
 
-		Nexus::Graphics::Scene		  scene {.Environment = nullptr, .EnvironmentSampler = nullptr, .EnvironmentColour = {1.0f, 0.0f, 0.0f, 1.0f}};
 		Nexus::Graphics::RenderTarget target(m_Framebuffer);
 
-		if (m_Model)
+		if (m_Project && m_Project->IsSceneLoaded())
 		{
-			scene.Models.push_back(m_Model);
+			Nexus::Scene *scene = m_Project->GetLoadedScene();
+			m_Renderer->Begin(scene, target, time);
+			m_Renderer->End();
 		}
-
-		m_Renderer->Begin(scene, target, m_Cubemap, time);
-		m_Renderer->End();
 
 		m_ImGuiRenderer->BeforeLayout(time);
 		RenderDockspace();

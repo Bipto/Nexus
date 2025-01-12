@@ -349,7 +349,7 @@ namespace Nexus::SDL3
 			case SDL_SCANCODE_KP_HEXADECIMAL: return ScanCode::KeyPadHexadecimal;
 
 			case SDL_SCANCODE_LCTRL: return ScanCode::LeftControl;
-			case SDL_SCANCODE_LSHIFT: return ScanCode::RightControl;
+			case SDL_SCANCODE_LSHIFT: return ScanCode::LeftShift;
 			case SDL_SCANCODE_LALT: return ScanCode::LeftAlt;
 			case SDL_SCANCODE_LGUI: return ScanCode::LeftGUI;
 			case SDL_SCANCODE_RCTRL: return ScanCode::RightControl;

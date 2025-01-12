@@ -5,17 +5,10 @@
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 #include "Nexus-Core/Graphics/Model.hpp"
 #include "Nexus-Core/Runtime/Camera.hpp"
+#include "Nexus-Core/Runtime/Scene.hpp"
 
 namespace Nexus::Graphics
 {
-	struct Scene
-	{
-		Ref<Cubemap>									Environment		   = nullptr;
-		Ref<Sampler>									EnvironmentSampler = nullptr;
-		glm::vec4										EnvironmentColour  = {1.0f, 1.0f, 1.0f, 1.0f};
-		std::vector<Nexus::Ref<Nexus::Graphics::Model>> Models			   = {};
-	};
-
 	struct alignas(16) CubemapCameraUniforms
 	{
 		glm::mat4 View		 = {};
@@ -40,7 +33,7 @@ namespace Nexus::Graphics
 		Renderer3D(GraphicsDevice *device);
 		~Renderer3D();
 
-		void Begin(const Scene &scene, RenderTarget target, Ref<Cubemap> cubemap, Nexus::TimeSpan time);
+		void Begin(Scene *scene, RenderTarget target, Nexus::TimeSpan time);
 		void End();
 
 	  private:
@@ -52,7 +45,7 @@ namespace Nexus::Graphics
 	  private:
 		GraphicsDevice *m_Device	   = nullptr;
 		RenderTarget	m_RenderTarget = {};
-		Scene			m_Scene		   = {};
+		Scene		   *m_Scene		   = nullptr;
 		Ref<Cubemap>	m_Cubemap	   = nullptr;
 
 		Ref<CommandList> m_CommandList = nullptr;

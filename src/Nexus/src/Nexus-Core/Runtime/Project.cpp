@@ -14,8 +14,8 @@ namespace Nexus
 		: m_Name(name),
 		  m_RootDirectory(directory + std::string("\\") + name)
 	{
-		m_SceneDirectory  = "\\Scenes";
-		m_AssetsDirectory = "\\Assets";
+		m_SceneDirectory  = "\\Scenes\\";
+		m_AssetsDirectory = "\\Assets\\";
 
 		if (createDefaultScene)
 		{
@@ -26,7 +26,7 @@ namespace Nexus
 	void Project::Serialize()
 	{
 		WriteProjectFile();
-		WriteSceneFile(m_RootDirectory + "\\" + m_SceneDirectory);
+		WriteSceneFile(GetFullSceneDirectory());
 	}
 
 	Ref<Project> Project::Deserialize(const std::string &filepath)
@@ -46,6 +46,7 @@ namespace Nexus
 			for (auto scene : scenes)
 			{
 				SceneInfo sceneInfo;
+				sceneInfo.Guid = GUID(scene["GUID"].as<uint64_t>());
 				sceneInfo.Name = scene["Name"].as<std::string>();
 				sceneInfo.Path = scene["Path"].as<std::string>();
 				project->m_Scenes.push_back(sceneInfo);
@@ -81,8 +82,11 @@ namespace Nexus
 		if (m_Scenes.size() > index)
 		{
 			const SceneInfo &info  = m_Scenes.at(index);
-			std::string		 path  = m_RootDirectory + info.Path;
-			Scene			*scene = Scene::Deserialize(path);
+
+			std::stringstream ss;
+			ss << info.Guid;
+
+			Scene *scene		   = Scene::Deserialize(info.Guid, GetFullSceneDirectory());
 			m_LoadedScene		   = std::unique_ptr<Scene>(scene);
 		}
 	}
@@ -105,11 +109,24 @@ namespace Nexus
 		std::string path = m_SceneDirectory + "\\" + name + ".scene";
 
 		SceneInfo info;
+		info.Guid = {};
 		info.Name = name;
 		info.Path = path;
 		m_Scenes.push_back(info);
 
-		m_LoadedScene = std::make_unique<Scene>(name);
+		m_LoadedScene		= std::make_unique<Scene>();
+		m_LoadedScene->Guid = info.Guid;
+		m_LoadedScene->Name = info.Name;
+	}
+
+	std::string Project::GetFullSceneDirectory()
+	{
+		return m_RootDirectory + m_SceneDirectory;
+	}
+
+	std::string Project::GetFullAssetsDirectory()
+	{
+		return m_RootDirectory + m_AssetsDirectory;
 	}
 
 	void Project::WriteProjectFile()
@@ -125,7 +142,10 @@ namespace Nexus
 		out << YAML::Key << "Scenes" << YAML::Value << YAML::BeginSeq;
 		for (const auto &scene : m_Scenes)
 		{
+			uint64_t guid = (uint64_t)scene.Guid;
+
 			out << YAML::BeginMap;
+			out << YAML::Key << "GUID" << YAML::Value << guid;
 			out << YAML::Key << "Name" << YAML::Value << scene.Name;
 			out << YAML::Key << "Path" << YAML::Value << scene.Path;
 			out << YAML::EndMap;
@@ -149,7 +169,10 @@ namespace Nexus
 
 		if (m_LoadedScene)
 		{
-			std::string filename = m_LoadedScene->GetName() + ".scene";
+			std::stringstream ss;
+			ss << m_LoadedScene->Guid;
+
+			std::string filename = ss.str() + ".scene";
 			path /= filename;
 			m_LoadedScene->Serialize(path.string());
 		}

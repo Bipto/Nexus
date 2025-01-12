@@ -117,11 +117,12 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void Nexus::Graphics::Renderer3D::Begin(const Scene &scene, RenderTarget target, Ref<Cubemap> cubemap, Nexus::TimeSpan time)
+	void Nexus::Graphics::Renderer3D::Begin(Scene *scene, RenderTarget target, Nexus::TimeSpan time)
 	{
-		m_Scene		   = scene;
-		m_RenderTarget = target;
-		m_Cubemap	   = cubemap;
+		m_Scene			 = scene;
+		m_RenderTarget	 = target;
+		m_Cubemap		 = scene->SceneEnvironment.EnvironmentCubemap;
+		m_CubemapSampler = scene->SceneEnvironment.CubemapSampler;
 
 		Nexus::Point2D<uint32_t> size = m_RenderTarget.GetSize();
 		m_Camera.Update(size.X, size.Y, time);
@@ -145,7 +146,7 @@ namespace Nexus::Graphics
 		m_ModelTransformUniformBuffer->SetData(&modelTransformUniforms, sizeof(modelTransformUniforms));
 
 		RenderCubemap();
-		for (Nexus::Ref<Nexus::Graphics::Model> model : m_Scene.Models) { RenderModel(model); }
+		// for (Nexus::Ref<Nexus::Graphics::Model> model : m_Scene.Models) { RenderModel(model); }
 	}
 
 	void Renderer3D::RenderCubemap()
@@ -170,7 +171,11 @@ namespace Nexus::Graphics
 		scissor.Height = size.Y;
 		m_CommandList->SetScissor(scissor);
 
-		m_CommandList->ClearColorTarget(0, {1.0f, 0.0f, 0.0f, 1.0f});
+		const Environment &environment = m_Scene->SceneEnvironment;
+
+		m_CommandList->ClearColorTarget(0,
+										{environment.ClearColour.r, environment.ClearColour.g, environment.ClearColour.b, environment.ClearColour.a});
+
 		m_CommandList->ClearDepthTarget(Nexus::Graphics::ClearDepthStencilValue {});
 
 		if (m_Cubemap)

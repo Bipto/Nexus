@@ -30,20 +30,8 @@ Nexus::IWindow *GetWindowFromHandle(uint32_t handle)
 	return nullptr;
 }
 
-void CheckForClosingWindows()
+void CloseWindows()
 {
-	/* uint32_t indexToRemove = 0;
-	for (uint32_t i = 0; i < m_Windows.size(); i++)
-	{
-		if (m_Windows[i]->IsClosing())
-		{
-			auto window = m_Windows[i];
-
-			auto pair = std::make_pair(window, 0);
-			m_WindowsToClose.push_back(pair);
-		}
-	} */
-
 	for (uint32_t i = 0; i < m_Windows.size(); i++)
 	{
 		Nexus::IWindow *window = m_Windows[i];
@@ -57,10 +45,6 @@ void CheckForClosingWindows()
 			}
 		}
 	}
-}
-
-void CloseWindows()
-{
 }
 
 void PollEvents()
@@ -535,9 +519,6 @@ namespace Nexus::Platform
 	void Update()
 	{
 		CloseWindows();
-		// for (auto window : m_Windows) { window->Update(); }
-
-		// for (Nexus::IWindow *window : m_Windows) { window->Update(); }
 
 		for (size_t i = 0; i < m_Windows.size(); i++)
 		{
@@ -545,7 +526,6 @@ namespace Nexus::Platform
 			window->Update();
 		}
 
-		CheckForClosingWindows();
 		PollEvents();
 	}
 

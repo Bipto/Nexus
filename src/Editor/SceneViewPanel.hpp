@@ -11,17 +11,56 @@ class SceneViewPanel : public Panel
 
 	void Render() final
 	{
-		if (!m_Open)
-		{
-			return;
-		}
-
-		ImGui::Begin(m_Name.c_str());
+		ImGui::Begin(m_Name.c_str(), &m_Open);
 
 		if (m_Project && m_Project->IsSceneLoaded())
 		{
 			Nexus::Scene *scene = m_Project->GetLoadedScene();
-			for (const auto &entity : scene->GetEntities()) { ImGui::Text(entity.GetName().c_str()); }
+
+			ImGui::Text("Scene");
+			ImGui::InputText("Name", &scene->Name);
+
+			ImGui::Separator();
+			ImGui::Text("Environment");
+			ImGui::ColorEdit4("ClearColour", glm::value_ptr(scene->SceneEnvironment.ClearColour));
+
+			std::string text = "Cubemap: " + scene->SceneEnvironment.CubemapPath;
+			ImGui::Text(text.c_str());
+			ImGui::SameLine();
+			if (ImGui::Button("..."))
+			{
+				std::vector<const char *> filters = {"*.hdr"};
+				const char				 *file	  = Nexus::FileDialogs::OpenFile(filters);
+				if (file)
+				{
+					scene->SceneEnvironment.CubemapPath = file;
+
+					auto		graphicsDevice = Nexus::GetApplication()->GetGraphicsDevice();
+					std::string path		   = file;
+					if (!path.empty() && std::filesystem::exists(path))
+					{
+						Nexus::Graphics::HdriProcessor processor(path, graphicsDevice);
+						scene->SceneEnvironment.EnvironmentCubemap = processor.Generate(2048);
+					}
+				}
+			}
+
+			ImGui::Separator();
+			ImGui::Text("Entities");
+			for (auto &entity : scene->GetEntities())
+			{
+				std::stringstream ss;
+				ss << "ID:" << entity.ID;
+				ImGui::Text(ss.str().c_str());
+				ImGui::PushID(entity.ID);
+				ImGui::InputText("Name", &entity.Name);
+				ImGui::PopID();
+			}
+
+			if (ImGui::Button("New Entity"))
+			{
+				scene->AddEmptyEntity();
+			}
 		}
 
 		ImGui::End();

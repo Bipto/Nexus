@@ -3,6 +3,9 @@
 #include "Nexus-Core/FileSystem/FileSystem.hpp"
 #include "yaml-cpp/yaml.h"
 
+#include "Nexus-Core/Graphics/HdriProcessor.hpp"
+#include "Nexus-Core/Runtime.hpp"
+
 namespace YAML
 {
 	template<>
@@ -110,21 +113,36 @@ YAML::Emitter &operator<<(YAML::Emitter &output, const glm::vec4 &vec)
 
 namespace Nexus
 {
-	Scene::Scene(const std::string &name) : m_Name(name)
+	Scene::Scene()
 	{
+		auto graphicsDevice = Nexus::GetApplication()->GetGraphicsDevice();
+
+		Graphics::SamplerSpecification samplerSpec = {};
+		samplerSpec.AddressModeU				   = Graphics::SamplerAddressMode::Clamp;
+		samplerSpec.AddressModeV				   = Graphics::SamplerAddressMode::Clamp;
+		samplerSpec.AddressModeW				   = Graphics::SamplerAddressMode::Clamp;
+
+		SceneEnvironment.CubemapSampler = graphicsDevice->CreateSampler(samplerSpec);
 	}
 
 	void Scene::Serialize(const std::string &filepath)
 	{
 		YAML::Emitter out;
 		out << YAML::BeginMap;
-		out << YAML::Key << "Scene" << YAML::Value << m_Name;
-		out << YAML::Key << "ClearColour" << YAML::Value << m_ClearColour;
-		out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
+		{
+			out << YAML::Key << "Scene" << YAML::Value << Name;
 
-		for (const auto &e : m_Entities) { e.Serialize(out); }
+			out << YAML::Key << "Environment" << YAML::Value;
+			out << YAML::BeginMap;
+			out << YAML::Key << "ClearColour" << YAML::Value << SceneEnvironment.ClearColour;
+			out << YAML::Key << "Cubemap" << YAML::Value << SceneEnvironment.CubemapPath;
+			out << YAML::EndMap;
 
-		out << YAML::EndSeq;
+			out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
+			for (const auto &e : Entities) { e.Serialize(out); }
+			out << YAML::EndSeq;
+		}
+
 		out << YAML::EndMap;
 
 		FileSystem::WriteFileAbsolute(filepath, out.c_str());
@@ -132,16 +150,20 @@ namespace Nexus
 
 	void Scene::AddEmptyEntity()
 	{
-		m_Entities.push_back(Entity());
+		Entities.push_back(Entity());
 	}
 
 	std::vector<Entity> &Scene::GetEntities()
 	{
-		return m_Entities;
+		return Entities;
 	}
 
-	Scene *Scene::Deserialize(const std::string &filepath)
+	Scene *Scene::Deserialize(GUID guid, const std::string &sceneDirectory)
 	{
+		std::stringstream ss;
+		ss << guid;
+		std::string filepath = sceneDirectory + ss.str() + std::string(".scene");
+
 		std::string input = Nexus::FileSystem::ReadFileToStringAbsolute(filepath);
 		YAML::Node	node  = YAML::Load(input);
 
@@ -150,9 +172,20 @@ namespace Nexus
 			return nullptr;
 		}
 
-		Scene *scene		 = new Scene();
-		scene->m_Name		 = node["Scene"].as<std::string>();
-		scene->m_ClearColour = node["ClearColour"].as<glm::vec4>();
+		Scene *scene = new Scene();
+		scene->Guid	 = guid;
+		scene->Name	 = node["Scene"].as<std::string>();
+
+		auto environment					= node["Environment"];
+		scene->SceneEnvironment.ClearColour = environment["ClearColour"].as<glm::vec4>();
+		scene->SceneEnvironment.CubemapPath = environment["Cubemap"].as<std::string>();
+
+		if (!scene->SceneEnvironment.CubemapPath.empty() && std::filesystem::exists(scene->SceneEnvironment.CubemapPath))
+		{
+			auto					graphicsDevice = Nexus::GetApplication()->GetGraphicsDevice();
+			Graphics::HdriProcessor processor(scene->SceneEnvironment.CubemapPath, graphicsDevice);
+			scene->SceneEnvironment.EnvironmentCubemap = processor.Generate(2048);
+		}
 
 		auto entities = node["Entities"];
 		if (entities)
@@ -162,7 +195,7 @@ namespace Nexus
 				uint64_t	id	 = entity["Entity"].as<uint64_t>();
 				std::string name = entity["Name"].as<std::string>();
 				Entity		e(GUID(id), name);
-				scene->m_Entities.push_back(e);
+				scene->Entities.push_back(e);
 			}
 		}
 

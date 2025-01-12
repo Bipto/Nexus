@@ -11,12 +11,7 @@ class ProjectViewPanel : public Panel
 
 	void Render() final
 	{
-		if (!m_Open)
-		{
-			return;
-		}
-
-		ImGui::Begin(m_Name.c_str());
+		ImGui::Begin(m_Name.c_str(), &m_Open);
 
 		if (m_Project)
 		{
