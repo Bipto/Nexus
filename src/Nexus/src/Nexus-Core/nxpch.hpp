@@ -4,6 +4,7 @@
 #include <time.h>
 
 #include <algorithm>
+#include <any>
 #include <array>
 #include <cassert>
 #include <chrono>
@@ -24,6 +25,7 @@
 #include <optional>
 #include <random>
 #include <set>
+#include <typeinfo>
 
 #if defined(__clang__) && !defined(__EMSCRIPTEN__)
 	#include <experimental/source_location>

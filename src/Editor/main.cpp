@@ -9,11 +9,37 @@
 #include "ProjectViewPanel.hpp"
 #include "SceneViewPanel.hpp"
 
+#include "Nexus-Core/ECS/Registry.hpp"
+
 class EditorApplication : public Nexus::Application
 {
   public:
 	EditorApplication(const Nexus::ApplicationSpecification &spec) : Application(spec)
 	{
+		Nexus::ECS::Registry registry = {};
+		Nexus::Entity		 e		  = registry.Create();
+
+		struct Tag
+		{
+			std::string t = {};
+		};
+
+		struct Transform
+		{
+			int x = {};
+			int y = {};
+			int z = {};
+		};
+
+		registry.AddComponent<Tag>(e, Tag {.t = "Hello"});
+		registry.AddComponent<Tag>(e, Tag {.t = "World"});
+		registry.AddComponent<Transform>(e, Transform {.x = 5, .y = 15, .z = 20});
+
+		Tag *test		= registry.GetFirstOrNull<Tag>(e);
+		auto components = registry.GetFirstOrNullComponents<Tag, Transform>(e);
+		auto tags		= registry.GetAllOrEmpty<Tag>(e);
+
+		Nexus::ECS::View<Tag, Transform> view = {};
 	}
 
 	virtual ~EditorApplication()
@@ -326,7 +352,7 @@ class EditorApplication : public Nexus::Application
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
 	Nexus::ApplicationSpecification spec;
-	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
+	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
 	spec.AudioAPI	 = Nexus::Audio::AudioAPI::OpenAL;
 
 	spec.WindowProperties.Width			   = 1280;
