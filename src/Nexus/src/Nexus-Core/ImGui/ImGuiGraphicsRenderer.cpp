@@ -146,8 +146,6 @@ namespace Nexus::ImGuiUtils
 		io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;
 		io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports;
 
-		io.SetPlatformImeDataFn = ImGui_ImplNexus_SetPlatformImeData;
-
 		if (m_GraphicsDevice->GetGraphicsCapabilities().SupportsMultipleSwapchains)
 		{
 			io.BackendFlags |= ImGuiBackendFlags_RendererHasViewports;
@@ -445,27 +443,6 @@ namespace Nexus::ImGuiUtils
 	{
 		auto &io = ImGui::GetIO();
 
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Tab] = (int)ScanCode::Tab);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_LeftArrow] = (int)ScanCode::Left);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_RightArrow] = (int)ScanCode::Right);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_UpArrow] = (int)ScanCode::Up);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_DownArrow] = (int)ScanCode::Down);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_PageUp] = (int)ScanCode::PageUp);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_PageDown] = (int)ScanCode::PageDown);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Home] = (int)ScanCode::Home);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_End] = (int)ScanCode::End);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Delete] = (int)ScanCode::Delete);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Backspace] = (int)ScanCode::Backspace);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Enter] = (int)ScanCode::Return);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Escape] = (int)ScanCode::Escape);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Space] = (int)ScanCode::Space);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_A] = (int)ScanCode::A);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_C] = (int)ScanCode::C);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_V] = (int)ScanCode::V);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_X] = (int)ScanCode::X);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Y] = (int)ScanCode::Y);
-		m_Keys.push_back(io.KeyMap[(int)ImGuiKey_Z] = (int)ScanCode::Z);
-
 		m_Application->GetPrimaryWindow()->OnTextInput.Bind(
 			[&](const TextInputEventArgs &args)
 			{
@@ -485,9 +462,36 @@ namespace Nexus::ImGuiUtils
 			return;
 		}
 
-		InputNew::InputContext *context = window.value()->GetInputContext();
+		if (io.WantTextInput)
+		{
+			window.value()->StartTextInput();
+		}
+		else
+		{
+			window.value()->StopTextInput();
+		}
 
-		for (int i = 0; i < m_Keys.size(); i++) { io.KeysDown[m_Keys[i]] = context->IsKeyDown((ScanCode)m_Keys[i]); }
+		InputNew::InputContext *context = window.value()->GetInputContext();
+		io.AddKeyEvent(ImGuiKey_Tab, context->IsKeyDown(Nexus::ScanCode::Tab));
+		io.AddKeyEvent(ImGuiKey_LeftArrow, context->IsKeyDown(Nexus::ScanCode::Left));
+		io.AddKeyEvent(ImGuiKey_RightArrow, context->IsKeyDown(Nexus::ScanCode::Right));
+		io.AddKeyEvent(ImGuiKey_UpArrow, context->IsKeyDown(Nexus::ScanCode::Up));
+		io.AddKeyEvent(ImGuiKey_DownArrow, context->IsKeyDown(Nexus::ScanCode::Down));
+		io.AddKeyEvent(ImGuiKey_PageUp, context->IsKeyDown(Nexus::ScanCode::PageUp));
+		io.AddKeyEvent(ImGuiKey_PageDown, context->IsKeyDown(Nexus::ScanCode::PageDown));
+		io.AddKeyEvent(ImGuiKey_Home, context->IsKeyDown(Nexus::ScanCode::Home));
+		io.AddKeyEvent(ImGuiKey_End, context->IsKeyDown(Nexus::ScanCode::End));
+		io.AddKeyEvent(ImGuiKey_Delete, context->IsKeyDown(Nexus::ScanCode::Delete));
+		io.AddKeyEvent(ImGuiKey_Backspace, context->IsKeyDown(Nexus::ScanCode::Backspace));
+		io.AddKeyEvent(ImGuiKey_Enter, context->IsKeyDown(Nexus::ScanCode::Return));
+		io.AddKeyEvent(ImGuiKey_Escape, context->IsKeyDown(Nexus::ScanCode::Escape));
+		io.AddKeyEvent(ImGuiKey_Space, context->IsKeyDown(Nexus::ScanCode::Space));
+		io.AddKeyEvent(ImGuiKey_A, context->IsKeyDown(Nexus::ScanCode::A));
+		io.AddKeyEvent(ImGuiKey_C, context->IsKeyDown(Nexus::ScanCode::C));
+		io.AddKeyEvent(ImGuiKey_V, context->IsKeyDown(Nexus::ScanCode::V));
+		io.AddKeyEvent(ImGuiKey_X, context->IsKeyDown(Nexus::ScanCode::X));
+		io.AddKeyEvent(ImGuiKey_Y, context->IsKeyDown(Nexus::ScanCode::Y));
+		io.AddKeyEvent(ImGuiKey_Z, context->IsKeyDown(Nexus::ScanCode::Z));
 
 		io.KeyShift = context->IsKeyDown(ScanCode::LeftShift) || context->IsKeyDown(ScanCode::RightShift);
 		io.KeyCtrl	= context->IsKeyDown(ScanCode::LeftControl) || context->IsKeyDown(ScanCode::RightControl);

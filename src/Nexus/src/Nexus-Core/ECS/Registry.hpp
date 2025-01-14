@@ -9,7 +9,14 @@ namespace Nexus::ECS
 	class View
 	{
 	  public:
+		View() = default;
+
+		View(const std::vector<std::pair<Entity *, std::vector<std::tuple<Args *...>>>> &components) : m_EntityComponents(components)
+		{
+		}
+
 	  private:
+		std::vector<std::pair<Entity *, std::vector<std::tuple<Args *...>>>> m_EntityComponents = {};
 	};
 
 	class Registry
@@ -17,7 +24,9 @@ namespace Nexus::ECS
 	  public:
 		Entity Create()
 		{
-			return Entity {};
+			Entity entity = {};
+			m_Entities.push_back(entity);
+			return entity;
 		}
 
 		template<typename T>
@@ -57,10 +66,9 @@ namespace Nexus::ECS
 		}
 
 		template<typename T>
-		std::vector<T *> GetAllOrEmpty(const Entity &entity)
+		std::vector<T *> GetComponentVector(const Entity &entity)
 		{
-			std::vector<T *> returnComponents = {};
-
+			std::vector<T *>		   returnComponents = {};
 			const char				  *typeName			= typeid(T).name();
 			const std::vector<size_t> &entityComponents = m_ComponentIds[entity.ID][typeName];
 
@@ -79,7 +87,52 @@ namespace Nexus::ECS
 			return returnComponents;
 		}
 
+		template<typename... Args>
+		std::tuple<std::vector<Args *>...> GetAllOrEmpty(const Entity &entity)
+		{
+			return std::make_tuple(GetComponentVector<Args>(entity)...);
+		}
+
+		Entity *GetEntityOrNull(GUID guid)
+		{
+			for (size_t i = 0; i < m_Entities.size(); i++)
+			{
+				if (m_Entities[i].ID == guid)
+				{
+					return &m_Entities[i];
+				}
+			}
+		}
+
+		template<typename... Args>
+		View<Args...> GetView()
+		{
+			std::vector<std::pair<Entity *, std::vector<std::tuple<Args *...>>>> viewData;
+
+			for (Entity &entity : m_Entities)
+			{
+				auto components = GetAllOrEmpty<Args...>(entity);
+
+				bool hasAllComponents = ((std::get<std::vector<Args *>>(components).size() > 0) && ...);
+				if (hasAllComponents)
+				{
+					std::vector<std::tuple<Args *...>> entityComponents;
+					size_t							   minSize = std::min({std::get<std::vector<Args *>>(components).size()...});
+					for (size_t i = 0; i < minSize; ++i)
+					{
+						entityComponents.emplace_back(std::make_tuple(std::get<std::vector<Args *>>(components)[i]...));
+					}
+					viewData.push_back({&entity, entityComponents});
+				}
+			}
+
+			return View<Args...>(viewData);
+		}
+
 	  private:
+		// vector of entities
+		std::vector<Entity> m_Entities = {};
+
 		// vector of components of each type
 		std::map<const char *, std::vector<std::any>> m_Components = {};
 

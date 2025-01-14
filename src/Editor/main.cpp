@@ -18,6 +18,7 @@ class EditorApplication : public Nexus::Application
 	{
 		Nexus::ECS::Registry registry = {};
 		Nexus::Entity		 e		  = registry.Create();
+		Nexus::Entity		 e2		  = registry.Create();
 
 		struct Tag
 		{
@@ -34,12 +35,14 @@ class EditorApplication : public Nexus::Application
 		registry.AddComponent<Tag>(e, Tag {.t = "Hello"});
 		registry.AddComponent<Tag>(e, Tag {.t = "World"});
 		registry.AddComponent<Transform>(e, Transform {.x = 5, .y = 15, .z = 20});
+		registry.AddComponent<Transform>(e2, Transform {.x = -2, .y = 100, .z = 500});
 
 		Tag *test		= registry.GetFirstOrNull<Tag>(e);
 		auto components = registry.GetFirstOrNullComponents<Tag, Transform>(e);
-		auto tags		= registry.GetAllOrEmpty<Tag>(e);
+		auto test2		= registry.GetAllOrEmpty<Tag, Transform>(e);
 
-		Nexus::ECS::View<Tag, Transform> view = {};
+		Nexus::ECS::View<Tag, Transform> view  = registry.GetView<Tag, Transform>();
+		Nexus::ECS::View<Transform>		 view2 = registry.GetView<Transform>();
 	}
 
 	virtual ~EditorApplication()
@@ -267,11 +270,9 @@ class EditorApplication : public Nexus::Application
 		ImGui::PopStyleVar(3);
 		ImGui::DockSpace(ImGui::GetID("Dockspace"));
 
-		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0);
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {0, 0});
-
 		RenderMainMenuBar();
 
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
 		if (ImGui::Begin("Viewport"))
 		{
 			ImVec2 size = ImGui::GetContentRegionAvail();
@@ -293,8 +294,7 @@ class EditorApplication : public Nexus::Application
 			m_PreviousViewportSize = size;
 		}
 		ImGui::End();
-
-		ImGui::PopStyleVar(2);
+		ImGui::PopStyleVar();
 
 		RenderNewProjectWindow();
 		for (auto panel : m_Panels)
