@@ -5,6 +5,8 @@
 #include "Nexus-Core/nxpch.hpp"
 #include "glm/glm.hpp"
 
+#include "Nexus-Core/ECS/Registry.hpp"
+
 #include "Nexus-Core/Utils/GUID.hpp"
 
 #include "Nexus-Core/Graphics/Sampler.hpp"
@@ -37,6 +39,6 @@ namespace Nexus
 		GUID				Guid			 = {};
 		std::string			Name			 = {};
 		Environment			SceneEnvironment = {};
-		std::vector<Entity> Entities		 = {};
+		ECS::Registry		Registry		 = {};
 	};
 }	 // namespace Nexus

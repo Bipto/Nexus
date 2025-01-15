@@ -13,6 +13,8 @@
 #include "Nexus-Core/ECS/ComponentRegistry.hpp"
 #include "Nexus-Core/ECS/Registry.hpp"
 
+#include "TestComp.hpp"
+
 struct Tag
 {
 	std::string t = {};
@@ -31,24 +33,6 @@ struct Transform
 	int z = {};
 };
 
-struct TestComp
-{
-	int x1 = 5;
-	int x2 = 32;
-
-	friend std::ostream &operator<<(std::ostream &os, const TestComp &c)
-	{
-		os << c.x1 << " " << c.x2;
-		return os;
-	}
-
-	friend std::istream &operator>>(std::istream &is, TestComp &c)
-	{
-		is >> c.x1 >> c.x2;
-		return is;
-	}
-};
-
 class EditorApplication : public Nexus::Application
 {
   public:
@@ -58,7 +42,14 @@ class EditorApplication : public Nexus::Application
 		Nexus::Entity		 e		  = registry.Create();
 		Nexus::Entity		 e2		  = registry.Create();
 
-		REGISTER_COMPONENT(TestComp);
+		REGISTER_COMPONENT_WITH_RENDER_FUNC(TestComp,
+											[](void *data)
+											{
+												TestComp *comp = static_cast<TestComp *>(data);
+												ImGui::Text("TestComp");
+												ImGui::InputInt("x1", &comp->x1);
+												ImGui::InputInt("x2", &comp->x2);
+											});
 
 		TestComp	comp	 = {.x1 = 5, .x2 = 17};
 		std::string compText = Nexus::ECS::SerializeComponent(comp);
@@ -69,15 +60,15 @@ class EditorApplication : public Nexus::Application
 		registry.AddComponent<Transform>(e, Transform {.x = 5, .y = 15, .z = 20});
 		registry.AddComponent<Transform>(e2, Transform {.x = -2, .y = 100, .z = 500});
 
-		Tag *test		= registry.GetFirstOrNull<Tag>(e);
-		auto components = registry.GetFirstOrNullComponents<Tag, Transform>(e);
-		auto test2		= registry.GetAllOrEmpty<Tag, Transform>(e);
+		Tag *test		= registry.GetFirstOrNull<Tag>(e.ID);
+		auto components = registry.GetFirstOrNullComponents<Tag, Transform>(e.ID);
+		auto test2		= registry.GetAllOrEmpty<Tag, Transform>(e.ID);
 
 		Nexus::ECS::View<Tag, Transform> view  = registry.GetView<Tag, Transform>();
 		Nexus::ECS::View<Transform>		 view2 = registry.GetView<Transform>();
 
 		Nexus::ECS::CreateComponent("TestComp", registry, e);
-		TestComp *resultComp = registry.GetFirstOrNull<TestComp>(e);
+		TestComp *resultComp = registry.GetFirstOrNull<TestComp>(e.ID);
 	}
 
 	virtual ~EditorApplication()
@@ -402,7 +393,7 @@ class EditorApplication : public Nexus::Application
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
 	Nexus::ApplicationSpecification spec;
-	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
+	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
 	spec.AudioAPI	 = Nexus::Audio::AudioAPI::OpenAL;
 
 	spec.WindowProperties.Width			   = 1280;

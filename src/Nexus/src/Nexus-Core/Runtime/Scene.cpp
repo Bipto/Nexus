@@ -139,7 +139,7 @@ namespace Nexus
 			out << YAML::EndMap;
 
 			out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
-			for (const auto &e : Entities) { e.Serialize(out); }
+			for (const auto &e : GetEntities()) { e.Serialize(out); }
 			out << YAML::EndSeq;
 		}
 
@@ -150,25 +150,17 @@ namespace Nexus
 
 	void Scene::AddEmptyEntity()
 	{
-		Entities.push_back(Entity());
+		Registry.Create();
 	}
 
 	Entity *Scene::GetEntity(GUID id)
 	{
-		for (size_t i = 0; i < Entities.size(); i++)
-		{
-			if (Entities[i].ID == id)
-			{
-				return &Entities[i];
-			}
-		}
-
-		return nullptr;
+		return Registry.GetEntityOrNull(id);
 	}
 
 	std::vector<Entity> &Scene::GetEntities()
 	{
-		return Entities;
+		return Registry.GetEntities();
 	}
 
 	Scene *Scene::Deserialize(GUID guid, const std::string &sceneDirectory)
@@ -208,7 +200,7 @@ namespace Nexus
 				uint64_t	id	 = entity["Entity"].as<uint64_t>();
 				std::string name = entity["Name"].as<std::string>();
 				Entity		e(GUID(id), name);
-				scene->Entities.push_back(e);
+				scene->Registry.AddEntity(e);
 			}
 		}
 

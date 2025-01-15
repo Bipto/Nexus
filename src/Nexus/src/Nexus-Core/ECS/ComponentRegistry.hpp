@@ -3,6 +3,8 @@
 #include "Nexus-Core/nxpch.hpp"
 #include "Registry.hpp"
 
+#include "Nexus-Core/ImGui/ImGuiInclude.hpp"
+
 namespace Nexus::ECS
 {
 	struct ComponentSerializers
@@ -12,9 +14,16 @@ namespace Nexus::ECS
 	};
 
 	using CreateComponentFunc = std::function<void(Registry &registry, const Entity &entity)>;
+	using RenderComponentFunc = std::function<void(void *)>;
 
 	std::map<std::type_index, ComponentSerializers> m_RegisteredSerializers;
 	std::map<const char *, CreateComponentFunc>		m_RegisteredComponentCreators;
+	std::map<std::type_index, RenderComponentFunc>	m_RegisteredComponentRenderFunctions;
+
+	const std::map<const char *, CreateComponentFunc> &GetAvailableComponents()
+	{
+		return m_RegisteredComponentCreators;
+	}
 
 	template<typename T>
 	void RegisterComponent(const char *typeName)
@@ -36,6 +45,14 @@ namespace Nexus::ECS
 		m_RegisteredSerializers[typeid(T)] = serializers;
 
 		m_RegisteredComponentCreators[typeName] = [](Registry &registry, const Entity &entity) { registry.AddComponent<T>(entity, T {}); };
+	}
+
+	template<typename T>
+	void RegisterComponentRenderFunc(RenderComponentFunc renderFunc)
+	{
+		const std::type_info &typeInfo = typeid(T);
+		std::type_index		  typeIndex(typeInfo);
+		m_RegisteredComponentRenderFunctions[typeIndex] = renderFunc;
 	}
 
 	template<typename T>
@@ -75,6 +92,21 @@ namespace Nexus::ECS
 		}
 	}
 
-#define REGISTER_COMPONENT(T) Nexus::ECS::RegisterComponent<T>(#T)
+	void RenderComponent(std::any *component)
+	{
+		const std::type_info &typeInfo = component->type();
+		std::type_index		  typeIndex(typeInfo);
+
+		if (m_RegisteredComponentRenderFunctions.find(typeIndex) != m_RegisteredComponentRenderFunctions.end())
+		{
+			m_RegisteredComponentRenderFunctions[typeIndex](component);
+		}
+	}
+
+#define REGISTER_COMPONENT(T)					Nexus::ECS::RegisterComponent<T>(#T)
+#define REGISTER_COMPONENT_RENDER_FUNC(T, Func) Nexus::ECS::RegisterComponentRenderFunc<T>(Func)
+#define REGISTER_COMPONENT_WITH_RENDER_FUNC(T, Func)                                                                                                 \
+	REGISTER_COMPONENT(T);                                                                                                                           \
+	REGISTER_COMPONENT_RENDER_FUNC(T, Func)
 
 }	 // namespace Nexus::ECS

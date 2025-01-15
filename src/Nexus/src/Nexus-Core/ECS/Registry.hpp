@@ -29,6 +29,11 @@ namespace Nexus::ECS
 			return entity;
 		}
 
+		void AddEntity(const Entity &entity)
+		{
+			m_Entities.push_back(entity);
+		}
+
 		template<typename T>
 		void AddComponent(const Entity &entity, T component)
 		{
@@ -39,10 +44,10 @@ namespace Nexus::ECS
 		}
 
 		template<typename T>
-		T *GetFirstOrNull(const Entity &entity)
+		T *GetFirstOrNull(GUID guid)
 		{
 			const char				  *typeName			= typeid(T).name();
-			const std::vector<size_t> &entityComponents = m_ComponentIds[entity.ID][typeName];
+			const std::vector<size_t> &entityComponents = m_ComponentIds[guid][typeName];
 
 			if (entityComponents.size() > 0)
 			{
@@ -59,18 +64,38 @@ namespace Nexus::ECS
 			return nullptr;
 		}
 
-		template<typename... Args>
-		std::tuple<Args *...> GetFirstOrNullComponents(const Entity &entity)
+		std::vector<std::any *> GetAllComponents(GUID guid)
 		{
-			return std::make_tuple((Args *)GetFirstOrNull<Args>(entity)...);
+			std::vector<std::any *> returnComponents;
+
+			for (const auto &[id, entityComponents] : m_ComponentIds)
+			{
+				if (id != guid)
+				{
+					continue;
+				}
+
+				for (const auto &[name, components] : entityComponents)
+				{
+					for (const auto &componentIndex : components) { returnComponents.push_back(&m_Components[name][componentIndex]); }
+				}
+			}
+
+			return returnComponents;
+		}
+
+		template<typename... Args>
+		std::tuple<Args *...> GetFirstOrNullComponents(GUID guid)
+		{
+			return std::make_tuple((Args *)GetFirstOrNull<Args>(guid)...);
 		}
 
 		template<typename T>
-		std::vector<T *> GetComponentVector(const Entity &entity)
+		std::vector<T *> GetComponentVector(GUID guid)
 		{
 			std::vector<T *>		   returnComponents = {};
 			const char				  *typeName			= typeid(T).name();
-			const std::vector<size_t> &entityComponents = m_ComponentIds[entity.ID][typeName];
+			const std::vector<size_t> &entityComponents = m_ComponentIds[guid][typeName];
 
 			for (size_t i = 0; i < entityComponents.size(); i++)
 			{
@@ -88,9 +113,9 @@ namespace Nexus::ECS
 		}
 
 		template<typename... Args>
-		std::tuple<std::vector<Args *>...> GetAllOrEmpty(const Entity &entity)
+		std::tuple<std::vector<Args *>...> GetAllOrEmpty(GUID guid)
 		{
-			return std::make_tuple(GetComponentVector<Args>(entity)...);
+			return std::make_tuple(GetComponentVector<Args>(guid)...);
 		}
 
 		Entity *GetEntityOrNull(GUID guid)
@@ -104,6 +129,11 @@ namespace Nexus::ECS
 			}
 		}
 
+		std::vector<Entity> &GetEntities()
+		{
+			return m_Entities;
+		}
+
 		template<typename... Args>
 		View<Args...> GetView()
 		{
@@ -111,7 +141,7 @@ namespace Nexus::ECS
 
 			for (Entity &entity : m_Entities)
 			{
-				auto components = GetAllOrEmpty<Args...>(entity);
+				auto components = GetAllOrEmpty<Args...>(entity.ID);
 
 				bool hasAllComponents = ((std::get<std::vector<Args *>>(components).size() > 0) && ...);
 				if (hasAllComponents)
