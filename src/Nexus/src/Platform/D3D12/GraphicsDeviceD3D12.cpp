@@ -168,6 +168,11 @@ namespace Nexus::Graphics
 		return m_CommandQueue.Get();
 	}
 
+	void GraphicsDeviceD3D12::WaitForIdle()
+	{
+		SignalAndWait();
+	}
+
 	const GraphicsCapabilities GraphicsDeviceD3D12::GetGraphicsCapabilities() const
 	{
 		GraphicsCapabilities capabilities;

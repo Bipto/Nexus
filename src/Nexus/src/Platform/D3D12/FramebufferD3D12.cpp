@@ -23,6 +23,17 @@ namespace Nexus::Graphics
 
 	void FramebufferD3D12::SetFramebufferSpecification(const FramebufferSpecification &spec)
 	{
+		m_Specification = spec;
+
+		m_ColorDescriptorHeap = nullptr;
+		m_DepthDescriptorHeap = nullptr;
+		m_ColorAttachmentCPUHandles.clear();
+		m_DepthAttachmentCPUHandle = {};
+		m_ColorAttachments.clear();
+		m_DepthAttachment = nullptr;
+
+		Flush();
+		Recreate();
 	}
 
 	Ref<Texture2D> FramebufferD3D12::GetColorTexture(uint32_t index)

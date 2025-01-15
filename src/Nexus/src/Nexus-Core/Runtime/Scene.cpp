@@ -153,6 +153,19 @@ namespace Nexus
 		Entities.push_back(Entity());
 	}
 
+	Entity *Scene::GetEntity(GUID id)
+	{
+		for (size_t i = 0; i < Entities.size(); i++)
+		{
+			if (Entities[i].ID == id)
+			{
+				return &Entities[i];
+			}
+		}
+
+		return nullptr;
+	}
+
 	std::vector<Entity> &Scene::GetEntities()
 	{
 		return Entities;

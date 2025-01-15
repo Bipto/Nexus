@@ -132,6 +132,14 @@ namespace Nexus::Graphics
 		/// @return A pointer to a texture object
 		virtual Ref<Texture2D> GetDepthTexture() = 0;
 
+		void Resize(uint32_t width, uint32_t height)
+		{
+			auto framebufferSpec   = GetFramebufferSpecification();
+			framebufferSpec.Width  = width;
+			framebufferSpec.Height = height;
+			SetFramebufferSpecification(framebufferSpec);
+		}
+
 	  protected:
 		/// @brief An object containing the specification of a framebuffer
 		FramebufferSpecification m_Specification;

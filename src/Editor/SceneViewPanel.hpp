@@ -5,6 +5,9 @@
 class SceneViewPanel : public Panel
 {
   public:
+	Nexus::EventHandler<std::optional<Nexus::GUID>> OnEntitySelected;
+
+  public:
 	SceneViewPanel() : Panel("Scene")
 	{
 	}
@@ -49,11 +52,18 @@ class SceneViewPanel : public Panel
 			ImGui::Text("Entities");
 			for (auto &entity : scene->GetEntities())
 			{
-				std::stringstream ss;
+				/* std::stringstream ss;
 				ss << "ID:" << entity.ID;
 				ImGui::Text(ss.str().c_str());
 				ImGui::PushID(entity.ID);
 				ImGui::InputText("Name", &entity.Name);
+				ImGui::PopID(); */
+
+				ImGui::PushID(entity.ID);
+				if (ImGui::Selectable(entity.Name.c_str()))
+				{
+					OnEntitySelected.Invoke(entity.ID);
+				}
 				ImGui::PopID();
 			}
 

@@ -39,6 +39,7 @@ namespace Nexus::Platform
 	std::vector<InputNew::Mouse>	GetMice();
 	std::vector<InputNew::Gamepad>	GetGamepads();
 	std::vector<Monitor>			GetMonitors();
+	std::vector<IWindow *>		   &GetWindows();
 
 	std::optional<InputNew::Keyboard> GetKeyboardById(uint32_t id);
 	std::optional<InputNew::Mouse>	  GetMouseById(uint32_t id);
@@ -54,6 +55,7 @@ namespace Nexus::Platform
 	InputNew::MouseInfo		 GetGlobalMouseInfo();
 	std::optional<IWindow *> GetKeyboardFocus();
 	std::optional<IWindow *> GetMouseFocus();
+	std::optional<IWindow *> GetActiveWindow();
 
 	std::optional<uint32_t> GetActiveMouseId();
 	std::optional<uint32_t> GetActiveKeyboardId();

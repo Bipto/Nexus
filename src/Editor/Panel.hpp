@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Nexus-Core/Events/EventHandler.hpp"
 #include "Nexus-Core/Runtime/Project.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
@@ -44,8 +45,14 @@ class Panel
 		return m_Name;
 	}
 
+	void OnEntitySelected(std::optional<Nexus::GUID> id)
+	{
+		m_SelectedEntity = id;
+	}
+
   protected:
 	std::string				   m_Name	 = {};
 	Nexus::Ref<Nexus::Project> m_Project = nullptr;
 	bool					   m_Open	 = false;
+	std::optional<Nexus::GUID> m_SelectedEntity = {};
 };

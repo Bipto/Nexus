@@ -53,7 +53,9 @@ namespace Nexus::ImGuiUtils
 		Nexus::Ref<Nexus::Graphics::Pipeline>	 m_Pipeline		  = nullptr;
 		Nexus::Ref<Nexus::Graphics::Texture2D>	 m_FontTexture	  = nullptr;
 
+		std::map<ImTextureID, Nexus::Ref<Nexus::Graphics::Texture2D>>	m_Textures;
 		std::map<ImTextureID, Nexus::Ref<Nexus::Graphics::ResourceSet>> m_ResourceSets;
+
 		Nexus::Ref<Nexus::Graphics::Sampler>							m_Sampler		= nullptr;
 		uint64_t														m_TextureID		= 0;
 		ImTextureID														m_FontTextureID = 0;

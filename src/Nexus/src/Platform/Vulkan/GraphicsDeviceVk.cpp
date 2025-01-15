@@ -176,6 +176,11 @@ namespace Nexus::Graphics
 		return ShaderLanguage::SPIRV;
 	}
 
+	void GraphicsDeviceVk::WaitForIdle()
+	{
+		vkDeviceWaitIdle(m_Device);
+	}
+
 	VkDevice GraphicsDeviceVk::GetVkDevice()
 	{
 		return m_Device;

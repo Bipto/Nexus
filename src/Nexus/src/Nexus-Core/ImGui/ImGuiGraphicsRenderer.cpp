@@ -183,6 +183,13 @@ namespace Nexus::ImGuiUtils
 			info->Window		  = window;
 			info->Swapchain		  = swapchain;
 
+			window->OnTextInput.Bind(
+				[&](const Nexus::TextInputEventArgs &args)
+				{
+					ImGuiIO &io = ImGui::GetIO();
+					io.AddInputCharactersUTF8(args.Text);
+				});
+
 			vp->PlatformUserData = info;
 			vp->RendererUserData = info;
 		};
@@ -377,8 +384,9 @@ namespace Nexus::ImGuiUtils
 		auto id = (ImTextureID)m_TextureID++;
 
 		auto resourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
-		resourceSet->WriteCombinedImageSampler(texture, m_Sampler, "Texture");
+		// resourceSet->WriteCombinedImageSampler(texture, m_Sampler, "Texture");
 
+		m_Textures.insert({id, texture});
 		m_ResourceSets.insert({id, resourceSet});
 
 		return id;
@@ -456,19 +464,24 @@ namespace Nexus::ImGuiUtils
 		auto  mainWindow = Nexus::GetApplication()->GetPrimaryWindow();
 		auto &io		 = ImGui::GetIO();
 
-		std::optional<IWindow *> window = Platform::GetKeyboardFocus();
+		std::optional<IWindow *> window = Platform::GetActiveWindow();
 		if (!window.has_value())
 		{
 			return;
 		}
 
-		if (io.WantTextInput)
+		std::vector<IWindow *> &windows = Platform::GetWindows();
+
+		for (auto w : windows)
 		{
-			window.value()->StartTextInput();
-		}
-		else
-		{
-			window.value()->StopTextInput();
+			if (io.WantTextInput)
+			{
+				w->StartTextInput();
+			}
+			else
+			{
+				w->StopTextInput();
+			}
 		}
 
 		InputNew::InputContext *context = window.value()->GetInputContext();
@@ -607,7 +620,18 @@ namespace Nexus::ImGuiUtils
 		glm::mat4 mvp = glm::ortho<float>(pos.x, pos.x + drawData->DisplaySize.x, pos.y + drawData->DisplaySize.y, pos.y, -1.f, 1.0f);
 		m_UniformBuffer->SetData(&mvp, sizeof(mvp), 0);
 
-		for (auto &resourceSet : m_ResourceSets) { resourceSet.second->WriteUniformBuffer(m_UniformBuffer, "MVP"); }
+		/* for (auto &resourceSet : m_ResourceSets) {
+			resourceSet.second->WriteUniformBuffer(m_UniformBuffer, "MVP");
+			resourceSet->WriteCombinedImageSampler(texture, m_Sampler, "Texture");
+			 } */
+
+		for (auto &[textureId, resourceSet] : m_ResourceSets)
+		{
+			Ref<Graphics::Texture2D> texture = m_Textures.at(textureId);
+
+			resourceSet->WriteUniformBuffer(m_UniformBuffer, "MVP");
+			resourceSet->WriteCombinedImageSampler(texture, m_Sampler, "Texture");
+		}
 
 		ImGuiViewport *vp = drawData->OwnerViewport;
 

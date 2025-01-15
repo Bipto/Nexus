@@ -153,6 +153,8 @@ namespace Nexus::Graphics
 		/// @return The supported shading language of the backend
 		virtual ShaderLanguage GetSupportedShaderFormat() = 0;
 
+		virtual void WaitForIdle() = 0;
+
 		/// @brief A pure virtual method that returns a value that can be used to
 		/// standardise UV coordinates across backends
 		/// @return A float representing the correction

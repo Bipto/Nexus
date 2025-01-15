@@ -429,6 +429,11 @@ namespace Nexus::Platform
 		return monitors;
 	}
 
+	std::vector<IWindow *> &GetWindows()
+	{
+		return m_Windows;
+	}
+
 	std::optional<InputNew::Keyboard> GetKeyboardById(uint32_t id)
 	{
 		const std::vector<InputNew::Keyboard> &keyboards = Platform::GetKeyboards();
@@ -574,6 +579,18 @@ namespace Nexus::Platform
 		return {};
 	}
 
+	std::optional<IWindow *> GetActiveWindow()
+	{
+		for (auto window : m_Windows)
+		{
+			if (window->IsFocussed())
+			{
+				return window;
+			}
+		}
+
+		return {};
+	}
 	std::optional<uint32_t> GetActiveMouseId()
 	{
 		return m_ActiveMouse;

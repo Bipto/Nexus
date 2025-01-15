@@ -27,6 +27,7 @@ namespace Nexus
 		void Serialize(const std::string &filepath);
 
 		void				 AddEmptyEntity();
+		Entity				*GetEntity(GUID id);
 		std::vector<Entity> &GetEntities();
 
 	  public:

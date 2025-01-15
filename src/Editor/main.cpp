@@ -6,6 +6,7 @@
 #include "Nexus-Core/FileSystem/FileDialogs.hpp"
 #include "Nexus-Core/Graphics/HdriProcessor.hpp"
 
+#include "InspectorPanel.hpp"
 #include "ProjectViewPanel.hpp"
 #include "SceneViewPanel.hpp"
 
@@ -64,8 +65,21 @@ class EditorApplication : public Nexus::Application
 		CreateFramebuffer(ImVec2(1280, 720));
 		ApplyDarkTheme();
 
+		SceneViewPanel *sceneViewPanel = new SceneViewPanel();
+		InspectorPanel *inspectorPanel = new InspectorPanel();
+
+		sceneViewPanel->OnEntitySelected.Bind(
+			[this](std::optional<Nexus::GUID> id)
+			{
+				for (Panel *panel : m_Panels) { panel->OnEntitySelected(id); }
+			});
+
 		m_Panels.push_back(new ProjectViewPanel());
-		m_Panels.push_back(new SceneViewPanel());
+		m_Panels.push_back(sceneViewPanel);
+		m_Panels.push_back(inspectorPanel);
+
+		std::string title = "Editor: (" + m_GraphicsDevice->GetAPIName() + std::string(")");
+		Nexus::GetApplication()->GetPrimaryWindow()->SetTitle(title);
 	}
 
 	virtual void Update(Nexus::TimeSpan time) override
@@ -75,13 +89,12 @@ class EditorApplication : public Nexus::Application
 	void CreateFramebuffer(ImVec2 size)
 	{
 		Nexus::Graphics::FramebufferSpecification framebufferSpec = {};
-		framebufferSpec.Width									  = size.x;
-		framebufferSpec.Height									  = size.y;
+		framebufferSpec.Width									  = (uint32_t)size.x;
+		framebufferSpec.Height									  = (uint32_t)size.y;
 		framebufferSpec.DepthAttachmentSpecification			  = {Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt};
 		framebufferSpec.ColorAttachmentSpecification.Attachments  = {{Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat()}};
 
-		m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(framebufferSpec);
-
+		m_Framebuffer		   = m_GraphicsDevice->CreateFramebuffer(framebufferSpec);
 		m_FramebufferTextureID = m_ImGuiRenderer->BindTexture(m_Framebuffer->GetColorTexture(0));
 	}
 
@@ -286,12 +299,15 @@ class EditorApplication : public Nexus::Application
 			}
 			ImGui::Image(m_FramebufferTextureID, size, uv0, uv1);
 
-			if (m_PreviousViewportSize.x != size.x || m_PreviousViewportSize.y != size.y)
+			if (size.x != m_PreviousViewportSize.x || size.y != m_PreviousViewportSize.y)
 			{
-				CreateFramebuffer(size);
+				if (size.x > 0 && size.y > 0)
+				{
+					m_Framebuffer->Resize(size.x, size.y);
+					m_FramebufferTextureID = m_ImGuiRenderer->BindTexture(m_Framebuffer->GetColorTexture(0));
+				}
+				m_PreviousViewportSize = size;
 			}
-
-			m_PreviousViewportSize = size;
 		}
 		ImGui::End();
 		ImGui::PopStyleVar();
