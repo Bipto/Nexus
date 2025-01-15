@@ -197,6 +197,11 @@ namespace Nexus::Graphics
 
 	void Renderer3D::RenderModel(Nexus::Ref<Nexus::Graphics::Model> model)
 	{
+		if (model->GetMeshes().empty())
+		{
+			return;
+		}
+
 		Nexus::Point2D<uint32_t> size = m_RenderTarget.GetSize();
 		m_CommandList->Begin();
 		m_CommandList->SetRenderTarget(m_RenderTarget);
@@ -221,6 +226,7 @@ namespace Nexus::Graphics
 		m_ModelResourceSet->WriteUniformBuffer(m_ModelCameraUniformBuffer, "Camera");
 		m_ModelResourceSet->WriteUniformBuffer(m_ModelTransformUniformBuffer, "Transform");
 
+		// TODO: This needs to be more flexible
 		const Nexus::Graphics::Material &mat = model->GetMeshes()[0]->GetMaterial();
 
 		if (mat.DiffuseTexture)

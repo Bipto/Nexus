@@ -10,7 +10,44 @@
 #include "ProjectViewPanel.hpp"
 #include "SceneViewPanel.hpp"
 
+#include "Nexus-Core/ECS/ComponentRegistry.hpp"
 #include "Nexus-Core/ECS/Registry.hpp"
+
+struct Tag
+{
+	std::string t = {};
+};
+
+struct BaseClass
+{
+	virtual void print() = 0;
+	virtual void func2() = 0;
+};
+
+struct Transform
+{
+	int x = {};
+	int y = {};
+	int z = {};
+};
+
+struct TestComp
+{
+	int x1 = 5;
+	int x2 = 32;
+
+	friend std::ostream &operator<<(std::ostream &os, const TestComp &c)
+	{
+		os << c.x1 << " " << c.x2;
+		return os;
+	}
+
+	friend std::istream &operator>>(std::istream &is, TestComp &c)
+	{
+		is >> c.x1 >> c.x2;
+		return is;
+	}
+};
 
 class EditorApplication : public Nexus::Application
 {
@@ -21,17 +58,11 @@ class EditorApplication : public Nexus::Application
 		Nexus::Entity		 e		  = registry.Create();
 		Nexus::Entity		 e2		  = registry.Create();
 
-		struct Tag
-		{
-			std::string t = {};
-		};
+		REGISTER_COMPONENT(TestComp);
 
-		struct Transform
-		{
-			int x = {};
-			int y = {};
-			int z = {};
-		};
+		TestComp	comp	 = {.x1 = 5, .x2 = 17};
+		std::string compText = Nexus::ECS::SerializeComponent(comp);
+		TestComp	comp2	 = Nexus::ECS::DeserializeComponent<TestComp>(compText);
 
 		registry.AddComponent<Tag>(e, Tag {.t = "Hello"});
 		registry.AddComponent<Tag>(e, Tag {.t = "World"});
@@ -44,6 +75,9 @@ class EditorApplication : public Nexus::Application
 
 		Nexus::ECS::View<Tag, Transform> view  = registry.GetView<Tag, Transform>();
 		Nexus::ECS::View<Transform>		 view2 = registry.GetView<Transform>();
+
+		Nexus::ECS::CreateComponent("TestComp", registry, e);
+		TestComp *resultComp = registry.GetFirstOrNull<TestComp>(e);
 	}
 
 	virtual ~EditorApplication()
@@ -368,7 +402,7 @@ class EditorApplication : public Nexus::Application
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
 	Nexus::ApplicationSpecification spec;
-	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
+	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
 	spec.AudioAPI	 = Nexus::Audio::AudioAPI::OpenAL;
 
 	spec.WindowProperties.Width			   = 1280;

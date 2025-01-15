@@ -25,6 +25,7 @@
 #include <optional>
 #include <random>
 #include <set>
+#include <typeindex>
 #include <typeinfo>
 
 #if defined(__clang__) && !defined(__EMSCRIPTEN__)
