@@ -14,63 +14,11 @@
 #include "Nexus-Core/ECS/ComponentRegistry.hpp"
 #include "Nexus-Core/ECS/Registry.hpp"
 
-#include "TestComp.hpp"
-
-struct Tag
-{
-	std::string t = {};
-};
-
-struct BaseClass
-{
-	virtual void print() = 0;
-	virtual void func2() = 0;
-};
-
-struct Transform
-{
-	int x = {};
-	int y = {};
-	int z = {};
-};
-
 class EditorApplication : public Nexus::Application
 {
   public:
 	EditorApplication(const Nexus::ApplicationSpecification &spec) : Application(spec)
 	{
-		Nexus::ECS::Registry registry = {};
-		Nexus::Entity		 e		  = registry.Create();
-		Nexus::Entity		 e2		  = registry.Create();
-
-		REGISTER_COMPONENT_WITH_RENDER_FUNC(TestComp,
-											"TestComp",
-											[](void *data)
-											{
-												TestComp *comp = static_cast<TestComp *>(data);
-												ImGui::InputInt("x1", &comp->x1);
-												ImGui::InputInt("x2", &comp->x2);
-											});
-
-		TestComp	comp	 = {.x1 = 5, .x2 = 17};
-		std::string compText = Nexus::ECS::SerializeComponent(comp);
-		TestComp	comp2	 = Nexus::ECS::DeserializeComponent<TestComp>(compText);
-
-		registry.AddComponent<Tag>(e, Tag {.t = "Hello"});
-		registry.AddComponent<Tag>(e, Tag {.t = "World"});
-		registry.AddComponent<Transform>(e, Transform {.x = 5, .y = 15, .z = 20});
-		registry.AddComponent<Transform>(e2, Transform {.x = -2, .y = 100, .z = 500});
-
-		Tag *test		= registry.GetFirstOrNull<Tag>(e.ID);
-		auto components = registry.GetFirstOrNullComponents<Tag, Transform>(e.ID);
-		auto test2		= registry.GetAllOrEmpty<Tag, Transform>(e.ID);
-
-		Nexus::ECS::View<Tag, Transform> view  = registry.GetView<Tag, Transform>();
-		Nexus::ECS::View<Transform>		 view2 = registry.GetView<Transform>();
-
-		const char *typeName = Nexus::ECS::GetTypeNameFromDisplayName("TestComp");
-		Nexus::ECS::CreateComponent(typeName, registry, e);
-		TestComp *resultComp = registry.GetFirstOrNull<TestComp>(e.ID);
 	}
 
 	virtual ~EditorApplication()
@@ -343,6 +291,7 @@ class EditorApplication : public Nexus::Application
 		{
 			if (panel->IsOpen())
 			{
+				panel->Update();
 				panel->Render();
 			}
 		}

@@ -6,6 +6,8 @@
 #include "Nexus-Core/Graphics/HdriProcessor.hpp"
 #include "Nexus-Core/Runtime.hpp"
 
+#include "Nexus-Core/ECS/ComponentRegistry.hpp"
+
 namespace YAML
 {
 	template<>
@@ -141,6 +143,25 @@ namespace Nexus
 			out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
 			for (const auto &e : GetEntities()) { e.Serialize(out); }
 			out << YAML::EndSeq;
+
+			out << YAML::Key << "Components" << YAML::Value << YAML::BeginSeq;
+
+			for (const auto &e : GetEntities())
+			{
+				std::vector<ECS::ComponentPtr> components = Registry.GetAllComponents(e.ID);
+				for (ECS::ComponentPtr component : components)
+				{
+					out << YAML::BeginMap;
+					std::string output = ECS::SerializeComponent(component);
+
+					out << YAML::Key << "Entity" << YAML::Value << e.ID.Value;
+					out << YAML::Key << "Name" << YAML::Value << component.typeName;
+					out << YAML::Key << "Data" << YAML::Value << output;
+					out << YAML::EndMap;
+				}
+			}
+
+			out << YAML::EndSeq;
 		}
 
 		out << YAML::EndMap;
@@ -201,6 +222,19 @@ namespace Nexus
 				std::string name = entity["Name"].as<std::string>();
 				Entity		e(GUID(id), name);
 				scene->Registry.AddEntity(e);
+			}
+		}
+
+		auto components = node["Components"];
+		if (components)
+		{
+			for (auto component : components)
+			{
+				uint64_t	id = component["Entity"].as<uint64_t>();
+				GUID		guid(id);
+				std::string name = component["Name"].as<std::string>();
+				std::string data = component["Data"].as<std::string>();
+				ECS::DeserializeComponent(scene->Registry, guid, name, data);
 			}
 		}
 

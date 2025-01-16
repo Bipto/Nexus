@@ -146,6 +146,11 @@ list (APPEND ENGINE_SOURCES
   src/Nexus-Core/Audio/AudioSource.hpp)
 
 list (APPEND ENGINE_SOURCES
+  src/Nexus-Core/ECS/ComponentRegistry.hpp
+  src/Nexus-Core/ECS/Components.cpp
+  src/Nexus-Core/ECS/Registry.hpp)
+
+list (APPEND ENGINE_SOURCES
   src/Nexus-Core/Events/EventHandler.hpp)
 
 list (APPEND ENGINE_SOURCES

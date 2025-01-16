@@ -4,7 +4,12 @@
 
 #include "Nexus-Core/ECS/ComponentRegistry.hpp"
 
-#include "TestComp.hpp"
+struct ComponentToRemove
+{
+	Nexus::GUID EntityID	   = {};
+	const char *TypeName	   = {};
+	size_t		ComponentIndex = {};
+};
 
 class InspectorPanel : public Panel
 {
@@ -26,15 +31,15 @@ class InspectorPanel : public Panel
 
 			if (ImGui::BeginPopupContextItem("Add Component"))
 			{
-				const std::map<const char *, Nexus::ECS::CreateComponentFunc> &availableComponents = Nexus::ECS::GetAvailableComponents();
+				const std::map<std::string, Nexus::ECS::CreateComponentFunc> &availableComponents = Nexus::ECS::GetAvailableComponents();
 
 				ImGui::Text("Add Components");
 				ImGui::Separator();
 
 				for (const auto &[name, creationFunction] : availableComponents)
 				{
-					const char *displayName = Nexus::ECS::GetDisplayNameFromTypeName(name);
-					if (ImGui::Selectable(displayName))
+					std::string displayName = Nexus::ECS::GetDisplayNameFromTypeName(name);
+					if (ImGui::Selectable(displayName.c_str()))
 					{
 						creationFunction(scene->Registry, *entity);
 					}
@@ -47,18 +52,26 @@ class InspectorPanel : public Panel
 			ss << "ID: " << entity->ID.Value;
 			ImGui::Text(ss.str().c_str());
 			ImGui::InputText("Name", &entity->Name);
+			ImGui::Separator();
 
 			std::vector<Nexus::ECS::ComponentPtr> components = scene->Registry.GetAllComponents(entity->ID);
 			for (Nexus::ECS::ComponentPtr component : components)
 			{
-				const char *displayName = Nexus::ECS::GetDisplayNameFromTypeName(component.typeName);
-				ImGui::Text(displayName);
-
 				ImGui::PushID(component.data);
-				Nexus::ECS::RenderComponent(component);
-				ImGui::PopID();
+				std::string displayName = Nexus::ECS::GetDisplayNameFromTypeName(component.typeName);
+				ImGui::Text(displayName.c_str());
 
+				Nexus::ECS::RenderComponent(component);
+
+				if (ImGui::Button("Remove"))
+				{
+					ComponentToRemove componentToRemove {.EntityID		 = entity->ID,
+														 .TypeName		 = component.typeName,
+														 .ComponentIndex = component.componentIndex};
+					m_ComponentsToRemove.push_back(componentToRemove);
+				}
 				ImGui::Separator();
+				ImGui::PopID();
 			}
 
 			ImGui::Button("+");
@@ -70,4 +83,25 @@ class InspectorPanel : public Panel
 
 		ImGui::End();
 	}
+
+	void Update() final
+	{
+		if (!m_Project && !m_Project->IsSceneLoaded() && m_ComponentsToRemove.size() > 0)
+		{
+			return;
+		}
+
+		Nexus::Scene *scene = m_Project->GetLoadedScene();
+
+		for (const auto &component : m_ComponentsToRemove)
+		{
+			int x = 0;
+			scene->Registry.RemoveComponent(component.EntityID, component.TypeName, component.ComponentIndex);
+		}
+
+		m_ComponentsToRemove.clear();
+	}
+
+  private:
+	std::vector<ComponentToRemove> m_ComponentsToRemove = {};
 };

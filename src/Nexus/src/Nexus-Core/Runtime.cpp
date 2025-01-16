@@ -4,6 +4,8 @@
 #include "Nexus-Core/Platform.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
+#include "Nexus-Core/ECS/Components.hpp"
+
 Nexus::Application	*appPtr		  = nullptr;
 Nexus::AssetManager *assetManager = nullptr;
 
@@ -53,6 +55,7 @@ namespace Nexus
 	void Init(int argc, char **argv)
 	{
 		Platform::Initialise();
+		RegisterDefaultComponents();
 	}
 
 	void Shutdown()

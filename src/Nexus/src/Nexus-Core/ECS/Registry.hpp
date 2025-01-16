@@ -9,6 +9,7 @@ namespace Nexus::ECS
 	{
 		void	   *data	 = nullptr;
 		const char *typeName = nullptr;
+		size_t		componentIndex = 0;
 	};
 
 	class IComponentArray
@@ -20,6 +21,7 @@ namespace Nexus::ECS
 
 		virtual size_t		 GetComponentCount()				= 0;
 		virtual ComponentPtr GetAbstractComponent(size_t index) = 0;
+		virtual void		 RemoveComponent(size_t index)		= 0;
 	};
 
 	template<typename T>
@@ -38,8 +40,14 @@ namespace Nexus::ECS
 		ComponentPtr GetAbstractComponent(size_t index) final
 		{
 			const std::type_info &typeInfo = typeid(T);
-			ComponentPtr		  ptr {.data = &m_Components[index], .typeName = typeInfo.name()};
+			ComponentPtr		  ptr {.data = &m_Components[index], .typeName = typeInfo.name(), .componentIndex = index};
+
 			return ptr;
+		}
+
+		virtual void RemoveComponent(size_t index) final
+		{
+			m_Components.erase(m_Components.begin() + index);
 		}
 
 		void AddComponent(const T &component)
@@ -96,13 +104,22 @@ namespace Nexus::ECS
 		}
 
 		template<typename T>
-		void AddComponent(const Entity &entity, T component)
+		void AddComponent(GUID guid, T component)
 		{
 			const char		  *typeName	  = typeid(T).name();
 			ComponentArray<T> *components = GetComponentArray<T>();
 			size_t			   position	  = components->GetComponentCount();
-			m_ComponentIds[entity.ID][typeName].push_back(position);
+			m_ComponentIds[guid][typeName].push_back(position);
 			components->AddComponent(component);
+		}
+
+		void RemoveComponent(GUID guid, const std::string name, size_t index)
+		{
+			IComponentArray *components = GetBaseComponentArray(name.c_str());
+			components->RemoveComponent(index);
+
+			std::vector<size_t> &ids = m_ComponentIds[guid][name.c_str()];
+			ids.erase(ids.begin() + index);
 		}
 
 		template<typename T>
@@ -141,11 +158,6 @@ namespace Nexus::ECS
 
 					for (const auto &componentIndex : components)
 					{
-						int x = 0;
-						// std::any component = componentArray->GetComponentAsAny(componentIndex);
-						// returnComponents.push_back(component);
-						// returnComponents.push_back(components.GetAbstractComponent(componentIndex));
-
 						ComponentPtr ptr = componentArray->GetAbstractComponent(componentIndex);
 						returnComponents.push_back(ptr);
 					}
@@ -243,7 +255,7 @@ namespace Nexus::ECS
 			return (ComponentArray<T> *)m_Components[typeInfo.name()].get();
 		}
 
-		IComponentArray *GetBaseComponentArray(const char *typeName)
+		IComponentArray *GetBaseComponentArray(const std::string &typeName)
 		{
 			return m_Components[typeName].get();
 		}
@@ -253,9 +265,9 @@ namespace Nexus::ECS
 		std::vector<Entity> m_Entities = {};
 
 		// vector of components of each type
-		std::map<const char *, std::unique_ptr<IComponentArray>> m_Components = {};
+		std::map<std::string, std::unique_ptr<IComponentArray>> m_Components = {};
 
 		// map of entity ownership
-		std::map<GUID, std::map<const char *, std::vector<size_t>>> m_ComponentIds = {};
+		std::map<GUID, std::map<std::string, std::vector<size_t>>> m_ComponentIds = {};
 	};
 }	 // namespace Nexus::ECS

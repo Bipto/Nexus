@@ -25,6 +25,10 @@ class Panel
 
 	virtual void Render() = 0;
 
+	virtual void Update()
+	{
+	}
+
 	void Open()
 	{
 		m_Open = true;

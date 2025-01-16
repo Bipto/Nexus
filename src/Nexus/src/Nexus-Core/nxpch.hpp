@@ -63,3 +63,4 @@ using source_location = std::source_location;
 
 #include "Nexus-Core/Logging/Log.hpp"
 #include "Nexus-Core/Point.hpp"
+#include "Nexus-Core/Types.hpp"
