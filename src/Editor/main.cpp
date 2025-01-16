@@ -6,6 +6,7 @@
 #include "Nexus-Core/FileSystem/FileDialogs.hpp"
 #include "Nexus-Core/Graphics/HdriProcessor.hpp"
 
+#include "EditorProperties.hpp"
 #include "InspectorPanel.hpp"
 #include "ProjectViewPanel.hpp"
 #include "SceneViewPanel.hpp"
@@ -43,10 +44,10 @@ class EditorApplication : public Nexus::Application
 		Nexus::Entity		 e2		  = registry.Create();
 
 		REGISTER_COMPONENT_WITH_RENDER_FUNC(TestComp,
+											"TestComp",
 											[](void *data)
 											{
 												TestComp *comp = static_cast<TestComp *>(data);
-												ImGui::Text("TestComp");
 												ImGui::InputInt("x1", &comp->x1);
 												ImGui::InputInt("x2", &comp->x2);
 											});
@@ -67,7 +68,8 @@ class EditorApplication : public Nexus::Application
 		Nexus::ECS::View<Tag, Transform> view  = registry.GetView<Tag, Transform>();
 		Nexus::ECS::View<Transform>		 view2 = registry.GetView<Transform>();
 
-		Nexus::ECS::CreateComponent("TestComp", registry, e);
+		const char *typeName = Nexus::ECS::GetTypeNameFromDisplayName("TestComp");
+		Nexus::ECS::CreateComponent(typeName, registry, e);
 		TestComp *resultComp = registry.GetFirstOrNull<TestComp>(e.ID);
 	}
 
@@ -105,6 +107,9 @@ class EditorApplication : public Nexus::Application
 
 		std::string title = "Editor: (" + m_GraphicsDevice->GetAPIName() + std::string(")");
 		Nexus::GetApplication()->GetPrimaryWindow()->SetTitle(title);
+
+		m_EditorPropertiesPanel = new EditorPropertiesPanel(&m_Panels);
+		m_Panels.push_back(m_EditorPropertiesPanel);
 	}
 
 	virtual void Update(Nexus::TimeSpan time) override
@@ -233,20 +238,16 @@ class EditorApplication : public Nexus::Application
 
 		if (ImGui::BeginMenu("Editor", true))
 		{
-			for (auto panel : m_Panels)
+			bool editorPropertiesOpen = m_EditorPropertiesPanel->IsOpen();
+			if (ImGui::Checkbox(m_EditorPropertiesPanel->GetName().c_str(), &editorPropertiesOpen))
 			{
-				bool			   open = panel->IsOpen();
-				const std::string &name = panel->GetName();
-
-				ImGui::Checkbox(name.c_str(), &open);
-
-				if (open)
+				if (editorPropertiesOpen)
 				{
-					panel->Open();
+					m_EditorPropertiesPanel->Open();
 				}
 				else
 				{
-					panel->Close();
+					m_EditorPropertiesPanel->Close();
 				}
 			}
 
@@ -386,8 +387,9 @@ class EditorApplication : public Nexus::Application
 	ImVec2 m_PreviousViewportSize = {0, 0};
 	bool   m_NewProjectWindowOpen = false;
 
-	Nexus::Ref<Nexus::Project> m_Project = nullptr;
-	std::vector<Panel *>	   m_Panels	 = {};
+	Nexus::Ref<Nexus::Project> m_Project			   = nullptr;
+	std::vector<Panel *>	   m_Panels				   = {};
+	EditorPropertiesPanel	  *m_EditorPropertiesPanel = nullptr;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)

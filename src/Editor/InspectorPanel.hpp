@@ -33,7 +33,8 @@ class InspectorPanel : public Panel
 
 				for (const auto &[name, creationFunction] : availableComponents)
 				{
-					if (ImGui::Selectable(name))
+					const char *displayName = Nexus::ECS::GetDisplayNameFromTypeName(name);
+					if (ImGui::Selectable(displayName))
 					{
 						creationFunction(scene->Registry, *entity);
 					}
@@ -47,8 +48,18 @@ class InspectorPanel : public Panel
 			ImGui::Text(ss.str().c_str());
 			ImGui::InputText("Name", &entity->Name);
 
-			std::vector<std::any *> components = scene->Registry.GetAllComponents(entity->ID);
-			for (std::any *component : components) { Nexus::ECS::RenderComponent(component); }
+			std::vector<Nexus::ECS::ComponentPtr> components = scene->Registry.GetAllComponents(entity->ID);
+			for (Nexus::ECS::ComponentPtr component : components)
+			{
+				const char *displayName = Nexus::ECS::GetDisplayNameFromTypeName(component.typeName);
+				ImGui::Text(displayName);
+
+				ImGui::PushID(component.data);
+				Nexus::ECS::RenderComponent(component);
+				ImGui::PopID();
+
+				ImGui::Separator();
+			}
 
 			ImGui::Button("+");
 			if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0))

@@ -5,6 +5,67 @@
 
 namespace Nexus::ECS
 {
+	struct ComponentPtr
+	{
+		void	   *data	 = nullptr;
+		const char *typeName = nullptr;
+	};
+
+	class IComponentArray
+	{
+	  public:
+		virtual ~IComponentArray()
+		{
+		}
+
+		virtual size_t		 GetComponentCount()				= 0;
+		virtual ComponentPtr GetAbstractComponent(size_t index) = 0;
+	};
+
+	template<typename T>
+	class ComponentArray : public IComponentArray
+	{
+	  public:
+		virtual ~ComponentArray()
+		{
+		}
+
+		size_t GetComponentCount() final
+		{
+			return m_Components.size();
+		}
+
+		ComponentPtr GetAbstractComponent(size_t index) final
+		{
+			const std::type_info &typeInfo = typeid(T);
+			ComponentPtr		  ptr {.data = &m_Components[index], .typeName = typeInfo.name()};
+			return ptr;
+		}
+
+		void AddComponent(const T &component)
+		{
+			m_Components.push_back(component);
+		}
+
+		T *GetComponent(size_t index)
+		{
+			return &m_Components[index];
+		}
+
+		bool IsValidComponent(size_t index)
+		{
+			if (index > m_Components.size() || index == 0)
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+	  private:
+		std::vector<T> m_Components = {};
+	};
+
 	template<typename... Args>
 	class View
 	{
@@ -37,10 +98,11 @@ namespace Nexus::ECS
 		template<typename T>
 		void AddComponent(const Entity &entity, T component)
 		{
-			const char *typeName = typeid(T).name();
-			size_t		position = m_Components[typeName].size();
-			m_Components[typeName].push_back(component);
+			const char		  *typeName	  = typeid(T).name();
+			ComponentArray<T> *components = GetComponentArray<T>();
+			size_t			   position	  = components->GetComponentCount();
 			m_ComponentIds[entity.ID][typeName].push_back(position);
+			components->AddComponent(component);
 		}
 
 		template<typename T>
@@ -51,22 +113,20 @@ namespace Nexus::ECS
 
 			if (entityComponents.size() > 0)
 			{
-				std::vector<std::any> &c = m_Components[typeName];
+				ComponentArray<T> *c = GetComponentArray<T>();
 
-				std::any &type = c.at(entityComponents[0]);
-				if (type.has_value())
+				if (c->IsValidComponent(entityComponents[0]))
 				{
-					T &casted = std::any_cast<T &>(type);
-					return &casted;
+					return c->GetComponent(entityComponents[0]);
 				}
 			}
 
 			return nullptr;
 		}
 
-		std::vector<std::any *> GetAllComponents(GUID guid)
+		std::vector<ComponentPtr> GetAllComponents(GUID guid)
 		{
-			std::vector<std::any *> returnComponents;
+			std::vector<ComponentPtr> returnComponents;
 
 			for (const auto &[id, entityComponents] : m_ComponentIds)
 			{
@@ -77,7 +137,18 @@ namespace Nexus::ECS
 
 				for (const auto &[name, components] : entityComponents)
 				{
-					for (const auto &componentIndex : components) { returnComponents.push_back(&m_Components[name][componentIndex]); }
+					IComponentArray *componentArray = GetBaseComponentArray(name);
+
+					for (const auto &componentIndex : components)
+					{
+						int x = 0;
+						// std::any component = componentArray->GetComponentAsAny(componentIndex);
+						// returnComponents.push_back(component);
+						// returnComponents.push_back(components.GetAbstractComponent(componentIndex));
+
+						ComponentPtr ptr = componentArray->GetAbstractComponent(componentIndex);
+						returnComponents.push_back(ptr);
+					}
 				}
 			}
 
@@ -99,13 +170,11 @@ namespace Nexus::ECS
 
 			for (size_t i = 0; i < entityComponents.size(); i++)
 			{
-				std::vector<std::any> &c	= m_Components[typeName];
-				std::any			  &type = c.at(entityComponents[i]);
-
-				if (type.has_value())
+				ComponentArray<T> *components = GetComponentArray<T>();
+				for (size_t i = 0; i < components->GetComponentCount(); i++)
 				{
-					T &casted = std::any_cast<T &>(type);
-					returnComponents.push_back(&casted);
+					T *casted = components->GetComponent(i);
+					returnComponents.push_back(casted);
 				}
 			}
 
@@ -127,6 +196,8 @@ namespace Nexus::ECS
 					return &m_Entities[i];
 				}
 			}
+
+			return nullptr;
 		}
 
 		std::vector<Entity> &GetEntities()
@@ -160,11 +231,29 @@ namespace Nexus::ECS
 		}
 
 	  private:
+		template<typename T>
+		ComponentArray<T> *GetComponentArray()
+		{
+			const std::type_info &typeInfo = typeid(T);
+			if (m_Components.find(typeInfo.name()) == m_Components.end())
+			{
+				m_Components[typeInfo.name()] = std::make_unique<ComponentArray<T>>();
+			}
+
+			return (ComponentArray<T> *)m_Components[typeInfo.name()].get();
+		}
+
+		IComponentArray *GetBaseComponentArray(const char *typeName)
+		{
+			return m_Components[typeName].get();
+		}
+
+	  private:
 		// vector of entities
 		std::vector<Entity> m_Entities = {};
 
 		// vector of components of each type
-		std::map<const char *, std::vector<std::any>> m_Components = {};
+		std::map<const char *, std::unique_ptr<IComponentArray>> m_Components = {};
 
 		// map of entity ownership
 		std::map<GUID, std::map<const char *, std::vector<size_t>>> m_ComponentIds = {};

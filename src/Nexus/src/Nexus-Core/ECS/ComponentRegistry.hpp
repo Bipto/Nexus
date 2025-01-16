@@ -5,6 +5,8 @@
 
 #include "Nexus-Core/ImGui/ImGuiInclude.hpp"
 
+#include "Nexus-Core/Utils/StringUtils.hpp"
+
 namespace Nexus::ECS
 {
 	struct ComponentSerializers
@@ -16,9 +18,10 @@ namespace Nexus::ECS
 	using CreateComponentFunc = std::function<void(Registry &registry, const Entity &entity)>;
 	using RenderComponentFunc = std::function<void(void *)>;
 
-	std::map<std::type_index, ComponentSerializers> m_RegisteredSerializers;
-	std::map<const char *, CreateComponentFunc>		m_RegisteredComponentCreators;
-	std::map<std::type_index, RenderComponentFunc>	m_RegisteredComponentRenderFunctions;
+	std::map<const char *, ComponentSerializers> m_RegisteredSerializers;
+	std::map<const char *, CreateComponentFunc>	 m_RegisteredComponentCreators;
+	std::map<const char *, RenderComponentFunc>	 m_RegisteredComponentRenderFunctions;
+	std::map<const char *, const char *>		 m_ComponentDisplayNames;
 
 	const std::map<const char *, CreateComponentFunc> &GetAvailableComponents()
 	{
@@ -26,8 +29,11 @@ namespace Nexus::ECS
 	}
 
 	template<typename T>
-	void RegisterComponent(const char *typeName)
+	void RegisterComponent(const char *displayName)
 	{
+		const std::type_info &typeInfo = typeid(T);
+		const char			 *typeName = typeInfo.name();
+
 		ComponentSerializers serializers {.Serializer = [](void *obj) -> std::string
 										  {
 											  T					*actualObj = static_cast<T *>(obj);
@@ -42,26 +48,29 @@ namespace Nexus::ECS
 											  iss >> *obj;
 											  return obj;
 										  }};
-		m_RegisteredSerializers[typeid(T)] = serializers;
+		m_RegisteredSerializers[typeName] = serializers;
 
 		m_RegisteredComponentCreators[typeName] = [](Registry &registry, const Entity &entity) { registry.AddComponent<T>(entity, T {}); };
+		m_ComponentDisplayNames[typeName]		= displayName;
 	}
 
 	template<typename T>
 	void RegisterComponentRenderFunc(RenderComponentFunc renderFunc)
 	{
-		const std::type_info &typeInfo = typeid(T);
-		std::type_index		  typeIndex(typeInfo);
-		m_RegisteredComponentRenderFunctions[typeIndex] = renderFunc;
+		const std::type_info &typeInfo				   = typeid(T);
+		const char			 *typeName				   = typeInfo.name();
+		m_RegisteredComponentRenderFunctions[typeName] = renderFunc;
 	}
 
 	template<typename T>
 	std::string SerializeComponent(T &obj)
 	{
-		std::type_index typeIndex(typeid(T));
-		if (m_RegisteredSerializers.find(typeIndex) != m_RegisteredSerializers.end())
+		const std::type_info &typeInfo = typeid(T);
+		const char			 *typeName = typeInfo.name();
+
+		if (m_RegisteredSerializers.find(typeName) != m_RegisteredSerializers.end())
 		{
-			const ComponentSerializers &serializer = m_RegisteredSerializers.at(typeIndex);
+			const ComponentSerializers &serializer = m_RegisteredSerializers.at(typeName);
 			return serializer.Serializer(&obj);
 		}
 		throw std::runtime_error("Type is not registed for serialization");
@@ -70,10 +79,11 @@ namespace Nexus::ECS
 	template<typename T>
 	T DeserializeComponent(const std::string &data)
 	{
-		std::type_index typeIndex(typeid(T));
-		if (m_RegisteredSerializers.find(typeIndex) != m_RegisteredSerializers.end())
+		const std::type_info &typeInfo = typeid(T);
+		const char			 *typeName = typeInfo.name();
+		if (m_RegisteredSerializers.find(typeName) != m_RegisteredSerializers.end())
 		{
-			const ComponentSerializers &registeredComponent = m_RegisteredSerializers.at(typeIndex);
+			const ComponentSerializers &registeredComponent = m_RegisteredSerializers.at(typeName);
 			void					   *objPtr				= registeredComponent.Deserializer(data);
 			T						   *actualObj			= static_cast<T *>(objPtr);
 			T							result				= *actualObj;
@@ -84,29 +94,65 @@ namespace Nexus::ECS
 		throw std::runtime_error("Type is not registered for deserialization");
 	}
 
+	const char *GetDisplayNameFromTypeName(const char *typeName)
+	{
+		if (m_ComponentDisplayNames.find(typeName) != m_ComponentDisplayNames.end())
+		{
+			return m_ComponentDisplayNames[typeName];
+		}
+
+		throw std::runtime_error("Display name could not be found");
+	}
+
+	const char *GetTypeNameFromDisplayName(const char *displayName)
+	{
+		for (const auto &[typeName, displayName] : m_ComponentDisplayNames)
+		{
+			if (strcmp(typeName, displayName))
+			{
+				return typeName;
+			}
+		}
+
+		throw std::runtime_error("Type does not have a display name");
+	}
+
 	void CreateComponent(const char *typeName, Registry &registry, const Entity &entity)
 	{
 		if (m_RegisteredComponentCreators.find(typeName) != m_RegisteredComponentCreators.end())
 		{
 			m_RegisteredComponentCreators[typeName](registry, entity);
+			return;
 		}
+
+		throw std::runtime_error("Type is not registered for creation");
 	}
 
-	void RenderComponent(std::any *component)
+	void RenderComponent(ComponentPtr component)
 	{
-		const std::type_info &typeInfo = component->type();
-		std::type_index		  typeIndex(typeInfo);
-
-		if (m_RegisteredComponentRenderFunctions.find(typeIndex) != m_RegisteredComponentRenderFunctions.end())
+		if (m_RegisteredComponentRenderFunctions.find(component.typeName) != m_RegisteredComponentRenderFunctions.end())
 		{
-			m_RegisteredComponentRenderFunctions[typeIndex](component);
+			m_RegisteredComponentRenderFunctions[component.typeName](component.data);
+			return;
 		}
+
+		throw std::runtime_error("Type is not registered for rendering");
 	}
 
-#define REGISTER_COMPONENT(T)					Nexus::ECS::RegisterComponent<T>(#T)
-#define REGISTER_COMPONENT_RENDER_FUNC(T, Func) Nexus::ECS::RegisterComponentRenderFunc<T>(Func)
-#define REGISTER_COMPONENT_WITH_RENDER_FUNC(T, Func)                                                                                                 \
-	REGISTER_COMPONENT(T);                                                                                                                           \
-	REGISTER_COMPONENT_RENDER_FUNC(T, Func)
+	const char *GetDisplayName(ComponentPtr component)
+	{
+		if (m_ComponentDisplayNames.find(component.typeName) != m_ComponentDisplayNames.end())
+		{
+			return m_ComponentDisplayNames[component.typeName];
+		}
+
+		throw std::runtime_error("Component does not have a display name");
+	}
+
+#define REGISTER_COMPONENT(Comp, DisplayName)					Nexus::ECS::RegisterComponent<Comp>(DisplayName)
+#define REGISTER_COMPONENT_RENDER_FUNC(Comp, Func)				Nexus::ECS::RegisterComponentRenderFunc<Comp>(Func)
+#define REGISTER_COMPONENT_WITH_RENDER_FUNC(Comp, DisplayName, Func)                                                                                 \
+	REGISTER_COMPONENT(Comp, DisplayName);                                                                                                           \
+	REGISTER_COMPONENT_RENDER_FUNC(Comp, Func)
 
 }	 // namespace Nexus::ECS

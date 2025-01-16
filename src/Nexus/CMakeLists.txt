@@ -275,7 +275,9 @@ list (APPEND ENGINE_SOURCES
   src/Nexus-Core/Utils/FramerateMonitor.hpp
   src/Nexus-Core/Utils/GUID.hpp
   src/Nexus-Core/Utils/Utils.cpp
-  src/Nexus-Core/Utils/Utils.hpp)
+  src/Nexus-Core/Utils/Utils.hpp
+  src/Nexus-Core/Utils/StringUtils.cpp
+  src/Nexus-Core/Utils/StringUtils.hpp)
 
 if (DEFINED NX_PLATFORM_D3D12)
   list (APPEND ENGINE_SOURCES
