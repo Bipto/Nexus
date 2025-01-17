@@ -11,7 +11,7 @@ namespace Nexus::ECS
 {
 	struct ComponentSerializers
 	{
-		std::function<std::string(void *)>											Serializer;
+		std::function<std::string(void *obj)>										Serializer;
 		std::function<void(GUID guid, Registry &registry, const std::string &data)> Deserializer;
 	};
 
@@ -64,14 +64,23 @@ namespace Nexus::ECS
 		m_RegisteredComponentRenderFunctions[typeName] = renderFunc;
 	}
 
-	inline std::string SerializeComponent(ComponentPtr component)
+	template<typename T>
+	inline void RegisterComponentWithRenderFunc(const char *displayName, RenderComponentFunc renderFunc)
+	{
+		RegisterComponent<T>(displayName);
+		RegisterComponentRenderFunc<T>(renderFunc);
+	}
+
+	inline std::string SerializeComponent(Registry &registry, ComponentPtr component)
 	{
 		const char *typeName = component.typeName;
 
 		if (m_RegisteredSerializers.find(typeName) != m_RegisteredSerializers.end())
 		{
+			void *obj = registry.GetRawComponent(component.typeName, component.componentIndex);
+
 			const ComponentSerializers &serializer = m_RegisteredSerializers.at(typeName);
-			return serializer.Serializer(component.data);
+			return serializer.Serializer(obj);
 		}
 		throw std::runtime_error("Type is not registed for serialization");
 	}
@@ -122,11 +131,12 @@ namespace Nexus::ECS
 		throw std::runtime_error("Type is not registered for creation");
 	}
 
-	inline void RenderComponent(ComponentPtr component)
+	inline void RenderComponent(Registry &registry, ComponentPtr component)
 	{
 		if (m_RegisteredComponentRenderFunctions.find(component.typeName) != m_RegisteredComponentRenderFunctions.end())
 		{
-			m_RegisteredComponentRenderFunctions[component.typeName](component.data);
+			void *obj = registry.GetRawComponent(component.typeName, component.componentIndex);
+			m_RegisteredComponentRenderFunctions[component.typeName](obj);
 			return;
 		}
 
@@ -145,8 +155,6 @@ namespace Nexus::ECS
 
 #define REGISTER_COMPONENT(Comp, DisplayName)	   Nexus::ECS::RegisterComponent<Comp>(DisplayName)
 #define REGISTER_COMPONENT_RENDER_FUNC(Comp, Func) Nexus::ECS::RegisterComponentRenderFunc<Comp>(Func)
-#define REGISTER_COMPONENT_WITH_RENDER_FUNC(Comp, DisplayName, Func)                                                                                 \
-	REGISTER_COMPONENT(Comp, DisplayName);                                                                                                           \
-	REGISTER_COMPONENT_RENDER_FUNC(Comp, Func)
+#define REGISTER_COMPONENT_WITH_RENDER_FUNC(Comp, DisplayName, Func) Nexus::ECS::RegisterComponentWithRenderFunc<Comp>(DisplayName, Func);
 
 }	 // namespace Nexus::ECS

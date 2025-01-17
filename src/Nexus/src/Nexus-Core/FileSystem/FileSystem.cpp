@@ -24,7 +24,7 @@ void Nexus::FileSystem::WriteFileAbsolute(const std::string &filepath, const std
 	std::filesystem::path path		= {filepath};
 	std::filesystem::path directory = path.parent_path();
 
-	if (!std::filesystem::exists(directory))
+	if (!directory.empty() && !std::filesystem::exists(directory))
 	{
 		std::filesystem::create_directories(directory);
 	}

@@ -152,7 +152,7 @@ namespace Nexus
 				for (ECS::ComponentPtr component : components)
 				{
 					out << YAML::BeginMap;
-					std::string output = ECS::SerializeComponent(component);
+					std::string output = ECS::SerializeComponent(Registry, component);
 
 					out << YAML::Key << "Entity" << YAML::Value << e.ID.Value;
 					out << YAML::Key << "Name" << YAML::Value << component.typeName;

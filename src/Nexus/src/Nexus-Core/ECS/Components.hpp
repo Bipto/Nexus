@@ -6,15 +6,35 @@
 #include "Registry.hpp"
 
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
+#include "Nexus-Core/Graphics/MeshFactory.hpp"
 #include "Nexus-Core/Graphics/Model.hpp"
+#include "Nexus-Core/Runtime.hpp"
 
 namespace Nexus
 {
 	struct Transform
 	{
-		glm::vec3 Position = {};
-		glm::vec3 Rotation = {};
-		glm::vec3 Scale	   = {};
+		glm::vec3 Position = glm::vec3(0.0f, 0.0f, 0.0f);
+		glm::vec3 Rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+		glm::vec3 Scale	   = glm::vec3(1.0f, 1.0f, 1.0f);
+
+		glm::mat4 CreateTransformation()
+		{
+			glm::mat4 transformation(1.0f);
+
+			// apply translation
+			transformation = glm::translate(transformation, Position);
+
+			// apply rotation
+			transformation = glm::rotate(transformation, glm::radians(Rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+			transformation = glm::rotate(transformation, glm::radians(Rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+			transformation = glm::rotate(transformation, glm::radians(Rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+
+			// apply scale
+			transformation = glm::scale(transformation, Scale);
+
+			return transformation;
+		}
 
 		friend std::ostream &operator<<(std::ostream &os, const Transform &transform)
 		{
@@ -48,10 +68,23 @@ namespace Nexus
 		friend std::istream &operator>>(std::istream &is, ModelRenderer &modelRenderer)
 		{
 			is >> modelRenderer.FilePath;
+
+			if (!modelRenderer.FilePath.empty())
+			{
+				if (std::filesystem::exists(modelRenderer.FilePath))
+				{
+					Graphics::MeshFactory factory(Nexus::GetApplication()->GetGraphicsDevice());
+					modelRenderer.Model = factory.CreateFrom3DModelFile(modelRenderer.FilePath);
+				}
+			}
+
 			return is;
 		}
 	};
 
 }	 // namespace Nexus
 
-void RegisterDefaultComponents();
+namespace Nexus::Components
+{
+	void RegisterDefaultComponents();
+}

@@ -253,7 +253,7 @@ namespace Nexus
 	  private:
 		Graphics::GraphicsDevice *m_Device = nullptr;
 		glm::vec3 m_Position {0.0f, 0.0f, 5.0f};
-		glm::vec3 m_Front {0.0f, 0.0f, 1.0f};
+		glm::vec3				  m_Front {0.0f, 0.0f, -1.0f};
 		glm::vec3 m_Up {0.0f, 1.0f, 0.0f};
 
 		glm::mat4 m_Projection;

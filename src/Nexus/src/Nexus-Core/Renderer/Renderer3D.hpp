@@ -38,7 +38,7 @@ namespace Nexus::Graphics
 
 	  private:
 		void RenderCubemap();
-		void RenderModel(Nexus::Ref<Nexus::Graphics::Model> model);
+		void RenderModel(Nexus::Ref<Nexus::Graphics::Model> model, const glm::mat4 transform);
 		void CreateCubemapPipeline();
 		void CreateModelPipeline();
 

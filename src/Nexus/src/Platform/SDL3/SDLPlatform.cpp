@@ -503,7 +503,7 @@ namespace Nexus::Platform
 
 	void Initialise()
 	{
-		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD) != 0)
+		if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD))
 		{
 			NX_LOG("Could not initialize SDL");
 		}

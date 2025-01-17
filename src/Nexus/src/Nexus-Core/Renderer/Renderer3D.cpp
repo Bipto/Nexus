@@ -1,5 +1,6 @@
 #include "Renderer3D.hpp"
 
+#include "Nexus-Core/ECS/Components.hpp"
 #include "Nexus-Core/Graphics/MeshFactory.hpp"
 
 const std::string c_CubemapVertexShader = R"(
@@ -96,8 +97,8 @@ layout (binding = 2, set = 1) uniform sampler2D specularMapSampler;
 
 void main()
 {
-	vec3 objectColor = texture(diffuseMapSampler, OutTexCoord).rgb;
-    FragColor = vec4(objectColor, 1.0);
+	vec4 objectColor = texture(diffuseMapSampler, OutTexCoord);
+    FragColor = vec4(objectColor.rgb, objectColor.a);
 })";
 
 namespace Nexus::Graphics
@@ -141,12 +142,20 @@ namespace Nexus::Graphics
 		modelCameraUniforms.CamPosition			= m_Camera.GetPosition();
 		m_ModelCameraUniformBuffer->SetData(&modelCameraUniforms, sizeof(modelCameraUniforms));
 
-		ModelTransformUniforms modelTransformUniforms = {};
-		modelTransformUniforms.Transform			  = glm::mat4(1.0f);
-		m_ModelTransformUniformBuffer->SetData(&modelTransformUniforms, sizeof(modelTransformUniforms));
-
 		RenderCubemap();
-		// for (Nexus::Ref<Nexus::Graphics::Model> model : m_Scene.Models) { RenderModel(model); }
+
+		ECS::View<Transform, ModelRenderer> transformsModelRenderers = m_Scene->Registry.GetView<Transform, ModelRenderer>();
+		transformsModelRenderers.Each(
+			[&](Entity *entity, const std::tuple<Transform *, ModelRenderer *> &components)
+			{
+				Transform	  *transform	 = std::get<0>(components);
+				ModelRenderer *modelRenderer = std::get<1>(components);
+
+				if (modelRenderer->Model)
+				{
+					RenderModel(modelRenderer->Model, transform->CreateTransformation());
+				}
+			});
 	}
 
 	void Renderer3D::RenderCubemap()
@@ -195,67 +204,69 @@ namespace Nexus::Graphics
 		m_Device->SubmitCommandList(m_CommandList);
 	}
 
-	void Renderer3D::RenderModel(Nexus::Ref<Nexus::Graphics::Model> model)
+	void Renderer3D::RenderModel(Nexus::Ref<Nexus::Graphics::Model> model, const glm::mat4 transform)
 	{
 		if (model->GetMeshes().empty())
 		{
 			return;
 		}
 
-		Nexus::Point2D<uint32_t> size = m_RenderTarget.GetSize();
-		m_CommandList->Begin();
-		m_CommandList->SetRenderTarget(m_RenderTarget);
-
-		Nexus::Graphics::Viewport vp;
-		vp.X		= 0;
-		vp.Y		= 0;
-		vp.Width	= size.X;
-		vp.Height	= size.Y;
-		vp.MinDepth = 0.0f;
-		vp.MaxDepth = 1.0f;
-		m_CommandList->SetViewport(vp);
-
-		Nexus::Graphics::Scissor scissor;
-		scissor.X	   = 0;
-		scissor.Y	   = 0;
-		scissor.Width  = size.X;
-		scissor.Height = size.Y;
-		m_CommandList->SetScissor(scissor);
-
-		m_CommandList->SetPipeline(m_ModelPipeline);
-		m_ModelResourceSet->WriteUniformBuffer(m_ModelCameraUniformBuffer, "Camera");
-		m_ModelResourceSet->WriteUniformBuffer(m_ModelTransformUniformBuffer, "Transform");
-
-		// TODO: This needs to be more flexible
-		const Nexus::Graphics::Material &mat = model->GetMeshes()[0]->GetMaterial();
-
-		if (mat.DiffuseTexture)
+		for (const auto &mesh : model->GetMeshes())
 		{
-			m_ModelResourceSet->WriteCombinedImageSampler(mat.DiffuseTexture, m_ModelSampler, "diffuseMapSampler");
-		}
+			ModelTransformUniforms modelTransformUniforms = {};
+			modelTransformUniforms.Transform			  = transform;
+			m_ModelTransformUniformBuffer->SetData(&modelTransformUniforms, sizeof(modelTransformUniforms));
 
-		if (mat.NormalTexture)
-		{
-			m_ModelResourceSet->WriteCombinedImageSampler(mat.NormalTexture, m_ModelSampler, "normalMapSampler");
-		}
+			const Nexus::Graphics::Material &mat = mesh->GetMaterial();
 
-		if (mat.SpecularTexture)
-		{
-			m_ModelResourceSet->WriteCombinedImageSampler(mat.SpecularTexture, m_ModelSampler, "specularMapSampler");
-		}
+			if (mat.DiffuseTexture)
+			{
+				m_ModelResourceSet->WriteCombinedImageSampler(mat.DiffuseTexture, m_ModelSampler, "diffuseMapSampler");
+			}
 
-		m_CommandList->SetResourceSet(m_ModelResourceSet);
+			if (mat.NormalTexture)
+			{
+				m_ModelResourceSet->WriteCombinedImageSampler(mat.NormalTexture, m_ModelSampler, "normalMapSampler");
+			}
 
-		const auto &meshes = model->GetMeshes();
-		for (auto mesh : meshes)
-		{
+			if (mat.SpecularTexture)
+			{
+				m_ModelResourceSet->WriteCombinedImageSampler(mat.SpecularTexture, m_ModelSampler, "specularMapSampler");
+			}
+
+			Nexus::Point2D<uint32_t> size = m_RenderTarget.GetSize();
+			m_CommandList->Begin();
+			m_CommandList->SetRenderTarget(m_RenderTarget);
+
+			Nexus::Graphics::Viewport vp;
+			vp.X		= 0;
+			vp.Y		= 0;
+			vp.Width	= size.X;
+			vp.Height	= size.Y;
+			vp.MinDepth = 0.0f;
+			vp.MaxDepth = 1.0f;
+			m_CommandList->SetViewport(vp);
+
+			Nexus::Graphics::Scissor scissor;
+			scissor.X	   = 0;
+			scissor.Y	   = 0;
+			scissor.Width  = size.X;
+			scissor.Height = size.Y;
+			m_CommandList->SetScissor(scissor);
+
+			m_CommandList->SetPipeline(m_ModelPipeline);
+			m_ModelResourceSet->WriteUniformBuffer(m_ModelCameraUniformBuffer, "Camera");
+			m_ModelResourceSet->WriteUniformBuffer(m_ModelTransformUniformBuffer, "Transform");
+
+			m_CommandList->SetResourceSet(m_ModelResourceSet);
+
 			m_CommandList->SetVertexBuffer(mesh->GetVertexBuffer(), 0);
 			m_CommandList->SetIndexBuffer(mesh->GetIndexBuffer());
 			m_CommandList->DrawIndexed(mesh->GetIndexBuffer()->GetCount(), 0, 0);
-		}
 
-		m_CommandList->End();
-		m_Device->SubmitCommandList(m_CommandList);
+			m_CommandList->End();
+			m_Device->SubmitCommandList(m_CommandList);
+		}
 	}
 
 	void Renderer3D::CreateCubemapPipeline()
@@ -319,6 +330,14 @@ namespace Nexus::Graphics
 		pipelineDescription.ColourTargetCount		= 1;
 		pipelineDescription.ColourFormats[0]		= Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
 		pipelineDescription.ColourTargetSampleCount = Nexus::Graphics::SampleCount::SampleCount1;
+
+		pipelineDescription.BlendStateDesc.EnableBlending		  = true;
+		pipelineDescription.BlendStateDesc.SourceColourBlend	  = Nexus::Graphics::BlendFactor::SourceAlpha;
+		pipelineDescription.BlendStateDesc.DestinationColourBlend = Nexus::Graphics::BlendFactor::OneMinusSourceAlpha;
+		pipelineDescription.BlendStateDesc.ColorBlendFunction	  = Nexus::Graphics::BlendEquation::Add;
+		pipelineDescription.BlendStateDesc.SourceAlphaBlend		  = Nexus::Graphics::BlendFactor::One;
+		pipelineDescription.BlendStateDesc.DestinationAlphaBlend  = Nexus::Graphics::BlendFactor::Zero;
+		pipelineDescription.BlendStateDesc.AlphaBlendFunction	  = Nexus::Graphics::BlendEquation::Add;
 
 		m_ModelPipeline	   = m_Device->CreatePipeline(pipelineDescription);
 		m_ModelResourceSet = m_Device->CreateResourceSet(m_ModelPipeline);

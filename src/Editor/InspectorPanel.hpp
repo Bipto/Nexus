@@ -4,6 +4,12 @@
 
 #include "Nexus-Core/ECS/ComponentRegistry.hpp"
 
+struct ComponentToAdd
+{
+	Nexus::ECS::CreateComponentFunc createFunc = nullptr;
+	Nexus::Entity				   *entity	   = nullptr;
+};
+
 struct ComponentToRemove
 {
 	Nexus::GUID EntityID	   = {};
@@ -41,7 +47,8 @@ class InspectorPanel : public Panel
 					std::string displayName = Nexus::ECS::GetDisplayNameFromTypeName(name);
 					if (ImGui::Selectable(displayName.c_str()))
 					{
-						creationFunction(scene->Registry, *entity);
+						ComponentToAdd newComponent = {.createFunc = creationFunction, .entity = entity};
+						m_ComponentsToAdd.push_back(newComponent);
 					}
 				}
 
@@ -57,11 +64,12 @@ class InspectorPanel : public Panel
 			std::vector<Nexus::ECS::ComponentPtr> components = scene->Registry.GetAllComponents(entity->ID);
 			for (Nexus::ECS::ComponentPtr component : components)
 			{
-				ImGui::PushID(component.data);
+				void *obj = scene->Registry.GetRawComponent(component);
+				ImGui::PushID(obj);
 				std::string displayName = Nexus::ECS::GetDisplayNameFromTypeName(component.typeName);
 				ImGui::Text(displayName.c_str());
 
-				Nexus::ECS::RenderComponent(component);
+				Nexus::ECS::RenderComponent(scene->Registry, component);
 
 				if (ImGui::Button("Remove"))
 				{
@@ -86,7 +94,7 @@ class InspectorPanel : public Panel
 
 	void Update() final
 	{
-		if (!m_Project && !m_Project->IsSceneLoaded() && m_ComponentsToRemove.size() > 0)
+		if (!m_Project || !m_Project->IsSceneLoaded())
 		{
 			return;
 		}
@@ -95,13 +103,16 @@ class InspectorPanel : public Panel
 
 		for (const auto &component : m_ComponentsToRemove)
 		{
-			int x = 0;
 			scene->Registry.RemoveComponent(component.EntityID, component.TypeName, component.ComponentIndex);
 		}
 
+		for (auto &component : m_ComponentsToAdd) { component.createFunc(scene->Registry, *component.entity); }
+
+		m_ComponentsToAdd.clear();
 		m_ComponentsToRemove.clear();
 	}
 
   private:
+	std::vector<ComponentToAdd>	   m_ComponentsToAdd	= {};
 	std::vector<ComponentToRemove> m_ComponentsToRemove = {};
 };

@@ -7,7 +7,6 @@ namespace Nexus::ECS
 {
 	struct ComponentPtr
 	{
-		void	   *data	 = nullptr;
 		const char *typeName = nullptr;
 		size_t		componentIndex = 0;
 	};
@@ -21,6 +20,7 @@ namespace Nexus::ECS
 
 		virtual size_t		 GetComponentCount()				= 0;
 		virtual ComponentPtr GetAbstractComponent(size_t index) = 0;
+		virtual void		*GetRawComponent(size_t index)		= 0;
 		virtual void		 RemoveComponent(size_t index)		= 0;
 	};
 
@@ -40,9 +40,14 @@ namespace Nexus::ECS
 		ComponentPtr GetAbstractComponent(size_t index) final
 		{
 			const std::type_info &typeInfo = typeid(T);
-			ComponentPtr		  ptr {.data = &m_Components[index], .typeName = typeInfo.name(), .componentIndex = index};
-
+			std::string			  typeName = typeInfo.name();
+			ComponentPtr		  ptr {.typeName = typeInfo.name(), .componentIndex = index};
 			return ptr;
+		}
+
+		void *GetRawComponent(size_t index) final
+		{
+			return &m_Components[index];
 		}
 
 		virtual void RemoveComponent(size_t index) final
@@ -84,6 +89,39 @@ namespace Nexus::ECS
 		{
 		}
 
+		std::vector<Entity *> GetEntities() const
+		{
+			std::vector<Entity *> entities;
+			for (const auto &[entity, component] : m_EntityComponents) { entities.push_back(entity); }
+			return entities;
+		}
+
+		std::vector<std::tuple<Args *...>> GetComponents(Entity *entity) const
+		{
+			for (const auto &[entityPtr, components] : m_EntityComponents)
+			{
+				if (entity->ID.Value == entityPtr->ID.Value)
+				{
+					return components;
+				}
+			}
+
+			return {};
+		}
+
+		template<typename Func>
+		void Each(Func func)
+		{
+			for (auto &[entity, components] : m_EntityComponents)
+			{
+				for (const auto &component : components)
+				{
+					int x = 0;
+					func(entity, component);
+				}
+			}
+		}
+
 	  private:
 		std::vector<std::pair<Entity *, std::vector<std::tuple<Args *...>>>> m_EntityComponents = {};
 	};
@@ -113,13 +151,50 @@ namespace Nexus::ECS
 			components->AddComponent(component);
 		}
 
+		template<typename T>
+		T *GetComponent(size_t index)
+		{
+			const char		  *typeName	  = typeid(T).name();
+			ComponentArray<T> *components = GetComponentArray<T>();
+			T				  *component  = components->GetComponent<T>(index);
+			return component;
+		}
+
+		void *GetRawComponent(const std::string &typeName, size_t index)
+		{
+			IComponentArray *components = GetBaseComponentArray(typeName.c_str());
+			return components->GetRawComponent(index);
+		}
+
+		void *GetRawComponent(ComponentPtr component)
+		{
+			return GetRawComponent(component.typeName, component.componentIndex);
+		}
+
 		void RemoveComponent(GUID guid, const std::string name, size_t index)
 		{
 			IComponentArray *components = GetBaseComponentArray(name.c_str());
+			if (!components)
+			{
+				return;
+			}
+
 			components->RemoveComponent(index);
 
 			std::vector<size_t> &ids = m_ComponentIds[guid][name.c_str()];
-			ids.erase(ids.begin() + index);
+
+			size_t removeIndex = 0;
+			for (const auto &id : ids)
+			{
+				if (id == index)
+				{
+					break;
+				}
+
+				removeIndex++;
+			}
+
+			ids.erase(ids.begin() + removeIndex);
 		}
 
 		template<typename T>
@@ -155,6 +230,12 @@ namespace Nexus::ECS
 				for (const auto &[name, components] : entityComponents)
 				{
 					IComponentArray *componentArray = GetBaseComponentArray(name);
+
+					if (!componentArray)
+					{
+						continue;
+						;
+					}
 
 					for (const auto &componentIndex : components)
 					{
@@ -249,15 +330,22 @@ namespace Nexus::ECS
 			const std::type_info &typeInfo = typeid(T);
 			if (m_Components.find(typeInfo.name()) == m_Components.end())
 			{
-				m_Components[typeInfo.name()] = std::make_unique<ComponentArray<T>>();
+				m_Components[typeInfo.name()] = new ComponentArray<T>();
 			}
 
-			return (ComponentArray<T> *)m_Components[typeInfo.name()].get();
+			IComponentArray *components = m_Components[typeInfo.name()];
+
+			return (ComponentArray<T> *)components;
 		}
 
 		IComponentArray *GetBaseComponentArray(const std::string &typeName)
 		{
-			return m_Components[typeName].get();
+			if (m_Components.find(typeName) == m_Components.end())
+			{
+				return nullptr;
+			}
+
+			return m_Components[typeName];
 		}
 
 	  private:
@@ -265,7 +353,7 @@ namespace Nexus::ECS
 		std::vector<Entity> m_Entities = {};
 
 		// vector of components of each type
-		std::map<std::string, std::unique_ptr<IComponentArray>> m_Components = {};
+		std::map<std::string, IComponentArray *> m_Components = {};
 
 		// map of entity ownership
 		std::map<GUID, std::map<std::string, std::vector<size_t>>> m_ComponentIds = {};

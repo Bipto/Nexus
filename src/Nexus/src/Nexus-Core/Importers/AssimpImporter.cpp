@@ -137,6 +137,35 @@ namespace Nexus
 		return materials;
 	}
 
+	aiMatrix4x4 GlmToAssimpMat4(const glm::mat4 &matrix)
+	{
+		aiMatrix4x4 result;
+		for (int i = 0; i < 4; ++i)
+		{
+			for (int j = 0; j < 4; j++) { result[i][j] = matrix[i][j]; }
+		}
+
+		return result;
+	}
+
+	void RotateScene(aiNode *node, const glm::mat4 &rotationMatrix)
+	{
+		aiMatrix4x4 transform = node->mTransformation;
+		aiMatrix4x4 rotation  = GlmToAssimpMat4(rotationMatrix);
+		node->mTransformation = transform * rotation;
+
+		for (unsigned int i = 0; i < node->mNumChildren; i++) { RotateScene(node->mChildren[i], rotationMatrix); }
+	}
+
+	void RotateBy180Degrees(aiScene *scene)
+	{
+		if (scene->mRootNode)
+		{
+			glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+			RotateScene(scene->mRootNode, rotationMatrix);
+		}
+	}
+
 	Ref<Graphics::Model> AssimpImporter::Import(const std::string &filepath, Graphics::GraphicsDevice *device)
 	{
 		std::vector<Ref<Graphics::Mesh>> meshes;
@@ -146,7 +175,7 @@ namespace Nexus
 							 aiProcess_ImproveCacheLocality | aiProcess_CalcTangentSpace | aiProcess_ValidateDataStructure | aiProcess_FindInstances |
 							 aiProcess_GlobalScale | aiProcess_PreTransformVertices | aiProcess_TransformUVCoords | aiProcess_FixInfacingNormals;
 
-		const aiScene *scene = importer.ReadFile(filepath, flags);
+		aiScene *scene = (aiScene *)importer.ReadFile(filepath, flags);
 
 		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 		{
@@ -155,6 +184,8 @@ namespace Nexus
 			NX_ERROR(errorMessage.c_str());
 			return {};
 		}
+
+		RotateBy180Degrees(scene);
 
 		std::filesystem::path			path	  = filepath;
 		std::vector<Graphics::Material> materials = ImportMaterials(scene, path.parent_path().string(), device);

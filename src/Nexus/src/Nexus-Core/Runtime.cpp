@@ -55,7 +55,7 @@ namespace Nexus
 	void Init(int argc, char **argv)
 	{
 		Platform::Initialise();
-		RegisterDefaultComponents();
+		Nexus::Components::RegisterDefaultComponents();
 	}
 
 	void Shutdown()

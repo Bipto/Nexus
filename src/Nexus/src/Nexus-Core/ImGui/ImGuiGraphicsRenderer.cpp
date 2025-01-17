@@ -79,55 +79,13 @@ namespace Nexus::ImGuiUtils
 		auto vertexSource	= GetImGuiShaderVertexSource();
 		auto fragmentSource = GetImGuiShaderFragmentSource();
 
-		auto vertexModule =
+		m_VertexShader =
 			m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvSource(vertexSource, "ImGui.vert.glsl", Nexus::Graphics::ShaderStage::Vertex);
-		auto fragmentModule =
+		m_FragmentShader =
 			m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvSource(fragmentSource, "ImGui.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 
-		Nexus::Graphics::PipelineDescription pipelineDesc;
-
-		pipelineDesc.VertexModule	= vertexModule;
-		pipelineDesc.FragmentModule = fragmentModule;
-
-		pipelineDesc.ColourFormats[0]		 = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
-		pipelineDesc.ColourTargetCount		 = 1;
-		pipelineDesc.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification().Samples;
-		pipelineDesc.DepthFormat			 = Graphics::PixelFormat::D24_UNorm_S8_UInt;
-
-		pipelineDesc.BlendStateDesc.EnableBlending		   = true;
-		pipelineDesc.BlendStateDesc.SourceColourBlend	   = Nexus::Graphics::BlendFactor::SourceAlpha;
-		pipelineDesc.BlendStateDesc.DestinationColourBlend = Nexus::Graphics::BlendFactor::OneMinusSourceAlpha;
-		pipelineDesc.BlendStateDesc.ColorBlendFunction	   = Nexus::Graphics::BlendEquation::Add;
-		pipelineDesc.BlendStateDesc.SourceAlphaBlend	   = Nexus::Graphics::BlendFactor::One;
-		pipelineDesc.BlendStateDesc.DestinationAlphaBlend  = Nexus::Graphics::BlendFactor::OneMinusSourceAlpha;
-		pipelineDesc.BlendStateDesc.AlphaBlendFunction	   = Nexus::Graphics::BlendEquation::Add;
-
-		pipelineDesc.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::CullNone;
-		pipelineDesc.RasterizerStateDesc.TriangleFillMode  = Nexus::Graphics::FillMode::Solid;
-		pipelineDesc.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
-
-		pipelineDesc.DepthStencilDesc.DepthComparisonFunction	= Nexus::Graphics::ComparisonFunction::AlwaysPass;
-		pipelineDesc.DepthStencilDesc.EnableDepthTest			= false;
-		pipelineDesc.DepthStencilDesc.EnableDepthWrite			= false;
-		pipelineDesc.DepthStencilDesc.EnableStencilTest			= false;
-		pipelineDesc.DepthStencilDesc.StencilComparisonFunction = Nexus::Graphics::ComparisonFunction::AlwaysPass;
-
-		pipelineDesc.Layouts = {{{Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
-								 {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
-								 {Nexus::Graphics::ShaderDataType::NormByte4, "TEXCOORD"}}};
-
-		Nexus::Graphics::BufferDescription uniformBufferDesc;
-		uniformBufferDesc.Size	= sizeof(glm::mat4);
-		uniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
-		m_UniformBuffer			= m_GraphicsDevice->CreateUniformBuffer(uniformBufferDesc, nullptr);
-
-		Nexus::Graphics::ResourceSetSpecification resources;
-		resources += vertexModule->GetResourceSetSpecification();
-		resources += fragmentModule->GetResourceSetSpecification();
-
-		pipelineDesc.ResourceSetSpec = resources;
-
-		m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDesc);
+		CreateTextPipeline();
+		CreateImagePipeline();
 
 		Nexus::Graphics::SamplerSpecification samplerSpec;
 		samplerSpec.AddressModeU = Nexus::Graphics::SamplerAddressMode::Wrap;
@@ -357,6 +315,89 @@ namespace Nexus::ImGuiUtils
 		}
 	}
 
+	void ImGuiGraphicsRenderer::CreateTextPipeline()
+	{
+		Nexus::Graphics::PipelineDescription pipelineDesc;
+
+		pipelineDesc.VertexModule	= m_VertexShader;
+		pipelineDesc.FragmentModule = m_FragmentShader;
+
+		pipelineDesc.ColourFormats[0]		 = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
+		pipelineDesc.ColourTargetCount		 = 1;
+		pipelineDesc.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification().Samples;
+		pipelineDesc.DepthFormat			 = Graphics::PixelFormat::D24_UNorm_S8_UInt;
+
+		pipelineDesc.BlendStateDesc.EnableBlending		   = true;
+		pipelineDesc.BlendStateDesc.SourceColourBlend	   = Nexus::Graphics::BlendFactor::SourceAlpha;
+		pipelineDesc.BlendStateDesc.DestinationColourBlend = Nexus::Graphics::BlendFactor::OneMinusSourceAlpha;
+		pipelineDesc.BlendStateDesc.ColorBlendFunction	   = Nexus::Graphics::BlendEquation::Add;
+		pipelineDesc.BlendStateDesc.SourceAlphaBlend	   = Nexus::Graphics::BlendFactor::One;
+		pipelineDesc.BlendStateDesc.DestinationAlphaBlend  = Nexus::Graphics::BlendFactor::OneMinusSourceAlpha;
+		pipelineDesc.BlendStateDesc.AlphaBlendFunction	   = Nexus::Graphics::BlendEquation::Add;
+
+		pipelineDesc.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::CullNone;
+		pipelineDesc.RasterizerStateDesc.TriangleFillMode  = Nexus::Graphics::FillMode::Solid;
+		pipelineDesc.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
+
+		pipelineDesc.DepthStencilDesc.DepthComparisonFunction	= Nexus::Graphics::ComparisonFunction::AlwaysPass;
+		pipelineDesc.DepthStencilDesc.EnableDepthTest			= false;
+		pipelineDesc.DepthStencilDesc.EnableDepthWrite			= false;
+		pipelineDesc.DepthStencilDesc.EnableStencilTest			= false;
+		pipelineDesc.DepthStencilDesc.StencilComparisonFunction = Nexus::Graphics::ComparisonFunction::AlwaysPass;
+
+		pipelineDesc.Layouts = {{{Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
+								 {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
+								 {Nexus::Graphics::ShaderDataType::NormByte4, "TEXCOORD"}}};
+
+		Nexus::Graphics::BufferDescription uniformBufferDesc;
+		uniformBufferDesc.Size	= sizeof(glm::mat4);
+		uniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
+		m_UniformBuffer			= m_GraphicsDevice->CreateUniformBuffer(uniformBufferDesc, nullptr);
+
+		Nexus::Graphics::ResourceSetSpecification resources;
+		resources += m_VertexShader->GetResourceSetSpecification();
+		resources += m_FragmentShader->GetResourceSetSpecification();
+
+		pipelineDesc.ResourceSetSpec = resources;
+		m_TextPipeline				 = m_GraphicsDevice->CreatePipeline(pipelineDesc);
+	}
+
+	void ImGuiGraphicsRenderer::CreateImagePipeline()
+	{
+		Nexus::Graphics::PipelineDescription pipelineDesc;
+
+		pipelineDesc.VertexModule	= m_VertexShader;
+		pipelineDesc.FragmentModule = m_FragmentShader;
+
+		pipelineDesc.ColourFormats[0]		 = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
+		pipelineDesc.ColourTargetCount		 = 1;
+		pipelineDesc.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification().Samples;
+		pipelineDesc.DepthFormat			 = Graphics::PixelFormat::D24_UNorm_S8_UInt;
+
+		pipelineDesc.BlendStateDesc.EnableBlending = false;
+
+		pipelineDesc.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::CullNone;
+		pipelineDesc.RasterizerStateDesc.TriangleFillMode  = Nexus::Graphics::FillMode::Solid;
+		pipelineDesc.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
+
+		pipelineDesc.DepthStencilDesc.DepthComparisonFunction	= Nexus::Graphics::ComparisonFunction::AlwaysPass;
+		pipelineDesc.DepthStencilDesc.EnableDepthTest			= false;
+		pipelineDesc.DepthStencilDesc.EnableDepthWrite			= false;
+		pipelineDesc.DepthStencilDesc.EnableStencilTest			= false;
+		pipelineDesc.DepthStencilDesc.StencilComparisonFunction = Nexus::Graphics::ComparisonFunction::AlwaysPass;
+
+		pipelineDesc.Layouts = {{{Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
+								 {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
+								 {Nexus::Graphics::ShaderDataType::NormByte4, "TEXCOORD"}}};
+
+		Nexus::Graphics::ResourceSetSpecification resources;
+		resources += m_VertexShader->GetResourceSetSpecification();
+		resources += m_FragmentShader->GetResourceSetSpecification();
+
+		pipelineDesc.ResourceSetSpec = resources;
+		m_ImagePipeline				 = m_GraphicsDevice->CreatePipeline(pipelineDesc);
+	}
+
 	void ImGuiGraphicsRenderer::RebuildFontAtlas()
 	{
 		auto		  &io = ImGui::GetIO();
@@ -383,7 +424,7 @@ namespace Nexus::ImGuiUtils
 	{
 		auto id = (ImTextureID)m_TextureID++;
 
-		auto resourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
+		auto resourceSet = m_GraphicsDevice->CreateResourceSet(m_TextPipeline);
 		// resourceSet->WriteCombinedImageSampler(texture, m_Sampler, "Texture");
 
 		m_Textures.insert({id, texture});
@@ -609,21 +650,12 @@ namespace Nexus::ImGuiUtils
 		ImGuiWindowInfo *info = (ImGuiWindowInfo *)drawData->OwnerViewport->PlatformUserData;
 
 		m_CommandList->Begin();
-		m_CommandList->SetPipeline(m_Pipeline);
-		m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(info->Swapchain));
-		m_CommandList->SetVertexBuffer(m_VertexBuffer, 0);
-		m_CommandList->SetIndexBuffer(m_IndexBuffer);
 
 		ImVec2 pos = drawData->DisplayPos;
 
 		auto	 &io  = ImGui::GetIO();
 		glm::mat4 mvp = glm::ortho<float>(pos.x, pos.x + drawData->DisplaySize.x, pos.y + drawData->DisplaySize.y, pos.y, -1.f, 1.0f);
 		m_UniformBuffer->SetData(&mvp, sizeof(mvp), 0);
-
-		/* for (auto &resourceSet : m_ResourceSets) {
-			resourceSet.second->WriteUniformBuffer(m_UniformBuffer, "MVP");
-			resourceSet->WriteCombinedImageSampler(texture, m_Sampler, "Texture");
-			 } */
 
 		for (auto &[textureId, resourceSet] : m_ResourceSets)
 		{
@@ -634,13 +666,6 @@ namespace Nexus::ImGuiUtils
 		}
 
 		ImGuiViewport *vp = drawData->OwnerViewport;
-
-		Nexus::Graphics::Viewport viewport;
-		viewport.X		= 0;
-		viewport.Y		= 0;
-		viewport.Width	= drawData->DisplaySize.x;
-		viewport.Height = drawData->DisplaySize.y;
-		m_CommandList->SetViewport(viewport);
 
 		int vtxOffset = 0;
 		int idxOffset = 0;
@@ -655,6 +680,26 @@ namespace Nexus::ImGuiUtils
 
 				if (drawCmd.ElemCount > 0)
 				{
+					if (drawCmd.TextureId == m_FontTextureID)
+					{
+						m_CommandList->SetPipeline(m_TextPipeline);
+					}
+					else
+					{
+						m_CommandList->SetPipeline(m_ImagePipeline);
+					}
+
+					m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(info->Swapchain));
+					m_CommandList->SetVertexBuffer(m_VertexBuffer, 0);
+					m_CommandList->SetIndexBuffer(m_IndexBuffer);
+
+					Nexus::Graphics::Viewport viewport;
+					viewport.X		= 0;
+					viewport.Y		= 0;
+					viewport.Width	= drawData->DisplaySize.x;
+					viewport.Height = drawData->DisplaySize.y;
+					m_CommandList->SetViewport(viewport);
+
 					Nexus::Graphics::Scissor scissor;
 					scissor.X	   = drawCmd.ClipRect.x - pos.x;
 					scissor.Y	   = drawCmd.ClipRect.y - pos.y;

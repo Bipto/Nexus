@@ -9,7 +9,7 @@ namespace Nexus::ImGuiUtils
 {
 	struct ImGuiWindowInfo
 	{
-		Nexus::IWindow *Window = nullptr;
+		Nexus::IWindow			   *Window	  = nullptr;
 		Nexus::Graphics::Swapchain *Swapchain = nullptr;
 
 		virtual ~ImGuiWindowInfo()
@@ -32,12 +32,9 @@ namespace Nexus::ImGuiUtils
 		void BeforeLayout(Nexus::TimeSpan gameTime);
 		void AfterLayout();
 
-		Ref<Graphics::Pipeline> GetPipeline()
-		{
-			return m_Pipeline;
-		}
-
 	  private:
+		void CreateTextPipeline();
+		void CreateImagePipeline();
 		void SetupInput();
 		void UpdateInput();
 		void RenderDrawData(ImDrawData *drawData);
@@ -50,15 +47,19 @@ namespace Nexus::ImGuiUtils
 		Nexus::Application						*m_Application	  = nullptr;
 		Nexus::Graphics::GraphicsDevice			*m_GraphicsDevice = nullptr;
 		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList	  = nullptr;
-		Nexus::Ref<Nexus::Graphics::Pipeline>	 m_Pipeline		  = nullptr;
+		Nexus::Ref<Nexus::Graphics::Pipeline>	 m_TextPipeline	  = nullptr;
+		Nexus::Ref<Nexus::Graphics::Pipeline>	 m_ImagePipeline  = nullptr;
 		Nexus::Ref<Nexus::Graphics::Texture2D>	 m_FontTexture	  = nullptr;
+
+		Nexus::Ref<Nexus::Graphics::ShaderModule> m_VertexShader   = nullptr;
+		Nexus::Ref<Nexus::Graphics::ShaderModule> m_FragmentShader = nullptr;
 
 		std::map<ImTextureID, Nexus::Ref<Nexus::Graphics::Texture2D>>	m_Textures;
 		std::map<ImTextureID, Nexus::Ref<Nexus::Graphics::ResourceSet>> m_ResourceSets;
 
-		Nexus::Ref<Nexus::Graphics::Sampler>							m_Sampler		= nullptr;
-		uint64_t														m_TextureID		= 0;
-		ImTextureID														m_FontTextureID = 0;
+		Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler		 = nullptr;
+		uint64_t							 m_TextureID	 = 0;
+		ImTextureID							 m_FontTextureID = 0;
 
 		Nexus::Ref<Nexus::Graphics::VertexBuffer> m_VertexBuffer	  = nullptr;
 		uint32_t								  m_VertexBufferCount = 0;

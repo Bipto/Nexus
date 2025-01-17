@@ -120,6 +120,7 @@ namespace Nexus::SDL3
 			case SDLK_RETURN2: return KeyCode::Return2;
 			case SDLK_KP_0: return KeyCode::KeyPad_Zero;
 			case SDLK_KP_PERIOD: return KeyCode::Period;
+			case SDLK_KP_ENTER: return KeyCode::KeyPad_Enter;
 
 			default: throw std::runtime_error("Failed to find a valid keycode");
 		}

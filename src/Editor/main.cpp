@@ -4,6 +4,7 @@
 #include "Nexus-Core/Renderer/Renderer3D.hpp"
 
 #include "Nexus-Core/FileSystem/FileDialogs.hpp"
+#include "Nexus-Core/FileSystem/FileSystem.hpp"
 #include "Nexus-Core/Graphics/HdriProcessor.hpp"
 
 #include "EditorProperties.hpp"
@@ -14,6 +15,8 @@
 #include "Nexus-Core/ECS/ComponentRegistry.hpp"
 #include "Nexus-Core/ECS/Registry.hpp"
 
+#include "yaml-cpp/yaml.h"
+
 class EditorApplication : public Nexus::Application
 {
   public:
@@ -23,6 +26,7 @@ class EditorApplication : public Nexus::Application
 
 	virtual ~EditorApplication()
 	{
+		SaveLayoutSettings();
 	}
 
 	virtual void Load() override
@@ -58,6 +62,7 @@ class EditorApplication : public Nexus::Application
 
 		m_EditorPropertiesPanel = new EditorPropertiesPanel(&m_Panels);
 		m_Panels.push_back(m_EditorPropertiesPanel);
+		LoadLayoutSettings();
 	}
 
 	virtual void Update(Nexus::TimeSpan time) override
@@ -70,7 +75,7 @@ class EditorApplication : public Nexus::Application
 		framebufferSpec.Width									  = (uint32_t)size.x;
 		framebufferSpec.Height									  = (uint32_t)size.y;
 		framebufferSpec.DepthAttachmentSpecification			  = {Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt};
-		framebufferSpec.ColorAttachmentSpecification.Attachments  = {{Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat()}};
+		framebufferSpec.ColorAttachmentSpecification.Attachments  = {{Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm}};
 
 		m_Framebuffer		   = m_GraphicsDevice->CreateFramebuffer(framebufferSpec);
 		m_FramebufferTextureID = m_ImGuiRenderer->BindTexture(m_Framebuffer->GetColorTexture(0));
@@ -239,6 +244,52 @@ class EditorApplication : public Nexus::Application
 		colors[ImGuiCol_SliderGrabActive] = {0.55f, 0.55f, 0.55f, 1.0f};
 	}
 
+	void ResizeFramebuffer(ImVec2 size)
+	{
+		m_Framebuffer->Resize((uint32_t)size.x, (uint32_t)size.y);
+		m_FramebufferTextureID = m_ImGuiRenderer->BindTexture(m_Framebuffer->GetColorTexture(0));
+		m_PreviousViewportSize = size;
+	}
+
+	void SaveLayoutSettings()
+	{
+		YAML::Node node;
+
+		for (Panel *panel : m_Panels) { node[panel->GetName()] = (int)panel->IsOpen(); }
+
+		YAML::Emitter out;
+		out << node;
+		Nexus::FileSystem::WriteFile("editor.yaml", out.c_str());
+	}
+
+	void LoadLayoutSettings()
+	{
+		std::string editorYamlFilePath = "editor.yaml";
+
+		if (std::filesystem::exists(editorYamlFilePath))
+		{
+			std::string text = Nexus::FileSystem::ReadFileToString("editor.yaml");
+			YAML::Node	root = YAML::Load(text);
+
+			for (Panel *panel : m_Panels)
+			{
+				const std::string &panelName = panel->GetName();
+				if (root[panelName])
+				{
+					bool open = (bool)root[panelName].as<int>();
+					if (open)
+					{
+						panel->Open();
+					}
+					else
+					{
+						panel->Close();
+					}
+				}
+			}
+		}
+	}
+
 	void RenderDockspace()
 	{
 		ImGuiWindowFlags flags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar;
@@ -260,6 +311,8 @@ class EditorApplication : public Nexus::Application
 		RenderMainMenuBar();
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
+		ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(0, 0, 0, 0));
+
 		if (ImGui::Begin("Viewport"))
 		{
 			ImVec2 size = ImGui::GetContentRegionAvail();
@@ -277,14 +330,13 @@ class EditorApplication : public Nexus::Application
 			{
 				if (size.x > 0 && size.y > 0)
 				{
-					m_Framebuffer->Resize(size.x, size.y);
-					m_FramebufferTextureID = m_ImGuiRenderer->BindTexture(m_Framebuffer->GetColorTexture(0));
+					ResizeFramebuffer(size);
 				}
-				m_PreviousViewportSize = size;
 			}
 		}
 		ImGui::End();
 		ImGui::PopStyleVar();
+		ImGui::PopStyleColor();
 
 		RenderNewProjectWindow();
 		for (auto panel : m_Panels)
