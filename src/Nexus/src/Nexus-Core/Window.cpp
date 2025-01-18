@@ -1,4 +1,4 @@
-#include "Window.hpp"
+#include "Nexus-Core/Window.hpp"
 
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 #include "glad/glad.h"

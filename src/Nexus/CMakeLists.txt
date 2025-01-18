@@ -116,173 +116,173 @@ endif()
 
 set (ENGINE_SOURCES
   src/Nexus-Core/Application.cpp
-  src/Nexus-Core/Application.hpp
-  src/Nexus-Core/ApplicationSpecification.hpp
+  include/Nexus-Core/Application.hpp
+  include/Nexus-Core/ApplicationSpecification.hpp
   src/Nexus-Core/AssetManager.cpp
-  src/Nexus-Core/AssetManager.hpp
-  src/Nexus-Core/EntryPoint.hpp
-  src/Nexus-Core/IView.hpp
-  src/Nexus-Core/Monitor.hpp
+  include/Nexus-Core/AssetManager.hpp
+  include/Nexus-Core/EntryPoint.hpp
+  include/Nexus-Core/IView.hpp
+  include/Nexus-Core/Monitor.hpp
   src/Nexus-Core/nxpch.cpp
-  src/Nexus-Core/nxpch.hpp
+  include/Nexus-Core/nxpch.hpp
   src/Nexus-Core/Platform.cpp
-  src/Nexus-Core/Platform.hpp
-  src/Nexus-Core/Point.hpp
+  include/Nexus-Core/Platform.hpp
+  include/Nexus-Core/Point.hpp
   src/Nexus-Core/Renderer.cpp
-  src/Nexus-Core/Renderer.hpp
+  include/Nexus-Core/Renderer.hpp
   src/Nexus-Core/Runtime.cpp
-  src/Nexus-Core/Runtime.hpp
-  src/Nexus-Core/Types.hpp
+  include/Nexus-Core/Runtime.hpp
+  include/Nexus-Core/Types.hpp
   src/Nexus-Core/Vertex.cpp
-  src/Nexus-Core/Vertex.hpp
+  include/Nexus-Core/Vertex.hpp
   src/Nexus-Core/Window.cpp
-  src/Nexus-Core/Window.hpp
-  src/Nexus-Core/WindowInfo.hpp
+  include/Nexus-Core/Window.hpp
+  include/Nexus-Core/WindowInfo.hpp
 )
 
 list (APPEND ENGINE_SOURCES
-  src/Nexus-Core/Audio/AudioBuffer.hpp
-  src/Nexus-Core/Audio/AudioDevice.hpp
-  src/Nexus-Core/Audio/AudioSource.hpp)
+  include/Nexus-Core/Audio/AudioBuffer.hpp
+  include/Nexus-Core/Audio/AudioDevice.hpp
+  include/Nexus-Core/Audio/AudioSource.hpp)
 
 list (APPEND ENGINE_SOURCES
-  src/Nexus-Core/ECS/ComponentRegistry.hpp
+  include/Nexus-Core/ECS/ComponentRegistry.hpp
   src/Nexus-Core/ECS/Components.cpp
-  src/Nexus-Core/ECS/Registry.hpp)
+  include/Nexus-Core/ECS/Registry.hpp)
 
 list (APPEND ENGINE_SOURCES
-  src/Nexus-Core/Events/EventHandler.hpp)
+  include/Nexus-Core/Events/EventHandler.hpp)
 
 list (APPEND ENGINE_SOURCES
   src/Nexus-Core/FileSystem/FileDialogs.cpp
-  src/Nexus-Core/FileSystem/FileDialogs.hpp
+  include/Nexus-Core/FileSystem/FileDialogs.hpp
   src/Nexus-Core/FileSystem/FileSystem.cpp
-  src/Nexus-Core/FileSystem/FileSystem.hpp)
+  include/Nexus-Core/FileSystem/FileSystem.hpp)
 
 list (APPEND ENGINE_SOURCES 
-  src/Nexus-Core/Graphics/CachedShader.hpp
-  src/Nexus-Core/Graphics/CachedTexture.hpp
-  src/Nexus-Core/Graphics/CatmullRom.hpp
-  src/Nexus-Core/Graphics/Circle.hpp
-  src/Nexus-Core/Graphics/Color.hpp
+  include/Nexus-Core/Graphics/CachedShader.hpp
+  include/Nexus-Core/Graphics/CachedTexture.hpp
+  include/Nexus-Core/Graphics/CatmullRom.hpp
+  include/Nexus-Core/Graphics/Circle.hpp
+  include/Nexus-Core/Graphics/Color.hpp
   src/Nexus-Core/Graphics/CommandExecutor.cpp
-  src/Nexus-Core/Graphics/CommandExecutor.hpp
+  include/Nexus-Core/Graphics/CommandExecutor.hpp
   src/Nexus-Core/Graphics/CommandList.cpp
-  src/Nexus-Core/Graphics/CommandList.hpp
+  include/Nexus-Core/Graphics/CommandList.hpp
   src/Nexus-Core/Graphics/Font.cpp
-  src/Nexus-Core/Graphics/Font.hpp
-  src/Nexus-Core/Graphics/Framebuffer.hpp
+  include/Nexus-Core/Graphics/Font.hpp
+  include/Nexus-Core/Graphics/Framebuffer.hpp
   src/Nexus-Core/Graphics/FullscreenQuad.cpp
-  src/Nexus-Core/Graphics/FullscreenQuad.hpp
-  src/Nexus-Core/Graphics/GPUBuffer.hpp
-  src/Nexus-Core/Graphics/GraphicsCapabilities.hpp
+  include/Nexus-Core/Graphics/FullscreenQuad.hpp
+  include/Nexus-Core/Graphics/GPUBuffer.hpp
+  include/Nexus-Core/Graphics/GraphicsCapabilities.hpp
   src/Nexus-Core/Graphics/GraphicsDevice.cpp
-  src/Nexus-Core/Graphics/GraphicsDevice.hpp
+  include/Nexus-Core/Graphics/GraphicsDevice.hpp
   src/Nexus-Core/Graphics/HdriProcessor.cpp
-  src/Nexus-Core/Graphics/HdriProcessor.hpp
-  src/Nexus-Core/Graphics/IResource.hpp
-  src/Nexus-Core/Graphics/Mesh.hpp
+  include/Nexus-Core/Graphics/HdriProcessor.hpp
+  include/Nexus-Core/Graphics/IResource.hpp
+  include/Nexus-Core/Graphics/Mesh.hpp
   src/Nexus-Core/Graphics/MeshFactory.cpp
-  src/Nexus-Core/Graphics/MeshFactory.hpp
+  include/Nexus-Core/Graphics/MeshFactory.hpp
   src/Nexus-Core/Graphics/MipmapGenerator.cpp
-  src/Nexus-Core/Graphics/MipmapGenerator.hpp
-  src/Nexus-Core/Graphics/Model.hpp
+  include/Nexus-Core/Graphics/MipmapGenerator.hpp
+  include/Nexus-Core/Graphics/Model.hpp
   src/Nexus-Core/Graphics/Multisample.cpp
-  src/Nexus-Core/Graphics/Multisample.hpp
-  src/Nexus-Core/Graphics/Pipeline.hpp
-  src/Nexus-Core/Graphics/PixelFormat.hpp
-  src/Nexus-Core/Graphics/Polygon.hpp
-  src/Nexus-Core/Graphics/Rectangle.hpp
-  src/Nexus-Core/Graphics/RenderTarget.hpp
+  include/Nexus-Core/Graphics/Multisample.hpp
+  include/Nexus-Core/Graphics/Pipeline.hpp
+  include/Nexus-Core/Graphics/PixelFormat.hpp
+  include/Nexus-Core/Graphics/Polygon.hpp
+  include/Nexus-Core/Graphics/Rectangle.hpp
+  include/Nexus-Core/Graphics/RenderTarget.hpp
   src/Nexus-Core/Graphics/ResourceSet.cpp
-  src/Nexus-Core/Graphics/ResourceSet.hpp
-  src/Nexus-Core/Graphics/RoundedRectangle.hpp
-  src/Nexus-Core/Graphics/Sampler.hpp
-  src/Nexus-Core/Graphics/SamplerState.hpp
-  src/Nexus-Core/Graphics/Scissor.hpp
+  include/Nexus-Core/Graphics/ResourceSet.hpp
+  include/Nexus-Core/Graphics/RoundedRectangle.hpp
+  include/Nexus-Core/Graphics/Sampler.hpp
+  include/Nexus-Core/Graphics/SamplerState.hpp
+  include/Nexus-Core/Graphics/Scissor.hpp
   src/Nexus-Core/Graphics/ShaderDataType.cpp
-  src/Nexus-Core/Graphics/ShaderDataType.hpp
+  include/Nexus-Core/Graphics/ShaderDataType.hpp
   src/Nexus-Core/Graphics/ShaderGenerator.cpp
-  src/Nexus-Core/Graphics/ShaderGenerator.hpp
-  src/Nexus-Core/Graphics/ShaderModule.hpp
-  src/Nexus-Core/Graphics/ShaderUtils.hpp
+  include/Nexus-Core/Graphics/ShaderGenerator.hpp
+  include/Nexus-Core/Graphics/ShaderModule.hpp
+  include/Nexus-Core/Graphics/ShaderUtils.hpp
   src/Nexus-Core/Graphics/stb.cpp
-  src/Nexus-Core/Graphics/Structures.hpp
-  src/Nexus-Core/Graphics/Swapchain.hpp
+  include/Nexus-Core/Graphics/Structures.hpp
+  include/Nexus-Core/Graphics/Swapchain.hpp
   src/Nexus-Core/Graphics/Texture.cpp
-  src/Nexus-Core/Graphics/Texture.hpp
-  src/Nexus-Core/Graphics/TimingQuery.hpp
-  src/Nexus-Core/Graphics/Triangle.hpp
-  src/Nexus-Core/Graphics/Viewport.hpp
-  src/Nexus-Core/Graphics/WindingOrder.hpp)
+  include/Nexus-Core/Graphics/Texture.hpp
+  include/Nexus-Core/Graphics/TimingQuery.hpp
+  include/Nexus-Core/Graphics/Triangle.hpp
+  include/Nexus-Core/Graphics/Viewport.hpp
+  include/Nexus-Core/Graphics/WindingOrder.hpp)
 
 list (APPEND ENGINE_SOURCES
-  src/Nexus-Core/Importers/AssimpImporter.hpp
+  include/Nexus-Core/Importers/AssimpImporter.hpp
   src/Nexus-Core/Importers/AssimpImporter.cpp)
 
 list (APPEND ENGINE_SOURCES
   src/Nexus-Core/ImGui/ImGuiGraphicsRenderer.cpp
-  src/Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp
-  src/Nexus-Core/ImGui/ImGuiInclude.hpp  
+  include/Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp
+  include/Nexus-Core/ImGui/ImGuiInclude.hpp  
 )
 
 list (APPEND ENGINE_SOURCES
-  src/Nexus-Core/Input/Event.hpp
+include/Nexus-Core/Input/Event.hpp
   src/Nexus-Core/Input/Gamepad.cpp
-  src/Nexus-Core/Input/Gamepad.hpp
+  include/Nexus-Core/Input/Gamepad.hpp
   src/Nexus-Core/Input/Input.cpp
-  src/Nexus-Core/Input/Input.hpp
+  include/Nexus-Core/Input/Input.hpp
   src/Nexus-Core/Input/InputContext.cpp
-  src/Nexus-Core/Input/InputContext.hpp
+  include/Nexus-Core/Input/InputContext.hpp
   src/Nexus-Core/Input/InputState.cpp
-  src/Nexus-Core/Input/InputState.hpp
+  include/Nexus-Core/Input/InputState.hpp
   src/Nexus-Core/Input/Keyboard.cpp
-  src/Nexus-Core/Input/Keyboard.hpp
+  include/Nexus-Core/Input/Keyboard.hpp
   src/Nexus-Core/Input/Mouse.cpp
-  src/Nexus-Core/Input/Mouse.hpp)
+  include/Nexus-Core/Input/Mouse.hpp)
 
 list (APPEND ENGINE_SOURCES
-  src/Nexus-Core/Layers/Layer.hpp
+  include/Nexus-Core/Layers/Layer.hpp
   src/Nexus-Core/Layers/LayerStack.cpp
-  src/Nexus-Core/Layers/LayerStack.hpp)
+  include/Nexus-Core/Layers/LayerStack.hpp)
 
 list (APPEND ENGINE_SOURCES
   src/Nexus-Core/Logging/Log.cpp
-  src/Nexus-Core/Logging/Log.hpp)
+  include/Nexus-Core/Logging/Log.hpp)
 
 list (APPEND ENGINE_SOURCES
   src/Nexus-Core/Renderer/BatchRenderer.cpp
-  src/Nexus-Core/Renderer/BatchRenderer.hpp
+  include/Nexus-Core/Renderer/BatchRenderer.hpp
   src/Nexus-Core/Renderer/Renderer3D.cpp
-  src/Nexus-Core/Renderer/Renderer3D.hpp
+  include/Nexus-Core/Renderer/Renderer3D.hpp
 )
 
 list (APPEND ENGINE_SOURCES
-  src/Nexus-Core/Runtime/Camera.hpp
+include/Nexus-Core/Runtime/Camera.hpp
   src/Nexus-Core/Runtime/Entity.cpp
-  src/Nexus-Core/Runtime/Entity.hpp
+  include/Nexus-Core/Runtime/Entity.hpp
   src/Nexus-Core/Runtime/Project.cpp
-  src/Nexus-Core/Runtime/Project.hpp
+  include/Nexus-Core/Runtime/Project.hpp
   src/Nexus-Core/Runtime/Scene.cpp
-  src/Nexus-Core/Runtime/Scene.hpp)
+  include/Nexus-Core/Runtime/Scene.hpp)
 
 list (APPEND ENGINE_SOURCES
-  src/Nexus-Core/Timings/Clock.hpp
+  include/Nexus-Core/Timings/Clock.hpp
   src/Nexus-Core/Timings/Profiler.cpp
-  src/Nexus-Core/Timings/Profiler.hpp
-  src/Nexus-Core/Timings/Timer.hpp
-  src/Nexus-Core/Timings/Timespan.hpp)
+  include/Nexus-Core/Timings/Profiler.hpp
+  include/Nexus-Core/Timings/Timer.hpp
+  include/Nexus-Core/Timings/Timespan.hpp)
 
 list (APPEND ENGINE_SOURCES
-  src/Nexus-Core/UI/Canvas.hpp)
+  include/Nexus-Core/UI/Canvas.hpp)
 
 list (APPEND ENGINE_SOURCES
-  src/Nexus-Core/Utils/FramerateMonitor.hpp
-  src/Nexus-Core/Utils/GUID.hpp
+  include/Nexus-Core/Utils/FramerateMonitor.hpp
+  include/Nexus-Core/Utils/GUID.hpp
   src/Nexus-Core/Utils/Utils.cpp
-  src/Nexus-Core/Utils/Utils.hpp
+  include/Nexus-Core/Utils/Utils.hpp
   src/Nexus-Core/Utils/StringUtils.cpp
-  src/Nexus-Core/Utils/StringUtils.hpp)
+  include/Nexus-Core/Utils/StringUtils.hpp)
 
 if (DEFINED NX_PLATFORM_D3D12)
   list (APPEND ENGINE_SOURCES
@@ -483,7 +483,7 @@ list (APPEND NEXUS_LINKED_LIBRARIES
   yaml-cpp::yaml-cpp)
 
 #precompiled header
-target_precompile_headers(Nexus PUBLIC src/Nexus-Core/nxpch.hpp)
+target_precompile_headers(Nexus PUBLIC include/Nexus-Core/nxpch.hpp)
 
 #flags required for emscripten
 if (EMSCRIPTEN)
@@ -501,6 +501,7 @@ nexus_add_all_subdirs("${NEXUS_LIBRARY_SUBDIRECTORIES}")
 nexus_add_all_shared_lib_subdirs("${NEXUS_SHARED_LIBRARY_SUBDIRECTORIES}")
 target_include_directories(Nexus PUBLIC SYSTEM ${NEXUS_INCLUDE_DIRS})
 target_link_libraries(Nexus PRIVATE ${NEXUS_LINKED_LIBRARIES})
+target_include_directories(Nexus PUBLIC include)
 nexus_structure_folders()
 nexus_setup_filters("${ENGINE_SOURCES}")
 

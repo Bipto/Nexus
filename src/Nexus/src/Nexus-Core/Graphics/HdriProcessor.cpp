@@ -1,4 +1,4 @@
-#include "HdriProcessor.hpp"
+#include "Nexus-Core/Graphics/HdriProcessor.hpp"
 
 #include "Nexus-Core/Graphics/Framebuffer.hpp"
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"

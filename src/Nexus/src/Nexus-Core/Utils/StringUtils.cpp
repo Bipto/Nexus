@@ -1,4 +1,4 @@
-#include "StringUtils.hpp"
+#include "Nexus-Core/Utils/StringUtils.hpp"
 
 namespace Nexus::StringUtils
 {

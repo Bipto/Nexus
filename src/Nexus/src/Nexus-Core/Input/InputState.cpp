@@ -1,4 +1,4 @@
-#include "InputState.hpp"
+#include "Nexus-Core/Input/InputState.hpp"
 
 namespace Nexus
 {

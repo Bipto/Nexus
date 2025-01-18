@@ -1,4 +1,4 @@
-#include "Scene.hpp"
+#include "Nexus-Core/Runtime/Scene.hpp"
 
 #include "Nexus-Core/FileSystem/FileSystem.hpp"
 #include "yaml-cpp/yaml.h"

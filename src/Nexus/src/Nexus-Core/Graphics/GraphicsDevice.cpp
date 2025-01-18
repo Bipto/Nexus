@@ -1,16 +1,16 @@
 #include "Nexus-Core/nxpch.hpp"
 
-#include "GraphicsDevice.hpp"
+#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 
 #include "Nexus-Core/FileSystem/FileSystem.hpp"
 #include "Nexus-Core/Graphics/MipmapGenerator.hpp"
+#include "Nexus-Core/Graphics/ShaderGenerator.hpp"
+#include "Nexus-Core/Graphics/ShaderUtils.hpp"
 #include "Nexus-Core/Logging/Log.hpp"
-#include "ShaderGenerator.hpp"
-#include "ShaderUtils.hpp"
 #include "stb_image.h"
 
-#include "CachedShader.hpp"
-#include "CachedTexture.hpp"
+#include "Nexus-Core/Graphics/CachedShader.hpp"
+#include "Nexus-Core/Graphics/CachedTexture.hpp"
 
 // graphics headers
 #if defined(NX_PLATFORM_OPENGL)

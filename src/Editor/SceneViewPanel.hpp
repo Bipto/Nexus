@@ -32,8 +32,10 @@ class SceneViewPanel : public Panel
 			ImGui::SameLine();
 			if (ImGui::Button("..."))
 			{
-				std::vector<const char *> filters = {"*.hdr"};
-				const char				 *file	  = Nexus::FileDialogs::OpenFile(filters);
+				/* std::vector<Nexus::FileDialogs::Filter> filters = {
+					{"HDRI images", "hdr"},
+				};
+				const char *file = Nexus::FileDialogs::OpenFile(filters, Nexus::GetApplication()->GetPrimaryWindow());
 				if (file)
 				{
 					scene->SceneEnvironment.CubemapPath = file;
@@ -45,7 +47,7 @@ class SceneViewPanel : public Panel
 						Nexus::Graphics::HdriProcessor processor(path, graphicsDevice);
 						scene->SceneEnvironment.EnvironmentCubemap = processor.Generate(2048);
 					}
-				}
+				} */
 			}
 
 			ImGui::Separator();

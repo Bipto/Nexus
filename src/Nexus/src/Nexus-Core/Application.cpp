@@ -1,4 +1,4 @@
-#include "Application.hpp"
+#include "Nexus-Core/Application.hpp"
 
 // audio headers
 #if defined(NX_PLATFORM_OPENAL)
@@ -8,7 +8,7 @@
 #include "Nexus-Core/Input/Input.hpp"
 #include "Nexus-Core/Logging/Log.hpp"
 
-#include "Platform.hpp"
+#include "Nexus-Core/Platform.hpp"
 
 namespace Nexus
 {

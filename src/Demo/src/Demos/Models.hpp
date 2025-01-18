@@ -105,16 +105,6 @@ namespace Demos
 				m_ResourceSet->WriteCombinedImageSampler(mat.DiffuseTexture, m_Sampler, "diffuseMapSampler");
 			}
 
-			if (mat.NormalTexture)
-			{
-				m_ResourceSet->WriteCombinedImageSampler(mat.NormalTexture, m_Sampler, "normalMapSampler");
-			}
-
-			if (mat.SpecularTexture)
-			{
-				m_ResourceSet->WriteCombinedImageSampler(mat.SpecularTexture, m_Sampler, "specularMapSampler");
-			}
-
 			m_CommandList->SetResourceSet(m_ResourceSet);
 
 			const auto &meshes = m_Model->GetMeshes();
@@ -163,9 +153,7 @@ namespace Demos
 
 			pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Camera", 0, 0}, {"Transform", 0, 1}};
 
-			pipelineDescription.ResourceSetSpec.SampledImages = {{"diffuseMapSampler", 1, 0},
-																 {"normalMapSampler", 1, 1},
-																 {"specularMapSampler", 1, 2}};
+			pipelineDescription.ResourceSetSpec.SampledImages = {{"diffuseMapSampler", 1, 0}};
 
 			pipelineDescription.ColourTargetCount		= 1;
 			pipelineDescription.ColourFormats[0]		= Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();

@@ -1,6 +1,4 @@
-#include "Components.hpp"
-
-#include "Nexus-Core/FileSystem/FileDialogs.hpp"
+#include "Nexus-Core/ECS/Components.hpp"
 
 namespace Nexus::Components
 {
@@ -27,16 +25,16 @@ namespace Nexus::Components
 				ImGui::Button("+");
 				if (ImGui::IsItemClicked())
 				{
-					std::vector<const char *> filters = {
-						"*.*",
+					/* std::vector<FileDialogs::Filter> filters = {
+						{"All", "*"},
 					};
-					const char *filepath = Nexus::FileDialogs::OpenFile(filters);
+					const char *filepath = Nexus::FileDialogs::OpenFile(filters, Nexus::GetApplication()->GetPrimaryWindow());
 					if (filepath)
 					{
 						modelRenderer->FilePath = filepath;
 						Graphics::MeshFactory factory(Nexus::GetApplication()->GetGraphicsDevice());
 						modelRenderer->Model = factory.CreateFrom3DModelFile(filepath);
-					}
+					} */
 				}
 				ImGui::PopID();
 			});

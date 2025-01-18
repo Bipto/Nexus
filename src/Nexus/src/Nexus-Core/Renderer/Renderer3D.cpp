@@ -1,4 +1,4 @@
-#include "Renderer3D.hpp"
+#include "Nexus-Core/Renderer/Renderer3D.hpp"
 
 #include "Nexus-Core/ECS/Components.hpp"
 #include "Nexus-Core/Graphics/MeshFactory.hpp"

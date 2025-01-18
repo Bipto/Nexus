@@ -1,4 +1,4 @@
-#include "Project.hpp"
+#include "Nexus-Core/Runtime/Project.hpp"
 
 #include "Nexus-Core/FileSystem/FileSystem.hpp"
 #include "Nexus-Core/nxpch.hpp"

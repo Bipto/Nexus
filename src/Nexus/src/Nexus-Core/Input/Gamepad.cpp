@@ -1,4 +1,4 @@
-#include "Gamepad.hpp"
+#include "Nexus-Core/Input/Gamepad.hpp"
 
 #include "Nexus-Core/Logging/Log.hpp"
 #include "Nexus-Core/nxpch.hpp"

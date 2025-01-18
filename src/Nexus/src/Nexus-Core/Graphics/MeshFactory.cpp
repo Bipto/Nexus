@@ -1,4 +1,4 @@
-#include "MeshFactory.hpp"
+#include "Nexus-Core/Graphics/MeshFactory.hpp"
 
 #include "Nexus-Core/nxpch.hpp"
 

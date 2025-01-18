@@ -1,4 +1,4 @@
-#include "Entity.hpp"
+#include "Nexus-Core/Runtime/Entity.hpp"
 
 namespace Nexus
 {

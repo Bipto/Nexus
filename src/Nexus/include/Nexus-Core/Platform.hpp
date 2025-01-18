@@ -11,7 +11,6 @@
 
 namespace Nexus::Platform
 {
-
 	/// @brief An enum representing the different default cursors that can be
 	/// selected
 	enum class Cursor

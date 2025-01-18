@@ -1,4 +1,4 @@
-#include "FullscreenQuad.hpp"
+#include "Nexus-Core/Graphics/FullscreenQuad.hpp"
 
 namespace Nexus::Graphics
 {

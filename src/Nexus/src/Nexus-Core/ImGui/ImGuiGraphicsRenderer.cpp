@@ -1,4 +1,4 @@
-#include "ImGuiGraphicsRenderer.hpp"
+#include "Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp"
 
 #include "Nexus-Core/Graphics/Swapchain.hpp"
 #include "Nexus-Core/Input/Input.hpp"

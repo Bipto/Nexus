@@ -1,4 +1,4 @@
-#include "MipmapGenerator.hpp"
+#include "Nexus-Core/Graphics/MipmapGenerator.hpp"
 
 #include "Nexus-Core/nxpch.hpp"
 

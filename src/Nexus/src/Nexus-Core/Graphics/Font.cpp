@@ -1,4 +1,4 @@
-#include "Font.hpp"
+#include "Nexus-Core/Graphics/Font.hpp"
 
 #include "ft2build.h"
 #include FT_FREETYPE_H
