@@ -281,6 +281,8 @@ list (APPEND ENGINE_SOURCES
   include/Nexus-Core/Utils/GUID.hpp
   src/Nexus-Core/Utils/Utils.cpp
   include/Nexus-Core/Utils/Utils.hpp
+  include/Nexus-Core/Utils/ScriptProjectGenerator.hpp
+  src/Nexus-Core/Utils/ScriptProjectGenerator.cpp
   src/Nexus-Core/Utils/StringUtils.cpp
   include/Nexus-Core/Utils/StringUtils.hpp)
 

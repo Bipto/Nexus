@@ -27,6 +27,10 @@ namespace Nexus::FileSystem
 	void WriteBuffer(const std::string &filepath, const void *data, size_t size);
 	void WriteBufferAbsolute(const std::string &filepath, const void *data, size_t size);
 
+	void CopyDirectory(const std::string &from, const std::string &to, bool recurive);
+
+	void CreateDirectory(const std::string &directory);
+
 	/// @brief A method that gets the absolute path of the file from a filesystem
 	/// relative filepath
 	/// @param filepath A filepath relative to the root of the filesystem

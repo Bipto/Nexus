@@ -1,5 +1,4 @@
 #include "Nexus-Core/FileSystem/FileSystem.hpp"
-
 #include "Nexus-Core/Logging/Log.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
@@ -68,6 +67,23 @@ void Nexus::FileSystem::WriteBufferAbsolute(const std::string &filepath, const v
 	std::fstream file;
 	file.open(path, std::ios::app | std::ios::binary);
 	file.write((const char *)data, size);
+}
+
+void Nexus::FileSystem::CopyDirectory(const std::string &from, const std::string &to, bool recurive)
+{
+	std::filesystem::copy_options options = std::filesystem::copy_options::none;
+
+	if (recurive)
+	{
+		options = std::filesystem::copy_options::recursive;
+	}
+
+	std::filesystem::copy(from, to, options);
+}
+
+void Nexus::FileSystem::CreateDirectory(const std::string &directory)
+{
+	std::filesystem::create_directories(directory);
 }
 
 std::string Nexus::FileSystem::GetFilePathAbsolute(const std::string &filepath)

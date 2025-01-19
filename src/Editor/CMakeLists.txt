@@ -18,3 +18,4 @@ COMMAND ${CMAKE_COMMAND} -E copy_directory
     $<TARGET_FILE_DIR:${PROJECT_NAME}>/fonts)
 
 nexus_copy_required_binaries()
+nexus_copy_include_dir()

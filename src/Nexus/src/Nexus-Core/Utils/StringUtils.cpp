@@ -17,4 +17,18 @@ namespace Nexus::StringUtils
 
 		return tokens;
 	}
+
+	std::string Replace(const std::string &input, const std::string &wordToReplace, const std::string &newWord)
+	{
+		std::string text = input;
+
+		size_t pos = text.find(wordToReplace);
+		while (pos != std::string::npos)
+		{
+			text.replace(pos, wordToReplace.length(), newWord);
+			pos = text.find(wordToReplace, pos + newWord.length());
+		}
+
+		return text;
+	}
 }	 // namespace Nexus::StringUtils

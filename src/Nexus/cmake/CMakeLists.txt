@@ -8,8 +8,6 @@ macro (nexus_copy_resources)
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${Nexus_SOURCE_DIR}/resources/engine
         $<TARGET_FILE_DIR:${PROJECT_NAME}>/resources/engine)
-
-  message($<TARGET_FILE_DIR:${PROJECT_NAME}>/resources/engine)
 endmacro()
 
 macro(nexus_copy_required_binaries)
@@ -30,6 +28,17 @@ macro(nexus_copy_required_binaries)
           $<TARGET_FILE_DIR:${PROJECT_NAME}>
     )
   endif()
+endmacro()
+
+macro(nexus_copy_include_dir)
+  get_target_property(Nexus_SOURCE_DIR Nexus SOURCE_DIR)
+
+  get_target_property(Nexus_SOURCE_DIR Nexus SOURCE_DIR)
+
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${Nexus_SOURCE_DIR}/include
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/include)
 endmacro()
 
 macro(nexus_add_shared_library shared_library)

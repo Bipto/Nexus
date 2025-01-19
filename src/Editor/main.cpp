@@ -15,6 +15,8 @@
 #include "Nexus-Core/ECS/ComponentRegistry.hpp"
 #include "Nexus-Core/ECS/Registry.hpp"
 
+#include "Nexus-Core/Utils/ScriptProjectGenerator.hpp"
+
 #include "yaml-cpp/yaml.h"
 
 class EditorApplication : public Nexus::Application
@@ -111,6 +113,10 @@ class EditorApplication : public Nexus::Application
 			{
 				m_Project = Nexus::CreateRef<Nexus::Project>(s_ProjectName, s_ProjectDirectory, true);
 				m_Project->Serialize();
+
+				Nexus::Utils::ScriptProjectGenerator generator = {};
+				generator.Generate("include", m_Project->GetName(), s_ProjectDirectory);
+
 				LoadProject(m_Project);
 			}
 		}
