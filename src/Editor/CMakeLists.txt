@@ -19,3 +19,4 @@ COMMAND ${CMAKE_COMMAND} -E copy_directory
 
 nexus_copy_required_binaries()
 nexus_copy_include_dir()
+nexus_copy_glm()

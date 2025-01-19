@@ -7,11 +7,23 @@ namespace Nexus::Utils
 	const char *engineCmakeText = R"(cmake_minimum_required(VERSION 3.10)
 project(Nexus)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_COMPILE_WARNING_AS_ERROR OFF)
+
+add_subdirectory(glm)
+
 add_library(Nexus INTERFACE)
-target_include_directories(Nexus INTERFACE include/))";
+target_include_directories(Nexus INTERFACE include/ glm/))";
 
 	const char *scriptCmakeText = R"(cmake_minimum_required(VERSION 3.10)
 project(SCRIPT_PROJECT_NAME)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_COMPILE_WARNING_AS_ERROR OFF)
 
 add_subdirectory(Nexus)
 
@@ -20,14 +32,16 @@ target_link_libraries(SCRIPT_PROJECT_NAME PRIVATE Nexus)
 
 set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT SCRIPT_PROJECT_NAME)
 
+file(MAKE_DIRECTORY ${CMAKE_SOURCE_DIR}/build_config)
+
 add_custom_command(
 	TARGET SCRIPT_PROJECT_NAME POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E echo "$<TARGET_FILE:SCRIPT_PROJECT_NAME>" > ${CMAKE_SOURCE_DIR}/output.txt
+	COMMAND ${CMAKE_COMMAND} -E echo "$<TARGET_FILE:SCRIPT_PROJECT_NAME>" > ${CMAKE_SOURCE_DIR}/build_config/output.txt
 )
 
 add_custom_command(
 	TARGET SCRIPT_PROJECT_NAME POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E echo "$<TARGET_PDB_FILE:SCRIPT_PROJECT_NAME>" > ${CMAKE_SOURCE_DIR}/pdb_path.txt
+	COMMAND ${CMAKE_COMMAND} -E echo "$<TARGET_PDB_FILE:SCRIPT_PROJECT_NAME>" > ${CMAKE_SOURCE_DIR}/build_config/pdb_path.txt
 ))";
 
 	const char *scriptMainText = R"(#include <iostream>
@@ -49,6 +63,9 @@ void say_hello()
 			std::string engineIncludeDirectory = engineDirectory + "\\include";
 			FileSystem::CreateDirectory(engineIncludeDirectory);
 			FileSystem::CopyDirectory(includeFilePath, engineIncludeDirectory, true);
+
+			std::string glmDirectory = engineDirectory + "\\glm";
+			FileSystem::CopyDirectory("glm", glmDirectory, true);
 
 			std::string engineCmakeFile = engineDirectory + "\\CMakeLists.txt";
 			FileSystem::WriteFile(engineCmakeFile, engineCmakeText);

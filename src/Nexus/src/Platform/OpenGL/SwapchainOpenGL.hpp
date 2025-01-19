@@ -3,7 +3,7 @@
 #if defined(NX_PLATFORM_OPENGL)
 
 	#include "Nexus-Core/Graphics/Swapchain.hpp"
-	#include "Nexus-Core/Window.hpp"
+	#include "Nexus-Core/IWindow.hpp"
 
 	#include "Context/IOffscreenContext.hpp"
 	#include "Context/IViewContext.hpp"

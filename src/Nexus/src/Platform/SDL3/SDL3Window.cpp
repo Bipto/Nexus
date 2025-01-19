@@ -1,28 +1,22 @@
-/* #include "SDL3Window.hpp"
+#include "SDL3Window.hpp"
 
-#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
+#include "Nexus-Core/IWindow.hpp"
 
-#if defined(NX_PLATFORM_OPENGL)
-	#include "Platform/OpenGL/SwapchainOpenGL.hpp"
-#endif
-
-#if defined(NX_PLATFORM_VULKAN)
-	#include "Platform/Vulkan/SwapchainVk.hpp"
-#endif
-
-#if defined(NX_PLATFORM_D3D12)
-	#include "Platform/D3D12/SwapchainD3D12.hpp"
-#endif
+#include "Nexus-Core/Input/Input.hpp"
 
 namespace Nexus
 {
-	SDL3Window::SDL3Window(const WindowSpecification &windowProps, Graphics::GraphicsAPI api, const Graphics::SwapchainSpecification &swapchainSpec)
-		: m_Specification(windowProps)
+	SDL3Window::SDL3Window(const WindowSpecification &windowProps) : IWindow(windowProps), m_Specification(windowProps), m_InputContext(this)
 	{
-		uint32_t flags = GetFlags(api, windowProps, swapchainSpec);
+		uint32_t flags = GetFlags(windowProps);
 
 		m_Window = SDL_CreateWindow(windowProps.Title.c_str(), windowProps.Width, windowProps.Height, flags);
-		NX_ASSERT(m_Window, "Could not create window");
+
+		if (m_Window == nullptr)
+		{
+			std::string errorCode = {SDL_GetError()};
+			NX_ERROR(errorCode);
+		}
 
 		m_WindowID = SDL_GetWindowID(m_Window);
 		SetupTimer();
@@ -30,26 +24,31 @@ namespace Nexus
 
 	SDL3Window::~SDL3Window()
 	{
-		delete m_Swapchain;
-		SDL_DestroyWindow(m_Window);
+		SDL_DestroyWindow(this->m_Window);
 	}
 
-	void SDL3Window::SetPosition(int32_t x, int32_t y)
+	void SDL3Window::CacheInput()
 	{
-		SDL_SetWindowPosition(m_Window, x, y);
+		m_Input.CacheInput();
 	}
 
-	void SDL3Window::SetResizable(bool resizable)
+	void SDL3Window::Update()
 	{
-		SDL_SetWindowResizable(m_Window, resizable);
+		m_InputContext.Reset();
+		m_Timer.Update();
+	}
+
+	void SDL3Window::SetResizable(bool isResizable)
+	{
+		SDL_SetWindowResizable(this->m_Window, isResizable);
 	}
 
 	void SDL3Window::SetTitle(const std::string &title)
 	{
-		SDL_SetWindowTitle(m_Window, title.c_str());
+		SDL_SetWindowTitle(this->m_Window, title.c_str());
 	}
 
-	void SDL3Window::SetSize(const Point2D<uint32_t> &size)
+	void SDL3Window::SetSize(Point2D<uint32_t> size)
 	{
 #if !defined(__EMSCRIPTEN__)
 		SDL_SetWindowSize(m_Window, size.X, size.Y);
@@ -58,90 +57,22 @@ namespace Nexus
 #endif
 	}
 
-	void SDL3Window::SetMouseVisible(bool enabled)
+	void SDL3Window::Close()
 	{
-		if (enabled)
-		{
-			SDL_ShowCursor();
-		}
-		else
-		{
-			SDL_HideCursor();
-		}
+		m_Closing = true;
 	}
 
-	void SDL3Window::SetRelativeMouse(bool enabled)
+	bool SDL3Window::IsClosing()
 	{
-		SDL_SetRelativeMouseMode(enabled);
+		return m_Closing;
 	}
 
-	void SDL3Window::SetCursor(Cursor cursor)
+	SDL_Window *SDL3Window::GetSDLWindowHandle()
 	{
-		SDL_Cursor *sdlCursor;
-
-		switch (cursor)
-		{
-			case Cursor::Arrow: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW); break;
-			case Cursor::IBeam: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM); break;
-			case Cursor::Wait: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_WAIT); break;
-			case Cursor::Crosshair: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_CROSSHAIR); break;
-			case Cursor::WaitArrow: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_WAITARROW); break;
-			case Cursor::ArrowNWSE: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENWSE); break;
-			case Cursor::ArrowNESW: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENESW); break;
-			case Cursor::ArrowWE: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEWE); break;
-			case Cursor::ArrowNS: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENS); break;
-			case Cursor::ArrowAllDir: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEALL); break;
-			case Cursor::No: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NO); break;
-			case Cursor::Hand: sdlCursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND); break;
-		}
-
-		SDL_SetCursor(sdlCursor);
+		return m_Window;
 	}
 
-	void SDL3Window::SetRendersPerSecond(uint32_t time)
-	{
-		m_Specification.RendersPerSecond = time;
-		SetupTimer();
-	}
-
-	void SDL3Window::SetUpdatesPerSecond(uint32_t time)
-	{
-		m_Specification.UpdatesPerSecond = time;
-		SetupTimer();
-	}
-
-	void SDL3Window::SetTicksPerSecond(uint32_t time)
-	{
-		m_Specification.TicksPerSecond = time;
-		SetupTimer();
-	}
-
-	InputState *SDL3Window::GetInput()
-	{
-		return m_InputState;
-	}
-
-	const InputNew::InputContext &SDL3Window::GetInputContext() const
-	{
-		return m_InputContext;
-	}
-
-	bool SDL3Window::IsFocussed() const
-	{
-		return SDL_GetWindowFlags(m_Window) & SDL_WINDOW_INPUT_FOCUS;
-	}
-
-	bool SDL3Window::IsFullscreen() const
-	{
-		return SDL_GetWindowFlags(m_Window) & SDL_WINDOW_FULLSCREEN;
-	}
-
-	float SDL3Window::GetDPI() const
-	{
-		return SDL_GetWindowDisplayScale(m_Window);
-	}
-
-	Point2D<uint32_t> SDL3Window::GetSize() const
+	Point2D<uint32_t> SDL3Window::GetWindowSize()
 	{
 		int x, y;
 		SDL_GetWindowSize(m_Window, &x, &y);
@@ -158,52 +89,88 @@ namespace Nexus
 		return size;
 	}
 
-	Point2D<int> SDL3Window::GetPosition() const
+	Point2D<uint32_t> SDL3Window::GetWindowSizeInPixels()
+	{
+		int w, h;
+		SDL_GetWindowSizeInPixels(m_Window, &w, &h);
+		return {(uint32_t)w, (uint32_t)h};
+	}
+
+	Point2D<int> SDL3Window::GetWindowPosition()
 	{
 		Point2D<int> position {};
 		SDL_GetWindowPosition(m_Window, &position.X, &position.Y);
 		return position;
 	}
 
-	WindowState SDL3Window::GetState() const
+	WindowState SDL3Window::GetCurrentWindowState()
 	{
 		Uint32 flags = SDL_GetWindowFlags(m_Window);
 
 		if (flags & SDL_WINDOW_MAXIMIZED)
 		{
-			return WindowState::Maximized;
+			m_CurrentWindowState = WindowState::Maximized;
 		}
 		else if (flags & SDL_WINDOW_MINIMIZED)
 		{
-			return WindowState::Minimized;
+			m_CurrentWindowState = WindowState::Minimized;
 		}
 		else
 		{
-			return WindowState::Normal;
+			m_CurrentWindowState = WindowState::Normal;
+		}
+
+		return m_CurrentWindowState;
+	}
+
+	void SDL3Window::SetIsMouseVisible(bool visible)
+	{
+		if (visible)
+		{
+			SDL_ShowCursor();
+		}
+		else
+		{
+			SDL_HideCursor();
 		}
 	}
 
-	bool SDL3Window::IsClosing() const
+	InputState *SDL3Window::GetInput()
 	{
-		return m_Closing;
+		return &m_Input;
 	}
 
-	void SDL3Window::Close()
+	Nexus::InputNew::InputContext *SDL3Window::GetInputContext()
 	{
-		m_Closing = true;
+		return &m_InputContext;
 	}
 
-	WindowHandle SDL3Window::GetHandle() const
+	bool SDL3Window::IsFocussed()
 	{
-		return m_Window;
+		return SDL_GetWindowFlags(m_Window) & SDL_WINDOW_INPUT_FOCUS;
 	}
 
-	void SDL3Window::Maximise()
+	bool SDL3Window::IsMinimized()
+	{
+		return SDL_GetWindowFlags(m_Window) & SDL_WINDOW_MINIMIZED;
+	}
+
+	bool SDL3Window::IsMaximized()
+	{
+		return SDL_GetWindowFlags(m_Window) & SDL_WINDOW_MAXIMIZED;
+	}
+
+	bool SDL3Window::IsFullscreen()
+	{
+		return SDL_GetWindowFlags(m_Window) & SDL_WINDOW_FULLSCREEN;
+	}
+
+	void SDL3Window::Maximize()
 	{
 		SDL_MaximizeWindow(m_Window);
 	}
 
-	void SDL3Window::Minimise()
+	void SDL3Window::Minimize()
 	{
 		SDL_MinimizeWindow(m_Window);
 	}
@@ -213,9 +180,26 @@ namespace Nexus
 		SDL_RestoreWindow(m_Window);
 	}
 
-	void SDL3Window::SetFullscreen(bool enabled)
+	void SDL3Window::ToggleFullscreen()
 	{
-		SDL_SetWindowFullscreen(m_Window, enabled);
+		if (IsFullscreen())
+		{
+			UnsetFullscreen();
+		}
+		else
+		{
+			SetFullscreen();
+		}
+	}
+
+	void SDL3Window::SetFullscreen()
+	{
+		SDL_SetWindowFullscreen(m_Window, true);
+	}
+
+	void SDL3Window::UnsetFullscreen()
+	{
+		SDL_SetWindowFullscreen(m_Window, false);
 	}
 
 	void SDL3Window::Show()
@@ -228,50 +212,93 @@ namespace Nexus
 		SDL_HideWindow(m_Window);
 	}
 
+	void SDL3Window::SetWindowPosition(int32_t x, int32_t y)
+	{
+		SDL_SetWindowPosition(m_Window, x, y);
+	}
+
 	void SDL3Window::Focus()
 	{
 		SDL_RaiseWindow(m_Window);
 	}
 
-	void SDL3Window::CreateSwapchain(Graphics::GraphicsDevice *device, const Graphics::SwapchainSpecification &swapchainSpec)
+	uint32_t SDL3Window::GetID()
 	{
-		switch (device->GetGraphicsAPI())
-		{
-#if defined(NX_PLATFORM_OPENGL)
-			case Graphics::GraphicsAPI::OpenGL:
-			{
-				m_Swapchain = new Graphics::SwapchainOpenGL(this, swapchainSpec, device);
-				break;
-			}
-#endif
-#if defined(NX_PLATFORM_VULKAN)
-			case Graphics::GraphicsAPI::Vulkan:
-			{
-				m_Swapchain = new Graphics::SwapchainVk(this, device, swapchainSpec);
-				break;
-			}
-#endif
-#if defined(NX_PLATFORM_D3D12)
-			case Graphics::GraphicsAPI::D3D12:
-			{
-				m_Swapchain = new Graphics::SwapchainD3D12(this, device, swapchainSpec);
-				break;
-			}
-#endif
-
-			default: NX_ERROR("Failed to create swapchain"); throw std::runtime_error("Failed to create swapchain");
-		}
+		return m_WindowID;
 	}
 
-	Graphics::Swapchain *SDL3Window::GetSwapchain()
+	float SDL3Window::GetDisplayScale()
 	{
-		return m_Swapchain;
+		return SDL_GetWindowDisplayScale(m_Window);
 	}
 
-	uint32_t SDL3Window::GetFlags(Graphics::GraphicsAPI					  api,
-								  const WindowSpecification				 &windowSpec,
-								  const Graphics::SwapchainSpecification &swapchainSpec)
+	void SDL3Window::SetTextInputRect(const Nexus::Graphics::Rectangle<int> &rect)
 	{
+		SDL_Rect r;
+		r.x = rect.GetLeft();
+		r.y = rect.GetTop();
+		r.w = rect.GetWidth();
+		r.h = rect.GetHeight();
+		SDL_SetTextInputArea(m_Window, &r, 0);
+	}
+
+	void SDL3Window::StartTextInput()
+	{
+		SDL_StartTextInput(m_Window);
+	}
+
+	void SDL3Window::StopTextInput()
+	{
+		SDL_StopTextInput(m_Window);
+	}
+
+	void SDL3Window::SetRendersPerSecond(uint32_t amount)
+	{
+		m_Specification.RendersPerSecond = amount;
+		SetupTimer();
+	}
+
+	void SDL3Window::SetUpdatesPerSecond(uint32_t amount)
+	{
+		m_Specification.UpdatesPerSecond = amount;
+		SetupTimer();
+	}
+
+	void SDL3Window::SetTicksPerSecond(uint32_t amount)
+	{
+		m_Specification.TicksPerSecond = amount;
+		SetupTimer();
+	}
+
+	void SDL3Window::SetRelativeMouseMode(bool enabled)
+	{
+		SDL_SetWindowRelativeMouseMode(m_Window, enabled);
+	}
+
+	NativeWindowInfo SDL3Window::GetNativeWindowInfo()
+	{
+		NativeWindowInfo info = {};
+
+		SDL_PropertiesID properties = SDL_GetWindowProperties(m_Window);
+
+#if defined(NX_PLATFORM_WINDOWS)
+		info.hwnd	  = (HWND)SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr);
+		info.hdc	  = (HDC)SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WIN32_HDC_POINTER, nullptr);
+		info.instance = (HINSTANCE)SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WIN32_INSTANCE_POINTER, nullptr);
+#elif defined(NX_PLATFORM_LINUX)
+		info.display = (Display *)SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_X11_DISPLAY_POINTER, nullptr);
+		info.screen	 = (int)SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_SCREEN_NUMBER, 0);
+		info.window	 = (Window)(unsigned long)SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0);
+#elif defined(NX_PLATFORM_WEB)
+		info.canvasId = m_Specification.CanvasId;
+#endif
+
+		return info;
+	}
+
+	uint32_t SDL3Window::GetFlags(const WindowSpecification &windowSpec)
+	{
+		// required for emscripten to handle resizing correctly
 		uint32_t flags = 0;
 		flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
 
@@ -290,17 +317,12 @@ namespace Nexus
 			flags |= SDL_WINDOW_UTILITY;
 		}
 
-		if (api == Graphics::GraphicsAPI::Vulkan)
-		{
-			flags |= SDL_WINDOW_VULKAN;
-		}
-
 		return flags;
 	}
 
 	void SDL3Window::SetupTimer()
 	{
-		m_ExecutionTimer.Clear();
+		m_Timer.Clear();
 
 		double secondsPerRender = {};
 		double secondsPerUpdate = {};
@@ -321,39 +343,46 @@ namespace Nexus
 			secondsPerTick = 1.0 / m_Specification.TicksPerSecond.value();
 		}
 
-		m_ExecutionTimer.Every(
-		[&](Nexus::TimeSpan time)
-		{
-			if (GetState() == WindowState::Minimized)
-				return;
+		m_Timer.Every(
+			[&](Nexus::TimeSpan time)
+			{
+				if (IsMinimized())
+					return;
 
-			m_RenderFrameRateMonitor.Update();
-			OnRender.Invoke(time);
-		},
-		secondsPerRender);
+				Input::SetContext(&m_InputContext);
+				m_RenderFrameRateMonitor.Update();
+				OnRender.Invoke(time);
+			},
+			secondsPerRender);
 
-		m_ExecutionTimer.Every(
-		[&](Nexus::TimeSpan time)
-		{
-			if (GetState() == WindowState::Minimized)
-				return;
+		m_Timer.Every(
+			[&](Nexus::TimeSpan time)
+			{
+				if (IsMinimized())
+					return;
 
-			m_UpdateFrameRateMonitor.Update();
-			OnUpdate.Invoke(time);
-		},
-		secondsPerUpdate);
+				Input::SetContext(&m_InputContext);
+				m_UpdateFrameRateMonitor.Update();
+				OnUpdate.Invoke(time);
+			},
+			secondsPerUpdate);
 
-		m_ExecutionTimer.Every(
-		[&](Nexus::TimeSpan time)
-		{
-			if (GetState() == WindowState::Minimized)
-				return;
+		m_Timer.Every(
+			[&](Nexus::TimeSpan time)
+			{
+				if (IsMinimized())
+					return;
 
-			m_TickFrameRateMonitor.Update();
-			OnTick.Invoke(time);
-		},
-		secondsPerTick);
+				Input::SetContext(&m_InputContext);
+				m_TickFrameRateMonitor.Update();
+				OnTick.Invoke(time);
+			},
+			secondsPerTick);
+	}
+
+	const WindowSpecification &SDL3Window::GetSpecification() const
+	{
+		return m_Specification;
 	}
 
 }	 // namespace Nexus
- */

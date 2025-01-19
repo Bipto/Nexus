@@ -16,7 +16,7 @@ namespace Nexus
 	{
 		m_Specification = spec;
 
-		m_Window = Platform::CreatePlatformWindow(spec.WindowProperties, spec.GraphicsAPI, spec.SwapchainSpecification);
+		m_Window = Platform::CreatePlatformWindow(spec.WindowProperties);
 		Nexus::Input::SetContext(m_Window->GetInputContext());
 
 		Graphics::GraphicsDeviceSpecification graphicsDeviceCreateInfo;
@@ -50,44 +50,6 @@ namespace Nexus
 
 		// cache the previous frame's input
 		Nexus::Mouse::s_PreviousGlobalMousePosition = Nexus::Mouse::s_GlobalMousePosition;
-
-		float  x, y;
-		Uint32 buttons = SDL_GetGlobalMouseState(&x, &y);
-
-#if defined(__EMSCRIPTEN__)
-		x *= GetPrimaryWindow()->GetDisplayScale();
-		y *= GetPrimaryWindow()->GetDisplayScale();
-#endif
-
-		Nexus::Mouse::s_GlobalMousePosition.X = x;
-		Nexus::Mouse::s_GlobalMousePosition.Y = y;
-
-		if (buttons & SDL_BUTTON_LEFT)
-		{
-			Nexus::Mouse::s_GlobalMouseState.LeftButton = Nexus::MouseButtonState::Pressed;
-		}
-		else
-		{
-			Nexus::Mouse::s_GlobalMouseState.LeftButton = Nexus::MouseButtonState::Released;
-		}
-
-		if (buttons & SDL_BUTTON_RIGHT)
-		{
-			Nexus::Mouse::s_GlobalMouseState.RightButton = Nexus::MouseButtonState::Pressed;
-		}
-		else
-		{
-			Nexus::Mouse::s_GlobalMouseState.RightButton = Nexus::MouseButtonState::Released;
-		}
-
-		if (buttons & SDL_BUTTON_MIDDLE)
-		{
-			Nexus::Mouse::s_GlobalMouseState.MiddleButton = Nexus::MouseButtonState::Pressed;
-		}
-		else
-		{
-			Nexus::Mouse::s_GlobalMouseState.MiddleButton = Nexus::MouseButtonState::Released;
-		}
 	}
 
 	Nexus::IWindow *Application::GetPrimaryWindow()

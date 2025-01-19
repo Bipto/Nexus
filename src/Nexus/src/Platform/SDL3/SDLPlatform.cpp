@@ -533,11 +533,9 @@ namespace Nexus::Platform
 		PollEvents();
 	}
 
-	IWindow *CreatePlatformWindow(const WindowSpecification				 &windowProps,
-								  Graphics::GraphicsAPI					  api,
-								  const Graphics::SwapchainSpecification &swapchainSpec)
+	IWindow *CreatePlatformWindow(const WindowSpecification &windowProps)
 	{
-		IWindow *window = new IWindow(windowProps, api, swapchainSpec);
+		IWindow *window = new SDL3Window(windowProps);
 		m_Windows.push_back(window);
 		return window;
 	}
@@ -570,7 +568,8 @@ namespace Nexus::Platform
 
 		for (auto window : m_Windows)
 		{
-			if (window->GetSDLWindowHandle() == focusWindow)
+			SDL3Window *sdlWindow = (SDL3Window *)window;
+			if (sdlWindow->GetSDLWindowHandle() == focusWindow)
 			{
 				return window;
 			}
@@ -616,7 +615,8 @@ namespace Nexus::Platform
 
 		for (auto window : m_Windows)
 		{
-			if (window->GetSDLWindowHandle() == focusWindow)
+			SDL3Window *sdlWindow = (SDL3Window *)window;
+			if (sdlWindow->GetSDLWindowHandle() == focusWindow)
 			{
 				return window;
 			}

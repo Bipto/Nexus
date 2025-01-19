@@ -135,8 +135,7 @@ set (ENGINE_SOURCES
   include/Nexus-Core/Types.hpp
   src/Nexus-Core/Vertex.cpp
   include/Nexus-Core/Vertex.hpp
-  src/Nexus-Core/Window.cpp
-  include/Nexus-Core/Window.hpp
+  include/Nexus-Core/IWindow.hpp
   include/Nexus-Core/WindowInfo.hpp
 )
 
@@ -228,7 +227,6 @@ list (APPEND ENGINE_SOURCES
 
 list (APPEND ENGINE_SOURCES
 include/Nexus-Core/Input/Event.hpp
-  src/Nexus-Core/Input/Gamepad.cpp
   include/Nexus-Core/Input/Gamepad.hpp
   src/Nexus-Core/Input/Input.cpp
   include/Nexus-Core/Input/Input.hpp
@@ -389,6 +387,8 @@ if (DEFINED NX_PLATFORM_WGL)
 endif()
 
 list (APPEND ENGINE_SOURCES
+  src/Platform/SDL3/GamepadSDL3.cpp
+  src/Platform/SDL3/GamepadSDL3.hpp
   src/Platform/SDL3/SDL3Include.cpp
   src/Platform/SDL3/SDL3Include.hpp
   src/Platform/SDL3/SDL3Window.cpp

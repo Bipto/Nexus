@@ -5,7 +5,7 @@
 	#include "D3D12Include.hpp"
 	#include "Nexus-Core/Graphics/Framebuffer.hpp"
 	#include "Nexus-Core/Graphics/Swapchain.hpp"
-	#include "Nexus-Core/Window.hpp"
+	#include "Nexus-Core/IWindow.hpp"
 	#include "Nexus-Core/nxpch.hpp"
 
 namespace Nexus::Graphics

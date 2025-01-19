@@ -4,7 +4,7 @@
 
 #include "Audio/AudioDevice.hpp"
 #include "Graphics/GraphicsDevice.hpp"
-#include "Window.hpp"
+#include "IWindow.hpp"
 
 #ifdef __EMSCRIPTEN__
 	#include <emscripten.h>

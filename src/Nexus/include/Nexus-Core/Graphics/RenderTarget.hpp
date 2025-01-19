@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Framebuffer.hpp"
+#include "Nexus-Core/IWindow.hpp"
 #include "Nexus-Core/Point.hpp"
-#include "Nexus-Core/Window.hpp"
 #include "Nexus-Core/nxpch.hpp"
 #include "Swapchain.hpp"
 

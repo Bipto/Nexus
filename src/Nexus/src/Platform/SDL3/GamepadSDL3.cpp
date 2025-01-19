@@ -1,11 +1,40 @@
-#include "Nexus-Core/Input/Gamepad.hpp"
+#include "GamepadSDL3.hpp"
 
 #include "Nexus-Core/Logging/Log.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
 namespace Nexus
 {
-	Gamepad::Gamepad(uint32_t index)
+	SDL_GamepadButton GetSDLGamepadButtonFromNexusKeyCode(GamepadButton button)
+	{
+		switch (button)
+		{
+			case GamepadButton::DpadUp: return SDL_GAMEPAD_BUTTON_DPAD_UP;
+			case GamepadButton::DpadDown: return SDL_GAMEPAD_BUTTON_DPAD_DOWN;
+			case GamepadButton::DpadLeft: return SDL_GAMEPAD_BUTTON_DPAD_LEFT;
+			case GamepadButton::DpadRight: return SDL_GAMEPAD_BUTTON_DPAD_RIGHT;
+			case GamepadButton::A: return SDL_GAMEPAD_BUTTON_SOUTH;
+			case GamepadButton::B: return SDL_GAMEPAD_BUTTON_EAST;
+			case GamepadButton::X: return SDL_GAMEPAD_BUTTON_WEST;
+			case GamepadButton::Y: return SDL_GAMEPAD_BUTTON_NORTH;
+			case GamepadButton::Back: return SDL_GAMEPAD_BUTTON_BACK;
+			case GamepadButton::Guide: return SDL_GAMEPAD_BUTTON_GUIDE;
+			case GamepadButton::Start: return SDL_GAMEPAD_BUTTON_START;
+			case GamepadButton::LeftStick: return SDL_GAMEPAD_BUTTON_LEFT_STICK;
+			case GamepadButton::RightStick: return SDL_GAMEPAD_BUTTON_RIGHT_STICK;
+			case GamepadButton::LeftShoulder: return SDL_GAMEPAD_BUTTON_LEFT_SHOULDER;
+			case GamepadButton::RightShoulder: return SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER;
+			case GamepadButton::Misc: return SDL_GAMEPAD_BUTTON_MISC1;
+			case GamepadButton::LeftPaddle1: return SDL_GAMEPAD_BUTTON_LEFT_PADDLE1;
+			case GamepadButton::LeftPaddle2: return SDL_GAMEPAD_BUTTON_LEFT_PADDLE2;
+			case GamepadButton::RightPaddle1: return SDL_GAMEPAD_BUTTON_RIGHT_PADDLE1;
+			case GamepadButton::RightPaddle2: return SDL_GAMEPAD_BUTTON_RIGHT_PADDLE2;
+			case GamepadButton::Touchpad: return SDL_GAMEPAD_BUTTON_TOUCHPAD;
+			default: return SDL_GAMEPAD_BUTTON_INVALID;
+		}
+	}
+
+	GamepadSDL3::GamepadSDL3(uint32_t index) : IGamepad(index)
 	{
 		m_GameController = SDL_OpenGamepad(index);
 		if (!m_GameController)
@@ -36,13 +65,13 @@ namespace Nexus
 		}
 	}
 
-	Gamepad::~Gamepad()
+	GamepadSDL3::~GamepadSDL3()
 	{
 		SDL_CloseGamepad(m_GameController);
 		NX_LOG("Controller removed");
 	}
 
-	void Gamepad::Update()
+	void GamepadSDL3::Update()
 	{
 		m_PreviousButtons = m_CurrentButtons;
 
@@ -60,7 +89,7 @@ namespace Nexus
 		}
 	}
 
-	const Point2D<float> Gamepad::GetLeftStick() const
+	const Point2D<float> GamepadSDL3::GetLeftStick() const
 	{
 		auto xAxis = m_LeftStick.X;
 		auto yAxis = m_LeftStick.Y;
@@ -86,7 +115,7 @@ namespace Nexus
 		return {(float)xAxis, (float)yAxis};
 	}
 
-	const Point2D<float> Gamepad::GetRightStick() const
+	const Point2D<float> GamepadSDL3::GetRightStick() const
 	{
 		auto xAxis = m_RightStick.X;
 		auto yAxis = m_RightStick.Y;
@@ -112,96 +141,68 @@ namespace Nexus
 		return {(float)xAxis, (float)yAxis};
 	}
 
-	const float Gamepad::GetLeftTrigger() const
+	const float GamepadSDL3::GetLeftTrigger() const
 	{
 		return m_LeftTrigger / 32767.0f;
 	}
 
-	const float Gamepad::GetRightTrigger() const
+	const float GamepadSDL3::GetRightTrigger() const
 	{
 		return m_RightTrigger / 32767.0f;
 	}
 
-	const bool Gamepad::IsButtonHeld(GamepadButton button) const
+	const bool GamepadSDL3::IsButtonHeld(GamepadButton button) const
 	{
 		return m_CurrentButtons.at(button);
 	}
 
-	const bool Gamepad::WasButtonPressed(GamepadButton button) const
+	const bool GamepadSDL3::WasButtonPressed(GamepadButton button) const
 	{
 		auto current  = m_CurrentButtons.at(button);
 		auto previous = m_PreviousButtons.at(button);
 		return current && !previous;
 	}
 
-	const bool Gamepad::WasButtonReleased(GamepadButton button) const
+	const bool GamepadSDL3::WasButtonReleased(GamepadButton button) const
 	{
 		auto current  = m_CurrentButtons.at(button);
 		auto previous = m_PreviousButtons.at(button);
 		return !current && previous;
 	}
 
-	const int Gamepad::GetDeadzone() const
+	const int GamepadSDL3::GetDeadzone() const
 	{
 		return m_Deadzone;
 	}
 
-	void Gamepad::SetDeadzone(const int deadzone)
+	void GamepadSDL3::SetDeadzone(const int deadzone)
 	{
 		m_Deadzone = deadzone;
 	}
 
-	bool Gamepad::HasTouchpad()
+	bool GamepadSDL3::HasTouchpad()
 	{
 		return SDL_GetNumGamepadTouchpads(m_GameController) > 0;
 	}
 
-	void Gamepad::SetLED(uint8_t red, uint8_t green, uint8_t blue)
+	void GamepadSDL3::SetLED(uint8_t red, uint8_t green, uint8_t blue)
 	{
 		SDL_SetGamepadLED(m_GameController, red, green, blue);
 	}
 
-	void Gamepad::Rumble(uint16_t lowFrequency, uint16_t highFrequency, uint32_t milliseconds)
+	void GamepadSDL3::Rumble(uint16_t lowFrequency, uint16_t highFrequency, uint32_t milliseconds)
 	{
 		SDL_RumbleGamepad(m_GameController, lowFrequency, highFrequency, milliseconds);
 	}
 
-	void Gamepad::RumbleTriggers(uint16_t left, uint16_t right, uint32_t milliseconds)
+	void GamepadSDL3::RumbleTriggers(uint16_t left, uint16_t right, uint32_t milliseconds)
 	{
 		SDL_RumbleGamepadTriggers(m_GameController, left, right, milliseconds);
 	}
 
-	const uint32_t Gamepad::GetControllerIndex()
+	const uint32_t GamepadSDL3::GetControllerIndex()
 	{
 		return m_Index;
 	}
 
-	SDL_GamepadButton GetSDLGamepadButtonFromNexusKeyCode(GamepadButton button)
-	{
-		switch (button)
-		{
-			case GamepadButton::DpadUp: return SDL_GAMEPAD_BUTTON_DPAD_UP;
-			case GamepadButton::DpadDown: return SDL_GAMEPAD_BUTTON_DPAD_DOWN;
-			case GamepadButton::DpadLeft: return SDL_GAMEPAD_BUTTON_DPAD_LEFT;
-			case GamepadButton::DpadRight: return SDL_GAMEPAD_BUTTON_DPAD_RIGHT;
-			case GamepadButton::A: return SDL_GAMEPAD_BUTTON_SOUTH;
-			case GamepadButton::B: return SDL_GAMEPAD_BUTTON_EAST;
-			case GamepadButton::X: return SDL_GAMEPAD_BUTTON_WEST;
-			case GamepadButton::Y: return SDL_GAMEPAD_BUTTON_NORTH;
-			case GamepadButton::Back: return SDL_GAMEPAD_BUTTON_BACK;
-			case GamepadButton::Guide: return SDL_GAMEPAD_BUTTON_GUIDE;
-			case GamepadButton::Start: return SDL_GAMEPAD_BUTTON_START;
-			case GamepadButton::LeftStick: return SDL_GAMEPAD_BUTTON_LEFT_STICK;
-			case GamepadButton::RightStick: return SDL_GAMEPAD_BUTTON_RIGHT_STICK;
-			case GamepadButton::LeftShoulder: return SDL_GAMEPAD_BUTTON_LEFT_SHOULDER;
-			case GamepadButton::RightShoulder: return SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER;
-			case GamepadButton::Misc: return SDL_GAMEPAD_BUTTON_MISC1;
-			case GamepadButton::LeftPaddle1: return SDL_GAMEPAD_BUTTON_LEFT_PADDLE1;
-			case GamepadButton::LeftPaddle2: return SDL_GAMEPAD_BUTTON_LEFT_PADDLE2;
-			case GamepadButton::RightPaddle1: return SDL_GAMEPAD_BUTTON_RIGHT_PADDLE1;
-			case GamepadButton::RightPaddle2: return SDL_GAMEPAD_BUTTON_RIGHT_PADDLE2;
-			case GamepadButton::Touchpad: return SDL_GAMEPAD_BUTTON_TOUCHPAD;
-			default: return SDL_GAMEPAD_BUTTON_INVALID;
-		}
-	}
 }	 // namespace Nexus

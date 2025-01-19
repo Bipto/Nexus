@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Nexus-Core/Window.hpp"
+#include "Nexus-Core/IWindow.hpp"
 #include "Nexus-Core/nxpch.hpp"
 #include "Vk.hpp"
 

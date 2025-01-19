@@ -9,6 +9,7 @@
 #include "Nexus-Core/Graphics/Mesh.hpp"
 #include "Nexus-Core/Graphics/MeshFactory.hpp"
 #include "Nexus-Core/Graphics/Texture.hpp"
+#include "Nexus-Core/IWindow.hpp"
 #include "Nexus-Core/Input/Input.hpp"
 #include "Nexus-Core/Logging/Log.hpp"
 #include "Nexus-Core/Point.hpp"
@@ -19,7 +20,6 @@
 #include "Nexus-Core/Timings/Timespan.hpp"
 #include "Nexus-Core/Types.hpp"
 #include "Nexus-Core/Vertex.hpp"
-#include "Nexus-Core/Window.hpp"
 
 #include "Nexus-Core/nxpch.hpp"
 

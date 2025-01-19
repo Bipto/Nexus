@@ -263,12 +263,12 @@ namespace Nexus::Graphics
 			m_SurfaceFormat = surfaceFormats[0];
 		}
 
-		int width = 0, height = 0;
-		SDL_GetWindowSizeInPixels(m_Window->GetSDLWindowHandle(), &width, &height);
-		// SDL_Vulkan_GetDrawableSize(m_Window->GetSDLWindowHandle(), &width,
-		// &height);
-		width  = std::clamp(width, (int)m_SurfaceCapabilities.minImageExtent.width, (int)m_SurfaceCapabilities.maxImageExtent.width);
-		height = std::clamp(height, (int)m_SurfaceCapabilities.minImageExtent.height, (int)m_SurfaceCapabilities.maxImageExtent.height);
+		Nexus::Point2D<uint32_t> windowSize = m_Window->GetWindowSizeInPixels();
+		uint32_t				 width		= windowSize.X;
+		uint32_t				 height		= windowSize.Y;
+
+		width  = std::clamp(width, m_SurfaceCapabilities.minImageExtent.width, m_SurfaceCapabilities.maxImageExtent.width);
+		height = std::clamp(height, m_SurfaceCapabilities.minImageExtent.height, m_SurfaceCapabilities.maxImageExtent.height);
 
 		if (width == 0 || height == 0)
 		{

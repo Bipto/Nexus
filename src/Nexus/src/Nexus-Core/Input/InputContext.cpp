@@ -2,7 +2,7 @@
 
 #include "Nexus-Core/Platform.hpp"
 
-#include "Nexus-Core/Window.hpp"
+#include "Nexus-Core/IWindow.hpp"
 
 namespace Nexus::InputNew
 {

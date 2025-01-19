@@ -1,13 +1,13 @@
 #pragma once
 
 #include "Nexus-Core/Events/EventHandler.hpp"
+#include "Nexus-Core/IWindow.hpp"
 #include "Nexus-Core/Input/Event.hpp"
 #include "Nexus-Core/Input/Gamepad.hpp"
 #include "Nexus-Core/Input/InputContext.hpp"
 #include "Nexus-Core/Input/Keyboard.hpp"
 #include "Nexus-Core/Input/Mouse.hpp"
 #include "Nexus-Core/Monitor.hpp"
-#include "Nexus-Core/Window.hpp"
 
 namespace Nexus::Platform
 {
@@ -47,9 +47,7 @@ namespace Nexus::Platform
 	void	 Initialise();
 	void	 Shutdown();
 	void	 Update();
-	IWindow *CreatePlatformWindow(const WindowSpecification				 &windowProps,
-								  Graphics::GraphicsAPI					  api,
-								  const Graphics::SwapchainSpecification &swapchainSpec);
+	IWindow *CreatePlatformWindow(const WindowSpecification &windowProps);
 
 	InputNew::MouseInfo		 GetGlobalMouseInfo();
 	std::optional<IWindow *> GetKeyboardFocus();
