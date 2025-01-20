@@ -52,14 +52,6 @@ else()
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_CURRENT_SOURCE_DIR}/resources
         $<TARGET_FILE_DIR:${PROJECT_NAME}>/resources)
-
-    #copy all required libraries to output directory
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-        -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
-        COMMAND_EXPAND_LISTS)
-
-
 endif()
 
 #set the working directory to the executable directory and startup project to the Demo project
@@ -67,3 +59,4 @@ endif()
 set_property(TARGET Demo PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
 
 nexus_copy_required_binaries()
+nexus_copy_required_runtime_libraries()

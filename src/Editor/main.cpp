@@ -115,7 +115,7 @@ class EditorApplication : public Nexus::Application
 				m_Project->Serialize();
 
 				Nexus::Utils::ScriptProjectGenerator generator = {};
-				generator.Generate("include", m_Project->GetName(), s_ProjectDirectory);
+				generator.Generate("project_template", m_Project->GetName(), s_ProjectDirectory);
 
 				LoadProject(m_Project);
 			}

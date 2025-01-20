@@ -30,22 +30,43 @@ macro(nexus_copy_required_binaries)
   endif()
 endmacro()
 
-macro(nexus_copy_include_dir)
+macro(nexus_copy_required_binaries_to_custom_dir output_dir)
+  if (WIN32)
+    get_target_property(Nexus_SOURCE_DIR Nexus SOURCE_DIR)
+
+    add_custom_command(
+      TARGET ${PROJECT_NAME} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy
+          ${Nexus_SOURCE_DIR}/binaries/dxc_2023_08_14/bin/x64/dxcompiler.dll
+          $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir}
+  )
+
+  add_custom_command(
+      TARGET ${PROJECT_NAME} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy
+          ${Nexus_SOURCE_DIR}/binaries/dxc_2023_08_14/bin/x64/dxil.dll
+          $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir}
+    )
+  endif()
+endmacro()
+
+macro(nexus_copy_include_dir output_dir)
   get_target_property(Nexus_SOURCE_DIR Nexus SOURCE_DIR)
 
+  #copy the headers to output directory
   add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${Nexus_SOURCE_DIR}/include
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/include)
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir}/include)
 endmacro()
 
-macro(nexus_copy_glm)
+macro(nexus_copy_glm output_dir)
   get_target_property(Nexus_SOURCE_DIR Nexus SOURCE_DIR)
 
   add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${Nexus_SOURCE_DIR}/external/glm
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/glm)
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir}/glm)
 endmacro()
 
 macro(nexus_add_shared_library shared_library)
@@ -88,6 +109,44 @@ macro(nexus_structure_folders)
       set_target_properties(${_target} PROPERTIES FOLDER "external")
     endif()
   endforeach()
+endmacro()
+
+#copy all required libraries to output directory
+macro(nexus_copy_required_runtime_libraries)
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
+    COMMAND_EXPAND_LISTS)
+endmacro()
+
+macro(nexus_copy_required_runtime_libraries_to_custom_dir output_dir)
+
+  #create directory if needed
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir}  
+  )
+
+  #copy libraries
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    -t $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir} $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
+    COMMAND_EXPAND_LISTS)
+
+endmacro()
+
+macro(nexus_copy_static_lib output_dir)
+
+  #create directory if needed
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir}  
+  )
+
+  #copy libraries
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    -t $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir} $<TARGET_FILE:Nexus>
+    COMMAND_EXPAND_LISTS)
+
 endmacro()
 
 macro(nexus_add_all_subdirs SUBDIRS)
