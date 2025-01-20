@@ -64,3 +64,13 @@ using source_location = std::source_location;
 #include "Nexus-Core/Logging/Log.hpp"
 #include "Nexus-Core/Point.hpp"
 #include "Nexus-Core/Types.hpp"
+
+#if defined(NX_PLATFORM_WINDOWS)
+	#if defined(NX_EXPORT_API)
+		#define NX_API __declspec(dllexport)
+	#else
+		#define NX_API __declspec(dllimport)
+	#endif
+#else
+	#define NX_API
+#endif

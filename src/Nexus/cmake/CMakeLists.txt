@@ -34,6 +34,11 @@ macro(nexus_copy_required_binaries_to_custom_dir output_dir)
   if (WIN32)
     get_target_property(Nexus_SOURCE_DIR Nexus SOURCE_DIR)
 
+    #create directory if needed
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir}  
+)
+
     add_custom_command(
       TARGET ${PROJECT_NAME} POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy

@@ -38,6 +38,8 @@ add_custom_command(
 	$<TARGET_FILE_DIR:${PROJECT_NAME}>/Nexus/Nexus.lib
 )
 
+ add_definitions(-DNX_EXPORT_API=1)
+
 )";
 
 	const char *scriptMainText = R"(#include <iostream>

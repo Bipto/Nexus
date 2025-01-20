@@ -8,6 +8,7 @@
 #include "Nexus-Core/Input/Keyboard.hpp"
 #include "Nexus-Core/Input/Mouse.hpp"
 #include "Nexus-Core/Monitor.hpp"
+#include "Nexus-Core/Utils/SharedLibrary.hpp"
 
 namespace Nexus::Platform
 {
@@ -33,6 +34,8 @@ namespace Nexus::Platform
 	const char *GetProcessorType();
 
 	void SetCursor(Cursor cursor);
+
+	Utils::SharedLibrary *LoadSharedLibrary(const std::string &filename);
 
 	std::vector<InputNew::Keyboard> GetKeyboards();
 	std::vector<InputNew::Mouse>	GetMice();

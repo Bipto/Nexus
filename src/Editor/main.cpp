@@ -19,11 +19,27 @@
 
 #include "yaml-cpp/yaml.h"
 
+#include "Nexus-Core/Scripting/Script.hpp"
+
+class MyScript : public Nexus::Scripting::Script
+{
+  public:
+	MyScript()
+	{
+	}
+	virtual ~MyScript()
+	{
+	}
+};
 class EditorApplication : public Nexus::Application
 {
   public:
 	EditorApplication(const Nexus::ApplicationSpecification &spec) : Application(spec)
 	{
+		std::function<Nexus::Scripting::Script *()> createScript = []() { return new MyScript(); };
+		// Nexus::Scripting::RegisteredScriptCreationFunctions.push_back(createScript);
+
+		NX_REGISTER_SCRIPT(MyScript, "MyScript");
 	}
 
 	virtual ~EditorApplication()
@@ -65,6 +81,12 @@ class EditorApplication : public Nexus::Application
 		m_EditorPropertiesPanel = new EditorPropertiesPanel(&m_Panels);
 		m_Panels.push_back(m_EditorPropertiesPanel);
 		LoadLayoutSettings();
+
+		std::string libraryPath = "C:/Users/abear/OneDrive/Desktop/TestProject/Scripts/build/Debug/TestProject.dll";
+		if (std::filesystem::exists(libraryPath))
+		{
+			Nexus::Utils::SharedLibrary *sharedLibrary = Nexus::Platform::LoadSharedLibrary(libraryPath);
+		}
 	}
 
 	virtual void Update(Nexus::TimeSpan time) override

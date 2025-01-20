@@ -265,6 +265,9 @@ include/Nexus-Core/Runtime/Camera.hpp
   include/Nexus-Core/Runtime/Scene.hpp)
 
 list (APPEND ENGINE_SOURCES
+  include/Nexus-Core/Scripting/Script.hpp)
+
+list (APPEND ENGINE_SOURCES
   include/Nexus-Core/Timings/Clock.hpp
   src/Nexus-Core/Timings/Profiler.cpp
   include/Nexus-Core/Timings/Profiler.hpp
@@ -281,6 +284,7 @@ list (APPEND ENGINE_SOURCES
   include/Nexus-Core/Utils/Utils.hpp
   include/Nexus-Core/Utils/ScriptProjectGenerator.hpp
   src/Nexus-Core/Utils/ScriptProjectGenerator.cpp
+  include/Nexus-Core/Utils/SharedLibrary.hpp
   src/Nexus-Core/Utils/StringUtils.cpp
   include/Nexus-Core/Utils/StringUtils.hpp)
 
@@ -440,6 +444,9 @@ endif()
 
 if (DEFINED NX_PLATFORM_WINDOWS)
   list (APPEND ENGINE_SOURCES
+    src/Platform/Windows/PlatformWindows.cpp
+    src/Platform/Windows/SharedLibraryWindows.hpp
+    src/Platform/Windows/SharedLibraryWindows.cpp
     src/Platform/Windows/WindowsInclude.hpp)
 endif()
 
