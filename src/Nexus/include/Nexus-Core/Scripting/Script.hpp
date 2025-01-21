@@ -30,12 +30,29 @@ namespace Nexus::Scripting
 		}
 	};
 
-	NX_API inline std::map<std::string, std::function<Script *()>> RegisteredScriptCreationFunctions = {};
-
-	extern "C" NX_API void *GetRegisteredScriptCreationFunctions()
+	class ScriptRegistry
 	{
-		return &RegisteredScriptCreationFunctions;
+	  public:
+		static std::map<std::string, std::function<Script *()>> &GetRegistry()
+		{
+			static std::map<std::string, std::function<Script *()>> registry;
+			return registry;
+		}
+	};
+
+	extern "C" NX_API std::map<std::string, std::function<Script *()>> *GetScriptRegistry()
+	{
+		return &ScriptRegistry::GetRegistry();
 	}
 
 }	 // namespace Nexus::Scripting
-#define NX_REGISTER_SCRIPT(T, Name) Nexus::Scripting::RegisteredScriptCreationFunctions[Name] = []() { return new T(); };
+
+#define NX_REGISTER_SCRIPT(ClassType)                                                                                                                \
+	struct ClassType##Register                                                                                                                       \
+	{                                                                                                                                                \
+		ClassType##Register()                                                                                                                        \
+		{                                                                                                                                            \
+			Nexus::Scripting::ScriptRegistry::GetRegistry()[#ClassType] = []() { return new ClassType(); };                                          \
+		}                                                                                                                                            \
+	};                                                                                                                                               \
+	static ClassType##Register instance##ClassType##Register;

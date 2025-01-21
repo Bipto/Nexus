@@ -31,15 +31,15 @@ class MyScript : public Nexus::Scripting::Script
 	{
 	}
 };
+NX_REGISTER_SCRIPT(MyScript);
+
 class EditorApplication : public Nexus::Application
 {
   public:
 	EditorApplication(const Nexus::ApplicationSpecification &spec) : Application(spec)
 	{
-		std::function<Nexus::Scripting::Script *()> createScript = []() { return new MyScript(); };
-		// Nexus::Scripting::RegisteredScriptCreationFunctions.push_back(createScript);
-
-		NX_REGISTER_SCRIPT(MyScript, "MyScript");
+		auto &registry = Nexus::Scripting::ScriptRegistry::GetRegistry();
+		for (auto &type : registry) { std::cout << type.first << std::endl; }
 	}
 
 	virtual ~EditorApplication()
