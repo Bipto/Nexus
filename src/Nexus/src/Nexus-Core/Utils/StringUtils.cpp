@@ -31,4 +31,11 @@ namespace Nexus::StringUtils
 
 		return text;
 	}
+
+	std::string RemoveCharacter(const std::string &input, char character)
+	{
+		std::string text = input;
+		text.erase(std::remove(text.begin(), text.end(), character), text.end());
+		return text;
+	}
 }	 // namespace Nexus::StringUtils

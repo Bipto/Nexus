@@ -4,6 +4,9 @@
 #include "Nexus-Core/nxpch.hpp"
 #include "yaml-cpp/yaml.h"
 
+#include "Nexus-Core/Platform.hpp"
+#include "Nexus-Core/Utils/StringUtils.hpp"
+
 const std::string DefaultSceneName = "UntitledScene";
 
 namespace Nexus
@@ -14,8 +17,9 @@ namespace Nexus
 		: m_Name(name),
 		  m_RootDirectory(directory + std::string("\\") + name)
 	{
-		m_SceneDirectory  = "\\Scenes\\";
-		m_AssetsDirectory = "\\Assets\\";
+		m_SceneDirectory   = "\\Scenes\\";
+		m_AssetsDirectory  = "\\Assets\\";
+		m_ScriptsDirectory = "\\Scripts\\";
 
 		if (createDefaultScene)
 		{
@@ -53,11 +57,13 @@ namespace Nexus
 			}
 		}
 
-		project->m_StartupScene	   = node["StartupScene"].as<uint32_t>();
-		project->m_SceneDirectory  = node["SceneDirectory"].as<std::string>();
-		project->m_AssetsDirectory = node["AssetsDirectory"].as<std::string>();
+		project->m_StartupScene		= node["StartupScene"].as<uint32_t>();
+		project->m_SceneDirectory	= node["SceneDirectory"].as<std::string>();
+		project->m_AssetsDirectory	= node["AssetsDirectory"].as<std::string>();
+		project->m_ScriptsDirectory = node["ScriptsDirectory"].as<std::string>();
 
 		project->LoadScene(project->m_StartupScene);
+		project->LoadSharedLibrary();
 
 		return project;
 	}
@@ -81,13 +87,13 @@ namespace Nexus
 	{
 		if (m_Scenes.size() > index)
 		{
-			const SceneInfo &info  = m_Scenes.at(index);
+			const SceneInfo &info = m_Scenes.at(index);
 
 			std::stringstream ss;
 			ss << info.Guid;
 
-			Scene *scene		   = Scene::Deserialize(info.Guid, GetFullSceneDirectory());
-			m_LoadedScene		   = std::unique_ptr<Scene>(scene);
+			Scene *scene  = Scene::Deserialize(info.Guid, GetFullSceneDirectory());
+			m_LoadedScene = std::unique_ptr<Scene>(scene);
 		}
 	}
 
@@ -129,6 +135,30 @@ namespace Nexus
 		return m_RootDirectory + m_AssetsDirectory;
 	}
 
+	void Project::LoadSharedLibrary()
+	{
+		std::string sharedLibraryPathFile = m_RootDirectory + m_ScriptsDirectory + "build_config\\output.txt";
+
+		if (!std::filesystem::exists(sharedLibraryPathFile))
+		{
+			return;
+		}
+
+		std::string libraryPath		= Nexus::FileSystem::ReadFileToString(sharedLibraryPathFile);
+		std::string fullLibraryPath = Nexus::StringUtils::RemoveCharacter(libraryPath, '\n');
+		if (fullLibraryPath.empty() || !std::filesystem::exists(fullLibraryPath))
+		{
+			return;
+		}
+
+		m_Library = Platform::LoadSharedLibrary(fullLibraryPath);
+	}
+
+	Utils::SharedLibrary *Project::GetSharedLibrary()
+	{
+		return m_Library;
+	}
+
 	void Project::WriteProjectFile()
 	{
 		// create directories if they do not exist
@@ -155,6 +185,7 @@ namespace Nexus
 		out << YAML::Key << "StartupScene" << YAML::Value << m_StartupScene;
 		out << YAML::Key << "SceneDirectory" << YAML::Value << m_SceneDirectory;
 		out << YAML::Key << "AssetsDirectory" << YAML::Value << m_AssetsDirectory;
+		out << YAML::Key << "ScriptsDirectory" << YAML::Value << m_ScriptsDirectory;
 		out << YAML::EndMap;
 
 		std::string filepath = m_RootDirectory + "/" + m_Name + ".proj";

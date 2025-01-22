@@ -2,6 +2,7 @@
 
 #include "Nexus-Core/Types.hpp"
 #include "Nexus-Core/Utils/GUID.hpp"
+#include "Nexus-Core/Utils/SharedLibrary.hpp"
 #include "Nexus-Core/nxpch.hpp"
 #include "Scene.hpp"
 
@@ -47,6 +48,9 @@ namespace Nexus
 		std::string GetFullSceneDirectory();
 		std::string GetFullAssetsDirectory();
 
+		void				  LoadSharedLibrary();
+		Utils::SharedLibrary *GetSharedLibrary();
+
 	  public:
 		static Ref<Project> s_ActiveProject;
 
@@ -55,15 +59,18 @@ namespace Nexus
 		void WriteSceneFile(const std::string &sceneDirectory);
 
 	  private:
-		std::string m_Name			  = {};
-		std::string m_RootDirectory	  = {};
-		std::string m_SceneDirectory  = {};
-		std::string m_AssetsDirectory = {};
+		std::string m_Name			   = {};
+		std::string m_RootDirectory	   = {};
+		std::string m_SceneDirectory   = {};
+		std::string m_AssetsDirectory  = {};
+		std::string m_ScriptsDirectory = {};
 
 		std::vector<SceneInfo> m_Scenes = {};
 
 		std::unique_ptr<Scene> m_LoadedScene  = nullptr;
 		uint32_t			   m_StartupScene = 0;
+
+		Nexus::Utils::SharedLibrary *m_Library = nullptr;
 	};
 }	 // namespace Nexus
 

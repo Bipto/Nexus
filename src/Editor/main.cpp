@@ -33,13 +33,20 @@ class MyScript : public Nexus::Scripting::Script
 };
 NX_REGISTER_SCRIPT(MyScript);
 
+typedef std::map<std::string, std::function<Nexus::Scripting::Script *()>> &(*GetScriptRegistryFunc)();
+
+enum class SceneState
+{
+	Playing,
+	Paused,
+	Stopped
+};
+
 class EditorApplication : public Nexus::Application
 {
   public:
 	EditorApplication(const Nexus::ApplicationSpecification &spec) : Application(spec)
 	{
-		auto &registry = Nexus::Scripting::ScriptRegistry::GetRegistry();
-		for (auto &type : registry) { std::cout << type.first << std::endl; }
 	}
 
 	virtual ~EditorApplication()
@@ -81,12 +88,6 @@ class EditorApplication : public Nexus::Application
 		m_EditorPropertiesPanel = new EditorPropertiesPanel(&m_Panels);
 		m_Panels.push_back(m_EditorPropertiesPanel);
 		LoadLayoutSettings();
-
-		std::string libraryPath = "C:/Users/abear/OneDrive/Desktop/TestProject/Scripts/build/Debug/TestProject.dll";
-		if (std::filesystem::exists(libraryPath))
-		{
-			Nexus::Utils::SharedLibrary *sharedLibrary = Nexus::Platform::LoadSharedLibrary(libraryPath);
-		}
 	}
 
 	virtual void Update(Nexus::TimeSpan time) override
@@ -183,6 +184,17 @@ class EditorApplication : public Nexus::Application
 							m_Project->LoadScene(0);
 						}
 						LoadProject(m_Project);
+
+						auto library = m_Project->GetSharedLibrary();
+						if (library)
+						{
+							GetScriptRegistryFunc func = (GetScriptRegistryFunc)library->LoadSymbol("GetScriptRegistry");
+							if (func)
+							{
+								auto scripts = func();
+								for (const auto &[name, creationFunc] : scripts) { std::cout << name << std::endl; }
+							}
+						}
 					}
 				}
 
@@ -343,6 +355,21 @@ class EditorApplication : public Nexus::Application
 
 		if (ImGui::Begin("Viewport"))
 		{
+			if (ImGui::Button("Play"))
+			{
+				m_SceneState = SceneState::Playing;
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Pause"))
+			{
+				m_SceneState = SceneState::Paused;
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Stop"))
+			{
+				m_SceneState = SceneState::Stopped;
+			}
+
 			ImVec2 size = ImGui::GetContentRegionAvail();
 			ImVec2 uv0	= {0, 0};
 			ImVec2 uv1	= {1, 1};
@@ -419,6 +446,8 @@ class EditorApplication : public Nexus::Application
 	Nexus::Ref<Nexus::Project> m_Project			   = nullptr;
 	std::vector<Panel *>	   m_Panels				   = {};
 	EditorPropertiesPanel	  *m_EditorPropertiesPanel = nullptr;
+
+	SceneState m_SceneState = SceneState::Stopped;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)

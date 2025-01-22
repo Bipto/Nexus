@@ -12,6 +12,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_COMPILE_WARNING_AS_ERROR OFF)
 
+add_definitions(-DNX_PLATFORM_WINDOWS=1)
+add_definitions(-DNX_EXPORT_API=1)
+
 add_library(SCRIPT_PROJECT_NAME SHARED main.cpp)
 
 target_include_directories(SCRIPT_PROJECT_NAME PRIVATE Nexus/include Nexus/glm)
@@ -37,8 +40,6 @@ add_custom_command(
 	${CMAKE_SOURCE_DIR}/Nexus/Nexus.lib
 	$<TARGET_FILE_DIR:${PROJECT_NAME}>/Nexus/Nexus.lib
 )
-
- add_definitions(-DNX_EXPORT_API=1)
 
 )";
 

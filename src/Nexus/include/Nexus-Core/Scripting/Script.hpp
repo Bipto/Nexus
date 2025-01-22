@@ -5,27 +5,27 @@
 
 namespace Nexus::Scripting
 {
-	NX_API class Script
+	class Script
 	{
 	  public:
 		NX_API Script() = default;
-		virtual NX_API ~Script()
+		virtual ~Script()
 		{
 		}
 
-		virtual void NX_API OnLoad()
+		virtual void OnLoad()
 		{
 		}
 
-		virtual void NX_API OnUpdate(TimeSpan time)
+		virtual void OnUpdate(TimeSpan time)
 		{
 		}
 
-		virtual void NX_API OnRender(TimeSpan time)
+		virtual void OnRender(TimeSpan time)
 		{
 		}
 
-		virtual void NX_API OnUnload()
+		virtual void OnUnload()
 		{
 		}
 	};
@@ -40,9 +40,9 @@ namespace Nexus::Scripting
 		}
 	};
 
-	extern "C" NX_API std::map<std::string, std::function<Script *()>> *GetScriptRegistry()
+	extern "C" NX_API std::map<std::string, std::function<Script *()>> &GetScriptRegistry()
 	{
-		return &ScriptRegistry::GetRegistry();
+		return ScriptRegistry::GetRegistry();
 	}
 
 }	 // namespace Nexus::Scripting
