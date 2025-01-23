@@ -20,7 +20,7 @@ namespace Nexus
 		glm::vec3 Rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 		glm::vec3 Scale	   = glm::vec3(1.0f, 1.0f, 1.0f);
 
-		glm::mat4 CreateTransformation()
+		inline glm::mat4 CreateTransformation()
 		{
 			glm::mat4 transformation(1.0f);
 
@@ -86,18 +86,33 @@ namespace Nexus
 
 	struct ScriptComponent
 	{
-		int32_t					  ScriptIndex	 = -1;
+		std::string				  ScriptName	 = "";
 		Nexus::Scripting::Script *ScriptInstance = nullptr;
+
+		virtual ~ScriptComponent()
+		{
+			if (!ScriptInstance)
+			{
+				delete ScriptInstance;
+			}
+		}
+
+		inline void Instantiate(Nexus::Ref<Nexus::Project> project, Nexus::GUID guid)
+		{
+			ScriptInstance			= project->InstantiateScript(ScriptName);
+			ScriptInstance->Project = project;
+			ScriptInstance->GUID	= guid;
+		}
 
 		friend std::ostream &operator<<(std::ostream &os, const ScriptComponent &component)
 		{
-			os << component.ScriptIndex;
+			os << component.ScriptName;
 			return os;
 		}
 
 		friend std::istream &operator>>(std::istream &is, ScriptComponent &component)
 		{
-			is >> component.ScriptIndex;
+			is >> component.ScriptName;
 			return is;
 		}
 	};

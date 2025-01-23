@@ -47,32 +47,27 @@ namespace Nexus::Components
 																		 Nexus::ScriptComponent *component =
 																			 static_cast<Nexus::ScriptComponent *>(data);
 
-																		 std::string previewText = "None";
-
 																		 auto availableScripts = project->GetAvailableScripts();
 
-																		 if (component->ScriptIndex >= 0)
+																		 std::string previewText = "None";
+																		 if (!component->ScriptName.empty())
 																		 {
-																			 auto it = availableScripts.begin();
-																			 std::advance(it, component->ScriptIndex);
-																			 previewText = it->first;
+																			 previewText = component->ScriptName;
 																		 }
 
-																		 int32_t i = 0;
 																		 if (ImGui::BeginCombo("Script", previewText.c_str()))
 																		 {
 																			 if (ImGui::Selectable("None"))
 																			 {
-																				 component->ScriptIndex = -1;
+																				 component->ScriptName = "";
 																			 }
 
 																			 for (const auto &[name, creationFunc] : availableScripts)
 																			 {
 																				 if (ImGui::Selectable(name.c_str()))
 																				 {
-																					 component->ScriptIndex = i;
+																					 component->ScriptName = name;
 																				 }
-																				 i++;
 																			 }
 
 																			 ImGui::EndCombo();

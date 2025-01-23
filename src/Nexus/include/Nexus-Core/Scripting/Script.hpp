@@ -1,6 +1,8 @@
 #pragma once
 
+#include "Nexus-Core/Runtime/Project.hpp"
 #include "Nexus-Core/Timings/Timespan.hpp"
+#include "Nexus-Core/Utils/GUID.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
 namespace Nexus::Scripting
@@ -8,7 +10,7 @@ namespace Nexus::Scripting
 	class Script
 	{
 	  public:
-		NX_API Script() = default;
+		Script() = default;
 		virtual ~Script()
 		{
 		}
@@ -28,6 +30,9 @@ namespace Nexus::Scripting
 		virtual void OnUnload()
 		{
 		}
+
+		Nexus::Ref<Nexus::Project> Project = nullptr;
+		Nexus::GUID				   GUID	   = Nexus::GUID(0);
 	};
 
 	class ScriptRegistry

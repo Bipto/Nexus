@@ -56,6 +56,7 @@ namespace Nexus
 		void				  LoadSharedLibrary();
 		Utils::SharedLibrary *GetSharedLibrary();
 		std::map<std::string, std::function<Nexus::Scripting::Script *()>> GetAvailableScripts();
+		Nexus::Scripting::Script										  *InstantiateScript(const std::string &scriptName);
 
 	  public:
 		static Ref<Project> s_ActiveProject;

@@ -178,6 +178,20 @@ namespace Nexus
 		return scripts;
 	}
 
+	Nexus::Scripting::Script *Project::InstantiateScript(const std::string &scriptName)
+	{
+		auto scripts = GetAvailableScripts();
+		for (const auto &[name, creationFunction] : scripts)
+		{
+			if (name == scriptName)
+			{
+				return creationFunction();
+			}
+		}
+
+		return nullptr;
+	}
+
 	void Project::WriteProjectFile()
 	{
 		// create directories if they do not exist
