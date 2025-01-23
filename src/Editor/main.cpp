@@ -17,24 +17,6 @@
 
 #include "Nexus-Core/Utils/ScriptProjectGenerator.hpp"
 
-#include "yaml-cpp/yaml.h"
-
-#include "Nexus-Core/Scripting/Script.hpp"
-
-class MyScript : public Nexus::Scripting::Script
-{
-  public:
-	MyScript()
-	{
-	}
-	virtual ~MyScript()
-	{
-	}
-};
-NX_REGISTER_SCRIPT(MyScript);
-
-typedef std::map<std::string, std::function<Nexus::Scripting::Script *()>> &(*GetScriptRegistryFunc)();
-
 enum class SceneState
 {
 	Playing,
@@ -184,17 +166,6 @@ class EditorApplication : public Nexus::Application
 							m_Project->LoadScene(0);
 						}
 						LoadProject(m_Project);
-
-						auto library = m_Project->GetSharedLibrary();
-						if (library)
-						{
-							GetScriptRegistryFunc func = (GetScriptRegistryFunc)library->LoadSymbol("GetScriptRegistry");
-							if (func)
-							{
-								auto scripts = func();
-								for (const auto &[name, creationFunc] : scripts) { std::cout << name << std::endl; }
-							}
-						}
 					}
 				}
 

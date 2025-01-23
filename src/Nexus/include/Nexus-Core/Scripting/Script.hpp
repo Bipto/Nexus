@@ -40,7 +40,7 @@ namespace Nexus::Scripting
 		}
 	};
 
-	extern "C" NX_API std::map<std::string, std::function<Script *()>> &GetScriptRegistry()
+	extern "C" inline NX_API std::map<std::string, std::function<Script *()>> &GetScriptRegistry()
 	{
 		return ScriptRegistry::GetRegistry();
 	}

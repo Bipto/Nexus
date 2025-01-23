@@ -8,6 +8,11 @@
 
 namespace Nexus
 {
+	namespace Scripting
+	{
+		class Script;
+	}
+
 	struct SceneInfo
 	{
 		GUID		Guid = {};
@@ -50,6 +55,7 @@ namespace Nexus
 
 		void				  LoadSharedLibrary();
 		Utils::SharedLibrary *GetSharedLibrary();
+		std::map<std::string, std::function<Nexus::Scripting::Script *()>> GetAvailableScripts();
 
 	  public:
 		static Ref<Project> s_ActiveProject;

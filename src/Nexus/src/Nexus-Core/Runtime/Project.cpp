@@ -5,9 +5,11 @@
 #include "yaml-cpp/yaml.h"
 
 #include "Nexus-Core/Platform.hpp"
+#include "Nexus-Core/Scripting/Script.hpp"
 #include "Nexus-Core/Utils/StringUtils.hpp"
 
 const std::string DefaultSceneName = "UntitledScene";
+typedef std::map<std::string, std::function<Nexus::Scripting::Script *()>> &(*GetScriptRegistryFunc)();
 
 namespace Nexus
 {
@@ -157,6 +159,23 @@ namespace Nexus
 	Utils::SharedLibrary *Project::GetSharedLibrary()
 	{
 		return m_Library;
+	}
+
+	std::map<std::string, std::function<Nexus::Scripting::Script *()>> Project::GetAvailableScripts()
+	{
+		std::map<std::string, std::function<Nexus::Scripting::Script *()>> scripts = Nexus::Scripting::GetScriptRegistry();
+
+		if (m_Library)
+		{
+			GetScriptRegistryFunc func = (GetScriptRegistryFunc)m_Library->LoadSymbol("GetScriptRegistry");
+			if (func)
+			{
+				auto loadedScripts = func();
+				for (const auto &[name, creationFunc] : loadedScripts) { scripts[name] = creationFunc; }
+			}
+		}
+
+		return scripts;
 	}
 
 	void Project::WriteProjectFile()

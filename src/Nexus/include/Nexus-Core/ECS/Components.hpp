@@ -10,6 +10,8 @@
 #include "Nexus-Core/Graphics/Model.hpp"
 #include "Nexus-Core/Runtime.hpp"
 
+#include "Nexus-Core/Scripting/Script.hpp"
+
 namespace Nexus
 {
 	struct Transform
@@ -78,6 +80,24 @@ namespace Nexus
 				}
 			}
 
+			return is;
+		}
+	};
+
+	struct ScriptComponent
+	{
+		int32_t					  ScriptIndex	 = -1;
+		Nexus::Scripting::Script *ScriptInstance = nullptr;
+
+		friend std::ostream &operator<<(std::ostream &os, const ScriptComponent &component)
+		{
+			os << component.ScriptIndex;
+			return os;
+		}
+
+		friend std::istream &operator>>(std::istream &is, ScriptComponent &component)
+		{
+			is >> component.ScriptIndex;
 			return is;
 		}
 	};

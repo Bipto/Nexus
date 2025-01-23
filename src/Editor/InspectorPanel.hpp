@@ -69,7 +69,7 @@ class InspectorPanel : public Panel
 				std::string displayName = Nexus::ECS::GetDisplayNameFromTypeName(component.typeName);
 				ImGui::Text(displayName.c_str());
 
-				Nexus::ECS::RenderComponent(scene->Registry, component);
+				Nexus::ECS::RenderComponent(scene->Registry, component, m_Project);
 
 				if (ImGui::Button("Remove"))
 				{

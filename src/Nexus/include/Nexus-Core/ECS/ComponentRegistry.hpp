@@ -5,6 +5,7 @@
 
 #include "Nexus-Core/ImGui/ImGuiInclude.hpp"
 
+#include "Nexus-Core/Runtime/Project.hpp"
 #include "Nexus-Core/Utils/StringUtils.hpp"
 
 namespace Nexus::ECS
@@ -16,7 +17,7 @@ namespace Nexus::ECS
 	};
 
 	using CreateComponentFunc = std::function<void(Registry &registry, const Entity &entity)>;
-	using RenderComponentFunc = std::function<void(void *)>;
+	using RenderComponentFunc = std::function<void(void *data, Nexus::Ref<Nexus::Project> project)>;
 
 	inline std::map<std::string, ComponentSerializers> m_RegisteredSerializers;
 	inline std::map<std::string, CreateComponentFunc>  m_RegisteredComponentCreators;
@@ -131,12 +132,12 @@ namespace Nexus::ECS
 		throw std::runtime_error("Type is not registered for creation");
 	}
 
-	inline void RenderComponent(Registry &registry, ComponentPtr component)
+	inline void RenderComponent(Registry &registry, ComponentPtr component, Nexus::Ref<Nexus::Project> project)
 	{
 		if (m_RegisteredComponentRenderFunctions.find(component.typeName) != m_RegisteredComponentRenderFunctions.end())
 		{
 			void *obj = registry.GetRawComponent(component.typeName, component.componentIndex);
-			m_RegisteredComponentRenderFunctions[component.typeName](obj);
+			m_RegisteredComponentRenderFunctions[component.typeName](obj, project);
 			return;
 		}
 
