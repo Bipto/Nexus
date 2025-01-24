@@ -7,7 +7,7 @@ namespace Nexus::ECS
 {
 	struct ComponentPtr
 	{
-		const char *typeName = nullptr;
+		const char *typeName	   = nullptr;
 		size_t		componentIndex = 0;
 	};
 
@@ -222,8 +222,13 @@ namespace Nexus::ECS
 		{
 			const char		  *typeName	  = typeid(T).name();
 			ComponentArray<T> *components = GetComponentArray<T>();
-			T				  *component  = components->GetComponent<T>(index);
-			return component;
+
+			if (index > components->GetComponentCount())
+			{
+				return nullptr;
+			}
+
+			return components->GetComponent(index);
 		}
 
 		void *GetRawComponent(const std::string &typeName, size_t index)
@@ -327,14 +332,21 @@ namespace Nexus::ECS
 			const char				  *typeName			= typeid(T).name();
 			const std::vector<size_t> &entityComponents = m_ComponentIds[guid][typeName];
 
+			// the problem is here somewhere...
+			ComponentArray<T> *components = GetComponentArray<T>();
 			for (size_t i = 0; i < entityComponents.size(); i++)
 			{
-				ComponentArray<T> *components = GetComponentArray<T>();
 				for (size_t i = 0; i < components->GetComponentCount(); i++)
 				{
-					T *casted = components->GetComponent(i);
-					returnComponents.push_back(casted);
+					if (std::find(entityComponents.begin(), entityComponents.end(), i) != entityComponents.end())
+					{
+						T *casted = components->GetComponent(i);
+						returnComponents.push_back(casted);
+					}
 				}
+
+				T *casted = components->GetComponent(i);
+				returnComponents.push_back(casted);
 			}
 
 			return returnComponents;
@@ -378,7 +390,8 @@ namespace Nexus::ECS
 				{
 					std::vector<std::tuple<Args *...>> entityComponents;
 					size_t							   minSize = std::min({std::get<std::vector<Args *>>(components).size()...});
-					for (size_t i = 0; i < minSize; ++i)
+
+					for (size_t i = 0; i < minSize; i++)
 					{
 						entityComponents.emplace_back(std::make_tuple(std::get<std::vector<Args *>>(components)[i]...));
 					}

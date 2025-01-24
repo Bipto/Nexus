@@ -34,7 +34,6 @@ class InspectorPanel : public Panel
 		{
 			Nexus::Scene  *scene  = m_Project->GetLoadedScene();
 			Nexus::Entity *entity = scene->GetEntity(m_SelectedEntity.value());
-
 			if (ImGui::BeginPopupContextItem("Add Component"))
 			{
 				const std::map<std::string, Nexus::ECS::CreateComponentFunc> &availableComponents = Nexus::ECS::GetAvailableComponents();
@@ -113,6 +112,7 @@ class InspectorPanel : public Panel
 	}
 
   private:
+	std::map<std::string, std::function<Nexus::Scripting::Script *()>> m_AvailableScripts	= {};
 	std::vector<ComponentToAdd>	   m_ComponentsToAdd	= {};
 	std::vector<ComponentToRemove> m_ComponentsToRemove = {};
 };

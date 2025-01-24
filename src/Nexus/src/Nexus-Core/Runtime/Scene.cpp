@@ -216,6 +216,7 @@ namespace Nexus
 
 	void Scene::OnUpdate(TimeSpan time)
 	{
+		auto models = Registry.GetView<Nexus::ModelRenderer>();
 		auto view = Registry.GetView<Nexus::ScriptComponent>();
 		if (!view.HasComponents())
 		{

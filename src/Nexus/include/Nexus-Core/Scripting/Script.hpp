@@ -31,11 +31,33 @@ namespace Nexus::Scripting
 		{
 		}
 
+		Project *GetProject() const
+		{
+			return m_Project;
+		}
+
+		Scene *GetCurrentScene() const
+		{
+			if (!m_Project)
+			{
+				return nullptr;
+			}
+
+			return m_Project->GetLoadedScene();
+		}
+
+		template<typename T>
+		inline T *GetComponent(size_t index = 0)
+		{
+			Scene *currentScene = GetCurrentScene();
+			return currentScene->Registry.GetComponent<T>(index);
+		}
+
 		virtual void OnUnload()
 		{
 		}
 
-		void Instantiate(Project *project, GUID guid)
+		inline void Instantiate(Project *project, GUID guid)
 		{
 			m_Project = project;
 			m_GUID	  = guid;

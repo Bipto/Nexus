@@ -13,6 +13,7 @@
 #include "SceneViewPanel.hpp"
 
 #include "Nexus-Core/ECS/ComponentRegistry.hpp"
+#include "Nexus-Core/ECS/Components.hpp"
 #include "Nexus-Core/ECS/Registry.hpp"
 
 #include "Nexus-Core/Utils/ScriptProjectGenerator.hpp"
@@ -120,6 +121,7 @@ class EditorApplication : public Nexus::Application
 				generator.Generate("project_template", m_Project->GetName(), s_ProjectDirectory);
 
 				LoadProject(m_Project);
+				m_NewProjectWindowOpen = false;
 			}
 		}
 
@@ -209,6 +211,21 @@ class EditorApplication : public Nexus::Application
 				else
 				{
 					m_EditorPropertiesPanel->Close();
+				}
+			}
+
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("Project", true))
+		{
+			if (ImGui::MenuItem("Reload script library"))
+			{
+				if (m_Project)
+				{
+					m_Project->LoadSharedLibrary();
+					m_Project->CacheAvailableScripts();
+					m_Project->UnloadSharedLibrary();
 				}
 			}
 
@@ -330,6 +347,7 @@ class EditorApplication : public Nexus::Application
 				{
 					if (m_Project && scene)
 					{
+						m_Project->LoadSharedLibrary();
 						scene->Start();
 					}
 				}
@@ -347,6 +365,7 @@ class EditorApplication : public Nexus::Application
 					if (m_Project && scene)
 					{
 						scene->Stop();
+						m_Project->UnloadSharedLibrary();
 						m_Project->ReloadCurrentScene();
 					}
 				}
@@ -362,7 +381,7 @@ class EditorApplication : public Nexus::Application
 				}
 				else
 				{
-					ImGui::Text("Scene is stoped");
+					ImGui::Text("Scene is stopped");
 				}
 			}
 

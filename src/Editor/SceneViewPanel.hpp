@@ -32,10 +32,10 @@ class SceneViewPanel : public Panel
 			ImGui::SameLine();
 			if (ImGui::Button("..."))
 			{
-				/* std::vector<Nexus::FileDialogs::Filter> filters = {
-					{"HDRI images", "hdr"},
+				std::vector<const char *> filters = {
+					{"*.hdr"},
 				};
-				const char *file = Nexus::FileDialogs::OpenFile(filters, Nexus::GetApplication()->GetPrimaryWindow());
+				const char *file = Nexus::FileDialogs::OpenFile(filters);
 				if (file)
 				{
 					scene->SceneEnvironment.CubemapPath = file;
@@ -47,20 +47,13 @@ class SceneViewPanel : public Panel
 						Nexus::Graphics::HdriProcessor processor(path, graphicsDevice);
 						scene->SceneEnvironment.EnvironmentCubemap = processor.Generate(2048);
 					}
-				} */
+				}
 			}
 
 			ImGui::Separator();
 			ImGui::Text("Entities");
 			for (auto &entity : scene->GetEntities())
 			{
-				/* std::stringstream ss;
-				ss << "ID:" << entity.ID;
-				ImGui::Text(ss.str().c_str());
-				ImGui::PushID(entity.ID);
-				ImGui::InputText("Name", &entity.Name);
-				ImGui::PopID(); */
-
 				ImGui::PushID(entity.ID);
 				if (ImGui::Selectable(entity.Name.c_str()))
 				{

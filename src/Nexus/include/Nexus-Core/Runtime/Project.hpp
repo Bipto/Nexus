@@ -55,7 +55,10 @@ namespace Nexus
 
 		void				  LoadSharedLibrary();
 		Utils::SharedLibrary *GetSharedLibrary();
-		std::map<std::string, std::function<Nexus::Scripting::Script *()>> GetAvailableScripts();
+		std::map<std::string, std::function<Nexus::Scripting::Script *()>> LoadAvailableScripts();
+		void															   CacheAvailableScripts();
+		const std::vector<std::string>									  &GetCachedAvailableScripts() const;
+		void															   UnloadSharedLibrary();
 
 	  public:
 		static Ref<Project> s_ActiveProject;
@@ -77,6 +80,7 @@ namespace Nexus
 		uint32_t			   m_StartupScene = 0;
 
 		Nexus::Utils::SharedLibrary *m_Library = nullptr;
+		std::vector<std::string>	 m_AvailableScripts = {};
 	};
 }	 // namespace Nexus
 

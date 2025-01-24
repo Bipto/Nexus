@@ -44,10 +44,13 @@ namespace Nexus::Components
 		ECS::RegisterComponentWithRenderFunc<Nexus::ScriptComponent>("ScriptComponent",
 																	 [](void *data, Nexus::Ref<Nexus::Project> project)
 																	 {
+																		 if (!project)
+																			 return;
+
 																		 Nexus::ScriptComponent *component =
 																			 static_cast<Nexus::ScriptComponent *>(data);
 
-																		 auto availableScripts = project->GetAvailableScripts();
+																		 auto availableScripts = project->GetCachedAvailableScripts();
 
 																		 std::string previewText = "None";
 																		 if (!component->ScriptName.empty())
@@ -62,7 +65,7 @@ namespace Nexus::Components
 																				 component->ScriptName = "";
 																			 }
 
-																			 for (const auto &[name, creationFunc] : availableScripts)
+																			 for (const auto &name : availableScripts)
 																			 {
 																				 if (ImGui::Selectable(name.c_str()))
 																				 {

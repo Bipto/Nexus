@@ -104,7 +104,7 @@ namespace Nexus
 				return;
 			}
 
-			auto scripts = project->GetAvailableScripts();
+			auto scripts = project->LoadAvailableScripts();
 			for (const auto &[name, creationFunction] : scripts)
 			{
 				if (name == ScriptName)

@@ -17,21 +17,29 @@ add_definitions(-DNX_EXPORT_API=1)
 
 add_library(SCRIPT_PROJECT_NAME SHARED main.cpp)
 
-target_include_directories(SCRIPT_PROJECT_NAME PRIVATE Nexus/include Nexus/glm Nexus/yaml-cpp/include)
+target_include_directories(SCRIPT_PROJECT_NAME PRIVATE Nexus/include Nexus/glm Nexus/yaml-cpp/include Nexus/imgui/imgui Nexus/imgui/imguizmo)
 target_link_libraries(SCRIPT_PROJECT_NAME PRIVATE ${CMAKE_SOURCE_DIR}/Nexus/Nexus.lib)
 
 set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT SCRIPT_PROJECT_NAME)
 
-file(MAKE_DIRECTORY ${CMAKE_SOURCE_DIR}/build_config)
+	
+file(MAKE_DIRECTORY ${CMAKE_SOURCE_DIR}/loading)
 
 add_custom_command(
 	TARGET SCRIPT_PROJECT_NAME POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E echo "$<TARGET_FILE:SCRIPT_PROJECT_NAME>" > ${CMAKE_SOURCE_DIR}/build_config/output.txt
-)
+	COMMAND ${CMAKE_COMMAND} -E copy
+	$<TARGET_FILE:SCRIPT_PROJECT_NAME>
+	${CMAKE_SOURCE_DIR}/loading/${CMAKE_BUILD_TYPE})
 
 add_custom_command(
 	TARGET SCRIPT_PROJECT_NAME POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E echo "$<TARGET_PDB_FILE:SCRIPT_PROJECT_NAME>" > ${CMAKE_SOURCE_DIR}/build_config/pdb_path.txt
+	COMMAND ${CMAKE_COMMAND} -E copy
+	$<TARGET_PDB_FILE:SCRIPT_PROJECT_NAME>
+	${CMAKE_SOURCE_DIR}/loading/${CMAKE_BUILD_TYPE})
+
+add_custom_command(
+	TARGET SCRIPT_PROJECT_NAME POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_SOURCE_DIR}/loading/${CMAKE_BUILD_TYPE}/$<TARGET_FILE_NAME:SCRIPT_PROJECT_NAME>" > ${CMAKE_SOURCE_DIR}/loading/output.txt
 )
 
 add_custom_command(

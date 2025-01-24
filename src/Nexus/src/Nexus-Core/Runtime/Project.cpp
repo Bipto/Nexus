@@ -7,7 +7,6 @@
 #include "Nexus-Core/Platform.hpp"
 #include "Nexus-Core/Scripting/Script.hpp"
 #include "Nexus-Core/Utils/StringUtils.hpp"
-#include "Project.hpp"
 
 const std::string DefaultSceneName = "UntitledScene";
 
@@ -66,6 +65,8 @@ namespace Nexus
 
 		project->LoadScene(project->m_StartupScene);
 		project->LoadSharedLibrary();
+		project->CacheAvailableScripts();
+		project->UnloadSharedLibrary();
 
 		return project;
 	}
@@ -175,7 +176,7 @@ namespace Nexus
 
 	void Project::LoadSharedLibrary()
 	{
-		std::string sharedLibraryPathFile = m_RootDirectory + m_ScriptsDirectory + "build_config\\output.txt";
+		std::string sharedLibraryPathFile = m_RootDirectory + m_ScriptsDirectory + "loading\\output.txt";
 
 		if (!std::filesystem::exists(sharedLibraryPathFile))
 		{
@@ -197,7 +198,7 @@ namespace Nexus
 		return m_Library;
 	}
 
-	std::map<std::string, std::function<Nexus::Scripting::Script *()>> Project::GetAvailableScripts()
+	std::map<std::string, std::function<Nexus::Scripting::Script *()>> Project::LoadAvailableScripts()
 	{
 		typedef std::map<std::string, std::function<Nexus::Scripting::Script *()>> &(*GetScriptRegistryFunc)();
 
@@ -214,6 +215,26 @@ namespace Nexus
 		}
 
 		return scripts;
+	}
+
+	void Project::CacheAvailableScripts()
+	{
+		auto scripts = LoadAvailableScripts();
+		m_AvailableScripts.clear();
+		m_AvailableScripts.reserve(scripts.size());
+
+		for (const auto &[name, creationFunc] : scripts) { m_AvailableScripts.push_back(name); }
+	}
+
+	const std::vector<std::string> &Project::GetCachedAvailableScripts() const
+	{
+		return m_AvailableScripts;
+	}
+
+	void Project::UnloadSharedLibrary()
+	{
+		delete m_Library;
+		m_Library = nullptr;
 	}
 
 	void Project::WriteProjectFile()
