@@ -27,25 +27,36 @@ namespace Nexus::Scripting
 		{
 		}
 
+		virtual void OnTick(TimeSpan time)
+		{
+		}
+
 		virtual void OnUnload()
 		{
 		}
 
-		Nexus::Ref<Nexus::Project> Project = nullptr;
-		Nexus::GUID				   GUID	   = Nexus::GUID(0);
+		void Instantiate(Project *project, GUID guid)
+		{
+			m_Project = project;
+			m_GUID	  = guid;
+		}
+
+	  private:
+		Project *m_Project = nullptr;
+		GUID	 m_GUID	   = Nexus::GUID(0);
 	};
 
 	class ScriptRegistry
 	{
 	  public:
-		static std::map<std::string, std::function<Script *()>> &GetRegistry()
+		static std::map<std::string, std::function<Nexus::Scripting::Script *()>> &GetRegistry()
 		{
-			static std::map<std::string, std::function<Script *()>> registry;
+			static std::map<std::string, std::function<Nexus::Scripting::Script *()>> registry;
 			return registry;
 		}
 	};
 
-	extern "C" inline NX_API std::map<std::string, std::function<Script *()>> &GetScriptRegistry()
+	extern "C" inline NX_API std::map<std::string, std::function<Nexus::Scripting::Script *()>> &GetScriptRegistry()
 	{
 		return ScriptRegistry::GetRegistry();
 	}

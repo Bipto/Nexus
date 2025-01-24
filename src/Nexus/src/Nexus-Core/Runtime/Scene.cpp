@@ -7,6 +7,10 @@
 #include "Nexus-Core/Runtime.hpp"
 
 #include "Nexus-Core/ECS/ComponentRegistry.hpp"
+#include "Nexus-Core/ECS/Components.hpp"
+
+#include "Nexus-Core/Runtime/Project.hpp"
+#include "Nexus-Core/Scripting/Script.hpp"
 
 namespace YAML
 {
@@ -184,7 +188,101 @@ namespace Nexus
 		return Registry.GetEntities();
 	}
 
-	Scene *Scene::Deserialize(GUID guid, const std::string &sceneDirectory)
+	void Scene::Start()
+	{
+		m_SceneState = SceneState::Playing;
+
+		auto view = Registry.GetView<Nexus::ScriptComponent>();
+
+		for (auto &[entity, components] : view)
+		{
+			for (const auto &component : components)
+			{
+				auto *script = std::get<0>(component);
+				script->Instantiate(Project, entity->ID);
+			}
+		}
+	}
+
+	void Scene::Stop()
+	{
+		m_SceneState = SceneState::Stopped;
+	}
+
+	void Scene::Pause()
+	{
+		m_SceneState = SceneState::Paused;
+	}
+
+	void Scene::OnUpdate(TimeSpan time)
+	{
+		auto view = Registry.GetView<Nexus::ScriptComponent>();
+		if (!view.HasComponents())
+		{
+			return;
+		}
+
+		for (auto &[entity, components] : view)
+		{
+			for (const auto &component : components)
+			{
+				auto *script = std::get<0>(component);
+				if (script->ScriptInstance)
+				{
+					script->ScriptInstance->OnUpdate(time);
+				}
+			}
+		}
+	}
+
+	void Scene::OnRender(TimeSpan time)
+	{
+		auto view = Registry.GetView<Nexus::ScriptComponent>();
+		if (!view.HasComponents())
+		{
+			return;
+		}
+
+		for (auto &[entity, components] : view)
+		{
+			for (const auto &component : components)
+			{
+				auto *script = std::get<0>(component);
+				if (script->ScriptInstance)
+				{
+					script->ScriptInstance->OnRender(time);
+				}
+			}
+		}
+	}
+
+	void Scene::OnTick(TimeSpan time)
+	{
+		auto view = Registry.GetView<Nexus::ScriptComponent>();
+		if (!view.HasComponents())
+		{
+			return;
+		}
+
+		for (auto &[entity, components] : view)
+		{
+			for (const auto &component : components)
+			{
+				auto *script = std::get<0>(component);
+				if (script->ScriptInstance)
+				{
+					script->ScriptInstance->OnTick(time);
+				}
+			}
+		}
+	}
+
+	SceneState Scene::GetSceneState()
+	{
+		return m_SceneState;
+	}
+
+	Scene *Scene::Deserialize(GUID guid, const std::string &sceneDirectory, Nexus::Project *project)
 	{
 		std::stringstream ss;
 		ss << guid;
@@ -201,6 +299,7 @@ namespace Nexus
 		Scene *scene = new Scene();
 		scene->Guid	 = guid;
 		scene->Name	 = node["Scene"].as<std::string>();
+		scene->Project = project;
 
 		auto environment					= node["Environment"];
 		scene->SceneEnvironment.ClearColour = environment["ClearColour"].as<glm::vec4>();

@@ -7,9 +7,9 @@
 #include "Nexus-Core/Platform.hpp"
 #include "Nexus-Core/Scripting/Script.hpp"
 #include "Nexus-Core/Utils/StringUtils.hpp"
+#include "Project.hpp"
 
 const std::string DefaultSceneName = "UntitledScene";
-typedef std::map<std::string, std::function<Nexus::Scripting::Script *()>> &(*GetScriptRegistryFunc)();
 
 namespace Nexus
 {
@@ -94,7 +94,7 @@ namespace Nexus
 			std::stringstream ss;
 			ss << info.Guid;
 
-			Scene *scene  = Scene::Deserialize(info.Guid, GetFullSceneDirectory());
+			Scene *scene  = Scene::Deserialize(info.Guid, GetFullSceneDirectory(), this);
 			m_LoadedScene = std::unique_ptr<Scene>(scene);
 		}
 	}
@@ -125,6 +125,42 @@ namespace Nexus
 		m_LoadedScene		= std::make_unique<Scene>();
 		m_LoadedScene->Guid = info.Guid;
 		m_LoadedScene->Name = info.Name;
+		m_LoadedScene->Project = this;
+	}
+
+	void Project::ReloadCurrentScene()
+	{
+		LoadScene(m_LoadedScene->Name);
+	}
+
+	void Project::OnUpdate(TimeSpan time)
+	{
+		if (!m_LoadedScene || m_LoadedScene->GetSceneState() != SceneState::Playing)
+		{
+			return;
+		}
+
+		m_LoadedScene->OnUpdate(time);
+	}
+
+	void Project::OnRender(TimeSpan time)
+	{
+		if (!m_LoadedScene || m_LoadedScene->GetSceneState() != SceneState::Playing)
+		{
+			return;
+		}
+
+		m_LoadedScene->OnRender(time);
+	}
+
+	void Project::OnTick(TimeSpan time)
+	{
+		if (!m_LoadedScene || m_LoadedScene->GetSceneState() != SceneState::Playing)
+		{
+			return;
+		}
+
+		m_LoadedScene->OnTick(time);
 	}
 
 	std::string Project::GetFullSceneDirectory()
@@ -163,6 +199,8 @@ namespace Nexus
 
 	std::map<std::string, std::function<Nexus::Scripting::Script *()>> Project::GetAvailableScripts()
 	{
+		typedef std::map<std::string, std::function<Nexus::Scripting::Script *()>> &(*GetScriptRegistryFunc)();
+
 		std::map<std::string, std::function<Nexus::Scripting::Script *()>> scripts = Nexus::Scripting::GetScriptRegistry();
 
 		if (m_Library)
@@ -176,20 +214,6 @@ namespace Nexus
 		}
 
 		return scripts;
-	}
-
-	Nexus::Scripting::Script *Project::InstantiateScript(const std::string &scriptName)
-	{
-		auto scripts = GetAvailableScripts();
-		for (const auto &[name, creationFunction] : scripts)
-		{
-			if (name == scriptName)
-			{
-				return creationFunction();
-			}
-		}
-
-		return nullptr;
 	}
 
 	void Project::WriteProjectFile()

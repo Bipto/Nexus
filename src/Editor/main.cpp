@@ -17,13 +17,6 @@
 
 #include "Nexus-Core/Utils/ScriptProjectGenerator.hpp"
 
-enum class SceneState
-{
-	Playing,
-	Paused,
-	Stopped
-};
-
 class EditorApplication : public Nexus::Application
 {
   public:
@@ -74,6 +67,10 @@ class EditorApplication : public Nexus::Application
 
 	virtual void Update(Nexus::TimeSpan time) override
 	{
+		if (m_Project)
+		{
+			m_Project->OnUpdate(time);
+		}
 	}
 
 	void CreateFramebuffer(ImVec2 size)
@@ -326,19 +323,47 @@ class EditorApplication : public Nexus::Application
 
 		if (ImGui::Begin("Viewport"))
 		{
-			if (ImGui::Button("Play"))
+			if (m_Project)
 			{
-				m_SceneState = SceneState::Playing;
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("Pause"))
-			{
-				m_SceneState = SceneState::Paused;
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("Stop"))
-			{
-				m_SceneState = SceneState::Stopped;
+				Nexus::Scene *scene = m_Project->GetLoadedScene();
+				if (ImGui::Button("Play"))
+				{
+					if (m_Project && scene)
+					{
+						scene->Start();
+					}
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("Pause"))
+				{
+					if (m_Project && scene)
+					{
+						scene->Pause();
+					}
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("Stop"))
+				{
+					if (m_Project && scene)
+					{
+						scene->Stop();
+						m_Project->ReloadCurrentScene();
+					}
+				}
+				ImGui::SameLine();
+
+				if (scene->GetSceneState() == Nexus::SceneState::Paused)
+				{
+					ImGui::Text("Scene is paused");
+				}
+				else if (scene->GetSceneState() == Nexus::SceneState::Playing)
+				{
+					ImGui::Text("Scene is playing");
+				}
+				else
+				{
+					ImGui::Text("Scene is stoped");
+				}
 			}
 
 			ImVec2 size = ImGui::GetContentRegionAvail();
@@ -385,6 +410,8 @@ class EditorApplication : public Nexus::Application
 
 		if (m_Project && m_Project->IsSceneLoaded())
 		{
+			m_Project->OnRender(time);
+
 			Nexus::Scene *scene = m_Project->GetLoadedScene();
 			m_Renderer->Begin(scene, target, time);
 			m_Renderer->End();
@@ -395,6 +422,14 @@ class EditorApplication : public Nexus::Application
 		m_ImGuiRenderer->AfterLayout();
 
 		Nexus::GetApplication()->GetPrimarySwapchain()->SwapBuffers();
+	}
+
+	virtual void Tick(Nexus::TimeSpan time) override
+	{
+		if (m_Project)
+		{
+			m_Project->OnTick(time);
+		}
 	}
 
 	virtual void Unload() override
@@ -417,8 +452,6 @@ class EditorApplication : public Nexus::Application
 	Nexus::Ref<Nexus::Project> m_Project			   = nullptr;
 	std::vector<Panel *>	   m_Panels				   = {};
 	EditorPropertiesPanel	  *m_EditorPropertiesPanel = nullptr;
-
-	SceneState m_SceneState = SceneState::Stopped;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)

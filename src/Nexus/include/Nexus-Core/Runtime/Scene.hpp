@@ -11,9 +11,22 @@
 
 #include "Nexus-Core/Graphics/Sampler.hpp"
 #include "Nexus-Core/Graphics/Texture.hpp"
+#include "Nexus-Core/Timings/Timespan.hpp"
 
 namespace Nexus
 {
+	enum class SceneState
+	{
+		Playing,
+		Paused,
+		Stopped
+	};
+
+	namespace Scripting
+	{
+		class Script;
+	}
+
 	struct Environment
 	{
 		std::string			   CubemapPath		  = {};
@@ -21,6 +34,9 @@ namespace Nexus
 		Ref<Graphics::Sampler> CubemapSampler	  = nullptr;
 		glm::vec4			   ClearColour		  = {1.0f, 1.0f, 1.0f, 1.0f};
 	};
+
+	// forward declaration
+	class Project;
 
 	struct Scene
 	{
@@ -32,13 +48,26 @@ namespace Nexus
 		Entity				*GetEntity(GUID id);
 		std::vector<Entity> &GetEntities();
 
-	  public:
-		static Scene *Deserialize(GUID guid, const std::string &sceneDirectory);
+		void Start();
+		void Stop();
+		void Pause();
+		void OnUpdate(TimeSpan time);
+		void OnRender(TimeSpan time);
+		void OnTick(TimeSpan time);
+
+		SceneState GetSceneState();
 
 	  public:
-		GUID				Guid			 = {};
-		std::string			Name			 = {};
-		Environment			SceneEnvironment = {};
-		ECS::Registry		Registry		 = {};
+		static Scene *Deserialize(GUID guid, const std::string &sceneDirectory, Project *project);
+
+	  public:
+		GUID		  Guid			   = {};
+		std::string	  Name			   = {};
+		Environment	  SceneEnvironment = {};
+		ECS::Registry Registry		   = {};
+		Project		 *Project		   = nullptr;
+
+	  private:
+		SceneState m_SceneState = SceneState::Stopped;
 	};
 }	 // namespace Nexus

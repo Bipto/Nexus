@@ -17,7 +17,7 @@ add_definitions(-DNX_EXPORT_API=1)
 
 add_library(SCRIPT_PROJECT_NAME SHARED main.cpp)
 
-target_include_directories(SCRIPT_PROJECT_NAME PRIVATE Nexus/include Nexus/glm)
+target_include_directories(SCRIPT_PROJECT_NAME PRIVATE Nexus/include Nexus/glm Nexus/yaml-cpp/include)
 target_link_libraries(SCRIPT_PROJECT_NAME PRIVATE ${CMAKE_SOURCE_DIR}/Nexus/Nexus.lib)
 
 set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT SCRIPT_PROJECT_NAME)

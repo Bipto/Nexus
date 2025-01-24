@@ -97,11 +97,22 @@ namespace Nexus
 			}
 		}
 
-		inline void Instantiate(Nexus::Ref<Nexus::Project> project, Nexus::GUID guid)
+		inline void Instantiate(Nexus::Project *project, Nexus::GUID guid)
 		{
-			ScriptInstance			= project->InstantiateScript(ScriptName);
-			ScriptInstance->Project = project;
-			ScriptInstance->GUID	= guid;
+			if (!project)
+			{
+				return;
+			}
+
+			auto scripts = project->GetAvailableScripts();
+			for (const auto &[name, creationFunction] : scripts)
+			{
+				if (name == ScriptName)
+				{
+					ScriptInstance = creationFunction();
+					ScriptInstance->Instantiate(project, guid);
+				}
+			}
 		}
 
 		friend std::ostream &operator<<(std::ostream &os, const ScriptComponent &component)

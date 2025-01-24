@@ -8,11 +8,6 @@
 
 namespace Nexus
 {
-	namespace Scripting
-	{
-		class Script;
-	}
-
 	struct SceneInfo
 	{
 		GUID		Guid = {};
@@ -49,6 +44,11 @@ namespace Nexus
 		void LoadScene(uint32_t index);
 		void LoadScene(const std::string &name);
 		void CreateNewScene(const std::string &name);
+		void ReloadCurrentScene();
+
+		void OnUpdate(TimeSpan time);
+		void OnRender(TimeSpan time);
+		void OnTick(TimeSpan time);
 
 		std::string GetFullSceneDirectory();
 		std::string GetFullAssetsDirectory();
@@ -56,7 +56,6 @@ namespace Nexus
 		void				  LoadSharedLibrary();
 		Utils::SharedLibrary *GetSharedLibrary();
 		std::map<std::string, std::function<Nexus::Scripting::Script *()>> GetAvailableScripts();
-		Nexus::Scripting::Script										  *InstantiateScript(const std::string &scriptName);
 
 	  public:
 		static Ref<Project> s_ActiveProject;

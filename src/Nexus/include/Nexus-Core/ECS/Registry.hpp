@@ -82,11 +82,72 @@ namespace Nexus::ECS
 	template<typename... Args>
 	class View
 	{
+		// iterator for a view
+		class iterator
+		{
+		  public:
+			using IteratorCategory = std::forward_iterator_tag;
+			using difference_type  = std::ptrdiff_t;
+			using value_type	   = std::pair<Entity *, std::vector<std::tuple<Args *...>>>;
+			using pointer		   = value_type *;
+			using reference		   = value_type &;
+
+			iterator(pointer ptr) : m_Pointer(ptr)
+			{
+			}
+
+			reference operator*() const
+			{
+				return *m_Pointer;
+			}
+
+			pointer operator->()
+			{
+				return m_Pointer;
+			}
+
+			iterator &operator++()
+			{
+				m_Pointer++;
+				return *this;
+			}
+
+			iterator operator++(int)
+			{
+				iterator temp = *this;
+				++(*this);
+				return temp;
+			}
+
+			friend bool operator==(const iterator &a, const iterator &b)
+			{
+				return a.m_Pointer == b.m_Pointer;
+			}
+
+			friend bool operator!=(const iterator &a, const iterator &b)
+			{
+				return a.m_Pointer != b.m_Pointer;
+			}
+
+		  private:
+			pointer m_Pointer = nullptr;
+		};
+
 	  public:
 		View() = default;
 
 		View(const std::vector<std::pair<Entity *, std::vector<std::tuple<Args *...>>>> &components) : m_EntityComponents(components)
 		{
+		}
+
+		iterator begin()
+		{
+			return iterator(&m_EntityComponents[0]);
+		}
+
+		iterator end()
+		{
+			return iterator(&m_EntityComponents[0] + m_EntityComponents.size());
 		}
 
 		std::vector<Entity *> GetEntities() const
@@ -120,6 +181,11 @@ namespace Nexus::ECS
 					func(entity, component);
 				}
 			}
+		}
+
+		bool HasComponents()
+		{
+			return m_EntityComponents.size() > 0;
 		}
 
 	  private:
