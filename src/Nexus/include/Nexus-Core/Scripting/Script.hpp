@@ -46,11 +46,16 @@ namespace Nexus::Scripting
 			return m_Project->GetLoadedScene();
 		}
 
+		GUID GetEntityID() const
+		{
+			return m_GUID;
+		}
+
 		template<typename T>
 		inline T *GetComponent(size_t index = 0)
 		{
 			Scene *currentScene = GetCurrentScene();
-			return currentScene->Registry.GetComponent<T>(index);
+			return currentScene->Registry.GetComponent<T>(GetEntityID(), index);
 		}
 
 		virtual void OnUnload()

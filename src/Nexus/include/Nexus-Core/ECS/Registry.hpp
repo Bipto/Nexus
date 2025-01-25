@@ -231,6 +231,25 @@ namespace Nexus::ECS
 			return components->GetComponent(index);
 		}
 
+		template<typename T>
+		T *GetComponent(GUID id, size_t index = 0)
+		{
+			const char *typeName = typeid(T).name();
+			if (m_ComponentIds.find(id) == m_ComponentIds.end())
+			{
+				return nullptr;
+			}
+
+			const std::vector<size_t> &componentIndices = m_ComponentIds[id][typeName];
+			if (componentIndices.empty() || componentIndices.size() < index)
+			{
+				return nullptr;
+			}
+
+			ComponentArray<T> *componentArray = GetComponentArray<T>();
+			return componentArray->GetComponent(componentIndices[index]);
+		}
+
 		void *GetRawComponent(const std::string &typeName, size_t index)
 		{
 			IComponentArray *components = GetBaseComponentArray(typeName.c_str());
@@ -344,9 +363,6 @@ namespace Nexus::ECS
 						returnComponents.push_back(casted);
 					}
 				}
-
-				T *casted = components->GetComponent(i);
-				returnComponents.push_back(casted);
 			}
 
 			return returnComponents;
