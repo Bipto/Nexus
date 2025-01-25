@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Nexus-Core/Utils/SharedLibrary.hpp"
-#include "WindowsInclude.hpp"
+#include "Platform/Windows/WindowsInclude.hpp"
 
 namespace Nexus::Utils
 {

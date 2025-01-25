@@ -448,11 +448,11 @@ if (DEFINED NX_PLATFORM_WINDOWS)
     src/Platform/Windows/PlatformWindows.cpp
     src/Platform/Windows/SharedLibraryWindows.hpp
     src/Platform/Windows/SharedLibraryWindows.cpp
-    src/Platform/Windows/WindowsInclude.hpp)
+    include/Platform/Windows/WindowsInclude.hpp)
 endif()
 
 if (DEFINED NX_PLATFORM_LINUX)
-  list (APPEND ENGINE_SOURCES src/Platform/X11/X11Include.hpp)
+  list (APPEND ENGINE_SOURCES include/Platform/X11/X11Include.hpp)
 endif()
 
 add_library(Nexus ${ENGINE_SOURCES})

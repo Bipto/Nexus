@@ -36,6 +36,7 @@ namespace Nexus::SDL3
 			case SDLK_8: return KeyCode::Eight;
 			case SDLK_9: return KeyCode::Nine;
 			case SDLK_0: return KeyCode::Zero;
+			case SDLK_MINUS: return KeyCode::Minus;
 			case SDLK_UNDERSCORE: return KeyCode::Underscore;
 			case SDLK_EQUALS: return KeyCode::Equals;
 			case SDLK_BACKSPACE: return KeyCode::Backspace;
@@ -121,6 +122,7 @@ namespace Nexus::SDL3
 			case SDLK_KP_0: return KeyCode::KeyPad_Zero;
 			case SDLK_KP_PERIOD: return KeyCode::Period;
 			case SDLK_KP_ENTER: return KeyCode::KeyPad_Enter;
+			case SDLK_KP_MINUS: return KeyCode::KeyPad_Minus;
 
 			default: throw std::runtime_error("Failed to find a valid keycode");
 		}

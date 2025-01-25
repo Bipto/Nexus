@@ -190,18 +190,22 @@ namespace Nexus
 
 	void Scene::Start()
 	{
-		m_SceneState = SceneState::Playing;
-
-		auto view = Registry.GetView<Nexus::ScriptComponent>();
-
-		for (auto &[entity, components] : view)
+		// we only instantiate scripts if it is the first time clicking the play button
+		if (m_SceneState == SceneState::Stopped)
 		{
-			for (const auto &component : components)
+			auto view = Registry.GetView<Nexus::ScriptComponent>();
+
+			for (auto &[entity, components] : view)
 			{
-				auto *script = std::get<0>(component);
-				script->Instantiate(Project, entity->ID);
+				for (const auto &component : components)
+				{
+					auto *script = std::get<0>(component);
+					script->Instantiate(Project, entity->ID);
+				}
 			}
 		}
+
+		m_SceneState = SceneState::Playing;
 	}
 
 	void Scene::Stop()
