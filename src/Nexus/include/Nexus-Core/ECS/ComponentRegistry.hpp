@@ -7,18 +7,26 @@
 #include "Nexus-Core/Runtime/Project.hpp"
 #include "Nexus-Core/Utils/StringUtils.hpp"
 
+#include "yaml-cpp/yaml.h"
+
 namespace Nexus::ECS
 {
-	using CreateComponentFunc = std::function<void(Registry &registry, const Entity &entity)>;
-	using RenderComponentFunc = std::function<void(void *data, Nexus::Ref<Nexus::Project> project)>;
+	using CreateComponentFunc	 = std::function<void(Registry &registry, const Entity &entity)>;
+	using RenderComponentFunc	 = std::function<void(void *data, Nexus::Ref<Nexus::Project> project)>;
+	using StringSerializerFunc	 = std::function<std::string(void *obj)>;
+	using StringDeserializerFunc = std::function<void(GUID guid, Registry &registry, const std::string &data)>;
+	using YamlSerializerFunc	 = std::function<YAML::Node(void *obj)>;
+	using YamlDeserializerFunc	 = std::function<void(GUID guid, Registry &registry, const YAML::Node &node)>;
 
 	struct ComponentStorage
 	{
-		std::function<std::string(void *obj)>										Serializer		 = {};
-		std::function<void(GUID guid, Registry &registry, const std::string &data)> Deserializer	 = {};
-		CreateComponentFunc															CreationFunction = {};
-		RenderComponentFunc															RenderFunc		 = {};
-		std::string																	DisplayName		 = {};
+		StringSerializerFunc   StringSerializer	  = {};
+		StringDeserializerFunc StringDeserializer = {};
+		YamlSerializerFunc	   YamlSerializer	  = {};
+		YamlDeserializerFunc   YamlDeserializer	  = {};
+		CreateComponentFunc	   CreationFunction	  = {};
+		RenderComponentFunc	   RenderFunc		  = {};
+		std::string			   DisplayName		  = {};
 	};
 
 	class ComponentRegistry
@@ -37,19 +45,31 @@ namespace Nexus::ECS
 			const char			 *typeName = typeInfo.name();
 
 			ComponentStorage storage = {};
-			storage.Serializer		 = [](void *obj) -> std::string
+			storage.StringSerializer = [](void *obj) -> std::string
 			{
 				T				  *actualObj = static_cast<T *>(obj);
 				std::ostringstream oss;
 				oss << *actualObj;
 				return oss.str();
 			};
-			storage.Deserializer = [](GUID guid, Registry &registry, const std::string &data)
+			storage.StringDeserializer = [](GUID guid, Registry &registry, const std::string &data)
 			{
 				T				   obj {};
 				std::istringstream iss(data);
 				iss >> obj;
 
+				registry.AddComponent(guid, obj);
+			};
+			storage.YamlSerializer = [](void *obj) -> YAML::Node
+			{
+				T *actualObj = static_cast<T *>(obj);
+
+				YAML::Node node = YAML::convert<T>::encode(*actualObj);
+				return node;
+			};
+			storage.YamlDeserializer = [](GUID guid, Registry &registry, const YAML::Node &node)
+			{
+				T obj = node.as<T>();
 				registry.AddComponent(guid, obj);
 			};
 			storage.CreationFunction = [](Registry &registry, const Entity &entity) { registry.AddComponent<T>(entity.ID, T {}); };
@@ -59,7 +79,7 @@ namespace Nexus::ECS
 			m_RegisteredComponents[typeName] = storage;
 		}
 
-		std::string SerializeComponent(Registry &registry, ComponentPtr component)
+		std::string SerializeComponentToString(Registry &registry, ComponentPtr component)
 		{
 			const char *typeName = component.typeName;
 
@@ -67,23 +87,50 @@ namespace Nexus::ECS
 			{
 				auto &componentStorage = m_RegisteredComponents.at(typeName);
 				void *obj			   = registry.GetRawComponent(component.typeName, component.componentIndex);
-				return componentStorage.Serializer(obj);
+				return componentStorage.StringSerializer(obj);
 			}
 
 			throw std::runtime_error("Type is not registed for serialization");
 		}
 
-		void DeserializeComponent(Registry &registry, GUID guid, const std::string &displayName, const std::string &data)
+		void DeserializeComponentFromString(Registry &registry, GUID guid, const std::string &displayName, const std::string &data)
 		{
 			std::string typeName = GetTypeNameFromDisplayName(displayName);
 
 			if (m_RegisteredComponents.find(typeName.c_str()) != m_RegisteredComponents.end())
 			{
 				auto &storage = m_RegisteredComponents.at(typeName.c_str());
-				storage.Deserializer(guid, registry, data);
+				storage.StringDeserializer(guid, registry, data);
 				return;
 			}
 
+			throw std::runtime_error("Type is not registered for deserialization");
+		}
+
+		YAML::Node SerializeComponentToYaml(Registry &registry, ComponentPtr component)
+		{
+			const char *typeName = component.typeName;
+
+			if (m_RegisteredComponents.find(typeName) != m_RegisteredComponents.end())
+			{
+				auto &componentStorage = m_RegisteredComponents.at(typeName);
+				void *obj			   = registry.GetRawComponent(component.typeName, component.componentIndex);
+				return componentStorage.YamlSerializer(obj);
+			}
+
+			throw std::runtime_error("Type is not registered for serialization");
+		}
+
+		void DeserializeComponentFromYaml(Registry &registry, GUID guid, const std::string &displayName, const YAML::Node &node)
+		{
+			std::string typeName = GetTypeNameFromDisplayName(displayName);
+
+			if (m_RegisteredComponents.find(typeName.c_str()) != m_RegisteredComponents.end())
+			{
+				auto &storage = m_RegisteredComponents.at(typeName.c_str());
+				storage.YamlDeserializer(guid, registry, node);
+				return;
+			}
 			throw std::runtime_error("Type is not registered for deserialization");
 		}
 

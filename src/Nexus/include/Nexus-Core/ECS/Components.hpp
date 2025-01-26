@@ -57,6 +57,11 @@ namespace Nexus
 
 			return is;
 		}
+
+		friend YAML::Node &operator>>(YAML::Node &node, Transform &person)
+		{
+			return node;
+		}
 	};
 
 	NX_REGISTER_COMPONENT(Transform,
@@ -73,6 +78,18 @@ namespace Nexus
 		std::string						   FilePath = {};
 		Nexus::Ref<Nexus::Graphics::Model> Model	= {};
 
+		inline void LoadModel()
+		{
+			if (!FilePath.empty())
+			{
+				if (std::filesystem::exists(FilePath))
+				{
+					Graphics::MeshFactory factory(Nexus::GetApplication()->GetGraphicsDevice());
+					Model = factory.CreateFrom3DModelFile(FilePath);
+				}
+			}
+		}
+
 		friend std::ostream &operator<<(std::ostream &os, const ModelRenderer &modelRenderer)
 		{
 			os << modelRenderer.FilePath;
@@ -82,16 +99,7 @@ namespace Nexus
 		friend std::istream &operator>>(std::istream &is, ModelRenderer &modelRenderer)
 		{
 			is >> modelRenderer.FilePath;
-
-			if (!modelRenderer.FilePath.empty())
-			{
-				if (std::filesystem::exists(modelRenderer.FilePath))
-				{
-					Graphics::MeshFactory factory(Nexus::GetApplication()->GetGraphicsDevice());
-					modelRenderer.Model = factory.CreateFrom3DModelFile(modelRenderer.FilePath);
-				}
-			}
-
+			modelRenderer.LoadModel();
 			return is;
 		}
 	};
@@ -203,3 +211,90 @@ namespace Nexus
 						  });
 
 }	 // namespace Nexus
+
+namespace YAML
+{
+	template<>
+	struct convert<Nexus::Transform>
+	{
+		static Node encode(const Nexus::Transform &rhs)
+		{
+			Node node;
+			node["Position"]["X"] = rhs.Position.x;
+			node["Position"]["Y"] = rhs.Position.y;
+			node["Position"]["Z"] = rhs.Position.z;
+			node["Rotation"]["X"] = rhs.Rotation.x;
+			node["Rotation"]["Y"] = rhs.Rotation.y;
+			node["Rotation"]["Z"] = rhs.Rotation.z;
+			node["Scale"]["X"]	  = rhs.Scale.x;
+			node["Scale"]["Y"]	  = rhs.Scale.y;
+			node["Scale"]["Z"]	  = rhs.Scale.z;
+			return node;
+		}
+
+		static bool decode(const Node &node, Nexus::Transform &rhs)
+		{
+			if (!node["Position"] || !node["Rotation"] || !node["Scale"])
+			{
+				return false;
+			}
+
+			rhs.Position.x = node["Position"]["X"].as<float>();
+			rhs.Position.y = node["Position"]["Y"].as<float>();
+			rhs.Position.z = node["Position"]["Z"].as<float>();
+			rhs.Rotation.x = node["Rotation"]["X"].as<float>();
+			rhs.Rotation.y = node["Rotation"]["Y"].as<float>();
+			rhs.Rotation.z = node["Rotation"]["Z"].as<float>();
+			rhs.Scale.x	   = node["Scale"]["X"].as<float>();
+			rhs.Scale.y	   = node["Scale"]["Y"].as<float>();
+			rhs.Scale.z	   = node["Scale"]["Z"].as<float>();
+
+			return true;
+		}
+	};
+
+	template<>
+	struct convert<Nexus::ModelRenderer>
+	{
+		static Node encode(const Nexus::ModelRenderer &rhs)
+		{
+			Node node;
+			node["Filepath"] = rhs.FilePath;
+			return node;
+		}
+
+		static bool decode(const Node &node, Nexus::ModelRenderer &rhs)
+		{
+			if (!node["Filepath"])
+			{
+				return false;
+			}
+
+			rhs.FilePath = node["Filepath"].as<std::string>();
+			rhs.LoadModel();
+			return true;
+		}
+	};
+
+	template<>
+	struct convert<Nexus::ScriptComponent>
+	{
+		static Node encode(const Nexus::ScriptComponent &rhs)
+		{
+			Node node;
+			node["ScriptName"] = rhs.ScriptName;
+			return node;
+		}
+
+		static bool decode(const Node &node, Nexus::ScriptComponent &rhs)
+		{
+			if (!node["ScriptName"])
+			{
+				return false;
+			}
+
+			rhs.ScriptName = node["ScriptName"].as<std::string>();
+			return true;
+		}
+	};
+}	 // namespace YAML

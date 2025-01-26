@@ -158,11 +158,11 @@ namespace Nexus
 					out << YAML::BeginMap;
 					auto	   &componentRegistry = ECS::ComponentRegistry::GetRegistry();
 					std::string displayName		  = componentRegistry.GetDisplayName(component);
-					std::string output			  = componentRegistry.SerializeComponent(Registry, component);
+					YAML::Node	componentNode	  = componentRegistry.SerializeComponentToYaml(Registry, component);
 
 					out << YAML::Key << "Entity" << YAML::Value << e.ID.Value;
 					out << YAML::Key << "Name" << YAML::Value << displayName;
-					out << YAML::Key << "Data" << YAML::Value << output;
+					out << YAML::Key << "Data" << YAML::Value << componentNode;
 					out << YAML::EndMap;
 				}
 			}
@@ -341,9 +341,9 @@ namespace Nexus
 				uint64_t	id = component["Entity"].as<uint64_t>();
 				GUID		guid(id);
 				std::string name = component["Name"].as<std::string>();
-				std::string data = component["Data"].as<std::string>();
+				YAML::Node	data = component["Data"];
 
-				registry.DeserializeComponent(scene->Registry, guid, name, data);
+				registry.DeserializeComponentFromYaml(scene->Registry, guid, name, data);
 			}
 		}
 
