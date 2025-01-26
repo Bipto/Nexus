@@ -38,4 +38,18 @@ namespace Nexus::StringUtils
 		text.erase(std::remove(text.begin(), text.end(), character), text.end());
 		return text;
 	}
+
+	std::string RemoveSubString(const std::string &input, const std::string &substring)
+	{
+		std::string result = input;
+		size_t		pos	   = result.find(substring);
+		while (pos != std::string::npos)
+		{
+			result.erase(pos, substring.length());
+			pos = result.find(substring, pos);
+		}
+
+		return result;
+	}
+
 }	 // namespace Nexus::StringUtils

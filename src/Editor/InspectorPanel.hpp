@@ -34,19 +34,21 @@ class InspectorPanel : public Panel
 		{
 			Nexus::Scene  *scene  = m_Project->GetLoadedScene();
 			Nexus::Entity *entity = scene->GetEntity(m_SelectedEntity.value());
+			Nexus::ECS::ComponentRegistry &registry = Nexus::ECS::ComponentRegistry::GetRegistry();
+
 			if (ImGui::BeginPopupContextItem("Add Component"))
 			{
-				const std::map<std::string, Nexus::ECS::CreateComponentFunc> &availableComponents = Nexus::ECS::GetAvailableComponents();
+				std::map<std::string, Nexus::ECS::ComponentStorage> &registeredComponents = registry.GetRegisteredComponents();
 
 				ImGui::Text("Add Components");
 				ImGui::Separator();
 
-				for (const auto &[name, creationFunction] : availableComponents)
+				for (const auto &[name, storage] : registeredComponents)
 				{
-					std::string displayName = Nexus::ECS::GetDisplayNameFromTypeName(name);
+					std::string displayName = registry.GetDisplayNameFromTypeName(name);
 					if (ImGui::Selectable(displayName.c_str()))
 					{
-						ComponentToAdd newComponent = {.createFunc = creationFunction, .entity = entity};
+						ComponentToAdd newComponent = {.createFunc = storage.CreationFunction, .entity = entity};
 						m_ComponentsToAdd.push_back(newComponent);
 					}
 				}
@@ -65,10 +67,10 @@ class InspectorPanel : public Panel
 			{
 				void *obj = scene->Registry.GetRawComponent(component);
 				ImGui::PushID(obj);
-				std::string displayName = Nexus::ECS::GetDisplayNameFromTypeName(component.typeName);
+				std::string displayName = registry.GetDisplayNameFromTypeName(component.typeName);
 				ImGui::Text(displayName.c_str());
 
-				Nexus::ECS::RenderComponent(scene->Registry, component, m_Project);
+				registry.RenderComponent(scene->Registry, component, m_Project);
 
 				if (ImGui::Button("Remove"))
 				{

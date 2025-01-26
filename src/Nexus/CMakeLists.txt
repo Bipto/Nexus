@@ -22,6 +22,7 @@ set(NEXUS_COMPILE_DEFINITIONS "")
 #platform specific configurations
 if (WIN32)
   list(APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_WINDOWS=1)
+  set(NX_PLATFORM_WGL ON CACHE BOOL "")
 elseif(LINUX)
   list(APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_LINUX=1)
 elseif(EMSCRIPTEN)
@@ -143,7 +144,6 @@ list (APPEND ENGINE_SOURCES
 
 list (APPEND ENGINE_SOURCES
   include/Nexus-Core/ECS/ComponentRegistry.hpp
-  src/Nexus-Core/ECS/Components.cpp
   include/Nexus-Core/ECS/Registry.hpp)
 
 list (APPEND ENGINE_SOURCES
@@ -439,7 +439,7 @@ if (DEFINED NX_PLATFORM_VULKAN)
     endif()
 endif()
 
-if (DEFINED NX_PLATFORM_WINDOWS)
+if (WIN32)
   list (APPEND ENGINE_SOURCES
     src/Platform/Windows/PlatformWindows.cpp
     src/Platform/Windows/SharedLibraryWindows.hpp
@@ -447,7 +447,7 @@ if (DEFINED NX_PLATFORM_WINDOWS)
     include/Platform/Windows/WindowsInclude.hpp)
 endif()
 
-if (DEFINED NX_PLATFORM_LINUX)
+if (LINUX)
   list (APPEND ENGINE_SOURCES include/Platform/X11/X11Include.hpp)
 endif()
 

@@ -1,16 +1,19 @@
 #pragma once
 
-#include "ComponentRegistry.hpp"
 #include "Nexus-Core/ImGui/ImGuiInclude.hpp"
 #include "Nexus-Core/nxpch.hpp"
-#include "Registry.hpp"
 
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 #include "Nexus-Core/Graphics/MeshFactory.hpp"
 #include "Nexus-Core/Graphics/Model.hpp"
 #include "Nexus-Core/Runtime.hpp"
 
+#include "Nexus-Core/Runtime/Project.hpp"
 #include "Nexus-Core/Scripting/Script.hpp"
+
+#include "Nexus-Core/FileSystem/FileDialogs.hpp"
+
+#include "ComponentRegistry.hpp"
 
 namespace Nexus
 {
@@ -56,6 +59,15 @@ namespace Nexus
 		}
 	};
 
+	NX_REGISTER_COMPONENT(Transform,
+						  [](void *data, Nexus::Ref<Nexus::Project> project)
+						  {
+							  Nexus::Transform *transform = static_cast<Nexus::Transform *>(data);
+							  ImGui::DragFloat3("Position", glm::value_ptr(transform->Position));
+							  ImGui::DragFloat3("Rotation", glm::value_ptr(transform->Rotation));
+							  ImGui::DragFloat3("Scale", glm::value_ptr(transform->Scale));
+						  });
+
 	struct ModelRenderer
 	{
 		std::string						   FilePath = {};
@@ -83,6 +95,32 @@ namespace Nexus
 			return is;
 		}
 	};
+
+	NX_REGISTER_COMPONENT(ModelRenderer,
+
+						  [](void *data, Nexus::Ref<Nexus::Project> project)
+						  {
+							  Nexus::ModelRenderer *renderer = static_cast<Nexus::ModelRenderer *>(data);
+							  ImGui::Text(renderer->FilePath.c_str());
+							  ImGui::SameLine();
+							  ImGui::PushID(Nexus::GUID {});
+
+							  ImGui::Button("+");
+							  if (ImGui::IsItemClicked())
+							  {
+								  std::vector<const char *> filters = {"*"};
+
+								  const char *filepath = Nexus::FileDialogs::OpenFile(filters);
+								  if (filepath)
+								  {
+									  renderer->FilePath = filepath;
+									  Graphics::MeshFactory factory(Nexus::GetApplication()->GetGraphicsDevice());
+									  renderer->Model = factory.CreateFrom3DModelFile(filepath);
+								  }
+							  }
+
+							  ImGui::PopID();
+						  });
 
 	struct ScriptComponent
 	{
@@ -128,9 +166,40 @@ namespace Nexus
 		}
 	};
 
-}	 // namespace Nexus
+	NX_REGISTER_COMPONENT(ScriptComponent,
 
-namespace Nexus::Components
-{
-	void RegisterDefaultComponents();
-}
+						  [](void *data, Nexus::Ref<Nexus::Project> project)
+						  {
+							  if (!project)
+								  return;
+
+							  Nexus::ScriptComponent *component = static_cast<Nexus::ScriptComponent *>(data);
+
+							  auto availableScripts = project->GetCachedAvailableScripts();
+
+							  std::string previewText = "None";
+							  if (!component->ScriptName.empty())
+							  {
+								  previewText = component->ScriptName;
+							  }
+
+							  if (ImGui::BeginCombo("Script", previewText.c_str()))
+							  {
+								  if (ImGui::Selectable("None"))
+								  {
+									  component->ScriptName = "";
+								  }
+
+								  for (const auto &name : availableScripts)
+								  {
+									  if (ImGui::Selectable(name.c_str()))
+									  {
+										  component->ScriptName = name;
+									  }
+								  }
+
+								  ImGui::EndCombo();
+							  }
+						  });
+
+}	 // namespace Nexus

@@ -41,7 +41,8 @@ namespace Nexus::ECS
 		{
 			const std::type_info &typeInfo = typeid(T);
 			std::string			  typeName = typeInfo.name();
-			ComponentPtr		  ptr {.typeName = typeInfo.name(), .componentIndex = index};
+
+			ComponentPtr ptr {.typeName = typeInfo.name(), .componentIndex = index};
 			return ptr;
 		}
 
