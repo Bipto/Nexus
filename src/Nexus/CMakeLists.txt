@@ -143,6 +143,9 @@ list (APPEND ENGINE_SOURCES
   include/Nexus-Core/Audio/AudioSource.hpp)
 
 list (APPEND ENGINE_SOURCES
+  include/Nexus-Core/Caching/CachedShader.hpp)
+
+list (APPEND ENGINE_SOURCES
   include/Nexus-Core/ECS/ComponentRegistry.hpp
   include/Nexus-Core/ECS/Registry.hpp)
 
@@ -156,8 +159,7 @@ list (APPEND ENGINE_SOURCES
   include/Nexus-Core/FileSystem/FileSystem.hpp)
 
 list (APPEND ENGINE_SOURCES 
-  include/Nexus-Core/Graphics/CachedShader.hpp
-  include/Nexus-Core/Graphics/CachedTexture.hpp
+  
   include/Nexus-Core/Graphics/CatmullRom.hpp
   include/Nexus-Core/Graphics/Circle.hpp
   include/Nexus-Core/Graphics/Color.hpp

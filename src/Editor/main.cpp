@@ -86,6 +86,35 @@ class EditorApplication : public Nexus::Application
 		m_FramebufferTextureID = m_ImGuiRenderer->BindTexture(m_Framebuffer->GetColorTexture(0));
 	}
 
+	void CreateProject(const std::string &projectName, const std::string &projectDirectory)
+	{
+		m_Project = Nexus::CreateRef<Nexus::Project>(projectName, projectDirectory, true);
+		m_Project->Serialize();
+
+		Nexus::Utils::ScriptProjectGenerator generator = {};
+		generator.Generate("project_template", m_Project->GetName(), projectDirectory);
+
+		LoadProject(m_Project);
+		m_NewProjectWindowOpen = false;
+	}
+
+	void OpenProject(const std::string &filepath)
+	{
+		m_Project = Nexus::Project::Deserialize(filepath);
+		if (m_Project->GetNumberOfScenes() > 0)
+		{
+			m_Project->LoadScene(0);
+		}
+		LoadProject(m_Project);
+	}
+
+	void LoadProject(Nexus::Ref<Nexus::Project> project)
+	{
+		m_Project = project;
+
+		for (auto panel : m_Panels) { panel->LoadProject(m_Project); }
+	}
+
 	void RenderNewProjectWindow()
 	{
 		if (!m_NewProjectWindowOpen)
@@ -114,25 +143,13 @@ class EditorApplication : public Nexus::Application
 
 			if (ImGui::Button("Create"))
 			{
-				m_Project = Nexus::CreateRef<Nexus::Project>(s_ProjectName, s_ProjectDirectory, true);
-				m_Project->Serialize();
-
-				Nexus::Utils::ScriptProjectGenerator generator = {};
-				generator.Generate("project_template", m_Project->GetName(), s_ProjectDirectory);
-
-				LoadProject(m_Project);
-				m_NewProjectWindowOpen = false;
+				CreateProject(s_ProjectName, s_ProjectDirectory);
+				s_ProjectName	   = {};
+				s_ProjectDirectory = {};
 			}
 		}
 
 		ImGui::End();
-	}
-
-	void LoadProject(Nexus::Ref<Nexus::Project> project)
-	{
-		m_Project = project;
-
-		for (auto panel : m_Panels) { panel->LoadProject(m_Project); }
 	}
 
 	void RenderMainMenuBar()
@@ -159,12 +176,7 @@ class EditorApplication : public Nexus::Application
 					const char				 *filepath = Nexus::FileDialogs::OpenFile(filters);
 					if (filepath)
 					{
-						m_Project = Nexus::Project::Deserialize(filepath);
-						if (m_Project->GetNumberOfScenes() > 0)
-						{
-							m_Project->LoadScene(0);
-						}
-						LoadProject(m_Project);
+						OpenProject(filepath);
 					}
 				}
 

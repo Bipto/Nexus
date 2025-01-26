@@ -9,8 +9,7 @@
 #include "Nexus-Core/Logging/Log.hpp"
 #include "stb_image.h"
 
-#include "Nexus-Core/Graphics/CachedShader.hpp"
-#include "Nexus-Core/Graphics/CachedTexture.hpp"
+#include "Nexus-Core/Caching/CachedShader.hpp"
 
 // graphics headers
 #if defined(NX_PLATFORM_OPENGL)
