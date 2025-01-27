@@ -15,6 +15,13 @@
 
 namespace Nexus
 {
+	struct SceneInfo
+	{
+		GUID		Guid = {};
+		std::string Name = {};
+		std::string Path = {};
+	};
+
 	enum class SceneState
 	{
 		Playing,
@@ -58,7 +65,7 @@ namespace Nexus
 		SceneState GetSceneState();
 
 	  public:
-		static Scene *Deserialize(GUID guid, const std::string &sceneDirectory, Project *project);
+		static Scene *Deserialize(const SceneInfo &info, const std::string &sceneDirectory, Project *project);
 
 	  public:
 		GUID		  Guid			   = {};

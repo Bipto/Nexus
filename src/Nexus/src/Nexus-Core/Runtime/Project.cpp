@@ -91,11 +91,7 @@ namespace Nexus
 		if (m_Scenes.size() > index)
 		{
 			const SceneInfo &info = m_Scenes.at(index);
-
-			std::stringstream ss;
-			ss << info.Guid;
-
-			Scene *scene  = Scene::Deserialize(info.Guid, GetFullSceneDirectory(), this);
+			Scene			*scene = Scene::Deserialize(info, GetFullSceneDirectory(), this);
 			m_LoadedScene = std::unique_ptr<Scene>(scene);
 		}
 	}
@@ -278,10 +274,7 @@ namespace Nexus
 
 		if (m_LoadedScene)
 		{
-			std::stringstream ss;
-			ss << m_LoadedScene->Guid;
-
-			std::string filename = ss.str() + ".scene";
+			std::string filename = m_LoadedScene->Name + ".scene";
 			path /= filename;
 			m_LoadedScene->Serialize(path.string());
 		}

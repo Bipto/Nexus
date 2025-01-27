@@ -289,11 +289,9 @@ namespace Nexus
 		return m_SceneState;
 	}
 
-	Scene *Scene::Deserialize(GUID guid, const std::string &sceneDirectory, Nexus::Project *project)
+	Scene *Scene::Deserialize(const SceneInfo &info, const std::string &sceneDirectory, Nexus::Project *project)
 	{
-		std::stringstream ss;
-		ss << guid;
-		std::string filepath = sceneDirectory + ss.str() + std::string(".scene");
+		std::string filepath = sceneDirectory + info.Name + std::string(".scene");
 
 		std::string input = Nexus::FileSystem::ReadFileToStringAbsolute(filepath);
 		YAML::Node	node  = YAML::Load(input);
@@ -304,7 +302,7 @@ namespace Nexus
 		}
 
 		Scene *scene = new Scene();
-		scene->Guid	 = guid;
+		scene->Guid	   = info.Guid;
 		scene->Name	 = node["Scene"].as<std::string>();
 		scene->Project = project;
 

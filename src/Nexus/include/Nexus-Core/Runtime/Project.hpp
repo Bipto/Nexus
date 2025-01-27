@@ -8,13 +8,6 @@
 
 namespace Nexus
 {
-	struct SceneInfo
-	{
-		GUID		Guid = {};
-		std::string Name = {};
-		std::string Path = {};
-	};
-
 	class Project
 	{
 	  public:
