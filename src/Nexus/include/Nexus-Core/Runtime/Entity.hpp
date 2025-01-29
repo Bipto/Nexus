@@ -6,11 +6,15 @@
 
 namespace Nexus
 {
+	namespace ECS
+	{
+		class Registry;
+	}
+
 	struct Entity
 	{
 	  public:
-		void			   Serialize(YAML::Emitter &out) const;
-		bool			   Deserialize(YAML::Node &data);
+		void Serialize(YAML::Emitter &out, ECS::Registry &registry) const;
 
 		GUID		ID	 = {};
 		std::string Name = "Unnamed Entity";

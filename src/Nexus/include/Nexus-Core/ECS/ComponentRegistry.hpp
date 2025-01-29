@@ -14,9 +14,9 @@ namespace Nexus::ECS
 	using CreateComponentFunc	 = std::function<void(Registry &registry, const Entity &entity)>;
 	using RenderComponentFunc	 = std::function<void(void *data, Nexus::Ref<Nexus::Project> project)>;
 	using StringSerializerFunc	 = std::function<std::string(void *obj)>;
-	using StringDeserializerFunc = std::function<void(GUID guid, Registry &registry, const std::string &data)>;
+	using StringDeserializerFunc = std::function<void(GUID guid, Registry &registry, const std::string &data, size_t entityHierarchyIndex)>;
 	using YamlSerializerFunc	 = std::function<YAML::Node(void *obj)>;
-	using YamlDeserializerFunc	 = std::function<void(GUID guid, Registry &registry, const YAML::Node &node)>;
+	using YamlDeserializerFunc	 = std::function<void(GUID guid, Registry &registry, const YAML::Node &node, size_t entityHierarchyIndex)>;
 
 	struct ComponentStorage
 	{
@@ -52,25 +52,23 @@ namespace Nexus::ECS
 				oss << *actualObj;
 				return oss.str();
 			};
-			storage.StringDeserializer = [](GUID guid, Registry &registry, const std::string &data)
+			storage.StringDeserializer = [](GUID guid, Registry &registry, const std::string &data, size_t entityHierarchyIndex)
 			{
 				T				   obj {};
 				std::istringstream iss(data);
 				iss >> obj;
-
-				registry.AddComponent(guid, obj);
+				registry.AddComponent(guid, obj, entityHierarchyIndex);
 			};
 			storage.YamlSerializer = [](void *obj) -> YAML::Node
 			{
-				T *actualObj = static_cast<T *>(obj);
-
+				T		  *actualObj = static_cast<T *>(obj);
 				YAML::Node node = YAML::convert<T>::encode(*actualObj);
 				return node;
 			};
-			storage.YamlDeserializer = [](GUID guid, Registry &registry, const YAML::Node &node)
+			storage.YamlDeserializer = [](GUID guid, Registry &registry, const YAML::Node &node, size_t entityHierarchyIndex)
 			{
 				T obj = node.as<T>();
-				registry.AddComponent(guid, obj);
+				registry.AddComponent(guid, obj, entityHierarchyIndex);
 			};
 			storage.CreationFunction = [](Registry &registry, const Entity &entity) { registry.AddComponent<T>(entity.ID, T {}); };
 			storage.DisplayName		 = displayName;
@@ -93,14 +91,18 @@ namespace Nexus::ECS
 			throw std::runtime_error("Type is not registed for serialization");
 		}
 
-		void DeserializeComponentFromString(Registry &registry, GUID guid, const std::string &displayName, const std::string &data)
+		void DeserializeComponentFromString(Registry		  &registry,
+											GUID			   guid,
+											const std::string &displayName,
+											const std::string &data,
+											size_t			   entityHierarchyIndex)
 		{
 			std::string typeName = GetTypeNameFromDisplayName(displayName);
 
 			if (m_RegisteredComponents.find(typeName.c_str()) != m_RegisteredComponents.end())
 			{
 				auto &storage = m_RegisteredComponents.at(typeName.c_str());
-				storage.StringDeserializer(guid, registry, data);
+				storage.StringDeserializer(guid, registry, data, entityHierarchyIndex);
 				return;
 			}
 
@@ -121,14 +123,18 @@ namespace Nexus::ECS
 			throw std::runtime_error("Type is not registered for serialization");
 		}
 
-		void DeserializeComponentFromYaml(Registry &registry, GUID guid, const std::string &displayName, const YAML::Node &node)
+		void DeserializeComponentFromYaml(Registry			&registry,
+										  GUID				 guid,
+										  const std::string &displayName,
+										  const YAML::Node	&node,
+										  size_t			 entityHierarchyIndex)
 		{
 			std::string typeName = GetTypeNameFromDisplayName(displayName);
 
 			if (m_RegisteredComponents.find(typeName.c_str()) != m_RegisteredComponents.end())
 			{
 				auto &storage = m_RegisteredComponents.at(typeName.c_str());
-				storage.YamlDeserializer(guid, registry, node);
+				storage.YamlDeserializer(guid, registry, node, entityHierarchyIndex);
 				return;
 			}
 			throw std::runtime_error("Type is not registered for deserialization");

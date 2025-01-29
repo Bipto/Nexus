@@ -145,28 +145,7 @@ namespace Nexus
 			out << YAML::EndMap;
 
 			out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
-			for (const auto &e : GetEntities()) { e.Serialize(out); }
-			out << YAML::EndSeq;
-
-			out << YAML::Key << "Components" << YAML::Value << YAML::BeginSeq;
-
-			for (const auto &e : GetEntities())
-			{
-				std::vector<ECS::ComponentPtr> components = Registry.GetAllComponents(e.ID);
-				for (ECS::ComponentPtr component : components)
-				{
-					out << YAML::BeginMap;
-					auto	   &componentRegistry = ECS::ComponentRegistry::GetRegistry();
-					std::string displayName		  = componentRegistry.GetDisplayName(component);
-					YAML::Node	componentNode	  = componentRegistry.SerializeComponentToYaml(Registry, component);
-
-					out << YAML::Key << "Entity" << YAML::Value << e.ID.Value;
-					out << YAML::Key << "Name" << YAML::Value << displayName;
-					out << YAML::Key << "Data" << YAML::Value << componentNode;
-					out << YAML::EndMap;
-				}
-			}
-
+			for (const auto &e : GetEntities()) { e.Serialize(out, Registry); }
 			out << YAML::EndSeq;
 		}
 
@@ -223,7 +202,7 @@ namespace Nexus
 	void Scene::OnUpdate(TimeSpan time)
 	{
 		auto models = Registry.GetView<Nexus::ModelRenderer>();
-		auto view = Registry.GetView<Nexus::ScriptComponent>();
+		auto view	= Registry.GetView<Nexus::ScriptComponent>();
 		if (!view.HasComponents())
 		{
 			return;
@@ -301,9 +280,9 @@ namespace Nexus
 			return nullptr;
 		}
 
-		Scene *scene = new Scene();
+		Scene *scene   = new Scene();
 		scene->Guid	   = info.Guid;
-		scene->Name	 = node["Scene"].as<std::string>();
+		scene->Name	   = node["Scene"].as<std::string>();
 		scene->Project = project;
 
 		auto environment					= node["Environment"];
@@ -326,22 +305,20 @@ namespace Nexus
 				std::string name = entity["Name"].as<std::string>();
 				Entity		e(GUID(id), name);
 				scene->Registry.AddEntity(e);
-			}
-		}
 
-		auto components = node["Components"];
-		if (components)
-		{
-			for (auto component : components)
-			{
-				Nexus::ECS::ComponentRegistry &registry = Nexus::ECS::ComponentRegistry::GetRegistry();
+				auto components = entity["Components"];
+				if (components)
+				{
+					for (auto component : components)
+					{
+						Nexus::ECS::ComponentRegistry &componentRegistry = Nexus::ECS::ComponentRegistry::GetRegistry();
 
-				uint64_t	id = component["Entity"].as<uint64_t>();
-				GUID		guid(id);
-				std::string name = component["Name"].as<std::string>();
-				YAML::Node	data = component["Data"];
-
-				registry.DeserializeComponentFromYaml(scene->Registry, guid, name, data);
+						std::string componentName		 = component["Name"].as<std::string>();
+						size_t		entityComponentIndex = component["HierarchyIndex"].as<size_t>();
+						YAML::Node	data				 = component["Data"];
+						componentRegistry.DeserializeComponentFromYaml(scene->Registry, e.ID, componentName, data, entityComponentIndex);
+					}
+				}
 			}
 		}
 

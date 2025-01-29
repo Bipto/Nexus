@@ -63,6 +63,11 @@ class InspectorPanel : public Panel
 			ImGui::Separator();
 
 			std::vector<Nexus::ECS::ComponentPtr> components = scene->Registry.GetAllComponents(entity->ID);
+			std::sort(components.begin(),
+					  components.end(),
+					  [](const Nexus::ECS::ComponentPtr &a, const Nexus::ECS::ComponentPtr &b)
+					  { return a.entityComponentIndex < b.entityComponentIndex; });
+
 			for (Nexus::ECS::ComponentPtr component : components)
 			{
 				void *obj = scene->Registry.GetRawComponent(component);
