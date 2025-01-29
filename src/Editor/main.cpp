@@ -79,8 +79,9 @@ class EditorApplication : public Nexus::Application
 		Nexus::Graphics::FramebufferSpecification framebufferSpec = {};
 		framebufferSpec.Width									  = (uint32_t)size.x;
 		framebufferSpec.Height									  = (uint32_t)size.y;
+		framebufferSpec.ColorAttachmentSpecification.Attachments  = {{Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm},
+																	 {Nexus::Graphics::PixelFormat::R32_G32_UInt}};
 		framebufferSpec.DepthAttachmentSpecification			  = {Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt};
-		framebufferSpec.ColorAttachmentSpecification.Attachments  = {{Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm}};
 
 		m_Framebuffer		   = m_GraphicsDevice->CreateFramebuffer(framebufferSpec);
 		m_FramebufferTextureID = m_ImGuiRenderer->BindTexture(m_Framebuffer->GetColorTexture(0));
@@ -408,6 +409,18 @@ class EditorApplication : public Nexus::Application
 			}
 			ImGui::Image(m_FramebufferTextureID, size, uv0, uv1);
 
+			if (ImGui::IsItemClicked())
+			{
+				ImVec2 mousePos		 = ImGui::GetMousePos();
+				ImVec2 imagePos		 = ImGui::GetCursorScreenPos();
+				ImVec2 localClickPos = ImVec2(mousePos.x - imagePos.x, mousePos.y - imagePos.y);
+				m_ClickPosition		 = {localClickPos.x, localClickPos.y};
+			}
+			else
+			{
+				m_ClickPosition = {};
+			}
+
 			if (size.x != m_PreviousViewportSize.x || size.y != m_PreviousViewportSize.y)
 			{
 				if (size.x > 0 && size.y > 0)
@@ -452,6 +465,19 @@ class EditorApplication : public Nexus::Application
 		RenderDockspace();
 		m_ImGuiRenderer->AfterLayout();
 
+		if (m_ClickPosition)
+		{
+			Nexus::Ref<Nexus::Graphics::Texture2D> idTexture  = m_Framebuffer->GetColorTexture(1);
+			std::vector<unsigned char>			   pixels	  = idTexture->GetData(0, m_ClickPosition.value().x, m_ClickPosition.value().y, 1, 1);
+			uint32_t							   upperValue = 0;
+			uint32_t							   lowerValue = 0;
+
+			memcpy(&upperValue, pixels.data(), sizeof(upperValue));
+			memcpy(&lowerValue, pixels.data() + sizeof(lowerValue), sizeof(lowerValue));
+
+			Nexus::GUID id = Nexus::GUID::FromSplit(upperValue, lowerValue);
+		}
+
 		Nexus::GetApplication()->GetPrimarySwapchain()->SwapBuffers();
 	}
 
@@ -483,6 +509,8 @@ class EditorApplication : public Nexus::Application
 	Nexus::Ref<Nexus::Project> m_Project			   = nullptr;
 	std::vector<Panel *>	   m_Panels				   = {};
 	EditorPropertiesPanel	  *m_EditorPropertiesPanel = nullptr;
+
+	std::optional<glm::vec2> m_ClickPosition = {};
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)

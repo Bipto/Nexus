@@ -26,5 +26,18 @@ namespace Nexus
 		{
 			return Value;
 		}
+
+		std::pair<uint32_t, uint32_t> Split()
+		{
+			uint32_t lowerValue = static_cast<uint32_t>(Value & 0xFFFFFFFF);
+			uint32_t upperValue = static_cast<uint32_t>((Value >> 32) & 0xFFFFFFFF);
+			return {lowerValue, upperValue};
+		}
+
+		static GUID FromSplit(uint32_t lowerValue, uint32_t upperValue)
+		{
+			uint64_t value = ((uint64_t)upperValue << 32) | lowerValue;
+			return GUID(value);
+		}
 	};
 }	 // namespace Nexus

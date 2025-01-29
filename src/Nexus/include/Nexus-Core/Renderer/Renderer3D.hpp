@@ -25,6 +25,8 @@ namespace Nexus::Graphics
 	struct alignas(16) ModelTransformUniforms
 	{
 		glm::mat4 Transform = {};
+		uint32_t  Guid1		= {};
+		uint32_t  Guid2		= {};
 	};
 
 	class Renderer3D
@@ -38,7 +40,7 @@ namespace Nexus::Graphics
 
 	  private:
 		void RenderCubemap();
-		void RenderModel(Nexus::Ref<Nexus::Graphics::Model> model, const glm::mat4 transform);
+		void RenderModel(Nexus::Ref<Nexus::Graphics::Model> model, const glm::mat4 transform, GUID guid);
 		void CreateCubemapPipeline();
 		void CreateModelPipeline();
 

@@ -13,7 +13,6 @@
 #include "Nexus-Core/Input/Input.hpp"
 #include "Nexus-Core/Logging/Log.hpp"
 #include "Nexus-Core/Point.hpp"
-#include "Nexus-Core/Renderer.hpp"
 #include "Nexus-Core/Runtime.hpp"
 #include "Nexus-Core/Runtime/Camera.hpp"
 #include "Nexus-Core/Runtime/Project.hpp"

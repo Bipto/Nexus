@@ -126,8 +126,6 @@ set (ENGINE_SOURCES
   src/Nexus-Core/Platform.cpp
   include/Nexus-Core/Platform.hpp
   include/Nexus-Core/Point.hpp
-  src/Nexus-Core/Renderer.cpp
-  include/Nexus-Core/Renderer.hpp
   src/Nexus-Core/Runtime.cpp
   include/Nexus-Core/Runtime.hpp
   include/Nexus-Core/Types.hpp

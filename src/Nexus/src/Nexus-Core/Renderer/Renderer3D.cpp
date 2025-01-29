@@ -51,7 +51,8 @@ layout (location = 0) out vec2 OutTexCoord;
 layout (location = 1) out vec3 OutNormal;
 layout (location = 2) out vec3 FragPos;
 layout (location = 3) out vec3 ViewPos;
-layout (location = 4) out mat3 TBN;
+layout (location = 4) flat out uvec2 EntityID;
+layout (location = 5) out mat3 TBN;
 
 layout (std140, binding = 0, set = 0) uniform Camera
 {
@@ -63,6 +64,8 @@ layout (std140, binding = 0, set = 0) uniform Camera
 layout (std140,binding = 1, set = 0) uniform Transform
 {
     mat4 u_Transform;
+	uint u_Guid1;
+	uint u_Guid2;
 };
 
 void main()
@@ -77,6 +80,8 @@ void main()
     vec3 B = normalize(vec3(u_Transform * vec4(Bitangent, 0.0)));
     vec3 N = normalize(vec3(u_Transform * vec4(Normal, 0.0)));
     TBN = mat3(T, B, N);
+
+	EntityID = uvec2(u_Guid1, u_Guid2);
 }
 )";
 
@@ -87,9 +92,11 @@ layout (location = 0) in vec2 OutTexCoord;
 layout (location = 1) in vec3 OutNormal;
 layout (location = 2) in vec3 FragPos;
 layout (location = 3) in vec3 ViewPos;
-layout (location = 4) in mat3 TBN;
+layout (location = 4) flat in uvec2 EntityID;
+layout (location = 5) in mat3 TBN;
 
 layout (location = 0) out vec4 FragColor;
+layout (location = 1) out uvec2 o_EntityID;
 
 layout (binding = 0, set = 1) uniform sampler2D diffuseMapSampler;
 layout (binding = 1, set = 1) uniform sampler2D normalMapSampler;
@@ -99,6 +106,7 @@ void main()
 {
 	vec4 objectColor = texture(diffuseMapSampler, OutTexCoord);
     FragColor = vec4(objectColor.rgb, objectColor.a);
+	o_EntityID = EntityID;
 })";
 
 namespace Nexus::Graphics
@@ -153,7 +161,7 @@ namespace Nexus::Graphics
 
 				if (modelRenderer->Model)
 				{
-					RenderModel(modelRenderer->Model, transform->CreateTransformation());
+					RenderModel(modelRenderer->Model, transform->CreateTransformation(), entity->ID);
 				}
 			});
 	}
@@ -184,6 +192,7 @@ namespace Nexus::Graphics
 
 		m_CommandList->ClearColorTarget(0,
 										{environment.ClearColour.r, environment.ClearColour.g, environment.ClearColour.b, environment.ClearColour.a});
+		m_CommandList->ClearColorTarget(1, {0.0f, 0.0f, 0.0f, 0.0f});
 
 		m_CommandList->ClearDepthTarget(Nexus::Graphics::ClearDepthStencilValue {});
 
@@ -204,17 +213,21 @@ namespace Nexus::Graphics
 		m_Device->SubmitCommandList(m_CommandList);
 	}
 
-	void Renderer3D::RenderModel(Nexus::Ref<Nexus::Graphics::Model> model, const glm::mat4 transform)
+	void Renderer3D::RenderModel(Nexus::Ref<Nexus::Graphics::Model> model, const glm::mat4 transform, GUID guid)
 	{
 		if (model->GetMeshes().empty())
 		{
 			return;
 		}
 
+		std::pair<uint32_t, uint32_t> splitId = guid.Split();
+
 		for (const auto &mesh : model->GetMeshes())
 		{
 			ModelTransformUniforms modelTransformUniforms = {};
 			modelTransformUniforms.Transform			  = transform;
+			modelTransformUniforms.Guid1				  = splitId.first;
+			modelTransformUniforms.Guid2				  = splitId.second;
 			m_ModelTransformUniformBuffer->SetData(&modelTransformUniforms, sizeof(modelTransformUniforms));
 
 			const Nexus::Graphics::Material &mat = mesh->GetMaterial();
