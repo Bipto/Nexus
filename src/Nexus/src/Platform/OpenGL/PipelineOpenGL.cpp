@@ -199,6 +199,16 @@ namespace Nexus::Graphics
 			case FrontFace::CounterClockwise: glCall(glFrontFace(GL_CCW)); break;
 		}
 
+		for (size_t i = 0; i < m_Description.ColourBlendStates.size(); i++)
+		{
+			const auto &colourBlendState = m_Description.ColourBlendStates[i];
+			glColorMaski(i,
+						 colourBlendState.PixelWriteMask.Red,
+						 colourBlendState.PixelWriteMask.Green,
+						 colourBlendState.PixelWriteMask.Blue,
+						 colourBlendState.PixelWriteMask.Alpha);
+		}
+
 		// vulkan requires scissor test to be enabled
 		glCall(glEnable(GL_SCISSOR_TEST));
 	}

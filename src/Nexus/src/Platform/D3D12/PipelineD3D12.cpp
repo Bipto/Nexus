@@ -347,7 +347,26 @@ namespace Nexus::Graphics
 			desc.RenderTarget[i].BlendOpAlpha		   = D3D12::GetBlendEquation(m_Description.ColourBlendStates[i].AlphaBlendFunction);
 			desc.RenderTarget[i].LogicOpEnable		   = FALSE;
 			desc.RenderTarget[i].LogicOp			   = D3D12_LOGIC_OP_NOOP;
-			desc.RenderTarget[i].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
+			uint8_t writeMask = 0;
+			if (m_Description.ColourBlendStates[i].PixelWriteMask.Red)
+			{
+				writeMask |= D3D12_COLOR_WRITE_ENABLE_RED;
+			}
+			if (m_Description.ColourBlendStates[i].PixelWriteMask.Green)
+			{
+				writeMask |= D3D12_COLOR_WRITE_ENABLE_GREEN;
+			}
+			if (m_Description.ColourBlendStates[i].PixelWriteMask.Blue)
+			{
+				writeMask |= D3D12_COLOR_WRITE_ENABLE_BLUE;
+			}
+			if (m_Description.ColourBlendStates[i].PixelWriteMask.Alpha)
+			{
+				writeMask |= D3D12_COLOR_WRITE_ENABLE_ALPHA;
+			}
+
+			desc.RenderTarget[i].RenderTargetWriteMask = writeMask;
 		}
 
 		return desc;

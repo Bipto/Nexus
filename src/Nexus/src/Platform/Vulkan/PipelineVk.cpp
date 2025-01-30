@@ -258,8 +258,26 @@ namespace Nexus::Graphics
 
 		for (size_t i = 0; i < m_Description.ColourBlendStates.size(); i++)
 		{
+			VkColorComponentFlags writeMask = {};
+			if (m_Description.ColourBlendStates[i].PixelWriteMask.Red)
+			{
+				writeMask |= VK_COLOR_COMPONENT_R_BIT;
+			}
+			if (m_Description.ColourBlendStates[i].PixelWriteMask.Green)
+			{
+				writeMask |= VK_COLOR_COMPONENT_G_BIT;
+			}
+			if (m_Description.ColourBlendStates[i].PixelWriteMask.Blue)
+			{
+				writeMask |= VK_COLOR_COMPONENT_B_BIT;
+			}
+			if (m_Description.ColourBlendStates[i].PixelWriteMask.Alpha)
+			{
+				writeMask |= VK_COLOR_COMPONENT_A_BIT;
+			}
+
 			VkPipelineColorBlendAttachmentState blendState = {};
-			blendState.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+			blendState.colorWriteMask					   = writeMask;
 			blendState.blendEnable	  = m_Description.ColourBlendStates[i].EnableBlending;
 			blendState.srcColorBlendFactor = Vk::GetVkBlendFactor(m_Description.ColourBlendStates[i].SourceColourBlend);
 			blendState.dstColorBlendFactor = Vk::GetVkBlendFactor(m_Description.ColourBlendStates[i].DestinationColourBlend);

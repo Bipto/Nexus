@@ -69,6 +69,22 @@ namespace Nexus::Graphics
 		OneMinusDestinationAlpha,
 	};
 
+	/// @brief A struct representing a mask of pixels to be written
+	struct WriteMask
+	{
+		/// @brief Whether the red channel can be written to
+		bool Red = true;
+
+		/// @brief Whether the green channel can be written to
+		bool Green = true;
+
+		/// @brief Whether the blue channel can be written to
+		bool Blue = true;
+
+		/// @brief Whether the alpha channel can be written to
+		bool Alpha = true;
+	};
+
 	/// @brief An enum class representing how values will be blended
 	enum class BlendEquation
 	{
@@ -262,6 +278,10 @@ namespace Nexus::Graphics
 		/// @brief How the two RGB colour values should be blended together
 		BlendEquation ColorBlendFunction = BlendEquation::Add;
 
+		/// @brief How the two alpha value should be blended together
 		BlendEquation AlphaBlendFunction = BlendEquation::Add;
+
+		/// @brief How the pixel should be written to the render target
+		WriteMask PixelWriteMask = WriteMask {};
 	};
 }	 // namespace Nexus::Graphics
