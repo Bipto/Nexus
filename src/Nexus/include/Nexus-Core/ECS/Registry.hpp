@@ -260,14 +260,14 @@ namespace Nexus::ECS
 				return nullptr;
 			}
 
-			const std::vector<size_t> &componentIndices = m_ComponentIds[id][typeName];
+			const std::vector<Nexus::ECS::ComponentPositionData> &componentIndices = m_ComponentIds[id][typeName];
 			if (componentIndices.empty() || componentIndices.size() < index)
 			{
 				return nullptr;
 			}
 
 			ComponentArray<T> *componentArray = GetComponentArray<T>();
-			return componentArray->GetComponent(componentIndices[index]);
+			return componentArray->GetComponent(componentIndices[index].componentIndex);
 		}
 
 		void *GetRawComponent(const std::string &typeName, size_t index)

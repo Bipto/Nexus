@@ -200,6 +200,11 @@ namespace Nexus::Graphics
 			});
 	}
 
+	const Nexus::FirstPersonCamera Renderer3D::GetCamera() const
+	{
+		return m_Camera;
+	}
+
 	void Renderer3D::RenderCubemap()
 	{
 		Nexus::Point2D<uint32_t> size = m_RenderTarget.GetSize();

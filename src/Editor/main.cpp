@@ -51,6 +51,7 @@ class EditorApplication : public Nexus::Application
 		sceneViewPanel->OnEntitySelected.Bind(
 			[this](std::optional<Nexus::GUID> id)
 			{
+				m_EntityID = id;
 				for (Panel *panel : m_Panels) { panel->OnEntitySelected(id); }
 			});
 
@@ -407,10 +408,11 @@ class EditorApplication : public Nexus::Application
 				uv0 = {0, 1};
 				uv1 = {1, 0};
 			}
+			ImVec2 cursorPos = ImGui::GetCursorPos();
 			ImVec2 imagePos = ImGui::GetCursorScreenPos();
 			ImGui::Image(m_FramebufferTextureID, size, uv0, uv1);
 
-			if (ImGui::IsItemClicked())
+			if (ImGui::IsItemClicked() && !m_FramebufferClickDisabled)
 			{
 				ImVec2 mousePos		 = ImGui::GetMousePos();
 				ImVec2 localClickPos = ImVec2(mousePos.x - imagePos.x, mousePos.y - imagePos.y);
@@ -421,12 +423,75 @@ class EditorApplication : public Nexus::Application
 				m_ClickPosition = {};
 			}
 
+			if (m_EntityID)
+			{
+				Nexus::Scene	 *scene		= m_Project->GetLoadedScene();
+				Nexus::Transform *transform = scene->Registry.GetComponent<Nexus::Transform>(m_EntityID.value());
+
+				const auto &camera		 = m_Renderer->GetCamera();
+				const auto &view		 = camera.GetView();
+				const auto &projection	 = camera.GetProjection();
+				glm::mat4	transformMat = transform->CreateTransformation();
+
+				ImGuizmo::SetOrthographic(false);
+				ImGuizmo::SetDrawlist();
+				ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
+
+				if (ImGuizmo::Manipulate(glm::value_ptr(view),
+										 glm::value_ptr(projection),
+										 m_CurrentOperation,
+										 ImGuizmo::MODE::LOCAL,
+										 glm::value_ptr(transformMat)))
+				{
+					glm::vec3 translation = {};
+					glm::vec3 rotation	  = {};
+					glm::vec3 scale		  = {};
+					ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(transformMat),
+														  glm::value_ptr(translation),
+														  glm::value_ptr(rotation),
+														  glm::value_ptr(scale));
+					transform->Position = translation;
+					transform->Rotation = rotation;
+					transform->Scale	= scale;
+				}
+
+				m_FramebufferClickDisabled = ImGuizmo::IsOver() || ImGuizmo::IsUsingAny();
+			}
+
 			if (size.x != m_PreviousViewportSize.x || size.y != m_PreviousViewportSize.y)
 			{
 				if (size.x > 0 && size.y > 0)
 				{
 					ResizeFramebuffer(size);
 				}
+			}
+
+			ImGui::SetCursorPos(cursorPos);
+			if (ImGui::Button("Translate"))
+			{
+				m_CurrentOperation = ImGuizmo::OPERATION::TRANSLATE;
+			}
+			if (ImGui::IsItemHovered())
+			{
+				m_FramebufferClickDisabled = true;
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Rotate"))
+			{
+				m_CurrentOperation = ImGuizmo::OPERATION::ROTATE;
+			}
+			if (ImGui::IsItemHovered())
+			{
+				m_FramebufferClickDisabled = true;
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Scale"))
+			{
+				m_CurrentOperation = ImGuizmo::OPERATION::SCALE;
+			}
+			if (ImGui::IsItemHovered())
+			{
+				m_FramebufferClickDisabled = true;
 			}
 		}
 		ImGui::End();
@@ -478,10 +543,12 @@ class EditorApplication : public Nexus::Application
 			Nexus::GUID id = Nexus::GUID::FromSplit(upperValue, lowerValue);
 			if (id == 0)
 			{
+				m_EntityID = {};
 				for (auto &panel : m_Panels) { panel->OnEntitySelected({}); }
 			}
 			else
 			{
+				m_EntityID = id;
 				for (auto &panel : m_Panels) { panel->OnEntitySelected(id); }
 			}
 		}
@@ -519,6 +586,9 @@ class EditorApplication : public Nexus::Application
 	EditorPropertiesPanel	  *m_EditorPropertiesPanel = nullptr;
 
 	std::optional<glm::vec2> m_ClickPosition = {};
+	std::optional<Nexus::GUID> m_EntityID				  = {};
+	bool					   m_FramebufferClickDisabled = false;
+	ImGuizmo::OPERATION		   m_CurrentOperation		  = ImGuizmo::OPERATION::TRANSLATE;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)

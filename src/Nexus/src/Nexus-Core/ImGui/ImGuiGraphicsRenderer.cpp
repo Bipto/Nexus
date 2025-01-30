@@ -449,6 +449,7 @@ namespace Nexus::ImGuiUtils
 
 		UpdateInput();
 		ImGui::NewFrame();
+		ImGuizmo::BeginFrame();
 	}
 
 	void ImGuiGraphicsRenderer::AfterLayout()

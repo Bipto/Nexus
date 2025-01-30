@@ -39,6 +39,8 @@ namespace Nexus::Graphics
 		void Begin(Scene *scene, RenderTarget target, Nexus::TimeSpan time);
 		void End();
 
+		const Nexus::FirstPersonCamera GetCamera() const;
+
 	  private:
 		void RenderCubemap();
 		void RenderModel(Nexus::Ref<Nexus::Graphics::Model> model, const glm::mat4 transform, GUID guid);
