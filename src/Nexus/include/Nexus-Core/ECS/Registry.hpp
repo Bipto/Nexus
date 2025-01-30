@@ -435,6 +435,19 @@ namespace Nexus::ECS
 			return View<Args...>(viewData);
 		}
 
+		bool IsEntity(GUID guid)
+		{
+			for (const auto &entity : m_Entities)
+			{
+				if (entity.ID == guid)
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 	  private:
 		template<typename T>
 		ComponentArray<T> *GetComponentArray()

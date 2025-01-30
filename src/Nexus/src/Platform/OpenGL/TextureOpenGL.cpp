@@ -88,7 +88,7 @@ namespace Nexus::Graphics
 
 		if (m_Framebuffer)
 		{
-			float bottom = m_Specification.Height - (height - y);
+			float bottom = m_Specification.Height - height - y;
 			glCall(glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer));
 			glCall(glReadBuffer(GL_COLOR_ATTACHMENT0));
 			glCall(glReadPixels(x, bottom, width, height, m_DataFormat, m_BaseType, pixels.data()));

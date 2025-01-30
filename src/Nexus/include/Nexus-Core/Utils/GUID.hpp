@@ -29,8 +29,8 @@ namespace Nexus
 
 		std::pair<uint32_t, uint32_t> Split()
 		{
-			uint32_t lowerValue = static_cast<uint32_t>(Value & 0xFFFFFFFF);
-			uint32_t upperValue = static_cast<uint32_t>((Value >> 32) & 0xFFFFFFFF);
+			uint32_t lowerValue = static_cast<uint32_t>(Value);
+			uint32_t upperValue = static_cast<uint32_t>(Value >> 32);
 			return {lowerValue, upperValue};
 		}
 

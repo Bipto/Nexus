@@ -20,6 +20,13 @@ namespace Nexus::Graphics
 		uint32_t			  Slot			  = 0;
 	};
 
+	union ClearColor
+	{
+		float	 f32[4];
+		int32_t	 i32[4];
+		uint32_t ui32[4];
+	};
+
 	/// @brief A struct representing a set of values to use  to clear the colour
 	/// buffer
 	struct ClearColorValue

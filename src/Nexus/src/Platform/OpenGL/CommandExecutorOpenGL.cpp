@@ -193,7 +193,6 @@ namespace Nexus::Graphics
 
 		Ref<ResourceSetOpenGL> resourceSet = std::dynamic_pointer_cast<ResourceSetOpenGL>(command);
 		m_BoundResourceSet				   = resourceSet;
-		// BindResourceSet(resourceSet);
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(ClearColorTargetCommand command, GraphicsDevice *device)

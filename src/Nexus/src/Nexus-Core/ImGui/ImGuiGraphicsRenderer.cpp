@@ -327,13 +327,13 @@ namespace Nexus::ImGuiUtils
 		pipelineDesc.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification().Samples;
 		pipelineDesc.DepthFormat			 = Graphics::PixelFormat::D24_UNorm_S8_UInt;
 
-		pipelineDesc.BlendStateDesc.EnableBlending		   = true;
-		pipelineDesc.BlendStateDesc.SourceColourBlend	   = Nexus::Graphics::BlendFactor::SourceAlpha;
-		pipelineDesc.BlendStateDesc.DestinationColourBlend = Nexus::Graphics::BlendFactor::OneMinusSourceAlpha;
-		pipelineDesc.BlendStateDesc.ColorBlendFunction	   = Nexus::Graphics::BlendEquation::Add;
-		pipelineDesc.BlendStateDesc.SourceAlphaBlend	   = Nexus::Graphics::BlendFactor::One;
-		pipelineDesc.BlendStateDesc.DestinationAlphaBlend  = Nexus::Graphics::BlendFactor::OneMinusSourceAlpha;
-		pipelineDesc.BlendStateDesc.AlphaBlendFunction	   = Nexus::Graphics::BlendEquation::Add;
+		pipelineDesc.ColourBlendStates[0].EnableBlending		 = true;
+		pipelineDesc.ColourBlendStates[0].SourceColourBlend		 = Nexus::Graphics::BlendFactor::SourceAlpha;
+		pipelineDesc.ColourBlendStates[0].DestinationColourBlend = Nexus::Graphics::BlendFactor::OneMinusSourceAlpha;
+		pipelineDesc.ColourBlendStates[0].ColorBlendFunction	 = Nexus::Graphics::BlendEquation::Add;
+		pipelineDesc.ColourBlendStates[0].SourceAlphaBlend		 = Nexus::Graphics::BlendFactor::One;
+		pipelineDesc.ColourBlendStates[0].DestinationAlphaBlend	 = Nexus::Graphics::BlendFactor::OneMinusSourceAlpha;
+		pipelineDesc.ColourBlendStates[0].AlphaBlendFunction	 = Nexus::Graphics::BlendEquation::Add;
 
 		pipelineDesc.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::CullNone;
 		pipelineDesc.RasterizerStateDesc.TriangleFillMode  = Nexus::Graphics::FillMode::Solid;
@@ -374,7 +374,7 @@ namespace Nexus::ImGuiUtils
 		pipelineDesc.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification().Samples;
 		pipelineDesc.DepthFormat			 = Graphics::PixelFormat::D24_UNorm_S8_UInt;
 
-		pipelineDesc.BlendStateDesc.EnableBlending = false;
+		pipelineDesc.ColourBlendStates[0].EnableBlending = false;
 
 		pipelineDesc.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::CullNone;
 		pipelineDesc.RasterizerStateDesc.TriangleFillMode  = Nexus::Graphics::FillMode::Solid;

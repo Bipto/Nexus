@@ -2,6 +2,7 @@
 
 #include "Nexus-Core/nxpch.hpp"
 
+#include "Nexus-Core/Graphics/FullscreenQuad.hpp"
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 #include "Nexus-Core/Graphics/Model.hpp"
 #include "Nexus-Core/Runtime/Camera.hpp"
@@ -41,12 +42,17 @@ namespace Nexus::Graphics
 	  private:
 		void RenderCubemap();
 		void RenderModel(Nexus::Ref<Nexus::Graphics::Model> model, const glm::mat4 transform, GUID guid);
+		void ClearGBuffer();
+
 		void CreateCubemapPipeline();
 		void CreateModelPipeline();
+		void CreateClearGBufferPipeline();
 
 	  private:
 		GraphicsDevice *m_Device	   = nullptr;
 		RenderTarget	m_RenderTarget = {};
+		FullscreenQuad	m_FullscreenQuad = {};
+
 		Scene		   *m_Scene		   = nullptr;
 		Ref<Cubemap>	m_Cubemap	   = nullptr;
 
@@ -66,5 +72,7 @@ namespace Nexus::Graphics
 		Nexus::Ref<Nexus::Graphics::UniformBuffer> m_ModelCameraUniformBuffer	 = nullptr;
 		Nexus::Ref<Nexus::Graphics::UniformBuffer> m_ModelTransformUniformBuffer = nullptr;
 		Nexus::Ref<Nexus::Graphics::ResourceSet>   m_ModelResourceSet			 = nullptr;
+
+		Nexus::Ref<Nexus::Graphics::Pipeline> m_ClearScreenPipeline = nullptr;
 	};
 }	 // namespace Nexus::Graphics

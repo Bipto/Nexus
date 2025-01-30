@@ -407,12 +407,12 @@ class EditorApplication : public Nexus::Application
 				uv0 = {0, 1};
 				uv1 = {1, 0};
 			}
+			ImVec2 imagePos = ImGui::GetCursorScreenPos();
 			ImGui::Image(m_FramebufferTextureID, size, uv0, uv1);
 
 			if (ImGui::IsItemClicked())
 			{
 				ImVec2 mousePos		 = ImGui::GetMousePos();
-				ImVec2 imagePos		 = ImGui::GetCursorScreenPos();
 				ImVec2 localClickPos = ImVec2(mousePos.x - imagePos.x, mousePos.y - imagePos.y);
 				m_ClickPosition		 = {localClickPos.x, localClickPos.y};
 			}
@@ -476,6 +476,14 @@ class EditorApplication : public Nexus::Application
 			memcpy(&lowerValue, pixels.data() + sizeof(lowerValue), sizeof(lowerValue));
 
 			Nexus::GUID id = Nexus::GUID::FromSplit(upperValue, lowerValue);
+			if (id == 0)
+			{
+				for (auto &panel : m_Panels) { panel->OnEntitySelected({}); }
+			}
+			else
+			{
+				for (auto &panel : m_Panels) { panel->OnEntitySelected(id); }
+			}
 		}
 
 		Nexus::GetApplication()->GetPrimarySwapchain()->SwapBuffers();

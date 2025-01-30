@@ -39,8 +39,7 @@ namespace Nexus::Graphics
 		viewportState.scissorCount	= 1;
 		viewportState.pScissors		= nullptr;
 
-		std::vector<VkPipelineColorBlendAttachmentState> blendStates;
-		for (int i = 0; i < m_Description.ColourTargetCount; i++) { blendStates.push_back(CreateColorBlendAttachmentState()); }
+		std::vector<VkPipelineColorBlendAttachmentState> blendStates = CreateColorBlendAttachmentStates();
 
 		VkPipelineColorBlendStateCreateInfo colorBlending = {};
 		colorBlending.sType								  = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
@@ -252,19 +251,26 @@ namespace Nexus::Graphics
 		return info;
 	}
 
-	VkPipelineColorBlendAttachmentState PipelineVk::CreateColorBlendAttachmentState()
+	std::vector<VkPipelineColorBlendAttachmentState> PipelineVk::CreateColorBlendAttachmentStates()
 	{
-		VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
-		colorBlendAttachment.colorWriteMask =
-			VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-		colorBlendAttachment.blendEnable		 = m_Description.BlendStateDesc.EnableBlending;
-		colorBlendAttachment.srcColorBlendFactor = Vk::GetVkBlendFactor(m_Description.BlendStateDesc.SourceColourBlend);
-		colorBlendAttachment.dstColorBlendFactor = Vk::GetVkBlendFactor(m_Description.BlendStateDesc.DestinationColourBlend);
-		colorBlendAttachment.colorBlendOp		 = Vk::GetVkBlendOp(m_Description.BlendStateDesc.ColorBlendFunction);
-		colorBlendAttachment.srcAlphaBlendFactor = Vk::GetVkBlendFactor(m_Description.BlendStateDesc.SourceAlphaBlend);
-		colorBlendAttachment.dstAlphaBlendFactor = Vk::GetVkBlendFactor(m_Description.BlendStateDesc.DestinationAlphaBlend);
-		colorBlendAttachment.alphaBlendOp		 = Vk::GetVkBlendOp(m_Description.BlendStateDesc.AlphaBlendFunction);
-		return colorBlendAttachment;
+		std::vector<VkPipelineColorBlendAttachmentState> colourBlendStates;
+		colourBlendStates.reserve(8);
+
+		for (size_t i = 0; i < m_Description.ColourBlendStates.size(); i++)
+		{
+			VkPipelineColorBlendAttachmentState blendState = {};
+			blendState.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+			blendState.blendEnable	  = m_Description.ColourBlendStates[i].EnableBlending;
+			blendState.srcColorBlendFactor = Vk::GetVkBlendFactor(m_Description.ColourBlendStates[i].SourceColourBlend);
+			blendState.dstColorBlendFactor = Vk::GetVkBlendFactor(m_Description.ColourBlendStates[i].DestinationColourBlend);
+			blendState.colorBlendOp		   = Vk::GetVkBlendOp(m_Description.ColourBlendStates[i].ColorBlendFunction);
+			blendState.srcAlphaBlendFactor = Vk::GetVkBlendFactor(m_Description.ColourBlendStates[i].SourceAlphaBlend);
+			blendState.dstAlphaBlendFactor = Vk::GetVkBlendFactor(m_Description.ColourBlendStates[i].DestinationAlphaBlend);
+			blendState.alphaBlendOp		   = Vk::GetVkBlendOp(m_Description.ColourBlendStates[i].AlphaBlendFunction);
+			colourBlendStates.push_back(blendState);
+		}
+
+		return colourBlendStates;
 	}
 
 	VkPipelineLayoutCreateInfo PipelineVk::CreatePipelineLayoutCreateInfo(const std::vector<VkDescriptorSetLayout> &layouts)

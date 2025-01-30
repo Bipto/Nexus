@@ -19,9 +19,6 @@ namespace Nexus::Graphics
 		/// @brief How the pipeline should handle rasterization
 		RasterizerStateDescription RasterizerStateDesc;
 
-		/// @brief How the pipeline should handle blending
-		BlendStateDescription BlendStateDesc;
-
 		/// @brief How the pipeline should handle the vertex buffer data
 		Topology PrimitiveTopology = Topology::TriangleList;
 
@@ -29,18 +26,37 @@ namespace Nexus::Graphics
 		/// in the pipeline
 		ResourceSetSpecification ResourceSetSpec;
 
+		/// @brief An array containing the colour formats that will be used with the pipeline
 		std::array<PixelFormat, 8> ColourFormats;
-		uint32_t				   ColourTargetCount	   = 1;
-		SampleCount				   ColourTargetSampleCount = SampleCount::SampleCount1;
-		PixelFormat				   DepthFormat			   = PixelFormat::D24_UNorm_S8_UInt;
+
+		/// @brief An unsigned 32 bit integer representing the number of attachments that will be used with the pipeline
+		uint32_t ColourTargetCount = 1;
+
+		/// @brief An array containing the blend state for each attachment to be used with the pipelin
+		std::array<BlendStateDescription, 8> ColourBlendStates;
+
+		/// @brief How many samples will be used with the pipeline
+		SampleCount ColourTargetSampleCount = SampleCount::SampleCount1;
+
+		/// @brief The depth format that will be used with the pipeline
+		PixelFormat DepthFormat = PixelFormat::D24_UNorm_S8_UInt;
 
 		/// @brief The layout of data within bound vertex buffers
 		std::vector<VertexBufferLayout> Layouts;
 
+		/// @brief The fragment shader that will be used with the pipeline
 		Ref<ShaderModule> FragmentModule			  = nullptr;
+
+		/// @brief The geometry shader to use with the pipeline (optional)
 		Ref<ShaderModule> GeometryModule			  = nullptr;
+
+		/// @brief The tesselation control shader to use with the pipeline (optional)
 		Ref<ShaderModule> TesselationControlModule	  = nullptr;
+
+		/// @brief The tesselation evaluation shader to use with the pipeline (optional)
 		Ref<ShaderModule> TesselationEvaluationModule = nullptr;
+
+		/// @brief The vertex shader to use with the pipeline (optional)
 		Ref<ShaderModule> VertexModule				  = nullptr;
 	};
 
@@ -65,6 +81,11 @@ namespace Nexus::Graphics
 		/// description
 		/// @return A const reference to a pipelinedescription
 		virtual const PipelineDescription &GetPipelineDescription() const = 0;
+
+		bool HasResources() const
+		{
+			return m_Description.ResourceSetSpec.SampledImages.size() > 0 || m_Description.ResourceSetSpec.UniformBuffers.size() > 0;
+		}
 
 	  protected:
 		/// @brief The pipeline description used to create the pipeline
