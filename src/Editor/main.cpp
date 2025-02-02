@@ -428,34 +428,37 @@ class EditorApplication : public Nexus::Application
 				Nexus::Scene	 *scene		= m_Project->GetLoadedScene();
 				Nexus::Transform *transform = scene->Registry.GetComponent<Nexus::Transform>(m_EntityID.value());
 
-				const auto &camera		 = m_Renderer->GetCamera();
-				const auto &view		 = camera.GetView();
-				const auto &projection	 = camera.GetProjection();
-				glm::mat4	transformMat = transform->CreateTransformation();
-
-				ImGuizmo::SetOrthographic(false);
-				ImGuizmo::SetDrawlist();
-				ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
-
-				if (ImGuizmo::Manipulate(glm::value_ptr(view),
-										 glm::value_ptr(projection),
-										 m_CurrentOperation,
-										 ImGuizmo::MODE::LOCAL,
-										 glm::value_ptr(transformMat)))
+				if (transform)
 				{
-					glm::vec3 translation = {};
-					glm::vec3 rotation	  = {};
-					glm::vec3 scale		  = {};
-					ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(transformMat),
-														  glm::value_ptr(translation),
-														  glm::value_ptr(rotation),
-														  glm::value_ptr(scale));
-					transform->Position = translation;
-					transform->Rotation = rotation;
-					transform->Scale	= scale;
-				}
+					const auto &camera		 = m_Renderer->GetCamera();
+					const auto &view		 = camera.GetView();
+					const auto &projection	 = camera.GetProjection();
+					glm::mat4	transformMat = transform->CreateTransformation();
 
-				m_FramebufferClickDisabled = ImGuizmo::IsOver() || ImGuizmo::IsUsingAny();
+					ImGuizmo::SetOrthographic(false);
+					ImGuizmo::SetDrawlist();
+					ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
+
+					if (ImGuizmo::Manipulate(glm::value_ptr(view),
+											 glm::value_ptr(projection),
+											 m_CurrentOperation,
+											 ImGuizmo::MODE::LOCAL,
+											 glm::value_ptr(transformMat)))
+					{
+						glm::vec3 translation = {};
+						glm::vec3 rotation	  = {};
+						glm::vec3 scale		  = {};
+						ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(transformMat),
+															  glm::value_ptr(translation),
+															  glm::value_ptr(rotation),
+															  glm::value_ptr(scale));
+						transform->Position = translation;
+						transform->Rotation = rotation;
+						transform->Scale	= scale;
+					}
+
+					m_FramebufferClickDisabled = ImGuizmo::IsOver() || ImGuizmo::IsUsingAny();
+				}
 			}
 
 			if (size.x != m_PreviousViewportSize.x || size.y != m_PreviousViewportSize.y)
@@ -594,7 +597,7 @@ class EditorApplication : public Nexus::Application
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
 	Nexus::ApplicationSpecification spec;
-	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
+	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
 	spec.AudioAPI	 = Nexus::Audio::AudioAPI::OpenAL;
 
 	spec.WindowProperties.Width			   = 1280;

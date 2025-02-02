@@ -38,7 +38,7 @@ class InspectorPanel : public Panel
 
 			if (ImGui::BeginPopupContextItem("Add Component"))
 			{
-				std::map<std::string, Nexus::ECS::ComponentStorage> &registeredComponents = registry.GetRegisteredComponents();
+				const std::map<std::string, Nexus::ECS::ComponentStorage> &registeredComponents = m_Project->GetCachedAvailableComponents();
 
 				ImGui::Text("Add Components");
 				ImGui::Separator();

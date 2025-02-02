@@ -4,10 +4,18 @@
 
 #include "Nexus-Core/ImGui/ImGuiInclude.hpp"
 
-#include "Nexus-Core/Runtime/Project.hpp"
+#include "Nexus-Core/ECS/Registry.hpp"
+#include "Nexus-Core/Utils/GUID.hpp"
 #include "Nexus-Core/Utils/StringUtils.hpp"
 
 #include "yaml-cpp/yaml.h"
+
+namespace Nexus
+{
+	// forward declaration
+	class Project;
+	struct Entity;
+}	 // namespace Nexus
 
 namespace Nexus::ECS
 {

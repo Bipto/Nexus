@@ -5,6 +5,12 @@
 #include "Nexus-Core/Utils/GUID.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
+namespace Nexus::ECS
+{
+	// forward declaration
+	class ComponentRegistry;
+}	 // namespace Nexus::ECS
+
 namespace Nexus::Scripting
 {
 	class Script
@@ -86,6 +92,11 @@ namespace Nexus::Scripting
 	extern "C" inline NX_API std::map<std::string, std::function<Nexus::Scripting::Script *()>> &GetScriptRegistry()
 	{
 		return ScriptRegistry::GetRegistry();
+	}
+
+	extern "C" inline NX_API ECS::ComponentRegistry &GetComponentRegistry()
+	{
+		return ECS::ComponentRegistry::GetRegistry();
 	}
 
 }	 // namespace Nexus::Scripting

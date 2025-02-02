@@ -88,6 +88,15 @@ macro(nexus_copy_imgui output_dir)
         $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir}/imgui/imguizmo)
 endmacro()
 
+macro(nexus_copy_yaml_cpp output_dir)
+    get_target_property(Nexus_SOURCE_DIR Nexus SOURCE_DIR)
+
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${Nexus_SOURCE_DIR}/external/yaml-cpp/include
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir}/yaml-cpp)
+endmacro()
+
 macro(nexus_add_shared_library shared_library)
   set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
   add_definitions(-DLIBTYPE=SHARED)

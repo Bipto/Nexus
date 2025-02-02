@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Nexus-Core/ECS/ComponentRegistry.hpp"
 #include "Nexus-Core/Types.hpp"
 #include "Nexus-Core/Utils/GUID.hpp"
 #include "Nexus-Core/Utils/SharedLibrary.hpp"
@@ -46,12 +47,21 @@ namespace Nexus
 		std::string GetFullSceneDirectory();
 		std::string GetFullAssetsDirectory();
 
+		// project library
 		void				  LoadSharedLibrary();
 		Utils::SharedLibrary *GetSharedLibrary();
+		void				  UnloadSharedLibrary();
+		void				  LoadDataFromSharedLibrary();
+
+		// script functions
 		std::map<std::string, std::function<Nexus::Scripting::Script *()>> LoadAvailableScripts();
 		void															   CacheAvailableScripts();
 		const std::vector<std::string>									  &GetCachedAvailableScripts() const;
-		void															   UnloadSharedLibrary();
+
+		// component functions
+		std::map<std::string, ECS::ComponentStorage>		LoadAvailableComponents();
+		void												CacheAvailableComponents();
+		const std::map<std::string, ECS::ComponentStorage> &GetCachedAvailableComponents() const;
 
 	  public:
 		static Ref<Project> s_ActiveProject;
@@ -74,6 +84,7 @@ namespace Nexus
 
 		Nexus::Utils::SharedLibrary *m_Library = nullptr;
 		std::vector<std::string>	 m_AvailableScripts = {};
+		std::map<std::string, ECS::ComponentStorage> m_AvailableComponents = {};
 	};
 }	 // namespace Nexus
 

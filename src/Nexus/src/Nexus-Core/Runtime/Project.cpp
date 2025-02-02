@@ -64,9 +64,7 @@ namespace Nexus
 		project->m_ScriptsDirectory = node["ScriptsDirectory"].as<std::string>();
 
 		project->LoadScene(project->m_StartupScene);
-		project->LoadSharedLibrary();
-		project->CacheAvailableScripts();
-		project->UnloadSharedLibrary();
+		project->LoadDataFromSharedLibrary();
 
 		return project;
 	}
@@ -90,9 +88,9 @@ namespace Nexus
 	{
 		if (m_Scenes.size() > index)
 		{
-			const SceneInfo &info = m_Scenes.at(index);
+			const SceneInfo &info  = m_Scenes.at(index);
 			Scene			*scene = Scene::Deserialize(info, GetFullSceneDirectory(), this);
-			m_LoadedScene = std::unique_ptr<Scene>(scene);
+			m_LoadedScene		   = std::unique_ptr<Scene>(scene);
 		}
 	}
 
@@ -119,9 +117,9 @@ namespace Nexus
 		info.Path = path;
 		m_Scenes.push_back(info);
 
-		m_LoadedScene		= std::make_unique<Scene>();
-		m_LoadedScene->Guid = info.Guid;
-		m_LoadedScene->Name = info.Name;
+		m_LoadedScene		   = std::make_unique<Scene>();
+		m_LoadedScene->Guid	   = info.Guid;
+		m_LoadedScene->Name	   = info.Name;
 		m_LoadedScene->Project = this;
 	}
 
@@ -231,6 +229,53 @@ namespace Nexus
 	{
 		delete m_Library;
 		m_Library = nullptr;
+	}
+
+	void Project::LoadDataFromSharedLibrary()
+	{
+		LoadSharedLibrary();
+		CacheAvailableScripts();
+		CacheAvailableComponents();
+		UnloadSharedLibrary();
+	}
+
+	std::map<std::string, ECS::ComponentStorage> Project::LoadAvailableComponents()
+	{
+		typedef ECS::ComponentRegistry &(*GetComponentRegistryFunc)();
+
+		std::map<std::string, ECS::ComponentStorage> components;
+
+		// find components with core library
+		{
+			ECS::ComponentRegistry &componentRegistry = ECS::ComponentRegistry::GetRegistry();
+			for (const auto &[name, storage] : componentRegistry.GetRegisteredComponents()) { components[name] = storage; }
+		}
+
+		// find components within project library
+		{
+			if (m_Library)
+			{
+				GetComponentRegistryFunc func = (GetComponentRegistryFunc)m_Library->LoadSymbol("GetComponentRegistry");
+				if (func)
+				{
+					ECS::ComponentRegistry &componentRegistry = func();
+					for (const auto &[name, storage] : componentRegistry.GetRegisteredComponents()) { components[name] = storage; }
+				}
+			}
+		}
+		return components;
+	}
+
+	void Project::CacheAvailableComponents()
+	{
+		auto components = LoadAvailableComponents();
+		m_AvailableComponents.clear();
+		m_AvailableComponents = components;
+	}
+
+	const std::map<std::string, ECS::ComponentStorage> &Project::GetCachedAvailableComponents() const
+	{
+		return m_AvailableComponents;
 	}
 
 	void Project::WriteProjectFile()
