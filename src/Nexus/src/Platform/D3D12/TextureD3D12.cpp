@@ -432,7 +432,7 @@ namespace Nexus::Graphics
 			[&](ID3D12GraphicsCommandList6 *cmd)
 			{
 				cmd->ResourceBarrier(1, &toDestBarrier);
-				cmd->CopyTextureRegion(&textureDestination, 0, 0, 0, &textureSource, &textureBounds);
+				cmd->CopyTextureRegion(&textureDestination, x, y, 0, &textureSource, &textureBounds);
 				cmd->ResourceBarrier(1, &toDefaultBarrier);
 			});
 	}
@@ -533,7 +533,7 @@ namespace Nexus::Graphics
 			[&](ID3D12GraphicsCommandList6 *cmd)
 			{
 				cmd->ResourceBarrier(1, &toReadBarrier);
-				cmd->CopyTextureRegion(&dstLocation, x, y, 0, &srcLocation, &textureBounds);
+				cmd->CopyTextureRegion(&dstLocation, 0, 0, 0, &srcLocation, &textureBounds);
 				cmd->ResourceBarrier(1, &toDefaultBarrier);
 			});
 
