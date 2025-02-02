@@ -7,11 +7,10 @@ const std::string c_ClearGBufferVertexShader = R"(
 #version 450 core
 
 layout (location = 0) in vec3 Position;
-layout (location = 0) out vec4 OutPosition;
 
 void main()
 {
-	OutPosition = vec4(Position, 1.0);
+	gl_Position = vec4(Position, 1.0);
 }
 
 )";
@@ -19,8 +18,6 @@ void main()
 const std::string c_ClearGBufferFragmentShader = R"(
 
 #version 450 core
-
-layout (location = 0) in vec4 OutPosition;
 
 layout (location = 0) out vec4 Diffuse;
 layout (location = 1) out uvec2 ID; 
@@ -363,8 +360,9 @@ namespace Nexus::Graphics
 		pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Camera", 0, 0}};
 		pipelineDescription.ResourceSetSpec.SampledImages  = {{"skybox", 1, 0}};
 
-		pipelineDescription.ColourTargetCount		= 1;
+		pipelineDescription.ColourTargetCount		= 2;
 		pipelineDescription.ColourFormats[0]		= Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
+		pipelineDescription.ColourFormats[1]		= Nexus::Graphics::PixelFormat::R32_G32_UInt;
 		pipelineDescription.ColourTargetSampleCount = SampleCount::SampleCount1;
 		pipelineDescription.Layouts					= {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
