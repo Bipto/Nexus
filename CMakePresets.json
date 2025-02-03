@@ -13,7 +13,10 @@
                 "NX_PLATFORM_OPENGL": "1",
                 "NX_PLATFORM_D3D12": "1",
                 "NX_PLATFORM_VULKAN": "1",
-                "NX_PLATFORM_OPENAL": "1"
+                "NX_PLATFORM_OPENAL": "1",
+                "NX_BUILD_DEMO": "1",
+                "NX_BUILD_EDITOR": "1",
+                "NX_BUILD_TESTS": "1"
             },
             "condition": {
                 "type": "equals",
@@ -76,7 +79,10 @@
                 "CMAKE_CXX_COMPILER": "g++",
                 "NX_PLATFORM_OPENGL": "1",
                 "NX_PLATFORM_VULKAN": "1",
-                "NX_PLATFORM_OPENAL": "1"
+                "NX_PLATFORM_OPENAL": "1",
+                "NX_BUILD_DEMO": "1",
+                "NX_BUILD_EDITOR": "1",
+                "NX_BUILD_TESTS": "1"
             },
             "condition": {
                 "type": "equals",

@@ -7,16 +7,6 @@ namespace Nexus::Utils
 	const char *scriptCmakeText = R"(cmake_minimum_required(VERSION 3.10)
 project(SCRIPT_PROJECT_NAME)
 
-include(FetchContent)
-
-FetchContent_Declare(
-	Nexus
-	GIT_REPOSITORY https://github.com/Bipto/Nexus.git
-	GIT_TAG dev
-)
-
-FetchContent_MakeAvailable(Nexus)
-
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
