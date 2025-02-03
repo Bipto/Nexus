@@ -7,6 +7,16 @@ namespace Nexus::Utils
 	const char *scriptCmakeText = R"(cmake_minimum_required(VERSION 3.10)
 project(SCRIPT_PROJECT_NAME)
 
+include(FetchContent)
+
+FetchContent_Declare(
+	Nexus
+	GIT_REPOSITORY https://github.com/Bipto/Nexus.git
+	GIT_TAG dev
+)
+
+FetchContent_MakeAvailable(Nexus)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -16,39 +26,7 @@ add_definitions(-DNX_PLATFORM_WINDOWS=1)
 add_definitions(-DNX_EXPORT_API=1)
 
 add_library(SCRIPT_PROJECT_NAME SHARED main.cpp)
-
-target_include_directories(SCRIPT_PROJECT_NAME PRIVATE Nexus/include Nexus/glm Nexus/yaml-cpp/include Nexus/imgui/imgui Nexus/imgui/imguizmo Nexus/yaml-cpp)
-target_link_libraries(SCRIPT_PROJECT_NAME PRIVATE ${CMAKE_SOURCE_DIR}/Nexus/Nexus.lib)
-
-set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT SCRIPT_PROJECT_NAME)
-
-	
-file(MAKE_DIRECTORY ${CMAKE_SOURCE_DIR}/loading)
-
-add_custom_command(
-	TARGET SCRIPT_PROJECT_NAME POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy
-	$<TARGET_FILE:SCRIPT_PROJECT_NAME>
-	${CMAKE_SOURCE_DIR}/loading/${CMAKE_BUILD_TYPE})
-
-add_custom_command(
-	TARGET SCRIPT_PROJECT_NAME POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy
-	$<TARGET_PDB_FILE:SCRIPT_PROJECT_NAME>
-	${CMAKE_SOURCE_DIR}/loading/${CMAKE_BUILD_TYPE})
-
-add_custom_command(
-	TARGET SCRIPT_PROJECT_NAME POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_SOURCE_DIR}/loading/${CMAKE_BUILD_TYPE}/$<TARGET_FILE_NAME:SCRIPT_PROJECT_NAME>" > ${CMAKE_SOURCE_DIR}/loading/output.txt
-)
-
-add_custom_command(
-	TARGET SCRIPT_PROJECT_NAME PRE_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy
-	${CMAKE_SOURCE_DIR}/Nexus/Nexus.lib
-	$<TARGET_FILE_DIR:${PROJECT_NAME}>/Nexus/Nexus.lib
-)
-
+target_link_libraries(SCRIPT_PROJECT_NAME PRIVATE Nexus)
 )";
 
 	const char *scriptMainText = R"(#include <iostream>
