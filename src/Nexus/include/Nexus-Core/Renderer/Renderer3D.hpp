@@ -76,5 +76,7 @@ namespace Nexus::Graphics
 		Nexus::Ref<Nexus::Graphics::ResourceSet>   m_ModelResourceSet			 = nullptr;
 
 		Nexus::Ref<Nexus::Graphics::Pipeline> m_ClearScreenPipeline = nullptr;
+
+		Nexus::Ref<Nexus::Graphics::Texture2D> m_DefaultTexture = nullptr;
 	};
 }	 // namespace Nexus::Graphics

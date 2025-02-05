@@ -150,6 +150,15 @@ namespace Nexus::Graphics
 
 		Nexus::Graphics::MeshFactory factory(m_Device);
 		m_Cube = factory.CreateCube();
+
+		Nexus::Graphics::Texture2DSpecification textureSpec = {};
+		textureSpec.Width									= 1;
+		textureSpec.Height									= 1;
+		textureSpec.Format									= Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
+		m_DefaultTexture									= m_Device->CreateTexture2D(textureSpec);
+
+		uint32_t colour = 0xFFFFFFFF;
+		m_DefaultTexture->SetData(&colour, 0, 0, 0, 1, 1);
 	}
 
 	Renderer3D::~Renderer3D()
@@ -268,20 +277,28 @@ namespace Nexus::Graphics
 
 			const Nexus::Graphics::Material &mat = mesh->GetMaterial();
 
+			Nexus::Ref<Nexus::Graphics::Texture2D> diffuseTexture  = m_DefaultTexture;
+			Nexus::Ref<Nexus::Graphics::Texture2D> normalTexture   = m_DefaultTexture;
+			Nexus::Ref<Nexus::Graphics::Texture2D> specularTexture = m_DefaultTexture;
+
 			if (mat.DiffuseTexture)
 			{
-				m_ModelResourceSet->WriteCombinedImageSampler(mat.DiffuseTexture, m_ModelSampler, "diffuseMapSampler");
+				diffuseTexture = mat.DiffuseTexture;
 			}
 
 			if (mat.NormalTexture)
 			{
-				m_ModelResourceSet->WriteCombinedImageSampler(mat.NormalTexture, m_ModelSampler, "normalMapSampler");
+				normalTexture = mat.NormalTexture;
 			}
 
 			if (mat.SpecularTexture)
 			{
-				m_ModelResourceSet->WriteCombinedImageSampler(mat.SpecularTexture, m_ModelSampler, "specularMapSampler");
+				specularTexture = mat.SpecularTexture;
 			}
+
+			m_ModelResourceSet->WriteCombinedImageSampler(diffuseTexture, m_ModelSampler, "diffuseMapSampler");
+			m_ModelResourceSet->WriteCombinedImageSampler(normalTexture, m_ModelSampler, "normalMapSampler");
+			m_ModelResourceSet->WriteCombinedImageSampler(specularTexture, m_ModelSampler, "specularMapSampler");
 
 			Nexus::Point2D<uint32_t> size = m_RenderTarget.GetSize();
 			m_CommandList->Begin();

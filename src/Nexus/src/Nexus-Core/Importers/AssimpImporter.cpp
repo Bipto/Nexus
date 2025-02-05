@@ -34,13 +34,26 @@ namespace Nexus
 				vertex.TexCoords.y = mesh->mTextureCoords[0][i].y;
 			}
 
-			vertex.Tangent.x = mesh->mTangents[i].x;
-			vertex.Tangent.y = mesh->mTangents[i].y;
-			vertex.Tangent.z = mesh->mTangents[i].z;
+			if (mesh->HasTangentsAndBitangents())
+			{
+				vertex.Tangent.x = mesh->mTangents[i].x;
+				vertex.Tangent.y = mesh->mTangents[i].y;
+				vertex.Tangent.z = mesh->mTangents[i].z;
 
-			vertex.Bitangent.x = mesh->mBitangents[i].x;
-			vertex.Bitangent.y = mesh->mBitangents[i].y;
-			vertex.Bitangent.z = mesh->mBitangents[i].z;
+				vertex.Bitangent.x = mesh->mBitangents[i].x;
+				vertex.Bitangent.y = mesh->mBitangents[i].y;
+				vertex.Bitangent.z = mesh->mBitangents[i].z;
+			}
+			else
+			{
+				vertex.Tangent.x = 0;
+				vertex.Tangent.y = 0;
+				vertex.Tangent.z = 0;
+
+				vertex.Bitangent.x = 0;
+				vertex.Bitangent.y = 0;
+				vertex.Bitangent.z = 0;
+			}
 
 			vertices.push_back(vertex);
 		}

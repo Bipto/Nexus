@@ -16,7 +16,10 @@ add_definitions(-DNX_PLATFORM_WINDOWS=1)
 add_definitions(-DNX_EXPORT_API=1)
 
 add_library(SCRIPT_PROJECT_NAME SHARED main.cpp)
-target_link_libraries(SCRIPT_PROJECT_NAME PRIVATE Nexus)
+
+#target_include_directories(SCRIPT_PROJECT_NAME PRIVATE external/Nexus/src/Nexus/include)
+#target_link_libraries(SCRIPT_PROJECT_NAME PRIVATE Nexus)
+#add_dependencies(SCRIPT_PROJECT_NAME Nexus)
 )";
 
 	const char *scriptMainText = R"(#include <iostream>
@@ -35,7 +38,6 @@ void say_hello()
 		// setup engine
 		{
 			std::string engineDirectory = scriptDirectory + "\\Nexus";
-
 			FileSystem::CreateDirectory(engineDirectory);
 			FileSystem::CopyDirectory(templatePath, engineDirectory, true);
 		}

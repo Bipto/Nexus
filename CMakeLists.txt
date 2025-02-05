@@ -23,3 +23,17 @@ if (DEFINED NX_BUILD_TESTS)
     enable_testing()
     add_subdirectory(src/Tests)
 endif()
+
+target_include_directories(Nexus PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/Nexus/include>
+    $<INSTALL_INTERFACE:include>
+)
+
+install (TARGETS Nexus
+    EXPORT NexusTargets
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION bin)
+
+install (DIRECTORY include/
+    DESTINATION include)
