@@ -13,6 +13,49 @@ add_definitions(-DNX_EXPORT_API=1)
 list(APPEND NEXUS_COMPILE_DEFINITIONS NX_SYSTEM_NAME=${CMAKE_SYSTEM_NAME})
 list(APPEND NEXUS_COMPILE_DEFINITIONS NX_SYSTEM_PROCESSOR=${CMAKE_HOST_SYSTEM_PROCESSOR})
 
+include (FetchContent)
+FetchContent_Declare(
+  SDL3
+  GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
+  GIT_TAG main
+)
+FetchContent_MakeAvailable(SDL3)
+
+FetchContent_Declare(
+  glm
+  GIT_REPOSITORY https://github.com/g-truc/glm.git
+  GIT_TAG master
+)
+FetchContent_MakeAvailable(glm)
+
+FetchContent_Declare(
+  freetype
+  GIT_REPOSITORY https://github.com/freetype/freetype.git
+  GIT_TAG master
+)
+FetchContent_MakeAvailable(freetype)
+
+FetchContent_Declare(
+  stb
+  GIT_REPOSITORY https://github.com/nothings/stb.git
+  GIT_TAG master
+)
+FetchContent_MakeAvailable(stb)
+
+FetchContent_Declare(
+  yaml-cpp
+  GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
+  GIT_TAG master
+)
+FetchContent_MakeAvailable(yaml-cpp)
+
+FetchContent_Declare(
+  libnyquist
+  GIT_REPOSITORY https://github.com/ddiakopoulos/libnyquist.git
+  GIT_TAG master
+)
+FetchContent_MakeAvailable(libnyquist)
+
 set(NEXUS_INCLUDE_DIRS "")
 set(NEXUS_LINKED_LIBRARIES "")
 set(NEXUS_LIBRARY_SUBDIRECTORIES "")
@@ -90,19 +133,14 @@ endif()
 
 #external dependencies
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES 
-  external/SDL
   external/glad
-  external/glm
   external/imgui
   external/glslang
   external/SPIRV-Cross
   external/SPIRV-Headers
   external/SPIRV-Tools
   external/shaderc
-  external/libnyquist
-  external/freetype
-  external/pocketpy
-  external/yaml-cpp)
+  external/pocketpy)
   
 list(APPEND NEXUS_SHARED_LIBRARY_SUBDIRECTORIES external/assimp)
 
@@ -456,21 +494,16 @@ nexus_setup_filters(${ENGINE_SOURCES})
 
 #including dependencies
 list (APPEND NEXUS_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
-  external/SDL/include
-  external/glm
-  external/stb
+  ${stb_SOURCE_DIR}
   external/assimip/include
   external/json/single_include
   external/imgui/imgui
   external/imgui/imguizmo
   external/OpenAL-Soft/include
   external/shaderc/libshaderc
-  external/libnyquist/include
   external/SPIRV-Cross/include
   external/SPIRV-Reflect
-  external/Freetype/include
   external/pocketpy/include
-  external/yaml-cpp/include
   binaries/dxc_2023_08_14/inc)
 
 list (APPEND NEXUS_LINKED_LIBRARIES 
@@ -486,7 +519,8 @@ list (APPEND NEXUS_LINKED_LIBRARIES
   spirv-cross-hlsl
   pocketpy
   freetype
-  yaml-cpp::yaml-cpp)
+  yaml-cpp::yaml-cpp
+  glm::glm)
 
 #precompiled header
 target_precompile_headers(Nexus PUBLIC include/Nexus-Core/nxpch.hpp)

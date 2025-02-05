@@ -1,12 +1,3 @@
-[submodule "External/SDL"]
-	path = src/Nexus/external/SDL
-	url = https://github.com/libsdl-org/SDL.git
-[submodule "External/glm"]
-	path = src/Nexus/external/glm
-	url = https://github.com/g-truc/glm.git
-[submodule "External/stb"]
-	path = src/Nexus/external/stb
-	url = https://github.com/nothings/stb.git
 [submodule "External/assimp"]
 	path = src/Nexus/external/assimp
 	url = https://github.com/assimp/assimp.git
@@ -17,9 +8,6 @@
 [submodule "External/imgui/imguizmo"]
 	path = src/Nexus/external/imgui/imguizmo
 	url = https://github.com/CedricGuillemet/ImGuizmo.git
-[submodule "External/json"]
-	path = src/Nexus/external/json
-	url = https://github.com/nlohmann/json.git
 [submodule "External/shaderc"]
 	path = src/Nexus/external/shaderc
 	url = https://github.com/google/shaderc.git
@@ -44,21 +32,9 @@
 [submodule "External/OpenAL-Soft"]
 	path = src/Nexus/external/OpenAL-Soft
 	url = https://github.com/kcat/openal-soft.git
-[submodule "External/libnyquist"]
-	path = src/Nexus/external/libnyquist
-	url = https://github.com/ddiakopoulos/libnyquist.git
-[submodule "External/SDL_net"]
-	path = src/Nexus/external/SDL_net
-	url = https://github.com/libsdl-org/SDL_net.git
 [submodule "External/VulkanMemoryAllocator"]
 	path = src/Nexus/external/VulkanMemoryAllocator
 	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
-[submodule "External/freetype"]
-	path = src/Nexus/external/freetype
-	url = https://github.com/freetype/freetype.git
 [submodule "External/pocketpy"]
 	path = src/Nexus/external/pocketpy
 	url = https://github.com/blueloveTH/pocketpy.git
-[submodule "External/yaml-cpp"]
-	path = src/Nexus/external/yaml-cpp
-	url = https://github.com/jbeder/yaml-cpp.git
