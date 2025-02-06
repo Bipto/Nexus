@@ -10,6 +10,36 @@ set(CMAKE_COMPILE_WARNING_AS_ERROR OFF)
 
 add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS=1)
 add_definitions(-DNX_EXPORT_API=1)
+
+set(SHADERC_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
+set(SPIRV_SKIP_EXECUTABLES ON CACHE BOOL "" FORCE)
+set(SPIRV_SKIP_TESTS ON CACHE BOOL "" FORCE)
+set(SPIRV_CROSS_ENABLE_UTIL OFF CACHE BOOL "" FORCE)
+set(SHADERC_SKIP_EXAMPLES ON CACHE BOOL "" FORCE)
+set(SHADERC_SKIP_TESTS ON CACHE BOOL "" FORCE)
+set(SKIP_GLSLANG_INSTALL ON CACHE BOOL "" FORCE)
+set(SKIP_SPIRV_TOOLS_INSTALL ON CACHE BOOL "" FORCE)
+set(LIBNYQUIST_BUILD_EXAMPLE OFF CACHE BOOL "" FORCE)
+set(ALSOFT_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(ALSOFT_INSTALL_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(ALSOFT_UTILS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
+set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
+set(ENABLE_GLSLANG_BINARIES OFF CACHE BOOL "" FORCE)
+set(LUA_BUILD_BINARY OFF CACHE BOOL "" FORCE)
+set(LUA_BUILD_COMPILER OFF CACHE BOOL "" FORCE)
+set(RE2_BUILD_FRAMEWORK OFF CACHE BOOL "" FORCE)
+set(RE2_BUILD_TESTING OFF CACHE BOOL "" FORCE)
+set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(SPIRV_CROSS_CLI OFF CACHE BOOL "" FORCE)
+set(SPIRV_CROSS_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
+set(SKIP_SPIRV_TOOLS_INSTALL ON CACHE BOOL "" FORCE)
+set(ENABLE_SPIRV_TOOLS_INSTALL OFF CACHE BOOL "" FORCE)
+
 list(APPEND NEXUS_COMPILE_DEFINITIONS NX_SYSTEM_NAME=${CMAKE_SYSTEM_NAME})
 list(APPEND NEXUS_COMPILE_DEFINITIONS NX_SYSTEM_PROCESSOR=${CMAKE_HOST_SYSTEM_PROCESSOR})
 
@@ -122,6 +152,37 @@ if (NOT imguizmo_POPULATED)
 
 endif()
 
+FetchContent_Declare(spirv_cross
+  GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Cross.git
+  GIT_TAG 104d91a
+)
+FetchContent_MakeAvailable(spirv_cross)
+
+FetchContent_Declare(spirv_headers
+  GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
+  GIT_TAG a380cd2
+)
+FetchContent_MakeAvailable(spirv_headers)
+
+FetchContent_Declare(spirv_tools
+  GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Tools.git
+  GIT_TAG 8b39a8b
+)
+FetchContent_MakeAvailable(spirv_tools)
+
+FetchContent_Declare(
+  glslang
+  GIT_REPOSITORY https://github.com/KhronosGroup/glslang.git
+  GIT_TAG 9fe5223
+)
+FetchContent_MakeAvailable(glslang)
+
+FetchContent_Declare(
+  shaderc
+  GIT_REPOSITORY https://github.com/google/shaderc.git
+  GIT_TAG 4a8f5e5
+)
+FetchContent_MakeAvailable(shaderc)
 
 set(NEXUS_INCLUDE_DIRS "")
 set(NEXUS_LINKED_LIBRARIES "")
@@ -183,9 +244,16 @@ endif()
 if (DEFINED NX_PLATFORM_VULKAN)
   list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_VULKAN=1)
   find_package(Vulkan REQUIRED)
-  list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/VulkanMemoryAllocator)
-  list(APPEND NEXUS_LINKED_LIBRARIES Vulkan::Vulkan VulkanMemoryAllocator)
-  list (APPEND NEXUS_INCLUDE_DIRS ${VULKAN_INCLUDE_DIRS} external/VulkanMemoryAllocator/include)
+
+  FetchContent_Declare(
+    VulkanMemoryAllocator
+    GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
+    GIT_TAG 0e89587
+  )
+  FetchContent_MakeAvailable(VulkanMemoryAllocator)
+
+  list (APPEND NEXUS_LINKED_LIBRARIES Vulkan::Vulkan VulkanMemoryAllocator)
+  list (APPEND NEXUS_INCLUDE_DIRS ${VULKAN_INCLUDE_DIRS})
 endif()
 
 if (DEFINED NX_PLATFORM_OPENAL)
@@ -199,12 +267,7 @@ endif()
 
 #external dependencies
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES 
-  external/glad
-  external/glslang
-  external/SPIRV-Cross
-  external/SPIRV-Headers
-  external/SPIRV-Tools
-  external/shaderc)
+  external/glad)
 
 #these libraries are only required if we are not building for emscripten
 #this is because these libraries are incompatible with emscripten
@@ -557,14 +620,13 @@ nexus_setup_filters(${ENGINE_SOURCES})
 #including dependencies
 list (APPEND NEXUS_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
   ${stb_SOURCE_DIR}
-  external/assimip/include
   external/json/single_include
   external/shaderc/libshaderc
-  external/SPIRV-Cross/include
   external/SPIRV-Reflect
   ${IMGUI_INCLUDE_DIR}
   ${IMGUIZMO_INCLUDE_DIR}
-  binaries/dxc_2023_08_14/inc)
+  binaries/dxc_2023_08_14/inc
+)
 
 list (APPEND NEXUS_LINKED_LIBRARIES 
   ${OPENGL_LIBRARIES}
@@ -605,6 +667,6 @@ target_compile_definitions(Nexus PRIVATE ${NEXUS_COMPILE_DEFINITIONS})
 nexus_structure_folders()
 nexus_setup_filters("${ENGINE_SOURCES}")
 
-if (DEFINED NX_PLATFORM_VULKAN)
-  set_target_properties(VulkanMemoryAllocator PROPERTIES CXX_STANDARD 20)
-endif()
+#if (DEFINED NX_PLATFORM_VULKAN)
+#  set_target_properties(VulkanMemoryAllocator PROPERTIES CXX_STANDARD 20)
+#endif()

@@ -272,7 +272,7 @@ namespace Nexus::Graphics
 												 elementIndex,
 												 D3D12::GetD3D12BaseType(element),
 												 layoutIndex,
-												 element.Offset,
+												 (UINT)element.Offset,
 												 classification,
 												 layout.GetInstanceStepRate()};
 
