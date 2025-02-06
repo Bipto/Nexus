@@ -12,7 +12,6 @@
 #include "Demos/Lighting.hpp"
 #include "Demos/MipmapDemo.hpp"
 #include "Demos/Models.hpp"
-#include "Demos/PythonDemo.hpp"
 #include "Demos/Splines.hpp"
 #include "Demos/Texturing.hpp"
 #include "Demos/TimingDemo.hpp"
@@ -75,7 +74,6 @@ class DemoApplication : public Nexus::Application
 		RegisterGraphicsDemo<Demos::MipmapDemo>("Mipmaps");
 		RegisterGraphicsDemo<Demos::CubemapDemo>("Cubemaps");
 		RegisterAudioDemo<Demos::AudioDemo>("Audio");
-		RegisterScriptingDemo<Demos::PythonDemo>("Python");
 		RegisterUtilsDemo<Demos::ClippingAndTriangulationDemo>("Polygon clipping and triangulation");
 		RegisterUtilsDemo<Demos::Splines>("Splines");
 

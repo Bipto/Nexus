@@ -56,6 +56,73 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(libnyquist)
 
+FetchContent_Declare(
+  assimp
+  GIT_REPOSITORY https://github.com/assimp/assimp.git
+  GIT_TAG master
+)
+set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "")
+FetchContent_MakeAvailable(assimp)
+
+if (NOT EMSCRIPTEN)
+  FetchContent_Declare(
+    OpenAL-Soft
+    GIT_REPOSITORY https://github.com/kcat/openal-soft.git
+    GIT_TAG master
+  )
+  FetchContent_MakeAvailable(OpenAL-Soft)
+endif()
+
+FetchContent_Declare(
+  imgui
+  GIT_REPOSITORY https://github.com/ocornut/imgui.git
+  GIT_TAG 2f91176
+)
+FetchContent_GetProperties(imgui)
+if (NOT imgui_POPULATED)
+  FetchContent_Populate(imgui)
+
+  set (IMGUI_INCLUDE_DIR "${imgui_SOURCE_DIR}/")
+
+  add_library(imgui STATIC
+    "${imgui_SOURCE_DIR}/imconfig.h"
+	  "${imgui_SOURCE_DIR}/imgui.cpp"
+	  "${imgui_SOURCE_DIR}/imgui.h"
+	  "${imgui_SOURCE_DIR}/imgui_demo.cpp"
+	  "${imgui_SOURCE_DIR}/imgui_draw.cpp"
+	  "${imgui_SOURCE_DIR}/imgui_internal.h"
+	  "${imgui_SOURCE_DIR}/imgui_tables.cpp"
+	  "${imgui_SOURCE_DIR}/imgui_widgets.cpp"
+	  "${imgui_SOURCE_DIR}/imstb_rectpack.h"
+	  "${imgui_SOURCE_DIR}/imstb_textedit.h"
+	  "${imgui_SOURCE_DIR}/imstb_truetype.h"	
+	  "${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.h"
+	  "${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.cpp"
+  )
+
+  target_include_directories(imgui PUBLIC ${IMGUI_INCLUDE_DIR})
+endif()
+
+FetchContent_Declare(
+  imguizmo
+  GIT_REPOSITORY https://github.com/CedricGuillemet/ImGuizmo.git
+  GIT_TAG b10e917
+)
+FetchContent_GetProperties(imguizmo)
+if (NOT imguizmo_POPULATED)
+  FetchContent_Populate(imguizmo)
+
+  set (IMGUIZMO_INCLUDE_DIR "${imguizmo_SOURCE_DIR}/")
+
+  add_library(imguizmo STATIC
+    "${imguizmo_SOURCE_DIR}/ImGuizmo.h"
+    "${imguizmo_SOURCE_DIR}/ImGuizmo.cpp")
+
+  target_include_directories(imguizmo PUBLIC ${IMGUI_INCLUDE_DIR})
+
+endif()
+
+
 set(NEXUS_INCLUDE_DIRS "")
 set(NEXUS_LINKED_LIBRARIES "")
 set(NEXUS_LIBRARY_SUBDIRECTORIES "")
@@ -125,7 +192,6 @@ if (DEFINED NX_PLATFORM_OPENAL)
     list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_OPENAL=1)
 
     if (NOT EMSCRIPTEN)
-      list (APPEND NEXUS_SHARED_LIBRARY_SUBDIRECTORIES external/OpenAL-Soft)
       list (APPEND NEXUS_LINKED_LIBRARIES OpenAL)
     endif()
     
@@ -134,15 +200,11 @@ endif()
 #external dependencies
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES 
   external/glad
-  external/imgui
   external/glslang
   external/SPIRV-Cross
   external/SPIRV-Headers
   external/SPIRV-Tools
-  external/shaderc
-  external/pocketpy)
-  
-list(APPEND NEXUS_SHARED_LIBRARY_SUBDIRECTORIES external/assimp)
+  external/shaderc)
 
 #these libraries are only required if we are not building for emscripten
 #this is because these libraries are incompatible with emscripten
@@ -497,13 +559,11 @@ list (APPEND NEXUS_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
   ${stb_SOURCE_DIR}
   external/assimip/include
   external/json/single_include
-  external/imgui/imgui
-  external/imgui/imguizmo
-  external/OpenAL-Soft/include
   external/shaderc/libshaderc
   external/SPIRV-Cross/include
   external/SPIRV-Reflect
-  external/pocketpy/include
+  ${IMGUI_INCLUDE_DIR}
+  ${IMGUIZMO_INCLUDE_DIR}
   binaries/dxc_2023_08_14/inc)
 
 list (APPEND NEXUS_LINKED_LIBRARIES 
@@ -511,16 +571,15 @@ list (APPEND NEXUS_LINKED_LIBRARIES
   SDL3::SDL3
   glad
   assimp
-  imgui
-  imguizmo
   shaderc
   libnyquist
   spirv-cross-cpp
   spirv-cross-hlsl
-  pocketpy
   freetype
   yaml-cpp::yaml-cpp
-  glm::glm)
+  glm::glm
+  imgui
+  imguizmo)
 
 #precompiled header
 target_precompile_headers(Nexus PUBLIC include/Nexus-Core/nxpch.hpp)

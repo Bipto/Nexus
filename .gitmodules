@@ -1,13 +1,3 @@
-[submodule "External/assimp"]
-	path = src/Nexus/external/assimp
-	url = https://github.com/assimp/assimp.git
-[submodule "External/imgui/imgui"]
-	path = src/Nexus/external/imgui/imgui
-	url = https://github.com/ocornut/imgui.git
-	branch = docking
-[submodule "External/imgui/imguizmo"]
-	path = src/Nexus/external/imgui/imguizmo
-	url = https://github.com/CedricGuillemet/ImGuizmo.git
 [submodule "External/shaderc"]
 	path = src/Nexus/external/shaderc
 	url = https://github.com/google/shaderc.git
@@ -29,12 +19,6 @@
 [submodule "External/SPIRV-Cross"]
 	path = src/Nexus/external/SPIRV-Cross
 	url = https://github.com/KhronosGroup/SPIRV-Cross.git
-[submodule "External/OpenAL-Soft"]
-	path = src/Nexus/external/OpenAL-Soft
-	url = https://github.com/kcat/openal-soft.git
 [submodule "External/VulkanMemoryAllocator"]
 	path = src/Nexus/external/VulkanMemoryAllocator
 	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
-[submodule "External/pocketpy"]
-	path = src/Nexus/external/pocketpy
-	url = https://github.com/blueloveTH/pocketpy.git
