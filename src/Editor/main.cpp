@@ -18,6 +18,9 @@
 
 #include "Nexus-Core/Utils/ScriptProjectGenerator.hpp"
 
+#include "Platform/SDL3/SDL3Include.hpp"
+#include "Platform/SDL3/SDL3Window.hpp"
+
 class EditorApplication : public Nexus::Application
 {
   public:
@@ -136,10 +139,12 @@ class EditorApplication : public Nexus::Application
 			ImGui::SameLine();
 			if (ImGui::Button("..."))
 			{
-				const char *directory = Nexus::FileDialogs::OpenFolder("Select a directory", "");
-				if (directory)
+				std::unique_ptr<Nexus::OpenFolderDialog> dialog = std::unique_ptr<Nexus::OpenFolderDialog>(
+					Nexus::Platform::CreateOpenFolderDialog(Nexus::GetApplication()->GetPrimaryWindow(), nullptr, false));
+				Nexus::FileDialogResult result = dialog->Show();
+				if (result.FilePaths.size() > 0)
 				{
-					s_ProjectDirectory = directory;
+					s_ProjectDirectory = result.FilePaths[0];
 				}
 			}
 
@@ -174,11 +179,14 @@ class EditorApplication : public Nexus::Application
 			{
 				if (ImGui::MenuItem("Open"))
 				{
-					std::vector<const char *> filters  = {"*.proj"};
-					const char				 *filepath = Nexus::FileDialogs::OpenFile(filters);
-					if (filepath)
+					std::vector<Nexus::FileDialogFilter>   filters = {{"All files", "*"}};
+					std::unique_ptr<Nexus::OpenFileDialog> dialog  = std::unique_ptr<Nexus::OpenFileDialog>(
+						 Nexus::Platform::CreateOpenFileDialog(Nexus::GetApplication()->GetPrimaryWindow(), filters, nullptr, false));
+					Nexus::FileDialogResult result = dialog->Show();
+
+					if (result.FilePaths.size() > 0)
 					{
-						OpenProject(filepath);
+						OpenProject(result.FilePaths[0]);
 					}
 				}
 
@@ -196,13 +204,15 @@ class EditorApplication : public Nexus::Application
 
 			if (ImGui::MenuItem("Open Model"))
 			{
-				std::vector<const char *> filters  = {"*.*"};
-				const char				 *filepath = Nexus::FileDialogs::OpenFile(filters);
+				std::vector<Nexus::FileDialogFilter>   filters = {{"All files", "*"}};
+				std::unique_ptr<Nexus::OpenFileDialog> dialog  = std::unique_ptr<Nexus::OpenFileDialog>(
+					 Nexus::Platform::CreateOpenFileDialog(Nexus::GetApplication()->GetPrimaryWindow(), filters, nullptr, false));
 
-				if (filepath)
+				Nexus::FileDialogResult result = dialog->Show();
+				if (result.FilePaths.size() > 0)
 				{
 					Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
-					m_Model = factory.CreateFrom3DModelFile(filepath);
+					m_Model = factory.CreateFrom3DModelFile(result.FilePaths[0]);
 				}
 			}
 
@@ -409,7 +419,7 @@ class EditorApplication : public Nexus::Application
 				uv1 = {1, 0};
 			}
 			ImVec2 cursorPos = ImGui::GetCursorPos();
-			ImVec2 imagePos = ImGui::GetCursorScreenPos();
+			ImVec2 imagePos	 = ImGui::GetCursorScreenPos();
 			ImGui::Image(m_FramebufferTextureID, size, uv0, uv1);
 
 			if (ImGui::IsItemClicked() && !m_FramebufferClickDisabled)
@@ -588,7 +598,7 @@ class EditorApplication : public Nexus::Application
 	std::vector<Panel *>	   m_Panels				   = {};
 	EditorPropertiesPanel	  *m_EditorPropertiesPanel = nullptr;
 
-	std::optional<glm::vec2> m_ClickPosition = {};
+	std::optional<glm::vec2>   m_ClickPosition			  = {};
 	std::optional<Nexus::GUID> m_EntityID				  = {};
 	bool					   m_FramebufferClickDisabled = false;
 	ImGuizmo::OPERATION		   m_CurrentOperation		  = ImGuizmo::OPERATION::TRANSLATE;

@@ -2,17 +2,45 @@
 
 #include "Nexus-Core/nxpch.hpp"
 
-namespace Nexus::FileDialogs
+namespace Nexus
 {
-	/// @brief A method to open a new open dialog, blocking the existing application
-	/// @param filters A set of filters to use to limit the files that can be chosen
-	/// @return A string containing the filepath
-	const char *OpenFile(std::vector<const char *> filters);
+	struct FileDialogFilter
+	{
+		const char *Name;
+		const char *Pattern;
+	};
 
-	/// @brief A method to open a new open folder dialog, blocking the existing
-	/// application
-	/// @param title  The title of the dialog
-	/// @param defaultDirectory The default directory to open the browser in
-	/// @return A string containing the path to the folder
-	const char *OpenFolder(const char *title, const char *defaultDirectory);
-}	 // namespace Nexus::FileDialogs
+	struct FileDialogResult
+	{
+		std::vector<std::string> FilePaths;
+		int						 SelectedFilter = -1;
+	};
+
+	class OpenFileDialog
+	{
+	  public:
+		virtual ~OpenFileDialog()
+		{
+		}
+		virtual FileDialogResult Show() = 0;
+	};
+
+	class SaveFileDialog
+	{
+	  public:
+		virtual ~SaveFileDialog()
+		{
+		}
+		virtual FileDialogResult Show() = 0;
+	};
+
+	class OpenFolderDialog
+	{
+	  public:
+		virtual ~OpenFolderDialog()
+		{
+		}
+		virtual FileDialogResult Show() = 0;
+	};
+
+}	 // namespace Nexus

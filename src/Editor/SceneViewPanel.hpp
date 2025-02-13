@@ -32,12 +32,13 @@ class SceneViewPanel : public Panel
 			ImGui::SameLine();
 			if (ImGui::Button("..."))
 			{
-				std::vector<const char *> filters = {
-					{"*.hdr"},
-				};
-				const char *file = Nexus::FileDialogs::OpenFile(filters);
-				if (file)
+				std::vector<Nexus::FileDialogFilter>   filters = {{"HDR images", "hdr"}};
+				std::unique_ptr<Nexus::OpenFileDialog> dialog  = std::unique_ptr<Nexus::OpenFileDialog>(
+					 Nexus::Platform::CreateOpenFileDialog(Nexus::GetApplication()->GetPrimaryWindow(), filters, nullptr, false));
+				Nexus::FileDialogResult result = dialog->Show();
+				if (result.FilePaths.size() > 0)
 				{
+					std::string file					= result.FilePaths[0];
 					scene->SceneEnvironment.CubemapPath = file;
 
 					auto		graphicsDevice = Nexus::GetApplication()->GetGraphicsDevice();

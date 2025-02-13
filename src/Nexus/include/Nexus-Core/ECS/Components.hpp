@@ -12,6 +12,7 @@
 #include "Nexus-Core/Scripting/Script.hpp"
 
 #include "Nexus-Core/FileSystem/FileDialogs.hpp"
+#include "Nexus-Core/Platform.hpp"
 
 #include "ComponentRegistry.hpp"
 
@@ -116,12 +117,17 @@ namespace Nexus
 							  ImGui::Button("+");
 							  if (ImGui::IsItemClicked())
 							  {
-								  std::vector<const char *> filters = {"*"};
+								  std::vector<Nexus::FileDialogFilter> filters;
+								  filters.push_back(Nexus::FileDialogFilter {.Name = "All files", .Pattern = "*"});
 
-								  const char *filepath = Nexus::FileDialogs::OpenFile(filters);
-								  if (filepath)
+								  std::unique_ptr<Nexus::OpenFileDialog> dialog = std::unique_ptr<Nexus::OpenFileDialog>(
+									  Nexus::Platform::CreateOpenFileDialog(Nexus::GetApplication()->GetPrimaryWindow(), filters, nullptr, false));
+								  Nexus::FileDialogResult result = dialog->Show();
+
+								  if (result.FilePaths.size() > 0)
 								  {
-									  renderer->FilePath = filepath;
+									  std::string filepath = result.FilePaths[0];
+									  renderer->FilePath   = filepath;
 									  Graphics::MeshFactory factory(Nexus::GetApplication()->GetGraphicsDevice());
 									  renderer->Model = factory.CreateFrom3DModelFile(filepath);
 								  }

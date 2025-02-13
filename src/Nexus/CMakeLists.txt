@@ -202,14 +202,10 @@ elseif(ANDROID)
 
 endif()
 
-if (NOT EMSCRIPTEN)
-  list (APPEND NEXUS_INCLUDE_DIRS external/tinyfiledialogs/tinyfiledialogs)
-  list (APPEND NEXUS_LINKED_LIBRARIES tinyfiledialogs)
-endif()
-
 if (DEFINED NX_PLATFORM_OPENGL)
   find_package(OpenGL REQUIRED)
   list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_OPENGL=1)
+  list (APPEND NEXUS_LINKED_LIBRARIES ${OPENGL_LIBRARIES})
 
   if (WIN32)
       list(APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_WGL=1)
@@ -269,12 +265,6 @@ endif()
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES 
   external/glad)
 
-#these libraries are only required if we are not building for emscripten
-#this is because these libraries are incompatible with emscripten
-if (WIN32 OR LINUX)
-  list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/tinyfiledialogs)
-endif()
-
 set (ENGINE_SOURCES
   src/Nexus-Core/Application.cpp
   include/Nexus-Core/Application.hpp
@@ -314,7 +304,6 @@ list (APPEND ENGINE_SOURCES
   include/Nexus-Core/Events/EventHandler.hpp)
 
 list (APPEND ENGINE_SOURCES
-  src/Nexus-Core/FileSystem/FileDialogs.cpp
   include/Nexus-Core/FileSystem/FileDialogs.hpp
   src/Nexus-Core/FileSystem/FileSystem.cpp
   include/Nexus-Core/FileSystem/FileSystem.hpp)
@@ -551,6 +540,8 @@ if (DEFINED NX_PLATFORM_WGL)
 endif()
 
 list (APPEND ENGINE_SOURCES
+  src/Platform/SDL3/FileDialogsSDL3.cpp
+  src/Platform/SDL3/FileDialogsSDL3.hpp
   src/Platform/SDL3/GamepadSDL3.cpp
   src/Platform/SDL3/GamepadSDL3.hpp
   src/Platform/SDL3/SDL3Include.cpp
@@ -629,9 +620,8 @@ list (APPEND NEXUS_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 list (APPEND NEXUS_LINKED_LIBRARIES 
-  ${OPENGL_LIBRARIES}
-  SDL3::SDL3
   glad
+  SDL3::SDL3
   assimp
   shaderc
   libnyquist
@@ -666,7 +656,3 @@ target_include_directories(Nexus PUBLIC include)
 target_compile_definitions(Nexus PRIVATE ${NEXUS_COMPILE_DEFINITIONS})
 nexus_structure_folders()
 nexus_setup_filters("${ENGINE_SOURCES}")
-
-#if (DEFINED NX_PLATFORM_VULKAN)
-#  set_target_properties(VulkanMemoryAllocator PROPERTIES CXX_STANDARD 20)
-#endif()

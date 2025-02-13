@@ -37,9 +37,9 @@ void say_hello()
 
 		// setup engine
 		{
-			std::string engineDirectory = scriptDirectory + "\\Nexus";
+			/* std::string engineDirectory = scriptDirectory + "\\Nexus";
 			FileSystem::CreateDirectory(engineDirectory);
-			FileSystem::CopyDirectory(templatePath, engineDirectory, true);
+			FileSystem::CopyDirectory(templatePath, engineDirectory, true); */
 		}
 
 		// setup script project

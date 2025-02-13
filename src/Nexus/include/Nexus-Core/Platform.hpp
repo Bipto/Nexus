@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Nexus-Core/Events/EventHandler.hpp"
+#include "Nexus-Core/FileSystem/FileDialogs.hpp"
 #include "Nexus-Core/IWindow.hpp"
 #include "Nexus-Core/Input/Event.hpp"
 #include "Nexus-Core/Input/Gamepad.hpp"
@@ -50,7 +51,12 @@ namespace Nexus::Platform
 	void	 Initialise();
 	void	 Shutdown();
 	void	 Update();
+	void	 PollEvents();
 	IWindow *CreatePlatformWindow(const WindowSpecification &windowProps);
+
+	OpenFileDialog *CreateOpenFileDialog(IWindow *window, const std::vector<FileDialogFilter> &filters, const char *defaultLocation, bool allowMany);
+	SaveFileDialog *CreateSaveFileDialog(IWindow *window, const std::vector<FileDialogFilter> &filters, const char *defaultLocation);
+	OpenFolderDialog *CreateOpenFolderDialog(IWindow *window, const char *defaultLocation, bool allowMany);
 
 	InputNew::MouseInfo		 GetGlobalMouseInfo();
 	std::optional<IWindow *> GetKeyboardFocus();
