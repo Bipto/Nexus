@@ -37,13 +37,12 @@ namespace Nexus
 			}
 
 			vertex.Colour = {1, 1, 1, 1};
-			if (mesh->mColors[0])
-
+			if (mesh->HasVertexColors(0))
 			{
-				vertex.Colour.r = mesh->mColors[0][i].r * 2;
-				vertex.Colour.g = mesh->mColors[0][i].g * 2;
-				vertex.Colour.b = mesh->mColors[0][i].b * 2;
-				vertex.Colour.a = mesh->mColors[0][i].a * 2;
+				vertex.Colour.r = mesh->mColors[0][i].r;
+				vertex.Colour.g = mesh->mColors[0][i].g;
+				vertex.Colour.b = mesh->mColors[0][i].b;
+				vertex.Colour.a = mesh->mColors[0][i].a;
 			}
 
 			if (mesh->HasTangentsAndBitangents())
@@ -157,45 +156,84 @@ namespace Nexus
 			aiString normalTexturePath;
 			aiString specularTexturePath;
 
-			aiColor4D diffuseColour;
-			aiColor4D specularColour;
+			glm::vec4 diffuseColour	 = {1, 1, 1, 1};
+			glm::vec4 specularColour = {1, 1, 1, 1};
 
-			material->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), diffuseTexturePath);
-			material->Get(AI_MATKEY_TEXTURE(aiTextureType_NORMALS, 0), normalTexturePath);
-			material->Get(AI_MATKEY_TEXTURE(aiTextureType_SPECULAR, 0), specularTexturePath);
+			bool hasDiffuseTexture	= false;
+			bool hasNormalTexture	= false;
+			bool hasSpecularTexture = false;
 
-			material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColour);
-			material->Get(AI_MATKEY_COLOR_SPECULAR, specularColour);
+			if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), diffuseTexturePath) == AI_SUCCESS)
+			{
+				hasDiffuseTexture = true;
+			}
+
+			if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_NORMALS, 0), normalTexturePath) == AI_SUCCESS)
+			{
+				hasNormalTexture = true;
+			}
+
+			if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_SPECULAR, 0), specularTexturePath) == AI_SUCCESS)
+			{
+				hasSpecularTexture = true;
+			}
+
+			aiColor4D assimpDiffuseColour;
+			if (material->Get(AI_MATKEY_COLOR_DIFFUSE, assimpDiffuseColour) == AI_SUCCESS)
+			{
+				diffuseColour.r = assimpDiffuseColour.r;
+				diffuseColour.g = assimpDiffuseColour.g;
+				diffuseColour.b = assimpDiffuseColour.b;
+				diffuseColour.a = assimpDiffuseColour.a;
+			}
+
+			aiColor4D assimpSpecularColour;
+			if (material->Get(AI_MATKEY_COLOR_SPECULAR, assimpSpecularColour) == AI_SUCCESS)
+			{
+				specularColour.r = assimpSpecularColour.r;
+				specularColour.g = assimpSpecularColour.g;
+				specularColour.b = assimpSpecularColour.b;
+				specularColour.a = assimpSpecularColour.a;
+			}
 
 			Nexus::Ref<Nexus::Graphics::Texture2D> diffuseTexture  = nullptr;
 			Nexus::Ref<Nexus::Graphics::Texture2D> normalTexture   = nullptr;
 			Nexus::Ref<Nexus::Graphics::Texture2D> specularTexture = nullptr;
 
-			if (auto embeddedTexture = scene->GetEmbeddedTexture(diffuseTexturePath.C_Str()))
+			if (hasDiffuseTexture)
 			{
-				diffuseTexture = LoadEmbeddedTexture(embeddedTexture, device);
-			}
-			else
-			{
-				diffuseTexture = LoadTextureFile(diffuseTexturePath.C_Str(), directory, true, device);
-			}
-
-			if (auto embeddedTexture = scene->GetEmbeddedTexture(normalTexturePath.C_Str()))
-			{
-				normalTexture = LoadEmbeddedTexture(embeddedTexture, device);
-			}
-			else
-			{
-				normalTexture = LoadTextureFile(normalTexturePath.C_Str(), directory, true, device);
+				if (auto embeddedTexture = scene->GetEmbeddedTexture(diffuseTexturePath.C_Str()))
+				{
+					diffuseTexture = LoadEmbeddedTexture(embeddedTexture, device);
+				}
+				else
+				{
+					diffuseTexture = LoadTextureFile(diffuseTexturePath.C_Str(), directory, true, device);
+				}
 			}
 
-			if (auto embeddedTexture = scene->GetEmbeddedTexture(specularTexturePath.C_Str()))
+			if (hasNormalTexture)
 			{
-				specularTexture = LoadEmbeddedTexture(embeddedTexture, device);
+				if (auto embeddedTexture = scene->GetEmbeddedTexture(normalTexturePath.C_Str()))
+				{
+					normalTexture = LoadEmbeddedTexture(embeddedTexture, device);
+				}
+				else
+				{
+					normalTexture = LoadTextureFile(normalTexturePath.C_Str(), directory, true, device);
+				}
 			}
-			else
+
+			if (hasSpecularTexture)
 			{
-				specularTexture = LoadTextureFile(specularTexturePath.C_Str(), directory, true, device);
+				if (auto embeddedTexture = scene->GetEmbeddedTexture(specularTexturePath.C_Str()))
+				{
+					specularTexture = LoadEmbeddedTexture(embeddedTexture, device);
+				}
+				else
+				{
+					specularTexture = LoadTextureFile(specularTexturePath.C_Str(), directory, true, device);
+				}
 			}
 
 			Nexus::Graphics::Material mat = {};
@@ -248,7 +286,15 @@ namespace Nexus
 
 		unsigned int flags = aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_FindInvalidData | aiProcess_GenSmoothNormals |
 							 aiProcess_ImproveCacheLocality | aiProcess_CalcTangentSpace | aiProcess_ValidateDataStructure | aiProcess_FindInstances |
-							 aiProcess_GlobalScale | aiProcess_PreTransformVertices | aiProcess_TransformUVCoords | aiProcess_FixInfacingNormals;
+							 aiProcess_GlobalScale | aiProcess_PreTransformVertices | aiProcess_TransformUVCoords | aiProcess_FixInfacingNormals |
+							 aiProcess_MakeLeftHanded;
+
+		importer.SetPropertyBool(AI_CONFIG_IMPORT_NO_SKELETON_MESHES, true);
+		importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_CAMERAS, false);
+		importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_POINT | aiPrimitiveType_LINE);
+		importer.SetPropertyInteger(AI_CONFIG_PP_SBBC_MAX_BONES, 4);
+		importer.SetPropertyFloat(AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE, 66.0f);
+		importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_STRICT_MODE, false);
 
 		aiScene *scene = (aiScene *)importer.ReadFile(filepath, flags);
 

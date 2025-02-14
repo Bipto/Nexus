@@ -421,7 +421,7 @@ namespace Nexus::Graphics
 	{
 		Nexus::Graphics::PipelineDescription pipelineDescription	 = {};
 		pipelineDescription.RasterizerStateDesc.TriangleCullMode	 = Nexus::Graphics::CullMode::Back;
-		pipelineDescription.RasterizerStateDesc.TriangleFrontFace	 = Nexus::Graphics::FrontFace::Clockwise;
+		pipelineDescription.RasterizerStateDesc.TriangleFrontFace	 = Nexus::Graphics::FrontFace::CounterClockwise;
 		pipelineDescription.DepthStencilDesc.EnableDepthTest		 = true;
 		pipelineDescription.DepthStencilDesc.EnableDepthWrite		 = true;
 		pipelineDescription.DepthStencilDesc.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;

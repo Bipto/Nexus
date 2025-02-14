@@ -240,7 +240,7 @@ namespace Nexus
 													 (-m_Height / 2) / m_Zoom,
 													 (m_Height / 2) / m_Zoom,
 													 0.1f,
-													 1000.0f);
+													 10000.0f);
 				}
 				// perspective
 				else
