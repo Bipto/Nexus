@@ -18,9 +18,6 @@
 
 #include "Nexus-Core/Utils/ScriptProjectGenerator.hpp"
 
-#include "Platform/SDL3/SDL3Include.hpp"
-#include "Platform/SDL3/SDL3Window.hpp"
-
 class EditorApplication : public Nexus::Application
 {
   public:

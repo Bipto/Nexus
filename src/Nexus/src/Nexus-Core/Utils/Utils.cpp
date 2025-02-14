@@ -282,4 +282,24 @@ namespace Nexus::Utils
 		}
 	}
 
+	void FlipPixelsVertically(std::vector<unsigned char> &pixels, int width, int height, int bytesPerChannel, int channels)
+	{
+		int bytesPerPixel = bytesPerChannel * channels;
+
+		for (int j = 0; j < height / 2; ++j)
+		{
+			for (int i = 0; i < width; ++i)
+			{
+				for (int k = 0; k < channels; ++k)
+				{
+					for (int b = 0; b < bytesPerChannel; ++b)
+					{
+						std::swap(pixels[j * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b],
+								  pixels[(height - 1 - j) * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b]);
+					}
+				}
+			}
+		}
+	}
+
 }	 // namespace Nexus::Utils

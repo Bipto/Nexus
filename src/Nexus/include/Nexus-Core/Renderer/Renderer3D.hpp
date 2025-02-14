@@ -25,9 +25,11 @@ namespace Nexus::Graphics
 
 	struct alignas(16) ModelTransformUniforms
 	{
-		glm::mat4 Transform = {};
-		uint32_t  Guid1		= {};
-		uint32_t  Guid2		= {};
+		glm::mat4 Transform		 = {};
+		glm::vec4 DiffuseColour	 = {};
+		glm::vec4 SpecularColour = {};
+		uint32_t  Guid1			 = {};
+		uint32_t  Guid2			 = {};
 	};
 
 	class Renderer3D
@@ -51,12 +53,12 @@ namespace Nexus::Graphics
 		void CreateClearGBufferPipeline();
 
 	  private:
-		GraphicsDevice *m_Device	   = nullptr;
-		RenderTarget	m_RenderTarget = {};
+		GraphicsDevice *m_Device		 = nullptr;
+		RenderTarget	m_RenderTarget	 = {};
 		FullscreenQuad	m_FullscreenQuad = {};
 
-		Scene		   *m_Scene		   = nullptr;
-		Ref<Cubemap>	m_Cubemap	   = nullptr;
+		Scene		*m_Scene   = nullptr;
+		Ref<Cubemap> m_Cubemap = nullptr;
 
 		Ref<CommandList> m_CommandList = nullptr;
 

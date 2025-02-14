@@ -26,6 +26,8 @@ namespace Nexus
 		{
 			CreateNewScene(DefaultSceneName);
 		}
+
+		LoadDataFromSharedLibrary();
 	}
 
 	void Project::Serialize()

@@ -4,6 +4,8 @@
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
 
+#include "stb_image.h"
+
 namespace Nexus
 {
 	Ref<Graphics::Mesh> ProcessMesh(aiMesh										 *mesh,
@@ -11,12 +13,12 @@ namespace Nexus
 									const std::vector<Nexus::Graphics::Material> &materials,
 									Graphics::GraphicsDevice					 *device)
 	{
-		std::vector<Graphics::VertexPositionTexCoordNormalTangentBitangent> vertices;
-		std::vector<unsigned int>											indices;
+		std::vector<Graphics::VertexPositionTexCoordNormalColourTangentBitangent> vertices;
+		std::vector<unsigned int>												  indices;
 
 		for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 		{
-			Graphics::VertexPositionTexCoordNormalTangentBitangent vertex;
+			Graphics::VertexPositionTexCoordNormalColourTangentBitangent vertex;
 			vertex.Position.x = mesh->mVertices[i].x;
 			vertex.Position.y = mesh->mVertices[i].y;
 			vertex.Position.z = mesh->mVertices[i].z;
@@ -32,6 +34,16 @@ namespace Nexus
 			{
 				vertex.TexCoords.x = mesh->mTextureCoords[0][i].x;
 				vertex.TexCoords.y = mesh->mTextureCoords[0][i].y;
+			}
+
+			vertex.Colour = {1, 1, 1, 1};
+			if (mesh->mColors[0])
+
+			{
+				vertex.Colour.r = mesh->mColors[0][i].r * 2;
+				vertex.Colour.g = mesh->mColors[0][i].g * 2;
+				vertex.Colour.b = mesh->mColors[0][i].b * 2;
+				vertex.Colour.a = mesh->mColors[0][i].a * 2;
 			}
 
 			if (mesh->HasTangentsAndBitangents())
@@ -67,7 +79,7 @@ namespace Nexus
 		std::string name = std::string(mesh->mName.C_Str());
 
 		Nexus::Graphics::BufferDescription vertexBufferDesc;
-		vertexBufferDesc.Size  = vertices.size() * sizeof(Graphics::VertexPositionTexCoordNormalTangentBitangent);
+		vertexBufferDesc.Size  = vertices.size() * sizeof(Graphics::VertexPositionTexCoordNormalColourTangentBitangent);
 		vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
 		auto vertexBuffer	   = device->CreateVertexBuffer(vertexBufferDesc, vertices.data());
 
@@ -95,16 +107,30 @@ namespace Nexus
 		for (unsigned int i = 0; i < node->mNumChildren; i++) { ProcessNode(node->mChildren[i], scene, meshes, materials, device); }
 	}
 
-	Nexus::Ref<Nexus::Graphics::Texture2D> LoadTexture(aiMaterial					   *material,
-													   aiTextureType					type,
-													   int								index,
-													   const std::string			   &directory,
-													   bool								generateMips,
-													   Nexus::Graphics::GraphicsDevice *device)
+	Nexus::Ref<Nexus::Graphics::Texture2D> LoadEmbeddedTexture(const aiTexture *texture, Nexus::Graphics::GraphicsDevice *device)
 	{
-		aiString textureName;
-		material->GetTexture(type, index, &textureName);
-		std::string texturePath = directory + std::string("/") + std::string(textureName.data);
+		std::vector<unsigned char> pixels;
+		pixels.reserve(texture->mWidth * texture->mHeight * 4);
+		memcpy(pixels.data(), texture->pcData, pixels.size());
+		Nexus::Utils::FlipPixelsVertically(pixels, texture->mWidth, texture->mHeight, 1, 4);
+
+		Nexus::Graphics::Texture2DSpecification spec = {};
+		spec.Format									 = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UInt;
+		spec.MipLevels								 = 1;
+		spec.Width									 = texture->mWidth;
+		spec.Height									 = texture->mHeight;
+
+		Nexus::Ref<Nexus::Graphics::Texture2D> createdTexture = device->CreateTexture2D(spec);
+		createdTexture->SetData(pixels.data(), 0, 0, 0, spec.Width, spec.Height);
+		return createdTexture;
+	}
+
+	Nexus::Ref<Nexus::Graphics::Texture2D> LoadTextureFile(const std::string			   &filename,
+														   const std::string			   &directory,
+														   bool								generateMips,
+														   Nexus::Graphics::GraphicsDevice *device)
+	{
+		std::string texturePath = directory + std::string("/") + filename;
 
 		Nexus::Ref<Nexus::Graphics::Texture2D> texture = nullptr;
 
@@ -125,24 +151,60 @@ namespace Nexus
 
 		for (uint32_t i = 0; i < scene->mNumMaterials; i++)
 		{
-			aiMaterial							  *material		   = scene->mMaterials[i];
-			Nexus::Ref<Nexus::Graphics::Texture2D> diffuseTexture  = LoadTexture(material, aiTextureType_DIFFUSE, 0, directory, true, device);
-			Nexus::Ref<Nexus::Graphics::Texture2D> normalTexture   = LoadTexture(material, aiTextureType_NORMALS, 0, directory, true, device);
-			Nexus::Ref<Nexus::Graphics::Texture2D> specularTexture = LoadTexture(material, aiTextureType_SPECULAR, 0, directory, true, device);
+			aiMaterial *material = scene->mMaterials[i];
 
-			aiColor3D diffuseColour;
-			aiColor3D specularColour;
+			aiString diffuseTexturePath;
+			aiString normalTexturePath;
+			aiString specularTexturePath;
+
+			aiColor4D diffuseColour;
+			aiColor4D specularColour;
+
+			material->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), diffuseTexturePath);
+			material->Get(AI_MATKEY_TEXTURE(aiTextureType_NORMALS, 0), normalTexturePath);
+			material->Get(AI_MATKEY_TEXTURE(aiTextureType_SPECULAR, 0), specularTexturePath);
 
 			material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColour);
 			material->Get(AI_MATKEY_COLOR_SPECULAR, specularColour);
+
+			Nexus::Ref<Nexus::Graphics::Texture2D> diffuseTexture  = nullptr;
+			Nexus::Ref<Nexus::Graphics::Texture2D> normalTexture   = nullptr;
+			Nexus::Ref<Nexus::Graphics::Texture2D> specularTexture = nullptr;
+
+			if (auto embeddedTexture = scene->GetEmbeddedTexture(diffuseTexturePath.C_Str()))
+			{
+				diffuseTexture = LoadEmbeddedTexture(embeddedTexture, device);
+			}
+			else
+			{
+				diffuseTexture = LoadTextureFile(diffuseTexturePath.C_Str(), directory, true, device);
+			}
+
+			if (auto embeddedTexture = scene->GetEmbeddedTexture(normalTexturePath.C_Str()))
+			{
+				normalTexture = LoadEmbeddedTexture(embeddedTexture, device);
+			}
+			else
+			{
+				normalTexture = LoadTextureFile(normalTexturePath.C_Str(), directory, true, device);
+			}
+
+			if (auto embeddedTexture = scene->GetEmbeddedTexture(specularTexturePath.C_Str()))
+			{
+				specularTexture = LoadEmbeddedTexture(embeddedTexture, device);
+			}
+			else
+			{
+				specularTexture = LoadTextureFile(specularTexturePath.C_Str(), directory, true, device);
+			}
 
 			Nexus::Graphics::Material mat = {};
 			mat.DiffuseTexture			  = diffuseTexture;
 			mat.NormalTexture			  = normalTexture;
 			mat.SpecularTexture			  = specularTexture;
 
-			mat.DiffuseColour  = {diffuseColour.r, diffuseColour.g, diffuseColour.b};
-			mat.SpecularColour = {specularColour.r, specularColour.g, specularColour.b};
+			mat.DiffuseColour  = {diffuseColour.r, diffuseColour.g, diffuseColour.b, diffuseColour.a};
+			mat.SpecularColour = {specularColour.r, specularColour.g, specularColour.b, specularColour.a};
 
 			materials.push_back(mat);
 		}
@@ -198,7 +260,7 @@ namespace Nexus
 			return {};
 		}
 
-		RotateBy180Degrees(scene);
+		// RotateBy180Degrees(scene);
 
 		std::filesystem::path			path	  = filepath;
 		std::vector<Graphics::Material> materials = ImportMaterials(scene, path.parent_path().string(), device);

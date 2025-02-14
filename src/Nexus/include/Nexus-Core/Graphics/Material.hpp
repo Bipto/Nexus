@@ -10,9 +10,9 @@ namespace Nexus::Graphics
 	struct Material
 	{
 		Ref<Texture2D> DiffuseTexture  = nullptr;
-		glm::vec3	   DiffuseColour   = {};
+		glm::vec4	   DiffuseColour   = {};
 		Ref<Texture2D> NormalTexture   = nullptr;
 		Ref<Texture2D> SpecularTexture = nullptr;
-		glm::vec3	   SpecularColour  = {};
+		glm::vec4	   SpecularColour  = {};
 	};
 }	 // namespace Nexus::Graphics

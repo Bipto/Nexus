@@ -124,6 +124,7 @@ namespace Nexus::Utils
 	}
 
 	void FlipPixelsHorizontally(std::vector<unsigned char> &pixels, int width, int height, int bytesPerChannel, int channels);
+	void FlipPixelsVertically(std::vector<unsigned char> &pixels, int width, int height, int bytesPerChannel, int channels);
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x)	 STRINGIFY(x)

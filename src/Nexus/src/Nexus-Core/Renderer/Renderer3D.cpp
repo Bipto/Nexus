@@ -73,15 +73,18 @@ const std::string c_ModelVertexShader = R"(
 layout (location = 0) in vec3 Position;
 layout (location = 1) in vec2 TexCoord;
 layout (location = 2) in vec3 Normal;
-layout (location = 3) in vec3 Tangent;
-layout (location = 4) in vec3 Bitangent;
+layout (location = 3) in vec4 VertexColour;
+layout (location = 4) in vec3 Tangent;
+layout (location = 5) in vec3 Bitangent;
 
 layout (location = 0) out vec2 OutTexCoord;
 layout (location = 1) out vec3 OutNormal;
 layout (location = 2) out vec3 FragPos;
-layout (location = 3) out vec3 ViewPos;
-layout (location = 4) flat out uvec2 EntityID;
-layout (location = 5) out mat3 TBN;
+layout (location = 3) out vec4 VertexDiffuseColour;
+layout (location = 4) out vec4 MaterialDiffuseColour;
+layout (location = 5) out vec3 ViewPos;
+layout (location = 6) flat out uvec2 EntityID;
+layout (location = 7) out mat3 TBN;
 
 layout (std140, binding = 0, set = 0) uniform Camera
 {
@@ -93,6 +96,8 @@ layout (std140, binding = 0, set = 0) uniform Camera
 layout (std140,binding = 1, set = 0) uniform Transform
 {
     mat4 u_Transform;
+	vec4 u_DiffuseColour;
+	vec4 u_SpecularColour;
 	uint u_Guid1;
 	uint u_Guid2;
 };
@@ -104,6 +109,9 @@ void main()
     OutNormal = mat3(transpose(inverse(u_Transform))) * Normal;
     FragPos = vec3(u_Transform * vec4(Position, 1.0));
     ViewPos = u_ViewPos;
+
+	VertexDiffuseColour = VertexColour;
+	MaterialDiffuseColour = u_DiffuseColour;
 
     vec3 T = normalize(vec3(u_Transform * vec4(Tangent, 0.0)));
     vec3 B = normalize(vec3(u_Transform * vec4(Bitangent, 0.0)));
@@ -120,9 +128,11 @@ const std::string c_ModelFragmentShader = R"(
 layout (location = 0) in vec2 OutTexCoord;
 layout (location = 1) in vec3 OutNormal;
 layout (location = 2) in vec3 FragPos;
-layout (location = 3) in vec3 ViewPos;
-layout (location = 4) flat in uvec2 EntityID;
-layout (location = 5) in mat3 TBN;
+layout (location = 3) in vec4 VertexDiffuseColour;
+layout (location = 4) in vec4 MaterialDiffuseColour;
+layout (location = 5) in vec3 ViewPos;
+layout (location = 6) flat in uvec2 EntityID;
+layout (location = 7) in mat3 TBN;
 
 layout (location = 0) out vec4 FragColor;
 layout (location = 1) out uvec2 o_EntityID;
@@ -133,7 +143,7 @@ layout (binding = 2, set = 1) uniform sampler2D specularMapSampler;
 
 void main()
 {
-	vec4 objectColor = texture(diffuseMapSampler, OutTexCoord);
+	vec4 objectColor = texture(diffuseMapSampler, OutTexCoord) * VertexDiffuseColour * MaterialDiffuseColour;
     FragColor = vec4(objectColor.rgb, objectColor.a);
 	o_EntityID = EntityID;
 })";
@@ -269,13 +279,15 @@ namespace Nexus::Graphics
 
 		for (const auto &mesh : model->GetMeshes())
 		{
+			const Nexus::Graphics::Material &mat = mesh->GetMaterial();
+
 			ModelTransformUniforms modelTransformUniforms = {};
 			modelTransformUniforms.Transform			  = transform;
 			modelTransformUniforms.Guid1				  = splitId.first;
 			modelTransformUniforms.Guid2				  = splitId.second;
+			modelTransformUniforms.DiffuseColour		  = mat.DiffuseColour;
+			modelTransformUniforms.SpecularColour		  = mat.SpecularColour;
 			m_ModelTransformUniformBuffer->SetData(&modelTransformUniforms, sizeof(modelTransformUniforms));
-
-			const Nexus::Graphics::Material &mat = mesh->GetMaterial();
 
 			Nexus::Ref<Nexus::Graphics::Texture2D> diffuseTexture  = m_DefaultTexture;
 			Nexus::Ref<Nexus::Graphics::Texture2D> normalTexture   = m_DefaultTexture;
@@ -419,7 +431,7 @@ namespace Nexus::Graphics
 		pipelineDescription.FragmentModule =
 			m_Device->GetOrCreateCachedShaderFromSpirvSource(c_ModelFragmentShader, "model.frag.glsl", Nexus::Graphics::ShaderStage::Fragment);
 
-		pipelineDescription.Layouts						   = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
+		pipelineDescription.Layouts						   = {Nexus::Graphics::VertexPositionTexCoordNormalColourTangentBitangent::GetLayout()};
 		pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Camera", 0, 0}, {"Transform", 0, 1}};
 		pipelineDescription.ResourceSetSpec.SampledImages  = {{"diffuseMapSampler", 1, 0}, {"normalMapSampler", 1, 1}, {"specularMapSampler", 1, 2}};
 

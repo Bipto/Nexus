@@ -338,6 +338,70 @@ namespace Nexus::Graphics
 		}
 	};
 
+	/// @brief A struct representing a vertex with 3D position in world space, a
+	/// texture coordinate, normal, tangent and binormal
+	struct VertexPositionTexCoordNormalColourTangentBitangent
+	{
+		/// @brief 3 floating point values representing position of the vertex
+		glm::vec3 Position = {0, 0, 0};
+
+		/// @brief 2 floating point values representing the texture coordinates of the
+		/// vertex
+		glm::vec2 TexCoords = {0, 0};
+
+		/// @brief 3 floating point values representing the normal of the vertex
+		glm::vec3 Normal = {0, 0, 0};
+
+		/// @brief  4 floating point values representing the colour of the vertex
+		glm::vec4 Colour = {1, 1, 1, 1};
+
+		/// @brief 3 floating point values representing the tangent of the vertex
+		glm::vec3 Tangent = {0, 0, 0};
+
+		/// @brief 3 floating point values representing the binormal of the vertex
+		glm::vec3 Bitangent = {0, 0, 0};
+
+		VertexPositionTexCoordNormalColourTangentBitangent() = default;
+
+		/// @brief A constructor taking in the position of the vertex, it's texture
+		/// coordinate and it's normal
+		/// @param position A const reference to 3 floating point values representing
+		/// the position
+		/// @param texCoords A const reference to 2 floating point values representing
+		/// the texture coordinates
+		/// @param normal A const reference to 3 floating point values representing
+		/// the normal
+		VertexPositionTexCoordNormalColourTangentBitangent(const glm::vec3 &position,
+														   const glm::vec2 &texCoords,
+														   const glm::vec3 &normal,
+														   const glm::vec4 &colour,
+														   const glm::vec3 &tangent,
+														   const glm::vec3 &bitangent)
+			: Position(position),
+			  TexCoords(texCoords),
+			  Normal(normal),
+			  Colour(colour),
+			  Tangent(tangent),
+			  Bitangent(bitangent)
+		{
+		}
+
+		/// @brief A static method that returns the vertex buffer layout of this
+		/// vertex type
+		/// @return A VertexBufferLayout object containing the buffer layout of the
+		/// type
+		static Nexus::Graphics::VertexBufferLayout GetLayout()
+		{
+			Nexus::Graphics::VertexBufferLayout layout = {{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
+														  {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
+														  {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
+														  {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
+														  {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
+														  {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}};
+			return layout;
+		}
+	};
+
 	namespace Utilities
 	{
 		std::vector<VertexPositionTexCoordNormalTangentBitangent> GenerateTangentAndBinormals(
