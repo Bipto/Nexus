@@ -54,14 +54,14 @@ FetchContent_MakeAvailable(SDL3)
 FetchContent_Declare(
   glm
   GIT_REPOSITORY https://github.com/g-truc/glm.git
-  GIT_TAG master
+  GIT_TAG 2d4c4b4
 )
 FetchContent_MakeAvailable(glm)
 
 FetchContent_Declare(
   freetype
   GIT_REPOSITORY https://github.com/freetype/freetype.git
-  GIT_TAG master
+  GIT_TAG b1f4785
 )
 FetchContent_MakeAvailable(freetype)
 
@@ -75,21 +75,21 @@ FetchContent_MakeAvailable(stb)
 FetchContent_Declare(
   yaml-cpp
   GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
-  GIT_TAG master
+  GIT_TAG 39f7374
 )
 FetchContent_MakeAvailable(yaml-cpp)
 
 FetchContent_Declare(
   libnyquist
   GIT_REPOSITORY https://github.com/ddiakopoulos/libnyquist.git
-  GIT_TAG master
+  GIT_TAG 767efd9
 )
 FetchContent_MakeAvailable(libnyquist)
 
 FetchContent_Declare(
   assimp
   GIT_REPOSITORY https://github.com/assimp/assimp.git
-  GIT_TAG master
+  GIT_TAG 7945359
 )
 set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "")
 FetchContent_MakeAvailable(assimp)
@@ -98,7 +98,7 @@ if (NOT EMSCRIPTEN)
   FetchContent_Declare(
     OpenAL-Soft
     GIT_REPOSITORY https://github.com/kcat/openal-soft.git
-    GIT_TAG master
+    GIT_TAG c14554f
   )
   FetchContent_MakeAvailable(OpenAL-Soft)
 endif()
