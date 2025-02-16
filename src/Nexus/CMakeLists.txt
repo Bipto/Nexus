@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
 
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-
 add_subdirectory(cmake)
 project ("Nexus")
 
@@ -658,3 +656,4 @@ target_include_directories(Nexus PUBLIC include)
 target_compile_definitions(Nexus PRIVATE ${NEXUS_COMPILE_DEFINITIONS})
 nexus_structure_folders()
 nexus_setup_filters("${ENGINE_SOURCES}")
+nexus_set_runtime_library()
