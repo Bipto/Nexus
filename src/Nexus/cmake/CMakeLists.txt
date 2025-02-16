@@ -97,18 +97,6 @@ macro(nexus_copy_yaml_cpp output_dir)
         $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir}/yaml-cpp)
 endmacro()
 
-macro(nexus_set_runtime_library)
-  get_all_targets(all_targets)
-  get_target_property(runtime_library Nexus MSVC_RUNTIME_LIBRARY)
-
-  if (runtime_library)
-    foreach(TARGET ${all_targets})
-      set_property(TARGET ${TARGET} PROPERTY MSVC_RUNTIME_LIBRARY ${runtime_library})
-    endforeach()
-  endif()
-
-endmacro()
-
 macro(nexus_add_shared_library shared_library)
   set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
   add_definitions(-DLIBTYPE=SHARED)

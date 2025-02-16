@@ -608,6 +608,8 @@ endif()
 add_library(Nexus ${ENGINE_SOURCES})
 nexus_setup_filters(${ENGINE_SOURCES})
 
+set_property(GLOBAL PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
 #including dependencies
 list (APPEND NEXUS_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
   ${stb_SOURCE_DIR}
@@ -648,8 +650,6 @@ if (EMSCRIPTEN)
     target_link_options(Nexus PRIVATE -lidbfs.js)
 endif()
 
-set_property(TARGET Nexus PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-
 nexus_add_all_subdirs("${NEXUS_LIBRARY_SUBDIRECTORIES}")
 nexus_add_all_shared_lib_subdirs("${NEXUS_SHARED_LIBRARY_SUBDIRECTORIES}")
 target_include_directories(Nexus PUBLIC SYSTEM ${NEXUS_INCLUDE_DIRS})
@@ -658,4 +658,3 @@ target_include_directories(Nexus PUBLIC include)
 target_compile_definitions(Nexus PRIVATE ${NEXUS_COMPILE_DEFINITIONS})
 nexus_structure_folders()
 nexus_setup_filters("${ENGINE_SOURCES}")
-nexus_set_runtime_library()
