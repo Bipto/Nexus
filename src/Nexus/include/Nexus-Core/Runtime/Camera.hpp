@@ -19,7 +19,7 @@ namespace Nexus
 	class FirstPersonCamera
 	{
 	  public:
-		FirstPersonCamera() = default;
+		NX_API FirstPersonCamera() = default;
 
 		FirstPersonCamera(Graphics::GraphicsDevice *device, int width = 1280, int height = 720, const glm::vec3 &position = {0, 0, 0})
 			: m_Device(device)

@@ -45,17 +45,17 @@ namespace Nexus::Graphics
 	class CachedShader
 	{
 	  public:
-		static CachedShader FromModule(const ShaderModuleSpecification &shaderSpec, const ResourceSetSpecification &resourceSpec, size_t hash)
+		static NX_API CachedShader FromModule(const ShaderModuleSpecification &shaderSpec, const ResourceSetSpecification &resourceSpec, size_t hash)
 		{
 			return CachedShader(shaderSpec, resourceSpec, hash);
 		}
 
-		static CachedShader LoadFromFile(const std::string &path)
+		static NX_API CachedShader LoadFromFile(const std::string &path)
 		{
 			return CachedShader(path);
 		}
 
-		void Cache(const std::string &path)
+		void NX_API Cache(const std::string &path)
 		{
 			YAML::Node container;
 
@@ -78,22 +78,22 @@ namespace Nexus::Graphics
 			FileSystem::WriteFileAbsolute(path, out.c_str());
 		}
 
-		const ShaderModuleSpecification &GetShaderSpecification() const
+		const NX_API ShaderModuleSpecification &GetShaderSpecification() const
 		{
 			return m_ShaderSpec;
 		}
 
-		const ResourceSetSpecification &GetResourceSpecification() const
+		const NX_API ResourceSetSpecification &GetResourceSpecification() const
 		{
 			return m_ResourceSpec;
 		}
 
-		size_t GetHash() const
+		size_t NX_API GetHash() const
 		{
 			return m_Hash;
 		}
 
-		bool Validate(size_t hash)
+		bool NX_API Validate(size_t hash)
 		{
 			return hash == m_Hash;
 		}

@@ -22,15 +22,18 @@ namespace Nexus::ImGuiUtils
 	class ImGuiGraphicsRenderer
 	{
 	  public:
-		ImGuiGraphicsRenderer(Nexus::Application *app);
-		virtual ~ImGuiGraphicsRenderer();
-		void RebuildFontAtlas();
+		NX_API ImGuiGraphicsRenderer(Nexus::Application *app);
+		NX_API virtual ~ImGuiGraphicsRenderer();
+		NX_API void RebuildFontAtlas();
 
-		ImTextureID BindTexture(Nexus::Ref<Nexus::Graphics::Texture2D> texture);
-		void		UnbindTexture(ImTextureID id);
+		NX_API ImTextureID BindTexture(Nexus::Ref<Nexus::Graphics::Texture2D> texture);
+		NX_API void		   UnbindTexture(ImTextureID id);
 
-		void BeforeLayout(Nexus::TimeSpan gameTime);
-		void AfterLayout();
+		NX_API void BeforeLayout(Nexus::TimeSpan gameTime);
+		NX_API void AfterLayout();
+
+		NX_API ImGuiIO		&GetIO();
+		NX_API ImGuiContext *GetContext();
 
 	  private:
 		void CreateTextPipeline();
@@ -50,6 +53,8 @@ namespace Nexus::ImGuiUtils
 		Nexus::Ref<Nexus::Graphics::Pipeline>	 m_TextPipeline	  = nullptr;
 		Nexus::Ref<Nexus::Graphics::Pipeline>	 m_ImagePipeline  = nullptr;
 		Nexus::Ref<Nexus::Graphics::Texture2D>	 m_FontTexture	  = nullptr;
+
+		ImGuiContext *m_Context = nullptr;
 
 		Nexus::Ref<Nexus::Graphics::ShaderModule> m_VertexShader   = nullptr;
 		Nexus::Ref<Nexus::Graphics::ShaderModule> m_FragmentShader = nullptr;

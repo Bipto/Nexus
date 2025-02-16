@@ -24,7 +24,7 @@ namespace Nexus
 		glm::vec3 Rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 		glm::vec3 Scale	   = glm::vec3(1.0f, 1.0f, 1.0f);
 
-		inline glm::mat4 CreateTransformation()
+		NX_API inline glm::mat4 CreateTransformation()
 		{
 			glm::mat4 transformation(1.0f);
 
@@ -42,7 +42,7 @@ namespace Nexus
 			return transformation;
 		}
 
-		friend std::ostream &operator<<(std::ostream &os, const Transform &transform)
+		NX_API friend std::ostream &operator<<(std::ostream &os, const Transform &transform)
 		{
 			os << transform.Position.x << " " << transform.Position.y << " " << transform.Position.z << " ";
 			os << transform.Rotation.x << " " << transform.Rotation.y << " " << transform.Rotation.z << " ";
@@ -50,7 +50,7 @@ namespace Nexus
 			return os;
 		}
 
-		friend std::istream &operator>>(std::istream &is, Transform &transform)
+		NX_API friend std::istream &operator>>(std::istream &is, Transform &transform)
 		{
 			is >> transform.Position.x >> transform.Position.y >> transform.Position.z;
 			is >> transform.Rotation.x >> transform.Rotation.y >> transform.Rotation.z;
@@ -59,7 +59,7 @@ namespace Nexus
 			return is;
 		}
 
-		friend YAML::Node &operator>>(YAML::Node &node, Transform &person)
+		NX_API friend YAML::Node &operator>>(YAML::Node &node, Transform &person)
 		{
 			return node;
 		}
@@ -79,7 +79,7 @@ namespace Nexus
 		std::string						   FilePath = {};
 		Nexus::Ref<Nexus::Graphics::Model> Model	= {};
 
-		inline void LoadModel()
+		NX_API inline void LoadModel()
 		{
 			if (!FilePath.empty())
 			{
@@ -91,13 +91,13 @@ namespace Nexus
 			}
 		}
 
-		friend std::ostream &operator<<(std::ostream &os, const ModelRenderer &modelRenderer)
+		NX_API friend std::ostream &operator<<(std::ostream &os, const ModelRenderer &modelRenderer)
 		{
 			os << modelRenderer.FilePath;
 			return os;
 		}
 
-		friend std::istream &operator>>(std::istream &is, ModelRenderer &modelRenderer)
+		NX_API friend std::istream &operator>>(std::istream &is, ModelRenderer &modelRenderer)
 		{
 			is >> modelRenderer.FilePath;
 			modelRenderer.LoadModel();
@@ -141,7 +141,7 @@ namespace Nexus
 		std::string				  ScriptName	 = "";
 		Nexus::Scripting::Script *ScriptInstance = nullptr;
 
-		virtual ~ScriptComponent()
+		NX_API virtual ~ScriptComponent()
 		{
 			if (!ScriptInstance)
 			{
@@ -149,7 +149,7 @@ namespace Nexus
 			}
 		}
 
-		inline void Instantiate(Nexus::Project *project, Nexus::GUID guid)
+		NX_API inline void Instantiate(Nexus::Project *project, Nexus::GUID guid)
 		{
 			if (!project)
 			{
@@ -167,13 +167,13 @@ namespace Nexus
 			}
 		}
 
-		friend std::ostream &operator<<(std::ostream &os, const ScriptComponent &component)
+		NX_API friend std::ostream &operator<<(std::ostream &os, const ScriptComponent &component)
 		{
 			os << component.ScriptName;
 			return os;
 		}
 
-		friend std::istream &operator>>(std::istream &is, ScriptComponent &component)
+		NX_API friend std::istream &operator>>(std::istream &is, ScriptComponent &component)
 		{
 			is >> component.ScriptName;
 			return is;

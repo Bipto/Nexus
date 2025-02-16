@@ -9,8 +9,8 @@
 
 namespace Nexus::Utils
 {
-	glm::vec4 ColorFromRGBA(float r, float g, float b, float a);
-	glm::vec4 ColorFromBorderColor(Nexus::Graphics::BorderColor color);
+	NX_API glm::vec4 ColorFromRGBA(float r, float g, float b, float a);
+	NX_API glm::vec4 ColorFromBorderColor(Nexus::Graphics::BorderColor color);
 
 	template<typename T>
 	inline T ReMapRange(T oldMin, T oldMax, T newMin, T newMax, T value)
@@ -44,21 +44,21 @@ namespace Nexus::Utils
 		return ((b1 - b2) * Cross(a1, a2) - (a1 - a2) * Cross(b1, b2)) * (1.0f / Cross(a1 - a2, b1 - b2));
 	}
 
-	void Clip(std::vector<glm::vec2> &points, float x1, float y1, float x2, float y2);
+	NX_API void Clip(std::vector<glm::vec2> &points, float x1, float y1, float x2, float y2);
 
-	std::vector<glm::vec2> SutherlandHodgman(const std::vector<glm::vec2> &subjectPolygon, const std::vector<glm::vec2> &clipPolygon);
+	NX_API std::vector<glm::vec2> SutherlandHodgman(const std::vector<glm::vec2> &subjectPolygon, const std::vector<glm::vec2> &clipPolygon);
 
-	float FindPolygonArea(std::span<glm::vec2> polygon);
+	NX_API float FindPolygonArea(std::span<glm::vec2> polygon);
 
-	bool Triangulate(const std::vector<glm::vec2> &polygon, std::vector<uint32_t> &triangles);
+	NX_API bool Triangulate(const std::vector<glm::vec2> &polygon, std::vector<uint32_t> &triangles);
 
-	std::vector<Nexus::Graphics::Triangle2D> GenerateGeometry(const std::vector<glm::vec2> &polygon, const std::vector<uint32_t> &indices);
+	NX_API std::vector<Nexus::Graphics::Triangle2D> GenerateGeometry(const std::vector<glm::vec2> &polygon, const std::vector<uint32_t> &indices);
 
-	Nexus::Graphics::Polygon GeneratePolygon(const std::vector<glm::vec2> &polygon);
+	NX_API Nexus::Graphics::Polygon GeneratePolygon(const std::vector<glm::vec2> &polygon);
 
-	Graphics::WindingOrder GetWindingOrder(glm::vec2 a, glm::vec2 b, glm::vec2 c);
+	NX_API Graphics::WindingOrder GetWindingOrder(glm::vec2 a, glm::vec2 b, glm::vec2 c);
 
-	std::vector<glm::vec2> ReverseWindingOrder(const std::vector<glm::vec2> &vertices);
+	NX_API std::vector<glm::vec2> ReverseWindingOrder(const std::vector<glm::vec2> &vertices);
 
 	template<typename T>
 	T GetItem(std::span<T> collection, int index)
@@ -91,7 +91,7 @@ namespace Nexus::Utils
 		return mipLevel + arrayLayer * totalMipLevels;
 	}
 
-	uint64_t GetCurrentTimeAsInt();
+	NX_API uint64_t GetCurrentTimeAsInt();
 
 	// djb2 algorithm
 	inline size_t Hash(const std::string &text)
@@ -123,8 +123,8 @@ namespace Nexus::Utils
 		return hash;
 	}
 
-	void FlipPixelsHorizontally(std::vector<unsigned char> &pixels, int width, int height, int bytesPerChannel, int channels);
-	void FlipPixelsVertically(std::vector<unsigned char> &pixels, int width, int height, int bytesPerChannel, int channels);
+	NX_API void FlipPixelsHorizontally(std::vector<unsigned char> &pixels, int width, int height, int bytesPerChannel, int channels);
+	NX_API void FlipPixelsVertically(std::vector<unsigned char> &pixels, int width, int height, int bytesPerChannel, int channels);
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x)	 STRINGIFY(x)

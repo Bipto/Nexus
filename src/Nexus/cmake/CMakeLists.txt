@@ -4,7 +4,7 @@ macro (nexus_copy_resources)
   #copy engine resources to output
   get_target_property(Nexus_SOURCE_DIR Nexus SOURCE_DIR)
 
-  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+  add_custom_command(TARGET ${PROJECT_NAME} PRE_LINK
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${Nexus_SOURCE_DIR}/resources/engine
         $<TARGET_FILE_DIR:${PROJECT_NAME}>/resources/engine)
@@ -15,14 +15,14 @@ macro(nexus_copy_required_binaries)
     get_target_property(Nexus_SOURCE_DIR Nexus SOURCE_DIR)
 
     add_custom_command(
-      TARGET ${PROJECT_NAME} POST_BUILD
+      TARGET ${PROJECT_NAME} PRE_LINK
       COMMAND ${CMAKE_COMMAND} -E copy
           ${Nexus_SOURCE_DIR}/binaries/dxc_2023_08_14/bin/x64/dxcompiler.dll
           $<TARGET_FILE_DIR:${PROJECT_NAME}>
   )
 
   add_custom_command(
-      TARGET ${PROJECT_NAME} POST_BUILD
+      TARGET ${PROJECT_NAME} PRE_LINK
       COMMAND ${CMAKE_COMMAND} -E copy
           ${Nexus_SOURCE_DIR}/binaries/dxc_2023_08_14/bin/x64/dxil.dll
           $<TARGET_FILE_DIR:${PROJECT_NAME}>
@@ -35,19 +35,19 @@ macro(nexus_copy_required_binaries_to_custom_dir output_dir)
     get_target_property(Nexus_SOURCE_DIR Nexus SOURCE_DIR)
 
     #create directory if needed
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    add_custom_command(TARGET ${PROJECT_NAME} PRE_LINK
       COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir}  
 )
 
     add_custom_command(
-      TARGET ${PROJECT_NAME} POST_BUILD
+      TARGET ${PROJECT_NAME} PRE_LINK
       COMMAND ${CMAKE_COMMAND} -E copy
           ${Nexus_SOURCE_DIR}/binaries/dxc_2023_08_14/bin/x64/dxcompiler.dll
           $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir}
   )
 
   add_custom_command(
-      TARGET ${PROJECT_NAME} POST_BUILD
+      TARGET ${PROJECT_NAME} PRE_LINK
       COMMAND ${CMAKE_COMMAND} -E copy
           ${Nexus_SOURCE_DIR}/binaries/dxc_2023_08_14/bin/x64/dxil.dll
           $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir}
@@ -59,7 +59,7 @@ macro(nexus_copy_include_dir output_dir)
   get_target_property(Nexus_SOURCE_DIR Nexus SOURCE_DIR)
 
   #copy the headers to output directory
-  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+  add_custom_command(TARGET ${PROJECT_NAME} PRE_LINK
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${Nexus_SOURCE_DIR}/include
         $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir}/include)
@@ -68,7 +68,7 @@ endmacro()
 macro(nexus_copy_glm output_dir)
   get_target_property(Nexus_SOURCE_DIR Nexus SOURCE_DIR)
 
-  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+  add_custom_command(TARGET ${PROJECT_NAME} PRE_LINK
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${Nexus_SOURCE_DIR}/external/glm
         $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir}/glm)
@@ -77,12 +77,12 @@ endmacro()
 macro(nexus_copy_imgui output_dir)
   get_target_property(Nexus_SOURCE_DIR Nexus SOURCE_DIR)
 
-  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+  add_custom_command(TARGET ${PROJECT_NAME} PRE_LINK
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${Nexus_SOURCE_DIR}/external/imgui/imgui
         $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir}/imgui/imgui)
 
-  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+  add_custom_command(TARGET ${PROJECT_NAME} PRE_LINK
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${Nexus_SOURCE_DIR}/external/imgui/imguizmo
         $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir}/imgui/imguizmo)
@@ -91,7 +91,7 @@ endmacro()
 macro(nexus_copy_yaml_cpp output_dir)
     get_target_property(Nexus_SOURCE_DIR Nexus SOURCE_DIR)
 
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    add_custom_command(TARGET ${PROJECT_NAME} PRE_LINK
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${Nexus_SOURCE_DIR}/external/yaml-cpp/include
         $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir}/yaml-cpp)
@@ -112,6 +112,28 @@ macro(nexus_setup_filters source_files)
     string(REPLACE "/" "\\" _group_path "${_group_path}")
     source_group("${_group_path}" FILES "${_source}")
   endforeach()
+endmacro()
+
+macro(setup_runtime_libraries)
+  get_all_targets(all_targets)
+
+  foreach (_target IN LISTS all_targets)
+    if (NOT _target STREQUAL "Nexus")
+      set_target_properties(${_target} PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    endif()
+  endforeach()
+  
+endmacro()
+
+macro(nexus_export_symbols)
+  get_all_targets(all_targets)
+
+  foreach (_target IN LISTS all_targets)
+    if (NOT _target STREQUAL "Nexus")
+      set_property(TARGET ${_target} PROPERTY WINDOWS_EXPORT_ALL_SYMBOLS true)
+    endif()
+  endforeach()
+  
 endmacro()
 
 function(get_all_targets var)
@@ -142,7 +164,7 @@ endmacro()
 #copy all required libraries to output directory
 macro(nexus_copy_required_runtime_libraries)
 
-  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+  add_custom_command(TARGET ${PROJECT_NAME} PRE_LINK
     COMMAND ${CMAKE_COMMAND} -E copy
     -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
     COMMAND_EXPAND_LISTS)
@@ -153,12 +175,12 @@ endmacro()
 macro(nexus_copy_required_runtime_libraries_to_custom_dir output_dir)
 
   #create directory if needed
-  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+  add_custom_command(TARGET ${PROJECT_NAME} PRE_LINK
     COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir}  
   )
 
   #copy libraries
-  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+  add_custom_command(TARGET ${PROJECT_NAME} PRE_LINK
     COMMAND ${CMAKE_COMMAND} -E copy
     -t $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir} $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
     COMMAND_EXPAND_LISTS)
@@ -168,12 +190,12 @@ endmacro()
 macro(nexus_copy_static_lib output_dir)
 
   #create directory if needed
-  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+  add_custom_command(TARGET ${PROJECT_NAME} PRE_LINK
     COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir}  
   )
 
   #copy libraries
-  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+  add_custom_command(TARGET ${PROJECT_NAME} PRE_LINK
     COMMAND ${CMAKE_COMMAND} -E copy
     -t $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir} $<TARGET_FILE:Nexus>
     COMMAND_EXPAND_LISTS)

@@ -40,9 +40,6 @@ set(SPIRV_CROSS_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
 set(SKIP_SPIRV_TOOLS_INSTALL ON CACHE BOOL "" FORCE)
 set(ENABLE_SPIRV_TOOLS_INSTALL OFF CACHE BOOL "" FORCE)
 
-list(APPEND NEXUS_COMPILE_DEFINITIONS NX_SYSTEM_NAME=${CMAKE_SYSTEM_NAME})
-list(APPEND NEXUS_COMPILE_DEFINITIONS NX_SYSTEM_PROCESSOR=${CMAKE_HOST_SYSTEM_PROCESSOR})
-
 include (FetchContent)
 FetchContent_Declare(
   SDL3
@@ -149,7 +146,6 @@ if (NOT imguizmo_POPULATED)
     "${imguizmo_SOURCE_DIR}/ImGuizmo.cpp")
 
   target_include_directories(imguizmo PUBLIC ${IMGUI_INCLUDE_DIR})
-
 endif()
 
 FetchContent_Declare(spirv_cross
@@ -176,6 +172,7 @@ FetchContent_Declare(
   GIT_TAG 9fe5223
 )
 FetchContent_MakeAvailable(glslang)
+set_property(TARGET glslang PROPERTY WINDOWS_EXPORT_ALL_SYMBOLS true)
 
 FetchContent_Declare(
   shaderc
@@ -276,7 +273,6 @@ set (ENGINE_SOURCES
   include/Nexus-Core/Monitor.hpp
   src/Nexus-Core/nxpch.cpp
   include/Nexus-Core/nxpch.hpp
-  src/Nexus-Core/Platform.cpp
   include/Nexus-Core/Platform.hpp
   include/Nexus-Core/Point.hpp
   src/Nexus-Core/Runtime.cpp
@@ -605,10 +601,8 @@ if (LINUX)
   list (APPEND ENGINE_SOURCES include/Platform/X11/X11Include.hpp)
 endif()
 
-add_library(Nexus ${ENGINE_SOURCES})
+add_library(Nexus SHARED ${ENGINE_SOURCES})
 nexus_setup_filters(${ENGINE_SOURCES})
-
-set_property(GLOBAL PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 #including dependencies
 list (APPEND NEXUS_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
@@ -658,3 +652,4 @@ target_include_directories(Nexus PUBLIC include)
 target_compile_definitions(Nexus PRIVATE ${NEXUS_COMPILE_DEFINITIONS})
 nexus_structure_folders()
 nexus_setup_filters("${ENGINE_SOURCES}")
+#nexus_export_symbols()

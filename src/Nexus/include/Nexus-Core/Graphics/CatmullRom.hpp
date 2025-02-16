@@ -11,7 +11,7 @@ namespace Nexus::Graphics
 	  public:
 		CatmullRom() = default;
 
-		Point2D<T> GetPoint(T t) const
+		NX_API Point2D<T> GetPoint(T t) const
 		{
 			size_t p0, p1, p2, p3;
 
@@ -46,27 +46,27 @@ namespace Nexus::Graphics
 			return {tx, ty};
 		}
 
-		void SetLooped(bool looped)
+		NX_API void SetLooped(bool looped)
 		{
 			m_Looped = looped;
 		}
 
-		bool IsLooped() const
+		NX_API bool IsLooped() const
 		{
 			return m_Looped;
 		}
 
-		void SetPoints(const std::vector<Point2D<T>> &points)
+		NX_API void SetPoints(const std::vector<Point2D<T>> &points)
 		{
 			m_Points = points;
 		}
 
-		const std::vector<Point2D<T>> &GetPoints() const
+		NX_API const std::vector<Point2D<T>> &GetPoints() const
 		{
 			return m_Points;
 		}
 
-		const size_t GetNumberOfPoints() const
+		NX_API const size_t GetNumberOfPoints() const
 		{
 			return m_Points.size();
 		}

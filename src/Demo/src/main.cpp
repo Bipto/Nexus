@@ -43,16 +43,17 @@ class DemoApplication : public Nexus::Application
 	virtual void Load() override
 	{
 		m_ImGuiRenderer = std::make_unique<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(this);
+		ImGuiContext *context = m_ImGuiRenderer->GetContext();
+		ImGui::SetCurrentContext(context);
 
-		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+		ImGuiIO &io = m_ImGuiRenderer->GetIO();
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
 		int size = 19;
 
 #if defined(__ANDROID__) || defined(ANDROID)
 		size = 38;
 #endif
-
-		auto &io = ImGui::GetIO();
 
 		std::string fontPath = Nexus::FileSystem::GetFilePathAbsolute("resources/demo/fonts/roboto/roboto-regular.ttf");
 		io.FontDefault		 = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), size);
@@ -78,12 +79,6 @@ class DemoApplication : public Nexus::Application
 		RegisterUtilsDemo<Demos::Splines>("Splines");
 
 		m_CommandList = m_GraphicsDevice->CreateCommandList();
-
-		Nexus::IWindow *window = Nexus::GetApplication()->GetPrimaryWindow();
-
-		std::string title = std::string("Demo - ") + std::string(Nexus::Platform::GetSystemName()) + std::string("(") +
-							std::string(Nexus::Platform::GetProcessorType()) + std::string(")");
-		window->SetTitle(title);
 	}
 
 	template<typename T>

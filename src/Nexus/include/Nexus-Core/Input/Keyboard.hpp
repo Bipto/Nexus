@@ -568,24 +568,24 @@ namespace Nexus
 
 	  public:
 		/// @brief A method that caches the previous frames key states
-		void CacheInput();
+		NX_API void CacheInput();
 
 		/// @brief A method that checks whether a key is currently held
 		/// @param code The keycode to check the state of
 		/// @return A boolean value representing whether a key was held
-		const bool IsKeyHeld(KeyCode code) const;
+		NX_API const bool IsKeyHeld(KeyCode code) const;
 
 		/// @brief A method that checks whether a key is currently pressed
 		/// @param code The keycode to check the state of
 		/// @return A boolean value representing whether a key was pressed
-		const bool WasKeyPressed(KeyCode code) const;
+		NX_API const bool WasKeyPressed(KeyCode code) const;
 
 		/// @brief A method that checks whether a key is currently released
 		/// @param code The keycode to check the state of
 		/// @return A boolean value representing whether a key was released
-		const bool WasKeyReleased(KeyCode code) const;
+		NX_API const bool WasKeyReleased(KeyCode code) const;
 
-		const std::map<KeyCode, bool> &GetKeys() const;
+		NX_API const std::map<KeyCode, bool> &GetKeys() const;
 
 	  private:
 		/// @brief A map containing the current state of the keyboard's keys

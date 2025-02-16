@@ -12,5 +12,5 @@ namespace Nexus::Graphics
 		SampleCount8
 	};
 
-	uint32_t GetSampleCount(SampleCount samples);
+	NX_API uint32_t GetSampleCount(SampleCount samples);
 }	 // namespace Nexus::Graphics

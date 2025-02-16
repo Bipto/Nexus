@@ -8,12 +8,12 @@ namespace Nexus::Graphics
 	struct MipData
 	{
 	  public:
-		MipData() = delete;
-		MipData(const std::vector<unsigned char> &pixels, uint32_t width, uint32_t height);
+		NX_API MipData() = delete;
+		NX_API MipData(const std::vector<unsigned char> &pixels, uint32_t width, uint32_t height);
 
-		uint32_t	GetWidth() const;
-		uint32_t	GetHeight() const;
-		const void *GetData() const;
+		NX_API uint32_t	   GetWidth() const;
+		NX_API uint32_t	   GetHeight() const;
+		NX_API const void *GetData() const;
 
 	  private:
 		std::vector<unsigned char> m_Pixels;

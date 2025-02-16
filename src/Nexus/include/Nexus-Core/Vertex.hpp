@@ -20,19 +20,19 @@ namespace Nexus::Graphics
 		size_t Offset = 0;
 
 		/// @brief A default constructor to create an empty element
-		VertexBufferElement() = default;
+		NX_API VertexBufferElement() = default;
 
 		/// @brief A constructor creating a description of a vertex buffer element
 		/// @param type The type of the data within the buffer
 		/// @param name The name of the item within the buffer
 		/// @param normalized Whether the data is normalized
-		VertexBufferElement(ShaderDataType type, const std::string &name);
+		NX_API VertexBufferElement(ShaderDataType type, const std::string &name);
 
 		/// @brief A method that returns an unsigned 32 bit integer representing the
 		/// number of components within the element
 		/// @return The number of components within the element (e.g. Float2 will
 		/// return 2)
-		uint32_t GetComponentCount() const;
+		NX_API uint32_t GetComponentCount() const;
 	};
 
 	/// @brief A struct representing a set of vertex elements stored within a vertex
@@ -41,7 +41,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		/// @brief A default constructor creating an empty vertex buffer layout
-		VertexBufferLayout() = default;
+		NX_API VertexBufferLayout() = default;
 
 		/// @brief A constructor taking in an initializer list of vertex buffer
 		/// elements to use to create the layout
@@ -102,11 +102,11 @@ namespace Nexus::Graphics
 			return m_Elements.at(index);
 		}
 
-		bool IsVertexBuffer() const;
+		NX_API bool IsVertexBuffer() const;
 
-		bool IsInstanceBuffer() const;
+		NX_API bool IsInstanceBuffer() const;
 
-		uint32_t GetInstanceStepRate() const;
+		NX_API uint32_t GetInstanceStepRate() const;
 
 		void SetInstanceStepRate(uint32_t instanceStepRate)
 		{
@@ -116,7 +116,7 @@ namespace Nexus::Graphics
 	  private:
 		/// @brief A private method that calculates the offset of each element within
 		/// the buffer and the stride (total distance between elements)
-		void CalculateOffsetsAndStride();
+		NX_API void CalculateOffsetsAndStride();
 
 	  private:
 		/// @brief A vector containing the elements within the vertex buffer
@@ -137,7 +137,7 @@ namespace Nexus::Graphics
 		/// @brief 3 floating point values representing position of the vertex
 		glm::vec3 Position = {0, 0, 0};
 
-		VertexPosition() = default;
+		NX_API VertexPosition() = default;
 
 		/// @brief A constructor taking in the position of the vertex
 		/// @param position A const reference to 3 floating point values representing
@@ -168,7 +168,7 @@ namespace Nexus::Graphics
 		/// vertex
 		glm::vec2 TexCoords = {0, 0};
 
-		VertexPositionTexCoord() = default;
+		NX_API VertexPositionTexCoord() = default;
 
 		/// @brief A constructor taking in the position of the vertex and its texture
 		/// coordinate
@@ -206,7 +206,7 @@ namespace Nexus::Graphics
 		// @brief 4 floating point values representing the colour of the vertex
 		glm::vec4 Color = {1.0f, 1.0f, 1.0f, 1.0f};
 
-		VertexPositionTexCoordColor() = default;
+		NX_API VertexPositionTexCoordColor() = default;
 
 		/// @brief A constructor taking in the position of the vertex and its texture
 		/// coordinate
@@ -250,7 +250,7 @@ namespace Nexus::Graphics
 		/// @brief 3 floating point values representing the normal of the vertex
 		glm::vec3 Normal = {0, 0, 0};
 
-		VertexPositionTexCoordNormal() = default;
+		NX_API VertexPositionTexCoordNormal() = default;
 
 		/// @brief A constructor taking in the position of the vertex, it's texture
 		/// coordinate and it's normal
@@ -300,7 +300,7 @@ namespace Nexus::Graphics
 		/// @brief 3 floating point values representing the binormal of the vertex
 		glm::vec3 Bitangent = {0, 0, 0};
 
-		VertexPositionTexCoordNormalTangentBitangent() = default;
+		NX_API VertexPositionTexCoordNormalTangentBitangent() = default;
 
 		/// @brief A constructor taking in the position of the vertex, it's texture
 		/// coordinate and it's normal
@@ -361,7 +361,7 @@ namespace Nexus::Graphics
 		/// @brief 3 floating point values representing the binormal of the vertex
 		glm::vec3 Bitangent = {0, 0, 0};
 
-		VertexPositionTexCoordNormalColourTangentBitangent() = default;
+		NX_API VertexPositionTexCoordNormalColourTangentBitangent() = default;
 
 		/// @brief A constructor taking in the position of the vertex, it's texture
 		/// coordinate and it's normal
@@ -404,7 +404,7 @@ namespace Nexus::Graphics
 
 	namespace Utilities
 	{
-		std::vector<VertexPositionTexCoordNormalTangentBitangent> GenerateTangentAndBinormals(
+		NX_API std::vector<VertexPositionTexCoordNormalTangentBitangent> GenerateTangentAndBinormals(
 			const std::vector<Nexus::Graphics::VertexPositionTexCoordNormal> &vertices);
 	}
 }	 // namespace Nexus::Graphics

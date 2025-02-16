@@ -6,7 +6,7 @@ namespace Nexus::Graphics
 {
 	class IResource
 	{
-		virtual const std::string &GetName() const;
-		virtual void			   SetName(const std::string &name);
+		NX_API virtual const std::string &GetName() const;
+		NX_API virtual void				  SetName(const std::string &name);
 	};
 }	 // namespace Nexus::Graphics

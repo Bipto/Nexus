@@ -81,76 +81,76 @@ namespace Nexus
 		/// @brief A constructor that takes in an index to a connected controller
 		/// @param index An unsigned 32 bit integer representing the index of the
 		/// connected controller
-		IGamepad(uint32_t index)
+		NX_API IGamepad(uint32_t index)
 		{
 		}
 
 		/// @brief A destructor that is used to clean up SDL resources when a
 		/// controller is deleted
-		virtual ~IGamepad()
+		NX_API virtual ~IGamepad()
 		{
 		}
 
 		/// @brief An method that queries the currently pressed buttons and current
 		/// axis states
-		virtual void Update() = 0;
+		NX_API virtual void Update() = 0;
 
 		/// @brief A method that returns the current position of the left stick
 		/// @return A Nexus::Point containing two floating point values containing the
 		/// position of the left stick
-		virtual const Point2D<float> GetLeftStick() const = 0;
+		NX_API virtual const Point2D<float> GetLeftStick() const = 0;
 
 		/// @brief A method that returns the current position of the right stick
 		/// @return A Nexus::Point containing two floating point values containing the
 		/// position of the right stick
-		virtual const Point2D<float> GetRightStick() const = 0;
+		NX_API virtual const Point2D<float> GetRightStick() const = 0;
 
 		/// @brief A method that returns the current position of the left trigger
 		/// @return A floating point value representing the position of the left
 		/// trigger
-		virtual const float GetLeftTrigger() const = 0;
+		NX_API virtual const float GetLeftTrigger() const = 0;
 
 		/// @brief A method that returns the current position of the right trigger
 		/// @return A floating point value representing the position of the  right
 		/// trigger
-		virtual const float GetRightTrigger() const = 0;
+		NX_API virtual const float GetRightTrigger() const = 0;
 
 		/// @brief A method that returns whether a button on the gamepad is held or
 		/// not
 		/// @param button An enum value representing the button to check
 		/// @return A boolean representing whether the button is held
-		virtual const bool IsButtonHeld(GamepadButton button) const = 0;
+		NX_API virtual const bool IsButtonHeld(GamepadButton button) const = 0;
 
 		/// @brief A method that returns whether a button on the gamepad is pressed or
 		/// not
 		/// @param button An enum value representing the button to check
 		/// @return A boolean representing whether the button is pressed
-		virtual const bool WasButtonPressed(GamepadButton button) const = 0;
+		NX_API virtual const bool WasButtonPressed(GamepadButton button) const = 0;
 
 		/// @brief A method that returns whether a button on the gamepad is released
 		/// or not
 		/// @param button An enum value representing the button to check
 		/// @return A boolean representing whether the button is released
-		virtual const bool WasButtonReleased(GamepadButton button) const = 0;
+		NX_API virtual const bool WasButtonReleased(GamepadButton button) const = 0;
 
 		/// @brief A method that returns the currently set deadzone of the gamepad
 		/// @return An integer representing the current deadzone being used on the
 		/// gamepad
-		virtual const int GetDeadzone() const = 0;
+		NX_API virtual const int GetDeadzone() const = 0;
 
 		/// @brief A method that sets the deadzone of the gamepad
 		/// @param deadzone An integer value representing the new deadzone to use
-		virtual void SetDeadzone(const int deadzone) = 0;
+		NX_API virtual void SetDeadzone(const int deadzone) = 0;
 
 		/// @brief A method that checks whether a gamepad has a touchpad or not
 		/// @return A boolean value representing whether a gamepad contains a touchpad
-		virtual bool HasTouchpad() = 0;
+		NX_API virtual bool HasTouchpad() = 0;
 
 		/// @brief A method that sets the colour of an LED in a controller
 		/// @param red The red channel of the colour value
 		/// @param green The green channel of the colour value
 		/// @param blue The blue channel of the colour value
-		virtual void SetLED(uint8_t red, uint8_t green, uint8_t blue) = 0;
+		NX_API virtual void SetLED(uint8_t red, uint8_t green, uint8_t blue) = 0;
 
 		/// @brief A method that rumbles a controller
 		/// @param lowFrequency An unsigned 16 bit integer representing the low
@@ -159,7 +159,7 @@ namespace Nexus
 		/// frequency to use
 		/// @param milliseconds An unsigned 32 bit integer representing how long the
 		/// gamepad should rumble for
-		virtual void Rumble(uint16_t lowFrequency, uint16_t highFrequency, uint32_t milliseconds) = 0;
+		NX_API virtual void Rumble(uint16_t lowFrequency, uint16_t highFrequency, uint32_t milliseconds) = 0;
 
 		/// @brief A method that rumbles a controller's triggers
 		/// @param left An unsigned 16 bit integer representing the value to use to
@@ -168,11 +168,11 @@ namespace Nexus
 		/// rumble the right trigger
 		/// @param milliseconds An unsigned 32 bit integer representing how long the
 		/// triggers should rumble for
-		virtual void RumbleTriggers(uint16_t left, uint16_t right, uint32_t milliseconds) = 0;
+		NX_API virtual void RumbleTriggers(uint16_t left, uint16_t right, uint32_t milliseconds) = 0;
 
 		/// @brief A method that returns the index of the connected controller
 		/// @return An unsigned 32 bit integer representing the index of the
 		/// controller
-		virtual const uint32_t GetControllerIndex() = 0;
+		NX_API virtual const uint32_t GetControllerIndex() = 0;
 	};
 }	 // namespace Nexus

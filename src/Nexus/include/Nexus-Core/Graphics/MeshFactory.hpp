@@ -14,7 +14,7 @@ namespace Nexus::Graphics
 	  public:
 		/// @brief A constructor to create a new MeshFactory
 		/// @param device A graphics device to use to create resources
-		explicit MeshFactory(GraphicsDevice *device)
+		NX_API explicit MeshFactory(GraphicsDevice *device)
 		{
 			m_Device = device;
 		}
@@ -22,22 +22,22 @@ namespace Nexus::Graphics
 		/// @brief A method that returns a mesh representing a cube with a size of 1
 		/// unit in all directions
 		/// @return A mesh representing a cube
-		Ref<Mesh> CreateCube();
+		NX_API Ref<Mesh> CreateCube();
 
 		/// @brief A method that returns a mesh representing a sprite with a width and
 		/// height of 1
 		/// @return A mesh representing a sprite
-		Ref<Mesh> CreateSprite();
+		NX_API Ref<Mesh> CreateSprite();
 
 		/// @brief A method that returns a mesh representing a triangle with a width
 		/// and height of 1
 		/// @return A mesh representing a triangle
-		Ref<Mesh> CreateTriangle();
+		NX_API Ref<Mesh> CreateTriangle();
 
 		/// @brief A method that returns a mesh representing a 3D model stored on disk
 		/// @param filepath The filepath to load a model from
 		/// @return A mesh representing the model
-		Ref<Model> CreateFrom3DModelFile(const std::string &filepath);
+		NX_API Ref<Model> CreateFrom3DModelFile(const std::string &filepath);
 
 	  private:
 		/// @brief A pointer to a graphics device to use to create the vertex buffer

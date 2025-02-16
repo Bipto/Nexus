@@ -59,22 +59,22 @@ namespace Nexus::Graphics
 	{
 	  public:
 		/// @brief A texture cannot be created without a texture specification
-		Texture2D() = delete;
+		NX_API Texture2D() = delete;
 
 		/// @brief A constructor that takes in a texture specification
 		/// @param spec The specification to create a texture from
-		Texture2D(const Texture2DSpecification &spec, GraphicsDevice *device);
+		NX_API Texture2D(const Texture2DSpecification &spec, GraphicsDevice *device);
 
-		virtual ~Texture2D();
+		NX_API virtual ~Texture2D();
 
 		// virtual void SetData(const void *data, uint32_t size, uint32_t level) = 0;
-		virtual void SetData(const void *data, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
+		NX_API virtual void SetData(const void *data, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
 
-		virtual void GetData(std::vector<unsigned char> &pixels, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
-		std::vector<unsigned char> GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height);
+		NX_API virtual void GetData(std::vector<unsigned char> &pixels, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
+		NX_API std::vector<unsigned char> GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height);
 
-		const Texture2DSpecification &GetSpecification();
-		uint32_t					  GetLevels() const;
+		NX_API const Texture2DSpecification &GetSpecification();
+		NX_API uint32_t						 GetLevels() const;
 
 	  protected:
 		/// @brief A specification describing the layout of the texture
@@ -97,22 +97,22 @@ namespace Nexus::Graphics
 	class Cubemap
 	{
 	  public:
-		Cubemap() = delete;
-		Cubemap(const CubemapSpecification &spec, GraphicsDevice *device);
-		virtual ~Cubemap();
+		NX_API Cubemap() = delete;
+		NX_API Cubemap(const CubemapSpecification &spec, GraphicsDevice *device);
+		NX_API virtual ~Cubemap();
 
-		virtual void SetData(const void *data, CubemapFace face, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
-		std::vector<unsigned char> GetData(CubemapFace face, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height);
-		virtual void			   GetData(std::vector<unsigned char> &pixels,
-										   CubemapFace				   face,
-										   uint32_t					   level,
-										   uint32_t					   x,
-										   uint32_t					   y,
-										   uint32_t					   width,
-										   uint32_t					   height) = 0;
+		NX_API virtual void SetData(const void *data, CubemapFace face, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
+		NX_API std::vector<unsigned char> GetData(CubemapFace face, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height);
+		NX_API virtual void				  GetData(std::vector<unsigned char> &pixels,
+												  CubemapFace				  face,
+												  uint32_t					  level,
+												  uint32_t					  x,
+												  uint32_t					  y,
+												  uint32_t					  width,
+												  uint32_t					  height) = 0;
 
-		const CubemapSpecification &GetSpecification() const;
-		uint32_t					GetLevels() const;
+		NX_API const CubemapSpecification &GetSpecification() const;
+		NX_API uint32_t					   GetLevels() const;
 
 	  protected:
 		CubemapSpecification m_Specification {};

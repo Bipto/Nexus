@@ -46,21 +46,21 @@ namespace Nexus::Graphics
 		/// @param data A pointer to initial data to upload to the buffer
 		/// @param layout A const reference to a vertex buffer layout, representing
 		/// the contents of the vertex buffer
-		VertexBuffer(const BufferDescription &description, const void *data) : m_Description(description)
+		NX_API VertexBuffer(const BufferDescription &description, const void *data) : m_Description(description)
 		{
 		}
 
 		/// @brief A virtual destructor to cleanup resources
-		virtual ~VertexBuffer()
+		NX_API virtual ~VertexBuffer()
 		{
 		}
 
-		virtual void SetData(const void *data, uint32_t size, uint32_t offset = 0) = 0;
+		NX_API virtual void SetData(const void *data, uint32_t size, uint32_t offset = 0) = 0;
 
 		/// @brief A method that returns the buffer description that was used to
 		/// create the buffer
 		/// @return A const reference to the BufferDescription
-		const BufferDescription &GetDescription()
+		NX_API const BufferDescription &GetDescription()
 		{
 			return m_Description;
 		}
@@ -79,31 +79,33 @@ namespace Nexus::Graphics
 		/// @param description A struct representing the properties to use when
 		/// creating the buffer
 		/// @param data A pointer to initial data to upload to the buffer
-		IndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format) : m_Description(description), m_Format(format)
+		NX_API IndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format)
+			: m_Description(description),
+			  m_Format(format)
 		{
 		}
 
 		/// @brief A virtual destructor to cleanup resources
-		virtual ~IndexBuffer()
+		NX_API virtual ~IndexBuffer()
 		{
 		}
 
-		virtual void SetData(const void *data, uint32_t size, uint32_t offset = 0) = 0;
+		NX_API virtual void SetData(const void *data, uint32_t size, uint32_t offset = 0) = 0;
 
 		/// @brief A method that returns the buffer description that was used to
 		/// create the buffer
 		/// @return A const reference to the BufferDescription
-		const BufferDescription &GetDescription()
+		NX_API const BufferDescription &GetDescription()
 		{
 			return m_Description;
 		}
 
-		IndexBufferFormat GetFormat()
+		NX_API IndexBufferFormat GetFormat()
 		{
 			return m_Format;
 		}
 
-		uint32_t GetElementSizeInBytes() const
+		NX_API uint32_t GetElementSizeInBytes() const
 		{
 			if (m_Format == IndexBufferFormat::UInt16)
 			{
@@ -120,7 +122,7 @@ namespace Nexus::Graphics
 			}
 		}
 
-		uint32_t GetCount() const
+		NX_API uint32_t GetCount() const
 		{
 			return m_Description.Size / GetElementSizeInBytes();
 		}
@@ -142,21 +144,21 @@ namespace Nexus::Graphics
 		/// @param description A struct representing the properties to use when
 		/// creating the buffer
 		/// @param data A pointer to initial data to upload to the buffer
-		UniformBuffer(const BufferDescription &description, const void *data) : m_Description(description)
+		NX_API UniformBuffer(const BufferDescription &description, const void *data) : m_Description(description)
 		{
 		}
 
 		/// @brief A virtual destructor to cleanup resources
-		virtual ~UniformBuffer()
+		NX_API virtual ~UniformBuffer()
 		{
 		}
 
-		virtual void SetData(const void *data, uint32_t size, uint32_t offset = 0) = 0;
+		NX_API virtual void SetData(const void *data, uint32_t size, uint32_t offset = 0) = 0;
 
 		/// @brief A method that returns the buffer description that was used to
 		/// create the buffer
 		/// @return A const reference to the BufferDescription
-		const BufferDescription &GetDescription()
+		NX_API const BufferDescription &GetDescription()
 		{
 			return m_Description;
 		}

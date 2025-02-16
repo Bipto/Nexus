@@ -20,7 +20,7 @@ namespace Nexus::InputNew
 	class Keyboard
 	{
 	  public:
-		Keyboard() = delete;
+		NX_API Keyboard() = delete;
 		Keyboard(uint32_t id, const std::string &name) : m_Id(id), m_Name(name)
 		{
 		}
@@ -106,27 +106,27 @@ namespace Nexus::InputNew
 	class InputContext
 	{
 	  public:
-		InputContext(Nexus::IWindow *window);
-		virtual ~InputContext();
+		NX_API InputContext(Nexus::IWindow *window);
+		NX_API virtual ~InputContext();
 
-		bool		   IsMouseButtonDown(uint32_t id, MouseButton button);
-		bool		   IsMouseButtonUp(uint32_t id, MouseButton button);
-		bool		   IsKeyDown(uint32_t id, ScanCode scancode);
-		bool		   IsKeyUp(uint32_t id, ScanCode scancode);
-		Point2D<float> GetMousePosition(uint32_t id);
-		Point2D<float> GetScroll(uint32_t id);
+		NX_API bool IsMouseButtonDown(uint32_t id, MouseButton button);
+		NX_API bool IsMouseButtonUp(uint32_t id, MouseButton button);
+		NX_API bool IsKeyDown(uint32_t id, ScanCode scancode);
+		NX_API bool IsKeyUp(uint32_t id, ScanCode scancode);
+		NX_API Point2D<float> GetMousePosition(uint32_t id);
+		NX_API Point2D<float> GetScroll(uint32_t id);
 
-		bool		   IsMouseButtonDown(MouseButton button);
-		bool		   IsMouseButtonUp(MouseButton button);
-		bool		   IsKeyDown(ScanCode scancode);
-		bool		   IsKeyUp(ScanCode scancode);
-		Point2D<float> GetMousePosition();
-		Point2D<float> GetScroll();
+		NX_API bool IsMouseButtonDown(MouseButton button);
+		NX_API bool IsMouseButtonUp(MouseButton button);
+		NX_API bool IsKeyDown(ScanCode scancode);
+		NX_API bool IsKeyUp(ScanCode scancode);
+		NX_API Point2D<float> GetMousePosition();
+		NX_API Point2D<float> GetScroll();
 
-		Point2D<float> GetCursorPosition();
-		Point2D<float> GetGlobalCursorPosition();
+		NX_API Point2D<float> GetCursorPosition();
+		NX_API Point2D<float> GetGlobalCursorPosition();
 
-		void Reset();
+		NX_API void Reset();
 
 	  private:
 		void OnKeyPressed(const KeyPressedEventArgs &args);

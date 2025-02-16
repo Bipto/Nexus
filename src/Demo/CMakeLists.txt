@@ -3,9 +3,9 @@ cmake_minimum_required(VERSION 3.30)
 project("Demo")
 
 if (ANDROID OR __ANDROID__)
-    add_library(Demo SHARED main.cpp)
+add_library(Demo SHARED main.cpp)
 else()
-    add_executable(Demo src/main.cpp)
+add_executable(Demo src/main.cpp)
 endif()
 
 target_include_directories(Demo PUBLIC ../Nexus/src)

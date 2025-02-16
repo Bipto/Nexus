@@ -66,23 +66,23 @@ namespace Nexus::Graphics
 	  public:
 		/// @brief A constructor that takes in a PipelineDescription object to use for
 		/// creation
-		Pipeline(const PipelineDescription &description)
+		NX_API Pipeline(const PipelineDescription &description)
 		{
 			m_Description = description;
 		}
 
 		/// @brief An empty pipeline cannot be created
-		Pipeline() = delete;
+		NX_API Pipeline() = delete;
 
 		/// @brief Virtual destructor allowing API specific resources to be destroyed
-		virtual ~Pipeline() {};
+		NX_API virtual ~Pipeline() {};
 
 		/// @brief A pure virtual method returning a const reference to a pipeline
 		/// description
 		/// @return A const reference to a pipelinedescription
-		virtual const PipelineDescription &GetPipelineDescription() const = 0;
+		NX_API virtual const PipelineDescription &GetPipelineDescription() const = 0;
 
-		bool HasResources() const
+		NX_API bool HasResources() const
 		{
 			return m_Description.ResourceSetSpec.SampledImages.size() > 0 || m_Description.ResourceSetSpec.UniformBuffers.size() > 0;
 		}

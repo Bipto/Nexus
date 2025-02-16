@@ -53,73 +53,73 @@ namespace Nexus
 	{
 	  public:
 		/// @brief A method that caches the previous frames mouse states
-		void CacheInput();
+		NX_API void CacheInput();
 
 		/// @brief A method that checks whether the left mouse buttons was clicked
 		/// @return A boolean value representing if the left mouse button was clicked
-		const bool WasLeftMouseClicked() const;
+		NX_API const bool WasLeftMouseClicked() const;
 
 		/// @brief A method that checks whether the left mouse buttons was released
 		/// @return A boolean value representing if the left mouse button was released
-		const bool WasLeftMouseReleased() const;
+		NX_API const bool WasLeftMouseReleased() const;
 
 		/// @brief A method that checks whether the left mouse buttons was held
 		/// @return A boolean value representing if the left mouse button was held
-		const bool IsLeftMouseHeld() const;
+		NX_API const bool IsLeftMouseHeld() const;
 
 		/// @brief A method that checks whether the right mouse buttons was clicked
 		/// @return A boolean value representing if the right mouse button was clicked
-		const bool WasRightMouseClicked() const;
+		NX_API const bool WasRightMouseClicked() const;
 
 		/// @brief A method that checks whether the right mouse buttons was released
 		/// @return A boolean value representing if the right mouse button was
 		/// released
-		const bool WasRightMouseReleased() const;
+		NX_API const bool WasRightMouseReleased() const;
 
 		/// @brief A method that checks whether the right mouse buttons was held
 		/// @return A boolean value representing if the right mouse button was held
-		const bool IsRightMouseHeld() const;
+		NX_API const bool IsRightMouseHeld() const;
 
 		/// @brief A method that checks whether the middle mouse buttons was clicked
 		/// @return A boolean value representing if the middle mouse button was
 		/// clicked
-		const bool WasMiddleMouseClicked() const;
+		NX_API const bool WasMiddleMouseClicked() const;
 
 		/// @brief A method that checks whether the left mouse buttons was released
 		/// @return A boolean value representing if the middle mouse button was
 		/// released
-		const bool WasMiddleMouseReleased() const;
+		NX_API const bool WasMiddleMouseReleased() const;
 
 		/// @brief A method that checks whether the left mouse buttons was held
 		/// @return A boolean value representing if the middle mouse button was held
-		const bool IsMiddleMouseHeld() const;
+		NX_API const bool IsMiddleMouseHeld() const;
 
 		/// @brief A method that returns the current position of the mouse pointer
 		/// @return A Nexus::Point containing two integer values representing the
 		/// position of the mouse
-		const Point2D<float> GetMousePosition() const;
+		NX_API const Point2D<float> GetMousePosition() const;
 
 		/// @brief A method that returns the movement of the mouse pointer
 		/// @return A Nexus::Point containing two integer values representing the
 		/// movement of the mouse
-		const Point2D<float> GetMouseMovement() const;
+		NX_API const Point2D<float> GetMouseMovement() const;
 
 		/// @brief A method that returns the current scroll value of the mouse
 		/// @return A Nexus::Point containing two float values representing the
 		/// current scroll of the mouse
-		const Point2D<float> GetScroll() const;
+		NX_API const Point2D<float> GetScroll() const;
 
 		/// @brief A method that returns the scroll movement of the mouse
 		/// @return A Nexus::Point containing two float values representing the
 		/// scroll movement of the mouse
-		const Point2D<float> GetScrollMovement() const;
+		NX_API const Point2D<float> GetScrollMovement() const;
 
-		static Point2D<float> GetGlobalMousePosition();
-		static Point2D<float> GetGlobalMouseMovement();
+		NX_API static Point2D<float> GetGlobalMousePosition();
+		NX_API static Point2D<float> GetGlobalMouseMovement();
 
-		static bool IsGlobalLeftMouseHeld();
-		static bool IsGlobalRightMouseHeld();
-		static bool IsGlobalMiddleMouseHeld();
+		NX_API static bool IsGlobalLeftMouseHeld();
+		NX_API static bool IsGlobalRightMouseHeld();
+		NX_API static bool IsGlobalMiddleMouseHeld();
 
 	  private:
 		/// @brief A mouse state containing the current state of the mouse pointer and

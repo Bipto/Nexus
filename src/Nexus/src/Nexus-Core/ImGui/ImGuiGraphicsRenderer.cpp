@@ -3,6 +3,7 @@
 #include "Nexus-Core/Graphics/Swapchain.hpp"
 #include "Nexus-Core/Input/Input.hpp"
 #include "Nexus-Core/Platform.hpp"
+
 #include "Nexus-Core/Runtime.hpp"
 
 std::string GetImGuiShaderVertexSource()
@@ -72,6 +73,8 @@ namespace Nexus::ImGuiUtils
 	{
 		s_ImGuiRenderer = this;
 
+		Nexus::SetApplication(app);
+
 		m_GraphicsDevice = app->GetGraphicsDevice();
 
 		m_CommandList = m_GraphicsDevice->CreateCommandList();
@@ -97,8 +100,8 @@ namespace Nexus::ImGuiUtils
 		samplerSpec.SampleFilter = Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipLinear;
 		m_Sampler				 = m_GraphicsDevice->CreateSampler(samplerSpec);
 
-		auto context = ImGui::CreateContext();
-		ImGui::SetCurrentContext(context);
+		m_Context = ImGui::CreateContext();
+		ImGui::SetCurrentContext(m_Context);
 
 		auto &io = ImGui::GetIO();
 		io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;
@@ -487,6 +490,16 @@ namespace Nexus::ImGuiUtils
 
 		RenderDrawData(ImGui::GetDrawData());
 		UpdateCursor();
+	}
+
+	NX_API ImGuiIO &ImGuiGraphicsRenderer::GetIO()
+	{
+		return ImGui::GetIO();
+	}
+
+	NX_API ImGuiContext *ImGuiGraphicsRenderer::GetContext()
+	{
+		return m_Context;
 	}
 
 	void ImGuiGraphicsRenderer::SetupInput()

@@ -37,40 +37,40 @@ namespace Nexus::Graphics
 	class GraphicsDevice : public IResource
 	{
 	  public:
-		static GraphicsDevice *CreateGraphicsDevice(const Graphics::GraphicsDeviceSpecification &spec);
+		NX_API static GraphicsDevice *CreateGraphicsDevice(const Graphics::GraphicsDeviceSpecification &spec);
 
 		/// @brief A constructor taking in a const reference to a
 		/// GraphicsDeviceSpecification
 		/// @param createInfo The options to use when creating the GraphicsDevice
-		GraphicsDevice(const GraphicsDeviceSpecification &createInfo);
+		NX_API GraphicsDevice(const GraphicsDeviceSpecification &createInfo);
 
 		/// @brief A virtual destructor allowing resources to be deleted
-		virtual ~GraphicsDevice()
+		NX_API virtual ~GraphicsDevice()
 		{
-		}
+	  }
 
 		/// @brief Copying a GraphicsDevice is not supported
 		/// @param Another GraphicsDevice taken by const reference
-		GraphicsDevice(const GraphicsDevice &) = delete;
+		NX_API GraphicsDevice(const GraphicsDevice &) = delete;
 
 		/// @brief A pure virtual method that returns the name of the graphics API as
 		/// a string
 		/// @return A string containing the API name
-		virtual const std::string GetAPIName() = 0;
+		NX_API virtual const std::string GetAPIName() = 0;
 
 		/// @brief A pure virtual method that will return the name of the device
 		/// currently being used to render graphics
 		/// @return A const char* containing the device name
-		virtual const char *GetDeviceName() = 0;
+		NX_API virtual const char *GetDeviceName() = 0;
 
 		/// @brief A pure virtual method that will submit a command list for rendering
 		/// @param commandList The command list to submit for rendering
-		virtual void SubmitCommandList(Ref<CommandList> commandList) = 0;
+		NX_API virtual void SubmitCommandList(Ref<CommandList> commandList) = 0;
 
 		/// @brief A method that returns an enum value representing the currently
 		/// running graphics API backend
 		/// @return A GraphicsAPI enum containing the current backend
-		GraphicsAPI GetGraphicsAPI()
+		NX_API GraphicsAPI GetGraphicsAPI()
 		{
 			return m_Specification.API;
 		}
@@ -79,7 +79,7 @@ namespace Nexus::Graphics
 		/// description
 		/// @param description The properties to use when creating the pipeline
 		/// @return A pointer to a pipeline
-		virtual Ref<Pipeline> CreatePipeline(const PipelineDescription &description) = 0;
+		NX_API virtual Ref<Pipeline> CreatePipeline(const PipelineDescription &description) = 0;
 
 		/// @brief A pure virtual method that creates a vertex buffer from a given
 		/// description
@@ -87,100 +87,100 @@ namespace Nexus::Graphics
 		/// @param data The initial data to store in the buffer
 		/// @param layout The layout of the vertex buffer
 		/// @return A pointer to a vertex buffer
-		virtual Ref<VertexBuffer> CreateVertexBuffer(const BufferDescription &description, const void *data) = 0;
+		NX_API virtual Ref<VertexBuffer> CreateVertexBuffer(const BufferDescription &description, const void *data) = 0;
 
 		/// @brief A pure virtual method that creates an index buffer from a given
 		/// description
 		/// @param description The properties to use when creating the buffer
 		/// @param data The initial data to store in the buffer
 		/// @return A pointer to an index buffer
-		virtual Ref<IndexBuffer> CreateIndexBuffer(const BufferDescription &description,
-												   const void			   *data,
-												   IndexBufferFormat		format = IndexBufferFormat::UInt32) = 0;
+		NX_API virtual Ref<IndexBuffer> CreateIndexBuffer(const BufferDescription &description,
+														  const void			  *data,
+														  IndexBufferFormat		   format = IndexBufferFormat::UInt32) = 0;
 
 		/// @brief A pure virtual method that creates a uniform buffer from a given
 		/// description
 		/// @param description The properties to use when creating the buffer
 		/// @param data The initial data to store in the buffer
 		/// @return A pointer to a uniform buffer
-		virtual Ref<UniformBuffer> CreateUniformBuffer(const BufferDescription &description, const void *data) = 0;
+		NX_API virtual Ref<UniformBuffer> CreateUniformBuffer(const BufferDescription &description, const void *data) = 0;
 
 		/// @brief A pure virtual method that creates a new command list
 		/// @return A pointer to a command list
-		virtual Ref<CommandList> CreateCommandList(const CommandListSpecification &spec = {}) = 0;
+		NX_API virtual Ref<CommandList> CreateCommandList(const CommandListSpecification &spec = {}) = 0;
 
 		/// @brief A pure virtual method that creates a new texture from a given
 		/// specification
 		/// @param spec The properties to use when creating the texture
 		/// @return A pointer to a texture
-		virtual Ref<Texture2D> CreateTexture2D(const Texture2DSpecification &spec) = 0;
+		NX_API virtual Ref<Texture2D> CreateTexture2D(const Texture2DSpecification &spec) = 0;
 
 		/// @brief A method that loads a new texture from a image stored on disk
 		/// @param filepath The filepath to load the image from
 		/// @return A pointer to a texture
-		Ref<Texture2D> CreateTexture2D(const char *filepath, bool generateMips);
+		NX_API Ref<Texture2D> CreateTexture2D(const char *filepath, bool generateMips);
 
 		/// @brief A method that loads a new texture from an image stored on disk
 		/// @param filepath The filepath to load the image from
 		/// @return A pointer to a texture
-		Ref<Texture2D> CreateTexture2D(const std::string &filepath, bool generateMips);
+		NX_API Ref<Texture2D> CreateTexture2D(const std::string &filepath, bool generateMips);
 
-		virtual Ref<Cubemap> CreateCubemap(const CubemapSpecification &spec) = 0;
+		NX_API virtual Ref<Cubemap> CreateCubemap(const CubemapSpecification &spec) = 0;
 
-		virtual Ref<Framebuffer> CreateFramebuffer(const FramebufferSpecification &spec) = 0;
+		NX_API virtual Ref<Framebuffer> CreateFramebuffer(const FramebufferSpecification &spec) = 0;
 
 		/// @brief A pure virtual method that creates a new resource set from a given
 		/// specification
 		/// @param spec A set of properties to use when creating the resource set
 		/// @return A pointer to a resource set
-		virtual Ref<ResourceSet> CreateResourceSet(const ResourceSetSpecification &spec) = 0;
+		NX_API virtual Ref<ResourceSet> CreateResourceSet(const ResourceSetSpecification &spec) = 0;
 
 		/// @brief A method that creates a new resource set from a pipeline
 		/// @param pipeline A pipeline to use when creating the resource set
 		/// @return A pointer to a resource set
-		Ref<ResourceSet> CreateResourceSet(Ref<Pipeline> pipeline);
+		NX_API Ref<ResourceSet> CreateResourceSet(Ref<Pipeline> pipeline);
 
 		/// @brief A pure virtual method that creates a new sampler from a given
 		/// specification
 		/// @param spec A set of properties to use when creating the sampler
 		/// @return A pointer to a sampler
-		virtual Ref<Sampler> CreateSampler(const SamplerSpecification &spec) = 0;
+		NX_API virtual Ref<Sampler> CreateSampler(const SamplerSpecification &spec) = 0;
 
-		virtual Ref<TimingQuery> CreateTimingQuery() = 0;
+		NX_API virtual Ref<TimingQuery> CreateTimingQuery() = 0;
 
 		/// @brief A pure virtual method that returns a ShaderFormat enum representing
 		/// the supported shading language of the backend
 		/// @return The supported shading language of the backend
-		virtual ShaderLanguage GetSupportedShaderFormat() = 0;
+		NX_API virtual ShaderLanguage GetSupportedShaderFormat() = 0;
 
-		virtual void WaitForIdle() = 0;
+		NX_API virtual void WaitForIdle() = 0;
 
 		/// @brief A pure virtual method that returns a value that can be used to
 		/// standardise UV coordinates across backends
 		/// @return A float representing the correction
-		virtual float GetUVCorrection() = 0;
+		NX_API virtual float GetUVCorrection() = 0;
 
-		virtual bool IsUVOriginTopLeft() = 0;
+		NX_API virtual bool IsUVOriginTopLeft() = 0;
 
-		virtual const GraphicsCapabilities GetGraphicsCapabilities() const = 0;
+		NX_API virtual const GraphicsCapabilities GetGraphicsCapabilities() const = 0;
 
-		virtual Swapchain *CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) = 0;
+		NX_API virtual Swapchain *CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) = 0;
 
-		Ref<ShaderModule> CreateShaderModuleFromSpirvFile(const std::string &filepath, ShaderStage stage);
+		NX_API Ref<ShaderModule> CreateShaderModuleFromSpirvFile(const std::string &filepath, ShaderStage stage);
 
-		Ref<ShaderModule> CreateShaderModuleFromSpirvSource(const std::string &source, const std::string &name, ShaderStage stage);
+		NX_API Ref<ShaderModule> CreateShaderModuleFromSpirvSource(const std::string &source, const std::string &name, ShaderStage stage);
 
-		Ref<ShaderModule> GetOrCreateCachedShaderFromSpirvSource(const std::string &source, const std::string &name, ShaderStage stage);
+		NX_API Ref<ShaderModule> GetOrCreateCachedShaderFromSpirvSource(const std::string &source, const std::string &name, ShaderStage stage);
 
-		Ref<ShaderModule> GetOrCreateCachedShaderFromSpirvFile(const std::string &filepath, ShaderStage stage);
+		NX_API Ref<ShaderModule> GetOrCreateCachedShaderFromSpirvFile(const std::string &filepath, ShaderStage stage);
 
-		void ImmediateSubmit(std::function<void(Ref<CommandList> cmd)> &&function);
+		NX_API void ImmediateSubmit(std::function<void(Ref<CommandList> cmd)> &&function);
 
-		const GraphicsDeviceSpecification &GetSpecification() const;
+		NX_API const GraphicsDeviceSpecification &GetSpecification() const;
 
-		virtual bool			   Validate() override;
-		virtual void			   SetName(const std::string &name) override;
-		virtual const std::string &GetName() override;
+		NX_API virtual bool				  Validate() override;
+		NX_API virtual void				  SetName(const std::string &name) override;
+		NX_API virtual const std::string &GetName() override;
 
 	  private:
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) = 0;

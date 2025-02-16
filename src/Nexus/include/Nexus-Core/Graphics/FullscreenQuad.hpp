@@ -7,13 +7,13 @@ namespace Nexus::Graphics
 	class FullscreenQuad
 	{
 	  public:
-		FullscreenQuad() = default;
-		explicit FullscreenQuad(GraphicsDevice *device, bool hasUv);
+		NX_API FullscreenQuad() = default;
+		NX_API explicit FullscreenQuad(GraphicsDevice *device, bool hasUv);
 
-		Ref<VertexBuffer> GetVertexBuffer();
-		Ref<IndexBuffer>  GetIndexBuffer();
+		NX_API Ref<VertexBuffer> GetVertexBuffer();
+		NX_API Ref<IndexBuffer> GetIndexBuffer();
 
-		Nexus::Graphics::VertexBufferLayout GetVertexBufferLayout();
+		NX_API Nexus::Graphics::VertexBufferLayout GetVertexBufferLayout();
 
 	  private:
 		void CreateWithUV();
@@ -21,8 +21,8 @@ namespace Nexus::Graphics
 
 	  private:
 		GraphicsDevice	 *m_GraphicsDevice = nullptr;
-		Ref<VertexBuffer> m_VertexBuffer = nullptr;
-		Ref<IndexBuffer>  m_IndexBuffer	 = nullptr;
+		Ref<VertexBuffer> m_VertexBuffer   = nullptr;
+		Ref<IndexBuffer>  m_IndexBuffer	   = nullptr;
 		bool			  m_HasUV		   = false;
 	};
 }	 // namespace Nexus::Graphics

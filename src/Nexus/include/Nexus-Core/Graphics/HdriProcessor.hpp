@@ -9,10 +9,10 @@ namespace Nexus::Graphics
 	class HdriProcessor
 	{
 	  public:
-		HdriProcessor() = delete;
-		HdriProcessor(const std::string &filepath, GraphicsDevice *device);
-		~HdriProcessor() = default;
-		Ref<Cubemap> Generate(uint32_t size);
+		NX_API HdriProcessor() = delete;
+		NX_API HdriProcessor(const std::string &filepath, GraphicsDevice *device);
+		NX_API ~HdriProcessor() = default;
+		NX_API Ref<Cubemap> Generate(uint32_t size);
 
 	  private:
 		void GetDirection(CubemapFace face, float &yaw, float &pitch);

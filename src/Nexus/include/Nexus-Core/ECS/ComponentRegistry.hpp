@@ -40,14 +40,14 @@ namespace Nexus::ECS
 	class ComponentRegistry
 	{
 	  public:
-		static ComponentRegistry &GetRegistry()
+		NX_API static ComponentRegistry &GetRegistry()
 		{
 			static ComponentRegistry registry;
 			return registry;
 		}
 
 		template<typename T>
-		void RegisterComponent(const char *displayName, RenderComponentFunc renderFunc)
+		NX_API void RegisterComponent(const char *displayName, RenderComponentFunc renderFunc)
 		{
 			const std::type_info &typeInfo = typeid(T);
 			const char			 *typeName = typeInfo.name();
@@ -85,7 +85,7 @@ namespace Nexus::ECS
 			m_RegisteredComponents[typeName] = storage;
 		}
 
-		std::string SerializeComponentToString(Registry &registry, ComponentPtr component)
+		NX_API std::string SerializeComponentToString(Registry &registry, ComponentPtr component)
 		{
 			const char *typeName = component.typeName;
 
@@ -99,11 +99,11 @@ namespace Nexus::ECS
 			throw std::runtime_error("Type is not registed for serialization");
 		}
 
-		void DeserializeComponentFromString(Registry		  &registry,
-											GUID			   guid,
-											const std::string &displayName,
-											const std::string &data,
-											size_t			   entityHierarchyIndex)
+		NX_API void DeserializeComponentFromString(Registry			 &registry,
+												   GUID				  guid,
+												   const std::string &displayName,
+												   const std::string &data,
+												   size_t			  entityHierarchyIndex)
 		{
 			std::string typeName = GetTypeNameFromDisplayName(displayName);
 
@@ -117,7 +117,7 @@ namespace Nexus::ECS
 			throw std::runtime_error("Type is not registered for deserialization");
 		}
 
-		YAML::Node SerializeComponentToYaml(Registry &registry, ComponentPtr component)
+		NX_API YAML::Node SerializeComponentToYaml(Registry &registry, ComponentPtr component)
 		{
 			const char *typeName = component.typeName;
 
@@ -131,11 +131,11 @@ namespace Nexus::ECS
 			throw std::runtime_error("Type is not registered for serialization");
 		}
 
-		void DeserializeComponentFromYaml(Registry			&registry,
-										  GUID				 guid,
-										  const std::string &displayName,
-										  const YAML::Node	&node,
-										  size_t			 entityHierarchyIndex)
+		NX_API void DeserializeComponentFromYaml(Registry		   &registry,
+												 GUID				guid,
+												 const std::string &displayName,
+												 const YAML::Node  &node,
+												 size_t				entityHierarchyIndex)
 		{
 			std::string typeName = GetTypeNameFromDisplayName(displayName);
 
@@ -148,7 +148,7 @@ namespace Nexus::ECS
 			throw std::runtime_error("Type is not registered for deserialization");
 		}
 
-		std::string GetDisplayNameFromTypeName(const std::string &typeName)
+		NX_API std::string GetDisplayNameFromTypeName(const std::string &typeName)
 		{
 			if (m_RegisteredComponents.find(typeName) != m_RegisteredComponents.end())
 			{
@@ -158,7 +158,7 @@ namespace Nexus::ECS
 			throw std::runtime_error("Display name could not be found");
 		}
 
-		std::string GetTypeNameFromDisplayName(const std::string &displayName)
+		NX_API std::string GetTypeNameFromDisplayName(const std::string &displayName)
 		{
 			for (auto &[typeName, storage] : m_RegisteredComponents)
 			{
@@ -171,7 +171,7 @@ namespace Nexus::ECS
 			throw std::runtime_error("Type does not have a display name");
 		}
 
-		void CreateComponent(const char *typeName, Registry &registry, const Entity &entity)
+		NX_API void CreateComponent(const char *typeName, Registry &registry, const Entity &entity)
 		{
 			if (m_RegisteredComponents.find(typeName) != m_RegisteredComponents.end())
 			{
@@ -183,7 +183,7 @@ namespace Nexus::ECS
 			throw std::runtime_error("Type is not registered for creation");
 		}
 
-		void RenderComponent(Registry &registry, ComponentPtr component, Nexus::Ref<Nexus::Project> project)
+		NX_API void RenderComponent(Registry &registry, ComponentPtr component, Nexus::Ref<Nexus::Project> project)
 		{
 			if (m_RegisteredComponents.find(component.typeName) != m_RegisteredComponents.end())
 			{
@@ -196,7 +196,7 @@ namespace Nexus::ECS
 			throw std::runtime_error("Type is not registered for rendering");
 		}
 
-		std::string GetDisplayName(ComponentPtr component)
+		NX_API std::string GetDisplayName(ComponentPtr component)
 		{
 			if (m_RegisteredComponents.find(component.typeName) != m_RegisteredComponents.end())
 			{
@@ -207,7 +207,7 @@ namespace Nexus::ECS
 			throw std::runtime_error("Component does not have a display name");
 		}
 
-		std::map<std::string, ComponentStorage> &GetRegisteredComponents()
+		NX_API std::map<std::string, ComponentStorage> &GetRegisteredComponents()
 		{
 			return m_RegisteredComponents;
 		}
@@ -224,7 +224,7 @@ namespace Nexus::ECS
 #define NX_REGISTER_COMPONENT_WITH_CUSTOM_NAME(Comp, DisplayName, RenderFunc)                                                                        \
 	struct Comp##Register                                                                                                                            \
 	{                                                                                                                                                \
-		Comp##Register()                                                                                                                             \
+		NX_API Comp##Register()                                                                                                                      \
 		{                                                                                                                                            \
 			Nexus::ECS::ComponentRegistry &registry = Nexus::ECS::ComponentRegistry::GetRegistry();                                                  \
 			registry.RegisterComponent<Comp>(DisplayName, RenderFunc);                                                                               \
