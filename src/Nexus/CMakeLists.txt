@@ -648,6 +648,8 @@ if (EMSCRIPTEN)
     target_link_options(Nexus PRIVATE -lidbfs.js)
 endif()
 
+set_property(TARGET Nexus PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
 nexus_add_all_subdirs("${NEXUS_LIBRARY_SUBDIRECTORIES}")
 nexus_add_all_shared_lib_subdirs("${NEXUS_SHARED_LIBRARY_SUBDIRECTORIES}")
 target_include_directories(Nexus PUBLIC SYSTEM ${NEXUS_INCLUDE_DIRS})
