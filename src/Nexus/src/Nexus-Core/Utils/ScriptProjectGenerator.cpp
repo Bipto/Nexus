@@ -12,14 +12,21 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_COMPILE_WARNING_AS_ERROR OFF)
 
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
 add_definitions(-DNX_PLATFORM_WINDOWS=1)
 add_definitions(-DNX_EXPORT_API=1)
 
 add_library(SCRIPT_PROJECT_NAME SHARED main.cpp)
 
-#target_include_directories(SCRIPT_PROJECT_NAME PRIVATE external/Nexus/src/Nexus/include)
-#target_link_libraries(SCRIPT_PROJECT_NAME PRIVATE Nexus)
-#add_dependencies(SCRIPT_PROJECT_NAME Nexus)
+include (FetchContent)
+FetchContent_Declare(
+  Nexus
+  GIT_REPOSITORY https://github.com/Bipto/Nexus.git
+  GIT_TAG dev
+)
+FetchContent_MakeAvailable(Nexus)
+target_link_libraries(SCRIPT_PROJECT_NAME PRIVATE Nexus)
 )";
 
 	const char *scriptMainText = R"(#include <iostream>
@@ -34,13 +41,6 @@ void say_hello()
 	{
 		std::string scriptDirectory = projectDirectory + std::string("\\") + projectName + std::string("\\Scripts");
 		FileSystem::CreateDirectory(scriptDirectory);
-
-		// setup engine
-		{
-			/* std::string engineDirectory = scriptDirectory + "\\Nexus";
-			FileSystem::CreateDirectory(engineDirectory);
-			FileSystem::CopyDirectory(templatePath, engineDirectory, true); */
-		}
 
 		// setup script project
 		{

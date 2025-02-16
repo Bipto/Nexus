@@ -9,30 +9,18 @@ set(CMAKE_COMPILE_WARNING_AS_ERROR OFF)
 #set up engine project
 add_subdirectory(src/Nexus)
 
-if (DEFINED NX_BUILD_DEMO)
-    add_subdirectory(src/Demo)
-    set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT Demo)
+if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+    if (DEFINED NX_BUILD_DEMO)
+        add_subdirectory(src/Demo)
+        set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT Demo)
+    endif()
+
+    if (DEFINED NX_BUILD_EDITOR)
+        add_subdirectory(src/Editor)
+    endif()
+
+    if (DEFINED NX_BUILD_TESTS)
+        enable_testing()
+        add_subdirectory(src/Tests)
+    endif()
 endif()
-
-if (DEFINED NX_BUILD_EDITOR)
-    add_subdirectory(src/Editor)
-endif()
-
-if (DEFINED NX_BUILD_TESTS)
-    enable_testing()
-    add_subdirectory(src/Tests)
-endif()
-
-target_include_directories(Nexus PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/Nexus/include>
-    $<INSTALL_INTERFACE:include>
-)
-
-install (TARGETS Nexus
-    EXPORT NexusTargets
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION bin)
-
-install (DIRECTORY include/
-    DESTINATION include)

@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
 add_subdirectory(cmake)
 project ("Nexus")
 
@@ -47,7 +49,7 @@ include (FetchContent)
 FetchContent_Declare(
   SDL3
   GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-  GIT_TAG main
+  GIT_TAG 4a9b579
 )
 FetchContent_MakeAvailable(SDL3)
 
@@ -68,7 +70,7 @@ FetchContent_MakeAvailable(freetype)
 FetchContent_Declare(
   stb
   GIT_REPOSITORY https://github.com/nothings/stb.git
-  GIT_TAG master
+  GIT_TAG 5c20573
 )
 FetchContent_MakeAvailable(stb)
 
@@ -110,7 +112,7 @@ FetchContent_Declare(
 )
 FetchContent_GetProperties(imgui)
 if (NOT imgui_POPULATED)
-  FetchContent_Populate(imgui)
+  FetchContent_MakeAvailable(imgui)
 
   set (IMGUI_INCLUDE_DIR "${imgui_SOURCE_DIR}/")
 
