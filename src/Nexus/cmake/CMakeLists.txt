@@ -114,17 +114,6 @@ macro(nexus_setup_filters source_files)
   endforeach()
 endmacro()
 
-macro(setup_runtime_libraries)
-  get_all_targets(all_targets)
-
-  foreach (_target IN LISTS all_targets)
-    if (NOT _target STREQUAL "Nexus")
-      set_target_properties(${_target} PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-    endif()
-  endforeach()
-  
-endmacro()
-
 macro(nexus_export_symbols)
   get_all_targets(all_targets)
 
