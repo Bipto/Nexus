@@ -11,6 +11,10 @@ set(CMAKE_COMPILE_WARNING_AS_ERROR OFF)
 add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS=1)
 add_definitions(-DNX_EXPORT_API=1)
 
+if (NX_BUILD_TYPE)
+  set(NX_BUILD_TYPE=Static)
+endif()
+
 set(SHADERC_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
 set(SPIRV_SKIP_EXECUTABLES ON CACHE BOOL "" FORCE)
 set(SPIRV_SKIP_TESTS ON CACHE BOOL "" FORCE)
@@ -601,7 +605,7 @@ if (LINUX)
   list (APPEND ENGINE_SOURCES include/Platform/X11/X11Include.hpp)
 endif()
 
-add_library(Nexus SHARED ${ENGINE_SOURCES})
+add_library(Nexus ${NX_BUILD_TYPE} ${ENGINE_SOURCES})
 nexus_setup_filters(${ENGINE_SOURCES})
 
 #including dependencies
