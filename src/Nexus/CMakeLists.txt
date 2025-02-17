@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.16)
-cmake_policy(SET CMP0091 NEW)
 
 add_subdirectory(cmake)
 project ("Nexus")
