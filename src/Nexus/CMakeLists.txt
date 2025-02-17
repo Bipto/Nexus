@@ -12,7 +12,7 @@ add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS=1)
 add_definitions(-DNX_EXPORT_API=1)
 
 if (NX_BUILD_TYPE)
-  set(NX_BUILD_TYPE=Static)
+  set(NX_BUILD_TYPE=STATIC)
 endif()
 
 set(SHADERC_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
@@ -50,42 +50,54 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
   GIT_TAG 4a9b579
 )
-FetchContent_MakeAvailable(SDL3)
+if (NOT NX_BUILD_TYPE STREQUAL "INTERFACE")
+  FetchContent_MakeAvailable(SDL3)
+endif()
 
 FetchContent_Declare(
   glm
   GIT_REPOSITORY https://github.com/g-truc/glm.git
   GIT_TAG 2d4c4b4
 )
-FetchContent_MakeAvailable(glm)
+if (NOT NX_BUILD_TYPE STREQUAL "INTERFACE")
+  FetchContent_MakeAvailable(glm)
+endif()
 
 FetchContent_Declare(
   freetype
   GIT_REPOSITORY https://github.com/freetype/freetype.git
   GIT_TAG b1f4785
 )
-FetchContent_MakeAvailable(freetype)
+if (NOT NX_BUILD_TYPE STREQUAL "INTERFACE")
+  FetchContent_MakeAvailable(freetype)
+endif()
 
 FetchContent_Declare(
   stb
   GIT_REPOSITORY https://github.com/nothings/stb.git
   GIT_TAG 5c20573
 )
-FetchContent_MakeAvailable(stb)
+if (NOT NX_BUILD_TYPE STREQUAL "INTERFACE")
+  FetchContent_MakeAvailable(stb)
+endif()
 
 FetchContent_Declare(
   yaml-cpp
   GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
   GIT_TAG 39f7374
 )
-FetchContent_MakeAvailable(yaml-cpp)
+if (NOT NX_BUILD_TYPE STREQUAL "INTERFACE")
+  FetchContent_MakeAvailable(yaml-cpp)
+endif()
 
 FetchContent_Declare(
   libnyquist
   GIT_REPOSITORY https://github.com/ddiakopoulos/libnyquist.git
   GIT_TAG 767efd9
 )
-FetchContent_MakeAvailable(libnyquist)
+if (NOT NX_BUILD_TYPE STREQUAL "INTERFACE")
+  FetchContent_MakeAvailable(libnyquist)
+endif()
 
 FetchContent_Declare(
   assimp
@@ -93,7 +105,9 @@ FetchContent_Declare(
   GIT_TAG 7945359
 )
 set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "")
-FetchContent_MakeAvailable(assimp)
+if (NOT NX_BUILD_TYPE STREQUAL "INTERFACE")
+  FetchContent_MakeAvailable(assimp)
+endif()
 
 if (NOT EMSCRIPTEN)
   FetchContent_Declare(
@@ -101,7 +115,9 @@ if (NOT EMSCRIPTEN)
     GIT_REPOSITORY https://github.com/kcat/openal-soft.git
     GIT_TAG c14554f
   )
-  FetchContent_MakeAvailable(OpenAL-Soft)
+  if (NOT NX_BUILD_TYPE STREQUAL "INTERFACE")
+    FetchContent_MakeAvailable(OpenAL-Soft)
+  endif()
 endif()
 
 FetchContent_Declare(
@@ -156,34 +172,43 @@ FetchContent_Declare(spirv_cross
   GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Cross.git
   GIT_TAG 104d91a
 )
-FetchContent_MakeAvailable(spirv_cross)
+if (NOT NX_BUILD_TYPE STREQUAL "INTERFACE")
+  FetchContent_MakeAvailable(spirv_cross)
+endif()
 
 FetchContent_Declare(spirv_headers
   GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
   GIT_TAG a380cd2
 )
-FetchContent_MakeAvailable(spirv_headers)
+if (NOT NX_BUILD_TYPE STREQUAL "INTERFACE")
+  FetchContent_MakeAvailable(spirv_headers)
+endif()
 
 FetchContent_Declare(spirv_tools
   GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Tools.git
   GIT_TAG 8b39a8b
 )
-FetchContent_MakeAvailable(spirv_tools)
+if (NOT NX_BUILD_TYPE STREQUAL "INTERFACE")
+  FetchContent_MakeAvailable(spirv_tools)
+endif()
 
 FetchContent_Declare(
   glslang
   GIT_REPOSITORY https://github.com/KhronosGroup/glslang.git
   GIT_TAG 9fe5223
 )
-FetchContent_MakeAvailable(glslang)
-set_property(TARGET glslang PROPERTY WINDOWS_EXPORT_ALL_SYMBOLS true)
+if (NOT NX_BUILD_TYPE STREQUAL "INTERFACE")
+  FetchContent_MakeAvailable(glslang)
+endif()
 
 FetchContent_Declare(
   shaderc
   GIT_REPOSITORY https://github.com/google/shaderc.git
   GIT_TAG 4a8f5e5
 )
-FetchContent_MakeAvailable(shaderc)
+if (NOT NX_BUILD_TYPE STREQUAL "INTERFACE")
+  FetchContent_MakeAvailable(shaderc)
+endif()
 
 set(NEXUS_INCLUDE_DIRS "")
 set(NEXUS_LINKED_LIBRARIES "")
@@ -247,7 +272,9 @@ if (DEFINED NX_PLATFORM_VULKAN)
     GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
     GIT_TAG 0e89587
   )
-  FetchContent_MakeAvailable(VulkanMemoryAllocator)
+  if (NOT NX_BUILD_TYPE STREQUAL "INTERFACE")
+    FetchContent_MakeAvailable(VulkanMemoryAllocator)
+  endif()
 
   list (APPEND NEXUS_LINKED_LIBRARIES Vulkan::Vulkan VulkanMemoryAllocator)
   list (APPEND NEXUS_INCLUDE_DIRS ${VULKAN_INCLUDE_DIRS})
