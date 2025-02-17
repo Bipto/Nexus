@@ -638,9 +638,6 @@ nexus_setup_filters(${ENGINE_SOURCES})
 #including dependencies
 list (APPEND NEXUS_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
   ${stb_SOURCE_DIR}
-  external/json/single_include
-  external/shaderc/libshaderc
-  external/SPIRV-Reflect
   ${IMGUI_INCLUDE_DIR}
   ${IMGUIZMO_INCLUDE_DIR}
   binaries/dxc_2023_08_14/inc
