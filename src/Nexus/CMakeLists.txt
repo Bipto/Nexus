@@ -610,6 +610,7 @@ nexus_setup_filters(${ENGINE_SOURCES})
 
 #including dependencies
 list (APPEND NEXUS_INCLUDE_DIRS 
+  ${CMAKE_CURRENT_SOURCE_DIR}/src
   ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${stb_SOURCE_DIR}
   ${IMGUI_INCLUDE_DIR}
@@ -632,7 +633,13 @@ list (APPEND NEXUS_LINKED_LIBRARIES
   imguizmo)
 
 #precompiled header
-target_precompile_headers(Nexus PUBLIC include/Nexus-Core/nxpch.hpp)
+
+set(NX_PCH_VISIBILITY PUBLIC)
+if (NX_BUILD_TYPE STREQUAL "INTERFACE")
+  set(NX_PCH_VISIBILITY INTERFACE)
+endif()
+
+target_precompile_headers(Nexus ${NX_PCH_VISIBILITY} include/Nexus-Core/nxpch.hpp)
 
 #flags required for emscripten
 if (EMSCRIPTEN)
@@ -651,15 +658,16 @@ nexus_add_all_shared_lib_subdirs("${NEXUS_SHARED_LIBRARY_SUBDIRECTORIES}")
 
 set(NX_INCLUDE_VISIBILITY PUBLIC)
 set(NX_LINK_VISIBILITY PUBLIC)
+set(NX_COMPILE_DEFINITION_VISIBILITY PRIVATE)
 
-if (NX_BUILDTYPE STREQUAL "INTERFACE")
+if (NX_BUILD_TYPE STREQUAL "INTERFACE")
   set(NX_INCLUDE_VISIBILITY INTERFACE)
   set(NX_LINK_VISIBILITY INTERFACE)
+  set(NX_COMPILE_DEFINITION_VISIBILITY INTERFACE)
 endif()
 
-target_include_directories(Nexus PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_include_directories(Nexus ${NX_INCLUDE_VISIBILITY} SYSTEM ${NEXUS_INCLUDE_DIRS})
 target_link_libraries(Nexus ${NX_LINK_VISIBILITY} ${NEXUS_LINKED_LIBRARIES})
-target_compile_definitions(Nexus PRIVATE ${NEXUS_COMPILE_DEFINITIONS})
+target_compile_definitions(Nexus ${NX_COMPILE_DEFINITION_VISIBILITY} ${NEXUS_COMPILE_DEFINITIONS})
 nexus_structure_folders()
 nexus_setup_filters("${ENGINE_SOURCES}")
