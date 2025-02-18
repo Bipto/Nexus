@@ -17,6 +17,8 @@ add_definitions(-DNX_EXPORT_API=1)
 
 add_library(SCRIPT_PROJECT_NAME SHARED main.cpp)
 
+set(NX_BUILD_TYPE INTERFACE)
+
 include (FetchContent)
 FetchContent_Declare(
   Nexus

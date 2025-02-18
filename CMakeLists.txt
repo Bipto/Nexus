@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_COMPILE_WARNING_AS_ERROR OFF)
 
+set(NX_BUILD_TYPE SHARED)
+
 #set up engine project
 add_subdirectory(src/Nexus)
 

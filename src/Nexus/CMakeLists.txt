@@ -601,8 +601,7 @@ if (LINUX)
   list (APPEND ENGINE_SOURCES include/Platform/X11/X11Include.hpp)
 endif()
 
-set(NX_BUILD_TYPE STATIC)
-if (DEFINED NX_BUILD_SHARED)
+if (NOT DEFINED NX_BUILD_TYPE)
   set(NX_BUILD_TYPE SHARED)
 endif()
 
@@ -610,7 +609,8 @@ add_library(Nexus ${NX_BUILD_TYPE} ${ENGINE_SOURCES})
 nexus_setup_filters(${ENGINE_SOURCES})
 
 #including dependencies
-list (APPEND NEXUS_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
+list (APPEND NEXUS_INCLUDE_DIRS 
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${stb_SOURCE_DIR}
   ${IMGUI_INCLUDE_DIR}
   ${IMGUIZMO_INCLUDE_DIR}
@@ -648,9 +648,18 @@ endif()
 
 nexus_add_all_subdirs("${NEXUS_LIBRARY_SUBDIRECTORIES}")
 nexus_add_all_shared_lib_subdirs("${NEXUS_SHARED_LIBRARY_SUBDIRECTORIES}")
-target_include_directories(Nexus PUBLIC SYSTEM ${NEXUS_INCLUDE_DIRS})
-target_link_libraries(Nexus PUBLIC ${NEXUS_LINKED_LIBRARIES})
-target_include_directories(Nexus PUBLIC include)
+
+set(NX_INCLUDE_VISIBILITY PUBLIC)
+set(NX_LINK_VISIBILITY PUBLIC)
+
+if (NX_BUILDTYPE STREQUAL "INTERFACE")
+  set(NX_INCLUDE_VISIBILITY INTERFACE)
+  set(NX_LINK_VISIBILITY INTERFACE)
+endif()
+
+target_include_directories(Nexus PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_include_directories(Nexus ${NX_INCLUDE_VISIBILITY} SYSTEM ${NEXUS_INCLUDE_DIRS})
+target_link_libraries(Nexus ${NX_LINK_VISIBILITY} ${NEXUS_LINKED_LIBRARIES})
 target_compile_definitions(Nexus PRIVATE ${NEXUS_COMPILE_DEFINITIONS})
 nexus_structure_folders()
 nexus_setup_filters("${ENGINE_SOURCES}")

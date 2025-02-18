@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.30)
 
-set(NX_BUILD_SHARED ON)
 project("Demo")
 
 if (ANDROID OR __ANDROID__)
