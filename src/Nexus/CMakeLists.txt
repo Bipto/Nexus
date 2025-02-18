@@ -602,7 +602,7 @@ if (LINUX)
 endif()
 
 if (NOT DEFINED NX_BUILD_TYPE)
-  set(NX_BUILD_TYPE SHARED)
+  set(NX_BUILD_TYPE STATIC)
 endif()
 
 add_library(Nexus ${NX_BUILD_TYPE} ${ENGINE_SOURCES})
