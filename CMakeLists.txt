@@ -6,6 +6,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_COMPILE_WARNING_AS_ERROR OFF)
 
+set(NX_ROOT_BUILD OFF)
+if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+    set(NX_ROOT_BUILD ON)
+endif()
+
 #set up engine project
 add_subdirectory(src/Nexus)
 
@@ -24,4 +29,3 @@ if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
         add_subdirectory(src/Tests)
     endif()
 endif()
-

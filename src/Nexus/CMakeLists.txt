@@ -633,13 +633,9 @@ list (APPEND NEXUS_LINKED_LIBRARIES
   imguizmo)
 
 #precompiled header
-
-set(NX_PCH_VISIBILITY PUBLIC)
-if (NX_BUILD_TYPE STREQUAL "INTERFACE")
-  set(NX_PCH_VISIBILITY INTERFACE)
+if (NX_ROOT_BUILD STREQUAL "ON")
+  target_precompile_headers(Nexus PRIVATE include/Nexus-Core/nxpch.hpp)
 endif()
-
-target_precompile_headers(Nexus ${NX_PCH_VISIBILITY} include/Nexus-Core/nxpch.hpp)
 
 #flags required for emscripten
 if (EMSCRIPTEN)
