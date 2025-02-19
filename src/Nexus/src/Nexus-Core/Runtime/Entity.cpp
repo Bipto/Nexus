@@ -3,9 +3,11 @@
 #include "Nexus-Core/ECS/ComponentRegistry.hpp"
 #include "Nexus-Core/ECS/Registry.hpp"
 
+#include "Nexus-Core/Runtime/Project.hpp"
+
 namespace Nexus
 {
-	void Entity::Serialize(YAML::Emitter &out, ECS::Registry &registry) const
+	void Entity::Serialize(YAML::Emitter &out, ECS::Registry &registry, Project *project) const
 	{
 		out << YAML::BeginMap;
 		out << YAML::Key << "Entity" << YAML::Value << ID.Value;
@@ -21,8 +23,8 @@ namespace Nexus
 			for (const Nexus::ECS::ComponentPtr &component : components)
 			{
 				auto	   &componentRegistry = ECS::ComponentRegistry::GetRegistry();
-				std::string displayName		  = componentRegistry.GetDisplayName(component);
-				YAML::Node	componentNode	  = componentRegistry.SerializeComponentToYaml(registry, component);
+				std::string displayName		  = project->GetDisplayNameFromComponent(component);
+				YAML::Node	componentNode	  = project->SerializeComponentToYaml(registry, component);
 
 				out << YAML::BeginMap;
 				out << YAML::Key << "Name" << YAML::Value << displayName;

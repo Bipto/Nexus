@@ -27,7 +27,13 @@ namespace Nexus
 			CreateNewScene(DefaultSceneName);
 		}
 
+		LoadSharedLibrary();
 		LoadDataFromSharedLibrary();
+	}
+
+	Project::~Project()
+	{
+		UnloadSharedLibrary();
 	}
 
 	void Project::Serialize()
@@ -66,6 +72,7 @@ namespace Nexus
 		project->m_ScriptsDirectory = node["ScriptsDirectory"].as<std::string>();
 
 		project->LoadScene(project->m_StartupScene);
+		project->LoadSharedLibrary();
 		project->LoadDataFromSharedLibrary();
 
 		return project;
@@ -235,10 +242,10 @@ namespace Nexus
 
 	void Project::LoadDataFromSharedLibrary()
 	{
-		LoadSharedLibrary();
+		// LoadSharedLibrary();
 		CacheAvailableScripts();
 		CacheAvailableComponents();
-		UnloadSharedLibrary();
+		// UnloadSharedLibrary();
 	}
 
 	std::map<std::string, ECS::ComponentStorage> Project::LoadAvailableComponents()
@@ -278,6 +285,131 @@ namespace Nexus
 	const std::map<std::string, ECS::ComponentStorage> &Project::GetCachedAvailableComponents() const
 	{
 		return m_AvailableComponents;
+	}
+
+	std::string Project::GetComponentDisplayNameFromTypeName(const std::string &typeName) const
+	{
+		for (const auto &[name, storage] : m_AvailableComponents)
+		{
+			if (name == typeName)
+			{
+				return storage.DisplayName;
+			}
+		}
+
+		throw std::runtime_error("Could not find component display name");
+	}
+
+	std::string Project::GetComponentTypeNameFromDisplayName(const std::string &displayName) const
+	{
+		for (auto &[typeName, storage] : m_AvailableComponents)
+		{
+			if (storage.DisplayName == displayName)
+			{
+				return typeName;
+			}
+		}
+
+		throw std::runtime_error("Could not find a component type name");
+	}
+
+	std::string Project::GetDisplayNameFromComponent(ECS::ComponentPtr component) const
+	{
+		if (m_AvailableComponents.find(component.typeName) != m_AvailableComponents.end())
+		{
+			auto &storage = m_AvailableComponents.at(component.typeName);
+			return storage.DisplayName;
+		}
+
+		throw std::runtime_error("Component does not have a display name");
+	}
+
+	void Project::RenderComponentUI(Nexus::ECS::Registry &registry, Nexus::ECS::ComponentPtr component, Nexus::Ref<Nexus::Project> project)
+	{
+		if (m_AvailableComponents.find(component.typeName) != m_AvailableComponents.end())
+		{
+			auto &storage = m_AvailableComponents.at(component.typeName);
+			void *obj	  = registry.GetRawComponent(component.typeName, component.componentIndex);
+			storage.RenderFunc(obj, project);
+			return;
+		}
+
+		throw std::runtime_error("Could not find component display name");
+	}
+
+	std::string Project::SerializeComponentToString(ECS::Registry &registry, ECS::ComponentPtr component)
+	{
+		const char *typeName = component.typeName;
+
+		if (m_AvailableComponents.find(typeName) != m_AvailableComponents.end())
+		{
+			auto &componentStorage = m_AvailableComponents.at(typeName);
+			void *obj			   = registry.GetRawComponent(component.typeName, component.componentIndex);
+			return componentStorage.StringSerializer(obj);
+		}
+
+		throw std::runtime_error("Type is not registed for serialization");
+	}
+
+	void Project::DeserializeComponentFromString(ECS::Registry	   &registry,
+												 GUID				guid,
+												 const std::string &displayName,
+												 const std::string &data,
+												 size_t				entityHierarchyIndex)
+	{
+		std::string typeName = GetComponentTypeNameFromDisplayName(displayName);
+
+		if (m_AvailableComponents.find(typeName.c_str()) != m_AvailableComponents.end())
+		{
+			auto &storage = m_AvailableComponents.at(typeName.c_str());
+			storage.StringDeserializer(guid, registry, data, entityHierarchyIndex);
+			return;
+		}
+
+		throw std::runtime_error("Type is not registered for deserialization");
+	}
+
+	YAML::Node Project::SerializeComponentToYaml(ECS::Registry &registry, ECS::ComponentPtr component)
+	{
+		const char *typeName = component.typeName;
+
+		if (m_AvailableComponents.find(typeName) != m_AvailableComponents.end())
+		{
+			auto &componentStorage = m_AvailableComponents.at(typeName);
+			void *obj			   = registry.GetRawComponent(component.typeName, component.componentIndex);
+			return componentStorage.YamlSerializer(obj);
+		}
+
+		throw std::runtime_error("Type is not registered for serialization");
+	}
+
+	void Project::DeserializeComponentFromYaml(ECS::Registry	 &registry,
+											   GUID				  guid,
+											   const std::string &displayName,
+											   const YAML::Node	 &node,
+											   size_t			  entityHierarchyIndex)
+	{
+		std::string typeName = GetComponentTypeNameFromDisplayName(displayName);
+
+		if (m_AvailableComponents.find(typeName.c_str()) != m_AvailableComponents.end())
+		{
+			auto &storage = m_AvailableComponents.at(typeName.c_str());
+			storage.YamlDeserializer(guid, registry, node, entityHierarchyIndex);
+			return;
+		}
+		throw std::runtime_error("Type is not registered for deserialization");
+	}
+
+	void Project::CreateComponent(const char *typeName, ECS::Registry &registry, const Entity &entity)
+	{
+		if (m_AvailableComponents.find(typeName) != m_AvailableComponents.end())
+		{
+			auto &storage = m_AvailableComponents.at(typeName);
+			storage.CreationFunction(registry, entity);
+			return;
+		}
+
+		throw std::runtime_error("Type is not registered for creation");
 	}
 
 	void Project::WriteProjectFile()

@@ -145,7 +145,7 @@ namespace Nexus
 			out << YAML::EndMap;
 
 			out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
-			for (const auto &e : GetEntities()) { e.Serialize(out, Registry); }
+			for (const auto &e : GetEntities()) { e.Serialize(out, Registry, Project); }
 			out << YAML::EndSeq;
 		}
 
@@ -316,7 +316,8 @@ namespace Nexus
 						std::string componentName		 = component["Name"].as<std::string>();
 						size_t		entityComponentIndex = component["HierarchyIndex"].as<size_t>();
 						YAML::Node	data				 = component["Data"];
-						componentRegistry.DeserializeComponentFromYaml(scene->Registry, e.ID, componentName, data, entityComponentIndex);
+
+						project->DeserializeComponentFromYaml(scene->Registry, e.ID, componentName, data, entityComponentIndex);
 					}
 				}
 			}

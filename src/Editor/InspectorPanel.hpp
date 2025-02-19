@@ -45,8 +45,7 @@ class InspectorPanel : public Panel
 
 				for (const auto &[name, storage] : registeredComponents)
 				{
-					std::string displayName = registry.GetDisplayNameFromTypeName(name);
-					if (ImGui::Selectable(displayName.c_str()))
+					if (ImGui::Selectable(storage.DisplayName.c_str()))
 					{
 						ComponentToAdd newComponent = {.createFunc = storage.CreationFunction, .entity = entity};
 						m_ComponentsToAdd.push_back(newComponent);
@@ -72,10 +71,10 @@ class InspectorPanel : public Panel
 			{
 				void *obj = scene->Registry.GetRawComponent(component);
 				ImGui::PushID(obj);
-				std::string displayName = registry.GetDisplayNameFromTypeName(component.typeName);
+				std::string displayName = m_Project->GetComponentDisplayNameFromTypeName(component.typeName);
 				ImGui::Text(displayName.c_str());
 
-				registry.RenderComponent(scene->Registry, component, m_Project);
+				m_Project->RenderComponentUI(scene->Registry, component, m_Project);
 
 				if (ImGui::Button("Remove"))
 				{

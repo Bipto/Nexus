@@ -13,6 +13,7 @@ namespace Nexus
 	{
 	  public:
 		Project(const std::string &name = "Untitled Project", const std::string &directory = "", bool createDefaultScene = false);
+		~Project();
 		void				Serialize();
 		static Ref<Project> Deserialize(const std::string &filepath);
 
@@ -63,6 +64,26 @@ namespace Nexus
 		void												CacheAvailableComponents();
 		const std::map<std::string, ECS::ComponentStorage> &GetCachedAvailableComponents() const;
 
+		std::string GetComponentDisplayNameFromTypeName(const std::string &typeName) const;
+		std::string GetComponentTypeNameFromDisplayName(const std::string &displayName) const;
+		std::string GetDisplayNameFromComponent(ECS::ComponentPtr component) const;
+
+		void		RenderComponentUI(ECS::Registry &registry, ECS::ComponentPtr component, Nexus::Ref<Nexus::Project> project);
+		std::string SerializeComponentToString(ECS::Registry &registry, ECS::ComponentPtr component);
+		void		DeserializeComponentFromString(ECS::Registry	 &registry,
+												   GUID				  guid,
+												   const std::string &displayName,
+												   const std::string &data,
+												   size_t			  entityHierarchyIndex);
+		YAML::Node	SerializeComponentToYaml(ECS::Registry &registry, ECS::ComponentPtr component);
+		void		DeserializeComponentFromYaml(ECS::Registry	   &registry,
+												 GUID				guid,
+												 const std::string &displayName,
+												 const YAML::Node  &node,
+												 size_t				entityHierarchyIndex);
+
+		void CreateComponent(const char *typeName, ECS::Registry &registry, const Entity &entity);
+
 	  public:
 		static Ref<Project> s_ActiveProject;
 
@@ -82,8 +103,8 @@ namespace Nexus
 		std::unique_ptr<Scene> m_LoadedScene  = nullptr;
 		uint32_t			   m_StartupScene = 0;
 
-		Nexus::Utils::SharedLibrary *m_Library = nullptr;
-		std::vector<std::string>	 m_AvailableScripts = {};
+		Nexus::Utils::SharedLibrary					*m_Library			   = nullptr;
+		std::vector<std::string>					 m_AvailableScripts	   = {};
 		std::map<std::string, ECS::ComponentStorage> m_AvailableComponents = {};
 	};
 }	 // namespace Nexus
