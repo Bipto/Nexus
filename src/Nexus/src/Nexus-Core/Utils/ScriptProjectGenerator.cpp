@@ -5,6 +5,14 @@
 namespace Nexus::Utils
 {
 	const char *scriptCmakeText = R"(cmake_minimum_required(VERSION 3.10)
+
+if (POLICY CMP0091)
+  cmake_policy(SET CMP0091 NEW)
+endif()
+
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
+
 project(SCRIPT_PROJECT_NAME)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -27,6 +35,25 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(Nexus)
 target_link_libraries(SCRIPT_PROJECT_NAME PRIVATE Nexus)
+
+file(MAKE_DIRECTORY ${CMAKE_SOURCE_DIR}/loading)
+
+add_custom_command(
+	TARGET SCRIPT_PROJECT_NAME POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy
+	$<TARGET_FILE:SCRIPT_PROJECT_NAME>
+	${CMAKE_SOURCE_DIR}/loading/${CMAKE_BUILD_TYPE})
+
+add_custom_command(
+	TARGET SCRIPT_PROJECT_NAME POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy
+	$<TARGET_PDB_FILE:SCRIPT_PROJECT_NAME>
+	${CMAKE_SOURCE_DIR}/loading/${CMAKE_BUILD_TYPE})
+
+add_custom_command(
+	TARGET SCRIPT_PROJECT_NAME POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_SOURCE_DIR}/loading/${CMAKE_BUILD_TYPE}/$<TARGET_FILE_NAME:SCRIPT_PROJECT_NAME>" > ${CMAKE_SOURCE_DIR}/loading/output.txt
+)
 )";
 
 	const char *scriptMainText = R"(#include <iostream>
