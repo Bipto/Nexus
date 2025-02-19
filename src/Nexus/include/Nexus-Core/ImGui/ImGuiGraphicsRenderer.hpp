@@ -35,6 +35,8 @@ namespace Nexus::ImGuiUtils
 		NX_API ImGuiIO		&GetIO();
 		NX_API ImGuiContext *GetContext();
 
+		static ImGuiGraphicsRenderer *GetCurrentRenderer();
+
 	  private:
 		void CreateTextPipeline();
 		void CreateImagePipeline();

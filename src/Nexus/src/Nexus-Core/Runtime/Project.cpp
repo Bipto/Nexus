@@ -194,6 +194,23 @@ namespace Nexus
 		}
 
 		m_Library = Platform::LoadSharedLibrary(fullLibraryPath);
+
+		if (m_Library)
+		{
+			typedef void (*SharedEngineStateFunc)(Nexus::Application *, ImGuiContext *);
+			SharedEngineStateFunc func = (SharedEngineStateFunc)m_Library->LoadSymbol("ShareEngineState");
+			if (func)
+			{
+				ImGuiContext							 *context		= nullptr;
+				Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer = Nexus::ImGuiUtils::ImGuiGraphicsRenderer::GetCurrentRenderer();
+				if (imGuiRenderer)
+				{
+					context = imGuiRenderer->GetContext();
+				}
+
+				func(Nexus::GetApplication(), context);
+			}
+		}
 	}
 
 	Utils::SharedLibrary *Project::GetSharedLibrary()

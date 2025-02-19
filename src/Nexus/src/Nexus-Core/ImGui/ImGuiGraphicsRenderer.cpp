@@ -502,6 +502,11 @@ namespace Nexus::ImGuiUtils
 		return m_Context;
 	}
 
+	ImGuiGraphicsRenderer *ImGuiGraphicsRenderer::GetCurrentRenderer()
+	{
+		return s_ImGuiRenderer;
+	}
+
 	void ImGuiGraphicsRenderer::SetupInput()
 	{
 		auto &io = ImGui::GetIO();

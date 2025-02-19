@@ -5,6 +5,9 @@
 #include "Nexus-Core/Utils/GUID.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
+#include "Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp"
+#include "Nexus-Core/Runtime.hpp"
+
 namespace Nexus::ECS
 {
 	// forward declaration
@@ -97,6 +100,17 @@ namespace Nexus::Scripting
 	extern "C" inline NX_API ECS::ComponentRegistry &GetComponentRegistry()
 	{
 		return ECS::ComponentRegistry::GetRegistry();
+	}
+
+	extern "C" inline NX_API void ShareEngineState(Nexus::Application *app, ImGuiContext *context)
+	{
+		Nexus::SetApplication(app);
+
+		Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imguiRenderer = Nexus::ImGuiUtils::ImGuiGraphicsRenderer::GetCurrentRenderer();
+		if (imguiRenderer)
+		{
+			ImGui::SetCurrentContext(imguiRenderer->GetContext());
+		}
 	}
 
 }	 // namespace Nexus::Scripting
