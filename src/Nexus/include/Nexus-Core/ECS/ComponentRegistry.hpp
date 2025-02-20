@@ -8,6 +8,7 @@
 #include "Nexus-Core/Utils/GUID.hpp"
 #include "Nexus-Core/Utils/StringUtils.hpp"
 
+#include "Nexus-Core/ImGui/ImGuiInclude.hpp"
 #include "yaml-cpp/yaml.h"
 
 namespace Nexus

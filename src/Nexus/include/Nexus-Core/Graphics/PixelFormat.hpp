@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Nexus-Core/nxpch.hpp"
+
 namespace Nexus::Graphics
 {
 	enum class PixelFormat

@@ -105,12 +105,7 @@ namespace Nexus::Scripting
 	extern "C" inline NX_API void ShareEngineState(Nexus::Application *app, ImGuiContext *context)
 	{
 		Nexus::SetApplication(app);
-
-		Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imguiRenderer = Nexus::ImGuiUtils::ImGuiGraphicsRenderer::GetCurrentRenderer();
-		if (imguiRenderer)
-		{
-			ImGui::SetCurrentContext(imguiRenderer->GetContext());
-		}
+		ImGui::SetCurrentContext(context);
 	}
 
 }	 // namespace Nexus::Scripting

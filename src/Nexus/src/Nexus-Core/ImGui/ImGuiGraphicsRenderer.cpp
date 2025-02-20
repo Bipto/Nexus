@@ -443,6 +443,8 @@ namespace Nexus::ImGuiUtils
 
 	void ImGuiGraphicsRenderer::BeforeLayout(Nexus::TimeSpan gameTime)
 	{
+		ImGui::SetCurrentContext(m_Context);
+
 		auto &io	 = ImGui::GetIO();
 		io.DeltaTime = (float)gameTime.GetSeconds();
 

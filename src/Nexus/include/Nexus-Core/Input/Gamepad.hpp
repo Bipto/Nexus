@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Nexus-Core/Point.hpp"
+#include "Nexus-Core/nxpch.hpp"
 
 namespace Nexus
 {
