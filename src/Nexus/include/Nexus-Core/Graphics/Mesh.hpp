@@ -14,49 +14,49 @@ namespace Nexus::Graphics
 	{
 	  public:
 		/// @brief A default constructor creating a mesh with no geometry
-		NX_API Mesh() = default;
+		Mesh() = default;
 
 		/// @brief A constructor taking in a vertex buffer and index buffer
 		/// @param vertexBuffer A set of vertices to use for the mesh
 		/// @param indexBuffer A set of indices to use for the mesh
 		/// @param name A string representing the name of the mesh
-		NX_API Mesh(Ref<VertexBuffer> vertexBuffer, Ref<IndexBuffer> indexBuffer, const Material &material, const std::string &name = "Mesh")
-			: m_VertexBuffer(vertexBuffer),
-			  m_IndexBuffer(indexBuffer),
-			  m_Material(material),
-			  m_Name(name)
-		{
+		 Mesh(Ref<VertexBuffer> vertexBuffer, Ref<IndexBuffer> indexBuffer, const Material &material, const std::string &name = "Mesh")
+			 : m_VertexBuffer(vertexBuffer),
+			   m_IndexBuffer(indexBuffer),
+			   m_Material(material),
+			   m_Name(name)
+		 {
 		}
 
-		NX_API virtual ~Mesh()
+		virtual ~Mesh()
 		{
 		}
 
 		/// @brief A method that returns a const reference to the meshes vertex buffer
 		/// @return A const reference to the vertex buffer
-		NX_API Ref<VertexBuffer> GetVertexBuffer()
+		Ref<VertexBuffer> GetVertexBuffer()
 		{
 			return m_VertexBuffer;
 		}
 
 		/// @brief A method that returns a const reference to the meshes index buffer
 		/// @return A const reference to the index buffer
-		NX_API Ref<IndexBuffer> GetIndexBuffer()
+		Ref<IndexBuffer> GetIndexBuffer()
 		{
 			return m_IndexBuffer;
 		}
 
-		NX_API void SetMaterial(const Material &material)
+		void SetMaterial(const Material &material)
 		{
 			m_Material = material;
 		}
 
-		NX_API const Material &GetMaterial()
+		const Material &GetMaterial()
 		{
 			return m_Material;
 		}
 
-		NX_API const std::string &GetName()
+		const std::string &GetName()
 		{
 			return m_Name;
 		}

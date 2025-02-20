@@ -10,20 +10,20 @@ namespace Nexus
 	{
 	  public:
 		/// @brief An AssetManager cannot be created without a graphics device
-		NX_API AssetManager() = delete;
+		AssetManager() = delete;
 
 		/// @brief A constructor taking in a reference counted pointer to a graphics
 		/// device
 		/// @param graphicsDevice A pointer to a graphics device
-		NX_API AssetManager(Graphics::GraphicsDevice *graphicsDevice) : m_GraphicsDevice(graphicsDevice)
-		{
+		 AssetManager(Graphics::GraphicsDevice *graphicsDevice) : m_GraphicsDevice(graphicsDevice)
+		 {
 		}
 
 		/// @brief A method to return a reference counted pointer to a texture
 		/// @param filepath A filepath to retrieve a texture from, if the texture has
 		/// already been loaded then the cached one will be returned
 		/// @return A reference counted pointer to a texture
-		NX_API Ref<Graphics::Texture2D> GetTexture(const std::string &filepath);
+		Ref<Graphics::Texture2D> GetTexture(const std::string &filepath);
 
 	  private:
 		/// @brief A reference counted pointer to a graphics device

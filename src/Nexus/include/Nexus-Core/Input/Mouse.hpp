@@ -53,93 +53,93 @@ namespace Nexus
 	{
 	  public:
 		/// @brief A method that caches the previous frames mouse states
-		NX_API void CacheInput();
+		void CacheInput();
 
 		/// @brief A method that checks whether the left mouse buttons was clicked
 		/// @return A boolean value representing if the left mouse button was clicked
-		NX_API const bool WasLeftMouseClicked() const;
+		 const bool WasLeftMouseClicked() const;
 
-		/// @brief A method that checks whether the left mouse buttons was released
-		/// @return A boolean value representing if the left mouse button was released
-		NX_API const bool WasLeftMouseReleased() const;
+		 /// @brief A method that checks whether the left mouse buttons was released
+		 /// @return A boolean value representing if the left mouse button was released
+		 const bool WasLeftMouseReleased() const;
 
-		/// @brief A method that checks whether the left mouse buttons was held
-		/// @return A boolean value representing if the left mouse button was held
-		NX_API const bool IsLeftMouseHeld() const;
+		 /// @brief A method that checks whether the left mouse buttons was held
+		 /// @return A boolean value representing if the left mouse button was held
+		 const bool IsLeftMouseHeld() const;
 
-		/// @brief A method that checks whether the right mouse buttons was clicked
-		/// @return A boolean value representing if the right mouse button was clicked
-		NX_API const bool WasRightMouseClicked() const;
+		 /// @brief A method that checks whether the right mouse buttons was clicked
+		 /// @return A boolean value representing if the right mouse button was clicked
+		 const bool WasRightMouseClicked() const;
 
-		/// @brief A method that checks whether the right mouse buttons was released
-		/// @return A boolean value representing if the right mouse button was
-		/// released
-		NX_API const bool WasRightMouseReleased() const;
+		 /// @brief A method that checks whether the right mouse buttons was released
+		 /// @return A boolean value representing if the right mouse button was
+		 /// released
+		 const bool WasRightMouseReleased() const;
 
-		/// @brief A method that checks whether the right mouse buttons was held
-		/// @return A boolean value representing if the right mouse button was held
-		NX_API const bool IsRightMouseHeld() const;
+		 /// @brief A method that checks whether the right mouse buttons was held
+		 /// @return A boolean value representing if the right mouse button was held
+		 const bool IsRightMouseHeld() const;
 
-		/// @brief A method that checks whether the middle mouse buttons was clicked
-		/// @return A boolean value representing if the middle mouse button was
-		/// clicked
-		NX_API const bool WasMiddleMouseClicked() const;
+		 /// @brief A method that checks whether the middle mouse buttons was clicked
+		 /// @return A boolean value representing if the middle mouse button was
+		 /// clicked
+		 const bool WasMiddleMouseClicked() const;
 
-		/// @brief A method that checks whether the left mouse buttons was released
-		/// @return A boolean value representing if the middle mouse button was
-		/// released
-		NX_API const bool WasMiddleMouseReleased() const;
+		 /// @brief A method that checks whether the left mouse buttons was released
+		 /// @return A boolean value representing if the middle mouse button was
+		 /// released
+		 const bool WasMiddleMouseReleased() const;
 
-		/// @brief A method that checks whether the left mouse buttons was held
-		/// @return A boolean value representing if the middle mouse button was held
-		NX_API const bool IsMiddleMouseHeld() const;
+		 /// @brief A method that checks whether the left mouse buttons was held
+		 /// @return A boolean value representing if the middle mouse button was held
+		 const bool IsMiddleMouseHeld() const;
 
-		/// @brief A method that returns the current position of the mouse pointer
-		/// @return A Nexus::Point containing two integer values representing the
-		/// position of the mouse
-		NX_API const Point2D<float> GetMousePosition() const;
+		 /// @brief A method that returns the current position of the mouse pointer
+		 /// @return A Nexus::Point containing two integer values representing the
+		 /// position of the mouse
+		 const Point2D<float> GetMousePosition() const;
 
-		/// @brief A method that returns the movement of the mouse pointer
-		/// @return A Nexus::Point containing two integer values representing the
-		/// movement of the mouse
-		NX_API const Point2D<float> GetMouseMovement() const;
+		 /// @brief A method that returns the movement of the mouse pointer
+		 /// @return A Nexus::Point containing two integer values representing the
+		 /// movement of the mouse
+		 const Point2D<float> GetMouseMovement() const;
 
-		/// @brief A method that returns the current scroll value of the mouse
-		/// @return A Nexus::Point containing two float values representing the
-		/// current scroll of the mouse
-		NX_API const Point2D<float> GetScroll() const;
+		 /// @brief A method that returns the current scroll value of the mouse
+		 /// @return A Nexus::Point containing two float values representing the
+		 /// current scroll of the mouse
+		 const Point2D<float> GetScroll() const;
 
-		/// @brief A method that returns the scroll movement of the mouse
-		/// @return A Nexus::Point containing two float values representing the
-		/// scroll movement of the mouse
-		NX_API const Point2D<float> GetScrollMovement() const;
+		 /// @brief A method that returns the scroll movement of the mouse
+		 /// @return A Nexus::Point containing two float values representing the
+		 /// scroll movement of the mouse
+		 const Point2D<float> GetScrollMovement() const;
 
-		NX_API static Point2D<float> GetGlobalMousePosition();
-		NX_API static Point2D<float> GetGlobalMouseMovement();
+		 static Point2D<float> GetGlobalMousePosition();
+		 static Point2D<float> GetGlobalMouseMovement();
 
-		NX_API static bool IsGlobalLeftMouseHeld();
-		NX_API static bool IsGlobalRightMouseHeld();
-		NX_API static bool IsGlobalMiddleMouseHeld();
+		 static bool IsGlobalLeftMouseHeld();
+		 static bool IsGlobalRightMouseHeld();
+		 static bool IsGlobalMiddleMouseHeld();
 
-	  private:
-		/// @brief A mouse state containing the current state of the mouse pointer and
-		/// buttons
-		MouseState m_CurrentState;
+	   private:
+		 /// @brief A mouse state containing the current state of the mouse pointer and
+		 /// buttons
+		 MouseState m_CurrentState;
 
-		/// @brief A mouse state containing the previous state of the mouse pointer
-		/// and buttons
-		MouseState m_PreviousState;
+		 /// @brief A mouse state containing the previous state of the mouse pointer
+		 /// and buttons
+		 MouseState m_PreviousState;
 
-		inline static Point2D<float> s_GlobalMousePosition = {0, 0};
+		 inline static Point2D<float> s_GlobalMousePosition = {0, 0};
 
-		inline static Point2D<float> s_PreviousGlobalMousePosition = {0, 0};
+		 inline static Point2D<float> s_PreviousGlobalMousePosition = {0, 0};
 
-		inline static MouseState s_GlobalMouseState = {};
+		 inline static MouseState s_GlobalMouseState = {};
 
-		/// @brief A friend class to allow a window to have access to the mouse's
-		/// private members
-		friend class IWindow;
+		 /// @brief A friend class to allow a window to have access to the mouse's
+		 /// private members
+		 friend class IWindow;
 
-		friend class Application;
+		 friend class Application;
 	};
 }	 // namespace Nexus

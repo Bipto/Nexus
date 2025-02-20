@@ -9,7 +9,7 @@ namespace Nexus
 	class Clock
 	{
 	  public:
-		NX_API Clock() = default;
+		Clock() = default;
 
 		/// @brief A method allowing the clock to be updating to the currently elapsed
 		/// time

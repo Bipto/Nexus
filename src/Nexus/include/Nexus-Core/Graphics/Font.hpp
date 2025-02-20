@@ -23,25 +23,25 @@ namespace Nexus::Graphics
 	struct FontData
 	{
 	  public:
-		NX_API FontData() = delete;
-		NX_API FontData(uint32_t width, uint32_t height)
+		FontData() = delete;
+		FontData(uint32_t width, uint32_t height)
 		{
 			m_Width	 = width;
 			m_Height = height;
 			m_Pixels.resize(m_Width * m_Height);
 		}
 
-		NX_API std::vector<uint8_t> &GetPixels()
+		std::vector<uint8_t> &GetPixels()
 		{
 			return m_Pixels;
 		}
 
-		NX_API void Clear(unsigned char value)
+		void Clear(unsigned char value)
 		{
 			for (int i = 0; i < m_Pixels.size(); i++) { m_Pixels[i] = value; }
 		}
 
-		NX_API void SetPixel(uint32_t x, uint32_t y, unsigned char value)
+		void SetPixel(uint32_t x, uint32_t y, unsigned char value)
 		{
 			x %= m_Width;
 			y %= m_Height;
@@ -56,12 +56,12 @@ namespace Nexus::Graphics
 			m_Pixels[offset] = value;
 		}
 
-		NX_API uint32_t GetWidth() const
+		uint32_t GetWidth() const
 		{
 			return m_Width;
 		}
 
-		NX_API uint32_t GetHeight() const
+		uint32_t GetHeight() const
 		{
 			return m_Height;
 		}
@@ -90,19 +90,15 @@ namespace Nexus::Graphics
 	class Font
 	{
 	  public:
-		NX_API Font(const std::string				  &filepath,
-					uint32_t						   size,
-					const std::vector<CharacterRange> &characterRanges,
-					FontType						   type,
-					GraphicsDevice					  *device);
+		Font(const std::string &filepath, uint32_t size, const std::vector<CharacterRange> &characterRanges, FontType type, GraphicsDevice *device);
 
-		NX_API Nexus::Ref<Nexus::Graphics::Texture2D> GetTexture();
-		NX_API const Character						 &GetCharacter(char character);
-		NX_API uint32_t								  GetSize() const;
-		NX_API Nexus::Point2D<float> MeasureString(const std::string &text, uint32_t size);
-		NX_API const uint32_t		 GetLineHeight() const;
-		NX_API const Point2D<uint32_t> GetMaxCharacterSize() const;
-		NX_API const FontType		   GetFontType() const;
+		Nexus::Ref<Nexus::Graphics::Texture2D> GetTexture();
+		const Character						  &GetCharacter(char character);
+		uint32_t							   GetSize() const;
+		Nexus::Point2D<float>				   MeasureString(const std::string &text, uint32_t size);
+		const uint32_t						   GetLineHeight() const;
+		const Point2D<uint32_t>				   GetMaxCharacterSize() const;
+		const FontType						   GetFontType() const;
 
 	  private:
 		Nexus::Ref<Nexus::Graphics::Texture2D> m_Texture = nullptr;

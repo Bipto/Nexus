@@ -19,28 +19,28 @@ namespace Nexus
 	class OpenFileDialog
 	{
 	  public:
-		NX_API virtual ~OpenFileDialog()
+		virtual ~OpenFileDialog()
 		{
 		}
-		NX_API virtual FileDialogResult Show() = 0;
+		virtual FileDialogResult Show() = 0;
 	};
 
 	class SaveFileDialog
 	{
 	  public:
-		NX_API virtual ~SaveFileDialog()
+		virtual ~SaveFileDialog()
 		{
 		}
-		NX_API virtual FileDialogResult Show() = 0;
+		virtual FileDialogResult Show() = 0;
 	};
 
 	class OpenFolderDialog
 	{
 	  public:
-		NX_API virtual ~OpenFolderDialog()
+		virtual ~OpenFolderDialog()
 		{
 		}
-		NX_API virtual FileDialogResult Show() = 0;
+		virtual FileDialogResult Show() = 0;
 	};
 
 }	 // namespace Nexus

@@ -57,23 +57,23 @@ namespace Nexus::Graphics
 	class ResourceSet
 	{
 	  public:
-		NX_API ResourceSet(const ResourceSetSpecification &spec);
-		NX_API virtual ~ResourceSet()
+		ResourceSet(const ResourceSetSpecification &spec);
+		virtual ~ResourceSet()
 		{
 		}
 
-		NX_API virtual void WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, const std::string &name)					 = 0;
-		NX_API virtual void WriteCombinedImageSampler(Ref<Texture2D> texture, Ref<Sampler> sampler, const std::string &name) = 0;
-		NX_API virtual void WriteCombinedImageSampler(Ref<Cubemap> cubemap, Ref<Sampler> sampler, const std::string &name)	 = 0;
+		virtual void WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, const std::string &name)					  = 0;
+		virtual void WriteCombinedImageSampler(Ref<Texture2D> texture, Ref<Sampler> sampler, const std::string &name) = 0;
+		virtual void WriteCombinedImageSampler(Ref<Cubemap> cubemap, Ref<Sampler> sampler, const std::string &name)	  = 0;
 
-		NX_API const ResourceSetSpecification &GetSpecification() const;
-		NX_API static constexpr uint32_t	   DescriptorSetCount = 64;
-		NX_API static uint32_t				   GetLinearDescriptorSlot(uint32_t set, uint32_t binding);
+		const ResourceSetSpecification &GetSpecification() const;
+		static constexpr uint32_t		DescriptorSetCount = 64;
+		static uint32_t					GetLinearDescriptorSlot(uint32_t set, uint32_t binding);
 
-		NX_API static std::map<std::string, uint32_t> RemapToLinearBindings(const std::vector<ResourceBinding> &resources);
+		static std::map<std::string, uint32_t> RemapToLinearBindings(const std::vector<ResourceBinding> &resources);
 
-		NX_API const std::map<std::string, WeakRef<UniformBuffer>> &GetBoundUniformBuffers() const;
-		NX_API const std::map<std::string, CombinedImageSampler> &GetBoundCombinedImageSamplers() const;
+		const std::map<std::string, WeakRef<UniformBuffer>> &GetBoundUniformBuffers() const;
+		const std::map<std::string, CombinedImageSampler>	&GetBoundCombinedImageSamplers() const;
 
 	  protected:
 		ResourceSetSpecification		   m_Specification;

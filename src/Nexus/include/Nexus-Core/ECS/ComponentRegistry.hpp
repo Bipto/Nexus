@@ -40,14 +40,14 @@ namespace Nexus::ECS
 	class ComponentRegistry
 	{
 	  public:
-		NX_API static ComponentRegistry &GetRegistry()
+		static ComponentRegistry &GetRegistry()
 		{
 			static ComponentRegistry registry;
 			return registry;
 		}
 
 		template<typename T>
-		NX_API void RegisterComponent(const char *displayName, RenderComponentFunc renderFunc)
+		void RegisterComponent(const char *displayName, RenderComponentFunc renderFunc)
 		{
 			const std::type_info &typeInfo = typeid(T);
 			const char			 *typeName = typeInfo.name();
@@ -85,7 +85,7 @@ namespace Nexus::ECS
 			m_RegisteredComponents[typeName] = storage;
 		}
 
-		NX_API std::map<std::string, ComponentStorage> &GetRegisteredComponents()
+		std::map<std::string, ComponentStorage> &GetRegisteredComponents()
 		{
 			return m_RegisteredComponents;
 		}
@@ -102,7 +102,7 @@ namespace Nexus::ECS
 #define NX_REGISTER_COMPONENT_WITH_CUSTOM_NAME(Comp, DisplayName, RenderFunc)                                                                        \
 	struct Comp##Register                                                                                                                            \
 	{                                                                                                                                                \
-		NX_API Comp##Register()                                                                                                                      \
+		Comp##Register()                                                                                                                             \
 		{                                                                                                                                            \
 			Nexus::ECS::ComponentRegistry &registry = Nexus::ECS::ComponentRegistry::GetRegistry();                                                  \
 			registry.RegisterComponent<Comp>(DisplayName, RenderFunc);                                                                               \

@@ -20,7 +20,7 @@ namespace Nexus::InputNew
 	class Keyboard
 	{
 	  public:
-		NX_API Keyboard() = delete;
+		Keyboard() = delete;
 		Keyboard(uint32_t id, const std::string &name) : m_Id(id), m_Name(name)
 		{
 		}
@@ -106,49 +106,49 @@ namespace Nexus::InputNew
 	class InputContext
 	{
 	  public:
-		NX_API InputContext(Nexus::IWindow *window);
-		NX_API virtual ~InputContext();
+		InputContext(Nexus::IWindow *window);
+		virtual ~InputContext();
 
-		NX_API bool IsMouseButtonDown(uint32_t id, MouseButton button);
-		NX_API bool IsMouseButtonUp(uint32_t id, MouseButton button);
-		NX_API bool IsKeyDown(uint32_t id, ScanCode scancode);
-		NX_API bool IsKeyUp(uint32_t id, ScanCode scancode);
-		NX_API Point2D<float> GetMousePosition(uint32_t id);
-		NX_API Point2D<float> GetScroll(uint32_t id);
+		bool		   IsMouseButtonDown(uint32_t id, MouseButton button);
+		bool		   IsMouseButtonUp(uint32_t id, MouseButton button);
+		bool		   IsKeyDown(uint32_t id, ScanCode scancode);
+		bool		   IsKeyUp(uint32_t id, ScanCode scancode);
+		Point2D<float> GetMousePosition(uint32_t id);
+		Point2D<float> GetScroll(uint32_t id);
 
-		NX_API bool IsMouseButtonDown(MouseButton button);
-		NX_API bool IsMouseButtonUp(MouseButton button);
-		NX_API bool IsKeyDown(ScanCode scancode);
-		NX_API bool IsKeyUp(ScanCode scancode);
-		NX_API Point2D<float> GetMousePosition();
-		NX_API Point2D<float> GetScroll();
+		bool		   IsMouseButtonDown(MouseButton button);
+		bool		   IsMouseButtonUp(MouseButton button);
+		bool		   IsKeyDown(ScanCode scancode);
+		bool		   IsKeyUp(ScanCode scancode);
+		Point2D<float> GetMousePosition();
+		Point2D<float> GetScroll();
 
-		NX_API Point2D<float> GetCursorPosition();
-		NX_API Point2D<float> GetGlobalCursorPosition();
+		Point2D<float> GetCursorPosition();
+		Point2D<float> GetGlobalCursorPosition();
 
-		NX_API void Reset();
+		void Reset();
 
-	  private:
-		void OnKeyPressed(const KeyPressedEventArgs &args);
-		void OnKeyReleased(const KeyReleasedEventArgs &args);
-		void OnMouseButtonPressed(const MouseButtonPressedEventArgs &args);
-		void OnMouseButtonReleased(const MouseButtonReleasedEventArgs &args);
-		void OnMouseMoved(const MouseMovedEventArgs &args);
-		void OnScroll(const MouseScrolledEventArgs &args);
+	   private:
+		 void OnKeyPressed(const KeyPressedEventArgs &args);
+		 void OnKeyReleased(const KeyReleasedEventArgs &args);
+		 void OnMouseButtonPressed(const MouseButtonPressedEventArgs &args);
+		 void OnMouseButtonReleased(const MouseButtonReleasedEventArgs &args);
+		 void OnMouseMoved(const MouseMovedEventArgs &args);
+		 void OnScroll(const MouseScrolledEventArgs &args);
 
-	  private:
-		Nexus::IWindow *m_Window = nullptr;
+	   private:
+		 Nexus::IWindow *m_Window = nullptr;
 
-		std::map<uint32_t, KeyboardState> m_KeyboardStates;
-		std::map<uint32_t, MouseState>	  m_MouseStates;
+		 std::map<uint32_t, KeyboardState> m_KeyboardStates;
+		 std::map<uint32_t, MouseState>	   m_MouseStates;
 
-		Point2D<float> m_CursorPosition = {};
+		 Point2D<float> m_CursorPosition = {};
 
-		ScopedEvent<const KeyPressedEventArgs &>		  m_OnKeyPressed;
-		ScopedEvent<const KeyReleasedEventArgs &>		  m_OnKeyReleased;
-		ScopedEvent<const MouseButtonPressedEventArgs &>  m_OnMouseButtonPressed;
-		ScopedEvent<const MouseButtonReleasedEventArgs &> m_OnMouseButtonReleased;
-		ScopedEvent<const MouseMovedEventArgs &>		  m_OnMouseMoved;
-		ScopedEvent<const MouseScrolledEventArgs &>		  m_OnMouseScrolled;
+		 ScopedEvent<const KeyPressedEventArgs &>		   m_OnKeyPressed;
+		 ScopedEvent<const KeyReleasedEventArgs &>		   m_OnKeyReleased;
+		 ScopedEvent<const MouseButtonPressedEventArgs &>  m_OnMouseButtonPressed;
+		 ScopedEvent<const MouseButtonReleasedEventArgs &> m_OnMouseButtonReleased;
+		 ScopedEvent<const MouseMovedEventArgs &>		   m_OnMouseMoved;
+		 ScopedEvent<const MouseScrolledEventArgs &>	   m_OnMouseScrolled;
 	};
 }	 // namespace Nexus::InputNew

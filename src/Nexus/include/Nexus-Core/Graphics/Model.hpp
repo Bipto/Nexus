@@ -8,15 +8,15 @@ namespace Nexus::Graphics
 	class Model
 	{
 	  public:
-		NX_API Model(std::vector<Ref<Mesh>> meshes) : m_Meshes(meshes)
+		Model(std::vector<Ref<Mesh>> meshes) : m_Meshes(meshes)
 		{
 		}
 
-		NX_API Model()
+		Model()
 		{
 		}
 
-		NX_API const std::vector<Ref<Mesh>> &GetMeshes()
+		const std::vector<Ref<Mesh>> &GetMeshes()
 		{
 			return m_Meshes;
 		}

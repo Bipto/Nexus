@@ -15,15 +15,15 @@ namespace Nexus::Timings
 	class Profiler
 	{
 	  public:
-		NX_API void	 AddResult(const std::string &name, TimeSpan timespan);
-		NX_API const std::vector<ProfileResult> &GetResults() const;
-		NX_API void								 Reset();
+		void							  AddResult(const std::string &name, TimeSpan timespan);
+		const std::vector<ProfileResult> &GetResults() const;
+		void							  Reset();
 
-		NX_API static Profiler &Get();
+		static Profiler &Get();
 
-	  private:
-		std::vector<ProfileResult> m_Results = {};
-		Profiler()							 = default;
+	   private:
+		 std::vector<ProfileResult> m_Results = {};
+		 Profiler()							  = default;
 	};
 }	 // namespace Nexus::Timings
 

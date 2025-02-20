@@ -25,14 +25,14 @@ namespace Nexus
 	  public:
 		/// @brief A method that calls the functions using a templated parameter
 		/// @param param The payload to use for the functions
-		NX_API void Invoke(Args... param)
+		void Invoke(Args... param)
 		{
 			for (const auto &[id, delegate] : m_EventFunctions) { delegate(param...); }
 		}
 
 		/// @brief A method to bind a new function to the event handler
 		/// @param function The function to bind to the event handler
-		NX_API EventID Bind(EventFunction function)
+		EventID Bind(EventFunction function)
 		{
 			EventID	   id = Utils::GetCurrentTimeAsInt();
 			BoundEvent event {.ID = id, .Func = function};
@@ -42,7 +42,7 @@ namespace Nexus
 
 		/// @brief A method that removes a function from the event handler
 		/// @param id The ID of the function to unbind from the event handler
-		NX_API void Unbind(EventID id)
+		void Unbind(EventID id)
 		{
 			for (size_t i = 0; i < m_EventFunctions.size(); i++)
 			{
@@ -57,12 +57,12 @@ namespace Nexus
 		/// @brief A method that returns the amount of delegates bound to the event
 		/// handler
 		/// @return The amount of delegates bound to the event handler
-		NX_API int GetDelegateCount()
+		int GetDelegateCount()
 		{
 			return m_EventFunctions.size();
 		}
 
-		NX_API void Clear()
+		void Clear()
 		{
 			m_EventFunctions.clear();
 		}
@@ -76,13 +76,13 @@ namespace Nexus
 	class ScopedEvent
 	{
 	  public:
-		NX_API ScopedEvent() = default;
-		NX_API ScopedEvent(EventHandler<Args...> *eventHandler, std::function<void(Args...)> func) : m_EventHandler(eventHandler)
+		ScopedEvent() = default;
+		ScopedEvent(EventHandler<Args...> *eventHandler, std::function<void(Args...)> func) : m_EventHandler(eventHandler)
 		{
 			m_BoundEvent = eventHandler->Bind(func);
 		}
 
-		NX_API ~ScopedEvent()
+		~ScopedEvent()
 		{
 			if (m_EventHandler)
 			{

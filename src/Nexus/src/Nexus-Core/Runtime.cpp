@@ -45,7 +45,7 @@ namespace Nexus
 		return assetManager;
 	}
 
-	NX_API void SetApplication(Nexus::Application *app)
+	void SetApplication(Nexus::Application *app)
 	{
 		appPtr = app;
 	}

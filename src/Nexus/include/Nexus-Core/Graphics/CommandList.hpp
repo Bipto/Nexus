@@ -173,101 +173,97 @@ namespace Nexus::Graphics
 	{
 	  public:
 		/// @brief A constructor creating a new command list
-		NX_API CommandList(const CommandListSpecification &spec);
+		CommandList(const CommandListSpecification &spec);
 
 		/// @brief A virtual destructor allowing resources to be cleaned up
-		NX_API virtual ~CommandList()
-		{
-			m_Commands.clear();
+		 virtual ~CommandList()
+		 {
+			 m_Commands.clear();
 		}
 
 		/// @brief A method that begins a command list
 		/// @param beginInfo A parameter containing information about how to begin the
 		/// command list
-		NX_API void Begin();
+		void Begin();
 
 		/// @brief A method that ends a command list
-		NX_API void End();
+		 void End();
 
-		/// @brief A method that binds a vertex buffer to the pipeline
-		/// @param vertexBuffer A pointer to the vertex buffer to bind
-		NX_API void SetVertexBuffer(Ref<VertexBuffer> vertexBuffer, uint32_t slot);
+		 /// @brief A method that binds a vertex buffer to the pipeline
+		 /// @param vertexBuffer A pointer to the vertex buffer to bind
+		 void SetVertexBuffer(Ref<VertexBuffer> vertexBuffer, uint32_t slot);
 
-		/// @brief A method that binds an index buffer to the pipeline
-		/// @param indexBuffer A pointer to the index buffer to bind
-		NX_API void SetIndexBuffer(Ref<IndexBuffer> indexBuffer);
+		 /// @brief A method that binds an index buffer to the pipeline
+		 /// @param indexBuffer A pointer to the index buffer to bind
+		 void SetIndexBuffer(Ref<IndexBuffer> indexBuffer);
 
-		/// @brief A method to bind a pipeline to a command list
-		/// @param pipeline The pointer to the pipeline to bind
-		NX_API void SetPipeline(Ref<Pipeline> pipeline);
+		 /// @brief A method to bind a pipeline to a command list
+		 /// @param pipeline The pointer to the pipeline to bind
+		 void SetPipeline(Ref<Pipeline> pipeline);
 
-		/// @brief A method that submits a draw call using the bound vertex buffer
-		/// @param start The offset to begin rendering at
-		/// @param count The number of vertices to draw
-		NX_API void Draw(uint32_t start, uint32_t count);
+		 /// @brief A method that submits a draw call using the bound vertex buffer
+		 /// @param start The offset to begin rendering at
+		 /// @param count The number of vertices to draw
+		 void Draw(uint32_t start, uint32_t count);
 
-		/// @brief A method that submits an indexed draw call using the bound vertex
-		/// buffer and index buffer
-		/// @param count The number of vertices to draw
-		/// @param offset The offset to begin rendering at
-		NX_API void DrawIndexed(uint32_t count, uint32_t indexStart, uint32_t vertexStart);
+		 /// @brief A method that submits an indexed draw call using the bound vertex
+		 /// buffer and index buffer
+		 /// @param count The number of vertices to draw
+		 /// @param offset The offset to begin rendering at
+		 void DrawIndexed(uint32_t count, uint32_t indexStart, uint32_t vertexStart);
 
-		/// @brief A method that submits an instanced draw call using bound vertex
-		/// buffers
-		/// @param vertexCount The number of vertices to draw
-		/// @param instanceCount The number of instances to draw
-		/// @param vertexStart An offset into the vertex buffer to start rendering at
-		/// @param instanceStart An offset into the instance buffer to start rendering
-		/// at
-		NX_API void DrawInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t instanceStart);
+		 /// @brief A method that submits an instanced draw call using bound vertex
+		 /// buffers
+		 /// @param vertexCount The number of vertices to draw
+		 /// @param instanceCount The number of instances to draw
+		 /// @param vertexStart An offset into the vertex buffer to start rendering at
+		 /// @param instanceStart An offset into the instance buffer to start rendering
+		 /// at
+		 void DrawInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t instanceStart);
 
-		/// @brief A method that submits an instanced draw call using bound vertex
-		/// buffers and an index buffer
-		/// @param indexCount The number of indices in the primitive
-		/// @param instanceCount The number of instances to draw
-		/// @param vertexStart An offset into the vertex buffer to start rendering at
-		/// @param indexStart An offset into the index buffer to start rendering at
-		/// @param instanceStart An offset into the instance buffer to start rendering
-		/// at
-		NX_API void DrawInstancedIndexed(uint32_t indexCount,
-										 uint32_t instanceCount,
-										 uint32_t vertexStart,
-										 uint32_t indexStart,
-										 uint32_t instanceStart);
+		 /// @brief A method that submits an instanced draw call using bound vertex
+		 /// buffers and an index buffer
+		 /// @param indexCount The number of indices in the primitive
+		 /// @param instanceCount The number of instances to draw
+		 /// @param vertexStart An offset into the vertex buffer to start rendering at
+		 /// @param indexStart An offset into the index buffer to start rendering at
+		 /// @param instanceStart An offset into the instance buffer to start rendering
+		 /// at
+		 void DrawInstancedIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t indexStart, uint32_t instanceStart);
 
-		/// @brief A method that updates the resources bound within a pipeline
-		/// @param resources A reference counted pointer to a ResourceSet
-		NX_API void SetResourceSet(Ref<ResourceSet> resources);
+		 /// @brief A method that updates the resources bound within a pipeline
+		 /// @param resources A reference counted pointer to a ResourceSet
+		 void SetResourceSet(Ref<ResourceSet> resources);
 
-		NX_API void ClearColorTarget(uint32_t index, const ClearColorValue &color);
+		 void ClearColorTarget(uint32_t index, const ClearColorValue &color);
 
-		NX_API void ClearDepthTarget(const ClearDepthStencilValue &value);
+		 void ClearDepthTarget(const ClearDepthStencilValue &value);
 
-		NX_API void SetRenderTarget(RenderTarget target);
+		 void SetRenderTarget(RenderTarget target);
 
-		NX_API void SetViewport(const Viewport &viewport);
+		 void SetViewport(const Viewport &viewport);
 
-		NX_API void SetScissor(const Scissor &scissor);
+		 void SetScissor(const Scissor &scissor);
 
-		NX_API void ResolveFramebuffer(Ref<Framebuffer> source, uint32_t sourceIndex, Swapchain *target);
+		 void ResolveFramebuffer(Ref<Framebuffer> source, uint32_t sourceIndex, Swapchain *target);
 
-		NX_API void StartTimingQuery(Ref<TimingQuery> query);
+		 void StartTimingQuery(Ref<TimingQuery> query);
 
-		NX_API void StopTimingQuery(Ref<TimingQuery> query);
+		 void StopTimingQuery(Ref<TimingQuery> query);
 
-		NX_API void SetStencilRef(uint32_t stencil);
+		 void SetStencilRef(uint32_t stencil);
 
-		NX_API void SetDepthBounds(float min, float max);
+		 void SetDepthBounds(float min, float max);
 
-		NX_API void SetBlendFactor(float r, float g, float b, float a);
+		 void SetBlendFactor(float r, float g, float b, float a);
 
-		NX_API const std::vector<RenderCommandData> &GetCommandData() const;
-		NX_API const CommandListSpecification		&GetSpecification();
+		 const std::vector<RenderCommandData> &GetCommandData() const;
+		 const CommandListSpecification		  &GetSpecification();
 
-	  private:
-		CommandListSpecification	   m_Specification = {};
-		std::vector<RenderCommandData> m_Commands;
-		bool						   m_Started = false;
+	   private:
+		 CommandListSpecification		m_Specification = {};
+		 std::vector<RenderCommandData> m_Commands;
+		 bool							m_Started = false;
 	};
 
 	/// @brief A typedef to simplify creating function pointers to render commands

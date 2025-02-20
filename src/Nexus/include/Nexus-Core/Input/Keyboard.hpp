@@ -568,37 +568,37 @@ namespace Nexus
 
 	  public:
 		/// @brief A method that caches the previous frames key states
-		NX_API void CacheInput();
+		void CacheInput();
 
 		/// @brief A method that checks whether a key is currently held
 		/// @param code The keycode to check the state of
 		/// @return A boolean value representing whether a key was held
-		NX_API const bool IsKeyHeld(KeyCode code) const;
+		 const bool IsKeyHeld(KeyCode code) const;
 
-		/// @brief A method that checks whether a key is currently pressed
-		/// @param code The keycode to check the state of
-		/// @return A boolean value representing whether a key was pressed
-		NX_API const bool WasKeyPressed(KeyCode code) const;
+		 /// @brief A method that checks whether a key is currently pressed
+		 /// @param code The keycode to check the state of
+		 /// @return A boolean value representing whether a key was pressed
+		 const bool WasKeyPressed(KeyCode code) const;
 
-		/// @brief A method that checks whether a key is currently released
-		/// @param code The keycode to check the state of
-		/// @return A boolean value representing whether a key was released
-		NX_API const bool WasKeyReleased(KeyCode code) const;
+		 /// @brief A method that checks whether a key is currently released
+		 /// @param code The keycode to check the state of
+		 /// @return A boolean value representing whether a key was released
+		 const bool WasKeyReleased(KeyCode code) const;
 
-		NX_API const std::map<KeyCode, bool> &GetKeys() const;
+		 const std::map<KeyCode, bool> &GetKeys() const;
 
-	  private:
-		/// @brief A map containing the current state of the keyboard's keys
-		mutable std::map<KeyCode, bool> m_CurrentKeys;
+	   private:
+		 /// @brief A map containing the current state of the keyboard's keys
+		 mutable std::map<KeyCode, bool> m_CurrentKeys;
 
-		/// @brief A map containing the state of the keyboard's keys in the previous
-		/// frame
-		mutable std::map<KeyCode, bool> m_PreviousKeys;
+		 /// @brief A map containing the state of the keyboard's keys in the previous
+		 /// frame
+		 mutable std::map<KeyCode, bool> m_PreviousKeys;
 
-		/// @brief A friend class to allow a window to access the private properties
-		/// of this class
-		friend class IWindow;
+		 /// @brief A friend class to allow a window to access the private properties
+		 /// of this class
+		 friend class IWindow;
 
-		friend class Application;
+		 friend class Application;
 	};
 }	 // namespace Nexus

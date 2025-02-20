@@ -36,106 +36,105 @@ namespace Nexus
 	  public:
 		/// @brief A constructor taking in a specification
 		/// @param spec The options to use when creating an application
-		NX_API Application(const ApplicationSpecification &spec);
+		Application(const ApplicationSpecification &spec);
 
 		/// @brief Copying an application is not supported
 		/// @param A const reference to an application to copy
-		NX_API Application(const Application &) = delete;
+		Application(const Application &) = delete;
 
 		/// @brief A virtual destructor allowing derived classes to clean up resources
-		NX_API virtual ~Application();
+		virtual ~Application();
 
 		// required overridable methods
 		/// @brief A pure virtual method that is called when the application is loaded
-		NX_API virtual void Load() = 0;
+		virtual void Load() = 0;
 
 		/// @brief A pure virtual method that is called every time that the
 		/// application should update
 		/// @param time The elapsed time since the last update
-		NX_API virtual void Update(Nexus::TimeSpan time) = 0;
+		virtual void Update(Nexus::TimeSpan time) = 0;
 
 		/// @brief A pure virtual method that is called every time that the
 		/// application should render
 		/// @param time The elapsed time since the last render
-		NX_API virtual void Render(Nexus::TimeSpan time) = 0;
+		virtual void Render(Nexus::TimeSpan time) = 0;
 
-		NX_API virtual void Tick(Nexus::TimeSpan time) {};
+		virtual void Tick(Nexus::TimeSpan time) {};
 
 		/// @brief A pure virtual method that is called once the application is
 		/// closing
-		NX_API virtual void Unload() = 0;
+		virtual void Unload() = 0;
 
-		// optional overridable methods
 		/// @brief A virtual method that is called when the application's window is
 		/// resized
 		/// @param size The new size of the window
-		NX_API virtual void OnResize(Point2D<uint32_t> size)
+		virtual void OnResize(Point2D<uint32_t> size)
 		{
 		}
 
 		/// @brief A virtual method that allows a client to block the application from
 		/// closing (e.g. to prompt to save)
 		/// @return A boolean value representing whether the application should close
-		NX_API virtual bool OnClose()
+		virtual bool OnClose()
 		{
 			return true;
 		}
 
 		/// @brief A method that is used to run the update and render loops of the
 		/// application
-		NX_API void MainLoop();
+		void MainLoop();
 
 		/// @brief A method that gets access to the application's window
 		/// @return A handle to the application's main window
-		NX_API Nexus::IWindow *GetPrimaryWindow();
+		Nexus::IWindow *GetPrimaryWindow();
 
-		NX_API Nexus::Graphics::Swapchain *GetPrimarySwapchain();
+		Nexus::Graphics::Swapchain *GetPrimarySwapchain();
 
 		/// @brief A method that is used to retrieve the size of an application's
 		/// window
 		/// @return A Nexus::Point containing two integers representing the size of
 		/// the window
-		NX_API Point2D<uint32_t> GetWindowSize();
+		Point2D<uint32_t> GetWindowSize();
 
 		/// @brief A method that is used to retrieve the location of a window
 		/// @return A Nexus::Point containing two integers representing the position
 		/// of the window
-		NX_API Point2D<int> GetWindowPosition();
+		Point2D<int> GetWindowPosition();
 
 		/// @brief A method that returns whether the application's window has focus
 		/// @return A boolean value representing whether the window is focussed
-		NX_API bool IsWindowFocussed();
+		bool IsWindowFocussed();
 
 		/// @brief A method that returns the current state of the window
 		/// @return A WindowState enum value representing the state of the window
-		NX_API WindowState GetCurrentWindowState();
+		WindowState GetCurrentWindowState();
 
 		/// @brief A method that toggles whether the mouse is visible
 		/// @param visible A boolean value representing whether the mouse should be
 		/// visible
-		NX_API void SetIsMouseVisible(bool visible);
+		void SetIsMouseVisible(bool visible);
 
 		/// @brief A method that closes the application
-		NX_API void Close();
+		void Close();
 
 		/// @brief A method that returns whether the window should close
 		/// @return A boolean value that represents whether a window should close
-		NX_API bool ShouldClose();
+		bool ShouldClose();
 
 		/// @brief A method that returns a pointer to the engine's core input state
 		/// @return A pointer to an InputState
-		NX_API const InputState *GetCoreInputState() const;
+		const InputState *GetCoreInputState() const;
 
 		/// @brief A method that returns a pointer to the application's graphics
 		/// device
 		/// @return A pointer to a graphics device
-		NX_API Graphics::GraphicsDevice *GetGraphicsDevice();
+		Graphics::GraphicsDevice *GetGraphicsDevice();
 
 		/// @brief A method that returns a pointer to the application's audio device
 		/// @return A pointer to an audio device
-		NX_API Audio::AudioDevice *GetAudioDevice();
+		Audio::AudioDevice *GetAudioDevice();
 
-		NX_API const Keyboard &GetGlobalKeyboardState() const;
+		const Keyboard &GetGlobalKeyboardState() const;
 
 	  protected:
 		/// @brief A pointer to a graphics device

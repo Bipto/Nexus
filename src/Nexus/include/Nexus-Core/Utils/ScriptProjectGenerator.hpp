@@ -7,7 +7,7 @@ namespace Nexus::Utils
 	class ScriptProjectGenerator
 	{
 	  public:
-		NX_API		ScriptProjectGenerator() = default;
-		NX_API void Generate(const std::string &templatePath, const std::string &projectName, const std::string &projectDirectory);
+		ScriptProjectGenerator() = default;
+		void Generate(const std::string &templatePath, const std::string &projectName, const std::string &projectDirectory);
 	};
 }	 // namespace Nexus::Utils

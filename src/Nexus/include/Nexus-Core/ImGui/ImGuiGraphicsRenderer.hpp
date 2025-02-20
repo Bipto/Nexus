@@ -22,18 +22,18 @@ namespace Nexus::ImGuiUtils
 	class ImGuiGraphicsRenderer
 	{
 	  public:
-		NX_API ImGuiGraphicsRenderer(Nexus::Application *app);
-		NX_API virtual ~ImGuiGraphicsRenderer();
-		NX_API void RebuildFontAtlas();
+		ImGuiGraphicsRenderer(Nexus::Application *app);
+		virtual ~ImGuiGraphicsRenderer();
+		void RebuildFontAtlas();
 
-		NX_API ImTextureID BindTexture(Nexus::Ref<Nexus::Graphics::Texture2D> texture);
-		NX_API void		   UnbindTexture(ImTextureID id);
+		ImTextureID BindTexture(Nexus::Ref<Nexus::Graphics::Texture2D> texture);
+		void		UnbindTexture(ImTextureID id);
 
-		NX_API void BeforeLayout(Nexus::TimeSpan gameTime);
-		NX_API void AfterLayout();
+		void BeforeLayout(Nexus::TimeSpan gameTime);
+		void AfterLayout();
 
-		NX_API ImGuiIO		&GetIO();
-		NX_API ImGuiContext *GetContext();
+		ImGuiIO		 &GetIO();
+		ImGuiContext *GetContext();
 
 		static ImGuiGraphicsRenderer *GetCurrentRenderer();
 

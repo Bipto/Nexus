@@ -12,13 +12,13 @@ namespace Nexus::Graphics
 	struct FramebufferTextureSpecification
 	{
 		/// @brief A default constructor initialising to default values
-		NX_API FramebufferTextureSpecification() = default;
+		FramebufferTextureSpecification() = default;
 
 		/// @brief A constructor taking in a texture format to use to create a colour
 		/// attachment
 		/// @param format A texture
-		NX_API FramebufferTextureSpecification(PixelFormat format) : TextureFormat(format)
-		{
+		 FramebufferTextureSpecification(PixelFormat format) : TextureFormat(format)
+		 {
 		}
 
 		/// @brief The format to use for a colour attachment
@@ -29,13 +29,13 @@ namespace Nexus::Graphics
 	struct FramebufferColorAttachmentSpecification
 	{
 		/// @brief A default constructor creating an empty set of colour attachments
-		NX_API FramebufferColorAttachmentSpecification() = default;
+		FramebufferColorAttachmentSpecification() = default;
 
 		/// @brief A constructor taking in an initializer list of texture
 		/// specifications
 		/// @param attachments An initializer list of the colour attachments to create
-		NX_API FramebufferColorAttachmentSpecification(std::initializer_list<FramebufferTextureSpecification> attachments) : Attachments(attachments)
-		{
+		 FramebufferColorAttachmentSpecification(std::initializer_list<FramebufferTextureSpecification> attachments) : Attachments(attachments)
+		 {
 		}
 
 		/// @brief A vector containing the colour attachments
@@ -46,12 +46,12 @@ namespace Nexus::Graphics
 	struct FramebufferDepthAttachmentSpecification
 	{
 		/// @brief A default constructor creating no depth attachment
-		NX_API FramebufferDepthAttachmentSpecification() = default;
+		FramebufferDepthAttachmentSpecification() = default;
 
 		/// @brief A constructor taking in a depth format
 		/// @param format The depth format to create a depth attachment with
-		NX_API FramebufferDepthAttachmentSpecification(PixelFormat format) : DepthFormat(format)
-		{
+		 FramebufferDepthAttachmentSpecification(PixelFormat format) : DepthFormat(format)
+		 {
 		}
 
 		/// @brief The depth attachment to use to create the depth attachment
@@ -82,24 +82,24 @@ namespace Nexus::Graphics
 	  public:
 		/// @brief A constructor that sets the initial specification of a framebuffer
 		/// @param spec A reference to a specification to create the framebuffer with
-		NX_API Framebuffer(const FramebufferSpecification &spec) : m_Specification(spec)
+		Framebuffer(const FramebufferSpecification &spec) : m_Specification(spec)
 		{
 		}
 
 		/// @brief A virtual destructor enabling resources to be cleaned up
-		NX_API virtual ~Framebuffer() {};
+		virtual ~Framebuffer() {};
 
 		/// @brief A method to get the number of colour attachments in the framebuffer
 		/// @return An integer representing the number of colour attachments
-		NX_API int GetColorTextureCount()
-		{
-			return m_Specification.ColorAttachmentSpecification.Attachments.size();
+		 int GetColorTextureCount()
+		 {
+			 return m_Specification.ColorAttachmentSpecification.Attachments.size();
 		}
 
 		/// @brief A method to check whether a framebuffer has a colour attachment
 		/// @return A boolean representing whether a framebuffer has a colour
 		/// attachment
-		NX_API virtual bool HasColorTexture()
+		virtual bool HasColorTexture()
 		{
 			return m_Specification.ColorAttachmentSpecification.Attachments.size() > 0;
 		}
@@ -107,37 +107,37 @@ namespace Nexus::Graphics
 		/// @brief A method to check whether a framebuffer has a depth attachment
 		/// @return A boolean representing whether a framebuffer has a depth
 		/// attachment
-		NX_API virtual bool HasDepthTexture()
+		virtual bool HasDepthTexture()
 		{
 			return m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::Invalid;
 		}
 
 		/// @brief A pure virtual method to return the FramebufferSpecification
 		/// @return The FramebufferSpecification
-		NX_API virtual const FramebufferSpecification GetFramebufferSpecification() = 0;
+		virtual const FramebufferSpecification GetFramebufferSpecification() = 0;
 
 		/// @brief A pure virtual method to set the framebuffer specification,
 		/// automatically invoking the Recreate() method
 		/// @param spec The new framebuffer specification
-		NX_API virtual void SetFramebufferSpecification(const FramebufferSpecification &spec) = 0;
+		 virtual void SetFramebufferSpecification(const FramebufferSpecification &spec) = 0;
 
-		/// @brief A pure virtual method to retrieve a color texture from the
-		/// framebuffer at the specified index
-		/// @param index The index of the texture to retrieve
-		/// @return A pointer to a texture object
-		NX_API virtual Ref<Texture2D> GetColorTexture(uint32_t index = 0) = 0;
+		 /// @brief A pure virtual method to retrieve a color texture from the
+		 /// framebuffer at the specified index
+		 /// @param index The index of the texture to retrieve
+		 /// @return A pointer to a texture object
+		 virtual Ref<Texture2D> GetColorTexture(uint32_t index = 0) = 0;
 
-		/// @brief A pure virtual method to retrieve the depth texture from the
-		/// framebuffer
-		/// @return A pointer to a texture object
-		NX_API virtual Ref<Texture2D> GetDepthTexture() = 0;
+		 /// @brief A pure virtual method to retrieve the depth texture from the
+		 /// framebuffer
+		 /// @return A pointer to a texture object
+		 virtual Ref<Texture2D> GetDepthTexture() = 0;
 
-		NX_API void Resize(uint32_t width, uint32_t height)
-		{
-			auto framebufferSpec   = GetFramebufferSpecification();
-			framebufferSpec.Width  = width;
-			framebufferSpec.Height = height;
-			SetFramebufferSpecification(framebufferSpec);
+		 void Resize(uint32_t width, uint32_t height)
+		 {
+			 auto framebufferSpec	= GetFramebufferSpecification();
+			 framebufferSpec.Width	= width;
+			 framebufferSpec.Height = height;
+			 SetFramebufferSpecification(framebufferSpec);
 		}
 
 	  protected:

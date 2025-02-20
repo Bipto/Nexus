@@ -492,12 +492,12 @@ namespace Nexus::ImGuiUtils
 		UpdateCursor();
 	}
 
-	NX_API ImGuiIO &ImGuiGraphicsRenderer::GetIO()
+	ImGuiIO &ImGuiGraphicsRenderer::GetIO()
 	{
 		return ImGui::GetIO();
 	}
 
-	NX_API ImGuiContext *ImGuiGraphicsRenderer::GetContext()
+	ImGuiContext *ImGuiGraphicsRenderer::GetContext()
 	{
 		return m_Context;
 	}

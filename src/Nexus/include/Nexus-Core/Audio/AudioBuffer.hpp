@@ -10,7 +10,7 @@ namespace Nexus::Audio
 	{
 	  public:
 		/// @brief A virtual destructor to allow resources to be cleaned up
-		NX_API virtual ~AudioBuffer()
+		virtual ~AudioBuffer()
 		{
 		}
 	};
