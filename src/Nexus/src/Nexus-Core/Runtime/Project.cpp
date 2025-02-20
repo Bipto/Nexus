@@ -71,9 +71,9 @@ namespace Nexus
 		project->m_AssetsDirectory	= node["AssetsDirectory"].as<std::string>();
 		project->m_ScriptsDirectory = node["ScriptsDirectory"].as<std::string>();
 
-		project->LoadScene(project->m_StartupScene);
 		project->LoadSharedLibrary();
 		project->LoadDataFromSharedLibrary();
+		project->LoadScene(project->m_StartupScene);
 
 		return project;
 	}

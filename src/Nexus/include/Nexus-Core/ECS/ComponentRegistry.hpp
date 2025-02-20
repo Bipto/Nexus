@@ -20,6 +20,13 @@ namespace Nexus
 
 namespace Nexus::ECS
 {
+	template<typename T>
+	struct DataTable
+	{
+		std::string Key	  = {};
+		T			Value = {};
+	};
+
 	using CreateComponentFunc	 = std::function<void(Registry &registry, const Entity &entity)>;
 	using RenderComponentFunc	 = std::function<void(void *data, Nexus::Ref<Nexus::Project> project)>;
 	using StringSerializerFunc	 = std::function<std::string(void *obj)>;
