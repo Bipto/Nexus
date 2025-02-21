@@ -72,6 +72,7 @@ namespace Nexus::ImGuiUtils
 	ImGuiGraphicsRenderer::ImGuiGraphicsRenderer(Nexus::Application *app) : m_Application(app)
 	{
 		s_ImGuiRenderer = this;
+		ImGui::SetAllocatorFunctions(ImGuiAlloc, ImGuiFree, nullptr);
 
 		Nexus::SetApplication(app);
 

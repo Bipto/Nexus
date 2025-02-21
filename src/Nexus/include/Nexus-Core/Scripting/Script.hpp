@@ -102,9 +102,13 @@ namespace Nexus::Scripting
 		return ECS::ComponentRegistry::GetRegistry();
 	}
 
-	extern "C" inline NX_API void ShareEngineState(Nexus::Application *app, ImGuiContext *context)
+	extern "C" inline NX_API void ShareEngineState(Nexus::Application *app,
+												   ImGuiContext		  *context,
+												   ImGuiMemAllocFunc   alloc_func,
+												   ImGuiMemFreeFunc	   free_func)
 	{
 		Nexus::SetApplication(app);
+		ImGui::SetAllocatorFunctions(ImGuiAlloc, ImGuiFree, nullptr);
 		ImGui::SetCurrentContext(context);
 	}
 

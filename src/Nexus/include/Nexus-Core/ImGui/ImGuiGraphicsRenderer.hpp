@@ -5,6 +5,16 @@
 #include "Nexus-Core/ImGui/ImGuiInclude.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
+inline void *ImGuiAlloc(size_t size, void *user_data)
+{
+	return malloc(size);
+}
+
+inline void ImGuiFree(void *ptr, void *user_data)
+{
+	free(ptr);
+}
+
 namespace Nexus::ImGuiUtils
 {
 	struct ImGuiWindowInfo
