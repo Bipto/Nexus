@@ -107,7 +107,7 @@ namespace Nexus::Scripting
 												   ImGuiMemAllocFunc   allocFunc,
 												   ImGuiMemFreeFunc	   freeFunc)
 	{
-		// Nexus::SetApplication(app);
+		Nexus::SetApplication(app);
 		ImGui::SetAllocatorFunctions(allocFunc, freeFunc, nullptr);
 		ImGui::SetCurrentContext(context);
 	}
