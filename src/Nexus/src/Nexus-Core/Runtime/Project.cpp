@@ -197,7 +197,7 @@ namespace Nexus
 
 		if (m_Library)
 		{
-			typedef void (*SharedEngineStateFunc)(Nexus::Application *, ImGuiContext *, ImGuiMemAllocFunc alloc_func, ImGuiMemFreeFunc free_func);
+			typedef void (*SharedEngineStateFunc)(Nexus::Application *, ImGuiContext *, ImGuiUtils::ImGuiGraphicsRenderer *renderer);
 			SharedEngineStateFunc func = (SharedEngineStateFunc)m_Library->LoadSymbol("ShareEngineState");
 			if (func)
 			{
@@ -208,7 +208,7 @@ namespace Nexus
 					context = imGuiRenderer->GetContext();
 				}
 
-				func(Nexus::GetApplication(), context, ImGuiAlloc, ImGuiFree);
+				func(Nexus::GetApplication(), context, ImGuiUtils::ImGuiGraphicsRenderer::GetCurrentRenderer());
 			}
 		}
 	}

@@ -72,7 +72,7 @@ namespace Nexus::ImGuiUtils
 	ImGuiGraphicsRenderer::ImGuiGraphicsRenderer(Nexus::Application *app) : m_Application(app)
 	{
 		s_ImGuiRenderer = this;
-		ImGui::SetAllocatorFunctions(ImGuiAlloc, ImGuiFree, nullptr);
+		ImGui::SetAllocatorFunctions(&ImGuiAlloc, &ImGuiFree, nullptr);
 
 		Nexus::SetApplication(app);
 
@@ -102,7 +102,7 @@ namespace Nexus::ImGuiUtils
 		m_Sampler				 = m_GraphicsDevice->CreateSampler(samplerSpec);
 
 		m_Context = ImGui::CreateContext();
-		ImGui::SetCurrentContext(m_Context);
+		SetCurrentRenderer(this);
 
 		auto &io = ImGui::GetIO();
 		io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;
@@ -444,8 +444,6 @@ namespace Nexus::ImGuiUtils
 
 	void ImGuiGraphicsRenderer::BeforeLayout(Nexus::TimeSpan gameTime)
 	{
-		ImGui::SetCurrentContext(m_Context);
-
 		auto &io	 = ImGui::GetIO();
 		io.DeltaTime = (float)gameTime.GetSeconds();
 
@@ -508,6 +506,13 @@ namespace Nexus::ImGuiUtils
 	ImGuiGraphicsRenderer *ImGuiGraphicsRenderer::GetCurrentRenderer()
 	{
 		return s_ImGuiRenderer;
+	}
+
+	void ImGuiGraphicsRenderer::SetCurrentRenderer(ImGuiGraphicsRenderer *renderer)
+	{
+		s_ImGuiRenderer = renderer;
+		ImGui::SetCurrentContext(s_ImGuiRenderer->GetContext());
+		ImGui::SetAllocatorFunctions(&ImGuiAlloc, &ImGuiFree, nullptr);
 	}
 
 	void ImGuiGraphicsRenderer::SetupInput()

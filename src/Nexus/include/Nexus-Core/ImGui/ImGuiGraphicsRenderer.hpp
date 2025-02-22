@@ -46,6 +46,7 @@ namespace Nexus::ImGuiUtils
 		ImGuiContext *GetContext();
 
 		static ImGuiGraphicsRenderer *GetCurrentRenderer();
+		static void					  SetCurrentRenderer(ImGuiGraphicsRenderer *renderer);
 
 	  private:
 		void CreateTextPipeline();
