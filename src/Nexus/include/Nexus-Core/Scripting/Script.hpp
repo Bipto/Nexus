@@ -102,10 +102,14 @@ namespace Nexus::Scripting
 		return ECS::ComponentRegistry::GetRegistry();
 	}
 
-	extern "C" inline NX_API void ShareEngineState(Nexus::Application *app, ImGuiContext *context, ImGuiUtils::ImGuiGraphicsRenderer *renderer)
+	extern "C" inline NX_API void ShareEngineState(Nexus::Application *app,
+												   ImGuiContext		  *context,
+												   ImGuiMemAllocFunc   allocFunc,
+												   ImGuiMemFreeFunc	   freeFunc)
 	{
 		Nexus::SetApplication(app);
-		ImGuiUtils::ImGuiGraphicsRenderer::SetCurrentRenderer(renderer);
+		ImGui::SetAllocatorFunctions(allocFunc, freeFunc, nullptr);
+		ImGui::SetCurrentContext(context);
 	}
 
 }	 // namespace Nexus::Scripting
