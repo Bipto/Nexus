@@ -12,7 +12,10 @@ inline void *ImGuiAlloc(size_t size, void *user_data)
 
 inline void ImGuiFree(void *ptr, void *user_data)
 {
-	free(ptr);
+	if (ptr)
+	{
+		free(ptr);
+	}
 }
 
 namespace Nexus::ImGuiUtils
