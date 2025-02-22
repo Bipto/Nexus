@@ -197,7 +197,7 @@ namespace Nexus
 
 		if (m_Library)
 		{
-			typedef void (*SharedEngineStateFunc)(Nexus::Application *, ImGuiContext *, ImGuiMemAllocFunc, ImGuiMemFreeFunc);
+			/* typedef void (*SharedEngineStateFunc)(Nexus::Application *, ImGuiContext *, ImGuiMemAllocFunc, ImGuiMemFreeFunc);
 			SharedEngineStateFunc func = (SharedEngineStateFunc)m_Library->LoadSymbol("ShareEngineState");
 			if (func)
 			{
@@ -209,7 +209,7 @@ namespace Nexus
 				}
 
 				func(Nexus::GetApplication(), context, ImGuiAlloc, ImGuiFree);
-			}
+			} */
 		}
 	}
 

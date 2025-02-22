@@ -128,8 +128,7 @@ namespace Nexus
 								  {
 									  std::string filepath = result.FilePaths[0];
 									  renderer->FilePath   = filepath;
-									  Graphics::MeshFactory factory(Nexus::GetApplication()->GetGraphicsDevice());
-									  renderer->Model = factory.CreateFrom3DModelFile(filepath);
+									  renderer->LoadModel();
 								  }
 							  }
 
