@@ -8,6 +8,12 @@
 #include "Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp"
 #include "Nexus-Core/Runtime.hpp"
 
+#if defined(WIN32)
+	#define NX_SCRIPT_EXPORT __declspec(dllexport)
+#else
+	#error Undefined macro
+#endif
+
 namespace Nexus::ECS
 {
 	// forward declaration
@@ -92,20 +98,20 @@ namespace Nexus::Scripting
 		}
 	};
 
-	extern "C" inline NX_API std::map<std::string, std::function<Nexus::Scripting::Script *()>> &GetScriptRegistry()
+	extern "C" inline NX_SCRIPT_EXPORT std::map<std::string, std::function<Nexus::Scripting::Script *()>> &GetScriptRegistry()
 	{
 		return ScriptRegistry::GetRegistry();
 	}
 
-	extern "C" inline NX_API ECS::ComponentRegistry &GetComponentRegistry()
+	extern "C" inline NX_SCRIPT_EXPORT ECS::ComponentRegistry &GetComponentRegistry()
 	{
 		return ECS::ComponentRegistry::GetRegistry();
 	}
 
-	extern "C" inline NX_API void ShareEngineState(Nexus::Application *app,
-												   ImGuiContext		  *context,
-												   ImGuiMemAllocFunc   allocFunc,
-												   ImGuiMemFreeFunc	   freeFunc)
+	extern "C" inline NX_SCRIPT_EXPORT void ShareEngineState(Nexus::Application *app,
+															 ImGuiContext		*context,
+															 ImGuiMemAllocFunc	 allocFunc,
+															 ImGuiMemFreeFunc	 freeFunc)
 	{
 		// Nexus::SetApplication(app);
 		ImGui::SetAllocatorFunctions(allocFunc, freeFunc, nullptr);

@@ -9,7 +9,7 @@
 namespace Nexus::Audio
 {
 	/// @brief A class representing an abstraction over a graphics API and context
-	class AudioDevice
+	class NX_API AudioDevice
 	{
 	  public:
 		/// @brief Virtual destructor used to destroy any necessary data

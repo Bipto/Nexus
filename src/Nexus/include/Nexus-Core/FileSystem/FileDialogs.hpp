@@ -16,7 +16,7 @@ namespace Nexus
 		int						 SelectedFilter = -1;
 	};
 
-	class OpenFileDialog
+	class NX_API OpenFileDialog
 	{
 	  public:
 		virtual ~OpenFileDialog()
@@ -25,7 +25,7 @@ namespace Nexus
 		virtual FileDialogResult Show() = 0;
 	};
 
-	class SaveFileDialog
+	class NX_API SaveFileDialog
 	{
 	  public:
 		virtual ~SaveFileDialog()
@@ -34,7 +34,7 @@ namespace Nexus
 		virtual FileDialogResult Show() = 0;
 	};
 
-	class OpenFolderDialog
+	class NX_API OpenFolderDialog
 	{
 	  public:
 		virtual ~OpenFolderDialog()

@@ -65,7 +65,7 @@ using source_location = std::source_location;
 #include "Nexus-Core/Point.hpp"
 #include "Nexus-Core/Types.hpp"
 
-#if defined(NX_PLATFORM_WINDOWS)
+#if defined(WIN32)
 	#if defined(NX_EXPORT_API)
 		#define NX_API __declspec(dllexport)
 	#else
