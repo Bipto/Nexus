@@ -208,7 +208,8 @@ namespace Nexus
 					context = imGuiRenderer->GetContext();
 				}
 
-				func(Nexus::GetApplication(), context, ImGuiAlloc, ImGuiFree);
+				Nexus::Application *app = Nexus::GetApplication();
+				func(app, context, ImGuiAlloc, ImGuiFree);
 			}
 		}
 	}
