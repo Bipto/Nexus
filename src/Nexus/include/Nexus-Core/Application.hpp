@@ -31,7 +31,7 @@ namespace Nexus
 	static Audio::AudioDevice *CreateAudioDevice(Audio::AudioAPI api);
 
 	/// @brief A class representing an application
-	class Application
+	class NX_API Application
 	{
 	  public:
 		/// @brief A constructor taking in a specification

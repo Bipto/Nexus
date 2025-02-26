@@ -5,7 +5,7 @@
 
 namespace Nexus::Graphics
 {
-	class NX_API CommandExecutor
+	class CommandExecutor
 	{
 	  public:
 		CommandExecutor() = default;

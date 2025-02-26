@@ -16,7 +16,7 @@ namespace Nexus
 		Orthographic
 	};
 
-	class FirstPersonCamera
+	class NX_API FirstPersonCamera
 	{
 	  public:
 		FirstPersonCamera() = default;

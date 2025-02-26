@@ -5,14 +5,14 @@
 #include "yaml-cpp/yaml.h"
 
 #include "Nexus-Core/Platform.hpp"
-#include "Nexus-Core/Scripting/Script.hpp"
+#include "Nexus-Core/Scripting/NativeScript.hpp"
 #include "Nexus-Core/Utils/StringUtils.hpp"
 
 const std::string DefaultSceneName = "UntitledScene";
 
 namespace Nexus
 {
-	Ref<Project> Project::s_ActiveProject = nullptr;
+	NX_API Ref<Project> Project::s_ActiveProject = nullptr;
 
 	Project::Project(const std::string &name, const std::string &directory, bool createDefaultScene)
 		: m_Name(name),
@@ -40,6 +40,9 @@ namespace Nexus
 	{
 		WriteProjectFile();
 		WriteSceneFile(GetFullSceneDirectory());
+
+		std::string assetsDirectory = m_RootDirectory + m_AssetsDirectory;
+		Nexus::FileSystem::CreateFileDirectory(assetsDirectory);
 	}
 
 	Ref<Project> Project::Deserialize(const std::string &filepath)
@@ -219,11 +222,11 @@ namespace Nexus
 		return m_Library;
 	}
 
-	std::map<std::string, std::function<Nexus::Scripting::Script *()>> Project::LoadAvailableScripts()
+	std::map<std::string, std::function<Nexus::Scripting::NativeScript *()>> Project::LoadAvailableScripts()
 	{
-		typedef std::map<std::string, std::function<Nexus::Scripting::Script *()>> &(*GetScriptRegistryFunc)();
+		typedef std::map<std::string, std::function<Nexus::Scripting::NativeScript *()>> &(*GetScriptRegistryFunc)();
 
-		std::map<std::string, std::function<Nexus::Scripting::Script *()>> scripts = Nexus::Scripting::GetScriptRegistry();
+		std::map<std::string, std::function<Nexus::Scripting::NativeScript *()>> scripts = Nexus::Scripting::GetScriptRegistry();
 
 		if (m_Library)
 		{

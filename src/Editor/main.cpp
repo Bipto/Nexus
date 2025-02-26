@@ -18,6 +18,8 @@
 
 #include "Nexus-Core/Utils/ScriptProjectGenerator.hpp"
 
+#include "Nexus-Core/Scripting/LuaScript.hpp"
+
 class EditorApplication : public Nexus::Application
 {
   public:
@@ -35,6 +37,7 @@ class EditorApplication : public Nexus::Application
 		m_Renderer = std::make_unique<Nexus::Graphics::Renderer3D>(m_GraphicsDevice);
 
 		m_ImGuiRenderer = std::unique_ptr<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(new Nexus::ImGuiUtils::ImGuiGraphicsRenderer(this));
+		ImGui::SetCurrentContext(m_ImGuiRenderer->GetContext());
 
 		auto &io = ImGui::GetIO();
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
@@ -65,6 +68,8 @@ class EditorApplication : public Nexus::Application
 		m_EditorPropertiesPanel = new EditorPropertiesPanel(&m_Panels);
 		m_Panels.push_back(m_EditorPropertiesPanel);
 		LoadLayoutSettings();
+
+		Nexus::Scripting::LuaScript luaScript = {};
 	}
 
 	virtual void Update(Nexus::TimeSpan time) override

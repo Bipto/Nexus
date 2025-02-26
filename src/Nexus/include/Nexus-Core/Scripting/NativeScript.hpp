@@ -11,7 +11,7 @@
 #if defined(WIN32)
 	#define NX_SCRIPT_EXPORT __declspec(dllexport)
 #else
-	#error Undefined macro
+	#define NX_SCRIPT_EXPORT
 #endif
 
 namespace Nexus::ECS
@@ -22,11 +22,11 @@ namespace Nexus::ECS
 
 namespace Nexus::Scripting
 {
-	class Script
+	class NativeScript
 	{
 	  public:
-		Script() = default;
-		virtual ~Script()
+		NativeScript() = default;
+		virtual ~NativeScript()
 		{
 		}
 
@@ -88,19 +88,19 @@ namespace Nexus::Scripting
 		GUID	 m_GUID	   = Nexus::GUID(0);
 	};
 
-	class ScriptRegistry
+	class NativeScriptRegistry
 	{
 	  public:
-		static std::map<std::string, std::function<Nexus::Scripting::Script *()>> &GetRegistry()
+		static std::map<std::string, std::function<Nexus::Scripting::NativeScript *()>> &GetRegistry()
 		{
-			static std::map<std::string, std::function<Nexus::Scripting::Script *()>> registry;
+			static std::map<std::string, std::function<Nexus::Scripting::NativeScript *()>> registry;
 			return registry;
 		}
 	};
 
-	extern "C" inline NX_SCRIPT_EXPORT std::map<std::string, std::function<Nexus::Scripting::Script *()>> &GetScriptRegistry()
+	extern "C" inline NX_SCRIPT_EXPORT std::map<std::string, std::function<Nexus::Scripting::NativeScript *()>> &GetScriptRegistry()
 	{
-		return ScriptRegistry::GetRegistry();
+		return NativeScriptRegistry::GetRegistry();
 	}
 
 	extern "C" inline NX_SCRIPT_EXPORT ECS::ComponentRegistry &GetComponentRegistry()
@@ -125,7 +125,7 @@ namespace Nexus::Scripting
 	{                                                                                                                                                \
 		ClassType##Register()                                                                                                                        \
 		{                                                                                                                                            \
-			Nexus::Scripting::ScriptRegistry::GetRegistry()[#ClassType] = []() { return new ClassType(); };                                          \
+			Nexus::Scripting::NativeScriptRegistry::GetRegistry()[#ClassType] = []() { return new ClassType(); };                                    \
 		}                                                                                                                                            \
 	};                                                                                                                                               \
 	static ClassType##Register instance##ClassType##Register;

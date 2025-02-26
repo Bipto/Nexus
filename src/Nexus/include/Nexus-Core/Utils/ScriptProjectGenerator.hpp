@@ -4,7 +4,7 @@
 
 namespace Nexus::Utils
 {
-	class ScriptProjectGenerator
+	class NX_API ScriptProjectGenerator
 	{
 	  public:
 		ScriptProjectGenerator() = default;

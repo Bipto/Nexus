@@ -9,7 +9,12 @@
 
 namespace Nexus
 {
-	class Project
+	namespace Scripting
+	{
+		class NativeScript;
+	}
+
+	class NX_API Project
 	{
 	  public:
 		Project(const std::string &name = "Untitled Project", const std::string &directory = "", bool createDefaultScene = false);
@@ -55,7 +60,7 @@ namespace Nexus
 		void				  LoadDataFromSharedLibrary();
 
 		// script functions
-		std::map<std::string, std::function<Nexus::Scripting::Script *()>> LoadAvailableScripts();
+		std::map<std::string, std::function<Nexus::Scripting::NativeScript *()>> LoadAvailableScripts();
 		void															   CacheAvailableScripts();
 		const std::vector<std::string>									  &GetCachedAvailableScripts() const;
 

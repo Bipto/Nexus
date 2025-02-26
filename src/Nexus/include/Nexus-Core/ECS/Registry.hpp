@@ -21,7 +21,7 @@ namespace Nexus::ECS
 		size_t entityComponentIndex = 0;
 	};
 
-	class IComponentArray
+	class NX_API IComponentArray
 	{
 	  public:
 		virtual ~IComponentArray()
@@ -35,7 +35,7 @@ namespace Nexus::ECS
 	};
 
 	template<typename T>
-	class ComponentArray : public IComponentArray
+	class NX_API ComponentArray : public IComponentArray
 	{
 	  public:
 		virtual ~ComponentArray()
@@ -88,7 +88,7 @@ namespace Nexus::ECS
 	};
 
 	template<typename... Args>
-	class View
+	class NX_API View
 	{
 		// iterator for a view
 		class iterator

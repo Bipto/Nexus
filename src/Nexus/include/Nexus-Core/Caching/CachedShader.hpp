@@ -42,7 +42,7 @@ namespace YAML
 
 namespace Nexus::Graphics
 {
-	class NX_API CachedShader
+	class CachedShader
 	{
 	  public:
 		static CachedShader FromModule(const ShaderModuleSpecification &shaderSpec, const ResourceSetSpecification &resourceSpec, size_t hash)

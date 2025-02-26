@@ -29,11 +29,6 @@ namespace Nexus
 		Stopped
 	};
 
-	namespace Scripting
-	{
-		class Script;
-	}
-
 	struct Environment
 	{
 		std::string			   CubemapPath		  = {};
@@ -45,7 +40,7 @@ namespace Nexus
 	// forward declaration
 	class Project;
 
-	struct Scene
+	struct NX_API Scene
 	{
 	  public:
 		Scene();

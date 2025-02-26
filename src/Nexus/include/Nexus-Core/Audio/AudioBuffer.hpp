@@ -6,7 +6,7 @@
 namespace Nexus::Audio
 {
 	/// @brief A pure virtual class representing a buffer of audio data
-	class NX_API AudioBuffer
+	class AudioBuffer
 	{
 	  public:
 		/// @brief A virtual destructor to allow resources to be cleaned up

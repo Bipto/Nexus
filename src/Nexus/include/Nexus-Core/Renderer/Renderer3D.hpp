@@ -32,7 +32,7 @@ namespace Nexus::Graphics
 		uint32_t  Guid2			 = {};
 	};
 
-	class Renderer3D
+	class NX_API Renderer3D
 	{
 	  public:
 		Renderer3D(GraphicsDevice *device);

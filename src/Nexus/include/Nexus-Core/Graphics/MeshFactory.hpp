@@ -9,7 +9,7 @@ namespace Nexus::Graphics
 {
 	/// @brief A class allowing a specific mesh to be generated or a model to be
 	/// loaded from a file
-	class MeshFactory
+	class NX_API MeshFactory
 	{
 	  public:
 		/// @brief A constructor to create a new MeshFactory

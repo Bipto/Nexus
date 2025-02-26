@@ -31,44 +31,47 @@ namespace Nexus::Platform
 		Hand
 	};
 
-	void SetCursor(Cursor cursor);
+	NX_API void SetCursor(Cursor cursor);
 
-	Utils::SharedLibrary *LoadSharedLibrary(const std::string &filename);
+	NX_API Utils::SharedLibrary *LoadSharedLibrary(const std::string &filename);
 
-	std::vector<InputNew::Keyboard> GetKeyboards();
-	std::vector<InputNew::Mouse>	GetMice();
-	std::vector<InputNew::Gamepad>	GetGamepads();
-	std::vector<Monitor>			GetMonitors();
-	std::vector<IWindow *>		   &GetWindows();
+	NX_API std::vector<InputNew::Keyboard> GetKeyboards();
+	NX_API std::vector<InputNew::Mouse> GetMice();
+	NX_API std::vector<InputNew::Gamepad> GetGamepads();
+	NX_API std::vector<Monitor> GetMonitors();
+	NX_API std::vector<IWindow *> &GetWindows();
 
-	std::optional<InputNew::Keyboard> GetKeyboardById(uint32_t id);
-	std::optional<InputNew::Mouse>	  GetMouseById(uint32_t id);
-	std::optional<InputNew::Gamepad>  GetGamepadById(uint32_t id);
+	NX_API std::optional<InputNew::Keyboard> GetKeyboardById(uint32_t id);
+	NX_API std::optional<InputNew::Mouse> GetMouseById(uint32_t id);
+	NX_API std::optional<InputNew::Gamepad> GetGamepadById(uint32_t id);
 
-	void	 Initialise();
-	void	 Shutdown();
-	void	 Update();
-	void	 PollEvents();
-	IWindow *CreatePlatformWindow(const WindowSpecification &windowProps);
+	NX_API void		Initialise();
+	NX_API void		Shutdown();
+	NX_API void		Update();
+	NX_API void		PollEvents();
+	NX_API IWindow *CreatePlatformWindow(const WindowSpecification &windowProps);
 
-	OpenFileDialog *CreateOpenFileDialog(IWindow *window, const std::vector<FileDialogFilter> &filters, const char *defaultLocation, bool allowMany);
-	SaveFileDialog *CreateSaveFileDialog(IWindow *window, const std::vector<FileDialogFilter> &filters, const char *defaultLocation);
-	OpenFolderDialog *CreateOpenFolderDialog(IWindow *window, const char *defaultLocation, bool allowMany);
+	NX_API OpenFileDialog	*CreateOpenFileDialog(IWindow							  *window,
+												  const std::vector<FileDialogFilter> &filters,
+												  const char						  *defaultLocation,
+												  bool								   allowMany);
+	NX_API SaveFileDialog	*CreateSaveFileDialog(IWindow *window, const std::vector<FileDialogFilter> &filters, const char *defaultLocation);
+	NX_API OpenFolderDialog *CreateOpenFolderDialog(IWindow *window, const char *defaultLocation, bool allowMany);
 
-	InputNew::MouseInfo		 GetGlobalMouseInfo();
-	std::optional<IWindow *> GetKeyboardFocus();
-	std::optional<IWindow *> GetMouseFocus();
-	std::optional<IWindow *> GetActiveWindow();
+	NX_API InputNew::MouseInfo GetGlobalMouseInfo();
+	NX_API std::optional<IWindow *> GetKeyboardFocus();
+	NX_API std::optional<IWindow *> GetMouseFocus();
+	NX_API std::optional<IWindow *> GetActiveWindow();
 
-	std::optional<uint32_t> GetActiveMouseId();
-	std::optional<uint32_t> GetActiveKeyboardId();
-	std::optional<uint32_t> GetActiveGamepadId();
+	NX_API std::optional<uint32_t> GetActiveMouseId();
+	NX_API std::optional<uint32_t> GetActiveKeyboardId();
+	NX_API std::optional<uint32_t> GetActiveGamepadId();
 
-	 inline EventHandler<uint32_t> OnKeyboardAdded;
-	 inline EventHandler<uint32_t> OnKeyboardRemoved;
-	 inline EventHandler<uint32_t> OnMouseAdded;
-	 inline EventHandler<uint32_t> OnMouseRemoved;
-	 inline EventHandler<uint32_t> OnGamepadAdded;
-	 inline EventHandler<uint32_t> OnGamepadRemoved;
+	inline EventHandler<uint32_t> OnKeyboardAdded;
+	inline EventHandler<uint32_t> OnKeyboardRemoved;
+	inline EventHandler<uint32_t> OnMouseAdded;
+	inline EventHandler<uint32_t> OnMouseRemoved;
+	inline EventHandler<uint32_t> OnGamepadAdded;
+	inline EventHandler<uint32_t> OnGamepadRemoved;
 
 }	 // namespace Nexus::Platform

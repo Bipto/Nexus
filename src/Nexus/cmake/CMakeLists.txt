@@ -55,47 +55,6 @@ macro(nexus_copy_required_binaries_to_custom_dir output_dir)
   endif()
 endmacro()
 
-macro(nexus_copy_include_dir output_dir)
-  get_target_property(Nexus_SOURCE_DIR Nexus SOURCE_DIR)
-
-  #copy the headers to output directory
-  add_custom_command(TARGET ${PROJECT_NAME} PRE_LINK
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${Nexus_SOURCE_DIR}/include
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir}/include)
-endmacro()
-
-macro(nexus_copy_glm output_dir)
-  get_target_property(Nexus_SOURCE_DIR Nexus SOURCE_DIR)
-
-  add_custom_command(TARGET ${PROJECT_NAME} PRE_LINK
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${Nexus_SOURCE_DIR}/external/glm
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir}/glm)
-endmacro()
-
-macro(nexus_copy_imgui output_dir)
-  get_target_property(Nexus_SOURCE_DIR Nexus SOURCE_DIR)
-
-  add_custom_command(TARGET ${PROJECT_NAME} PRE_LINK
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${Nexus_SOURCE_DIR}/external/imgui/imgui
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir}/imgui/imgui)
-
-  add_custom_command(TARGET ${PROJECT_NAME} PRE_LINK
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${Nexus_SOURCE_DIR}/external/imgui/imguizmo
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir}/imgui/imguizmo)
-endmacro()
-
-macro(nexus_copy_yaml_cpp output_dir)
-    get_target_property(Nexus_SOURCE_DIR Nexus SOURCE_DIR)
-
-    add_custom_command(TARGET ${PROJECT_NAME} PRE_LINK
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${Nexus_SOURCE_DIR}/external/yaml-cpp/include
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir}/yaml-cpp)
-endmacro()
 
 macro(nexus_add_shared_library shared_library)
   set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
@@ -201,4 +160,58 @@ macro(nexus_add_all_shared_lib_subdirs SUBDIRS)
   foreach (SUBDIR ${SUBDIRS})
     nexus_add_shared_library(${SUBDIR})
   endforeach()
+endmacro()
+
+macro(nexus_create_scripting_template)
+
+  set(SCRIPTING_TEMPLATE_EDITOR_DIR "scripting_template/prebuilt")
+
+  #make script_template directory
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/${SCRIPTING_TEMPLATE_EDITOR_DIR}
+    )
+
+  #copy Nexus library to script_template directory
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    -t $<TARGET_FILE_DIR:${PROJECT_NAME}>/${SCRIPTING_TEMPLATE_EDITOR_DIR} $<TARGET_FILE:Nexus>
+    COMMAND_EXPAND_LISTS)
+
+  #retrieve Nexus include path and copy to script_template directory
+  get_property(NEXUS_SOURCE_DIR TARGET Nexus PROPERTY SOURCE_DIR)
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${NEXUS_SOURCE_DIR}/include
+    $<TARGET_FILE_DIR:${PROJECT_NAME}>/${SCRIPTING_TEMPLATE_EDITOR_DIR}/include/Nexus
+  )
+
+  #retrieve glm include path and copy to script_template directory
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${glm_SOURCE_DIR}
+    $<TARGET_FILE_DIR:${PROJECT_NAME}>/${SCRIPTING_TEMPLATE_EDITOR_DIR}/include/glm
+  )
+
+  #retrieve imgui include path and copy to script_template directory
+  #because imgui doesn't contain a CMakeLists.txt file, we have to manually set up populate the dependency
+  FetchContent_GetProperties(imgui)
+  if (NOT imgui_POPULATED)
+    FetchContent_MakeAvailable(imgui)
+  endif()
+
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${imgui_SOURCE_DIR}
+    $<TARGET_FILE_DIR:${PROJECT_NAME}>/${SCRIPTING_TEMPLATE_EDITOR_DIR}/include/imgui
+  )
+
+  #retrieve yaml-cpp include path and copy to script_template directory
+  #for some reason FetchContent doesn't populate yaml-cpp_SOURCE_DIR so we have to do it this way
+  #get_property(YAML_CPP_SOURCE_DIR TARGET yaml-cpp PROPERTY SOURCE_DIR)
+  #add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+  #  COMMAND ${CMAKE_COMMAND} -E copy_directory
+  #  ${YAML_CPP_SOURCE_DIR}/include
+  #  $<TARGET_FILE_DIR:${PROJECT_NAME}>/${SCRIPTING_TEMPLATE_EDITOR_DIR}/include
+  #)
+
 endmacro()

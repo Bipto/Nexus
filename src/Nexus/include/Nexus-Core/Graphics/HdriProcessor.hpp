@@ -6,7 +6,7 @@
 
 namespace Nexus::Graphics
 {
-	class HdriProcessor
+	class NX_API HdriProcessor
 	{
 	  public:
 		HdriProcessor() = delete;

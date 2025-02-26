@@ -55,7 +55,7 @@ namespace Nexus::Graphics
 	class GraphicsDevice;
 
 	/// @brief A pure virtual class that represents an API specific texture
-	class Texture2D
+	class NX_API Texture2D
 	{
 	  public:
 		/// @brief A texture cannot be created without a texture specification
@@ -94,7 +94,7 @@ namespace Nexus::Graphics
 		NegativeZ = 5
 	};
 
-	class Cubemap
+	class NX_API Cubemap
 	{
 	  public:
 		Cubemap() = delete;

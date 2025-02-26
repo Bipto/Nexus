@@ -10,7 +10,7 @@
 #include "Nexus-Core/ECS/Components.hpp"
 
 #include "Nexus-Core/Runtime/Project.hpp"
-#include "Nexus-Core/Scripting/Script.hpp"
+#include "Nexus-Core/Scripting/NativeScript.hpp"
 
 namespace YAML
 {
@@ -174,14 +174,37 @@ namespace Nexus
 		// we only instantiate scripts if it is the first time clicking the play button
 		if (m_SceneState == SceneState::Stopped)
 		{
-			auto view = Registry.GetView<Nexus::ScriptComponent>();
-
-			for (auto &[entity, components] : view)
+			// update native scripts
 			{
-				for (const auto &component : components)
+				auto view = Registry.GetView<Nexus::NativeScriptComponent>();
+
+				if (view.HasComponents())
 				{
-					auto *script = std::get<0>(component);
-					script->Instantiate(Project, entity->ID);
+					for (auto &[entity, components] : view)
+					{
+						for (const auto &component : components)
+						{
+							auto *script = std::get<0>(component);
+							script->Instantiate(Project, entity->ID);
+						}
+					}
+				}
+			}
+
+			// call Lua load functions
+			{
+				auto view = Registry.GetView<Nexus::LuaScriptComponent>();
+
+				if (view.HasComponents())
+				{
+					for (auto &[entity, components] : view)
+					{
+						for (const auto &component : components)
+						{
+							auto *script = std::get<0>(component);
+							script->Script.OnLoad();
+						}
+					}
 				}
 			}
 		}
@@ -191,6 +214,23 @@ namespace Nexus
 
 	void Scene::Stop()
 	{
+		// call Lua unload functions
+		{
+			auto view = Registry.GetView<Nexus::LuaScriptComponent>();
+
+			if (view.HasComponents())
+			{
+				for (auto &[entity, components] : view)
+				{
+					for (const auto &component : components)
+					{
+						auto *script = std::get<0>(component);
+						script->Script.OnUnload();
+					}
+				}
+			}
+		}
+
 		m_SceneState = SceneState::Stopped;
 	}
 
@@ -201,21 +241,38 @@ namespace Nexus
 
 	void Scene::OnUpdate(TimeSpan time)
 	{
-		auto models = Registry.GetView<Nexus::ModelRenderer>();
-		auto view	= Registry.GetView<Nexus::ScriptComponent>();
-		if (!view.HasComponents())
+		// call native script functions
 		{
-			return;
+			auto view = Registry.GetView<Nexus::NativeScriptComponent>();
+			if (view.HasComponents())
+			{
+				for (auto &[entity, components] : view)
+				{
+					for (const auto &component : components)
+					{
+						auto *script = std::get<0>(component);
+						if (script->ScriptInstance)
+						{
+							script->ScriptInstance->OnUpdate(time);
+						}
+					}
+				}
+			}
 		}
 
-		for (auto &[entity, components] : view)
+		// call Lua load functions
 		{
-			for (const auto &component : components)
+			auto view = Registry.GetView<Nexus::LuaScriptComponent>();
+
+			if (view.HasComponents())
 			{
-				auto *script = std::get<0>(component);
-				if (script->ScriptInstance)
+				for (auto &[entity, components] : view)
 				{
-					script->ScriptInstance->OnUpdate(time);
+					for (const auto &component : components)
+					{
+						auto *script = std::get<0>(component);
+						script->Script.OnUpdate();
+					}
 				}
 			}
 		}
@@ -223,20 +280,39 @@ namespace Nexus
 
 	void Scene::OnRender(TimeSpan time)
 	{
-		auto view = Registry.GetView<Nexus::ScriptComponent>();
-		if (!view.HasComponents())
+		// call Native OnRender function
 		{
-			return;
+			auto view = Registry.GetView<Nexus::NativeScriptComponent>();
+
+			if (view.HasComponents())
+			{
+				for (auto &[entity, components] : view)
+				{
+					for (const auto &component : components)
+					{
+						auto *script = std::get<0>(component);
+						if (script->ScriptInstance)
+						{
+							script->ScriptInstance->OnRender(time);
+						}
+					}
+				}
+			}
 		}
 
-		for (auto &[entity, components] : view)
+		// call Lua load functions
 		{
-			for (const auto &component : components)
+			auto view = Registry.GetView<Nexus::LuaScriptComponent>();
+
+			if (view.HasComponents())
 			{
-				auto *script = std::get<0>(component);
-				if (script->ScriptInstance)
+				for (auto &[entity, components] : view)
 				{
-					script->ScriptInstance->OnRender(time);
+					for (const auto &component : components)
+					{
+						auto *script = std::get<0>(component);
+						script->Script.OnRender();
+					}
 				}
 			}
 		}
@@ -244,20 +320,38 @@ namespace Nexus
 
 	void Scene::OnTick(TimeSpan time)
 	{
-		auto view = Registry.GetView<Nexus::ScriptComponent>();
-		if (!view.HasComponents())
+		// call native OnTick functions
 		{
-			return;
+			auto view = Registry.GetView<Nexus::NativeScriptComponent>();
+
+			if (view.HasComponents())
+			{
+				for (auto &[entity, components] : view)
+				{
+					for (const auto &component : components)
+					{
+						auto *script = std::get<0>(component);
+						if (script->ScriptInstance)
+						{
+							script->ScriptInstance->OnTick(time);
+						}
+					}
+				}
+			}
 		}
 
-		for (auto &[entity, components] : view)
+		// call Lua load functions
 		{
-			for (const auto &component : components)
+			auto view = Registry.GetView<Nexus::LuaScriptComponent>();
+			if (view.HasComponents())
 			{
-				auto *script = std::get<0>(component);
-				if (script->ScriptInstance)
+				for (auto &[entity, components] : view)
 				{
-					script->ScriptInstance->OnTick(time);
+					for (const auto &component : components)
+					{
+						auto *script = std::get<0>(component);
+						script->Script.OnTick();
+					}
 				}
 			}
 		}

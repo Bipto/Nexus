@@ -169,7 +169,7 @@ namespace Nexus::Graphics
 	};
 
 	/// @brief A class representing a command list
-	class NX_API CommandList
+	class CommandList
 	{
 	  public:
 		/// @brief A constructor creating a new command list

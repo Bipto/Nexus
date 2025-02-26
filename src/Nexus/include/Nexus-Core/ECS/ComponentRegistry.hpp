@@ -21,7 +21,7 @@ namespace Nexus
 namespace Nexus::ECS
 {
 	template<typename T>
-	struct NX_API DataTable
+	struct DataTable
 	{
 		std::string Key	  = {};
 		T			Value = {};
@@ -34,7 +34,7 @@ namespace Nexus::ECS
 	using YamlSerializerFunc	 = std::function<YAML::Node(void *obj)>;
 	using YamlDeserializerFunc	 = std::function<void(GUID guid, Registry &registry, const YAML::Node &node, size_t entityHierarchyIndex)>;
 
-	struct NX_API ComponentStorage
+	struct ComponentStorage
 	{
 		StringSerializerFunc   StringSerializer	  = {};
 		StringDeserializerFunc StringDeserializer = {};

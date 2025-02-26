@@ -5,7 +5,7 @@
 namespace Nexus::Audio
 {
 	/// @brief A pure virtual class representing a source that is able to play audio
-	class NX_API AudioSource
+	class AudioSource
 	{
 	  public:
 		/// @brief A virtual destructor to clean up resources

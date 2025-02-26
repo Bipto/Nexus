@@ -81,7 +81,7 @@ void Nexus::FileSystem::CopyDirectory(const std::string &from, const std::string
 	std::filesystem::copy(from, to, options);
 }
 
-void Nexus::FileSystem::CreateDirectory(const std::string &directory)
+void Nexus::FileSystem::CreateFileDirectory(const std::string &directory)
 {
 	std::filesystem::create_directories(directory);
 }

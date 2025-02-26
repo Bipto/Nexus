@@ -118,7 +118,7 @@ class InspectorPanel : public Panel
 	}
 
   private:
-	std::map<std::string, std::function<Nexus::Scripting::Script *()>> m_AvailableScripts	= {};
+	std::map<std::string, std::function<Nexus::Scripting::NativeScript *()>> m_AvailableScripts	  = {};
 	std::vector<ComponentToAdd>	   m_ComponentsToAdd	= {};
 	std::vector<ComponentToRemove> m_ComponentsToRemove = {};
 };

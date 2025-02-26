@@ -29,7 +29,7 @@ namespace Nexus::FileSystem
 
 	NX_API void CopyDirectory(const std::string &from, const std::string &to, bool recurive);
 
-	NX_API void CreateDirectory(const std::string &directory);
+	NX_API void CreateFileDirectory(const std::string &directory);
 
 	/// @brief A method that gets the absolute path of the file from a filesystem
 	/// relative filepath

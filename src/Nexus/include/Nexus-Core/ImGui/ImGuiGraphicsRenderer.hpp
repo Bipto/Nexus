@@ -32,7 +32,7 @@ namespace Nexus::ImGuiUtils
 		}
 	};
 
-	class ImGuiGraphicsRenderer
+	class NX_API ImGuiGraphicsRenderer
 	{
 	  public:
 		ImGuiGraphicsRenderer(Nexus::Application *app);

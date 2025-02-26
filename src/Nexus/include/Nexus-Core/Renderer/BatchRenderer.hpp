@@ -54,7 +54,7 @@ namespace Nexus::Graphics
 		Nexus::Ref<Nexus::Graphics::IndexBuffer>  IndexBuffer  = nullptr;
 	};
 
-	class BatchRenderer
+	class NX_API BatchRenderer
 	{
 	  public:
 		BatchRenderer(Nexus::Graphics::GraphicsDevice *device, Nexus::Graphics::RenderTarget target);

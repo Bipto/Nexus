@@ -181,6 +181,20 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(shaderc)
 
+FetchContent_Declare(
+  lua
+  GIT_REPOSITORY https://github.com/walterschell/Lua.git
+  GIT_TAG 52674cd
+)
+FetchContent_MakeAvailable(lua)
+
+FetchContent_Declare(
+  sol2
+  GIT_REPOSITORY https://github.com/ThePhD/sol2.git
+  GIT_TAG        v3.2.3
+)
+FetchContent_MakeAvailable(sol2)
+
 set(NEXUS_INCLUDE_DIRS "")
 set(NEXUS_LINKED_LIBRARIES "")
 set(NEXUS_LIBRARY_SUBDIRECTORIES "")
@@ -410,7 +424,8 @@ include/Nexus-Core/Runtime/Camera.hpp
   include/Nexus-Core/Runtime/Scene.hpp)
 
 list (APPEND ENGINE_SOURCES
-  include/Nexus-Core/Scripting/Script.hpp)
+  include/Nexus-Core/Scripting/NativeScript.hpp
+  include/Nexus-Core/Scripting/LuaScript.hpp)
 
 list (APPEND ENGINE_SOURCES
   include/Nexus-Core/Timings/Clock.hpp
@@ -615,6 +630,7 @@ list (APPEND NEXUS_INCLUDE_DIRS
   ${stb_SOURCE_DIR}
   ${IMGUI_INCLUDE_DIR}
   ${IMGUIZMO_INCLUDE_DIR}
+  ${lua_SOURCE_DIR}/lua-5.4.7/include
   binaries/dxc_2023_08_14/inc
 )
 
@@ -630,7 +646,9 @@ list (APPEND NEXUS_LINKED_LIBRARIES
   yaml-cpp::yaml-cpp
   glm::glm
   imgui
-  imguizmo)
+  imguizmo
+  lua_static
+  sol2::sol2)
 
 #precompiled header
 if (NX_ROOT_BUILD STREQUAL "ON")
