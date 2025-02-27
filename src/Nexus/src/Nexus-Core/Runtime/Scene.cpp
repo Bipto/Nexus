@@ -193,7 +193,7 @@ namespace Nexus
 
 			// call Lua load functions
 			{
-				auto view = Registry.GetView<Nexus::LuaScriptComponent>();
+				auto view = Registry.GetView<Nexus::PythonScriptComponent>();
 
 				if (view.HasComponents())
 				{
@@ -216,7 +216,7 @@ namespace Nexus
 	{
 		// call Lua unload functions
 		{
-			auto view = Registry.GetView<Nexus::LuaScriptComponent>();
+			auto view = Registry.GetView<Nexus::PythonScriptComponent>();
 
 			if (view.HasComponents())
 			{
@@ -262,7 +262,7 @@ namespace Nexus
 
 		// call Lua load functions
 		{
-			auto view = Registry.GetView<Nexus::LuaScriptComponent>();
+			auto view = Registry.GetView<Nexus::PythonScriptComponent>();
 
 			if (view.HasComponents())
 			{
@@ -302,7 +302,7 @@ namespace Nexus
 
 		// call Lua load functions
 		{
-			auto view = Registry.GetView<Nexus::LuaScriptComponent>();
+			auto view = Registry.GetView<Nexus::PythonScriptComponent>();
 
 			if (view.HasComponents())
 			{
@@ -342,7 +342,7 @@ namespace Nexus
 
 		// call Lua load functions
 		{
-			auto view = Registry.GetView<Nexus::LuaScriptComponent>();
+			auto view = Registry.GetView<Nexus::PythonScriptComponent>();
 			if (view.HasComponents())
 			{
 				for (auto &[entity, components] : view)

@@ -12,8 +12,6 @@ const std::string DefaultSceneName = "UntitledScene";
 
 namespace Nexus
 {
-	NX_API Ref<Project> Project::s_ActiveProject = nullptr;
-
 	Project::Project(const std::string &name, const std::string &directory, bool createDefaultScene)
 		: m_Name(name),
 		  m_RootDirectory(directory + std::string("\\") + name)
@@ -29,6 +27,7 @@ namespace Nexus
 
 		LoadSharedLibrary();
 		LoadDataFromSharedLibrary();
+		// UnloadSharedLibrary();
 	}
 
 	Project::~Project()
@@ -263,10 +262,10 @@ namespace Nexus
 
 	void Project::LoadDataFromSharedLibrary()
 	{
-		// LoadSharedLibrary();
+		LoadSharedLibrary();
 		CacheAvailableScripts();
 		CacheAvailableComponents();
-		// UnloadSharedLibrary();
+		UnloadSharedLibrary();
 	}
 
 	std::map<std::string, ECS::ComponentStorage> Project::LoadAvailableComponents()

@@ -23,7 +23,7 @@ namespace Nexus
 	/// @param arguments A const reference to the options passed to the application
 	/// @return An integer value representing whether the application was able to
 	/// execute successfully
-	int Main(const CommandLineArguments &arguments)
+	inline int Main(const CommandLineArguments &arguments)
 	{
 		Nexus::Init();
 
@@ -49,13 +49,13 @@ namespace
 
 #if !defined(NX_NO_ENTRY_POINT)
 	#if defined(NX_NO_CONSOLE)
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nCmdShow)
+inline int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nCmdShow)
 {
 	auto commandLineArgs = InputParametersToStringVector(__argc, __argv);
 	return Nexus::Main(commandLineArgs);
 }
 	#else
-int main(int argc, char **argv)
+inline int main(int argc, char **argv)
 {
 	auto commandLineArgs = InputParametersToStringVector(argc, argv);
 	return Nexus::Main(commandLineArgs);

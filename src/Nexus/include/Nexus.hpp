@@ -2,7 +2,6 @@
 
 #include "Nexus-Core/Application.hpp"
 #include "Nexus-Core/Audio/AudioDevice.hpp"
-#include "Nexus-Core/EntryPoint.hpp"
 #include "Nexus-Core/Events/EventHandler.hpp"
 #include "Nexus-Core/Graphics/Framebuffer.hpp"
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
@@ -48,21 +47,13 @@ static AllocationTracker s_AllocationTracker;
 
 /// @brief A method that returns the current application memory usage in bytes
 /// @return The total amount of bytes currently allocated
-uint32_t GetCurrentMemoryUsage()
+inline uint32_t GetCurrentMemoryUsage()
 {
 	return s_AllocationTracker.GetCurrentUsage();
 }
 
 // custom memory allocator
-void *operator new(size_t size)
-{
-	s_AllocationTracker.TotalAllocated += size;
-	return malloc(size);
-}
+void *operator new(size_t size);
 
 // custom memory deallocator
-void operator delete(void *memory, size_t size)
-{
-	s_AllocationTracker.TotalFreed += size;
-	free(memory);
-}
+void operator delete(void *memory, size_t size);

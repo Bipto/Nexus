@@ -13,5 +13,3 @@ COMMAND ${CMAKE_COMMAND} -E copy_directory
 
 nexus_copy_required_binaries()
 nexus_copy_required_runtime_libraries()
-
-nexus_create_scripting_template()

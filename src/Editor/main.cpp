@@ -1,3 +1,4 @@
+#include "Nexus-Core/EntryPoint.hpp"
 #include "Nexus.hpp"
 
 #include "Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp"
@@ -17,8 +18,6 @@
 #include "Nexus-Core/ECS/Registry.hpp"
 
 #include "Nexus-Core/Utils/ScriptProjectGenerator.hpp"
-
-#include "Nexus-Core/Scripting/LuaScript.hpp"
 
 class EditorApplication : public Nexus::Application
 {
@@ -68,8 +67,6 @@ class EditorApplication : public Nexus::Application
 		m_EditorPropertiesPanel = new EditorPropertiesPanel(&m_Panels);
 		m_Panels.push_back(m_EditorPropertiesPanel);
 		LoadLayoutSettings();
-
-		Nexus::Scripting::LuaScript luaScript = {};
 	}
 
 	virtual void Update(Nexus::TimeSpan time) override

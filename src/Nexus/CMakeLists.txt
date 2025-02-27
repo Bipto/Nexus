@@ -29,8 +29,6 @@ set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
 set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
 set(ENABLE_GLSLANG_BINARIES OFF CACHE BOOL "" FORCE)
-set(LUA_BUILD_BINARY OFF CACHE BOOL "" FORCE)
-set(LUA_BUILD_COMPILER OFF CACHE BOOL "" FORCE)
 set(RE2_BUILD_FRAMEWORK OFF CACHE BOOL "" FORCE)
 set(RE2_BUILD_TESTING OFF CACHE BOOL "" FORCE)
 set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
@@ -182,18 +180,11 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(shaderc)
 
 FetchContent_Declare(
-  lua
-  GIT_REPOSITORY https://github.com/walterschell/Lua.git
-  GIT_TAG 52674cd
+  pocketpy
+  GIT_REPOSITORY https://github.com/pocketpy/pocketpy.git
+  GIT_TAG 3f5c460
 )
-FetchContent_MakeAvailable(lua)
-
-FetchContent_Declare(
-  sol2
-  GIT_REPOSITORY https://github.com/ThePhD/sol2.git
-  GIT_TAG        v3.2.3
-)
-FetchContent_MakeAvailable(sol2)
+FetchContent_MakeAvailable(pocketpy)
 
 set(NEXUS_INCLUDE_DIRS "")
 set(NEXUS_LINKED_LIBRARIES "")
@@ -277,12 +268,13 @@ list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES
   external/glad)
 
 set (ENGINE_SOURCES
+  src/Nexus.cpp
+  include/Nexus.hpp
   src/Nexus-Core/Application.cpp
   include/Nexus-Core/Application.hpp
   include/Nexus-Core/ApplicationSpecification.hpp
   src/Nexus-Core/AssetManager.cpp
   include/Nexus-Core/AssetManager.hpp
-  include/Nexus-Core/EntryPoint.hpp
   include/Nexus-Core/IView.hpp
   include/Nexus-Core/Monitor.hpp
   src/Nexus-Core/nxpch.cpp
@@ -425,7 +417,7 @@ include/Nexus-Core/Runtime/Camera.hpp
 
 list (APPEND ENGINE_SOURCES
   include/Nexus-Core/Scripting/NativeScript.hpp
-  include/Nexus-Core/Scripting/LuaScript.hpp)
+  include/Nexus-Core/Scripting/PythonScript.hpp)
 
 list (APPEND ENGINE_SOURCES
   include/Nexus-Core/Timings/Clock.hpp
@@ -630,7 +622,7 @@ list (APPEND NEXUS_INCLUDE_DIRS
   ${stb_SOURCE_DIR}
   ${IMGUI_INCLUDE_DIR}
   ${IMGUIZMO_INCLUDE_DIR}
-  ${lua_SOURCE_DIR}/lua-5.4.7/include
+  ${pocketpy_SOURCE_DIR}/include
   binaries/dxc_2023_08_14/inc
 )
 
@@ -647,8 +639,7 @@ list (APPEND NEXUS_LINKED_LIBRARIES
   glm::glm
   imgui
   imguizmo
-  lua_static
-  sol2::sol2)
+  pocketpy)
 
 #precompiled header
 if (NX_ROOT_BUILD STREQUAL "ON")

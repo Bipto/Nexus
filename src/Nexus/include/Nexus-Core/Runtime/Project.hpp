@@ -89,9 +89,6 @@ namespace Nexus
 
 		void CreateComponent(const char *typeName, ECS::Registry &registry, const Entity &entity);
 
-	  public:
-		static Ref<Project> s_ActiveProject;
-
 	  private:
 		void WriteProjectFile();
 		void WriteSceneFile(const std::string &sceneDirectory);
