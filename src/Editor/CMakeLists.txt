@@ -13,3 +13,4 @@ COMMAND ${CMAKE_COMMAND} -E copy_directory
 
 nexus_copy_required_binaries()
 nexus_copy_required_runtime_libraries()
+setup_scripting_project(Nexus)

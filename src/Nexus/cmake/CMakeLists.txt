@@ -112,23 +112,32 @@ endmacro()
 #copy all required libraries to output directory
 macro(nexus_copy_required_runtime_libraries)
 
-  add_custom_command(TARGET ${PROJECT_NAME} PRE_LINK
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
     -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
     COMMAND_EXPAND_LISTS)
 
-  
+  get_all_targets(all_targets)
+  foreach (_target IN LISTS all_targets)
+
+    add_custom_command(TARGET ${_target} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy
+      -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<TARGET_PDB_FILE:${_target}>
+      COMMAND_EXPAND_LISTS)
+
+  endforeach()
+
 endmacro()
 
 macro(nexus_copy_required_runtime_libraries_to_custom_dir output_dir)
 
   #create directory if needed
-  add_custom_command(TARGET ${PROJECT_NAME} PRE_LINK
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir}  
   )
 
   #copy libraries
-  add_custom_command(TARGET ${PROJECT_NAME} PRE_LINK
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
     -t $<TARGET_FILE_DIR:${PROJECT_NAME}>/${output_dir} $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
     COMMAND_EXPAND_LISTS)
@@ -160,4 +169,34 @@ macro(nexus_add_all_shared_lib_subdirs SUBDIRS)
   foreach (SUBDIR ${SUBDIRS})
     nexus_add_shared_library(${SUBDIR})
   endforeach()
+endmacro()
+
+macro(setup_scripting_project output_dir)
+
+  set(NEXUS_OUTPUT_INCLUDE_DIR ${output_dir}/include)
+  set(NEXUS_OUTPUT_LIB_DIR ${output_dir}/lib)
+
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/${NEXUS_OUTPUT_INCLUDE_DIR}
+  )
+
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/${NEXUS_OUTPUT_LIB_DIR}
+  )
+
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    -t $<TARGET_FILE_DIR:${PROJECT_NAME}>/${NEXUS_OUTPUT_LIB_DIR} $<TARGET_FILE:Nexus>
+    COMMAND_EXPAND_LISTS)
+
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    -t $<TARGET_FILE_DIR:${PROJECT_NAME}>/${NEXUS_OUTPUT_LIB_DIR} $<TARGET_LINKER_FILE:Nexus>
+    COMMAND_EXPAND_LISTS)
+
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${Nexus_SOURCE_DIR}/include
+    $<TARGET_FILE_DIR:${PROJECT_NAME}>/${NEXUS_OUTPUT_INCLUDE_DIR})
+
 endmacro()
