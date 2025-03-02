@@ -68,6 +68,7 @@ jobs:
           -DNX_PLATFORM_VULKAN=1
           -DNX_PLATFORM_D3D12=1
           -DNX_PLATFORM_OPENAL=1
+          -DNX_BUILD_TESTS=1
           -S ${{ github.workspace }}         
 
 
