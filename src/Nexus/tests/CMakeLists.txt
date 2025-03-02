@@ -25,3 +25,6 @@ add_test(
     NAME Tests
     COMMAND Tests
 )
+
+nexus_copy_required_binaries()
+nexus_copy_required_runtime_libraries_to_target_output(Tests)

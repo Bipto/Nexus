@@ -144,6 +144,13 @@ macro(nexus_copy_required_runtime_libraries_to_custom_dir output_dir)
 
 endmacro()
 
+macro(nexus_copy_required_runtime_libraries_to_target_output target)
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy
+  -t $<TARGET_FILE_DIR:${target}> $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
+  COMMAND_EXPAND_LISTS)
+endmacro()
+
 macro(nexus_copy_static_lib output_dir)
 
   #create directory if needed

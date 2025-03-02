@@ -275,7 +275,6 @@ set (ENGINE_SOURCES
   include/Nexus-Core/ApplicationSpecification.hpp
   src/Nexus-Core/AssetManager.cpp
   include/Nexus-Core/AssetManager.hpp
-  include/Nexus-Core/IView.hpp
   include/Nexus-Core/Monitor.hpp
   src/Nexus-Core/nxpch.cpp
   include/Nexus-Core/nxpch.hpp
@@ -676,3 +675,8 @@ target_link_libraries(Nexus ${NX_LINK_VISIBILITY} ${NEXUS_LINKED_LIBRARIES})
 target_compile_definitions(Nexus ${NX_COMPILE_DEFINITION_VISIBILITY} ${NEXUS_COMPILE_DEFINITIONS})
 nexus_structure_folders()
 nexus_setup_filters("${ENGINE_SOURCES}")
+
+if (DEFINED NX_BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+  endif()
