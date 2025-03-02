@@ -248,7 +248,7 @@ namespace Nexus::Graphics
 		if (FAILED(hr))
 		{
 			_com_error error(hr);
-			// std::cout << "Failed to create pipeline state: " << error.ErrorMessage() << std::endl;
+			std::cout << "Failed to create pipeline state: " << error.ErrorMessage() << std::endl;
 		}
 	}
 
@@ -272,7 +272,7 @@ namespace Nexus::Graphics
 												 elementIndex,
 												 D3D12::GetD3D12BaseType(element),
 												 layoutIndex,
-												 element.Offset,
+												 (UINT)element.Offset,
 												 classification,
 												 layout.GetInstanceStepRate()};
 
@@ -332,18 +332,43 @@ namespace Nexus::Graphics
 	D3D12_BLEND_DESC PipelineD3D12::CreateBlendStateDesc()
 	{
 		D3D12_BLEND_DESC desc {};
-		desc.AlphaToCoverageEnable				   = FALSE;
-		desc.IndependentBlendEnable				   = FALSE;
-		desc.RenderTarget[0].BlendEnable		   = m_Description.BlendStateDesc.EnableBlending;
-		desc.RenderTarget[0].SrcBlend			   = D3D12::GetBlendFunction(m_Description.BlendStateDesc.SourceColourBlend);
-		desc.RenderTarget[0].DestBlend			   = D3D12::GetBlendFunction(m_Description.BlendStateDesc.DestinationColourBlend);
-		desc.RenderTarget[0].BlendOp			   = D3D12::GetBlendEquation(m_Description.BlendStateDesc.ColorBlendFunction);
-		desc.RenderTarget[0].SrcBlendAlpha		   = D3D12::GetBlendFunction(m_Description.BlendStateDesc.SourceAlphaBlend);
-		desc.RenderTarget[0].DestBlendAlpha		   = D3D12::GetBlendFunction(m_Description.BlendStateDesc.DestinationAlphaBlend);
-		desc.RenderTarget[0].BlendOpAlpha		   = D3D12::GetBlendEquation(m_Description.BlendStateDesc.AlphaBlendFunction);
-		desc.RenderTarget[0].LogicOpEnable		   = FALSE;
-		desc.RenderTarget[0].LogicOp			   = D3D12_LOGIC_OP_NOOP;
-		desc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+		desc.AlphaToCoverageEnable	= FALSE;
+		desc.IndependentBlendEnable = TRUE;
+
+		for (size_t i = 0; i < m_Description.ColourBlendStates.size(); i++)
+		{
+			desc.RenderTarget[i].BlendEnable		   = m_Description.ColourBlendStates[i].EnableBlending;
+			desc.RenderTarget[i].SrcBlend			   = D3D12::GetBlendFunction(m_Description.ColourBlendStates[i].SourceColourBlend);
+			desc.RenderTarget[i].SrcBlend			   = D3D12::GetBlendFunction(m_Description.ColourBlendStates[i].SourceColourBlend);
+			desc.RenderTarget[i].DestBlend			   = D3D12::GetBlendFunction(m_Description.ColourBlendStates[i].DestinationColourBlend);
+			desc.RenderTarget[i].BlendOp			   = D3D12::GetBlendEquation(m_Description.ColourBlendStates[i].ColorBlendFunction);
+			desc.RenderTarget[i].SrcBlendAlpha		   = D3D12::GetBlendFunction(m_Description.ColourBlendStates[i].SourceAlphaBlend);
+			desc.RenderTarget[i].DestBlendAlpha		   = D3D12::GetBlendFunction(m_Description.ColourBlendStates[i].DestinationAlphaBlend);
+			desc.RenderTarget[i].BlendOpAlpha		   = D3D12::GetBlendEquation(m_Description.ColourBlendStates[i].AlphaBlendFunction);
+			desc.RenderTarget[i].LogicOpEnable		   = FALSE;
+			desc.RenderTarget[i].LogicOp			   = D3D12_LOGIC_OP_NOOP;
+
+			uint8_t writeMask = 0;
+			if (m_Description.ColourBlendStates[i].PixelWriteMask.Red)
+			{
+				writeMask |= D3D12_COLOR_WRITE_ENABLE_RED;
+			}
+			if (m_Description.ColourBlendStates[i].PixelWriteMask.Green)
+			{
+				writeMask |= D3D12_COLOR_WRITE_ENABLE_GREEN;
+			}
+			if (m_Description.ColourBlendStates[i].PixelWriteMask.Blue)
+			{
+				writeMask |= D3D12_COLOR_WRITE_ENABLE_BLUE;
+			}
+			if (m_Description.ColourBlendStates[i].PixelWriteMask.Alpha)
+			{
+				writeMask |= D3D12_COLOR_WRITE_ENABLE_ALPHA;
+			}
+
+			desc.RenderTarget[i].RenderTargetWriteMask = writeMask;
+		}
+
 		return desc;
 	}
 

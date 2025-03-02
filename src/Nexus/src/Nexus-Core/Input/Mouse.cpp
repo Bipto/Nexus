@@ -1,4 +1,4 @@
-#include "Mouse.hpp"
+#include "Nexus-Core/Input/Mouse.hpp"
 
 namespace Nexus
 {

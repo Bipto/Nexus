@@ -199,30 +199,44 @@ namespace Nexus::Graphics
 			case FrontFace::CounterClockwise: glCall(glFrontFace(GL_CCW)); break;
 		}
 
+		for (size_t i = 0; i < m_Description.ColourBlendStates.size(); i++)
+		{
+			const auto &colourBlendState = m_Description.ColourBlendStates[i];
+			glColorMaski(i,
+						 colourBlendState.PixelWriteMask.Red,
+						 colourBlendState.PixelWriteMask.Green,
+						 colourBlendState.PixelWriteMask.Blue,
+						 colourBlendState.PixelWriteMask.Alpha);
+		}
+
 		// vulkan requires scissor test to be enabled
 		glCall(glEnable(GL_SCISSOR_TEST));
 	}
 
 	void PipelineOpenGL::SetupBlending()
 	{
-		if (m_Description.BlendStateDesc.EnableBlending)
+		glCall(glEnable(GL_BLEND));
+		for (size_t i = 0; i < m_Description.ColourBlendStates.size(); i++)
 		{
-			glCall(glEnable(GL_BLEND));
+			if (m_Description.ColourBlendStates[i].EnableBlending)
+			{
+				auto sourceColourFunction = GL::GetBlendFactor(m_Description.ColourBlendStates[i].SourceColourBlend);
+				auto sourceAlphaFunction  = GL::GetBlendFactor(m_Description.ColourBlendStates[i].SourceAlphaBlend);
 
-			auto sourceColourFunction = GL::GetBlendFactor(m_Description.BlendStateDesc.SourceColourBlend);
-			auto sourceAlphaFunction  = GL::GetBlendFactor(m_Description.BlendStateDesc.SourceAlphaBlend);
+				auto destinationColourFunction = GL::GetBlendFactor(m_Description.ColourBlendStates[i].DestinationColourBlend);
+				auto destinationAlphaFunction  = GL::GetBlendFactor(m_Description.ColourBlendStates[i].DestinationAlphaBlend);
+				glCall(glBlendFuncSeparatei(i, sourceColourFunction, destinationColourFunction, sourceAlphaFunction, destinationAlphaFunction));
 
-			auto destinationColourFunction = GL::GetBlendFactor(m_Description.BlendStateDesc.DestinationColourBlend);
-			auto destinationAlphaFunction  = GL::GetBlendFactor(m_Description.BlendStateDesc.DestinationAlphaBlend);
-			glCall(glBlendFuncSeparate(sourceColourFunction, destinationColourFunction, sourceAlphaFunction, destinationAlphaFunction));
-
-			auto colorBlendFunction = GL::GetBlendFunction(m_Description.BlendStateDesc.ColorBlendFunction);
-			auto alphaBlendFunction = GL::GetBlendFunction(m_Description.BlendStateDesc.AlphaBlendFunction);
-			glCall(glBlendEquationSeparate(colorBlendFunction, alphaBlendFunction));
-		}
-		else
-		{
-			glCall(glDisable(GL_BLEND));
+				auto colorBlendFunction = GL::GetBlendFunction(m_Description.ColourBlendStates[i].ColorBlendFunction);
+				auto alphaBlendFunction = GL::GetBlendFunction(m_Description.ColourBlendStates[i].AlphaBlendFunction);
+				glCall(glBlendEquationSeparatei(i, colorBlendFunction, alphaBlendFunction));
+			}
+			// disable blending for this attachment
+			else
+			{
+				glBlendFunci(i, GL_ONE, GL_ZERO);
+				glBlendEquationi(i, GL_FUNC_ADD);
+			}
 		}
 	}
 

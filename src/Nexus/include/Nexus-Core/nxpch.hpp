@@ -1,0 +1,80 @@
+#pragma once
+
+#include <inttypes.h>
+#include <time.h>
+
+#include <algorithm>
+#include <any>
+#include <array>
+#include <cassert>
+#include <chrono>
+#include <cmath>
+#include <ctime>
+#include <deque>
+#include <filesystem>
+#include <fstream>
+#include <functional>
+#include <future>
+#include <initializer_list>
+#include <iomanip>
+#include <iostream>
+#include <list>
+#include <map>
+#include <memory>
+#include <numbers>
+#include <optional>
+#include <random>
+#include <set>
+#include <typeindex>
+#include <typeinfo>
+
+#if defined(__clang__) && !defined(__EMSCRIPTEN__)
+	#include <experimental/source_location>
+using source_location = std::experimental::source_location;
+#else
+	#include <source_location>
+using source_location = std::source_location;
+#endif
+
+#include <span>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <variant>
+#include <vector>
+
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_LEFT_HANDED
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/glm.hpp>
+#include <glm/gtc/bitfield.hpp>
+#include <glm/gtc/constants.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/round.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/hash.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtx/vector_angle.hpp>
+#include <glm/trigonometric.hpp>
+
+#include "Nexus-Core/Logging/Log.hpp"
+#include "Nexus-Core/Point.hpp"
+#include "Nexus-Core/Types.hpp"
+
+#if defined(NX_BUILD_DLL)
+	#if defined(WIN32)
+		#if defined(NX_EXPORT_API)
+			#define NX_API __declspec(dllexport)
+		#else if defined(NX_IMPORT_API)
+			#define NX_API __declspec(dllimport)
+		#endif
+	#else
+		#define NX_API
+	#endif
+#else
+	#define NX_API
+#endif

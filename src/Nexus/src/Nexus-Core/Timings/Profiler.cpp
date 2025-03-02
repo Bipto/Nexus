@@ -1,4 +1,4 @@
-#include "Profiler.hpp"
+#include "Nexus-Core/Timings/Profiler.hpp"
 
 namespace Nexus::Timings
 {

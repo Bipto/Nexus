@@ -165,6 +165,10 @@ namespace Nexus::Graphics
 		readbackProperties.CreationNodeMask		 = 0;
 		readbackProperties.VisibleNodeMask		 = 0;
 
+		uint32_t stride			  = width * GetPixelFormatSizeInBytes(m_Specification.Format);
+		uint32_t pixelSizeInBytes = GetPixelFormatSizeInBytes(m_Specification.Format);
+		uint32_t totalBufferSize  = pixelSizeInBytes * width * height;
+
 		D3D12_RESOURCE_DESC readbackBufferDesc = {};
 		readbackBufferDesc.Alignment		   = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
 		readbackBufferDesc.DepthOrArraySize	   = 1;
@@ -172,7 +176,7 @@ namespace Nexus::Graphics
 		readbackBufferDesc.Flags			   = D3D12_RESOURCE_FLAG_NONE;
 		readbackBufferDesc.Format			   = DXGI_FORMAT_UNKNOWN;
 		readbackBufferDesc.Height			   = 1;
-		readbackBufferDesc.Width			   = totalBytes;
+		readbackBufferDesc.Width			   = totalBufferSize;
 		readbackBufferDesc.Layout			   = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 		readbackBufferDesc.MipLevels		   = 1;
 		readbackBufferDesc.SampleDesc.Count	   = 1;
@@ -191,8 +195,6 @@ namespace Nexus::Graphics
 		srcLocation.pResource					= m_Texture.Get();
 		srcLocation.Type						= D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
 		srcLocation.SubresourceIndex			= level;
-
-		uint32_t stride = width * GetPixelFormatSizeInBytes(m_Specification.Format);
 
 		D3D12_TEXTURE_COPY_LOCATION dstLocation		   = {};
 		dstLocation.pResource						   = readbackBuffer.Get();
@@ -234,16 +236,16 @@ namespace Nexus::Graphics
 			[&](ID3D12GraphicsCommandList6 *cmd)
 			{
 				cmd->ResourceBarrier(1, &toReadBarrier);
-				cmd->CopyTextureRegion(&dstLocation, x, y, 0, &srcLocation, &textureBounds);
+				cmd->CopyTextureRegion(&dstLocation, 0, 0, 0, &srcLocation, &textureBounds);
 				cmd->ResourceBarrier(1, &toDefaultBarrier);
 			});
 
-		pixels.resize(totalBytes);
+		pixels.resize(totalBufferSize);
 
 		void	   *uploadBufferAddress;
 		D3D12_RANGE readRange;
 		readRange.Begin = 0;
-		readRange.End	= totalBytes;
+		readRange.End	= totalBufferSize;
 
 		readbackBuffer->Map(0, &readRange, &uploadBufferAddress);
 		memcpy(pixels.data(), uploadBufferAddress, pixels.size());
@@ -461,6 +463,9 @@ namespace Nexus::Graphics
 		readbackProperties.CreationNodeMask		 = 0;
 		readbackProperties.VisibleNodeMask		 = 0;
 
+		uint32_t pixelSizeInBytes = GetPixelFormatSizeInBytes(m_Specification.Format);
+		uint32_t totalBufferSize  = pixelSizeInBytes * width * height;
+
 		D3D12_RESOURCE_DESC readbackBufferDesc = {};
 		readbackBufferDesc.Alignment		   = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
 		readbackBufferDesc.DepthOrArraySize	   = 1;
@@ -468,7 +473,7 @@ namespace Nexus::Graphics
 		readbackBufferDesc.Flags			   = D3D12_RESOURCE_FLAG_NONE;
 		readbackBufferDesc.Format			   = DXGI_FORMAT_UNKNOWN;
 		readbackBufferDesc.Height			   = 1;
-		readbackBufferDesc.Width			   = totalBytes;
+		readbackBufferDesc.Width			   = totalBufferSize;
 		readbackBufferDesc.Layout			   = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 		readbackBufferDesc.MipLevels		   = 1;
 		readbackBufferDesc.SampleDesc.Count	   = 1;
@@ -528,16 +533,16 @@ namespace Nexus::Graphics
 			[&](ID3D12GraphicsCommandList6 *cmd)
 			{
 				cmd->ResourceBarrier(1, &toReadBarrier);
-				cmd->CopyTextureRegion(&dstLocation, x, y, 0, &srcLocation, &textureBounds);
+				cmd->CopyTextureRegion(&dstLocation, 0, 0, 0, &srcLocation, &textureBounds);
 				cmd->ResourceBarrier(1, &toDefaultBarrier);
 			});
 
-		pixels.resize(totalBytes);
+		pixels.resize(totalBufferSize);
 
 		void	   *uploadBufferAddress;
 		D3D12_RANGE readRange;
 		readRange.Begin = 0;
-		readRange.End	= totalBytes;
+		readRange.End	= totalBufferSize;
 
 		readbackBuffer->Map(0, &readRange, &uploadBufferAddress);
 		memcpy(pixels.data(), uploadBufferAddress, pixels.size());

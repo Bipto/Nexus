@@ -1,16 +1,15 @@
 #include "Nexus-Core/nxpch.hpp"
 
-#include "GraphicsDevice.hpp"
+#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 
 #include "Nexus-Core/FileSystem/FileSystem.hpp"
 #include "Nexus-Core/Graphics/MipmapGenerator.hpp"
+#include "Nexus-Core/Graphics/ShaderGenerator.hpp"
+#include "Nexus-Core/Graphics/ShaderUtils.hpp"
 #include "Nexus-Core/Logging/Log.hpp"
-#include "ShaderGenerator.hpp"
-#include "ShaderUtils.hpp"
 #include "stb_image.h"
 
-#include "CachedShader.hpp"
-#include "CachedTexture.hpp"
+#include "Nexus-Core/Caching/CachedShader.hpp"
 
 // graphics headers
 #if defined(NX_PLATFORM_OPENGL)
@@ -177,11 +176,13 @@ namespace Nexus::Graphics
 		int width			 = 0;
 		int height			 = 0;
 
+		stbi_set_flip_vertically_on_load(true);
+
 		Texture2DSpecification spec;
-		spec.Format			= PixelFormat::R8_G8_B8_A8_UNorm;
 		unsigned char *data = stbi_load(filepath, &width, &height, &receivedChannels, desiredChannels);
 		spec.Width			= (uint32_t)width;
 		spec.Height			= (uint32_t)height;
+		spec.Format					= PixelFormat::R8_G8_B8_A8_UNorm;
 
 		if (generateMips)
 		{

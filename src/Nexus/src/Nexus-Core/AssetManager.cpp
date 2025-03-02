@@ -1,4 +1,4 @@
-#include "AssetManager.hpp"
+#include "Nexus-Core/AssetManager.hpp"
 
 namespace Nexus
 {

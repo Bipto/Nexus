@@ -1,4 +1,4 @@
-#include "Log.hpp"
+#include "Nexus-Core/Logging/Log.hpp"
 
 #include "Nexus-Core/nxpch.hpp"
 

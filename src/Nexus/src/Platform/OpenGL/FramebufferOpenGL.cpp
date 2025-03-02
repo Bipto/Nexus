@@ -30,6 +30,15 @@ namespace Nexus::Graphics
 		glCall(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_FBO));
 		auto width	= m_Specification.Width;
 		auto height = m_Specification.Height;
+
+		std::vector<GLenum> drawBuffers;
+		for (size_t i = 0; i < m_Specification.ColorAttachmentSpecification.Attachments.size(); i++)
+		{
+			drawBuffers.push_back(GL_COLOR_ATTACHMENT0 + i);
+		}
+
+		glDrawBuffers(drawBuffers.size(), drawBuffers.data());
+
 		glCall(glViewport(0, 0, width, height));
 		glCall(glScissor(0, 0, width, height));
 	}

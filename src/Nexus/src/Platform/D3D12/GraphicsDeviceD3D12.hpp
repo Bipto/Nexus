@@ -41,6 +41,9 @@ namespace Nexus::Graphics
 		{
 			return ShaderLanguage::HLSL;
 		}
+
+		virtual void WaitForIdle() override;
+
 		virtual float GetUVCorrection()
 		{
 			return -1.0f;

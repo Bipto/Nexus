@@ -1,4 +1,4 @@
-#include "Input.hpp"
+#include "Nexus-Core/Input/Input.hpp"
 
 #include "Nexus-Core/Runtime.hpp"
 

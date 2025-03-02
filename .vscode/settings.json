@@ -104,5 +104,6 @@
         "cfenv": "cpp",
         "resumable": "cpp"
     },
-    "cmake.loggingLevel": "info"
+    "cmake.loggingLevel": "info",
+    "C_Cpp.default.compilerPath": "cl.exe"
 }

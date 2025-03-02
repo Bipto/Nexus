@@ -22,7 +22,7 @@ namespace Nexus::Graphics
 		VkPipelineInputAssemblyStateCreateInfo CreateInputAssemblyCreateInfo(VkPrimitiveTopology topology);
 		VkPipelineRasterizationStateCreateInfo CreateRasterizationStateCreateInfo(VkPolygonMode polygonMode, VkCullModeFlags cullingFlags);
 		VkPipelineMultisampleStateCreateInfo   CreateMultisampleStateCreateInfo();
-		VkPipelineColorBlendAttachmentState	   CreateColorBlendAttachmentState();
+		std::vector<VkPipelineColorBlendAttachmentState> CreateColorBlendAttachmentStates();
 		VkPipelineLayoutCreateInfo			   CreatePipelineLayoutCreateInfo(const std::vector<VkDescriptorSetLayout> &layouts);
 		VkPipelineDepthStencilStateCreateInfo  CreatePipelineDepthStencilStateCreateInfo();
 

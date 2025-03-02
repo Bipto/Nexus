@@ -1,8 +1,10 @@
-#include "Runtime.hpp"
+#include "Nexus-Core/Runtime.hpp"
 
 #include "Nexus-Core/Input/InputContext.hpp"
 #include "Nexus-Core/Platform.hpp"
 #include "Nexus-Core/nxpch.hpp"
+
+#include "Nexus-Core/ECS/Components.hpp"
 
 Nexus::Application	*appPtr		  = nullptr;
 Nexus::AssetManager *assetManager = nullptr;
@@ -41,6 +43,11 @@ namespace Nexus
 	AssetManager *GetAssetManager()
 	{
 		return assetManager;
+	}
+
+	void SetApplication(Nexus::Application *app)
+	{
+		appPtr = app;
 	}
 }	 // namespace Nexus
 

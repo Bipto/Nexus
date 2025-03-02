@@ -1,7 +1,16 @@
-#include "Scene.hpp"
+#include "Nexus-Core/Runtime/Scene.hpp"
 
 #include "Nexus-Core/FileSystem/FileSystem.hpp"
 #include "yaml-cpp/yaml.h"
+
+#include "Nexus-Core/Graphics/HdriProcessor.hpp"
+#include "Nexus-Core/Runtime.hpp"
+
+#include "Nexus-Core/ECS/ComponentRegistry.hpp"
+#include "Nexus-Core/ECS/Components.hpp"
+
+#include "Nexus-Core/Runtime/Project.hpp"
+#include "Nexus-Core/Scripting/NativeScript.hpp"
 
 namespace YAML
 {
@@ -110,21 +119,36 @@ YAML::Emitter &operator<<(YAML::Emitter &output, const glm::vec4 &vec)
 
 namespace Nexus
 {
-	Scene::Scene(const std::string &name) : m_Name(name)
+	Scene::Scene()
 	{
+		auto graphicsDevice = Nexus::GetApplication()->GetGraphicsDevice();
+
+		Graphics::SamplerSpecification samplerSpec = {};
+		samplerSpec.AddressModeU				   = Graphics::SamplerAddressMode::Clamp;
+		samplerSpec.AddressModeV				   = Graphics::SamplerAddressMode::Clamp;
+		samplerSpec.AddressModeW				   = Graphics::SamplerAddressMode::Clamp;
+
+		SceneEnvironment.CubemapSampler = graphicsDevice->CreateSampler(samplerSpec);
 	}
 
 	void Scene::Serialize(const std::string &filepath)
 	{
 		YAML::Emitter out;
 		out << YAML::BeginMap;
-		out << YAML::Key << "Scene" << YAML::Value << m_Name;
-		out << YAML::Key << "ClearColour" << YAML::Value << m_ClearColour;
-		out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
+		{
+			out << YAML::Key << "Scene" << YAML::Value << Name;
 
-		for (const auto &e : m_Entities) { e.Serialize(out); }
+			out << YAML::Key << "Environment" << YAML::Value;
+			out << YAML::BeginMap;
+			out << YAML::Key << "ClearColour" << YAML::Value << SceneEnvironment.ClearColour;
+			out << YAML::Key << "Cubemap" << YAML::Value << SceneEnvironment.CubemapPath;
+			out << YAML::EndMap;
 
-		out << YAML::EndSeq;
+			out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
+			for (const auto &e : GetEntities()) { e.Serialize(out, Registry, Project); }
+			out << YAML::EndSeq;
+		}
+
 		out << YAML::EndMap;
 
 		FileSystem::WriteFileAbsolute(filepath, out.c_str());
@@ -132,16 +156,216 @@ namespace Nexus
 
 	void Scene::AddEmptyEntity()
 	{
-		m_Entities.push_back(Entity());
+		Registry.Create();
+	}
+
+	Entity *Scene::GetEntity(GUID id)
+	{
+		return Registry.GetEntityOrNull(id);
 	}
 
 	std::vector<Entity> &Scene::GetEntities()
 	{
-		return m_Entities;
+		return Registry.GetEntities();
 	}
 
-	Scene *Scene::Deserialize(const std::string &filepath)
+	void Scene::Start()
 	{
+		// we only instantiate scripts if it is the first time clicking the play button
+		if (m_SceneState == SceneState::Stopped)
+		{
+			// update native scripts
+			{
+				auto view = Registry.GetView<Nexus::NativeScriptComponent>();
+
+				if (view.HasComponents())
+				{
+					for (auto &[entity, components] : view)
+					{
+						for (const auto &component : components)
+						{
+							auto *script = std::get<0>(component);
+							script->Instantiate(Project, entity->ID);
+						}
+					}
+				}
+			}
+
+			// call Lua load functions
+			{
+				auto view = Registry.GetView<Nexus::PythonScriptComponent>();
+
+				if (view.HasComponents())
+				{
+					for (auto &[entity, components] : view)
+					{
+						for (const auto &component : components)
+						{
+							auto *script = std::get<0>(component);
+							script->Script.OnLoad();
+						}
+					}
+				}
+			}
+		}
+
+		m_SceneState = SceneState::Playing;
+	}
+
+	void Scene::Stop()
+	{
+		// call Lua unload functions
+		{
+			auto view = Registry.GetView<Nexus::PythonScriptComponent>();
+
+			if (view.HasComponents())
+			{
+				for (auto &[entity, components] : view)
+				{
+					for (const auto &component : components)
+					{
+						auto *script = std::get<0>(component);
+						script->Script.OnUnload();
+					}
+				}
+			}
+		}
+
+		m_SceneState = SceneState::Stopped;
+	}
+
+	void Scene::Pause()
+	{
+		m_SceneState = SceneState::Paused;
+	}
+
+	void Scene::OnUpdate(TimeSpan time)
+	{
+		// call native script functions
+		{
+			auto view = Registry.GetView<Nexus::NativeScriptComponent>();
+			if (view.HasComponents())
+			{
+				for (auto &[entity, components] : view)
+				{
+					for (const auto &component : components)
+					{
+						auto *script = std::get<0>(component);
+						if (script->ScriptInstance)
+						{
+							script->ScriptInstance->OnUpdate(time);
+						}
+					}
+				}
+			}
+		}
+
+		// call Lua load functions
+		{
+			auto view = Registry.GetView<Nexus::PythonScriptComponent>();
+
+			if (view.HasComponents())
+			{
+				for (auto &[entity, components] : view)
+				{
+					for (const auto &component : components)
+					{
+						auto *script = std::get<0>(component);
+						script->Script.OnUpdate();
+					}
+				}
+			}
+		}
+	}
+
+	void Scene::OnRender(TimeSpan time)
+	{
+		// call Native OnRender function
+		{
+			auto view = Registry.GetView<Nexus::NativeScriptComponent>();
+
+			if (view.HasComponents())
+			{
+				for (auto &[entity, components] : view)
+				{
+					for (const auto &component : components)
+					{
+						auto *script = std::get<0>(component);
+						if (script->ScriptInstance)
+						{
+							script->ScriptInstance->OnRender(time);
+						}
+					}
+				}
+			}
+		}
+
+		// call Lua load functions
+		{
+			auto view = Registry.GetView<Nexus::PythonScriptComponent>();
+
+			if (view.HasComponents())
+			{
+				for (auto &[entity, components] : view)
+				{
+					for (const auto &component : components)
+					{
+						auto *script = std::get<0>(component);
+						script->Script.OnRender();
+					}
+				}
+			}
+		}
+	}
+
+	void Scene::OnTick(TimeSpan time)
+	{
+		// call native OnTick functions
+		{
+			auto view = Registry.GetView<Nexus::NativeScriptComponent>();
+
+			if (view.HasComponents())
+			{
+				for (auto &[entity, components] : view)
+				{
+					for (const auto &component : components)
+					{
+						auto *script = std::get<0>(component);
+						if (script->ScriptInstance)
+						{
+							script->ScriptInstance->OnTick(time);
+						}
+					}
+				}
+			}
+		}
+
+		// call Lua load functions
+		{
+			auto view = Registry.GetView<Nexus::PythonScriptComponent>();
+			if (view.HasComponents())
+			{
+				for (auto &[entity, components] : view)
+				{
+					for (const auto &component : components)
+					{
+						auto *script = std::get<0>(component);
+						script->Script.OnTick();
+					}
+				}
+			}
+		}
+	}
+
+	SceneState Scene::GetSceneState()
+	{
+		return m_SceneState;
+	}
+
+	Scene *Scene::Deserialize(const SceneInfo &info, const std::string &sceneDirectory, Nexus::Project *project)
+	{
+		std::string filepath = sceneDirectory + info.Name + std::string(".scene");
+
 		std::string input = Nexus::FileSystem::ReadFileToStringAbsolute(filepath);
 		YAML::Node	node  = YAML::Load(input);
 
@@ -150,9 +374,21 @@ namespace Nexus
 			return nullptr;
 		}
 
-		Scene *scene		 = new Scene();
-		scene->m_Name		 = node["Scene"].as<std::string>();
-		scene->m_ClearColour = node["ClearColour"].as<glm::vec4>();
+		Scene *scene   = new Scene();
+		scene->Guid	   = info.Guid;
+		scene->Name	   = node["Scene"].as<std::string>();
+		scene->Project = project;
+
+		auto environment					= node["Environment"];
+		scene->SceneEnvironment.ClearColour = environment["ClearColour"].as<glm::vec4>();
+		scene->SceneEnvironment.CubemapPath = environment["Cubemap"].as<std::string>();
+
+		if (!scene->SceneEnvironment.CubemapPath.empty() && std::filesystem::exists(scene->SceneEnvironment.CubemapPath))
+		{
+			auto					graphicsDevice = Nexus::GetApplication()->GetGraphicsDevice();
+			Graphics::HdriProcessor processor(scene->SceneEnvironment.CubemapPath, graphicsDevice);
+			scene->SceneEnvironment.EnvironmentCubemap = processor.Generate(2048);
+		}
 
 		auto entities = node["Entities"];
 		if (entities)
@@ -162,7 +398,22 @@ namespace Nexus
 				uint64_t	id	 = entity["Entity"].as<uint64_t>();
 				std::string name = entity["Name"].as<std::string>();
 				Entity		e(GUID(id), name);
-				scene->m_Entities.push_back(e);
+				scene->Registry.AddEntity(e);
+
+				auto components = entity["Components"];
+				if (components)
+				{
+					for (auto component : components)
+					{
+						Nexus::ECS::ComponentRegistry &componentRegistry = Nexus::ECS::ComponentRegistry::GetRegistry();
+
+						std::string componentName		 = component["Name"].as<std::string>();
+						size_t		entityComponentIndex = component["HierarchyIndex"].as<size_t>();
+						YAML::Node	data				 = component["Data"];
+
+						project->DeserializeComponentFromYaml(scene->Registry, e.ID, componentName, data, entityComponentIndex);
+					}
+				}
 			}
 		}
 

@@ -1,4 +1,4 @@
-#include "ResourceSet.hpp"
+#include "Nexus-Core/Graphics/ResourceSet.hpp"
 
 namespace Nexus::Graphics
 {

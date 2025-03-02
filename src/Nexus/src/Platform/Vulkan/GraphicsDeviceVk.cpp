@@ -8,7 +8,6 @@
 	#include "Nexus-Core/nxpch.hpp"
 	#include "PipelineVk.hpp"
 	#include "ResourceSetVk.hpp"
-	#include "SDL_vulkan.h"
 	#include "SamplerVk.hpp"
 	#include "ShaderModuleVk.hpp"
 	#include "TextureVk.hpp"
@@ -175,6 +174,11 @@ namespace Nexus::Graphics
 	ShaderLanguage GraphicsDeviceVk::GetSupportedShaderFormat()
 	{
 		return ShaderLanguage::SPIRV;
+	}
+
+	void GraphicsDeviceVk::WaitForIdle()
+	{
+		vkDeviceWaitIdle(m_Device);
 	}
 
 	VkDevice GraphicsDeviceVk::GetVkDevice()

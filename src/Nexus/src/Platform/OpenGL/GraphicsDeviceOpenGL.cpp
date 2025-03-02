@@ -176,6 +176,11 @@ namespace Nexus::Graphics
 	#endif
 	}
 
+	void GraphicsDeviceOpenGL::WaitForIdle()
+	{
+		glFinish();
+	}
+
 	bool GraphicsDeviceOpenGL::Validate()
 	{
 		return m_PBuffer->Validate();

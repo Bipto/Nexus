@@ -25,7 +25,7 @@ namespace Nexus::SDL3
 			case SDLK_SCROLLLOCK: return KeyCode::ScrollLock;
 			case SDLK_PAUSE: return KeyCode::Pause;
 
-			case SDLK_BACKQUOTE: return KeyCode::BackQuote;
+			case SDLK_GRAVE: return KeyCode::BackQuote;
 			case SDLK_1: return KeyCode::One;
 			case SDLK_2: return KeyCode::Two;
 			case SDLK_3: return KeyCode::Three;
@@ -36,48 +36,49 @@ namespace Nexus::SDL3
 			case SDLK_8: return KeyCode::Eight;
 			case SDLK_9: return KeyCode::Nine;
 			case SDLK_0: return KeyCode::Zero;
+			case SDLK_MINUS: return KeyCode::Minus;
 			case SDLK_UNDERSCORE: return KeyCode::Underscore;
 			case SDLK_EQUALS: return KeyCode::Equals;
 			case SDLK_BACKSPACE: return KeyCode::Backspace;
 
 			case SDLK_TAB: return KeyCode::Tab;
-			case SDLK_q: return KeyCode::Q;
-			case SDLK_w: return KeyCode::W;
-			case SDLK_e: return KeyCode::E;
-			case SDLK_r: return KeyCode::R;
-			case SDLK_t: return KeyCode::T;
-			case SDLK_y: return KeyCode::Y;
-			case SDLK_u: return KeyCode::U;
-			case SDLK_i: return KeyCode::I;
-			case SDLK_o: return KeyCode::O;
-			case SDLK_p: return KeyCode::P;
+			case SDLK_Q: return KeyCode::Q;
+			case SDLK_W: return KeyCode::W;
+			case SDLK_E: return KeyCode::E;
+			case SDLK_R: return KeyCode::R;
+			case SDLK_T: return KeyCode::T;
+			case SDLK_Y: return KeyCode::Y;
+			case SDLK_U: return KeyCode::U;
+			case SDLK_I: return KeyCode::I;
+			case SDLK_O: return KeyCode::O;
+			case SDLK_P: return KeyCode::P;
 			case SDLK_LEFTBRACKET: return KeyCode::LeftBracket;
 			case SDLK_RIGHTBRACKET: return KeyCode::RightBracket;
 			case SDLK_RETURN: return KeyCode::Return;
 
 			case SDLK_CAPSLOCK: return KeyCode::CapsLock;
-			case SDLK_a: return KeyCode::A;
-			case SDLK_s: return KeyCode::S;
-			case SDLK_d: return KeyCode::D;
-			case SDLK_f: return KeyCode::F;
-			case SDLK_g: return KeyCode::G;
-			case SDLK_h: return KeyCode::H;
-			case SDLK_j: return KeyCode::J;
-			case SDLK_k: return KeyCode::K;
-			case SDLK_l: return KeyCode::L;
+			case SDLK_A: return KeyCode::A;
+			case SDLK_S: return KeyCode::S;
+			case SDLK_D: return KeyCode::D;
+			case SDLK_F: return KeyCode::F;
+			case SDLK_G: return KeyCode::G;
+			case SDLK_H: return KeyCode::H;
+			case SDLK_J: return KeyCode::J;
+			case SDLK_K: return KeyCode::K;
+			case SDLK_L: return KeyCode::L;
 			case SDLK_SEMICOLON: return KeyCode::Semicolon;
-			case SDLK_QUOTE: return KeyCode::Quote;
+			case SDLK_APOSTROPHE: return KeyCode::Quote;
 			case SDLK_HASH: return KeyCode::Hash;
 
 			case SDLK_LSHIFT: return KeyCode::LeftShift;
 			case SDLK_BACKSLASH: return KeyCode::BackSlash;
-			case SDLK_z: return KeyCode::Z;
-			case SDLK_x: return KeyCode::X;
-			case SDLK_c: return KeyCode::C;
-			case SDLK_v: return KeyCode::V;
-			case SDLK_b: return KeyCode::B;
-			case SDLK_n: return KeyCode::N;
-			case SDLK_m: return KeyCode::M;
+			case SDLK_Z: return KeyCode::Z;
+			case SDLK_X: return KeyCode::X;
+			case SDLK_C: return KeyCode::C;
+			case SDLK_V: return KeyCode::V;
+			case SDLK_B: return KeyCode::B;
+			case SDLK_N: return KeyCode::N;
+			case SDLK_M: return KeyCode::M;
 			case SDLK_COMMA: return KeyCode::Comma;
 			case SDLK_PERIOD: return KeyCode::Period;
 			case SDLK_SLASH: return KeyCode::Slash;
@@ -120,6 +121,8 @@ namespace Nexus::SDL3
 			case SDLK_RETURN2: return KeyCode::Return2;
 			case SDLK_KP_0: return KeyCode::KeyPad_Zero;
 			case SDLK_KP_PERIOD: return KeyCode::Period;
+			case SDLK_KP_ENTER: return KeyCode::KeyPad_Enter;
+			case SDLK_KP_MINUS: return KeyCode::KeyPad_Minus;
 
 			default: throw std::runtime_error("Failed to find a valid keycode");
 		}
@@ -155,6 +158,7 @@ namespace Nexus::SDL3
 			case SDL_SCANCODE_X: return ScanCode::X;
 			case SDL_SCANCODE_Y: return ScanCode::Y;
 			case SDL_SCANCODE_Z: return ScanCode::Z;
+
 			case SDL_SCANCODE_1: return ScanCode::One;
 			case SDL_SCANCODE_2: return ScanCode::Two;
 			case SDL_SCANCODE_3: return ScanCode::Three;
@@ -165,25 +169,29 @@ namespace Nexus::SDL3
 			case SDL_SCANCODE_8: return ScanCode::Eight;
 			case SDL_SCANCODE_9: return ScanCode::Nine;
 			case SDL_SCANCODE_0: return ScanCode::Zero;
+
 			case SDL_SCANCODE_RETURN: return ScanCode::Return;
 			case SDL_SCANCODE_ESCAPE: return ScanCode::Escape;
 			case SDL_SCANCODE_BACKSPACE: return ScanCode::Backspace;
 			case SDL_SCANCODE_TAB: return ScanCode::Tab;
 			case SDL_SCANCODE_SPACE: return ScanCode::Space;
+
 			case SDL_SCANCODE_MINUS: return ScanCode::Minus;
 			case SDL_SCANCODE_EQUALS: return ScanCode::Equals;
 			case SDL_SCANCODE_LEFTBRACKET: return ScanCode::LeftBracket;
 			case SDL_SCANCODE_RIGHTBRACKET: return ScanCode::RightBracket;
 			case SDL_SCANCODE_BACKSLASH: return ScanCode::Backslash;
-			case SDL_SCANCODE_NONUSHASH: return ScanCode::NonusHash;
 
+			case SDL_SCANCODE_NONUSHASH: return ScanCode::NonusHash;
 			case SDL_SCANCODE_SEMICOLON: return ScanCode::Semicolon;
 			case SDL_SCANCODE_APOSTROPHE: return ScanCode::Apostrophe;
 			case SDL_SCANCODE_GRAVE: return ScanCode::Grave;
 			case SDL_SCANCODE_COMMA: return ScanCode::Comma;
 			case SDL_SCANCODE_PERIOD: return ScanCode::Period;
 			case SDL_SCANCODE_SLASH: return ScanCode::Slash;
+
 			case SDL_SCANCODE_CAPSLOCK: return ScanCode::CapsLock;
+
 			case SDL_SCANCODE_F1: return ScanCode::F1;
 			case SDL_SCANCODE_F2: return ScanCode::F2;
 			case SDL_SCANCODE_F3: return ScanCode::F3;
@@ -196,6 +204,7 @@ namespace Nexus::SDL3
 			case SDL_SCANCODE_F10: return ScanCode::F10;
 			case SDL_SCANCODE_F11: return ScanCode::F11;
 			case SDL_SCANCODE_F12: return ScanCode::F12;
+
 			case SDL_SCANCODE_PRINTSCREEN: return ScanCode::PrintScreen;
 			case SDL_SCANCODE_SCROLLLOCK: return ScanCode::ScrollLock;
 			case SDL_SCANCODE_PAUSE: return ScanCode::Pause;
@@ -211,25 +220,28 @@ namespace Nexus::SDL3
 			case SDL_SCANCODE_UP: return ScanCode::Up;
 			case SDL_SCANCODE_NUMLOCKCLEAR: return ScanCode::NumLockClear;
 
-			case SDL_SCANCODE_KP_DIVIDE: return ScanCode::KeyPad_Divide;
-			case SDL_SCANCODE_KP_MULTIPLY: return ScanCode::KeyPad_Multiply;
-			case SDL_SCANCODE_KP_MINUS: return ScanCode::Minus;
-			case SDL_SCANCODE_KP_PLUS: return ScanCode::KeyPad_Plus;
-			case SDL_SCANCODE_KP_ENTER: return ScanCode::KeyPad_Enter;
-			case SDL_SCANCODE_KP_1: return ScanCode::KeyPad_One;
-			case SDL_SCANCODE_KP_2: return ScanCode::KeyPad_Two;
-			case SDL_SCANCODE_KP_3: return ScanCode::KeyPad_Three;
-			case SDL_SCANCODE_KP_4: return ScanCode::KeyPad_Four;
-			case SDL_SCANCODE_KP_5: return ScanCode::KeyPad_Five;
-			case SDL_SCANCODE_KP_6: return ScanCode::KeyPad_Six;
-			case SDL_SCANCODE_KP_7: return ScanCode::KeyPad_Seven;
-			case SDL_SCANCODE_KP_8: return ScanCode::KeyPad_Eight;
-			case SDL_SCANCODE_KP_9: return ScanCode::KeyPad_Nine;
-			case SDL_SCANCODE_KP_0: return ScanCode::KeyPad_Zero;
-			case SDL_SCANCODE_KP_PERIOD: return ScanCode::KeyPad_Period;
-			case SDL_SCANCODE_NONUSBACKSLASH: return ScanCode::NonusBackslash;
+			case SDL_SCANCODE_KP_DIVIDE: return ScanCode::KeyPadDivide;
+			case SDL_SCANCODE_KP_MULTIPLY: return ScanCode::KeyPadMultiply;
+			case SDL_SCANCODE_KP_MINUS: return ScanCode::KeyPadMinus;
+			case SDL_SCANCODE_KP_PLUS: return ScanCode::KeyPadPlus;
+			case SDL_SCANCODE_KP_ENTER: return ScanCode::KeyPadEnter;
+			case SDL_SCANCODE_KP_1: return ScanCode::KeyPadOne;
+			case SDL_SCANCODE_KP_2: return ScanCode::KeyPadTwo;
+			case SDL_SCANCODE_KP_3: return ScanCode::KeyPadThree;
+			case SDL_SCANCODE_KP_4: return ScanCode::KeyPadFour;
+			case SDL_SCANCODE_KP_5: return ScanCode::KeyPadFive;
+			case SDL_SCANCODE_KP_6: return ScanCode::KeyPadSix;
+			case SDL_SCANCODE_KP_7: return ScanCode::KeyPadSeven;
+			case SDL_SCANCODE_KP_8: return ScanCode::KeyPadEight;
+			case SDL_SCANCODE_KP_9: return ScanCode::KeyPadNine;
+			case SDL_SCANCODE_KP_0: return ScanCode::KeyPadZero;
+			case SDL_SCANCODE_KP_PERIOD: return ScanCode::KeyPadPeriod;
+
+			case SDL_SCANCODE_NONUSBACKSLASH: return ScanCode::NonusBackSlash;
 			case SDL_SCANCODE_APPLICATION: return ScanCode::Application;
-			case SDL_SCANCODE_KP_EQUALS: return ScanCode::KeyPad_Equals;
+			case SDL_SCANCODE_POWER: return ScanCode::Power;
+
+			case SDL_SCANCODE_KP_EQUALS: return ScanCode::KeyPadEquals;
 			case SDL_SCANCODE_F13: return ScanCode::F13;
 			case SDL_SCANCODE_F14: return ScanCode::F14;
 			case SDL_SCANCODE_F15: return ScanCode::F15;
@@ -256,8 +268,10 @@ namespace Nexus::SDL3
 			case SDL_SCANCODE_MUTE: return ScanCode::Mute;
 			case SDL_SCANCODE_VOLUMEUP: return ScanCode::VolumeUp;
 			case SDL_SCANCODE_VOLUMEDOWN: return ScanCode::VolumeDown;
-			case SDL_SCANCODE_KP_COMMA: return ScanCode::KeyPad_Comma;
-			case SDL_SCANCODE_KP_EQUALSAS400: return ScanCode::KeyPad_EqualsAS400;
+
+			case SDL_SCANCODE_KP_COMMA: return ScanCode::KeyPadComma;
+			case SDL_SCANCODE_KP_EQUALSAS400: return ScanCode::KeyPadEqualsAS400;
+
 			case SDL_SCANCODE_INTERNATIONAL1: return ScanCode::International1;
 			case SDL_SCANCODE_INTERNATIONAL2: return ScanCode::International2;
 			case SDL_SCANCODE_INTERNATIONAL3: return ScanCode::International3;
@@ -276,6 +290,7 @@ namespace Nexus::SDL3
 			case SDL_SCANCODE_LANG7: return ScanCode::Lang7;
 			case SDL_SCANCODE_LANG8: return ScanCode::Lang8;
 			case SDL_SCANCODE_LANG9: return ScanCode::Lang9;
+
 			case SDL_SCANCODE_ALTERASE: return ScanCode::AltErase;
 			case SDL_SCANCODE_SYSREQ: return ScanCode::SysReq;
 			case SDL_SCANCODE_CANCEL: return ScanCode::Cancel;
@@ -288,52 +303,54 @@ namespace Nexus::SDL3
 			case SDL_SCANCODE_CLEARAGAIN: return ScanCode::ClearAgain;
 			case SDL_SCANCODE_CRSEL: return ScanCode::Crsel;
 			case SDL_SCANCODE_EXSEL: return ScanCode::Exsel;
-			case SDL_SCANCODE_KP_00: return ScanCode::KeyPad_00;
-			case SDL_SCANCODE_KP_000: return ScanCode::KeyPad_000;
+
+			case SDL_SCANCODE_KP_00: return ScanCode::KeyPad00;
+			case SDL_SCANCODE_KP_000: return ScanCode::KeyPad000;
 			case SDL_SCANCODE_THOUSANDSSEPARATOR: return ScanCode::ThousandsSeparator;
 			case SDL_SCANCODE_DECIMALSEPARATOR: return ScanCode::DecimalSeparator;
 			case SDL_SCANCODE_CURRENCYUNIT: return ScanCode::CurrencyUnit;
 			case SDL_SCANCODE_CURRENCYSUBUNIT: return ScanCode::CurrencySubUnit;
-			case SDL_SCANCODE_KP_LEFTPAREN: return ScanCode::KeyPad_LeftParenthesis;
-			case SDL_SCANCODE_KP_RIGHTPAREN: return ScanCode::KeyPad_RightParenthesis;
-			case SDL_SCANCODE_KP_LEFTBRACE: return ScanCode::LeftBracket;
-			case SDL_SCANCODE_KP_RIGHTBRACE: return ScanCode::RightBracket;
-			case SDL_SCANCODE_KP_TAB: return ScanCode::Tab;
-			case SDL_SCANCODE_KP_BACKSPACE: return ScanCode::Backspace;
-			case SDL_SCANCODE_KP_A: return ScanCode::KeyPad_A;
-			case SDL_SCANCODE_KP_B: return ScanCode::KeyPad_B;
-			case SDL_SCANCODE_KP_C: return ScanCode::KeyPad_C;
-			case SDL_SCANCODE_KP_D: return ScanCode::KeyPad_D;
-			case SDL_SCANCODE_KP_E: return ScanCode::KeyPad_E;
-			case SDL_SCANCODE_KP_F: return ScanCode::KeyPad_F;
-			case SDL_SCANCODE_KP_XOR: return ScanCode::KeyPad_XOR;
-			case SDL_SCANCODE_KP_POWER: return ScanCode::KeyPad_Power;
-			case SDL_SCANCODE_KP_PERCENT: return ScanCode::KeyPad_Percent;
-			case SDL_SCANCODE_KP_LESS: return ScanCode::KeyPad_Less;
-			case SDL_SCANCODE_KP_GREATER: return ScanCode::KeyPad_Greater;
-			case SDL_SCANCODE_KP_AMPERSAND: return ScanCode::KeyPad_Ampersand;
-			case SDL_SCANCODE_KP_DBLAMPERSAND: return ScanCode::KeyPad_DBLAmpersand;
-			case SDL_SCANCODE_KP_VERTICALBAR: return ScanCode::KeyPad_VerticalBar;
-			case SDL_SCANCODE_KP_DBLVERTICALBAR: return ScanCode::KeyPad_DBLVerticalBar;
-			case SDL_SCANCODE_KP_COLON: return ScanCode::KeyPad_Colon;
-			case SDL_SCANCODE_KP_HASH: return ScanCode::KeyPad_Hash;
-			case SDL_SCANCODE_KP_SPACE: return ScanCode::Space;
-			case SDL_SCANCODE_KP_AT: return ScanCode::KeyPad_At;
-			case SDL_SCANCODE_KP_EXCLAM: return ScanCode::KeyPad_Exclam;
-			case SDL_SCANCODE_KP_MEMSTORE: return ScanCode::KeyPad_MemStore;
-			case SDL_SCANCODE_KP_MEMRECALL: return ScanCode::KeyPad_MemRecall;
-			case SDL_SCANCODE_KP_MEMCLEAR: return ScanCode::KeyPad_MemClear;
-			case SDL_SCANCODE_KP_MEMADD: return ScanCode::KeyPad_MemAdd;
-			case SDL_SCANCODE_KP_MEMSUBTRACT: return ScanCode::KeyPad_MemSubtract;
-			case SDL_SCANCODE_KP_MEMMULTIPLY: return ScanCode::KeyPad_MemMultiply;
-			case SDL_SCANCODE_KP_MEMDIVIDE: return ScanCode::KeyPad_MemDivide;
-			case SDL_SCANCODE_KP_PLUSMINUS: return ScanCode::KeyPad_PlusMinus;
-			case SDL_SCANCODE_KP_CLEAR: return ScanCode::KeyPad_Clear;
-			case SDL_SCANCODE_KP_CLEARENTRY: return ScanCode::KeyPad_ClearEntry;
-			case SDL_SCANCODE_KP_BINARY: return ScanCode::KeyPad_Binary;
-			case SDL_SCANCODE_KP_OCTAL: return ScanCode::KeyPad_Octal;
-			case SDL_SCANCODE_KP_DECIMAL: return ScanCode::KeyPad_Decimal;
-			case SDL_SCANCODE_KP_HEXADECIMAL: return ScanCode::KeyPad_Hexadecimal;
+			case SDL_SCANCODE_KP_LEFTPAREN: return ScanCode::KeyPadLeftParenthesis;
+			case SDL_SCANCODE_KP_RIGHTPAREN: return ScanCode::KeyPadRightParenthesis;
+			case SDL_SCANCODE_KP_LEFTBRACE: return ScanCode::KeyPadLeftBrace;
+			case SDL_SCANCODE_KP_RIGHTBRACE: return ScanCode::KeyPadRightBrace;
+			case SDL_SCANCODE_KP_TAB: return ScanCode::KeyPadTab;
+			case SDL_SCANCODE_KP_BACKSPACE: return ScanCode::KeyPadBackspace;
+			case SDL_SCANCODE_KP_A: return ScanCode::KeyPadA;
+			case SDL_SCANCODE_KP_B: return ScanCode::KeyPadB;
+			case SDL_SCANCODE_KP_C: return ScanCode::KeyPadC;
+			case SDL_SCANCODE_KP_D: return ScanCode::KeyPadD;
+			case SDL_SCANCODE_KP_E: return ScanCode::KeyPadE;
+			case SDL_SCANCODE_KP_F: return ScanCode::KeyPadF;
+			case SDL_SCANCODE_KP_XOR: return ScanCode::KeyPadXor;
+			case SDL_SCANCODE_KP_POWER: return ScanCode::KeyPadPower;
+			case SDL_SCANCODE_KP_PERCENT: return ScanCode::KeyPadPercent;
+			case SDL_SCANCODE_KP_LESS: return ScanCode::KeyPadLess;
+			case SDL_SCANCODE_KP_GREATER: return ScanCode::KeyPadGreater;
+			case SDL_SCANCODE_KP_AMPERSAND: return ScanCode::KeyPadAmpersand;
+			case SDL_SCANCODE_KP_DBLAMPERSAND: return ScanCode::KeyPadDBLAmpersand;
+			case SDL_SCANCODE_KP_VERTICALBAR: return ScanCode::KeyPadVerticalBar;
+			case SDL_SCANCODE_KP_DBLVERTICALBAR: return ScanCode::KeyPadDBLVerticalBar;
+			case SDL_SCANCODE_KP_COLON: return ScanCode::KeyPadColon;
+			case SDL_SCANCODE_KP_HASH: return ScanCode::KeyPadHash;
+			case SDL_SCANCODE_KP_SPACE: return ScanCode::KeyPadSpace;
+			case SDL_SCANCODE_KP_AT: return ScanCode::KeyPadAt;
+			case SDL_SCANCODE_KP_EXCLAM: return ScanCode::KeyPadExclam;
+			case SDL_SCANCODE_KP_MEMSTORE: return ScanCode::KeyPadMemstore;
+			case SDL_SCANCODE_KP_MEMRECALL: return ScanCode::KeyPadMemRecall;
+			case SDL_SCANCODE_KP_MEMCLEAR: return ScanCode::KeyPadMemClear;
+			case SDL_SCANCODE_KP_MEMADD: return ScanCode::KeyPadMemAdd;
+			case SDL_SCANCODE_KP_MEMSUBTRACT: return ScanCode::KeyPadMemSubtract;
+			case SDL_SCANCODE_KP_MEMMULTIPLY: return ScanCode::KeyPadMemMultiply;
+			case SDL_SCANCODE_KP_MEMDIVIDE: return ScanCode::KeyPadMemDivide;
+			case SDL_SCANCODE_KP_PLUSMINUS: return ScanCode::KeyPadPlusMinus;
+			case SDL_SCANCODE_KP_CLEAR: return ScanCode::KeyPadClear;
+			case SDL_SCANCODE_KP_CLEARENTRY: return ScanCode::KeyPadClearEntry;
+			case SDL_SCANCODE_KP_BINARY: return ScanCode::KeyPadBinary;
+			case SDL_SCANCODE_KP_OCTAL: return ScanCode::KeyPadOctal;
+			case SDL_SCANCODE_KP_DECIMAL: return ScanCode::KeyPadDecimal;
+			case SDL_SCANCODE_KP_HEXADECIMAL: return ScanCode::KeyPadHexadecimal;
+
 			case SDL_SCANCODE_LCTRL: return ScanCode::LeftControl;
 			case SDL_SCANCODE_LSHIFT: return ScanCode::LeftShift;
 			case SDL_SCANCODE_LALT: return ScanCode::LeftAlt;
@@ -342,40 +359,42 @@ namespace Nexus::SDL3
 			case SDL_SCANCODE_RSHIFT: return ScanCode::RightShift;
 			case SDL_SCANCODE_RALT: return ScanCode::RightAlt;
 			case SDL_SCANCODE_RGUI: return ScanCode::RightGUI;
+
 			case SDL_SCANCODE_MODE: return ScanCode::Mode;
 
-			case SDL_SCANCODE_AUDIONEXT: return ScanCode::AudioNext;
-			case SDL_SCANCODE_AUDIOPREV: return ScanCode::AudioPrevious;
-			case SDL_SCANCODE_AUDIOSTOP: return ScanCode::AudioStop;
-			case SDL_SCANCODE_AUDIOPLAY: return ScanCode::AudioPlay;
-			case SDL_SCANCODE_AUDIOMUTE: return ScanCode::AudioMute;
-			case SDL_SCANCODE_MEDIASELECT: return ScanCode::MediaSelect;
-			case SDL_SCANCODE_WWW: return ScanCode::WWW;
-			case SDL_SCANCODE_MAIL: return ScanCode::Mail;
-			case SDL_SCANCODE_CALCULATOR: return ScanCode::Calculator;
-			case SDL_SCANCODE_COMPUTER: return ScanCode::Computer;
-			case SDL_SCANCODE_AC_SEARCH: return ScanCode::AC_Search;
-			case SDL_SCANCODE_AC_HOME: return ScanCode::AC_Home;
-			case SDL_SCANCODE_AC_BACK: return ScanCode::AC_Back;
-			case SDL_SCANCODE_AC_FORWARD: return ScanCode::AC_Forward;
-			case SDL_SCANCODE_AC_STOP: return ScanCode::AC_Stop;
-			case SDL_SCANCODE_AC_REFRESH: return ScanCode::AC_Refresh;
-			case SDL_SCANCODE_AC_BOOKMARKS: return ScanCode::AC_Bookmarks;
-
-			case SDL_SCANCODE_BRIGHTNESSDOWN: return ScanCode::BrightnessDown;
-			case SDL_SCANCODE_BRIGHTNESSUP: return ScanCode::BrightnessUp;
-			case SDL_SCANCODE_DISPLAYSWITCH: return ScanCode::DisplaySwitch;
-
-			case SDL_SCANCODE_KBDILLUMTOGGLE: return ScanCode::DillumToggle;
-			case SDL_SCANCODE_KBDILLUMDOWN: return ScanCode::DillumDown;
-			case SDL_SCANCODE_KBDILLUMUP: return ScanCode::DillumUp;
-			case SDL_SCANCODE_EJECT: return ScanCode::Eject;
 			case SDL_SCANCODE_SLEEP: return ScanCode::Sleep;
-			case SDL_SCANCODE_APP1: return ScanCode::App1;
-			case SDL_SCANCODE_APP2: return ScanCode::App2;
+			case SDL_SCANCODE_WAKE: return ScanCode::Wake;
 
-			case SDL_SCANCODE_AUDIOREWIND: return ScanCode::AudioRewind;
-			case SDL_SCANCODE_AUDIOFASTFORWARD: return ScanCode::AudioFastForward;
+			case SDL_SCANCODE_CHANNEL_INCREMENT: return ScanCode::ChannelIncrement;
+			case SDL_SCANCODE_CHANNEL_DECREMENT: return ScanCode::ChannelDecrement;
+
+			case SDL_SCANCODE_MEDIA_PLAY: return ScanCode::MediaPlay;
+			case SDL_SCANCODE_MEDIA_PAUSE: return ScanCode::MediaPause;
+			case SDL_SCANCODE_MEDIA_RECORD: return ScanCode::MediaRecord;
+			case SDL_SCANCODE_MEDIA_FAST_FORWARD: return ScanCode::MediaFastForward;
+			case SDL_SCANCODE_MEDIA_REWIND: return ScanCode::MediaRewind;
+			case SDL_SCANCODE_MEDIA_NEXT_TRACK: return ScanCode::MediaNextTrack;
+			case SDL_SCANCODE_MEDIA_PREVIOUS_TRACK: return ScanCode::MediaPreviousTrack;
+			case SDL_SCANCODE_MEDIA_STOP: return ScanCode::MediaStop;
+			case SDL_SCANCODE_MEDIA_EJECT: return ScanCode::MediaEject;
+			case SDL_SCANCODE_MEDIA_PLAY_PAUSE: return ScanCode::MediaPlayPause;
+			case SDL_SCANCODE_MEDIA_SELECT: return ScanCode::MediaSelect;
+
+			case SDL_SCANCODE_AC_NEW: return ScanCode::AcNew;
+			case SDL_SCANCODE_AC_OPEN: return ScanCode::AcOpen;
+			case SDL_SCANCODE_AC_CLOSE: return ScanCode::AcClose;
+			case SDL_SCANCODE_AC_EXIT: return ScanCode::AcExit;
+			case SDL_SCANCODE_AC_SAVE: return ScanCode::AcSave;
+			case SDL_SCANCODE_AC_PRINT: return ScanCode::AcPrint;
+			case SDL_SCANCODE_AC_PROPERTIES: return ScanCode::AcProperties;
+
+			case SDL_SCANCODE_AC_SEARCH: return ScanCode::AcSearch;
+			case SDL_SCANCODE_AC_HOME: return ScanCode::AcHome;
+			case SDL_SCANCODE_AC_BACK: return ScanCode::AcBack;
+			case SDL_SCANCODE_AC_FORWARD: return ScanCode::AcForward;
+			case SDL_SCANCODE_AC_STOP: return ScanCode::AcStop;
+			case SDL_SCANCODE_AC_REFRESH: return ScanCode::AcRefresh;
+			case SDL_SCANCODE_AC_BOOKMARKS: return ScanCode::AcBookmarks;
 
 			case SDL_SCANCODE_SOFTLEFT: return ScanCode::SoftLeft;
 			case SDL_SCANCODE_SOFTRIGHT: return ScanCode::SoftRight;

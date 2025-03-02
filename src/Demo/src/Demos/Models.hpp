@@ -35,18 +35,12 @@ namespace Demos
 		{
 			m_CommandList = m_GraphicsDevice->CreateCommandList();
 			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
-			m_Model = factory.CreateFrom3DModelFile(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/models/survival_backpack_2/"
-																						   "survival_backpack_2.fbx"));
+			m_Model = factory.CreateFrom3DModelFile(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/models/The Boss/The Boss.dae"));
 
-			m_DiffuseMap =
-				m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/models/survival_backpack_2/1001_albedo.jpg"),
-												  true);
-			m_NormalMap =
-				m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/models/survival_backpack_2/1001_normal.png"),
-												  true);
-			m_SpecularMap =
-				m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/models/survival_backpack_2/specular.jpg"),
-												  true);
+			Nexus::Ref<Nexus::Graphics::Mesh>	  mesh	   = m_Model->GetMeshes()[0];
+			Nexus::Graphics::Material			  material = mesh->GetMaterial();
+			material.NormalTexture = m_GraphicsDevice->CreateTexture2D("resources/demo/models/The Boss/textures/Boss_normal.png", true);
+			mesh->SetMaterial(material);
 
 			Nexus::Graphics::BufferDescription cameraUniformBufferDesc;
 			cameraUniformBufferDesc.Size  = sizeof(VB_UNIFORM_CAMERA_DEMO_LIGHTING);
@@ -104,9 +98,12 @@ namespace Demos
 			m_ResourceSet->WriteUniformBuffer(m_CameraUniformBuffer, "Camera");
 			m_ResourceSet->WriteUniformBuffer(m_TransformUniformBuffer, "Transform");
 
-			m_ResourceSet->WriteCombinedImageSampler(m_DiffuseMap, m_Sampler, "diffuseMapSampler");
-			m_ResourceSet->WriteCombinedImageSampler(m_NormalMap, m_Sampler, "normalMapSampler");
-			m_ResourceSet->WriteCombinedImageSampler(m_SpecularMap, m_Sampler, "specularMapSampler");
+			const Nexus::Graphics::Material &mat = m_Model->GetMeshes()[0]->GetMaterial();
+
+			if (mat.DiffuseTexture)
+			{
+				m_ResourceSet->WriteCombinedImageSampler(mat.DiffuseTexture, m_Sampler, "diffuseMapSampler");
+			}
 
 			m_CommandList->SetResourceSet(m_ResourceSet);
 
@@ -156,9 +153,7 @@ namespace Demos
 
 			pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Camera", 0, 0}, {"Transform", 0, 1}};
 
-			pipelineDescription.ResourceSetSpec.SampledImages = {{"diffuseMapSampler", 1, 0},
-																 {"normalMapSampler", 1, 1},
-																 {"specularMapSampler", 1, 2}};
+			pipelineDescription.ResourceSetSpec.SampledImages = {{"diffuseMapSampler", 1, 0}};
 
 			pipelineDescription.ColourTargetCount		= 1;
 			pipelineDescription.ColourFormats[0]		= Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
@@ -172,10 +167,7 @@ namespace Demos
 		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
 		Nexus::Ref<Nexus::Graphics::Pipeline>	 m_Pipeline;
 		Nexus::Ref<Nexus::Graphics::Model>		 m_Model;
-		Nexus::Ref<Nexus::Graphics::Texture2D>	 m_DiffuseMap;
-		Nexus::Ref<Nexus::Graphics::Texture2D>	 m_NormalMap;
-		Nexus::Ref<Nexus::Graphics::Texture2D>	 m_SpecularMap;
-		glm::vec3								 m_ClearColour = {0.7f, 0.2f, 0.3f};
+		glm::vec3								 m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 
 		Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
 

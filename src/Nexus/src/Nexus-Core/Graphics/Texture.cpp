@@ -1,4 +1,4 @@
-#include "Texture.hpp"
+#include "Nexus-Core/Graphics/Texture.hpp"
 
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 

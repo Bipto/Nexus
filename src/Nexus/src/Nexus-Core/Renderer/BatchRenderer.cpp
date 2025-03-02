@@ -1,4 +1,4 @@
-#include "BatchRenderer.hpp"
+#include "Nexus-Core/Renderer/BatchRenderer.hpp"
 
 #include "Nexus-Core/Runtime.hpp"
 #include "Nexus-Core/Utils/Utils.hpp"
@@ -347,13 +347,13 @@ namespace Nexus::Graphics
 		description.ColourTargetCount = 1;
 		description.DepthFormat		  = Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt;
 
-		description.BlendStateDesc.EnableBlending		  = true;
-		description.BlendStateDesc.SourceColourBlend	  = BlendFactor::SourceAlpha;
-		description.BlendStateDesc.DestinationColourBlend = BlendFactor::OneMinusSourceAlpha;
-		description.BlendStateDesc.ColorBlendFunction	  = BlendEquation::Add;
-		description.BlendStateDesc.SourceAlphaBlend		  = BlendFactor::SourceAlpha;
-		description.BlendStateDesc.DestinationAlphaBlend  = BlendFactor::OneMinusSourceAlpha;
-		description.BlendStateDesc.AlphaBlendFunction	  = BlendEquation::Add;
+		description.ColourBlendStates[0].EnableBlending			= true;
+		description.ColourBlendStates[0].SourceColourBlend		= BlendFactor::SourceAlpha;
+		description.ColourBlendStates[0].DestinationColourBlend = BlendFactor::OneMinusSourceAlpha;
+		description.ColourBlendStates[0].ColorBlendFunction		= BlendEquation::Add;
+		description.ColourBlendStates[0].SourceAlphaBlend		= BlendFactor::SourceAlpha;
+		description.ColourBlendStates[0].DestinationAlphaBlend	= BlendFactor::OneMinusSourceAlpha;
+		description.ColourBlendStates[0].AlphaBlendFunction		= BlendEquation::Add;
 
 		description.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification().Samples;
 

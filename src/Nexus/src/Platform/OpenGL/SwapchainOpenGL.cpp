@@ -67,14 +67,13 @@ namespace Nexus::Graphics
 
 	void SwapchainOpenGL::ResizeIfNecessary()
 	{
-		int w, h;
-		SDL_GetWindowSizeInPixels(m_Window->GetSDLWindowHandle(), &w, &h);
+		Nexus::Point2D<uint32_t> windowSize = m_Window->GetWindowSizeInPixels();
 
-		glCall(glViewport(0, 0, w, h));
-		glCall(glScissor(0, 0, w, h));
+		glCall(glViewport(0, 0, windowSize.X, windowSize.Y));
+		glCall(glScissor(0, 0, windowSize.X, windowSize.Y));
 
-		m_SwapchainWidth  = w;
-		m_SwapchainHeight = h;
+		m_SwapchainWidth  = windowSize.X;
+		m_SwapchainHeight = windowSize.Y;
 	}
 
 	void SwapchainOpenGL::BindAsDrawTarget()

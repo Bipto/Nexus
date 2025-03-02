@@ -1,4 +1,4 @@
-#include "HdriProcessor.hpp"
+#include "Nexus-Core/Graphics/HdriProcessor.hpp"
 
 #include "Nexus-Core/Graphics/Framebuffer.hpp"
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
@@ -59,7 +59,20 @@ namespace Nexus::Graphics
 	HdriProcessor::HdriProcessor(const std::string &filepath, GraphicsDevice *device) : m_Device(device)
 	{
 		stbi_set_flip_vertically_on_load(true);
-		m_Data = stbi_loadf(filepath.c_str(), &m_Width, &m_Height, &m_Channels, 4);
+		int	   channels			 = 0;
+		int	   requestedChannels = 4;
+		float *data				 = stbi_loadf(filepath.c_str(), &m_Width, &m_Height, &channels, requestedChannels);
+
+		std::vector<unsigned char> pixels;
+		size_t					   bufferSize = m_Width * m_Height * requestedChannels * sizeof(float);
+		pixels.resize(bufferSize);
+		memcpy(pixels.data(), data, pixels.size());
+		stbi_image_free(data);
+
+		if (m_Device->GetGraphicsAPI() == GraphicsAPI::OpenGL)
+		{
+			Utils::FlipPixelsHorizontally(pixels, m_Width, m_Height, 4, 4);
+		}
 
 		Nexus::Graphics::Texture2DSpecification textureSpec {};
 		textureSpec.Width  = m_Width;
@@ -68,7 +81,7 @@ namespace Nexus::Graphics
 		textureSpec.Format = Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float;
 		m_HdriImage		   = m_Device->CreateTexture2D(textureSpec);
 
-		m_HdriImage->SetData(m_Data, 0, 0, 0, m_Width, m_Height);
+		m_HdriImage->SetData(pixels.data(), 0, 0, 0, m_Width, m_Height);
 	}
 
 	Ref<Cubemap> HdriProcessor::Generate(uint32_t size)
@@ -131,6 +144,12 @@ namespace Nexus::Graphics
 
 			float yaw = 0.0f, pitch = 0.0f;
 			GetDirection(face, yaw, pitch);
+
+			/* if (m_Device->GetGraphicsAPI() == GraphicsAPI::OpenGL)
+			{
+				yaw += 180.0f;
+			}*/
+
 			glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 
 			glm::quat rotP = glm::angleAxis(glm::radians(pitch), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -187,7 +206,6 @@ namespace Nexus::Graphics
 
 			Ref<Texture2D>		   colourTexture = framebuffer->GetColorTexture(0);
 			std::vector<unsigned char> pixels		 = colourTexture->GetData(0, 0, 0, size, size);
-
 			cubemap->SetData(pixels.data(), face, 0, 0, 0, size, size);
 		}
 

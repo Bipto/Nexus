@@ -1,9 +1,8 @@
-#include "MeshFactory.hpp"
+#include "Nexus-Core/Graphics/MeshFactory.hpp"
 
 #include "Nexus-Core/nxpch.hpp"
-#include "assimp/Importer.hpp"
-#include "assimp/postprocess.h"
-#include "assimp/scene.h"
+
+#include "Nexus-Core/Importers/AssimpImporter.hpp"
 
 namespace Nexus::Graphics
 {
@@ -76,7 +75,7 @@ namespace Nexus::Graphics
 		indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
 		auto indexBuffer	  = m_Device->CreateIndexBuffer(indexBufferDesc, indices.data());
 
-		return CreateRef<Mesh>(vertexBuffer, indexBuffer);
+		return CreateRef<Mesh>(vertexBuffer, indexBuffer, Material {});
 	}
 
 	Ref<Mesh> MeshFactory::CreateSprite()
@@ -99,7 +98,7 @@ namespace Nexus::Graphics
 		indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
 		auto indexBuffer	  = m_Device->CreateIndexBuffer(indexBufferDesc, indices.data());
 
-		return CreateRef<Mesh>(vertexBuffer, indexBuffer);
+		return CreateRef<Mesh>(vertexBuffer, indexBuffer, Material {});
 	}
 
 	Ref<Mesh> MeshFactory::CreateTriangle()
@@ -121,85 +120,13 @@ namespace Nexus::Graphics
 		indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
 		auto indexBuffer	  = m_Device->CreateIndexBuffer(indexBufferDesc, indices.data());
 
-		return CreateRef<Mesh>(vertexBuffer, indexBuffer);
-	}
-
-	Ref<Mesh> ProcessMesh(aiMesh *mesh, const aiScene *scene, GraphicsDevice *device)
-	{
-		std::vector<VertexPositionTexCoordNormalTangentBitangent> vertices;
-		std::vector<unsigned int>								  indices;
-
-		for (unsigned int i = 0; i < mesh->mNumVertices; i++)
-		{
-			VertexPositionTexCoordNormalTangentBitangent vertex;
-			vertex.Position.x = mesh->mVertices[i].x;
-			vertex.Position.y = mesh->mVertices[i].y;
-			vertex.Position.z = mesh->mVertices[i].z;
-			vertex.Normal.x	  = mesh->mNormals[i].x;
-			vertex.Normal.y	  = mesh->mNormals[i].y;
-			vertex.Normal.z	  = mesh->mNormals[i].z;
-
-			vertex.TexCoords = {
-				0,
-				0,
-			};
-			if (mesh->mTextureCoords[0])
-			{
-				vertex.TexCoords.x = mesh->mTextureCoords[0][i].x;
-				vertex.TexCoords.y = mesh->mTextureCoords[0][i].y;
-			}
-
-			vertices.push_back(vertex);
-		}
-
-		for (unsigned int i = 0; i < mesh->mNumFaces; i++)
-		{
-			aiFace face = mesh->mFaces[i];
-			for (unsigned int j = 0; j < face.mNumIndices; j++) { indices.push_back(face.mIndices[j]); }
-		}
-
-		std::string name = std::string(mesh->mName.C_Str());
-
-		Nexus::Graphics::BufferDescription vertexBufferDesc;
-		vertexBufferDesc.Size  = vertices.size() * sizeof(VertexPositionTexCoordNormalTangentBitangent);
-		vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-		auto vertexBuffer	   = device->CreateVertexBuffer(vertexBufferDesc, vertices.data());
-
-		Nexus::Graphics::BufferDescription indexBufferDesc;
-		indexBufferDesc.Size  = indices.size() * sizeof(unsigned int);
-		indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-		auto indexBuffer	  = device->CreateIndexBuffer(indexBufferDesc, indices.data());
-
-		return CreateRef<Mesh>(vertexBuffer, indexBuffer, name);
-	}
-
-	void ProcessNode(aiNode *node, const aiScene *scene, std::vector<Ref<Mesh>> &meshes, GraphicsDevice *device)
-	{
-		for (unsigned int i = 0; i < node->mNumMeshes; i++)
-		{
-			aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-			meshes.push_back(ProcessMesh(mesh, scene, device));
-		}
-
-		for (unsigned int i = 0; i < node->mNumChildren; i++) { ProcessNode(node->mChildren[i], scene, meshes, device); }
+		return CreateRef<Mesh>(vertexBuffer, indexBuffer, Material {});
 	}
 
 	Ref<Model> MeshFactory::CreateFrom3DModelFile(const std::string &filepath)
 	{
-		std::vector<Ref<Mesh>> meshes;
-		Assimp::Importer	   importer;
-		auto				   flags = aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_FindInvalidData |
-					 aiProcess_GenSmoothNormals | aiProcess_ImproveCacheLocality | aiProcess_CalcTangentSpace | aiProcess_GenUVCoords |
-					 aiProcess_ValidateDataStructure | aiProcess_FindInstances | aiProcess_GlobalScale | aiProcess_PreTransformVertices |
-					 aiProcess_TransformUVCoords | aiProcess_FixInfacingNormals;
-
-		const aiScene *scene = importer.ReadFile(filepath, flags);
-
-		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
-		{
-			std::cout << "Assimp error: " << importer.GetErrorString() << std::endl;
-		}
-		ProcessNode(scene->mRootNode, scene, meshes, m_Device);
-		return CreateRef<Model>(meshes);
+		Nexus::AssimpImporter importer {};
+		Ref<Model>			  model = importer.Import(filepath, m_Device);
+		return model;
 	}
 }	 // namespace Nexus::Graphics

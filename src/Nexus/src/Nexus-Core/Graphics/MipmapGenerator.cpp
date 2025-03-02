@@ -1,4 +1,4 @@
-#include "MipmapGenerator.hpp"
+#include "Nexus-Core/Graphics/MipmapGenerator.hpp"
 
 #include "Nexus-Core/nxpch.hpp"
 
@@ -23,7 +23,7 @@ const std::string c_MipmapFragmentSource = "#version 450 core\n"
 
 namespace Nexus::Graphics
 {
-	MipmapGenerator::MipmapGenerator(GraphicsDevice *device) : m_Device(device), m_Quad(device)
+	MipmapGenerator::MipmapGenerator(GraphicsDevice *device) : m_Device(device), m_Quad(device, true)
 	{
 		m_CommandList = m_Device->CreateCommandList();
 

@@ -24,6 +24,7 @@ namespace Nexus::Graphics
 
 		if (createInfo.DebugLayer)
 		{
+	#if defined(_DEBUG)
 			// retrieve the debug interface
 			if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&m_D3D12Debug))))
 			{
@@ -32,6 +33,8 @@ namespace Nexus::Graphics
 			}
 
 			std::atexit(ReportLiveObjects);
+
+	#endif()
 		}
 
 		if (SUCCEEDED(CreateDXGIFactory2(0, IID_PPV_ARGS(&m_DxgiFactory)))) {}
@@ -166,6 +169,11 @@ namespace Nexus::Graphics
 	ID3D12CommandQueue *GraphicsDeviceD3D12::GetCommandQueue() const
 	{
 		return m_CommandQueue.Get();
+	}
+
+	void GraphicsDeviceD3D12::WaitForIdle()
+	{
+		SignalAndWait();
 	}
 
 	const GraphicsCapabilities GraphicsDeviceD3D12::GetGraphicsCapabilities() const

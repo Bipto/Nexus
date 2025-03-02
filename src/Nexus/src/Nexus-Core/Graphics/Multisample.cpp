@@ -1,4 +1,4 @@
-#include "Multisample.hpp"
+#include "Nexus-Core/Graphics/Multisample.hpp"
 
 #include "Nexus-Core/nxpch.hpp"
 

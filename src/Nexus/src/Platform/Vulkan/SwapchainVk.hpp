@@ -5,8 +5,7 @@
 	#include "Nexus-Core/nxpch.hpp"
 
 	#include "Nexus-Core/Graphics/Swapchain.hpp"
-	#include "Nexus-Core/Window.hpp"
-	#include "SDL_vulkan.h"
+	#include "Nexus-Core/IWindow.hpp"
 	#include "Vk.hpp"
 
 namespace Nexus::Graphics

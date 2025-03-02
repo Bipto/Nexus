@@ -22,7 +22,7 @@
 	#include "Nexus-Core/Logging/Log.hpp"
 	#include "Nexus-Core/Vertex.hpp"
 
-	#include "Nexus-Core/Window.hpp"
+	#include "Nexus-Core/IWindow.hpp"
 
 	#include "Context/IOffscreenContext.hpp"
 	#include "Context/IViewContext.hpp"
@@ -57,6 +57,7 @@ namespace Nexus::GL
 
 #endif
 
+#define NX_GL_DEBUG 1
 #define glClearErrors()                                                                                                                              \
 	while (glGetError() != GL_NO_ERROR) {}
 

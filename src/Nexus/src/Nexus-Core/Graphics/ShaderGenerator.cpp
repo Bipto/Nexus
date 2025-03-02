@@ -1,8 +1,8 @@
-#include "ShaderGenerator.hpp"
+#include "Nexus-Core/Graphics/ShaderGenerator.hpp"
 
+#include "Nexus-Core/Graphics/ResourceSet.hpp"
+#include "Nexus-Core/Graphics/ShaderDataType.hpp"
 #include "Nexus-Core/Logging/Log.hpp"
-#include "ResourceSet.hpp"
-#include "ShaderDataType.hpp"
 #include "shaderc/shaderc.hpp"
 #include "spirv_glsl.hpp"
 #include "spirv_hlsl.hpp"

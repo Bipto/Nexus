@@ -193,7 +193,6 @@ namespace Nexus::Graphics
 
 		Ref<ResourceSetOpenGL> resourceSet = std::dynamic_pointer_cast<ResourceSetOpenGL>(command);
 		m_BoundResourceSet				   = resourceSet;
-		// BindResourceSet(resourceSet);
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(ClearColorTargetCommand command, GraphicsDevice *device)
@@ -215,7 +214,13 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		glCall(glClearBufferfi(GL_DEPTH_STENCIL, 0, command.Value.Depth, command.Value.Stencil));
+		GLfloat depth	= command.Value.Depth;
+		GLint	stencil = command.Value.Stencil;
+
+		// enable clearing of depth buffer
+		glDepthMask(GL_TRUE);
+		glClearBufferfi(GL_DEPTH_STENCIL, 0, depth, stencil);
+		glDepthMask(GL_FALSE);
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(RenderTarget command, GraphicsDevice *device)

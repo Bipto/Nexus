@@ -42,6 +42,7 @@ namespace Nexus::Graphics
 		virtual const GraphicsCapabilities GetGraphicsCapabilities() const override;
 		virtual Swapchain				  *CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) override;
 		virtual ShaderLanguage GetSupportedShaderFormat() override;
+		virtual void					   WaitForIdle() override;
 		virtual float		   GetUVCorrection() override
 		{
 			return 1.0f;

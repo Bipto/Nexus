@@ -12,7 +12,6 @@
 #include "Demos/Lighting.hpp"
 #include "Demos/MipmapDemo.hpp"
 #include "Demos/Models.hpp"
-#include "Demos/PythonDemo.hpp"
 #include "Demos/Splines.hpp"
 #include "Demos/Texturing.hpp"
 #include "Demos/TimingDemo.hpp"
@@ -44,16 +43,17 @@ class DemoApplication : public Nexus::Application
 	virtual void Load() override
 	{
 		m_ImGuiRenderer = std::make_unique<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(this);
+		ImGuiContext *context = m_ImGuiRenderer->GetContext();
+		ImGui::SetCurrentContext(context);
 
-		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+		ImGuiIO &io = m_ImGuiRenderer->GetIO();
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
 		int size = 19;
 
 #if defined(__ANDROID__) || defined(ANDROID)
 		size = 38;
 #endif
-
-		auto &io = ImGui::GetIO();
 
 		std::string fontPath = Nexus::FileSystem::GetFilePathAbsolute("resources/demo/fonts/roboto/roboto-regular.ttf");
 		io.FontDefault		 = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), size);
@@ -75,17 +75,10 @@ class DemoApplication : public Nexus::Application
 		RegisterGraphicsDemo<Demos::MipmapDemo>("Mipmaps");
 		RegisterGraphicsDemo<Demos::CubemapDemo>("Cubemaps");
 		RegisterAudioDemo<Demos::AudioDemo>("Audio");
-		RegisterScriptingDemo<Demos::PythonDemo>("Python");
 		RegisterUtilsDemo<Demos::ClippingAndTriangulationDemo>("Polygon clipping and triangulation");
 		RegisterUtilsDemo<Demos::Splines>("Splines");
 
 		m_CommandList = m_GraphicsDevice->CreateCommandList();
-
-		Nexus::IWindow *window = Nexus::GetApplication()->GetPrimaryWindow();
-
-		std::string title = std::string("Demo - ") + std::string(Nexus::Platform::GetSystemName()) + std::string("(") +
-							std::string(Nexus::Platform::GetProcessorType()) + std::string(")");
-		window->SetTitle(title);
 	}
 
 	template<typename T>
@@ -286,7 +279,7 @@ class DemoApplication : public Nexus::Application
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
 	Nexus::ApplicationSpecification spec;
-	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
+	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
 	spec.AudioAPI	 = Nexus::Audio::AudioAPI::OpenAL;
 
 	spec.WindowProperties.Width			   = 1280;

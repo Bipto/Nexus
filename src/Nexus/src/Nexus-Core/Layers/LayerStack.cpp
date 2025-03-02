@@ -1,4 +1,4 @@
-#include "LayerStack.hpp"
+#include "Nexus-Core/Layers/LayerStack.hpp"
 
 namespace Nexus
 {
@@ -9,6 +9,7 @@ namespace Nexus
 			layer->OnDetach();
 			delete layer;
 		}
+		m_Layers.clear();
 	}
 
 	void LayerStack::PushLayer(Layer *layer)

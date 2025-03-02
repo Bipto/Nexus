@@ -1,4 +1,4 @@
-#include "Application.hpp"
+#include "Nexus-Core/Application.hpp"
 
 // audio headers
 #if defined(NX_PLATFORM_OPENAL)
@@ -8,10 +8,7 @@
 #include "Nexus-Core/Input/Input.hpp"
 #include "Nexus-Core/Logging/Log.hpp"
 
-#include "Platform/SDL3/SDL3Include.hpp"
-#include "Platform/SDL3/SDL3Window.hpp"
-
-#include "Platform.hpp"
+#include "Nexus-Core/Platform.hpp"
 
 namespace Nexus
 {
@@ -19,25 +16,20 @@ namespace Nexus
 	{
 		m_Specification = spec;
 
-		m_Window = Platform::CreatePlatformWindow(spec.WindowProperties, spec.GraphicsAPI, spec.SwapchainSpecification);
+		m_Window = Platform::CreatePlatformWindow(spec.WindowProperties);
 		Nexus::Input::SetContext(m_Window->GetInputContext());
 
 		Graphics::GraphicsDeviceSpecification graphicsDeviceCreateInfo;
+		graphicsDeviceCreateInfo.DebugLayer = true;
 		graphicsDeviceCreateInfo.API = spec.GraphicsAPI;
 
 		m_GraphicsDevice = Nexus::Graphics::GraphicsDevice::CreateGraphicsDevice(graphicsDeviceCreateInfo);
-
-		m_GraphicsDevice->SetName("Test");
-
-		bool valid = m_GraphicsDevice->Validate();
 
 		m_Swapchain = m_GraphicsDevice->CreateSwapchain(m_Window, spec.SwapchainSpecification);
 		m_Swapchain->Initialise();
 		m_Swapchain->SetVSyncState(spec.SwapchainSpecification.VSyncState);
 
 		m_AudioDevice = Nexus::CreateAudioDevice(spec.AudioAPI);
-
-		SDL_StartTextInput();
 
 		m_Window->OnRender.Bind([&](Nexus::TimeSpan time) { Render(time); });
 		m_Window->OnUpdate.Bind([&](Nexus::TimeSpan time) { Update(time); });
@@ -46,7 +38,6 @@ namespace Nexus
 
 	Application::~Application()
 	{
-		SDL_StopTextInput();
 		delete m_Window;
 		delete m_AudioDevice;
 		delete m_GraphicsDevice;
@@ -54,50 +45,11 @@ namespace Nexus
 
 	void Application::MainLoop()
 	{
+		Platform::Update();
 		m_GlobalKeyboardState.CacheInput();
 
 		// cache the previous frame's input
 		Nexus::Mouse::s_PreviousGlobalMousePosition = Nexus::Mouse::s_GlobalMousePosition;
-
-		float  x, y;
-		Uint32 buttons = SDL_GetGlobalMouseState(&x, &y);
-
-#if defined(__EMSCRIPTEN__)
-		x *= GetPrimaryWindow()->GetDisplayScale();
-		y *= GetPrimaryWindow()->GetDisplayScale();
-#endif
-
-		Nexus::Mouse::s_GlobalMousePosition.X = x;
-		Nexus::Mouse::s_GlobalMousePosition.Y = y;
-
-		if (buttons & SDL_BUTTON_LEFT)
-		{
-			Nexus::Mouse::s_GlobalMouseState.LeftButton = Nexus::MouseButtonState::Pressed;
-		}
-		else
-		{
-			Nexus::Mouse::s_GlobalMouseState.LeftButton = Nexus::MouseButtonState::Released;
-		}
-
-		if (buttons & SDL_BUTTON_RIGHT)
-		{
-			Nexus::Mouse::s_GlobalMouseState.RightButton = Nexus::MouseButtonState::Pressed;
-		}
-		else
-		{
-			Nexus::Mouse::s_GlobalMouseState.RightButton = Nexus::MouseButtonState::Released;
-		}
-
-		if (buttons & SDL_BUTTON_MIDDLE)
-		{
-			Nexus::Mouse::s_GlobalMouseState.MiddleButton = Nexus::MouseButtonState::Pressed;
-		}
-		else
-		{
-			Nexus::Mouse::s_GlobalMouseState.MiddleButton = Nexus::MouseButtonState::Released;
-		}
-
-		Platform::Update();
 	}
 
 	Nexus::IWindow *Application::GetPrimaryWindow()

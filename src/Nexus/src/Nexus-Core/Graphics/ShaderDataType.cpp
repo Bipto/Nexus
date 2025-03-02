@@ -1,4 +1,4 @@
-#include "ShaderDataType.hpp"
+#include "Nexus-Core/Graphics/ShaderDataType.hpp"
 
 namespace Nexus::Graphics
 {

@@ -1,41 +1,42 @@
-#include "Entity.hpp"
+#include "Nexus-Core/Runtime/Entity.hpp"
+
+#include "Nexus-Core/ECS/ComponentRegistry.hpp"
+#include "Nexus-Core/ECS/Registry.hpp"
+
+#include "Nexus-Core/Runtime/Project.hpp"
 
 namespace Nexus
 {
-	Entity::Entity(GUID id, const std::string &name) : m_ID(id), m_Name(name)
-	{
-	}
-
-	void Entity::SetID(GUID id)
-	{
-		m_ID = id;
-	}
-
-	GUID Entity::GetID() const
-	{
-		return m_ID;
-	}
-
-	void Entity::SetName(const std::string &name)
-	{
-		m_Name = name;
-	}
-
-	const std::string &Entity::GetName() const
-	{
-		return m_Name;
-	}
-
-	void Entity::Serialize(YAML::Emitter &out) const
+	void Entity::Serialize(YAML::Emitter &out, ECS::Registry &registry, Project *project) const
 	{
 		out << YAML::BeginMap;
-		out << YAML::Key << "Entity" << YAML::Value << m_ID.Value;
-		out << YAML::Key << "Name" << YAML::Value << m_Name;
+		out << YAML::Key << "Entity" << YAML::Value << ID.Value;
+		out << YAML::Key << "Name" << YAML::Value << Name;
+
+		const std::vector<Nexus::ECS::ComponentPtr> components = registry.GetAllComponents(ID);
+
+		// serialize the entity's components
+		if (components.size() > 0)
+		{
+			out << YAML::Key << "Components" << YAML::Value << YAML::BeginSeq;
+
+			for (const Nexus::ECS::ComponentPtr &component : components)
+			{
+				auto	   &componentRegistry = ECS::ComponentRegistry::GetRegistry();
+				std::string displayName		  = project->GetDisplayNameFromComponent(component);
+				YAML::Node	componentNode	  = project->SerializeComponentToYaml(registry, component);
+
+				out << YAML::BeginMap;
+				out << YAML::Key << "Name" << YAML::Value << displayName;
+				out << YAML::Key << "HierarchyIndex" << YAML::Value << component.entityComponentIndex;
+				out << YAML::Key << "Data" << YAML::Value << componentNode;
+				out << YAML::EndMap;
+			}
+
+			out << YAML::EndSeq;
+		}
+
 		out << YAML::EndMap;
 	}
 
-	bool Entity::Deserialize(YAML::Node &data)
-	{
-		return false;
-	}
 }	 // namespace Nexus
