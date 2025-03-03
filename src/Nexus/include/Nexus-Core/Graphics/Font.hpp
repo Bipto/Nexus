@@ -87,7 +87,7 @@ namespace Nexus::Graphics
 		Bitmap
 	};
 
-	class Font
+	class NX_API Font
 	{
 	  public:
 		Font(const std::string &filepath, uint32_t size, const std::vector<CharacterRange> &characterRanges, FontType type, GraphicsDevice *device);

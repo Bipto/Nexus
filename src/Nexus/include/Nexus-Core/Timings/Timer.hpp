@@ -7,7 +7,7 @@
 
 namespace Nexus::Timings
 {
-	class ExecutionTimer
+	class NX_API ExecutionTimer
 	{
 	  public:
 		enum class ExecutionPolicy
@@ -94,7 +94,7 @@ namespace Nexus::Timings
 		std::vector<FunctionToExecute> m_Functions = {};
 	};
 
-	class ProfilingTimer
+	class NX_API ProfilingTimer
 	{
 	  public:
 		ProfilingTimer(const char *name, const source_location location = source_location::current())

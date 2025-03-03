@@ -14,11 +14,6 @@ FetchContent_MakeAvailable(googletest)
 
 add_executable(Tests src/main.cpp)
 target_link_libraries(Tests PRIVATE gtest gtest_main)
-
-target_include_directories(
-    Tests PUBLIC ../../Nexus/src
-)
-
 target_link_libraries(Tests PRIVATE Nexus)
 
 add_test(

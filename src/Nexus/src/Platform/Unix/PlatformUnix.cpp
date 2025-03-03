@@ -1,12 +1,12 @@
-#include "Platform/Windows/WindowsInclude.hpp"
+#include "Platform/Unix/UnixInclude.hpp"
 
 #include "Nexus-Core/Platform.hpp"
-#include "SharedLibraryWindows.hpp"
+#include "SharedLibraryUnix.hpp"
 
 namespace Nexus::Platform
 {
 	Utils::SharedLibrary *LoadSharedLibrary(const std::string &filename)
 	{
-		return new Utils::SharedLibraryWindows(filename.c_str());
+		return new Utils::SharedLibraryUnix(filename.c_str());
 	}
 }	 // namespace Nexus::Platform

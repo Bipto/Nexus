@@ -18,6 +18,11 @@ endif()
 #set up engine project
 add_subdirectory(src/Nexus)
 
+if (DEFINED NX_BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(src/Tests)
+  endif()
+
 if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     if (DEFINED NX_BUILD_DEMO)
         add_subdirectory(src/Demo)

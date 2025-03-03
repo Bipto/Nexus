@@ -12,7 +12,7 @@ namespace Nexus::Timings
 		TimeSpan	Time = {};
 	};
 
-	class Profiler
+	class NX_API Profiler
 	{
 	  public:
 		void							  AddResult(const std::string &name, TimeSpan timespan);

@@ -23,6 +23,8 @@
 #include "Nexus-Core/nxpch.hpp"
 #include "Nexus.hpp"
 
+#include "Nexus-Core/EntryPoint.hpp"
+
 struct DemoInfo
 {
 	std::string Name;
