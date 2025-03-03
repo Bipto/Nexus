@@ -12,5 +12,5 @@ COMMAND ${CMAKE_COMMAND} -E copy_directory
     $<TARGET_FILE_DIR:${PROJECT_NAME}>/fonts)
 
 nexus_copy_required_binaries()
-nexus_copy_required_runtime_libraries()
+nexus_copy_required_runtime_libraries_to_target_output(Editor)
 setup_scripting_project(Nexus)

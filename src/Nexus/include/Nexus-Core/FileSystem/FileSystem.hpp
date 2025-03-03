@@ -24,11 +24,26 @@ namespace Nexus::FileSystem
 	/// @param text A const reference to the text to write
 	NX_API void WriteFile(const std::string &filepath, const std::string &text);
 
+	/// @brief A method to write a buffer to a file
+	/// @param filepath A filepath relative to the root of the filesystem
+	/// @param data A const pointer to the beginning of the buffer to write
+	/// @param size The size of the buffer to write
 	NX_API void WriteBuffer(const std::string &filepath, const void *data, size_t size);
+
+	/// @brief A method to write a buffer to an absolute filepath
+	/// @param filepath The absolute filepath to write the file at
+	/// @param data A const pointer to the beginning of the data to write
+	/// @param size The size of the data to write
 	NX_API void WriteBufferAbsolute(const std::string &filepath, const void *data, size_t size);
 
+	/// @brief A method to copy a directory from one location to another
+	/// @param from The directory to copy from
+	/// @param to The directory to copy to
+	/// @param recurive Whether the copy should be performed recursively
 	NX_API void CopyDirectory(const std::string &from, const std::string &to, bool recurive);
 
+	/// @brief A method to create a new file directory
+	/// @param directory The location to create the directory at
 	NX_API void CreateFileDirectory(const std::string &directory);
 
 	/// @brief A method that gets the absolute path of the file from a filesystem

@@ -151,15 +151,46 @@ namespace Nexus
 		/// @return A float representing the display scale
 		virtual float GetDisplayScale() = 0;
 
+		/// @brief A virtual method that sets the text input rect
+		/// @param rect The rectangle to set to accept input in
 		virtual void SetTextInputRect(const Nexus::Graphics::Rectangle<int> &rect) = 0;
-		virtual void StartTextInput()											   = 0;
-		virtual void StopTextInput()											   = 0;
 
-		virtual void SetRendersPerSecond(uint32_t amount) = 0;
-		virtual void SetUpdatesPerSecond(uint32_t amount) = 0;
-		virtual void SetTicksPerSecond(uint32_t amount)	  = 0;
-		virtual void SetRelativeMouseMode(bool enabled)	  = 0;
+		/// @brief A virtual method that begins text input for a window
+		virtual void StartTextInput() = 0;
 
+		/// @brief A virtual method that ends text input for a window
+		virtual void StopTextInput() = 0;
+
+		/// @brief A virtual method that sets how often the window should be rendered to
+		/// @param amount The amount of times per second to render, use null optional to disable timings
+		virtual void SetRendersPerSecond(std::optional<uint32_t> amount) = 0;
+
+		/// @brief A virtual method that sets how often the window should be updated
+		/// @param amount The amount of times per second to update, use null optional to disable timings
+		virtual void SetUpdatesPerSecond(std::optional<uint32_t> amount) = 0;
+
+		/// @brief A virtual method that sets how often the window should be ticked
+		/// @param amount The amount of times per second to ticked, use null optional to disable timings
+		virtual void SetTicksPerSecond(std::optional<uint32_t> amount) = 0;
+
+		/// @brief A virtual method that sets the function to call when the window is rendered to
+		/// @param func The function to call when rendering
+		virtual void SetRenderFunction(std::function<void(Nexus::TimeSpan time)> func) = 0;
+
+		/// @brief A virtual method that sets the function to call when the window is updated
+		/// @param func The function to call when updating
+		virtual void SetUpdateFunction(std::function<void(Nexus::TimeSpan time)> func) = 0;
+
+		/// @brief A virtual method that sets the function to call when the window is ticking
+		/// @param func The function to call when ticking
+		virtual void SetTickFunction(std::function<void(Nexus::TimeSpan time)> func) = 0;
+
+		/// @brief A virtual method that sets whether the mouse is invisible and locked to the window
+		/// @param enabled Whether the mouse is relative of not
+		virtual void SetRelativeMouseMode(bool enabled) = 0;
+
+		/// @brief A virtual method that returns a struct containing the native window data of the IWindow
+		/// @return
 		virtual NativeWindowInfo GetNativeWindowInfo() = 0;
 
 		EventHandler<const WindowResizedEventArgs &> OnResize;
@@ -188,9 +219,5 @@ namespace Nexus
 		EventHandler<>									   OnMouseLeave;
 
 		EventHandler<const FileDropEventArgs &> OnFileDrop;
-
-		EventHandler<TimeSpan> OnRender;
-		EventHandler<TimeSpan> OnUpdate;
-		EventHandler<TimeSpan> OnTick;
 	};
 }	 // namespace Nexus

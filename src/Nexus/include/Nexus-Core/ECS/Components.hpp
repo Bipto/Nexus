@@ -10,7 +10,6 @@
 
 #include "Nexus-Core/Runtime/Project.hpp"
 #include "Nexus-Core/Scripting/NativeScript.hpp"
-#include "Nexus-Core/Scripting/PythonScript.hpp"
 
 #include "Nexus-Core/FileSystem/FileDialogs.hpp"
 #include "Nexus-Core/Platform.hpp"
@@ -216,31 +215,6 @@ namespace Nexus
 							  }
 						  });
 
-	struct PythonScriptComponent
-	{
-		Nexus::Scripting::PythonScript Script	  = {};
-		std::string					ScriptName = {};
-
-		friend std::ostream &operator<<(std::ostream &os, const PythonScriptComponent &component)
-		{
-			os << component.ScriptName;
-			return os;
-		}
-
-		friend std::istream &operator>>(std::istream &is, PythonScriptComponent &component)
-		{
-			is >> component.ScriptName;
-			return is;
-		}
-	};
-
-	NX_REGISTER_COMPONENT(PythonScriptComponent,
-						  [](void *data, Nexus::Ref<Nexus::Project> project)
-						  {
-							  Nexus::PythonScriptComponent *component = static_cast<Nexus::PythonScriptComponent *>(data);
-							  ImGui::InputText("Script Name", &component->ScriptName);
-						  });
-
 }	 // namespace Nexus
 
 namespace YAML
@@ -318,28 +292,6 @@ namespace YAML
 		}
 
 		static bool decode(const Node &node, Nexus::NativeScriptComponent &rhs)
-		{
-			if (!node["ScriptName"])
-			{
-				return false;
-			}
-
-			rhs.ScriptName = node["ScriptName"].as<std::string>();
-			return true;
-		}
-	};
-
-	template<>
-	struct convert<Nexus::PythonScriptComponent>
-	{
-		static Node encode(const Nexus::PythonScriptComponent &rhs)
-		{
-			Node node;
-			node["ScriptName"] = rhs.ScriptName;
-			return node;
-		}
-
-		static bool decode(const Node &node, Nexus::PythonScriptComponent &rhs)
 		{
 			if (!node["ScriptName"])
 			{

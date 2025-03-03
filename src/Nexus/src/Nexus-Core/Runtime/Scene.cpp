@@ -190,23 +190,6 @@ namespace Nexus
 					}
 				}
 			}
-
-			// call Lua load functions
-			{
-				auto view = Registry.GetView<Nexus::PythonScriptComponent>();
-
-				if (view.HasComponents())
-				{
-					for (auto &[entity, components] : view)
-					{
-						for (const auto &component : components)
-						{
-							auto *script = std::get<0>(component);
-							script->Script.OnLoad();
-						}
-					}
-				}
-			}
 		}
 
 		m_SceneState = SceneState::Playing;
@@ -214,23 +197,6 @@ namespace Nexus
 
 	void Scene::Stop()
 	{
-		// call Lua unload functions
-		{
-			auto view = Registry.GetView<Nexus::PythonScriptComponent>();
-
-			if (view.HasComponents())
-			{
-				for (auto &[entity, components] : view)
-				{
-					for (const auto &component : components)
-					{
-						auto *script = std::get<0>(component);
-						script->Script.OnUnload();
-					}
-				}
-			}
-		}
-
 		m_SceneState = SceneState::Stopped;
 	}
 
@@ -259,23 +225,6 @@ namespace Nexus
 				}
 			}
 		}
-
-		// call Lua load functions
-		{
-			auto view = Registry.GetView<Nexus::PythonScriptComponent>();
-
-			if (view.HasComponents())
-			{
-				for (auto &[entity, components] : view)
-				{
-					for (const auto &component : components)
-					{
-						auto *script = std::get<0>(component);
-						script->Script.OnUpdate();
-					}
-				}
-			}
-		}
 	}
 
 	void Scene::OnRender(TimeSpan time)
@@ -299,23 +248,6 @@ namespace Nexus
 				}
 			}
 		}
-
-		// call Lua load functions
-		{
-			auto view = Registry.GetView<Nexus::PythonScriptComponent>();
-
-			if (view.HasComponents())
-			{
-				for (auto &[entity, components] : view)
-				{
-					for (const auto &component : components)
-					{
-						auto *script = std::get<0>(component);
-						script->Script.OnRender();
-					}
-				}
-			}
-		}
 	}
 
 	void Scene::OnTick(TimeSpan time)
@@ -335,22 +267,6 @@ namespace Nexus
 						{
 							script->ScriptInstance->OnTick(time);
 						}
-					}
-				}
-			}
-		}
-
-		// call Lua load functions
-		{
-			auto view = Registry.GetView<Nexus::PythonScriptComponent>();
-			if (view.HasComponents())
-			{
-				for (auto &[entity, components] : view)
-				{
-					for (const auto &component : components)
-					{
-						auto *script = std::get<0>(component);
-						script->Script.OnTick();
 					}
 				}
 			}

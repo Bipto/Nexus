@@ -59,4 +59,4 @@ endif()
 set_property(TARGET Demo PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
 
 nexus_copy_required_binaries()
-nexus_copy_required_runtime_libraries()
+nexus_copy_required_runtime_libraries_to_target_output(Demo)

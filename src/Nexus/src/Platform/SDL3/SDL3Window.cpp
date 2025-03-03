@@ -252,22 +252,37 @@ namespace Nexus
 		SDL_StopTextInput(m_Window);
 	}
 
-	void SDL3Window::SetRendersPerSecond(uint32_t amount)
+	void SDL3Window::SetRendersPerSecond(std::optional<uint32_t> amount)
 	{
 		m_Specification.RendersPerSecond = amount;
 		SetupTimer();
 	}
 
-	void SDL3Window::SetUpdatesPerSecond(uint32_t amount)
+	void SDL3Window::SetUpdatesPerSecond(std::optional<uint32_t> amount)
 	{
 		m_Specification.UpdatesPerSecond = amount;
 		SetupTimer();
 	}
 
-	void SDL3Window::SetTicksPerSecond(uint32_t amount)
+	void SDL3Window::SetTicksPerSecond(std::optional<uint32_t> amount)
 	{
 		m_Specification.TicksPerSecond = amount;
 		SetupTimer();
+	}
+
+	void SDL3Window::SetRenderFunction(std::function<void(Nexus::TimeSpan time)> func)
+	{
+		m_RenderFunc = func;
+	}
+
+	void SDL3Window::SetUpdateFunction(std::function<void(Nexus::TimeSpan time)> func)
+	{
+		m_UpdateFunc = func;
+	}
+
+	void SDL3Window::SetTickFunction(std::function<void(Nexus::TimeSpan time)> func)
+	{
+		m_TickFunc = func;
 	}
 
 	void SDL3Window::SetRelativeMouseMode(bool enabled)
@@ -351,7 +366,11 @@ namespace Nexus
 
 				Input::SetContext(&m_InputContext);
 				m_RenderFrameRateMonitor.Update();
-				OnRender.Invoke(time);
+
+				if (m_RenderFunc)
+				{
+					m_RenderFunc(time);
+				}
 			},
 			secondsPerRender);
 
@@ -363,7 +382,11 @@ namespace Nexus
 
 				Input::SetContext(&m_InputContext);
 				m_UpdateFrameRateMonitor.Update();
-				OnUpdate.Invoke(time);
+
+				if (m_UpdateFunc)
+				{
+					m_UpdateFunc(time);
+				}
 			},
 			secondsPerUpdate);
 
@@ -375,7 +398,11 @@ namespace Nexus
 
 				Input::SetContext(&m_InputContext);
 				m_TickFrameRateMonitor.Update();
-				OnTick.Invoke(time);
+
+				if (m_TickFunc)
+				{
+					m_TickFunc(time);
+				}
 			},
 			secondsPerTick);
 	}
