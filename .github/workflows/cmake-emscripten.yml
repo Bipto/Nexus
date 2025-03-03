@@ -31,9 +31,7 @@ jobs:
           echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
   
       - name: Setup Ninja
-        uses: ashutoshvarma/setup-ninja@master
-        with:
-          version: 1.10.0
+        uses: seanmiddleditch/gha-setup-ninja@v6
 
       - name: actions-setup-cmake
         uses: jwlawson/actions-setup-cmake@v2.0.2
