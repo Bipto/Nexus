@@ -144,7 +144,7 @@ if (NOT imguizmo_POPULATED)
     "${imguizmo_SOURCE_DIR}/ImGuizmo.h"
     "${imguizmo_SOURCE_DIR}/ImGuizmo.cpp")
 
-  target_include_directories(imguizmo PUBLIC ${IMGUI_INCLUDE_DIR})
+  target_include_directories(imguizmo PUBLIC ${IMGUI_INCLUDE_DIR} ${imguizmo_SOURCE_DIR})
 endif()
 
 FetchContent_Declare(spirv_cross
@@ -604,7 +604,20 @@ if (WIN32)
 endif()
 
 if (LINUX)
-  list (APPEND ENGINE_SOURCES include/Platform/X11/X11Include.hpp)
+  list (APPEND ENGINE_SOURCES include/Platform/X11/X11Include.hpp
+  src/Platform/Unix/PlatformUnix.cpp
+  src/Platform/Unix/SharedLibraryUnix.hpp
+  src/Platform/Unix/SharedLibraryUnix.cpp
+  include/Platform/Unix/UnixInclude.hpp
+  )
+endif()
+
+if (EMSCRIPTEN)
+  list (APPEND ENGINE_SOURCES
+  src/Platform/Unix/PlatformUnix.cpp
+  src/Platform/Unix/SharedLibraryUnix.hpp
+  src/Platform/Unix/SharedLibraryUnix.cpp
+  include/Platform/Unix/UnixInclude.hpp)
 endif()
 
 if (NOT DEFINED NX_BUILD_TYPE)
@@ -675,8 +688,3 @@ target_link_libraries(Nexus ${NX_LINK_VISIBILITY} ${NEXUS_LINKED_LIBRARIES})
 target_compile_definitions(Nexus ${NX_COMPILE_DEFINITION_VISIBILITY} ${NEXUS_COMPILE_DEFINITIONS})
 nexus_structure_folders()
 nexus_setup_filters("${ENGINE_SOURCES}")
-
-if (DEFINED NX_BUILD_TESTS)
-    enable_testing()
-    add_subdirectory(tests)
-  endif()

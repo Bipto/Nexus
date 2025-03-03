@@ -34,7 +34,7 @@ namespace Nexus::Graphics
 	};
 
 	/// @brief A class representing an abstraction over a graphics API
-	class GraphicsDevice : public IResource
+	class NX_API GraphicsDevice : public IResource
 	{
 	  public:
 		static GraphicsDevice *CreateGraphicsDevice(const Graphics::GraphicsDeviceSpecification &spec);

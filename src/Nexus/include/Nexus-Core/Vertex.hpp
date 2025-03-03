@@ -5,7 +5,7 @@
 namespace Nexus::Graphics
 {
 	/// @brief A struct that represents an item within a vertex buffer
-	struct VertexBufferElement
+	struct NX_API VertexBufferElement
 	{
 		/// @brief The name of the element, needs to match the name in the shader
 		std::string Name;
@@ -37,7 +37,7 @@ namespace Nexus::Graphics
 
 	/// @brief A struct representing a set of vertex elements stored within a vertex
 	/// buffer
-	struct VertexBufferLayout
+	struct NX_API VertexBufferLayout
 	{
 	  public:
 		/// @brief A default constructor creating an empty vertex buffer layout
@@ -404,7 +404,7 @@ namespace Nexus::Graphics
 
 	namespace Utilities
 	{
-		std::vector<VertexPositionTexCoordNormalTangentBitangent> GenerateTangentAndBinormals(
+		NX_API std::vector<VertexPositionTexCoordNormalTangentBitangent> GenerateTangentAndBinormals(
 			const std::vector<Nexus::Graphics::VertexPositionTexCoordNormal> &vertices);
 	}
 }	 // namespace Nexus::Graphics
