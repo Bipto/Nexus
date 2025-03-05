@@ -153,6 +153,7 @@ namespace Nexus::Graphics
 		capabilities.SupportsLODBias			  = true;
 		capabilities.SupportsInstanceOffset		  = true;
 		capabilities.SupportsMultipleSwapchains	  = true;
+		capabilities.SupportsSeparateColourAndBlendMasks = true;
 		return capabilities;
 	}
 

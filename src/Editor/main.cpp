@@ -445,7 +445,6 @@ class EditorApplication : public Nexus::Application
 					glm::mat4	transformMat = transform->CreateTransformation();
 
 					ImGuizmo::SetOrthographic(false);
-					ImGuizmo::SetDrawlist();
 					ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
 
 					if (ImGuizmo::Manipulate(glm::value_ptr(view),

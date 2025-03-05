@@ -179,10 +179,11 @@ namespace Nexus::Graphics
 	const GraphicsCapabilities GraphicsDeviceD3D12::GetGraphicsCapabilities() const
 	{
 		GraphicsCapabilities capabilities;
-		capabilities.SupportsMultisampledTextures = true;
-		capabilities.SupportsLODBias			  = true;
-		capabilities.SupportsInstanceOffset		  = true;
-		capabilities.SupportsMultipleSwapchains	  = true;
+		capabilities.SupportsMultisampledTextures		 = true;
+		capabilities.SupportsLODBias					 = true;
+		capabilities.SupportsInstanceOffset				 = true;
+		capabilities.SupportsMultipleSwapchains			 = true;
+		capabilities.SupportsSeparateColourAndBlendMasks = true;
 		return capabilities;
 	}
 

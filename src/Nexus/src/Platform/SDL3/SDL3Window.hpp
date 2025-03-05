@@ -114,9 +114,13 @@ namespace Nexus
 		void StartTextInput() final;
 		void StopTextInput() final;
 
-		void SetRendersPerSecond(uint32_t amount) final;
-		void SetUpdatesPerSecond(uint32_t amount) final;
-		void SetTicksPerSecond(uint32_t amount) final;
+		void SetRendersPerSecond(std::optional<uint32_t> amount) final;
+		void SetUpdatesPerSecond(std::optional<uint32_t> amount) final;
+		void SetTicksPerSecond(std::optional<uint32_t> amount) final;
+		void SetRenderFunction(std::function<void(Nexus::TimeSpan time)> func) final;
+		void SetUpdateFunction(std::function<void(Nexus::TimeSpan time)> func) final;
+		void SetTickFunction(std::function<void(Nexus::TimeSpan time)> func) final;
+
 		void SetRelativeMouseMode(bool enabled) final;
 
 		NativeWindowInfo GetNativeWindowInfo() final;
@@ -157,6 +161,10 @@ namespace Nexus
 		Utils::FrameRateMonitor m_RenderFrameRateMonitor = {};
 		Utils::FrameRateMonitor m_UpdateFrameRateMonitor = {};
 		Utils::FrameRateMonitor m_TickFrameRateMonitor	 = {};
+
+		std::function<void(Nexus::TimeSpan)> m_RenderFunc;
+		std::function<void(Nexus::TimeSpan)> m_UpdateFunc;
+		std::function<void(Nexus::TimeSpan)> m_TickFunc;
 
 		InputNew::InputContext m_InputContext = {nullptr};
 	};

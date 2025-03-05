@@ -2,7 +2,7 @@
 
 namespace Nexus::Utils
 {
-	SharedLibraryUnix::SharedLibraryUnix(const std::string &filepath)
+	SharedLibraryUnix::SharedLibraryUnix(const std::string &filepath) : SharedLibrary(filepath)
 	{
 	}
 

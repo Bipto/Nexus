@@ -179,13 +179,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(shaderc)
 
-FetchContent_Declare(
-  pocketpy
-  GIT_REPOSITORY https://github.com/pocketpy/pocketpy.git
-  GIT_TAG 3f5c460
-)
-FetchContent_MakeAvailable(pocketpy)
-
 set(NEXUS_INCLUDE_DIRS "")
 set(NEXUS_LINKED_LIBRARIES "")
 set(NEXUS_LIBRARY_SUBDIRECTORIES "")
@@ -415,8 +408,7 @@ include/Nexus-Core/Runtime/Camera.hpp
   include/Nexus-Core/Runtime/Scene.hpp)
 
 list (APPEND ENGINE_SOURCES
-  include/Nexus-Core/Scripting/NativeScript.hpp
-  include/Nexus-Core/Scripting/PythonScript.hpp)
+  include/Nexus-Core/Scripting/NativeScript.hpp)
 
 list (APPEND ENGINE_SOURCES
   include/Nexus-Core/Timings/Clock.hpp
@@ -634,7 +626,6 @@ list (APPEND NEXUS_INCLUDE_DIRS
   ${stb_SOURCE_DIR}
   ${IMGUI_INCLUDE_DIR}
   ${IMGUIZMO_INCLUDE_DIR}
-  ${pocketpy_SOURCE_DIR}/include
   binaries/dxc_2023_08_14/inc
 )
 
@@ -650,8 +641,7 @@ list (APPEND NEXUS_LINKED_LIBRARIES
   yaml-cpp::yaml-cpp
   glm::glm
   imgui
-  imguizmo
-  pocketpy)
+  imguizmo)
 
 #precompiled header
 if (NX_ROOT_BUILD STREQUAL "ON")
@@ -664,7 +654,7 @@ if (EMSCRIPTEN)
       Nexus
         PROPERTIES
         LINK_FLAGS
-        "--std=c++20 -O3 -flto -sALLOW_MEMORY_GROWTH=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sFULL_ES2=1 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS -sNO_DISABLE_EXCEPTION_CATCHING -lopenal -lembind -sGL_ENABLE_GET_PROC_ADDRESS"
+        "--std=c++20 -O3 -flto -sALLOW_MEMORY_GROWTH=1 -s USE_WEBGL2=1 -sFULL_ES2=1 -sFULL_ES3=1 -sEMULATE_FUNCTION_POINTER_CASTS -sNO_DISABLE_EXCEPTION_CATCHING -lopenal -lembind -sGL_ENABLE_GET_PROC_ADDRESS"
     )
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lidbfs.js")
     target_link_options(Nexus PRIVATE -lidbfs.js)

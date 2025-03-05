@@ -2,6 +2,8 @@
 
 #if defined(NX_PLATFORM_OPENGL)
 
+	#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
+
 	#include "Nexus-Core/Graphics/Swapchain.hpp"
 	#include "Nexus-Core/IWindow.hpp"
 

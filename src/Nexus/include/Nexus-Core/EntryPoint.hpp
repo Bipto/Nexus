@@ -49,13 +49,13 @@ namespace
 
 #if !defined(NX_NO_ENTRY_POINT)
 	#if defined(NX_NO_CONSOLE)
-inline int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nCmdShow)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nCmdShow)
 {
 	auto commandLineArgs = InputParametersToStringVector(__argc, __argv);
 	return Nexus::Main(commandLineArgs);
 }
 	#else
-inline int main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	auto commandLineArgs = InputParametersToStringVector(argc, argv);
 	return Nexus::Main(commandLineArgs);

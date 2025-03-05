@@ -20,7 +20,7 @@ namespace Nexus
 		Nexus::Input::SetContext(m_Window->GetInputContext());
 
 		Graphics::GraphicsDeviceSpecification graphicsDeviceCreateInfo;
-		graphicsDeviceCreateInfo.DebugLayer = true;
+		graphicsDeviceCreateInfo.DebugLayer = false;
 		graphicsDeviceCreateInfo.API = spec.GraphicsAPI;
 
 		m_GraphicsDevice = Nexus::Graphics::GraphicsDevice::CreateGraphicsDevice(graphicsDeviceCreateInfo);
@@ -31,9 +31,9 @@ namespace Nexus
 
 		m_AudioDevice = Nexus::CreateAudioDevice(spec.AudioAPI);
 
-		m_Window->OnRender.Bind([&](Nexus::TimeSpan time) { Render(time); });
-		m_Window->OnUpdate.Bind([&](Nexus::TimeSpan time) { Update(time); });
-		m_Window->OnTick.Bind([&](Nexus::TimeSpan time) { Tick(time); });
+		m_Window->SetRenderFunction([&](Nexus::TimeSpan time) { Render(time); });
+		m_Window->SetUpdateFunction([&](Nexus::TimeSpan time) { Update(time); });
+		m_Window->SetTickFunction([&](Nexus::TimeSpan time) { Tick(time); });
 	}
 
 	Application::~Application()

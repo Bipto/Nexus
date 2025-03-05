@@ -27,7 +27,7 @@ namespace Nexus::Timings
 	};
 }	 // namespace Nexus::Timings
 
-#define NX_PROFILING_ENABLE 1
+#define NX_PROFILING_ENABLE
 
 #if defined(NX_PROFILING_ENABLE)
 	#define NX_PROFILE_FUNCTION()                                                                                                                    \
