@@ -34,6 +34,12 @@ jobs:
       - name: Update packages
         run: sudo apt-get update && sudo apt-get upgrade
 
+      - name: Install latest Clang
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh all
+
       - name: Install packages
         run: sudo apt-get install --fix-missing libgl1-mesa-dev mesa-utils mesa-common-dev
     

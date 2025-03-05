@@ -48,15 +48,15 @@ namespace Nexus
 	  public:
 		/// @brief A method that adds a new info log to the logger
 		/// @param message The text of the error message
-		void LogInfo(const std::string &message, const source_location location = source_location::current());
+		void LogInfo(const std::string &message, const std::source_location location = std::source_location::current());
 
 		/// @brief A method that adds a new warning log to the logger
 		/// @param message The text of the error message
-		void LogWarning(const std::string &message, const source_location location = source_location::current());
+		void LogWarning(const std::string &message, const std::source_location location = std::source_location::current());
 
 		/// @brief A method that adds a new error log to the logger
 		/// @param message The text of the error message
-		void LogError(const std::string &message, const source_location location = source_location::current());
+		void LogError(const std::string &message, const std::source_location location = std::source_location::current());
 
 		/// @brief A method that returns the logs stored within the logger
 		/// @return A const reference to the vector of logs

@@ -157,6 +157,7 @@ namespace Nexus::Graphics
 		capabilities.SupportsLODBias			  = true;
 		capabilities.SupportsMultisampledTextures = true;
 		capabilities.SupportsMultipleSwapchains	  = true;
+		capabilities.SupportsSeparateColourAndBlendMasks = true;
 	#endif
 
 		return capabilities;

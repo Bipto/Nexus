@@ -311,7 +311,7 @@ namespace Nexus::ECS
 		T *GetFirstOrNull(GUID guid)
 		{
 			const char				  *typeName			= typeid(T).name();
-			const std::vector<size_t> &entityComponents = m_ComponentIds[guid][typeName];
+			const std::vector<Nexus::ECS::ComponentPositionData> &entityComponents = m_ComponentIds[guid][typeName];
 
 			if (entityComponents.size() > 0)
 			{

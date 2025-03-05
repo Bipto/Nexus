@@ -25,21 +25,13 @@
 #include <optional>
 #include <random>
 #include <set>
-#include <typeindex>
-#include <typeinfo>
-
-#if defined(__clang__) && !defined(__EMSCRIPTEN__)
-	#include <experimental/source_location>
-using source_location = std::experimental::source_location;
-#else
-	#include <source_location>
-using source_location = std::source_location;
-#endif
-
+#include <source_location>
 #include <span>
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <typeindex>
+#include <typeinfo>
 #include <unordered_map>
 #include <utility>
 #include <variant>

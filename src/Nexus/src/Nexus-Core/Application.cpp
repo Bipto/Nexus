@@ -20,7 +20,7 @@ namespace Nexus
 		Nexus::Input::SetContext(m_Window->GetInputContext());
 
 		Graphics::GraphicsDeviceSpecification graphicsDeviceCreateInfo;
-		graphicsDeviceCreateInfo.DebugLayer = true;
+		graphicsDeviceCreateInfo.DebugLayer = false;
 		graphicsDeviceCreateInfo.API = spec.GraphicsAPI;
 
 		m_GraphicsDevice = Nexus::Graphics::GraphicsDevice::CreateGraphicsDevice(graphicsDeviceCreateInfo);

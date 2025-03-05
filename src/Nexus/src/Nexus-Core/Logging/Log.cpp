@@ -10,7 +10,7 @@ namespace Nexus
 	{
 	}
 
-	void Logger::LogInfo(const std::string &message, const source_location location)
+	void Logger::LogInfo(const std::string &message, const std::source_location location)
 	{
 		// build the message
 		std::stringstream ss;
@@ -26,7 +26,7 @@ namespace Nexus
 		this->m_Logs.push_back(log);
 	}
 
-	void Logger::LogWarning(const std::string &message, const source_location location)
+	void Logger::LogWarning(const std::string &message, const std::source_location location)
 	{
 		// build the message
 		std::stringstream ss;
@@ -42,7 +42,7 @@ namespace Nexus
 		this->m_Logs.push_back(log);
 	}
 
-	void Logger::LogError(const std::string &message, const source_location location)
+	void Logger::LogError(const std::string &message, const std::source_location location)
 	{
 		// build the message
 		std::stringstream ss;

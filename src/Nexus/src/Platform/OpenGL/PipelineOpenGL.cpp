@@ -199,6 +199,7 @@ namespace Nexus::Graphics
 			case FrontFace::CounterClockwise: glCall(glFrontFace(GL_CCW)); break;
 		}
 
+	#if !defined(__EMSCRIPTEN__)
 		for (size_t i = 0; i < m_Description.ColourBlendStates.size(); i++)
 		{
 			const auto &colourBlendState = m_Description.ColourBlendStates[i];
@@ -208,6 +209,13 @@ namespace Nexus::Graphics
 						 colourBlendState.PixelWriteMask.Blue,
 						 colourBlendState.PixelWriteMask.Alpha);
 		}
+	#else
+		const auto &colourBlendState = m_Description.ColourBlendStates[0];
+		glColorMask(colourBlendState.PixelWriteMask.Red,
+					colourBlendState.PixelWriteMask.Green,
+					colourBlendState.PixelWriteMask.Blue,
+					colourBlendState.PixelWriteMask.Alpha);
+	#endif
 
 		// vulkan requires scissor test to be enabled
 		glCall(glEnable(GL_SCISSOR_TEST));
@@ -216,6 +224,27 @@ namespace Nexus::Graphics
 	void PipelineOpenGL::SetupBlending()
 	{
 		glCall(glEnable(GL_BLEND));
+
+	#if defined(__EMSCRIPTEN__)
+		if (m_Description.ColourBlendStates[0].EnableBlending)
+		{
+			auto sourceColourFunction = GL::GetBlendFactor(m_Description.ColourBlendStates[0].SourceColourBlend);
+			auto sourceAlphaFunction  = GL::GetBlendFactor(m_Description.ColourBlendStates[0].SourceAlphaBlend);
+
+			auto destinationColourFunction = GL::GetBlendFactor(m_Description.ColourBlendStates[0].DestinationColourBlend);
+			auto destinationAlphaFunction  = GL::GetBlendFactor(m_Description.ColourBlendStates[0].DestinationAlphaBlend);
+			glCall(glBlendFuncSeparate(sourceColourFunction, destinationColourFunction, sourceAlphaFunction, destinationAlphaFunction));
+
+			auto colorBlendFunction = GL::GetBlendFunction(m_Description.ColourBlendStates[0].ColorBlendFunction);
+			auto alphaBlendFunction = GL::GetBlendFunction(m_Description.ColourBlendStates[0].AlphaBlendFunction);
+			glCall(glBlendEquationSeparate(colorBlendFunction, alphaBlendFunction));
+		}
+		else
+		{
+			glBlendFunc(GL_ONE, GL_ZERO);
+			glBlendEquation(GL_FUNC_ADD);
+		}
+	#else
 		for (size_t i = 0; i < m_Description.ColourBlendStates.size(); i++)
 		{
 			if (m_Description.ColourBlendStates[i].EnableBlending)
@@ -238,6 +267,7 @@ namespace Nexus::Graphics
 				glBlendEquationi(i, GL_FUNC_ADD);
 			}
 		}
+	#endif
 	}
 
 	void PipelineOpenGL::SetShader()
