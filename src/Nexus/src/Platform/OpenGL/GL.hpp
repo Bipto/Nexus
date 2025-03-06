@@ -57,7 +57,6 @@ namespace Nexus::GL
 
 #endif
 
-#define NX_GL_DEBUG
 #define glClearErrors()                                                                                                                              \
 	while (glGetError() != GL_NO_ERROR) {}
 

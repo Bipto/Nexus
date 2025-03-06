@@ -111,22 +111,19 @@ endmacro()
 
 #copy all required libraries to output directory
 macro(nexus_copy_required_runtime_libraries)
-
   add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
     -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
     COMMAND_EXPAND_LISTS)
 
-  get_all_targets(all_targets)
-  foreach (_target IN LISTS all_targets)
-
-    add_custom_command(TARGET ${_target} POST_BUILD
+  #this is only required if we are building a shared library
+  get_target_property(TARGET_TYPE Nexus TYPE)
+  if (TARGET_TYPE STREQUAL "SHARED_LIBRARY")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy
-      -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<TARGET_PDB_FILE:${_target}>
+      -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<TARGET_FILE:Nexus>
       COMMAND_EXPAND_LISTS)
-
-  endforeach()
-
+  endif()
 endmacro()
 
 macro(nexus_copy_required_runtime_libraries_to_custom_dir output_dir)
