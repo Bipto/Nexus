@@ -35,7 +35,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get upgrade
 
       - name: Install packages
-        run: sudo apt-get install --fix-missing libgl1-mesa-dev mesa-utils mesa-common-dev
+        run: sudo apt-get install --fix-missing libgl1-mesa-dev mesa-utils mesa-common-dev libx11-dev
     
       - name: Install Vulkan SDK
         uses: jakoch/install-vulkan-sdk-action@v1.1.1
