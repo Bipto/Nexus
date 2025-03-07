@@ -179,6 +179,11 @@ namespace Nexus
 		return m_RootDirectory + m_AssetsDirectory;
 	}
 
+	std::string Project::GetFullScriptsDirectory()
+	{
+		return m_RootDirectory + m_ScriptsDirectory;
+	}
+
 	void Project::LoadSharedLibrary()
 	{
 		std::string sharedLibraryPathFile = m_RootDirectory + m_ScriptsDirectory + "loading\\output.txt";

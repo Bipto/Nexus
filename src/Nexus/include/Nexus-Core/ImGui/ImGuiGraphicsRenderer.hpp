@@ -47,6 +47,7 @@ namespace Nexus::ImGuiUtils
 
 		ImGuiIO		 &GetIO();
 		ImGuiContext *GetContext();
+		void		  SetContext(ImGuiContext *context);
 
 		static ImGuiGraphicsRenderer *GetCurrentRenderer();
 		static void					  SetCurrentRenderer(ImGuiGraphicsRenderer *renderer);

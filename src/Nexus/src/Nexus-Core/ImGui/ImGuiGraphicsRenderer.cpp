@@ -453,7 +453,6 @@ namespace Nexus::ImGuiUtils
 
 		UpdateInput();
 		ImGui::NewFrame();
-		ImGuizmo::BeginFrame();
 	}
 
 	void ImGuiGraphicsRenderer::AfterLayout()
@@ -503,6 +502,11 @@ namespace Nexus::ImGuiUtils
 		return m_Context;
 	}
 
+	void ImGuiGraphicsRenderer::SetContext(ImGuiContext *context)
+	{
+		m_Context = context;
+	}
+
 	ImGuiGraphicsRenderer *ImGuiGraphicsRenderer::GetCurrentRenderer()
 	{
 		return s_ImGuiRenderer;
@@ -512,6 +516,7 @@ namespace Nexus::ImGuiUtils
 	{
 		s_ImGuiRenderer = renderer;
 		ImGui::SetCurrentContext(s_ImGuiRenderer->GetContext());
+		ImGuizmo::SetImGuiContext(s_ImGuiRenderer->GetContext());
 		ImGui::SetAllocatorFunctions(&ImGuiAlloc, &ImGuiFree, nullptr);
 	}
 

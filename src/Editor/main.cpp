@@ -37,6 +37,7 @@ class EditorApplication : public Nexus::Application
 
 		m_ImGuiRenderer = std::unique_ptr<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(new Nexus::ImGuiUtils::ImGuiGraphicsRenderer(this));
 		ImGui::SetCurrentContext(m_ImGuiRenderer->GetContext());
+		ImGuizmo::SetImGuiContext(m_ImGuiRenderer->GetContext());
 
 		auto &io = ImGui::GetIO();
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
@@ -252,6 +253,16 @@ class EditorApplication : public Nexus::Application
 				}
 			}
 
+			if (ImGui::MenuItem("Updating scripting engine version"))
+			{
+				if (m_Project)
+				{
+					Nexus::Utils::ScriptProjectGenerator generator;
+					std::string							 outputDir = m_Project->GetFullScriptsDirectory() + "Nexus";
+					generator.CopyEngineSources("Nexus", outputDir);
+				}
+			}
+
 			ImGui::EndMenu();
 		}
 
@@ -445,6 +456,11 @@ class EditorApplication : public Nexus::Application
 					glm::mat4	transformMat = transform->CreateTransformation();
 
 					ImGuizmo::SetOrthographic(false);
+					ImGuizmo::BeginFrame();
+					ImGuizmo::PushID("Gizmo");
+
+					ImGuizmo::SetDrawlist(ImGui::GetForegroundDrawList(ImGui::GetMainViewport()));
+
 					ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
 
 					if (ImGuizmo::Manipulate(glm::value_ptr(view),
@@ -464,6 +480,8 @@ class EditorApplication : public Nexus::Application
 						transform->Rotation = rotation;
 						transform->Scale	= scale;
 					}
+
+					ImGuizmo::PopID();
 
 					m_FramebufferClickDisabled = ImGuizmo::IsOver() || ImGuizmo::IsUsingAny();
 				}

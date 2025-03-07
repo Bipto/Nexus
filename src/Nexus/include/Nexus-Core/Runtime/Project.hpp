@@ -52,6 +52,7 @@ namespace Nexus
 
 		std::string GetFullSceneDirectory();
 		std::string GetFullAssetsDirectory();
+		std::string GetFullScriptsDirectory();
 
 		// project library
 		void				  LoadSharedLibrary();

@@ -116,6 +116,7 @@ namespace Nexus::Scripting
 		Nexus::SetApplication(app);
 		ImGui::SetAllocatorFunctions(allocFunc, freeFunc, nullptr);
 		ImGui::SetCurrentContext(context);
+		ImGuizmo::SetImGuiContext(context);
 	}
 
 }	 // namespace Nexus::Scripting
