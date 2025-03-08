@@ -12,9 +12,7 @@
 
 #include "ApplicationSpecification.hpp"
 #include "Nexus-Core/Events/EventHandler.hpp"
-#include "Nexus-Core/Input/Event.hpp"
-#include "Nexus-Core/Input/InputContext.hpp"
-#include "Nexus-Core/Input/InputState.hpp"
+#include "Nexus-Core/Input/Events.hpp"
 #include "Nexus-Core/Monitor.hpp"
 #include "Nexus-Core/Timings/Clock.hpp"
 #include "Nexus-Core/Timings/Profiler.hpp"
@@ -121,10 +119,6 @@ namespace Nexus
 		/// @return A boolean value that represents whether a window should close
 		bool ShouldClose();
 
-		/// @brief A method that returns a pointer to the engine's core input state
-		/// @return A pointer to an InputState
-		const InputState *GetCoreInputState() const;
-
 		/// @brief A method that returns a pointer to the application's graphics
 		/// device
 		/// @return A pointer to a graphics device
@@ -133,8 +127,6 @@ namespace Nexus
 		/// @brief A method that returns a pointer to the application's audio device
 		/// @return A pointer to an audio device
 		Audio::AudioDevice *GetAudioDevice();
-
-		const Keyboard &GetGlobalKeyboardState() const;
 
 	  protected:
 		/// @brief A pointer to a graphics device
@@ -154,7 +146,5 @@ namespace Nexus
 
 		/// @brief A clock to time when renders and updates occur
 		Clock m_Clock {};
-
-		Keyboard m_GlobalKeyboardState {};
 	};
 }	 // namespace Nexus

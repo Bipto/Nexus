@@ -17,7 +17,6 @@ namespace Nexus
 		m_Specification = spec;
 
 		m_Window = Platform::CreatePlatformWindow(spec.WindowProperties);
-		Nexus::Input::SetContext(m_Window->GetInputContext());
 
 		Graphics::GraphicsDeviceSpecification graphicsDeviceCreateInfo;
 		graphicsDeviceCreateInfo.DebugLayer = false;
@@ -46,10 +45,6 @@ namespace Nexus
 	void Application::MainLoop()
 	{
 		Platform::Update();
-		m_GlobalKeyboardState.CacheInput();
-
-		// cache the previous frame's input
-		Nexus::Mouse::s_PreviousGlobalMousePosition = Nexus::Mouse::s_GlobalMousePosition;
 	}
 
 	Nexus::IWindow *Application::GetPrimaryWindow()
@@ -97,11 +92,6 @@ namespace Nexus
 		return m_Window->IsClosing();
 	}
 
-	const InputState *Application::GetCoreInputState() const
-	{
-		return m_Window->GetInput();
-	}
-
 	Graphics::GraphicsDevice *Application::GetGraphicsDevice()
 	{
 		return m_GraphicsDevice;
@@ -110,11 +100,6 @@ namespace Nexus
 	Audio::AudioDevice *Application::GetAudioDevice()
 	{
 		return m_AudioDevice;
-	}
-
-	const Keyboard &Application::GetGlobalKeyboardState() const
-	{
-		return m_GlobalKeyboardState;
 	}
 
 	Audio::AudioDevice *CreateAudioDevice(Audio::AudioAPI api)

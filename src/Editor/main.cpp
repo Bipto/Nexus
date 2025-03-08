@@ -456,12 +456,9 @@ class EditorApplication : public Nexus::Application
 					glm::mat4	transformMat = transform->CreateTransformation();
 
 					ImGuizmo::SetOrthographic(false);
-					ImGuizmo::BeginFrame();
-					ImGuizmo::PushID("Gizmo");
-
-					ImGuizmo::SetDrawlist(ImGui::GetForegroundDrawList(ImGui::GetMainViewport()));
-
+					ImGuizmo::SetImGuiContext(m_ImGuiRenderer->GetContext());
 					ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
+					ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
 
 					if (ImGuizmo::Manipulate(glm::value_ptr(view),
 											 glm::value_ptr(projection),
@@ -480,8 +477,6 @@ class EditorApplication : public Nexus::Application
 						transform->Rotation = rotation;
 						transform->Scale	= scale;
 					}
-
-					ImGuizmo::PopID();
 
 					m_FramebufferClickDisabled = ImGuizmo::IsOver() || ImGuizmo::IsUsingAny();
 				}

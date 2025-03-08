@@ -4,9 +4,8 @@
 #include "SDL3/SDL_storage.h"
 #include "SDL3/SDL_surface.h"
 
-#include "Nexus-Core/Input/Event.hpp"
+#include "Nexus-Core/Input/Events.hpp"
 #include "Nexus-Core/Input/Gamepad.hpp"
-#include "Nexus-Core/Input/InputContext.hpp"
 #include "Nexus-Core/Input/Keyboard.hpp"
 #include "Nexus-Core/Input/Mouse.hpp"
 #include "Nexus-Core/Monitor.hpp"

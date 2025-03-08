@@ -27,11 +27,10 @@ namespace Nexus
 			this->Resize(width, height);
 			this->m_Position = position;
 
-			Nexus::GetApplication()->GetPrimaryWindow()->OnMouseMoved.Bind([&](const MouseMovedEventArgs &event)
-																		   { Rotate(event.Movement.X, event.Movement.Y); });
-			// m_Device->GetPrimaryWindow()->SetRelativeMouseMode(true);
+			Nexus::GetApplication()->GetPrimaryWindow()->SetMouseMovedCallback([&](const MouseMovedEventArgs &event)
+																			   { Rotate(event.Movement.X, event.Movement.Y); });
 
-			Nexus::GetApplication()->GetPrimaryWindow()->OnMousePressed.Bind(
+			Nexus::GetApplication()->GetPrimaryWindow()->SetMousePressedCallback(
 				[&](const MouseButtonPressedEventArgs &event)
 				{
 					if (event.Button == MouseButton::Right)
@@ -45,7 +44,7 @@ namespace Nexus
 					}
 				});
 
-			Nexus::GetApplication()->GetPrimaryWindow()->OnKeyPressed.Bind(
+			Nexus::GetApplication()->GetPrimaryWindow()->SetKeyPressedCallback(
 				[&](const KeyPressedEventArgs &event)
 				{
 					if (event.ScanCode == ScanCode::Escape)
@@ -164,7 +163,7 @@ namespace Nexus
 			if (!defaultKeyboard.has_value())
 				return;
 
-			if (Input::IsKeyDown(defaultKeyboard.value(), ScanCode::LeftShift) || Input::IsKeyDown(3, ScanCode::RightShift))
+			if (Input::IsKeyDown(defaultKeyboard.value(), ScanCode::LeftShift) || Input::IsKeyDown(defaultKeyboard.value(), ScanCode::RightShift))
 			{
 				speed *= 2.0f;
 			}

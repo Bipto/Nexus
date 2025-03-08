@@ -542,63 +542,51 @@ namespace Nexus
 		EndCall
 	};
 
-	/// @brief A class containing the current state of a set of keys
+	enum KeyboardModifier
+	{
+		LeftShift	 = BIT(1),
+		RightShift	 = BIT(2),
+		LeftControl	 = BIT(3),
+		RightControl = BIT(4),
+		LeftAlt		 = BIT(5),
+		RightAlt	 = BIT(6),
+		LeftGUI		 = BIT(7),
+		RightGUI	 = BIT(8),
+		Num			 = BIT(9),
+		Caps		 = BIT(10),
+		Mode		 = BIT(11),
+		Scroll		 = BIT(12),
+		Control		 = BIT(13),
+		Shift		 = BIT(14),
+		Alt			 = BIT(15),
+		GUI			 = BIT(16)
+	};
+
 	class Keyboard
 	{
 	  public:
-		enum Modifier
+		Keyboard() = delete;
+		Keyboard(uint32_t id, const std::string &name) : m_Id(id), m_Name(name)
 		{
-			LeftShift	 = BIT(1),
-			RightShift	 = BIT(2),
-			LeftControl	 = BIT(3),
-			RightControl = BIT(4),
-			LeftAlt		 = BIT(5),
-			RightAlt	 = BIT(6),
-			LeftGUI		 = BIT(7),
-			RightGUI	 = BIT(8),
-			Num			 = BIT(9),
-			Caps		 = BIT(10),
-			Mode		 = BIT(11),
-			Scroll		 = BIT(12),
-			Control		 = BIT(13),
-			Shift		 = BIT(14),
-			Alt			 = BIT(15),
-			GUI			 = BIT(16)
-		};
+		}
 
-	  public:
-		/// @brief A method that caches the previous frames key states
-		void CacheInput();
+		uint32_t GetId() const
+		{
+			return m_Id;
+		}
 
-		/// @brief A method that checks whether a key is currently held
-		/// @param code The keycode to check the state of
-		/// @return A boolean value representing whether a key was held
-		 const bool IsKeyHeld(KeyCode code) const;
+		const std::string &GetName() const
+		{
+			return m_Name;
+		}
 
-		 /// @brief A method that checks whether a key is currently pressed
-		 /// @param code The keycode to check the state of
-		 /// @return A boolean value representing whether a key was pressed
-		 const bool WasKeyPressed(KeyCode code) const;
+	  private:
+		uint32_t	m_Id;
+		std::string m_Name;
+	};
 
-		 /// @brief A method that checks whether a key is currently released
-		 /// @param code The keycode to check the state of
-		 /// @return A boolean value representing whether a key was released
-		 const bool WasKeyReleased(KeyCode code) const;
-
-		 const std::map<KeyCode, bool> &GetKeys() const;
-
-	   private:
-		 /// @brief A map containing the current state of the keyboard's keys
-		 mutable std::map<KeyCode, bool> m_CurrentKeys;
-
-		 /// @brief A map containing the state of the keyboard's keys in the previous
-		 /// frame
-		 mutable std::map<KeyCode, bool> m_PreviousKeys;
-
-		 /// @brief A friend class to allow a window to access the private properties
-		 /// of this class
-		 friend class IWindow;
-
-		 friend class Application;
+	struct KeyboardState
+	{
+		std::map<ScanCode, bool> Keys = {};
 	};
 }	 // namespace Nexus

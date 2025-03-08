@@ -6,9 +6,7 @@
 #include "Nexus-Core/Events/EventHandler.hpp"
 #include "Nexus-Core/Graphics/Rectangle.hpp"
 #include "Nexus-Core/Graphics/Swapchain.hpp"
-#include "Nexus-Core/Input/Event.hpp"
-#include "Nexus-Core/Input/InputContext.hpp"
-#include "Nexus-Core/Input/InputState.hpp"
+#include "Nexus-Core/Input/Events.hpp"
 #include "Nexus-Core/Timings/Timer.hpp"
 #include "Point.hpp"
 #include "Utils/FramerateMonitor.hpp"
@@ -16,6 +14,8 @@
 #include "Nexus-Core/Types.hpp"
 
 #include "WindowInfo.hpp"
+
+#include "Nexus-Core/Input/Input.hpp"
 
 namespace Nexus
 {
@@ -39,9 +39,6 @@ namespace Nexus
 		virtual ~IWindow()
 		{
 		}
-
-		/// @brief A virtual method that stores the previous frame's input
-		virtual void CacheInput() = 0;
 
 		/// @brief A virtual method that performs all actions needed to process and update the window
 		virtual void Update() = 0;
@@ -88,12 +85,6 @@ namespace Nexus
 		/// @param visible A boolean value indicating whether the mouse should be
 		/// visible
 		virtual void SetIsMouseVisible(bool visible) = 0;
-
-		/// @brief A method that returns the window's input state
-		/// @return A pointer to the input state
-		virtual InputState *GetInput() = 0;
-
-		virtual Nexus::InputNew::InputContext *GetInputContext() = 0;
 
 		/// @brief A method that checks whether a window is focussed
 		/// @return A boolean value indicating whether the window is focussed
@@ -193,31 +184,40 @@ namespace Nexus
 		/// @return
 		virtual NativeWindowInfo GetNativeWindowInfo() = 0;
 
-		EventHandler<const WindowResizedEventArgs &> OnResize;
-		EventHandler<const WindowMovedEventArgs &>	 OnMove;
+		virtual void SetResizeCallback(std::function<void(const WindowResizedEventArgs &)> func) = 0;
+		virtual void SetMoveCallback(std::function<void(const WindowMovedEventArgs &)> func)	 = 0;
 
-		EventHandler<> OnGainFocus;
-		EventHandler<> OnLostFocus;
-		EventHandler<> OnMaximized;
-		EventHandler<> OnMinimized;
-		EventHandler<> OnRestored;
-		EventHandler<> OnShow;
-		EventHandler<> OnHide;
-		EventHandler<> OnExpose;
+		virtual void SetFocusGainCallback(std::function<void()> func) = 0;
+		virtual void SetFocusLostCallback(std::function<void()> func) = 0;
+		virtual void SetMaximizedCallback(std::function<void()> func) = 0;
+		virtual void SetMinimizedCallback(std::function<void()> func) = 0;
+		virtual void SetRestoreCallback(std::function<void()> func)	  = 0;
+		virtual void SetShowCallback(std::function<void()> func)	  = 0;
+		virtual void SetHideCallback(std::function<void()> func)	  = 0;
+		virtual void SetExposeCallback(std::function<void()> func)	  = 0;
 
-		EventHandler<const KeyPressedEventArgs &>  OnKeyPressed;
-		EventHandler<const KeyReleasedEventArgs &> OnKeyReleased;
+		virtual void SetKeyPressedCallback(std::function<void(const KeyPressedEventArgs &)> func)	= 0;
+		virtual void SetKeyReleasedCallback(std::function<void(const KeyReleasedEventArgs &)> func) = 0;
 
-		EventHandler<const TextInputEventArgs &> OnTextInput;
-		EventHandler<const TextEditEventArgs &>	 OnTextEdit;
+		virtual void SetTextInputCallback(std::function<void(const TextInputEventArgs &)> func) = 0;
+		virtual void SetTextEditCallback(std::function<void(const TextEditEventArgs &)> func)	= 0;
 
-		EventHandler<const MouseButtonPressedEventArgs &>  OnMousePressed;
-		EventHandler<const MouseButtonReleasedEventArgs &> OnMouseReleased;
-		EventHandler<const MouseMovedEventArgs &>		   OnMouseMoved;
-		EventHandler<const MouseScrolledEventArgs &>	   OnScroll;
-		EventHandler<>									   OnMouseEnter;
-		EventHandler<>									   OnMouseLeave;
+		virtual void SetMousePressedCallback(std::function<void(const MouseButtonPressedEventArgs &)> func)	  = 0;
+		virtual void SetMouseReleasedCallback(std::function<void(const MouseButtonReleasedEventArgs &)> func) = 0;
+		virtual void SetMouseMovedCallback(std::function<void(const MouseMovedEventArgs &)> func)			  = 0;
+		virtual void SetMouseScrollCallback(std::function<void(const MouseScrolledEventArgs &)> func)		  = 0;
+		virtual void SetMouseEnterCallback(std::function<void()> func)										  = 0;
+		virtual void SetMouseLeaveCallback(std::function<void()> func)										  = 0;
 
-		EventHandler<const FileDropEventArgs &> OnFileDrop;
+		virtual void SetFileDropCallback(std::function<void(const FileDropEventArgs &)> func) = 0;
+
+		virtual bool		   IsKeyDown(uint32_t keyboardId, ScanCode scancode)		 = 0;
+		virtual bool		   IsKeyDown(ScanCode scancode)								 = 0;
+		virtual Point2D<float> GetMousePosition(uint32_t mouseId)						 = 0;
+		virtual Point2D<float> GetMousePosition()										 = 0;
+		virtual Point2D<float> GetMouseScroll(uint32_t mouseId)							 = 0;
+		virtual Point2D<float> GetMouseScroll()											 = 0;
+		virtual bool		   IsMouseButtonPressed(uint32_t mouseId, MouseButton state) = 0;
+		virtual bool		   IsMouseButtonPressed(MouseButton state)					 = 0;
 	};
 }	 // namespace Nexus

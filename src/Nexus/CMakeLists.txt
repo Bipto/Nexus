@@ -369,23 +369,12 @@ list (APPEND ENGINE_SOURCES
 )
 
 list (APPEND ENGINE_SOURCES
-include/Nexus-Core/Input/Event.hpp
+include/Nexus-Core/Input/Events.hpp
   include/Nexus-Core/Input/Gamepad.hpp
   src/Nexus-Core/Input/Input.cpp
   include/Nexus-Core/Input/Input.hpp
-  src/Nexus-Core/Input/InputContext.cpp
-  include/Nexus-Core/Input/InputContext.hpp
-  src/Nexus-Core/Input/InputState.cpp
-  include/Nexus-Core/Input/InputState.hpp
-  src/Nexus-Core/Input/Keyboard.cpp
   include/Nexus-Core/Input/Keyboard.hpp
-  src/Nexus-Core/Input/Mouse.cpp
   include/Nexus-Core/Input/Mouse.hpp)
-
-list (APPEND ENGINE_SOURCES
-  include/Nexus-Core/Layers/Layer.hpp
-  src/Nexus-Core/Layers/LayerStack.cpp
-  include/Nexus-Core/Layers/LayerStack.hpp)
 
 list (APPEND ENGINE_SOURCES
   src/Nexus-Core/Logging/Log.cpp
@@ -536,8 +525,6 @@ endif()
 list (APPEND ENGINE_SOURCES
   src/Platform/SDL3/FileDialogsSDL3.cpp
   src/Platform/SDL3/FileDialogsSDL3.hpp
-  src/Platform/SDL3/GamepadSDL3.cpp
-  src/Platform/SDL3/GamepadSDL3.hpp
   src/Platform/SDL3/SDL3Include.cpp
   src/Platform/SDL3/SDL3Include.hpp
   src/Platform/SDL3/SDL3Window.cpp

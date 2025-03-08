@@ -145,7 +145,7 @@ namespace Nexus::ImGuiUtils
 			info->Window		  = window;
 			info->Swapchain		  = swapchain;
 
-			window->OnTextInput.Bind(
+			window->SetTextInputCallback(
 				[&](const Nexus::TextInputEventArgs &args)
 				{
 					ImGuiIO &io = ImGui::GetIO();
@@ -453,6 +453,7 @@ namespace Nexus::ImGuiUtils
 
 		UpdateInput();
 		ImGui::NewFrame();
+		ImGuizmo::BeginFrame();
 	}
 
 	void ImGuiGraphicsRenderer::AfterLayout()
@@ -524,7 +525,7 @@ namespace Nexus::ImGuiUtils
 	{
 		auto &io = ImGui::GetIO();
 
-		m_Application->GetPrimaryWindow()->OnTextInput.Bind(
+		m_Application->GetPrimaryWindow()->SetTextInputCallback(
 			[&](const TextInputEventArgs &args)
 			{
 				ImGuiIO &io = ImGui::GetIO();
@@ -557,52 +558,53 @@ namespace Nexus::ImGuiUtils
 			}
 		}
 
-		InputNew::InputContext *context = window.value()->GetInputContext();
-		io.AddKeyEvent(ImGuiKey_Tab, context->IsKeyDown(Nexus::ScanCode::Tab));
-		io.AddKeyEvent(ImGuiKey_LeftArrow, context->IsKeyDown(Nexus::ScanCode::Left));
-		io.AddKeyEvent(ImGuiKey_RightArrow, context->IsKeyDown(Nexus::ScanCode::Right));
-		io.AddKeyEvent(ImGuiKey_UpArrow, context->IsKeyDown(Nexus::ScanCode::Up));
-		io.AddKeyEvent(ImGuiKey_DownArrow, context->IsKeyDown(Nexus::ScanCode::Down));
-		io.AddKeyEvent(ImGuiKey_PageUp, context->IsKeyDown(Nexus::ScanCode::PageUp));
-		io.AddKeyEvent(ImGuiKey_PageDown, context->IsKeyDown(Nexus::ScanCode::PageDown));
-		io.AddKeyEvent(ImGuiKey_Home, context->IsKeyDown(Nexus::ScanCode::Home));
-		io.AddKeyEvent(ImGuiKey_End, context->IsKeyDown(Nexus::ScanCode::End));
-		io.AddKeyEvent(ImGuiKey_Delete, context->IsKeyDown(Nexus::ScanCode::Delete));
-		io.AddKeyEvent(ImGuiKey_Backspace, context->IsKeyDown(Nexus::ScanCode::Backspace));
-		io.AddKeyEvent(ImGuiKey_Enter, context->IsKeyDown(Nexus::ScanCode::Return));
-		io.AddKeyEvent(ImGuiKey_Escape, context->IsKeyDown(Nexus::ScanCode::Escape));
-		io.AddKeyEvent(ImGuiKey_Space, context->IsKeyDown(Nexus::ScanCode::Space));
-		io.AddKeyEvent(ImGuiKey_A, context->IsKeyDown(Nexus::ScanCode::A));
-		io.AddKeyEvent(ImGuiKey_C, context->IsKeyDown(Nexus::ScanCode::C));
-		io.AddKeyEvent(ImGuiKey_V, context->IsKeyDown(Nexus::ScanCode::V));
-		io.AddKeyEvent(ImGuiKey_X, context->IsKeyDown(Nexus::ScanCode::X));
-		io.AddKeyEvent(ImGuiKey_Y, context->IsKeyDown(Nexus::ScanCode::Y));
-		io.AddKeyEvent(ImGuiKey_Z, context->IsKeyDown(Nexus::ScanCode::Z));
+		IWindow *activeWindow = window.value();
+		io.AddKeyEvent(ImGuiKey_Tab, activeWindow->IsKeyDown(Nexus::ScanCode::Tab));
+		io.AddKeyEvent(ImGuiKey_LeftArrow, activeWindow->IsKeyDown(Nexus::ScanCode::Left));
+		io.AddKeyEvent(ImGuiKey_RightArrow, activeWindow->IsKeyDown(Nexus::ScanCode::Right));
+		io.AddKeyEvent(ImGuiKey_UpArrow, activeWindow->IsKeyDown(Nexus::ScanCode::Up));
+		io.AddKeyEvent(ImGuiKey_DownArrow, activeWindow->IsKeyDown(Nexus::ScanCode::Down));
+		io.AddKeyEvent(ImGuiKey_PageUp, activeWindow->IsKeyDown(Nexus::ScanCode::PageUp));
+		io.AddKeyEvent(ImGuiKey_PageDown, activeWindow->IsKeyDown(Nexus::ScanCode::PageDown));
+		io.AddKeyEvent(ImGuiKey_Home, activeWindow->IsKeyDown(Nexus::ScanCode::Home));
+		io.AddKeyEvent(ImGuiKey_End, activeWindow->IsKeyDown(Nexus::ScanCode::End));
+		io.AddKeyEvent(ImGuiKey_Delete, activeWindow->IsKeyDown(Nexus::ScanCode::Delete));
+		io.AddKeyEvent(ImGuiKey_Backspace, activeWindow->IsKeyDown(Nexus::ScanCode::Backspace));
+		io.AddKeyEvent(ImGuiKey_Enter, activeWindow->IsKeyDown(Nexus::ScanCode::Return));
+		io.AddKeyEvent(ImGuiKey_Escape, activeWindow->IsKeyDown(Nexus::ScanCode::Escape));
+		io.AddKeyEvent(ImGuiKey_Space, activeWindow->IsKeyDown(Nexus::ScanCode::Space));
+		io.AddKeyEvent(ImGuiKey_A, activeWindow->IsKeyDown(Nexus::ScanCode::A));
+		io.AddKeyEvent(ImGuiKey_C, activeWindow->IsKeyDown(Nexus::ScanCode::C));
+		io.AddKeyEvent(ImGuiKey_V, activeWindow->IsKeyDown(Nexus::ScanCode::V));
+		io.AddKeyEvent(ImGuiKey_X, activeWindow->IsKeyDown(Nexus::ScanCode::X));
+		io.AddKeyEvent(ImGuiKey_Y, activeWindow->IsKeyDown(Nexus::ScanCode::Y));
+		io.AddKeyEvent(ImGuiKey_Z, activeWindow->IsKeyDown(Nexus::ScanCode::Z));
 
-		io.KeyShift = context->IsKeyDown(ScanCode::LeftShift) || context->IsKeyDown(ScanCode::RightShift);
-		io.KeyCtrl	= context->IsKeyDown(ScanCode::LeftControl) || context->IsKeyDown(ScanCode::RightControl);
-		io.KeyAlt	= context->IsKeyDown(ScanCode::LeftAlt) || context->IsKeyDown(ScanCode::RightAlt);
-		io.KeySuper = context->IsKeyDown(ScanCode::LeftGUI) || context->IsKeyDown(ScanCode::RightGUI);
+		io.KeyShift = activeWindow->IsKeyDown(ScanCode::LeftShift) || activeWindow->IsKeyDown(ScanCode::RightShift);
+		io.KeyCtrl	= activeWindow->IsKeyDown(ScanCode::LeftControl) || activeWindow->IsKeyDown(ScanCode::RightControl);
+		io.KeyAlt	= activeWindow->IsKeyDown(ScanCode::LeftAlt) || activeWindow->IsKeyDown(ScanCode::RightAlt);
+		io.KeySuper = activeWindow->IsKeyDown(ScanCode::LeftGUI) || activeWindow->IsKeyDown(ScanCode::RightGUI);
 
 		io.DisplaySize			   = {(float)mainWindow->GetWindowSize().X, (float)mainWindow->GetWindowSize().Y};
 		io.DisplayFramebufferScale = {1, 1};
 
-		InputNew::MouseInfo globalMouseState = Platform::GetGlobalMouseInfo();
-
+		MouseState globalMouseState = Platform::GetMouseState();
 		if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
-			io.MousePos = {(float)globalMouseState.Position.X, (float)globalMouseState.Position.Y};
+			io.AddMousePosEvent(globalMouseState.MousePosition.X, globalMouseState.MousePosition.Y);
 		}
 		else
 		{
-			io.MousePos = {(float)context->GetCursorPosition().X, (float)context->GetCursorPosition().Y};
+			Point2D<float> mousePos = activeWindow->GetMousePosition();
+			io.AddMousePosEvent(mousePos.X, mousePos.Y);
 		}
 
-		io.MouseDown[0] = globalMouseState.Buttons[MouseButton::Left] == MouseButtonState::Pressed;
-		io.MouseDown[1] = globalMouseState.Buttons[MouseButton::Right] == MouseButtonState::Pressed;
-		io.MouseDown[2] = globalMouseState.Buttons[MouseButton::Middle] == MouseButtonState::Pressed;
+		io.AddMouseButtonEvent(0, globalMouseState.LeftButton == MouseButtonState::Pressed);
+		io.AddMouseButtonEvent(1, globalMouseState.RightButton == MouseButtonState::Pressed);
+		io.AddMouseButtonEvent(2, globalMouseState.MiddleButton == MouseButtonState::Pressed);
 
-		io.MouseWheel = context->GetScroll(0).Y;
+		Point2D<float> scroll = activeWindow->GetMouseScroll();
+		io.AddMouseWheelEvent(scroll.X, scroll.Y);
 	}
 
 	void ImGuiGraphicsRenderer::RenderDrawData(ImDrawData *drawData)

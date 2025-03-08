@@ -7,7 +7,6 @@
 #endif
 
 #include "Application.hpp"
-#include "Input/InputState.hpp"
 #include "Logging/Log.hpp"
 #include "Nexus-Core/AssetManager.hpp"
 

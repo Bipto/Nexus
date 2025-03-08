@@ -412,83 +412,83 @@ namespace Nexus::SDL3
 
 		if (modifiers & SDL_KMOD_LSHIFT)
 		{
-			mods |= Keyboard::Modifier::LeftShift;
+			mods |= KeyboardModifier::LeftShift;
 		}
 
 		if (modifiers & SDL_KMOD_RSHIFT)
 		{
-			mods |= Keyboard::Modifier::RightShift;
+			mods |= KeyboardModifier::RightShift;
 		}
 
 		if (modifiers & SDL_KMOD_LCTRL)
 		{
-			mods |= Keyboard::Modifier::LeftControl;
+			mods |= KeyboardModifier::LeftControl;
 		}
 
 		if (modifiers & SDL_KMOD_RCTRL)
 		{
-			mods |= Keyboard::Modifier::RightControl;
+			mods |= KeyboardModifier::RightControl;
 		}
 
 		// new
 		if (modifiers & SDL_KMOD_LALT)
 		{
-			mods |= Keyboard::Modifier::LeftAlt;
+			mods |= KeyboardModifier::LeftAlt;
 		}
 
 		if (modifiers & SDL_KMOD_RALT)
 		{
-			mods |= Keyboard::Modifier::RightAlt;
+			mods |= KeyboardModifier::RightAlt;
 		}
 
 		if (modifiers & SDL_KMOD_LGUI)
 		{
-			mods |= Keyboard::Modifier::LeftGUI;
+			mods |= KeyboardModifier::LeftGUI;
 		}
 
 		if (modifiers & SDL_KMOD_RGUI)
 		{
-			mods |= Keyboard::Modifier::RightGUI;
+			mods |= KeyboardModifier::RightGUI;
 		}
 
 		if (modifiers & SDL_KMOD_NUM)
 		{
-			mods |= Keyboard::Modifier::Num;
+			mods |= KeyboardModifier::Num;
 		}
 
 		if (modifiers & SDL_KMOD_CAPS)
 		{
-			mods |= Keyboard::Modifier::Caps;
+			mods |= KeyboardModifier::Caps;
 		}
 
 		if (modifiers & SDL_KMOD_MODE)
 		{
-			mods |= Keyboard::Modifier::Mode;
+			mods |= KeyboardModifier::Mode;
 		}
 
 		if (modifiers & SDL_KMOD_SCROLL)
 		{
-			mods |= Keyboard::Modifier::Scroll;
+			mods |= KeyboardModifier::Scroll;
 		}
 
-		if (modifiers & Keyboard::Modifier::LeftControl || modifiers & Keyboard::Modifier::RightControl)
+		if (modifiers & KeyboardModifier::LeftControl || modifiers & KeyboardModifier::RightControl)
 		{
-			mods |= Keyboard::Modifier::Control;
+			mods |= KeyboardModifier::Control;
 		}
 
-		if (modifiers & Keyboard::Modifier::LeftShift || modifiers & Keyboard::Modifier::RightShift)
+		if (modifiers & KeyboardModifier::LeftShift || modifiers & KeyboardModifier::RightShift)
 		{
-			mods |= Keyboard::Modifier::Shift;
+			mods |= KeyboardModifier::Shift;
 		}
 
-		if (modifiers & Keyboard::Modifier::LeftAlt || modifiers & Keyboard::Modifier::RightAlt)
+		if (modifiers & KeyboardModifier::LeftAlt || modifiers & KeyboardModifier::RightAlt)
 		{
-			mods |= Keyboard::Modifier::Alt;
+			mods |= KeyboardModifier::Alt;
 		}
 
-		if (modifiers & Keyboard::Modifier::LeftGUI || modifiers & Keyboard::Modifier::RightGUI)
+		if (modifiers & KeyboardModifier::LeftGUI || modifiers & KeyboardModifier::RightGUI)
 		{
-			mods |= Keyboard::Modifier::GUI;
+			mods |= KeyboardModifier::GUI;
 		}
 
 		return mods;
