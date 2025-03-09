@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Nexus-Core/Application.hpp"
 #include "Nexus-Core/Events/EventHandler.hpp"
 #include "Nexus-Core/FileSystem/FileDialogs.hpp"
 #include "Nexus-Core/IWindow.hpp"
@@ -48,7 +49,8 @@ namespace Nexus::Platform
 	NX_API void		Initialise();
 	NX_API void		Shutdown();
 	NX_API void		Update();
-	NX_API void		PollEvents();
+	NX_API void		PollEvents(Application *app);
+	NX_API void		WaitEvent(Application *app);
 	NX_API IWindow *CreatePlatformWindow(const WindowSpecification &windowProps);
 
 	NX_API OpenFileDialog	*CreateOpenFileDialog(IWindow							  *window,

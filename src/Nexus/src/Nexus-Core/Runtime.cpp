@@ -28,7 +28,11 @@ namespace Nexus
 #ifdef __EMSCRIPTEN__
 		emscripten_set_main_loop(main_loop, 0, 1);
 #else
-		while (!appPtr->ShouldClose()) appPtr->MainLoop();
+		while (appPtr->IsRunning())
+		{
+			int x = 0;
+			appPtr->MainLoop();
+		}
 #endif
 
 		app->Unload();

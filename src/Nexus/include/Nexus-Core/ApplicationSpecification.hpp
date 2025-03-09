@@ -82,6 +82,7 @@ namespace Nexus
 		bool Borderless = false;
 
 		bool Utility = false;
+		bool Shown	 = true;
 
 		std::optional<uint32_t> RendersPerSecond = {};
 		std::optional<uint32_t> UpdatesPerSecond = {};
@@ -104,5 +105,7 @@ namespace Nexus
 
 		/// @brief Properties to configure the initial swapchain
 		Graphics::SwapchainSpecification SwapchainSpecification;
+
+		bool EventDriven = false;
 	};
 }	 // namespace Nexus

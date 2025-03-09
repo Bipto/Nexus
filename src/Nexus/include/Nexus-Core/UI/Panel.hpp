@@ -1,14 +1,21 @@
 #pragma once
 
+#include "Control.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
 namespace Nexus::UI
 {
-	class Canvas
+	class Panel : public Control
 	{
 	  public:
+		Panel()
+		{
+		}
+
+		virtual ~Panel()
+		{
+		}
+
 	  private:
-		Nexus::Point2D<uint32_t> m_Position = {0, 0};
-		Nexus::Point2D<uint32_t> m_Size		= {0, 0};
 	};
 }	 // namespace Nexus::UI

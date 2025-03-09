@@ -10,8 +10,7 @@
 
 #include "Nexus-Core/Input/Input.hpp"
 
-std::vector<Nexus::IWindow *>					   m_Windows {};
-std::vector<std::pair<Nexus::IWindow *, uint32_t>> m_WindowsToClose {};
+std::vector<Nexus::IWindow *> m_Windows {};
 
 std::optional<uint32_t> m_ActiveMouse	 = {};
 std::optional<uint32_t> m_ActiveKeyboard = {};
@@ -29,23 +28,6 @@ Nexus::IWindow *GetWindowFromHandle(uint32_t handle)
 		}
 	}
 	return nullptr;
-}
-
-void CloseWindows()
-{
-	for (uint32_t i = 0; i < m_Windows.size(); i++)
-	{
-		Nexus::IWindow *window = m_Windows[i];
-		if (window->IsClosing())
-		{
-			std::vector<Nexus::IWindow *>::iterator position = std::find(m_Windows.begin(), m_Windows.end(), window);
-			if (position != m_Windows.end())
-			{
-				m_Windows.erase(position);
-				delete window;
-			}
-		}
-	}
 }
 
 namespace Nexus::Platform
@@ -267,114 +249,107 @@ namespace Nexus::Platform
 
 	void Update()
 	{
-		CloseWindows();
-
 		for (size_t i = 0; i < m_Windows.size(); i++)
 		{
 			IWindow *window = m_Windows[i];
 			window->Update();
 		}
-
-		PollEvents();
 	}
 
-	void PollEvents()
+	void HandleEvent(SDL_Event &event, Application *app)
 	{
-		SDL_Event event;
-		while (SDL_PollEvent(&event))
+		auto window = (SDL3Window *)GetWindowFromHandle(event.window.windowID);
+		if (!window)
 		{
-			auto window = (SDL3Window *)GetWindowFromHandle(event.window.windowID);
-			if (!window)
+			return;
+		}
+
+		switch (event.type)
+		{
+			case SDL_EVENT_KEY_DOWN:
 			{
-				continue;
+				auto nexusKeyCode  = Nexus::SDL3::GetNexusKeyCodeFromSDLKeyCode(event.key.key);
+				auto nexusScanCode = Nexus::SDL3::GetNexusScanCodeFromSDLScanCode(event.key.scancode);
+				auto mods		   = Nexus::SDL3::GetNexusModifiersFromSDLModifiers(event.key.mod);
+
+				Nexus::KeyPressedEventArgs keyPressedEvent {.KeyCode	= nexusKeyCode,
+															.ScanCode	= nexusScanCode,
+															.Repeat		= event.key.repeat,
+															.Unicode	= event.key.raw,
+															.Mods		= mods,
+															.KeyboardID = event.kdevice.which};
+
+				m_ActiveKeyboard = event.kdevice.which;
+				window->InvokeKeyPressedCallback(keyPressedEvent);
+				break;
 			}
-
-			switch (event.type)
+			case SDL_EVENT_KEY_UP:
 			{
-				case SDL_EVENT_KEY_DOWN:
+				auto nexusKeyCode  = Nexus::SDL3::GetNexusKeyCodeFromSDLKeyCode(event.key.key);
+				auto nexusScanCode = Nexus::SDL3::GetNexusScanCodeFromSDLScanCode(event.key.scancode);
+
+				Nexus::KeyReleasedEventArgs keyReleasedEvent {.KeyCode	  = nexusKeyCode,
+															  .ScanCode	  = nexusScanCode,
+															  .Unicode	  = event.key.raw,
+															  .KeyboardID = event.kdevice.which};
+
+				m_ActiveKeyboard = event.kdevice.which;
+				window->InvokeKeyReleasedCallback(keyReleasedEvent);
+				break;
+			}
+			case SDL_EVENT_WINDOW_HIDDEN:
+			{
+				window->InvokeHideCallback();
+				break;
+			}
+			case SDL_EVENT_WINDOW_SHOWN:
+			{
+				window->InvokeShowCallback();
+				break;
+			}
+			case SDL_EVENT_MOUSE_BUTTON_DOWN:
+			{
+				auto [mouseType, mouseId]				 = Nexus::SDL3::GetMouseInfo(event.button.which);
+				std::optional<Nexus::MouseButton> button = Nexus::SDL3::GetMouseButton(event.button.button);
+
+				if (button.has_value())
 				{
-					auto nexusKeyCode  = Nexus::SDL3::GetNexusKeyCodeFromSDLKeyCode(event.key.key);
-					auto nexusScanCode = Nexus::SDL3::GetNexusScanCodeFromSDLScanCode(event.key.scancode);
-					auto mods		   = Nexus::SDL3::GetNexusModifiersFromSDLModifiers(event.key.mod);
+					Nexus::MouseButtonPressedEventArgs mousePressedEvent {.Button	= button.value(),
+																		  .Position = {event.button.x, event.button.y},
+																		  .Clicks	= event.button.clicks,
+																		  .MouseID	= mouseId,
+																		  .Type		= mouseType};
 
-					Nexus::KeyPressedEventArgs keyPressedEvent {.KeyCode	= nexusKeyCode,
-																.ScanCode	= nexusScanCode,
-																.Repeat		= event.key.repeat,
-																.Unicode	= event.key.raw,
-																.Mods		= mods,
-																.KeyboardID = event.kdevice.which};
-
-					m_ActiveKeyboard = event.kdevice.which;
-					window->InvokeKeyPressedCallback(keyPressedEvent);
-					break;
+					m_ActiveMouse = mouseId;
+					window->InvokeMousePressedCallback(mousePressedEvent);
 				}
-				case SDL_EVENT_KEY_UP:
+
+				break;
+			}
+			case SDL_EVENT_MOUSE_BUTTON_UP:
+			{
+				auto [mouseType, mouseId]				 = Nexus::SDL3::GetMouseInfo(event.button.which);
+				std::optional<Nexus::MouseButton> button = Nexus::SDL3::GetMouseButton(event.button.button);
+
+				if (button.has_value())
 				{
-					auto nexusKeyCode  = Nexus::SDL3::GetNexusKeyCodeFromSDLKeyCode(event.key.key);
-					auto nexusScanCode = Nexus::SDL3::GetNexusScanCodeFromSDLScanCode(event.key.scancode);
+					Nexus::MouseButtonReleasedEventArgs mouseReleasedEvent {.Button	  = button.value(),
+																			.Position = {event.button.x, event.button.y},
+																			.MouseID  = mouseId,
+																			.Type	  = mouseType};
 
-					Nexus::KeyReleasedEventArgs keyReleasedEvent {.KeyCode	  = nexusKeyCode,
-																  .ScanCode	  = nexusScanCode,
-																  .Unicode	  = event.key.raw,
-																  .KeyboardID = event.kdevice.which};
-
-					m_ActiveKeyboard = event.kdevice.which;
-					window->InvokeKeyReleasedCallback(keyReleasedEvent);
-					break;
+					m_ActiveMouse = mouseId;
+					window->InvokeMouseReleasedCallback(mouseReleasedEvent);
 				}
-				case SDL_EVENT_WINDOW_HIDDEN:
-				{
-					window->InvokeHideCallback();
-					break;
-				}
-				case SDL_EVENT_WINDOW_SHOWN:
-				{
-					window->InvokeShowCallback();
-					break;
-				}
-				case SDL_EVENT_MOUSE_BUTTON_DOWN:
-				{
-					auto [mouseType, mouseId]				 = Nexus::SDL3::GetMouseInfo(event.button.which);
-					std::optional<Nexus::MouseButton> button = Nexus::SDL3::GetMouseButton(event.button.button);
 
-					if (button.has_value())
-					{
-						Nexus::MouseButtonPressedEventArgs mousePressedEvent {.Button	= button.value(),
-																			  .Position = {event.button.x, event.button.y},
-																			  .Clicks	= event.button.clicks,
-																			  .MouseID	= mouseId,
-																			  .Type		= mouseType};
-
-						m_ActiveMouse = mouseId;
-						window->InvokeMousePressedCallback(mousePressedEvent);
-					}
-
-					break;
-				}
-				case SDL_EVENT_MOUSE_BUTTON_UP:
-				{
-					auto [mouseType, mouseId]				 = Nexus::SDL3::GetMouseInfo(event.button.which);
-					std::optional<Nexus::MouseButton> button = Nexus::SDL3::GetMouseButton(event.button.button);
-
-					if (button.has_value())
-					{
-						Nexus::MouseButtonReleasedEventArgs mouseReleasedEvent {.Button	  = button.value(),
-																				.Position = {event.button.x, event.button.y},
-																				.MouseID  = mouseId,
-																				.Type	  = mouseType};
-
-						m_ActiveMouse = mouseId;
-						window->InvokeMouseReleasedCallback(mouseReleasedEvent);
-					}
-
-					break;
-				}
-				case SDL_EVENT_MOUSE_MOTION:
-				{
-					float mouseX	= event.motion.x;
-					float mouseY	= event.motion.y;
-					float movementX = event.motion.xrel;
-					float movementY = event.motion.yrel;
+				break;
+			}
+			case SDL_EVENT_MOUSE_MOTION:
+			{
+				float mouseX	= event.motion.x;
+				float mouseY	= event.motion.y;
+				float movementX = event.motion.xrel;
+				float movementY = event.motion.yrel;
 
 #if defined(__EMSCRIPTEN__)
 				float scale = window->GetDisplayScale();
@@ -394,7 +369,7 @@ namespace Nexus::Platform
 				m_ActiveMouse = mouseId;
 				window->InvokeMouseMovedCallback(mouseMovedEvent);
 				break;
-				}
+			}
 			case SDL_EVENT_MOUSE_WHEEL:
 			{
 				auto [mouseType, mouseId]		 = Nexus::SDL3::GetMouseInfo(event.wheel.which);
@@ -413,6 +388,12 @@ namespace Nexus::Platform
 			case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
 			{
 				window->Close();
+
+				if (m_Windows.size() <= 1)
+				{
+					app->Close();
+				}
+
 				break;
 			}
 			case SDL_EVENT_TEXT_INPUT:
@@ -498,6 +479,11 @@ namespace Nexus::Platform
 				window->InvokeMouseLeaveCallback();
 				break;
 			}
+			case SDL_EVENT_WINDOW_EXPOSED:
+			{
+				window->InvokeExposeCallback();
+				break;
+			}
 			case SDL_EVENT_KEYBOARD_ADDED:
 			{
 				Nexus::Platform::OnKeyboardAdded.Invoke(event.kdevice.which);
@@ -528,7 +514,22 @@ namespace Nexus::Platform
 				Nexus::Platform::OnGamepadRemoved.Invoke(event.cdevice.which);
 				break;
 			}
-			}
+		}
+	}
+
+	void PollEvents(Application *app)
+	{
+		SDL_Event event;
+		while (SDL_PollEvent(&event)) { HandleEvent(event, app); }
+	}
+
+	void WaitEvent(Application *app)
+	{
+		SDL_Event event;
+		// while (SDL_WaitEvent(&event)) { HandleEvent(event, app); }
+		if (SDL_WaitEvent(&event))
+		{
+			HandleEvent(event, app);
 		}
 	}
 
@@ -618,7 +619,6 @@ OpenFileDialog *CreateOpenFileDialog(IWindow *window, const std::vector<FileDial
 
 		if (buttons & SDL_BUTTON_LEFT)
 		{
-			std::cout << "Left mouse button pressed" << std::endl;
 			state.LeftButton = MouseButtonState::Pressed;
 		}
 

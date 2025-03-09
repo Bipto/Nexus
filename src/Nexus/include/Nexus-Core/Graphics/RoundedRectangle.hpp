@@ -323,12 +323,15 @@ namespace Nexus::Graphics
 			return Rectangle<float>(m_X, m_Y, m_Width, m_Height);
 		}
 
-		std::vector<glm::vec2> ClipAgainst(RoundedRectangle clip) const
+		Polygon ClipAgainst(Polygon clip) const
 		{
-			std::vector<glm::vec2> subjectPoints = CreateOutline();
-			std::vector<glm::vec2> clipPoints	 = clip.CreateOutline();
+			Polygon subject = CreatePolygon();
+			return Nexus::Utils::SutherlandHodgman(subject, clip);
+		}
 
-			return Nexus::Utils::SutherlandHodgman(subjectPoints, clipPoints);
+		Polygon ClipAgainst(RoundedRectangle other)
+		{
+			return ClipAgainst(other.CreatePolygon());
 		}
 
 	  private:

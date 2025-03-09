@@ -334,6 +334,7 @@ list (APPEND ENGINE_SOURCES
   include/Nexus-Core/Graphics/Pipeline.hpp
   include/Nexus-Core/Graphics/PixelFormat.hpp
   include/Nexus-Core/Graphics/Polygon.hpp
+  src/Nexus-Core/Graphics/Polygon.cpp
   include/Nexus-Core/Graphics/Rectangle.hpp
   include/Nexus-Core/Graphics/RenderTarget.hpp
   src/Nexus-Core/Graphics/ResourceSet.cpp
@@ -407,7 +408,9 @@ list (APPEND ENGINE_SOURCES
   include/Nexus-Core/Timings/Timespan.hpp)
 
 list (APPEND ENGINE_SOURCES
-  include/Nexus-Core/UI/Canvas.hpp)
+  include/Nexus-Core/UI/Control.hpp
+  include/Nexus-Core/UI/Panel.hpp
+  include/Nexus-Core/UI/UIRenderer.hpp)
 
 list (APPEND ENGINE_SOURCES
   include/Nexus-Core/Utils/FramerateMonitor.hpp

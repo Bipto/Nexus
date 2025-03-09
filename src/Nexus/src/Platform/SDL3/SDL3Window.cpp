@@ -670,6 +670,11 @@ namespace Nexus
 			flags |= SDL_WINDOW_UTILITY;
 		}
 
+		if (!windowSpec.Shown)
+		{
+			flags |= SDL_WINDOW_HIDDEN;
+		}
+
 		return flags;
 	}
 

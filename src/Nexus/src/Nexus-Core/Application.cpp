@@ -45,6 +45,15 @@ namespace Nexus
 	void Application::MainLoop()
 	{
 		Platform::Update();
+
+		if (m_Specification.EventDriven)
+		{
+			Platform::WaitEvent(this);
+		}
+		else
+		{
+			Platform::PollEvents(this);
+		}
 	}
 
 	Nexus::IWindow *Application::GetPrimaryWindow()
@@ -84,12 +93,7 @@ namespace Nexus
 
 	void Application::Close()
 	{
-		m_Window->Close();
-	}
-
-	bool Application::ShouldClose()
-	{
-		return m_Window->IsClosing();
+		m_Running = false;
 	}
 
 	Graphics::GraphicsDevice *Application::GetGraphicsDevice()
@@ -100,6 +104,16 @@ namespace Nexus
 	Audio::AudioDevice *Application::GetAudioDevice()
 	{
 		return m_AudioDevice;
+	}
+
+	bool Application::IsRunning()
+	{
+		return m_Running;
+	}
+
+	void Application::Stop()
+	{
+		m_Running = false;
 	}
 
 	Audio::AudioDevice *CreateAudioDevice(Audio::AudioAPI api)

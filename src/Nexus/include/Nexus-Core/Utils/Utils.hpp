@@ -47,6 +47,7 @@ namespace Nexus::Utils
 	NX_API void Clip(std::vector<glm::vec2> &points, float x1, float y1, float x2, float y2);
 
 	NX_API std::vector<glm::vec2> SutherlandHodgman(const std::vector<glm::vec2> &subjectPolygon, const std::vector<glm::vec2> &clipPolygon);
+	NX_API Nexus::Graphics::Polygon SutherlandHodgman(const Nexus::Graphics::Polygon &subject, const Nexus::Graphics::Polygon &clip);
 
 	NX_API float FindPolygonArea(std::span<glm::vec2> polygon);
 

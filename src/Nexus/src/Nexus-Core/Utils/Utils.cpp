@@ -38,7 +38,7 @@ namespace Nexus::Utils
 
 		for (size_t i = 0; i < points.size(); i++)
 		{
-			float	  k	 = (i + 1) % points.size();
+			size_t	  k	 = (i + 1) % points.size();
 			glm::vec2 pi = points[i];
 			glm::vec2 pk = points[k];
 
@@ -102,12 +102,22 @@ namespace Nexus::Utils
 
 		for (size_t i = 0; i < clip.size(); i++)
 		{
-			float k = (i + 1) % clip.size();
+			size_t k = (i + 1) % clip.size();
 
 			Clip(poly, clip[i].x, clip[i].y, clip[k].x, clip[k].y);
 		}
 
 		return poly;
+	}
+
+	NX_API Nexus::Graphics::Polygon SutherlandHodgman(const Nexus::Graphics::Polygon &subject, const Nexus::Graphics::Polygon &clip)
+	{
+		std::vector<glm::vec2> subjectPoints = subject.GetOutline();
+		std::vector<glm::vec2> clipPoints	 = clip.GetOutline();
+
+		std::vector<glm::vec2> newPoints = SutherlandHodgman(subjectPoints, clipPoints);
+
+		return Nexus::Utils::GeneratePolygon(newPoints);
 	}
 
 	float FindPolygonArea(std::span<glm::vec2> polygon)

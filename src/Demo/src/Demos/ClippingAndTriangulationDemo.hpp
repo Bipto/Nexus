@@ -122,8 +122,7 @@ namespace Demos
 			m_BatchRenderer->DrawRoundedRectangleFill(r2, {1.0f, 0.0f, 0.0f, 1.0f});
 			m_BatchRenderer->DrawRoundedRectangleFill(r1, {0.0f, 0.0f, 1.0f, 1.0f});
 
-			const auto				&points = r1.ClipAgainst(r2);
-			Nexus::Graphics::Polygon poly	= Nexus::Utils::GeneratePolygon(points);
+			Nexus::Graphics::Polygon poly = r1.ClipAgainst(r2);
 			m_BatchRenderer->DrawPolygonFill(poly, {0.0f, 1.0f, 0.0f, 1.0f});
 
 			m_BatchRenderer->End();

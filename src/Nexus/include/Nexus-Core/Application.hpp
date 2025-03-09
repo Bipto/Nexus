@@ -115,10 +115,6 @@ namespace Nexus
 		/// @brief A method that closes the application
 		void Close();
 
-		/// @brief A method that returns whether the window should close
-		/// @return A boolean value that represents whether a window should close
-		bool ShouldClose();
-
 		/// @brief A method that returns a pointer to the application's graphics
 		/// device
 		/// @return A pointer to a graphics device
@@ -127,6 +123,10 @@ namespace Nexus
 		/// @brief A method that returns a pointer to the application's audio device
 		/// @return A pointer to an audio device
 		Audio::AudioDevice *GetAudioDevice();
+
+		bool IsRunning();
+
+		void Stop();
 
 	  protected:
 		/// @brief A pointer to a graphics device
@@ -146,5 +146,7 @@ namespace Nexus
 
 		/// @brief A clock to time when renders and updates occur
 		Clock m_Clock {};
+
+		bool m_Running = true;
 	};
 }	 // namespace Nexus
