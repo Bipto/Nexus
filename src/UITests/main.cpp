@@ -4,7 +4,7 @@
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
 	Nexus::ApplicationSpecification spec;
-	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
+	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
 	spec.AudioAPI	 = Nexus::Audio::AudioAPI::OpenAL;
 
 	spec.WindowProperties.Width			   = 1280;
@@ -17,7 +17,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 
 	spec.SwapchainSpecification.Samples	   = Nexus::Graphics::SampleCount::SampleCount8;
 	spec.SwapchainSpecification.VSyncState = Nexus::Graphics::VSyncState::Disabled;
-	spec.EventDriven					   = true;
+	spec.EventDriven					   = false;
 
 	return new Nexus::UI::UIManager(spec);
 }

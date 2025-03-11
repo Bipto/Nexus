@@ -42,6 +42,7 @@ namespace Nexus::UI
 	void UIRenderer::RenderControl(Graphics::BatchRenderer *renderer, Control *control)
 	{
 		const Style &style = control->GetStyle();
+		control->CalculateBounds();
 		renderer->DrawPolygonFill(control->GetPolygon(), style.BackgroundColour);
 		//  renderer->DrawRoundedRectangleFill(control->GetBounds(), control->GetBackgroundColour());
 

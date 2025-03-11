@@ -40,8 +40,12 @@ namespace Nexus::UI
 
 	  private:
 		virtual void OnResize(uint32_t width, uint32_t height);
+
+	  public:
 		void		 CalculateBounds();
-		void		 SetParent(Control *parent);
+
+	  private:
+		void SetParent(Control *parent);
 
 	  protected:
 		Nexus::Point2D<uint32_t> m_Position = {0, 0};
