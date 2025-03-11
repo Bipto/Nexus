@@ -4,6 +4,7 @@
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 #include "Nexus-Core/UI/Form.hpp"
 
+#include "Nexus-Core/UI/HorizontalSizer.hpp"
 #include "Nexus-Core/UI/Panel.hpp"
 #include "Nexus-Core/UI/UIRenderer.hpp"
 
@@ -24,46 +25,67 @@ namespace Nexus::UI
 		{
 			// m_MainForm = new Form(GetPrimaryWindow());
 
-			m_Panel		  = std::make_unique<Nexus::UI::Panel>();
+			m_Sizer		  = std::make_unique<Nexus::UI::HorizontalSizer>();
 			m_Renderer	  = std::make_unique<Nexus::UI::UIRenderer>(m_GraphicsDevice);
 			m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-			m_Panel->SetPosition({0, 0});
-			m_Panel->SetSize(GetWindowSize());
-			m_Panel->SetBackgroundColour({1.0f, 0.0f, 0.0f, 1.0f});
+			m_Sizer->SetPosition({0, 0});
+			m_Sizer->SetSize(GetWindowSize());
+			m_Sizer->SetBackgroundColour({1.0f, 0.0f, 0.0f, 1.0f});
 
-			Nexus::UI::Panel *panel2 = new Nexus::UI::Panel();
-			panel2->SetPosition({200, 200});
+			/*Nexus::UI::Panel *panel2 = new Nexus::UI::Panel();
+			panel2->SetPosition({10, 10});
 			panel2->SetSize({150, 150});
 			panel2->SetBackgroundColour({0.0f, 1.0f, 0.0f, 1.0f});
-			panel2->SetRounding(15.0f);
+			panel2->SetRounding(2.0f);
 			m_Panel->AddChild(panel2);
 
 			Nexus::UI::Panel *panel3 = new Nexus::UI::Panel();
-			panel3->SetPosition({225, 225});
+			panel3->SetPosition({10, 10});
 			panel3->SetSize({150, 150});
 			panel3->SetBackgroundColour({0.0f, 0.0f, 1.0f, 1.0f});
 			panel3->SetRounding(15.0f);
-			panel2->AddChild(panel3);
+			panel2->AddChild(panel3); */
+
+			Nexus::UI::Panel *panel = new Nexus::UI::Panel();
+			panel->SetPosition({10, 10});
+			panel->SetSize({150, 150});
+			panel->SetBackgroundColour({0.0f, 1.0f, 0.0f, 1.0f});
+			panel->SetRounding(8.0f);
+			m_Sizer->AddChild(panel);
+
+			Nexus::UI::Panel *panel2 = new Nexus::UI::Panel();
+			panel2->SetPosition({10, 10});
+			panel2->SetSize({150, 150});
+			panel2->SetBackgroundColour({0.0f, 0.0f, 1.0f, 1.0f});
+			panel2->SetRounding(8.0f);
+			m_Sizer->AddChild(panel2);
 
 			GetPrimaryWindow()->SetExposeCallback(
 				[&]()
 				{
-					m_Panel->SetSize(GetWindowSize());
+					m_Sizer->SetSize(GetWindowSize());
 
 					Nexus::GetApplication()->GetPrimarySwapchain()->Prepare();
-					m_Renderer->Render(m_Panel.get());
+					m_Renderer->Render(m_Sizer.get());
 					Nexus::GetApplication()->GetPrimarySwapchain()->SwapBuffers();
 				});
 			GetPrimaryWindow()->SetResizeCallback(
 				[&](const WindowResizedEventArgs &args)
 				{
-					m_Panel->SetSize(GetWindowSize());
+					m_Sizer->SetSize(GetWindowSize());
 
 					Nexus::GetApplication()->GetPrimarySwapchain()->Prepare();
-					m_Renderer->Render(m_Panel.get());
+					m_Renderer->Render(m_Sizer.get());
 					Nexus::GetApplication()->GetPrimarySwapchain()->SwapBuffers();
 				});
+
+			/* Nexus::UI::Sizer *sizer = new Nexus::UI::HorizontalSizer();
+			sizer->SetPosition({10, 10});
+			sizer->SetSize({150, 150});
+			sizer->SetBackgroundColour({1.0f, 1.0f, 1.0f, 1.0f});
+			sizer->SetRounding(15.0f);
+			panel3->AddChild(sizer); */
 		}
 
 		void Render(Nexus::TimeSpan time) final
@@ -80,13 +102,14 @@ namespace Nexus::UI
 
 		Form *GetMainForm()
 		{
+			return m_MainForm;
 		}
 
 	  private:
 		Ref<Graphics::CommandList> m_CommandList = nullptr;
 		Form					  *m_MainForm	 = nullptr;
 
-		std::unique_ptr<Nexus::UI::Panel>	   m_Panel	  = nullptr;
-		std::unique_ptr<Nexus::UI::UIRenderer> m_Renderer = nullptr;
+		std::unique_ptr<Nexus::UI::HorizontalSizer> m_Sizer	   = nullptr;
+		std::unique_ptr<Nexus::UI::UIRenderer>		m_Renderer = nullptr;
 	};
 }	 // namespace Nexus::UI

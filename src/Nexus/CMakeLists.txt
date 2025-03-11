@@ -409,8 +409,15 @@ list (APPEND ENGINE_SOURCES
 
 list (APPEND ENGINE_SOURCES
   include/Nexus-Core/UI/Control.hpp
+  include/Nexus-Core/UI/DockMode.hpp
+  include/Nexus-Core/UI/Form.hpp
+  include/Nexus-Core/UI/HorizontalSizer.hpp
+  src/Nexus-Core/UI/Control.cpp
   include/Nexus-Core/UI/Panel.hpp
-  include/Nexus-Core/UI/UIRenderer.hpp)
+  include/Nexus-Core/UI/Sizer.hpp
+  include/Nexus-Core/UI/Style.hpp
+  include/Nexus-Core/UI/UIRenderer.hpp
+  src/Nexus-Core/UI/UIRenderer.cpp)
 
 list (APPEND ENGINE_SOURCES
   include/Nexus-Core/Utils/FramerateMonitor.hpp

@@ -5,7 +5,7 @@
 
 namespace Nexus::UI
 {
-	class Panel : public Control
+	class NX_API Panel : public Control
 	{
 	  public:
 		Panel()

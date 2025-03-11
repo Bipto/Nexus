@@ -6,7 +6,7 @@
 
 namespace Nexus::UI
 {
-	class Form
+	class NX_API Form
 	{
 	  public:
 		Form(const std::string &title, uint32_t width, uint32_t height)
