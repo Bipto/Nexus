@@ -41,7 +41,7 @@ namespace Nexus::UI
 				{
 					position.Y += control->GetSize().X;
 				}
-				control->SetSize({control->GetSize().X, position.Y - controlPos.Y});
+				control->SetSize({GetSize().X, position.Y - controlPos.Y});
 			}
 		}
 

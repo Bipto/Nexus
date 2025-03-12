@@ -44,7 +44,6 @@ namespace Nexus::UI
 		const Style &style = control->GetStyle();
 		control->CalculateBounds();
 		renderer->DrawPolygonFill(control->GetPolygon(), style.BackgroundColour);
-		//  renderer->DrawRoundedRectangleFill(control->GetBounds(), control->GetBackgroundColour());
 
 		const std::vector<Control *> children = control->GetChildren();
 		for (Control *child : children)

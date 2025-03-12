@@ -4,6 +4,8 @@
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 #include "Nexus-Core/UI/Form.hpp"
 
+#include "Nexus-Core/UI/Button.hpp"
+#include "Nexus-Core/UI/GridSizer.hpp"
 #include "Nexus-Core/UI/HorizontalSizer.hpp"
 #include "Nexus-Core/UI/Panel.hpp"
 #include "Nexus-Core/UI/UIRenderer.hpp"
@@ -26,38 +28,28 @@ namespace Nexus::UI
 		{
 			// m_MainForm = new Form(GetPrimaryWindow());
 
-			m_Sizer		  = std::make_unique<Nexus::UI::VerticalSizer>();
+			m_Sizer		  = std::make_unique<Nexus::UI::GridSizer>();
 			m_Renderer	  = std::make_unique<Nexus::UI::UIRenderer>(m_GraphicsDevice);
 			m_CommandList = m_GraphicsDevice->CreateCommandList();
 
 			m_Sizer->SetPosition({0, 0});
 			m_Sizer->SetSize(GetWindowSize());
 			m_Sizer->SetBackgroundColour({1.0f, 0.0f, 0.0f, 1.0f});
-			m_Sizer->SetRows({SizePercentage(50.0f), SizeAbsolute(100)});
+			m_Sizer->SetLayout(9, 9);
 
-			Nexus::UI::HorizontalSizer *hSizer = new Nexus::UI::HorizontalSizer();
-			hSizer->SetPosition({10, 10});
-			hSizer->SetSize({500, 500});
-			hSizer->SetBackgroundColour({1.0f, 1.0f, 1.0f, 1.0f});
-			hSizer->SetRounding(8.0f);
-			hSizer->SetColumns({SizePercentage(100.0f)});
-			m_Sizer->AddChild(hSizer);
+			for (size_t i = 0; i < 81; i++)
+			{
+				Nexus::UI::Button *button = new Nexus::UI::Button();
+				button->SetBackgroundColour(Utils::GenerateRandomColour());
+				button->SetSize({100, 100});
+				button->SetName(std::to_string(i));
 
-			Nexus::UI::Panel *panel = new Nexus::UI::Panel();
-			panel->SetPosition({0, 0});
-			panel->SetSize({150, 150});
-			panel->SetBackgroundColour({1.0f, 1.0f, 0.0f, 1.0f});
-			panel->SetRounding(8.0f);
-			hSizer->AddChild(panel);
+				button->SetMousePressedCallback([&](const Nexus::MouseButtonPressedEventArgs &args, Control *control)
+												{ std::cout << "Button " << control->GetName() << " clicked" << std::endl; });
+				m_Sizer->AddChild(button);
+			}
 
-			Nexus::UI::HorizontalSizer *sizer2 = new Nexus::UI::HorizontalSizer();
-			sizer2->SetPosition({10, 10});
-			sizer2->SetSize({150, 150});
-			sizer2->SetBackgroundColour({0.0f, 0.0f, 1.0f, 1.0f});
-			sizer2->SetRounding(8.0f);
-			m_Sizer->AddChild(sizer2);
-
-			GetPrimaryWindow()->SetExposeCallback(
+			/* GetPrimaryWindow()->SetExposeCallback(
 				[&]()
 				{
 					m_Sizer->SetSize(GetWindowSize());
@@ -65,7 +57,21 @@ namespace Nexus::UI
 					Nexus::GetApplication()->GetPrimarySwapchain()->Prepare();
 					m_Renderer->Render(m_Sizer.get());
 					Nexus::GetApplication()->GetPrimarySwapchain()->SwapBuffers();
+				}); */
+			GetPrimaryWindow()->SetRenderFunction(
+				[&](TimeSpan time)
+				{
+					m_Sizer->SetSize(GetWindowSize());
+
+					Nexus::GetApplication()->GetPrimarySwapchain()->Prepare();
+					m_Renderer->Render(m_Sizer.get());
+					Nexus::GetApplication()->GetPrimarySwapchain()->SwapBuffers();
 				});
+
+			GetPrimaryWindow()->SetMouseMovedCallback([&](const MouseMovedEventArgs &args) { m_Sizer->InvokeOnMouseMoved(args); });
+			GetPrimaryWindow()->SetMousePressedCallback([&](const MouseButtonPressedEventArgs &args) { m_Sizer->InvokeOnMousePressed(args); });
+			GetPrimaryWindow()->SetMouseReleasedCallback([&](const MouseButtonReleasedEventArgs &args) { m_Sizer->InvokeOnMouseReleased(args); });
+			GetPrimaryWindow()->SetMouseScrollCallback([&](const MouseScrolledEventArgs &args) { m_Sizer->InvokeOnMouseScroll(args); });
 		}
 
 		void Render(Nexus::TimeSpan time) final
@@ -89,7 +95,7 @@ namespace Nexus::UI
 		Ref<Graphics::CommandList> m_CommandList = nullptr;
 		Form					  *m_MainForm	 = nullptr;
 
-		std::unique_ptr<Nexus::UI::VerticalSizer>	m_Sizer	   = nullptr;
-		std::unique_ptr<Nexus::UI::UIRenderer>		m_Renderer = nullptr;
+		std::unique_ptr<Nexus::UI::GridSizer>  m_Sizer	  = nullptr;
+		std::unique_ptr<Nexus::UI::UIRenderer> m_Renderer = nullptr;
 	};
 }	 // namespace Nexus::UI

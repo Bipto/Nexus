@@ -18,6 +18,13 @@ namespace Nexus::Utils
 		}
 	}
 
+	NX_API glm::vec4 GenerateRandomColour()
+	{
+		static std::random_device		 rd;
+		static std::mt19937				 gen(rd());
+		std::uniform_real_distribution<> dis(0.0f, 1.0f);
+		return glm::vec4(dis(gen), dis(gen), dis(gen), 1.0f);
+	}
 	float XIntersect(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4)
 	{
 		float num = (x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4);

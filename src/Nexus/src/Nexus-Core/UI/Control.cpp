@@ -50,6 +50,11 @@ namespace Nexus::UI
 		CalculateBounds();
 	}
 
+	void Control::SetName(const std::string &name)
+	{
+		m_Name = name;
+	}
+
 	void Control::AddChild(Control *control)
 	{
 		control->SetParent(this);
@@ -121,6 +126,155 @@ namespace Nexus::UI
 		return Nexus::Utils::GeneratePolygon(m_Outline);
 	}
 
+	const std::string &Control::GetName() const
+	{
+		return m_Name;
+	}
+
+	bool Control::ContainsMouse() const
+	{
+		return m_ContainsMouse;
+	}
+
+	void Control::SetMousePressedCallback(std::function<void(const MouseButtonPressedEventArgs &, Control *)> func)
+	{
+		m_OnMousePressedFunc = func;
+	}
+
+	void Control::SetMouseReleasedCallback(std::function<void(const MouseButtonReleasedEventArgs &, Control *)> func)
+	{
+		m_OnMouseReleasedFunc = func;
+	}
+
+	void Control::SetMouseMovedCallback(std::function<void(const MouseMovedEventArgs &, Control *)> func)
+	{
+		m_OnMouseMovedFunc = func;
+	}
+
+	void Control::SetMouseScrollCallback(std::function<void(const MouseScrolledEventArgs &, Control *)> func)
+	{
+		m_OnMouseScrolledFunc = func;
+	}
+
+	void Control::SetMouseEnterCallback(std::function<void(Control *)> func)
+	{
+		m_OnMouseEnterFunc = func;
+	}
+
+	void Control::SetMouseLeaveCallback(std::function<void(Control *)> func)
+	{
+		m_OnMouseLeaveFunc = func;
+	}
+
+	void Control::OnMousePressed(const MouseButtonPressedEventArgs &args)
+	{
+	}
+
+	void Control::OnMouseReleased(const MouseButtonReleasedEventArgs &args)
+	{
+	}
+
+	void Control::OnMouseMoved(const MouseMovedEventArgs &args)
+	{
+	}
+
+	void Control::OnMouseScroll(const MouseScrolledEventArgs &args)
+	{
+	}
+
+	void Control::OnMouseEnter()
+	{
+	}
+
+	void Control::OnMouseLeave()
+	{
+	}
+
+	void Control::InvokeOnMousePressed(const MouseButtonPressedEventArgs &args)
+	{
+		Graphics::Polygon polygon = GetPolygon();
+		if (polygon.Contains(args.Position))
+		{
+			OnMousePressed(args);
+
+			if (m_OnMousePressedFunc)
+			{
+				m_OnMousePressedFunc(args, this);
+			}
+
+			IterateChildren([&](Control *control) { control->InvokeOnMousePressed(args); });
+		}
+	}
+
+	void Control::InvokeOnMouseReleased(const MouseButtonReleasedEventArgs &args)
+	{
+		Graphics::Polygon polygon = GetPolygon();
+		if (polygon.Contains(args.Position))
+		{
+			OnMouseReleased(args);
+
+			if (m_OnMouseReleasedFunc)
+			{
+				m_OnMouseReleasedFunc(args, this);
+			}
+
+			IterateChildren([&](Control *control) { control->InvokeOnMouseReleased(args); });
+		}
+	}
+
+	void Control::InvokeOnMouseMoved(const MouseMovedEventArgs &args)
+	{
+		Graphics::Polygon polygon = GetPolygon();
+		if (polygon.Contains(args.Position))
+		{
+			OnMouseMoved(args);
+
+			if (m_OnMouseMovedFunc)
+			{
+				m_OnMouseMovedFunc(args, this);
+			}
+
+			if (!m_ContainsMouse)
+			{
+				if (m_OnMouseEnterFunc)
+				{
+					m_OnMouseEnterFunc(this);
+				}
+				OnMouseEnter();
+				m_ContainsMouse = true;
+			}
+
+			IterateChildren([&](Control *control) { control->InvokeOnMouseMoved(args); });
+		}
+		else
+		{
+			if (m_ContainsMouse)
+			{
+				if (m_OnMouseLeaveFunc)
+				{
+					m_OnMouseLeaveFunc(this);
+				}
+				OnMouseLeave();
+				m_ContainsMouse = false;
+			}
+		}
+	}
+
+	void Control::InvokeOnMouseScroll(const MouseScrolledEventArgs &args)
+	{
+		Graphics::Polygon polygon = GetPolygon();
+		if (polygon.Contains(args.Position))
+		{
+			OnMouseScroll(args);
+			if (m_OnMouseScrolledFunc)
+			{
+				m_OnMouseScrolledFunc(args, this);
+			}
+
+			IterateChildren([&](Control *control) { control->InvokeOnMouseScroll(args); });
+		}
+	}
+
 	void Control::SetStyle(const Style &style)
 	{
 		m_Style = style;
@@ -133,6 +287,11 @@ namespace Nexus::UI
 
 	void Control::OnResize(uint32_t width, uint32_t height)
 	{
+	}
+
+	void Control::IterateChildren(std::function<void(Control *)> func)
+	{
+		for (Control *control : m_Children) { func(control); }
 	}
 
 	void Control::CalculateBounds()
@@ -150,7 +309,11 @@ namespace Nexus::UI
 
 		if (m_Parent)
 		{
-			m_Outline = Nexus::Utils::SutherlandHodgman(m_Outline, m_Parent->GetOutline());
+			const std::vector<glm::vec2> &points = m_Parent->GetOutline();
+			if (points.size() > 3)
+			{
+				m_Outline = Nexus::Utils::SutherlandHodgman(m_Outline, m_Parent->GetOutline());
+			}
 		}
 	}
 

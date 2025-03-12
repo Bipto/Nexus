@@ -35,13 +35,13 @@ namespace Nexus::UI
 
 				if (columnSize.has_value())
 				{
-					position.X += SizeCalculator::GetColumnSizeInPixels(columnSize.value(), GetSize().Y);
+					position.X += SizeCalculator::GetColumnSizeInPixels(columnSize.value(), GetSize().X);
 				}
 				else
 				{
 					position.X += control->GetSize().X;
 				}
-				control->SetSize({position.X - controlPos.X, control->GetSize().Y});
+				control->SetSize({position.X - controlPos.X, GetSize().Y});
 			}
 		}
 
