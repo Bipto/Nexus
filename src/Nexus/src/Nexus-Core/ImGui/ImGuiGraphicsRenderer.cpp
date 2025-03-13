@@ -349,12 +349,21 @@ namespace Nexus::ImGuiUtils
 				ImGuiIO &io = ImGui::GetIO();
 				io.AddInputCharactersUTF8(args.Text);
 			});
+
 		window->AddMouseMovedCallback(
 			[&](const MouseMovedEventArgs &args)
 			{
 				ImGuiIO &io = ImGui::GetIO();
-				io.AddMousePosEvent(args.Position.X, args.Position.Y);
+				if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+				{
+					io.AddMousePosEvent(args.ScreenPosition.X, args.ScreenPosition.Y);
+				}
+				else
+				{
+					io.AddMousePosEvent(args.Position.X, args.Position.Y);
+				}
 			});
+
 		window->AddMousePressedCallback(
 			[&](const MouseButtonPressedEventArgs &args)
 			{
@@ -429,7 +438,7 @@ namespace Nexus::ImGuiUtils
 			}
 		}
 
-		/* IWindow *activeWindow = window.value();
+		IWindow *activeWindow = window.value();
 		io.AddKeyEvent(ImGuiKey_Tab, activeWindow->IsKeyDown(Nexus::ScanCode::Tab));
 		io.AddKeyEvent(ImGuiKey_LeftArrow, activeWindow->IsKeyDown(Nexus::ScanCode::Left));
 		io.AddKeyEvent(ImGuiKey_RightArrow, activeWindow->IsKeyDown(Nexus::ScanCode::Right));
@@ -459,23 +468,8 @@ namespace Nexus::ImGuiUtils
 		io.DisplaySize			   = {(float)mainWindow->GetWindowSize().X, (float)mainWindow->GetWindowSize().Y};
 		io.DisplayFramebufferScale = {1, 1};
 
-		MouseState globalMouseState = Platform::GetMouseState();
-		if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-		{
-			io.AddMousePosEvent(globalMouseState.MousePosition.X, globalMouseState.MousePosition.Y);
-		}
-		else
-		{
-			Point2D<float> mousePos = activeWindow->GetMousePosition();
-			io.AddMousePosEvent(mousePos.X, mousePos.Y);
-		}
-
-		io.AddMouseButtonEvent(0, globalMouseState.LeftButton == MouseButtonState::Pressed);
-		io.AddMouseButtonEvent(1, globalMouseState.RightButton == MouseButtonState::Pressed);
-		io.AddMouseButtonEvent(2, globalMouseState.MiddleButton == MouseButtonState::Pressed);
-
 		Point2D<float> scroll = activeWindow->GetMouseScroll();
-		io.AddMouseWheelEvent(scroll.X, scroll.Y); */
+		io.AddMouseWheelEvent(scroll.X, scroll.Y);
 	}
 
 	void ImGuiGraphicsRenderer::RenderDrawData(ImDrawData *drawData)

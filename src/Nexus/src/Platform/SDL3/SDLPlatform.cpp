@@ -329,11 +329,14 @@ namespace Nexus::Platform
 
 				if (button.has_value())
 				{
-					Nexus::MouseButtonPressedEventArgs mousePressedEvent {.Button	= button.value(),
-																		  .Position = {event.button.x, event.button.y},
-																		  .Clicks	= event.button.clicks,
-																		  .MouseID	= mouseId,
-																		  .Type		= mouseType};
+					Point2D<int>					   windowPos = window->GetWindowPosition();
+					Nexus::MouseButtonPressedEventArgs mousePressedEvent {
+						.Button			= button.value(),
+						.Position		= {event.button.x, event.button.y},
+						.ScreenPosition = {event.button.x + (float)windowPos.X, event.button.y + (float)windowPos.Y},
+						.Clicks			= event.button.clicks,
+						.MouseID		= mouseId,
+						.Type			= mouseType};
 
 					m_ActiveMouse = mouseId;
 					window->InvokeMousePressedCallback(mousePressedEvent);
@@ -348,10 +351,13 @@ namespace Nexus::Platform
 
 				if (button.has_value())
 				{
-					Nexus::MouseButtonReleasedEventArgs mouseReleasedEvent {.Button	  = button.value(),
-																			.Position = {event.button.x, event.button.y},
-																			.MouseID  = mouseId,
-																			.Type	  = mouseType};
+					Point2D<int>						windowPos = window->GetWindowPosition();
+					Nexus::MouseButtonReleasedEventArgs mouseReleasedEvent {
+						.Button			= button.value(),
+						.Position		= {event.button.x, event.button.y},
+						.ScreenPosition = {event.button.x + (float)windowPos.X, event.button.y + (float)windowPos.Y},
+						.MouseID		= mouseId,
+						.Type			= mouseType};
 
 					m_ActiveMouse = mouseId;
 					window->InvokeMouseReleasedCallback(mouseReleasedEvent);
@@ -373,13 +379,14 @@ namespace Nexus::Platform
 				movementX *= scale;
 				movementY *= scale;
 #endif
-
 				auto [mouseType, mouseId] = Nexus::SDL3::GetMouseInfo(event.motion.which);
 
-				Nexus::MouseMovedEventArgs mouseMovedEvent {.Position = {mouseX, mouseY},
-															.Movement = {movementX, movementY},
-															.MouseID  = mouseId,
-															.Type	  = mouseType};
+				Point2D<int>			   windowPos = window->GetWindowPosition();
+				Nexus::MouseMovedEventArgs mouseMovedEvent {.Position		= {mouseX, mouseY},
+															.ScreenPosition = {mouseX + (float)windowPos.X, mouseY + (float)windowPos.Y},
+															.Movement		= {movementX, movementY},
+															.MouseID		= mouseId,
+															.Type			= mouseType};
 
 				m_ActiveMouse = mouseId;
 				window->InvokeMouseMovedCallback(mouseMovedEvent);
@@ -390,11 +397,14 @@ namespace Nexus::Platform
 				auto [mouseType, mouseId]		 = Nexus::SDL3::GetMouseInfo(event.wheel.which);
 				Nexus::ScrollDirection direction = Nexus::SDL3::GetScrollDirection(event.wheel.direction);
 
-				Nexus::MouseScrolledEventArgs scrollEvent {.Scroll	  = {event.wheel.x, event.wheel.y},
-														   .Position  = {event.wheel.mouse_x, event.wheel.mouse_y},
-														   .MouseID	  = mouseId,
-														   .Type	  = mouseType,
-														   .Direction = direction};
+				Point2D<int>				  windowPos = window->GetWindowPosition();
+				Nexus::MouseScrolledEventArgs scrollEvent {
+					.Scroll			= {event.wheel.x, event.wheel.y},
+					.Position		= {event.wheel.mouse_x, event.wheel.mouse_y},
+					.ScreenPosition = {event.wheel.mouse_x + (float)windowPos.X, event.wheel.mouse_y + (float)windowPos.Y},
+					.MouseID		= mouseId,
+					.Type			= mouseType,
+					.Direction		= direction};
 
 				m_ActiveMouse = mouseId;
 				window->InvokeMouseScrollCallback(scrollEvent);
@@ -451,10 +461,12 @@ namespace Nexus::Platform
 					sourceData = event.drop.data;
 				}
 
-				Nexus::FileDropEventArgs fileDropEvent {.Type	   = type,
-														.Position  = {event.drop.x, event.drop.y},
-														.SourceApp = sourceApp,
-														.Data	   = sourceData};
+				Point2D<int>			 windowPos = window->GetWindowPosition();
+				Nexus::FileDropEventArgs fileDropEvent {.Type			= type,
+														.Position		= {event.drop.x, event.drop.y},
+														.ScreenPosition = {event.drop.x + (float)windowPos.X, event.drop.y + (float)windowPos.Y},
+														.SourceApp		= sourceApp,
+														.Data			= sourceData};
 
 				window->InvokeFileDropCallback(fileDropEvent);
 				break;
@@ -553,12 +565,12 @@ namespace Nexus::Platform
 		IWindow *window = new SDL3Window(windowProps);
 		m_Windows.push_back(window);
 		return window;
-}
+	}
 
-OpenFileDialog *CreateOpenFileDialog(IWindow *window, const std::vector<FileDialogFilter> &filters, const char *defaultLocation, bool allowMany)
-{
-	return new OpenFileDialogSDL3(window, filters, defaultLocation, allowMany);
-}
+	OpenFileDialog *CreateOpenFileDialog(IWindow *window, const std::vector<FileDialogFilter> &filters, const char *defaultLocation, bool allowMany)
+	{
+		return new OpenFileDialogSDL3(window, filters, defaultLocation, allowMany);
+	}
 
 	SaveFileDialog *CreateSaveFileDialog(IWindow *window, const std::vector<FileDialogFilter> &filters, const char *defaultLocation)
 	{

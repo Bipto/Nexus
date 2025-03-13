@@ -179,6 +179,20 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(shaderc)
 
+FetchContent_Declare(
+  lua
+  GIT_REPOSITORY https://github.com/walterschell/Lua.git
+  GIT_TAG 52674cd
+)
+FetchContent_MakeAvailable(lua)
+
+FetchContent_Declare(
+  sol
+  GIT_REPOSITORY https://github.com/ThePhD/sol2
+  GIT_TAG c1f95a7
+)
+FetchContent_MakeAvailable(sol)
+
 set(NEXUS_INCLUDE_DIRS "")
 set(NEXUS_LINKED_LIBRARIES "")
 set(NEXUS_LIBRARY_SUBDIRECTORIES "")
@@ -636,7 +650,9 @@ list (APPEND NEXUS_LINKED_LIBRARIES
   yaml-cpp::yaml-cpp
   glm::glm
   imgui
-  imguizmo)
+  imguizmo
+  lua_static
+  sol2::sol2)
 
 #precompiled header
 if (NX_ROOT_BUILD STREQUAL "ON")

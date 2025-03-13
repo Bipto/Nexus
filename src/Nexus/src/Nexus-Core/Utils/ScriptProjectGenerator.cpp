@@ -118,7 +118,7 @@ void say_hello()
 		std::string scriptDirectory = projectDirectory + std::string("\\") + projectName + std::string("\\Scripts");
 		FileSystem::CreateFileDirectory(scriptDirectory);
 
-		// setup script project
+		/* // setup script project
 		{
 			std::string scriptCmakeFile			 = scriptDirectory + "\\CMakeLists.txt";
 			std::string scriptProcessedCmakeText = StringUtils::Replace(scriptCmakeText, "SCRIPT_PROJECT_NAME", projectName);
@@ -131,7 +131,7 @@ void say_hello()
 		// copy Nexus includes and libs
 		{
 			CopyEngineSources("Nexus", scriptDirectory + "\\Nexus");
-		}
+		} */
 	}
 
 	void ScriptProjectGenerator::CopyEngineSources(const std::string &templatePath, const std::string &scriptDirectory)

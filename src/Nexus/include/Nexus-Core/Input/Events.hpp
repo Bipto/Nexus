@@ -40,16 +40,18 @@ namespace Nexus
 
 	struct MouseMovedEventArgs
 	{
-		Nexus::Point2D<float> Position = {};
-		Nexus::Point2D<float> Movement = {};
-		uint32_t			  MouseID  = {};
-		MouseType			  Type	   = {};
+		Nexus::Point2D<float> Position		 = {};
+		Nexus::Point2D<float> ScreenPosition = {};
+		Nexus::Point2D<float> Movement		 = {};
+		uint32_t			  MouseID		 = {};
+		MouseType			  Type			 = {};
 	};
 
 	struct MouseButtonPressedEventArgs
 	{
 		MouseButton			  Button   = {};
 		Nexus::Point2D<float> Position = {};
+		Nexus::Point2D<float> ScreenPosition = {};
 		uint32_t			  Clicks   = {};
 		uint32_t			  MouseID  = {};
 		MouseType			  Type	   = {};
@@ -59,6 +61,7 @@ namespace Nexus
 	{
 		MouseButton			  Button   = {};
 		Nexus::Point2D<float> Position = {};
+		Nexus::Point2D<float> ScreenPosition = {};
 		uint32_t			  MouseID  = {};
 		MouseType			  Type	   = {};
 	};
@@ -67,6 +70,7 @@ namespace Nexus
 	{
 		Nexus::Point2D<float> Scroll	= {};
 		Nexus::Point2D<float> Position	= {};
+		Nexus::Point2D<float> ScreenPosition = {};
 		uint32_t			  MouseID	= {};
 		MouseType			  Type		= {};
 		ScrollDirection		  Direction = {};
@@ -85,6 +89,7 @@ namespace Nexus
 	{
 		FileDropType   Type		 = {};
 		Point2D<float> Position	 = {};
+		Point2D<float> ScreenPosition = {};
 		std::string	   SourceApp = {};
 		std::string	   Data		 = {};
 	};

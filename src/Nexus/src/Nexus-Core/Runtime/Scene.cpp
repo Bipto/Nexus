@@ -174,7 +174,7 @@ namespace Nexus
 		// we only instantiate scripts if it is the first time clicking the play button
 		if (m_SceneState == SceneState::Stopped)
 		{
-			// update native scripts
+			// instantiate native scripts
 			{
 				auto view = Registry.GetView<Nexus::NativeScriptComponent>();
 
@@ -187,6 +187,24 @@ namespace Nexus
 							auto *script = std::get<0>(component);
 							script->Instantiate(Project, entity->ID);
 						}
+					}
+				}
+			}
+		}
+
+		// instantiate Lua scripts
+		{
+			auto view = Registry.GetView<Nexus::LuaScriptComponent>();
+
+			if (view.HasComponents())
+			{
+				for (auto &[entity, components] : view)
+				{
+					for (const auto &component : components)
+					{
+						auto *script = std::get<0>(component);
+						script->CreateScriptEngine();
+						script->VM->ExecuteLoad();
 					}
 				}
 			}
@@ -222,6 +240,18 @@ namespace Nexus
 							script->ScriptInstance->OnUpdate(time);
 						}
 					}
+				}
+			}
+		}
+
+		// call Lua script functions
+		{
+			auto view = Registry.GetView<Nexus::LuaScriptComponent>();
+			if (view.HasComponents())
+			{
+				for (auto &[entity, components] : view)
+				{
+					for (const auto &component : components) { auto *script = std::get<0>(component); }
 				}
 			}
 		}

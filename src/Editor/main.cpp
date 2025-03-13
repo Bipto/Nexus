@@ -40,7 +40,7 @@ class EditorApplication : public Nexus::Application
 		ImGuizmo::SetImGuiContext(m_ImGuiRenderer->GetContext());
 
 		auto &io = ImGui::GetIO();
-		// io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		io.FontDefault = io.Fonts->AddFontFromFileTTF("fonts/roboto/roboto-black.ttf", 24);
 		m_ImGuiRenderer->RebuildFontAtlas();
@@ -250,16 +250,6 @@ class EditorApplication : public Nexus::Application
 					m_Project->LoadSharedLibrary();
 					m_Project->CacheAvailableScripts();
 					m_Project->UnloadSharedLibrary();
-				}
-			}
-
-			if (ImGui::MenuItem("Updating scripting engine version"))
-			{
-				if (m_Project)
-				{
-					Nexus::Utils::ScriptProjectGenerator generator;
-					std::string							 outputDir = m_Project->GetFullScriptsDirectory() + "Nexus";
-					generator.CopyEngineSources("Nexus", outputDir);
 				}
 			}
 
