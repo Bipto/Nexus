@@ -130,7 +130,7 @@ void say_hello()
 
 		// copy Nexus includes and libs
 		{
-			CopyEngineSources("Nexus", scriptDirectory + "Nexus");
+			CopyEngineSources("Nexus", scriptDirectory + "\\Nexus");
 		}
 	}
 

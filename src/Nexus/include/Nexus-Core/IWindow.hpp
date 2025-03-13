@@ -184,32 +184,32 @@ namespace Nexus
 		/// @return
 		virtual NativeWindowInfo GetNativeWindowInfo() = 0;
 
-		virtual void SetResizeCallback(std::function<void(const WindowResizedEventArgs &)> func) = 0;
-		virtual void SetMoveCallback(std::function<void(const WindowMovedEventArgs &)> func)	 = 0;
+		virtual void AddResizeCallback(std::function<void(const WindowResizedEventArgs &)> func) = 0;
+		virtual void AddMoveCallback(std::function<void(const WindowMovedEventArgs &)> func)	 = 0;
 
-		virtual void SetFocusGainCallback(std::function<void()> func) = 0;
-		virtual void SetFocusLostCallback(std::function<void()> func) = 0;
-		virtual void SetMaximizedCallback(std::function<void()> func) = 0;
-		virtual void SetMinimizedCallback(std::function<void()> func) = 0;
-		virtual void SetRestoreCallback(std::function<void()> func)	  = 0;
-		virtual void SetShowCallback(std::function<void()> func)	  = 0;
-		virtual void SetHideCallback(std::function<void()> func)	  = 0;
-		virtual void SetExposeCallback(std::function<void()> func)	  = 0;
+		virtual void AddFocusGainCallback(std::function<void()> func) = 0;
+		virtual void AddFocusLostCallback(std::function<void()> func) = 0;
+		virtual void AddMaximizedCallback(std::function<void()> func) = 0;
+		virtual void AddMinimizedCallback(std::function<void()> func) = 0;
+		virtual void AddRestoreCallback(std::function<void()> func)	  = 0;
+		virtual void AddShowCallback(std::function<void()> func)	  = 0;
+		virtual void AddHideCallback(std::function<void()> func)	  = 0;
+		virtual void AddExposeCallback(std::function<void()> func)	  = 0;
 
-		virtual void SetKeyPressedCallback(std::function<void(const KeyPressedEventArgs &)> func)	= 0;
-		virtual void SetKeyReleasedCallback(std::function<void(const KeyReleasedEventArgs &)> func) = 0;
+		virtual void AddKeyPressedCallback(std::function<void(const KeyPressedEventArgs &)> func)	= 0;
+		virtual void AddKeyReleasedCallback(std::function<void(const KeyReleasedEventArgs &)> func) = 0;
 
-		virtual void SetTextInputCallback(std::function<void(const TextInputEventArgs &)> func) = 0;
-		virtual void SetTextEditCallback(std::function<void(const TextEditEventArgs &)> func)	= 0;
+		virtual void AddTextInputCallback(std::function<void(const TextInputEventArgs &)> func) = 0;
+		virtual void AddTextEditCallback(std::function<void(const TextEditEventArgs &)> func)	= 0;
 
-		virtual void SetMousePressedCallback(std::function<void(const MouseButtonPressedEventArgs &)> func)	  = 0;
-		virtual void SetMouseReleasedCallback(std::function<void(const MouseButtonReleasedEventArgs &)> func) = 0;
-		virtual void SetMouseMovedCallback(std::function<void(const MouseMovedEventArgs &)> func)			  = 0;
-		virtual void SetMouseScrollCallback(std::function<void(const MouseScrolledEventArgs &)> func)		  = 0;
-		virtual void SetMouseEnterCallback(std::function<void()> func)										  = 0;
-		virtual void SetMouseLeaveCallback(std::function<void()> func)										  = 0;
+		virtual void AddMousePressedCallback(std::function<void(const MouseButtonPressedEventArgs &)> func)	  = 0;
+		virtual void AddMouseReleasedCallback(std::function<void(const MouseButtonReleasedEventArgs &)> func) = 0;
+		virtual void AddMouseMovedCallback(std::function<void(const MouseMovedEventArgs &)> func)			  = 0;
+		virtual void AddMouseScrollCallback(std::function<void(const MouseScrolledEventArgs &)> func)		  = 0;
+		virtual void AddMouseEnterCallback(std::function<void()> func)										  = 0;
+		virtual void AddMouseLeaveCallback(std::function<void()> func)										  = 0;
 
-		virtual void SetFileDropCallback(std::function<void(const FileDropEventArgs &)> func) = 0;
+		virtual void AddFileDropCallback(std::function<void(const FileDropEventArgs &)> func) = 0;
 
 		virtual bool		   IsKeyDown(uint32_t keyboardId, ScanCode scancode)		 = 0;
 		virtual bool		   IsKeyDown(ScanCode scancode)								 = 0;

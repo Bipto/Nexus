@@ -120,32 +120,32 @@ namespace Nexus
 		//==========================================================================================
 		//									SET CALLBACKS
 		//==========================================================================================
-		void SetResizeCallback(std::function<void(const WindowResizedEventArgs &)> func) final;
-		void SetMoveCallback(std::function<void(const WindowMovedEventArgs &)> func) final;
+		void AddResizeCallback(std::function<void(const WindowResizedEventArgs &)> func) final;
+		void AddMoveCallback(std::function<void(const WindowMovedEventArgs &)> func) final;
 
-		void SetFocusGainCallback(std::function<void()> func) final;
-		void SetFocusLostCallback(std::function<void()> func) final;
-		void SetMaximizedCallback(std::function<void()> func) final;
-		void SetMinimizedCallback(std::function<void()> func) final;
-		void SetRestoreCallback(std::function<void()> func) final;
-		void SetShowCallback(std::function<void()> func) final;
-		void SetHideCallback(std::function<void()> func) final;
-		void SetExposeCallback(std::function<void()> func) final;
+		void AddFocusGainCallback(std::function<void()> func) final;
+		void AddFocusLostCallback(std::function<void()> func) final;
+		void AddMaximizedCallback(std::function<void()> func) final;
+		void AddMinimizedCallback(std::function<void()> func) final;
+		void AddRestoreCallback(std::function<void()> func) final;
+		void AddShowCallback(std::function<void()> func) final;
+		void AddHideCallback(std::function<void()> func) final;
+		void AddExposeCallback(std::function<void()> func) final;
 
-		void SetKeyPressedCallback(std::function<void(const KeyPressedEventArgs &)> func) final;
-		void SetKeyReleasedCallback(std::function<void(const KeyReleasedEventArgs &)> func) final;
+		void AddKeyPressedCallback(std::function<void(const KeyPressedEventArgs &)> func) final;
+		void AddKeyReleasedCallback(std::function<void(const KeyReleasedEventArgs &)> func) final;
 
-		void SetTextInputCallback(std::function<void(const TextInputEventArgs &)> func) final;
-		void SetTextEditCallback(std::function<void(const TextEditEventArgs &)> func) final;
+		void AddTextInputCallback(std::function<void(const TextInputEventArgs &)> func) final;
+		void AddTextEditCallback(std::function<void(const TextEditEventArgs &)> func) final;
 
-		void SetMousePressedCallback(std::function<void(const MouseButtonPressedEventArgs &)> func) final;
-		void SetMouseReleasedCallback(std::function<void(const MouseButtonReleasedEventArgs &)> func) final;
-		void SetMouseMovedCallback(std::function<void(const MouseMovedEventArgs &)> func) final;
-		void SetMouseScrollCallback(std::function<void(const MouseScrolledEventArgs &)> func) final;
-		void SetMouseEnterCallback(std::function<void()> func) final;
-		void SetMouseLeaveCallback(std::function<void()> func) final;
+		void AddMousePressedCallback(std::function<void(const MouseButtonPressedEventArgs &)> func) final;
+		void AddMouseReleasedCallback(std::function<void(const MouseButtonReleasedEventArgs &)> func) final;
+		void AddMouseMovedCallback(std::function<void(const MouseMovedEventArgs &)> func) final;
+		void AddMouseScrollCallback(std::function<void(const MouseScrolledEventArgs &)> func) final;
+		void AddMouseEnterCallback(std::function<void()> func) final;
+		void AddMouseLeaveCallback(std::function<void()> func) final;
 
-		void SetFileDropCallback(std::function<void(const FileDropEventArgs &)> func) final;
+		void AddFileDropCallback(std::function<void(const FileDropEventArgs &)> func) final;
 
 		//==========================================================================================
 		//									USE CALLBACKS
@@ -224,32 +224,32 @@ namespace Nexus
 		std::function<void(Nexus::TimeSpan)> m_UpdateFunc;
 		std::function<void(Nexus::TimeSpan)> m_TickFunc;
 
-		std::function<void(const WindowResizedEventArgs &)> m_OnResizeCallback;
-		std::function<void(const WindowMovedEventArgs &)>	m_OnMoveCallback;
+		std::vector<std::function<void(const WindowResizedEventArgs &)>> m_OnResizeCallbacks;
+		std::vector<std::function<void(const WindowMovedEventArgs &)>>	 m_OnMoveCallbacks;
 
-		std::function<void()> m_OnFocusGainCallback;
-		std::function<void()> m_OnFocusLostCallback;
-		std::function<void()> m_OnMaximizeCallback;
-		std::function<void()> m_OnMinimizeCallback;
-		std::function<void()> m_OnRestoreCallback;
-		std::function<void()> m_OnShowCallback;
-		std::function<void()> m_OnHideCallback;
-		std::function<void()> m_OnExposeCallback;
+		std::vector<std::function<void()>> m_OnFocusGainCallbacks;
+		std::vector<std::function<void()>> m_OnFocusLostCallbacks;
+		std::vector<std::function<void()>> m_OnMaximizeCallbacks;
+		std::vector<std::function<void()>> m_OnMinimizeCallbacks;
+		std::vector<std::function<void()>> m_OnRestoreCallbacks;
+		std::vector<std::function<void()>> m_OnShowCallbacks;
+		std::vector<std::function<void()>> m_OnHideCallbacks;
+		std::vector<std::function<void()>> m_OnExposeCallbacks;
 
-		std::function<void(const KeyPressedEventArgs &)>  m_OnKeyPressedCallback;
-		std::function<void(const KeyReleasedEventArgs &)> m_OnKeyReleasedCallback;
+		std::vector<std::function<void(const KeyPressedEventArgs &)>>  m_OnKeyPressedCallbacks;
+		std::vector<std::function<void(const KeyReleasedEventArgs &)>> m_OnKeyReleasedCallbacks;
 
-		std::function<void(const TextInputEventArgs &)> m_OnTextInputCallback;
-		std::function<void(const TextEditEventArgs &)>	m_OnTextEditCallback;
+		std::vector<std::function<void(const TextInputEventArgs &)>> m_OnTextInputCallbacks;
+		std::vector<std::function<void(const TextEditEventArgs &)>>	 m_OnTextEditCallbacks;
 
-		std::function<void(const MouseButtonPressedEventArgs &)>  m_OnMouseButtonPressedCallback;
-		std::function<void(const MouseButtonReleasedEventArgs &)> m_OnMouseButtonReleasedCallback;
-		std::function<void(const MouseMovedEventArgs &)>		  m_OnMouseMovedCallback;
-		std::function<void(const MouseScrolledEventArgs &)>		  m_OnMouseScrolledCallback;
-		std::function<void()>									  m_OnMouseEnterCallback;
-		std::function<void()>									  m_OnMouseLeaveCallback;
+		std::vector<std::function<void(const MouseButtonPressedEventArgs &)>>  m_OnMouseButtonPressedCallbacks;
+		std::vector<std::function<void(const MouseButtonReleasedEventArgs &)>> m_OnMouseButtonReleasedCallbacks;
+		std::vector<std::function<void(const MouseMovedEventArgs &)>>		   m_OnMouseMovedCallbacks;
+		std::vector<std::function<void(const MouseScrolledEventArgs &)>>	   m_OnMouseScrolledCallbacks;
+		std::vector<std::function<void()>>									   m_OnMouseEnterCallbacks;
+		std::vector<std::function<void()>>									   m_OnMouseLeaveCallbacks;
 
-		std::function<void(const FileDropEventArgs &)> m_OnFileDropCallback;
+		std::vector<std::function<void(const FileDropEventArgs &)>> m_OnFileDropCallbacks;
 
 		std::map<uint32_t, KeyboardState> m_KeyboardStates;
 		std::map<uint32_t, MouseState>	  m_MouseStates;

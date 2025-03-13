@@ -24,4 +24,5 @@ target_link_libraries(Tests
     gtest 
     gtest_main)
 
+nexus_copy_required_binaries()
 nexus_copy_required_runtime_libraries()

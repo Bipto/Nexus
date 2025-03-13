@@ -62,6 +62,7 @@ namespace Nexus::ImGuiUtils
 		void RenderCommandLists(ImDrawData *drawData);
 		void UpdateCursor();
 		void UpdateMonitors();
+		void SetupHandlers();
 
 	  private:
 		Nexus::Application						*m_Application	  = nullptr;

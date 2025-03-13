@@ -40,7 +40,7 @@ class EditorApplication : public Nexus::Application
 		ImGuizmo::SetImGuiContext(m_ImGuiRenderer->GetContext());
 
 		auto &io = ImGui::GetIO();
-		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+		// io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		io.FontDefault = io.Fonts->AddFontFromFileTTF("fonts/roboto/roboto-black.ttf", 24);
 		m_ImGuiRenderer->RebuildFontAtlas();
@@ -432,7 +432,7 @@ class EditorApplication : public Nexus::Application
 			ImVec2 imagePos	 = ImGui::GetCursorScreenPos();
 			ImGui::Image(m_FramebufferTextureID, size, uv0, uv1);
 
-			if (ImGui::IsItemClicked() && !m_FramebufferClickDisabled)
+			if (ImGui::IsItemClicked() && m_FramebufferClickEnabled)
 			{
 				ImVec2 mousePos		 = ImGui::GetMousePos();
 				ImVec2 localClickPos = ImVec2(mousePos.x - imagePos.x, mousePos.y - imagePos.y);
@@ -458,7 +458,7 @@ class EditorApplication : public Nexus::Application
 					ImGuizmo::SetOrthographic(false);
 					ImGuizmo::SetImGuiContext(m_ImGuiRenderer->GetContext());
 					ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
-					ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
+					ImGuizmo::SetDrawlist();
 
 					if (ImGuizmo::Manipulate(glm::value_ptr(view),
 											 glm::value_ptr(projection),
@@ -478,7 +478,7 @@ class EditorApplication : public Nexus::Application
 						transform->Scale	= scale;
 					}
 
-					m_FramebufferClickDisabled = ImGuizmo::IsOver() || ImGuizmo::IsUsingAny();
+					m_FramebufferClickEnabled = !ImGuizmo::IsUsingAny() && !ImGuizmo::IsOver();
 				}
 			}
 
@@ -495,28 +495,28 @@ class EditorApplication : public Nexus::Application
 			{
 				m_CurrentOperation = ImGuizmo::OPERATION::TRANSLATE;
 			}
-			if (ImGui::IsItemHovered())
+			/* if (ImGui::IsItemHovered())
 			{
 				m_FramebufferClickDisabled = true;
-			}
+			} */
 			ImGui::SameLine();
 			if (ImGui::Button("Rotate"))
 			{
 				m_CurrentOperation = ImGuizmo::OPERATION::ROTATE;
 			}
-			if (ImGui::IsItemHovered())
+			/* if (ImGui::IsItemHovered())
 			{
 				m_FramebufferClickDisabled = true;
-			}
+			} */
 			ImGui::SameLine();
 			if (ImGui::Button("Scale"))
 			{
 				m_CurrentOperation = ImGuizmo::OPERATION::SCALE;
 			}
-			if (ImGui::IsItemHovered())
+			/* if (ImGui::IsItemHovered())
 			{
 				m_FramebufferClickDisabled = true;
-			}
+			} */
 		}
 		ImGui::End();
 		ImGui::PopStyleVar();
@@ -538,6 +538,8 @@ class EditorApplication : public Nexus::Application
 	virtual void Render(Nexus::TimeSpan time) override
 	{
 		Nexus::GetApplication()->GetPrimarySwapchain()->Prepare();
+
+		ImGuizmo::SetImGuiContext(m_ImGuiRenderer->GetContext());
 
 		Nexus::Graphics::RenderTarget target(m_Framebuffer);
 
@@ -611,14 +613,14 @@ class EditorApplication : public Nexus::Application
 
 	std::optional<glm::vec2>   m_ClickPosition			  = {};
 	std::optional<Nexus::GUID> m_EntityID				  = {};
-	bool					   m_FramebufferClickDisabled = false;
+	bool					   m_FramebufferClickEnabled  = true;
 	ImGuizmo::OPERATION		   m_CurrentOperation		  = ImGuizmo::OPERATION::TRANSLATE;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
 	Nexus::ApplicationSpecification spec;
-	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
+	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
 	spec.AudioAPI	 = Nexus::Audio::AudioAPI::OpenAL;
 
 	spec.WindowProperties.Width			   = 1280;

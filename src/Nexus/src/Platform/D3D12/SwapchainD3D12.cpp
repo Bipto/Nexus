@@ -27,6 +27,8 @@ namespace Nexus::Graphics
 		// we attempt to delete them
 		Flush();
 
+		m_Device->WaitForIdle();
+
 		// release the swapchain's buffers
 		ReleaseBuffers();
 	}

@@ -249,10 +249,25 @@ namespace Nexus::Platform
 
 	void Update()
 	{
+		std::optional<size_t> windowToClose = {};
+
 		for (size_t i = 0; i < m_Windows.size(); i++)
 		{
 			IWindow *window = m_Windows[i];
 			window->Update();
+
+			if (window->IsClosing())
+			{
+				windowToClose = i;
+			}
+		}
+
+		if (windowToClose.has_value())
+		{
+			IWindow *window = m_Windows[windowToClose.value()];
+			delete window;
+
+			m_Windows.erase(m_Windows.begin() + windowToClose.value());
 		}
 	}
 

@@ -296,225 +296,181 @@ namespace Nexus
 		return info;
 	}
 
-	void SDL3Window::SetResizeCallback(std::function<void(const WindowResizedEventArgs &)> func)
+	void SDL3Window::AddResizeCallback(std::function<void(const WindowResizedEventArgs &)> func)
 	{
-		m_OnResizeCallback = func;
+		m_OnResizeCallbacks.push_back(func);
 	}
 
-	void SDL3Window::SetMoveCallback(std::function<void(const WindowMovedEventArgs &)> func)
+	void SDL3Window::AddMoveCallback(std::function<void(const WindowMovedEventArgs &)> func)
 	{
-		m_OnMoveCallback = func;
+		m_OnMoveCallbacks.push_back(func);
 	}
 
-	void SDL3Window::SetFocusGainCallback(std::function<void()> func)
+	void SDL3Window::AddFocusGainCallback(std::function<void()> func)
 	{
-		m_OnFocusGainCallback = func;
+		m_OnFocusGainCallbacks.push_back(func);
 	}
 
-	void SDL3Window::SetFocusLostCallback(std::function<void()> func)
+	void SDL3Window::AddFocusLostCallback(std::function<void()> func)
 	{
-		m_OnFocusLostCallback = func;
+		m_OnFocusLostCallbacks.push_back(func);
 	}
 
-	void SDL3Window::SetMaximizedCallback(std::function<void()> func)
+	void SDL3Window::AddMaximizedCallback(std::function<void()> func)
 	{
-		m_OnMaximizeCallback = func;
+		m_OnMaximizeCallbacks.push_back(func);
 	}
 
-	void SDL3Window::SetMinimizedCallback(std::function<void()> func)
+	void SDL3Window::AddMinimizedCallback(std::function<void()> func)
 	{
-		m_OnMinimizeCallback = func;
+		m_OnMinimizeCallbacks.push_back(func);
 	}
 
-	void SDL3Window::SetRestoreCallback(std::function<void()> func)
+	void SDL3Window::AddRestoreCallback(std::function<void()> func)
 	{
-		m_OnRestoreCallback = func;
+		m_OnRestoreCallbacks.push_back(func);
 	}
 
-	void SDL3Window::SetShowCallback(std::function<void()> func)
+	void SDL3Window::AddShowCallback(std::function<void()> func)
 	{
-		m_OnShowCallback = func;
+		m_OnShowCallbacks.push_back(func);
 	}
 
-	void SDL3Window::SetHideCallback(std::function<void()> func)
+	void SDL3Window::AddHideCallback(std::function<void()> func)
 	{
-		m_OnHideCallback = func;
+		m_OnHideCallbacks.push_back(func);
 	}
 
-	void SDL3Window::SetExposeCallback(std::function<void()> func)
+	void SDL3Window::AddExposeCallback(std::function<void()> func)
 	{
-		m_OnExposeCallback = func;
+		m_OnExposeCallbacks.push_back(func);
 	}
 
-	void SDL3Window::SetKeyPressedCallback(std::function<void(const KeyPressedEventArgs &)> func)
+	void SDL3Window::AddKeyPressedCallback(std::function<void(const KeyPressedEventArgs &)> func)
 	{
-		m_OnKeyPressedCallback = func;
+		m_OnKeyPressedCallbacks.push_back(func);
 	}
 
-	void SDL3Window::SetKeyReleasedCallback(std::function<void(const KeyReleasedEventArgs &)> func)
+	void SDL3Window::AddKeyReleasedCallback(std::function<void(const KeyReleasedEventArgs &)> func)
 	{
-		m_OnKeyReleasedCallback = func;
+		m_OnKeyReleasedCallbacks.push_back(func);
 	}
 
-	void SDL3Window::SetTextInputCallback(std::function<void(const TextInputEventArgs &)> func)
+	void SDL3Window::AddTextInputCallback(std::function<void(const TextInputEventArgs &)> func)
 	{
-		m_OnTextInputCallback = func;
+		m_OnTextInputCallbacks.push_back(func);
 	}
 
-	void SDL3Window::SetTextEditCallback(std::function<void(const TextEditEventArgs &)> func)
+	void SDL3Window::AddTextEditCallback(std::function<void(const TextEditEventArgs &)> func)
 	{
-		m_OnTextEditCallback = func;
+		m_OnTextEditCallbacks.push_back(func);
 	}
 
-	void SDL3Window::SetMousePressedCallback(std::function<void(const MouseButtonPressedEventArgs &)> func)
+	void SDL3Window::AddMousePressedCallback(std::function<void(const MouseButtonPressedEventArgs &)> func)
 	{
-		m_OnMouseButtonPressedCallback = func;
+		m_OnMouseButtonPressedCallbacks.push_back(func);
 	}
 
-	void SDL3Window::SetMouseReleasedCallback(std::function<void(const MouseButtonReleasedEventArgs &)> func)
+	void SDL3Window::AddMouseReleasedCallback(std::function<void(const MouseButtonReleasedEventArgs &)> func)
 	{
-		m_OnMouseButtonReleasedCallback = func;
+		m_OnMouseButtonReleasedCallbacks.push_back(func);
 	}
 
-	void SDL3Window::SetMouseMovedCallback(std::function<void(const MouseMovedEventArgs &)> func)
+	void SDL3Window::AddMouseMovedCallback(std::function<void(const MouseMovedEventArgs &)> func)
 	{
-		m_OnMouseMovedCallback = func;
+		m_OnMouseMovedCallbacks.push_back(func);
 	}
 
-	void SDL3Window::SetMouseScrollCallback(std::function<void(const MouseScrolledEventArgs &)> func)
+	void SDL3Window::AddMouseScrollCallback(std::function<void(const MouseScrolledEventArgs &)> func)
 	{
-		m_OnMouseScrolledCallback = func;
+		m_OnMouseScrolledCallbacks.push_back(func);
 	}
 
-	void SDL3Window::SetMouseEnterCallback(std::function<void()> func)
+	void SDL3Window::AddMouseEnterCallback(std::function<void()> func)
 	{
-		m_OnMouseEnterCallback = func;
+		m_OnMouseEnterCallbacks.push_back(func);
 	}
 
-	void SDL3Window::SetMouseLeaveCallback(std::function<void()> func)
+	void SDL3Window::AddMouseLeaveCallback(std::function<void()> func)
 	{
-		m_OnMouseLeaveCallback = func;
+		m_OnMouseLeaveCallbacks.push_back(func);
 	}
 
-	void SDL3Window::SetFileDropCallback(std::function<void(const FileDropEventArgs &)> func)
+	void SDL3Window::AddFileDropCallback(std::function<void(const FileDropEventArgs &)> func)
 	{
-		m_OnFileDropCallback = func;
+		m_OnFileDropCallbacks.push_back(func);
 	}
 
 	void SDL3Window::InvokeResizeCallback(const WindowResizedEventArgs &args)
 	{
-		if (!m_OnResizeCallback)
-			return;
-
-		m_OnResizeCallback(args);
+		for (auto &func : m_OnResizeCallbacks) { func(args); }
 	}
 
 	void SDL3Window::InvokeMoveCallback(const WindowMovedEventArgs &args)
 	{
-		if (!m_OnMoveCallback)
-			return;
-
-		m_OnMoveCallback(args);
+		for (auto &func : m_OnMoveCallbacks) { func(args); }
 	}
 
 	void SDL3Window::InvokeFocusGainCallback()
 	{
-		if (!m_OnFocusGainCallback)
-			return;
-
-		m_OnFocusGainCallback();
+		for (auto &func : m_OnFocusGainCallbacks) { func(); }
 	}
 
 	void SDL3Window::InvokeFocusLostCallback()
 	{
-		if (!m_OnFocusLostCallback)
-			return;
-
-		m_OnFocusLostCallback();
+		for (auto &func : m_OnFocusLostCallbacks) { func(); }
 	}
 
 	void SDL3Window::InvokeMaximizedCallback()
 	{
-		if (!m_OnMaximizeCallback)
-			return;
-
-		m_OnMaximizeCallback();
+		for (auto &func : m_OnMaximizeCallbacks) { func(); }
 	}
 
 	void SDL3Window::InvokeMinimizedCallback()
 	{
-		if (!m_OnMinimizeCallback)
-			return;
-
-		m_OnMinimizeCallback();
+		for (auto &func : m_OnMinimizeCallbacks) { func(); }
 	}
 
 	void SDL3Window::InvokeRestoreCallback()
 	{
-		if (!m_OnRestoreCallback)
-			return;
-
-		m_OnRestoreCallback();
+		for (auto &func : m_OnRestoreCallbacks) { func(); }
 	}
 
 	void SDL3Window::InvokeShowCallback()
 	{
-		if (!m_OnShowCallback)
-			return;
-
-		m_OnShowCallback();
+		for (auto &func : m_OnShowCallbacks) { func(); }
 	}
 
 	void SDL3Window::InvokeHideCallback()
 	{
-		if (!m_OnHideCallback)
-			return;
-
-		m_OnHideCallback();
+		for (auto &func : m_OnHideCallbacks) { func(); }
 	}
 
 	void SDL3Window::InvokeExposeCallback()
 	{
-		if (!m_OnExposeCallback)
-			return;
-
-		m_OnExposeCallback();
+		for (auto &func : m_OnExposeCallbacks) { func(); }
 	}
 
 	void SDL3Window::InvokeKeyPressedCallback(const KeyPressedEventArgs &args)
 	{
 		m_KeyboardStates[args.KeyboardID].Keys[args.ScanCode] = true;
-
-		if (!m_OnKeyPressedCallback)
-			return;
-
-		m_OnKeyPressedCallback(args);
+		for (auto &func : m_OnKeyPressedCallbacks) { func(args); }
 	}
 
 	void SDL3Window::InvokeKeyReleasedCallback(const KeyReleasedEventArgs &args)
 	{
 		m_KeyboardStates[args.KeyboardID].Keys[args.ScanCode] = false;
-
-		if (!m_OnKeyReleasedCallback)
-			return;
-
-		m_OnKeyReleasedCallback(args);
+		for (auto &func : m_OnKeyReleasedCallbacks) { func(args); }
 	}
 
 	void SDL3Window::InvokeTextInputCallback(const TextInputEventArgs &args)
 	{
-		if (!m_OnTextInputCallback)
-			return;
-
-		m_OnTextInputCallback(args);
+		for (auto &func : m_OnTextInputCallbacks) { func(args); }
 	}
 
 	void SDL3Window::InvokeTextEditCallback(const TextEditEventArgs &args)
 	{
-		if (!m_OnTextEditCallback)
-			return;
-
-		m_OnTextEditCallback(args);
+		for (auto &func : m_OnTextEditCallbacks) { func(args); }
 	}
 
 	void SDL3Window::InvokeMousePressedCallback(const MouseButtonPressedEventArgs &args)
@@ -531,10 +487,7 @@ namespace Nexus
 			default: throw std::runtime_error("Failed to find valid mouse button");
 		}
 
-		if (!m_OnMouseButtonPressedCallback)
-			return;
-
-		m_OnMouseButtonPressedCallback(args);
+		for (auto &func : m_OnMouseButtonPressedCallbacks) { func(args); }
 	}
 
 	void SDL3Window::InvokeMouseReleasedCallback(const MouseButtonReleasedEventArgs &args)
@@ -551,23 +504,16 @@ namespace Nexus
 			default: throw std::runtime_error("Failed to find valid mouse button");
 		}
 
-		if (!m_OnMouseButtonReleasedCallback)
-			return;
-
-		m_OnMouseButtonReleasedCallback(args);
+		for (auto &func : m_OnMouseButtonReleasedCallbacks) { func(args); }
 	}
 
 	void SDL3Window::InvokeMouseMovedCallback(const MouseMovedEventArgs &args)
 	{
 		m_MouseStates[args.MouseID].MousePosition = args.Position;
 		m_MouseStates[args.MouseID].MouseMovement = args.Movement;
-
 		m_MouseStates[args.MouseID].MousePosition = args.Position;
 
-		if (!m_OnMouseMovedCallback)
-			return;
-
-		m_OnMouseMovedCallback(args);
+		for (auto &func : m_OnMouseMovedCallbacks) { func(args); }
 	}
 
 	void SDL3Window::InvokeMouseScrollCallback(const MouseScrolledEventArgs &args)
@@ -575,34 +521,22 @@ namespace Nexus
 		m_MouseStates[args.MouseID].MouseWheel.X = args.Scroll.X;
 		m_MouseStates[args.MouseID].MouseWheel.Y = args.Scroll.Y;
 
-		if (!m_OnMouseScrolledCallback)
-			return;
-
-		m_OnMouseScrolledCallback(args);
+		for (auto &func : m_OnMouseScrolledCallbacks) { func(args); }
 	}
 
 	void SDL3Window::InvokeMouseEnterCallback()
 	{
-		if (!m_OnMouseEnterCallback)
-			return;
-
-		m_OnMouseEnterCallback();
+		for (auto &func : m_OnMouseEnterCallbacks) { func(); }
 	}
 
 	void SDL3Window::InvokeMouseLeaveCallback()
 	{
-		if (!m_OnMouseLeaveCallback)
-			return;
-
-		m_OnMouseLeaveCallback();
+		for (auto &func : m_OnMouseLeaveCallbacks) { func(); }
 	}
 
 	void SDL3Window::InvokeFileDropCallback(const FileDropEventArgs &args)
 	{
-		if (!m_OnFileDropCallback)
-			return;
-
-		m_OnFileDropCallback(args);
+		for (auto &func : m_OnFileDropCallbacks) { func(args); }
 	}
 
 	bool SDL3Window::IsKeyDown(uint32_t keyboardId, ScanCode scancode)

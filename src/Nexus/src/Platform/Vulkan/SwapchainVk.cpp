@@ -26,11 +26,12 @@ namespace Nexus::Graphics
 
 		CreateSurface();
 
-		window->SetResizeCallback([&](const WindowResizedEventArgs &args) { RecreateSwapchain(); });
+		window->AddResizeCallback([&](const WindowResizedEventArgs &args) { RecreateSwapchain(); });
 	}
 
 	SwapchainVk::~SwapchainVk()
 	{
+		m_GraphicsDevice->WaitForIdle();
 		CleanupResolveAttachment();
 		CleanupSwapchain();
 		CleanupDepthStencil();
