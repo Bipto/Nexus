@@ -251,7 +251,11 @@ namespace Nexus
 			{
 				for (auto &[entity, components] : view)
 				{
-					for (const auto &component : components) { auto *script = std::get<0>(component); }
+					for (const auto &component : components)
+					{
+						auto *script = std::get<0>(component);
+						script->VM->ExecuteOnUpdate(time);
+					}
 				}
 			}
 		}

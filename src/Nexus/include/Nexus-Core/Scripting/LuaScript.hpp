@@ -12,6 +12,8 @@ namespace Nexus::Scripting
 		{
 			m_LuaVM.open_libraries(sol::lib::base);
 			m_LuaVM.script(text);
+
+			m_LuaVM.new_usertype<TimeSpan>("TimeSpan", "GetSeconds", &TimeSpan::GetSeconds);
 		}
 
 		inline void ExecuteLoad()
@@ -29,6 +31,11 @@ namespace Nexus::Scripting
 
 		inline void ExecuteOnUpdate(TimeSpan timespan)
 		{
+			sol::protected_function func = m_LuaVM["OnUpdate"];
+			if (func)
+			{
+				func(timespan);
+			}
 		}
 
 		inline void ExecuteOnTick(TimeSpan timespan)

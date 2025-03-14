@@ -334,7 +334,6 @@ namespace Nexus::ImGuiUtils
 	{
 		s_ImGuiRenderer = renderer;
 		ImGui::SetCurrentContext(s_ImGuiRenderer->GetContext());
-		ImGuizmo::SetImGuiContext(s_ImGuiRenderer->GetContext());
 		ImGui::SetAllocatorFunctions(&ImGuiAlloc, &ImGuiFree, nullptr);
 	}
 

@@ -37,7 +37,6 @@ class EditorApplication : public Nexus::Application
 
 		m_ImGuiRenderer = std::unique_ptr<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(new Nexus::ImGuiUtils::ImGuiGraphicsRenderer(this));
 		ImGui::SetCurrentContext(m_ImGuiRenderer->GetContext());
-		ImGuizmo::SetImGuiContext(m_ImGuiRenderer->GetContext());
 
 		auto &io = ImGui::GetIO();
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
@@ -543,6 +542,8 @@ class EditorApplication : public Nexus::Application
 		}
 
 		m_ImGuiRenderer->BeforeLayout(time);
+		ImGuizmo::SetImGuiContext(m_ImGuiRenderer->GetContext());
+		ImGuizmo::BeginFrame();
 		RenderDockspace();
 		m_ImGuiRenderer->AfterLayout();
 
@@ -610,7 +611,7 @@ class EditorApplication : public Nexus::Application
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
 	Nexus::ApplicationSpecification spec;
-	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
+	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
 	spec.AudioAPI	 = Nexus::Audio::AudioAPI::OpenAL;
 
 	spec.WindowProperties.Width			   = 1280;
