@@ -192,24 +192,6 @@ namespace Nexus
 			}
 		}
 
-		// instantiate Lua scripts
-		{
-			auto view = Registry.GetView<Nexus::LuaScriptComponent>();
-
-			if (view.HasComponents())
-			{
-				for (auto &[entity, components] : view)
-				{
-					for (const auto &component : components)
-					{
-						auto *script = std::get<0>(component);
-						script->CreateScriptEngine();
-						script->VM->ExecuteLoad();
-					}
-				}
-			}
-		}
-
 		m_SceneState = SceneState::Playing;
 	}
 
@@ -239,22 +221,6 @@ namespace Nexus
 						{
 							script->ScriptInstance->OnUpdate(time);
 						}
-					}
-				}
-			}
-		}
-
-		// call Lua script functions
-		{
-			auto view = Registry.GetView<Nexus::LuaScriptComponent>();
-			if (view.HasComponents())
-			{
-				for (auto &[entity, components] : view)
-				{
-					for (const auto &component : components)
-					{
-						auto *script = std::get<0>(component);
-						script->VM->ExecuteOnUpdate(time);
 					}
 				}
 			}

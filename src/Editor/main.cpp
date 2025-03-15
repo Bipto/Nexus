@@ -19,6 +19,8 @@
 
 #include "Nexus-Core/Utils/ScriptProjectGenerator.hpp"
 
+#include "Nexus-Core/Assets/Processors/TextureProcessor.hpp"
+
 class EditorApplication : public Nexus::Application
 {
   public:
@@ -212,6 +214,20 @@ class EditorApplication : public Nexus::Application
 				{
 					Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
 					m_Model = factory.CreateFrom3DModelFile(result.FilePaths[0]);
+				}
+			}
+
+			if (ImGui::MenuItem("Process Texture"))
+			{
+				std::vector<Nexus::FileDialogFilter>   filters = {{"All files", "*"}};
+				std::unique_ptr<Nexus::OpenFileDialog> dialog  = std::unique_ptr<Nexus::OpenFileDialog>(
+					 Nexus::Platform::CreateOpenFileDialog(Nexus::GetApplication()->GetPrimaryWindow(), filters, nullptr, false));
+
+				Nexus::FileDialogResult result = dialog->Show();
+				if (result.FilePaths.size() > 0)
+				{
+					Nexus::Processors::TextureProcessor textureProcessor = {};
+					textureProcessor.Process(result.FilePaths[0]);
 				}
 			}
 

@@ -410,6 +410,13 @@ namespace Nexus::ImGuiUtils
 					}
 				}
 			});
+
+		window->AddMouseScrollCallback(
+			[&](const MouseScrolledEventArgs &args)
+			{
+				ImGuiIO &io = ImGui::GetIO();
+				io.AddMouseWheelEvent(args.Scroll.X, args.Scroll.Y);
+			});
 	}
 
 	void ImGuiGraphicsRenderer::UpdateInput()

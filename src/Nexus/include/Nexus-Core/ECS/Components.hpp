@@ -9,7 +9,6 @@
 #include "Nexus-Core/Runtime.hpp"
 
 #include "Nexus-Core/Runtime/Project.hpp"
-#include "Nexus-Core/Scripting/LuaScript.hpp"
 #include "Nexus-Core/Scripting/NativeScript.hpp"
 
 #include "Nexus-Core/FileSystem/FileDialogs.hpp"
@@ -180,7 +179,7 @@ namespace Nexus
 		}
 	};
 
-	/* NX_REGISTER_COMPONENT(NativeScriptComponent,
+	NX_REGISTER_COMPONENT(NativeScriptComponent,
 
 						  [](void *data, Nexus::Ref<Nexus::Project> project)
 						  {
@@ -214,41 +213,6 @@ namespace Nexus
 
 								  ImGui::EndCombo();
 							  }
-						  }); */
-
-	struct LuaScriptComponent
-	{
-		Scripting::LuaScript *VM	 = nullptr;
-		std::string			  Script = "";
-
-		virtual ~LuaScriptComponent()
-		{
-			delete VM;
-		}
-
-		inline void CreateScriptEngine()
-		{
-			VM = new Scripting::LuaScript(Script);
-		}
-
-		friend std::ostream &operator<<(std::ostream &os, const LuaScriptComponent &component)
-		{
-			os << component.Script;
-			return os;
-		}
-
-		friend std::istream &operator>>(std::istream &is, LuaScriptComponent &component)
-		{
-			is >> component.Script;
-			return is;
-		}
-	};
-
-	NX_REGISTER_COMPONENT(LuaScriptComponent,
-						  [](void *data, Nexus::Ref<Nexus::Project> project)
-						  {
-							  LuaScriptComponent *component = static_cast<LuaScriptComponent *>(data);
-							  ImGui::InputTextMultiline("Script", &component->Script);
 						  });
 
 }	 // namespace Nexus
@@ -335,28 +299,6 @@ namespace YAML
 			}
 
 			rhs.ScriptName = node["ScriptName"].as<std::string>();
-			return true;
-		}
-	};
-
-	template<>
-	struct convert<Nexus::LuaScriptComponent>
-	{
-		static Node encode(const Nexus::LuaScriptComponent &rhs)
-		{
-			Node node;
-			node["Script"] = rhs.Script;
-			return node;
-		}
-
-		static bool decode(const Node &node, Nexus::LuaScriptComponent &rhs)
-		{
-			if (!node["Script"])
-			{
-				return false;
-			}
-
-			rhs.Script = node["Script"].as<std::string>();
 			return true;
 		}
 	};

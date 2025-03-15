@@ -1,4 +1,4 @@
-#include "Nexus-Core/Importers/AssimpImporter.hpp"
+#include "Nexus-Core/Assets/Importers/AssimpImporter.hpp"
 
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"

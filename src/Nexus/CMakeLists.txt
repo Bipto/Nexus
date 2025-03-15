@@ -179,20 +179,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(shaderc)
 
-FetchContent_Declare(
-  lua
-  GIT_REPOSITORY https://github.com/walterschell/Lua.git
-  GIT_TAG 52674cd
-)
-FetchContent_MakeAvailable(lua)
-
-FetchContent_Declare(
-  sol
-  GIT_REPOSITORY https://github.com/ThePhD/sol2
-  GIT_TAG c1f95a7
-)
-FetchContent_MakeAvailable(sol)
-
 set(NEXUS_INCLUDE_DIRS "")
 set(NEXUS_LINKED_LIBRARIES "")
 set(NEXUS_LIBRARY_SUBDIRECTORIES "")
@@ -312,6 +298,18 @@ list (APPEND ENGINE_SOURCES
   include/Nexus-Core/Events/EventHandler.hpp)
 
 list (APPEND ENGINE_SOURCES
+  include/Nexus-Core/Assets/AssetRegistry.hpp
+  src/Nexus-Core/Assets/AssetRegistry.cpp
+  include/Nexus-Core/Assets/Importers/AssimpImporter.hpp
+  include/Nexus-Core/Assets/Importers/IImporter.hpp
+  include/Nexus-Core/Assets/Importers/ShaderImporter.hpp
+  src/Nexus-Core/Assets/Importers/AssimpImporter.cpp
+  include/Nexus-Core/Assets/Processors/IProcessor.hpp
+  include/Nexus-Core/Assets/Processors/TextureProcessor.hpp
+  include/Nexus-Core/Assets/Processors/TextureProcessor.cpp
+)
+
+list (APPEND ENGINE_SOURCES
   include/Nexus-Core/FileSystem/FileDialogs.hpp
   src/Nexus-Core/FileSystem/FileSystem.cpp
   include/Nexus-Core/FileSystem/FileSystem.hpp)
@@ -372,10 +370,6 @@ list (APPEND ENGINE_SOURCES
   include/Nexus-Core/Graphics/Triangle.hpp
   include/Nexus-Core/Graphics/Viewport.hpp
   include/Nexus-Core/Graphics/WindingOrder.hpp)
-
-list (APPEND ENGINE_SOURCES
-  include/Nexus-Core/Importers/AssimpImporter.hpp
-  src/Nexus-Core/Importers/AssimpImporter.cpp)
 
 list (APPEND ENGINE_SOURCES
   src/Nexus-Core/ImGui/ImGuiGraphicsRenderer.cpp
@@ -650,9 +644,7 @@ list (APPEND NEXUS_LINKED_LIBRARIES
   yaml-cpp::yaml-cpp
   glm::glm
   imgui
-  imguizmo
-  lua_static
-  sol2::sol2)
+  imguizmo)
 
 #precompiled header
 if (NX_ROOT_BUILD STREQUAL "ON")

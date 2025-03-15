@@ -2,7 +2,7 @@
 
 #include "Nexus-Core/nxpch.hpp"
 
-#include "Nexus-Core/Importers/AssimpImporter.hpp"
+#include "Nexus-Core/Assets/Importers/AssimpImporter.hpp"
 
 namespace Nexus::Graphics
 {

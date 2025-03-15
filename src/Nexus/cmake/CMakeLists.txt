@@ -148,9 +148,14 @@ endmacro()
 
 macro(nexus_copy_required_runtime_libraries_to_target_output target)
   add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy
-  -t $<TARGET_FILE_DIR:${target}> $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
-  COMMAND_EXPAND_LISTS)
+    COMMAND ${CMAKE_COMMAND} -E copy
+    -t $<TARGET_FILE_DIR:${target}> $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
+    COMMAND_EXPAND_LISTS)
+
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    -t $<TARGET_FILE_DIR:${target}> $<TARGET_PDB_FILE:Nexus>
+    COMMAND_EXPAND_LISTS)
 endmacro()
 
 macro(nexus_copy_static_lib output_dir)
