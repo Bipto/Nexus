@@ -8,13 +8,9 @@
 
 namespace Nexus
 {
-	Ref<Graphics::Mesh> ProcessMesh(aiMesh										 *mesh,
-									const aiScene								 *scene,
-									const std::vector<Nexus::Graphics::Material> &materials,
-									Graphics::GraphicsDevice					 *device)
+	void ProcessMesh(aiMesh *mesh, const aiScene *scene, std::vector<Graphics::MeshData> &meshes, Graphics::GraphicsDevice *device)
 	{
-		std::vector<Graphics::VertexPositionTexCoordNormalColourTangentBitangent> vertices;
-		std::vector<unsigned int>												  indices;
+		Graphics::MeshData meshData = {};
 
 		for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 		{
@@ -66,44 +62,33 @@ namespace Nexus
 				vertex.Bitangent.z = 0;
 			}
 
-			vertices.push_back(vertex);
+			meshData.vertices.push_back(vertex);
 		}
 
 		for (unsigned int i = 0; i < mesh->mNumFaces; i++)
 		{
 			aiFace face = mesh->mFaces[i];
-			for (unsigned int j = 0; j < face.mNumIndices; j++) { indices.push_back(face.mIndices[j]); }
+			for (unsigned int j = 0; j < face.mNumIndices; j++) { meshData.indices.push_back(face.mIndices[j]); }
 		}
 
-		std::string name = std::string(mesh->mName.C_Str());
-
-		Nexus::Graphics::BufferDescription vertexBufferDesc;
-		vertexBufferDesc.Size  = vertices.size() * sizeof(Graphics::VertexPositionTexCoordNormalColourTangentBitangent);
-		vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-		auto vertexBuffer	   = device->CreateVertexBuffer(vertexBufferDesc, vertices.data());
-
-		Nexus::Graphics::BufferDescription indexBufferDesc;
-		indexBufferDesc.Size  = indices.size() * sizeof(unsigned int);
-		indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-		auto indexBuffer	  = device->CreateIndexBuffer(indexBufferDesc, indices.data());
-
-		Graphics::Material mat = materials[mesh->mMaterialIndex];
-		return CreateRef<Graphics::Mesh>(vertexBuffer, indexBuffer, mat, name);
+		meshData.name		   = std::string(mesh->mName.C_Str());
+		meshData.materialIndex = mesh->mMaterialIndex;
+		meshes.push_back(meshData);
 	}
 
 	void ProcessNode(aiNode										  *node,
 					 const aiScene								  *scene,
-					 std::vector<Ref<Graphics::Mesh>>			  &meshes,
 					 const std::vector<Nexus::Graphics::Material> &materials,
+					 std::vector<Graphics::MeshData>			  &meshData,
 					 Graphics::GraphicsDevice					  *device)
 	{
 		for (unsigned int i = 0; i < node->mNumMeshes; i++)
 		{
 			aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-			meshes.push_back(ProcessMesh(mesh, scene, materials, device));
+			ProcessMesh(mesh, scene, meshData, device);
 		}
 
-		for (unsigned int i = 0; i < node->mNumChildren; i++) { ProcessNode(node->mChildren[i], scene, meshes, materials, device); }
+		for (unsigned int i = 0; i < node->mNumChildren; i++) { ProcessNode(node->mChildren[i], scene, materials, meshData, device); }
 	}
 
 	Nexus::Ref<Nexus::Graphics::Texture2D> LoadEmbeddedTexture(const aiTexture *texture, Nexus::Graphics::GraphicsDevice *device)
@@ -250,39 +235,30 @@ namespace Nexus
 		return materials;
 	}
 
-	aiMatrix4x4 GlmToAssimpMat4(const glm::mat4 &matrix)
+	void WriteBinaryModelFile(const std::string &filepath, const std::vector<Graphics::MeshData> &meshes)
 	{
-		aiMatrix4x4 result;
-		for (int i = 0; i < 4; ++i)
+		std::ofstream file(filepath, std::ios::binary);
+
+		file << meshes.size() << " ";
+
+		for (size_t i = 0; i < meshes.size(); i++)
 		{
-			for (int j = 0; j < 4; j++) { result[i][j] = matrix[i][j]; }
+			const Graphics::MeshData &data				= meshes[i];
+			size_t					  vertexSizeInBytes = data.vertices.size() * sizeof(data.vertices[0]);
+			size_t					  indexSizeInBytes	= data.indices.size() * sizeof(data.indices[0]);
+
+			file << vertexSizeInBytes << " " << indexSizeInBytes << " ";
+
+			file.write((const char *)data.vertices.data(), vertexSizeInBytes);
+			file.write((const char *)data.indices.data(), indexSizeInBytes);
 		}
 
-		return result;
-	}
-
-	void RotateScene(aiNode *node, const glm::mat4 &rotationMatrix)
-	{
-		aiMatrix4x4 transform = node->mTransformation;
-		aiMatrix4x4 rotation  = GlmToAssimpMat4(rotationMatrix);
-		node->mTransformation = transform * rotation;
-
-		for (unsigned int i = 0; i < node->mNumChildren; i++) { RotateScene(node->mChildren[i], rotationMatrix); }
-	}
-
-	void RotateBy180Degrees(aiScene *scene)
-	{
-		if (scene->mRootNode)
-		{
-			glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-			RotateScene(scene->mRootNode, rotationMatrix);
-		}
+		file.close();
 	}
 
 	Ref<Graphics::Model> AssimpImporter::Import(const std::string &filepath, Graphics::GraphicsDevice *device)
 	{
-		std::vector<Ref<Graphics::Mesh>> meshes;
-		Assimp::Importer				 importer = {};
+		Assimp::Importer importer = {};
 
 		unsigned int flags = aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_FindInvalidData | aiProcess_GenSmoothNormals |
 							 aiProcess_ImproveCacheLocality | aiProcess_CalcTangentSpace | aiProcess_ValidateDataStructure | aiProcess_FindInstances |
@@ -306,12 +282,33 @@ namespace Nexus
 			return {};
 		}
 
-		// RotateBy180Degrees(scene);
+		std::filesystem::path			 path = filepath;
+		std::vector<Ref<Graphics::Mesh>> meshes;
+		std::vector<Graphics::Material>	 materials = ImportMaterials(scene, path.parent_path().string(), device);
+		std::vector<Graphics::MeshData>	 meshData  = {};
 
-		std::filesystem::path			path	  = filepath;
-		std::vector<Graphics::Material> materials = ImportMaterials(scene, path.parent_path().string(), device);
+		ProcessNode(scene->mRootNode, scene, materials, meshData, device);
+		WriteBinaryModelFile(path.string() + ".bin", meshData);
 
-		ProcessNode(scene->mRootNode, scene, meshes, materials, device);
+		for (size_t i = 0; i < meshData.size(); i++)
+		{
+			const Graphics::MeshData &data = meshData[i];
+
+			Nexus::Graphics::BufferDescription vertexBufferDesc;
+			vertexBufferDesc.Size  = data.vertices.size() * sizeof(Graphics::VertexPositionTexCoordNormalColourTangentBitangent);
+			vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
+			auto vertexBuffer	   = device->CreateVertexBuffer(vertexBufferDesc, data.vertices.data());
+
+			Nexus::Graphics::BufferDescription indexBufferDesc;
+			indexBufferDesc.Size  = data.indices.size() * sizeof(uint32_t);
+			indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
+			auto indexBuffer	  = device->CreateIndexBuffer(indexBufferDesc, data.indices.data());
+
+			Graphics::Material		   material = materials[data.materialIndex];
+			Nexus::Ref<Graphics::Mesh> mesh		= CreateRef<Graphics::Mesh>(vertexBuffer, indexBuffer, material, data.name);
+			meshes.push_back(mesh);
+		}
+
 		return CreateRef<Graphics::Model>(meshes);
 	}
 }	 // namespace Nexus

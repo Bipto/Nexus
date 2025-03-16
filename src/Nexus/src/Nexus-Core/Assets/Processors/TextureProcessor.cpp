@@ -1,8 +1,17 @@
-#include "TextureProcessor.hpp"
+#include "Nexus-Core/Assets/Processors/TextureProcessor.hpp"
+
 #include "stb_image.h"
 
 namespace Nexus::Processors
 {
+	TextureProcessor::TextureProcessor()
+	{
+	}
+
+	TextureProcessor::~TextureProcessor()
+	{
+	}
+
 	GUID TextureProcessor::Process(const std::string &filepath)
 	{
 		std::string	   outputFile = filepath + ".bin";
@@ -11,7 +20,7 @@ namespace Nexus::Processors
 
 		size_t dataSize = width * height * channels;
 
-		std::ofstream file(outputFile);
+		std::ofstream file(outputFile, std::ios::binary);
 		file << width << " " << height << " ";
 		file.write((const char *)imageData, dataSize);
 		file.close();

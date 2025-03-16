@@ -306,7 +306,7 @@ list (APPEND ENGINE_SOURCES
   src/Nexus-Core/Assets/Importers/AssimpImporter.cpp
   include/Nexus-Core/Assets/Processors/IProcessor.hpp
   include/Nexus-Core/Assets/Processors/TextureProcessor.hpp
-  include/Nexus-Core/Assets/Processors/TextureProcessor.cpp
+  src/Nexus-Core/Assets/Processors/TextureProcessor.cpp
 )
 
 list (APPEND ENGINE_SOURCES

@@ -5,7 +5,7 @@
 
 namespace Nexus::Processors
 {
-	class IProcessor
+	class NX_API IProcessor
 	{
 	  public:
 		IProcessor()									  = default;
