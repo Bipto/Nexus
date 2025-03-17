@@ -1,6 +1,10 @@
 #include "Nexus-Core/Assets/Processors/TextureProcessor.hpp"
 
+#include "Nexus-Core/Graphics/Image.hpp"
+#include "Nexus-Core/Graphics/MipmapGenerator.hpp"
+
 #include "stb_image.h"
+#include "stb_image_write.h"
 
 namespace Nexus::Processors
 {
@@ -12,18 +16,44 @@ namespace Nexus::Processors
 	{
 	}
 
-	GUID TextureProcessor::Process(const std::string &filepath)
+	GUID TextureProcessor::Process(const std::string &filepath, Graphics::GraphicsDevice *device)
 	{
-		std::string	   outputFile = filepath + ".bin";
-		int			   width, height, channels;
-		unsigned char *imageData = stbi_load(filepath.c_str(), &width, &height, &channels, 4);
+		int width, height, channels;
+		stbi_set_flip_vertically_on_load(true);
+		unsigned char *pixels = (unsigned char *)stbi_load(filepath.c_str(), &width, &height, &channels, 4);
 
-		size_t dataSize = width * height * channels;
+		/* for (uint32_t level = 0; level < texture->GetLevels(); level++)
+		{
+			std::filesystem::path path = filepath;
+			std::filesystem::path outputPath =
+				path.parent_path().string() + "\\bin" + std::string("\\") + std::to_string(level) + std::string(".png");
+			std::filesystem::path outputDir = outputPath.parent_path();
 
-		std::ofstream file(outputFile, std::ios::binary);
-		file << width << " " << height << " ";
-		file.write((const char *)imageData, dataSize);
-		file.close();
+			if (!std::filesystem::exists(outputDir))
+			{
+				std::filesystem::create_directory(outputDir);
+			}
+
+			auto [width, height]			  = Utils::GetMipSize(texture->GetSpecification().Width, texture->GetSpecification().Height, level);
+			std::vector<unsigned char> pixels = texture->GetData(level, 0, 0, width, height);
+
+			stbi_write_png(outputPath.string().c_str(), width, height, 4, pixels.data(), width * 4);
+		} */
+
+		uint32_t stride	  = 4;
+		uint32_t dataSize = width * height * stride;
+
+		Graphics::Image image = {};
+		image.Format		  = Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
+		image.Width			  = width;
+		image.Height		  = height;
+		image.Pixels.resize(dataSize);
+		memcpy(image.Pixels.data(), pixels, image.Pixels.size());
+		stbi_image_free(pixels);
+
+		Graphics::MipmapGenerator generator(device);
+		Graphics::Image			  mip = generator.GenerateMipSoftware(image, 1);
+		stbi_write_png("test.png", mip.Width, mip.Height, 4, mip.Pixels.data(), mip.Width * 4);
 
 		return GUID();
 	}

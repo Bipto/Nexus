@@ -2,33 +2,19 @@
 
 #include "Nexus-Core/Graphics/FullscreenQuad.hpp"
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
+#include "Nexus-Core/Graphics/Image.hpp"
 
 namespace Nexus::Graphics
 {
-	struct MipData
-	{
-	  public:
-		MipData() = delete;
-		MipData(const std::vector<unsigned char> &pixels, uint32_t width, uint32_t height);
-
-		uint32_t	GetWidth() const;
-		uint32_t	GetHeight() const;
-		const void *GetData() const;
-
-	  private:
-		std::vector<unsigned char> m_Pixels;
-		uint32_t			   m_Width	= 0;
-		uint32_t			   m_Height = 0;
-	};
-
 	class MipmapGenerator
 	{
 	  public:
 		MipmapGenerator() = default;
 		explicit MipmapGenerator(GraphicsDevice *device);
-		std::vector<unsigned char> GenerateMip(Ref<Texture2D> texture, uint32_t levelToGenerate, uint32_t levelToGenerateFrom);
-
-		static uint32_t GetMaximumNumberOfMips(uint32_t width, uint32_t height);
+		std::vector<Image> GenerateMipChain(Image baseImage);
+		Image			   GenerateMip(Ref<Texture2D> texture, uint32_t levelToGenerate, uint32_t levelToGenerateFrom);
+		Image			   GenerateMipSoftware(const Image &baseImage, uint32_t levelToGenerate);
+		static uint32_t	   GetMaximumNumberOfMips(uint32_t width, uint32_t height);
 
 	  private:
 		GraphicsDevice	*m_Device	   = nullptr;

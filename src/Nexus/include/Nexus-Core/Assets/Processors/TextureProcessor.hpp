@@ -8,6 +8,6 @@ namespace Nexus::Processors
 	  public:
 		TextureProcessor();
 		virtual ~TextureProcessor();
-		GUID Process(const std::string &filepath) final;
+		GUID Process(const std::string &filepath, Graphics::GraphicsDevice *device) final;
 	};
 }	 // namespace Nexus::Processors

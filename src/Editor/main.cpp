@@ -227,7 +227,7 @@ class EditorApplication : public Nexus::Application
 				if (result.FilePaths.size() > 0)
 				{
 					Nexus::Processors::TextureProcessor textureProcessor = {};
-					textureProcessor.Process(result.FilePaths[0]);
+					textureProcessor.Process(result.FilePaths[0], m_GraphicsDevice);
 				}
 			}
 

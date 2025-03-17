@@ -1,5 +1,4 @@
 #include "Nexus-Core/Graphics/MipmapGenerator.hpp"
-
 #include "Nexus-Core/nxpch.hpp"
 
 const std::string c_MipmapVertexSource = "#version 450 core\n"
@@ -51,9 +50,16 @@ namespace Nexus::Graphics
 		m_ResourceSet				= m_Device->CreateResourceSet(m_Pipeline);
 	}
 
-	std::vector<unsigned char> MipmapGenerator::GenerateMip(Ref<Texture2D> texture, uint32_t levelToGenerate, uint32_t levelToGenerateFrom)
+	std::vector<Image> MipmapGenerator::GenerateMipChain(Image baseImage)
 	{
-		std::vector<unsigned char> pixels = {};
+		std::vector<Image> images = {};
+
+		return images;
+	}
+
+	Image MipmapGenerator::GenerateMip(Ref<Texture2D> texture, uint32_t levelToGenerate, uint32_t levelToGenerateFrom)
+	{
+		Image image = {};
 
 		const uint32_t textureWidth	 = texture->GetSpecification().Width;
 		const uint32_t textureHeight = texture->GetSpecification().Height;
@@ -105,33 +111,62 @@ namespace Nexus::Graphics
 			m_CommandList->End();
 			m_Device->SubmitCommandList(m_CommandList);
 
-			pixels = framebufferTexture->GetData(0, 0, 0, mipWidth, mipHeight);
+			const auto &textureSpec = texture->GetSpecification();
+			image.Format			= textureSpec.Format;
+			image.Width				= textureSpec.Width;
+			image.Height			= textureSpec.Height;
+			image.Pixels			= framebufferTexture->GetData(0, 0, 0, mipWidth, mipHeight);
 		}
 
-		return pixels;
+		return image;
+	}
+
+	void SamplePixel(const Image &image, Point2D<float> uv)
+	{
+	}
+
+	Image MipmapGenerator::GenerateMipSoftware(const Image &input, uint32_t levelToGenerate)
+	{
+		Point2D<uint32_t> size	 = Utils::GetMipSize(input.Width, input.Height, levelToGenerate);
+		uint32_t		  stride = GetPixelFormatSizeInBytes(input.Format);
+
+		Image output  = {};
+		output.Format = input.Format;
+		output.Width  = size.X;
+		output.Height = size.Y;
+		output.Pixels.resize(size.X * size.Y * stride);
+
+		struct RGBA
+		{
+			uint8_t r = 0;
+			uint8_t b = 0;
+			uint8_t g = 0;
+			uint8_t a = 0;
+		};
+
+		for (uint32_t y = 0; y < output.Height; y++)
+		{
+			for (uint32_t x = 0; x < output.Width; x++)
+			{
+				uint32_t index = (y * output.Width + x) * stride;
+
+				RGBA col;
+				// col.r = output.Width / 255 * x;
+				// col.g = output.Height / 255 * y;
+				col.r = static_cast<uint8_t>((static_cast<float>(x) / output.Width) * 255);
+				col.g = static_cast<uint8_t>((static_cast<float>(y) / output.Height) * 255);
+				col.b = 0;
+				col.a = 255;
+
+				memcpy(output.Pixels.data() + index, &col, sizeof(col));
+			}
+		}
+
+		return output;
 	}
 
 	uint32_t MipmapGenerator::GetMaximumNumberOfMips(uint32_t width, uint32_t height)
 	{
 		return std::floor(std::log2(std::max(width, height)));
-	}
-
-	MipData::MipData(const std::vector<unsigned char> &pixels, uint32_t width, uint32_t height) : m_Pixels(pixels), m_Width(width), m_Height(height)
-	{
-	}
-
-	uint32_t MipData::GetWidth() const
-	{
-		return m_Width;
-	}
-
-	uint32_t MipData::GetHeight() const
-	{
-		return m_Height;
-	}
-
-	const void *MipData::GetData() const
-	{
-		return m_Pixels.data();
 	}
 }	 // namespace Nexus::Graphics

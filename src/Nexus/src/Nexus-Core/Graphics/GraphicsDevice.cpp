@@ -203,9 +203,8 @@ namespace Nexus::Graphics
 
 			for (uint32_t i = 1; i < spec.MipLevels; i++)
 			{
-				auto [width, height]			  = Utils::GetMipSize(spec.Width, spec.Height, i);
-				std::vector<unsigned char> pixels = mipGenerator.GenerateMip(texture, i, i - 1);
-				texture->SetData(pixels.data(), i, 0, 0, width, height);
+				Image image = mipGenerator.GenerateMip(texture, i, i - 1);
+				texture->SetData(image.Pixels.data(), i, 0, 0, image.Width, image.Height);
 			}
 		}
 
