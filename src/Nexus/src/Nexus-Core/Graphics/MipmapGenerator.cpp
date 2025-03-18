@@ -1,55 +1,11 @@
 #include "Nexus-Core/Graphics/MipmapGenerator.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
-const std::string c_MipmapVertexSource = "#version 450 core\n"
-										 "layout (location = 0) in vec3 Position;\n"
-										 "layout (location = 1) in vec2 TexCoord;\n"
-										 "layout (location = 0) out vec2 OutTexCoord;\n"
-										 "void main()\n"
-										 "{\n"
-										 "    gl_Position = vec4(Position, 1.0);\n"
-										 "    OutTexCoord = TexCoord;\n"
-										 "}";
-
-const std::string c_MipmapFragmentSource = "#version 450 core\n"
-										   "layout(location = 0) in vec2 OutTexCoord;\n"
-										   "layout(location = 0) out vec4 FragColor;\n"
-										   "layout(binding = 0, set = 0) uniform sampler2D texSampler;\n"
-										   "void main()\n"
-										   "{\n"
-										   "    FragColor = texture(texSampler, OutTexCoord);\n"
-										   "}";
+#include "Nexus-Core/Utils/Utils.hpp"
+#include "stb_image_write.h"
 
 namespace Nexus::Graphics
 {
-	MipmapGenerator::MipmapGenerator(GraphicsDevice *device) : m_Device(device), m_Quad(device, true)
-	{
-		m_CommandList = m_Device->CreateCommandList();
-
-		Ref<ShaderModule> m_VertexModule =
-			m_Device->GetOrCreateCachedShaderFromSpirvSource(c_MipmapVertexSource, "Mipmap-Gen.vert", Nexus::Graphics::ShaderStage::Vertex);
-		Ref<ShaderModule> m_FragmentModule =
-			m_Device->GetOrCreateCachedShaderFromSpirvSource(c_MipmapFragmentSource, "Mipmap-Gen.frag", Nexus::Graphics::ShaderStage::Fragment);
-
-		// set up pipeline for rendering
-		Nexus::Graphics::PipelineDescription pipelineDescription;
-		pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::CullNone;
-		pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
-
-		pipelineDescription.VertexModule   = m_VertexModule;
-		pipelineDescription.FragmentModule = m_FragmentModule;
-
-		pipelineDescription.ColourFormats[0]  = PixelFormat::R8_G8_B8_A8_UNorm;
-		pipelineDescription.ColourTargetCount = 1;
-		pipelineDescription.DepthFormat		  = PixelFormat::D24_UNorm_S8_UInt;
-
-		pipelineDescription.ResourceSetSpec.SampledImages = {{"texSampler", 0, 0}};
-
-		pipelineDescription.Layouts = {m_Quad.GetVertexBufferLayout()};
-		m_Pipeline					= m_Device->CreatePipeline(pipelineDescription);
-		m_ResourceSet				= m_Device->CreateResourceSet(m_Pipeline);
-	}
-
 	std::vector<Image> MipmapGenerator::GenerateMipChain(Image baseImage)
 	{
 		std::vector<Image> images = {};
@@ -57,108 +13,39 @@ namespace Nexus::Graphics
 		return images;
 	}
 
-	Image MipmapGenerator::GenerateMip(Ref<Texture2D> texture, uint32_t levelToGenerate, uint32_t levelToGenerateFrom)
+	const unsigned char *SamplePixel(const Image &input, float uvX, float uvY)
 	{
-		Image image = {};
+		uint32_t stride = GetPixelFormatSizeInBytes(input.Format);
 
-		const uint32_t textureWidth	 = texture->GetSpecification().Width;
-		const uint32_t textureHeight = texture->GetSpecification().Height;
+		uint32_t pixelX = input.Width * uvX;
+		uint32_t pixelY = input.Height * uvY;
+		uint32_t offset = (pixelY * input.Width + pixelX) * stride;
 
-		auto [mipWidth, mipHeight] = Utils::GetMipSize(textureWidth, textureHeight, levelToGenerate);
-
-		// generate mip
-		{
-			Nexus::Graphics::FramebufferSpecification framebufferSpec;
-			framebufferSpec.ColorAttachmentSpecification = {texture->GetSpecification().Format};
-			framebufferSpec.Width						 = mipWidth;
-			framebufferSpec.Height						 = mipHeight;
-			framebufferSpec.Samples						 = texture->GetSpecification().Samples;
-
-			Ref<Framebuffer> framebuffer = m_Device->CreateFramebuffer(framebufferSpec);
-
-			Nexus::Graphics::SamplerSpecification samplerSpec;
-			samplerSpec.MinimumLOD = levelToGenerateFrom;
-			samplerSpec.MaximumLOD = levelToGenerateFrom;
-			Ref<Sampler> sampler   = m_Device->CreateSampler(samplerSpec);
-
-			Ref<Texture2D> framebufferTexture = framebuffer->GetColorTexture(0);
-
-			m_ResourceSet->WriteCombinedImageSampler(texture, sampler, "texSampler");
-
-			Nexus::Graphics::Scissor scissor;
-			scissor.X	   = 0;
-			scissor.Y	   = 0;
-			scissor.Width  = mipWidth;
-			scissor.Height = mipHeight;
-
-			Nexus::Graphics::Viewport viewport;
-			viewport.X		  = 0;
-			viewport.Y		  = 0;
-			viewport.Width	  = mipWidth;
-			viewport.Height	  = mipHeight;
-			viewport.MinDepth = 0;
-			viewport.MaxDepth = 1;
-
-			m_CommandList->Begin();
-			m_CommandList->SetPipeline(m_Pipeline);
-			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(framebuffer));
-			m_CommandList->SetViewport(viewport);
-			m_CommandList->SetScissor(scissor);
-			m_CommandList->SetVertexBuffer(m_Quad.GetVertexBuffer(), 0);
-			m_CommandList->SetIndexBuffer(m_Quad.GetIndexBuffer());
-			m_CommandList->SetResourceSet(m_ResourceSet);
-			m_CommandList->DrawIndexed(6, 0, 0);
-			m_CommandList->End();
-			m_Device->SubmitCommandList(m_CommandList);
-
-			const auto &textureSpec = texture->GetSpecification();
-			image.Format			= textureSpec.Format;
-			image.Width				= textureSpec.Width;
-			image.Height			= textureSpec.Height;
-			image.Pixels			= framebufferTexture->GetData(0, 0, 0, mipWidth, mipHeight);
-		}
-
-		return image;
+		return input.Pixels.data() + offset;
 	}
 
-	void SamplePixel(const Image &image, Point2D<float> uv)
+	Image MipmapGenerator::GenerateMip(const Image &input, uint32_t level)
 	{
-	}
-
-	Image MipmapGenerator::GenerateMipSoftware(const Image &input, uint32_t levelToGenerate)
-	{
-		Point2D<uint32_t> size	 = Utils::GetMipSize(input.Width, input.Height, levelToGenerate);
 		uint32_t		  stride = GetPixelFormatSizeInBytes(input.Format);
 
 		Image output  = {};
 		output.Format = input.Format;
-		output.Width  = size.X;
-		output.Height = size.Y;
-		output.Pixels.resize(size.X * size.Y * stride);
-
-		struct RGBA
-		{
-			uint8_t r = 0;
-			uint8_t b = 0;
-			uint8_t g = 0;
-			uint8_t a = 0;
-		};
+		output.Width  = input.Width / 2;
+		output.Height = input.Height / 2;
+		output.Pixels.resize(output.Width * output.Height * stride);
 
 		for (uint32_t y = 0; y < output.Height; y++)
 		{
 			for (uint32_t x = 0; x < output.Width; x++)
 			{
+				uint32_t flippedY = output.Height - 1 - y;
 				uint32_t index = (y * output.Width + x) * stride;
 
-				RGBA col;
-				// col.r = output.Width / 255 * x;
-				// col.g = output.Height / 255 * y;
-				col.r = static_cast<uint8_t>((static_cast<float>(x) / output.Width) * 255);
-				col.g = static_cast<uint8_t>((static_cast<float>(y) / output.Height) * 255);
-				col.b = 0;
-				col.a = 255;
+				float uvX = Utils::ReMapRange<float>(0, output.Width, 0, 1, x);
+				float uvY = Utils::ReMapRange<float>(0, output.Height, 0, 1, y);
 
-				memcpy(output.Pixels.data() + index, &col, sizeof(col));
+				const unsigned char *pixel = SamplePixel(input, uvX, uvY);
+				memcpy(output.Pixels.data() + index, pixel, stride);
 			}
 		}
 

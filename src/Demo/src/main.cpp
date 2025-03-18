@@ -292,7 +292,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 	spec.WindowProperties.UpdatesPerSecond = {};
 
 	spec.SwapchainSpecification.Samples	   = Nexus::Graphics::SampleCount::SampleCount8;
-	spec.SwapchainSpecification.VSyncState = Nexus::Graphics::VSyncState::Disabled;
+	spec.SwapchainSpecification.VSyncState = Nexus::Graphics::VSyncState::Enabled;
 
 	return new DemoApplication(spec);
 }

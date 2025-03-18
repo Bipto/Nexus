@@ -177,38 +177,48 @@ namespace Nexus::Graphics
 		int height			 = 0;
 
 		stbi_set_flip_vertically_on_load(true);
+		uint32_t mipLevels = 1;
 
-		Texture2DSpecification spec;
 		unsigned char *data = stbi_load(filepath, &width, &height, &receivedChannels, desiredChannels);
-		spec.Width			= (uint32_t)width;
-		spec.Height			= (uint32_t)height;
-		spec.Format					= PixelFormat::R8_G8_B8_A8_UNorm;
+
+		Image baseImage	 = {};
+		baseImage.Width	 = (uint32_t)width;
+		baseImage.Height = (uint32_t)height;
+		baseImage.Format = PixelFormat::R8_G8_B8_A8_UNorm;
+
+		uint32_t dataSize = baseImage.Width * baseImage.Height * GetPixelFormatSizeInBytes(baseImage.Format);
+		baseImage.Pixels.resize(dataSize);
+		memcpy(baseImage.Pixels.data(), data, dataSize);
+		stbi_image_free(data);
+
+		std::vector<Image> images = {};
+		images.push_back(baseImage);
 
 		if (generateMips)
 		{
-			uint32_t mipCount = Nexus::Graphics::MipmapGenerator::GetMaximumNumberOfMips(spec.Width, spec.Height);
-			spec.MipLevels	  = mipCount;
-		}
-		else
-		{
-			spec.MipLevels = 1;
-		}
+			mipLevels				  = Nexus::Graphics::MipmapGenerator::GetMaximumNumberOfMips(baseImage.Width, baseImage.Height);
+			MipmapGenerator generator = {};
 
-		auto texture = CreateTexture2D(spec);
-		texture->SetData(data, 0, 0, 0, spec.Width, spec.Height);
-
-		if (generateMips)
-		{
-			Nexus::Graphics::MipmapGenerator mipGenerator(this);
-
-			for (uint32_t i = 1; i < spec.MipLevels; i++)
+			for (uint32_t i = 1; i < mipLevels; i++)
 			{
-				Image image = mipGenerator.GenerateMip(texture, i, i - 1);
-				texture->SetData(image.Pixels.data(), i, 0, 0, image.Width, image.Height);
+				Image mip = generator.GenerateMip(images[i - 1], i);
+				images.push_back(mip);
 			}
 		}
 
-		stbi_image_free(data);
+		Texture2DSpecification textureSpec = {};
+		textureSpec.Format				   = baseImage.Format;
+		textureSpec.Width				   = baseImage.Width;
+		textureSpec.Height				   = baseImage.Height;
+		textureSpec.MipLevels			   = mipLevels;
+
+		Ref<Texture2D> texture = this->CreateTexture2D(textureSpec);
+		for (uint32_t level = 0; level < textureSpec.MipLevels; level++)
+		{
+			const Image &mip = images[level];
+			texture->SetData(mip.Pixels.data(), level, 0, 0, mip.Width, mip.Height);
+		}
+
 		return texture;
 	}
 
