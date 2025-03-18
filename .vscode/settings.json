@@ -102,7 +102,8 @@
         "string_view": "cpp",
         "semaphore": "cpp",
         "cfenv": "cpp",
-        "resumable": "cpp"
+        "resumable": "cpp",
+        "*.hpp11": "cpp"
     },
     "cmake.loggingLevel": "info",
     "C_Cpp.default.compilerPath": "cl.exe"
