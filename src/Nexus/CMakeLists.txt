@@ -1,15 +1,12 @@
 cmake_minimum_required(VERSION 3.16)
 
-add_subdirectory(cmake)
 project ("Nexus")
-
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_COMPILE_WARNING_AS_ERROR OFF)
 
-add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS=1)
-add_definitions(-DNX_EXPORT_API=1)
+add_subdirectory(cmake-utils)
 
 set(SHADERC_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
 set(SPIRV_SKIP_EXECUTABLES ON CACHE BOOL "" FORCE)
@@ -94,7 +91,7 @@ if (NOT EMSCRIPTEN)
   FetchContent_Declare(
     OpenAL-Soft
     GIT_REPOSITORY https://github.com/kcat/openal-soft.git
-    GIT_TAG c14554f
+    GIT_TAG 8bcef34
   )
   FetchContent_MakeAvailable(OpenAL-Soft)
 endif()
@@ -105,6 +102,7 @@ FetchContent_Declare(
   GIT_TAG 2f91176
 )
 FetchContent_GetProperties(imgui)
+add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS=1)
 if (NOT imgui_POPULATED)
   FetchContent_MakeAvailable(imgui)
 
@@ -257,186 +255,11 @@ if (DEFINED NX_PLATFORM_OPENAL)
 endif()
 
 #external dependencies
-list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES 
-  external/glad)
+list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glad)
 
-set (ENGINE_SOURCES
-  src/Nexus.cpp
-  include/Nexus.hpp
-  src/Nexus-Core/Application.cpp
-  include/Nexus-Core/Application.hpp
-  include/Nexus-Core/ApplicationSpecification.hpp
-  src/Nexus-Core/AssetManager.cpp
-  include/Nexus-Core/AssetManager.hpp
-  include/Nexus-Core/Monitor.hpp
-  src/Nexus-Core/nxpch.cpp
-  include/Nexus-Core/nxpch.hpp
-  include/Nexus-Core/Platform.hpp
-  include/Nexus-Core/Point.hpp
-  src/Nexus-Core/Runtime.cpp
-  include/Nexus-Core/Runtime.hpp
-  include/Nexus-Core/Types.hpp
-  src/Nexus-Core/Vertex.cpp
-  include/Nexus-Core/Vertex.hpp
-  include/Nexus-Core/IWindow.hpp
-  include/Nexus-Core/WindowInfo.hpp
-)
-
-list (APPEND ENGINE_SOURCES
-  include/Nexus-Core/Audio/AudioBuffer.hpp
-  include/Nexus-Core/Audio/AudioDevice.hpp
-  include/Nexus-Core/Audio/AudioSource.hpp)
-
-list (APPEND ENGINE_SOURCES
-  include/Nexus-Core/Caching/CachedShader.hpp)
-
-list (APPEND ENGINE_SOURCES
-  include/Nexus-Core/ECS/ComponentRegistry.hpp
-  include/Nexus-Core/ECS/Registry.hpp)
-
-list (APPEND ENGINE_SOURCES
-  include/Nexus-Core/Events/EventHandler.hpp)
-
-list (APPEND ENGINE_SOURCES
-  include/Nexus-Core/Assets/AssetRegistry.hpp
-  src/Nexus-Core/Assets/AssetRegistry.cpp
-  include/Nexus-Core/Assets/Importers/AssimpImporter.hpp
-  include/Nexus-Core/Assets/Importers/IImporter.hpp
-  include/Nexus-Core/Assets/Importers/ShaderImporter.hpp
-  src/Nexus-Core/Assets/Importers/AssimpImporter.cpp
-  include/Nexus-Core/Assets/Processors/IProcessor.hpp
-  include/Nexus-Core/Assets/Processors/TextureProcessor.hpp
-  src/Nexus-Core/Assets/Processors/TextureProcessor.cpp
-)
-
-list (APPEND ENGINE_SOURCES
-  include/Nexus-Core/FileSystem/FileDialogs.hpp
-  src/Nexus-Core/FileSystem/FileSystem.cpp
-  include/Nexus-Core/FileSystem/FileSystem.hpp)
-
-list (APPEND ENGINE_SOURCES 
-  
-  include/Nexus-Core/Graphics/CatmullRom.hpp
-  include/Nexus-Core/Graphics/Circle.hpp
-  include/Nexus-Core/Graphics/Color.hpp
-  src/Nexus-Core/Graphics/CommandExecutor.cpp
-  include/Nexus-Core/Graphics/CommandExecutor.hpp
-  src/Nexus-Core/Graphics/CommandList.cpp
-  include/Nexus-Core/Graphics/CommandList.hpp
-  src/Nexus-Core/Graphics/Font.cpp
-  include/Nexus-Core/Graphics/Font.hpp
-  include/Nexus-Core/Graphics/Framebuffer.hpp
-  src/Nexus-Core/Graphics/FullscreenQuad.cpp
-  include/Nexus-Core/Graphics/FullscreenQuad.hpp
-  include/Nexus-Core/Graphics/GPUBuffer.hpp
-  include/Nexus-Core/Graphics/GraphicsCapabilities.hpp
-  src/Nexus-Core/Graphics/GraphicsDevice.cpp
-  include/Nexus-Core/Graphics/GraphicsDevice.hpp
-  src/Nexus-Core/Graphics/HdriProcessor.cpp
-  include/Nexus-Core/Graphics/HdriProcessor.hpp
-  include/Nexus-Core/Graphics/IResource.hpp
-  include/Nexus-Core/Graphics/Mesh.hpp
-  src/Nexus-Core/Graphics/MeshFactory.cpp
-  include/Nexus-Core/Graphics/MeshFactory.hpp
-  src/Nexus-Core/Graphics/MipmapGenerator.cpp
-  include/Nexus-Core/Graphics/MipmapGenerator.hpp
-  include/Nexus-Core/Graphics/Model.hpp
-  src/Nexus-Core/Graphics/Multisample.cpp
-  include/Nexus-Core/Graphics/Multisample.hpp
-  include/Nexus-Core/Graphics/Pipeline.hpp
-  include/Nexus-Core/Graphics/PixelFormat.hpp
-  include/Nexus-Core/Graphics/Polygon.hpp
-  src/Nexus-Core/Graphics/Polygon.cpp
-  include/Nexus-Core/Graphics/Rectangle.hpp
-  include/Nexus-Core/Graphics/RenderTarget.hpp
-  src/Nexus-Core/Graphics/ResourceSet.cpp
-  include/Nexus-Core/Graphics/ResourceSet.hpp
-  include/Nexus-Core/Graphics/RoundedRectangle.hpp
-  include/Nexus-Core/Graphics/Sampler.hpp
-  include/Nexus-Core/Graphics/SamplerState.hpp
-  include/Nexus-Core/Graphics/Scissor.hpp
-  src/Nexus-Core/Graphics/ShaderDataType.cpp
-  include/Nexus-Core/Graphics/ShaderDataType.hpp
-  src/Nexus-Core/Graphics/ShaderGenerator.cpp
-  include/Nexus-Core/Graphics/ShaderGenerator.hpp
-  include/Nexus-Core/Graphics/ShaderModule.hpp
-  include/Nexus-Core/Graphics/ShaderUtils.hpp
-  src/Nexus-Core/Graphics/stb.cpp
-  include/Nexus-Core/Graphics/Structures.hpp
-  include/Nexus-Core/Graphics/Swapchain.hpp
-  src/Nexus-Core/Graphics/Texture.cpp
-  include/Nexus-Core/Graphics/Texture.hpp
-  include/Nexus-Core/Graphics/TimingQuery.hpp
-  include/Nexus-Core/Graphics/Triangle.hpp
-  include/Nexus-Core/Graphics/Viewport.hpp
-  include/Nexus-Core/Graphics/WindingOrder.hpp)
-
-list (APPEND ENGINE_SOURCES
-  src/Nexus-Core/ImGui/ImGuiGraphicsRenderer.cpp
-  include/Nexus-Core/ImGui/ImGuiGraphicsRenderer.hpp
-  include/Nexus-Core/ImGui/ImGuiInclude.hpp  
-)
-
-list (APPEND ENGINE_SOURCES
-include/Nexus-Core/Input/Events.hpp
-  include/Nexus-Core/Input/Gamepad.hpp
-  src/Nexus-Core/Input/Input.cpp
-  include/Nexus-Core/Input/Input.hpp
-  include/Nexus-Core/Input/Keyboard.hpp
-  include/Nexus-Core/Input/Mouse.hpp)
-
-list (APPEND ENGINE_SOURCES
-  src/Nexus-Core/Logging/Log.cpp
-  include/Nexus-Core/Logging/Log.hpp)
-
-list (APPEND ENGINE_SOURCES
-  src/Nexus-Core/Renderer/BatchRenderer.cpp
-  include/Nexus-Core/Renderer/BatchRenderer.hpp
-  src/Nexus-Core/Renderer/Renderer3D.cpp
-  include/Nexus-Core/Renderer/Renderer3D.hpp
-)
-
-list (APPEND ENGINE_SOURCES
-include/Nexus-Core/Runtime/Camera.hpp
-  src/Nexus-Core/Runtime/Entity.cpp
-  include/Nexus-Core/Runtime/Entity.hpp
-  src/Nexus-Core/Runtime/Project.cpp
-  include/Nexus-Core/Runtime/Project.hpp
-  src/Nexus-Core/Runtime/Scene.cpp
-  include/Nexus-Core/Runtime/Scene.hpp)
-
-list (APPEND ENGINE_SOURCES
-  include/Nexus-Core/Scripting/NativeScript.hpp)
-
-list (APPEND ENGINE_SOURCES
-  include/Nexus-Core/Timings/Clock.hpp
-  src/Nexus-Core/Timings/Profiler.cpp
-  include/Nexus-Core/Timings/Profiler.hpp
-  include/Nexus-Core/Timings/Timer.hpp
-  include/Nexus-Core/Timings/Timespan.hpp)
-
-list (APPEND ENGINE_SOURCES
-  include/Nexus-Core/UI/Control.hpp
-  include/Nexus-Core/UI/DockMode.hpp
-  include/Nexus-Core/UI/Form.hpp
-  include/Nexus-Core/UI/HorizontalSizer.hpp
-  src/Nexus-Core/UI/Control.cpp
-  include/Nexus-Core/UI/Panel.hpp
-  include/Nexus-Core/UI/Sizer.hpp
-  include/Nexus-Core/UI/Style.hpp
-  include/Nexus-Core/UI/UIRenderer.hpp
-  src/Nexus-Core/UI/UIRenderer.cpp)
-
-list (APPEND ENGINE_SOURCES
-  include/Nexus-Core/Utils/FramerateMonitor.hpp
-  include/Nexus-Core/Utils/GUID.hpp
-  src/Nexus-Core/Utils/Utils.cpp
-  include/Nexus-Core/Utils/Utils.hpp
-  include/Nexus-Core/Utils/ScriptProjectGenerator.hpp
-  src/Nexus-Core/Utils/ScriptProjectGenerator.cpp
-  include/Nexus-Core/Utils/SharedLibrary.hpp
-  src/Nexus-Core/Utils/StringUtils.cpp
-  include/Nexus-Core/Utils/StringUtils.hpp)
+set(ENGINE_SOURCES "include/Nexus.hpp" "src/Nexus.cpp")
+file (GLOB_RECURSE NEXUS_SOURCES "include/*.hpp" "src/Nexus-Core/*.cpp")
+list (APPEND ENGINE_SOURCES  ${NEXUS_SOURCES})
 
 if (DEFINED NX_PLATFORM_D3D12)
   list (APPEND ENGINE_SOURCES
@@ -647,9 +470,7 @@ list (APPEND NEXUS_LINKED_LIBRARIES
   imguizmo)
 
 #precompiled header
-if (NX_ROOT_BUILD STREQUAL "ON")
-  target_precompile_headers(Nexus PRIVATE include/Nexus-Core/nxpch.hpp)
-endif()
+target_precompile_headers(Nexus PRIVATE include/Nexus-Core/nxpch.hpp)
 
 #flags required for emscripten
 if (EMSCRIPTEN)
