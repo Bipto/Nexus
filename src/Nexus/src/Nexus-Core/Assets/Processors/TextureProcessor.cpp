@@ -33,9 +33,9 @@ namespace Nexus::Processors
 		memcpy(image.Pixels.data(), pixels, image.Pixels.size());
 		stbi_image_free(pixels);
 
-		Graphics::MipmapGenerator generator = {};
+		/* Graphics::MipmapGenerator generator = {};
 		Graphics::Image			  mip		= generator.GenerateMip(image, 1);
-		stbi_write_png("test.png", mip.Width, mip.Height, 4, mip.Pixels.data(), mip.Width * 4);
+		stbi_write_png("test.png", mip.Width, mip.Height, 4, mip.Pixels.data(), mip.Width * 4); */
 
 		return GUID();
 	}

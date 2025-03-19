@@ -12,7 +12,10 @@ add_compile_definitions(NX_EXPORT_API=1)
 
 #set up engine project
 add_subdirectory(src/Nexus)
-add_subdirectory(src/UITests)
+
+if (DEFINED WIN32)
+    add_subdirectory(src/UITests)
+endif()
 
 if (DEFINED NX_BUILD_TESTS)
     enable_testing()
