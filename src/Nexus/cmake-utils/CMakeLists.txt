@@ -4,18 +4,17 @@ macro(nexus_copy_required_binaries)
   if (WIN32)
     get_target_property(Nexus_SOURCE_DIR Nexus SOURCE_DIR)
 
-    add_custom_command(
-      TARGET ${PROJECT_NAME} PRE_LINK
-      COMMAND ${CMAKE_COMMAND} -E copy
-          ${Nexus_SOURCE_DIR}/binaries/dxc_2023_08_14/bin/x64/dxcompiler.dll
-          $<TARGET_FILE_DIR:${PROJECT_NAME}>
-  )
-
   add_custom_command(
       TARGET ${PROJECT_NAME} PRE_LINK
       COMMAND ${CMAKE_COMMAND} -E copy
-          ${Nexus_SOURCE_DIR}/binaries/dxc_2023_08_14/bin/x64/dxil.dll
-          $<TARGET_FILE_DIR:${PROJECT_NAME}>
+        ${CMAKE_BINARY_DIR}/_deps/directxshadercompiler-src/bin/x64/dxcompiler.dll
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>
+  )
+  add_custom_command(
+      TARGET ${PROJECT_NAME} PRE_LINK
+      COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_BINARY_DIR}/_deps/directxshadercompiler-src/bin/x64/dxil.dll
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>
     )
   endif()
 endmacro()

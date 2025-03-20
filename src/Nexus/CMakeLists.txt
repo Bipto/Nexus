@@ -180,6 +180,13 @@ FetchContent_Declare(
   GIT_TAG 4a8f5e5
 )
 FetchContent_MakeAvailable(shaderc)
+if (WIN32)
+  FetchContent_Declare(
+    DirectXShaderCompiler
+    URL https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.8.2502/dxc_2025_02_20.zip
+  )
+  FetchContent_MakeAvailable(DirectXShaderCompiler)
+endif()
 
 set(NEXUS_INCLUDE_DIRS "")
 set(NEXUS_LINKED_LIBRARIES "")
@@ -334,7 +341,6 @@ list (APPEND NEXUS_INCLUDE_DIRS
   ${CMAKE_CURRENT_SOURCE_DIR}/src
   ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${stb_SOURCE_DIR}
-  binaries/dxc_2023_08_14/inc
 )
 
 list (APPEND NEXUS_LINKED_LIBRARIES 
