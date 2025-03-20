@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Multisample.hpp"
+#include "Nexus-Core/Graphics/Image.hpp"
 #include "Nexus-Core/Types.hpp"
 #include "Nexus-Core/nxpch.hpp"
 #include "PixelFormat.hpp"
@@ -72,6 +73,8 @@ namespace Nexus::Graphics
 
 		 virtual void GetData(std::vector<unsigned char> &pixels, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
 		 std::vector<unsigned char> GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height);
+		 Image						GetDataAsImage(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height);
+		 Image						GetDataAsImage(uint32_t level);
 
 		 const Texture2DSpecification &GetSpecification();
 		 uint32_t					   GetLevels() const;

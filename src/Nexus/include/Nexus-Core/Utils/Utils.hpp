@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Nexus-Core/Graphics/PixelFormat.hpp"
 #include "Nexus-Core/Graphics/Polygon.hpp"
 #include "Nexus-Core/Graphics/SamplerState.hpp"
 #include "Nexus-Core/Graphics/Triangle.hpp"
@@ -125,8 +126,8 @@ namespace Nexus::Utils
 		return hash;
 	}
 
-	NX_API void FlipPixelsHorizontally(std::vector<unsigned char> &pixels, int width, int height, int bytesPerChannel, int channels);
-	NX_API void FlipPixelsVertically(std::vector<unsigned char> &pixels, int width, int height, int bytesPerChannel, int channels);
+	NX_API void FlipPixelsHorizontally(std::vector<unsigned char> &pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format);
+	NX_API void FlipPixelsVertically(std::vector<unsigned char> &pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format);
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x)	 STRINGIFY(x)

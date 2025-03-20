@@ -169,20 +169,25 @@ namespace Nexus::Graphics
 		return module;
 	}
 
-	Ref<Texture2D> GraphicsDevice::CreateTexture2D(const char *filepath, bool generateMips)
+	Ref<Texture2D> GraphicsDevice::CreateTexture2D(const char *filepath, bool generateMips, bool srgb)
 	{
-		int desiredChannels	 = 4;
 		int receivedChannels = 0;
 		int width			 = 0;
 		int height			 = 0;
+		int requestedChannels = 4;
 
 		stbi_set_flip_vertically_on_load(true);
 
 		Texture2DSpecification spec;
-		unsigned char *data = stbi_load(filepath, &width, &height, &receivedChannels, desiredChannels);
+		unsigned char		  *data = stbi_load(filepath, &width, &height, &receivedChannels, requestedChannels);
 		spec.Width					= (uint32_t)width;
 		spec.Height					= (uint32_t)height;
 		spec.Format					= PixelFormat::R8_G8_B8_A8_UNorm;
+
+		if (srgb)
+		{
+			spec.Format = PixelFormat::R8_G8_B8_A8_UNorm_SRGB;
+		}
 
 		if (generateMips)
 		{
@@ -196,6 +201,7 @@ namespace Nexus::Graphics
 
 		auto texture = CreateTexture2D(spec);
 		texture->SetData(data, 0, 0, 0, spec.Width, spec.Height);
+		stbi_image_free(data);
 
 		if (generateMips)
 		{
@@ -209,13 +215,12 @@ namespace Nexus::Graphics
 			}
 		}
 
-		stbi_image_free(data);
 		return texture;
 	}
 
-	Ref<Texture2D> GraphicsDevice::CreateTexture2D(const std::string &filepath, bool generateMips)
+	Ref<Texture2D> GraphicsDevice::CreateTexture2D(const std::string &filepath, bool generateMips, bool srgb)
 	{
-		return CreateTexture2D(filepath.c_str(), generateMips);
+		return CreateTexture2D(filepath.c_str(), generateMips, srgb);
 	}
 
 	Ref<ResourceSet> GraphicsDevice::CreateResourceSet(Ref<Pipeline> pipeline)

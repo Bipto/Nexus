@@ -3,9 +3,6 @@
 #include "Nexus-Core/Graphics/Image.hpp"
 #include "Nexus-Core/Graphics/MipmapGenerator.hpp"
 
-#include "stb_image.h"
-#include "stb_image_write.h"
-
 namespace Nexus::Processors
 {
 	TextureProcessor::TextureProcessor()
@@ -18,25 +15,43 @@ namespace Nexus::Processors
 
 	GUID TextureProcessor::Process(const std::string &filepath, Graphics::GraphicsDevice *device)
 	{
-		int width, height, channels;
-		stbi_set_flip_vertically_on_load(true);
-		unsigned char *pixels = (unsigned char *)stbi_load(filepath.c_str(), &width, &height, &channels, 4);
+		std::vector<Graphics::Image> mips = {};
+		Ref<Graphics::Texture2D> texture = device->CreateTexture2D(filepath.c_str(), m_GenerateMips, m_Srgb);
 
-		uint32_t stride	  = 4;
-		uint32_t dataSize = width * height * stride;
+		for (uint32_t level = 0; level < texture->GetLevels(); level++)
+		{
+			Graphics::Image mip = texture->GetDataAsImage(level);
+			
+			/* /* if (device->GetGraphicsAPI() == Graphics::GraphicsAPI::OpenGL)
+			{
+				mip.FlipVertically();
+			}*/
 
-		Graphics::Image image = {};
-		image.Format		  = Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
-		image.Width			  = width;
-		image.Height		  = height;
-		image.Pixels.resize(dataSize);
-		memcpy(image.Pixels.data(), pixels, image.Pixels.size());
-		stbi_image_free(pixels);
+			mips.push_back(mip);
+		}
 
-		/* Graphics::MipmapGenerator generator = {};
-		Graphics::Image			  mip		= generator.GenerateMip(image, 1);
-		stbi_write_png("test.png", mip.Width, mip.Height, 4, mip.Pixels.data(), mip.Width * 4); */
+		std::string outputFilePath = filepath + ".bin";
+		std::ofstream file(outputFilePath, std::ios::binary);
+
+		for (size_t level = 0; level < 1; level++)
+		{
+			const Graphics::Image& image = mips[level];
+			file << image.Width << " " << image.Height << " ";
+			file.write((const char*)image.Pixels.data(), image.Pixels.size());
+		}
+
+		file.close();
 
 		return GUID();
+	}
+
+	void Nexus::Processors::TextureProcessor::SetSrgb(bool useSrgb)
+	{
+		m_Srgb = useSrgb;
+	}
+
+	void TextureProcessor::SetGenerateMips(bool generateMips)
+	{
+		m_GenerateMips = generateMips;
 	}
 }	 // namespace Nexus::Processors

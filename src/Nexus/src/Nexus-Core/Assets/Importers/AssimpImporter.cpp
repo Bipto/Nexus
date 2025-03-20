@@ -96,10 +96,10 @@ namespace Nexus
 		std::vector<unsigned char> pixels;
 		pixels.reserve(texture->mWidth * texture->mHeight * 4);
 		memcpy(pixels.data(), texture->pcData, pixels.size());
-		Nexus::Utils::FlipPixelsVertically(pixels, texture->mWidth, texture->mHeight, 1, 4);
+		Nexus::Utils::FlipPixelsVertically(pixels, texture->mWidth, texture->mHeight, Graphics::PixelFormat::R8_G8_B8_A8_UNorm);
 
 		Nexus::Graphics::Texture2DSpecification spec = {};
-		spec.Format									 = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UInt;
+		spec.Format									 = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
 		spec.MipLevels								 = 1;
 		spec.Width									 = texture->mWidth;
 		spec.Height									 = texture->mHeight;

@@ -118,12 +118,12 @@ namespace Nexus::Graphics
 		/// @brief A method that loads a new texture from a image stored on disk
 		/// @param filepath The filepath to load the image from
 		/// @return A pointer to a texture
-		Ref<Texture2D> CreateTexture2D(const char *filepath, bool generateMips);
+		Ref<Texture2D> CreateTexture2D(const char *filepath, bool generateMips, bool srgb = false);
 
 		/// @brief A method that loads a new texture from an image stored on disk
 		/// @param filepath The filepath to load the image from
 		/// @return A pointer to a texture
-		Ref<Texture2D> CreateTexture2D(const std::string &filepath, bool generateMips);
+		Ref<Texture2D> CreateTexture2D(const std::string &filepath, bool generateMips, bool srgb = false);
 
 		virtual Ref<Cubemap> CreateCubemap(const CubemapSpecification &spec) = 0;
 

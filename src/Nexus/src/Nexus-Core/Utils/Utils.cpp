@@ -279,17 +279,19 @@ namespace Nexus::Utils
 		return std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
 	}
 
-	void FlipPixelsHorizontally(std::vector<unsigned char> &pixels, int width, int height, int bytesPerChannel, int channels)
+	void FlipPixelsHorizontally(std::vector<unsigned char> &pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format)
 	{
-		int bytesPerPixel = bytesPerChannel * channels;
+		uint32_t bytesPerPixel	  = Graphics::GetPixelFormatSizeInBytes(format);
+		uint32_t channelsPerPixel = Graphics::GetPixelFormatNumberOfChannels(format);
+		uint32_t bytesPerChannel  = bytesPerPixel / channelsPerPixel;
 
-		for (int j = 0; j < height; ++j)
+		for (uint32_t j = 0; j < height; ++j)
 		{
-			for (int i = 0; i < width / 2; ++i)
+			for (uint32_t i = 0; i < width / 2; ++i)
 			{
-				for (int k = 0; k < channels; ++k)
+				for (uint32_t k = 0; k < channelsPerPixel; ++k)
 				{
-					for (int b = 0; b < bytesPerChannel; ++b)
+					for (uint32_t b = 0; b < bytesPerChannel; ++b)
 					{
 						std::swap(pixels[j * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b],
 								  pixels[j * width * bytesPerPixel + (width - 1 - i) * bytesPerPixel + k * bytesPerChannel + b]);
@@ -299,17 +301,19 @@ namespace Nexus::Utils
 		}
 	}
 
-	void FlipPixelsVertically(std::vector<unsigned char> &pixels, int width, int height, int bytesPerChannel, int channels)
+	void FlipPixelsVertically(std::vector<unsigned char> &pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format)
 	{
-		int bytesPerPixel = bytesPerChannel * channels;
+		uint32_t bytesPerPixel	  = Graphics::GetPixelFormatSizeInBytes(format);
+		uint32_t channelsPerPixel = Graphics::GetPixelFormatNumberOfChannels(format);
+		uint32_t bytesPerChannel  = bytesPerPixel / channelsPerPixel;
 
-		for (int j = 0; j < height / 2; ++j)
+		for (uint32_t j = 0; j < height / 2; ++j)
 		{
-			for (int i = 0; i < width; ++i)
+			for (uint32_t i = 0; i < width; ++i)
 			{
-				for (int k = 0; k < channels; ++k)
+				for (uint32_t k = 0; k < channelsPerPixel; ++k)
 				{
-					for (int b = 0; b < bytesPerChannel; ++b)
+					for (uint32_t b = 0; b < bytesPerChannel; ++b)
 					{
 						std::swap(pixels[j * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b],
 								  pixels[(height - 1 - j) * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b]);
