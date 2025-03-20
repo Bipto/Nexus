@@ -6,6 +6,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_COMPILE_WARNING_AS_ERROR OFF)
 
+if (NOT DEFINED NX_BUILD_TYPE)
+  set(NX_BUILD_TYPE STATIC)
+endif()
+
 add_subdirectory(cmake-utils)
 
 set(SHADERC_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
@@ -259,189 +263,67 @@ list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glad)
 
 set(ENGINE_SOURCES "include/Nexus.hpp" "src/Nexus.cpp")
 file (GLOB_RECURSE NEXUS_SOURCES "include/*.hpp" "src/Nexus-Core/*.cpp")
-list (APPEND ENGINE_SOURCES  ${NEXUS_SOURCES})
+list (APPEND ENGINE_SOURCES ${NEXUS_SOURCES})
 
 if (DEFINED NX_PLATFORM_D3D12)
-  list (APPEND ENGINE_SOURCES
-    src/Platform/D3D12/BufferD3D12.cpp
-    src/Platform/D3D12/BufferD3D12.hpp
-    src/Platform/D3D12/CommandExecutorD3D12.cpp
-    src/Platform/D3D12/CommandExecutorD3D12.hpp
-    src/Platform/D3D12/CommandListD3D12.cpp
-    src/Platform/D3D12/CommandListD3D12.hpp
-    src/Platform/D3D12/D3D12Include.hpp
-    src/Platform/D3D12/D3D12Utils.cpp
-    src/Platform/D3D12/D3D12Utils.hpp
-    src/Platform/D3D12/FramebufferD3D12.cpp
-    src/Platform/D3D12/FramebufferD3D12.hpp
-    src/Platform/D3D12/GraphicsDeviceD3D12.cpp
-    src/Platform/D3D12/GraphicsDeviceD3D12.hpp
-    src/Platform/D3D12/PipelineD3D12.cpp
-    src/Platform/D3D12/PipelineD3D12.hpp
-    src/Platform/D3D12/ResourceSetD3D12.cpp
-    src/Platform/D3D12/ResourceSetD3D12.hpp
-    src/Platform/D3D12/SamplerD3D12.cpp
-    src/Platform/D3D12/SamplerD3D12.hpp
-    src/Platform/D3D12/ShaderModuleD3D12.cpp
-    src/Platform/D3D12/ShaderModuleD3D12.hpp
-    src/Platform/D3D12/SwapchainD3D12.cpp
-    src/Platform/D3D12/SwapchainD3D12.hpp
-    src/Platform/D3D12/TextureD3D12.cpp
-    src/Platform/D3D12/TextureD3D12.hpp
-    src/Platform/D3D12/TimingQueryD3D12.cpp
-    src/Platform/D3D12/TimingQueryD3D12.hpp)
-  endif()
+  file (GLOB_RECURSE NEXUS_D3D12_SOURCES "src/Platform/D3D12/*.cpp" "src/Platform/D3D12/*.hpp")
+  list (APPEND ENGINE_SOURCES ${NEXUS_D3D12_SOURCES})
+endif()
 
 if (DEFINED NX_PLATFORM_OPENAL)
-  list (APPEND ENGINE_SOURCES
-    src/Platform/OpenAL/AudioBufferOpenAL.cpp
-    src/Platform/OpenAL/AudioBufferOpenAL.hpp
-    src/Platform/OpenAL/AudioDeviceOpenAL.cpp
-    src/Platform/OpenAL/AudioDeviceOpenAL.hpp
-    src/Platform/OpenAL/AudioSourceOpenAL.cpp
-    src/Platform/OpenAL/AudioSourceOpenAL.hpp
-    src/Platform/OpenAL/OpenAL.hpp)
+  file (GLOB_RECURSE NEXUS_OPENAL_SOURCES "src/Platform/OpenAL/*.cpp" "src/Platform/OpenAL/*.hpp")
+  list (APPEND ENGINE_SOURCES ${NEXUS_OPENAL_SOURCES})
 endif()
 
 if (DEFINED NX_PLATFORM_OPENGL)
-  list (APPEND ENGINE_SOURCES
-    src/Platform/OpenGL/BufferOpenGL.cpp
-    src/Platform/OpenGL/BufferOpenGL.hpp
-    src/Platform/OpenGL/CommandExecutorOpenGL.cpp
-    src/Platform/OpenGL/CommandExecutorOpenGL.hpp
-    src/Platform/OpenGL/CommandListOpenGL.hpp
-    src/Platform/OpenGL/ContextSpecification.hpp
-    src/Platform/OpenGL/FramebufferOpenGL.cpp
-    src/Platform/OpenGL/FramebufferOpenGL.hpp
-    src/Platform/OpenGL/GL.cpp
-    src/Platform/OpenGL/GL.hpp
-    src/Platform/OpenGL/GraphicsDeviceOpenGL.cpp
-    src/Platform/OpenGL/GraphicsDeviceOpenGL.hpp
-    src/Platform/OpenGL/PipelineOpenGL.cpp
-    src/Platform/OpenGL/PipelineOpenGL.hpp
-    src/Platform/OpenGL/ResourceSetOpenGL.cpp
-    src/Platform/OpenGL/ResourceSetOpenGL.hpp
-    src/Platform/OpenGL/SamplerOpenGL.cpp
-    src/Platform/OpenGL/SamplerOpenGL.hpp
-    src/Platform/OpenGL/ShaderModuleOpenGL.cpp
-    src/Platform/OpenGL/ShaderModuleOpenGL.hpp
-    src/Platform/OpenGL/SwapchainOpenGL.cpp
-    src/Platform/OpenGL/SwapchainOpenGL.hpp
-    src/Platform/OpenGL/TextureOpenGL.cpp
-    src/Platform/OpenGL/TextureOpenGL.hpp
-    src/Platform/OpenGL/TimingQueryOpenGL.cpp
-    src/Platform/OpenGL/TimingQueryOpenGL.hpp)
+  file (GLOB_RECURSE NEXUS_OPENGL_SOURCES "src/Platform/OpenGL/*.cpp" "src/Platform/OpenGL/*.hpp")
+  list (APPEND ENGINE_SOURCES ${NEXUS_OPENGL_SOURCES})
 endif()
 
-list (APPEND ENGINE_SOURCES
-  src/Platform/OpenGL/Context/IOffscreenContext.hpp
-  src/Platform/OpenGL/Context/IViewContext.hpp)
+file (GLOB NEXUS_OPENGL_CONTEXT_HEADERS "src/Platform/OpenGL/Context/*.hpp")
+list (APPEND ENGINE_SOURCES ${NEXUS_OPENGL_CONTEXT_HEADERS})
 
 if (DEFINED NX_PLATFORM_EGL)
-  list (APPEND ENGINE_SOURCES
-    src/Platform/OpenGL/Context/EGL/EGLUtils.hpp
-    src/Platform/OpenGL/Context/EGL/OffscreenContextEGL.cpp
-    src/Platform/OpenGL/Context/EGL/OffscreenContextEGL.hpp
-    src/Platform/OpenGL/Context/EGL/ViewContextEGL.cpp
-    src/Platform/OpenGL/Context/EGL/ViewContextEGL.hpp)
+  file (GLOB_RECURSE NEXUS_EGL_SOURCES "src/Platform/OpenGL/Context/EGL/*.cpp" "src/Platform/OpenGL/Context/EGL/*.hpp")
+  list (APPEND ENGINE_SOURCES ${NEXUS_EGL_SOURCES})
 endif()
 
 if (DEFINED NX_PLATFORM_WEBGL)
-  list (APPEND ENGINE_SOURCES
-    src/Platform/OpenGL/Context/WebGL/OffscreenContextWebGL.cpp
-    src/Platform/OpenGL/Context/WebGL/OffscreenContextWebGL.hpp
-    src/Platform/OpenGL/Context/WebGL/ViewContextWebGL.cpp
-    src/Platform/OpenGL/Context/WebGL/ViewContextWebGL.hpp)
+  file (GLOB_RECURSE NEXUS_WEBGL_SOURCES "src/Platform/OpenGL/Context/WebGL/*.cpp" "src/Platform/OpenGL/Context/WebGL/*.hpp")
+  list (APPEND ENGINE_SOURCES ${NEXUS_WEBGL_SOURCES})
 endif()
 
 if (DEFINED NX_PLATFORM_WGL)
-  list (APPEND ENGINE_SOURCES
-    src/Platform/OpenGL/Context/WGL/OffscreenContextWGL.cpp
-    src/Platform/OpenGL/Context/WGL/OffscreenContextWGL.hpp
-    src/Platform/OpenGL/Context/WGL/ViewContextWGL.cpp
-    src/Platform/OpenGL/Context/WGL/ViewContextWGL.hpp
-    )
+    file (GLOB_RECURSE NEXUS_WGL_SOURCES "src/Platform/OpenGL/Context/WGL/*.cpp" "src/Platform/OpenGL/Context/WGL/*.hpp")
+    list (APPEND ENGINE_SOURCES ${NEXUS_WGL_SOURCES})
 endif()
 
-list (APPEND ENGINE_SOURCES
-  src/Platform/SDL3/FileDialogsSDL3.cpp
-  src/Platform/SDL3/FileDialogsSDL3.hpp
-  src/Platform/SDL3/SDL3Include.cpp
-  src/Platform/SDL3/SDL3Include.hpp
-  src/Platform/SDL3/SDL3Window.cpp
-  src/Platform/SDL3/SDL3Window.hpp
-  src/Platform/SDL3/SDLPlatform.cpp)
+file (GLOB_RECURSE NEXUS_SDL_SOURCES "src/Platform/SDL3/*.cpp" "src/Platform/SDL3/*.hpp")
+list (APPEND ENGINE_SOURCES ${NEXUS_SDL_SOURCES})
 
 if (DEFINED NX_PLATFORM_VULKAN)
-  list (APPEND ENGINE_SOURCES
-    src/Platform/Vulkan/BufferVk.cpp
-    src/Platform/Vulkan/BufferVk.hpp
-    src/Platform/Vulkan/CommandExecutorVk.cpp
-    src/Platform/Vulkan/CommandExecutorVk.hpp
-    src/Platform/Vulkan/CommandListVk.cpp
-    src/Platform/Vulkan/CommandListVk.hpp
-    src/Platform/Vulkan/FramebufferVk.cpp
-    src/Platform/Vulkan/FramebufferVk.hpp
-    src/Platform/Vulkan/GraphicsDeviceVk.cpp
-    src/Platform/Vulkan/GraphicsDeviceVk.hpp
-    src/Platform/Vulkan/PipelineVk.cpp
-    src/Platform/Vulkan/PipelineVk.hpp
-    src/Platform/Vulkan/PlatformVk.hpp
-    src/Platform/Vulkan/ResourceSetVk.cpp
-    src/Platform/Vulkan/ResourceSetVk.hpp
-    src/Platform/Vulkan/SamplerVk.cpp
-    src/Platform/Vulkan/SamplerVk.hpp
-    src/Platform/Vulkan/ShaderModuleVk.cpp
-    src/Platform/Vulkan/ShaderModuleVk.hpp
-    src/Platform/Vulkan/SwapchainVk.cpp
-    src/Platform/Vulkan/SwapchainVk.hpp
-    src/Platform/Vulkan/TextureVk.cpp
-    src/Platform/Vulkan/TextureVk.hpp
-    src/Platform/Vulkan/TimingQueryVk.cpp
-    src/Platform/Vulkan/TimingQueryVk.hpp
-    src/Platform/Vulkan/Vk.cpp
-    src/Platform/Vulkan/Vk.hpp)
+    file (GLOB NEXUS_VULKAN_SOURCES "src/Platform/Vulkan/*.cpp" "src/Platform/Vulkan/*.hpp")
+    list (APPEND ENGINE_SOURCES ${NEXUS_VULKAN_SOURCES})
 
     if (WIN32)
-      list (APPEND ENGINE_SOURCES
-        src/Platform/Vulkan/Windows/PlatformVkWindows.cpp)
-        list (APPEND NEXUS_COMPILE_DEFINITIONS VK_USE_PLATFORM_WIN32_KHR=1)
+      list (APPEND ENGINE_SOURCES src/Platform/Vulkan/Windows/PlatformVkWindows.cpp)
+      list (APPEND NEXUS_COMPILE_DEFINITIONS VK_USE_PLATFORM_WIN32_KHR=1)
     endif()
 
     if (LINUX)
-      list (APPEND ENGINE_SOURCES
-        src/Platform/Vulkan/Xlib/PlatformVkXlib.cpp)
-        list (APPEND NEXUS_COMPILE_DEFINITIONS VK_USE_PLATFORM_XLIB_KHR=1)
+      list (APPEND ENGINE_SOURCES src/Platform/Vulkan/Xlib/PlatformVkXlib.cpp)
+      list (APPEND NEXUS_COMPILE_DEFINITIONS VK_USE_PLATFORM_XLIB_KHR=1)
     endif()
 endif()
 
 if (WIN32)
-  list (APPEND ENGINE_SOURCES
-    src/Platform/Windows/PlatformWindows.cpp
-    src/Platform/Windows/SharedLibraryWindows.hpp
-    src/Platform/Windows/SharedLibraryWindows.cpp
-    include/Platform/Windows/WindowsInclude.hpp)
+  file (GLOB_RECURSE NEXUS_WINDOWS_SOURCES "src/Platform/Windows/*cpp" "include/Platform/Windows/*.hpp")
+  list (APPEND ENGINE_SOURCES ${NEXUS_WINDOWS_SOURCES})
 endif()
 
-if (LINUX)
-  list (APPEND ENGINE_SOURCES include/Platform/X11/X11Include.hpp
-  src/Platform/Unix/PlatformUnix.cpp
-  src/Platform/Unix/SharedLibraryUnix.hpp
-  src/Platform/Unix/SharedLibraryUnix.cpp
-  include/Platform/Unix/UnixInclude.hpp
-  )
-endif()
-
-if (EMSCRIPTEN)
-  list (APPEND ENGINE_SOURCES
-  src/Platform/Unix/PlatformUnix.cpp
-  src/Platform/Unix/SharedLibraryUnix.hpp
-  src/Platform/Unix/SharedLibraryUnix.cpp
-  include/Platform/Unix/UnixInclude.hpp)
-endif()
-
-if (NOT DEFINED NX_BUILD_TYPE)
-  set(NX_BUILD_TYPE STATIC)
+if (LINUX OR EMSCRIPTEN)
+  file (GLOB_RECURSE NEXUS_X11_SOURCES "src/Platform/Unix/*.cpp" "include/Platform/Unix/*.hpp")
+  list (APPEND ENGINE_SOURCES  ${NEXUS_X11_SOURCES})
 endif()
 
 add_library(Nexus ${NX_BUILD_TYPE} ${ENGINE_SOURCES})
