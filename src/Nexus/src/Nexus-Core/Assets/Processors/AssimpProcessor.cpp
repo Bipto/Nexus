@@ -1,4 +1,4 @@
-#include "Nexus-Core/Assets/Importers/AssimpImporter.hpp"
+#include "Nexus-Core/Assets/Processors/AssimpProcessor.hpp"
 
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"
@@ -6,7 +6,7 @@
 
 #include "stb_image.h"
 
-namespace Nexus
+namespace Nexus::Processors
 {
 	void ProcessMesh(aiMesh *mesh, const aiScene *scene, std::vector<Graphics::MeshData> &meshes, Graphics::GraphicsDevice *device)
 	{
@@ -256,9 +256,10 @@ namespace Nexus
 		file.close();
 	}
 
-	Ref<Graphics::Model> AssimpImporter::Import(const std::string &filepath, Graphics::GraphicsDevice *device)
+	ModelImportData AssimpProcessor::LoadModel(const std::string &filepath, Graphics::GraphicsDevice *device)
 	{
-		Assimp::Importer importer = {};
+		Assimp::Importer	  importer = {};
+		std::filesystem::path path	   = filepath;
 
 		unsigned int flags = aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_FindInvalidData | aiProcess_GenSmoothNormals |
 							 aiProcess_ImproveCacheLocality | aiProcess_CalcTangentSpace | aiProcess_ValidateDataStructure | aiProcess_FindInstances |
@@ -282,17 +283,23 @@ namespace Nexus
 			return {};
 		}
 
-		std::filesystem::path			 path = filepath;
-		std::vector<Ref<Graphics::Mesh>> meshes;
-		std::vector<Graphics::Material>	 materials = ImportMaterials(scene, path.parent_path().string(), device);
-		std::vector<Graphics::MeshData>	 meshData  = {};
+		std::vector<Graphics::Material> materials = ImportMaterials(scene, path.parent_path().string(), device);
+		std::vector<Graphics::MeshData> meshData  = {};
 
 		ProcessNode(scene->mRootNode, scene, materials, meshData, device);
-		WriteBinaryModelFile(path.string() + ".bin", meshData);
 
-		for (size_t i = 0; i < meshData.size(); i++)
+		return ModelImportData {.meshes = meshData, .materials = materials};
+	}
+
+	Ref<Graphics::Model> AssimpProcessor::Import(const std::string &filepath, Graphics::GraphicsDevice *device)
+	{
+		ModelImportData					 importData = LoadModel(filepath, device);
+		std::vector<Ref<Graphics::Mesh>> meshes;
+		WriteBinaryModelFile(filepath + ".bin", importData.meshes);
+
+		for (size_t i = 0; i < importData.meshes.size(); i++)
 		{
-			const Graphics::MeshData &data = meshData[i];
+			const Graphics::MeshData &data = importData.meshes[i];
 
 			Nexus::Graphics::BufferDescription vertexBufferDesc;
 			vertexBufferDesc.Size  = data.vertices.size() * sizeof(Graphics::VertexPositionTexCoordNormalColourTangentBitangent);
@@ -304,11 +311,25 @@ namespace Nexus
 			indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
 			auto indexBuffer	  = device->CreateIndexBuffer(indexBufferDesc, data.indices.data());
 
-			Graphics::Material		   material = materials[data.materialIndex];
+			Graphics::Material		   material = importData.materials[data.materialIndex];
 			Nexus::Ref<Graphics::Mesh> mesh		= CreateRef<Graphics::Mesh>(vertexBuffer, indexBuffer, material, data.name);
 			meshes.push_back(mesh);
 		}
 
 		return CreateRef<Graphics::Model>(meshes);
 	}
-}	 // namespace Nexus
+
+	GUID AssimpProcessor::Process(const std::string &filepath, Graphics::GraphicsDevice *device, Assets::AssetRegistry *registry)
+	{
+		ModelImportData importData = LoadModel(filepath, device);
+
+		std::filesystem::path path			 = filepath;
+		std::filesystem::path root			 = path.parent_path();
+		std::filesystem::path outputFilePath = root.string() + "/" + path.stem().string() + std::string(".model");
+
+		WriteBinaryModelFile(outputFilePath.string(), importData.meshes);
+
+		return registry->RegisterAsset(outputFilePath.string());
+	}
+
+}	 // namespace Nexus::Processors

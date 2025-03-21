@@ -437,6 +437,11 @@ namespace Nexus
 		throw std::runtime_error("Type is not registered for creation");
 	}
 
+	Assets::AssetRegistry &Project::GetAssetRegistry()
+	{
+		return m_AssetRegistry;
+	}
+
 	void Project::WriteProjectFile()
 	{
 		// create directories if they do not exist
@@ -464,6 +469,22 @@ namespace Nexus
 		out << YAML::Key << "SceneDirectory" << YAML::Value << m_SceneDirectory;
 		out << YAML::Key << "AssetsDirectory" << YAML::Value << m_AssetsDirectory;
 		out << YAML::Key << "ScriptsDirectory" << YAML::Value << m_ScriptsDirectory;
+
+		const auto &storedAssets = m_AssetRegistry.GetStoredFilepaths();
+
+		out << YAML::Value << "Assets" << YAML::BeginSeq;
+		if (storedAssets.size() > 0)
+		{
+			for (const auto &[id, filepath] : storedAssets)
+			{
+				out << YAML::BeginMap;
+				out << YAML::Key << "ID" << id;
+				out << YAML::Key << "Filepath" << filepath;
+				out << YAML::EndMap;
+			}
+		}
+		out << YAML::EndSeq;
+
 		out << YAML::EndMap;
 
 		std::string filepath = m_RootDirectory + "/" + m_Name + ".proj";

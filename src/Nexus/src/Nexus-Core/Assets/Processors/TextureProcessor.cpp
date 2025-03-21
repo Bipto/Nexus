@@ -13,7 +13,7 @@ namespace Nexus::Processors
 	{
 	}
 
-	GUID TextureProcessor::Process(const std::string &filepath, Graphics::GraphicsDevice *device)
+	GUID TextureProcessor::Process(const std::string &filepath, Graphics::GraphicsDevice *device, Assets::AssetRegistry *registry)
 	{
 		std::vector<Graphics::Image> mips = {};
 		Ref<Graphics::Texture2D> texture = device->CreateTexture2D(filepath.c_str(), m_GenerateMips, m_Srgb);
@@ -21,19 +21,24 @@ namespace Nexus::Processors
 		for (uint32_t level = 0; level < texture->GetLevels(); level++)
 		{
 			Graphics::Image mip = texture->GetDataAsImage(level);
-			
-			/* /* if (device->GetGraphicsAPI() == Graphics::GraphicsAPI::OpenGL)
+
+			if (device->GetGraphicsAPI() == Graphics::GraphicsAPI::OpenGL)
 			{
 				mip.FlipVertically();
-			}*/
+			}
 
 			mips.push_back(mip);
 		}
 
-		std::string outputFilePath = filepath + ".bin";
+		std::filesystem::path path			 = filepath;
+		std::filesystem::path root			 = path.parent_path();
+		std::filesystem::path outputFilePath = root.string() + "/" + path.stem().string() + std::string(".texture2d");
 		std::ofstream file(outputFilePath, std::ios::binary);
 
-		for (size_t level = 0; level < 1; level++)
+		file << (uint32_t)texture->GetSpecification().Format << " ";
+		file << mips.size() << " ";
+
+		for (size_t level = 0; level < mips.size(); level++)
 		{
 			const Graphics::Image& image = mips[level];
 			file << image.Width << " " << image.Height << " ";
@@ -42,7 +47,7 @@ namespace Nexus::Processors
 
 		file.close();
 
-		return GUID();
+		return registry->RegisterAsset(outputFilePath.string());
 	}
 
 	void Nexus::Processors::TextureProcessor::SetSrgb(bool useSrgb)

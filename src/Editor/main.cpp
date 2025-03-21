@@ -19,6 +19,7 @@
 
 #include "Nexus-Core/Utils/ScriptProjectGenerator.hpp"
 
+#include "Nexus-Core/Assets/Processors/AssimpProcessor.hpp"
 #include "Nexus-Core/Assets/Processors/TextureProcessor.hpp"
 
 class EditorApplication : public Nexus::Application
@@ -203,7 +204,7 @@ class EditorApplication : public Nexus::Application
 				ImGui::EndMenu();
 			}
 
-			if (ImGui::MenuItem("Open Model"))
+			if (ImGui::MenuItem("Process Model"))
 			{
 				std::vector<Nexus::FileDialogFilter>   filters = {{"All files", "*"}};
 				std::unique_ptr<Nexus::OpenFileDialog> dialog  = std::unique_ptr<Nexus::OpenFileDialog>(
@@ -212,8 +213,9 @@ class EditorApplication : public Nexus::Application
 				Nexus::FileDialogResult result = dialog->Show();
 				if (result.FilePaths.size() > 0)
 				{
-					Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
-					m_Model = factory.CreateFrom3DModelFile(result.FilePaths[0]);
+					Nexus::Processors::AssimpProcessor processor = {};
+					Nexus::Assets::AssetRegistry	  &registry	 = m_Project->GetAssetRegistry();
+					Nexus::GUID						   id		 = processor.Process(result.FilePaths[0], m_GraphicsDevice, &registry);
 				}
 			}
 
@@ -223,11 +225,15 @@ class EditorApplication : public Nexus::Application
 				std::unique_ptr<Nexus::OpenFileDialog> dialog  = std::unique_ptr<Nexus::OpenFileDialog>(
 					 Nexus::Platform::CreateOpenFileDialog(Nexus::GetApplication()->GetPrimaryWindow(), filters, nullptr, false));
 
-				Nexus::FileDialogResult result = dialog->Show();
-				if (result.FilePaths.size() > 0)
+				if (m_Project)
 				{
-					Nexus::Processors::TextureProcessor textureProcessor = {};
-					textureProcessor.Process(result.FilePaths[0], m_GraphicsDevice);
+					Nexus::FileDialogResult result = dialog->Show();
+					if (result.FilePaths.size() > 0)
+					{
+						Nexus::Processors::TextureProcessor textureProcessor = {};
+						Nexus::Assets::AssetRegistry	   &assetRegistry	 = m_Project->GetAssetRegistry();
+						Nexus::GUID							guid = textureProcessor.Process(result.FilePaths[0], m_GraphicsDevice, &assetRegistry);
+					}
 				}
 			}
 
@@ -618,10 +624,10 @@ class EditorApplication : public Nexus::Application
 	std::vector<Panel *>	   m_Panels				   = {};
 	EditorPropertiesPanel	  *m_EditorPropertiesPanel = nullptr;
 
-	std::optional<glm::vec2>   m_ClickPosition			  = {};
-	std::optional<Nexus::GUID> m_EntityID				  = {};
-	bool					   m_FramebufferClickEnabled  = true;
-	ImGuizmo::OPERATION		   m_CurrentOperation		  = ImGuizmo::OPERATION::TRANSLATE;
+	std::optional<glm::vec2>   m_ClickPosition			 = {};
+	std::optional<Nexus::GUID> m_EntityID				 = {};
+	bool					   m_FramebufferClickEnabled = true;
+	ImGuizmo::OPERATION		   m_CurrentOperation		 = ImGuizmo::OPERATION::TRANSLATE;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)

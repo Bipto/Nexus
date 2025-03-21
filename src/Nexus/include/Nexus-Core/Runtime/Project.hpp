@@ -90,6 +90,7 @@ namespace Nexus
 												 size_t				entityHierarchyIndex);
 
 		void CreateComponent(const char *typeName, ECS::Registry &registry, const Entity &entity);
+		Assets::AssetRegistry &GetAssetRegistry();
 
 	  private:
 		void WriteProjectFile();

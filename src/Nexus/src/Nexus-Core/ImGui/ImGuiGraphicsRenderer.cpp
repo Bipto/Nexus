@@ -349,68 +349,6 @@ namespace Nexus::ImGuiUtils
 				io.AddInputCharactersUTF8(args.Text);
 			});
 
-		window->AddMouseMovedCallback(
-			[&](const MouseMovedEventArgs &args)
-			{
-				ImGuiIO &io = ImGui::GetIO();
-				if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-				{
-					io.AddMousePosEvent(args.ScreenPosition.X, args.ScreenPosition.Y);
-				}
-				else
-				{
-					io.AddMousePosEvent(args.Position.X, args.Position.Y);
-				}
-			});
-
-		window->AddMousePressedCallback(
-			[&](const MouseButtonPressedEventArgs &args)
-			{
-				ImGuiIO &io = ImGui::GetIO();
-				switch (args.Button)
-				{
-					case MouseButton::Left:
-					{
-						io.AddMouseButtonEvent(0, true);
-						break;
-					}
-					case MouseButton::Right:
-					{
-						io.AddMouseButtonEvent(1, true);
-						break;
-					}
-					case MouseButton::Middle:
-					{
-						io.AddMouseButtonEvent(2, true);
-						break;
-					}
-				}
-			});
-
-		window->AddMouseReleasedCallback(
-			[&](const MouseButtonReleasedEventArgs &args)
-			{
-				ImGuiIO &io = ImGui::GetIO();
-				switch (args.Button)
-				{
-					case MouseButton::Left:
-					{
-						io.AddMouseButtonEvent(0, false);
-						break;
-					}
-					case MouseButton::Right:
-					{
-						io.AddMouseButtonEvent(1, false);
-						break;
-					}
-					case MouseButton::Middle:
-					{
-						io.AddMouseButtonEvent(2, false);
-						break;
-					}
-				}
-			});
-
 		window->AddMouseScrollCallback(
 			[&](const MouseScrolledEventArgs &args)
 			{
@@ -470,6 +408,19 @@ namespace Nexus::ImGuiUtils
 		io.KeyCtrl	= activeWindow->IsKeyDown(ScanCode::LeftControl) || activeWindow->IsKeyDown(ScanCode::RightControl);
 		io.KeyAlt	= activeWindow->IsKeyDown(ScanCode::LeftAlt) || activeWindow->IsKeyDown(ScanCode::RightAlt);
 		io.KeySuper = activeWindow->IsKeyDown(ScanCode::LeftGUI) || activeWindow->IsKeyDown(ScanCode::RightGUI);
+
+		MouseState			  state	   = Platform::GetMouseState();
+		Nexus::Point2D<float> mousePos = activeWindow->GetMousePosition();
+
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			mousePos = state.MousePosition;
+		}
+
+		io.AddMousePosEvent(mousePos.X, mousePos.Y);
+		io.AddMouseButtonEvent(0, state.LeftButton == MouseButtonState::Pressed);
+		io.AddMouseButtonEvent(1, state.RightButton == MouseButtonState::Pressed);
+		io.AddMouseButtonEvent(2, state.MiddleButton == MouseButtonState::Pressed);
 
 		io.DisplaySize			   = {(float)mainWindow->GetWindowSize().X, (float)mainWindow->GetWindowSize().Y};
 		io.DisplayFramebufferScale = {1, 1};

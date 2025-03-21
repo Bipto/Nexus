@@ -34,4 +34,10 @@ namespace Nexus::Assets
 		m_Filepaths[id] = filepath;
 		return id;
 	}
+
+	const std::map<GUID, std::string> &Nexus::Assets::AssetRegistry::GetStoredFilepaths() const
+	{
+		return m_Filepaths;
+	}
+
 }	 // namespace Nexus::Assets
