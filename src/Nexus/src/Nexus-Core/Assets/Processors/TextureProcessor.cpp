@@ -13,7 +13,7 @@ namespace Nexus::Processors
 	{
 	}
 
-	GUID TextureProcessor::Process(const std::string &filepath, Graphics::GraphicsDevice *device, Assets::AssetRegistry *registry)
+	GUID TextureProcessor::Process(const std::string &filepath, Graphics::GraphicsDevice *device, Project *project)
 	{
 		std::vector<Graphics::Image> mips = {};
 		Ref<Graphics::Texture2D> texture = device->CreateTexture2D(filepath.c_str(), m_GenerateMips, m_Srgb);
@@ -31,8 +31,8 @@ namespace Nexus::Processors
 		}
 
 		std::filesystem::path path			 = filepath;
-		std::filesystem::path root			 = path.parent_path();
-		std::filesystem::path outputFilePath = root.string() + "/" + path.stem().string() + std::string(".texture2d");
+		std::string			  assetPath		 = path.stem().string() + std::string(".texture2d");
+		std::filesystem::path outputFilePath = project->GetFullAssetsDirectory() + "/" + assetPath;
 		std::ofstream file(outputFilePath, std::ios::binary);
 
 		file << (uint32_t)texture->GetSpecification().Format << " ";
@@ -47,7 +47,8 @@ namespace Nexus::Processors
 
 		file.close();
 
-		return registry->RegisterAsset(outputFilePath.string());
+		Assets::AssetRegistry &registry = project->GetAssetRegistry();
+		return registry.RegisterAsset(assetPath);
 	}
 
 	void Nexus::Processors::TextureProcessor::SetSrgb(bool useSrgb)

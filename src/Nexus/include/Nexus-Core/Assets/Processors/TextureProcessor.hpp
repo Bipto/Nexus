@@ -8,7 +8,7 @@ namespace Nexus::Processors
 	  public:
 		TextureProcessor();
 		virtual ~TextureProcessor();
-		GUID Process(const std::string &filepath, Graphics::GraphicsDevice *device, Assets::AssetRegistry *registry) final;
+		GUID Process(const std::string &filepath, Graphics::GraphicsDevice *device, Project *project) final;
 		void SetSrgb(bool useSrgb);
 		void SetGenerateMips(bool generateMips);
 
@@ -16,4 +16,6 @@ namespace Nexus::Processors
 		bool m_GenerateMips = true;
 		bool m_Srgb			= false;
 	};
+	NX_REGISTER_PROCESSOR(TextureProcessor, "Texture2D", (std::vector<std::string> {".jpg", ".png", ".dds"}));
 }	 // namespace Nexus::Processors
+

@@ -319,17 +319,17 @@ namespace Nexus::Processors
 		return CreateRef<Graphics::Model>(meshes);
 	}
 
-	GUID AssimpProcessor::Process(const std::string &filepath, Graphics::GraphicsDevice *device, Assets::AssetRegistry *registry)
+	GUID AssimpProcessor::Process(const std::string &filepath, Graphics::GraphicsDevice *device, Project *project)
 	{
 		ModelImportData importData = LoadModel(filepath, device);
 
 		std::filesystem::path path			 = filepath;
-		std::filesystem::path root			 = path.parent_path();
-		std::filesystem::path outputFilePath = root.string() + "/" + path.stem().string() + std::string(".model");
+		std::filesystem::path assetPath		 = path.stem().string() + std::string(".model");
+		std::filesystem::path outputFilePath = project->GetFullAssetsDirectory() + "/" + assetPath.string();
 
 		WriteBinaryModelFile(outputFilePath.string(), importData.meshes);
 
-		return registry->RegisterAsset(outputFilePath.string());
+		Assets::AssetRegistry &registry = project->GetAssetRegistry();
+		return registry.RegisterAsset(assetPath.string());
 	}
-
 }	 // namespace Nexus::Processors

@@ -21,6 +21,8 @@ namespace Nexus::Processors
 		AssimpProcessor() = default;
 		ModelImportData		 LoadModel(const std::string &filepath, Graphics::GraphicsDevice *device);
 		Ref<Graphics::Model> Import(const std::string &filepath, Graphics::GraphicsDevice *device);
-		GUID				 Process(const std::string &filepath, Graphics::GraphicsDevice *device, Assets::AssetRegistry *registry) final;
+		GUID				 Process(const std::string &filepath, Graphics::GraphicsDevice *device, Project *project) final;
 	};
+
+	NX_REGISTER_PROCESSOR(AssimpProcessor, "Models", (std::vector<std::string> {".fbx", ".obj", ".dae"}));
 }	 // namespace Nexus::Processors
