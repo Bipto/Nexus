@@ -24,5 +24,5 @@ namespace Nexus::Processors
 		GUID				 Process(const std::string &filepath, Graphics::GraphicsDevice *device, Project *project) final;
 	};
 
-	NX_REGISTER_PROCESSOR(AssimpProcessor, "Models", (std::vector<std::string> {".fbx", ".obj", ".dae"}));
+	// NX_REGISTER_PROCESSOR(AssimpProcessor, "Models", (std::vector<std::string> {".fbx", ".obj", ".dae"}));
 }	 // namespace Nexus::Processors

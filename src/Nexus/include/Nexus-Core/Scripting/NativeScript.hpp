@@ -98,20 +98,20 @@ namespace Nexus::Scripting
 		}
 	};
 
-	extern "C" inline NX_SCRIPT_EXPORT std::map<std::string, std::function<Nexus::Scripting::NativeScript *()>> &GetScriptRegistry()
+	extern "C++" inline NX_SCRIPT_EXPORT std::map<std::string, std::function<Nexus::Scripting::NativeScript *()>> &GetScriptRegistry()
 	{
 		return NativeScriptRegistry::GetRegistry();
 	}
 
-	extern "C" inline NX_SCRIPT_EXPORT ECS::ComponentRegistry &GetComponentRegistry()
+	extern "C++" inline NX_SCRIPT_EXPORT ECS::ComponentRegistry &GetComponentRegistry()
 	{
 		return ECS::ComponentRegistry::GetRegistry();
 	}
 
-	extern "C" inline NX_SCRIPT_EXPORT void ShareEngineState(Nexus::Application *app,
-															 ImGuiContext		*context,
-															 ImGuiMemAllocFunc	 allocFunc,
-															 ImGuiMemFreeFunc	 freeFunc)
+	extern "C++" inline NX_SCRIPT_EXPORT void ShareEngineState(Nexus::Application *app,
+															   ImGuiContext		  *context,
+															   ImGuiMemAllocFunc   allocFunc,
+															   ImGuiMemFreeFunc	   freeFunc)
 	{
 		Nexus::SetApplication(app);
 		ImGui::SetAllocatorFunctions(allocFunc, freeFunc, nullptr);
