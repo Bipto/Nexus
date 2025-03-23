@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.30)
 
 project ("Nexus")
 set(CMAKE_CXX_STANDARD 20)
@@ -11,6 +11,12 @@ if (NOT DEFINED NX_BUILD_TYPE)
 endif()
 
 add_subdirectory(cmake-utils)
+
+set(NEXUS_INCLUDE_DIRS "")
+set(NEXUS_LINKED_LIBRARIES "")
+set(NEXUS_LIBRARY_SUBDIRECTORIES "")
+set(NEXUS_SHARED_LIBRARY_SUBDIRECTORIES "")
+set(NEXUS_COMPILE_DEFINITIONS "")
 
 set(SHADERC_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
 set(SPIRV_SKIP_EXECUTABLES ON CACHE BOOL "" FORCE)
@@ -38,148 +44,26 @@ set(SPIRV_CROSS_CLI OFF CACHE BOOL "" FORCE)
 set(SPIRV_CROSS_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
 set(SKIP_SPIRV_TOOLS_INSTALL ON CACHE BOOL "" FORCE)
 set(ENABLE_SPIRV_TOOLS_INSTALL OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "")
+
+list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/SDL)
+list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glm)
+list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/freetype)
+list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/yaml-cpp)
+list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/libnyquist)
+list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/assimp)
+list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/imgui)
+list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/SPIRV-Cross)
+list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/SPIRV-Headers)
+list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/SPIRV-Tools)
+list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glslang)
+list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/shaderc)
 
 include (FetchContent)
-FetchContent_Declare(
-  SDL3
-  GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-  GIT_TAG 4a9b579
-)
-FetchContent_MakeAvailable(SDL3)
-
-
-FetchContent_Declare(
-  glm
-  GIT_REPOSITORY https://github.com/g-truc/glm.git
-  GIT_TAG 2d4c4b4
-)
-FetchContent_MakeAvailable(glm)
-
-FetchContent_Declare(
-  freetype
-  GIT_REPOSITORY https://github.com/freetype/freetype.git
-  GIT_TAG b1f4785
-)
-FetchContent_MakeAvailable(freetype)
-
-FetchContent_Declare(
-  stb
-  GIT_REPOSITORY https://github.com/nothings/stb.git
-  GIT_TAG 5c20573
-)
-FetchContent_MakeAvailable(stb)
-
-FetchContent_Declare(
-  yaml-cpp
-  GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
-  GIT_TAG 39f7374
-)
-FetchContent_MakeAvailable(yaml-cpp)
-
-FetchContent_Declare(
-  libnyquist
-  GIT_REPOSITORY https://github.com/ddiakopoulos/libnyquist.git
-  GIT_TAG 767efd9
-)
-FetchContent_MakeAvailable(libnyquist)
-
-FetchContent_Declare(
-  assimp
-  GIT_REPOSITORY https://github.com/assimp/assimp.git
-  GIT_TAG 7945359
-)
-set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "")
-FetchContent_MakeAvailable(assimp)
 
 if (NOT EMSCRIPTEN)
-  FetchContent_Declare(
-    OpenAL-Soft
-    GIT_REPOSITORY https://github.com/kcat/openal-soft.git
-    GIT_TAG 8bcef34
-  )
-  FetchContent_MakeAvailable(OpenAL-Soft)
+  add_subdirectory(external/openal-soft)
 endif()
-
-FetchContent_Declare(
-  imgui
-  GIT_REPOSITORY https://github.com/ocornut/imgui.git
-  GIT_TAG 2f91176
-)
-FetchContent_GetProperties(imgui)
-add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS=1)
-if (NOT imgui_POPULATED)
-  FetchContent_MakeAvailable(imgui)
-
-  set (IMGUI_INCLUDE_DIR "${imgui_SOURCE_DIR}/")
-
-  add_library(imgui STATIC
-    "${imgui_SOURCE_DIR}/imconfig.h"
-	  "${imgui_SOURCE_DIR}/imgui.cpp"
-	  "${imgui_SOURCE_DIR}/imgui.h"
-	  "${imgui_SOURCE_DIR}/imgui_demo.cpp"
-	  "${imgui_SOURCE_DIR}/imgui_draw.cpp"
-	  "${imgui_SOURCE_DIR}/imgui_internal.h"
-	  "${imgui_SOURCE_DIR}/imgui_tables.cpp"
-	  "${imgui_SOURCE_DIR}/imgui_widgets.cpp"
-	  "${imgui_SOURCE_DIR}/imstb_rectpack.h"
-	  "${imgui_SOURCE_DIR}/imstb_textedit.h"
-	  "${imgui_SOURCE_DIR}/imstb_truetype.h"	
-	  "${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.h"
-	  "${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.cpp"
-  )
-
-  target_include_directories(imgui PUBLIC ${IMGUI_INCLUDE_DIR})
-endif()
-
-FetchContent_Declare(
-  imguizmo
-  GIT_REPOSITORY https://github.com/CedricGuillemet/ImGuizmo.git
-  GIT_TAG b10e917
-)
-FetchContent_GetProperties(imguizmo)
-if (NOT imguizmo_POPULATED)
-  FetchContent_Populate(imguizmo)
-
-  set (IMGUIZMO_INCLUDE_DIR "${imguizmo_SOURCE_DIR}/")
-
-  add_library(imguizmo STATIC
-    "${imguizmo_SOURCE_DIR}/ImGuizmo.h"
-    "${imguizmo_SOURCE_DIR}/ImGuizmo.cpp")
-
-  target_include_directories(imguizmo PUBLIC ${IMGUI_INCLUDE_DIR} ${imguizmo_SOURCE_DIR})
-endif()
-
-FetchContent_Declare(spirv_cross
-  GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Cross.git
-  GIT_TAG 104d91a
-)
-FetchContent_MakeAvailable(spirv_cross)
-
-FetchContent_Declare(spirv_headers
-  GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
-  GIT_TAG a380cd2
-)
-FetchContent_MakeAvailable(spirv_headers)
-
-FetchContent_Declare(spirv_tools
-  GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Tools.git
-  GIT_TAG 8b39a8b
-)
-FetchContent_MakeAvailable(spirv_tools)
-
-FetchContent_Declare(
-  glslang
-  GIT_REPOSITORY https://github.com/KhronosGroup/glslang.git
-  GIT_TAG 9fe5223
-)
-FetchContent_MakeAvailable(glslang)
-
-FetchContent_Declare(
-  shaderc
-  GIT_REPOSITORY https://github.com/google/shaderc.git
-  GIT_TAG 4a8f5e5
-)
-FetchContent_MakeAvailable(shaderc)
 if (WIN32)
   FetchContent_Declare(
     DirectXShaderCompiler
@@ -187,12 +71,6 @@ if (WIN32)
   )
   FetchContent_MakeAvailable(DirectXShaderCompiler)
 endif()
-
-set(NEXUS_INCLUDE_DIRS "")
-set(NEXUS_LINKED_LIBRARIES "")
-set(NEXUS_LIBRARY_SUBDIRECTORIES "")
-set(NEXUS_SHARED_LIBRARY_SUBDIRECTORIES "")
-set(NEXUS_COMPILE_DEFINITIONS "")
 
 #platform specific configurations
 if (WIN32)
@@ -245,12 +123,7 @@ if (DEFINED NX_PLATFORM_VULKAN)
   list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_VULKAN=1)
   find_package(Vulkan REQUIRED)
 
-  FetchContent_Declare(
-    VulkanMemoryAllocator
-    GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
-    GIT_TAG 0e89587
-  )
-  FetchContent_MakeAvailable(VulkanMemoryAllocator)
+  list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/VulkanMemoryAllocator)
 
   list (APPEND NEXUS_LINKED_LIBRARIES Vulkan::Vulkan VulkanMemoryAllocator)
   list (APPEND NEXUS_INCLUDE_DIRS ${VULKAN_INCLUDE_DIRS})
@@ -340,17 +213,18 @@ nexus_setup_filters(${ENGINE_SOURCES})
 list (APPEND NEXUS_INCLUDE_DIRS 
   ${CMAKE_CURRENT_SOURCE_DIR}/src
   ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${stb_SOURCE_DIR}
+  external/stb
 )
 
 list (APPEND NEXUS_LINKED_LIBRARIES 
   glad
   SDL3::SDL3
   assimp
-  shaderc
   libnyquist
   spirv-cross-cpp
   spirv-cross-hlsl
+  glslang
+  shaderc
   freetype
   yaml-cpp::yaml-cpp
   glm::glm

@@ -1,0 +1,48 @@
+[submodule "src/Nexus/external/SDL"]
+	path = src/Nexus/external/SDL
+	url = https://github.com/libsdl-org/SDL.git
+[submodule "src/Nexus/external/glm"]
+	path = src/Nexus/external/glm
+	url = https://github.com/g-truc/glm.git
+[submodule "src/Nexus/external/freetype"]
+	path = src/Nexus/external/freetype
+	url = https://github.com/freetype/freetype.git
+[submodule "src/Nexus/external/stb"]
+	path = src/Nexus/external/stb
+	url = https://github.com/nothings/stb.git
+[submodule "src/Nexus/external/yaml-cpp"]
+	path = src/Nexus/external/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp.git
+[submodule "src/Nexus/external/libnyquist"]
+	path = src/Nexus/external/libnyquist
+	url = https://github.com/ddiakopoulos/libnyquist.git
+[submodule "src/Nexus/external/assimp"]
+	path = src/Nexus/external/assimp
+	url = https://github.com/assimp/assimp.git
+[submodule "src/Nexus/external/openal-soft"]
+	path = src/Nexus/external/openal-soft
+	url = https://github.com/kcat/openal-soft.git
+[submodule "src/Nexus/external/imgui/imgui"]
+	path = src/Nexus/external/imgui/imgui
+	url = https://github.com/ocornut/imgui.git
+[submodule "src/Nexus/external/imgui/ImGuizmo"]
+	path = src/Nexus/external/imgui/ImGuizmo
+	url = https://github.com/CedricGuillemet/ImGuizmo.git
+[submodule "src/Nexus/external/SPIRV-Cross"]
+	path = src/Nexus/external/SPIRV-Cross
+	url = https://github.com/KhronosGroup/SPIRV-Cross.git
+[submodule "src/Nexus/external/SPIRV-Headers"]
+	path = src/Nexus/external/SPIRV-Headers
+	url = https://github.com/KhronosGroup/SPIRV-Headers.git
+[submodule "src/Nexus/external/SPIRV-Tools"]
+	path = src/Nexus/external/SPIRV-Tools
+	url = https://github.com/KhronosGroup/SPIRV-Tools.git
+[submodule "src/Nexus/external/glslang"]
+	path = src/Nexus/external/glslang
+	url = https://github.com/KhronosGroup/glslang.git
+[submodule "src/Nexus/external/shaderc"]
+	path = src/Nexus/external/shaderc
+	url = https://github.com/google/shaderc.git
+[submodule "src/Nexus/external/VulkanMemoryAllocator"]
+	path = src/Nexus/external/VulkanMemoryAllocator
+	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
