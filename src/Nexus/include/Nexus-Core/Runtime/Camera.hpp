@@ -27,11 +27,10 @@ namespace Nexus
 			this->Resize(width, height);
 			this->m_Position = position;
 
-			Nexus::GetApplication()->GetPrimaryWindow()->OnMouseMoved.Bind([&](const MouseMovedEventArgs &event)
-																		   { Rotate(event.Movement.X, event.Movement.Y); });
-			// m_Device->GetPrimaryWindow()->SetRelativeMouseMode(true);
+			Nexus::GetApplication()->GetPrimaryWindow()->AddMouseMovedCallback([&](const MouseMovedEventArgs &event)
+																			   { Rotate(event.Movement.X, event.Movement.Y); });
 
-			Nexus::GetApplication()->GetPrimaryWindow()->OnMousePressed.Bind(
+			Nexus::GetApplication()->GetPrimaryWindow()->AddMousePressedCallback(
 				[&](const MouseButtonPressedEventArgs &event)
 				{
 					if (event.Button == MouseButton::Right)
@@ -45,21 +44,21 @@ namespace Nexus
 					}
 				});
 
-			Nexus::GetApplication()->GetPrimaryWindow()->OnKeyPressed.Bind(
-				[&](const KeyPressedEventArgs &event)
-				{
-					if (event.ScanCode == ScanCode::Escape)
-					{
-						IWindow *window = Nexus::GetApplication()->GetPrimaryWindow();
-						if (window)
-						{
-							window->SetRelativeMouseMode(false);
-						}
-						m_RotationActive = false;
-					}
-				});
+			 Nexus::GetApplication()->GetPrimaryWindow()->AddKeyPressedCallback(
+				 [&](const KeyPressedEventArgs &event)
+				 {
+					 if (event.ScanCode == ScanCode::Escape)
+					 {
+						 IWindow *window = Nexus::GetApplication()->GetPrimaryWindow();
+						 if (window)
+						 {
+							 window->SetRelativeMouseMode(false);
+						 }
+						 m_RotationActive = false;
+					 }
+				 });
 
-			RecalculateProjection();
+			 RecalculateProjection();
 		}
 
 		void Resize(int width, int height)
@@ -164,7 +163,7 @@ namespace Nexus
 			if (!defaultKeyboard.has_value())
 				return;
 
-			if (Input::IsKeyDown(defaultKeyboard.value(), ScanCode::LeftShift) || Input::IsKeyDown(3, ScanCode::RightShift))
+			if (Input::IsKeyDown(defaultKeyboard.value(), ScanCode::LeftShift) || Input::IsKeyDown(defaultKeyboard.value(), ScanCode::RightShift))
 			{
 				speed *= 2.0f;
 			}

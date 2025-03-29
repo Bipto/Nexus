@@ -7,24 +7,16 @@
 
 namespace Nexus::Graphics
 {
-	struct Polygon
+	struct NX_API Polygon
 	{
 	  public:
 		Polygon() = default;
 
-		explicit Polygon(const std::vector<Triangle2D> &triangles) : m_Triangles(triangles)
-		{
-		}
+		explicit Polygon(const std::vector<Triangle2D> &triangles);
 
-		void SetTriangles(const std::vector<Triangle2D> &triangles)
-		{
-			m_Triangles = triangles;
-		}
+		void SetTriangles(const std::vector<Triangle2D> &triangles);
 
-		const std::vector<Triangle2D> &GetTriangles() const
-		{
-			return m_Triangles;
-		}
+		const std::vector<Triangle2D> &GetTriangles() const;
 
 		bool Contains(const Nexus::Point2D<float> &point) const
 		{
@@ -37,6 +29,11 @@ namespace Nexus::Graphics
 			}
 
 			return false;
+		}
+
+		bool Empty() const
+		{
+			return m_Triangles.empty();
 		}
 
 		std::vector<glm::vec2> GetOutline() const
@@ -54,7 +51,7 @@ namespace Nexus::Graphics
 
 			for (const auto &[position, count] : vertexCounts)
 			{
-				if (count == 2)
+				if (count >= 2)
 				{
 					outline.push_back(position);
 				}

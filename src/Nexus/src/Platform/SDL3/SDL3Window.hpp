@@ -13,8 +13,6 @@ namespace Nexus
 		SDL3Window(const SDL3Window &) = delete;
 		virtual ~SDL3Window();
 
-		void CacheInput() final;
-
 		void Update() final;
 
 		/// @brief A method that allows a window to be resized
@@ -63,12 +61,6 @@ namespace Nexus
 		/// @param visible A boolean value indicating whether the mouse should be
 		/// visible
 		void SetIsMouseVisible(bool visible) final;
-
-		/// @brief A method that returns the window's input state
-		/// @return A pointer to the input state
-		InputState *GetInput() final;
-
-		Nexus::InputNew::InputContext *GetInputContext() final;
 
 		/// @brief A method that checks whether a window is focussed
 		/// @return A boolean value indicating whether the window is focussed
@@ -125,6 +117,75 @@ namespace Nexus
 
 		NativeWindowInfo GetNativeWindowInfo() final;
 
+		//==========================================================================================
+		//									SET CALLBACKS
+		//==========================================================================================
+		void AddResizeCallback(std::function<void(const WindowResizedEventArgs &)> func) final;
+		void AddMoveCallback(std::function<void(const WindowMovedEventArgs &)> func) final;
+
+		void AddFocusGainCallback(std::function<void()> func) final;
+		void AddFocusLostCallback(std::function<void()> func) final;
+		void AddMaximizedCallback(std::function<void()> func) final;
+		void AddMinimizedCallback(std::function<void()> func) final;
+		void AddRestoreCallback(std::function<void()> func) final;
+		void AddShowCallback(std::function<void()> func) final;
+		void AddHideCallback(std::function<void()> func) final;
+		void AddExposeCallback(std::function<void()> func) final;
+
+		void AddKeyPressedCallback(std::function<void(const KeyPressedEventArgs &)> func) final;
+		void AddKeyReleasedCallback(std::function<void(const KeyReleasedEventArgs &)> func) final;
+
+		void AddTextInputCallback(std::function<void(const TextInputEventArgs &)> func) final;
+		void AddTextEditCallback(std::function<void(const TextEditEventArgs &)> func) final;
+
+		void AddMousePressedCallback(std::function<void(const MouseButtonPressedEventArgs &)> func) final;
+		void AddMouseReleasedCallback(std::function<void(const MouseButtonReleasedEventArgs &)> func) final;
+		void AddMouseMovedCallback(std::function<void(const MouseMovedEventArgs &)> func) final;
+		void AddMouseScrollCallback(std::function<void(const MouseScrolledEventArgs &)> func) final;
+		void AddMouseEnterCallback(std::function<void()> func) final;
+		void AddMouseLeaveCallback(std::function<void()> func) final;
+
+		void AddFileDropCallback(std::function<void(const FileDropEventArgs &)> func) final;
+
+		//==========================================================================================
+		//									USE CALLBACKS
+		//==========================================================================================
+		void InvokeResizeCallback(const WindowResizedEventArgs &args);
+		void InvokeMoveCallback(const WindowMovedEventArgs &args);
+
+		void InvokeFocusGainCallback();
+		void InvokeFocusLostCallback();
+		void InvokeMaximizedCallback();
+		void InvokeMinimizedCallback();
+		void InvokeRestoreCallback();
+		void InvokeShowCallback();
+		void InvokeHideCallback();
+		void InvokeExposeCallback();
+
+		void InvokeKeyPressedCallback(const KeyPressedEventArgs &args);
+		void InvokeKeyReleasedCallback(const KeyReleasedEventArgs &args);
+
+		void InvokeTextInputCallback(const TextInputEventArgs &args);
+		void InvokeTextEditCallback(const TextEditEventArgs &args);
+
+		void InvokeMousePressedCallback(const MouseButtonPressedEventArgs &args);
+		void InvokeMouseReleasedCallback(const MouseButtonReleasedEventArgs &args);
+		void InvokeMouseMovedCallback(const MouseMovedEventArgs &args);
+		void InvokeMouseScrollCallback(const MouseScrolledEventArgs &args);
+		void InvokeMouseEnterCallback();
+		void InvokeMouseLeaveCallback();
+
+		void InvokeFileDropCallback(const FileDropEventArgs &args);
+
+		bool		   IsKeyDown(uint32_t keyboardId, ScanCode scancode) final;
+		bool		   IsKeyDown(ScanCode scancode) final;
+		Point2D<float> GetMousePosition(uint32_t mouseId) final;
+		Point2D<float> GetMouseScroll(uint32_t mouseId) final;
+		Point2D<float> GetMousePosition() final;
+		Point2D<float> GetMouseScroll() final;
+		bool		   IsMouseButtonPressed(uint32_t mouseId, MouseButton state) final;
+		bool		   IsMouseButtonPressed(MouseButton state) final;
+
 	  private:
 		/// @brief A method that returns a set of flags to use when creating the
 		/// window
@@ -145,9 +206,6 @@ namespace Nexus
 		/// @brief A boolean representing whether the window should close
 		bool m_Closing = false;
 
-		/// @brief A pointer to the window's input state
-		InputState m_Input;
-
 		/// @brief An enum value representing the current state of the window
 		WindowState m_CurrentWindowState = WindowState::Normal;
 
@@ -166,6 +224,34 @@ namespace Nexus
 		std::function<void(Nexus::TimeSpan)> m_UpdateFunc;
 		std::function<void(Nexus::TimeSpan)> m_TickFunc;
 
-		InputNew::InputContext m_InputContext = {nullptr};
+		std::vector<std::function<void(const WindowResizedEventArgs &)>> m_OnResizeCallbacks;
+		std::vector<std::function<void(const WindowMovedEventArgs &)>>	 m_OnMoveCallbacks;
+
+		std::vector<std::function<void()>> m_OnFocusGainCallbacks;
+		std::vector<std::function<void()>> m_OnFocusLostCallbacks;
+		std::vector<std::function<void()>> m_OnMaximizeCallbacks;
+		std::vector<std::function<void()>> m_OnMinimizeCallbacks;
+		std::vector<std::function<void()>> m_OnRestoreCallbacks;
+		std::vector<std::function<void()>> m_OnShowCallbacks;
+		std::vector<std::function<void()>> m_OnHideCallbacks;
+		std::vector<std::function<void()>> m_OnExposeCallbacks;
+
+		std::vector<std::function<void(const KeyPressedEventArgs &)>>  m_OnKeyPressedCallbacks;
+		std::vector<std::function<void(const KeyReleasedEventArgs &)>> m_OnKeyReleasedCallbacks;
+
+		std::vector<std::function<void(const TextInputEventArgs &)>> m_OnTextInputCallbacks;
+		std::vector<std::function<void(const TextEditEventArgs &)>>	 m_OnTextEditCallbacks;
+
+		std::vector<std::function<void(const MouseButtonPressedEventArgs &)>>  m_OnMouseButtonPressedCallbacks;
+		std::vector<std::function<void(const MouseButtonReleasedEventArgs &)>> m_OnMouseButtonReleasedCallbacks;
+		std::vector<std::function<void(const MouseMovedEventArgs &)>>		   m_OnMouseMovedCallbacks;
+		std::vector<std::function<void(const MouseScrolledEventArgs &)>>	   m_OnMouseScrolledCallbacks;
+		std::vector<std::function<void()>>									   m_OnMouseEnterCallbacks;
+		std::vector<std::function<void()>>									   m_OnMouseLeaveCallbacks;
+
+		std::vector<std::function<void(const FileDropEventArgs &)>> m_OnFileDropCallbacks;
+
+		std::map<uint32_t, KeyboardState> m_KeyboardStates;
+		std::map<uint32_t, MouseState>	  m_MouseStates;
 	};
 }	 // namespace Nexus

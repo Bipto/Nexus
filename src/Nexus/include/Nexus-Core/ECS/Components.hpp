@@ -110,7 +110,7 @@ namespace Nexus
 						  [](void *data, Nexus::Ref<Nexus::Project> project)
 						  {
 							  Nexus::ModelRenderer *renderer = static_cast<Nexus::ModelRenderer *>(data);
-							  ImGui::Text(renderer->FilePath.c_str());
+							  ImGui::Text("%s", renderer->FilePath.c_str());
 							  ImGui::SameLine();
 							  ImGui::PushID(Nexus::GUID {});
 

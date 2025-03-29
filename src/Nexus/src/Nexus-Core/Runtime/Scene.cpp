@@ -174,7 +174,7 @@ namespace Nexus
 		// we only instantiate scripts if it is the first time clicking the play button
 		if (m_SceneState == SceneState::Stopped)
 		{
-			// update native scripts
+			// instantiate native scripts
 			{
 				auto view = Registry.GetView<Nexus::NativeScriptComponent>();
 

@@ -3,10 +3,11 @@
 #include "Nexus-Core/IWindow.hpp"
 
 #include "Nexus-Core/Input/Input.hpp"
+#include "Nexus-Core/Platform.hpp"
 
 namespace Nexus
 {
-	SDL3Window::SDL3Window(const WindowSpecification &windowProps) : IWindow(windowProps), m_Specification(windowProps), m_InputContext(this)
+	SDL3Window::SDL3Window(const WindowSpecification &windowProps) : IWindow(windowProps), m_Specification(windowProps)
 	{
 		uint32_t flags = GetFlags(windowProps);
 
@@ -27,14 +28,8 @@ namespace Nexus
 		SDL_DestroyWindow(this->m_Window);
 	}
 
-	void SDL3Window::CacheInput()
-	{
-		m_Input.CacheInput();
-	}
-
 	void SDL3Window::Update()
 	{
-		m_InputContext.Reset();
 		m_Timer.Update();
 	}
 
@@ -133,16 +128,6 @@ namespace Nexus
 		{
 			SDL_HideCursor();
 		}
-	}
-
-	InputState *SDL3Window::GetInput()
-	{
-		return &m_Input;
-	}
-
-	Nexus::InputNew::InputContext *SDL3Window::GetInputContext()
-	{
-		return &m_InputContext;
 	}
 
 	bool SDL3Window::IsFocussed()
@@ -306,9 +291,298 @@ namespace Nexus
 		info.window	 = (Window)(unsigned long)SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0);
 #elif defined(NX_PLATFORM_WEB)
 		info.canvasId = m_Specification.CanvasId;
+#elif defined(NX_PLATFORM_ANDROID)
+		info.nativeWindow = (ANativeWindow *)SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_ANDROID_WINDOW_POINTER, nullptr);
 #endif
 
 		return info;
+	}
+
+	void SDL3Window::AddResizeCallback(std::function<void(const WindowResizedEventArgs &)> func)
+	{
+		m_OnResizeCallbacks.push_back(func);
+	}
+
+	void SDL3Window::AddMoveCallback(std::function<void(const WindowMovedEventArgs &)> func)
+	{
+		m_OnMoveCallbacks.push_back(func);
+	}
+
+	void SDL3Window::AddFocusGainCallback(std::function<void()> func)
+	{
+		m_OnFocusGainCallbacks.push_back(func);
+	}
+
+	void SDL3Window::AddFocusLostCallback(std::function<void()> func)
+	{
+		m_OnFocusLostCallbacks.push_back(func);
+	}
+
+	void SDL3Window::AddMaximizedCallback(std::function<void()> func)
+	{
+		m_OnMaximizeCallbacks.push_back(func);
+	}
+
+	void SDL3Window::AddMinimizedCallback(std::function<void()> func)
+	{
+		m_OnMinimizeCallbacks.push_back(func);
+	}
+
+	void SDL3Window::AddRestoreCallback(std::function<void()> func)
+	{
+		m_OnRestoreCallbacks.push_back(func);
+	}
+
+	void SDL3Window::AddShowCallback(std::function<void()> func)
+	{
+		m_OnShowCallbacks.push_back(func);
+	}
+
+	void SDL3Window::AddHideCallback(std::function<void()> func)
+	{
+		m_OnHideCallbacks.push_back(func);
+	}
+
+	void SDL3Window::AddExposeCallback(std::function<void()> func)
+	{
+		m_OnExposeCallbacks.push_back(func);
+	}
+
+	void SDL3Window::AddKeyPressedCallback(std::function<void(const KeyPressedEventArgs &)> func)
+	{
+		m_OnKeyPressedCallbacks.push_back(func);
+	}
+
+	void SDL3Window::AddKeyReleasedCallback(std::function<void(const KeyReleasedEventArgs &)> func)
+	{
+		m_OnKeyReleasedCallbacks.push_back(func);
+	}
+
+	void SDL3Window::AddTextInputCallback(std::function<void(const TextInputEventArgs &)> func)
+	{
+		m_OnTextInputCallbacks.push_back(func);
+	}
+
+	void SDL3Window::AddTextEditCallback(std::function<void(const TextEditEventArgs &)> func)
+	{
+		m_OnTextEditCallbacks.push_back(func);
+	}
+
+	void SDL3Window::AddMousePressedCallback(std::function<void(const MouseButtonPressedEventArgs &)> func)
+	{
+		m_OnMouseButtonPressedCallbacks.push_back(func);
+	}
+
+	void SDL3Window::AddMouseReleasedCallback(std::function<void(const MouseButtonReleasedEventArgs &)> func)
+	{
+		m_OnMouseButtonReleasedCallbacks.push_back(func);
+	}
+
+	void SDL3Window::AddMouseMovedCallback(std::function<void(const MouseMovedEventArgs &)> func)
+	{
+		m_OnMouseMovedCallbacks.push_back(func);
+	}
+
+	void SDL3Window::AddMouseScrollCallback(std::function<void(const MouseScrolledEventArgs &)> func)
+	{
+		m_OnMouseScrolledCallbacks.push_back(func);
+	}
+
+	void SDL3Window::AddMouseEnterCallback(std::function<void()> func)
+	{
+		m_OnMouseEnterCallbacks.push_back(func);
+	}
+
+	void SDL3Window::AddMouseLeaveCallback(std::function<void()> func)
+	{
+		m_OnMouseLeaveCallbacks.push_back(func);
+	}
+
+	void SDL3Window::AddFileDropCallback(std::function<void(const FileDropEventArgs &)> func)
+	{
+		m_OnFileDropCallbacks.push_back(func);
+	}
+
+	void SDL3Window::InvokeResizeCallback(const WindowResizedEventArgs &args)
+	{
+		for (auto &func : m_OnResizeCallbacks) { func(args); }
+	}
+
+	void SDL3Window::InvokeMoveCallback(const WindowMovedEventArgs &args)
+	{
+		for (auto &func : m_OnMoveCallbacks) { func(args); }
+	}
+
+	void SDL3Window::InvokeFocusGainCallback()
+	{
+		for (auto &func : m_OnFocusGainCallbacks) { func(); }
+	}
+
+	void SDL3Window::InvokeFocusLostCallback()
+	{
+		for (auto &func : m_OnFocusLostCallbacks) { func(); }
+	}
+
+	void SDL3Window::InvokeMaximizedCallback()
+	{
+		for (auto &func : m_OnMaximizeCallbacks) { func(); }
+	}
+
+	void SDL3Window::InvokeMinimizedCallback()
+	{
+		for (auto &func : m_OnMinimizeCallbacks) { func(); }
+	}
+
+	void SDL3Window::InvokeRestoreCallback()
+	{
+		for (auto &func : m_OnRestoreCallbacks) { func(); }
+	}
+
+	void SDL3Window::InvokeShowCallback()
+	{
+		for (auto &func : m_OnShowCallbacks) { func(); }
+	}
+
+	void SDL3Window::InvokeHideCallback()
+	{
+		for (auto &func : m_OnHideCallbacks) { func(); }
+	}
+
+	void SDL3Window::InvokeExposeCallback()
+	{
+		for (auto &func : m_OnExposeCallbacks) { func(); }
+	}
+
+	void SDL3Window::InvokeKeyPressedCallback(const KeyPressedEventArgs &args)
+	{
+		m_KeyboardStates[args.KeyboardID].Keys[args.ScanCode] = true;
+		for (auto &func : m_OnKeyPressedCallbacks) { func(args); }
+	}
+
+	void SDL3Window::InvokeKeyReleasedCallback(const KeyReleasedEventArgs &args)
+	{
+		m_KeyboardStates[args.KeyboardID].Keys[args.ScanCode] = false;
+		for (auto &func : m_OnKeyReleasedCallbacks) { func(args); }
+	}
+
+	void SDL3Window::InvokeTextInputCallback(const TextInputEventArgs &args)
+	{
+		for (auto &func : m_OnTextInputCallbacks) { func(args); }
+	}
+
+	void SDL3Window::InvokeTextEditCallback(const TextEditEventArgs &args)
+	{
+		for (auto &func : m_OnTextEditCallbacks) { func(args); }
+	}
+
+	void SDL3Window::InvokeMousePressedCallback(const MouseButtonPressedEventArgs &args)
+	{
+		MouseState &state = m_MouseStates[args.MouseID];
+
+		switch (args.Button)
+		{
+			case MouseButton::Left: state.LeftButton = MouseButtonState::Pressed; break;
+			case MouseButton::Right: state.RightButton = MouseButtonState::Pressed; break;
+			case MouseButton::Middle: state.MiddleButton = MouseButtonState::Pressed; break;
+			case MouseButton::X1: state.X1Button = MouseButtonState::Pressed; break;
+			case MouseButton::X2: state.X2Button = MouseButtonState::Pressed; break;
+			default: throw std::runtime_error("Failed to find valid mouse button");
+		}
+
+		for (auto &func : m_OnMouseButtonPressedCallbacks) { func(args); }
+	}
+
+	void SDL3Window::InvokeMouseReleasedCallback(const MouseButtonReleasedEventArgs &args)
+	{
+		MouseState &state = m_MouseStates[args.MouseID];
+
+		switch (args.Button)
+		{
+			case MouseButton::Left: state.LeftButton = MouseButtonState::Released; break;
+			case MouseButton::Right: state.RightButton = MouseButtonState::Released; break;
+			case MouseButton::Middle: state.MiddleButton = MouseButtonState::Released; break;
+			case MouseButton::X1: state.X1Button = MouseButtonState::Released; break;
+			case MouseButton::X2: state.X2Button = MouseButtonState::Released; break;
+			default: throw std::runtime_error("Failed to find valid mouse button");
+		}
+
+		for (auto &func : m_OnMouseButtonReleasedCallbacks) { func(args); }
+	}
+
+	void SDL3Window::InvokeMouseMovedCallback(const MouseMovedEventArgs &args)
+	{
+		m_MouseStates[args.MouseID].MousePosition = args.Position;
+		m_MouseStates[args.MouseID].MouseMovement = args.Movement;
+		m_MouseStates[args.MouseID].MousePosition = args.Position;
+
+		for (auto &func : m_OnMouseMovedCallbacks) { func(args); }
+	}
+
+	void SDL3Window::InvokeMouseScrollCallback(const MouseScrolledEventArgs &args)
+	{
+		m_MouseStates[args.MouseID].MouseWheel.X = args.Scroll.X;
+		m_MouseStates[args.MouseID].MouseWheel.Y = args.Scroll.Y;
+
+		for (auto &func : m_OnMouseScrolledCallbacks) { func(args); }
+	}
+
+	void SDL3Window::InvokeMouseEnterCallback()
+	{
+		for (auto &func : m_OnMouseEnterCallbacks) { func(); }
+	}
+
+	void SDL3Window::InvokeMouseLeaveCallback()
+	{
+		for (auto &func : m_OnMouseLeaveCallbacks) { func(); }
+	}
+
+	void SDL3Window::InvokeFileDropCallback(const FileDropEventArgs &args)
+	{
+		for (auto &func : m_OnFileDropCallbacks) { func(args); }
+	}
+
+	bool SDL3Window::IsKeyDown(uint32_t keyboardId, ScanCode scancode)
+	{
+		return m_KeyboardStates[keyboardId].Keys[scancode];
+	}
+
+	bool SDL3Window::IsKeyDown(ScanCode scancode)
+	{
+		std::optional<uint32_t> id = Platform::GetActiveKeyboardId();
+		if (!id.has_value())
+			return false;
+
+		return IsKeyDown(id.value(), scancode);
+	}
+
+	Point2D<float> SDL3Window::GetMousePosition(uint32_t mouseId)
+	{
+		return Point2D<float>();
+	}
+
+	Point2D<float> SDL3Window::GetMouseScroll(uint32_t mouseId)
+	{
+		return Point2D<float>();
+	}
+
+	Point2D<float> SDL3Window::GetMousePosition()
+	{
+		return Point2D<float>();
+	}
+
+	Point2D<float> SDL3Window::GetMouseScroll()
+	{
+		return Point2D<float>();
+	}
+
+	bool SDL3Window::IsMouseButtonPressed(uint32_t mouseId, MouseButton state)
+	{
+		return false;
+	}
+
+	bool SDL3Window::IsMouseButtonPressed(MouseButton state)
+	{
+		return false;
 	}
 
 	uint32_t SDL3Window::GetFlags(const WindowSpecification &windowSpec)
@@ -330,6 +604,11 @@ namespace Nexus
 		if (windowSpec.Utility)
 		{
 			flags |= SDL_WINDOW_UTILITY;
+		}
+
+		if (!windowSpec.Shown)
+		{
+			flags |= SDL_WINDOW_HIDDEN;
 		}
 
 		return flags;
@@ -364,11 +643,11 @@ namespace Nexus
 				if (IsMinimized())
 					return;
 
-				Input::SetContext(&m_InputContext);
 				m_RenderFrameRateMonitor.Update();
 
 				if (m_RenderFunc)
 				{
+					Nexus::Input::SetContext(this);
 					m_RenderFunc(time);
 				}
 			},
@@ -380,11 +659,11 @@ namespace Nexus
 				if (IsMinimized())
 					return;
 
-				Input::SetContext(&m_InputContext);
 				m_UpdateFrameRateMonitor.Update();
 
 				if (m_UpdateFunc)
 				{
+					Nexus::Input::SetContext(this);
 					m_UpdateFunc(time);
 				}
 			},
@@ -396,11 +675,11 @@ namespace Nexus
 				if (IsMinimized())
 					return;
 
-				Input::SetContext(&m_InputContext);
 				m_TickFrameRateMonitor.Update();
 
 				if (m_TickFunc)
 				{
+					Nexus::Input::SetContext(this);
 					m_TickFunc(time);
 				}
 			},

@@ -9,6 +9,8 @@
 #include "Nexus-Core/Graphics/HdriProcessor.hpp"
 
 #include "EditorProperties.hpp"
+#include "ImportAssetPanel.hpp"
+#include "ImporterPanel.hpp"
 #include "InspectorPanel.hpp"
 #include "ProjectViewPanel.hpp"
 #include "SceneViewPanel.hpp"
@@ -18,6 +20,9 @@
 #include "Nexus-Core/ECS/Registry.hpp"
 
 #include "Nexus-Core/Utils/ScriptProjectGenerator.hpp"
+
+#include "Nexus-Core/Assets/Processors/AssimpProcessor.hpp"
+#include "Nexus-Core/Assets/Processors/TextureProcessor.hpp"
 
 class EditorApplication : public Nexus::Application
 {
@@ -60,6 +65,8 @@ class EditorApplication : public Nexus::Application
 		m_Panels.push_back(new ProjectViewPanel());
 		m_Panels.push_back(sceneViewPanel);
 		m_Panels.push_back(inspectorPanel);
+		m_Panels.push_back(new ImporterPanel());
+		m_Panels.push_back(new ImportAssetPanel());
 
 		std::string title = "Editor: (" + m_GraphicsDevice->GetAPIName() + std::string(")");
 		Nexus::GetApplication()->GetPrimaryWindow()->SetTitle(title);
@@ -201,7 +208,7 @@ class EditorApplication : public Nexus::Application
 				ImGui::EndMenu();
 			}
 
-			if (ImGui::MenuItem("Open Model"))
+			if (ImGui::MenuItem("Process Model"))
 			{
 				std::vector<Nexus::FileDialogFilter>   filters = {{"All files", "*"}};
 				std::unique_ptr<Nexus::OpenFileDialog> dialog  = std::unique_ptr<Nexus::OpenFileDialog>(
@@ -210,8 +217,45 @@ class EditorApplication : public Nexus::Application
 				Nexus::FileDialogResult result = dialog->Show();
 				if (result.FilePaths.size() > 0)
 				{
-					Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
-					m_Model = factory.CreateFrom3DModelFile(result.FilePaths[0]);
+					Nexus::Processors::AssimpProcessor processor = {};
+					Nexus::Assets::AssetRegistry	  &registry	 = m_Project->GetAssetRegistry();
+					Nexus::GUID						   id		 = processor.Process(result.FilePaths[0], m_GraphicsDevice, m_Project.get());
+				}
+			}
+
+			if (ImGui::MenuItem("Process Texture"))
+			{
+				std::vector<Nexus::FileDialogFilter>   filters = {{"All files", "*"}};
+				std::unique_ptr<Nexus::OpenFileDialog> dialog  = std::unique_ptr<Nexus::OpenFileDialog>(
+					 Nexus::Platform::CreateOpenFileDialog(Nexus::GetApplication()->GetPrimaryWindow(), filters, nullptr, false));
+
+				if (m_Project)
+				{
+					Nexus::FileDialogResult result = dialog->Show();
+					if (result.FilePaths.size() > 0)
+					{
+						Nexus::Processors::TextureProcessor textureProcessor = {};
+						Nexus::Assets::AssetRegistry	   &assetRegistry	 = m_Project->GetAssetRegistry();
+						Nexus::GUID							guid = textureProcessor.Process(result.FilePaths[0], m_GraphicsDevice, m_Project.get());
+					}
+				}
+			}
+
+			if (ImGui::MenuItem("Import Asset"))
+			{
+				std::vector<Nexus::FileDialogFilter>   filters = {{"All files", "*"}};
+				std::unique_ptr<Nexus::OpenFileDialog> dialog  = std::unique_ptr<Nexus::OpenFileDialog>(
+					 Nexus::Platform::CreateOpenFileDialog(Nexus::GetApplication()->GetPrimaryWindow(), filters, nullptr, true));
+
+				if (m_Project)
+				{
+					Nexus::FileDialogResult result = dialog->Show();
+					if (result.FilePaths.size() > 0)
+					{
+						ImportAssetPanel *panel = (ImportAssetPanel *)GetPanelByName("Import Asset");
+						panel->SetFilepaths(result.FilePaths);
+						panel->Open();
+					}
 				}
 			}
 
@@ -290,6 +334,19 @@ class EditorApplication : public Nexus::Application
 		colors[ImGuiCol_Text]			  = {0.85f, 0.85f, 0.85f, 1.0f};
 		colors[ImGuiCol_SliderGrab]		  = {0.55f, 0.55f, 0.55f, 1.0f};
 		colors[ImGuiCol_SliderGrabActive] = {0.55f, 0.55f, 0.55f, 1.0f};
+	}
+
+	Panel *GetPanelByName(const std::string &name)
+	{
+		for (Panel *panel : m_Panels)
+		{
+			if (panel->GetName() == name)
+			{
+				return panel;
+			}
+		}
+
+		return nullptr;
 	}
 
 	void ResizeFramebuffer(ImVec2 size)
@@ -421,7 +478,7 @@ class EditorApplication : public Nexus::Application
 			ImVec2 imagePos	 = ImGui::GetCursorScreenPos();
 			ImGui::Image(m_FramebufferTextureID, size, uv0, uv1);
 
-			if (ImGui::IsItemClicked() && !m_FramebufferClickDisabled)
+			if (ImGui::IsItemClicked() && m_FramebufferClickEnabled)
 			{
 				ImVec2 mousePos		 = ImGui::GetMousePos();
 				ImVec2 localClickPos = ImVec2(mousePos.x - imagePos.x, mousePos.y - imagePos.y);
@@ -445,7 +502,9 @@ class EditorApplication : public Nexus::Application
 					glm::mat4	transformMat = transform->CreateTransformation();
 
 					ImGuizmo::SetOrthographic(false);
+					ImGuizmo::SetImGuiContext(m_ImGuiRenderer->GetContext());
 					ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
+					ImGuizmo::SetDrawlist();
 
 					if (ImGuizmo::Manipulate(glm::value_ptr(view),
 											 glm::value_ptr(projection),
@@ -465,7 +524,7 @@ class EditorApplication : public Nexus::Application
 						transform->Scale	= scale;
 					}
 
-					m_FramebufferClickDisabled = ImGuizmo::IsOver() || ImGuizmo::IsUsingAny();
+					m_FramebufferClickEnabled = !ImGuizmo::IsUsingAny() && !ImGuizmo::IsOver();
 				}
 			}
 
@@ -484,7 +543,7 @@ class EditorApplication : public Nexus::Application
 			}
 			if (ImGui::IsItemHovered())
 			{
-				m_FramebufferClickDisabled = true;
+				m_FramebufferClickEnabled = false;
 			}
 			ImGui::SameLine();
 			if (ImGui::Button("Rotate"))
@@ -493,7 +552,7 @@ class EditorApplication : public Nexus::Application
 			}
 			if (ImGui::IsItemHovered())
 			{
-				m_FramebufferClickDisabled = true;
+				m_FramebufferClickEnabled = false;
 			}
 			ImGui::SameLine();
 			if (ImGui::Button("Scale"))
@@ -502,7 +561,7 @@ class EditorApplication : public Nexus::Application
 			}
 			if (ImGui::IsItemHovered())
 			{
-				m_FramebufferClickDisabled = true;
+				m_FramebufferClickEnabled = false;
 			}
 		}
 		ImGui::End();
@@ -526,6 +585,8 @@ class EditorApplication : public Nexus::Application
 	{
 		Nexus::GetApplication()->GetPrimarySwapchain()->Prepare();
 
+		ImGuizmo::SetImGuiContext(m_ImGuiRenderer->GetContext());
+
 		Nexus::Graphics::RenderTarget target(m_Framebuffer);
 
 		if (m_Project && m_Project->IsSceneLoaded())
@@ -538,6 +599,8 @@ class EditorApplication : public Nexus::Application
 		}
 
 		m_ImGuiRenderer->BeforeLayout(time);
+		ImGuizmo::SetImGuiContext(m_ImGuiRenderer->GetContext());
+		ImGuizmo::BeginFrame();
 		RenderDockspace();
 		m_ImGuiRenderer->AfterLayout();
 
@@ -596,10 +659,10 @@ class EditorApplication : public Nexus::Application
 	std::vector<Panel *>	   m_Panels				   = {};
 	EditorPropertiesPanel	  *m_EditorPropertiesPanel = nullptr;
 
-	std::optional<glm::vec2>   m_ClickPosition			  = {};
-	std::optional<Nexus::GUID> m_EntityID				  = {};
-	bool					   m_FramebufferClickDisabled = false;
-	ImGuizmo::OPERATION		   m_CurrentOperation		  = ImGuizmo::OPERATION::TRANSLATE;
+	std::optional<glm::vec2>   m_ClickPosition			 = {};
+	std::optional<Nexus::GUID> m_EntityID				 = {};
+	bool					   m_FramebufferClickEnabled = true;
+	ImGuizmo::OPERATION		   m_CurrentOperation		 = ImGuizmo::OPERATION::TRANSLATE;
 };
 
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)

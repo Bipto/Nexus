@@ -17,7 +17,6 @@ namespace Nexus
 		m_Specification = spec;
 
 		m_Window = Platform::CreatePlatformWindow(spec.WindowProperties);
-		Nexus::Input::SetContext(m_Window->GetInputContext());
 
 		Graphics::GraphicsDeviceSpecification graphicsDeviceCreateInfo;
 		graphicsDeviceCreateInfo.DebugLayer = false;
@@ -46,10 +45,15 @@ namespace Nexus
 	void Application::MainLoop()
 	{
 		Platform::Update();
-		m_GlobalKeyboardState.CacheInput();
 
-		// cache the previous frame's input
-		Nexus::Mouse::s_PreviousGlobalMousePosition = Nexus::Mouse::s_GlobalMousePosition;
+		if (m_Specification.EventDriven)
+		{
+			Platform::WaitEvent(this);
+		}
+		else
+		{
+			Platform::PollEvents(this);
+		}
 	}
 
 	Nexus::IWindow *Application::GetPrimaryWindow()
@@ -89,17 +93,7 @@ namespace Nexus
 
 	void Application::Close()
 	{
-		m_Window->Close();
-	}
-
-	bool Application::ShouldClose()
-	{
-		return m_Window->IsClosing();
-	}
-
-	const InputState *Application::GetCoreInputState() const
-	{
-		return m_Window->GetInput();
+		m_Running = false;
 	}
 
 	Graphics::GraphicsDevice *Application::GetGraphicsDevice()
@@ -112,9 +106,19 @@ namespace Nexus
 		return m_AudioDevice;
 	}
 
-	const Keyboard &Application::GetGlobalKeyboardState() const
+	bool Application::IsRunning()
 	{
-		return m_GlobalKeyboardState;
+		return m_Running;
+	}
+
+	void Application::Stop()
+	{
+		m_Running = false;
+	}
+
+	const char *Application::GetApplicationPath()
+	{
+		return Platform::GetApplicationPath(m_Specification.Organization, m_Specification.App);
 	}
 
 	Audio::AudioDevice *CreateAudioDevice(Audio::AudioAPI api)

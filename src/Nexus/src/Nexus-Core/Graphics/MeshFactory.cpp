@@ -2,7 +2,7 @@
 
 #include "Nexus-Core/nxpch.hpp"
 
-#include "Nexus-Core/Importers/AssimpImporter.hpp"
+#include "Nexus-Core/Assets/Processors/AssimpProcessor.hpp"
 
 namespace Nexus::Graphics
 {
@@ -125,7 +125,7 @@ namespace Nexus::Graphics
 
 	Ref<Model> MeshFactory::CreateFrom3DModelFile(const std::string &filepath)
 	{
-		Nexus::AssimpImporter importer {};
+		Nexus::Processors::AssimpProcessor importer {};
 		Ref<Model>			  model = importer.Import(filepath, m_Device);
 		return model;
 	}

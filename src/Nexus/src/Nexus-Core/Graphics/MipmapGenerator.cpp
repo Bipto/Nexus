@@ -115,23 +115,4 @@ namespace Nexus::Graphics
 	{
 		return std::floor(std::log2(std::max(width, height)));
 	}
-
-	MipData::MipData(const std::vector<unsigned char> &pixels, uint32_t width, uint32_t height) : m_Pixels(pixels), m_Width(width), m_Height(height)
-	{
-	}
-
-	uint32_t MipData::GetWidth() const
-	{
-		return m_Width;
-	}
-
-	uint32_t MipData::GetHeight() const
-	{
-		return m_Height;
-	}
-
-	const void *MipData::GetData() const
-	{
-		return m_Pixels.data();
-	}
 }	 // namespace Nexus::Graphics

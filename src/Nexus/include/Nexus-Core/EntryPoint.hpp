@@ -47,18 +47,33 @@ namespace
 	}
 }	 // namespace
 
-#if !defined(NX_NO_ENTRY_POINT)
-	#if defined(NX_NO_CONSOLE)
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nCmdShow)
+// #if !defined(NX_NO_ENTRY_POINT)
+//	#if defined(NX_NO_CONSOLE)
+// int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nCmdShow)
+//{
+//	auto commandLineArgs = InputParametersToStringVector(__argc, __argv);
+//	return Nexus::Main(commandLineArgs);
+// }
+//	#else
+///* int main(int argc, char **argv)
+//{
+//	auto commandLineArgs = InputParametersToStringVector(argc, argv);
+//	return Nexus::Main(commandLineArgs);
+//} */
+//
+// int SDL_main(int argc, char *argv[])
+//{
+//	// auto commandLineArgs = InputParametersToStringVector(argc, argv);
+//	// return Nexus::Main(commandLineArgs);
+//	return 0;
+//}
+//	#endif
+// #endif
+
+#include "SDL3/SDL_main.h"
+
+int SDL_main(int argc, char *args[])
 {
-	auto commandLineArgs = InputParametersToStringVector(__argc, __argv);
+	auto commandLineArgs = InputParametersToStringVector(argc, args);
 	return Nexus::Main(commandLineArgs);
 }
-	#else
-int main(int argc, char **argv)
-{
-	auto commandLineArgs = InputParametersToStringVector(argc, argv);
-	return Nexus::Main(commandLineArgs);
-}
-	#endif
-#endif

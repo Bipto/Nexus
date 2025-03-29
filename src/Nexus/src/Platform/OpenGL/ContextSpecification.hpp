@@ -5,6 +5,12 @@
 
 namespace Nexus::GL
 {
+	enum class OpenGLVersion
+	{
+		OpenGL,
+		OpenGLES
+	};
+
 	struct ContextSpecification
 	{
 		uint8_t				  VersionMajor	 = 4;
@@ -20,5 +26,6 @@ namespace Nexus::GL
 		Graphics::SampleCount Samples		 = Graphics::SampleCount::SampleCount1;
 		bool				  Vsync			 = true;
 		bool				  UseCoreProfile = true;
+		OpenGLVersion		  GLVersion		 = OpenGLVersion::OpenGL;
 	};
 }	 // namespace Nexus::GL

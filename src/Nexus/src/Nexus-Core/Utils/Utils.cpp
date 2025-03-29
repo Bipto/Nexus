@@ -18,6 +18,13 @@ namespace Nexus::Utils
 		}
 	}
 
+	NX_API glm::vec4 GenerateRandomColour()
+	{
+		static std::random_device		 rd;
+		static std::mt19937				 gen(rd());
+		std::uniform_real_distribution<> dis(0.0f, 1.0f);
+		return glm::vec4(dis(gen), dis(gen), dis(gen), 1.0f);
+	}
 	float XIntersect(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4)
 	{
 		float num = (x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4);
@@ -38,7 +45,7 @@ namespace Nexus::Utils
 
 		for (size_t i = 0; i < points.size(); i++)
 		{
-			float	  k	 = (i + 1) % points.size();
+			size_t	  k	 = (i + 1) % points.size();
 			glm::vec2 pi = points[i];
 			glm::vec2 pk = points[k];
 
@@ -102,12 +109,22 @@ namespace Nexus::Utils
 
 		for (size_t i = 0; i < clip.size(); i++)
 		{
-			float k = (i + 1) % clip.size();
+			size_t k = (i + 1) % clip.size();
 
 			Clip(poly, clip[i].x, clip[i].y, clip[k].x, clip[k].y);
 		}
 
 		return poly;
+	}
+
+	NX_API Nexus::Graphics::Polygon SutherlandHodgman(const Nexus::Graphics::Polygon &subject, const Nexus::Graphics::Polygon &clip)
+	{
+		std::vector<glm::vec2> subjectPoints = subject.GetOutline();
+		std::vector<glm::vec2> clipPoints	 = clip.GetOutline();
+
+		std::vector<glm::vec2> newPoints = SutherlandHodgman(subjectPoints, clipPoints);
+
+		return Nexus::Utils::GeneratePolygon(newPoints);
 	}
 
 	float FindPolygonArea(std::span<glm::vec2> polygon)
@@ -262,17 +279,19 @@ namespace Nexus::Utils
 		return std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
 	}
 
-	void FlipPixelsHorizontally(std::vector<unsigned char> &pixels, int width, int height, int bytesPerChannel, int channels)
+	void FlipPixelsHorizontally(std::vector<unsigned char> &pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format)
 	{
-		int bytesPerPixel = bytesPerChannel * channels;
+		uint32_t bytesPerPixel	  = Graphics::GetPixelFormatSizeInBytes(format);
+		uint32_t channelsPerPixel = Graphics::GetPixelFormatNumberOfChannels(format);
+		uint32_t bytesPerChannel  = bytesPerPixel / channelsPerPixel;
 
-		for (int j = 0; j < height; ++j)
+		for (uint32_t j = 0; j < height; ++j)
 		{
-			for (int i = 0; i < width / 2; ++i)
+			for (uint32_t i = 0; i < width / 2; ++i)
 			{
-				for (int k = 0; k < channels; ++k)
+				for (uint32_t k = 0; k < channelsPerPixel; ++k)
 				{
-					for (int b = 0; b < bytesPerChannel; ++b)
+					for (uint32_t b = 0; b < bytesPerChannel; ++b)
 					{
 						std::swap(pixels[j * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b],
 								  pixels[j * width * bytesPerPixel + (width - 1 - i) * bytesPerPixel + k * bytesPerChannel + b]);
@@ -282,17 +301,19 @@ namespace Nexus::Utils
 		}
 	}
 
-	void FlipPixelsVertically(std::vector<unsigned char> &pixels, int width, int height, int bytesPerChannel, int channels)
+	void FlipPixelsVertically(std::vector<unsigned char> &pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format)
 	{
-		int bytesPerPixel = bytesPerChannel * channels;
+		uint32_t bytesPerPixel	  = Graphics::GetPixelFormatSizeInBytes(format);
+		uint32_t channelsPerPixel = Graphics::GetPixelFormatNumberOfChannels(format);
+		uint32_t bytesPerChannel  = bytesPerPixel / channelsPerPixel;
 
-		for (int j = 0; j < height / 2; ++j)
+		for (uint32_t j = 0; j < height / 2; ++j)
 		{
-			for (int i = 0; i < width; ++i)
+			for (uint32_t i = 0; i < width; ++i)
 			{
-				for (int k = 0; k < channels; ++k)
+				for (uint32_t k = 0; k < channelsPerPixel; ++k)
 				{
-					for (int b = 0; b < bytesPerChannel; ++b)
+					for (uint32_t b = 0; b < bytesPerChannel; ++b)
 					{
 						std::swap(pixels[j * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b],
 								  pixels[(height - 1 - j) * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b]);

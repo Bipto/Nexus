@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Nexus-Core/Assets/AssetRegistry.hpp"
 #include "Nexus-Core/ECS/ComponentRegistry.hpp"
 #include "Nexus-Core/Types.hpp"
 #include "Nexus-Core/Utils/GUID.hpp"
@@ -52,6 +53,7 @@ namespace Nexus
 
 		std::string GetFullSceneDirectory();
 		std::string GetFullAssetsDirectory();
+		std::string GetFullScriptsDirectory();
 
 		// project library
 		void				  LoadSharedLibrary();
@@ -88,6 +90,7 @@ namespace Nexus
 												 size_t				entityHierarchyIndex);
 
 		void CreateComponent(const char *typeName, ECS::Registry &registry, const Entity &entity);
+		Assets::AssetRegistry &GetAssetRegistry();
 
 	  private:
 		void WriteProjectFile();
@@ -108,6 +111,7 @@ namespace Nexus
 		Nexus::Utils::SharedLibrary					*m_Library			   = nullptr;
 		std::vector<std::string>					 m_AvailableScripts	   = {};
 		std::map<std::string, ECS::ComponentStorage> m_AvailableComponents = {};
+		Assets::AssetRegistry						 m_AssetRegistry	   = {};
 	};
 }	 // namespace Nexus
 

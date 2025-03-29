@@ -5,6 +5,14 @@
 
 namespace Nexus::Graphics
 {
+	struct MeshData
+	{
+		std::string																  name			= "";
+		uint32_t																  materialIndex = 0;
+		std::vector<Graphics::VertexPositionTexCoordNormalColourTangentBitangent> vertices		= {};
+		std::vector<uint32_t>													  indices		= {};
+	};
+
 	class Model
 	{
 	  public:

@@ -4,7 +4,9 @@
 
 	#include "glad/glad.h"
 
-	#include "Platform/X11/X11Include.hpp"
+	#if defined(NX_PLATFORM_LINUX)
+		#include "Platform/X11/X11Include.hpp"
+	#endif
 
 	#include "EGLUtils.hpp"
 
@@ -16,7 +18,8 @@ namespace Nexus::GL
 		if (m_EGLDisplay == EGL_NO_DISPLAY)
 		{
 			std::cout << "Failed to get EGL display: ";
-			std::cout << eglGetErrorString(eglGetError()) << std::endl;
+			const char *errorMessage = eglGetErrorString(eglGetError());
+			std::cout << errorMessage << std::endl;
 		}
 
 		EGLint major = 0;
@@ -24,56 +27,99 @@ namespace Nexus::GL
 		if (!eglInitialize(m_EGLDisplay, &major, &minor))
 		{
 			std::cout << "Failed to initialize EGL: ";
-			std::cout << eglGetErrorString(eglGetError()) << std::endl;
+			const char *errorMessage = eglGetErrorString(eglGetError());
+			std::cout << errorMessage << std::endl;
 		}
 
-		eglBindAPI(EGL_OPENGL_API);
+		if (spec.GLVersion == GL::OpenGLVersion::OpenGL)
+		{
+			eglBindAPI(EGL_OPENGL_API);
+		}
+		else
+		{
+			eglBindAPI(EGL_OPENGL_ES_API);
+		}
 
-		EGLint configAttribs[] = {EGL_SURFACE_TYPE,
-								  EGL_PBUFFER_BIT,
-								  EGL_RENDERABLE_TYPE,
-								  EGL_OPENGL_BIT,
-								  EGL_RED_SIZE,
-								  8,
-								  EGL_GREEN_SIZE,
-								  8,
-								  EGL_BLUE_SIZE,
-								  8,
-								  EGL_ALPHA_SIZE,
-								  8,
-								  EGL_DEPTH_SIZE,
-								  24,
-								  EGL_NONE};
+		std::vector<EGLint> configAttribs;
+		configAttribs.push_back(EGL_SURFACE_TYPE);
+		configAttribs.push_back(EGL_PBUFFER_BIT);
+		configAttribs.push_back(EGL_RENDERABLE_TYPE);
+
+		if (spec.GLVersion == GL::OpenGLVersion::OpenGL)
+		{
+			configAttribs.push_back(EGL_OPENGL_BIT);
+		}
+		else
+		{
+			configAttribs.push_back(EGL_OPENGL_ES3_BIT);
+		}
+
+		configAttribs.push_back(EGL_RED_SIZE);
+		configAttribs.push_back(spec.RedBits);
+		configAttribs.push_back(EGL_GREEN_SIZE);
+		configAttribs.push_back(spec.GreenBits);
+		configAttribs.push_back(EGL_BLUE_SIZE);
+		configAttribs.push_back(spec.BlueBits);
+		configAttribs.push_back(EGL_ALPHA_SIZE);
+		configAttribs.push_back(spec.AlphaBits);
+		configAttribs.push_back(EGL_DEPTH_SIZE);
+		configAttribs.push_back(spec.DepthBits);
+		configAttribs.push_back(EGL_STENCIL_SIZE);
+		configAttribs.push_back(spec.StencilBits);
+		configAttribs.push_back(EGL_NONE);
 
 		EGLConfig config;
 		EGLint	  numConfigs;
-		if (!eglChooseConfig(m_EGLDisplay, configAttribs, &config, 1, &numConfigs))
+		if (!eglChooseConfig(m_EGLDisplay, configAttribs.data(), &config, 1, &numConfigs))
 		{
 			std::cout << "Failed to choose EGL config: ";
-			std::cout << eglGetErrorString(eglGetError()) << std::endl;
+			const char *errorMessage = eglGetErrorString(eglGetError());
+			std::cout << errorMessage << std::endl;
 		}
 
-		EGLint contextAttribs[] = {EGL_CONTEXT_MAJOR_VERSION,
-								   4,
-								   EGL_CONTEXT_MINOR_VERSION,
-								   6,
-								   EGL_CONTEXT_OPENGL_PROFILE_MASK,
-								   EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
-								   EGL_CONTEXT_CLIENT_VERSION,
-								   4,
-								   EGL_NONE};
+		std::vector<EGLint> contextAttribs;
+		/*contextAttribs.push_back(EGL_CONTEXT_MAJOR_VERSION);
+		contextAttribs.push_back(spec.VersionMajor);
+		contextAttribs.push_back(EGL_CONTEXT_MINOR_VERSION);
+		contextAttribs.push_back(spec.VersionMinor);
 
-		m_Context = eglCreateContext(m_EGLDisplay, config, EGL_NO_CONTEXT, contextAttribs);
+		if (spec.GLVersion == GL::OpenGLVersion::OpenGL)
+		{
+			if (spec.UseCoreProfile)
+			{
+				contextAttribs.push_back(EGL_CONTEXT_OPENGL_PROFILE_MASK);
+				contextAttribs.push_back(EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT);
+			}
+			else
+			{
+				contextAttribs.push_back(EGL_CONTEXT_OPENGL_PROFILE_MASK);
+				contextAttribs.push_back(EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT);
+			}
+
+			if (spec.Debug)
+			{
+				contextAttribs.push_back(EGL_CONTEXT_OPENGL_DEBUG);
+				contextAttribs.push_back(EGL_TRUE);
+			}
+		} */
+
+		contextAttribs.push_back(EGL_CONTEXT_CLIENT_VERSION);
+		contextAttribs.push_back(3);
+		contextAttribs.push_back(EGL_NONE);
+
+		m_Context = eglCreateContext(m_EGLDisplay, config, EGL_NO_CONTEXT, contextAttribs.data());
 		if (m_Context == EGL_NO_CONTEXT)
 		{
 			std::cout << "Failed to create EGL context: ";
-			std::cout << eglGetErrorString(eglGetError()) << std::endl;
+			const char *errorMessage = eglGetErrorString(eglGetError());
+			std::cout << errorMessage << std::endl;
 		}
 
 		if (!MakeCurrent())
 		{
 			std::cout << "Could not make context current: ";
-			std::cout << eglGetErrorString(eglGetError()) << std::endl;
+			const char *errorMessage = eglGetErrorString(eglGetError());
+			std::cout << errorMessage << std::endl;
 		}
 
 		if (!gladLoadEGL())

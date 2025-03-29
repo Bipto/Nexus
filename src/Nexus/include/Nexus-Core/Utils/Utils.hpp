@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Nexus-Core/Graphics/PixelFormat.hpp"
 #include "Nexus-Core/Graphics/Polygon.hpp"
 #include "Nexus-Core/Graphics/SamplerState.hpp"
 #include "Nexus-Core/Graphics/Triangle.hpp"
@@ -11,6 +12,7 @@ namespace Nexus::Utils
 {
 	NX_API glm::vec4 ColorFromRGBA(float r, float g, float b, float a);
 	NX_API glm::vec4 ColorFromBorderColor(Nexus::Graphics::BorderColor color);
+	NX_API glm::vec4 GenerateRandomColour();
 
 	template<typename T>
 	inline T ReMapRange(T oldMin, T oldMax, T newMin, T newMax, T value)
@@ -47,6 +49,7 @@ namespace Nexus::Utils
 	NX_API void Clip(std::vector<glm::vec2> &points, float x1, float y1, float x2, float y2);
 
 	NX_API std::vector<glm::vec2> SutherlandHodgman(const std::vector<glm::vec2> &subjectPolygon, const std::vector<glm::vec2> &clipPolygon);
+	NX_API Nexus::Graphics::Polygon SutherlandHodgman(const Nexus::Graphics::Polygon &subject, const Nexus::Graphics::Polygon &clip);
 
 	NX_API float FindPolygonArea(std::span<glm::vec2> polygon);
 
@@ -123,8 +126,8 @@ namespace Nexus::Utils
 		return hash;
 	}
 
-	NX_API void FlipPixelsHorizontally(std::vector<unsigned char> &pixels, int width, int height, int bytesPerChannel, int channels);
-	NX_API void FlipPixelsVertically(std::vector<unsigned char> &pixels, int width, int height, int bytesPerChannel, int channels);
+	NX_API void FlipPixelsHorizontally(std::vector<unsigned char> &pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format);
+	NX_API void FlipPixelsVertically(std::vector<unsigned char> &pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format);
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x)	 STRINGIFY(x)

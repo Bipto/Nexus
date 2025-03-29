@@ -71,7 +71,7 @@ namespace Nexus::Graphics
 
 		if (m_Device->GetGraphicsAPI() == GraphicsAPI::OpenGL)
 		{
-			Utils::FlipPixelsHorizontally(pixels, m_Width, m_Height, 4, 4);
+			Utils::FlipPixelsHorizontally(pixels, m_Width, m_Height, Graphics::PixelFormat::R32_G32_B32_A32_Float);
 		}
 
 		Nexus::Graphics::Texture2DSpecification textureSpec {};
@@ -210,6 +210,11 @@ namespace Nexus::Graphics
 		}
 
 		return cubemap;
+	}
+
+	Ref<Texture2D> HdriProcessor::GetLoadedTexture() const
+	{
+		return m_HdriImage;
 	}
 
 	void HdriProcessor::GetDirection(CubemapFace face, float &yaw, float &pitch)

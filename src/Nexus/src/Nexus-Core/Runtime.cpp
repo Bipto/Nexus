@@ -1,6 +1,5 @@
 #include "Nexus-Core/Runtime.hpp"
 
-#include "Nexus-Core/Input/InputContext.hpp"
 #include "Nexus-Core/Platform.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
@@ -29,7 +28,11 @@ namespace Nexus
 #ifdef __EMSCRIPTEN__
 		emscripten_set_main_loop(main_loop, 0, 1);
 #else
-		while (!appPtr->ShouldClose()) appPtr->MainLoop();
+		while (appPtr->IsRunning())
+		{
+			int x = 0;
+			appPtr->MainLoop();
+		}
 #endif
 
 		app->Unload();

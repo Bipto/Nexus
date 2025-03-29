@@ -48,6 +48,8 @@ class DemoApplication : public Nexus::Application
 		ImGuiContext *context = m_ImGuiRenderer->GetContext();
 		ImGui::SetCurrentContext(context);
 
+		ImGui::GetStyle().ScrollbarSize = 20.0f;
+
 		ImGuiIO &io = m_ImGuiRenderer->GetIO();
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
@@ -292,7 +294,10 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 	spec.WindowProperties.UpdatesPerSecond = {};
 
 	spec.SwapchainSpecification.Samples	   = Nexus::Graphics::SampleCount::SampleCount8;
-	spec.SwapchainSpecification.VSyncState = Nexus::Graphics::VSyncState::Disabled;
+	spec.SwapchainSpecification.VSyncState = Nexus::Graphics::VSyncState::Enabled;
+
+	spec.Organization = "Nexus";
+	spec.App		  = "Demo";
 
 	return new DemoApplication(spec);
 }

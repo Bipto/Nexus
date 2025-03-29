@@ -17,8 +17,8 @@ namespace Nexus::Graphics
 		/// @brief A constructor taking in a texture format to use to create a colour
 		/// attachment
 		/// @param format A texture
-		 FramebufferTextureSpecification(PixelFormat format) : TextureFormat(format)
-		 {
+		FramebufferTextureSpecification(PixelFormat format) : TextureFormat(format)
+		{
 		}
 
 		/// @brief The format to use for a colour attachment
@@ -34,8 +34,8 @@ namespace Nexus::Graphics
 		/// @brief A constructor taking in an initializer list of texture
 		/// specifications
 		/// @param attachments An initializer list of the colour attachments to create
-		 FramebufferColorAttachmentSpecification(std::initializer_list<FramebufferTextureSpecification> attachments) : Attachments(attachments)
-		 {
+		FramebufferColorAttachmentSpecification(std::initializer_list<FramebufferTextureSpecification> attachments) : Attachments(attachments)
+		{
 		}
 
 		/// @brief A vector containing the colour attachments
@@ -50,8 +50,8 @@ namespace Nexus::Graphics
 
 		/// @brief A constructor taking in a depth format
 		/// @param format The depth format to create a depth attachment with
-		 FramebufferDepthAttachmentSpecification(PixelFormat format) : DepthFormat(format)
-		 {
+		FramebufferDepthAttachmentSpecification(PixelFormat format) : DepthFormat(format)
+		{
 		}
 
 		/// @brief The depth attachment to use to create the depth attachment
@@ -91,9 +91,9 @@ namespace Nexus::Graphics
 
 		/// @brief A method to get the number of colour attachments in the framebuffer
 		/// @return An integer representing the number of colour attachments
-		 int GetColorTextureCount()
-		 {
-			 return m_Specification.ColorAttachmentSpecification.Attachments.size();
+		int GetColorTextureCount()
+		{
+			return m_Specification.ColorAttachmentSpecification.Attachments.size();
 		}
 
 		/// @brief A method to check whether a framebuffer has a colour attachment
@@ -119,25 +119,25 @@ namespace Nexus::Graphics
 		/// @brief A pure virtual method to set the framebuffer specification,
 		/// automatically invoking the Recreate() method
 		/// @param spec The new framebuffer specification
-		 virtual void SetFramebufferSpecification(const FramebufferSpecification &spec) = 0;
+		virtual void SetFramebufferSpecification(const FramebufferSpecification &spec) = 0;
 
-		 /// @brief A pure virtual method to retrieve a color texture from the
-		 /// framebuffer at the specified index
-		 /// @param index The index of the texture to retrieve
-		 /// @return A pointer to a texture object
-		 virtual Ref<Texture2D> GetColorTexture(uint32_t index = 0) = 0;
+		/// @brief A pure virtual method to retrieve a color texture from the
+		/// framebuffer at the specified index
+		/// @param index The index of the texture to retrieve
+		/// @return A pointer to a texture object
+		virtual Ref<Texture2D> GetColorTexture(uint32_t index = 0) = 0;
 
-		 /// @brief A pure virtual method to retrieve the depth texture from the
-		 /// framebuffer
-		 /// @return A pointer to a texture object
-		 virtual Ref<Texture2D> GetDepthTexture() = 0;
+		/// @brief A pure virtual method to retrieve the depth texture from the
+		/// framebuffer
+		/// @return A pointer to a texture object
+		virtual Ref<Texture2D> GetDepthTexture() = 0;
 
-		 void Resize(uint32_t width, uint32_t height)
-		 {
-			 auto framebufferSpec	= GetFramebufferSpecification();
-			 framebufferSpec.Width	= width;
-			 framebufferSpec.Height = height;
-			 SetFramebufferSpecification(framebufferSpec);
+		void Resize(uint32_t width, uint32_t height)
+		{
+			auto framebufferSpec   = GetFramebufferSpecification();
+			framebufferSpec.Width  = width;
+			framebufferSpec.Height = height;
+			SetFramebufferSpecification(framebufferSpec);
 		}
 
 	  protected:

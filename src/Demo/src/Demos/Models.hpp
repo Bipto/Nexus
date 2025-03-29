@@ -37,11 +37,6 @@ namespace Demos
 			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
 			m_Model = factory.CreateFrom3DModelFile(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/models/The Boss/The Boss.dae"));
 
-			Nexus::Ref<Nexus::Graphics::Mesh>	  mesh	   = m_Model->GetMeshes()[0];
-			Nexus::Graphics::Material			  material = mesh->GetMaterial();
-			material.NormalTexture = m_GraphicsDevice->CreateTexture2D("resources/demo/models/The Boss/textures/Boss_normal.png", true);
-			mesh->SetMaterial(material);
-
 			Nexus::Graphics::BufferDescription cameraUniformBufferDesc;
 			cameraUniformBufferDesc.Size  = sizeof(VB_UNIFORM_CAMERA_DEMO_LIGHTING);
 			cameraUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
@@ -53,7 +48,7 @@ namespace Demos
 			m_TransformUniformBuffer		 = m_GraphicsDevice->CreateUniformBuffer(transformUniformBufferDesc, nullptr);
 
 			CreatePipeline();
-			m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, 2.5f));
+			m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 
 			Nexus::Graphics::SamplerSpecification samplerSpec {};
 			m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
@@ -66,8 +61,7 @@ namespace Demos
 			m_CameraUniforms.CamPosition = m_Camera.GetPosition();
 			m_CameraUniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms));
 
-			m_TransformUniforms.Transform =
-				glm::translate(glm::mat4(1.0f), {0.0f, 0.0f, 10.0f}) * glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), {0.0f, 1.0f, 0.0f});
+			m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), {0.0f, 0. - 1.0f, 5.0f});
 			m_TransformUniformBuffer->SetData(&m_TransformUniforms, sizeof(m_TransformUniforms));
 
 			m_CommandList->Begin();
@@ -95,21 +89,21 @@ namespace Demos
 			Nexus::Graphics::ClearDepthStencilValue value;
 			m_CommandList->ClearDepthTarget(value);
 
-			m_ResourceSet->WriteUniformBuffer(m_CameraUniformBuffer, "Camera");
-			m_ResourceSet->WriteUniformBuffer(m_TransformUniformBuffer, "Transform");
-
-			const Nexus::Graphics::Material &mat = m_Model->GetMeshes()[0]->GetMaterial();
-
-			if (mat.DiffuseTexture)
-			{
-				m_ResourceSet->WriteCombinedImageSampler(mat.DiffuseTexture, m_Sampler, "diffuseMapSampler");
-			}
-
-			m_CommandList->SetResourceSet(m_ResourceSet);
-
 			const auto &meshes = m_Model->GetMeshes();
-			for (auto mesh : meshes)
+
+			for (size_t i = 0; i < meshes.size(); i++)
 			{
+				const auto &mesh		= meshes[i];
+				const auto &mat			= mesh->GetMaterial();
+				const auto	resourceSet = m_ResourceSets[i];
+
+				resourceSet->WriteUniformBuffer(m_CameraUniformBuffer, "Camera");
+				resourceSet->WriteUniformBuffer(m_TransformUniformBuffer, "Transform");
+				if (mat.DiffuseTexture)
+				{
+					resourceSet->WriteCombinedImageSampler(mat.DiffuseTexture, m_Sampler, "diffuseMapSampler");
+				}
+				m_CommandList->SetResourceSet(resourceSet);
 				m_CommandList->SetVertexBuffer(mesh->GetVertexBuffer(), 0);
 				m_CommandList->SetIndexBuffer(mesh->GetIndexBuffer());
 
@@ -138,7 +132,7 @@ namespace Demos
 		void CreatePipeline()
 		{
 			Nexus::Graphics::PipelineDescription pipelineDescription;
-			pipelineDescription.RasterizerStateDesc.TriangleCullMode	 = Nexus::Graphics::CullMode::Back;
+			pipelineDescription.RasterizerStateDesc.TriangleCullMode	 = Nexus::Graphics::CullMode::CullNone;
 			pipelineDescription.RasterizerStateDesc.TriangleFrontFace	 = Nexus::Graphics::FrontFace::Clockwise;
 			pipelineDescription.DepthStencilDesc.EnableDepthTest		 = true;
 			pipelineDescription.DepthStencilDesc.EnableDepthWrite		 = true;
@@ -149,7 +143,7 @@ namespace Demos
 			pipelineDescription.FragmentModule = m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/models.frag.glsl",
 																										Nexus::Graphics::ShaderStage::Fragment);
 
-			pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
+			pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalColourTangentBitangent::GetLayout()};
 
 			pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Camera", 0, 0}, {"Transform", 0, 1}};
 
@@ -159,8 +153,13 @@ namespace Demos
 			pipelineDescription.ColourFormats[0]		= Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
 			pipelineDescription.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification().Samples;
 
-			m_Pipeline	  = m_GraphicsDevice->CreatePipeline(pipelineDescription);
-			m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
+			m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
+
+			for (size_t i = 0; i < m_Model->GetMeshes().size(); i++)
+			{
+				Nexus::Ref<Nexus::Graphics::ResourceSet> resourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
+				m_ResourceSets.push_back(resourceSet);
+			}
 		}
 
 	  private:
@@ -169,7 +168,7 @@ namespace Demos
 		Nexus::Ref<Nexus::Graphics::Model>		 m_Model;
 		glm::vec3								 m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 
-		Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
+		std::vector<Nexus::Ref<Nexus::Graphics::ResourceSet>> m_ResourceSets;
 
 		VB_UNIFORM_CAMERA_DEMO_MODELS			   m_CameraUniforms;
 		Nexus::Ref<Nexus::Graphics::UniformBuffer> m_CameraUniformBuffer;

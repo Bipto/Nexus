@@ -130,15 +130,21 @@ void say_hello()
 
 		// copy Nexus includes and libs
 		{
-			std::string fromDir = "Nexus";
-			std::string toDir	= scriptDirectory + "\\Nexus";
-
-			if (std::filesystem::exists(fromDir))
-			{
-				std::cout << "Copying directory" << std::endl;
-				FileSystem::CreateFileDirectory(toDir);
-				FileSystem::CopyDirectory(fromDir, toDir, true);
-			}
+			CopyEngineSources("Nexus", scriptDirectory + "\\Nexus");
 		}
 	}
+
+	void ScriptProjectGenerator::CopyEngineSources(const std::string &templatePath, const std::string &scriptDirectory)
+	{
+		if (std::filesystem::exists(templatePath))
+		{
+			if (!std::filesystem::exists(scriptDirectory))
+			{
+				FileSystem::CreateFileDirectory(scriptDirectory);
+			}
+
+			FileSystem::CopyDirectory(templatePath, scriptDirectory, true);
+		}
+	}
+
 }	 // namespace Nexus::Utils

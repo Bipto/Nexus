@@ -1,6 +1,12 @@
 #pragma once
 
-#include "InputContext.hpp"
+#include "Nexus-Core/IWindow.hpp"
+
+#include "Nexus-Core/Input/Gamepad.hpp"
+#include "Nexus-Core/Input/Keyboard.hpp"
+#include "Nexus-Core/Input/Mouse.hpp"
+
+#include "Nexus-Core/nxpch.hpp"
 
 namespace Nexus
 {
@@ -26,10 +32,10 @@ namespace Nexus
 		NX_API static Point2D<float> GetGlobalCursorPosition();
 
 	  public:
-		NX_API static InputNew::InputContext *GetContext();
-		NX_API static void					  SetContext(InputNew::InputContext *context);
+		NX_API static IWindow *GetContext();
+		NX_API static void	   SetContext(IWindow *context);
 
 	  private:
-		static inline InputNew::InputContext *s_InputContext = nullptr;
+		static inline IWindow *s_InputContext = nullptr;
 	};
 };	  // namespace Nexus

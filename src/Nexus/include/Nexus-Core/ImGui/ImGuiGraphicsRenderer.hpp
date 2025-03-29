@@ -47,6 +47,7 @@ namespace Nexus::ImGuiUtils
 
 		ImGuiIO		 &GetIO();
 		ImGuiContext *GetContext();
+		void		  SetContext(ImGuiContext *context);
 
 		static ImGuiGraphicsRenderer *GetCurrentRenderer();
 		static void					  SetCurrentRenderer(ImGuiGraphicsRenderer *renderer);
@@ -61,6 +62,7 @@ namespace Nexus::ImGuiUtils
 		void RenderCommandLists(ImDrawData *drawData);
 		void UpdateCursor();
 		void UpdateMonitors();
+		void SetupHandlers();
 
 	  private:
 		Nexus::Application						*m_Application	  = nullptr;

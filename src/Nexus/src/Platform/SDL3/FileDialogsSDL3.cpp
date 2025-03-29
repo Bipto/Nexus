@@ -2,6 +2,7 @@
 
 #include "Nexus-Core/Platform.hpp"
 
+#include "Nexus-Core/Runtime.hpp"
 #include "SDL3Window.hpp"
 
 namespace Nexus
@@ -100,7 +101,7 @@ namespace Nexus
 		SDL_ShowFileDialogWithProperties(SDL_FILEDIALOG_OPENFILE, sdl_file_selected_callback, &data, properties);
 
 		// wait and keep updating events until the user selects a file
-		while (!data.dialogFinished) { Nexus::Platform::PollEvents(); }
+		while (!data.dialogFinished) { Nexus::Platform::PollEvents(Nexus::GetApplication()); }
 
 		// return the completed dialog result
 		return data.dialogResult;
@@ -144,7 +145,7 @@ namespace Nexus
 		SDL_ShowFileDialogWithProperties(SDL_FILEDIALOG_SAVEFILE, sdl_file_selected_callback, &data, properties);
 
 		// wait and keep updating events until the user selects a file
-		while (!data.dialogFinished) { Nexus::Platform::PollEvents(); }
+		while (!data.dialogFinished) { Nexus::Platform::PollEvents(Nexus::GetApplication()); }
 
 		// return the completed dialog result
 		return data.dialogResult;
@@ -185,7 +186,7 @@ namespace Nexus
 		SDL_ShowFileDialogWithProperties(SDL_FILEDIALOG_OPENFOLDER, sdl_file_selected_callback, &data, properties);
 
 		// wait and keep updating events until the user selects a file
-		while (!data.dialogFinished) { Nexus::Platform::PollEvents(); }
+		while (!data.dialogFinished) { Nexus::Platform::PollEvents(Nexus::GetApplication()); }
 
 		// return the completed dialog result
 		return data.dialogResult;
