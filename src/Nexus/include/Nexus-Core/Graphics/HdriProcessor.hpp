@@ -13,6 +13,7 @@ namespace Nexus::Graphics
 		HdriProcessor(const std::string &filepath, GraphicsDevice *device);
 		~HdriProcessor() = default;
 		Ref<Cubemap> Generate(uint32_t size);
+		Ref<Texture2D> GetLoadedTexture() const;
 
 	  private:
 		void GetDirection(CubemapFace face, float &yaw, float &pitch);

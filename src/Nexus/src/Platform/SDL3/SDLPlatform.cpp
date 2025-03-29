@@ -421,6 +421,22 @@ namespace Nexus::Platform
 
 				break;
 			}
+			case SDL_EVENT_FINGER_DOWN:
+			{
+				break;
+			}
+			case SDL_EVENT_FINGER_UP:
+			{
+				break;
+			}
+			case SDL_EVENT_FINGER_MOTION:
+			{
+				break;
+			}
+			case SDL_EVENT_FINGER_CANCELED:
+			{
+				break;
+			}
 			case SDL_EVENT_TEXT_INPUT:
 			{
 				Nexus::TextInputEventArgs args {.Text = event.text.text};
@@ -670,6 +686,16 @@ namespace Nexus::Platform
 		}
 
 		return state;
+	}
+
+	const char *GetRootPath()
+	{
+		return SDL_GetBasePath();
+	}
+
+	const char *GetApplicationPath(const char *org, const char *app)
+	{
+		return SDL_GetPrefPath(org, app);
 	}
 
 	std::optional<IWindow *> GetKeyboardFocus()

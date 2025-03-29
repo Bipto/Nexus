@@ -48,7 +48,8 @@ namespace Demos
 			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);
 			m_Cube = factory.CreateCube();
 
-			Nexus::Graphics::HdriProcessor processor("resources/demo/hdri/hangar_interior_4k.hdr", m_GraphicsDevice);
+			Nexus::Graphics::HdriProcessor processor(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/hdri/hangar_interior_4k.hdr"),
+													 m_GraphicsDevice);
 			m_Cubemap = processor.Generate(2048);
 		}
 
@@ -113,8 +114,8 @@ namespace Demos
 			pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::Back;
 			pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
-			pipelineDescription.VertexModule = m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/cubemap.vert.glsl",
-																									  Nexus::Graphics::ShaderStage::Vertex);
+			pipelineDescription.VertexModule   = m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/cubemap.vert.glsl",
+																										Nexus::Graphics::ShaderStage::Vertex);
 			pipelineDescription.FragmentModule = m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/cubemap.frag.glsl",
 																										Nexus::Graphics::ShaderStage::Fragment);
 

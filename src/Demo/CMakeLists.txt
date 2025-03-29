@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.22.1)
 project("Demo")
 
 if (ANDROID OR __ANDROID__)
-add_library(Demo SHARED main.cpp)
+add_library(Demo SHARED src/main.cpp)
 else()
 add_executable(Demo src/main.cpp)
 endif()
@@ -60,3 +60,8 @@ set_property(TARGET Demo PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_CURRENT_
 
 nexus_copy_required_binaries()
 nexus_copy_required_runtime_libraries()
+
+if (ANDROID)
+    set_target_properties(Demo PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+endif()

@@ -212,6 +212,11 @@ namespace Nexus::Graphics
 		return cubemap;
 	}
 
+	Ref<Texture2D> HdriProcessor::GetLoadedTexture() const
+	{
+		return m_HdriImage;
+	}
+
 	void HdriProcessor::GetDirection(CubemapFace face, float &yaw, float &pitch)
 	{
 		switch (face)

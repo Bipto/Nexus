@@ -48,6 +48,8 @@ class DemoApplication : public Nexus::Application
 		ImGuiContext *context = m_ImGuiRenderer->GetContext();
 		ImGui::SetCurrentContext(context);
 
+		ImGui::GetStyle().ScrollbarSize = 20.0f;
+
 		ImGuiIO &io = m_ImGuiRenderer->GetIO();
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
@@ -281,7 +283,7 @@ class DemoApplication : public Nexus::Application
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
 	Nexus::ApplicationSpecification spec;
-	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::D3D12;
+	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
 	spec.AudioAPI	 = Nexus::Audio::AudioAPI::OpenAL;
 
 	spec.WindowProperties.Width			   = 1280;
@@ -293,6 +295,9 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 
 	spec.SwapchainSpecification.Samples	   = Nexus::Graphics::SampleCount::SampleCount8;
 	spec.SwapchainSpecification.VSyncState = Nexus::Graphics::VSyncState::Enabled;
+
+	spec.Organization = "Nexus";
+	spec.App		  = "Demo";
 
 	return new DemoApplication(spec);
 }

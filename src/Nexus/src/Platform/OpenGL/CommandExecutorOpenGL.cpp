@@ -314,7 +314,7 @@ namespace Nexus::Graphics
 
 		Ref<TimingQueryOpenGL> query = std::dynamic_pointer_cast<TimingQueryOpenGL>(command.Query.lock());
 
-	#if defined(__EMSCRIPTEN__)
+	#if defined(__EMSCRIPTEN__) || defined(ANDROID)
 		glFinish();
 		uint64_t now   = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 		query->m_Start = now;
@@ -336,7 +336,7 @@ namespace Nexus::Graphics
 
 		Ref<TimingQueryOpenGL> query = std::dynamic_pointer_cast<TimingQueryOpenGL>(command.Query.lock());
 
-	#if defined(__EMSCRIPTEN__)
+	#if defined(__EMSCRIPTEN__) || defined(ANDROID)
 		glFinish();
 		uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 		query->m_End = now;

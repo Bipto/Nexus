@@ -128,6 +128,8 @@ namespace Nexus
 
 		void Stop();
 
+		const char *GetApplicationPath();
+
 	  protected:
 		/// @brief A pointer to a graphics device
 		Graphics::GraphicsDevice *m_GraphicsDevice = nullptr;

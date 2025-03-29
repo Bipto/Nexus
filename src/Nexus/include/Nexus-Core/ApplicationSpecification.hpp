@@ -107,5 +107,8 @@ namespace Nexus
 		Graphics::SwapchainSpecification SwapchainSpecification;
 
 		bool EventDriven = false;
+
+		const char *Organization = "Nexus";
+		const char *App			 = "Application";
 	};
 }	 // namespace Nexus

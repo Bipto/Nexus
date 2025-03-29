@@ -115,4 +115,40 @@ namespace Nexus
 		int32_t		Start  = {};
 		int32_t		Length = {};
 	};
+
+	struct FingerDownEventArgs
+	{
+		Point2D<float> Position		 = {};
+		Point2D<float> Movement		 = {};
+		float		   Pressure		 = {};
+		uint64_t	   TouchDeviceID = {};
+		uint64_t	   FingerID		 = {};
+	};
+
+	struct FingerUpEventArgs
+	{
+		Point2D<float> Position		 = {};
+		Point2D<float> Movement		 = {};
+		float		   Pressure		 = {};
+		uint64_t	   TouchDeviceID = {};
+		uint64_t	   FingerID		 = {};
+	};
+
+	struct FingerMotionEventArgs
+	{
+		Point2D<float> Position		 = {};
+		Point2D<float> Movement		 = {};
+		float		   Pressure		 = {};
+		uint64_t	   TouchDeviceID = {};
+		uint64_t	   FingerID		 = {};
+	};
+
+	struct FingerUpCancelledArgs
+	{
+		Point2D<float> Position		 = {};
+		Point2D<float> Movement		 = {};
+		float		   Pressure		 = {};
+		uint64_t	   TouchDeviceID = {};
+		uint64_t	   FingerID		 = {};
+	};
 }	 // namespace Nexus

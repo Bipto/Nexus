@@ -9,9 +9,12 @@
 		#include <emscripten/html5.h>
 	#endif
 
-	#if defined(__EMSCRIPTEN__) || defined(ANDROID) || defined(__ANDROID__)
+	#if defined(__EMSCRIPTEN__) || defined(ANDROID)
 		#include <GLES3/gl32.h>
 		#include <GLES2/gl2ext.h>
+	#elif defined(__ANDROID__)
+		#include <GLES3/gl32.h>
+		#include <glad/glad_egl.h>
 	#else
 		#include "Platform/Windows/WindowsInclude.hpp"
 		#include "glad/glad.h"

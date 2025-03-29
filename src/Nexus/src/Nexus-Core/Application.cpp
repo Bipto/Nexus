@@ -116,6 +116,11 @@ namespace Nexus
 		m_Running = false;
 	}
 
+	const char *Application::GetApplicationPath()
+	{
+		return Platform::GetApplicationPath(m_Specification.Organization, m_Specification.App);
+	}
+
 	Audio::AudioDevice *CreateAudioDevice(Audio::AudioAPI api)
 	{
 		switch (api)

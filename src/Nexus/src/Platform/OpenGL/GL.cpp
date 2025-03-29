@@ -628,10 +628,17 @@ namespace Nexus::GL
 		GL::ContextSpecification spec = {};
 		spec.Debug					  = true;
 		spec.Samples				  = Graphics::SampleCount::SampleCount8;
+		spec.GLVersion				  = GL::OpenGLVersion::OpenGL;
 
 	#if defined(NX_PLATFORM_WGL)
 		return std::make_unique<OffscreenContextWGL>(spec);
 	#elif defined(NX_PLATFORM_EGL)
+
+		#if defined(NX_PLATFORM_ANDROID)
+		spec.GLVersion	  = GL::OpenGLVersion::OpenGLES;
+		spec.VersionMajor = 3;
+		spec.VersionMinor = 2;
+		#endif
 
 		Nexus::WindowSpecification windowSpec {};
 		windowSpec.Width	 = 1;
@@ -640,11 +647,15 @@ namespace Nexus::GL
 
 		Nexus::Graphics::SwapchainSpecification swapchainSpec {};
 
-		IWindow *window = Platform::CreatePlatformWindow(windowSpec, Graphics::GraphicsAPI::OpenGL, swapchainSpec);
+		IWindow *window = Platform::CreatePlatformWindow(windowSpec);
 		window->Hide();
 
 		NativeWindowInfo windowInfo = window->GetNativeWindowInfo();
-		EGLDisplay		 display	= eglGetDisplay(windowInfo.display);
+
+		EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+		#if !defined(NX_PLATFORM_ANDROID)
+		EGLDisplay display = eglGetDisplay(windowInfo.display);
+		#endif
 		return std::make_unique<OffscreenContextEGL>(display, spec);
 	#elif defined(NX_PLATFORM_WEBGL)
 		return std::make_unique<OffscreenContextWebGL>("offscreenContext");
@@ -660,6 +671,7 @@ namespace Nexus::GL
 		GL::ContextSpecification spec = {};
 		spec.Debug					  = true;
 		spec.Samples				  = Graphics::SampleCount::SampleCount8;
+		spec.GLVersion				  = GL::OpenGLVersion::OpenGL;
 
 		Graphics::GraphicsDeviceOpenGL *deviceOpenGL = (Graphics::GraphicsDeviceOpenGL *)device;
 		NativeWindowInfo				windowInfo	 = window->GetNativeWindowInfo();
@@ -668,10 +680,23 @@ namespace Nexus::GL
 		OffscreenContextWGL *pbufferWGL = (OffscreenContextWGL *)deviceOpenGL->GetOffscreenContext();
 		return std::make_unique<ViewContextWGL>(windowInfo.hwnd, windowInfo.hdc, pbufferWGL, spec);
 	#elif defined(NX_PLATFORM_EGL)
-		OffscreenContextEGL *pbufferEGL	  = (OffscreenContextEGL *)deviceOpenGL->GetOffscreenContext();
-		EGLDisplay			 display	  = eglGetDisplay(windowInfo.display);
-		EGLNativeWindowType	 nativeWindow = (EGLNativeWindowType)windowInfo.window;
+		#if defined(NX_PLATFORM_ANDROID)
+		spec.GLVersion	  = GL::OpenGLVersion::OpenGLES;
+		spec.VersionMajor = 3;
+		spec.VersionMinor = 2;
+		#endif
+
+		OffscreenContextEGL *pbufferEGL = (OffscreenContextEGL *)deviceOpenGL->GetOffscreenContext();
+
+		#if defined(NX_PLATFORM_ANDROID)
+		EGLDisplay			display		 = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+		EGLNativeWindowType nativeWindow = (EGLNativeWindowType)windowInfo.nativeWindow;
 		return std::make_unique<ViewContextEGL>(display, nativeWindow, pbufferEGL, spec);
+		#else
+		EGLDisplay			display		 = eglGetDisplay(windowInfo.display);
+		EGLNativeWindowType nativeWindow = (EGLNativeWindowType)windowInfo.window;
+		return std::make_unique<ViewContextEGL>(display, nativeWindow, pbufferEGL, spec);
+		#endif
 	#elif defined(NX_PLATFORM_WEBGL)
 		return std::make_unique<ViewContextWebGL>(windowInfo.canvasId.c_str(), deviceOpenGL, spec);
 	#else

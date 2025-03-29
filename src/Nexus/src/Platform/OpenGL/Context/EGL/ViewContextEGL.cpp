@@ -18,7 +18,15 @@ namespace Nexus::GL
 		configAttribs.push_back(EGL_SURFACE_TYPE);
 		configAttribs.push_back(EGL_WINDOW_BIT);
 		configAttribs.push_back(EGL_RENDERABLE_TYPE);
-		configAttribs.push_back(EGL_OPENGL_BIT);
+
+		if (spec.GLVersion == GL::OpenGLVersion::OpenGL)
+		{
+			configAttribs.push_back(EGL_OPENGL_BIT);
+		}
+		else
+		{
+			configAttribs.push_back(EGL_OPENGL_ES3_BIT);
+		}
 		configAttribs.push_back(EGL_RED_SIZE);
 		configAttribs.push_back(spec.RedBits);
 		configAttribs.push_back(EGL_GREEN_SIZE);
@@ -36,7 +44,7 @@ namespace Nexus::GL
 		{
 			uint32_t samples = Graphics::GetSampleCount(spec.Samples);
 			configAttribs.push_back(EGL_SAMPLE_BUFFERS);
-			configAttribs.push_back(EGL_TRUE);
+			configAttribs.push_back(1);
 			configAttribs.push_back(EGL_SAMPLES);
 			configAttribs.push_back(samples);
 		}
@@ -46,25 +54,43 @@ namespace Nexus::GL
 		if (m_EGLDisplay == EGL_NO_DISPLAY)
 		{
 			std::cout << "Failed to choose EGL config: ";
-			std::cout << eglGetErrorString(eglGetError()) << std::endl;
+			const char *errorMessage = eglGetErrorString(eglGetError());
+			std::cout << errorMessage << std::endl;
 		}
 		eglInitialize(m_EGLDisplay, NULL, NULL);
 
-		eglBindAPI(EGL_OPENGL_API);
+		if (spec.GLVersion == GL::OpenGLVersion::OpenGL)
+		{
+			eglBindAPI(EGL_OPENGL_API);
+		}
+		else
+		{
+			eglBindAPI(EGL_OPENGL_ES_API);
+		}
 
 		EGLConfig config;
 		EGLint	  numConfigs;
 		if (!eglChooseConfig(m_EGLDisplay, configAttribs.data(), &config, 1, &numConfigs))
 		{
 			std::cout << "Failed to choose EGL config: ";
-			std::cout << eglGetErrorString(eglGetError()) << std::endl;
+			const char *errorMessage = eglGetErrorString(eglGetError());
+			std::cout << errorMessage << std::endl;
 		}
 
 		std::vector<EGLint> contextAttribs;
-		contextAttribs.push_back(EGL_CONTEXT_MAJOR_VERSION);
-		contextAttribs.push_back(spec.VersionMajor);
-		contextAttribs.push_back(EGL_CONTEXT_MINOR_VERSION);
-		contextAttribs.push_back(spec.VersionMinor);
+		if (spec.GLVersion == GL::OpenGLVersion::OpenGL)
+		{
+			contextAttribs.push_back(EGL_CONTEXT_MAJOR_VERSION);
+			contextAttribs.push_back(spec.VersionMajor);
+			contextAttribs.push_back(EGL_CONTEXT_MINOR_VERSION);
+			contextAttribs.push_back(spec.VersionMinor);
+		}
+		else
+		{
+			contextAttribs.push_back(EGL_CONTEXT_CLIENT_VERSION);
+			contextAttribs.push_back(spec.VersionMajor);
+			contextAttribs.push_back(EGL_NONE);
+		}
 
 		if (spec.UseCoreProfile)
 		{
@@ -83,13 +109,12 @@ namespace Nexus::GL
 			contextAttribs.push_back(EGL_TRUE);
 		}
 
-		contextAttribs.push_back(EGL_NONE);
-
 		m_Context = eglCreateContext(m_EGLDisplay, config, pbuffer->GetContext(), contextAttribs.data());
 		if (m_Context == EGL_NO_CONTEXT)
 		{
 			std::cout << "Failed to create OpenGL context: ";
-			std::cout << eglGetErrorString(eglGetError()) << std::endl;
+			const char *errorMessage = eglGetErrorString(eglGetError());
+			std::cout << errorMessage << std::endl;
 		}
 
 		EGLAttrib attr[] = {EGL_GL_COLORSPACE, EGL_GL_COLORSPACE_LINEAR, EGL_RENDER_BUFFER, EGL_BACK_BUFFER, EGL_NONE};
@@ -98,7 +123,8 @@ namespace Nexus::GL
 		if (m_Surface == EGL_NO_SURFACE)
 		{
 			std::cout << "Failed to create window surface: ";
-			std::cout << eglGetErrorString(eglGetError()) << std::endl;
+			const char *errorMessage = eglGetErrorString(eglGetError());
+			std::cout << errorMessage << std::endl;
 		}
 
 		SetVSync(spec.Vsync);

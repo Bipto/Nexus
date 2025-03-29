@@ -291,6 +291,8 @@ namespace Nexus
 		info.window	 = (Window)(unsigned long)SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0);
 #elif defined(NX_PLATFORM_WEB)
 		info.canvasId = m_Specification.CanvasId;
+#elif defined(NX_PLATFORM_ANDROID)
+		info.nativeWindow = (ANativeWindow *)SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_ANDROID_WINDOW_POINTER, nullptr);
 #endif
 
 		return info;

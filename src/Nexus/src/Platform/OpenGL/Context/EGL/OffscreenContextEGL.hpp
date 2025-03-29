@@ -8,8 +8,9 @@
 
 	#include "glad/glad_egl.h"
 
-	#include "Platform/X11/X11Include.hpp"
-
+	#if defined(NX_PLATFORM_LINUX)
+		#include "Platform/X11/X11Include.hpp"
+	#endif
 namespace Nexus::GL
 {
 	class OffscreenContextEGL : public IOffscreenContext

@@ -70,6 +70,9 @@ namespace Nexus::Platform
 
 	NX_API MouseState GetMouseState();
 
+	NX_API const char *GetRootPath();
+	NX_API const char *GetApplicationPath(const char *org, const char *app);
+
 	inline EventHandler<uint32_t> OnKeyboardAdded;
 	inline EventHandler<uint32_t> OnKeyboardRemoved;
 	inline EventHandler<uint32_t> OnMouseAdded;

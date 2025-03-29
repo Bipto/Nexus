@@ -97,7 +97,7 @@ std::string Nexus::FileSystem::GetRootDirectory()
 	std::string directory;
 
 #if defined(__ANDROID__) || defined(ANDROID)
-	directory = "/data/data/org.libsdl.app/";
+	directory = "/data/data/com.nexus.demo/";
 #endif
 
 	return directory;

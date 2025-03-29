@@ -7,6 +7,7 @@
 #include "Nexus-Core/Graphics/ShaderGenerator.hpp"
 #include "Nexus-Core/Graphics/ShaderUtils.hpp"
 #include "Nexus-Core/Logging/Log.hpp"
+#include "Nexus-Core/Runtime.hpp"
 #include "stb_image.h"
 
 #include "Nexus-Core/Caching/CachedShader.hpp"
@@ -142,7 +143,7 @@ namespace Nexus::Graphics
 	{
 		std::size_t hash		   = Utils::Hash(source);
 		std::string languageString = ShaderLanguageToString(language);
-		std::string filepath	   = "cache/shaders/" + languageString + "/" + name;
+		std::string filepath	   = Nexus::GetApplication()->GetApplicationPath() + std::string("/cache/shaders/") + languageString + "/" + name;
 
 		bool			  shaderCreated = false;
 		Ref<ShaderModule> module		= nullptr;

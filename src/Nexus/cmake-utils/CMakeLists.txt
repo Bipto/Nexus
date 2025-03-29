@@ -62,7 +62,7 @@ macro(nexus_structure_folders)
 endmacro()
 
 macro(nexus_copy_required_runtime_libraries)
-  if (NOT EMSCRIPTEN)
+  if (NOT EMSCRIPTEN AND NOT ANDROID)
     # Create a custom target for the copy actions
     add_custom_target(copy_${PROJECT_NAME}_dependencies ALL
       COMMAND ${CMAKE_COMMAND} -E copy
