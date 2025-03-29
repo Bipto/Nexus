@@ -29,10 +29,10 @@ if (DEFINED NX_BUILD_TESTS)
     add_subdirectory(src/Tests)
   endif()
 
-#if (DEFINED NX_BUILD_DEMO)
+if (DEFINED NX_BUILD_DEMO)
     add_subdirectory(src/Demo)
     set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT Demo)
-#endif()
+endif()
 
 if (DEFINED NX_BUILD_EDITOR)
     add_subdirectory(src/Editor)

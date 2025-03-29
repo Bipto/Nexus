@@ -7,3 +7,4 @@ src/Demo/android/.idea
 android-project/app/.cxx
 src/Demo/android/app/src/main/libs
 android-project/.gradle
+android-project/.idea
