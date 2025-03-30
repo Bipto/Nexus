@@ -54,6 +54,8 @@ jobs:
 
       - name: actions-setup-cmake
         uses: jwlawson/actions-setup-cmake@v2.0.2
+        with:
+          cmake-version: '3.30'
 
       - name: Configure CMake MSVC
         run: >
