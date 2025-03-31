@@ -77,7 +77,7 @@ namespace Nexus::UI
 		Nexus::Point2D<uint32_t> m_Size		= {0, 0};
 
 		Style	 m_Style	= {};
-		DockMode m_DockMode = DockMode::None;
+		DockMode m_DockMode = DockMode::DockNone;
 
 		Graphics::RoundedRectangle m_Bounds	 = {};
 		std::vector<glm::vec2>	   m_Outline = {};
