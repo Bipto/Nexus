@@ -20,7 +20,7 @@ endif()
 #set up engine project
 add_subdirectory(src/Nexus)
 
-if (DEFINED WIN32)
+if (DEFINED NX_BUILD_UI_TESTS)
     add_subdirectory(src/UITests)
 endif()
 

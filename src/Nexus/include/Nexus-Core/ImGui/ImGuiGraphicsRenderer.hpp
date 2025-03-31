@@ -55,7 +55,7 @@ namespace Nexus::ImGuiUtils
 	  private:
 		void CreateTextPipeline();
 		void CreateImagePipeline();
-		void SetupInput();
+		static void SetupInput(IWindow *window);
 		void UpdateInput();
 		void RenderDrawData(ImDrawData *drawData);
 		void UpdateBuffers(ImDrawData *drawData);

@@ -9,8 +9,10 @@
 #include "Nexus-Core/Platform.hpp"
 
 #include "Nexus-Core/Input/Input.hpp"
+#include "Nexus-Core/Runtime.hpp"
 
-std::vector<Nexus::IWindow *> m_Windows {};
+std::vector<Nexus::IWindow *> m_Windows		   = {};
+std::vector<Nexus::IWindow *> m_WindowsToClose = {};
 
 std::optional<uint32_t> m_ActiveMouse	 = {};
 std::optional<uint32_t> m_ActiveKeyboard = {};
@@ -249,25 +251,25 @@ namespace Nexus::Platform
 
 	void Update()
 	{
-		std::optional<size_t> windowToClose = {};
+		for (size_t i = 0; i < m_WindowsToClose.size(); i++)
+		{
+			IWindow *window = m_WindowsToClose[i];
+
+			if (window == m_Windows[0])
+			{
+				Nexus::Application *app = Nexus::GetApplication();
+				app->Close();
+			}
+
+			m_Windows.erase(std::remove(m_Windows.begin(), m_Windows.end(), window), m_Windows.end());
+			m_WindowsToClose.erase(std::remove(m_WindowsToClose.begin(), m_WindowsToClose.end(), window), m_WindowsToClose.end());
+			i--;
+		}
 
 		for (size_t i = 0; i < m_Windows.size(); i++)
 		{
 			IWindow *window = m_Windows[i];
 			window->Update();
-
-			if (window->IsClosing())
-			{
-				windowToClose = i;
-			}
-		}
-
-		if (windowToClose.has_value())
-		{
-			IWindow *window = m_Windows[windowToClose.value()];
-			delete window;
-
-			m_Windows.erase(m_Windows.begin() + windowToClose.value());
 		}
 	}
 
@@ -412,13 +414,7 @@ namespace Nexus::Platform
 			}
 			case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
 			{
-				window->Close();
-
-				if (m_Windows.size() <= 1)
-				{
-					app->Close();
-				}
-
+				m_WindowsToClose.push_back(window);
 				break;
 			}
 			case SDL_EVENT_FINGER_DOWN:

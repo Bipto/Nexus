@@ -322,7 +322,7 @@ namespace Nexus::ImGuiUtils
 		RebuildFontAtlas();
 
 		SetupHandlers();
-		SetupInput();
+		SetupInput(Nexus::GetApplication()->GetPrimaryWindow());
 	}
 
 	ImGuiGraphicsRenderer *ImGuiGraphicsRenderer::GetCurrentRenderer()
@@ -337,11 +337,10 @@ namespace Nexus::ImGuiUtils
 		ImGui::SetAllocatorFunctions(&ImGuiAlloc, &ImGuiFree, nullptr);
 	}
 
-	void ImGuiGraphicsRenderer::SetupInput()
+	void ImGuiGraphicsRenderer::SetupInput(IWindow *window)
 	{
 		auto &io = ImGui::GetIO();
 
-		IWindow *window = m_Application->GetPrimaryWindow();
 		window->AddTextInputCallback(
 			[&](const TextInputEventArgs &args)
 			{
@@ -356,7 +355,6 @@ namespace Nexus::ImGuiUtils
 				io.AddMouseWheelEvent(args.Scroll.X, args.Scroll.Y);
 			});
 
-		// #if defined(ANDROID)
 		window->AddMousePressedCallback(
 			[&](const Nexus::MouseButtonPressedEventArgs &args)
 			{
@@ -432,7 +430,13 @@ namespace Nexus::ImGuiUtils
 				}
 				io.AddMousePosEvent(position.X, position.Y);
 			});
-		// #endif
+
+		window->AddMouseScrollCallback(
+			[&](const Nexus::MouseScrolledEventArgs &args)
+			{
+				ImGuiIO &io = ImGui::GetIO();
+				io.AddMouseWheelEvent(args.Scroll.X, args.Scroll.Y);
+			});
 	}
 
 	void ImGuiGraphicsRenderer::UpdateInput()
@@ -500,11 +504,11 @@ namespace Nexus::ImGuiUtils
 		io.AddMouseButtonEvent(1, state.RightButton == MouseButtonState::Pressed);
 		io.AddMouseButtonEvent(2, state.MiddleButton == MouseButtonState::Pressed); */
 
-		io.DisplaySize			   = {(float)mainWindow->GetWindowSize().X, (float)mainWindow->GetWindowSize().Y};
+		/* io.DisplaySize			   = {(float)mainWindow->GetWindowSize().X, (float)mainWindow->GetWindowSize().Y};
 		io.DisplayFramebufferScale = {1, 1};
 
 		Point2D<float> scroll = activeWindow->GetMouseScroll();
-		io.AddMouseWheelEvent(scroll.X, scroll.Y);
+		io.AddMouseWheelEvent(scroll.X, scroll.Y); */
 	}
 
 	void ImGuiGraphicsRenderer::RenderDrawData(ImDrawData *drawData)
@@ -622,7 +626,6 @@ namespace Nexus::ImGuiUtils
 					{
 						m_CommandList->SetPipeline(m_ImagePipeline);
 					}
-
 					m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(info->Swapchain));
 					m_CommandList->SetVertexBuffer(m_VertexBuffer, 0);
 					m_CommandList->SetIndexBuffer(m_IndexBuffer);
@@ -757,12 +760,7 @@ namespace Nexus::ImGuiUtils
 			info->Window		  = window;
 			info->Swapchain		  = swapchain;
 
-			window->AddTextInputCallback(
-				[&](const Nexus::TextInputEventArgs &args)
-				{
-					ImGuiIO &io = ImGui::GetIO();
-					io.AddInputCharactersUTF8(args.Text);
-				});
+			Nexus::ImGuiUtils::ImGuiGraphicsRenderer::SetupInput(window);
 
 			vp->PlatformUserData = info;
 			vp->RendererUserData = info;
