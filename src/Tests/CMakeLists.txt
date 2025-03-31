@@ -2,15 +2,7 @@ cmake_minimum_required(VERSION 3.30)
 
 project("Tests")
 
-include(FetchContent)
-
-FetchContent_Declare(
-    googletest
-    GIT_REPOSITORY https://github.com/google/googletest.git
-    GIT_TAG c00fd25
-)
-FetchContent_MakeAvailable(googletest)
-
+add_subdirectory(external/googletest)
 add_executable(Tests src/main.cpp)
 
 add_test(

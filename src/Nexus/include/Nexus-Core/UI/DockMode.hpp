@@ -4,14 +4,14 @@ namespace Nexus::UI
 {
 	enum class DockMode
 	{
-		None = 0,
-		Left,
-		Top,
-		Right,
-		Bottom,
-		TopLeft,
-		TopRight,
-		BottomLeft,
-		BottomRight
+		DockNone = 0,
+		DockLeft,
+		DockTop,
+		DockRight,
+		DockBottom,
+		DockTopLeft,
+		DockTopRight,
+		DockBottomLeft,
+		DockBottomRight
 	};
 }	 // namespace Nexus::UI
