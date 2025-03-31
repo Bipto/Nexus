@@ -24,8 +24,8 @@ add_library(imgui
 )
 
 add_library(imguizmo
-    "imguizmo/ImGuizmo.h"
-    "imguizmo/ImGuizmo.cpp"
+    "ImGuizmo/ImGuizmo.h"
+    "ImGuizmo/ImGuizmo.cpp"
 )
 
 target_include_directories(imgui PUBLIC imgui)

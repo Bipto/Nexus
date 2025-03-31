@@ -145,11 +145,6 @@ namespace Nexus::Graphics
 			float yaw = 0.0f, pitch = 0.0f;
 			GetDirection(face, yaw, pitch);
 
-			/* if (m_Device->GetGraphicsAPI() == GraphicsAPI::OpenGL)
-			{
-				yaw += 180.0f;
-			}*/
-
 			glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 
 			glm::quat rotP = glm::angleAxis(glm::radians(pitch), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -198,7 +193,7 @@ namespace Nexus::Graphics
 
 			commandList->SetVertexBuffer(cube->GetVertexBuffer(), 0);
 			commandList->SetIndexBuffer(cube->GetIndexBuffer());
-			auto indexCount = cube->GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
+			auto indexCount = cube->GetIndexBuffer()->GetDescription().Size / sizeof(uint32_t);
 			commandList->DrawIndexed(indexCount, 0, 0);
 
 			commandList->End();

@@ -43,6 +43,7 @@ namespace Demos
 			samplerSpec.AddressModeU = Nexus::Graphics::SamplerAddressMode::Clamp;
 			samplerSpec.AddressModeV = Nexus::Graphics::SamplerAddressMode::Clamp;
 			samplerSpec.AddressModeW = Nexus::Graphics::SamplerAddressMode::Clamp;
+			samplerSpec.SampleFilter = Nexus::Graphics::SamplerFilter::MinPoint_MagPoint_MipPoint;
 			m_Sampler				 = m_GraphicsDevice->CreateSampler(samplerSpec);
 
 			Nexus::Graphics::MeshFactory factory(m_GraphicsDevice);

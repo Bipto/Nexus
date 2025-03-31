@@ -65,13 +65,6 @@ include (FetchContent)
 if (NOT EMSCRIPTEN)
   add_subdirectory(external/openal-soft)
 endif()
-if (WIN32)
-  FetchContent_Declare(
-    DirectXShaderCompiler
-    URL https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.8.2502/dxc_2025_02_20.zip
-  )
-  FetchContent_MakeAvailable(DirectXShaderCompiler)
-endif()
 
 #platform specific configurations
 if (WIN32)

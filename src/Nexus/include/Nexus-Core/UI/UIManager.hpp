@@ -68,10 +68,10 @@ namespace Nexus::UI
 					Nexus::GetApplication()->GetPrimarySwapchain()->SwapBuffers();
 				});
 
-			GetPrimaryWindow()->SetMouseMovedCallback([&](const MouseMovedEventArgs &args) { m_Sizer->InvokeOnMouseMoved(args); });
-			GetPrimaryWindow()->SetMousePressedCallback([&](const MouseButtonPressedEventArgs &args) { m_Sizer->InvokeOnMousePressed(args); });
-			GetPrimaryWindow()->SetMouseReleasedCallback([&](const MouseButtonReleasedEventArgs &args) { m_Sizer->InvokeOnMouseReleased(args); });
-			GetPrimaryWindow()->SetMouseScrollCallback([&](const MouseScrolledEventArgs &args) { m_Sizer->InvokeOnMouseScroll(args); });
+			GetPrimaryWindow()->AddMouseMovedCallback([&](const MouseMovedEventArgs &args) { m_Sizer->InvokeOnMouseMoved(args); });
+			GetPrimaryWindow()->AddMousePressedCallback([&](const MouseButtonPressedEventArgs &args) { m_Sizer->InvokeOnMousePressed(args); });
+			GetPrimaryWindow()->AddMouseReleasedCallback([&](const MouseButtonReleasedEventArgs &args) { m_Sizer->InvokeOnMouseReleased(args); });
+			GetPrimaryWindow()->AddMouseScrollCallback([&](const MouseScrolledEventArgs &args) { m_Sizer->InvokeOnMouseScroll(args); });
 		}
 
 		void Render(Nexus::TimeSpan time) final

@@ -7,13 +7,13 @@ macro(nexus_copy_required_binaries)
   add_custom_command(
       TARGET ${PROJECT_NAME} PRE_LINK
       COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_BINARY_DIR}/_deps/directxshadercompiler-src/bin/x64/dxcompiler.dll
+        ${CMAKE_SOURCE_DIR}/src/Nexus/external/dxc_2025_02_20/bin/x64/dxcompiler.dll
         $<TARGET_FILE_DIR:${PROJECT_NAME}>
   )
   add_custom_command(
       TARGET ${PROJECT_NAME} PRE_LINK
       COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_BINARY_DIR}/_deps/directxshadercompiler-src/bin/x64/dxil.dll
+      ${CMAKE_SOURCE_DIR}/src/Nexus/external/dxc_2025_02_20/bin/x64/dxcompiler.dll
         $<TARGET_FILE_DIR:${PROJECT_NAME}>
     )
   endif()
@@ -62,7 +62,7 @@ macro(nexus_structure_folders)
 endmacro()
 
 macro(nexus_copy_required_runtime_libraries)
-  if (NOT EMSCRIPTEN AND NOT ANDROID)
+  if (WIN32)
     # Create a custom target for the copy actions
     add_custom_target(copy_${PROJECT_NAME}_dependencies ALL
       COMMAND ${CMAKE_COMMAND} -E copy
@@ -75,7 +75,18 @@ macro(nexus_copy_required_runtime_libraries)
 
     # Set up a dependency so the copy target runs when the executable is built
     add_dependencies(${PROJECT_NAME} copy_${PROJECT_NAME}_dependencies)
+  elseif (LINUX)
+    # Create a custom target for the copy actions
+    add_custom_target(copy_${PROJECT_NAME}_dependencies ALL
+    COMMAND ${CMAKE_COMMAND} -E copy
+    -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
+    COMMAND_EXPAND_LISTS
+    )
+
+    # Set up a dependency so the copy target runs when the executable is built
+    add_dependencies(${PROJECT_NAME} copy_${PROJECT_NAME}_dependencies)
   endif()
+
 endmacro()
 
 macro(nexus_add_all_subdirs SUBDIRS)
