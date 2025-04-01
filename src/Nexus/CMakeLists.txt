@@ -10,6 +10,11 @@ if (NOT DEFINED NX_BUILD_TYPE OR EMSCRIPTEN)
   set(NX_BUILD_TYPE STATIC)
 endif()
 
+if (NX_BUILD_TYPE STREQUAL "SHARED")
+  add_compile_definitions(NX_BUILD_DLL=1)
+  add_compile_definitions(NX_EXPORT_API=1)
+endif()
+
 add_subdirectory(cmake-utils)
 
 set(NEXUS_INCLUDE_DIRS "")

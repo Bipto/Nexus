@@ -491,7 +491,7 @@ namespace Nexus::ImGuiUtils
 		io.KeyAlt	= activeWindow->IsKeyDown(ScanCode::LeftAlt) || activeWindow->IsKeyDown(ScanCode::RightAlt);
 		io.KeySuper = activeWindow->IsKeyDown(ScanCode::LeftGUI) || activeWindow->IsKeyDown(ScanCode::RightGUI);
 
-		/* MouseState			  state	   = Platform::GetMouseState();
+		MouseState			  state	   = Platform::GetMouseState();
 		Nexus::Point2D<float> mousePos = activeWindow->GetMousePosition();
 
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -502,13 +502,7 @@ namespace Nexus::ImGuiUtils
 		io.AddMousePosEvent(mousePos.X, mousePos.Y);
 		io.AddMouseButtonEvent(0, state.LeftButton == MouseButtonState::Pressed);
 		io.AddMouseButtonEvent(1, state.RightButton == MouseButtonState::Pressed);
-		io.AddMouseButtonEvent(2, state.MiddleButton == MouseButtonState::Pressed); */
-
-		/* io.DisplaySize			   = {(float)mainWindow->GetWindowSize().X, (float)mainWindow->GetWindowSize().Y};
-		io.DisplayFramebufferScale = {1, 1};
-
-		Point2D<float> scroll = activeWindow->GetMouseScroll();
-		io.AddMouseWheelEvent(scroll.X, scroll.Y); */
+		io.AddMouseButtonEvent(2, state.MiddleButton == MouseButtonState::Pressed);
 	}
 
 	void ImGuiGraphicsRenderer::RenderDrawData(ImDrawData *drawData)
@@ -879,7 +873,7 @@ namespace Nexus::ImGuiUtils
 					return info->Window->GetDisplayScale();
 				}
 			}
-			return 0.0f;
+			return 1.0f;
 		};
 
 		platformIo.Platform_GetWindowPos = [](ImGuiViewport *vp) -> ImVec2

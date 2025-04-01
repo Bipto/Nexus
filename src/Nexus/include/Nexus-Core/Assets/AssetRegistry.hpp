@@ -11,6 +11,7 @@ namespace Nexus::Assets
 		AssetRegistry();
 		std::optional<std::string> GetFilepath(GUID id);
 		GUID					   RegisterAsset(const std::string &filepath);
+		void					   RegisterAsset(const std::string &filepath, GUID id);
 
 		const std::map<GUID, std::string> &GetStoredFilepaths() const;
 

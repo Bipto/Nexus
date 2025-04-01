@@ -67,7 +67,7 @@ namespace Nexus
 		std::string	  Name			   = {};
 		Environment	  SceneEnvironment = {};
 		ECS::Registry Registry		   = {};
-		Project		 *Project		   = nullptr;
+		Project		 *ParentProject	   = nullptr;
 
 	  private:
 		SceneState m_SceneState = SceneState::Stopped;

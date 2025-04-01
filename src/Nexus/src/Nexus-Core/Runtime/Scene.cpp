@@ -145,7 +145,7 @@ namespace Nexus
 			out << YAML::EndMap;
 
 			out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
-			for (const auto &e : GetEntities()) { e.Serialize(out, Registry, Project); }
+			for (const auto &e : GetEntities()) { e.Serialize(out, Registry, ParentProject); }
 			out << YAML::EndSeq;
 		}
 
@@ -185,7 +185,7 @@ namespace Nexus
 						for (const auto &component : components)
 						{
 							auto *script = std::get<0>(component);
-							script->Instantiate(Project, entity->ID);
+							script->Instantiate(ParentProject, entity->ID);
 						}
 					}
 				}
@@ -293,7 +293,7 @@ namespace Nexus
 		Scene *scene   = new Scene();
 		scene->Guid	   = info.Guid;
 		scene->Name	   = node["Scene"].as<std::string>();
-		scene->Project = project;
+		scene->ParentProject = project;
 
 		auto environment					= node["Environment"];
 		scene->SceneEnvironment.ClearColour = environment["ClearColour"].as<glm::vec4>();

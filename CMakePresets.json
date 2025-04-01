@@ -17,7 +17,8 @@
                 "NX_BUILD_DEMO": "1",
                 "NX_BUILD_EDITOR": "1",
                 "NX_BUILD_TESTS": "1",
-                "NX_BUILD_UI_TESTS": "1"
+                "NX_BUILD_UI_TESTS": "1",
+                "NX_BUILD_TYPE": "SHARED"
             },
             "condition": {
                 "type": "equals",
@@ -84,7 +85,8 @@
                 "NX_BUILD_DEMO": "1",
                 "NX_BUILD_EDITOR": "1",
                 "NX_BUILD_TESTS": "1",
-                "NX_BUILD_UI_TESTS": "1"
+                "NX_BUILD_UI_TESTS": "1",
+                "NX_BUILD_TYPE": "SHARED"
             },
             "condition": {
                 "type": "equals",

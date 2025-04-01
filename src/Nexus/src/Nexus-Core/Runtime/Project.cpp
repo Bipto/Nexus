@@ -73,6 +73,17 @@ namespace Nexus
 		project->m_AssetsDirectory	= node["AssetsDirectory"].as<std::string>();
 		project->m_ScriptsDirectory = node["ScriptsDirectory"].as<std::string>();
 
+		auto assets = node["Assets"];
+		if (assets)
+		{
+			for (auto asset : assets)
+			{
+				GUID		assetId	 = GUID(asset["ID"].as<uint64_t>());
+				std::string filepath = asset["Filepath"].as<std::string>();
+				project->m_AssetRegistry.RegisterAsset(filepath, assetId);
+			}
+		}
+
 		project->LoadSharedLibrary();
 		project->LoadDataFromSharedLibrary();
 		project->LoadScene(project->m_StartupScene);
@@ -131,7 +142,7 @@ namespace Nexus
 		m_LoadedScene		   = std::make_unique<Scene>();
 		m_LoadedScene->Guid	   = info.Guid;
 		m_LoadedScene->Name	   = info.Name;
-		m_LoadedScene->Project = this;
+		m_LoadedScene->ParentProject = this;
 	}
 
 	void Project::ReloadCurrentScene()

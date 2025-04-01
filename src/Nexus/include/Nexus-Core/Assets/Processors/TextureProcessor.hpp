@@ -16,6 +16,6 @@ namespace Nexus::Processors
 		bool m_GenerateMips = true;
 		bool m_Srgb			= false;
 	};
-	// NX_REGISTER_PROCESSOR(TextureProcessor, "Texture2D", (std::vector<std::string> {".jpg", ".png", ".dds"}));
+	NX_REGISTER_PROCESSOR(TextureProcessor, "Texture2D", (std::vector<std::string> {".jpg", ".png", ".dds"}));
 }	 // namespace Nexus::Processors
 

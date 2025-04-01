@@ -25,7 +25,7 @@ namespace Nexus
 
 	SDL3Window::~SDL3Window()
 	{
-		SDL_DestroyWindow(this->m_Window);
+		SDL_DestroyWindow(m_Window);
 	}
 
 	void SDL3Window::Update()
