@@ -255,12 +255,13 @@ namespace Nexus::Platform
 		{
 			IWindow *window = m_WindowsToClose[i];
 
-			if (window == m_Windows[0])
+			Nexus::Application *app = Nexus::GetApplication();
+			if (window == app->GetPrimaryWindow())
 			{
-				Nexus::Application *app = Nexus::GetApplication();
 				app->Close();
 			}
 
+			delete window;
 			m_Windows.erase(std::remove(m_Windows.begin(), m_Windows.end(), window), m_Windows.end());
 			m_WindowsToClose.erase(std::remove(m_WindowsToClose.begin(), m_WindowsToClose.end(), window), m_WindowsToClose.end());
 			i--;
@@ -270,6 +271,11 @@ namespace Nexus::Platform
 		{
 			IWindow *window = m_Windows[i];
 			window->Update();
+
+			if (window->IsClosing())
+			{
+				m_WindowsToClose.push_back(window);
+			}
 		}
 	}
 
@@ -414,7 +420,7 @@ namespace Nexus::Platform
 			}
 			case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
 			{
-				m_WindowsToClose.push_back(window);
+				window->Close();
 				break;
 			}
 			case SDL_EVENT_FINGER_DOWN:

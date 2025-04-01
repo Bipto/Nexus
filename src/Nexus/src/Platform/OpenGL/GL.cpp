@@ -654,7 +654,7 @@ namespace Nexus::GL
 
 		EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 		#if !defined(NX_PLATFORM_ANDROID)
-		EGLDisplay display = eglGetDisplay(windowInfo.display);
+		display = eglGetDisplay(windowInfo.display);
 		#endif
 		return std::make_unique<OffscreenContextEGL>(display, spec);
 	#elif defined(NX_PLATFORM_WEBGL)

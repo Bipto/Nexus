@@ -38,50 +38,14 @@ namespace Nexus::ECS
 	class NX_API ComponentArray : public IComponentArray
 	{
 	  public:
-		virtual ~ComponentArray()
-		{
-		}
-
-		size_t GetComponentCount() final
-		{
-			return m_Components.size();
-		}
-
-		void *GetRawComponent(size_t index) final
-		{
-			return &m_Components[index];
-		}
-
-		void RemoveComponent(size_t index) final
-		{
-			m_Components.erase(m_Components.begin() + index);
-		}
-
-		const char *GetTypeName() final
-		{
-			const std::type_info &info = typeid(T);
-			return info.name();
-		}
-
-		void AddComponent(const T &component)
-		{
-			m_Components.push_back(component);
-		}
-
-		T *GetComponent(size_t index)
-		{
-			return &m_Components[index];
-		}
-
-		bool IsValidComponent(size_t index)
-		{
-			if (index > m_Components.size() || index == 0)
-			{
-				return false;
-			}
-
-			return true;
-		}
+		virtual ~ComponentArray();
+		size_t		GetComponentCount() final;
+		void	   *GetRawComponent(size_t index) final;
+		void		RemoveComponent(size_t index) final;
+		const char *GetTypeName() final;
+		void		AddComponent(const T &component);
+		T		   *GetComponent(size_t index);
+		bool		IsValidComponent(size_t index);
 
 	  private:
 		std::vector<T> m_Components = {};
@@ -310,7 +274,7 @@ namespace Nexus::ECS
 		template<typename T>
 		T *GetFirstOrNull(GUID guid)
 		{
-			const char				  *typeName			= typeid(T).name();
+			const char											 *typeName		   = typeid(T).name();
 			const std::vector<Nexus::ECS::ComponentPositionData> &entityComponents = m_ComponentIds[guid][typeName];
 
 			if (entityComponents.size() > 0)
@@ -484,3 +448,5 @@ namespace Nexus::ECS
 		std::map<GUID, std::map<std::string, std::vector<ComponentPositionData>>> m_ComponentIds = {};
 	};
 }	 // namespace Nexus::ECS
+
+#include "Registry.inl"
