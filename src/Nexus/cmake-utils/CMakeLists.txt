@@ -62,31 +62,32 @@ macro(nexus_structure_folders)
 endmacro()
 
 macro(nexus_copy_required_runtime_libraries)
-  if (WIN32)
-    # Create a custom target for the copy actions
-    add_custom_target(copy_${PROJECT_NAME}_dependencies ALL
+  if (NX_BUILD_TYPE STREQUAL "SHARED")
+    if (WIN32)
+      # Create a custom target for the copy actions
+      add_custom_target(copy_${PROJECT_NAME}_dependencies ALL
+        COMMAND ${CMAKE_COMMAND} -E copy
+        -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
+        COMMAND_EXPAND_LISTS
+        COMMAND ${CMAKE_COMMAND} -E copy
+        -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<TARGET_PDB_FILE:Nexus>
+        COMMAND_EXPAND_LISTS
+      )
+
+      # Set up a dependency so the copy target runs when the executable is built
+      add_dependencies(${PROJECT_NAME} copy_${PROJECT_NAME}_dependencies)
+    elseif (LINUX)
+      # Create a custom target for the copy actions
+      add_custom_target(copy_${PROJECT_NAME}_dependencies ALL
       COMMAND ${CMAKE_COMMAND} -E copy
       -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
       COMMAND_EXPAND_LISTS
-      COMMAND ${CMAKE_COMMAND} -E copy
-      -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<TARGET_PDB_FILE:Nexus>
-      COMMAND_EXPAND_LISTS
-    )
+      )
 
-    # Set up a dependency so the copy target runs when the executable is built
-    add_dependencies(${PROJECT_NAME} copy_${PROJECT_NAME}_dependencies)
-  elseif (LINUX)
-    # Create a custom target for the copy actions
-    add_custom_target(copy_${PROJECT_NAME}_dependencies ALL
-    COMMAND ${CMAKE_COMMAND} -E copy
-    -t $<TARGET_FILE_DIR:${PROJECT_NAME}> $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>
-    COMMAND_EXPAND_LISTS
-    )
-
-    # Set up a dependency so the copy target runs when the executable is built
-    add_dependencies(${PROJECT_NAME} copy_${PROJECT_NAME}_dependencies)
+      # Set up a dependency so the copy target runs when the executable is built
+      add_dependencies(${PROJECT_NAME} copy_${PROJECT_NAME}_dependencies)
+    endif()
   endif()
-
 endmacro()
 
 macro(nexus_add_all_subdirs SUBDIRS)
