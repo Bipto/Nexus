@@ -4,6 +4,8 @@
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
 
+#include "Nexus-Core/Runtime/Project.hpp"
+
 #include "stb_image.h"
 
 namespace Nexus::Processors
@@ -239,6 +241,7 @@ namespace Nexus::Processors
 	{
 		std::ofstream file(filepath, std::ios::binary);
 
+		file << "MODEL ";
 		file << meshes.size() << " ";
 
 		for (size_t i = 0; i < meshes.size(); i++)
@@ -330,6 +333,6 @@ namespace Nexus::Processors
 		WriteBinaryModelFile(outputFilePath.string(), importData.meshes);
 
 		Assets::AssetRegistry &registry = project->GetAssetRegistry();
-		return registry.RegisterAsset(assetPath.string());
+		return registry.RegisterAsset(GetName(), assetPath.string());
 	}
 }	 // namespace Nexus::Processors

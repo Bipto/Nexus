@@ -21,9 +21,6 @@
 
 #include "Nexus-Core/Utils/ScriptProjectGenerator.hpp"
 
-#include "Nexus-Core/Assets/Processors/AssimpProcessor.hpp"
-#include "Nexus-Core/Assets/Processors/TextureProcessor.hpp"
-
 class EditorApplication : public Nexus::Application
 {
   public:
@@ -206,39 +203,6 @@ class EditorApplication : public Nexus::Application
 				}
 
 				ImGui::EndMenu();
-			}
-
-			if (ImGui::MenuItem("Process Model"))
-			{
-				std::vector<Nexus::FileDialogFilter>   filters = {{"All files", "*"}};
-				std::unique_ptr<Nexus::OpenFileDialog> dialog  = std::unique_ptr<Nexus::OpenFileDialog>(
-					 Nexus::Platform::CreateOpenFileDialog(Nexus::GetApplication()->GetPrimaryWindow(), filters, nullptr, false));
-
-				Nexus::FileDialogResult result = dialog->Show();
-				if (result.FilePaths.size() > 0)
-				{
-					Nexus::Processors::AssimpProcessor processor = {};
-					Nexus::Assets::AssetRegistry	  &registry	 = m_Project->GetAssetRegistry();
-					Nexus::GUID						   id		 = processor.Process(result.FilePaths[0], m_GraphicsDevice, m_Project.get());
-				}
-			}
-
-			if (ImGui::MenuItem("Process Texture"))
-			{
-				std::vector<Nexus::FileDialogFilter>   filters = {{"All files", "*"}};
-				std::unique_ptr<Nexus::OpenFileDialog> dialog  = std::unique_ptr<Nexus::OpenFileDialog>(
-					 Nexus::Platform::CreateOpenFileDialog(Nexus::GetApplication()->GetPrimaryWindow(), filters, nullptr, false));
-
-				if (m_Project)
-				{
-					Nexus::FileDialogResult result = dialog->Show();
-					if (result.FilePaths.size() > 0)
-					{
-						Nexus::Processors::TextureProcessor textureProcessor = {};
-						Nexus::Assets::AssetRegistry	   &assetRegistry	 = m_Project->GetAssetRegistry();
-						Nexus::GUID							guid = textureProcessor.Process(result.FilePaths[0], m_GraphicsDevice, m_Project.get());
-					}
-				}
 			}
 
 			if (ImGui::MenuItem("Import Asset"))

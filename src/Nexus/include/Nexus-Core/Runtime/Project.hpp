@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Nexus-Core/Assets/AssetRegistry.hpp"
+#include "Nexus-Core/Assets/Processors/IProcessor.hpp"
 #include "Nexus-Core/ECS/ComponentRegistry.hpp"
 #include "Nexus-Core/Types.hpp"
 #include "Nexus-Core/Utils/GUID.hpp"
@@ -63,13 +64,17 @@ namespace Nexus
 
 		// script functions
 		std::map<std::string, std::function<Nexus::Scripting::NativeScript *()>> LoadAvailableScripts();
-		void															   CacheAvailableScripts();
-		const std::vector<std::string>									  &GetCachedAvailableScripts() const;
+		void																	 CacheAvailableScripts();
+		const std::vector<std::string>											&GetCachedAvailableScripts() const;
 
 		// component functions
 		std::map<std::string, ECS::ComponentStorage>		LoadAvailableComponents();
 		void												CacheAvailableComponents();
 		const std::map<std::string, ECS::ComponentStorage> &GetCachedAvailableComponents() const;
+
+		void													LoadAvailableAssetProcessors();
+		const std::map<std::string, Processors::ProcessorInfo> &GetCachedAvailableAssetProcessors() const;
+		std::optional<Processors::ProcessorInfo>				GetProcessorInfo(const std::string &name);
 
 		std::string GetComponentDisplayNameFromTypeName(const std::string &typeName) const;
 		std::string GetComponentTypeNameFromDisplayName(const std::string &displayName) const;
@@ -89,7 +94,7 @@ namespace Nexus
 												 const YAML::Node  &node,
 												 size_t				entityHierarchyIndex);
 
-		void CreateComponent(const char *typeName, ECS::Registry &registry, const Entity &entity);
+		void				   CreateComponent(const char *typeName, ECS::Registry &registry, const Entity &entity);
 		Assets::AssetRegistry &GetAssetRegistry();
 
 	  private:
@@ -108,10 +113,11 @@ namespace Nexus
 		std::unique_ptr<Scene> m_LoadedScene  = nullptr;
 		uint32_t			   m_StartupScene = 0;
 
-		Nexus::Utils::SharedLibrary					*m_Library			   = nullptr;
-		std::vector<std::string>					 m_AvailableScripts	   = {};
-		std::map<std::string, ECS::ComponentStorage> m_AvailableComponents = {};
-		Assets::AssetRegistry						 m_AssetRegistry	   = {};
+		Nexus::Utils::SharedLibrary						*m_Library					= nullptr;
+		std::vector<std::string>						 m_AvailableScripts			= {};
+		std::map<std::string, ECS::ComponentStorage>	 m_AvailableComponents		= {};
+		std::map<std::string, Processors::ProcessorInfo> m_AvailableAssetProcessors = {};
+		Assets::AssetRegistry							 m_AssetRegistry			= {};
 	};
 }	 // namespace Nexus
 

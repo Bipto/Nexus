@@ -80,7 +80,8 @@ namespace Nexus
 			{
 				GUID		assetId	 = GUID(asset["ID"].as<uint64_t>());
 				std::string filepath = asset["Filepath"].as<std::string>();
-				project->m_AssetRegistry.RegisterAsset(filepath, assetId);
+				std::string processor = asset["Processor"].as<std::string>();
+				project->m_AssetRegistry.RegisterAsset(processor, filepath, assetId);
 			}
 		}
 
@@ -281,6 +282,7 @@ namespace Nexus
 		LoadSharedLibrary();
 		CacheAvailableScripts();
 		CacheAvailableComponents();
+		LoadAvailableAssetProcessors();
 		UnloadSharedLibrary();
 	}
 
@@ -321,6 +323,39 @@ namespace Nexus
 	const std::map<std::string, ECS::ComponentStorage> &Project::GetCachedAvailableComponents() const
 	{
 		return m_AvailableComponents;
+	}
+
+	void Project::LoadAvailableAssetProcessors()
+	{
+		typedef std::map<std::string, Processors::ProcessorInfo> &(*GetAssetProcessorRegistryFunc)();
+		std::map<std::string, Processors::ProcessorInfo> processors = Nexus::Processors::GetAssetProcessorRegistry();
+
+		if (m_Library)
+		{
+			GetAssetProcessorRegistryFunc func = (GetAssetProcessorRegistryFunc)m_Library->LoadSymbol("GetAssetProcessorRegistry");
+			if (func)
+			{
+				auto loadedProcessors = func();
+				for (const auto &[name, processorInfo] : loadedProcessors) { processors[name] = processorInfo; }
+			}
+		}
+
+		m_AvailableAssetProcessors = processors;
+	}
+
+	const std::map<std::string, Processors::ProcessorInfo> &Project::GetCachedAvailableAssetProcessors() const
+	{
+		return m_AvailableAssetProcessors;
+	}
+
+	std::optional<Processors::ProcessorInfo> Project::GetProcessorInfo(const std::string &name)
+	{
+		if (m_AvailableAssetProcessors.contains(name))
+		{
+			return m_AvailableAssetProcessors[name];
+		}
+
+		return {};
 	}
 
 	std::string Project::GetComponentDisplayNameFromTypeName(const std::string &typeName) const
@@ -481,16 +516,17 @@ namespace Nexus
 		out << YAML::Key << "AssetsDirectory" << YAML::Value << m_AssetsDirectory;
 		out << YAML::Key << "ScriptsDirectory" << YAML::Value << m_ScriptsDirectory;
 
-		const auto &storedAssets = m_AssetRegistry.GetStoredFilepaths();
+		const auto &storedAssets = m_AssetRegistry.GetStoredAssets();
 
 		out << YAML::Value << "Assets" << YAML::BeginSeq;
 		if (storedAssets.size() > 0)
 		{
-			for (const auto &[id, filepath] : storedAssets)
+			for (const auto &[id, assetInfo] : storedAssets)
 			{
 				out << YAML::BeginMap;
 				out << YAML::Key << "ID" << id;
-				out << YAML::Key << "Filepath" << filepath;
+				out << YAML::Key << "Filepath" << assetInfo.Filepath;
+				out << YAML::Key << "Processor" << assetInfo.ProcessorName;
 				out << YAML::EndMap;
 			}
 		}

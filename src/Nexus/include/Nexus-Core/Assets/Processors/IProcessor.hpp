@@ -1,18 +1,34 @@
 #pragma once
 
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
-#include "Nexus-Core/Runtime/Project.hpp"
 #include "Nexus-Core/Utils/GUID.hpp"
 #include "Nexus-Core/nxpch.hpp"
+
+namespace Nexus
+{
+
+	class Project;
+}
 
 namespace Nexus::Processors
 {
 	class NX_API IProcessor
 	{
 	  public:
-		IProcessor()																						  = default;
+		IProcessor(const std::string &name) : m_Name(name)
+		{
+		}
+
 		virtual ~IProcessor()																				  = default;
 		virtual GUID Process(const std::string &filepath, Graphics::GraphicsDevice *device, Project *project) = 0;
+
+		const std::string &GetName() const
+		{
+			return m_Name;
+		}
+
+	  private:
+		std::string m_Name = {};
 	};
 
 	struct ProcessorInfo
@@ -40,9 +56,20 @@ namespace Nexus::Processors
 
 			return {};
 		}
+
+		template<typename T>
+		static void AddProcessor(const std::string &name, const std::vector<std::string> &extensions)
+		{
+			ProcessorInfo info	  = {};
+			info.CreationFunction = []() { return new T(); };
+			info.FileExtensions	  = extensions;
+
+			auto &processors = GetRegistry();
+			processors[name] = info;
+		}
 	};
 
-	extern "C++" inline NX_API std::map<std::string, ProcessorInfo> &GetProcessorRegistry()
+	extern "C++" inline NX_API std::map<std::string, ProcessorInfo> &GetAssetProcessorRegistry()
 	{
 		return ProcessorRegistry::GetRegistry();
 	}
@@ -54,10 +81,7 @@ namespace Nexus::Processors
 	{                                                                                                                                                \
 		ProcessorType##Register()                                                                                                                    \
 		{                                                                                                                                            \
-			Nexus::Processors::ProcessorInfo info							   = {};                                                                 \
-			info.CreationFunction											   = []() { return new ProcessorType(); };                               \
-			info.FileExtensions												   = Extensions;                                                         \
-			Nexus::Processors::ProcessorRegistry::GetRegistry()[ProcessorName] = info;                                                               \
+			ProcessorRegistry::AddProcessor<ProcessorType>(ProcessorName, Extensions);                                                               \
 		}                                                                                                                                            \
 	};                                                                                                                                               \
 	static ProcessorType##Register instance##ProcessorType##Register;                                                                                \

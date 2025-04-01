@@ -2,17 +2,10 @@
 
 #include "Nexus-Core/Graphics/Image.hpp"
 #include "Nexus-Core/Graphics/MipmapGenerator.hpp"
+#include "Nexus-Core/Runtime/Project.hpp"
 
 namespace Nexus::Processors
 {
-	TextureProcessor::TextureProcessor()
-	{
-	}
-
-	TextureProcessor::~TextureProcessor()
-	{
-	}
-
 	GUID TextureProcessor::Process(const std::string &filepath, Graphics::GraphicsDevice *device, Project *project)
 	{
 		std::vector<Graphics::Image> mips = {};
@@ -35,6 +28,7 @@ namespace Nexus::Processors
 		std::filesystem::path outputFilePath = project->GetFullAssetsDirectory() + "/" + assetPath;
 		std::ofstream file(outputFilePath, std::ios::binary);
 
+		file << "Texture2D ";
 		file << (uint32_t)texture->GetSpecification().Format << " ";
 		file << mips.size() << " ";
 
@@ -48,7 +42,7 @@ namespace Nexus::Processors
 		file.close();
 
 		Assets::AssetRegistry &registry = project->GetAssetRegistry();
-		return registry.RegisterAsset(assetPath);
+		return registry.RegisterAsset(GetName(), assetPath);
 	}
 
 	void Nexus::Processors::TextureProcessor::SetSrgb(bool useSrgb)

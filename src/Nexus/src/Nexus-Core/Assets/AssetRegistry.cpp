@@ -6,43 +6,45 @@ namespace Nexus::Assets
 	{
 	}
 
-	std::optional<std::string> AssetRegistry::GetFilepath(GUID id)
+	std::optional<AssetInfo> AssetRegistry::GetAssetInfo(GUID id)
 	{
 		// check if the GUID has a filepath assigned
-		if (m_Filepaths.find(id) != m_Filepaths.end())
+		if (m_Assets.find(id) != m_Assets.end())
 		{
-			return m_Filepaths[id];
+			return m_Assets[id];
 		}
 
 		// if not, return a null optional
 		return {};
 	}
 
-	GUID AssetRegistry::RegisterAsset(const std::string &filepath)
+	GUID AssetRegistry::RegisterAsset(const std::string &processor, const std::string &filepath)
 	{
 		// generate a new GUID
 		GUID id = {};
 
-		// check if the GUID already exists within the map
-		while (m_Filepaths.find(id) != m_Filepaths.end())
+		// check if an asset already exists with this ID
+		while (m_Assets.find(id) != m_Assets.end())
 		{
 			// if it does, try generating a new GUID
 			id = GUID();
 		}
 
 		// insert the filepath at the specified GUID
-		m_Filepaths[id] = filepath;
+		AssetInfo info {.Filepath = filepath, .ProcessorName = processor};
+		m_Assets[id] = info;
 		return id;
 	}
 
-	void AssetRegistry::RegisterAsset(const std::string &filepath, GUID id)
+	void AssetRegistry::RegisterAsset(const std::string &processor, const std::string &filepath, GUID id)
 	{
-		m_Filepaths[id] = filepath;
+		AssetInfo info = {.Filepath = filepath, .ProcessorName = processor};
+		m_Assets[id]   = info;
 	}
 
-	const std::map<GUID, std::string> &Nexus::Assets::AssetRegistry::GetStoredFilepaths() const
+	const std::map<GUID, AssetInfo> &Nexus::Assets::AssetRegistry::GetStoredAssets() const
 	{
-		return m_Filepaths;
+		return m_Assets;
 	}
 
 }	 // namespace Nexus::Assets
