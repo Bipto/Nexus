@@ -15,7 +15,7 @@ namespace Nexus::Assets
 	{
 	  public:
 		AssetRegistry();
-		std::optional<AssetInfo> GetAssetInfo(GUID id);
+		std::optional<AssetInfo> GetAssetInfo(GUID id) const;
 		GUID					 RegisterAsset(const std::string &processor, const std::string &filepath);
 		void					 RegisterAsset(const std::string &processor, const std::string &filepath, GUID id);
 

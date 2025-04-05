@@ -71,7 +71,8 @@ class ImportAssetPanel : public Panel
 							std::optional<Nexus::Processors::ProcessorInfo> info = m_Project->GetProcessorInfo(processorName);
 							if (info)
 							{
-								Nexus::Processors::IProcessor *processor = info.value().CreationFunction();
+								std::unique_ptr<Nexus::Processors::IProcessor> processor =
+									std::unique_ptr<Nexus::Processors::IProcessor>(info.value().CreationFunction());
 								processor->Process(filepath, Nexus::GetApplication()->GetGraphicsDevice(), m_Project.get());
 								pathToRemove = i;
 							}

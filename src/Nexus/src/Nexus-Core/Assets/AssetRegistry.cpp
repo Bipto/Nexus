@@ -6,12 +6,12 @@ namespace Nexus::Assets
 	{
 	}
 
-	std::optional<AssetInfo> AssetRegistry::GetAssetInfo(GUID id)
+	std::optional<AssetInfo> AssetRegistry::GetAssetInfo(GUID id) const
 	{
 		// check if the GUID has a filepath assigned
 		if (m_Assets.find(id) != m_Assets.end())
 		{
-			return m_Assets[id];
+			return m_Assets.at(id);
 		}
 
 		// if not, return a null optional

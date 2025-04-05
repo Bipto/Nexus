@@ -14,7 +14,8 @@ namespace Nexus
 {
 	Project::Project(const std::string &name, const std::string &directory, bool createDefaultScene)
 		: m_Name(name),
-		  m_RootDirectory(directory + std::string("\\") + name)
+		  m_RootDirectory(directory + std::string("\\") + name),
+		  m_AssetManager(std::make_unique<AssetManager>(Nexus::GetApplication()->GetGraphicsDevice(), this))
 	{
 		m_SceneDirectory   = "\\Scenes\\";
 		m_AssetsDirectory  = "\\Assets\\";

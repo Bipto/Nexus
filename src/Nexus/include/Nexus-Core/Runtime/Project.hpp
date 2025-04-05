@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Nexus-Core/AssetManager.hpp"
 #include "Nexus-Core/Assets/AssetRegistry.hpp"
 #include "Nexus-Core/Assets/Processors/IProcessor.hpp"
 #include "Nexus-Core/ECS/ComponentRegistry.hpp"
@@ -118,6 +119,8 @@ namespace Nexus
 		std::map<std::string, ECS::ComponentStorage>	 m_AvailableComponents		= {};
 		std::map<std::string, Processors::ProcessorInfo> m_AvailableAssetProcessors = {};
 		Assets::AssetRegistry							 m_AssetRegistry			= {};
+
+		std::unique_ptr<AssetManager> m_AssetManager = nullptr;
 	};
 }	 // namespace Nexus
 

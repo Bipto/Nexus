@@ -335,4 +335,9 @@ namespace Nexus::Processors
 		Assets::AssetRegistry &registry = project->GetAssetRegistry();
 		return registry.RegisterAsset(GetName(), assetPath.string());
 	}
+
+	std::any Nexus::Processors::AssimpProcessor::Import(const std::string &filepath)
+	{
+		return nullptr;
+	}
 }	 // namespace Nexus::Processors

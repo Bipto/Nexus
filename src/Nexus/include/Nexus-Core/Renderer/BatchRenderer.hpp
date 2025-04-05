@@ -57,14 +57,21 @@ namespace Nexus::Graphics
 	class NX_API BatchRenderer
 	{
 	  public:
-		BatchRenderer(Nexus::Graphics::GraphicsDevice *device, Nexus::Graphics::RenderTarget target);
+		BatchRenderer(Nexus::Graphics::GraphicsDevice *device);
 
 		void Resize();
 
-		void Begin(Viewport viewport, Scissor scissor);
+		void Begin(Nexus::Graphics::RenderTarget target, Viewport viewport, Scissor scissor);
+		void Begin(Nexus::Graphics::RenderTarget target, Viewport viewport, Scissor scissor, const glm::mat4 &camera);
+
 		void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color);
 		void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture2D> texture);
-		void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture2D> texture, float tilingFactor);
+		void DrawQuadFill(const glm::vec2 &min,
+						  const glm::vec2 &max,
+						  const glm::vec4 &color,
+						  Ref<Texture2D>   texture,
+						  float			   tilingFactor,
+						  glm::mat4		   transform = glm::mat4(1.0f));
 		void DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color);
 		void DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<Texture2D> texture);
 		void DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<Texture2D> texture, float tilingFactor);

@@ -13,6 +13,8 @@
 #include "Nexus-Core/Graphics/Texture.hpp"
 #include "Nexus-Core/Timings/Timespan.hpp"
 
+#include "Nexus-Core/Renderer/BatchRenderer.hpp"
+
 namespace Nexus
 {
 	struct SceneInfo

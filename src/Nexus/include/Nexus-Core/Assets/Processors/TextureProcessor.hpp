@@ -14,6 +14,7 @@ namespace Nexus::Processors
 		}
 		virtual ~TextureProcessor() = default;
 		GUID Process(const std::string &filepath, Graphics::GraphicsDevice *device, Project *project) final;
+		virtual std::any Import(const std::string &filepath) final;
 		void SetSrgb(bool useSrgb);
 		void SetGenerateMips(bool generateMips);
 

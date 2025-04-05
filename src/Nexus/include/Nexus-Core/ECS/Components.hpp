@@ -215,6 +215,65 @@ namespace Nexus
 							  }
 						  });
 
+	struct SpriteRendererComponent
+	{
+		std::string				 TexturePath   = {};
+		GUID					 TextureID	   = GUID(0);
+		Ref<Graphics::Texture2D> SpriteTexture = nullptr;
+
+		friend std::ostream &operator<<(std::ostream &os, const SpriteRendererComponent &component)
+		{
+			os << component.TexturePath;
+			return os;
+		}
+
+		friend std::istream &operator>>(std::istream &is, SpriteRendererComponent &component)
+		{
+			is >> component.TexturePath;
+			return is;
+		}
+
+		inline void LoadTexture()
+		{
+			Nexus::Graphics::GraphicsDevice *device = Nexus::GetApplication()->GetGraphicsDevice();
+			SpriteTexture							= device->CreateTexture2D(TexturePath, true, false);
+		}
+	};
+
+	NX_REGISTER_COMPONENT(SpriteRendererComponent,
+
+						  [&](void *data, Nexus::Ref<Nexus::Project> project)
+						  {
+							  if (!project)
+								  return;
+
+							  Nexus::SpriteRendererComponent *component = static_cast<Nexus::SpriteRendererComponent *>(data);
+
+							  ImGui::Text("%s", component->TexturePath.c_str());
+							  ImGui::SameLine();
+							  ImGui::PushID(Nexus::GUID {});
+
+							  ImGui::Button("+");
+							  if (ImGui::IsItemClicked())
+							  {
+								  std::vector<Nexus::FileDialogFilter> filters;
+								  filters.push_back(Nexus::FileDialogFilter {.Name = "All files", .Pattern = "*"});
+
+								  std::unique_ptr<Nexus::OpenFileDialog> dialog = std::unique_ptr<Nexus::OpenFileDialog>(
+									  Nexus::Platform::CreateOpenFileDialog(Nexus::GetApplication()->GetPrimaryWindow(), filters, nullptr, false));
+								  Nexus::FileDialogResult result = dialog->Show();
+
+								  if (result.FilePaths.size() > 0)
+								  {
+									  std::string filepath	 = result.FilePaths[0];
+									  component->TexturePath = filepath;
+									  component->LoadTexture();
+								  }
+							  }
+
+							  ImGui::PopID();
+						  });
+
 }	 // namespace Nexus
 
 namespace YAML
@@ -299,6 +358,28 @@ namespace YAML
 			}
 
 			rhs.ScriptName = node["ScriptName"].as<std::string>();
+			return true;
+		}
+	};
+
+	template<>
+	struct convert<Nexus::SpriteRendererComponent>
+	{
+		static Node encode(const Nexus::SpriteRendererComponent &rhs)
+		{
+			Node node;
+			node["Filepath"] = rhs.TexturePath;
+			return node;
+		}
+
+		static bool decode(const Node &node, Nexus::SpriteRendererComponent &rhs)
+		{
+			if (!node["Filepath"])
+			{
+				return false;
+			}
+			rhs.TexturePath = node["Filepath"].as<std::string>();
+			rhs.LoadTexture();
 			return true;
 		}
 	};

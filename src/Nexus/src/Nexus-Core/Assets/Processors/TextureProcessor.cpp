@@ -45,6 +45,11 @@ namespace Nexus::Processors
 		return registry.RegisterAsset(GetName(), assetPath);
 	}
 
+	std::any TextureProcessor::Import(const std::string &filepath)
+	{
+		return nullptr;
+	}
+
 	void Nexus::Processors::TextureProcessor::SetSrgb(bool useSrgb)
 	{
 		m_Srgb = useSrgb;

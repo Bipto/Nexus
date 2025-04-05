@@ -35,7 +35,8 @@ class EditorApplication : public Nexus::Application
 
 	virtual void Load() override
 	{
-		m_Renderer = std::make_unique<Nexus::Graphics::Renderer3D>(m_GraphicsDevice);
+		m_Renderer		= std::make_unique<Nexus::Graphics::Renderer3D>(m_GraphicsDevice);
+		m_BatchRenderer = std::make_unique<Nexus::Graphics::BatchRenderer>(m_GraphicsDevice);
 
 		m_ImGuiRenderer = std::unique_ptr<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(new Nexus::ImGuiUtils::ImGuiGraphicsRenderer(this));
 		ImGui::SetCurrentContext(m_ImGuiRenderer->GetContext());
@@ -560,6 +561,45 @@ class EditorApplication : public Nexus::Application
 			Nexus::Scene *scene = m_Project->GetLoadedScene();
 			m_Renderer->Begin(scene, target, time);
 			m_Renderer->End();
+
+			Nexus::Graphics::Viewport vp = {};
+			vp.X						 = 0;
+			vp.Y						 = 0;
+			vp.Width					 = m_Framebuffer->GetFramebufferSpecification().Width;
+			vp.Height					 = m_Framebuffer->GetFramebufferSpecification().Height;
+			vp.MinDepth					 = 0.0f;
+			vp.MaxDepth					 = 1.0f;
+
+			Nexus::Graphics::Scissor scissor = {};
+			scissor.X						 = 0;
+			scissor.Y						 = 0;
+			scissor.Width					 = vp.Width;
+			scissor.Height					 = vp.Height;
+
+			m_BatchRenderer->Begin(Nexus::Graphics::RenderTarget(m_Framebuffer), vp, scissor);
+
+			Nexus::ECS::View<Nexus::Transform, Nexus::SpriteRendererComponent> transformsSpriteRenderers =
+				m_Project->GetLoadedScene()->Registry.GetView<Nexus::Transform, Nexus::SpriteRendererComponent>();
+			transformsSpriteRenderers.Each(
+				[&](Nexus::Entity *entity, const std::tuple<Nexus::Transform *, Nexus::SpriteRendererComponent *> &components)
+				{
+					Nexus::Transform			   *transform	   = std::get<0>(components);
+					Nexus::SpriteRendererComponent *spriteRenderer = std::get<1>(components);
+
+					glm::vec2 size = {transform->Scale.x, transform->Scale.y};
+					glm::vec2 position;
+					position.x = transform->Position.x - (size.x / 2);
+					position.y = transform->Position.y - (size.y / 2);
+
+					m_BatchRenderer->DrawQuadFill(position,
+												  position + size,
+												  {1.0f, 0.0f, 0.0f, 1.0f},
+												  spriteRenderer->SpriteTexture,
+												  1.0f,
+												  transform->CreateTransformation());
+				});
+
+			m_BatchRenderer->End();
 		}
 
 		m_ImGuiRenderer->BeforeLayout(time);
@@ -612,9 +652,10 @@ class EditorApplication : public Nexus::Application
 
 	ImTextureID m_FramebufferTextureID = {};
 
-	std::unique_ptr<Nexus::Graphics::Renderer3D> m_Renderer;
-	Nexus::Ref<Nexus::Graphics::Cubemap>		 m_Cubemap = nullptr;
-	Nexus::Ref<Nexus::Graphics::Model>			 m_Model   = nullptr;
+	std::unique_ptr<Nexus::Graphics::Renderer3D>	m_Renderer		= nullptr;
+	std::unique_ptr<Nexus::Graphics::BatchRenderer> m_BatchRenderer = nullptr;
+	Nexus::Ref<Nexus::Graphics::Cubemap>			m_Cubemap		= nullptr;
+	Nexus::Ref<Nexus::Graphics::Model>				m_Model			= nullptr;
 
 	ImVec2 m_PreviousViewportSize = {0, 0};
 	bool   m_NewProjectWindowOpen = false;

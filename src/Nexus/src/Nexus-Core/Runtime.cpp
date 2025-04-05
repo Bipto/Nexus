@@ -5,8 +5,7 @@
 
 #include "Nexus-Core/ECS/Components.hpp"
 
-Nexus::Application	*appPtr		  = nullptr;
-Nexus::AssetManager *assetManager = nullptr;
+Nexus::Application *appPtr = nullptr;
 
 //-----------------------------------------------------------------------------
 // APPLICATION RUNTIME
@@ -21,8 +20,7 @@ namespace Nexus
 {
 	void Run(Nexus::Application *app)
 	{
-		appPtr		 = app;
-		assetManager = new AssetManager(app->GetGraphicsDevice());
+		appPtr = app;
 		appPtr->Load();
 
 #ifdef __EMSCRIPTEN__
@@ -41,11 +39,6 @@ namespace Nexus
 	Application *GetApplication()
 	{
 		return appPtr;
-	}
-
-	AssetManager *GetAssetManager()
-	{
-		return assetManager;
 	}
 
 	void SetApplication(Nexus::Application *app)

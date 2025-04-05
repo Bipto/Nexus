@@ -328,7 +328,6 @@ namespace Nexus::Graphics
 
 	void CreateBatcher(BatchInfo								&info,
 					   Nexus::Graphics::GraphicsDevice			*device,
-					   Nexus::Graphics::RenderTarget			 target,
 					   Nexus::Ref<Nexus::Graphics::ShaderModule> vertexModule,
 					   Nexus::Ref<Nexus::Graphics::ShaderModule> fragmentModule)
 	{
@@ -371,10 +370,7 @@ namespace Nexus::Graphics
 		info.IndexBuffer	  = device->CreateIndexBuffer(indexBufferDesc, nullptr);
 	}
 
-	BatchRenderer::BatchRenderer(Nexus::Graphics::GraphicsDevice *device, Nexus::Graphics::RenderTarget target)
-		: m_Device(device),
-		  m_RenderTarget(target),
-		  m_CommandList(m_Device->CreateCommandList())
+	BatchRenderer::BatchRenderer(Nexus::Graphics::GraphicsDevice *device) : m_Device(device), m_CommandList(m_Device->CreateCommandList())
 	{
 		uint32_t textureData = 0xFFFFFFFF;
 
@@ -401,9 +397,9 @@ namespace Nexus::Graphics
 														   "Batch Renderer - Font Fragment Shader",
 														   Nexus::Graphics::ShaderStage::Fragment);
 
-		CreateBatcher(m_SDFBatchInfo, device, target, vertexModule, sdfFragmentModule);
-		CreateBatcher(m_TextureBatchInfo, device, target, vertexModule, textureFragmentModule);
-		CreateBatcher(m_FontBatchInfo, device, target, vertexModule, fontFragmentModule);
+		CreateBatcher(m_SDFBatchInfo, device, vertexModule, sdfFragmentModule);
+		CreateBatcher(m_TextureBatchInfo, device, vertexModule, textureFragmentModule);
+		CreateBatcher(m_FontBatchInfo, device, vertexModule, fontFragmentModule);
 
 		Nexus::Graphics::BufferDescription uniformBufferDesc;
 		uniformBufferDesc.Size	= sizeof(glm::mat4);
@@ -421,14 +417,21 @@ namespace Nexus::Graphics
 		m_Height = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().Y;
 	}
 
-	void BatchRenderer::Begin(Viewport viewport, Scissor scissor)
+	void BatchRenderer::Begin(Nexus::Graphics::RenderTarget target, Viewport viewport, Scissor scissor)
+	{
+		glm::mat4 projection = glm::ortho<float>(m_Viewport.X, m_Viewport.Width, m_Viewport.Height, m_Viewport.Y, -1.0f, 1.0f);
+		Begin(target, viewport, scissor, projection);
+	}
+
+	void BatchRenderer::Begin(Nexus::Graphics::RenderTarget target, Viewport viewport, Scissor scissor, const glm::mat4 &camera)
 	{
 		if (m_IsStarted)
 		{
 			throw std::runtime_error("Batching has already started");
 		}
 
-		m_IsStarted = true;
+		m_IsStarted	   = true;
+		m_RenderTarget = target;
 
 		ResetBatcher(m_TextureBatchInfo, m_BlankTexture);
 		ResetBatcher(m_SDFBatchInfo, m_BlankTexture);
@@ -437,8 +440,7 @@ namespace Nexus::Graphics
 		m_Viewport		   = viewport;
 		m_ScissorRectangle = scissor;
 
-		glm::mat4 projection = glm::ortho<float>(m_Viewport.X, m_Viewport.Width, m_Viewport.Height, m_Viewport.Y, -1.0f, 1.0f);
-		m_UniformBuffer->SetData(&projection, sizeof(projection));
+		m_UniformBuffer->SetData(&camera, sizeof(camera));
 	}
 
 	void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color)
@@ -451,7 +453,12 @@ namespace Nexus::Graphics
 		DrawQuadFill(min, max, color, texture, 1.0f);
 	}
 
-	void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture2D> texture, float tilingFactor)
+	void BatchRenderer::DrawQuadFill(const glm::vec2 &min,
+									 const glm::vec2 &max,
+									 const glm::vec4 &color,
+									 Ref<Texture2D>	  texture,
+									 float			  tilingFactor,
+									 glm::mat4		  transform)
 	{
 		const float texIndex = GetOrCreateTexIndex(m_TextureBatchInfo, texture);
 
@@ -467,6 +474,16 @@ namespace Nexus::Graphics
 		glm::vec3 c(max.x, min.y, 0.0f);
 		glm::vec3 d(min.x, min.y, 0.0f);
 
+		glm::vec4 a2(a, 1.0f);
+		glm::vec4 b2(b, 1.0f);
+		glm::vec4 c2(c, 1.0f);
+		glm::vec4 d2(d, 1.0f);
+
+		glm::vec4 resultA = a2 * transform;
+		glm::vec4 resultB = b2 * transform;
+		glm::vec4 resultC = c2 * transform;
+		glm::vec4 resultD = d2 * transform;
+
 		m_TextureBatchInfo.Indices.push_back(0 + m_TextureBatchInfo.VertexCount);
 		m_TextureBatchInfo.Indices.push_back(1 + m_TextureBatchInfo.VertexCount);
 		m_TextureBatchInfo.Indices.push_back(2 + m_TextureBatchInfo.VertexCount);
@@ -475,28 +492,28 @@ namespace Nexus::Graphics
 		m_TextureBatchInfo.Indices.push_back(3 + m_TextureBatchInfo.VertexCount);
 
 		VertexPositionTexCoordColorTexIndex v0;
-		v0.Position	 = a;
+		v0.Position	 = {resultA.x, resultA.y, resultA.z};
 		v0.TexCoords = {0.0f, 0.0f};
 		v0.Color	 = color;
 		v0.TexIndex	 = texIndex;
 		m_TextureBatchInfo.Vertices.push_back(v0);
 
 		VertexPositionTexCoordColorTexIndex v1;
-		v1.Position	 = b;
+		v1.Position	 = {resultB.x, resultB.y, resultB.z};
 		v1.TexCoords = {tilingFactor, 0.0f};
 		v1.Color	 = color;
 		v1.TexIndex	 = texIndex;
 		m_TextureBatchInfo.Vertices.push_back(v1);
 
 		VertexPositionTexCoordColorTexIndex v2;
-		v2.Position	 = c;
+		v2.Position	 = {resultC.x, resultC.y, resultC.z};
 		v2.TexCoords = {tilingFactor, tilingFactor};
 		v2.Color	 = color;
 		v2.TexIndex	 = texIndex;
 		m_TextureBatchInfo.Vertices.push_back(v2);
 
 		VertexPositionTexCoordColorTexIndex v3;
-		v3.Position	 = d;
+		v3.Position	 = {resultD.x, resultD.y, resultD.z};
 		v3.TexCoords = {0.0f, tilingFactor};
 		v3.Color	 = color;
 		v3.TexIndex	 = texIndex;
