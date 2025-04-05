@@ -568,7 +568,7 @@ class EditorApplication : public Nexus::Application
 			vp.Width					 = m_Framebuffer->GetFramebufferSpecification().Width;
 			vp.Height					 = m_Framebuffer->GetFramebufferSpecification().Height;
 			vp.MinDepth					 = 0.0f;
-			vp.MaxDepth					 = 1.0f;
+			vp.MaxDepth					 = 1000.0f;
 
 			Nexus::Graphics::Scissor scissor = {};
 			scissor.X						 = 0;
@@ -576,27 +576,22 @@ class EditorApplication : public Nexus::Application
 			scissor.Width					 = vp.Width;
 			scissor.Height					 = vp.Height;
 
-			m_BatchRenderer->Begin(Nexus::Graphics::RenderTarget(m_Framebuffer), vp, scissor);
+			glm::mat4 viewProj = m_Renderer->GetCamera().GetViewProjection();
+			m_BatchRenderer->Begin(target, vp, scissor, viewProj);
 
 			Nexus::ECS::View<Nexus::Transform, Nexus::SpriteRendererComponent> transformsSpriteRenderers =
 				m_Project->GetLoadedScene()->Registry.GetView<Nexus::Transform, Nexus::SpriteRendererComponent>();
+
 			transformsSpriteRenderers.Each(
 				[&](Nexus::Entity *entity, const std::tuple<Nexus::Transform *, Nexus::SpriteRendererComponent *> &components)
 				{
 					Nexus::Transform			   *transform	   = std::get<0>(components);
 					Nexus::SpriteRendererComponent *spriteRenderer = std::get<1>(components);
 
-					glm::vec2 size = {transform->Scale.x, transform->Scale.y};
-					glm::vec2 position;
-					position.x = transform->Position.x - (size.x / 2);
-					position.y = transform->Position.y - (size.y / 2);
+					const Nexus::FirstPersonCamera &camera		= m_Renderer->GetCamera();
+					glm::mat4						worldMatrix = transform->CreateTransformation();
 
-					m_BatchRenderer->DrawQuadFill(position,
-												  position + size,
-												  {1.0f, 0.0f, 0.0f, 1.0f},
-												  spriteRenderer->SpriteTexture,
-												  1.0f,
-												  transform->CreateTransformation());
+					m_BatchRenderer->DrawQuadFill(spriteRenderer->SpriteColour, spriteRenderer->SpriteTexture, spriteRenderer->Tiling, worldMatrix);
 				});
 
 			m_BatchRenderer->End();

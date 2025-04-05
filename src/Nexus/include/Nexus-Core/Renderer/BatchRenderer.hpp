@@ -20,11 +20,11 @@ namespace Nexus::Graphics
 		VertexPositionTexCoordColorTexIndex() = default;
 
 		VertexPositionTexCoordColorTexIndex(const glm::vec3 &position, const glm::vec2 &texCoords, const glm::vec4 &color, float texIndex)
-			 : Position(position),
-			   TexCoords(texCoords),
-			   Color(color),
-			   TexIndex(texIndex)
-		 {
+			: Position(position),
+			  TexCoords(texCoords),
+			  Color(color),
+			  TexIndex(texIndex)
+		{
 		}
 
 		static Nexus::Graphics::VertexBufferLayout GetLayout()
@@ -66,15 +66,11 @@ namespace Nexus::Graphics
 
 		void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color);
 		void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture2D> texture);
-		void DrawQuadFill(const glm::vec2 &min,
-						  const glm::vec2 &max,
-						  const glm::vec4 &color,
-						  Ref<Texture2D>   texture,
-						  float			   tilingFactor,
-						  glm::mat4		   transform = glm::mat4(1.0f));
+		void DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture2D> texture, float tilingFactor);
 		void DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color);
 		void DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<Texture2D> texture);
 		void DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<Texture2D> texture, float tilingFactor);
+		void DrawQuadFill(const glm::vec4 &color, Ref<Texture2D> texture, float tilingFactor, const glm::mat4 &transform);
 		void DrawQuad(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, float thickness);
 		void DrawQuad(const Rectangle<float> &rectangle, const glm::vec4 &color, float thickness);
 		void DrawCharacter(char character, const glm::vec2 &position, const glm::vec2 &size, const glm::vec4 &color, Font *font);
@@ -142,30 +138,30 @@ namespace Nexus::Graphics
 		void DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, Ref<Texture2D> texture, float tilingFactor);
 		void End();
 
-	   private:
-		 void Flush();
-		 void EnsureStarted();
-		 void EnsureSpace(BatchInfo &info, uint32_t shapeVertexCount, uint32_t shapeIndexCount);
-		 void PerformDraw(BatchInfo &info);
+	  private:
+		void Flush();
+		void EnsureStarted();
+		void EnsureSpace(BatchInfo &info, uint32_t shapeVertexCount, uint32_t shapeIndexCount);
+		void PerformDraw(BatchInfo &info);
 
-	   private:
-		 Nexus::Graphics::GraphicsDevice		 *m_Device		= nullptr;
-		 Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList = nullptr;
-		 Nexus::Ref<Nexus::Graphics::Sampler>	  m_Sampler		= nullptr;
-		 bool									  m_IsStarted	= false;
+	  private:
+		Nexus::Graphics::GraphicsDevice			*m_Device	   = nullptr;
+		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList = nullptr;
+		Nexus::Ref<Nexus::Graphics::Sampler>	 m_Sampler	   = nullptr;
+		bool									 m_IsStarted   = false;
 
-		 Nexus::Ref<Nexus::Graphics::Texture2D>		m_BlankTexture	= nullptr;
-		 Nexus::Ref<Nexus::Graphics::UniformBuffer> m_UniformBuffer = nullptr;
+		Nexus::Ref<Nexus::Graphics::Texture2D>	   m_BlankTexture  = nullptr;
+		Nexus::Ref<Nexus::Graphics::UniformBuffer> m_UniformBuffer = nullptr;
 
-		 uint32_t					   m_Width	= 0;
-		 uint32_t					   m_Height = 0;
-		 Nexus::Graphics::RenderTarget m_RenderTarget;
+		uint32_t					  m_Width  = 0;
+		uint32_t					  m_Height = 0;
+		Nexus::Graphics::RenderTarget m_RenderTarget;
 
-		 Nexus::Graphics::Viewport m_Viewport;
-		 Nexus::Graphics::Scissor  m_ScissorRectangle;
+		Nexus::Graphics::Viewport m_Viewport;
+		Nexus::Graphics::Scissor  m_ScissorRectangle;
 
-		 BatchInfo m_TextureBatchInfo;
-		 BatchInfo m_SDFBatchInfo;
-		 BatchInfo m_FontBatchInfo;
+		BatchInfo m_TextureBatchInfo;
+		BatchInfo m_SDFBatchInfo;
+		BatchInfo m_FontBatchInfo;
 	};
 }	 // namespace Nexus::Graphics

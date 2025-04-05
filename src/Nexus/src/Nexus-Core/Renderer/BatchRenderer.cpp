@@ -342,7 +342,7 @@ namespace Nexus::Graphics
 		description.FragmentModule						 = fragmentModule;
 		description.ResourceSetSpec						 = GetResourceSetSpecification();
 
-		description.ColourFormats[0]  = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
+		description.ColourFormats[0]  = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
 		description.ColourTargetCount = 1;
 		description.DepthFormat		  = Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt;
 
@@ -354,7 +354,7 @@ namespace Nexus::Graphics
 		description.ColourBlendStates[0].DestinationAlphaBlend	= BlendFactor::OneMinusSourceAlpha;
 		description.ColourBlendStates[0].AlphaBlendFunction		= BlendEquation::Add;
 
-		description.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification().Samples;
+		description.ColourTargetSampleCount = Nexus::Graphics::SampleCount::SampleCount1;
 
 		info.Pipeline	 = device->CreatePipeline(description);
 		info.ResourceSet = device->CreateResourceSet(info.Pipeline);
@@ -453,12 +453,7 @@ namespace Nexus::Graphics
 		DrawQuadFill(min, max, color, texture, 1.0f);
 	}
 
-	void BatchRenderer::DrawQuadFill(const glm::vec2 &min,
-									 const glm::vec2 &max,
-									 const glm::vec4 &color,
-									 Ref<Texture2D>	  texture,
-									 float			  tilingFactor,
-									 glm::mat4		  transform)
+	void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture2D> texture, float tilingFactor)
 	{
 		const float texIndex = GetOrCreateTexIndex(m_TextureBatchInfo, texture);
 
@@ -474,16 +469,6 @@ namespace Nexus::Graphics
 		glm::vec3 c(max.x, min.y, 0.0f);
 		glm::vec3 d(min.x, min.y, 0.0f);
 
-		glm::vec4 a2(a, 1.0f);
-		glm::vec4 b2(b, 1.0f);
-		glm::vec4 c2(c, 1.0f);
-		glm::vec4 d2(d, 1.0f);
-
-		glm::vec4 resultA = a2 * transform;
-		glm::vec4 resultB = b2 * transform;
-		glm::vec4 resultC = c2 * transform;
-		glm::vec4 resultD = d2 * transform;
-
 		m_TextureBatchInfo.Indices.push_back(0 + m_TextureBatchInfo.VertexCount);
 		m_TextureBatchInfo.Indices.push_back(1 + m_TextureBatchInfo.VertexCount);
 		m_TextureBatchInfo.Indices.push_back(2 + m_TextureBatchInfo.VertexCount);
@@ -492,28 +477,28 @@ namespace Nexus::Graphics
 		m_TextureBatchInfo.Indices.push_back(3 + m_TextureBatchInfo.VertexCount);
 
 		VertexPositionTexCoordColorTexIndex v0;
-		v0.Position	 = {resultA.x, resultA.y, resultA.z};
+		v0.Position	 = a;
 		v0.TexCoords = {0.0f, 0.0f};
 		v0.Color	 = color;
 		v0.TexIndex	 = texIndex;
 		m_TextureBatchInfo.Vertices.push_back(v0);
 
 		VertexPositionTexCoordColorTexIndex v1;
-		v1.Position	 = {resultB.x, resultB.y, resultB.z};
+		v1.Position	 = b;
 		v1.TexCoords = {tilingFactor, 0.0f};
 		v1.Color	 = color;
 		v1.TexIndex	 = texIndex;
 		m_TextureBatchInfo.Vertices.push_back(v1);
 
 		VertexPositionTexCoordColorTexIndex v2;
-		v2.Position	 = {resultC.x, resultC.y, resultC.z};
+		v2.Position	 = c;
 		v2.TexCoords = {tilingFactor, tilingFactor};
 		v2.Color	 = color;
 		v2.TexIndex	 = texIndex;
 		m_TextureBatchInfo.Vertices.push_back(v2);
 
 		VertexPositionTexCoordColorTexIndex v3;
-		v3.Position	 = {resultD.x, resultD.y, resultD.z};
+		v3.Position	 = d;
 		v3.TexCoords = {0.0f, tilingFactor};
 		v3.Color	 = color;
 		v3.TexIndex	 = texIndex;
@@ -538,6 +523,70 @@ namespace Nexus::Graphics
 		glm::vec2 min = {(float)rectangle.GetLeft(), (float)rectangle.GetTop()};
 		glm::vec2 max = {(float)rectangle.GetRight(), (float)rectangle.GetBottom()};
 		DrawQuadFill(min, max, color, texture, tilingFactor);
+	}
+
+	void BatchRenderer::DrawQuadFill(const glm::vec4 &color, Ref<Texture2D> texture, float tilingFactor, const glm::mat4 &transform)
+	{
+		if (!texture)
+		{
+			texture = m_BlankTexture;
+		}
+
+		const float texIndex = GetOrCreateTexIndex(m_TextureBatchInfo, texture);
+
+		EnsureStarted();
+
+		const uint32_t shapeVertexCount = 4;
+		const uint32_t shapeIndexCount	= 6;
+
+		EnsureSpace(m_TextureBatchInfo, shapeVertexCount, shapeIndexCount);
+
+		std::array<glm::vec3, 4> quadVertices = {glm::vec3(-0.5f, 0.5f, 0.0f),
+												 glm::vec3(0.5f, 0.5f, 0.0f),
+												 glm::vec3(0.5f, -0.5f, 0.0f),
+												 glm::vec3(-0.5f, -0.5f, 0.0f)};
+
+		std::array<glm::vec3, 4> worldVertices;
+
+		for (size_t i = 0; i < quadVertices.size(); i++) { worldVertices[i] = transform * glm::vec4(quadVertices[i], 1.0f); }
+
+		m_TextureBatchInfo.Indices.push_back(0 + m_TextureBatchInfo.VertexCount);
+		m_TextureBatchInfo.Indices.push_back(1 + m_TextureBatchInfo.VertexCount);
+		m_TextureBatchInfo.Indices.push_back(2 + m_TextureBatchInfo.VertexCount);
+		m_TextureBatchInfo.Indices.push_back(0 + m_TextureBatchInfo.VertexCount);
+		m_TextureBatchInfo.Indices.push_back(2 + m_TextureBatchInfo.VertexCount);
+		m_TextureBatchInfo.Indices.push_back(3 + m_TextureBatchInfo.VertexCount);
+
+		VertexPositionTexCoordColorTexIndex v0;
+		v0.Position	 = worldVertices[0];
+		v0.TexCoords = {0.0f, 0.0f};
+		v0.Color	 = color;
+		v0.TexIndex	 = texIndex;
+		m_TextureBatchInfo.Vertices.push_back(v0);
+
+		VertexPositionTexCoordColorTexIndex v1;
+		v1.Position	 = worldVertices[1];
+		v1.TexCoords = {tilingFactor, 0.0f};
+		v1.Color	 = color;
+		v1.TexIndex	 = texIndex;
+		m_TextureBatchInfo.Vertices.push_back(v1);
+
+		VertexPositionTexCoordColorTexIndex v2;
+		v2.Position	 = worldVertices[2];
+		v2.TexCoords = {tilingFactor, tilingFactor};
+		v2.Color	 = color;
+		v2.TexIndex	 = texIndex;
+		m_TextureBatchInfo.Vertices.push_back(v2);
+
+		VertexPositionTexCoordColorTexIndex v3;
+		v3.Position	 = worldVertices[3];
+		v3.TexCoords = {0.0f, tilingFactor};
+		v3.Color	 = color;
+		v3.TexIndex	 = texIndex;
+		m_TextureBatchInfo.Vertices.push_back(v3);
+
+		m_TextureBatchInfo.IndexCount += shapeIndexCount;
+		m_TextureBatchInfo.VertexCount += shapeVertexCount;
 	}
 
 	void BatchRenderer::DrawQuad(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, float thickness)
@@ -1083,7 +1132,7 @@ namespace Nexus::Graphics
 
 		m_CommandList->Begin();
 		m_CommandList->SetPipeline(info.Pipeline);
-		m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(Nexus::GetApplication()->GetPrimarySwapchain()));
+		m_CommandList->SetRenderTarget(m_RenderTarget);
 		m_CommandList->SetViewport(m_Viewport);
 		m_CommandList->SetScissor(m_ScissorRectangle);
 		m_CommandList->SetResourceSet(info.ResourceSet);

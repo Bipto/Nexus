@@ -220,23 +220,32 @@ namespace Nexus
 		std::string				 TexturePath   = {};
 		GUID					 TextureID	   = GUID(0);
 		Ref<Graphics::Texture2D> SpriteTexture = nullptr;
+		glm::vec4				 SpriteColour  = {1.0f, 1.0f, 1.0f, 1.0f};
+		float					 Tiling		   = 1.0f;
 
 		friend std::ostream &operator<<(std::ostream &os, const SpriteRendererComponent &component)
 		{
 			os << component.TexturePath;
+			os << component.SpriteColour.r << " " << component.SpriteColour.g << " " << component.SpriteColour.b << " " << component.SpriteColour.a;
+			os << component.Tiling;
 			return os;
 		}
 
 		friend std::istream &operator>>(std::istream &is, SpriteRendererComponent &component)
 		{
 			is >> component.TexturePath;
+			is >> component.SpriteColour.r >> component.SpriteColour.g >> component.SpriteColour.b >> component.SpriteColour.a;
+			is >> component.Tiling;
 			return is;
 		}
 
 		inline void LoadTexture()
 		{
-			Nexus::Graphics::GraphicsDevice *device = Nexus::GetApplication()->GetGraphicsDevice();
-			SpriteTexture							= device->CreateTexture2D(TexturePath, true, false);
+			if (!TexturePath.empty())
+			{
+				Nexus::Graphics::GraphicsDevice *device = Nexus::GetApplication()->GetGraphicsDevice();
+				SpriteTexture							= device->CreateTexture2D(TexturePath, true, false);
+			}
 		}
 	};
 
@@ -248,6 +257,9 @@ namespace Nexus
 								  return;
 
 							  Nexus::SpriteRendererComponent *component = static_cast<Nexus::SpriteRendererComponent *>(data);
+
+							  ImGui::ColorEdit4("Colour", glm::value_ptr(component->SpriteColour));
+							  ImGui::DragFloat("Tiling", &component->Tiling);
 
 							  ImGui::Text("%s", component->TexturePath.c_str());
 							  ImGui::SameLine();
@@ -368,17 +380,30 @@ namespace YAML
 		static Node encode(const Nexus::SpriteRendererComponent &rhs)
 		{
 			Node node;
-			node["Filepath"] = rhs.TexturePath;
+			node["Filepath"]	= rhs.TexturePath;
+			node["Colour"]["r"] = rhs.SpriteColour.r;
+			node["Colour"]["g"] = rhs.SpriteColour.g;
+			node["Colour"]["b"] = rhs.SpriteColour.b;
+			node["Colour"]["a"] = rhs.SpriteColour.a;
+			node["Tiling"]		= rhs.Tiling;
 			return node;
 		}
 
 		static bool decode(const Node &node, Nexus::SpriteRendererComponent &rhs)
 		{
-			if (!node["Filepath"])
+			if (!node["Filepath"] || !node["Colour"] || !node["Tiling"])
 			{
 				return false;
 			}
 			rhs.TexturePath = node["Filepath"].as<std::string>();
+
+			rhs.SpriteColour.r = node["Colour"]["r"].as<float>();
+			rhs.SpriteColour.g = node["Colour"]["g"].as<float>();
+			rhs.SpriteColour.b = node["Colour"]["b"].as<float>();
+			rhs.SpriteColour.a = node["Colour"]["a"].as<float>();
+
+			rhs.Tiling = node["Tiling"].as<float>();
+
 			rhs.LoadTexture();
 			return true;
 		}

@@ -147,7 +147,7 @@ namespace Nexus
 
 		glm::mat4 GetViewProjection() const
 		{
-			return GetView() * m_Projection;
+			return m_Projection * m_View;
 		}
 
 	  private:

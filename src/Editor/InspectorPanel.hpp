@@ -34,63 +34,66 @@ class InspectorPanel : public Panel
 		{
 			Nexus::Scene  *scene  = m_Project->GetLoadedScene();
 			Nexus::Entity *entity = scene->GetEntity(m_SelectedEntity.value());
-			Nexus::ECS::ComponentRegistry &registry = Nexus::ECS::ComponentRegistry::GetRegistry();
-
-			if (ImGui::BeginPopupContextItem("Add Component"))
+			if (entity)
 			{
-				const std::map<std::string, Nexus::ECS::ComponentStorage> &registeredComponents = m_Project->GetCachedAvailableComponents();
+				Nexus::ECS::ComponentRegistry &registry = Nexus::ECS::ComponentRegistry::GetRegistry();
 
-				ImGui::Text("Add Components");
-				ImGui::Separator();
-
-				for (const auto &[name, storage] : registeredComponents)
+				if (ImGui::BeginPopupContextItem("Add Component"))
 				{
-					if (ImGui::Selectable(storage.DisplayName.c_str()))
+					const std::map<std::string, Nexus::ECS::ComponentStorage> &registeredComponents = m_Project->GetCachedAvailableComponents();
+
+					ImGui::Text("Add Components");
+					ImGui::Separator();
+
+					for (const auto &[name, storage] : registeredComponents)
 					{
-						ComponentToAdd newComponent = {.createFunc = storage.CreationFunction, .entity = entity};
-						m_ComponentsToAdd.push_back(newComponent);
+						if (ImGui::Selectable(storage.DisplayName.c_str()))
+						{
+							ComponentToAdd newComponent = {.createFunc = storage.CreationFunction, .entity = entity};
+							m_ComponentsToAdd.push_back(newComponent);
+						}
 					}
+
+					ImGui::EndPopup();
 				}
 
-				ImGui::EndPopup();
-			}
-
-			std::stringstream ss;
-			ss << "ID: " << entity->ID.Value;
-			ImGui::Text(ss.str().c_str());
-			ImGui::InputText("Name", &entity->Name);
-			ImGui::Separator();
-
-			std::vector<Nexus::ECS::ComponentPtr> components = scene->Registry.GetAllComponents(entity->ID);
-			std::sort(components.begin(),
-					  components.end(),
-					  [](const Nexus::ECS::ComponentPtr &a, const Nexus::ECS::ComponentPtr &b)
-					  { return a.entityComponentIndex < b.entityComponentIndex; });
-
-			for (Nexus::ECS::ComponentPtr component : components)
-			{
-				void *obj = scene->Registry.GetRawComponent(component);
-				ImGui::PushID(obj);
-				std::string displayName = m_Project->GetComponentDisplayNameFromTypeName(component.typeName);
-				ImGui::Text(displayName.c_str());
-
-				m_Project->RenderComponentUI(scene->Registry, component, m_Project);
-
-				if (ImGui::Button("Remove"))
-				{
-					ComponentToRemove componentToRemove {.EntityID		 = entity->ID,
-														 .TypeName		 = component.typeName,
-														 .ComponentIndex = component.componentIndex};
-					m_ComponentsToRemove.push_back(componentToRemove);
-				}
+				std::stringstream ss;
+				ss << "ID: " << entity->ID.Value;
+				ImGui::Text(ss.str().c_str());
+				ImGui::InputText("Name", &entity->Name);
 				ImGui::Separator();
-				ImGui::PopID();
-			}
 
-			ImGui::Button("+");
-			if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0))
-			{
-				ImGui::OpenPopup("Add Component");
+				std::vector<Nexus::ECS::ComponentPtr> components = scene->Registry.GetAllComponents(entity->ID);
+				std::sort(components.begin(),
+						  components.end(),
+						  [](const Nexus::ECS::ComponentPtr &a, const Nexus::ECS::ComponentPtr &b)
+						  { return a.entityComponentIndex < b.entityComponentIndex; });
+
+				for (Nexus::ECS::ComponentPtr component : components)
+				{
+					void *obj = scene->Registry.GetRawComponent(component);
+					ImGui::PushID(obj);
+					std::string displayName = m_Project->GetComponentDisplayNameFromTypeName(component.typeName);
+					ImGui::Text(displayName.c_str());
+
+					m_Project->RenderComponentUI(scene->Registry, component, m_Project);
+
+					if (ImGui::Button("Remove"))
+					{
+						ComponentToRemove componentToRemove {.EntityID		 = entity->ID,
+															 .TypeName		 = component.typeName,
+															 .ComponentIndex = component.componentIndex};
+						m_ComponentsToRemove.push_back(componentToRemove);
+					}
+					ImGui::Separator();
+					ImGui::PopID();
+				}
+
+				ImGui::Button("+");
+				if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0))
+				{
+					ImGui::OpenPopup("Add Component");
+				}
 			}
 		}
 

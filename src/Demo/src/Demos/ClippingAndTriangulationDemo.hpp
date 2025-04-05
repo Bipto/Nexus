@@ -20,9 +20,8 @@ namespace Demos
 
 		virtual void Load() override
 		{
-			m_CommandList = m_GraphicsDevice->CreateCommandList();
-			m_BatchRenderer =
-				new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()});
+			m_CommandList	= m_GraphicsDevice->CreateCommandList();
+			m_BatchRenderer = new Nexus::Graphics::BatchRenderer(m_GraphicsDevice);
 
 			r1 = Nexus::Graphics::RoundedRectangle({450, 400}, {250, 250}, 15.0f, 15.0f, 15.0f, 15.0f);
 			r1.SetPointsPerCorner(8);
@@ -117,7 +116,7 @@ namespace Demos
 			scissor.Width  = windowSize.X;
 			scissor.Height = windowSize.Y;
 
-			m_BatchRenderer->Begin(vp, scissor);
+			m_BatchRenderer->Begin(Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()}, vp, scissor);
 
 			m_BatchRenderer->DrawRoundedRectangleFill(r2, {1.0f, 0.0f, 0.0f, 1.0f});
 			m_BatchRenderer->DrawRoundedRectangleFill(r1, {0.0f, 0.0f, 1.0f, 1.0f});

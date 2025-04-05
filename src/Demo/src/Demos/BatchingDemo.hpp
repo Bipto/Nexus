@@ -21,8 +21,7 @@ namespace Demos
 		virtual void Load() override
 		{
 			m_CommandList	= m_GraphicsDevice->CreateCommandList();
-			m_BatchRenderer = Nexus::Scope<Nexus::Graphics::BatchRenderer>(
-				new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()}));
+			m_BatchRenderer = Nexus::Scope<Nexus::Graphics::BatchRenderer>(new Nexus::Graphics::BatchRenderer(m_GraphicsDevice));
 			GenerateShapes();
 		}
 
@@ -75,7 +74,7 @@ namespace Demos
 			scissor.Width  = size.X;
 			scissor.Height = size.Y;
 
-			m_BatchRenderer->Begin(vp, scissor);
+			m_BatchRenderer->Begin(Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()}, vp, scissor);
 
 			for (const auto &quad : m_Quads)
 			{
