@@ -298,7 +298,6 @@ namespace Nexus::Processors
 	{
 		ModelImportData					 importData = LoadModel(filepath, device);
 		std::vector<Ref<Graphics::Mesh>> meshes;
-		WriteBinaryModelFile(filepath + ".bin", importData.meshes);
 
 		for (size_t i = 0; i < importData.meshes.size(); i++)
 		{

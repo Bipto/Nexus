@@ -19,8 +19,8 @@ namespace Nexus::Processors
 		{
 		}
 
-		virtual ~IProcessor()																				  = default;
-		virtual GUID Process(const std::string &filepath, Graphics::GraphicsDevice *device, Project *project) = 0;
+		virtual ~IProcessor()																					  = default;
+		virtual GUID	 Process(const std::string &filepath, Graphics::GraphicsDevice *device, Project *project) = 0;
 		virtual std::any Import(const std::string &filepath)													  = 0;
 
 		const std::string &GetName() const
@@ -34,8 +34,9 @@ namespace Nexus::Processors
 
 	struct ProcessorInfo
 	{
-		std::function<IProcessor *()> CreationFunction = {};
-		std::vector<std::string>	  FileExtensions   = {};
+		std::function<IProcessor *()> CreationFunction	= {};
+		std::vector<std::string>	  FileExtensions	= {};
+		size_t						  AssetTypeHashCode = 0;
 	};
 
 	class ProcessorRegistry
@@ -52,6 +53,7 @@ namespace Nexus::Processors
 			auto &registry = GetRegistry();
 			if (registry.contains(name))
 			{
+				ProcessorInfo info = registry.at(name);
 				return registry[name];
 			}
 
@@ -59,11 +61,12 @@ namespace Nexus::Processors
 		}
 
 		template<typename T>
-		static void AddProcessor(const std::string &name, const std::vector<std::string> &extensions)
+		static void AddProcessor(const std::string &name, const std::type_info &assetType, const std::vector<std::string> &extensions)
 		{
-			ProcessorInfo info	  = {};
-			info.CreationFunction = []() { return new T(); };
-			info.FileExtensions	  = extensions;
+			ProcessorInfo info	   = {};
+			info.CreationFunction  = []() { return new T(); };
+			info.FileExtensions	   = extensions;
+			info.AssetTypeHashCode = assetType.hash_code();
 
 			auto &processors = GetRegistry();
 			processors[name] = info;
@@ -77,12 +80,13 @@ namespace Nexus::Processors
 
 }	 // namespace Nexus::Processors
 
-#define NX_REGISTER_PROCESSOR(ProcessorType, ProcessorName, Extensions)                                                                              \
+#define NX_REGISTER_PROCESSOR(ProcessorType, AssetType, ProcessorName, Extensions)                                                                   \
 	struct ProcessorType##Register                                                                                                                   \
 	{                                                                                                                                                \
 		ProcessorType##Register()                                                                                                                    \
 		{                                                                                                                                            \
-			ProcessorRegistry::AddProcessor<ProcessorType>(ProcessorName, Extensions);                                                               \
+			const std::type_info &assetTypeInfo = typeid(AssetType);                                                                                 \
+			ProcessorRegistry::AddProcessor<ProcessorType>(ProcessorName, assetTypeInfo, Extensions);                                                \
 		}                                                                                                                                            \
 	};                                                                                                                                               \
 	static ProcessorType##Register instance##ProcessorType##Register;                                                                                \

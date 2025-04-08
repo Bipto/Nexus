@@ -508,7 +508,7 @@ class EditorApplication : public Nexus::Application
 			}
 			if (ImGui::IsItemHovered())
 			{
-				m_FramebufferClickEnabled = false;
+				// m_FramebufferClickEnabled = false;
 			}
 			ImGui::SameLine();
 			if (ImGui::Button("Rotate"))
@@ -517,7 +517,7 @@ class EditorApplication : public Nexus::Application
 			}
 			if (ImGui::IsItemHovered())
 			{
-				m_FramebufferClickEnabled = false;
+				// m_FramebufferClickEnabled = false;
 			}
 			ImGui::SameLine();
 			if (ImGui::Button("Scale"))
@@ -526,7 +526,7 @@ class EditorApplication : public Nexus::Application
 			}
 			if (ImGui::IsItemHovered())
 			{
-				m_FramebufferClickEnabled = false;
+				// m_FramebufferClickEnabled = false;
 			}
 		}
 		ImGui::End();
@@ -568,7 +568,7 @@ class EditorApplication : public Nexus::Application
 			vp.Width					 = m_Framebuffer->GetFramebufferSpecification().Width;
 			vp.Height					 = m_Framebuffer->GetFramebufferSpecification().Height;
 			vp.MinDepth					 = 0.0f;
-			vp.MaxDepth					 = 1000.0f;
+			vp.MaxDepth					 = 1.0f;
 
 			Nexus::Graphics::Scissor scissor = {};
 			scissor.X						 = 0;
@@ -672,7 +672,7 @@ class EditorApplication : public Nexus::Application
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
 	Nexus::ApplicationSpecification spec;
-	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
+	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
 	spec.AudioAPI	 = Nexus::Audio::AudioAPI::OpenAL;
 
 	spec.WindowProperties.Width			   = 1280;

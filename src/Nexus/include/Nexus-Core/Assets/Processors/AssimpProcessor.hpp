@@ -29,5 +29,5 @@ namespace Nexus::Processors
 		virtual std::any	 Import(const std::string &filepath) final;
 	};
 
-	NX_REGISTER_PROCESSOR(AssimpProcessor, MODELS_PROCESSOR_NAME, (std::vector<std::string> {".fbx", ".obj", ".dae"}));
+	NX_REGISTER_PROCESSOR(AssimpProcessor, Graphics::Model, MODELS_PROCESSOR_NAME, (std::vector<std::string> {".fbx", ".obj", ".dae"}));
 }	 // namespace Nexus::Processors
