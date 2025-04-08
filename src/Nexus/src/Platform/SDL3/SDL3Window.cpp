@@ -9,8 +9,8 @@ namespace Nexus
 {
 	SDL3Window::SDL3Window(const WindowSpecification &windowProps) : IWindow(windowProps), m_Specification(windowProps)
 	{
+		SDL_SetHint(SDL_HINT_EMSCRIPTEN_CANVAS_SELECTOR, windowProps.CanvasId.c_str());
 		uint32_t flags = GetFlags(windowProps);
-
 		m_Window = SDL_CreateWindow(windowProps.Title.c_str(), windowProps.Width, windowProps.Height, flags);
 
 		if (m_Window == nullptr)
