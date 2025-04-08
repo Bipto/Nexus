@@ -32,6 +32,13 @@
 
 namespace Nexus::GL
 {
+	enum class GLPrimitiveType
+	{
+		Unknown = 0,
+		Float,
+		Int
+	};
+
 	std::string GetErrorMessageFromCode(const GLenum error);
 
 	GLenum GetStencilOperation(Nexus::Graphics::StencilOperation operation);
@@ -51,7 +58,11 @@ namespace Nexus::GL
 	GLenum GetShaderStage(Nexus::Graphics::ShaderStage stage);
 	GLenum GLCubemapFace(Nexus::Graphics::CubemapFace face);
 
-	void GetBaseType(const Graphics::VertexBufferElement &element, GLenum &baseType, uint32_t &componentCount, GLboolean &normalized);
+	void GetBaseType(const Graphics::VertexBufferElement &element,
+					 GLenum								 &baseType,
+					 uint32_t							 &componentCount,
+					 GLboolean							 &normalized,
+					 GLPrimitiveType					 &primitiveType);
 
 	std::unique_ptr<IOffscreenContext> CreateOffscreenContext();
 	std::unique_ptr<IViewContext>	   CreateViewContext(IWindow *window, Graphics::GraphicsDevice *device);

@@ -6,33 +6,37 @@
 #include "Nexus-Core/Graphics/Polygon.hpp"
 #include "Nexus-Core/Graphics/Rectangle.hpp"
 #include "Nexus-Core/Graphics/RoundedRectangle.hpp"
+#include "Nexus-Core/Utils/GUID.hpp"
 #include "Nexus-Core/Vertex.hpp"
 
 namespace Nexus::Graphics
 {
-	struct VertexPositionTexCoordColorTexIndex
+	struct BatchVertex
 	{
-		glm::vec3 Position	= {0, 0, 0};
-		glm::vec2 TexCoords = {0, 0};
-		glm::vec4 Color		= {1.0f, 1.0f, 1.0f, 1.0f};
-		float	  TexIndex	= 0.0f;
+		glm::vec4		  Color		= {1.0f, 1.0f, 1.0f, 1.0f};
+		glm::vec3		  Position	= {0, 0, 0};
+		float			  TexIndex	= 0.0f;
+		glm::vec2		  TexCoords = {0, 0};
+		Point2D<uint32_t> Id		= {0, 0};
 
-		VertexPositionTexCoordColorTexIndex() = default;
+		BatchVertex() = default;
 
-		VertexPositionTexCoordColorTexIndex(const glm::vec3 &position, const glm::vec2 &texCoords, const glm::vec4 &color, float texIndex)
+		BatchVertex(const glm::vec3 &position, const glm::vec2 &texCoords, const glm::vec4 &color, float texIndex, Point2D<uint32_t> id)
 			: Position(position),
 			  TexCoords(texCoords),
 			  Color(color),
-			  TexIndex(texIndex)
+			  TexIndex(texIndex),
+			  Id(id)
 		{
 		}
 
 		static Nexus::Graphics::VertexBufferLayout GetLayout()
 		{
-			Nexus::Graphics::VertexBufferLayout layout = {{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
+			Nexus::Graphics::VertexBufferLayout layout = {{Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
+														  {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
+														  {Nexus::Graphics::ShaderDataType::Float, "TEXCOORD"},
 														  {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
-														  {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
-														  {Nexus::Graphics::ShaderDataType::Float, "TEXCOORD"}};
+														  {Nexus::Graphics::ShaderDataType::UInt2, "TEXCOORD"}};
 			return layout;
 		}
 	};
@@ -42,9 +46,9 @@ namespace Nexus::Graphics
 		Nexus::Ref<Nexus::Graphics::Pipeline>	 Pipeline	 = nullptr;
 		Nexus::Ref<Nexus::Graphics::ResourceSet> ResourceSet = nullptr;
 
-		std::vector<Nexus::Graphics::VertexPositionTexCoordColorTexIndex> Vertices;
-		std::vector<uint32_t>											  Indices;
-		std::vector<Nexus::Ref<Nexus::Graphics::Texture2D>>				  Textures;
+		std::vector<Nexus::Graphics::BatchVertex>			Vertices;
+		std::vector<uint32_t>								Indices;
+		std::vector<Nexus::Ref<Nexus::Graphics::Texture2D>> Textures;
 
 		uint32_t ShapeCount	 = 0;
 		uint32_t VertexCount = 0;
@@ -70,7 +74,7 @@ namespace Nexus::Graphics
 		void DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color);
 		void DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<Texture2D> texture);
 		void DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<Texture2D> texture, float tilingFactor);
-		void DrawQuadFill(const glm::vec4 &color, Ref<Texture2D> texture, float tilingFactor, const glm::mat4 &transform);
+		void DrawQuadFill(const glm::vec4 &color, Ref<Texture2D> texture, float tilingFactor, const glm::mat4 &transform, Nexus::GUID id);
 		void DrawQuad(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, float thickness);
 		void DrawQuad(const Rectangle<float> &rectangle, const glm::vec4 &color, float thickness);
 		void DrawCharacter(char character, const glm::vec2 &position, const glm::vec2 &size, const glm::vec4 &color, Font *font);

@@ -60,11 +60,30 @@ namespace Nexus::Graphics
 					GLenum	  baseType;
 					uint32_t  componentCount;
 					GLboolean normalized;
-					GL::GetBaseType(element, baseType, componentCount, normalized);
+					GL::GLPrimitiveType primitiveType = GL::GLPrimitiveType::Unknown;
+					GL::GetBaseType(element, baseType, componentCount, normalized, primitiveType);
 
 					glCall(glEnableVertexAttribArray(index));
 					glCall(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer->GetHandle()));
-					glCall(glVertexAttribPointer(index, componentCount, baseType, normalized, layout.GetStride(), (void *)(element.Offset + offset)));
+
+					if (primitiveType == GL::GLPrimitiveType::Float)
+					{
+						glCall(glVertexAttribPointer(index,
+													 componentCount,
+													 baseType,
+													 normalized,
+													 layout.GetStride(),
+													 (void *)(element.Offset + offset)));
+					}
+					else if (primitiveType == GL::GLPrimitiveType::Int)
+					{
+						glCall(glVertexAttribIPointer(index, componentCount, baseType, layout.GetStride(), (void *)(element.Offset + offset)));
+					}
+					else
+					{
+						throw std::runtime_error("Failed to find valid primitive type");
+					}
+
 					glCall(glVertexAttribDivisor(index, layout.GetInstanceStepRate()));
 
 					index++;

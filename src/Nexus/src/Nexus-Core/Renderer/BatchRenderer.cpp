@@ -6,14 +6,16 @@
 
 const std::string s_BatchVertexShaderSource = "#version 450 core\n"
 
-											  "layout(location = 0) in vec3 Position;\n"
-											  "layout(location = 1) in vec2 TexCoord;\n"
-											  "layout(location = 2) in vec4 Color;\n"
-											  "layout(location = 3) in float TexIndex;\n"
+											  "layout(location = 0) in vec4 Color;\n"
+											  "layout(location = 1) in vec3 Position;\n"
+											  "layout(location = 2) in float TexIndex;\n"
+											  "layout(location = 3) in vec2 TexCoord;\n"
+											  "layout(location = 4) in uvec2 EntityID;\n"
 
 											  "layout(location = 0) out vec2 texCoord;\n"
 											  "layout(location = 1) out vec4 outColor;\n"
 											  "layout(location = 2) out flat float texIndex;\n"
+											  "layout(location = 3) out flat uvec2 outEntityID;\n"
 
 											  "layout(binding = 0, set = 0) uniform MVP\n"
 											  "{\n"
@@ -26,15 +28,18 @@ const std::string s_BatchVertexShaderSource = "#version 450 core\n"
 											  "    texCoord = TexCoord;\n"
 											  "    outColor = Color;\n"
 											  "    texIndex = TexIndex;\n"
+											  "    outEntityID = EntityID;\n"
 											  "}";
 
 const std::string s_BatchTextureFragmentShaderSource = "#version 450 core\n"
 
 													   "layout (location = 0) out vec4 FragColor;\n"
+													   "layout (location = 1) out uvec2 o_EntityID;\n"
 
 													   "layout (location = 0) in vec2 texCoord;\n"
 													   "layout (location = 1) in vec4 outColor;\n"
 													   "layout (location = 2) in flat float texIndex;\n"
+													   "layout(location = 3) in flat uvec2 outEntityID;\n"
 
 													   "layout (set = 1, binding = 0) uniform sampler2D texture0;\n"
 													   "layout (set = 1, binding = 1) uniform sampler2D texture1;\n"
@@ -75,15 +80,19 @@ const std::string s_BatchTextureFragmentShaderSource = "#version 450 core\n"
 													   "        case 15: FragColor = texture(texture15, texCoord); break;\n"
 													   "    }\n"
 													   "    FragColor *= outColor;\n"
+													   "    o_EntityID = outEntityID;\n"
+													   "	if (FragColor.a == 0) discard;\n"
 													   "}\n";
 
 const std::string s_BatchFontFragmentShaderSource = "#version 450 core\n"
 
 													"layout (location = 0) out vec4 FragColor;\n"
+													"layout (location = 1) out uvec2 o_EntityID;\n"
 
 													"layout (location = 0) in vec2 texCoord;\n"
 													"layout (location = 1) in vec4 outColor;\n"
 													"layout (location = 2) in flat float texIndex;\n"
+													"layout(location = 3) in flat uvec2 outEntityID;\n"
 
 													"layout (set = 1, binding = 0) uniform sampler2D texture0;\n"
 													"layout (set = 1, binding = 1) uniform sampler2D texture1;\n"
@@ -126,15 +135,19 @@ const std::string s_BatchFontFragmentShaderSource = "#version 450 core\n"
 													"        case 15: alpha = texture(texture15, texCoord).r; break;\n"
 													"    }\n"
 													"    FragColor = vec4(outColor.rgb, alpha);\n"
+													"    o_EntityID = outEntityID;\n"
+													"	 if (FragColor.a == 0) discard;\n"
 													"}\n";
 
 const std::string s_BatchSDFFragmentShaderSource = "#version 450 core\n"
 
 												   "layout (location = 0) out vec4 FragColor;\n"
+												   "layout (location = 1) out uvec2 o_EntityID;\n"
 
 												   "layout (location = 0) in vec2 texCoord;\n"
 												   "layout (location = 1) in vec4 outColor;\n"
 												   "layout (location = 2) in flat float texIndex;\n"
+												   "layout(location = 3) in flat uvec2 outEntityID;\n"
 
 												   "layout (set = 1, binding = 0) uniform sampler2D texture0;\n"
 												   "layout (set = 1, binding = 1) uniform sampler2D texture1;\n"
@@ -186,71 +199,8 @@ const std::string s_BatchSDFFragmentShaderSource = "#version 450 core\n"
 												   "    float opacity = smoothstep(0.5 - w, 0.5 + w, alpha);\n"
 
 												   "    FragColor = vec4(outColor.rgb, opacity);\n"
+												   "    o_EntityID = outEntityID;\n"
 												   "}\n";
-
-const std::string s_RoundedRectFragmentShaderSource = "#version 450 core\n"
-													  "layout (location = 0) out vec4 FragColor;\n"
-													  "layout(location = 0) in vec2 texCoord;\n"
-													  "layout(location = 1) in vec4 outColor;\n"
-													  "layout(location = 2) in flat float texIndex;\n"
-													  "layout (set = 1, binding = 0) uniform sampler2D texture0;\n"
-													  "layout (set = 1, binding = 1) uniform sampler2D texture1;\n"
-													  "layout (set = 1, binding = 2) uniform sampler2D texture2;\n"
-													  "layout (set = 1, binding = 3) uniform sampler2D texture3;\n"
-													  "layout (set = 1, binding = 4) uniform sampler2D texture4;\n"
-													  "layout (set = 1, binding = 5) uniform sampler2D texture5;\n"
-													  "layout (set = 1, binding = 6) uniform sampler2D texture6;\n"
-													  "layout (set = 1, binding = 7) uniform sampler2D texture7;\n"
-													  "layout (set = 1, binding = 8) uniform sampler2D texture8;\n"
-													  "layout (set = 1, binding = 9) uniform sampler2D texture9;\n"
-													  "layout (set = 1, binding = 10) uniform sampler2D texture10;\n"
-													  "layout (set = 1, binding = 11) uniform sampler2D texture11;\n"
-													  "layout (set = 1, binding = 12) uniform sampler2D texture12;\n"
-													  "layout (set = 1, binding = 13) uniform sampler2D texture13;\n"
-													  "layout (set = 1, binding = 14) uniform sampler2D texture14;\n"
-													  "layout (set = 1, binding = 15) uniform sampler2D texture15;\n"
-													  "float roundedBoxSDF(vec2 CenterPosition, vec2 Size, float Radius) {\n"
-													  "return length(max(abs(CenterPosition)-Size+Radius,0.0))-Radius;\n"
-													  "}\n"
-													  "void main()\n"
-													  "{\n"
-													  "    switch (int(texIndex))\n"
-													  "    {\n"
-													  "        case 0: FragColor = texture(texture0, texCoord); break;\n"
-													  "        case 1: FragColor = texture(texture1, texCoord); break;\n"
-													  "        case 2: FragColor = texture(texture2, texCoord); break;\n"
-													  "        case 3: FragColor = texture(texture3, texCoord); break;\n"
-													  "        case 4: FragColor = texture(texture4, texCoord); break;\n"
-													  "        case 5: FragColor = texture(texture5, texCoord); break;\n"
-													  "        case 6: FragColor = texture(texture6, texCoord); break;\n"
-													  "        case 7: FragColor = texture(texture7, texCoord); break;\n"
-													  "        case 8: FragColor = texture(texture8, texCoord); break;\n"
-													  "        case 9: FragColor = texture(texture9, texCoord); break;\n"
-													  "        case 10: FragColor = texture(texture10, texCoord); break;\n"
-													  "        case 11: FragColor = texture(texture11, texCoord); break;\n"
-													  "        case 12: FragColor = texture(texture12, texCoord); break;\n"
-													  "        case 13: FragColor = texture(texture13, texCoord); break;\n"
-													  "        case 14: FragColor = texture(texture14, texCoord); break;\n"
-													  "        case 15: FragColor = texture(texture15, texCoord); break;\n"
-													  "    }\n"
-													  "    FragColor *= outColor;\n"
-													  "	vec2 size = vec2(1, 1);\n"
-													  "	vec2 location = vec2(0, 0);\n"
-													  "	float edgeSoftness = 1.0f;\n"
-													  "	float radius = 50.0f;\n"
-													  "	float distance = roundedBoxSDF(texCoord.xy - location - (size / 2.0f), "
-													  "size / 2.0f, radius);\n"
-													  "	float smoothedAlpha = 1.0f - smoothstep(0.0, edgeSoftness * 2.0f, "
-													  "distance);\n"
-													  "	float shadowSoftness = 30.0f;\n"
-													  "	vec2 shadowOffset = vec2(0.0f, 10.0f);\n"
-													  "	float shadowDistance = roundedBoxSDF(texCoord.xy - location + "
-													  "shadowOffset - (size / 2.0f), size / 2.0f, radius);\n"
-													  "	float shadowAlpha = 1.0f - smoothstep(-shadowSoftness, shadowSoftness, "
-													  "shadowDistance);\n"
-													  "	vec4 shadowColor = vec4(0.4f, 0.4f, 0.4f, 1.0f);\n"
-													  "	FragColor = mix(FragColor, shadowColor, shadowAlpha - smoothedAlpha);\n"
-													  "}";
 
 namespace Nexus::Graphics
 {
@@ -337,13 +287,14 @@ namespace Nexus::Graphics
 
 		Nexus::Graphics::PipelineDescription description;
 		description.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::CullNone;
-		description.Layouts								 = {Nexus::Graphics::VertexPositionTexCoordColorTexIndex::GetLayout()};
+		description.Layouts								 = {Nexus::Graphics::BatchVertex::GetLayout()};
 		description.VertexModule						 = vertexModule;
 		description.FragmentModule						 = fragmentModule;
 		description.ResourceSetSpec						 = GetResourceSetSpecification();
 
 		description.ColourFormats[0]  = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
-		description.ColourTargetCount = 1;
+		description.ColourFormats[1]  = Nexus::Graphics::PixelFormat::R32_G32_UInt;
+		description.ColourTargetCount = 2;
 		description.DepthFormat		  = Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt;
 
 		description.ColourBlendStates[0].EnableBlending			= true;
@@ -354,13 +305,19 @@ namespace Nexus::Graphics
 		description.ColourBlendStates[0].DestinationAlphaBlend	= BlendFactor::OneMinusSourceAlpha;
 		description.ColourBlendStates[0].AlphaBlendFunction		= BlendEquation::Add;
 
+		description.ColourBlendStates[1].EnableBlending = false;
+
+		description.DepthStencilDesc.EnableDepthTest		 = true;
+		description.DepthStencilDesc.EnableDepthWrite		 = true;
+		description.DepthStencilDesc.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;
+
 		description.ColourTargetSampleCount = Nexus::Graphics::SampleCount::SampleCount1;
 
 		info.Pipeline	 = device->CreatePipeline(description);
 		info.ResourceSet = device->CreateResourceSet(info.Pipeline);
 
 		Nexus::Graphics::BufferDescription vertexBufferDesc;
-		vertexBufferDesc.Size  = info.Vertices.size() * sizeof(VertexPositionTexCoordColorTexIndex);
+		vertexBufferDesc.Size  = info.Vertices.size() * sizeof(BatchVertex);
 		vertexBufferDesc.Usage = BufferUsage::Dynamic;
 		info.VertexBuffer	   = device->CreateVertexBuffer(vertexBufferDesc, nullptr);
 
@@ -476,28 +433,28 @@ namespace Nexus::Graphics
 		m_TextureBatchInfo.Indices.push_back(2 + m_TextureBatchInfo.VertexCount);
 		m_TextureBatchInfo.Indices.push_back(3 + m_TextureBatchInfo.VertexCount);
 
-		VertexPositionTexCoordColorTexIndex v0;
+		BatchVertex v0;
 		v0.Position	 = a;
 		v0.TexCoords = {0.0f, 0.0f};
 		v0.Color	 = color;
 		v0.TexIndex	 = texIndex;
 		m_TextureBatchInfo.Vertices.push_back(v0);
 
-		VertexPositionTexCoordColorTexIndex v1;
+		BatchVertex v1;
 		v1.Position	 = b;
 		v1.TexCoords = {tilingFactor, 0.0f};
 		v1.Color	 = color;
 		v1.TexIndex	 = texIndex;
 		m_TextureBatchInfo.Vertices.push_back(v1);
 
-		VertexPositionTexCoordColorTexIndex v2;
+		BatchVertex v2;
 		v2.Position	 = c;
 		v2.TexCoords = {tilingFactor, tilingFactor};
 		v2.Color	 = color;
 		v2.TexIndex	 = texIndex;
 		m_TextureBatchInfo.Vertices.push_back(v2);
 
-		VertexPositionTexCoordColorTexIndex v3;
+		BatchVertex v3;
 		v3.Position	 = d;
 		v3.TexCoords = {0.0f, tilingFactor};
 		v3.Color	 = color;
@@ -525,7 +482,7 @@ namespace Nexus::Graphics
 		DrawQuadFill(min, max, color, texture, tilingFactor);
 	}
 
-	void BatchRenderer::DrawQuadFill(const glm::vec4 &color, Ref<Texture2D> texture, float tilingFactor, const glm::mat4 &transform)
+	void BatchRenderer::DrawQuadFill(const glm::vec4 &color, Ref<Texture2D> texture, float tilingFactor, const glm::mat4 &transform, Nexus::GUID id)
 	{
 		if (!texture)
 		{
@@ -557,32 +514,42 @@ namespace Nexus::Graphics
 		m_TextureBatchInfo.Indices.push_back(2 + m_TextureBatchInfo.VertexCount);
 		m_TextureBatchInfo.Indices.push_back(3 + m_TextureBatchInfo.VertexCount);
 
-		VertexPositionTexCoordColorTexIndex v0;
+		std::pair<uint32_t, uint32_t> outId	   = id.Split();
+		Point2D<uint32_t>			  entityId = {outId.first, outId.second};
+
+		float id1 = (float)entityId.X;
+		float id2 = (float)entityId.Y;
+
+		BatchVertex v0;
 		v0.Position	 = worldVertices[0];
 		v0.TexCoords = {0.0f, 0.0f};
 		v0.Color	 = color;
 		v0.TexIndex	 = texIndex;
+		v0.Id		 = entityId;
 		m_TextureBatchInfo.Vertices.push_back(v0);
 
-		VertexPositionTexCoordColorTexIndex v1;
+		BatchVertex v1;
 		v1.Position	 = worldVertices[1];
 		v1.TexCoords = {tilingFactor, 0.0f};
 		v1.Color	 = color;
 		v1.TexIndex	 = texIndex;
+		v1.Id		 = entityId;
 		m_TextureBatchInfo.Vertices.push_back(v1);
 
-		VertexPositionTexCoordColorTexIndex v2;
+		BatchVertex v2;
 		v2.Position	 = worldVertices[2];
 		v2.TexCoords = {tilingFactor, tilingFactor};
 		v2.Color	 = color;
 		v2.TexIndex	 = texIndex;
+		v2.Id		 = entityId;
 		m_TextureBatchInfo.Vertices.push_back(v2);
 
-		VertexPositionTexCoordColorTexIndex v3;
+		BatchVertex v3;
 		v3.Position	 = worldVertices[3];
 		v3.TexCoords = {0.0f, tilingFactor};
 		v3.Color	 = color;
 		v3.TexIndex	 = texIndex;
+		v3.Id		 = entityId;
 		m_TextureBatchInfo.Vertices.push_back(v3);
 
 		m_TextureBatchInfo.IndexCount += shapeIndexCount;
@@ -640,28 +607,28 @@ namespace Nexus::Graphics
 
 		float texIndex = GetOrCreateTexIndex(*info, font->GetTexture());
 
-		VertexPositionTexCoordColorTexIndex v0;
+		BatchVertex v0;
 		v0.Position	 = a;
 		v0.TexCoords = {characterInfo.TexCoordsMin.x, characterInfo.TexCoordsMin.y};
 		v0.Color	 = color;
 		v0.TexIndex	 = texIndex;
 		info->Vertices.push_back(v0);
 
-		VertexPositionTexCoordColorTexIndex v1;
+		BatchVertex v1;
 		v1.Position	 = b;
 		v1.TexCoords = {characterInfo.TexCoordsMax.x, characterInfo.TexCoordsMin.y};
 		v1.Color	 = color;
 		v1.TexIndex	 = texIndex;
 		info->Vertices.push_back(v1);
 
-		VertexPositionTexCoordColorTexIndex v2;
+		BatchVertex v2;
 		v2.Position	 = c;
 		v2.TexCoords = {characterInfo.TexCoordsMax.x, characterInfo.TexCoordsMax.y};
 		v2.Color	 = color;
 		v2.TexIndex	 = texIndex;
 		info->Vertices.push_back(v2);
 
-		VertexPositionTexCoordColorTexIndex v3;
+		BatchVertex v3;
 		v3.Position	 = d;
 		v3.TexCoords = {characterInfo.TexCoordsMin.x, characterInfo.TexCoordsMax.y};
 		v3.Color	 = color;
@@ -751,28 +718,28 @@ namespace Nexus::Graphics
 		m_TextureBatchInfo.Indices.push_back(2 + m_TextureBatchInfo.VertexCount);
 		m_TextureBatchInfo.Indices.push_back(3 + m_TextureBatchInfo.VertexCount);
 
-		VertexPositionTexCoordColorTexIndex v0;
+		BatchVertex v0;
 		v0.Position	 = glm::vec3(q1, 0.0f);
 		v0.TexCoords = {0.0f, 0.0f};
 		v0.Color	 = color;
 		v0.TexIndex	 = 0;
 		m_TextureBatchInfo.Vertices.push_back(v0);
 
-		VertexPositionTexCoordColorTexIndex v1;
+		BatchVertex v1;
 		v1.Position	 = glm::vec3(q2, 0.0f);
 		v1.TexCoords = {1.0f, 0.0f};
 		v1.Color	 = color;
 		v1.TexIndex	 = 0;
 		m_TextureBatchInfo.Vertices.push_back(v1);
 
-		VertexPositionTexCoordColorTexIndex v2;
+		BatchVertex v2;
 		v2.Position	 = glm::vec3(q3, 0.0f);
 		v2.TexCoords = {1.0f, 1.0f};
 		v2.Color	 = color;
 		v2.TexIndex	 = 0;
 		m_TextureBatchInfo.Vertices.push_back(v2);
 
-		VertexPositionTexCoordColorTexIndex v3;
+		BatchVertex v3;
 		v3.Position	 = glm::vec3(q4, 0.0f);
 		v3.TexCoords = {0.0f, 1.0f};
 		v3.Color	 = color;
@@ -965,21 +932,21 @@ namespace Nexus::Graphics
 		m_TextureBatchInfo.Indices.push_back(1 + m_TextureBatchInfo.VertexCount);
 		m_TextureBatchInfo.Indices.push_back(2 + m_TextureBatchInfo.VertexCount);
 
-		VertexPositionTexCoordColorTexIndex v0;
+		BatchVertex v0;
 		v0.Position	 = pos0;
 		v0.TexCoords = uv0;
 		v0.Color	 = color;
 		v0.TexIndex	 = texIndex;
 		m_TextureBatchInfo.Vertices.push_back(v0);
 
-		VertexPositionTexCoordColorTexIndex v1;
+		BatchVertex v1;
 		v1.Position	 = pos1;
 		v1.TexCoords = uv1;
 		v1.Color	 = color;
 		v1.TexIndex	 = texIndex;
 		m_TextureBatchInfo.Vertices.push_back(v1);
 
-		VertexPositionTexCoordColorTexIndex v2;
+		BatchVertex v2;
 		v2.Position	 = pos2;
 		v2.TexCoords = uv2;
 		v2.Color	 = color;
@@ -1112,7 +1079,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		info.VertexBuffer->SetData(info.Vertices.data(), info.Vertices.size() * sizeof(VertexPositionTexCoordColorTexIndex));
+		info.VertexBuffer->SetData(info.Vertices.data(), info.Vertices.size() * sizeof(BatchVertex));
 		info.IndexBuffer->SetData(info.Indices.data(), info.Indices.size() * sizeof(uint32_t));
 
 		info.ResourceSet->WriteUniformBuffer(m_UniformBuffer, "MVP");

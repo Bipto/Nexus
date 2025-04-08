@@ -591,7 +591,11 @@ class EditorApplication : public Nexus::Application
 					const Nexus::FirstPersonCamera &camera		= m_Renderer->GetCamera();
 					glm::mat4						worldMatrix = transform->CreateTransformation();
 
-					m_BatchRenderer->DrawQuadFill(spriteRenderer->SpriteColour, spriteRenderer->SpriteTexture, spriteRenderer->Tiling, worldMatrix);
+					m_BatchRenderer->DrawQuadFill(spriteRenderer->SpriteColour,
+												  spriteRenderer->SpriteTexture,
+												  spriteRenderer->Tiling,
+												  worldMatrix,
+												  entity->ID);
 				});
 
 			m_BatchRenderer->End();
