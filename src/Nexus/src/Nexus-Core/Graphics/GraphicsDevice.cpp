@@ -32,7 +32,7 @@ namespace Nexus::Graphics
 		switch (spec.API)
 		{
 #if defined(NX_PLATFORM_D3D12)
-			case Graphics::GraphicsAPI::D3D12: return new Graphics::GraphicsDeviceD3D12(spec);
+			case Graphics::GraphicsAPI::D3D12: return new Graphics::GraphicsDeviceD3D12(spec, nullptr, nullptr);
 #endif
 
 #if defined(NX_PLATFORM_OPENGL)

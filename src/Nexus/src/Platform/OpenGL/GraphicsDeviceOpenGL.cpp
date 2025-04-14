@@ -15,7 +15,8 @@
 namespace Nexus::Graphics
 {
 	GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(const GraphicsDeviceSpecification &createInfo, std::shared_ptr<IPhysicalDevice> physicalDevice)
-		: GraphicsDevice(createInfo)
+		: GraphicsDevice(createInfo),
+		  m_PhysicalDevice(physicalDevice)
 	{
 		m_PBuffer	 = GL::CreateOffscreenContext(physicalDevice);
 		bool success = m_PBuffer->MakeCurrent();
@@ -67,6 +68,11 @@ namespace Nexus::Graphics
 	const char *GraphicsDeviceOpenGL::GetDeviceName()
 	{
 		return m_RendererName.c_str();
+	}
+
+	std::shared_ptr<IPhysicalDevice> GraphicsDeviceOpenGL::GetPhysicalDevice() const
+	{
+		return m_PhysicalDevice;
 	}
 
 	GL::IOffscreenContext *GraphicsDeviceOpenGL::GetOffscreenContext()

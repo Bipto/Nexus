@@ -5,6 +5,7 @@
 	#include "CommandExecutorD3D12.hpp"
 	#include "D3D12Include.hpp"
 	#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
+	#include "Nexus-Core/Graphics/IPhysicalDevice.hpp"
 
 namespace Nexus::Graphics
 {
@@ -13,13 +14,16 @@ namespace Nexus::Graphics
 	class GraphicsDeviceD3D12 : public GraphicsDevice
 	{
 	  public:
-		GraphicsDeviceD3D12(const GraphicsDeviceSpecification &createInfo);
+		GraphicsDeviceD3D12(const GraphicsDeviceSpecification	 &createInfo,
+							std::shared_ptr<IPhysicalDevice>	  physicalDevice,
+							Microsoft::WRL::ComPtr<IDXGIFactory7> factory);
 		~GraphicsDeviceD3D12();
 
 		virtual void SubmitCommandList(Ref<CommandList> commandList) override;
 
 		virtual const std::string GetAPIName() override;
 		virtual const char		 *GetDeviceName() override;
+		virtual std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const override;
 
 		virtual Ref<Texture2D>	 CreateTexture2D(const Texture2DSpecification &spec) override;
 		virtual Ref<Cubemap>	 CreateCubemap(const CubemapSpecification &spec) override;
@@ -98,6 +102,8 @@ namespace Nexus::Graphics
 		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6> m_UploadCommandList		= nullptr;
 
 		Microsoft::WRL::ComPtr<IDXGIFactory7> m_DxgiFactory = nullptr;
+
+		std::shared_ptr<IPhysicalDevice> m_PhysicalDevice = nullptr;
 
 		CommandExecutorD3D12 m_CommandExecutor {};
 	};

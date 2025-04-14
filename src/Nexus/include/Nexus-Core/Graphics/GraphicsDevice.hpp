@@ -6,6 +6,7 @@
 #include "Framebuffer.hpp"
 #include "GPUBuffer.hpp"
 #include "GraphicsCapabilities.hpp"
+#include "IPhysicalDevice.hpp"
 #include "Nexus-Core/Graphics/ShaderGenerator.hpp"
 #include "Nexus-Core/IWindow.hpp"
 #include "Nexus-Core/Types.hpp"
@@ -183,6 +184,7 @@ namespace Nexus::Graphics
 		virtual bool			   Validate() override;
 		virtual void			   SetName(const std::string &name) override;
 		virtual const std::string &GetName() override;
+		virtual std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const = 0;
 
 	  private:
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) = 0;

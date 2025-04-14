@@ -27,6 +27,7 @@ namespace Nexus::Graphics
 
 		virtual const std::string GetAPIName() override;
 		virtual const char		 *GetDeviceName() override;
+		virtual std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const override;
 
 		virtual Ref<Texture2D>	   CreateTexture2D(const Texture2DSpecification &spec) override;
 		virtual Ref<Cubemap>	   CreateCubemap(const CubemapSpecification &spec) override;

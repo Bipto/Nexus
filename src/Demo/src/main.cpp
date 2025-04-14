@@ -184,8 +184,11 @@ class DemoApplication : public Nexus::Application
 
 				ImGui::Separator();
 
+				std::shared_ptr<Nexus::Graphics::IPhysicalDevice> physicalDevice = m_GraphicsDevice->GetPhysicalDevice();
 				std::string apiName = std::string("Running on : ") + std::string(m_GraphicsDevice->GetAPIName());
 				ImGui::Text("%s", apiName.c_str());
+				std::string deviceName = std::string("Device: ") + physicalDevice->GetDeviceName();
+				ImGui::Text("%s", deviceName.c_str());
 
 				// render framerate
 				std::stringstream ss;

@@ -13,34 +13,22 @@
 	#include "TextureD3D12.hpp"
 	#include "TimingQueryD3D12.hpp"
 	#include "SwapchainD3D12.hpp"
+	#include "PhysicalDeviceD3D12.hpp"
 
 namespace Nexus::Graphics
 {
-	GraphicsDeviceD3D12::GraphicsDeviceD3D12(const GraphicsDeviceSpecification &createInfo) : GraphicsDevice(createInfo)
+	GraphicsDeviceD3D12::GraphicsDeviceD3D12(const GraphicsDeviceSpecification	  &createInfo,
+											 std::shared_ptr<IPhysicalDevice>	   physicalDevice,
+											 Microsoft::WRL::ComPtr<IDXGIFactory7> factory)
+		: GraphicsDevice(createInfo),
+		  m_DxgiFactory(factory),
+		  m_PhysicalDevice(physicalDevice)
 	{
-		// this has to be enabled to support newer HLSL versions and DXIL bytecode
-		UUID experimentalFeatures[] = {D3D12ExperimentalShaderModels};
-		D3D12EnableExperimentalFeatures(0, nullptr, NULL, NULL);
-
-		if (createInfo.DebugLayer)
-		{
-	#if defined(_DEBUG)
-			// retrieve the debug interface
-			if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&m_D3D12Debug))))
-			{
-				// enable debugging of d3d12
-				m_D3D12Debug->EnableDebugLayer();
-			}
-
-			std::atexit(ReportLiveObjects);
-
-	#endif()
-		}
-
-		if (SUCCEEDED(CreateDXGIFactory2(0, IID_PPV_ARGS(&m_DxgiFactory)))) {}
+		std::shared_ptr<PhysicalDeviceD3D12>  physicalDeviceD3D12 = std::dynamic_pointer_cast<PhysicalDeviceD3D12>(physicalDevice);
+		Microsoft::WRL::ComPtr<IDXGIAdapter4> adapter			  = physicalDeviceD3D12->GetAdapter();
 
 		// create the D3D12Device
-		if (SUCCEEDED(D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&m_Device))))
+		if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&m_Device))))
 		{
 			// Create a command queue to submit work to the GPU
 			D3D12_COMMAND_QUEUE_DESC commandQueueDesc {};
@@ -99,6 +87,11 @@ namespace Nexus::Graphics
 	const char *GraphicsDeviceD3D12::GetDeviceName()
 	{
 		return nullptr;
+	}
+
+	std::shared_ptr<IPhysicalDevice> GraphicsDeviceD3D12::GetPhysicalDevice() const
+	{
+		return m_PhysicalDevice;
 	}
 
 	Ref<ShaderModule> GraphicsDeviceD3D12::CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources)

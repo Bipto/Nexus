@@ -86,6 +86,11 @@ namespace Nexus::Graphics
 		return nullptr;
 	}
 
+	std::shared_ptr<IPhysicalDevice> GraphicsDeviceVk::GetPhysicalDevice() const
+	{
+		return nullptr;
+	}
+
 	Ref<ShaderModule> GraphicsDeviceVk::CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources)
 	{
 		return CreateRef<ShaderModuleVk>(moduleSpec, resources, this);
