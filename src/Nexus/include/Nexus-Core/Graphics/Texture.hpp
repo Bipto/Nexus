@@ -9,6 +9,33 @@
 
 namespace Nexus::Graphics
 {
+	enum class TextureType
+	{
+		Texture1D = 0,
+		Texture2D = 1,
+		Texture3D = 2
+	};
+
+	enum TextureUsageFlags : uint8_t
+	{
+		TextureUsage_Cubemap,
+		TextureUsage_DepthStencil,
+		TextureUsage_RenderTarget,
+		TextureUsage_Sampled,
+		TextureUsage_Storage
+	};
+
+	struct TextureSpecification
+	{
+		uint32_t	Width		= 0;
+		uint32_t	Height		= 0;
+		uint32_t	Depth		= 0;
+		uint32_t	MipLevels	= 0;
+		uint32_t	ArrayLayers = 0;
+		TextureType Type		= TextureType::Texture2D;
+		uint8_t		Usage		= 0;
+	};
+
 	enum class TextureUsage : uint8_t
 	{
 		DepthStencil,

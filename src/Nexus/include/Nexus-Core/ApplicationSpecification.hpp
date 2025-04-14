@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Nexus-Core/Graphics/GraphicsAPIType.hpp"
 #include "Nexus-Core/Graphics/Multisample.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
@@ -23,19 +24,6 @@ namespace Nexus::Graphics
 
 		/// @brief The refresh rate will be synchronised to the monitor
 		Enabled = 1
-	};
-
-	/// @brief An enum class that represents an available graphics API backend
-	enum class GraphicsAPI
-	{
-		/// @brief Graphics will be created using OpenGL
-		OpenGL,
-
-		/// @brief Graphics will be created using Direct3D12
-		D3D12,
-
-		/// @brief Graphics will be created using Vulkan
-		Vulkan
 	};
 
 	struct SwapchainSpecification

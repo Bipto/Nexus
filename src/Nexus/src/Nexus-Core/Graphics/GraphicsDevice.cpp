@@ -36,7 +36,7 @@ namespace Nexus::Graphics
 #endif
 
 #if defined(NX_PLATFORM_OPENGL)
-			case Graphics::GraphicsAPI::OpenGL: return new Graphics::GraphicsDeviceOpenGL(spec);
+			case Graphics::GraphicsAPI::OpenGL: return new Graphics::GraphicsDeviceOpenGL(spec, nullptr);
 #endif
 
 #if defined(NX_PLATFORM_VULKAN)

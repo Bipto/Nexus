@@ -26,8 +26,6 @@ namespace Nexus::UI
 
 		void Load() final
 		{
-			// m_MainForm = new Form(GetPrimaryWindow());
-
 			m_Sizer		  = std::make_unique<Nexus::UI::GridSizer>();
 			m_Renderer	  = std::make_unique<Nexus::UI::UIRenderer>(m_GraphicsDevice);
 			m_CommandList = m_GraphicsDevice->CreateCommandList();
@@ -49,15 +47,6 @@ namespace Nexus::UI
 				m_Sizer->AddChild(button);
 			}
 
-			/* GetPrimaryWindow()->SetExposeCallback(
-				[&]()
-				{
-					m_Sizer->SetSize(GetWindowSize());
-
-					Nexus::GetApplication()->GetPrimarySwapchain()->Prepare();
-					m_Renderer->Render(m_Sizer.get());
-					Nexus::GetApplication()->GetPrimarySwapchain()->SwapBuffers();
-				}); */
 			GetPrimaryWindow()->SetRenderFunction(
 				[&](TimeSpan time)
 				{

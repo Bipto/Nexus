@@ -4,6 +4,7 @@
 
 #include "Audio/AudioDevice.hpp"
 #include "Graphics/GraphicsDevice.hpp"
+#include "Graphics/IGraphicsAPI.hpp"
 #include "IWindow.hpp"
 
 #ifdef __EMSCRIPTEN__
@@ -131,6 +132,8 @@ namespace Nexus
 		const char *GetApplicationPath();
 
 	  protected:
+		Graphics::IGraphicsAPI *m_GraphicsAPI = nullptr;
+
 		/// @brief A pointer to a graphics device
 		Graphics::GraphicsDevice *m_GraphicsDevice = nullptr;
 

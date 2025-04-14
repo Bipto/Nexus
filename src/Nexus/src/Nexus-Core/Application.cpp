@@ -20,9 +20,16 @@ namespace Nexus
 
 		Graphics::GraphicsDeviceSpecification graphicsDeviceCreateInfo;
 		graphicsDeviceCreateInfo.DebugLayer = false;
-		graphicsDeviceCreateInfo.API = spec.GraphicsAPI;
+		graphicsDeviceCreateInfo.API		= spec.GraphicsAPI;
 
-		m_GraphicsDevice = Nexus::Graphics::GraphicsDevice::CreateGraphicsDevice(graphicsDeviceCreateInfo);
+		Graphics::GraphicsAPICreateInfo createInfo = {};
+		createInfo.API							   = spec.GraphicsAPI;
+		createInfo.Debug						   = false;
+
+		m_GraphicsAPI = Graphics::IGraphicsAPI::CreateAPI(createInfo);
+
+		std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> physicalDevices = m_GraphicsAPI->GetPhysicalDevices();
+		m_GraphicsDevice														= m_GraphicsAPI->CreateGraphicsDevice(physicalDevices[0]);
 
 		m_Swapchain = m_GraphicsDevice->CreateSwapchain(m_Window, spec.SwapchainSpecification);
 		m_Swapchain->Initialise();

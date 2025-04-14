@@ -36,7 +36,7 @@ class EditorApplication : public Nexus::Application
 	virtual void Load() override
 	{
 		m_Renderer		= std::make_unique<Nexus::Graphics::Renderer3D>(m_GraphicsDevice);
-		m_BatchRenderer = std::make_unique<Nexus::Graphics::BatchRenderer>(m_GraphicsDevice);
+		m_BatchRenderer = std::make_unique<Nexus::Graphics::BatchRenderer>(m_GraphicsDevice, true);
 
 		m_ImGuiRenderer = std::unique_ptr<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(new Nexus::ImGuiUtils::ImGuiGraphicsRenderer(this));
 		ImGui::SetCurrentContext(m_ImGuiRenderer->GetContext());
@@ -672,7 +672,7 @@ class EditorApplication : public Nexus::Application
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
 	Nexus::ApplicationSpecification spec;
-	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
+	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
 	spec.AudioAPI	 = Nexus::Audio::AudioAPI::OpenAL;
 
 	spec.WindowProperties.Width			   = 1280;

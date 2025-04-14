@@ -14,9 +14,10 @@
 
 namespace Nexus::Graphics
 {
-	GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(const GraphicsDeviceSpecification &createInfo) : GraphicsDevice(createInfo)
+	GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(const GraphicsDeviceSpecification &createInfo, std::shared_ptr<IPhysicalDevice> physicalDevice)
+		: GraphicsDevice(createInfo)
 	{
-		m_PBuffer	 = GL::CreateOffscreenContext();
+		m_PBuffer	 = GL::CreateOffscreenContext(physicalDevice);
 		bool success = m_PBuffer->MakeCurrent();
 		m_Extensions = GetSupportedExtensions();
 

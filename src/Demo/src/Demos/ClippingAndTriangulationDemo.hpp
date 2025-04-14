@@ -21,7 +21,7 @@ namespace Demos
 		virtual void Load() override
 		{
 			m_CommandList	= m_GraphicsDevice->CreateCommandList();
-			m_BatchRenderer = new Nexus::Graphics::BatchRenderer(m_GraphicsDevice);
+			m_BatchRenderer = new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, false);
 
 			r1 = Nexus::Graphics::RoundedRectangle({450, 400}, {250, 250}, 15.0f, 15.0f, 15.0f, 15.0f);
 			r1.SetPointsPerCorner(8);

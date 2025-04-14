@@ -7,6 +7,7 @@
 	#if defined(NX_PLATFORM_WGL)
 		#include "Context/WGL/OffscreenContextWGL.hpp"
 		#include "Context/WGL/ViewContextWGL.hpp"
+		#include "Context/WGL/PhysicalDeviceWGL.hpp"
 	#elif defined(NX_PLATFORM_EGL)
 		#include "Context/EGL/OffscreenContextEGL.hpp"
 		#include "Context/EGL/ViewContextEGL.hpp"
@@ -666,7 +667,7 @@ namespace Nexus::GL
 		}
 	}
 
-	std::unique_ptr<IOffscreenContext> CreateOffscreenContext()
+	std::unique_ptr<IOffscreenContext> CreateOffscreenContext(std::shared_ptr<Graphics::IPhysicalDevice> physicalDevice)
 	{
 		GL::ContextSpecification spec = {};
 		spec.Debug					  = true;
@@ -674,7 +675,7 @@ namespace Nexus::GL
 		spec.GLVersion				  = GL::OpenGLVersion::OpenGL;
 
 	#if defined(NX_PLATFORM_WGL)
-		return std::make_unique<OffscreenContextWGL>(spec);
+		return std::make_unique<OffscreenContextWGL>(spec, physicalDevice);
 	#elif defined(NX_PLATFORM_EGL)
 
 		#if defined(NX_PLATFORM_ANDROID)

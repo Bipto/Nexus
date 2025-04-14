@@ -279,7 +279,8 @@ namespace Nexus::Graphics
 	void CreateBatcher(BatchInfo								&info,
 					   Nexus::Graphics::GraphicsDevice			*device,
 					   Nexus::Ref<Nexus::Graphics::ShaderModule> vertexModule,
-					   Nexus::Ref<Nexus::Graphics::ShaderModule> fragmentModule)
+					   Nexus::Ref<Nexus::Graphics::ShaderModule> fragmentModule,
+					   bool										 useDepthTest)
 	{
 		info.Vertices.resize(MAX_VERTEX_COUNT);
 		info.Indices.resize(MAX_VERTEX_COUNT * 3);
@@ -307,9 +308,17 @@ namespace Nexus::Graphics
 
 		description.ColourBlendStates[1].EnableBlending = false;
 
-		description.DepthStencilDesc.EnableDepthTest		 = true;
-		description.DepthStencilDesc.EnableDepthWrite		 = true;
-		description.DepthStencilDesc.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;
+		if (useDepthTest)
+		{
+			description.DepthStencilDesc.EnableDepthTest		 = true;
+			description.DepthStencilDesc.EnableDepthWrite		 = true;
+			description.DepthStencilDesc.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;
+		}
+		else
+		{
+			description.DepthStencilDesc.EnableDepthTest  = false;
+			description.DepthStencilDesc.EnableDepthWrite = false;
+		}
 
 		description.ColourTargetSampleCount = Nexus::Graphics::SampleCount::SampleCount1;
 
@@ -327,7 +336,10 @@ namespace Nexus::Graphics
 		info.IndexBuffer	  = device->CreateIndexBuffer(indexBufferDesc, nullptr);
 	}
 
-	BatchRenderer::BatchRenderer(Nexus::Graphics::GraphicsDevice *device) : m_Device(device), m_CommandList(m_Device->CreateCommandList())
+	BatchRenderer::BatchRenderer(Nexus::Graphics::GraphicsDevice *device, bool useDepthTest)
+		: m_Device(device),
+		  m_CommandList(m_Device->CreateCommandList()),
+		  m_UseDepthTest(useDepthTest)
 	{
 		uint32_t textureData = 0xFFFFFFFF;
 
@@ -354,9 +366,9 @@ namespace Nexus::Graphics
 														   "Batch Renderer - Font Fragment Shader",
 														   Nexus::Graphics::ShaderStage::Fragment);
 
-		CreateBatcher(m_SDFBatchInfo, device, vertexModule, sdfFragmentModule);
-		CreateBatcher(m_TextureBatchInfo, device, vertexModule, textureFragmentModule);
-		CreateBatcher(m_FontBatchInfo, device, vertexModule, fontFragmentModule);
+		CreateBatcher(m_SDFBatchInfo, device, vertexModule, sdfFragmentModule, m_UseDepthTest);
+		CreateBatcher(m_TextureBatchInfo, device, vertexModule, textureFragmentModule, m_UseDepthTest);
+		CreateBatcher(m_FontBatchInfo, device, vertexModule, fontFragmentModule, m_UseDepthTest);
 
 		Nexus::Graphics::BufferDescription uniformBufferDesc;
 		uniformBufferDesc.Size	= sizeof(glm::mat4);

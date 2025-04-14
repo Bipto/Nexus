@@ -14,7 +14,7 @@ namespace Nexus::GL
 	class OffscreenContextWGL : public IOffscreenContext
 	{
 	  public:
-		OffscreenContextWGL(const ContextSpecification &spec);
+		OffscreenContextWGL(const ContextSpecification &spec, std::shared_ptr<Graphics::IPhysicalDevice> device);
 		virtual ~OffscreenContextWGL();
 		virtual bool MakeCurrent() override;
 		virtual bool Validate() override;

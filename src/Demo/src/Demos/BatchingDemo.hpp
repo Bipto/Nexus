@@ -21,7 +21,7 @@ namespace Demos
 		virtual void Load() override
 		{
 			m_CommandList	= m_GraphicsDevice->CreateCommandList();
-			m_BatchRenderer = Nexus::Scope<Nexus::Graphics::BatchRenderer>(new Nexus::Graphics::BatchRenderer(m_GraphicsDevice));
+			m_BatchRenderer = Nexus::Scope<Nexus::Graphics::BatchRenderer>(new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, false));
 			GenerateShapes();
 		}
 

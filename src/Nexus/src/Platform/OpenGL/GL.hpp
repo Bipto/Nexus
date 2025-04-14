@@ -24,6 +24,7 @@
 	#include "Nexus-Core/Graphics/Texture.hpp"
 	#include "Nexus-Core/Logging/Log.hpp"
 	#include "Nexus-Core/Vertex.hpp"
+	#include "Nexus-Core/Graphics/IPhysicalDevice.hpp"
 
 	#include "Nexus-Core/IWindow.hpp"
 
@@ -64,8 +65,14 @@ namespace Nexus::GL
 					 GLboolean							 &normalized,
 					 GLPrimitiveType					 &primitiveType);
 
-	std::unique_ptr<IOffscreenContext> CreateOffscreenContext();
+	std::unique_ptr<IOffscreenContext> CreateOffscreenContext(std::shared_ptr<Graphics::IPhysicalDevice> physicalDevice);
 	std::unique_ptr<IViewContext>	   CreateViewContext(IWindow *window, Graphics::GraphicsDevice *device);
+
+	/// @brief Function that loads required OpenGL functions,
+	// this function should be called by IGraphicsAPI
+	/// @return A boolean indicating whether OpenGL was able to be initialized
+	bool													LoadOpenGL();
+	std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> LoadAvailablePhysicalDevices();
 
 }	 // namespace Nexus::GL
 

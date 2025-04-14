@@ -61,7 +61,7 @@ namespace Nexus::Graphics
 	class NX_API BatchRenderer
 	{
 	  public:
-		BatchRenderer(Nexus::Graphics::GraphicsDevice *device);
+		BatchRenderer(Nexus::Graphics::GraphicsDevice *device, bool useDepthTest);
 
 		void Resize();
 
@@ -167,5 +167,7 @@ namespace Nexus::Graphics
 		BatchInfo m_TextureBatchInfo;
 		BatchInfo m_SDFBatchInfo;
 		BatchInfo m_FontBatchInfo;
+
+		bool m_UseDepthTest = false;
 	};
 }	 // namespace Nexus::Graphics
