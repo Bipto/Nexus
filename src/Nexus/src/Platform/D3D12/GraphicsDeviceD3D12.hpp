@@ -14,9 +14,7 @@ namespace Nexus::Graphics
 	class GraphicsDeviceD3D12 : public GraphicsDevice
 	{
 	  public:
-		GraphicsDeviceD3D12(const GraphicsDeviceSpecification	 &createInfo,
-							std::shared_ptr<IPhysicalDevice>	  physicalDevice,
-							Microsoft::WRL::ComPtr<IDXGIFactory7> factory);
+		GraphicsDeviceD3D12(std::shared_ptr<IPhysicalDevice> physicalDevice, Microsoft::WRL::ComPtr<IDXGIFactory7> factory);
 		~GraphicsDeviceD3D12();
 
 		virtual void SubmitCommandList(Ref<CommandList> commandList) override;
@@ -47,6 +45,7 @@ namespace Nexus::Graphics
 		}
 
 		virtual void WaitForIdle() override;
+		virtual GraphicsAPI GetGraphicsAPI() override;
 
 		virtual float GetUVCorrection()
 		{

@@ -434,7 +434,7 @@ class EditorApplication : public Nexus::Application
 			ImVec2 uv0	= {0, 0};
 			ImVec2 uv1	= {1, 1};
 
-			if (m_GraphicsDevice->GetGraphicsAPI() == Nexus::Graphics::GraphicsAPI::OpenGL)
+			if (m_GraphicsDevice->GetGraphicsAPI() != Nexus::Graphics::GraphicsAPI::OpenGL)
 			{
 				uv0 = {0, 1};
 				uv1 = {1, 0};
@@ -672,7 +672,7 @@ class EditorApplication : public Nexus::Application
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
 	Nexus::ApplicationSpecification spec;
-	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
+	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
 	spec.AudioAPI	 = Nexus::Audio::AudioAPI::OpenAL;
 
 	spec.WindowProperties.Width			   = 1280;

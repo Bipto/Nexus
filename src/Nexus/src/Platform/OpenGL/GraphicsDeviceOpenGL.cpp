@@ -14,9 +14,7 @@
 
 namespace Nexus::Graphics
 {
-	GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(const GraphicsDeviceSpecification &createInfo, std::shared_ptr<IPhysicalDevice> physicalDevice)
-		: GraphicsDevice(createInfo),
-		  m_PhysicalDevice(physicalDevice)
+	GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(std::shared_ptr<IPhysicalDevice> physicalDevice) : m_PhysicalDevice(physicalDevice)
 	{
 		m_PBuffer	 = GL::CreateOffscreenContext(physicalDevice);
 		bool success = m_PBuffer->MakeCurrent();
@@ -187,6 +185,11 @@ namespace Nexus::Graphics
 	void GraphicsDeviceOpenGL::WaitForIdle()
 	{
 		glFinish();
+	}
+
+	GraphicsAPI GraphicsDeviceOpenGL::GetGraphicsAPI()
+	{
+		return GraphicsAPI::OpenGL;
 	}
 
 	bool GraphicsDeviceOpenGL::Validate()

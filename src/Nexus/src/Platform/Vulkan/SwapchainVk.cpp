@@ -24,7 +24,11 @@ namespace Nexus::Graphics
 	{
 		m_GraphicsDevice = (GraphicsDeviceVk *)graphicsDevice;
 
-		CreateSurface();
+		std::shared_ptr<IPhysicalDevice>  physicalDevice   = graphicsDevice->GetPhysicalDevice();
+		std::shared_ptr<PhysicalDeviceVk> physicalDeviceVk = std::dynamic_pointer_cast<PhysicalDeviceVk>(physicalDevice);
+
+		GraphicsDeviceVk *graphicsDeviceVk = (GraphicsDeviceVk *)graphicsDevice;
+		CreateSurface(graphicsDeviceVk->GetVkInstance());
 
 		window->AddResizeCallback([&](const WindowResizedEventArgs &args) { RecreateSwapchain(); });
 	}
@@ -128,11 +132,14 @@ namespace Nexus::Graphics
 
 	void SwapchainVk::Initialise()
 	{
-		if (CreateSwapchain())
+		std::shared_ptr<IPhysicalDevice>  physicalDevice   = m_GraphicsDevice->GetPhysicalDevice();
+		std::shared_ptr<PhysicalDeviceVk> physicalDeviceVk = std::dynamic_pointer_cast<PhysicalDeviceVk>(physicalDevice);
+
+		if (CreateSwapchain(physicalDeviceVk))
 		{
 			CreateSwapchainImageViews();
-			CreateDepthStencil();
-			CreateResolveAttachment();
+			CreateDepthStencil((GraphicsDeviceVk *)m_GraphicsDevice);
+			CreateResolveAttachment((GraphicsDeviceVk *)m_GraphicsDevice);
 			CreateSemaphores();
 			m_SwapchainValid = true;
 		}
@@ -239,25 +246,20 @@ namespace Nexus::Graphics
 		return m_PresentSemaphores[m_GraphicsDevice->GetCurrentFrameIndex()];
 	}
 
-	void SwapchainVk::CreateSurface()
+	void SwapchainVk::CreateSurface(VkInstance instance)
 	{
-		/* if (!SDL_Vulkan_CreateSurface(m_Window->GetSDLWindowHandle(), m_GraphicsDevice->m_Instance, nullptr, &m_Surface))
-		{
-			throw std::runtime_error("Failed to create surface");
-		} */
-
-		m_Surface = PlatformVk::CreateSurface(m_GraphicsDevice->m_Instance, m_Window);
+		m_Surface = PlatformVk::CreateSurface(instance, m_Window);
 	}
 
-	bool SwapchainVk::CreateSwapchain()
+	bool SwapchainVk::CreateSwapchain(std::shared_ptr<PhysicalDeviceVk> physicalDevice)
 	{
-		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_GraphicsDevice->m_PhysicalDevice, m_Surface, &m_SurfaceCapabilities);
+		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice->GetVkPhysicalDevice(), m_Surface, &m_SurfaceCapabilities);
 
 		std::vector<VkSurfaceFormatKHR> surfaceFormats;
 		uint32_t						surfaceFormatCount;
-		vkGetPhysicalDeviceSurfaceFormatsKHR(m_GraphicsDevice->m_PhysicalDevice, m_Surface, &surfaceFormatCount, nullptr);
+		vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice->GetVkPhysicalDevice(), m_Surface, &surfaceFormatCount, nullptr);
 		surfaceFormats.resize(surfaceFormatCount);
-		vkGetPhysicalDeviceSurfaceFormatsKHR(m_GraphicsDevice->m_PhysicalDevice, m_Surface, &surfaceFormatCount, surfaceFormats.data());
+		vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice->GetVkPhysicalDevice(), m_Surface, &surfaceFormatCount, surfaceFormats.data());
 
 		if (surfaceFormats.size() > 0)
 		{
@@ -330,10 +332,12 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void SwapchainVk::CreateDepthStencil()
+	void SwapchainVk::CreateDepthStencil(GraphicsDeviceVk *graphicsDevice)
 	{
+		std::shared_ptr<PhysicalDeviceVk> physicalDevice = std::dynamic_pointer_cast<PhysicalDeviceVk>(graphicsDevice->GetPhysicalDevice());
+
 		auto	 samples		  = Vk::GetVkSampleCount(m_Specification.Samples);
-		VkBool32 validDepthFormat = GetSupportedDepthFormat(m_GraphicsDevice->m_PhysicalDevice, &m_DepthFormat);
+		VkBool32 validDepthFormat = GetSupportedDepthFormat(physicalDevice->GetVkPhysicalDevice(), &m_DepthFormat);
 		CreateImage(m_SwapchainSize.width,
 					m_SwapchainSize.height,
 					VK_FORMAT_D24_UNORM_S8_UINT,
@@ -342,12 +346,13 @@ namespace Nexus::Graphics
 					VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 					m_DepthImage,
 					m_DepthImageMemory,
-					samples);
+					samples,
+					graphicsDevice);
 		m_DepthImageView = CreateImageView(m_DepthImage, VK_FORMAT_D24_UNORM_S8_UINT, VK_IMAGE_ASPECT_DEPTH_BIT);
 		m_DepthLayout	 = VK_IMAGE_LAYOUT_UNDEFINED;
 	}
 
-	void SwapchainVk::CreateResolveAttachment()
+	void SwapchainVk::CreateResolveAttachment(GraphicsDeviceVk *graphicsDevice)
 	{
 		auto samples = Vk::GetVkSampleCount(m_Specification.Samples);
 
@@ -359,7 +364,8 @@ namespace Nexus::Graphics
 					VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 					m_ResolveImage,
 					m_ResolveMemory,
-					samples);
+					samples,
+					graphicsDevice);
 
 		m_ResolveImageView	 = CreateImageView(m_ResolveImage, m_SurfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT);
 		m_ResolveImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -487,7 +493,8 @@ namespace Nexus::Graphics
 								  VkMemoryPropertyFlags properties,
 								  VkImage			   &image,
 								  VkDeviceMemory	   &imageMemory,
-								  VkSampleCountFlagBits samples)
+								  VkSampleCountFlagBits samples,
+								  GraphicsDeviceVk	   *graphicsDevice)
 	{
 		VkImageCreateInfo imageInfo = {};
 		imageInfo.sType				= VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -504,31 +511,34 @@ namespace Nexus::Graphics
 		imageInfo.samples			= samples;
 		imageInfo.sharingMode		= VK_SHARING_MODE_EXCLUSIVE;
 
-		if (vkCreateImage(m_GraphicsDevice->m_Device, &imageInfo, nullptr, &image) != VK_SUCCESS)
+		if (vkCreateImage(m_GraphicsDevice->GetVkDevice(), &imageInfo, nullptr, &image) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create image");
 		}
 
 		VkMemoryRequirements memRequirements;
-		vkGetImageMemoryRequirements(m_GraphicsDevice->m_Device, image, &memRequirements);
+		vkGetImageMemoryRequirements(m_GraphicsDevice->GetVkDevice(), image, &memRequirements);
+
+		std::shared_ptr<IPhysicalDevice>  physicalDevice   = m_GraphicsDevice->GetPhysicalDevice();
+		std::shared_ptr<PhysicalDeviceVk> physicalDeviceVk = std::dynamic_pointer_cast<PhysicalDeviceVk>(physicalDevice);
 
 		VkMemoryAllocateInfo allocInfo = {};
 		allocInfo.sType				   = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocInfo.allocationSize	   = memRequirements.size;
-		allocInfo.memoryTypeIndex	   = FindMemoryType(memRequirements.memoryTypeBits, properties);
+		allocInfo.memoryTypeIndex	   = FindMemoryType(memRequirements.memoryTypeBits, properties, physicalDeviceVk->GetVkPhysicalDevice());
 
-		if (vkAllocateMemory(m_GraphicsDevice->m_Device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
+		if (vkAllocateMemory(m_GraphicsDevice->GetVkDevice(), &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to allocate image memory");
 		}
 
-		vkBindImageMemory(m_GraphicsDevice->m_Device, image, imageMemory, 0);
+		vkBindImageMemory(m_GraphicsDevice->GetVkDevice(), image, imageMemory, 0);
 	}
 
-	uint32_t SwapchainVk::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+	uint32_t SwapchainVk::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties, VkPhysicalDevice physicalDevice)
 	{
 		VkPhysicalDeviceMemoryProperties memProperties;
-		vkGetPhysicalDeviceMemoryProperties(m_GraphicsDevice->m_PhysicalDevice, &memProperties);
+		vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
 
 		for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
 		{

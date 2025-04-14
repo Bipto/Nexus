@@ -17,11 +17,8 @@
 
 namespace Nexus::Graphics
 {
-	GraphicsDeviceD3D12::GraphicsDeviceD3D12(const GraphicsDeviceSpecification	  &createInfo,
-											 std::shared_ptr<IPhysicalDevice>	   physicalDevice,
-											 Microsoft::WRL::ComPtr<IDXGIFactory7> factory)
-		: GraphicsDevice(createInfo),
-		  m_DxgiFactory(factory),
+	GraphicsDeviceD3D12::GraphicsDeviceD3D12(std::shared_ptr<IPhysicalDevice> physicalDevice, Microsoft::WRL::ComPtr<IDXGIFactory7> factory)
+		: m_DxgiFactory(factory),
 		  m_PhysicalDevice(physicalDevice)
 	{
 		std::shared_ptr<PhysicalDeviceD3D12>  physicalDeviceD3D12 = std::dynamic_pointer_cast<PhysicalDeviceD3D12>(physicalDevice);
@@ -167,6 +164,11 @@ namespace Nexus::Graphics
 	void GraphicsDeviceD3D12::WaitForIdle()
 	{
 		SignalAndWait();
+	}
+
+	GraphicsAPI GraphicsDeviceD3D12::GetGraphicsAPI()
+	{
+		return GraphicsAPI::D3D12;
 	}
 
 	const GraphicsCapabilities GraphicsDeviceD3D12::GetGraphicsCapabilities() const

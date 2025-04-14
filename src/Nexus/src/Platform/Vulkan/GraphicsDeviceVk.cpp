@@ -14,27 +14,23 @@
 	#include "TimingQueryVk.hpp"
 	#include "SwapchainVk.hpp"
 	#include "PlatformVk.hpp"
+	#include "PhysicalDeviceVk.hpp"
 
 namespace Nexus::Graphics
 {
-	GraphicsDeviceVk::GraphicsDeviceVk(const GraphicsDeviceSpecification &createInfo) : GraphicsDevice(createInfo), m_CommandExecutor(this)
+	GraphicsDeviceVk::GraphicsDeviceVk(std::shared_ptr<IPhysicalDevice> physicalDevice, VkInstance instance)
+		: m_PhysicalDevice(std::dynamic_pointer_cast<PhysicalDeviceVk>(physicalDevice)),
+		  m_Instance(instance)
 	{
-		CreateInstance();
-
-		if (createInfo.DebugLayer)
-		{
-			SetupDebugMessenger();
-		}
-
-		SelectPhysicalDevice();
-		CreateDevice();
-		auto deviceExtensions = GetSupportedDeviceExtensions();
-		CreateAllocator();
+		std::shared_ptr<PhysicalDeviceVk> physicalDeviceVk = std::dynamic_pointer_cast<PhysicalDeviceVk>(physicalDevice);
+		CreateDevice(physicalDeviceVk);
+		auto deviceExtensions = GetSupportedDeviceExtensions(physicalDeviceVk);
+		CreateAllocator(physicalDeviceVk, instance);
 
 		CreateCommandStructures();
 		CreateSynchronisationStructures();
 
-		vkGetPhysicalDeviceProperties(m_PhysicalDevice, &m_DeviceProperties);
+		m_CommandExecutor = new CommandExecutorVk(this);
 	}
 
 	GraphicsDeviceVk::~GraphicsDeviceVk()
@@ -53,9 +49,9 @@ namespace Nexus::Graphics
 		vkResetFences(m_Device, 1, &commandListVk->GetCurrentFence());
 
 		const std::vector<Nexus::Graphics::RenderCommandData> &commands = commandListVk->GetCommandData();
-		m_CommandExecutor.SetCommandBuffer(commandListVk->GetCurrentCommandBuffer());
-		m_CommandExecutor.ExecuteCommands(commands, this);
-		m_CommandExecutor.Reset();
+		m_CommandExecutor->SetCommandBuffer(commandListVk->GetCurrentCommandBuffer());
+		m_CommandExecutor->ExecuteCommands(commands, this);
+		m_CommandExecutor->Reset();
 
 		VkSubmitInfo submitInfo			= {};
 		submitInfo.sType				= VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -88,7 +84,7 @@ namespace Nexus::Graphics
 
 	std::shared_ptr<IPhysicalDevice> GraphicsDeviceVk::GetPhysicalDevice() const
 	{
-		return nullptr;
+		return m_PhysicalDevice;
 	}
 
 	Ref<ShaderModule> GraphicsDeviceVk::CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources)
@@ -154,20 +150,24 @@ namespace Nexus::Graphics
 	const GraphicsCapabilities GraphicsDeviceVk::GetGraphicsCapabilities() const
 	{
 		GraphicsCapabilities capabilities;
-		capabilities.SupportsMultisampledTextures = true;
-		capabilities.SupportsLODBias			  = true;
-		capabilities.SupportsInstanceOffset		  = true;
-		capabilities.SupportsMultipleSwapchains	  = true;
+		capabilities.SupportsMultisampledTextures		 = true;
+		capabilities.SupportsLODBias					 = true;
+		capabilities.SupportsInstanceOffset				 = true;
+		capabilities.SupportsMultipleSwapchains			 = true;
 		capabilities.SupportsSeparateColourAndBlendMasks = true;
 		return capabilities;
 	}
 
 	Swapchain *GraphicsDeviceVk::CreateSwapchain(IWindow *window, const SwapchainSpecification &spec)
 	{
-		SwapchainVk *swapchain = new SwapchainVk(window, this, spec);
+		SwapchainVk						 *swapchain		   = new SwapchainVk(window, this, spec);
+		std::shared_ptr<PhysicalDeviceVk> physicalDeviceVk = std::dynamic_pointer_cast<PhysicalDeviceVk>(m_PhysicalDevice);
 
 		VkBool32 presentSupport = false;
-		vkGetPhysicalDeviceSurfaceSupportKHR(m_PhysicalDevice, m_PresentQueueFamilyIndex, swapchain->m_Surface, &presentSupport);
+		vkGetPhysicalDeviceSurfaceSupportKHR(physicalDeviceVk->GetVkPhysicalDevice(),
+											 m_PresentQueueFamilyIndex,
+											 swapchain->m_Surface,
+											 &presentSupport);
 
 		if (!presentSupport)
 		{
@@ -187,14 +187,19 @@ namespace Nexus::Graphics
 		vkDeviceWaitIdle(m_Device);
 	}
 
+	GraphicsAPI GraphicsDeviceVk::GetGraphicsAPI()
+	{
+		return GraphicsAPI::Vulkan;
+	}
+
+	VkInstance GraphicsDeviceVk::GetVkInstance()
+	{
+		return m_Instance;
+	}
+
 	VkDevice GraphicsDeviceVk::GetVkDevice()
 	{
 		return m_Device;
-	}
-
-	VkPhysicalDevice GraphicsDeviceVk::GetPhysicalDevice()
-	{
-		return m_PhysicalDevice;
 	}
 
 	uint32_t GraphicsDeviceVk::GetGraphicsFamily()
@@ -215,11 +220,6 @@ namespace Nexus::Graphics
 	VmaAllocator GraphicsDeviceVk::GetAllocator()
 	{
 		return m_Allocator;
-	}
-
-	const VkPhysicalDeviceProperties &GraphicsDeviceVk::GetDeviceProperties()
-	{
-		return m_DeviceProperties;
 	}
 
 	void GraphicsDeviceVk::ImmediateSubmit(std::function<void(VkCommandBuffer cmd)> &&function)
@@ -309,99 +309,14 @@ namespace Nexus::Graphics
 							 &barrier);
 	}
 
-	const std::vector<const char *> validationLayers = {
-		"VK_LAYER_KHRONOS_validation",
-	};
-
-	void GraphicsDeviceVk::CreateInstance()
-	{
-		if (m_Specification.DebugLayer && !CheckValidationLayerSupport())
-		{
-			throw std::runtime_error("Validation layers were requested, but were not available");
-		}
-
-		VkApplicationInfo appInfo  = {};
-		appInfo.sType			   = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-		appInfo.pApplicationName   = "Nexus Application";
-		appInfo.applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
-		appInfo.pEngineName		   = "Nexus";
-		appInfo.engineVersion	   = VK_MAKE_API_VERSION(0, 1, 0, 0);
-		appInfo.apiVersion		   = VK_API_VERSION_1_3;
-
-		VkInstanceCreateInfo instanceCreateInfo = {};
-		instanceCreateInfo.sType				= VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-		instanceCreateInfo.pApplicationInfo		= &appInfo;
-
-		if (m_Specification.DebugLayer)
-		{
-			instanceCreateInfo.enabledLayerCount   = validationLayers.size();
-			instanceCreateInfo.ppEnabledLayerNames = validationLayers.data();
-		}
-		else
-		{
-			instanceCreateInfo.enabledLayerCount = 0;
-		}
-
-		auto extensions							   = GetRequiredInstanceExtensions();
-		instanceCreateInfo.enabledExtensionCount   = (uint32_t)extensions.size();
-		instanceCreateInfo.ppEnabledExtensionNames = extensions.data();
-
-		if (vkCreateInstance(&instanceCreateInfo, nullptr, &m_Instance) != VK_SUCCESS)
-		{
-			throw std::runtime_error("Failed to create Vulkan instance!");
-		}
-	}
-
-	static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanReportFunc(VkDebugReportFlagsEXT	  flags,
-														   VkDebugReportObjectTypeEXT objType,
-														   uint64_t					  obj,
-														   size_t					  location,
-														   int32_t					  code,
-														   const char				 *layerPrefix,
-														   const char				 *msg,
-														   void						 *userData)
-	{
-		std::cout << "VULKAN VALIDATION: " << msg << std::endl;
-		return VK_FALSE;
-	}
-
-	void GraphicsDeviceVk::SetupDebugMessenger()
-	{
-		VkDebugUtilsMessengerCreateInfoEXT createInfo = {};
-		createInfo.sType							  = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-		createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-									 VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT;
-		createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-								 VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-		createInfo.pfnUserCallback = debugCallback;
-		createInfo.pUserData	   = nullptr;
-
-		if (CreateDebugUtilsMessengerEXT(m_Instance, &createInfo, nullptr, &m_DebugMessenger) != VK_SUCCESS)
-		{
-			throw std::runtime_error("Failed to setup debug messenger");
-		}
-	}
-
-	void GraphicsDeviceVk::SelectPhysicalDevice()
-	{
-		std::vector<VkPhysicalDevice> physicalDevices;
-		uint32_t					  physicalDeviceCount = 0;
-
-		vkEnumeratePhysicalDevices(m_Instance, &physicalDeviceCount, nullptr);
-		physicalDevices.resize(physicalDeviceCount);
-		vkEnumeratePhysicalDevices(m_Instance, &physicalDeviceCount, physicalDevices.data());
-
-		m_PhysicalDevice = physicalDevices[0];
-	}
-
-	void GraphicsDeviceVk::SelectQueueFamilies()
+	void GraphicsDeviceVk::SelectQueueFamilies(std::shared_ptr<PhysicalDeviceVk> physicalDevice)
 	{
 		std::vector<VkQueueFamilyProperties> queueFamilyProperties;
 		uint32_t							 queueFamilyCount;
 
-		vkGetPhysicalDeviceQueueFamilyProperties(m_PhysicalDevice, &queueFamilyCount, nullptr);
+		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice->GetVkPhysicalDevice(), &queueFamilyCount, nullptr);
 		queueFamilyProperties.resize(queueFamilyCount);
-		vkGetPhysicalDeviceQueueFamilyProperties(m_PhysicalDevice, &queueFamilyCount, queueFamilyProperties.data());
+		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice->GetVkPhysicalDevice(), &queueFamilyCount, queueFamilyProperties.data());
 
 		int graphicsIndex = -1;
 		int presentIndex  = -1;
@@ -435,9 +350,9 @@ namespace Nexus::Graphics
 		m_PresentQueueFamilyIndex  = presentIndex;
 	}
 
-	void GraphicsDeviceVk::CreateDevice()
+	void GraphicsDeviceVk::CreateDevice(std::shared_ptr<PhysicalDeviceVk> physicalDevice)
 	{
-		SelectQueueFamilies();
+		SelectQueueFamilies(physicalDevice);
 
 		std::vector<const char *> deviceExtensions = GetRequiredDeviceExtensions();
 		const float				  queuePriority[]  = {1.0f};
@@ -465,6 +380,7 @@ namespace Nexus::Graphics
 		VkPhysicalDeviceFeatures deviceFeatures = {};
 		deviceFeatures.samplerAnisotropy		= VK_TRUE;
 		deviceFeatures.sampleRateShading		= VK_TRUE;
+		deviceFeatures.independentBlend			= VK_TRUE;
 
 		VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures = {};
 		dynamicRenderingFeatures.sType									  = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
@@ -480,10 +396,9 @@ namespace Nexus::Graphics
 		createInfo.pEnabledFeatures		   = &deviceFeatures;
 		createInfo.enabledExtensionCount   = deviceExtensions.size();
 		createInfo.ppEnabledExtensionNames = deviceExtensions.data();
-		createInfo.enabledLayerCount	   = validationLayers.size();
-		createInfo.ppEnabledLayerNames	   = validationLayers.data();
+		createInfo.enabledLayerCount	   = 0;
 
-		if (vkCreateDevice(m_PhysicalDevice, &createInfo, nullptr, &m_Device) != VK_SUCCESS)
+		if (vkCreateDevice(physicalDevice->GetVkPhysicalDevice(), &createInfo, nullptr, &m_Device) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create device");
 		}
@@ -492,12 +407,12 @@ namespace Nexus::Graphics
 		vkGetDeviceQueue(m_Device, m_PresentQueueFamilyIndex, 0, &m_PresentQueue);
 	}
 
-	void GraphicsDeviceVk::CreateAllocator()
+	void GraphicsDeviceVk::CreateAllocator(std::shared_ptr<PhysicalDeviceVk> physicalDevice, VkInstance instance)
 	{
 		VmaAllocatorCreateInfo allocatorInfo = {};
-		allocatorInfo.physicalDevice		 = m_PhysicalDevice;
+		allocatorInfo.physicalDevice		 = physicalDevice->GetVkPhysicalDevice();
 		allocatorInfo.device				 = m_Device;
-		allocatorInfo.instance				 = m_Instance;
+		allocatorInfo.instance				 = instance;
 
 		if (vmaCreateAllocator(&allocatorInfo, &m_Allocator) != VK_SUCCESS)
 		{
@@ -606,10 +521,12 @@ namespace Nexus::Graphics
 		VkMemoryRequirements memRequirements;
 		vkGetImageMemoryRequirements(m_Device, image, &memRequirements);
 
+		std::shared_ptr<PhysicalDeviceVk> physicalDeviceVk = std::dynamic_pointer_cast<PhysicalDeviceVk>(m_PhysicalDevice);
+
 		VkMemoryAllocateInfo allocInfo = {};
 		allocInfo.sType				   = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocInfo.allocationSize	   = memRequirements.size;
-		allocInfo.memoryTypeIndex	   = FindMemoryType(memRequirements.memoryTypeBits, properties);
+		allocInfo.memoryTypeIndex	   = FindMemoryType(memRequirements.memoryTypeBits, properties, physicalDeviceVk);
 
 		if (vkAllocateMemory(m_Device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
 		{
@@ -617,103 +534,6 @@ namespace Nexus::Graphics
 		}
 
 		vkBindImageMemory(m_Device, image, imageMemory, 0);
-	}
-
-	bool GraphicsDeviceVk::CheckValidationLayerSupport()
-	{
-		uint32_t layerCount;
-		vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-
-		std::vector<VkLayerProperties> availableLayers(layerCount);
-		vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
-
-		for (const char *layerName : validationLayers)
-		{
-			bool layerFound = false;
-			for (const auto &layerProperties : availableLayers)
-			{
-				if (strcmp(layerName, layerProperties.layerName) == 0)
-				{
-					layerFound = true;
-					break;
-				}
-			}
-
-			if (!layerFound)
-			{
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	std::vector<const char *> GraphicsDeviceVk::GetRequiredInstanceExtensions()
-	{
-		std::vector<const char *> extensionNames = PlatformVk::GetRequiredExtensions();
-
-		if (m_Specification.DebugLayer)
-		{
-			extensionNames.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-		}
-
-		return extensionNames;
-	}
-
-	VKAPI_ATTR VkBool32 VKAPI_CALL GraphicsDeviceVk::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT	   messageSeverity,
-																   VkDebugUtilsMessageTypeFlagsEXT			   messageType,
-																   const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
-																   void										  *pUserData)
-	{
-		if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
-			std::cerr << "Validation layer: " << pCallbackData->pMessage << std::endl;
-		return VK_FALSE;
-	}
-
-	VkResult GraphicsDeviceVk::CreateDebugUtilsMessengerEXT(VkInstance								  instance,
-															const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
-															const VkAllocationCallbacks				 *pAllocator,
-															VkDebugUtilsMessengerEXT				 *pDebugMessenger)
-	{
-		auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
-		if (func != nullptr)
-		{
-			return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
-		}
-		else
-		{
-			return VK_ERROR_EXTENSION_NOT_PRESENT;
-		}
-	}
-
-	void GraphicsDeviceVk::DestroyDebugUtilsMessengerEXT(VkInstance					  instance,
-														 VkDebugUtilsMessengerEXT	  messenger,
-														 const VkAllocationCallbacks *pAllocator)
-	{
-		auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
-		if (func != nullptr)
-		{
-			func(instance, messenger, pAllocator);
-		}
-	}
-
-	std::vector<std::string> GraphicsDeviceVk::GetSupportedInstanceExtensions()
-	{
-		uint32_t count	= 0;
-		VkResult result = vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
-
-		std::vector<VkExtensionProperties> properties(count);
-		result = vkEnumerateInstanceExtensionProperties(nullptr, &count, properties.data());
-
-		if (result != VK_SUCCESS)
-		{
-			throw std::runtime_error("Failed to get supported instance extensions");
-		}
-
-		std::vector<std::string> extensions;
-		for (const auto &property : properties) { extensions.push_back(property.extensionName); }
-
-		return extensions;
 	}
 
 	std::vector<const char *> GraphicsDeviceVk::GetRequiredDeviceExtensions()
@@ -725,13 +545,13 @@ namespace Nexus::Graphics
 		return extensions;
 	}
 
-	std::vector<std::string> GraphicsDeviceVk::GetSupportedDeviceExtensions()
+	std::vector<std::string> GraphicsDeviceVk::GetSupportedDeviceExtensions(std::shared_ptr<PhysicalDeviceVk> physicalDevice)
 	{
 		uint32_t count	= 0;
-		VkResult result = vkEnumerateDeviceExtensionProperties(m_PhysicalDevice, nullptr, &count, nullptr);
+		VkResult result = vkEnumerateDeviceExtensionProperties(physicalDevice->GetVkPhysicalDevice(), nullptr, &count, nullptr);
 
 		std::vector<VkExtensionProperties> properties(count);
-		result = vkEnumerateDeviceExtensionProperties(m_PhysicalDevice, nullptr, &count, properties.data());
+		result = vkEnumerateDeviceExtensionProperties(physicalDevice->GetVkPhysicalDevice(), nullptr, &count, properties.data());
 
 		if (result != VK_SUCCESS)
 		{
@@ -769,27 +589,27 @@ namespace Nexus::Graphics
 
 	bool GraphicsDeviceVk::Validate()
 	{
-		return m_Instance != VK_NULL_HANDLE && m_PhysicalDevice != VK_NULL_HANDLE && m_Device != VK_NULL_HANDLE && m_Allocator != VK_NULL_HANDLE;
+		return m_Device != VK_NULL_HANDLE && m_Allocator != VK_NULL_HANDLE;
 	}
 
 	void GraphicsDeviceVk::SetName(const std::string &name)
 	{
 		GraphicsDevice::SetName(name);
 
-		std::string instanceName = name + std::string(" - Instance");
+		/* std::string instanceName = name + std::string(" - Instance");
 		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_INSTANCE, (uint64_t)m_Instance, instanceName.c_str());
 
 		std::string physicalDeviceName = name + std::string(" - PhysicalDevice");
-		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_PHYSICAL_DEVICE, (uint64_t)m_PhysicalDevice, physicalDeviceName.c_str());
+		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_PHYSICAL_DEVICE, (uint64_t)m_PhysicalDevice, physicalDeviceName.c_str()); */
 
 		std::string deviceName = name + std::string(" - Device");
 		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_DEVICE, (uint64_t)m_Device, deviceName.c_str());
 
-		if (m_Specification.DebugLayer)
+		/* if (m_Specification.DebugLayer)
 		{
 			std::string debugName = name + std::string(" - Debug Messenger");
 			Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_DEBUG_UTILS_MESSENGER_EXT, (uint64_t)m_DebugMessenger, debugName.c_str());
-		}
+		} */
 
 		std::string uploadFenceName = name + std::string(" - Upload Context Fence");
 		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_FENCE, (uint64_t)m_UploadContext.UploadFence, uploadFenceName.c_str());
@@ -801,10 +621,10 @@ namespace Nexus::Graphics
 		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_COMMAND_BUFFER, (uint64_t)m_UploadContext.UploadFence, uploadCmdBufferName.c_str());
 	}
 
-	uint32_t GraphicsDeviceVk::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+	uint32_t GraphicsDeviceVk::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties, std::shared_ptr<PhysicalDeviceVk> physicalDevice)
 	{
 		VkPhysicalDeviceMemoryProperties memProperties;
-		vkGetPhysicalDeviceMemoryProperties(m_PhysicalDevice, &memProperties);
+		vkGetPhysicalDeviceMemoryProperties(physicalDevice->GetVkPhysicalDevice(), &memProperties);
 
 		for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
 		{

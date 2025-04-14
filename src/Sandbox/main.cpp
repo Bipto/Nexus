@@ -4,7 +4,7 @@ int main()
 {
 	Nexus::Graphics::GraphicsAPICreateInfo info = {};
 	info.Debug									= true;
-	info.API									= Nexus::Graphics::GraphicsAPI::D3D12;
+	info.API									= Nexus::Graphics::GraphicsAPI::Vulkan;
 
 	Nexus::Graphics::IGraphicsAPI *api			   = Nexus::Graphics::IGraphicsAPI::CreateAPI(info);
 	auto						   physicalDevices = api->GetPhysicalDevices();

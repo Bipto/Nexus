@@ -18,10 +18,6 @@ namespace Nexus
 
 		m_Window = Platform::CreatePlatformWindow(spec.WindowProperties);
 
-		Graphics::GraphicsDeviceSpecification graphicsDeviceCreateInfo;
-		graphicsDeviceCreateInfo.DebugLayer = false;
-		graphicsDeviceCreateInfo.API		= spec.GraphicsAPI;
-
 		Graphics::GraphicsAPICreateInfo createInfo = {};
 		createInfo.API							   = spec.GraphicsAPI;
 		createInfo.Debug						   = false;

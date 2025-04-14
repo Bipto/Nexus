@@ -25,27 +25,11 @@
 
 namespace Nexus::Graphics
 {
-	/// @brief A class representing properties needed to create a new graphics
-	/// device
-	struct GraphicsDeviceSpecification
-	{
-		/// @brief The chosen graphics API to use to create the GraphicsDevice with
-		GraphicsAPI API;
-
-		/// @brief Debugging will be enabled for the native graphics API
-		bool DebugLayer = false;
-	};
-
 	/// @brief A class representing an abstraction over a graphics API
 	class NX_API GraphicsDevice : public IResource
 	{
 	  public:
-		static GraphicsDevice *CreateGraphicsDevice(const Graphics::GraphicsDeviceSpecification &spec);
-
-		/// @brief A constructor taking in a const reference to a
-		/// GraphicsDeviceSpecification
-		/// @param createInfo The options to use when creating the GraphicsDevice
-		GraphicsDevice(const GraphicsDeviceSpecification &createInfo);
+		GraphicsDevice() = default;
 
 		/// @brief A virtual destructor allowing resources to be deleted
 		virtual ~GraphicsDevice()
@@ -69,14 +53,6 @@ namespace Nexus::Graphics
 		/// @brief A pure virtual method that will submit a command list for rendering
 		/// @param commandList The command list to submit for rendering
 		virtual void SubmitCommandList(Ref<CommandList> commandList) = 0;
-
-		/// @brief A method that returns an enum value representing the currently
-		/// running graphics API backend
-		/// @return A GraphicsAPI enum containing the current backend
-		GraphicsAPI GetGraphicsAPI()
-		{
-			return m_Specification.API;
-		}
 
 		/// @brief A pure virtual method that creates a pipeline from a given pipeline
 		/// description
@@ -165,6 +141,8 @@ namespace Nexus::Graphics
 
 		virtual bool IsUVOriginTopLeft() = 0;
 
+		virtual GraphicsAPI GetGraphicsAPI() = 0;
+
 		virtual const GraphicsCapabilities GetGraphicsCapabilities() const = 0;
 
 		virtual Swapchain *CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) = 0;
@@ -179,8 +157,6 @@ namespace Nexus::Graphics
 
 		void ImmediateSubmit(std::function<void(Ref<CommandList> cmd)> &&function);
 
-		const GraphicsDeviceSpecification &GetSpecification() const;
-
 		virtual bool			   Validate() override;
 		virtual void			   SetName(const std::string &name) override;
 		virtual const std::string &GetName() override;
@@ -191,8 +167,6 @@ namespace Nexus::Graphics
 		Ref<ShaderModule>		  TryLoadCachedShader(const std::string &source, const std::string &name, ShaderStage stage, ShaderLanguage language);
 
 	  protected:
-		GraphicsDeviceSpecification m_Specification;
-
 		Ref<CommandList> m_ImmediateCommandList = nullptr;
 		std::string		 m_Name					= "GraphicsDevice";
 	};

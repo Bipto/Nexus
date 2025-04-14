@@ -3,6 +3,7 @@
 #if defined(NX_PLATFORM_VULKAN)
 
 	#include "CommandExecutorVk.hpp"
+	#include "PhysicalDeviceVk.hpp"
 	#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 	#include "SwapchainVk.hpp"
 	#include "Vk.hpp"
@@ -19,14 +20,14 @@ namespace Nexus::Graphics
 	class GraphicsDeviceVk : public GraphicsDevice
 	{
 	  public:
-		GraphicsDeviceVk(const GraphicsDeviceSpecification &createInfo);
+		GraphicsDeviceVk(std::shared_ptr<IPhysicalDevice> physicalDevice, VkInstance instance);
 		GraphicsDeviceVk(const GraphicsDeviceVk &) = delete;
 		virtual ~GraphicsDeviceVk();
 
 		virtual void SubmitCommandList(Ref<CommandList> commandList) override;
 
-		virtual const std::string GetAPIName() override;
-		virtual const char		 *GetDeviceName() override;
+		virtual const std::string				 GetAPIName() override;
+		virtual const char						*GetDeviceName() override;
 		virtual std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const override;
 
 		virtual Ref<Texture2D>	   CreateTexture2D(const Texture2DSpecification &spec) override;
@@ -57,13 +58,14 @@ namespace Nexus::Graphics
 			return true;
 		};
 
-		VkDevice						  GetVkDevice();
-		VkPhysicalDevice				  GetPhysicalDevice();
-		uint32_t						  GetGraphicsFamily();
-		uint32_t						  GetPresentFamily();
-		uint32_t						  GetCurrentFrameIndex();
-		VmaAllocator					  GetAllocator();
-		const VkPhysicalDeviceProperties &GetDeviceProperties();
+		virtual GraphicsAPI GetGraphicsAPI() override;
+
+		VkInstance	 GetVkInstance();
+		VkDevice	 GetVkDevice();
+		uint32_t	 GetGraphicsFamily();
+		uint32_t	 GetPresentFamily();
+		uint32_t	 GetCurrentFrameIndex();
+		VmaAllocator GetAllocator();
 
 		void				ImmediateSubmit(std::function<void(VkCommandBuffer cmd)> &&function);
 		void				TransitionVulkanImageLayout(VkCommandBuffer		  cmdBuffer,
@@ -73,7 +75,7 @@ namespace Nexus::Graphics
 														VkImageLayout		  oldLayout,
 														VkImageLayout		  newLayout,
 														VkImageAspectFlagBits aspectMask);
-		uint32_t			FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+		uint32_t			FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties, std::shared_ptr<PhysicalDeviceVk> physicalDevice);
 		Vk::AllocatedBuffer CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
 
 		virtual bool Validate() override;
@@ -83,12 +85,9 @@ namespace Nexus::Graphics
 	  private:
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) override;
 
-		void CreateInstance();
-		void SetupDebugMessenger();
-		void SelectPhysicalDevice();
-		void SelectQueueFamilies();
-		void CreateDevice();
-		void CreateAllocator();
+		void SelectQueueFamilies(std::shared_ptr<PhysicalDeviceVk> physicalDevice);
+		void CreateDevice(std::shared_ptr<PhysicalDeviceVk> physicalDevice);
+		void CreateAllocator(std::shared_ptr<PhysicalDeviceVk> physicalDevice, VkInstance instance);
 
 		void CreateCommandStructures();
 		void CreateSynchronisationStructures();
@@ -105,28 +104,12 @@ namespace Nexus::Graphics
 								VkImage				 &image,
 								VkDeviceMemory		 &imageMemory);
 
-		bool								  CheckValidationLayerSupport();
-		static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT		messageSeverity,
-															VkDebugUtilsMessageTypeFlagsEXT				messageType,
-															const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
-															void									   *pUserData);
-		VkResult							  CreateDebugUtilsMessengerEXT(VkInstance								 instance,
-																		   const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
-																		   const VkAllocationCallbacks				*pAllocator,
-																		   VkDebugUtilsMessengerEXT					*pDebugMessenger);
-		void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT messenger, const VkAllocationCallbacks *pAllocator);
-
-		std::vector<const char *> GetRequiredInstanceExtensions();
-		std::vector<std::string>  GetSupportedInstanceExtensions();
-
 		std::vector<const char *> GetRequiredDeviceExtensions();
-		std::vector<std::string>  GetSupportedDeviceExtensions();
+		std::vector<std::string>  GetSupportedDeviceExtensions(std::shared_ptr<PhysicalDeviceVk> physicalDevice);
 
 	  private:
-		// Vulkan types
-		VkInstance				 m_Instance;
-		VkPhysicalDevice		 m_PhysicalDevice;
-		VkDebugUtilsMessengerEXT m_DebugMessenger;
+		std::shared_ptr<PhysicalDeviceVk> m_PhysicalDevice = nullptr;
+		VkInstance						  m_Instance	   = nullptr;
 
 		uint32_t m_GraphicsQueueFamilyIndex;
 		uint32_t m_PresentQueueFamilyIndex;
@@ -141,14 +124,9 @@ namespace Nexus::Graphics
 		// vulkan upload context
 		UploadContext m_UploadContext;
 
-		uint32_t m_FrameNumber		 = 0;
-		uint32_t m_CurrentFrameIndex = 0;
-
-		VkPhysicalDeviceProperties m_DeviceProperties;
-
-		VSyncState m_VsyncState = VSyncState::Enabled;
-
-		CommandExecutorVk m_CommandExecutor;
+		uint32_t		   m_FrameNumber	   = 0;
+		uint32_t		   m_CurrentFrameIndex = 0;
+		CommandExecutorVk *m_CommandExecutor   = nullptr;
 
 		friend class SwapchainVk;
 	};

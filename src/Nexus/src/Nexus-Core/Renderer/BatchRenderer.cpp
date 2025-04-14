@@ -280,7 +280,8 @@ namespace Nexus::Graphics
 					   Nexus::Graphics::GraphicsDevice			*device,
 					   Nexus::Ref<Nexus::Graphics::ShaderModule> vertexModule,
 					   Nexus::Ref<Nexus::Graphics::ShaderModule> fragmentModule,
-					   bool										 useDepthTest)
+					   bool										 useDepthTest,
+					   Nexus::Graphics::SampleCount				 sampleCount)
 	{
 		info.Vertices.resize(MAX_VERTEX_COUNT);
 		info.Indices.resize(MAX_VERTEX_COUNT * 3);
@@ -320,7 +321,7 @@ namespace Nexus::Graphics
 			description.DepthStencilDesc.EnableDepthWrite = false;
 		}
 
-		description.ColourTargetSampleCount = Nexus::Graphics::SampleCount::SampleCount1;
+		description.ColourTargetSampleCount = sampleCount;
 
 		info.Pipeline	 = device->CreatePipeline(description);
 		info.ResourceSet = device->CreateResourceSet(info.Pipeline);
@@ -336,7 +337,7 @@ namespace Nexus::Graphics
 		info.IndexBuffer	  = device->CreateIndexBuffer(indexBufferDesc, nullptr);
 	}
 
-	BatchRenderer::BatchRenderer(Nexus::Graphics::GraphicsDevice *device, bool useDepthTest)
+	BatchRenderer::BatchRenderer(Nexus::Graphics::GraphicsDevice *device, bool useDepthTest, Nexus::Graphics::SampleCount sampleCount)
 		: m_Device(device),
 		  m_CommandList(m_Device->CreateCommandList()),
 		  m_UseDepthTest(useDepthTest)
@@ -366,9 +367,9 @@ namespace Nexus::Graphics
 														   "Batch Renderer - Font Fragment Shader",
 														   Nexus::Graphics::ShaderStage::Fragment);
 
-		CreateBatcher(m_SDFBatchInfo, device, vertexModule, sdfFragmentModule, m_UseDepthTest);
-		CreateBatcher(m_TextureBatchInfo, device, vertexModule, textureFragmentModule, m_UseDepthTest);
-		CreateBatcher(m_FontBatchInfo, device, vertexModule, fontFragmentModule, m_UseDepthTest);
+		CreateBatcher(m_SDFBatchInfo, device, vertexModule, sdfFragmentModule, m_UseDepthTest, sampleCount);
+		CreateBatcher(m_TextureBatchInfo, device, vertexModule, textureFragmentModule, m_UseDepthTest, sampleCount);
+		CreateBatcher(m_FontBatchInfo, device, vertexModule, fontFragmentModule, m_UseDepthTest, sampleCount);
 
 		Nexus::Graphics::BufferDescription uniformBufferDesc;
 		uniformBufferDesc.Size	= sizeof(glm::mat4);

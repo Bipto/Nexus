@@ -27,30 +27,6 @@
 
 namespace Nexus::Graphics
 {
-	GraphicsDevice *GraphicsDevice::CreateGraphicsDevice(const Graphics::GraphicsDeviceSpecification &spec)
-	{
-		switch (spec.API)
-		{
-#if defined(NX_PLATFORM_D3D12)
-			case Graphics::GraphicsAPI::D3D12: return new Graphics::GraphicsDeviceD3D12(spec, nullptr, nullptr);
-#endif
-
-#if defined(NX_PLATFORM_OPENGL)
-			case Graphics::GraphicsAPI::OpenGL: return new Graphics::GraphicsDeviceOpenGL(spec, nullptr);
-#endif
-
-#if defined(NX_PLATFORM_VULKAN)
-			case Graphics::GraphicsAPI::Vulkan: return new Graphics::GraphicsDeviceVk(spec);
-#endif
-
-			default: throw std::runtime_error("Attempting to run application with unsupported graphics API"); return nullptr;
-		}
-	}
-
-	GraphicsDevice::GraphicsDevice(const GraphicsDeviceSpecification &specification) : m_Specification(specification)
-	{
-	}
-
 	Ref<ShaderModule> GraphicsDevice::CreateShaderModuleFromSpirvFile(const std::string &filepath, ShaderStage stage)
 	{
 		std::string shaderSource = Nexus::FileSystem::ReadFileToString(filepath);
@@ -114,11 +90,6 @@ namespace Nexus::Graphics
 		function(m_ImmediateCommandList);
 		m_ImmediateCommandList->End();
 		SubmitCommandList(m_ImmediateCommandList);
-	}
-
-	const GraphicsDeviceSpecification &GraphicsDevice::GetSpecification() const
-	{
-		return m_Specification;
 	}
 
 	bool GraphicsDevice::Validate()

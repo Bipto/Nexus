@@ -21,7 +21,8 @@ namespace Nexus::Graphics
 
 	void TimingQueryVk::Resolve()
 	{
-		const auto &deviceProperties = m_Device->GetDeviceProperties();
+		std::shared_ptr<PhysicalDeviceVk> physicalDevice   = std::dynamic_pointer_cast<PhysicalDeviceVk>(m_Device->GetPhysicalDevice());
+		const VkPhysicalDeviceProperties &deviceProperties = physicalDevice->GetVkPhysicalDeviceProperties();
 
 		uint64_t timestamps[2];
 		vkGetQueryPoolResults(m_Device->GetVkDevice(),

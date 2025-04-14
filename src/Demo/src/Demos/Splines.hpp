@@ -21,8 +21,10 @@ namespace Demos
 
 		virtual void Load() override
 		{
+			Nexus::Graphics::Swapchain	*swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Graphics::SampleCount sampleCount = swapchain->GetSpecification().Samples;
 			m_CommandList	= m_GraphicsDevice->CreateCommandList();
-			m_BatchRenderer = Nexus::Scope<Nexus::Graphics::BatchRenderer>(new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, false));
+			m_BatchRenderer = Nexus::Scope<Nexus::Graphics::BatchRenderer>(new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, false, sampleCount));
 
 			m_Spline.SetPoints({{100, 410}, {400, 410}, {700, 410}, {1000, 410}});
 			m_Spline.SetLooped(true);

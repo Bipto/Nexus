@@ -60,10 +60,7 @@ namespace Nexus::Graphics
 
 	Graphics::GraphicsDevice *GraphicsAPI_D3D12::CreateGraphicsDevice(std::shared_ptr<IPhysicalDevice> device)
 	{
-		GraphicsDeviceSpecification spec;
-		spec.API		= GraphicsAPI::OpenGL;
-		spec.DebugLayer = m_CreateInfo.Debug;
-		return new Graphics::GraphicsDeviceD3D12(spec, device, m_DXGIFactory);
+		return new Graphics::GraphicsDeviceD3D12(device, m_DXGIFactory);
 	}
 
 	const GraphicsAPICreateInfo &GraphicsAPI_D3D12::GetGraphicsAPICreateInfo() const

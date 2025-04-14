@@ -16,7 +16,7 @@ namespace Nexus::Graphics
 	class GraphicsDeviceOpenGL : public GraphicsDevice
 	{
 	  public:
-		GraphicsDeviceOpenGL(const GraphicsDeviceSpecification &createInfo, std::shared_ptr<IPhysicalDevice> physicalDevice);
+		GraphicsDeviceOpenGL(std::shared_ptr<IPhysicalDevice> physicalDevice);
 		GraphicsDeviceOpenGL(const GraphicsDeviceOpenGL &) = delete;
 		virtual ~GraphicsDeviceOpenGL();
 
@@ -54,6 +54,8 @@ namespace Nexus::Graphics
 		{
 			return false;
 		};
+
+		virtual GraphicsAPI GetGraphicsAPI() override;
 
 		virtual bool Validate() override;
 

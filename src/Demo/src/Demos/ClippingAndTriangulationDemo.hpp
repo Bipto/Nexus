@@ -20,8 +20,10 @@ namespace Demos
 
 		virtual void Load() override
 		{
+			Nexus::Graphics::Swapchain	*swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Graphics::SampleCount sampleCount = swapchain->GetSpecification().Samples;
 			m_CommandList	= m_GraphicsDevice->CreateCommandList();
-			m_BatchRenderer = new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, false);
+			m_BatchRenderer							 = new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, false, sampleCount);
 
 			r1 = Nexus::Graphics::RoundedRectangle({450, 400}, {250, 250}, 15.0f, 15.0f, 15.0f, 15.0f);
 			r1.SetPointsPerCorner(8);

@@ -6,7 +6,8 @@ namespace Nexus::UI
 {
 	UIRenderer::UIRenderer(Graphics::GraphicsDevice *device) : m_Device(device)
 	{
-		m_BatchRenderer = std::make_unique<Graphics::BatchRenderer>(device, false);
+		Nexus::Graphics::Swapchain *swapchain = Nexus::GetApplication()->GetPrimarySwapchain();
+		m_BatchRenderer						  = std::make_unique<Graphics::BatchRenderer>(device, false, swapchain->GetSpecification().Samples);
 	}
 
 	UIRenderer::~UIRenderer()

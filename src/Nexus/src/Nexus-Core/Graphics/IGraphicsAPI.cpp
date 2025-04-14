@@ -3,6 +3,7 @@
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 #include "Platform/D3D12/GraphicsAPI_D3D12.hpp"
 #include "Platform/OpenGL/GraphicsAPI_OpenGL.hpp"
+#include "Platform/Vulkan/GraphicsAPIVk.hpp"
 
 namespace Nexus::Graphics
 {
@@ -12,7 +13,7 @@ namespace Nexus::Graphics
 		{
 			case GraphicsAPI::OpenGL: return new GraphicsAPI_OpenGL(createInfo);
 			case GraphicsAPI::D3D12: return new GraphicsAPI_D3D12(createInfo);
-			case GraphicsAPI::Vulkan: break;
+			case GraphicsAPI::Vulkan: return new GraphicsAPI_Vk(createInfo);
 			default: throw std::runtime_error("Failed to find a valid graphics API");
 		}
 
