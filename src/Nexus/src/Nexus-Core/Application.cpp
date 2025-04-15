@@ -20,18 +20,18 @@ namespace Nexus
 
 		Graphics::GraphicsAPICreateInfo createInfo = {};
 		createInfo.API							   = spec.GraphicsAPI;
-		createInfo.Debug						   = false;
+		createInfo.Debug						   = true;
 
-		m_GraphicsAPI = Graphics::IGraphicsAPI::CreateAPI(createInfo);
+		m_GraphicsAPI = std::unique_ptr<Graphics::IGraphicsAPI>(Graphics::IGraphicsAPI::CreateAPI(createInfo));
 
 		std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> physicalDevices = m_GraphicsAPI->GetPhysicalDevices();
-		m_GraphicsDevice														= m_GraphicsAPI->CreateGraphicsDevice(physicalDevices[0]);
+		m_GraphicsDevice = std::unique_ptr<Graphics::GraphicsDevice>(m_GraphicsAPI->CreateGraphicsDevice(physicalDevices[0]));
 
 		m_Swapchain = m_GraphicsDevice->CreateSwapchain(m_Window, spec.SwapchainSpecification);
 		m_Swapchain->Initialise();
 		m_Swapchain->SetVSyncState(spec.SwapchainSpecification.VSyncState);
 
-		m_AudioDevice = Nexus::CreateAudioDevice(spec.AudioAPI);
+		m_AudioDevice = std::unique_ptr<Audio::AudioDevice>(Nexus::CreateAudioDevice(spec.AudioAPI));
 
 		m_Window->SetRenderFunction([&](Nexus::TimeSpan time) { Render(time); });
 		m_Window->SetUpdateFunction([&](Nexus::TimeSpan time) { Update(time); });
@@ -40,8 +40,6 @@ namespace Nexus
 
 	Application::~Application()
 	{
-		delete m_AudioDevice;
-		delete m_GraphicsDevice;
 	}
 
 	void Application::MainLoop()
@@ -100,12 +98,12 @@ namespace Nexus
 
 	Graphics::GraphicsDevice *Application::GetGraphicsDevice()
 	{
-		return m_GraphicsDevice;
+		return m_GraphicsDevice.get();
 	}
 
 	Audio::AudioDevice *Application::GetAudioDevice()
 	{
-		return m_AudioDevice;
+		return m_AudioDevice.get();
 	}
 
 	bool Application::IsRunning()

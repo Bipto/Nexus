@@ -126,7 +126,7 @@ namespace Nexus::Graphics
 
 		uint32_t		   m_FrameNumber	   = 0;
 		uint32_t		   m_CurrentFrameIndex = 0;
-		CommandExecutorVk *m_CommandExecutor   = nullptr;
+		std::unique_ptr<CommandExecutorVk> m_CommandExecutor   = nullptr;
 
 		friend class SwapchainVk;
 	};

@@ -148,6 +148,12 @@ namespace Nexus::Graphics
 
 	GraphicsAPI_Vk::~GraphicsAPI_Vk()
 	{
+		if (m_CreateInfo.Debug)
+		{
+			DestroyDebugUtilsMessengerEXT(m_Instance, m_DebugMessenger, nullptr);
+		}
+
+		vkDestroyInstance(m_Instance, nullptr);
 	}
 
 	std::vector<std::shared_ptr<IPhysicalDevice>> GraphicsAPI_Vk::GetPhysicalDevices()

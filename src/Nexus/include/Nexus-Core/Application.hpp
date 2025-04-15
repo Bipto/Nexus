@@ -132,13 +132,13 @@ namespace Nexus
 		const char *GetApplicationPath();
 
 	  protected:
-		Graphics::IGraphicsAPI *m_GraphicsAPI = nullptr;
+		std::unique_ptr<Graphics::IGraphicsAPI> m_GraphicsAPI = nullptr;
 
 		/// @brief A pointer to a graphics device
-		Graphics::GraphicsDevice *m_GraphicsDevice = nullptr;
+		std::unique_ptr<Graphics::GraphicsDevice> m_GraphicsDevice = nullptr;
 
 		/// @brief A pointer to an audio device
-		Audio::AudioDevice *m_AudioDevice = nullptr;
+		std::unique_ptr<Audio::AudioDevice> m_AudioDevice = nullptr;
 
 	  private:
 		/// @brief The specification that the application was created with

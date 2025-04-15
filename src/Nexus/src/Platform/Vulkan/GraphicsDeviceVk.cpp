@@ -30,14 +30,29 @@ namespace Nexus::Graphics
 		CreateCommandStructures();
 		CreateSynchronisationStructures();
 
-		m_CommandExecutor = new CommandExecutorVk(this);
+		m_CommandExecutor = std::make_unique<CommandExecutorVk>(this);
 	}
 
 	GraphicsDeviceVk::~GraphicsDeviceVk()
 	{
-		vkDestroyFence(m_Device, m_UploadContext.UploadFence, nullptr);
-		vkFreeCommandBuffers(m_Device, m_UploadContext.CommandPool, 1, &m_UploadContext.CommandBuffer);
-		vkDestroyCommandPool(m_Device, m_UploadContext.CommandPool, nullptr);
+		// cleanup synchronisation structures
+		{
+			vkDestroyFence(m_Device, m_UploadContext.UploadFence, nullptr);
+			vkFreeCommandBuffers(m_Device, m_UploadContext.CommandPool, 1, &m_UploadContext.CommandBuffer);
+			vkDestroyCommandPool(m_Device, m_UploadContext.CommandPool, nullptr);
+		}
+
+		// TODO: Fix this, it should work, but allocated memory appears to be leaking
+
+		// cleanup allocators
+		{
+			// vmaDestroyAllocator(m_Allocator);
+		}
+
+		// cleanup device
+		{
+			// vkDestroyDevice(m_Device, nullptr);
+		}
 	}
 
 	void GraphicsDeviceVk::SubmitCommandList(Ref<CommandList> commandList)
@@ -422,32 +437,29 @@ namespace Nexus::Graphics
 
 	void GraphicsDeviceVk::CreateCommandStructures()
 	{
-		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+		// upload command pool
 		{
-			// upload command pool
+			VkCommandPoolCreateInfo createInfo = {};
+			createInfo.sType				   = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+			createInfo.flags				   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT | VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
+			createInfo.queueFamilyIndex		   = m_GraphicsQueueFamilyIndex;
+			if (vkCreateCommandPool(m_Device, &createInfo, nullptr, &m_UploadContext.CommandPool) != VK_SUCCESS)
 			{
-				VkCommandPoolCreateInfo createInfo = {};
-				createInfo.sType				   = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-				createInfo.flags				   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT | VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
-				createInfo.queueFamilyIndex		   = m_GraphicsQueueFamilyIndex;
-				if (vkCreateCommandPool(m_Device, &createInfo, nullptr, &m_UploadContext.CommandPool) != VK_SUCCESS)
-				{
-					throw std::runtime_error("Failed to create command pool");
-				}
+				throw std::runtime_error("Failed to create command pool");
 			}
+		}
 
-			// upload command buffer
+		// upload command buffer
+		{
+			VkCommandBufferAllocateInfo allocateInfo = {};
+			allocateInfo.sType						 = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+			allocateInfo.commandPool				 = m_UploadContext.CommandPool;
+			allocateInfo.level						 = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+			allocateInfo.commandBufferCount			 = 1;
+
+			if (vkAllocateCommandBuffers(m_Device, &allocateInfo, &m_UploadContext.CommandBuffer) != VK_SUCCESS)
 			{
-				VkCommandBufferAllocateInfo allocateInfo = {};
-				allocateInfo.sType						 = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-				allocateInfo.commandPool				 = m_UploadContext.CommandPool;
-				allocateInfo.level						 = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-				allocateInfo.commandBufferCount			 = FRAMES_IN_FLIGHT;
-
-				if (vkAllocateCommandBuffers(m_Device, &allocateInfo, &m_UploadContext.CommandBuffer) != VK_SUCCESS)
-				{
-					throw std::runtime_error("Failed to allocate command buffers");
-				}
+				throw std::runtime_error("Failed to allocate command buffers");
 			}
 		}
 	}
