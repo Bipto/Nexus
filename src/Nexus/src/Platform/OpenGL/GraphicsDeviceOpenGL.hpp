@@ -16,7 +16,7 @@ namespace Nexus::Graphics
 	class GraphicsDeviceOpenGL : public GraphicsDevice
 	{
 	  public:
-		GraphicsDeviceOpenGL(std::shared_ptr<IPhysicalDevice> physicalDevice);
+		GraphicsDeviceOpenGL(std::shared_ptr<IPhysicalDevice> physicalDevicel, bool enableDebug);
 		GraphicsDeviceOpenGL(const GraphicsDeviceOpenGL &) = delete;
 		virtual ~GraphicsDeviceOpenGL();
 
@@ -41,6 +41,7 @@ namespace Nexus::Graphics
 		virtual Ref<Framebuffer>   CreateFramebuffer(const FramebufferSpecification &spec) override;
 		virtual Ref<Sampler>	   CreateSampler(const SamplerSpecification &spec) override;
 		virtual Ref<TimingQuery>   CreateTimingQuery() override;
+		virtual DeviceBuffer	  *CreateDeviceBuffer(const DeviceBufferDescription &desc) override;
 
 		virtual const GraphicsCapabilities GetGraphicsCapabilities() const override;
 		virtual Swapchain				  *CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) override;

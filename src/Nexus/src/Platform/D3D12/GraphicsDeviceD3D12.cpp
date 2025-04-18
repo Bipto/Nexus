@@ -151,6 +151,11 @@ namespace Nexus::Graphics
 		return CreateRef<TimingQueryD3D12>(this);
 	}
 
+	DeviceBuffer *GraphicsDeviceD3D12::CreateDeviceBuffer(const DeviceBufferDescription &desc)
+	{
+		return nullptr;
+	}
+
 	IDXGIFactory7 *GraphicsDeviceD3D12::GetDXGIFactory() const
 	{
 		return m_DxgiFactory.Get();

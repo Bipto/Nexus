@@ -3,6 +3,7 @@
 	#include "Nexus-Core/nxpch.hpp"
 
 	#include "Platform/OpenGL/Context/WGL/PhysicalDeviceWGL.hpp"
+	#include "Platform/OpenGL/GL.hpp"
 
 namespace Nexus::GL
 {
@@ -120,11 +121,6 @@ namespace Nexus::GL
 		std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> physicalDevices;
 		for (const auto &[name, attachedDisplays] : displays)
 		{
-			int x = 0;
-			// Graphics::PhysicalDeviceWGL *physicalDevice = new Graphics::PhysicalDeviceWGL(name, attachedDisplays);
-			/* physicalDevices.push_back <
-				std::shared_ptr<Graphics::IPhysicalDevice>(std::make_shared<Graphics::PhysicalDeviceWGL>(name, attachedDisplays)); */
-
 			std::shared_ptr<Graphics::IPhysicalDevice> physicalDevice = std::make_shared<Graphics::PhysicalDeviceWGL>(name, attachedDisplays);
 			physicalDevices.push_back(physicalDevice);
 		}

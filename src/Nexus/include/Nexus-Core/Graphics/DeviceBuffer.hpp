@@ -7,12 +7,12 @@ namespace Nexus::Graphics
 	enum class DeviceBufferType
 	{
 		Vertex,
-		Vertex,
 		Index,
 		Uniform,
 		Structured,
 		Upload,
-		Readback
+		Readback,
+		Indirect
 	};
 
 	struct DeviceBufferDescription
@@ -26,8 +26,7 @@ namespace Nexus::Graphics
 		/// @brief The full size of the buffer in bytes
 		uint32_t SizeInBytes = 0;
 
-		/// @brief The stride of each item in the buffer in bytes, it is an error for this value to be set to anything other than 0 if the
-		/// DeviceBufferType is anything other than DeviceBufferType::Structured
+		/// @brief The stride of each item in the buffer in bytes
 		uint32_t StrideInBytes = 0;
 	};
 
@@ -35,7 +34,14 @@ namespace Nexus::Graphics
 	{
 	  public:
 		virtual void						   SetData(const void *data, uint32_t offset, uint32_t size) = 0;
-		virtual std::vector<char>			   GetData(uint32_t offset, uint32_t size)					 = 0;
-		virtual const DeviceBufferDescription &GetDescription()											 = 0;
+		virtual std::vector<char>			   GetData(uint32_t offset, uint32_t size) const			 = 0;
+
+		virtual const DeviceBufferDescription &GetDescription() const = 0;
+
+		uint32_t GetCount() const
+		{
+			const DeviceBufferDescription &description = GetDescription();
+			return description.SizeInBytes / description.StrideInBytes;
+		}
 	};
 }	 // namespace Nexus::Graphics

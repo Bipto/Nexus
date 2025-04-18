@@ -15,6 +15,7 @@
 	#include "SwapchainVk.hpp"
 	#include "PlatformVk.hpp"
 	#include "PhysicalDeviceVk.hpp"
+	#include "DeviceBufferVk.hpp"
 
 namespace Nexus::Graphics
 {
@@ -41,8 +42,6 @@ namespace Nexus::Graphics
 			vkFreeCommandBuffers(m_Device, m_UploadContext.CommandPool, 1, &m_UploadContext.CommandBuffer);
 			vkDestroyCommandPool(m_Device, m_UploadContext.CommandPool, nullptr);
 		}
-
-		// TODO: Fix this, it should work, but allocated memory appears to be leaking
 
 		// cleanup allocators
 		{
@@ -160,6 +159,11 @@ namespace Nexus::Graphics
 	Ref<TimingQuery> GraphicsDeviceVk::CreateTimingQuery()
 	{
 		return CreateRef<TimingQueryVk>(this);
+	}
+
+	DeviceBuffer *GraphicsDeviceVk::CreateDeviceBuffer(const DeviceBufferDescription &desc)
+	{
+		return new DeviceBufferVk(desc, this);
 	}
 
 	const GraphicsCapabilities GraphicsDeviceVk::GetGraphicsCapabilities() const

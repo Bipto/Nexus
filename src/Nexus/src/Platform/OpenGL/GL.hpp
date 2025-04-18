@@ -27,6 +27,7 @@
 	#include "Nexus-Core/Graphics/IPhysicalDevice.hpp"
 
 	#include "Nexus-Core/IWindow.hpp"
+	#include "Nexus-Core/Graphics/DeviceBuffer.hpp"
 
 	#include "Context/IOffscreenContext.hpp"
 	#include "Context/IViewContext.hpp"
@@ -59,6 +60,9 @@ namespace Nexus::GL
 	GLenum GetShaderStage(Nexus::Graphics::ShaderStage stage);
 	GLenum GLCubemapFace(Nexus::Graphics::CubemapFace face);
 
+	GLenum GetBufferTarget(Graphics::DeviceBufferType type);
+	GLenum GetBufferUsage(Graphics::DeviceBufferType type, bool hostVisible);
+
 	void GetBaseType(const Graphics::VertexBufferElement &element,
 					 GLenum								 &baseType,
 					 uint32_t							 &componentCount,
@@ -88,6 +92,7 @@ namespace Nexus::GL
 		NX_ERROR(message);                                                                                                                           \
 	}
 
+#define NX_GL_DEBUG
 #if defined(NX_GL_DEBUG)
 	#define glCall(x)                                                                                                                                \
 		glClearErrors();                                                                                                                             \

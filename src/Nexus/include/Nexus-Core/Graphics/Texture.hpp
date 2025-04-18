@@ -7,6 +7,8 @@
 #include "PixelFormat.hpp"
 #include "SamplerState.hpp"
 
+#include "Nexus-Core/Utils/Utils.hpp"
+
 namespace Nexus::Graphics
 {
 	enum class TextureType
@@ -18,11 +20,11 @@ namespace Nexus::Graphics
 
 	enum TextureUsageFlags : uint8_t
 	{
-		TextureUsage_Cubemap,
-		TextureUsage_DepthStencil,
-		TextureUsage_RenderTarget,
-		TextureUsage_Sampled,
-		TextureUsage_Storage
+		TextureUsage_Cubemap	  = BIT(0),
+		TextureUsage_DepthStencil = BIT(1),
+		TextureUsage_RenderTarget = BIT(2),
+		TextureUsage_Sampled	  = BIT(3),
+		TextureUsage_Storage	  = BIT(4)
 	};
 
 	struct TextureSpecification

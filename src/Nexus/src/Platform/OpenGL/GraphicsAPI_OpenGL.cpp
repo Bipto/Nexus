@@ -3,7 +3,6 @@
 	#include "GraphicsAPI_OpenGL.hpp"
 
 	#include "GraphicsDeviceOpenGL.hpp"
-
 namespace Nexus::Graphics
 {
 
@@ -23,7 +22,7 @@ namespace Nexus::Graphics
 
 	GraphicsDevice *GraphicsAPI_OpenGL::CreateGraphicsDevice(std::shared_ptr<IPhysicalDevice> device)
 	{
-		return new GraphicsDeviceOpenGL(device);
+		return new GraphicsDeviceOpenGL(device, m_CreateInfo.Debug);
 	}
 
 	const GraphicsAPICreateInfo &GraphicsAPI_OpenGL::GetGraphicsAPICreateInfo() const

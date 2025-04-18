@@ -11,10 +11,16 @@
 	#include "TextureOpenGL.hpp"
 	#include "TimingQueryOpenGL.hpp"
 	#include "SwapchainOpenGL.hpp"
+	#include "DeviceBufferOpenGL.hpp"
+
+void APIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam)
+{
+	std::cout << "OpenGL Debug Message: " << message << std::endl;
+}
 
 namespace Nexus::Graphics
 {
-	GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(std::shared_ptr<IPhysicalDevice> physicalDevice)
+	GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(std::shared_ptr<IPhysicalDevice> physicalDevice, bool enableDebug)
 	{
 		m_PhysicalDevice = std::dynamic_pointer_cast<PhysicalDeviceOpenGL>(physicalDevice);
 		m_Extensions = GetSupportedExtensions();
@@ -23,6 +29,14 @@ namespace Nexus::Graphics
 		m_RendererName = (const char *)glGetString(GL_RENDERER);
 
 		// glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
+		if (enableDebug)
+		{
+			glEnable(GL_DEBUG_OUTPUT);
+			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+			glDebugMessageCallback(debugCallback, nullptr);
+			glDebugMessageControl(GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_ERROR, GL_DEBUG_SEVERITY_HIGH, 0, nullptr, GL_TRUE);
+		}
 	}
 
 	GraphicsDeviceOpenGL::~GraphicsDeviceOpenGL()
@@ -151,6 +165,11 @@ namespace Nexus::Graphics
 	Ref<TimingQuery> GraphicsDeviceOpenGL::CreateTimingQuery()
 	{
 		return CreateRef<TimingQueryOpenGL>();
+	}
+
+	DeviceBuffer *GraphicsDeviceOpenGL::CreateDeviceBuffer(const DeviceBufferDescription &desc)
+	{
+		return new DeviceBufferOpenGL(desc);
 	}
 
 	const GraphicsCapabilities GraphicsDeviceOpenGL::GetGraphicsCapabilities() const

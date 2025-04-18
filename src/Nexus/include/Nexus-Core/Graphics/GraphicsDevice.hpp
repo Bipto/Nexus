@@ -3,6 +3,7 @@
 #include "Nexus-Core/nxpch.hpp"
 
 #include "CommandList.hpp"
+#include "DeviceBuffer.hpp"
 #include "Framebuffer.hpp"
 #include "GPUBuffer.hpp"
 #include "GraphicsCapabilities.hpp"
@@ -124,6 +125,8 @@ namespace Nexus::Graphics
 		/// @param spec A set of properties to use when creating the sampler
 		/// @return A pointer to a sampler
 		virtual Ref<Sampler> CreateSampler(const SamplerSpecification &spec) = 0;
+
+		virtual DeviceBuffer *CreateDeviceBuffer(const DeviceBufferDescription &desc) = 0;
 
 		virtual Ref<TimingQuery> CreateTimingQuery() = 0;
 
