@@ -65,7 +65,7 @@ namespace Nexus::GL
 					 GLboolean							 &normalized,
 					 GLPrimitiveType					 &primitiveType);
 
-	std::unique_ptr<IOffscreenContext> CreateOffscreenContext(std::shared_ptr<Graphics::IPhysicalDevice> physicalDevice);
+	std::unique_ptr<IOffscreenContext> CreateOffscreenContext(Graphics::IPhysicalDevice *physicalDevice);
 	std::unique_ptr<IViewContext>	   CreateViewContext(IWindow *window, Graphics::GraphicsDevice *device);
 
 	/// @brief Function that loads required OpenGL functions,

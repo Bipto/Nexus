@@ -14,6 +14,12 @@ namespace Nexus::Graphics
 			throw std::runtime_error("Failed to create HDC");
 			std::cout << "HDC created successfully\n";
 		}
+
+		GL::ContextSpecification spec;
+		spec.GLVersion = GL::OpenGLVersion::OpenGL;
+
+		m_OffscreenContext = std::make_unique<GL::OffscreenContextWGL>(spec, this);
+		m_OffscreenContext->MakeCurrent();
 	}
 
 	PhysicalDeviceWGL::~PhysicalDeviceWGL()
@@ -33,6 +39,11 @@ namespace Nexus::Graphics
 	const PhysicalDeviceLimits &PhysicalDeviceWGL::GetPhysicalDeviceLimits() const
 	{
 		return m_Limits;
+	}
+
+	GL::IOffscreenContext *PhysicalDeviceWGL::GetOffscreenContext()
+	{
+		return m_OffscreenContext.get();
 	}
 
 	HDC PhysicalDeviceWGL::GetHDC() const

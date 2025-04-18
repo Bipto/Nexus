@@ -9,7 +9,7 @@
 	#include "GL.hpp"
 	#include "SwapchainOpenGL.hpp"
 
-	#include "Nexus-Core/Graphics/IPhysicalDevice.hpp"
+	#include "PhysicalDeviceOpenGL.hpp"
 
 namespace Nexus::Graphics
 {
@@ -66,7 +66,6 @@ namespace Nexus::Graphics
 		std::vector<std::string>  GetSupportedExtensions();
 
 	  private:
-		std::unique_ptr<GL::IOffscreenContext> m_PBuffer = {};
 		const char							  *m_GlslVersion;
 		WeakRef<FramebufferOpenGL>			   m_BoundFramebuffer = {};
 		VSyncState							   m_VsyncState		  = VSyncState::Enabled;
@@ -77,7 +76,7 @@ namespace Nexus::Graphics
 
 		std::string m_APIName	   = {};
 		std::string m_RendererName = {};
-		std::shared_ptr<IPhysicalDevice> m_PhysicalDevice = nullptr;
+		std::shared_ptr<PhysicalDeviceOpenGL> m_PhysicalDevice = nullptr;
 	};
 }	 // namespace Nexus::Graphics
 

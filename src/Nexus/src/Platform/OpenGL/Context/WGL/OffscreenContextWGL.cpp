@@ -5,9 +5,9 @@
 
 namespace Nexus::GL
 {
-	OffscreenContextWGL::OffscreenContextWGL(const ContextSpecification &spec, std::shared_ptr<Graphics::IPhysicalDevice> device)
+	OffscreenContextWGL::OffscreenContextWGL(const ContextSpecification &spec, Graphics::IPhysicalDevice *device)
 	{
-		std::shared_ptr<Graphics::PhysicalDeviceWGL> deviceWGL = std::dynamic_pointer_cast<Graphics::PhysicalDeviceWGL>(device);
+		Graphics::PhysicalDeviceWGL *deviceWGL = (Graphics::PhysicalDeviceWGL *)device;
 
 		auto [pbuffer, hdc, hglrc] = CreatePBufferContext(deviceWGL->GetHDC(), spec);
 

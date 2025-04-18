@@ -667,7 +667,7 @@ namespace Nexus::GL
 		}
 	}
 
-	std::unique_ptr<IOffscreenContext> CreateOffscreenContext(std::shared_ptr<Graphics::IPhysicalDevice> physicalDevice)
+	std::unique_ptr<IOffscreenContext> CreateOffscreenContext(Graphics::IPhysicalDevice *physicalDevice)
 	{
 		GL::ContextSpecification spec = {};
 		spec.Debug					  = true;
