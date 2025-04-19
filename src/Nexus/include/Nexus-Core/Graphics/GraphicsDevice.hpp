@@ -128,6 +128,8 @@ namespace Nexus::Graphics
 
 		virtual DeviceBuffer *CreateDeviceBuffer(const DeviceBufferDescription &desc) = 0;
 
+		virtual void CopyBuffer(const BufferCopyDescription &desc) = 0;
+
 		virtual Ref<TimingQuery> CreateTimingQuery() = 0;
 
 		/// @brief A pure virtual method that returns a ShaderFormat enum representing

@@ -8,6 +8,7 @@
 	#include "Nexus-Core/Graphics/ShaderDataType.hpp"
 	#include "Nexus-Core/Graphics/ShaderModule.hpp"
 	#include "Nexus-Core/Graphics/Texture.hpp"
+	#include "Nexus-Core/Graphics/DeviceBuffer.hpp"
 	#include "vk_mem_alloc.h"
 	#include "vulkan/vulkan.h"
 
@@ -15,6 +16,7 @@ const uint32_t FRAMES_IN_FLIGHT = 3;
 
 namespace Nexus::Vk
 {
+
 	VkFormat			  GetVkPixelDataFormat(Nexus::Graphics::PixelFormat format, bool depthFormat);
 	Nexus::Graphics::PixelFormat GetNxPixelFormatFromVkPixelFormat(VkFormat format);
 	VkFormat			  GetShaderDataType(Nexus::Graphics::ShaderDataType type);
@@ -33,6 +35,9 @@ namespace Nexus::Vk
 
 	VkIndexType GetVulkanIndexBufferFormat(Nexus::Graphics::IndexBufferFormat format);
 	VkFrontFace GetFrontFace(Nexus::Graphics::FrontFace frontFace);
+
+	VkBufferCreateInfo		GetVkBufferCreateInfo(const Graphics::DeviceBufferDescription &desc);
+	VmaAllocationCreateInfo GetVmaAllocationCreateInfo(const Graphics::DeviceBufferDescription &desc);
 
 	bool SetObjectName(VkDevice device, VkObjectType type, uint64_t objectHandle, const char *name);
 

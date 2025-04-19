@@ -61,7 +61,7 @@ namespace Nexus::GL
 	GLenum GLCubemapFace(Nexus::Graphics::CubemapFace face);
 
 	GLenum GetBufferTarget(Graphics::DeviceBufferType type);
-	GLenum GetBufferUsage(Graphics::DeviceBufferType type, bool hostVisible);
+	GLenum GetBufferUsage(Graphics::DeviceBufferType type);
 
 	void GetBaseType(const Graphics::VertexBufferElement &element,
 					 GLenum								 &baseType,

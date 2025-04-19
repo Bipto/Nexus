@@ -5,7 +5,7 @@ namespace Nexus::Graphics
 	DeviceBufferOpenGL::DeviceBufferOpenGL(const DeviceBufferDescription &desc) : m_BufferDescription(desc)
 	{
 		m_BufferTarget	   = GL::GetBufferTarget(desc.Type);
-		GLenum bufferUsage = GL::GetBufferUsage(desc.Type, desc.HostAccessible);
+		GLenum bufferUsage = GL::GetBufferUsage(desc.Type);
 
 		glCall(glGenBuffers(1, &m_BufferHandle));
 		glCall(glBindBuffer(m_BufferTarget, m_BufferHandle));
@@ -19,7 +19,7 @@ namespace Nexus::Graphics
 
 	void DeviceBufferOpenGL::SetData(const void *data, uint32_t offset, uint32_t size)
 	{
-		NX_ASSERT(m_BufferDescription.HostAccessible == true, "Cannot access a non-host accessible buffer");
+		NX_ASSERT(m_BufferDescription.Type == DeviceBufferType::Upload, "Cannot write to a non-upload buffer");
 
 		glCall(glBindBuffer(m_BufferTarget, m_BufferHandle));
 		glCall(glBufferSubData(m_BufferTarget, offset, size, data));
@@ -27,7 +27,7 @@ namespace Nexus::Graphics
 
 	std::vector<char> DeviceBufferOpenGL::GetData(uint32_t offset, uint32_t size) const
 	{
-		NX_ASSERT(m_BufferDescription.HostAccessible == true, "Cannot access a non-host accessible buffer");
+		NX_ASSERT(m_BufferDescription.Type == DeviceBufferType::Readback, "Cannot read from a non-readback buffer");
 
 		std::vector<char> data(size);
 		glCall(glBindBuffer(m_BufferTarget, m_BufferHandle));

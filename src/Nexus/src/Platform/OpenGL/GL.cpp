@@ -415,8 +415,8 @@ namespace Nexus::GL
 		{
 			case Graphics::DeviceBufferType::Vertex: return GL_ARRAY_BUFFER;
 			case Graphics::DeviceBufferType::Index: return GL_ELEMENT_ARRAY_BUFFER;
-			case Graphics::DeviceBufferType::Uniform: GL_UNIFORM_BUFFER;
-			case Graphics::DeviceBufferType::Structured: GL_SHADER_STORAGE_BUFFER;
+			case Graphics::DeviceBufferType::Uniform: return GL_UNIFORM_BUFFER;
+			case Graphics::DeviceBufferType::Structured: return GL_SHADER_STORAGE_BUFFER;
 			case Graphics::DeviceBufferType::Upload: return GL_COPY_READ_BUFFER;
 			case Graphics::DeviceBufferType::Readback: return GL_COPY_WRITE_BUFFER;
 			case Graphics::DeviceBufferType::Indirect: return GL_DRAW_INDIRECT_BUFFER;
@@ -425,7 +425,7 @@ namespace Nexus::GL
 		}
 	}
 
-	GLenum GetBufferUsage(Graphics::DeviceBufferType type, bool hostVisible)
+	GLenum GetBufferUsage(Graphics::DeviceBufferType type)
 	{
 		switch (type)
 		{
@@ -433,15 +433,7 @@ namespace Nexus::GL
 			case Graphics::DeviceBufferType::Index:
 			case Graphics::DeviceBufferType::Uniform:
 			case Graphics::DeviceBufferType::Structured:
-			case Graphics::DeviceBufferType::Indirect:
-				if (hostVisible)
-				{
-					return GL_DYNAMIC_DRAW;
-				}
-				else
-				{
-					return GL_STATIC_DRAW;
-				}
+			case Graphics::DeviceBufferType::Indirect: return GL_DYNAMIC_DRAW;
 			case Graphics::DeviceBufferType::Upload: return GL_DYNAMIC_COPY;
 			case Graphics::DeviceBufferType::Readback: return GL_DYNAMIC_COPY;
 

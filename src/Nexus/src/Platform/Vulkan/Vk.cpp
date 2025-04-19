@@ -414,6 +414,54 @@ namespace Nexus::Vk
 		}
 	}
 
+	VkBufferUsageFlags GetVkBufferUsage(const Graphics::DeviceBufferDescription &desc)
+	{
+		switch (desc.Type)
+		{
+			case Graphics::DeviceBufferType::Vertex:
+				return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+			case Graphics::DeviceBufferType::Index:
+				return VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+			case Graphics::DeviceBufferType::Uniform:
+				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+			case Graphics::DeviceBufferType::Structured:
+				VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+			case Graphics::DeviceBufferType::Upload: return VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+			case Graphics::DeviceBufferType::Readback: return VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+			case Graphics::DeviceBufferType::Indirect:
+				VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+			default: throw std::runtime_error("Failed to find a valid VkBufferUsage");
+		}
+	}
+
+	VkBufferCreateInfo GetVkBufferCreateInfo(const Graphics::DeviceBufferDescription &desc)
+	{
+		VkBufferUsageFlags bufferUsage = GetVkBufferUsage(desc);
+
+		VkBufferCreateInfo createInfo = {};
+		createInfo.sType			  = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		createInfo.size				  = desc.SizeInBytes;
+		createInfo.usage			  = bufferUsage;
+		return createInfo;
+	}
+
+	VmaAllocationCreateInfo GetVmaAllocationCreateInfo(const Graphics::DeviceBufferDescription &desc)
+	{
+		VmaAllocationCreateInfo createInfo = {};
+
+		if (desc.Type == Graphics::DeviceBufferType::Upload || desc.Type == Graphics::DeviceBufferType::Readback)
+		{
+			createInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+			createInfo.usage = VMA_MEMORY_USAGE_AUTO_PREFER_HOST;
+		}
+		else
+		{
+			createInfo.usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE;
+		}
+
+		return createInfo;
+	}
+
 	bool SetObjectName(VkDevice device, VkObjectType type, uint64_t objectHandle, const char *name)
 	{
 		VkDebugUtilsObjectNameInfoEXT nameInfo = {};

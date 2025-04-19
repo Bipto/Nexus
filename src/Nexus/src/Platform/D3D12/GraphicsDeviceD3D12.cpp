@@ -156,6 +156,10 @@ namespace Nexus::Graphics
 		return nullptr;
 	}
 
+	void GraphicsDeviceD3D12::CopyBuffer(const BufferCopyDescription &desc)
+	{
+	}
+
 	IDXGIFactory7 *GraphicsDeviceD3D12::GetDXGIFactory() const
 	{
 		return m_DxgiFactory.Get();

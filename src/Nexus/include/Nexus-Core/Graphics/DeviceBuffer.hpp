@@ -20,9 +20,6 @@ namespace Nexus::Graphics
 		/// @brief The type of buffer to create
 		DeviceBufferType Type = DeviceBufferType::Upload;
 
-		/// @brief Whether the CPU can directly access the buffer, it is an error to use GetData() or SetData() is this flag is not set
-		bool HostAccessible = false;
-
 		/// @brief The full size of the buffer in bytes
 		uint32_t SizeInBytes = 0;
 
@@ -43,5 +40,20 @@ namespace Nexus::Graphics
 			const DeviceBufferDescription &description = GetDescription();
 			return description.SizeInBytes / description.StrideInBytes;
 		}
+
+		bool IsHostAccessible() const
+		{
+			const DeviceBufferDescription &description = GetDescription();
+			return description.Type == DeviceBufferType::Upload || description.Type == DeviceBufferType::Readback;
+		}
+	};
+
+	struct BufferCopyDescription
+	{
+		DeviceBuffer *Source	  = nullptr;
+		DeviceBuffer *Target	  = nullptr;
+		uint32_t	  ReadOffset  = 0;
+		uint32_t	  WriteOffset = 0;
+		uint32_t	  Size		  = 0;
 	};
 }	 // namespace Nexus::Graphics

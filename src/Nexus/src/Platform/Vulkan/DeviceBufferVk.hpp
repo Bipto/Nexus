@@ -16,6 +16,8 @@ namespace Nexus::Graphics
 		virtual std::vector<char>			   GetData(uint32_t offset, uint32_t size) const final;
 		virtual const DeviceBufferDescription &GetDescription() const final;
 
+		VkBuffer GetVkBuffer() const;
+
 	  private:
 		DeviceBufferDescription m_BufferDescription = {};
 		Vk::AllocatedBuffer		m_Buffer;
