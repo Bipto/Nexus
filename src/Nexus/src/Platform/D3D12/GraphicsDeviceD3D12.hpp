@@ -60,6 +60,8 @@ namespace Nexus::Graphics
 			return true;
 		};
 
+		D3D12MA::Allocator *GetAllocator();
+
 		IDXGIFactory7			   *GetDXGIFactory() const;
 		ID3D12CommandQueue		   *GetCommandQueue() const;
 		ID3D12Device9			   *GetDevice() const;
@@ -107,6 +109,8 @@ namespace Nexus::Graphics
 		std::shared_ptr<IPhysicalDevice> m_PhysicalDevice = nullptr;
 
 		CommandExecutorD3D12 m_CommandExecutor {};
+
+		Microsoft::WRL::ComPtr<D3D12MA::Allocator> m_Allocator = nullptr;
 	};
 }	 // namespace Nexus::Graphics
 #endif

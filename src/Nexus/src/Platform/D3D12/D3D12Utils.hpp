@@ -7,6 +7,7 @@
 	#include "Nexus-Core/Graphics/SamplerState.hpp"
 	#include "Nexus-Core/Graphics/ShaderModule.hpp"
 	#include "Nexus-Core/Graphics/Texture.hpp"
+	#include "Nexus-Core/Graphics/DeviceBuffer.hpp"
 	#include "Nexus-Core/Vertex.hpp"
 
 namespace Nexus::D3D12
@@ -34,6 +35,8 @@ namespace Nexus::D3D12
 	GetD3D12IndexBufferFormat(Nexus::Graphics::IndexBufferFormat format);
 	D3D12_PRIMITIVE_TOPOLOGY_TYPE
 	GetPipelineTopology(Nexus::Graphics::Topology topology);
+
+	D3D12_HEAP_TYPE GetHeapType(const Graphics::DeviceBufferDescription &desc);
 }	 // namespace Nexus::D3D12
 
 #endif

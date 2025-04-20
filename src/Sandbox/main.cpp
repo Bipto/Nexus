@@ -4,7 +4,7 @@ int main()
 {
 	Nexus::Graphics::GraphicsAPICreateInfo info = {};
 	info.Debug									= true;
-	info.API									= Nexus::Graphics::GraphicsAPI::Vulkan;
+	info.API									= Nexus::Graphics::GraphicsAPI::D3D12;
 
 	std::unique_ptr<Nexus::Graphics::IGraphicsAPI> api =
 		std::unique_ptr<Nexus::Graphics::IGraphicsAPI>(Nexus::Graphics::IGraphicsAPI::CreateAPI(info));

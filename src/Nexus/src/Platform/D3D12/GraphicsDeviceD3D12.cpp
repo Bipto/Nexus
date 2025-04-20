@@ -46,6 +46,15 @@ namespace Nexus::Graphics
 				m_Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_UploadCommandAllocator));
 				m_Device->CreateCommandList1(0, D3D12_COMMAND_LIST_TYPE_DIRECT, D3D12_COMMAND_LIST_FLAG_NONE, IID_PPV_ARGS(&m_UploadCommandList));
 			}
+
+			D3D12MA::ALLOCATOR_DESC allocatorDesc = {};
+			allocatorDesc.pDevice				  = m_Device.Get();
+			allocatorDesc.pAdapter				  = adapter.Get();
+			HRESULT hr							  = D3D12MA::CreateAllocator(&allocatorDesc, &m_Allocator);
+			if (FAILED(hr))
+			{
+				throw std::runtime_error("Failed to create allocator");
+			}
 		}
 	}
 
@@ -83,7 +92,7 @@ namespace Nexus::Graphics
 
 	const char *GraphicsDeviceD3D12::GetDeviceName()
 	{
-		return nullptr;
+		return m_PhysicalDevice->GetDeviceName().c_str();
 	}
 
 	std::shared_ptr<IPhysicalDevice> GraphicsDeviceD3D12::GetPhysicalDevice() const
@@ -158,6 +167,11 @@ namespace Nexus::Graphics
 
 	void GraphicsDeviceD3D12::CopyBuffer(const BufferCopyDescription &desc)
 	{
+	}
+
+	D3D12MA::Allocator *GraphicsDeviceD3D12::GetAllocator()
+	{
+		return m_Allocator.Get();
 	}
 
 	IDXGIFactory7 *GraphicsDeviceD3D12::GetDXGIFactory() const

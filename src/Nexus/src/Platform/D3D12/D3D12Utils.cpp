@@ -293,5 +293,15 @@ namespace Nexus::D3D12
 		}
 	}
 
+	D3D12_HEAP_TYPE GetHeapType(const Graphics::DeviceBufferDescription &desc)
+	{
+		switch (desc.Type)
+		{
+			case Graphics::DeviceBufferType::Upload: return D3D12_HEAP_TYPE_UPLOAD;
+			case Graphics::DeviceBufferType::Readback: return D3D12_HEAP_TYPE_READBACK;
+			default: return D3D12_HEAP_TYPE_CUSTOM;
+		}
+	}
+
 }	 // namespace Nexus::D3D12
 #endif

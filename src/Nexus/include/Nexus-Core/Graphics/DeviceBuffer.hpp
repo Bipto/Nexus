@@ -30,6 +30,9 @@ namespace Nexus::Graphics
 	class DeviceBuffer
 	{
 	  public:
+		virtual ~DeviceBuffer()
+		{
+		}
 		virtual void						   SetData(const void *data, uint32_t offset, uint32_t size) = 0;
 		virtual std::vector<char>			   GetData(uint32_t offset, uint32_t size) const			 = 0;
 

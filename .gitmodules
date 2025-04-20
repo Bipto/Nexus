@@ -49,3 +49,6 @@
 [submodule "src/Nexus/external/assimp"]
 	path = src/Nexus/external/assimp
 	url = https://github.com/assimp/assimp.git
+[submodule "src/Nexus/external/D3D12MemoryAllocator"]
+	path = src/Nexus/external/D3D12MemoryAllocator
+	url = https://github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator.git
