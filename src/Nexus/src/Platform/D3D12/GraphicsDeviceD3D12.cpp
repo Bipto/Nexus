@@ -14,6 +14,7 @@
 	#include "TimingQueryD3D12.hpp"
 	#include "SwapchainD3D12.hpp"
 	#include "PhysicalDeviceD3D12.hpp"
+	#include "DeviceBufferD3D12.hpp"
 
 namespace Nexus::Graphics
 {
@@ -162,11 +163,17 @@ namespace Nexus::Graphics
 
 	DeviceBuffer *GraphicsDeviceD3D12::CreateDeviceBuffer(const DeviceBufferDescription &desc)
 	{
-		return nullptr;
+		return new DeviceBufferD3D12(desc, this);
 	}
 
 	void GraphicsDeviceD3D12::CopyBuffer(const BufferCopyDescription &desc)
 	{
+		DeviceBufferD3D12 *source = (DeviceBufferD3D12 *)desc.Source;
+		DeviceBufferD3D12 *target = (DeviceBufferD3D12 *)desc.Target;
+
+		ImmediateSubmit(
+			[&](ID3D12GraphicsCommandList6 *cmd)
+			{ cmd->CopyBufferRegion(target->GetHandle().Get(), desc.WriteOffset, source->GetHandle().Get(), desc.ReadOffset, desc.Size); });
 	}
 
 	D3D12MA::Allocator *GraphicsDeviceD3D12::GetAllocator()

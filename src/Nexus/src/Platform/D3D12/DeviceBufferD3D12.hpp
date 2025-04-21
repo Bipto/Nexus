@@ -18,9 +18,12 @@ namespace Nexus::Graphics
 		virtual std::vector<char>			   GetData(uint32_t offset, uint32_t size) const final;
 		virtual const DeviceBufferDescription &GetDescription() const final;
 
+		Microsoft::WRL::ComPtr<ID3D12Resource2> GetHandle();
+
 	  private:
 		DeviceBufferDescription					m_BufferDescription = {};
 		Microsoft::WRL::ComPtr<ID3D12Resource2> m_BufferHandle		= nullptr;
+		Microsoft::WRL::ComPtr<D3D12MA::Allocation> m_Allocation		= nullptr;
 	};
 }	 // namespace Nexus::Graphics
 
