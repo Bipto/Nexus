@@ -27,7 +27,7 @@ namespace Nexus::UI
 		void Load() final
 		{
 			m_Sizer		  = std::make_unique<Nexus::UI::GridSizer>();
-			m_Renderer	  = std::make_unique<Nexus::UI::UIRenderer>(m_GraphicsDevice);
+			m_Renderer	  = std::make_unique<Nexus::UI::UIRenderer>(m_GraphicsDevice.get());
 			m_CommandList = m_GraphicsDevice->CreateCommandList();
 
 			m_Sizer->SetPosition({0, 0});

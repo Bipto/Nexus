@@ -98,8 +98,23 @@ namespace Nexus::Graphics
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(framebuffer));
 			m_CommandList->SetViewport(viewport);
 			m_CommandList->SetScissor(scissor);
-			m_CommandList->SetVertexBuffer(m_Quad.GetVertexBuffer(), 0);
-			m_CommandList->SetIndexBuffer(m_Quad.GetIndexBuffer());
+
+			Ref<DeviceBuffer> vertexBuffer	   = m_Quad.GetVertexBuffer();
+			VertexBufferView  vertexBufferView = {};
+			vertexBufferView.BufferHandle	   = vertexBuffer.get();
+			vertexBufferView.Offset			   = 0;
+			vertexBufferView.Stride			   = vertexBuffer->GetDescription().StrideInBytes;
+			vertexBufferView.Size			   = vertexBuffer->GetDescription().SizeInBytes;
+			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
+
+			Ref<DeviceBuffer> indexBuffer	  = m_Quad.GetIndexBuffer();
+			IndexBufferView	  indexBufferView = {};
+			indexBufferView.BufferHandle	  = indexBuffer.get();
+			indexBufferView.Offset			  = 0;
+			indexBufferView.Size			  = indexBuffer->GetDescription().SizeInBytes;
+			indexBufferView.BufferFormat	  = IndexBufferFormat::UInt32;
+			m_CommandList->SetIndexBuffer(indexBufferView);
+
 			m_CommandList->SetResourceSet(m_ResourceSet);
 			m_CommandList->DrawIndexed(6, 0, 0);
 			m_CommandList->End();

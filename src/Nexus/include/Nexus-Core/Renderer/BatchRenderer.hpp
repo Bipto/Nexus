@@ -54,8 +54,10 @@ namespace Nexus::Graphics
 		uint32_t VertexCount = 0;
 		uint32_t IndexCount	 = 0;
 
-		Nexus::Ref<Nexus::Graphics::VertexBuffer> VertexBuffer = nullptr;
-		Nexus::Ref<Nexus::Graphics::IndexBuffer>  IndexBuffer  = nullptr;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> VertexUploadBuffer = nullptr;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> VertexBuffer		 = nullptr;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> IndexUploadBuffer	 = nullptr;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> IndexBuffer		 = nullptr;
 	};
 
 	class NX_API BatchRenderer
@@ -155,7 +157,8 @@ namespace Nexus::Graphics
 		bool									 m_IsStarted   = false;
 
 		Nexus::Ref<Nexus::Graphics::Texture2D>	   m_BlankTexture  = nullptr;
-		Nexus::Ref<Nexus::Graphics::UniformBuffer> m_UniformBuffer = nullptr;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer>  m_UniformUploadBuffer = nullptr;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer>  m_UniformBuffer		 = nullptr;
 
 		uint32_t					  m_Width  = 0;
 		uint32_t					  m_Height = 0;

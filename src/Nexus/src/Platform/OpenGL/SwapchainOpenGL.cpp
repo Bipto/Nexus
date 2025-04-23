@@ -4,7 +4,7 @@
 
 	#include "SwapchainOpenGL.hpp"
 
-	#include "BufferOpenGL.hpp"
+	#include "DeviceBufferOpenGL.hpp"
 	#include "GL.hpp"
 
 	#include "GraphicsDeviceOpenGL.hpp"

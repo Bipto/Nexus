@@ -37,24 +37,17 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (Ref<VertexBuffer> vb = command.VertexBufferRef.lock())
-		{
-			Ref<VertexBufferOpenGL> vertexBufferGL		= std::dynamic_pointer_cast<VertexBufferOpenGL>(vb);
-			m_CurrentlyBoundVertexBuffers[command.Slot] = vertexBufferGL;
-		}
+		m_CurrentlyBoundVertexBuffers[command.Slot] = command.View;
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(WeakRef<IndexBuffer> command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(SetIndexBufferCommand command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
 		{
 			return;
 		}
-		if (Ref<IndexBuffer> ib = command.lock())
-		{
-			auto indexBufferGL = std::dynamic_pointer_cast<IndexBufferOpenGL>(ib);
-			m_BoundIndexBuffer = indexBufferGL;
-		}
+
+		m_BoundIndexBuffer = command.View;
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device)
@@ -110,18 +103,22 @@ namespace Nexus::Graphics
 
 		if (Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value()))
 		{
-			if (Ref<IndexBufferOpenGL> indexBuffer = m_BoundIndexBuffer.lock())
+			if (m_BoundIndexBuffer)
 			{
+				IndexBufferView &indexBufferView = m_BoundIndexBuffer.value();
+
 				pipeline->CreateVAO();
-				pipeline->BindBuffers(m_CurrentlyBoundVertexBuffers, indexBuffer, command.VertexStart, 0);
+				pipeline->BindBuffers(m_CurrentlyBoundVertexBuffers, indexBufferView, command.VertexStart, 0);
 				pipeline->Bind();
 				BindResourceSet(m_BoundResourceSet);
 
-				uint32_t offset = command.IndexStart * indexBuffer->GetElementSizeInBytes();
+				uint32_t indexSizeInBytes = Graphics::GetIndexFormatSizeInBytes(indexBufferView.BufferFormat);
+				uint32_t offset			  = command.IndexStart * indexSizeInBytes;
+				GLenum	 indexFormat	  = GL::GetGLIndexBufferFormat(indexBufferView.BufferFormat);
 
 				glCall(glDrawElements(GL::GetTopology(pipeline->GetPipelineDescription().PrimitiveTopology),
 									  command.Count,
-									  indexBuffer->GetGLIndexFormat(),
+									  indexFormat,
 									  (void *)(uint64_t)offset));
 				pipeline->DestroyVAO();
 			}
@@ -159,18 +156,21 @@ namespace Nexus::Graphics
 
 		if (Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value()))
 		{
-			if (Ref<IndexBufferOpenGL> indexBuffer = m_BoundIndexBuffer.lock())
+			if (m_BoundIndexBuffer)
 			{
+				IndexBufferView &indexBufferView = m_BoundIndexBuffer.value();
 				pipeline->CreateVAO();
-				pipeline->BindBuffers(m_CurrentlyBoundVertexBuffers, indexBuffer, command.VertexStart, command.InstanceStart);
+				pipeline->BindBuffers(m_CurrentlyBoundVertexBuffers, indexBufferView, command.VertexStart, command.InstanceStart);
 				pipeline->Bind();
 				BindResourceSet(m_BoundResourceSet);
 
-				uint32_t offset = command.IndexStart * indexBuffer->GetElementSizeInBytes();
+				uint32_t indexSizeInBytes = Graphics::GetIndexFormatSizeInBytes(indexBufferView.BufferFormat);
+				uint32_t offset			  = command.IndexStart * indexSizeInBytes;
+				GLenum	 indexFormat	  = GL::GetGLIndexBufferFormat(indexBufferView.BufferFormat);
 
 				glCall(glDrawElementsInstanced(GL::GetTopology(pipeline->GetPipelineDescription().PrimitiveTopology),
 											   command.IndexCount,
-											   indexBuffer->GetGLIndexFormat(),
+											   indexFormat,
 											   (void *)(uint64_t)offset,
 											   command.InstanceCount));
 				pipeline->DestroyVAO();
@@ -447,7 +447,7 @@ namespace Nexus::Graphics
 				continue;
 			}
 
-			if (Ref<UniformBufferOpenGL> uniformBufferGL = std::dynamic_pointer_cast<UniformBufferOpenGL>(uniformBuffer.lock()))
+			if (Ref<DeviceBufferOpenGL> uniformBufferGL = std::dynamic_pointer_cast<DeviceBufferOpenGL>(uniformBuffer.lock()))
 			{
 				GLint location = glGetUniformBlockIndex(pipeline->GetShaderHandle(), name.c_str());
 
@@ -457,9 +457,9 @@ namespace Nexus::Graphics
 
 					glCall(glBindBufferRange(GL_UNIFORM_BUFFER,
 											 uniformBufferSlot,
-											 uniformBufferGL->GetHandle(),
+											 uniformBufferGL->GetBufferHandle(),
 											 0,
-											 uniformBufferGL->GetDescription().Size));
+											 uniformBufferGL->GetDescription().SizeInBytes));
 
 					uniformBufferSlot++;
 				}

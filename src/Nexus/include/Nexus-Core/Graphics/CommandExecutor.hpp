@@ -23,7 +23,7 @@ namespace Nexus::Graphics
 
 	  private:
 		virtual void ExecuteCommand(SetVertexBufferCommand command, GraphicsDevice *device)			  = 0;
-		virtual void ExecuteCommand(WeakRef<IndexBuffer> command, GraphicsDevice *device)			  = 0;
+		virtual void ExecuteCommand(SetIndexBufferCommand command, GraphicsDevice *device)			  = 0;
 		virtual void ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device)				  = 0;
 		virtual void ExecuteCommand(DrawElementCommand command, GraphicsDevice *device)				  = 0;
 		virtual void ExecuteCommand(DrawIndexedCommand command, GraphicsDevice *device)				  = 0;

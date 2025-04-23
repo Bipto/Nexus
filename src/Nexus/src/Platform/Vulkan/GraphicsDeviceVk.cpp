@@ -2,7 +2,7 @@
 
 	#include "GraphicsDeviceVk.hpp"
 
-	#include "BufferVk.hpp"
+	#include "DeviceBufferVk.hpp"
 	#include "CommandListVk.hpp"
 	#include "FramebufferVk.hpp"
 	#include "Nexus-Core/nxpch.hpp"
@@ -124,21 +124,6 @@ namespace Nexus::Graphics
 	Ref<CommandList> GraphicsDeviceVk::CreateCommandList(const CommandListSpecification &spec)
 	{
 		return CreateRef<CommandListVk>(this, spec);
-	}
-
-	Ref<VertexBuffer> GraphicsDeviceVk::CreateVertexBuffer(const BufferDescription &description, const void *data)
-	{
-		return CreateRef<VertexBufferVk>(description, data, this);
-	}
-
-	Ref<IndexBuffer> GraphicsDeviceVk::CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format)
-	{
-		return CreateRef<IndexBufferVk>(description, data, this, format);
-	}
-
-	Ref<UniformBuffer> GraphicsDeviceVk::CreateUniformBuffer(const BufferDescription &description, const void *data)
-	{
-		return CreateRef<UniformBufferVk>(description, data, this);
 	}
 
 	Ref<ResourceSet> GraphicsDeviceVk::CreateResourceSet(const ResourceSetSpecification &spec)

@@ -1,3 +1,5 @@
+#include "Demos/Demo.hpp"
+
 #include "Demos/AudioDemo.hpp"
 #include "Demos/BatchingDemo.hpp"
 #include "Demos/CameraDemo.hpp"
@@ -16,6 +18,7 @@
 #include "Demos/Texturing.hpp"
 #include "Demos/TimingDemo.hpp"
 #include "Demos/UniformBufferDemo.hpp"
+
 #include "Nexus-Core/FileSystem/FileSystem.hpp"
 #include "Nexus-Core/Graphics/Color.hpp"
 #include "Nexus-Core/Graphics/MeshFactory.hpp"
@@ -286,7 +289,7 @@ class DemoApplication : public Nexus::Application
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
 	Nexus::ApplicationSpecification spec;
-	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
+	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
 	spec.AudioAPI	 = Nexus::Audio::AudioAPI::OpenAL;
 
 	spec.WindowProperties.Width			   = 1280;

@@ -2,7 +2,7 @@
 
 #if defined(NX_PLATFORM_D3D12)
 
-	#include "BufferD3D12.hpp"
+	#include "DeviceBufferD3D12.hpp"
 	#include "CommandListD3D12.hpp"
 	#include "FramebufferD3D12.hpp"
 	#include "PipelineD3D12.hpp"
@@ -124,21 +124,6 @@ namespace Nexus::Graphics
 	Ref<CommandList> GraphicsDeviceD3D12::CreateCommandList(const CommandListSpecification &spec)
 	{
 		return CreateRef<CommandListD3D12>(this, spec);
-	}
-
-	Ref<VertexBuffer> GraphicsDeviceD3D12::CreateVertexBuffer(const BufferDescription &description, const void *data)
-	{
-		return CreateRef<VertexBufferD3D12>(this, description, data);
-	}
-
-	Ref<IndexBuffer> GraphicsDeviceD3D12::CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format)
-	{
-		return CreateRef<IndexBufferD3D12>(this, description, data, format);
-	}
-
-	Ref<UniformBuffer> GraphicsDeviceD3D12::CreateUniformBuffer(const BufferDescription &description, const void *data)
-	{
-		return CreateRef<UniformBufferD3D12>(this, description, data);
 	}
 
 	Ref<ResourceSet> GraphicsDeviceD3D12::CreateResourceSet(const ResourceSetSpecification &spec)

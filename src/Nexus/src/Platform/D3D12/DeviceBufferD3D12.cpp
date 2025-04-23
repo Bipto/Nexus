@@ -44,7 +44,8 @@ namespace Nexus::Graphics
 
 	void DeviceBufferD3D12::SetData(const void *data, uint32_t offset, uint32_t size)
 	{
-		NX_ASSERT(m_BufferDescription.Type == DeviceBufferType::Upload, "Cannot write to a non-upload buffer");
+		NX_ASSERT(m_BufferDescription.Type == DeviceBufferType::Upload || m_BufferDescription.HostVisible,
+				  "Buffer must be an upload buffer or have been created with the HostVisible property set");
 
 		D3D12_RANGE range = {};
 		range.Begin		  = 0;
@@ -61,7 +62,8 @@ namespace Nexus::Graphics
 
 	std::vector<char> DeviceBufferD3D12::GetData(uint32_t offset, uint32_t size) const
 	{
-		NX_ASSERT(m_BufferDescription.Type == DeviceBufferType::Readback, "Cannot read from a non-readback buffer");
+		NX_ASSERT(m_BufferDescription.Type == DeviceBufferType::Readback || m_BufferDescription.HostVisible,
+				  "Buffer must be a readback buffer or have been created with the HostVisible property set");
 		std::vector<char> data(size);
 
 		D3D12_RANGE range = {};

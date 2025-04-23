@@ -42,15 +42,19 @@ namespace Demos
 			Nexus::Graphics::SamplerSpecification samplerSpec {};
 			m_Sampler = m_GraphicsDevice->CreateSampler(samplerSpec);
 
-			Nexus::Graphics::BufferDescription cameraUniformBufferDesc;
-			cameraUniformBufferDesc.Size  = sizeof(VB_UNIFORM_CAMERA_DEMO_CAMERA);
-			cameraUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
-			m_CameraUniformBuffer		  = m_GraphicsDevice->CreateUniformBuffer(cameraUniformBufferDesc, nullptr);
+			Nexus::Graphics::DeviceBufferDescription cameraUniformBufferDesc = {};
+			cameraUniformBufferDesc.Type									 = Nexus::Graphics::DeviceBufferType::Uniform;
+			cameraUniformBufferDesc.StrideInBytes							 = sizeof(VB_UNIFORM_CAMERA_DEMO_CAMERA);
+			cameraUniformBufferDesc.SizeInBytes								 = sizeof(VB_UNIFORM_CAMERA_DEMO_CAMERA);
+			cameraUniformBufferDesc.HostVisible								 = true;
+			m_CameraUniformBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(cameraUniformBufferDesc));
 
-			Nexus::Graphics::BufferDescription transformUniformBufferDesc;
-			transformUniformBufferDesc.Size	 = sizeof(VB_UNIFORM_TRANSFORM_DEMO_CAMERA);
-			transformUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
-			m_TransformUniformBuffer		 = m_GraphicsDevice->CreateUniformBuffer(transformUniformBufferDesc, nullptr);
+			Nexus::Graphics::DeviceBufferDescription transformUniformBufferDesc = {};
+			transformUniformBufferDesc.Type										= Nexus::Graphics::DeviceBufferType::Uniform;
+			transformUniformBufferDesc.StrideInBytes							= sizeof(VB_UNIFORM_TRANSFORM_DEMO_CAMERA);
+			transformUniformBufferDesc.SizeInBytes								= sizeof(VB_UNIFORM_TRANSFORM_DEMO_CAMERA);
+			transformUniformBufferDesc.HostVisible								= true;
+			m_TransformUniformBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc));
 
 			CreatePipeline();
 			m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, -2.5f));
@@ -58,12 +62,18 @@ namespace Demos
 
 		virtual void Render(Nexus::TimeSpan time) override
 		{
-			m_TransformUniforms.Transform = glm::mat4(1.0f);
-			m_TransformUniformBuffer->SetData(&m_TransformUniforms, sizeof(m_TransformUniforms));
+			// upload transform
+			{
+				m_TransformUniforms.Transform = glm::mat4(1.0f);
+				m_TransformUniformBuffer->SetData(&m_TransformUniforms, 0, sizeof(m_TransformUniforms));
+			}
 
-			m_CameraUniforms.View		= m_Camera.GetView();
-			m_CameraUniforms.Projection = m_Camera.GetProjection();
-			m_CameraUniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms));
+			// upload camera
+			{
+				m_CameraUniforms.View		= m_Camera.GetView();
+				m_CameraUniforms.Projection = m_Camera.GetProjection();
+				m_CameraUniformBuffer->SetData(&m_CameraUniforms, 0, sizeof(m_CameraUniforms));
+			}
 
 			m_CommandList->Begin();
 			m_CommandList->SetPipeline(m_Pipeline);
@@ -95,10 +105,21 @@ namespace Demos
 			m_ResourceSet->WriteCombinedImageSampler(m_Texture, m_Sampler, "texSampler");
 			m_CommandList->SetResourceSet(m_ResourceSet);
 
-			m_CommandList->SetVertexBuffer(m_Mesh->GetVertexBuffer(), 0);
-			m_CommandList->SetIndexBuffer(m_Mesh->GetIndexBuffer());
+			Nexus::Graphics::VertexBufferView vertexBufferView = {};
+			vertexBufferView.BufferHandle					   = m_Mesh->GetVertexBuffer().get();
+			vertexBufferView.Offset							   = 0;
+			vertexBufferView.Stride							   = m_Mesh->GetVertexBuffer()->GetDescription().StrideInBytes;
+			vertexBufferView.Size							   = m_Mesh->GetVertexBuffer()->GetDescription().SizeInBytes;
+			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
-			auto indexCount = m_Mesh->GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
+			Nexus::Graphics::IndexBufferView indexBufferView = {};
+			indexBufferView.BufferHandle					 = m_Mesh->GetIndexBuffer().get();
+			indexBufferView.Offset							 = 0;
+			indexBufferView.Size							 = m_Mesh->GetIndexBuffer()->GetDescription().SizeInBytes;
+			indexBufferView.BufferFormat					 = Nexus::Graphics::IndexBufferFormat::UInt32;
+			m_CommandList->SetIndexBuffer(indexBufferView);
+
+			auto indexCount = m_Mesh->GetIndexBuffer()->GetCount();
 			m_CommandList->DrawIndexed(indexCount, 0, 0);
 			m_CommandList->End();
 
@@ -153,10 +174,10 @@ namespace Demos
 		Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
 
 		VB_UNIFORM_CAMERA_DEMO_CAMERA			   m_CameraUniforms;
-		Nexus::Ref<Nexus::Graphics::UniformBuffer> m_CameraUniformBuffer;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer>  m_CameraUniformBuffer;
 
 		VB_UNIFORM_TRANSFORM_DEMO_CAMERA		   m_TransformUniforms;
-		Nexus::Ref<Nexus::Graphics::UniformBuffer> m_TransformUniformBuffer;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer>  m_TransformUniformBuffer;
 
 		Nexus::FirstPersonCamera m_Camera;
 	};

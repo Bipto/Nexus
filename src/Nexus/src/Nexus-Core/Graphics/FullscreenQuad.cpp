@@ -14,12 +14,12 @@ namespace Nexus::Graphics
 		}
 	}
 
-	Ref<VertexBuffer> FullscreenQuad::GetVertexBuffer()
+	Ref<DeviceBuffer> FullscreenQuad::GetVertexBuffer()
 	{
 		return m_VertexBuffer;
 	}
 
-	Ref<IndexBuffer> FullscreenQuad::GetIndexBuffer()
+	Ref<DeviceBuffer> FullscreenQuad::GetIndexBuffer()
 	{
 		return m_IndexBuffer;
 	}
@@ -47,15 +47,12 @@ namespace Nexus::Graphics
 
 		std::vector<unsigned int> indices = {0, 1, 2, 2, 3, 0};
 
-		Nexus::Graphics::BufferDescription vertexBufferDesc;
-		vertexBufferDesc.Size  = vertices.size() * sizeof(VertexPositionTexCoord);
-		vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-		m_VertexBuffer		   = m_GraphicsDevice->CreateVertexBuffer(vertexBufferDesc, vertices.data());
+		m_VertexBuffer = Utils::CreateFilledVertexBuffer(vertices.data(),
+														 vertices.size() * sizeof(VertexPositionTexCoord),
+														 sizeof(VertexPositionTexCoord),
+														 m_GraphicsDevice);
 
-		Nexus::Graphics::BufferDescription indexBufferDesc;
-		indexBufferDesc.Size  = indices.size() * sizeof(unsigned int);
-		indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-		m_IndexBuffer		  = m_GraphicsDevice->CreateIndexBuffer(indexBufferDesc, indices.data());
+		m_IndexBuffer = Utils::CreateFilledIndexBuffer(indices.data(), indices.size() * sizeof(uint32_t), sizeof(uint32_t), m_GraphicsDevice);
 	}
 
 	void FullscreenQuad::CreateWithoutUV()
@@ -69,15 +66,10 @@ namespace Nexus::Graphics
 
 		std::vector<unsigned int> indices = {0, 1, 2, 2, 3, 0};
 
-		Nexus::Graphics::BufferDescription vertexBufferDesc;
-		vertexBufferDesc.Size  = vertices.size() * sizeof(VertexPosition);
-		vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-		m_VertexBuffer		   = m_GraphicsDevice->CreateVertexBuffer(vertexBufferDesc, vertices.data());
+		m_VertexBuffer =
+			Utils::CreateFilledVertexBuffer(vertices.data(), vertices.size() * sizeof(VertexPosition), sizeof(VertexPosition), m_GraphicsDevice);
 
-		Nexus::Graphics::BufferDescription indexBufferDesc;
-		indexBufferDesc.Size  = indices.size() * sizeof(unsigned int);
-		indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-		m_IndexBuffer		  = m_GraphicsDevice->CreateIndexBuffer(indexBufferDesc, indices.data());
+		m_IndexBuffer = Utils::CreateFilledIndexBuffer(indices.data(), indices.size() * sizeof(uint32_t), sizeof(uint32_t), m_GraphicsDevice);
 	}
 
 }	 // namespace Nexus::Graphics

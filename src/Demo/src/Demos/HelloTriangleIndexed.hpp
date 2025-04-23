@@ -27,17 +27,23 @@ namespace Demos
 				{{0.5f, -0.5f, 0.0f}},	   // bottom right
 			};
 
-			Nexus::Graphics::BufferDescription vertexBufferDesc;
-			vertexBufferDesc.Size  = vertices.size() * sizeof(Nexus::Graphics::VertexPosition);
-			vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-			m_VertexBuffer		   = m_GraphicsDevice->CreateVertexBuffer(vertexBufferDesc, vertices.data());
+			Nexus::Graphics::DeviceBufferDescription vertexBufferDesc = {};
+			vertexBufferDesc.Type									  = Nexus::Graphics::DeviceBufferType::Vertex;
+			vertexBufferDesc.StrideInBytes							  = sizeof(Nexus::Graphics::VertexPosition);
+			vertexBufferDesc.SizeInBytes							  = vertices.size() * sizeof(Nexus::Graphics::VertexPosition);
+			vertexBufferDesc.HostVisible							  = true;
+			m_VertexBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc));
+			m_VertexBuffer->SetData(vertices.data(), 0, vertices.size() * sizeof(Nexus::Graphics::VertexPosition));
 
-			std::vector<unsigned int> indices = {0, 1, 2};
+			std::vector<uint32_t> indices = {0, 1, 2};
 
-			Nexus::Graphics::BufferDescription indexBufferDesc;
-			indexBufferDesc.Size  = indices.size() * sizeof(unsigned int);
-			indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-			m_IndexBuffer		  = m_GraphicsDevice->CreateIndexBuffer(indexBufferDesc, indices.data());
+			Nexus::Graphics::DeviceBufferDescription indexBufferDesc = {};
+			indexBufferDesc.Type									 = Nexus::Graphics::DeviceBufferType::Index;
+			indexBufferDesc.StrideInBytes							 = sizeof(uint32_t);
+			indexBufferDesc.SizeInBytes								 = indices.size() * sizeof(uint32_t);
+			indexBufferDesc.HostVisible								 = true;
+			m_IndexBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(indexBufferDesc));
+			m_IndexBuffer->SetData(indices.data(), 0, indices.size() * sizeof(uint32_t));
 		}
 
 		virtual void Render(Nexus::TimeSpan time) override
@@ -64,8 +70,19 @@ namespace Demos
 
 			m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 
-			m_CommandList->SetVertexBuffer(m_VertexBuffer, 0);
-			m_CommandList->SetIndexBuffer(m_IndexBuffer);
+			Nexus::Graphics::VertexBufferView vertexBufferView = {};
+			vertexBufferView.BufferHandle					   = m_VertexBuffer.get();
+			vertexBufferView.Offset							   = 0;
+			vertexBufferView.Stride							   = m_VertexBuffer->GetDescription().StrideInBytes;
+			vertexBufferView.Size							   = m_VertexBuffer->GetDescription().SizeInBytes;
+			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
+
+			Nexus::Graphics::IndexBufferView indexBufferView = {};
+			indexBufferView.BufferHandle					 = m_IndexBuffer.get();
+			indexBufferView.Offset							 = 0;
+			indexBufferView.Size							 = m_IndexBuffer->GetDescription().SizeInBytes;
+			indexBufferView.BufferFormat					 = Nexus::Graphics::IndexBufferFormat::UInt32;
+			m_CommandList->SetIndexBuffer(indexBufferView);
 
 			m_CommandList->DrawIndexed(m_IndexBuffer->GetCount(), 0, 0);
 			m_CommandList->End();
@@ -104,8 +121,8 @@ namespace Demos
 	  private:
 		Nexus::Ref<Nexus::Graphics::CommandList>  m_CommandList;
 		Nexus::Ref<Nexus::Graphics::Pipeline>	  m_Pipeline;
-		Nexus::Ref<Nexus::Graphics::VertexBuffer> m_VertexBuffer;
-		Nexus::Ref<Nexus::Graphics::IndexBuffer>  m_IndexBuffer;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_VertexBuffer;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_IndexBuffer;
 		glm::vec3								  m_ClearColour = {0.7f, 0.2f, 0.3f};
 	};
 }	 // namespace Demos

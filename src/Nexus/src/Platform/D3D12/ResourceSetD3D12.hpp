@@ -13,7 +13,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		ResourceSetD3D12(const ResourceSetSpecification &spec, GraphicsDeviceD3D12 *device);
-		virtual void WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, const std::string &name) override;
+		virtual void WriteUniformBuffer(Ref<DeviceBuffer> uniformBuffer, const std::string &name) override;
 		virtual void WriteCombinedImageSampler(Ref<Texture2D> texture, Ref<Sampler> sampler, const std::string &name) override;
 		virtual void WriteCombinedImageSampler(Ref<Cubemap> cubemap, Ref<Sampler> sampler, const std::string &name) override;
 

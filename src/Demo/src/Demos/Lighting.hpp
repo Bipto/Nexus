@@ -46,15 +46,19 @@ namespace Demos
 			m_SpecularMap =
 				m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_spec_1k.jpg"), true);
 
-			Nexus::Graphics::BufferDescription cameraUniformBufferDesc;
-			cameraUniformBufferDesc.Size  = sizeof(VB_UNIFORM_CAMERA_DEMO_LIGHTING);
-			cameraUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
-			m_CameraUniformBuffer		  = m_GraphicsDevice->CreateUniformBuffer(cameraUniformBufferDesc, nullptr);
+			Nexus::Graphics::DeviceBufferDescription cameraUniformBufferDesc = {};
+			cameraUniformBufferDesc.Type									 = Nexus::Graphics::DeviceBufferType::Uniform;
+			cameraUniformBufferDesc.StrideInBytes							 = sizeof(VB_UNIFORM_CAMERA_DEMO_LIGHTING);
+			cameraUniformBufferDesc.SizeInBytes								 = sizeof(VB_UNIFORM_CAMERA_DEMO_LIGHTING);
+			cameraUniformBufferDesc.HostVisible								 = true;
+			m_CameraUniformBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(cameraUniformBufferDesc));
 
-			Nexus::Graphics::BufferDescription transformUniformBufferDesc;
-			transformUniformBufferDesc.Size	 = sizeof(VB_UNIFORM_TRANSFORM_DEMO_LIGHTING);
-			transformUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
-			m_TransformUniformBuffer		 = m_GraphicsDevice->CreateUniformBuffer(transformUniformBufferDesc, nullptr);
+			Nexus::Graphics::DeviceBufferDescription transformUniformBufferDesc = {};
+			transformUniformBufferDesc.Type										= Nexus::Graphics::DeviceBufferType::Uniform;
+			transformUniformBufferDesc.StrideInBytes							= sizeof(VB_UNIFORM_TRANSFORM_DEMO_LIGHTING);
+			transformUniformBufferDesc.SizeInBytes								= sizeof(VB_UNIFORM_TRANSFORM_DEMO_LIGHTING);
+			transformUniformBufferDesc.HostVisible								= true;
+			m_TransformUniformBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc));
 
 			CreatePipeline();
 			m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, -2.5f));
@@ -67,13 +71,13 @@ namespace Demos
 		{
 			m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0)) *
 											glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation), {1.0f, 1.0f, 0.0f});
-			m_TransformUniformBuffer->SetData(&m_TransformUniforms, sizeof(m_TransformUniforms));
+			m_TransformUniformBuffer->SetData(&m_TransformUniforms, 0, sizeof(m_TransformUniforms));
 
 			m_Rotation += time.GetSeconds();
 			m_CameraUniforms.View		 = m_Camera.GetView();
 			m_CameraUniforms.Projection	 = m_Camera.GetProjection();
 			m_CameraUniforms.CamPosition = m_Camera.GetPosition();
-			m_CameraUniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms));
+			m_CameraUniformBuffer->SetData(&m_CameraUniforms, 0, sizeof(m_CameraUniforms));
 
 			m_CommandList->Begin();
 			m_CommandList->SetPipeline(m_Pipeline);
@@ -112,10 +116,21 @@ namespace Demos
 
 			// draw cube
 			{
-				m_CommandList->SetVertexBuffer(m_CubeMesh->GetVertexBuffer(), 0);
-				m_CommandList->SetIndexBuffer(m_CubeMesh->GetIndexBuffer());
+				Nexus::Graphics::VertexBufferView vertexBufferView = {};
+				vertexBufferView.BufferHandle					   = m_CubeMesh->GetVertexBuffer().get();
+				vertexBufferView.Offset							   = 0;
+				vertexBufferView.Stride							   = m_CubeMesh->GetVertexBuffer()->GetDescription().StrideInBytes;
+				vertexBufferView.Size							   = m_CubeMesh->GetVertexBuffer()->GetDescription().SizeInBytes;
+				m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
-				auto indexCount = m_CubeMesh->GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
+				Nexus::Graphics::IndexBufferView indexBufferView = {};
+				indexBufferView.BufferHandle					 = m_CubeMesh->GetIndexBuffer().get();
+				indexBufferView.Offset							 = 0;
+				indexBufferView.Size							 = m_CubeMesh->GetIndexBuffer()->GetDescription().SizeInBytes;
+				indexBufferView.BufferFormat					 = Nexus::Graphics::IndexBufferFormat::UInt32;
+				m_CommandList->SetIndexBuffer(indexBufferView);
+
+				auto indexCount = m_CubeMesh->GetIndexBuffer()->GetCount();
 				m_CommandList->DrawIndexed(indexCount, 0, 0);
 			}
 
@@ -178,10 +193,10 @@ namespace Demos
 		glm::vec3								 m_ClearColour = {0.7f, 0.2f, 0.3f};
 
 		VB_UNIFORM_CAMERA_DEMO_LIGHTING			   m_CameraUniforms;
-		Nexus::Ref<Nexus::Graphics::UniformBuffer> m_CameraUniformBuffer;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer>  m_CameraUniformBuffer;
 
 		VB_UNIFORM_TRANSFORM_DEMO_LIGHTING		   m_TransformUniforms;
-		Nexus::Ref<Nexus::Graphics::UniformBuffer> m_TransformUniformBuffer;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer>  m_TransformUniformBuffer;
 
 		Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler;
 

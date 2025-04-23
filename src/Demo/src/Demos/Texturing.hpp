@@ -61,10 +61,22 @@ namespace Demos
 			m_ResourceSet->WriteCombinedImageSampler(m_Texture, m_Sampler, "texSampler");
 
 			m_CommandList->SetResourceSet(m_ResourceSet);
-			m_CommandList->SetVertexBuffer(m_Mesh->GetVertexBuffer(), 0);
-			m_CommandList->SetIndexBuffer(m_Mesh->GetIndexBuffer());
 
-			auto indexCount = m_Mesh->GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
+			Nexus::Graphics::VertexBufferView vertexBufferView = {};
+			vertexBufferView.BufferHandle					   = m_Mesh->GetVertexBuffer().get();
+			vertexBufferView.Offset							   = 0;
+			vertexBufferView.Stride							   = m_Mesh->GetVertexBuffer()->GetDescription().StrideInBytes;
+			vertexBufferView.Size							   = m_Mesh->GetVertexBuffer()->GetDescription().SizeInBytes;
+			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
+
+			Nexus::Graphics::IndexBufferView indexBufferView = {};
+			indexBufferView.BufferHandle					 = m_Mesh->GetIndexBuffer().get();
+			indexBufferView.Offset							 = 0;
+			indexBufferView.Size							 = m_Mesh->GetIndexBuffer()->GetDescription().SizeInBytes;
+			indexBufferView.BufferFormat					 = Nexus::Graphics::IndexBufferFormat::UInt32;
+			m_CommandList->SetIndexBuffer(indexBufferView);
+
+			auto indexCount = m_Mesh->GetIndexBuffer()->GetCount();
 			m_CommandList->DrawIndexed(indexCount, 0, 0);
 			m_CommandList->End();
 

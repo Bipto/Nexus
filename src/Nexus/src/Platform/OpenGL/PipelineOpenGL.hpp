@@ -2,7 +2,7 @@
 
 #if defined(NX_PLATFORM_OPENGL)
 
-	#include "BufferOpenGL.hpp"
+	#include "DeviceBufferOpenGL.hpp"
 	#include "Nexus-Core/Graphics/Pipeline.hpp"
 
 namespace Nexus::Graphics
@@ -13,10 +13,10 @@ namespace Nexus::Graphics
 		PipelineOpenGL(const PipelineDescription &description);
 		virtual ~PipelineOpenGL();
 		virtual const PipelineDescription &GetPipelineDescription() const override;
-		void							   BindBuffers(const std::map<uint32_t, Nexus::WeakRef<Nexus::Graphics::VertexBufferOpenGL>> &vertexBuffers,
-													   Nexus::WeakRef<Nexus::Graphics::IndexBufferOpenGL>							  indexBuffer,
-													   uint32_t																		  vertexOffset,
-													   uint32_t																		  instanceOffset);
+		void							   BindBuffers(const std::map<uint32_t, VertexBufferView> &vertexBuffers,
+													   std::optional<IndexBufferView>			   indexBuffer,
+													   uint32_t									   vertexOffset,
+													   uint32_t									   instanceOffset);
 		void	 Bind();
 		void	 Unbind();
 		uint32_t GetShaderHandle() const;

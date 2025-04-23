@@ -254,9 +254,8 @@ namespace Nexus::Graphics
 	std::vector<VkPipelineColorBlendAttachmentState> PipelineVk::CreateColorBlendAttachmentStates()
 	{
 		std::vector<VkPipelineColorBlendAttachmentState> colourBlendStates;
-		colourBlendStates.reserve(8);
 
-		for (size_t i = 0; i < m_Description.ColourBlendStates.size(); i++)
+		for (size_t i = 0; i < m_Description.ColourTargetCount; i++)
 		{
 			VkColorComponentFlags writeMask = {};
 			if (m_Description.ColourBlendStates[i].PixelWriteMask.Red)

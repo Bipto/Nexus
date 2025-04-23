@@ -5,7 +5,6 @@
 #include "CommandList.hpp"
 #include "DeviceBuffer.hpp"
 #include "Framebuffer.hpp"
-#include "GPUBuffer.hpp"
 #include "GraphicsCapabilities.hpp"
 #include "IPhysicalDevice.hpp"
 #include "Nexus-Core/Graphics/ShaderGenerator.hpp"
@@ -60,30 +59,6 @@ namespace Nexus::Graphics
 		/// @param description The properties to use when creating the pipeline
 		/// @return A pointer to a pipeline
 		virtual Ref<Pipeline> CreatePipeline(const PipelineDescription &description) = 0;
-
-		/// @brief A pure virtual method that creates a vertex buffer from a given
-		/// description
-		/// @param description The properties to use when creating the buffer
-		/// @param data The initial data to store in the buffer
-		/// @param layout The layout of the vertex buffer
-		/// @return A pointer to a vertex buffer
-		virtual Ref<VertexBuffer> CreateVertexBuffer(const BufferDescription &description, const void *data) = 0;
-
-		/// @brief A pure virtual method that creates an index buffer from a given
-		/// description
-		/// @param description The properties to use when creating the buffer
-		/// @param data The initial data to store in the buffer
-		/// @return A pointer to an index buffer
-		virtual Ref<IndexBuffer> CreateIndexBuffer(const BufferDescription &description,
-												   const void			   *data,
-												   IndexBufferFormat		format = IndexBufferFormat::UInt32) = 0;
-
-		/// @brief A pure virtual method that creates a uniform buffer from a given
-		/// description
-		/// @param description The properties to use when creating the buffer
-		/// @param data The initial data to store in the buffer
-		/// @return A pointer to a uniform buffer
-		virtual Ref<UniformBuffer> CreateUniformBuffer(const BufferDescription &description, const void *data) = 0;
 
 		/// @brief A pure virtual method that creates a new command list
 		/// @return A pointer to a command list

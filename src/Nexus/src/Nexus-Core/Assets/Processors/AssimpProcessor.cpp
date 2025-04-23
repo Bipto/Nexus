@@ -303,15 +303,17 @@ namespace Nexus::Processors
 		{
 			const Graphics::MeshData &data = importData.meshes[i];
 
-			Nexus::Graphics::BufferDescription vertexBufferDesc;
-			vertexBufferDesc.Size  = data.vertices.size() * sizeof(Graphics::VertexPositionTexCoordNormalColourTangentBitangent);
-			vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-			auto vertexBuffer	   = device->CreateVertexBuffer(vertexBufferDesc, data.vertices.data());
+			Nexus::Ref<Nexus::Graphics::DeviceBuffer> vertexBuffer =
+				Nexus::Utils::CreateFilledVertexBuffer(data.vertices.data(),
+													   data.vertices.size() * sizeof(data.vertices[0]),
+													   sizeof(data.vertices[0]),
+													   device);
 
-			Nexus::Graphics::BufferDescription indexBufferDesc;
-			indexBufferDesc.Size  = data.indices.size() * sizeof(uint32_t);
-			indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-			auto indexBuffer	  = device->CreateIndexBuffer(indexBufferDesc, data.indices.data());
+			Nexus::Ref<Nexus::Graphics::DeviceBuffer> indexBuffer =
+				Nexus::Utils::CreateFilledIndexBuffer(data.indices.data(),
+													  data.indices.size() * sizeof(data.indices[0]),
+													  sizeof(data.indices[0]),
+													  device);
 
 			Graphics::Material		   material = importData.materials[data.materialIndex];
 			Nexus::Ref<Graphics::Mesh> mesh		= CreateRef<Graphics::Mesh>(vertexBuffer, indexBuffer, material, data.name);

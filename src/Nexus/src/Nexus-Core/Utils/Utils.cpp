@@ -1,5 +1,7 @@
 #include "Nexus-Core/Utils/Utils.hpp"
 
+#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
+
 namespace Nexus::Utils
 {
 	glm::vec4 ColorFromRGBA(float r, float g, float b, float a)
@@ -277,6 +279,87 @@ namespace Nexus::Utils
 		auto now	  = std::chrono::system_clock::now();
 		auto duration = now.time_since_epoch();
 		return std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+	}
+
+	std::unique_ptr<Graphics::DeviceBuffer> CreateUploadBuffer(const void				*data,
+															   size_t					 sizeInBytes,
+															   size_t					 strideInBytes,
+															   Graphics::GraphicsDevice *device)
+	{
+		Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
+		bufferDesc.Type										= Nexus::Graphics::DeviceBufferType::Upload;
+		bufferDesc.StrideInBytes							= strideInBytes;
+		bufferDesc.SizeInBytes								= sizeInBytes;
+
+		std::unique_ptr<Graphics::DeviceBuffer> buffer = std::unique_ptr<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(bufferDesc));
+		buffer->SetData(data, 0, sizeInBytes);
+		return buffer;
+	}
+
+	Ref<Graphics::DeviceBuffer> CreateFilledVertexBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::GraphicsDevice *device)
+	{
+		std::unique_ptr<Graphics::DeviceBuffer> uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
+
+		Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
+		bufferDesc.Type										= Nexus::Graphics::DeviceBufferType::Vertex;
+		bufferDesc.StrideInBytes							= strideInBytes;
+		bufferDesc.SizeInBytes								= sizeInBytes;
+		Ref<Graphics::DeviceBuffer> vertexBuffer			= Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(bufferDesc));
+
+		Nexus::Graphics::BufferCopyDescription bufferCopy = {};
+		bufferCopy.Source								  = uploadBuffer.get();
+		bufferCopy.Target								  = vertexBuffer.get();
+		bufferCopy.ReadOffset							  = 0;
+		bufferCopy.WriteOffset							  = 0;
+		bufferCopy.Size									  = sizeInBytes;
+		device->CopyBuffer(bufferCopy);
+
+		return vertexBuffer;
+	}
+
+	Ref<Graphics::DeviceBuffer> CreateFilledIndexBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::GraphicsDevice *device)
+	{
+		std::unique_ptr<Graphics::DeviceBuffer> uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
+
+		Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
+		bufferDesc.Type										= Nexus::Graphics::DeviceBufferType::Index;
+		bufferDesc.StrideInBytes							= strideInBytes;
+		bufferDesc.SizeInBytes								= sizeInBytes;
+		Ref<Graphics::DeviceBuffer> indexBuffer				= Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(bufferDesc));
+
+		Nexus::Graphics::BufferCopyDescription bufferCopy = {};
+		bufferCopy.Source								  = uploadBuffer.get();
+		bufferCopy.Target								  = indexBuffer.get();
+		bufferCopy.ReadOffset							  = 0;
+		bufferCopy.WriteOffset							  = 0;
+		bufferCopy.Size									  = sizeInBytes;
+		device->CopyBuffer(bufferCopy);
+
+		return indexBuffer;
+	}
+
+	Ref<Graphics::DeviceBuffer> CreateFilledUniformBuffer(const void			   *data,
+														  size_t					sizeInBytes,
+														  size_t					strideInBytes,
+														  Graphics::GraphicsDevice *device)
+	{
+		std::unique_ptr<Graphics::DeviceBuffer> uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
+
+		Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
+		bufferDesc.Type										= Nexus::Graphics::DeviceBufferType::Uniform;
+		bufferDesc.StrideInBytes							= strideInBytes;
+		bufferDesc.SizeInBytes								= sizeInBytes;
+		Ref<Graphics::DeviceBuffer> uniformBuffer			= Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(bufferDesc));
+
+		Nexus::Graphics::BufferCopyDescription bufferCopy = {};
+		bufferCopy.Source								  = uploadBuffer.get();
+		bufferCopy.Target								  = uniformBuffer.get();
+		bufferCopy.ReadOffset							  = 0;
+		bufferCopy.WriteOffset							  = 0;
+		bufferCopy.Size									  = sizeInBytes;
+		device->CopyBuffer(bufferCopy);
+
+		return uniformBuffer;
 	}
 
 	void FlipPixelsHorizontally(std::vector<unsigned char> &pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format)

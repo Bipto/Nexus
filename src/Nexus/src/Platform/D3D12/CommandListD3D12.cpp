@@ -2,7 +2,7 @@
 
 #if defined(NX_PLATFORM_D3D12)
 
-	#include "BufferD3D12.hpp"
+	#include "DeviceBufferD3D12.hpp"
 	#include "D3D12Utils.hpp"
 	#include "FramebufferD3D12.hpp"
 	#include "PipelineD3D12.hpp"

@@ -19,7 +19,8 @@ namespace Nexus::Graphics
 
 	void DeviceBufferOpenGL::SetData(const void *data, uint32_t offset, uint32_t size)
 	{
-		NX_ASSERT(m_BufferDescription.Type == DeviceBufferType::Upload, "Cannot write to a non-upload buffer");
+		NX_ASSERT(m_BufferDescription.Type == DeviceBufferType::Upload || m_BufferDescription.HostVisible,
+				  "Buffer must be an upload buffer or have been created with the HostVisible property set");
 
 		glCall(glBindBuffer(m_BufferTarget, m_BufferHandle));
 		glCall(glBufferSubData(m_BufferTarget, offset, size, data));
@@ -27,7 +28,8 @@ namespace Nexus::Graphics
 
 	std::vector<char> DeviceBufferOpenGL::GetData(uint32_t offset, uint32_t size) const
 	{
-		NX_ASSERT(m_BufferDescription.Type == DeviceBufferType::Readback, "Cannot read from a non-readback buffer");
+		NX_ASSERT(m_BufferDescription.Type == DeviceBufferType::Readback || m_BufferDescription.HostVisible,
+				  "Buffer must be a readback buffer or have been created with the HostVisible property set");
 
 		std::vector<char> data(size);
 		glCall(glBindBuffer(m_BufferTarget, m_BufferHandle));

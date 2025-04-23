@@ -38,7 +38,7 @@ namespace Demos
 		virtual void Render(Nexus::TimeSpan time) override
 		{
 			m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), m_Position);
-			m_TransformUniformBuffer->SetData(&m_TransformUniforms, sizeof(m_TransformUniforms));
+			m_TransformUniformBuffer->SetData(&m_TransformUniforms, 0, sizeof(m_TransformUniforms));
 
 			m_CommandList->Begin();
 			m_CommandList->SetPipeline(m_Pipeline);
@@ -67,10 +67,21 @@ namespace Demos
 
 			m_CommandList->SetResourceSet(m_ResourceSet);
 
-			m_CommandList->SetVertexBuffer(m_Mesh->GetVertexBuffer(), 0);
-			m_CommandList->SetIndexBuffer(m_Mesh->GetIndexBuffer());
+			Nexus::Graphics::VertexBufferView vertexBufferView = {};
+			vertexBufferView.BufferHandle					   = m_Mesh->GetVertexBuffer().get();
+			vertexBufferView.Offset							   = 0;
+			vertexBufferView.Stride							   = m_Mesh->GetVertexBuffer()->GetDescription().StrideInBytes;
+			vertexBufferView.Size							   = m_Mesh->GetVertexBuffer()->GetDescription().SizeInBytes;
+			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
-			auto indexCount = m_Mesh->GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
+			Nexus::Graphics::IndexBufferView indexBufferView = {};
+			indexBufferView.BufferHandle					 = m_Mesh->GetIndexBuffer().get();
+			indexBufferView.Offset							 = 0;
+			indexBufferView.Size							 = m_Mesh->GetIndexBuffer()->GetDescription().SizeInBytes;
+			indexBufferView.BufferFormat					 = Nexus::Graphics::IndexBufferFormat::UInt32;
+			m_CommandList->SetIndexBuffer(indexBufferView);
+
+			auto indexCount = m_Mesh->GetIndexBuffer()->GetCount();
 			m_CommandList->DrawIndexed(indexCount, 0, 0);
 			m_CommandList->End();
 
@@ -96,10 +107,12 @@ namespace Demos
 				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/uniform_buffers.frag.glsl",
 																	   Nexus::Graphics::ShaderStage::Fragment);
 
-			Nexus::Graphics::BufferDescription transformUniformBufferDesc;
-			transformUniformBufferDesc.Size	 = sizeof(VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO);
-			transformUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
-			m_TransformUniformBuffer		 = m_GraphicsDevice->CreateUniformBuffer(transformUniformBufferDesc, nullptr);
+			Nexus::Graphics::DeviceBufferDescription transformUniformBufferDesc = {};
+			transformUniformBufferDesc.Type										= Nexus::Graphics::DeviceBufferType::Uniform;
+			transformUniformBufferDesc.StrideInBytes							= sizeof(VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO);
+			transformUniformBufferDesc.SizeInBytes								= sizeof(VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO);
+			transformUniformBufferDesc.HostVisible								= true;
+			m_TransformUniformBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc));
 
 			pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Transform", 0, 0}};
 
@@ -132,6 +145,6 @@ namespace Demos
 		glm::vec3 m_Position {0.0f, 0.0f, 0.0f};
 
 		VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO   m_TransformUniforms;
-		Nexus::Ref<Nexus::Graphics::UniformBuffer> m_TransformUniformBuffer;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer>  m_TransformUniformBuffer;
 	};
 }	 // namespace Demos

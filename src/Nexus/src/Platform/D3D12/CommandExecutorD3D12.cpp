@@ -2,7 +2,7 @@
 
 	#include "CommandExecutorD3D12.hpp"
 
-	#include "BufferD3D12.hpp"
+	#include "DeviceBufferD3D12.hpp"
 	#include "FramebufferD3D12.hpp"
 	#include "PipelineD3D12.hpp"
 	#include "ResourceSetD3D12.hpp"
@@ -45,26 +45,31 @@ namespace Nexus::Graphics
 		}
 
 		Ref<PipelineD3D12>	   pipeline			 = m_CurrentlyBoundPipeline.value();
-		Ref<VertexBufferD3D12> d3d12VertexBuffer = std::dynamic_pointer_cast<VertexBufferD3D12>(command.VertexBufferRef.lock());
+		DeviceBufferD3D12	  *d3d12VertexBuffer = (DeviceBufferD3D12 *)command.View.BufferHandle;
 		const auto			  &bufferLayout		 = pipeline->GetPipelineDescription().Layouts.at(command.Slot);
 
 		D3D12_VERTEX_BUFFER_VIEW bufferView;
-		bufferView.BufferLocation = d3d12VertexBuffer->GetHandle()->GetGPUVirtualAddress();
-		bufferView.SizeInBytes	  = d3d12VertexBuffer->GetDescription().Size;
+		bufferView.BufferLocation = d3d12VertexBuffer->GetHandle()->GetGPUVirtualAddress() + command.View.Offset;
+		bufferView.SizeInBytes	  = d3d12VertexBuffer->GetDescription().SizeInBytes;
 		bufferView.StrideInBytes  = bufferLayout.GetStride();
 
 		m_CommandList->IASetVertexBuffers(command.Slot, 1, &bufferView);
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(WeakRef<IndexBuffer> command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(SetIndexBufferCommand command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
 		{
 			return;
 		}
 
-		Ref<IndexBufferD3D12> d3d12IndexBuffer = std::dynamic_pointer_cast<IndexBufferD3D12>(command.lock());
-		auto				  indexBufferView  = d3d12IndexBuffer->GetIndexBufferView();
+		DeviceBufferD3D12 *d3d12IndexBuffer = (DeviceBufferD3D12 *)command.View.BufferHandle;
+
+		D3D12_INDEX_BUFFER_VIEW indexBufferView;
+		indexBufferView.BufferLocation = d3d12IndexBuffer->GetHandle()->GetGPUVirtualAddress() + command.View.Offset;
+		indexBufferView.SizeInBytes	   = d3d12IndexBuffer->GetDescription().SizeInBytes;
+		indexBufferView.Format		   = D3D12::GetD3D12IndexBufferFormat(command.View.BufferFormat);
+
 		m_CommandList->IASetIndexBuffer(&indexBufferView);
 	}
 

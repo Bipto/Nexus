@@ -26,12 +26,15 @@ namespace Demos
 				{{0.5f, -0.5f, 0.0f}},	   // bottom right
 			};
 
-			CreatePipeline();
+			Nexus::Graphics::DeviceBufferDescription vertexBufferDesc = {};
+			vertexBufferDesc.Type									  = Nexus::Graphics::DeviceBufferType::Vertex;
+			vertexBufferDesc.StrideInBytes							  = sizeof(Nexus::Graphics::VertexPosition);
+			vertexBufferDesc.SizeInBytes							  = vertices.size() * sizeof(Nexus::Graphics::VertexPosition);
+			vertexBufferDesc.HostVisible							  = true;
+			m_VertexBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc));
+			m_VertexBuffer->SetData(vertices.data(), 0, vertices.size() * sizeof(Nexus::Graphics::VertexPosition));
 
-			Nexus::Graphics::BufferDescription vertexBufferDesc;
-			vertexBufferDesc.Size  = vertices.size() * sizeof(Nexus::Graphics::VertexPosition);
-			vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-			m_VertexBuffer		   = m_GraphicsDevice->CreateVertexBuffer(vertexBufferDesc, vertices.data());
+			CreatePipeline();
 		}
 
 		virtual void Render(Nexus::TimeSpan time) override
@@ -58,8 +61,13 @@ namespace Demos
 
 			m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 
-			m_CommandList->SetVertexBuffer(m_VertexBuffer, 0);
-			auto vertexCount = m_VertexBuffer->GetDescription().Size / sizeof(Nexus::Graphics::VertexPosition);
+			Nexus::Graphics::VertexBufferView vertexBufferView = {};
+			vertexBufferView.BufferHandle					   = m_VertexBuffer.get();
+			vertexBufferView.Offset							   = 0;
+			vertexBufferView.Size							   = m_VertexBuffer->GetDescription().SizeInBytes;
+			vertexBufferView.Stride							   = m_VertexBuffer->GetDescription().StrideInBytes;
+			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
+			auto vertexCount = m_VertexBuffer->GetCount();
 			m_CommandList->Draw(0, vertexCount);
 			m_CommandList->End();
 
@@ -104,7 +112,7 @@ namespace Demos
 	  private:
 		Nexus::Ref<Nexus::Graphics::CommandList>  m_CommandList;
 		Nexus::Ref<Nexus::Graphics::Pipeline>	  m_Pipeline;
-		Nexus::Ref<Nexus::Graphics::VertexBuffer> m_VertexBuffer;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_VertexBuffer;
 		glm::vec3								  m_ClearColour = {0.7f, 0.2f, 0.3f};
 	};
 }	 // namespace Demos

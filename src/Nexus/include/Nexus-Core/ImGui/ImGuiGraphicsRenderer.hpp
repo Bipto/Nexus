@@ -84,13 +84,13 @@ namespace Nexus::ImGuiUtils
 		uint64_t							 m_TextureID	 = 0;
 		ImTextureID							 m_FontTextureID = 0;
 
-		Nexus::Ref<Nexus::Graphics::VertexBuffer> m_VertexBuffer	  = nullptr;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_VertexBuffer	  = nullptr;
 		uint32_t								  m_VertexBufferCount = 0;
 
-		Nexus::Ref<Nexus::Graphics::IndexBuffer> m_IndexBuffer		= nullptr;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_IndexBuffer		 = nullptr;
 		uint32_t								 m_IndexBufferCount = 0;
 
-		Nexus::Ref<Nexus::Graphics::UniformBuffer> m_UniformBuffer = nullptr;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_UniformBuffer = nullptr;
 
 		std::vector<int> m_Keys;
 	};

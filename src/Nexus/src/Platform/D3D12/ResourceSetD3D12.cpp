@@ -2,7 +2,7 @@
 
 #if defined(NX_PLATFORM_D3D12)
 
-	#include "BufferD3D12.hpp"
+	#include "DeviceBufferD3D12.hpp"
 	#include "Nexus-Core/Utils/Utils.hpp"
 	#include "SamplerD3D12.hpp"
 	#include "TextureD3D12.hpp"
@@ -89,18 +89,18 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void ResourceSetD3D12::WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, const std::string &name)
+	void ResourceSetD3D12::WriteUniformBuffer(Ref<DeviceBuffer> uniformBuffer, const std::string &name)
 	{
 		const BindingInfo	   &info			   = m_UniformBufferBindingInfos.at(name);
 		const uint32_t			index			   = GetLinearDescriptorSlot(info.Set, info.Binding);
 		auto					d3d12Device		   = m_Device->GetDevice();
-		Ref<UniformBufferD3D12> d3d12UniformBuffer = std::dynamic_pointer_cast<UniformBufferD3D12>(uniformBuffer);
+		Ref<DeviceBufferD3D12>	d3d12UniformBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(uniformBuffer);
 
 		D3D12_CONSTANT_BUFFER_VIEW_DESC desc;
 		desc.BufferLocation = d3d12UniformBuffer->GetHandle()->GetGPUVirtualAddress();
 
 		// convert the size of the constant buffer to be 256 byte aligned
-		desc.SizeInBytes = (d3d12UniformBuffer->GetDescription().Size + 255) & ~255;
+		desc.SizeInBytes = (d3d12UniformBuffer->GetDescription().SizeInBytes + 255) & ~255;
 
 		d3d12Device->CreateConstantBufferView(&desc, m_ConstantBufferCPUDescriptors.at(index));
 

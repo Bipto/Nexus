@@ -2,7 +2,7 @@
 
 	#include "GraphicsDeviceOpenGL.hpp"
 
-	#include "BufferOpenGL.hpp"
+	#include "DeviceBufferOpenGL.hpp"
 	#include "CommandListOpenGL.hpp"
 	#include "PipelineOpenGL.hpp"
 	#include "ResourceSetOpenGL.hpp"
@@ -130,21 +130,6 @@ namespace Nexus::Graphics
 	Ref<CommandList> GraphicsDeviceOpenGL::CreateCommandList(const CommandListSpecification &spec)
 	{
 		return CreateRef<CommandListOpenGL>(spec);
-	}
-
-	Ref<VertexBuffer> GraphicsDeviceOpenGL::CreateVertexBuffer(const BufferDescription &description, const void *data)
-	{
-		return CreateRef<VertexBufferOpenGL>(description, data);
-	}
-
-	Ref<IndexBuffer> GraphicsDeviceOpenGL::CreateIndexBuffer(const BufferDescription &description, const void *data, IndexBufferFormat format)
-	{
-		return CreateRef<IndexBufferOpenGL>(description, data, format);
-	}
-
-	Ref<UniformBuffer> GraphicsDeviceOpenGL::CreateUniformBuffer(const BufferDescription &description, const void *data)
-	{
-		return CreateRef<UniformBufferOpenGL>(description, data);
 	}
 
 	Ref<ResourceSet> GraphicsDeviceOpenGL::CreateResourceSet(const ResourceSetSpecification &spec)

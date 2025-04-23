@@ -2,7 +2,7 @@
 
 	#include "CommandListVk.hpp"
 
-	#include "BufferVk.hpp"
+	#include "DeviceBufferVk.hpp"
 	#include "FramebufferVk.hpp"
 	#include "PipelineVk.hpp"
 	#include "ResourceSetVk.hpp"

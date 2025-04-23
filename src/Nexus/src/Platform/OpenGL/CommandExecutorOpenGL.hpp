@@ -2,7 +2,7 @@
 
 #if defined(NX_PLATFORM_OPENGL)
 
-	#include "BufferOpenGL.hpp"
+	#include "DeviceBufferOpenGL.hpp"
 	#include "Nexus-Core/Graphics/CommandExecutor.hpp"
 	#include "Nexus-Core/Graphics/CommandList.hpp"
 	#include "PipelineOpenGL.hpp"
@@ -20,7 +20,7 @@ namespace Nexus::Graphics
 
 	  private:
 		virtual void ExecuteCommand(SetVertexBufferCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(WeakRef<IndexBuffer> command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(SetIndexBufferCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(DrawElementCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(DrawIndexedCommand command, GraphicsDevice *device) override;
@@ -44,8 +44,8 @@ namespace Nexus::Graphics
 	  private:
 		std::optional<Ref<PipelineOpenGL>>										m_CurrentlyBoundPipeline	  = {};
 		std::optional<RenderTarget>												m_CurrentRenderTarget		  = {};
-		std::map<uint32_t, Nexus::WeakRef<Nexus::Graphics::VertexBufferOpenGL>> m_CurrentlyBoundVertexBuffers = {};
-		Nexus::WeakRef<Nexus::Graphics::IndexBufferOpenGL>						m_BoundIndexBuffer			  = {};
+		std::map<uint32_t, VertexBufferView>									m_CurrentlyBoundVertexBuffers = {};
+		std::optional<IndexBufferView>											m_BoundIndexBuffer			  = {};
 		Nexus::Ref<Nexus::Graphics::ResourceSetOpenGL>							m_BoundResourceSet = {};
 	};
 }	 // namespace Nexus::Graphics

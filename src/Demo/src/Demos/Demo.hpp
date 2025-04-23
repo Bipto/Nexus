@@ -5,6 +5,8 @@
 #include "Nexus-Core/Input/Events.hpp"
 #include "Nexus.hpp"
 
+#include "Nexus-Core/Utils/Utils.hpp"
+
 namespace Demos
 {
 	class Demo

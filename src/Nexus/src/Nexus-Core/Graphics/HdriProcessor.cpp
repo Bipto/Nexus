@@ -132,10 +132,12 @@ namespace Nexus::Graphics
 
 		VB_UNIFORM_HDRI_PROCESSOR_CAMERA cameraUniforms;
 
-		Nexus::Graphics::BufferDescription cameraUniformBufferDesc;
-		cameraUniformBufferDesc.Size	 = sizeof(VB_UNIFORM_HDRI_PROCESSOR_CAMERA);
-		cameraUniformBufferDesc.Usage	 = Nexus::Graphics::BufferUsage::Dynamic;
-		Ref<UniformBuffer> uniformBuffer = m_Device->CreateUniformBuffer(cameraUniformBufferDesc, nullptr);
+		Nexus::Graphics::DeviceBufferDescription cameraUniformBufferDesc = {};
+		cameraUniformBufferDesc.Type									 = Nexus::Graphics::DeviceBufferType::Uniform;
+		cameraUniformBufferDesc.StrideInBytes							 = sizeof(VB_UNIFORM_HDRI_PROCESSOR_CAMERA);
+		cameraUniformBufferDesc.SizeInBytes								 = sizeof(VB_UNIFORM_HDRI_PROCESSOR_CAMERA);
+		cameraUniformBufferDesc.HostVisible								 = true;
+		Ref<DeviceBuffer> uniformBuffer									 = Ref<DeviceBuffer>(m_Device->CreateDeviceBuffer(cameraUniformBufferDesc));
 
 		for (uint32_t i = 0; i < 6; i++)
 		{
@@ -165,7 +167,7 @@ namespace Nexus::Graphics
 			cameraUniforms.View		  = view;
 			cameraUniforms.Projection = projection;
 
-			uniformBuffer->SetData(&cameraUniforms, sizeof(cameraUniforms), 0);
+			uniformBuffer->SetData(&cameraUniforms, 0, sizeof(cameraUniforms));
 			resourceSet->WriteUniformBuffer(uniformBuffer, "Camera");
 			resourceSet->WriteCombinedImageSampler(m_HdriImage, sampler, "equirectangularMap");
 
@@ -191,9 +193,21 @@ namespace Nexus::Graphics
 
 			commandList->SetResourceSet(resourceSet);
 
-			commandList->SetVertexBuffer(cube->GetVertexBuffer(), 0);
-			commandList->SetIndexBuffer(cube->GetIndexBuffer());
-			auto indexCount = cube->GetIndexBuffer()->GetDescription().Size / sizeof(uint32_t);
+			Graphics::VertexBufferView vertexBufferView = {};
+			vertexBufferView.BufferHandle				= cube->GetVertexBuffer().get();
+			vertexBufferView.Offset						= 0;
+			vertexBufferView.Stride						= cube->GetVertexBuffer()->GetDescription().StrideInBytes;
+			vertexBufferView.Size						= cube->GetVertexBuffer()->GetDescription().SizeInBytes;
+			commandList->SetVertexBuffer(vertexBufferView, 0);
+
+			Graphics::IndexBufferView indexBufferView = {};
+			indexBufferView.BufferHandle			  = cube->GetIndexBuffer().get();
+			indexBufferView.Offset					  = 0;
+			indexBufferView.Size					  = cube->GetIndexBuffer()->GetDescription().SizeInBytes;
+			indexBufferView.BufferFormat			  = Nexus::Graphics::IndexBufferFormat::UInt32;
+			commandList->SetIndexBuffer(indexBufferView);
+
+			auto indexCount = cube->GetIndexBuffer()->GetCount();
 			commandList->DrawIndexed(indexCount, 0, 0);
 
 			commandList->End();

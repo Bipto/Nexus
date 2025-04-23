@@ -1,3 +1,5 @@
+#pragma once
+
 #if defined(NX_PLATFORM_VULKAN)
 
 	#include "Nexus-Core/Graphics/DeviceBuffer.hpp"

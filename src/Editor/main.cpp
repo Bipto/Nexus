@@ -35,8 +35,8 @@ class EditorApplication : public Nexus::Application
 
 	virtual void Load() override
 	{
-		m_Renderer		= std::make_unique<Nexus::Graphics::Renderer3D>(m_GraphicsDevice);
-		m_BatchRenderer = std::make_unique<Nexus::Graphics::BatchRenderer>(m_GraphicsDevice, true);
+		m_Renderer		= std::make_unique<Nexus::Graphics::Renderer3D>(m_GraphicsDevice.get());
+		m_BatchRenderer = std::make_unique<Nexus::Graphics::BatchRenderer>(m_GraphicsDevice.get(), true, Nexus::Graphics::SampleCount::SampleCount1);
 
 		m_ImGuiRenderer = std::unique_ptr<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(new Nexus::ImGuiUtils::ImGuiGraphicsRenderer(this));
 		ImGui::SetCurrentContext(m_ImGuiRenderer->GetContext());
@@ -434,11 +434,12 @@ class EditorApplication : public Nexus::Application
 			ImVec2 uv0	= {0, 0};
 			ImVec2 uv1	= {1, 1};
 
-			if (m_GraphicsDevice->GetGraphicsAPI() != Nexus::Graphics::GraphicsAPI::OpenGL)
+			if (m_GraphicsDevice->GetGraphicsAPI() == Nexus::Graphics::GraphicsAPI::OpenGL)
 			{
 				uv0 = {0, 1};
 				uv1 = {1, 0};
 			}
+
 			ImVec2 cursorPos = ImGui::GetCursorPos();
 			ImVec2 imagePos	 = ImGui::GetCursorScreenPos();
 			ImGui::Image(m_FramebufferTextureID, size, uv0, uv1);

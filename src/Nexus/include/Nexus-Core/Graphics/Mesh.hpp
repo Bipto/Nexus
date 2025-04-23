@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Nexus-Core/Graphics/GPUBuffer.hpp"
+#include "Nexus-Core/Graphics/DeviceBuffer.hpp"
 #include "Nexus-Core/Types.hpp"
 #include "Nexus-Core/Vertex.hpp"
 
@@ -20,12 +20,12 @@ namespace Nexus::Graphics
 		/// @param vertexBuffer A set of vertices to use for the mesh
 		/// @param indexBuffer A set of indices to use for the mesh
 		/// @param name A string representing the name of the mesh
-		 Mesh(Ref<VertexBuffer> vertexBuffer, Ref<IndexBuffer> indexBuffer, const Material &material, const std::string &name = "Mesh")
-			 : m_VertexBuffer(vertexBuffer),
-			   m_IndexBuffer(indexBuffer),
-			   m_Material(material),
-			   m_Name(name)
-		 {
+		Mesh(Ref<DeviceBuffer> vertexBuffer, Ref<DeviceBuffer> indexBuffer, const Material &material, const std::string &name = "Mesh")
+			: m_VertexBuffer(vertexBuffer),
+			  m_IndexBuffer(indexBuffer),
+			  m_Material(material),
+			  m_Name(name)
+		{
 		}
 
 		virtual ~Mesh()
@@ -34,14 +34,14 @@ namespace Nexus::Graphics
 
 		/// @brief A method that returns a const reference to the meshes vertex buffer
 		/// @return A const reference to the vertex buffer
-		Ref<VertexBuffer> GetVertexBuffer()
+		Ref<DeviceBuffer> GetVertexBuffer()
 		{
 			return m_VertexBuffer;
 		}
 
 		/// @brief A method that returns a const reference to the meshes index buffer
 		/// @return A const reference to the index buffer
-		Ref<IndexBuffer> GetIndexBuffer()
+		Ref<DeviceBuffer> GetIndexBuffer()
 		{
 			return m_IndexBuffer;
 		}
@@ -63,10 +63,10 @@ namespace Nexus::Graphics
 
 	  private:
 		/// @brief A reference counted pointer to a vertex buffer
-		Ref<VertexBuffer> m_VertexBuffer = nullptr;
+		Ref<DeviceBuffer> m_VertexBuffer = nullptr;
 
 		/// @brief A reference counted pointer to an index buffer
-		Ref<IndexBuffer> m_IndexBuffer = nullptr;
+		Ref<DeviceBuffer> m_IndexBuffer = nullptr;
 
 		Material m_Material = {};
 

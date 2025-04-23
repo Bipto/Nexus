@@ -45,7 +45,7 @@ namespace Nexus::Graphics
 		return bindings;
 	}
 
-	const std::map<std::string, WeakRef<UniformBuffer>> &ResourceSet::GetBoundUniformBuffers() const
+	const std::map<std::string, WeakRef<DeviceBuffer>> &ResourceSet::GetBoundUniformBuffers() const
 	{
 		return m_BoundUniformBuffers;
 	}

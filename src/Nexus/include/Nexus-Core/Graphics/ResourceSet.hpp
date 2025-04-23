@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Nexus-Core/Graphics/GPUBuffer.hpp"
+#include "Nexus-Core/Graphics/DeviceBuffer.hpp"
 #include "Nexus-Core/Graphics/Sampler.hpp"
 #include "Nexus-Core/Graphics/Texture.hpp"
 #include "Nexus-Core/Types.hpp"
@@ -62,7 +62,7 @@ namespace Nexus::Graphics
 		{
 		}
 
-		virtual void WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, const std::string &name)					  = 0;
+		virtual void WriteUniformBuffer(Ref<DeviceBuffer> uniformBuffer, const std::string &name)					  = 0;
 		virtual void WriteCombinedImageSampler(Ref<Texture2D> texture, Ref<Sampler> sampler, const std::string &name) = 0;
 		virtual void WriteCombinedImageSampler(Ref<Cubemap> cubemap, Ref<Sampler> sampler, const std::string &name)	  = 0;
 
@@ -72,7 +72,7 @@ namespace Nexus::Graphics
 
 		static std::map<std::string, uint32_t> RemapToLinearBindings(const std::vector<ResourceBinding> &resources);
 
-		const std::map<std::string, WeakRef<UniformBuffer>> &GetBoundUniformBuffers() const;
+		const std::map<std::string, WeakRef<DeviceBuffer>>	&GetBoundUniformBuffers() const;
 		const std::map<std::string, CombinedImageSampler>	&GetBoundCombinedImageSamplers() const;
 
 	  protected:
@@ -80,7 +80,7 @@ namespace Nexus::Graphics
 		std::map<std::string, BindingInfo> m_CombinedImageSamplerBindingInfos;
 		std::map<std::string, BindingInfo> m_UniformBufferBindingInfos;
 
-		std::map<std::string, WeakRef<UniformBuffer>> m_BoundUniformBuffers;
+		std::map<std::string, WeakRef<DeviceBuffer>>  m_BoundUniformBuffers;
 		std::map<std::string, CombinedImageSampler>	  m_BoundCombinedImageSamplers;
 	};
 }	 // namespace Nexus::Graphics

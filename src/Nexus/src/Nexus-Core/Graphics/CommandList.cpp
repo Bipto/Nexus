@@ -28,7 +28,7 @@ namespace Nexus::Graphics
 		m_Started = false;
 	}
 
-	void CommandList::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer, uint32_t slot)
+	void CommandList::SetVertexBuffer(VertexBufferView vertexBuffer, uint32_t slot)
 	{
 		if (!m_Started)
 		{
@@ -38,12 +38,12 @@ namespace Nexus::Graphics
 		}
 
 		SetVertexBufferCommand command;
-		command.VertexBufferRef = vertexBuffer;
-		command.Slot			= slot;
+		command.View = vertexBuffer;
+		command.Slot = slot;
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::SetIndexBuffer(Ref<IndexBuffer> indexBuffer)
+	void CommandList::SetIndexBuffer(IndexBufferView indexBuffer)
 	{
 		if (!m_Started)
 		{
@@ -52,7 +52,9 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		m_Commands.push_back(indexBuffer);
+		SetIndexBufferCommand command;
+		command.View = indexBuffer;
+		m_Commands.push_back(command);
 	}
 
 	void CommandList::SetPipeline(Ref<Pipeline> pipeline)

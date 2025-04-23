@@ -32,10 +32,12 @@ namespace Demos
 
 			CreatePipeline();
 
-			Nexus::Graphics::BufferDescription cameraUniformBufferDesc;
-			cameraUniformBufferDesc.Size  = sizeof(VB_UNIFORM_CAMERA_DEMO_CUBEMAP);
-			cameraUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
-			m_CameraUniformBuffer		  = m_GraphicsDevice->CreateUniformBuffer(cameraUniformBufferDesc, nullptr);
+			Nexus::Graphics::DeviceBufferDescription cameraUniformBufferDesc = {};
+			cameraUniformBufferDesc.Type									 = Nexus::Graphics::DeviceBufferType::Uniform;
+			cameraUniformBufferDesc.StrideInBytes							 = sizeof(VB_UNIFORM_CAMERA_DEMO_CUBEMAP);
+			cameraUniformBufferDesc.SizeInBytes								 = sizeof(VB_UNIFORM_CAMERA_DEMO_CUBEMAP);
+			cameraUniformBufferDesc.HostVisible								 = true;
+			m_CameraUniformBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(cameraUniformBufferDesc));
 
 			m_Camera.SetPosition(glm::vec3(0, 0, 0));
 
@@ -58,7 +60,7 @@ namespace Demos
 		{
 			m_CameraUniforms.Projection = m_Camera.GetProjection();
 			m_CameraUniforms.View		= glm::mat4(glm::mat3(m_Camera.GetView()));
-			m_CameraUniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms));
+			m_CameraUniformBuffer->SetData(&m_CameraUniforms, 0, sizeof(m_CameraUniforms));
 
 			m_CommandList->Begin();
 			m_CommandList->SetPipeline(m_Pipeline);
@@ -89,10 +91,21 @@ namespace Demos
 			m_ResourceSet->WriteCombinedImageSampler(m_Cubemap, m_Sampler, "skybox");
 			m_CommandList->SetResourceSet(m_ResourceSet);
 
-			m_CommandList->SetVertexBuffer(m_Cube->GetVertexBuffer(), 0);
-			m_CommandList->SetIndexBuffer(m_Cube->GetIndexBuffer());
+			Nexus::Graphics::VertexBufferView vertexBufferView = {};
+			vertexBufferView.BufferHandle					   = m_Cube->GetVertexBuffer().get();
+			vertexBufferView.Offset							   = 0;
+			vertexBufferView.Stride							   = m_Cube->GetVertexBuffer()->GetDescription().SizeInBytes;
+			vertexBufferView.Size							   = m_Cube->GetVertexBuffer()->GetDescription().SizeInBytes;
+			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
-			auto indexCount = m_Cube->GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
+			Nexus::Graphics::IndexBufferView indexBufferView = {};
+			indexBufferView.BufferHandle					 = m_Cube->GetIndexBuffer().get();
+			indexBufferView.Offset							 = 0;
+			indexBufferView.Size							 = m_Cube->GetIndexBuffer()->GetDescription().SizeInBytes;
+			indexBufferView.BufferFormat					 = Nexus::Graphics::IndexBufferFormat::UInt32;
+			m_CommandList->SetIndexBuffer(indexBufferView);
+
+			auto indexCount = m_Cube->GetIndexBuffer()->GetCount();
 			m_CommandList->DrawIndexed(indexCount, 0, 0);
 
 			m_CommandList->End();
@@ -151,7 +164,7 @@ namespace Demos
 		Nexus::Ref<Nexus::Graphics::Mesh> m_Cube;
 
 		VB_UNIFORM_CAMERA_DEMO_CAMERA			   m_CameraUniforms;
-		Nexus::Ref<Nexus::Graphics::UniformBuffer> m_CameraUniformBuffer;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer>  m_CameraUniformBuffer;
 
 		Nexus::FirstPersonCamera m_Camera;
 	};

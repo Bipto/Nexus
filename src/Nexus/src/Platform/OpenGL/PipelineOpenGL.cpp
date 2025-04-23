@@ -2,7 +2,7 @@
 
 	#include "PipelineOpenGL.hpp"
 
-	#include "BufferOpenGL.hpp"
+	#include "DeviceBufferOpenGL.hpp"
 	#include "GL.hpp"
 	#include "ShaderModuleOpenGL.hpp"
 
@@ -22,49 +22,46 @@ namespace Nexus::Graphics
 		return m_Description;
 	}
 
-	void PipelineOpenGL::BindBuffers(const std::map<uint32_t, Nexus::WeakRef<Nexus::Graphics::VertexBufferOpenGL>> &vertexBuffers,
-									 Nexus::WeakRef<Nexus::Graphics::IndexBufferOpenGL>								indexBuffer,
-									 uint32_t																		vertexOffset,
-									 uint32_t																		instanceOffset)
+	void PipelineOpenGL::BindBuffers(const std::map<uint32_t, VertexBufferView> &vertexBuffers,
+									 std::optional<IndexBufferView>				 indexBuffer,
+									 uint32_t									 vertexOffset,
+									 uint32_t									 instanceOffset)
 	{
 		glCall(glBindVertexArray(m_VAO));
 
 		uint32_t index = 0;
-		for (const auto &vertexBufferBinding : vertexBuffers)
+		for (const auto &[slot, vertexBufferView] : vertexBuffers)
 		{
-			if (vertexBufferBinding.first >= m_Description.Layouts.size())
+			if (slot >= m_Description.Layouts.size())
 			{
-				std::string message = "Attempted to bind a vertex buffer to an invalid slot: (" + std::to_string(vertexBufferBinding.first) + ")";
+				std::string message = "Attempted to bind a vertex buffer to an invalid slot: (" + std::to_string(slot) + ")";
 				NX_ERROR(message);
 			}
 
 			// this allows us to specify an offset into a vertex buffer without
 			// requiring OpenGL 4.5 functionality i.e. is cross platform
-			const auto &layout = m_Description.Layouts.at(vertexBufferBinding.first);
+			const auto &layout = m_Description.Layouts.at(slot);
 
-			// check that the vertex buffer is still valid
-			if (const auto vertexBuffer = vertexBuffers.at(vertexBufferBinding.first).lock())
+			DeviceBufferOpenGL *vertexBufferOpenGL = (DeviceBufferOpenGL *)vertexBufferView.BufferHandle;
+
+			uint32_t offset = vertexOffset;
+			if (layout.IsInstanceBuffer())
 			{
-				vertexBuffer->Bind();
-
-				uint32_t offset = vertexOffset;
-				if (layout.IsInstanceBuffer())
-				{
-					offset = instanceOffset;
-				}
+				offset = instanceOffset;
+			}
 
 				offset *= layout.GetStride();
 
 				for (auto &element : layout)
 				{
-					GLenum	  baseType;
-					uint32_t  componentCount;
-					GLboolean normalized;
+					GLenum				baseType;
+					uint32_t			componentCount;
+					GLboolean			normalized;
 					GL::GLPrimitiveType primitiveType = GL::GLPrimitiveType::Unknown;
 					GL::GetBaseType(element, baseType, componentCount, normalized, primitiveType);
 
 					glCall(glEnableVertexAttribArray(index));
-					glCall(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer->GetHandle()));
+					glCall(glBindBuffer(GL_ARRAY_BUFFER, vertexBufferOpenGL->GetBufferHandle()));
 
 					if (primitiveType == GL::GLPrimitiveType::Float)
 					{
@@ -87,12 +84,13 @@ namespace Nexus::Graphics
 					glCall(glVertexAttribDivisor(index, layout.GetInstanceStepRate()));
 
 					index++;
-				}
 			}
 
-			if (auto lockedIndexBuffer = indexBuffer.lock())
+			if (indexBuffer)
 			{
-				lockedIndexBuffer->Bind();
+				IndexBufferView	   &view			   = indexBuffer.value();
+				DeviceBufferOpenGL *deviceBufferOpenGL = (DeviceBufferOpenGL *)view.BufferHandle;
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, deviceBufferOpenGL->GetBufferHandle());
 			}
 		}
 	}

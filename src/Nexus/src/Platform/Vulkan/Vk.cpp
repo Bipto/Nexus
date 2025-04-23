@@ -423,13 +423,13 @@ namespace Nexus::Vk
 			case Graphics::DeviceBufferType::Index:
 				return VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 			case Graphics::DeviceBufferType::Uniform:
-				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+				return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 			case Graphics::DeviceBufferType::Structured:
-				VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+				return VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 			case Graphics::DeviceBufferType::Upload: return VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 			case Graphics::DeviceBufferType::Readback: return VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 			case Graphics::DeviceBufferType::Indirect:
-				VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+				return VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 			default: throw std::runtime_error("Failed to find a valid VkBufferUsage");
 		}
 	}
@@ -448,15 +448,12 @@ namespace Nexus::Vk
 	VmaAllocationCreateInfo GetVmaAllocationCreateInfo(const Graphics::DeviceBufferDescription &desc)
 	{
 		VmaAllocationCreateInfo createInfo = {};
+		createInfo.usage				   = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE;
 
-		if (desc.Type == Graphics::DeviceBufferType::Upload || desc.Type == Graphics::DeviceBufferType::Readback)
+		if (desc.Type == Graphics::DeviceBufferType::Upload || desc.Type == Graphics::DeviceBufferType::Readback || desc.HostVisible == true)
 		{
-			createInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
-			createInfo.usage = VMA_MEMORY_USAGE_AUTO_PREFER_HOST;
-		}
-		else
-		{
-			createInfo.usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE;
+			createInfo.flags		 = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+			createInfo.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
 		}
 
 		return createInfo;

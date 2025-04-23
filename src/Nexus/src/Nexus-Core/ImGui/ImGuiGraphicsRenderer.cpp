@@ -91,6 +91,13 @@ namespace Nexus::ImGuiUtils
 		CreateTextPipeline();
 		CreateImagePipeline();
 
+		Nexus::Graphics::DeviceBufferDescription uniformBufferDesc = {};
+		uniformBufferDesc.Type									   = Nexus::Graphics::DeviceBufferType::Uniform;
+		uniformBufferDesc.StrideInBytes							   = sizeof(glm::mat4);
+		uniformBufferDesc.SizeInBytes							   = sizeof(glm::mat4);
+		uniformBufferDesc.HostVisible							   = true;
+		m_UniformBuffer = Ref<Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(uniformBufferDesc));
+
 		Nexus::Graphics::SamplerSpecification samplerSpec;
 		samplerSpec.AddressModeU = Nexus::Graphics::SamplerAddressMode::Wrap;
 		samplerSpec.AddressModeV = Nexus::Graphics::SamplerAddressMode::Wrap;
@@ -150,11 +157,6 @@ namespace Nexus::ImGuiUtils
 		pipelineDesc.Layouts = {{{Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
 								 {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
 								 {Nexus::Graphics::ShaderDataType::NormByte4, "TEXCOORD"}}};
-
-		Nexus::Graphics::BufferDescription uniformBufferDesc;
-		uniformBufferDesc.Size	= sizeof(glm::mat4);
-		uniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
-		m_UniformBuffer			= m_GraphicsDevice->CreateUniformBuffer(uniformBufferDesc, nullptr);
 
 		Nexus::Graphics::ResourceSetSpecification resources;
 		resources += m_VertexShader->GetResourceSetSpecification();
@@ -521,26 +523,26 @@ namespace Nexus::ImGuiUtils
 
 		if (drawData->TotalVtxCount > m_VertexBufferCount)
 		{
-			Nexus::Graphics::VertexBufferLayout layout = {{Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
-														  {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
-														  {Nexus::Graphics::ShaderDataType::NormByte4, "TEXCOORD"}};
-
-			Nexus::Graphics::BufferDescription desc;
-			desc.Size	   = drawData->TotalVtxCount * 1.5f * sizeof(ImDrawVert);
-			desc.Usage	   = Nexus::Graphics::BufferUsage::Dynamic;
-			m_VertexBuffer = m_GraphicsDevice->CreateVertexBuffer(desc, nullptr);
-
 			m_VertexBufferCount = drawData->TotalVtxCount * 1.5f;
+
+			Nexus::Graphics::DeviceBufferDescription vertexBufferDesc = {};
+			vertexBufferDesc.Type									  = Nexus::Graphics::DeviceBufferType::Vertex;
+			vertexBufferDesc.StrideInBytes							  = sizeof(ImDrawVert);
+			vertexBufferDesc.SizeInBytes							  = m_VertexBufferCount * sizeof(ImDrawVert);
+			vertexBufferDesc.HostVisible							  = true;
+			m_VertexBuffer = Ref<Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc));
 		}
 
 		if (drawData->TotalIdxCount > m_IndexBufferCount)
 		{
-			Nexus::Graphics::BufferDescription desc;
-			desc.Size	  = drawData->TotalIdxCount * 1.5f * sizeof(ImDrawIdx);
-			desc.Usage	  = Nexus::Graphics::BufferUsage::Dynamic;
-			m_IndexBuffer = m_GraphicsDevice->CreateIndexBuffer(desc, nullptr, Nexus::Graphics::IndexBufferFormat::UInt16);
-
 			m_IndexBufferCount = drawData->TotalIdxCount * 1.5f;
+
+			Nexus::Graphics::DeviceBufferDescription indexBufferDesc = {};
+			indexBufferDesc.Type									 = Nexus::Graphics::DeviceBufferType::Index;
+			indexBufferDesc.StrideInBytes							 = sizeof(ImDrawIdx);
+			indexBufferDesc.SizeInBytes								 = m_IndexBufferCount * sizeof(ImDrawVert);
+			indexBufferDesc.HostVisible								 = true;
+			m_IndexBuffer = Ref<Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(indexBufferDesc));
 		}
 
 		// update vertex buffer
@@ -550,7 +552,7 @@ namespace Nexus::ImGuiUtils
 			for (int i = 0; i < drawData->CmdListsCount; i++)
 			{
 				const ImDrawList *cmdList = drawData->CmdLists[i];
-				m_VertexBuffer->SetData(cmdList->VtxBuffer.Data, cmdList->VtxBuffer.size_in_bytes(), offset);
+				m_VertexBuffer->SetData(cmdList->VtxBuffer.Data, offset, cmdList->VtxBuffer.size_in_bytes());
 				offset += cmdList->VtxBuffer.size_in_bytes();
 			}
 		}
@@ -562,7 +564,7 @@ namespace Nexus::ImGuiUtils
 			for (int i = 0; i < drawData->CmdListsCount; i++)
 			{
 				const ImDrawList *cmdList = drawData->CmdLists[i];
-				m_IndexBuffer->SetData(cmdList->IdxBuffer.Data, cmdList->IdxBuffer.size_in_bytes(), offset);
+				m_IndexBuffer->SetData(cmdList->IdxBuffer.Data, offset, cmdList->IdxBuffer.size_in_bytes());
 				offset += cmdList->IdxBuffer.size_in_bytes();
 			}
 		}
@@ -587,7 +589,7 @@ namespace Nexus::ImGuiUtils
 
 		auto	 &io  = ImGui::GetIO();
 		glm::mat4 mvp = glm::ortho<float>(pos.x, pos.x + drawData->DisplaySize.x, pos.y + drawData->DisplaySize.y, pos.y, -1.f, 1.0f);
-		m_UniformBuffer->SetData(&mvp, sizeof(mvp), 0);
+		m_UniformBuffer->SetData(&mvp, 0, sizeof(mvp));
 
 		for (auto &[textureId, resourceSet] : m_ResourceSets)
 		{
@@ -621,8 +623,20 @@ namespace Nexus::ImGuiUtils
 						m_CommandList->SetPipeline(m_ImagePipeline);
 					}
 					m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(info->Swapchain));
-					m_CommandList->SetVertexBuffer(m_VertexBuffer, 0);
-					m_CommandList->SetIndexBuffer(m_IndexBuffer);
+
+					Graphics::VertexBufferView vertexBufferView = {};
+					vertexBufferView.BufferHandle				= m_VertexBuffer.get();
+					vertexBufferView.Offset						= 0;
+					vertexBufferView.Stride						= m_VertexBuffer->GetDescription().StrideInBytes;
+					vertexBufferView.Size						= m_VertexBuffer->GetDescription().SizeInBytes;
+					m_CommandList->SetVertexBuffer(vertexBufferView, 0);
+
+					Graphics::IndexBufferView indexBufferView = {};
+					indexBufferView.BufferHandle			  = m_IndexBuffer.get();
+					indexBufferView.Offset					  = 0;
+					indexBufferView.Size					  = m_IndexBuffer->GetDescription().SizeInBytes;
+					indexBufferView.BufferFormat			  = Graphics::IndexBufferFormat::UInt16;
+					m_CommandList->SetIndexBuffer(indexBufferView);
 
 					Nexus::Graphics::Viewport viewport;
 					viewport.X		= 0;

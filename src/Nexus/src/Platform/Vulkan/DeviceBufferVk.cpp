@@ -21,7 +21,8 @@ namespace Nexus::Graphics
 
 	void DeviceBufferVk::SetData(const void *data, uint32_t offset, uint32_t size)
 	{
-		NX_ASSERT(m_BufferDescription.Type == DeviceBufferType::Upload, "Cannot write to a non-upload buffer");
+		NX_ASSERT(m_BufferDescription.Type == DeviceBufferType::Upload || m_BufferDescription.HostVisible,
+				  "Buffer must be an upload buffer or have been created with the HostVisible property set");
 
 		void *buffer;
 		vmaMapMemory(m_Device->GetAllocator(), m_Buffer.Allocation, &buffer);
@@ -35,7 +36,8 @@ namespace Nexus::Graphics
 
 	std::vector<char> DeviceBufferVk::GetData(uint32_t offset, uint32_t size) const
 	{
-		NX_ASSERT(m_BufferDescription.Type == DeviceBufferType::Readback, "Cannot read from a non-readback buffer");
+		NX_ASSERT(m_BufferDescription.Type == DeviceBufferType::Readback || m_BufferDescription.HostVisible,
+				  "Buffer must be a readback buffer or have been created with the HostVisible property set");
 
 		std::vector<char> data(size);
 

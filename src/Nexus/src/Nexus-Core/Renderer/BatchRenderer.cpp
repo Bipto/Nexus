@@ -326,15 +326,29 @@ namespace Nexus::Graphics
 		info.Pipeline	 = device->CreatePipeline(description);
 		info.ResourceSet = device->CreateResourceSet(info.Pipeline);
 
-		Nexus::Graphics::BufferDescription vertexBufferDesc;
-		vertexBufferDesc.Size  = info.Vertices.size() * sizeof(BatchVertex);
-		vertexBufferDesc.Usage = BufferUsage::Dynamic;
-		info.VertexBuffer	   = device->CreateVertexBuffer(vertexBufferDesc, nullptr);
+		Nexus::Graphics::DeviceBufferDescription vertexUploadDesc = {};
+		vertexUploadDesc.Type									  = Nexus::Graphics::DeviceBufferType::Upload;
+		vertexUploadDesc.StrideInBytes							  = sizeof(BatchVertex);
+		vertexUploadDesc.SizeInBytes							  = info.Vertices.size() * sizeof(BatchVertex);
+		info.VertexUploadBuffer									  = Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(vertexUploadDesc));
 
-		Nexus::Graphics::BufferDescription indexBufferDesc;
-		indexBufferDesc.Size  = info.Indices.size() * sizeof(uint32_t);
-		indexBufferDesc.Usage = BufferUsage::Dynamic;
-		info.IndexBuffer	  = device->CreateIndexBuffer(indexBufferDesc, nullptr);
+		Nexus::Graphics::DeviceBufferDescription vertexDesc = {};
+		vertexDesc.Type										= Nexus::Graphics::DeviceBufferType::Vertex;
+		vertexDesc.StrideInBytes							= sizeof(BatchVertex);
+		vertexDesc.SizeInBytes								= info.Vertices.size() * sizeof(BatchVertex);
+		info.VertexBuffer									= Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(vertexDesc));
+
+		Nexus::Graphics::DeviceBufferDescription indexUploadDesc = {};
+		indexUploadDesc.Type									 = Nexus::Graphics::DeviceBufferType::Upload;
+		indexUploadDesc.StrideInBytes							 = sizeof(uint32_t);
+		indexUploadDesc.SizeInBytes								 = info.Indices.size() * sizeof(uint32_t);
+		info.IndexUploadBuffer									 = Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(indexUploadDesc));
+
+		Nexus::Graphics::DeviceBufferDescription indexDesc = {};
+		indexDesc.Type									   = Nexus::Graphics::DeviceBufferType::Index;
+		indexDesc.StrideInBytes							   = sizeof(uint32_t);
+		indexDesc.SizeInBytes							   = info.Indices.size() * sizeof(uint32_t);
+		info.IndexBuffer								   = Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(indexDesc));
 	}
 
 	BatchRenderer::BatchRenderer(Nexus::Graphics::GraphicsDevice *device, bool useDepthTest, Nexus::Graphics::SampleCount sampleCount)
@@ -371,10 +385,17 @@ namespace Nexus::Graphics
 		CreateBatcher(m_TextureBatchInfo, device, vertexModule, textureFragmentModule, m_UseDepthTest, sampleCount);
 		CreateBatcher(m_FontBatchInfo, device, vertexModule, fontFragmentModule, m_UseDepthTest, sampleCount);
 
-		Nexus::Graphics::BufferDescription uniformBufferDesc;
-		uniformBufferDesc.Size	= sizeof(glm::mat4);
-		uniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
-		m_UniformBuffer			= m_Device->CreateUniformBuffer(uniformBufferDesc, nullptr);
+		Nexus::Graphics::DeviceBufferDescription uniformUploadDesc = {};
+		uniformUploadDesc.Type									   = Nexus::Graphics::DeviceBufferType::Upload;
+		uniformUploadDesc.StrideInBytes							   = sizeof(glm::mat4);
+		uniformUploadDesc.SizeInBytes							   = sizeof(glm::mat4);
+		m_UniformUploadBuffer									   = Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(uniformUploadDesc));
+
+		Nexus::Graphics::DeviceBufferDescription uniformDesc = {};
+		uniformDesc.Type									 = Nexus::Graphics::DeviceBufferType::Uniform;
+		uniformDesc.StrideInBytes							 = sizeof(glm::mat4);
+		uniformDesc.SizeInBytes								 = sizeof(glm::mat4);
+		m_UniformBuffer										 = Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(uniformDesc));
 
 		Nexus::Graphics::SamplerSpecification samplerSpec {};
 		samplerSpec.SampleFilter = Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipLinear;
@@ -410,7 +431,16 @@ namespace Nexus::Graphics
 		m_Viewport		   = viewport;
 		m_ScissorRectangle = scissor;
 
-		m_UniformBuffer->SetData(&camera, sizeof(camera));
+		m_UniformUploadBuffer->SetData(&camera, 0, sizeof(camera));
+
+		Nexus::Graphics::BufferCopyDescription bufferCopy = {};
+		bufferCopy.Source								  = m_UniformUploadBuffer.get();
+		bufferCopy.Target								  = m_UniformBuffer.get();
+		bufferCopy.ReadOffset							  = 0;
+		bufferCopy.WriteOffset							  = 0;
+		bufferCopy.Size									  = sizeof(camera);
+
+		m_Device->CopyBuffer(bufferCopy);
 	}
 
 	void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color)
@@ -1092,8 +1122,30 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		info.VertexBuffer->SetData(info.Vertices.data(), info.Vertices.size() * sizeof(BatchVertex));
-		info.IndexBuffer->SetData(info.Indices.data(), info.Indices.size() * sizeof(uint32_t));
+		info.VertexUploadBuffer->SetData(info.Vertices.data(), 0, info.Vertices.size() * sizeof(info.Vertices[0]));
+		info.IndexUploadBuffer->SetData(info.Indices.data(), 0, info.Indices.size() * sizeof(info.Indices[0]));
+
+		// upload vertex data
+		{
+			BufferCopyDescription bufferCopy = {};
+			bufferCopy.Source				 = info.VertexUploadBuffer.get();
+			bufferCopy.Target				 = info.VertexBuffer.get();
+			bufferCopy.ReadOffset			 = 0;
+			bufferCopy.WriteOffset			 = 0;
+			bufferCopy.Size					 = info.Vertices.size() * sizeof(info.Vertices[0]);
+			m_Device->CopyBuffer(bufferCopy);
+		}
+
+		// upload index data
+		{
+			BufferCopyDescription bufferCopy = {};
+			bufferCopy.Source				 = info.IndexUploadBuffer.get();
+			bufferCopy.Target				 = info.IndexBuffer.get();
+			bufferCopy.ReadOffset			 = 0;
+			bufferCopy.WriteOffset			 = 0;
+			bufferCopy.Size					 = info.Indices.size() * sizeof(info.Indices[0]);
+			m_Device->CopyBuffer(bufferCopy);
+		}
 
 		info.ResourceSet->WriteUniformBuffer(m_UniformBuffer, "MVP");
 
@@ -1116,8 +1168,21 @@ namespace Nexus::Graphics
 		m_CommandList->SetViewport(m_Viewport);
 		m_CommandList->SetScissor(m_ScissorRectangle);
 		m_CommandList->SetResourceSet(info.ResourceSet);
-		m_CommandList->SetVertexBuffer(info.VertexBuffer, 0);
-		m_CommandList->SetIndexBuffer(info.IndexBuffer);
+
+		VertexBufferView vertexBufferView = {};
+		vertexBufferView.BufferHandle	  = info.VertexBuffer.get();
+		vertexBufferView.Offset			  = 0;
+		vertexBufferView.Stride			  = info.VertexBuffer->GetDescription().StrideInBytes;
+		vertexBufferView.Size			  = info.VertexBuffer->GetDescription().SizeInBytes;
+		m_CommandList->SetVertexBuffer(vertexBufferView, 0);
+
+		IndexBufferView indexBufferView = {};
+		indexBufferView.BufferHandle	= info.IndexBuffer.get();
+		indexBufferView.Offset			= 0;
+		indexBufferView.Size			= info.IndexBuffer->GetDescription().SizeInBytes;
+		indexBufferView.BufferFormat	= Graphics::IndexBufferFormat::UInt32;
+		m_CommandList->SetIndexBuffer(indexBufferView);
+
 		m_CommandList->DrawIndexed(info.IndexCount, 0, 0);
 		m_CommandList->End();
 		m_Device->SubmitCommandList(m_CommandList);

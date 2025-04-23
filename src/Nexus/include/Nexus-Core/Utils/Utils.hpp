@@ -8,6 +8,12 @@
 #include "Nexus-Core/Point.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
+namespace Nexus::Graphics
+{
+	class DeviceBuffer;
+	class GraphicsDevice;
+}	 // namespace Nexus::Graphics
+
 namespace Nexus::Utils
 {
 	NX_API glm::vec4 ColorFromRGBA(float r, float g, float b, float a);
@@ -81,7 +87,7 @@ namespace Nexus::Utils
 		{
 			return collection[index];
 		}
-	 }
+	}
 
 	template<typename T>
 	inline bool Contains(std::vector<T> items, T toFind)
@@ -125,6 +131,20 @@ namespace Nexus::Utils
 		for (unsigned char c : buffer) { hash = ((hash << 5) + hash + c); }
 		return hash;
 	}
+
+	std::unique_ptr<Graphics::DeviceBuffer> CreateUploadBuffer(const void				*data,
+															   size_t					 sizeInBytes,
+															   size_t					 strideInBytes,
+															   Graphics::GraphicsDevice *device);
+	Ref<Graphics::DeviceBuffer>				CreateFilledVertexBuffer(const void				  *data,
+																	 size_t					   sizeInBytes,
+																	 size_t					   strideInBytes,
+																	 Graphics::GraphicsDevice *device);
+	Ref<Graphics::DeviceBuffer> CreateFilledIndexBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::GraphicsDevice *device);
+	Ref<Graphics::DeviceBuffer> CreateFilledUniformBuffer(const void			   *data,
+														  size_t					sizeInBytes,
+														  size_t					strideInBytes,
+														  Graphics::GraphicsDevice *device);
 
 	NX_API void FlipPixelsHorizontally(std::vector<unsigned char> &pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format);
 	NX_API void FlipPixelsVertically(std::vector<unsigned char> &pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format);

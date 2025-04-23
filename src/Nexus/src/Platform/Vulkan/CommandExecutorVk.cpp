@@ -2,7 +2,7 @@
 
 	#include "CommandExecutorVk.hpp"
 
-	#include "BufferVk.hpp"
+	#include "DeviceBufferVk.hpp"
 	#include "FramebufferVk.hpp"
 	#include "PipelineVk.hpp"
 	#include "ResourceSetVk.hpp"
@@ -72,24 +72,22 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		auto vulkanVB = std::dynamic_pointer_cast<VertexBufferVk>(command.VertexBufferRef.lock());
-
-		VkBuffer	 vertexBuffers[] = {vulkanVB->GetBuffer()};
-		VkDeviceSize offsets[]		 = {0};
+		DeviceBufferVk *vertexBufferVk	= (DeviceBufferVk *)command.View.BufferHandle;
+		VkBuffer		vertexBuffers[] = {vertexBufferVk->GetVkBuffer()};
+		VkDeviceSize	offsets[]		= {command.View.Offset};
 		vkCmdBindVertexBuffers(m_CommandBuffer, command.Slot, 1, vertexBuffers, offsets);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(WeakRef<IndexBuffer> command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(SetIndexBufferCommand command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
 		{
 			return;
 		}
-		auto vulkanIB = std::dynamic_pointer_cast<IndexBufferVk>(command.lock());
-
-		VkBuffer	indexBufferRaw = vulkanIB->GetBuffer();
-		VkIndexType indexType	   = Vk::GetVulkanIndexBufferFormat(vulkanIB->GetFormat());
-		vkCmdBindIndexBuffer(m_CommandBuffer, indexBufferRaw, 0, indexType);
+		DeviceBufferVk *indexBufferVk	  = (DeviceBufferVk *)command.View.BufferHandle;
+		VkBuffer		indexBufferHandle = indexBufferVk->GetVkBuffer();
+		VkIndexType		indexType		  = Vk::GetVulkanIndexBufferFormat(command.View.BufferFormat);
+		vkCmdBindIndexBuffer(m_CommandBuffer, indexBufferHandle, 0, indexType);
 	}
 
 	void CommandExecutorVk::ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device)

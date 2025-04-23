@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Color.hpp"
+#include "DeviceBuffer.hpp"
 #include "Framebuffer.hpp"
-#include "GPUBuffer.hpp"
 #include "Nexus-Core/Types.hpp"
 #include "Nexus-Core/nxpch.hpp"
 #include "Pipeline.hpp"
@@ -16,8 +16,13 @@ namespace Nexus::Graphics
 {
 	struct SetVertexBufferCommand
 	{
-		WeakRef<VertexBuffer> VertexBufferRef = {};
 		uint32_t			  Slot			  = 0;
+		VertexBufferView	  View			  = {};
+	};
+
+	struct SetIndexBufferCommand
+	{
+		IndexBufferView View = {};
 	};
 
 	union ClearColor
@@ -144,7 +149,7 @@ namespace Nexus::Graphics
 	};
 
 	typedef std::variant<SetVertexBufferCommand,
-						 WeakRef<IndexBuffer>,
+						 SetIndexBufferCommand,
 						 WeakRef<Pipeline>,
 						 DrawElementCommand,
 						 DrawIndexedCommand,
@@ -191,11 +196,11 @@ namespace Nexus::Graphics
 
 		 /// @brief A method that binds a vertex buffer to the pipeline
 		 /// @param vertexBuffer A pointer to the vertex buffer to bind
-		 void SetVertexBuffer(Ref<VertexBuffer> vertexBuffer, uint32_t slot);
+		 void SetVertexBuffer(VertexBufferView vertexBuffer, uint32_t slot);
 
 		 /// @brief A method that binds an index buffer to the pipeline
 		 /// @param indexBuffer A pointer to the index buffer to bind
-		 void SetIndexBuffer(Ref<IndexBuffer> indexBuffer);
+		 void SetIndexBuffer(IndexBufferView indexBuffer);
 
 		 /// @brief A method to bind a pipeline to a command list
 		 /// @param pipeline The pointer to the pipeline to bind
