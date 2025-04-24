@@ -64,10 +64,16 @@ namespace Nexus::Graphics
 			return description.SizeInBytes / description.StrideInBytes;
 		}
 
-		bool IsHostAccessible() const
+		bool IsWriteable() const
 		{
 			const DeviceBufferDescription &description = GetDescription();
-			return description.Type == DeviceBufferType::Upload || description.Type == DeviceBufferType::Readback;
+			return description.Type == DeviceBufferType::Upload || description.HostVisible == true;
+		}
+
+		bool IsReadable() const
+		{
+			const DeviceBufferDescription &description = GetDescription();
+			return description.Type == DeviceBufferType::Upload || description.Type == DeviceBufferType::Readback || description.HostVisible == true;
 		}
 	};
 
@@ -84,15 +90,12 @@ namespace Nexus::Graphics
 	{
 		DeviceBuffer *BufferHandle = nullptr;
 		uint64_t	  Offset	   = 0;
-		uint64_t	  Stride	   = 0;
-		uint64_t	  Size		   = 0;
 	};
 
 	struct IndexBufferView
 	{
 		DeviceBuffer	 *BufferHandle = nullptr;
 		uint64_t		  Offset	   = 0;
-		uint64_t		  Size		   = 0;
 		IndexBufferFormat BufferFormat = IndexBufferFormat::UInt32;
 	};
 

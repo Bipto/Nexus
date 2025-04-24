@@ -50,7 +50,7 @@ namespace Nexus::Graphics
 
 		D3D12_VERTEX_BUFFER_VIEW bufferView;
 		bufferView.BufferLocation = d3d12VertexBuffer->GetHandle()->GetGPUVirtualAddress() + command.View.Offset;
-		bufferView.SizeInBytes	  = d3d12VertexBuffer->GetDescription().SizeInBytes;
+		bufferView.SizeInBytes	  = d3d12VertexBuffer->GetDescription().SizeInBytes - command.View.Offset;
 		bufferView.StrideInBytes  = bufferLayout.GetStride();
 
 		m_CommandList->IASetVertexBuffers(command.Slot, 1, &bufferView);
@@ -67,7 +67,7 @@ namespace Nexus::Graphics
 
 		D3D12_INDEX_BUFFER_VIEW indexBufferView;
 		indexBufferView.BufferLocation = d3d12IndexBuffer->GetHandle()->GetGPUVirtualAddress() + command.View.Offset;
-		indexBufferView.SizeInBytes	   = d3d12IndexBuffer->GetDescription().SizeInBytes;
+		indexBufferView.SizeInBytes	   = d3d12IndexBuffer->GetDescription().SizeInBytes - command.View.Offset;
 		indexBufferView.Format		   = D3D12::GetD3D12IndexBufferFormat(command.View.BufferFormat);
 
 		m_CommandList->IASetIndexBuffer(&indexBufferView);

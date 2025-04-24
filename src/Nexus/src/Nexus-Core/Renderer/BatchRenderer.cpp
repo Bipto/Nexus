@@ -1172,14 +1172,11 @@ namespace Nexus::Graphics
 		VertexBufferView vertexBufferView = {};
 		vertexBufferView.BufferHandle	  = info.VertexBuffer.get();
 		vertexBufferView.Offset			  = 0;
-		vertexBufferView.Stride			  = info.VertexBuffer->GetDescription().StrideInBytes;
-		vertexBufferView.Size			  = info.VertexBuffer->GetDescription().SizeInBytes;
 		m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
 		IndexBufferView indexBufferView = {};
 		indexBufferView.BufferHandle	= info.IndexBuffer.get();
 		indexBufferView.Offset			= 0;
-		indexBufferView.Size			= info.IndexBuffer->GetDescription().SizeInBytes;
 		indexBufferView.BufferFormat	= Graphics::IndexBufferFormat::UInt32;
 		m_CommandList->SetIndexBuffer(indexBufferView);
 

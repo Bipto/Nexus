@@ -262,15 +262,12 @@ namespace Nexus::Graphics
 			VertexBufferView  vertexBufferView = {};
 			vertexBufferView.BufferHandle	   = vertexBuffer.get();
 			vertexBufferView.Offset			   = 0;
-			vertexBufferView.Stride			   = vertexBuffer->GetDescription().StrideInBytes;
-			vertexBufferView.Size			   = vertexBuffer->GetDescription().SizeInBytes;
 			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
 			Ref<DeviceBuffer> indexBuffer	  = m_Cube->GetIndexBuffer();
 			IndexBufferView	  indexBufferView = {};
 			indexBufferView.BufferHandle	  = indexBuffer.get();
 			indexBufferView.Offset			  = 0;
-			indexBufferView.Size			  = indexBuffer->GetDescription().SizeInBytes;
 			indexBufferView.BufferFormat	  = Graphics::IndexBufferFormat::UInt32;
 			m_CommandList->SetIndexBuffer(indexBufferView);
 
@@ -356,15 +353,12 @@ namespace Nexus::Graphics
 			VertexBufferView  vertexBufferView = {};
 			vertexBufferView.BufferHandle	   = vertexBuffer.get();
 			vertexBufferView.Offset			   = 0;
-			vertexBufferView.Stride			   = vertexBuffer->GetDescription().StrideInBytes;
-			vertexBufferView.Size			   = vertexBuffer->GetDescription().SizeInBytes;
 			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
 			Ref<DeviceBuffer> indexBuffer	  = mesh->GetIndexBuffer();
 			IndexBufferView	  indexBufferView = {};
 			indexBufferView.BufferHandle	  = indexBuffer.get();
 			indexBufferView.Offset			  = 0;
-			indexBufferView.Size			  = indexBuffer->GetDescription().SizeInBytes;
 			indexBufferView.BufferFormat	  = Graphics::IndexBufferFormat::UInt32;
 			m_CommandList->SetIndexBuffer(indexBufferView);
 			m_CommandList->DrawIndexed(mesh->GetIndexBuffer()->GetCount(), 0, 0);

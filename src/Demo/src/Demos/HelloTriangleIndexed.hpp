@@ -73,14 +73,11 @@ namespace Demos
 			Nexus::Graphics::VertexBufferView vertexBufferView = {};
 			vertexBufferView.BufferHandle					   = m_VertexBuffer.get();
 			vertexBufferView.Offset							   = 0;
-			vertexBufferView.Stride							   = m_VertexBuffer->GetDescription().StrideInBytes;
-			vertexBufferView.Size							   = m_VertexBuffer->GetDescription().SizeInBytes;
 			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
 			Nexus::Graphics::IndexBufferView indexBufferView = {};
 			indexBufferView.BufferHandle					 = m_IndexBuffer.get();
 			indexBufferView.Offset							 = 0;
-			indexBufferView.Size							 = m_IndexBuffer->GetDescription().SizeInBytes;
 			indexBufferView.BufferFormat					 = Nexus::Graphics::IndexBufferFormat::UInt32;
 			m_CommandList->SetIndexBuffer(indexBufferView);
 
