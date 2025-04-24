@@ -65,6 +65,7 @@ namespace Demos
 			vertexBufferView.BufferHandle					   = m_VertexBuffer.get();
 			vertexBufferView.Offset							   = 0;
 			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
+
 			auto vertexCount = m_VertexBuffer->GetCount();
 			m_CommandList->Draw(0, vertexCount);
 			m_CommandList->End();
