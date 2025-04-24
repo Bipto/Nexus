@@ -62,7 +62,11 @@ namespace Demos
 
 			m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 
-			m_ResourceSet->WriteUniformBuffer(m_TransformUniformBuffer, "Transform");
+			Nexus::Graphics::UniformBufferView transformUniformBufferView = {};
+			transformUniformBufferView.BufferHandle						  = m_TransformUniformBuffer.get();
+			transformUniformBufferView.Offset							  = 0;
+			transformUniformBufferView.Size								  = m_TransformUniformBuffer->GetDescription().SizeInBytes;
+			m_ResourceSet->WriteUniformBuffer(transformUniformBufferView, "Transform");
 			m_ResourceSet->WriteCombinedImageSampler(m_Texture, m_Sampler, "texSampler");
 
 			m_CommandList->SetResourceSet(m_ResourceSet);

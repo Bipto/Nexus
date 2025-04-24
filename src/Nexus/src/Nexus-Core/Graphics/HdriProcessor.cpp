@@ -168,7 +168,12 @@ namespace Nexus::Graphics
 			cameraUniforms.Projection = projection;
 
 			uniformBuffer->SetData(&cameraUniforms, 0, sizeof(cameraUniforms));
-			resourceSet->WriteUniformBuffer(uniformBuffer, "Camera");
+
+			UniformBufferView uniformBufferView = {};
+			uniformBufferView.BufferHandle		= uniformBuffer.get();
+			uniformBufferView.Offset			= 0;
+			uniformBufferView.Size				= uniformBuffer->GetDescription().SizeInBytes;
+			resourceSet->WriteUniformBuffer(uniformBufferView, "Camera");
 			resourceSet->WriteCombinedImageSampler(m_HdriImage, sampler, "equirectangularMap");
 
 			commandList->Begin();

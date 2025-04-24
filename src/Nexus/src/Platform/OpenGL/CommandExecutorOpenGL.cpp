@@ -439,30 +439,23 @@ namespace Nexus::Graphics
 		}
 
 		GLuint uniformBufferSlot = 0;
-		for (const auto [name, uniformBuffer] : uniformBufferBindings)
+		for (const auto [name, uniformBufferView] : uniformBufferBindings)
 		{
-			if (uniformBuffer.expired())
+			DeviceBufferOpenGL *uniformBufferGL = (DeviceBufferOpenGL *)uniformBufferView.BufferHandle;
+
+			GLint location = glGetUniformBlockIndex(pipeline->GetShaderHandle(), name.c_str());
+
+			if (location != -1)
 			{
-				NX_ERROR("Attempting to bind an invalid uniform buffer");
-				continue;
-			}
+				glCall(glUniformBlockBinding(pipeline->GetShaderHandle(), location, uniformBufferSlot));
 
-			if (Ref<DeviceBufferOpenGL> uniformBufferGL = std::dynamic_pointer_cast<DeviceBufferOpenGL>(uniformBuffer.lock()))
-			{
-				GLint location = glGetUniformBlockIndex(pipeline->GetShaderHandle(), name.c_str());
+				glCall(glBindBufferRange(GL_UNIFORM_BUFFER,
+										 uniformBufferSlot,
+										 uniformBufferGL->GetBufferHandle(),
+										 uniformBufferView.Offset,
+										 uniformBufferView.Size));
 
-				if (location != -1)
-				{
-					glCall(glUniformBlockBinding(pipeline->GetShaderHandle(), location, uniformBufferSlot));
-
-					glCall(glBindBufferRange(GL_UNIFORM_BUFFER,
-											 uniformBufferSlot,
-											 uniformBufferGL->GetBufferHandle(),
-											 0,
-											 uniformBufferGL->GetDescription().SizeInBytes));
-
-					uniformBufferSlot++;
-				}
+				uniformBufferSlot++;
 			}
 		}
 	}

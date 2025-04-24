@@ -595,7 +595,11 @@ namespace Nexus::ImGuiUtils
 		{
 			Ref<Graphics::Texture2D> texture = m_Textures.at(textureId);
 
-			resourceSet->WriteUniformBuffer(m_UniformBuffer, "MVP");
+			Graphics::UniformBufferView uniformBufferView = {};
+			uniformBufferView.BufferHandle				  = m_UniformBuffer.get();
+			uniformBufferView.Offset					  = 0;
+			uniformBufferView.Size						  = m_UniformBuffer->GetDescription().SizeInBytes;
+			resourceSet->WriteUniformBuffer(uniformBufferView, "MVP");
 			resourceSet->WriteCombinedImageSampler(texture, m_Sampler, "Texture");
 		}
 

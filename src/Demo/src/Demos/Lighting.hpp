@@ -104,8 +104,17 @@ namespace Demos
 
 			// upload resources
 			{
-				m_ResourceSet->WriteUniformBuffer(m_CameraUniformBuffer, "Camera");
-				m_ResourceSet->WriteUniformBuffer(m_TransformUniformBuffer, "Transform");
+				Nexus::Graphics::UniformBufferView cameraUniformBufferView = {};
+				cameraUniformBufferView.BufferHandle					   = m_CameraUniformBuffer.get();
+				cameraUniformBufferView.Offset							   = 0;
+				cameraUniformBufferView.Size							   = m_CameraUniformBuffer->GetDescription().SizeInBytes;
+				m_ResourceSet->WriteUniformBuffer(cameraUniformBufferView, "Camera");
+
+				Nexus::Graphics::UniformBufferView transformUniformBufferView = {};
+				transformUniformBufferView.BufferHandle						  = m_TransformUniformBuffer.get();
+				transformUniformBufferView.Offset							  = 0;
+				transformUniformBufferView.Size								  = m_TransformUniformBuffer->GetDescription().SizeInBytes;
+				m_ResourceSet->WriteUniformBuffer(transformUniformBufferView, "Transform");
 
 				m_ResourceSet->WriteCombinedImageSampler(m_DiffuseMap, m_Sampler, "diffuseMapSampler");
 				m_ResourceSet->WriteCombinedImageSampler(m_NormalMap, m_Sampler, "normalMapSampler");

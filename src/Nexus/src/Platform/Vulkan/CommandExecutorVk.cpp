@@ -224,7 +224,7 @@ namespace Nexus::Graphics
 	{
 		if (m_Rendering)
 		{
-			vkCmdEndRenderPass(m_CommandBuffer);
+			vkCmdEndRendering(m_CommandBuffer);
 		}
 
 		m_CurrentRenderTarget = command;

@@ -87,7 +87,12 @@ namespace Demos
 			Nexus::Graphics::ClearDepthStencilValue clearDepth {};
 			m_CommandList->ClearDepthTarget(clearDepth);
 
-			m_ResourceSet->WriteUniformBuffer(m_CameraUniformBuffer, "Camera");
+			Nexus::Graphics::UniformBufferView cameraUniformBufferView = {};
+			cameraUniformBufferView.BufferHandle					   = m_CameraUniformBuffer.get();
+			cameraUniformBufferView.Offset							   = 0;
+			cameraUniformBufferView.Size							   = m_CameraUniformBuffer->GetDescription().SizeInBytes;
+			m_ResourceSet->WriteUniformBuffer(cameraUniformBufferView, "Camera");
+
 			m_ResourceSet->WriteCombinedImageSampler(m_Cubemap, m_Sampler, "skybox");
 			m_CommandList->SetResourceSet(m_ResourceSet);
 

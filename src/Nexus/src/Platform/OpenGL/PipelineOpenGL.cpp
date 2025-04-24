@@ -44,46 +44,51 @@ namespace Nexus::Graphics
 
 			DeviceBufferOpenGL *vertexBufferOpenGL = (DeviceBufferOpenGL *)vertexBufferView.BufferHandle;
 
-			uint32_t offset = vertexOffset;
+			uint32_t offset = 0;
+
+			// type is an instance buffer, offset by instance offset
 			if (layout.IsInstanceBuffer())
 			{
 				offset = instanceOffset;
 			}
+			// otherwise, the buffer is a vertex buffer, offset by vertex offset
+			else
+			{
+				offset = vertexOffset;
+			}
 
-				offset *= layout.GetStride();
+			offset *= layout.GetStride();
 
-				for (auto &element : layout)
+			// offset by the amount specified in the vertex buffer view
+			offset += vertexBufferView.Offset;
+
+			for (auto &element : layout)
+			{
+				GLenum				baseType;
+				uint32_t			componentCount;
+				GLboolean			normalized;
+				GL::GLPrimitiveType primitiveType = GL::GLPrimitiveType::Unknown;
+				GL::GetBaseType(element, baseType, componentCount, normalized, primitiveType);
+
+				glCall(glEnableVertexAttribArray(index));
+				glCall(glBindBuffer(GL_ARRAY_BUFFER, vertexBufferOpenGL->GetBufferHandle()));
+
+				if (primitiveType == GL::GLPrimitiveType::Float)
 				{
-					GLenum				baseType;
-					uint32_t			componentCount;
-					GLboolean			normalized;
-					GL::GLPrimitiveType primitiveType = GL::GLPrimitiveType::Unknown;
-					GL::GetBaseType(element, baseType, componentCount, normalized, primitiveType);
+					glCall(glVertexAttribPointer(index, componentCount, baseType, normalized, layout.GetStride(), (void *)(element.Offset + offset)));
+				}
+				else if (primitiveType == GL::GLPrimitiveType::Int)
+				{
+					glCall(glVertexAttribIPointer(index, componentCount, baseType, layout.GetStride(), (void *)(element.Offset + offset)));
+				}
+				else
+				{
+					throw std::runtime_error("Failed to find valid primitive type");
+				}
 
-					glCall(glEnableVertexAttribArray(index));
-					glCall(glBindBuffer(GL_ARRAY_BUFFER, vertexBufferOpenGL->GetBufferHandle()));
+				glCall(glVertexAttribDivisor(index, layout.GetInstanceStepRate()));
 
-					if (primitiveType == GL::GLPrimitiveType::Float)
-					{
-						glCall(glVertexAttribPointer(index,
-													 componentCount,
-													 baseType,
-													 normalized,
-													 layout.GetStride(),
-													 (void *)(element.Offset + offset)));
-					}
-					else if (primitiveType == GL::GLPrimitiveType::Int)
-					{
-						glCall(glVertexAttribIPointer(index, componentCount, baseType, layout.GetStride(), (void *)(element.Offset + offset)));
-					}
-					else
-					{
-						throw std::runtime_error("Failed to find valid primitive type");
-					}
-
-					glCall(glVertexAttribDivisor(index, layout.GetInstanceStepRate()));
-
-					index++;
+				index++;
 			}
 
 			if (indexBuffer)

@@ -8,9 +8,9 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void Nexus::Graphics::ResourceSetOpenGL::WriteUniformBuffer(Ref<DeviceBuffer> uniformBuffer, const std::string &name)
+	void Nexus::Graphics::ResourceSetOpenGL::WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name)
 	{
-		m_BoundUniformBuffers[name] = std::dynamic_pointer_cast<DeviceBufferOpenGL>(uniformBuffer);
+		m_BoundUniformBuffers[name] = uniformBuffer;
 	}
 
 	void ResourceSetOpenGL::WriteCombinedImageSampler(Ref<Texture2D> texture, Ref<Sampler> sampler, const std::string &name)

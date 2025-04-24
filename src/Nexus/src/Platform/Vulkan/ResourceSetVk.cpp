@@ -137,19 +137,20 @@ namespace Nexus::Graphics
 		vkDestroyDescriptorPool(m_Device->GetVkDevice(), m_DescriptorPool, nullptr);
 	}
 
-	void ResourceSetVk::WriteUniformBuffer(Ref<DeviceBuffer> uniformBuffer, const std::string &name)
+	void ResourceSetVk::WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name)
 	{
-		NX_ASSERT(uniformBuffer->GetDescription().Type == DeviceBufferType::Uniform, "Attempting to bind a buffer that is not a uniform buffer");
+		NX_ASSERT(uniformBuffer.BufferHandle->GetDescription().Type == DeviceBufferType::Uniform,
+				  "Attempting to bind a buffer that is not a uniform buffer");
 
-		Ref<DeviceBufferVk>	 uniformBufferVk = std::dynamic_pointer_cast<DeviceBufferVk>(uniformBuffer);
+		DeviceBufferVk		*uniformBufferVk = (DeviceBufferVk *)uniformBuffer.BufferHandle;
 		const auto			&descriptorSets	 = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
 
 		const BindingInfo &info = m_UniformBufferBindingInfos.at(name);
 
 		VkDescriptorBufferInfo bufferInfo = {};
 		bufferInfo.buffer				  = uniformBufferVk->GetVkBuffer();
-		bufferInfo.offset				  = 0;
-		bufferInfo.range				  = uniformBufferVk->GetDescription().SizeInBytes;
+		bufferInfo.offset				  = uniformBuffer.Offset;
+		bufferInfo.range				  = uniformBuffer.Size;
 
 		VkWriteDescriptorSet uniformBufferToWrite = {};
 		uniformBufferToWrite.sType				  = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;

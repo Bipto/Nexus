@@ -101,8 +101,18 @@ namespace Demos
 				const auto &mat			= mesh->GetMaterial();
 				const auto	resourceSet = m_ResourceSets[i];
 
-				resourceSet->WriteUniformBuffer(m_CameraUniformBuffer, "Camera");
-				resourceSet->WriteUniformBuffer(m_TransformUniformBuffer, "Transform");
+				Nexus::Graphics::UniformBufferView cameraUniformBufferView = {};
+				cameraUniformBufferView.BufferHandle					   = m_CameraUniformBuffer.get();
+				cameraUniformBufferView.Offset							   = 0;
+				cameraUniformBufferView.Size							   = m_CameraUniformBuffer->GetDescription().SizeInBytes;
+				resourceSet->WriteUniformBuffer(cameraUniformBufferView, "Camera");
+
+				Nexus::Graphics::UniformBufferView transformUniformBufferView = {};
+				transformUniformBufferView.BufferHandle						  = m_TransformUniformBuffer.get();
+				transformUniformBufferView.Offset							  = 0;
+				transformUniformBufferView.Size								  = m_TransformUniformBuffer->GetDescription().SizeInBytes;
+				resourceSet->WriteUniformBuffer(transformUniformBufferView, "Transform");
+
 				if (mat.DiffuseTexture)
 				{
 					resourceSet->WriteCombinedImageSampler(mat.DiffuseTexture, m_Sampler, "diffuseMapSampler");

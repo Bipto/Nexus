@@ -1147,7 +1147,11 @@ namespace Nexus::Graphics
 			m_Device->CopyBuffer(bufferCopy);
 		}
 
-		info.ResourceSet->WriteUniformBuffer(m_UniformBuffer, "MVP");
+		UniformBufferView uniformBufferView = {};
+		uniformBufferView.BufferHandle		= m_UniformBuffer.get();
+		uniformBufferView.Offset			= 0;
+		uniformBufferView.Size				= m_UniformBuffer->GetDescription().SizeInBytes;
+		info.ResourceSet->WriteUniformBuffer(uniformBufferView, "MVP");
 
 		for (uint32_t i = 0; i < MAX_TEXTURE_COUNT; i++)
 		{

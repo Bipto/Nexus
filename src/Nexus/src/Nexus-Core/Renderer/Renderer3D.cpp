@@ -254,7 +254,13 @@ namespace Nexus::Graphics
 		if (m_Cubemap)
 		{
 			m_CommandList->SetPipeline(m_CubemapPipeline);
-			m_CubemapResourceSet->WriteUniformBuffer(m_CubemapUniformBuffer, "Camera");
+
+			UniformBufferView uniformBufferView = {};
+			uniformBufferView.BufferHandle		= m_CubemapUniformBuffer.get();
+			uniformBufferView.Offset			= 0;
+			uniformBufferView.Size				= m_CubemapUniformBuffer->GetDescription().SizeInBytes;
+			m_CubemapResourceSet->WriteUniformBuffer(uniformBufferView, "Camera");
+
 			m_CubemapResourceSet->WriteCombinedImageSampler(m_Cubemap, m_CubemapSampler, "skybox");
 			m_CommandList->SetResourceSet(m_CubemapResourceSet);
 
@@ -344,8 +350,18 @@ namespace Nexus::Graphics
 			m_CommandList->SetScissor(scissor);
 
 			m_CommandList->SetPipeline(m_ModelPipeline);
-			m_ModelResourceSet->WriteUniformBuffer(m_ModelCameraUniformBuffer, "Camera");
-			m_ModelResourceSet->WriteUniformBuffer(m_ModelTransformUniformBuffer, "Transform");
+
+			UniformBufferView modelCameraUniformView = {};
+			modelCameraUniformView.BufferHandle		 = m_ModelCameraUniformBuffer.get();
+			modelCameraUniformView.Offset			 = 0;
+			modelCameraUniformView.Size				 = m_ModelCameraUniformBuffer->GetDescription().SizeInBytes;
+			m_ModelResourceSet->WriteUniformBuffer(modelCameraUniformView, "Camera");
+
+			UniformBufferView modelTransformUniformView = {};
+			modelTransformUniformView.BufferHandle		= m_ModelTransformUniformBuffer.get();
+			modelTransformUniformView.Offset			= 0;
+			modelTransformUniformView.Size				= m_ModelTransformUniformBuffer->GetDescription().SizeInBytes;
+			m_ModelResourceSet->WriteUniformBuffer(modelTransformUniformView, "Transform");
 
 			m_CommandList->SetResourceSet(m_ModelResourceSet);
 
