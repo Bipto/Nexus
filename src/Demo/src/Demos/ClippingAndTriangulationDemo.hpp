@@ -21,7 +21,7 @@ namespace Demos
 		virtual void Load() override
 		{
 			Nexus::Graphics::Swapchain	*swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
-			Nexus::Graphics::SampleCount sampleCount = swapchain->GetSpecification().Samples;
+			uint32_t					 sampleCount = swapchain->GetSpecification().Samples;
 			m_CommandList	= m_GraphicsDevice->CreateCommandList();
 			m_BatchRenderer							 = new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, false, sampleCount);
 

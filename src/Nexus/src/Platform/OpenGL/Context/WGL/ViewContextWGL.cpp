@@ -4,8 +4,6 @@
 
 	#include "glad/glad_wgl.h"
 
-	#include "Nexus-Core/Graphics/Multisample.hpp"
-
 namespace Nexus::GL
 {
 	ViewContextWGL::ViewContextWGL(HWND hwnd, HDC hdc, OffscreenContextWGL *context, const ContextSpecification &spec)
@@ -113,13 +111,12 @@ namespace Nexus::GL
 		iAttributes.push_back(WGL_DRAW_TO_WINDOW_ARB);
 		iAttributes.push_back(GL_TRUE);
 
-		if (spec.Samples != Graphics::SampleCount::SampleCount1)
+		if (spec.Samples > 1)
 		{
-			uint32_t samples = Graphics::GetSampleCount(spec.Samples);
 			iAttributes.push_back(WGL_SAMPLE_BUFFERS_ARB);
 			iAttributes.push_back(GL_TRUE);
 			iAttributes.push_back(WGL_SAMPLES_ARB);
-			iAttributes.push_back(samples);
+			iAttributes.push_back(spec.Samples);
 		}
 
 		if (spec.DoubleBuffered)

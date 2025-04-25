@@ -281,7 +281,7 @@ namespace Nexus::Graphics
 					   Nexus::Ref<Nexus::Graphics::ShaderModule> vertexModule,
 					   Nexus::Ref<Nexus::Graphics::ShaderModule> fragmentModule,
 					   bool										 useDepthTest,
-					   Nexus::Graphics::SampleCount				 sampleCount)
+					   uint32_t									 sampleCount)
 	{
 		info.Vertices.resize(MAX_VERTEX_COUNT);
 		info.Indices.resize(MAX_VERTEX_COUNT * 3);
@@ -351,7 +351,7 @@ namespace Nexus::Graphics
 		info.IndexBuffer								   = Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(indexDesc));
 	}
 
-	BatchRenderer::BatchRenderer(Nexus::Graphics::GraphicsDevice *device, bool useDepthTest, Nexus::Graphics::SampleCount sampleCount)
+	BatchRenderer::BatchRenderer(Nexus::Graphics::GraphicsDevice *device, bool useDepthTest, uint32_t sampleCount)
 		: m_Device(device),
 		  m_CommandList(m_Device->CreateCommandList()),
 		  m_UseDepthTest(useDepthTest)

@@ -35,7 +35,7 @@ namespace Nexus::Graphics
 
 	void SwapchainD3D12::SwapBuffers()
 	{
-		if (m_Specification.Samples != SampleCount::SampleCount1)
+		if (m_Specification.Samples > 1)
 		{
 			Resolve();
 		}

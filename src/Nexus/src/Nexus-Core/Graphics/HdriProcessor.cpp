@@ -89,7 +89,7 @@ namespace Nexus::Graphics
 		Nexus::Graphics::FramebufferSpecification framebufferSpec = {};
 		framebufferSpec.Width									  = size;
 		framebufferSpec.Height									  = size;
-		framebufferSpec.Samples									  = Nexus::Graphics::SampleCount::SampleCount1;
+		framebufferSpec.Samples									  = 1;
 		framebufferSpec.ColorAttachmentSpecification			  = {PixelFormat::R32_G32_B32_A32_Float};
 		framebufferSpec.DepthAttachmentSpecification			  = PixelFormat::D24_UNorm_S8_UInt;
 

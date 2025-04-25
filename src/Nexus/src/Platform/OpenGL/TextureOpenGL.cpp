@@ -22,14 +22,13 @@ namespace Nexus::Graphics
 
 		glGenTextures(1, &m_Handle);
 	#if defined(NX_PLATFORM_GL_DESKTOP)
-		if (spec.Samples != SampleCount::SampleCount1)
+		if (spec.Samples > 1)
 		{
-			uint32_t samples = GetSampleCount(spec.Samples);
 			m_TextureType	 = GL_TEXTURE_2D_MULTISAMPLE;
 			glCall(glBindTexture(m_TextureType, m_Handle));
 			glCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
 			glCall(glTexStorage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE,
-											 samples,
+											 spec.Samples,
 											 m_InternalFormat,
 											 m_Specification.Width,
 											 m_Specification.Height,
@@ -39,7 +38,7 @@ namespace Nexus::Graphics
 		{
 	#endif
 			// if we do not support multisampling, then we force this to 1
-			m_Specification.Samples = SampleCount::SampleCount1;
+			m_Specification.Samples = 1;
 			m_TextureType			= GL_TEXTURE_2D;
 			glCall(glBindTexture(m_TextureType, m_Handle));
 			glCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));

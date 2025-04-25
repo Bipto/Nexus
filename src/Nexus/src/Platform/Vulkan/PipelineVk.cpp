@@ -236,7 +236,7 @@ namespace Nexus::Graphics
 
 	VkPipelineMultisampleStateCreateInfo PipelineVk::CreateMultisampleStateCreateInfo()
 	{
-		VkSampleCountFlagBits samples = Vk::GetVkSampleCount(m_Description.ColourTargetSampleCount);
+		VkSampleCountFlagBits samples = Vk::GetVkSampleCountFlagsFromSampleCount(m_Description.ColourTargetSampleCount);
 
 		VkPipelineMultisampleStateCreateInfo info = {};
 		info.sType								  = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Multisample.hpp"
 #include "Nexus-Core/Graphics/Image.hpp"
 #include "Nexus-Core/Types.hpp"
 #include "Nexus-Core/nxpch.hpp"
@@ -71,7 +70,7 @@ namespace Nexus::Graphics
 		std::vector<TextureUsage> Usage = {TextureUsage::Sampled};
 
 		/// @brief How many samples should be used to sample a pixel
-		SampleCount Samples = SampleCount::SampleCount1;
+		uint32_t Samples = 1;
 	};
 
 	struct CubemapSpecification

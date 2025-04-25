@@ -336,7 +336,7 @@ namespace Nexus::Graphics
 	{
 		std::shared_ptr<PhysicalDeviceVk> physicalDevice = std::dynamic_pointer_cast<PhysicalDeviceVk>(graphicsDevice->GetPhysicalDevice());
 
-		auto	 samples		  = Vk::GetVkSampleCount(m_Specification.Samples);
+		VkSampleCountFlagBits samples		   = Vk::GetVkSampleCountFlagsFromSampleCount(m_Specification.Samples);
 		VkBool32 validDepthFormat = GetSupportedDepthFormat(physicalDevice->GetVkPhysicalDevice(), &m_DepthFormat);
 		CreateImage(m_SwapchainSize.width,
 					m_SwapchainSize.height,
@@ -354,7 +354,7 @@ namespace Nexus::Graphics
 
 	void SwapchainVk::CreateResolveAttachment(GraphicsDeviceVk *graphicsDevice)
 	{
-		auto samples = Vk::GetVkSampleCount(m_Specification.Samples);
+		VkSampleCountFlagBits samples = Vk::GetVkSampleCountFlagsFromSampleCount(m_Specification.Samples);
 
 		CreateImage(m_SwapchainSize.width,
 					m_SwapchainSize.height,

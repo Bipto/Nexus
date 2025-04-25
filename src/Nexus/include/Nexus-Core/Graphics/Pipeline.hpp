@@ -36,7 +36,7 @@ namespace Nexus::Graphics
 		std::array<BlendStateDescription, 8> ColourBlendStates;
 
 		/// @brief How many samples will be used with the pipeline
-		SampleCount ColourTargetSampleCount = SampleCount::SampleCount1;
+		uint32_t ColourTargetSampleCount = 1;
 
 		/// @brief The depth format that will be used with the pipeline
 		PixelFormat DepthFormat = PixelFormat::D24_UNorm_S8_UInt;

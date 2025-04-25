@@ -146,7 +146,6 @@ namespace Nexus::Graphics
 
 	void PipelineD3D12::CreatePipeline()
 	{
-		uint32_t				 sampleCount = GetSampleCount(m_Description.ColourTargetSampleCount);
 		std::vector<DXGI_FORMAT> rtvFormats;
 
 		for (uint32_t index = 0; index < m_Description.ColourTargetCount; index++)
@@ -237,7 +236,7 @@ namespace Nexus::Graphics
 		pipelineDesc.BlendState						 = CreateBlendStateDesc();
 		pipelineDesc.DepthStencilState				 = CreateDepthStencilDesc();
 		pipelineDesc.SampleMask						 = 0xFFFFFFFF;
-		pipelineDesc.SampleDesc.Count				 = sampleCount;
+		pipelineDesc.SampleDesc.Count				 = m_Description.ColourTargetSampleCount;
 		pipelineDesc.SampleDesc.Quality				 = 0;
 		pipelineDesc.NodeMask						 = 0;
 		pipelineDesc.CachedPSO.CachedBlobSizeInBytes = 0;

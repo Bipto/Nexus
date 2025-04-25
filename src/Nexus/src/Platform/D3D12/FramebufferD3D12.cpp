@@ -146,7 +146,7 @@ namespace Nexus::Graphics
 			D3D12_RENDER_TARGET_VIEW_DESC rtvDesc;
 			rtvDesc.Format = D3D12::GetD3D12PixelFormat(m_Specification.ColorAttachmentSpecification.Attachments[i].TextureFormat, false);
 
-			if (m_Specification.Samples != SampleCount::SampleCount1)
+			if (m_Specification.Samples > 1)
 			{
 				rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DMS;
 			}
@@ -174,7 +174,7 @@ namespace Nexus::Graphics
 			D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
 			dsvDesc.Format = D3D12::GetD3D12PixelFormat(m_Specification.DepthAttachmentSpecification.DepthFormat, true);
 
-			if (m_Specification.Samples != SampleCount::SampleCount1)
+			if (m_Specification.Samples > 1)
 			{
 				dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DMS;
 			}

@@ -189,18 +189,6 @@ namespace Nexus::Vk
 		}
 	}
 
-	VkSampleCountFlagBits GetVkSampleCount(Nexus::Graphics::SampleCount samples)
-	{
-		switch (samples)
-		{
-			case Nexus::Graphics::SampleCount::SampleCount1: return VK_SAMPLE_COUNT_1_BIT;
-			case Nexus::Graphics::SampleCount::SampleCount2: return VK_SAMPLE_COUNT_2_BIT;
-			case Nexus::Graphics::SampleCount::SampleCount4: return VK_SAMPLE_COUNT_4_BIT;
-			case Nexus::Graphics::SampleCount::SampleCount8: return VK_SAMPLE_COUNT_8_BIT;
-			default: throw std::runtime_error("Failed to find a valid sample count");
-		}
-	}
-
 	void GetVkFilterFromNexusFormat(Nexus::Graphics::SamplerFilter filter, VkFilter &min, VkFilter &max, VkSamplerMipmapMode &mipmapMode)
 	{
 		switch (filter)
@@ -476,6 +464,24 @@ namespace Nexus::Vk
 		}
 
 		return true;
+	}
+
+	uint32_t GetSampleCountFromVkSampleCountFlags(VkSampleCountFlags sampleCount)
+	{
+		uint32_t count = 0;
+		while (sampleCount > 1)
+		{
+			sampleCount >>= 1;
+			count++;
+		}
+
+		return 1 << count;
+	}
+
+	VkSampleCountFlagBits GetVkSampleCountFlagsFromSampleCount(uint32_t samples)
+	{
+		VkSampleCountFlagBits vkSampleCountFlag = static_cast<VkSampleCountFlagBits>(samples);
+		return vkSampleCountFlag;
 	}
 }	 // namespace Nexus::Vk
 

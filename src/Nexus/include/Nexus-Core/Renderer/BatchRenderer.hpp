@@ -63,7 +63,7 @@ namespace Nexus::Graphics
 	class NX_API BatchRenderer
 	{
 	  public:
-		BatchRenderer(Nexus::Graphics::GraphicsDevice *device, bool useDepthTest, Nexus::Graphics::SampleCount sampleCount);
+		BatchRenderer(Nexus::Graphics::GraphicsDevice *device, bool useDepthTest, uint32_t sampleCount);
 
 		void Resize();
 

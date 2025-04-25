@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Nexus-Core/Graphics/Multisample.hpp"
 #include "Nexus-Core/Graphics/Texture.hpp"
 #include "Nexus-Core/Types.hpp"
 #include "Nexus-Core/nxpch.hpp"
@@ -73,7 +72,7 @@ namespace Nexus::Graphics
 		/// @brief Settings to use when creating a depth attachment
 		FramebufferDepthAttachmentSpecification DepthAttachmentSpecification;
 
-		SampleCount Samples = SampleCount::SampleCount1;
+		uint32_t Samples = 1;
 	};
 
 	/// @brief A pure virtual class representing an API specific framebuffer

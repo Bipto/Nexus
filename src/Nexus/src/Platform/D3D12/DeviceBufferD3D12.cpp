@@ -12,10 +12,18 @@ namespace Nexus::Graphics
 		D3D12MA::ALLOCATION_DESC allocationDesc = {};
 		allocationDesc.HeapType					= heapType;
 
+		uint32_t resourceSizeInBytes = desc.SizeInBytes;
+
+		// if the resource is a constant buffer, it needs to be aligned to 256 bytes
+		if (desc.Type == DeviceBufferType::Uniform)
+		{
+			resourceSizeInBytes = Utils::AlignTo<uint32_t>(desc.SizeInBytes, 256);
+		}
+
 		D3D12_RESOURCE_DESC1 resourceDesc = {};
 		resourceDesc.Dimension			  = D3D12_RESOURCE_DIMENSION_BUFFER;
 		resourceDesc.Alignment			  = 0;
-		resourceDesc.Width				  = desc.SizeInBytes;
+		resourceDesc.Width				  = resourceSizeInBytes;
 		resourceDesc.Height				  = 1;
 		resourceDesc.DepthOrArraySize	  = 1;
 		resourceDesc.MipLevels			  = 1;

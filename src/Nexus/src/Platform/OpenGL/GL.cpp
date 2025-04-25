@@ -705,7 +705,7 @@ namespace Nexus::GL
 	{
 		GL::ContextSpecification spec = {};
 		spec.Debug					  = true;
-		spec.Samples				  = Graphics::SampleCount::SampleCount8;
+		spec.Samples				  = 1;
 		spec.GLVersion				  = GL::OpenGLVersion::OpenGL;
 
 	#if defined(NX_PLATFORM_WGL)
@@ -748,7 +748,7 @@ namespace Nexus::GL
 	{
 		GL::ContextSpecification spec = {};
 		spec.Debug					  = true;
-		spec.Samples				  = Graphics::SampleCount::SampleCount8;
+		spec.Samples				  = 8;
 		spec.GLVersion				  = GL::OpenGLVersion::OpenGL;
 
 		Graphics::GraphicsDeviceOpenGL *deviceOpenGL = (Graphics::GraphicsDeviceOpenGL *)device;

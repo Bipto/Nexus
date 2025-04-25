@@ -98,9 +98,7 @@ namespace Nexus::Graphics
 
 		D3D12_CONSTANT_BUFFER_VIEW_DESC desc;
 		desc.BufferLocation = d3d12UniformBuffer->GetHandle()->GetGPUVirtualAddress() + uniformBuffer.Offset;
-
-		// convert the size of the constant buffer to be 256 byte aligned
-		desc.SizeInBytes = (uniformBuffer.Size + 255) & ~255;
+		desc.SizeInBytes	= Utils::AlignTo<uint32_t>(uniformBuffer.Size, 256);
 
 		d3d12Device->CreateConstantBufferView(&desc, m_ConstantBufferCPUDescriptors.at(index));
 

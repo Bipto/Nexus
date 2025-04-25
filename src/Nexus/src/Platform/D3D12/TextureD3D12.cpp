@@ -19,8 +19,6 @@ namespace Nexus::Graphics
 
 		const D3D12_RESOURCE_STATES initialState = D3D12_RESOURCE_STATE_COMMON;
 
-		uint32_t samples = GetSampleCount(spec.Samples);
-
 		// staging buffer
 		{
 			D3D12_HEAP_PROPERTIES uploadProperties;
@@ -69,7 +67,7 @@ namespace Nexus::Graphics
 			resourceDesc.DepthOrArraySize	= 1;
 			resourceDesc.MipLevels			= m_Specification.MipLevels;
 			resourceDesc.Format				= m_TextureFormat;
-			resourceDesc.SampleDesc.Count	= samples;
+			resourceDesc.SampleDesc.Count	= spec.Samples;
 			resourceDesc.SampleDesc.Quality = 0;
 			resourceDesc.Layout				= D3D12_TEXTURE_LAYOUT_UNKNOWN;
 			resourceDesc.Flags				= flags;

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Nexus-Core/Graphics/GraphicsAPIType.hpp"
-#include "Nexus-Core/Graphics/Multisample.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
 namespace Nexus::Audio
@@ -31,8 +30,8 @@ namespace Nexus::Graphics
 		/// @brief Whether the application should use VSync
 		Graphics::VSyncState VSyncState = Graphics::VSyncState::Enabled;
 
-		/// @brief Whether the swapchain should be multisampled
-		Graphics::SampleCount Samples = Graphics::SampleCount::SampleCount1;
+		/// @brief How many samples should be used by the swapchain
+		uint32_t Samples = 0;
 	};
 }	 // namespace Nexus::Graphics
 

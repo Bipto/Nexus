@@ -337,7 +337,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::SetSwapchain(SwapchainD3D12 *swapchain, GraphicsDevice *device)
 	{
-		if (swapchain->GetSpecification().Samples == SampleCount::SampleCount1)
+		if (swapchain->GetSpecification().Samples == 1)
 		{
 			std::vector<D3D12_RESOURCE_BARRIER> barriers;
 			GraphicsDeviceD3D12				   *deviceD3D12 = (GraphicsDeviceD3D12 *)device;

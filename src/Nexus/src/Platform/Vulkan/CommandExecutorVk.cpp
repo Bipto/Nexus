@@ -395,7 +395,7 @@ namespace Nexus::Graphics
 		VkRenderingAttachmentInfo colourAttachment = {};
 		colourAttachment.sType					   = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
 
-		if (swapchain->GetSpecification().Samples == SampleCount::SampleCount1)
+		if (swapchain->GetSpecification().Samples == 1)
 		{
 			colourAttachment.imageView	 = swapchain->GetColourImageView();
 			colourAttachment.imageLayout = swapchain->GetColorImageLayout();

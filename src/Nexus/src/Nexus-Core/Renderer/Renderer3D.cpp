@@ -429,7 +429,7 @@ namespace Nexus::Graphics
 		pipelineDescription.ColourTargetCount		= 2;
 		pipelineDescription.ColourFormats[0]		= Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
 		pipelineDescription.ColourFormats[1]		= Nexus::Graphics::PixelFormat::R32_G32_UInt;
-		pipelineDescription.ColourTargetSampleCount = SampleCount::SampleCount1;
+		pipelineDescription.ColourTargetSampleCount = 1;
 		pipelineDescription.Layouts					= {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
 		pipelineDescription.DepthStencilDesc.EnableDepthTest		 = false;
@@ -477,7 +477,7 @@ namespace Nexus::Graphics
 		pipelineDescription.ColourTargetCount		= 2;
 		pipelineDescription.ColourFormats[0]		= Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
 		pipelineDescription.ColourFormats[1]		= Nexus::Graphics::PixelFormat::R32_G32_UInt;
-		pipelineDescription.ColourTargetSampleCount = Nexus::Graphics::SampleCount::SampleCount1;
+		pipelineDescription.ColourTargetSampleCount = 1;
 
 		pipelineDescription.ColourBlendStates[0].EnableBlending			= true;
 		pipelineDescription.ColourBlendStates[0].SourceColourBlend		= Nexus::Graphics::BlendFactor::SourceAlpha;
@@ -540,7 +540,7 @@ namespace Nexus::Graphics
 		pipelineDescription.ColourTargetCount		= 2;
 		pipelineDescription.ColourFormats[0]		= Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
 		pipelineDescription.ColourFormats[1]		= Nexus::Graphics::PixelFormat::R32_G32_UInt;
-		pipelineDescription.ColourTargetSampleCount = Nexus::Graphics::SampleCount::SampleCount1;
+		pipelineDescription.ColourTargetSampleCount = 1;
 
 		pipelineDescription.ColourBlendStates[0].EnableBlending			= true;
 		pipelineDescription.ColourBlendStates[0].SourceColourBlend		= Nexus::Graphics::BlendFactor::SourceAlpha;

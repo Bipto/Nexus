@@ -3,7 +3,6 @@
 #if defined(NX_PLATFORM_VULKAN)
 
 	#include "Nexus-Core/Graphics/Framebuffer.hpp"
-	#include "Nexus-Core/Graphics/Multisample.hpp"
 	#include "Nexus-Core/Graphics/SamplerState.hpp"
 	#include "Nexus-Core/Graphics/ShaderDataType.hpp"
 	#include "Nexus-Core/Graphics/ShaderModule.hpp"
@@ -19,8 +18,7 @@ namespace Nexus::Vk
 
 	VkFormat			  GetVkPixelDataFormat(Nexus::Graphics::PixelFormat format, bool depthFormat);
 	Nexus::Graphics::PixelFormat GetNxPixelFormatFromVkPixelFormat(VkFormat format);
-	VkFormat			  GetShaderDataType(Nexus::Graphics::ShaderDataType type);
-	VkSampleCountFlagBits GetVkSampleCount(Nexus::Graphics::SampleCount samples);
+	VkFormat					 GetShaderDataType(Nexus::Graphics::ShaderDataType type);
 
 	void GetVkFilterFromNexusFormat(Nexus::Graphics::SamplerFilter filter, VkFilter &min, VkFilter &max, VkSamplerMipmapMode &mipmapMode);
 	VkSamplerAddressMode GetVkSamplerAddressMode(Nexus::Graphics::SamplerAddressMode addressMode);
@@ -40,6 +38,8 @@ namespace Nexus::Vk
 	VmaAllocationCreateInfo GetVmaAllocationCreateInfo(const Graphics::DeviceBufferDescription &desc);
 
 	bool SetObjectName(VkDevice device, VkObjectType type, uint64_t objectHandle, const char *name);
+	uint32_t			  GetSampleCountFromVkSampleCountFlags(VkSampleCountFlags sampleCount);
+	VkSampleCountFlagBits GetVkSampleCountFlagsFromSampleCount(uint32_t samples);
 
 	struct AllocatedBuffer
 	{
