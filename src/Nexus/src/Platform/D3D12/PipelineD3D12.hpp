@@ -18,6 +18,9 @@ namespace Nexus::Graphics
 		ID3D12PipelineState				  *GetPipelineState();
 		D3D_PRIMITIVE_TOPOLOGY			   GetD3DPrimitiveTopology();
 
+		Microsoft::WRL::ComPtr<ID3D12CommandSignature> GetDrawIndirectCommandSignature();
+		Microsoft::WRL::ComPtr<ID3D12CommandSignature> GetDrawIndexedIndirectCommandSignature();
+
 	  private:
 		void CreateRootSignature();
 		void CreateInputLayout();
@@ -29,6 +32,9 @@ namespace Nexus::Graphics
 		D3D12_DEPTH_STENCIL_DESC CreateDepthStencilDesc();
 
 		void CreatePipeline();
+		void CreateDrawIndirectSignatureCommand();
+		void CreateDrawIndexedIndirectSignatureCommand();
+		void CreateDispatchIndirectSignatureCommand();
 
 	  private:
 		GraphicsPipelineDescription m_Description;
@@ -37,11 +43,13 @@ namespace Nexus::Graphics
 		Microsoft::WRL::ComPtr<ID3DBlob>			m_RootSignatureBlob;
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> m_RootSignature;
 
-		std::vector<D3D12_INPUT_ELEMENT_DESC> m_InputLayout;
-
+		std::vector<D3D12_INPUT_ELEMENT_DESC>		m_InputLayout;
 		Microsoft::WRL::ComPtr<ID3D12PipelineState> m_PipelineStateObject = nullptr;
-
 		D3D_PRIMITIVE_TOPOLOGY m_PrimitiveTopology;
+
+		Microsoft::WRL::ComPtr<ID3D12CommandSignature> m_DrawIndirectCommandSignature		 = nullptr;
+		Microsoft::WRL::ComPtr<ID3D12CommandSignature> m_DrawIndexedIndirectCommandSignature = nullptr;
+		Microsoft::WRL::ComPtr<ID3D12CommandSignature> m_DispatchIndirectCommandSignature	 = nullptr;
 	};
 }	 // namespace Nexus::Graphics
 

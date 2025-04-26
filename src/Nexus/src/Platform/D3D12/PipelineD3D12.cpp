@@ -18,6 +18,9 @@ namespace Nexus::Graphics
 		CreateInputLayout();
 		CreatePipeline();
 		CreatePrimitiveTopology();
+		CreateDrawIndirectSignatureCommand();
+		CreateDrawIndexedIndirectSignatureCommand();
+		CreateDispatchIndirectSignatureCommand();
 	}
 
 	GraphicsPipelineD3D12::~GraphicsPipelineD3D12()
@@ -42,6 +45,16 @@ namespace Nexus::Graphics
 	D3D_PRIMITIVE_TOPOLOGY GraphicsPipelineD3D12::GetD3DPrimitiveTopology()
 	{
 		return m_PrimitiveTopology;
+	}
+
+	Microsoft::WRL::ComPtr<ID3D12CommandSignature> GraphicsPipelineD3D12::GetDrawIndirectCommandSignature()
+	{
+		return m_DrawIndirectCommandSignature;
+	}
+
+	Microsoft::WRL::ComPtr<ID3D12CommandSignature> GraphicsPipelineD3D12::GetDrawIndexedIndirectCommandSignature()
+	{
+		return m_DrawIndexedIndirectCommandSignature;
 	}
 
 	void GraphicsPipelineD3D12::CreateRootSignature()
@@ -249,6 +262,45 @@ namespace Nexus::Graphics
 			_com_error error(hr);
 			std::cout << "Failed to create pipeline state: " << error.ErrorMessage() << std::endl;
 		}
+	}
+
+	void GraphicsPipelineD3D12::CreateDrawIndirectSignatureCommand()
+	{
+		D3D12_INDIRECT_ARGUMENT_DESC argumentDesc = {};
+		argumentDesc.Type						  = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW;
+
+		D3D12_COMMAND_SIGNATURE_DESC commandSignatureDesc = {};
+		commandSignatureDesc.pArgumentDescs				  = &argumentDesc;
+		commandSignatureDesc.NumArgumentDescs			  = 1;
+		commandSignatureDesc.ByteStride					  = sizeof(D3D12_DRAW_ARGUMENTS);
+
+		m_Device->CreateCommandSignature(&commandSignatureDesc, nullptr, IID_PPV_ARGS(m_DrawIndirectCommandSignature.GetAddressOf()));
+	}
+
+	void GraphicsPipelineD3D12::CreateDrawIndexedIndirectSignatureCommand()
+	{
+		D3D12_INDIRECT_ARGUMENT_DESC argumentDesc = {};
+		argumentDesc.Type						  = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
+
+		D3D12_COMMAND_SIGNATURE_DESC commandSignatureDesc = {};
+		commandSignatureDesc.pArgumentDescs				  = &argumentDesc;
+		commandSignatureDesc.NumArgumentDescs			  = 1;
+		commandSignatureDesc.ByteStride					  = sizeof(D3D12_DRAW_INDEXED_ARGUMENTS);
+
+		m_Device->CreateCommandSignature(&commandSignatureDesc, nullptr, IID_PPV_ARGS(m_DrawIndexedIndirectCommandSignature.GetAddressOf()));
+	}
+
+	void GraphicsPipelineD3D12::CreateDispatchIndirectSignatureCommand()
+	{
+		D3D12_INDIRECT_ARGUMENT_DESC argumentDesc = {};
+		argumentDesc.Type						  = D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH;
+
+		D3D12_COMMAND_SIGNATURE_DESC commandSignatureDesc = {};
+		commandSignatureDesc.pArgumentDescs				  = &argumentDesc;
+		commandSignatureDesc.NumArgumentDescs			  = 1;
+		commandSignatureDesc.ByteStride					  = sizeof(D3D12_DISPATCH_ARGUMENTS);
+
+		m_Device->CreateCommandSignature(&commandSignatureDesc, nullptr, IID_PPV_ARGS(m_DispatchIndirectCommandSignature.GetAddressOf()));
 	}
 
 	void GraphicsPipelineD3D12::CreateInputLayout()

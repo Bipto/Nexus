@@ -125,10 +125,32 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(DrawIndirectCommand command, GraphicsDevice *device)
 	{
+		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
+		{
+			return;
+		}
+		DeviceBufferVk *indirectBuffer = (DeviceBufferVk *)command.IndirectBuffer;
+
+		vkCmdDrawIndirect(m_CommandBuffer,
+						  indirectBuffer->GetVkBuffer(),
+						  command.Offset,
+						  command.DrawCount,
+						  indirectBuffer->GetDescription().StrideInBytes);
 	}
 
 	void CommandExecutorVk::ExecuteCommand(DrawIndirectIndexedCommand command, GraphicsDevice *device)
 	{
+		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
+		{
+			return;
+		}
+		DeviceBufferVk *indirectBuffer = (DeviceBufferVk *)command.IndirectBuffer;
+
+		vkCmdDrawIndexedIndirect(m_CommandBuffer,
+								 indirectBuffer->GetVkBuffer(),
+								 command.Offset,
+								 command.DrawCount,
+								 indirectBuffer->GetDescription().StrideInBytes);
 	}
 
 	void CommandExecutorVk::ExecuteCommand(DispatchCommand command, GraphicsDevice *device)

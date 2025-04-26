@@ -10,6 +10,8 @@
 #include "Demos/FramebufferDemo.hpp"
 #include "Demos/HelloTriangle.hpp"
 #include "Demos/HelloTriangleIndexed.hpp"
+#include "Demos/HelloTriangleIndirect.hpp"
+#include "Demos/HelloTriangleIndirectIndexedDemo.hpp"
 #include "Demos/InstancingDemo.hpp"
 #include "Demos/Lighting.hpp"
 #include "Demos/MipmapDemo.hpp"
@@ -70,6 +72,8 @@ class DemoApplication : public Nexus::Application
 		RegisterGraphicsDemo<Demos::TimingDemo>("Timings");
 		RegisterGraphicsDemo<Demos::HelloTriangleDemo>("Hello Triangle");
 		RegisterGraphicsDemo<Demos::HelloTriangleIndexedDemo>("Hello Triangle Indexed");
+		RegisterGraphicsDemo<Demos::HelloTriangleIndirectDemo>("Hello Triangle Indirect");
+		RegisterGraphicsDemo<Demos::HelloTriangleIndirectIndexedDemo>("Hello Triangle Indexed Indirect");
 		RegisterGraphicsDemo<Demos::TexturingDemo>("Texturing");
 		RegisterGraphicsDemo<Demos::BatchingDemo>("Batching");
 		RegisterGraphicsDemo<Demos::FramebufferDemo>("Framebuffers");

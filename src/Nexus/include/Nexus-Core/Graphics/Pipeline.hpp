@@ -60,8 +60,30 @@ namespace Nexus::Graphics
 		Ref<ShaderModule> VertexModule				  = nullptr;
 	};
 
+	class ComputePipelineDescription
+	{
+		ResourceSetSpecification ResourceSpec  = {};
+		Ref<ShaderModule>		 ComputeShader = nullptr;
+	};
+
+	enum class PipelineType
+	{
+		Graphics,
+		Compute
+	};
+
+	class Pipeline
+	{
+	  public:
+		virtual ~Pipeline()
+		{
+		}
+
+		virtual PipelineType GetType() const = 0;
+	};
+
 	/// @brief A pure virtual class representing an API specific pipeline
-	class GraphicsPipeline
+	class GraphicsPipeline : public Pipeline
 	{
 	  public:
 		/// @brief A constructor that takes in a PipelineDescription object to use for
@@ -87,13 +109,13 @@ namespace Nexus::Graphics
 			return m_Description.ResourceSetSpec.SampledImages.size() > 0 || m_Description.ResourceSetSpec.UniformBuffers.size() > 0;
 		}
 
+		virtual PipelineType GetType() const final
+		{
+			return PipelineType::Graphics;
+		}
+
 	  protected:
 		/// @brief The pipeline description used to create the pipeline
 		GraphicsPipelineDescription m_Description;
-
-	  private:
-		/// @brief This allows the GraphicsDevice to access all data stored within a
-		/// pipeline
-		friend class GraphicsDevice;
 	};
 }	 // namespace Nexus::Graphics

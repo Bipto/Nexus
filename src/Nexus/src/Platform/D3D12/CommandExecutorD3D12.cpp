@@ -116,6 +116,17 @@ namespace Nexus::Graphics
 		{
 			return;
 		}
+
+		NX_ASSERT(command.IndirectBuffer->GetDescription().Type == DeviceBufferType::Indirect,
+				  "Buffer passed to DrawIndirect is not an indirect buffer");
+
+		DeviceBufferD3D12					   *indirectBuffer		 = (DeviceBufferD3D12 *)command.IndirectBuffer;
+		Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
+
+		Nexus::Ref<Nexus::Graphics::GraphicsPipelineD3D12> pipeline	 = m_CurrentlyBoundPipeline.value();
+		Microsoft::WRL::ComPtr<ID3D12CommandSignature>	   signature = pipeline->GetDrawIndirectCommandSignature();
+
+		m_CommandList->ExecuteIndirect(signature.Get(), command.DrawCount, indirectBufferHandle.Get(), command.Offset, nullptr, 0);
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(DrawIndirectIndexedCommand command, GraphicsDevice *device)
@@ -124,6 +135,17 @@ namespace Nexus::Graphics
 		{
 			return;
 		}
+
+		NX_ASSERT(command.IndirectBuffer->GetDescription().Type == DeviceBufferType::Indirect,
+				  "Buffer passed to DrawIndirect is not an indirect buffer");
+
+		DeviceBufferD3D12					   *indirectBuffer		 = (DeviceBufferD3D12 *)command.IndirectBuffer;
+		Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
+
+		Nexus::Ref<Nexus::Graphics::GraphicsPipelineD3D12> pipeline	 = m_CurrentlyBoundPipeline.value();
+		Microsoft::WRL::ComPtr<ID3D12CommandSignature>	   signature = pipeline->GetDrawIndexedIndirectCommandSignature();
+
+		m_CommandList->ExecuteIndirect(signature.Get(), command.DrawCount, indirectBufferHandle.Get(), command.Offset, nullptr, 0);
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(DispatchCommand command, GraphicsDevice *device)

@@ -85,7 +85,6 @@ namespace Nexus::Graphics
 		DeviceBuffer *IndirectBuffer = nullptr;
 		uint32_t	  Offset		 = 0;
 		uint32_t	  DrawCount		 = 0;
-		uint32_t	  Stride		 = 0;
 	};
 
 	struct DrawIndirectIndexedCommand
@@ -93,7 +92,6 @@ namespace Nexus::Graphics
 		DeviceBuffer *IndirectBuffer = nullptr;
 		uint32_t	  Offset		 = 0;
 		uint32_t	  DrawCount		 = 0;
-		uint32_t	  Stride		 = 0;
 	};
 
 	struct DispatchCommand
@@ -235,9 +233,9 @@ namespace Nexus::Graphics
 		/// at
 		void DrawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t indexStart, uint32_t instanceStart);
 
-		void DrawIndirect(DeviceBuffer *indirectBuffer, uint32_t offset, uint32_t drawCount, uint32_t stride);
+		void DrawIndirect(DeviceBuffer *indirectBuffer, uint32_t offset, uint32_t drawCount);
 
-		void DrawIndexedIndirect(DeviceBuffer *indirectBuffer, uint32_t offset, uint32_t drawCount, uint32_t stride);
+		void DrawIndexedIndirect(DeviceBuffer *indirectBuffer, uint32_t offset, uint32_t drawCount);
 
 		void Dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ);
 

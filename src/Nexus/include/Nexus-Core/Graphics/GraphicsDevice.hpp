@@ -7,6 +7,7 @@
 #include "Framebuffer.hpp"
 #include "GraphicsCapabilities.hpp"
 #include "IPhysicalDevice.hpp"
+#include "IndirectDrawArguments.hpp"
 #include "Nexus-Core/Graphics/ShaderGenerator.hpp"
 #include "Nexus-Core/IWindow.hpp"
 #include "Nexus-Core/Types.hpp"

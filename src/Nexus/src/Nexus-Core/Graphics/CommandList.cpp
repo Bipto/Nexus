@@ -104,7 +104,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::DrawIndirect(DeviceBuffer *indirectBuffer, uint32_t offset, uint32_t drawCount, uint32_t stride)
+	void CommandList::DrawIndirect(DeviceBuffer *indirectBuffer, uint32_t offset, uint32_t drawCount)
 	{
 		if (!m_Started)
 		{
@@ -117,11 +117,10 @@ namespace Nexus::Graphics
 		command.IndirectBuffer = indirectBuffer;
 		command.Offset		   = offset;
 		command.DrawCount	   = drawCount;
-		command.Stride		   = stride;
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::DrawIndexedIndirect(DeviceBuffer *indirectBuffer, uint32_t offset, uint32_t drawCount, uint32_t stride)
+	void CommandList::DrawIndexedIndirect(DeviceBuffer *indirectBuffer, uint32_t offset, uint32_t drawCount)
 	{
 		if (!m_Started)
 		{
@@ -134,7 +133,6 @@ namespace Nexus::Graphics
 		command.IndirectBuffer = indirectBuffer;
 		command.Offset		   = offset;
 		command.DrawCount	   = drawCount;
-		command.Stride		   = stride;
 		m_Commands.push_back(command);
 	}
 
