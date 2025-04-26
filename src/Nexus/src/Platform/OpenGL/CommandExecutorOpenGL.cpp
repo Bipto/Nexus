@@ -50,7 +50,7 @@ namespace Nexus::Graphics
 		m_BoundIndexBuffer = command.View;
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(WeakRef<GraphicsPipeline> command, GraphicsDevice *device)
 	{
 		if (command.expired())
 		{
@@ -58,14 +58,14 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (Ref<Pipeline> pl = command.lock())
+		if (Ref<GraphicsPipeline> pl = command.lock())
 		{
-			auto pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(pl);
+			auto pipeline = std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pl);
 
 			// unbind the current pipeline before binding the new one
 			if (m_CurrentlyBoundPipeline.has_value())
 			{
-				Ref<PipelineOpenGL> oldPipeline = m_CurrentlyBoundPipeline.value();
+				Ref<GraphicsPipelineOpenGL> oldPipeline = m_CurrentlyBoundPipeline.value();
 				oldPipeline->Unbind();
 			}
 
@@ -75,64 +75,14 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(DrawElementCommand command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(DrawCommand command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
 		{
 			return;
 		}
 
-		if (Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value()))
-		{
-			pipeline->CreateVAO();
-			pipeline->BindBuffers(m_CurrentlyBoundVertexBuffers, m_BoundIndexBuffer, 0, 0);
-			pipeline->Bind();
-			BindResourceSet(m_BoundResourceSet);
-
-			glCall(glDrawArrays(GL::GetTopology(pipeline->GetPipelineDescription().PrimitiveTopology), command.Start, command.Count));
-			pipeline->DestroyVAO();
-		}
-	}
-
-	void CommandExecutorOpenGL::ExecuteCommand(DrawIndexedCommand command, GraphicsDevice *device)
-	{
-		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
-		{
-			return;
-		}
-
-		if (Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value()))
-		{
-			if (m_BoundIndexBuffer)
-			{
-				IndexBufferView &indexBufferView = m_BoundIndexBuffer.value();
-
-				pipeline->CreateVAO();
-				pipeline->BindBuffers(m_CurrentlyBoundVertexBuffers, indexBufferView, command.VertexStart, 0);
-				pipeline->Bind();
-				BindResourceSet(m_BoundResourceSet);
-
-				uint32_t indexSizeInBytes = Graphics::GetIndexFormatSizeInBytes(indexBufferView.BufferFormat);
-				uint32_t offset			  = command.IndexStart * indexSizeInBytes;
-				GLenum	 indexFormat	  = GL::GetGLIndexBufferFormat(indexBufferView.BufferFormat);
-
-				glCall(glDrawElements(GL::GetTopology(pipeline->GetPipelineDescription().PrimitiveTopology),
-									  command.Count,
-									  indexFormat,
-									  (void *)(uint64_t)offset));
-				pipeline->DestroyVAO();
-			}
-		}
-	}
-
-	void CommandExecutorOpenGL::ExecuteCommand(DrawInstancedCommand command, GraphicsDevice *device)
-	{
-		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
-		{
-			return;
-		}
-
-		if (Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value()))
+		if (Ref<GraphicsPipelineOpenGL> pipeline = std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(m_CurrentlyBoundPipeline.value()))
 		{
 			pipeline->CreateVAO();
 			pipeline->BindBuffers(m_CurrentlyBoundVertexBuffers, m_BoundIndexBuffer, 0, command.InstanceStart);
@@ -147,14 +97,14 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(DrawInstancedIndexedCommand command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(DrawIndexedCommand command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
 		{
 			return;
 		}
 
-		if (Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value()))
+		if (Ref<GraphicsPipelineOpenGL> pipeline = std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(m_CurrentlyBoundPipeline.value()))
 		{
 			if (m_BoundIndexBuffer)
 			{
@@ -176,6 +126,22 @@ namespace Nexus::Graphics
 				pipeline->DestroyVAO();
 			}
 		}
+	}
+
+	void CommandExecutorOpenGL::ExecuteCommand(DrawIndirectCommand command, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorOpenGL::ExecuteCommand(DrawIndirectIndexedCommand command, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorOpenGL::ExecuteCommand(DispatchCommand command, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorOpenGL::ExecuteCommand(DispatchIndirectCommand command, GraphicsDevice *device)
+	{
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)
@@ -380,7 +346,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorOpenGL::BindResourceSet(Ref<ResourceSetOpenGL> resourceSet)
 	{
-		Nexus::Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());
+		Nexus::Ref<GraphicsPipelineOpenGL> pipeline = std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(m_CurrentlyBoundPipeline.value());
 
 		pipeline->Bind();
 

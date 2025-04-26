@@ -22,7 +22,7 @@ namespace Nexus::Graphics
 		Ref<ShaderModule> m_VertexModule   = nullptr;
 		Ref<ShaderModule> m_FragmentModule = nullptr;
 
-		Ref<Pipeline>	 m_Pipeline	   = nullptr;
+		Ref<GraphicsPipeline> m_Pipeline	= nullptr;
 		Ref<ResourceSet> m_ResourceSet = nullptr;
 	};
 }	 // namespace Nexus::Graphics

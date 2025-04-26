@@ -67,7 +67,7 @@ namespace Demos
 			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
 			auto vertexCount = m_VertexBuffer->GetCount();
-			m_CommandList->Draw(0, vertexCount);
+			m_CommandList->Draw(vertexCount, 1, 0, 0);
 			m_CommandList->End();
 
 			m_GraphicsDevice->SubmitCommandList(m_CommandList);
@@ -89,7 +89,7 @@ namespace Demos
 	  private:
 		void CreatePipeline()
 		{
-			Nexus::Graphics::PipelineDescription pipelineDescription;
+			Nexus::Graphics::GraphicsPipelineDescription pipelineDescription;
 			pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::CullNone;
 			pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 			pipelineDescription.Layouts								  = {Nexus::Graphics::VertexPosition::GetLayout()};
@@ -110,7 +110,7 @@ namespace Demos
 
 	  private:
 		Nexus::Ref<Nexus::Graphics::CommandList>  m_CommandList;
-		Nexus::Ref<Nexus::Graphics::Pipeline>	  m_Pipeline;
+		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline;
 		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_VertexBuffer;
 		glm::vec3								  m_ClearColour = {0.7f, 0.2f, 0.3f};
 	};

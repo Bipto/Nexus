@@ -103,7 +103,7 @@ namespace Nexus::Graphics
 		cubemapSpec.Format	  = Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float;
 		Ref<Cubemap> cubemap  = m_Device->CreateCubemap(cubemapSpec);
 
-		Nexus::Graphics::PipelineDescription pipelineDescription;
+		Nexus::Graphics::GraphicsPipelineDescription pipelineDescription;
 		pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::Back;
 		pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 		pipelineDescription.VertexModule =
@@ -118,7 +118,7 @@ namespace Nexus::Graphics
 		pipelineDescription.DepthFormat		  = framebufferSpec.DepthAttachmentSpecification.DepthFormat;
 
 		pipelineDescription.Layouts	 = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
-		Ref<Pipeline>	 pipeline	 = m_Device->CreatePipeline(pipelineDescription);
+		Ref<GraphicsPipeline> pipeline	  = m_Device->CreatePipeline(pipelineDescription);
 		Ref<ResourceSet> resourceSet = m_Device->CreateResourceSet(pipeline);
 
 		Nexus::Graphics::SamplerSpecification samplerSpec {};
@@ -210,7 +210,7 @@ namespace Nexus::Graphics
 			commandList->SetIndexBuffer(indexBufferView);
 
 			auto indexCount = cube->GetIndexBuffer()->GetCount();
-			commandList->DrawIndexed(indexCount, 0, 0);
+			commandList->DrawIndexed(indexCount, 1, 0, 0, 0);
 
 			commandList->End();
 			m_Device->SubmitCommandList(commandList);

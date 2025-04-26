@@ -14,7 +14,7 @@ namespace Nexus::Graphics
 		virtual void Reset()																				 = 0;
 
 	  protected:
-		bool ValidateForGraphicsCall(std::optional<Ref<Pipeline>> pipeline, std::optional<RenderTarget> renderTarget);
+		bool ValidateForGraphicsCall(std::optional<Ref<GraphicsPipeline>> pipeline, std::optional<RenderTarget> renderTarget);
 		bool ValidateForClearColour(std::optional<RenderTarget> target, uint32_t colourIndex);
 		bool ValidateForClearDepth(std::optional<RenderTarget> target);
 		bool ValidateForSetViewport(std::optional<RenderTarget> target, const Viewport &viewport);
@@ -24,11 +24,13 @@ namespace Nexus::Graphics
 	  private:
 		virtual void ExecuteCommand(SetVertexBufferCommand command, GraphicsDevice *device)			  = 0;
 		virtual void ExecuteCommand(SetIndexBufferCommand command, GraphicsDevice *device)			  = 0;
-		virtual void ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device)				  = 0;
-		virtual void ExecuteCommand(DrawElementCommand command, GraphicsDevice *device)				  = 0;
+		virtual void ExecuteCommand(WeakRef<GraphicsPipeline> command, GraphicsDevice *device)		  = 0;
+		virtual void ExecuteCommand(DrawCommand command, GraphicsDevice *device)					  = 0;
 		virtual void ExecuteCommand(DrawIndexedCommand command, GraphicsDevice *device)				  = 0;
-		virtual void ExecuteCommand(DrawInstancedCommand command, GraphicsDevice *device)			  = 0;
-		virtual void ExecuteCommand(DrawInstancedIndexedCommand command, GraphicsDevice *device)	  = 0;
+		virtual void ExecuteCommand(DrawIndirectCommand command, GraphicsDevice *device)					  = 0;
+		virtual void ExecuteCommand(DrawIndirectIndexedCommand command, GraphicsDevice *device)				  = 0;
+		virtual void ExecuteCommand(DispatchCommand command, GraphicsDevice *device)						  = 0;
+		virtual void ExecuteCommand(DispatchIndirectCommand command, GraphicsDevice *device)				  = 0;
 		virtual void ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)				  = 0;
 		virtual void ExecuteCommand(ClearColorTargetCommand command, GraphicsDevice *device)		  = 0;
 		virtual void ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDevice *device)	  = 0;

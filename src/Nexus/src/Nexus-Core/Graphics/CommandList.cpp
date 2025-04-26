@@ -57,7 +57,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::SetPipeline(Ref<Pipeline> pipeline)
+	void CommandList::SetPipeline(Ref<GraphicsPipeline> pipeline)
 	{
 		if (!m_Started)
 		{
@@ -69,7 +69,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(pipeline);
 	}
 
-	void CommandList::Draw(uint32_t start, uint32_t count)
+	void CommandList::Draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t instanceStart)
 	{
 		if (!m_Started)
 		{
@@ -78,13 +78,15 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		DrawElementCommand command;
-		command.Start = start;
-		command.Count = count;
+		DrawCommand command;
+		command.VertexCount	  = vertexCount;
+		command.InstanceCount = instanceCount;
+		command.VertexStart	  = vertexStart;
+		command.InstanceStart = instanceStart;
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::DrawIndexed(uint32_t count, uint32_t indexStart, uint32_t vertexStart)
+	void CommandList::DrawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t indexStart, uint32_t instanceStart)
 	{
 		if (!m_Started)
 		{
@@ -94,48 +96,76 @@ namespace Nexus::Graphics
 		}
 
 		DrawIndexedCommand command;
-		command.VertexStart = vertexStart;
-		command.IndexStart	= indexStart;
-		command.Count		= count;
-		m_Commands.push_back(command);
-	}
-
-	void CommandList::DrawInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t instanceStart)
-	{
-		if (!m_Started)
-		{
-			NX_ERROR("Attempting to record a command into a CommandList without "
-					 "calling Begin()");
-			return;
-		}
-
-		DrawInstancedCommand command;
-		command.VertexCount	  = vertexCount;
-		command.InstanceCount = instanceCount;
-		command.VertexStart	  = vertexStart;
-		command.InstanceStart = instanceStart;
-		m_Commands.push_back(command);
-	}
-
-	void CommandList::DrawInstancedIndexed(uint32_t indexCount,
-										   uint32_t instanceCount,
-										   uint32_t vertexStart,
-										   uint32_t indexStart,
-										   uint32_t instanceStart)
-	{
-		if (!m_Started)
-		{
-			NX_ERROR("Attempting to record a command into a CommandList without "
-					 "calling Begin()");
-			return;
-		}
-
-		DrawInstancedIndexedCommand command;
 		command.IndexCount	  = indexCount;
 		command.InstanceCount = instanceCount;
 		command.VertexStart	  = vertexStart;
 		command.IndexStart	  = indexStart;
 		command.InstanceStart = instanceStart;
+		m_Commands.push_back(command);
+	}
+
+	void CommandList::DrawIndirect(DeviceBuffer *indirectBuffer, uint32_t offset, uint32_t drawCount, uint32_t stride)
+	{
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
+		DrawIndirectCommand command;
+		command.IndirectBuffer = indirectBuffer;
+		command.Offset		   = offset;
+		command.DrawCount	   = drawCount;
+		command.Stride		   = stride;
+		m_Commands.push_back(command);
+	}
+
+	void CommandList::DrawIndexedIndirect(DeviceBuffer *indirectBuffer, uint32_t offset, uint32_t drawCount, uint32_t stride)
+	{
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
+		DrawIndirectIndexedCommand command;
+		command.IndirectBuffer = indirectBuffer;
+		command.Offset		   = offset;
+		command.DrawCount	   = drawCount;
+		command.Stride		   = stride;
+		m_Commands.push_back(command);
+	}
+
+	void CommandList::Dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ)
+	{
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
+		DispatchCommand command;
+		command.WorkGroupCountX = groupCountX;
+		command.WorkGroupCountY = groupCountY;
+		command.WorkGroupCountZ = groupCountZ;
+		m_Commands.push_back(command);
+	}
+
+	void CommandList::DispatchIndirect(DeviceBuffer *indirectBuffer, uint32_t offset)
+	{
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
+		DispatchIndirectCommand command;
+		command.IndirectBuffer = indirectBuffer;
+		command.Offset		   = offset;
 		m_Commands.push_back(command);
 	}
 

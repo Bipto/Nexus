@@ -30,16 +30,16 @@ namespace Nexus::Graphics
 		virtual const char						*GetDeviceName() override;
 		virtual std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const override;
 
-		virtual Ref<Texture2D>	   CreateTexture2D(const Texture2DSpecification &spec) override;
-		virtual Ref<Cubemap>	   CreateCubemap(const CubemapSpecification &spec) override;
-		virtual Ref<Pipeline>	   CreatePipeline(const PipelineDescription &description) override;
-		virtual Ref<CommandList>   CreateCommandList(const CommandListSpecification &spec = {}) override;
-		virtual Ref<ResourceSet>   CreateResourceSet(const ResourceSetSpecification &spec) override;
-		virtual Ref<Framebuffer>   CreateFramebuffer(const FramebufferSpecification &spec) override;
-		virtual Ref<Sampler>	   CreateSampler(const SamplerSpecification &spec) override;
-		virtual Ref<TimingQuery>   CreateTimingQuery() override;
-		virtual DeviceBuffer	  *CreateDeviceBuffer(const DeviceBufferDescription &desc) override;
-		virtual void			   CopyBuffer(const BufferCopyDescription &desc) override;
+		virtual Ref<Texture2D>		  CreateTexture2D(const Texture2DSpecification &spec) override;
+		virtual Ref<Cubemap>		  CreateCubemap(const CubemapSpecification &spec) override;
+		virtual Ref<GraphicsPipeline> CreatePipeline(const GraphicsPipelineDescription &description) override;
+		virtual Ref<CommandList>	  CreateCommandList(const CommandListSpecification &spec = {}) override;
+		virtual Ref<ResourceSet>	  CreateResourceSet(const ResourceSetSpecification &spec) override;
+		virtual Ref<Framebuffer>	  CreateFramebuffer(const FramebufferSpecification &spec) override;
+		virtual Ref<Sampler>		  CreateSampler(const SamplerSpecification &spec) override;
+		virtual Ref<TimingQuery>	  CreateTimingQuery() override;
+		virtual DeviceBuffer		 *CreateDeviceBuffer(const DeviceBufferDescription &desc) override;
+		virtual void				  CopyBuffer(const BufferCopyDescription &desc) override;
 
 		virtual const GraphicsCapabilities GetGraphicsCapabilities() const override;
 		virtual Swapchain				  *CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) override;
@@ -121,8 +121,8 @@ namespace Nexus::Graphics
 		// vulkan upload context
 		UploadContext m_UploadContext;
 
-		uint32_t		   m_FrameNumber	   = 0;
-		uint32_t		   m_CurrentFrameIndex = 0;
+		uint32_t						   m_FrameNumber	   = 0;
+		uint32_t						   m_CurrentFrameIndex = 0;
 		std::unique_ptr<CommandExecutorVk> m_CommandExecutor   = nullptr;
 
 		friend class SwapchainVk;

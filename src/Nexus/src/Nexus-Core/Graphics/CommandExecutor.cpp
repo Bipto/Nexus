@@ -2,7 +2,8 @@
 
 namespace Nexus::Graphics
 {
-	bool Nexus::Graphics::CommandExecutor::ValidateForGraphicsCall(std::optional<Ref<Pipeline>> pipeline, std::optional<RenderTarget> renderTarget)
+	bool Nexus::Graphics::CommandExecutor::ValidateForGraphicsCall(std::optional<Ref<GraphicsPipeline>> pipeline,
+																   std::optional<RenderTarget>			renderTarget)
 	{
 		bool valid = true;
 

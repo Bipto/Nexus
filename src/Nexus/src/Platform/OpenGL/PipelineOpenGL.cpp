@@ -8,24 +8,24 @@
 
 namespace Nexus::Graphics
 {
-	PipelineOpenGL::PipelineOpenGL(const PipelineDescription &description) : Pipeline(description)
+	GraphicsPipelineOpenGL::GraphicsPipelineOpenGL(const GraphicsPipelineDescription &description) : GraphicsPipeline(description)
 	{
 		CreateShader();
 	}
 
-	PipelineOpenGL::~PipelineOpenGL()
+	GraphicsPipelineOpenGL::~GraphicsPipelineOpenGL()
 	{
 	}
 
-	const PipelineDescription &PipelineOpenGL::GetPipelineDescription() const
+	const GraphicsPipelineDescription &GraphicsPipelineOpenGL::GetPipelineDescription() const
 	{
 		return m_Description;
 	}
 
-	void PipelineOpenGL::BindBuffers(const std::map<uint32_t, VertexBufferView> &vertexBuffers,
-									 std::optional<IndexBufferView>				 indexBuffer,
-									 uint32_t									 vertexOffset,
-									 uint32_t									 instanceOffset)
+	void GraphicsPipelineOpenGL::BindBuffers(const std::map<uint32_t, VertexBufferView> &vertexBuffers,
+											 std::optional<IndexBufferView>				 indexBuffer,
+											 uint32_t									 vertexOffset,
+											 uint32_t									 instanceOffset)
 	{
 		glCall(glBindVertexArray(m_VAO));
 
@@ -100,7 +100,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void PipelineOpenGL::Bind()
+	void GraphicsPipelineOpenGL::Bind()
 	{
 		glCall(glBindVertexArray(m_VAO));
 
@@ -110,28 +110,28 @@ namespace Nexus::Graphics
 		SetShader();
 	}
 
-	void PipelineOpenGL::Unbind()
+	void GraphicsPipelineOpenGL::Unbind()
 	{
 	}
 
-	uint32_t PipelineOpenGL::GetShaderHandle() const
+	uint32_t GraphicsPipelineOpenGL::GetShaderHandle() const
 	{
 		return m_ShaderHandle;
 	}
 
-	void PipelineOpenGL::CreateVAO()
+	void GraphicsPipelineOpenGL::CreateVAO()
 	{
 		glCall(glGenVertexArrays(1, &m_VAO));
 		glCall(glBindVertexArray(m_VAO));
 	}
 
-	void PipelineOpenGL::DestroyVAO()
+	void GraphicsPipelineOpenGL::DestroyVAO()
 	{
 		glCall(glBindVertexArray(0));
 		glCall(glDeleteVertexArrays(1, &m_VAO));
 	}
 
-	void PipelineOpenGL::SetupDepthStencil()
+	void GraphicsPipelineOpenGL::SetupDepthStencil()
 	{
 		// enable/disable depth testing
 		if (m_Description.DepthStencilDesc.EnableDepthTest)
@@ -178,7 +178,7 @@ namespace Nexus::Graphics
 		glCall(glDepthRangef(m_Description.DepthStencilDesc.MinDepth, m_Description.DepthStencilDesc.MaxDepth));
 	}
 
-	void PipelineOpenGL::SetupRasterizer()
+	void GraphicsPipelineOpenGL::SetupRasterizer()
 	{
 		if (m_Description.RasterizerStateDesc.TriangleCullMode == CullMode::CullNone)
 		{
@@ -243,7 +243,7 @@ namespace Nexus::Graphics
 		glCall(glEnable(GL_SCISSOR_TEST));
 	}
 
-	void PipelineOpenGL::SetupBlending()
+	void GraphicsPipelineOpenGL::SetupBlending()
 	{
 		glCall(glEnable(GL_BLEND));
 
@@ -292,12 +292,12 @@ namespace Nexus::Graphics
 	#endif
 	}
 
-	void PipelineOpenGL::SetShader()
+	void GraphicsPipelineOpenGL::SetShader()
 	{
 		glCall(glUseProgram(m_ShaderHandle));
 	}
 
-	void PipelineOpenGL::CreateShader()
+	void GraphicsPipelineOpenGL::CreateShader()
 	{
 		m_ShaderHandle = glCreateProgram();
 

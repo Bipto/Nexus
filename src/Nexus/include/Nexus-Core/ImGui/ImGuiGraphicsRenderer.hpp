@@ -68,8 +68,8 @@ namespace Nexus::ImGuiUtils
 		Nexus::Application						*m_Application	  = nullptr;
 		Nexus::Graphics::GraphicsDevice			*m_GraphicsDevice = nullptr;
 		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList	  = nullptr;
-		Nexus::Ref<Nexus::Graphics::Pipeline>	 m_TextPipeline	  = nullptr;
-		Nexus::Ref<Nexus::Graphics::Pipeline>	 m_ImagePipeline  = nullptr;
+		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_TextPipeline   = nullptr;
+		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_ImagePipeline  = nullptr;
 		Nexus::Ref<Nexus::Graphics::Texture2D>	 m_FontTexture	  = nullptr;
 
 		ImGuiContext *m_Context = nullptr;

@@ -195,7 +195,7 @@ namespace Nexus::Graphics
 		return CreateTexture2D(filepath.c_str(), generateMips, srgb);
 	}
 
-	Ref<ResourceSet> GraphicsDevice::CreateResourceSet(Ref<Pipeline> pipeline)
+	Ref<ResourceSet> GraphicsDevice::CreateResourceSet(Ref<GraphicsPipeline> pipeline)
 	{
 		return CreateResourceSet(pipeline->GetPipelineDescription().ResourceSetSpec);
 	}

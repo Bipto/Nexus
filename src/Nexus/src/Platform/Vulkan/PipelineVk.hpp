@@ -8,12 +8,12 @@
 
 namespace Nexus::Graphics
 {
-	class PipelineVk : public Pipeline
+	class GraphicsPipelineVk : public GraphicsPipeline
 	{
 	  public:
-		PipelineVk(const PipelineDescription &description, GraphicsDeviceVk *graphicsDevice);
-		~PipelineVk();
-		virtual const PipelineDescription &GetPipelineDescription() const override;
+		GraphicsPipelineVk(const GraphicsPipelineDescription &description, GraphicsDeviceVk *graphicsDevice);
+		~GraphicsPipelineVk();
+		virtual const GraphicsPipelineDescription &GetPipelineDescription() const override;
 		VkPipeline						   GetPipeline();
 		VkPipelineLayout				   GetPipelineLayout();
 

@@ -90,7 +90,7 @@ namespace Nexus::Graphics
 		vkCmdBindIndexBuffer(m_CommandBuffer, indexBufferHandle, 0, indexType);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(WeakRef<GraphicsPipeline> command, GraphicsDevice *device)
 	{
 		if (command.expired())
 		{
@@ -98,32 +98,12 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		auto vulkanPipeline = std::dynamic_pointer_cast<PipelineVk>(command.lock());
+		auto vulkanPipeline = std::dynamic_pointer_cast<GraphicsPipelineVk>(command.lock());
 		vkCmdBindPipeline(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanPipeline->GetPipeline());
 		m_CurrentlyBoundPipeline = vulkanPipeline;
 	}
 
-	void CommandExecutorVk::ExecuteCommand(DrawElementCommand command, GraphicsDevice *device)
-	{
-		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
-		{
-			return;
-		}
-
-		vkCmdDraw(m_CommandBuffer, command.Count, 1, command.Start, 0);
-	}
-
-	void CommandExecutorVk::ExecuteCommand(DrawIndexedCommand command, GraphicsDevice *device)
-	{
-		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
-		{
-			return;
-		}
-
-		vkCmdDrawIndexed(m_CommandBuffer, command.Count, 1, command.IndexStart, command.VertexStart, 0);
-	}
-
-	void CommandExecutorVk::ExecuteCommand(DrawInstancedCommand command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(DrawCommand command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
 		{
@@ -133,7 +113,7 @@ namespace Nexus::Graphics
 		vkCmdDraw(m_CommandBuffer, command.VertexCount, command.InstanceCount, command.VertexStart, command.InstanceStart);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(DrawInstancedIndexedCommand command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(DrawIndexedCommand command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
 		{
@@ -143,6 +123,22 @@ namespace Nexus::Graphics
 		vkCmdDrawIndexed(m_CommandBuffer, command.IndexCount, command.InstanceCount, command.IndexStart, command.VertexStart, command.InstanceStart);
 	}
 
+	void CommandExecutorVk::ExecuteCommand(DrawIndirectCommand command, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorVk::ExecuteCommand(DrawIndirectIndexedCommand command, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorVk::ExecuteCommand(DispatchCommand command, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorVk::ExecuteCommand(DispatchIndirectCommand command, GraphicsDevice *device)
+	{
+	}
+
 	void CommandExecutorVk::ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
@@ -150,7 +146,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		auto pipelineVk	   = std::dynamic_pointer_cast<PipelineVk>(m_CurrentlyBoundPipeline);
+		auto pipelineVk	   = std::dynamic_pointer_cast<GraphicsPipelineVk>(m_CurrentlyBoundPipeline);
 		auto resourceSetVk = std::dynamic_pointer_cast<ResourceSetVk>(command);
 
 		const auto &descriptorSets = resourceSetVk->GetDescriptorSets()[m_Device->GetCurrentFrameIndex()];

@@ -131,7 +131,7 @@ namespace Demos
 				m_CommandList->SetIndexBuffer(indexBufferView);
 
 				auto indexCount = mesh->GetIndexBuffer()->GetCount();
-				m_CommandList->DrawIndexed(indexCount, 0, 0);
+				m_CommandList->DrawIndexed(indexCount, 1, 0, 0, 0);
 			}
 
 			m_CommandList->End();
@@ -154,7 +154,7 @@ namespace Demos
 	  private:
 		void CreatePipeline()
 		{
-			Nexus::Graphics::PipelineDescription pipelineDescription;
+			Nexus::Graphics::GraphicsPipelineDescription pipelineDescription;
 			pipelineDescription.RasterizerStateDesc.TriangleCullMode	 = Nexus::Graphics::CullMode::CullNone;
 			pipelineDescription.RasterizerStateDesc.TriangleFrontFace	 = Nexus::Graphics::FrontFace::Clockwise;
 			pipelineDescription.DepthStencilDesc.EnableDepthTest		 = true;
@@ -187,7 +187,7 @@ namespace Demos
 
 	  private:
 		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
-		Nexus::Ref<Nexus::Graphics::Pipeline>	 m_Pipeline;
+		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline;
 		Nexus::Ref<Nexus::Graphics::Model>		 m_Model;
 		glm::vec3								 m_ClearColour = {100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f};
 

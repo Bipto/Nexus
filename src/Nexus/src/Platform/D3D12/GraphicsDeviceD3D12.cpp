@@ -116,9 +116,9 @@ namespace Nexus::Graphics
 		return CreateRef<Cubemap_D3D12>(spec, this);
 	}
 
-	Ref<Pipeline> GraphicsDeviceD3D12::CreatePipeline(const PipelineDescription &description)
+	Ref<GraphicsPipeline> GraphicsDeviceD3D12::CreatePipeline(const GraphicsPipelineDescription &description)
 	{
-		return CreateRef<PipelineD3D12>(m_Device.Get(), description);
+		return CreateRef<GraphicsPipelineD3D12>(m_Device.Get(), description);
 	}
 
 	Ref<CommandList> GraphicsDeviceD3D12::CreateCommandList(const CommandListSpecification &spec)

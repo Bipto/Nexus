@@ -44,9 +44,9 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		Ref<PipelineD3D12>	   pipeline			 = m_CurrentlyBoundPipeline.value();
-		DeviceBufferD3D12	  *d3d12VertexBuffer = (DeviceBufferD3D12 *)command.View.BufferHandle;
-		const auto			  &bufferLayout		 = pipeline->GetPipelineDescription().Layouts.at(command.Slot);
+		Ref<GraphicsPipelineD3D12> pipeline			 = m_CurrentlyBoundPipeline.value();
+		DeviceBufferD3D12		  *d3d12VertexBuffer = (DeviceBufferD3D12 *)command.View.BufferHandle;
+		const auto				  &bufferLayout		 = pipeline->GetPipelineDescription().Layouts.at(command.Slot);
 
 		D3D12_VERTEX_BUFFER_VIEW bufferView;
 		bufferView.BufferLocation = d3d12VertexBuffer->GetHandle()->GetGPUVirtualAddress() + command.View.Offset;
@@ -73,9 +73,9 @@ namespace Nexus::Graphics
 		m_CommandList->IASetIndexBuffer(&indexBufferView);
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(WeakRef<GraphicsPipeline> command, GraphicsDevice *device)
 	{
-		Ref<PipelineD3D12> d3d12Pipeline = std::dynamic_pointer_cast<PipelineD3D12>(command.lock());
+		Ref<GraphicsPipelineD3D12> d3d12Pipeline = std::dynamic_pointer_cast<GraphicsPipelineD3D12>(command.lock());
 		const auto		  &description	 = d3d12Pipeline->GetPipelineDescription();
 
 		m_CommandList->OMSetDepthBounds(description.DepthStencilDesc.MinDepth, description.DepthStencilDesc.MaxDepth);
@@ -86,27 +86,7 @@ namespace Nexus::Graphics
 		m_CurrentlyBoundPipeline = d3d12Pipeline;
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(DrawElementCommand command, GraphicsDevice *device)
-	{
-		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
-		{
-			return;
-		}
-
-		m_CommandList->DrawInstanced(command.Count, 1, command.Start, 0);
-	}
-
-	void CommandExecutorD3D12::ExecuteCommand(DrawIndexedCommand command, GraphicsDevice *device)
-	{
-		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
-		{
-			return;
-		}
-
-		m_CommandList->DrawIndexedInstanced(command.Count, 1, command.IndexStart, command.VertexStart, 0);
-	}
-
-	void CommandExecutorD3D12::ExecuteCommand(DrawInstancedCommand command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(DrawCommand command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
 		{
@@ -116,7 +96,7 @@ namespace Nexus::Graphics
 		m_CommandList->DrawInstanced(command.VertexCount, command.InstanceCount, command.VertexStart, command.InstanceStart);
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(DrawInstancedIndexedCommand command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(DrawIndexedCommand command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
 		{
@@ -128,6 +108,30 @@ namespace Nexus::Graphics
 											command.IndexStart,
 											command.VertexStart,
 											command.InstanceStart);
+	}
+
+	void CommandExecutorD3D12::ExecuteCommand(DrawIndirectCommand command, GraphicsDevice *device)
+	{
+		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
+		{
+			return;
+		}
+	}
+
+	void CommandExecutorD3D12::ExecuteCommand(DrawIndirectIndexedCommand command, GraphicsDevice *device)
+	{
+		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
+		{
+			return;
+		}
+	}
+
+	void CommandExecutorD3D12::ExecuteCommand(DispatchCommand command, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorD3D12::ExecuteCommand(DispatchIndirectCommand command, GraphicsDevice *device)
+	{
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)

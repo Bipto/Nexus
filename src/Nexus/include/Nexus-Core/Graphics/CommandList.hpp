@@ -16,8 +16,8 @@ namespace Nexus::Graphics
 {
 	struct SetVertexBufferCommand
 	{
-		uint32_t			  Slot			  = 0;
-		VertexBufferView	  View			  = {};
+		uint32_t		 Slot = 0;
+		VertexBufferView View = {};
 	};
 
 	struct SetIndexBufferCommand
@@ -62,29 +62,8 @@ namespace Nexus::Graphics
 
 	/// @brief A struct representing a draw command to be executed using a vertex
 	/// buffer
-	struct DrawElementCommand
-	{
-		/// @brief The starting index within the vertex buffer
-		uint32_t Start = 0;
 
-		/// @brief The number of vertices to draw
-		uint32_t Count = 0;
-	};
-
-	/// @brief A struct representing a draw command using a vertex buffer and an
-	/// indexed buffer
-	struct DrawIndexedCommand
-	{
-		/// @brief The number of vertices to draw
-		uint32_t Count = 0;
-
-		/// @brief An offset into the index buffer
-		uint32_t IndexStart = 0;
-
-		uint32_t VertexStart = 0;
-	};
-
-	struct DrawInstancedCommand
+	struct DrawCommand
 	{
 		uint32_t VertexCount   = 0;
 		uint32_t InstanceCount = 0;
@@ -92,13 +71,42 @@ namespace Nexus::Graphics
 		uint32_t InstanceStart = 0;
 	};
 
-	struct DrawInstancedIndexedCommand
+	struct DrawIndexedCommand
 	{
 		uint32_t IndexCount	   = 0;
 		uint32_t InstanceCount = 0;
 		uint32_t VertexStart   = 0;
 		uint32_t IndexStart	   = 0;
 		uint32_t InstanceStart = 0;
+	};
+
+	struct DrawIndirectCommand
+	{
+		DeviceBuffer *IndirectBuffer = nullptr;
+		uint32_t	  Offset		 = 0;
+		uint32_t	  DrawCount		 = 0;
+		uint32_t	  Stride		 = 0;
+	};
+
+	struct DrawIndirectIndexedCommand
+	{
+		DeviceBuffer *IndirectBuffer = nullptr;
+		uint32_t	  Offset		 = 0;
+		uint32_t	  DrawCount		 = 0;
+		uint32_t	  Stride		 = 0;
+	};
+
+	struct DispatchCommand
+	{
+		uint32_t WorkGroupCountX = 0;
+		uint32_t WorkGroupCountY = 0;
+		uint32_t WorkGroupCountZ = 0;
+	};
+
+	struct DispatchIndirectCommand
+	{
+		DeviceBuffer *IndirectBuffer = nullptr;
+		uint32_t	  Offset		 = 0;
 	};
 
 	struct ClearColorTargetCommand
@@ -150,11 +158,13 @@ namespace Nexus::Graphics
 
 	typedef std::variant<SetVertexBufferCommand,
 						 SetIndexBufferCommand,
-						 WeakRef<Pipeline>,
-						 DrawElementCommand,
+						 WeakRef<GraphicsPipeline>,
+						 DrawCommand,
 						 DrawIndexedCommand,
-						 DrawInstancedCommand,
-						 DrawInstancedIndexedCommand,
+						 DrawIndirectCommand,
+						 DrawIndirectIndexedCommand,
+						 DispatchCommand,
+						 DispatchIndirectCommand,
 						 Ref<ResourceSet>,
 						 ClearColorTargetCommand,
 						 ClearDepthStencilTargetCommand,
@@ -181,9 +191,9 @@ namespace Nexus::Graphics
 		CommandList(const CommandListSpecification &spec);
 
 		/// @brief A virtual destructor allowing resources to be cleaned up
-		 virtual ~CommandList()
-		 {
-			 m_Commands.clear();
+		virtual ~CommandList()
+		{
+			m_Commands.clear();
 		}
 
 		/// @brief A method that begins a command list
@@ -192,83 +202,80 @@ namespace Nexus::Graphics
 		void Begin();
 
 		/// @brief A method that ends a command list
-		 void End();
+		void End();
 
-		 /// @brief A method that binds a vertex buffer to the pipeline
-		 /// @param vertexBuffer A pointer to the vertex buffer to bind
-		 void SetVertexBuffer(VertexBufferView vertexBuffer, uint32_t slot);
+		/// @brief A method that binds a vertex buffer to the pipeline
+		/// @param vertexBuffer A pointer to the vertex buffer to bind
+		void SetVertexBuffer(VertexBufferView vertexBuffer, uint32_t slot);
 
-		 /// @brief A method that binds an index buffer to the pipeline
-		 /// @param indexBuffer A pointer to the index buffer to bind
-		 void SetIndexBuffer(IndexBufferView indexBuffer);
+		/// @brief A method that binds an index buffer to the pipeline
+		/// @param indexBuffer A pointer to the index buffer to bind
+		void SetIndexBuffer(IndexBufferView indexBuffer);
 
-		 /// @brief A method to bind a pipeline to a command list
-		 /// @param pipeline The pointer to the pipeline to bind
-		 void SetPipeline(Ref<Pipeline> pipeline);
+		/// @brief A method to bind a pipeline to a command list
+		/// @param pipeline The pointer to the pipeline to bind
+		void SetPipeline(Ref<GraphicsPipeline> pipeline);
 
-		 /// @brief A method that submits a draw call using the bound vertex buffer
-		 /// @param start The offset to begin rendering at
-		 /// @param count The number of vertices to draw
-		 void Draw(uint32_t start, uint32_t count);
+		/// @brief A method that submits an instanced draw call using bound vertex
+		/// buffers
+		/// @param vertexCount The number of vertices to draw
+		/// @param instanceCount The number of instances to draw
+		/// @param vertexStart An offset into the vertex buffer to start rendering at
+		/// @param instanceStart An offset into the instance buffer to start rendering
+		/// at
+		void Draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t instanceStart);
 
-		 /// @brief A method that submits an indexed draw call using the bound vertex
-		 /// buffer and index buffer
-		 /// @param count The number of vertices to draw
-		 /// @param offset The offset to begin rendering at
-		 void DrawIndexed(uint32_t count, uint32_t indexStart, uint32_t vertexStart);
+		/// @brief A method that submits an instanced draw call using bound vertex
+		/// buffers and an index buffer
+		/// @param indexCount The number of indices in the primitive
+		/// @param instanceCount The number of instances to draw
+		/// @param vertexStart An offset into the vertex buffer to start rendering at
+		/// @param indexStart An offset into the index buffer to start rendering at
+		/// @param instanceStart An offset into the instance buffer to start rendering
+		/// at
+		void DrawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t indexStart, uint32_t instanceStart);
 
-		 /// @brief A method that submits an instanced draw call using bound vertex
-		 /// buffers
-		 /// @param vertexCount The number of vertices to draw
-		 /// @param instanceCount The number of instances to draw
-		 /// @param vertexStart An offset into the vertex buffer to start rendering at
-		 /// @param instanceStart An offset into the instance buffer to start rendering
-		 /// at
-		 void DrawInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t instanceStart);
+		void DrawIndirect(DeviceBuffer *indirectBuffer, uint32_t offset, uint32_t drawCount, uint32_t stride);
 
-		 /// @brief A method that submits an instanced draw call using bound vertex
-		 /// buffers and an index buffer
-		 /// @param indexCount The number of indices in the primitive
-		 /// @param instanceCount The number of instances to draw
-		 /// @param vertexStart An offset into the vertex buffer to start rendering at
-		 /// @param indexStart An offset into the index buffer to start rendering at
-		 /// @param instanceStart An offset into the instance buffer to start rendering
-		 /// at
-		 void DrawInstancedIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t indexStart, uint32_t instanceStart);
+		void DrawIndexedIndirect(DeviceBuffer *indirectBuffer, uint32_t offset, uint32_t drawCount, uint32_t stride);
 
-		 /// @brief A method that updates the resources bound within a pipeline
-		 /// @param resources A reference counted pointer to a ResourceSet
-		 void SetResourceSet(Ref<ResourceSet> resources);
+		void Dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ);
 
-		 void ClearColorTarget(uint32_t index, const ClearColorValue &color);
+		void DispatchIndirect(DeviceBuffer *indirectBuffer, uint32_t offset);
 
-		 void ClearDepthTarget(const ClearDepthStencilValue &value);
+		/// @brief A method that updates the resources bound within a pipeline
+		/// @param resources A reference counted pointer to a ResourceSet
+		void SetResourceSet(Ref<ResourceSet> resources);
 
-		 void SetRenderTarget(RenderTarget target);
+		void ClearColorTarget(uint32_t index, const ClearColorValue &color);
 
-		 void SetViewport(const Viewport &viewport);
+		void ClearDepthTarget(const ClearDepthStencilValue &value);
 
-		 void SetScissor(const Scissor &scissor);
+		void SetRenderTarget(RenderTarget target);
 
-		 void ResolveFramebuffer(Ref<Framebuffer> source, uint32_t sourceIndex, Swapchain *target);
+		void SetViewport(const Viewport &viewport);
 
-		 void StartTimingQuery(Ref<TimingQuery> query);
+		void SetScissor(const Scissor &scissor);
 
-		 void StopTimingQuery(Ref<TimingQuery> query);
+		void ResolveFramebuffer(Ref<Framebuffer> source, uint32_t sourceIndex, Swapchain *target);
 
-		 void SetStencilRef(uint32_t stencil);
+		void StartTimingQuery(Ref<TimingQuery> query);
 
-		 void SetDepthBounds(float min, float max);
+		void StopTimingQuery(Ref<TimingQuery> query);
 
-		 void SetBlendFactor(float r, float g, float b, float a);
+		void SetStencilRef(uint32_t stencil);
 
-		 const std::vector<RenderCommandData> &GetCommandData() const;
-		 const CommandListSpecification		  &GetSpecification();
+		void SetDepthBounds(float min, float max);
 
-	   private:
-		 CommandListSpecification		m_Specification = {};
-		 std::vector<RenderCommandData> m_Commands;
-		 bool							m_Started = false;
+		void SetBlendFactor(float r, float g, float b, float a);
+
+		const std::vector<RenderCommandData> &GetCommandData() const;
+		const CommandListSpecification		 &GetSpecification();
+
+	  private:
+		CommandListSpecification	   m_Specification = {};
+		std::vector<RenderCommandData> m_Commands;
+		bool						   m_Started = false;
 	};
 
 	/// @brief A typedef to simplify creating function pointers to render commands

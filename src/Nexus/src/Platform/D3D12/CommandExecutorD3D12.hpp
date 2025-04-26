@@ -12,7 +12,7 @@ namespace Nexus::Graphics
 	class SwapchainD3D12;
 	class FramebufferD3D12;
 	class GraphicsDeviceD3D12;
-	class PipelineD3D12;
+	class GraphicsPipelineD3D12;
 
 	class CommandExecutorD3D12 : public CommandExecutor
 	{
@@ -27,11 +27,13 @@ namespace Nexus::Graphics
 	  private:
 		virtual void ExecuteCommand(SetVertexBufferCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(SetIndexBufferCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(DrawElementCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(WeakRef<GraphicsPipeline> command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DrawCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(DrawIndexedCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(DrawInstancedCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(DrawInstancedIndexedCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DrawIndirectCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DrawIndirectIndexedCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DispatchCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DispatchIndirectCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(ClearColorTargetCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDevice *device) override;
@@ -56,7 +58,7 @@ namespace Nexus::Graphics
 		D3D12_CPU_DESCRIPTOR_HANDLE				 m_DepthHandle;
 
 		std::optional<RenderTarget>		  m_CurrentRenderTarget	   = {};
-		std::optional<Ref<PipelineD3D12>> m_CurrentlyBoundPipeline = {};
+		std::optional<Ref<GraphicsPipelineD3D12>> m_CurrentlyBoundPipeline = {};
 	};
 }	 // namespace Nexus::Graphics
 

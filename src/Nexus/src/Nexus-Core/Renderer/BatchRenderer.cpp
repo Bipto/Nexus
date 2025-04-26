@@ -287,7 +287,7 @@ namespace Nexus::Graphics
 		info.Indices.resize(MAX_VERTEX_COUNT * 3);
 		info.Textures.resize(MAX_TEXTURE_COUNT);
 
-		Nexus::Graphics::PipelineDescription description;
+		Nexus::Graphics::GraphicsPipelineDescription description;
 		description.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::CullNone;
 		description.Layouts								 = {Nexus::Graphics::BatchVertex::GetLayout()};
 		description.VertexModule						 = vertexModule;
@@ -1184,7 +1184,7 @@ namespace Nexus::Graphics
 		indexBufferView.BufferFormat	= Graphics::IndexBufferFormat::UInt32;
 		m_CommandList->SetIndexBuffer(indexBufferView);
 
-		m_CommandList->DrawIndexed(info.IndexCount, 0, 0);
+		m_CommandList->DrawIndexed(info.IndexCount, 1, 0, 0, 0);
 		m_CommandList->End();
 		m_Device->SubmitCommandList(m_CommandList);
 

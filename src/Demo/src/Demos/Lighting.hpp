@@ -137,7 +137,7 @@ namespace Demos
 				m_CommandList->SetIndexBuffer(indexBufferView);
 
 				auto indexCount = m_CubeMesh->GetIndexBuffer()->GetCount();
-				m_CommandList->DrawIndexed(indexCount, 0, 0);
+				m_CommandList->DrawIndexed(indexCount, 1, 0, 0, 0);
 			}
 
 			m_CommandList->SetPipeline(m_Pipeline);
@@ -162,7 +162,7 @@ namespace Demos
 	  private:
 		void CreatePipeline()
 		{
-			Nexus::Graphics::PipelineDescription pipelineDescription;
+			Nexus::Graphics::GraphicsPipelineDescription pipelineDescription;
 			pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::Back;
 			pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::Clockwise;
 
@@ -189,7 +189,7 @@ namespace Demos
 
 	  private:
 		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
-		Nexus::Ref<Nexus::Graphics::Pipeline>	 m_Pipeline;
+		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline;
 		Nexus::Ref<Nexus::Graphics::Mesh>		 m_CubeMesh;
 
 		Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;

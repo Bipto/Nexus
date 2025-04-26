@@ -7,12 +7,12 @@
 
 namespace Nexus::Graphics
 {
-	class PipelineOpenGL : public Pipeline
+	class GraphicsPipelineOpenGL : public GraphicsPipeline
 	{
 	  public:
-		PipelineOpenGL(const PipelineDescription &description);
-		virtual ~PipelineOpenGL();
-		virtual const PipelineDescription &GetPipelineDescription() const override;
+		GraphicsPipelineOpenGL(const GraphicsPipelineDescription &description);
+		virtual ~GraphicsPipelineOpenGL();
+		virtual const GraphicsPipelineDescription &GetPipelineDescription() const override;
 		void							   BindBuffers(const std::map<uint32_t, VertexBufferView> &vertexBuffers,
 													   std::optional<IndexBufferView>			   indexBuffer,
 													   uint32_t									   vertexOffset,

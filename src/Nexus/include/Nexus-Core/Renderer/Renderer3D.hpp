@@ -67,17 +67,17 @@ namespace Nexus::Graphics
 		Nexus::FirstPersonCamera m_Camera;
 
 		Nexus::Ref<Nexus::Graphics::Sampler>	   m_CubemapSampler		 = nullptr;
-		Nexus::Ref<Nexus::Graphics::Pipeline>	   m_CubemapPipeline	 = nullptr;
+		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_CubemapPipeline		 = nullptr;
 		Nexus::Ref<Nexus::Graphics::DeviceBuffer>  m_CubemapUniformBuffer = nullptr;
 		Nexus::Ref<Nexus::Graphics::ResourceSet>   m_CubemapResourceSet	 = nullptr;
 
 		Nexus::Ref<Nexus::Graphics::Sampler>	   m_ModelSampler				 = nullptr;
-		Nexus::Ref<Nexus::Graphics::Pipeline>	   m_ModelPipeline				 = nullptr;
+		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_ModelPipeline				= nullptr;
 		Nexus::Ref<Nexus::Graphics::DeviceBuffer>  m_ModelCameraUniformBuffer	 = nullptr;
 		Nexus::Ref<Nexus::Graphics::DeviceBuffer>  m_ModelTransformUniformBuffer = nullptr;
 		Nexus::Ref<Nexus::Graphics::ResourceSet>   m_ModelResourceSet			 = nullptr;
 
-		Nexus::Ref<Nexus::Graphics::Pipeline> m_ClearScreenPipeline = nullptr;
+		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_ClearScreenPipeline = nullptr;
 
 		Nexus::Ref<Nexus::Graphics::Texture2D> m_DefaultTexture = nullptr;
 	};

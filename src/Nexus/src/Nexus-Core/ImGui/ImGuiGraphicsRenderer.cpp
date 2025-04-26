@@ -126,7 +126,7 @@ namespace Nexus::ImGuiUtils
 
 	void ImGuiGraphicsRenderer::CreateTextPipeline()
 	{
-		Nexus::Graphics::PipelineDescription pipelineDesc;
+		Nexus::Graphics::GraphicsPipelineDescription pipelineDesc;
 
 		pipelineDesc.VertexModule	= m_VertexShader;
 		pipelineDesc.FragmentModule = m_FragmentShader;
@@ -168,7 +168,7 @@ namespace Nexus::ImGuiUtils
 
 	void ImGuiGraphicsRenderer::CreateImagePipeline()
 	{
-		Nexus::Graphics::PipelineDescription pipelineDesc;
+		Nexus::Graphics::GraphicsPipelineDescription pipelineDesc;
 
 		pipelineDesc.VertexModule	= m_VertexShader;
 		pipelineDesc.FragmentModule = m_FragmentShader;
@@ -656,7 +656,7 @@ namespace Nexus::ImGuiUtils
 					const auto &resourceSet = m_ResourceSets.at(drawCmd.TextureId);
 					m_CommandList->SetResourceSet(resourceSet);
 
-					m_CommandList->DrawIndexed(drawCmd.ElemCount, drawCmd.IdxOffset + idxOffset, drawCmd.VtxOffset + vtxOffset);
+					m_CommandList->DrawIndexed(drawCmd.ElemCount, 1, drawCmd.VtxOffset + vtxOffset, drawCmd.IdxOffset + idxOffset, 0);
 				}
 			}
 

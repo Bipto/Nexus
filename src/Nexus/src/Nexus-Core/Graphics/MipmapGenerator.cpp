@@ -33,7 +33,7 @@ namespace Nexus::Graphics
 			m_Device->GetOrCreateCachedShaderFromSpirvSource(c_MipmapFragmentSource, "Mipmap-Gen.frag", Nexus::Graphics::ShaderStage::Fragment);
 
 		// set up pipeline for rendering
-		Nexus::Graphics::PipelineDescription pipelineDescription;
+		Nexus::Graphics::GraphicsPipelineDescription pipelineDescription;
 		pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::CullNone;
 		pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
@@ -113,7 +113,7 @@ namespace Nexus::Graphics
 			m_CommandList->SetIndexBuffer(indexBufferView);
 
 			m_CommandList->SetResourceSet(m_ResourceSet);
-			m_CommandList->DrawIndexed(6, 0, 0);
+			m_CommandList->DrawIndexed(6, 1, 0, 0, 0);
 			m_CommandList->End();
 			m_Device->SubmitCommandList(m_CommandList);
 

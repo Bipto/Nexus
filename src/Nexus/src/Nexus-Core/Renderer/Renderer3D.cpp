@@ -277,7 +277,7 @@ namespace Nexus::Graphics
 			indexBufferView.BufferFormat	  = Graphics::IndexBufferFormat::UInt32;
 			m_CommandList->SetIndexBuffer(indexBufferView);
 
-			m_CommandList->DrawIndexed(m_Cube->GetIndexBuffer()->GetCount(), 0, 0);
+			m_CommandList->DrawIndexed(m_Cube->GetIndexBuffer()->GetCount(), 1, 0, 0, 0);
 		}
 
 		m_CommandList->End();
@@ -377,7 +377,7 @@ namespace Nexus::Graphics
 			indexBufferView.Offset			  = 0;
 			indexBufferView.BufferFormat	  = Graphics::IndexBufferFormat::UInt32;
 			m_CommandList->SetIndexBuffer(indexBufferView);
-			m_CommandList->DrawIndexed(mesh->GetIndexBuffer()->GetCount(), 0, 0);
+			m_CommandList->DrawIndexed(mesh->GetIndexBuffer()->GetCount(), 1, 0, 0, 0);
 
 			m_CommandList->End();
 			m_Device->SubmitCommandList(m_CommandList);
@@ -407,7 +407,7 @@ namespace Nexus::Graphics
 		m_CommandList->SetScissor(scissor);
 
 		m_CommandList->SetPipeline(m_ClearScreenPipeline);
-		m_CommandList->Draw(0, 6);
+		m_CommandList->Draw(6, 1, 0, 0);
 
 		m_CommandList->End();
 		m_Device->SubmitCommandList(m_CommandList);
@@ -415,7 +415,7 @@ namespace Nexus::Graphics
 
 	void Renderer3D::CreateCubemapPipeline()
 	{
-		Nexus::Graphics::PipelineDescription pipelineDescription  = {};
+		Nexus::Graphics::GraphicsPipelineDescription pipelineDescription = {};
 		pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::Back;
 		pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 		pipelineDescription.VertexModule =
@@ -458,7 +458,7 @@ namespace Nexus::Graphics
 
 	void Renderer3D::CreateModelPipeline()
 	{
-		Nexus::Graphics::PipelineDescription pipelineDescription	 = {};
+		Nexus::Graphics::GraphicsPipelineDescription pipelineDescription = {};
 		pipelineDescription.RasterizerStateDesc.TriangleCullMode	 = Nexus::Graphics::CullMode::Back;
 		pipelineDescription.RasterizerStateDesc.TriangleFrontFace	 = Nexus::Graphics::FrontFace::CounterClockwise;
 		pipelineDescription.DepthStencilDesc.EnableDepthTest		 = true;
@@ -519,7 +519,7 @@ namespace Nexus::Graphics
 
 	void Renderer3D::CreateClearGBufferPipeline()
 	{
-		Nexus::Graphics::PipelineDescription pipelineDescription	 = {};
+		Nexus::Graphics::GraphicsPipelineDescription pipelineDescription = {};
 		pipelineDescription.RasterizerStateDesc.TriangleCullMode	 = Nexus::Graphics::CullMode::Back;
 		pipelineDescription.RasterizerStateDesc.TriangleFrontFace	 = Nexus::Graphics::FrontFace::Clockwise;
 		pipelineDescription.DepthStencilDesc.EnableDepthTest		 = true;

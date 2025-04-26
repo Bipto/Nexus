@@ -116,9 +116,9 @@ namespace Nexus::Graphics
 		return CreateRef<Cubemap_Vk>(this, spec);
 	}
 
-	Ref<Pipeline> GraphicsDeviceVk::CreatePipeline(const PipelineDescription &description)
+	Ref<GraphicsPipeline> GraphicsDeviceVk::CreatePipeline(const GraphicsPipelineDescription &description)
 	{
-		return CreateRef<PipelineVk>(description, this);
+		return CreateRef<GraphicsPipelineVk>(description, this);
 	}
 
 	Ref<CommandList> GraphicsDeviceVk::CreateCommandList(const CommandListSpecification &spec)

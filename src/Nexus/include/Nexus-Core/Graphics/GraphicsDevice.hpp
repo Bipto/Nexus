@@ -58,7 +58,7 @@ namespace Nexus::Graphics
 		/// description
 		/// @param description The properties to use when creating the pipeline
 		/// @return A pointer to a pipeline
-		virtual Ref<Pipeline> CreatePipeline(const PipelineDescription &description) = 0;
+		virtual Ref<GraphicsPipeline> CreatePipeline(const GraphicsPipelineDescription &description) = 0;
 
 		/// @brief A pure virtual method that creates a new command list
 		/// @return A pointer to a command list
@@ -93,7 +93,7 @@ namespace Nexus::Graphics
 		/// @brief A method that creates a new resource set from a pipeline
 		/// @param pipeline A pipeline to use when creating the resource set
 		/// @return A pointer to a resource set
-		Ref<ResourceSet> CreateResourceSet(Ref<Pipeline> pipeline);
+		Ref<ResourceSet> CreateResourceSet(Ref<GraphicsPipeline> pipeline);
 
 		/// @brief A pure virtual method that creates a new sampler from a given
 		/// specification

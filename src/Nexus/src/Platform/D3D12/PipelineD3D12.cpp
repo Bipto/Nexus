@@ -9,8 +9,8 @@
 
 namespace Nexus::Graphics
 {
-	PipelineD3D12::PipelineD3D12(ID3D12Device9 *device, const PipelineDescription &description)
-		: Pipeline(description),
+	GraphicsPipelineD3D12::GraphicsPipelineD3D12(ID3D12Device9 *device, const GraphicsPipelineDescription &description)
+		: GraphicsPipeline(description),
 		  m_Device(device),
 		  m_Description(description)
 	{
@@ -20,31 +20,31 @@ namespace Nexus::Graphics
 		CreatePrimitiveTopology();
 	}
 
-	PipelineD3D12::~PipelineD3D12()
+	GraphicsPipelineD3D12::~GraphicsPipelineD3D12()
 	{
 	}
 
-	const PipelineDescription &PipelineD3D12::GetPipelineDescription() const
+	const GraphicsPipelineDescription &GraphicsPipelineD3D12::GetPipelineDescription() const
 	{
 		return m_Description;
 	}
 
-	ID3D12RootSignature *PipelineD3D12::GetRootSignature()
+	ID3D12RootSignature *GraphicsPipelineD3D12::GetRootSignature()
 	{
 		return m_RootSignature.Get();
 	}
 
-	ID3D12PipelineState *PipelineD3D12::GetPipelineState()
+	ID3D12PipelineState *GraphicsPipelineD3D12::GetPipelineState()
 	{
 		return m_PipelineStateObject.Get();
 	}
 
-	D3D_PRIMITIVE_TOPOLOGY PipelineD3D12::GetD3DPrimitiveTopology()
+	D3D_PRIMITIVE_TOPOLOGY GraphicsPipelineD3D12::GetD3DPrimitiveTopology()
 	{
 		return m_PrimitiveTopology;
 	}
 
-	void PipelineD3D12::CreateRootSignature()
+	void GraphicsPipelineD3D12::CreateRootSignature()
 	{
 		D3D12_ROOT_SIGNATURE_DESC desc = {};
 		desc.Flags					   = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
@@ -144,7 +144,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void PipelineD3D12::CreatePipeline()
+	void GraphicsPipelineD3D12::CreatePipeline()
 	{
 		std::vector<DXGI_FORMAT> rtvFormats;
 
@@ -251,7 +251,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void PipelineD3D12::CreateInputLayout()
+	void GraphicsPipelineD3D12::CreateInputLayout()
 	{
 		m_InputLayout.clear();
 
@@ -281,7 +281,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void PipelineD3D12::CreatePrimitiveTopology()
+	void GraphicsPipelineD3D12::CreatePrimitiveTopology()
 	{
 		switch (m_Description.PrimitiveTopology)
 		{
@@ -293,7 +293,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	D3D12_RASTERIZER_DESC PipelineD3D12::CreateRasterizerState()
+	D3D12_RASTERIZER_DESC GraphicsPipelineD3D12::CreateRasterizerState()
 	{
 		D3D12_RASTERIZER_DESC desc {};
 		desc.FillMode = D3D12_FILL_MODE_SOLID;
@@ -318,7 +318,7 @@ namespace Nexus::Graphics
 		return desc;
 	}
 
-	D3D12_STREAM_OUTPUT_DESC PipelineD3D12::CreateStreamOutputDesc()
+	D3D12_STREAM_OUTPUT_DESC GraphicsPipelineD3D12::CreateStreamOutputDesc()
 	{
 		D3D12_STREAM_OUTPUT_DESC desc {};
 		desc.NumEntries		  = 0;
@@ -328,7 +328,7 @@ namespace Nexus::Graphics
 		return desc;
 	}
 
-	D3D12_BLEND_DESC PipelineD3D12::CreateBlendStateDesc()
+	D3D12_BLEND_DESC GraphicsPipelineD3D12::CreateBlendStateDesc()
 	{
 		D3D12_BLEND_DESC desc {};
 		desc.AlphaToCoverageEnable	= FALSE;
@@ -371,7 +371,7 @@ namespace Nexus::Graphics
 		return desc;
 	}
 
-	D3D12_DEPTH_STENCIL_DESC PipelineD3D12::CreateDepthStencilDesc()
+	D3D12_DEPTH_STENCIL_DESC GraphicsPipelineD3D12::CreateDepthStencilDesc()
 	{
 		D3D12_DEPTH_STENCIL_DESC desc {};
 		desc.DepthEnable = m_Description.DepthStencilDesc.EnableDepthTest;

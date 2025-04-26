@@ -11,7 +11,7 @@ namespace Nexus::Graphics
 {
 	/// @brief A struct representing how all of the settings required to create a
 	/// pipeline
-	struct PipelineDescription
+	struct GraphicsPipelineDescription
 	{
 		/// @brief How the pipeline should handle depth and stencil testing
 		DepthStencilDescription DepthStencilDesc;
@@ -61,35 +61,35 @@ namespace Nexus::Graphics
 	};
 
 	/// @brief A pure virtual class representing an API specific pipeline
-	class Pipeline
+	class GraphicsPipeline
 	{
 	  public:
 		/// @brief A constructor that takes in a PipelineDescription object to use for
 		/// creation
-		Pipeline(const PipelineDescription &description)
+		GraphicsPipeline(const GraphicsPipelineDescription &description)
 		{
 			m_Description = description;
 		}
 
 		/// @brief An empty pipeline cannot be created
-		Pipeline() = delete;
+		GraphicsPipeline() = delete;
 
 		/// @brief Virtual destructor allowing API specific resources to be destroyed
-		 virtual ~Pipeline() {};
+		virtual ~GraphicsPipeline() {};
 
-		 /// @brief A pure virtual method returning a const reference to a pipeline
-		 /// description
-		 /// @return A const reference to a pipelinedescription
-		 virtual const PipelineDescription &GetPipelineDescription() const = 0;
+		/// @brief A pure virtual method returning a const reference to a pipeline
+		/// description
+		/// @return A const reference to a pipelinedescription
+		virtual const GraphicsPipelineDescription &GetPipelineDescription() const = 0;
 
-		 bool HasResources() const
-		 {
-			 return m_Description.ResourceSetSpec.SampledImages.size() > 0 || m_Description.ResourceSetSpec.UniformBuffers.size() > 0;
+		bool HasResources() const
+		{
+			return m_Description.ResourceSetSpec.SampledImages.size() > 0 || m_Description.ResourceSetSpec.UniformBuffers.size() > 0;
 		}
 
 	  protected:
 		/// @brief The pipeline description used to create the pipeline
-		PipelineDescription m_Description;
+		GraphicsPipelineDescription m_Description;
 
 	  private:
 		/// @brief This allows the GraphicsDevice to access all data stored within a

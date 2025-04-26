@@ -21,11 +21,13 @@ namespace Nexus::Graphics
 	  private:
 		virtual void ExecuteCommand(SetVertexBufferCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(SetIndexBufferCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(DrawElementCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(WeakRef<GraphicsPipeline> command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DrawCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(DrawIndexedCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(DrawInstancedCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(DrawInstancedIndexedCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DrawIndirectCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DrawIndirectIndexedCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DispatchCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DispatchIndirectCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(ClearColorTargetCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDevice *device) override;
@@ -42,7 +44,7 @@ namespace Nexus::Graphics
 		void BindResourceSet(Ref<ResourceSetOpenGL> resourceSet);
 
 	  private:
-		std::optional<Ref<PipelineOpenGL>>										m_CurrentlyBoundPipeline	  = {};
+		std::optional<Ref<GraphicsPipelineOpenGL>>								m_CurrentlyBoundPipeline	  = {};
 		std::optional<RenderTarget>												m_CurrentRenderTarget		  = {};
 		std::map<uint32_t, VertexBufferView>									m_CurrentlyBoundVertexBuffers = {};
 		std::optional<IndexBufferView>											m_BoundIndexBuffer			  = {};
