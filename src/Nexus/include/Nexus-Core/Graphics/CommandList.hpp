@@ -156,7 +156,7 @@ namespace Nexus::Graphics
 
 	typedef std::variant<SetVertexBufferCommand,
 						 SetIndexBufferCommand,
-						 WeakRef<GraphicsPipeline>,
+						 WeakRef<Pipeline>,
 						 DrawCommand,
 						 DrawIndexedCommand,
 						 DrawIndirectCommand,
@@ -212,7 +212,7 @@ namespace Nexus::Graphics
 
 		/// @brief A method to bind a pipeline to a command list
 		/// @param pipeline The pointer to the pipeline to bind
-		void SetPipeline(Ref<GraphicsPipeline> pipeline);
+		void SetPipeline(Ref<Pipeline> pipeline);
 
 		/// @brief A method that submits an instanced draw call using bound vertex
 		/// buffers

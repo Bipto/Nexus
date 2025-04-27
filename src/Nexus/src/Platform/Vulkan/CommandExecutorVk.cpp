@@ -90,7 +90,7 @@ namespace Nexus::Graphics
 		vkCmdBindIndexBuffer(m_CommandBuffer, indexBufferHandle, 0, indexType);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(WeakRef<GraphicsPipeline> command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device)
 	{
 		if (command.expired())
 		{

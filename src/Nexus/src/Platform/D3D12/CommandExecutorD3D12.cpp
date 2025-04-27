@@ -73,7 +73,7 @@ namespace Nexus::Graphics
 		m_CommandList->IASetIndexBuffer(&indexBufferView);
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(WeakRef<GraphicsPipeline> command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device)
 	{
 		Ref<GraphicsPipelineD3D12> d3d12Pipeline = std::dynamic_pointer_cast<GraphicsPipelineD3D12>(command.lock());
 		const auto		  &description	 = d3d12Pipeline->GetPipelineDescription();

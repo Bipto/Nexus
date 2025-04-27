@@ -20,14 +20,10 @@ namespace Nexus::Graphics
 
 		void SetCommandBuffer(VkCommandBuffer commandBuffer);
 
-		const VkCommandBuffer &GetCurrentCommandBuffer();
-		const VkFence		  &GetCurrentFence();
-		const VkSemaphore	  &GetCurrentSemaphore();
-
 	  private:
 		virtual void ExecuteCommand(SetVertexBufferCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(SetIndexBufferCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(WeakRef<GraphicsPipeline> command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(DrawCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(DrawIndexedCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(DrawIndirectCommand command, GraphicsDevice *device) override;
@@ -56,7 +52,7 @@ namespace Nexus::Graphics
 	  private:
 		GraphicsDeviceVk *m_Device = nullptr;
 
-		Ref<GraphicsPipeline> m_CurrentlyBoundPipeline = nullptr;
+		Ref<Pipeline> m_CurrentlyBoundPipeline = nullptr;
 		bool		  m_Rendering			   = false;
 		VkExtent2D	  m_RenderSize			   = {0, 0};
 

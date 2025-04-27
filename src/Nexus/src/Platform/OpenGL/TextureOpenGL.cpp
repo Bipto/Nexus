@@ -43,6 +43,8 @@ namespace Nexus::Graphics
 			glCall(glBindTexture(m_TextureType, m_Handle));
 			glCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
 			glCall(glTexStorage2D(m_TextureType, m_Specification.MipLevels, m_InternalFormat, spec.Width, spec.Height));
+			glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+			glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
 
 	#if defined(NX_PLATFORM_GL_DESKTOP)
 		}

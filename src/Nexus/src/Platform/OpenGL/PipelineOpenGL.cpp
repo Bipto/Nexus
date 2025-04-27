@@ -110,10 +110,6 @@ namespace Nexus::Graphics
 		SetShader();
 	}
 
-	void GraphicsPipelineOpenGL::Unbind()
-	{
-	}
-
 	uint32_t GraphicsPipelineOpenGL::GetShaderHandle() const
 	{
 		return m_ShaderHandle;
@@ -355,6 +351,49 @@ namespace Nexus::Graphics
 		}
 
 		for (const auto &module : modules) { glCall(glDetachShader(m_ShaderHandle, module->GetHandle())); }
+	}
+
+	ComputePipelineOpenGL::ComputePipelineOpenGL(const ComputePipelineDescription &description) : ComputePipeline(description)
+	{
+		CreateShader();
+	}
+
+	ComputePipelineOpenGL::~ComputePipelineOpenGL()
+	{
+	}
+
+	void ComputePipelineOpenGL::Bind()
+	{
+		glUseProgram(m_ShaderHandle);
+	}
+
+	uint32_t ComputePipelineOpenGL::GetShaderHandle() const
+	{
+		return m_ShaderHandle;
+	}
+
+	void ComputePipelineOpenGL::CreateShader()
+	{
+		NX_ASSERT(m_Description.ComputeShader->GetShaderStage() == ShaderStage::Compute, "Compute Pipeline shader must be ShaderStage::Compute");
+
+		Nexus::Ref<Nexus::Graphics::ShaderModuleOpenGL> computeShader =
+			std::dynamic_pointer_cast<Nexus::Graphics::ShaderModuleOpenGL>(m_Description.ComputeShader);
+
+		m_ShaderHandle = glCreateProgram();
+		glCall(glAttachShader(m_ShaderHandle, computeShader->GetHandle()));
+		glCall(glLinkProgram(m_ShaderHandle));
+
+		int success;
+		glCall(glGetProgramiv(m_ShaderHandle, GL_LINK_STATUS, &success));
+		if (!success)
+		{
+			char infoLog[512];
+			glCall(glGetProgramInfoLog(m_ShaderHandle, 512, nullptr, infoLog));
+			std::string errorMessage = "Error: Shader Program - " + std::string(infoLog);
+			NX_ERROR(errorMessage);
+		}
+
+		glCall(glDetachShader(m_ShaderHandle, computeShader->GetHandle()));
 	}
 }	 // namespace Nexus::Graphics
 

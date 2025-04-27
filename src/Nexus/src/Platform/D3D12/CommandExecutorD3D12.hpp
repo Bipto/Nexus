@@ -27,7 +27,7 @@ namespace Nexus::Graphics
 	  private:
 		virtual void ExecuteCommand(SetVertexBufferCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(SetIndexBufferCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(WeakRef<GraphicsPipeline> command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(DrawCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(DrawIndexedCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(DrawIndirectCommand command, GraphicsDevice *device) override;

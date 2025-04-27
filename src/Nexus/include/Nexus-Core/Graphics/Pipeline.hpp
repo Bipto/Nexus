@@ -60,9 +60,9 @@ namespace Nexus::Graphics
 		Ref<ShaderModule> VertexModule				  = nullptr;
 	};
 
-	class ComputePipelineDescription
+	struct ComputePipelineDescription
 	{
-		ResourceSetSpecification ResourceSpec  = {};
+		ResourceSetSpecification ResourceSetSpec = {};
 		Ref<ShaderModule>		 ComputeShader = nullptr;
 	};
 
@@ -88,16 +88,17 @@ namespace Nexus::Graphics
 	  public:
 		/// @brief A constructor that takes in a PipelineDescription object to use for
 		/// creation
-		GraphicsPipeline(const GraphicsPipelineDescription &description)
+		GraphicsPipeline(const GraphicsPipelineDescription &description) : m_Description(description)
 		{
-			m_Description = description;
 		}
 
 		/// @brief An empty pipeline cannot be created
 		GraphicsPipeline() = delete;
 
 		/// @brief Virtual destructor allowing API specific resources to be destroyed
-		virtual ~GraphicsPipeline() {};
+		virtual ~GraphicsPipeline()
+		{
+		}
 
 		/// @brief A pure virtual method returning a const reference to a pipeline
 		/// description
@@ -116,6 +117,35 @@ namespace Nexus::Graphics
 
 	  protected:
 		/// @brief The pipeline description used to create the pipeline
-		GraphicsPipelineDescription m_Description;
+		GraphicsPipelineDescription m_Description = {};
+	};
+
+	class ComputePipeline : public Pipeline
+	{
+	  public:
+		ComputePipeline(const ComputePipelineDescription &description) : m_Description(description)
+		{
+		}
+
+		ComputePipeline() = delete;
+
+		virtual ~ComputePipeline()
+		{
+		}
+
+		virtual const ComputePipelineDescription &GetPipelineDescription() const = 0;
+
+		bool HasResources() const
+		{
+			return m_Description.ResourceSetSpec.SampledImages.size() > 0 || m_Description.ResourceSetSpec.UniformBuffers.size() > 0;
+		}
+
+		virtual PipelineType GetType() const final
+		{
+			return PipelineType::Compute;
+		}
+
+	  protected:
+		ComputePipelineDescription m_Description = {};
 	};
 }	 // namespace Nexus::Graphics

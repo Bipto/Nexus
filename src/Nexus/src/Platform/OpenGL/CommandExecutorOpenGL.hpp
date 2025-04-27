@@ -21,7 +21,7 @@ namespace Nexus::Graphics
 	  private:
 		virtual void ExecuteCommand(SetVertexBufferCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(SetIndexBufferCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(WeakRef<GraphicsPipeline> command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(DrawCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(DrawIndexedCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(DrawIndirectCommand command, GraphicsDevice *device) override;
@@ -42,9 +42,16 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(SetBlendFactorCommand command, GraphicsDevice *device) override;
 
 		void BindResourceSet(Ref<ResourceSetOpenGL> resourceSet);
+		void ExecuteGraphicsCommand(Ref<GraphicsPipelineOpenGL>									 pipeline,
+									const std::map<uint32_t, Nexus::Graphics::VertexBufferView> &vertexBuffers,
+									std::optional<Nexus::Graphics::IndexBufferView>				 indexBuffer,
+									uint32_t													 vertexOffset,
+									uint32_t													 instanceOffset,
+									std::function<void(Ref<GraphicsPipelineOpenGL> pipeline)>	 drawCall);
+		void ExecuteComputeCommand(Ref<ComputePipelineOpenGL> pipeline);
 
 	  private:
-		std::optional<Ref<GraphicsPipelineOpenGL>>								m_CurrentlyBoundPipeline	  = {};
+		std::optional<Ref<Pipeline>>											m_CurrentlyBoundPipeline	  = {};
 		std::optional<RenderTarget>												m_CurrentRenderTarget		  = {};
 		std::map<uint32_t, VertexBufferView>									m_CurrentlyBoundVertexBuffers = {};
 		std::optional<IndexBufferView>											m_BoundIndexBuffer			  = {};

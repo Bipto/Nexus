@@ -57,7 +57,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::SetPipeline(Ref<GraphicsPipeline> pipeline)
+	void CommandList::SetPipeline(Ref<Pipeline> pipeline)
 	{
 		if (!m_Started)
 		{
