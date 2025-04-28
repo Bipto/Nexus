@@ -128,7 +128,7 @@ namespace Demos
 				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/hello_triangle.frag.glsl",
 																	   Nexus::Graphics::ShaderStage::Fragment);
 
-			m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
+			m_Pipeline = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
 		}
 
 	  private:

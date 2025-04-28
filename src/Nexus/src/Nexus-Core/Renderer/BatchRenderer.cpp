@@ -323,7 +323,7 @@ namespace Nexus::Graphics
 
 		description.ColourTargetSampleCount = sampleCount;
 
-		info.Pipeline	 = device->CreatePipeline(description);
+		info.Pipeline	 = device->CreateGraphicsPipeline(description);
 		info.ResourceSet = device->CreateResourceSet(info.Pipeline);
 
 		Nexus::Graphics::DeviceBufferDescription vertexUploadDesc = {};

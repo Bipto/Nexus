@@ -29,6 +29,11 @@ namespace Nexus::Graphics
 		m_BoundCombinedImageSamplers[name] = ciSampler;
 	}
 
+	void ResourceSetOpenGL::WriteStorageImage(StorageImageView view, const std::string &name)
+	{
+		m_BoundStorageImages[name] = view;
+	}
+
 }	 // namespace Nexus::Graphics
 
 #endif

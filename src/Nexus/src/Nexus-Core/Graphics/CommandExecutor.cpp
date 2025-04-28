@@ -21,6 +21,21 @@ namespace Nexus::Graphics
 		return valid;
 	}
 
+	bool CommandExecutor::ValidateForComputeCall(std::optional<Ref<Pipeline>> pipeline)
+	{
+		if (!pipeline.has_value())
+		{
+			return false;
+		}
+
+		if (pipeline.value()->GetType() != PipelineType::Compute)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
 	bool Nexus::Graphics::CommandExecutor::ValidateForClearColour(std::optional<RenderTarget> target, uint32_t colourIndex)
 	{
 		bool valid = true;

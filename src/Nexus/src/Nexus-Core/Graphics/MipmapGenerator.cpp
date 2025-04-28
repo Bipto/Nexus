@@ -47,7 +47,7 @@ namespace Nexus::Graphics
 		pipelineDescription.ResourceSetSpec.SampledImages = {{"texSampler", 0, 0}};
 
 		pipelineDescription.Layouts = {m_Quad.GetVertexBufferLayout()};
-		m_Pipeline					= m_Device->CreatePipeline(pipelineDescription);
+		m_Pipeline					= m_Device->CreateGraphicsPipeline(pipelineDescription);
 		m_ResourceSet				= m_Device->CreateResourceSet(m_Pipeline);
 	}
 

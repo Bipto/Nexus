@@ -15,6 +15,7 @@ namespace Nexus::Graphics
 
 	  protected:
 		bool ValidateForGraphicsCall(std::optional<Ref<Pipeline>> pipeline, std::optional<RenderTarget> renderTarget);
+		bool ValidateForComputeCall(std::optional<Ref<Pipeline>> pipeline);
 		bool ValidateForClearColour(std::optional<RenderTarget> target, uint32_t colourIndex);
 		bool ValidateForClearDepth(std::optional<RenderTarget> target);
 		bool ValidateForSetViewport(std::optional<RenderTarget> target, const Viewport &viewport);

@@ -225,6 +225,10 @@ namespace Nexus::Graphics
 		m_BoundCombinedImageSamplers[name] = ciSampler;
 	}
 
+	void ResourceSetD3D12::WriteStorageImage(StorageImageView view, const std::string &name)
+	{
+	}
+
 	ID3D12DescriptorHeap *ResourceSetD3D12::GetSamplerDescriptorHeap()
 	{
 		return m_SamplerDescriptorHeap.Get();

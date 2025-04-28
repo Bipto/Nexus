@@ -32,11 +32,13 @@ namespace Nexus::Graphics
 	{
 		std::vector<ResourceBinding> SampledImages;
 		std::vector<ResourceBinding> UniformBuffers;
+		std::vector<ResourceBinding> StorageImages;
 
 		ResourceSetSpecification &operator+(const ResourceSetSpecification &other)
 		{
 			SampledImages.insert(SampledImages.end(), other.SampledImages.begin(), other.SampledImages.end());
 			UniformBuffers.insert(UniformBuffers.end(), UniformBuffers.begin(), UniformBuffers.end());
+			StorageImages.insert(StorageImages.end(), StorageImages.begin(), StorageImages.end());
 			return *this;
 		}
 
@@ -44,7 +46,13 @@ namespace Nexus::Graphics
 		{
 			SampledImages.insert(SampledImages.end(), other.SampledImages.begin(), other.SampledImages.end());
 			UniformBuffers.insert(UniformBuffers.end(), other.UniformBuffers.begin(), other.UniformBuffers.end());
+			StorageImages.insert(StorageImages.end(), StorageImages.begin(), StorageImages.end());
 			return *this;
+		}
+
+		bool HasResources() const
+		{
+			return SampledImages.size() || UniformBuffers.size() > 0 || StorageImages.size() > 0;
 		}
 	};
 
@@ -52,6 +60,19 @@ namespace Nexus::Graphics
 	{
 		std::variant<WeakRef<Texture2D>, WeakRef<Cubemap>> ImageTexture = {};
 		WeakRef<Sampler>								   ImageSampler = {};
+	};
+
+	enum class StorageImageAccess
+	{
+		Read,
+		ReadWrite
+	};
+
+	struct StorageImageView
+	{
+		Texture2D		  *TextureHandle = nullptr;
+		uint32_t		   Level		 = 0;
+		StorageImageAccess Access		 = StorageImageAccess::Read;
 	};
 
 	class ResourceSet
@@ -65,6 +86,7 @@ namespace Nexus::Graphics
 		virtual void WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name)					  = 0;
 		virtual void WriteCombinedImageSampler(Ref<Texture2D> texture, Ref<Sampler> sampler, const std::string &name) = 0;
 		virtual void WriteCombinedImageSampler(Ref<Cubemap> cubemap, Ref<Sampler> sampler, const std::string &name)	  = 0;
+		virtual void WriteStorageImage(StorageImageView view, const std::string &name)								  = 0;
 
 		const ResourceSetSpecification &GetSpecification() const;
 		static constexpr uint32_t		DescriptorSetCount = 64;
@@ -74,13 +96,16 @@ namespace Nexus::Graphics
 
 		const std::map<std::string, UniformBufferView>		&GetBoundUniformBuffers() const;
 		const std::map<std::string, CombinedImageSampler>	&GetBoundCombinedImageSamplers() const;
+		const std::map<std::string, StorageImageView>		&GetBoundStorageImages() const;
 
 	  protected:
 		ResourceSetSpecification		   m_Specification;
 		std::map<std::string, BindingInfo> m_CombinedImageSamplerBindingInfos;
 		std::map<std::string, BindingInfo> m_UniformBufferBindingInfos;
+		std::map<std::string, BindingInfo> m_StorageImageBindingInfos;
 
 		std::map<std::string, UniformBufferView>	  m_BoundUniformBuffers;
 		std::map<std::string, CombinedImageSampler>	  m_BoundCombinedImageSamplers;
+		std::map<std::string, StorageImageView>		  m_BoundStorageImages;
 	};
 }	 // namespace Nexus::Graphics

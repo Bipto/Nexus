@@ -24,8 +24,8 @@ namespace Nexus::Graphics
 
 	void GraphicsPipelineOpenGL::BindBuffers(const std::map<uint32_t, VertexBufferView> &vertexBuffers,
 											 std::optional<IndexBufferView>				 indexBuffer,
-											 uint32_t									 vertexOffset,
-											 uint32_t									 instanceOffset)
+											 uint32_t									 firstVertex,
+											 uint32_t									 firstInstance)
 	{
 		glCall(glBindVertexArray(m_VAO));
 
@@ -46,18 +46,16 @@ namespace Nexus::Graphics
 
 			uint32_t offset = 0;
 
-			// type is an instance buffer, offset by instance offset
+			// type is an instance buffer, offset to the first instance requested
 			if (layout.IsInstanceBuffer())
 			{
-				offset = instanceOffset;
+				offset = firstInstance * layout.GetStride();
 			}
-			// otherwise, the buffer is a vertex buffer, offset by vertex offset
+			// otherwise, the buffer is a vertex buffer, offset to the first vertex requested
 			else
 			{
-				offset = vertexOffset;
+				offset = firstVertex * layout.GetStride();
 			}
-
-			offset *= layout.GetStride();
 
 			// offset by the amount specified in the vertex buffer view
 			offset += vertexBufferView.Offset;

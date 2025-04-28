@@ -5,6 +5,7 @@
 #include "Demos/CameraDemo.hpp"
 #include "Demos/ClearScreenDemo.hpp"
 #include "Demos/ClippingAndTriangulationDemo.hpp"
+#include "Demos/ComputeDemo.hpp"
 #include "Demos/CubemapDemo.hpp"
 #include "Demos/Demo3D.hpp"
 #include "Demos/FramebufferDemo.hpp"
@@ -85,6 +86,7 @@ class DemoApplication : public Nexus::Application
 		RegisterGraphicsDemo<Demos::InstancingDemo>("Instancing");
 		RegisterGraphicsDemo<Demos::MipmapDemo>("Mipmaps");
 		RegisterGraphicsDemo<Demos::CubemapDemo>("Cubemaps");
+		RegisterGraphicsDemo<Demos::ComputeDemo>("Compute");
 		RegisterAudioDemo<Demos::AudioDemo>("Audio");
 		RegisterUtilsDemo<Demos::ClippingAndTriangulationDemo>("Polygon clipping and triangulation");
 		RegisterUtilsDemo<Demos::Splines>("Splines");

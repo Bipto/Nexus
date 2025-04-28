@@ -166,7 +166,7 @@ namespace Demos
 			pipelineDescription.ColourTargetCount		= 1;
 			pipelineDescription.ColourFormats[0]		= Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
 
-			m_Pipeline	  = m_GraphicsDevice->CreatePipeline(pipelineDescription);
+			m_Pipeline	  = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
 			m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
 		}
 

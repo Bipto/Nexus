@@ -63,6 +63,8 @@ namespace Nexus::GL
 	GLenum GetBufferTarget(Graphics::DeviceBufferType type);
 	GLenum GetBufferUsage(Graphics::DeviceBufferType type);
 
+	GLenum GetAccessMask(Graphics::StorageImageAccess access);
+
 	void GetBaseType(const Graphics::VertexBufferElement &element,
 					 GLenum								 &baseType,
 					 uint32_t							 &componentCount,

@@ -48,7 +48,6 @@ namespace Nexus::Graphics
 									uint32_t													 vertexOffset,
 									uint32_t													 instanceOffset,
 									std::function<void(Ref<GraphicsPipelineOpenGL> pipeline)>	 drawCall);
-		void ExecuteComputeCommand(Ref<ComputePipelineOpenGL> pipeline);
 
 	  private:
 		std::optional<Ref<Pipeline>>											m_CurrentlyBoundPipeline	  = {};

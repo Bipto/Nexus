@@ -45,25 +45,25 @@ namespace Nexus::Graphics
 		std::vector<VertexBufferLayout> Layouts;
 
 		/// @brief The fragment shader that will be used with the pipeline
-		Ref<ShaderModule> FragmentModule			  = nullptr;
+		Ref<ShaderModule> FragmentModule = nullptr;
 
 		/// @brief The geometry shader to use with the pipeline (optional)
-		Ref<ShaderModule> GeometryModule			  = nullptr;
+		Ref<ShaderModule> GeometryModule = nullptr;
 
 		/// @brief The tesselation control shader to use with the pipeline (optional)
-		Ref<ShaderModule> TesselationControlModule	  = nullptr;
+		Ref<ShaderModule> TesselationControlModule = nullptr;
 
 		/// @brief The tesselation evaluation shader to use with the pipeline (optional)
 		Ref<ShaderModule> TesselationEvaluationModule = nullptr;
 
 		/// @brief The vertex shader to use with the pipeline (optional)
-		Ref<ShaderModule> VertexModule				  = nullptr;
+		Ref<ShaderModule> VertexModule = nullptr;
 	};
 
 	struct ComputePipelineDescription
 	{
 		ResourceSetSpecification ResourceSetSpec = {};
-		Ref<ShaderModule>		 ComputeShader = nullptr;
+		Ref<ShaderModule>		 ComputeShader	 = nullptr;
 	};
 
 	enum class PipelineType
@@ -79,7 +79,8 @@ namespace Nexus::Graphics
 		{
 		}
 
-		virtual PipelineType GetType() const = 0;
+		virtual PipelineType			 GetType() const					 = 0;
+		virtual ResourceSetSpecification GetResourceSetSpecification() const = 0;
 	};
 
 	/// @brief A pure virtual class representing an API specific pipeline
@@ -115,6 +116,11 @@ namespace Nexus::Graphics
 			return PipelineType::Graphics;
 		}
 
+		virtual ResourceSetSpecification GetResourceSetSpecification() const final
+		{
+			return m_Description.ResourceSetSpec;
+		}
+
 	  protected:
 		/// @brief The pipeline description used to create the pipeline
 		GraphicsPipelineDescription m_Description = {};
@@ -133,16 +139,19 @@ namespace Nexus::Graphics
 		{
 		}
 
-		virtual const ComputePipelineDescription &GetPipelineDescription() const = 0;
-
-		bool HasResources() const
+		const ComputePipelineDescription &GetPipelineDescription() const
 		{
-			return m_Description.ResourceSetSpec.SampledImages.size() > 0 || m_Description.ResourceSetSpec.UniformBuffers.size() > 0;
+			return m_Description;
 		}
 
 		virtual PipelineType GetType() const final
 		{
 			return PipelineType::Compute;
+		}
+
+		virtual ResourceSetSpecification GetResourceSetSpecification() const final
+		{
+			return m_Description.ResourceSetSpec;
 		}
 
 	  protected:

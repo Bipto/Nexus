@@ -118,7 +118,7 @@ namespace Nexus::Graphics
 		pipelineDescription.DepthFormat		  = framebufferSpec.DepthAttachmentSpecification.DepthFormat;
 
 		pipelineDescription.Layouts	 = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
-		Ref<GraphicsPipeline> pipeline	  = m_Device->CreatePipeline(pipelineDescription);
+		Ref<GraphicsPipeline> pipeline	  = m_Device->CreateGraphicsPipeline(pipelineDescription);
 		Ref<ResourceSet> resourceSet = m_Device->CreateResourceSet(pipeline);
 
 		Nexus::Graphics::SamplerSpecification samplerSpec {};

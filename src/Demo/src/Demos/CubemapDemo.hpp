@@ -145,7 +145,7 @@ namespace Demos
 
 			pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
-			m_Pipeline	  = m_GraphicsDevice->CreatePipeline(pipelineDescription);
+			m_Pipeline	  = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
 			m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
 		}
 

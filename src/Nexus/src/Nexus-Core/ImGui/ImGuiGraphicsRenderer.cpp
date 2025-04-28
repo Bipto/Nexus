@@ -163,7 +163,7 @@ namespace Nexus::ImGuiUtils
 		resources += m_FragmentShader->GetResourceSetSpecification();
 
 		pipelineDesc.ResourceSetSpec = resources;
-		m_TextPipeline				 = m_GraphicsDevice->CreatePipeline(pipelineDesc);
+		m_TextPipeline				 = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDesc);
 	}
 
 	void ImGuiGraphicsRenderer::CreateImagePipeline()
@@ -199,7 +199,7 @@ namespace Nexus::ImGuiUtils
 		resources += m_FragmentShader->GetResourceSetSpecification();
 
 		pipelineDesc.ResourceSetSpec = resources;
-		m_ImagePipeline				 = m_GraphicsDevice->CreatePipeline(pipelineDesc);
+		m_ImagePipeline				 = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDesc);
 	}
 
 	void ImGuiGraphicsRenderer::RebuildFontAtlas()

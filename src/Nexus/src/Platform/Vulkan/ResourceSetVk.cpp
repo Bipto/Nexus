@@ -261,6 +261,10 @@ namespace Nexus::Graphics
 			});
 	}
 
+	void ResourceSetVk::WriteStorageImage(StorageImageView view, const std::string &name)
+	{
+	}
+
 	const std::map<uint32_t, VkDescriptorSetLayout> &ResourceSetVk::GetDescriptorSetLayouts() const
 	{
 		return m_DescriptorSetLayouts;

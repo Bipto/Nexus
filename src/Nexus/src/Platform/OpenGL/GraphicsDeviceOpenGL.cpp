@@ -122,9 +122,14 @@ namespace Nexus::Graphics
 		return CreateRef<CubemapOpenGL>(spec, this);
 	}
 
-	Ref<GraphicsPipeline> GraphicsDeviceOpenGL::CreatePipeline(const GraphicsPipelineDescription &description)
+	Ref<GraphicsPipeline> GraphicsDeviceOpenGL::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
 	{
 		return CreateRef<GraphicsPipelineOpenGL>(description);
+	}
+
+	Ref<ComputePipeline> GraphicsDeviceOpenGL::CreateComputePipeline(const ComputePipelineDescription &description)
+	{
+		return CreateRef<ComputePipelineOpenGL>(description);
 	}
 
 	Ref<CommandList> GraphicsDeviceOpenGL::CreateCommandList(const CommandListSpecification &spec)

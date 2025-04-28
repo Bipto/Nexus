@@ -79,10 +79,6 @@ namespace Nexus::Graphics
 		pipeline->DestroyVAO();
 	}
 
-	void CommandExecutorOpenGL::ExecuteComputeCommand(Ref<ComputePipelineOpenGL> pipeline)
-	{
-	}
-
 	void CommandExecutorOpenGL::ExecuteCommand(DrawCommand command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
@@ -90,20 +86,24 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (Ref<Pipeline> pipeline = m_CurrentlyBoundPipeline.value())
+		if (m_CurrentlyBoundPipeline.has_value())
 		{
-			ExecuteGraphicsCommand(std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline),
-								   m_CurrentlyBoundVertexBuffers,
-								   m_BoundIndexBuffer,
-								   0,
-								   command.InstanceStart,
-								   [&](Ref<GraphicsPipelineOpenGL> graphicsPipeline)
-								   {
-									   glCall(glDrawArraysInstanced(GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology),
-																	command.VertexStart,
-																	command.VertexCount,
-																	command.InstanceCount));
-								   });
+			Ref<Pipeline> pipeline = m_CurrentlyBoundPipeline.value();
+			if (pipeline->GetType() == PipelineType::Graphics)
+			{
+				ExecuteGraphicsCommand(std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline),
+									   m_CurrentlyBoundVertexBuffers,
+									   m_BoundIndexBuffer,
+									   0,
+									   command.InstanceStart,
+									   [&](Ref<GraphicsPipelineOpenGL> graphicsPipeline)
+									   {
+										   glCall(glDrawArraysInstanced(GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology),
+																		command.VertexStart,
+																		command.VertexCount,
+																		command.InstanceCount));
+									   });
+			}
 		}
 	}
 
@@ -114,26 +114,31 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (Ref<GraphicsPipelineOpenGL> pipeline = std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(m_CurrentlyBoundPipeline.value()))
+		if (m_CurrentlyBoundPipeline.has_value())
 		{
-			if (m_BoundIndexBuffer)
+			Ref<Pipeline> pipeline = m_CurrentlyBoundPipeline.value();
+
+			if (pipeline->GetType() == PipelineType::Graphics && m_BoundIndexBuffer)
 			{
-				IndexBufferView &indexBufferView = m_BoundIndexBuffer.value();
-				pipeline->CreateVAO();
-				pipeline->BindBuffers(m_CurrentlyBoundVertexBuffers, indexBufferView, command.VertexStart, command.InstanceStart);
-				pipeline->Bind();
-				BindResourceSet(m_BoundResourceSet);
+				IndexBufferView &indexBufferView  = m_BoundIndexBuffer.value();
+				uint32_t		 indexSizeInBytes = Graphics::GetIndexFormatSizeInBytes(indexBufferView.BufferFormat);
+				uint32_t		 offset			  = command.IndexStart * indexSizeInBytes + indexBufferView.Offset;
+				GLenum			 indexFormat	  = GL::GetGLIndexBufferFormat(indexBufferView.BufferFormat);
 
-				uint32_t indexSizeInBytes = Graphics::GetIndexFormatSizeInBytes(indexBufferView.BufferFormat);
-				uint32_t offset			  = command.IndexStart * indexSizeInBytes;
-				GLenum	 indexFormat	  = GL::GetGLIndexBufferFormat(indexBufferView.BufferFormat);
-
-				glCall(glDrawElementsInstanced(GL::GetTopology(pipeline->GetPipelineDescription().PrimitiveTopology),
-											   command.IndexCount,
-											   indexFormat,
-											   (void *)(uint64_t)offset,
-											   command.InstanceCount));
-				pipeline->DestroyVAO();
+				ExecuteGraphicsCommand(std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline),
+									   m_CurrentlyBoundVertexBuffers,
+									   m_BoundIndexBuffer,
+									   0,
+									   command.InstanceStart,
+									   [&](Ref<GraphicsPipelineOpenGL> graphicsPipeline)
+									   {
+										   glCall(
+											   glDrawElementsInstanced(GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology),
+																	   command.IndexCount,
+																	   indexFormat,
+																	   (void *)(uint64_t)offset,
+																	   command.InstanceCount));
+									   });
 			}
 		}
 	}
@@ -145,24 +150,31 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (Ref<GraphicsPipelineOpenGL> pipeline = std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(m_CurrentlyBoundPipeline.value()))
+		if (m_CurrentlyBoundPipeline.has_value())
 		{
-			pipeline->CreateVAO();
-			pipeline->BindBuffers(m_CurrentlyBoundVertexBuffers, m_BoundIndexBuffer, 0, 0);
-			pipeline->Bind();
-			BindResourceSet(m_BoundResourceSet);
-
-			DeviceBufferOpenGL *indirectBuffer = (DeviceBufferOpenGL *)command.IndirectBuffer;
-			glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetBufferHandle());
-
-			uint32_t indirectOffset = command.Offset;
-			for (uint32_t i = 0; i < command.DrawCount; i++)
+			Ref<Pipeline> pipeline = m_CurrentlyBoundPipeline.value();
+			if (pipeline->GetType() == PipelineType::Graphics)
 			{
-				glDrawArraysIndirect(GL::GetTopology(pipeline->GetPipelineDescription().PrimitiveTopology), (const void *)indirectOffset);
-			}
+				DeviceBufferOpenGL *indirectBuffer = (DeviceBufferOpenGL *)command.IndirectBuffer;
+				glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetBufferHandle());
 
-			glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
-			pipeline->DestroyVAO();
+				ExecuteGraphicsCommand(std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline),
+									   m_CurrentlyBoundVertexBuffers,
+									   m_BoundIndexBuffer,
+									   0,
+									   0,
+									   [&](Ref<GraphicsPipelineOpenGL> graphicsPipeline)
+									   {
+										   uint32_t indirectOffset = command.Offset;
+										   for (uint32_t i = 0; i < command.DrawCount; i++)
+										   {
+											   glDrawArraysIndirect(GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology),
+																	(const void *)(uint64_t)indirectOffset);
+										   }
+									   });
+
+				glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+			}
 		}
 	}
 
@@ -173,77 +185,69 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		/* if (Ref<GraphicsPipelineOpenGL> pipeline = std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(m_CurrentlyBoundPipeline.value()))
+		if (m_CurrentlyBoundPipeline.has_value())
 		{
-			pipeline->CreateVAO();
-			pipeline->BindBuffers(m_CurrentlyBoundVertexBuffers, m_BoundIndexBuffer, 0, 0);
-			pipeline->Bind();
-			BindResourceSet(m_BoundResourceSet);
+			Ref<Pipeline> pipeline = m_CurrentlyBoundPipeline.value();
 
-			DeviceBufferOpenGL *indirectBuffer = (DeviceBufferOpenGL *)command.IndirectBuffer;
-			glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetBufferHandle());
-
-			GLenum indexFormat = GL::GetGLIndexBufferFormat(m_BoundIndexBuffer.value().BufferFormat);
-
-			uint32_t indirectOffset = command.Offset;
-			for (uint32_t i = 0; i < command.DrawCount; i++)
+			if (pipeline->GetType() == PipelineType::Graphics && m_BoundIndexBuffer)
 			{
-				glDrawElementsIndirect(GL::GetTopology(pipeline->GetPipelineDescription().PrimitiveTopology),
-									   indexFormat,
-									   (const void *)indirectOffset);
-			}
+				IndexBufferView &indexBufferView  = m_BoundIndexBuffer.value();
+				uint32_t		 indexSizeInBytes = Graphics::GetIndexFormatSizeInBytes(indexBufferView.BufferFormat);
+				GLenum			 indexFormat	  = GL::GetGLIndexBufferFormat(indexBufferView.BufferFormat);
 
-			glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
-			pipeline->DestroyVAO();
-		} */
-
-		if (Ref<GraphicsPipelineOpenGL> pipeline = std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(m_CurrentlyBoundPipeline.value()))
-		{
-			if (m_BoundIndexBuffer)
-			{
-				IndexBufferView &indexBufferView = m_BoundIndexBuffer.value();
-				pipeline->CreateVAO();
-				pipeline->BindBuffers(m_CurrentlyBoundVertexBuffers, indexBufferView, 0, 0);
-				pipeline->Bind();
-				BindResourceSet(m_BoundResourceSet);
-
-				uint32_t indexSizeInBytes = Graphics::GetIndexFormatSizeInBytes(indexBufferView.BufferFormat);
-				GLenum	 indexFormat	  = GL::GetGLIndexBufferFormat(indexBufferView.BufferFormat);
-
-				/* glCall(glDrawElementsInstanced(GL::GetTopology(pipeline->GetPipelineDescription().PrimitiveTopology),
-											   command.IndexCount,
-											   indexFormat,
-											   (void *)(uint64_t)offset,
-											   command.InstanceCount)); */
-
-				uint32_t indirectOffset = command.Offset;
-				for (uint32_t i = 0; i < command.DrawCount; i++)
-				{
-					glDrawElementsIndirect(GL::GetTopology(pipeline->GetPipelineDescription().PrimitiveTopology),
-										   indexFormat,
-										   (const void *)indirectOffset);
-				}
-
-				pipeline->DestroyVAO();
+				ExecuteGraphicsCommand(std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline),
+									   m_CurrentlyBoundVertexBuffers,
+									   m_BoundIndexBuffer,
+									   0,
+									   0,
+									   [&](Ref<GraphicsPipelineOpenGL> graphicsPipeline)
+									   {
+										   uint32_t indirectOffset = command.Offset;
+										   for (uint32_t i = 0; i < command.DrawCount; i++)
+										   {
+											   glDrawElementsIndirect(GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology),
+																	  indexFormat,
+																	  (const void *)(uint64_t)indirectOffset);
+										   }
+									   });
 			}
 		}
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(DispatchCommand command, GraphicsDevice *device)
 	{
-	}
-
-	void CommandExecutorOpenGL::ExecuteCommand(DispatchIndirectCommand command, GraphicsDevice *device)
-	{
-	}
-
-	void CommandExecutorOpenGL::ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)
-	{
-		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
+		if (!ValidateForComputeCall(m_CurrentlyBoundPipeline))
 		{
 			return;
 		}
 
+		Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());
+		pipeline->Bind();
+		BindResourceSet(m_BoundResourceSet);
+		glDispatchCompute(command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
+		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+	}
+
+	void CommandExecutorOpenGL::ExecuteCommand(DispatchIndirectCommand command, GraphicsDevice *device)
+	{
+		if (!ValidateForComputeCall(m_CurrentlyBoundPipeline))
+		{
+			return;
+		}
+
+		Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());
+		pipeline->Bind();
+		BindResourceSet(m_BoundResourceSet);
+
+		DeviceBufferOpenGL *indirectBuffer = (DeviceBufferOpenGL *)command.IndirectBuffer;
+		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetBufferHandle());
+		glDispatchComputeIndirect(command.Offset);
+		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+	}
+
+	void CommandExecutorOpenGL::ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)
+	{
 		if (!command)
 		{
 			NX_ERROR("Attempting to update pipeline with invalid resources");
@@ -439,12 +443,15 @@ namespace Nexus::Graphics
 
 	void CommandExecutorOpenGL::BindResourceSet(Ref<ResourceSetOpenGL> resourceSet)
 	{
-		Nexus::Ref<GraphicsPipelineOpenGL> pipeline = std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(m_CurrentlyBoundPipeline.value());
+		Nexus::Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());
+		if (!pipeline)
+			return;
 
 		pipeline->Bind();
 
 		const auto &combinedImageSamplers = resourceSet->GetBoundCombinedImageSamplers();
 		const auto &uniformBufferBindings = resourceSet->GetBoundUniformBuffers();
+		const auto &storageImageBindings  = resourceSet->GetBoundStorageImages();
 
 		for (const auto [name, combinedImageSampler] : combinedImageSamplers)
 		{
@@ -515,6 +522,20 @@ namespace Nexus::Graphics
 										 uniformBufferView.Size));
 
 				uniformBufferSlot++;
+			}
+		}
+
+		for (const auto [name, storageImageView] : storageImageBindings)
+		{
+			GLint location = glGetUniformLocation(pipeline->GetShaderHandle(), name.c_str());
+
+			if (location != -1)
+			{
+				Texture2DOpenGL *texture = (Texture2DOpenGL *)storageImageView.TextureHandle;
+				GLenum			 format	 = GL::GetSizedInternalFormat(storageImageView.TextureHandle->GetSpecification().Format, false);
+				GLenum			 access	 = GL::GetAccessMask(storageImageView.Access);
+
+				glCall(glBindImageTexture(location, texture->GetHandle(), storageImageView.Level, GL_FALSE, 0, access, format));
 			}
 		}
 	}

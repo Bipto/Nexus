@@ -439,7 +439,7 @@ namespace Nexus::Graphics
 		pipelineDescription.DepthFormat								 = Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt;
 		pipelineDescription.DepthStencilDesc.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;
 
-		m_CubemapPipeline	 = m_Device->CreatePipeline(pipelineDescription);
+		m_CubemapPipeline	 = m_Device->CreateGraphicsPipeline(pipelineDescription);
 		m_CubemapResourceSet = m_Device->CreateResourceSet(m_CubemapPipeline);
 
 		DeviceBufferDescription cubemapBufferDesc = {};
@@ -487,7 +487,7 @@ namespace Nexus::Graphics
 		pipelineDescription.ColourBlendStates[0].DestinationAlphaBlend	= Nexus::Graphics::BlendFactor::Zero;
 		pipelineDescription.ColourBlendStates[0].AlphaBlendFunction		= Nexus::Graphics::BlendEquation::Add;
 
-		m_ModelPipeline	   = m_Device->CreatePipeline(pipelineDescription);
+		m_ModelPipeline	   = m_Device->CreateGraphicsPipeline(pipelineDescription);
 		m_ModelResourceSet = m_Device->CreateResourceSet(m_ModelPipeline);
 
 		// model camera
@@ -552,7 +552,7 @@ namespace Nexus::Graphics
 
 		pipelineDescription.ColourBlendStates[1].EnableBlending = false;
 
-		m_ClearScreenPipeline = m_Device->CreatePipeline(pipelineDescription);
+		m_ClearScreenPipeline = m_Device->CreateGraphicsPipeline(pipelineDescription);
 	}
 
 }	 // namespace Nexus::Graphics
