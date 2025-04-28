@@ -57,6 +57,8 @@ namespace Nexus::Graphics
 				throw std::runtime_error("Failed to create allocator");
 			}
 		}
+
+		m_CommandExecutor = std::make_unique<CommandExecutorD3D12>(m_Device);
 	}
 
 	GraphicsDeviceD3D12::~GraphicsDeviceD3D12()
@@ -75,10 +77,10 @@ namespace Nexus::Graphics
 		ID3D12GraphicsCommandList6							  *cmdList	= d3d12CommandList->GetCommandList();
 
 		d3d12CommandList->Reset();
-		m_CommandExecutor.SetCommandList(cmdList);
-		m_CommandExecutor.ExecuteCommands(commands, this);
+		m_CommandExecutor->SetCommandList(cmdList);
+		m_CommandExecutor->ExecuteCommands(commands, this);
 		d3d12CommandList->Close();
-		m_CommandExecutor.Reset();
+		m_CommandExecutor->Reset();
 
 		ID3D12CommandList *lists[] = {cmdList};
 		m_CommandQueue->ExecuteCommandLists(1, lists);
@@ -123,7 +125,7 @@ namespace Nexus::Graphics
 
 	Ref<ComputePipeline> GraphicsDeviceD3D12::CreateComputePipeline(const ComputePipelineDescription &description)
 	{
-		return Ref<ComputePipeline>();
+		return CreateRef<ComputePipelineD3D12>(m_Device.Get(), description);
 	}
 
 	Ref<CommandList> GraphicsDeviceD3D12::CreateCommandList(const CommandListSpecification &spec)

@@ -26,6 +26,7 @@ namespace Demos
 			textureSpec.Format									= Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float;
 			textureSpec.Samples									= 1;
 			textureSpec.MipLevels								= 1;
+			textureSpec.Usage									= {Nexus::Graphics::TextureUsage::Storage};
 			m_Texture											= m_GraphicsDevice->CreateTexture2D(textureSpec);
 
 			Nexus::Graphics::ComputePipelineDescription desc = {};

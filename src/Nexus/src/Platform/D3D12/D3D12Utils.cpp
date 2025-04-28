@@ -222,12 +222,17 @@ namespace Nexus::D3D12
 			if (item == Nexus::Graphics::TextureUsage::DepthStencil)
 			{
 				isDepth = true;
-				flags	= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+				flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 			}
 
 			if (item == Nexus::Graphics::TextureUsage::RenderTarget)
 			{
-				flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+				flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+			}
+
+			if (item == Nexus::Graphics::TextureUsage::Storage)
+			{
+				flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 			}
 		}
 

@@ -12,8 +12,11 @@
 
 namespace Nexus::Graphics
 {
-	CommandExecutorD3D12::CommandExecutorD3D12()
+	CommandExecutorD3D12::CommandExecutorD3D12(Microsoft::WRL::ComPtr<ID3D12Device9> device) : m_Device(device)
 	{
+		CreateDrawIndirectSignatureCommand();
+		CreateDrawIndexedIndirectSignatureCommand();
+		CreateDispatchIndirectSignatureCommand();
 	}
 
 	CommandExecutorD3D12::~CommandExecutorD3D12()
@@ -44,16 +47,19 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		Ref<GraphicsPipelineD3D12> pipeline			 = m_CurrentlyBoundPipeline.value();
-		DeviceBufferD3D12		  *d3d12VertexBuffer = (DeviceBufferD3D12 *)command.View.BufferHandle;
-		const auto				  &bufferLayout		 = pipeline->GetPipelineDescription().Layouts.at(command.Slot);
+		if (m_CurrentlyBoundPipeline.value()->GetType() == PipelineType::Graphics)
+		{
+			Ref<GraphicsPipelineD3D12> pipeline			 = std::dynamic_pointer_cast<GraphicsPipelineD3D12>(m_CurrentlyBoundPipeline.value());
+			DeviceBufferD3D12		  *d3d12VertexBuffer = (DeviceBufferD3D12 *)command.View.BufferHandle;
+			const auto				  &bufferLayout		 = pipeline->GetPipelineDescription().Layouts.at(command.Slot);
 
-		D3D12_VERTEX_BUFFER_VIEW bufferView;
-		bufferView.BufferLocation = d3d12VertexBuffer->GetHandle()->GetGPUVirtualAddress() + command.View.Offset;
-		bufferView.SizeInBytes	  = d3d12VertexBuffer->GetDescription().SizeInBytes - command.View.Offset;
-		bufferView.StrideInBytes  = bufferLayout.GetStride();
+			D3D12_VERTEX_BUFFER_VIEW bufferView;
+			bufferView.BufferLocation = d3d12VertexBuffer->GetHandle()->GetGPUVirtualAddress() + command.View.Offset;
+			bufferView.SizeInBytes	  = d3d12VertexBuffer->GetDescription().SizeInBytes - command.View.Offset;
+			bufferView.StrideInBytes  = bufferLayout.GetStride();
 
-		m_CommandList->IASetVertexBuffers(command.Slot, 1, &bufferView);
+			m_CommandList->IASetVertexBuffers(command.Slot, 1, &bufferView);
+		}
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(SetIndexBufferCommand command, GraphicsDevice *device)
@@ -75,15 +81,11 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device)
 	{
-		Ref<GraphicsPipelineD3D12> d3d12Pipeline = std::dynamic_pointer_cast<GraphicsPipelineD3D12>(command.lock());
-		const auto		  &description	 = d3d12Pipeline->GetPipelineDescription();
+		Ref<Pipeline> pipeline = std::dynamic_pointer_cast<Pipeline>(command.lock());
 
-		m_CommandList->OMSetDepthBounds(description.DepthStencilDesc.MinDepth, description.DepthStencilDesc.MaxDepth);
-		m_CommandList->SetPipelineState(d3d12Pipeline->GetPipelineState());
-		m_CommandList->SetGraphicsRootSignature(d3d12Pipeline->GetRootSignature());
-		m_CommandList->IASetPrimitiveTopology(d3d12Pipeline->GetD3DPrimitiveTopology());
-
-		m_CurrentlyBoundPipeline = d3d12Pipeline;
+		Ref<PipelineD3D12> d3d12Pipeline = std::dynamic_pointer_cast<PipelineD3D12>(pipeline);
+		d3d12Pipeline->Bind(m_CommandList);
+		m_CurrentlyBoundPipeline = pipeline;
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(DrawCommand command, GraphicsDevice *device)
@@ -120,13 +122,14 @@ namespace Nexus::Graphics
 		NX_ASSERT(command.IndirectBuffer->GetDescription().Type == DeviceBufferType::Indirect,
 				  "Buffer passed to DrawIndirect is not an indirect buffer");
 
-		DeviceBufferD3D12					   *indirectBuffer		 = (DeviceBufferD3D12 *)command.IndirectBuffer;
-		Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
+		if (m_CurrentlyBoundPipeline.value()->GetType() == PipelineType::Graphics)
+		{
+			DeviceBufferD3D12					   *indirectBuffer		 = (DeviceBufferD3D12 *)command.IndirectBuffer;
+			Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
 
-		Nexus::Ref<Nexus::Graphics::GraphicsPipelineD3D12> pipeline	 = m_CurrentlyBoundPipeline.value();
-		Microsoft::WRL::ComPtr<ID3D12CommandSignature>	   signature = pipeline->GetDrawIndirectCommandSignature();
-
-		m_CommandList->ExecuteIndirect(signature.Get(), command.DrawCount, indirectBufferHandle.Get(), command.Offset, nullptr, 0);
+			m_CommandList
+				->ExecuteIndirect(m_DrawIndirectCommandSignature.Get(), command.DrawCount, indirectBufferHandle.Get(), command.Offset, nullptr, 0);
+		}
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(DrawIndirectIndexedCommand command, GraphicsDevice *device)
@@ -139,21 +142,44 @@ namespace Nexus::Graphics
 		NX_ASSERT(command.IndirectBuffer->GetDescription().Type == DeviceBufferType::Indirect,
 				  "Buffer passed to DrawIndirect is not an indirect buffer");
 
-		DeviceBufferD3D12					   *indirectBuffer		 = (DeviceBufferD3D12 *)command.IndirectBuffer;
-		Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
+		if (m_CurrentlyBoundPipeline.value()->GetType() == PipelineType::Graphics)
+		{
+			DeviceBufferD3D12					   *indirectBuffer		 = (DeviceBufferD3D12 *)command.IndirectBuffer;
+			Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
 
-		Nexus::Ref<Nexus::Graphics::GraphicsPipelineD3D12> pipeline	 = m_CurrentlyBoundPipeline.value();
-		Microsoft::WRL::ComPtr<ID3D12CommandSignature>	   signature = pipeline->GetDrawIndexedIndirectCommandSignature();
+			Nexus::Ref<Nexus::Graphics::GraphicsPipelineD3D12> pipeline =
+				std::dynamic_pointer_cast<GraphicsPipelineD3D12>(m_CurrentlyBoundPipeline.value());
 
-		m_CommandList->ExecuteIndirect(signature.Get(), command.DrawCount, indirectBufferHandle.Get(), command.Offset, nullptr, 0);
+			m_CommandList->ExecuteIndirect(m_DrawIndexedIndirectCommandSignature.Get(),
+										   command.DrawCount,
+										   indirectBufferHandle.Get(),
+										   command.Offset,
+										   nullptr,
+										   0);
+		}
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(DispatchCommand command, GraphicsDevice *device)
 	{
+		if (!ValidateForComputeCall(m_CurrentlyBoundPipeline))
+		{
+			return;
+		}
+
+		m_CommandList->Dispatch(command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(DispatchIndirectCommand command, GraphicsDevice *device)
 	{
+		if (!ValidateForComputeCall(m_CurrentlyBoundPipeline))
+		{
+			return;
+		}
+
+		DeviceBufferD3D12					   *indirectBuffer		 = (DeviceBufferD3D12 *)command.IndirectBuffer;
+		Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
+
+		m_CommandList->ExecuteIndirect(m_DispatchIndirectCommandSignature.Get(), 1, indirectBufferHandle.Get(), command.Offset, nullptr, 0);
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)
@@ -162,6 +188,8 @@ namespace Nexus::Graphics
 		{
 			return;
 		}
+
+		Nexus::Graphics::PipelineType pipelineType = m_CurrentlyBoundPipeline.value()->GetType();
 
 		Ref<ResourceSetD3D12> d3d12ResourceSet = std::dynamic_pointer_cast<ResourceSetD3D12>(command);
 
@@ -180,14 +208,37 @@ namespace Nexus::Graphics
 
 		uint32_t descriptorIndex = 0;
 
-		// bind samplers
+		if (pipelineType == PipelineType::Graphics)
 		{
-			m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, d3d12ResourceSet->GetSamplerStartHandle());
-		}
+			// bind samplers
+			if (d3d12ResourceSet->HasSamplerHeap())
+			{
+				m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, d3d12ResourceSet->GetSamplerStartHandle());
+			}
 
-		// bind textures/constant buffers
+			// bind textures/constant buffers
+			if (d3d12ResourceSet->HasConstantBufferTextureHeap())
+			{
+				m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, d3d12ResourceSet->GetTextureConstantBufferStartHandle());
+			}
+		}
+		else if (pipelineType == PipelineType::Compute)
 		{
-			m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, d3d12ResourceSet->GetTextureConstantBufferStartHandle());
+			// bind samplers
+			if (d3d12ResourceSet->HasSamplerHeap())
+			{
+				m_CommandList->SetComputeRootDescriptorTable(descriptorIndex++, d3d12ResourceSet->GetSamplerStartHandle());
+			}
+
+			// bind textures/constant buffers
+			if (d3d12ResourceSet->HasConstantBufferTextureHeap())
+			{
+				m_CommandList->SetComputeRootDescriptorTable(descriptorIndex++, d3d12ResourceSet->GetTextureConstantBufferStartHandle());
+			}
+		}
+		else
+		{
+			throw std::runtime_error("Failed to find a valid pipeline type");
 		}
 	}
 
@@ -438,6 +489,45 @@ namespace Nexus::Graphics
 
 		m_CurrentRenderTarget = {};
 		m_DepthHandle		  = {};
+	}
+
+	void CommandExecutorD3D12::CreateDrawIndirectSignatureCommand()
+	{
+		D3D12_INDIRECT_ARGUMENT_DESC argumentDesc = {};
+		argumentDesc.Type						  = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW;
+
+		D3D12_COMMAND_SIGNATURE_DESC commandSignatureDesc = {};
+		commandSignatureDesc.pArgumentDescs				  = &argumentDesc;
+		commandSignatureDesc.NumArgumentDescs			  = 1;
+		commandSignatureDesc.ByteStride					  = sizeof(D3D12_DRAW_ARGUMENTS);
+
+		m_Device->CreateCommandSignature(&commandSignatureDesc, nullptr, IID_PPV_ARGS(m_DrawIndirectCommandSignature.GetAddressOf()));
+	}
+
+	void CommandExecutorD3D12::CreateDrawIndexedIndirectSignatureCommand()
+	{
+		D3D12_INDIRECT_ARGUMENT_DESC argumentDesc = {};
+		argumentDesc.Type						  = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
+
+		D3D12_COMMAND_SIGNATURE_DESC commandSignatureDesc = {};
+		commandSignatureDesc.pArgumentDescs				  = &argumentDesc;
+		commandSignatureDesc.NumArgumentDescs			  = 1;
+		commandSignatureDesc.ByteStride					  = sizeof(D3D12_DRAW_INDEXED_ARGUMENTS);
+
+		m_Device->CreateCommandSignature(&commandSignatureDesc, nullptr, IID_PPV_ARGS(m_DrawIndexedIndirectCommandSignature.GetAddressOf()));
+	}
+
+	void CommandExecutorD3D12::CreateDispatchIndirectSignatureCommand()
+	{
+		D3D12_INDIRECT_ARGUMENT_DESC argumentDesc = {};
+		argumentDesc.Type						  = D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH;
+
+		D3D12_COMMAND_SIGNATURE_DESC commandSignatureDesc = {};
+		commandSignatureDesc.pArgumentDescs				  = &argumentDesc;
+		commandSignatureDesc.NumArgumentDescs			  = 1;
+		commandSignatureDesc.ByteStride					  = sizeof(D3D12_DISPATCH_ARGUMENTS);
+
+		m_Device->CreateCommandSignature(&commandSignatureDesc, nullptr, IID_PPV_ARGS(m_DispatchIndirectCommandSignature.GetAddressOf()));
 	}
 }	 // namespace Nexus::Graphics
 
