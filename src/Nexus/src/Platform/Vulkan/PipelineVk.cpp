@@ -8,11 +8,24 @@
 
 namespace Nexus::Graphics
 {
+	VkPipelineLayoutCreateInfo CreatePipelineLayoutCreateInfo(const std::vector<VkDescriptorSetLayout> &layouts)
+	{
+		VkPipelineLayoutCreateInfo info = {};
+		info.sType						= VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+		info.pNext						= nullptr;
+		info.flags						= 0;
+		info.setLayoutCount				= layouts.size();
+		info.pSetLayouts				= layouts.data();
+		info.pushConstantRangeCount		= 0;
+		info.pPushConstantRanges		= nullptr;
+		return info;
+	}
+
 	GraphicsPipelineVk::GraphicsPipelineVk(const GraphicsPipelineDescription &description, GraphicsDeviceVk *graphicsDevice)
 		: GraphicsPipeline(description),
 		  m_GraphicsDevice(graphicsDevice)
 	{
-		auto resourceSet = new ResourceSetVk(description.ResourceSetSpec, graphicsDevice);
+		std::unique_ptr<ResourceSetVk> resourceSet = std::make_unique<ResourceSetVk>(description.ResourceSetSpec, graphicsDevice);
 
 		const auto						  &pipelineLayouts = resourceSet->GetDescriptorSetLayouts();
 		std::vector<VkDescriptorSetLayout> layouts;
@@ -23,8 +36,6 @@ namespace Nexus::Graphics
 		{
 			throw std::runtime_error("Failed to create pipeline layout");
 		}
-
-		delete resourceSet;
 
 		VkPipelineDepthStencilStateCreateInfo  depthStencilInfo = CreatePipelineDepthStencilStateCreateInfo();
 		VkPipelineRasterizationStateCreateInfo rasterizerInfo	= CreateRasterizationStateCreateInfo(GetPolygonMode(), GetCullMode());
@@ -192,6 +203,20 @@ namespace Nexus::Graphics
 		return m_PipelineLayout;
 	}
 
+	void GraphicsPipelineVk::Bind(VkCommandBuffer cmd)
+	{
+		vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
+	}
+
+	void GraphicsPipelineVk::SetResourceSet(VkCommandBuffer cmd, ResourceSetVk *resourceSet)
+	{
+		const auto &descriptorSets = resourceSet->GetDescriptorSets()[m_GraphicsDevice->GetCurrentFrameIndex()];
+		for (const auto &set : descriptorSets)
+		{
+			vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, set.first, 1, &set.second, 0, nullptr);
+		}
+	}
+
 	VkPipelineShaderStageCreateInfo GraphicsPipelineVk::CreatePipelineShaderStageCreateInfo(VkShaderStageFlagBits stage, VkShaderModule module)
 	{
 		VkPipelineShaderStageCreateInfo createInfo = {};
@@ -278,30 +303,17 @@ namespace Nexus::Graphics
 
 			VkPipelineColorBlendAttachmentState blendState = {};
 			blendState.colorWriteMask					   = writeMask;
-			blendState.blendEnable	  = m_Description.ColourBlendStates[i].EnableBlending;
-			blendState.srcColorBlendFactor = Vk::GetVkBlendFactor(m_Description.ColourBlendStates[i].SourceColourBlend);
-			blendState.dstColorBlendFactor = Vk::GetVkBlendFactor(m_Description.ColourBlendStates[i].DestinationColourBlend);
-			blendState.colorBlendOp		   = Vk::GetVkBlendOp(m_Description.ColourBlendStates[i].ColorBlendFunction);
-			blendState.srcAlphaBlendFactor = Vk::GetVkBlendFactor(m_Description.ColourBlendStates[i].SourceAlphaBlend);
-			blendState.dstAlphaBlendFactor = Vk::GetVkBlendFactor(m_Description.ColourBlendStates[i].DestinationAlphaBlend);
-			blendState.alphaBlendOp		   = Vk::GetVkBlendOp(m_Description.ColourBlendStates[i].AlphaBlendFunction);
+			blendState.blendEnable						   = m_Description.ColourBlendStates[i].EnableBlending;
+			blendState.srcColorBlendFactor				   = Vk::GetVkBlendFactor(m_Description.ColourBlendStates[i].SourceColourBlend);
+			blendState.dstColorBlendFactor				   = Vk::GetVkBlendFactor(m_Description.ColourBlendStates[i].DestinationColourBlend);
+			blendState.colorBlendOp						   = Vk::GetVkBlendOp(m_Description.ColourBlendStates[i].ColorBlendFunction);
+			blendState.srcAlphaBlendFactor				   = Vk::GetVkBlendFactor(m_Description.ColourBlendStates[i].SourceAlphaBlend);
+			blendState.dstAlphaBlendFactor				   = Vk::GetVkBlendFactor(m_Description.ColourBlendStates[i].DestinationAlphaBlend);
+			blendState.alphaBlendOp						   = Vk::GetVkBlendOp(m_Description.ColourBlendStates[i].AlphaBlendFunction);
 			colourBlendStates.push_back(blendState);
 		}
 
 		return colourBlendStates;
-	}
-
-	VkPipelineLayoutCreateInfo GraphicsPipelineVk::CreatePipelineLayoutCreateInfo(const std::vector<VkDescriptorSetLayout> &layouts)
-	{
-		VkPipelineLayoutCreateInfo info = {};
-		info.sType						= VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		info.pNext						= nullptr;
-		info.flags						= 0;
-		info.setLayoutCount				= layouts.size();
-		info.pSetLayouts				= layouts.data();
-		info.pushConstantRangeCount		= 0;
-		info.pPushConstantRanges		= nullptr;
-		return info;
 	}
 
 	VkPipelineDepthStencilStateCreateInfo GraphicsPipelineVk::CreatePipelineDepthStencilStateCreateInfo()
@@ -411,6 +423,62 @@ namespace Nexus::Graphics
 		}
 
 		return shaderStages;
+	}
+
+	ComputePipelineVk::ComputePipelineVk(const ComputePipelineDescription &description, GraphicsDeviceVk *graphicsDevice)
+		: ComputePipeline(description),
+		  m_GraphicsDevice(graphicsDevice)
+	{
+		NX_ASSERT(description.ComputeShader->GetShaderStage() == ShaderStage::Compute,
+				  "Shader passed to ComputePipelineDescription was not a compute shader");
+
+		std::unique_ptr<ResourceSetVk> resourceSet = std::make_unique<ResourceSetVk>(description.ResourceSetSpec, graphicsDevice);
+
+		const auto						  &pipelineLayouts = resourceSet->GetDescriptorSetLayouts();
+		std::vector<VkDescriptorSetLayout> layouts;
+		for (const auto &layout : pipelineLayouts) { layouts.push_back(layout.second); }
+
+		VkPipelineLayoutCreateInfo layoutInfo = CreatePipelineLayoutCreateInfo(layouts);
+		if (vkCreatePipelineLayout(graphicsDevice->GetVkDevice(), &layoutInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to create pipeline layout");
+		}
+
+		Ref<ShaderModuleVk> shaderModule = std::dynamic_pointer_cast<ShaderModuleVk>(description.ComputeShader);
+
+		VkPipelineShaderStageCreateInfo shaderStageInfo = {};
+		shaderStageInfo.sType							= VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		shaderStageInfo.stage							= VK_SHADER_STAGE_COMPUTE_BIT;
+		shaderStageInfo.module							= shaderModule->GetShaderModule();
+		shaderStageInfo.pName							= "main";
+
+		VkComputePipelineCreateInfo pipelineInfo = {};
+		pipelineInfo.sType						 = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+		pipelineInfo.stage						 = shaderStageInfo;
+		pipelineInfo.layout						 = m_PipelineLayout;
+
+		if (vkCreateComputePipelines(m_GraphicsDevice->GetVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_Pipeline) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to create compute pipeline");
+		}
+	}
+
+	ComputePipelineVk::~ComputePipelineVk()
+	{
+	}
+
+	void ComputePipelineVk::Bind(VkCommandBuffer cmd)
+	{
+		vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, m_Pipeline);
+	}
+
+	void ComputePipelineVk::SetResourceSet(VkCommandBuffer cmd, ResourceSetVk *resourceSet)
+	{
+		const auto &descriptorSets = resourceSet->GetDescriptorSets()[m_GraphicsDevice->GetCurrentFrameIndex()];
+		for (const auto &set : descriptorSets)
+		{
+			vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, m_PipelineLayout, set.first, 1, &set.second, 0, nullptr);
+		}
 	}
 }	 // namespace Nexus::Graphics
 

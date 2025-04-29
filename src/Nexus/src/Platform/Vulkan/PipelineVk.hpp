@@ -8,29 +8,58 @@
 
 namespace Nexus::Graphics
 {
-	class GraphicsPipelineVk : public GraphicsPipeline
+	class PipelineVk
+	{
+	  public:
+		virtual ~PipelineVk()
+		{
+		}
+
+		virtual void Bind(VkCommandBuffer cmd)										 = 0;
+		virtual void SetResourceSet(VkCommandBuffer cmd, ResourceSetVk *resourceSet) = 0;
+	};
+
+	VkPipelineLayoutCreateInfo CreatePipelineLayoutCreateInfo(const std::vector<VkDescriptorSetLayout> &layouts);
+
+	class GraphicsPipelineVk : public GraphicsPipeline, public PipelineVk
 	{
 	  public:
 		GraphicsPipelineVk(const GraphicsPipelineDescription &description, GraphicsDeviceVk *graphicsDevice);
 		~GraphicsPipelineVk();
 		virtual const GraphicsPipelineDescription &GetPipelineDescription() const override;
-		VkPipeline						   GetPipeline();
-		VkPipelineLayout				   GetPipelineLayout();
+		VkPipeline								   GetPipeline();
+		VkPipelineLayout						   GetPipelineLayout();
+
+		virtual void Bind(VkCommandBuffer cmd) final;
+		virtual void SetResourceSet(VkCommandBuffer cmd, ResourceSetVk *resourceSet) final;
 
 	  private:
-		VkPipelineShaderStageCreateInfo		   CreatePipelineShaderStageCreateInfo(VkShaderStageFlagBits stage, VkShaderModule module);
-		VkPipelineInputAssemblyStateCreateInfo CreateInputAssemblyCreateInfo(VkPrimitiveTopology topology);
-		VkPipelineRasterizationStateCreateInfo CreateRasterizationStateCreateInfo(VkPolygonMode polygonMode, VkCullModeFlags cullingFlags);
-		VkPipelineMultisampleStateCreateInfo   CreateMultisampleStateCreateInfo();
+		VkPipelineShaderStageCreateInfo					 CreatePipelineShaderStageCreateInfo(VkShaderStageFlagBits stage, VkShaderModule module);
+		VkPipelineInputAssemblyStateCreateInfo			 CreateInputAssemblyCreateInfo(VkPrimitiveTopology topology);
+		VkPipelineRasterizationStateCreateInfo			 CreateRasterizationStateCreateInfo(VkPolygonMode polygonMode, VkCullModeFlags cullingFlags);
+		VkPipelineMultisampleStateCreateInfo			 CreateMultisampleStateCreateInfo();
 		std::vector<VkPipelineColorBlendAttachmentState> CreateColorBlendAttachmentStates();
-		VkPipelineLayoutCreateInfo			   CreatePipelineLayoutCreateInfo(const std::vector<VkDescriptorSetLayout> &layouts);
-		VkPipelineDepthStencilStateCreateInfo  CreatePipelineDepthStencilStateCreateInfo();
+		VkPipelineDepthStencilStateCreateInfo			 CreatePipelineDepthStencilStateCreateInfo();
 
 		VkPrimitiveTopology GetPrimitiveTopology();
 		VkPolygonMode		GetPolygonMode();
 		VkCullModeFlags		GetCullMode();
 
 		std::vector<VkPipelineShaderStageCreateInfo> GetShaderStages();
+
+	  private:
+		VkPipelineLayout  m_PipelineLayout;
+		VkPipeline		  m_Pipeline;
+		GraphicsDeviceVk *m_GraphicsDevice;
+	};
+
+	class ComputePipelineVk : public ComputePipeline, public PipelineVk
+	{
+	  public:
+		ComputePipelineVk(const ComputePipelineDescription &description, GraphicsDeviceVk *graphicsDevice);
+		virtual ~ComputePipelineVk();
+		virtual void Bind(VkCommandBuffer cmd) final;
+		virtual void SetResourceSet(VkCommandBuffer cmd, ResourceSetVk *resourceSet) final;
 
 	  private:
 		VkPipelineLayout  m_PipelineLayout;

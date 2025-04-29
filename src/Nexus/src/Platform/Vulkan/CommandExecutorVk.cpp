@@ -98,9 +98,10 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		auto vulkanPipeline = std::dynamic_pointer_cast<GraphicsPipelineVk>(command.lock());
-		vkCmdBindPipeline(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanPipeline->GetPipeline());
-		m_CurrentlyBoundPipeline = vulkanPipeline;
+		auto vulkanPipeline = std::dynamic_pointer_cast<PipelineVk>(command.lock());
+		vulkanPipeline->Bind(m_CommandBuffer);
+
+		m_CurrentlyBoundPipeline = command.lock();
 	}
 
 	void CommandExecutorVk::ExecuteCommand(DrawCommand command, GraphicsDevice *device)
@@ -155,34 +156,31 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(DispatchCommand command, GraphicsDevice *device)
 	{
-	}
-
-	void CommandExecutorVk::ExecuteCommand(DispatchIndirectCommand command, GraphicsDevice *device)
-	{
-	}
-
-	void CommandExecutorVk::ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)
-	{
-		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
+		if (!ValidateForComputeCall(m_CurrentlyBoundPipeline))
 		{
 			return;
 		}
 
-		auto pipelineVk	   = std::dynamic_pointer_cast<GraphicsPipelineVk>(m_CurrentlyBoundPipeline);
-		auto resourceSetVk = std::dynamic_pointer_cast<ResourceSetVk>(command);
+		vkCmdDispatch(m_CommandBuffer, command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
+	}
 
-		const auto &descriptorSets = resourceSetVk->GetDescriptorSets()[m_Device->GetCurrentFrameIndex()];
-		for (const auto &set : descriptorSets)
+	void CommandExecutorVk::ExecuteCommand(DispatchIndirectCommand command, GraphicsDevice *device)
+	{
+		if (!ValidateForComputeCall(m_CurrentlyBoundPipeline))
 		{
-			vkCmdBindDescriptorSets(m_CommandBuffer,
-									VK_PIPELINE_BIND_POINT_GRAPHICS,
-									pipelineVk->GetPipelineLayout(),
-									set.first,
-									1,
-									&set.second,
-									0,
-									nullptr);
+			return;
 		}
+
+		DeviceBufferVk *indirectBuffer = (DeviceBufferVk *)command.IndirectBuffer;
+
+		vkCmdDispatchIndirect(m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset);
+	}
+
+	void CommandExecutorVk::ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)
+	{
+		auto pipeline	   = std::dynamic_pointer_cast<PipelineVk>(m_CurrentlyBoundPipeline);
+		auto resourceSetVk = std::dynamic_pointer_cast<ResourceSetVk>(command);
+		pipeline->SetResourceSet(m_CommandBuffer, resourceSetVk.get());
 	}
 
 	void CommandExecutorVk::ExecuteCommand(ClearColorTargetCommand command, GraphicsDevice *device)

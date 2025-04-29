@@ -21,7 +21,7 @@ namespace Nexus::Graphics
 			descriptorBinding.binding					   = textureBinding.Binding;
 			descriptorBinding.descriptorCount			   = 1;
 			descriptorBinding.descriptorType			   = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			descriptorBinding.stageFlags				   = VK_SHADER_STAGE_ALL_GRAPHICS;
+			descriptorBinding.stageFlags				   = VK_SHADER_STAGE_ALL_GRAPHICS | VK_SHADER_STAGE_COMPUTE_BIT;
 
 			// if this set has not been created yet, then create it
 			if (sets.find(textureBinding.Set) == sets.end())
@@ -46,7 +46,7 @@ namespace Nexus::Graphics
 			descriptorBinding.binding					   = uniformBufferBinding.Binding;
 			descriptorBinding.descriptorCount			   = 1;
 			descriptorBinding.descriptorType			   = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			descriptorBinding.stageFlags				   = VK_SHADER_STAGE_ALL_GRAPHICS;
+			descriptorBinding.stageFlags				   = VK_SHADER_STAGE_ALL_GRAPHICS | VK_SHADER_STAGE_COMPUTE_BIT;
 
 			// if this set has not been created yet, then create it
 			if (sets.find(uniformBufferBinding.Set) == sets.end())
@@ -61,6 +61,31 @@ namespace Nexus::Graphics
 			}
 
 			auto &set = sets[uniformBufferBinding.Set];
+			set.push_back(descriptorBinding);
+			descriptorCounts[descriptorBinding.descriptorType]++;
+		}
+
+		for (const auto &storageImageBinding : spec.StorageImages)
+		{
+			VkDescriptorSetLayoutBinding descriptorBinding = {};
+			descriptorBinding.binding					   = storageImageBinding.Binding;
+			descriptorBinding.descriptorCount			   = 1;
+			descriptorBinding.descriptorType			   = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			descriptorBinding.stageFlags				   = VK_SHADER_STAGE_ALL_GRAPHICS | VK_SHADER_STAGE_COMPUTE_BIT;
+
+			// if this set has not been created yet, then create it
+			if (sets.find(storageImageBinding.Set) == sets.end())
+			{
+				sets[storageImageBinding.Set] = {};
+			}
+
+			// if we do not have a count for this descriptor type, create one
+			if (descriptorCounts.find(descriptorBinding.descriptorType) == descriptorCounts.end())
+			{
+				descriptorCounts[descriptorBinding.descriptorType] = 0;
+			}
+
+			auto &set = sets[storageImageBinding.Set];
 			set.push_back(descriptorBinding);
 			descriptorCounts[descriptorBinding.descriptorType]++;
 		}
@@ -263,6 +288,42 @@ namespace Nexus::Graphics
 
 	void ResourceSetVk::WriteStorageImage(StorageImageView view, const std::string &name)
 	{
+		Texture2D_Vk *textureVk		 = (Texture2D_Vk *)view.TextureHandle;
+		const auto	 &descriptorSets = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
+
+		const BindingInfo &info = m_StorageImageBindingInfos.at(name);
+
+		m_Device->ImmediateSubmit(
+			[&](VkCommandBuffer cmd)
+			{
+				for (uint32_t i = 0; i < textureVk->GetLevels(); i++)
+				{
+					m_Device->TransitionVulkanImageLayout(cmd,
+														  textureVk->GetImage(),
+														  i,
+														  0,
+														  textureVk->GetImageLayout(i),
+														  VK_IMAGE_LAYOUT_GENERAL,
+														  VK_IMAGE_ASPECT_COLOR_BIT);
+					textureVk->SetImageLayout(i, VK_IMAGE_LAYOUT_GENERAL);
+				}
+			});
+
+		VkDescriptorImageInfo imageInfo = {};
+		imageInfo.imageView				= textureVk->GetImageView();
+		imageInfo.imageLayout			= VK_IMAGE_LAYOUT_GENERAL;
+
+		VkWriteDescriptorSet writeDescriptorSet = {};
+		writeDescriptorSet.sType				= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		writeDescriptorSet.dstBinding			= info.Binding;
+		writeDescriptorSet.dstSet				= descriptorSets.at(info.Set);
+		writeDescriptorSet.descriptorCount		= 1;
+		writeDescriptorSet.descriptorType		= VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+		writeDescriptorSet.pImageInfo			= &imageInfo;
+
+		vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &writeDescriptorSet, 0, nullptr);
+
+		m_BoundStorageImages[name] = view;
 	}
 
 	const std::map<uint32_t, VkDescriptorSetLayout> &ResourceSetVk::GetDescriptorSetLayouts() const

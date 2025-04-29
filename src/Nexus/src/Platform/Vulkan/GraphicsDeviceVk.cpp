@@ -123,7 +123,7 @@ namespace Nexus::Graphics
 
 	Ref<ComputePipeline> GraphicsDeviceVk::CreateComputePipeline(const ComputePipelineDescription &description)
 	{
-		return Ref<ComputePipeline>();
+		return CreateRef<ComputePipelineVk>(description, this);
 	}
 
 	Ref<CommandList> GraphicsDeviceVk::CreateCommandList(const CommandListSpecification &spec)
