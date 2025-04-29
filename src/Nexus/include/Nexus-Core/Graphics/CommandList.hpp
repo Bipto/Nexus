@@ -154,6 +154,98 @@ namespace Nexus::Graphics
 		float A = {};
 	};
 
+	struct ImageSubresourceRange
+	{
+		uint32_t BaseMipLayer	 = 0;
+		uint32_t MipLayerCount	 = 1;
+		uint32_t BaseArrayLayer	 = 0;
+		uint32_t ArrayLayerCount = 1;
+	};
+
+	enum class BarrierStage
+	{
+		None,
+		All,
+		Draw,
+		InputAssembler,
+		VertexShader,
+		FragmentShader,
+		TesselationControlShader,
+		TesselationEvaluationShader,
+		GeometryShader,
+		ComputeShader,
+		RenderTarget,
+		DepthStencil,
+		TransferSource,
+		TransferDestination,
+		Resolve
+	};
+
+	enum class BarrierAccess
+	{
+		None,
+		All,
+		VertexBuffer,
+		IndexBuffer,
+		RenderTarget,
+		StorageImage,
+
+		// maps to VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT
+		DepthStencilRead,
+
+		// maps to VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT
+		DepthStencilWrite,
+
+		ResolveSource,
+		ResolveDestination,
+		CopyDestination,
+		CopySource,
+		DrawIndirect,
+	};
+
+	enum class BarrierLayout
+	{
+		Undefined,
+		General,
+		Present,
+		RenderTarget,
+		DepthStencilRead,
+		DepthStencilWrite,
+		CopySource,
+		CopyDestination,
+		ResolveSource,
+		ResolveDestimation,
+		ShaderReadOnly,
+		ShaderReadWrite
+	};
+
+	struct PipelineMemoryBarrier
+	{
+		BarrierStage  BeforeStage  = BarrierStage::All;
+		BarrierStage  AfterStage   = BarrierStage::All;
+		BarrierAccess BeforeAccess = BarrierAccess::All;
+		BarrierAccess AfterAccess  = BarrierAccess::All;
+	};
+
+	struct TextureBarrier
+	{
+		Graphics::Texture2D	 *Texture		   = nullptr;
+		BarrierStage		  BeforeStage	   = BarrierStage::All;
+		BarrierStage		  AfterStage	   = BarrierStage::All;
+		BarrierLayout		  BeforeLayout	   = BarrierLayout::General;
+		BarrierLayout		  AfterLayout	   = BarrierLayout::General;
+		ImageSubresourceRange SubresourceRange = {};
+	};
+
+	struct DeviceBufferBarrier
+	{
+		Graphics::DeviceBuffer *Buffer		 = nullptr;
+		BarrierStage			BeforeStage	 = BarrierStage::All;
+		BarrierStage			AfterStage	 = BarrierStage::All;
+		BarrierAccess			BeforeAccess = BarrierAccess::All;
+		BarrierAccess			AfterAccess	 = BarrierAccess::All;
+	};
+
 	typedef std::variant<SetVertexBufferCommand,
 						 SetIndexBufferCommand,
 						 WeakRef<Pipeline>,
