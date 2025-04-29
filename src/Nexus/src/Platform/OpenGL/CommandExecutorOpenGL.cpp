@@ -240,10 +240,10 @@ namespace Nexus::Graphics
 		BindResourceSet(m_BoundResourceSet);
 
 		DeviceBufferOpenGL *indirectBuffer = (DeviceBufferOpenGL *)command.IndirectBuffer;
-		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetBufferHandle());
+		glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, indirectBuffer->GetBufferHandle());
 		glDispatchComputeIndirect(command.Offset);
 		glMemoryBarrier(GL_ALL_BARRIER_BITS);
-		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+		glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, 0);
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)

@@ -6,6 +6,7 @@
 #include "Demos/ClearScreenDemo.hpp"
 #include "Demos/ClippingAndTriangulationDemo.hpp"
 #include "Demos/ComputeDemo.hpp"
+#include "Demos/ComputeIndirectDemo.hpp"
 #include "Demos/CubemapDemo.hpp"
 #include "Demos/Demo3D.hpp"
 #include "Demos/FramebufferDemo.hpp"
@@ -50,7 +51,7 @@ class DemoApplication : public Nexus::Application
 
 	virtual void Load() override
 	{
-		m_ImGuiRenderer = std::make_unique<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(this);
+		m_ImGuiRenderer		  = std::make_unique<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(this);
 		ImGuiContext *context = m_ImGuiRenderer->GetContext();
 		ImGui::SetCurrentContext(context);
 
@@ -87,6 +88,7 @@ class DemoApplication : public Nexus::Application
 		RegisterGraphicsDemo<Demos::MipmapDemo>("Mipmaps");
 		RegisterGraphicsDemo<Demos::CubemapDemo>("Cubemaps");
 		RegisterGraphicsDemo<Demos::ComputeDemo>("Compute");
+		RegisterGraphicsDemo<Demos::ComputeIndirectDemo>("Compute Indirect");
 		RegisterAudioDemo<Demos::AudioDemo>("Audio");
 		RegisterUtilsDemo<Demos::ClippingAndTriangulationDemo>("Polygon clipping and triangulation");
 		RegisterUtilsDemo<Demos::Splines>("Splines");
@@ -295,7 +297,7 @@ class DemoApplication : public Nexus::Application
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
 	Nexus::ApplicationSpecification spec;
-	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
+	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
 	spec.AudioAPI	 = Nexus::Audio::AudioAPI::OpenAL;
 
 	spec.WindowProperties.Width			   = 1280;

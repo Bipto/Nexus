@@ -20,4 +20,11 @@ namespace Nexus::Graphics
 		uint32_t VertexOffset  = 0;
 		uint32_t FirstInstance = 0;
 	};
+
+	struct IndirectDispatchArguments
+	{
+		uint32_t GroupCountX = 0;
+		uint32_t GroupCountY = 0;
+		uint32_t GroupCountZ = 0;
+	};
 }	 // namespace Nexus::Graphics
