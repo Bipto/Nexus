@@ -203,6 +203,11 @@ namespace Nexus::Graphics
 		return swapchain;
 	}
 
+	Texture *GraphicsDeviceVk::CreateTexture(const TextureSpecification &spec)
+	{
+		return nullptr;
+	}
+
 	ShaderLanguage GraphicsDeviceVk::GetSupportedShaderFormat()
 	{
 		return ShaderLanguage::SPIRV;

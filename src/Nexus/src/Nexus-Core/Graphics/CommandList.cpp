@@ -334,6 +334,11 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
+	void CommandList::Barrier(const BarrierDesc &barrier)
+	{
+		m_Commands.push_back(barrier);
+	}
+
 	const std::vector<RenderCommandData> &CommandList::GetCommandData() const
 	{
 		return m_Commands;

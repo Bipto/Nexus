@@ -37,6 +37,26 @@ namespace Nexus::Graphics
 		uint8_t		Usage		= 0;
 	};
 
+	class NX_API Texture
+	{
+	  public:
+		Texture(const TextureSpecification &spec) : m_Specification(spec)
+		{
+		}
+
+		virtual ~Texture()
+		{
+		}
+
+		const TextureSpecification &GetSpecification() const
+		{
+			return m_Specification;
+		}
+
+	  private:
+		TextureSpecification m_Specification = {};
+	};
+
 	enum class TextureUsage : uint8_t
 	{
 		DepthStencil,

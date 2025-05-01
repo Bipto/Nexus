@@ -49,6 +49,7 @@ namespace Nexus::Graphics
 			return -1.0f;
 		}
 		virtual const GraphicsCapabilities GetGraphicsCapabilities() const override;
+		virtual Texture					  *CreateTexture(const TextureSpecification &spec) override;
 		virtual Swapchain				  *CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) override;
 		virtual bool					   IsUVOriginTopLeft() override
 		{
@@ -60,18 +61,18 @@ namespace Nexus::Graphics
 		IDXGIFactory7			   *GetDXGIFactory() const;
 		ID3D12CommandQueue		   *GetCommandQueue() const;
 		ID3D12Device9			   *GetDevice() const;
-		ID3D12GraphicsCommandList6 *GetUploadCommandList();
+		ID3D12GraphicsCommandList7 *GetUploadCommandList();
 
 		void SignalAndWait();
-		void ImmediateSubmit(std::function<void(ID3D12GraphicsCommandList6 *cmd)> &&function);
-		void ResourceBarrier(ID3D12GraphicsCommandList6 *cmd,
+		void ImmediateSubmit(std::function<void(ID3D12GraphicsCommandList7 *cmd)> &&function);
+		void ResourceBarrier(ID3D12GraphicsCommandList7 *cmd,
 							 ID3D12Resource				*resource,
 							 uint32_t					 level,
 							 D3D12_RESOURCE_STATES		 before,
 							 D3D12_RESOURCE_STATES		 after);
-		void ResourceBarrier(ID3D12GraphicsCommandList6 *cmd, Ref<Texture2D_D3D12> resource, uint32_t level, D3D12_RESOURCE_STATES after);
-		void ResourceBarrierSwapchainColour(ID3D12GraphicsCommandList6 *cmd, SwapchainD3D12 *resource, D3D12_RESOURCE_STATES after);
-		void ResourceBarrierSwapchainDepth(ID3D12GraphicsCommandList6 *cmd, SwapchainD3D12 *resource, D3D12_RESOURCE_STATES after);
+		void ResourceBarrier(ID3D12GraphicsCommandList7 *cmd, Ref<Texture2D_D3D12> resource, uint32_t level, D3D12_RESOURCE_STATES after);
+		void ResourceBarrierSwapchainColour(ID3D12GraphicsCommandList7 *cmd, SwapchainD3D12 *resource, D3D12_RESOURCE_STATES after);
+		void ResourceBarrierSwapchainDepth(ID3D12GraphicsCommandList7 *cmd, SwapchainD3D12 *resource, D3D12_RESOURCE_STATES after);
 
 		virtual bool Validate() override;
 		virtual void SetName(const std::string &name) override;
@@ -97,7 +98,7 @@ namespace Nexus::Graphics
 		HANDLE								 m_FenceEvent = nullptr;
 
 		Microsoft::WRL::ComPtr<ID3D12CommandAllocator>	   m_UploadCommandAllocator = nullptr;
-		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6> m_UploadCommandList		= nullptr;
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> m_UploadCommandList		= nullptr;
 
 		Microsoft::WRL::ComPtr<IDXGIFactory7> m_DxgiFactory = nullptr;
 

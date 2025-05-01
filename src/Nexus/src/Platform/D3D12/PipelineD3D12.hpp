@@ -14,7 +14,7 @@ namespace Nexus::Graphics
 		virtual ~PipelineD3D12()
 		{
 		}
-		virtual void Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6> commandList) = 0;
+		virtual void Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList) = 0;
 	};
 
 	class GraphicsPipelineD3D12 : public GraphicsPipeline, public PipelineD3D12
@@ -27,7 +27,7 @@ namespace Nexus::Graphics
 		ID3D12PipelineState						  *GetPipelineState();
 		D3D_PRIMITIVE_TOPOLOGY					   GetD3DPrimitiveTopology();
 
-		void Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6> commandList) final;
+		void Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList) final;
 
 	  private:
 		void CreateInputLayout();
@@ -56,7 +56,7 @@ namespace Nexus::Graphics
 	  public:
 		ComputePipelineD3D12(ID3D12Device9 *device, const ComputePipelineDescription &description);
 		virtual ~ComputePipelineD3D12();
-		void Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6> commandList) final;
+		void Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList) final;
 
 	  private:
 		void CreatePipeline(ID3D12Device9 *device);

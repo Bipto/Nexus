@@ -154,7 +154,7 @@ namespace Nexus::Graphics
 		float A = {};
 	};
 
-	struct ImageSubresourceRange
+	struct TextureSubresourceRange
 	{
 		uint32_t BaseMipLayer	 = 0;
 		uint32_t MipLayerCount	 = 1;
@@ -166,8 +166,8 @@ namespace Nexus::Graphics
 	{
 		None,
 		All,
-		Draw,
-		InputAssembler,
+		Graphics,
+		VertexInput,
 		VertexShader,
 		FragmentShader,
 		TesselationControlShader,
@@ -175,7 +175,6 @@ namespace Nexus::Graphics
 		GeometryShader,
 		ComputeShader,
 		RenderTarget,
-		DepthStencil,
 		TransferSource,
 		TransferDestination,
 		Resolve
@@ -189,17 +188,12 @@ namespace Nexus::Graphics
 		IndexBuffer,
 		RenderTarget,
 		StorageImage,
-
-		// maps to VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT
 		DepthStencilRead,
-
-		// maps to VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT
 		DepthStencilWrite,
-
 		ResolveSource,
 		ResolveDestination,
-		CopyDestination,
 		CopySource,
+		CopyDestination,
 		DrawIndirect,
 	};
 
@@ -219,7 +213,7 @@ namespace Nexus::Graphics
 		ShaderReadWrite
 	};
 
-	struct PipelineMemoryBarrier
+	struct MemoryBarrierDesc
 	{
 		BarrierStage  BeforeStage  = BarrierStage::All;
 		BarrierStage  AfterStage   = BarrierStage::All;
@@ -227,23 +221,32 @@ namespace Nexus::Graphics
 		BarrierAccess AfterAccess  = BarrierAccess::All;
 	};
 
-	struct TextureBarrier
+	struct TextureBarrierDesc
 	{
-		Graphics::Texture2D	 *Texture		   = nullptr;
-		BarrierStage		  BeforeStage	   = BarrierStage::All;
-		BarrierStage		  AfterStage	   = BarrierStage::All;
-		BarrierLayout		  BeforeLayout	   = BarrierLayout::General;
-		BarrierLayout		  AfterLayout	   = BarrierLayout::General;
-		ImageSubresourceRange SubresourceRange = {};
+		Graphics::Texture2D	   *Texture			 = nullptr;
+		BarrierStage			BeforeStage		 = BarrierStage::All;
+		BarrierStage			AfterStage		 = BarrierStage::All;
+		BarrierLayout			BeforeLayout	 = BarrierLayout::General;
+		BarrierLayout			AfterLayout		 = BarrierLayout::General;
+		BarrierAccess			BeforeAccess	 = BarrierAccess::All;
+		BarrierAccess			AfterAccess		 = BarrierAccess::All;
+		TextureSubresourceRange SubresourceRange = {};
 	};
 
-	struct DeviceBufferBarrier
+	struct BufferBarrierDesc
 	{
 		Graphics::DeviceBuffer *Buffer		 = nullptr;
 		BarrierStage			BeforeStage	 = BarrierStage::All;
 		BarrierStage			AfterStage	 = BarrierStage::All;
 		BarrierAccess			BeforeAccess = BarrierAccess::All;
 		BarrierAccess			AfterAccess	 = BarrierAccess::All;
+	};
+
+	struct BarrierDesc
+	{
+		std::vector<MemoryBarrierDesc>	MemoryBarriers	= {};
+		std::vector<TextureBarrierDesc> TextureBarriers = {};
+		std::vector<BufferBarrierDesc>	BufferBarriers	= {};
 	};
 
 	typedef std::variant<SetVertexBufferCommand,
@@ -266,7 +269,8 @@ namespace Nexus::Graphics
 						 StopTimingQueryCommand,
 						 SetStencilRefCommand,
 						 SetDepthBoundsCommand,
-						 SetBlendFactorCommand>
+						 SetBlendFactorCommand,
+						 BarrierDesc>
 		RenderCommandData;
 
 	struct CommandListSpecification
@@ -358,6 +362,8 @@ namespace Nexus::Graphics
 		void SetDepthBounds(float min, float max);
 
 		void SetBlendFactor(float r, float g, float b, float a);
+
+		void Barrier(const BarrierDesc &barrier);
 
 		const std::vector<RenderCommandData> &GetCommandData() const;
 		const CommandListSpecification		 &GetSpecification();

@@ -43,6 +43,7 @@ namespace Nexus::Graphics
 		virtual void				  CopyBuffer(const BufferCopyDescription &desc) override;
 
 		virtual const GraphicsCapabilities GetGraphicsCapabilities() const override;
+		virtual Texture					  *CreateTexture(const TextureSpecification &spec) override;
 		virtual Swapchain				  *CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) override;
 
 		virtual ShaderLanguage GetSupportedShaderFormat() override;

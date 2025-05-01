@@ -115,7 +115,7 @@ namespace Nexus::Graphics
 		toDefaultBarrier.Transition.StateAfter	= resourceState;
 
 		m_Device->ImmediateSubmit(
-			[&](ID3D12GraphicsCommandList6 *cmd)
+			[&](ID3D12GraphicsCommandList7 *cmd)
 			{
 				D3D12_BOX textureBounds = {};
 				textureBounds.left		= x;
@@ -231,7 +231,7 @@ namespace Nexus::Graphics
 		toDefaultBarrier.Transition.StateAfter	= resourceState;
 
 		m_Device->ImmediateSubmit(
-			[&](ID3D12GraphicsCommandList6 *cmd)
+			[&](ID3D12GraphicsCommandList7 *cmd)
 			{
 				cmd->ResourceBarrier(1, &toReadBarrier);
 				cmd->CopyTextureRegion(&dstLocation, 0, 0, 0, &srcLocation, &textureBounds);
@@ -427,7 +427,7 @@ namespace Nexus::Graphics
 		textureDestination.SubresourceIndex = subresource;
 
 		m_Device->ImmediateSubmit(
-			[&](ID3D12GraphicsCommandList6 *cmd)
+			[&](ID3D12GraphicsCommandList7 *cmd)
 			{
 				cmd->ResourceBarrier(1, &toDestBarrier);
 				cmd->CopyTextureRegion(&textureDestination, x, y, 0, &textureSource, &textureBounds);
@@ -528,7 +528,7 @@ namespace Nexus::Graphics
 		toDefaultBarrier.Transition.StateAfter	= resourceState;
 
 		m_Device->ImmediateSubmit(
-			[&](ID3D12GraphicsCommandList6 *cmd)
+			[&](ID3D12GraphicsCommandList7 *cmd)
 			{
 				cmd->ResourceBarrier(1, &toReadBarrier);
 				cmd->CopyTextureRegion(&dstLocation, 0, 0, 0, &srcLocation, &textureBounds);

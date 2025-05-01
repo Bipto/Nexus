@@ -21,6 +21,19 @@ namespace Nexus::Graphics
 		void				  SetResourceState(uint32_t level, D3D12_RESOURCE_STATES state);
 		D3D12_RESOURCE_STATES GetResourceState(uint32_t level);
 
+		bool IsDepth() const
+		{
+			for (const auto &usage : m_Specification.Usage)
+			{
+				if (usage == TextureUsage::DepthStencil)
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 	  private:
 		Microsoft::WRL::ComPtr<ID3D12Resource2> m_Texture	   = nullptr;
 		Microsoft::WRL::ComPtr<ID3D12Resource2> m_UploadBuffer = nullptr;

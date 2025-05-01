@@ -178,7 +178,7 @@ namespace Nexus::Graphics
 		return m_PrimitiveTopology;
 	}
 
-	void GraphicsPipelineD3D12::Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6> commandList)
+	void GraphicsPipelineD3D12::Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList)
 	{
 		commandList->OMSetDepthBounds(m_Description.DepthStencilDesc.MinDepth, m_Description.DepthStencilDesc.MaxDepth);
 		commandList->SetPipelineState(m_PipelineStateObject.Get());
@@ -459,7 +459,7 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void ComputePipelineD3D12::Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6> commandList)
+	void ComputePipelineD3D12::Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList)
 	{
 		commandList->SetPipelineState(m_PipelineStateObject.Get());
 		commandList->SetComputeRootSignature(m_RootSignature.Get());

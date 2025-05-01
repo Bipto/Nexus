@@ -18,7 +18,7 @@ namespace Nexus::Graphics
 
 	void TimingQueryD3D12::Resolve()
 	{
-		m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList6 *cmd)
+		m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd)
 								  { cmd->ResolveQueryData(m_QueryHeap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 0, 2, m_ReadbackBuffer.Get(), 0); });
 
 		uint64_t *timestamps;

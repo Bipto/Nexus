@@ -40,6 +40,7 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(SetStencilRefCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(SetDepthBoundsCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(SetBlendFactorCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const BarrierDesc &command, GraphicsDevice *device) override;
 
 		void BindResourceSet(Ref<ResourceSetOpenGL> resourceSet);
 		void ExecuteGraphicsCommand(Ref<GraphicsPipelineOpenGL>									 pipeline,

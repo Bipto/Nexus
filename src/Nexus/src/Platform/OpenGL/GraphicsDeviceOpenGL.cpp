@@ -195,6 +195,11 @@ namespace Nexus::Graphics
 		return new SwapchainOpenGL(window, spec, this);
 	}
 
+	Texture *GraphicsDeviceOpenGL::CreateTexture(const TextureSpecification &spec)
+	{
+		return nullptr;
+	}
+
 	ShaderLanguage GraphicsDeviceOpenGL::GetSupportedShaderFormat()
 	{
 	#if defined(__EMSCRIPTEN__) || defined(__ANDROID__) || defined(ANDROID)

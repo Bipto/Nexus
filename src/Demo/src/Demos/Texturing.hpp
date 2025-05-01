@@ -60,6 +60,9 @@ namespace Demos
 
 			m_ResourceSet->WriteCombinedImageSampler(m_Texture, m_Sampler, "texSampler");
 
+			Nexus::Graphics::TextureBarrierDesc barrierDesc = {};
+			barrierDesc.BeforeStage							= Nexus::Graphics::BarrierStage::All;
+
 			m_CommandList->SetResourceSet(m_ResourceSet);
 
 			Nexus::Graphics::VertexBufferView vertexBufferView = {};

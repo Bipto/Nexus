@@ -50,7 +50,7 @@ namespace Nexus::Graphics
 			barrier.Transition.StateBefore = this->GetCurrentTextureState();
 			barrier.Transition.StateAfter  = D3D12_RESOURCE_STATE_PRESENT;
 
-			m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList6 *cmd) { cmd->ResourceBarrier(1, &barrier); });
+			m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd) { cmd->ResourceBarrier(1, &barrier); });
 
 			SetTextureState(D3D12_RESOURCE_STATE_PRESENT);
 		}
@@ -372,7 +372,7 @@ namespace Nexus::Graphics
 		auto swapchainTexture = RetrieveBufferHandle();
 
 		m_Device->ImmediateSubmit(
-			[&](ID3D12GraphicsCommandList6 *cmd)
+			[&](ID3D12GraphicsCommandList7 *cmd)
 			{
 				m_Device->ResourceBarrier(cmd,
 										  framebufferTexture->GetD3D12ResourceHandle().Get(),

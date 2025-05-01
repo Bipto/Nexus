@@ -35,7 +35,7 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void CommandExecutorD3D12::SetCommandList(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6> commandList)
+	void CommandExecutorD3D12::SetCommandList(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList)
 	{
 		m_CommandList = commandList;
 	}
@@ -410,6 +410,120 @@ namespace Nexus::Graphics
 
 		const float blends[] = {command.R, command.G, command.B, command.A};
 		m_CommandList->OMSetBlendFactor(blends);
+	}
+
+	void CommandExecutorD3D12::ExecuteCommand(const BarrierDesc &command, GraphicsDevice *device)
+	{
+		std::vector<D3D12_GLOBAL_BARRIER>  globalBarriers;
+		std::vector<D3D12_TEXTURE_BARRIER> textureBarriers;
+		std::vector<D3D12_BUFFER_BARRIER>  bufferBarriers;
+		std::vector<D3D12_BARRIER_GROUP>   barrierGroups;
+
+		for (const auto &memoryBarrier : command.MemoryBarriers)
+		{
+			D3D12_BARRIER_SYNC	 syncBefore	  = D3D12::GetBarrierSyncType(memoryBarrier.BeforeStage);
+			D3D12_BARRIER_SYNC	 syncAfter	  = D3D12::GetBarrierSyncType(memoryBarrier.AfterStage);
+			D3D12_BARRIER_ACCESS accessBefore = D3D12::GetBarrierAccessType(memoryBarrier.BeforeAccess);
+			D3D12_BARRIER_ACCESS accessAfter  = D3D12::GetBarrierAccessType(memoryBarrier.AfterAccess);
+
+			D3D12_GLOBAL_BARRIER barrier = {};
+			barrier.SyncBefore			 = syncBefore;
+			barrier.SyncAfter			 = syncAfter;
+			barrier.AccessBefore		 = accessBefore;
+			barrier.AccessAfter			 = accessAfter;
+
+			globalBarriers.push_back(barrier);
+		}
+
+		for (const auto &textureBarrier : command.TextureBarriers)
+		{
+			Texture2D_D3D12								  *texture		  = (Texture2D_D3D12 *)textureBarrier.Texture;
+			const Microsoft::WRL::ComPtr<ID3D12Resource2> &resourceHandle = texture->GetD3D12ResourceHandle();
+
+			D3D12_BARRIER_SYNC	 syncBefore	  = D3D12::GetBarrierSyncType(textureBarrier.BeforeStage);
+			D3D12_BARRIER_SYNC	 syncAfter	  = D3D12::GetBarrierSyncType(textureBarrier.AfterStage);
+			D3D12_BARRIER_ACCESS accessBefore = D3D12::GetBarrierAccessType(textureBarrier.BeforeAccess);
+			D3D12_BARRIER_ACCESS accessAfter  = D3D12::GetBarrierAccessType(textureBarrier.AfterAccess);
+			D3D12_BARRIER_LAYOUT layoutBefore = D3D12::GetBarrierLayout(textureBarrier.BeforeLayout);
+			D3D12_BARRIER_LAYOUT layoutAfter  = D3D12::GetBarrierLayout(textureBarrier.AfterLayout);
+
+			D3D12_FEATURE_DATA_FORMAT_INFO formatInfo = {};
+			formatInfo.Format						  = D3D12::GetD3D12PixelFormat(texture->GetSpecification().Format, texture->IsDepth());
+
+			HRESULT hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_FORMAT_INFO, &formatInfo, sizeof(formatInfo));
+			if (FAILED(hr))
+			{
+				throw std::runtime_error("Failed to find info about format");
+			}
+
+			D3D12_TEXTURE_BARRIER barrier			  = {};
+			barrier.SyncBefore						  = syncBefore;
+			barrier.SyncAfter						  = syncAfter;
+			barrier.LayoutBefore					  = layoutBefore;
+			barrier.LayoutAfter						  = layoutAfter;
+			barrier.AccessBefore					  = accessBefore;
+			barrier.AccessAfter						  = accessAfter;
+			barrier.pResource						  = resourceHandle.Get();
+			barrier.Subresources.IndexOrFirstMipLevel = textureBarrier.SubresourceRange.BaseMipLayer;
+			barrier.Subresources.NumMipLevels		  = textureBarrier.SubresourceRange.MipLayerCount;
+			barrier.Subresources.FirstArraySlice	  = textureBarrier.SubresourceRange.BaseArrayLayer;
+			barrier.Subresources.NumArraySlices		  = textureBarrier.SubresourceRange.ArrayLayerCount;
+			barrier.Subresources.FirstPlane			  = 0;
+			barrier.Subresources.NumPlanes			  = formatInfo.PlaneCount;
+
+			textureBarriers.push_back(barrier);
+		}
+
+		for (const auto &bufferBarrier : command.BufferBarriers)
+		{
+			DeviceBufferD3D12							  *buffer		  = (DeviceBufferD3D12 *)bufferBarrier.Buffer;
+			const Microsoft::WRL::ComPtr<ID3D12Resource2> &resourceHandle = buffer->GetHandle();
+
+			D3D12_BARRIER_SYNC	 syncBefore	  = D3D12::GetBarrierSyncType(bufferBarrier.BeforeStage);
+			D3D12_BARRIER_SYNC	 syncAfter	  = D3D12::GetBarrierSyncType(bufferBarrier.AfterStage);
+			D3D12_BARRIER_ACCESS accessBefore = D3D12::GetBarrierAccessType(bufferBarrier.BeforeAccess);
+			D3D12_BARRIER_ACCESS accessAfter  = D3D12::GetBarrierAccessType(bufferBarrier.AfterAccess);
+
+			D3D12_BUFFER_BARRIER barrier = {};
+			barrier.SyncBefore			 = syncBefore;
+			barrier.SyncAfter			 = syncAfter;
+			barrier.AccessBefore		 = accessBefore;
+			barrier.AccessAfter			 = accessAfter;
+			barrier.pResource			 = resourceHandle.Get();
+			barrier.Offset				 = 0;
+			barrier.Size				 = buffer->GetDescription().SizeInBytes;
+
+			bufferBarriers.push_back(barrier);
+		}
+
+		if (globalBarriers.size() > 0)
+		{
+			D3D12_BARRIER_GROUP globalBarrierGroup = {};
+			globalBarrierGroup.Type				   = D3D12_BARRIER_TYPE_GLOBAL;
+			globalBarrierGroup.NumBarriers		   = (uint32_t)globalBarriers.size();
+			globalBarrierGroup.pGlobalBarriers	   = globalBarriers.data();
+			barrierGroups.push_back(globalBarrierGroup);
+		}
+
+		if (textureBarriers.size() > 0)
+		{
+			D3D12_BARRIER_GROUP textureBarrierGroup = {};
+			textureBarrierGroup.Type				= D3D12_BARRIER_TYPE_TEXTURE;
+			textureBarrierGroup.NumBarriers			= (uint32_t)textureBarriers.size();
+			textureBarrierGroup.pTextureBarriers	= textureBarriers.data();
+			barrierGroups.push_back(textureBarrierGroup);
+		}
+
+		if (bufferBarriers.size() > 0)
+		{
+			D3D12_BARRIER_GROUP bufferBarrierGroup = {};
+			bufferBarrierGroup.Type				   = D3D12_BARRIER_TYPE_BUFFER;
+			bufferBarrierGroup.NumBarriers		   = (uint32_t)bufferBarriers.size();
+			bufferBarrierGroup.pBufferBarriers	   = bufferBarriers.data();
+			barrierGroups.push_back(bufferBarrierGroup);
+		}
+
+		m_CommandList->Barrier((uint32_t)barrierGroups.size(), barrierGroups.data());
 	}
 
 	void CommandExecutorD3D12::SetSwapchain(SwapchainD3D12 *swapchain, GraphicsDevice *device)

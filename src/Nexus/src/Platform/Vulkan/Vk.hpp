@@ -8,6 +8,7 @@
 	#include "Nexus-Core/Graphics/ShaderModule.hpp"
 	#include "Nexus-Core/Graphics/Texture.hpp"
 	#include "Nexus-Core/Graphics/DeviceBuffer.hpp"
+	#include "Nexus-Core/Graphics/CommandList.hpp"
 	#include "vk_mem_alloc.h"
 	#include "vulkan/vulkan.h"
 
@@ -40,6 +41,10 @@ namespace Nexus::Vk
 	bool SetObjectName(VkDevice device, VkObjectType type, uint64_t objectHandle, const char *name);
 	uint32_t			  GetSampleCountFromVkSampleCountFlags(VkSampleCountFlags sampleCount);
 	VkSampleCountFlagBits GetVkSampleCountFlagsFromSampleCount(uint32_t samples);
+
+	VkPipelineStageFlags2 GetBarrierPipelineStage(Nexus::Graphics::BarrierStage stage);
+	VkAccessFlags2		  GetBarrierAccessFlags(Nexus::Graphics::BarrierAccess access);
+	VkImageLayout		  GetBarrierLayout(Nexus::Graphics::BarrierLayout layout);
 
 	struct AllocatedBuffer
 	{

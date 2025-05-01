@@ -22,7 +22,7 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommands(const std::vector<RenderCommandData> &commands, GraphicsDevice *device) override;
 		virtual void Reset() override;
 
-		void SetCommandList(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6> commandList);
+		void SetCommandList(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList);
 
 	  private:
 		virtual void ExecuteCommand(SetVertexBufferCommand command, GraphicsDevice *device) override;
@@ -46,6 +46,7 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(SetStencilRefCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(SetDepthBoundsCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(SetBlendFactorCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const BarrierDesc &command, GraphicsDevice *device) override;
 
 		void SetSwapchain(SwapchainD3D12 *swapchain, GraphicsDevice *device);
 		void SetFramebuffer(Ref<FramebufferD3D12> framebuffer, GraphicsDevice *device);
@@ -57,13 +58,13 @@ namespace Nexus::Graphics
 
 	  private:
 		Microsoft::WRL::ComPtr<ID3D12Device9>			   m_Device		 = nullptr;
-		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6> m_CommandList = nullptr;
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> m_CommandList = nullptr;
 
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_DescriptorHandles;
 		D3D12_CPU_DESCRIPTOR_HANDLE				 m_DepthHandle;
 
-		std::optional<RenderTarget>		  m_CurrentRenderTarget	   = {};
-		std::optional<Ref<Pipeline>>	  m_CurrentlyBoundPipeline = {};
+		std::optional<RenderTarget>	 m_CurrentRenderTarget	  = {};
+		std::optional<Ref<Pipeline>> m_CurrentlyBoundPipeline = {};
 
 		Microsoft::WRL::ComPtr<ID3D12CommandSignature> m_DrawIndirectCommandSignature		 = nullptr;
 		Microsoft::WRL::ComPtr<ID3D12CommandSignature> m_DrawIndexedIndirectCommandSignature = nullptr;

@@ -53,6 +53,21 @@ namespace Demos
 			m_CommandList->SetResourceSet(m_ResourceSet);
 			m_CommandList->Dispatch(m_Texture->GetSpecification().Width, m_Texture->GetSpecification().Height, 1);
 
+			Nexus::Graphics::TextureBarrierDesc textureBarrier = {};
+			textureBarrier.BeforeStage						   = Nexus::Graphics::BarrierStage::All;
+			textureBarrier.AfterStage						   = Nexus::Graphics::BarrierStage::ComputeShader;
+			textureBarrier.BeforeLayout						   = Nexus::Graphics::BarrierLayout::Undefined;
+			textureBarrier.AfterLayout						   = Nexus::Graphics::BarrierLayout::RenderTarget;
+			textureBarrier.SubresourceRange.BaseMipLayer	   = 0;
+			textureBarrier.SubresourceRange.MipLayerCount	   = 1;
+			textureBarrier.SubresourceRange.BaseArrayLayer	   = 0;
+			textureBarrier.SubresourceRange.ArrayLayerCount	   = 1;
+			textureBarrier.Texture							   = m_Texture.get();
+
+			Nexus::Graphics::BarrierDesc barrier = {};
+			barrier.TextureBarriers				 = {textureBarrier};
+			m_CommandList->Barrier(barrier);
+
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(Nexus::GetApplication()->GetPrimarySwapchain()));
 
 			Nexus::Graphics::Viewport vp;

@@ -25,13 +25,13 @@ namespace Nexus::Graphics
 	  private:
 		virtual void ExecuteCommand(SetVertexBufferCommand command, GraphicsDevice *device)			  = 0;
 		virtual void ExecuteCommand(SetIndexBufferCommand command, GraphicsDevice *device)			  = 0;
-		virtual void ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device)						  = 0;
+		virtual void ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device)				  = 0;
 		virtual void ExecuteCommand(DrawCommand command, GraphicsDevice *device)					  = 0;
 		virtual void ExecuteCommand(DrawIndexedCommand command, GraphicsDevice *device)				  = 0;
-		virtual void ExecuteCommand(DrawIndirectCommand command, GraphicsDevice *device)					  = 0;
-		virtual void ExecuteCommand(DrawIndirectIndexedCommand command, GraphicsDevice *device)				  = 0;
-		virtual void ExecuteCommand(DispatchCommand command, GraphicsDevice *device)						  = 0;
-		virtual void ExecuteCommand(DispatchIndirectCommand command, GraphicsDevice *device)				  = 0;
+		virtual void ExecuteCommand(DrawIndirectCommand command, GraphicsDevice *device)			  = 0;
+		virtual void ExecuteCommand(DrawIndirectIndexedCommand command, GraphicsDevice *device)		  = 0;
+		virtual void ExecuteCommand(DispatchCommand command, GraphicsDevice *device)				  = 0;
+		virtual void ExecuteCommand(DispatchIndirectCommand command, GraphicsDevice *device)		  = 0;
 		virtual void ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)				  = 0;
 		virtual void ExecuteCommand(ClearColorTargetCommand command, GraphicsDevice *device)		  = 0;
 		virtual void ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDevice *device)	  = 0;
@@ -44,5 +44,6 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(SetStencilRefCommand command, GraphicsDevice *device)			  = 0;
 		virtual void ExecuteCommand(SetDepthBoundsCommand command, GraphicsDevice *device)			  = 0;
 		virtual void ExecuteCommand(SetBlendFactorCommand command, GraphicsDevice *device)			  = 0;
+		virtual void ExecuteCommand(const BarrierDesc &command, GraphicsDevice *device)				  = 0;
 	};
 };	  // namespace Nexus::Graphics

@@ -483,6 +483,69 @@ namespace Nexus::Vk
 		VkSampleCountFlagBits vkSampleCountFlag = static_cast<VkSampleCountFlagBits>(samples);
 		return vkSampleCountFlag;
 	}
+
+	VkPipelineStageFlags2 GetBarrierPipelineStage(Nexus::Graphics::BarrierStage stage)
+	{
+		switch (stage)
+		{
+			case Nexus::Graphics::BarrierStage::None: return VK_PIPELINE_STAGE_NONE;
+			case Nexus::Graphics::BarrierStage::All: return VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+			case Nexus::Graphics::BarrierStage::Graphics: return VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
+			case Nexus::Graphics::BarrierStage::VertexInput: return VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
+			case Nexus::Graphics::BarrierStage::VertexShader: return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
+			case Nexus::Graphics::BarrierStage::FragmentShader: return VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+			case Nexus::Graphics::BarrierStage::TesselationControlShader: return VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT;
+			case Nexus::Graphics::BarrierStage::TesselationEvaluationShader: return VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT;
+			case Nexus::Graphics::BarrierStage::GeometryShader: return VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT;
+			case Nexus::Graphics::BarrierStage::ComputeShader: return VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+			case Nexus::Graphics::BarrierStage::RenderTarget: return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+			case Nexus::Graphics::BarrierStage::TransferSource: return VK_PIPELINE_STAGE_TRANSFER_BIT;
+			case Nexus::Graphics::BarrierStage::TransferDestination: return VK_PIPELINE_STAGE_TRANSFER_BIT;
+			case Nexus::Graphics::BarrierStage::Resolve: return VK_PIPELINE_STAGE_2_RESOLVE_BIT;
+			default: throw std::runtime_error("Failed to find a valid pipeline stage");
+		}
+	}
+
+	VkAccessFlags2 GetBarrierAccessFlags(Nexus::Graphics::BarrierAccess access)
+	{
+		switch (access)
+		{
+			case Nexus::Graphics::BarrierAccess::None: return VK_ACCESS_NONE;
+			case Nexus::Graphics::BarrierAccess::All: return VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
+			case Nexus::Graphics::BarrierAccess::VertexBuffer: return VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+			case Nexus::Graphics::BarrierAccess::IndexBuffer: return VK_ACCESS_INDEX_READ_BIT;
+			case Nexus::Graphics::BarrierAccess::RenderTarget: return VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+			case Nexus::Graphics::BarrierAccess::DepthStencilRead: return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+			case Nexus::Graphics::BarrierAccess::DepthStencilWrite:
+				return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+			case Nexus::Graphics::BarrierAccess::ResolveSource: return VK_ACCESS_MEMORY_READ_BIT;
+			case Nexus::Graphics::BarrierAccess::ResolveDestination: return VK_ACCESS_MEMORY_WRITE_BIT;
+			case Nexus::Graphics::BarrierAccess::CopySource: return VK_ACCESS_MEMORY_READ_BIT;
+			case Nexus::Graphics::BarrierAccess::CopyDestination: return VK_ACCESS_MEMORY_WRITE_BIT;
+			case Nexus::Graphics::BarrierAccess::DrawIndirect: return VK_ACCESS_INDIRECT_COMMAND_READ_BIT;
+			default: throw std::runtime_error("Failed to find a valid barrier access type");
+		}
+	}
+
+	VkImageLayout GetBarrierLayout(Nexus::Graphics::BarrierLayout layout)
+	{
+		switch (layout)
+		{
+			case Nexus::Graphics::BarrierLayout::Undefined: return VK_IMAGE_LAYOUT_UNDEFINED;
+			case Nexus::Graphics::BarrierLayout::General: return VK_IMAGE_LAYOUT_GENERAL;
+			case Nexus::Graphics::BarrierLayout::Present: return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+			case Nexus::Graphics::BarrierLayout::RenderTarget: return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			case Nexus::Graphics::BarrierLayout::DepthStencilRead: return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+			case Nexus::Graphics::BarrierLayout::DepthStencilWrite: return VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+			case Nexus::Graphics::BarrierLayout::CopySource: return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+			case Nexus::Graphics::BarrierLayout::CopyDestination: return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+			case Nexus::Graphics::BarrierLayout::ResolveSource: return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+			case Nexus::Graphics::BarrierLayout::ResolveDestimation: return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+			case Nexus::Graphics::BarrierLayout::ShaderReadOnly: return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			case Nexus::Graphics::BarrierLayout::ShaderReadWrite: return VK_IMAGE_LAYOUT_GENERAL;
+			default: throw std::runtime_error("Failed to find a valid barrier layout");
+		}
+	}
 }	 // namespace Nexus::Vk
 
 #endif

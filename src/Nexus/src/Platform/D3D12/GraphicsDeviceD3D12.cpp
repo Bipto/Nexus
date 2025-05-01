@@ -74,7 +74,7 @@ namespace Nexus::Graphics
 		Ref<CommandListD3D12> d3d12CommandList = std::dynamic_pointer_cast<CommandListD3D12>(commandList);
 
 		const std::vector<Nexus::Graphics::RenderCommandData> &commands = d3d12CommandList->GetCommandData();
-		ID3D12GraphicsCommandList6							  *cmdList	= d3d12CommandList->GetCommandList();
+		ID3D12GraphicsCommandList7							  *cmdList	= d3d12CommandList->GetCommandList();
 
 		d3d12CommandList->Reset();
 		m_CommandExecutor->SetCommandList(cmdList);
@@ -164,7 +164,7 @@ namespace Nexus::Graphics
 		DeviceBufferD3D12 *target = (DeviceBufferD3D12 *)desc.Target;
 
 		ImmediateSubmit(
-			[&](ID3D12GraphicsCommandList6 *cmd)
+			[&](ID3D12GraphicsCommandList7 *cmd)
 			{ cmd->CopyBufferRegion(target->GetHandle().Get(), desc.WriteOffset, source->GetHandle().Get(), desc.ReadOffset, desc.Size); });
 	}
 
@@ -204,6 +204,11 @@ namespace Nexus::Graphics
 		return capabilities;
 	}
 
+	Texture *GraphicsDeviceD3D12::CreateTexture(const TextureSpecification &spec)
+	{
+		return nullptr;
+	}
+
 	Swapchain *GraphicsDeviceD3D12::CreateSwapchain(IWindow *window, const SwapchainSpecification &spec)
 	{
 		return new SwapchainD3D12(window, this, spec);
@@ -214,7 +219,7 @@ namespace Nexus::Graphics
 		return m_Device.Get();
 	}
 
-	ID3D12GraphicsCommandList6 *GraphicsDeviceD3D12::GetUploadCommandList()
+	ID3D12GraphicsCommandList7 *GraphicsDeviceD3D12::GetUploadCommandList()
 	{
 		return m_UploadCommandList.Get();
 	}
@@ -236,14 +241,14 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void GraphicsDeviceD3D12::ImmediateSubmit(std::function<void(ID3D12GraphicsCommandList6 *cmd)> &&function)
+	void GraphicsDeviceD3D12::ImmediateSubmit(std::function<void(ID3D12GraphicsCommandList7 *cmd)> &&function)
 	{
 		InitUploadCommandList();
 		function(m_UploadCommandList.Get());
 		DispatchUploadCommandList();
 	}
 
-	void GraphicsDeviceD3D12::ResourceBarrier(ID3D12GraphicsCommandList6 *cmd,
+	void GraphicsDeviceD3D12::ResourceBarrier(ID3D12GraphicsCommandList7 *cmd,
 											  ID3D12Resource			 *resource,
 											  uint32_t					  level,
 											  D3D12_RESOURCE_STATES		  before,
@@ -264,7 +269,7 @@ namespace Nexus::Graphics
 		cmd->ResourceBarrier(1, &barrier);
 	}
 
-	void GraphicsDeviceD3D12::ResourceBarrier(ID3D12GraphicsCommandList6 *cmd,
+	void GraphicsDeviceD3D12::ResourceBarrier(ID3D12GraphicsCommandList7 *cmd,
 											  Ref<Texture2D_D3D12>		  resource,
 											  uint32_t					  level,
 											  D3D12_RESOURCE_STATES		  after)
@@ -273,13 +278,13 @@ namespace Nexus::Graphics
 		resource->SetResourceState(level, after);
 	}
 
-	void GraphicsDeviceD3D12::ResourceBarrierSwapchainColour(ID3D12GraphicsCommandList6 *cmd, SwapchainD3D12 *resource, D3D12_RESOURCE_STATES after)
+	void GraphicsDeviceD3D12::ResourceBarrierSwapchainColour(ID3D12GraphicsCommandList7 *cmd, SwapchainD3D12 *resource, D3D12_RESOURCE_STATES after)
 	{
 		ResourceBarrier(cmd, resource->RetrieveBufferHandle().Get(), 0, resource->GetCurrentTextureState(), after);
 		resource->SetTextureState(after);
 	}
 
-	void GraphicsDeviceD3D12::ResourceBarrierSwapchainDepth(ID3D12GraphicsCommandList6 *cmd, SwapchainD3D12 *resource, D3D12_RESOURCE_STATES after)
+	void GraphicsDeviceD3D12::ResourceBarrierSwapchainDepth(ID3D12GraphicsCommandList7 *cmd, SwapchainD3D12 *resource, D3D12_RESOURCE_STATES after)
 	{
 		ResourceBarrier(cmd, resource->RetrieveDepthBufferHandle(), 0, resource->GetCurrentDepthState(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
 		resource->SetDepthState(after);

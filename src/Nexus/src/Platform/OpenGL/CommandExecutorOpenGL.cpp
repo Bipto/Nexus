@@ -441,6 +441,10 @@ namespace Nexus::Graphics
 		glBlendColor(command.R, command.G, command.B, command.A);
 	}
 
+	void CommandExecutorOpenGL::ExecuteCommand(const BarrierDesc &command, GraphicsDevice *device)
+	{
+	}
+
 	void CommandExecutorOpenGL::BindResourceSet(Ref<ResourceSetOpenGL> resourceSet)
 	{
 		Nexus::Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());
