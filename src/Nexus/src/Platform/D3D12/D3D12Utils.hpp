@@ -38,6 +38,8 @@ namespace Nexus::D3D12
 	GetPipelineTopology(Nexus::Graphics::Topology topology);
 
 	D3D12_HEAP_TYPE GetHeapType(const Graphics::DeviceBufferDescription &desc);
+	D3D12_RESOURCE_DIMENSION GetResourceDimensions(Nexus::Graphics::TextureType textureType);
+	D3D12_RESOURCE_FLAGS	 GetResourceFlags(uint8_t textureUsage);
 
 	D3D12_BARRIER_SYNC	 GetBarrierSyncType(Nexus::Graphics::BarrierStage stage);
 	D3D12_BARRIER_ACCESS GetBarrierAccessType(Nexus::Graphics::BarrierAccess access);

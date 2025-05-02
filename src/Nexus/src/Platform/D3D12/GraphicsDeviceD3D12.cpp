@@ -206,7 +206,7 @@ namespace Nexus::Graphics
 
 	Texture *GraphicsDeviceD3D12::CreateTexture(const TextureSpecification &spec)
 	{
-		return nullptr;
+		return new TextureD3D12(spec, this);
 	}
 
 	Swapchain *GraphicsDeviceD3D12::CreateSwapchain(IWindow *window, const SwapchainSpecification &spec)

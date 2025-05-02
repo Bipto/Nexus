@@ -315,6 +315,39 @@ namespace Nexus::D3D12
 		}
 	}
 
+	D3D12_RESOURCE_DIMENSION GetResourceDimensions(Nexus::Graphics::TextureType textureType)
+	{
+		switch (textureType)
+		{
+			case Nexus::Graphics::TextureType::Texture1D: return D3D12_RESOURCE_DIMENSION_TEXTURE1D;
+			case Nexus::Graphics::TextureType::Texture2D: return D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+			case Nexus::Graphics::TextureType::Texture3D: return D3D12_RESOURCE_DIMENSION_TEXTURE3D;
+			default: throw std::runtime_error("Failed to find a valid resource dimension");
+		}
+	}
+
+	D3D12_RESOURCE_FLAGS GetResourceFlags(uint8_t textureUsage)
+	{
+		D3D12_RESOURCE_FLAGS flags = {};
+
+		if (textureUsage & Graphics::TextureUsage_RenderTarget)
+		{
+			flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+		}
+
+		if (textureUsage & Graphics::TextureUsage_DepthStencil)
+		{
+			flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+		}
+
+		if (textureUsage & Graphics::TextureUsage_Storage)
+		{
+			flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+		}
+
+		return flags;
+	}
+
 	D3D12_BARRIER_SYNC GetBarrierSyncType(Nexus::Graphics::BarrierStage stage)
 	{
 		switch (stage)

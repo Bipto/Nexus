@@ -368,6 +368,105 @@ namespace Nexus::Vk
 		return flags;
 	}
 
+	VkImageUsageFlagBits GetVkImageUsageFlags(uint8_t usage)
+	{
+		VkImageUsageFlagBits flags = VkImageUsageFlagBits(VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
+
+		if (usage & Nexus::Graphics::TextureUsage_DepthStencil)
+		{
+			flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
+		}
+
+		if (usage & Nexus::Graphics::TextureUsage_RenderTarget)
+		{
+			flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
+		}
+
+		if (usage & Nexus::Graphics::TextureUsage_Sampled)
+		{
+			flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_SAMPLED_BIT);
+		}
+
+		if (usage & Nexus::Graphics::TextureUsage_Storage)
+		{
+			flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_STORAGE_BIT);
+		}
+
+		return flags;
+	}
+
+	VkImageCreateFlagBits GetVkImageCreateFlagBits(uint8_t usage)
+	{
+		VkImageCreateFlagBits flags = VkImageCreateFlagBits();
+
+		if (usage & Nexus::Graphics::TextureUsage_Cubemap)
+		{
+			flags = VkImageCreateFlagBits(flags | VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT);
+		}
+
+		return flags;
+	}
+
+	VkImageType GetVkImageType(Graphics::TextureType textureType)
+	{
+		switch (textureType)
+		{
+			case Graphics::TextureType::Texture1D: return VK_IMAGE_TYPE_1D;
+			case Graphics::TextureType::Texture2D: return VK_IMAGE_TYPE_2D;
+			case Graphics::TextureType::Texture3D: return VK_IMAGE_TYPE_3D;
+			default: throw std::runtime_error("Failed to find a valid image type");
+		}
+	}
+
+	VkImageViewType GetVkImageViewType(const Graphics::TextureSpecification &spec)
+	{
+		switch (spec.Type)
+		{
+			case Graphics::TextureType::Texture1D:
+			{
+				if (spec.ArrayLayers > 1)
+				{
+					return VK_IMAGE_VIEW_TYPE_1D_ARRAY;
+				}
+				else
+				{
+					return VK_IMAGE_VIEW_TYPE_1D;
+				}
+			}
+			case Graphics::TextureType::Texture2D:
+			{
+				if (spec.ArrayLayers > 1)
+				{
+					return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+				}
+				else
+				{
+					return VK_IMAGE_VIEW_TYPE_2D;
+				}
+			}
+			case Graphics::TextureType::Texture3D:
+			{
+				if (spec.Type == Graphics::TextureType::Texture3D && spec.Usage & Graphics::TextureUsage_Cubemap)
+				{
+					if (spec.ArrayLayers > 1)
+					{
+						return VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
+					}
+					else
+					{
+						return VK_IMAGE_VIEW_TYPE_CUBE;
+					}
+				}
+				else
+				{
+					return VK_IMAGE_VIEW_TYPE_3D;
+				}
+			}
+		}
+
+		throw std::runtime_error("Failed to find a valid image view type");
+	}
+
 	VkShaderStageFlagBits GetVkShaderStageFlags(Nexus::Graphics::ShaderStage stage)
 	{
 		switch (stage)

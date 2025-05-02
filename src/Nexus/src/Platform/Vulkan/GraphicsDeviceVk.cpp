@@ -205,7 +205,7 @@ namespace Nexus::Graphics
 
 	Texture *GraphicsDeviceVk::CreateTexture(const TextureSpecification &spec)
 	{
-		return nullptr;
+		return new TextureVk(spec, this);
 	}
 
 	ShaderLanguage GraphicsDeviceVk::GetSupportedShaderFormat()

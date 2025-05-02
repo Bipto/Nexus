@@ -28,12 +28,14 @@ namespace Nexus::Graphics
 
 	struct TextureSpecification
 	{
+		PixelFormat Format		= PixelFormat::R8_G8_B8_A8_UNorm;
 		uint32_t	Width		= 0;
 		uint32_t	Height		= 0;
 		uint32_t	Depth		= 0;
 		uint32_t	MipLevels	= 0;
 		uint32_t	ArrayLayers = 0;
 		TextureType Type		= TextureType::Texture2D;
+		uint32_t	Samples		= 1;
 		uint8_t		Usage		= 0;
 	};
 
@@ -53,7 +55,7 @@ namespace Nexus::Graphics
 			return m_Specification;
 		}
 
-	  private:
+	  protected:
 		TextureSpecification m_Specification = {};
 	};
 
@@ -112,27 +114,27 @@ namespace Nexus::Graphics
 
 		/// @brief A constructor that takes in a texture specification
 		/// @param spec The specification to create a texture from
-		 Texture2D(const Texture2DSpecification &spec, GraphicsDevice *device);
+		Texture2D(const Texture2DSpecification &spec, GraphicsDevice *device);
 
-		 virtual ~Texture2D();
+		virtual ~Texture2D();
 
-		 // virtual void SetData(const void *data, uint32_t size, uint32_t level) = 0;
-		 virtual void SetData(const void *data, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
+		// virtual void SetData(const void *data, uint32_t size, uint32_t level) = 0;
+		virtual void SetData(const void *data, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
 
-		 virtual void GetData(std::vector<unsigned char> &pixels, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
-		 std::vector<unsigned char> GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height);
-		 Image						GetDataAsImage(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height);
-		 Image						GetDataAsImage(uint32_t level);
+		virtual void GetData(std::vector<unsigned char> &pixels, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
+		std::vector<unsigned char> GetData(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height);
+		Image					   GetDataAsImage(uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height);
+		Image					   GetDataAsImage(uint32_t level);
 
-		 const Texture2DSpecification &GetSpecification();
-		 uint32_t					   GetLevels() const;
+		const Texture2DSpecification &GetSpecification();
+		uint32_t					  GetLevels() const;
 
-	   protected:
-		 /// @brief A specification describing the layout of the texture
-		 Texture2DSpecification m_Specification {};
+	  protected:
+		/// @brief A specification describing the layout of the texture
+		Texture2DSpecification m_Specification {};
 
-	   private:
-		 GraphicsDevice *m_Device = nullptr;
+	  private:
+		GraphicsDevice *m_Device = nullptr;
 	};
 
 	enum class CubemapFace

@@ -8,6 +8,26 @@
 
 namespace Nexus::Graphics
 {
+	class TextureD3D12 : public Texture
+	{
+	  public:
+		TextureD3D12(const TextureSpecification &spec, GraphicsDeviceD3D12 *device);
+		virtual ~TextureD3D12();
+		DXGI_FORMAT			  GetFormat();
+		void				  SetResourceState(uint32_t arrayLayer, uint32_t mipLevel, D3D12_RESOURCE_STATES state);
+		D3D12_RESOURCE_STATES GetResourceState(uint32_t arrayLayer, uint32_t mipLevel);
+
+	  private:
+		Microsoft::WRL::ComPtr<ID3D12Resource2>		m_Texture		= nullptr;
+		Microsoft::WRL::ComPtr<D3D12MA::Allocation> m_Allocation	= nullptr;
+		DXGI_FORMAT									m_TextureFormat = DXGI_FORMAT_UNKNOWN;
+
+		Texture2DSpecification m_Specification;
+		GraphicsDeviceD3D12	  *m_Device = nullptr;
+
+		std::vector<D3D12_RESOURCE_STATES> m_ResourceStates;
+	};
+
 	class Texture2D_D3D12 : public Texture2D
 	{
 	  public:

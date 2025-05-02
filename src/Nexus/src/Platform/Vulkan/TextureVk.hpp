@@ -8,6 +8,27 @@
 
 namespace Nexus::Graphics
 {
+	class TextureVk : public Texture
+	{
+	  public:
+		TextureVk(const TextureSpecification &spec, GraphicsDeviceVk *device);
+		virtual ~TextureVk();
+
+		VkImage		GetImage();
+		VkImageView GetImageView();
+
+		VkImageLayout GetImageLayout(uint32_t arrayLayer, uint32_t mipLevel);
+		void		  SetImageLayout(uint32_t arrayLayer, uint32_t mipLevel, VkImageLayout layout);
+
+	  private:
+		GraphicsDeviceVk		  *m_GraphicsDevice;
+		VkImage					   m_Image = VK_NULL_HANDLE;
+		VmaAllocation			   m_Allocation;
+		VkImageView				   m_ImageView = VK_NULL_HANDLE;
+		VkFormat				   m_Format;
+		std::vector<VkImageLayout> m_Layouts;
+	};
+
 	class Texture2D_Vk : public Texture2D
 	{
 	  public:

@@ -19,20 +19,10 @@ int main()
 	std::unique_ptr<Nexus::Graphics::GraphicsDevice> graphicsDevice =
 		std::unique_ptr<Nexus::Graphics::GraphicsDevice>(api->CreateGraphicsDevice(physicalDevices[0]));
 
-	{
-		glm::vec3 positions[] = {glm::vec3(255.0f, 255.0f, 255.0f), glm::vec3(1, 1, 1), glm::vec3(2, 2, 2)};
+	Nexus::Graphics::TextureSpecification textureSpec = {};
+	textureSpec.Width								  = 512;
+	textureSpec.Height								  = 512;
+	textureSpec.ArrayLayers							  = 1;
 
-		Nexus::Graphics::DeviceBufferDescription vertexBufferDesc = {};
-		vertexBufferDesc.Type									  = Nexus::Graphics::DeviceBufferType::Vertex;
-		vertexBufferDesc.StrideInBytes							  = sizeof(glm::vec3);
-		vertexBufferDesc.SizeInBytes							  = sizeof(positions);
-		vertexBufferDesc.HostVisible							  = true;
-
-		std::unique_ptr<Nexus::Graphics::DeviceBuffer> vertexBuffer =
-			std::unique_ptr<Nexus::Graphics::DeviceBuffer>(graphicsDevice->CreateDeviceBuffer(vertexBufferDesc));
-
-		vertexBuffer->SetData(positions, 0, sizeof(positions));
-
-		std::vector<char> data = vertexBuffer->GetData(0, sizeof(positions));
-	}
+	std::unique_ptr<Nexus::Graphics::Texture> texture = std::unique_ptr<Nexus::Graphics::Texture>(graphicsDevice->CreateTexture(textureSpec));
 }

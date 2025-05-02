@@ -185,6 +185,104 @@ namespace Nexus::Graphics
 		vmaUnmapMemory(m_GraphicsDevice->GetAllocator(), m_StagingBuffer.Allocation);
 	}
 
+	TextureVk::TextureVk(const TextureSpecification &spec, GraphicsDeviceVk *device) : Texture(spec)
+	{
+		uint32_t	 sizeInBytes = GetPixelFormatSizeInBytes(spec.Format);
+		bool		 isDepth	 = spec.Usage & TextureUsage_DepthStencil;
+		VkDeviceSize imageSize	 = spec.Width * spec.Height * sizeInBytes;
+		m_Format				 = Vk::GetVkPixelDataFormat(m_Specification.Format, isDepth);
+		VkImageType imageType	 = Vk::GetVkImageType(m_Specification.Type);
+
+		VkImageCreateFlagBits imageCreateFlags = Vk::GetVkImageCreateFlagBits(spec.Usage);
+		VkExtent3D			  imageExtent	   = {.width = spec.Width, .height = spec.Height, .depth = 1};
+		VkSampleCountFlagBits samples		   = Vk::GetVkSampleCountFlagsFromSampleCount(spec.Samples);
+		VkImageUsageFlagBits  usage			   = Vk::GetVkImageUsageFlags(spec.Usage);
+
+		VkImageCreateInfo imageInfo = {};
+		imageInfo.sType				= VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+		imageInfo.pNext				= nullptr;
+		imageInfo.flags				= imageCreateFlags;
+		imageInfo.imageType			= imageType;
+		imageInfo.format			= m_Format;
+		imageInfo.extent			= imageExtent;
+		imageInfo.mipLevels			= spec.MipLevels;
+		imageInfo.arrayLayers		= spec.ArrayLayers;
+		imageInfo.samples			= samples;
+		imageInfo.tiling			= VK_IMAGE_TILING_OPTIMAL;
+		imageInfo.usage				= usage;
+
+		VmaAllocationCreateInfo allocInfo = {.usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE};
+
+		/* NX_ASSERT(vmaCreateImage(device->GetAllocator(), &imageInfo, &allocInfo, &m_Image, &m_Allocation, nullptr) != VK_SUCCESS,
+				  "Failed to create image"); */
+
+		if (vmaCreateImage(device->GetAllocator(), &imageInfo, &allocInfo, &m_Image, &m_Allocation, nullptr) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to create image");
+		}
+
+		VkImageViewType viewType = Vk::GetVkImageViewType(spec);
+
+		VkImageViewCreateInfo createInfo		   = {};
+		createInfo.sType						   = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		createInfo.pNext						   = nullptr;
+		createInfo.viewType						   = viewType;
+		createInfo.image						   = m_Image;
+		createInfo.format						   = m_Format;
+		createInfo.subresourceRange.baseMipLevel   = 0;
+		createInfo.subresourceRange.levelCount	   = spec.MipLevels;
+		createInfo.subresourceRange.baseArrayLayer = 0;
+		createInfo.subresourceRange.layerCount	   = spec.ArrayLayers;
+
+		if (isDepth)
+		{
+			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+		}
+		else
+		{
+			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+		}
+
+		NX_ASSERT(vkCreateImageView(device->GetVkDevice(), &createInfo, nullptr, &m_ImageView) != VK_SUCCESS, "Failed to create image view");
+
+		// create resource states
+		{
+			for (uint32_t arrayLayer = 0; arrayLayer < spec.ArrayLayers; arrayLayer++)
+			{
+				for (uint32_t mipLevel = 0; mipLevel < spec.MipLevels; mipLevel++) { m_Layouts.push_back(VK_IMAGE_LAYOUT_UNDEFINED); }
+			}	 // namespace Nexus::Graphics
+		}
+	}
+
+	TextureVk::~TextureVk()
+	{
+	}
+
+	VkImage TextureVk::GetImage()
+	{
+		return m_Image;
+	}
+
+	VkImageView TextureVk::GetImageView()
+	{
+		return m_ImageView;
+	}
+
+	VkImageLayout TextureVk::GetImageLayout(uint32_t arrayLayer, uint32_t mipLevel)
+	{
+		NX_ASSERT(arrayLayer >= m_Specification.ArrayLayers, "Array layer is greater than the total number of array layers");
+		NX_ASSERT(mipLevel >= m_Specification.MipLevels, "Mip level is greater than the total number of mip levels");
+
+		return m_Layouts[arrayLayer * m_Specification.MipLevels + mipLevel];
+	}
+
+	void TextureVk::SetImageLayout(uint32_t arrayLayer, uint32_t mipLevel, VkImageLayout layout)
+	{
+		NX_ASSERT(arrayLayer >= m_Specification.ArrayLayers, "Array layer is greater than the total number of array layers");
+		NX_ASSERT(mipLevel >= m_Specification.MipLevels, "Mip level is greater than the total number of mip levels");
+		m_Layouts[arrayLayer * m_Specification.MipLevels + mipLevel] = layout;
+	}
+
 	VkImage Texture2D_Vk::GetImage()
 	{
 		return m_Image;
