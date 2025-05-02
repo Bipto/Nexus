@@ -472,6 +472,15 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device)
 	{
+		DeviceBufferVk *src = (DeviceBufferVk *)command.BufferCopy.Source;
+		DeviceBufferVk *dst = (DeviceBufferVk *)command.BufferCopy.Destination;
+
+		VkBufferCopy bufferCopy = {};
+		bufferCopy.srcOffset	= command.BufferCopy.ReadOffset;
+		bufferCopy.dstOffset	= command.BufferCopy.WriteOffset;
+		bufferCopy.size			= command.BufferCopy.Size;
+
+		vkCmdCopyBuffer(m_CommandBuffer, src->GetVkBuffer(), dst->GetVkBuffer(), 1, &bufferCopy);
 	}
 
 	void CommandExecutorVk::ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device)
