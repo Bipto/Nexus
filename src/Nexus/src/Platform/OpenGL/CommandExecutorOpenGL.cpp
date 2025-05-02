@@ -465,6 +465,22 @@ namespace Nexus::Graphics
 
 	void CommandExecutorOpenGL::ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device)
 	{
+		DeviceBufferOpenGL *buffer = (DeviceBufferOpenGL *)command.BufferTextureCopy.BufferHandle;
+		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, buffer->GetBufferHandle());
+		TextureOpenGL *textureOpenGL = (TextureOpenGL *)command.BufferTextureCopy.TextureHandle;
+
+		const BufferTextureCopyDescription &copyDesc = command.BufferTextureCopy;
+		textureOpenGL->CopyDataFromBuffer(copyDesc.MipLevel,
+										  copyDesc.X,
+										  copyDesc.Y,
+										  copyDesc.Z,
+										  copyDesc.Width,
+										  copyDesc.Height,
+										  copyDesc.Depth,
+										  copyDesc.BufferOffset,
+										  copyDesc.Aspect);
+
+		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const CopyTextureToBufferCommand &command, GraphicsDevice *device)

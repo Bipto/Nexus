@@ -27,7 +27,7 @@
 	#include "Nexus-Core/Graphics/IPhysicalDevice.hpp"
 
 	#include "Nexus-Core/IWindow.hpp"
-	#include "Nexus-Core/Graphics/DeviceBuffer.hpp"
+	#include "Nexus-Core/Graphics/CommandList.hpp"
 
 	#include "Context/IOffscreenContext.hpp"
 	#include "Context/IViewContext.hpp"
@@ -85,6 +85,8 @@ namespace Nexus::GL
 					 uint32_t							 &componentCount,
 					 GLboolean							 &normalized,
 					 GLPrimitiveType					 &primitiveType);
+
+	GLenum GetGLImageAspect(Graphics::ImageAspect aspect);
 
 	std::unique_ptr<IOffscreenContext> CreateOffscreenContext(Graphics::IPhysicalDevice *physicalDevice);
 	std::unique_ptr<IViewContext>	   CreateViewContext(IWindow *window, Graphics::GraphicsDevice *device);

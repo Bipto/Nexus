@@ -77,15 +77,6 @@ namespace Nexus::Graphics
 		}
 	};
 
-	struct BufferCopyDescription
-	{
-		DeviceBuffer *Source	  = nullptr;
-		DeviceBuffer *Destination = nullptr;
-		uint64_t	  ReadOffset  = 0;
-		uint64_t	  WriteOffset = 0;
-		uint64_t	  Size		  = 0;
-	};
-
 	struct VertexBufferView
 	{
 		DeviceBuffer *BufferHandle = nullptr;

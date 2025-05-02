@@ -196,33 +196,36 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void TextureOpenGL::CopyDataFromBuffer(uint32_t mipLevel,
-										   uint32_t x,
-										   uint32_t y,
-										   uint32_t z,
-										   uint32_t width,
-										   uint32_t height,
-										   uint32_t depth,
-										   uint32_t bufferOffset)
+	void TextureOpenGL::CopyDataFromBuffer(uint32_t	   mipLevel,
+										   uint32_t	   x,
+										   uint32_t	   y,
+										   uint32_t	   z,
+										   uint32_t	   width,
+										   uint32_t	   height,
+										   uint32_t	   depth,
+										   uint32_t	   bufferOffset,
+										   ImageAspect aspect)
 	{
 		NX_ASSERT(m_Specification.Samples == 1, "Cannot set data in a multisampled texture");
+
+		GLenum glAspect = GL::GetGLImageAspect(aspect);
 
 		switch (m_GLInternalTextureFormat)
 		{
 			case GL::GLInternalTextureFormat::Texture1D:
-				glTexSubImage1D(m_TextureType, mipLevel, x, width, m_DataFormat, m_BaseType, (const void *)bufferOffset);
+				glTexSubImage1D(m_TextureType, mipLevel, x, width, glAspect, m_BaseType, (const void *)bufferOffset);
 				break;
 			case GL::GLInternalTextureFormat::Texture1DArray:
 			case GL::GLInternalTextureFormat::Texture2D:
 			case GL::GLInternalTextureFormat::Texture2DMultisample:
-				glTexSubImage2D(m_TextureType, mipLevel, x, y, width, height, m_DataFormat, m_BaseType, (const void *)bufferOffset);
+				glTexSubImage2D(m_TextureType, mipLevel, x, y, width, height, glAspect, m_BaseType, (const void *)bufferOffset);
 				break;
 			case GL::GLInternalTextureFormat::Texture2DArray:
 			case GL::GLInternalTextureFormat::CubemapArray:
 			case GL::GLInternalTextureFormat::Texture3D:
 			case GL::GLInternalTextureFormat::Cubemap:
 			case GL::GLInternalTextureFormat::Texture2DArrayMultisample:
-				glTexSubImage3D(m_TextureType, mipLevel, x, y, z, width, height, depth, m_DataFormat, m_BaseType, (const void *)bufferOffset);
+				glTexSubImage3D(m_TextureType, mipLevel, x, y, z, width, height, depth, glAspect, m_BaseType, (const void *)bufferOffset);
 				break;
 		}
 	}

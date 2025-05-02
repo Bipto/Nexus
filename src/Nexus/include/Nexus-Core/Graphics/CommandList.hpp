@@ -14,9 +14,26 @@
 
 namespace Nexus::Graphics
 {
+	struct BufferCopyDescription
+	{
+		DeviceBuffer *Source	  = nullptr;
+		DeviceBuffer *Destination = nullptr;
+		uint64_t	  ReadOffset  = 0;
+		uint64_t	  WriteOffset = 0;
+		uint64_t	  Size		  = 0;
+	};
+
+	enum class ImageAspect
+	{
+		Colour,
+		Depth,
+		Stencil,
+		DepthStencil
+	};
+
 	struct BufferTextureCopyDescription
 	{
-		DeviceBuffer *Buffer		= nullptr;
+		DeviceBuffer *BufferHandle	= nullptr;
 		Texture		 *TextureHandle = nullptr;
 		uint64_t	  BufferOffset	= 0;
 		uint32_t	  X				= 0;
@@ -25,6 +42,8 @@ namespace Nexus::Graphics
 		uint32_t	  Width			= 0;
 		uint32_t	  Height		= 0;
 		uint32_t	  Depth			= 0;
+		uint32_t	  MipLevel		= 0;
+		ImageAspect	  Aspect		= ImageAspect::Colour;
 	};
 
 	struct SetVertexBufferCommand

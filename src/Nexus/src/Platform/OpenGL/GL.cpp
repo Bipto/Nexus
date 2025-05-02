@@ -822,6 +822,18 @@ namespace Nexus::GL
 		}
 	}
 
+	GLenum GetGLImageAspect(Graphics::ImageAspect aspect)
+	{
+		switch (aspect)
+		{
+			case Graphics::ImageAspect::Colour: return GL_RGBA;
+			case Graphics::ImageAspect::Depth: return GL_DEPTH_COMPONENT;
+			case Graphics::ImageAspect::Stencil: return GL_STENCIL_INDEX;
+			case Graphics::ImageAspect::DepthStencil: return GL_DEPTH_STENCIL;
+			default: throw std::runtime_error("Failed to find a valid image aspect");
+		}
+	}
+
 	std::unique_ptr<IOffscreenContext> CreateOffscreenContext(Graphics::IPhysicalDevice *physicalDevice)
 	{
 		GL::ContextSpecification spec = {};
