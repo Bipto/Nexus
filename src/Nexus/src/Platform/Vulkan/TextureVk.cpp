@@ -187,6 +187,19 @@ namespace Nexus::Graphics
 
 	TextureVk::TextureVk(const TextureSpecification &spec, GraphicsDeviceVk *device) : Texture(spec)
 	{
+		NX_ASSERT(spec.ArrayLayers >= 1, "Texture must have at least one array layer");
+		NX_ASSERT(spec.MipLevels >= 1, "Texture must have at least one mip level");
+
+		if (spec.Usage & TextureUsage_Cubemap)
+		{
+			NX_ASSERT(spec.ArrayLayers / 6 == 0, "Cubemap texture must have 6 array layers");
+		}
+
+		if (spec.Samples > 1)
+		{
+			NX_ASSERT(spec.MipLevels == 0, "Multisampled textures do not support mipmapping");
+		}
+
 		uint32_t	 sizeInBytes = GetPixelFormatSizeInBytes(spec.Format);
 		bool		 isDepth	 = spec.Usage & TextureUsage_DepthStencil;
 		VkDeviceSize imageSize	 = spec.Width * spec.Height * sizeInBytes;
@@ -213,14 +226,8 @@ namespace Nexus::Graphics
 
 		VmaAllocationCreateInfo allocInfo = {.usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE};
 
-		/* NX_ASSERT(vmaCreateImage(device->GetAllocator(), &imageInfo, &allocInfo, &m_Image, &m_Allocation, nullptr) != VK_SUCCESS,
-				  "Failed to create image"); */
-
-		if (vmaCreateImage(device->GetAllocator(), &imageInfo, &allocInfo, &m_Image, &m_Allocation, nullptr) != VK_SUCCESS)
-		{
-			throw std::runtime_error("Failed to create image");
-		}
-
+		NX_ASSERT(vmaCreateImage(device->GetAllocator(), &imageInfo, &allocInfo, &m_Image, &m_Allocation, nullptr) == VK_SUCCESS,
+				  "Failed to create image");
 		VkImageViewType viewType = Vk::GetVkImageViewType(spec);
 
 		VkImageViewCreateInfo createInfo		   = {};
@@ -236,14 +243,14 @@ namespace Nexus::Graphics
 
 		if (isDepth)
 		{
-			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
 		}
 		else
 		{
-			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 		}
 
-		NX_ASSERT(vkCreateImageView(device->GetVkDevice(), &createInfo, nullptr, &m_ImageView) != VK_SUCCESS, "Failed to create image view");
+		NX_ASSERT(vkCreateImageView(device->GetVkDevice(), &createInfo, nullptr, &m_ImageView) == VK_SUCCESS, "Failed to create image view");
 
 		// create resource states
 		{

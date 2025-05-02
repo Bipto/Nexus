@@ -435,12 +435,15 @@ namespace Nexus::Graphics
 
 		Nexus::Graphics::BufferCopyDescription bufferCopy = {};
 		bufferCopy.Source								  = m_UniformUploadBuffer.get();
-		bufferCopy.Target								  = m_UniformBuffer.get();
+		bufferCopy.Destination							  = m_UniformBuffer.get();
 		bufferCopy.ReadOffset							  = 0;
 		bufferCopy.WriteOffset							  = 0;
 		bufferCopy.Size									  = sizeof(camera);
 
-		m_Device->CopyBuffer(bufferCopy);
+		m_CommandList->Begin();
+		m_CommandList->CopyBufferToBuffer(bufferCopy);
+		m_CommandList->End();
+		m_Device->SubmitCommandList(m_CommandList);
 	}
 
 	void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color)
@@ -1125,28 +1128,6 @@ namespace Nexus::Graphics
 		info.VertexUploadBuffer->SetData(info.Vertices.data(), 0, info.Vertices.size() * sizeof(info.Vertices[0]));
 		info.IndexUploadBuffer->SetData(info.Indices.data(), 0, info.Indices.size() * sizeof(info.Indices[0]));
 
-		// upload vertex data
-		{
-			BufferCopyDescription bufferCopy = {};
-			bufferCopy.Source				 = info.VertexUploadBuffer.get();
-			bufferCopy.Target				 = info.VertexBuffer.get();
-			bufferCopy.ReadOffset			 = 0;
-			bufferCopy.WriteOffset			 = 0;
-			bufferCopy.Size					 = info.Vertices.size() * sizeof(info.Vertices[0]);
-			m_Device->CopyBuffer(bufferCopy);
-		}
-
-		// upload index data
-		{
-			BufferCopyDescription bufferCopy = {};
-			bufferCopy.Source				 = info.IndexUploadBuffer.get();
-			bufferCopy.Target				 = info.IndexBuffer.get();
-			bufferCopy.ReadOffset			 = 0;
-			bufferCopy.WriteOffset			 = 0;
-			bufferCopy.Size					 = info.Indices.size() * sizeof(info.Indices[0]);
-			m_Device->CopyBuffer(bufferCopy);
-		}
-
 		UniformBufferView uniformBufferView = {};
 		uniformBufferView.BufferHandle		= m_UniformBuffer.get();
 		uniformBufferView.Offset			= 0;
@@ -1167,6 +1148,29 @@ namespace Nexus::Graphics
 		}
 
 		m_CommandList->Begin();
+
+		// upload vertex data
+		{
+			BufferCopyDescription bufferCopy = {};
+			bufferCopy.Source				 = info.VertexUploadBuffer.get();
+			bufferCopy.Destination			 = info.VertexBuffer.get();
+			bufferCopy.ReadOffset			 = 0;
+			bufferCopy.WriteOffset			 = 0;
+			bufferCopy.Size					 = info.Vertices.size() * sizeof(info.Vertices[0]);
+			m_CommandList->CopyBufferToBuffer(bufferCopy);
+		}
+
+		// upload index data
+		{
+			BufferCopyDescription bufferCopy = {};
+			bufferCopy.Source				 = info.IndexUploadBuffer.get();
+			bufferCopy.Destination			 = info.IndexBuffer.get();
+			bufferCopy.ReadOffset			 = 0;
+			bufferCopy.WriteOffset			 = 0;
+			bufferCopy.Size					 = info.Indices.size() * sizeof(info.Indices[0]);
+			m_CommandList->CopyBufferToBuffer(bufferCopy);
+		}
+
 		m_CommandList->SetPipeline(info.Pipeline);
 		m_CommandList->SetRenderTarget(m_RenderTarget);
 		m_CommandList->SetViewport(m_Viewport);

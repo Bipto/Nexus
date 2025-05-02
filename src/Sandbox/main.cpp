@@ -4,7 +4,7 @@ int main()
 {
 	Nexus::Graphics::GraphicsAPICreateInfo info = {};
 	info.Debug									= true;
-	info.API									= Nexus::Graphics::GraphicsAPI::Vulkan;
+	info.API									= Nexus::Graphics::GraphicsAPI::OpenGL;
 
 	std::unique_ptr<Nexus::Graphics::IGraphicsAPI> api =
 		std::unique_ptr<Nexus::Graphics::IGraphicsAPI>(Nexus::Graphics::IGraphicsAPI::CreateAPI(info));
@@ -23,6 +23,7 @@ int main()
 	textureSpec.Width								  = 512;
 	textureSpec.Height								  = 512;
 	textureSpec.ArrayLayers							  = 1;
+	textureSpec.MipLevels							  = 1;
 
 	std::unique_ptr<Nexus::Graphics::Texture> texture = std::unique_ptr<Nexus::Graphics::Texture>(graphicsDevice->CreateTexture(textureSpec));
 }

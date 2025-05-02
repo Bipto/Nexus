@@ -38,7 +38,6 @@ namespace Nexus::Graphics
 		virtual Ref<Sampler>		  CreateSampler(const SamplerSpecification &spec) override;
 		virtual Ref<TimingQuery>	  CreateTimingQuery() override;
 		virtual DeviceBuffer		 *CreateDeviceBuffer(const DeviceBufferDescription &desc) override;
-		virtual void				  CopyBuffer(const BufferCopyDescription &desc) override;
 
 		virtual const GraphicsCapabilities GetGraphicsCapabilities() const override;
 		virtual Texture					  *CreateTexture(const TextureSpecification &spec) override;

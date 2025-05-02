@@ -453,6 +453,117 @@ namespace Nexus::GL
 		}
 	}
 
+	GLenum GetTextureType(const Graphics::TextureSpecification &spec)
+	{
+		switch (spec.Type)
+		{
+			case Graphics::TextureType::Texture1D:
+			{
+				if (spec.ArrayLayers > 1)
+				{
+					return GL_TEXTURE_1D_ARRAY;
+				}
+				else
+				{
+					return GL_TEXTURE_1D;
+				}
+			}
+			case Graphics::TextureType::Texture2D:
+			{
+				if (spec.ArrayLayers > 1)
+				{
+					return GL_TEXTURE_2D_ARRAY;
+				}
+				else
+				{
+					return GL_TEXTURE_2D;
+				}
+			}
+			case Graphics::TextureType::Texture3D:
+			{
+				if (spec.Usage & Graphics::TextureUsage_Cubemap)
+				{
+					if (spec.ArrayLayers)
+					{
+						return GL_TEXTURE_CUBE_MAP_ARRAY;
+					}
+					else
+					{
+						return GL_TEXTURE_CUBE_MAP;
+					}
+				}
+				else
+				{
+					return GL_TEXTURE_3D;
+				}
+			}
+			default: throw std::runtime_error("Failed to find a valid texture type");
+		}
+	}
+
+	GLInternalTextureFormat GetGLInternalTextureFormat(const Graphics::TextureSpecification &spec)
+	{
+		switch (spec.Type)
+		{
+			case Graphics::TextureType::Texture1D:
+			{
+				if (spec.ArrayLayers > 1)
+				{
+					return GLInternalTextureFormat::Texture1DArray;
+				}
+				else
+				{
+					return GLInternalTextureFormat::Texture1D;
+				}
+			}
+
+			case Graphics::TextureType::Texture2D:
+			{
+				if (spec.Samples > 1)
+				{
+					if (spec.ArrayLayers > 1)
+					{
+						return GLInternalTextureFormat::Texture2DArrayMultisample;
+					}
+					else
+					{
+						return GLInternalTextureFormat::Texture2DMultisample;
+					}
+				}
+				else
+				{
+					if (spec.ArrayLayers > 1)
+					{
+						return GLInternalTextureFormat::Texture2DArray;
+					}
+					else
+					{
+						return GLInternalTextureFormat::Texture2D;
+					}
+				}
+			}
+			case Graphics::TextureType::Texture3D:
+			{
+				if (spec.Usage & Graphics::TextureUsage_Cubemap)
+				{
+					if (spec.ArrayLayers > 6)
+					{
+						return GLInternalTextureFormat::CubemapArray;
+					}
+					else
+					{
+						return GLInternalTextureFormat::Cubemap;
+					}
+				}
+				else
+				{
+					return GLInternalTextureFormat::Texture3D;
+				}
+			}
+			default: throw std::runtime_error("Failed to find a valid GLInternalTextureFormat");
+		}
+	}
+
 	void GetBaseType(const Graphics::VertexBufferElement &element,
 					 GLenum								 &baseType,
 					 uint32_t							 &componentCount,

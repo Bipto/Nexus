@@ -156,23 +156,6 @@ namespace Nexus::Graphics
 		return new DeviceBufferVk(desc, this);
 	}
 
-	void GraphicsDeviceVk::CopyBuffer(const BufferCopyDescription &desc)
-	{
-		DeviceBufferVk *src = (DeviceBufferVk *)desc.Source;
-		DeviceBufferVk *dst = (DeviceBufferVk *)desc.Target;
-
-		ImmediateSubmit(
-			[&](VkCommandBuffer cmd)
-			{
-				VkBufferCopy bufferCopy = {};
-				bufferCopy.srcOffset	= desc.ReadOffset;
-				bufferCopy.dstOffset	= desc.WriteOffset;
-				bufferCopy.size			= desc.Size;
-
-				vkCmdCopyBuffer(cmd, src->GetVkBuffer(), dst->GetVkBuffer(), 1, &bufferCopy);
-			});
-	}
-
 	const GraphicsCapabilities GraphicsDeviceVk::GetGraphicsCapabilities() const
 	{
 		GraphicsCapabilities capabilities;

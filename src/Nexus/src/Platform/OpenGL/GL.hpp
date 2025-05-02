@@ -41,6 +41,19 @@ namespace Nexus::GL
 		Int
 	};
 
+	enum class GLInternalTextureFormat
+	{
+		Texture1D,
+		Texture1DArray,
+		Texture2D,
+		Texture2DMultisample,
+		Texture2DArray,
+		Texture2DArrayMultisample,
+		Texture3D,
+		Cubemap,
+		CubemapArray
+	};
+
 	std::string GetErrorMessageFromCode(const GLenum error);
 
 	GLenum GetStencilOperation(Nexus::Graphics::StencilOperation operation);
@@ -64,6 +77,8 @@ namespace Nexus::GL
 	GLenum GetBufferUsage(Graphics::DeviceBufferType type);
 
 	GLenum GetAccessMask(Graphics::StorageImageAccess access);
+	GLenum					GetTextureType(const Graphics::TextureSpecification &spec);
+	GLInternalTextureFormat GetGLInternalTextureFormat(const Graphics::TextureSpecification &spec);
 
 	void GetBaseType(const Graphics::VertexBufferElement &element,
 					 GLenum								 &baseType,

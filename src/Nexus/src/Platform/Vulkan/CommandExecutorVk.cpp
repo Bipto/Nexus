@@ -470,6 +470,18 @@ namespace Nexus::Graphics
 		vkCmdPipelineBarrier2(m_CommandBuffer, &dependencyInfo);
 	}
 
+	void CommandExecutorVk::ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorVk::ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorVk::ExecuteCommand(const CopyTextureToBufferCommand &command, GraphicsDevice *device)
+	{
+	}
+
 	void CommandExecutorVk::StartRenderingToSwapchain(SwapchainVk *swapchain)
 	{
 		m_Device->TransitionVulkanImageLayout(m_CommandBuffer,

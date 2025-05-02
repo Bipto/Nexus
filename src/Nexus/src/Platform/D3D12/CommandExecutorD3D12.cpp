@@ -526,6 +526,25 @@ namespace Nexus::Graphics
 		m_CommandList->Barrier((uint32_t)barrierGroups.size(), barrierGroups.data());
 	}
 
+	void CommandExecutorD3D12::ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device)
+	{
+		DeviceBufferD3D12 *source = (DeviceBufferD3D12 *)command.BufferCopy.Source;
+		DeviceBufferD3D12 *dest	  = (DeviceBufferD3D12 *)command.BufferCopy.Destination;
+		m_CommandList->CopyBufferRegion(dest->GetHandle().Get(),
+										command.BufferCopy.WriteOffset,
+										source->GetHandle().Get(),
+										command.BufferCopy.ReadOffset,
+										command.BufferCopy.Size);
+	}
+
+	void CommandExecutorD3D12::ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorD3D12::ExecuteCommand(const CopyTextureToBufferCommand &command, GraphicsDevice *device)
+	{
+	}
+
 	void CommandExecutorD3D12::SetSwapchain(SwapchainD3D12 *swapchain, GraphicsDevice *device)
 	{
 		if (swapchain->GetSpecification().Samples == 1)

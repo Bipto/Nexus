@@ -158,16 +158,6 @@ namespace Nexus::Graphics
 		return new DeviceBufferD3D12(desc, this);
 	}
 
-	void GraphicsDeviceD3D12::CopyBuffer(const BufferCopyDescription &desc)
-	{
-		DeviceBufferD3D12 *source = (DeviceBufferD3D12 *)desc.Source;
-		DeviceBufferD3D12 *target = (DeviceBufferD3D12 *)desc.Target;
-
-		ImmediateSubmit(
-			[&](ID3D12GraphicsCommandList7 *cmd)
-			{ cmd->CopyBufferRegion(target->GetHandle().Get(), desc.WriteOffset, source->GetHandle().Get(), desc.ReadOffset, desc.Size); });
-	}
-
 	D3D12MA::Allocator *GraphicsDeviceD3D12::GetAllocator()
 	{
 		return m_Allocator.Get();

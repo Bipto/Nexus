@@ -382,7 +382,8 @@ namespace Nexus::Vk
 			flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
 		}
 
-		if (usage & Nexus::Graphics::TextureUsage_Sampled)
+		// this is required to be set to use an VkImageView
+		//  if (usage & Nexus::Graphics::TextureUsage_Sampled)
 		{
 			flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_SAMPLED_BIT);
 		}

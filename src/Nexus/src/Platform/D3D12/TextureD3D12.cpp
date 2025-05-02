@@ -252,6 +252,19 @@ namespace Nexus::Graphics
 
 	TextureD3D12::TextureD3D12(const TextureSpecification &spec, GraphicsDeviceD3D12 *device) : Texture(spec)
 	{
+		NX_ASSERT(spec.ArrayLayers >= 1, "Texture must have at least one array layer");
+		NX_ASSERT(spec.MipLevels >= 1, "Texture must have at least one mip level");
+
+		if (spec.Usage & TextureUsage_Cubemap)
+		{
+			NX_ASSERT(spec.ArrayLayers / 6 == 0, "Cubemap texture must have 6 array layers");
+		}
+
+		if (spec.Samples > 1)
+		{
+			NX_ASSERT(spec.MipLevels == 0, "Multisampled textures do not support mipmapping");
+		}
+
 		bool isDepth = spec.Usage & TextureUsage_DepthStencil;
 
 		D3D12_RESOURCE_DIMENSION dimension = D3D12::GetResourceDimensions(spec.Type);

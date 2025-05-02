@@ -5,6 +5,8 @@
 	#include "GL.hpp"
 	#include "Nexus-Core/Utils/Utils.hpp"
 
+	#include "GraphicsDeviceOpenGL.hpp"
+
 namespace Nexus::Graphics
 {
 	Texture2DOpenGL::Texture2DOpenGL(const Texture2DSpecification &spec, GraphicsDevice *graphicsDevice) : Texture2D(spec, graphicsDevice)
@@ -24,7 +26,7 @@ namespace Nexus::Graphics
 	#if defined(NX_PLATFORM_GL_DESKTOP)
 		if (spec.Samples > 1)
 		{
-			m_TextureType	 = GL_TEXTURE_2D_MULTISAMPLE;
+			m_TextureType = GL_TEXTURE_2D_MULTISAMPLE;
 			glCall(glBindTexture(m_TextureType, m_Handle));
 			glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
 			glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
@@ -103,6 +105,126 @@ namespace Nexus::Graphics
 	unsigned int Texture2DOpenGL::GetHandle()
 	{
 		return m_Handle;
+	}
+
+	TextureOpenGL::TextureOpenGL(const TextureSpecification &spec, GraphicsDeviceOpenGL *graphicsDevice) : Texture(spec)
+	{
+		NX_ASSERT(spec.ArrayLayers >= 1, "Texture must have at least one array layer");
+		NX_ASSERT(spec.MipLevels >= 1, "Texture must have at least one mip level");
+
+		if (spec.Usage & TextureUsage_Cubemap)
+		{
+			NX_ASSERT(spec.ArrayLayers / 6 == 0, "Cubemap texture must have 6 array layers");
+		}
+
+		if (spec.Samples > 1)
+		{
+			NX_ASSERT(spec.MipLevels == 0, "Multisampled textures do not support mipmapping");
+		}
+
+		bool isDepth			  = spec.Usage & Graphics::TextureUsage_DepthStencil;
+		m_TextureType			  = GL::GetTextureType(spec);
+		m_InternalFormat		  = GL::GetSizedInternalFormat(spec.Format, isDepth);
+		m_BaseType				  = GL::GetPixelType(spec.Format);
+		m_GLInternalTextureFormat = GL::GetGLInternalTextureFormat(spec);
+
+		glCall(glGenTextures(1, &m_Handle));
+		glCall(glBindTexture(m_TextureType, m_Handle));
+		glCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
+		glCall(glTexParameteri(m_TextureType, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+		glCall(glTexParameteri(m_TextureType, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+		CreateTextureFaces();
+	}
+
+	TextureOpenGL::~TextureOpenGL()
+	{
+	}
+
+	void TextureOpenGL::Bind(uint32_t slot)
+	{
+	}
+
+	uint32_t TextureOpenGL::GetHandle()
+	{
+		return m_Handle;
+	}
+
+	GLenum TextureOpenGL::GetTextureType()
+	{
+		return m_TextureType;
+	}
+
+	void TextureOpenGL::CreateTextureFaces()
+	{
+		switch (m_GLInternalTextureFormat)
+		{
+			case GL::GLInternalTextureFormat::Texture1D:
+				glTexStorage1D(m_TextureType, m_Specification.MipLevels, m_InternalFormat, m_Specification.Width);
+				break;
+			case GL::GLInternalTextureFormat::Texture1DArray:
+			case GL::GLInternalTextureFormat::Texture2D:
+				glTexStorage2D(m_TextureType, m_Specification.MipLevels, m_InternalFormat, m_Specification.Width, m_Specification.Height);
+				break;
+			case GL::GLInternalTextureFormat::Texture2DMultisample:
+				glTexStorage2DMultisample(m_TextureType,
+										  m_Specification.Samples,
+										  m_InternalFormat,
+										  m_Specification.Width,
+										  m_Specification.Height,
+										  GL_TRUE);
+				break;
+			case GL::GLInternalTextureFormat::Texture2DArray:
+			case GL::GLInternalTextureFormat::CubemapArray:
+			case GL::GLInternalTextureFormat::Texture3D:
+			case GL::GLInternalTextureFormat::Cubemap:
+				glTexStorage3D(m_TextureType,
+							   m_Specification.MipLevels,
+							   m_InternalFormat,
+							   m_Specification.Width,
+							   m_Specification.Height,
+							   m_Specification.ArrayLayers);
+				break;
+			case GL::GLInternalTextureFormat::Texture2DArrayMultisample:
+				glTexStorage3DMultisample(m_TextureType,
+										  m_Specification.Samples,
+										  m_InternalFormat,
+										  m_Specification.Width,
+										  m_Specification.Height,
+										  m_Specification.ArrayLayers,
+										  GL_TRUE);
+				break;
+		}
+	}
+
+	void TextureOpenGL::CopyDataFromBuffer(uint32_t mipLevel,
+										   uint32_t x,
+										   uint32_t y,
+										   uint32_t z,
+										   uint32_t width,
+										   uint32_t height,
+										   uint32_t depth,
+										   uint32_t bufferOffset)
+	{
+		NX_ASSERT(m_Specification.Samples == 1, "Cannot set data in a multisampled texture");
+
+		switch (m_GLInternalTextureFormat)
+		{
+			case GL::GLInternalTextureFormat::Texture1D:
+				glTexSubImage1D(m_TextureType, mipLevel, x, width, m_DataFormat, m_BaseType, (const void *)bufferOffset);
+				break;
+			case GL::GLInternalTextureFormat::Texture1DArray:
+			case GL::GLInternalTextureFormat::Texture2D:
+			case GL::GLInternalTextureFormat::Texture2DMultisample:
+				glTexSubImage2D(m_TextureType, mipLevel, x, y, width, height, m_DataFormat, m_BaseType, (const void *)bufferOffset);
+				break;
+			case GL::GLInternalTextureFormat::Texture2DArray:
+			case GL::GLInternalTextureFormat::CubemapArray:
+			case GL::GLInternalTextureFormat::Texture3D:
+			case GL::GLInternalTextureFormat::Cubemap:
+			case GL::GLInternalTextureFormat::Texture2DArrayMultisample:
+				glTexSubImage3D(m_TextureType, mipLevel, x, y, z, width, height, depth, m_DataFormat, m_BaseType, (const void *)bufferOffset);
+				break;
+		}
 	}
 
 	void Texture2DOpenGL::Bind(uint32_t slot)

@@ -14,6 +14,19 @@
 
 namespace Nexus::Graphics
 {
+	struct BufferTextureCopyDescription
+	{
+		DeviceBuffer *Buffer		= nullptr;
+		Texture		 *TextureHandle = nullptr;
+		uint64_t	  BufferOffset	= 0;
+		uint32_t	  X				= 0;
+		uint32_t	  Y				= 0;
+		uint32_t	  Z				= 0;
+		uint32_t	  Width			= 0;
+		uint32_t	  Height		= 0;
+		uint32_t	  Depth			= 0;
+	};
+
 	struct SetVertexBufferCommand
 	{
 		uint32_t		 Slot = 0;
@@ -249,6 +262,21 @@ namespace Nexus::Graphics
 		std::vector<BufferBarrierDesc>	BufferBarriers	= {};
 	};
 
+	struct CopyBufferToBufferCommand
+	{
+		BufferCopyDescription BufferCopy = {};
+	};
+
+	struct CopyBufferToTextureCommand
+	{
+		BufferTextureCopyDescription BufferTextureCopy = {};
+	};
+
+	struct CopyTextureToBufferCommand
+	{
+		BufferTextureCopyDescription TextureBufferCopy = {};
+	};
+
 	typedef std::variant<SetVertexBufferCommand,
 						 SetIndexBufferCommand,
 						 WeakRef<Pipeline>,
@@ -270,7 +298,10 @@ namespace Nexus::Graphics
 						 SetStencilRefCommand,
 						 SetDepthBoundsCommand,
 						 SetBlendFactorCommand,
-						 BarrierDesc>
+						 BarrierDesc,
+						 CopyBufferToBufferCommand,
+						 CopyBufferToTextureCommand,
+						 CopyTextureToBufferCommand>
 		RenderCommandData;
 
 	struct CommandListSpecification
@@ -364,6 +395,12 @@ namespace Nexus::Graphics
 		void SetBlendFactor(float r, float g, float b, float a);
 
 		void Barrier(const BarrierDesc &barrier);
+
+		void CopyBufferToBuffer(const BufferCopyDescription &bufferCopy);
+
+		void CopyBufferToTexture(const BufferTextureCopyDescription &bufferTextureCopy);
+
+		void CopyTextureToBuffer(const BufferTextureCopyDescription &textureBufferCopy);
 
 		const std::vector<RenderCommandData> &GetCommandData() const;
 		const CommandListSpecification		 &GetSpecification();

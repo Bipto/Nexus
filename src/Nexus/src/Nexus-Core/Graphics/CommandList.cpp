@@ -339,6 +339,27 @@ namespace Nexus::Graphics
 		m_Commands.push_back(barrier);
 	}
 
+	void CommandList::CopyBufferToBuffer(const BufferCopyDescription &bufferCopy)
+	{
+		Graphics::CopyBufferToBufferCommand command;
+		command.BufferCopy = bufferCopy;
+		m_Commands.push_back(command);
+	}
+
+	void CommandList::CopyBufferToTexture(const BufferTextureCopyDescription &bufferTextureCopy)
+	{
+		Graphics::CopyBufferToTextureCommand command;
+		command.BufferTextureCopy = bufferTextureCopy;
+		m_Commands.push_back(command);
+	}
+
+	void CommandList::CopyTextureToBuffer(const BufferTextureCopyDescription &textureBufferCopy)
+	{
+		Graphics::CopyTextureToBufferCommand command;
+		command.TextureBufferCopy = textureBufferCopy;
+		m_Commands.push_back(command);
+	}
+
 	const std::vector<RenderCommandData> &CommandList::GetCommandData() const
 	{
 		return m_Commands;

@@ -299,6 +299,7 @@ namespace Nexus::Utils
 	Ref<Graphics::DeviceBuffer> CreateFilledVertexBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::GraphicsDevice *device)
 	{
 		std::unique_ptr<Graphics::DeviceBuffer> uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
+		Ref<Graphics::CommandList>				commandList	 = device->CreateCommandList();
 
 		Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
 		bufferDesc.Type										= Nexus::Graphics::DeviceBufferType::Vertex;
@@ -308,11 +309,15 @@ namespace Nexus::Utils
 
 		Nexus::Graphics::BufferCopyDescription bufferCopy = {};
 		bufferCopy.Source								  = uploadBuffer.get();
-		bufferCopy.Target								  = vertexBuffer.get();
+		bufferCopy.Destination							  = vertexBuffer.get();
 		bufferCopy.ReadOffset							  = 0;
 		bufferCopy.WriteOffset							  = 0;
 		bufferCopy.Size									  = sizeInBytes;
-		device->CopyBuffer(bufferCopy);
+
+		commandList->Begin();
+		commandList->CopyBufferToBuffer(bufferCopy);
+		commandList->End();
+		device->SubmitCommandList(commandList);
 
 		return vertexBuffer;
 	}
@@ -320,6 +325,7 @@ namespace Nexus::Utils
 	Ref<Graphics::DeviceBuffer> CreateFilledIndexBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::GraphicsDevice *device)
 	{
 		std::unique_ptr<Graphics::DeviceBuffer> uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
+		Ref<Graphics::CommandList>				commandList	 = device->CreateCommandList();
 
 		Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
 		bufferDesc.Type										= Nexus::Graphics::DeviceBufferType::Index;
@@ -329,11 +335,15 @@ namespace Nexus::Utils
 
 		Nexus::Graphics::BufferCopyDescription bufferCopy = {};
 		bufferCopy.Source								  = uploadBuffer.get();
-		bufferCopy.Target								  = indexBuffer.get();
+		bufferCopy.Destination							  = indexBuffer.get();
 		bufferCopy.ReadOffset							  = 0;
 		bufferCopy.WriteOffset							  = 0;
 		bufferCopy.Size									  = sizeInBytes;
-		device->CopyBuffer(bufferCopy);
+
+		commandList->Begin();
+		commandList->CopyBufferToBuffer(bufferCopy);
+		commandList->End();
+		device->SubmitCommandList(commandList);
 
 		return indexBuffer;
 	}
@@ -344,6 +354,7 @@ namespace Nexus::Utils
 														  Graphics::GraphicsDevice *device)
 	{
 		std::unique_ptr<Graphics::DeviceBuffer> uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
+		Ref<Graphics::CommandList>				commandList	 = device->CreateCommandList();
 
 		Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
 		bufferDesc.Type										= Nexus::Graphics::DeviceBufferType::Uniform;
@@ -353,11 +364,15 @@ namespace Nexus::Utils
 
 		Nexus::Graphics::BufferCopyDescription bufferCopy = {};
 		bufferCopy.Source								  = uploadBuffer.get();
-		bufferCopy.Target								  = uniformBuffer.get();
+		bufferCopy.Destination							  = uniformBuffer.get();
 		bufferCopy.ReadOffset							  = 0;
 		bufferCopy.WriteOffset							  = 0;
 		bufferCopy.Size									  = sizeInBytes;
-		device->CopyBuffer(bufferCopy);
+
+		commandList->Begin();
+		commandList->CopyBufferToBuffer(bufferCopy);
+		commandList->End();
+		device->SubmitCommandList(commandList);
 
 		return uniformBuffer;
 	}

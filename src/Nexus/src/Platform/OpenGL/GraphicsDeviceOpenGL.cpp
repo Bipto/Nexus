@@ -162,20 +162,6 @@ namespace Nexus::Graphics
 		return new DeviceBufferOpenGL(desc);
 	}
 
-	void GraphicsDeviceOpenGL::CopyBuffer(const BufferCopyDescription &desc)
-	{
-		DeviceBufferOpenGL *src = (DeviceBufferOpenGL *)desc.Source;
-		DeviceBufferOpenGL *dst = (DeviceBufferOpenGL *)desc.Target;
-
-		glBindBuffer(GL_COPY_READ_BUFFER, src->GetBufferHandle());
-		glBindBuffer(GL_COPY_WRITE_BUFFER, dst->GetBufferHandle());
-
-		glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, desc.ReadOffset, desc.WriteOffset, desc.Size);
-
-		glBindBuffer(GL_COPY_READ_BUFFER, 0);
-		glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
-	}
-
 	const GraphicsCapabilities GraphicsDeviceOpenGL::GetGraphicsCapabilities() const
 	{
 		GraphicsCapabilities capabilities;
@@ -197,7 +183,7 @@ namespace Nexus::Graphics
 
 	Texture *GraphicsDeviceOpenGL::CreateTexture(const TextureSpecification &spec)
 	{
-		return nullptr;
+		return new TextureOpenGL(spec, this);
 	}
 
 	ShaderLanguage GraphicsDeviceOpenGL::GetSupportedShaderFormat()

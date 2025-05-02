@@ -445,6 +445,32 @@ namespace Nexus::Graphics
 	{
 	}
 
+	void CommandExecutorOpenGL::ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device)
+	{
+		DeviceBufferOpenGL *src = (DeviceBufferOpenGL *)command.BufferCopy.Source;
+		DeviceBufferOpenGL *dst = (DeviceBufferOpenGL *)command.BufferCopy.Destination;
+
+		glBindBuffer(GL_COPY_READ_BUFFER, src->GetBufferHandle());
+		glBindBuffer(GL_COPY_WRITE_BUFFER, dst->GetBufferHandle());
+
+		glCopyBufferSubData(GL_COPY_READ_BUFFER,
+							GL_COPY_WRITE_BUFFER,
+							command.BufferCopy.ReadOffset,
+							command.BufferCopy.WriteOffset,
+							command.BufferCopy.Size);
+
+		glBindBuffer(GL_COPY_READ_BUFFER, 0);
+		glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+	}
+
+	void CommandExecutorOpenGL::ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorOpenGL::ExecuteCommand(const CopyTextureToBufferCommand &command, GraphicsDevice *device)
+	{
+	}
+
 	void CommandExecutorOpenGL::BindResourceSet(Ref<ResourceSetOpenGL> resourceSet)
 	{
 		Nexus::Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());
