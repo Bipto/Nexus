@@ -491,6 +491,10 @@ namespace Nexus::Graphics
 	{
 	}
 
+	void CommandExecutorVk::ExecuteCommand(const CopyTextureToTextureCommand &command, GraphicsDevice *device)
+	{
+	}
+
 	void CommandExecutorVk::StartRenderingToSwapchain(SwapchainVk *swapchain)
 	{
 		m_Device->TransitionVulkanImageLayout(m_CommandBuffer,

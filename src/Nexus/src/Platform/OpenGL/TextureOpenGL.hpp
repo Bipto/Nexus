@@ -4,6 +4,7 @@
 
 	#include "GL.hpp"
 	#include "Nexus-Core/Graphics/Texture.hpp"
+	#include "DeviceBufferOpenGL.hpp"
 
 namespace Nexus::Graphics
 {
@@ -19,15 +20,29 @@ namespace Nexus::Graphics
 		uint32_t GetHandle();
 		GLenum	 GetTextureType();
 
-		void CopyDataFromBuffer(uint32_t	mipLevel,
-								uint32_t	x,
-								uint32_t	y,
-								uint32_t	z,
-								uint32_t	width,
-								uint32_t	height,
-								uint32_t	depth,
-								uint32_t	bufferOffset,
-								ImageAspect aspect);
+		void CopyDataFromBuffer(DeviceBufferOpenGL *buffer,
+								uint32_t			mipLevel,
+								uint32_t			x,
+								uint32_t			y,
+								uint32_t			z,
+								uint32_t			width,
+								uint32_t			height,
+								uint32_t			depth,
+								uint32_t			bufferOffset,
+								ImageAspect			aspect);
+
+		void CopyDataToBuffer(DeviceBufferOpenGL *buffer,
+							  uint32_t			  mipLevel,
+							  uint32_t			  x,
+							  uint32_t			  y,
+							  uint32_t			  z,
+							  uint32_t			  width,
+							  uint32_t			  height,
+							  uint32_t			  depth,
+							  uint32_t			  bufferOffset,
+							  ImageAspect		  aspect);
+
+		GL::GLInternalTextureFormat GetInternalGLTextureFormat() const;
 
 	  private:
 		void CreateTextureFaces();

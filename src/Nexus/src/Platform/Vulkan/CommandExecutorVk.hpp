@@ -46,6 +46,7 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(const CopyTextureToBufferCommand &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const CopyTextureToTextureCommand &command, GraphicsDevice *device) override;
 
 		void StartRenderingToSwapchain(SwapchainVk *swapchain);
 		void StartRenderingToFramebuffer(Ref<Framebuffer> framebuffer);

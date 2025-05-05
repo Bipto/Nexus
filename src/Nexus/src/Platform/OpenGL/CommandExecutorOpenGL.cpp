@@ -465,12 +465,12 @@ namespace Nexus::Graphics
 
 	void CommandExecutorOpenGL::ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device)
 	{
-		DeviceBufferOpenGL *buffer = (DeviceBufferOpenGL *)command.BufferTextureCopy.BufferHandle;
-		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, buffer->GetBufferHandle());
-		TextureOpenGL *textureOpenGL = (TextureOpenGL *)command.BufferTextureCopy.TextureHandle;
+		DeviceBufferOpenGL *buffer		  = (DeviceBufferOpenGL *)command.BufferTextureCopy.BufferHandle;
+		TextureOpenGL	   *textureOpenGL = (TextureOpenGL *)command.BufferTextureCopy.TextureHandle;
 
 		const BufferTextureCopyDescription &copyDesc = command.BufferTextureCopy;
-		textureOpenGL->CopyDataFromBuffer(copyDesc.MipLevel,
+		textureOpenGL->CopyDataFromBuffer(buffer,
+										  copyDesc.MipLevel,
 										  copyDesc.X,
 										  copyDesc.Y,
 										  copyDesc.Z,
@@ -479,12 +479,147 @@ namespace Nexus::Graphics
 										  copyDesc.Depth,
 										  copyDesc.BufferOffset,
 										  copyDesc.Aspect);
-
-		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const CopyTextureToBufferCommand &command, GraphicsDevice *device)
 	{
+		DeviceBufferOpenGL *buffer		  = (DeviceBufferOpenGL *)command.TextureBufferCopy.BufferHandle;
+		TextureOpenGL	   *textureOpenGL = (TextureOpenGL *)command.TextureBufferCopy.TextureHandle;
+
+		const BufferTextureCopyDescription &copyDesc = command.TextureBufferCopy;
+		textureOpenGL->CopyDataToBuffer(buffer,
+										copyDesc.MipLevel,
+										copyDesc.X,
+										copyDesc.Y,
+										copyDesc.Z,
+										copyDesc.Width,
+										copyDesc.Height,
+										copyDesc.Depth,
+										copyDesc.BufferOffset,
+										copyDesc.Aspect);
+	}
+
+	void CommandExecutorOpenGL::ExecuteCommand(const CopyTextureToTextureCommand &command, GraphicsDevice *device)
+	{
+		TextureOpenGL				 *sourceTexture = (TextureOpenGL *)command.TextureCopy.Source;
+		TextureOpenGL				 *destTexture	= (TextureOpenGL *)command.TextureCopy.Destination;
+		const TextureCopyDescription &copyDesc		= command.TextureCopy;
+
+		GLenum glAspect		  = GL::GetGLImageAspect(command.TextureCopy.Aspect);
+		GLenum attachmentType = GL::GetAttachmentType(command.TextureCopy.Aspect);
+
+		for (uint32_t layer = command.TextureCopy.Z; layer < command.TextureCopy.Depth; layer++)
+		{
+			GLuint sourceFramebufferHandle = 0;
+			GLuint destFramebufferHandle   = 0;
+
+			// set up source framebuffer
+			{
+				glCall(glGenFramebuffers(1, &sourceFramebufferHandle));
+				glCall(glBindFramebuffer(GL_FRAMEBUFFER, sourceFramebufferHandle));
+				GL::AttachTexture(sourceFramebufferHandle, sourceTexture, command.TextureCopy.MipLevel, layer, command.TextureCopy.Aspect);
+				GL::ValidateFramebuffer(sourceFramebufferHandle);
+			}
+
+			// set up dest framebuffer
+			{
+				glCall(glGenFramebuffers(1, &destFramebufferHandle));
+				glCall(glBindFramebuffer(GL_FRAMEBUFFER, destFramebufferHandle));
+				GL::AttachTexture(destFramebufferHandle, destTexture, command.TextureCopy.MipLevel, layer, command.TextureCopy.Aspect);
+				GL::ValidateFramebuffer(destFramebufferHandle);
+			}
+
+			// perform the copy
+			{
+				glBindFramebuffer(GL_READ_FRAMEBUFFER, sourceFramebufferHandle);
+				glBindFramebuffer(GL_DRAW_FRAMEBUFFER, destFramebufferHandle);
+
+				switch (command.TextureCopy.Aspect)
+				{
+					// copy the colour attachment
+					case Graphics::ImageAspect::Colour:
+					{
+						glBlitFramebuffer(command.TextureCopy.X,
+										  command.TextureCopy.Y,
+										  command.TextureCopy.Width,
+										  command.TextureCopy.Height,
+										  command.TextureCopy.X,
+										  command.TextureCopy.Y,
+										  command.TextureCopy.Width,
+										  command.TextureCopy.Height,
+										  GL_COLOR_BUFFER_BIT,
+										  GL_NEAREST);
+						break;
+					}
+
+					// copy the depth attachment
+					case Graphics::ImageAspect::Depth:
+					{
+						glBlitFramebuffer(command.TextureCopy.X,
+										  command.TextureCopy.Y,
+										  command.TextureCopy.Width,
+										  command.TextureCopy.Height,
+										  command.TextureCopy.X,
+										  command.TextureCopy.Y,
+										  command.TextureCopy.Width,
+										  command.TextureCopy.Height,
+										  GL_DEPTH_BUFFER_BIT,
+										  GL_NEAREST);
+						break;
+					}
+					// copy the stencil attachment
+					case Graphics::ImageAspect::Stencil:
+					{
+						glBlitFramebuffer(command.TextureCopy.X,
+										  command.TextureCopy.Y,
+										  command.TextureCopy.Width,
+										  command.TextureCopy.Height,
+										  command.TextureCopy.X,
+										  command.TextureCopy.Y,
+										  command.TextureCopy.Width,
+										  command.TextureCopy.Height,
+										  GL_STENCIL_BUFFER_BIT,
+										  GL_NEAREST);
+						break;
+					}
+					// copy the depth and stencil attachment
+					case Graphics::ImageAspect::DepthStencil:
+					{
+						glBlitFramebuffer(command.TextureCopy.X,
+										  command.TextureCopy.Y,
+										  command.TextureCopy.Width,
+										  command.TextureCopy.Height,
+										  command.TextureCopy.X,
+										  command.TextureCopy.Y,
+										  command.TextureCopy.Width,
+										  command.TextureCopy.Height,
+										  GL_DEPTH_BUFFER_BIT,
+										  GL_NEAREST);
+						glBlitFramebuffer(command.TextureCopy.X,
+										  command.TextureCopy.Y,
+										  command.TextureCopy.Width,
+										  command.TextureCopy.Height,
+										  command.TextureCopy.X,
+										  command.TextureCopy.Y,
+										  command.TextureCopy.Width,
+										  command.TextureCopy.Height,
+										  GL_STENCIL_BUFFER_BIT,
+										  GL_NEAREST);
+						break;
+					}
+
+					default: throw std::runtime_error("Could not copy texture");
+				}
+
+				glMemoryBarrier(GL_ALL_BARRIER_BITS);
+
+				glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+				glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+			}
+
+			glCall(glDeleteFramebuffers(1, &sourceFramebufferHandle));
+			glCall(glDeleteFramebuffers(1, &destFramebufferHandle));
+		}
 	}
 
 	void CommandExecutorOpenGL::BindResourceSet(Ref<ResourceSetOpenGL> resourceSet)

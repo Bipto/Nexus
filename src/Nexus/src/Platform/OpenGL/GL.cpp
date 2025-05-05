@@ -20,6 +20,7 @@
 	#endif
 
 	#include "Platform/OpenGL/GraphicsDeviceOpenGL.hpp"
+	#include "TextureOpenGL.hpp"
 	#include "Nexus-Core/Platform.hpp"
 
 namespace Nexus::GL
@@ -564,6 +565,64 @@ namespace Nexus::GL
 		}
 	}
 
+	void ValidateFramebuffer(GLuint framebuffer)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+		GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+		if (status == GL_FRAMEBUFFER_COMPLETE)
+		{
+			return;
+		}
+
+		switch (status)
+		{
+			case GL_FRAMEBUFFER_UNDEFINED:
+				throw std::runtime_error(
+					"The specified framebuffer is the default read or write framebuffer but the default framebuffer does not exist");
+			case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT: throw std::runtime_error("An attachment is incomplete");
+			case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: throw std::runtime_error("This framebuffer does not have any attachments");
+			case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER: throw std::runtime_error("The framebuffer does not have a draw buffer");
+			case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER: throw std::runtime_error("The framebuffer does not have a read buffer");
+			case GL_FRAMEBUFFER_UNSUPPORTED: throw std::runtime_error("The framebuffer pixel format(s) are unsupported");
+			case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE: throw std::runtime_error("The attachments have mismatching multisample levels");
+			case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS: throw std::runtime_error("Framebuffer attachment is layered");
+		}
+	}
+
+	void AttachTexture(GLuint framebuffer, Graphics::TextureOpenGL *texture, uint32_t mipLevel, uint32_t arrayLayer, Graphics::ImageAspect aspect)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+		GLenum attachmentType = GL::GetAttachmentType(aspect);
+
+		uint32_t				textureHandle  = texture->GetHandle();
+		GLenum					textureTarget  = texture->GetTextureType();
+		GLInternalTextureFormat internalFormat = texture->GetInternalGLTextureFormat();
+
+		switch (internalFormat)
+		{
+			case GLInternalTextureFormat::Texture1D:
+				glFramebufferTexture1D(GL_FRAMEBUFFER, attachmentType, textureTarget, textureHandle, mipLevel);
+				break;
+			case GLInternalTextureFormat::Texture1DArray:
+				glFramebufferTextureLayer(GL_FRAMEBUFFER, attachmentType, textureHandle, mipLevel, arrayLayer);
+				break;
+			case GLInternalTextureFormat::Texture2D:
+			case GLInternalTextureFormat::Texture2DMultisample:
+				glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, textureTarget, textureHandle, mipLevel);
+				break;
+			case GLInternalTextureFormat::Texture2DArray:
+			case GLInternalTextureFormat::Texture2DArrayMultisample:
+			case GLInternalTextureFormat::CubemapArray:
+			case GLInternalTextureFormat::Texture3D:
+				glFramebufferTextureLayer(GL_FRAMEBUFFER, attachmentType, textureHandle, mipLevel, arrayLayer);
+				break;
+			case GLInternalTextureFormat::Cubemap:
+				glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, GL_TEXTURE_CUBE_MAP_POSITIVE_X + arrayLayer, textureHandle, mipLevel);
+				break;
+		}
+	}
+
 	void GetBaseType(const Graphics::VertexBufferElement &element,
 					 GLenum								 &baseType,
 					 uint32_t							 &componentCount,
@@ -831,6 +890,18 @@ namespace Nexus::GL
 			case Graphics::ImageAspect::Stencil: return GL_STENCIL_INDEX;
 			case Graphics::ImageAspect::DepthStencil: return GL_DEPTH_STENCIL;
 			default: throw std::runtime_error("Failed to find a valid image aspect");
+		}
+	}
+
+	GLenum GetAttachmentType(Graphics::ImageAspect aspect)
+	{
+		switch (aspect)
+		{
+			case Graphics::ImageAspect::Colour: return GL_COLOR_ATTACHMENT0;
+			case Graphics::ImageAspect::Depth: return GL_DEPTH_ATTACHMENT;
+			case Graphics::ImageAspect::Stencil: return GL_STENCIL_ATTACHMENT;
+			case Graphics::ImageAspect::DepthStencil: return GL_DEPTH_STENCIL_ATTACHMENT;
+			default: throw std::runtime_error("Failed to finda valid attachment type");
 		}
 	}
 

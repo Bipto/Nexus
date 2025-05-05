@@ -17,7 +17,7 @@ endif()
 
 add_subdirectory(cmake-utils)
 
-set(NEXUS_INCLUDE_DIRS "")
+set(NEXUS_INCLUDE_DIRS "external/renderdoc")
 set(NEXUS_LINKED_LIBRARIES "")
 set(NEXUS_LIBRARY_SUBDIRECTORIES "")
 set(NEXUS_SHARED_LIBRARY_SUBDIRECTORIES "")

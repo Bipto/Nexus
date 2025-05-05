@@ -32,6 +32,11 @@
 	#include "Context/IOffscreenContext.hpp"
 	#include "Context/IViewContext.hpp"
 
+namespace Nexus::Graphics
+{
+	class TextureOpenGL;
+}
+
 namespace Nexus::GL
 {
 	enum class GLPrimitiveType
@@ -77,8 +82,11 @@ namespace Nexus::GL
 	GLenum GetBufferUsage(Graphics::DeviceBufferType type);
 
 	GLenum GetAccessMask(Graphics::StorageImageAccess access);
-	GLenum					GetTextureType(const Graphics::TextureSpecification &spec);
+	GLenum GetTextureType(const Graphics::TextureSpecification &spec);
+
 	GLInternalTextureFormat GetGLInternalTextureFormat(const Graphics::TextureSpecification &spec);
+	void					ValidateFramebuffer(GLuint framebuffer);
+	void AttachTexture(GLuint framebuffer, Graphics::TextureOpenGL *texture, uint32_t mipLevel, uint32_t arrayLayer, Graphics::ImageAspect aspect);
 
 	void GetBaseType(const Graphics::VertexBufferElement &element,
 					 GLenum								 &baseType,
@@ -87,6 +95,7 @@ namespace Nexus::GL
 					 GLPrimitiveType					 &primitiveType);
 
 	GLenum GetGLImageAspect(Graphics::ImageAspect aspect);
+	GLenum GetAttachmentType(Graphics::ImageAspect aspect);
 
 	std::unique_ptr<IOffscreenContext> CreateOffscreenContext(Graphics::IPhysicalDevice *physicalDevice);
 	std::unique_ptr<IViewContext>	   CreateViewContext(IWindow *window, Graphics::GraphicsDevice *device);

@@ -38,8 +38,9 @@ namespace Nexus::Graphics
 		if (mappedData)
 		{
 			memcpy(data.data(), mappedData, size);
-			glUnmapBuffer(m_BufferTarget);
 		}
+
+		glUnmapBuffer(m_BufferTarget);
 
 		return data;
 	}

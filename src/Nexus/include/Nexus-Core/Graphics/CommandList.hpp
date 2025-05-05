@@ -46,6 +46,20 @@ namespace Nexus::Graphics
 		ImageAspect	  Aspect		= ImageAspect::Colour;
 	};
 
+	struct TextureCopyDescription
+	{
+		Texture	   *Source		= nullptr;
+		Texture	   *Destination = nullptr;
+		uint32_t	X			= 0;
+		uint32_t	Y			= 0;
+		uint32_t	Z			= 0;
+		uint32_t	Width		= 0;
+		uint32_t	Height		= 0;
+		uint32_t	Depth		= 0;
+		uint32_t	MipLevel	= 0;
+		ImageAspect Aspect		= ImageAspect::Colour;
+	};
+
 	struct SetVertexBufferCommand
 	{
 		uint32_t		 Slot = 0;
@@ -296,6 +310,11 @@ namespace Nexus::Graphics
 		BufferTextureCopyDescription TextureBufferCopy = {};
 	};
 
+	struct CopyTextureToTextureCommand
+	{
+		TextureCopyDescription TextureCopy = {};
+	};
+
 	typedef std::variant<SetVertexBufferCommand,
 						 SetIndexBufferCommand,
 						 WeakRef<Pipeline>,
@@ -320,7 +339,8 @@ namespace Nexus::Graphics
 						 BarrierDesc,
 						 CopyBufferToBufferCommand,
 						 CopyBufferToTextureCommand,
-						 CopyTextureToBufferCommand>
+						 CopyTextureToBufferCommand,
+						 CopyTextureToTextureCommand>
 		RenderCommandData;
 
 	struct CommandListSpecification
@@ -420,6 +440,8 @@ namespace Nexus::Graphics
 		void CopyBufferToTexture(const BufferTextureCopyDescription &bufferTextureCopy);
 
 		void CopyTextureToBuffer(const BufferTextureCopyDescription &textureBufferCopy);
+
+		void CopyTextureToTexture(const TextureCopyDescription &textureCopy);
 
 		const std::vector<RenderCommandData> &GetCommandData() const;
 		const CommandListSpecification		 &GetSpecification();

@@ -48,5 +48,6 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device)  = 0;
 		virtual void ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device) = 0;
 		virtual void ExecuteCommand(const CopyTextureToBufferCommand &command, GraphicsDevice *device) = 0;
+		virtual void ExecuteCommand(const CopyTextureToTextureCommand &command, GraphicsDevice *device) = 0;
 	};
 };	  // namespace Nexus::Graphics

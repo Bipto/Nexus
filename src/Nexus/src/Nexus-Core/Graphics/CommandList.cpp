@@ -360,6 +360,13 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
+	void CommandList::CopyTextureToTexture(const TextureCopyDescription &textureCopy)
+	{
+		Graphics::CopyTextureToTextureCommand command;
+		command.TextureCopy = textureCopy;
+		m_Commands.push_back(command);
+	}
+
 	const std::vector<RenderCommandData> &CommandList::GetCommandData() const
 	{
 		return m_Commands;

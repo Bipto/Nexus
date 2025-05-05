@@ -545,6 +545,10 @@ namespace Nexus::Graphics
 	{
 	}
 
+	void CommandExecutorD3D12::ExecuteCommand(const CopyTextureToTextureCommand &command, GraphicsDevice *device)
+	{
+	}
+
 	void CommandExecutorD3D12::SetSwapchain(SwapchainD3D12 *swapchain, GraphicsDevice *device)
 	{
 		if (swapchain->GetSpecification().Samples == 1)

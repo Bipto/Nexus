@@ -136,7 +136,7 @@ namespace Nexus::Graphics
 
 	void Texture2D_Vk::GetData(std::vector<unsigned char> &pixels, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 	{
-		uint32_t	 offset = x * y * GetPixelFormatSizeInBits(m_Specification.Format);
+		uint32_t	 offset = x * y * GetPixelFormatSizeInBytes(m_Specification.Format);
 		VkDeviceSize size	= width * height * GetPixelFormatSizeInBytes(m_Specification.Format);
 
 		VkExtent3D extent = {};
@@ -314,7 +314,7 @@ namespace Nexus::Graphics
 		: Cubemap(spec, graphicsDevice),
 		  m_GraphicsDevice(graphicsDevice)
 	{
-		uint32_t	 sizeInBits = GetPixelFormatSizeInBits(m_Specification.Format);
+		uint32_t	 sizeInBits = GetPixelFormatSizeInBytes(m_Specification.Format);
 		VkDeviceSize imageSize	= m_Specification.Width * m_Specification.Height * sizeInBits;
 		m_Format				= Vk::GetVkPixelDataFormat(m_Specification.Format, false);
 

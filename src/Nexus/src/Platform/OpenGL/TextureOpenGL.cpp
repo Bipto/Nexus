@@ -7,6 +7,8 @@
 
 	#include "GraphicsDeviceOpenGL.hpp"
 
+	#include <stb_image_write.h>
+
 namespace Nexus::Graphics
 {
 	Texture2DOpenGL::Texture2DOpenGL(const Texture2DSpecification &spec, GraphicsDevice *graphicsDevice) : Texture2D(spec, graphicsDevice)
@@ -138,6 +140,7 @@ namespace Nexus::Graphics
 
 	TextureOpenGL::~TextureOpenGL()
 	{
+		glDeleteTextures(1, &m_Handle);
 	}
 
 	void TextureOpenGL::Bind(uint32_t slot)
@@ -196,38 +199,125 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void TextureOpenGL::CopyDataFromBuffer(uint32_t	   mipLevel,
-										   uint32_t	   x,
-										   uint32_t	   y,
-										   uint32_t	   z,
-										   uint32_t	   width,
-										   uint32_t	   height,
-										   uint32_t	   depth,
-										   uint32_t	   bufferOffset,
-										   ImageAspect aspect)
+	void TextureOpenGL::CopyDataFromBuffer(DeviceBufferOpenGL *buffer,
+										   uint32_t			   mipLevel,
+										   uint32_t			   x,
+										   uint32_t			   y,
+										   uint32_t			   z,
+										   uint32_t			   width,
+										   uint32_t			   height,
+										   uint32_t			   depth,
+										   uint32_t			   bufferOffset,
+										   ImageAspect		   aspect)
 	{
 		NX_ASSERT(m_Specification.Samples == 1, "Cannot set data in a multisampled texture");
 
-		GLenum glAspect = GL::GetGLImageAspect(aspect);
-
-		switch (m_GLInternalTextureFormat)
+		if (depth > 1)
 		{
-			case GL::GLInternalTextureFormat::Texture1D:
-				glTexSubImage1D(m_TextureType, mipLevel, x, width, glAspect, m_BaseType, (const void *)bufferOffset);
-				break;
-			case GL::GLInternalTextureFormat::Texture1DArray:
-			case GL::GLInternalTextureFormat::Texture2D:
-			case GL::GLInternalTextureFormat::Texture2DMultisample:
-				glTexSubImage2D(m_TextureType, mipLevel, x, y, width, height, glAspect, m_BaseType, (const void *)bufferOffset);
-				break;
-			case GL::GLInternalTextureFormat::Texture2DArray:
-			case GL::GLInternalTextureFormat::CubemapArray:
-			case GL::GLInternalTextureFormat::Texture3D:
-			case GL::GLInternalTextureFormat::Cubemap:
-			case GL::GLInternalTextureFormat::Texture2DArrayMultisample:
-				glTexSubImage3D(m_TextureType, mipLevel, x, y, z, width, height, depth, glAspect, m_BaseType, (const void *)bufferOffset);
-				break;
+			NX_ASSERT(m_Specification.Type == TextureType::Texture3D,
+					  "Attempting to set data in a multi-layer texture, but texture is not multi layer");
 		}
+
+		glBindTexture(m_TextureType, m_Handle);
+		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, buffer->GetBufferHandle());
+
+		GLenum	 glAspect	= GL::GetGLImageAspect(aspect);
+		uint32_t bufferSize = (width - x) * (height - y) * (uint32_t)GetPixelFormatSizeInBytes(m_Specification.Format);
+
+		for (uint32_t level = z; level < depth; level++)
+
+		{
+			switch (m_GLInternalTextureFormat)
+			{
+				case GL::GLInternalTextureFormat::Texture1D:
+					glTexSubImage1D(m_TextureType, mipLevel, x, width, glAspect, m_BaseType, (const void *)(uint64_t)bufferOffset);
+					break;
+				case GL::GLInternalTextureFormat::Texture1DArray:
+				case GL::GLInternalTextureFormat::Texture2D:
+				case GL::GLInternalTextureFormat::Texture2DMultisample:
+					glTexSubImage2D(m_TextureType, mipLevel, x, y, width, height, glAspect, m_BaseType, (const void *)(uint64_t)bufferOffset);
+					break;
+				case GL::GLInternalTextureFormat::Texture2DArray:
+				case GL::GLInternalTextureFormat::CubemapArray:
+				case GL::GLInternalTextureFormat::Texture3D:
+				case GL::GLInternalTextureFormat::Cubemap:
+				case GL::GLInternalTextureFormat::Texture2DArrayMultisample:
+					glTexSubImage3D(m_TextureType,
+									mipLevel,
+									x,
+									y,
+									level,
+									width,
+									height,
+									depth,
+									glAspect,
+									m_BaseType,
+									(const void *)(uint64_t)bufferOffset);
+					break;
+			}
+			bufferOffset += bufferSize;
+		}
+
+		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+		std::vector<unsigned char> imageData(bufferSize);
+		glGetTexImage(m_TextureType, mipLevel, GL_RGBA, GL_UNSIGNED_BYTE, imageData.data());
+		stbi_write_png("copyFrom.png", m_Specification.Width, m_Specification.Height, 4, imageData.data(), m_Specification.Width * 4);
+
+		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+		glBindTexture(m_TextureType, 0);
+	}
+
+	void TextureOpenGL::CopyDataToBuffer(DeviceBufferOpenGL *buffer,
+										 uint32_t			 mipLevel,
+										 uint32_t			 x,
+										 uint32_t			 y,
+										 uint32_t			 z,
+										 uint32_t			 width,
+										 uint32_t			 height,
+										 uint32_t			 depth,
+										 uint32_t			 bufferOffset,
+										 ImageAspect		 aspect)
+	{
+		size_t layerSize  = (width - x) * (height - y) * GetPixelFormatSizeInBytes(m_Specification.Format);
+		size_t bufferSize = layerSize * depth;
+		GLenum glAspect	  = GL::GetGLImageAspect(aspect);
+
+		glBindBuffer(GL_PIXEL_PACK_BUFFER, buffer->GetBufferHandle());
+
+		for (uint32_t layer = z; layer < depth; layer++)
+		{
+			GLuint framebufferHandle = 0;
+			glCall(glGenFramebuffers(1, &framebufferHandle));
+			glCall(glBindFramebuffer(GL_FRAMEBUFFER, framebufferHandle));
+			GL::AttachTexture(framebufferHandle, this, mipLevel, layer, aspect);
+
+			GL::ValidateFramebuffer(framebufferHandle);
+
+			glReadBuffer(GL_COLOR_ATTACHMENT0);
+			glReadPixels(x, y, width, height, glAspect, m_BaseType, (void *)(uint64_t)bufferOffset);
+			// glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+
+			glFlush();
+			glFinish();
+			glMemoryBarrier(GL_ALL_BARRIER_BITS);
+
+			glCall(glDeleteFramebuffers(1, &framebufferHandle));
+			bufferOffset += layerSize;
+		}
+
+		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+		glBindTexture(m_TextureType, 0);
+		glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+
+		glBindTexture(m_TextureType, m_Handle);
+		std::vector<unsigned char> imageData(bufferSize);
+		glGetTexImage(m_TextureType, mipLevel, GL_RGBA, GL_UNSIGNED_BYTE, imageData.data());
+		stbi_write_png("copyTo.png", m_Specification.Width, m_Specification.Height, 4, imageData.data(), m_Specification.Width * 4);
+	}
+
+	GL::GLInternalTextureFormat TextureOpenGL::GetInternalGLTextureFormat() const
+	{
+		return m_GLInternalTextureFormat;
 	}
 
 	void Texture2DOpenGL::Bind(uint32_t slot)
@@ -305,7 +395,7 @@ namespace Nexus::Graphics
 								uint32_t					width,
 								uint32_t					height)
 	{
-		size_t bufferSize = (width - x) * (height - y) * GetPixelFormatSizeInBits(m_Specification.Format);
+		size_t bufferSize = (width - x) * (height - y) * GetPixelFormatSizeInBytes(m_Specification.Format);
 		GLenum glFace	  = GL::GLCubemapFace(face);
 
 		if (pixels.size() < bufferSize)
