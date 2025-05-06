@@ -50,6 +50,8 @@ namespace Nexus::Vk
 	VkAccessFlags2		  GetBarrierAccessFlags(Nexus::Graphics::BarrierAccess access);
 	VkImageLayout		  GetBarrierLayout(Nexus::Graphics::BarrierLayout layout);
 
+	VkImageAspectFlagBits GetAspectFlags(Graphics::ImageAspect aspect);
+
 	struct AllocatedBuffer
 	{
 		VkBuffer	  Buffer;

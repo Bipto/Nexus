@@ -485,14 +485,261 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device)
 	{
+		GraphicsDeviceVk	 *deviceVk	  = (GraphicsDeviceVk *)device;
+		DeviceBufferVk		 *buffer	  = (DeviceBufferVk *)command.BufferTextureCopy.BufferHandle;
+		TextureVk			 *texture	  = (TextureVk *)command.BufferTextureCopy.TextureHandle;
+		VkImageAspectFlagBits aspectFlags = Vk::GetAspectFlags(command.BufferTextureCopy.TextureSubresource.Aspect);
+
+		std::map<uint32_t, VkImageLayout> previousLayouts;
+
+		for (uint32_t layer = command.BufferTextureCopy.TextureSubresource.Z; layer < command.BufferTextureCopy.TextureSubresource.Depth; layer++)
+		{
+			VkImageLayout layoutBefore = texture->GetImageLayout(layer, command.BufferTextureCopy.TextureSubresource.MipLevel);
+			previousLayouts[layer]	   = layoutBefore;
+
+			deviceVk->TransitionVulkanImageLayout(m_CommandBuffer,
+												  texture->GetImage(),
+												  command.BufferTextureCopy.TextureSubresource.MipLevel,
+												  layer,
+												  layoutBefore,
+												  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+												  VK_IMAGE_ASPECT_COLOR_BIT);
+		}
+
+		// perform copy
+		{
+			VkBufferImageCopy copyRegion		   = {};
+			copyRegion.bufferOffset				   = command.BufferTextureCopy.BufferOffset;
+			copyRegion.bufferRowLength			   = 0;
+			copyRegion.bufferImageHeight		   = 0;
+			copyRegion.imageSubresource.aspectMask = aspectFlags;
+			copyRegion.imageSubresource.mipLevel   = command.BufferTextureCopy.TextureSubresource.MipLevel;
+			copyRegion.imageSubresource.layerCount = command.BufferTextureCopy.TextureSubresource.Depth;
+			copyRegion.imageOffset.x			   = command.BufferTextureCopy.TextureSubresource.X;
+			copyRegion.imageOffset.y			   = command.BufferTextureCopy.TextureSubresource.Y;
+			copyRegion.imageExtent.width		   = command.BufferTextureCopy.TextureSubresource.Width;
+			copyRegion.imageExtent.height		   = command.BufferTextureCopy.TextureSubresource.Height;
+			copyRegion.imageExtent.depth		   = command.BufferTextureCopy.TextureSubresource.Depth;
+
+			if (texture->GetSpecification().Type == TextureType::Texture3D)
+			{
+				copyRegion.imageOffset.z				   = command.BufferTextureCopy.TextureSubresource.Z;
+				copyRegion.imageSubresource.baseArrayLayer = 0;
+			}
+			else
+			{
+				copyRegion.imageOffset.z				   = 0;
+				copyRegion.imageSubresource.baseArrayLayer = command.BufferTextureCopy.TextureSubresource.Z;
+			}
+
+			vkCmdCopyBufferToImage(m_CommandBuffer, buffer->GetVkBuffer(), texture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
+		}
+
+		for (uint32_t layer = command.BufferTextureCopy.TextureSubresource.Z; layer < command.BufferTextureCopy.TextureSubresource.Depth; layer++)
+		{
+			VkImageLayout layoutBefore = texture->GetImageLayout(layer, command.BufferTextureCopy.TextureSubresource.MipLevel);
+			previousLayouts[layer]	   = layoutBefore;
+
+			deviceVk->TransitionVulkanImageLayout(m_CommandBuffer,
+												  texture->GetImage(),
+												  command.BufferTextureCopy.TextureSubresource.MipLevel,
+												  layer,
+												  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+												  layoutBefore,
+												  VK_IMAGE_ASPECT_COLOR_BIT);
+		}
 	}
 
 	void CommandExecutorVk::ExecuteCommand(const CopyTextureToBufferCommand &command, GraphicsDevice *device)
 	{
+		GraphicsDeviceVk	 *deviceVk	  = (GraphicsDeviceVk *)device;
+		DeviceBufferVk		 *buffer	  = (DeviceBufferVk *)command.TextureBufferCopy.BufferHandle;
+		TextureVk			 *texture	  = (TextureVk *)command.TextureBufferCopy.TextureHandle;
+		VkImageAspectFlagBits aspectFlags = Vk::GetAspectFlags(command.TextureBufferCopy.TextureSubresource.Aspect);
+
+		std::map<uint32_t, VkImageLayout> previousLayouts;
+
+		for (uint32_t layer = command.TextureBufferCopy.TextureSubresource.Z; layer < command.TextureBufferCopy.TextureSubresource.Depth; layer++)
+		{
+			VkImageLayout layoutBefore = texture->GetImageLayout(layer, command.TextureBufferCopy.TextureSubresource.MipLevel);
+			previousLayouts[layer]	   = layoutBefore;
+
+			deviceVk->TransitionVulkanImageLayout(m_CommandBuffer,
+												  texture->GetImage(),
+												  command.TextureBufferCopy.TextureSubresource.MipLevel,
+												  layer,
+												  layoutBefore,
+												  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+												  VK_IMAGE_ASPECT_COLOR_BIT);
+		}
+
+		// perform copy
+		{
+			VkBufferImageCopy copyRegion		   = {};
+			copyRegion.bufferOffset				   = command.TextureBufferCopy.BufferOffset;
+			copyRegion.bufferRowLength			   = 0;
+			copyRegion.bufferImageHeight		   = 0;
+			copyRegion.imageSubresource.aspectMask = aspectFlags;
+			copyRegion.imageSubresource.mipLevel   = command.TextureBufferCopy.TextureSubresource.MipLevel;
+			copyRegion.imageSubresource.layerCount = command.TextureBufferCopy.TextureSubresource.Depth;
+			copyRegion.imageOffset.x			   = command.TextureBufferCopy.TextureSubresource.X;
+			copyRegion.imageOffset.y			   = command.TextureBufferCopy.TextureSubresource.Y;
+			copyRegion.imageExtent.width		   = command.TextureBufferCopy.TextureSubresource.Width;
+			copyRegion.imageExtent.height		   = command.TextureBufferCopy.TextureSubresource.Height;
+			copyRegion.imageExtent.depth		   = command.TextureBufferCopy.TextureSubresource.Depth;
+
+			if (texture->GetSpecification().Type == TextureType::Texture3D)
+			{
+				copyRegion.imageOffset.z				   = command.TextureBufferCopy.TextureSubresource.Z;
+				copyRegion.imageSubresource.baseArrayLayer = 0;
+			}
+			else
+			{
+				copyRegion.imageOffset.z				   = 0;
+				copyRegion.imageSubresource.baseArrayLayer = command.TextureBufferCopy.TextureSubresource.Z;
+			}
+
+			vkCmdCopyImageToBuffer(m_CommandBuffer, texture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, buffer->GetVkBuffer(), 1, &copyRegion);
+		}
+
+		for (uint32_t layer = command.TextureBufferCopy.TextureSubresource.Z; layer < command.TextureBufferCopy.TextureSubresource.Depth; layer++)
+		{
+			VkImageLayout layoutBefore = texture->GetImageLayout(layer, command.TextureBufferCopy.TextureSubresource.MipLevel);
+			previousLayouts[layer]	   = layoutBefore;
+
+			deviceVk->TransitionVulkanImageLayout(m_CommandBuffer,
+												  texture->GetImage(),
+												  command.TextureBufferCopy.TextureSubresource.MipLevel,
+												  layer,
+												  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+												  layoutBefore,
+												  VK_IMAGE_ASPECT_COLOR_BIT);
+		}
 	}
 
 	void CommandExecutorVk::ExecuteCommand(const CopyTextureToTextureCommand &command, GraphicsDevice *device)
 	{
+		GraphicsDeviceVk *deviceVk	 = (GraphicsDeviceVk *)device;
+		TextureVk		 *srcTexture = (TextureVk *)command.TextureCopy.Source;
+		TextureVk		 *dstTexture = (TextureVk *)command.TextureCopy.Destination;
+
+		VkImageAspectFlagBits srcAspect = Vk::GetAspectFlags(command.TextureCopy.SourceSubresource.Aspect);
+		VkImageAspectFlagBits dstAspect = Vk::GetAspectFlags(command.TextureCopy.DestinationSubresource.Aspect);
+
+		std::map<uint32_t, VkImageLayout> srcLayouts;
+		std::map<uint32_t, VkImageLayout> dstLayouts;
+
+		// transfer source texture
+		for (uint32_t layer = command.TextureCopy.SourceSubresource.Z; layer < command.TextureCopy.SourceSubresource.Depth; layer++)
+		{
+			VkImageLayout layout = srcTexture->GetImageLayout(layer, command.TextureCopy.SourceSubresource.MipLevel);
+			srcLayouts[layer]	 = layout;
+
+			deviceVk->TransitionVulkanImageLayout(m_CommandBuffer,
+												  srcTexture->GetImage(),
+												  command.TextureCopy.SourceSubresource.MipLevel,
+												  layer,
+												  layout,
+												  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+												  srcAspect);
+		}
+
+		// transfer destination texture
+		for (uint32_t layer = command.TextureCopy.DestinationSubresource.Z; layer < command.TextureCopy.DestinationSubresource.Depth; layer++)
+		{
+			VkImageLayout layout = dstTexture->GetImageLayout(layer, command.TextureCopy.DestinationSubresource.MipLevel);
+			dstLayouts[layer]	 = layout;
+
+			deviceVk->TransitionVulkanImageLayout(m_CommandBuffer,
+												  dstTexture->GetImage(),
+												  command.TextureCopy.DestinationSubresource.MipLevel,
+												  layer,
+												  layout,
+												  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+												  dstAspect);
+		}
+
+		// copy image
+		{
+			VkImageCopy copyRegion = {};
+
+			// src
+			copyRegion.srcSubresource.aspectMask = srcAspect;
+			copyRegion.srcSubresource.mipLevel	 = command.TextureCopy.SourceSubresource.MipLevel;
+			copyRegion.srcSubresource.layerCount = command.TextureCopy.SourceSubresource.Depth;
+			copyRegion.srcOffset.x				 = command.TextureCopy.SourceSubresource.X;
+			copyRegion.srcOffset.y				 = command.TextureCopy.SourceSubresource.Y;
+			copyRegion.extent.width				 = command.TextureCopy.SourceSubresource.Width;
+			copyRegion.extent.height			 = command.TextureCopy.SourceSubresource.Height;
+			copyRegion.extent.depth				 = command.TextureCopy.SourceSubresource.Depth;
+
+			if (srcTexture->GetSpecification().Type == TextureType::Texture3D)
+			{
+				copyRegion.srcOffset.z					 = command.TextureCopy.SourceSubresource.Z;
+				copyRegion.srcSubresource.baseArrayLayer = 0;
+			}
+			else
+			{
+				copyRegion.srcOffset.z					 = 0;
+				copyRegion.srcSubresource.baseArrayLayer = command.TextureCopy.SourceSubresource.Z;
+			}
+
+			// dst
+			copyRegion.dstSubresource.aspectMask = dstAspect;
+			copyRegion.dstSubresource.mipLevel	 = command.TextureCopy.DestinationSubresource.MipLevel;
+			copyRegion.dstSubresource.layerCount = command.TextureCopy.DestinationSubresource.Depth;
+			copyRegion.dstOffset.x				 = command.TextureCopy.DestinationSubresource.X;
+			copyRegion.dstOffset.y				 = command.TextureCopy.DestinationSubresource.Y;
+
+			if (dstTexture->GetSpecification().Type == TextureType::Texture3D)
+			{
+				copyRegion.dstOffset.z					 = command.TextureCopy.DestinationSubresource.Z;
+				copyRegion.dstSubresource.baseArrayLayer = 0;
+			}
+			else
+			{
+				copyRegion.dstOffset.z					 = 0;
+				copyRegion.dstSubresource.baseArrayLayer = command.TextureCopy.DestinationSubresource.Z;
+			}
+
+			vkCmdCopyImage(m_CommandBuffer,
+						   srcTexture->GetImage(),
+						   VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+						   dstTexture->GetImage(),
+						   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+						   1,
+						   &copyRegion);
+		}
+
+		// restore source texture layout
+		for (uint32_t layer = command.TextureCopy.SourceSubresource.Z; layer < command.TextureCopy.SourceSubresource.Depth; layer++)
+		{
+			VkImageLayout layout = srcTexture->GetImageLayout(layer, command.TextureCopy.SourceSubresource.MipLevel);
+			srcLayouts[layer]	 = layout;
+
+			deviceVk->TransitionVulkanImageLayout(m_CommandBuffer,
+												  srcTexture->GetImage(),
+												  command.TextureCopy.SourceSubresource.MipLevel,
+												  layer,
+												  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+												  layout,
+												  srcAspect);
+		}
+
+		// restore destination texture layout
+		for (uint32_t layer = command.TextureCopy.DestinationSubresource.Z; layer < command.TextureCopy.DestinationSubresource.Depth; layer++)
+		{
+			VkImageLayout layout = dstTexture->GetImageLayout(layer, command.TextureCopy.DestinationSubresource.MipLevel);
+			dstLayouts[layer]	 = layout;
+
+			deviceVk->TransitionVulkanImageLayout(m_CommandBuffer,
+												  dstTexture->GetImage(),
+												  command.TextureCopy.DestinationSubresource.MipLevel,
+												  layer,
+												  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+												  layout,
+												  dstAspect);
+		}
 	}
 
 	void CommandExecutorVk::StartRenderingToSwapchain(SwapchainVk *swapchain)

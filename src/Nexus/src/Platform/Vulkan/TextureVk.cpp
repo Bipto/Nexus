@@ -185,7 +185,7 @@ namespace Nexus::Graphics
 		vmaUnmapMemory(m_GraphicsDevice->GetAllocator(), m_StagingBuffer.Allocation);
 	}
 
-	TextureVk::TextureVk(const TextureSpecification &spec, GraphicsDeviceVk *device) : Texture(spec)
+	TextureVk::TextureVk(const TextureSpecification &spec, GraphicsDeviceVk *device) : Texture(spec), m_GraphicsDevice(device)
 	{
 		NX_ASSERT(spec.ArrayLayers >= 1, "Texture must have at least one array layer");
 		NX_ASSERT(spec.MipLevels >= 1, "Texture must have at least one mip level");
@@ -259,6 +259,29 @@ namespace Nexus::Graphics
 				for (uint32_t mipLevel = 0; mipLevel < spec.MipLevels; mipLevel++) { m_Layouts.push_back(VK_IMAGE_LAYOUT_UNDEFINED); }
 			}	 // namespace Nexus::Graphics
 		}
+
+		m_GraphicsDevice->ImmediateSubmit(
+			[&](VkCommandBuffer cmd)
+			{
+				for (uint32_t layer = 0; layer < m_Specification.ArrayLayers; layer++)
+				{
+					for (uint32_t mip = 0; mip < m_Specification.MipLevels; mip++)
+					{
+						VkImageAspectFlagBits aspectFlags = VK_IMAGE_ASPECT_NONE;
+						if (isDepth)
+						{
+							aspectFlags = VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
+						}
+						else
+						{
+							aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
+						}
+
+						m_GraphicsDevice
+							->TransitionVulkanImageLayout(cmd, m_Image, mip, layer, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL, aspectFlags);
+					}
+				}
+			});
 	}
 
 	TextureVk::~TextureVk()
@@ -277,16 +300,16 @@ namespace Nexus::Graphics
 
 	VkImageLayout TextureVk::GetImageLayout(uint32_t arrayLayer, uint32_t mipLevel)
 	{
-		NX_ASSERT(arrayLayer >= m_Specification.ArrayLayers, "Array layer is greater than the total number of array layers");
-		NX_ASSERT(mipLevel >= m_Specification.MipLevels, "Mip level is greater than the total number of mip levels");
+		NX_ASSERT(arrayLayer < m_Specification.ArrayLayers, "Array layer is greater than the total number of array layers");
+		NX_ASSERT(mipLevel < m_Specification.MipLevels, "Mip level is greater than the total number of mip levels");
 
 		return m_Layouts[arrayLayer * m_Specification.MipLevels + mipLevel];
 	}
 
 	void TextureVk::SetImageLayout(uint32_t arrayLayer, uint32_t mipLevel, VkImageLayout layout)
 	{
-		NX_ASSERT(arrayLayer >= m_Specification.ArrayLayers, "Array layer is greater than the total number of array layers");
-		NX_ASSERT(mipLevel >= m_Specification.MipLevels, "Mip level is greater than the total number of mip levels");
+		NX_ASSERT(arrayLayer < m_Specification.ArrayLayers, "Array layer is greater than the total number of array layers");
+		NX_ASSERT(mipLevel < m_Specification.MipLevels, "Mip level is greater than the total number of mip levels");
 		m_Layouts[arrayLayer * m_Specification.MipLevels + mipLevel] = layout;
 	}
 

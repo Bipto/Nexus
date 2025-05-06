@@ -646,6 +646,18 @@ namespace Nexus::Vk
 			default: throw std::runtime_error("Failed to find a valid barrier layout");
 		}
 	}
+
+	VkImageAspectFlagBits GetAspectFlags(Graphics::ImageAspect aspect)
+	{
+		switch (aspect)
+		{
+			case Graphics::ImageAspect::Colour: return VK_IMAGE_ASPECT_COLOR_BIT;
+			case Graphics::ImageAspect::Depth: return VK_IMAGE_ASPECT_DEPTH_BIT;
+			case Graphics::ImageAspect::Stencil: return VK_IMAGE_ASPECT_STENCIL_BIT;
+			case Graphics::ImageAspect::DepthStencil: return VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
+			default: throw std::runtime_error("Failed to find valid aspect flags");
+		}
+	}
 }	 // namespace Nexus::Vk
 
 #endif
