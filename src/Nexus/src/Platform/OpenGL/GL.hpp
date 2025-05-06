@@ -96,6 +96,7 @@ namespace Nexus::GL
 
 	GLenum GetGLImageAspect(Graphics::ImageAspect aspect);
 	GLenum GetAttachmentType(Graphics::ImageAspect aspect);
+	GLenum GetBufferMaskToCopy(Graphics::ImageAspect aspect);
 
 	std::unique_ptr<IOffscreenContext> CreateOffscreenContext(Graphics::IPhysicalDevice *physicalDevice);
 	std::unique_ptr<IViewContext>	   CreateViewContext(IWindow *window, Graphics::GraphicsDevice *device);

@@ -889,7 +889,7 @@ namespace Nexus::GL
 			case Graphics::ImageAspect::Depth: return GL_DEPTH_COMPONENT;
 			case Graphics::ImageAspect::Stencil: return GL_STENCIL_INDEX;
 			case Graphics::ImageAspect::DepthStencil: return GL_DEPTH_STENCIL;
-			default: throw std::runtime_error("Failed to find a valid image aspect");
+			default: throw std::runtime_error("Invalid aspect mask specified");
 		}
 	}
 
@@ -901,7 +901,19 @@ namespace Nexus::GL
 			case Graphics::ImageAspect::Depth: return GL_DEPTH_ATTACHMENT;
 			case Graphics::ImageAspect::Stencil: return GL_STENCIL_ATTACHMENT;
 			case Graphics::ImageAspect::DepthStencil: return GL_DEPTH_STENCIL_ATTACHMENT;
-			default: throw std::runtime_error("Failed to finda valid attachment type");
+			default: throw std::runtime_error("Invalid aspect mask specified");
+		}
+	}
+
+	GLenum GetBufferMaskToCopy(Graphics::ImageAspect aspect)
+	{
+		switch (aspect)
+		{
+			case Graphics::ImageAspect::Colour: return GL_COLOR_ATTACHMENT0;
+			case Graphics::ImageAspect::Depth: return GL_DEPTH_ATTACHMENT;
+			case Graphics::ImageAspect::Stencil: return GL_STENCIL_ATTACHMENT;
+			case Graphics::ImageAspect::DepthStencil: return GL_DEPTH_STENCIL_ATTACHMENT;
+			default: throw std::runtime_error("Invalid aspect mask specified");
 		}
 	}
 

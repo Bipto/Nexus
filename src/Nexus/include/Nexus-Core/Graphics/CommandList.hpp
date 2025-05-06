@@ -23,7 +23,7 @@ namespace Nexus::Graphics
 		uint64_t	  Size		  = 0;
 	};
 
-	enum class ImageAspect
+	enum class ImageAspect : uint16_t
 	{
 		Colour,
 		Depth,
@@ -31,33 +31,32 @@ namespace Nexus::Graphics
 		DepthStencil
 	};
 
+	struct SubresourceDescription
+	{
+		uint32_t	X		 = 0;
+		uint32_t	Y		 = 0;
+		uint32_t	Z		 = 0;
+		uint32_t	Width	 = 0;
+		uint32_t	Height	 = 0;
+		uint32_t	Depth	 = 0;
+		uint32_t	MipLevel = 0;
+		ImageAspect Aspect	 = ImageAspect::Colour;
+	};
+
 	struct BufferTextureCopyDescription
 	{
-		DeviceBuffer *BufferHandle	= nullptr;
-		Texture		 *TextureHandle = nullptr;
-		uint64_t	  BufferOffset	= 0;
-		uint32_t	  X				= 0;
-		uint32_t	  Y				= 0;
-		uint32_t	  Z				= 0;
-		uint32_t	  Width			= 0;
-		uint32_t	  Height		= 0;
-		uint32_t	  Depth			= 0;
-		uint32_t	  MipLevel		= 0;
-		ImageAspect	  Aspect		= ImageAspect::Colour;
+		DeviceBuffer		  *BufferHandle		  = nullptr;
+		Texture				  *TextureHandle	  = nullptr;
+		uint64_t			   BufferOffset		  = 0;
+		SubresourceDescription TextureSubresource = {};
 	};
 
 	struct TextureCopyDescription
 	{
-		Texture	   *Source		= nullptr;
-		Texture	   *Destination = nullptr;
-		uint32_t	X			= 0;
-		uint32_t	Y			= 0;
-		uint32_t	Z			= 0;
-		uint32_t	Width		= 0;
-		uint32_t	Height		= 0;
-		uint32_t	Depth		= 0;
-		uint32_t	MipLevel	= 0;
-		ImageAspect Aspect		= ImageAspect::Colour;
+		Texture				  *Source				  = nullptr;
+		Texture				  *Destination			  = nullptr;
+		SubresourceDescription SourceSubresource	  = {};
+		SubresourceDescription DestinationSubresource = {};
 	};
 
 	struct SetVertexBufferCommand

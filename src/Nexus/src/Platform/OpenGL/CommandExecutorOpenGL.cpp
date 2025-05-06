@@ -469,16 +469,7 @@ namespace Nexus::Graphics
 		TextureOpenGL	   *textureOpenGL = (TextureOpenGL *)command.BufferTextureCopy.TextureHandle;
 
 		const BufferTextureCopyDescription &copyDesc = command.BufferTextureCopy;
-		textureOpenGL->CopyDataFromBuffer(buffer,
-										  copyDesc.MipLevel,
-										  copyDesc.X,
-										  copyDesc.Y,
-										  copyDesc.Z,
-										  copyDesc.Width,
-										  copyDesc.Height,
-										  copyDesc.Depth,
-										  copyDesc.BufferOffset,
-										  copyDesc.Aspect);
+		textureOpenGL->CopyDataFromBuffer(buffer, copyDesc.BufferOffset, command.BufferTextureCopy.TextureSubresource);
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const CopyTextureToBufferCommand &command, GraphicsDevice *device)
@@ -487,16 +478,7 @@ namespace Nexus::Graphics
 		TextureOpenGL	   *textureOpenGL = (TextureOpenGL *)command.TextureBufferCopy.TextureHandle;
 
 		const BufferTextureCopyDescription &copyDesc = command.TextureBufferCopy;
-		textureOpenGL->CopyDataToBuffer(buffer,
-										copyDesc.MipLevel,
-										copyDesc.X,
-										copyDesc.Y,
-										copyDesc.Z,
-										copyDesc.Width,
-										copyDesc.Height,
-										copyDesc.Depth,
-										copyDesc.BufferOffset,
-										copyDesc.Aspect);
+		textureOpenGL->CopyDataToBuffer(buffer, copyDesc.BufferOffset, copyDesc.TextureSubresource);
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const CopyTextureToTextureCommand &command, GraphicsDevice *device)
@@ -505,10 +487,12 @@ namespace Nexus::Graphics
 		TextureOpenGL				 *destTexture	= (TextureOpenGL *)command.TextureCopy.Destination;
 		const TextureCopyDescription &copyDesc		= command.TextureCopy;
 
-		GLenum glAspect		  = GL::GetGLImageAspect(command.TextureCopy.Aspect);
-		GLenum attachmentType = GL::GetAttachmentType(command.TextureCopy.Aspect);
+		GLenum srcGlAspect		 = GL::GetGLImageAspect(command.TextureCopy.SourceSubresource.Aspect);
+		GLenum srcAttachmentType = GL::GetAttachmentType(command.TextureCopy.SourceSubresource.Aspect);
+		GLenum dstGlAspect		 = GL::GetGLImageAspect(command.TextureCopy.DestinationSubresource.Aspect);
+		GLenum dstAttachmentType = GL::GetAttachmentType(command.TextureCopy.DestinationSubresource.Aspect);
 
-		for (uint32_t layer = command.TextureCopy.Z; layer < command.TextureCopy.Depth; layer++)
+		for (uint32_t layer = command.TextureCopy.SourceSubresource.Z; layer < command.TextureCopy.SourceSubresource.Depth; layer++)
 		{
 			GLuint sourceFramebufferHandle = 0;
 			GLuint destFramebufferHandle   = 0;
@@ -517,7 +501,12 @@ namespace Nexus::Graphics
 			{
 				glCall(glGenFramebuffers(1, &sourceFramebufferHandle));
 				glCall(glBindFramebuffer(GL_FRAMEBUFFER, sourceFramebufferHandle));
-				GL::AttachTexture(sourceFramebufferHandle, sourceTexture, command.TextureCopy.MipLevel, layer, command.TextureCopy.Aspect);
+				GLenum aspectMask = GL::GetGLImageAspect(command.TextureCopy.SourceSubresource.Aspect);
+				GL::AttachTexture(sourceFramebufferHandle,
+								  sourceTexture,
+								  command.TextureCopy.SourceSubresource.MipLevel,
+								  layer,
+								  copyDesc.SourceSubresource.Aspect);
 				GL::ValidateFramebuffer(sourceFramebufferHandle);
 			}
 
@@ -525,97 +514,32 @@ namespace Nexus::Graphics
 			{
 				glCall(glGenFramebuffers(1, &destFramebufferHandle));
 				glCall(glBindFramebuffer(GL_FRAMEBUFFER, destFramebufferHandle));
-				GL::AttachTexture(destFramebufferHandle, destTexture, command.TextureCopy.MipLevel, layer, command.TextureCopy.Aspect);
+				GLenum aspectMask = GL::GetGLImageAspect(command.TextureCopy.DestinationSubresource.Aspect);
+				GL::AttachTexture(destFramebufferHandle,
+								  destTexture,
+								  command.TextureCopy.DestinationSubresource.MipLevel,
+								  layer,
+								  copyDesc.DestinationSubresource.Aspect);
 				GL::ValidateFramebuffer(destFramebufferHandle);
 			}
 
-			// perform the copy
-			{
-				glBindFramebuffer(GL_READ_FRAMEBUFFER, sourceFramebufferHandle);
-				glBindFramebuffer(GL_DRAW_FRAMEBUFFER, destFramebufferHandle);
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, sourceFramebufferHandle);
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, destFramebufferHandle);
 
-				switch (command.TextureCopy.Aspect)
-				{
-					// copy the colour attachment
-					case Graphics::ImageAspect::Colour:
-					{
-						glBlitFramebuffer(command.TextureCopy.X,
-										  command.TextureCopy.Y,
-										  command.TextureCopy.Width,
-										  command.TextureCopy.Height,
-										  command.TextureCopy.X,
-										  command.TextureCopy.Y,
-										  command.TextureCopy.Width,
-										  command.TextureCopy.Height,
-										  GL_COLOR_BUFFER_BIT,
-										  GL_NEAREST);
-						break;
-					}
+			// copy all attached aspect masks
+			glBlitFramebuffer(command.TextureCopy.SourceSubresource.X,
+							  command.TextureCopy.SourceSubresource.Y,
+							  command.TextureCopy.SourceSubresource.Width,
+							  command.TextureCopy.SourceSubresource.Height,
+							  command.TextureCopy.DestinationSubresource.X,
+							  command.TextureCopy.DestinationSubresource.Y,
+							  command.TextureCopy.DestinationSubresource.Width,
+							  command.TextureCopy.DestinationSubresource.Height,
+							  GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT,
+							  GL_NEAREST);
 
-					// copy the depth attachment
-					case Graphics::ImageAspect::Depth:
-					{
-						glBlitFramebuffer(command.TextureCopy.X,
-										  command.TextureCopy.Y,
-										  command.TextureCopy.Width,
-										  command.TextureCopy.Height,
-										  command.TextureCopy.X,
-										  command.TextureCopy.Y,
-										  command.TextureCopy.Width,
-										  command.TextureCopy.Height,
-										  GL_DEPTH_BUFFER_BIT,
-										  GL_NEAREST);
-						break;
-					}
-					// copy the stencil attachment
-					case Graphics::ImageAspect::Stencil:
-					{
-						glBlitFramebuffer(command.TextureCopy.X,
-										  command.TextureCopy.Y,
-										  command.TextureCopy.Width,
-										  command.TextureCopy.Height,
-										  command.TextureCopy.X,
-										  command.TextureCopy.Y,
-										  command.TextureCopy.Width,
-										  command.TextureCopy.Height,
-										  GL_STENCIL_BUFFER_BIT,
-										  GL_NEAREST);
-						break;
-					}
-					// copy the depth and stencil attachment
-					case Graphics::ImageAspect::DepthStencil:
-					{
-						glBlitFramebuffer(command.TextureCopy.X,
-										  command.TextureCopy.Y,
-										  command.TextureCopy.Width,
-										  command.TextureCopy.Height,
-										  command.TextureCopy.X,
-										  command.TextureCopy.Y,
-										  command.TextureCopy.Width,
-										  command.TextureCopy.Height,
-										  GL_DEPTH_BUFFER_BIT,
-										  GL_NEAREST);
-						glBlitFramebuffer(command.TextureCopy.X,
-										  command.TextureCopy.Y,
-										  command.TextureCopy.Width,
-										  command.TextureCopy.Height,
-										  command.TextureCopy.X,
-										  command.TextureCopy.Y,
-										  command.TextureCopy.Width,
-										  command.TextureCopy.Height,
-										  GL_STENCIL_BUFFER_BIT,
-										  GL_NEAREST);
-						break;
-					}
-
-					default: throw std::runtime_error("Could not copy texture");
-				}
-
-				glMemoryBarrier(GL_ALL_BARRIER_BITS);
-
-				glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-				glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-			}
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
 			glCall(glDeleteFramebuffers(1, &sourceFramebufferHandle));
 			glCall(glDeleteFramebuffers(1, &destFramebufferHandle));
