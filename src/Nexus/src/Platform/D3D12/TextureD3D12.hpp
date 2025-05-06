@@ -17,6 +17,8 @@ namespace Nexus::Graphics
 		void				  SetResourceState(uint32_t arrayLayer, uint32_t mipLevel, D3D12_RESOURCE_STATES state);
 		D3D12_RESOURCE_STATES GetResourceState(uint32_t arrayLayer, uint32_t mipLevel);
 
+		Microsoft::WRL::ComPtr<ID3D12Resource2> GetHandle();
+
 	  private:
 		Microsoft::WRL::ComPtr<ID3D12Resource2>		m_Texture		= nullptr;
 		Microsoft::WRL::ComPtr<D3D12MA::Allocation> m_Allocation	= nullptr;

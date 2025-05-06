@@ -250,7 +250,7 @@ namespace Nexus::Graphics
 		readbackBuffer->Unmap(0, nullptr);
 	}
 
-	TextureD3D12::TextureD3D12(const TextureSpecification &spec, GraphicsDeviceD3D12 *device) : Texture(spec)
+	TextureD3D12::TextureD3D12(const TextureSpecification &spec, GraphicsDeviceD3D12 *device) : Texture(spec), m_Device(device)
 	{
 		NX_ASSERT(spec.ArrayLayers >= 1, "Texture must have at least one array layer");
 		NX_ASSERT(spec.MipLevels >= 1, "Texture must have at least one mip level");
@@ -315,18 +315,23 @@ namespace Nexus::Graphics
 
 	void TextureD3D12::SetResourceState(uint32_t arrayLayer, uint32_t mipLevel, D3D12_RESOURCE_STATES state)
 	{
-		NX_ASSERT(arrayLayer >= m_Specification.ArrayLayers, "Array layer is greater than the total number of array layers");
-		NX_ASSERT(mipLevel >= m_Specification.MipLevels, "Mip level is greater than the total number of mip levels");
+		NX_ASSERT(arrayLayer < m_Specification.ArrayLayers, "Array layer is greater than the total number of array layers");
+		NX_ASSERT(mipLevel < m_Specification.MipLevels, "Mip level is greater than the total number of mip levels");
 
 		m_ResourceStates[arrayLayer * m_Specification.MipLevels + mipLevel] = state;
 	}
 
 	D3D12_RESOURCE_STATES TextureD3D12::GetResourceState(uint32_t arrayLayer, uint32_t mipLevel)
 	{
-		NX_ASSERT(arrayLayer >= m_Specification.ArrayLayers, "Array layer is greater than the total number of array layers");
-		NX_ASSERT(mipLevel >= m_Specification.MipLevels, "Mip level is greater than the total number of mip levels");
+		NX_ASSERT(arrayLayer < m_Specification.ArrayLayers, "Array layer is greater than the total number of array layers");
+		NX_ASSERT(mipLevel < m_Specification.MipLevels, "Mip level is greater than the total number of mip levels");
 
 		return m_ResourceStates[arrayLayer * m_Specification.MipLevels + mipLevel];
+	}
+
+	Microsoft::WRL::ComPtr<ID3D12Resource2> TextureD3D12::GetHandle()
+	{
+		return m_Texture;
 	}
 
 	DXGI_FORMAT Texture2D_D3D12::GetFormat()

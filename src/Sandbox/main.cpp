@@ -4,7 +4,7 @@ int main()
 {
 	Nexus::Graphics::GraphicsAPICreateInfo info = {};
 	info.Debug									= true;
-	info.API									= Nexus::Graphics::GraphicsAPI::OpenGL;
+	info.API									= Nexus::Graphics::GraphicsAPI::D3D12;
 
 	std::unique_ptr<Nexus::Graphics::IGraphicsAPI> api =
 		std::unique_ptr<Nexus::Graphics::IGraphicsAPI>(Nexus::Graphics::IGraphicsAPI::CreateAPI(info));
@@ -29,6 +29,8 @@ int main()
 
 	std::unique_ptr<Nexus::Graphics::DeviceBuffer> uploadBuffer =
 		std::unique_ptr<Nexus::Graphics::DeviceBuffer>(graphicsDevice->CreateDeviceBuffer(bufferDesc));
+
+	bufferDesc.Type = Nexus::Graphics::DeviceBufferType::Readback;
 	std::unique_ptr<Nexus::Graphics::DeviceBuffer> readbackBuffer =
 		std::unique_ptr<Nexus::Graphics::DeviceBuffer>(graphicsDevice->CreateDeviceBuffer(bufferDesc));
 

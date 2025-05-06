@@ -84,7 +84,7 @@ namespace Nexus::Graphics
 		void *offsetIntoBuffer = (void *)(((const char *)buffer) + offset);
 		memcpy(data.data(), offsetIntoBuffer, size);
 
-		m_BufferHandle->Unmap(0, &range);
+		m_BufferHandle->Unmap(0, nullptr);
 
 		return data;
 	}
