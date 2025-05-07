@@ -256,7 +256,7 @@ namespace Nexus::Graphics
 		{
 			for (uint32_t arrayLayer = 0; arrayLayer < spec.ArrayLayers; arrayLayer++)
 			{
-				for (uint32_t mipLevel = 0; mipLevel < spec.MipLevels; mipLevel++) { m_Layouts.push_back(VK_IMAGE_LAYOUT_UNDEFINED); }
+				for (uint32_t mipLevel = 0; mipLevel < spec.MipLevels; mipLevel++) { m_Layouts.push_back(VK_IMAGE_LAYOUT_GENERAL); }
 			}	 // namespace Nexus::Graphics
 		}
 
