@@ -39,7 +39,7 @@ namespace Nexus
 		/// @param filepath A filepath to retrieve a texture from, if the texture has
 		/// already been loaded then the cached one will be returned
 		/// @return A reference counted pointer to a texture
-		Ref<Graphics::Texture2D> GetTexture(const std::string &filepath);
+		Ref<Graphics::Texture> GetTexture(const std::string &filepath);
 
 	  private:
 		std::any LoadAsset(GUID id);

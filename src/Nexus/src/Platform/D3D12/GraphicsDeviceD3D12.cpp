@@ -108,16 +108,6 @@ namespace Nexus::Graphics
 		return CreateRef<ShaderModuleD3D12>(moduleSpec, resources);
 	}
 
-	Ref<Texture2D> GraphicsDeviceD3D12::CreateTexture2D(const Texture2DSpecification &spec)
-	{
-		return CreateRef<Texture2D_D3D12>(this, spec);
-	}
-
-	Ref<Cubemap> GraphicsDeviceD3D12::CreateCubemap(const CubemapSpecification &spec)
-	{
-		return CreateRef<Cubemap_D3D12>(spec, this);
-	}
-
 	Ref<GraphicsPipeline> GraphicsDeviceD3D12::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
 	{
 		return CreateRef<GraphicsPipelineD3D12>(m_Device.Get(), description);
@@ -240,7 +230,9 @@ namespace Nexus::Graphics
 
 	void GraphicsDeviceD3D12::ResourceBarrier(ID3D12GraphicsCommandList7 *cmd,
 											  ID3D12Resource			 *resource,
+											  uint32_t					  layer,
 											  uint32_t					  level,
+											  uint32_t					  mipCount,
 											  D3D12_RESOURCE_STATES		  before,
 											  D3D12_RESOURCE_STATES		  after)
 	{
@@ -249,34 +241,38 @@ namespace Nexus::Graphics
 			return;
 		}
 
+		uint32_t subresourceIndex = (layer * mipCount) + level;
+
 		D3D12_RESOURCE_BARRIER barrier = {};
 		barrier.Type				   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 		barrier.Flags				   = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 		barrier.Transition.pResource   = resource;
-		barrier.Transition.Subresource = level;
+		barrier.Transition.Subresource = subresourceIndex;
 		barrier.Transition.StateBefore = before;
 		barrier.Transition.StateAfter  = after;
 		cmd->ResourceBarrier(1, &barrier);
 	}
 
 	void GraphicsDeviceD3D12::ResourceBarrier(ID3D12GraphicsCommandList7 *cmd,
-											  Ref<Texture2D_D3D12>		  resource,
+											  Ref<TextureD3D12>			  resource,
+											  uint32_t					  layer,
 											  uint32_t					  level,
 											  D3D12_RESOURCE_STATES		  after)
 	{
-		ResourceBarrier(cmd, resource->GetD3D12ResourceHandle().Get(), level, resource->GetResourceState(level), after);
-		resource->SetResourceState(level, after);
+		D3D12_RESOURCE_STATES resourceState = resource->GetResourceState(layer, level);
+		ResourceBarrier(cmd, resource->GetHandle().Get(), layer, level, resource->GetSpecification().MipLevels, resourceState, after);
+		resource->SetResourceState(layer, level, after);
 	}
 
 	void GraphicsDeviceD3D12::ResourceBarrierSwapchainColour(ID3D12GraphicsCommandList7 *cmd, SwapchainD3D12 *resource, D3D12_RESOURCE_STATES after)
 	{
-		ResourceBarrier(cmd, resource->RetrieveBufferHandle().Get(), 0, resource->GetCurrentTextureState(), after);
+		ResourceBarrier(cmd, resource->RetrieveBufferHandle().Get(), 0, 0, 1, resource->GetCurrentTextureState(), after);
 		resource->SetTextureState(after);
 	}
 
 	void GraphicsDeviceD3D12::ResourceBarrierSwapchainDepth(ID3D12GraphicsCommandList7 *cmd, SwapchainD3D12 *resource, D3D12_RESOURCE_STATES after)
 	{
-		ResourceBarrier(cmd, resource->RetrieveDepthBufferHandle(), 0, resource->GetCurrentDepthState(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
+		ResourceBarrier(cmd, resource->RetrieveDepthBufferHandle(), 0, 0, 1, resource->GetCurrentDepthState(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
 		resource->SetDepthState(after);
 	}
 

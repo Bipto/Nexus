@@ -113,6 +113,10 @@ namespace Demos
 			m_CommandList->End();
 
 			m_GraphicsDevice->SubmitCommandList(m_CommandList);
+
+			/* Nexus::Graphics::HdriProcessor processor(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/hdri/hangar_interior_4k.hdr"),
+													 m_GraphicsDevice);
+			m_Cubemap = processor.Generate(2048); */
 		}
 
 		virtual void Update(Nexus::TimeSpan time) override
@@ -156,7 +160,7 @@ namespace Demos
 
 	  private:
 		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
-		Nexus::Ref<Nexus::Graphics::Cubemap>	 m_Cubemap;
+		Nexus::Ref<Nexus::Graphics::Texture>	 m_Cubemap;
 		Nexus::Ref<Nexus::Graphics::Sampler>	 m_Sampler;
 		glm::vec3								 m_ClearColour = {0.7f, 0.2f, 0.3f};
 

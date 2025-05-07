@@ -211,34 +211,6 @@ namespace Nexus::D3D12
 		}
 	}
 
-	D3D12_RESOURCE_FLAGS
-	GetD3D12ResourceFlags(const std::vector<Nexus::Graphics::TextureUsage> &usage, bool &isDepth)
-	{
-		isDepth					   = false;
-		D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE;
-
-		for (const auto &item : usage)
-		{
-			if (item == Nexus::Graphics::TextureUsage::DepthStencil)
-			{
-				isDepth = true;
-				flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-			}
-
-			if (item == Nexus::Graphics::TextureUsage::RenderTarget)
-			{
-				flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
-			}
-
-			if (item == Nexus::Graphics::TextureUsage::Storage)
-			{
-				flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
-			}
-		}
-
-		return flags;
-	}
-
 	D3D12_FILTER GetD3D12Filter(Nexus::Graphics::SamplerFilter filter)
 	{
 		switch (filter)

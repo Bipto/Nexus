@@ -66,6 +66,11 @@ namespace Nexus::Graphics
 			return m_Height;
 		}
 
+		size_t GetSizeInBytes() const
+		{
+			return m_Pixels.size();
+		}
+
 	  private:
 		std::vector<uint8_t> m_Pixels;
 		uint32_t			 m_Width  = 0;
@@ -92,7 +97,7 @@ namespace Nexus::Graphics
 	  public:
 		Font(const std::string &filepath, uint32_t size, const std::vector<CharacterRange> &characterRanges, FontType type, GraphicsDevice *device);
 
-		Nexus::Ref<Nexus::Graphics::Texture2D> GetTexture();
+		Nexus::Ref<Nexus::Graphics::Texture>   GetTexture();
 		const Character						  &GetCharacter(char character);
 		uint32_t							   GetSize() const;
 		Nexus::Point2D<float>				   MeasureString(const std::string &text, uint32_t size);
@@ -101,7 +106,7 @@ namespace Nexus::Graphics
 		const FontType						   GetFontType() const;
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::Texture2D> m_Texture = nullptr;
+		Nexus::Ref<Nexus::Graphics::Texture>   m_Texture = nullptr;
 		std::vector<CharacterRange>			   m_CharacterRanges;
 		std::map<char, Character>			   m_Characters;
 		uint32_t							   m_TextureWidth	   = 0;

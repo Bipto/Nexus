@@ -106,16 +106,6 @@ namespace Nexus::Graphics
 		return CreateRef<ShaderModuleVk>(moduleSpec, resources, this);
 	}
 
-	Ref<Texture2D> GraphicsDeviceVk::CreateTexture2D(const Texture2DSpecification &spec)
-	{
-		return CreateRef<Texture2D_Vk>(this, spec);
-	}
-
-	Ref<Cubemap> GraphicsDeviceVk::CreateCubemap(const CubemapSpecification &spec)
-	{
-		return CreateRef<Cubemap_Vk>(this, spec);
-	}
-
 	Ref<GraphicsPipeline> GraphicsDeviceVk::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
 	{
 		return CreateRef<GraphicsPipelineVk>(description, this);

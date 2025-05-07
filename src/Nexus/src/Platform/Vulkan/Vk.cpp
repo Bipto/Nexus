@@ -322,52 +322,6 @@ namespace Nexus::Vk
 		}
 	}
 
-	VkImageUsageFlagBits GetVkImageUsageFlags(const std::vector<Nexus::Graphics::TextureUsage> &usage, bool &isDepth)
-	{
-		isDepth					   = false;
-		VkImageUsageFlagBits flags = VkImageUsageFlagBits(VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
-
-		for (const auto &item : usage)
-		{
-			if (item == Nexus::Graphics::TextureUsage::DepthStencil)
-			{
-				isDepth = true;
-			}
-		}
-
-		for (const auto &item : usage)
-		{
-			if (item == Nexus::Graphics::TextureUsage::DepthStencil)
-			{
-				flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_SAMPLED_BIT);
-			}
-
-			if (item == Nexus::Graphics::TextureUsage::RenderTarget)
-			{
-				if (isDepth)
-				{
-					flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
-				}
-				else
-				{
-					flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
-				}
-			}
-
-			if (item == Nexus::Graphics::TextureUsage::Sampled)
-			{
-				flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_SAMPLED_BIT);
-			}
-
-			if (item == Nexus::Graphics::TextureUsage::Storage)
-			{
-				flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_STORAGE_BIT);
-			}
-		}
-
-		return flags;
-	}
-
 	VkImageUsageFlagBits GetVkImageUsageFlags(uint8_t usage)
 	{
 		VkImageUsageFlagBits flags = VkImageUsageFlagBits(VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
@@ -436,17 +390,6 @@ namespace Nexus::Vk
 			}
 			case Graphics::TextureType::Texture2D:
 			{
-				if (spec.ArrayLayers > 1)
-				{
-					return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
-				}
-				else
-				{
-					return VK_IMAGE_VIEW_TYPE_2D;
-				}
-			}
-			case Graphics::TextureType::Texture3D:
-			{
 				if (spec.Type == Graphics::TextureType::Texture3D && spec.Usage & Graphics::TextureUsage_Cubemap)
 				{
 					if (spec.ArrayLayers > 1)
@@ -460,8 +403,19 @@ namespace Nexus::Vk
 				}
 				else
 				{
-					return VK_IMAGE_VIEW_TYPE_3D;
+					if (spec.ArrayLayers > 1)
+					{
+						return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+					}
+					else
+					{
+						return VK_IMAGE_VIEW_TYPE_2D;
+					}
 				}
+			}
+			case Graphics::TextureType::Texture3D:
+			{
+				return VK_IMAGE_VIEW_TYPE_3D;
 			}
 		}
 

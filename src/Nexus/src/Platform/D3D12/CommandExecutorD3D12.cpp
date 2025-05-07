@@ -337,10 +337,10 @@ namespace Nexus::Graphics
 		auto framebufferD3D12 = std::dynamic_pointer_cast<FramebufferD3D12>(command.Source.lock());
 		auto swapchainD3D12	  = (SwapchainD3D12 *)command.Target;
 
-		Nexus::Ref<Nexus::Graphics::Texture2D_D3D12> framebufferTexture = framebufferD3D12->GetD3D12ColorTexture(command.SourceIndex);
-		Microsoft::WRL::ComPtr<ID3D12Resource2>		 swapchainTexture	= swapchainD3D12->RetrieveBufferHandle();
-		DXGI_FORMAT									 format = D3D12::GetD3D12PixelFormat(Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm, false);
-		D3D12_RESOURCE_STATES						 swapchainState = swapchainD3D12->GetCurrentTextureState();
+		Nexus::Ref<Nexus::Graphics::TextureD3D12> framebufferTexture = framebufferD3D12->GetD3D12ColorTexture(command.SourceIndex);
+		Microsoft::WRL::ComPtr<ID3D12Resource2>	  swapchainTexture	 = swapchainD3D12->RetrieveBufferHandle();
+		DXGI_FORMAT								  format		 = D3D12::GetD3D12PixelFormat(Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm, false);
+		D3D12_RESOURCE_STATES					  swapchainState = swapchainD3D12->GetCurrentTextureState();
 
 		if (framebufferD3D12->GetFramebufferSpecification().Width > swapchainD3D12->GetWindow()->GetWindowSize().X)
 		{
@@ -354,15 +354,18 @@ namespace Nexus::Graphics
 
 		GraphicsDeviceD3D12 *deviceD3D12 = (GraphicsDeviceD3D12 *)device;
 
-		deviceD3D12->ResourceBarrier(m_CommandList.Get(), framebufferTexture, 0, D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
+		deviceD3D12->ResourceBarrier(m_CommandList.Get(), framebufferTexture, 0, 0, D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
+
 		deviceD3D12->ResourceBarrier(m_CommandList.Get(),
 									 swapchainTexture.Get(),
 									 0,
+									 0,
+									 1,
 									 swapchainD3D12->GetCurrentTextureState(),
 									 D3D12_RESOURCE_STATE_RESOLVE_DEST);
-		swapchainD3D12->SetTextureState(D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
 
-		m_CommandList->ResolveSubresource(swapchainTexture.Get(), 0, framebufferTexture->GetD3D12ResourceHandle().Get(), 0, format);
+		swapchainD3D12->SetTextureState(D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
+		m_CommandList->ResolveSubresource(swapchainTexture.Get(), 0, framebufferTexture->GetHandle().Get(), 0, format);
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(StartTimingQueryCommand command, GraphicsDevice *device)
@@ -437,8 +440,8 @@ namespace Nexus::Graphics
 
 		for (const auto &textureBarrier : command.TextureBarriers)
 		{
-			Texture2D_D3D12								  *texture		  = (Texture2D_D3D12 *)textureBarrier.Texture;
-			const Microsoft::WRL::ComPtr<ID3D12Resource2> &resourceHandle = texture->GetD3D12ResourceHandle();
+			TextureD3D12								  *texture		  = (TextureD3D12 *)textureBarrier.Texture;
+			const Microsoft::WRL::ComPtr<ID3D12Resource2> &resourceHandle = texture->GetHandle();
 
 			D3D12_BARRIER_SYNC	 syncBefore	  = D3D12::GetBarrierSyncType(textureBarrier.BeforeStage);
 			D3D12_BARRIER_SYNC	 syncAfter	  = D3D12::GetBarrierSyncType(textureBarrier.AfterStage);
@@ -771,14 +774,14 @@ namespace Nexus::Graphics
 
 		for (size_t i = 0; i < framebuffer->GetColorTextureCount(); i++)
 		{
-			Ref<Texture2D_D3D12> texture = framebuffer->GetD3D12ColorTexture(i);
-			deviceD3D12->ResourceBarrier(m_CommandList.Get(), texture, 0, D3D12_RESOURCE_STATE_RENDER_TARGET);
+			Ref<TextureD3D12> texture = framebuffer->GetD3D12ColorTexture(i);
+			deviceD3D12->ResourceBarrier(m_CommandList.Get(), texture, 0, 0, D3D12_RESOURCE_STATE_RENDER_TARGET);
 		}
 
 		if (framebuffer->HasDepthTexture())
 		{
-			Ref<Texture2D_D3D12> depthBuffer = framebuffer->GetD3D12DepthTexture();
-			deviceD3D12->ResourceBarrier(m_CommandList.Get(), depthBuffer, 0, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+			Ref<TextureD3D12> depthBuffer = framebuffer->GetD3D12DepthTexture();
+			deviceD3D12->ResourceBarrier(m_CommandList.Get(), depthBuffer, 0, 0, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 		}
 		else
 		{

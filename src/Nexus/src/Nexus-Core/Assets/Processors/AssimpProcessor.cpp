@@ -93,32 +93,43 @@ namespace Nexus::Processors
 		for (unsigned int i = 0; i < node->mNumChildren; i++) { ProcessNode(node->mChildren[i], scene, materials, meshData, device); }
 	}
 
-	Nexus::Ref<Nexus::Graphics::Texture2D> LoadEmbeddedTexture(const aiTexture *texture, Nexus::Graphics::GraphicsDevice *device)
+	Nexus::Ref<Nexus::Graphics::Texture> LoadEmbeddedTexture(const aiTexture *texture, Nexus::Graphics::GraphicsDevice *device)
 	{
 		std::vector<unsigned char> pixels;
 		pixels.reserve(texture->mWidth * texture->mHeight * 4);
 		memcpy(pixels.data(), texture->pcData, pixels.size());
-		Nexus::Utils::FlipPixelsVertically(pixels, texture->mWidth, texture->mHeight, Graphics::PixelFormat::R8_G8_B8_A8_UNorm);
+		Nexus::Utils::FlipPixelsVertically(pixels.data(), texture->mWidth, texture->mHeight, Graphics::PixelFormat::R8_G8_B8_A8_UNorm);
 
-		Nexus::Graphics::Texture2DSpecification spec = {};
-		spec.Format									 = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
-		spec.MipLevels								 = 1;
-		spec.Width									 = texture->mWidth;
-		spec.Height									 = texture->mHeight;
+		Nexus::Graphics::TextureSpecification textureSpec = {};
+		textureSpec.Format								  = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
+		textureSpec.MipLevels							  = 1;
+		textureSpec.ArrayLayers							  = 1;
+		textureSpec.Width								  = texture->mWidth;
+		textureSpec.Height								  = texture->mHeight;
+		textureSpec.Type								  = Nexus::Graphics::TextureType::Texture2D;
+		textureSpec.Usage								  = Nexus::Graphics::TextureUsage_Sampled;
 
-		Nexus::Ref<Nexus::Graphics::Texture2D> createdTexture = device->CreateTexture2D(spec);
-		createdTexture->SetData(pixels.data(), 0, 0, 0, spec.Width, spec.Height);
+		Nexus::Ref<Nexus::Graphics::Texture> createdTexture = Nexus::Ref<Nexus::Graphics::Texture>(device->CreateTexture(textureSpec));
+
+		Graphics::DeviceBufferDescription bufferDesc   = {};
+		bufferDesc.Type								   = Graphics::DeviceBufferType::Upload;
+		bufferDesc.SizeInBytes						   = pixels.size();
+		bufferDesc.StrideInBytes					   = pixels.size();
+		std::unique_ptr<Graphics::DeviceBuffer> buffer = std::unique_ptr<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(bufferDesc));
+
+		Ref<Graphics::CommandList> cmdList = device->CreateCommandList();
+
 		return createdTexture;
 	}
 
-	Nexus::Ref<Nexus::Graphics::Texture2D> LoadTextureFile(const std::string			   &filename,
-														   const std::string			   &directory,
-														   bool								generateMips,
-														   Nexus::Graphics::GraphicsDevice *device)
+	Nexus::Ref<Nexus::Graphics::Texture> LoadTextureFile(const std::string				 &filename,
+														 const std::string				 &directory,
+														 bool							  generateMips,
+														 Nexus::Graphics::GraphicsDevice *device)
 	{
 		std::string texturePath = directory + std::string("/") + filename;
 
-		Nexus::Ref<Nexus::Graphics::Texture2D> texture = nullptr;
+		Nexus::Ref<Nexus::Graphics::Texture> texture = nullptr;
 
 		if (std::filesystem::is_regular_file(texturePath))
 		{
@@ -183,9 +194,9 @@ namespace Nexus::Processors
 				specularColour.a = assimpSpecularColour.a;
 			}
 
-			Nexus::Ref<Nexus::Graphics::Texture2D> diffuseTexture  = nullptr;
-			Nexus::Ref<Nexus::Graphics::Texture2D> normalTexture   = nullptr;
-			Nexus::Ref<Nexus::Graphics::Texture2D> specularTexture = nullptr;
+			Nexus::Ref<Nexus::Graphics::Texture> diffuseTexture	 = nullptr;
+			Nexus::Ref<Nexus::Graphics::Texture> normalTexture	 = nullptr;
+			Nexus::Ref<Nexus::Graphics::Texture> specularTexture = nullptr;
 
 			if (hasDiffuseTexture)
 			{

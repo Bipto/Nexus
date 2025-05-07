@@ -12,17 +12,17 @@ namespace Nexus::Graphics
 		HdriProcessor() = delete;
 		HdriProcessor(const std::string &filepath, GraphicsDevice *device);
 		~HdriProcessor() = default;
-		Ref<Cubemap> Generate(uint32_t size);
-		Ref<Texture2D> GetLoadedTexture() const;
+		Ref<Texture> Generate(uint32_t size);
+		Ref<Texture> GetLoadedTexture() const;
 
 	  private:
-		void GetDirection(CubemapFace face, float &yaw, float &pitch);
+		void GetDirection(uint32_t faceIndex, float &yaw, float &pitch);
 
 	  private:
 		GraphicsDevice *m_Device   = nullptr;
 		int32_t			m_Width	   = 0;
 		int32_t			m_Height   = 0;
 
-		Nexus::Ref<Nexus::Graphics::Texture2D> m_HdriImage = nullptr;
+		Nexus::Ref<Nexus::Graphics::Texture> m_HdriImage = nullptr;
 	};
 }	 // namespace Nexus::Graphics

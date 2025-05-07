@@ -361,10 +361,10 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		Ref<Texture2D_D3D12> framebufferTexture = std::dynamic_pointer_cast<Texture2D_D3D12>(m_MultisampledFramebuffer->GetColorTexture());
+		Ref<TextureD3D12> framebufferTexture = std::dynamic_pointer_cast<TextureD3D12>(m_MultisampledFramebuffer->GetColorTexture());
 
 		DXGI_FORMAT			  format		   = D3D12::GetD3D12PixelFormat(Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm, false);
-		D3D12_RESOURCE_STATES framebufferState = framebufferTexture->GetResourceState(0);
+		D3D12_RESOURCE_STATES framebufferState = framebufferTexture->GetResourceState(0, 0);
 		D3D12_RESOURCE_STATES swapchainState   = GetCurrentTextureState();
 
 		std::vector<D3D12_RESOURCE_BARRIER> resourceBarriers;
@@ -374,21 +374,13 @@ namespace Nexus::Graphics
 		m_Device->ImmediateSubmit(
 			[&](ID3D12GraphicsCommandList7 *cmd)
 			{
-				m_Device->ResourceBarrier(cmd,
-										  framebufferTexture->GetD3D12ResourceHandle().Get(),
-										  0,
-										  framebufferState,
-										  D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
-				m_Device->ResourceBarrier(cmd, swapchainTexture.Get(), 0, swapchainState, D3D12_RESOURCE_STATE_RESOLVE_DEST);
+				m_Device->ResourceBarrier(cmd, framebufferTexture, 0, 0, D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
+				m_Device->ResourceBarrier(cmd, swapchainTexture.Get(), 0, 0, 1, swapchainState, D3D12_RESOURCE_STATE_RESOLVE_DEST);
 
-				cmd->ResolveSubresource(swapchainTexture.Get(), 0, framebufferTexture->GetD3D12ResourceHandle().Get(), 0, format);
+				cmd->ResolveSubresource(swapchainTexture.Get(), 0, framebufferTexture->GetHandle().Get(), 0, format);
 
-				m_Device->ResourceBarrier(cmd,
-										  framebufferTexture->GetD3D12ResourceHandle().Get(),
-										  0,
-										  D3D12_RESOURCE_STATE_RESOLVE_SOURCE,
-										  framebufferState);
-				m_Device->ResourceBarrier(cmd, swapchainTexture.Get(), 0, D3D12_RESOURCE_STATE_RESOLVE_DEST, swapchainState);
+				m_Device->ResourceBarrier(cmd, framebufferTexture, 0, 0, framebufferState);
+				m_Device->ResourceBarrier(cmd, swapchainTexture.Get(), 0, 0, 1, D3D12_RESOURCE_STATE_RESOLVE_DEST, swapchainState);
 			});
 	}
 }	 // namespace Nexus::Graphics

@@ -164,7 +164,7 @@ namespace Demos
 		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
 		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline;
 		Nexus::Ref<Nexus::Graphics::Mesh>		 m_Mesh;
-		Nexus::Ref<Nexus::Graphics::Texture2D>	 m_Texture;
+		Nexus::Ref<Nexus::Graphics::Texture>		  m_Texture;
 		Nexus::Ref<Nexus::Graphics::Sampler>	 m_Sampler;
 		glm::vec3								 m_ClearColour = {0.7f, 0.2f, 0.3f};
 

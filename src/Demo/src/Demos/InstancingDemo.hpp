@@ -203,9 +203,9 @@ namespace Demos
 		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_InstanceBuffer;
 
 		Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
-		Nexus::Ref<Nexus::Graphics::Texture2D>	 m_DiffuseMap;
-		Nexus::Ref<Nexus::Graphics::Texture2D>	 m_NormalMap;
-		Nexus::Ref<Nexus::Graphics::Texture2D>	 m_SpecularMap;
+		Nexus::Ref<Nexus::Graphics::Texture>	 m_DiffuseMap;
+		Nexus::Ref<Nexus::Graphics::Texture>	 m_NormalMap;
+		Nexus::Ref<Nexus::Graphics::Texture>	 m_SpecularMap;
 		glm::vec3								 m_ClearColour = {0.7f, 0.2f, 0.3f};
 
 		VB_UNIFORM_CAMERA_DEMO_INSTANCING		   m_CameraUniforms;

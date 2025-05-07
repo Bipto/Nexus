@@ -13,18 +13,10 @@ namespace Nexus::Graphics
 		m_BoundUniformBuffers[name] = uniformBuffer;
 	}
 
-	void ResourceSetOpenGL::WriteCombinedImageSampler(Ref<Texture2D> texture, Ref<Sampler> sampler, const std::string &name)
+	void ResourceSetOpenGL::WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name)
 	{
 		CombinedImageSampler ciSampler {};
 		ciSampler.ImageTexture			   = texture;
-		ciSampler.ImageSampler			   = sampler;
-		m_BoundCombinedImageSamplers[name] = ciSampler;
-	}
-
-	void ResourceSetOpenGL::WriteCombinedImageSampler(Ref<Cubemap> cubemap, Ref<Sampler> sampler, const std::string &name)
-	{
-		CombinedImageSampler ciSampler {};
-		ciSampler.ImageTexture			   = cubemap;
 		ciSampler.ImageSampler			   = sampler;
 		m_BoundCombinedImageSamplers[name] = ciSampler;
 	}

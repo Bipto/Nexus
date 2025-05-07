@@ -34,7 +34,7 @@ namespace Nexus
 	struct Environment
 	{
 		std::string			   CubemapPath		  = {};
-		Ref<Graphics::Cubemap> EnvironmentCubemap = nullptr;
+		Ref<Graphics::Texture> EnvironmentCubemap = nullptr;
 		Ref<Graphics::Sampler> CubemapSampler	  = nullptr;
 		glm::vec4			   ClearColour		  = {1.0f, 1.0f, 1.0f, 1.0f};
 	};

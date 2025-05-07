@@ -58,7 +58,7 @@ namespace Nexus::Graphics
 		FullscreenQuad	m_FullscreenQuad = {};
 
 		Scene		*m_Scene   = nullptr;
-		Ref<Cubemap> m_Cubemap = nullptr;
+		Ref<Texture> m_Cubemap = nullptr;
 
 		Ref<CommandList> m_CommandList = nullptr;
 
@@ -79,6 +79,6 @@ namespace Nexus::Graphics
 
 		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_ClearScreenPipeline = nullptr;
 
-		Nexus::Ref<Nexus::Graphics::Texture2D> m_DefaultTexture = nullptr;
+		Nexus::Ref<Nexus::Graphics::Texture> m_DefaultTexture = nullptr;
 	};
 }	 // namespace Nexus::Graphics

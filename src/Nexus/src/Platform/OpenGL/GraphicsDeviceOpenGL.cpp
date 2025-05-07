@@ -38,7 +38,7 @@ namespace Nexus::Graphics
 			glEnable(GL_DEBUG_OUTPUT);
 			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 			glDebugMessageCallback(debugCallback, nullptr);
-			glDebugMessageControl(GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_ERROR, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+			// glDebugMessageControl(GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_ERROR, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 		}
 	}
 
@@ -113,16 +113,6 @@ namespace Nexus::Graphics
 		}
 
 		return extensions;
-	}
-
-	Ref<Texture2D> GraphicsDeviceOpenGL::CreateTexture2D(const Texture2DSpecification &spec)
-	{
-		return CreateRef<Texture2DOpenGL>(spec, this);
-	}
-
-	Ref<Cubemap> GraphicsDeviceOpenGL::CreateCubemap(const CubemapSpecification &spec)
-	{
-		return CreateRef<CubemapOpenGL>(spec, this);
 	}
 
 	Ref<GraphicsPipeline> GraphicsDeviceOpenGL::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)

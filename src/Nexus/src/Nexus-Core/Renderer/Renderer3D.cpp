@@ -161,14 +161,14 @@ namespace Nexus::Graphics
 		Nexus::Graphics::MeshFactory factory(m_Device);
 		m_Cube = factory.CreateCube();
 
-		Nexus::Graphics::Texture2DSpecification textureSpec = {};
-		textureSpec.Width									= 1;
-		textureSpec.Height									= 1;
-		textureSpec.Format									= Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
-		m_DefaultTexture									= m_Device->CreateTexture2D(textureSpec);
+		Graphics::TextureSpecification textureSpec = {};
+		textureSpec.Width						   = 1;
+		textureSpec.Height						   = 1;
+		textureSpec.Format						   = PixelFormat::R8_G8_B8_A8_UNorm;
+		m_DefaultTexture						   = Ref<Texture>(m_Device->CreateTexture(textureSpec));
 
 		uint32_t colour = 0xFFFFFFFF;
-		m_DefaultTexture->SetData(&colour, 0, 0, 0, 1, 1);
+		m_Device->WriteToTexture(m_DefaultTexture.get(), 0, 0, 0, 0, 1, 1, &colour, sizeof(colour));
 	}
 
 	Renderer3D::~Renderer3D()
@@ -306,9 +306,9 @@ namespace Nexus::Graphics
 			modelTransformUniforms.SpecularColour		  = mat.SpecularColour;
 			m_ModelTransformUniformBuffer->SetData(&modelTransformUniforms, 0, sizeof(modelTransformUniforms));
 
-			Nexus::Ref<Nexus::Graphics::Texture2D> diffuseTexture  = m_DefaultTexture;
-			Nexus::Ref<Nexus::Graphics::Texture2D> normalTexture   = m_DefaultTexture;
-			Nexus::Ref<Nexus::Graphics::Texture2D> specularTexture = m_DefaultTexture;
+			Nexus::Ref<Nexus::Graphics::Texture> diffuseTexture	 = m_DefaultTexture;
+			Nexus::Ref<Nexus::Graphics::Texture> normalTexture	 = m_DefaultTexture;
+			Nexus::Ref<Nexus::Graphics::Texture> specularTexture = m_DefaultTexture;
 
 			if (mat.DiffuseTexture)
 			{

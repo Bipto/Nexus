@@ -76,7 +76,6 @@ namespace Nexus::GL
 	GLenum GetTopology(Nexus::Graphics::Topology topology);
 
 	GLenum GetShaderStage(Nexus::Graphics::ShaderStage stage);
-	GLenum GLCubemapFace(Nexus::Graphics::CubemapFace face);
 
 	GLenum GetBufferTarget(Graphics::DeviceBufferType type);
 	GLenum GetBufferUsage(Graphics::DeviceBufferType type);

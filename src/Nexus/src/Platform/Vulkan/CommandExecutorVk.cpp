@@ -329,7 +329,7 @@ namespace Nexus::Graphics
 		resolve.srcOffset	   = {0, 0, 0};
 		resolve.srcSubresource = src;
 
-		auto framebufferLayout = framebufferVk->GetVulkanColorTexture(command.SourceIndex)->GetImageLayout(0);
+		auto framebufferLayout = framebufferVk->GetVulkanColorTexture(command.SourceIndex)->GetImageLayout(0, 0);
 		auto swapchainLayout   = swapchainVk->GetColorImageLayout();
 
 		vkCmdResolveImage(m_CommandBuffer, framebufferImage, framebufferLayout, swapchainImage, swapchainLayout, 1, &resolve);
@@ -412,7 +412,7 @@ namespace Nexus::Graphics
 			VkImageLayout		  beforeLayout = Vk::GetBarrierLayout(barrier.BeforeLayout);
 			VkImageLayout		  afterLayout  = Vk::GetBarrierLayout(barrier.AfterLayout);
 
-			Texture2D_Vk *texture = (Texture2D_Vk *)barrier.Texture;
+			TextureVk *texture = (TextureVk *)barrier.Texture;
 
 			VkImageMemoryBarrier2 imageBarrier			 = {};
 			imageBarrier.sType							 = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2;
@@ -827,36 +827,36 @@ namespace Nexus::Graphics
 		// transition colour layouts
 		for (size_t textureIndex = 0; textureIndex < vulkanFramebuffer->GetColorTextureCount(); textureIndex++)
 		{
-			Ref<Texture2D_Vk> texture = vulkanFramebuffer->GetVulkanColorTexture(textureIndex);
+			Ref<TextureVk> texture = vulkanFramebuffer->GetVulkanColorTexture(textureIndex);
 
-			for (uint32_t mipLevel = 0; mipLevel < texture->GetLevels(); mipLevel++)
+			for (uint32_t mipLevel = 0; mipLevel < texture->GetSpecification().MipLevels; mipLevel++)
 			{
 				m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
 													  texture->GetImage(),
 													  mipLevel,
 													  0,
-													  texture->GetImageLayout(mipLevel),
+													  texture->GetImageLayout(0, mipLevel),
 													  VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
 													  VK_IMAGE_ASPECT_COLOR_BIT);
-				texture->SetImageLayout(mipLevel, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+				texture->SetImageLayout(0, mipLevel, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 			}
 		}
 
 		// transition depth layout if needed
 		if (vulkanFramebuffer->HasDepthTexture())
 		{
-			Ref<Texture2D_Vk> texture = vulkanFramebuffer->GetVulkanDepthTexture();
+			Ref<TextureVk> texture = vulkanFramebuffer->GetVulkanDepthTexture();
 
-			for (uint32_t mipLevel = 0; mipLevel < texture->GetLevels(); mipLevel++)
+			for (uint32_t mipLevel = 0; mipLevel < texture->GetSpecification().MipLevels; mipLevel++)
 			{
 				m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
 													  texture->GetImage(),
 													  mipLevel,
 													  0,
-													  texture->GetImageLayout(mipLevel),
+													  texture->GetImageLayout(0, mipLevel),
 													  VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
 													  VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT));
-				texture->SetImageLayout(mipLevel, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+				texture->SetImageLayout(0, mipLevel, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 			}
 		}
 
@@ -869,12 +869,12 @@ namespace Nexus::Graphics
 		// attach colour textures
 		for (uint32_t colourAttachmentIndex = 0; colourAttachmentIndex < vulkanFramebuffer->GetColorTextureCount(); colourAttachmentIndex++)
 		{
-			Ref<Texture2D_Vk> texture = vulkanFramebuffer->GetVulkanColorTexture(colourAttachmentIndex);
+			Ref<TextureVk> texture = vulkanFramebuffer->GetVulkanColorTexture(colourAttachmentIndex);
 
 			VkRenderingAttachmentInfo colourAttachment = {};
 			colourAttachment.sType					   = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
 			colourAttachment.imageView				   = texture->GetImageView();
-			colourAttachment.imageLayout			   = texture->GetImageLayout(0);
+			colourAttachment.imageLayout			   = texture->GetImageLayout(0, 0);
 			colourAttachment.loadOp					   = VK_ATTACHMENT_LOAD_OP_LOAD;
 			colourAttachment.storeOp				   = VK_ATTACHMENT_STORE_OP_STORE;
 			colourAttachment.clearValue				   = {};
@@ -885,11 +885,11 @@ namespace Nexus::Graphics
 		VkRenderingAttachmentInfo depthAttachment = {};
 		if (framebuffer->HasDepthTexture())
 		{
-			Ref<Texture2D_Vk> texture = vulkanFramebuffer->GetVulkanDepthTexture();
+			Ref<TextureVk> texture = vulkanFramebuffer->GetVulkanDepthTexture();
 
 			depthAttachment.sType		= VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
 			depthAttachment.imageView	= texture->GetImageView();
-			depthAttachment.imageLayout = texture->GetImageLayout(0);
+			depthAttachment.imageLayout = texture->GetImageLayout(0, 0);
 			depthAttachment.loadOp		= VK_ATTACHMENT_LOAD_OP_LOAD;
 			depthAttachment.storeOp		= VK_ATTACHMENT_STORE_OP_STORE;
 			depthAttachment.clearValue	= {};
@@ -938,18 +938,18 @@ namespace Nexus::Graphics
 
 		for (uint32_t colourAttachment = 0; colourAttachment < vulkanFramebuffer->GetColorTextureCount(); colourAttachment++)
 		{
-			Ref<Texture2D_Vk> texture = vulkanFramebuffer->GetVulkanColorTexture(colourAttachment);
+			Ref<TextureVk> texture = vulkanFramebuffer->GetVulkanColorTexture(colourAttachment);
 
-			for (uint32_t level = 0; level < texture->GetLevels(); level++)
+			for (uint32_t level = 0; level < texture->GetSpecification().MipLevels; level++)
 			{
 				m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
 													  texture->GetImage(),
 													  level,
 													  0,
-													  texture->GetImageLayout(level),
+													  texture->GetImageLayout(0, level),
 													  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
 													  VK_IMAGE_ASPECT_COLOR_BIT);
-				texture->SetImageLayout(level, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+				texture->SetImageLayout(0, level, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 			}
 		}
 	}

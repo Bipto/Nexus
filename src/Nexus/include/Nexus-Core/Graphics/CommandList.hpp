@@ -268,7 +268,7 @@ namespace Nexus::Graphics
 
 	struct TextureBarrierDesc
 	{
-		Graphics::Texture2D	   *Texture			 = nullptr;
+		Graphics::Texture	   *Texture			 = nullptr;
 		BarrierStage			BeforeStage		 = BarrierStage::All;
 		BarrierStage			AfterStage		 = BarrierStage::All;
 		BarrierLayout			BeforeLayout	 = BarrierLayout::General;

@@ -58,8 +58,8 @@ namespace Nexus::Graphics
 
 	struct CombinedImageSampler
 	{
-		std::variant<WeakRef<Texture2D>, WeakRef<Cubemap>> ImageTexture = {};
-		WeakRef<Sampler>								   ImageSampler = {};
+		WeakRef<Texture> ImageTexture = {};
+		WeakRef<Sampler> ImageSampler = {};
 	};
 
 	enum class StorageImageAccess
@@ -70,7 +70,7 @@ namespace Nexus::Graphics
 
 	struct StorageImageView
 	{
-		Texture2D		  *TextureHandle = nullptr;
+		Texture			  *TextureHandle = nullptr;
 		uint32_t		   Level		 = 0;
 		StorageImageAccess Access		 = StorageImageAccess::Read;
 	};
@@ -83,10 +83,9 @@ namespace Nexus::Graphics
 		{
 		}
 
-		virtual void WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name)					  = 0;
-		virtual void WriteCombinedImageSampler(Ref<Texture2D> texture, Ref<Sampler> sampler, const std::string &name) = 0;
-		virtual void WriteCombinedImageSampler(Ref<Cubemap> cubemap, Ref<Sampler> sampler, const std::string &name)	  = 0;
-		virtual void WriteStorageImage(StorageImageView view, const std::string &name)								  = 0;
+		virtual void WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name)					= 0;
+		virtual void WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name) = 0;
+		virtual void WriteStorageImage(StorageImageView view, const std::string &name)								= 0;
 
 		const ResourceSetSpecification &GetSpecification() const;
 		static constexpr uint32_t		DescriptorSetCount = 64;
@@ -94,9 +93,9 @@ namespace Nexus::Graphics
 
 		static std::map<std::string, uint32_t> RemapToLinearBindings(const std::vector<ResourceBinding> &resources);
 
-		const std::map<std::string, UniformBufferView>		&GetBoundUniformBuffers() const;
-		const std::map<std::string, CombinedImageSampler>	&GetBoundCombinedImageSamplers() const;
-		const std::map<std::string, StorageImageView>		&GetBoundStorageImages() const;
+		const std::map<std::string, UniformBufferView>	  &GetBoundUniformBuffers() const;
+		const std::map<std::string, CombinedImageSampler> &GetBoundCombinedImageSamplers() const;
+		const std::map<std::string, StorageImageView>	  &GetBoundStorageImages() const;
 
 	  protected:
 		ResourceSetSpecification		   m_Specification;
@@ -104,8 +103,8 @@ namespace Nexus::Graphics
 		std::map<std::string, BindingInfo> m_UniformBufferBindingInfos;
 		std::map<std::string, BindingInfo> m_StorageImageBindingInfos;
 
-		std::map<std::string, UniformBufferView>	  m_BoundUniformBuffers;
-		std::map<std::string, CombinedImageSampler>	  m_BoundCombinedImageSamplers;
-		std::map<std::string, StorageImageView>		  m_BoundStorageImages;
+		std::map<std::string, UniformBufferView>	m_BoundUniformBuffers;
+		std::map<std::string, CombinedImageSampler> m_BoundCombinedImageSamplers;
+		std::map<std::string, StorageImageView>		m_BoundStorageImages;
 	};
 }	 // namespace Nexus::Graphics

@@ -219,7 +219,7 @@ namespace Nexus
 	{
 		std::string				 TexturePath   = {};
 		GUID					 TextureID	   = GUID(0);
-		Ref<Graphics::Texture2D> SpriteTexture = nullptr;
+		Ref<Graphics::Texture>	 SpriteTexture = nullptr;
 		glm::vec4				 SpriteColour  = {1.0f, 1.0f, 1.0f, 1.0f};
 		float					 Tiling		   = 1.0f;
 

@@ -20,14 +20,14 @@ namespace Demos
 		{
 			m_CommandList = m_GraphicsDevice->CreateCommandList();
 
-			Nexus::Graphics::Texture2DSpecification textureSpec = {};
-			textureSpec.Width									= 512;
-			textureSpec.Height									= 512;
-			textureSpec.Format									= Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float;
-			textureSpec.Samples									= 1;
-			textureSpec.MipLevels								= 1;
-			textureSpec.Usage									= {Nexus::Graphics::TextureUsage::Storage, Nexus::Graphics::TextureUsage::Sampled};
-			m_Texture											= m_GraphicsDevice->CreateTexture2D(textureSpec);
+			Nexus::Graphics::TextureSpecification textureSpec = {};
+			textureSpec.Width								  = 512;
+			textureSpec.Height								  = 512;
+			textureSpec.Format								  = Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float;
+			textureSpec.Samples								  = 1;
+			textureSpec.MipLevels							  = 1;
+			textureSpec.Usage								  = Nexus::Graphics::TextureUsage_Storage | Nexus::Graphics::TextureUsage_Sampled;
+			m_Texture										  = Nexus::Ref<Nexus::Graphics::Texture>(m_GraphicsDevice->CreateTexture(textureSpec));
 
 			Nexus::Graphics::ComputePipelineDescription desc = {};
 			desc.ComputeShader =
@@ -111,7 +111,7 @@ namespace Demos
 		Nexus::Ref<Nexus::Graphics::CommandList>	 m_CommandList;
 		Nexus::Ref<Nexus::Graphics::ComputePipeline> m_ComputePipeline;
 		Nexus::Ref<Nexus::Graphics::ResourceSet>	 m_ResourceSet;
-		Nexus::Ref<Nexus::Graphics::Texture2D>		 m_Texture;
+		Nexus::Ref<Nexus::Graphics::Texture>		 m_Texture;
 		glm::vec3									 m_ClearColour		   = {0.7f, 0.2f, 0.3f};
 		ImTextureID									 m_ImGuiTextureBinding = 0;
 	};

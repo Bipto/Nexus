@@ -67,23 +67,15 @@ namespace Nexus::Graphics
 		/// @return A pointer to a command list
 		virtual Ref<CommandList> CreateCommandList(const CommandListSpecification &spec = {}) = 0;
 
-		/// @brief A pure virtual method that creates a new texture from a given
-		/// specification
-		/// @param spec The properties to use when creating the texture
-		/// @return A pointer to a texture
-		virtual Ref<Texture2D> CreateTexture2D(const Texture2DSpecification &spec) = 0;
-
 		/// @brief A method that loads a new texture from a image stored on disk
 		/// @param filepath The filepath to load the image from
 		/// @return A pointer to a texture
-		Ref<Texture2D> CreateTexture2D(const char *filepath, bool generateMips, bool srgb = false);
+		Ref<Texture> CreateTexture2D(const char *filepath, bool generateMips, bool srgb = false);
 
 		/// @brief A method that loads a new texture from an image stored on disk
 		/// @param filepath The filepath to load the image from
 		/// @return A pointer to a texture
-		Ref<Texture2D> CreateTexture2D(const std::string &filepath, bool generateMips, bool srgb = false);
-
-		virtual Ref<Cubemap> CreateCubemap(const CubemapSpecification &spec) = 0;
+		Ref<Texture> CreateTexture2D(const std::string &filepath, bool generateMips, bool srgb = false);
 
 		virtual Ref<Framebuffer> CreateFramebuffer(const FramebufferSpecification &spec) = 0;
 
@@ -139,6 +131,24 @@ namespace Nexus::Graphics
 		Ref<ShaderModule> GetOrCreateCachedShaderFromSpirvFile(const std::string &filepath, ShaderStage stage);
 
 		void ImmediateSubmit(std::function<void(Ref<CommandList> cmd)> &&function);
+
+		void WriteToTexture(Texture	   *texture,
+							uint32_t	arrayLayer,
+							uint32_t	mipLevel,
+							uint32_t	x,
+							uint32_t	y,
+							uint32_t	width,
+							uint32_t	height,
+							const void *data,
+							size_t		size);
+
+		std::vector<char> ReadFromTexture(Texture *texture,
+										  uint32_t arrayLayer,
+										  uint32_t mipLevel,
+										  uint32_t x,
+										  uint32_t y,
+										  uint32_t width,
+										  uint32_t height);
 
 		virtual bool			   Validate() override;
 		virtual void			   SetName(const std::string &name) override;

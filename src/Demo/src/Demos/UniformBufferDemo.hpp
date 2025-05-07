@@ -137,7 +137,7 @@ namespace Demos
 	  private:
 		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
 		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline;
-		Nexus::Ref<Nexus::Graphics::Texture2D>	 m_Texture;
+		Nexus::Ref<Nexus::Graphics::Texture>		  m_Texture;
 		Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
 		Nexus::Ref<Nexus::Graphics::Mesh>		 m_Mesh;
 		Nexus::Ref<Nexus::Graphics::Sampler>	 m_Sampler;

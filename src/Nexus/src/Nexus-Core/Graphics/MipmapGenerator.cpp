@@ -51,9 +51,9 @@ namespace Nexus::Graphics
 		m_ResourceSet				= m_Device->CreateResourceSet(m_Pipeline);
 	}
 
-	std::vector<unsigned char> MipmapGenerator::GenerateMip(Ref<Texture2D> texture, uint32_t levelToGenerate, uint32_t levelToGenerateFrom)
+	std::vector<char> MipmapGenerator::GenerateMip(Ref<Texture> texture, uint32_t levelToGenerate, uint32_t levelToGenerateFrom)
 	{
-		std::vector<unsigned char> pixels = {};
+		std::vector<char> pixels = {};
 
 		const uint32_t textureWidth	 = texture->GetSpecification().Width;
 		const uint32_t textureHeight = texture->GetSpecification().Height;
@@ -75,7 +75,7 @@ namespace Nexus::Graphics
 			samplerSpec.MaximumLOD = levelToGenerateFrom;
 			Ref<Sampler> sampler   = m_Device->CreateSampler(samplerSpec);
 
-			Ref<Texture2D> framebufferTexture = framebuffer->GetColorTexture(0);
+			Ref<Texture> framebufferTexture = framebuffer->GetColorTexture(0);
 
 			m_ResourceSet->WriteCombinedImageSampler(texture, sampler, "texSampler");
 
@@ -117,7 +117,8 @@ namespace Nexus::Graphics
 			m_CommandList->End();
 			m_Device->SubmitCommandList(m_CommandList);
 
-			pixels = framebufferTexture->GetData(0, 0, 0, mipWidth, mipHeight);
+			// pixels = framebufferTexture->GetData(0, 0, 0, mipWidth, mipHeight);
+			pixels = m_Device->ReadFromTexture(framebufferTexture.get(), 0, 0, 0, 0, mipWidth, mipHeight);
 		}
 
 		return pixels;

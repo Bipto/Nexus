@@ -396,20 +396,6 @@ namespace Nexus::GL
 		}
 	}
 
-	GLenum GLCubemapFace(Nexus::Graphics::CubemapFace face)
-	{
-		switch (face)
-		{
-			case Nexus::Graphics::CubemapFace::PositiveX: return GL_TEXTURE_CUBE_MAP_POSITIVE_X;
-			case Nexus::Graphics::CubemapFace::NegativeX: return GL_TEXTURE_CUBE_MAP_NEGATIVE_X;
-			case Nexus::Graphics::CubemapFace::PositiveY: return GL_TEXTURE_CUBE_MAP_POSITIVE_Y;
-			case Nexus::Graphics::CubemapFace::NegativeY: return GL_TEXTURE_CUBE_MAP_NEGATIVE_Y;
-			case Nexus::Graphics::CubemapFace::PositiveZ: return GL_TEXTURE_CUBE_MAP_POSITIVE_Z;
-			case Nexus::Graphics::CubemapFace::NegativeZ: return GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
-			default: throw std::runtime_error("Failed to find a valid cubemap face");
-		}
-	}
-
 	GLenum GetBufferTarget(Graphics::DeviceBufferType type)
 	{
 		switch (type)
@@ -471,20 +457,9 @@ namespace Nexus::GL
 			}
 			case Graphics::TextureType::Texture2D:
 			{
-				if (spec.ArrayLayers > 1)
-				{
-					return GL_TEXTURE_2D_ARRAY;
-				}
-				else
-				{
-					return GL_TEXTURE_2D;
-				}
-			}
-			case Graphics::TextureType::Texture3D:
-			{
 				if (spec.Usage & Graphics::TextureUsage_Cubemap)
 				{
-					if (spec.ArrayLayers)
+					if (spec.ArrayLayers > 6)
 					{
 						return GL_TEXTURE_CUBE_MAP_ARRAY;
 					}
@@ -495,8 +470,19 @@ namespace Nexus::GL
 				}
 				else
 				{
-					return GL_TEXTURE_3D;
+					if (spec.ArrayLayers > 1)
+					{
+						return GL_TEXTURE_2D_ARRAY;
+					}
+					else
+					{
+						return GL_TEXTURE_2D;
+					}
 				}
+			}
+			case Graphics::TextureType::Texture3D:
+			{
+				return GL_TEXTURE_3D;
 			}
 			default: throw std::runtime_error("Failed to find a valid texture type");
 		}
@@ -520,31 +506,6 @@ namespace Nexus::GL
 
 			case Graphics::TextureType::Texture2D:
 			{
-				if (spec.Samples > 1)
-				{
-					if (spec.ArrayLayers > 1)
-					{
-						return GLInternalTextureFormat::Texture2DArrayMultisample;
-					}
-					else
-					{
-						return GLInternalTextureFormat::Texture2DMultisample;
-					}
-				}
-				else
-				{
-					if (spec.ArrayLayers > 1)
-					{
-						return GLInternalTextureFormat::Texture2DArray;
-					}
-					else
-					{
-						return GLInternalTextureFormat::Texture2D;
-					}
-				}
-			}
-			case Graphics::TextureType::Texture3D:
-			{
 				if (spec.Usage & Graphics::TextureUsage_Cubemap)
 				{
 					if (spec.ArrayLayers > 6)
@@ -558,8 +519,33 @@ namespace Nexus::GL
 				}
 				else
 				{
-					return GLInternalTextureFormat::Texture3D;
+					if (spec.Samples > 1)
+					{
+						if (spec.ArrayLayers > 1)
+						{
+							return GLInternalTextureFormat::Texture2DArrayMultisample;
+						}
+						else
+						{
+							return GLInternalTextureFormat::Texture2DMultisample;
+						}
+					}
+					else
+					{
+						if (spec.ArrayLayers > 1)
+						{
+							return GLInternalTextureFormat::Texture2DArray;
+						}
+						else
+						{
+							return GLInternalTextureFormat::Texture2D;
+						}
+					}
 				}
+			}
+			case Graphics::TextureType::Texture3D:
+			{
+				return GLInternalTextureFormat::Texture3D;
 			}
 			default: throw std::runtime_error("Failed to find a valid GLInternalTextureFormat");
 		}

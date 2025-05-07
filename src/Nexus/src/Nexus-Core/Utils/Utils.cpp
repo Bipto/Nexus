@@ -377,8 +377,10 @@ namespace Nexus::Utils
 		return uniformBuffer;
 	}
 
-	void FlipPixelsHorizontally(std::vector<unsigned char> &pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format)
+	void FlipPixelsHorizontally(void *pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format)
 	{
+		unsigned char *bufferPointer = (unsigned char *)pixels;
+
 		uint32_t bytesPerPixel	  = Graphics::GetPixelFormatSizeInBytes(format);
 		uint32_t channelsPerPixel = Graphics::GetPixelFormatNumberOfChannels(format);
 		uint32_t bytesPerChannel  = bytesPerPixel / channelsPerPixel;
@@ -391,16 +393,21 @@ namespace Nexus::Utils
 				{
 					for (uint32_t b = 0; b < bytesPerChannel; ++b)
 					{
-						std::swap(pixels[j * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b],
-								  pixels[j * width * bytesPerPixel + (width - 1 - i) * bytesPerPixel + k * bytesPerChannel + b]);
+						/* std::swap(pixels[j * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b],
+								  pixels[j * width * bytesPerPixel + (width - 1 - i) * bytesPerPixel + k * bytesPerChannel + b]); */
+
+						std::swap(*(bufferPointer + (j * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b)),
+								  *(bufferPointer + (j * width * bytesPerPixel + (width - 1 - i) * bytesPerPixel + k * bytesPerChannel + b)));
 					}
 				}
 			}
 		}
 	}
 
-	void FlipPixelsVertically(std::vector<unsigned char> &pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format)
+	void FlipPixelsVertically(void *pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format)
 	{
+		unsigned char *bufferPointer = (unsigned char *)pixels;
+
 		uint32_t bytesPerPixel	  = Graphics::GetPixelFormatSizeInBytes(format);
 		uint32_t channelsPerPixel = Graphics::GetPixelFormatNumberOfChannels(format);
 		uint32_t bytesPerChannel  = bytesPerPixel / channelsPerPixel;
@@ -413,8 +420,8 @@ namespace Nexus::Utils
 				{
 					for (uint32_t b = 0; b < bytesPerChannel; ++b)
 					{
-						std::swap(pixels[j * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b],
-								  pixels[(height - 1 - j) * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b]);
+						std::swap(*(bufferPointer + (j * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b)),
+								  *(bufferPointer + ((height - 1 - j) * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b)));
 					}
 				}
 			}

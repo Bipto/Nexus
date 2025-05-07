@@ -18,11 +18,11 @@ namespace Nexus::Graphics
 		virtual const FramebufferSpecification GetFramebufferSpecification() override;
 		virtual void						   SetFramebufferSpecification(const FramebufferSpecification &spec) override;
 
-		virtual Ref<Texture2D> GetColorTexture(uint32_t index = 0) override;
-		virtual Ref<Texture2D> GetDepthTexture() override;
+		virtual Ref<Texture> GetColorTexture(uint32_t index = 0) override;
+		virtual Ref<Texture> GetDepthTexture() override;
 
-		Ref<Texture2D_Vk> GetVulkanColorTexture(uint32_t index = 0);
-		Ref<Texture2D_Vk> GetVulkanDepthTexture();
+		Ref<TextureVk> GetVulkanColorTexture(uint32_t index = 0);
+		Ref<TextureVk> GetVulkanDepthTexture();
 
 	  private:
 		virtual void Recreate() override;
@@ -33,8 +33,8 @@ namespace Nexus::Graphics
 	  private:
 		GraphicsDeviceVk *m_Device;
 
-		std::vector<Ref<Texture2D_Vk>> m_ColorAttachments;
-		Ref<Texture2D_Vk>			   m_DepthAttachment = nullptr;
+		std::vector<Ref<TextureVk>> m_ColorAttachments;
+		Ref<TextureVk>				m_DepthAttachment = nullptr;
 	};
 }	 // namespace Nexus::Graphics
 

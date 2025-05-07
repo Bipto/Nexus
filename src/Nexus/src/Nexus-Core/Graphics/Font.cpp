@@ -117,8 +117,8 @@ namespace Nexus::Graphics
 		m_TextureWidth	= columnCount * m_MaxCharacterSize.X;
 		m_TextureHeight = columnCount * m_MaxCharacterSize.Y;
 
-		Nexus::Graphics::Texture2DSpecification textureSpec;
-		textureSpec.Format = Nexus::Graphics::PixelFormat::R8_UNorm;
+		Graphics::TextureSpecification textureSpec;
+		textureSpec.Format = PixelFormat::R8_UNorm;
 		textureSpec.Width  = m_TextureWidth;
 		textureSpec.Height = m_TextureHeight;
 
@@ -143,14 +143,19 @@ namespace Nexus::Graphics
 			}
 		}
 
-		m_Texture = device->CreateTexture2D(textureSpec);
-		m_Texture->SetData(pixels.GetPixels().data(), 0, 0, 0, pixels.GetWidth(), pixels.GetHeight());
+		m_Texture = Ref<Texture>(device->CreateTexture(textureSpec));
+
+		DeviceBufferDescription bufferDesc	 = {};
+		bufferDesc.Type						 = DeviceBufferType::Upload;
+		bufferDesc.SizeInBytes				 = pixels.GetSizeInBytes();
+		bufferDesc.StrideInBytes			 = pixels.GetSizeInBytes();
+		std::unique_ptr<DeviceBuffer> buffer = std::unique_ptr<DeviceBuffer>(device->CreateDeviceBuffer(bufferDesc));
 
 		FT_Done_Face(face);
 		FT_Done_FreeType(ft);
 	}
 
-	Nexus::Ref<Nexus::Graphics::Texture2D> Font::GetTexture()
+	Nexus::Ref<Nexus::Graphics::Texture> Font::GetTexture()
 	{
 		return m_Texture;
 	}

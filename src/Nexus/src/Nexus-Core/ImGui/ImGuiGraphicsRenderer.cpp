@@ -4,6 +4,7 @@
 #include "Nexus-Core/Input/Input.hpp"
 #include "Nexus-Core/Platform.hpp"
 
+#include "Nexus-Core/Graphics/PixelFormat.hpp"
 #include "Nexus-Core/Runtime.hpp"
 
 std::string GetImGuiShaderVertexSource()
@@ -209,13 +210,16 @@ namespace Nexus::ImGuiUtils
 		int			   width, height, channels;
 		io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height, &channels);
 
-		Nexus::Graphics::Texture2DSpecification spec;
-		spec.Width	= width;
-		spec.Height = height;
-		spec.Format = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
+		size_t bufferSize = width * height * Graphics::GetPixelFormatSizeInBytes(Graphics::PixelFormat::R8_G8_B8_A8_UNorm);
 
-		m_FontTexture = m_GraphicsDevice->CreateTexture2D(spec);
-		m_FontTexture->SetData(pixels, 0, 0, 0, width, height);
+		Graphics::TextureSpecification spec = {};
+		spec.Type							= Graphics::TextureType::Texture2D;
+		spec.Width							= width;
+		spec.Height							= height;
+		spec.Format							= Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
+		spec.Usage							= Graphics::TextureUsage_Sampled;
+		m_FontTexture						= Ref<Graphics::Texture>(m_GraphicsDevice->CreateTexture(spec));
+		m_GraphicsDevice->WriteToTexture(m_FontTexture.get(), 0, 0, 0, 0, width, height, pixels, bufferSize);
 
 		UnbindTexture(m_FontTextureID);
 
@@ -224,7 +228,7 @@ namespace Nexus::ImGuiUtils
 		io.Fonts->ClearTexData();
 	}
 
-	ImTextureID ImGuiGraphicsRenderer::BindTexture(Nexus::Ref<Nexus::Graphics::Texture2D> texture)
+	ImTextureID ImGuiGraphicsRenderer::BindTexture(Nexus::Ref<Nexus::Graphics::Texture> texture)
 	{
 		auto id = (ImTextureID)m_TextureID++;
 
@@ -593,7 +597,7 @@ namespace Nexus::ImGuiUtils
 
 		for (auto &[textureId, resourceSet] : m_ResourceSets)
 		{
-			Ref<Graphics::Texture2D> texture = m_Textures.at(textureId);
+			Ref<Graphics::Texture> texture = m_Textures.at(textureId);
 
 			Graphics::UniformBufferView uniformBufferView = {};
 			uniformBufferView.BufferHandle				  = m_UniformBuffer.get();

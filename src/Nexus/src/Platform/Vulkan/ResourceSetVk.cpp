@@ -191,9 +191,9 @@ namespace Nexus::Graphics
 		m_BoundUniformBuffers[name] = uniformBuffer;
 	}
 
-	void ResourceSetVk::WriteCombinedImageSampler(Ref<Texture2D> texture, Ref<Sampler> sampler, const std::string &name)
+	void ResourceSetVk::WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name)
 	{
-		Ref<Texture2D_Vk> textureVk		 = std::dynamic_pointer_cast<Texture2D_Vk>(texture);
+		Ref<TextureVk>	  textureVk		 = std::dynamic_pointer_cast<TextureVk>(texture);
 		Ref<SamplerVk>	  samplerVk		 = std::dynamic_pointer_cast<SamplerVk>(sampler);
 		const auto		 &descriptorSets = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
 
@@ -202,23 +202,23 @@ namespace Nexus::Graphics
 		m_Device->ImmediateSubmit(
 			[&](VkCommandBuffer cmd)
 			{
-				for (uint32_t i = 0; i < textureVk->GetLevels(); i++)
+				for (uint32_t i = 0; i < textureVk->GetSpecification().MipLevels; i++)
 				{
 					m_Device->TransitionVulkanImageLayout(cmd,
 														  textureVk->GetImage(),
 														  i,
 														  0,
-														  textureVk->GetImageLayout(i),
+														  textureVk->GetImageLayout(0, i),
 														  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
 														  VK_IMAGE_ASPECT_COLOR_BIT);
-					textureVk->SetImageLayout(i, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+					textureVk->SetImageLayout(0, i, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 				}
 			});
 
 		VkDescriptorImageInfo imageBufferInfo = {};
 		imageBufferInfo.imageView			  = textureVk->GetImageView();
 		imageBufferInfo.sampler				  = samplerVk->GetSampler();
-		imageBufferInfo.imageLayout			  = textureVk->GetImageLayout(0);
+		imageBufferInfo.imageLayout			  = textureVk->GetImageLayout(0, 0);
 
 		VkWriteDescriptorSet textureToWrite = {};
 		textureToWrite.sType				= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -237,58 +237,9 @@ namespace Nexus::Graphics
 		m_BoundCombinedImageSamplers[name] = ciSampler;
 	}
 
-	void ResourceSetVk::WriteCombinedImageSampler(Ref<Cubemap> cubemap, Ref<Sampler> sampler, const std::string &name)
-	{
-		Ref<Cubemap_Vk> cubemapVk	   = std::dynamic_pointer_cast<Cubemap_Vk>(cubemap);
-		Ref<SamplerVk>	samplerVk	   = std::dynamic_pointer_cast<SamplerVk>(sampler);
-		const auto	   &descriptorSets = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
-
-		const BindingInfo &info = m_CombinedImageSamplerBindingInfos.at(name);
-
-		m_Device->ImmediateSubmit(
-			[&](VkCommandBuffer cmd)
-			{
-				for (uint32_t arrayLayer = 0; arrayLayer < 6; arrayLayer++)
-				{
-					for (uint32_t mipLevel = 0; mipLevel < cubemapVk->GetLevels(); mipLevel++)
-					{
-						m_Device->TransitionVulkanImageLayout(cmd,
-															  cubemapVk->GetImage(),
-															  mipLevel,
-															  arrayLayer,
-															  cubemapVk->GetImageLayout(arrayLayer, mipLevel),
-															  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-															  VK_IMAGE_ASPECT_COLOR_BIT);
-						cubemapVk->SetImageLayout(arrayLayer, mipLevel, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-					}
-				}
-
-				VkDescriptorImageInfo imageBufferInfo = {};
-				imageBufferInfo.imageView			  = cubemapVk->GetImageView();
-				imageBufferInfo.sampler				  = samplerVk->GetSampler();
-				imageBufferInfo.imageLayout			  = cubemapVk->GetImageLayout(0, 0);
-
-				VkWriteDescriptorSet textureToWrite = {};
-				textureToWrite.sType				= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-				textureToWrite.pNext				= nullptr;
-				textureToWrite.dstBinding			= info.Binding;
-				textureToWrite.dstSet				= descriptorSets.at(info.Set);
-				textureToWrite.descriptorCount		= 1;
-				textureToWrite.descriptorType		= VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-				textureToWrite.pImageInfo			= &imageBufferInfo;
-
-				vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &textureToWrite, 0, nullptr);
-
-				CombinedImageSampler ciSampler {};
-				ciSampler.ImageTexture			   = cubemapVk;
-				ciSampler.ImageSampler			   = sampler;
-				m_BoundCombinedImageSamplers[name] = ciSampler;
-			});
-	}
-
 	void ResourceSetVk::WriteStorageImage(StorageImageView view, const std::string &name)
 	{
-		Texture2D_Vk *textureVk		 = (Texture2D_Vk *)view.TextureHandle;
+		TextureVk	 *textureVk		 = (TextureVk *)view.TextureHandle;
 		const auto	 &descriptorSets = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
 
 		const BindingInfo &info = m_StorageImageBindingInfos.at(name);
@@ -296,16 +247,16 @@ namespace Nexus::Graphics
 		m_Device->ImmediateSubmit(
 			[&](VkCommandBuffer cmd)
 			{
-				for (uint32_t i = 0; i < textureVk->GetLevels(); i++)
+				for (uint32_t i = 0; i < textureVk->GetSpecification().MipLevels; i++)
 				{
 					m_Device->TransitionVulkanImageLayout(cmd,
 														  textureVk->GetImage(),
 														  i,
 														  0,
-														  textureVk->GetImageLayout(i),
+														  textureVk->GetImageLayout(0, i),
 														  VK_IMAGE_LAYOUT_GENERAL,
 														  VK_IMAGE_ASPECT_COLOR_BIT);
-					textureVk->SetImageLayout(i, VK_IMAGE_LAYOUT_GENERAL);
+					textureVk->SetImageLayout(0, i, VK_IMAGE_LAYOUT_GENERAL);
 				}
 			});
 

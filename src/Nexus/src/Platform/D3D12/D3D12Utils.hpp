@@ -26,8 +26,6 @@ namespace Nexus::D3D12
 	D3D12_BLEND		GetBlendFunction(Nexus::Graphics::BlendFactor function);
 	D3D12_BLEND_OP	GetBlendEquation(Nexus::Graphics::BlendEquation equation);
 
-	D3D12_RESOURCE_FLAGS
-	GetD3D12ResourceFlags(const std::vector<Nexus::Graphics::TextureUsage> &usage, bool &isDepth);
 	D3D12_FILTER GetD3D12Filter(Nexus::Graphics::SamplerFilter filter);
 	D3D12_TEXTURE_ADDRESS_MODE
 	GetD3D12TextureAddressMode(Nexus::Graphics::SamplerAddressMode addressMode);
