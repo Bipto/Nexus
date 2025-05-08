@@ -604,7 +604,7 @@ namespace Nexus::GL
 				glFramebufferTextureLayer(GL_FRAMEBUFFER, attachmentType, textureHandle, mipLevel, arrayLayer);
 				break;
 			case GLInternalTextureFormat::Cubemap:
-				glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, GL_TEXTURE_CUBE_MAP_POSITIVE_X + arrayLayer, textureHandle, mipLevel);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_TEXTURE_CUBE_MAP_POSITIVE_X + arrayLayer, textureTarget, textureHandle, mipLevel);
 				break;
 		}
 	}

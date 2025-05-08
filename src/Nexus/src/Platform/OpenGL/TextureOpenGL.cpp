@@ -31,6 +31,7 @@ namespace Nexus::Graphics
 		m_InternalFormat		  = GL::GetSizedInternalFormat(spec.Format, isDepth);
 		m_BaseType				  = GL::GetPixelType(spec.Format);
 		m_GLInternalTextureFormat = GL::GetGLInternalTextureFormat(spec);
+		m_DataFormat			  = GL::GetPixelDataFormat(spec.Format);
 
 		glCall(glGenTextures(1, &m_Handle));
 		glCall(glBindTexture(m_TextureType, m_Handle));
@@ -42,7 +43,7 @@ namespace Nexus::Graphics
 
 	TextureOpenGL::~TextureOpenGL()
 	{
-		glDeleteTextures(1, &m_Handle);
+		glCall(glDeleteTextures(1, &m_Handle));
 	}
 
 	void TextureOpenGL::Bind(uint32_t slot)
@@ -67,48 +68,39 @@ namespace Nexus::Graphics
 		switch (m_GLInternalTextureFormat)
 		{
 			case GL::GLInternalTextureFormat::Texture1D:
-				glTexStorage1D(m_TextureType, m_Specification.MipLevels, m_InternalFormat, m_Specification.Width);
+				glCall(glTexStorage1D(m_TextureType, m_Specification.MipLevels, m_InternalFormat, m_Specification.Width));
 				break;
 			case GL::GLInternalTextureFormat::Texture1DArray:
 			case GL::GLInternalTextureFormat::Texture2D:
-				glTexStorage2D(m_TextureType, m_Specification.MipLevels, m_InternalFormat, m_Specification.Width, m_Specification.Height);
+			case GL::GLInternalTextureFormat::Cubemap:
+				glCall(glTexStorage2D(m_TextureType, m_Specification.MipLevels, m_InternalFormat, m_Specification.Width, m_Specification.Height));
 				break;
 			case GL::GLInternalTextureFormat::Texture2DMultisample:
-				glTexStorage2DMultisample(m_TextureType,
-										  m_Specification.Samples,
-										  m_InternalFormat,
-										  m_Specification.Width,
-										  m_Specification.Height,
-										  GL_TRUE);
-				break;
-			case GL::GLInternalTextureFormat::Cubemap:
-				for (uint32_t layer = 0; layer < m_Specification.ArrayLayers; layer++)
-				{
-					glTexStorage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + layer,
-								   m_Specification.MipLevels,
-								   m_InternalFormat,
-								   m_Specification.Width,
-								   m_Specification.Height);
-				}
+				glCall(glTexStorage2DMultisample(m_TextureType,
+												 m_Specification.Samples,
+												 m_InternalFormat,
+												 m_Specification.Width,
+												 m_Specification.Height,
+												 GL_TRUE));
 				break;
 			case GL::GLInternalTextureFormat::Texture2DArray:
 			case GL::GLInternalTextureFormat::CubemapArray:
 			case GL::GLInternalTextureFormat::Texture3D:
-				glTexStorage3D(m_TextureType,
-							   m_Specification.MipLevels,
-							   m_InternalFormat,
-							   m_Specification.Width,
-							   m_Specification.Height,
-							   m_Specification.ArrayLayers);
+				glCall(glTexStorage3D(m_TextureType,
+									  m_Specification.MipLevels,
+									  m_InternalFormat,
+									  m_Specification.Width,
+									  m_Specification.Height,
+									  m_Specification.ArrayLayers));
 				break;
 			case GL::GLInternalTextureFormat::Texture2DArrayMultisample:
-				glTexStorage3DMultisample(m_TextureType,
-										  m_Specification.Samples,
-										  m_InternalFormat,
-										  m_Specification.Width,
-										  m_Specification.Height,
-										  m_Specification.ArrayLayers,
-										  GL_TRUE);
+				glCall(glTexStorage3DMultisample(m_TextureType,
+												 m_Specification.Samples,
+												 m_InternalFormat,
+												 m_Specification.Width,
+												 m_Specification.Height,
+												 m_Specification.ArrayLayers,
+												 GL_TRUE));
 				break;
 		}
 	}
@@ -130,59 +122,59 @@ namespace Nexus::Graphics
 		uint32_t bufferSize =
 			(subresource.Width - subresource.X) * (subresource.Height - subresource.Y) * (uint32_t)GetPixelFormatSizeInBytes(m_Specification.Format);
 
-		for (uint32_t layer = subresource.Z; layer < subresource.Depth; layer++)
+		for (uint32_t layer = subresource.Z; layer < subresource.Z + subresource.Depth; layer++)
 
 		{
 			switch (m_GLInternalTextureFormat)
 			{
 				case GL::GLInternalTextureFormat::Texture1D:
-					glTexSubImage1D(m_TextureType,
-									subresource.MipLevel,
-									subresource.X,
-									subresource.Width,
-									glAspect,
-									m_BaseType,
-									(const void *)(uint64_t)bufferOffset);
+					glCall(glTexSubImage1D(m_TextureType,
+										   subresource.MipLevel,
+										   subresource.X,
+										   subresource.Width,
+										   m_DataFormat,
+										   m_BaseType,
+										   (const void *)(uint64_t)bufferOffset));
 					break;
 				case GL::GLInternalTextureFormat::Texture1DArray:
 				case GL::GLInternalTextureFormat::Texture2D:
 				case GL::GLInternalTextureFormat::Texture2DMultisample:
-					glTexSubImage2D(m_TextureType,
-									subresource.MipLevel,
-									subresource.X,
-									subresource.Y,
-									subresource.Width,
-									subresource.Height,
-									glAspect,
-									m_BaseType,
-									(const void *)(uint64_t)bufferOffset);
+					glCall(glTexSubImage2D(m_TextureType,
+										   subresource.MipLevel,
+										   subresource.X,
+										   subresource.Y,
+										   subresource.Width,
+										   subresource.Height,
+										   m_DataFormat,
+										   m_BaseType,
+										   (const void *)(uint64_t)bufferOffset));
 					break;
 				case GL::GLInternalTextureFormat::Cubemap:
-					glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + layer,
-									subresource.MipLevel,
-									subresource.X,
-									subresource.Y,
-									subresource.Width,
-									subresource.Height,
-									glAspect,
-									m_BaseType,
-									(const void *)(uint64_t)bufferOffset);
+					glCall(glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + layer,
+										   subresource.MipLevel,
+										   subresource.X,
+										   subresource.Y,
+										   subresource.Width,
+										   subresource.Height,
+										   m_DataFormat,
+										   m_BaseType,
+										   (const void *)(uint64_t)bufferOffset));
 					break;
 				case GL::GLInternalTextureFormat::Texture2DArray:
 				case GL::GLInternalTextureFormat::CubemapArray:
 				case GL::GLInternalTextureFormat::Texture3D:
 				case GL::GLInternalTextureFormat::Texture2DArrayMultisample:
-					glTexSubImage3D(m_TextureType,
-									subresource.MipLevel,
-									subresource.X,
-									subresource.Y,
-									layer,
-									subresource.Width,
-									subresource.Height,
-									subresource.Depth,
-									glAspect,
-									m_BaseType,
-									(const void *)(uint64_t)bufferOffset);
+					glCall(glTexSubImage3D(m_TextureType,
+										   subresource.MipLevel,
+										   subresource.X,
+										   subresource.Y,
+										   layer,
+										   subresource.Width,
+										   subresource.Height,
+										   subresource.Depth,
+										   m_DataFormat,
+										   m_BaseType,
+										   (const void *)(uint64_t)bufferOffset));
 					break;
 			}
 			bufferOffset += bufferSize;

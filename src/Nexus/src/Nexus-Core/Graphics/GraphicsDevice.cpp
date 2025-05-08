@@ -106,8 +106,7 @@ namespace Nexus::Graphics
 		DeviceBufferDescription bufferDesc = {};
 		bufferDesc.Type					   = DeviceBufferType::Upload;
 		bufferDesc.SizeInBytes			   = size;
-		bufferDesc.StrideInBytes		   = size;
-
+		bufferDesc.StrideInBytes			  = size;
 		std::unique_ptr<DeviceBuffer> buffer  = std::unique_ptr<DeviceBuffer>(CreateDeviceBuffer(bufferDesc));
 		Ref<CommandList>			  cmdList = CreateCommandList();
 
