@@ -168,7 +168,7 @@ namespace Nexus::Graphics
 		m_DefaultTexture						   = Ref<Texture>(m_Device->CreateTexture(textureSpec));
 
 		uint32_t colour = 0xFFFFFFFF;
-		m_Device->WriteToTexture(m_DefaultTexture.get(), 0, 0, 0, 0, 1, 1, &colour, sizeof(colour));
+		m_Device->WriteToTexture(m_DefaultTexture.get(), 0, 0, 0, 0, 0, 1, 1, &colour, sizeof(colour));
 	}
 
 	Renderer3D::~Renderer3D()

@@ -118,7 +118,7 @@ namespace Nexus::Graphics
 			m_Device->SubmitCommandList(m_CommandList);
 
 			// pixels = framebufferTexture->GetData(0, 0, 0, mipWidth, mipHeight);
-			pixels = m_Device->ReadFromTexture(framebufferTexture.get(), 0, 0, 0, 0, mipWidth, mipHeight);
+			pixels = m_Device->ReadFromTexture(framebufferTexture.get(), 0, 0, 0, 0, 0, mipWidth, mipHeight);
 		}
 
 		return pixels;

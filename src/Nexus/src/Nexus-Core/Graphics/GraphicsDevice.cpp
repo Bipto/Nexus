@@ -97,6 +97,7 @@ namespace Nexus::Graphics
 										uint32_t	mipLevel,
 										uint32_t	x,
 										uint32_t	y,
+										uint32_t	z,
 										uint32_t	width,
 										uint32_t	height,
 										const void *data,
@@ -139,6 +140,7 @@ namespace Nexus::Graphics
 													  uint32_t mipLevel,
 													  uint32_t x,
 													  uint32_t y,
+													  uint32_t z,
 													  uint32_t width,
 													  uint32_t height)
 	{
@@ -247,7 +249,7 @@ namespace Nexus::Graphics
 
 		size_t bufferSize = spec.Width * spec.Height * GetPixelFormatSizeInBytes(spec.Format);
 		auto   texture	  = Ref<Texture>(CreateTexture(spec));
-		WriteToTexture(texture.get(), 0, 0, 0, 0, spec.Width, spec.Height, data, bufferSize);
+		WriteToTexture(texture.get(), 0, 0, 0, 0, 0, spec.Width, spec.Height, data, bufferSize);
 		stbi_image_free(data);
 
 		if (generateMips)
@@ -258,7 +260,7 @@ namespace Nexus::Graphics
 			{
 				auto [width, height]			  = Utils::GetMipSize(spec.Width, spec.Height, i);
 				std::vector<char> pixels		  = mipGenerator.GenerateMip(texture, i, i - 1);
-				WriteToTexture(texture.get(), 0, i, 0, 0, width, height, pixels.data(), pixels.size());
+				WriteToTexture(texture.get(), 0, i, 0, 0, 0, width, height, pixels.data(), pixels.size());
 			}
 		}
 

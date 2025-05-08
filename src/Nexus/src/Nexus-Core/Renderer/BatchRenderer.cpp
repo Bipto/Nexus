@@ -365,7 +365,7 @@ namespace Nexus::Graphics
 		textureSpec.Format						   = PixelFormat::R8_G8_B8_A8_UNorm;
 		textureSpec.Usage						   = Graphics::TextureUsage_Sampled;
 		m_BlankTexture							   = Ref<Texture>(m_Device->CreateTexture(textureSpec));
-		m_Device->WriteToTexture(m_BlankTexture.get(), 0, 0, 0, 0, 1, 1, &textureData, sizeof(textureData));
+		m_Device->WriteToTexture(m_BlankTexture.get(), 0, 0, 0, 0, 0, 1, 1, &textureData, sizeof(textureData));
 
 		Nexus::Ref<Nexus::Graphics::ShaderModule> vertexModule = device->GetOrCreateCachedShaderFromSpirvSource(s_BatchVertexShaderSource,
 																												"Batch Renderer - Vertex Shader",

@@ -28,7 +28,7 @@ namespace Nexus::Graphics
 		VkImageType imageType	 = Vk::GetVkImageType(m_Specification.Type);
 
 		VkImageCreateFlagBits imageCreateFlags = Vk::GetVkImageCreateFlagBits(spec.Usage);
-		VkExtent3D			  imageExtent	   = {.width = spec.Width, .height = spec.Height, .depth = 1};
+		VkExtent3D			  imageExtent	   = {.width = spec.Width, .height = spec.Height, .depth = spec.Depth};
 		VkSampleCountFlagBits samples		   = Vk::GetVkSampleCountFlagsFromSampleCount(spec.Samples);
 		VkImageUsageFlagBits  usage			   = Vk::GetVkImageUsageFlags(spec.Usage);
 
@@ -49,6 +49,7 @@ namespace Nexus::Graphics
 
 		NX_ASSERT(vmaCreateImage(device->GetAllocator(), &imageInfo, &allocInfo, &m_Image, &m_Allocation, nullptr) == VK_SUCCESS,
 				  "Failed to create image");
+
 		VkImageViewType viewType = Vk::GetVkImageViewType(spec);
 
 		VkImageViewCreateInfo createInfo		   = {};

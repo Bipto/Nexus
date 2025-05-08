@@ -83,7 +83,7 @@ namespace Nexus::Graphics
 		textureSpec.Type						   = Graphics::TextureType::Texture2D;
 		textureSpec.Format						   = Graphics::PixelFormat::R32_G32_B32_A32_Float;
 		m_HdriImage								   = Ref<Texture>(m_Device->CreateTexture(textureSpec));
-		m_Device->WriteToTexture(m_HdriImage.get(), 0, 0, 0, 0, m_Width, m_Height, pixels.data(), pixels.size());
+		m_Device->WriteToTexture(m_HdriImage.get(), 0, 0, 0, 0, 0, m_Width, m_Height, pixels.data(), pixels.size());
 	}
 
 	Ref<Texture> HdriProcessor::Generate(uint32_t size)
@@ -241,8 +241,8 @@ namespace Nexus::Graphics
 			m_Device->SubmitCommandList(commandList);
 
 			Ref<Texture>	  colourTexture = framebuffer->GetColorTexture(0);
-			std::vector<char> pixels		= m_Device->ReadFromTexture(colourTexture.get(), i, 0, 0, 0, size, size);
-			m_Device->WriteToTexture(cubemap.get(), i, 0, 0, 0, size, size, pixels.data(), pixels.size());
+			std::vector<char> pixels		= m_Device->ReadFromTexture(colourTexture.get(), 0, 0, 0, 0, 0, size, size);
+			m_Device->WriteToTexture(cubemap.get(), i, 0, 0, 0, 0, size, size, pixels.data(), pixels.size());
 		}
 
 		return cubemap;

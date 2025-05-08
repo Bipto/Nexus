@@ -390,9 +390,9 @@ namespace Nexus::Vk
 			}
 			case Graphics::TextureType::Texture2D:
 			{
-				if (spec.Type == Graphics::TextureType::Texture3D && spec.Usage & Graphics::TextureUsage_Cubemap)
+				if (spec.Usage & Graphics::TextureUsage_Cubemap)
 				{
-					if (spec.ArrayLayers > 1)
+					if (spec.ArrayLayers > 6)
 					{
 						return VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
 					}

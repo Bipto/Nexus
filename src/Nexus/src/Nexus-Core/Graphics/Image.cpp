@@ -17,10 +17,11 @@ namespace Nexus::Graphics
 							 uint32_t		 mipLevel,
 							 uint32_t		 x,
 							 uint32_t		 y,
+							 uint32_t		 z,
 							 uint32_t		 width,
 							 uint32_t		 height)
 	{
-		std::vector<char> pixels = device->ReadFromTexture(texture, arrayLayer, mipLevel, x, y, width, height);
+		std::vector<char> pixels = device->ReadFromTexture(texture, arrayLayer, mipLevel, x, y, z, width, height);
 
 		Image image	 = {};
 		image.Width	 = width;

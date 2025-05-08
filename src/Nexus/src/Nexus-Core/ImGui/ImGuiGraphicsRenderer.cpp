@@ -219,7 +219,7 @@ namespace Nexus::ImGuiUtils
 		spec.Format							= Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
 		spec.Usage							= Graphics::TextureUsage_Sampled;
 		m_FontTexture						= Ref<Graphics::Texture>(m_GraphicsDevice->CreateTexture(spec));
-		m_GraphicsDevice->WriteToTexture(m_FontTexture.get(), 0, 0, 0, 0, width, height, pixels, bufferSize);
+		m_GraphicsDevice->WriteToTexture(m_FontTexture.get(), 0, 0, 0, 0, 0, width, height, pixels, bufferSize);
 
 		UnbindTexture(m_FontTextureID);
 

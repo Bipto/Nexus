@@ -31,7 +31,7 @@ namespace Nexus::Graphics
 		PixelFormat Format		= PixelFormat::R8_G8_B8_A8_UNorm;
 		uint32_t	Width		= 0;
 		uint32_t	Height		= 0;
-		uint32_t	Depth		= 0;
+		uint32_t	Depth		= 1;
 		uint32_t	MipLevels	= 1;
 		uint32_t	ArrayLayers = 1;
 		TextureType Type		= TextureType::Texture2D;

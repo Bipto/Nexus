@@ -137,6 +137,7 @@ namespace Nexus::Graphics
 							uint32_t	mipLevel,
 							uint32_t	x,
 							uint32_t	y,
+							uint32_t	z,
 							uint32_t	width,
 							uint32_t	height,
 							const void *data,
@@ -147,6 +148,7 @@ namespace Nexus::Graphics
 										  uint32_t mipLevel,
 										  uint32_t x,
 										  uint32_t y,
+										  uint32_t z,
 										  uint32_t width,
 										  uint32_t height);
 

@@ -16,7 +16,7 @@ namespace Nexus::Processors
 			for (uint32_t level = 0; level < texture->GetSpecification().MipLevels; level++)
 			{
 				Point2D<uint32_t> size = Utils::GetMipSize(texture->GetSpecification().Width, texture->GetSpecification().Height, arrayLayer);
-				Graphics::Image	  mip  = Graphics::Image::FromTexture(device, texture.get(), arrayLayer, level, 0, 0, size.X, size.Y);
+				Graphics::Image	  mip  = Graphics::Image::FromTexture(device, texture.get(), arrayLayer, level, 0, 0, 0, size.X, size.Y);
 
 				if (device->GetGraphicsAPI() == Graphics::GraphicsAPI::OpenGL)
 				{
