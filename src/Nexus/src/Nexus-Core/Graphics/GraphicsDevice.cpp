@@ -118,14 +118,15 @@ namespace Nexus::Graphics
 		copyDesc.BufferHandle				  = buffer.get();
 		copyDesc.BufferOffset				  = 0;
 		copyDesc.TextureHandle				  = texture;
-		copyDesc.TextureSubresource			  = {.X		   = x,
-												 .Y		   = y,
-												 .Z		   = arrayLayer,
-												 .Width	   = width,
-												 .Height   = height,
-												 .Depth	   = 1,
-												 .MipLevel = mipLevel,
-												 .Aspect   = Graphics::ImageAspect::Colour};
+		copyDesc.TextureSubresource			  = {.X			 = x,
+												 .Y			 = y,
+												 .Z			 = z,
+												 .Width		 = width,
+												 .Height	 = height,
+												 .Depth		 = 1,
+												 .MipLevel	 = mipLevel,
+												 .ArrayLayer = arrayLayer,
+												 .Aspect	 = Graphics::ImageAspect::Colour};
 
 		cmdList->CopyBufferToTexture(copyDesc);
 

@@ -381,5 +381,98 @@ namespace Nexus::D3D12
 			default: throw std::runtime_error("Failed to find a valid barrier layout");
 		}
 	}
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC CreateTextureSrvView(const Graphics::TextureSpecification &spec)
+	{
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		srvDesc.Shader4ComponentMapping			= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+		switch (spec.Type)
+		{
+			case Graphics::TextureType::Texture1D:
+				if (spec.ArrayLayers > 1)
+				{
+					srvDesc.ViewDimension				   = D3D12_SRV_DIMENSION_TEXTURE1DARRAY;
+					srvDesc.Texture1DArray.MipLevels	   = spec.MipLevels;
+					srvDesc.Texture1DArray.MostDetailedMip = 0;
+					srvDesc.Texture1DArray.FirstArraySlice = 0;
+					srvDesc.Texture1DArray.ArraySize	   = spec.ArrayLayers;
+				}
+				else
+				{
+					srvDesc.ViewDimension			  = D3D12_SRV_DIMENSION_TEXTURE1D;
+					srvDesc.Texture1D.MostDetailedMip = 0;
+					srvDesc.Texture1D.MipLevels		  = spec.MipLevels;
+				}
+				break;
+
+			case Graphics::TextureType::Texture2D:
+			{
+				if (spec.Usage & Graphics::TextureUsage_Cubemap)
+				{
+					if (spec.ArrayLayers > 6)
+					{
+						srvDesc.ViewDimension				= D3D12_SRV_DIMENSION_TEXTURECUBE;
+						srvDesc.TextureCube.MostDetailedMip = 0;
+						srvDesc.TextureCube.MipLevels		= spec.MipLevels;
+					}
+					else
+					{
+						srvDesc.ViewDimension					  = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
+						srvDesc.TextureCubeArray.First2DArrayFace = 0;
+						srvDesc.TextureCubeArray.NumCubes		  = spec.ArrayLayers / 6;
+						srvDesc.TextureCubeArray.MostDetailedMip  = 0;
+						srvDesc.TextureCubeArray.MipLevels		  = spec.MipLevels;
+					}
+				}
+				else
+				{
+					if (spec.ArrayLayers > 1)
+					{
+						if (spec.Samples > 1)
+						{
+							srvDesc.ViewDimension					 = D3D12_SRV_DIMENSION_TEXTURE2DMSARRAY;
+							srvDesc.Texture2DMSArray.FirstArraySlice = 0;
+							srvDesc.Texture2DMSArray.ArraySize		 = spec.ArrayLayers;
+						}
+						else
+						{
+							srvDesc.ViewDimension				   = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
+							srvDesc.Texture2DArray.MostDetailedMip = 0;
+							srvDesc.Texture2DArray.FirstArraySlice = 0;
+							srvDesc.Texture2DArray.ArraySize	   = spec.ArrayLayers;
+							srvDesc.Texture2DArray.MipLevels	   = spec.MipLevels;
+						}
+					}
+					else
+					{
+						if (spec.Samples > 1)
+						{
+							srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DMS;
+						}
+						else
+						{
+							srvDesc.ViewDimension			  = D3D12_SRV_DIMENSION_TEXTURE2D;
+							srvDesc.Texture2D.MostDetailedMip = 0;
+							srvDesc.Texture2D.MipLevels		  = spec.MipLevels;
+						}
+					}
+				}
+
+				break;
+			}
+			case Graphics::TextureType::Texture3D:
+			{
+				srvDesc.ViewDimension			  = D3D12_SRV_DIMENSION_TEXTURE3D;
+				srvDesc.Texture3D.MostDetailedMip = 0;
+				srvDesc.Texture3D.MipLevels		  = spec.MipLevels;
+
+				break;
+			}
+			default: throw std::runtime_error("Failed to find a valid TextureType");
+		}
+
+		return srvDesc;
+	}
 }	 // namespace Nexus::D3D12
 #endif

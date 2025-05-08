@@ -40,6 +40,7 @@ namespace Nexus::Graphics
 		uint32_t	Height	 = 0;
 		uint32_t	Depth	 = 0;
 		uint32_t	MipLevel = 0;
+		uint32_t	ArrayLayer = 0;
 		ImageAspect Aspect	 = ImageAspect::Colour;
 	};
 

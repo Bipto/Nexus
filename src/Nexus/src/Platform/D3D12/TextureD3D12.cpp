@@ -51,7 +51,7 @@ namespace Nexus::Graphics
 		if (FAILED(hr))
 		{
 			_com_error	error(hr);
-			std::string errorMessage = std::string("Failed to create buffer: ") + error.ErrorMessage();
+			std::string errorMessage = std::string("Failed to create texture: ") + error.ErrorMessage();
 			throw std::runtime_error(errorMessage.c_str());
 		}
 
@@ -72,16 +72,16 @@ namespace Nexus::Graphics
 
 	void TextureD3D12::SetResourceState(uint32_t arrayLayer, uint32_t mipLevel, D3D12_RESOURCE_STATES state)
 	{
-		NX_ASSERT(arrayLayer <= m_Specification.ArrayLayers, "Array layer is greater than the total number of array layers");
-		NX_ASSERT(mipLevel <= m_Specification.MipLevels, "Mip level is greater than the total number of mip levels");
+		/* NX_ASSERT(arrayLayer <= m_Specification.ArrayLayers, "Array layer is greater than the total number of array layers");
+		NX_ASSERT(mipLevel <= m_Specification.MipLevels, "Mip level is greater than the total number of mip levels"); */
 
 		m_ResourceStates[arrayLayer * m_Specification.MipLevels + mipLevel] = state;
 	}
 
 	D3D12_RESOURCE_STATES TextureD3D12::GetResourceState(uint32_t arrayLayer, uint32_t mipLevel)
 	{
-		NX_ASSERT(arrayLayer <= m_Specification.ArrayLayers, "Array layer is greater than the total number of array layers");
-		NX_ASSERT(mipLevel <= m_Specification.MipLevels, "Mip level is greater than the total number of mip levels");
+		/* NX_ASSERT(arrayLayer <= m_Specification.ArrayLayers, "Array layer is greater than the total number of array layers");
+		NX_ASSERT(mipLevel <= m_Specification.MipLevels, "Mip level is greater than the total number of mip levels"); */
 
 		return m_ResourceStates[arrayLayer * m_Specification.MipLevels + mipLevel];
 	}

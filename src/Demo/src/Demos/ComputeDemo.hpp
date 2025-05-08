@@ -53,7 +53,7 @@ namespace Demos
 			m_CommandList->SetResourceSet(m_ResourceSet);
 			m_CommandList->Dispatch(m_Texture->GetSpecification().Width, m_Texture->GetSpecification().Height, 1);
 
-			Nexus::Graphics::TextureBarrierDesc textureBarrier = {};
+			/* Nexus::Graphics::TextureBarrierDesc textureBarrier = {};
 			textureBarrier.BeforeStage						   = Nexus::Graphics::BarrierStage::All;
 			textureBarrier.AfterStage						   = Nexus::Graphics::BarrierStage::ComputeShader;
 			textureBarrier.BeforeLayout						   = Nexus::Graphics::BarrierLayout::Undefined;
@@ -66,7 +66,7 @@ namespace Demos
 
 			Nexus::Graphics::BarrierDesc barrier = {};
 			barrier.TextureBarriers				 = {textureBarrier};
-			m_CommandList->Barrier(barrier);
+			m_CommandList->Barrier(barrier); */
 
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(Nexus::GetApplication()->GetPrimarySwapchain()));
 

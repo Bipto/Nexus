@@ -28,6 +28,8 @@ namespace Nexus::Graphics
 		GraphicsDeviceD3D12	  *m_Device = nullptr;
 
 		std::vector<D3D12_RESOURCE_STATES> m_ResourceStates;
+
+		D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceView = {};
 	};
 }	 // namespace Nexus::Graphics
 

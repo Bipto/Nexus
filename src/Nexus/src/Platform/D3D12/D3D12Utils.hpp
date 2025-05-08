@@ -42,6 +42,8 @@ namespace Nexus::D3D12
 	D3D12_BARRIER_SYNC	 GetBarrierSyncType(Nexus::Graphics::BarrierStage stage);
 	D3D12_BARRIER_ACCESS GetBarrierAccessType(Nexus::Graphics::BarrierAccess access);
 	D3D12_BARRIER_LAYOUT GetBarrierLayout(Nexus::Graphics::BarrierLayout layout);
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC CreateTextureSrvView(const Graphics::TextureSpecification &spec);
 }	 // namespace Nexus::D3D12
 
 #endif

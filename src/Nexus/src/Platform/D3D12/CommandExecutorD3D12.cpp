@@ -546,7 +546,10 @@ namespace Nexus::Graphics
 		TextureD3D12	  *texture = (TextureD3D12 *)command.BufferTextureCopy.TextureHandle;
 
 		size_t sizeInBytes = GetPixelFormatSizeInBytes(texture->GetSpecification().Format);
-		size_t rowPitch	   = sizeInBytes * texture->GetSpecification().Width;
+		size_t	 rowPitch		  = sizeInBytes * command.BufferTextureCopy.TextureSubresource.Width;
+		uint32_t subresourceIndex = Utils::CalculateSubresource(command.BufferTextureCopy.TextureSubresource.MipLevel,
+																command.BufferTextureCopy.TextureSubresource.ArrayLayer,
+																command.BufferTextureCopy.TextureHandle->GetSpecification().MipLevels);
 
 		D3D12_BOX textureBounds = {};
 		textureBounds.left		= command.BufferTextureCopy.TextureSubresource.X;
@@ -571,7 +574,7 @@ namespace Nexus::Graphics
 		D3D12_TEXTURE_COPY_LOCATION				dstLocation	  = {};
 		dstLocation.pResource								  = textureHandle.Get();
 		dstLocation.Type									  = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
-		dstLocation.SubresourceIndex						  = command.BufferTextureCopy.TextureSubresource.MipLevel;
+		dstLocation.SubresourceIndex						  = subresourceIndex;
 
 		D3D12_RESOURCE_STATES resourceState =
 			texture->GetResourceState(command.BufferTextureCopy.TextureSubresource.Z, command.BufferTextureCopy.TextureSubresource.MipLevel);
@@ -580,7 +583,7 @@ namespace Nexus::Graphics
 		toReadBarrier.Type					 = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 		toReadBarrier.Flags					 = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 		toReadBarrier.Transition.pResource	 = textureHandle.Get();
-		toReadBarrier.Transition.Subresource = command.BufferTextureCopy.TextureSubresource.MipLevel;
+		toReadBarrier.Transition.Subresource = subresourceIndex;
 		toReadBarrier.Transition.StateBefore = resourceState;
 		toReadBarrier.Transition.StateAfter	 = D3D12_RESOURCE_STATE_COPY_DEST;
 
@@ -588,7 +591,7 @@ namespace Nexus::Graphics
 		toDefaultBarrier.Type					= D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 		toDefaultBarrier.Flags					= D3D12_RESOURCE_BARRIER_FLAG_NONE;
 		toDefaultBarrier.Transition.pResource	= textureHandle.Get();
-		toDefaultBarrier.Transition.Subresource = command.BufferTextureCopy.TextureSubresource.MipLevel;
+		toDefaultBarrier.Transition.Subresource = subresourceIndex;
 		toDefaultBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
 		toDefaultBarrier.Transition.StateAfter	= resourceState;
 
@@ -655,7 +658,9 @@ namespace Nexus::Graphics
 		toDefaultBarrier.Transition.StateAfter	= resourceState;
 
 		// copy texture data into the buffer (the 0's are for the offset into the destination texture, which we do not need here)
+		m_CommandList->ResourceBarrier(1, &toDestBarrier);
 		m_CommandList->CopyTextureRegion(&dstLocation, 0, 0, 0, &srcLocation, &textureBounds);
+		m_CommandList->ResourceBarrier(1, &toDefaultBarrier);
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(const CopyTextureToTextureCommand &command, GraphicsDevice *device)

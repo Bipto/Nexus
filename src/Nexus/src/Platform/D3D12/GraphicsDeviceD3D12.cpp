@@ -241,7 +241,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		uint32_t subresourceIndex = (layer * mipCount) + level;
+		uint32_t subresourceIndex = Utils::CalculateSubresource(layer, level, mipCount);
 
 		D3D12_RESOURCE_BARRIER barrier = {};
 		barrier.Type				   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;

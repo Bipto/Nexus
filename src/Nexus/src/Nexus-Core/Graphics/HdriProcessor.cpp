@@ -4,7 +4,9 @@
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 #include "Nexus-Core/Graphics/MeshFactory.hpp"
 #include "Nexus-Core/Graphics/Texture.hpp"
+
 #include "stb_image.h"
+#include "stb_image_write.h"
 
 const std::string HdriVertexShaderSource = "#version 450 core\n"
 
@@ -242,6 +244,7 @@ namespace Nexus::Graphics
 
 			Ref<Texture>	  colourTexture = framebuffer->GetColorTexture(0);
 			std::vector<char> pixels		= m_Device->ReadFromTexture(colourTexture.get(), 0, 0, 0, 0, 0, size, size);
+
 			m_Device->WriteToTexture(cubemap.get(), i, 0, 0, 0, 0, size, size, pixels.data(), pixels.size());
 		}
 
