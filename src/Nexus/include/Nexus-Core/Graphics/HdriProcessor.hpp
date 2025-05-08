@@ -16,7 +16,7 @@ namespace Nexus::Graphics
 		Ref<Texture> GetLoadedTexture() const;
 
 	  private:
-		void GetDirection(uint32_t faceIndex, float &yaw, float &pitch);
+		void GetDirection(uint32_t faceIndex, float &yaw, float &pitch, bool yUp);
 
 	  private:
 		GraphicsDevice *m_Device   = nullptr;

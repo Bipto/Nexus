@@ -122,62 +122,57 @@ namespace Nexus::Graphics
 		uint32_t bufferSize =
 			(subresource.Width - subresource.X) * (subresource.Height - subresource.Y) * (uint32_t)GetPixelFormatSizeInBytes(m_Specification.Format);
 
-		for (uint32_t layer = subresource.Z; layer < subresource.Z + subresource.Depth; layer++)
-
+		switch (m_GLInternalTextureFormat)
 		{
-			switch (m_GLInternalTextureFormat)
-			{
-				case GL::GLInternalTextureFormat::Texture1D:
-					glCall(glTexSubImage1D(m_TextureType,
-										   subresource.MipLevel,
-										   subresource.X,
-										   subresource.Width,
-										   m_DataFormat,
-										   m_BaseType,
-										   (const void *)(uint64_t)bufferOffset));
-					break;
-				case GL::GLInternalTextureFormat::Texture1DArray:
-				case GL::GLInternalTextureFormat::Texture2D:
-				case GL::GLInternalTextureFormat::Texture2DMultisample:
-					glCall(glTexSubImage2D(m_TextureType,
-										   subresource.MipLevel,
-										   subresource.X,
-										   subresource.Y,
-										   subresource.Width,
-										   subresource.Height,
-										   m_DataFormat,
-										   m_BaseType,
-										   (const void *)(uint64_t)bufferOffset));
-					break;
-				case GL::GLInternalTextureFormat::Cubemap:
-					glCall(glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + layer,
-										   subresource.MipLevel,
-										   subresource.X,
-										   subresource.Y,
-										   subresource.Width,
-										   subresource.Height,
-										   m_DataFormat,
-										   m_BaseType,
-										   (const void *)(uint64_t)bufferOffset));
-					break;
-				case GL::GLInternalTextureFormat::Texture2DArray:
-				case GL::GLInternalTextureFormat::CubemapArray:
-				case GL::GLInternalTextureFormat::Texture3D:
-				case GL::GLInternalTextureFormat::Texture2DArrayMultisample:
-					glCall(glTexSubImage3D(m_TextureType,
-										   subresource.MipLevel,
-										   subresource.X,
-										   subresource.Y,
-										   layer,
-										   subresource.Width,
-										   subresource.Height,
-										   subresource.Depth,
-										   m_DataFormat,
-										   m_BaseType,
-										   (const void *)(uint64_t)bufferOffset));
-					break;
-			}
-			bufferOffset += bufferSize;
+			case GL::GLInternalTextureFormat::Texture1D:
+				glCall(glTexSubImage1D(m_TextureType,
+									   subresource.MipLevel,
+									   subresource.X,
+									   subresource.Width,
+									   m_DataFormat,
+									   m_BaseType,
+									   (const void *)(uint64_t)bufferOffset));
+				break;
+			case GL::GLInternalTextureFormat::Texture1DArray:
+			case GL::GLInternalTextureFormat::Texture2D:
+			case GL::GLInternalTextureFormat::Texture2DMultisample:
+				glCall(glTexSubImage2D(m_TextureType,
+									   subresource.MipLevel,
+									   subresource.X,
+									   subresource.Y,
+									   subresource.Width,
+									   subresource.Height,
+									   m_DataFormat,
+									   m_BaseType,
+									   (const void *)(uint64_t)bufferOffset));
+				break;
+			case GL::GLInternalTextureFormat::Cubemap:
+				glCall(glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + subresource.ArrayLayer,
+									   subresource.MipLevel,
+									   subresource.X,
+									   subresource.Y,
+									   subresource.Width,
+									   subresource.Height,
+									   m_DataFormat,
+									   m_BaseType,
+									   (const void *)(uint64_t)bufferOffset));
+				break;
+			case GL::GLInternalTextureFormat::Texture2DArray:
+			case GL::GLInternalTextureFormat::CubemapArray:
+			case GL::GLInternalTextureFormat::Texture3D:
+			case GL::GLInternalTextureFormat::Texture2DArrayMultisample:
+				glCall(glTexSubImage3D(m_TextureType,
+									   subresource.MipLevel,
+									   subresource.X,
+									   subresource.Y,
+									   subresource.ArrayLayer,
+									   subresource.Width,
+									   subresource.Height,
+									   subresource.Depth,
+									   m_DataFormat,
+									   m_BaseType,
+									   (const void *)(uint64_t)bufferOffset));
+				break;
 		}
 
 		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);

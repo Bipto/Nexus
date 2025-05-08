@@ -151,7 +151,7 @@ namespace Nexus::Graphics
 			glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
 
 			float yaw = 0.0f, pitch = 0.0f;
-			GetDirection(i, yaw, pitch);
+			GetDirection(i, yaw, pitch, m_Device->IsUVOriginTopLeft());
 
 			glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 
@@ -256,30 +256,54 @@ namespace Nexus::Graphics
 		return m_HdriImage;
 	}
 
-	void HdriProcessor::GetDirection(uint32_t face, float &yaw, float &pitch)
+	void HdriProcessor::GetDirection(uint32_t face, float &yaw, float &pitch, bool yUp)
 	{
 		switch (face)
 		{
+			// positive x
 			case 0:
 				pitch = 0;
 				yaw	  = 90;
 				return;
+			// negative x
 			case 1:
 				pitch = 0;
 				yaw	  = -90;
 				return;
+			// positive y
 			case 2:
-				pitch = 90;
-				yaw	  = 180;
+				if (yUp)
+				{
+					pitch = -90;
+					yaw	  = 180;
+				}
+				else
+				{
+					pitch = 90;
+					yaw	  = 180;
+				}
+
 				return;
+			// negative y
 			case 3:
-				pitch = -90;
-				yaw	  = 180;
+				if (yUp)
+				{
+					pitch = 90;
+					yaw	  = 180;
+				}
+				else
+				{
+					pitch = -90;
+					yaw	  = 180;
+				}
+
 				return;
+			// positive z
 			case 4:
 				pitch = 0;
 				yaw	  = 180;
 				return;
+			// negative z
 			case 5:
 				pitch = 0;
 				yaw	  = 0;

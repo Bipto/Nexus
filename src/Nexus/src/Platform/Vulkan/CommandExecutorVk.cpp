@@ -517,20 +517,11 @@ namespace Nexus::Graphics
 			copyRegion.imageSubresource.layerCount = command.BufferTextureCopy.TextureSubresource.Depth;
 			copyRegion.imageOffset.x			   = command.BufferTextureCopy.TextureSubresource.X;
 			copyRegion.imageOffset.y			   = command.BufferTextureCopy.TextureSubresource.Y;
+			copyRegion.imageOffset.z				   = 0;
 			copyRegion.imageExtent.width		   = command.BufferTextureCopy.TextureSubresource.Width;
 			copyRegion.imageExtent.height		   = command.BufferTextureCopy.TextureSubresource.Height;
-			copyRegion.imageExtent.depth		   = command.BufferTextureCopy.TextureSubresource.Depth;
-
-			if (texture->GetSpecification().Type == TextureType::Texture3D)
-			{
-				copyRegion.imageOffset.z				   = command.BufferTextureCopy.TextureSubresource.Z;
-				copyRegion.imageSubresource.baseArrayLayer = 0;
-			}
-			else
-			{
-				copyRegion.imageOffset.z				   = 0;
-				copyRegion.imageSubresource.baseArrayLayer = command.BufferTextureCopy.TextureSubresource.Z;
-			}
+			copyRegion.imageExtent.depth				   = command.BufferTextureCopy.TextureSubresource.Depth;
+			copyRegion.imageSubresource.baseArrayLayer	   = command.BufferTextureCopy.TextureSubresource.ArrayLayer;
 
 			vkCmdCopyBufferToImage(m_CommandBuffer, buffer->GetVkBuffer(), texture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
 		}
