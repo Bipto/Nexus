@@ -544,7 +544,7 @@ namespace Nexus::ImGuiUtils
 			Nexus::Graphics::DeviceBufferDescription indexBufferDesc = {};
 			indexBufferDesc.Type									 = Nexus::Graphics::DeviceBufferType::Index;
 			indexBufferDesc.StrideInBytes							 = sizeof(ImDrawIdx);
-			indexBufferDesc.SizeInBytes								 = m_IndexBufferCount * sizeof(ImDrawVert);
+			indexBufferDesc.SizeInBytes								 = m_IndexBufferCount * sizeof(ImDrawIdx);
 			indexBufferDesc.HostVisible								 = true;
 			m_IndexBuffer = Ref<Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(indexBufferDesc));
 		}

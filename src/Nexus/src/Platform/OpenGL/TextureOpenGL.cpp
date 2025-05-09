@@ -115,8 +115,8 @@ namespace Nexus::Graphics
 					  "Attempting to set data in a multi-layer texture, but texture is not multi layer");
 		}
 
-		glBindTexture(m_TextureType, m_Handle);
-		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, buffer->GetBufferHandle());
+		glCall(glBindTexture(m_TextureType, m_Handle));
+		glCall(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, buffer->GetBufferHandle()));
 
 		GLenum	 glAspect = GL::GetGLImageAspect(subresource.Aspect);
 		uint32_t bufferSize =
@@ -175,8 +175,8 @@ namespace Nexus::Graphics
 				break;
 		}
 
-		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-		glBindTexture(m_TextureType, 0);
+		glCall(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0));
+		glCall(glBindTexture(m_TextureType, 0));
 	}
 
 	void TextureOpenGL::CopyDataToBuffer(DeviceBufferOpenGL *buffer, uint32_t bufferOffset, SubresourceDescription subresource)
@@ -193,25 +193,30 @@ namespace Nexus::Graphics
 			GLuint framebufferHandle = 0;
 			glCall(glGenFramebuffers(1, &framebufferHandle));
 			glCall(glBindFramebuffer(GL_FRAMEBUFFER, framebufferHandle));
-			GL::AttachTexture(framebufferHandle, this, subresource.MipLevel, layer, subresource.Aspect);
+			GL::AttachTexture(framebufferHandle, this, subresource.MipLevel, layer, subresource.Aspect, 0);
 
 			GL::ValidateFramebuffer(framebufferHandle);
 
-			glReadBuffer(GL_COLOR_ATTACHMENT0);
-			glReadPixels(subresource.X, subresource.Y, subresource.Width, subresource.Height, glAspect, m_BaseType, (void *)(uint64_t)bufferOffset);
-			// glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+			glCall(glReadBuffer(GL_COLOR_ATTACHMENT0));
+			glCall(glReadPixels(subresource.X,
+								subresource.Y,
+								subresource.Width,
+								subresource.Height,
+								m_DataFormat,
+								m_BaseType,
+								(void *)(uint64_t)bufferOffset));
 
-			glFlush();
-			glFinish();
-			glMemoryBarrier(GL_ALL_BARRIER_BITS);
+			glCall(glFlush());
+			glCall(glFinish());
+			glCall(glMemoryBarrier(GL_ALL_BARRIER_BITS));
 
 			glCall(glDeleteFramebuffers(1, &framebufferHandle));
 			bufferOffset += layerSize;
 		}
 
-		glMemoryBarrier(GL_ALL_BARRIER_BITS);
-		glBindTexture(m_TextureType, 0);
-		glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+		glCall(glMemoryBarrier(GL_ALL_BARRIER_BITS));
+		glCall(glBindTexture(m_TextureType, 0));
+		glCall(glBindBuffer(GL_PIXEL_PACK_BUFFER, 0));
 	}
 
 	GL::GLInternalTextureFormat TextureOpenGL::GetInternalGLTextureFormat() const

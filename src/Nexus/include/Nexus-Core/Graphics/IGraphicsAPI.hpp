@@ -22,5 +22,6 @@ namespace Nexus::Graphics
 		virtual const GraphicsAPICreateInfo					 &GetGraphicsAPICreateInfo() const								= 0;
 
 		static IGraphicsAPI *CreateAPI(const GraphicsAPICreateInfo &createInfo);
+		static bool			 IsAPISupported(GraphicsAPI api);
 	};
 }	 // namespace Nexus::Graphics

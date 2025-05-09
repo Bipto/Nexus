@@ -45,12 +45,12 @@ namespace Nexus::Graphics
 
 		// cleanup allocators
 		{
-			// vmaDestroyAllocator(m_Allocator);
+			vmaDestroyAllocator(m_Allocator);
 		}
 
 		// cleanup device
 		{
-			// vkDestroyDevice(m_Device, nullptr);
+			vkDestroyDevice(m_Device, nullptr);
 		}
 	}
 

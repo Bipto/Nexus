@@ -576,10 +576,15 @@ namespace Nexus::GL
 		}
 	}
 
-	void AttachTexture(GLuint framebuffer, Graphics::TextureOpenGL *texture, uint32_t mipLevel, uint32_t arrayLayer, Graphics::ImageAspect aspect)
+	void AttachTexture(GLuint					framebuffer,
+					   Graphics::TextureOpenGL *texture,
+					   uint32_t					mipLevel,
+					   uint32_t					arrayLayer,
+					   Graphics::ImageAspect	aspect,
+					   uint32_t					colourIndex)
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-		GLenum attachmentType = GL::GetAttachmentType(aspect);
+		glCall(glBindFramebuffer(GL_FRAMEBUFFER, framebuffer));
+		GLenum attachmentType = GL::GetAttachmentType(aspect, colourIndex);
 
 		uint32_t				textureHandle  = texture->GetHandle();
 		GLenum					textureTarget  = texture->GetTextureType();
@@ -588,23 +593,23 @@ namespace Nexus::GL
 		switch (internalFormat)
 		{
 			case GLInternalTextureFormat::Texture1D:
-				glFramebufferTexture1D(GL_FRAMEBUFFER, attachmentType, textureTarget, textureHandle, mipLevel);
+				glCall(glFramebufferTexture1D(GL_FRAMEBUFFER, attachmentType, textureTarget, textureHandle, mipLevel));
 				break;
 			case GLInternalTextureFormat::Texture1DArray:
-				glFramebufferTextureLayer(GL_FRAMEBUFFER, attachmentType, textureHandle, mipLevel, arrayLayer);
+				glCall(glFramebufferTextureLayer(GL_FRAMEBUFFER, attachmentType, textureHandle, mipLevel, arrayLayer));
 				break;
 			case GLInternalTextureFormat::Texture2D:
 			case GLInternalTextureFormat::Texture2DMultisample:
-				glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, textureTarget, textureHandle, mipLevel);
+				glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, textureTarget, textureHandle, mipLevel));
 				break;
 			case GLInternalTextureFormat::Texture2DArray:
 			case GLInternalTextureFormat::Texture2DArrayMultisample:
 			case GLInternalTextureFormat::CubemapArray:
 			case GLInternalTextureFormat::Texture3D:
-				glFramebufferTextureLayer(GL_FRAMEBUFFER, attachmentType, textureHandle, mipLevel, arrayLayer);
+				glCall(glFramebufferTextureLayer(GL_FRAMEBUFFER, attachmentType, textureHandle, mipLevel, arrayLayer));
 				break;
 			case GLInternalTextureFormat::Cubemap:
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_TEXTURE_CUBE_MAP_POSITIVE_X + arrayLayer, textureTarget, textureHandle, mipLevel);
+				glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_TEXTURE_CUBE_MAP_POSITIVE_X + arrayLayer, textureTarget, textureHandle, mipLevel));
 				break;
 		}
 	}
@@ -879,11 +884,11 @@ namespace Nexus::GL
 		}
 	}
 
-	GLenum GetAttachmentType(Graphics::ImageAspect aspect)
+	GLenum GetAttachmentType(Graphics::ImageAspect aspect, uint32_t index)
 	{
 		switch (aspect)
 		{
-			case Graphics::ImageAspect::Colour: return GL_COLOR_ATTACHMENT0;
+			case Graphics::ImageAspect::Colour: return GL_COLOR_ATTACHMENT0 + index;
 			case Graphics::ImageAspect::Depth: return GL_DEPTH_ATTACHMENT;
 			case Graphics::ImageAspect::Stencil: return GL_STENCIL_ATTACHMENT;
 			case Graphics::ImageAspect::DepthStencil: return GL_DEPTH_STENCIL_ATTACHMENT;

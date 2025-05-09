@@ -94,7 +94,7 @@ namespace Nexus::Graphics
 				ExecuteGraphicsCommand(std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline),
 									   m_CurrentlyBoundVertexBuffers,
 									   m_BoundIndexBuffer,
-									   0,
+									   command.VertexStart,
 									   command.InstanceStart,
 									   [&](Ref<GraphicsPipelineOpenGL> graphicsPipeline)
 									   {
@@ -122,13 +122,13 @@ namespace Nexus::Graphics
 			{
 				IndexBufferView &indexBufferView  = m_BoundIndexBuffer.value();
 				uint32_t		 indexSizeInBytes = Graphics::GetIndexFormatSizeInBytes(indexBufferView.BufferFormat);
-				uint32_t		 offset			  = command.IndexStart * indexSizeInBytes + indexBufferView.Offset;
+				uint32_t		 offset			  = (command.IndexStart * indexSizeInBytes) + indexBufferView.Offset;
 				GLenum			 indexFormat	  = GL::GetGLIndexBufferFormat(indexBufferView.BufferFormat);
 
 				ExecuteGraphicsCommand(std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline),
 									   m_CurrentlyBoundVertexBuffers,
 									   m_BoundIndexBuffer,
-									   0,
+									   command.VertexStart,
 									   command.InstanceStart,
 									   [&](Ref<GraphicsPipelineOpenGL> graphicsPipeline)
 									   {
@@ -488,9 +488,9 @@ namespace Nexus::Graphics
 		const TextureCopyDescription &copyDesc		= command.TextureCopy;
 
 		GLenum srcGlAspect		 = GL::GetGLImageAspect(command.TextureCopy.SourceSubresource.Aspect);
-		GLenum srcAttachmentType = GL::GetAttachmentType(command.TextureCopy.SourceSubresource.Aspect);
+		GLenum srcAttachmentType = GL::GetAttachmentType(command.TextureCopy.SourceSubresource.Aspect, 0);
 		GLenum dstGlAspect		 = GL::GetGLImageAspect(command.TextureCopy.DestinationSubresource.Aspect);
-		GLenum dstAttachmentType = GL::GetAttachmentType(command.TextureCopy.DestinationSubresource.Aspect);
+		GLenum dstAttachmentType = GL::GetAttachmentType(command.TextureCopy.DestinationSubresource.Aspect, 0);
 
 		for (uint32_t layer = command.TextureCopy.SourceSubresource.Z; layer < command.TextureCopy.SourceSubresource.Depth; layer++)
 		{
@@ -506,7 +506,8 @@ namespace Nexus::Graphics
 								  sourceTexture,
 								  command.TextureCopy.SourceSubresource.MipLevel,
 								  layer,
-								  copyDesc.SourceSubresource.Aspect);
+								  copyDesc.SourceSubresource.Aspect,
+								  0);
 				GL::ValidateFramebuffer(sourceFramebufferHandle);
 			}
 
@@ -519,7 +520,8 @@ namespace Nexus::Graphics
 								  destTexture,
 								  command.TextureCopy.DestinationSubresource.MipLevel,
 								  layer,
-								  copyDesc.DestinationSubresource.Aspect);
+								  copyDesc.DestinationSubresource.Aspect,
+								  0);
 				GL::ValidateFramebuffer(destFramebufferHandle);
 			}
 
@@ -615,9 +617,9 @@ namespace Nexus::Graphics
 
 			if (location != -1)
 			{
-				TextureOpenGL	*texture = (TextureOpenGL *)storageImageView.TextureHandle;
-				GLenum			 format	 = GL::GetSizedInternalFormat(storageImageView.TextureHandle->GetSpecification().Format, false);
-				GLenum			 access	 = GL::GetAccessMask(storageImageView.Access);
+				TextureOpenGL *texture = (TextureOpenGL *)storageImageView.TextureHandle;
+				GLenum		   format  = GL::GetSizedInternalFormat(storageImageView.TextureHandle->GetSpecification().Format, false);
+				GLenum		   access  = GL::GetAccessMask(storageImageView.Access);
 
 				glCall(glBindImageTexture(location, texture->GetHandle(), storageImageView.Level, GL_FALSE, 0, access, format));
 			}

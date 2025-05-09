@@ -85,7 +85,12 @@ namespace Nexus::GL
 
 	GLInternalTextureFormat GetGLInternalTextureFormat(const Graphics::TextureSpecification &spec);
 	void					ValidateFramebuffer(GLuint framebuffer);
-	void AttachTexture(GLuint framebuffer, Graphics::TextureOpenGL *texture, uint32_t mipLevel, uint32_t arrayLayer, Graphics::ImageAspect aspect);
+	void					AttachTexture(GLuint				   framebuffer,
+										  Graphics::TextureOpenGL *texture,
+										  uint32_t				   mipLevel,
+										  uint32_t				   arrayLayer,
+										  Graphics::ImageAspect	   aspect,
+										  uint32_t				   colourIndex);
 
 	void GetBaseType(const Graphics::VertexBufferElement &element,
 					 GLenum								 &baseType,
@@ -94,7 +99,7 @@ namespace Nexus::GL
 					 GLPrimitiveType					 &primitiveType);
 
 	GLenum GetGLImageAspect(Graphics::ImageAspect aspect);
-	GLenum GetAttachmentType(Graphics::ImageAspect aspect);
+	GLenum GetAttachmentType(Graphics::ImageAspect aspect, uint32_t index);
 	GLenum GetBufferMaskToCopy(Graphics::ImageAspect aspect);
 
 	std::unique_ptr<IOffscreenContext> CreateOffscreenContext(Graphics::IPhysicalDevice *physicalDevice);

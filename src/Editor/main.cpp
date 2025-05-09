@@ -36,7 +36,7 @@ class EditorApplication : public Nexus::Application
 	virtual void Load() override
 	{
 		m_Renderer		= std::make_unique<Nexus::Graphics::Renderer3D>(m_GraphicsDevice.get());
-		m_BatchRenderer = std::make_unique<Nexus::Graphics::BatchRenderer>(m_GraphicsDevice.get(), true, Nexus::Graphics::SampleCount::SampleCount1);
+		m_BatchRenderer = std::make_unique<Nexus::Graphics::BatchRenderer>(m_GraphicsDevice.get(), true, 1);
 
 		m_ImGuiRenderer = std::unique_ptr<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(new Nexus::ImGuiUtils::ImGuiGraphicsRenderer(this));
 		ImGui::SetCurrentContext(m_ImGuiRenderer->GetContext());
@@ -610,8 +610,11 @@ class EditorApplication : public Nexus::Application
 
 		if (m_ClickPosition)
 		{
-			Nexus::Ref<Nexus::Graphics::Texture2D> idTexture  = m_Framebuffer->GetColorTexture(1);
-			std::vector<unsigned char>			   pixels	  = idTexture->GetData(0, m_ClickPosition.value().x, m_ClickPosition.value().y, 1, 1);
+			Nexus::Ref<Nexus::Graphics::Texture> idTexture = m_Framebuffer->GetColorTexture(1);
+
+			std::vector<char> pixels =
+				m_GraphicsDevice->ReadFromTexture(idTexture.get(), 0, 0, m_ClickPosition.value().x, m_ClickPosition.value().y, 0, 1, 1);
+
 			uint32_t							   upperValue = 0;
 			uint32_t							   lowerValue = 0;
 
@@ -654,7 +657,7 @@ class EditorApplication : public Nexus::Application
 
 	std::unique_ptr<Nexus::Graphics::Renderer3D>	m_Renderer		= nullptr;
 	std::unique_ptr<Nexus::Graphics::BatchRenderer> m_BatchRenderer = nullptr;
-	Nexus::Ref<Nexus::Graphics::Cubemap>			m_Cubemap		= nullptr;
+	Nexus::Ref<Nexus::Graphics::Texture>			m_Cubemap		= nullptr;
 	Nexus::Ref<Nexus::Graphics::Model>				m_Model			= nullptr;
 
 	ImVec2 m_PreviousViewportSize = {0, 0};
@@ -683,7 +686,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 	spec.WindowProperties.RendersPerSecond = 60;
 	spec.WindowProperties.UpdatesPerSecond = 60;
 
-	spec.SwapchainSpecification.Samples	   = Nexus::Graphics::SampleCount::SampleCount8;
+	spec.SwapchainSpecification.Samples	   = 8;
 	spec.SwapchainSpecification.VSyncState = Nexus::Graphics::VSyncState::Disabled;
 
 	return new EditorApplication(spec);

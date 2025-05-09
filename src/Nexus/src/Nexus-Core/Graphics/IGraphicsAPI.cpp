@@ -19,4 +19,32 @@ namespace Nexus::Graphics
 
 		return nullptr;
 	}
+
+	bool IGraphicsAPI::IsAPISupported(GraphicsAPI api)
+	{
+		switch (api)
+		{
+#if defined(NX_PLATFORM_OPENGL)
+			case GraphicsAPI::OpenGL:
+			{
+				return true;
+			}
+#endif
+#if defined(NX_PLATFORM_D3D12)
+			case GraphicsAPI::D3D12:
+			{
+				return true;
+			}
+#endif
+#if defined(NX_PLATFORM_VULKAN)
+			case GraphicsAPI::Vulkan:
+			{
+				return true;
+			}
+#endif
+		}
+
+		return false;
+	}
+
 }	 // namespace Nexus::Graphics

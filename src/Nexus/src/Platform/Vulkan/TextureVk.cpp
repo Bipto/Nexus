@@ -108,6 +108,8 @@ namespace Nexus::Graphics
 
 	TextureVk::~TextureVk()
 	{
+		vkDestroyImageView(m_GraphicsDevice->GetVkDevice(), m_ImageView, nullptr);
+		vmaDestroyImage(m_GraphicsDevice->GetAllocator(), m_Image, m_Allocation);
 	}
 
 	VkImage TextureVk::GetImage()

@@ -492,7 +492,8 @@ namespace Nexus::Graphics
 
 		std::map<uint32_t, VkImageLayout> previousLayouts;
 
-		for (uint32_t layer = command.BufferTextureCopy.TextureSubresource.Z; layer < command.BufferTextureCopy.TextureSubresource.Depth; layer++)
+		for (uint32_t layer = command.BufferTextureCopy.TextureSubresource.ArrayLayer; layer < command.BufferTextureCopy.TextureSubresource.Depth;
+			 layer++)
 		{
 			VkImageLayout layoutBefore = texture->GetImageLayout(layer, command.BufferTextureCopy.TextureSubresource.MipLevel);
 			previousLayouts[layer]	   = layoutBefore;
@@ -526,7 +527,8 @@ namespace Nexus::Graphics
 			vkCmdCopyBufferToImage(m_CommandBuffer, buffer->GetVkBuffer(), texture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
 		}
 
-		for (uint32_t layer = command.BufferTextureCopy.TextureSubresource.Z; layer < command.BufferTextureCopy.TextureSubresource.Depth; layer++)
+		for (uint32_t layer = command.BufferTextureCopy.TextureSubresource.ArrayLayer; layer < command.BufferTextureCopy.TextureSubresource.Depth;
+			 layer++)
 		{
 			VkImageLayout layoutBefore = texture->GetImageLayout(layer, command.BufferTextureCopy.TextureSubresource.MipLevel);
 			previousLayouts[layer]	   = layoutBefore;
@@ -550,7 +552,8 @@ namespace Nexus::Graphics
 
 		std::map<uint32_t, VkImageLayout> previousLayouts;
 
-		for (uint32_t layer = command.TextureBufferCopy.TextureSubresource.Z; layer < command.TextureBufferCopy.TextureSubresource.Depth; layer++)
+		for (uint32_t layer = command.TextureBufferCopy.TextureSubresource.ArrayLayer; layer < command.TextureBufferCopy.TextureSubresource.Depth;
+			 layer++)
 		{
 			VkImageLayout layoutBefore = texture->GetImageLayout(layer, command.TextureBufferCopy.TextureSubresource.MipLevel);
 			previousLayouts[layer]	   = layoutBefore;
@@ -575,25 +578,17 @@ namespace Nexus::Graphics
 			copyRegion.imageSubresource.layerCount = command.TextureBufferCopy.TextureSubresource.Depth;
 			copyRegion.imageOffset.x			   = command.TextureBufferCopy.TextureSubresource.X;
 			copyRegion.imageOffset.y			   = command.TextureBufferCopy.TextureSubresource.Y;
+			copyRegion.imageOffset.z				   = command.TextureBufferCopy.TextureSubresource.Z;
 			copyRegion.imageExtent.width		   = command.TextureBufferCopy.TextureSubresource.Width;
 			copyRegion.imageExtent.height		   = command.TextureBufferCopy.TextureSubresource.Height;
 			copyRegion.imageExtent.depth		   = command.TextureBufferCopy.TextureSubresource.Depth;
-
-			if (texture->GetSpecification().Type == TextureType::Texture3D)
-			{
-				copyRegion.imageOffset.z				   = command.TextureBufferCopy.TextureSubresource.Z;
-				copyRegion.imageSubresource.baseArrayLayer = 0;
-			}
-			else
-			{
-				copyRegion.imageOffset.z				   = 0;
-				copyRegion.imageSubresource.baseArrayLayer = command.TextureBufferCopy.TextureSubresource.Z;
-			}
+			copyRegion.imageSubresource.baseArrayLayer = command.TextureBufferCopy.TextureSubresource.ArrayLayer;
 
 			vkCmdCopyImageToBuffer(m_CommandBuffer, texture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, buffer->GetVkBuffer(), 1, &copyRegion);
 		}
 
-		for (uint32_t layer = command.TextureBufferCopy.TextureSubresource.Z; layer < command.TextureBufferCopy.TextureSubresource.Depth; layer++)
+		for (uint32_t layer = command.TextureBufferCopy.TextureSubresource.ArrayLayer; layer < command.TextureBufferCopy.TextureSubresource.Depth;
+			 layer++)
 		{
 			VkImageLayout layoutBefore = texture->GetImageLayout(layer, command.TextureBufferCopy.TextureSubresource.MipLevel);
 			previousLayouts[layer]	   = layoutBefore;
@@ -621,7 +616,7 @@ namespace Nexus::Graphics
 		std::map<uint32_t, VkImageLayout> dstLayouts;
 
 		// transfer source texture
-		for (uint32_t layer = command.TextureCopy.SourceSubresource.Z; layer < command.TextureCopy.SourceSubresource.Depth; layer++)
+		for (uint32_t layer = command.TextureCopy.SourceSubresource.ArrayLayer; layer < command.TextureCopy.SourceSubresource.Depth; layer++)
 		{
 			VkImageLayout layout = srcTexture->GetImageLayout(layer, command.TextureCopy.SourceSubresource.MipLevel);
 			srcLayouts[layer]	 = layout;
@@ -636,7 +631,8 @@ namespace Nexus::Graphics
 		}
 
 		// transfer destination texture
-		for (uint32_t layer = command.TextureCopy.DestinationSubresource.Z; layer < command.TextureCopy.DestinationSubresource.Depth; layer++)
+		for (uint32_t layer = command.TextureCopy.DestinationSubresource.ArrayLayer; layer < command.TextureCopy.DestinationSubresource.Depth;
+			 layer++)
 		{
 			VkImageLayout layout = dstTexture->GetImageLayout(layer, command.TextureCopy.DestinationSubresource.MipLevel);
 			dstLayouts[layer]	 = layout;
@@ -660,38 +656,20 @@ namespace Nexus::Graphics
 			copyRegion.srcSubresource.layerCount = command.TextureCopy.SourceSubresource.Depth;
 			copyRegion.srcOffset.x				 = command.TextureCopy.SourceSubresource.X;
 			copyRegion.srcOffset.y				 = command.TextureCopy.SourceSubresource.Y;
+			copyRegion.srcOffset.z					 = command.TextureCopy.SourceSubresource.Z;
+			copyRegion.srcSubresource.baseArrayLayer = command.TextureCopy.SourceSubresource.ArrayLayer;
 			copyRegion.extent.width				 = command.TextureCopy.SourceSubresource.Width;
 			copyRegion.extent.height			 = command.TextureCopy.SourceSubresource.Height;
 			copyRegion.extent.depth				 = command.TextureCopy.SourceSubresource.Depth;
-
-			if (srcTexture->GetSpecification().Type == TextureType::Texture3D)
-			{
-				copyRegion.srcOffset.z					 = command.TextureCopy.SourceSubresource.Z;
-				copyRegion.srcSubresource.baseArrayLayer = 0;
-			}
-			else
-			{
-				copyRegion.srcOffset.z					 = 0;
-				copyRegion.srcSubresource.baseArrayLayer = command.TextureCopy.SourceSubresource.Z;
-			}
 
 			// dst
 			copyRegion.dstSubresource.aspectMask = dstAspect;
 			copyRegion.dstSubresource.mipLevel	 = command.TextureCopy.DestinationSubresource.MipLevel;
 			copyRegion.dstSubresource.layerCount = command.TextureCopy.DestinationSubresource.Depth;
 			copyRegion.dstOffset.x				 = command.TextureCopy.DestinationSubresource.X;
-			copyRegion.dstOffset.y				 = command.TextureCopy.DestinationSubresource.Y;
-
-			if (dstTexture->GetSpecification().Type == TextureType::Texture3D)
-			{
-				copyRegion.dstOffset.z					 = command.TextureCopy.DestinationSubresource.Z;
-				copyRegion.dstSubresource.baseArrayLayer = 0;
-			}
-			else
-			{
-				copyRegion.dstOffset.z					 = 0;
-				copyRegion.dstSubresource.baseArrayLayer = command.TextureCopy.DestinationSubresource.Z;
-			}
+			copyRegion.dstOffset.y					 = command.TextureCopy.DestinationSubresource.Y;
+			copyRegion.dstOffset.z					 = command.TextureCopy.DestinationSubresource.Z;
+			copyRegion.dstSubresource.baseArrayLayer = command.TextureCopy.DestinationSubresource.ArrayLayer;
 
 			vkCmdCopyImage(m_CommandBuffer,
 						   srcTexture->GetImage(),
@@ -703,7 +681,7 @@ namespace Nexus::Graphics
 		}
 
 		// restore source texture layout
-		for (uint32_t layer = command.TextureCopy.SourceSubresource.Z; layer < command.TextureCopy.SourceSubresource.Depth; layer++)
+		for (uint32_t layer = command.TextureCopy.SourceSubresource.ArrayLayer; layer < command.TextureCopy.SourceSubresource.Depth; layer++)
 		{
 			VkImageLayout layout = srcTexture->GetImageLayout(layer, command.TextureCopy.SourceSubresource.MipLevel);
 			srcLayouts[layer]	 = layout;
@@ -718,7 +696,8 @@ namespace Nexus::Graphics
 		}
 
 		// restore destination texture layout
-		for (uint32_t layer = command.TextureCopy.DestinationSubresource.Z; layer < command.TextureCopy.DestinationSubresource.Depth; layer++)
+		for (uint32_t layer = command.TextureCopy.DestinationSubresource.ArrayLayer; layer < command.TextureCopy.DestinationSubresource.Depth;
+			 layer++)
 		{
 			VkImageLayout layout = dstTexture->GetImageLayout(layer, command.TextureCopy.DestinationSubresource.MipLevel);
 			dstLayouts[layer]	 = layout;
