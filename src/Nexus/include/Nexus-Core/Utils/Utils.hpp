@@ -152,6 +152,8 @@ namespace Nexus::Utils
 		return (value + (alignment - 1) & ~(alignment - 1));
 	}
 
+	void ConvertNanosecondsToTm(uint64_t nanoseconds, std::tm &outTime);
+
 	NX_API void FlipPixelsHorizontally(void *pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format);
 	NX_API void FlipPixelsVertically(void *pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format);
 

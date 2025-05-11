@@ -377,6 +377,12 @@ namespace Nexus::Utils
 		return uniformBuffer;
 	}
 
+	void ConvertNanosecondsToTm(uint64_t nanoseconds, std::tm &outTime)
+	{
+		std::time_t seconds = nanoseconds / 1'000'000'000;
+		localtime_s(&outTime, &seconds);
+	}
+
 	void FlipPixelsHorizontally(void *pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format)
 	{
 		unsigned char *bufferPointer = (unsigned char *)pixels;
