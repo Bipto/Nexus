@@ -15,6 +15,7 @@
 	#include "SwapchainD3D12.hpp"
 	#include "PhysicalDeviceD3D12.hpp"
 	#include "DeviceBufferD3D12.hpp"
+	#include "FenceD3D12.hpp"
 
 namespace Nexus::Graphics
 {
@@ -196,16 +197,41 @@ namespace Nexus::Graphics
 
 	Fence *GraphicsDeviceD3D12::CreateFence(const FenceDescription &desc)
 	{
-		return nullptr;
+		return new FenceD3D12(desc, this);
 	}
 
 	FenceWaitResult GraphicsDeviceD3D12::WaitForFences(Fence **fences, uint32_t count, bool waitAll, TimeSpan timeout)
 	{
-		return FenceWaitResult();
+		std::vector<HANDLE> eventHandles(count);
+		for (uint32_t i = 0; i < count; i++)
+		{
+			FenceD3D12 *fence = (FenceD3D12 *)fences[i];
+			eventHandles[i]	  = fence->GetFenceEvent();
+		}
+
+		DWORD result = WaitForMultipleObjects(eventHandles.size(), eventHandles.data(), waitAll, timeout.GetMilliseconds());
+
+		if (result == WAIT_OBJECT_0)
+		{
+			return FenceWaitResult::Signalled;
+		}
+		else if (result == WAIT_TIMEOUT)
+		{
+			return FenceWaitResult::TimedOut;
+		}
+		else
+		{
+			return FenceWaitResult::Failed;
+		}
 	}
 
 	void GraphicsDeviceD3D12::ResetFences(Fence **fences, uint32_t count)
 	{
+		for (uint32_t i = 0; i < count; i++)
+		{
+			FenceD3D12 *fence = (FenceD3D12 *)fences[i];
+			fence->Reset();
+		}
 	}
 
 	ID3D12Device9 *GraphicsDeviceD3D12::GetDevice() const
