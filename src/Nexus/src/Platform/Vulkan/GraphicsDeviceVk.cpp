@@ -16,6 +16,7 @@
 	#include "PlatformVk.hpp"
 	#include "PhysicalDeviceVk.hpp"
 	#include "DeviceBufferVk.hpp"
+	#include "FenceVk.hpp"
 
 namespace Nexus::Graphics
 {
@@ -178,16 +179,45 @@ namespace Nexus::Graphics
 
 	Fence *GraphicsDeviceVk::CreateFence(const FenceDescription &desc)
 	{
-		return nullptr;
+		return new FenceVk(desc, this);
 	}
 
 	FenceWaitResult GraphicsDeviceVk::WaitForFences(Fence **fences, uint32_t count, bool waitAll, TimeSpan timeout)
 	{
-		return FenceWaitResult();
+		std::vector<VkFence> fenceHandles(count);
+		for (uint32_t i = 0; i < count; i++)
+		{
+			FenceVk *fence	= (FenceVk *)fences[i];
+			fenceHandles[i] = fence->GetHandle();
+		}
+
+		VkResult result = vkWaitForFences(m_Device, fenceHandles.size(), fenceHandles.data(), waitAll, timeout.GetNanoseconds());
+
+		if (result == VK_SUCCESS)
+		{
+			return FenceWaitResult::Signalled;
+		}
+		else if (result == VK_TIMEOUT)
+		{
+			return FenceWaitResult::TimedOut;
+		}
+		else
+		{
+			return FenceWaitResult::Failed;
+		}
 	}
 
 	void GraphicsDeviceVk::ResetFences(Fence **fences, uint32_t count)
 	{
+		std::vector<VkFence> fenceHandles(count);
+		for (uint32_t i = 0; i < count; i++)
+		{
+			FenceVk *fence	= (FenceVk *)fences[i];
+			fenceHandles[i] = fence->GetHandle();
+		}
+
+		VkResult result = vkResetFences(m_Device, fenceHandles.size(), fenceHandles.data());
+		NX_ASSERT(result == VK_SUCCESS, "Failed to reset fences");
 	}
 
 	Texture *GraphicsDeviceVk::CreateTexture(const TextureSpecification &spec)
