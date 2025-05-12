@@ -12,6 +12,7 @@
 	#include "TimingQueryOpenGL.hpp"
 	#include "SwapchainOpenGL.hpp"
 	#include "DeviceBufferOpenGL.hpp"
+	#include "FenceOpenGL.hpp"
 
 void APIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam)
 {
@@ -172,6 +173,80 @@ namespace Nexus::Graphics
 	Swapchain *GraphicsDeviceOpenGL::CreateSwapchain(IWindow *window, const SwapchainSpecification &spec)
 	{
 		return new SwapchainOpenGL(window, spec, this);
+	}
+
+	Fence *GraphicsDeviceOpenGL::CreateFence(const FenceDescription &desc)
+	{
+		return new FenceOpenGL(desc);
+	}
+
+	FenceWaitResult GraphicsDeviceOpenGL::WaitForFences(Fence **fences, uint32_t count, bool waitAll, TimeSpan timeout)
+	{
+		std::vector<FenceWaitResult> success(count);
+
+		for (uint32_t i = 0; i < count; i++)
+		{
+			FenceOpenGL *fence = (FenceOpenGL *)fences[i];
+
+			GLenum result = glClientWaitSync(fence->GetHandle(), GL_SYNC_FLUSH_COMMANDS_BIT, timeout.GetNanoseconds());
+			if (result == GL_ALREADY_SIGNALED || GL_CONDITION_SATISFIED)
+			{
+				// if a fence has been signalled successfully and we are not waiting for all the fences, we can return that a fence has been signalled
+				if (!waitAll)
+				{
+					return FenceWaitResult::Signalled;
+				}
+
+				success[i] = FenceWaitResult::Signalled;
+			}
+			else if (result == GL_TIMEOUT_EXPIRED)
+			{
+				success[i] = FenceWaitResult::TimedOut;
+			}
+			else
+			{
+				success[i] = FenceWaitResult::Failed;
+			}
+		}
+
+		// if we are waiting for all fences, we need to check that they have all been completed
+		bool allCompleted	  = true;
+		bool errorEncountered = false;
+		for (size_t i = 0; i < success.size(); i++)
+		{
+			if (success[i] != FenceWaitResult::Signalled)
+			{
+				allCompleted = false;
+			}
+
+			if (success[i] == FenceWaitResult::Failed)
+			{
+				errorEncountered = true;
+			}
+		}
+
+		if (!errorEncountered)
+		{
+			if (allCompleted)
+			{
+				return FenceWaitResult::Signalled;
+			}
+			else
+			{
+				FenceWaitResult::TimedOut;
+			}
+		}
+
+		return FenceWaitResult::Failed;
+	}
+
+	void GraphicsDeviceOpenGL::ResetFences(Fence **fences, uint32_t count)
+	{
+		for (uint32_t i = 0; i < count; i++)
+		{
+			FenceOpenGL *fence = (FenceOpenGL *)fences[i];
+			fence->Reset();
+		}
 	}
 
 	Texture *GraphicsDeviceOpenGL::CreateTexture(const TextureSpecification &spec)

@@ -194,6 +194,20 @@ namespace Nexus::Graphics
 		return new SwapchainD3D12(window, this, spec);
 	}
 
+	Fence *GraphicsDeviceD3D12::CreateFence(const FenceDescription &desc)
+	{
+		return nullptr;
+	}
+
+	FenceWaitResult GraphicsDeviceD3D12::WaitForFences(Fence **fences, uint32_t count, bool waitAll, TimeSpan timeout)
+	{
+		return FenceWaitResult();
+	}
+
+	void GraphicsDeviceD3D12::ResetFences(Fence **fences, uint32_t count)
+	{
+	}
+
 	ID3D12Device9 *GraphicsDeviceD3D12::GetDevice() const
 	{
 		return m_Device.Get();

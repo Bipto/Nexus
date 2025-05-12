@@ -176,6 +176,20 @@ namespace Nexus::Graphics
 		return swapchain;
 	}
 
+	Fence *GraphicsDeviceVk::CreateFence(const FenceDescription &desc)
+	{
+		return nullptr;
+	}
+
+	FenceWaitResult GraphicsDeviceVk::WaitForFences(Fence **fences, uint32_t count, bool waitAll, TimeSpan timeout)
+	{
+		return FenceWaitResult();
+	}
+
+	void GraphicsDeviceVk::ResetFences(Fence **fences, uint32_t count)
+	{
+	}
+
 	Texture *GraphicsDeviceVk::CreateTexture(const TextureSpecification &spec)
 	{
 		return new TextureVk(spec, this);

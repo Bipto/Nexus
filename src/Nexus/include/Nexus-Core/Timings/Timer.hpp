@@ -50,7 +50,10 @@ namespace Nexus::Timings
 	  private:
 		void AddFunction(std::function<void(Nexus::TimeSpan)> func, std::optional<double> seconds, ExecutionPolicy policy)
 		{
-			FunctionToExecute funcToExecute = {.Func = func, .WhenToExecute = seconds, .Timer = Nexus::TimeSpan(0), .Policy = policy};
+			FunctionToExecute funcToExecute = {.Func		  = func,
+											   .WhenToExecute = seconds,
+											   .Timer		  = Nexus::TimeSpan::FromNanoseconds(0),
+											   .Policy		  = policy};
 			m_Functions.push_back(funcToExecute);
 		}
 
@@ -120,7 +123,7 @@ namespace Nexus::Timings
 
 			uint64_t elapsed = end - start;
 			m_Stopped		 = true;
-			OnStop.Invoke(TimeSpan(elapsed));
+			OnStop.Invoke(TimeSpan::FromNanoseconds(elapsed));
 		}
 
 		const char *GetName() const

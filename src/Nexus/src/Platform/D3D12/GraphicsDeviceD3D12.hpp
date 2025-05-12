@@ -48,6 +48,9 @@ namespace Nexus::Graphics
 		virtual const GraphicsCapabilities GetGraphicsCapabilities() const override;
 		virtual Texture					  *CreateTexture(const TextureSpecification &spec) override;
 		virtual Swapchain				  *CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) override;
+		virtual Fence					  *CreateFence(const FenceDescription &desc) override;
+		virtual FenceWaitResult			   WaitForFences(Fence **fences, uint32_t count, bool waitAll, TimeSpan timeout) override;
+		virtual void					   ResetFences(Fence **fences, uint32_t count) override;
 		virtual bool					   IsUVOriginTopLeft() override
 		{
 			return true;

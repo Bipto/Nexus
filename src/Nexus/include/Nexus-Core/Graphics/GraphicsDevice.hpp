@@ -4,6 +4,7 @@
 
 #include "CommandList.hpp"
 #include "DeviceBuffer.hpp"
+#include "Fence.hpp"
 #include "Framebuffer.hpp"
 #include "GraphicsCapabilities.hpp"
 #include "IPhysicalDevice.hpp"
@@ -122,6 +123,12 @@ namespace Nexus::Graphics
 
 		virtual Swapchain *CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) = 0;
 
+		virtual Fence *CreateFence(const FenceDescription &desc) = 0;
+
+		virtual FenceWaitResult WaitForFences(Fence **fences, uint32_t count, bool waitAll, TimeSpan timeout) = 0;
+
+		virtual void ResetFences(Fence **fences, uint32_t count) = 0;
+
 		Ref<ShaderModule> CreateShaderModuleFromSpirvFile(const std::string &filepath, ShaderStage stage);
 
 		Ref<ShaderModule> CreateShaderModuleFromSpirvSource(const std::string &source, const std::string &name, ShaderStage stage);
@@ -152,9 +159,9 @@ namespace Nexus::Graphics
 										  uint32_t width,
 										  uint32_t height);
 
-		virtual bool			   Validate() override;
-		virtual void			   SetName(const std::string &name) override;
-		virtual const std::string &GetName() override;
+		virtual bool							 Validate() override;
+		virtual void							 SetName(const std::string &name) override;
+		virtual const std::string				&GetName() override;
 		virtual std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const = 0;
 
 	  private:

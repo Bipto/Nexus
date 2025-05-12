@@ -25,7 +25,7 @@ namespace Nexus
 		/// @return A Nexus::Time object containing the currently elapsed time
 		inline Nexus::TimeSpan GetTime()
 		{
-			return Nexus::TimeSpan(m_DeltaTime);
+			return Nexus::TimeSpan::FromNanoseconds(m_DeltaTime);
 		}
 
 	  private:
