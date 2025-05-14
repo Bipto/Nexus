@@ -248,17 +248,13 @@ namespace Nexus::Graphics
 
 		if (m_CurrentRenderTarget.GetType() == RenderTargetType::Swapchain)
 		{
-			auto swapchain		 = m_CurrentRenderTarget.GetData<Swapchain *>();
-			auto vulkanSwapchain = (SwapchainVk *)swapchain;
-
-			StartRenderingToSwapchain(vulkanSwapchain);
+			Ref<SwapchainVk> swapchain = std::dynamic_pointer_cast<SwapchainVk>(m_CurrentRenderTarget.GetSwapchain());
+			StartRenderingToSwapchain(swapchain);
 		}
 		else
 		{
-			auto framebuffer	   = m_CurrentRenderTarget.GetData<Ref<Framebuffer>>();
-			auto vulkanFramebuffer = std::dynamic_pointer_cast<FramebufferVk>(framebuffer);
-
-			StartRenderingToFramebuffer(vulkanFramebuffer);
+			Ref<FramebufferVk> framebuffer = std::dynamic_pointer_cast<FramebufferVk>(m_CurrentRenderTarget.GetFramebuffer());
+			StartRenderingToFramebuffer(framebuffer);
 		}
 	}
 
@@ -712,7 +708,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::StartRenderingToSwapchain(SwapchainVk *swapchain)
+	void CommandExecutorVk::StartRenderingToSwapchain(Ref<SwapchainVk> swapchain)
 	{
 		m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
 											  swapchain->GetColourImage(),
@@ -893,9 +889,9 @@ namespace Nexus::Graphics
 		{
 			vkCmdEndRendering(m_CommandBuffer);
 
-			if (Nexus::Ref<Nexus::Graphics::Framebuffer> *framebuffer = m_CurrentRenderTarget.GetDataIf<Ref<Framebuffer>>())
+			if (Ref<Framebuffer> framebuffer = m_CurrentRenderTarget.GetFramebuffer())
 			{
-				TransitionFramebufferToShaderReadonly(*framebuffer);
+				TransitionFramebufferToShaderReadonly(framebuffer);
 			}
 		}
 

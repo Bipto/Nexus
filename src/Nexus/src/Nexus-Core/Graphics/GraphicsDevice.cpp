@@ -89,7 +89,8 @@ namespace Nexus::Graphics
 		m_ImmediateCommandList->Begin();
 		function(m_ImmediateCommandList);
 		m_ImmediateCommandList->End();
-		SubmitCommandList(m_ImmediateCommandList);
+		SubmitCommandLists(&m_ImmediateCommandList, 1, nullptr);
+		WaitForIdle();
 	}
 
 	void GraphicsDevice::WriteToTexture(Texture	   *texture,
@@ -107,7 +108,7 @@ namespace Nexus::Graphics
 		bufferDesc.Type					   = DeviceBufferType::Upload;
 		bufferDesc.SizeInBytes			   = size;
 		bufferDesc.StrideInBytes			  = size;
-		std::unique_ptr<DeviceBuffer> buffer  = std::unique_ptr<DeviceBuffer>(CreateDeviceBuffer(bufferDesc));
+		Ref<DeviceBuffer>			  buffer  = CreateDeviceBuffer(bufferDesc);
 		Ref<CommandList>			  cmdList = CreateCommandList();
 
 		buffer->SetData(data, 0, size);
@@ -131,7 +132,8 @@ namespace Nexus::Graphics
 		cmdList->CopyBufferToTexture(copyDesc);
 
 		cmdList->End();
-		SubmitCommandList(cmdList);
+		SubmitCommandLists(&cmdList, 1, nullptr);
+		WaitForIdle();
 
 	}	 // namespace Nexus::Graphics
 
@@ -151,7 +153,7 @@ namespace Nexus::Graphics
 		bufferDesc.SizeInBytes			   = bufferSize;
 		bufferDesc.StrideInBytes		   = bufferSize;
 
-		std::unique_ptr<DeviceBuffer> buffer  = std::unique_ptr<DeviceBuffer>(CreateDeviceBuffer(bufferDesc));
+		Ref<DeviceBuffer>			  buffer  = Ref<DeviceBuffer>(CreateDeviceBuffer(bufferDesc));
 		Ref<CommandList>			  cmdList = CreateCommandList();
 
 		cmdList->Begin();
@@ -166,7 +168,8 @@ namespace Nexus::Graphics
 		cmdList->CopyTextureToBuffer(copyDesc);
 
 		cmdList->End();
-		SubmitCommandList(cmdList);
+		SubmitCommandLists(&cmdList, 1, nullptr);
+		WaitForIdle();
 
 		return buffer->GetData(0, bufferSize);
 	}

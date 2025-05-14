@@ -70,23 +70,34 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void GraphicsDeviceD3D12::SubmitCommandList(Ref<CommandList> commandList)
+	void GraphicsDeviceD3D12::SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence)
 	{
-		Ref<CommandListD3D12> d3d12CommandList = std::dynamic_pointer_cast<CommandListD3D12>(commandList);
+		std::vector<ID3D12CommandList *> d3d12CommandLists(numCommandLists);
 
-		const std::vector<Nexus::Graphics::RenderCommandData> &commands = d3d12CommandList->GetCommandData();
-		ID3D12GraphicsCommandList7							  *cmdList	= d3d12CommandList->GetCommandList();
+		for (uint32_t i = 0; i < numCommandLists; i++)
+		{
+			Ref<CommandListD3D12>								   commandList = std::dynamic_pointer_cast<CommandListD3D12>(commandLists[i]);
+			const std::vector<Nexus::Graphics::RenderCommandData> &commands	   = commandList->GetCommandData();
+			ID3D12GraphicsCommandList7							  *cmdList	   = commandList->GetCommandList();
 
-		d3d12CommandList->Reset();
-		m_CommandExecutor->SetCommandList(cmdList);
-		m_CommandExecutor->ExecuteCommands(commands, this);
-		d3d12CommandList->Close();
-		m_CommandExecutor->Reset();
+			commandList->Reset();
+			m_CommandExecutor->SetCommandList(cmdList);
+			m_CommandExecutor->ExecuteCommands(commands, this);
+			commandList->Close();
+			m_CommandExecutor->Reset();
 
-		ID3D12CommandList *lists[] = {cmdList};
-		m_CommandQueue->ExecuteCommandLists(1, lists);
+			d3d12CommandLists[i] = cmdList;
+		}
 
-		SignalAndWait();
+		m_CommandQueue->ExecuteCommandLists(d3d12CommandLists.size(), d3d12CommandLists.data());
+
+		if (fence)
+		{
+			Ref<FenceD3D12> fenceD3D12	= std::dynamic_pointer_cast<FenceD3D12>(fence);
+			ID3D12Fence1   *fenceHandle = fenceD3D12->GetHandle();
+			m_CommandQueue->Signal(fenceHandle, 1);
+			NX_ASSERT(fenceHandle->SetEventOnCompletion(1, fenceD3D12->GetFenceEvent()), "Failed to set event on completion");
+		}
 	}
 
 	const std::string GraphicsDeviceD3D12::GetAPIName()
@@ -144,9 +155,9 @@ namespace Nexus::Graphics
 		return CreateRef<TimingQueryD3D12>(this);
 	}
 
-	DeviceBuffer *GraphicsDeviceD3D12::CreateDeviceBuffer(const DeviceBufferDescription &desc)
+	Ref<DeviceBuffer> GraphicsDeviceD3D12::CreateDeviceBuffer(const DeviceBufferDescription &desc)
 	{
-		return new DeviceBufferD3D12(desc, this);
+		return CreateRef<DeviceBufferD3D12>(desc, this);
 	}
 
 	D3D12MA::Allocator *GraphicsDeviceD3D12::GetAllocator()
@@ -185,31 +196,31 @@ namespace Nexus::Graphics
 		return capabilities;
 	}
 
-	Texture *GraphicsDeviceD3D12::CreateTexture(const TextureSpecification &spec)
+	Ref<Texture> GraphicsDeviceD3D12::CreateTexture(const TextureSpecification &spec)
 	{
-		return new TextureD3D12(spec, this);
+		return CreateRef<TextureD3D12>(spec, this);
 	}
 
-	Swapchain *GraphicsDeviceD3D12::CreateSwapchain(IWindow *window, const SwapchainSpecification &spec)
+	Ref<Swapchain> GraphicsDeviceD3D12::CreateSwapchain(IWindow *window, const SwapchainSpecification &spec)
 	{
-		return new SwapchainD3D12(window, this, spec);
+		return CreateRef<SwapchainD3D12>(window, this, spec);
 	}
 
-	Fence *GraphicsDeviceD3D12::CreateFence(const FenceDescription &desc)
+	Ref<Fence> GraphicsDeviceD3D12::CreateFence(const FenceDescription &desc)
 	{
-		return new FenceD3D12(desc, this);
+		return CreateRef<FenceD3D12>(desc, this);
 	}
 
-	FenceWaitResult GraphicsDeviceD3D12::WaitForFences(Fence **fences, uint32_t count, bool waitAll, TimeSpan timeout)
+	FenceWaitResult GraphicsDeviceD3D12::WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout)
 	{
 		std::vector<HANDLE> eventHandles(count);
 		for (uint32_t i = 0; i < count; i++)
 		{
-			FenceD3D12 *fence = (FenceD3D12 *)fences[i];
-			eventHandles[i]	  = fence->GetFenceEvent();
+			Ref<FenceD3D12> fence = std::dynamic_pointer_cast<FenceD3D12>(fences[i]);
+			eventHandles[i]		  = fence->GetFenceEvent();
 		}
 
-		DWORD result = WaitForMultipleObjects(eventHandles.size(), eventHandles.data(), waitAll, timeout.GetMilliseconds());
+		DWORD result = WaitForMultipleObjects(eventHandles.size(), eventHandles.data(), waitAll, timeout.GetMilliseconds<uint64_t>());
 
 		if (result == WAIT_OBJECT_0)
 		{
@@ -225,11 +236,11 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void GraphicsDeviceD3D12::ResetFences(Fence **fences, uint32_t count)
+	void GraphicsDeviceD3D12::ResetFences(Ref<Fence> *fences, uint32_t count)
 	{
 		for (uint32_t i = 0; i < count; i++)
 		{
-			FenceD3D12 *fence = (FenceD3D12 *)fences[i];
+			Ref<FenceD3D12> fence = std::dynamic_pointer_cast<FenceD3D12>(fences[i]);
 			fence->Reset();
 		}
 	}
@@ -304,13 +315,17 @@ namespace Nexus::Graphics
 		resource->SetResourceState(layer, level, after);
 	}
 
-	void GraphicsDeviceD3D12::ResourceBarrierSwapchainColour(ID3D12GraphicsCommandList7 *cmd, SwapchainD3D12 *resource, D3D12_RESOURCE_STATES after)
+	void GraphicsDeviceD3D12::ResourceBarrierSwapchainColour(ID3D12GraphicsCommandList7 *cmd,
+															 Ref<SwapchainD3D12>		 resource,
+															 D3D12_RESOURCE_STATES		 after)
 	{
 		ResourceBarrier(cmd, resource->RetrieveBufferHandle().Get(), 0, 0, 1, resource->GetCurrentTextureState(), after);
 		resource->SetTextureState(after);
 	}
 
-	void GraphicsDeviceD3D12::ResourceBarrierSwapchainDepth(ID3D12GraphicsCommandList7 *cmd, SwapchainD3D12 *resource, D3D12_RESOURCE_STATES after)
+	void GraphicsDeviceD3D12::ResourceBarrierSwapchainDepth(ID3D12GraphicsCommandList7 *cmd,
+															Ref<SwapchainD3D12>			resource,
+															D3D12_RESOURCE_STATES		after)
 	{
 		ResourceBarrier(cmd, resource->RetrieveDepthBufferHandle(), 0, 0, 1, resource->GetCurrentDepthState(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
 		resource->SetDepthState(after);

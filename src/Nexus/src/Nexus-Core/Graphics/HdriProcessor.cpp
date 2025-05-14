@@ -240,7 +240,8 @@ namespace Nexus::Graphics
 			commandList->CopyTextureToTexture(copyDesc); */
 
 			commandList->End();
-			m_Device->SubmitCommandList(commandList);
+			m_Device->SubmitCommandLists(&commandList, 1, nullptr);
+			m_Device->WaitForIdle();
 
 			Ref<Texture>	  colourTexture = framebuffer->GetColorTexture(0);
 			std::vector<char> pixels		= m_Device->ReadFromTexture(colourTexture.get(), 0, 0, 0, 0, 0, size, size);

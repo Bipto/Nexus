@@ -115,7 +115,7 @@ namespace Nexus::Processors
 		bufferDesc.Type								   = Graphics::DeviceBufferType::Upload;
 		bufferDesc.SizeInBytes						   = pixels.size();
 		bufferDesc.StrideInBytes					   = pixels.size();
-		std::unique_ptr<Graphics::DeviceBuffer> buffer = std::unique_ptr<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(bufferDesc));
+		Ref<Graphics::DeviceBuffer> buffer			   = device->CreateDeviceBuffer(bufferDesc);
 
 		Ref<Graphics::CommandList> cmdList = device->CreateCommandList();
 

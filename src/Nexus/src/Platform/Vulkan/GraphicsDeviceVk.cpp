@@ -55,36 +55,44 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void GraphicsDeviceVk::SubmitCommandList(Ref<CommandList> commandList)
+	void GraphicsDeviceVk::SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence)
 	{
-		VkPipelineStageFlags waitDestStageMask = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
-		Ref<CommandListVk>	 commandListVk	   = std::dynamic_pointer_cast<CommandListVk>(commandList);
+		VkPipelineStageFlags		 waitDestStageMask = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
+		std::vector<VkCommandBuffer> commandBuffers(numCommandLists);
 
-		vkWaitForFences(m_Device, 1, &commandListVk->GetCurrentFence(), VK_TRUE, 0);
-		vkResetFences(m_Device, 1, &commandListVk->GetCurrentFence());
-
-		const std::vector<Nexus::Graphics::RenderCommandData> &commands = commandListVk->GetCommandData();
-		m_CommandExecutor->SetCommandBuffer(commandListVk->GetCurrentCommandBuffer());
-		m_CommandExecutor->ExecuteCommands(commands, this);
-		m_CommandExecutor->Reset();
+		// record the commands into the actual vulkan command list
+		for (uint32_t i = 0; i < numCommandLists; i++)
+		{
+			Ref<CommandListVk>									   commandList = std::dynamic_pointer_cast<CommandListVk>(commandLists[i]);
+			const std::vector<Nexus::Graphics::RenderCommandData> &commands	   = commandList->GetCommandData();
+			m_CommandExecutor->SetCommandBuffer(commandList->GetCurrentCommandBuffer());
+			m_CommandExecutor->ExecuteCommands(commands, this);
+			m_CommandExecutor->Reset();
+			commandBuffers[i] = commandList->GetCurrentCommandBuffer();
+		}
 
 		VkSubmitInfo submitInfo			= {};
 		submitInfo.sType				= VK_STRUCTURE_TYPE_SUBMIT_INFO;
 		submitInfo.waitSemaphoreCount	= 0;
 		submitInfo.pWaitSemaphores		= nullptr;
 		submitInfo.pWaitDstStageMask	= &waitDestStageMask;
-		submitInfo.commandBufferCount	= 1;
-		submitInfo.pCommandBuffers		= &commandListVk->GetCurrentCommandBuffer();
+		submitInfo.commandBufferCount	= commandBuffers.size();
+		submitInfo.pCommandBuffers		= commandBuffers.data();
 		submitInfo.signalSemaphoreCount = 0;
 		submitInfo.pSignalSemaphores	= nullptr;
 
-		if (vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, commandListVk->GetCurrentFence()) != VK_SUCCESS)
+		VkFence vkFence = nullptr;
+
+		if (fence)
+		{
+			Ref<FenceVk> apiFence = std::dynamic_pointer_cast<FenceVk>(fence);
+			vkFence				  = apiFence->GetHandle();
+		}
+
+		if (vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, vkFence) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to submit queue");
 		}
-
-		vkWaitForFences(m_Device, 1, &commandListVk->GetCurrentFence(), VK_TRUE, UINT32_MAX);
-		vkResetFences(m_Device, 1, &commandListVk->GetCurrentFence());
 	}
 
 	const std::string GraphicsDeviceVk::GetAPIName()
@@ -142,9 +150,9 @@ namespace Nexus::Graphics
 		return CreateRef<TimingQueryVk>(this);
 	}
 
-	DeviceBuffer *GraphicsDeviceVk::CreateDeviceBuffer(const DeviceBufferDescription &desc)
+	Ref<DeviceBuffer> GraphicsDeviceVk::CreateDeviceBuffer(const DeviceBufferDescription &desc)
 	{
-		return new DeviceBufferVk(desc, this);
+		return CreateRef<DeviceBufferVk>(desc, this);
 	}
 
 	const GraphicsCapabilities GraphicsDeviceVk::GetGraphicsCapabilities() const
@@ -158,9 +166,9 @@ namespace Nexus::Graphics
 		return capabilities;
 	}
 
-	Swapchain *GraphicsDeviceVk::CreateSwapchain(IWindow *window, const SwapchainSpecification &spec)
+	Ref<Swapchain> GraphicsDeviceVk::CreateSwapchain(IWindow *window, const SwapchainSpecification &spec)
 	{
-		SwapchainVk						 *swapchain		   = new SwapchainVk(window, this, spec);
+		Ref<SwapchainVk>				  swapchain		   = CreateRef<SwapchainVk>(window, this, spec);
 		std::shared_ptr<PhysicalDeviceVk> physicalDeviceVk = std::dynamic_pointer_cast<PhysicalDeviceVk>(m_PhysicalDevice);
 
 		VkBool32 presentSupport = false;
@@ -177,21 +185,21 @@ namespace Nexus::Graphics
 		return swapchain;
 	}
 
-	Fence *GraphicsDeviceVk::CreateFence(const FenceDescription &desc)
+	Ref<Fence> GraphicsDeviceVk::CreateFence(const FenceDescription &desc)
 	{
-		return new FenceVk(desc, this);
+		return CreateRef<FenceVk>(desc, this);
 	}
 
-	FenceWaitResult GraphicsDeviceVk::WaitForFences(Fence **fences, uint32_t count, bool waitAll, TimeSpan timeout)
+	FenceWaitResult GraphicsDeviceVk::WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout)
 	{
 		std::vector<VkFence> fenceHandles(count);
 		for (uint32_t i = 0; i < count; i++)
 		{
-			FenceVk *fence	= (FenceVk *)fences[i];
-			fenceHandles[i] = fence->GetHandle();
+			Ref<FenceVk> fence = std::dynamic_pointer_cast<FenceVk>(fences[i]);
+			fenceHandles[i]	   = fence->GetHandle();
 		}
 
-		VkResult result = vkWaitForFences(m_Device, fenceHandles.size(), fenceHandles.data(), waitAll, timeout.GetNanoseconds());
+		VkResult result = vkWaitForFences(m_Device, fenceHandles.size(), fenceHandles.data(), waitAll, timeout.GetNanoseconds<uint64_t>());
 
 		if (result == VK_SUCCESS)
 		{
@@ -207,22 +215,22 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void GraphicsDeviceVk::ResetFences(Fence **fences, uint32_t count)
+	void GraphicsDeviceVk::ResetFences(Ref<Fence> *fences, uint32_t count)
 	{
 		std::vector<VkFence> fenceHandles(count);
 		for (uint32_t i = 0; i < count; i++)
 		{
-			FenceVk *fence	= (FenceVk *)fences[i];
-			fenceHandles[i] = fence->GetHandle();
+			Ref<FenceVk> fence = std::dynamic_pointer_cast<FenceVk>(fences[i]);
+			fenceHandles[i]	   = fence->GetHandle();
 		}
 
 		VkResult result = vkResetFences(m_Device, fenceHandles.size(), fenceHandles.data());
 		NX_ASSERT(result == VK_SUCCESS, "Failed to reset fences");
 	}
 
-	Texture *GraphicsDeviceVk::CreateTexture(const TextureSpecification &spec)
+	Ref<Texture> GraphicsDeviceVk::CreateTexture(const TextureSpecification &spec)
 	{
-		return new TextureVk(spec, this);
+		return CreateRef<TextureVk>(spec, this);
 	}
 
 	ShaderLanguage GraphicsDeviceVk::GetSupportedShaderFormat()

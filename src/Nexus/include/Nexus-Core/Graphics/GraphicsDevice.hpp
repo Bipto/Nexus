@@ -54,7 +54,7 @@ namespace Nexus::Graphics
 
 		/// @brief A pure virtual method that will submit a command list for rendering
 		/// @param commandList The command list to submit for rendering
-		virtual void SubmitCommandList(Ref<CommandList> commandList) = 0;
+		virtual void SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) = 0;
 
 		/// @brief A pure virtual method that creates a pipeline from a given pipeline
 		/// description
@@ -97,7 +97,7 @@ namespace Nexus::Graphics
 		/// @return A pointer to a sampler
 		virtual Ref<Sampler> CreateSampler(const SamplerSpecification &spec) = 0;
 
-		virtual DeviceBuffer *CreateDeviceBuffer(const DeviceBufferDescription &desc) = 0;
+		virtual Ref<DeviceBuffer> CreateDeviceBuffer(const DeviceBufferDescription &desc) = 0;
 
 		virtual Ref<TimingQuery> CreateTimingQuery() = 0;
 
@@ -119,15 +119,15 @@ namespace Nexus::Graphics
 
 		virtual const GraphicsCapabilities GetGraphicsCapabilities() const = 0;
 
-		virtual Texture *CreateTexture(const TextureSpecification &spec) = 0;
+		virtual Ref<Texture> CreateTexture(const TextureSpecification &spec) = 0;
 
-		virtual Swapchain *CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) = 0;
+		virtual Ref<Swapchain> CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) = 0;
 
-		virtual Fence *CreateFence(const FenceDescription &desc) = 0;
+		virtual Ref<Fence> CreateFence(const FenceDescription &desc) = 0;
 
-		virtual FenceWaitResult WaitForFences(Fence **fences, uint32_t count, bool waitAll, TimeSpan timeout) = 0;
+		virtual FenceWaitResult WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) = 0;
 
-		virtual void ResetFences(Fence **fences, uint32_t count) = 0;
+		virtual void ResetFences(Ref<Fence> *fences, uint32_t count) = 0;
 
 		Ref<ShaderModule> CreateShaderModuleFromSpirvFile(const std::string &filepath, ShaderStage stage);
 

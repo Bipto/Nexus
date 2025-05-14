@@ -112,11 +112,8 @@ namespace Demos
 
 			m_CommandList->End();
 
-			m_GraphicsDevice->SubmitCommandList(m_CommandList);
-
-			/* Nexus::Graphics::HdriProcessor processor(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/hdri/hangar_interior_4k.hdr"),
-													 m_GraphicsDevice);
-			m_Cubemap = processor.Generate(2048); */
+			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_GraphicsDevice->WaitForIdle();
 		}
 
 		virtual void Update(Nexus::TimeSpan time) override

@@ -30,7 +30,9 @@ namespace Nexus
 
 	void SDL3Window::Update()
 	{
-		m_Timer.Update();
+		m_RenderTimer.Update();
+		m_UpdateTimer.Update();
+		m_TickTimer.Update();
 	}
 
 	void SDL3Window::SetResizable(bool isResizable)
@@ -616,7 +618,9 @@ namespace Nexus
 
 	void SDL3Window::SetupTimer()
 	{
-		m_Timer.Clear();
+		m_RenderTimer.Clear();
+		m_UpdateTimer.Clear();
+		m_TickTimer.Clear();
 
 		std::optional<double> secondsPerRender = {};
 		std::optional<double> secondsPerUpdate = {};
@@ -637,7 +641,7 @@ namespace Nexus
 			secondsPerTick = 1.0 / m_Specification.TicksPerSecond.value();
 		}
 
-		m_Timer.Every(
+		m_RenderTimer.Every(
 			[&](Nexus::TimeSpan time)
 			{
 				if (IsMinimized())
@@ -653,7 +657,7 @@ namespace Nexus
 			},
 			secondsPerRender);
 
-		m_Timer.Every(
+		m_UpdateTimer.Every(
 			[&](Nexus::TimeSpan time)
 			{
 				if (IsMinimized())
@@ -669,7 +673,7 @@ namespace Nexus
 			},
 			secondsPerUpdate);
 
-		m_Timer.Every(
+		m_TickTimer.Every(
 			[&](Nexus::TimeSpan time)
 			{
 				if (IsMinimized())

@@ -73,7 +73,7 @@ namespace Demos
 											glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation), {1.0f, 1.0f, 0.0f});
 			m_TransformUniformBuffer->SetData(&m_TransformUniforms, 0, sizeof(m_TransformUniforms));
 
-			m_Rotation += time.GetSeconds();
+			m_Rotation += time.GetSeconds<float>();
 			m_CameraUniforms.View		 = m_Camera.GetView();
 			m_CameraUniforms.Projection	 = m_Camera.GetProjection();
 			m_CameraUniforms.CamPosition = m_Camera.GetPosition();
@@ -144,9 +144,10 @@ namespace Demos
 
 			m_CommandList->End();
 
-			m_GraphicsDevice->SubmitCommandList(m_CommandList);
+			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_GraphicsDevice->WaitForIdle();
 
-			m_Rotation += 0.05f * time.GetMilliseconds();
+			m_Rotation += 0.05f * time.GetMilliseconds<float>();
 		}
 
 		virtual void Update(Nexus::TimeSpan time) override

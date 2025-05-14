@@ -20,7 +20,7 @@ namespace Demos
 
 		virtual void Load() override
 		{
-			Nexus::Graphics::Swapchain	*swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::Swapchain> swapchain   = Nexus::GetApplication()->GetPrimarySwapchain();
 			uint32_t					 sampleCount = swapchain->GetSpecification().Samples;
 			m_CommandList	= m_GraphicsDevice->CreateCommandList();
 			m_BatchRenderer							 = new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, false, sampleCount);
@@ -37,22 +37,22 @@ namespace Demos
 			{
 				if (Nexus::Input::IsKeyDown(Nexus::ScanCode::A))
 				{
-					r1.SetX(r1.GetLeft() - (100 * time.GetSeconds()));
+					r1.SetX(r1.GetLeft() - (100 * time.GetSeconds<float>()));
 				}
 
 				if (Nexus::Input::IsKeyDown(Nexus::ScanCode::D))
 				{
-					r1.SetX(r1.GetLeft() + (100 * time.GetSeconds()));
+					r1.SetX(r1.GetLeft() + (100 * time.GetSeconds<float>()));
 				}
 
 				if (Nexus::Input::IsKeyDown(Nexus::ScanCode::W))
 				{
-					r1.SetY(r1.GetTop() - (100 * time.GetSeconds()));
+					r1.SetY(r1.GetTop() - (100 * time.GetSeconds<float>()));
 				}
 
 				if (Nexus::Input::IsKeyDown(Nexus::ScanCode::S))
 				{
-					r1.SetY(r1.GetTop() + (100 * time.GetSeconds()));
+					r1.SetY(r1.GetTop() + (100 * time.GetSeconds<float>()));
 				}
 			}
 
@@ -100,7 +100,8 @@ namespace Demos
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()});
 			m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 			m_CommandList->End();
-			m_GraphicsDevice->SubmitCommandList(m_CommandList);
+			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_GraphicsDevice->WaitForIdle();
 
 			const auto &windowSize = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
 
@@ -127,6 +128,7 @@ namespace Demos
 			m_BatchRenderer->DrawPolygonFill(poly, {0.0f, 1.0f, 0.0f, 1.0f});
 
 			m_BatchRenderer->End();
+			m_GraphicsDevice->WaitForIdle();
 		}
 
 		virtual void OnResize(Nexus::Point2D<uint32_t> size) override

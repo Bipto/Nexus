@@ -20,7 +20,7 @@ namespace Demos
 
 		virtual void Load() override
 		{
-			Nexus::Graphics::Swapchain	*swapchain	 = Nexus::GetApplication()->GetPrimarySwapchain();
+			Nexus::Ref<Nexus::Graphics::Swapchain> swapchain   = Nexus::GetApplication()->GetPrimarySwapchain();
 			uint32_t					 sampleCount = swapchain->GetSpecification().Samples;
 			m_CommandList	= m_GraphicsDevice->CreateCommandList();
 			m_BatchRenderer = Nexus::Scope<Nexus::Graphics::BatchRenderer>(new Nexus::Graphics::BatchRenderer(m_GraphicsDevice, false, sampleCount));
@@ -58,7 +58,8 @@ namespace Demos
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()});
 			m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 			m_CommandList->End();
-			m_GraphicsDevice->SubmitCommandList(m_CommandList);
+			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_GraphicsDevice->WaitForIdle();
 
 			auto size = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
 
@@ -85,6 +86,7 @@ namespace Demos
 			}
 
 			m_BatchRenderer->End();
+			m_GraphicsDevice->WaitForIdle();
 		}
 
 		virtual void OnResize(Nexus::Point2D<uint32_t> size) override

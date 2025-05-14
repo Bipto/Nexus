@@ -282,7 +282,7 @@ namespace Nexus::Graphics
 
 		m_CommandList->End();
 
-		m_Device->SubmitCommandList(m_CommandList);
+		m_Device->SubmitCommandLists(&m_CommandList, 1, nullptr);
 	}
 
 	void Renderer3D::RenderModel(Nexus::Ref<Nexus::Graphics::Model> model, const glm::mat4 transform, GUID guid)
@@ -380,7 +380,8 @@ namespace Nexus::Graphics
 			m_CommandList->DrawIndexed(mesh->GetIndexBuffer()->GetCount(), 1, 0, 0, 0);
 
 			m_CommandList->End();
-			m_Device->SubmitCommandList(m_CommandList);
+			m_Device->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_Device->WaitForIdle();
 		}
 	}
 
@@ -410,7 +411,7 @@ namespace Nexus::Graphics
 		m_CommandList->Draw(6, 1, 0, 0);
 
 		m_CommandList->End();
-		m_Device->SubmitCommandList(m_CommandList);
+		m_Device->SubmitCommandLists(&m_CommandList, 1, nullptr);
 	}
 
 	void Renderer3D::CreateCubemapPipeline()

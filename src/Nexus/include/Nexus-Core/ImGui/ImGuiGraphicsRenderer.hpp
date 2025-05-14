@@ -23,11 +23,10 @@ namespace Nexus::ImGuiUtils
 	struct ImGuiWindowInfo
 	{
 		Nexus::IWindow			   *Window	  = nullptr;
-		Nexus::Graphics::Swapchain *Swapchain = nullptr;
+		Ref<Nexus::Graphics::Swapchain> Swapchain = nullptr;
 
 		virtual ~ImGuiWindowInfo()
 		{
-			delete Swapchain;
 			Window->Close();
 		}
 	};

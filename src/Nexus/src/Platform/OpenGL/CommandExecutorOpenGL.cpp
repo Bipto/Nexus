@@ -292,21 +292,23 @@ namespace Nexus::Graphics
 
 		if (m_CurrentRenderTarget.has_value())
 		{
-			if (Nexus::Graphics::Swapchain **previousSwapchain = m_CurrentRenderTarget.value().GetDataIf<Swapchain *>())
+			if (Ref<Swapchain> previousSwapchain = m_CurrentRenderTarget.value().GetSwapchain())
 			{
 				deviceGL->GetOffscreenContext()->MakeCurrent();
 			}
 		}
 
-		// handle different options of render targets
-		if (Nexus::Graphics::Swapchain **swapchain = command.GetDataIf<Swapchain *>())
+		if (Ref<Framebuffer> framebuffer = command.GetFramebuffer())
 		{
-			deviceGL->SetSwapchain(*swapchain);
+			deviceGL->SetFramebuffer(framebuffer);
 		}
-
-		if (Nexus::Ref<Nexus::Graphics::Framebuffer> *framebuffer = command.GetDataIf<Nexus::Ref<Nexus::Graphics::Framebuffer>>())
+		else if (Ref<Swapchain> swapchain = command.GetSwapchain())
 		{
-			deviceGL->SetFramebuffer(*framebuffer);
+			deviceGL->SetSwapchain(swapchain);
+		}
+		else
+		{
+			throw std::runtime_error("Failed to find a valid render target type");
 		}
 
 		m_CurrentRenderTarget = command;

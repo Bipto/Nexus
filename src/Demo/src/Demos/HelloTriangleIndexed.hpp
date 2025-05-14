@@ -84,7 +84,8 @@ namespace Demos
 			m_CommandList->DrawIndexed(m_IndexBuffer->GetCount(), 1, 0, 0, 0);
 			m_CommandList->End();
 
-			m_GraphicsDevice->SubmitCommandList(m_CommandList);
+			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_GraphicsDevice->WaitForIdle();
 		}
 
 		virtual std::string GetInfo() const override

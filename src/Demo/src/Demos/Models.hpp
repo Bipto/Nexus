@@ -136,9 +136,10 @@ namespace Demos
 
 			m_CommandList->End();
 
-			m_GraphicsDevice->SubmitCommandList(m_CommandList);
+			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_GraphicsDevice->WaitForIdle();
 
-			m_Rotation += 0.05f * time.GetMilliseconds();
+			m_Rotation += 0.05f * time.GetMilliseconds<float>();
 		}
 
 		virtual void Update(Nexus::TimeSpan time) override

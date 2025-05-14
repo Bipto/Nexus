@@ -212,7 +212,9 @@ namespace Nexus
 		/// @brief The underlying SDL window ID
 		uint32_t m_WindowID = 0;
 
-		Nexus::Timings::ExecutionTimer m_Timer = {};
+		Nexus::Timings::ExecutionTimer m_RenderTimer = {};
+		Nexus::Timings::ExecutionTimer m_UpdateTimer = {};
+		Nexus::Timings::ExecutionTimer m_TickTimer	 = {};
 
 		bool m_Minimized = false;
 

@@ -24,7 +24,7 @@ namespace Nexus::Graphics
 		GraphicsDeviceVk(const GraphicsDeviceVk &) = delete;
 		virtual ~GraphicsDeviceVk();
 
-		virtual void SubmitCommandList(Ref<CommandList> commandList) override;
+		virtual void SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) override;
 
 		virtual const std::string				 GetAPIName() override;
 		virtual const char						*GetDeviceName() override;
@@ -37,14 +37,14 @@ namespace Nexus::Graphics
 		virtual Ref<Framebuffer>	  CreateFramebuffer(const FramebufferSpecification &spec) override;
 		virtual Ref<Sampler>		  CreateSampler(const SamplerSpecification &spec) override;
 		virtual Ref<TimingQuery>	  CreateTimingQuery() override;
-		virtual DeviceBuffer		 *CreateDeviceBuffer(const DeviceBufferDescription &desc) override;
+		virtual Ref<DeviceBuffer>	  CreateDeviceBuffer(const DeviceBufferDescription &desc) override;
 
 		virtual const GraphicsCapabilities GetGraphicsCapabilities() const override;
-		virtual Texture					  *CreateTexture(const TextureSpecification &spec) override;
-		virtual Swapchain				  *CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) override;
-		virtual Fence					  *CreateFence(const FenceDescription &desc) override;
-		virtual FenceWaitResult			   WaitForFences(Fence **fences, uint32_t count, bool waitAll, TimeSpan timeout) override;
-		virtual void					   ResetFences(Fence **fences, uint32_t count) override;
+		virtual Ref<Texture>			   CreateTexture(const TextureSpecification &spec) override;
+		virtual Ref<Swapchain>			   CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) override;
+		virtual Ref<Fence>				   CreateFence(const FenceDescription &desc) override;
+		virtual FenceWaitResult			   WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) override;
+		virtual void					   ResetFences(Ref<Fence> *fences, uint32_t count) override;
 
 		virtual ShaderLanguage GetSupportedShaderFormat() override;
 		virtual void		   WaitForIdle() override;

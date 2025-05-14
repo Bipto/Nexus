@@ -36,9 +36,10 @@ namespace Demos
 			m_CommandList->StopTimingQuery(m_TimingQuery);
 			m_CommandList->End();
 
-			m_GraphicsDevice->SubmitCommandList(m_CommandList);
+			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_GraphicsDevice->WaitForIdle();
 
-			m_TimerCounter += time.GetSeconds();
+			m_TimerCounter += time.GetSeconds<float>();
 
 			// update the timings every half a second
 			if (m_TimerCounter >= 0.5f)

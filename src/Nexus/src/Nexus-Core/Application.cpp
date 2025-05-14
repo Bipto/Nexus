@@ -61,7 +61,7 @@ namespace Nexus
 		return m_Window;
 	}
 
-	Nexus::Graphics::Swapchain *Application::GetPrimarySwapchain()
+	Ref<Nexus::Graphics::Swapchain> Application::GetPrimarySwapchain()
 	{
 		return m_Swapchain;
 	}

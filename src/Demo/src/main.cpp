@@ -225,8 +225,8 @@ class DemoApplication : public Nexus::Application
 			const auto &results = Nexus::Timings::Profiler::Get().GetResults();
 			for (const auto &profileResult : results)
 			{
-				std::string output =
-					std::string(profileResult.Name) + std::string(": ") + std::to_string(profileResult.Time.GetMilliseconds()) + std::string(" Ms");
+				std::string output = std::string(profileResult.Name) + std::string(": ") +
+									 std::to_string(profileResult.Time.GetMilliseconds<float>()) + std::string(" Ms");
 				ImGui::Text("%s", output.c_str());
 			}
 		}
@@ -265,7 +265,8 @@ class DemoApplication : public Nexus::Application
 			m_CommandList->ClearColorTarget(0, {0.35f, 0.25f, 0.42f, 1.0f});
 
 			m_CommandList->End();
-			m_GraphicsDevice->SubmitCommandList(m_CommandList);
+			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_GraphicsDevice->WaitForIdle();
 		}
 
 		m_ImGuiRenderer->AfterLayout();

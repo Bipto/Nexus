@@ -156,7 +156,7 @@ namespace Nexus
 			if (!m_RotationActive)
 				return;
 
-			float speed = 2.0f * time.GetSeconds();
+			float speed = 2.0f * time.GetSeconds<float>();
 
 			std::optional<uint32_t> defaultKeyboard = Platform::GetActiveKeyboardId();
 

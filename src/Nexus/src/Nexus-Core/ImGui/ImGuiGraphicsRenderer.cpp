@@ -249,7 +249,7 @@ namespace Nexus::ImGuiUtils
 	void ImGuiGraphicsRenderer::BeforeLayout(Nexus::TimeSpan gameTime)
 	{
 		auto &io	 = ImGui::GetIO();
-		io.DeltaTime = (float)gameTime.GetSeconds();
+		io.DeltaTime = (float)gameTime.GetSeconds<float>();
 
 		auto windowSize			   = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
 		io.DisplaySize			   = {(float)windowSize.X, (float)windowSize.Y};
@@ -280,7 +280,7 @@ namespace Nexus::ImGuiUtils
 				{
 					ImGuiWindowInfo			   *info	  = (ImGuiWindowInfo *)platform_io.Viewports[i]->PlatformUserData;
 					Nexus::IWindow			   *window	  = info->Window;
-					Nexus::Graphics::Swapchain *swapchain = info->Swapchain;
+					Ref<Nexus::Graphics::Swapchain> swapchain = info->Swapchain;
 
 					if (window && !window->IsClosing())
 					{
@@ -670,7 +670,7 @@ namespace Nexus::ImGuiUtils
 
 		m_CommandList->End();
 
-		m_GraphicsDevice->SubmitCommandList(m_CommandList);
+		m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
 	}
 
 	void ImGuiGraphicsRenderer::UpdateCursor()
@@ -765,7 +765,7 @@ namespace Nexus::ImGuiUtils
 			Nexus::Graphics::SwapchainSpecification swapchainSpec = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification();
 
 			Nexus::IWindow			   *window	  = Platform::CreatePlatformWindow(windowSpec);
-			Nexus::Graphics::Swapchain *swapchain = app->GetGraphicsDevice()->CreateSwapchain(window, swapchainSpec);
+			Ref<Nexus::Graphics::Swapchain> swapchain = app->GetGraphicsDevice()->CreateSwapchain(window, swapchainSpec);
 			swapchain->Initialise();
 			window->SetWindowPosition(vp->Pos.x, vp->Pos.y);
 

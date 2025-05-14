@@ -75,7 +75,7 @@ namespace Nexus::Timings
 				}
 
 				// execute a timed query
-				if (func.Timer.GetSeconds() >= func.WhenToExecute.value())
+				if (func.Timer.GetSeconds<double>() >= func.WhenToExecute.value())
 				{
 					func.Func(func.Timer);
 

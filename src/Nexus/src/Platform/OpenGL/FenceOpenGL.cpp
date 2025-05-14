@@ -35,6 +35,11 @@ namespace Nexus::Graphics
 		CreateFence(false);
 	}
 
+	GLenum FenceOpenGL::Wait(TimeSpan timeout)
+	{
+		return glClientWaitSync(m_Sync, GL_SYNC_FLUSH_COMMANDS_BIT, timeout.GetNanoseconds<uint64_t>());
+	}
+
 	void FenceOpenGL::CreateFence(bool signalled)
 	{
 		m_Sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
@@ -42,7 +47,7 @@ namespace Nexus::Graphics
 		// wait for the new fence to be signalled
 		if (signalled)
 		{
-			GLenum result = glClientWaitSync(m_Sync, GL_SYNC_FLUSH_COMMANDS_BIT, UINT64_MAX);
+			GLenum result = Wait(TimeSpan::FromNanoseconds(0));
 			if (result == GL_WAIT_FAILED)
 			{
 				throw std::runtime_error("Failed to wait for fence");

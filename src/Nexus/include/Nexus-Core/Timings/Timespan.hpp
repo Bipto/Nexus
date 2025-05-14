@@ -18,35 +18,34 @@ namespace Nexus
 			return timeSpan;
 		}
 
-		/// @brief A method to return the number of nanoseconds
-		/// @return A double representing the number of nanoseconds
-		double GetNanoseconds() const
+		template<typename T>
+		T GetNanoseconds() const
 		{
-			return m_Nanoseconds;
+			return (T)m_Nanoseconds;
 		}
 
-		/// @brief A method to return the number of milliseconds
-		/// @return A double representing the number of milliseconds
-		double GetMilliseconds() const
+		template<typename T>
+		T GetMilliseconds() const
 		{
-			return GetNanoseconds() / 1000000;
+			return (T)(GetNanoseconds<T>() / 1000000);
 		}
 
-		/// @brief A method to return the number of seconds
-		/// @return A double representing the number of seconds
-		double GetSeconds() const
+		template<typename T>
+		T GetSeconds() const
 		{
-			return GetMilliseconds() / 1000;
+			return (T)(GetMilliseconds<T>() / 1000);
 		}
 
-		double GetMinutes() const
+		template<typename T>
+		T GetMinutes() const
 		{
-			return GetSeconds() / 60;
+			return (T)(GetSeconds<T>() / 60);
 		}
 
-		double GetHours() const
+		template<typename T>
+		T GetHours() const
 		{
-			return GetMinutes() / 60;
+			return (T)(GetMinutes<T>() / 60);
 		}
 
 		TimeSpan &operator+=(const TimeSpan &other)

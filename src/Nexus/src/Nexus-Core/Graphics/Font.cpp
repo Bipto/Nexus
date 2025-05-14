@@ -149,7 +149,7 @@ namespace Nexus::Graphics
 		bufferDesc.Type						 = DeviceBufferType::Upload;
 		bufferDesc.SizeInBytes				 = pixels.GetSizeInBytes();
 		bufferDesc.StrideInBytes			 = pixels.GetSizeInBytes();
-		std::unique_ptr<DeviceBuffer> buffer = std::unique_ptr<DeviceBuffer>(device->CreateDeviceBuffer(bufferDesc));
+		Ref<DeviceBuffer> buffer			 = device->CreateDeviceBuffer(bufferDesc);
 
 		FT_Done_Face(face);
 		FT_Done_FreeType(ft);

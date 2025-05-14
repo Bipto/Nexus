@@ -57,22 +57,24 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void GraphicsDeviceOpenGL::SetSwapchain(Swapchain *swapchain)
+	void GraphicsDeviceOpenGL::SetSwapchain(Ref<Swapchain> swapchain)
 	{
-		auto glSwapchain = (SwapchainOpenGL *)swapchain;
+		auto glSwapchain = std::dynamic_pointer_cast<SwapchainOpenGL>(swapchain);
 		if (glSwapchain)
 		{
 			glSwapchain->BindAsDrawTarget();
 		}
 	}
 
-	void GraphicsDeviceOpenGL::SubmitCommandList(Ref<CommandList> commandList)
+	void GraphicsDeviceOpenGL::SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence)
 	{
-		auto commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
-
-		const std::vector<Nexus::Graphics::RenderCommandData> &commands = commandListGL->GetCommandData();
-		m_CommandExecutor.ExecuteCommands(commands, this);
-		m_CommandExecutor.Reset();
+		for (uint32_t i = 0; i < numCommandLists; i++)
+		{
+			Ref<CommandListOpenGL>								   commandList = std::dynamic_pointer_cast<CommandListOpenGL>(commandLists[i]);
+			const std::vector<Nexus::Graphics::RenderCommandData> &commands	   = commandList->GetCommandData();
+			m_CommandExecutor.ExecuteCommands(commands, this);
+			m_CommandExecutor.Reset();
+		}
 	}
 
 	const std::string GraphicsDeviceOpenGL::GetAPIName()
@@ -151,9 +153,9 @@ namespace Nexus::Graphics
 		return CreateRef<TimingQueryOpenGL>();
 	}
 
-	DeviceBuffer *GraphicsDeviceOpenGL::CreateDeviceBuffer(const DeviceBufferDescription &desc)
+	Ref<DeviceBuffer> GraphicsDeviceOpenGL::CreateDeviceBuffer(const DeviceBufferDescription &desc)
 	{
-		return new DeviceBufferOpenGL(desc);
+		return CreateRef<DeviceBufferOpenGL>(desc);
 	}
 
 	const GraphicsCapabilities GraphicsDeviceOpenGL::GetGraphicsCapabilities() const
@@ -170,25 +172,25 @@ namespace Nexus::Graphics
 		return capabilities;
 	}
 
-	Swapchain *GraphicsDeviceOpenGL::CreateSwapchain(IWindow *window, const SwapchainSpecification &spec)
+	Ref<Swapchain> GraphicsDeviceOpenGL::CreateSwapchain(IWindow *window, const SwapchainSpecification &spec)
 	{
-		return new SwapchainOpenGL(window, spec, this);
+		return CreateRef<SwapchainOpenGL>(window, spec, this);
 	}
 
-	Fence *GraphicsDeviceOpenGL::CreateFence(const FenceDescription &desc)
+	Ref<Fence> GraphicsDeviceOpenGL::CreateFence(const FenceDescription &desc)
 	{
-		return new FenceOpenGL(desc);
+		return CreateRef<FenceOpenGL>(desc);
 	}
 
-	FenceWaitResult GraphicsDeviceOpenGL::WaitForFences(Fence **fences, uint32_t count, bool waitAll, TimeSpan timeout)
+	FenceWaitResult GraphicsDeviceOpenGL::WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout)
 	{
 		std::vector<FenceWaitResult> success(count);
 
 		for (uint32_t i = 0; i < count; i++)
 		{
-			FenceOpenGL *fence = (FenceOpenGL *)fences[i];
+			Ref<FenceOpenGL> fence = std::dynamic_pointer_cast<FenceOpenGL>(fences[i]);
 
-			GLenum result = glClientWaitSync(fence->GetHandle(), GL_SYNC_FLUSH_COMMANDS_BIT, timeout.GetNanoseconds());
+			GLenum result = fence->Wait(timeout);
 			if (result == GL_ALREADY_SIGNALED || GL_CONDITION_SATISFIED)
 			{
 				// if a fence has been signalled successfully and we are not waiting for all the fences, we can return that a fence has been signalled
@@ -240,18 +242,18 @@ namespace Nexus::Graphics
 		return FenceWaitResult::Failed;
 	}
 
-	void GraphicsDeviceOpenGL::ResetFences(Fence **fences, uint32_t count)
+	void GraphicsDeviceOpenGL::ResetFences(Ref<Fence> *fences, uint32_t count)
 	{
 		for (uint32_t i = 0; i < count; i++)
 		{
-			FenceOpenGL *fence = (FenceOpenGL *)fences[i];
+			Ref<FenceOpenGL> fence = std::dynamic_pointer_cast<FenceOpenGL>(fences[i]);
 			fence->Reset();
 		}
 	}
 
-	Texture *GraphicsDeviceOpenGL::CreateTexture(const TextureSpecification &spec)
+	Ref<Texture> GraphicsDeviceOpenGL::CreateTexture(const TextureSpecification &spec)
 	{
-		return new TextureOpenGL(spec, this);
+		return CreateRef<TextureOpenGL>(spec, this);
 	}
 
 	ShaderLanguage GraphicsDeviceOpenGL::GetSupportedShaderFormat()

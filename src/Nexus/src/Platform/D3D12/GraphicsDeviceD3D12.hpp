@@ -17,7 +17,7 @@ namespace Nexus::Graphics
 		GraphicsDeviceD3D12(std::shared_ptr<IPhysicalDevice> physicalDevice, Microsoft::WRL::ComPtr<IDXGIFactory7> factory);
 		~GraphicsDeviceD3D12();
 
-		virtual void SubmitCommandList(Ref<CommandList> commandList) override;
+		virtual void SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) override;
 
 		virtual const std::string GetAPIName() override;
 		virtual const char		 *GetDeviceName() override;
@@ -31,7 +31,7 @@ namespace Nexus::Graphics
 		virtual Ref<Framebuffer> CreateFramebuffer(const FramebufferSpecification &spec) override;
 		virtual Ref<Sampler>	 CreateSampler(const SamplerSpecification &spec) override;
 		virtual Ref<TimingQuery> CreateTimingQuery() override;
-		virtual DeviceBuffer	*CreateDeviceBuffer(const DeviceBufferDescription &desc) override;
+		virtual Ref<DeviceBuffer> CreateDeviceBuffer(const DeviceBufferDescription &desc) override;
 
 		virtual ShaderLanguage GetSupportedShaderFormat() override
 		{
@@ -46,11 +46,11 @@ namespace Nexus::Graphics
 			return -1.0f;
 		}
 		virtual const GraphicsCapabilities GetGraphicsCapabilities() const override;
-		virtual Texture					  *CreateTexture(const TextureSpecification &spec) override;
-		virtual Swapchain				  *CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) override;
-		virtual Fence					  *CreateFence(const FenceDescription &desc) override;
-		virtual FenceWaitResult			   WaitForFences(Fence **fences, uint32_t count, bool waitAll, TimeSpan timeout) override;
-		virtual void					   ResetFences(Fence **fences, uint32_t count) override;
+		virtual Ref<Texture>			   CreateTexture(const TextureSpecification &spec) override;
+		virtual Ref<Swapchain>			   CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) override;
+		virtual Ref<Fence>				   CreateFence(const FenceDescription &desc) override;
+		virtual FenceWaitResult			   WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) override;
+		virtual void					   ResetFences(Ref<Fence> *fences, uint32_t count) override;
 		virtual bool					   IsUVOriginTopLeft() override
 		{
 			return true;
@@ -77,8 +77,8 @@ namespace Nexus::Graphics
 							 uint32_t					 layer,
 							 uint32_t					 level,
 							 D3D12_RESOURCE_STATES		 after);
-		void ResourceBarrierSwapchainColour(ID3D12GraphicsCommandList7 *cmd, SwapchainD3D12 *resource, D3D12_RESOURCE_STATES after);
-		void ResourceBarrierSwapchainDepth(ID3D12GraphicsCommandList7 *cmd, SwapchainD3D12 *resource, D3D12_RESOURCE_STATES after);
+		void ResourceBarrierSwapchainColour(ID3D12GraphicsCommandList7 *cmd, Ref<SwapchainD3D12> resource, D3D12_RESOURCE_STATES after);
+		void ResourceBarrierSwapchainDepth(ID3D12GraphicsCommandList7 *cmd, Ref<SwapchainD3D12> resource, D3D12_RESOURCE_STATES after);
 
 		virtual bool Validate() override;
 		virtual void SetName(const std::string &name) override;

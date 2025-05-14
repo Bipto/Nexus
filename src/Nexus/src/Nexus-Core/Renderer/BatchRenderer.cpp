@@ -445,7 +445,7 @@ namespace Nexus::Graphics
 		m_CommandList->Begin();
 		m_CommandList->CopyBufferToBuffer(bufferCopy);
 		m_CommandList->End();
-		m_Device->SubmitCommandList(m_CommandList);
+		m_Device->SubmitCommandLists(&m_CommandList, 1, nullptr);
 	}
 
 	void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color)
@@ -1188,7 +1188,7 @@ namespace Nexus::Graphics
 
 		m_CommandList->DrawIndexed(info.IndexCount, 1, 0, 0, 0);
 		m_CommandList->End();
-		m_Device->SubmitCommandList(m_CommandList);
+		m_Device->SubmitCommandLists(&m_CommandList, 1, nullptr);
 
 		FlushTextures(info, m_BlankTexture);
 	}

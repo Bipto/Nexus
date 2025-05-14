@@ -61,7 +61,7 @@ namespace Demos
 		virtual void Render(Nexus::TimeSpan time) override
 		{
 			m_TransformUniforms.Transform =
-				glm::rotate(glm::mat4(1.0f), glm::radians((float)m_ElapsedTime.GetSeconds() * 100.0f), glm::vec3(0.0f, 1.0f, 1.0f));
+				glm::rotate(glm::mat4(1.0f), glm::radians((float)m_ElapsedTime.GetSeconds<float>() * 100.0f), glm::vec3(0.0f, 1.0f, 1.0f));
 			m_TransformUniformBuffer->SetData(&m_TransformUniforms, 0, sizeof(m_TransformUniforms));
 
 			m_CameraUniforms.View = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 2.0f));
@@ -124,7 +124,8 @@ namespace Demos
 			m_CommandList->DrawIndexed(indexCount, 1, 0, 0, 0);
 			m_CommandList->End();
 
-			m_GraphicsDevice->SubmitCommandList(m_CommandList);
+			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_GraphicsDevice->WaitForIdle();
 
 			m_ElapsedTime += time;
 		}

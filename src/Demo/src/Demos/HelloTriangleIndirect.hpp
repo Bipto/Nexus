@@ -83,7 +83,8 @@ namespace Demos
 			m_CommandList->DrawIndirect(m_IndirectBuffer.get(), 0, 1);
 			m_CommandList->End();
 
-			m_GraphicsDevice->SubmitCommandList(m_CommandList);
+			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_GraphicsDevice->WaitForIdle();
 		}
 
 		virtual void OnResize(Nexus::Point2D<uint32_t> size) override

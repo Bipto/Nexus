@@ -115,7 +115,7 @@ namespace Nexus::Graphics
 			m_CommandList->SetResourceSet(m_ResourceSet);
 			m_CommandList->DrawIndexed(6, 1, 0, 0, 0);
 			m_CommandList->End();
-			m_Device->SubmitCommandList(m_CommandList);
+			m_Device->SubmitCommandLists(&m_CommandList, 1, nullptr);
 
 			pixels = m_Device->ReadFromTexture(framebufferTexture.get(), 0, 0, 0, 0, 0, mipWidth, mipHeight);
 		}

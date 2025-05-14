@@ -274,13 +274,13 @@ namespace Nexus::Graphics
 	{
 		if (command.GetType() == RenderTargetType::Swapchain)
 		{
-			auto d3d12Swapchain = (SwapchainD3D12 *)command.GetData<Swapchain *>();
-			SetSwapchain(d3d12Swapchain, device);
+			Ref<SwapchainD3D12> swapchain = std::dynamic_pointer_cast<SwapchainD3D12>(command.GetSwapchain());
+			SetSwapchain(swapchain, device);
 		}
 		else
 		{
-			auto d3d12Framebuffer = std::dynamic_pointer_cast<FramebufferD3D12>(command.GetData<Ref<Framebuffer>>());
-			SetFramebuffer(d3d12Framebuffer, device);
+			Ref<FramebufferD3D12> framebuffer = std::dynamic_pointer_cast<FramebufferD3D12>(command.GetFramebuffer());
+			SetFramebuffer(framebuffer, device);
 		}
 
 		m_CurrentRenderTarget = command;
@@ -748,7 +748,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorD3D12::SetSwapchain(SwapchainD3D12 *swapchain, GraphicsDevice *device)
+	void CommandExecutorD3D12::SetSwapchain(Ref<SwapchainD3D12> swapchain, GraphicsDevice *device)
 	{
 		if (swapchain->GetSpecification().Samples == 1)
 		{
@@ -805,21 +805,21 @@ namespace Nexus::Graphics
 
 		if (target.GetType() == RenderTargetType::Swapchain)
 		{
-			auto d3d12Swapchain = (SwapchainD3D12 *)target.GetData<Swapchain *>();
+			Ref<SwapchainD3D12> swapchain = std::dynamic_pointer_cast<SwapchainD3D12>(target.GetSwapchain());
 
-			auto swapchainColourState = d3d12Swapchain->GetCurrentTextureState();
+			auto swapchainColourState = swapchain->GetCurrentTextureState();
 			if (swapchainColourState != D3D12_RESOURCE_STATE_PRESENT)
 			{
 				D3D12_RESOURCE_BARRIER presentBarrier;
 				presentBarrier.Type					  = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 				presentBarrier.Flags				  = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-				presentBarrier.Transition.pResource	  = d3d12Swapchain->RetrieveBufferHandle().Get();
+				presentBarrier.Transition.pResource	  = swapchain->RetrieveBufferHandle().Get();
 				presentBarrier.Transition.Subresource = 0;
 				presentBarrier.Transition.StateBefore = swapchainColourState;
 				presentBarrier.Transition.StateAfter  = D3D12_RESOURCE_STATE_PRESENT;
 				m_CommandList->ResourceBarrier(1, &presentBarrier);
 
-				d3d12Swapchain->SetTextureState(D3D12_RESOURCE_STATE_PRESENT);
+				swapchain->SetTextureState(D3D12_RESOURCE_STATE_PRESENT);
 			}
 		}
 

@@ -132,10 +132,7 @@ namespace Nexus::Utils
 		return hash;
 	}
 
-	std::unique_ptr<Graphics::DeviceBuffer> CreateUploadBuffer(const void				*data,
-															   size_t					 sizeInBytes,
-															   size_t					 strideInBytes,
-															   Graphics::GraphicsDevice *device);
+	Ref<Graphics::DeviceBuffer> CreateUploadBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::GraphicsDevice *device);
 	Ref<Graphics::DeviceBuffer>				CreateFilledVertexBuffer(const void				  *data,
 																	 size_t					   sizeInBytes,
 																	 size_t					   strideInBytes,
