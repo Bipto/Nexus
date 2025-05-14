@@ -618,9 +618,9 @@ namespace Nexus
 	{
 		m_Timer.Clear();
 
-		double secondsPerRender = {};
-		double secondsPerUpdate = {};
-		double secondsPerTick	= {};
+		std::optional<double> secondsPerRender = {};
+		std::optional<double> secondsPerUpdate = {};
+		std::optional<double> secondsPerTick   = {};
 
 		if (m_Specification.RendersPerSecond.has_value())
 		{

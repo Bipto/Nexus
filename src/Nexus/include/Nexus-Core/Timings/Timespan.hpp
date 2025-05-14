@@ -20,31 +20,31 @@ namespace Nexus
 
 		/// @brief A method to return the number of nanoseconds
 		/// @return A double representing the number of nanoseconds
-		uint64_t GetNanoseconds() const
+		double GetNanoseconds() const
 		{
 			return m_Nanoseconds;
 		}
 
 		/// @brief A method to return the number of milliseconds
 		/// @return A double representing the number of milliseconds
-		uint64_t GetMilliseconds() const
+		double GetMilliseconds() const
 		{
 			return GetNanoseconds() / 1000000;
 		}
 
 		/// @brief A method to return the number of seconds
 		/// @return A double representing the number of seconds
-		uint64_t GetSeconds() const
+		double GetSeconds() const
 		{
 			return GetMilliseconds() / 1000;
 		}
 
-		uint64_t GetMinutes() const
+		double GetMinutes() const
 		{
 			return GetSeconds() / 60;
 		}
 
-		uint64_t GetHours() const
+		double GetHours() const
 		{
 			return GetMinutes() / 60;
 		}
@@ -56,7 +56,7 @@ namespace Nexus
 		}
 
 	  private:
-		/// @brief A double value representing the number of nanoseconds
+		/// @brief An unsigned integer value representing the number of nanoseconds
 		uint64_t m_Nanoseconds = 0;
 	};
 }	 // namespace Nexus
