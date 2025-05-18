@@ -208,7 +208,7 @@ namespace Nexus::Graphics
 		vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
 	}
 
-	void GraphicsPipelineVk::SetResourceSet(VkCommandBuffer cmd, ResourceSetVk *resourceSet)
+	void GraphicsPipelineVk::SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet)
 	{
 		const auto &descriptorSets = resourceSet->GetDescriptorSets()[m_GraphicsDevice->GetCurrentFrameIndex()];
 		for (const auto &set : descriptorSets)
@@ -472,7 +472,7 @@ namespace Nexus::Graphics
 		vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, m_Pipeline);
 	}
 
-	void ComputePipelineVk::SetResourceSet(VkCommandBuffer cmd, ResourceSetVk *resourceSet)
+	void ComputePipelineVk::SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet)
 	{
 		const auto &descriptorSets = resourceSet->GetDescriptorSets()[m_GraphicsDevice->GetCurrentFrameIndex()];
 		for (const auto &set : descriptorSets)

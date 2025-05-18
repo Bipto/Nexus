@@ -163,14 +163,14 @@ namespace Nexus::Graphics
 		return m_Description;
 	}
 
-	ID3D12RootSignature *GraphicsPipelineD3D12::GetRootSignature()
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> GraphicsPipelineD3D12::GetRootSignature()
 	{
-		return m_RootSignature.Get();
+		return m_RootSignature;
 	}
 
-	ID3D12PipelineState *GraphicsPipelineD3D12::GetPipelineState()
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> GraphicsPipelineD3D12::GetPipelineState()
 	{
-		return m_PipelineStateObject.Get();
+		return m_PipelineStateObject;
 	}
 
 	D3D_PRIMITIVE_TOPOLOGY GraphicsPipelineD3D12::GetD3DPrimitiveTopology()

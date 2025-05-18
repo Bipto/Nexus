@@ -62,9 +62,9 @@ namespace Nexus::Graphics
 		compiledShaderBuffer->GetResult(&m_ShaderBlob);
 	}
 
-	IDxcBlob *ShaderModuleD3D12::GetBlob() const
+	Microsoft::WRL::ComPtr<IDxcBlob> ShaderModuleD3D12::GetBlob() const
 	{
-		return m_ShaderBlob.Get();
+		return m_ShaderBlob;
 	}
 }	 // namespace Nexus::Graphics
 

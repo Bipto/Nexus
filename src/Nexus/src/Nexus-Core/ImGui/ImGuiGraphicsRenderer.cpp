@@ -123,6 +123,9 @@ namespace Nexus::ImGuiUtils
 		{
 			s_ImGuiRenderer = nullptr;
 		}
+
+		m_Textures.clear();
+		m_ResourceSets.clear();
 	}
 
 	void ImGuiGraphicsRenderer::CreateTextPipeline()
@@ -218,7 +221,7 @@ namespace Nexus::ImGuiUtils
 		spec.Height							= height;
 		spec.Format							= Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
 		spec.Usage							= Graphics::TextureUsage_Sampled;
-		m_FontTexture						= Ref<Graphics::Texture>(m_GraphicsDevice->CreateTexture(spec));
+		m_FontTexture						= m_GraphicsDevice->CreateTexture(spec);
 		m_GraphicsDevice->WriteToTexture(m_FontTexture.get(), 0, 0, 0, 0, 0, width, height, pixels, bufferSize);
 
 		UnbindTexture(m_FontTextureID);
@@ -233,7 +236,6 @@ namespace Nexus::ImGuiUtils
 		auto id = (ImTextureID)m_TextureID++;
 
 		auto resourceSet = m_GraphicsDevice->CreateResourceSet(m_TextPipeline);
-		// resourceSet->WriteCombinedImageSampler(texture, m_Sampler, "Texture");
 
 		m_Textures.insert({id, texture});
 		m_ResourceSets.insert({id, resourceSet});
@@ -597,14 +599,16 @@ namespace Nexus::ImGuiUtils
 
 		for (auto &[textureId, resourceSet] : m_ResourceSets)
 		{
-			Ref<Graphics::Texture> texture = m_Textures.at(textureId);
-
-			Graphics::UniformBufferView uniformBufferView = {};
-			uniformBufferView.BufferHandle				  = m_UniformBuffer.get();
-			uniformBufferView.Offset					  = 0;
-			uniformBufferView.Size						  = m_UniformBuffer->GetDescription().SizeInBytes;
-			resourceSet->WriteUniformBuffer(uniformBufferView, "MVP");
-			resourceSet->WriteCombinedImageSampler(texture, m_Sampler, "Texture");
+			WeakRef<Graphics::Texture> textureRef = m_Textures.at(textureId);
+			if (Ref<Graphics::Texture> texture = textureRef.lock())
+			{
+				Graphics::UniformBufferView uniformBufferView = {};
+				uniformBufferView.BufferHandle				  = m_UniformBuffer.get();
+				uniformBufferView.Offset					  = 0;
+				uniformBufferView.Size						  = m_UniformBuffer->GetDescription().SizeInBytes;
+				resourceSet->WriteUniformBuffer(uniformBufferView, "MVP");
+				resourceSet->WriteCombinedImageSampler(texture, m_Sampler, "Texture");
+			}
 		}
 
 		ImGuiViewport *vp = drawData->OwnerViewport;

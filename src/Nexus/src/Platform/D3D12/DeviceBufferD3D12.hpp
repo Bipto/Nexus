@@ -24,6 +24,7 @@ namespace Nexus::Graphics
 		DeviceBufferDescription						m_BufferDescription = {};
 		Microsoft::WRL::ComPtr<ID3D12Resource2>		m_BufferHandle		= nullptr;
 		Microsoft::WRL::ComPtr<D3D12MA::Allocation> m_Allocation		= nullptr;
+		GraphicsDeviceD3D12						   *m_GraphicsDevice	= nullptr;
 	};
 }	 // namespace Nexus::Graphics
 

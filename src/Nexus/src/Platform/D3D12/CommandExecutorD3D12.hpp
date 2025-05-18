@@ -52,8 +52,8 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(const CopyTextureToBufferCommand &command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(const CopyTextureToTextureCommand &command, GraphicsDevice *device) override;
 
-		void SetSwapchain(Ref<SwapchainD3D12> swapchain, GraphicsDevice *device);
-		void SetFramebuffer(Ref<FramebufferD3D12> framebuffer, GraphicsDevice *device);
+		void SetSwapchain(WeakRef<Swapchain> swapchain, GraphicsDevice *device);
+		void SetFramebuffer(WeakRef<Framebuffer> framebuffer, GraphicsDevice *device);
 		void ResetPreviousRenderTargets(GraphicsDevice *device);
 
 		void CreateDrawIndirectSignatureCommand();

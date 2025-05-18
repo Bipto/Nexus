@@ -15,8 +15,8 @@ namespace Nexus::Graphics
 		{
 		}
 
-		virtual void Bind(VkCommandBuffer cmd)										 = 0;
-		virtual void SetResourceSet(VkCommandBuffer cmd, ResourceSetVk *resourceSet) = 0;
+		virtual void Bind(VkCommandBuffer cmd)											 = 0;
+		virtual void SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet) = 0;
 	};
 
 	VkPipelineLayoutCreateInfo CreatePipelineLayoutCreateInfo(const std::vector<VkDescriptorSetLayout> &layouts);
@@ -31,7 +31,7 @@ namespace Nexus::Graphics
 		VkPipelineLayout						   GetPipelineLayout();
 
 		virtual void Bind(VkCommandBuffer cmd) final;
-		virtual void SetResourceSet(VkCommandBuffer cmd, ResourceSetVk *resourceSet) final;
+		virtual void SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet) final;
 
 	  private:
 		VkPipelineShaderStageCreateInfo					 CreatePipelineShaderStageCreateInfo(VkShaderStageFlagBits stage, VkShaderModule module);
@@ -59,7 +59,7 @@ namespace Nexus::Graphics
 		ComputePipelineVk(const ComputePipelineDescription &description, GraphicsDeviceVk *graphicsDevice);
 		virtual ~ComputePipelineVk();
 		virtual void Bind(VkCommandBuffer cmd) final;
-		virtual void SetResourceSet(VkCommandBuffer cmd, ResourceSetVk *resourceSet) final;
+		virtual void SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet) final;
 
 	  private:
 		VkPipelineLayout  m_PipelineLayout;

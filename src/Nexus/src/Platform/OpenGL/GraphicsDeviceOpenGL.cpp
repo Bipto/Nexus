@@ -47,22 +47,28 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void GraphicsDeviceOpenGL::SetFramebuffer(Ref<Framebuffer> framebuffer)
+	void GraphicsDeviceOpenGL::SetFramebuffer(WeakRef<Framebuffer> framebuffer)
 	{
-		auto fb = std::dynamic_pointer_cast<FramebufferOpenGL>(framebuffer);
-		if (framebuffer)
+		if (Ref<Framebuffer> fb = framebuffer.lock())
 		{
-			fb->BindAsDrawBuffer();
-			m_BoundFramebuffer = fb;
+			auto framebufferGL = std::dynamic_pointer_cast<FramebufferOpenGL>(fb);
+			if (framebufferGL)
+			{
+				framebufferGL->BindAsDrawBuffer();
+				m_BoundFramebuffer = framebufferGL;
+			}
 		}
 	}
 
-	void GraphicsDeviceOpenGL::SetSwapchain(Ref<Swapchain> swapchain)
+	void GraphicsDeviceOpenGL::SetSwapchain(WeakRef<Swapchain> swapchain)
 	{
-		auto glSwapchain = std::dynamic_pointer_cast<SwapchainOpenGL>(swapchain);
-		if (glSwapchain)
+		if (Ref<Swapchain> sc = swapchain.lock())
 		{
-			glSwapchain->BindAsDrawTarget();
+			auto glSwapchain = std::dynamic_pointer_cast<SwapchainOpenGL>(sc);
+			if (glSwapchain)
+			{
+				glSwapchain->BindAsDrawTarget();
+			}
 		}
 	}
 

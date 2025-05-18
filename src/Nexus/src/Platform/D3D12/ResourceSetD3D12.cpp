@@ -197,14 +197,14 @@ namespace Nexus::Graphics
 		m_BoundStorageImages[name] = view;
 	}
 
-	ID3D12DescriptorHeap *ResourceSetD3D12::GetSamplerDescriptorHeap()
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> ResourceSetD3D12::GetSamplerDescriptorHeap()
 	{
-		return m_SamplerDescriptorHeap.Get();
+		return m_SamplerDescriptorHeap;
 	}
 
-	ID3D12DescriptorHeap *ResourceSetD3D12::GetTextureConstantBufferDescriptorHeap()
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> ResourceSetD3D12::GetTextureConstantBufferDescriptorHeap()
 	{
-		return m_TextureConstantBufferDescriptorHeap.Get();
+		return m_TextureConstantBufferDescriptorHeap;
 	}
 
 	bool ResourceSetD3D12::HasConstantBufferTextureHeap() const

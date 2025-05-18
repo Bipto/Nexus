@@ -16,7 +16,7 @@ namespace Nexus::Graphics
 		CommandListD3D12(GraphicsDeviceD3D12 *device, const CommandListSpecification &spec);
 		virtual ~CommandListD3D12();
 
-		ID3D12GraphicsCommandList7 *GetCommandList();
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> GetCommandList();
 
 		void Reset();
 		void Close();

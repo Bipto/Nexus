@@ -178,9 +178,17 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)
 	{
-		auto pipeline	   = std::dynamic_pointer_cast<PipelineVk>(m_CurrentlyBoundPipeline);
+		/* auto pipeline	   = std::dynamic_pointer_cast<PipelineVk>(m_CurrentlyBoundPipeline);
 		auto resourceSetVk = std::dynamic_pointer_cast<ResourceSetVk>(command);
-		pipeline->SetResourceSet(m_CommandBuffer, resourceSetVk.get());
+		pipeline->SetResourceSet(m_CommandBuffer, resourceSetVk.get()); */
+
+		WeakRef<Pipeline> pl = m_CurrentlyBoundPipeline.lock();
+		if (auto pipeline = pl.lock())
+		{
+			auto			resourceSetVk = std::dynamic_pointer_cast<ResourceSetVk>(command);
+			Ref<PipelineVk> pipelineVk	  = std::dynamic_pointer_cast<PipelineVk>(pipeline);
+			pipelineVk->SetResourceSet(m_CommandBuffer, resourceSetVk);
+		}
 	}
 
 	void CommandExecutorVk::ExecuteCommand(ClearColorTargetCommand command, GraphicsDevice *device)
@@ -248,13 +256,23 @@ namespace Nexus::Graphics
 
 		if (m_CurrentRenderTarget.GetType() == RenderTargetType::Swapchain)
 		{
-			Ref<SwapchainVk> swapchain = std::dynamic_pointer_cast<SwapchainVk>(m_CurrentRenderTarget.GetSwapchain());
-			StartRenderingToSwapchain(swapchain);
+			WeakRef<Swapchain> sc = m_CurrentRenderTarget.GetSwapchain();
+			if (auto swapchain = sc.lock())
+			{
+				StartRenderingToSwapchain(swapchain);
+			}
+		}
+		else if (m_CurrentRenderTarget.GetType() == RenderTargetType::Framebuffer)
+		{
+			WeakRef<Framebuffer> fb = m_CurrentRenderTarget.GetFramebuffer();
+			if (auto framebuffer = fb.lock())
+			{
+				StartRenderingToFramebuffer(framebuffer);
+			}
 		}
 		else
 		{
-			Ref<FramebufferVk> framebuffer = std::dynamic_pointer_cast<FramebufferVk>(m_CurrentRenderTarget.GetFramebuffer());
-			StartRenderingToFramebuffer(framebuffer);
+			throw std::runtime_error("Invalid render target type");
 		}
 	}
 
@@ -708,28 +726,30 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorVk::StartRenderingToSwapchain(Ref<SwapchainVk> swapchain)
+	void CommandExecutorVk::StartRenderingToSwapchain(Ref<Swapchain> swapchain)
 	{
+		Ref<SwapchainVk> swapchainVk = std::dynamic_pointer_cast<SwapchainVk>(swapchain);
+
 		m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
-											  swapchain->GetColourImage(),
+											  swapchainVk->GetColourImage(),
 											  0,
 											  0,
-											  swapchain->GetColorImageLayout(),
+											  swapchainVk->GetColorImageLayout(),
 											  VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
 											  VK_IMAGE_ASPECT_COLOR_BIT);
 
 		m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
-											  swapchain->GetDepthImage(),
+											  swapchainVk->GetDepthImage(),
 											  0,
 											  0,
-											  swapchain->GetDepthImageLayout(),
+											  swapchainVk->GetDepthImageLayout(),
 											  VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
 											  VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT));
 
-		swapchain->SetColorImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-		swapchain->SetDepthImageLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+		swapchainVk->SetColorImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+		swapchainVk->SetDepthImageLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
-		VkExtent2D swapchainSize = swapchain->GetSwapchainSize();
+		VkExtent2D swapchainSize = swapchainVk->GetSwapchainSize();
 
 		VkRect2D renderArea;
 		renderArea.offset = {0, 0};
@@ -740,25 +760,25 @@ namespace Nexus::Graphics
 
 		if (swapchain->GetSpecification().Samples == 1)
 		{
-			colourAttachment.imageView	 = swapchain->GetColourImageView();
-			colourAttachment.imageLayout = swapchain->GetColorImageLayout();
+			colourAttachment.imageView	 = swapchainVk->GetColourImageView();
+			colourAttachment.imageLayout = swapchainVk->GetColorImageLayout();
 		}
 		else
 		{
 			m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
-												  swapchain->GetResolveImage(),
+												  swapchainVk->GetResolveImage(),
 												  0,
 												  0,
-												  swapchain->GetResolveImageLayout(),
+												  swapchainVk->GetResolveImageLayout(),
 												  VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
 												  VK_IMAGE_ASPECT_COLOR_BIT);
-			swapchain->SetResolveImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+			swapchainVk->SetResolveImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
-			colourAttachment.imageView	 = swapchain->GetResolveImageView();
-			colourAttachment.imageLayout = swapchain->GetResolveImageLayout();
+			colourAttachment.imageView	 = swapchainVk->GetResolveImageView();
+			colourAttachment.imageLayout = swapchainVk->GetResolveImageLayout();
 
-			colourAttachment.resolveImageView	= swapchain->GetColourImageView();
-			colourAttachment.resolveImageLayout = swapchain->GetColorImageLayout();
+			colourAttachment.resolveImageView	= swapchainVk->GetColourImageView();
+			colourAttachment.resolveImageLayout = swapchainVk->GetColorImageLayout();
 			colourAttachment.resolveMode		= VK_RESOLVE_MODE_AVERAGE_BIT;
 		}
 
@@ -768,8 +788,8 @@ namespace Nexus::Graphics
 
 		VkRenderingAttachmentInfo depthAttachment = {};
 		depthAttachment.sType					  = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-		depthAttachment.imageView				  = swapchain->GetDepthImageView();
-		depthAttachment.imageLayout				  = swapchain->GetDepthImageLayout();
+		depthAttachment.imageView				  = swapchainVk->GetDepthImageView();
+		depthAttachment.imageLayout				  = swapchainVk->GetDepthImageLayout();
 		depthAttachment.loadOp					  = VK_ATTACHMENT_LOAD_OP_LOAD;
 		depthAttachment.storeOp					  = VK_ATTACHMENT_STORE_OP_STORE;
 		depthAttachment.clearValue				  = {};
@@ -889,9 +909,13 @@ namespace Nexus::Graphics
 		{
 			vkCmdEndRendering(m_CommandBuffer);
 
-			if (Ref<Framebuffer> framebuffer = m_CurrentRenderTarget.GetFramebuffer())
+			if (m_CurrentRenderTarget.GetType() == RenderTargetType::Framebuffer)
 			{
-				TransitionFramebufferToShaderReadonly(framebuffer);
+				WeakRef<Framebuffer> fb = m_CurrentRenderTarget.GetFramebuffer();
+				if (auto framebuffer = fb.lock())
+				{
+					TransitionFramebufferToShaderReadonly(framebuffer);
+				}
 			}
 		}
 

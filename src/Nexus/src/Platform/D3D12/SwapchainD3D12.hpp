@@ -35,7 +35,7 @@ namespace Nexus::Graphics
 
 		const D3D12_CPU_DESCRIPTOR_HANDLE RetrieveRenderTargetViewDescriptorHandle() const;
 
-		ID3D12Resource2			   *RetrieveDepthBufferHandle();
+		Microsoft::WRL::ComPtr<ID3D12Resource2> RetrieveDepthBufferHandle();
 		D3D12_CPU_DESCRIPTOR_HANDLE RetrieveDepthBufferDescriptorHandle();
 
 		uint32_t					GetColorAttachmentCount();

@@ -16,7 +16,7 @@ namespace Nexus::Graphics
 		bool					IsSignalled() const final;
 		const FenceDescription &GetDescription() const final;
 
-		ID3D12Fence1 *GetHandle();
+		Microsoft::WRL::ComPtr<ID3D12Fence1> GetHandle();
 		HANDLE		  GetFenceEvent();
 
 		void Reset();

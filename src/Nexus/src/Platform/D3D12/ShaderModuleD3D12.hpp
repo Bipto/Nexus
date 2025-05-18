@@ -11,7 +11,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		ShaderModuleD3D12(const ShaderModuleSpecification &shaderModuleSpec, const ResourceSetSpecification &resourceSpec);
-		IDxcBlob *GetBlob() const;
+		Microsoft::WRL::ComPtr<IDxcBlob> GetBlob() const;
 
 	  private:
 		Microsoft::WRL::ComPtr<IDxcBlob> m_ShaderBlob = nullptr;

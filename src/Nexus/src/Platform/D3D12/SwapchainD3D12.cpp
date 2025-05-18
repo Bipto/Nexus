@@ -103,9 +103,9 @@ namespace Nexus::Graphics
 		return m_RenderTargetViewDescriptorHandles.at(m_CurrentBufferIndex);
 	}
 
-	ID3D12Resource2 *SwapchainD3D12::RetrieveDepthBufferHandle()
+	Microsoft::WRL::ComPtr<ID3D12Resource2> SwapchainD3D12::RetrieveDepthBufferHandle()
 	{
-		return m_DepthBuffer.Get();
+		return m_DepthBuffer;
 	}
 
 	D3D12_CPU_DESCRIPTOR_HANDLE
@@ -253,7 +253,8 @@ namespace Nexus::Graphics
 
 		// create the swapchain and query for the correct swapchain type
 		Microsoft::WRL::ComPtr<IDXGISwapChain1> sc1;
-		factory->CreateSwapChainForHwnd(m_Device->GetCommandQueue(), hwnd, &swapchainDesc, &fullscreenDesc, nullptr, sc1.GetAddressOf());
+		Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue = m_Device->GetCommandQueue();
+		factory->CreateSwapChainForHwnd(commandQueue.Get(), hwnd, &swapchainDesc, &fullscreenDesc, nullptr, sc1.GetAddressOf());
 		if (SUCCEEDED(sc1->QueryInterface(IID_PPV_ARGS(&m_Swapchain)))) {}
 
 		// retrieve the ID3D12Device

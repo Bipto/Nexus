@@ -37,6 +37,7 @@ namespace Nexus::UI
 		RenderControl(m_BatchRenderer.get(), root);
 
 		m_BatchRenderer->End();
+		m_Device->WaitForIdle();
 	}
 
 	void UIRenderer::RenderControl(Graphics::BatchRenderer *renderer, Control *control)

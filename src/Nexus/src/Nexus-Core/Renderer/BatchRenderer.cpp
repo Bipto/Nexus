@@ -442,10 +442,14 @@ namespace Nexus::Graphics
 		bufferCopy.WriteOffset							  = 0;
 		bufferCopy.Size									  = sizeof(camera);
 
-		m_CommandList->Begin();
-		m_CommandList->CopyBufferToBuffer(bufferCopy);
-		m_CommandList->End();
-		m_Device->SubmitCommandLists(&m_CommandList, 1, nullptr);
+		if (m_UniformUploadBuffer && m_UniformBuffer)
+		{
+			m_CommandList->Begin();
+			m_CommandList->CopyBufferToBuffer(bufferCopy);
+			m_CommandList->End();
+			m_Device->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_Device->WaitForIdle();
+		}
 	}
 
 	void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color)

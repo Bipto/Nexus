@@ -10,7 +10,7 @@ namespace Nexus::Graphics
 			initialValue = 1;
 		}
 
-		ID3D12Device9 *d3d12Device = device->GetDevice();
+		Microsoft::WRL::ComPtr<ID3D12Device9> d3d12Device = device->GetDevice();
 		HRESULT		   hr		   = d3d12Device->CreateFence(initialValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_Fence));
 		NX_ASSERT(SUCCEEDED(hr) == true, "Failed to create fence");
 
@@ -34,9 +34,9 @@ namespace Nexus::Graphics
 		return m_Description;
 	}
 
-	ID3D12Fence1 *FenceD3D12::GetHandle()
+	Microsoft::WRL::ComPtr<ID3D12Fence1> FenceD3D12::GetHandle()
 	{
-		return m_Fence.Get();
+		return m_Fence;
 	}
 
 	HANDLE FenceD3D12::GetFenceEvent()

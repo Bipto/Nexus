@@ -27,22 +27,22 @@ namespace Nexus::Graphics
 		{
 		}
 
-		Ref<Swapchain> GetSwapchain()
+		WeakRef<Swapchain> GetSwapchain()
 		{
-			Ref<Swapchain> *swapchain = std::get_if<Ref<Swapchain>>(&m_Target);
+			WeakRef<Swapchain> *swapchain = std::get_if<WeakRef<Swapchain>>(&m_Target);
 			if (swapchain)
 			{
 				return *swapchain;
 			}
 			else
 			{
-				return nullptr;
+				return {};
 			}
 		}
 
-		Ref<Framebuffer> GetFramebuffer()
+		WeakRef<Framebuffer> GetFramebuffer()
 		{
-			Ref<Framebuffer> *framebuffer = std::get_if<Ref<Framebuffer>>(&m_Target);
+			WeakRef<Framebuffer> *framebuffer = std::get_if<WeakRef<Framebuffer>>(&m_Target);
 
 			if (framebuffer)
 			{
@@ -50,7 +50,7 @@ namespace Nexus::Graphics
 			}
 			else
 			{
-				return nullptr;
+				return {};
 			}
 		}
 
@@ -67,8 +67,15 @@ namespace Nexus::Graphics
 			}
 			else
 			{
-				auto framebuffer = GetFramebuffer();
-				return framebuffer->GetColorTextureCount();
+				WeakRef<Framebuffer> framebuffer = GetFramebuffer();
+				if (auto fb = framebuffer.lock())
+				{
+					return fb->GetColorTextureCount();
+				}
+				else
+				{
+					return 0;
+				}
 			}
 		}
 
@@ -76,14 +83,24 @@ namespace Nexus::Graphics
 		{
 			if (m_RenderTargetType == RenderTargetType::Swapchain)
 			{
-				auto swapchain = GetSwapchain();
-				return swapchain->GetSize();
+				WeakRef<Swapchain> swapchain = GetSwapchain();
+				if (auto sc = swapchain.lock())
+				{
+					return sc->GetSize();
+				}
+				else
+				{
+					return 0;
+				}
 			}
 			else
 			{
-				auto		framebuffer		= GetFramebuffer();
-				const auto &framebufferSpec = framebuffer->GetFramebufferSpecification();
-				return {framebufferSpec.Width, framebufferSpec.Height};
+				WeakRef<Framebuffer> framebuffer = GetFramebuffer();
+				if (auto fb = framebuffer.lock())
+				{
+					const auto &framebufferSpec = fb->GetFramebufferSpecification();
+					return {framebufferSpec.Width, framebufferSpec.Height};
+				}
 			}
 		}
 
@@ -95,19 +112,21 @@ namespace Nexus::Graphics
 			}
 			else
 			{
-				auto		framebuffer		= GetFramebuffer();
-				const auto &framebufferSpec = framebuffer->GetFramebufferSpecification();
-				return framebufferSpec.DepthAttachmentSpecification.DepthFormat != PixelFormat::Invalid;
+				WeakRef<Framebuffer> framebuffer = GetFramebuffer();
+				if (auto fb = framebuffer.lock())
+				{
+					const auto &framebufferSpec = fb->GetFramebufferSpecification();
+					return framebufferSpec.DepthAttachmentSpecification.DepthFormat != PixelFormat::Invalid;
+				}
+				else
+				{
+					return false;
+				}
 			}
 		}
 
-		constexpr bool operator==(const RenderTarget &other)
-		{
-			return m_Target == other.m_Target;
-		}
-
 	  private:
-		std::variant<Ref<Swapchain>, Ref<Framebuffer>> m_Target;
+		std::variant<WeakRef<Swapchain>, WeakRef<Framebuffer>> m_Target;
 		RenderTargetType							m_RenderTargetType = {};
 	};
 }	 // namespace Nexus::Graphics

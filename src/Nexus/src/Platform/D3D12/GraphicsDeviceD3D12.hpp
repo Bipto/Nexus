@@ -19,18 +19,18 @@ namespace Nexus::Graphics
 
 		virtual void SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) override;
 
-		virtual const std::string GetAPIName() override;
-		virtual const char		 *GetDeviceName() override;
+		virtual const std::string				 GetAPIName() override;
+		virtual const char						*GetDeviceName() override;
 		virtual std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const override;
 
 		virtual Ref<GraphicsPipeline> CreateGraphicsPipeline(const GraphicsPipelineDescription &description) override;
 		virtual Ref<ComputePipeline>  CreateComputePipeline(const ComputePipelineDescription &description) override;
-		virtual Ref<CommandList>   CreateCommandList(const CommandListSpecification &spec = {}) override;
-		virtual Ref<ResourceSet>   CreateResourceSet(const ResourceSetSpecification &spec) override;
+		virtual Ref<CommandList>	  CreateCommandList(const CommandListSpecification &spec = {}) override;
+		virtual Ref<ResourceSet>	  CreateResourceSet(const ResourceSetSpecification &spec) override;
 
-		virtual Ref<Framebuffer> CreateFramebuffer(const FramebufferSpecification &spec) override;
-		virtual Ref<Sampler>	 CreateSampler(const SamplerSpecification &spec) override;
-		virtual Ref<TimingQuery> CreateTimingQuery() override;
+		virtual Ref<Framebuffer>  CreateFramebuffer(const FramebufferSpecification &spec) override;
+		virtual Ref<Sampler>	  CreateSampler(const SamplerSpecification &spec) override;
+		virtual Ref<TimingQuery>  CreateTimingQuery() override;
 		virtual Ref<DeviceBuffer> CreateDeviceBuffer(const DeviceBufferDescription &desc) override;
 
 		virtual ShaderLanguage GetSupportedShaderFormat() override
@@ -38,7 +38,7 @@ namespace Nexus::Graphics
 			return ShaderLanguage::HLSL;
 		}
 
-		virtual void WaitForIdle() override;
+		virtual void		WaitForIdle() override;
 		virtual GraphicsAPI GetGraphicsAPI() override;
 
 		virtual float GetUVCorrection()
@@ -56,12 +56,12 @@ namespace Nexus::Graphics
 			return true;
 		};
 
-		D3D12MA::Allocator *GetAllocator();
+		Microsoft::WRL::ComPtr<D3D12MA::Allocator> GetAllocator();
 
-		IDXGIFactory7			   *GetDXGIFactory() const;
-		ID3D12CommandQueue		   *GetCommandQueue() const;
-		ID3D12Device9			   *GetDevice() const;
-		ID3D12GraphicsCommandList7 *GetUploadCommandList();
+		Microsoft::WRL::ComPtr<IDXGIFactory7>			   GetDXGIFactory() const;
+		Microsoft::WRL::ComPtr<ID3D12CommandQueue>		   GetCommandQueue() const;
+		Microsoft::WRL::ComPtr<ID3D12Device9>			   GetDevice() const;
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> GetUploadCommandList();
 
 		void SignalAndWait();
 		void ImmediateSubmit(std::function<void(ID3D12GraphicsCommandList7 *cmd)> &&function);

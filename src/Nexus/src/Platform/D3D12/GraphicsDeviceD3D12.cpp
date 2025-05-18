@@ -78,7 +78,7 @@ namespace Nexus::Graphics
 		{
 			Ref<CommandListD3D12>								   commandList = std::dynamic_pointer_cast<CommandListD3D12>(commandLists[i]);
 			const std::vector<Nexus::Graphics::RenderCommandData> &commands	   = commandList->GetCommandData();
-			ID3D12GraphicsCommandList7							  *cmdList	   = commandList->GetCommandList();
+			Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7>	   cmdList	   = commandList->GetCommandList();
 
 			commandList->Reset();
 			m_CommandExecutor->SetCommandList(cmdList);
@@ -86,7 +86,7 @@ namespace Nexus::Graphics
 			commandList->Close();
 			m_CommandExecutor->Reset();
 
-			d3d12CommandLists[i] = cmdList;
+			d3d12CommandLists[i] = cmdList.Get();
 		}
 
 		m_CommandQueue->ExecuteCommandLists(d3d12CommandLists.size(), d3d12CommandLists.data());
@@ -94,8 +94,8 @@ namespace Nexus::Graphics
 		if (fence)
 		{
 			Ref<FenceD3D12> fenceD3D12	= std::dynamic_pointer_cast<FenceD3D12>(fence);
-			ID3D12Fence1   *fenceHandle = fenceD3D12->GetHandle();
-			m_CommandQueue->Signal(fenceHandle, 1);
+			Microsoft::WRL::ComPtr<ID3D12Fence1> fenceHandle = fenceD3D12->GetHandle();
+			m_CommandQueue->Signal(fenceHandle.Get(), 1);
 			NX_ASSERT(fenceHandle->SetEventOnCompletion(1, fenceD3D12->GetFenceEvent()), "Failed to set event on completion");
 		}
 	}
@@ -160,17 +160,17 @@ namespace Nexus::Graphics
 		return CreateRef<DeviceBufferD3D12>(desc, this);
 	}
 
-	D3D12MA::Allocator *GraphicsDeviceD3D12::GetAllocator()
+	Microsoft::WRL::ComPtr<D3D12MA::Allocator> GraphicsDeviceD3D12::GetAllocator()
 	{
 		return m_Allocator.Get();
 	}
 
-	IDXGIFactory7 *GraphicsDeviceD3D12::GetDXGIFactory() const
+	Microsoft::WRL::ComPtr<IDXGIFactory7> GraphicsDeviceD3D12::GetDXGIFactory() const
 	{
 		return m_DxgiFactory.Get();
 	}
 
-	ID3D12CommandQueue *GraphicsDeviceD3D12::GetCommandQueue() const
+	Microsoft::WRL::ComPtr<ID3D12CommandQueue> GraphicsDeviceD3D12::GetCommandQueue() const
 	{
 		return m_CommandQueue.Get();
 	}
@@ -245,14 +245,14 @@ namespace Nexus::Graphics
 		}
 	}
 
-	ID3D12Device9 *GraphicsDeviceD3D12::GetDevice() const
+	Microsoft::WRL::ComPtr<ID3D12Device9> GraphicsDeviceD3D12::GetDevice() const
 	{
-		return m_Device.Get();
+		return m_Device;
 	}
 
-	ID3D12GraphicsCommandList7 *GraphicsDeviceD3D12::GetUploadCommandList()
+	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> GraphicsDeviceD3D12::GetUploadCommandList()
 	{
-		return m_UploadCommandList.Get();
+		return m_UploadCommandList;
 	}
 
 	void GraphicsDeviceD3D12::SignalAndWait()
@@ -327,7 +327,8 @@ namespace Nexus::Graphics
 															Ref<SwapchainD3D12>			resource,
 															D3D12_RESOURCE_STATES		after)
 	{
-		ResourceBarrier(cmd, resource->RetrieveDepthBufferHandle(), 0, 0, 1, resource->GetCurrentDepthState(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
+		Microsoft::WRL::ComPtr<ID3D12Resource2> handle = resource->RetrieveDepthBufferHandle();
+		ResourceBarrier(cmd, handle.Get(), 0, 0, 1, resource->GetCurrentDepthState(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
 		resource->SetDepthState(after);
 	}
 

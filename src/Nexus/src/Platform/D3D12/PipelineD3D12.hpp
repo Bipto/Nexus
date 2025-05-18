@@ -23,8 +23,8 @@ namespace Nexus::Graphics
 		GraphicsPipelineD3D12(ID3D12Device9 *device, const GraphicsPipelineDescription &description);
 		virtual ~GraphicsPipelineD3D12();
 		virtual const GraphicsPipelineDescription &GetPipelineDescription() const override;
-		ID3D12RootSignature						  *GetRootSignature();
-		ID3D12PipelineState						  *GetPipelineState();
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> GetRootSignature();
+		Microsoft::WRL::ComPtr<ID3D12PipelineState> GetPipelineState();
 		D3D_PRIMITIVE_TOPOLOGY					   GetD3DPrimitiveTopology();
 
 		void Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList) final;

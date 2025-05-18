@@ -196,12 +196,15 @@ namespace Nexus::Graphics
 		std::vector<ID3D12DescriptorHeap *> heaps;
 		if (d3d12ResourceSet->HasSamplerHeap())
 		{
-			heaps.push_back(d3d12ResourceSet->GetSamplerDescriptorHeap());
+			Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> samplerDescriptorHeap = d3d12ResourceSet->GetSamplerDescriptorHeap();
+			heaps.push_back(samplerDescriptorHeap.Get());
 		}
 
 		if (d3d12ResourceSet->HasConstantBufferTextureHeap())
 		{
-			heaps.push_back(d3d12ResourceSet->GetTextureConstantBufferDescriptorHeap());
+			Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> textureConstantBufferDescriptorHeap =
+				d3d12ResourceSet->GetTextureConstantBufferDescriptorHeap();
+			heaps.push_back(textureConstantBufferDescriptorHeap.Get());
 		}
 
 		m_CommandList->SetDescriptorHeaps(heaps.size(), heaps.data());
@@ -274,12 +277,12 @@ namespace Nexus::Graphics
 	{
 		if (command.GetType() == RenderTargetType::Swapchain)
 		{
-			Ref<SwapchainD3D12> swapchain = std::dynamic_pointer_cast<SwapchainD3D12>(command.GetSwapchain());
+			WeakRef<Swapchain> swapchain = command.GetSwapchain();
 			SetSwapchain(swapchain, device);
 		}
 		else
 		{
-			Ref<FramebufferD3D12> framebuffer = std::dynamic_pointer_cast<FramebufferD3D12>(command.GetFramebuffer());
+			WeakRef<Framebuffer> framebuffer = command.GetFramebuffer();
 			SetFramebuffer(framebuffer, device);
 		}
 
@@ -545,7 +548,7 @@ namespace Nexus::Graphics
 		DeviceBufferD3D12 *buffer  = (DeviceBufferD3D12 *)command.BufferTextureCopy.BufferHandle;
 		TextureD3D12	  *texture = (TextureD3D12 *)command.BufferTextureCopy.TextureHandle;
 
-		size_t sizeInBytes = GetPixelFormatSizeInBytes(texture->GetSpecification().Format);
+		size_t	 sizeInBytes	  = GetPixelFormatSizeInBytes(texture->GetSpecification().Format);
 		size_t	 rowPitch		  = sizeInBytes * command.BufferTextureCopy.TextureSubresource.Width;
 		uint32_t subresourceIndex = Utils::CalculateSubresource(command.BufferTextureCopy.TextureSubresource.MipLevel,
 																command.BufferTextureCopy.TextureSubresource.ArrayLayer,
@@ -748,49 +751,59 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorD3D12::SetSwapchain(Ref<SwapchainD3D12> swapchain, GraphicsDevice *device)
+	void CommandExecutorD3D12::SetSwapchain(WeakRef<Swapchain> swapchain, GraphicsDevice *device)
 	{
-		if (swapchain->GetSpecification().Samples == 1)
+		if (Ref<Swapchain> sc = swapchain.lock())
 		{
-			std::vector<D3D12_RESOURCE_BARRIER> barriers;
-			GraphicsDeviceD3D12				   *deviceD3D12 = (GraphicsDeviceD3D12 *)device;
+			Ref<SwapchainD3D12> swapchainD3D12 = std::dynamic_pointer_cast<SwapchainD3D12>(sc);
 
-			ResetPreviousRenderTargets(device);
+			if (sc->GetSpecification().Samples == 1)
+			{
+				std::vector<D3D12_RESOURCE_BARRIER> barriers;
+				GraphicsDeviceD3D12				   *deviceD3D12 = (GraphicsDeviceD3D12 *)device;
 
-			m_DescriptorHandles = {swapchain->RetrieveRenderTargetViewDescriptorHandle()};
-			m_DepthHandle		= swapchain->RetrieveDepthBufferDescriptorHandle();
+				ResetPreviousRenderTargets(device);
 
-			deviceD3D12->ResourceBarrierSwapchainColour(m_CommandList.Get(), swapchain, D3D12_RESOURCE_STATE_RENDER_TARGET);
-			deviceD3D12->ResourceBarrierSwapchainDepth(m_CommandList.Get(), swapchain, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-		}
-		else
-		{
-			SetFramebuffer(std::dynamic_pointer_cast<FramebufferD3D12>(swapchain->GetMultisampledFramebuffer()), device);
+				m_DescriptorHandles = {swapchainD3D12->RetrieveRenderTargetViewDescriptorHandle()};
+				m_DepthHandle		= swapchainD3D12->RetrieveDepthBufferDescriptorHandle();
+
+				deviceD3D12->ResourceBarrierSwapchainColour(m_CommandList.Get(), swapchainD3D12, D3D12_RESOURCE_STATE_RENDER_TARGET);
+				deviceD3D12->ResourceBarrierSwapchainDepth(m_CommandList.Get(), swapchainD3D12, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+			}
+			else
+			{
+				SetFramebuffer(std::dynamic_pointer_cast<FramebufferD3D12>(swapchainD3D12->GetMultisampledFramebuffer()), device);
+			}
 		}
 	}
 
-	void CommandExecutorD3D12::SetFramebuffer(Ref<FramebufferD3D12> framebuffer, GraphicsDevice *device)
+	void CommandExecutorD3D12::SetFramebuffer(WeakRef<Framebuffer> framebuffer, GraphicsDevice *device)
 	{
 		ResetPreviousRenderTargets(device);
 		GraphicsDeviceD3D12 *deviceD3D12 = (GraphicsDeviceD3D12 *)device;
 
-		m_DescriptorHandles = framebuffer->GetColorAttachmentCPUHandles();
-		m_DepthHandle		= framebuffer->GetDepthAttachmentCPUHandle();
+		if (auto fb = framebuffer.lock())
+		{
+			Ref<FramebufferD3D12> framebufferD3D12 = std::dynamic_pointer_cast<FramebufferD3D12>(fb);
 
-		for (size_t i = 0; i < framebuffer->GetColorTextureCount(); i++)
-		{
-			Ref<TextureD3D12> texture = framebuffer->GetD3D12ColorTexture(i);
-			deviceD3D12->ResourceBarrier(m_CommandList.Get(), texture, 0, 0, D3D12_RESOURCE_STATE_RENDER_TARGET);
-		}
+			m_DescriptorHandles = framebufferD3D12->GetColorAttachmentCPUHandles();
+			m_DepthHandle		= framebufferD3D12->GetDepthAttachmentCPUHandle();
 
-		if (framebuffer->HasDepthTexture())
-		{
-			Ref<TextureD3D12> depthBuffer = framebuffer->GetD3D12DepthTexture();
-			deviceD3D12->ResourceBarrier(m_CommandList.Get(), depthBuffer, 0, 0, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-		}
-		else
-		{
-			m_DepthHandle = {};
+			for (size_t i = 0; i < framebufferD3D12->GetColorTextureCount(); i++)
+			{
+				Ref<TextureD3D12> texture = framebufferD3D12->GetD3D12ColorTexture(i);
+				deviceD3D12->ResourceBarrier(m_CommandList.Get(), texture, 0, 0, D3D12_RESOURCE_STATE_RENDER_TARGET);
+			}
+
+			if (fb->HasDepthTexture())
+			{
+				Ref<TextureD3D12> depthBuffer = framebufferD3D12->GetD3D12DepthTexture();
+				deviceD3D12->ResourceBarrier(m_CommandList.Get(), depthBuffer, 0, 0, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+			}
+			else
+			{
+				m_DepthHandle = {};
+			}
 		}
 	}
 
@@ -803,9 +816,9 @@ namespace Nexus::Graphics
 
 		RenderTarget target = m_CurrentRenderTarget.value();
 
-		if (target.GetType() == RenderTargetType::Swapchain)
+		/* if (target.GetType() == RenderTargetType::Swapchain)
 		{
-			Ref<SwapchainD3D12> swapchain = std::dynamic_pointer_cast<SwapchainD3D12>(target.GetSwapchain());
+			WeakRef<> swapchain = std::dynamic_pointer_cast<SwapchainD3D12>(target.GetSwapchain());
 
 			auto swapchainColourState = swapchain->GetCurrentTextureState();
 			if (swapchainColourState != D3D12_RESOURCE_STATE_PRESENT)
@@ -820,6 +833,28 @@ namespace Nexus::Graphics
 				m_CommandList->ResourceBarrier(1, &presentBarrier);
 
 				swapchain->SetTextureState(D3D12_RESOURCE_STATE_PRESENT);
+			}
+		} */
+
+		// check that the swapchain is still valid
+		WeakRef<Swapchain> swapchain = target.GetSwapchain();
+		if (auto sc = swapchain.lock())
+		{
+			Ref<SwapchainD3D12> swapchainD3D12 = std::dynamic_pointer_cast<SwapchainD3D12>(sc);
+
+			auto swapchainColourState = swapchainD3D12->GetCurrentTextureState();
+			if (swapchainColourState != D3D12_RESOURCE_STATE_PRESENT)
+			{
+				D3D12_RESOURCE_BARRIER presentBarrier;
+				presentBarrier.Type					  = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+				presentBarrier.Flags				  = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+				presentBarrier.Transition.pResource	  = swapchainD3D12->RetrieveBufferHandle().Get();
+				presentBarrier.Transition.Subresource = 0;
+				presentBarrier.Transition.StateBefore = swapchainColourState;
+				presentBarrier.Transition.StateAfter  = D3D12_RESOURCE_STATE_PRESENT;
+				m_CommandList->ResourceBarrier(1, &presentBarrier);
+
+				swapchainD3D12->SetTextureState(D3D12_RESOURCE_STATE_PRESENT);
 			}
 		}
 

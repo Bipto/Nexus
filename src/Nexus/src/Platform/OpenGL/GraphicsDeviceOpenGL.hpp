@@ -20,8 +20,8 @@ namespace Nexus::Graphics
 		GraphicsDeviceOpenGL(const GraphicsDeviceOpenGL &) = delete;
 		virtual ~GraphicsDeviceOpenGL();
 
-		void		 SetFramebuffer(Ref<Framebuffer> framebuffer);
-		void		 SetSwapchain(Ref<Swapchain> swapchain);
+		void		 SetFramebuffer(WeakRef<Framebuffer> framebuffer);
+		void		 SetSwapchain(WeakRef<Swapchain> swapchain);
 		virtual void SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) override;
 
 		virtual const std::string				 GetAPIName() override;

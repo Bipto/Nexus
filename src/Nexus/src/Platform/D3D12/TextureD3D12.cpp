@@ -44,8 +44,8 @@ namespace Nexus::Graphics
 		D3D12MA::ALLOCATION_DESC allocationDesc = {};
 		allocationDesc.HeapType					= D3D12_HEAP_TYPE_DEFAULT;
 
-		D3D12MA::Allocator *allocator = device->GetAllocator();
-		HRESULT				hr =
+		Microsoft::WRL::ComPtr<D3D12MA::Allocator> allocator = device->GetAllocator();
+		HRESULT									   hr =
 			allocator->CreateResource2(&allocationDesc, &textureDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, &m_Allocation, IID_PPV_ARGS(&m_Texture));
 
 		if (FAILED(hr))
@@ -59,10 +59,15 @@ namespace Nexus::Graphics
 		{
 			for (uint32_t mipLevel = 0; mipLevel < spec.MipLevels; mipLevel++) { m_ResourceStates.push_back(D3D12_RESOURCE_STATE_COMMON); }
 		}
+
+		std::atexit([] { std::cout << "Texture count: " << TextureD3D12::s_TextureCount << std::endl; });
+
+		s_TextureCount++;
 	}
 
 	TextureD3D12::~TextureD3D12()
 	{
+		s_TextureCount--;
 	}
 
 	DXGI_FORMAT TextureD3D12::GetFormat()

@@ -3,7 +3,9 @@
 
 namespace Nexus::Graphics
 {
-	DeviceBufferD3D12::DeviceBufferD3D12(const DeviceBufferDescription &desc, GraphicsDeviceD3D12 *graphicsDevice) : m_BufferDescription(desc)
+	DeviceBufferD3D12::DeviceBufferD3D12(const DeviceBufferDescription &desc, GraphicsDeviceD3D12 *graphicsDevice)
+		: m_BufferDescription(desc),
+		  m_GraphicsDevice(graphicsDevice)
 	{
 		auto allocator = graphicsDevice->GetAllocator();
 
@@ -48,6 +50,7 @@ namespace Nexus::Graphics
 
 	DeviceBufferD3D12::~DeviceBufferD3D12()
 	{
+		m_GraphicsDevice->WaitForIdle();
 	}
 
 	void DeviceBufferD3D12::SetData(const void *data, uint32_t offset, uint32_t size)

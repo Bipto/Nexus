@@ -15,6 +15,11 @@ namespace Nexus::Graphics
 		CreateShaderModule();
 	}
 
+	ShaderModuleVk::~ShaderModuleVk()
+	{
+		vkDestroyShaderModule(m_GraphicsDevice->GetVkDevice(), m_ShaderModule, nullptr);
+	}
+
 	VkShaderModule ShaderModuleVk::GetShaderModule()
 	{
 		return m_ShaderModule;

@@ -1,6 +1,8 @@
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 #include "Nexus-Core/Graphics/IGraphicsAPI.hpp"
 
+#include "Nexus-Core/Renderer/BatchRenderer.hpp"
+
 int main()
 {
 	Nexus::Graphics::GraphicsAPICreateInfo createInfo = {};
@@ -12,12 +14,10 @@ int main()
 	std::unique_ptr<Nexus::Graphics::GraphicsDevice>			   device =
 		std::unique_ptr<Nexus::Graphics::GraphicsDevice>(api->CreateGraphicsDevice(physicalDevices[0]));
 
-	Nexus::Graphics::FenceDescription fenceDesc	  = {};
-	fenceDesc.Signalled							  = true;
-	std::unique_ptr<Nexus::Graphics::Fence> fence = std::unique_ptr<Nexus::Graphics::Fence>(device->CreateFence(fenceDesc));
+	Nexus::Graphics::FramebufferSpecification framebufferSpec = {};
+	framebufferSpec.Width									  = 512;
+	framebufferSpec.Height									  = 512;
+	framebufferSpec.ColorAttachmentSpecification			  = {{Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm}};
 
-	std::array<Nexus::Graphics::Fence *, 1> fences = {fence.get()};
-	Nexus::Graphics::FenceWaitResult result = device->WaitForFences(fences.data(), fences.size(), true, Nexus::TimeSpan::FromNanoseconds(UINT64_MAX));
-	device->ResetFences(fences.data(), fences.size());
-	bool signalled = fence->IsSignalled();
+	Nexus::Ref<Nexus::Graphics::Framebuffer> framebuffer = device->CreateFramebuffer(framebufferSpec);
 }

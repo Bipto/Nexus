@@ -292,19 +292,23 @@ namespace Nexus::Graphics
 
 		if (m_CurrentRenderTarget.has_value())
 		{
-			if (Ref<Swapchain> previousSwapchain = m_CurrentRenderTarget.value().GetSwapchain())
+			RenderTarget target = m_CurrentRenderTarget.value();
+			if (target.GetType() == RenderTargetType::Swapchain)
 			{
-				deviceGL->GetOffscreenContext()->MakeCurrent();
+				Nexus::GL::IOffscreenContext *offscreenContext = deviceGL->GetOffscreenContext();
+				offscreenContext->MakeCurrent();
 			}
 		}
 
-		if (Ref<Framebuffer> framebuffer = command.GetFramebuffer())
+		if (command.GetType() == RenderTargetType::Framebuffer)
 		{
-			deviceGL->SetFramebuffer(framebuffer);
+			WeakRef<Framebuffer> fb = command.GetFramebuffer();
+			deviceGL->SetFramebuffer(fb);
 		}
-		else if (Ref<Swapchain> swapchain = command.GetSwapchain())
+		else if (command.GetType() == RenderTargetType::Swapchain)
 		{
-			deviceGL->SetSwapchain(swapchain);
+			WeakRef<Swapchain> sc = command.GetSwapchain();
+			deviceGL->SetSwapchain(sc);
 		}
 		else
 		{

@@ -17,8 +17,8 @@ namespace Nexus::Graphics
 		virtual void WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name) override;
 		virtual void WriteStorageImage(StorageImageView view, const std::string &name) override;
 
-		ID3D12DescriptorHeap *GetSamplerDescriptorHeap();
-		ID3D12DescriptorHeap *GetTextureConstantBufferDescriptorHeap();
+		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetSamplerDescriptorHeap();
+		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetTextureConstantBufferDescriptorHeap();
 
 		bool HasConstantBufferTextureHeap() const;
 		bool HasSamplerHeap() const;
