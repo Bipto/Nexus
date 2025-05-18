@@ -66,12 +66,12 @@ namespace Demos
 			m_CommandList->SetResourceSet(m_ResourceSet);
 
 			Nexus::Graphics::VertexBufferView vertexBufferView = {};
-			vertexBufferView.BufferHandle					   = m_Mesh->GetVertexBuffer().get();
+			vertexBufferView.BufferHandle					   = m_Mesh->GetVertexBuffer();
 			vertexBufferView.Offset							   = 0;
 			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
 			Nexus::Graphics::IndexBufferView indexBufferView = {};
-			indexBufferView.BufferHandle					 = m_Mesh->GetIndexBuffer().get();
+			indexBufferView.BufferHandle					 = m_Mesh->GetIndexBuffer();
 			indexBufferView.Offset							 = 0;
 			indexBufferView.BufferFormat					 = Nexus::Graphics::IndexBufferFormat::UInt32;
 			m_CommandList->SetIndexBuffer(indexBufferView);

@@ -60,6 +60,16 @@ namespace Nexus::Graphics
 
 		GL::IOffscreenContext *GetOffscreenContext();
 
+		void CopyBufferToTexture(Ref<TextureOpenGL>		 texture,
+								 Ref<DeviceBufferOpenGL> buffer,
+								 uint32_t				 bufferOffset,
+								 SubresourceDescription	 subresource);
+
+		void CopyTextureToBuffer(Ref<TextureOpenGL>		 texture,
+								 Ref<DeviceBufferOpenGL> buffer,
+								 uint32_t				 bufferOffset,
+								 SubresourceDescription	 subresource);
+
 	  private:
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) override;
 		std::vector<std::string>  GetSupportedExtensions();

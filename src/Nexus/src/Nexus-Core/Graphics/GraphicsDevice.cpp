@@ -93,16 +93,16 @@ namespace Nexus::Graphics
 		WaitForIdle();
 	}
 
-	void GraphicsDevice::WriteToTexture(Texture	   *texture,
-										uint32_t	arrayLayer,
-										uint32_t	mipLevel,
-										uint32_t	x,
-										uint32_t	y,
-										uint32_t	z,
-										uint32_t	width,
-										uint32_t	height,
-										const void *data,
-										size_t		size)
+	void GraphicsDevice::WriteToTexture(Ref<Texture> texture,
+										uint32_t	 arrayLayer,
+										uint32_t	 mipLevel,
+										uint32_t	 x,
+										uint32_t	 y,
+										uint32_t	 z,
+										uint32_t	 width,
+										uint32_t	 height,
+										const void	*data,
+										size_t		 size)
 	{
 		DeviceBufferDescription bufferDesc = {};
 		bufferDesc.Type					   = DeviceBufferType::Upload;
@@ -116,7 +116,7 @@ namespace Nexus::Graphics
 		cmdList->Begin();
 
 		BufferTextureCopyDescription copyDesc = {};
-		copyDesc.BufferHandle				  = buffer.get();
+		copyDesc.BufferHandle				  = buffer;
 		copyDesc.BufferOffset				  = 0;
 		copyDesc.TextureHandle				  = texture;
 		copyDesc.TextureSubresource			  = {.X			 = x,
@@ -137,14 +137,14 @@ namespace Nexus::Graphics
 
 	}	 // namespace Nexus::Graphics
 
-	std::vector<char> GraphicsDevice::ReadFromTexture(Texture *texture,
-													  uint32_t arrayLayer,
-													  uint32_t mipLevel,
-													  uint32_t x,
-													  uint32_t y,
-													  uint32_t z,
-													  uint32_t width,
-													  uint32_t height)
+	std::vector<char> GraphicsDevice::ReadFromTexture(Ref<Texture> texture,
+													  uint32_t	   arrayLayer,
+													  uint32_t	   mipLevel,
+													  uint32_t	   x,
+													  uint32_t	   y,
+													  uint32_t	   z,
+													  uint32_t	   width,
+													  uint32_t	   height)
 	{
 		size_t bufferSize = width * height * GetPixelFormatSizeInBytes(texture->GetSpecification().Format);
 
@@ -159,7 +159,7 @@ namespace Nexus::Graphics
 		cmdList->Begin();
 
 		BufferTextureCopyDescription copyDesc = {};
-		copyDesc.BufferHandle				  = buffer.get();
+		copyDesc.BufferHandle				  = buffer;
 		copyDesc.BufferOffset				  = 0;
 		copyDesc.TextureHandle				  = texture;
 		copyDesc.TextureSubresource =
@@ -252,7 +252,7 @@ namespace Nexus::Graphics
 
 		size_t bufferSize = spec.Width * spec.Height * GetPixelFormatSizeInBytes(spec.Format);
 		auto   texture	  = Ref<Texture>(CreateTexture(spec));
-		WriteToTexture(texture.get(), 0, 0, 0, 0, 0, spec.Width, spec.Height, data, bufferSize);
+		WriteToTexture(texture, 0, 0, 0, 0, 0, spec.Width, spec.Height, data, bufferSize);
 		stbi_image_free(data);
 
 		if (generateMips)
@@ -263,7 +263,7 @@ namespace Nexus::Graphics
 			{
 				auto [width, height]			  = Utils::GetMipSize(spec.Width, spec.Height, i);
 				std::vector<char> pixels		  = mipGenerator.GenerateMip(texture, i, i - 1);
-				WriteToTexture(texture.get(), 0, i, 0, 0, 0, width, height, pixels.data(), pixels.size());
+				WriteToTexture(texture, 0, i, 0, 0, 0, width, height, pixels.data(), pixels.size());
 			}
 		}
 

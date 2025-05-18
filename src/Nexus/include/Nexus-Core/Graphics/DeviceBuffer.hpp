@@ -79,20 +79,20 @@ namespace Nexus::Graphics
 
 	struct VertexBufferView
 	{
-		DeviceBuffer *BufferHandle = nullptr;
+		WeakRef<DeviceBuffer> BufferHandle = {};
 		uint64_t	  Offset	   = 0;
 	};
 
 	struct IndexBufferView
 	{
-		DeviceBuffer	 *BufferHandle = nullptr;
+		WeakRef<DeviceBuffer> BufferHandle = {};
 		uint64_t		  Offset	   = 0;
 		IndexBufferFormat BufferFormat = IndexBufferFormat::UInt32;
 	};
 
 	struct UniformBufferView
 	{
-		DeviceBuffer *BufferHandle = nullptr;
+		WeakRef<DeviceBuffer> BufferHandle = {};
 		uint64_t	  Offset	   = 0;
 		uint64_t	  Size		   = 0;
 	};

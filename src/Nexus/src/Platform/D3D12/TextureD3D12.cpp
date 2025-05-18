@@ -60,9 +60,9 @@ namespace Nexus::Graphics
 			for (uint32_t mipLevel = 0; mipLevel < spec.MipLevels; mipLevel++) { m_ResourceStates.push_back(D3D12_RESOURCE_STATE_COMMON); }
 		}
 
-		std::atexit([] { std::cout << "Texture count: " << TextureD3D12::s_TextureCount << std::endl; });
-
 		s_TextureCount++;
+
+		std::atexit([] { std::cout << "Textures: " << s_TextureCount << std::endl; });
 	}
 
 	TextureD3D12::~TextureD3D12()

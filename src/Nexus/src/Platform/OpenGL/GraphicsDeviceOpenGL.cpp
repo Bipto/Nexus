@@ -27,7 +27,7 @@ namespace Nexus::Graphics
 	GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(std::shared_ptr<IPhysicalDevice> physicalDevice, bool enableDebug)
 	{
 		m_PhysicalDevice = std::dynamic_pointer_cast<PhysicalDeviceOpenGL>(physicalDevice);
-		m_Extensions = GetSupportedExtensions();
+		m_Extensions	 = GetSupportedExtensions();
 
 		m_APIName	   = std::string("OpenGL - ") + std::string((const char *)glGetString(GL_VERSION));
 		m_RendererName = (const char *)glGetString(GL_RENDERER);
@@ -103,6 +103,136 @@ namespace Nexus::Graphics
 		return m_PhysicalDevice->GetOffscreenContext();
 	}
 
+	void GraphicsDeviceOpenGL::CopyBufferToTexture(Ref<TextureOpenGL>	   texture,
+												   Ref<DeviceBufferOpenGL> buffer,
+												   uint32_t				   bufferOffset,
+												   SubresourceDescription  subresource)
+	{
+		NX_ASSERT(texture->GetSpecification().Samples == 1, "Cannot set data in a multisampled texture");
+
+		if (subresource.Depth > 1)
+		{
+			NX_ASSERT(texture->GetSpecification().Type == TextureType::Texture3D,
+					  "Attempting to set data in a multi-layer texture, but texture is not multi layer");
+		}
+
+		GLenum textureType = texture->GetTextureType();
+		GLenum dataFormat  = texture->GetDataFormat();
+		GLenum baseType	   = texture->GetBaseType();
+
+		glCall(glBindTexture(textureType, texture->GetHandle()));
+		glCall(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, buffer->GetBufferHandle()));
+
+		GLenum	 glAspect	= GL::GetGLImageAspect(subresource.Aspect);
+		uint32_t bufferSize = (subresource.Width - subresource.X) * (subresource.Height - subresource.Y) *
+							  (uint32_t)GetPixelFormatSizeInBytes(texture->GetSpecification().Format);
+
+		switch (texture->GetInternalGLTextureFormat())
+		{
+			case GL::GLInternalTextureFormat::Texture1D:
+				glCall(glTexSubImage1D(textureType,
+									   subresource.MipLevel,
+									   subresource.X,
+									   subresource.Width,
+									   dataFormat,
+									   baseType,
+									   (const void *)(uint64_t)bufferOffset));
+				break;
+			case GL::GLInternalTextureFormat::Texture1DArray:
+			case GL::GLInternalTextureFormat::Texture2D:
+			case GL::GLInternalTextureFormat::Texture2DMultisample:
+				glCall(glTexSubImage2D(textureType,
+									   subresource.MipLevel,
+									   subresource.X,
+									   subresource.Y,
+									   subresource.Width,
+									   subresource.Height,
+									   dataFormat,
+									   baseType,
+									   (const void *)(uint64_t)bufferOffset));
+				break;
+			case GL::GLInternalTextureFormat::Cubemap:
+				glCall(glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + subresource.ArrayLayer,
+									   subresource.MipLevel,
+									   subresource.X,
+									   subresource.Y,
+									   subresource.Width,
+									   subresource.Height,
+									   dataFormat,
+									   baseType,
+									   (const void *)(uint64_t)bufferOffset));
+				break;
+			case GL::GLInternalTextureFormat::Texture2DArray:
+			case GL::GLInternalTextureFormat::CubemapArray:
+			case GL::GLInternalTextureFormat::Texture3D:
+			case GL::GLInternalTextureFormat::Texture2DArrayMultisample:
+				glCall(glTexSubImage3D(textureType,
+									   subresource.MipLevel,
+									   subresource.X,
+									   subresource.Y,
+									   subresource.ArrayLayer,
+									   subresource.Width,
+									   subresource.Height,
+									   subresource.Depth,
+									   dataFormat,
+									   baseType,
+									   (const void *)(uint64_t)bufferOffset));
+				break;
+		}
+
+		glCall(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0));
+		glCall(glBindTexture(textureType, 0));
+	}
+
+	void GraphicsDeviceOpenGL::CopyTextureToBuffer(Ref<TextureOpenGL>	   texture,
+												   Ref<DeviceBufferOpenGL> buffer,
+												   uint32_t				   bufferOffset,
+												   SubresourceDescription  subresource)
+	{
+		const auto &textureSpecification = texture->GetSpecification();
+
+		size_t layerSize =
+			(subresource.Width - subresource.X) * (subresource.Height - subresource.Y) * GetPixelFormatSizeInBytes(textureSpecification.Format);
+		size_t bufferSize = layerSize * subresource.Depth;
+		GLenum glAspect	  = GL::GetGLImageAspect(subresource.Aspect);
+
+		GLenum textureType = texture->GetTextureType();
+		GLenum dataFormat  = texture->GetDataFormat();
+		GLenum baseType	   = texture->GetBaseType();
+
+		glBindBuffer(GL_PIXEL_PACK_BUFFER, buffer->GetBufferHandle());
+
+		for (uint32_t layer = subresource.Z; layer < subresource.Depth; layer++)
+		{
+			GLuint framebufferHandle = 0;
+			glCall(glGenFramebuffers(1, &framebufferHandle));
+			glCall(glBindFramebuffer(GL_FRAMEBUFFER, framebufferHandle));
+			GL::AttachTexture(framebufferHandle, texture, subresource.MipLevel, layer, subresource.Aspect, 0);
+
+			GL::ValidateFramebuffer(framebufferHandle);
+
+			glCall(glReadBuffer(GL_COLOR_ATTACHMENT0));
+			glCall(glReadPixels(subresource.X,
+								subresource.Y,
+								subresource.Width,
+								subresource.Height,
+								dataFormat,
+								baseType,
+								(void *)(uint64_t)bufferOffset));
+
+			glCall(glFlush());
+			glCall(glFinish());
+			glCall(glMemoryBarrier(GL_ALL_BARRIER_BITS));
+
+			glCall(glDeleteFramebuffers(1, &framebufferHandle));
+			bufferOffset += layerSize;
+		}
+
+		glCall(glMemoryBarrier(GL_ALL_BARRIER_BITS));
+		glCall(glBindTexture(textureType, 0));
+		glCall(glBindBuffer(GL_PIXEL_PACK_BUFFER, 0));
+	}
+
 	Ref<ShaderModule> GraphicsDeviceOpenGL::CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources)
 	{
 		return CreateRef<ShaderModuleOpenGL>(moduleSpec, resources);
@@ -169,9 +299,9 @@ namespace Nexus::Graphics
 		GraphicsCapabilities capabilities;
 
 	#if defined(NX_PLATFORM_GL_DESKTOP)
-		capabilities.SupportsLODBias			  = true;
-		capabilities.SupportsMultisampledTextures = true;
-		capabilities.SupportsMultipleSwapchains	  = true;
+		capabilities.SupportsLODBias					 = true;
+		capabilities.SupportsMultisampledTextures		 = true;
+		capabilities.SupportsMultipleSwapchains			 = true;
 		capabilities.SupportsSeparateColourAndBlendMasks = true;
 	#endif
 

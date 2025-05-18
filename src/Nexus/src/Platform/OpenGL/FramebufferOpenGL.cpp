@@ -116,7 +116,7 @@ namespace Nexus::Graphics
 			Ref<TextureOpenGL> textureGL = std::dynamic_pointer_cast<TextureOpenGL>(texture);
 			m_ColorAttachments.push_back(textureGL);
 
-			GL::AttachTexture(m_FBO, textureGL.get(), 0, 0, Graphics::ImageAspect::Colour, i);
+			GL::AttachTexture(m_FBO, textureGL, 0, 0, Graphics::ImageAspect::Colour, i);
 		}
 
 		if (m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::Invalid)
@@ -130,7 +130,7 @@ namespace Nexus::Graphics
 			m_DepthAttachment						   = Ref<Texture>(m_Device->CreateTexture(textureSpec));
 
 			Ref<TextureOpenGL> textureGL = std::dynamic_pointer_cast<TextureOpenGL>(m_DepthAttachment);
-			GL::AttachTexture(m_FBO, textureGL.get(), 0, 0, Graphics::ImageAspect::DepthStencil, 0);
+			GL::AttachTexture(m_FBO, textureGL, 0, 0, Graphics::ImageAspect::DepthStencil, 0);
 		}
 	}
 

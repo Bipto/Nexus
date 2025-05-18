@@ -102,13 +102,13 @@ namespace Demos
 				const auto	resourceSet = m_ResourceSets[i];
 
 				Nexus::Graphics::UniformBufferView cameraUniformBufferView = {};
-				cameraUniformBufferView.BufferHandle					   = m_CameraUniformBuffer.get();
+				cameraUniformBufferView.BufferHandle					   = m_CameraUniformBuffer;
 				cameraUniformBufferView.Offset							   = 0;
 				cameraUniformBufferView.Size							   = m_CameraUniformBuffer->GetDescription().SizeInBytes;
 				resourceSet->WriteUniformBuffer(cameraUniformBufferView, "Camera");
 
 				Nexus::Graphics::UniformBufferView transformUniformBufferView = {};
-				transformUniformBufferView.BufferHandle						  = m_TransformUniformBuffer.get();
+				transformUniformBufferView.BufferHandle						  = m_TransformUniformBuffer;
 				transformUniformBufferView.Offset							  = 0;
 				transformUniformBufferView.Size								  = m_TransformUniformBuffer->GetDescription().SizeInBytes;
 				resourceSet->WriteUniformBuffer(transformUniformBufferView, "Transform");
@@ -120,12 +120,12 @@ namespace Demos
 				m_CommandList->SetResourceSet(resourceSet);
 
 				Nexus::Graphics::VertexBufferView vertexBufferView = {};
-				vertexBufferView.BufferHandle					   = mesh->GetVertexBuffer().get();
+				vertexBufferView.BufferHandle					   = mesh->GetVertexBuffer();
 				vertexBufferView.Offset							   = 0;
 				m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
 				Nexus::Graphics::IndexBufferView indexBufferView = {};
-				indexBufferView.BufferHandle					 = mesh->GetIndexBuffer().get();
+				indexBufferView.BufferHandle					 = mesh->GetIndexBuffer();
 				indexBufferView.Offset							 = 0;
 				indexBufferView.BufferFormat					 = Nexus::Graphics::IndexBufferFormat::UInt32;
 				m_CommandList->SetIndexBuffer(indexBufferView);

@@ -110,7 +110,7 @@ namespace Nexus::Graphics
 		const BindingInfo	   &info			   = m_UniformBufferBindingInfos.at(name);
 		const uint32_t			index			   = GetLinearDescriptorSlot(info.Set, info.Binding);
 		auto					d3d12Device		   = m_Device->GetDevice();
-		DeviceBufferD3D12	   *d3d12UniformBuffer = (DeviceBufferD3D12 *)uniformBuffer.BufferHandle;
+		Ref<DeviceBufferD3D12>	d3d12UniformBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(uniformBuffer.BufferHandle.lock());
 
 		D3D12_CONSTANT_BUFFER_VIEW_DESC desc;
 		desc.BufferLocation = d3d12UniformBuffer->GetHandle()->GetGPUVirtualAddress() + uniformBuffer.Offset;

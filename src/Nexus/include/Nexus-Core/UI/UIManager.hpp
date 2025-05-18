@@ -26,7 +26,7 @@ namespace Nexus::UI
 
 		void Load() final
 		{
-			/* m_Sizer		  = std::make_unique<Nexus::UI::GridSizer>();
+			m_Sizer		  = std::make_unique<Nexus::UI::GridSizer>();
 			m_Renderer	  = std::make_unique<Nexus::UI::UIRenderer>(m_GraphicsDevice.get());
 			m_CommandList = m_GraphicsDevice->CreateCommandList();
 
@@ -60,34 +60,11 @@ namespace Nexus::UI
 			GetPrimaryWindow()->AddMouseMovedCallback([&](const MouseMovedEventArgs &args) { m_Sizer->InvokeOnMouseMoved(args); });
 			GetPrimaryWindow()->AddMousePressedCallback([&](const MouseButtonPressedEventArgs &args) { m_Sizer->InvokeOnMousePressed(args); });
 			GetPrimaryWindow()->AddMouseReleasedCallback([&](const MouseButtonReleasedEventArgs &args) { m_Sizer->InvokeOnMouseReleased(args); });
-			GetPrimaryWindow()->AddMouseScrollCallback([&](const MouseScrolledEventArgs &args) { m_Sizer->InvokeOnMouseScroll(args); }); */
-
-			m_BatchRenderer = std::make_unique<Nexus::Graphics::BatchRenderer>(m_GraphicsDevice.get(), false, 1);
+			GetPrimaryWindow()->AddMouseScrollCallback([&](const MouseScrolledEventArgs &args) { m_Sizer->InvokeOnMouseScroll(args); });
 		}
 
 		void Render(Nexus::TimeSpan time) final
 		{
-			auto windowSize = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize();
-
-			Nexus::GetApplication()->GetPrimarySwapchain()->Prepare();
-
-			Nexus::Graphics::Viewport vp = {};
-			vp.X						 = 0;
-			vp.Y						 = 0;
-			vp.Width					 = windowSize.X;
-			vp.Height					 = windowSize.Y;
-
-			Nexus::Graphics::Scissor scissor = {};
-			scissor.X						 = 0;
-			scissor.Y						 = 0;
-			scissor.Width					 = windowSize.X;
-			scissor.Height					 = windowSize.Y;
-
-			m_BatchRenderer->Begin(Nexus::Graphics::RenderTarget(Nexus::GetApplication()->GetPrimarySwapchain()), vp, scissor);
-			m_BatchRenderer->DrawQuadFill({0, 0}, {windowSize.X, windowSize.Y}, {1.0f, 0.0f, 0.0f, 1.0f});
-			m_BatchRenderer->End();
-
-			Nexus::GetApplication()->GetPrimarySwapchain()->SwapBuffers();
 		}
 
 		void Update(Nexus::TimeSpan time) final

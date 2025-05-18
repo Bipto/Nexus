@@ -101,13 +101,13 @@ namespace Nexus::Graphics
 
 			Ref<DeviceBuffer> vertexBuffer	   = m_Quad.GetVertexBuffer();
 			VertexBufferView  vertexBufferView = {};
-			vertexBufferView.BufferHandle	   = vertexBuffer.get();
+			vertexBufferView.BufferHandle	   = vertexBuffer;
 			vertexBufferView.Offset			   = 0;
 			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
 			Ref<DeviceBuffer> indexBuffer	  = m_Quad.GetIndexBuffer();
 			IndexBufferView	  indexBufferView = {};
-			indexBufferView.BufferHandle	  = indexBuffer.get();
+			indexBufferView.BufferHandle	  = indexBuffer;
 			indexBufferView.Offset			  = 0;
 			indexBufferView.BufferFormat	  = IndexBufferFormat::UInt32;
 			m_CommandList->SetIndexBuffer(indexBufferView);
@@ -117,7 +117,7 @@ namespace Nexus::Graphics
 			m_CommandList->End();
 			m_Device->SubmitCommandLists(&m_CommandList, 1, nullptr);
 
-			pixels = m_Device->ReadFromTexture(framebufferTexture.get(), 0, 0, 0, 0, 0, mipWidth, mipHeight);
+			pixels = m_Device->ReadFromTexture(framebufferTexture, 0, 0, 0, 0, 0, mipWidth, mipHeight);
 		}
 
 		return pixels;

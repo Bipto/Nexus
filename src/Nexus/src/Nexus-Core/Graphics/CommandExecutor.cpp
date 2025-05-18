@@ -189,39 +189,42 @@ namespace Nexus::Graphics
 			valid = false;
 		}
 
-		if (!command.Target)
+		if (command.Target.expired())
 		{
 			NX_ERROR("Attempting to resolve to an invalid swapchain");
 			valid = false;
 		}
 
-		if (Ref<Framebuffer> framebuffer = command.Source.lock())
+		Ref<Framebuffer> source = command.Source.lock();
+		Ref<Swapchain>	 target = command.Target.lock();
+
+		if (source && target)
 		{
-			if (command.SourceIndex > framebuffer->GetColorTextureCount())
+			if (command.SourceIndex > source->GetColorTextureCount())
 			{
 				std::stringstream ss;
 				ss << "Attempting to resolve from colour attachment: " << command.SourceIndex << " but supplied framebuffer has "
-				   << framebuffer->GetColorTextureCount() << " colour attachments";
+				   << source->GetColorTextureCount() << " colour attachments";
 				NX_ERROR(ss.str());
 				valid = false;
 			}
 
-			if (framebuffer->GetFramebufferSpecification().Width != command.Target->GetSize().X)
+			if (source->GetFramebufferSpecification().Width != target->GetSize().X)
 			{
 				std::stringstream ss;
 				ss << "Attempting to resolve from a framebuffer to a swapchain of "
 					  "mismatching widths. The width of the framebuffer is "
-				   << framebuffer->GetFramebufferSpecification().Width << " and the width of the swapchain is " << command.Target->GetSize().X;
+				   << source->GetFramebufferSpecification().Width << " and the width of the swapchain is " << target->GetSize().X;
 				NX_ERROR(ss.str());
 				valid = false;
 			}
 
-			if (framebuffer->GetFramebufferSpecification().Height != command.Target->GetSize().Y)
+			if (source->GetFramebufferSpecification().Height != target->GetSize().Y)
 			{
 				std::stringstream ss;
 				ss << "Attempting to resolve from a framebuffer to a swapchain of "
 					  "mismatching heights. The height of the framebuffer is "
-				   << framebuffer->GetFramebufferSpecification().Height << " and the height of the swapchain is " << command.Target->GetSize().Y;
+				   << source->GetFramebufferSpecification().Height << " and the height of the swapchain is " << target->GetSize().Y;
 				NX_ERROR(ss.str());
 				valid = false;
 			}

@@ -63,7 +63,7 @@ namespace Demos
 			m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 
 			Nexus::Graphics::UniformBufferView transformUniformBufferView = {};
-			transformUniformBufferView.BufferHandle						  = m_TransformUniformBuffer.get();
+			transformUniformBufferView.BufferHandle						  = m_TransformUniformBuffer;
 			transformUniformBufferView.Offset							  = 0;
 			transformUniformBufferView.Size								  = m_TransformUniformBuffer->GetDescription().SizeInBytes;
 			m_ResourceSet->WriteUniformBuffer(transformUniformBufferView, "Transform");
@@ -72,12 +72,12 @@ namespace Demos
 			m_CommandList->SetResourceSet(m_ResourceSet);
 
 			Nexus::Graphics::VertexBufferView vertexBufferView = {};
-			vertexBufferView.BufferHandle					   = m_Mesh->GetVertexBuffer().get();
+			vertexBufferView.BufferHandle					   = m_Mesh->GetVertexBuffer();
 			vertexBufferView.Offset							   = 0;
 			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
 			Nexus::Graphics::IndexBufferView indexBufferView = {};
-			indexBufferView.BufferHandle					 = m_Mesh->GetIndexBuffer().get();
+			indexBufferView.BufferHandle					 = m_Mesh->GetIndexBuffer();
 			indexBufferView.Offset							 = 0;
 			indexBufferView.BufferFormat					 = Nexus::Graphics::IndexBufferFormat::UInt32;
 			m_CommandList->SetIndexBuffer(indexBufferView);

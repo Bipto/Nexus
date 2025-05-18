@@ -31,7 +31,7 @@ namespace Nexus::Graphics
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceView = {};
 
-		inline static uint32_t s_TextureCount = 0;
+		inline static uint64_t s_TextureCount = 0;
 	};
 }	 // namespace Nexus::Graphics
 

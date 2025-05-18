@@ -164,31 +164,33 @@ namespace Nexus::Graphics
 
 	void ResourceSetVk::WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name)
 	{
-		NX_ASSERT(uniformBuffer.BufferHandle->GetDescription().Type == DeviceBufferType::Uniform,
-				  "Attempting to bind a buffer that is not a uniform buffer");
+		if (Ref<DeviceBuffer> buffer = uniformBuffer.BufferHandle.lock())
+		{
+			NX_ASSERT(buffer->GetDescription().Type == DeviceBufferType::Uniform, "Attempting to bind a buffer that is not a uniform buffer");
 
-		DeviceBufferVk		*uniformBufferVk = (DeviceBufferVk *)uniformBuffer.BufferHandle;
-		const auto			&descriptorSets	 = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
+			Ref<DeviceBufferVk> uniformBufferVk = std::dynamic_pointer_cast<DeviceBufferVk>(buffer);
+			const auto		   &descriptorSets	= m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
 
-		const BindingInfo &info = m_UniformBufferBindingInfos.at(name);
+			const BindingInfo &info = m_UniformBufferBindingInfos.at(name);
 
-		VkDescriptorBufferInfo bufferInfo = {};
-		bufferInfo.buffer				  = uniformBufferVk->GetVkBuffer();
-		bufferInfo.offset				  = uniformBuffer.Offset;
-		bufferInfo.range				  = uniformBuffer.Size;
+			VkDescriptorBufferInfo bufferInfo = {};
+			bufferInfo.buffer				  = uniformBufferVk->GetVkBuffer();
+			bufferInfo.offset				  = uniformBuffer.Offset;
+			bufferInfo.range				  = uniformBuffer.Size;
 
-		VkWriteDescriptorSet uniformBufferToWrite = {};
-		uniformBufferToWrite.sType				  = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		uniformBufferToWrite.pNext				  = nullptr;
-		uniformBufferToWrite.dstBinding			  = info.Binding;
-		uniformBufferToWrite.descriptorCount	  = 1;
-		uniformBufferToWrite.descriptorType		  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		uniformBufferToWrite.pBufferInfo		  = &bufferInfo;
-		uniformBufferToWrite.dstSet				  = descriptorSets.at(info.Set);
+			VkWriteDescriptorSet uniformBufferToWrite = {};
+			uniformBufferToWrite.sType				  = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			uniformBufferToWrite.pNext				  = nullptr;
+			uniformBufferToWrite.dstBinding			  = info.Binding;
+			uniformBufferToWrite.descriptorCount	  = 1;
+			uniformBufferToWrite.descriptorType		  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			uniformBufferToWrite.pBufferInfo		  = &bufferInfo;
+			uniformBufferToWrite.dstSet				  = descriptorSets.at(info.Set);
 
-		vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &uniformBufferToWrite, 0, nullptr);
+			vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &uniformBufferToWrite, 0, nullptr);
 
-		m_BoundUniformBuffers[name] = uniformBuffer;
+			m_BoundUniformBuffers[name] = uniformBuffer;
+		}
 	}
 
 	void ResourceSetVk::WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name)

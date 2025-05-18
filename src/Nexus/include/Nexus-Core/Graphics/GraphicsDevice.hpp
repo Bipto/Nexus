@@ -139,25 +139,25 @@ namespace Nexus::Graphics
 
 		void ImmediateSubmit(std::function<void(Ref<CommandList> cmd)> &&function);
 
-		void WriteToTexture(Texture	   *texture,
-							uint32_t	arrayLayer,
-							uint32_t	mipLevel,
-							uint32_t	x,
-							uint32_t	y,
-							uint32_t	z,
-							uint32_t	width,
-							uint32_t	height,
-							const void *data,
-							size_t		size);
+		void WriteToTexture(Ref<Texture> texture,
+							uint32_t	 arrayLayer,
+							uint32_t	 mipLevel,
+							uint32_t	 x,
+							uint32_t	 y,
+							uint32_t	 z,
+							uint32_t	 width,
+							uint32_t	 height,
+							const void	*data,
+							size_t		 size);
 
-		std::vector<char> ReadFromTexture(Texture *texture,
-										  uint32_t arrayLayer,
-										  uint32_t mipLevel,
-										  uint32_t x,
-										  uint32_t y,
-										  uint32_t z,
-										  uint32_t width,
-										  uint32_t height);
+		std::vector<char> ReadFromTexture(Ref<Texture> texture,
+										  uint32_t	   arrayLayer,
+										  uint32_t	   mipLevel,
+										  uint32_t	   x,
+										  uint32_t	   y,
+										  uint32_t	   z,
+										  uint32_t	   width,
+										  uint32_t	   height);
 
 		virtual bool							 Validate() override;
 		virtual void							 SetName(const std::string &name) override;

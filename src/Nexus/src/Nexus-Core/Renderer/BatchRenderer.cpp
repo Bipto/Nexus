@@ -365,7 +365,7 @@ namespace Nexus::Graphics
 		textureSpec.Format						   = PixelFormat::R8_G8_B8_A8_UNorm;
 		textureSpec.Usage						   = Graphics::TextureUsage_Sampled;
 		m_BlankTexture							   = Ref<Texture>(m_Device->CreateTexture(textureSpec));
-		m_Device->WriteToTexture(m_BlankTexture.get(), 0, 0, 0, 0, 0, 1, 1, &textureData, sizeof(textureData));
+		m_Device->WriteToTexture(m_BlankTexture, 0, 0, 0, 0, 0, 1, 1, &textureData, sizeof(textureData));
 
 		Nexus::Ref<Nexus::Graphics::ShaderModule> vertexModule = device->GetOrCreateCachedShaderFromSpirvSource(s_BatchVertexShaderSource,
 																												"Batch Renderer - Vertex Shader",
@@ -436,8 +436,8 @@ namespace Nexus::Graphics
 		m_UniformUploadBuffer->SetData(&camera, 0, sizeof(camera));
 
 		Nexus::Graphics::BufferCopyDescription bufferCopy = {};
-		bufferCopy.Source								  = m_UniformUploadBuffer.get();
-		bufferCopy.Destination							  = m_UniformBuffer.get();
+		bufferCopy.Source								  = m_UniformUploadBuffer;
+		bufferCopy.Destination							  = m_UniformBuffer;
 		bufferCopy.ReadOffset							  = 0;
 		bufferCopy.WriteOffset							  = 0;
 		bufferCopy.Size									  = sizeof(camera);
@@ -1131,7 +1131,7 @@ namespace Nexus::Graphics
 		info.IndexUploadBuffer->SetData(info.Indices.data(), 0, info.Indices.size() * sizeof(info.Indices[0]));
 
 		UniformBufferView uniformBufferView = {};
-		uniformBufferView.BufferHandle		= m_UniformBuffer.get();
+		uniformBufferView.BufferHandle		= m_UniformBuffer;
 		uniformBufferView.Offset			= 0;
 		uniformBufferView.Size				= m_UniformBuffer->GetDescription().SizeInBytes;
 		info.ResourceSet->WriteUniformBuffer(uniformBufferView, "MVP");
@@ -1154,8 +1154,8 @@ namespace Nexus::Graphics
 		// upload vertex data
 		{
 			BufferCopyDescription bufferCopy = {};
-			bufferCopy.Source				 = info.VertexUploadBuffer.get();
-			bufferCopy.Destination			 = info.VertexBuffer.get();
+			bufferCopy.Source				 = info.VertexUploadBuffer;
+			bufferCopy.Destination			 = info.VertexBuffer;
 			bufferCopy.ReadOffset			 = 0;
 			bufferCopy.WriteOffset			 = 0;
 			bufferCopy.Size					 = info.Vertices.size() * sizeof(info.Vertices[0]);
@@ -1165,8 +1165,8 @@ namespace Nexus::Graphics
 		// upload index data
 		{
 			BufferCopyDescription bufferCopy = {};
-			bufferCopy.Source				 = info.IndexUploadBuffer.get();
-			bufferCopy.Destination			 = info.IndexBuffer.get();
+			bufferCopy.Source				 = info.IndexUploadBuffer;
+			bufferCopy.Destination			 = info.IndexBuffer;
 			bufferCopy.ReadOffset			 = 0;
 			bufferCopy.WriteOffset			 = 0;
 			bufferCopy.Size					 = info.Indices.size() * sizeof(info.Indices[0]);
@@ -1180,12 +1180,12 @@ namespace Nexus::Graphics
 		m_CommandList->SetResourceSet(info.ResourceSet);
 
 		VertexBufferView vertexBufferView = {};
-		vertexBufferView.BufferHandle	  = info.VertexBuffer.get();
+		vertexBufferView.BufferHandle	  = info.VertexBuffer;
 		vertexBufferView.Offset			  = 0;
 		m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
 		IndexBufferView indexBufferView = {};
-		indexBufferView.BufferHandle	= info.IndexBuffer.get();
+		indexBufferView.BufferHandle	= info.IndexBuffer;
 		indexBufferView.Offset			= 0;
 		indexBufferView.BufferFormat	= Graphics::IndexBufferFormat::UInt32;
 		m_CommandList->SetIndexBuffer(indexBufferView);

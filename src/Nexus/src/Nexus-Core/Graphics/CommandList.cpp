@@ -104,7 +104,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::DrawIndirect(DeviceBuffer *indirectBuffer, uint32_t offset, uint32_t drawCount)
+	void CommandList::DrawIndirect(Ref<DeviceBuffer> indirectBuffer, uint32_t offset, uint32_t drawCount)
 	{
 		if (!m_Started)
 		{
@@ -120,7 +120,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::DrawIndexedIndirect(DeviceBuffer *indirectBuffer, uint32_t offset, uint32_t drawCount)
+	void CommandList::DrawIndexedIndirect(Ref<DeviceBuffer> indirectBuffer, uint32_t offset, uint32_t drawCount)
 	{
 		if (!m_Started)
 		{
@@ -152,7 +152,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::DispatchIndirect(DeviceBuffer *indirectBuffer, uint32_t offset)
+	void CommandList::DispatchIndirect(Ref<DeviceBuffer> indirectBuffer, uint32_t offset)
 	{
 		if (!m_Started)
 		{
@@ -244,7 +244,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(scissor);
 	}
 
-	void CommandList::ResolveFramebuffer(Ref<Framebuffer> source, uint32_t sourceIndex, Swapchain *target)
+	void CommandList::ResolveFramebuffer(Ref<Framebuffer> source, uint32_t sourceIndex, Ref<Swapchain> target)
 	{
 		if (!m_Started)
 		{

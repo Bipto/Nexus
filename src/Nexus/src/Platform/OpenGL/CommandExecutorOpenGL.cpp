@@ -155,7 +155,7 @@ namespace Nexus::Graphics
 			Ref<Pipeline> pipeline = m_CurrentlyBoundPipeline.value();
 			if (pipeline->GetType() == PipelineType::Graphics)
 			{
-				DeviceBufferOpenGL *indirectBuffer = (DeviceBufferOpenGL *)command.IndirectBuffer;
+				Ref<DeviceBufferOpenGL> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.IndirectBuffer);
 				glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetBufferHandle());
 
 				ExecuteGraphicsCommand(std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline),
@@ -239,11 +239,14 @@ namespace Nexus::Graphics
 		pipeline->Bind();
 		BindResourceSet(m_BoundResourceSet);
 
-		DeviceBufferOpenGL *indirectBuffer = (DeviceBufferOpenGL *)command.IndirectBuffer;
-		glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, indirectBuffer->GetBufferHandle());
-		glDispatchComputeIndirect(command.Offset);
-		glMemoryBarrier(GL_ALL_BARRIER_BITS);
-		glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, 0);
+		if (Ref<DeviceBuffer> buffer = command.IndirectBuffer.lock())
+		{
+			Ref<DeviceBufferOpenGL> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(buffer);
+			glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, indirectBuffer->GetBufferHandle());
+			glDispatchComputeIndirect(command.Offset);
+			glMemoryBarrier(GL_ALL_BARRIER_BITS);
+			glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, 0);
+		}
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)
@@ -356,7 +359,7 @@ namespace Nexus::Graphics
 		}
 
 		Ref<FramebufferOpenGL> framebuffer = std::dynamic_pointer_cast<FramebufferOpenGL>(command.Source.lock());
-		SwapchainOpenGL		  *swapchain   = (SwapchainOpenGL *)command.Target;
+		Ref<SwapchainOpenGL>   swapchain   = std::dynamic_pointer_cast<SwapchainOpenGL>(command.Target.lock());
 
 		framebuffer->BindAsReadBuffer(command.SourceIndex);
 		swapchain->BindAsDrawTarget();
@@ -453,8 +456,8 @@ namespace Nexus::Graphics
 
 	void CommandExecutorOpenGL::ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device)
 	{
-		DeviceBufferOpenGL *src = (DeviceBufferOpenGL *)command.BufferCopy.Source;
-		DeviceBufferOpenGL *dst = (DeviceBufferOpenGL *)command.BufferCopy.Destination;
+		Ref<DeviceBufferOpenGL> src = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.BufferCopy.Source);
+		Ref<DeviceBufferOpenGL> dst = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.BufferCopy.Destination);
 
 		glBindBuffer(GL_COPY_READ_BUFFER, src->GetBufferHandle());
 		glBindBuffer(GL_COPY_WRITE_BUFFER, dst->GetBufferHandle());
@@ -471,26 +474,26 @@ namespace Nexus::Graphics
 
 	void CommandExecutorOpenGL::ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device)
 	{
-		DeviceBufferOpenGL *buffer		  = (DeviceBufferOpenGL *)command.BufferTextureCopy.BufferHandle;
-		TextureOpenGL	   *textureOpenGL = (TextureOpenGL *)command.BufferTextureCopy.TextureHandle;
+		Ref<DeviceBufferOpenGL> buffer		  = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.BufferTextureCopy.BufferHandle);
+		Ref<TextureOpenGL>		textureOpenGL = std::dynamic_pointer_cast<TextureOpenGL>(command.BufferTextureCopy.TextureHandle);
 
-		const BufferTextureCopyDescription &copyDesc = command.BufferTextureCopy;
-		textureOpenGL->CopyDataFromBuffer(buffer, copyDesc.BufferOffset, command.BufferTextureCopy.TextureSubresource);
+		GraphicsDeviceOpenGL *deviceGL = (GraphicsDeviceOpenGL *)device;
+		deviceGL->CopyBufferToTexture(textureOpenGL, buffer, command.BufferTextureCopy.BufferOffset, command.BufferTextureCopy.TextureSubresource);
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const CopyTextureToBufferCommand &command, GraphicsDevice *device)
 	{
-		DeviceBufferOpenGL *buffer		  = (DeviceBufferOpenGL *)command.TextureBufferCopy.BufferHandle;
-		TextureOpenGL	   *textureOpenGL = (TextureOpenGL *)command.TextureBufferCopy.TextureHandle;
+		Ref<DeviceBufferOpenGL> buffer		  = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.TextureBufferCopy.BufferHandle);
+		Ref<TextureOpenGL>		textureOpenGL = std::dynamic_pointer_cast<TextureOpenGL>(command.TextureBufferCopy.TextureHandle);
 
-		const BufferTextureCopyDescription &copyDesc = command.TextureBufferCopy;
-		textureOpenGL->CopyDataToBuffer(buffer, copyDesc.BufferOffset, copyDesc.TextureSubresource);
+		GraphicsDeviceOpenGL *deviceGL = (GraphicsDeviceOpenGL *)device;
+		deviceGL->CopyTextureToBuffer(textureOpenGL, buffer, command.TextureBufferCopy.BufferOffset, command.TextureBufferCopy.TextureSubresource);
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const CopyTextureToTextureCommand &command, GraphicsDevice *device)
 	{
-		TextureOpenGL				 *sourceTexture = (TextureOpenGL *)command.TextureCopy.Source;
-		TextureOpenGL				 *destTexture	= (TextureOpenGL *)command.TextureCopy.Destination;
+		Ref<TextureOpenGL>			  sourceTexture = std::dynamic_pointer_cast<TextureOpenGL>(command.TextureCopy.Source);
+		Ref<TextureOpenGL>			  destTexture	= std::dynamic_pointer_cast<TextureOpenGL>(command.TextureCopy.Destination);
 		const TextureCopyDescription &copyDesc		= command.TextureCopy;
 
 		GLenum srcGlAspect		 = GL::GetGLImageAspect(command.TextureCopy.SourceSubresource.Aspect);
@@ -599,7 +602,7 @@ namespace Nexus::Graphics
 		GLuint uniformBufferSlot = 0;
 		for (const auto [name, uniformBufferView] : uniformBufferBindings)
 		{
-			DeviceBufferOpenGL *uniformBufferGL = (DeviceBufferOpenGL *)uniformBufferView.BufferHandle;
+			Ref<DeviceBufferOpenGL> uniformBufferGL = std::dynamic_pointer_cast<DeviceBufferOpenGL>(uniformBufferView.BufferHandle.lock());
 
 			GLint location = glGetUniformBlockIndex(pipeline->GetShaderHandle(), name.c_str());
 

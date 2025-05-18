@@ -168,7 +168,7 @@ namespace Nexus::Graphics
 		m_DefaultTexture						   = Ref<Texture>(m_Device->CreateTexture(textureSpec));
 
 		uint32_t colour = 0xFFFFFFFF;
-		m_Device->WriteToTexture(m_DefaultTexture.get(), 0, 0, 0, 0, 0, 1, 1, &colour, sizeof(colour));
+		m_Device->WriteToTexture(m_DefaultTexture, 0, 0, 0, 0, 0, 1, 1, &colour, sizeof(colour));
 	}
 
 	Renderer3D::~Renderer3D()
@@ -256,7 +256,7 @@ namespace Nexus::Graphics
 			m_CommandList->SetPipeline(m_CubemapPipeline);
 
 			UniformBufferView uniformBufferView = {};
-			uniformBufferView.BufferHandle		= m_CubemapUniformBuffer.get();
+			uniformBufferView.BufferHandle		= m_CubemapUniformBuffer;
 			uniformBufferView.Offset			= 0;
 			uniformBufferView.Size				= m_CubemapUniformBuffer->GetDescription().SizeInBytes;
 			m_CubemapResourceSet->WriteUniformBuffer(uniformBufferView, "Camera");
@@ -266,13 +266,13 @@ namespace Nexus::Graphics
 
 			Ref<DeviceBuffer> vertexBuffer	   = m_Cube->GetVertexBuffer();
 			VertexBufferView  vertexBufferView = {};
-			vertexBufferView.BufferHandle	   = vertexBuffer.get();
+			vertexBufferView.BufferHandle	   = vertexBuffer;
 			vertexBufferView.Offset			   = 0;
 			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
 			Ref<DeviceBuffer> indexBuffer	  = m_Cube->GetIndexBuffer();
 			IndexBufferView	  indexBufferView = {};
-			indexBufferView.BufferHandle	  = indexBuffer.get();
+			indexBufferView.BufferHandle	  = indexBuffer;
 			indexBufferView.Offset			  = 0;
 			indexBufferView.BufferFormat	  = Graphics::IndexBufferFormat::UInt32;
 			m_CommandList->SetIndexBuffer(indexBufferView);
@@ -352,13 +352,13 @@ namespace Nexus::Graphics
 			m_CommandList->SetPipeline(m_ModelPipeline);
 
 			UniformBufferView modelCameraUniformView = {};
-			modelCameraUniformView.BufferHandle		 = m_ModelCameraUniformBuffer.get();
+			modelCameraUniformView.BufferHandle		 = m_ModelCameraUniformBuffer;
 			modelCameraUniformView.Offset			 = 0;
 			modelCameraUniformView.Size				 = m_ModelCameraUniformBuffer->GetDescription().SizeInBytes;
 			m_ModelResourceSet->WriteUniformBuffer(modelCameraUniformView, "Camera");
 
 			UniformBufferView modelTransformUniformView = {};
-			modelTransformUniformView.BufferHandle		= m_ModelTransformUniformBuffer.get();
+			modelTransformUniformView.BufferHandle		= m_ModelTransformUniformBuffer;
 			modelTransformUniformView.Offset			= 0;
 			modelTransformUniformView.Size				= m_ModelTransformUniformBuffer->GetDescription().SizeInBytes;
 			m_ModelResourceSet->WriteUniformBuffer(modelTransformUniformView, "Transform");
@@ -367,13 +367,13 @@ namespace Nexus::Graphics
 
 			Ref<DeviceBuffer> vertexBuffer	   = mesh->GetVertexBuffer();
 			VertexBufferView  vertexBufferView = {};
-			vertexBufferView.BufferHandle	   = vertexBuffer.get();
+			vertexBufferView.BufferHandle	   = vertexBuffer;
 			vertexBufferView.Offset			   = 0;
 			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
 			Ref<DeviceBuffer> indexBuffer	  = mesh->GetIndexBuffer();
 			IndexBufferView	  indexBufferView = {};
-			indexBufferView.BufferHandle	  = indexBuffer.get();
+			indexBufferView.BufferHandle	  = indexBuffer;
 			indexBufferView.Offset			  = 0;
 			indexBufferView.BufferFormat	  = Graphics::IndexBufferFormat::UInt32;
 			m_CommandList->SetIndexBuffer(indexBufferView);

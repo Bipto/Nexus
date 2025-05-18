@@ -101,6 +101,10 @@ namespace Nexus::Graphics
 					const auto &framebufferSpec = fb->GetFramebufferSpecification();
 					return {framebufferSpec.Width, framebufferSpec.Height};
 				}
+				else
+				{
+					return 0;
+				}
 			}
 		}
 

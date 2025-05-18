@@ -64,7 +64,7 @@ namespace Demos
 
 			m_CommandList->SetPipeline(m_ComputePipeline);
 			m_CommandList->SetResourceSet(m_ResourceSet);
-			m_CommandList->DispatchIndirect(m_IndirectBuffer.get(), 0);
+			m_CommandList->DispatchIndirect(m_IndirectBuffer, 0);
 
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(Nexus::GetApplication()->GetPrimarySwapchain()));
 

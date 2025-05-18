@@ -62,7 +62,7 @@ namespace Demos
 			m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 
 			Nexus::Graphics::VertexBufferView vertexBufferView = {};
-			vertexBufferView.BufferHandle					   = m_VertexBuffer.get();
+			vertexBufferView.BufferHandle					   = m_VertexBuffer;
 			vertexBufferView.Offset							   = 0;
 			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 

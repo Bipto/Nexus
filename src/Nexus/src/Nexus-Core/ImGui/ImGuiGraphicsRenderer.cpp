@@ -119,13 +119,7 @@ namespace Nexus::ImGuiUtils
 
 	ImGuiGraphicsRenderer::~ImGuiGraphicsRenderer()
 	{
-		if (s_ImGuiRenderer == this)
-		{
-			s_ImGuiRenderer = nullptr;
-		}
-
-		m_Textures.clear();
-		m_ResourceSets.clear();
+		ImGui::Shutdown();
 	}
 
 	void ImGuiGraphicsRenderer::CreateTextPipeline()
@@ -222,7 +216,7 @@ namespace Nexus::ImGuiUtils
 		spec.Format							= Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
 		spec.Usage							= Graphics::TextureUsage_Sampled;
 		m_FontTexture						= m_GraphicsDevice->CreateTexture(spec);
-		m_GraphicsDevice->WriteToTexture(m_FontTexture.get(), 0, 0, 0, 0, 0, width, height, pixels, bufferSize);
+		m_GraphicsDevice->WriteToTexture(m_FontTexture, 0, 0, 0, 0, 0, width, height, pixels, bufferSize);
 
 		UnbindTexture(m_FontTextureID);
 
@@ -603,7 +597,7 @@ namespace Nexus::ImGuiUtils
 			if (Ref<Graphics::Texture> texture = textureRef.lock())
 			{
 				Graphics::UniformBufferView uniformBufferView = {};
-				uniformBufferView.BufferHandle				  = m_UniformBuffer.get();
+				uniformBufferView.BufferHandle				  = m_UniformBuffer;
 				uniformBufferView.Offset					  = 0;
 				uniformBufferView.Size						  = m_UniformBuffer->GetDescription().SizeInBytes;
 				resourceSet->WriteUniformBuffer(uniformBufferView, "MVP");
@@ -637,12 +631,12 @@ namespace Nexus::ImGuiUtils
 					m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(info->Swapchain));
 
 					Graphics::VertexBufferView vertexBufferView = {};
-					vertexBufferView.BufferHandle				= m_VertexBuffer.get();
+					vertexBufferView.BufferHandle				= m_VertexBuffer;
 					vertexBufferView.Offset						= 0;
 					m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
 					Graphics::IndexBufferView indexBufferView = {};
-					indexBufferView.BufferHandle			  = m_IndexBuffer.get();
+					indexBufferView.BufferHandle			  = m_IndexBuffer;
 					indexBufferView.Offset					  = 0;
 					indexBufferView.BufferFormat			  = Graphics::IndexBufferFormat::UInt16;
 					m_CommandList->SetIndexBuffer(indexBufferView);
@@ -768,10 +762,11 @@ namespace Nexus::ImGuiUtils
 
 			Nexus::Graphics::SwapchainSpecification swapchainSpec = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification();
 
-			Nexus::IWindow			   *window	  = Platform::CreatePlatformWindow(windowSpec);
+			Nexus::IWindow *window = Platform::CreatePlatformWindow(windowSpec);
+			window->SetWindowPosition(vp->Pos.x, vp->Pos.y);
+
 			Ref<Nexus::Graphics::Swapchain> swapchain = app->GetGraphicsDevice()->CreateSwapchain(window, swapchainSpec);
 			swapchain->Initialise();
-			window->SetWindowPosition(vp->Pos.x, vp->Pos.y);
 
 			ImGuiWindowInfo *info = new ImGuiWindowInfo();
 			info->Window		  = window;
@@ -788,6 +783,11 @@ namespace Nexus::ImGuiUtils
 			if (vp->PlatformUserData && vp->RendererUserData)
 			{
 				ImGuiWindowInfo *info = (ImGuiWindowInfo *)vp->PlatformUserData;
+
+				if (info->Window != Nexus::GetApplication()->GetPrimaryWindow())
+				{
+					info->Window->Close();
+				}
 				delete info;
 
 				vp->PlatformUserData = nullptr;

@@ -72,7 +72,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		DeviceBufferVk *vertexBufferVk	= (DeviceBufferVk *)command.View.BufferHandle;
+		Ref<DeviceBufferVk> vertexBufferVk	= std::dynamic_pointer_cast<DeviceBufferVk>(command.View.BufferHandle.lock());
 		VkBuffer		vertexBuffers[] = {vertexBufferVk->GetVkBuffer()};
 		VkDeviceSize	offsets[]		= {command.View.Offset};
 		vkCmdBindVertexBuffers(m_CommandBuffer, command.Slot, 1, vertexBuffers, offsets);
@@ -84,7 +84,8 @@ namespace Nexus::Graphics
 		{
 			return;
 		}
-		DeviceBufferVk *indexBufferVk	  = (DeviceBufferVk *)command.View.BufferHandle;
+
+		Ref<DeviceBufferVk> indexBufferVk	  = std::dynamic_pointer_cast<DeviceBufferVk>(command.View.BufferHandle.lock());
 		VkBuffer		indexBufferHandle = indexBufferVk->GetVkBuffer();
 		VkIndexType		indexType		  = Vk::GetVulkanIndexBufferFormat(command.View.BufferFormat);
 		vkCmdBindIndexBuffer(m_CommandBuffer, indexBufferHandle, 0, indexType);
@@ -130,7 +131,7 @@ namespace Nexus::Graphics
 		{
 			return;
 		}
-		DeviceBufferVk *indirectBuffer = (DeviceBufferVk *)command.IndirectBuffer;
+		Ref<DeviceBufferVk> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferVk>(command.IndirectBuffer);
 
 		vkCmdDrawIndirect(m_CommandBuffer,
 						  indirectBuffer->GetVkBuffer(),
@@ -145,7 +146,7 @@ namespace Nexus::Graphics
 		{
 			return;
 		}
-		DeviceBufferVk *indirectBuffer = (DeviceBufferVk *)command.IndirectBuffer;
+		Ref<DeviceBufferVk> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferVk>(command.IndirectBuffer);
 
 		vkCmdDrawIndexedIndirect(m_CommandBuffer,
 								 indirectBuffer->GetVkBuffer(),
@@ -171,17 +172,15 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		DeviceBufferVk *indirectBuffer = (DeviceBufferVk *)command.IndirectBuffer;
-
-		vkCmdDispatchIndirect(m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset);
+		if (Ref<DeviceBuffer> buffer = command.IndirectBuffer.lock())
+		{
+			Ref<DeviceBufferVk> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferVk>(buffer);
+			vkCmdDispatchIndirect(m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset);
+		}
 	}
 
 	void CommandExecutorVk::ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)
 	{
-		/* auto pipeline	   = std::dynamic_pointer_cast<PipelineVk>(m_CurrentlyBoundPipeline);
-		auto resourceSetVk = std::dynamic_pointer_cast<ResourceSetVk>(command);
-		pipeline->SetResourceSet(m_CommandBuffer, resourceSetVk.get()); */
-
 		WeakRef<Pipeline> pl = m_CurrentlyBoundPipeline.lock();
 		if (auto pipeline = pl.lock())
 		{
@@ -319,7 +318,7 @@ namespace Nexus::Graphics
 		StopRendering();
 
 		auto framebufferVk = std::dynamic_pointer_cast<FramebufferVk>(command.Source.lock());
-		auto swapchainVk   = (SwapchainVk *)command.Target;
+		auto swapchainVk   = std::dynamic_pointer_cast<SwapchainVk>(command.Target.lock());
 
 		VkImage framebufferImage = framebufferVk->GetVulkanColorTexture(command.SourceIndex)->GetImage();
 		VkImage swapchainImage	 = swapchainVk->GetColourImage();
@@ -486,8 +485,8 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device)
 	{
-		DeviceBufferVk *src = (DeviceBufferVk *)command.BufferCopy.Source;
-		DeviceBufferVk *dst = (DeviceBufferVk *)command.BufferCopy.Destination;
+		Ref<DeviceBufferVk> src = std::dynamic_pointer_cast<DeviceBufferVk>(command.BufferCopy.Source);
+		Ref<DeviceBufferVk> dst = std::dynamic_pointer_cast<DeviceBufferVk>(command.BufferCopy.Destination);
 
 		VkBufferCopy bufferCopy = {};
 		bufferCopy.srcOffset	= command.BufferCopy.ReadOffset;
@@ -500,8 +499,8 @@ namespace Nexus::Graphics
 	void CommandExecutorVk::ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device)
 	{
 		GraphicsDeviceVk	 *deviceVk	  = (GraphicsDeviceVk *)device;
-		DeviceBufferVk		 *buffer	  = (DeviceBufferVk *)command.BufferTextureCopy.BufferHandle;
-		TextureVk			 *texture	  = (TextureVk *)command.BufferTextureCopy.TextureHandle;
+		Ref<DeviceBufferVk>	  buffer	  = std::dynamic_pointer_cast<DeviceBufferVk>(command.BufferTextureCopy.BufferHandle);
+		Ref<TextureVk>		  texture	  = std::dynamic_pointer_cast<TextureVk>(command.BufferTextureCopy.TextureHandle);
 		VkImageAspectFlagBits aspectFlags = Vk::GetAspectFlags(command.BufferTextureCopy.TextureSubresource.Aspect);
 
 		std::map<uint32_t, VkImageLayout> previousLayouts;
@@ -560,8 +559,8 @@ namespace Nexus::Graphics
 	void CommandExecutorVk::ExecuteCommand(const CopyTextureToBufferCommand &command, GraphicsDevice *device)
 	{
 		GraphicsDeviceVk	 *deviceVk	  = (GraphicsDeviceVk *)device;
-		DeviceBufferVk		 *buffer	  = (DeviceBufferVk *)command.TextureBufferCopy.BufferHandle;
-		TextureVk			 *texture	  = (TextureVk *)command.TextureBufferCopy.TextureHandle;
+		Ref<DeviceBufferVk>	  buffer	  = std::dynamic_pointer_cast<DeviceBufferVk>(command.TextureBufferCopy.BufferHandle);
+		Ref<TextureVk>		  texture	  = std::dynamic_pointer_cast<TextureVk>(command.TextureBufferCopy.TextureHandle);
 		VkImageAspectFlagBits aspectFlags = Vk::GetAspectFlags(command.TextureBufferCopy.TextureSubresource.Aspect);
 
 		std::map<uint32_t, VkImageLayout> previousLayouts;
@@ -620,8 +619,8 @@ namespace Nexus::Graphics
 	void CommandExecutorVk::ExecuteCommand(const CopyTextureToTextureCommand &command, GraphicsDevice *device)
 	{
 		GraphicsDeviceVk *deviceVk	 = (GraphicsDeviceVk *)device;
-		TextureVk		 *srcTexture = (TextureVk *)command.TextureCopy.Source;
-		TextureVk		 *dstTexture = (TextureVk *)command.TextureCopy.Destination;
+		Ref<TextureVk>	  srcTexture = std::dynamic_pointer_cast<TextureVk>(command.TextureCopy.Source);
+		Ref<TextureVk>	  dstTexture = std::dynamic_pointer_cast<TextureVk>(command.TextureCopy.Destination);
 
 		VkImageAspectFlagBits srcAspect = Vk::GetAspectFlags(command.TextureCopy.SourceSubresource.Aspect);
 		VkImageAspectFlagBits dstAspect = Vk::GetAspectFlags(command.TextureCopy.DestinationSubresource.Aspect);

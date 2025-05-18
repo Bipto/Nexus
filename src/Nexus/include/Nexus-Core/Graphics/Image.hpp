@@ -18,7 +18,7 @@ namespace Nexus::Graphics
 		void FlipVertically();
 
 		static Image FromTexture(GraphicsDevice *device,
-								 Texture		*texture,
+								 Ref<Texture>	 texture,
 								 uint32_t		 arrayLayer,
 								 uint32_t		 mipLevel,
 								 uint32_t		 x,

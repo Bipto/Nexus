@@ -63,6 +63,16 @@ namespace Nexus::Graphics
 		return m_TextureType;
 	}
 
+	GLenum TextureOpenGL::GetDataFormat()
+	{
+		return m_DataFormat;
+	}
+
+	GLenum TextureOpenGL::GetBaseType()
+	{
+		return m_BaseType;
+	}
+
 	void TextureOpenGL::CreateTextureFaces()
 	{
 		switch (m_GLInternalTextureFormat)
@@ -103,120 +113,6 @@ namespace Nexus::Graphics
 												 GL_TRUE));
 				break;
 		}
-	}
-
-	void TextureOpenGL::CopyDataFromBuffer(DeviceBufferOpenGL *buffer, uint32_t bufferOffset, SubresourceDescription subresource)
-	{
-		NX_ASSERT(m_Specification.Samples == 1, "Cannot set data in a multisampled texture");
-
-		if (subresource.Depth > 1)
-		{
-			NX_ASSERT(m_Specification.Type == TextureType::Texture3D,
-					  "Attempting to set data in a multi-layer texture, but texture is not multi layer");
-		}
-
-		glCall(glBindTexture(m_TextureType, m_Handle));
-		glCall(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, buffer->GetBufferHandle()));
-
-		GLenum	 glAspect = GL::GetGLImageAspect(subresource.Aspect);
-		uint32_t bufferSize =
-			(subresource.Width - subresource.X) * (subresource.Height - subresource.Y) * (uint32_t)GetPixelFormatSizeInBytes(m_Specification.Format);
-
-		switch (m_GLInternalTextureFormat)
-		{
-			case GL::GLInternalTextureFormat::Texture1D:
-				glCall(glTexSubImage1D(m_TextureType,
-									   subresource.MipLevel,
-									   subresource.X,
-									   subresource.Width,
-									   m_DataFormat,
-									   m_BaseType,
-									   (const void *)(uint64_t)bufferOffset));
-				break;
-			case GL::GLInternalTextureFormat::Texture1DArray:
-			case GL::GLInternalTextureFormat::Texture2D:
-			case GL::GLInternalTextureFormat::Texture2DMultisample:
-				glCall(glTexSubImage2D(m_TextureType,
-									   subresource.MipLevel,
-									   subresource.X,
-									   subresource.Y,
-									   subresource.Width,
-									   subresource.Height,
-									   m_DataFormat,
-									   m_BaseType,
-									   (const void *)(uint64_t)bufferOffset));
-				break;
-			case GL::GLInternalTextureFormat::Cubemap:
-				glCall(glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + subresource.ArrayLayer,
-									   subresource.MipLevel,
-									   subresource.X,
-									   subresource.Y,
-									   subresource.Width,
-									   subresource.Height,
-									   m_DataFormat,
-									   m_BaseType,
-									   (const void *)(uint64_t)bufferOffset));
-				break;
-			case GL::GLInternalTextureFormat::Texture2DArray:
-			case GL::GLInternalTextureFormat::CubemapArray:
-			case GL::GLInternalTextureFormat::Texture3D:
-			case GL::GLInternalTextureFormat::Texture2DArrayMultisample:
-				glCall(glTexSubImage3D(m_TextureType,
-									   subresource.MipLevel,
-									   subresource.X,
-									   subresource.Y,
-									   subresource.ArrayLayer,
-									   subresource.Width,
-									   subresource.Height,
-									   subresource.Depth,
-									   m_DataFormat,
-									   m_BaseType,
-									   (const void *)(uint64_t)bufferOffset));
-				break;
-		}
-
-		glCall(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0));
-		glCall(glBindTexture(m_TextureType, 0));
-	}
-
-	void TextureOpenGL::CopyDataToBuffer(DeviceBufferOpenGL *buffer, uint32_t bufferOffset, SubresourceDescription subresource)
-	{
-		size_t layerSize =
-			(subresource.Width - subresource.X) * (subresource.Height - subresource.Y) * GetPixelFormatSizeInBytes(m_Specification.Format);
-		size_t bufferSize = layerSize * subresource.Depth;
-		GLenum glAspect	  = GL::GetGLImageAspect(subresource.Aspect);
-
-		glBindBuffer(GL_PIXEL_PACK_BUFFER, buffer->GetBufferHandle());
-
-		for (uint32_t layer = subresource.Z; layer < subresource.Depth; layer++)
-		{
-			GLuint framebufferHandle = 0;
-			glCall(glGenFramebuffers(1, &framebufferHandle));
-			glCall(glBindFramebuffer(GL_FRAMEBUFFER, framebufferHandle));
-			GL::AttachTexture(framebufferHandle, this, subresource.MipLevel, layer, subresource.Aspect, 0);
-
-			GL::ValidateFramebuffer(framebufferHandle);
-
-			glCall(glReadBuffer(GL_COLOR_ATTACHMENT0));
-			glCall(glReadPixels(subresource.X,
-								subresource.Y,
-								subresource.Width,
-								subresource.Height,
-								m_DataFormat,
-								m_BaseType,
-								(void *)(uint64_t)bufferOffset));
-
-			glCall(glFlush());
-			glCall(glFinish());
-			glCall(glMemoryBarrier(GL_ALL_BARRIER_BITS));
-
-			glCall(glDeleteFramebuffers(1, &framebufferHandle));
-			bufferOffset += layerSize;
-		}
-
-		glCall(glMemoryBarrier(GL_ALL_BARRIER_BITS));
-		glCall(glBindTexture(m_TextureType, 0));
-		glCall(glBindBuffer(GL_PIXEL_PACK_BUFFER, 0));
 	}
 
 	GL::GLInternalTextureFormat TextureOpenGL::GetInternalGLTextureFormat() const

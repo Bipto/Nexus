@@ -88,7 +88,7 @@ namespace Demos
 			m_CommandList->ClearDepthTarget(clearDepth);
 
 			Nexus::Graphics::UniformBufferView cameraUniformBufferView = {};
-			cameraUniformBufferView.BufferHandle					   = m_CameraUniformBuffer.get();
+			cameraUniformBufferView.BufferHandle					   = m_CameraUniformBuffer;
 			cameraUniformBufferView.Offset							   = 0;
 			cameraUniformBufferView.Size							   = m_CameraUniformBuffer->GetDescription().SizeInBytes;
 			m_ResourceSet->WriteUniformBuffer(cameraUniformBufferView, "Camera");
@@ -97,12 +97,12 @@ namespace Demos
 			m_CommandList->SetResourceSet(m_ResourceSet);
 
 			Nexus::Graphics::VertexBufferView vertexBufferView = {};
-			vertexBufferView.BufferHandle					   = m_Cube->GetVertexBuffer().get();
+			vertexBufferView.BufferHandle					   = m_Cube->GetVertexBuffer();
 			vertexBufferView.Offset							   = 0;
 			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
 			Nexus::Graphics::IndexBufferView indexBufferView = {};
-			indexBufferView.BufferHandle					 = m_Cube->GetIndexBuffer().get();
+			indexBufferView.BufferHandle					 = m_Cube->GetIndexBuffer();
 			indexBufferView.Offset							 = 0;
 			indexBufferView.BufferFormat					 = Nexus::Graphics::IndexBufferFormat::UInt32;
 			m_CommandList->SetIndexBuffer(indexBufferView);

@@ -24,11 +24,6 @@ namespace Nexus::ImGuiUtils
 	{
 		Nexus::IWindow			   *Window	  = nullptr;
 		Ref<Nexus::Graphics::Swapchain> Swapchain = nullptr;
-
-		virtual ~ImGuiWindowInfo()
-		{
-			Window->Close();
-		}
 	};
 
 	class NX_API ImGuiGraphicsRenderer
@@ -76,7 +71,7 @@ namespace Nexus::ImGuiUtils
 		Nexus::Ref<Nexus::Graphics::ShaderModule> m_VertexShader   = nullptr;
 		Nexus::Ref<Nexus::Graphics::ShaderModule> m_FragmentShader = nullptr;
 
-		std::map<ImTextureID, Nexus::WeakRef<Nexus::Graphics::Texture>> m_Textures;
+		std::map<ImTextureID, Nexus::Ref<Nexus::Graphics::Texture>>		m_Textures;
 		std::map<ImTextureID, Nexus::Ref<Nexus::Graphics::ResourceSet>> m_ResourceSets;
 
 		Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler		 = nullptr;

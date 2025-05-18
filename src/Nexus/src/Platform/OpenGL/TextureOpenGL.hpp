@@ -19,10 +19,8 @@ namespace Nexus::Graphics
 		void	 Bind(uint32_t slot);
 		uint32_t GetHandle();
 		GLenum	 GetTextureType();
-
-		void CopyDataFromBuffer(DeviceBufferOpenGL *buffer, uint32_t bufferOffset, SubresourceDescription subresource);
-
-		void CopyDataToBuffer(DeviceBufferOpenGL *buffer, uint32_t bufferOffset, SubresourceDescription subresource);
+		GLenum	 GetDataFormat();
+		GLenum	 GetBaseType();
 
 		GL::GLInternalTextureFormat GetInternalGLTextureFormat() const;
 

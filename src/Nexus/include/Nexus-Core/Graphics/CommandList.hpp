@@ -16,11 +16,11 @@ namespace Nexus::Graphics
 {
 	struct BufferCopyDescription
 	{
-		DeviceBuffer *Source	  = nullptr;
-		DeviceBuffer *Destination = nullptr;
-		uint64_t	  ReadOffset  = 0;
-		uint64_t	  WriteOffset = 0;
-		uint64_t	  Size		  = 0;
+		Ref<DeviceBuffer> Source	  = nullptr;
+		Ref<DeviceBuffer> Destination = nullptr;
+		uint64_t		  ReadOffset  = 0;
+		uint64_t		  WriteOffset = 0;
+		uint64_t		  Size		  = 0;
 	};
 
 	enum class ImageAspect : uint16_t
@@ -33,29 +33,29 @@ namespace Nexus::Graphics
 
 	struct SubresourceDescription
 	{
-		uint32_t	X		 = 0;
-		uint32_t	Y		 = 0;
-		uint32_t	Z		 = 0;
-		uint32_t	Width	 = 0;
-		uint32_t	Height	 = 0;
-		uint32_t	Depth	 = 0;
-		uint32_t	MipLevel = 0;
+		uint32_t	X		   = 0;
+		uint32_t	Y		   = 0;
+		uint32_t	Z		   = 0;
+		uint32_t	Width	   = 0;
+		uint32_t	Height	   = 0;
+		uint32_t	Depth	   = 0;
+		uint32_t	MipLevel   = 0;
 		uint32_t	ArrayLayer = 0;
-		ImageAspect Aspect	 = ImageAspect::Colour;
+		ImageAspect Aspect	   = ImageAspect::Colour;
 	};
 
 	struct BufferTextureCopyDescription
 	{
-		DeviceBuffer		  *BufferHandle		  = nullptr;
-		Texture				  *TextureHandle	  = nullptr;
+		Ref<DeviceBuffer>	   BufferHandle		  = nullptr;
+		Ref<Texture>		   TextureHandle	  = nullptr;
 		uint64_t			   BufferOffset		  = 0;
 		SubresourceDescription TextureSubresource = {};
 	};
 
 	struct TextureCopyDescription
 	{
-		Texture				  *Source				  = nullptr;
-		Texture				  *Destination			  = nullptr;
+		Ref<Texture>		   Source				  = nullptr;
+		Ref<Texture>		   Destination			  = nullptr;
 		SubresourceDescription SourceSubresource	  = {};
 		SubresourceDescription DestinationSubresource = {};
 	};
@@ -128,16 +128,16 @@ namespace Nexus::Graphics
 
 	struct DrawIndirectCommand
 	{
-		DeviceBuffer *IndirectBuffer = nullptr;
-		uint32_t	  Offset		 = 0;
-		uint32_t	  DrawCount		 = 0;
+		Ref<DeviceBuffer> IndirectBuffer = nullptr;
+		uint32_t		  Offset		 = 0;
+		uint32_t		  DrawCount		 = 0;
 	};
 
 	struct DrawIndirectIndexedCommand
 	{
-		DeviceBuffer *IndirectBuffer = nullptr;
-		uint32_t	  Offset		 = 0;
-		uint32_t	  DrawCount		 = 0;
+		Ref<DeviceBuffer> IndirectBuffer = nullptr;
+		uint32_t		  Offset		 = 0;
+		uint32_t		  DrawCount		 = 0;
 	};
 
 	struct DispatchCommand
@@ -149,8 +149,8 @@ namespace Nexus::Graphics
 
 	struct DispatchIndirectCommand
 	{
-		DeviceBuffer *IndirectBuffer = nullptr;
-		uint32_t	  Offset		 = 0;
+		WeakRef<DeviceBuffer> IndirectBuffer = {};
+		uint32_t			  Offset		 = 0;
 	};
 
 	struct ClearColorTargetCommand
@@ -168,7 +168,7 @@ namespace Nexus::Graphics
 	{
 		WeakRef<Framebuffer> Source		 = {};
 		uint32_t			 SourceIndex = {};
-		Swapchain			*Target		 = nullptr;
+		WeakRef<Swapchain>	 Target		 = {};
 	};
 
 	struct StartTimingQueryCommand
@@ -399,13 +399,13 @@ namespace Nexus::Graphics
 		/// at
 		void DrawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t indexStart, uint32_t instanceStart);
 
-		void DrawIndirect(DeviceBuffer *indirectBuffer, uint32_t offset, uint32_t drawCount);
+		void DrawIndirect(Ref<DeviceBuffer> indirectBuffer, uint32_t offset, uint32_t drawCount);
 
-		void DrawIndexedIndirect(DeviceBuffer *indirectBuffer, uint32_t offset, uint32_t drawCount);
+		void DrawIndexedIndirect(Ref<DeviceBuffer> indirectBuffer, uint32_t offset, uint32_t drawCount);
 
 		void Dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ);
 
-		void DispatchIndirect(DeviceBuffer *indirectBuffer, uint32_t offset);
+		void DispatchIndirect(Ref<DeviceBuffer> indirectBuffer, uint32_t offset);
 
 		/// @brief A method that updates the resources bound within a pipeline
 		/// @param resources A reference counted pointer to a ResourceSet
@@ -421,7 +421,7 @@ namespace Nexus::Graphics
 
 		void SetScissor(const Scissor &scissor);
 
-		void ResolveFramebuffer(Ref<Framebuffer> source, uint32_t sourceIndex, Swapchain *target);
+		void ResolveFramebuffer(Ref<Framebuffer> source, uint32_t sourceIndex, Ref<Swapchain> target);
 
 		void StartTimingQuery(Ref<TimingQuery> query);
 
