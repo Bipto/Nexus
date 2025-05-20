@@ -30,8 +30,6 @@ namespace Nexus::Graphics
 		std::vector<D3D12_RESOURCE_STATES> m_ResourceStates;
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC shaderResourceView = {};
-
-		inline static uint64_t s_TextureCount = 0;
 	};
 }	 // namespace Nexus::Graphics
 

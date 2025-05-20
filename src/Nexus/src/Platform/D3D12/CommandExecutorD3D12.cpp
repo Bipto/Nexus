@@ -119,8 +119,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		NX_ASSERT(command.IndirectBuffer->GetDescription().Type == DeviceBufferType::Indirect,
-				  "Buffer passed to DrawIndirect is not an indirect buffer");
+		NX_ASSERT(command.IndirectBuffer->CheckUsage(Graphics::BufferUsage::Indirect), "Buffer passed to DrawIndirect is not an indirect buffer");
 
 		if (m_CurrentlyBoundPipeline.value()->GetType() == PipelineType::Graphics)
 		{
@@ -139,8 +138,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		NX_ASSERT(command.IndirectBuffer->GetDescription().Type == DeviceBufferType::Indirect,
-				  "Buffer passed to DrawIndirect is not an indirect buffer");
+		NX_ASSERT(command.IndirectBuffer->CheckUsage(Graphics::BufferUsage::Indirect), "Buffer passed to DrawIndirect is not an indirect buffer");
 
 		if (m_CurrentlyBoundPipeline.value()->GetType() == PipelineType::Graphics)
 		{

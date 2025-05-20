@@ -21,8 +21,7 @@ namespace Nexus::Graphics
 
 	void DeviceBufferVk::SetData(const void *data, uint32_t offset, uint32_t size)
 	{
-		NX_ASSERT(m_BufferDescription.Type == DeviceBufferType::Upload || m_BufferDescription.HostVisible,
-				  "Buffer must be an upload buffer or have been created with the HostVisible property set");
+		NX_ASSERT(m_BufferDescription.Access == Graphics::BufferMemoryAccess::Upload, "Buffer must have been created with Upload access");
 
 		void *buffer;
 		vmaMapMemory(m_Device->GetAllocator(), m_Buffer.Allocation, &buffer);
@@ -36,8 +35,7 @@ namespace Nexus::Graphics
 
 	std::vector<char> DeviceBufferVk::GetData(uint32_t offset, uint32_t size) const
 	{
-		NX_ASSERT(m_BufferDescription.Type == DeviceBufferType::Readback || m_BufferDescription.HostVisible,
-				  "Buffer must be a readback buffer or have been created with the HostVisible property set");
+		NX_ASSERT(m_BufferDescription.Access == Graphics::BufferMemoryAccess::Readback, "Buffer must have been created with Readback access");
 
 		std::vector<char> data(size);
 

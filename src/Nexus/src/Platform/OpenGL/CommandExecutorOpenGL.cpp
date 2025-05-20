@@ -626,11 +626,23 @@ namespace Nexus::Graphics
 
 			if (location != -1)
 			{
-				TextureOpenGL *texture = (TextureOpenGL *)storageImageView.TextureHandle;
-				GLenum		   format  = GL::GetSizedInternalFormat(storageImageView.TextureHandle->GetSpecification().Format, false);
-				GLenum		   access  = GL::GetAccessMask(storageImageView.Access);
+				Ref<TextureOpenGL> texture = std::dynamic_pointer_cast<TextureOpenGL>(storageImageView.TextureHandle);
+				GLenum			   format  = GL::GetSizedInternalFormat(storageImageView.TextureHandle->GetSpecification().Format, false);
+				GLenum			   access  = GL::GetAccessMask(storageImageView.Access);
 
-				glCall(glBindImageTexture(location, texture->GetHandle(), storageImageView.Level, GL_FALSE, 0, access, format));
+				GLboolean layered = GL_FALSE;
+				if (texture->GetSpecification().ArrayLayers > 1)
+				{
+					layered = GL_TRUE;
+				}
+
+				glCall(glBindImageTexture(location,
+										  texture->GetHandle(),
+										  storageImageView.MipLevel,
+										  layered,
+										  storageImageView.ArrayLayer,
+										  access,
+										  format));
 			}
 		}
 	}

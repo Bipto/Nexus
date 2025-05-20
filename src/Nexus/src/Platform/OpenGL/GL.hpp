@@ -77,8 +77,7 @@ namespace Nexus::GL
 
 	GLenum GetShaderStage(Nexus::Graphics::ShaderStage stage);
 
-	GLenum GetBufferTarget(Graphics::DeviceBufferType type);
-	GLenum GetBufferUsage(Graphics::DeviceBufferType type);
+	GLenum GetBufferUsage(const Graphics::DeviceBufferDescription &desc);
 
 	GLenum GetAccessMask(Graphics::StorageImageAccess access);
 	GLenum GetTextureType(const Graphics::TextureSpecification &spec);

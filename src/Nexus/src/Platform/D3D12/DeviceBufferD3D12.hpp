@@ -19,12 +19,14 @@ namespace Nexus::Graphics
 		virtual const DeviceBufferDescription &GetDescription() const final;
 
 		Microsoft::WRL::ComPtr<ID3D12Resource2> GetHandle();
+		size_t									GetBufferSizeInBytes();
 
 	  private:
 		DeviceBufferDescription						m_BufferDescription = {};
 		Microsoft::WRL::ComPtr<ID3D12Resource2>		m_BufferHandle		= nullptr;
 		Microsoft::WRL::ComPtr<D3D12MA::Allocation> m_Allocation		= nullptr;
 		GraphicsDeviceD3D12						   *m_GraphicsDevice	= nullptr;
+		size_t										m_BufferSize		= 0;
 	};
 }	 // namespace Nexus::Graphics
 

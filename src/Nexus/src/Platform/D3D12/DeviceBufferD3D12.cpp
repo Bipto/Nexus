@@ -14,18 +14,18 @@ namespace Nexus::Graphics
 		D3D12MA::ALLOCATION_DESC allocationDesc = {};
 		allocationDesc.HeapType					= heapType;
 
-		uint32_t resourceSizeInBytes = desc.SizeInBytes;
+		m_BufferSize = desc.SizeInBytes;
 
 		// if the resource is a constant buffer, it needs to be aligned to 256 bytes
-		if (desc.Type == DeviceBufferType::Uniform)
+		if (desc.Usage & Graphics::BufferUsage::Uniform)
 		{
-			resourceSizeInBytes = Utils::AlignTo<uint32_t>(desc.SizeInBytes, 256);
+			m_BufferSize = Utils::AlignTo<size_t>(desc.SizeInBytes, 256);
 		}
 
 		D3D12_RESOURCE_DESC1 resourceDesc = {};
 		resourceDesc.Dimension			  = D3D12_RESOURCE_DIMENSION_BUFFER;
 		resourceDesc.Alignment			  = 0;
-		resourceDesc.Width				  = resourceSizeInBytes;
+		resourceDesc.Width				  = m_BufferSize;
 		resourceDesc.Height				  = 1;
 		resourceDesc.DepthOrArraySize	  = 1;
 		resourceDesc.MipLevels			  = 1;
@@ -55,8 +55,7 @@ namespace Nexus::Graphics
 
 	void DeviceBufferD3D12::SetData(const void *data, uint32_t offset, uint32_t size)
 	{
-		NX_ASSERT(m_BufferDescription.Type == DeviceBufferType::Upload || m_BufferDescription.HostVisible,
-				  "Buffer must be an upload buffer or have been created with the HostVisible property set");
+		NX_ASSERT(m_BufferDescription.Access == Graphics::BufferMemoryAccess::Upload, "Buffer must be created on with Upload access.");
 
 		D3D12_RANGE range = {};
 		range.Begin		  = 0;
@@ -73,8 +72,7 @@ namespace Nexus::Graphics
 
 	std::vector<char> DeviceBufferD3D12::GetData(uint32_t offset, uint32_t size) const
 	{
-		NX_ASSERT(m_BufferDescription.Type == DeviceBufferType::Readback || m_BufferDescription.HostVisible,
-				  "Buffer must be a readback buffer or have been created with the HostVisible property set");
+		NX_ASSERT(m_BufferDescription.Access == Graphics::BufferMemoryAccess::Readback, "Buffer must be created on with Readnack access.");
 		std::vector<char> data(size);
 
 		D3D12_RANGE range = {};
@@ -100,5 +98,10 @@ namespace Nexus::Graphics
 	Microsoft::WRL::ComPtr<ID3D12Resource2> DeviceBufferD3D12::GetHandle()
 	{
 		return m_BufferHandle;
+	}
+
+	size_t DeviceBufferD3D12::GetBufferSizeInBytes()
+	{
+		return m_BufferSize;
 	}
 }	 // namespace Nexus::Graphics

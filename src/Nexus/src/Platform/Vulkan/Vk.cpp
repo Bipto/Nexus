@@ -458,22 +458,34 @@ namespace Nexus::Vk
 
 	VkBufferUsageFlags GetVkBufferUsage(const Graphics::DeviceBufferDescription &desc)
 	{
-		switch (desc.Type)
+		VkBufferUsageFlags flags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+
+		if (desc.Usage & Graphics::BufferUsage::Vertex)
 		{
-			case Graphics::DeviceBufferType::Vertex:
-				return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-			case Graphics::DeviceBufferType::Index:
-				return VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-			case Graphics::DeviceBufferType::Uniform:
-				return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-			case Graphics::DeviceBufferType::Structured:
-				return VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-			case Graphics::DeviceBufferType::Upload: return VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-			case Graphics::DeviceBufferType::Readback: return VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-			case Graphics::DeviceBufferType::Indirect:
-				return VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-			default: throw std::runtime_error("Failed to find a valid VkBufferUsage");
+			flags |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 		}
+
+		if (desc.Usage & Graphics::BufferUsage::Index)
+		{
+			flags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+		}
+
+		if (desc.Usage & Graphics::BufferUsage::Uniform)
+		{
+			flags |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+		}
+
+		if (desc.Usage & Graphics::BufferUsage::Storage)
+		{
+			flags |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+		}
+
+		if (desc.Usage & Graphics::BufferUsage::Index)
+		{
+			flags |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
+		}
+
+		return flags;
 	}
 
 	VkBufferCreateInfo GetVkBufferCreateInfo(const Graphics::DeviceBufferDescription &desc)
@@ -492,7 +504,7 @@ namespace Nexus::Vk
 		VmaAllocationCreateInfo createInfo = {};
 		createInfo.usage				   = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE;
 
-		if (desc.Type == Graphics::DeviceBufferType::Upload || desc.Type == Graphics::DeviceBufferType::Readback || desc.HostVisible == true)
+		if (desc.Access == Graphics::BufferMemoryAccess::Upload || desc.Access == Graphics::BufferMemoryAccess::Readback)
 		{
 			createInfo.flags		 = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
 			createInfo.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;

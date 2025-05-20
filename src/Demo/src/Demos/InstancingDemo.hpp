@@ -42,17 +42,17 @@ namespace Demos
 				m_GraphicsDevice->CreateTexture2D(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/textures/raw_plank_wall_spec_1k.jpg"), true);
 
 			Nexus::Graphics::DeviceBufferDescription cameraUniformBufferDesc = {};
-			cameraUniformBufferDesc.Type									 = Nexus::Graphics::DeviceBufferType::Uniform;
+			cameraUniformBufferDesc.Access									 = Nexus::Graphics::BufferMemoryAccess::Upload;
+			cameraUniformBufferDesc.Usage									 = Nexus::Graphics::BufferUsage::Uniform;
 			cameraUniformBufferDesc.StrideInBytes							 = sizeof(VB_UNIFORM_CAMERA_DEMO_INSTANCING);
 			cameraUniformBufferDesc.SizeInBytes								 = sizeof(VB_UNIFORM_CAMERA_DEMO_INSTANCING);
-			cameraUniformBufferDesc.HostVisible								 = true;
 			m_CameraUniformBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(cameraUniformBufferDesc));
 
 			Nexus::Graphics::DeviceBufferDescription instanceBufferDesc = {};
-			instanceBufferDesc.Type										= Nexus::Graphics::DeviceBufferType::Vertex;
+			instanceBufferDesc.Access									= Nexus::Graphics::BufferMemoryAccess::Upload;
+			instanceBufferDesc.Usage									= Nexus::Graphics::BufferUsage::Vertex;
 			instanceBufferDesc.StrideInBytes							= sizeof(glm::mat4);
 			instanceBufferDesc.SizeInBytes								= m_InstanceCount * sizeof(glm::mat4);
-			instanceBufferDesc.HostVisible								= true;
 			m_InstanceBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(instanceBufferDesc));
 
 			std::vector<glm::mat4> mvps(m_InstanceCount);

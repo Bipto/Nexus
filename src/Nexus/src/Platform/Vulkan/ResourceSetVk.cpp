@@ -166,7 +166,7 @@ namespace Nexus::Graphics
 	{
 		if (Ref<DeviceBuffer> buffer = uniformBuffer.BufferHandle.lock())
 		{
-			NX_ASSERT(buffer->GetDescription().Type == DeviceBufferType::Uniform, "Attempting to bind a buffer that is not a uniform buffer");
+			NX_ASSERT(buffer->CheckUsage(Graphics::BufferUsage::Uniform), "Attempting to bind a buffer that is not a uniform buffer");
 
 			Ref<DeviceBufferVk> uniformBufferVk = std::dynamic_pointer_cast<DeviceBufferVk>(buffer);
 			const auto		   &descriptorSets	= m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
@@ -241,7 +241,7 @@ namespace Nexus::Graphics
 
 	void ResourceSetVk::WriteStorageImage(StorageImageView view, const std::string &name)
 	{
-		TextureVk	 *textureVk		 = (TextureVk *)view.TextureHandle;
+		Ref<TextureVk> textureVk	  = std::dynamic_pointer_cast<TextureVk>(view.TextureHandle);
 		const auto	 &descriptorSets = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
 
 		const BindingInfo &info = m_StorageImageBindingInfos.at(name);

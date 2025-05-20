@@ -28,20 +28,20 @@ namespace Demos
 			};
 
 			Nexus::Graphics::DeviceBufferDescription vertexBufferDesc = {};
-			vertexBufferDesc.Type									  = Nexus::Graphics::DeviceBufferType::Vertex;
+			vertexBufferDesc.Access									  = Nexus::Graphics::BufferMemoryAccess::Upload;
+			vertexBufferDesc.Usage									  = Nexus::Graphics::BufferUsage::Vertex;
 			vertexBufferDesc.StrideInBytes							  = sizeof(Nexus::Graphics::VertexPosition);
 			vertexBufferDesc.SizeInBytes							  = vertices.size() * sizeof(Nexus::Graphics::VertexPosition);
-			vertexBufferDesc.HostVisible							  = true;
 			m_VertexBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc));
 			m_VertexBuffer->SetData(vertices.data(), 0, vertices.size() * sizeof(Nexus::Graphics::VertexPosition));
 
 			std::vector<uint32_t> indices = {0, 1, 2};
 
 			Nexus::Graphics::DeviceBufferDescription indexBufferDesc = {};
-			indexBufferDesc.Type									 = Nexus::Graphics::DeviceBufferType::Index;
+			indexBufferDesc.Access									 = Nexus::Graphics::BufferMemoryAccess::Upload;
+			indexBufferDesc.Usage									 = Nexus::Graphics::BufferUsage::Index;
 			indexBufferDesc.StrideInBytes							 = sizeof(uint32_t);
 			indexBufferDesc.SizeInBytes								 = indices.size() * sizeof(uint32_t);
-			indexBufferDesc.HostVisible								 = true;
 			m_IndexBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(indexBufferDesc));
 			m_IndexBuffer->SetData(indices.data(), 0, indices.size() * sizeof(uint32_t));
 
@@ -53,10 +53,10 @@ namespace Demos
 			args.InstanceCount								   = 1;
 
 			Nexus::Graphics::DeviceBufferDescription indirectBufferDesc = {};
-			indirectBufferDesc.Type										= Nexus::Graphics::DeviceBufferType::Indirect;
+			indirectBufferDesc.Access									= Nexus::Graphics::BufferMemoryAccess::Upload;
+			indirectBufferDesc.Usage									= Nexus::Graphics::BufferUsage::Indirect;
 			indirectBufferDesc.StrideInBytes							= sizeof(Nexus::Graphics::IndirectIndexedDrawArguments);
 			indirectBufferDesc.SizeInBytes								= sizeof(Nexus::Graphics::IndirectIndexedDrawArguments);
-			indirectBufferDesc.HostVisible								= true;
 			m_IndirectBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(indirectBufferDesc));
 			m_IndirectBuffer->SetData(&args, 0, sizeof(args));
 		}

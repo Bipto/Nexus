@@ -157,56 +157,56 @@ namespace Nexus::D3D12
 	{
 		switch (element.Type)
 		{
-			case Nexus::Graphics::ShaderDataType::Byte: return DXGI_FORMAT_R8_UINT; break;
-			case Nexus::Graphics::ShaderDataType::Byte2: return DXGI_FORMAT_R8G8_UINT; break;
-			case Nexus::Graphics::ShaderDataType::Byte4: return DXGI_FORMAT_R8G8B8A8_UINT; break;
+			case Nexus::Graphics::ShaderDataType::Byte: return DXGI_FORMAT_R8_UINT;
+			case Nexus::Graphics::ShaderDataType::Byte2: return DXGI_FORMAT_R8G8_UINT;
+			case Nexus::Graphics::ShaderDataType::Byte4: return DXGI_FORMAT_R8G8B8A8_UINT;
 
-			case Nexus::Graphics::ShaderDataType::NormByte: return DXGI_FORMAT_R8_UNORM; break;
-			case Nexus::Graphics::ShaderDataType::NormByte2: return DXGI_FORMAT_R8G8_UNORM; break;
-			case Nexus::Graphics::ShaderDataType::NormByte4: return DXGI_FORMAT_R8G8B8A8_UNORM; break;
+			case Nexus::Graphics::ShaderDataType::NormByte: return DXGI_FORMAT_R8_UNORM;
+			case Nexus::Graphics::ShaderDataType::NormByte2: return DXGI_FORMAT_R8G8_UNORM;
+			case Nexus::Graphics::ShaderDataType::NormByte4: return DXGI_FORMAT_R8G8B8A8_UNORM;
 
-			case Nexus::Graphics::ShaderDataType::Float: return DXGI_FORMAT_R32_FLOAT; break;
-			case Nexus::Graphics::ShaderDataType::Float2: return DXGI_FORMAT_R32G32_FLOAT; break;
-			case Nexus::Graphics::ShaderDataType::Float3: return DXGI_FORMAT_R32G32B32_FLOAT; break;
-			case Nexus::Graphics::ShaderDataType::Float4: return DXGI_FORMAT_R32G32B32A32_FLOAT; break;
+			case Nexus::Graphics::ShaderDataType::Float: return DXGI_FORMAT_R32_FLOAT;
+			case Nexus::Graphics::ShaderDataType::Float2: return DXGI_FORMAT_R32G32_FLOAT;
+			case Nexus::Graphics::ShaderDataType::Float3: return DXGI_FORMAT_R32G32B32_FLOAT;
+			case Nexus::Graphics::ShaderDataType::Float4: return DXGI_FORMAT_R32G32B32A32_FLOAT;
 
-			case Nexus::Graphics::ShaderDataType::Half: return DXGI_FORMAT_R16_FLOAT; break;
-			case Nexus::Graphics::ShaderDataType::Half2: return DXGI_FORMAT_R16G16_FLOAT; break;
-			case Nexus::Graphics::ShaderDataType::Half4: return DXGI_FORMAT_R16G16B16A16_FLOAT; break;
+			case Nexus::Graphics::ShaderDataType::Half: return DXGI_FORMAT_R16_FLOAT;
+			case Nexus::Graphics::ShaderDataType::Half2: return DXGI_FORMAT_R16G16_FLOAT;
+			case Nexus::Graphics::ShaderDataType::Half4: return DXGI_FORMAT_R16G16B16A16_FLOAT;
 
-			case Nexus::Graphics::ShaderDataType::Int: return DXGI_FORMAT_R32_SINT; break;
-			case Nexus::Graphics::ShaderDataType::Int2: return DXGI_FORMAT_R32G32_SINT; break;
-			case Nexus::Graphics::ShaderDataType::Int3: return DXGI_FORMAT_R32G32B32_SINT; break;
-			case Nexus::Graphics::ShaderDataType::Int4: return DXGI_FORMAT_R32G32B32A32_SINT; break;
+			case Nexus::Graphics::ShaderDataType::Int: return DXGI_FORMAT_R32_SINT;
+			case Nexus::Graphics::ShaderDataType::Int2: return DXGI_FORMAT_R32G32_SINT;
+			case Nexus::Graphics::ShaderDataType::Int3: return DXGI_FORMAT_R32G32B32_SINT;
+			case Nexus::Graphics::ShaderDataType::Int4: return DXGI_FORMAT_R32G32B32A32_SINT;
 
-			case Nexus::Graphics::ShaderDataType::SignedByte: return DXGI_FORMAT_R8_SNORM; break;
-			case Nexus::Graphics::ShaderDataType::SignedByte2: return DXGI_FORMAT_R8G8_SNORM; break;
-			case Nexus::Graphics::ShaderDataType::SignedByte4: return DXGI_FORMAT_R8G8B8A8_SNORM; break;
+			case Nexus::Graphics::ShaderDataType::SignedByte: return DXGI_FORMAT_R8_SNORM;
+			case Nexus::Graphics::ShaderDataType::SignedByte2: return DXGI_FORMAT_R8G8_SNORM;
+			case Nexus::Graphics::ShaderDataType::SignedByte4: return DXGI_FORMAT_R8G8B8A8_SNORM;
 
-			case Nexus::Graphics::ShaderDataType::SignedByteNormalized: return DXGI_FORMAT_R8_SNORM; break;
-			case Nexus::Graphics::ShaderDataType::SignedByte2Normalized: return DXGI_FORMAT_R8G8_SNORM; break;
-			case Nexus::Graphics::ShaderDataType::SignedByte4Normalized: return DXGI_FORMAT_R8G8B8A8_SNORM; break;
+			case Nexus::Graphics::ShaderDataType::SignedByteNormalized: return DXGI_FORMAT_R8_SNORM;
+			case Nexus::Graphics::ShaderDataType::SignedByte2Normalized: return DXGI_FORMAT_R8G8_SNORM;
+			case Nexus::Graphics::ShaderDataType::SignedByte4Normalized: return DXGI_FORMAT_R8G8B8A8_SNORM;
 
-			case Nexus::Graphics::ShaderDataType::Short: return DXGI_FORMAT_R16_UINT; break;
-			case Nexus::Graphics::ShaderDataType::Short2: return DXGI_FORMAT_R16G16_UINT; break;
-			case Nexus::Graphics::ShaderDataType::Short4: return DXGI_FORMAT_R16G16B16A16_UINT; break;
+			case Nexus::Graphics::ShaderDataType::Short: return DXGI_FORMAT_R16_UINT;
+			case Nexus::Graphics::ShaderDataType::Short2: return DXGI_FORMAT_R16G16_UINT;
+			case Nexus::Graphics::ShaderDataType::Short4: return DXGI_FORMAT_R16G16B16A16_UINT;
 
-			case Nexus::Graphics::ShaderDataType::ShortNormalized: return DXGI_FORMAT_R16_SNORM; break;
-			case Nexus::Graphics::ShaderDataType::Short2Normalized: return DXGI_FORMAT_R16G16_SNORM; break;
-			case Nexus::Graphics::ShaderDataType::Short4Normalized: return DXGI_FORMAT_R16G16B16A16_SNORM; break;
+			case Nexus::Graphics::ShaderDataType::ShortNormalized: return DXGI_FORMAT_R16_SNORM;
+			case Nexus::Graphics::ShaderDataType::Short2Normalized: return DXGI_FORMAT_R16G16_SNORM;
+			case Nexus::Graphics::ShaderDataType::Short4Normalized: return DXGI_FORMAT_R16G16B16A16_SNORM;
 
-			case Nexus::Graphics::ShaderDataType::UInt: return DXGI_FORMAT_R32_UINT; break;
-			case Nexus::Graphics::ShaderDataType::UInt2: return DXGI_FORMAT_R32G32_UINT; break;
-			case Nexus::Graphics::ShaderDataType::UInt3: return DXGI_FORMAT_R32G32B32_UINT; break;
-			case Nexus::Graphics::ShaderDataType::UInt4: return DXGI_FORMAT_R32G32B32A32_UINT; break;
+			case Nexus::Graphics::ShaderDataType::UInt: return DXGI_FORMAT_R32_UINT;
+			case Nexus::Graphics::ShaderDataType::UInt2: return DXGI_FORMAT_R32G32_UINT;
+			case Nexus::Graphics::ShaderDataType::UInt3: return DXGI_FORMAT_R32G32B32_UINT;
+			case Nexus::Graphics::ShaderDataType::UInt4: return DXGI_FORMAT_R32G32B32A32_UINT;
 
-			case Nexus::Graphics::ShaderDataType::UShort: return DXGI_FORMAT_R16_UINT; break;
-			case Nexus::Graphics::ShaderDataType::UShort2: return DXGI_FORMAT_R16G16_UINT; break;
-			case Nexus::Graphics::ShaderDataType::UShort4: return DXGI_FORMAT_R16G16B16A16_UINT; break;
+			case Nexus::Graphics::ShaderDataType::UShort: return DXGI_FORMAT_R16_UINT;
+			case Nexus::Graphics::ShaderDataType::UShort2: return DXGI_FORMAT_R16G16_UINT;
+			case Nexus::Graphics::ShaderDataType::UShort4: return DXGI_FORMAT_R16G16B16A16_UINT;
 
-			case Nexus::Graphics::ShaderDataType::UShortNormalized: return DXGI_FORMAT_R16_UNORM; break;
-			case Nexus::Graphics::ShaderDataType::UShort2Normalized: return DXGI_FORMAT_R16G16_UNORM; break;
-			case Nexus::Graphics::ShaderDataType::UShort4Normalized: return DXGI_FORMAT_R16G16B16A16_UNORM; break;
+			case Nexus::Graphics::ShaderDataType::UShortNormalized: return DXGI_FORMAT_R16_UNORM;
+			case Nexus::Graphics::ShaderDataType::UShort2Normalized: return DXGI_FORMAT_R16G16_UNORM;
+			case Nexus::Graphics::ShaderDataType::UShort4Normalized: return DXGI_FORMAT_R16G16B16A16_UNORM;
 			default: throw std::runtime_error("Failed to find valid vertex buffer element type");
 		}
 	}
@@ -215,15 +215,15 @@ namespace Nexus::D3D12
 	{
 		switch (filter)
 		{
-			case Nexus::Graphics::SamplerFilter::Anisotropic: D3D12_FILTER_ANISOTROPIC; break;
-			case Nexus::Graphics::SamplerFilter::MinPoint_MagPoint_MipPoint: return D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT; break;
-			case Nexus::Graphics::SamplerFilter::MinPoint_MagPoint_MipLinear: return D3D12_FILTER_MIN_MAG_POINT_MIP_LINEAR; break;
-			case Nexus::Graphics::SamplerFilter::MinPoint_MagLinear_MipPoint: return D3D12_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT; break;
-			case Nexus::Graphics::SamplerFilter::MinPoint_MagLinear_MipLinear: return D3D12_FILTER_MIN_POINT_MAG_MIP_LINEAR; break;
-			case Nexus::Graphics::SamplerFilter::MinLinear_MagPoint_MipPoint: return D3D12_FILTER_MIN_LINEAR_MAG_MIP_POINT; break;
-			case Nexus::Graphics::SamplerFilter::MinLinear_MagPoint_MipLinear: return D3D12_FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR; break;
-			case Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipPoint: return D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT; break;
-			case Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipLinear: return D3D12_FILTER_MIN_MAG_MIP_LINEAR; break;
+			case Nexus::Graphics::SamplerFilter::Anisotropic: return D3D12_FILTER_ANISOTROPIC;
+			case Nexus::Graphics::SamplerFilter::MinPoint_MagPoint_MipPoint: return D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+			case Nexus::Graphics::SamplerFilter::MinPoint_MagPoint_MipLinear: return D3D12_FILTER_MIN_MAG_POINT_MIP_LINEAR;
+			case Nexus::Graphics::SamplerFilter::MinPoint_MagLinear_MipPoint: return D3D12_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT;
+			case Nexus::Graphics::SamplerFilter::MinPoint_MagLinear_MipLinear: return D3D12_FILTER_MIN_POINT_MAG_MIP_LINEAR;
+			case Nexus::Graphics::SamplerFilter::MinLinear_MagPoint_MipPoint: return D3D12_FILTER_MIN_LINEAR_MAG_MIP_POINT;
+			case Nexus::Graphics::SamplerFilter::MinLinear_MagPoint_MipLinear: return D3D12_FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR;
+			case Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipPoint: return D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+			case Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipLinear: return D3D12_FILTER_MIN_MAG_MIP_LINEAR;
 
 			default: throw std::runtime_error("Failed to find a valid filter");
 		}
@@ -236,11 +236,11 @@ namespace Nexus::D3D12
 	{
 		switch (addressMode)
 		{
-			case Nexus::Graphics::SamplerAddressMode::Border: return D3D12_TEXTURE_ADDRESS_MODE_BORDER; break;
-			case Nexus::Graphics::SamplerAddressMode::Clamp: return D3D12_TEXTURE_ADDRESS_MODE_CLAMP; break;
-			case Nexus::Graphics::SamplerAddressMode::Mirror: return D3D12_TEXTURE_ADDRESS_MODE_MIRROR; break;
-			case Nexus::Graphics::SamplerAddressMode::MirrorOnce: return D3D12_TEXTURE_ADDRESS_MODE_MIRROR_ONCE; break;
-			case Nexus::Graphics::SamplerAddressMode::Wrap: return D3D12_TEXTURE_ADDRESS_MODE_WRAP; break;
+			case Nexus::Graphics::SamplerAddressMode::Border: return D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+			case Nexus::Graphics::SamplerAddressMode::Clamp: return D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+			case Nexus::Graphics::SamplerAddressMode::Mirror: return D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+			case Nexus::Graphics::SamplerAddressMode::MirrorOnce: return D3D12_TEXTURE_ADDRESS_MODE_MIRROR_ONCE;
+			case Nexus::Graphics::SamplerAddressMode::Wrap: return D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 			default: throw std::runtime_error("Failed to find a valid sampler address mode");
 		}
 	}
@@ -261,29 +261,23 @@ namespace Nexus::D3D12
 	{
 		switch (topology)
 		{
-			case Nexus::Graphics::Topology::LineList: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE; break;
-			case Nexus::Graphics::Topology::LineStrip: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE; break;
-			case Nexus::Graphics::Topology::PointList: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT; break;
-			case Nexus::Graphics::Topology::TriangleList: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE; break;
-			case Nexus::Graphics::Topology::TriangleStrip: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE; break;
+			case Nexus::Graphics::Topology::LineList: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+			case Nexus::Graphics::Topology::LineStrip: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+			case Nexus::Graphics::Topology::PointList: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+			case Nexus::Graphics::Topology::TriangleList: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+			case Nexus::Graphics::Topology::TriangleStrip: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 			default: throw std::runtime_error("Could not find a valid topology");
 		}
 	}
 
 	D3D12_HEAP_TYPE GetHeapType(const Graphics::DeviceBufferDescription &desc)
 	{
-		switch (desc.Type)
+		switch (desc.Access)
 		{
-			case Graphics::DeviceBufferType::Upload: return D3D12_HEAP_TYPE_UPLOAD;
-			case Graphics::DeviceBufferType::Readback: return D3D12_HEAP_TYPE_READBACK;
-			default:
-			{
-				if (desc.HostVisible)
-				{
-					return D3D12_HEAP_TYPE_UPLOAD;
-				}
-				return D3D12_HEAP_TYPE_DEFAULT;
-			}
+			case Graphics::BufferMemoryAccess::Upload: return D3D12_HEAP_TYPE_UPLOAD;
+			case Graphics::BufferMemoryAccess::Default: return D3D12_HEAP_TYPE_DEFAULT;
+			case Graphics::BufferMemoryAccess::Readback: return D3D12_HEAP_TYPE_READBACK;
+			default: throw std::runtime_error("Failed to find a valid heap type");
 		}
 	}
 
@@ -395,7 +389,7 @@ namespace Nexus::D3D12
 					srvDesc.ViewDimension				   = D3D12_SRV_DIMENSION_TEXTURE1DARRAY;
 					srvDesc.Texture1DArray.MipLevels	   = spec.MipLevels;
 					srvDesc.Texture1DArray.MostDetailedMip = 0;
-					srvDesc.Texture1DArray.FirstArraySlice = 0;
+					srvDesc.Texture1DArray.FirstArraySlice = spec.Depth;
 					srvDesc.Texture1DArray.ArraySize	   = spec.ArrayLayers;
 				}
 				else
@@ -419,7 +413,7 @@ namespace Nexus::D3D12
 					else
 					{
 						srvDesc.ViewDimension					  = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
-						srvDesc.TextureCubeArray.First2DArrayFace = 0;
+						srvDesc.TextureCubeArray.First2DArrayFace = spec.Depth;
 						srvDesc.TextureCubeArray.NumCubes		  = spec.ArrayLayers / 6;
 						srvDesc.TextureCubeArray.MostDetailedMip  = 0;
 						srvDesc.TextureCubeArray.MipLevels		  = spec.MipLevels;
@@ -432,14 +426,14 @@ namespace Nexus::D3D12
 						if (spec.Samples > 1)
 						{
 							srvDesc.ViewDimension					 = D3D12_SRV_DIMENSION_TEXTURE2DMSARRAY;
-							srvDesc.Texture2DMSArray.FirstArraySlice = 0;
+							srvDesc.Texture2DMSArray.FirstArraySlice = spec.Depth;
 							srvDesc.Texture2DMSArray.ArraySize		 = spec.ArrayLayers;
 						}
 						else
 						{
 							srvDesc.ViewDimension				   = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
 							srvDesc.Texture2DArray.MostDetailedMip = 0;
-							srvDesc.Texture2DArray.FirstArraySlice = 0;
+							srvDesc.Texture2DArray.FirstArraySlice = spec.Depth;
 							srvDesc.Texture2DArray.ArraySize	   = spec.ArrayLayers;
 							srvDesc.Texture2DArray.MipLevels	   = spec.MipLevels;
 						}
@@ -473,6 +467,65 @@ namespace Nexus::D3D12
 		}
 
 		return srvDesc;
+	}
+
+	D3D12_UNORDERED_ACCESS_VIEW_DESC CreateTextureUavView(const Graphics::StorageImageView &view)
+	{
+		D3D12_UNORDERED_ACCESS_VIEW_DESC uav = {};
+
+		Ref<Graphics::Texture>				  texture = view.TextureHandle;
+		const Graphics::TextureSpecification &spec	  = texture->GetSpecification();
+		uav.Format									  = D3D12::GetD3D12PixelFormat(spec.Format, false);
+
+		switch (spec.Type)
+		{
+			case Graphics::TextureType::Texture1D:
+				if (spec.ArrayLayers > 1)
+				{
+					uav.ViewDimension	   = D3D12_UAV_DIMENSION_TEXTURE1D;
+					uav.Texture1D.MipSlice = view.MipLevel;
+				}
+				else
+				{
+					uav.ViewDimension				   = D3D12_UAV_DIMENSION_TEXTURE1DARRAY;
+					uav.Texture1DArray.FirstArraySlice = view.ArrayLayer;
+					uav.Texture1DArray.ArraySize	   = 1;
+					uav.Texture1DArray.MipSlice		   = view.MipLevel;
+				}
+				break;
+
+			case Graphics::TextureType::Texture2D:
+			{
+				if (spec.ArrayLayers > 1)
+				{
+					uav.ViewDimension				   = D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
+					uav.Texture2DArray.FirstArraySlice = view.ArrayLayer;
+					uav.Texture2DArray.ArraySize	   = 1;
+					uav.Texture2DArray.MipSlice		   = view.MipLevel;
+					uav.Texture2DArray.PlaneSlice	   = 0;
+				}
+				else
+				{
+					uav.ViewDimension		 = D3D12_UAV_DIMENSION_TEXTURE2D;
+					uav.Texture2D.MipSlice	 = view.MipLevel;
+					uav.Texture2D.PlaneSlice = 0;
+				}
+
+				break;
+			}
+			case Graphics::TextureType::Texture3D:
+			{
+				uav.ViewDimension		  = D3D12_UAV_DIMENSION_TEXTURE3D;
+				uav.Texture3D.MipSlice	  = view.MipLevel;
+				uav.Texture3D.FirstWSlice = view.ArrayLayer;
+				uav.Texture3D.WSize		  = 1;
+
+				break;
+			}
+			default: throw std::runtime_error("Failed to find a valid TextureType");
+		}
+
+		return uav;
 	}
 }	 // namespace Nexus::D3D12
 #endif

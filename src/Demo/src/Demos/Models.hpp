@@ -38,17 +38,17 @@ namespace Demos
 			m_Model = factory.CreateFrom3DModelFile(Nexus::FileSystem::GetFilePathAbsolute("resources/demo/models/The Boss/The Boss.dae"));
 
 			Nexus::Graphics::DeviceBufferDescription cameraUniformBufferDesc = {};
-			cameraUniformBufferDesc.Type									 = Nexus::Graphics::DeviceBufferType::Uniform;
+			cameraUniformBufferDesc.Access									 = Nexus::Graphics::BufferMemoryAccess::Upload;
+			cameraUniformBufferDesc.Usage									 = Nexus::Graphics::BufferUsage::Uniform;
 			cameraUniformBufferDesc.StrideInBytes							 = sizeof(VB_UNIFORM_CAMERA_DEMO_LIGHTING);
 			cameraUniformBufferDesc.SizeInBytes								 = sizeof(VB_UNIFORM_CAMERA_DEMO_LIGHTING);
-			cameraUniformBufferDesc.HostVisible								 = true;
 			m_CameraUniformBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(cameraUniformBufferDesc));
 
 			Nexus::Graphics::DeviceBufferDescription transformUniformBufferDesc = {};
-			transformUniformBufferDesc.Type										= Nexus::Graphics::DeviceBufferType::Uniform;
+			transformUniformBufferDesc.Access									= Nexus::Graphics::BufferMemoryAccess::Upload;
+			transformUniformBufferDesc.Usage									= Nexus::Graphics::BufferUsage::Uniform;
 			transformUniformBufferDesc.StrideInBytes							= sizeof(VB_UNIFORM_TRANSFORM_DEMO_LIGHTING);
 			transformUniformBufferDesc.SizeInBytes								= sizeof(VB_UNIFORM_TRANSFORM_DEMO_LIGHTING);
-			transformUniformBufferDesc.HostVisible								= true;
 			m_TransformUniformBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc));
 
 			CreatePipeline();

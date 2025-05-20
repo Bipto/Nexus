@@ -140,10 +140,10 @@ namespace Nexus::Graphics
 		VB_UNIFORM_HDRI_PROCESSOR_CAMERA cameraUniforms;
 
 		Nexus::Graphics::DeviceBufferDescription cameraUniformBufferDesc = {};
-		cameraUniformBufferDesc.Type									 = Nexus::Graphics::DeviceBufferType::Uniform;
+		cameraUniformBufferDesc.Access									 = BufferMemoryAccess::Upload;
+		cameraUniformBufferDesc.Usage									 = Nexus::Graphics::BufferUsage::Uniform;
 		cameraUniformBufferDesc.StrideInBytes							 = sizeof(VB_UNIFORM_HDRI_PROCESSOR_CAMERA);
 		cameraUniformBufferDesc.SizeInBytes								 = sizeof(VB_UNIFORM_HDRI_PROCESSOR_CAMERA);
-		cameraUniformBufferDesc.HostVisible								 = true;
 		Ref<DeviceBuffer> uniformBuffer									 = Ref<DeviceBuffer>(m_Device->CreateDeviceBuffer(cameraUniformBufferDesc));
 
 		for (uint32_t i = 0; i < 6; i++)

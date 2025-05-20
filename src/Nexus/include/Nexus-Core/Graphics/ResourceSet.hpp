@@ -70,8 +70,9 @@ namespace Nexus::Graphics
 
 	struct StorageImageView
 	{
-		Texture			  *TextureHandle = nullptr;
-		uint32_t		   Level		 = 0;
+		Ref<Texture>	   TextureHandle = nullptr;
+		uint32_t		   ArrayLayer	 = 0;
+		uint32_t		   MipLevel		 = 0;
 		StorageImageAccess Access		 = StorageImageAccess::Read;
 	};
 

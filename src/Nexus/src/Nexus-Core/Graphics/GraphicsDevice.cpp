@@ -105,7 +105,8 @@ namespace Nexus::Graphics
 										size_t		 size)
 	{
 		DeviceBufferDescription bufferDesc = {};
-		bufferDesc.Type					   = DeviceBufferType::Upload;
+		bufferDesc.Access					  = BufferMemoryAccess::Upload;
+		bufferDesc.Usage					  = BUFFER_USAGE_NONE;
 		bufferDesc.SizeInBytes			   = size;
 		bufferDesc.StrideInBytes			  = size;
 		Ref<DeviceBuffer>			  buffer  = CreateDeviceBuffer(bufferDesc);
@@ -149,11 +150,12 @@ namespace Nexus::Graphics
 		size_t bufferSize = width * height * GetPixelFormatSizeInBytes(texture->GetSpecification().Format);
 
 		DeviceBufferDescription bufferDesc = {};
-		bufferDesc.Type					   = DeviceBufferType::Readback;
+		bufferDesc.Access				   = BufferMemoryAccess::Readback;
+		bufferDesc.Usage				   = BUFFER_USAGE_NONE;
 		bufferDesc.SizeInBytes			   = bufferSize;
 		bufferDesc.StrideInBytes		   = bufferSize;
 
-		Ref<DeviceBuffer>			  buffer  = Ref<DeviceBuffer>(CreateDeviceBuffer(bufferDesc));
+		Ref<DeviceBuffer>			  buffer  = CreateDeviceBuffer(bufferDesc);
 		Ref<CommandList>			  cmdList = CreateCommandList();
 
 		cmdList->Begin();

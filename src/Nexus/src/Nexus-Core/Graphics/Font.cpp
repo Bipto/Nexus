@@ -146,7 +146,8 @@ namespace Nexus::Graphics
 		m_Texture = Ref<Texture>(device->CreateTexture(textureSpec));
 
 		DeviceBufferDescription bufferDesc	 = {};
-		bufferDesc.Type						 = DeviceBufferType::Upload;
+		bufferDesc.Access					 = BufferMemoryAccess::Upload;
+		bufferDesc.Usage					 = BUFFER_USAGE_NONE;
 		bufferDesc.SizeInBytes				 = pixels.GetSizeInBytes();
 		bufferDesc.StrideInBytes			 = pixels.GetSizeInBytes();
 		Ref<DeviceBuffer> buffer			 = device->CreateDeviceBuffer(bufferDesc);

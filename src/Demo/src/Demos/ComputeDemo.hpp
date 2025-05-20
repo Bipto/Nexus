@@ -42,8 +42,8 @@ namespace Demos
 		virtual void Render(Nexus::TimeSpan time) override
 		{
 			Nexus::Graphics::StorageImageView storageImageView = {};
-			storageImageView.TextureHandle					   = m_Texture.get();
-			storageImageView.Level							   = 0;
+			storageImageView.TextureHandle					   = m_Texture;
+			storageImageView.MipLevel						   = 0;
 			storageImageView.Access							   = Nexus::Graphics::StorageImageAccess::ReadWrite;
 			m_ResourceSet->WriteStorageImage(storageImageView, "out_tex");
 

@@ -3,19 +3,10 @@
 #include "Nexus-Core/Vertex.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
+#include "Nexus-Core/Utils/Utils.hpp"
+
 namespace Nexus::Graphics
 {
-	enum class DeviceBufferType
-	{
-		Vertex,
-		Index,
-		Uniform,
-		Structured,
-		Upload,
-		Readback,
-		Indirect
-	};
-
 	enum class IndexBufferFormat
 	{
 		UInt16,
@@ -32,19 +23,43 @@ namespace Nexus::Graphics
 		}
 	}
 
+	enum class BufferMemoryAccess
+	{
+		/// @brief The buffer memory is accessible to the CPU and GPU and is optimized for transferring from CPU to GPU. Can also be used to read back
+		/// data, although this may not be as optimized as with Readback.
+		Upload,
+
+		/// @brief The buffer memory is resident on the GPU and is inaccessible to the CPU. Recommended for most resources.
+		Default,
+
+		/// @brief The buffer memory is accessible to the CPU and GPU, however it is an error to attempt to write to this memory with the CPU.
+		Readback
+	};
+
+#define BUFFER_USAGE_NONE 0
+
+	enum BufferUsage : uint8_t
+	{
+		Vertex	 = BIT(0),
+		Index	 = BIT(1),
+		Uniform	 = BIT(2),
+		Storage	 = BIT(3),
+		Indirect = BIT(4)
+	};
+
 	struct DeviceBufferDescription
 	{
-		/// @brief The type of buffer to create
-		DeviceBufferType Type = DeviceBufferType::Upload;
+		/// @brief The accessibility of the buffer
+		BufferMemoryAccess Access = BufferMemoryAccess::Default;
+
+		/// @brief How the buffer is able to be used
+		uint8_t Usage = 0;
 
 		/// @brief The full size of the buffer in bytes
-		uint32_t SizeInBytes = 0;
+		size_t SizeInBytes = 0;
 
 		/// @brief The stride of each item in the buffer in bytes
-		uint32_t StrideInBytes = 0;
-
-		/// @brief Whether the CPU is able to directly read and write data to the buffer without first using an upload/readback buffer
-		bool HostVisible = false;
+		size_t StrideInBytes = 0;
 	};
 
 	class DeviceBuffer
@@ -67,13 +82,19 @@ namespace Nexus::Graphics
 		bool IsWriteable() const
 		{
 			const DeviceBufferDescription &description = GetDescription();
-			return description.Type == DeviceBufferType::Upload || description.HostVisible == true;
+			return description.Access == BufferMemoryAccess::Upload;
 		}
 
 		bool IsReadable() const
 		{
 			const DeviceBufferDescription &description = GetDescription();
-			return description.Type == DeviceBufferType::Upload || description.Type == DeviceBufferType::Readback || description.HostVisible == true;
+			return description.Access == BufferMemoryAccess::Upload || description.Access == BufferMemoryAccess::Readback;
+		}
+
+		bool CheckUsage(BufferUsage usage) const
+		{
+			const DeviceBufferDescription &description = GetDescription();
+			return description.Usage & usage;
 		}
 	};
 

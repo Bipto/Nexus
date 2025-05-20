@@ -444,10 +444,10 @@ namespace Nexus::Graphics
 		m_CubemapResourceSet = m_Device->CreateResourceSet(m_CubemapPipeline);
 
 		DeviceBufferDescription cubemapBufferDesc = {};
-		cubemapBufferDesc.Type					  = DeviceBufferType::Uniform;
+		cubemapBufferDesc.Access				  = Graphics::BufferMemoryAccess::Upload;
+		cubemapBufferDesc.Usage					  = Graphics::BufferUsage::Uniform;
 		cubemapBufferDesc.StrideInBytes			  = sizeof(CubemapCameraUniforms);
 		cubemapBufferDesc.SizeInBytes			  = sizeof(CubemapCameraUniforms);
-		cubemapBufferDesc.HostVisible			  = true;
 		m_CubemapUniformBuffer					  = Ref<DeviceBuffer>(m_Device->CreateDeviceBuffer(cubemapBufferDesc));
 
 		Nexus::Graphics::SamplerSpecification samplerSpec = {};
@@ -494,20 +494,20 @@ namespace Nexus::Graphics
 		// model camera
 		{
 			DeviceBufferDescription cameraBufferDesc = {};
-			cameraBufferDesc.Type					 = DeviceBufferType::Uniform;
+			cameraBufferDesc.Access					 = Graphics::BufferMemoryAccess::Upload;
+			cameraBufferDesc.Usage					 = Graphics::BufferUsage::Uniform;
 			cameraBufferDesc.StrideInBytes			 = sizeof(ModelCameraUniforms);
 			cameraBufferDesc.SizeInBytes			 = sizeof(ModelCameraUniforms);
-			cameraBufferDesc.HostVisible			 = true;
 			m_ModelCameraUniformBuffer				 = Ref<DeviceBuffer>(m_Device->CreateDeviceBuffer(cameraBufferDesc));
 		}
 
 		// model transform
 		{
 			DeviceBufferDescription transformBufferDesc = {};
-			transformBufferDesc.Type					= DeviceBufferType::Uniform;
+			transformBufferDesc.Access					= Graphics::BufferMemoryAccess::Upload;
+			transformBufferDesc.Usage					= Graphics::BufferUsage::Uniform;
 			transformBufferDesc.StrideInBytes			= sizeof(ModelTransformUniforms);
 			transformBufferDesc.SizeInBytes				= sizeof(ModelTransformUniforms);
-			transformBufferDesc.HostVisible				= true;
 			m_ModelTransformUniformBuffer				= Ref<DeviceBuffer>(m_Device->CreateDeviceBuffer(transformBufferDesc));
 		}
 

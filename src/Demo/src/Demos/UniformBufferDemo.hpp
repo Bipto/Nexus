@@ -110,10 +110,10 @@ namespace Demos
 																	   Nexus::Graphics::ShaderStage::Fragment);
 
 			Nexus::Graphics::DeviceBufferDescription transformUniformBufferDesc = {};
-			transformUniformBufferDesc.Type										= Nexus::Graphics::DeviceBufferType::Uniform;
+			transformUniformBufferDesc.Access									= Nexus::Graphics::BufferMemoryAccess::Upload;
+			transformUniformBufferDesc.Usage									= Nexus::Graphics::BufferUsage::Uniform;
 			transformUniformBufferDesc.StrideInBytes							= sizeof(VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO);
 			transformUniformBufferDesc.SizeInBytes								= sizeof(VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO);
-			transformUniformBufferDesc.HostVisible								= true;
 			m_TransformUniformBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc));
 
 			pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Transform", 0, 0}};

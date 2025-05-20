@@ -396,35 +396,14 @@ namespace Nexus::GL
 		}
 	}
 
-	GLenum GetBufferTarget(Graphics::DeviceBufferType type)
+	GLenum GetBufferUsage(const Graphics::DeviceBufferDescription &desc)
 	{
-		switch (type)
+		switch (desc.Access)
 		{
-			case Graphics::DeviceBufferType::Vertex: return GL_ARRAY_BUFFER;
-			case Graphics::DeviceBufferType::Index: return GL_ELEMENT_ARRAY_BUFFER;
-			case Graphics::DeviceBufferType::Uniform: return GL_UNIFORM_BUFFER;
-			case Graphics::DeviceBufferType::Structured: return GL_SHADER_STORAGE_BUFFER;
-			case Graphics::DeviceBufferType::Upload: return GL_COPY_READ_BUFFER;
-			case Graphics::DeviceBufferType::Readback: return GL_COPY_WRITE_BUFFER;
-			case Graphics::DeviceBufferType::Indirect: return GL_DRAW_INDIRECT_BUFFER;
-
-			default: throw std::runtime_error("Failed to find valid buffer usage");
-		}
-	}
-
-	GLenum GetBufferUsage(Graphics::DeviceBufferType type)
-	{
-		switch (type)
-		{
-			case Graphics::DeviceBufferType::Vertex:
-			case Graphics::DeviceBufferType::Index:
-			case Graphics::DeviceBufferType::Uniform:
-			case Graphics::DeviceBufferType::Structured:
-			case Graphics::DeviceBufferType::Indirect: return GL_DYNAMIC_DRAW;
-			case Graphics::DeviceBufferType::Upload: return GL_DYNAMIC_COPY;
-			case Graphics::DeviceBufferType::Readback: return GL_DYNAMIC_COPY;
-
-			default: throw std::runtime_error("Failed to find valid buffer usage");
+			case Graphics::BufferMemoryAccess::Upload: return GL_DYNAMIC_COPY;
+			case Graphics::BufferMemoryAccess::Default: return GL_DYNAMIC_DRAW;
+			case Graphics::BufferMemoryAccess::Readback: return GL_DYNAMIC_COPY;
+			default: throw std::runtime_error("Failed to find a valid access");
 		}
 
 		return GL_STATIC_DRAW;

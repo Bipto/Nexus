@@ -39,10 +39,10 @@ namespace Demos
 			m_ImGuiTextureBinding = m_ImGuiRenderer->BindTexture(m_Texture);
 
 			Nexus::Graphics::DeviceBufferDescription indirectDesc = {};
-			indirectDesc.Type									  = Nexus::Graphics::DeviceBufferType::Indirect;
+			indirectDesc.Access									  = Nexus::Graphics::BufferMemoryAccess::Upload;
+			indirectDesc.Usage									  = Nexus::Graphics::BufferUsage::Indirect;
 			indirectDesc.SizeInBytes							  = sizeof(Nexus::Graphics::IndirectDispatchArguments);
 			indirectDesc.StrideInBytes							  = sizeof(Nexus::Graphics::IndirectDispatchArguments);
-			indirectDesc.HostVisible							  = true;
 			m_IndirectBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(indirectDesc));
 
 			Nexus::Graphics::IndirectDispatchArguments args = {};
@@ -55,8 +55,8 @@ namespace Demos
 		virtual void Render(Nexus::TimeSpan time) override
 		{
 			Nexus::Graphics::StorageImageView storageImageView = {};
-			storageImageView.TextureHandle					   = m_Texture.get();
-			storageImageView.Level							   = 0;
+			storageImageView.TextureHandle					   = m_Texture;
+			storageImageView.MipLevel						   = 0;
 			storageImageView.Access							   = Nexus::Graphics::StorageImageAccess::ReadWrite;
 			m_ResourceSet->WriteStorageImage(storageImageView, "out_tex");
 

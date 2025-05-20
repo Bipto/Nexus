@@ -14,10 +14,10 @@ namespace Nexus::Graphics
 		m_Device		 = device;
 		auto d3d12Device = m_Device->GetDevice();
 
-		uint32_t samplerCount				= spec.SampledImages.size();
-		uint32_t constantBufferCount		= spec.UniformBuffers.size();
-		uint32_t storageImageCount			= spec.StorageImages.size();
-		uint32_t viewCount					= spec.SampledImages.size() + spec.UniformBuffers.size() + spec.StorageImages.size();
+		uint32_t samplerCount		 = spec.SampledImages.size();
+		uint32_t constantBufferCount = spec.UniformBuffers.size();
+		uint32_t storageImageCount	 = spec.StorageImages.size();
+		uint32_t viewCount			 = spec.SampledImages.size() + spec.UniformBuffers.size() + spec.StorageImages.size();
 
 		if (samplerCount > 0)
 		{
@@ -107,18 +107,21 @@ namespace Nexus::Graphics
 
 	void ResourceSetD3D12::WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name)
 	{
-		const BindingInfo	   &info			   = m_UniformBufferBindingInfos.at(name);
-		const uint32_t			index			   = GetLinearDescriptorSlot(info.Set, info.Binding);
-		auto					d3d12Device		   = m_Device->GetDevice();
-		Ref<DeviceBufferD3D12>	d3d12UniformBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(uniformBuffer.BufferHandle.lock());
+		const BindingInfo &info		   = m_UniformBufferBindingInfos.at(name);
+		const uint32_t	   index	   = GetLinearDescriptorSlot(info.Set, info.Binding);
+		auto			   d3d12Device = m_Device->GetDevice();
+		if (Ref<DeviceBufferD3D12> d3d12UniformBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(uniformBuffer.BufferHandle.lock()))
+		{
+			NX_ASSERT(d3d12UniformBuffer->CheckUsage(Graphics::BufferUsage::Uniform), "Attempting to bind a buffer that is not a uniform buffer");
 
-		D3D12_CONSTANT_BUFFER_VIEW_DESC desc;
-		desc.BufferLocation = d3d12UniformBuffer->GetHandle()->GetGPUVirtualAddress() + uniformBuffer.Offset;
-		desc.SizeInBytes	= Utils::AlignTo<uint32_t>(uniformBuffer.Size, 256);
+			D3D12_CONSTANT_BUFFER_VIEW_DESC desc;
+			desc.BufferLocation = d3d12UniformBuffer->GetHandle()->GetGPUVirtualAddress() + uniformBuffer.Offset;
+			desc.SizeInBytes	= d3d12UniformBuffer->GetBufferSizeInBytes() - uniformBuffer.Offset;
 
-		d3d12Device->CreateConstantBufferView(&desc, m_ConstantBufferCPUDescriptors.at(index));
+			d3d12Device->CreateConstantBufferView(&desc, m_ConstantBufferCPUDescriptors.at(index));
 
-		m_BoundUniformBuffers[name] = uniformBuffer;
+			m_BoundUniformBuffers[name] = uniformBuffer;
+		}
 	}
 
 	void ResourceSetD3D12::WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name)
@@ -181,13 +184,10 @@ namespace Nexus::Graphics
 		// write storage image
 		{
 			const BindingInfo &info			= m_StorageImageBindingInfos.at(name);
-			TextureD3D12	  *d3d12Texture = (TextureD3D12 *)view.TextureHandle;
+			Ref<TextureD3D12>  d3d12Texture = std::dynamic_pointer_cast<TextureD3D12>(view.TextureHandle);
 			const uint32_t	   index		= GetLinearDescriptorSlot(info.Set, info.Binding);
 
-			D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
-			uavDesc.Format							 = D3D12::GetD3D12PixelFormat(d3d12Texture->GetSpecification().Format, false);
-			uavDesc.ViewDimension					 = D3D12_UAV_DIMENSION_TEXTURE2D;
-			uavDesc.Texture2D.MipSlice				 = view.Level;
+			D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = D3D12::CreateTextureUavView(view);
 
 			D3D12_CPU_DESCRIPTOR_HANDLE uavHandle	   = m_StorageImageCPUDescriptors.at(index);
 			auto						resourceHandle = d3d12Texture->GetHandle();

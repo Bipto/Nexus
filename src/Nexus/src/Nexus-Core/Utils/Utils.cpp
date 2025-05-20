@@ -284,7 +284,8 @@ namespace Nexus::Utils
 	Ref<Graphics::DeviceBuffer> CreateUploadBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::GraphicsDevice *device)
 	{
 		Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
-		bufferDesc.Type										= Nexus::Graphics::DeviceBufferType::Upload;
+		bufferDesc.Access									= Graphics::BufferMemoryAccess::Upload;
+		bufferDesc.Usage									= BUFFER_USAGE_NONE;
 		bufferDesc.StrideInBytes							= strideInBytes;
 		bufferDesc.SizeInBytes								= sizeInBytes;
 
@@ -299,7 +300,8 @@ namespace Nexus::Utils
 		Ref<Graphics::CommandList>				commandList	 = device->CreateCommandList();
 
 		Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
-		bufferDesc.Type										= Nexus::Graphics::DeviceBufferType::Vertex;
+		bufferDesc.Access									= Graphics::BufferMemoryAccess::Default;
+		bufferDesc.Usage									= Graphics::BufferUsage::Vertex;
 		bufferDesc.StrideInBytes							= strideInBytes;
 		bufferDesc.SizeInBytes								= sizeInBytes;
 		Ref<Graphics::DeviceBuffer> vertexBuffer			= Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(bufferDesc));
@@ -326,7 +328,8 @@ namespace Nexus::Utils
 		Ref<Graphics::CommandList>				commandList	 = device->CreateCommandList();
 
 		Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
-		bufferDesc.Type										= Nexus::Graphics::DeviceBufferType::Index;
+		bufferDesc.Access									= Graphics::BufferMemoryAccess::Default;
+		bufferDesc.Usage									= Graphics::BufferUsage::Index;
 		bufferDesc.StrideInBytes							= strideInBytes;
 		bufferDesc.SizeInBytes								= sizeInBytes;
 		Ref<Graphics::DeviceBuffer> indexBuffer				= Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(bufferDesc));
@@ -356,7 +359,8 @@ namespace Nexus::Utils
 		Ref<Graphics::CommandList>				commandList	 = device->CreateCommandList();
 
 		Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
-		bufferDesc.Type										= Nexus::Graphics::DeviceBufferType::Uniform;
+		bufferDesc.Access									= Graphics::BufferMemoryAccess::Default;
+		bufferDesc.Usage									= Graphics::BufferUsage::Uniform;
 		bufferDesc.StrideInBytes							= strideInBytes;
 		bufferDesc.SizeInBytes								= sizeInBytes;
 		Ref<Graphics::DeviceBuffer> uniformBuffer			= Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(bufferDesc));

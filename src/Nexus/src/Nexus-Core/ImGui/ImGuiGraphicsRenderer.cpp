@@ -93,10 +93,10 @@ namespace Nexus::ImGuiUtils
 		CreateImagePipeline();
 
 		Nexus::Graphics::DeviceBufferDescription uniformBufferDesc = {};
-		uniformBufferDesc.Type									   = Nexus::Graphics::DeviceBufferType::Uniform;
+		uniformBufferDesc.Access								   = Graphics::BufferMemoryAccess::Upload;
+		uniformBufferDesc.Usage									   = Graphics::BufferUsage::Uniform;
 		uniformBufferDesc.StrideInBytes							   = sizeof(glm::mat4);
 		uniformBufferDesc.SizeInBytes							   = sizeof(glm::mat4);
-		uniformBufferDesc.HostVisible							   = true;
 		m_UniformBuffer = Ref<Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(uniformBufferDesc));
 
 		Nexus::Graphics::SamplerSpecification samplerSpec;
@@ -526,10 +526,10 @@ namespace Nexus::ImGuiUtils
 			m_VertexBufferCount = drawData->TotalVtxCount * 1.5f;
 
 			Nexus::Graphics::DeviceBufferDescription vertexBufferDesc = {};
-			vertexBufferDesc.Type									  = Nexus::Graphics::DeviceBufferType::Vertex;
+			vertexBufferDesc.Access									  = Graphics::BufferMemoryAccess::Upload;
+			vertexBufferDesc.Usage									  = Graphics::BufferUsage::Vertex;
 			vertexBufferDesc.StrideInBytes							  = sizeof(ImDrawVert);
 			vertexBufferDesc.SizeInBytes							  = m_VertexBufferCount * sizeof(ImDrawVert);
-			vertexBufferDesc.HostVisible							  = true;
 			m_VertexBuffer = Ref<Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc));
 		}
 
@@ -538,10 +538,10 @@ namespace Nexus::ImGuiUtils
 			m_IndexBufferCount = drawData->TotalIdxCount * 1.5f;
 
 			Nexus::Graphics::DeviceBufferDescription indexBufferDesc = {};
-			indexBufferDesc.Type									 = Nexus::Graphics::DeviceBufferType::Index;
+			indexBufferDesc.Access									 = Graphics::BufferMemoryAccess::Upload;
+			indexBufferDesc.Usage									 = Graphics::BufferUsage::Index;
 			indexBufferDesc.StrideInBytes							 = sizeof(ImDrawIdx);
 			indexBufferDesc.SizeInBytes								 = m_IndexBufferCount * sizeof(ImDrawIdx);
-			indexBufferDesc.HostVisible								 = true;
 			m_IndexBuffer = Ref<Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(indexBufferDesc));
 		}
 
