@@ -10,6 +10,7 @@
 #include "Demos/CubemapDemo.hpp"
 #include "Demos/Demo3D.hpp"
 #include "Demos/FramebufferDemo.hpp"
+#include "Demos/GeometryShaderDemo.hpp"
 #include "Demos/HelloTriangle.hpp"
 #include "Demos/HelloTriangleIndexed.hpp"
 #include "Demos/HelloTriangleIndirect.hpp"
@@ -89,6 +90,13 @@ class DemoApplication : public Nexus::Application
 		RegisterGraphicsDemo<Demos::CubemapDemo>("Cubemaps");
 		RegisterGraphicsDemo<Demos::ComputeDemo>("Compute");
 		RegisterGraphicsDemo<Demos::ComputeIndirectDemo>("Compute Indirect");
+
+		// geometry shaders have some issues with SPIRV-Cross HLSL backend
+		if (m_GraphicsDevice->GetGraphicsAPI() != Nexus::Graphics::GraphicsAPI::D3D12)
+		{
+			RegisterGraphicsDemo<Demos::GeometryShaderDemo>("Geometry Shader");
+		}
+
 		RegisterAudioDemo<Demos::AudioDemo>("Audio");
 		RegisterUtilsDemo<Demos::ClippingAndTriangulationDemo>("Polygon clipping and triangulation");
 		RegisterUtilsDemo<Demos::Splines>("Splines");

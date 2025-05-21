@@ -52,6 +52,7 @@ namespace Nexus::Graphics
 
 		if (!result.Successful)
 		{
+			NX_ERROR(result.Error);
 			throw std::runtime_error(result.Error);
 		}
 
