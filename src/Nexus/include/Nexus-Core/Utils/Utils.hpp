@@ -146,7 +146,8 @@ namespace Nexus::Utils
 	template<typename T>
 	T AlignTo(T value, T alignment)
 	{
-		return std::ceil(value / alignment) * alignment;
+		// return std::ceil(value / alignment) * alignment;
+		return (value + (alignment / 2) / alignment) * alignment;
 	}
 
 	void ConvertNanosecondsToTm(uint64_t nanoseconds, std::tm &outTime);

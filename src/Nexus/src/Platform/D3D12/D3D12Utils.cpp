@@ -404,7 +404,7 @@ namespace Nexus::D3D12
 			{
 				if (spec.Usage & Graphics::TextureUsage_Cubemap)
 				{
-					if (spec.ArrayLayers > 6)
+					if (spec.ArrayLayers == 6)
 					{
 						srvDesc.ViewDimension				= D3D12_SRV_DIMENSION_TEXTURECUBE;
 						srvDesc.TextureCube.MostDetailedMip = 0;

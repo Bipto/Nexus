@@ -56,10 +56,10 @@ namespace Nexus::Graphics
 		uint8_t Usage = 0;
 
 		/// @brief The full size of the buffer in bytes
-		size_t SizeInBytes = 0;
+		uint64_t SizeInBytes = 0;
 
 		/// @brief The stride of each item in the buffer in bytes
-		size_t StrideInBytes = 0;
+		uint64_t StrideInBytes = 0;
 	};
 
 	class DeviceBuffer
