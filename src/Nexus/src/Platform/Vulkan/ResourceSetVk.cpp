@@ -164,7 +164,7 @@ namespace Nexus::Graphics
 
 	void ResourceSetVk::WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name)
 	{
-		if (Ref<DeviceBuffer> buffer = uniformBuffer.BufferHandle.lock())
+		if (Ref<DeviceBuffer> buffer = uniformBuffer.BufferHandle)
 		{
 			NX_ASSERT(buffer->CheckUsage(Graphics::BufferUsage::Uniform), "Attempting to bind a buffer that is not a uniform buffer");
 

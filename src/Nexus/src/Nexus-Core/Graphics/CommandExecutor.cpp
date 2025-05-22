@@ -183,20 +183,20 @@ namespace Nexus::Graphics
 	{
 		bool valid = true;
 
-		if (command.Source.expired())
+		if (!command.Source)
 		{
 			NX_ERROR("Attempting to resolve from an invalid framebuffer");
 			valid = false;
 		}
 
-		if (command.Target.expired())
+		if (!command.Target)
 		{
 			NX_ERROR("Attempting to resolve to an invalid swapchain");
 			valid = false;
 		}
 
-		Ref<Framebuffer> source = command.Source.lock();
-		Ref<Swapchain>	 target = command.Target.lock();
+		Ref<Framebuffer> source = command.Source;
+		Ref<Swapchain>	 target = command.Target;
 
 		if (source && target)
 		{

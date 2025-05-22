@@ -58,8 +58,8 @@ namespace Nexus::Graphics
 
 	struct CombinedImageSampler
 	{
-		WeakRef<Texture> ImageTexture = {};
-		WeakRef<Sampler> ImageSampler = {};
+		Ref<Texture> ImageTexture = {};
+		Ref<Sampler> ImageSampler = {};
 	};
 
 	enum class StorageImageAccess

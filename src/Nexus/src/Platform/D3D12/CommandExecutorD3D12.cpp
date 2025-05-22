@@ -50,7 +50,7 @@ namespace Nexus::Graphics
 		if (m_CurrentlyBoundPipeline.value()->GetType() == PipelineType::Graphics)
 		{
 			Ref<GraphicsPipelineD3D12> pipeline			 = std::dynamic_pointer_cast<GraphicsPipelineD3D12>(m_CurrentlyBoundPipeline.value());
-			Ref<DeviceBufferD3D12>	   d3d12VertexBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.View.BufferHandle.lock());
+			Ref<DeviceBufferD3D12>	   d3d12VertexBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.View.BufferHandle);
 			const auto				  &bufferLayout		 = pipeline->GetPipelineDescription().Layouts.at(command.Slot);
 
 			D3D12_VERTEX_BUFFER_VIEW bufferView;
@@ -69,7 +69,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		Ref<DeviceBufferD3D12> d3d12IndexBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.View.BufferHandle.lock());
+		Ref<DeviceBufferD3D12> d3d12IndexBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.View.BufferHandle);
 
 		D3D12_INDEX_BUFFER_VIEW indexBufferView;
 		indexBufferView.BufferLocation = d3d12IndexBuffer->GetHandle()->GetGPUVirtualAddress() + command.View.Offset;
@@ -174,7 +174,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (Ref<DeviceBuffer> buffer = command.IndirectBuffer.lock())
+		if (Ref<DeviceBuffer> buffer = command.IndirectBuffer)
 		{
 			Ref<DeviceBufferD3D12>					indirectBuffer		 = std::dynamic_pointer_cast<DeviceBufferD3D12>(buffer);
 			Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
@@ -337,8 +337,8 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		Ref<Framebuffer> framebuffer = command.Source.lock();
-		Ref<Swapchain>	 swapchain	 = command.Target.lock();
+		Ref<Framebuffer> framebuffer = command.Source;
+		Ref<Swapchain>	 swapchain	 = command.Target;
 
 		auto framebufferD3D12 = std::dynamic_pointer_cast<FramebufferD3D12>(framebuffer);
 		auto swapchainD3D12	  = std::dynamic_pointer_cast<SwapchainD3D12>(swapchain);
@@ -376,7 +376,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(StartTimingQueryCommand command, GraphicsDevice *device)
 	{
-		Ref<TimingQueryD3D12>					queryD3D12 = std::dynamic_pointer_cast<TimingQueryD3D12>(command.Query.lock());
+		Ref<TimingQueryD3D12>					queryD3D12 = std::dynamic_pointer_cast<TimingQueryD3D12>(command.Query);
 		Microsoft::WRL::ComPtr<ID3D12QueryHeap> heap	   = queryD3D12->GetQueryHeap();
 
 		m_CommandList->EndQuery(heap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 0);
@@ -384,7 +384,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorD3D12::ExecuteCommand(StopTimingQueryCommand command, GraphicsDevice *device)
 	{
-		Ref<TimingQueryD3D12>					queryD3D12 = std::dynamic_pointer_cast<TimingQueryD3D12>(command.Query.lock());
+		Ref<TimingQueryD3D12>					queryD3D12 = std::dynamic_pointer_cast<TimingQueryD3D12>(command.Query);
 		Microsoft::WRL::ComPtr<ID3D12QueryHeap> heap	   = queryD3D12->GetQueryHeap();
 
 		m_CommandList->EndQuery(heap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 1);

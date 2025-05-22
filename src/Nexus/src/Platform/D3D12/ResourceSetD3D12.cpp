@@ -110,7 +110,7 @@ namespace Nexus::Graphics
 		const BindingInfo &info		   = m_UniformBufferBindingInfos.at(name);
 		const uint32_t	   index	   = GetLinearDescriptorSlot(info.Set, info.Binding);
 		auto			   d3d12Device = m_Device->GetDevice();
-		if (Ref<DeviceBufferD3D12> d3d12UniformBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(uniformBuffer.BufferHandle.lock()))
+		if (Ref<DeviceBufferD3D12> d3d12UniformBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(uniformBuffer.BufferHandle))
 		{
 			NX_ASSERT(d3d12UniformBuffer->CheckUsage(Graphics::BufferUsage::Uniform), "Attempting to bind a buffer that is not a uniform buffer");
 

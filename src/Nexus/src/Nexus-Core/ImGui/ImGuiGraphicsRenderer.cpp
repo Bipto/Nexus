@@ -641,6 +641,9 @@ namespace Nexus::ImGuiUtils
 					indexBufferView.BufferFormat			  = Graphics::IndexBufferFormat::UInt16;
 					m_CommandList->SetIndexBuffer(indexBufferView);
 
+					size_t vbStride = m_VertexBuffer->GetDescription().StrideInBytes;
+					size_t plStride = m_ImagePipeline->GetPipelineDescription().Layouts[0].GetStride();
+
 					Nexus::Graphics::Viewport viewport;
 					viewport.X		= 0;
 					viewport.Y		= 0;

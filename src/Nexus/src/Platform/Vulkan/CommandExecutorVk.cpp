@@ -72,7 +72,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		Ref<DeviceBufferVk> vertexBufferVk	= std::dynamic_pointer_cast<DeviceBufferVk>(command.View.BufferHandle.lock());
+		Ref<DeviceBufferVk> vertexBufferVk	= std::dynamic_pointer_cast<DeviceBufferVk>(command.View.BufferHandle);
 		VkBuffer		vertexBuffers[] = {vertexBufferVk->GetVkBuffer()};
 		VkDeviceSize	offsets[]		= {command.View.Offset};
 		vkCmdBindVertexBuffers(m_CommandBuffer, command.Slot, 1, vertexBuffers, offsets);
@@ -85,7 +85,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		Ref<DeviceBufferVk> indexBufferVk	  = std::dynamic_pointer_cast<DeviceBufferVk>(command.View.BufferHandle.lock());
+		Ref<DeviceBufferVk> indexBufferVk	  = std::dynamic_pointer_cast<DeviceBufferVk>(command.View.BufferHandle);
 		VkBuffer		indexBufferHandle = indexBufferVk->GetVkBuffer();
 		VkIndexType		indexType		  = Vk::GetVulkanIndexBufferFormat(command.View.BufferFormat);
 		vkCmdBindIndexBuffer(m_CommandBuffer, indexBufferHandle, 0, indexType);
@@ -172,7 +172,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (Ref<DeviceBuffer> buffer = command.IndirectBuffer.lock())
+		if (Ref<DeviceBuffer> buffer = command.IndirectBuffer)
 		{
 			Ref<DeviceBufferVk> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferVk>(buffer);
 			vkCmdDispatchIndirect(m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset);
@@ -317,8 +317,8 @@ namespace Nexus::Graphics
 
 		StopRendering();
 
-		auto framebufferVk = std::dynamic_pointer_cast<FramebufferVk>(command.Source.lock());
-		auto swapchainVk   = std::dynamic_pointer_cast<SwapchainVk>(command.Target.lock());
+		auto framebufferVk = std::dynamic_pointer_cast<FramebufferVk>(command.Source);
+		auto swapchainVk   = std::dynamic_pointer_cast<SwapchainVk>(command.Target);
 
 		VkImage framebufferImage = framebufferVk->GetVulkanColorTexture(command.SourceIndex)->GetImage();
 		VkImage swapchainImage	 = swapchainVk->GetColourImage();
@@ -352,14 +352,14 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(StartTimingQueryCommand command, GraphicsDevice *device)
 	{
-		Ref<TimingQueryVk> queryVk = std::dynamic_pointer_cast<TimingQueryVk>(command.Query.lock());
+		Ref<TimingQueryVk> queryVk = std::dynamic_pointer_cast<TimingQueryVk>(command.Query);
 		vkCmdResetQueryPool(m_CommandBuffer, queryVk->GetQueryPool(), 0, 2);
 		vkCmdWriteTimestamp(m_CommandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, queryVk->GetQueryPool(), 0);
 	}
 
 	void CommandExecutorVk::ExecuteCommand(StopTimingQueryCommand command, GraphicsDevice *device)
 	{
-		Ref<TimingQueryVk> queryVk = std::dynamic_pointer_cast<TimingQueryVk>(command.Query.lock());
+		Ref<TimingQueryVk> queryVk = std::dynamic_pointer_cast<TimingQueryVk>(command.Query);
 		vkCmdWriteTimestamp(m_CommandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, queryVk->GetQueryPool(), 1);
 	}
 

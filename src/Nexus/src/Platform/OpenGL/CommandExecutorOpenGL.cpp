@@ -239,7 +239,7 @@ namespace Nexus::Graphics
 		pipeline->Bind();
 		BindResourceSet(m_BoundResourceSet);
 
-		if (Ref<DeviceBuffer> buffer = command.IndirectBuffer.lock())
+		if (Ref<DeviceBuffer> buffer = command.IndirectBuffer)
 		{
 			Ref<DeviceBufferOpenGL> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(buffer);
 			glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, indirectBuffer->GetBufferHandle());
@@ -358,8 +358,8 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		Ref<FramebufferOpenGL> framebuffer = std::dynamic_pointer_cast<FramebufferOpenGL>(command.Source.lock());
-		Ref<SwapchainOpenGL>   swapchain   = std::dynamic_pointer_cast<SwapchainOpenGL>(command.Target.lock());
+		Ref<FramebufferOpenGL> framebuffer = std::dynamic_pointer_cast<FramebufferOpenGL>(command.Source);
+		Ref<SwapchainOpenGL>   swapchain   = std::dynamic_pointer_cast<SwapchainOpenGL>(command.Target);
 
 		framebuffer->BindAsReadBuffer(command.SourceIndex);
 		swapchain->BindAsDrawTarget();
@@ -378,13 +378,13 @@ namespace Nexus::Graphics
 
 	void CommandExecutorOpenGL::ExecuteCommand(StartTimingQueryCommand command, GraphicsDevice *device)
 	{
-		if (command.Query.expired())
+		if (!command.Query)
 		{
 			NX_ERROR("Attempting to write a timestamp to an invalid query object");
 			return;
 		}
 
-		Ref<TimingQueryOpenGL> query = std::dynamic_pointer_cast<TimingQueryOpenGL>(command.Query.lock());
+		Ref<TimingQueryOpenGL> query = std::dynamic_pointer_cast<TimingQueryOpenGL>(command.Query);
 
 	#if defined(__EMSCRIPTEN__) || defined(ANDROID)
 		glFinish();
@@ -400,13 +400,13 @@ namespace Nexus::Graphics
 
 	void CommandExecutorOpenGL::ExecuteCommand(StopTimingQueryCommand command, GraphicsDevice *device)
 	{
-		if (command.Query.expired())
+		if (!command.Query)
 		{
 			NX_ERROR("Attempting to write a timestamp to an invalid query object");
 			return;
 		}
 
-		Ref<TimingQueryOpenGL> query = std::dynamic_pointer_cast<TimingQueryOpenGL>(command.Query.lock());
+		Ref<TimingQueryOpenGL> query = std::dynamic_pointer_cast<TimingQueryOpenGL>(command.Query);
 
 	#if defined(__EMSCRIPTEN__) || defined(ANDROID)
 		glFinish();
@@ -573,7 +573,7 @@ namespace Nexus::Graphics
 		{
 			bool valid = true;
 
-			if (combinedImageSampler.ImageSampler.expired())
+			if (!combinedImageSampler.ImageSampler)
 			{
 				NX_ERROR("Attempting to bind an invalid sampler");
 				valid = false;
@@ -584,14 +584,14 @@ namespace Nexus::Graphics
 				continue;
 			}
 
-			Ref<SamplerOpenGL> glSampler = std::dynamic_pointer_cast<SamplerOpenGL>(combinedImageSampler.ImageSampler.lock());
+			Ref<SamplerOpenGL> glSampler = std::dynamic_pointer_cast<SamplerOpenGL>(combinedImageSampler.ImageSampler);
 
 			// find the slot in the shader where the uniform is located
 			GLint location = glGetUniformLocation(pipeline->GetShaderHandle(), name.c_str());
 
 			if (location != -1)
 			{
-				if (Ref<TextureOpenGL> texture = std::dynamic_pointer_cast<TextureOpenGL>(combinedImageSampler.ImageTexture.lock()))
+				if (Ref<TextureOpenGL> texture = std::dynamic_pointer_cast<TextureOpenGL>(combinedImageSampler.ImageTexture))
 				{
 					texture->Bind(location);
 					glSampler->Bind(location, texture->GetSpecification().MipLevels > 1);
@@ -602,7 +602,7 @@ namespace Nexus::Graphics
 		GLuint uniformBufferSlot = 0;
 		for (const auto [name, uniformBufferView] : uniformBufferBindings)
 		{
-			Ref<DeviceBufferOpenGL> uniformBufferGL = std::dynamic_pointer_cast<DeviceBufferOpenGL>(uniformBufferView.BufferHandle.lock());
+			Ref<DeviceBufferOpenGL> uniformBufferGL = std::dynamic_pointer_cast<DeviceBufferOpenGL>(uniformBufferView.BufferHandle);
 
 			GLint location = glGetUniformBlockIndex(pipeline->GetShaderHandle(), name.c_str());
 

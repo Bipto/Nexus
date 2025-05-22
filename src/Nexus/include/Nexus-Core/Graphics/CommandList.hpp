@@ -71,13 +71,6 @@ namespace Nexus::Graphics
 		IndexBufferView View = {};
 	};
 
-	union ClearColor
-	{
-		float	 f32[4];
-		int32_t	 i32[4];
-		uint32_t ui32[4];
-	};
-
 	/// @brief A struct representing a set of values to use  to clear the colour
 	/// buffer
 	struct ClearColorValue
@@ -149,7 +142,7 @@ namespace Nexus::Graphics
 
 	struct DispatchIndirectCommand
 	{
-		WeakRef<DeviceBuffer> IndirectBuffer = {};
+		Ref<DeviceBuffer>	  IndirectBuffer = {};
 		uint32_t			  Offset		 = 0;
 	};
 
@@ -166,19 +159,19 @@ namespace Nexus::Graphics
 
 	struct ResolveSamplesToSwapchainCommand
 	{
-		WeakRef<Framebuffer> Source		 = {};
+		Ref<Framebuffer>	 Source		 = {};
 		uint32_t			 SourceIndex = {};
-		WeakRef<Swapchain>	 Target		 = {};
+		Ref<Swapchain>		 Target		 = {};
 	};
 
 	struct StartTimingQueryCommand
 	{
-		WeakRef<TimingQuery> Query = {};
+		Ref<TimingQuery> Query = {};
 	};
 
 	struct StopTimingQueryCommand
 	{
-		WeakRef<TimingQuery> Query = {};
+		Ref<TimingQuery> Query = {};
 	};
 
 	struct SetStencilRefCommand

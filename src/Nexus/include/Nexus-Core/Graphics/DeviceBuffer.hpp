@@ -56,10 +56,10 @@ namespace Nexus::Graphics
 		uint8_t Usage = 0;
 
 		/// @brief The full size of the buffer in bytes
-		uint64_t SizeInBytes = 0;
+		size_t SizeInBytes = 0;
 
 		/// @brief The stride of each item in the buffer in bytes
-		uint64_t StrideInBytes = 0;
+		size_t StrideInBytes = 0;
 	};
 
 	class DeviceBuffer
@@ -100,21 +100,21 @@ namespace Nexus::Graphics
 
 	struct VertexBufferView
 	{
-		WeakRef<DeviceBuffer> BufferHandle = {};
-		uint64_t	  Offset	   = 0;
+		Ref<DeviceBuffer> BufferHandle = {};
+		size_t			  Offset	   = 0;
 	};
 
 	struct IndexBufferView
 	{
-		WeakRef<DeviceBuffer> BufferHandle = {};
-		uint64_t		  Offset	   = 0;
+		Ref<DeviceBuffer> BufferHandle = {};
+		size_t			  Offset	   = 0;
 		IndexBufferFormat BufferFormat = IndexBufferFormat::UInt32;
 	};
 
 	struct UniformBufferView
 	{
-		WeakRef<DeviceBuffer> BufferHandle = {};
-		uint64_t	  Offset	   = 0;
-		uint64_t	  Size		   = 0;
+		Ref<DeviceBuffer> BufferHandle = {};
+		size_t			  Offset	   = 0;
+		size_t			  Size		   = 0;
 	};
 }	 // namespace Nexus::Graphics
