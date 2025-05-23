@@ -633,16 +633,16 @@ namespace Nexus::ImGuiUtils
 					Graphics::VertexBufferView vertexBufferView = {};
 					vertexBufferView.BufferHandle				= m_VertexBuffer;
 					vertexBufferView.Offset						= 0;
+					vertexBufferView.Stride						= m_VertexBuffer->GetStrideInBytes();
+					vertexBufferView.Size						= m_VertexBuffer->GetSizeInBytes();
 					m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
 					Graphics::IndexBufferView indexBufferView = {};
 					indexBufferView.BufferHandle			  = m_IndexBuffer;
 					indexBufferView.Offset					  = 0;
+					indexBufferView.Size					  = m_IndexBuffer->GetSizeInBytes();
 					indexBufferView.BufferFormat			  = Graphics::IndexBufferFormat::UInt16;
 					m_CommandList->SetIndexBuffer(indexBufferView);
-
-					size_t vbStride = m_VertexBuffer->GetDescription().StrideInBytes;
-					size_t plStride = m_ImagePipeline->GetPipelineDescription().Layouts[0].GetStride();
 
 					Nexus::Graphics::Viewport viewport;
 					viewport.X		= 0;

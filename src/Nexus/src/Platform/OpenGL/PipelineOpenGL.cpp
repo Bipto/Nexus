@@ -49,12 +49,12 @@ namespace Nexus::Graphics
 			// type is an instance buffer, offset to the first instance requested
 			if (layout.IsInstanceBuffer())
 			{
-				offset = firstInstance * layout.GetStride();
+				offset = firstInstance * vertexBufferView.Stride;
 			}
 			// otherwise, the buffer is a vertex buffer, offset to the first vertex requested
 			else
 			{
-				offset = firstVertex * layout.GetStride();
+				offset = firstVertex * vertexBufferView.Stride;
 			}
 
 			// offset by the amount specified in the vertex buffer view
@@ -73,11 +73,16 @@ namespace Nexus::Graphics
 
 				if (primitiveType == GL::GLPrimitiveType::Float)
 				{
-					glCall(glVertexAttribPointer(index, componentCount, baseType, normalized, layout.GetStride(), (void *)(element.Offset + offset)));
+					glCall(glVertexAttribPointer(index,
+												 componentCount,
+												 baseType,
+												 normalized,
+												 vertexBufferView.Stride,
+												 (void *)(element.Offset + offset)));
 				}
 				else if (primitiveType == GL::GLPrimitiveType::Int)
 				{
-					glCall(glVertexAttribIPointer(index, componentCount, baseType, layout.GetStride(), (void *)(element.Offset + offset)));
+					glCall(glVertexAttribIPointer(index, componentCount, baseType, vertexBufferView.Stride, (void *)(element.Offset + offset)));
 				}
 				else
 				{

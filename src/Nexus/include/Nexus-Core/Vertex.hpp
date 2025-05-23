@@ -48,7 +48,7 @@ namespace Nexus::Graphics
 		/// @param elements An initializer list of vertex buffer elements
 		VertexBufferLayout(std::initializer_list<VertexBufferElement> elements) : m_Elements(elements)
 		{
-			CalculateOffsetsAndStride();
+			CalculateOffsets();
 		}
 
 		/// @brief An iterator returning the beginning of the layout
@@ -79,15 +79,6 @@ namespace Nexus::Graphics
 			return m_Elements.end();
 		}
 
-		/// @brief A method that returns the stride between elements in the vertex
-		/// buffer
-		/// @return An unsigned 32 bit integer representing the gap between separate
-		/// items of the vertex buffer
-		const uint32_t GetStride() const
-		{
-			return m_Stride;
-		}
-
 		/// @brief A method that returns the number of elements stored within the
 		/// layout
 		/// @return An unsigned 32 bit integer representing the number of elements
@@ -115,16 +106,12 @@ namespace Nexus::Graphics
 
 	  private:
 		/// @brief A private method that calculates the offset of each element within
-		/// the buffer and the stride (total distance between elements)
-		void CalculateOffsetsAndStride();
+		/// the buffer
+		void CalculateOffsets();
 
 	  private:
 		/// @brief A vector containing the elements within the vertex buffer
 		std::vector<VertexBufferElement> m_Elements;
-
-		/// @brief An unsigned 32 bit integer representing the stride between each
-		/// separate vertex buffer item
-		uint32_t m_Stride = 0;
 
 		/// @brief An unsigned 32 bit integer representing how the data should be
 		/// stepped through when using instancing

@@ -103,12 +103,15 @@ namespace Nexus::Graphics
 			VertexBufferView  vertexBufferView = {};
 			vertexBufferView.BufferHandle	   = vertexBuffer;
 			vertexBufferView.Offset			   = 0;
+			vertexBufferView.Size			   = vertexBuffer->GetSizeInBytes();
+			vertexBufferView.Stride			   = vertexBuffer->GetStrideInBytes();
 			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
 			Ref<DeviceBuffer> indexBuffer	  = m_Quad.GetIndexBuffer();
 			IndexBufferView	  indexBufferView = {};
 			indexBufferView.BufferHandle	  = indexBuffer;
 			indexBufferView.Offset			  = 0;
+			indexBufferView.Size			  = indexBuffer->GetSizeInBytes();
 			indexBufferView.BufferFormat	  = IndexBufferFormat::UInt32;
 			m_CommandList->SetIndexBuffer(indexBufferView);
 

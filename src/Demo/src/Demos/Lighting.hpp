@@ -128,11 +128,15 @@ namespace Demos
 				Nexus::Graphics::VertexBufferView vertexBufferView = {};
 				vertexBufferView.BufferHandle					   = m_CubeMesh->GetVertexBuffer();
 				vertexBufferView.Offset							   = 0;
+				vertexBufferView.Size							   = m_CubeMesh->GetVertexBuffer()->GetSizeInBytes();
+				vertexBufferView.Stride							   = m_CubeMesh->GetVertexBuffer()->GetStrideInBytes();
+
 				m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
 				Nexus::Graphics::IndexBufferView indexBufferView = {};
 				indexBufferView.BufferHandle					 = m_CubeMesh->GetIndexBuffer();
 				indexBufferView.Offset							 = 0;
+				indexBufferView.Size							 = m_CubeMesh->GetIndexBuffer()->GetSizeInBytes();
 				indexBufferView.BufferFormat					 = Nexus::Graphics::IndexBufferFormat::UInt32;
 				m_CommandList->SetIndexBuffer(indexBufferView);
 

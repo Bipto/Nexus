@@ -75,7 +75,9 @@ namespace Nexus::Graphics
 		Ref<DeviceBufferVk> vertexBufferVk	= std::dynamic_pointer_cast<DeviceBufferVk>(command.View.BufferHandle);
 		VkBuffer		vertexBuffers[] = {vertexBufferVk->GetVkBuffer()};
 		VkDeviceSize	offsets[]		= {command.View.Offset};
-		vkCmdBindVertexBuffers(m_CommandBuffer, command.Slot, 1, vertexBuffers, offsets);
+		VkDeviceSize		sizes[]			= {command.View.Size};
+		VkDeviceSize		strides[]		= {command.View.Stride};
+		vkCmdBindVertexBuffers2(m_CommandBuffer, command.Slot, 1, vertexBuffers, offsets, sizes, strides);
 	}
 
 	void CommandExecutorVk::ExecuteCommand(SetIndexBufferCommand command, GraphicsDevice *device)
@@ -88,7 +90,8 @@ namespace Nexus::Graphics
 		Ref<DeviceBufferVk> indexBufferVk	  = std::dynamic_pointer_cast<DeviceBufferVk>(command.View.BufferHandle);
 		VkBuffer		indexBufferHandle = indexBufferVk->GetVkBuffer();
 		VkIndexType		indexType		  = Vk::GetVulkanIndexBufferFormat(command.View.BufferFormat);
-		vkCmdBindIndexBuffer(m_CommandBuffer, indexBufferHandle, 0, indexType);
+		VkDeviceSize		offset			  = command.View.Offset;
+		vkCmdBindIndexBuffer(m_CommandBuffer, indexBufferHandle, offset, indexType);
 	}
 
 	void CommandExecutorVk::ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device)

@@ -96,18 +96,33 @@ namespace Nexus::Graphics
 			const DeviceBufferDescription &description = GetDescription();
 			return description.Usage & usage;
 		}
+
+		size_t GetSizeInBytes() const
+		{
+			const DeviceBufferDescription &description = GetDescription();
+			return description.SizeInBytes;
+		}
+
+		size_t GetStrideInBytes() const
+		{
+			const DeviceBufferDescription &description = GetDescription();
+			return description.StrideInBytes;
+		}
 	};
 
 	struct VertexBufferView
 	{
 		Ref<DeviceBuffer> BufferHandle = {};
 		size_t			  Offset	   = 0;
+		size_t			  Size		   = 0;
+		size_t			  Stride	   = 0;
 	};
 
 	struct IndexBufferView
 	{
 		Ref<DeviceBuffer> BufferHandle = {};
 		size_t			  Offset	   = 0;
+		size_t			  Size		   = 0;
 		IndexBufferFormat BufferFormat = IndexBufferFormat::UInt32;
 	};
 

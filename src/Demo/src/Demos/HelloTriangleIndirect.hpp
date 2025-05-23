@@ -78,6 +78,8 @@ namespace Demos
 			Nexus::Graphics::VertexBufferView vertexBufferView = {};
 			vertexBufferView.BufferHandle					   = m_VertexBuffer;
 			vertexBufferView.Offset							   = 0;
+			vertexBufferView.Stride							   = m_VertexBuffer->GetStrideInBytes();
+			vertexBufferView.Size							   = m_VertexBuffer->GetSizeInBytes();
 			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
 			m_CommandList->DrawIndirect(m_IndirectBuffer, 0, 1);

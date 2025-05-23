@@ -75,7 +75,19 @@ namespace Nexus::Graphics
 		pipeline->BindBuffers(vertexBuffers, indexBuffer, vertexOffset, instanceOffset);
 		pipeline->Bind();
 		BindResourceSet(m_BoundResourceSet);
-		drawCall(pipeline);
+
+		bool valid = true;
+		for (const auto &[binding, view] : vertexBuffers)
+		{
+			if (view.Stride == 0 || view.Size == 0)
+				valid = false;
+		}
+
+		if (valid)
+		{
+			drawCall(pipeline);
+		}
+
 		pipeline->DestroyVAO();
 	}
 

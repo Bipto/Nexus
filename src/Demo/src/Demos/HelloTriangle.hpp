@@ -64,6 +64,8 @@ namespace Demos
 			Nexus::Graphics::VertexBufferView vertexBufferView = {};
 			vertexBufferView.BufferHandle					   = m_VertexBuffer;
 			vertexBufferView.Offset							   = 0;
+			vertexBufferView.Size							   = m_VertexBuffer->GetSizeInBytes();
+			vertexBufferView.Stride							   = m_VertexBuffer->GetStrideInBytes();
 			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
 			auto vertexCount = m_VertexBuffer->GetCount();

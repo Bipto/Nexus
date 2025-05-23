@@ -88,7 +88,7 @@ namespace Nexus::Graphics
 			// create binding descriptions
 			VkVertexInputBindingDescription bindingDescription = {};
 			bindingDescription.binding						   = layoutIndex;
-			bindingDescription.stride						   = layout.GetStride();
+			bindingDescription.stride						   = 0;
 			bindingDescription.inputRate = (layout.GetInstanceStepRate() != 0) ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX;
 			bindingDescriptions.push_back(bindingDescription);
 
@@ -165,7 +165,8 @@ namespace Nexus::Graphics
 													 VK_DYNAMIC_STATE_SCISSOR,
 													 VK_DYNAMIC_STATE_STENCIL_REFERENCE,
 													 VK_DYNAMIC_STATE_DEPTH_BOUNDS,
-													 VK_DYNAMIC_STATE_BLEND_CONSTANTS};
+													 VK_DYNAMIC_STATE_BLEND_CONSTANTS,
+													 VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE};
 
 		dynamicInfo.dynamicStateCount = dynamicStates.size();
 		dynamicInfo.pDynamicStates	  = dynamicStates.data();
