@@ -44,11 +44,10 @@ jobs:
         run: sudo apt-get install --fix-missing libgl1-mesa-dev mesa-utils mesa-common-dev libx11-dev xserver-xorg-dev xorg-dev
     
       - name: Install Vulkan SDK
-        uses: jakoch/install-vulkan-sdk-action@v1.1.1
+        uses: humbletim/install-vulkan-sdk@v1.2
         with:
-          install_runtime: true
+          version: 1.4.309.0
           cache: true
-          stripdown: true
 
       - name: Setup Ninja
         uses: seanmiddleditch/gha-setup-ninja@v6
