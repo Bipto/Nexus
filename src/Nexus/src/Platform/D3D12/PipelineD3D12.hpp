@@ -8,18 +8,28 @@
 namespace Nexus::Graphics
 {
 
-	class PipelineD3D12 : public Pipeline
+	class PipelineD3D12
 	{
 	  public:
-		PipelineD3D12(ID3D12Device9 *device, const PipelineDescription &description);
-		virtual ~PipelineD3D12();
-		virtual const PipelineDescription &GetPipelineDescription() const override;
-		ID3D12RootSignature				  *GetRootSignature();
-		ID3D12PipelineState				  *GetPipelineState();
-		D3D_PRIMITIVE_TOPOLOGY			   GetD3DPrimitiveTopology();
+		virtual ~PipelineD3D12()
+		{
+		}
+		virtual void Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList) = 0;
+	};
+
+	class GraphicsPipelineD3D12 : public GraphicsPipeline, public PipelineD3D12
+	{
+	  public:
+		GraphicsPipelineD3D12(ID3D12Device9 *device, const GraphicsPipelineDescription &description);
+		virtual ~GraphicsPipelineD3D12();
+		virtual const GraphicsPipelineDescription &GetPipelineDescription() const override;
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> GetRootSignature();
+		Microsoft::WRL::ComPtr<ID3D12PipelineState> GetPipelineState();
+		D3D_PRIMITIVE_TOPOLOGY					   GetD3DPrimitiveTopology();
+
+		void Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList) final;
 
 	  private:
-		void CreateRootSignature();
 		void CreateInputLayout();
 		void CreatePrimitiveTopology();
 
@@ -28,20 +38,33 @@ namespace Nexus::Graphics
 		D3D12_BLEND_DESC		 CreateBlendStateDesc();
 		D3D12_DEPTH_STENCIL_DESC CreateDepthStencilDesc();
 
-		void CreatePipeline();
+		void CreatePipeline(ID3D12Device9 *device);
 
 	  private:
-		PipelineDescription m_Description;
-		ID3D12Device9	   *m_Device;
+		GraphicsPipelineDescription m_Description;
 
 		Microsoft::WRL::ComPtr<ID3DBlob>			m_RootSignatureBlob;
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> m_RootSignature;
 
-		std::vector<D3D12_INPUT_ELEMENT_DESC> m_InputLayout;
-
+		std::vector<D3D12_INPUT_ELEMENT_DESC>		m_InputLayout;
 		Microsoft::WRL::ComPtr<ID3D12PipelineState> m_PipelineStateObject = nullptr;
+		D3D_PRIMITIVE_TOPOLOGY						m_PrimitiveTopology;
+	};
 
-		D3D_PRIMITIVE_TOPOLOGY m_PrimitiveTopology;
+	class ComputePipelineD3D12 : public ComputePipeline, public PipelineD3D12
+	{
+	  public:
+		ComputePipelineD3D12(ID3D12Device9 *device, const ComputePipelineDescription &description);
+		virtual ~ComputePipelineD3D12();
+		void Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList) final;
+
+	  private:
+		void CreatePipeline(ID3D12Device9 *device);
+
+	  private:
+		Microsoft::WRL::ComPtr<ID3DBlob>			m_RootSignatureBlob;
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> m_RootSignature;
+		Microsoft::WRL::ComPtr<ID3D12PipelineState> m_PipelineStateObject = nullptr;
 	};
 }	 // namespace Nexus::Graphics
 

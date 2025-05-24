@@ -2,7 +2,7 @@
 
 #if defined(NX_PLATFORM_OPENGL)
 
-	#include "BufferOpenGL.hpp"
+	#include "DeviceBufferOpenGL.hpp"
 	#include "Nexus-Core/Graphics/CommandExecutor.hpp"
 	#include "Nexus-Core/Graphics/CommandList.hpp"
 	#include "PipelineOpenGL.hpp"
@@ -20,12 +20,14 @@ namespace Nexus::Graphics
 
 	  private:
 		virtual void ExecuteCommand(SetVertexBufferCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(WeakRef<IndexBuffer> command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(SetIndexBufferCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(DrawElementCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DrawCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(DrawIndexedCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(DrawInstancedCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(DrawInstancedIndexedCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DrawIndirectCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DrawIndirectIndexedCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DispatchCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DispatchIndirectCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(ClearColorTargetCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDevice *device) override;
@@ -38,14 +40,25 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(SetStencilRefCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(SetDepthBoundsCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(SetBlendFactorCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const BarrierDesc &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const CopyTextureToBufferCommand &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const CopyTextureToTextureCommand &command, GraphicsDevice *device) override;
 
 		void BindResourceSet(Ref<ResourceSetOpenGL> resourceSet);
+		void ExecuteGraphicsCommand(Ref<GraphicsPipelineOpenGL>									 pipeline,
+									const std::map<uint32_t, Nexus::Graphics::VertexBufferView> &vertexBuffers,
+									std::optional<Nexus::Graphics::IndexBufferView>				 indexBuffer,
+									uint32_t													 vertexOffset,
+									uint32_t													 instanceOffset,
+									std::function<void(Ref<GraphicsPipelineOpenGL> pipeline)>	 drawCall);
 
 	  private:
-		std::optional<Ref<PipelineOpenGL>>										m_CurrentlyBoundPipeline	  = {};
+		std::optional<Ref<Pipeline>>											m_CurrentlyBoundPipeline	  = {};
 		std::optional<RenderTarget>												m_CurrentRenderTarget		  = {};
-		std::map<uint32_t, Nexus::WeakRef<Nexus::Graphics::VertexBufferOpenGL>> m_CurrentlyBoundVertexBuffers = {};
-		Nexus::WeakRef<Nexus::Graphics::IndexBufferOpenGL>						m_BoundIndexBuffer			  = {};
+		std::map<uint32_t, VertexBufferView>									m_CurrentlyBoundVertexBuffers = {};
+		std::optional<IndexBufferView>											m_BoundIndexBuffer			  = {};
 		Nexus::Ref<Nexus::Graphics::ResourceSetOpenGL>							m_BoundResourceSet = {};
 	};
 }	 // namespace Nexus::Graphics

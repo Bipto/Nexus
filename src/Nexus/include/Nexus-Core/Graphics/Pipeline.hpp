@@ -11,7 +11,7 @@ namespace Nexus::Graphics
 {
 	/// @brief A struct representing how all of the settings required to create a
 	/// pipeline
-	struct PipelineDescription
+	struct GraphicsPipelineDescription
 	{
 		/// @brief How the pipeline should handle depth and stencil testing
 		DepthStencilDescription DepthStencilDesc;
@@ -36,7 +36,7 @@ namespace Nexus::Graphics
 		std::array<BlendStateDescription, 8> ColourBlendStates;
 
 		/// @brief How many samples will be used with the pipeline
-		SampleCount ColourTargetSampleCount = SampleCount::SampleCount1;
+		uint32_t ColourTargetSampleCount = 1;
 
 		/// @brief The depth format that will be used with the pipeline
 		PixelFormat DepthFormat = PixelFormat::D24_UNorm_S8_UInt;
@@ -45,55 +45,116 @@ namespace Nexus::Graphics
 		std::vector<VertexBufferLayout> Layouts;
 
 		/// @brief The fragment shader that will be used with the pipeline
-		Ref<ShaderModule> FragmentModule			  = nullptr;
+		Ref<ShaderModule> FragmentModule = nullptr;
 
 		/// @brief The geometry shader to use with the pipeline (optional)
-		Ref<ShaderModule> GeometryModule			  = nullptr;
+		Ref<ShaderModule> GeometryModule = nullptr;
 
 		/// @brief The tesselation control shader to use with the pipeline (optional)
-		Ref<ShaderModule> TesselationControlModule	  = nullptr;
+		Ref<ShaderModule> TesselationControlModule = nullptr;
 
 		/// @brief The tesselation evaluation shader to use with the pipeline (optional)
 		Ref<ShaderModule> TesselationEvaluationModule = nullptr;
 
 		/// @brief The vertex shader to use with the pipeline (optional)
-		Ref<ShaderModule> VertexModule				  = nullptr;
+		Ref<ShaderModule> VertexModule = nullptr;
+	};
+
+	struct ComputePipelineDescription
+	{
+		ResourceSetSpecification ResourceSetSpec = {};
+		Ref<ShaderModule>		 ComputeShader	 = nullptr;
+	};
+
+	enum class PipelineType
+	{
+		Graphics,
+		Compute
+	};
+
+	class Pipeline
+	{
+	  public:
+		virtual ~Pipeline()
+		{
+		}
+
+		virtual PipelineType			 GetType() const					 = 0;
+		virtual ResourceSetSpecification GetResourceSetSpecification() const = 0;
 	};
 
 	/// @brief A pure virtual class representing an API specific pipeline
-	class Pipeline
+	class GraphicsPipeline : public Pipeline
 	{
 	  public:
 		/// @brief A constructor that takes in a PipelineDescription object to use for
 		/// creation
-		Pipeline(const PipelineDescription &description)
+		GraphicsPipeline(const GraphicsPipelineDescription &description) : m_Description(description)
 		{
-			m_Description = description;
 		}
 
 		/// @brief An empty pipeline cannot be created
-		Pipeline() = delete;
+		GraphicsPipeline() = delete;
 
 		/// @brief Virtual destructor allowing API specific resources to be destroyed
-		 virtual ~Pipeline() {};
+		virtual ~GraphicsPipeline()
+		{
+		}
 
-		 /// @brief A pure virtual method returning a const reference to a pipeline
-		 /// description
-		 /// @return A const reference to a pipelinedescription
-		 virtual const PipelineDescription &GetPipelineDescription() const = 0;
+		/// @brief A pure virtual method returning a const reference to a pipeline
+		/// description
+		/// @return A const reference to a pipelinedescription
+		virtual const GraphicsPipelineDescription &GetPipelineDescription() const = 0;
 
-		 bool HasResources() const
-		 {
-			 return m_Description.ResourceSetSpec.SampledImages.size() > 0 || m_Description.ResourceSetSpec.UniformBuffers.size() > 0;
+		bool HasResources() const
+		{
+			return m_Description.ResourceSetSpec.SampledImages.size() > 0 || m_Description.ResourceSetSpec.UniformBuffers.size() > 0;
+		}
+
+		virtual PipelineType GetType() const final
+		{
+			return PipelineType::Graphics;
+		}
+
+		virtual ResourceSetSpecification GetResourceSetSpecification() const final
+		{
+			return m_Description.ResourceSetSpec;
 		}
 
 	  protected:
 		/// @brief The pipeline description used to create the pipeline
-		PipelineDescription m_Description;
+		GraphicsPipelineDescription m_Description = {};
+	};
 
-	  private:
-		/// @brief This allows the GraphicsDevice to access all data stored within a
-		/// pipeline
-		friend class GraphicsDevice;
+	class ComputePipeline : public Pipeline
+	{
+	  public:
+		ComputePipeline(const ComputePipelineDescription &description) : m_Description(description)
+		{
+		}
+
+		ComputePipeline() = delete;
+
+		virtual ~ComputePipeline()
+		{
+		}
+
+		const ComputePipelineDescription &GetPipelineDescription() const
+		{
+			return m_Description;
+		}
+
+		virtual PipelineType GetType() const final
+		{
+			return PipelineType::Compute;
+		}
+
+		virtual ResourceSetSpecification GetResourceSetSpecification() const final
+		{
+			return m_Description.ResourceSetSpec;
+		}
+
+	  protected:
+		ComputePipelineDescription m_Description = {};
 	};
 }	 // namespace Nexus::Graphics

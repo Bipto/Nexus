@@ -9,8 +9,8 @@ namespace Nexus
 {
 	SDL3Window::SDL3Window(const WindowSpecification &windowProps) : IWindow(windowProps), m_Specification(windowProps)
 	{
+		SDL_SetHint(SDL_HINT_EMSCRIPTEN_CANVAS_SELECTOR, windowProps.CanvasId.c_str());
 		uint32_t flags = GetFlags(windowProps);
-
 		m_Window = SDL_CreateWindow(windowProps.Title.c_str(), windowProps.Width, windowProps.Height, flags);
 
 		if (m_Window == nullptr)
@@ -30,7 +30,9 @@ namespace Nexus
 
 	void SDL3Window::Update()
 	{
-		m_Timer.Update();
+		m_RenderTimer.Update();
+		m_UpdateTimer.Update();
+		m_TickTimer.Update();
 	}
 
 	void SDL3Window::SetResizable(bool isResizable)
@@ -616,11 +618,13 @@ namespace Nexus
 
 	void SDL3Window::SetupTimer()
 	{
-		m_Timer.Clear();
+		m_RenderTimer.Clear();
+		m_UpdateTimer.Clear();
+		m_TickTimer.Clear();
 
-		double secondsPerRender = {};
-		double secondsPerUpdate = {};
-		double secondsPerTick	= {};
+		std::optional<double> secondsPerRender = {};
+		std::optional<double> secondsPerUpdate = {};
+		std::optional<double> secondsPerTick   = {};
 
 		if (m_Specification.RendersPerSecond.has_value())
 		{
@@ -637,7 +641,7 @@ namespace Nexus
 			secondsPerTick = 1.0 / m_Specification.TicksPerSecond.value();
 		}
 
-		m_Timer.Every(
+		m_RenderTimer.Every(
 			[&](Nexus::TimeSpan time)
 			{
 				if (IsMinimized())
@@ -653,7 +657,7 @@ namespace Nexus
 			},
 			secondsPerRender);
 
-		m_Timer.Every(
+		m_UpdateTimer.Every(
 			[&](Nexus::TimeSpan time)
 			{
 				if (IsMinimized())
@@ -669,7 +673,7 @@ namespace Nexus
 			},
 			secondsPerUpdate);
 
-		m_Timer.Every(
+		m_TickTimer.Every(
 			[&](Nexus::TimeSpan time)
 			{
 				if (IsMinimized())

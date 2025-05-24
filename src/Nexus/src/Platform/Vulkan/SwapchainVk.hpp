@@ -4,6 +4,7 @@
 
 	#include "Nexus-Core/nxpch.hpp"
 
+	#include "PhysicalDeviceVk.hpp"
 	#include "Nexus-Core/Graphics/Swapchain.hpp"
 	#include "Nexus-Core/IWindow.hpp"
 	#include "Vk.hpp"
@@ -60,11 +61,11 @@ namespace Nexus::Graphics
 		const VkSemaphore &GetSemaphore();
 
 	  private:
-		void CreateSurface();
-		bool CreateSwapchain();
+		void CreateSurface(VkInstance instance);
+		bool CreateSwapchain(std::shared_ptr<PhysicalDeviceVk> physicalDevice);
 		void CreateSwapchainImageViews();
-		void CreateDepthStencil();
-		void CreateResolveAttachment();
+		void CreateDepthStencil(GraphicsDeviceVk *graphicsDevice);
+		void CreateResolveAttachment(GraphicsDeviceVk *graphicsDevice);
 		void CreateSemaphores();
 
 		void CleanupSwapchain();
@@ -84,8 +85,9 @@ namespace Nexus::Graphics
 								VkMemoryPropertyFlags properties,
 								VkImage				 &image,
 								VkDeviceMemory		 &imageMemory,
-								VkSampleCountFlagBits samples);
-		uint32_t	FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+								VkSampleCountFlagBits samples,
+								GraphicsDeviceVk	 *graphicsDevice);
+		uint32_t	FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties, VkPhysicalDevice physicalDevice);
 		uint32_t	GetCurrentFrameIndex();
 
 	  private:

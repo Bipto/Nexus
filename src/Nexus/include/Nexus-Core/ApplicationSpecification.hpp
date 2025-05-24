@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Nexus-Core/Graphics/Multisample.hpp"
+#include "Nexus-Core/Graphics/GraphicsAPIType.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
 namespace Nexus::Audio
@@ -25,26 +25,13 @@ namespace Nexus::Graphics
 		Enabled = 1
 	};
 
-	/// @brief An enum class that represents an available graphics API backend
-	enum class GraphicsAPI
-	{
-		/// @brief Graphics will be created using OpenGL
-		OpenGL,
-
-		/// @brief Graphics will be created using Direct3D12
-		D3D12,
-
-		/// @brief Graphics will be created using Vulkan
-		Vulkan
-	};
-
 	struct SwapchainSpecification
 	{
 		/// @brief Whether the application should use VSync
 		Graphics::VSyncState VSyncState = Graphics::VSyncState::Enabled;
 
-		/// @brief Whether the swapchain should be multisampled
-		Graphics::SampleCount Samples = Graphics::SampleCount::SampleCount1;
+		/// @brief How many samples should be used by the swapchain
+		uint32_t Samples = 0;
 	};
 }	 // namespace Nexus::Graphics
 

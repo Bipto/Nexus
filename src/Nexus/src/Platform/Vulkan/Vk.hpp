@@ -3,11 +3,12 @@
 #if defined(NX_PLATFORM_VULKAN)
 
 	#include "Nexus-Core/Graphics/Framebuffer.hpp"
-	#include "Nexus-Core/Graphics/Multisample.hpp"
 	#include "Nexus-Core/Graphics/SamplerState.hpp"
 	#include "Nexus-Core/Graphics/ShaderDataType.hpp"
 	#include "Nexus-Core/Graphics/ShaderModule.hpp"
 	#include "Nexus-Core/Graphics/Texture.hpp"
+	#include "Nexus-Core/Graphics/DeviceBuffer.hpp"
+	#include "Nexus-Core/Graphics/CommandList.hpp"
 	#include "vk_mem_alloc.h"
 	#include "vulkan/vulkan.h"
 
@@ -15,26 +16,40 @@ const uint32_t FRAMES_IN_FLIGHT = 3;
 
 namespace Nexus::Vk
 {
-	VkFormat			  GetVkPixelDataFormat(Nexus::Graphics::PixelFormat format, bool depthFormat);
+
+	VkFormat					 GetVkPixelDataFormat(Nexus::Graphics::PixelFormat format, bool depthFormat);
 	Nexus::Graphics::PixelFormat GetNxPixelFormatFromVkPixelFormat(VkFormat format);
-	VkFormat			  GetShaderDataType(Nexus::Graphics::ShaderDataType type);
-	VkSampleCountFlagBits GetVkSampleCount(Nexus::Graphics::SampleCount samples);
+	VkFormat					 GetShaderDataType(Nexus::Graphics::ShaderDataType type);
 
 	void GetVkFilterFromNexusFormat(Nexus::Graphics::SamplerFilter filter, VkFilter &min, VkFilter &max, VkSamplerMipmapMode &mipmapMode);
 	VkSamplerAddressMode GetVkSamplerAddressMode(Nexus::Graphics::SamplerAddressMode addressMode);
 
-	VkCompareOp			 GetCompareOp(Nexus::Graphics::ComparisonFunction function);
-	VkBlendOp			 GetVkBlendOp(Nexus::Graphics::BlendEquation function);
-	VkBlendFactor		 GetVkBlendFactor(Nexus::Graphics::BlendFactor function);
-	VkBorderColor		 GetVkBorderColor(Nexus::Graphics::BorderColor color);
-	VkImageUsageFlagBits GetVkImageUsageFlags(const std::vector<Nexus::Graphics::TextureUsage> &usage, bool &isDepth);
+	VkCompareOp			  GetCompareOp(Nexus::Graphics::ComparisonFunction function);
+	VkBlendOp			  GetVkBlendOp(Nexus::Graphics::BlendEquation function);
+	VkBlendFactor		  GetVkBlendFactor(Nexus::Graphics::BlendFactor function);
+	VkBorderColor		  GetVkBorderColor(Nexus::Graphics::BorderColor color);
+	VkImageUsageFlagBits  GetVkImageUsageFlags(uint8_t usage);
+	VkImageCreateFlagBits GetVkImageCreateFlagBits(uint8_t usage);
+	VkImageType			  GetVkImageType(Graphics::TextureType textureType);
+	VkImageViewType		  GetVkImageViewType(const Graphics::TextureSpecification &spec);
 
 	VkShaderStageFlagBits GetVkShaderStageFlags(Nexus::Graphics::ShaderStage stage);
 
 	VkIndexType GetVulkanIndexBufferFormat(Nexus::Graphics::IndexBufferFormat format);
 	VkFrontFace GetFrontFace(Nexus::Graphics::FrontFace frontFace);
 
-	bool SetObjectName(VkDevice device, VkObjectType type, uint64_t objectHandle, const char *name);
+	VkBufferCreateInfo		GetVkBufferCreateInfo(const Graphics::DeviceBufferDescription &desc);
+	VmaAllocationCreateInfo GetVmaAllocationCreateInfo(const Graphics::DeviceBufferDescription &desc);
+
+	bool				  SetObjectName(VkDevice device, VkObjectType type, uint64_t objectHandle, const char *name);
+	uint32_t			  GetSampleCountFromVkSampleCountFlags(VkSampleCountFlags sampleCount);
+	VkSampleCountFlagBits GetVkSampleCountFlagsFromSampleCount(uint32_t samples);
+
+	VkPipelineStageFlags2 GetBarrierPipelineStage(Nexus::Graphics::BarrierStage stage);
+	VkAccessFlags2		  GetBarrierAccessFlags(Nexus::Graphics::BarrierAccess access);
+	VkImageLayout		  GetBarrierLayout(Nexus::Graphics::BarrierLayout layout);
+
+	VkImageAspectFlagBits GetAspectFlags(Graphics::ImageAspect aspect);
 
 	struct AllocatedBuffer
 	{

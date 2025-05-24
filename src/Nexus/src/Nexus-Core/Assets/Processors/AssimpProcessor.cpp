@@ -4,6 +4,8 @@
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
 
+#include "Nexus-Core/Runtime/Project.hpp"
+
 #include "stb_image.h"
 
 namespace Nexus::Processors
@@ -91,32 +93,44 @@ namespace Nexus::Processors
 		for (unsigned int i = 0; i < node->mNumChildren; i++) { ProcessNode(node->mChildren[i], scene, materials, meshData, device); }
 	}
 
-	Nexus::Ref<Nexus::Graphics::Texture2D> LoadEmbeddedTexture(const aiTexture *texture, Nexus::Graphics::GraphicsDevice *device)
+	Nexus::Ref<Nexus::Graphics::Texture> LoadEmbeddedTexture(const aiTexture *texture, Nexus::Graphics::GraphicsDevice *device)
 	{
 		std::vector<unsigned char> pixels;
 		pixels.reserve(texture->mWidth * texture->mHeight * 4);
 		memcpy(pixels.data(), texture->pcData, pixels.size());
-		Nexus::Utils::FlipPixelsVertically(pixels, texture->mWidth, texture->mHeight, Graphics::PixelFormat::R8_G8_B8_A8_UNorm);
+		Nexus::Utils::FlipPixelsVertically(pixels.data(), texture->mWidth, texture->mHeight, Graphics::PixelFormat::R8_G8_B8_A8_UNorm);
 
-		Nexus::Graphics::Texture2DSpecification spec = {};
-		spec.Format									 = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
-		spec.MipLevels								 = 1;
-		spec.Width									 = texture->mWidth;
-		spec.Height									 = texture->mHeight;
+		Nexus::Graphics::TextureSpecification textureSpec = {};
+		textureSpec.Format								  = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
+		textureSpec.MipLevels							  = 1;
+		textureSpec.ArrayLayers							  = 1;
+		textureSpec.Width								  = texture->mWidth;
+		textureSpec.Height								  = texture->mHeight;
+		textureSpec.Type								  = Nexus::Graphics::TextureType::Texture2D;
+		textureSpec.Usage								  = Nexus::Graphics::TextureUsage_Sampled;
 
-		Nexus::Ref<Nexus::Graphics::Texture2D> createdTexture = device->CreateTexture2D(spec);
-		createdTexture->SetData(pixels.data(), 0, 0, 0, spec.Width, spec.Height);
+		Nexus::Ref<Nexus::Graphics::Texture> createdTexture = Nexus::Ref<Nexus::Graphics::Texture>(device->CreateTexture(textureSpec));
+
+		Graphics::DeviceBufferDescription bufferDesc   = {};
+		bufferDesc.Access							   = Graphics::BufferMemoryAccess::Upload;
+		bufferDesc.Usage							   = BUFFER_USAGE_NONE;
+		bufferDesc.SizeInBytes						   = pixels.size();
+		bufferDesc.StrideInBytes					   = pixels.size();
+		Ref<Graphics::DeviceBuffer> buffer			   = device->CreateDeviceBuffer(bufferDesc);
+
+		Ref<Graphics::CommandList> cmdList = device->CreateCommandList();
+
 		return createdTexture;
 	}
 
-	Nexus::Ref<Nexus::Graphics::Texture2D> LoadTextureFile(const std::string			   &filename,
-														   const std::string			   &directory,
-														   bool								generateMips,
-														   Nexus::Graphics::GraphicsDevice *device)
+	Nexus::Ref<Nexus::Graphics::Texture> LoadTextureFile(const std::string				 &filename,
+														 const std::string				 &directory,
+														 bool							  generateMips,
+														 Nexus::Graphics::GraphicsDevice *device)
 	{
 		std::string texturePath = directory + std::string("/") + filename;
 
-		Nexus::Ref<Nexus::Graphics::Texture2D> texture = nullptr;
+		Nexus::Ref<Nexus::Graphics::Texture> texture = nullptr;
 
 		if (std::filesystem::is_regular_file(texturePath))
 		{
@@ -181,9 +195,9 @@ namespace Nexus::Processors
 				specularColour.a = assimpSpecularColour.a;
 			}
 
-			Nexus::Ref<Nexus::Graphics::Texture2D> diffuseTexture  = nullptr;
-			Nexus::Ref<Nexus::Graphics::Texture2D> normalTexture   = nullptr;
-			Nexus::Ref<Nexus::Graphics::Texture2D> specularTexture = nullptr;
+			Nexus::Ref<Nexus::Graphics::Texture> diffuseTexture	 = nullptr;
+			Nexus::Ref<Nexus::Graphics::Texture> normalTexture	 = nullptr;
+			Nexus::Ref<Nexus::Graphics::Texture> specularTexture = nullptr;
 
 			if (hasDiffuseTexture)
 			{
@@ -239,6 +253,7 @@ namespace Nexus::Processors
 	{
 		std::ofstream file(filepath, std::ios::binary);
 
+		file << "MODEL ";
 		file << meshes.size() << " ";
 
 		for (size_t i = 0; i < meshes.size(); i++)
@@ -295,21 +310,22 @@ namespace Nexus::Processors
 	{
 		ModelImportData					 importData = LoadModel(filepath, device);
 		std::vector<Ref<Graphics::Mesh>> meshes;
-		WriteBinaryModelFile(filepath + ".bin", importData.meshes);
 
 		for (size_t i = 0; i < importData.meshes.size(); i++)
 		{
 			const Graphics::MeshData &data = importData.meshes[i];
 
-			Nexus::Graphics::BufferDescription vertexBufferDesc;
-			vertexBufferDesc.Size  = data.vertices.size() * sizeof(Graphics::VertexPositionTexCoordNormalColourTangentBitangent);
-			vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-			auto vertexBuffer	   = device->CreateVertexBuffer(vertexBufferDesc, data.vertices.data());
+			Nexus::Ref<Nexus::Graphics::DeviceBuffer> vertexBuffer =
+				Nexus::Utils::CreateFilledVertexBuffer(data.vertices.data(),
+													   data.vertices.size() * sizeof(data.vertices[0]),
+													   sizeof(data.vertices[0]),
+													   device);
 
-			Nexus::Graphics::BufferDescription indexBufferDesc;
-			indexBufferDesc.Size  = data.indices.size() * sizeof(uint32_t);
-			indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-			auto indexBuffer	  = device->CreateIndexBuffer(indexBufferDesc, data.indices.data());
+			Nexus::Ref<Nexus::Graphics::DeviceBuffer> indexBuffer =
+				Nexus::Utils::CreateFilledIndexBuffer(data.indices.data(),
+													  data.indices.size() * sizeof(data.indices[0]),
+													  sizeof(data.indices[0]),
+													  device);
 
 			Graphics::Material		   material = importData.materials[data.materialIndex];
 			Nexus::Ref<Graphics::Mesh> mesh		= CreateRef<Graphics::Mesh>(vertexBuffer, indexBuffer, material, data.name);
@@ -330,6 +346,11 @@ namespace Nexus::Processors
 		WriteBinaryModelFile(outputFilePath.string(), importData.meshes);
 
 		Assets::AssetRegistry &registry = project->GetAssetRegistry();
-		return registry.RegisterAsset(assetPath.string());
+		return registry.RegisterAsset(GetName(), assetPath.string());
+	}
+
+	std::any Nexus::Processors::AssimpProcessor::Import(const std::string &filepath)
+	{
+		return nullptr;
 	}
 }	 // namespace Nexus::Processors

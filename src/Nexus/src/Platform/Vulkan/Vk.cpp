@@ -189,18 +189,6 @@ namespace Nexus::Vk
 		}
 	}
 
-	VkSampleCountFlagBits GetVkSampleCount(Nexus::Graphics::SampleCount samples)
-	{
-		switch (samples)
-		{
-			case Nexus::Graphics::SampleCount::SampleCount1: return VK_SAMPLE_COUNT_1_BIT;
-			case Nexus::Graphics::SampleCount::SampleCount2: return VK_SAMPLE_COUNT_2_BIT;
-			case Nexus::Graphics::SampleCount::SampleCount4: return VK_SAMPLE_COUNT_4_BIT;
-			case Nexus::Graphics::SampleCount::SampleCount8: return VK_SAMPLE_COUNT_8_BIT;
-			default: throw std::runtime_error("Failed to find a valid sample count");
-		}
-	}
-
 	void GetVkFilterFromNexusFormat(Nexus::Graphics::SamplerFilter filter, VkFilter &min, VkFilter &max, VkSamplerMipmapMode &mipmapMode)
 	{
 		switch (filter)
@@ -334,50 +322,104 @@ namespace Nexus::Vk
 		}
 	}
 
-	VkImageUsageFlagBits GetVkImageUsageFlags(const std::vector<Nexus::Graphics::TextureUsage> &usage, bool &isDepth)
+	VkImageUsageFlagBits GetVkImageUsageFlags(uint8_t usage)
 	{
-		isDepth					   = false;
 		VkImageUsageFlagBits flags = VkImageUsageFlagBits(VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
 
-		for (const auto &item : usage)
+		if (usage & Nexus::Graphics::TextureUsage_DepthStencil)
 		{
-			if (item == Nexus::Graphics::TextureUsage::DepthStencil)
-			{
-				isDepth = true;
-			}
+			flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
 		}
 
-		for (const auto &item : usage)
+		if (usage & Nexus::Graphics::TextureUsage_RenderTarget)
 		{
-			if (item == Nexus::Graphics::TextureUsage::DepthStencil)
-			{
-				flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_SAMPLED_BIT);
-			}
+			flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
+		}
 
-			if (item == Nexus::Graphics::TextureUsage::RenderTarget)
-			{
-				if (isDepth)
-				{
-					flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
-				}
-				else
-				{
-					flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
-				}
-			}
+		// this is required to be set to use an VkImageView
+		//  if (usage & Nexus::Graphics::TextureUsage_Sampled)
+		{
+			flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_SAMPLED_BIT);
+		}
 
-			if (item == Nexus::Graphics::TextureUsage::Sampled)
-			{
-				flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_SAMPLED_BIT);
-			}
-
-			if (item == Nexus::Graphics::TextureUsage::Storage)
-			{
-				flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_STORAGE_BIT);
-			}
+		if (usage & Nexus::Graphics::TextureUsage_Storage)
+		{
+			flags = VkImageUsageFlagBits(flags | VK_IMAGE_USAGE_STORAGE_BIT);
 		}
 
 		return flags;
+	}
+
+	VkImageCreateFlagBits GetVkImageCreateFlagBits(uint8_t usage)
+	{
+		VkImageCreateFlagBits flags = VkImageCreateFlagBits();
+
+		if (usage & Nexus::Graphics::TextureUsage_Cubemap)
+		{
+			flags = VkImageCreateFlagBits(flags | VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT);
+		}
+
+		return flags;
+	}
+
+	VkImageType GetVkImageType(Graphics::TextureType textureType)
+	{
+		switch (textureType)
+		{
+			case Graphics::TextureType::Texture1D: return VK_IMAGE_TYPE_1D;
+			case Graphics::TextureType::Texture2D: return VK_IMAGE_TYPE_2D;
+			case Graphics::TextureType::Texture3D: return VK_IMAGE_TYPE_3D;
+			default: throw std::runtime_error("Failed to find a valid image type");
+		}
+	}
+
+	VkImageViewType GetVkImageViewType(const Graphics::TextureSpecification &spec)
+	{
+		switch (spec.Type)
+		{
+			case Graphics::TextureType::Texture1D:
+			{
+				if (spec.ArrayLayers > 1)
+				{
+					return VK_IMAGE_VIEW_TYPE_1D_ARRAY;
+				}
+				else
+				{
+					return VK_IMAGE_VIEW_TYPE_1D;
+				}
+			}
+			case Graphics::TextureType::Texture2D:
+			{
+				if (spec.Usage & Graphics::TextureUsage_Cubemap)
+				{
+					if (spec.ArrayLayers > 6)
+					{
+						return VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
+					}
+					else
+					{
+						return VK_IMAGE_VIEW_TYPE_CUBE;
+					}
+				}
+				else
+				{
+					if (spec.ArrayLayers > 1)
+					{
+						return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+					}
+					else
+					{
+						return VK_IMAGE_VIEW_TYPE_2D;
+					}
+				}
+			}
+			case Graphics::TextureType::Texture3D:
+			{
+				return VK_IMAGE_VIEW_TYPE_3D;
+			}
+		}
+
+		throw std::runtime_error("Failed to find a valid image view type");
 	}
 
 	VkShaderStageFlagBits GetVkShaderStageFlags(Nexus::Graphics::ShaderStage stage)
@@ -414,6 +456,63 @@ namespace Nexus::Vk
 		}
 	}
 
+	VkBufferUsageFlags GetVkBufferUsage(const Graphics::DeviceBufferDescription &desc)
+	{
+		VkBufferUsageFlags flags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+
+		if (desc.Usage & Graphics::BufferUsage::Vertex)
+		{
+			flags |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+		}
+
+		if (desc.Usage & Graphics::BufferUsage::Index)
+		{
+			flags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+		}
+
+		if (desc.Usage & Graphics::BufferUsage::Uniform)
+		{
+			flags |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+		}
+
+		if (desc.Usage & Graphics::BufferUsage::Storage)
+		{
+			flags |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+		}
+
+		if (desc.Usage & Graphics::BufferUsage::Index)
+		{
+			flags |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
+		}
+
+		return flags;
+	}
+
+	VkBufferCreateInfo GetVkBufferCreateInfo(const Graphics::DeviceBufferDescription &desc)
+	{
+		VkBufferUsageFlags bufferUsage = GetVkBufferUsage(desc);
+
+		VkBufferCreateInfo createInfo = {};
+		createInfo.sType			  = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		createInfo.size				  = desc.SizeInBytes;
+		createInfo.usage			  = bufferUsage;
+		return createInfo;
+	}
+
+	VmaAllocationCreateInfo GetVmaAllocationCreateInfo(const Graphics::DeviceBufferDescription &desc)
+	{
+		VmaAllocationCreateInfo createInfo = {};
+		createInfo.usage				   = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE;
+
+		if (desc.Access == Graphics::BufferMemoryAccess::Upload || desc.Access == Graphics::BufferMemoryAccess::Readback)
+		{
+			createInfo.flags		 = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+			createInfo.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+		}
+
+		return createInfo;
+	}
+
 	bool SetObjectName(VkDevice device, VkObjectType type, uint64_t objectHandle, const char *name)
 	{
 		VkDebugUtilsObjectNameInfoEXT nameInfo = {};
@@ -431,6 +530,99 @@ namespace Nexus::Vk
 		}
 
 		return true;
+	}
+
+	uint32_t GetSampleCountFromVkSampleCountFlags(VkSampleCountFlags sampleCount)
+	{
+		uint32_t count = 0;
+		while (sampleCount > 1)
+		{
+			sampleCount >>= 1;
+			count++;
+		}
+
+		return 1 << count;
+	}
+
+	VkSampleCountFlagBits GetVkSampleCountFlagsFromSampleCount(uint32_t samples)
+	{
+		VkSampleCountFlagBits vkSampleCountFlag = static_cast<VkSampleCountFlagBits>(samples);
+		return vkSampleCountFlag;
+	}
+
+	VkPipelineStageFlags2 GetBarrierPipelineStage(Nexus::Graphics::BarrierStage stage)
+	{
+		switch (stage)
+		{
+			case Nexus::Graphics::BarrierStage::None: return VK_PIPELINE_STAGE_NONE;
+			case Nexus::Graphics::BarrierStage::All: return VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+			case Nexus::Graphics::BarrierStage::Graphics: return VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
+			case Nexus::Graphics::BarrierStage::VertexInput: return VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
+			case Nexus::Graphics::BarrierStage::VertexShader: return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
+			case Nexus::Graphics::BarrierStage::FragmentShader: return VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+			case Nexus::Graphics::BarrierStage::TesselationControlShader: return VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT;
+			case Nexus::Graphics::BarrierStage::TesselationEvaluationShader: return VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT;
+			case Nexus::Graphics::BarrierStage::GeometryShader: return VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT;
+			case Nexus::Graphics::BarrierStage::ComputeShader: return VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+			case Nexus::Graphics::BarrierStage::RenderTarget: return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+			case Nexus::Graphics::BarrierStage::TransferSource: return VK_PIPELINE_STAGE_TRANSFER_BIT;
+			case Nexus::Graphics::BarrierStage::TransferDestination: return VK_PIPELINE_STAGE_TRANSFER_BIT;
+			case Nexus::Graphics::BarrierStage::Resolve: return VK_PIPELINE_STAGE_2_RESOLVE_BIT;
+			default: throw std::runtime_error("Failed to find a valid pipeline stage");
+		}
+	}
+
+	VkAccessFlags2 GetBarrierAccessFlags(Nexus::Graphics::BarrierAccess access)
+	{
+		switch (access)
+		{
+			case Nexus::Graphics::BarrierAccess::None: return VK_ACCESS_NONE;
+			case Nexus::Graphics::BarrierAccess::All: return VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
+			case Nexus::Graphics::BarrierAccess::VertexBuffer: return VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+			case Nexus::Graphics::BarrierAccess::IndexBuffer: return VK_ACCESS_INDEX_READ_BIT;
+			case Nexus::Graphics::BarrierAccess::RenderTarget: return VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+			case Nexus::Graphics::BarrierAccess::DepthStencilRead: return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+			case Nexus::Graphics::BarrierAccess::DepthStencilWrite:
+				return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+			case Nexus::Graphics::BarrierAccess::ResolveSource: return VK_ACCESS_MEMORY_READ_BIT;
+			case Nexus::Graphics::BarrierAccess::ResolveDestination: return VK_ACCESS_MEMORY_WRITE_BIT;
+			case Nexus::Graphics::BarrierAccess::CopySource: return VK_ACCESS_MEMORY_READ_BIT;
+			case Nexus::Graphics::BarrierAccess::CopyDestination: return VK_ACCESS_MEMORY_WRITE_BIT;
+			case Nexus::Graphics::BarrierAccess::DrawIndirect: return VK_ACCESS_INDIRECT_COMMAND_READ_BIT;
+			default: throw std::runtime_error("Failed to find a valid barrier access type");
+		}
+	}
+
+	VkImageLayout GetBarrierLayout(Nexus::Graphics::BarrierLayout layout)
+	{
+		switch (layout)
+		{
+			case Nexus::Graphics::BarrierLayout::Undefined: return VK_IMAGE_LAYOUT_UNDEFINED;
+			case Nexus::Graphics::BarrierLayout::General: return VK_IMAGE_LAYOUT_GENERAL;
+			case Nexus::Graphics::BarrierLayout::Present: return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+			case Nexus::Graphics::BarrierLayout::RenderTarget: return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			case Nexus::Graphics::BarrierLayout::DepthStencilRead: return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+			case Nexus::Graphics::BarrierLayout::DepthStencilWrite: return VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+			case Nexus::Graphics::BarrierLayout::CopySource: return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+			case Nexus::Graphics::BarrierLayout::CopyDestination: return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+			case Nexus::Graphics::BarrierLayout::ResolveSource: return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+			case Nexus::Graphics::BarrierLayout::ResolveDestimation: return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+			case Nexus::Graphics::BarrierLayout::ShaderReadOnly: return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			case Nexus::Graphics::BarrierLayout::ShaderReadWrite: return VK_IMAGE_LAYOUT_GENERAL;
+			default: throw std::runtime_error("Failed to find a valid barrier layout");
+		}
+	}
+
+	VkImageAspectFlagBits GetAspectFlags(Graphics::ImageAspect aspect)
+	{
+		switch (aspect)
+		{
+			case Graphics::ImageAspect::Colour: return VK_IMAGE_ASPECT_COLOR_BIT;
+			case Graphics::ImageAspect::Depth: return VK_IMAGE_ASPECT_DEPTH_BIT;
+			case Graphics::ImageAspect::Stencil: return VK_IMAGE_ASPECT_STENCIL_BIT;
+			case Graphics::ImageAspect::DepthStencil: return VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
+			default: throw std::runtime_error("Failed to find valid aspect flags");
+		}
 	}
 }	 // namespace Nexus::Vk
 

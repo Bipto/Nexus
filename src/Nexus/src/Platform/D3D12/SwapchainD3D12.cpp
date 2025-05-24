@@ -35,7 +35,7 @@ namespace Nexus::Graphics
 
 	void SwapchainD3D12::SwapBuffers()
 	{
-		if (m_Specification.Samples != SampleCount::SampleCount1)
+		if (m_Specification.Samples > 1)
 		{
 			Resolve();
 		}
@@ -50,7 +50,7 @@ namespace Nexus::Graphics
 			barrier.Transition.StateBefore = this->GetCurrentTextureState();
 			barrier.Transition.StateAfter  = D3D12_RESOURCE_STATE_PRESENT;
 
-			m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList6 *cmd) { cmd->ResourceBarrier(1, &barrier); });
+			m_Device->ImmediateSubmit([&](ID3D12GraphicsCommandList7 *cmd) { cmd->ResourceBarrier(1, &barrier); });
 
 			SetTextureState(D3D12_RESOURCE_STATE_PRESENT);
 		}
@@ -103,9 +103,9 @@ namespace Nexus::Graphics
 		return m_RenderTargetViewDescriptorHandles.at(m_CurrentBufferIndex);
 	}
 
-	ID3D12Resource2 *SwapchainD3D12::RetrieveDepthBufferHandle()
+	Microsoft::WRL::ComPtr<ID3D12Resource2> SwapchainD3D12::RetrieveDepthBufferHandle()
 	{
-		return m_DepthBuffer.Get();
+		return m_DepthBuffer;
 	}
 
 	D3D12_CPU_DESCRIPTOR_HANDLE
@@ -253,7 +253,8 @@ namespace Nexus::Graphics
 
 		// create the swapchain and query for the correct swapchain type
 		Microsoft::WRL::ComPtr<IDXGISwapChain1> sc1;
-		factory->CreateSwapChainForHwnd(m_Device->GetCommandQueue(), hwnd, &swapchainDesc, &fullscreenDesc, nullptr, sc1.GetAddressOf());
+		Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue = m_Device->GetCommandQueue();
+		factory->CreateSwapChainForHwnd(commandQueue.Get(), hwnd, &swapchainDesc, &fullscreenDesc, nullptr, sc1.GetAddressOf());
 		if (SUCCEEDED(sc1->QueryInterface(IID_PPV_ARGS(&m_Swapchain)))) {}
 
 		// retrieve the ID3D12Device
@@ -361,10 +362,10 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		Ref<Texture2D_D3D12> framebufferTexture = std::dynamic_pointer_cast<Texture2D_D3D12>(m_MultisampledFramebuffer->GetColorTexture());
+		Ref<TextureD3D12> framebufferTexture = std::dynamic_pointer_cast<TextureD3D12>(m_MultisampledFramebuffer->GetColorTexture());
 
 		DXGI_FORMAT			  format		   = D3D12::GetD3D12PixelFormat(Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm, false);
-		D3D12_RESOURCE_STATES framebufferState = framebufferTexture->GetResourceState(0);
+		D3D12_RESOURCE_STATES framebufferState = framebufferTexture->GetResourceState(0, 0);
 		D3D12_RESOURCE_STATES swapchainState   = GetCurrentTextureState();
 
 		std::vector<D3D12_RESOURCE_BARRIER> resourceBarriers;
@@ -372,23 +373,15 @@ namespace Nexus::Graphics
 		auto swapchainTexture = RetrieveBufferHandle();
 
 		m_Device->ImmediateSubmit(
-			[&](ID3D12GraphicsCommandList6 *cmd)
+			[&](ID3D12GraphicsCommandList7 *cmd)
 			{
-				m_Device->ResourceBarrier(cmd,
-										  framebufferTexture->GetD3D12ResourceHandle().Get(),
-										  0,
-										  framebufferState,
-										  D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
-				m_Device->ResourceBarrier(cmd, swapchainTexture.Get(), 0, swapchainState, D3D12_RESOURCE_STATE_RESOLVE_DEST);
+				m_Device->ResourceBarrier(cmd, framebufferTexture, 0, 0, D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
+				m_Device->ResourceBarrier(cmd, swapchainTexture.Get(), 0, 0, 1, swapchainState, D3D12_RESOURCE_STATE_RESOLVE_DEST);
 
-				cmd->ResolveSubresource(swapchainTexture.Get(), 0, framebufferTexture->GetD3D12ResourceHandle().Get(), 0, format);
+				cmd->ResolveSubresource(swapchainTexture.Get(), 0, framebufferTexture->GetHandle().Get(), 0, format);
 
-				m_Device->ResourceBarrier(cmd,
-										  framebufferTexture->GetD3D12ResourceHandle().Get(),
-										  0,
-										  D3D12_RESOURCE_STATE_RESOLVE_SOURCE,
-										  framebufferState);
-				m_Device->ResourceBarrier(cmd, swapchainTexture.Get(), 0, D3D12_RESOURCE_STATE_RESOLVE_DEST, swapchainState);
+				m_Device->ResourceBarrier(cmd, framebufferTexture, 0, 0, framebufferState);
+				m_Device->ResourceBarrier(cmd, swapchainTexture.Get(), 0, 0, 1, D3D12_RESOURCE_STATE_RESOLVE_DEST, swapchainState);
 			});
 	}
 }	 // namespace Nexus::Graphics

@@ -13,6 +13,8 @@
 #include "Nexus-Core/Graphics/Texture.hpp"
 #include "Nexus-Core/Timings/Timespan.hpp"
 
+#include "Nexus-Core/Renderer/BatchRenderer.hpp"
+
 namespace Nexus
 {
 	struct SceneInfo
@@ -32,7 +34,7 @@ namespace Nexus
 	struct Environment
 	{
 		std::string			   CubemapPath		  = {};
-		Ref<Graphics::Cubemap> EnvironmentCubemap = nullptr;
+		Ref<Graphics::Texture> EnvironmentCubemap = nullptr;
 		Ref<Graphics::Sampler> CubemapSampler	  = nullptr;
 		glm::vec4			   ClearColour		  = {1.0f, 1.0f, 1.0f, 1.0f};
 	};

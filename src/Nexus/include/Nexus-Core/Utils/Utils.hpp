@@ -8,6 +8,12 @@
 #include "Nexus-Core/Point.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
+namespace Nexus::Graphics
+{
+	class DeviceBuffer;
+	class GraphicsDevice;
+}	 // namespace Nexus::Graphics
+
 namespace Nexus::Utils
 {
 	NX_API glm::vec4 ColorFromRGBA(float r, float g, float b, float a);
@@ -81,7 +87,7 @@ namespace Nexus::Utils
 		{
 			return collection[index];
 		}
-	 }
+	}
 
 	template<typename T>
 	inline bool Contains(std::vector<T> items, T toFind)
@@ -126,8 +132,28 @@ namespace Nexus::Utils
 		return hash;
 	}
 
-	NX_API void FlipPixelsHorizontally(std::vector<unsigned char> &pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format);
-	NX_API void FlipPixelsVertically(std::vector<unsigned char> &pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format);
+	Ref<Graphics::DeviceBuffer> CreateUploadBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::GraphicsDevice *device);
+	Ref<Graphics::DeviceBuffer>				CreateFilledVertexBuffer(const void				  *data,
+																	 size_t					   sizeInBytes,
+																	 size_t					   strideInBytes,
+																	 Graphics::GraphicsDevice *device);
+	Ref<Graphics::DeviceBuffer> CreateFilledIndexBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::GraphicsDevice *device);
+	Ref<Graphics::DeviceBuffer> CreateFilledUniformBuffer(const void			   *data,
+														  size_t					sizeInBytes,
+														  size_t					strideInBytes,
+														  Graphics::GraphicsDevice *device);
+
+	template<typename T>
+	T AlignTo(T value, T alignment)
+	{
+		// return std::ceil(value / alignment) * alignment;
+		return (value + (alignment / 2) / alignment) * alignment;
+	}
+
+	void ConvertNanosecondsToTm(uint64_t nanoseconds, std::tm &outTime);
+
+	NX_API void FlipPixelsHorizontally(void *pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format);
+	NX_API void FlipPixelsVertically(void *pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format);
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x)	 STRINGIFY(x)

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Nexus-Core/Graphics/IPhysicalDevice.hpp"
+
 namespace Nexus::GL
 {
 	class IOffscreenContext

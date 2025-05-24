@@ -7,6 +7,8 @@
 
 #include "Nexus-Core/Assets/Processors/IProcessor.hpp"
 
+#define MODELS_PROCESSOR_NAME "Models"
+
 namespace Nexus::Processors
 {
 	struct ModelImportData
@@ -18,11 +20,14 @@ namespace Nexus::Processors
 	class NX_API AssimpProcessor : public IProcessor
 	{
 	  public:
-		AssimpProcessor() = default;
+		AssimpProcessor() : IProcessor(MODELS_PROCESSOR_NAME)
+		{
+		}
 		ModelImportData		 LoadModel(const std::string &filepath, Graphics::GraphicsDevice *device);
 		Ref<Graphics::Model> Import(const std::string &filepath, Graphics::GraphicsDevice *device);
 		GUID				 Process(const std::string &filepath, Graphics::GraphicsDevice *device, Project *project) final;
+		virtual std::any	 Import(const std::string &filepath) final;
 	};
 
-	NX_REGISTER_PROCESSOR(AssimpProcessor, "Models", (std::vector<std::string> {".fbx", ".obj", ".dae"}));
+	NX_REGISTER_PROCESSOR(AssimpProcessor, Graphics::Model, MODELS_PROCESSOR_NAME, (std::vector<std::string> {".fbx", ".obj", ".dae"}));
 }	 // namespace Nexus::Processors

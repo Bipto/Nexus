@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Nexus-Core/Graphics/Multisample.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
 namespace Nexus::GL
@@ -23,7 +22,7 @@ namespace Nexus::GL
 		uint8_t				  GreenBits		 = 8;
 		uint8_t				  BlueBits		 = 8;
 		uint8_t				  AlphaBits		 = 8;
-		Graphics::SampleCount Samples		 = Graphics::SampleCount::SampleCount1;
+		uint32_t			  Samples		 = 1;
 		bool				  Vsync			 = true;
 		bool				  UseCoreProfile = true;
 		OpenGLVersion		  GLVersion		 = OpenGLVersion::OpenGL;

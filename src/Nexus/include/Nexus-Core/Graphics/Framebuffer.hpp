@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Nexus-Core/Graphics/Multisample.hpp"
 #include "Nexus-Core/Graphics/Texture.hpp"
 #include "Nexus-Core/Types.hpp"
 #include "Nexus-Core/nxpch.hpp"
@@ -73,7 +72,7 @@ namespace Nexus::Graphics
 		/// @brief Settings to use when creating a depth attachment
 		FramebufferDepthAttachmentSpecification DepthAttachmentSpecification;
 
-		SampleCount Samples = SampleCount::SampleCount1;
+		uint32_t Samples = 1;
 	};
 
 	/// @brief A pure virtual class representing an API specific framebuffer
@@ -125,12 +124,12 @@ namespace Nexus::Graphics
 		/// framebuffer at the specified index
 		/// @param index The index of the texture to retrieve
 		/// @return A pointer to a texture object
-		virtual Ref<Texture2D> GetColorTexture(uint32_t index = 0) = 0;
+		virtual Ref<Texture> GetColorTexture(uint32_t index = 0) = 0;
 
 		/// @brief A pure virtual method to retrieve the depth texture from the
 		/// framebuffer
 		/// @return A pointer to a texture object
-		virtual Ref<Texture2D> GetDepthTexture() = 0;
+		virtual Ref<Texture> GetDepthTexture() = 0;
 
 		void Resize(uint32_t width, uint32_t height)
 		{

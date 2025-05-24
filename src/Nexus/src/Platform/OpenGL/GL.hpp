@@ -24,14 +24,41 @@
 	#include "Nexus-Core/Graphics/Texture.hpp"
 	#include "Nexus-Core/Logging/Log.hpp"
 	#include "Nexus-Core/Vertex.hpp"
+	#include "Nexus-Core/Graphics/IPhysicalDevice.hpp"
 
 	#include "Nexus-Core/IWindow.hpp"
+	#include "Nexus-Core/Graphics/CommandList.hpp"
 
 	#include "Context/IOffscreenContext.hpp"
 	#include "Context/IViewContext.hpp"
 
+namespace Nexus::Graphics
+{
+	class TextureOpenGL;
+}
+
 namespace Nexus::GL
 {
+	enum class GLPrimitiveType
+	{
+		Unknown = 0,
+		Float,
+		Int
+	};
+
+	enum class GLInternalTextureFormat
+	{
+		Texture1D,
+		Texture1DArray,
+		Texture2D,
+		Texture2DMultisample,
+		Texture2DArray,
+		Texture2DArrayMultisample,
+		Texture3D,
+		Cubemap,
+		CubemapArray
+	};
+
 	std::string GetErrorMessageFromCode(const GLenum error);
 
 	GLenum GetStencilOperation(Nexus::Graphics::StencilOperation operation);
@@ -49,12 +76,39 @@ namespace Nexus::GL
 	GLenum GetTopology(Nexus::Graphics::Topology topology);
 
 	GLenum GetShaderStage(Nexus::Graphics::ShaderStage stage);
-	GLenum GLCubemapFace(Nexus::Graphics::CubemapFace face);
 
-	void GetBaseType(const Graphics::VertexBufferElement &element, GLenum &baseType, uint32_t &componentCount, GLboolean &normalized);
+	GLenum GetBufferUsage(const Graphics::DeviceBufferDescription &desc);
 
-	std::unique_ptr<IOffscreenContext> CreateOffscreenContext();
+	GLenum GetAccessMask(Graphics::StorageImageAccess access);
+	GLenum GetTextureType(const Graphics::TextureSpecification &spec);
+
+	GLInternalTextureFormat GetGLInternalTextureFormat(const Graphics::TextureSpecification &spec);
+	void					ValidateFramebuffer(GLuint framebuffer);
+	void					AttachTexture(GLuint					   framebuffer,
+										  Ref<Graphics::TextureOpenGL> texture,
+										  uint32_t					   mipLevel,
+										  uint32_t					   arrayLayer,
+										  Graphics::ImageAspect		   aspect,
+										  uint32_t					   colourIndex);
+
+	void GetBaseType(const Graphics::VertexBufferElement &element,
+					 GLenum								 &baseType,
+					 uint32_t							 &componentCount,
+					 GLboolean							 &normalized,
+					 GLPrimitiveType					 &primitiveType);
+
+	GLenum GetGLImageAspect(Graphics::ImageAspect aspect);
+	GLenum GetAttachmentType(Graphics::ImageAspect aspect, uint32_t index);
+	GLenum GetBufferMaskToCopy(Graphics::ImageAspect aspect);
+
+	std::unique_ptr<IOffscreenContext> CreateOffscreenContext(Graphics::IPhysicalDevice *physicalDevice);
 	std::unique_ptr<IViewContext>	   CreateViewContext(IWindow *window, Graphics::GraphicsDevice *device);
+
+	/// @brief Function that loads required OpenGL functions,
+	// this function should be called by IGraphicsAPI
+	/// @return A boolean indicating whether OpenGL was able to be initialized
+	bool													LoadOpenGL();
+	std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> LoadAvailablePhysicalDevices();
 
 }	 // namespace Nexus::GL
 
@@ -70,6 +124,7 @@ namespace Nexus::GL
 		NX_ERROR(message);                                                                                                                           \
 	}
 
+#define NX_GL_DEBUG
 #if defined(NX_GL_DEBUG)
 	#define glCall(x)                                                                                                                                \
 		glClearErrors();                                                                                                                             \

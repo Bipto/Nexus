@@ -26,6 +26,10 @@ if (DEFINED NX_BUILD_DEMO)
     set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT Demo)
 endif()
 
+if (DEFINED NX_BUILD_SANDBOX)
+    add_subdirectory(src/Sandbox)
+endif()
+
 if (DEFINED NX_BUILD_EDITOR)
     add_subdirectory(src/Editor)
 endif()

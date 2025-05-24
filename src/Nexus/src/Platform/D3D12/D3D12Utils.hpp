@@ -7,6 +7,8 @@
 	#include "Nexus-Core/Graphics/SamplerState.hpp"
 	#include "Nexus-Core/Graphics/ShaderModule.hpp"
 	#include "Nexus-Core/Graphics/Texture.hpp"
+	#include "Nexus-Core/Graphics/DeviceBuffer.hpp"
+	#include "Nexus-Core/Graphics/CommandList.hpp"
 	#include "Nexus-Core/Vertex.hpp"
 
 namespace Nexus::D3D12
@@ -24,8 +26,6 @@ namespace Nexus::D3D12
 	D3D12_BLEND		GetBlendFunction(Nexus::Graphics::BlendFactor function);
 	D3D12_BLEND_OP	GetBlendEquation(Nexus::Graphics::BlendEquation equation);
 
-	D3D12_RESOURCE_FLAGS
-	GetD3D12ResourceFlags(const std::vector<Nexus::Graphics::TextureUsage> &usage, bool &isDepth);
 	D3D12_FILTER GetD3D12Filter(Nexus::Graphics::SamplerFilter filter);
 	D3D12_TEXTURE_ADDRESS_MODE
 	GetD3D12TextureAddressMode(Nexus::Graphics::SamplerAddressMode addressMode);
@@ -34,6 +34,18 @@ namespace Nexus::D3D12
 	GetD3D12IndexBufferFormat(Nexus::Graphics::IndexBufferFormat format);
 	D3D12_PRIMITIVE_TOPOLOGY_TYPE
 	GetPipelineTopology(Nexus::Graphics::Topology topology);
+
+	D3D12_HEAP_TYPE GetHeapType(const Graphics::DeviceBufferDescription &desc);
+	D3D12_RESOURCE_DIMENSION GetResourceDimensions(Nexus::Graphics::TextureType textureType);
+	D3D12_RESOURCE_FLAGS	 GetResourceFlags(uint8_t textureUsage);
+
+	D3D12_BARRIER_SYNC	 GetBarrierSyncType(Nexus::Graphics::BarrierStage stage);
+	D3D12_BARRIER_ACCESS GetBarrierAccessType(Nexus::Graphics::BarrierAccess access);
+	D3D12_BARRIER_LAYOUT GetBarrierLayout(Nexus::Graphics::BarrierLayout layout);
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC CreateTextureSrvView(const Graphics::TextureSpecification &spec);
+	D3D12_UNORDERED_ACCESS_VIEW_DESC CreateTextureUavView(const Graphics::StorageImageView &view);
+
 }	 // namespace Nexus::D3D12
 
 #endif

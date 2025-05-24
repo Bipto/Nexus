@@ -8,11 +8,24 @@
 
 namespace Nexus::Graphics
 {
-	PipelineVk::PipelineVk(const PipelineDescription &description, GraphicsDeviceVk *graphicsDevice)
-		: Pipeline(description),
+	VkPipelineLayoutCreateInfo CreatePipelineLayoutCreateInfo(const std::vector<VkDescriptorSetLayout> &layouts)
+	{
+		VkPipelineLayoutCreateInfo info = {};
+		info.sType						= VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+		info.pNext						= nullptr;
+		info.flags						= 0;
+		info.setLayoutCount				= layouts.size();
+		info.pSetLayouts				= layouts.data();
+		info.pushConstantRangeCount		= 0;
+		info.pPushConstantRanges		= nullptr;
+		return info;
+	}
+
+	GraphicsPipelineVk::GraphicsPipelineVk(const GraphicsPipelineDescription &description, GraphicsDeviceVk *graphicsDevice)
+		: GraphicsPipeline(description),
 		  m_GraphicsDevice(graphicsDevice)
 	{
-		auto resourceSet = new ResourceSetVk(description.ResourceSetSpec, graphicsDevice);
+		std::unique_ptr<ResourceSetVk> resourceSet = std::make_unique<ResourceSetVk>(description.ResourceSetSpec, graphicsDevice);
 
 		const auto						  &pipelineLayouts = resourceSet->GetDescriptorSetLayouts();
 		std::vector<VkDescriptorSetLayout> layouts;
@@ -23,8 +36,6 @@ namespace Nexus::Graphics
 		{
 			throw std::runtime_error("Failed to create pipeline layout");
 		}
-
-		delete resourceSet;
 
 		VkPipelineDepthStencilStateCreateInfo  depthStencilInfo = CreatePipelineDepthStencilStateCreateInfo();
 		VkPipelineRasterizationStateCreateInfo rasterizerInfo	= CreateRasterizationStateCreateInfo(GetPolygonMode(), GetCullMode());
@@ -77,7 +88,7 @@ namespace Nexus::Graphics
 			// create binding descriptions
 			VkVertexInputBindingDescription bindingDescription = {};
 			bindingDescription.binding						   = layoutIndex;
-			bindingDescription.stride						   = layout.GetStride();
+			bindingDescription.stride						   = 0;
 			bindingDescription.inputRate = (layout.GetInstanceStepRate() != 0) ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX;
 			bindingDescriptions.push_back(bindingDescription);
 
@@ -154,7 +165,8 @@ namespace Nexus::Graphics
 													 VK_DYNAMIC_STATE_SCISSOR,
 													 VK_DYNAMIC_STATE_STENCIL_REFERENCE,
 													 VK_DYNAMIC_STATE_DEPTH_BOUNDS,
-													 VK_DYNAMIC_STATE_BLEND_CONSTANTS};
+													 VK_DYNAMIC_STATE_BLEND_CONSTANTS,
+													 VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE};
 
 		dynamicInfo.dynamicStateCount = dynamicStates.size();
 		dynamicInfo.pDynamicStates	  = dynamicStates.data();
@@ -171,28 +183,42 @@ namespace Nexus::Graphics
 		}
 	}
 
-	PipelineVk::~PipelineVk()
+	GraphicsPipelineVk::~GraphicsPipelineVk()
 	{
 		vkDestroyPipeline(m_GraphicsDevice->GetVkDevice(), m_Pipeline, nullptr);
 		vkDestroyPipelineLayout(m_GraphicsDevice->GetVkDevice(), m_PipelineLayout, nullptr);
 	}
 
-	const PipelineDescription &PipelineVk::GetPipelineDescription() const
+	const GraphicsPipelineDescription &GraphicsPipelineVk::GetPipelineDescription() const
 	{
 		return m_Description;
 	}
 
-	VkPipeline PipelineVk::GetPipeline()
+	VkPipeline GraphicsPipelineVk::GetPipeline()
 	{
 		return m_Pipeline;
 	}
 
-	VkPipelineLayout PipelineVk::GetPipelineLayout()
+	VkPipelineLayout GraphicsPipelineVk::GetPipelineLayout()
 	{
 		return m_PipelineLayout;
 	}
 
-	VkPipelineShaderStageCreateInfo PipelineVk::CreatePipelineShaderStageCreateInfo(VkShaderStageFlagBits stage, VkShaderModule module)
+	void GraphicsPipelineVk::Bind(VkCommandBuffer cmd)
+	{
+		vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
+	}
+
+	void GraphicsPipelineVk::SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet)
+	{
+		const auto &descriptorSets = resourceSet->GetDescriptorSets()[m_GraphicsDevice->GetCurrentFrameIndex()];
+		for (const auto &set : descriptorSets)
+		{
+			vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, set.first, 1, &set.second, 0, nullptr);
+		}
+	}
+
+	VkPipelineShaderStageCreateInfo GraphicsPipelineVk::CreatePipelineShaderStageCreateInfo(VkShaderStageFlagBits stage, VkShaderModule module)
 	{
 		VkPipelineShaderStageCreateInfo createInfo = {};
 		createInfo.sType						   = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -203,7 +229,7 @@ namespace Nexus::Graphics
 		return createInfo;
 	}
 
-	VkPipelineInputAssemblyStateCreateInfo PipelineVk::CreateInputAssemblyCreateInfo(VkPrimitiveTopology topology)
+	VkPipelineInputAssemblyStateCreateInfo GraphicsPipelineVk::CreateInputAssemblyCreateInfo(VkPrimitiveTopology topology)
 	{
 		VkPipelineInputAssemblyStateCreateInfo info = {};
 		info.sType									= VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -213,7 +239,8 @@ namespace Nexus::Graphics
 		return info;
 	}
 
-	VkPipelineRasterizationStateCreateInfo PipelineVk::CreateRasterizationStateCreateInfo(VkPolygonMode polygonMode, VkCullModeFlags cullingFlags)
+	VkPipelineRasterizationStateCreateInfo GraphicsPipelineVk::CreateRasterizationStateCreateInfo(VkPolygonMode	  polygonMode,
+																								  VkCullModeFlags cullingFlags)
 	{
 		VkPipelineRasterizationStateCreateInfo info = {};
 		info.sType									= VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
@@ -234,9 +261,9 @@ namespace Nexus::Graphics
 		return info;
 	}
 
-	VkPipelineMultisampleStateCreateInfo PipelineVk::CreateMultisampleStateCreateInfo()
+	VkPipelineMultisampleStateCreateInfo GraphicsPipelineVk::CreateMultisampleStateCreateInfo()
 	{
-		VkSampleCountFlagBits samples = Vk::GetVkSampleCount(m_Description.ColourTargetSampleCount);
+		VkSampleCountFlagBits samples = Vk::GetVkSampleCountFlagsFromSampleCount(m_Description.ColourTargetSampleCount);
 
 		VkPipelineMultisampleStateCreateInfo info = {};
 		info.sType								  = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
@@ -251,12 +278,11 @@ namespace Nexus::Graphics
 		return info;
 	}
 
-	std::vector<VkPipelineColorBlendAttachmentState> PipelineVk::CreateColorBlendAttachmentStates()
+	std::vector<VkPipelineColorBlendAttachmentState> GraphicsPipelineVk::CreateColorBlendAttachmentStates()
 	{
 		std::vector<VkPipelineColorBlendAttachmentState> colourBlendStates;
-		colourBlendStates.reserve(8);
 
-		for (size_t i = 0; i < m_Description.ColourBlendStates.size(); i++)
+		for (size_t i = 0; i < m_Description.ColourTargetCount; i++)
 		{
 			VkColorComponentFlags writeMask = {};
 			if (m_Description.ColourBlendStates[i].PixelWriteMask.Red)
@@ -278,33 +304,20 @@ namespace Nexus::Graphics
 
 			VkPipelineColorBlendAttachmentState blendState = {};
 			blendState.colorWriteMask					   = writeMask;
-			blendState.blendEnable	  = m_Description.ColourBlendStates[i].EnableBlending;
-			blendState.srcColorBlendFactor = Vk::GetVkBlendFactor(m_Description.ColourBlendStates[i].SourceColourBlend);
-			blendState.dstColorBlendFactor = Vk::GetVkBlendFactor(m_Description.ColourBlendStates[i].DestinationColourBlend);
-			blendState.colorBlendOp		   = Vk::GetVkBlendOp(m_Description.ColourBlendStates[i].ColorBlendFunction);
-			blendState.srcAlphaBlendFactor = Vk::GetVkBlendFactor(m_Description.ColourBlendStates[i].SourceAlphaBlend);
-			blendState.dstAlphaBlendFactor = Vk::GetVkBlendFactor(m_Description.ColourBlendStates[i].DestinationAlphaBlend);
-			blendState.alphaBlendOp		   = Vk::GetVkBlendOp(m_Description.ColourBlendStates[i].AlphaBlendFunction);
+			blendState.blendEnable						   = m_Description.ColourBlendStates[i].EnableBlending;
+			blendState.srcColorBlendFactor				   = Vk::GetVkBlendFactor(m_Description.ColourBlendStates[i].SourceColourBlend);
+			blendState.dstColorBlendFactor				   = Vk::GetVkBlendFactor(m_Description.ColourBlendStates[i].DestinationColourBlend);
+			blendState.colorBlendOp						   = Vk::GetVkBlendOp(m_Description.ColourBlendStates[i].ColorBlendFunction);
+			blendState.srcAlphaBlendFactor				   = Vk::GetVkBlendFactor(m_Description.ColourBlendStates[i].SourceAlphaBlend);
+			blendState.dstAlphaBlendFactor				   = Vk::GetVkBlendFactor(m_Description.ColourBlendStates[i].DestinationAlphaBlend);
+			blendState.alphaBlendOp						   = Vk::GetVkBlendOp(m_Description.ColourBlendStates[i].AlphaBlendFunction);
 			colourBlendStates.push_back(blendState);
 		}
 
 		return colourBlendStates;
 	}
 
-	VkPipelineLayoutCreateInfo PipelineVk::CreatePipelineLayoutCreateInfo(const std::vector<VkDescriptorSetLayout> &layouts)
-	{
-		VkPipelineLayoutCreateInfo info = {};
-		info.sType						= VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		info.pNext						= nullptr;
-		info.flags						= 0;
-		info.setLayoutCount				= layouts.size();
-		info.pSetLayouts				= layouts.data();
-		info.pushConstantRangeCount		= 0;
-		info.pPushConstantRanges		= nullptr;
-		return info;
-	}
-
-	VkPipelineDepthStencilStateCreateInfo PipelineVk::CreatePipelineDepthStencilStateCreateInfo()
+	VkPipelineDepthStencilStateCreateInfo GraphicsPipelineVk::CreatePipelineDepthStencilStateCreateInfo()
 	{
 		VkPipelineDepthStencilStateCreateInfo info = {};
 		info.sType								   = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
@@ -322,7 +335,7 @@ namespace Nexus::Graphics
 		return info;
 	}
 
-	VkPrimitiveTopology PipelineVk::GetPrimitiveTopology()
+	VkPrimitiveTopology GraphicsPipelineVk::GetPrimitiveTopology()
 	{
 		switch (m_Description.PrimitiveTopology)
 		{
@@ -337,7 +350,7 @@ namespace Nexus::Graphics
 		return VkPrimitiveTopology();
 	}
 
-	VkPolygonMode PipelineVk::GetPolygonMode()
+	VkPolygonMode GraphicsPipelineVk::GetPolygonMode()
 	{
 		switch (m_Description.RasterizerStateDesc.TriangleFillMode)
 		{
@@ -347,7 +360,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	VkCullModeFlags PipelineVk::GetCullMode()
+	VkCullModeFlags GraphicsPipelineVk::GetCullMode()
 	{
 		switch (m_Description.RasterizerStateDesc.TriangleCullMode)
 		{
@@ -369,7 +382,7 @@ namespace Nexus::Graphics
 		return createInfo;
 	}
 
-	std::vector<VkPipelineShaderStageCreateInfo> PipelineVk::GetShaderStages()
+	std::vector<VkPipelineShaderStageCreateInfo> GraphicsPipelineVk::GetShaderStages()
 	{
 		std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
 
@@ -411,6 +424,62 @@ namespace Nexus::Graphics
 		}
 
 		return shaderStages;
+	}
+
+	ComputePipelineVk::ComputePipelineVk(const ComputePipelineDescription &description, GraphicsDeviceVk *graphicsDevice)
+		: ComputePipeline(description),
+		  m_GraphicsDevice(graphicsDevice)
+	{
+		NX_ASSERT(description.ComputeShader->GetShaderStage() == ShaderStage::Compute,
+				  "Shader passed to ComputePipelineDescription was not a compute shader");
+
+		std::unique_ptr<ResourceSetVk> resourceSet = std::make_unique<ResourceSetVk>(description.ResourceSetSpec, graphicsDevice);
+
+		const auto						  &pipelineLayouts = resourceSet->GetDescriptorSetLayouts();
+		std::vector<VkDescriptorSetLayout> layouts;
+		for (const auto &layout : pipelineLayouts) { layouts.push_back(layout.second); }
+
+		VkPipelineLayoutCreateInfo layoutInfo = CreatePipelineLayoutCreateInfo(layouts);
+		if (vkCreatePipelineLayout(graphicsDevice->GetVkDevice(), &layoutInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to create pipeline layout");
+		}
+
+		Ref<ShaderModuleVk> shaderModule = std::dynamic_pointer_cast<ShaderModuleVk>(description.ComputeShader);
+
+		VkPipelineShaderStageCreateInfo shaderStageInfo = {};
+		shaderStageInfo.sType							= VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		shaderStageInfo.stage							= VK_SHADER_STAGE_COMPUTE_BIT;
+		shaderStageInfo.module							= shaderModule->GetShaderModule();
+		shaderStageInfo.pName							= "main";
+
+		VkComputePipelineCreateInfo pipelineInfo = {};
+		pipelineInfo.sType						 = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+		pipelineInfo.stage						 = shaderStageInfo;
+		pipelineInfo.layout						 = m_PipelineLayout;
+
+		if (vkCreateComputePipelines(m_GraphicsDevice->GetVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_Pipeline) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to create compute pipeline");
+		}
+	}
+
+	ComputePipelineVk::~ComputePipelineVk()
+	{
+	}
+
+	void ComputePipelineVk::Bind(VkCommandBuffer cmd)
+	{
+		vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, m_Pipeline);
+	}
+
+	void ComputePipelineVk::SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet)
+	{
+		const auto &descriptorSets = resourceSet->GetDescriptorSets()[m_GraphicsDevice->GetCurrentFrameIndex()];
+		for (const auto &set : descriptorSets)
+		{
+			vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, m_PipelineLayout, set.first, 1, &set.second, 0, nullptr);
+		}
 	}
 }	 // namespace Nexus::Graphics
 

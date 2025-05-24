@@ -28,7 +28,7 @@ namespace Nexus::Graphics
 		m_Started = false;
 	}
 
-	void CommandList::SetVertexBuffer(Ref<VertexBuffer> vertexBuffer, uint32_t slot)
+	void CommandList::SetVertexBuffer(VertexBufferView vertexBuffer, uint32_t slot)
 	{
 		if (!m_Started)
 		{
@@ -38,12 +38,12 @@ namespace Nexus::Graphics
 		}
 
 		SetVertexBufferCommand command;
-		command.VertexBufferRef = vertexBuffer;
-		command.Slot			= slot;
+		command.View = vertexBuffer;
+		command.Slot = slot;
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::SetIndexBuffer(Ref<IndexBuffer> indexBuffer)
+	void CommandList::SetIndexBuffer(IndexBufferView indexBuffer)
 	{
 		if (!m_Started)
 		{
@@ -52,7 +52,9 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		m_Commands.push_back(indexBuffer);
+		SetIndexBufferCommand command;
+		command.View = indexBuffer;
+		m_Commands.push_back(command);
 	}
 
 	void CommandList::SetPipeline(Ref<Pipeline> pipeline)
@@ -67,7 +69,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(pipeline);
 	}
 
-	void CommandList::Draw(uint32_t start, uint32_t count)
+	void CommandList::Draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t instanceStart)
 	{
 		if (!m_Started)
 		{
@@ -76,13 +78,15 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		DrawElementCommand command;
-		command.Start = start;
-		command.Count = count;
+		DrawCommand command;
+		command.VertexCount	  = vertexCount;
+		command.InstanceCount = instanceCount;
+		command.VertexStart	  = vertexStart;
+		command.InstanceStart = instanceStart;
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::DrawIndexed(uint32_t count, uint32_t indexStart, uint32_t vertexStart)
+	void CommandList::DrawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t indexStart, uint32_t instanceStart)
 	{
 		if (!m_Started)
 		{
@@ -92,48 +96,74 @@ namespace Nexus::Graphics
 		}
 
 		DrawIndexedCommand command;
-		command.VertexStart = vertexStart;
-		command.IndexStart	= indexStart;
-		command.Count		= count;
-		m_Commands.push_back(command);
-	}
-
-	void CommandList::DrawInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t instanceStart)
-	{
-		if (!m_Started)
-		{
-			NX_ERROR("Attempting to record a command into a CommandList without "
-					 "calling Begin()");
-			return;
-		}
-
-		DrawInstancedCommand command;
-		command.VertexCount	  = vertexCount;
-		command.InstanceCount = instanceCount;
-		command.VertexStart	  = vertexStart;
-		command.InstanceStart = instanceStart;
-		m_Commands.push_back(command);
-	}
-
-	void CommandList::DrawInstancedIndexed(uint32_t indexCount,
-										   uint32_t instanceCount,
-										   uint32_t vertexStart,
-										   uint32_t indexStart,
-										   uint32_t instanceStart)
-	{
-		if (!m_Started)
-		{
-			NX_ERROR("Attempting to record a command into a CommandList without "
-					 "calling Begin()");
-			return;
-		}
-
-		DrawInstancedIndexedCommand command;
 		command.IndexCount	  = indexCount;
 		command.InstanceCount = instanceCount;
 		command.VertexStart	  = vertexStart;
 		command.IndexStart	  = indexStart;
 		command.InstanceStart = instanceStart;
+		m_Commands.push_back(command);
+	}
+
+	void CommandList::DrawIndirect(Ref<DeviceBuffer> indirectBuffer, uint32_t offset, uint32_t drawCount)
+	{
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
+		DrawIndirectCommand command;
+		command.IndirectBuffer = indirectBuffer;
+		command.Offset		   = offset;
+		command.DrawCount	   = drawCount;
+		m_Commands.push_back(command);
+	}
+
+	void CommandList::DrawIndexedIndirect(Ref<DeviceBuffer> indirectBuffer, uint32_t offset, uint32_t drawCount)
+	{
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
+		DrawIndirectIndexedCommand command;
+		command.IndirectBuffer = indirectBuffer;
+		command.Offset		   = offset;
+		command.DrawCount	   = drawCount;
+		m_Commands.push_back(command);
+	}
+
+	void CommandList::Dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ)
+	{
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
+		DispatchCommand command;
+		command.WorkGroupCountX = groupCountX;
+		command.WorkGroupCountY = groupCountY;
+		command.WorkGroupCountZ = groupCountZ;
+		m_Commands.push_back(command);
+	}
+
+	void CommandList::DispatchIndirect(Ref<DeviceBuffer> indirectBuffer, uint32_t offset)
+	{
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
+		DispatchIndirectCommand command;
+		command.IndirectBuffer = indirectBuffer;
+		command.Offset		   = offset;
 		m_Commands.push_back(command);
 	}
 
@@ -214,7 +244,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(scissor);
 	}
 
-	void CommandList::ResolveFramebuffer(Ref<Framebuffer> source, uint32_t sourceIndex, Swapchain *target)
+	void CommandList::ResolveFramebuffer(Ref<Framebuffer> source, uint32_t sourceIndex, Ref<Swapchain> target)
 	{
 		if (!m_Started)
 		{
@@ -301,6 +331,39 @@ namespace Nexus::Graphics
 		command.G = g;
 		command.B = b;
 		command.A = a;
+		m_Commands.push_back(command);
+	}
+
+	void CommandList::Barrier(const BarrierDesc &barrier)
+	{
+		m_Commands.push_back(barrier);
+	}
+
+	void CommandList::CopyBufferToBuffer(const BufferCopyDescription &bufferCopy)
+	{
+		Graphics::CopyBufferToBufferCommand command;
+		command.BufferCopy = bufferCopy;
+		m_Commands.push_back(command);
+	}
+
+	void CommandList::CopyBufferToTexture(const BufferTextureCopyDescription &bufferTextureCopy)
+	{
+		Graphics::CopyBufferToTextureCommand command;
+		command.BufferTextureCopy = bufferTextureCopy;
+		m_Commands.push_back(command);
+	}
+
+	void CommandList::CopyTextureToBuffer(const BufferTextureCopyDescription &textureBufferCopy)
+	{
+		Graphics::CopyTextureToBufferCommand command;
+		command.TextureBufferCopy = textureBufferCopy;
+		m_Commands.push_back(command);
+	}
+
+	void CommandList::CopyTextureToTexture(const TextureCopyDescription &textureCopy)
+	{
+		Graphics::CopyTextureToTextureCommand command;
+		command.TextureCopy = textureCopy;
 		m_Commands.push_back(command);
 	}
 

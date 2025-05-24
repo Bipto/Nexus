@@ -4,7 +4,7 @@
 
 	#include "Nexus-Core/Graphics/ResourceSet.hpp"
 	#include "Nexus-Core/nxpch.hpp"
-	#include "Platform/OpenGL/BufferOpenGL.hpp"
+	#include "Platform/OpenGL/DeviceBufferOpenGL.hpp"
 	#include "Platform/OpenGL/SamplerOpenGL.hpp"
 	#include "Platform/OpenGL/TextureOpenGL.hpp"
 
@@ -14,9 +14,9 @@ namespace Nexus::Graphics
 	{
 	  public:
 		ResourceSetOpenGL(const ResourceSetSpecification &spec);
-		virtual void WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, const std::string &name) override;
-		virtual void WriteCombinedImageSampler(Ref<Texture2D> texture, Ref<Sampler> sampler, const std::string &name) override;
-		virtual void WriteCombinedImageSampler(Ref<Cubemap> cubemap, Ref<Sampler> sampler, const std::string &name) override;
+		virtual void WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name) override;
+		virtual void WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name) override;
+		virtual void WriteStorageImage(StorageImageView view, const std::string &name) override;
 	};
 }	 // namespace Nexus::Graphics
 

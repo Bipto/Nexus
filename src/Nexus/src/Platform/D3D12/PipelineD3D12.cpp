@@ -9,42 +9,10 @@
 
 namespace Nexus::Graphics
 {
-	PipelineD3D12::PipelineD3D12(ID3D12Device9 *device, const PipelineDescription &description)
-		: Pipeline(description),
-		  m_Device(device),
-		  m_Description(description)
-	{
-		CreateRootSignature();
-		CreateInputLayout();
-		CreatePipeline();
-		CreatePrimitiveTopology();
-	}
-
-	PipelineD3D12::~PipelineD3D12()
-	{
-	}
-
-	const PipelineDescription &PipelineD3D12::GetPipelineDescription() const
-	{
-		return m_Description;
-	}
-
-	ID3D12RootSignature *PipelineD3D12::GetRootSignature()
-	{
-		return m_RootSignature.Get();
-	}
-
-	ID3D12PipelineState *PipelineD3D12::GetPipelineState()
-	{
-		return m_PipelineStateObject.Get();
-	}
-
-	D3D_PRIMITIVE_TOPOLOGY PipelineD3D12::GetD3DPrimitiveTopology()
-	{
-		return m_PrimitiveTopology;
-	}
-
-	void PipelineD3D12::CreateRootSignature()
+	void CreateRootSignature(const Nexus::Graphics::ResourceSetSpecification &resourceSet,
+							 ID3D12Device9									 *device,
+							 Microsoft::WRL::ComPtr<ID3DBlob>				 &inRootSignatureBlob,
+							 Microsoft::WRL::ComPtr<ID3D12RootSignature>	 &inRootSignature)
 	{
 		D3D12_ROOT_SIGNATURE_DESC desc = {};
 		desc.Flags					   = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
@@ -53,10 +21,11 @@ namespace Nexus::Graphics
 
 		std::vector<D3D12_DESCRIPTOR_RANGE> samplerRanges;
 		std::vector<D3D12_DESCRIPTOR_RANGE> textureConstantBufferRanges;
+		std::vector<D3D12_DESCRIPTOR_RANGE> storageImageRanges;
 
-		for (int i = 0; i < m_Description.ResourceSetSpec.SampledImages.size(); i++)
+		for (size_t i = 0; i < resourceSet.SampledImages.size(); i++)
 		{
-			const auto &textureInfo = m_Description.ResourceSetSpec.SampledImages.at(i);
+			const auto &textureInfo = resourceSet.SampledImages.at(i);
 			uint32_t	slot		= ResourceSet::GetLinearDescriptorSlot(textureInfo.Set, textureInfo.Binding);
 
 			D3D12_DESCRIPTOR_RANGE samplerRange			   = {};
@@ -76,9 +45,9 @@ namespace Nexus::Graphics
 			textureConstantBufferRanges.push_back(textureRange);
 		}
 
-		for (int i = 0; i < m_Description.ResourceSetSpec.UniformBuffers.size(); i++)
+		for (size_t i = 0; i < resourceSet.UniformBuffers.size(); i++)
 		{
-			const auto &uniformBufferInfo = m_Description.ResourceSetSpec.UniformBuffers.at(i);
+			const auto &uniformBufferInfo = resourceSet.UniformBuffers.at(i);
 			uint32_t	slot			  = ResourceSet::GetLinearDescriptorSlot(uniformBufferInfo.Set, uniformBufferInfo.Binding);
 
 			D3D12_DESCRIPTOR_RANGE constantBufferRange			  = {};
@@ -88,6 +57,20 @@ namespace Nexus::Graphics
 			constantBufferRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 			constantBufferRange.RegisterSpace					  = 0;
 			textureConstantBufferRanges.push_back(constantBufferRange);
+		}
+
+		for (size_t i = 0; i < resourceSet.StorageImages.size(); i++)
+		{
+			const auto &storageImageInfo = resourceSet.StorageImages.at(i);
+			uint32_t	slot			 = ResourceSet::GetLinearDescriptorSlot(storageImageInfo.Set, storageImageInfo.Binding);
+
+			D3D12_DESCRIPTOR_RANGE storageImageRange			= {};
+			storageImageRange.RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+			storageImageRange.BaseShaderRegister				= slot;
+			storageImageRange.NumDescriptors					= 1;
+			storageImageRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+			storageImageRange.RegisterSpace						= 0;
+			storageImageRanges.push_back(storageImageRange);
 		}
 
 		std::vector<D3D12_ROOT_PARAMETER> rootParameters;
@@ -126,27 +109,85 @@ namespace Nexus::Graphics
 			}
 		}
 
+		// storage image parameter
+		{
+			D3D12_ROOT_DESCRIPTOR_TABLE descriptorTable = {};
+			descriptorTable.NumDescriptorRanges			= storageImageRanges.size();
+			descriptorTable.pDescriptorRanges			= storageImageRanges.data();
+
+			D3D12_ROOT_PARAMETER parameter = {};
+			parameter.ParameterType		   = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+			parameter.DescriptorTable	   = descriptorTable;
+			parameter.ShaderVisibility	   = D3D12_SHADER_VISIBILITY_ALL;
+
+			if (storageImageRanges.size() > 0)
+			{
+				rootParameters.push_back(parameter);
+			}
+		}
+
 		desc.NumParameters = rootParameters.size();
 		desc.pParameters   = rootParameters.data();
 
 		Microsoft::WRL::ComPtr<ID3DBlob> errorBlob;
-		if (SUCCEEDED(D3D12SerializeRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION_1, &m_RootSignatureBlob, &errorBlob)))
+		if (SUCCEEDED(D3D12SerializeRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION_1, &inRootSignatureBlob, &errorBlob)))
 		{
-			m_Device->CreateRootSignature(0,
-										  m_RootSignatureBlob->GetBufferPointer(),
-										  m_RootSignatureBlob->GetBufferSize(),
-										  IID_PPV_ARGS(&m_RootSignature));
+			device->CreateRootSignature(0,
+										inRootSignatureBlob->GetBufferPointer(),
+										inRootSignatureBlob->GetBufferSize(),
+										IID_PPV_ARGS(&inRootSignature));
 		}
 		else
 		{
 			std::string errorMessage = std::string((char *)errorBlob->GetBufferPointer());
-			std::cout << errorMessage << std::endl;
+			NX_ERROR(errorMessage);
 		}
 	}
 
-	void PipelineD3D12::CreatePipeline()
+	GraphicsPipelineD3D12::GraphicsPipelineD3D12(ID3D12Device9 *device, const GraphicsPipelineDescription &description)
+		: GraphicsPipeline(description),
+		  m_Description(description)
 	{
-		uint32_t				 sampleCount = GetSampleCount(m_Description.ColourTargetSampleCount);
+		CreateRootSignature(description.ResourceSetSpec, device, m_RootSignatureBlob, m_RootSignature);
+		CreateInputLayout();
+		CreatePipeline(device);
+		CreatePrimitiveTopology();
+	}
+
+	GraphicsPipelineD3D12::~GraphicsPipelineD3D12()
+	{
+	}
+
+	const GraphicsPipelineDescription &GraphicsPipelineD3D12::GetPipelineDescription() const
+	{
+		return m_Description;
+	}
+
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> GraphicsPipelineD3D12::GetRootSignature()
+	{
+		return m_RootSignature;
+	}
+
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> GraphicsPipelineD3D12::GetPipelineState()
+	{
+		return m_PipelineStateObject;
+	}
+
+	D3D_PRIMITIVE_TOPOLOGY GraphicsPipelineD3D12::GetD3DPrimitiveTopology()
+	{
+		return m_PrimitiveTopology;
+	}
+
+	void GraphicsPipelineD3D12::Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList)
+	{
+		commandList->OMSetDepthBounds(m_Description.DepthStencilDesc.MinDepth, m_Description.DepthStencilDesc.MaxDepth);
+		commandList->SetPipelineState(m_PipelineStateObject.Get());
+		commandList->SetGraphicsRootSignature(m_RootSignature.Get());
+		commandList->IASetPrimitiveTopology(m_PrimitiveTopology);
+	}
+
+	void GraphicsPipelineD3D12::CreatePipeline(ID3D12Device9 *device)
+	{
 		std::vector<DXGI_FORMAT> rtvFormats;
 
 		for (uint32_t index = 0; index < m_Description.ColourTargetCount; index++)
@@ -237,22 +278,23 @@ namespace Nexus::Graphics
 		pipelineDesc.BlendState						 = CreateBlendStateDesc();
 		pipelineDesc.DepthStencilState				 = CreateDepthStencilDesc();
 		pipelineDesc.SampleMask						 = 0xFFFFFFFF;
-		pipelineDesc.SampleDesc.Count				 = sampleCount;
+		pipelineDesc.SampleDesc.Count				 = m_Description.ColourTargetSampleCount;
 		pipelineDesc.SampleDesc.Quality				 = 0;
 		pipelineDesc.NodeMask						 = 0;
 		pipelineDesc.CachedPSO.CachedBlobSizeInBytes = 0;
 		pipelineDesc.CachedPSO.pCachedBlob			 = nullptr;
 		pipelineDesc.Flags							 = D3D12_PIPELINE_STATE_FLAG_NONE;
 
-		HRESULT hr = m_Device->CreateGraphicsPipelineState(&pipelineDesc, IID_PPV_ARGS(&m_PipelineStateObject));
+		HRESULT hr = device->CreateGraphicsPipelineState(&pipelineDesc, IID_PPV_ARGS(&m_PipelineStateObject));
 		if (FAILED(hr))
 		{
 			_com_error error(hr);
-			std::cout << "Failed to create pipeline state: " << error.ErrorMessage() << std::endl;
+			std::string message = "Failed to create pipeline state: " + std::string(error.ErrorMessage());
+			NX_ERROR(message);
 		}
 	}
 
-	void PipelineD3D12::CreateInputLayout()
+	void GraphicsPipelineD3D12::CreateInputLayout()
 	{
 		m_InputLayout.clear();
 
@@ -282,7 +324,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void PipelineD3D12::CreatePrimitiveTopology()
+	void GraphicsPipelineD3D12::CreatePrimitiveTopology()
 	{
 		switch (m_Description.PrimitiveTopology)
 		{
@@ -294,7 +336,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	D3D12_RASTERIZER_DESC PipelineD3D12::CreateRasterizerState()
+	D3D12_RASTERIZER_DESC GraphicsPipelineD3D12::CreateRasterizerState()
 	{
 		D3D12_RASTERIZER_DESC desc {};
 		desc.FillMode = D3D12_FILL_MODE_SOLID;
@@ -319,7 +361,7 @@ namespace Nexus::Graphics
 		return desc;
 	}
 
-	D3D12_STREAM_OUTPUT_DESC PipelineD3D12::CreateStreamOutputDesc()
+	D3D12_STREAM_OUTPUT_DESC GraphicsPipelineD3D12::CreateStreamOutputDesc()
 	{
 		D3D12_STREAM_OUTPUT_DESC desc {};
 		desc.NumEntries		  = 0;
@@ -329,7 +371,7 @@ namespace Nexus::Graphics
 		return desc;
 	}
 
-	D3D12_BLEND_DESC PipelineD3D12::CreateBlendStateDesc()
+	D3D12_BLEND_DESC GraphicsPipelineD3D12::CreateBlendStateDesc()
 	{
 		D3D12_BLEND_DESC desc {};
 		desc.AlphaToCoverageEnable	= FALSE;
@@ -337,16 +379,16 @@ namespace Nexus::Graphics
 
 		for (size_t i = 0; i < m_Description.ColourBlendStates.size(); i++)
 		{
-			desc.RenderTarget[i].BlendEnable		   = m_Description.ColourBlendStates[i].EnableBlending;
-			desc.RenderTarget[i].SrcBlend			   = D3D12::GetBlendFunction(m_Description.ColourBlendStates[i].SourceColourBlend);
-			desc.RenderTarget[i].SrcBlend			   = D3D12::GetBlendFunction(m_Description.ColourBlendStates[i].SourceColourBlend);
-			desc.RenderTarget[i].DestBlend			   = D3D12::GetBlendFunction(m_Description.ColourBlendStates[i].DestinationColourBlend);
-			desc.RenderTarget[i].BlendOp			   = D3D12::GetBlendEquation(m_Description.ColourBlendStates[i].ColorBlendFunction);
-			desc.RenderTarget[i].SrcBlendAlpha		   = D3D12::GetBlendFunction(m_Description.ColourBlendStates[i].SourceAlphaBlend);
-			desc.RenderTarget[i].DestBlendAlpha		   = D3D12::GetBlendFunction(m_Description.ColourBlendStates[i].DestinationAlphaBlend);
-			desc.RenderTarget[i].BlendOpAlpha		   = D3D12::GetBlendEquation(m_Description.ColourBlendStates[i].AlphaBlendFunction);
-			desc.RenderTarget[i].LogicOpEnable		   = FALSE;
-			desc.RenderTarget[i].LogicOp			   = D3D12_LOGIC_OP_NOOP;
+			desc.RenderTarget[i].BlendEnable	= m_Description.ColourBlendStates[i].EnableBlending;
+			desc.RenderTarget[i].SrcBlend		= D3D12::GetBlendFunction(m_Description.ColourBlendStates[i].SourceColourBlend);
+			desc.RenderTarget[i].SrcBlend		= D3D12::GetBlendFunction(m_Description.ColourBlendStates[i].SourceColourBlend);
+			desc.RenderTarget[i].DestBlend		= D3D12::GetBlendFunction(m_Description.ColourBlendStates[i].DestinationColourBlend);
+			desc.RenderTarget[i].BlendOp		= D3D12::GetBlendEquation(m_Description.ColourBlendStates[i].ColorBlendFunction);
+			desc.RenderTarget[i].SrcBlendAlpha	= D3D12::GetBlendFunction(m_Description.ColourBlendStates[i].SourceAlphaBlend);
+			desc.RenderTarget[i].DestBlendAlpha = D3D12::GetBlendFunction(m_Description.ColourBlendStates[i].DestinationAlphaBlend);
+			desc.RenderTarget[i].BlendOpAlpha	= D3D12::GetBlendEquation(m_Description.ColourBlendStates[i].AlphaBlendFunction);
+			desc.RenderTarget[i].LogicOpEnable	= FALSE;
+			desc.RenderTarget[i].LogicOp		= D3D12_LOGIC_OP_NOOP;
 
 			uint8_t writeMask = 0;
 			if (m_Description.ColourBlendStates[i].PixelWriteMask.Red)
@@ -372,7 +414,7 @@ namespace Nexus::Graphics
 		return desc;
 	}
 
-	D3D12_DEPTH_STENCIL_DESC PipelineD3D12::CreateDepthStencilDesc()
+	D3D12_DEPTH_STENCIL_DESC GraphicsPipelineD3D12::CreateDepthStencilDesc()
 	{
 		D3D12_DEPTH_STENCIL_DESC desc {};
 		desc.DepthEnable = m_Description.DepthStencilDesc.EnableDepthTest;
@@ -405,6 +447,48 @@ namespace Nexus::Graphics
 		desc.BackFace.StencilFailOp		  = stencilFailOp;
 		desc.BackFace.StencilPassOp		  = stencilPassOp;
 		return desc;
+	}
+
+	ComputePipelineD3D12::ComputePipelineD3D12(ID3D12Device9 *device, const ComputePipelineDescription &description) : ComputePipeline(description)
+	{
+		CreateRootSignature(description.ResourceSetSpec, device, m_RootSignatureBlob, m_RootSignature);
+		CreatePipeline(device);
+	}
+
+	ComputePipelineD3D12::~ComputePipelineD3D12()
+	{
+	}
+
+	void ComputePipelineD3D12::Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList)
+	{
+		commandList->SetPipelineState(m_PipelineStateObject.Get());
+		commandList->SetComputeRootSignature(m_RootSignature.Get());
+	}
+
+	void ComputePipelineD3D12::CreatePipeline(ID3D12Device9 *device)
+	{
+		auto d3d12ComputeShader = std::dynamic_pointer_cast<ShaderModuleD3D12>(m_Description.ComputeShader);
+		NX_ASSERT(d3d12ComputeShader->GetShaderStage() == ShaderStage::Compute,
+				  "Shader provided to ComputePipelineDescription is not a compute shader");
+
+		auto blob = d3d12ComputeShader->GetBlob();
+
+		D3D12_COMPUTE_PIPELINE_STATE_DESC desc = {};
+		desc.pRootSignature					   = m_RootSignature.Get();
+		desc.CS.BytecodeLength				   = blob->GetBufferSize();
+		desc.CS.pShaderBytecode				   = blob->GetBufferPointer();
+		desc.NodeMask						   = 0;
+		desc.CachedPSO.CachedBlobSizeInBytes   = 0;
+		desc.CachedPSO.pCachedBlob			   = nullptr;
+		desc.Flags							   = D3D12_PIPELINE_STATE_FLAG_NONE;
+
+		HRESULT hr = device->CreateComputePipelineState(&desc, IID_PPV_ARGS(&m_PipelineStateObject));
+		if (FAILED(hr))
+		{
+			_com_error	error(hr);
+			std::string message = "Failed to create pipeline state: " + std::string(error.ErrorMessage());
+			NX_ERROR(message);
+		}
 	}
 }	 // namespace Nexus::Graphics
 

@@ -1,13 +1,20 @@
+#include "Demos/Demo.hpp"
+
 #include "Demos/AudioDemo.hpp"
 #include "Demos/BatchingDemo.hpp"
 #include "Demos/CameraDemo.hpp"
 #include "Demos/ClearScreenDemo.hpp"
 #include "Demos/ClippingAndTriangulationDemo.hpp"
+#include "Demos/ComputeDemo.hpp"
+#include "Demos/ComputeIndirectDemo.hpp"
 #include "Demos/CubemapDemo.hpp"
 #include "Demos/Demo3D.hpp"
 #include "Demos/FramebufferDemo.hpp"
+#include "Demos/GeometryShaderDemo.hpp"
 #include "Demos/HelloTriangle.hpp"
 #include "Demos/HelloTriangleIndexed.hpp"
+#include "Demos/HelloTriangleIndirect.hpp"
+#include "Demos/HelloTriangleIndirectIndexedDemo.hpp"
 #include "Demos/InstancingDemo.hpp"
 #include "Demos/Lighting.hpp"
 #include "Demos/MipmapDemo.hpp"
@@ -16,6 +23,7 @@
 #include "Demos/Texturing.hpp"
 #include "Demos/TimingDemo.hpp"
 #include "Demos/UniformBufferDemo.hpp"
+
 #include "Nexus-Core/FileSystem/FileSystem.hpp"
 #include "Nexus-Core/Graphics/Color.hpp"
 #include "Nexus-Core/Graphics/MeshFactory.hpp"
@@ -44,7 +52,7 @@ class DemoApplication : public Nexus::Application
 
 	virtual void Load() override
 	{
-		m_ImGuiRenderer = std::make_unique<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(this);
+		m_ImGuiRenderer		  = std::make_unique<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(this);
 		ImGuiContext *context = m_ImGuiRenderer->GetContext();
 		ImGui::SetCurrentContext(context);
 
@@ -67,6 +75,8 @@ class DemoApplication : public Nexus::Application
 		RegisterGraphicsDemo<Demos::TimingDemo>("Timings");
 		RegisterGraphicsDemo<Demos::HelloTriangleDemo>("Hello Triangle");
 		RegisterGraphicsDemo<Demos::HelloTriangleIndexedDemo>("Hello Triangle Indexed");
+		RegisterGraphicsDemo<Demos::HelloTriangleIndirectDemo>("Hello Triangle Indirect");
+		RegisterGraphicsDemo<Demos::HelloTriangleIndirectIndexedDemo>("Hello Triangle Indexed Indirect");
 		RegisterGraphicsDemo<Demos::TexturingDemo>("Texturing");
 		RegisterGraphicsDemo<Demos::BatchingDemo>("Batching");
 		RegisterGraphicsDemo<Demos::FramebufferDemo>("Framebuffers");
@@ -78,6 +88,15 @@ class DemoApplication : public Nexus::Application
 		RegisterGraphicsDemo<Demos::InstancingDemo>("Instancing");
 		RegisterGraphicsDemo<Demos::MipmapDemo>("Mipmaps");
 		RegisterGraphicsDemo<Demos::CubemapDemo>("Cubemaps");
+		RegisterGraphicsDemo<Demos::ComputeDemo>("Compute");
+		RegisterGraphicsDemo<Demos::ComputeIndirectDemo>("Compute Indirect");
+
+		// geometry shaders have some issues with SPIRV-Cross HLSL backend
+		if (m_GraphicsDevice->GetGraphicsAPI() != Nexus::Graphics::GraphicsAPI::D3D12)
+		{
+			RegisterGraphicsDemo<Demos::GeometryShaderDemo>("Geometry Shader");
+		}
+
 		RegisterAudioDemo<Demos::AudioDemo>("Audio");
 		RegisterUtilsDemo<Demos::ClippingAndTriangulationDemo>("Polygon clipping and triangulation");
 		RegisterUtilsDemo<Demos::Splines>("Splines");
@@ -184,8 +203,11 @@ class DemoApplication : public Nexus::Application
 
 				ImGui::Separator();
 
+				std::shared_ptr<Nexus::Graphics::IPhysicalDevice> physicalDevice = m_GraphicsDevice->GetPhysicalDevice();
 				std::string apiName = std::string("Running on : ") + std::string(m_GraphicsDevice->GetAPIName());
 				ImGui::Text("%s", apiName.c_str());
+				std::string deviceName = std::string("Device: ") + physicalDevice->GetDeviceName();
+				ImGui::Text("%s", deviceName.c_str());
 
 				// render framerate
 				std::stringstream ss;
@@ -211,8 +233,8 @@ class DemoApplication : public Nexus::Application
 			const auto &results = Nexus::Timings::Profiler::Get().GetResults();
 			for (const auto &profileResult : results)
 			{
-				std::string output =
-					std::string(profileResult.Name) + std::string(": ") + std::to_string(profileResult.Time.GetMilliseconds()) + std::string(" Ms");
+				std::string output = std::string(profileResult.Name) + std::string(": ") +
+									 std::to_string(profileResult.Time.GetMilliseconds<float>()) + std::string(" Ms");
 				ImGui::Text("%s", output.c_str());
 			}
 		}
@@ -251,7 +273,8 @@ class DemoApplication : public Nexus::Application
 			m_CommandList->ClearColorTarget(0, {0.35f, 0.25f, 0.42f, 1.0f});
 
 			m_CommandList->End();
-			m_GraphicsDevice->SubmitCommandList(m_CommandList);
+			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_GraphicsDevice->WaitForIdle();
 		}
 
 		m_ImGuiRenderer->AfterLayout();
@@ -293,7 +316,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 	spec.WindowProperties.RendersPerSecond = {};
 	spec.WindowProperties.UpdatesPerSecond = {};
 
-	spec.SwapchainSpecification.Samples	   = Nexus::Graphics::SampleCount::SampleCount8;
+	spec.SwapchainSpecification.Samples	   = 8;
 	spec.SwapchainSpecification.VSyncState = Nexus::Graphics::VSyncState::Enabled;
 
 	spec.Organization = "Nexus";

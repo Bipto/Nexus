@@ -13,6 +13,7 @@ std::string GetShaderVersion(Nexus::Graphics::ShaderStage stage)
 		case Nexus::Graphics::ShaderStage::TesselationControl: return "hs_6_0";
 		case Nexus::Graphics::ShaderStage::TesselationEvaluation: return "ds_6_0";
 		case Nexus::Graphics::ShaderStage::Vertex: return "vs_6_0";
+		case Nexus::Graphics::ShaderStage::Compute: return "cs_6_0";
 
 		default: throw std::runtime_error("Failed to find a valid shader stage");
 	}
@@ -61,9 +62,9 @@ namespace Nexus::Graphics
 		compiledShaderBuffer->GetResult(&m_ShaderBlob);
 	}
 
-	IDxcBlob *ShaderModuleD3D12::GetBlob() const
+	Microsoft::WRL::ComPtr<IDxcBlob> ShaderModuleD3D12::GetBlob() const
 	{
-		return m_ShaderBlob.Get();
+		return m_ShaderBlob;
 	}
 }	 // namespace Nexus::Graphics
 

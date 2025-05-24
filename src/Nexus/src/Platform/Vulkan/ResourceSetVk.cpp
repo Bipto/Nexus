@@ -2,7 +2,7 @@
 
 	#include "ResourceSetVk.hpp"
 
-	#include "BufferVk.hpp"
+	#include "DeviceBufferVk.hpp"
 	#include "Nexus-Core/nxpch.hpp"
 	#include "SamplerVk.hpp"
 	#include "TextureVk.hpp"
@@ -21,7 +21,7 @@ namespace Nexus::Graphics
 			descriptorBinding.binding					   = textureBinding.Binding;
 			descriptorBinding.descriptorCount			   = 1;
 			descriptorBinding.descriptorType			   = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			descriptorBinding.stageFlags				   = VK_SHADER_STAGE_ALL_GRAPHICS;
+			descriptorBinding.stageFlags				   = VK_SHADER_STAGE_ALL_GRAPHICS | VK_SHADER_STAGE_COMPUTE_BIT;
 
 			// if this set has not been created yet, then create it
 			if (sets.find(textureBinding.Set) == sets.end())
@@ -46,7 +46,7 @@ namespace Nexus::Graphics
 			descriptorBinding.binding					   = uniformBufferBinding.Binding;
 			descriptorBinding.descriptorCount			   = 1;
 			descriptorBinding.descriptorType			   = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			descriptorBinding.stageFlags				   = VK_SHADER_STAGE_ALL_GRAPHICS;
+			descriptorBinding.stageFlags				   = VK_SHADER_STAGE_ALL_GRAPHICS | VK_SHADER_STAGE_COMPUTE_BIT;
 
 			// if this set has not been created yet, then create it
 			if (sets.find(uniformBufferBinding.Set) == sets.end())
@@ -61,6 +61,31 @@ namespace Nexus::Graphics
 			}
 
 			auto &set = sets[uniformBufferBinding.Set];
+			set.push_back(descriptorBinding);
+			descriptorCounts[descriptorBinding.descriptorType]++;
+		}
+
+		for (const auto &storageImageBinding : spec.StorageImages)
+		{
+			VkDescriptorSetLayoutBinding descriptorBinding = {};
+			descriptorBinding.binding					   = storageImageBinding.Binding;
+			descriptorBinding.descriptorCount			   = 1;
+			descriptorBinding.descriptorType			   = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			descriptorBinding.stageFlags				   = VK_SHADER_STAGE_ALL_GRAPHICS | VK_SHADER_STAGE_COMPUTE_BIT;
+
+			// if this set has not been created yet, then create it
+			if (sets.find(storageImageBinding.Set) == sets.end())
+			{
+				sets[storageImageBinding.Set] = {};
+			}
+
+			// if we do not have a count for this descriptor type, create one
+			if (descriptorCounts.find(descriptorBinding.descriptorType) == descriptorCounts.end())
+			{
+				descriptorCounts[descriptorBinding.descriptorType] = 0;
+			}
+
+			auto &set = sets[storageImageBinding.Set];
 			set.push_back(descriptorBinding);
 			descriptorCounts[descriptorBinding.descriptorType]++;
 		}
@@ -137,35 +162,40 @@ namespace Nexus::Graphics
 		vkDestroyDescriptorPool(m_Device->GetVkDevice(), m_DescriptorPool, nullptr);
 	}
 
-	void ResourceSetVk::WriteUniformBuffer(Ref<UniformBuffer> uniformBuffer, const std::string &name)
+	void ResourceSetVk::WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name)
 	{
-		Ref<UniformBufferVk> uniformBufferVk = std::dynamic_pointer_cast<UniformBufferVk>(uniformBuffer);
-		const auto			&descriptorSets	 = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
+		if (Ref<DeviceBuffer> buffer = uniformBuffer.BufferHandle)
+		{
+			NX_ASSERT(buffer->CheckUsage(Graphics::BufferUsage::Uniform), "Attempting to bind a buffer that is not a uniform buffer");
 
-		const BindingInfo &info = m_UniformBufferBindingInfos.at(name);
+			Ref<DeviceBufferVk> uniformBufferVk = std::dynamic_pointer_cast<DeviceBufferVk>(buffer);
+			const auto		   &descriptorSets	= m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
 
-		VkDescriptorBufferInfo bufferInfo = {};
-		bufferInfo.buffer				  = uniformBufferVk->GetBuffer();
-		bufferInfo.offset				  = 0;
-		bufferInfo.range				  = uniformBuffer->GetDescription().Size;
+			const BindingInfo &info = m_UniformBufferBindingInfos.at(name);
 
-		VkWriteDescriptorSet uniformBufferToWrite = {};
-		uniformBufferToWrite.sType				  = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		uniformBufferToWrite.pNext				  = nullptr;
-		uniformBufferToWrite.dstBinding			  = info.Binding;
-		uniformBufferToWrite.descriptorCount	  = 1;
-		uniformBufferToWrite.descriptorType		  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		uniformBufferToWrite.pBufferInfo		  = &bufferInfo;
-		uniformBufferToWrite.dstSet				  = descriptorSets.at(info.Set);
+			VkDescriptorBufferInfo bufferInfo = {};
+			bufferInfo.buffer				  = uniformBufferVk->GetVkBuffer();
+			bufferInfo.offset				  = uniformBuffer.Offset;
+			bufferInfo.range				  = uniformBuffer.Size;
 
-		vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &uniformBufferToWrite, 0, nullptr);
+			VkWriteDescriptorSet uniformBufferToWrite = {};
+			uniformBufferToWrite.sType				  = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			uniformBufferToWrite.pNext				  = nullptr;
+			uniformBufferToWrite.dstBinding			  = info.Binding;
+			uniformBufferToWrite.descriptorCount	  = 1;
+			uniformBufferToWrite.descriptorType		  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			uniformBufferToWrite.pBufferInfo		  = &bufferInfo;
+			uniformBufferToWrite.dstSet				  = descriptorSets.at(info.Set);
 
-		m_BoundUniformBuffers[name] = uniformBuffer;
+			vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &uniformBufferToWrite, 0, nullptr);
+
+			m_BoundUniformBuffers[name] = uniformBuffer;
+		}
 	}
 
-	void ResourceSetVk::WriteCombinedImageSampler(Ref<Texture2D> texture, Ref<Sampler> sampler, const std::string &name)
+	void ResourceSetVk::WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name)
 	{
-		Ref<Texture2D_Vk> textureVk		 = std::dynamic_pointer_cast<Texture2D_Vk>(texture);
+		Ref<TextureVk>	  textureVk		 = std::dynamic_pointer_cast<TextureVk>(texture);
 		Ref<SamplerVk>	  samplerVk		 = std::dynamic_pointer_cast<SamplerVk>(sampler);
 		const auto		 &descriptorSets = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
 
@@ -174,23 +204,23 @@ namespace Nexus::Graphics
 		m_Device->ImmediateSubmit(
 			[&](VkCommandBuffer cmd)
 			{
-				for (uint32_t i = 0; i < textureVk->GetLevels(); i++)
+				for (uint32_t i = 0; i < textureVk->GetSpecification().MipLevels; i++)
 				{
 					m_Device->TransitionVulkanImageLayout(cmd,
 														  textureVk->GetImage(),
 														  i,
 														  0,
-														  textureVk->GetImageLayout(i),
+														  textureVk->GetImageLayout(0, i),
 														  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
 														  VK_IMAGE_ASPECT_COLOR_BIT);
-					textureVk->SetImageLayout(i, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+					textureVk->SetImageLayout(0, i, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 				}
 			});
 
 		VkDescriptorImageInfo imageBufferInfo = {};
 		imageBufferInfo.imageView			  = textureVk->GetImageView();
 		imageBufferInfo.sampler				  = samplerVk->GetSampler();
-		imageBufferInfo.imageLayout			  = textureVk->GetImageLayout(0);
+		imageBufferInfo.imageLayout			  = textureVk->GetImageLayout(0, 0);
 
 		VkWriteDescriptorSet textureToWrite = {};
 		textureToWrite.sType				= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -209,53 +239,44 @@ namespace Nexus::Graphics
 		m_BoundCombinedImageSamplers[name] = ciSampler;
 	}
 
-	void ResourceSetVk::WriteCombinedImageSampler(Ref<Cubemap> cubemap, Ref<Sampler> sampler, const std::string &name)
+	void ResourceSetVk::WriteStorageImage(StorageImageView view, const std::string &name)
 	{
-		Ref<Cubemap_Vk> cubemapVk	   = std::dynamic_pointer_cast<Cubemap_Vk>(cubemap);
-		Ref<SamplerVk>	samplerVk	   = std::dynamic_pointer_cast<SamplerVk>(sampler);
-		const auto	   &descriptorSets = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
+		Ref<TextureVk> textureVk	  = std::dynamic_pointer_cast<TextureVk>(view.TextureHandle);
+		const auto	 &descriptorSets = m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
 
-		const BindingInfo &info = m_CombinedImageSamplerBindingInfos.at(name);
+		const BindingInfo &info = m_StorageImageBindingInfos.at(name);
 
 		m_Device->ImmediateSubmit(
 			[&](VkCommandBuffer cmd)
 			{
-				for (uint32_t arrayLayer = 0; arrayLayer < 6; arrayLayer++)
+				for (uint32_t i = 0; i < textureVk->GetSpecification().MipLevels; i++)
 				{
-					for (uint32_t mipLevel = 0; mipLevel < cubemapVk->GetLevels(); mipLevel++)
-					{
-						m_Device->TransitionVulkanImageLayout(cmd,
-															  cubemapVk->GetImage(),
-															  mipLevel,
-															  arrayLayer,
-															  cubemapVk->GetImageLayout(arrayLayer, mipLevel),
-															  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-															  VK_IMAGE_ASPECT_COLOR_BIT);
-						cubemapVk->SetImageLayout(arrayLayer, mipLevel, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-					}
+					m_Device->TransitionVulkanImageLayout(cmd,
+														  textureVk->GetImage(),
+														  i,
+														  0,
+														  textureVk->GetImageLayout(0, i),
+														  VK_IMAGE_LAYOUT_GENERAL,
+														  VK_IMAGE_ASPECT_COLOR_BIT);
+					textureVk->SetImageLayout(0, i, VK_IMAGE_LAYOUT_GENERAL);
 				}
-
-				VkDescriptorImageInfo imageBufferInfo = {};
-				imageBufferInfo.imageView			  = cubemapVk->GetImageView();
-				imageBufferInfo.sampler				  = samplerVk->GetSampler();
-				imageBufferInfo.imageLayout			  = cubemapVk->GetImageLayout(0, 0);
-
-				VkWriteDescriptorSet textureToWrite = {};
-				textureToWrite.sType				= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-				textureToWrite.pNext				= nullptr;
-				textureToWrite.dstBinding			= info.Binding;
-				textureToWrite.dstSet				= descriptorSets.at(info.Set);
-				textureToWrite.descriptorCount		= 1;
-				textureToWrite.descriptorType		= VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-				textureToWrite.pImageInfo			= &imageBufferInfo;
-
-				vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &textureToWrite, 0, nullptr);
-
-				CombinedImageSampler ciSampler {};
-				ciSampler.ImageTexture			   = cubemapVk;
-				ciSampler.ImageSampler			   = sampler;
-				m_BoundCombinedImageSamplers[name] = ciSampler;
 			});
+
+		VkDescriptorImageInfo imageInfo = {};
+		imageInfo.imageView				= textureVk->GetImageView();
+		imageInfo.imageLayout			= VK_IMAGE_LAYOUT_GENERAL;
+
+		VkWriteDescriptorSet writeDescriptorSet = {};
+		writeDescriptorSet.sType				= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		writeDescriptorSet.dstBinding			= info.Binding;
+		writeDescriptorSet.dstSet				= descriptorSets.at(info.Set);
+		writeDescriptorSet.descriptorCount		= 1;
+		writeDescriptorSet.descriptorType		= VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+		writeDescriptorSet.pImageInfo			= &imageInfo;
+
+		vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &writeDescriptorSet, 0, nullptr);
+
+		m_BoundStorageImages[name] = view;
 	}
 
 	const std::map<uint32_t, VkDescriptorSetLayout> &ResourceSetVk::GetDescriptorSetLayouts() const

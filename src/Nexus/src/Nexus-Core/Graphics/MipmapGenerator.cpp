@@ -33,7 +33,7 @@ namespace Nexus::Graphics
 			m_Device->GetOrCreateCachedShaderFromSpirvSource(c_MipmapFragmentSource, "Mipmap-Gen.frag", Nexus::Graphics::ShaderStage::Fragment);
 
 		// set up pipeline for rendering
-		Nexus::Graphics::PipelineDescription pipelineDescription;
+		Nexus::Graphics::GraphicsPipelineDescription pipelineDescription;
 		pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::CullNone;
 		pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
@@ -47,13 +47,13 @@ namespace Nexus::Graphics
 		pipelineDescription.ResourceSetSpec.SampledImages = {{"texSampler", 0, 0}};
 
 		pipelineDescription.Layouts = {m_Quad.GetVertexBufferLayout()};
-		m_Pipeline					= m_Device->CreatePipeline(pipelineDescription);
+		m_Pipeline					= m_Device->CreateGraphicsPipeline(pipelineDescription);
 		m_ResourceSet				= m_Device->CreateResourceSet(m_Pipeline);
 	}
 
-	std::vector<unsigned char> MipmapGenerator::GenerateMip(Ref<Texture2D> texture, uint32_t levelToGenerate, uint32_t levelToGenerateFrom)
+	std::vector<char> MipmapGenerator::GenerateMip(Ref<Texture> texture, uint32_t levelToGenerate, uint32_t levelToGenerateFrom)
 	{
-		std::vector<unsigned char> pixels = {};
+		std::vector<char> pixels = {};
 
 		const uint32_t textureWidth	 = texture->GetSpecification().Width;
 		const uint32_t textureHeight = texture->GetSpecification().Height;
@@ -75,7 +75,7 @@ namespace Nexus::Graphics
 			samplerSpec.MaximumLOD = levelToGenerateFrom;
 			Ref<Sampler> sampler   = m_Device->CreateSampler(samplerSpec);
 
-			Ref<Texture2D> framebufferTexture = framebuffer->GetColorTexture(0);
+			Ref<Texture> framebufferTexture = framebuffer->GetColorTexture(0);
 
 			m_ResourceSet->WriteCombinedImageSampler(texture, sampler, "texSampler");
 
@@ -98,14 +98,29 @@ namespace Nexus::Graphics
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(framebuffer));
 			m_CommandList->SetViewport(viewport);
 			m_CommandList->SetScissor(scissor);
-			m_CommandList->SetVertexBuffer(m_Quad.GetVertexBuffer(), 0);
-			m_CommandList->SetIndexBuffer(m_Quad.GetIndexBuffer());
-			m_CommandList->SetResourceSet(m_ResourceSet);
-			m_CommandList->DrawIndexed(6, 0, 0);
-			m_CommandList->End();
-			m_Device->SubmitCommandList(m_CommandList);
 
-			pixels = framebufferTexture->GetData(0, 0, 0, mipWidth, mipHeight);
+			Ref<DeviceBuffer> vertexBuffer	   = m_Quad.GetVertexBuffer();
+			VertexBufferView  vertexBufferView = {};
+			vertexBufferView.BufferHandle	   = vertexBuffer;
+			vertexBufferView.Offset			   = 0;
+			vertexBufferView.Size			   = vertexBuffer->GetSizeInBytes();
+			vertexBufferView.Stride			   = vertexBuffer->GetStrideInBytes();
+			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
+
+			Ref<DeviceBuffer> indexBuffer	  = m_Quad.GetIndexBuffer();
+			IndexBufferView	  indexBufferView = {};
+			indexBufferView.BufferHandle	  = indexBuffer;
+			indexBufferView.Offset			  = 0;
+			indexBufferView.Size			  = indexBuffer->GetSizeInBytes();
+			indexBufferView.BufferFormat	  = IndexBufferFormat::UInt32;
+			m_CommandList->SetIndexBuffer(indexBufferView);
+
+			m_CommandList->SetResourceSet(m_ResourceSet);
+			m_CommandList->DrawIndexed(6, 1, 0, 0, 0);
+			m_CommandList->End();
+			m_Device->SubmitCommandLists(&m_CommandList, 1, nullptr);
+
+			pixels = m_Device->ReadFromTexture(framebufferTexture, 0, 0, 0, 0, 0, mipWidth, mipHeight);
 		}
 
 		return pixels;

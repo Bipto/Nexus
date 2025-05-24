@@ -16,6 +16,8 @@
 	#pragma comment(lib, "dxguid.lib")
 	#pragma comment(lib, "dxcompiler.lib")
 
+	#include "D3D12MemAlloc.h"
+
 	#define BUFFER_COUNT 2
 
 #endif

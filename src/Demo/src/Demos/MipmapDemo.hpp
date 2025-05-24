@@ -61,14 +61,27 @@ namespace Demos
 			m_ResourceSet->WriteCombinedImageSampler(m_Texture, sampler, "texSampler");
 
 			m_CommandList->SetResourceSet(m_ResourceSet);
-			m_CommandList->SetVertexBuffer(m_Mesh->GetVertexBuffer(), 0);
-			m_CommandList->SetIndexBuffer(m_Mesh->GetIndexBuffer());
 
-			auto indexCount = m_Mesh->GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
-			m_CommandList->DrawIndexed(indexCount, 0, 0);
+			Nexus::Graphics::VertexBufferView vertexBufferView = {};
+			vertexBufferView.BufferHandle					   = m_Mesh->GetVertexBuffer();
+			vertexBufferView.Offset							   = 0;
+			vertexBufferView.Stride							   = m_Mesh->GetVertexBuffer()->GetStrideInBytes();
+			vertexBufferView.Size							   = m_Mesh->GetVertexBuffer()->GetSizeInBytes();
+			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
+
+			Nexus::Graphics::IndexBufferView indexBufferView = {};
+			indexBufferView.BufferHandle					 = m_Mesh->GetIndexBuffer();
+			indexBufferView.Offset							 = 0;
+			indexBufferView.Size							 = m_Mesh->GetIndexBuffer()->GetSizeInBytes();
+			indexBufferView.BufferFormat					 = Nexus::Graphics::IndexBufferFormat::UInt32;
+			m_CommandList->SetIndexBuffer(indexBufferView);
+
+			auto indexCount = m_Mesh->GetIndexBuffer()->GetCount();
+			m_CommandList->DrawIndexed(indexCount, 1, 0, 0, 0);
 			m_CommandList->End();
 
-			m_GraphicsDevice->SubmitCommandList(m_CommandList);
+			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_GraphicsDevice->WaitForIdle();
 		}
 
 		virtual void RenderUI() override
@@ -85,7 +98,7 @@ namespace Demos
 	  private:
 		void CreatePipeline()
 		{
-			Nexus::Graphics::PipelineDescription pipelineDescription;
+			Nexus::Graphics::GraphicsPipelineDescription pipelineDescription;
 			pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::CullNone;
 			pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
@@ -101,16 +114,16 @@ namespace Demos
 			pipelineDescription.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification().Samples;
 			pipelineDescription.Layouts					= {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
-			m_Pipeline	  = m_GraphicsDevice->CreatePipeline(pipelineDescription);
+			m_Pipeline	  = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
 			m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
 		}
 
 	  private:
 		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList = nullptr;
-		Nexus::Ref<Nexus::Graphics::Pipeline>	 m_Pipeline	   = nullptr;
+		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline	= nullptr;
 		Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet = nullptr;
 		Nexus::Ref<Nexus::Graphics::Mesh>		 m_Mesh		   = nullptr;
-		Nexus::Ref<Nexus::Graphics::Texture2D>	 m_Texture	   = nullptr;
+		Nexus::Ref<Nexus::Graphics::Texture>		  m_Texture		= nullptr;
 		glm::vec3								 m_ClearColour = {0.7f, 0.2f, 0.3f};
 
 		ImTextureID m_TextureID	  = 0;

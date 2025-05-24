@@ -5,17 +5,28 @@
 
 namespace Nexus::Assets
 {
+	struct AssetInfo
+	{
+		std::string Filepath	  = {};
+		std::string ProcessorName = {};
+	};
+
 	class AssetRegistry
 	{
 	  public:
 		AssetRegistry();
-		std::optional<std::string> GetFilepath(GUID id);
-		GUID					   RegisterAsset(const std::string &filepath);
-		void					   RegisterAsset(const std::string &filepath, GUID id);
+		std::optional<AssetInfo> GetAssetInfo(GUID id) const;
+		GUID					 RegisterAsset(const std::string &processor, const std::string &filepath);
+		void					 RegisterAsset(const std::string &processor, const std::string &filepath, GUID id);
 
-		const std::map<GUID, std::string> &GetStoredFilepaths() const;
+		const std::map<GUID, AssetInfo> &GetStoredAssets() const;
+
+		template<typename T>
+		std::map<GUID, AssetInfo> GetAllAssetsOfType() const;
 
 	  private:
-		std::map<GUID, std::string> m_Filepaths;
+		std::map<GUID, AssetInfo> m_Assets;
 	};
 }	 // namespace Nexus::Assets
+
+#include "AssetRegistry.inl"

@@ -32,10 +32,12 @@ namespace Demos
 
 			CreatePipeline();
 
-			Nexus::Graphics::BufferDescription cameraUniformBufferDesc;
-			cameraUniformBufferDesc.Size  = sizeof(VB_UNIFORM_CAMERA_DEMO_CUBEMAP);
-			cameraUniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
-			m_CameraUniformBuffer		  = m_GraphicsDevice->CreateUniformBuffer(cameraUniformBufferDesc, nullptr);
+			Nexus::Graphics::DeviceBufferDescription cameraUniformBufferDesc = {};
+			cameraUniformBufferDesc.Access									 = Nexus::Graphics::BufferMemoryAccess::Upload;
+			cameraUniformBufferDesc.Usage									 = Nexus::Graphics::BufferUsage::Uniform;
+			cameraUniformBufferDesc.StrideInBytes							 = sizeof(VB_UNIFORM_CAMERA_DEMO_CUBEMAP);
+			cameraUniformBufferDesc.SizeInBytes								 = sizeof(VB_UNIFORM_CAMERA_DEMO_CUBEMAP);
+			m_CameraUniformBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(cameraUniformBufferDesc));
 
 			m_Camera.SetPosition(glm::vec3(0, 0, 0));
 
@@ -58,7 +60,7 @@ namespace Demos
 		{
 			m_CameraUniforms.Projection = m_Camera.GetProjection();
 			m_CameraUniforms.View		= glm::mat4(glm::mat3(m_Camera.GetView()));
-			m_CameraUniformBuffer->SetData(&m_CameraUniforms, sizeof(m_CameraUniforms));
+			m_CameraUniformBuffer->SetData(&m_CameraUniforms, 0, sizeof(m_CameraUniforms));
 
 			m_CommandList->Begin();
 			m_CommandList->SetPipeline(m_Pipeline);
@@ -85,19 +87,36 @@ namespace Demos
 			Nexus::Graphics::ClearDepthStencilValue clearDepth {};
 			m_CommandList->ClearDepthTarget(clearDepth);
 
-			m_ResourceSet->WriteUniformBuffer(m_CameraUniformBuffer, "Camera");
+			Nexus::Graphics::UniformBufferView cameraUniformBufferView = {};
+			cameraUniformBufferView.BufferHandle					   = m_CameraUniformBuffer;
+			cameraUniformBufferView.Offset							   = 0;
+			cameraUniformBufferView.Size							   = m_CameraUniformBuffer->GetDescription().SizeInBytes;
+			m_ResourceSet->WriteUniformBuffer(cameraUniformBufferView, "Camera");
+
 			m_ResourceSet->WriteCombinedImageSampler(m_Cubemap, m_Sampler, "skybox");
 			m_CommandList->SetResourceSet(m_ResourceSet);
 
-			m_CommandList->SetVertexBuffer(m_Cube->GetVertexBuffer(), 0);
-			m_CommandList->SetIndexBuffer(m_Cube->GetIndexBuffer());
+			Nexus::Graphics::VertexBufferView vertexBufferView = {};
+			vertexBufferView.BufferHandle					   = m_Cube->GetVertexBuffer();
+			vertexBufferView.Offset							   = 0;
+			vertexBufferView.Stride							   = m_Cube->GetVertexBuffer()->GetStrideInBytes();
+			vertexBufferView.Size							   = m_Cube->GetVertexBuffer()->GetSizeInBytes();
+			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
-			auto indexCount = m_Cube->GetIndexBuffer()->GetDescription().Size / sizeof(unsigned int);
-			m_CommandList->DrawIndexed(indexCount, 0, 0);
+			Nexus::Graphics::IndexBufferView indexBufferView = {};
+			indexBufferView.BufferHandle					 = m_Cube->GetIndexBuffer();
+			indexBufferView.Offset							 = 0;
+			indexBufferView.Size							 = m_Cube->GetIndexBuffer()->GetSizeInBytes();
+			indexBufferView.BufferFormat					 = Nexus::Graphics::IndexBufferFormat::UInt32;
+			m_CommandList->SetIndexBuffer(indexBufferView);
+
+			auto indexCount = m_Cube->GetIndexBuffer()->GetCount();
+			m_CommandList->DrawIndexed(indexCount, 1, 0, 0, 0);
 
 			m_CommandList->End();
 
-			m_GraphicsDevice->SubmitCommandList(m_CommandList);
+			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_GraphicsDevice->WaitForIdle();
 		}
 
 		virtual void Update(Nexus::TimeSpan time) override
@@ -111,7 +130,7 @@ namespace Demos
 
 		void CreatePipeline()
 		{
-			Nexus::Graphics::PipelineDescription pipelineDescription;
+			Nexus::Graphics::GraphicsPipelineDescription pipelineDescription;
 			pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::Back;
 			pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
@@ -130,7 +149,7 @@ namespace Demos
 
 			pipelineDescription.Layouts = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
 
-			m_Pipeline	  = m_GraphicsDevice->CreatePipeline(pipelineDescription);
+			m_Pipeline	  = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
 			m_ResourceSet = m_GraphicsDevice->CreateResourceSet(m_Pipeline);
 		}
 
@@ -141,17 +160,17 @@ namespace Demos
 
 	  private:
 		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
-		Nexus::Ref<Nexus::Graphics::Cubemap>	 m_Cubemap;
+		Nexus::Ref<Nexus::Graphics::Texture>	 m_Cubemap;
 		Nexus::Ref<Nexus::Graphics::Sampler>	 m_Sampler;
 		glm::vec3								 m_ClearColour = {0.7f, 0.2f, 0.3f};
 
-		Nexus::Ref<Nexus::Graphics::Pipeline>	 m_Pipeline;
+		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline;
 		Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
 
 		Nexus::Ref<Nexus::Graphics::Mesh> m_Cube;
 
 		VB_UNIFORM_CAMERA_DEMO_CAMERA			   m_CameraUniforms;
-		Nexus::Ref<Nexus::Graphics::UniformBuffer> m_CameraUniformBuffer;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer>  m_CameraUniformBuffer;
 
 		Nexus::FirstPersonCamera m_Camera;
 	};

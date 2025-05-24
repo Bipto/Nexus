@@ -3,9 +3,12 @@
 #include "Nexus-Core/nxpch.hpp"
 
 #include "CommandList.hpp"
+#include "DeviceBuffer.hpp"
+#include "Fence.hpp"
 #include "Framebuffer.hpp"
-#include "GPUBuffer.hpp"
 #include "GraphicsCapabilities.hpp"
+#include "IPhysicalDevice.hpp"
+#include "IndirectDrawArguments.hpp"
 #include "Nexus-Core/Graphics/ShaderGenerator.hpp"
 #include "Nexus-Core/IWindow.hpp"
 #include "Nexus-Core/Types.hpp"
@@ -18,31 +21,17 @@
 #include "TimingQuery.hpp"
 #include "Viewport.hpp"
 
+#include "Nexus-Core/Graphics/GraphicsAPIType.hpp"
+
 #include "Nexus-Core/IResource.hpp"
 
 namespace Nexus::Graphics
 {
-	/// @brief A class representing properties needed to create a new graphics
-	/// device
-	struct GraphicsDeviceSpecification
-	{
-		/// @brief The chosen graphics API to use to create the GraphicsDevice with
-		GraphicsAPI API;
-
-		/// @brief Debugging will be enabled for the native graphics API
-		bool DebugLayer = false;
-	};
-
 	/// @brief A class representing an abstraction over a graphics API
 	class NX_API GraphicsDevice : public IResource
 	{
 	  public:
-		static GraphicsDevice *CreateGraphicsDevice(const Graphics::GraphicsDeviceSpecification &spec);
-
-		/// @brief A constructor taking in a const reference to a
-		/// GraphicsDeviceSpecification
-		/// @param createInfo The options to use when creating the GraphicsDevice
-		GraphicsDevice(const GraphicsDeviceSpecification &createInfo);
+		GraphicsDevice() = default;
 
 		/// @brief A virtual destructor allowing resources to be deleted
 		virtual ~GraphicsDevice()
@@ -65,67 +54,29 @@ namespace Nexus::Graphics
 
 		/// @brief A pure virtual method that will submit a command list for rendering
 		/// @param commandList The command list to submit for rendering
-		virtual void SubmitCommandList(Ref<CommandList> commandList) = 0;
-
-		/// @brief A method that returns an enum value representing the currently
-		/// running graphics API backend
-		/// @return A GraphicsAPI enum containing the current backend
-		GraphicsAPI GetGraphicsAPI()
-		{
-			return m_Specification.API;
-		}
+		virtual void SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) = 0;
 
 		/// @brief A pure virtual method that creates a pipeline from a given pipeline
 		/// description
 		/// @param description The properties to use when creating the pipeline
 		/// @return A pointer to a pipeline
-		virtual Ref<Pipeline> CreatePipeline(const PipelineDescription &description) = 0;
+		virtual Ref<GraphicsPipeline> CreateGraphicsPipeline(const GraphicsPipelineDescription &description) = 0;
 
-		/// @brief A pure virtual method that creates a vertex buffer from a given
-		/// description
-		/// @param description The properties to use when creating the buffer
-		/// @param data The initial data to store in the buffer
-		/// @param layout The layout of the vertex buffer
-		/// @return A pointer to a vertex buffer
-		virtual Ref<VertexBuffer> CreateVertexBuffer(const BufferDescription &description, const void *data) = 0;
-
-		/// @brief A pure virtual method that creates an index buffer from a given
-		/// description
-		/// @param description The properties to use when creating the buffer
-		/// @param data The initial data to store in the buffer
-		/// @return A pointer to an index buffer
-		virtual Ref<IndexBuffer> CreateIndexBuffer(const BufferDescription &description,
-												   const void			   *data,
-												   IndexBufferFormat		format = IndexBufferFormat::UInt32) = 0;
-
-		/// @brief A pure virtual method that creates a uniform buffer from a given
-		/// description
-		/// @param description The properties to use when creating the buffer
-		/// @param data The initial data to store in the buffer
-		/// @return A pointer to a uniform buffer
-		virtual Ref<UniformBuffer> CreateUniformBuffer(const BufferDescription &description, const void *data) = 0;
+		virtual Ref<ComputePipeline> CreateComputePipeline(const ComputePipelineDescription &description) = 0;
 
 		/// @brief A pure virtual method that creates a new command list
 		/// @return A pointer to a command list
 		virtual Ref<CommandList> CreateCommandList(const CommandListSpecification &spec = {}) = 0;
 
-		/// @brief A pure virtual method that creates a new texture from a given
-		/// specification
-		/// @param spec The properties to use when creating the texture
-		/// @return A pointer to a texture
-		virtual Ref<Texture2D> CreateTexture2D(const Texture2DSpecification &spec) = 0;
-
 		/// @brief A method that loads a new texture from a image stored on disk
 		/// @param filepath The filepath to load the image from
 		/// @return A pointer to a texture
-		Ref<Texture2D> CreateTexture2D(const char *filepath, bool generateMips, bool srgb = false);
+		Ref<Texture> CreateTexture2D(const char *filepath, bool generateMips, bool srgb = false);
 
 		/// @brief A method that loads a new texture from an image stored on disk
 		/// @param filepath The filepath to load the image from
 		/// @return A pointer to a texture
-		Ref<Texture2D> CreateTexture2D(const std::string &filepath, bool generateMips, bool srgb = false);
-
-		virtual Ref<Cubemap> CreateCubemap(const CubemapSpecification &spec) = 0;
+		Ref<Texture> CreateTexture2D(const std::string &filepath, bool generateMips, bool srgb = false);
 
 		virtual Ref<Framebuffer> CreateFramebuffer(const FramebufferSpecification &spec) = 0;
 
@@ -146,6 +97,8 @@ namespace Nexus::Graphics
 		/// @return A pointer to a sampler
 		virtual Ref<Sampler> CreateSampler(const SamplerSpecification &spec) = 0;
 
+		virtual Ref<DeviceBuffer> CreateDeviceBuffer(const DeviceBufferDescription &desc) = 0;
+
 		virtual Ref<TimingQuery> CreateTimingQuery() = 0;
 
 		/// @brief A pure virtual method that returns a ShaderFormat enum representing
@@ -162,9 +115,19 @@ namespace Nexus::Graphics
 
 		virtual bool IsUVOriginTopLeft() = 0;
 
+		virtual GraphicsAPI GetGraphicsAPI() = 0;
+
 		virtual const GraphicsCapabilities GetGraphicsCapabilities() const = 0;
 
-		virtual Swapchain *CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) = 0;
+		virtual Ref<Texture> CreateTexture(const TextureSpecification &spec) = 0;
+
+		virtual Ref<Swapchain> CreateSwapchain(IWindow *window, const SwapchainSpecification &spec) = 0;
+
+		virtual Ref<Fence> CreateFence(const FenceDescription &desc) = 0;
+
+		virtual FenceWaitResult WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) = 0;
+
+		virtual void ResetFences(Ref<Fence> *fences, uint32_t count) = 0;
 
 		Ref<ShaderModule> CreateShaderModuleFromSpirvFile(const std::string &filepath, ShaderStage stage);
 
@@ -176,19 +139,36 @@ namespace Nexus::Graphics
 
 		void ImmediateSubmit(std::function<void(Ref<CommandList> cmd)> &&function);
 
-		const GraphicsDeviceSpecification &GetSpecification() const;
+		void WriteToTexture(Ref<Texture> texture,
+							uint32_t	 arrayLayer,
+							uint32_t	 mipLevel,
+							uint32_t	 x,
+							uint32_t	 y,
+							uint32_t	 z,
+							uint32_t	 width,
+							uint32_t	 height,
+							const void	*data,
+							size_t		 size);
 
-		virtual bool			   Validate() override;
-		virtual void			   SetName(const std::string &name) override;
-		virtual const std::string &GetName() override;
+		std::vector<char> ReadFromTexture(Ref<Texture> texture,
+										  uint32_t	   arrayLayer,
+										  uint32_t	   mipLevel,
+										  uint32_t	   x,
+										  uint32_t	   y,
+										  uint32_t	   z,
+										  uint32_t	   width,
+										  uint32_t	   height);
+
+		virtual bool							 Validate() override;
+		virtual void							 SetName(const std::string &name) override;
+		virtual const std::string				&GetName() override;
+		virtual std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const = 0;
 
 	  private:
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) = 0;
 		Ref<ShaderModule>		  TryLoadCachedShader(const std::string &source, const std::string &name, ShaderStage stage, ShaderLanguage language);
 
 	  protected:
-		GraphicsDeviceSpecification m_Specification;
-
 		Ref<CommandList> m_ImmediateCommandList = nullptr;
 		std::string		 m_Name					= "GraphicsDevice";
 	};

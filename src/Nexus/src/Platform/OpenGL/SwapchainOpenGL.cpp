@@ -4,7 +4,7 @@
 
 	#include "SwapchainOpenGL.hpp"
 
-	#include "BufferOpenGL.hpp"
+	#include "DeviceBufferOpenGL.hpp"
 	#include "GL.hpp"
 
 	#include "GraphicsDeviceOpenGL.hpp"
@@ -78,7 +78,10 @@ namespace Nexus::Graphics
 
 	void SwapchainOpenGL::BindAsDrawTarget()
 	{
-		ViewContext->MakeCurrent();
+		if (!ViewContext->MakeCurrent())
+		{
+			throw std::runtime_error("Failed to make context current");
+		}
 		ResizeIfNecessary();
 	}
 

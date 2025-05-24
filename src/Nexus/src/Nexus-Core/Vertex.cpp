@@ -72,15 +72,13 @@ namespace Nexus::Graphics
 		return m_InstanceStepRate;
 	}
 
-	void VertexBufferLayout::CalculateOffsetsAndStride()
+	void VertexBufferLayout::CalculateOffsets()
 	{
 		size_t offset = 0;
-		m_Stride	  = 0;
 		for (auto &element : m_Elements)
 		{
 			element.Offset = offset;
 			offset += element.Size;
-			m_Stride += element.Size;
 		}
 	}
 

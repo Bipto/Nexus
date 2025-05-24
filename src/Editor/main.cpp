@@ -21,9 +21,6 @@
 
 #include "Nexus-Core/Utils/ScriptProjectGenerator.hpp"
 
-#include "Nexus-Core/Assets/Processors/AssimpProcessor.hpp"
-#include "Nexus-Core/Assets/Processors/TextureProcessor.hpp"
-
 class EditorApplication : public Nexus::Application
 {
   public:
@@ -38,7 +35,8 @@ class EditorApplication : public Nexus::Application
 
 	virtual void Load() override
 	{
-		m_Renderer = std::make_unique<Nexus::Graphics::Renderer3D>(m_GraphicsDevice);
+		m_Renderer		= std::make_unique<Nexus::Graphics::Renderer3D>(m_GraphicsDevice.get());
+		m_BatchRenderer = std::make_unique<Nexus::Graphics::BatchRenderer>(m_GraphicsDevice.get(), true, 1);
 
 		m_ImGuiRenderer = std::unique_ptr<Nexus::ImGuiUtils::ImGuiGraphicsRenderer>(new Nexus::ImGuiUtils::ImGuiGraphicsRenderer(this));
 		ImGui::SetCurrentContext(m_ImGuiRenderer->GetContext());
@@ -206,39 +204,6 @@ class EditorApplication : public Nexus::Application
 				}
 
 				ImGui::EndMenu();
-			}
-
-			if (ImGui::MenuItem("Process Model"))
-			{
-				std::vector<Nexus::FileDialogFilter>   filters = {{"All files", "*"}};
-				std::unique_ptr<Nexus::OpenFileDialog> dialog  = std::unique_ptr<Nexus::OpenFileDialog>(
-					 Nexus::Platform::CreateOpenFileDialog(Nexus::GetApplication()->GetPrimaryWindow(), filters, nullptr, false));
-
-				Nexus::FileDialogResult result = dialog->Show();
-				if (result.FilePaths.size() > 0)
-				{
-					Nexus::Processors::AssimpProcessor processor = {};
-					Nexus::Assets::AssetRegistry	  &registry	 = m_Project->GetAssetRegistry();
-					Nexus::GUID						   id		 = processor.Process(result.FilePaths[0], m_GraphicsDevice, m_Project.get());
-				}
-			}
-
-			if (ImGui::MenuItem("Process Texture"))
-			{
-				std::vector<Nexus::FileDialogFilter>   filters = {{"All files", "*"}};
-				std::unique_ptr<Nexus::OpenFileDialog> dialog  = std::unique_ptr<Nexus::OpenFileDialog>(
-					 Nexus::Platform::CreateOpenFileDialog(Nexus::GetApplication()->GetPrimaryWindow(), filters, nullptr, false));
-
-				if (m_Project)
-				{
-					Nexus::FileDialogResult result = dialog->Show();
-					if (result.FilePaths.size() > 0)
-					{
-						Nexus::Processors::TextureProcessor textureProcessor = {};
-						Nexus::Assets::AssetRegistry	   &assetRegistry	 = m_Project->GetAssetRegistry();
-						Nexus::GUID							guid = textureProcessor.Process(result.FilePaths[0], m_GraphicsDevice, m_Project.get());
-					}
-				}
 			}
 
 			if (ImGui::MenuItem("Import Asset"))
@@ -474,6 +439,7 @@ class EditorApplication : public Nexus::Application
 				uv0 = {0, 1};
 				uv1 = {1, 0};
 			}
+
 			ImVec2 cursorPos = ImGui::GetCursorPos();
 			ImVec2 imagePos	 = ImGui::GetCursorScreenPos();
 			ImGui::Image(m_FramebufferTextureID, size, uv0, uv1);
@@ -543,7 +509,7 @@ class EditorApplication : public Nexus::Application
 			}
 			if (ImGui::IsItemHovered())
 			{
-				m_FramebufferClickEnabled = false;
+				// m_FramebufferClickEnabled = false;
 			}
 			ImGui::SameLine();
 			if (ImGui::Button("Rotate"))
@@ -552,7 +518,7 @@ class EditorApplication : public Nexus::Application
 			}
 			if (ImGui::IsItemHovered())
 			{
-				m_FramebufferClickEnabled = false;
+				// m_FramebufferClickEnabled = false;
 			}
 			ImGui::SameLine();
 			if (ImGui::Button("Scale"))
@@ -561,7 +527,7 @@ class EditorApplication : public Nexus::Application
 			}
 			if (ImGui::IsItemHovered())
 			{
-				m_FramebufferClickEnabled = false;
+				// m_FramebufferClickEnabled = false;
 			}
 		}
 		ImGui::End();
@@ -596,6 +562,44 @@ class EditorApplication : public Nexus::Application
 			Nexus::Scene *scene = m_Project->GetLoadedScene();
 			m_Renderer->Begin(scene, target, time);
 			m_Renderer->End();
+
+			Nexus::Graphics::Viewport vp = {};
+			vp.X						 = 0;
+			vp.Y						 = 0;
+			vp.Width					 = m_Framebuffer->GetFramebufferSpecification().Width;
+			vp.Height					 = m_Framebuffer->GetFramebufferSpecification().Height;
+			vp.MinDepth					 = 0.0f;
+			vp.MaxDepth					 = 1.0f;
+
+			Nexus::Graphics::Scissor scissor = {};
+			scissor.X						 = 0;
+			scissor.Y						 = 0;
+			scissor.Width					 = vp.Width;
+			scissor.Height					 = vp.Height;
+
+			glm::mat4 viewProj = m_Renderer->GetCamera().GetViewProjection();
+			m_BatchRenderer->Begin(target, vp, scissor, viewProj);
+
+			Nexus::ECS::View<Nexus::Transform, Nexus::SpriteRendererComponent> transformsSpriteRenderers =
+				m_Project->GetLoadedScene()->Registry.GetView<Nexus::Transform, Nexus::SpriteRendererComponent>();
+
+			transformsSpriteRenderers.Each(
+				[&](Nexus::Entity *entity, const std::tuple<Nexus::Transform *, Nexus::SpriteRendererComponent *> &components)
+				{
+					Nexus::Transform			   *transform	   = std::get<0>(components);
+					Nexus::SpriteRendererComponent *spriteRenderer = std::get<1>(components);
+
+					const Nexus::FirstPersonCamera &camera		= m_Renderer->GetCamera();
+					glm::mat4						worldMatrix = transform->CreateTransformation();
+
+					m_BatchRenderer->DrawQuadFill(spriteRenderer->SpriteColour,
+												  spriteRenderer->SpriteTexture,
+												  spriteRenderer->Tiling,
+												  worldMatrix,
+												  entity->ID);
+				});
+
+			m_BatchRenderer->End();
 		}
 
 		m_ImGuiRenderer->BeforeLayout(time);
@@ -606,8 +610,11 @@ class EditorApplication : public Nexus::Application
 
 		if (m_ClickPosition)
 		{
-			Nexus::Ref<Nexus::Graphics::Texture2D> idTexture  = m_Framebuffer->GetColorTexture(1);
-			std::vector<unsigned char>			   pixels	  = idTexture->GetData(0, m_ClickPosition.value().x, m_ClickPosition.value().y, 1, 1);
+			Nexus::Ref<Nexus::Graphics::Texture> idTexture = m_Framebuffer->GetColorTexture(1);
+
+			std::vector<char> pixels =
+				m_GraphicsDevice->ReadFromTexture(idTexture.get(), 0, 0, m_ClickPosition.value().x, m_ClickPosition.value().y, 0, 1, 1);
+
 			uint32_t							   upperValue = 0;
 			uint32_t							   lowerValue = 0;
 
@@ -648,9 +655,10 @@ class EditorApplication : public Nexus::Application
 
 	ImTextureID m_FramebufferTextureID = {};
 
-	std::unique_ptr<Nexus::Graphics::Renderer3D> m_Renderer;
-	Nexus::Ref<Nexus::Graphics::Cubemap>		 m_Cubemap = nullptr;
-	Nexus::Ref<Nexus::Graphics::Model>			 m_Model   = nullptr;
+	std::unique_ptr<Nexus::Graphics::Renderer3D>	m_Renderer		= nullptr;
+	std::unique_ptr<Nexus::Graphics::BatchRenderer> m_BatchRenderer = nullptr;
+	Nexus::Ref<Nexus::Graphics::Texture>			m_Cubemap		= nullptr;
+	Nexus::Ref<Nexus::Graphics::Model>				m_Model			= nullptr;
 
 	ImVec2 m_PreviousViewportSize = {0, 0};
 	bool   m_NewProjectWindowOpen = false;
@@ -668,7 +676,7 @@ class EditorApplication : public Nexus::Application
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
 	Nexus::ApplicationSpecification spec;
-	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
+	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
 	spec.AudioAPI	 = Nexus::Audio::AudioAPI::OpenAL;
 
 	spec.WindowProperties.Width			   = 1280;
@@ -678,7 +686,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 	spec.WindowProperties.RendersPerSecond = 60;
 	spec.WindowProperties.UpdatesPerSecond = 60;
 
-	spec.SwapchainSpecification.Samples	   = Nexus::Graphics::SampleCount::SampleCount8;
+	spec.SwapchainSpecification.Samples	   = 8;
 	spec.SwapchainSpecification.VSyncState = Nexus::Graphics::VSyncState::Disabled;
 
 	return new EditorApplication(spec);

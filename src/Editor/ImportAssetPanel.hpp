@@ -12,7 +12,7 @@ class ImportAssetPanel : public Panel
 
 	inline std::vector<std::string> GetProcessorsForFiles(const std::vector<std::string> &files)
 	{
-		const auto				&availableProcessors = Nexus::Processors::ProcessorRegistry::GetRegistry();
+		const auto				&availableProcessors = m_Project->GetCachedAvailableAssetProcessors();
 		std::vector<std::string> processors			 = {};
 
 		for (const auto &filepath : files)
@@ -54,24 +54,25 @@ class ImportAssetPanel : public Panel
 			for (size_t i = 0; i < processorNames.size(); i++)
 			{
 				std::string filepath  = m_Filepaths[i];
-				std::string processor = processorNames[i];
+				std::string processorName = processorNames[i];
 
 				if (ImGui::CollapsingHeader(filepath.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
 				{
-					if (processor.empty())
+					if (processorName.empty())
 					{
 						ImGui::Text("No processor was found for this file type");
 					}
 					else
 					{
-						ImGui::Text(processor.c_str());
+						ImGui::Text(processorName.c_str());
 						ImGui::PushID(i);
 						if (ImGui::Button("Import"))
 						{
-							std::optional<Nexus::Processors::ProcessorInfo> info = Nexus::Processors::ProcessorRegistry::GetProcessorInfo(processor);
+							std::optional<Nexus::Processors::ProcessorInfo> info = m_Project->GetProcessorInfo(processorName);
 							if (info)
 							{
-								Nexus::Processors::IProcessor *processor = info.value().CreationFunction();
+								std::unique_ptr<Nexus::Processors::IProcessor> processor =
+									std::unique_ptr<Nexus::Processors::IProcessor>(info.value().CreationFunction());
 								processor->Process(filepath, Nexus::GetApplication()->GetGraphicsDevice(), m_Project.get());
 								pathToRemove = i;
 							}

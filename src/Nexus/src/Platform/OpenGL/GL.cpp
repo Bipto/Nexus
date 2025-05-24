@@ -7,6 +7,7 @@
 	#if defined(NX_PLATFORM_WGL)
 		#include "Context/WGL/OffscreenContextWGL.hpp"
 		#include "Context/WGL/ViewContextWGL.hpp"
+		#include "Context/WGL/PhysicalDeviceWGL.hpp"
 	#elif defined(NX_PLATFORM_EGL)
 		#include "Context/EGL/OffscreenContextEGL.hpp"
 		#include "Context/EGL/ViewContextEGL.hpp"
@@ -19,6 +20,7 @@
 	#endif
 
 	#include "Platform/OpenGL/GraphicsDeviceOpenGL.hpp"
+	#include "TextureOpenGL.hpp"
 	#include "Nexus-Core/Platform.hpp"
 
 namespace Nexus::GL
@@ -394,21 +396,208 @@ namespace Nexus::GL
 		}
 	}
 
-	GLenum GLCubemapFace(Nexus::Graphics::CubemapFace face)
+	GLenum GetBufferUsage(const Graphics::DeviceBufferDescription &desc)
 	{
-		switch (face)
+		switch (desc.Access)
 		{
-			case Nexus::Graphics::CubemapFace::PositiveX: return GL_TEXTURE_CUBE_MAP_POSITIVE_X;
-			case Nexus::Graphics::CubemapFace::NegativeX: return GL_TEXTURE_CUBE_MAP_NEGATIVE_X;
-			case Nexus::Graphics::CubemapFace::PositiveY: return GL_TEXTURE_CUBE_MAP_POSITIVE_Y;
-			case Nexus::Graphics::CubemapFace::NegativeY: return GL_TEXTURE_CUBE_MAP_NEGATIVE_Y;
-			case Nexus::Graphics::CubemapFace::PositiveZ: return GL_TEXTURE_CUBE_MAP_POSITIVE_Z;
-			case Nexus::Graphics::CubemapFace::NegativeZ: return GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
-			default: throw std::runtime_error("Failed to find a valid cubemap face");
+			case Graphics::BufferMemoryAccess::Upload: return GL_DYNAMIC_COPY;
+			case Graphics::BufferMemoryAccess::Default: return GL_DYNAMIC_DRAW;
+			case Graphics::BufferMemoryAccess::Readback: return GL_DYNAMIC_COPY;
+			default: throw std::runtime_error("Failed to find a valid access");
+		}
+
+		return GL_STATIC_DRAW;
+	}
+
+	GLenum GetAccessMask(Graphics::StorageImageAccess access)
+	{
+		switch (access)
+		{
+			case Graphics::StorageImageAccess::Read: return GL_READ_ONLY;
+			case Graphics::StorageImageAccess::ReadWrite: return GL_READ_WRITE;
+			default: throw std::runtime_error("Failed to find a valid access mask");
 		}
 	}
 
-	void GetBaseType(const Graphics::VertexBufferElement &element, GLenum &baseType, uint32_t &componentCount, GLboolean &normalized)
+	GLenum GetTextureType(const Graphics::TextureSpecification &spec)
+	{
+		switch (spec.Type)
+		{
+			case Graphics::TextureType::Texture1D:
+			{
+				if (spec.ArrayLayers > 1)
+				{
+					return GL_TEXTURE_1D_ARRAY;
+				}
+				else
+				{
+					return GL_TEXTURE_1D;
+				}
+			}
+			case Graphics::TextureType::Texture2D:
+			{
+				if (spec.Usage & Graphics::TextureUsage_Cubemap)
+				{
+					if (spec.ArrayLayers > 6)
+					{
+						return GL_TEXTURE_CUBE_MAP_ARRAY;
+					}
+					else
+					{
+						return GL_TEXTURE_CUBE_MAP;
+					}
+				}
+				else
+				{
+					if (spec.ArrayLayers > 1)
+					{
+						return GL_TEXTURE_2D_ARRAY;
+					}
+					else
+					{
+						return GL_TEXTURE_2D;
+					}
+				}
+			}
+			case Graphics::TextureType::Texture3D:
+			{
+				return GL_TEXTURE_3D;
+			}
+			default: throw std::runtime_error("Failed to find a valid texture type");
+		}
+	}
+
+	GLInternalTextureFormat GetGLInternalTextureFormat(const Graphics::TextureSpecification &spec)
+	{
+		switch (spec.Type)
+		{
+			case Graphics::TextureType::Texture1D:
+			{
+				if (spec.ArrayLayers > 1)
+				{
+					return GLInternalTextureFormat::Texture1DArray;
+				}
+				else
+				{
+					return GLInternalTextureFormat::Texture1D;
+				}
+			}
+
+			case Graphics::TextureType::Texture2D:
+			{
+				if (spec.Usage & Graphics::TextureUsage_Cubemap)
+				{
+					if (spec.ArrayLayers > 6)
+					{
+						return GLInternalTextureFormat::CubemapArray;
+					}
+					else
+					{
+						return GLInternalTextureFormat::Cubemap;
+					}
+				}
+				else
+				{
+					if (spec.Samples > 1)
+					{
+						if (spec.ArrayLayers > 1)
+						{
+							return GLInternalTextureFormat::Texture2DArrayMultisample;
+						}
+						else
+						{
+							return GLInternalTextureFormat::Texture2DMultisample;
+						}
+					}
+					else
+					{
+						if (spec.ArrayLayers > 1)
+						{
+							return GLInternalTextureFormat::Texture2DArray;
+						}
+						else
+						{
+							return GLInternalTextureFormat::Texture2D;
+						}
+					}
+				}
+			}
+			case Graphics::TextureType::Texture3D:
+			{
+				return GLInternalTextureFormat::Texture3D;
+			}
+			default: throw std::runtime_error("Failed to find a valid GLInternalTextureFormat");
+		}
+	}
+
+	void ValidateFramebuffer(GLuint framebuffer)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+		GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+		if (status == GL_FRAMEBUFFER_COMPLETE)
+		{
+			return;
+		}
+
+		switch (status)
+		{
+			case GL_FRAMEBUFFER_UNDEFINED:
+				throw std::runtime_error(
+					"The specified framebuffer is the default read or write framebuffer but the default framebuffer does not exist");
+			case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT: throw std::runtime_error("An attachment is incomplete");
+			case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: throw std::runtime_error("This framebuffer does not have any attachments");
+			case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER: throw std::runtime_error("The framebuffer does not have a draw buffer");
+			case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER: throw std::runtime_error("The framebuffer does not have a read buffer");
+			case GL_FRAMEBUFFER_UNSUPPORTED: throw std::runtime_error("The framebuffer pixel format(s) are unsupported");
+			case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE: throw std::runtime_error("The attachments have mismatching multisample levels");
+			case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS: throw std::runtime_error("Framebuffer attachment is layered");
+		}
+	}
+
+	void AttachTexture(GLuint						framebuffer,
+					   Ref<Graphics::TextureOpenGL> texture,
+					   uint32_t						mipLevel,
+					   uint32_t						arrayLayer,
+					   Graphics::ImageAspect		aspect,
+					   uint32_t						colourIndex)
+	{
+		glCall(glBindFramebuffer(GL_FRAMEBUFFER, framebuffer));
+		GLenum attachmentType = GL::GetAttachmentType(aspect, colourIndex);
+
+		uint32_t				textureHandle  = texture->GetHandle();
+		GLenum					textureTarget  = texture->GetTextureType();
+		GLInternalTextureFormat internalFormat = texture->GetInternalGLTextureFormat();
+
+		switch (internalFormat)
+		{
+			case GLInternalTextureFormat::Texture1D:
+				glCall(glFramebufferTexture1D(GL_FRAMEBUFFER, attachmentType, textureTarget, textureHandle, mipLevel));
+				break;
+			case GLInternalTextureFormat::Texture1DArray:
+				glCall(glFramebufferTextureLayer(GL_FRAMEBUFFER, attachmentType, textureHandle, mipLevel, arrayLayer));
+				break;
+			case GLInternalTextureFormat::Texture2D:
+			case GLInternalTextureFormat::Texture2DMultisample:
+				glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, textureTarget, textureHandle, mipLevel));
+				break;
+			case GLInternalTextureFormat::Texture2DArray:
+			case GLInternalTextureFormat::Texture2DArrayMultisample:
+			case GLInternalTextureFormat::CubemapArray:
+			case GLInternalTextureFormat::Texture3D:
+				glCall(glFramebufferTextureLayer(GL_FRAMEBUFFER, attachmentType, textureHandle, mipLevel, arrayLayer));
+				break;
+			case GLInternalTextureFormat::Cubemap:
+				glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_TEXTURE_CUBE_MAP_POSITIVE_X + arrayLayer, textureTarget, textureHandle, mipLevel));
+				break;
+		}
+	}
+
+	void GetBaseType(const Graphics::VertexBufferElement &element,
+					 GLenum								 &baseType,
+					 uint32_t							 &componentCount,
+					 GLboolean							 &normalized,
+					 GLPrimitiveType					 &primitiveType)
 	{
 		switch (element.Type)
 		{
@@ -416,222 +605,297 @@ namespace Nexus::GL
 				baseType	   = GL_BYTE;
 				componentCount = 1;
 				normalized	   = false;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 			case Graphics::ShaderDataType::Byte2:
 				baseType	   = GL_BYTE;
 				componentCount = 2;
 				normalized	   = false;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 			case Graphics::ShaderDataType::Byte4:
 				baseType	   = GL_BYTE;
 				componentCount = 4;
 				normalized	   = false;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 
 			case Graphics::ShaderDataType::NormByte:
 				baseType	   = GL_UNSIGNED_BYTE;
 				componentCount = 1;
 				normalized	   = true;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 			case Graphics::ShaderDataType::NormByte2:
 				baseType	   = GL_UNSIGNED_BYTE;
 				componentCount = 2;
 				normalized	   = true;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 
 			case Graphics::ShaderDataType::NormByte4:
 				baseType	   = GL_UNSIGNED_BYTE;
 				componentCount = 4;
 				normalized	   = true;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 
 			case Graphics::ShaderDataType::Float:
 				baseType	   = GL_FLOAT;
 				componentCount = 1;
 				normalized	   = false;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 			case Graphics::ShaderDataType::Float2:
 				baseType	   = GL_FLOAT;
 				componentCount = 2;
 				normalized	   = false;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 			case Graphics::ShaderDataType::Float3:
 				baseType	   = GL_FLOAT;
 				componentCount = 3;
 				normalized	   = false;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 			case Graphics::ShaderDataType::Float4:
 				baseType	   = GL_FLOAT;
 				componentCount = 4;
 				normalized	   = false;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 
 			case Graphics::ShaderDataType::Half:
 				baseType	   = GL_HALF_FLOAT;
 				componentCount = 1;
 				normalized	   = true;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 			case Graphics::ShaderDataType::Half2:
 				baseType	   = GL_HALF_FLOAT;
 				componentCount = 2;
 				normalized	   = true;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 			case Graphics::ShaderDataType::Half4:
 				baseType	   = GL_HALF_FLOAT;
 				componentCount = 4;
 				normalized	   = true;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 
 			case Graphics::ShaderDataType::Int:
 				baseType	   = GL_INT;
 				componentCount = 1;
 				normalized	   = false;
+				primitiveType  = GLPrimitiveType::Int;
 				break;
 			case Graphics::ShaderDataType::Int2:
 				baseType	   = GL_INT;
 				componentCount = 2;
 				normalized	   = false;
+				primitiveType  = GLPrimitiveType::Int;
 				break;
 			case Graphics::ShaderDataType::Int3:
 				baseType	   = GL_INT;
 				componentCount = 3;
 				normalized	   = false;
+				primitiveType  = GLPrimitiveType::Int;
 				break;
 			case Graphics::ShaderDataType::Int4:
 				baseType	   = GL_INT;
 				componentCount = 4;
 				normalized	   = false;
+				primitiveType  = GLPrimitiveType::Int;
 				break;
 
 			case Graphics::ShaderDataType::SignedByte:
 				baseType	   = GL_BYTE;
 				componentCount = 1;
 				normalized	   = false;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 			case Graphics::ShaderDataType::SignedByte2:
 				baseType	   = GL_BYTE;
 				componentCount = 2;
 				normalized	   = false;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 			case Graphics::ShaderDataType::SignedByte4:
 				baseType	   = GL_BYTE;
 				componentCount = 4;
 				normalized	   = false;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 
 			case Graphics::ShaderDataType::SignedByteNormalized:
 				baseType	   = GL_BYTE;
 				componentCount = 1;
 				normalized	   = true;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 			case Graphics::ShaderDataType::SignedByte2Normalized:
 				baseType	   = GL_BYTE;
 				componentCount = 2;
 				normalized	   = true;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 			case Graphics::ShaderDataType::SignedByte4Normalized:
 				baseType	   = GL_BYTE;
 				componentCount = 4;
 				normalized	   = true;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 
 			case Graphics::ShaderDataType::Short:
 				baseType	   = GL_SHORT;
 				componentCount = 1;
 				normalized	   = false;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 			case Graphics::ShaderDataType::Short2:
 				baseType	   = GL_SHORT;
 				componentCount = 2;
 				normalized	   = false;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 			case Graphics::ShaderDataType::Short4:
 				baseType	   = GL_SHORT;
 				componentCount = 4;
 				normalized	   = false;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 
 			case Graphics::ShaderDataType::ShortNormalized:
 				baseType	   = GL_SHORT;
 				componentCount = 1;
 				normalized	   = true;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 			case Graphics::ShaderDataType::Short2Normalized:
 				baseType	   = GL_SHORT;
 				componentCount = 2;
 				normalized	   = true;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 			case Graphics::ShaderDataType::Short4Normalized:
 				baseType	   = GL_SHORT;
 				componentCount = 4;
 				normalized	   = true;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 
 			case Graphics::ShaderDataType::UInt:
 				baseType	   = GL_UNSIGNED_INT;
 				componentCount = 1;
 				normalized	   = false;
+				primitiveType  = GLPrimitiveType::Int;
 				break;
 			case Graphics::ShaderDataType::UInt2:
 				baseType	   = GL_UNSIGNED_INT;
 				componentCount = 2;
 				normalized	   = false;
+				primitiveType  = GLPrimitiveType::Int;
 				break;
 			case Graphics::ShaderDataType::UInt3:
 				baseType	   = GL_UNSIGNED_INT;
 				componentCount = 3;
 				normalized	   = false;
+				primitiveType  = GLPrimitiveType::Int;
 				break;
 			case Graphics::ShaderDataType::UInt4:
 				baseType	   = GL_UNSIGNED_INT;
 				componentCount = 4;
 				normalized	   = false;
+				primitiveType  = GLPrimitiveType::Int;
 				break;
 
 			case Graphics::ShaderDataType::UShort:
 				baseType	   = GL_UNSIGNED_SHORT;
 				componentCount = 1;
 				normalized	   = false;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 			case Graphics::ShaderDataType::UShort2:
 				baseType	   = GL_UNSIGNED_SHORT;
 				componentCount = 2;
 				normalized	   = false;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 			case Graphics::ShaderDataType::UShort4:
 				baseType	   = GL_UNSIGNED_SHORT;
 				componentCount = 4;
 				normalized	   = false;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 
 			case Graphics::ShaderDataType::UShortNormalized:
 				baseType	   = GL_UNSIGNED_SHORT;
 				componentCount = 1;
 				normalized	   = true;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 			case Graphics::ShaderDataType::UShort2Normalized:
 				baseType	   = GL_UNSIGNED_SHORT;
 				componentCount = 2;
 				normalized	   = true;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 			case Graphics::ShaderDataType::UShort4Normalized:
 				baseType	   = GL_UNSIGNED_SHORT;
 				componentCount = 4;
 				normalized	   = true;
+				primitiveType  = GLPrimitiveType::Float;
 				break;
 			default: throw std::runtime_error("Failed to find valid vertex buffer element type");
 		}
 	}
 
-	std::unique_ptr<IOffscreenContext> CreateOffscreenContext()
+	GLenum GetGLImageAspect(Graphics::ImageAspect aspect)
+	{
+		switch (aspect)
+		{
+			case Graphics::ImageAspect::Colour: return GL_RGBA;
+			case Graphics::ImageAspect::Depth: return GL_DEPTH_COMPONENT;
+			case Graphics::ImageAspect::Stencil: return GL_STENCIL_INDEX;
+			case Graphics::ImageAspect::DepthStencil: return GL_DEPTH_STENCIL;
+			default: throw std::runtime_error("Invalid aspect mask specified");
+		}
+	}
+
+	GLenum GetAttachmentType(Graphics::ImageAspect aspect, uint32_t index)
+	{
+		switch (aspect)
+		{
+			case Graphics::ImageAspect::Colour: return GL_COLOR_ATTACHMENT0 + index;
+			case Graphics::ImageAspect::Depth: return GL_DEPTH_ATTACHMENT;
+			case Graphics::ImageAspect::Stencil: return GL_STENCIL_ATTACHMENT;
+			case Graphics::ImageAspect::DepthStencil: return GL_DEPTH_STENCIL_ATTACHMENT;
+			default: throw std::runtime_error("Invalid aspect mask specified");
+		}
+	}
+
+	GLenum GetBufferMaskToCopy(Graphics::ImageAspect aspect)
+	{
+		switch (aspect)
+		{
+			case Graphics::ImageAspect::Colour: return GL_COLOR_ATTACHMENT0;
+			case Graphics::ImageAspect::Depth: return GL_DEPTH_ATTACHMENT;
+			case Graphics::ImageAspect::Stencil: return GL_STENCIL_ATTACHMENT;
+			case Graphics::ImageAspect::DepthStencil: return GL_DEPTH_STENCIL_ATTACHMENT;
+			default: throw std::runtime_error("Invalid aspect mask specified");
+		}
+	}
+
+	std::unique_ptr<IOffscreenContext> CreateOffscreenContext(Graphics::IPhysicalDevice *physicalDevice)
 	{
 		GL::ContextSpecification spec = {};
 		spec.Debug					  = true;
-		spec.Samples				  = Graphics::SampleCount::SampleCount8;
+		spec.Samples				  = 1;
 		spec.GLVersion				  = GL::OpenGLVersion::OpenGL;
 
 	#if defined(NX_PLATFORM_WGL)
-		return std::make_unique<OffscreenContextWGL>(spec);
+		return std::make_unique<OffscreenContextWGL>(spec, physicalDevice);
 	#elif defined(NX_PLATFORM_EGL)
 
 		#if defined(NX_PLATFORM_ANDROID)
@@ -670,7 +934,7 @@ namespace Nexus::GL
 	{
 		GL::ContextSpecification spec = {};
 		spec.Debug					  = true;
-		spec.Samples				  = Graphics::SampleCount::SampleCount8;
+		spec.Samples				  = 8;
 		spec.GLVersion				  = GL::OpenGLVersion::OpenGL;
 
 		Graphics::GraphicsDeviceOpenGL *deviceOpenGL = (Graphics::GraphicsDeviceOpenGL *)device;

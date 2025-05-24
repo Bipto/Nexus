@@ -147,7 +147,7 @@ namespace Nexus
 
 		glm::mat4 GetViewProjection() const
 		{
-			return GetView() * m_Projection;
+			return m_Projection * m_View;
 		}
 
 	  private:
@@ -156,7 +156,7 @@ namespace Nexus
 			if (!m_RotationActive)
 				return;
 
-			float speed = 2.0f * time.GetSeconds();
+			float speed = 2.0f * time.GetSeconds<float>();
 
 			std::optional<uint32_t> defaultKeyboard = Platform::GetActiveKeyboardId();
 

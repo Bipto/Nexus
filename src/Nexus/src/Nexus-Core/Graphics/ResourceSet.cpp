@@ -19,6 +19,14 @@ namespace Nexus::Graphics
 			info.Binding									= uniformBuffer.Binding;
 			m_UniformBufferBindingInfos[uniformBuffer.Name] = info;
 		}
+
+		for (const auto& storageImage : spec.StorageImages)
+		{
+			BindingInfo info;
+			info.Set = storageImage.Set;
+			info.Binding = storageImage.Binding;
+			m_StorageImageBindingInfos[storageImage.Name] = info;
+		}
 	}
 
 	const ResourceSetSpecification &ResourceSet::GetSpecification() const
@@ -45,7 +53,7 @@ namespace Nexus::Graphics
 		return bindings;
 	}
 
-	const std::map<std::string, WeakRef<UniformBuffer>> &ResourceSet::GetBoundUniformBuffers() const
+	const std::map<std::string, UniformBufferView> &ResourceSet::GetBoundUniformBuffers() const
 	{
 		return m_BoundUniformBuffers;
 	}
@@ -53,5 +61,10 @@ namespace Nexus::Graphics
 	const std::map<std::string, CombinedImageSampler> &ResourceSet::GetBoundCombinedImageSamplers() const
 	{
 		return m_BoundCombinedImageSamplers;
+	}
+
+	const std::map<std::string, StorageImageView> &ResourceSet::GetBoundStorageImages() const
+	{
+		return m_BoundStorageImages;
 	}
 }	 // namespace Nexus::Graphics

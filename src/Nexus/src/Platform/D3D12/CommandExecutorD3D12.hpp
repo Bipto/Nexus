@@ -12,26 +12,28 @@ namespace Nexus::Graphics
 	class SwapchainD3D12;
 	class FramebufferD3D12;
 	class GraphicsDeviceD3D12;
-	class PipelineD3D12;
+	class GraphicsPipelineD3D12;
 
 	class CommandExecutorD3D12 : public CommandExecutor
 	{
 	  public:
-		CommandExecutorD3D12();
+		CommandExecutorD3D12(Microsoft::WRL::ComPtr<ID3D12Device9> device);
 		virtual ~CommandExecutorD3D12();
 		virtual void ExecuteCommands(const std::vector<RenderCommandData> &commands, GraphicsDevice *device) override;
 		virtual void Reset() override;
 
-		void SetCommandList(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6> commandList);
+		void SetCommandList(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList);
 
 	  private:
 		virtual void ExecuteCommand(SetVertexBufferCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(WeakRef<IndexBuffer> command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(SetIndexBufferCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(DrawElementCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DrawCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(DrawIndexedCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(DrawInstancedCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(DrawInstancedIndexedCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DrawIndirectCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DrawIndirectIndexedCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DispatchCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DispatchIndirectCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(ClearColorTargetCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDevice *device) override;
@@ -44,19 +46,33 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(SetStencilRefCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(SetDepthBoundsCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(SetBlendFactorCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const BarrierDesc &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const CopyTextureToBufferCommand &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(const CopyTextureToTextureCommand &command, GraphicsDevice *device) override;
 
-		void SetSwapchain(SwapchainD3D12 *swapchain, GraphicsDevice *device);
-		void SetFramebuffer(Ref<FramebufferD3D12> framebuffer, GraphicsDevice *device);
+		void SetSwapchain(WeakRef<Swapchain> swapchain, GraphicsDevice *device);
+		void SetFramebuffer(WeakRef<Framebuffer> framebuffer, GraphicsDevice *device);
 		void ResetPreviousRenderTargets(GraphicsDevice *device);
 
+		void CreateDrawIndirectSignatureCommand();
+		void CreateDrawIndexedIndirectSignatureCommand();
+		void CreateDispatchIndirectSignatureCommand();
+
 	  private:
-		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6> m_CommandList = nullptr;
+		Microsoft::WRL::ComPtr<ID3D12Device9>			   m_Device		 = nullptr;
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> m_CommandList = nullptr;
 
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_DescriptorHandles;
 		D3D12_CPU_DESCRIPTOR_HANDLE				 m_DepthHandle;
 
-		std::optional<RenderTarget>		  m_CurrentRenderTarget	   = {};
-		std::optional<Ref<PipelineD3D12>> m_CurrentlyBoundPipeline = {};
+		std::optional<RenderTarget>	 m_CurrentRenderTarget	  = {};
+		std::optional<Ref<Pipeline>> m_CurrentlyBoundPipeline = {};
+
+		Microsoft::WRL::ComPtr<ID3D12CommandSignature> m_DrawIndirectCommandSignature		 = nullptr;
+		Microsoft::WRL::ComPtr<ID3D12CommandSignature> m_DrawIndexedIndirectCommandSignature = nullptr;
+		Microsoft::WRL::ComPtr<ID3D12CommandSignature> m_DispatchIndirectCommandSignature	 = nullptr;
 	};
 }	 // namespace Nexus::Graphics
 

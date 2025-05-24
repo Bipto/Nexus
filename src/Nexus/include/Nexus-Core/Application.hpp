@@ -4,6 +4,7 @@
 
 #include "Audio/AudioDevice.hpp"
 #include "Graphics/GraphicsDevice.hpp"
+#include "Graphics/IGraphicsAPI.hpp"
 #include "IWindow.hpp"
 
 #ifdef __EMSCRIPTEN__
@@ -86,7 +87,7 @@ namespace Nexus
 		/// @return A handle to the application's main window
 		Nexus::IWindow *GetPrimaryWindow();
 
-		Nexus::Graphics::Swapchain *GetPrimarySwapchain();
+		Ref<Nexus::Graphics::Swapchain> GetPrimarySwapchain();
 
 		/// @brief A method that is used to retrieve the size of an application's
 		/// window
@@ -131,11 +132,13 @@ namespace Nexus
 		const char *GetApplicationPath();
 
 	  protected:
+		std::unique_ptr<Graphics::IGraphicsAPI> m_GraphicsAPI = nullptr;
+
 		/// @brief A pointer to a graphics device
-		Graphics::GraphicsDevice *m_GraphicsDevice = nullptr;
+		std::unique_ptr<Graphics::GraphicsDevice> m_GraphicsDevice = nullptr;
 
 		/// @brief A pointer to an audio device
-		Audio::AudioDevice *m_AudioDevice = nullptr;
+		std::unique_ptr<Audio::AudioDevice> m_AudioDevice = nullptr;
 
 	  private:
 		/// @brief The specification that the application was created with
@@ -144,7 +147,7 @@ namespace Nexus
 		/// @brief A pointer to the application's main window
 		Nexus::IWindow *m_Window = nullptr;
 
-		Nexus::Graphics::Swapchain *m_Swapchain = nullptr;
+		Ref<Nexus::Graphics::Swapchain> m_Swapchain = nullptr;
 
 		/// @brief A clock to time when renders and updates occur
 		Clock m_Clock {};

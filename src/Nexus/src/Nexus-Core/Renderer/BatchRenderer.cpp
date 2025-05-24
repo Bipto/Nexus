@@ -6,14 +6,16 @@
 
 const std::string s_BatchVertexShaderSource = "#version 450 core\n"
 
-											  "layout(location = 0) in vec3 Position;\n"
-											  "layout(location = 1) in vec2 TexCoord;\n"
-											  "layout(location = 2) in vec4 Color;\n"
-											  "layout(location = 3) in float TexIndex;\n"
+											  "layout(location = 0) in vec4 Color;\n"
+											  "layout(location = 1) in vec3 Position;\n"
+											  "layout(location = 2) in float TexIndex;\n"
+											  "layout(location = 3) in vec2 TexCoord;\n"
+											  "layout(location = 4) in uvec2 EntityID;\n"
 
 											  "layout(location = 0) out vec2 texCoord;\n"
 											  "layout(location = 1) out vec4 outColor;\n"
 											  "layout(location = 2) out flat float texIndex;\n"
+											  "layout(location = 3) out flat uvec2 outEntityID;\n"
 
 											  "layout(binding = 0, set = 0) uniform MVP\n"
 											  "{\n"
@@ -26,15 +28,18 @@ const std::string s_BatchVertexShaderSource = "#version 450 core\n"
 											  "    texCoord = TexCoord;\n"
 											  "    outColor = Color;\n"
 											  "    texIndex = TexIndex;\n"
+											  "    outEntityID = EntityID;\n"
 											  "}";
 
 const std::string s_BatchTextureFragmentShaderSource = "#version 450 core\n"
 
 													   "layout (location = 0) out vec4 FragColor;\n"
+													   "layout (location = 1) out uvec2 o_EntityID;\n"
 
 													   "layout (location = 0) in vec2 texCoord;\n"
 													   "layout (location = 1) in vec4 outColor;\n"
 													   "layout (location = 2) in flat float texIndex;\n"
+													   "layout(location = 3) in flat uvec2 outEntityID;\n"
 
 													   "layout (set = 1, binding = 0) uniform sampler2D texture0;\n"
 													   "layout (set = 1, binding = 1) uniform sampler2D texture1;\n"
@@ -75,15 +80,19 @@ const std::string s_BatchTextureFragmentShaderSource = "#version 450 core\n"
 													   "        case 15: FragColor = texture(texture15, texCoord); break;\n"
 													   "    }\n"
 													   "    FragColor *= outColor;\n"
+													   "    o_EntityID = outEntityID;\n"
+													   "	if (FragColor.a == 0) discard;\n"
 													   "}\n";
 
 const std::string s_BatchFontFragmentShaderSource = "#version 450 core\n"
 
 													"layout (location = 0) out vec4 FragColor;\n"
+													"layout (location = 1) out uvec2 o_EntityID;\n"
 
 													"layout (location = 0) in vec2 texCoord;\n"
 													"layout (location = 1) in vec4 outColor;\n"
 													"layout (location = 2) in flat float texIndex;\n"
+													"layout(location = 3) in flat uvec2 outEntityID;\n"
 
 													"layout (set = 1, binding = 0) uniform sampler2D texture0;\n"
 													"layout (set = 1, binding = 1) uniform sampler2D texture1;\n"
@@ -126,15 +135,19 @@ const std::string s_BatchFontFragmentShaderSource = "#version 450 core\n"
 													"        case 15: alpha = texture(texture15, texCoord).r; break;\n"
 													"    }\n"
 													"    FragColor = vec4(outColor.rgb, alpha);\n"
+													"    o_EntityID = outEntityID;\n"
+													"	 if (FragColor.a == 0) discard;\n"
 													"}\n";
 
 const std::string s_BatchSDFFragmentShaderSource = "#version 450 core\n"
 
 												   "layout (location = 0) out vec4 FragColor;\n"
+												   "layout (location = 1) out uvec2 o_EntityID;\n"
 
 												   "layout (location = 0) in vec2 texCoord;\n"
 												   "layout (location = 1) in vec4 outColor;\n"
 												   "layout (location = 2) in flat float texIndex;\n"
+												   "layout(location = 3) in flat uvec2 outEntityID;\n"
 
 												   "layout (set = 1, binding = 0) uniform sampler2D texture0;\n"
 												   "layout (set = 1, binding = 1) uniform sampler2D texture1;\n"
@@ -186,71 +199,8 @@ const std::string s_BatchSDFFragmentShaderSource = "#version 450 core\n"
 												   "    float opacity = smoothstep(0.5 - w, 0.5 + w, alpha);\n"
 
 												   "    FragColor = vec4(outColor.rgb, opacity);\n"
+												   "    o_EntityID = outEntityID;\n"
 												   "}\n";
-
-const std::string s_RoundedRectFragmentShaderSource = "#version 450 core\n"
-													  "layout (location = 0) out vec4 FragColor;\n"
-													  "layout(location = 0) in vec2 texCoord;\n"
-													  "layout(location = 1) in vec4 outColor;\n"
-													  "layout(location = 2) in flat float texIndex;\n"
-													  "layout (set = 1, binding = 0) uniform sampler2D texture0;\n"
-													  "layout (set = 1, binding = 1) uniform sampler2D texture1;\n"
-													  "layout (set = 1, binding = 2) uniform sampler2D texture2;\n"
-													  "layout (set = 1, binding = 3) uniform sampler2D texture3;\n"
-													  "layout (set = 1, binding = 4) uniform sampler2D texture4;\n"
-													  "layout (set = 1, binding = 5) uniform sampler2D texture5;\n"
-													  "layout (set = 1, binding = 6) uniform sampler2D texture6;\n"
-													  "layout (set = 1, binding = 7) uniform sampler2D texture7;\n"
-													  "layout (set = 1, binding = 8) uniform sampler2D texture8;\n"
-													  "layout (set = 1, binding = 9) uniform sampler2D texture9;\n"
-													  "layout (set = 1, binding = 10) uniform sampler2D texture10;\n"
-													  "layout (set = 1, binding = 11) uniform sampler2D texture11;\n"
-													  "layout (set = 1, binding = 12) uniform sampler2D texture12;\n"
-													  "layout (set = 1, binding = 13) uniform sampler2D texture13;\n"
-													  "layout (set = 1, binding = 14) uniform sampler2D texture14;\n"
-													  "layout (set = 1, binding = 15) uniform sampler2D texture15;\n"
-													  "float roundedBoxSDF(vec2 CenterPosition, vec2 Size, float Radius) {\n"
-													  "return length(max(abs(CenterPosition)-Size+Radius,0.0))-Radius;\n"
-													  "}\n"
-													  "void main()\n"
-													  "{\n"
-													  "    switch (int(texIndex))\n"
-													  "    {\n"
-													  "        case 0: FragColor = texture(texture0, texCoord); break;\n"
-													  "        case 1: FragColor = texture(texture1, texCoord); break;\n"
-													  "        case 2: FragColor = texture(texture2, texCoord); break;\n"
-													  "        case 3: FragColor = texture(texture3, texCoord); break;\n"
-													  "        case 4: FragColor = texture(texture4, texCoord); break;\n"
-													  "        case 5: FragColor = texture(texture5, texCoord); break;\n"
-													  "        case 6: FragColor = texture(texture6, texCoord); break;\n"
-													  "        case 7: FragColor = texture(texture7, texCoord); break;\n"
-													  "        case 8: FragColor = texture(texture8, texCoord); break;\n"
-													  "        case 9: FragColor = texture(texture9, texCoord); break;\n"
-													  "        case 10: FragColor = texture(texture10, texCoord); break;\n"
-													  "        case 11: FragColor = texture(texture11, texCoord); break;\n"
-													  "        case 12: FragColor = texture(texture12, texCoord); break;\n"
-													  "        case 13: FragColor = texture(texture13, texCoord); break;\n"
-													  "        case 14: FragColor = texture(texture14, texCoord); break;\n"
-													  "        case 15: FragColor = texture(texture15, texCoord); break;\n"
-													  "    }\n"
-													  "    FragColor *= outColor;\n"
-													  "	vec2 size = vec2(1, 1);\n"
-													  "	vec2 location = vec2(0, 0);\n"
-													  "	float edgeSoftness = 1.0f;\n"
-													  "	float radius = 50.0f;\n"
-													  "	float distance = roundedBoxSDF(texCoord.xy - location - (size / 2.0f), "
-													  "size / 2.0f, radius);\n"
-													  "	float smoothedAlpha = 1.0f - smoothstep(0.0, edgeSoftness * 2.0f, "
-													  "distance);\n"
-													  "	float shadowSoftness = 30.0f;\n"
-													  "	vec2 shadowOffset = vec2(0.0f, 10.0f);\n"
-													  "	float shadowDistance = roundedBoxSDF(texCoord.xy - location + "
-													  "shadowOffset - (size / 2.0f), size / 2.0f, radius);\n"
-													  "	float shadowAlpha = 1.0f - smoothstep(-shadowSoftness, shadowSoftness, "
-													  "shadowDistance);\n"
-													  "	vec4 shadowColor = vec4(0.4f, 0.4f, 0.4f, 1.0f);\n"
-													  "	FragColor = mix(FragColor, shadowColor, shadowAlpha - smoothedAlpha);\n"
-													  "}";
 
 namespace Nexus::Graphics
 {
@@ -282,7 +232,7 @@ namespace Nexus::Graphics
 	const uint32_t MAX_VERTEX_COUNT	 = 1024;
 	const uint32_t MAX_TEXTURE_COUNT = 16;
 
-	bool FindTextureInBatch(BatchInfo &info, Ref<Texture2D> texture, uint32_t &index)
+	bool FindTextureInBatch(BatchInfo &info, Ref<Texture> texture, uint32_t &index)
 	{
 		for (uint32_t i = 0; i < info.Textures.size(); i++)
 		{
@@ -295,7 +245,7 @@ namespace Nexus::Graphics
 		return false;
 	}
 
-	float GetOrCreateTexIndex(BatchInfo &info, Nexus::Ref<Nexus::Graphics::Texture2D> texture)
+	float GetOrCreateTexIndex(BatchInfo &info, Ref<Texture> texture)
 	{
 		uint32_t index = 0;
 		if (FindTextureInBatch(info, texture, index))
@@ -310,13 +260,13 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void FlushTextures(BatchInfo &info, Nexus::Ref<Nexus::Graphics::Texture2D> blankTexture)
+	void FlushTextures(BatchInfo &info, Ref<Texture> blankTexture)
 	{
 		info.Textures.clear();
 		info.Textures.push_back(blankTexture);
 	}
 
-	void ResetBatcher(BatchInfo &info, Nexus::Ref<Nexus::Graphics::Texture2D> blankTexture)
+	void ResetBatcher(BatchInfo &info, Ref<Texture> blankTexture)
 	{
 		info.Vertices.clear();
 		info.Indices.clear();
@@ -328,23 +278,25 @@ namespace Nexus::Graphics
 
 	void CreateBatcher(BatchInfo								&info,
 					   Nexus::Graphics::GraphicsDevice			*device,
-					   Nexus::Graphics::RenderTarget			 target,
 					   Nexus::Ref<Nexus::Graphics::ShaderModule> vertexModule,
-					   Nexus::Ref<Nexus::Graphics::ShaderModule> fragmentModule)
+					   Nexus::Ref<Nexus::Graphics::ShaderModule> fragmentModule,
+					   bool										 useDepthTest,
+					   uint32_t									 sampleCount)
 	{
 		info.Vertices.resize(MAX_VERTEX_COUNT);
 		info.Indices.resize(MAX_VERTEX_COUNT * 3);
 		info.Textures.resize(MAX_TEXTURE_COUNT);
 
-		Nexus::Graphics::PipelineDescription description;
+		Nexus::Graphics::GraphicsPipelineDescription description;
 		description.RasterizerStateDesc.TriangleCullMode = Nexus::Graphics::CullMode::CullNone;
-		description.Layouts								 = {Nexus::Graphics::VertexPositionTexCoordColorTexIndex::GetLayout()};
+		description.Layouts								 = {Nexus::Graphics::BatchVertex::GetLayout()};
 		description.VertexModule						 = vertexModule;
 		description.FragmentModule						 = fragmentModule;
 		description.ResourceSetSpec						 = GetResourceSetSpecification();
 
-		description.ColourFormats[0]  = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
-		description.ColourTargetCount = 1;
+		description.ColourFormats[0]  = Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
+		description.ColourFormats[1]  = Nexus::Graphics::PixelFormat::R32_G32_UInt;
+		description.ColourTargetCount = 2;
 		description.DepthFormat		  = Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt;
 
 		description.ColourBlendStates[0].EnableBlending			= true;
@@ -355,35 +307,69 @@ namespace Nexus::Graphics
 		description.ColourBlendStates[0].DestinationAlphaBlend	= BlendFactor::OneMinusSourceAlpha;
 		description.ColourBlendStates[0].AlphaBlendFunction		= BlendEquation::Add;
 
-		description.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification().Samples;
+		description.ColourBlendStates[1].EnableBlending = false;
 
-		info.Pipeline	 = device->CreatePipeline(description);
+		if (useDepthTest)
+		{
+			description.DepthStencilDesc.EnableDepthTest		 = true;
+			description.DepthStencilDesc.EnableDepthWrite		 = true;
+			description.DepthStencilDesc.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;
+		}
+		else
+		{
+			description.DepthStencilDesc.EnableDepthTest  = false;
+			description.DepthStencilDesc.EnableDepthWrite = false;
+		}
+
+		description.ColourTargetSampleCount = sampleCount;
+
+		info.Pipeline	 = device->CreateGraphicsPipeline(description);
 		info.ResourceSet = device->CreateResourceSet(info.Pipeline);
 
-		Nexus::Graphics::BufferDescription vertexBufferDesc;
-		vertexBufferDesc.Size  = info.Vertices.size() * sizeof(VertexPositionTexCoordColorTexIndex);
-		vertexBufferDesc.Usage = BufferUsage::Dynamic;
-		info.VertexBuffer	   = device->CreateVertexBuffer(vertexBufferDesc, nullptr);
+		Nexus::Graphics::DeviceBufferDescription vertexUploadDesc = {};
+		vertexUploadDesc.Access									  = Graphics::BufferMemoryAccess::Upload;
+		vertexUploadDesc.Usage									  = BUFFER_USAGE_NONE;
+		vertexUploadDesc.StrideInBytes							  = sizeof(BatchVertex);
+		vertexUploadDesc.SizeInBytes							  = info.Vertices.size() * sizeof(BatchVertex);
+		info.VertexUploadBuffer									  = Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(vertexUploadDesc));
 
-		Nexus::Graphics::BufferDescription indexBufferDesc;
-		indexBufferDesc.Size  = info.Indices.size() * sizeof(uint32_t);
-		indexBufferDesc.Usage = BufferUsage::Dynamic;
-		info.IndexBuffer	  = device->CreateIndexBuffer(indexBufferDesc, nullptr);
+		Nexus::Graphics::DeviceBufferDescription vertexDesc = {};
+		vertexDesc.Access									= Graphics::BufferMemoryAccess::Default;
+		vertexDesc.Usage									= Graphics::BufferUsage::Vertex;
+		vertexDesc.StrideInBytes							= sizeof(BatchVertex);
+		vertexDesc.SizeInBytes								= info.Vertices.size() * sizeof(BatchVertex);
+		info.VertexBuffer									= Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(vertexDesc));
+
+		Nexus::Graphics::DeviceBufferDescription indexUploadDesc = {};
+		indexUploadDesc.Access									 = Graphics::BufferMemoryAccess::Upload;
+		indexUploadDesc.Usage									 = BUFFER_USAGE_NONE;
+		indexUploadDesc.StrideInBytes							 = sizeof(uint32_t);
+		indexUploadDesc.SizeInBytes								 = info.Indices.size() * sizeof(uint32_t);
+		info.IndexUploadBuffer									 = Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(indexUploadDesc));
+
+		Nexus::Graphics::DeviceBufferDescription indexDesc = {};
+		indexDesc.Access								   = Graphics::BufferMemoryAccess::Default;
+		indexDesc.Usage									   = Graphics::BufferUsage::Index;
+		indexDesc.StrideInBytes							   = sizeof(uint32_t);
+		indexDesc.SizeInBytes							   = info.Indices.size() * sizeof(uint32_t);
+		info.IndexBuffer								   = Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(indexDesc));
 	}
 
-	BatchRenderer::BatchRenderer(Nexus::Graphics::GraphicsDevice *device, Nexus::Graphics::RenderTarget target)
+	BatchRenderer::BatchRenderer(Nexus::Graphics::GraphicsDevice *device, bool useDepthTest, uint32_t sampleCount)
 		: m_Device(device),
-		  m_RenderTarget(target),
-		  m_CommandList(m_Device->CreateCommandList())
+		  m_CommandList(m_Device->CreateCommandList()),
+		  m_UseDepthTest(useDepthTest)
 	{
 		uint32_t textureData = 0xFFFFFFFF;
 
-		Nexus::Graphics::Texture2DSpecification textureSpec;
-		textureSpec.Width  = 1;
-		textureSpec.Height = 1;
-		textureSpec.Format = PixelFormat::R8_G8_B8_A8_UNorm;
-		m_BlankTexture	   = m_Device->CreateTexture2D(textureSpec);
-		m_BlankTexture->SetData(&textureData, 0, 0, 0, 1, 1);
+		Graphics::TextureSpecification textureSpec = {};
+		textureSpec.Width						   = 1;
+		textureSpec.Height						   = 1;
+		textureSpec.ArrayLayers					   = 1;
+		textureSpec.Format						   = PixelFormat::R8_G8_B8_A8_UNorm;
+		textureSpec.Usage						   = Graphics::TextureUsage_Sampled;
+		m_BlankTexture							   = Ref<Texture>(m_Device->CreateTexture(textureSpec));
+		m_Device->WriteToTexture(m_BlankTexture, 0, 0, 0, 0, 0, 1, 1, &textureData, sizeof(textureData));
 
 		Nexus::Ref<Nexus::Graphics::ShaderModule> vertexModule = device->GetOrCreateCachedShaderFromSpirvSource(s_BatchVertexShaderSource,
 																												"Batch Renderer - Vertex Shader",
@@ -401,14 +387,23 @@ namespace Nexus::Graphics
 														   "Batch Renderer - Font Fragment Shader",
 														   Nexus::Graphics::ShaderStage::Fragment);
 
-		CreateBatcher(m_SDFBatchInfo, device, target, vertexModule, sdfFragmentModule);
-		CreateBatcher(m_TextureBatchInfo, device, target, vertexModule, textureFragmentModule);
-		CreateBatcher(m_FontBatchInfo, device, target, vertexModule, fontFragmentModule);
+		CreateBatcher(m_SDFBatchInfo, device, vertexModule, sdfFragmentModule, m_UseDepthTest, sampleCount);
+		CreateBatcher(m_TextureBatchInfo, device, vertexModule, textureFragmentModule, m_UseDepthTest, sampleCount);
+		CreateBatcher(m_FontBatchInfo, device, vertexModule, fontFragmentModule, m_UseDepthTest, sampleCount);
 
-		Nexus::Graphics::BufferDescription uniformBufferDesc;
-		uniformBufferDesc.Size	= sizeof(glm::mat4);
-		uniformBufferDesc.Usage = Nexus::Graphics::BufferUsage::Dynamic;
-		m_UniformBuffer			= m_Device->CreateUniformBuffer(uniformBufferDesc, nullptr);
+		Nexus::Graphics::DeviceBufferDescription uniformUploadDesc = {};
+		uniformUploadDesc.Access								   = Graphics::BufferMemoryAccess::Upload;
+		uniformUploadDesc.Usage									   = BUFFER_USAGE_NONE;
+		uniformUploadDesc.StrideInBytes							   = sizeof(glm::mat4);
+		uniformUploadDesc.SizeInBytes							   = sizeof(glm::mat4);
+		m_UniformUploadBuffer									   = Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(uniformUploadDesc));
+
+		Nexus::Graphics::DeviceBufferDescription uniformDesc = {};
+		uniformDesc.Access									 = Graphics::BufferMemoryAccess::Default;
+		uniformDesc.Usage									 = Graphics::BufferUsage::Uniform;
+		uniformDesc.StrideInBytes							 = sizeof(glm::mat4);
+		uniformDesc.SizeInBytes								 = sizeof(glm::mat4);
+		m_UniformBuffer										 = Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(uniformDesc));
 
 		Nexus::Graphics::SamplerSpecification samplerSpec {};
 		samplerSpec.SampleFilter = Nexus::Graphics::SamplerFilter::MinLinear_MagLinear_MipLinear;
@@ -421,14 +416,21 @@ namespace Nexus::Graphics
 		m_Height = Nexus::GetApplication()->GetPrimaryWindow()->GetWindowSize().Y;
 	}
 
-	void BatchRenderer::Begin(Viewport viewport, Scissor scissor)
+	void BatchRenderer::Begin(Nexus::Graphics::RenderTarget target, Viewport viewport, Scissor scissor)
+	{
+		glm::mat4 projection = glm::ortho<float>(m_Viewport.X, m_Viewport.Width, m_Viewport.Height, m_Viewport.Y, -1.0f, 1.0f);
+		Begin(target, viewport, scissor, projection);
+	}
+
+	void BatchRenderer::Begin(Nexus::Graphics::RenderTarget target, Viewport viewport, Scissor scissor, const glm::mat4 &camera)
 	{
 		if (m_IsStarted)
 		{
 			throw std::runtime_error("Batching has already started");
 		}
 
-		m_IsStarted = true;
+		m_IsStarted	   = true;
+		m_RenderTarget = target;
 
 		ResetBatcher(m_TextureBatchInfo, m_BlankTexture);
 		ResetBatcher(m_SDFBatchInfo, m_BlankTexture);
@@ -437,8 +439,23 @@ namespace Nexus::Graphics
 		m_Viewport		   = viewport;
 		m_ScissorRectangle = scissor;
 
-		glm::mat4 projection = glm::ortho<float>(m_Viewport.X, m_Viewport.Width, m_Viewport.Height, m_Viewport.Y, -1.0f, 1.0f);
-		m_UniformBuffer->SetData(&projection, sizeof(projection));
+		m_UniformUploadBuffer->SetData(&camera, 0, sizeof(camera));
+
+		Nexus::Graphics::BufferCopyDescription bufferCopy = {};
+		bufferCopy.Source								  = m_UniformUploadBuffer;
+		bufferCopy.Destination							  = m_UniformBuffer;
+		bufferCopy.ReadOffset							  = 0;
+		bufferCopy.WriteOffset							  = 0;
+		bufferCopy.Size									  = sizeof(camera);
+
+		if (m_UniformUploadBuffer && m_UniformBuffer)
+		{
+			m_CommandList->Begin();
+			m_CommandList->CopyBufferToBuffer(bufferCopy);
+			m_CommandList->End();
+			m_Device->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_Device->WaitForIdle();
+		}
 	}
 
 	void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color)
@@ -446,12 +463,12 @@ namespace Nexus::Graphics
 		DrawQuadFill(min, max, color, m_BlankTexture);
 	}
 
-	void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture2D> texture)
+	void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture> texture)
 	{
 		DrawQuadFill(min, max, color, texture, 1.0f);
 	}
 
-	void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture2D> texture, float tilingFactor)
+	void BatchRenderer::DrawQuadFill(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, Ref<Texture> texture, float tilingFactor)
 	{
 		const float texIndex = GetOrCreateTexIndex(m_TextureBatchInfo, texture);
 
@@ -474,28 +491,28 @@ namespace Nexus::Graphics
 		m_TextureBatchInfo.Indices.push_back(2 + m_TextureBatchInfo.VertexCount);
 		m_TextureBatchInfo.Indices.push_back(3 + m_TextureBatchInfo.VertexCount);
 
-		VertexPositionTexCoordColorTexIndex v0;
+		BatchVertex v0;
 		v0.Position	 = a;
 		v0.TexCoords = {0.0f, 0.0f};
 		v0.Color	 = color;
 		v0.TexIndex	 = texIndex;
 		m_TextureBatchInfo.Vertices.push_back(v0);
 
-		VertexPositionTexCoordColorTexIndex v1;
+		BatchVertex v1;
 		v1.Position	 = b;
 		v1.TexCoords = {tilingFactor, 0.0f};
 		v1.Color	 = color;
 		v1.TexIndex	 = texIndex;
 		m_TextureBatchInfo.Vertices.push_back(v1);
 
-		VertexPositionTexCoordColorTexIndex v2;
+		BatchVertex v2;
 		v2.Position	 = c;
 		v2.TexCoords = {tilingFactor, tilingFactor};
 		v2.Color	 = color;
 		v2.TexIndex	 = texIndex;
 		m_TextureBatchInfo.Vertices.push_back(v2);
 
-		VertexPositionTexCoordColorTexIndex v3;
+		BatchVertex v3;
 		v3.Position	 = d;
 		v3.TexCoords = {0.0f, tilingFactor};
 		v3.Color	 = color;
@@ -511,16 +528,90 @@ namespace Nexus::Graphics
 		DrawQuadFill(rectangle, color, m_BlankTexture);
 	}
 
-	void BatchRenderer::DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<Texture2D> texture)
+	void BatchRenderer::DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<Texture> texture)
 	{
 		DrawQuadFill(rectangle, color, texture, 1.0f);
 	}
 
-	void BatchRenderer::DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<Texture2D> texture, float tilingFactor)
+	void BatchRenderer::DrawQuadFill(const Rectangle<float> &rectangle, const glm::vec4 &color, Ref<Texture> texture, float tilingFactor)
 	{
 		glm::vec2 min = {(float)rectangle.GetLeft(), (float)rectangle.GetTop()};
 		glm::vec2 max = {(float)rectangle.GetRight(), (float)rectangle.GetBottom()};
 		DrawQuadFill(min, max, color, texture, tilingFactor);
+	}
+
+	void BatchRenderer::DrawQuadFill(const glm::vec4 &color, Ref<Texture> texture, float tilingFactor, const glm::mat4 &transform, Nexus::GUID id)
+	{
+		if (!texture)
+		{
+			texture = m_BlankTexture;
+		}
+
+		const float texIndex = GetOrCreateTexIndex(m_TextureBatchInfo, texture);
+
+		EnsureStarted();
+
+		const uint32_t shapeVertexCount = 4;
+		const uint32_t shapeIndexCount	= 6;
+
+		EnsureSpace(m_TextureBatchInfo, shapeVertexCount, shapeIndexCount);
+
+		std::array<glm::vec3, 4> quadVertices = {glm::vec3(-0.5f, 0.5f, 0.0f),
+												 glm::vec3(0.5f, 0.5f, 0.0f),
+												 glm::vec3(0.5f, -0.5f, 0.0f),
+												 glm::vec3(-0.5f, -0.5f, 0.0f)};
+
+		std::array<glm::vec3, 4> worldVertices;
+
+		for (size_t i = 0; i < quadVertices.size(); i++) { worldVertices[i] = transform * glm::vec4(quadVertices[i], 1.0f); }
+
+		m_TextureBatchInfo.Indices.push_back(0 + m_TextureBatchInfo.VertexCount);
+		m_TextureBatchInfo.Indices.push_back(1 + m_TextureBatchInfo.VertexCount);
+		m_TextureBatchInfo.Indices.push_back(2 + m_TextureBatchInfo.VertexCount);
+		m_TextureBatchInfo.Indices.push_back(0 + m_TextureBatchInfo.VertexCount);
+		m_TextureBatchInfo.Indices.push_back(2 + m_TextureBatchInfo.VertexCount);
+		m_TextureBatchInfo.Indices.push_back(3 + m_TextureBatchInfo.VertexCount);
+
+		std::pair<uint32_t, uint32_t> outId	   = id.Split();
+		Point2D<uint32_t>			  entityId = {outId.first, outId.second};
+
+		float id1 = (float)entityId.X;
+		float id2 = (float)entityId.Y;
+
+		BatchVertex v0;
+		v0.Position	 = worldVertices[0];
+		v0.TexCoords = {0.0f, 0.0f};
+		v0.Color	 = color;
+		v0.TexIndex	 = texIndex;
+		v0.Id		 = entityId;
+		m_TextureBatchInfo.Vertices.push_back(v0);
+
+		BatchVertex v1;
+		v1.Position	 = worldVertices[1];
+		v1.TexCoords = {tilingFactor, 0.0f};
+		v1.Color	 = color;
+		v1.TexIndex	 = texIndex;
+		v1.Id		 = entityId;
+		m_TextureBatchInfo.Vertices.push_back(v1);
+
+		BatchVertex v2;
+		v2.Position	 = worldVertices[2];
+		v2.TexCoords = {tilingFactor, tilingFactor};
+		v2.Color	 = color;
+		v2.TexIndex	 = texIndex;
+		v2.Id		 = entityId;
+		m_TextureBatchInfo.Vertices.push_back(v2);
+
+		BatchVertex v3;
+		v3.Position	 = worldVertices[3];
+		v3.TexCoords = {0.0f, tilingFactor};
+		v3.Color	 = color;
+		v3.TexIndex	 = texIndex;
+		v3.Id		 = entityId;
+		m_TextureBatchInfo.Vertices.push_back(v3);
+
+		m_TextureBatchInfo.IndexCount += shapeIndexCount;
+		m_TextureBatchInfo.VertexCount += shapeVertexCount;
 	}
 
 	void BatchRenderer::DrawQuad(const glm::vec2 &min, const glm::vec2 &max, const glm::vec4 &color, float thickness)
@@ -574,28 +665,28 @@ namespace Nexus::Graphics
 
 		float texIndex = GetOrCreateTexIndex(*info, font->GetTexture());
 
-		VertexPositionTexCoordColorTexIndex v0;
+		BatchVertex v0;
 		v0.Position	 = a;
 		v0.TexCoords = {characterInfo.TexCoordsMin.x, characterInfo.TexCoordsMin.y};
 		v0.Color	 = color;
 		v0.TexIndex	 = texIndex;
 		info->Vertices.push_back(v0);
 
-		VertexPositionTexCoordColorTexIndex v1;
+		BatchVertex v1;
 		v1.Position	 = b;
 		v1.TexCoords = {characterInfo.TexCoordsMax.x, characterInfo.TexCoordsMin.y};
 		v1.Color	 = color;
 		v1.TexIndex	 = texIndex;
 		info->Vertices.push_back(v1);
 
-		VertexPositionTexCoordColorTexIndex v2;
+		BatchVertex v2;
 		v2.Position	 = c;
 		v2.TexCoords = {characterInfo.TexCoordsMax.x, characterInfo.TexCoordsMax.y};
 		v2.Color	 = color;
 		v2.TexIndex	 = texIndex;
 		info->Vertices.push_back(v2);
 
-		VertexPositionTexCoordColorTexIndex v3;
+		BatchVertex v3;
 		v3.Position	 = d;
 		v3.TexCoords = {characterInfo.TexCoordsMin.x, characterInfo.TexCoordsMax.y};
 		v3.Color	 = color;
@@ -685,28 +776,28 @@ namespace Nexus::Graphics
 		m_TextureBatchInfo.Indices.push_back(2 + m_TextureBatchInfo.VertexCount);
 		m_TextureBatchInfo.Indices.push_back(3 + m_TextureBatchInfo.VertexCount);
 
-		VertexPositionTexCoordColorTexIndex v0;
+		BatchVertex v0;
 		v0.Position	 = glm::vec3(q1, 0.0f);
 		v0.TexCoords = {0.0f, 0.0f};
 		v0.Color	 = color;
 		v0.TexIndex	 = 0;
 		m_TextureBatchInfo.Vertices.push_back(v0);
 
-		VertexPositionTexCoordColorTexIndex v1;
+		BatchVertex v1;
 		v1.Position	 = glm::vec3(q2, 0.0f);
 		v1.TexCoords = {1.0f, 0.0f};
 		v1.Color	 = color;
 		v1.TexIndex	 = 0;
 		m_TextureBatchInfo.Vertices.push_back(v1);
 
-		VertexPositionTexCoordColorTexIndex v2;
+		BatchVertex v2;
 		v2.Position	 = glm::vec3(q3, 0.0f);
 		v2.TexCoords = {1.0f, 1.0f};
 		v2.Color	 = color;
 		v2.TexIndex	 = 0;
 		m_TextureBatchInfo.Vertices.push_back(v2);
 
-		VertexPositionTexCoordColorTexIndex v3;
+		BatchVertex v3;
 		v3.Position	 = glm::vec3(q4, 0.0f);
 		v3.TexCoords = {0.0f, 1.0f};
 		v3.Color	 = color;
@@ -770,7 +861,7 @@ namespace Nexus::Graphics
 											 uint32_t		  numberOfPoints,
 											 float			  startAngle,
 											 float			  fillAngle,
-											 Ref<Texture2D>	  texture)
+											 Ref<Texture>	  texture)
 	{
 		DrawCircleRegionFill(position, radius, color, numberOfPoints, startAngle, fillAngle, texture, 1.0f);
 	}
@@ -781,7 +872,7 @@ namespace Nexus::Graphics
 											 uint32_t		  numberOfPoints,
 											 float			  startAngle,
 											 float			  fillAngle,
-											 Ref<Texture2D>	  texture,
+											 Ref<Texture>	  texture,
 											 float			  tilingFactor)
 	{
 		const uint32_t minPoints = 3;
@@ -819,11 +910,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void BatchRenderer::DrawCircleFill(const glm::vec2 &position,
-									   float			radius,
-									   const glm::vec4 &color,
-									   uint32_t			numberOfPoints,
-									   Ref<Texture2D>	texture)
+	void BatchRenderer::DrawCircleFill(const glm::vec2 &position, float radius, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture> texture)
 	{
 		DrawCircleRegionFill(position, radius, color, numberOfPoints, 0.0f, 360.0f, texture);
 	}
@@ -833,7 +920,7 @@ namespace Nexus::Graphics
 		DrawCircleFill(circle, color, numberOfPoints, m_BlankTexture);
 	}
 
-	void BatchRenderer::DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture2D> texture)
+	void BatchRenderer::DrawCircleFill(const Circle<float> &circle, const glm::vec4 &color, uint32_t numberOfPoints, Ref<Texture> texture)
 	{
 		const auto &pos = circle.GetPosition();
 		DrawCircleFill({pos.X, pos.Y}, circle.GetRadius(), color, numberOfPoints, texture);
@@ -842,7 +929,7 @@ namespace Nexus::Graphics
 	void BatchRenderer::DrawCircleFill(const Circle<float> &circle,
 									   const glm::vec4	   &color,
 									   uint32_t				numberOfPoints,
-									   Ref<Texture2D>		texture,
+									   Ref<Texture>			texture,
 									   float				tilingFactor)
 	{
 		DrawCircleRegionFill({circle.GetPosition().X, circle.GetPosition().Y},
@@ -884,7 +971,7 @@ namespace Nexus::Graphics
 									 const glm::vec3 &pos2,
 									 const glm::vec2 &uv2,
 									 const glm::vec4 &color,
-									 Ref<Texture2D>	  texture)
+									 Ref<Texture>	  texture)
 	{
 		float texIndex = GetOrCreateTexIndex(m_TextureBatchInfo, texture);
 
@@ -899,21 +986,21 @@ namespace Nexus::Graphics
 		m_TextureBatchInfo.Indices.push_back(1 + m_TextureBatchInfo.VertexCount);
 		m_TextureBatchInfo.Indices.push_back(2 + m_TextureBatchInfo.VertexCount);
 
-		VertexPositionTexCoordColorTexIndex v0;
+		BatchVertex v0;
 		v0.Position	 = pos0;
 		v0.TexCoords = uv0;
 		v0.Color	 = color;
 		v0.TexIndex	 = texIndex;
 		m_TextureBatchInfo.Vertices.push_back(v0);
 
-		VertexPositionTexCoordColorTexIndex v1;
+		BatchVertex v1;
 		v1.Position	 = pos1;
 		v1.TexCoords = uv1;
 		v1.Color	 = color;
 		v1.TexIndex	 = texIndex;
 		m_TextureBatchInfo.Vertices.push_back(v1);
 
-		VertexPositionTexCoordColorTexIndex v2;
+		BatchVertex v2;
 		v2.Position	 = pos2;
 		v2.TexCoords = uv2;
 		v2.Color	 = color;
@@ -934,12 +1021,12 @@ namespace Nexus::Graphics
 		DrawPolygonFill(polygon, color, m_BlankTexture);
 	}
 
-	void BatchRenderer::DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color, Ref<Texture2D> texture)
+	void BatchRenderer::DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color, Ref<Texture> texture)
 	{
 		DrawPolygonFill(polygon, color, m_BlankTexture, 1.0f);
 	}
 
-	void BatchRenderer::DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color, Ref<Texture2D> texture, float tilingFactor)
+	void BatchRenderer::DrawPolygonFill(const Polygon &polygon, const glm::vec4 &color, Ref<Texture> texture, float tilingFactor)
 	{
 		const auto					  &boundingRectangle = polygon.GetBoundingRectangle();
 		const std::vector<Triangle2D> &tris				 = polygon.GetTriangles();
@@ -984,14 +1071,14 @@ namespace Nexus::Graphics
 		DrawRoundedRectangleFill(roundedRectangle, color, m_BlankTexture);
 	}
 
-	void BatchRenderer::DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, Ref<Texture2D> texture)
+	void BatchRenderer::DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle, const glm::vec4 &color, Ref<Texture> texture)
 	{
 		DrawRoundedRectangleFill(roundedRectangle, color, texture, 1.0f);
 	}
 
 	void BatchRenderer::DrawRoundedRectangleFill(const RoundedRectangle &roundedRectangle,
 												 const glm::vec4		&color,
-												 Ref<Texture2D>			 texture,
+												 Ref<Texture>			 texture,
 												 float					 tilingFactor)
 	{
 		const Polygon &poly = roundedRectangle.CreatePolygon();
@@ -1046,10 +1133,14 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		info.VertexBuffer->SetData(info.Vertices.data(), info.Vertices.size() * sizeof(VertexPositionTexCoordColorTexIndex));
-		info.IndexBuffer->SetData(info.Indices.data(), info.Indices.size() * sizeof(uint32_t));
+		info.VertexUploadBuffer->SetData(info.Vertices.data(), 0, info.Vertices.size() * sizeof(info.Vertices[0]));
+		info.IndexUploadBuffer->SetData(info.Indices.data(), 0, info.Indices.size() * sizeof(info.Indices[0]));
 
-		info.ResourceSet->WriteUniformBuffer(m_UniformBuffer, "MVP");
+		UniformBufferView uniformBufferView = {};
+		uniformBufferView.BufferHandle		= m_UniformBuffer;
+		uniformBufferView.Offset			= 0;
+		uniformBufferView.Size				= m_UniformBuffer->GetDescription().SizeInBytes;
+		info.ResourceSet->WriteUniformBuffer(uniformBufferView, "MVP");
 
 		for (uint32_t i = 0; i < MAX_TEXTURE_COUNT; i++)
 		{
@@ -1065,16 +1156,52 @@ namespace Nexus::Graphics
 		}
 
 		m_CommandList->Begin();
+
+		// upload vertex data
+		{
+			BufferCopyDescription bufferCopy = {};
+			bufferCopy.Source				 = info.VertexUploadBuffer;
+			bufferCopy.Destination			 = info.VertexBuffer;
+			bufferCopy.ReadOffset			 = 0;
+			bufferCopy.WriteOffset			 = 0;
+			bufferCopy.Size					 = info.Vertices.size() * sizeof(info.Vertices[0]);
+			m_CommandList->CopyBufferToBuffer(bufferCopy);
+		}
+
+		// upload index data
+		{
+			BufferCopyDescription bufferCopy = {};
+			bufferCopy.Source				 = info.IndexUploadBuffer;
+			bufferCopy.Destination			 = info.IndexBuffer;
+			bufferCopy.ReadOffset			 = 0;
+			bufferCopy.WriteOffset			 = 0;
+			bufferCopy.Size					 = info.Indices.size() * sizeof(info.Indices[0]);
+			m_CommandList->CopyBufferToBuffer(bufferCopy);
+		}
+
 		m_CommandList->SetPipeline(info.Pipeline);
-		m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(Nexus::GetApplication()->GetPrimarySwapchain()));
+		m_CommandList->SetRenderTarget(m_RenderTarget);
 		m_CommandList->SetViewport(m_Viewport);
 		m_CommandList->SetScissor(m_ScissorRectangle);
 		m_CommandList->SetResourceSet(info.ResourceSet);
-		m_CommandList->SetVertexBuffer(info.VertexBuffer, 0);
-		m_CommandList->SetIndexBuffer(info.IndexBuffer);
-		m_CommandList->DrawIndexed(info.IndexCount, 0, 0);
+
+		VertexBufferView vertexBufferView = {};
+		vertexBufferView.BufferHandle	  = info.VertexBuffer;
+		vertexBufferView.Offset			  = 0;
+		vertexBufferView.Size			  = info.VertexBuffer->GetSizeInBytes();
+		vertexBufferView.Stride			  = info.VertexBuffer->GetStrideInBytes();
+		m_CommandList->SetVertexBuffer(vertexBufferView, 0);
+
+		IndexBufferView indexBufferView = {};
+		indexBufferView.BufferHandle	= info.IndexBuffer;
+		indexBufferView.Offset			= 0;
+		indexBufferView.Size			= info.IndexBuffer->GetSizeInBytes();
+		indexBufferView.BufferFormat	= Graphics::IndexBufferFormat::UInt32;
+		m_CommandList->SetIndexBuffer(indexBufferView);
+
+		m_CommandList->DrawIndexed(info.IndexCount, 1, 0, 0, 0);
 		m_CommandList->End();
-		m_Device->SubmitCommandList(m_CommandList);
+		m_Device->SubmitCommandLists(&m_CommandList, 1, nullptr);
 
 		FlushTextures(info, m_BlankTexture);
 	}

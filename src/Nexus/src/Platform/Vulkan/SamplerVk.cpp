@@ -34,7 +34,7 @@ namespace Nexus::Graphics
 		samplerInfo.unnormalizedCoordinates = VK_FALSE;
 		samplerInfo.compareEnable			= VK_TRUE;
 		samplerInfo.compareOp				= Vk::GetCompareOp(spec.SamplerComparisonFunction);
-		samplerInfo.mipLodBias				= mipmapMode;
+		samplerInfo.mipmapMode				= mipmapMode;
 		samplerInfo.mipLodBias				= spec.LODBias;
 		samplerInfo.minLod					= spec.MinimumLOD;
 		samplerInfo.maxLod					= spec.MaximumLOD;

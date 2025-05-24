@@ -23,7 +23,7 @@ namespace Demos
 			spec.Width						  = 1280;
 			spec.Height						  = 720;
 			spec.ColorAttachmentSpecification = {Nexus::Graphics::PixelFormat::R8_G8_B8_A8_UNorm};
-			spec.Samples					  = Nexus::Graphics::SampleCount::SampleCount1;
+			spec.Samples					  = 1;
 
 			m_Framebuffer = m_GraphicsDevice->CreateFramebuffer(spec);
 
@@ -37,13 +37,15 @@ namespace Demos
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {m_Framebuffer});
 			m_CommandList->ClearColorTarget(0, {m_RenderTargetClearColour.r, m_RenderTargetClearColour.g, m_RenderTargetClearColour.b, 1.0f});
 			m_CommandList->End();
-			m_GraphicsDevice->SubmitCommandList(m_CommandList);
+			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_GraphicsDevice->WaitForIdle();
 
 			m_CommandList->Begin();
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget {Nexus::GetApplication()->GetPrimarySwapchain()});
 			m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 			m_CommandList->End();
-			m_GraphicsDevice->SubmitCommandList(m_CommandList);
+			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_GraphicsDevice->WaitForIdle();
 		}
 
 		virtual void RenderUI() override

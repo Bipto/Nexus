@@ -65,15 +65,12 @@ namespace Nexus::Graphics
 
 		auto fullVertices = Nexus::Graphics::Utilities::GenerateTangentAndBinormals(vertices);
 
-		Nexus::Graphics::BufferDescription vertexBufferDesc;
-		vertexBufferDesc.Size  = vertices.size() * sizeof(VertexPositionTexCoordNormalTangentBitangent);
-		vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-		auto vertexBuffer	   = m_Device->CreateVertexBuffer(vertexBufferDesc, fullVertices.data());
+		auto vertexBuffer = Utils::CreateFilledVertexBuffer(fullVertices.data(),
+															fullVertices.size() * sizeof(VertexPositionTexCoordNormalTangentBitangent),
+															sizeof(VertexPositionTexCoordNormalTangentBitangent),
+															m_Device);
 
-		Nexus::Graphics::BufferDescription indexBufferDesc;
-		indexBufferDesc.Size  = indices.size() * sizeof(unsigned int);
-		indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-		auto indexBuffer	  = m_Device->CreateIndexBuffer(indexBufferDesc, indices.data());
+		auto indexBuffer = Utils::CreateFilledIndexBuffer(indices.data(), indices.size() * sizeof(uint32_t), sizeof(uint32_t), m_Device);
 
 		return CreateRef<Mesh>(vertexBuffer, indexBuffer, Material {});
 	}
@@ -88,15 +85,12 @@ namespace Nexus::Graphics
 
 		std::vector<unsigned int> indices = {0, 1, 2, 2, 3, 0};
 
-		Nexus::Graphics::BufferDescription vertexBufferDesc;
-		vertexBufferDesc.Size  = vertices.size() * sizeof(VertexPositionTexCoordNormalTangentBitangent);
-		vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-		auto vertexBuffer	   = m_Device->CreateVertexBuffer(vertexBufferDesc, vertices.data());
+		auto vertexBuffer = Utils::CreateFilledVertexBuffer(vertices.data(),
+															vertices.size() * sizeof(VertexPositionTexCoordNormalTangentBitangent),
+															sizeof(VertexPositionTexCoordNormalTangentBitangent),
+															m_Device);
 
-		Nexus::Graphics::BufferDescription indexBufferDesc;
-		indexBufferDesc.Size  = indices.size() * sizeof(unsigned int);
-		indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-		auto indexBuffer	  = m_Device->CreateIndexBuffer(indexBufferDesc, indices.data());
+		auto indexBuffer = Utils::CreateFilledIndexBuffer(indices.data(), indices.size() * sizeof(uint32_t), sizeof(uint32_t), m_Device);
 
 		return CreateRef<Mesh>(vertexBuffer, indexBuffer, Material {});
 	}
@@ -110,15 +104,12 @@ namespace Nexus::Graphics
 
 		std::vector<unsigned int> indices = {0, 1, 2};
 
-		Nexus::Graphics::BufferDescription vertexBufferDesc;
-		vertexBufferDesc.Size  = vertices.size() * sizeof(VertexPositionTexCoordNormalTangentBitangent);
-		vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-		auto vertexBuffer	   = m_Device->CreateVertexBuffer(vertexBufferDesc, vertices.data());
+		auto vertexBuffer = Utils::CreateFilledVertexBuffer(vertices.data(),
+															vertices.size() * sizeof(VertexPositionTexCoordNormalTangentBitangent),
+															sizeof(VertexPositionTexCoordNormalTangentBitangent),
+															m_Device);
 
-		Nexus::Graphics::BufferDescription indexBufferDesc;
-		indexBufferDesc.Size  = indices.size() * sizeof(unsigned int);
-		indexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-		auto indexBuffer	  = m_Device->CreateIndexBuffer(indexBufferDesc, indices.data());
+		auto indexBuffer = Utils::CreateFilledIndexBuffer(indices.data(), indices.size() * sizeof(uint32_t), sizeof(uint32_t), m_Device);
 
 		return CreateRef<Mesh>(vertexBuffer, indexBuffer, Material {});
 	}
@@ -126,7 +117,7 @@ namespace Nexus::Graphics
 	Ref<Model> MeshFactory::CreateFrom3DModelFile(const std::string &filepath)
 	{
 		Nexus::Processors::AssimpProcessor importer {};
-		Ref<Model>			  model = importer.Import(filepath, m_Device);
+		Ref<Model>						   model = importer.Import(filepath, m_Device);
 		return model;
 	}
 }	 // namespace Nexus::Graphics

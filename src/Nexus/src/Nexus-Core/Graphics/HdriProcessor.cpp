@@ -4,7 +4,9 @@
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 #include "Nexus-Core/Graphics/MeshFactory.hpp"
 #include "Nexus-Core/Graphics/Texture.hpp"
+
 #include "stb_image.h"
+#include "stb_image_write.h"
 
 const std::string HdriVertexShaderSource = "#version 450 core\n"
 
@@ -71,39 +73,44 @@ namespace Nexus::Graphics
 
 		if (m_Device->GetGraphicsAPI() == GraphicsAPI::OpenGL)
 		{
-			Utils::FlipPixelsHorizontally(pixels, m_Width, m_Height, Graphics::PixelFormat::R32_G32_B32_A32_Float);
+			Utils::FlipPixelsHorizontally(pixels.data(), m_Width, m_Height, Graphics::PixelFormat::R32_G32_B32_A32_Float);
 		}
 
-		Nexus::Graphics::Texture2DSpecification textureSpec {};
-		textureSpec.Width  = m_Width;
-		textureSpec.Height = m_Height;
-		textureSpec.Usage  = {Nexus::Graphics::TextureUsage::Sampled};
-		textureSpec.Format = Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float;
-		m_HdriImage		   = m_Device->CreateTexture2D(textureSpec);
-
-		m_HdriImage->SetData(pixels.data(), 0, 0, 0, m_Width, m_Height);
+		Graphics::TextureSpecification textureSpec = {};
+		textureSpec.Width						   = m_Width;
+		textureSpec.Height						   = m_Height;
+		textureSpec.ArrayLayers					   = 1;
+		textureSpec.MipLevels					   = 1;
+		textureSpec.Usage						   = Nexus::Graphics::TextureUsage_Sampled;
+		textureSpec.Type						   = Graphics::TextureType::Texture2D;
+		textureSpec.Format						   = Graphics::PixelFormat::R32_G32_B32_A32_Float;
+		m_HdriImage								   = Ref<Texture>(m_Device->CreateTexture(textureSpec));
+		m_Device->WriteToTexture(m_HdriImage, 0, 0, 0, 0, 0, m_Width, m_Height, pixels.data(), pixels.size());
 	}
 
-	Ref<Cubemap> HdriProcessor::Generate(uint32_t size)
+	Ref<Texture> HdriProcessor::Generate(uint32_t size)
 	{
 		Nexus::Graphics::FramebufferSpecification framebufferSpec = {};
 		framebufferSpec.Width									  = size;
 		framebufferSpec.Height									  = size;
-		framebufferSpec.Samples									  = Nexus::Graphics::SampleCount::SampleCount1;
+		framebufferSpec.Samples									  = 1;
 		framebufferSpec.ColorAttachmentSpecification			  = {PixelFormat::R32_G32_B32_A32_Float};
 		framebufferSpec.DepthAttachmentSpecification			  = PixelFormat::D24_UNorm_S8_UInt;
 
 		Ref<Framebuffer> framebuffer = m_Device->CreateFramebuffer(framebufferSpec);
 		Ref<CommandList> commandList = m_Device->CreateCommandList();
 
-		Nexus::Graphics::CubemapSpecification cubemapSpec {};
-		cubemapSpec.Width	  = size;
-		cubemapSpec.Height	  = size;
-		cubemapSpec.MipLevels = 1;
-		cubemapSpec.Format	  = Nexus::Graphics::PixelFormat::R32_G32_B32_A32_Float;
-		Ref<Cubemap> cubemap  = m_Device->CreateCubemap(cubemapSpec);
+		Graphics::TextureSpecification cubemapSpec = {};
+		cubemapSpec.Width						   = size;
+		cubemapSpec.Height						   = size;
+		cubemapSpec.MipLevels					   = 1;
+		cubemapSpec.ArrayLayers					   = 6;
+		cubemapSpec.Format						   = Graphics::PixelFormat::R32_G32_B32_A32_Float;
+		cubemapSpec.Type						   = Graphics::TextureType::Texture2D;
+		cubemapSpec.Usage						   = Graphics::TextureUsage_Cubemap | Graphics::TextureUsage_Sampled;
+		Ref<Texture> cubemap					   = Ref<Texture>(m_Device->CreateTexture(cubemapSpec));
 
-		Nexus::Graphics::PipelineDescription pipelineDescription;
+		Nexus::Graphics::GraphicsPipelineDescription pipelineDescription;
 		pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::Back;
 		pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 		pipelineDescription.VertexModule =
@@ -117,9 +124,9 @@ namespace Nexus::Graphics
 		pipelineDescription.ColourTargetCount = 1;
 		pipelineDescription.DepthFormat		  = framebufferSpec.DepthAttachmentSpecification.DepthFormat;
 
-		pipelineDescription.Layouts	 = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
-		Ref<Pipeline>	 pipeline	 = m_Device->CreatePipeline(pipelineDescription);
-		Ref<ResourceSet> resourceSet = m_Device->CreateResourceSet(pipeline);
+		pipelineDescription.Layouts		  = {Nexus::Graphics::VertexPositionTexCoordNormalTangentBitangent::GetLayout()};
+		Ref<GraphicsPipeline> pipeline	  = m_Device->CreateGraphicsPipeline(pipelineDescription);
+		Ref<ResourceSet>	  resourceSet = m_Device->CreateResourceSet(pipeline);
 
 		Nexus::Graphics::SamplerSpecification samplerSpec {};
 		samplerSpec.AddressModeU = Nexus::Graphics::SamplerAddressMode::Clamp;
@@ -132,18 +139,19 @@ namespace Nexus::Graphics
 
 		VB_UNIFORM_HDRI_PROCESSOR_CAMERA cameraUniforms;
 
-		Nexus::Graphics::BufferDescription cameraUniformBufferDesc;
-		cameraUniformBufferDesc.Size	 = sizeof(VB_UNIFORM_HDRI_PROCESSOR_CAMERA);
-		cameraUniformBufferDesc.Usage	 = Nexus::Graphics::BufferUsage::Dynamic;
-		Ref<UniformBuffer> uniformBuffer = m_Device->CreateUniformBuffer(cameraUniformBufferDesc, nullptr);
+		Nexus::Graphics::DeviceBufferDescription cameraUniformBufferDesc = {};
+		cameraUniformBufferDesc.Access									 = BufferMemoryAccess::Upload;
+		cameraUniformBufferDesc.Usage									 = Nexus::Graphics::BufferUsage::Uniform;
+		cameraUniformBufferDesc.StrideInBytes							 = sizeof(VB_UNIFORM_HDRI_PROCESSOR_CAMERA);
+		cameraUniformBufferDesc.SizeInBytes								 = sizeof(VB_UNIFORM_HDRI_PROCESSOR_CAMERA);
+		Ref<DeviceBuffer> uniformBuffer									 = Ref<DeviceBuffer>(m_Device->CreateDeviceBuffer(cameraUniformBufferDesc));
 
 		for (uint32_t i = 0; i < 6; i++)
 		{
-			CubemapFace face	 = (CubemapFace)i;
-			glm::vec3	position = glm::vec3(0.0f, 0.0f, 0.0f);
+			glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
 
 			float yaw = 0.0f, pitch = 0.0f;
-			GetDirection(face, yaw, pitch);
+			GetDirection(i, yaw, pitch, m_Device->IsUVOriginTopLeft());
 
 			glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 
@@ -165,8 +173,13 @@ namespace Nexus::Graphics
 			cameraUniforms.View		  = view;
 			cameraUniforms.Projection = projection;
 
-			uniformBuffer->SetData(&cameraUniforms, sizeof(cameraUniforms), 0);
-			resourceSet->WriteUniformBuffer(uniformBuffer, "Camera");
+			uniformBuffer->SetData(&cameraUniforms, 0, sizeof(cameraUniforms));
+
+			UniformBufferView uniformBufferView = {};
+			uniformBufferView.BufferHandle		= uniformBuffer;
+			uniformBufferView.Offset			= 0;
+			uniformBufferView.Size				= uniformBuffer->GetDescription().SizeInBytes;
+			resourceSet->WriteUniformBuffer(uniformBufferView, "Camera");
 			resourceSet->WriteCombinedImageSampler(m_HdriImage, sampler, "equirectangularMap");
 
 			commandList->Begin();
@@ -191,52 +204,111 @@ namespace Nexus::Graphics
 
 			commandList->SetResourceSet(resourceSet);
 
-			commandList->SetVertexBuffer(cube->GetVertexBuffer(), 0);
-			commandList->SetIndexBuffer(cube->GetIndexBuffer());
-			auto indexCount = cube->GetIndexBuffer()->GetDescription().Size / sizeof(uint32_t);
-			commandList->DrawIndexed(indexCount, 0, 0);
+			Graphics::VertexBufferView vertexBufferView = {};
+			vertexBufferView.BufferHandle				= cube->GetVertexBuffer();
+			vertexBufferView.Offset						= 0;
+			vertexBufferView.Size						= cube->GetVertexBuffer()->GetSizeInBytes();
+			vertexBufferView.Stride						= cube->GetVertexBuffer()->GetStrideInBytes();
+			commandList->SetVertexBuffer(vertexBufferView, 0);
+
+			Graphics::IndexBufferView indexBufferView = {};
+			indexBufferView.BufferHandle			  = cube->GetIndexBuffer();
+			indexBufferView.Offset					  = 0;
+			indexBufferView.Size					  = cube->GetIndexBuffer()->GetSizeInBytes();
+			indexBufferView.BufferFormat			  = Nexus::Graphics::IndexBufferFormat::UInt32;
+			commandList->SetIndexBuffer(indexBufferView);
+
+			auto indexCount = cube->GetIndexBuffer()->GetCount();
+			commandList->DrawIndexed(indexCount, 1, 0, 0, 0);
+
+			/* Ref<Texture> colourTexture = framebuffer->GetColorTexture(0);
+
+			Graphics::TextureCopyDescription copyDesc = {};
+			copyDesc.Source							  = colourTexture.get();
+			copyDesc.SourceSubresource.X			  = 0;
+			copyDesc.SourceSubresource.Y			  = 0;
+			copyDesc.SourceSubresource.Z			  = i;
+			copyDesc.SourceSubresource.Width		  = size;
+			copyDesc.SourceSubresource.Height		  = size;
+			copyDesc.SourceSubresource.Depth		  = 1;
+			copyDesc.SourceSubresource.Aspect		  = Graphics::ImageAspect::Colour;
+			copyDesc.Destination					  = cubemap.get();
+			copyDesc.DestinationSubresource.X		  = 0;
+			copyDesc.DestinationSubresource.Y		  = 0;
+			copyDesc.DestinationSubresource.Z		  = i;
+			copyDesc.DestinationSubresource.Width	  = size;
+			copyDesc.DestinationSubresource.Height	  = size;
+			copyDesc.DestinationSubresource.Depth	  = 1;
+			copyDesc.DestinationSubresource.Aspect	  = Graphics::ImageAspect::Colour;
+			commandList->CopyTextureToTexture(copyDesc); */
 
 			commandList->End();
-			m_Device->SubmitCommandList(commandList);
+			m_Device->SubmitCommandLists(&commandList, 1, nullptr);
+			m_Device->WaitForIdle();
 
-			Ref<Texture2D>		   colourTexture = framebuffer->GetColorTexture(0);
-			std::vector<unsigned char> pixels		 = colourTexture->GetData(0, 0, 0, size, size);
-			cubemap->SetData(pixels.data(), face, 0, 0, 0, size, size);
+			Ref<Texture>	  colourTexture = framebuffer->GetColorTexture(0);
+			std::vector<char> pixels		= m_Device->ReadFromTexture(colourTexture, 0, 0, 0, 0, 0, size, size);
+
+			m_Device->WriteToTexture(cubemap, i, 0, 0, 0, 0, size, size, pixels.data(), pixels.size());
 		}
 
 		return cubemap;
 	}
 
-	Ref<Texture2D> HdriProcessor::GetLoadedTexture() const
+	Ref<Texture> HdriProcessor::GetLoadedTexture() const
 	{
 		return m_HdriImage;
 	}
 
-	void HdriProcessor::GetDirection(CubemapFace face, float &yaw, float &pitch)
+	void HdriProcessor::GetDirection(uint32_t face, float &yaw, float &pitch, bool yUp)
 	{
 		switch (face)
 		{
-			case CubemapFace::PositiveX:
+			// positive x
+			case 0:
 				pitch = 0;
 				yaw	  = 90;
 				return;
-			case CubemapFace::NegativeX:
+			// negative x
+			case 1:
 				pitch = 0;
 				yaw	  = -90;
 				return;
-			case CubemapFace::PositiveY:
-				pitch = 90;
-				yaw	  = 180;
+			// positive y
+			case 2:
+				if (yUp)
+				{
+					pitch = -90;
+					yaw	  = 180;
+				}
+				else
+				{
+					pitch = 90;
+					yaw	  = 180;
+				}
+
 				return;
-			case CubemapFace::NegativeY:
-				pitch = -90;
-				yaw	  = 180;
+			// negative y
+			case 3:
+				if (yUp)
+				{
+					pitch = 90;
+					yaw	  = 180;
+				}
+				else
+				{
+					pitch = -90;
+					yaw	  = 180;
+				}
+
 				return;
-			case CubemapFace::PositiveZ:
+			// positive z
+			case 4:
 				pitch = 0;
 				yaw	  = 180;
 				return;
-			case CubemapFace::NegativeZ:
+			// negative z
+			case 5:
 				pitch = 0;
 				yaw	  = 0;
 				return;

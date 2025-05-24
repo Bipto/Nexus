@@ -16,14 +16,14 @@ namespace Nexus::Graphics
 		CommandListD3D12(GraphicsDeviceD3D12 *device, const CommandListSpecification &spec);
 		virtual ~CommandListD3D12();
 
-		ID3D12GraphicsCommandList6 *GetCommandList();
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> GetCommandList();
 
 		void Reset();
 		void Close();
 
 	  private:
 		Microsoft::WRL::ComPtr<ID3D12CommandAllocator>	   m_CommandAllocator = nullptr;
-		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6> m_CommandList	  = nullptr;
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> m_CommandList	  = nullptr;
 	};
 }	 // namespace Nexus::Graphics
 #endif

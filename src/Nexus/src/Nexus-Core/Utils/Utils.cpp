@@ -1,5 +1,7 @@
 #include "Nexus-Core/Utils/Utils.hpp"
 
+#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
+
 namespace Nexus::Utils
 {
 	glm::vec4 ColorFromRGBA(float r, float g, float b, float a)
@@ -279,8 +281,116 @@ namespace Nexus::Utils
 		return std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
 	}
 
-	void FlipPixelsHorizontally(std::vector<unsigned char> &pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format)
+	Ref<Graphics::DeviceBuffer> CreateUploadBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::GraphicsDevice *device)
 	{
+		Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
+		bufferDesc.Access									= Graphics::BufferMemoryAccess::Upload;
+		bufferDesc.Usage									= BUFFER_USAGE_NONE;
+		bufferDesc.StrideInBytes							= strideInBytes;
+		bufferDesc.SizeInBytes								= sizeInBytes;
+
+		Ref<Graphics::DeviceBuffer> buffer = device->CreateDeviceBuffer(bufferDesc);
+		buffer->SetData(data, 0, sizeInBytes);
+		return buffer;
+	}
+
+	Ref<Graphics::DeviceBuffer> CreateFilledVertexBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::GraphicsDevice *device)
+	{
+		Ref<Graphics::DeviceBuffer>				uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
+		Ref<Graphics::CommandList>				commandList	 = device->CreateCommandList();
+
+		Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
+		bufferDesc.Access									= Graphics::BufferMemoryAccess::Default;
+		bufferDesc.Usage									= Graphics::BufferUsage::Vertex;
+		bufferDesc.StrideInBytes							= strideInBytes;
+		bufferDesc.SizeInBytes								= sizeInBytes;
+		Ref<Graphics::DeviceBuffer> vertexBuffer			= Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(bufferDesc));
+
+		Nexus::Graphics::BufferCopyDescription bufferCopy = {};
+		bufferCopy.Source								  = uploadBuffer;
+		bufferCopy.Destination							  = vertexBuffer;
+		bufferCopy.ReadOffset							  = 0;
+		bufferCopy.WriteOffset							  = 0;
+		bufferCopy.Size									  = sizeInBytes;
+
+		commandList->Begin();
+		commandList->CopyBufferToBuffer(bufferCopy);
+		commandList->End();
+		device->SubmitCommandLists(&commandList, 1, nullptr);
+		device->WaitForIdle();
+
+		return vertexBuffer;
+	}
+
+	Ref<Graphics::DeviceBuffer> CreateFilledIndexBuffer(const void *data, size_t sizeInBytes, size_t strideInBytes, Graphics::GraphicsDevice *device)
+	{
+		Ref<Graphics::DeviceBuffer>				uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
+		Ref<Graphics::CommandList>				commandList	 = device->CreateCommandList();
+
+		Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
+		bufferDesc.Access									= Graphics::BufferMemoryAccess::Default;
+		bufferDesc.Usage									= Graphics::BufferUsage::Index;
+		bufferDesc.StrideInBytes							= strideInBytes;
+		bufferDesc.SizeInBytes								= sizeInBytes;
+		Ref<Graphics::DeviceBuffer> indexBuffer				= Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(bufferDesc));
+
+		Nexus::Graphics::BufferCopyDescription bufferCopy = {};
+		bufferCopy.Source								  = uploadBuffer;
+		bufferCopy.Destination							  = indexBuffer;
+		bufferCopy.ReadOffset							  = 0;
+		bufferCopy.WriteOffset							  = 0;
+		bufferCopy.Size									  = sizeInBytes;
+
+		commandList->Begin();
+		commandList->CopyBufferToBuffer(bufferCopy);
+		commandList->End();
+		device->SubmitCommandLists(&commandList, 1, nullptr);
+		device->WaitForIdle();
+
+		return indexBuffer;
+	}
+
+	Ref<Graphics::DeviceBuffer> CreateFilledUniformBuffer(const void			   *data,
+														  size_t					sizeInBytes,
+														  size_t					strideInBytes,
+														  Graphics::GraphicsDevice *device)
+	{
+		Ref<Graphics::DeviceBuffer>				uploadBuffer = CreateUploadBuffer(data, sizeInBytes, strideInBytes, device);
+		Ref<Graphics::CommandList>				commandList	 = device->CreateCommandList();
+
+		Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
+		bufferDesc.Access									= Graphics::BufferMemoryAccess::Default;
+		bufferDesc.Usage									= Graphics::BufferUsage::Uniform;
+		bufferDesc.StrideInBytes							= strideInBytes;
+		bufferDesc.SizeInBytes								= sizeInBytes;
+		Ref<Graphics::DeviceBuffer> uniformBuffer			= Ref<Graphics::DeviceBuffer>(device->CreateDeviceBuffer(bufferDesc));
+
+		Nexus::Graphics::BufferCopyDescription bufferCopy = {};
+		bufferCopy.Source								  = uploadBuffer;
+		bufferCopy.Destination							  = uniformBuffer;
+		bufferCopy.ReadOffset							  = 0;
+		bufferCopy.WriteOffset							  = 0;
+		bufferCopy.Size									  = sizeInBytes;
+
+		commandList->Begin();
+		commandList->CopyBufferToBuffer(bufferCopy);
+		commandList->End();
+		device->SubmitCommandLists(&commandList, 1, nullptr);
+		device->WaitForIdle();
+
+		return uniformBuffer;
+	}
+
+	void ConvertNanosecondsToTm(uint64_t nanoseconds, std::tm &outTime)
+	{
+		std::time_t seconds = nanoseconds / 1'000'000'000;
+		localtime_s(&outTime, &seconds);
+	}
+
+	void FlipPixelsHorizontally(void *pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format)
+	{
+		unsigned char *bufferPointer = (unsigned char *)pixels;
+
 		uint32_t bytesPerPixel	  = Graphics::GetPixelFormatSizeInBytes(format);
 		uint32_t channelsPerPixel = Graphics::GetPixelFormatNumberOfChannels(format);
 		uint32_t bytesPerChannel  = bytesPerPixel / channelsPerPixel;
@@ -293,16 +403,21 @@ namespace Nexus::Utils
 				{
 					for (uint32_t b = 0; b < bytesPerChannel; ++b)
 					{
-						std::swap(pixels[j * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b],
-								  pixels[j * width * bytesPerPixel + (width - 1 - i) * bytesPerPixel + k * bytesPerChannel + b]);
+						/* std::swap(pixels[j * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b],
+								  pixels[j * width * bytesPerPixel + (width - 1 - i) * bytesPerPixel + k * bytesPerChannel + b]); */
+
+						std::swap(*(bufferPointer + (j * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b)),
+								  *(bufferPointer + (j * width * bytesPerPixel + (width - 1 - i) * bytesPerPixel + k * bytesPerChannel + b)));
 					}
 				}
 			}
 		}
 	}
 
-	void FlipPixelsVertically(std::vector<unsigned char> &pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format)
+	void FlipPixelsVertically(void *pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format)
 	{
+		unsigned char *bufferPointer = (unsigned char *)pixels;
+
 		uint32_t bytesPerPixel	  = Graphics::GetPixelFormatSizeInBytes(format);
 		uint32_t channelsPerPixel = Graphics::GetPixelFormatNumberOfChannels(format);
 		uint32_t bytesPerChannel  = bytesPerPixel / channelsPerPixel;
@@ -315,8 +430,8 @@ namespace Nexus::Utils
 				{
 					for (uint32_t b = 0; b < bytesPerChannel; ++b)
 					{
-						std::swap(pixels[j * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b],
-								  pixels[(height - 1 - j) * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b]);
+						std::swap(*(bufferPointer + (j * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b)),
+								  *(bufferPointer + ((height - 1 - j) * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b)));
 					}
 				}
 			}

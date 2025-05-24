@@ -26,12 +26,15 @@ namespace Demos
 				{{0.5f, -0.5f, 0.0f}},	   // bottom right
 			};
 
-			CreatePipeline();
+			Nexus::Graphics::DeviceBufferDescription vertexBufferDesc = {};
+			vertexBufferDesc.Access									  = Nexus::Graphics::BufferMemoryAccess::Upload;
+			vertexBufferDesc.Usage									  = Nexus::Graphics::BufferUsage::Vertex;
+			vertexBufferDesc.StrideInBytes							  = sizeof(Nexus::Graphics::VertexPosition);
+			vertexBufferDesc.SizeInBytes							  = vertices.size() * sizeof(Nexus::Graphics::VertexPosition);
+			m_VertexBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(vertexBufferDesc));
+			m_VertexBuffer->SetData(vertices.data(), 0, vertices.size() * sizeof(Nexus::Graphics::VertexPosition));
 
-			Nexus::Graphics::BufferDescription vertexBufferDesc;
-			vertexBufferDesc.Size  = vertices.size() * sizeof(Nexus::Graphics::VertexPosition);
-			vertexBufferDesc.Usage = Nexus::Graphics::BufferUsage::Static;
-			m_VertexBuffer		   = m_GraphicsDevice->CreateVertexBuffer(vertexBufferDesc, vertices.data());
+			CreatePipeline();
 		}
 
 		virtual void Render(Nexus::TimeSpan time) override
@@ -58,12 +61,19 @@ namespace Demos
 
 			m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 
-			m_CommandList->SetVertexBuffer(m_VertexBuffer, 0);
-			auto vertexCount = m_VertexBuffer->GetDescription().Size / sizeof(Nexus::Graphics::VertexPosition);
-			m_CommandList->Draw(0, vertexCount);
+			Nexus::Graphics::VertexBufferView vertexBufferView = {};
+			vertexBufferView.BufferHandle					   = m_VertexBuffer;
+			vertexBufferView.Offset							   = 0;
+			vertexBufferView.Size							   = m_VertexBuffer->GetSizeInBytes();
+			vertexBufferView.Stride							   = m_VertexBuffer->GetStrideInBytes();
+			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
+
+			auto vertexCount = m_VertexBuffer->GetCount();
+			m_CommandList->Draw(vertexCount, 1, 0, 0);
 			m_CommandList->End();
 
-			m_GraphicsDevice->SubmitCommandList(m_CommandList);
+			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
+			m_GraphicsDevice->WaitForIdle();
 		}
 
 		virtual void OnResize(Nexus::Point2D<uint32_t> size) override
@@ -82,7 +92,7 @@ namespace Demos
 	  private:
 		void CreatePipeline()
 		{
-			Nexus::Graphics::PipelineDescription pipelineDescription;
+			Nexus::Graphics::GraphicsPipelineDescription pipelineDescription;
 			pipelineDescription.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::CullNone;
 			pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 			pipelineDescription.Layouts								  = {Nexus::Graphics::VertexPosition::GetLayout()};
@@ -98,13 +108,13 @@ namespace Demos
 				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/hello_triangle.frag.glsl",
 																	   Nexus::Graphics::ShaderStage::Fragment);
 
-			m_Pipeline = m_GraphicsDevice->CreatePipeline(pipelineDescription);
+			m_Pipeline = m_GraphicsDevice->CreateGraphicsPipeline(pipelineDescription);
 		}
 
 	  private:
 		Nexus::Ref<Nexus::Graphics::CommandList>  m_CommandList;
-		Nexus::Ref<Nexus::Graphics::Pipeline>	  m_Pipeline;
-		Nexus::Ref<Nexus::Graphics::VertexBuffer> m_VertexBuffer;
+		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_VertexBuffer;
 		glm::vec3								  m_ClearColour = {0.7f, 0.2f, 0.3f};
 	};
 }	 // namespace Demos

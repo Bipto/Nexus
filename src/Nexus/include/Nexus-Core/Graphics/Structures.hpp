@@ -140,14 +140,6 @@ namespace Nexus::Graphics
 		CounterClockwise
 	};
 
-	enum class PrimitiveTopology
-	{
-		Point,
-		Line,
-		Triangle,
-		Patch
-	};
-
 	/// @brief An enum representing how vertex data is stored within a vertex buffer
 	enum class Topology
 	{

@@ -4,58 +4,38 @@
 
 	#include "GL.hpp"
 	#include "Nexus-Core/Graphics/Texture.hpp"
+	#include "DeviceBufferOpenGL.hpp"
 
 namespace Nexus::Graphics
 {
-	class Texture2DOpenGL : public Texture2D
+	class GraphicsDeviceOpenGL;
+
+	class TextureOpenGL : public Texture
 	{
 	  public:
-		Texture2DOpenGL(const Texture2DSpecification &spec, GraphicsDevice *graphicsDevice);
-		~Texture2DOpenGL();
-		virtual void				   SetData(const void *data, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
-		virtual void GetData(std::vector<unsigned char> &pixels, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
+		TextureOpenGL(const TextureSpecification &spec, GraphicsDeviceOpenGL *graphicsDevice);
+		virtual ~TextureOpenGL();
 
-		void Bind(uint32_t slot);
+		void	 Bind(uint32_t slot);
+		uint32_t GetHandle();
+		GLenum	 GetTextureType();
+		GLenum	 GetDataFormat();
+		GLenum	 GetBaseType();
 
-		unsigned int GetHandle();
-		GLenum		 GetTextureType();
-		GLenum		 GetDataFormat();
-		GLenum		 GetPixelType();
-
-	  private:
-		unsigned int m_Handle		  = 0;
-		GLenum		 m_DataFormat	  = 0;
-		GLenum		 m_InternalFormat = 0;
-		GLenum		 m_BaseType		  = 0;
-		GLenum		 m_TextureType	  = 0;
-
-		unsigned int m_Framebuffer = 0;
-	};
-
-	class CubemapOpenGL : public Cubemap
-	{
-	  public:
-		CubemapOpenGL(const CubemapSpecification &spec, GraphicsDevice *graphicsDevice);
-		~CubemapOpenGL();
-		virtual void SetData(const void *data, CubemapFace face, uint32_t level, uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
-		virtual void GetData(std::vector<unsigned char> &pixels,
-							 CubemapFace				 face,
-							 uint32_t					 level,
-							 uint32_t					 x,
-							 uint32_t					 y,
-							 uint32_t					 width,
-							 uint32_t					 height) override;
-
-		unsigned int GetHandle();
-		void		 Bind(uint32_t slot);
+		GL::GLInternalTextureFormat GetInternalGLTextureFormat() const;
 
 	  private:
-		unsigned int m_Handle		  = 0;
-		GLenum		 m_DataFormat	  = 0;
-		GLenum		 m_InternalFormat = 0;
-		GLenum		 m_BaseType		  = 0;
+		void CreateTextureFaces();
 
-		unsigned int m_Framebuffer = 0;
+	  private:
+		uint32_t m_Handle		  = 0;
+		GLenum	 m_DataFormat	  = 0;
+		GLenum	 m_InternalFormat = 0;
+		GLenum	 m_BaseType		  = 0;
+		GLenum	 m_TextureType	  = 0;
+
+		uint32_t					m_Framebuffer			  = 0;
+		GL::GLInternalTextureFormat m_GLInternalTextureFormat = GL::GLInternalTextureFormat::Texture2D;
 	};
 }	 // namespace Nexus::Graphics
 

@@ -23,13 +23,7 @@ namespace Nexus::ImGuiUtils
 	struct ImGuiWindowInfo
 	{
 		Nexus::IWindow			   *Window	  = nullptr;
-		Nexus::Graphics::Swapchain *Swapchain = nullptr;
-
-		virtual ~ImGuiWindowInfo()
-		{
-			delete Swapchain;
-			Window->Close();
-		}
+		Ref<Nexus::Graphics::Swapchain> Swapchain = nullptr;
 	};
 
 	class NX_API ImGuiGraphicsRenderer
@@ -39,7 +33,7 @@ namespace Nexus::ImGuiUtils
 		virtual ~ImGuiGraphicsRenderer();
 		void RebuildFontAtlas();
 
-		ImTextureID BindTexture(Nexus::Ref<Nexus::Graphics::Texture2D> texture);
+		ImTextureID BindTexture(Nexus::Ref<Nexus::Graphics::Texture> texture);
 		void		UnbindTexture(ImTextureID id);
 
 		void BeforeLayout(Nexus::TimeSpan gameTime);
@@ -68,29 +62,29 @@ namespace Nexus::ImGuiUtils
 		Nexus::Application						*m_Application	  = nullptr;
 		Nexus::Graphics::GraphicsDevice			*m_GraphicsDevice = nullptr;
 		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList	  = nullptr;
-		Nexus::Ref<Nexus::Graphics::Pipeline>	 m_TextPipeline	  = nullptr;
-		Nexus::Ref<Nexus::Graphics::Pipeline>	 m_ImagePipeline  = nullptr;
-		Nexus::Ref<Nexus::Graphics::Texture2D>	 m_FontTexture	  = nullptr;
+		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_TextPipeline   = nullptr;
+		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_ImagePipeline  = nullptr;
+		Nexus::Ref<Nexus::Graphics::Texture>		  m_FontTexture	   = nullptr;
 
 		ImGuiContext *m_Context = nullptr;
 
 		Nexus::Ref<Nexus::Graphics::ShaderModule> m_VertexShader   = nullptr;
 		Nexus::Ref<Nexus::Graphics::ShaderModule> m_FragmentShader = nullptr;
 
-		std::map<ImTextureID, Nexus::Ref<Nexus::Graphics::Texture2D>>	m_Textures;
+		std::map<ImTextureID, Nexus::Ref<Nexus::Graphics::Texture>>		m_Textures;
 		std::map<ImTextureID, Nexus::Ref<Nexus::Graphics::ResourceSet>> m_ResourceSets;
 
 		Nexus::Ref<Nexus::Graphics::Sampler> m_Sampler		 = nullptr;
 		uint64_t							 m_TextureID	 = 0;
 		ImTextureID							 m_FontTextureID = 0;
 
-		Nexus::Ref<Nexus::Graphics::VertexBuffer> m_VertexBuffer	  = nullptr;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_VertexBuffer	  = nullptr;
 		uint32_t								  m_VertexBufferCount = 0;
 
-		Nexus::Ref<Nexus::Graphics::IndexBuffer> m_IndexBuffer		= nullptr;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_IndexBuffer		 = nullptr;
 		uint32_t								 m_IndexBufferCount = 0;
 
-		Nexus::Ref<Nexus::Graphics::UniformBuffer> m_UniformBuffer = nullptr;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_UniformBuffer = nullptr;
 
 		std::vector<int> m_Keys;
 	};

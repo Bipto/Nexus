@@ -6,8 +6,8 @@ namespace Nexus::UI
 {
 	UIRenderer::UIRenderer(Graphics::GraphicsDevice *device) : m_Device(device)
 	{
-		m_BatchRenderer =
-			std::make_unique<Graphics::BatchRenderer>(device, Nexus::Graphics::RenderTarget(Nexus::GetApplication()->GetPrimarySwapchain()));
+		Ref<Nexus::Graphics::Swapchain> swapchain = Nexus::GetApplication()->GetPrimarySwapchain();
+		m_BatchRenderer						  = std::make_unique<Graphics::BatchRenderer>(device, false, swapchain->GetSpecification().Samples);
 	}
 
 	UIRenderer::~UIRenderer()
@@ -32,11 +32,12 @@ namespace Nexus::UI
 		scissor.Width  = window->GetWindowSize().X;
 		scissor.Height = window->GetWindowSize().Y;
 
-		m_BatchRenderer->Begin(vp, scissor);
+		m_BatchRenderer->Begin(Nexus::Graphics::RenderTarget(Nexus::GetApplication()->GetPrimarySwapchain()), vp, scissor);
 
 		RenderControl(m_BatchRenderer.get(), root);
 
 		m_BatchRenderer->End();
+		m_Device->WaitForIdle();
 	}
 
 	void UIRenderer::RenderControl(Graphics::BatchRenderer *renderer, Control *control)

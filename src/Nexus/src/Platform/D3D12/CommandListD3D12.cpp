@@ -2,7 +2,7 @@
 
 #if defined(NX_PLATFORM_D3D12)
 
-	#include "BufferD3D12.hpp"
+	#include "DeviceBufferD3D12.hpp"
 	#include "D3D12Utils.hpp"
 	#include "FramebufferD3D12.hpp"
 	#include "PipelineD3D12.hpp"
@@ -24,9 +24,9 @@ namespace Nexus::Graphics
 	{
 	}
 
-	ID3D12GraphicsCommandList6 *CommandListD3D12::GetCommandList()
+	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> CommandListD3D12::GetCommandList()
 	{
-		return m_CommandList.Get();
+		return m_CommandList;
 	}
 
 	void CommandListD3D12::Reset()

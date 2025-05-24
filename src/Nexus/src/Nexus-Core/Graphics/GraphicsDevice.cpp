@@ -27,30 +27,6 @@
 
 namespace Nexus::Graphics
 {
-	GraphicsDevice *GraphicsDevice::CreateGraphicsDevice(const Graphics::GraphicsDeviceSpecification &spec)
-	{
-		switch (spec.API)
-		{
-#if defined(NX_PLATFORM_D3D12)
-			case Graphics::GraphicsAPI::D3D12: return new Graphics::GraphicsDeviceD3D12(spec);
-#endif
-
-#if defined(NX_PLATFORM_OPENGL)
-			case Graphics::GraphicsAPI::OpenGL: return new Graphics::GraphicsDeviceOpenGL(spec);
-#endif
-
-#if defined(NX_PLATFORM_VULKAN)
-			case Graphics::GraphicsAPI::Vulkan: return new Graphics::GraphicsDeviceVk(spec);
-#endif
-
-			default: throw std::runtime_error("Attempting to run application with unsupported graphics API"); return nullptr;
-		}
-	}
-
-	GraphicsDevice::GraphicsDevice(const GraphicsDeviceSpecification &specification) : m_Specification(specification)
-	{
-	}
-
 	Ref<ShaderModule> GraphicsDevice::CreateShaderModuleFromSpirvFile(const std::string &filepath, ShaderStage stage)
 	{
 		std::string shaderSource = Nexus::FileSystem::ReadFileToString(filepath);
@@ -76,6 +52,7 @@ namespace Nexus::Graphics
 
 		if (!result.Successful)
 		{
+			NX_ERROR(result.Error);
 			throw std::runtime_error(result.Error);
 		}
 
@@ -113,12 +90,91 @@ namespace Nexus::Graphics
 		m_ImmediateCommandList->Begin();
 		function(m_ImmediateCommandList);
 		m_ImmediateCommandList->End();
-		SubmitCommandList(m_ImmediateCommandList);
+		SubmitCommandLists(&m_ImmediateCommandList, 1, nullptr);
+		WaitForIdle();
 	}
 
-	const GraphicsDeviceSpecification &GraphicsDevice::GetSpecification() const
+	void GraphicsDevice::WriteToTexture(Ref<Texture> texture,
+										uint32_t	 arrayLayer,
+										uint32_t	 mipLevel,
+										uint32_t	 x,
+										uint32_t	 y,
+										uint32_t	 z,
+										uint32_t	 width,
+										uint32_t	 height,
+										const void	*data,
+										size_t		 size)
 	{
-		return m_Specification;
+		DeviceBufferDescription bufferDesc = {};
+		bufferDesc.Access					  = BufferMemoryAccess::Upload;
+		bufferDesc.Usage					  = BUFFER_USAGE_NONE;
+		bufferDesc.SizeInBytes			   = size;
+		bufferDesc.StrideInBytes			  = size;
+		Ref<DeviceBuffer>			  buffer  = CreateDeviceBuffer(bufferDesc);
+		Ref<CommandList>			  cmdList = CreateCommandList();
+
+		buffer->SetData(data, 0, size);
+
+		cmdList->Begin();
+
+		BufferTextureCopyDescription copyDesc = {};
+		copyDesc.BufferHandle				  = buffer;
+		copyDesc.BufferOffset				  = 0;
+		copyDesc.TextureHandle				  = texture;
+		copyDesc.TextureSubresource			  = {.X			 = x,
+												 .Y			 = y,
+												 .Z			 = z,
+												 .Width		 = width,
+												 .Height	 = height,
+												 .Depth		 = 1,
+												 .MipLevel	 = mipLevel,
+												 .ArrayLayer = arrayLayer,
+												 .Aspect	 = Graphics::ImageAspect::Colour};
+
+		cmdList->CopyBufferToTexture(copyDesc);
+
+		cmdList->End();
+		SubmitCommandLists(&cmdList, 1, nullptr);
+		WaitForIdle();
+
+	}	 // namespace Nexus::Graphics
+
+	std::vector<char> GraphicsDevice::ReadFromTexture(Ref<Texture> texture,
+													  uint32_t	   arrayLayer,
+													  uint32_t	   mipLevel,
+													  uint32_t	   x,
+													  uint32_t	   y,
+													  uint32_t	   z,
+													  uint32_t	   width,
+													  uint32_t	   height)
+	{
+		size_t bufferSize = width * height * GetPixelFormatSizeInBytes(texture->GetSpecification().Format);
+
+		DeviceBufferDescription bufferDesc = {};
+		bufferDesc.Access				   = BufferMemoryAccess::Readback;
+		bufferDesc.Usage				   = BUFFER_USAGE_NONE;
+		bufferDesc.SizeInBytes			   = bufferSize;
+		bufferDesc.StrideInBytes		   = bufferSize;
+
+		Ref<DeviceBuffer>			  buffer  = CreateDeviceBuffer(bufferDesc);
+		Ref<CommandList>			  cmdList = CreateCommandList();
+
+		cmdList->Begin();
+
+		BufferTextureCopyDescription copyDesc = {};
+		copyDesc.BufferHandle				  = buffer;
+		copyDesc.BufferOffset				  = 0;
+		copyDesc.TextureHandle				  = texture;
+		copyDesc.TextureSubresource =
+			{.X = x, .Y = y, .Z = arrayLayer, .Width = width, .Height = height, .Depth = 1, .Aspect = Graphics::ImageAspect::Colour};
+
+		cmdList->CopyTextureToBuffer(copyDesc);
+
+		cmdList->End();
+		SubmitCommandLists(&cmdList, 1, nullptr);
+		WaitForIdle();
+
+		return buffer->GetData(0, bufferSize);
 	}
 
 	bool GraphicsDevice::Validate()
@@ -170,20 +226,21 @@ namespace Nexus::Graphics
 		return module;
 	}
 
-	Ref<Texture2D> GraphicsDevice::CreateTexture2D(const char *filepath, bool generateMips, bool srgb)
+	Ref<Texture> GraphicsDevice::CreateTexture2D(const char *filepath, bool generateMips, bool srgb)
 	{
-		int receivedChannels = 0;
-		int width			 = 0;
-		int height			 = 0;
+		int receivedChannels  = 0;
+		int width			  = 0;
+		int height			  = 0;
 		int requestedChannels = 4;
 
 		stbi_set_flip_vertically_on_load(true);
 
-		Texture2DSpecification spec;
-		unsigned char		  *data = stbi_load(filepath, &width, &height, &receivedChannels, requestedChannels);
-		spec.Width					= (uint32_t)width;
-		spec.Height					= (uint32_t)height;
-		spec.Format					= PixelFormat::R8_G8_B8_A8_UNorm;
+		TextureSpecification spec;
+		unsigned char		*data = stbi_load(filepath, &width, &height, &receivedChannels, requestedChannels);
+		spec.Width				  = (uint32_t)width;
+		spec.Height				  = (uint32_t)height;
+		spec.Format				  = PixelFormat::R8_G8_B8_A8_UNorm;
+		spec.MipLevels			  = 1;
 
 		if (srgb)
 		{
@@ -195,13 +252,10 @@ namespace Nexus::Graphics
 			uint32_t mipCount = Nexus::Graphics::MipmapGenerator::GetMaximumNumberOfMips(spec.Width, spec.Height);
 			spec.MipLevels	  = mipCount;
 		}
-		else
-		{
-			spec.MipLevels = 1;
-		}
 
-		auto texture = CreateTexture2D(spec);
-		texture->SetData(data, 0, 0, 0, spec.Width, spec.Height);
+		size_t bufferSize = spec.Width * spec.Height * GetPixelFormatSizeInBytes(spec.Format);
+		auto   texture	  = Ref<Texture>(CreateTexture(spec));
+		WriteToTexture(texture, 0, 0, 0, 0, 0, spec.Width, spec.Height, data, bufferSize);
 		stbi_image_free(data);
 
 		if (generateMips)
@@ -211,21 +265,21 @@ namespace Nexus::Graphics
 			for (uint32_t i = 1; i < spec.MipLevels; i++)
 			{
 				auto [width, height]			  = Utils::GetMipSize(spec.Width, spec.Height, i);
-				std::vector<unsigned char> pixels = mipGenerator.GenerateMip(texture, i, i - 1);
-				texture->SetData(pixels.data(), i, 0, 0, width, height);
+				std::vector<char> pixels		  = mipGenerator.GenerateMip(texture, i, i - 1);
+				WriteToTexture(texture, 0, i, 0, 0, 0, width, height, pixels.data(), pixels.size());
 			}
 		}
 
 		return texture;
 	}
 
-	Ref<Texture2D> GraphicsDevice::CreateTexture2D(const std::string &filepath, bool generateMips, bool srgb)
+	Ref<Texture> GraphicsDevice::CreateTexture2D(const std::string &filepath, bool generateMips, bool srgb)
 	{
 		return CreateTexture2D(filepath.c_str(), generateMips, srgb);
 	}
 
 	Ref<ResourceSet> GraphicsDevice::CreateResourceSet(Ref<Pipeline> pipeline)
 	{
-		return CreateResourceSet(pipeline->GetPipelineDescription().ResourceSetSpec);
+		return CreateResourceSet(pipeline->GetResourceSetSpecification());
 	}
 }	 // namespace Nexus::Graphics

@@ -18,6 +18,7 @@ namespace Nexus::Graphics
 		Swapchain(const SwapchainSpecification &spec) : m_Specification(spec)
 		{
 		}
+
 		virtual ~Swapchain()
 		{
 		}
