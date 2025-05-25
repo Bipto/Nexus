@@ -81,13 +81,17 @@ namespace Nexus::Processors
 }	 // namespace Nexus::Processors
 
 #define NX_REGISTER_PROCESSOR(ProcessorType, AssetType, ProcessorName, Extensions)                                                                   \
-	struct ProcessorType##Register                                                                                                                   \
+	namespace                                                                                                                                        \
 	{                                                                                                                                                \
-		ProcessorType##Register()                                                                                                                    \
+		struct ProcessorType##Register                                                                                                               \
 		{                                                                                                                                            \
-			const std::type_info &assetTypeInfo = typeid(AssetType);                                                                                 \
-			ProcessorRegistry::AddProcessor<ProcessorType>(ProcessorName, assetTypeInfo, Extensions);                                                \
-		}                                                                                                                                            \
-	};                                                                                                                                               \
-	static ProcessorType##Register instance##ProcessorType##Register;                                                                                \
-	\
+			ProcessorType##Register()                                                                                                                \
+			{                                                                                                                                        \
+				constexpr const std::type_info &assetTypeInfo = typeid(AssetType);                                                                   \
+				ProcessorRegistry::AddProcessor<ProcessorType>(ProcessorName, assetTypeInfo, Extensions);                                            \
+			}                                                                                                                                        \
+			ProcessorType##Register(const ProcessorType##Register &)			= delete;                                                            \
+			ProcessorType##Register &operator=(const ProcessorType##Register &) = delete;                                                            \
+		};                                                                                                                                           \
+		static ProcessorType##Register instance##ProcessorType##Register;                                                                            \
+	}

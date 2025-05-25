@@ -425,6 +425,7 @@ namespace Nexus::GL
 		{
 			case Graphics::TextureType::Texture1D:
 			{
+	#if !defined(__EMSCRIPTEN__)
 				if (spec.ArrayLayers > 1)
 				{
 					return GL_TEXTURE_1D_ARRAY;
@@ -433,6 +434,9 @@ namespace Nexus::GL
 				{
 					return GL_TEXTURE_1D;
 				}
+	#else
+				throw std::runtime_error("1D textures are not supported by WebGL");
+	#endif
 			}
 			case Graphics::TextureType::Texture2D:
 			{
@@ -547,8 +551,12 @@ namespace Nexus::GL
 					"The specified framebuffer is the default read or write framebuffer but the default framebuffer does not exist");
 			case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT: throw std::runtime_error("An attachment is incomplete");
 			case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: throw std::runtime_error("This framebuffer does not have any attachments");
+
+	#if !defined(__EMSCRIPTEN__)
 			case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER: throw std::runtime_error("The framebuffer does not have a draw buffer");
 			case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER: throw std::runtime_error("The framebuffer does not have a read buffer");
+	#endif
+
 			case GL_FRAMEBUFFER_UNSUPPORTED: throw std::runtime_error("The framebuffer pixel format(s) are unsupported");
 			case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE: throw std::runtime_error("The attachments have mismatching multisample levels");
 			case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS: throw std::runtime_error("Framebuffer attachment is layered");
@@ -572,8 +580,12 @@ namespace Nexus::GL
 		switch (internalFormat)
 		{
 			case GLInternalTextureFormat::Texture1D:
+	#if !defined(__EMSCRIPTEN__)
 				glCall(glFramebufferTexture1D(GL_FRAMEBUFFER, attachmentType, textureTarget, textureHandle, mipLevel));
 				break;
+	#else
+				throw std::runtime_error("1D textures are not supported by WebGL");
+	#endif
 			case GLInternalTextureFormat::Texture1DArray:
 				glCall(glFramebufferTextureLayer(GL_FRAMEBUFFER, attachmentType, textureHandle, mipLevel, arrayLayer));
 				break;

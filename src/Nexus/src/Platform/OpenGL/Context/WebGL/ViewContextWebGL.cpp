@@ -146,7 +146,7 @@ namespace Nexus::GL
 		framebufferSpec.Height									 = (uint32_t)rect.Height;
 		framebufferSpec.ColorAttachmentSpecification.Attachments = {Graphics::PixelFormat::R8_G8_B8_A8_UNorm};
 		framebufferSpec.DepthAttachmentSpecification			 = Graphics::PixelFormat::D24_UNorm_S8_UInt;
-		framebufferSpec.Samples									 = Graphics::SampleCount::SampleCount1;
+		framebufferSpec.Samples									 = 1;
 		m_Framebuffer											 = m_Device->CreateFramebuffer(framebufferSpec);
 	}
 

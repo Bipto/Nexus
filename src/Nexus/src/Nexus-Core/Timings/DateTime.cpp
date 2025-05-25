@@ -57,4 +57,8 @@ namespace Nexus
 		return m_Timestamp.tm_year;
 	}
 
+	bool DateTime::IsDaylightSavingsTime() const
+	{
+		return m_Timestamp.tm_isdst;
+	}
 }	 // namespace Nexus

@@ -170,6 +170,7 @@ namespace Nexus::Graphics
 				Ref<DeviceBufferOpenGL> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.IndirectBuffer);
 				glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetBufferHandle());
 
+	#if !defined(__EMSCRIPTEN__)
 				ExecuteGraphicsCommand(std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline),
 									   m_CurrentlyBoundVertexBuffers,
 									   m_BoundIndexBuffer,
@@ -184,6 +185,7 @@ namespace Nexus::Graphics
 																	(const void *)(uint64_t)indirectOffset);
 										   }
 									   });
+	#endif
 
 				glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 			}
@@ -207,6 +209,7 @@ namespace Nexus::Graphics
 				uint32_t		 indexSizeInBytes = Graphics::GetIndexFormatSizeInBytes(indexBufferView.BufferFormat);
 				GLenum			 indexFormat	  = GL::GetGLIndexBufferFormat(indexBufferView.BufferFormat);
 
+	#if !defined(__EMSCRIPTEN__)
 				ExecuteGraphicsCommand(std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline),
 									   m_CurrentlyBoundVertexBuffers,
 									   m_BoundIndexBuffer,
@@ -222,6 +225,7 @@ namespace Nexus::Graphics
 																	  (const void *)(uint64_t)indirectOffset);
 										   }
 									   });
+	#endif
 			}
 		}
 	}
@@ -233,11 +237,13 @@ namespace Nexus::Graphics
 			return;
 		}
 
+	#if !defined(__EMSCRIPTEN__)
 		Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());
 		pipeline->Bind();
 		BindResourceSet(m_BoundResourceSet);
 		glDispatchCompute(command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
 		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+	#endif
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(DispatchIndirectCommand command, GraphicsDevice *device)
@@ -247,6 +253,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
+	#if !defined(__EMSCRIPTEN__)
 		Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());
 		pipeline->Bind();
 		BindResourceSet(m_BoundResourceSet);
@@ -259,6 +266,7 @@ namespace Nexus::Graphics
 			glMemoryBarrier(GL_ALL_BARRIER_BITS);
 			glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, 0);
 		}
+	#endif
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)
@@ -638,6 +646,7 @@ namespace Nexus::Graphics
 
 			if (location != -1)
 			{
+	#if !defined(__EMSCRIPTEN__)
 				Ref<TextureOpenGL> texture = std::dynamic_pointer_cast<TextureOpenGL>(storageImageView.TextureHandle);
 				GLenum			   format  = GL::GetSizedInternalFormat(storageImageView.TextureHandle->GetSpecification().Format, false);
 				GLenum			   access  = GL::GetAccessMask(storageImageView.Access);
@@ -655,6 +664,7 @@ namespace Nexus::Graphics
 										  storageImageView.ArrayLayer,
 										  access,
 										  format));
+	#endif
 			}
 		}
 	}
