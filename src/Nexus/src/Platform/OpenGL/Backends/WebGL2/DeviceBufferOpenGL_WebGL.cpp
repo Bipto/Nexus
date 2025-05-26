@@ -1,4 +1,4 @@
-#include "DeviceBufferOpenGL.hpp"
+#include "DeviceBufferOpenGL_WebGL.hpp"
 
 namespace Nexus::Graphics
 {
@@ -47,13 +47,17 @@ namespace Nexus::Graphics
 		return m_BufferDescription;
 	}
 
-	uint32_t DeviceBufferOpenGL::GetBufferHandle() const
+	void DeviceBufferOpenGL::MarkDirty()
 	{
-		return m_BufferHandle;
 	}
 
-	uint32_t DeviceBufferOpenGL::GetBufferTarget() const
+	void DeviceBufferOpenGL::Bind(GLenum target)
 	{
-		return GL_COPY_READ_BUFFER;
+		glBindBuffer(target, m_BufferHandle);
+	}
+
+	void Nexus::Graphics::DeviceBufferOpenGL::BindRange(GLenum target, uint32_t slot, size_t offset, size_t size)
+	{
+		glBindBufferRange(target, slot, m_BufferHandle, offset, size);
 	}
 }	 // namespace Nexus::Graphics

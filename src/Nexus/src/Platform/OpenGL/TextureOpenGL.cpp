@@ -43,7 +43,7 @@ namespace Nexus::Graphics
 
 	TextureOpenGL::~TextureOpenGL()
 	{
-		glCall(glDeleteTextures(1, &m_Handle));
+		glDeleteTextures(1, &m_Handle);
 	}
 
 	void TextureOpenGL::Bind(uint32_t slot)

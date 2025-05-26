@@ -863,6 +863,11 @@ namespace Nexus::GL
 		}
 	}
 
+	void ClearBufferBinding(GLenum target)
+	{
+		glBindBuffer(target, 0);
+	}
+
 	GLenum GetGLImageAspect(Graphics::ImageAspect aspect)
 	{
 		switch (aspect)

@@ -165,7 +165,16 @@ if (DEFINED NX_PLATFORM_OPENAL)
 endif()
 
 if (DEFINED NX_PLATFORM_OPENGL)
-  file (GLOB_RECURSE NEXUS_OPENGL_SOURCES "src/Platform/OpenGL/*.cpp" "src/Platform/OpenGL/*.hpp")
+  file (GLOB NEXUS_OPENGL_SOURCES "src/Platform/OpenGL/*.cpp" "src/Platform/OpenGL/*.hpp")
+
+  if (EMSCRIPTEN)
+    file (GLOB_RECURSE NEXUS_OPENGL_WEBGL_SOURCES "src/Platform/OpenGL/Backends/WebGL/*.cpp" "src/Platform/OpenGL/Backends/WebGL/*.hpp")
+    list (APPEND ENGINE_SOURCES ${NEXUS_OPENGL_WEBGL_SOURCES})
+  else()
+    file (GLOB_RECURSE NEXUS_OPENGL_DEFAULT_SOURCES "src/Platform/OpenGL/Backends/Default/*.cpp" "src/Platform/OpenGL/Backends/Default/*.hpp")
+    list (APPEND ENGINE_SOURCES ${NEXUS_OPENGL_DEFAULT_SOURCES})
+  endif()
+
   list (APPEND ENGINE_SOURCES ${NEXUS_OPENGL_SOURCES})
 endif()
 

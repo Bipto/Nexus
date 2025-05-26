@@ -14,7 +14,7 @@ namespace Nexus::Graphics
 
 	SamplerOpenGL::~SamplerOpenGL()
 	{
-		glCall(glDeleteSamplers(1, &m_Handle));
+		glDeleteSamplers(1, &m_Handle);
 	}
 
 	const SamplerSpecification &SamplerOpenGL::GetSamplerSpecification()

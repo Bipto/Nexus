@@ -167,10 +167,9 @@ namespace Nexus::Graphics
 			Ref<Pipeline> pipeline = m_CurrentlyBoundPipeline.value();
 			if (pipeline->GetType() == PipelineType::Graphics)
 			{
-				Ref<DeviceBufferOpenGL> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.IndirectBuffer);
-				glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetBufferHandle());
-
 	#if !defined(__EMSCRIPTEN__)
+				Ref<DeviceBufferOpenGL> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.IndirectBuffer);
+				indirectBuffer->Bind(GL_DRAW_INDIRECT_BUFFER);
 				ExecuteGraphicsCommand(std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline),
 									   m_CurrentlyBoundVertexBuffers,
 									   m_BoundIndexBuffer,
@@ -185,9 +184,8 @@ namespace Nexus::Graphics
 																	(const void *)(uint64_t)indirectOffset);
 										   }
 									   });
+				GL::ClearBufferBinding(GL_DRAW_INDIRECT_BUFFER);
 	#endif
-
-				glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 			}
 		}
 	}
@@ -261,10 +259,10 @@ namespace Nexus::Graphics
 		if (Ref<DeviceBuffer> buffer = command.IndirectBuffer)
 		{
 			Ref<DeviceBufferOpenGL> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(buffer);
-			glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, indirectBuffer->GetBufferHandle());
+			indirectBuffer->Bind(GL_DISPATCH_INDIRECT_BUFFER);
 			glDispatchComputeIndirect(command.Offset);
 			glMemoryBarrier(GL_ALL_BARRIER_BITS);
-			glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, 0);
+			GL::ClearBufferBinding(GL_DISPATCH_INDIRECT_BUFFER);
 		}
 	#endif
 	}
@@ -479,8 +477,8 @@ namespace Nexus::Graphics
 		Ref<DeviceBufferOpenGL> src = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.BufferCopy.Source);
 		Ref<DeviceBufferOpenGL> dst = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.BufferCopy.Destination);
 
-		glBindBuffer(GL_COPY_READ_BUFFER, src->GetBufferHandle());
-		glBindBuffer(GL_COPY_WRITE_BUFFER, dst->GetBufferHandle());
+		src->Bind(GL_COPY_READ_BUFFER);
+		dst->Bind(GL_COPY_WRITE_BUFFER);
 
 		glCopyBufferSubData(GL_COPY_READ_BUFFER,
 							GL_COPY_WRITE_BUFFER,
@@ -488,8 +486,8 @@ namespace Nexus::Graphics
 							command.BufferCopy.WriteOffset,
 							command.BufferCopy.Size);
 
-		glBindBuffer(GL_COPY_READ_BUFFER, 0);
-		glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+		GL::ClearBufferBinding(GL_COPY_READ_BUFFER);
+		GL::ClearBufferBinding(GL_COPY_WRITE_BUFFER);
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device)
@@ -630,11 +628,7 @@ namespace Nexus::Graphics
 			{
 				glCall(glUniformBlockBinding(pipeline->GetShaderHandle(), location, uniformBufferSlot));
 
-				glCall(glBindBufferRange(GL_UNIFORM_BUFFER,
-										 uniformBufferSlot,
-										 uniformBufferGL->GetBufferHandle(),
-										 uniformBufferView.Offset,
-										 uniformBufferView.Size));
+				uniformBufferGL->BindRange(GL_UNIFORM_BUFFER, uniformBufferSlot, uniformBufferView.Offset, uniformBufferView.Size);
 
 				uniformBufferSlot++;
 			}

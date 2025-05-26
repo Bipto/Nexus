@@ -122,7 +122,7 @@ namespace Nexus::Graphics
 		GLenum baseType	   = texture->GetBaseType();
 
 		glCall(glBindTexture(textureType, texture->GetHandle()));
-		glCall(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, buffer->GetBufferHandle()));
+		buffer->Bind(GL_PIXEL_UNPACK_BUFFER);
 
 		GLenum	 glAspect	= GL::GetGLImageAspect(subresource.Aspect);
 		uint32_t bufferSize = (subresource.Width - subresource.X) * (subresource.Height - subresource.Y) *
@@ -185,7 +185,7 @@ namespace Nexus::Graphics
 				break;
 		}
 
-		glCall(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0));
+		GL::ClearBufferBinding(GL_PIXEL_UNPACK_BUFFER);
 		glCall(glBindTexture(textureType, 0));
 	}
 
@@ -205,7 +205,7 @@ namespace Nexus::Graphics
 		GLenum dataFormat  = texture->GetDataFormat();
 		GLenum baseType	   = texture->GetBaseType();
 
-		glBindBuffer(GL_PIXEL_PACK_BUFFER, buffer->GetBufferHandle());
+		buffer->Bind(GL_PIXEL_PACK_BUFFER);
 
 		for (uint32_t layer = subresource.Z; layer < subresource.Depth; layer++)
 		{

@@ -97,6 +97,8 @@ namespace Nexus::GL
 					 GLboolean							 &normalized,
 					 GLPrimitiveType					 &primitiveType);
 
+	void ClearBufferBinding(GLenum target);
+
 	GLenum GetGLImageAspect(Graphics::ImageAspect aspect);
 	GLenum GetAttachmentType(Graphics::ImageAspect aspect, uint32_t index);
 	GLenum GetBufferMaskToCopy(Graphics::ImageAspect aspect);
