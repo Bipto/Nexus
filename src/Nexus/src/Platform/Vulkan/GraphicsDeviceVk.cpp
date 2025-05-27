@@ -238,6 +238,11 @@ namespace Nexus::Graphics
 		return ShaderLanguage::SPIRV;
 	}
 
+	bool GraphicsDeviceVk::IsBufferUsageSupported(BufferUsage usage)
+	{
+		return false;
+	}
+
 	void GraphicsDeviceVk::WaitForIdle()
 	{
 		vkDeviceWaitIdle(m_Device);

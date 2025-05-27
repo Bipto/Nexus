@@ -404,6 +404,11 @@ namespace Nexus::Graphics
 	#endif
 	}
 
+	bool GraphicsDeviceOpenGL::IsBufferUsageSupported(BufferUsage usage)
+	{
+		return false;
+	}
+
 	void GraphicsDeviceOpenGL::WaitForIdle()
 	{
 		glFinish();

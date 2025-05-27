@@ -904,6 +904,34 @@ namespace Nexus::GL
 		}
 	}
 
+	std::vector<GLenum> GetWebGLBufferTargets(uint16_t usage)
+	{
+		std::vector<GLenum> targets;
+
+		if (usage & Graphics::BufferUsage::Vertex)
+		{
+			targets.push_back(GL_ARRAY_BUFFER);
+		}
+
+		if (usage & Graphics::BufferUsage::Index)
+		{
+			targets.push_back(GL_ELEMENT_ARRAY_BUFFER);
+		}
+
+		if (usage & Graphics::BufferUsage::Uniform)
+		{
+			targets.push_back(GL_UNIFORM_BUFFER);
+		}
+
+		// default to GL_COPY_READ_BUFFER if no other targets are provided
+		if (targets.size() == 0)
+		{
+			targets.push_back(GL_COPY_READ_BUFFER);
+		}
+
+		return targets;
+	}
+
 	std::unique_ptr<IOffscreenContext> CreateOffscreenContext(Graphics::IPhysicalDevice *physicalDevice)
 	{
 		GL::ContextSpecification spec = {};

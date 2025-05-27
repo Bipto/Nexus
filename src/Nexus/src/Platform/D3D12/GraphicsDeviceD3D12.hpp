@@ -38,6 +38,8 @@ namespace Nexus::Graphics
 			return ShaderLanguage::HLSL;
 		}
 
+		virtual bool IsBufferUsageSupported(BufferUsage usage) override;
+
 		virtual void		WaitForIdle() override;
 		virtual GraphicsAPI GetGraphicsAPI() override;
 

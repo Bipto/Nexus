@@ -175,6 +175,11 @@ namespace Nexus::Graphics
 		return m_CommandQueue.Get();
 	}
 
+	bool GraphicsDeviceD3D12::IsBufferUsageSupported(BufferUsage usage)
+	{
+		return false;
+	}
+
 	void GraphicsDeviceD3D12::WaitForIdle()
 	{
 		SignalAndWait();

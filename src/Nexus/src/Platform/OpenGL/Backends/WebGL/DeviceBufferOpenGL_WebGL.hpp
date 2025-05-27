@@ -7,6 +7,12 @@
 
 namespace Nexus::Graphics
 {
+	struct WebGLBufferData
+	{
+		uint32_t Handle = 0;
+		bool	 Dirty	= false;
+	};
+
 	class DeviceBufferOpenGL : public DeviceBuffer
 	{
 	  public:
@@ -24,9 +30,7 @@ namespace Nexus::Graphics
 
 	  private:
 		DeviceBufferDescription m_BufferDescription = {};
-		uint32_t				m_BufferHandle		= 0;
-
-		bool m_Dirty = true;
+		std::map<GLenum, WebGLBufferData> m_BufferHandles	  = {};
 	};
 
 }	 // namespace Nexus::Graphics

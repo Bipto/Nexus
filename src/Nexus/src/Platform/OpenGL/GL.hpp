@@ -103,6 +103,8 @@ namespace Nexus::GL
 	GLenum GetAttachmentType(Graphics::ImageAspect aspect, uint32_t index);
 	GLenum GetBufferMaskToCopy(Graphics::ImageAspect aspect);
 
+	std::vector<GLenum> GetWebGLBufferTargets(uint16_t usage);
+
 	std::unique_ptr<IOffscreenContext> CreateOffscreenContext(Graphics::IPhysicalDevice *physicalDevice);
 	std::unique_ptr<IViewContext>	   CreateViewContext(IWindow *window, Graphics::GraphicsDevice *device);
 
@@ -126,7 +128,6 @@ namespace Nexus::GL
 		NX_ERROR(message);                                                                                                                           \
 	}
 
-#define NX_GL_DEBUG
 #if defined(NX_GL_DEBUG)
 	#define glCall(x)                                                                                                                                \
 		glClearErrors();                                                                                                                             \

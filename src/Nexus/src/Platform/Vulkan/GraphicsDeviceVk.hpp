@@ -47,6 +47,7 @@ namespace Nexus::Graphics
 		virtual void					   ResetFences(Ref<Fence> *fences, uint32_t count) override;
 
 		virtual ShaderLanguage GetSupportedShaderFormat() override;
+		virtual bool		   IsBufferUsageSupported(BufferUsage usage) override;
 		virtual void		   WaitForIdle() override;
 		virtual float		   GetUVCorrection() override
 		{

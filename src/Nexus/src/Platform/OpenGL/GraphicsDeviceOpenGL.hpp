@@ -44,6 +44,7 @@ namespace Nexus::Graphics
 		virtual FenceWaitResult			   WaitForFences(Ref<Fence> *fences, uint32_t count, bool waitAll, TimeSpan timeout) override;
 		virtual void					   ResetFences(Ref<Fence> *fences, uint32_t count) override;
 		virtual ShaderLanguage			   GetSupportedShaderFormat() override;
+		virtual bool					   IsBufferUsageSupported(BufferUsage usage) override;
 		virtual void					   WaitForIdle() override;
 		virtual float					   GetUVCorrection() override
 		{
