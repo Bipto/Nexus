@@ -68,7 +68,8 @@ namespace Nexus::Platform
 	NX_API std::optional<uint32_t> GetActiveKeyboardId();
 	NX_API std::optional<uint32_t> GetActiveGamepadId();
 
-	NX_API MouseState GetMouseState();
+	NX_API MouseState GetFocussedMouseState();
+	NX_API MouseState GetGlobalMouseState();
 
 	NX_API const char *GetRootPath();
 	NX_API const char *GetApplicationPath(const char *org, const char *app);

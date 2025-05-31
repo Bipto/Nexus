@@ -559,32 +559,52 @@ namespace Nexus
 
 	Point2D<float> SDL3Window::GetMousePosition(uint32_t mouseId)
 	{
-		return Point2D<float>();
+		return m_MouseStates[mouseId].MousePosition;
 	}
 
 	Point2D<float> SDL3Window::GetMouseScroll(uint32_t mouseId)
 	{
-		return Point2D<float>();
+		return m_MouseStates[mouseId].MouseWheel;
 	}
 
 	Point2D<float> SDL3Window::GetMousePosition()
 	{
-		return Point2D<float>();
+		std::optional<uint32_t> id = Platform::GetActiveMouseId();
+		if (!id.has_value())
+			return false;
+
+		return GetMousePosition(id.value());
 	}
 
 	Point2D<float> SDL3Window::GetMouseScroll()
 	{
-		return Point2D<float>();
+		std::optional<uint32_t> id = Platform::GetActiveMouseId();
+		if (!id.has_value())
+			return false;
+
+		return GetMouseScroll(id.value());
 	}
 
 	bool SDL3Window::IsMouseButtonPressed(uint32_t mouseId, MouseButton state)
 	{
-		return false;
+		switch (state)
+		{
+			case MouseButton::Left: return m_MouseStates[mouseId].LeftButton == MouseButtonState::Pressed;
+			case MouseButton::Right: return m_MouseStates[mouseId].RightButton == MouseButtonState::Pressed;
+			case MouseButton::Middle: return m_MouseStates[mouseId].MiddleButton == MouseButtonState::Pressed;
+			case MouseButton::X1: return m_MouseStates[mouseId].X1Button == MouseButtonState::Pressed;
+			case MouseButton::X2: return m_MouseStates[mouseId].X2Button == MouseButtonState::Pressed;
+			default: throw std::runtime_error("Failed to find a valid button");
+		}
 	}
 
 	bool SDL3Window::IsMouseButtonPressed(MouseButton state)
 	{
-		return false;
+		std::optional<uint32_t> id = Platform::GetActiveMouseId();
+		if (!id.has_value())
+			return false;
+
+		return IsMouseButtonPressed(id.value(), state);
 	}
 
 	uint32_t SDL3Window::GetFlags(const WindowSpecification &windowSpec)

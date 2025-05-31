@@ -357,82 +357,6 @@ namespace Nexus::ImGuiUtils
 				io.AddMouseWheelEvent(args.Scroll.X, args.Scroll.Y);
 			});
 
-		window->AddMousePressedCallback(
-			[&](const Nexus::MouseButtonPressedEventArgs &args)
-			{
-				ImGuiIO &io = ImGui::GetIO();
-
-				switch (args.Button)
-				{
-					case MouseButton::Left:
-					{
-						io.AddMouseButtonEvent(0, true);
-						break;
-					}
-					case MouseButton::Right:
-					{
-						io.AddMouseButtonEvent(1, true);
-						break;
-					}
-					case MouseButton::Middle:
-					{
-						io.AddMouseButtonEvent(2, true);
-						break;
-					}
-				}
-
-				Nexus::Point2D<float> position = args.Position;
-				if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-				{
-					position = args.ScreenPosition;
-				}
-				io.AddMousePosEvent(position.X, position.Y);
-			});
-
-		window->AddMouseReleasedCallback(
-			[&](const Nexus::MouseButtonReleasedEventArgs &args)
-			{
-				ImGuiIO &io = ImGui::GetIO();
-
-				switch (args.Button)
-				{
-					case MouseButton::Left:
-					{
-						io.AddMouseButtonEvent(0, false);
-						break;
-					}
-					case MouseButton::Right:
-					{
-						io.AddMouseButtonEvent(1, false);
-						break;
-					}
-					case MouseButton::Middle:
-					{
-						io.AddMouseButtonEvent(2, false);
-						break;
-					}
-				}
-
-				Nexus::Point2D<float> position = args.Position;
-				if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-				{
-					position = args.ScreenPosition;
-				}
-				io.AddMousePosEvent(position.X, position.Y);
-			});
-
-		window->AddMouseMovedCallback(
-			[&](const Nexus::MouseMovedEventArgs &args)
-			{
-				ImGuiIO				 &io	   = ImGui::GetIO();
-				Nexus::Point2D<float> position = args.Position;
-				if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-				{
-					position = args.ScreenPosition;
-				}
-				io.AddMousePosEvent(position.X, position.Y);
-			});
-
 		window->AddMouseScrollCallback(
 			[&](const Nexus::MouseScrolledEventArgs &args)
 			{
@@ -493,11 +417,15 @@ namespace Nexus::ImGuiUtils
 		io.KeyAlt	= activeWindow->IsKeyDown(ScanCode::LeftAlt) || activeWindow->IsKeyDown(ScanCode::RightAlt);
 		io.KeySuper = activeWindow->IsKeyDown(ScanCode::LeftGUI) || activeWindow->IsKeyDown(ScanCode::RightGUI);
 
-		MouseState			  state	   = Platform::GetMouseState();
-		Nexus::Point2D<float> mousePos = activeWindow->GetMousePosition();
+		auto mousePos = activeWindow->GetMousePosition();
+		std::cout << "X: " << mousePos.X << ", Y: " << mousePos.Y << std::endl;
 
+		MouseState state = Platform::GetFocussedMouseState();
+
+		// these seem to be the wrong way round...
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
+			state	 = Platform::GetGlobalMouseState();
 			mousePos = state.MousePosition;
 		}
 

@@ -208,6 +208,9 @@ namespace Nexus::Graphics
 				GLenum			 indexFormat	  = GL::GetGLIndexBufferFormat(indexBufferView.BufferFormat);
 
 	#if !defined(__EMSCRIPTEN__)
+				Ref<DeviceBufferOpenGL> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.IndirectBuffer);
+				indirectBuffer->Bind(GL_DRAW_INDIRECT_BUFFER);
+
 				ExecuteGraphicsCommand(std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline),
 									   m_CurrentlyBoundVertexBuffers,
 									   m_BoundIndexBuffer,
@@ -223,6 +226,8 @@ namespace Nexus::Graphics
 																	  (const void *)(uint64_t)indirectOffset);
 										   }
 									   });
+
+				GL::ClearBufferBinding(GL_DRAW_INDIRECT_BUFFER);
 	#endif
 			}
 		}

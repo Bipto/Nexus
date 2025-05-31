@@ -62,6 +62,12 @@ namespace Nexus::GL
 		return EM_TRUE;
 	}
 
+	EM_BOOL handle_resize(int eventType, const EmscriptenUiEvent *uiEvent, void *userData)
+	{
+		std::cout << "Window resized" << std::endl;
+		return EM_TRUE;
+	}
+
 	ViewContextWebGL::ViewContextWebGL(const std::string					 &canvasName,
 									   Nexus::Graphics::GraphicsDeviceOpenGL *graphicsDevice,
 									   const ContextSpecification			 &spec)
@@ -70,15 +76,17 @@ namespace Nexus::GL
 		  m_CanvasName(canvasName)
 	{
 		CreateFramebuffer();
-		attach_resize_handler(m_CanvasName.c_str());
+		// attach_resize_handler(m_CanvasName.c_str());
 
-		if (!s_WindowResizeRegistered)
+		/* if (!s_WindowResizeRegistered)
 		{
-			emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, EM_TRUE, window_resize_callback);
+			emscripten_set_resize_callback(canvasName.c_str(), NULL, EM_TRUE, window_resize_callback);
 			s_WindowResizeRegistered = true;
 		}
 
-		OnWindowResize.Bind([&](int width, int height) { CreateFramebuffer(); });
+		OnWindowResize.Bind([&](int width, int height) { CreateFramebuffer(); }); */
+
+		emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, EM_FALSE, handle_resize);
 	}
 
 	ViewContextWebGL::~ViewContextWebGL()

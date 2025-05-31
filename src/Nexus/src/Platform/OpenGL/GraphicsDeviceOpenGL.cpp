@@ -374,7 +374,7 @@ namespace Nexus::Graphics
 			}
 			else
 			{
-				FenceWaitResult::TimedOut;
+				return FenceWaitResult::TimedOut;
 			}
 		}
 

@@ -137,7 +137,7 @@ namespace Nexus
 
 	Point2D<float> Input::GetGlobalCursorPosition()
 	{
-		MouseState state = Platform::GetMouseState();
+		MouseState state = Platform::GetGlobalMouseState();
 		return state.MousePosition;
 	}
 

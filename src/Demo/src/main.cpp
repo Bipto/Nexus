@@ -59,7 +59,7 @@ class DemoApplication : public Nexus::Application
 		ImGui::GetStyle().ScrollbarSize = 20.0f;
 
 		ImGuiIO &io = m_ImGuiRenderer->GetIO();
-		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+		// io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
 		int size = 19;
 
