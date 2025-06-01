@@ -417,9 +417,7 @@ namespace Nexus::ImGuiUtils
 		io.KeyAlt	= activeWindow->IsKeyDown(ScanCode::LeftAlt) || activeWindow->IsKeyDown(ScanCode::RightAlt);
 		io.KeySuper = activeWindow->IsKeyDown(ScanCode::LeftGUI) || activeWindow->IsKeyDown(ScanCode::RightGUI);
 
-		auto mousePos = activeWindow->GetMousePosition();
-		std::cout << "X: " << mousePos.X << ", Y: " << mousePos.Y << std::endl;
-
+		auto	   mousePos = activeWindow->GetMousePosition();
 		MouseState state = Platform::GetFocussedMouseState();
 
 		// these seem to be the wrong way round...

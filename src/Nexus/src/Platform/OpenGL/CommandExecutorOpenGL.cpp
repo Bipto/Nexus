@@ -477,24 +477,6 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device)
-	{
-		Ref<DeviceBufferOpenGL> src = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.BufferCopy.Source);
-		Ref<DeviceBufferOpenGL> dst = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.BufferCopy.Destination);
-
-		src->Bind(GL_COPY_READ_BUFFER);
-		dst->Bind(GL_COPY_WRITE_BUFFER);
-
-		glCopyBufferSubData(GL_COPY_READ_BUFFER,
-							GL_COPY_WRITE_BUFFER,
-							command.BufferCopy.ReadOffset,
-							command.BufferCopy.WriteOffset,
-							command.BufferCopy.Size);
-
-		GL::ClearBufferBinding(GL_COPY_READ_BUFFER);
-		GL::ClearBufferBinding(GL_COPY_WRITE_BUFFER);
-	}
-
 	void CommandExecutorOpenGL::ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device)
 	{
 		Ref<DeviceBufferOpenGL> buffer		  = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.BufferTextureCopy.BufferHandle);

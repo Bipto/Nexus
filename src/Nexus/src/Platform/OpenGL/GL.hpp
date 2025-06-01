@@ -7,6 +7,7 @@
 	#if defined(__EMSCRIPTEN__)
 		#include <emscripten.h>
 		#include <emscripten/html5.h>
+		#include <webgl/webgl2.h>
 	#endif
 
 	#if defined(__EMSCRIPTEN__) || defined(ANDROID)

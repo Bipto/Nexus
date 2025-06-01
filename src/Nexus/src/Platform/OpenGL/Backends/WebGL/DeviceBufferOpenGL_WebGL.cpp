@@ -39,16 +39,10 @@ namespace Nexus::Graphics
 		NX_ASSERT(m_BufferDescription.Access == Graphics::BufferMemoryAccess::Readback, "Buffer must have been created with Readback access");
 
 		auto [type, bufferData] = *m_BufferHandles.begin();
+
 		std::vector<char> data(size);
 		glCall(glBindBuffer(type, bufferData.Handle));
-
-		void *mappedData = glMapBufferRange(type, offset, size, GL_MAP_READ_BIT);
-		if (mappedData)
-		{
-			memcpy(data.data(), mappedData, size);
-		}
-
-		glUnmapBuffer(type);
+		glCall(glGetBufferSubData(type, offset, size, data.data()));
 
 		return data;
 	}
