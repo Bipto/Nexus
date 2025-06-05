@@ -339,11 +339,6 @@ namespace Nexus::Platform
 				float		   scale	 = window->GetDisplayScale();
 				Point2D<float> localPos	 = {event.button.x, event.button.y};
 
-#if defined(__EMSCRIPTEN__)
-				localPos.X *= scale;
-				localPos.Y *= scale;
-#endif
-
 				if (button.has_value())
 				{
 					Point2D<int>					   windowPos = window->GetWindowPosition();
@@ -369,11 +364,6 @@ namespace Nexus::Platform
 				float		   scale	 = window->GetDisplayScale();
 				Point2D<float> localPos	 = {event.button.x, event.button.y};
 
-#if defined(__EMSCRIPTEN__)
-				localPos.X *= scale;
-				localPos.Y *= scale;
-#endif
-
 				if (button.has_value())
 				{
 					Point2D<int>						windowPos = window->GetWindowPosition();
@@ -397,13 +387,6 @@ namespace Nexus::Platform
 				Point2D<float> localPos = {event.motion.x, event.motion.y};
 				Point2D<float> movement = {event.motion.xrel, event.motion.yrel};
 
-#if defined(__EMSCRIPTEN__)
-				localPos.X *= scale;
-				localPos.Y *= scale;
-				movement.X *= scale;
-				movement.Y *= scale;
-#endif
-
 				Point2D<float> screenPos = {localPos.X + (float)windowPos.X, localPos.Y + (float)windowPos.Y};
 
 				auto [mouseType, mouseId] = Nexus::SDL3::GetMouseInfo(event.motion.which);
@@ -423,11 +406,6 @@ namespace Nexus::Platform
 				Point2D<int>   windowPos = window->GetWindowPosition();
 				float		   scale	 = window->GetDisplayScale();
 				Point2D<float> localPos	 = {event.wheel.x, event.wheel.y};
-
-#if defined(__EMSCRIPTEN__)
-				localPos.X *= scale;
-				localPos.Y *= scale;
-#endif
 
 				auto [mouseType, mouseId]		 = Nexus::SDL3::GetMouseInfo(event.wheel.which);
 				Nexus::ScrollDirection direction = Nexus::SDL3::GetScrollDirection(event.wheel.direction);
@@ -506,10 +484,6 @@ namespace Nexus::Platform
 
 				float		   scale	= window->GetDisplayScale();
 				Point2D<float> localPos = {event.drop.x, event.drop.y};
-#if defined(__EMSCRIPTEN__)
-				localPos.X *= scale;
-				localPos.Y *= scale;
-#endif
 
 				Point2D<int>			 windowPos = window->GetWindowPosition();
 				Nexus::FileDropEventArgs fileDropEvent {.Type			= type,

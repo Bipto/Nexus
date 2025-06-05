@@ -18,10 +18,10 @@ namespace Nexus::GL
 
 		// document.body.appendChild(newCanvas);
 
-		newCanvas.width		   = window.innerWidth * window.devicePixelRatio;
-		newCanvas.height	   = window.innerHeight * window.devicePixelRatio;
-		newCanvas.style.width  = window.innerWidth + 'px';
-		newCanvas.style.height = window.innerHeight + 'px';
+		newCanvas.width		   = window.innerWidth;
+		newCanvas.height	   = window.innerHeight;
+		newCanvas.style.width  = '100%';
+		newCanvas.style.height = '100%';
 
 		document.body.prepend(newCanvas);
 
@@ -32,10 +32,8 @@ namespace Nexus::GL
 
 				// style.width/height resizes the physical control, .width/height resizes the OpenGL virtual canvas
 				//.width/height need to be scaled to physical pixels while style.width/height needs to be in CSS pixel units
-				element.width		 = window.innerWidth * window.devicePixelRatio;
-				element.height		 = window.innerHeight * window.devicePixelRatio;
-				element.style.width	 = window.innerWidth + 'px';
-				element.style.height = window.innerHeight + 'px';
+				element.width  = window.innerWidth;
+				element.height = window.innerHeight;
 			},
 			true);
 	});
@@ -81,28 +79,6 @@ namespace Nexus::GL
 	const std::string &Nexus::GL::OffscreenContextWebGL::GetCSS_SelectorString()
 	{
 		return m_CSS_Selector;
-	}
-
-	void Nexus::GL::OffscreenContextWebGL::Resize()
-	{
-		emscripten::val document = emscripten::val::global("document");
-		emscripten::val element	 = document.call<emscripten::val>("getElementById", m_CanvasName);
-
-		emscripten::val window = emscripten::val::global("window");
-
-		if (element.isUndefined() || element.isNull())
-		{
-			std::cout << "Could not find element" << std::endl;
-			return;
-		}
-
-		emscripten::val style = element["style"];
-
-		int windowWidth	 = window["innerWidth"].as<int>();
-		int windowHeight = window["innerHeight"].as<int>();
-
-		style.set("width", windowWidth);
-		style.set("height", windowHeight);
 	}
 
 	bool Nexus::GL::OffscreenContextWebGL::Validate()

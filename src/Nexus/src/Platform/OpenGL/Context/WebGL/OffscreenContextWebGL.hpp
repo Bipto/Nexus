@@ -25,7 +25,6 @@ namespace Nexus::GL
 
 		const std::string &GetCanvasName();
 		const std::string &GetCSS_SelectorString();
-		void			   Resize();
 
 	  private:
 		std::string m_CanvasName   = {};

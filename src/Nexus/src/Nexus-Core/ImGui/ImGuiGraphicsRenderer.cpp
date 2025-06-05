@@ -417,14 +417,14 @@ namespace Nexus::ImGuiUtils
 		io.KeyAlt	= activeWindow->IsKeyDown(ScanCode::LeftAlt) || activeWindow->IsKeyDown(ScanCode::RightAlt);
 		io.KeySuper = activeWindow->IsKeyDown(ScanCode::LeftGUI) || activeWindow->IsKeyDown(ScanCode::RightGUI);
 
-		auto	   mousePos = activeWindow->GetMousePosition();
 		MouseState state = Platform::GetFocussedMouseState();
+		auto	   mousePos = activeWindow->GetMousePosition();
 
-		// these seem to be the wrong way round...
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
-			state	 = Platform::GetGlobalMouseState();
-			mousePos = state.MousePosition;
+			state	   = Platform::GetGlobalMouseState();
+			mousePos.X = state.MousePosition.X;
+			mousePos.Y = state.MousePosition.Y;
 		}
 
 		io.AddMousePosEvent(mousePos.X, mousePos.Y);

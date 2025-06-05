@@ -9,7 +9,8 @@ namespace Nexus
 {
 	SDL3Window::SDL3Window(const WindowSpecification &windowProps) : IWindow(windowProps), m_Specification(windowProps)
 	{
-		SDL_SetHint(SDL_HINT_EMSCRIPTEN_CANVAS_SELECTOR, windowProps.CanvasId.c_str());
+		std::string idSelector = "#" + windowProps.CanvasId;
+		SDL_SetHint(SDL_HINT_EMSCRIPTEN_CANVAS_SELECTOR, idSelector.c_str());
 		uint32_t flags = GetFlags(windowProps);
 		m_Window = SDL_CreateWindow(windowProps.Title.c_str(), windowProps.Width, windowProps.Height, flags);
 
@@ -47,11 +48,13 @@ namespace Nexus
 
 	void SDL3Window::SetSize(Point2D<uint32_t> size)
 	{
-#if !defined(__EMSCRIPTEN__)
+		/* #if !defined(__EMSCRIPTEN__)
+				SDL_SetWindowSize(m_Window, size.X, size.Y);
+		#else
+				SDL_SetWindowSize(m_Window, size.X * GetDisplayScale(), size.Y * GetDisplayScale());
+		#endif */
+
 		SDL_SetWindowSize(m_Window, size.X, size.Y);
-#else
-		SDL_SetWindowSize(m_Window, size.X * GetDisplayScale(), size.Y * GetDisplayScale());
-#endif
 	}
 
 	void SDL3Window::Close()
@@ -78,10 +81,10 @@ namespace Nexus
 		size.X = x;
 		size.Y = y;
 
-#if defined(__EMSCRIPTEN__)
-		size.X *= GetDisplayScale();
-		size.Y *= GetDisplayScale();
-#endif
+		/* #if defined(__EMSCRIPTEN__)
+				size.X *= GetDisplayScale();
+				size.Y *= GetDisplayScale();
+		#endif */
 
 		return size;
 	}
@@ -573,7 +576,8 @@ namespace Nexus
 		if (!id.has_value())
 			return false;
 
-		return GetMousePosition(id.value());
+		auto mousePos = GetMousePosition(id.value());
+		return mousePos;
 	}
 
 	Point2D<float> SDL3Window::GetMouseScroll()
@@ -611,7 +615,7 @@ namespace Nexus
 	{
 		// required for emscripten to handle resizing correctly
 		uint32_t flags = 0;
-		flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
+		// flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
 
 		if (windowSpec.Resizable)
 		{
