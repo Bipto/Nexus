@@ -4,20 +4,15 @@
 
 namespace Demos
 {
-	struct alignas(16) VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO
-	{
-		glm::mat4 Transform;
-	};
-
-	class UniformBufferDemo : public Demo
+	class StorageBufferDemo : public Demo
 	{
 	  public:
-		UniformBufferDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
+		StorageBufferDemo(const std::string &name, Nexus::Application *app, Nexus::ImGuiUtils::ImGuiGraphicsRenderer *imGuiRenderer)
 			: Demo(name, app, imGuiRenderer)
 		{
 		}
 
-		virtual ~UniformBufferDemo()
+		virtual ~StorageBufferDemo()
 		{
 		}
 
@@ -37,8 +32,8 @@ namespace Demos
 
 		virtual void Render(Nexus::TimeSpan time) override
 		{
-			m_TransformUniforms.Transform = glm::translate(glm::mat4(1.0f), m_Position);
-			m_TransformUniformBuffer->SetData(&m_TransformUniforms, 0, sizeof(m_TransformUniforms));
+			glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_Position);
+			m_StorageBuffer->SetData(&transform, 0, sizeof(transform));
 
 			m_CommandList->Begin();
 			m_CommandList->SetPipeline(m_Pipeline);
@@ -62,11 +57,13 @@ namespace Demos
 
 			m_CommandList->ClearColorTarget(0, {m_ClearColour.r, m_ClearColour.g, m_ClearColour.b, 1.0f});
 
-			Nexus::Graphics::UniformBufferView transformUniformBufferView = {};
-			transformUniformBufferView.BufferHandle						  = m_TransformUniformBuffer;
-			transformUniformBufferView.Offset							  = 0;
-			transformUniformBufferView.Size								  = m_TransformUniformBuffer->GetDescription().SizeInBytes;
-			m_ResourceSet->WriteUniformBuffer(transformUniformBufferView, "Transform");
+			Nexus::Graphics::StorageBufferView storageBufferView = {};
+			storageBufferView.BufferHandle						 = m_StorageBuffer;
+			storageBufferView.Offset							 = 0;
+			storageBufferView.Size								 = sizeof(glm::mat4);
+			storageBufferView.Access							 = Nexus::Graphics::ShaderAccess::Read;
+			m_ResourceSet->WriteStorageBuffer(storageBufferView, "TransformBuffer");
+
 			m_ResourceSet->WriteCombinedImageSampler(m_Texture, m_Sampler, "texSampler");
 
 			m_CommandList->SetResourceSet(m_ResourceSet);
@@ -106,7 +103,7 @@ namespace Demos
 			pipelineDescription.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
 			pipelineDescription.VertexModule =
-				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/uniform_buffers.vert.glsl",
+				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/storage_buffers.vert.glsl",
 																	   Nexus::Graphics::ShaderStage::Vertex);
 			pipelineDescription.FragmentModule =
 				m_GraphicsDevice->GetOrCreateCachedShaderFromSpirvFile("resources/demo/shaders/shader_buffers.frag.glsl",
@@ -114,12 +111,12 @@ namespace Demos
 
 			Nexus::Graphics::DeviceBufferDescription transformUniformBufferDesc = {};
 			transformUniformBufferDesc.Access									= Nexus::Graphics::BufferMemoryAccess::Upload;
-			transformUniformBufferDesc.Usage									= Nexus::Graphics::BufferUsage::Uniform;
-			transformUniformBufferDesc.StrideInBytes							= sizeof(VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO);
-			transformUniformBufferDesc.SizeInBytes								= sizeof(VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO);
-			m_TransformUniformBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc));
+			transformUniformBufferDesc.Usage									= Nexus::Graphics::BufferUsage::Storage;
+			transformUniformBufferDesc.StrideInBytes							= sizeof(glm::mat4);
+			transformUniformBufferDesc.SizeInBytes								= sizeof(glm::mat4);
+			m_StorageBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc));
 
-			pipelineDescription.ResourceSetSpec.UniformBuffers = {{"Transform", 0, 0}};
+			pipelineDescription.ResourceSetSpec.StorageBuffers = {{"TransformBuffer", 0, 0}};
 
 			pipelineDescription.ResourceSetSpec.SampledImages = {{"texSampler", 1, 0}};
 
@@ -139,17 +136,17 @@ namespace Demos
 		}
 
 	  private:
-		Nexus::Ref<Nexus::Graphics::CommandList> m_CommandList;
+		Nexus::Ref<Nexus::Graphics::CommandList>	  m_CommandList;
 		Nexus::Ref<Nexus::Graphics::GraphicsPipeline> m_Pipeline;
 		Nexus::Ref<Nexus::Graphics::Texture>		  m_Texture;
-		Nexus::Ref<Nexus::Graphics::ResourceSet> m_ResourceSet;
-		Nexus::Ref<Nexus::Graphics::Mesh>		 m_Mesh;
-		Nexus::Ref<Nexus::Graphics::Sampler>	 m_Sampler;
-		glm::vec3								 m_ClearColour = {0.7f, 0.2f, 0.3f};
+		Nexus::Ref<Nexus::Graphics::ResourceSet>	  m_ResourceSet;
+		Nexus::Ref<Nexus::Graphics::Mesh>			  m_Mesh;
+		Nexus::Ref<Nexus::Graphics::Sampler>		  m_Sampler;
+		glm::vec3									  m_ClearColour = {0.7f, 0.2f, 0.3f};
 
 		glm::vec3 m_Position {0.0f, 0.0f, 0.0f};
 
-		VB_UNIFORM_TRANSFORM_UNIFORM_BUFFER_DEMO   m_TransformUniforms;
-		Nexus::Ref<Nexus::Graphics::DeviceBuffer>  m_TransformUniformBuffer;
+		glm::mat4								  m_TransformUniforms;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_StorageBuffer;
 	};
 }	 // namespace Demos

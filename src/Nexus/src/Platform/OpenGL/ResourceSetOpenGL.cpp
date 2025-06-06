@@ -8,7 +8,12 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void Nexus::Graphics::ResourceSetOpenGL::WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name)
+	void ResourceSetOpenGL::WriteStorageBuffer(StorageBufferView storageBuffer, const std::string &name)
+	{
+		m_BoundStorageBuffers[name] = storageBuffer;
+	}
+
+	void ResourceSetOpenGL::WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name)
 	{
 		m_BoundUniformBuffers[name] = uniformBuffer;
 	}

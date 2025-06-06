@@ -105,6 +105,27 @@ namespace Nexus::Graphics
 		}
 	}
 
+	void ResourceSetD3D12::WriteStorageBuffer(StorageBufferView storageBuffer, const std::string &name)
+	{
+		const BindingInfo &info		   = m_UniformBufferBindingInfos.at(name);
+		const uint32_t	   index	   = GetLinearDescriptorSlot(info.Set, info.Binding);
+		auto			   d3d12Device = m_Device->GetDevice();
+		if (Ref<DeviceBufferD3D12> d3d12StorageBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(storageBuffer.BufferHandle))
+		{
+			NX_ASSERT(d3d12StorageBuffer->CheckUsage(Graphics::BufferUsage::Storage), "Attempting to bind a buffer that is not a storage buffer");
+
+			/* D3D12_CONSTANT_BUFFER_VIEW_DESC desc;
+			desc.BufferLocation = d3d12UniformBuffer->GetHandle()->GetGPUVirtualAddress() + uniformBuffer.Offset;
+			desc.SizeInBytes	= d3d12UniformBuffer->GetBufferSizeInBytes() - uniformBuffer.Offset;
+
+			d3d12Device->CreateConstantBufferView(&desc, m_ConstantBufferCPUDescriptors.at(index));
+
+			m_BoundUniformBuffers[name] = uniformBuffer; */
+
+			m_BoundStorageBuffers[name] = storageBuffer;
+		}
+	}
+
 	void ResourceSetD3D12::WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name)
 	{
 		const BindingInfo &info		   = m_UniformBufferBindingInfos.at(name);

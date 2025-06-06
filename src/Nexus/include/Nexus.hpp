@@ -26,16 +26,16 @@ struct AllocationTracker
 {
 	/// @brief The total amount of bytes allocated throughout the lifetime of the
 	/// program
-	uint32_t TotalAllocated = 0;
+	size_t TotalAllocated = 0;
 
 	/// @brief The total amount of bytes released throughout the lifetime of the
 	/// program
-	uint32_t TotalFreed = 0;
+	size_t TotalFreed = 0;
 
 	/// @brief A method that returns the currently used memory by the application
 	/// in bytes
 	/// @return The amount of bytes allocated
-	uint32_t GetCurrentUsage()
+	size_t GetCurrentUsage()
 	{
 		return TotalAllocated - TotalFreed;
 	}
@@ -47,7 +47,7 @@ static AllocationTracker s_AllocationTracker;
 
 /// @brief A method that returns the current application memory usage in bytes
 /// @return The total amount of bytes currently allocated
-inline uint32_t GetCurrentMemoryUsage()
+inline size_t GetCurrentMemoryUsage()
 {
 	return s_AllocationTracker.GetCurrentUsage();
 }

@@ -420,11 +420,11 @@ namespace Nexus::Graphics
 		/// @param resources A reference counted pointer to a ResourceSet
 		void SetResourceSet(Ref<ResourceSet> resources);
 
-		void ClearColorTarget(uint32_t index, const ClearColorValue &color, std::optional<ClearRect> clearRect);
+		void ClearColorTarget(uint32_t index, const ClearColorValue &color, ClearRect clearRect);
 
 		void ClearColorTarget(uint32_t index, const ClearColorValue &color);
 
-		void ClearDepthTarget(const ClearDepthStencilValue &value, std::optional<ClearRect> clearRect);
+		void ClearDepthTarget(const ClearDepthStencilValue &value, ClearRect clearRect);
 
 		void ClearDepthTarget(const ClearDepthStencilValue &value);
 

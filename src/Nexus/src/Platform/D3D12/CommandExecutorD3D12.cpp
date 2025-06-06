@@ -285,7 +285,21 @@ namespace Nexus::Graphics
 		{
 			D3D12_CLEAR_FLAGS clearFlags = D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL;
 
-			m_CommandList->ClearDepthStencilView(m_DepthHandle, clearFlags, command.Value.Depth, command.Value.Stencil, 0, nullptr);
+			if (command.Rect.has_value())
+			{
+				Graphics::ClearRect rect = command.Rect.value();
+
+				D3D12_RECT d3d12Rect = {};
+				d3d12Rect.left		 = rect.X;
+				d3d12Rect.top		 = rect.Y;
+				d3d12Rect.right		 = rect.X + rect.Width;
+				d3d12Rect.bottom	 = rect.Y + rect.Height;
+				m_CommandList->ClearDepthStencilView(m_DepthHandle, clearFlags, command.Value.Depth, command.Value.Stencil, 1, &d3d12Rect);
+			}
+			else
+			{
+				m_CommandList->ClearDepthStencilView(m_DepthHandle, clearFlags, command.Value.Depth, command.Value.Stencil, 0, nullptr);
+			}
 		}
 	}
 

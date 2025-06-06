@@ -245,8 +245,18 @@ namespace Nexus::Graphics
 		VkClearRect clearRect;
 		clearRect.baseArrayLayer = 0;
 		clearRect.layerCount	 = 1;
-		clearRect.rect.offset	 = {0, 0};
-		clearRect.rect.extent	 = {m_RenderSize};
+
+		if (command.Rect.has_value())
+		{
+			Graphics::ClearRect rect = command.Rect.value();
+			clearRect.rect.offset	 = {rect.X, rect.Y};
+			clearRect.rect.extent	 = {rect.Width, rect.Height};
+		}
+		else
+		{
+			clearRect.rect.offset = {0, 0};
+			clearRect.rect.extent = {m_RenderSize};
+		}
 
 		if (clearRect.rect.extent.width == 0 || clearRect.rect.extent.height == 0)
 		{

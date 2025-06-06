@@ -57,7 +57,7 @@ namespace Demos
 			Nexus::Graphics::StorageImageView storageImageView = {};
 			storageImageView.TextureHandle					   = m_Texture;
 			storageImageView.MipLevel						   = 0;
-			storageImageView.Access							   = Nexus::Graphics::StorageImageAccess::ReadWrite;
+			storageImageView.Access							   = Nexus::Graphics::ShaderAccess::ReadWrite;
 			m_ResourceSet->WriteStorageImage(storageImageView, "out_tex");
 
 			m_CommandList->Begin();

@@ -162,6 +162,10 @@ namespace Nexus::Graphics
 		vkDestroyDescriptorPool(m_Device->GetVkDevice(), m_DescriptorPool, nullptr);
 	}
 
+	void ResourceSetVk::WriteStorageBuffer(StorageBufferView storageBuffer, const std::string &name)
+	{
+	}
+
 	void ResourceSetVk::WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name)
 	{
 		if (Ref<DeviceBuffer> buffer = uniformBuffer.BufferHandle)

@@ -409,12 +409,12 @@ namespace Nexus::GL
 		return GL_STATIC_DRAW;
 	}
 
-	GLenum GetAccessMask(Graphics::StorageImageAccess access)
+	GLenum GetAccessMask(Graphics::ShaderAccess access)
 	{
 		switch (access)
 		{
-			case Graphics::StorageImageAccess::Read: return GL_READ_ONLY;
-			case Graphics::StorageImageAccess::ReadWrite: return GL_READ_WRITE;
+			case Graphics::ShaderAccess::Read: return GL_READ_ONLY;
+			case Graphics::ShaderAccess::ReadWrite: return GL_READ_WRITE;
 			default: throw std::runtime_error("Failed to find a valid access mask");
 		}
 	}

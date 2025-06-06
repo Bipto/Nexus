@@ -23,7 +23,11 @@ namespace Nexus::Graphics
 			case GraphicsAPI::Vulkan: return new GraphicsAPI_Vk(createInfo);
 #endif
 
-			default: throw std::runtime_error("Failed to find a valid graphics API");
+			default:
+			{
+				NX_ERROR("Attempting to create unsupported graphics API");
+				throw std::runtime_error("Failed to find a valid graphics API");
+			}
 		}
 
 		return nullptr;

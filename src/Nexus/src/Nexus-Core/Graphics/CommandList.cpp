@@ -179,7 +179,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(resources);
 	}
 
-	void CommandList::ClearColorTarget(uint32_t index, const ClearColorValue &color, std::optional<ClearRect> clearRect)
+	void CommandList::ClearColorTarget(uint32_t index, const ClearColorValue &color, ClearRect clearRect)
 	{
 		if (!m_Started)
 		{
@@ -197,10 +197,21 @@ namespace Nexus::Graphics
 
 	void CommandList::ClearColorTarget(uint32_t index, const ClearColorValue &color)
 	{
-		ClearColorTarget(index, color, std::nullopt);
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
+		ClearColorTargetCommand command;
+		command.Index = index;
+		command.Color = color;
+		command.Rect  = std::nullopt;
+		m_Commands.push_back(command);
 	}
 
-	void CommandList::ClearDepthTarget(const ClearDepthStencilValue &value, std::optional<ClearRect> clearRect)
+	void CommandList::ClearDepthTarget(const ClearDepthStencilValue &value, ClearRect clearRect)
 	{
 		if (!m_Started)
 		{
@@ -217,7 +228,17 @@ namespace Nexus::Graphics
 
 	void CommandList::ClearDepthTarget(const ClearDepthStencilValue &value)
 	{
-		ClearDepthTarget(value, std::nullopt);
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
+		ClearDepthStencilTargetCommand command;
+		command.Value = value;
+		command.Rect  = std::nullopt;
+		m_Commands.push_back(command);
 	}
 
 	void CommandList::SetRenderTarget(RenderTarget target)

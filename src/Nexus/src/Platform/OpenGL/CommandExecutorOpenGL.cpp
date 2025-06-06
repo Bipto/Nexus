@@ -591,6 +591,7 @@ namespace Nexus::Graphics
 		const auto &combinedImageSamplers = resourceSet->GetBoundCombinedImageSamplers();
 		const auto &uniformBufferBindings = resourceSet->GetBoundUniformBuffers();
 		const auto &storageImageBindings  = resourceSet->GetBoundStorageImages();
+		const auto &storageBufferBindings = resourceSet->GetBoundStorageBuffers();
 
 		for (const auto [name, combinedImageSampler] : combinedImageSamplers)
 		{
@@ -663,6 +664,22 @@ namespace Nexus::Graphics
 										  storageImageView.ArrayLayer,
 										  access,
 										  format));
+	#endif
+			}
+		}
+
+		GLuint storageBufferSlot = 0;
+		for (const auto [name, storageBufferView] : storageBufferBindings)
+		{
+			// GLint location = glGetUniformLocation(pipeline->GetShaderHandle(), name.c_str());
+			GLuint location = glGetProgramResourceIndex(pipeline->GetShaderHandle(), GL_SHADER_STORAGE_BLOCK, name.c_str());
+
+			if (location != -1)
+			{
+	#if !defined(__EMSCRIPTEN__)
+				Ref<DeviceBufferOpenGL> buffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(storageBufferView.BufferHandle);
+				buffer->BindRange(GL_SHADER_STORAGE_BUFFER, storageBufferSlot, storageBufferView.Offset, storageBufferView.Size);
+				storageBufferSlot++;
 	#endif
 			}
 		}

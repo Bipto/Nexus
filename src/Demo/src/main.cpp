@@ -21,6 +21,7 @@
 #include "Demos/MipmapDemo.hpp"
 #include "Demos/Models.hpp"
 #include "Demos/Splines.hpp"
+#include "Demos/StorageBufferDemo.hpp"
 #include "Demos/Texturing.hpp"
 #include "Demos/TimingDemo.hpp"
 #include "Demos/UniformBufferDemo.hpp"
@@ -60,7 +61,7 @@ class DemoApplication : public Nexus::Application
 		ImGui::GetStyle().ScrollbarSize = 20.0f;
 
 		ImGuiIO &io = m_ImGuiRenderer->GetIO();
-		// io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
 		int size = 19;
 
@@ -83,6 +84,7 @@ class DemoApplication : public Nexus::Application
 		RegisterGraphicsDemo<Demos::BatchingDemo>("Batching");
 		RegisterGraphicsDemo<Demos::FramebufferDemo>("Framebuffers");
 		RegisterGraphicsDemo<Demos::UniformBufferDemo>("Uniform Buffers");
+		RegisterGraphicsDemo<Demos::StorageBufferDemo>("Storage Buffers");
 		RegisterGraphicsDemo<Demos::Demo3D>("3D");
 		RegisterGraphicsDemo<Demos::CameraDemo>("Camera");
 		RegisterGraphicsDemo<Demos::LightingDemo>("Lighting");
@@ -308,7 +310,7 @@ class DemoApplication : public Nexus::Application
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
 	Nexus::ApplicationSpecification spec;
-	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
+	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
 	spec.AudioAPI	 = Nexus::Audio::AudioAPI::OpenAL;
 
 	spec.WindowProperties.Width			   = 1280;

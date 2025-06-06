@@ -80,7 +80,7 @@ namespace Nexus::GL
 
 	GLenum GetBufferUsage(const Graphics::DeviceBufferDescription &desc);
 
-	GLenum GetAccessMask(Graphics::StorageImageAccess access);
+	GLenum GetAccessMask(Graphics::ShaderAccess access);
 	GLenum GetTextureType(const Graphics::TextureSpecification &spec);
 
 	GLInternalTextureFormat GetGLInternalTextureFormat(const Graphics::TextureSpecification &spec);
