@@ -254,8 +254,24 @@ namespace Nexus::Graphics
 
 		float clearColor[] = {command.Color.Red, command.Color.Green, command.Color.Blue, command.Color.Alpha};
 
-		auto handle = m_DescriptorHandles[command.Index];
-		m_CommandList->ClearRenderTargetView(handle, clearColor, 0, nullptr);
+		if (command.Rect.has_value())
+		{
+			Graphics::ClearRect rect = command.Rect.value();
+
+			D3D12_RECT d3d12Rect = {};
+			d3d12Rect.left		 = rect.X;
+			d3d12Rect.top		 = rect.Y;
+			d3d12Rect.right		 = rect.X + rect.Width;
+			d3d12Rect.bottom	 = rect.Y + rect.Height;
+
+			auto handle = m_DescriptorHandles[command.Index];
+			m_CommandList->ClearRenderTargetView(handle, clearColor, 1, &d3d12Rect);
+		}
+		else
+		{
+			auto handle = m_DescriptorHandles[command.Index];
+			m_CommandList->ClearRenderTargetView(handle, clearColor, 0, nullptr);
+		}
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDevice *device)

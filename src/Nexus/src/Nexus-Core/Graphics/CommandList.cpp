@@ -179,7 +179,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(resources);
 	}
 
-	void CommandList::ClearColorTarget(uint32_t index, const ClearColorValue &color)
+	void CommandList::ClearColorTarget(uint32_t index, const ClearColorValue &color, std::optional<ClearRect> clearRect)
 	{
 		if (!m_Started)
 		{
@@ -191,10 +191,16 @@ namespace Nexus::Graphics
 		ClearColorTargetCommand command;
 		command.Index = index;
 		command.Color = color;
+		command.Rect  = clearRect;
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::ClearDepthTarget(const ClearDepthStencilValue &value)
+	void CommandList::ClearColorTarget(uint32_t index, const ClearColorValue &color)
+	{
+		ClearColorTarget(index, color, std::nullopt);
+	}
+
+	void CommandList::ClearDepthTarget(const ClearDepthStencilValue &value, std::optional<ClearRect> clearRect)
 	{
 		if (!m_Started)
 		{
@@ -205,7 +211,13 @@ namespace Nexus::Graphics
 
 		ClearDepthStencilTargetCommand command;
 		command.Value = value;
+		command.Rect  = clearRect;
 		m_Commands.push_back(command);
+	}
+
+	void CommandList::ClearDepthTarget(const ClearDepthStencilValue &value)
+	{
+		ClearDepthTarget(value, std::nullopt);
 	}
 
 	void CommandList::SetRenderTarget(RenderTarget target)

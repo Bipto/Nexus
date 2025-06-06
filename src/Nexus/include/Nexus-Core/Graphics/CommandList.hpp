@@ -14,6 +14,14 @@
 
 namespace Nexus::Graphics
 {
+	struct ClearRect
+	{
+		int32_t	 X		= 0;
+		int32_t	 Y		= 0;
+		uint32_t Width	= 0;
+		uint32_t Height = 0;
+	};
+
 	struct BufferCopyDescription
 	{
 		Ref<DeviceBuffer> Source	  = nullptr;
@@ -86,6 +94,9 @@ namespace Nexus::Graphics
 
 		/// @brief The alpha channel as a value between 0.0f and 1.0f
 		float Alpha = 1.0f;
+
+		/// @brief An optional parameter controlling which area of the texture to clear
+		std::optional<ClearRect> Rect = {};
 	};
 
 	/// @brief A struct representing a set of values to use to clear the
@@ -97,6 +108,9 @@ namespace Nexus::Graphics
 
 		/// @brief The value to use to clear the stencil buffer
 		uint8_t Stencil = 0;
+
+		/// @brief An optional parameter controlling which area of the texture to clear
+		std::optional<ClearRect> Rect = {};
 	};
 
 	/// @brief A struct representing a draw command to be executed using a vertex
@@ -150,11 +164,13 @@ namespace Nexus::Graphics
 	{
 		uint32_t		Index = {};
 		ClearColorValue Color = {};
+		std::optional<ClearRect> Rect  = {};
 	};
 
 	struct ClearDepthStencilTargetCommand
 	{
 		ClearDepthStencilValue Value = {};
+		std::optional<ClearRect> Rect  = {};
 	};
 
 	struct ResolveSamplesToSwapchainCommand
@@ -404,7 +420,11 @@ namespace Nexus::Graphics
 		/// @param resources A reference counted pointer to a ResourceSet
 		void SetResourceSet(Ref<ResourceSet> resources);
 
+		void ClearColorTarget(uint32_t index, const ClearColorValue &color, std::optional<ClearRect> clearRect);
+
 		void ClearColorTarget(uint32_t index, const ClearColorValue &color);
+
+		void ClearDepthTarget(const ClearDepthStencilValue &value, std::optional<ClearRect> clearRect);
 
 		void ClearDepthTarget(const ClearDepthStencilValue &value);
 

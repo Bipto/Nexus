@@ -291,9 +291,27 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		float color[] = {command.Color.Red, command.Color.Green, command.Color.Blue, command.Color.Alpha};
+		if (command.Rect.has_value())
+		{
+			Graphics::ClearRect rect = command.Rect.value();
 
-		glCall(glClearBufferfv(GL_COLOR, command.Index, color));
+			GLint scissorBox[4];
+			glGetIntegerv(GL_SCISSOR_BOX, scissorBox);
+
+			RenderTarget target	  = m_CurrentRenderTarget.value();
+			float		 scissorY = target.GetSize().Y - rect.Height - rect.Y;
+			glCall(glScissor(rect.X, scissorY, rect.Width, rect.Height));
+
+			float color[] = {command.Color.Red, command.Color.Green, command.Color.Blue, command.Color.Alpha};
+			glCall(glClearBufferfv(GL_COLOR, command.Index, color));
+
+			glCall(glScissor(scissorBox[0], scissorBox[1], scissorBox[2], scissorBox[3]));
+		}
+		else
+		{
+			float color[] = {command.Color.Red, command.Color.Green, command.Color.Blue, command.Color.Alpha};
+			glCall(glClearBufferfv(GL_COLOR, command.Index, color));
+		}
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDevice *device)
