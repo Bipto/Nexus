@@ -35,6 +35,11 @@ namespace Nexus::Graphics
 		resourceDesc.Layout				  = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 		resourceDesc.Flags				  = D3D12_RESOURCE_FLAG_NONE;
 
+		if (desc.Usage & BufferUsage::Storage)
+		{
+			resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+		}
+
 		HRESULT hr = allocator->CreateResource2(&allocationDesc,
 												&resourceDesc,
 												D3D12_RESOURCE_STATE_COMMON,

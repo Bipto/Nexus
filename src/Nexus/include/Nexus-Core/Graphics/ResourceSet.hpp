@@ -38,9 +38,9 @@ namespace Nexus::Graphics
 		ResourceSetSpecification &operator+(const ResourceSetSpecification &other)
 		{
 			SampledImages.insert(SampledImages.end(), other.SampledImages.begin(), other.SampledImages.end());
-			UniformBuffers.insert(UniformBuffers.end(), UniformBuffers.begin(), UniformBuffers.end());
-			StorageImages.insert(StorageImages.end(), StorageImages.begin(), StorageImages.end());
-			StorageBuffers.insert(StorageBuffers.end(), StorageBuffers.begin(), StorageBuffers.end());
+			UniformBuffers.insert(UniformBuffers.end(), other.UniformBuffers.begin(), other.UniformBuffers.end());
+			StorageImages.insert(StorageImages.end(), other.StorageImages.begin(), other.StorageImages.end());
+			StorageBuffers.insert(StorageBuffers.end(), other.StorageBuffers.begin(), other.StorageBuffers.end());
 			return *this;
 		}
 
@@ -48,8 +48,8 @@ namespace Nexus::Graphics
 		{
 			SampledImages.insert(SampledImages.end(), other.SampledImages.begin(), other.SampledImages.end());
 			UniformBuffers.insert(UniformBuffers.end(), other.UniformBuffers.begin(), other.UniformBuffers.end());
-			StorageImages.insert(StorageImages.end(), StorageImages.begin(), StorageImages.end());
-			StorageBuffers.insert(StorageBuffers.end(), StorageBuffers.begin(), StorageBuffers.end());
+			StorageImages.insert(StorageImages.end(), other.StorageImages.begin(), other.StorageImages.end());
+			StorageBuffers.insert(StorageBuffers.end(), other.StorageBuffers.begin(), other.StorageBuffers.end());
 			return *this;
 		}
 
@@ -81,10 +81,11 @@ namespace Nexus::Graphics
 
 	struct StorageBufferView
 	{
-		Ref<DeviceBuffer> BufferHandle = nullptr;
-		size_t			  Offset	   = 0;
-		size_t			  Size		   = 0;
-		ShaderAccess	  Access	   = ShaderAccess::Read;
+		Ref<DeviceBuffer> BufferHandle	   = nullptr;
+		size_t			  StrideInBytes	   = 0;
+		size_t			  FirstElement	   = 0;
+		size_t			  NumberOfElements = 0;
+		ShaderAccess	  Access		   = ShaderAccess::Read;
 	};
 
 	class ResourceSet

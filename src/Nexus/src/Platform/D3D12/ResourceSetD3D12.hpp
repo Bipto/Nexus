@@ -44,6 +44,9 @@ namespace Nexus::Graphics
 		std::map<uint32_t, D3D12_CPU_DESCRIPTOR_HANDLE> m_StorageImageCPUDescriptors;
 		std::map<uint32_t, D3D12_GPU_DESCRIPTOR_HANDLE> m_StorageImageGPUDescriptors;
 
+		std::map<uint32_t, D3D12_CPU_DESCRIPTOR_HANDLE> m_StorageBufferCPUDescriptors;
+		std::map<uint32_t, D3D12_GPU_DESCRIPTOR_HANDLE> m_StorageBufferGPUDescriptors;
+
 		GraphicsDeviceD3D12 *m_Device = nullptr;
 	};
 }	 // namespace Nexus::Graphics

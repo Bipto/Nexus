@@ -17,7 +17,8 @@ namespace Nexus::Graphics
 		uint32_t samplerCount		 = spec.SampledImages.size();
 		uint32_t constantBufferCount = spec.UniformBuffers.size();
 		uint32_t storageImageCount	 = spec.StorageImages.size();
-		uint32_t viewCount			 = spec.SampledImages.size() + spec.UniformBuffers.size() + spec.StorageImages.size();
+		uint32_t storageBufferCount	 = spec.StorageBuffers.size();
+		uint32_t viewCount = spec.SampledImages.size() + spec.UniformBuffers.size() + spec.StorageImages.size() + spec.StorageBuffers.size();
 
 		if (samplerCount > 0)
 		{
@@ -102,25 +103,45 @@ namespace Nexus::Graphics
 					gpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 				}
 			}
+
+			// create storage buffer handles
+			{
+				for (size_t i = 0; i < spec.StorageBuffers.size(); i++)
+				{
+					const auto	  &storageBufferInfo = spec.StorageBuffers.at(i);
+					const uint32_t slot				 = ResourceSet::GetLinearDescriptorSlot(storageBufferInfo.Set, storageBufferInfo.Binding);
+
+					m_StorageBufferCPUDescriptors[slot] = cpuLocation;
+					m_StorageBufferGPUDescriptors[slot] = gpuLocation;
+
+					cpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+					gpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+				}
+			}
 		}
 	}
 
 	void ResourceSetD3D12::WriteStorageBuffer(StorageBufferView storageBuffer, const std::string &name)
 	{
-		const BindingInfo &info		   = m_UniformBufferBindingInfos.at(name);
+		const BindingInfo &info		   = m_StorageBufferBindingInfos.at(name);
 		const uint32_t	   index	   = GetLinearDescriptorSlot(info.Set, info.Binding);
 		auto			   d3d12Device = m_Device->GetDevice();
 		if (Ref<DeviceBufferD3D12> d3d12StorageBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(storageBuffer.BufferHandle))
 		{
 			NX_ASSERT(d3d12StorageBuffer->CheckUsage(Graphics::BufferUsage::Storage), "Attempting to bind a buffer that is not a storage buffer");
 
-			/* D3D12_CONSTANT_BUFFER_VIEW_DESC desc;
-			desc.BufferLocation = d3d12UniformBuffer->GetHandle()->GetGPUVirtualAddress() + uniformBuffer.Offset;
-			desc.SizeInBytes	= d3d12UniformBuffer->GetBufferSizeInBytes() - uniformBuffer.Offset;
+			D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+			uavDesc.ViewDimension					 = D3D12_UAV_DIMENSION_BUFFER;
+			uavDesc.Format							 = DXGI_FORMAT_UNKNOWN;
+			uavDesc.Buffer.FirstElement				 = storageBuffer.FirstElement;
+			uavDesc.Buffer.NumElements				 = storageBuffer.NumberOfElements;
+			uavDesc.Buffer.StructureByteStride		 = storageBuffer.StrideInBytes;
+			uavDesc.Buffer.CounterOffsetInBytes		 = 0;
+			uavDesc.Buffer.Flags					 = D3D12_BUFFER_UAV_FLAG_NONE;
 
-			d3d12Device->CreateConstantBufferView(&desc, m_ConstantBufferCPUDescriptors.at(index));
-
-			m_BoundUniformBuffers[name] = uniformBuffer; */
+			auto						resourceHandle = d3d12StorageBuffer->GetHandle();
+			D3D12_CPU_DESCRIPTOR_HANDLE uavHandle	   = m_StorageBufferCPUDescriptors.at(index);
+			d3d12Device->CreateUnorderedAccessView(resourceHandle.Get(), nullptr, &uavDesc, uavHandle);
 
 			m_BoundStorageBuffers[name] = storageBuffer;
 		}

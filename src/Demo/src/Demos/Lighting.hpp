@@ -51,14 +51,14 @@ namespace Demos
 			cameraUniformBufferDesc.Usage									 = Nexus::Graphics::BufferUsage::Uniform;
 			cameraUniformBufferDesc.StrideInBytes							 = sizeof(VB_UNIFORM_CAMERA_DEMO_LIGHTING);
 			cameraUniformBufferDesc.SizeInBytes								 = sizeof(VB_UNIFORM_CAMERA_DEMO_LIGHTING);
-			m_CameraUniformBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(cameraUniformBufferDesc));
+			m_CameraUniformBuffer											 = m_GraphicsDevice->CreateDeviceBuffer(cameraUniformBufferDesc);
 
 			Nexus::Graphics::DeviceBufferDescription transformUniformBufferDesc = {};
 			transformUniformBufferDesc.Access									= Nexus::Graphics::BufferMemoryAccess::Upload;
 			transformUniformBufferDesc.Usage									= Nexus::Graphics::BufferUsage::Uniform;
 			transformUniformBufferDesc.StrideInBytes							= sizeof(VB_UNIFORM_TRANSFORM_DEMO_LIGHTING);
 			transformUniformBufferDesc.SizeInBytes								= sizeof(VB_UNIFORM_TRANSFORM_DEMO_LIGHTING);
-			m_TransformUniformBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc));
+			m_TransformUniformBuffer											= m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc);
 
 			CreatePipeline();
 			m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, -2.5f));

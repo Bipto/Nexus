@@ -678,7 +678,9 @@ namespace Nexus::Graphics
 			{
 	#if !defined(__EMSCRIPTEN__)
 				Ref<DeviceBufferOpenGL> buffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(storageBufferView.BufferHandle);
-				buffer->BindRange(GL_SHADER_STORAGE_BUFFER, storageBufferSlot, storageBufferView.Offset, storageBufferView.Size);
+				size_t					offset = storageBufferView.StrideInBytes * storageBufferView.FirstElement;
+				size_t					size   = storageBufferView.StrideInBytes * storageBufferView.NumberOfElements;
+				buffer->BindRange(GL_SHADER_STORAGE_BUFFER, storageBufferSlot, offset, size);
 				storageBufferSlot++;
 	#endif
 			}

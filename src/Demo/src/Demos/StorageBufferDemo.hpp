@@ -33,9 +33,18 @@ namespace Demos
 		virtual void Render(Nexus::TimeSpan time) override
 		{
 			glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_Position);
-			m_StorageBuffer->SetData(&transform, 0, sizeof(transform));
+			m_UploadBuffer->SetData(&transform, 0, sizeof(transform));
 
 			m_CommandList->Begin();
+
+			Nexus::Graphics::BufferCopyDescription bufferCopy = {};
+			bufferCopy.Source								  = m_UploadBuffer;
+			bufferCopy.Destination							  = m_StorageBuffer;
+			bufferCopy.ReadOffset							  = 0;
+			bufferCopy.WriteOffset							  = 0;
+			bufferCopy.Size									  = sizeof(glm::mat4);
+			m_CommandList->CopyBufferToBuffer(bufferCopy);
+
 			m_CommandList->SetPipeline(m_Pipeline);
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(Nexus::GetApplication()->GetPrimarySwapchain()));
 
@@ -59,8 +68,9 @@ namespace Demos
 
 			Nexus::Graphics::StorageBufferView storageBufferView = {};
 			storageBufferView.BufferHandle						 = m_StorageBuffer;
-			storageBufferView.Offset							 = 0;
-			storageBufferView.Size								 = sizeof(glm::mat4);
+			storageBufferView.StrideInBytes						 = sizeof(glm::mat4);
+			storageBufferView.FirstElement						 = 0;
+			storageBufferView.NumberOfElements					 = 1;
 			storageBufferView.Access							 = Nexus::Graphics::ShaderAccess::Read;
 			m_ResourceSet->WriteStorageBuffer(storageBufferView, "TransformBuffer");
 
@@ -110,11 +120,18 @@ namespace Demos
 																	   Nexus::Graphics::ShaderStage::Fragment);
 
 			Nexus::Graphics::DeviceBufferDescription transformUniformBufferDesc = {};
-			transformUniformBufferDesc.Access									= Nexus::Graphics::BufferMemoryAccess::Upload;
+			transformUniformBufferDesc.Access									= Nexus::Graphics::BufferMemoryAccess::Default;
 			transformUniformBufferDesc.Usage									= Nexus::Graphics::BufferUsage::Storage;
 			transformUniformBufferDesc.StrideInBytes							= sizeof(glm::mat4);
 			transformUniformBufferDesc.SizeInBytes								= sizeof(glm::mat4);
-			m_StorageBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc));
+			m_StorageBuffer														= m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc);
+
+			Nexus::Graphics::DeviceBufferDescription uploadBufferDesc = {};
+			uploadBufferDesc.Access									  = Nexus::Graphics::BufferMemoryAccess::Upload;
+			uploadBufferDesc.Usage									  = BUFFER_USAGE_NONE;
+			uploadBufferDesc.StrideInBytes							  = sizeof(glm::mat4);
+			uploadBufferDesc.SizeInBytes							  = sizeof(glm::mat4);
+			m_UploadBuffer											  = m_GraphicsDevice->CreateDeviceBuffer(uploadBufferDesc);
 
 			pipelineDescription.ResourceSetSpec.StorageBuffers = {{"TransformBuffer", 0, 0}};
 
@@ -147,6 +164,7 @@ namespace Demos
 		glm::vec3 m_Position {0.0f, 0.0f, 0.0f};
 
 		glm::mat4								  m_TransformUniforms;
+		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_UploadBuffer;
 		Nexus::Ref<Nexus::Graphics::DeviceBuffer> m_StorageBuffer;
 	};
 }	 // namespace Demos

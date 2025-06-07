@@ -22,6 +22,7 @@ namespace Nexus::Graphics
 		std::vector<D3D12_DESCRIPTOR_RANGE> samplerRanges;
 		std::vector<D3D12_DESCRIPTOR_RANGE> textureConstantBufferRanges;
 		std::vector<D3D12_DESCRIPTOR_RANGE> storageImageRanges;
+		std::vector<D3D12_DESCRIPTOR_RANGE> storageBufferRanges;
 
 		for (size_t i = 0; i < resourceSet.SampledImages.size(); i++)
 		{
@@ -73,6 +74,20 @@ namespace Nexus::Graphics
 			storageImageRanges.push_back(storageImageRange);
 		}
 
+		for (size_t i = 0; i < resourceSet.StorageBuffers.size(); i++)
+		{
+			const auto &storageBufferInfo = resourceSet.StorageBuffers.at(i);
+			uint32_t	slot			  = ResourceSet::GetLinearDescriptorSlot(storageBufferInfo.Set, storageBufferInfo.Binding);
+
+			D3D12_DESCRIPTOR_RANGE storageBufferRange			 = {};
+			storageBufferRange.RangeType						 = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+			storageBufferRange.BaseShaderRegister				 = slot;
+			storageBufferRange.NumDescriptors					 = 1;
+			storageBufferRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+			storageBufferRange.RegisterSpace					 = 0;
+			storageBufferRanges.push_back(storageBufferRange);
+		}
+
 		std::vector<D3D12_ROOT_PARAMETER> rootParameters;
 
 		// sampler parameter
@@ -121,6 +136,23 @@ namespace Nexus::Graphics
 			parameter.ShaderVisibility	   = D3D12_SHADER_VISIBILITY_ALL;
 
 			if (storageImageRanges.size() > 0)
+			{
+				rootParameters.push_back(parameter);
+			}
+		}
+
+		// storage buffer parameter
+		{
+			D3D12_ROOT_DESCRIPTOR_TABLE descriptorTable = {};
+			descriptorTable.NumDescriptorRanges			= storageBufferRanges.size();
+			descriptorTable.pDescriptorRanges			= storageBufferRanges.data();
+
+			D3D12_ROOT_PARAMETER parameter = {};
+			parameter.ParameterType		   = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+			parameter.DescriptorTable	   = descriptorTable;
+			parameter.ShaderVisibility	   = D3D12_SHADER_VISIBILITY_ALL;
+
+			if (storageBufferRanges.size() > 0)
 			{
 				rootParameters.push_back(parameter);
 			}
