@@ -28,6 +28,8 @@ namespace Nexus::Graphics
 		const D3D12_GPU_DESCRIPTOR_HANDLE GetSamplerStartHandle() const;
 		const D3D12_GPU_DESCRIPTOR_HANDLE GetTextureConstantBufferStartHandle() const;
 
+		void EnumerateStorageBuffers(std::function<void(uint32_t, StorageBufferView)>);
+
 	  private:
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_SamplerDescriptorHeap			   = nullptr;
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_TextureConstantBufferDescriptorHeap = nullptr;

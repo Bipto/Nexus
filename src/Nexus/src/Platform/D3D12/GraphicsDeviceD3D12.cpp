@@ -2,7 +2,6 @@
 
 #if defined(NX_PLATFORM_D3D12)
 
-	#include "DeviceBufferD3D12.hpp"
 	#include "CommandListD3D12.hpp"
 	#include "FramebufferD3D12.hpp"
 	#include "PipelineD3D12.hpp"
@@ -318,6 +317,24 @@ namespace Nexus::Graphics
 		D3D12_RESOURCE_STATES resourceState = resource->GetResourceState(layer, level);
 		ResourceBarrier(cmd, resource->GetHandle().Get(), layer, level, resource->GetSpecification().MipLevels, resourceState, after);
 		resource->SetResourceState(layer, level, after);
+	}
+
+	void GraphicsDeviceD3D12::ResourceBarrierBuffer(ID3D12GraphicsCommandList7 *cmd,
+													Ref<DeviceBufferD3D12>		buffer,
+													D3D12_RESOURCE_STATES		before,
+													D3D12_RESOURCE_STATES		after)
+	{
+		auto resourceHandle = buffer->GetHandle();
+
+		D3D12_RESOURCE_BARRIER barrier = {};
+		barrier.Type				   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		barrier.Flags				   = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		barrier.Transition.pResource   = resourceHandle.Get();
+		barrier.Transition.StateBefore = before;
+		barrier.Transition.StateAfter  = after;
+		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+
+		cmd->ResourceBarrier(1, &barrier);
 	}
 
 	void GraphicsDeviceD3D12::ResourceBarrierSwapchainColour(ID3D12GraphicsCommandList7 *cmd,

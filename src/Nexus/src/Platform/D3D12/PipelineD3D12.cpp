@@ -15,7 +15,7 @@ namespace Nexus::Graphics
 							 Microsoft::WRL::ComPtr<ID3D12RootSignature>	 &inRootSignature)
 	{
 		D3D12_ROOT_SIGNATURE_DESC desc = {};
-		desc.Flags					   = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+		desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
 		desc.NumParameters			   = 0;
 		desc.NumStaticSamplers		   = 0;
 
@@ -80,7 +80,8 @@ namespace Nexus::Graphics
 			uint32_t	slot			  = ResourceSet::GetLinearDescriptorSlot(storageBufferInfo.Set, storageBufferInfo.Binding);
 
 			D3D12_DESCRIPTOR_RANGE storageBufferRange			 = {};
-			storageBufferRange.RangeType						 = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+			// storageBufferRange.RangeType						 = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+			storageBufferRange.RangeType						 = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 			storageBufferRange.BaseShaderRegister				 = slot;
 			storageBufferRange.NumDescriptors					 = 1;
 			storageBufferRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
@@ -143,7 +144,7 @@ namespace Nexus::Graphics
 
 		// storage buffer parameter
 		{
-			D3D12_ROOT_DESCRIPTOR_TABLE descriptorTable = {};
+			/* D3D12_ROOT_DESCRIPTOR_TABLE descriptorTable = {};
 			descriptorTable.NumDescriptorRanges			= storageBufferRanges.size();
 			descriptorTable.pDescriptorRanges			= storageBufferRanges.data();
 
@@ -154,6 +155,20 @@ namespace Nexus::Graphics
 
 			if (storageBufferRanges.size() > 0)
 			{
+				rootParameters.push_back(parameter);
+			} */
+
+			for (size_t i = 0; i < resourceSet.StorageBuffers.size(); i++)
+			{
+				const Nexus::Graphics::ResourceBinding &storageBuffer = resourceSet.StorageBuffers.at(i);
+				uint32_t								slot = ResourceSet::GetLinearDescriptorSlot(storageBuffer.Set, storageBuffer.Binding);
+
+				D3D12_ROOT_PARAMETER parameter		= {};
+				parameter.ParameterType				= D3D12_ROOT_PARAMETER_TYPE_SRV;
+				parameter.ShaderVisibility			= D3D12_SHADER_VISIBILITY_ALL;
+				parameter.Descriptor.RegisterSpace	= 0;
+				parameter.Descriptor.ShaderRegister = slot;
+
 				rootParameters.push_back(parameter);
 			}
 		}
