@@ -140,9 +140,13 @@ namespace Nexus::Graphics
 
 			D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
 			uavDesc.ViewDimension					 = D3D12_UAV_DIMENSION_BUFFER;
+
+			// storage buffers are accessed in 4 byte chunks
 			uavDesc.Format							 = DXGI_FORMAT_R32_TYPELESS;
 			uavDesc.Buffer.FirstElement				 = storageBuffer.Offset;
-			uavDesc.Buffer.NumElements				 = storageBuffer.SizeInBytes;
+			uavDesc.Buffer.NumElements				 = storageBuffer.SizeInBytes / 4;
+
+			// access as a raw buffer (no stride as it is assumed that the buffer is some multiple of 4 bytes)
 			uavDesc.Buffer.StructureByteStride		 = 0;
 			uavDesc.Buffer.CounterOffsetInBytes		 = 0;
 			uavDesc.Buffer.Flags					 = D3D12_BUFFER_UAV_FLAG_RAW;
@@ -166,7 +170,10 @@ namespace Nexus::Graphics
 
 			D3D12_CONSTANT_BUFFER_VIEW_DESC desc;
 			desc.BufferLocation = d3d12UniformBuffer->GetHandle()->GetGPUVirtualAddress() + uniformBuffer.Offset;
-			desc.SizeInBytes	= d3d12UniformBuffer->GetBufferSizeInBytes() - uniformBuffer.Offset;
+
+			// constant buffers are accessed in 256 byte chunks
+			size_t bufferViewSize = Utils::AlignTo<size_t>(uniformBuffer.Size, 256);
+			desc.SizeInBytes	  = bufferViewSize;
 
 			d3d12Device->CreateConstantBufferView(&desc, m_ConstantBufferCPUDescriptors.at(index));
 
