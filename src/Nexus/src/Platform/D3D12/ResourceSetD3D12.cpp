@@ -143,8 +143,20 @@ namespace Nexus::Graphics
 
 			// storage buffers are accessed in 4 byte chunks
 			uavDesc.Format							 = DXGI_FORMAT_R32_TYPELESS;
-			uavDesc.Buffer.FirstElement				 = storageBuffer.Offset;
-			uavDesc.Buffer.NumElements				 = storageBuffer.SizeInBytes / 4;
+
+			size_t bufferOffset = storageBuffer.Offset;
+			if (bufferOffset > 0)
+			{
+				bufferOffset /= 4;
+			}
+			uavDesc.Buffer.FirstElement = bufferOffset;
+
+			size_t bufferSize = storageBuffer.SizeInBytes;
+			if (bufferSize > 0)
+			{
+				bufferSize /= 4;
+			}
+			uavDesc.Buffer.NumElements = bufferSize;
 
 			// access as a raw buffer (no stride as it is assumed that the buffer is some multiple of 4 bytes)
 			uavDesc.Buffer.StructureByteStride		 = 0;
