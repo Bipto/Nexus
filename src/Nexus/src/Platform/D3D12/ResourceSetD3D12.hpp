@@ -27,6 +27,7 @@ namespace Nexus::Graphics
 
 		const D3D12_GPU_DESCRIPTOR_HANDLE GetSamplerStartHandle() const;
 		const D3D12_GPU_DESCRIPTOR_HANDLE GetTextureConstantBufferStartHandle() const;
+		const D3D12_GPU_DESCRIPTOR_HANDLE GetStorageBufferStartHandle() const;
 
 		void EnumerateStorageBuffers(std::function<void(uint32_t, StorageBufferView)>);
 
@@ -48,6 +49,8 @@ namespace Nexus::Graphics
 
 		std::map<uint32_t, D3D12_CPU_DESCRIPTOR_HANDLE> m_StorageBufferCPUDescriptors;
 		std::map<uint32_t, D3D12_GPU_DESCRIPTOR_HANDLE> m_StorageBufferGPUDescriptors;
+
+		D3D12_GPU_DESCRIPTOR_HANDLE m_StorageBufferDescriptorStartHandle;
 
 		GraphicsDeviceD3D12 *m_Device = nullptr;
 	};

@@ -194,7 +194,7 @@ namespace Nexus::Graphics
 		Ref<ResourceSetD3D12> d3d12ResourceSet = std::dynamic_pointer_cast<ResourceSetD3D12>(command);
 		GraphicsDeviceD3D12	 *deviceD3D12	   = (GraphicsDeviceD3D12 *)device;
 
-		/* const std::map<std::string, Nexus::Graphics::StorageBufferView> &storageBuffers = d3d12ResourceSet->GetBoundStorageBuffers();
+		const std::map<std::string, Nexus::Graphics::StorageBufferView> &storageBuffers = d3d12ResourceSet->GetBoundStorageBuffers();
 		for (const auto &[name, view] : storageBuffers)
 		{
 			Ref<DeviceBuffer>	   storageBuffer	  = view.BufferHandle;
@@ -203,8 +203,8 @@ namespace Nexus::Graphics
 			deviceD3D12->ResourceBarrierBuffer(m_CommandList.Get(),
 											   d3d12StorageBuffer,
 											   D3D12_RESOURCE_STATE_COPY_DEST,
-											   D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		} */
+											   D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+		}
 
 		std::vector<ID3D12DescriptorHeap *> heaps;
 		if (d3d12ResourceSet->HasSamplerHeap())
@@ -222,8 +222,6 @@ namespace Nexus::Graphics
 
 		m_CommandList->SetDescriptorHeaps(heaps.size(), heaps.data());
 
-		const std::map<std::string, Nexus::Graphics::StorageBufferView> &storageBuffers = d3d12ResourceSet->GetBoundStorageBuffers();
-
 		uint32_t descriptorIndex = 0;
 
 		if (pipelineType == PipelineType::Graphics)
@@ -240,13 +238,11 @@ namespace Nexus::Graphics
 				m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, d3d12ResourceSet->GetTextureConstantBufferStartHandle());
 			}
 
-			d3d12ResourceSet->EnumerateStorageBuffers(
-				[&](uint32_t slot, StorageBufferView storageBuffer)
-				{
-					Ref<DeviceBufferD3D12> buffer		  = std::dynamic_pointer_cast<DeviceBufferD3D12>(storageBuffer.BufferHandle);
-					auto				   resourceHandle = buffer->GetHandle();
-					m_CommandList->SetGraphicsRootShaderResourceView(descriptorIndex++, resourceHandle->GetGPUVirtualAddress());
-				});
+			if (d3d12ResourceSet->GetBoundStorageBuffers().size() > 0)
+			{
+				// m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, d3d12ResourceSet->GetTextureConstantBufferStartHandle());
+				m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, d3d12ResourceSet->GetStorageBufferStartHandle());
+			}
 		}
 
 		else if (pipelineType == PipelineType::Compute)

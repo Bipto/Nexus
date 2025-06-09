@@ -80,8 +80,8 @@ namespace Nexus::Graphics
 			uint32_t	slot			  = ResourceSet::GetLinearDescriptorSlot(storageBufferInfo.Set, storageBufferInfo.Binding);
 
 			D3D12_DESCRIPTOR_RANGE storageBufferRange			 = {};
-			// storageBufferRange.RangeType						 = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
-			storageBufferRange.RangeType						 = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+			storageBufferRange.RangeType						 = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+			// storageBufferRange.RangeType						 = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 			storageBufferRange.BaseShaderRegister				 = slot;
 			storageBufferRange.NumDescriptors					 = 1;
 			storageBufferRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
@@ -144,21 +144,7 @@ namespace Nexus::Graphics
 
 		// storage buffer parameter
 		{
-			/* D3D12_ROOT_DESCRIPTOR_TABLE descriptorTable = {};
-			descriptorTable.NumDescriptorRanges			= storageBufferRanges.size();
-			descriptorTable.pDescriptorRanges			= storageBufferRanges.data();
-
-			D3D12_ROOT_PARAMETER parameter = {};
-			parameter.ParameterType		   = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-			parameter.DescriptorTable	   = descriptorTable;
-			parameter.ShaderVisibility	   = D3D12_SHADER_VISIBILITY_ALL;
-
-			if (storageBufferRanges.size() > 0)
-			{
-				rootParameters.push_back(parameter);
-			} */
-
-			for (size_t i = 0; i < resourceSet.StorageBuffers.size(); i++)
+			/* for (size_t i = 0; i < resourceSet.StorageBuffers.size(); i++)
 			{
 				const Nexus::Graphics::ResourceBinding &storageBuffer = resourceSet.StorageBuffers.at(i);
 				uint32_t								slot = ResourceSet::GetLinearDescriptorSlot(storageBuffer.Set, storageBuffer.Binding);
@@ -169,6 +155,20 @@ namespace Nexus::Graphics
 				parameter.Descriptor.RegisterSpace	= 0;
 				parameter.Descriptor.ShaderRegister = slot;
 
+				rootParameters.push_back(parameter);
+			} */
+
+			D3D12_ROOT_DESCRIPTOR_TABLE descriptorTable = {};
+			descriptorTable.NumDescriptorRanges			= storageBufferRanges.size();
+			descriptorTable.pDescriptorRanges			= storageBufferRanges.data();
+
+			D3D12_ROOT_PARAMETER parameter = {};
+			parameter.ParameterType		   = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+			parameter.DescriptorTable	   = descriptorTable;
+			parameter.ShaderVisibility	   = D3D12_SHADER_VISIBILITY_ALL;
+
+			if (storageBufferRanges.size() > 0)
+			{
 				rootParameters.push_back(parameter);
 			}
 		}

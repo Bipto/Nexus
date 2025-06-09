@@ -68,9 +68,8 @@ namespace Demos
 
 			Nexus::Graphics::StorageBufferView storageBufferView = {};
 			storageBufferView.BufferHandle						 = m_StorageBuffer;
-			storageBufferView.StrideInBytes						 = sizeof(glm::mat4);
-			storageBufferView.FirstElement						 = 0;
-			storageBufferView.NumberOfElements					 = 1;
+			storageBufferView.Offset							 = 0;
+			storageBufferView.SizeInBytes						 = sizeof(glm::mat4);
 			storageBufferView.Access							 = Nexus::Graphics::ShaderAccess::Read;
 			m_ResourceSet->WriteStorageBuffer(storageBufferView, "TransformBuffer");
 

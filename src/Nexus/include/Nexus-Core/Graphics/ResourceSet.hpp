@@ -82,9 +82,8 @@ namespace Nexus::Graphics
 	struct StorageBufferView
 	{
 		Ref<DeviceBuffer> BufferHandle	   = nullptr;
-		size_t			  StrideInBytes	   = 0;
-		size_t			  FirstElement	   = 0;
-		size_t			  NumberOfElements = 0;
+		size_t			  Offset		   = 0;
+		size_t			  SizeInBytes	   = 0;
 		ShaderAccess	  Access		   = ShaderAccess::Read;
 	};
 

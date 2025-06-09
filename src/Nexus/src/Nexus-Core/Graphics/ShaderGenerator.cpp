@@ -306,7 +306,7 @@ namespace Nexus::Graphics
 				// modern HLSL
 				hlslOptions.shader_model						  = 50;
 				hlslOptions.flatten_matrix_vertex_input_semantics = true;
-				// hlslOptions.force_storage_buffer_as_uav			  = true;
+				hlslOptions.force_storage_buffer_as_uav			  = true;
 				compiler.set_hlsl_options(hlslOptions);
 				GetShaderInfo(compiler, output.InputAttributes, output.OutputAttributes);
 				CreateResourceSetSpecification(compiler, resources);

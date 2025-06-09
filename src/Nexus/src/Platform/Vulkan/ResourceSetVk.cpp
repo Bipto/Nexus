@@ -200,8 +200,8 @@ namespace Nexus::Graphics
 
 			VkDescriptorBufferInfo bufferInfo = {};
 			bufferInfo.buffer				  = storageBufferVk->GetVkBuffer();
-			bufferInfo.offset				  = storageBuffer.FirstElement * storageBuffer.StrideInBytes;
-			bufferInfo.range				  = storageBuffer.NumberOfElements * storageBuffer.StrideInBytes;
+			bufferInfo.offset				  = storageBuffer.Offset;
+			bufferInfo.range				  = storageBuffer.SizeInBytes;
 
 			VkWriteDescriptorSet uniformBufferToWrite = {};
 			uniformBufferToWrite.sType				  = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;

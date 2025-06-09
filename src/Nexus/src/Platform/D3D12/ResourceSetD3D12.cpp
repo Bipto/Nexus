@@ -18,7 +18,7 @@ namespace Nexus::Graphics
 		size_t constantBufferCount = spec.UniformBuffers.size();
 		size_t storageImageCount   = spec.StorageImages.size();
 		size_t storageBufferCount  = spec.StorageBuffers.size();
-		size_t viewCount		   = spec.SampledImages.size() + spec.UniformBuffers.size() + spec.StorageImages.size();
+		size_t viewCount		   = spec.SampledImages.size() + spec.UniformBuffers.size() + spec.StorageImages.size() + spec.StorageBuffers.size();
 
 		if (samplerCount > 0)
 		{
@@ -58,6 +58,14 @@ namespace Nexus::Graphics
 
 			auto cpuLocation = m_TextureConstantBufferDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 			auto gpuLocation = m_TextureConstantBufferDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+
+			if (spec.StorageBuffers.size() > 0)
+			{
+				size_t offsetAmount					 = spec.SampledImages.size() + spec.UniformBuffers.size() + spec.StorageImages.size();
+				m_StorageBufferDescriptorStartHandle = m_TextureConstantBufferDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+				m_StorageBufferDescriptorStartHandle.ptr +=
+					offsetAmount * d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+			}
 
 			// create texture handles
 			{
@@ -105,7 +113,7 @@ namespace Nexus::Graphics
 			}
 
 			// create storage buffer handles
-			/* {
+			{
 				for (size_t i = 0; i < spec.StorageBuffers.size(); i++)
 				{
 					const auto	  &storageBufferInfo = spec.StorageBuffers.at(i);
@@ -117,7 +125,7 @@ namespace Nexus::Graphics
 					cpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 					gpuLocation.ptr += d3d12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 				}
-			} */
+			}
 		}
 	}
 
@@ -130,18 +138,18 @@ namespace Nexus::Graphics
 		{
 			NX_ASSERT(d3d12StorageBuffer->CheckUsage(Graphics::BufferUsage::Storage), "Attempting to bind a buffer that is not a storage buffer");
 
-			/* D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+			D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
 			uavDesc.ViewDimension					 = D3D12_UAV_DIMENSION_BUFFER;
-			uavDesc.Format							 = DXGI_FORMAT_UNKNOWN;
-			uavDesc.Buffer.FirstElement				 = storageBuffer.FirstElement;
-			uavDesc.Buffer.NumElements				 = storageBuffer.NumberOfElements;
-			uavDesc.Buffer.StructureByteStride		 = storageBuffer.StrideInBytes;
+			uavDesc.Format							 = DXGI_FORMAT_R32_TYPELESS;
+			uavDesc.Buffer.FirstElement				 = storageBuffer.Offset;
+			uavDesc.Buffer.NumElements				 = storageBuffer.SizeInBytes;
+			uavDesc.Buffer.StructureByteStride		 = 0;
 			uavDesc.Buffer.CounterOffsetInBytes		 = 0;
-			uavDesc.Buffer.Flags					 = D3D12_BUFFER_UAV_FLAG_NONE;
+			uavDesc.Buffer.Flags					 = D3D12_BUFFER_UAV_FLAG_RAW;
 
 			auto						resourceHandle = d3d12StorageBuffer->GetHandle();
 			D3D12_CPU_DESCRIPTOR_HANDLE uavHandle	   = m_StorageBufferCPUDescriptors.at(index);
-			d3d12Device->CreateUnorderedAccessView(resourceHandle.Get(), nullptr, &uavDesc, uavHandle); */
+			d3d12Device->CreateUnorderedAccessView(resourceHandle.Get(), nullptr, &uavDesc, uavHandle);
 
 			m_BoundStorageBuffers[name] = storageBuffer;
 		}
@@ -272,6 +280,11 @@ namespace Nexus::Graphics
 	const D3D12_GPU_DESCRIPTOR_HANDLE ResourceSetD3D12::GetTextureConstantBufferStartHandle() const
 	{
 		return m_TextureConstantBufferDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+	}
+
+	const D3D12_GPU_DESCRIPTOR_HANDLE ResourceSetD3D12::GetStorageBufferStartHandle() const
+	{
+		return m_StorageBufferDescriptorStartHandle;
 	}
 
 	void ResourceSetD3D12::EnumerateStorageBuffers(std::function<void(uint32_t, StorageBufferView)> func)
