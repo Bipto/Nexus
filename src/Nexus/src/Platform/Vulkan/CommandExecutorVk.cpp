@@ -12,6 +12,7 @@ namespace Nexus::Graphics
 {
 	CommandExecutorVk::CommandExecutorVk(GraphicsDeviceVk *device) : m_Device(device)
 	{
+		m_vkCmdBindIndexBuffer2KHR = (PFN_vkCmdBindIndexBuffer2KHR)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdBindIndexBuffer2KHR");
 	}
 
 	CommandExecutorVk::~CommandExecutorVk()
@@ -91,7 +92,16 @@ namespace Nexus::Graphics
 		VkBuffer		indexBufferHandle = indexBufferVk->GetVkBuffer();
 		VkIndexType		indexType		  = Vk::GetVulkanIndexBufferFormat(command.View.BufferFormat);
 		VkDeviceSize		offset			  = command.View.Offset;
-		vkCmdBindIndexBuffer(m_CommandBuffer, indexBufferHandle, offset, indexType);
+		VkDeviceSize		size			  = command.View.Size;
+
+		if (m_vkCmdBindIndexBuffer2KHR)
+		{
+			m_vkCmdBindIndexBuffer2KHR(m_CommandBuffer, indexBufferHandle, offset, size, indexType);
+		}
+		else
+		{
+			vkCmdBindIndexBuffer(m_CommandBuffer, indexBufferHandle, offset, indexType);
+		}
 	}
 
 	void CommandExecutorVk::ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device)

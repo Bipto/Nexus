@@ -600,6 +600,7 @@ namespace Nexus::Graphics
 		extensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 		extensions.push_back(VK_EXT_VERTEX_ATTRIBUTE_DIVISOR_EXTENSION_NAME);
 		extensions.push_back(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME);
+		extensions.push_back(VK_KHR_MAINTENANCE_5_EXTENSION_NAME);
 		return extensions;
 	}
 

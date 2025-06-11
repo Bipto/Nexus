@@ -65,6 +65,8 @@ namespace Nexus::Graphics
 		RenderTarget m_CurrentRenderTarget;
 
 		VkCommandBuffer m_CommandBuffer = nullptr;
+
+		PFN_vkCmdBindIndexBuffer2KHR m_vkCmdBindIndexBuffer2KHR = VK_NULL_HANDLE;
 	};
 }	 // namespace Nexus::Graphics
 
