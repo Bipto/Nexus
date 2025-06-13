@@ -99,7 +99,11 @@ namespace Demos
 			indexBufferView.BufferFormat					 = Nexus::Graphics::IndexBufferFormat::UInt32;
 			m_CommandList->SetIndexBuffer(indexBufferView);
 
-			m_CommandList->DrawIndexedIndirect(m_IndirectBuffer, 0, 1);
+			Nexus::Graphics::DrawIndirectIndexedDescription drawDesc = {};
+			drawDesc.IndirectBuffer									 = m_IndirectBuffer;
+			drawDesc.Offset											 = 0;
+			drawDesc.DrawCount										 = 1;
+			m_CommandList->DrawIndexedIndirect(drawDesc);
 
 			m_CommandList->End();
 

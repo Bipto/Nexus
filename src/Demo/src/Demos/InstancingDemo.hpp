@@ -136,7 +136,14 @@ namespace Demos
 				m_CommandList->SetIndexBuffer(indexBufferView);
 
 				auto indexCount = m_CubeMesh->GetIndexBuffer()->GetCount();
-				m_CommandList->DrawIndexed(indexCount, m_InstanceCount, 0, 0, 0);
+
+				Nexus::Graphics::DrawIndexedDescription drawDesc = {};
+				drawDesc.VertexStart							 = 0;
+				drawDesc.IndexStart								 = 0;
+				drawDesc.InstanceStart							 = 0;
+				drawDesc.IndexCount								 = indexCount;
+				drawDesc.InstanceCount							 = 1;
+				m_CommandList->DrawIndexed(drawDesc);
 			}
 
 			m_CommandList->End();

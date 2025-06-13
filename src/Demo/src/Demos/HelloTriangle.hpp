@@ -69,7 +69,14 @@ namespace Demos
 			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
 			auto vertexCount = m_VertexBuffer->GetCount();
-			m_CommandList->Draw(vertexCount, 1, 0, 0);
+
+			Nexus::Graphics::DrawDescription drawDesc = {};
+			drawDesc.VertexStart					  = 0;
+			drawDesc.InstanceStart					  = 0;
+			drawDesc.VertexCount					  = vertexCount;
+			drawDesc.InstanceCount					  = 1;
+			m_CommandList->Draw(drawDesc);
+
 			m_CommandList->End();
 
 			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);

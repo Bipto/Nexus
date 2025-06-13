@@ -69,7 +69,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(pipeline);
 	}
 
-	void CommandList::Draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t instanceStart)
+	void CommandList::Draw(const DrawDescription &desc)
 	{
 		if (!m_Started)
 		{
@@ -78,15 +78,10 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		DrawCommand command;
-		command.VertexCount	  = vertexCount;
-		command.InstanceCount = instanceCount;
-		command.VertexStart	  = vertexStart;
-		command.InstanceStart = instanceStart;
-		m_Commands.push_back(command);
+		m_Commands.push_back(desc);
 	}
 
-	void CommandList::DrawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t indexStart, uint32_t instanceStart)
+	void CommandList::DrawIndexed(const DrawIndexedDescription &desc)
 	{
 		if (!m_Started)
 		{
@@ -95,16 +90,10 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		DrawIndexedCommand command;
-		command.IndexCount	  = indexCount;
-		command.InstanceCount = instanceCount;
-		command.VertexStart	  = vertexStart;
-		command.IndexStart	  = indexStart;
-		command.InstanceStart = instanceStart;
-		m_Commands.push_back(command);
+		m_Commands.push_back(desc);
 	}
 
-	void CommandList::DrawIndirect(Ref<DeviceBuffer> indirectBuffer, uint32_t offset, uint32_t drawCount)
+	void CommandList::DrawIndirect(const DrawIndirectDescription &desc)
 	{
 		if (!m_Started)
 		{
@@ -113,14 +102,10 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		DrawIndirectCommand command;
-		command.IndirectBuffer = indirectBuffer;
-		command.Offset		   = offset;
-		command.DrawCount	   = drawCount;
-		m_Commands.push_back(command);
+		m_Commands.push_back(desc);
 	}
 
-	void CommandList::DrawIndexedIndirect(Ref<DeviceBuffer> indirectBuffer, uint32_t offset, uint32_t drawCount)
+	void CommandList::DrawIndexedIndirect(const DrawIndirectIndexedDescription &desc)
 	{
 		if (!m_Started)
 		{
@@ -129,14 +114,10 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		DrawIndirectIndexedCommand command;
-		command.IndirectBuffer = indirectBuffer;
-		command.Offset		   = offset;
-		command.DrawCount	   = drawCount;
-		m_Commands.push_back(command);
+		m_Commands.push_back(desc);
 	}
 
-	void CommandList::Dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ)
+	void CommandList::Dispatch(const DispatchDescription &desc)
 	{
 		if (!m_Started)
 		{
@@ -145,14 +126,10 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		DispatchCommand command;
-		command.WorkGroupCountX = groupCountX;
-		command.WorkGroupCountY = groupCountY;
-		command.WorkGroupCountZ = groupCountZ;
-		m_Commands.push_back(command);
+		m_Commands.push_back(desc);
 	}
 
-	void CommandList::DispatchIndirect(Ref<DeviceBuffer> indirectBuffer, uint32_t offset)
+	void CommandList::DispatchIndirect(const DispatchIndirectDescription &desc)
 	{
 		if (!m_Started)
 		{
@@ -161,10 +138,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		DispatchIndirectCommand command;
-		command.IndirectBuffer = indirectBuffer;
-		command.Offset		   = offset;
-		m_Commands.push_back(command);
+		m_Commands.push_back(desc);
 	}
 
 	void CommandList::SetResourceSet(Ref<ResourceSet> resources)
@@ -365,11 +339,6 @@ namespace Nexus::Graphics
 		command.B = b;
 		command.A = a;
 		m_Commands.push_back(command);
-	}
-
-	void CommandList::Barrier(const BarrierDesc &barrier)
-	{
-		m_Commands.push_back(barrier);
 	}
 
 	void CommandList::CopyBufferToBuffer(const BufferCopyDescription &bufferCopy)

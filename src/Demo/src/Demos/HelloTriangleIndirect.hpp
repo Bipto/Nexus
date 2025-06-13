@@ -82,7 +82,12 @@ namespace Demos
 			vertexBufferView.Size							   = m_VertexBuffer->GetSizeInBytes();
 			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
-			m_CommandList->DrawIndirect(m_IndirectBuffer, 0, 1);
+			Nexus::Graphics::DrawIndirectDescription drawDesc = {};
+			drawDesc.IndirectBuffer							  = m_IndirectBuffer;
+			drawDesc.Offset									  = 0;
+			drawDesc.DrawCount								  = 1;
+			m_CommandList->DrawIndirect(drawDesc);
+
 			m_CommandList->End();
 
 			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);

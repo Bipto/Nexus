@@ -219,28 +219,14 @@ namespace Nexus::Graphics
 			commandList->SetIndexBuffer(indexBufferView);
 
 			auto indexCount = cube->GetIndexBuffer()->GetCount();
-			commandList->DrawIndexed(indexCount, 1, 0, 0, 0);
 
-			/* Ref<Texture> colourTexture = framebuffer->GetColorTexture(0);
-
-			Graphics::TextureCopyDescription copyDesc = {};
-			copyDesc.Source							  = colourTexture.get();
-			copyDesc.SourceSubresource.X			  = 0;
-			copyDesc.SourceSubresource.Y			  = 0;
-			copyDesc.SourceSubresource.Z			  = i;
-			copyDesc.SourceSubresource.Width		  = size;
-			copyDesc.SourceSubresource.Height		  = size;
-			copyDesc.SourceSubresource.Depth		  = 1;
-			copyDesc.SourceSubresource.Aspect		  = Graphics::ImageAspect::Colour;
-			copyDesc.Destination					  = cubemap.get();
-			copyDesc.DestinationSubresource.X		  = 0;
-			copyDesc.DestinationSubresource.Y		  = 0;
-			copyDesc.DestinationSubresource.Z		  = i;
-			copyDesc.DestinationSubresource.Width	  = size;
-			copyDesc.DestinationSubresource.Height	  = size;
-			copyDesc.DestinationSubresource.Depth	  = 1;
-			copyDesc.DestinationSubresource.Aspect	  = Graphics::ImageAspect::Colour;
-			commandList->CopyTextureToTexture(copyDesc); */
+			Nexus::Graphics::DrawIndexedDescription drawDesc = {};
+			drawDesc.VertexStart							 = 0;
+			drawDesc.IndexStart								 = 0;
+			drawDesc.InstanceStart							 = 0;
+			drawDesc.IndexCount								 = indexCount;
+			drawDesc.InstanceCount							 = 1;
+			commandList->DrawIndexed(drawDesc);
 
 			commandList->End();
 			m_Device->SubmitCommandLists(&commandList, 1, nullptr);
