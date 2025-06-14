@@ -369,6 +369,26 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
+	void CommandList::BeginDebugGroup(const std::string &name)
+	{
+		BeginDebugGroupCommand command;
+		command.GroupName = name;
+		m_Commands.push_back(command);
+	}
+
+	void CommandList::EndDebugGroup()
+	{
+		EndDebugGroupCommand command;
+		m_Commands.push_back(command);
+	}
+
+	void CommandList::InsertDebugMarker(const std::string &name)
+	{
+		InsertDebugMarkerCommand command;
+		command.MarkerName = name;
+		m_Commands.push_back(command);
+	}
+
 	const std::vector<RenderCommandData> &CommandList::GetCommandData() const
 	{
 		return m_Commands;

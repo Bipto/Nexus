@@ -13,6 +13,9 @@ namespace Nexus::Graphics
 	CommandExecutorVk::CommandExecutorVk(GraphicsDeviceVk *device) : m_Device(device)
 	{
 		m_vkCmdBindIndexBuffer2KHR = (PFN_vkCmdBindIndexBuffer2KHR)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdBindIndexBuffer2KHR");
+		m_vkCmdDebugMarkerBeginEXT	= (PFN_vkCmdDebugMarkerBeginEXT)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdDebugMarkerBeginEXT");
+		m_vkCmdDebugMarkerEndEXT	= (PFN_vkCmdDebugMarkerEndEXT)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdDebugMarkerEndEXT");
+		m_vkCmdDebugMarkerInsertEXT = (PFN_vkCmdDebugMarkerInsertEXT)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdDebugMarkerInsertEXT");
 	}
 
 	CommandExecutorVk::~CommandExecutorVk()
@@ -667,6 +670,42 @@ namespace Nexus::Graphics
 												  layout,
 												  dstAspect);
 		}
+	}
+
+	void CommandExecutorVk::ExecuteCommand(BeginDebugGroupCommand command, GraphicsDevice *device)
+	{
+		if (!m_vkCmdDebugMarkerBeginEXT)
+		{
+			return;
+		}
+
+		VkDebugMarkerMarkerInfoEXT markerInfo = {};
+		markerInfo.sType					  = VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT;
+		markerInfo.pMarkerName				  = command.GroupName.c_str();
+		m_vkCmdDebugMarkerBeginEXT(m_CommandBuffer, &markerInfo);
+	}
+
+	void CommandExecutorVk::ExecuteCommand(EndDebugGroupCommand command, GraphicsDevice *device)
+	{
+		if (!m_vkCmdDebugMarkerEndEXT)
+		{
+			return;
+		}
+
+		m_vkCmdDebugMarkerEndEXT(m_CommandBuffer);
+	}
+
+	void CommandExecutorVk::ExecuteCommand(InsertDebugMarkerCommand command, GraphicsDevice *device)
+	{
+		if (!m_vkCmdDebugMarkerInsertEXT)
+		{
+			return;
+		}
+
+		VkDebugMarkerMarkerInfoEXT markerInfo = {};
+		markerInfo.sType					  = VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT;
+		markerInfo.pMarkerName				  = command.MarkerName.c_str();
+		m_vkCmdDebugMarkerInsertEXT(m_CommandBuffer, &markerInfo);
 	}
 
 	void CommandExecutorVk::StartRenderingToSwapchain(Ref<Swapchain> swapchain)

@@ -44,6 +44,9 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(const CopyTextureToBufferCommand &command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(const CopyTextureToTextureCommand &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(BeginDebugGroupCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(EndDebugGroupCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(InsertDebugMarkerCommand command, GraphicsDevice *device) override;
 
 		void BindResourceSet(Ref<ResourceSetOpenGL> resourceSet);
 		void ExecuteGraphicsCommand(Ref<GraphicsPipelineOpenGL>									 pipeline,

@@ -690,6 +690,23 @@ namespace Nexus::Graphics
 		}
 	}
 
+	void CommandExecutorD3D12::ExecuteCommand(BeginDebugGroupCommand command, GraphicsDevice *device)
+	{
+		std::wstring groupName = std::wstring(command.GroupName.begin(), command.GroupName.end());
+		m_CommandList->BeginEvent(0, groupName.c_str(), (UINT)groupName.size() * sizeof(wchar_t));
+	}
+
+	void CommandExecutorD3D12::ExecuteCommand(EndDebugGroupCommand command, GraphicsDevice *device)
+	{
+		m_CommandList->EndEvent();
+	}
+
+	void CommandExecutorD3D12::ExecuteCommand(InsertDebugMarkerCommand command, GraphicsDevice *device)
+	{
+		std::wstring markerGroup = std::wstring(command.MarkerName.begin(), command.MarkerName.end());
+		m_CommandList->SetMarker(0, markerGroup.c_str(), (UINT)markerGroup.size() * sizeof(wchar_t));
+	}
+
 	void CommandExecutorD3D12::SetSwapchain(WeakRef<Swapchain> swapchain, GraphicsDevice *device)
 	{
 		if (Ref<Swapchain> sc = swapchain.lock())

@@ -510,6 +510,7 @@ namespace Nexus::ImGuiUtils
 		ImGuiWindowInfo *info = (ImGuiWindowInfo *)drawData->OwnerViewport->PlatformUserData;
 
 		m_CommandList->Begin();
+		m_CommandList->BeginDebugGroup("Rendering ImGui");
 
 		ImVec2 pos = drawData->DisplayPos;
 
@@ -601,6 +602,7 @@ namespace Nexus::ImGuiUtils
 			vtxOffset += cmdList->VtxBuffer.Size;
 		}
 
+		m_CommandList->EndDebugGroup();
 		m_CommandList->End();
 
 		m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);

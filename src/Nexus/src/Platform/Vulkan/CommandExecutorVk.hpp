@@ -46,6 +46,9 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(const CopyTextureToBufferCommand &command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(const CopyTextureToTextureCommand &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(BeginDebugGroupCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(EndDebugGroupCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(InsertDebugMarkerCommand command, GraphicsDevice *device) override;
 
 		void StartRenderingToSwapchain(Ref<Swapchain> swapchain);
 		void StartRenderingToFramebuffer(Ref<Framebuffer> framebuffer);
@@ -66,6 +69,9 @@ namespace Nexus::Graphics
 		VkCommandBuffer m_CommandBuffer = nullptr;
 
 		PFN_vkCmdBindIndexBuffer2KHR m_vkCmdBindIndexBuffer2KHR = VK_NULL_HANDLE;
+		PFN_vkCmdDebugMarkerBeginEXT  m_vkCmdDebugMarkerBeginEXT  = VK_NULL_HANDLE;
+		PFN_vkCmdDebugMarkerEndEXT	  m_vkCmdDebugMarkerEndEXT	  = VK_NULL_HANDLE;
+		PFN_vkCmdDebugMarkerInsertEXT m_vkCmdDebugMarkerInsertEXT = VK_NULL_HANDLE;
 	};
 }	 // namespace Nexus::Graphics
 

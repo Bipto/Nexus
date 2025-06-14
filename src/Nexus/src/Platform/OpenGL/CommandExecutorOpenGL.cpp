@@ -576,6 +576,21 @@ namespace Nexus::Graphics
 		}
 	}
 
+	void CommandExecutorOpenGL::ExecuteCommand(BeginDebugGroupCommand command, GraphicsDevice *device)
+	{
+		glCall(glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 1, -1, command.GroupName.c_str()));
+	}
+
+	void CommandExecutorOpenGL::ExecuteCommand(EndDebugGroupCommand command, GraphicsDevice *device)
+	{
+		glPopDebugGroup();
+	}
+
+	void CommandExecutorOpenGL::ExecuteCommand(InsertDebugMarkerCommand command, GraphicsDevice *device)
+	{
+		glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_MARKER, 0, GL_DEBUG_SEVERITY_NOTIFICATION, -1, command.MarkerName.c_str());
+	}
+
 	void CommandExecutorOpenGL::BindResourceSet(Ref<ResourceSetOpenGL> resourceSet)
 	{
 		Nexus::Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());

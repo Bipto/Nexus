@@ -40,6 +40,8 @@ namespace Demos
 		virtual void Render(Nexus::TimeSpan time) override
 		{
 			m_CommandList->Begin();
+			m_CommandList->BeginDebugGroup("Rendering triangle");
+
 			m_CommandList->SetPipeline(m_Pipeline);
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(Nexus::GetApplication()->GetPrimarySwapchain()));
 
@@ -77,6 +79,7 @@ namespace Demos
 			drawDesc.InstanceCount					  = 1;
 			m_CommandList->Draw(drawDesc);
 
+			m_CommandList->EndDebugGroup();
 			m_CommandList->End();
 
 			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);

@@ -79,6 +79,20 @@ namespace Nexus::Graphics
 		IndexBufferView View = {};
 	};
 
+	struct BeginDebugGroupCommand
+	{
+		std::string GroupName = {};
+	};
+
+	struct EndDebugGroupCommand
+	{
+	};
+
+	struct InsertDebugMarkerCommand
+	{
+		std::string MarkerName = {};
+	};
+
 	/// @brief A struct representing a set of values to use  to clear the colour
 	/// buffer
 	struct ClearColorValue
@@ -253,7 +267,10 @@ namespace Nexus::Graphics
 						 CopyBufferToBufferCommand,
 						 CopyBufferToTextureCommand,
 						 CopyTextureToBufferCommand,
-						 CopyTextureToTextureCommand>
+						 CopyTextureToTextureCommand,
+						 BeginDebugGroupCommand,
+						 EndDebugGroupCommand,
+						 InsertDebugMarkerCommand>
 		RenderCommandData;
 
 	struct CommandListSpecification
@@ -342,6 +359,12 @@ namespace Nexus::Graphics
 		void CopyTextureToBuffer(const BufferTextureCopyDescription &textureBufferCopy);
 
 		void CopyTextureToTexture(const TextureCopyDescription &textureCopy);
+
+		void BeginDebugGroup(const std::string &name);
+
+		void EndDebugGroup();
+
+		void InsertDebugMarker(const std::string &name);
 
 		const std::vector<RenderCommandData> &GetCommandData() const;
 		const CommandListSpecification		 &GetSpecification();
