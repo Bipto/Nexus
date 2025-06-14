@@ -280,7 +280,13 @@ namespace Nexus::Graphics
 			indexBufferView.BufferFormat	  = Graphics::IndexBufferFormat::UInt32;
 			m_CommandList->SetIndexBuffer(indexBufferView);
 
-			m_CommandList->DrawIndexed(m_Cube->GetIndexBuffer()->GetCount(), 1, 0, 0, 0);
+			DrawIndexedDescription drawDesc = {};
+			drawDesc.VertexStart			= 0;
+			drawDesc.IndexStart				= 0;
+			drawDesc.InstanceStart			= 0;
+			drawDesc.IndexCount				= m_Cube->GetIndexBuffer()->GetCount();
+			drawDesc.InstanceCount			= 1;
+			m_CommandList->DrawIndexed(drawDesc);
 		}
 
 		m_CommandList->End();
@@ -382,7 +388,14 @@ namespace Nexus::Graphics
 			indexBufferView.Offset			  = 0;
 			indexBufferView.BufferFormat	  = Graphics::IndexBufferFormat::UInt32;
 			m_CommandList->SetIndexBuffer(indexBufferView);
-			m_CommandList->DrawIndexed(mesh->GetIndexBuffer()->GetCount(), 1, 0, 0, 0);
+
+			DrawIndexedDescription drawDesc = {};
+			drawDesc.VertexStart			= 0;
+			drawDesc.IndexStart				= 0;
+			drawDesc.InstanceStart			= 0;
+			drawDesc.IndexCount				= mesh->GetIndexBuffer()->GetCount();
+			drawDesc.InstanceCount			= 1;
+			m_CommandList->DrawIndexed(drawDesc);
 
 			m_CommandList->End();
 			m_Device->SubmitCommandLists(&m_CommandList, 1, nullptr);
@@ -413,7 +426,13 @@ namespace Nexus::Graphics
 		m_CommandList->SetScissor(scissor);
 
 		m_CommandList->SetPipeline(m_ClearScreenPipeline);
-		m_CommandList->Draw(6, 1, 0, 0);
+
+		DrawDescription drawDesc = {};
+		drawDesc.VertexStart	 = 0;
+		drawDesc.InstanceStart	 = 0;
+		drawDesc.VertexCount	 = 6;
+		drawDesc.InstanceCount	 = 1;
+		m_CommandList->Draw(drawDesc);
 
 		m_CommandList->End();
 		m_Device->SubmitCommandLists(&m_CommandList, 1, nullptr);

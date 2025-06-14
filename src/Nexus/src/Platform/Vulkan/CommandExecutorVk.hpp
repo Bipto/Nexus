@@ -24,12 +24,12 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(SetVertexBufferCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(SetIndexBufferCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(DrawCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(DrawIndexedCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(DrawIndirectCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(DrawIndirectIndexedCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(DispatchCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(DispatchIndirectCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DrawDescription command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DrawIndexedDescription command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DrawIndirectDescription command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DrawIndirectIndexedDescription command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DispatchDescription command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DispatchIndirectDescription command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(ClearColorTargetCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDevice *device) override;
@@ -42,11 +42,13 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(SetStencilRefCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(SetDepthBoundsCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(SetBlendFactorCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(const BarrierDesc &command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(const CopyTextureToBufferCommand &command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(const CopyTextureToTextureCommand &command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(BeginDebugGroupCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(EndDebugGroupCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(InsertDebugMarkerCommand command, GraphicsDevice *device) override;
 
 		void StartRenderingToSwapchain(Ref<Swapchain> swapchain);
 		void StartRenderingToFramebuffer(Ref<Framebuffer> framebuffer);
@@ -65,6 +67,11 @@ namespace Nexus::Graphics
 		RenderTarget m_CurrentRenderTarget;
 
 		VkCommandBuffer m_CommandBuffer = nullptr;
+
+		PFN_vkCmdBindIndexBuffer2KHR m_vkCmdBindIndexBuffer2KHR = VK_NULL_HANDLE;
+		PFN_vkCmdDebugMarkerBeginEXT  m_vkCmdDebugMarkerBeginEXT  = VK_NULL_HANDLE;
+		PFN_vkCmdDebugMarkerEndEXT	  m_vkCmdDebugMarkerEndEXT	  = VK_NULL_HANDLE;
+		PFN_vkCmdDebugMarkerInsertEXT m_vkCmdDebugMarkerInsertEXT = VK_NULL_HANDLE;
 	};
 }	 // namespace Nexus::Graphics
 

@@ -88,7 +88,7 @@ namespace Nexus::Graphics
 		m_CurrentlyBoundPipeline = pipeline;
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(DrawCommand command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(DrawDescription command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
 		{
@@ -98,7 +98,7 @@ namespace Nexus::Graphics
 		m_CommandList->DrawInstanced(command.VertexCount, command.InstanceCount, command.VertexStart, command.InstanceStart);
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(DrawIndexedCommand command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(DrawIndexedDescription command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
 		{
@@ -112,7 +112,7 @@ namespace Nexus::Graphics
 											command.InstanceStart);
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(DrawIndirectCommand command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(DrawIndirectDescription command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
 		{
@@ -131,7 +131,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(DrawIndirectIndexedCommand command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(DrawIndirectIndexedDescription command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
 		{
@@ -157,7 +157,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(DispatchCommand command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(DispatchDescription command, GraphicsDevice *device)
 	{
 		if (!ValidateForComputeCall(m_CurrentlyBoundPipeline))
 		{
@@ -167,7 +167,7 @@ namespace Nexus::Graphics
 		m_CommandList->Dispatch(command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(DispatchIndirectCommand command, GraphicsDevice *device)
+	void CommandExecutorD3D12::ExecuteCommand(DispatchIndirectDescription command, GraphicsDevice *device)
 	{
 		if (!ValidateForComputeCall(m_CurrentlyBoundPipeline))
 		{
@@ -192,6 +192,19 @@ namespace Nexus::Graphics
 		Nexus::Graphics::PipelineType pipelineType = m_CurrentlyBoundPipeline.value()->GetType();
 
 		Ref<ResourceSetD3D12> d3d12ResourceSet = std::dynamic_pointer_cast<ResourceSetD3D12>(command);
+		GraphicsDeviceD3D12	 *deviceD3D12	   = (GraphicsDeviceD3D12 *)device;
+
+		const std::map<std::string, Nexus::Graphics::StorageBufferView> &storageBuffers = d3d12ResourceSet->GetBoundStorageBuffers();
+		for (const auto &[name, view] : storageBuffers)
+		{
+			Ref<DeviceBuffer>	   storageBuffer	  = view.BufferHandle;
+			Ref<DeviceBufferD3D12> d3d12StorageBuffer = std::dynamic_pointer_cast<DeviceBufferD3D12>(storageBuffer);
+			auto				   resourceHandle	  = d3d12StorageBuffer->GetHandle();
+			deviceD3D12->ResourceBarrierBuffer(m_CommandList.Get(),
+											   d3d12StorageBuffer,
+											   D3D12_RESOURCE_STATE_COPY_DEST,
+											   D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+		}
 
 		std::vector<ID3D12DescriptorHeap *> heaps;
 		if (d3d12ResourceSet->HasSamplerHeap())
@@ -224,7 +237,14 @@ namespace Nexus::Graphics
 			{
 				m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, d3d12ResourceSet->GetTextureConstantBufferStartHandle());
 			}
+
+			if (d3d12ResourceSet->GetBoundStorageBuffers().size() > 0)
+			{
+				// m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, d3d12ResourceSet->GetTextureConstantBufferStartHandle());
+				m_CommandList->SetGraphicsRootDescriptorTable(descriptorIndex++, d3d12ResourceSet->GetStorageBufferStartHandle());
+			}
 		}
+
 		else if (pipelineType == PipelineType::Compute)
 		{
 			// bind samplers
@@ -254,8 +274,24 @@ namespace Nexus::Graphics
 
 		float clearColor[] = {command.Color.Red, command.Color.Green, command.Color.Blue, command.Color.Alpha};
 
-		auto handle = m_DescriptorHandles[command.Index];
-		m_CommandList->ClearRenderTargetView(handle, clearColor, 0, nullptr);
+		if (command.Rect.has_value())
+		{
+			Graphics::ClearRect rect = command.Rect.value();
+
+			D3D12_RECT d3d12Rect = {};
+			d3d12Rect.left		 = rect.X;
+			d3d12Rect.top		 = rect.Y;
+			d3d12Rect.right		 = rect.X + rect.Width;
+			d3d12Rect.bottom	 = rect.Y + rect.Height;
+
+			auto handle = m_DescriptorHandles[command.Index];
+			m_CommandList->ClearRenderTargetView(handle, clearColor, 1, &d3d12Rect);
+		}
+		else
+		{
+			auto handle = m_DescriptorHandles[command.Index];
+			m_CommandList->ClearRenderTargetView(handle, clearColor, 0, nullptr);
+		}
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDevice *device)
@@ -269,7 +305,21 @@ namespace Nexus::Graphics
 		{
 			D3D12_CLEAR_FLAGS clearFlags = D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL;
 
-			m_CommandList->ClearDepthStencilView(m_DepthHandle, clearFlags, command.Value.Depth, command.Value.Stencil, 0, nullptr);
+			if (command.Rect.has_value())
+			{
+				Graphics::ClearRect rect = command.Rect.value();
+
+				D3D12_RECT d3d12Rect = {};
+				d3d12Rect.left		 = rect.X;
+				d3d12Rect.top		 = rect.Y;
+				d3d12Rect.right		 = rect.X + rect.Width;
+				d3d12Rect.bottom	 = rect.Y + rect.Height;
+				m_CommandList->ClearDepthStencilView(m_DepthHandle, clearFlags, command.Value.Depth, command.Value.Stencil, 1, &d3d12Rect);
+			}
+			else
+			{
+				m_CommandList->ClearDepthStencilView(m_DepthHandle, clearFlags, command.Value.Depth, command.Value.Stencil, 0, nullptr);
+			}
 		}
 	}
 
@@ -419,120 +469,6 @@ namespace Nexus::Graphics
 
 		const float blends[] = {command.R, command.G, command.B, command.A};
 		m_CommandList->OMSetBlendFactor(blends);
-	}
-
-	void CommandExecutorD3D12::ExecuteCommand(const BarrierDesc &command, GraphicsDevice *device)
-	{
-		std::vector<D3D12_GLOBAL_BARRIER>  globalBarriers;
-		std::vector<D3D12_TEXTURE_BARRIER> textureBarriers;
-		std::vector<D3D12_BUFFER_BARRIER>  bufferBarriers;
-		std::vector<D3D12_BARRIER_GROUP>   barrierGroups;
-
-		for (const auto &memoryBarrier : command.MemoryBarriers)
-		{
-			D3D12_BARRIER_SYNC	 syncBefore	  = D3D12::GetBarrierSyncType(memoryBarrier.BeforeStage);
-			D3D12_BARRIER_SYNC	 syncAfter	  = D3D12::GetBarrierSyncType(memoryBarrier.AfterStage);
-			D3D12_BARRIER_ACCESS accessBefore = D3D12::GetBarrierAccessType(memoryBarrier.BeforeAccess);
-			D3D12_BARRIER_ACCESS accessAfter  = D3D12::GetBarrierAccessType(memoryBarrier.AfterAccess);
-
-			D3D12_GLOBAL_BARRIER barrier = {};
-			barrier.SyncBefore			 = syncBefore;
-			barrier.SyncAfter			 = syncAfter;
-			barrier.AccessBefore		 = accessBefore;
-			barrier.AccessAfter			 = accessAfter;
-
-			globalBarriers.push_back(barrier);
-		}
-
-		for (const auto &textureBarrier : command.TextureBarriers)
-		{
-			TextureD3D12								  *texture		  = (TextureD3D12 *)textureBarrier.Texture;
-			const Microsoft::WRL::ComPtr<ID3D12Resource2> &resourceHandle = texture->GetHandle();
-
-			D3D12_BARRIER_SYNC	 syncBefore	  = D3D12::GetBarrierSyncType(textureBarrier.BeforeStage);
-			D3D12_BARRIER_SYNC	 syncAfter	  = D3D12::GetBarrierSyncType(textureBarrier.AfterStage);
-			D3D12_BARRIER_ACCESS accessBefore = D3D12::GetBarrierAccessType(textureBarrier.BeforeAccess);
-			D3D12_BARRIER_ACCESS accessAfter  = D3D12::GetBarrierAccessType(textureBarrier.AfterAccess);
-			D3D12_BARRIER_LAYOUT layoutBefore = D3D12::GetBarrierLayout(textureBarrier.BeforeLayout);
-			D3D12_BARRIER_LAYOUT layoutAfter  = D3D12::GetBarrierLayout(textureBarrier.AfterLayout);
-
-			D3D12_FEATURE_DATA_FORMAT_INFO formatInfo = {};
-			formatInfo.Format						  = D3D12::GetD3D12PixelFormat(texture->GetSpecification().Format, texture->IsDepth());
-
-			HRESULT hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_FORMAT_INFO, &formatInfo, sizeof(formatInfo));
-			if (FAILED(hr))
-			{
-				throw std::runtime_error("Failed to find info about format");
-			}
-
-			D3D12_TEXTURE_BARRIER barrier			  = {};
-			barrier.SyncBefore						  = syncBefore;
-			barrier.SyncAfter						  = syncAfter;
-			barrier.LayoutBefore					  = layoutBefore;
-			barrier.LayoutAfter						  = layoutAfter;
-			barrier.AccessBefore					  = accessBefore;
-			barrier.AccessAfter						  = accessAfter;
-			barrier.pResource						  = resourceHandle.Get();
-			barrier.Subresources.IndexOrFirstMipLevel = textureBarrier.SubresourceRange.BaseMipLayer;
-			barrier.Subresources.NumMipLevels		  = textureBarrier.SubresourceRange.MipLayerCount;
-			barrier.Subresources.FirstArraySlice	  = textureBarrier.SubresourceRange.BaseArrayLayer;
-			barrier.Subresources.NumArraySlices		  = textureBarrier.SubresourceRange.ArrayLayerCount;
-			barrier.Subresources.FirstPlane			  = 0;
-			barrier.Subresources.NumPlanes			  = formatInfo.PlaneCount;
-
-			textureBarriers.push_back(barrier);
-		}
-
-		for (const auto &bufferBarrier : command.BufferBarriers)
-		{
-			DeviceBufferD3D12							  *buffer		  = (DeviceBufferD3D12 *)bufferBarrier.Buffer;
-			const Microsoft::WRL::ComPtr<ID3D12Resource2> &resourceHandle = buffer->GetHandle();
-
-			D3D12_BARRIER_SYNC	 syncBefore	  = D3D12::GetBarrierSyncType(bufferBarrier.BeforeStage);
-			D3D12_BARRIER_SYNC	 syncAfter	  = D3D12::GetBarrierSyncType(bufferBarrier.AfterStage);
-			D3D12_BARRIER_ACCESS accessBefore = D3D12::GetBarrierAccessType(bufferBarrier.BeforeAccess);
-			D3D12_BARRIER_ACCESS accessAfter  = D3D12::GetBarrierAccessType(bufferBarrier.AfterAccess);
-
-			D3D12_BUFFER_BARRIER barrier = {};
-			barrier.SyncBefore			 = syncBefore;
-			barrier.SyncAfter			 = syncAfter;
-			barrier.AccessBefore		 = accessBefore;
-			barrier.AccessAfter			 = accessAfter;
-			barrier.pResource			 = resourceHandle.Get();
-			barrier.Offset				 = 0;
-			barrier.Size				 = buffer->GetDescription().SizeInBytes;
-
-			bufferBarriers.push_back(barrier);
-		}
-
-		if (globalBarriers.size() > 0)
-		{
-			D3D12_BARRIER_GROUP globalBarrierGroup = {};
-			globalBarrierGroup.Type				   = D3D12_BARRIER_TYPE_GLOBAL;
-			globalBarrierGroup.NumBarriers		   = (uint32_t)globalBarriers.size();
-			globalBarrierGroup.pGlobalBarriers	   = globalBarriers.data();
-			barrierGroups.push_back(globalBarrierGroup);
-		}
-
-		if (textureBarriers.size() > 0)
-		{
-			D3D12_BARRIER_GROUP textureBarrierGroup = {};
-			textureBarrierGroup.Type				= D3D12_BARRIER_TYPE_TEXTURE;
-			textureBarrierGroup.NumBarriers			= (uint32_t)textureBarriers.size();
-			textureBarrierGroup.pTextureBarriers	= textureBarriers.data();
-			barrierGroups.push_back(textureBarrierGroup);
-		}
-
-		if (bufferBarriers.size() > 0)
-		{
-			D3D12_BARRIER_GROUP bufferBarrierGroup = {};
-			bufferBarrierGroup.Type				   = D3D12_BARRIER_TYPE_BUFFER;
-			bufferBarrierGroup.NumBarriers		   = (uint32_t)bufferBarriers.size();
-			bufferBarrierGroup.pBufferBarriers	   = bufferBarriers.data();
-			barrierGroups.push_back(bufferBarrierGroup);
-		}
-
-		m_CommandList->Barrier((uint32_t)barrierGroups.size(), barrierGroups.data());
 	}
 
 	void CommandExecutorD3D12::ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device)
@@ -752,6 +688,23 @@ namespace Nexus::Graphics
 
 			m_CommandList->ResourceBarrier(2, barriers);
 		}
+	}
+
+	void CommandExecutorD3D12::ExecuteCommand(BeginDebugGroupCommand command, GraphicsDevice *device)
+	{
+		std::wstring groupName = std::wstring(command.GroupName.begin(), command.GroupName.end());
+		m_CommandList->BeginEvent(0, groupName.c_str(), (UINT)groupName.size() * sizeof(wchar_t));
+	}
+
+	void CommandExecutorD3D12::ExecuteCommand(EndDebugGroupCommand command, GraphicsDevice *device)
+	{
+		m_CommandList->EndEvent();
+	}
+
+	void CommandExecutorD3D12::ExecuteCommand(InsertDebugMarkerCommand command, GraphicsDevice *device)
+	{
+		std::wstring markerGroup = std::wstring(command.MarkerName.begin(), command.MarkerName.end());
+		m_CommandList->SetMarker(0, markerGroup.c_str(), (UINT)markerGroup.size() * sizeof(wchar_t));
 	}
 
 	void CommandExecutorD3D12::SetSwapchain(WeakRef<Swapchain> swapchain, GraphicsDevice *device)

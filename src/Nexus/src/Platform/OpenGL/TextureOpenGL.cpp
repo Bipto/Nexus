@@ -35,6 +35,7 @@ namespace Nexus::Graphics
 
 		glCall(glGenTextures(1, &m_Handle));
 		glCall(glBindTexture(m_TextureType, m_Handle));
+		glCall(glPixelStorei(GL_PACK_ALIGNMENT, 1));
 		glCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
 		glCall(glTexParameteri(m_TextureType, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
 		glCall(glTexParameteri(m_TextureType, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
@@ -43,7 +44,7 @@ namespace Nexus::Graphics
 
 	TextureOpenGL::~TextureOpenGL()
 	{
-		glCall(glDeleteTextures(1, &m_Handle));
+		glDeleteTextures(1, &m_Handle);
 	}
 
 	void TextureOpenGL::Bind(uint32_t slot)
@@ -78,14 +79,19 @@ namespace Nexus::Graphics
 		switch (m_GLInternalTextureFormat)
 		{
 			case GL::GLInternalTextureFormat::Texture1D:
+	#if !defined(__EMSCRIPTEN__)
 				glCall(glTexStorage1D(m_TextureType, m_Specification.MipLevels, m_InternalFormat, m_Specification.Width));
 				break;
+	#else
+				throw std::runtime_error("1D textures are not supported by WebGL");
+	#endif
 			case GL::GLInternalTextureFormat::Texture1DArray:
 			case GL::GLInternalTextureFormat::Texture2D:
 			case GL::GLInternalTextureFormat::Cubemap:
 				glCall(glTexStorage2D(m_TextureType, m_Specification.MipLevels, m_InternalFormat, m_Specification.Width, m_Specification.Height));
 				break;
 			case GL::GLInternalTextureFormat::Texture2DMultisample:
+	#if !defined(__EMSCRIPTEN__)
 				glCall(glTexStorage2DMultisample(m_TextureType,
 												 m_Specification.Samples,
 												 m_InternalFormat,
@@ -93,6 +99,9 @@ namespace Nexus::Graphics
 												 m_Specification.Height,
 												 GL_TRUE));
 				break;
+	#else
+				throw std::runtime_error("Multisampled textures are not supported by WebGL");
+	#endif
 			case GL::GLInternalTextureFormat::Texture2DArray:
 			case GL::GLInternalTextureFormat::CubemapArray:
 			case GL::GLInternalTextureFormat::Texture3D:
@@ -104,6 +113,7 @@ namespace Nexus::Graphics
 									  m_Specification.ArrayLayers));
 				break;
 			case GL::GLInternalTextureFormat::Texture2DArrayMultisample:
+	#if !defined(__EMSCRIPTEN__)
 				glCall(glTexStorage3DMultisample(m_TextureType,
 												 m_Specification.Samples,
 												 m_InternalFormat,
@@ -112,6 +122,9 @@ namespace Nexus::Graphics
 												 m_Specification.ArrayLayers,
 												 GL_TRUE));
 				break;
+	#else
+				throw std::runtime_error("Multisampled textures are not supported by WebGL");
+	#endif
 		}
 	}
 

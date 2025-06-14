@@ -7,6 +7,7 @@
 	#if defined(__EMSCRIPTEN__)
 		#include <emscripten.h>
 		#include <emscripten/html5.h>
+		#include <webgl/webgl2.h>
 	#endif
 
 	#if defined(__EMSCRIPTEN__) || defined(ANDROID)
@@ -79,7 +80,7 @@ namespace Nexus::GL
 
 	GLenum GetBufferUsage(const Graphics::DeviceBufferDescription &desc);
 
-	GLenum GetAccessMask(Graphics::StorageImageAccess access);
+	GLenum GetAccessMask(Graphics::ShaderAccess access);
 	GLenum GetTextureType(const Graphics::TextureSpecification &spec);
 
 	GLInternalTextureFormat GetGLInternalTextureFormat(const Graphics::TextureSpecification &spec);
@@ -97,9 +98,13 @@ namespace Nexus::GL
 					 GLboolean							 &normalized,
 					 GLPrimitiveType					 &primitiveType);
 
+	void ClearBufferBinding(GLenum target);
+
 	GLenum GetGLImageAspect(Graphics::ImageAspect aspect);
 	GLenum GetAttachmentType(Graphics::ImageAspect aspect, uint32_t index);
 	GLenum GetBufferMaskToCopy(Graphics::ImageAspect aspect);
+
+	std::vector<GLenum> GetWebGLBufferTargets(uint16_t usage);
 
 	std::unique_ptr<IOffscreenContext> CreateOffscreenContext(Graphics::IPhysicalDevice *physicalDevice);
 	std::unique_ptr<IViewContext>	   CreateViewContext(IWindow *window, Graphics::GraphicsDevice *device);
@@ -124,7 +129,6 @@ namespace Nexus::GL
 		NX_ERROR(message);                                                                                                                           \
 	}
 
-#define NX_GL_DEBUG
 #if defined(NX_GL_DEBUG)
 	#define glCall(x)                                                                                                                                \
 		glClearErrors();                                                                                                                             \

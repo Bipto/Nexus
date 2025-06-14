@@ -54,7 +54,7 @@ namespace Demos
 			transformUniformBufferDesc.Usage									= Nexus::Graphics::BufferUsage::Uniform;
 			transformUniformBufferDesc.StrideInBytes							= sizeof(VB_UNIFORM_TRANSFORM_DEMO_CAMERA);
 			transformUniformBufferDesc.SizeInBytes								= sizeof(VB_UNIFORM_TRANSFORM_DEMO_CAMERA);
-			m_TransformUniformBuffer = Nexus::Ref<Nexus::Graphics::DeviceBuffer>(m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc));
+			m_TransformUniformBuffer											= m_GraphicsDevice->CreateDeviceBuffer(transformUniformBufferDesc);
 
 			CreatePipeline();
 			m_Camera.SetPosition(glm::vec3(0.0f, 0.0f, -2.5f));
@@ -125,11 +125,20 @@ namespace Demos
 			Nexus::Graphics::IndexBufferView indexBufferView = {};
 			indexBufferView.BufferHandle					 = m_Mesh->GetIndexBuffer();
 			indexBufferView.Offset							 = 0;
+			indexBufferView.Size							 = m_Mesh->GetIndexBuffer()->GetSizeInBytes();
 			indexBufferView.BufferFormat					 = Nexus::Graphics::IndexBufferFormat::UInt32;
 			m_CommandList->SetIndexBuffer(indexBufferView);
 
 			auto indexCount = m_Mesh->GetIndexBuffer()->GetCount();
-			m_CommandList->DrawIndexed(indexCount, 1, 0, 0, 0);
+
+			Nexus::Graphics::DrawIndexedDescription drawDesc = {};
+			drawDesc.VertexStart							 = 0;
+			drawDesc.IndexStart								 = 0;
+			drawDesc.InstanceStart							 = 0;
+			drawDesc.IndexCount								 = indexCount;
+			drawDesc.InstanceCount							 = 1;
+			m_CommandList->DrawIndexed(drawDesc);
+
 			m_CommandList->End();
 
 			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);

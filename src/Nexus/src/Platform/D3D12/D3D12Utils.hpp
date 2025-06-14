@@ -39,10 +39,6 @@ namespace Nexus::D3D12
 	D3D12_RESOURCE_DIMENSION GetResourceDimensions(Nexus::Graphics::TextureType textureType);
 	D3D12_RESOURCE_FLAGS	 GetResourceFlags(uint8_t textureUsage);
 
-	D3D12_BARRIER_SYNC	 GetBarrierSyncType(Nexus::Graphics::BarrierStage stage);
-	D3D12_BARRIER_ACCESS GetBarrierAccessType(Nexus::Graphics::BarrierAccess access);
-	D3D12_BARRIER_LAYOUT GetBarrierLayout(Nexus::Graphics::BarrierLayout layout);
-
 	D3D12_SHADER_RESOURCE_VIEW_DESC CreateTextureSrvView(const Graphics::TextureSpecification &spec);
 	D3D12_UNORDERED_ACCESS_VIEW_DESC CreateTextureUavView(const Graphics::StorageImageView &view);
 

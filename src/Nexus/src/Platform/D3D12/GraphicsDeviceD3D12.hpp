@@ -3,6 +3,7 @@
 #if defined(NX_PLATFORM_D3D12)
 
 	#include "CommandExecutorD3D12.hpp"
+	#include "DeviceBufferD3D12.hpp"
 	#include "D3D12Include.hpp"
 	#include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 	#include "Nexus-Core/Graphics/IPhysicalDevice.hpp"
@@ -38,6 +39,8 @@ namespace Nexus::Graphics
 			return ShaderLanguage::HLSL;
 		}
 
+		virtual bool IsBufferUsageSupported(BufferUsage usage) override;
+
 		virtual void		WaitForIdle() override;
 		virtual GraphicsAPI GetGraphicsAPI() override;
 
@@ -72,11 +75,18 @@ namespace Nexus::Graphics
 							 uint32_t					 mipCount,
 							 D3D12_RESOURCE_STATES		 before,
 							 D3D12_RESOURCE_STATES		 after);
+
 		void ResourceBarrier(ID3D12GraphicsCommandList7 *cmd,
 							 Ref<TextureD3D12>			 resource,
 							 uint32_t					 layer,
 							 uint32_t					 level,
 							 D3D12_RESOURCE_STATES		 after);
+
+		void ResourceBarrierBuffer(ID3D12GraphicsCommandList7 *cmd,
+								   Ref<DeviceBufferD3D12>	   buffer,
+								   D3D12_RESOURCE_STATES	   before,
+								   D3D12_RESOURCE_STATES	   after);
+
 		void ResourceBarrierSwapchainColour(ID3D12GraphicsCommandList7 *cmd, Ref<SwapchainD3D12> resource, D3D12_RESOURCE_STATES after);
 		void ResourceBarrierSwapchainDepth(ID3D12GraphicsCommandList7 *cmd, Ref<SwapchainD3D12> resource, D3D12_RESOURCE_STATES after);
 

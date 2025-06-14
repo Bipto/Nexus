@@ -1199,7 +1199,14 @@ namespace Nexus::Graphics
 		indexBufferView.BufferFormat	= Graphics::IndexBufferFormat::UInt32;
 		m_CommandList->SetIndexBuffer(indexBufferView);
 
-		m_CommandList->DrawIndexed(info.IndexCount, 1, 0, 0, 0);
+		DrawIndexedDescription drawDesc = {};
+		drawDesc.VertexStart			= 0;
+		drawDesc.IndexStart				= 0;
+		drawDesc.InstanceStart			= 0;
+		drawDesc.IndexCount				= info.IndexCount;
+		drawDesc.InstanceCount			= 1;
+		m_CommandList->DrawIndexed(drawDesc);
+
 		m_CommandList->End();
 		m_Device->SubmitCommandLists(&m_CommandList, 1, nullptr);
 

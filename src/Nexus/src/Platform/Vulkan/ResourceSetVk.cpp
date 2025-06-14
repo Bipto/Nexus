@@ -90,6 +90,31 @@ namespace Nexus::Graphics
 			descriptorCounts[descriptorBinding.descriptorType]++;
 		}
 
+		for (const auto &storageBufferBinding : spec.StorageBuffers)
+		{
+			VkDescriptorSetLayoutBinding descriptorBinding = {};
+			descriptorBinding.binding					   = storageBufferBinding.Binding;
+			descriptorBinding.descriptorCount			   = 1;
+			descriptorBinding.descriptorType			   = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			descriptorBinding.stageFlags				   = VK_SHADER_STAGE_ALL_GRAPHICS | VK_SHADER_STAGE_COMPUTE_BIT;
+
+			// if this set has not been created yet, then create it
+			if (sets.find(storageBufferBinding.Set) == sets.end())
+			{
+				sets[storageBufferBinding.Set] = {};
+			}
+
+			// if we do not have a count for this descriptor type, create one
+			if (descriptorCounts.find(descriptorBinding.descriptorType) == descriptorCounts.end())
+			{
+				descriptorCounts[descriptorBinding.descriptorType] = 0;
+			}
+
+			auto &set = sets[storageBufferBinding.Set];
+			set.push_back(descriptorBinding);
+			descriptorCounts[descriptorBinding.descriptorType]++;
+		}
+
 		// create descriptor sets
 		for (const auto &set : sets)
 		{
@@ -160,6 +185,37 @@ namespace Nexus::Graphics
 		for (const auto &layout : m_DescriptorSetLayouts) { vkDestroyDescriptorSetLayout(m_Device->GetVkDevice(), layout.second, nullptr); }
 
 		vkDestroyDescriptorPool(m_Device->GetVkDevice(), m_DescriptorPool, nullptr);
+	}
+
+	void ResourceSetVk::WriteStorageBuffer(StorageBufferView storageBuffer, const std::string &name)
+	{
+		if (Ref<DeviceBuffer> buffer = storageBuffer.BufferHandle)
+		{
+			NX_ASSERT(buffer->CheckUsage(Graphics::BufferUsage::Storage), "Attempting to bind a buffer that is not a storage buffer");
+
+			Ref<DeviceBufferVk> storageBufferVk = std::dynamic_pointer_cast<DeviceBufferVk>(buffer);
+			const auto		   &descriptorSets	= m_DescriptorSets[m_Device->GetCurrentFrameIndex()];
+
+			const BindingInfo &info = m_StorageBufferBindingInfos.at(name);
+
+			VkDescriptorBufferInfo bufferInfo = {};
+			bufferInfo.buffer				  = storageBufferVk->GetVkBuffer();
+			bufferInfo.offset				  = storageBuffer.Offset;
+			bufferInfo.range				  = storageBuffer.SizeInBytes;
+
+			VkWriteDescriptorSet uniformBufferToWrite = {};
+			uniformBufferToWrite.sType				  = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			uniformBufferToWrite.pNext				  = nullptr;
+			uniformBufferToWrite.dstBinding			  = info.Binding;
+			uniformBufferToWrite.descriptorCount	  = 1;
+			uniformBufferToWrite.descriptorType		  = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			uniformBufferToWrite.pBufferInfo		  = &bufferInfo;
+			uniformBufferToWrite.dstSet				  = descriptorSets.at(info.Set);
+
+			vkUpdateDescriptorSets(m_Device->GetVkDevice(), 1, &uniformBufferToWrite, 0, nullptr);
+
+			m_BoundStorageBuffers[name] = storageBuffer;
+		}
 	}
 
 	void ResourceSetVk::WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name)

@@ -12,6 +12,10 @@ namespace Nexus::Graphics
 {
 	CommandExecutorVk::CommandExecutorVk(GraphicsDeviceVk *device) : m_Device(device)
 	{
+		m_vkCmdBindIndexBuffer2KHR = (PFN_vkCmdBindIndexBuffer2KHR)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdBindIndexBuffer2KHR");
+		m_vkCmdDebugMarkerBeginEXT	= (PFN_vkCmdDebugMarkerBeginEXT)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdDebugMarkerBeginEXT");
+		m_vkCmdDebugMarkerEndEXT	= (PFN_vkCmdDebugMarkerEndEXT)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdDebugMarkerEndEXT");
+		m_vkCmdDebugMarkerInsertEXT = (PFN_vkCmdDebugMarkerInsertEXT)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdDebugMarkerInsertEXT");
 	}
 
 	CommandExecutorVk::~CommandExecutorVk()
@@ -91,7 +95,16 @@ namespace Nexus::Graphics
 		VkBuffer		indexBufferHandle = indexBufferVk->GetVkBuffer();
 		VkIndexType		indexType		  = Vk::GetVulkanIndexBufferFormat(command.View.BufferFormat);
 		VkDeviceSize		offset			  = command.View.Offset;
-		vkCmdBindIndexBuffer(m_CommandBuffer, indexBufferHandle, offset, indexType);
+		VkDeviceSize		size			  = command.View.Size;
+
+		if (m_vkCmdBindIndexBuffer2KHR)
+		{
+			m_vkCmdBindIndexBuffer2KHR(m_CommandBuffer, indexBufferHandle, offset, size, indexType);
+		}
+		else
+		{
+			vkCmdBindIndexBuffer(m_CommandBuffer, indexBufferHandle, offset, indexType);
+		}
 	}
 
 	void CommandExecutorVk::ExecuteCommand(WeakRef<Pipeline> command, GraphicsDevice *device)
@@ -108,7 +121,7 @@ namespace Nexus::Graphics
 		m_CurrentlyBoundPipeline = command.lock();
 	}
 
-	void CommandExecutorVk::ExecuteCommand(DrawCommand command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(DrawDescription command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
 		{
@@ -118,7 +131,7 @@ namespace Nexus::Graphics
 		vkCmdDraw(m_CommandBuffer, command.VertexCount, command.InstanceCount, command.VertexStart, command.InstanceStart);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(DrawIndexedCommand command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(DrawIndexedDescription command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
 		{
@@ -128,7 +141,7 @@ namespace Nexus::Graphics
 		vkCmdDrawIndexed(m_CommandBuffer, command.IndexCount, command.InstanceCount, command.IndexStart, command.VertexStart, command.InstanceStart);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(DrawIndirectCommand command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(DrawIndirectDescription command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
 		{
@@ -143,7 +156,7 @@ namespace Nexus::Graphics
 						  indirectBuffer->GetDescription().StrideInBytes);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(DrawIndirectIndexedCommand command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(DrawIndirectIndexedDescription command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
 		{
@@ -158,7 +171,7 @@ namespace Nexus::Graphics
 								 indirectBuffer->GetDescription().StrideInBytes);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(DispatchCommand command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(DispatchDescription command, GraphicsDevice *device)
 	{
 		if (!ValidateForComputeCall(m_CurrentlyBoundPipeline))
 		{
@@ -168,7 +181,7 @@ namespace Nexus::Graphics
 		vkCmdDispatch(m_CommandBuffer, command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(DispatchIndirectCommand command, GraphicsDevice *device)
+	void CommandExecutorVk::ExecuteCommand(DispatchIndirectDescription command, GraphicsDevice *device)
 	{
 		if (!ValidateForComputeCall(m_CurrentlyBoundPipeline))
 		{
@@ -208,8 +221,18 @@ namespace Nexus::Graphics
 		VkClearRect clearRect;
 		clearRect.baseArrayLayer = 0;
 		clearRect.layerCount	 = 1;
-		clearRect.rect.offset	 = {0, 0};
-		clearRect.rect.extent	 = {m_RenderSize};
+
+		if (command.Rect.has_value())
+		{
+			Graphics::ClearRect rect = command.Rect.value();
+			clearRect.rect.offset	 = {rect.X, rect.Y};
+			clearRect.rect.extent	 = {rect.Width, rect.Height};
+		}
+		else
+		{
+			clearRect.rect.offset = {0, 0};
+			clearRect.rect.extent = {m_RenderSize};
+		}
 
 		if (clearRect.rect.extent.width == 0 || clearRect.rect.extent.height == 0)
 		{
@@ -235,8 +258,18 @@ namespace Nexus::Graphics
 		VkClearRect clearRect;
 		clearRect.baseArrayLayer = 0;
 		clearRect.layerCount	 = 1;
-		clearRect.rect.offset	 = {0, 0};
-		clearRect.rect.extent	 = {m_RenderSize};
+
+		if (command.Rect.has_value())
+		{
+			Graphics::ClearRect rect = command.Rect.value();
+			clearRect.rect.offset	 = {rect.X, rect.Y};
+			clearRect.rect.extent	 = {rect.Width, rect.Height};
+		}
+		else
+		{
+			clearRect.rect.offset = {0, 0};
+			clearRect.rect.extent = {m_RenderSize};
+		}
 
 		if (clearRect.rect.extent.width == 0 || clearRect.rect.extent.height == 0)
 		{
@@ -395,95 +428,6 @@ namespace Nexus::Graphics
 
 		const float blends[] = {command.R, command.G, command.B, command.A};
 		vkCmdSetBlendConstants(m_CommandBuffer, blends);
-	}
-
-	void CommandExecutorVk::ExecuteCommand(const BarrierDesc &command, GraphicsDevice *device)
-	{
-		std::vector<VkMemoryBarrier2>		memoryBarriers = {};
-		std::vector<VkImageMemoryBarrier2>	imageBarriers  = {};
-		std::vector<VkBufferMemoryBarrier2> bufferBarriers = {};
-
-		for (const auto &barrier : command.MemoryBarriers)
-		{
-			VkPipelineStageFlags2 beforeStage  = Vk::GetBarrierPipelineStage(barrier.BeforeStage);
-			VkPipelineStageFlags2 afterStage   = Vk::GetBarrierPipelineStage(barrier.AfterStage);
-			VkAccessFlags2		  beforeAccess = Vk::GetBarrierAccessFlags(barrier.BeforeAccess);
-			VkAccessFlags2		  afterAccess  = Vk::GetBarrierAccessFlags(barrier.AfterAccess);
-
-			VkMemoryBarrier2 memoryBarrier = {};
-			memoryBarrier.sType			   = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2;
-			memoryBarrier.srcStageMask	   = beforeStage;
-			memoryBarrier.dstStageMask	   = afterStage;
-			memoryBarrier.srcAccessMask	   = beforeAccess;
-			memoryBarrier.dstAccessMask	   = afterAccess;
-			memoryBarriers.push_back(memoryBarrier);
-		}
-
-		for (const auto &barrier : command.TextureBarriers)
-		{
-			VkPipelineStageFlags2 beforeStage  = Vk::GetBarrierPipelineStage(barrier.BeforeStage);
-			VkPipelineStageFlags2 afterStage   = Vk::GetBarrierPipelineStage(barrier.AfterStage);
-			VkAccessFlags2		  beforeAccess = Vk::GetBarrierAccessFlags(barrier.BeforeAccess);
-			VkAccessFlags2		  afterAccess  = Vk::GetBarrierAccessFlags(barrier.AfterAccess);
-			VkImageLayout		  beforeLayout = Vk::GetBarrierLayout(barrier.BeforeLayout);
-			VkImageLayout		  afterLayout  = Vk::GetBarrierLayout(barrier.AfterLayout);
-
-			TextureVk *texture = (TextureVk *)barrier.Texture;
-
-			VkImageMemoryBarrier2 imageBarrier			 = {};
-			imageBarrier.sType							 = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2;
-			imageBarrier.srcStageMask					 = beforeStage;
-			imageBarrier.dstStageMask					 = afterStage;
-			imageBarrier.srcAccessMask					 = beforeAccess;
-			imageBarrier.dstAccessMask					 = afterAccess;
-			imageBarrier.oldLayout						 = beforeLayout;
-			imageBarrier.newLayout						 = afterLayout;
-			imageBarrier.srcQueueFamilyIndex			 = VK_QUEUE_FAMILY_IGNORED;
-			imageBarrier.dstQueueFamilyIndex			 = VK_QUEUE_FAMILY_IGNORED;
-			imageBarrier.image							 = texture->GetImage();
-			imageBarrier.subresourceRange.aspectMask	 = VK_IMAGE_ASPECT_COLOR_BIT | VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
-			imageBarrier.subresourceRange.baseMipLevel	 = barrier.SubresourceRange.BaseMipLayer;
-			imageBarrier.subresourceRange.levelCount	 = barrier.SubresourceRange.MipLayerCount;
-			imageBarrier.subresourceRange.baseArrayLayer = barrier.SubresourceRange.BaseArrayLayer;
-			imageBarrier.subresourceRange.layerCount	 = barrier.SubresourceRange.ArrayLayerCount;
-			imageBarriers.push_back(imageBarrier);
-		}
-
-		for (const auto &barrier : command.BufferBarriers)
-		{
-			DeviceBufferVk *buffer = (DeviceBufferVk *)barrier.Buffer;
-
-			VkPipelineStageFlags2 beforeStage  = Vk::GetBarrierPipelineStage(barrier.BeforeStage);
-			VkPipelineStageFlags2 afterStage   = Vk::GetBarrierPipelineStage(barrier.AfterStage);
-			VkAccessFlags2		  beforeAccess = Vk::GetBarrierAccessFlags(barrier.BeforeAccess);
-			VkAccessFlags2		  afterAccess  = Vk::GetBarrierAccessFlags(barrier.AfterAccess);
-
-			VkBufferMemoryBarrier2 bufferBarrier = {};
-			bufferBarrier.sType					 = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2;
-			bufferBarrier.srcStageMask			 = beforeStage;
-			bufferBarrier.dstStageMask			 = afterStage;
-			bufferBarrier.srcAccessMask			 = beforeAccess;
-			bufferBarrier.dstAccessMask			 = afterAccess;
-			bufferBarrier.srcQueueFamilyIndex	 = VK_QUEUE_FAMILY_IGNORED;
-			bufferBarrier.dstQueueFamilyIndex	 = VK_QUEUE_FAMILY_IGNORED;
-			bufferBarrier.buffer				 = buffer->GetVkBuffer();
-			bufferBarrier.offset				 = 0;
-			bufferBarrier.size					 = buffer->GetDescription().SizeInBytes;
-			bufferBarriers.push_back(bufferBarrier);
-		}
-
-		VkDependencyInfo dependencyInfo			= {};
-		dependencyInfo.sType					= VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
-		dependencyInfo.pNext					= nullptr;
-		dependencyInfo.dependencyFlags			= 0;
-		dependencyInfo.memoryBarrierCount		= memoryBarriers.size();
-		dependencyInfo.pMemoryBarriers			= memoryBarriers.data();
-		dependencyInfo.imageMemoryBarrierCount	= imageBarriers.size();
-		dependencyInfo.pImageMemoryBarriers		= imageBarriers.data();
-		dependencyInfo.bufferMemoryBarrierCount = bufferBarriers.size();
-		dependencyInfo.pBufferMemoryBarriers	= bufferBarriers.data();
-
-		vkCmdPipelineBarrier2(m_CommandBuffer, &dependencyInfo);
 	}
 
 	void CommandExecutorVk::ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device)
@@ -726,6 +670,42 @@ namespace Nexus::Graphics
 												  layout,
 												  dstAspect);
 		}
+	}
+
+	void CommandExecutorVk::ExecuteCommand(BeginDebugGroupCommand command, GraphicsDevice *device)
+	{
+		if (!m_vkCmdDebugMarkerBeginEXT)
+		{
+			return;
+		}
+
+		VkDebugMarkerMarkerInfoEXT markerInfo = {};
+		markerInfo.sType					  = VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT;
+		markerInfo.pMarkerName				  = command.GroupName.c_str();
+		m_vkCmdDebugMarkerBeginEXT(m_CommandBuffer, &markerInfo);
+	}
+
+	void CommandExecutorVk::ExecuteCommand(EndDebugGroupCommand command, GraphicsDevice *device)
+	{
+		if (!m_vkCmdDebugMarkerEndEXT)
+		{
+			return;
+		}
+
+		m_vkCmdDebugMarkerEndEXT(m_CommandBuffer);
+	}
+
+	void CommandExecutorVk::ExecuteCommand(InsertDebugMarkerCommand command, GraphicsDevice *device)
+	{
+		if (!m_vkCmdDebugMarkerInsertEXT)
+		{
+			return;
+		}
+
+		VkDebugMarkerMarkerInfoEXT markerInfo = {};
+		markerInfo.sType					  = VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT;
+		markerInfo.pMarkerName				  = command.MarkerName.c_str();
+		m_vkCmdDebugMarkerInsertEXT(m_CommandBuffer, &markerInfo);
 	}
 
 	void CommandExecutorVk::StartRenderingToSwapchain(Ref<Swapchain> swapchain)

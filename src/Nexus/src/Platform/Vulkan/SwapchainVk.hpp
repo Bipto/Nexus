@@ -33,7 +33,6 @@ namespace Nexus::Graphics
 		}
 		virtual void Prepare() override;
 
-		virtual void Initialise() override;
 		virtual PixelFormat GetColourFormat() override;
 
 		void		 RecreateSwapchain();
@@ -67,6 +66,8 @@ namespace Nexus::Graphics
 		void CreateDepthStencil(GraphicsDeviceVk *graphicsDevice);
 		void CreateResolveAttachment(GraphicsDeviceVk *graphicsDevice);
 		void CreateSemaphores();
+
+		void CreateAll();
 
 		void CleanupSwapchain();
 		void CleanupDepthStencil();

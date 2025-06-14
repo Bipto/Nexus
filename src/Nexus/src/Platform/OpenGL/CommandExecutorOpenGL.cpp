@@ -91,7 +91,7 @@ namespace Nexus::Graphics
 		pipeline->DestroyVAO();
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(DrawCommand command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(DrawDescription command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
 		{
@@ -119,7 +119,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(DrawIndexedCommand command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(DrawIndexedDescription command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
 		{
@@ -155,7 +155,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(DrawIndirectCommand command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(DrawIndirectDescription command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
 		{
@@ -167,9 +167,9 @@ namespace Nexus::Graphics
 			Ref<Pipeline> pipeline = m_CurrentlyBoundPipeline.value();
 			if (pipeline->GetType() == PipelineType::Graphics)
 			{
+	#if !defined(__EMSCRIPTEN__)
 				Ref<DeviceBufferOpenGL> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.IndirectBuffer);
-				glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetBufferHandle());
-
+				indirectBuffer->Bind(GL_DRAW_INDIRECT_BUFFER);
 				ExecuteGraphicsCommand(std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline),
 									   m_CurrentlyBoundVertexBuffers,
 									   m_BoundIndexBuffer,
@@ -184,13 +184,13 @@ namespace Nexus::Graphics
 																	(const void *)(uint64_t)indirectOffset);
 										   }
 									   });
-
-				glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+				GL::ClearBufferBinding(GL_DRAW_INDIRECT_BUFFER);
+	#endif
 			}
 		}
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(DrawIndirectIndexedCommand command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(DrawIndirectIndexedDescription command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
 		{
@@ -207,6 +207,10 @@ namespace Nexus::Graphics
 				uint32_t		 indexSizeInBytes = Graphics::GetIndexFormatSizeInBytes(indexBufferView.BufferFormat);
 				GLenum			 indexFormat	  = GL::GetGLIndexBufferFormat(indexBufferView.BufferFormat);
 
+	#if !defined(__EMSCRIPTEN__)
+				Ref<DeviceBufferOpenGL> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.IndirectBuffer);
+				indirectBuffer->Bind(GL_DRAW_INDIRECT_BUFFER);
+
 				ExecuteGraphicsCommand(std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline),
 									   m_CurrentlyBoundVertexBuffers,
 									   m_BoundIndexBuffer,
@@ -222,31 +226,37 @@ namespace Nexus::Graphics
 																	  (const void *)(uint64_t)indirectOffset);
 										   }
 									   });
+
+				GL::ClearBufferBinding(GL_DRAW_INDIRECT_BUFFER);
+	#endif
 			}
 		}
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(DispatchCommand command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(DispatchDescription command, GraphicsDevice *device)
 	{
 		if (!ValidateForComputeCall(m_CurrentlyBoundPipeline))
 		{
 			return;
 		}
 
+	#if !defined(__EMSCRIPTEN__)
 		Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());
 		pipeline->Bind();
 		BindResourceSet(m_BoundResourceSet);
 		glDispatchCompute(command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
 		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+	#endif
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(DispatchIndirectCommand command, GraphicsDevice *device)
+	void CommandExecutorOpenGL::ExecuteCommand(DispatchIndirectDescription command, GraphicsDevice *device)
 	{
 		if (!ValidateForComputeCall(m_CurrentlyBoundPipeline))
 		{
 			return;
 		}
 
+	#if !defined(__EMSCRIPTEN__)
 		Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());
 		pipeline->Bind();
 		BindResourceSet(m_BoundResourceSet);
@@ -254,11 +264,12 @@ namespace Nexus::Graphics
 		if (Ref<DeviceBuffer> buffer = command.IndirectBuffer)
 		{
 			Ref<DeviceBufferOpenGL> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(buffer);
-			glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, indirectBuffer->GetBufferHandle());
+			indirectBuffer->Bind(GL_DISPATCH_INDIRECT_BUFFER);
 			glDispatchComputeIndirect(command.Offset);
 			glMemoryBarrier(GL_ALL_BARRIER_BITS);
-			glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, 0);
+			GL::ClearBufferBinding(GL_DISPATCH_INDIRECT_BUFFER);
 		}
+	#endif
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)
@@ -280,9 +291,27 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		float color[] = {command.Color.Red, command.Color.Green, command.Color.Blue, command.Color.Alpha};
+		if (command.Rect.has_value())
+		{
+			Graphics::ClearRect rect = command.Rect.value();
 
-		glCall(glClearBufferfv(GL_COLOR, command.Index, color));
+			GLint scissorBox[4];
+			glGetIntegerv(GL_SCISSOR_BOX, scissorBox);
+
+			RenderTarget target	  = m_CurrentRenderTarget.value();
+			float		 scissorY = target.GetSize().Y - rect.Height - rect.Y;
+			glCall(glScissor(rect.X, scissorY, rect.Width, rect.Height));
+
+			float color[] = {command.Color.Red, command.Color.Green, command.Color.Blue, command.Color.Alpha};
+			glCall(glClearBufferfv(GL_COLOR, command.Index, color));
+
+			glCall(glScissor(scissorBox[0], scissorBox[1], scissorBox[2], scissorBox[3]));
+		}
+		else
+		{
+			float color[] = {command.Color.Red, command.Color.Green, command.Color.Blue, command.Color.Alpha};
+			glCall(glClearBufferfv(GL_COLOR, command.Index, color));
+		}
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDevice *device)
@@ -462,28 +491,6 @@ namespace Nexus::Graphics
 		glBlendColor(command.R, command.G, command.B, command.A);
 	}
 
-	void CommandExecutorOpenGL::ExecuteCommand(const BarrierDesc &command, GraphicsDevice *device)
-	{
-	}
-
-	void CommandExecutorOpenGL::ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device)
-	{
-		Ref<DeviceBufferOpenGL> src = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.BufferCopy.Source);
-		Ref<DeviceBufferOpenGL> dst = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.BufferCopy.Destination);
-
-		glBindBuffer(GL_COPY_READ_BUFFER, src->GetBufferHandle());
-		glBindBuffer(GL_COPY_WRITE_BUFFER, dst->GetBufferHandle());
-
-		glCopyBufferSubData(GL_COPY_READ_BUFFER,
-							GL_COPY_WRITE_BUFFER,
-							command.BufferCopy.ReadOffset,
-							command.BufferCopy.WriteOffset,
-							command.BufferCopy.Size);
-
-		glBindBuffer(GL_COPY_READ_BUFFER, 0);
-		glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
-	}
-
 	void CommandExecutorOpenGL::ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device)
 	{
 		Ref<DeviceBufferOpenGL> buffer		  = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.BufferTextureCopy.BufferHandle);
@@ -569,6 +576,21 @@ namespace Nexus::Graphics
 		}
 	}
 
+	void CommandExecutorOpenGL::ExecuteCommand(BeginDebugGroupCommand command, GraphicsDevice *device)
+	{
+		glCall(glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 1, -1, command.GroupName.c_str()));
+	}
+
+	void CommandExecutorOpenGL::ExecuteCommand(EndDebugGroupCommand command, GraphicsDevice *device)
+	{
+		glPopDebugGroup();
+	}
+
+	void CommandExecutorOpenGL::ExecuteCommand(InsertDebugMarkerCommand command, GraphicsDevice *device)
+	{
+		glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_MARKER, 0, GL_DEBUG_SEVERITY_NOTIFICATION, -1, command.MarkerName.c_str());
+	}
+
 	void CommandExecutorOpenGL::BindResourceSet(Ref<ResourceSetOpenGL> resourceSet)
 	{
 		Nexus::Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());
@@ -580,6 +602,7 @@ namespace Nexus::Graphics
 		const auto &combinedImageSamplers = resourceSet->GetBoundCombinedImageSamplers();
 		const auto &uniformBufferBindings = resourceSet->GetBoundUniformBuffers();
 		const auto &storageImageBindings  = resourceSet->GetBoundStorageImages();
+		const auto &storageBufferBindings = resourceSet->GetBoundStorageBuffers();
 
 		for (const auto [name, combinedImageSampler] : combinedImageSamplers)
 		{
@@ -622,11 +645,7 @@ namespace Nexus::Graphics
 			{
 				glCall(glUniformBlockBinding(pipeline->GetShaderHandle(), location, uniformBufferSlot));
 
-				glCall(glBindBufferRange(GL_UNIFORM_BUFFER,
-										 uniformBufferSlot,
-										 uniformBufferGL->GetBufferHandle(),
-										 uniformBufferView.Offset,
-										 uniformBufferView.Size));
+				uniformBufferGL->BindRange(GL_UNIFORM_BUFFER, uniformBufferSlot, uniformBufferView.Offset, uniformBufferView.Size);
 
 				uniformBufferSlot++;
 			}
@@ -638,6 +657,7 @@ namespace Nexus::Graphics
 
 			if (location != -1)
 			{
+	#if !defined(__EMSCRIPTEN__)
 				Ref<TextureOpenGL> texture = std::dynamic_pointer_cast<TextureOpenGL>(storageImageView.TextureHandle);
 				GLenum			   format  = GL::GetSizedInternalFormat(storageImageView.TextureHandle->GetSpecification().Format, false);
 				GLenum			   access  = GL::GetAccessMask(storageImageView.Access);
@@ -655,6 +675,25 @@ namespace Nexus::Graphics
 										  storageImageView.ArrayLayer,
 										  access,
 										  format));
+	#endif
+			}
+		}
+
+		GLuint storageBufferSlot = 0;
+		for (const auto [name, storageBufferView] : storageBufferBindings)
+		{
+			// GLint location = glGetUniformLocation(pipeline->GetShaderHandle(), name.c_str());
+			GLuint location = glGetProgramResourceIndex(pipeline->GetShaderHandle(), GL_SHADER_STORAGE_BLOCK, name.c_str());
+
+			if (location != -1)
+			{
+	#if !defined(__EMSCRIPTEN__)
+				Ref<DeviceBufferOpenGL> buffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(storageBufferView.BufferHandle);
+				size_t					offset = storageBufferView.Offset;
+				size_t					size   = storageBufferView.SizeInBytes;
+				buffer->BindRange(GL_SHADER_STORAGE_BUFFER, storageBufferSlot, offset, size);
+				storageBufferSlot++;
+	#endif
 			}
 		}
 	}

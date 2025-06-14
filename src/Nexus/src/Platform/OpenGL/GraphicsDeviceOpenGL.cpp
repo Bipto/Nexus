@@ -14,6 +14,7 @@
 	#include "DeviceBufferOpenGL.hpp"
 	#include "FenceOpenGL.hpp"
 
+	#if !defined(__EMSCRIPTEN__)
 void APIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam)
 {
 	if (type == GL_DEBUG_TYPE_ERROR)
@@ -21,6 +22,7 @@ void APIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum severi
 		std::cout << "OpenGL Debug Message: " << message << std::endl;
 	}
 }
+	#endif
 
 namespace Nexus::Graphics
 {
@@ -32,15 +34,14 @@ namespace Nexus::Graphics
 		m_APIName	   = std::string("OpenGL - ") + std::string((const char *)glGetString(GL_VERSION));
 		m_RendererName = (const char *)glGetString(GL_RENDERER);
 
-		// glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-
+	#if !defined(__EMSCRIPTEN__)
 		if (enableDebug)
 		{
 			glEnable(GL_DEBUG_OUTPUT);
 			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 			glDebugMessageCallback(debugCallback, nullptr);
-			// glDebugMessageControl(GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_ERROR, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 		}
+	#endif
 	}
 
 	GraphicsDeviceOpenGL::~GraphicsDeviceOpenGL()
@@ -121,7 +122,7 @@ namespace Nexus::Graphics
 		GLenum baseType	   = texture->GetBaseType();
 
 		glCall(glBindTexture(textureType, texture->GetHandle()));
-		glCall(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, buffer->GetBufferHandle()));
+		buffer->Bind(GL_PIXEL_UNPACK_BUFFER);
 
 		GLenum	 glAspect	= GL::GetGLImageAspect(subresource.Aspect);
 		uint32_t bufferSize = (subresource.Width - subresource.X) * (subresource.Height - subresource.Y) *
@@ -130,6 +131,7 @@ namespace Nexus::Graphics
 		switch (texture->GetInternalGLTextureFormat())
 		{
 			case GL::GLInternalTextureFormat::Texture1D:
+	#if !defined(__EMSCRIPTEN__)
 				glCall(glTexSubImage1D(textureType,
 									   subresource.MipLevel,
 									   subresource.X,
@@ -138,6 +140,9 @@ namespace Nexus::Graphics
 									   baseType,
 									   (const void *)(uint64_t)bufferOffset));
 				break;
+	#else
+				throw std::runtime_error("1D textures are not supported in WebGL");
+	#endif
 			case GL::GLInternalTextureFormat::Texture1DArray:
 			case GL::GLInternalTextureFormat::Texture2D:
 			case GL::GLInternalTextureFormat::Texture2DMultisample:
@@ -180,7 +185,7 @@ namespace Nexus::Graphics
 				break;
 		}
 
-		glCall(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0));
+		GL::ClearBufferBinding(GL_PIXEL_UNPACK_BUFFER);
 		glCall(glBindTexture(textureType, 0));
 	}
 
@@ -200,7 +205,7 @@ namespace Nexus::Graphics
 		GLenum dataFormat  = texture->GetDataFormat();
 		GLenum baseType	   = texture->GetBaseType();
 
-		glBindBuffer(GL_PIXEL_PACK_BUFFER, buffer->GetBufferHandle());
+		buffer->Bind(GL_PIXEL_PACK_BUFFER);
 
 		for (uint32_t layer = subresource.Z; layer < subresource.Depth; layer++)
 		{
@@ -222,13 +227,11 @@ namespace Nexus::Graphics
 
 			glCall(glFlush());
 			glCall(glFinish());
-			glCall(glMemoryBarrier(GL_ALL_BARRIER_BITS));
 
 			glCall(glDeleteFramebuffers(1, &framebufferHandle));
 			bufferOffset += layerSize;
 		}
 
-		glCall(glMemoryBarrier(GL_ALL_BARRIER_BITS));
 		glCall(glBindTexture(textureType, 0));
 		glCall(glBindBuffer(GL_PIXEL_PACK_BUFFER, 0));
 	}
@@ -371,7 +374,7 @@ namespace Nexus::Graphics
 			}
 			else
 			{
-				FenceWaitResult::TimedOut;
+				return FenceWaitResult::TimedOut;
 			}
 		}
 
@@ -399,6 +402,11 @@ namespace Nexus::Graphics
 	#else
 		return ShaderLanguage::GLSL;
 	#endif
+	}
+
+	bool GraphicsDeviceOpenGL::IsBufferUsageSupported(BufferUsage usage)
+	{
+		return false;
 	}
 
 	void GraphicsDeviceOpenGL::WaitForIdle()

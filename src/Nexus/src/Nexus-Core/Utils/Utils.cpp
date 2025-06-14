@@ -384,7 +384,8 @@ namespace Nexus::Utils
 	void ConvertNanosecondsToTm(uint64_t nanoseconds, std::tm &outTime)
 	{
 		std::time_t seconds = nanoseconds / 1'000'000'000;
-		localtime_s(&outTime, &seconds);
+		std::tm	   *timeInfo = localtime(&seconds);
+		memcpy(&outTime, timeInfo, sizeof(std::tm));
 	}
 
 	void FlipPixelsHorizontally(void *pixels, uint32_t width, uint32_t height, Graphics::PixelFormat format)
@@ -403,9 +404,6 @@ namespace Nexus::Utils
 				{
 					for (uint32_t b = 0; b < bytesPerChannel; ++b)
 					{
-						/* std::swap(pixels[j * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b],
-								  pixels[j * width * bytesPerPixel + (width - 1 - i) * bytesPerPixel + k * bytesPerChannel + b]); */
-
 						std::swap(*(bufferPointer + (j * width * bytesPerPixel + i * bytesPerPixel + k * bytesPerChannel + b)),
 								  *(bufferPointer + (j * width * bytesPerPixel + (width - 1 - i) * bytesPerPixel + k * bytesPerChannel + b)));
 					}

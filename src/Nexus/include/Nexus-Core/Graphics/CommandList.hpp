@@ -14,6 +14,14 @@
 
 namespace Nexus::Graphics
 {
+	struct ClearRect
+	{
+		int32_t	 X		= 0;
+		int32_t	 Y		= 0;
+		uint32_t Width	= 0;
+		uint32_t Height = 0;
+	};
+
 	struct BufferCopyDescription
 	{
 		Ref<DeviceBuffer> Source	  = nullptr;
@@ -71,6 +79,20 @@ namespace Nexus::Graphics
 		IndexBufferView View = {};
 	};
 
+	struct BeginDebugGroupCommand
+	{
+		std::string GroupName = {};
+	};
+
+	struct EndDebugGroupCommand
+	{
+	};
+
+	struct InsertDebugMarkerCommand
+	{
+		std::string MarkerName = {};
+	};
+
 	/// @brief A struct representing a set of values to use  to clear the colour
 	/// buffer
 	struct ClearColorValue
@@ -86,6 +108,9 @@ namespace Nexus::Graphics
 
 		/// @brief The alpha channel as a value between 0.0f and 1.0f
 		float Alpha = 1.0f;
+
+		/// @brief An optional parameter controlling which area of the texture to clear
+		std::optional<ClearRect> Rect = {};
 	};
 
 	/// @brief A struct representing a set of values to use to clear the
@@ -97,12 +122,15 @@ namespace Nexus::Graphics
 
 		/// @brief The value to use to clear the stencil buffer
 		uint8_t Stencil = 0;
+
+		/// @brief An optional parameter controlling which area of the texture to clear
+		std::optional<ClearRect> Rect = {};
 	};
 
 	/// @brief A struct representing a draw command to be executed using a vertex
 	/// buffer
 
-	struct DrawCommand
+	struct DrawDescription
 	{
 		uint32_t VertexCount   = 0;
 		uint32_t InstanceCount = 0;
@@ -110,7 +138,7 @@ namespace Nexus::Graphics
 		uint32_t InstanceStart = 0;
 	};
 
-	struct DrawIndexedCommand
+	struct DrawIndexedDescription
 	{
 		uint32_t IndexCount	   = 0;
 		uint32_t InstanceCount = 0;
@@ -119,28 +147,28 @@ namespace Nexus::Graphics
 		uint32_t InstanceStart = 0;
 	};
 
-	struct DrawIndirectCommand
+	struct DrawIndirectDescription
 	{
 		Ref<DeviceBuffer> IndirectBuffer = nullptr;
 		uint32_t		  Offset		 = 0;
 		uint32_t		  DrawCount		 = 0;
 	};
 
-	struct DrawIndirectIndexedCommand
+	struct DrawIndirectIndexedDescription
 	{
 		Ref<DeviceBuffer> IndirectBuffer = nullptr;
 		uint32_t		  Offset		 = 0;
 		uint32_t		  DrawCount		 = 0;
 	};
 
-	struct DispatchCommand
+	struct DispatchDescription
 	{
 		uint32_t WorkGroupCountX = 0;
 		uint32_t WorkGroupCountY = 0;
 		uint32_t WorkGroupCountZ = 0;
 	};
 
-	struct DispatchIndirectCommand
+	struct DispatchIndirectDescription
 	{
 		Ref<DeviceBuffer>	  IndirectBuffer = {};
 		uint32_t			  Offset		 = 0;
@@ -150,11 +178,13 @@ namespace Nexus::Graphics
 	{
 		uint32_t		Index = {};
 		ClearColorValue Color = {};
+		std::optional<ClearRect> Rect  = {};
 	};
 
 	struct ClearDepthStencilTargetCommand
 	{
 		ClearDepthStencilValue Value = {};
+		std::optional<ClearRect> Rect  = {};
 	};
 
 	struct ResolveSamplesToSwapchainCommand
@@ -193,101 +223,6 @@ namespace Nexus::Graphics
 		float A = {};
 	};
 
-	struct TextureSubresourceRange
-	{
-		uint32_t BaseMipLayer	 = 0;
-		uint32_t MipLayerCount	 = 1;
-		uint32_t BaseArrayLayer	 = 0;
-		uint32_t ArrayLayerCount = 1;
-	};
-
-	enum class BarrierStage
-	{
-		None,
-		All,
-		Graphics,
-		VertexInput,
-		VertexShader,
-		FragmentShader,
-		TesselationControlShader,
-		TesselationEvaluationShader,
-		GeometryShader,
-		ComputeShader,
-		RenderTarget,
-		TransferSource,
-		TransferDestination,
-		Resolve
-	};
-
-	enum class BarrierAccess
-	{
-		None,
-		All,
-		VertexBuffer,
-		IndexBuffer,
-		RenderTarget,
-		StorageImage,
-		DepthStencilRead,
-		DepthStencilWrite,
-		ResolveSource,
-		ResolveDestination,
-		CopySource,
-		CopyDestination,
-		DrawIndirect,
-	};
-
-	enum class BarrierLayout
-	{
-		Undefined,
-		General,
-		Present,
-		RenderTarget,
-		DepthStencilRead,
-		DepthStencilWrite,
-		CopySource,
-		CopyDestination,
-		ResolveSource,
-		ResolveDestimation,
-		ShaderReadOnly,
-		ShaderReadWrite
-	};
-
-	struct MemoryBarrierDesc
-	{
-		BarrierStage  BeforeStage  = BarrierStage::All;
-		BarrierStage  AfterStage   = BarrierStage::All;
-		BarrierAccess BeforeAccess = BarrierAccess::All;
-		BarrierAccess AfterAccess  = BarrierAccess::All;
-	};
-
-	struct TextureBarrierDesc
-	{
-		Graphics::Texture	   *Texture			 = nullptr;
-		BarrierStage			BeforeStage		 = BarrierStage::All;
-		BarrierStage			AfterStage		 = BarrierStage::All;
-		BarrierLayout			BeforeLayout	 = BarrierLayout::General;
-		BarrierLayout			AfterLayout		 = BarrierLayout::General;
-		BarrierAccess			BeforeAccess	 = BarrierAccess::All;
-		BarrierAccess			AfterAccess		 = BarrierAccess::All;
-		TextureSubresourceRange SubresourceRange = {};
-	};
-
-	struct BufferBarrierDesc
-	{
-		Graphics::DeviceBuffer *Buffer		 = nullptr;
-		BarrierStage			BeforeStage	 = BarrierStage::All;
-		BarrierStage			AfterStage	 = BarrierStage::All;
-		BarrierAccess			BeforeAccess = BarrierAccess::All;
-		BarrierAccess			AfterAccess	 = BarrierAccess::All;
-	};
-
-	struct BarrierDesc
-	{
-		std::vector<MemoryBarrierDesc>	MemoryBarriers	= {};
-		std::vector<TextureBarrierDesc> TextureBarriers = {};
-		std::vector<BufferBarrierDesc>	BufferBarriers	= {};
-	};
-
 	struct CopyBufferToBufferCommand
 	{
 		BufferCopyDescription BufferCopy = {};
@@ -311,12 +246,12 @@ namespace Nexus::Graphics
 	typedef std::variant<SetVertexBufferCommand,
 						 SetIndexBufferCommand,
 						 WeakRef<Pipeline>,
-						 DrawCommand,
-						 DrawIndexedCommand,
-						 DrawIndirectCommand,
-						 DrawIndirectIndexedCommand,
-						 DispatchCommand,
-						 DispatchIndirectCommand,
+						 DrawDescription,
+						 DrawIndexedDescription,
+						 DrawIndirectDescription,
+						 DrawIndirectIndexedDescription,
+						 DispatchDescription,
+						 DispatchIndirectDescription,
 						 Ref<ResourceSet>,
 						 ClearColorTargetCommand,
 						 ClearDepthStencilTargetCommand,
@@ -329,11 +264,13 @@ namespace Nexus::Graphics
 						 SetStencilRefCommand,
 						 SetDepthBoundsCommand,
 						 SetBlendFactorCommand,
-						 BarrierDesc,
 						 CopyBufferToBufferCommand,
 						 CopyBufferToTextureCommand,
 						 CopyTextureToBufferCommand,
-						 CopyTextureToTextureCommand>
+						 CopyTextureToTextureCommand,
+						 BeginDebugGroupCommand,
+						 EndDebugGroupCommand,
+						 InsertDebugMarkerCommand>
 		RenderCommandData;
 
 	struct CommandListSpecification
@@ -373,38 +310,27 @@ namespace Nexus::Graphics
 		/// @param pipeline The pointer to the pipeline to bind
 		void SetPipeline(Ref<Pipeline> pipeline);
 
-		/// @brief A method that submits an instanced draw call using bound vertex
-		/// buffers
-		/// @param vertexCount The number of vertices to draw
-		/// @param instanceCount The number of instances to draw
-		/// @param vertexStart An offset into the vertex buffer to start rendering at
-		/// @param instanceStart An offset into the instance buffer to start rendering
-		/// at
-		void Draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t instanceStart);
+		void Draw(const DrawDescription &desc);
 
-		/// @brief A method that submits an instanced draw call using bound vertex
-		/// buffers and an index buffer
-		/// @param indexCount The number of indices in the primitive
-		/// @param instanceCount The number of instances to draw
-		/// @param vertexStart An offset into the vertex buffer to start rendering at
-		/// @param indexStart An offset into the index buffer to start rendering at
-		/// @param instanceStart An offset into the instance buffer to start rendering
-		/// at
-		void DrawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t indexStart, uint32_t instanceStart);
+		void DrawIndexed(const DrawIndexedDescription &desc);
 
-		void DrawIndirect(Ref<DeviceBuffer> indirectBuffer, uint32_t offset, uint32_t drawCount);
+		void DrawIndirect(const DrawIndirectDescription &desc);
 
-		void DrawIndexedIndirect(Ref<DeviceBuffer> indirectBuffer, uint32_t offset, uint32_t drawCount);
+		void DrawIndexedIndirect(const DrawIndirectIndexedDescription &desc);
 
-		void Dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ);
+		void Dispatch(const DispatchDescription &desc);
 
-		void DispatchIndirect(Ref<DeviceBuffer> indirectBuffer, uint32_t offset);
+		void DispatchIndirect(const DispatchIndirectDescription &desc);
 
 		/// @brief A method that updates the resources bound within a pipeline
 		/// @param resources A reference counted pointer to a ResourceSet
 		void SetResourceSet(Ref<ResourceSet> resources);
 
+		void ClearColorTarget(uint32_t index, const ClearColorValue &color, ClearRect clearRect);
+
 		void ClearColorTarget(uint32_t index, const ClearColorValue &color);
+
+		void ClearDepthTarget(const ClearDepthStencilValue &value, ClearRect clearRect);
 
 		void ClearDepthTarget(const ClearDepthStencilValue &value);
 
@@ -426,8 +352,6 @@ namespace Nexus::Graphics
 
 		void SetBlendFactor(float r, float g, float b, float a);
 
-		void Barrier(const BarrierDesc &barrier);
-
 		void CopyBufferToBuffer(const BufferCopyDescription &bufferCopy);
 
 		void CopyBufferToTexture(const BufferTextureCopyDescription &bufferTextureCopy);
@@ -435,6 +359,12 @@ namespace Nexus::Graphics
 		void CopyTextureToBuffer(const BufferTextureCopyDescription &textureBufferCopy);
 
 		void CopyTextureToTexture(const TextureCopyDescription &textureCopy);
+
+		void BeginDebugGroup(const std::string &name);
+
+		void EndDebugGroup();
+
+		void InsertDebugMarker(const std::string &name);
 
 		const std::vector<RenderCommandData> &GetCommandData() const;
 		const CommandListSpecification		 &GetSpecification();

@@ -13,6 +13,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		ResourceSetD3D12(const ResourceSetSpecification &spec, GraphicsDeviceD3D12 *device);
+		virtual void WriteStorageBuffer(StorageBufferView storageBuffer, const std::string &name) override;
 		virtual void WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name) override;
 		virtual void WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name) override;
 		virtual void WriteStorageImage(StorageImageView view, const std::string &name) override;
@@ -26,6 +27,9 @@ namespace Nexus::Graphics
 
 		const D3D12_GPU_DESCRIPTOR_HANDLE GetSamplerStartHandle() const;
 		const D3D12_GPU_DESCRIPTOR_HANDLE GetTextureConstantBufferStartHandle() const;
+		const D3D12_GPU_DESCRIPTOR_HANDLE GetStorageBufferStartHandle() const;
+
+		void EnumerateStorageBuffers(std::function<void(uint32_t, StorageBufferView)>);
 
 	  private:
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_SamplerDescriptorHeap			   = nullptr;
@@ -42,6 +46,11 @@ namespace Nexus::Graphics
 
 		std::map<uint32_t, D3D12_CPU_DESCRIPTOR_HANDLE> m_StorageImageCPUDescriptors;
 		std::map<uint32_t, D3D12_GPU_DESCRIPTOR_HANDLE> m_StorageImageGPUDescriptors;
+
+		std::map<uint32_t, D3D12_CPU_DESCRIPTOR_HANDLE> m_StorageBufferCPUDescriptors;
+		std::map<uint32_t, D3D12_GPU_DESCRIPTOR_HANDLE> m_StorageBufferGPUDescriptors;
+
+		D3D12_GPU_DESCRIPTOR_HANDLE m_StorageBufferDescriptorStartHandle;
 
 		GraphicsDeviceD3D12 *m_Device = nullptr;
 	};

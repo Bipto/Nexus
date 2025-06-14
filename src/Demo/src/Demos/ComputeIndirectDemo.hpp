@@ -57,14 +57,18 @@ namespace Demos
 			Nexus::Graphics::StorageImageView storageImageView = {};
 			storageImageView.TextureHandle					   = m_Texture;
 			storageImageView.MipLevel						   = 0;
-			storageImageView.Access							   = Nexus::Graphics::StorageImageAccess::ReadWrite;
+			storageImageView.Access							   = Nexus::Graphics::ShaderAccess::ReadWrite;
 			m_ResourceSet->WriteStorageImage(storageImageView, "out_tex");
 
 			m_CommandList->Begin();
 
 			m_CommandList->SetPipeline(m_ComputePipeline);
 			m_CommandList->SetResourceSet(m_ResourceSet);
-			m_CommandList->DispatchIndirect(m_IndirectBuffer, 0);
+
+			Nexus::Graphics::DispatchIndirectDescription dispatchDesc = {};
+			dispatchDesc.IndirectBuffer								  = m_IndirectBuffer;
+			dispatchDesc.Offset										  = 0;
+			m_CommandList->DispatchIndirect(dispatchDesc);
 
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(Nexus::GetApplication()->GetPrimarySwapchain()));
 

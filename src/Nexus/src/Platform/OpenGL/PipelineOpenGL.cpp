@@ -69,7 +69,7 @@ namespace Nexus::Graphics
 				GL::GetBaseType(element, baseType, componentCount, normalized, primitiveType);
 
 				glCall(glEnableVertexAttribArray(index));
-				glCall(glBindBuffer(GL_ARRAY_BUFFER, vertexBufferOpenGL->GetBufferHandle()));
+				vertexBufferOpenGL->Bind(GL_ARRAY_BUFFER);
 
 				if (primitiveType == GL::GLPrimitiveType::Float)
 				{
@@ -98,7 +98,7 @@ namespace Nexus::Graphics
 			{
 				IndexBufferView	   &view			   = indexBuffer.value();
 				Ref<DeviceBufferOpenGL> deviceBufferOpenGL = std::dynamic_pointer_cast<DeviceBufferOpenGL>(view.BufferHandle);
-				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, deviceBufferOpenGL->GetBufferHandle());
+				deviceBufferOpenGL->Bind(GL_ELEMENT_ARRAY_BUFFER);
 			}
 		}
 	}

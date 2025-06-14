@@ -27,6 +27,14 @@ namespace Nexus::Graphics
 			info.Binding = storageImage.Binding;
 			m_StorageImageBindingInfos[storageImage.Name] = info;
 		}
+
+		for (const auto &storageBuffer : spec.StorageBuffers)
+		{
+			BindingInfo info;
+			info.Set										= storageBuffer.Set;
+			info.Binding									= storageBuffer.Binding;
+			m_StorageBufferBindingInfos[storageBuffer.Name] = info;
+		}
 	}
 
 	const ResourceSetSpecification &ResourceSet::GetSpecification() const
@@ -66,5 +74,10 @@ namespace Nexus::Graphics
 	const std::map<std::string, StorageImageView> &ResourceSet::GetBoundStorageImages() const
 	{
 		return m_BoundStorageImages;
+	}
+
+	const std::map<std::string, StorageBufferView> &Nexus::Graphics::ResourceSet::GetBoundStorageBuffers() const
+	{
+		return m_BoundStorageBuffers;
 	}
 }	 // namespace Nexus::Graphics

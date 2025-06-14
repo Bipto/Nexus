@@ -14,6 +14,7 @@ namespace Nexus::Graphics
 	{
 	  public:
 		ResourceSetOpenGL(const ResourceSetSpecification &spec);
+		virtual void WriteStorageBuffer(StorageBufferView storageBuffer, const std::string &name) override;
 		virtual void WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name) override;
 		virtual void WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name) override;
 		virtual void WriteStorageImage(StorageImageView view, const std::string &name) override;

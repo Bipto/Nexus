@@ -69,7 +69,7 @@ namespace Nexus::Graphics
 		m_Commands.push_back(pipeline);
 	}
 
-	void CommandList::Draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t instanceStart)
+	void CommandList::Draw(const DrawDescription &desc)
 	{
 		if (!m_Started)
 		{
@@ -78,15 +78,10 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		DrawCommand command;
-		command.VertexCount	  = vertexCount;
-		command.InstanceCount = instanceCount;
-		command.VertexStart	  = vertexStart;
-		command.InstanceStart = instanceStart;
-		m_Commands.push_back(command);
+		m_Commands.push_back(desc);
 	}
 
-	void CommandList::DrawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t vertexStart, uint32_t indexStart, uint32_t instanceStart)
+	void CommandList::DrawIndexed(const DrawIndexedDescription &desc)
 	{
 		if (!m_Started)
 		{
@@ -95,16 +90,10 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		DrawIndexedCommand command;
-		command.IndexCount	  = indexCount;
-		command.InstanceCount = instanceCount;
-		command.VertexStart	  = vertexStart;
-		command.IndexStart	  = indexStart;
-		command.InstanceStart = instanceStart;
-		m_Commands.push_back(command);
+		m_Commands.push_back(desc);
 	}
 
-	void CommandList::DrawIndirect(Ref<DeviceBuffer> indirectBuffer, uint32_t offset, uint32_t drawCount)
+	void CommandList::DrawIndirect(const DrawIndirectDescription &desc)
 	{
 		if (!m_Started)
 		{
@@ -113,14 +102,10 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		DrawIndirectCommand command;
-		command.IndirectBuffer = indirectBuffer;
-		command.Offset		   = offset;
-		command.DrawCount	   = drawCount;
-		m_Commands.push_back(command);
+		m_Commands.push_back(desc);
 	}
 
-	void CommandList::DrawIndexedIndirect(Ref<DeviceBuffer> indirectBuffer, uint32_t offset, uint32_t drawCount)
+	void CommandList::DrawIndexedIndirect(const DrawIndirectIndexedDescription &desc)
 	{
 		if (!m_Started)
 		{
@@ -129,14 +114,10 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		DrawIndirectIndexedCommand command;
-		command.IndirectBuffer = indirectBuffer;
-		command.Offset		   = offset;
-		command.DrawCount	   = drawCount;
-		m_Commands.push_back(command);
+		m_Commands.push_back(desc);
 	}
 
-	void CommandList::Dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ)
+	void CommandList::Dispatch(const DispatchDescription &desc)
 	{
 		if (!m_Started)
 		{
@@ -145,14 +126,10 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		DispatchCommand command;
-		command.WorkGroupCountX = groupCountX;
-		command.WorkGroupCountY = groupCountY;
-		command.WorkGroupCountZ = groupCountZ;
-		m_Commands.push_back(command);
+		m_Commands.push_back(desc);
 	}
 
-	void CommandList::DispatchIndirect(Ref<DeviceBuffer> indirectBuffer, uint32_t offset)
+	void CommandList::DispatchIndirect(const DispatchIndirectDescription &desc)
 	{
 		if (!m_Started)
 		{
@@ -161,10 +138,7 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		DispatchIndirectCommand command;
-		command.IndirectBuffer = indirectBuffer;
-		command.Offset		   = offset;
-		m_Commands.push_back(command);
+		m_Commands.push_back(desc);
 	}
 
 	void CommandList::SetResourceSet(Ref<ResourceSet> resources)
@@ -179,6 +153,22 @@ namespace Nexus::Graphics
 		m_Commands.push_back(resources);
 	}
 
+	void CommandList::ClearColorTarget(uint32_t index, const ClearColorValue &color, ClearRect clearRect)
+	{
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
+		ClearColorTargetCommand command;
+		command.Index = index;
+		command.Color = color;
+		command.Rect  = clearRect;
+		m_Commands.push_back(command);
+	}
+
 	void CommandList::ClearColorTarget(uint32_t index, const ClearColorValue &color)
 	{
 		if (!m_Started)
@@ -191,6 +181,22 @@ namespace Nexus::Graphics
 		ClearColorTargetCommand command;
 		command.Index = index;
 		command.Color = color;
+		command.Rect  = std::nullopt;
+		m_Commands.push_back(command);
+	}
+
+	void CommandList::ClearDepthTarget(const ClearDepthStencilValue &value, ClearRect clearRect)
+	{
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
+		ClearDepthStencilTargetCommand command;
+		command.Value = value;
+		command.Rect  = clearRect;
 		m_Commands.push_back(command);
 	}
 
@@ -205,6 +211,7 @@ namespace Nexus::Graphics
 
 		ClearDepthStencilTargetCommand command;
 		command.Value = value;
+		command.Rect  = std::nullopt;
 		m_Commands.push_back(command);
 	}
 
@@ -334,13 +341,15 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
-	void CommandList::Barrier(const BarrierDesc &barrier)
-	{
-		m_Commands.push_back(barrier);
-	}
-
 	void CommandList::CopyBufferToBuffer(const BufferCopyDescription &bufferCopy)
 	{
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
 		Graphics::CopyBufferToBufferCommand command;
 		command.BufferCopy = bufferCopy;
 		m_Commands.push_back(command);
@@ -348,6 +357,13 @@ namespace Nexus::Graphics
 
 	void CommandList::CopyBufferToTexture(const BufferTextureCopyDescription &bufferTextureCopy)
 	{
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
 		Graphics::CopyBufferToTextureCommand command;
 		command.BufferTextureCopy = bufferTextureCopy;
 		m_Commands.push_back(command);
@@ -355,6 +371,13 @@ namespace Nexus::Graphics
 
 	void CommandList::CopyTextureToBuffer(const BufferTextureCopyDescription &textureBufferCopy)
 	{
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
 		Graphics::CopyTextureToBufferCommand command;
 		command.TextureBufferCopy = textureBufferCopy;
 		m_Commands.push_back(command);
@@ -362,8 +385,56 @@ namespace Nexus::Graphics
 
 	void CommandList::CopyTextureToTexture(const TextureCopyDescription &textureCopy)
 	{
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
 		Graphics::CopyTextureToTextureCommand command;
 		command.TextureCopy = textureCopy;
+		m_Commands.push_back(command);
+	}
+
+	void CommandList::BeginDebugGroup(const std::string &name)
+	{
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
+		BeginDebugGroupCommand command;
+		command.GroupName = name;
+		m_Commands.push_back(command);
+	}
+
+	void CommandList::EndDebugGroup()
+	{
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
+		EndDebugGroupCommand command;
+		m_Commands.push_back(command);
+	}
+
+	void CommandList::InsertDebugMarker(const std::string &name)
+	{
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
+		InsertDebugMarkerCommand command;
+		command.MarkerName = name;
 		m_Commands.push_back(command);
 	}
 

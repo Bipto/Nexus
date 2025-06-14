@@ -357,82 +357,6 @@ namespace Nexus::ImGuiUtils
 				io.AddMouseWheelEvent(args.Scroll.X, args.Scroll.Y);
 			});
 
-		window->AddMousePressedCallback(
-			[&](const Nexus::MouseButtonPressedEventArgs &args)
-			{
-				ImGuiIO &io = ImGui::GetIO();
-
-				switch (args.Button)
-				{
-					case MouseButton::Left:
-					{
-						io.AddMouseButtonEvent(0, true);
-						break;
-					}
-					case MouseButton::Right:
-					{
-						io.AddMouseButtonEvent(1, true);
-						break;
-					}
-					case MouseButton::Middle:
-					{
-						io.AddMouseButtonEvent(2, true);
-						break;
-					}
-				}
-
-				Nexus::Point2D<float> position = args.Position;
-				if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-				{
-					position = args.ScreenPosition;
-				}
-				io.AddMousePosEvent(position.X, position.Y);
-			});
-
-		window->AddMouseReleasedCallback(
-			[&](const Nexus::MouseButtonReleasedEventArgs &args)
-			{
-				ImGuiIO &io = ImGui::GetIO();
-
-				switch (args.Button)
-				{
-					case MouseButton::Left:
-					{
-						io.AddMouseButtonEvent(0, false);
-						break;
-					}
-					case MouseButton::Right:
-					{
-						io.AddMouseButtonEvent(1, false);
-						break;
-					}
-					case MouseButton::Middle:
-					{
-						io.AddMouseButtonEvent(2, false);
-						break;
-					}
-				}
-
-				Nexus::Point2D<float> position = args.Position;
-				if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-				{
-					position = args.ScreenPosition;
-				}
-				io.AddMousePosEvent(position.X, position.Y);
-			});
-
-		window->AddMouseMovedCallback(
-			[&](const Nexus::MouseMovedEventArgs &args)
-			{
-				ImGuiIO				 &io	   = ImGui::GetIO();
-				Nexus::Point2D<float> position = args.Position;
-				if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-				{
-					position = args.ScreenPosition;
-				}
-				io.AddMousePosEvent(position.X, position.Y);
-			});
-
 		window->AddMouseScrollCallback(
 			[&](const Nexus::MouseScrolledEventArgs &args)
 			{
@@ -493,12 +417,14 @@ namespace Nexus::ImGuiUtils
 		io.KeyAlt	= activeWindow->IsKeyDown(ScanCode::LeftAlt) || activeWindow->IsKeyDown(ScanCode::RightAlt);
 		io.KeySuper = activeWindow->IsKeyDown(ScanCode::LeftGUI) || activeWindow->IsKeyDown(ScanCode::RightGUI);
 
-		MouseState			  state	   = Platform::GetMouseState();
-		Nexus::Point2D<float> mousePos = activeWindow->GetMousePosition();
+		MouseState state = Platform::GetFocussedMouseState();
+		auto	   mousePos = activeWindow->GetMousePosition();
 
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
-			mousePos = state.MousePosition;
+			state	   = Platform::GetGlobalMouseState();
+			mousePos.X = state.MousePosition.X;
+			mousePos.Y = state.MousePosition.Y;
 		}
 
 		io.AddMousePosEvent(mousePos.X, mousePos.Y);
@@ -584,6 +510,7 @@ namespace Nexus::ImGuiUtils
 		ImGuiWindowInfo *info = (ImGuiWindowInfo *)drawData->OwnerViewport->PlatformUserData;
 
 		m_CommandList->Begin();
+		m_CommandList->BeginDebugGroup("Rendering ImGui");
 
 		ImVec2 pos = drawData->DisplayPos;
 
@@ -661,7 +588,13 @@ namespace Nexus::ImGuiUtils
 					const auto &resourceSet = m_ResourceSets.at(drawCmd.TextureId);
 					m_CommandList->SetResourceSet(resourceSet);
 
-					m_CommandList->DrawIndexed(drawCmd.ElemCount, 1, drawCmd.VtxOffset + vtxOffset, drawCmd.IdxOffset + idxOffset, 0);
+					Graphics::DrawIndexedDescription drawDesc = {};
+					drawDesc.VertexStart					  = drawCmd.VtxOffset + vtxOffset;
+					drawDesc.IndexStart						  = drawCmd.IdxOffset + idxOffset;
+					drawDesc.InstanceStart					  = 0;
+					drawDesc.IndexCount						  = drawCmd.ElemCount;
+					drawDesc.InstanceCount					  = 1;
+					m_CommandList->DrawIndexed(drawDesc);
 				}
 			}
 
@@ -669,6 +602,7 @@ namespace Nexus::ImGuiUtils
 			vtxOffset += cmdList->VtxBuffer.Size;
 		}
 
+		m_CommandList->EndDebugGroup();
 		m_CommandList->End();
 
 		m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);
@@ -769,7 +703,6 @@ namespace Nexus::ImGuiUtils
 			window->SetWindowPosition(vp->Pos.x, vp->Pos.y);
 
 			Ref<Nexus::Graphics::Swapchain> swapchain = app->GetGraphicsDevice()->CreateSwapchain(window, swapchainSpec);
-			swapchain->Initialise();
 
 			ImGuiWindowInfo *info = new ImGuiWindowInfo();
 			info->Window		  = window;

@@ -9,7 +9,8 @@ namespace Nexus
 {
 	SDL3Window::SDL3Window(const WindowSpecification &windowProps) : IWindow(windowProps), m_Specification(windowProps)
 	{
-		SDL_SetHint(SDL_HINT_EMSCRIPTEN_CANVAS_SELECTOR, windowProps.CanvasId.c_str());
+		std::string idSelector = "#" + windowProps.CanvasId;
+		SDL_SetHint(SDL_HINT_EMSCRIPTEN_CANVAS_SELECTOR, idSelector.c_str());
 		uint32_t flags = GetFlags(windowProps);
 		m_Window = SDL_CreateWindow(windowProps.Title.c_str(), windowProps.Width, windowProps.Height, flags);
 
@@ -47,11 +48,13 @@ namespace Nexus
 
 	void SDL3Window::SetSize(Point2D<uint32_t> size)
 	{
-#if !defined(__EMSCRIPTEN__)
+		/* #if !defined(__EMSCRIPTEN__)
+				SDL_SetWindowSize(m_Window, size.X, size.Y);
+		#else
+				SDL_SetWindowSize(m_Window, size.X * GetDisplayScale(), size.Y * GetDisplayScale());
+		#endif */
+
 		SDL_SetWindowSize(m_Window, size.X, size.Y);
-#else
-		SDL_SetWindowSize(m_Window, size.X * GetDisplayScale(), size.Y * GetDisplayScale());
-#endif
 	}
 
 	void SDL3Window::Close()
@@ -78,10 +81,10 @@ namespace Nexus
 		size.X = x;
 		size.Y = y;
 
-#if defined(__EMSCRIPTEN__)
-		size.X *= GetDisplayScale();
-		size.Y *= GetDisplayScale();
-#endif
+		/* #if defined(__EMSCRIPTEN__)
+				size.X *= GetDisplayScale();
+				size.Y *= GetDisplayScale();
+		#endif */
 
 		return size;
 	}
@@ -559,39 +562,60 @@ namespace Nexus
 
 	Point2D<float> SDL3Window::GetMousePosition(uint32_t mouseId)
 	{
-		return Point2D<float>();
+		return m_MouseStates[mouseId].MousePosition;
 	}
 
 	Point2D<float> SDL3Window::GetMouseScroll(uint32_t mouseId)
 	{
-		return Point2D<float>();
+		return m_MouseStates[mouseId].MouseWheel;
 	}
 
 	Point2D<float> SDL3Window::GetMousePosition()
 	{
-		return Point2D<float>();
+		std::optional<uint32_t> id = Platform::GetActiveMouseId();
+		if (!id.has_value())
+			return false;
+
+		auto mousePos = GetMousePosition(id.value());
+		return mousePos;
 	}
 
 	Point2D<float> SDL3Window::GetMouseScroll()
 	{
-		return Point2D<float>();
+		std::optional<uint32_t> id = Platform::GetActiveMouseId();
+		if (!id.has_value())
+			return false;
+
+		return GetMouseScroll(id.value());
 	}
 
 	bool SDL3Window::IsMouseButtonPressed(uint32_t mouseId, MouseButton state)
 	{
-		return false;
+		switch (state)
+		{
+			case MouseButton::Left: return m_MouseStates[mouseId].LeftButton == MouseButtonState::Pressed;
+			case MouseButton::Right: return m_MouseStates[mouseId].RightButton == MouseButtonState::Pressed;
+			case MouseButton::Middle: return m_MouseStates[mouseId].MiddleButton == MouseButtonState::Pressed;
+			case MouseButton::X1: return m_MouseStates[mouseId].X1Button == MouseButtonState::Pressed;
+			case MouseButton::X2: return m_MouseStates[mouseId].X2Button == MouseButtonState::Pressed;
+			default: throw std::runtime_error("Failed to find a valid button");
+		}
 	}
 
 	bool SDL3Window::IsMouseButtonPressed(MouseButton state)
 	{
-		return false;
+		std::optional<uint32_t> id = Platform::GetActiveMouseId();
+		if (!id.has_value())
+			return false;
+
+		return IsMouseButtonPressed(id.value(), state);
 	}
 
 	uint32_t SDL3Window::GetFlags(const WindowSpecification &windowSpec)
 	{
 		// required for emscripten to handle resizing correctly
 		uint32_t flags = 0;
-		flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
+		// flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
 
 		if (windowSpec.Resizable)
 		{

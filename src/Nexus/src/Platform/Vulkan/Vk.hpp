@@ -45,10 +45,6 @@ namespace Nexus::Vk
 	uint32_t			  GetSampleCountFromVkSampleCountFlags(VkSampleCountFlags sampleCount);
 	VkSampleCountFlagBits GetVkSampleCountFlagsFromSampleCount(uint32_t samples);
 
-	VkPipelineStageFlags2 GetBarrierPipelineStage(Nexus::Graphics::BarrierStage stage);
-	VkAccessFlags2		  GetBarrierAccessFlags(Nexus::Graphics::BarrierAccess access);
-	VkImageLayout		  GetBarrierLayout(Nexus::Graphics::BarrierLayout layout);
-
 	VkImageAspectFlagBits GetAspectFlags(Graphics::ImageAspect aspect);
 
 	struct AllocatedBuffer

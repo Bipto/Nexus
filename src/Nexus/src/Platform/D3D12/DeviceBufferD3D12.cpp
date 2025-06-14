@@ -22,6 +22,12 @@ namespace Nexus::Graphics
 			m_BufferSize = Utils::AlignTo<uint64_t>(desc.SizeInBytes, 256);
 		}
 
+		// structured/raw buffers are accessed using 4 byte alignment
+		if (desc.Usage & Graphics::BufferUsage::Storage)
+		{
+			m_BufferSize = Utils::AlignTo<uint64_t>(desc.SizeInBytes, 4);
+		}
+
 		D3D12_RESOURCE_DESC1 resourceDesc = {};
 		resourceDesc.Dimension			  = D3D12_RESOURCE_DIMENSION_BUFFER;
 		resourceDesc.Alignment			  = 0;
@@ -34,6 +40,11 @@ namespace Nexus::Graphics
 		resourceDesc.SampleDesc.Quality	  = 0;
 		resourceDesc.Layout				  = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 		resourceDesc.Flags				  = D3D12_RESOURCE_FLAG_NONE;
+
+		if (desc.Usage & BufferUsage::Storage)
+		{
+			resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+		}
 
 		HRESULT hr = allocator->CreateResource2(&allocationDesc,
 												&resourceDesc,

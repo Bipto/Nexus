@@ -335,16 +335,19 @@ namespace Nexus::Platform
 				auto [mouseType, mouseId]				 = Nexus::SDL3::GetMouseInfo(event.button.which);
 				std::optional<Nexus::MouseButton> button = Nexus::SDL3::GetMouseButton(event.button.button);
 
+				Point2D<int>   windowPos = window->GetWindowPosition();
+				float		   scale	 = window->GetDisplayScale();
+				Point2D<float> localPos	 = {event.button.x, event.button.y};
+
 				if (button.has_value())
 				{
 					Point2D<int>					   windowPos = window->GetWindowPosition();
-					Nexus::MouseButtonPressedEventArgs mousePressedEvent {
-						.Button			= button.value(),
-						.Position		= {event.button.x, event.button.y},
-						.ScreenPosition = {event.button.x + (float)windowPos.X, event.button.y + (float)windowPos.Y},
-						.Clicks			= event.button.clicks,
-						.MouseID		= mouseId,
-						.Type			= mouseType};
+					Nexus::MouseButtonPressedEventArgs mousePressedEvent {.Button		  = button.value(),
+																		  .Position		  = localPos,
+																		  .ScreenPosition = localPos,
+																		  .Clicks		  = event.button.clicks,
+																		  .MouseID		  = mouseId,
+																		  .Type			  = mouseType};
 
 					m_ActiveMouse = mouseId;
 					window->InvokeMousePressedCallback(mousePressedEvent);
@@ -357,15 +360,18 @@ namespace Nexus::Platform
 				auto [mouseType, mouseId]				 = Nexus::SDL3::GetMouseInfo(event.button.which);
 				std::optional<Nexus::MouseButton> button = Nexus::SDL3::GetMouseButton(event.button.button);
 
+				Point2D<int>   windowPos = window->GetWindowPosition();
+				float		   scale	 = window->GetDisplayScale();
+				Point2D<float> localPos	 = {event.button.x, event.button.y};
+
 				if (button.has_value())
 				{
 					Point2D<int>						windowPos = window->GetWindowPosition();
-					Nexus::MouseButtonReleasedEventArgs mouseReleasedEvent {
-						.Button			= button.value(),
-						.Position		= {event.button.x, event.button.y},
-						.ScreenPosition = {event.button.x + (float)windowPos.X, event.button.y + (float)windowPos.Y},
-						.MouseID		= mouseId,
-						.Type			= mouseType};
+					Nexus::MouseButtonReleasedEventArgs mouseReleasedEvent {.Button			= button.value(),
+																			.Position		= localPos,
+																			.ScreenPosition = localPos,
+																			.MouseID		= mouseId,
+																			.Type			= mouseType};
 
 					m_ActiveMouse = mouseId;
 					window->InvokeMouseReleasedCallback(mouseReleasedEvent);
@@ -375,24 +381,19 @@ namespace Nexus::Platform
 			}
 			case SDL_EVENT_MOUSE_MOTION:
 			{
-				float mouseX	= event.motion.x;
-				float mouseY	= event.motion.y;
-				float movementX = event.motion.xrel;
-				float movementY = event.motion.yrel;
+				Point2D<int> windowPos = window->GetWindowPosition();
+				float		 scale	   = window->GetDisplayScale();
 
-#if defined(__EMSCRIPTEN__)
-				float scale = window->GetDisplayScale();
-				mouseX *= scale;
-				mouseY *= scale;
-				movementX *= scale;
-				movementY *= scale;
-#endif
+				Point2D<float> localPos = {event.motion.x, event.motion.y};
+				Point2D<float> movement = {event.motion.xrel, event.motion.yrel};
+
+				Point2D<float> screenPos = {localPos.X + (float)windowPos.X, localPos.Y + (float)windowPos.Y};
+
 				auto [mouseType, mouseId] = Nexus::SDL3::GetMouseInfo(event.motion.which);
 
-				Point2D<int>			   windowPos = window->GetWindowPosition();
-				Nexus::MouseMovedEventArgs mouseMovedEvent {.Position		= {mouseX, mouseY},
-															.ScreenPosition = {mouseX + (float)windowPos.X, mouseY + (float)windowPos.Y},
-															.Movement		= {movementX, movementY},
+				Nexus::MouseMovedEventArgs mouseMovedEvent {.Position		= localPos,
+															.ScreenPosition = screenPos,
+															.Movement		= movement,
 															.MouseID		= mouseId,
 															.Type			= mouseType};
 
@@ -402,17 +403,19 @@ namespace Nexus::Platform
 			}
 			case SDL_EVENT_MOUSE_WHEEL:
 			{
+				Point2D<int>   windowPos = window->GetWindowPosition();
+				float		   scale	 = window->GetDisplayScale();
+				Point2D<float> localPos	 = {event.wheel.x, event.wheel.y};
+
 				auto [mouseType, mouseId]		 = Nexus::SDL3::GetMouseInfo(event.wheel.which);
 				Nexus::ScrollDirection direction = Nexus::SDL3::GetScrollDirection(event.wheel.direction);
 
-				Point2D<int>				  windowPos = window->GetWindowPosition();
-				Nexus::MouseScrolledEventArgs scrollEvent {
-					.Scroll			= {event.wheel.x, event.wheel.y},
-					.Position		= {event.wheel.mouse_x, event.wheel.mouse_y},
-					.ScreenPosition = {event.wheel.mouse_x + (float)windowPos.X, event.wheel.mouse_y + (float)windowPos.Y},
-					.MouseID		= mouseId,
-					.Type			= mouseType,
-					.Direction		= direction};
+				Nexus::MouseScrolledEventArgs scrollEvent {.Scroll		   = {event.wheel.x, event.wheel.y},
+														   .Position	   = localPos,
+														   .ScreenPosition = {localPos.X + windowPos.X, localPos.Y + windowPos.Y},
+														   .MouseID		   = mouseId,
+														   .Type		   = mouseType,
+														   .Direction	   = direction};
 
 				m_ActiveMouse = mouseId;
 				window->InvokeMouseScrollCallback(scrollEvent);
@@ -479,10 +482,13 @@ namespace Nexus::Platform
 					sourceData = event.drop.data;
 				}
 
+				float		   scale	= window->GetDisplayScale();
+				Point2D<float> localPos = {event.drop.x, event.drop.y};
+
 				Point2D<int>			 windowPos = window->GetWindowPosition();
 				Nexus::FileDropEventArgs fileDropEvent {.Type			= type,
-														.Position		= {event.drop.x, event.drop.y},
-														.ScreenPosition = {event.drop.x + (float)windowPos.X, event.drop.y + (float)windowPos.Y},
+														.Position		= {localPos.X, localPos.Y},
+														.ScreenPosition = {localPos.X + (float)windowPos.X, localPos.Y + (float)windowPos.Y},
 														.SourceApp		= sourceApp,
 														.Data			= sourceData};
 
@@ -571,7 +577,6 @@ namespace Nexus::Platform
 	void WaitEvent(Application *app)
 	{
 		SDL_Event event;
-		// while (SDL_WaitEvent(&event)) { HandleEvent(event, app); }
 		if (SDL_WaitEvent(&event))
 		{
 			HandleEvent(event, app);
@@ -632,6 +637,7 @@ namespace Nexus::Platform
 
 		return {};
 	}
+
 	std::optional<uint32_t> GetActiveMouseId()
 	{
 		return m_ActiveMouse;
@@ -647,10 +653,55 @@ namespace Nexus::Platform
 		return m_ActiveGamepad;
 	}
 
-	MouseState GetMouseState()
+	MouseState GetGlobalMouseState()
 	{
-		float  x, y;
+		float x, y;
+
 		Uint32 buttons = SDL_GetGlobalMouseState(&x, &y);
+
+		MouseState state;
+		state.MousePosition.X = x;
+		state.MousePosition.Y = y;
+		state.MouseWheel	  = {0, 0};
+		state.LeftButton	  = MouseButtonState::Released;
+		state.MiddleButton	  = MouseButtonState::Released;
+		state.RightButton	  = MouseButtonState::Released;
+		state.X1Button		  = MouseButtonState::Released;
+		state.X2Button		  = MouseButtonState::Released;
+
+		if (buttons & SDL_BUTTON_LEFT)
+		{
+			state.LeftButton = MouseButtonState::Pressed;
+		}
+
+		if (buttons & SDL_BUTTON_MIDDLE)
+		{
+			state.MiddleButton = MouseButtonState::Pressed;
+		}
+
+		if (buttons & SDL_BUTTON_RIGHT)
+		{
+			state.RightButton = MouseButtonState::Pressed;
+		}
+
+		if (buttons & SDL_BUTTON_X1)
+		{
+			state.X1Button = MouseButtonState::Pressed;
+		}
+
+		if (buttons & SDL_BUTTON_X2)
+		{
+			state.X2Button = MouseButtonState::Pressed;
+		}
+
+		return state;
+	}
+
+	MouseState GetFocussedMouseState()
+	{
+		float x, y;
+
+		Uint32 buttons = SDL_GetMouseState(&x, &y);
 
 		MouseState state;
 		state.MousePosition.X = x;

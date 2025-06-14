@@ -17,9 +17,6 @@ namespace Nexus::Graphics
 	  public:
 		SwapchainOpenGL(IWindow *window, const SwapchainSpecification &swapchainSpec, GraphicsDevice *graphicsDevice);
 		virtual ~SwapchainOpenGL();
-		virtual void Initialise() override
-		{
-		}
 		virtual void					 SwapBuffers() override;
 		virtual VSyncState				 GetVsyncState() override;
 		virtual void					 SetVSyncState(VSyncState vsyncState) override;

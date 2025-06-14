@@ -314,68 +314,6 @@ namespace Nexus::D3D12
 		return flags;
 	}
 
-	D3D12_BARRIER_SYNC GetBarrierSyncType(Nexus::Graphics::BarrierStage stage)
-	{
-		switch (stage)
-		{
-			case Nexus::Graphics::BarrierStage::None: return D3D12_BARRIER_SYNC_NONE;
-			case Nexus::Graphics::BarrierStage::All: return D3D12_BARRIER_SYNC_ALL;
-			case Nexus::Graphics::BarrierStage::Graphics: return D3D12_BARRIER_SYNC_ALL_SHADING;
-			case Nexus::Graphics::BarrierStage::VertexInput: return D3D12_BARRIER_SYNC_INPUT_ASSEMBLER;
-			case Nexus::Graphics::BarrierStage::VertexShader: return D3D12_BARRIER_SYNC_VERTEX_SHADING;
-			case Nexus::Graphics::BarrierStage::FragmentShader: return D3D12_BARRIER_SYNC_PIXEL_SHADING;
-			case Nexus::Graphics::BarrierStage::TesselationControlShader:
-			case Nexus::Graphics::BarrierStage::TesselationEvaluationShader:
-			case Nexus::Graphics::BarrierStage::GeometryShader: return D3D12_BARRIER_SYNC_NON_PIXEL_SHADING;
-			case Nexus::Graphics::BarrierStage::ComputeShader: return D3D12_BARRIER_SYNC_COMPUTE_SHADING;
-			case Nexus::Graphics::BarrierStage::RenderTarget: return D3D12_BARRIER_SYNC_RENDER_TARGET | D3D12_BARRIER_SYNC_DEPTH_STENCIL;
-			case Nexus::Graphics::BarrierStage::TransferSource: return D3D12_BARRIER_SYNC_COPY;
-			case Nexus::Graphics::BarrierStage::TransferDestination: return D3D12_BARRIER_SYNC_COPY;
-			case Nexus::Graphics::BarrierStage::Resolve: return D3D12_BARRIER_SYNC_RESOLVE;
-			default: throw std::runtime_error("Failed to find a valid barrier sync type");
-		}
-	}
-
-	D3D12_BARRIER_ACCESS GetBarrierAccessType(Nexus::Graphics::BarrierAccess access)
-	{
-		switch (access)
-		{
-			case Nexus::Graphics::BarrierAccess::None: return D3D12_BARRIER_ACCESS_NO_ACCESS;
-			case Nexus::Graphics::BarrierAccess::All: return D3D12_BARRIER_ACCESS_COMMON;
-			case Nexus::Graphics::BarrierAccess::VertexBuffer: return D3D12_BARRIER_ACCESS_VERTEX_BUFFER;
-			case Nexus::Graphics::BarrierAccess::IndexBuffer: return D3D12_BARRIER_ACCESS_INDEX_BUFFER;
-			case Nexus::Graphics::BarrierAccess::RenderTarget: return D3D12_BARRIER_ACCESS_RENDER_TARGET;
-			case Nexus::Graphics::BarrierAccess::DepthStencilRead: return D3D12_BARRIER_ACCESS_DEPTH_STENCIL_READ;
-			case Nexus::Graphics::BarrierAccess::DepthStencilWrite: return D3D12_BARRIER_ACCESS_DEPTH_STENCIL_WRITE;
-			case Nexus::Graphics::BarrierAccess::ResolveSource: return D3D12_BARRIER_ACCESS_RESOLVE_SOURCE;
-			case Nexus::Graphics::BarrierAccess::ResolveDestination: return D3D12_BARRIER_ACCESS_RESOLVE_DEST;
-			case Nexus::Graphics::BarrierAccess::CopySource: return D3D12_BARRIER_ACCESS_COPY_SOURCE;
-			case Nexus::Graphics::BarrierAccess::CopyDestination: return D3D12_BARRIER_ACCESS_COPY_DEST;
-			case Nexus::Graphics::BarrierAccess::DrawIndirect: return D3D12_BARRIER_ACCESS_INDIRECT_ARGUMENT;
-			default: throw std::runtime_error("Failed to find a valid barrier access type");
-		}
-	}
-
-	D3D12_BARRIER_LAYOUT GetBarrierLayout(Nexus::Graphics::BarrierLayout layout)
-	{
-		switch (layout)
-		{
-			case Nexus::Graphics::BarrierLayout::Undefined: return D3D12_BARRIER_LAYOUT_UNDEFINED;
-			case Nexus::Graphics::BarrierLayout::General: return D3D12_BARRIER_LAYOUT_COMMON;
-			case Nexus::Graphics::BarrierLayout::Present: return D3D12_BARRIER_LAYOUT_PRESENT;
-			case Nexus::Graphics::BarrierLayout::RenderTarget: return D3D12_BARRIER_LAYOUT_RENDER_TARGET;
-			case Nexus::Graphics::BarrierLayout::DepthStencilRead: return D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_READ;
-			case Nexus::Graphics::BarrierLayout::DepthStencilWrite: return D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_WRITE;
-			case Nexus::Graphics::BarrierLayout::CopySource: return D3D12_BARRIER_LAYOUT_COPY_SOURCE;
-			case Nexus::Graphics::BarrierLayout::CopyDestination: return D3D12_BARRIER_LAYOUT_COPY_DEST;
-			case Nexus::Graphics::BarrierLayout::ResolveSource: return D3D12_BARRIER_LAYOUT_RESOLVE_SOURCE;
-			case Nexus::Graphics::BarrierLayout::ResolveDestimation: return D3D12_BARRIER_LAYOUT_RESOLVE_DEST;
-			case Nexus::Graphics::BarrierLayout::ShaderReadOnly: return D3D12_BARRIER_LAYOUT_SHADER_RESOURCE;
-			case Nexus::Graphics::BarrierLayout::ShaderReadWrite: return D3D12_BARRIER_LAYOUT_UNORDERED_ACCESS;
-			default: throw std::runtime_error("Failed to find a valid barrier layout");
-		}
-	}
-
 	D3D12_SHADER_RESOURCE_VIEW_DESC CreateTextureSrvView(const Graphics::TextureSpecification &spec)
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};

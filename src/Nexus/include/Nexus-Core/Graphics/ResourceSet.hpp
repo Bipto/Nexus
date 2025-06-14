@@ -33,12 +33,14 @@ namespace Nexus::Graphics
 		std::vector<ResourceBinding> SampledImages;
 		std::vector<ResourceBinding> UniformBuffers;
 		std::vector<ResourceBinding> StorageImages;
+		std::vector<ResourceBinding> StorageBuffers;
 
 		ResourceSetSpecification &operator+(const ResourceSetSpecification &other)
 		{
 			SampledImages.insert(SampledImages.end(), other.SampledImages.begin(), other.SampledImages.end());
-			UniformBuffers.insert(UniformBuffers.end(), UniformBuffers.begin(), UniformBuffers.end());
-			StorageImages.insert(StorageImages.end(), StorageImages.begin(), StorageImages.end());
+			UniformBuffers.insert(UniformBuffers.end(), other.UniformBuffers.begin(), other.UniformBuffers.end());
+			StorageImages.insert(StorageImages.end(), other.StorageImages.begin(), other.StorageImages.end());
+			StorageBuffers.insert(StorageBuffers.end(), other.StorageBuffers.begin(), other.StorageBuffers.end());
 			return *this;
 		}
 
@@ -46,13 +48,14 @@ namespace Nexus::Graphics
 		{
 			SampledImages.insert(SampledImages.end(), other.SampledImages.begin(), other.SampledImages.end());
 			UniformBuffers.insert(UniformBuffers.end(), other.UniformBuffers.begin(), other.UniformBuffers.end());
-			StorageImages.insert(StorageImages.end(), StorageImages.begin(), StorageImages.end());
+			StorageImages.insert(StorageImages.end(), other.StorageImages.begin(), other.StorageImages.end());
+			StorageBuffers.insert(StorageBuffers.end(), other.StorageBuffers.begin(), other.StorageBuffers.end());
 			return *this;
 		}
 
 		bool HasResources() const
 		{
-			return SampledImages.size() || UniformBuffers.size() > 0 || StorageImages.size() > 0;
+			return SampledImages.size() || UniformBuffers.size() > 0 || StorageImages.size() > 0 || StorageBuffers.size() > 0;
 		}
 	};
 
@@ -62,7 +65,7 @@ namespace Nexus::Graphics
 		Ref<Sampler> ImageSampler = {};
 	};
 
-	enum class StorageImageAccess
+	enum class ShaderAccess
 	{
 		Read,
 		ReadWrite
@@ -70,10 +73,18 @@ namespace Nexus::Graphics
 
 	struct StorageImageView
 	{
-		Ref<Texture>	   TextureHandle = nullptr;
-		uint32_t		   ArrayLayer	 = 0;
-		uint32_t		   MipLevel		 = 0;
-		StorageImageAccess Access		 = StorageImageAccess::Read;
+		Ref<Texture> TextureHandle = nullptr;
+		uint32_t	 ArrayLayer	   = 0;
+		uint32_t	 MipLevel	   = 0;
+		ShaderAccess Access		   = ShaderAccess::Read;
+	};
+
+	struct StorageBufferView
+	{
+		Ref<DeviceBuffer> BufferHandle	   = nullptr;
+		size_t			  Offset		   = 0;
+		size_t			  SizeInBytes	   = 0;
+		ShaderAccess	  Access		   = ShaderAccess::Read;
 	};
 
 	class ResourceSet
@@ -84,6 +95,7 @@ namespace Nexus::Graphics
 		{
 		}
 
+		virtual void WriteStorageBuffer(StorageBufferView, const std::string &name)									= 0;
 		virtual void WriteUniformBuffer(UniformBufferView uniformBuffer, const std::string &name)					= 0;
 		virtual void WriteCombinedImageSampler(Ref<Texture> texture, Ref<Sampler> sampler, const std::string &name) = 0;
 		virtual void WriteStorageImage(StorageImageView view, const std::string &name)								= 0;
@@ -97,15 +109,18 @@ namespace Nexus::Graphics
 		const std::map<std::string, UniformBufferView>	  &GetBoundUniformBuffers() const;
 		const std::map<std::string, CombinedImageSampler> &GetBoundCombinedImageSamplers() const;
 		const std::map<std::string, StorageImageView>	  &GetBoundStorageImages() const;
+		const std::map<std::string, StorageBufferView>	  &GetBoundStorageBuffers() const;
 
 	  protected:
 		ResourceSetSpecification		   m_Specification;
 		std::map<std::string, BindingInfo> m_CombinedImageSamplerBindingInfos;
 		std::map<std::string, BindingInfo> m_UniformBufferBindingInfos;
 		std::map<std::string, BindingInfo> m_StorageImageBindingInfos;
+		std::map<std::string, BindingInfo> m_StorageBufferBindingInfos;
 
 		std::map<std::string, UniformBufferView>	m_BoundUniformBuffers;
 		std::map<std::string, CombinedImageSampler> m_BoundCombinedImageSamplers;
 		std::map<std::string, StorageImageView>		m_BoundStorageImages;
+		std::map<std::string, StorageBufferView>	m_BoundStorageBuffers;
 	};
 }	 // namespace Nexus::Graphics

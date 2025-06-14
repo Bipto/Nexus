@@ -84,7 +84,14 @@ namespace Demos
 			indexBufferView.BufferFormat					 = Nexus::Graphics::IndexBufferFormat::UInt32;
 			m_CommandList->SetIndexBuffer(indexBufferView);
 
-			m_CommandList->DrawIndexed(m_IndexBuffer->GetCount(), 1, 0, 0, 0);
+			Nexus::Graphics::DrawIndexedDescription drawDesc = {};
+			drawDesc.VertexStart							 = 0;
+			drawDesc.IndexStart								 = 0;
+			drawDesc.InstanceStart							 = 0;
+			drawDesc.IndexCount								 = m_IndexBuffer->GetCount();
+			drawDesc.InstanceCount							 = 1;
+			m_CommandList->DrawIndexed(drawDesc);
+
 			m_CommandList->End();
 
 			m_GraphicsDevice->SubmitCommandLists(&m_CommandList, 1, nullptr);

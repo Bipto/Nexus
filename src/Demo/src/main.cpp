@@ -3,6 +3,7 @@
 #include "Demos/AudioDemo.hpp"
 #include "Demos/BatchingDemo.hpp"
 #include "Demos/CameraDemo.hpp"
+#include "Demos/ClearRectDemo.hpp"
 #include "Demos/ClearScreenDemo.hpp"
 #include "Demos/ClippingAndTriangulationDemo.hpp"
 #include "Demos/ComputeDemo.hpp"
@@ -20,6 +21,7 @@
 #include "Demos/MipmapDemo.hpp"
 #include "Demos/Models.hpp"
 #include "Demos/Splines.hpp"
+#include "Demos/StorageBufferDemo.hpp"
 #include "Demos/Texturing.hpp"
 #include "Demos/TimingDemo.hpp"
 #include "Demos/UniformBufferDemo.hpp"
@@ -72,6 +74,7 @@ class DemoApplication : public Nexus::Application
 		m_ImGuiRenderer->RebuildFontAtlas();
 
 		RegisterGraphicsDemo<Demos::ClearScreenDemo>("Clear Colour");
+		RegisterGraphicsDemo<Demos::ClearRectDemo>("Clear Rects");
 		RegisterGraphicsDemo<Demos::TimingDemo>("Timings");
 		RegisterGraphicsDemo<Demos::HelloTriangleDemo>("Hello Triangle");
 		RegisterGraphicsDemo<Demos::HelloTriangleIndexedDemo>("Hello Triangle Indexed");
@@ -81,6 +84,7 @@ class DemoApplication : public Nexus::Application
 		RegisterGraphicsDemo<Demos::BatchingDemo>("Batching");
 		RegisterGraphicsDemo<Demos::FramebufferDemo>("Framebuffers");
 		RegisterGraphicsDemo<Demos::UniformBufferDemo>("Uniform Buffers");
+		RegisterGraphicsDemo<Demos::StorageBufferDemo>("Storage Buffers");
 		RegisterGraphicsDemo<Demos::Demo3D>("3D");
 		RegisterGraphicsDemo<Demos::CameraDemo>("Camera");
 		RegisterGraphicsDemo<Demos::LightingDemo>("Lighting");
@@ -306,7 +310,7 @@ class DemoApplication : public Nexus::Application
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
 	Nexus::ApplicationSpecification spec;
-	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
+	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::Vulkan;
 	spec.AudioAPI	 = Nexus::Audio::AudioAPI::OpenAL;
 
 	spec.WindowProperties.Width			   = 1280;
