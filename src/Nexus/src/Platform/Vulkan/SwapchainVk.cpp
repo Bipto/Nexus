@@ -30,6 +30,8 @@ namespace Nexus::Graphics
 		GraphicsDeviceVk *graphicsDeviceVk = (GraphicsDeviceVk *)graphicsDevice;
 		CreateSurface(graphicsDeviceVk->GetVkInstance());
 
+		CreateAll();
+
 		window->AddResizeCallback([&](const WindowResizedEventArgs &args) { RecreateSwapchain(); });
 	}
 
@@ -130,25 +132,6 @@ namespace Nexus::Graphics
 		AcquireNextImage();
 	}
 
-	void SwapchainVk::Initialise()
-	{
-		std::shared_ptr<IPhysicalDevice>  physicalDevice   = m_GraphicsDevice->GetPhysicalDevice();
-		std::shared_ptr<PhysicalDeviceVk> physicalDeviceVk = std::dynamic_pointer_cast<PhysicalDeviceVk>(physicalDevice);
-
-		if (CreateSwapchain(physicalDeviceVk))
-		{
-			CreateSwapchainImageViews();
-			CreateDepthStencil((GraphicsDeviceVk *)m_GraphicsDevice);
-			CreateResolveAttachment((GraphicsDeviceVk *)m_GraphicsDevice);
-			CreateSemaphores();
-			m_SwapchainValid = true;
-		}
-		else
-		{
-			m_SwapchainValid = false;
-		}
-	}
-
 	PixelFormat SwapchainVk::GetColourFormat()
 	{
 		return Vk::GetNxPixelFormatFromVkPixelFormat(m_SurfaceFormat.format);
@@ -163,7 +146,7 @@ namespace Nexus::Graphics
 		CleanupDepthStencil();
 		CleanupSemaphores();
 
-		Initialise();
+		CreateAll();
 	}
 
 	uint32_t SwapchainVk::GetImageCount()
@@ -383,6 +366,25 @@ namespace Nexus::Graphics
 			{
 				throw std::runtime_error("Failed to create semaphore");
 			}
+		}
+	}
+
+	void SwapchainVk::CreateAll()
+	{
+		std::shared_ptr<IPhysicalDevice>  physicalDevice   = m_GraphicsDevice->GetPhysicalDevice();
+		std::shared_ptr<PhysicalDeviceVk> physicalDeviceVk = std::dynamic_pointer_cast<PhysicalDeviceVk>(physicalDevice);
+
+		if (CreateSwapchain(physicalDeviceVk))
+		{
+			CreateSwapchainImageViews();
+			CreateDepthStencil((GraphicsDeviceVk *)m_GraphicsDevice);
+			CreateResolveAttachment((GraphicsDeviceVk *)m_GraphicsDevice);
+			CreateSemaphores();
+			m_SwapchainValid = true;
+		}
+		else
+		{
+			m_SwapchainValid = false;
 		}
 	}
 
