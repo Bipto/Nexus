@@ -343,6 +343,13 @@ namespace Nexus::Graphics
 
 	void CommandList::CopyBufferToBuffer(const BufferCopyDescription &bufferCopy)
 	{
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
 		Graphics::CopyBufferToBufferCommand command;
 		command.BufferCopy = bufferCopy;
 		m_Commands.push_back(command);
@@ -350,6 +357,13 @@ namespace Nexus::Graphics
 
 	void CommandList::CopyBufferToTexture(const BufferTextureCopyDescription &bufferTextureCopy)
 	{
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
 		Graphics::CopyBufferToTextureCommand command;
 		command.BufferTextureCopy = bufferTextureCopy;
 		m_Commands.push_back(command);
@@ -357,6 +371,13 @@ namespace Nexus::Graphics
 
 	void CommandList::CopyTextureToBuffer(const BufferTextureCopyDescription &textureBufferCopy)
 	{
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
 		Graphics::CopyTextureToBufferCommand command;
 		command.TextureBufferCopy = textureBufferCopy;
 		m_Commands.push_back(command);
@@ -364,6 +385,13 @@ namespace Nexus::Graphics
 
 	void CommandList::CopyTextureToTexture(const TextureCopyDescription &textureCopy)
 	{
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
 		Graphics::CopyTextureToTextureCommand command;
 		command.TextureCopy = textureCopy;
 		m_Commands.push_back(command);
@@ -371,6 +399,13 @@ namespace Nexus::Graphics
 
 	void CommandList::BeginDebugGroup(const std::string &name)
 	{
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
 		BeginDebugGroupCommand command;
 		command.GroupName = name;
 		m_Commands.push_back(command);
@@ -378,12 +413,26 @@ namespace Nexus::Graphics
 
 	void CommandList::EndDebugGroup()
 	{
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
 		EndDebugGroupCommand command;
 		m_Commands.push_back(command);
 	}
 
 	void CommandList::InsertDebugMarker(const std::string &name)
 	{
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
 		InsertDebugMarkerCommand command;
 		command.MarkerName = name;
 		m_Commands.push_back(command);
