@@ -22,6 +22,7 @@ namespace Nexus::Graphics
 
 		void		 SetFramebuffer(WeakRef<Framebuffer> framebuffer);
 		void		 SetSwapchain(WeakRef<Swapchain> swapchain);
+		virtual void SubmitCommandList(Ref<CommandList> commandList, Ref<Fence> fence) override;
 		virtual void SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) override;
 
 		virtual const std::string				 GetAPIName() override;

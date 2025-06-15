@@ -18,6 +18,7 @@ namespace Nexus::Graphics
 		GraphicsDeviceD3D12(std::shared_ptr<IPhysicalDevice> physicalDevice, Microsoft::WRL::ComPtr<IDXGIFactory7> factory);
 		~GraphicsDeviceD3D12();
 
+		virtual void SubmitCommandList(Ref<CommandList> commandList, Ref<Fence> fence) override;
 		virtual void SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) override;
 
 		virtual const std::string				 GetAPIName() override;

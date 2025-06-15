@@ -55,9 +55,40 @@ namespace Nexus::Graphics
 		}
 	}
 
+	void GraphicsDeviceVk::SubmitCommandList(Ref<CommandList> commandList, Ref<Fence> fence)
+	{
+		VkPipelineStageFlags waitDestStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+
+		Ref<CommandListVk>									   commandListVk = std::dynamic_pointer_cast<CommandListVk>(commandList);
+		const std::vector<Nexus::Graphics::RenderCommandData> &commands		 = commandList->GetCommandData();
+		m_CommandExecutor->SetCommandBuffer(commandListVk->GetCurrentCommandBuffer());
+		m_CommandExecutor->ExecuteCommands(commands, this);
+		m_CommandExecutor->Reset();
+		VkCommandBuffer vkCmdBuffer = commandListVk->GetCurrentCommandBuffer();
+
+		VkSubmitInfo submitInfo			= {};
+		submitInfo.sType				= VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submitInfo.waitSemaphoreCount	= 0;
+		submitInfo.pWaitSemaphores		= nullptr;
+		submitInfo.pWaitDstStageMask	= &waitDestStageMask;
+		submitInfo.commandBufferCount	= 1;
+		submitInfo.signalSemaphoreCount = 0;
+		submitInfo.pSignalSemaphores	= nullptr;
+
+		VkFence vulkanFence = nullptr;
+
+		if (fence)
+		{
+			Ref<FenceVk> apiFence = std::dynamic_pointer_cast<FenceVk>(fence);
+			vulkanFence			  = apiFence->GetHandle();
+		}
+
+		NX_ASSERT(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, vulkanFence) == VK_SUCCESS, "Failed to submit queue");
+	}
+
 	void GraphicsDeviceVk::SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence)
 	{
-		VkPipelineStageFlags		 waitDestStageMask = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
+		VkPipelineStageFlags		 waitDestStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
 		std::vector<VkCommandBuffer> commandBuffers(numCommandLists);
 
 		// record the commands into the actual vulkan command list
@@ -89,10 +120,7 @@ namespace Nexus::Graphics
 			vkFence				  = apiFence->GetHandle();
 		}
 
-		if (vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, vkFence) != VK_SUCCESS)
-		{
-			throw std::runtime_error("Failed to submit queue");
-		}
+		NX_ASSERT(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, vkFence) == VK_SUCCESS, "Failed to submit queue");
 	}
 
 	const std::string GraphicsDeviceVk::GetAPIName()

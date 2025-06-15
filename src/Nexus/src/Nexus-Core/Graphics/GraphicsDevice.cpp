@@ -106,12 +106,12 @@ namespace Nexus::Graphics
 										size_t		 size)
 	{
 		DeviceBufferDescription bufferDesc = {};
-		bufferDesc.Access					  = BufferMemoryAccess::Upload;
-		bufferDesc.Usage					  = BUFFER_USAGE_NONE;
+		bufferDesc.Access				   = BufferMemoryAccess::Upload;
+		bufferDesc.Usage				   = BUFFER_USAGE_NONE;
 		bufferDesc.SizeInBytes			   = size;
-		bufferDesc.StrideInBytes			  = size;
-		Ref<DeviceBuffer>			  buffer  = CreateDeviceBuffer(bufferDesc);
-		Ref<CommandList>			  cmdList = CreateCommandList();
+		bufferDesc.StrideInBytes		   = size;
+		Ref<DeviceBuffer> buffer		   = CreateDeviceBuffer(bufferDesc);
+		Ref<CommandList>  cmdList		   = CreateCommandList();
 
 		buffer->SetData(data, 0, size);
 
@@ -156,8 +156,8 @@ namespace Nexus::Graphics
 		bufferDesc.SizeInBytes			   = bufferSize;
 		bufferDesc.StrideInBytes		   = bufferSize;
 
-		Ref<DeviceBuffer>			  buffer  = CreateDeviceBuffer(bufferDesc);
-		Ref<CommandList>			  cmdList = CreateCommandList();
+		Ref<DeviceBuffer> buffer  = CreateDeviceBuffer(bufferDesc);
+		Ref<CommandList>  cmdList = CreateCommandList();
 
 		cmdList->Begin();
 
@@ -264,8 +264,8 @@ namespace Nexus::Graphics
 
 			for (uint32_t i = 1; i < spec.MipLevels; i++)
 			{
-				auto [width, height]			  = Utils::GetMipSize(spec.Width, spec.Height, i);
-				std::vector<char> pixels		  = mipGenerator.GenerateMip(texture, i, i - 1);
+				auto [width, height]	 = Utils::GetMipSize(spec.Width, spec.Height, i);
+				std::vector<char> pixels = mipGenerator.GenerateMip(texture, i, i - 1);
 				WriteToTexture(texture, 0, i, 0, 0, 0, width, height, pixels.data(), pixels.size());
 			}
 		}
@@ -281,5 +281,15 @@ namespace Nexus::Graphics
 	Ref<ResourceSet> GraphicsDevice::CreateResourceSet(Ref<Pipeline> pipeline)
 	{
 		return CreateResourceSet(pipeline->GetResourceSetSpecification());
+	}
+
+	void GraphicsDevice::SubmitCommandList(Ref<CommandList> commandList)
+	{
+		SubmitCommandList(commandList, nullptr);
+	}
+
+	void GraphicsDevice::SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists)
+	{
+		SubmitCommandLists(commandLists, numCommandLists, nullptr);
 	}
 }	 // namespace Nexus::Graphics
