@@ -107,7 +107,7 @@ void CreateGraphicsAPIAndDevice(Nexus::Graphics::GraphicsAPI					  api,
 {
 	Nexus::Graphics::GraphicsAPICreateInfo apiCreateInfo = {};
 	apiCreateInfo.API									 = api;
-	apiCreateInfo.Debug									 = false;
+	apiCreateInfo.Debug									 = true;
 
 	graphicsAPI = std::unique_ptr<Nexus::Graphics::IGraphicsAPI>(Nexus::Graphics::IGraphicsAPI::CreateAPI(apiCreateInfo));
 

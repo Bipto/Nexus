@@ -89,6 +89,7 @@ namespace Nexus::Graphics
 
 		if (debug)
 		{
+			extensionNames.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 			extensionNames.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 		}
 
@@ -175,7 +176,7 @@ namespace Nexus::Graphics
 
 	Graphics::GraphicsDevice *GraphicsAPI_Vk::CreateGraphicsDevice(std::shared_ptr<IPhysicalDevice> device)
 	{
-		return new GraphicsDeviceVk(device, m_Instance);
+		return new GraphicsDeviceVk(device, m_Instance, m_CreateInfo.Debug);
 	}
 
 	const GraphicsAPICreateInfo &GraphicsAPI_Vk::GetGraphicsAPICreateInfo() const
