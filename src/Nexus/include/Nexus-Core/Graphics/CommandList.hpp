@@ -204,25 +204,6 @@ namespace Nexus::Graphics
 		Ref<TimingQuery> Query = {};
 	};
 
-	struct SetStencilRefCommand
-	{
-		uint32_t Value = {};
-	};
-
-	struct SetDepthBoundsCommand
-	{
-		float Min = {};
-		float Max = {};
-	};
-
-	struct SetBlendFactorCommand
-	{
-		float R = {};
-		float G = {};
-		float B = {};
-		float A = {};
-	};
-
 	struct CopyBufferToBufferCommand
 	{
 		BufferCopyDescription BufferCopy = {};
@@ -261,9 +242,6 @@ namespace Nexus::Graphics
 						 ResolveSamplesToSwapchainCommand,
 						 StartTimingQueryCommand,
 						 StopTimingQueryCommand,
-						 SetStencilRefCommand,
-						 SetDepthBoundsCommand,
-						 SetBlendFactorCommand,
 						 CopyBufferToBufferCommand,
 						 CopyBufferToTextureCommand,
 						 CopyTextureToBufferCommand,
@@ -345,12 +323,6 @@ namespace Nexus::Graphics
 		void StartTimingQuery(Ref<TimingQuery> query);
 
 		void StopTimingQuery(Ref<TimingQuery> query);
-
-		void SetStencilRef(uint32_t stencil);
-
-		void SetDepthBounds(float min, float max);
-
-		void SetBlendFactor(float r, float g, float b, float a);
 
 		void CopyBufferToBuffer(const BufferCopyDescription &bufferCopy);
 

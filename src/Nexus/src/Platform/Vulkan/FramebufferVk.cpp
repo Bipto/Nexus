@@ -7,11 +7,13 @@ namespace Nexus::Graphics
 	FramebufferVk::FramebufferVk(const FramebufferSpecification &spec, GraphicsDeviceVk *device) : Framebuffer(spec), m_Device(device)
 	{
 		m_Specification = spec;
+		CreateRenderPass();
 		Recreate();
 	}
 
 	FramebufferVk::~FramebufferVk()
 	{
+		vkDestroyRenderPass(m_Device->GetVkDevice(), m_RenderPass, nullptr);
 	}
 
 	const FramebufferSpecification FramebufferVk::GetFramebufferSpecification()
@@ -91,6 +93,26 @@ namespace Nexus::Graphics
 			Ref<Texture> texture				= Ref<Texture>(m_Device->CreateTexture(spec));
 			m_DepthAttachment					= std::dynamic_pointer_cast<TextureVk>(texture);
 		}
+	}
+
+	void FramebufferVk::CreateRenderPass()
+	{
+		Vk::VulkanRenderPassDescription renderPassDesc = {};
+
+		for (const auto &colourAttachment : m_Specification.ColorAttachmentSpecification.Attachments)
+		{
+			renderPassDesc.ColourAttachments.push_back(Vk::GetVkPixelDataFormat(colourAttachment.TextureFormat, false));
+		}
+
+		if (m_Specification.DepthAttachmentSpecification.DepthFormat != Nexus::Graphics::PixelFormat::Invalid)
+		{
+			renderPassDesc.DepthFormat = Vk::GetVkPixelDataFormat(m_Specification.DepthAttachmentSpecification.DepthFormat, true);
+		}
+
+		renderPassDesc.ResolveFormat = {};
+		renderPassDesc.Samples		 = Vk::GetVkSampleCountFlagsFromSampleCount(m_Specification.Samples);
+
+		m_RenderPass = Vk::CreateRenderPass(m_Device->GetVkDevice(), renderPassDesc);
 	}
 }	 // namespace Nexus::Graphics
 

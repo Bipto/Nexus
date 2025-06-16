@@ -399,37 +399,6 @@ namespace Nexus::Graphics
 		vkCmdWriteTimestamp(m_CommandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, queryVk->GetQueryPool(), 1);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(SetStencilRefCommand command, GraphicsDevice *device)
-	{
-		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
-		{
-			return;
-		}
-
-		vkCmdSetStencilReference(m_CommandBuffer, VK_STENCIL_FACE_FRONT_AND_BACK, command.Value);
-	}
-
-	void CommandExecutorVk::ExecuteCommand(SetDepthBoundsCommand command, GraphicsDevice *device)
-	{
-		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
-		{
-			return;
-		}
-
-		vkCmdSetDepthBounds(m_CommandBuffer, command.Min, command.Max);
-	}
-
-	void CommandExecutorVk::ExecuteCommand(SetBlendFactorCommand command, GraphicsDevice *device)
-	{
-		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
-		{
-			return;
-		}
-
-		const float blends[] = {command.R, command.G, command.B, command.A};
-		vkCmdSetBlendConstants(m_CommandBuffer, blends);
-	}
-
 	void CommandExecutorVk::ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device)
 	{
 		Ref<DeviceBufferVk> src = std::dynamic_pointer_cast<DeviceBufferVk>(command.BufferCopy.Source);

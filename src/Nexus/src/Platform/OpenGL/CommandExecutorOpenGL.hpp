@@ -37,9 +37,6 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(ResolveSamplesToSwapchainCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(StartTimingQueryCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(StopTimingQueryCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(SetStencilRefCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(SetDepthBoundsCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(SetBlendFactorCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(const CopyTextureToBufferCommand &command, GraphicsDevice *device) override;

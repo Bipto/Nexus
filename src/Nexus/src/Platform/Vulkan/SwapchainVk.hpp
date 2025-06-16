@@ -67,6 +67,8 @@ namespace Nexus::Graphics
 		void CreateResolveAttachment(GraphicsDeviceVk *graphicsDevice);
 		void CreateSemaphores();
 
+		void CreateRenderPass();
+
 		void CreateAll();
 
 		void CleanupSwapchain();
@@ -118,6 +120,8 @@ namespace Nexus::Graphics
 		VkDeviceMemory m_DepthImageMemory;
 		VkImageView	   m_DepthImageView;
 		VkImageLayout  m_DepthLayout;
+
+		VkRenderPass m_RenderPass;
 
 		GraphicsDeviceVk *m_GraphicsDevice;
 

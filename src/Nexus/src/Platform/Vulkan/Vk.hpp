@@ -48,6 +48,16 @@ namespace Nexus::Vk
 
 	VkImageAspectFlagBits GetAspectFlags(Graphics::ImageAspect aspect);
 
+	struct VulkanRenderPassDescription
+	{
+		std::vector<VkFormat>	ColourAttachments = {};
+		std::optional<VkFormat> DepthFormat		  = {};
+		std::optional<VkFormat> ResolveFormat	  = {};
+		VkSampleCountFlagBits	Samples			  = VK_SAMPLE_COUNT_1_BIT;
+	};
+
+	VkRenderPass CreateRenderPass(VkDevice device, const VulkanRenderPassDescription &desc);
+
 	struct AllocatedBuffer
 	{
 		VkBuffer	  Buffer;

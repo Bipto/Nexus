@@ -472,14 +472,9 @@ namespace Nexus::Graphics
 		deviceFeatures.sampleRateShading		= VK_TRUE;
 		deviceFeatures.independentBlend			= VK_TRUE;
 
-		VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures = {};
-		dynamicRenderingFeatures.sType									  = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
-		dynamicRenderingFeatures.pNext									  = nullptr;
-		dynamicRenderingFeatures.dynamicRendering						  = VK_TRUE;
-
 		VkDeviceCreateInfo createInfo	   = {};
 		createInfo.sType				   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-		createInfo.pNext				   = &dynamicRenderingFeatures;
+		createInfo.pNext				   = nullptr;
 		createInfo.pQueueCreateInfos	   = &queueCreateInfo;
 		createInfo.queueCreateInfoCount	   = queueCreateInfos.size();
 		createInfo.pQueueCreateInfos	   = queueCreateInfos.data();
@@ -487,6 +482,15 @@ namespace Nexus::Graphics
 		createInfo.enabledExtensionCount   = deviceExtensions.size();
 		createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 		createInfo.enabledLayerCount	   = 0;
+
+		VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures = {};
+		if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
+		{
+			dynamicRenderingFeatures.sType			  = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
+			dynamicRenderingFeatures.pNext			  = nullptr;
+			dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
+			createInfo.pNext						  = &dynamicRenderingFeatures;
+		}
 
 		if (vkCreateDevice(physicalDevice->GetVkPhysicalDevice(), &createInfo, nullptr, &m_Device) != VK_SUCCESS)
 		{
@@ -628,10 +632,23 @@ namespace Nexus::Graphics
 		std::vector<const char *> extensions;
 		extensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 		extensions.push_back(VK_EXT_VERTEX_ATTRIBUTE_DIVISOR_EXTENSION_NAME);
-		extensions.push_back(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME);
-		extensions.push_back(VK_KHR_MAINTENANCE_5_EXTENSION_NAME);
 
-		if (debug)
+		if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
+		{
+			extensions.push_back(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME);
+		}
+
+		if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_MAINTENANCE_5_EXTENSION_NAME))
+		{
+			extensions.push_back(VK_KHR_MAINTENANCE_5_EXTENSION_NAME);
+		}
+
+		if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME))
+		{
+			extensions.push_back(VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME);
+		}
+
+		if (debug && m_PhysicalDevice->IsExtensionSupported(VK_EXT_DEBUG_MARKER_EXTENSION_NAME))
 		{
 			extensions.push_back(VK_EXT_DEBUG_MARKER_EXTENSION_NAME);
 		}

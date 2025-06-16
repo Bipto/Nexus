@@ -440,37 +440,6 @@ namespace Nexus::Graphics
 		m_CommandList->EndQuery(heap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 1);
 	}
 
-	void CommandExecutorD3D12::ExecuteCommand(SetStencilRefCommand command, GraphicsDevice *device)
-	{
-		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
-		{
-			return;
-		}
-
-		m_CommandList->OMSetStencilRef(command.Value);
-	}
-
-	void CommandExecutorD3D12::ExecuteCommand(SetDepthBoundsCommand command, GraphicsDevice *device)
-	{
-		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
-		{
-			return;
-		}
-
-		m_CommandList->OMSetDepthBounds(command.Min, command.Max);
-	}
-
-	void CommandExecutorD3D12::ExecuteCommand(SetBlendFactorCommand command, GraphicsDevice *device)
-	{
-		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))
-		{
-			return;
-		}
-
-		const float blends[] = {command.R, command.G, command.B, command.A};
-		m_CommandList->OMSetBlendFactor(blends);
-	}
-
 	void CommandExecutorD3D12::ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device)
 	{
 		Ref<DeviceBufferD3D12> source = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.BufferCopy.Source);

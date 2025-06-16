@@ -19,6 +19,8 @@ namespace Nexus::Graphics
 		VkPhysicalDevice				  GetVkPhysicalDevice() const;
 		const VkPhysicalDeviceProperties &GetVkPhysicalDeviceProperties() const;
 
+		bool IsExtensionSupported(const char *extension) const;
+
 	  private:
 		std::string			   m_Name	  = {};
 		VkPhysicalDevice	   m_Device	  = nullptr;
@@ -26,6 +28,7 @@ namespace Nexus::Graphics
 		PhysicalDeviceLimits   m_Limits	  = {};
 
 		VkPhysicalDeviceProperties m_VkPhysicalDeviceProperties = {};
+		std::vector<VkExtensionProperties> m_DeviceExtensions			= {};
 	};
 }	 // namespace Nexus::Graphics
 

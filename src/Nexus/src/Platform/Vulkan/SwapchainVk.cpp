@@ -29,8 +29,9 @@ namespace Nexus::Graphics
 
 		GraphicsDeviceVk *graphicsDeviceVk = (GraphicsDeviceVk *)graphicsDevice;
 		CreateSurface(graphicsDeviceVk->GetVkInstance());
-
 		CreateAll();
+
+		CreateRenderPass();
 
 		window->AddResizeCallback([&](const WindowResizedEventArgs &args) { RecreateSwapchain(); });
 	}
@@ -38,6 +39,9 @@ namespace Nexus::Graphics
 	SwapchainVk::~SwapchainVk()
 	{
 		m_GraphicsDevice->WaitForIdle();
+
+		vkDestroyRenderPass(m_GraphicsDevice->GetVkDevice(), m_RenderPass, nullptr);
+
 		CleanupResolveAttachment();
 		CleanupSwapchain();
 		CleanupDepthStencil();
@@ -367,6 +371,22 @@ namespace Nexus::Graphics
 				throw std::runtime_error("Failed to create semaphore");
 			}
 		}
+	}
+
+	void SwapchainVk::CreateRenderPass()
+	{
+		Vk::VulkanRenderPassDescription desc = {};
+		desc.ColourAttachments				 = {m_SurfaceFormat.format};
+		desc.DepthFormat					 = m_DepthFormat;
+
+		if (m_Specification.Samples != 1)
+		{
+			desc.ResolveFormat = m_SurfaceFormat.format;
+		}
+
+		desc.Samples = Vk::GetVkSampleCountFlagsFromSampleCount(m_Specification.Samples);
+
+		m_RenderPass = Vk::CreateRenderPass(m_GraphicsDevice->GetVkDevice(), desc);
 	}
 
 	void SwapchainVk::CreateAll()
