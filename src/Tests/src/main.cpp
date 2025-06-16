@@ -116,7 +116,7 @@ void CreateGraphicsAPIAndDevice(Nexus::Graphics::GraphicsAPI					  api,
 }
 
 #if defined(NX_PLATFORM_OPENGL)
-TEST(CreateGraphicsDeviceOpenGL, Valid)
+TEST(CreateGraphicsDeviceOpenGL, Successful)
 {
 	std::unique_ptr<Nexus::Graphics::IGraphicsAPI>	 api	= nullptr;
 	std::unique_ptr<Nexus::Graphics::GraphicsDevice> device = nullptr;
@@ -126,7 +126,7 @@ TEST(CreateGraphicsDeviceOpenGL, Valid)
 #endif
 
 #if defined(NX_PLATFORM_D3D12)
-TEST(CreateGraphicsDeviceD3D12, Valid)
+TEST(CreateGraphicsDeviceD3D12, Successful)
 {
 	std::unique_ptr<Nexus::Graphics::IGraphicsAPI>	 api	= nullptr;
 	std::unique_ptr<Nexus::Graphics::GraphicsDevice> device = nullptr;
@@ -136,7 +136,7 @@ TEST(CreateGraphicsDeviceD3D12, Valid)
 #endif
 
 #if defined(NX_PLATFORM_VULKAN)
-TEST(CreateGraphicsDeviceVulkan, Valid)
+TEST(CreateGraphicsDeviceVulkan, Successful)
 {
 	std::unique_ptr<Nexus::Graphics::IGraphicsAPI>	 api	= nullptr;
 	std::unique_ptr<Nexus::Graphics::GraphicsDevice> device = nullptr;
@@ -234,21 +234,21 @@ bool RunTextureCopyTest(Nexus::Graphics::GraphicsAPI api)
 }
 
 #if defined(NX_PLATFORM_OPENGL)
-TEST(CopyTextureToBufferOpenGL, Valid)
+TEST(CopyTextureToBufferOpenGL, Successful)
 {
 	EXPECT_TRUE(RunTextureCopyTest(Nexus::Graphics::GraphicsAPI::OpenGL));
 }
 #endif
 
 #if defined(NX_PLATFORM_D3D12)
-TEST(CopyTextureToBufferD3D12, Valid)
+TEST(CopyTextureToBufferD3D12, Successful)
 {
 	EXPECT_TRUE(RunTextureCopyTest(Nexus::Graphics::GraphicsAPI::D3D12));
 }
 #endif
 
 #if defined(NX_PLATFORM_VULKAN)
-TEST(CopyTextureToBufferVulkan, Valid)
+TEST(CopyTextureToBufferVulkan, Successful)
 {
 	EXPECT_TRUE(RunTextureCopyTest(Nexus::Graphics::GraphicsAPI::Vulkan));
 }
