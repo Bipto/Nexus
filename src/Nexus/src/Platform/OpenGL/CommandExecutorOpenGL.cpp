@@ -375,7 +375,6 @@ namespace Nexus::Graphics
 		float bottom = target.GetSize().Y - (command.Y + command.Height);
 
 		glCall(glViewport(left, bottom, command.Width, command.Height));
-
 		glCall(glDepthRangef(command.MinDepth, command.MaxDepth));
 	}
 

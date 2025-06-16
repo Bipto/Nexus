@@ -67,10 +67,6 @@ list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/shaderc)
 
 include (FetchContent)
 
-if (NOT EMSCRIPTEN)
-  add_subdirectory(external/openal-soft)
-endif()
-
 #platform specific configurations
 if (WIN32)
   list(APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_WINDOWS=1)
@@ -117,6 +113,7 @@ if (DEFINED NX_PLATFORM_OPENGL)
     endif()
 
   elseif (EMSCRIPTEN)
+  
     list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_WEBGL=1)
   endif()
 
@@ -142,7 +139,14 @@ if (DEFINED NX_PLATFORM_OPENAL)
     list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_OPENAL=1)
 
     if (NOT EMSCRIPTEN)
+      if (NOT EMSCRIPTEN)
+        add_subdirectory(external/openal-soft)
+      endif()
       list (APPEND NEXUS_LINKED_LIBRARIES OpenAL)
+    else()
+      find_package(OpenAL REQUIRED)
+      list (APPEND NEXUS_INCLUDE_DIRS ${OPENAL_INCLUDE_DIR})
+      list (APPEND NEXUS_LINKED_LIBARIES ${OPENAL_LIBRARY})
     endif()
     
 endif()

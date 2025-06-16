@@ -162,19 +162,40 @@ namespace Nexus::Graphics
 			glCall(glDisable(GL_STENCIL_TEST));
 		}
 
-		GLenum sfail  = GL::GetStencilOperation(m_Description.DepthStencilDesc.StencilFailOperation);
-		GLenum dpfail = GL::GetStencilOperation(m_Description.DepthStencilDesc.StencilSuccessDepthFailOperation);
-		GLenum dppass = GL::GetStencilOperation(m_Description.DepthStencilDesc.StencilSuccessDepthSuccessOperation);
+		glCall(glStencilMask(m_Description.DepthStencilDesc.StencilWriteMask));
 
-		glCall(glStencilOp(sfail, dpfail, dppass));
-		GLenum stencilFunction = GL::GetComparisonFunction(m_Description.DepthStencilDesc.StencilComparisonFunction);
-		glCall(glStencilFunc(stencilFunction, 1, m_Description.DepthStencilDesc.StencilMask));
-		glCall(glStencilMask(m_Description.DepthStencilDesc.StencilMask));
+		// front face
+		{
+			GLenum sfail  = GL::GetStencilOperation(m_Description.DepthStencilDesc.Front.StencilFailOperation);
+			GLenum dpfail = GL::GetStencilOperation(m_Description.DepthStencilDesc.Front.StencilSuccessDepthFailOperation);
+			GLenum dppass = GL::GetStencilOperation(m_Description.DepthStencilDesc.Front.StencilSuccessDepthSuccessOperation);
+
+			glCall(glStencilOpSeparate(GL_FRONT, sfail, dpfail, dppass));
+
+			GLenum stencilCompareFunc = GL::GetComparisonFunction(m_Description.DepthStencilDesc.Front.StencilComparisonFunction);
+			glCall(glStencilFuncSeparate(GL_FRONT,
+										 stencilCompareFunc,
+										 m_Description.DepthStencilDesc.StencilReference,
+										 m_Description.DepthStencilDesc.StencilCompareMask));
+		}
+
+		// back face
+		{
+			GLenum sfail  = GL::GetStencilOperation(m_Description.DepthStencilDesc.Back.StencilFailOperation);
+			GLenum dpfail = GL::GetStencilOperation(m_Description.DepthStencilDesc.Back.StencilSuccessDepthFailOperation);
+			GLenum dppass = GL::GetStencilOperation(m_Description.DepthStencilDesc.Back.StencilSuccessDepthSuccessOperation);
+
+			glCall(glStencilOpSeparate(GL_BACK, sfail, dpfail, dppass));
+
+			GLenum stencilCompareFunc = GL::GetComparisonFunction(m_Description.DepthStencilDesc.Back.StencilComparisonFunction);
+			glCall(glStencilFuncSeparate(GL_BACK,
+										 stencilCompareFunc,
+										 m_Description.DepthStencilDesc.StencilReference,
+										 m_Description.DepthStencilDesc.StencilCompareMask));
+		}
 
 		GLenum depthFunction = GL::GetComparisonFunction(m_Description.DepthStencilDesc.DepthComparisonFunction);
 		glCall(glDepthFunc(depthFunction));
-
-		glCall(glDepthRangef(m_Description.DepthStencilDesc.MinDepth, m_Description.DepthStencilDesc.MaxDepth));
 	}
 
 	void GraphicsPipelineOpenGL::SetupRasterizer()

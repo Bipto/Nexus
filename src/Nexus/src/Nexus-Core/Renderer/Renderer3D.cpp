@@ -459,8 +459,6 @@ namespace Nexus::Graphics
 
 		pipelineDescription.DepthStencilDesc.EnableDepthTest		 = false;
 		pipelineDescription.DepthStencilDesc.EnableDepthWrite		 = false;
-		pipelineDescription.DepthStencilDesc.MinDepth				 = 0;
-		pipelineDescription.DepthStencilDesc.MaxDepth				 = 1;
 		pipelineDescription.DepthFormat								 = Nexus::Graphics::PixelFormat::D24_UNorm_S8_UInt;
 		pipelineDescription.DepthStencilDesc.DepthComparisonFunction = Nexus::Graphics::ComparisonFunction::Less;
 

@@ -150,7 +150,6 @@ namespace Nexus::ImGuiUtils
 		pipelineDesc.DepthStencilDesc.EnableDepthTest			= false;
 		pipelineDesc.DepthStencilDesc.EnableDepthWrite			= false;
 		pipelineDesc.DepthStencilDesc.EnableStencilTest			= false;
-		pipelineDesc.DepthStencilDesc.StencilComparisonFunction = Nexus::Graphics::ComparisonFunction::AlwaysPass;
 
 		pipelineDesc.Layouts = {{{Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
 								 {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
@@ -186,7 +185,6 @@ namespace Nexus::ImGuiUtils
 		pipelineDesc.DepthStencilDesc.EnableDepthTest			= false;
 		pipelineDesc.DepthStencilDesc.EnableDepthWrite			= false;
 		pipelineDesc.DepthStencilDesc.EnableStencilTest			= false;
-		pipelineDesc.DepthStencilDesc.StencilComparisonFunction = Nexus::Graphics::ComparisonFunction::AlwaysPass;
 
 		pipelineDesc.Layouts = {{{Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
 								 {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},

@@ -25,6 +25,7 @@ namespace Nexus::Vk
 	VkSamplerAddressMode GetVkSamplerAddressMode(Nexus::Graphics::SamplerAddressMode addressMode);
 
 	VkCompareOp			  GetCompareOp(Nexus::Graphics::ComparisonFunction function);
+	VkStencilOp			  GetStencilOp(Nexus::Graphics::StencilOperation operation);
 	VkBlendOp			  GetVkBlendOp(Nexus::Graphics::BlendEquation function);
 	VkBlendFactor		  GetVkBlendFactor(Nexus::Graphics::BlendFactor function);
 	VkBorderColor		  GetVkBorderColor(Nexus::Graphics::BorderColor color);

@@ -191,25 +191,8 @@ namespace Nexus::Graphics
 		Invert
 	};
 
-	/// @brief A struct representing how the depth and stencil configuration should
-	/// be used in a pipeline
-	struct DepthStencilDescription
+	struct StencilState
 	{
-		/// @brief Whether the pipeline can write to the depth buffer
-		bool EnableDepthWrite = false;
-
-		/// @brief Whether the pipeline will test pixels against the depth buffer
-		bool EnableDepthTest = false;
-
-		/// @brief How the pixel should be tested against the depth buffer
-		ComparisonFunction DepthComparisonFunction = ComparisonFunction::AlwaysPass;
-
-		/// @brief Whether the pipeline will use a stencil test when rendering
-		bool EnableStencilTest = false;
-
-		/// @brief The mask to use when writing values to the stencil buffer
-		uint8_t StencilMask = 0xFF;
-
 		/// @brief How the pixel should be tested against the stencil buffer
 		ComparisonFunction StencilComparisonFunction = ComparisonFunction::AlwaysPass;
 
@@ -224,12 +207,38 @@ namespace Nexus::Graphics
 		/// @brief The value that should be entered in the stencil buffer when the
 		/// stencil test is successful and the depth test is successful
 		StencilOperation StencilSuccessDepthSuccessOperation = StencilOperation::Keep;
+	};
 
-		/// @brief The value to use for the minimum depth
-		float MinDepth = 0.0f;
+	/// @brief A struct representing how the depth and stencil configuration should
+	/// be used in a pipeline
+	struct DepthStencilDescription
+	{
+		/// @brief The mask to use when writing values to the stencil buffer
+		uint32_t StencilWriteMask = 0xFF;
 
-		/// @brief The value to use for the maximum depth
-		float MaxDepth = 1.0f;
+		/// @brief The mask to use when reading values from the stencil buffer
+		uint32_t StencilCompareMask = 0xFF;
+
+		/// @brief The reference to use when comparing against values stored in the stencil buffer
+		uint32_t StencilReference = 0;
+
+		/// @brief Whether the pipeline can write to the depth buffer
+		bool EnableDepthWrite = false;
+
+		/// @brief Whether the pipeline will test pixels against the depth buffer
+		bool EnableDepthTest = false;
+
+		/// @brief How the pixel should be tested against the depth buffer
+		ComparisonFunction DepthComparisonFunction = ComparisonFunction::AlwaysPass;
+
+		/// @brief Whether the pipeline will use a stencil test when rendering
+		bool EnableStencilTest = false;
+
+		/// @brief A struct containing how pixels should be treated if the are facing towards the camera
+		StencilState Front = {};
+
+		/// @brief A struct containing how pixels should be treated if the are facing away from the camera
+		StencilState Back = {};
 	};
 
 	/// @brief A struct representing how triangles should be rendered onto the

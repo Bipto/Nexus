@@ -227,7 +227,6 @@ namespace Nexus::Graphics
 
 	void GraphicsPipelineD3D12::Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList)
 	{
-		commandList->OMSetDepthBounds(m_Description.DepthStencilDesc.MinDepth, m_Description.DepthStencilDesc.MaxDepth);
 		commandList->SetPipelineState(m_PipelineStateObject.Get());
 		commandList->SetGraphicsRootSignature(m_RootSignature.Get());
 		commandList->IASetPrimitiveTopology(m_PrimitiveTopology);
@@ -477,22 +476,19 @@ namespace Nexus::Graphics
 		}
 
 		desc.StencilEnable	  = m_Description.DepthStencilDesc.EnableStencilTest;
-		desc.StencilReadMask  = m_Description.DepthStencilDesc.StencilMask;
-		desc.StencilWriteMask = m_Description.DepthStencilDesc.StencilMask;
+		desc.StencilReadMask  = m_Description.DepthStencilDesc.StencilCompareMask;
+		desc.StencilWriteMask = m_Description.DepthStencilDesc.StencilWriteMask;
 
-		auto stencilFailOp		= D3D12::GetStencilOperation(m_Description.DepthStencilDesc.StencilFailOperation);
-		auto stencilDepthFailOp = D3D12::GetStencilOperation(m_Description.DepthStencilDesc.StencilSuccessDepthFailOperation);
-		auto stencilPassOp		= D3D12::GetStencilOperation(m_Description.DepthStencilDesc.StencilSuccessDepthSuccessOperation);
-		auto stencilFunc		= D3D12::GetComparisonFunction(m_Description.DepthStencilDesc.StencilComparisonFunction);
+		desc.FrontFace.StencilFunc		  = D3D12::GetComparisonFunction(m_Description.DepthStencilDesc.Front.StencilComparisonFunction);
+		desc.FrontFace.StencilDepthFailOp = D3D12::GetStencilOperation(m_Description.DepthStencilDesc.Front.StencilSuccessDepthFailOperation);
+		desc.FrontFace.StencilFailOp	  = D3D12::GetStencilOperation(m_Description.DepthStencilDesc.Front.StencilFailOperation);
+		desc.FrontFace.StencilPassOp	  = D3D12::GetStencilOperation(m_Description.DepthStencilDesc.Front.StencilSuccessDepthSuccessOperation);
 
-		desc.FrontFace.StencilFunc		  = stencilFunc;
-		desc.FrontFace.StencilDepthFailOp = stencilDepthFailOp;
-		desc.FrontFace.StencilFailOp	  = stencilFailOp;
-		desc.FrontFace.StencilPassOp	  = stencilPassOp;
-		desc.BackFace.StencilFunc		  = stencilFunc;
-		desc.BackFace.StencilDepthFailOp  = stencilDepthFailOp;
-		desc.BackFace.StencilFailOp		  = stencilFailOp;
-		desc.BackFace.StencilPassOp		  = stencilPassOp;
+		desc.BackFace.StencilFunc		 = D3D12::GetComparisonFunction(m_Description.DepthStencilDesc.Back.StencilComparisonFunction);
+		desc.BackFace.StencilDepthFailOp = D3D12::GetStencilOperation(m_Description.DepthStencilDesc.Back.StencilSuccessDepthFailOperation);
+		desc.BackFace.StencilFailOp		 = D3D12::GetStencilOperation(m_Description.DepthStencilDesc.Back.StencilFailOperation);
+		desc.BackFace.StencilPassOp		 = D3D12::GetStencilOperation(m_Description.DepthStencilDesc.Back.StencilSuccessDepthSuccessOperation);
+
 		return desc;
 	}
 
