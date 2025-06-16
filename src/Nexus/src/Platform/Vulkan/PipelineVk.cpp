@@ -327,10 +327,26 @@ namespace Nexus::Graphics
 		info.depthCompareOp						   = Vk::GetCompareOp(m_Description.DepthStencilDesc.DepthComparisonFunction);
 
 		info.depthBoundsTestEnable = VK_FALSE;
-		info.minDepthBounds		   = m_Description.DepthStencilDesc.MinDepth;
-		info.maxDepthBounds		   = m_Description.DepthStencilDesc.MaxDepth;
+		// info.minDepthBounds		   = m_Description.DepthStencilDesc.MinDepth;
+		// info.maxDepthBounds		   = m_Description.DepthStencilDesc.MaxDepth;
 
 		info.stencilTestEnable = m_Description.DepthStencilDesc.EnableStencilTest;
+
+		info.back.writeMask	  = m_Description.DepthStencilDesc.StencilWriteMask;
+		info.back.compareMask = m_Description.DepthStencilDesc.StencilCompareMask;
+		info.back.reference	  = m_Description.DepthStencilDesc.StencilReference;
+		info.back.compareOp	  = Vk::GetCompareOp(m_Description.DepthStencilDesc.Back.StencilComparisonFunction);
+		info.back.failOp	  = Vk::GetStencilOp(m_Description.DepthStencilDesc.Back.StencilFailOperation);
+		info.back.passOp	  = Vk::GetStencilOp(m_Description.DepthStencilDesc.Back.StencilSuccessDepthSuccessOperation);
+		info.back.depthFailOp = Vk::GetStencilOp(m_Description.DepthStencilDesc.Back.StencilSuccessDepthFailOperation);
+
+		info.front.writeMask   = m_Description.DepthStencilDesc.StencilWriteMask;
+		info.front.compareMask = m_Description.DepthStencilDesc.StencilCompareMask;
+		info.front.reference   = m_Description.DepthStencilDesc.StencilReference;
+		info.front.compareOp   = Vk::GetCompareOp(m_Description.DepthStencilDesc.Front.StencilComparisonFunction);
+		info.front.failOp	   = Vk::GetStencilOp(m_Description.DepthStencilDesc.Front.StencilFailOperation);
+		info.front.passOp	   = Vk::GetStencilOp(m_Description.DepthStencilDesc.Front.StencilSuccessDepthSuccessOperation);
+		info.front.depthFailOp = Vk::GetStencilOp(m_Description.DepthStencilDesc.Front.StencilSuccessDepthFailOperation);
 
 		return info;
 	}

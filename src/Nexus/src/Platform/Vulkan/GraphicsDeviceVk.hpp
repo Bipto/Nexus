@@ -20,10 +20,11 @@ namespace Nexus::Graphics
 	class GraphicsDeviceVk : public GraphicsDevice
 	{
 	  public:
-		GraphicsDeviceVk(std::shared_ptr<IPhysicalDevice> physicalDevice, VkInstance instance);
+		GraphicsDeviceVk(std::shared_ptr<IPhysicalDevice> physicalDevice, VkInstance instance, bool debug);
 		GraphicsDeviceVk(const GraphicsDeviceVk &) = delete;
 		virtual ~GraphicsDeviceVk();
 
+		virtual void SubmitCommandList(Ref<CommandList> commandList, Ref<Fence> fence) override;
 		virtual void SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) override;
 
 		virtual const std::string				 GetAPIName() override;
@@ -86,7 +87,7 @@ namespace Nexus::Graphics
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) override;
 
 		void SelectQueueFamilies(std::shared_ptr<PhysicalDeviceVk> physicalDevice);
-		void CreateDevice(std::shared_ptr<PhysicalDeviceVk> physicalDevice);
+		void CreateDevice(std::shared_ptr<PhysicalDeviceVk> physicalDevice, bool debug);
 		void CreateAllocator(std::shared_ptr<PhysicalDeviceVk> physicalDevice, VkInstance instance);
 
 		void CreateCommandStructures();
@@ -104,7 +105,7 @@ namespace Nexus::Graphics
 								VkImage				 &image,
 								VkDeviceMemory		 &imageMemory);
 
-		std::vector<const char *> GetRequiredDeviceExtensions();
+		std::vector<const char *> GetRequiredDeviceExtensions(bool debug);
 		std::vector<std::string>  GetSupportedDeviceExtensions(std::shared_ptr<PhysicalDeviceVk> physicalDevice);
 
 	  private:

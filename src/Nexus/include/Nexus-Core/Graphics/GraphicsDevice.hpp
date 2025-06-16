@@ -52,8 +52,12 @@ namespace Nexus::Graphics
 		/// @return A const char* containing the device name
 		virtual const char *GetDeviceName() = 0;
 
-		/// @brief A pure virtual method that will submit a command list for rendering
-		/// @param commandList The command list to submit for rendering
+		void SubmitCommandList(Ref<CommandList> commandList);
+
+		virtual void SubmitCommandList(Ref<CommandList> commandList, Ref<Fence> fence) = 0;
+
+		void SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists);
+
 		virtual void SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) = 0;
 
 		/// @brief A pure virtual method that creates a pipeline from a given pipeline

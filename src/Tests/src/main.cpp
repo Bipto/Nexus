@@ -116,7 +116,7 @@ void CreateGraphicsAPIAndDevice(Nexus::Graphics::GraphicsAPI					  api,
 }
 
 #if defined(NX_PLATFORM_OPENGL)
-TEST(CreateGraphicsDeviceOpenGL, Valid)
+TEST(CreateGraphicsDeviceOpenGL, Successful)
 {
 	std::unique_ptr<Nexus::Graphics::IGraphicsAPI>	 api	= nullptr;
 	std::unique_ptr<Nexus::Graphics::GraphicsDevice> device = nullptr;
@@ -126,7 +126,7 @@ TEST(CreateGraphicsDeviceOpenGL, Valid)
 #endif
 
 #if defined(NX_PLATFORM_D3D12)
-TEST(CreateGraphicsDeviceD3D12, Valid)
+TEST(CreateGraphicsDeviceD3D12, Successful)
 {
 	std::unique_ptr<Nexus::Graphics::IGraphicsAPI>	 api	= nullptr;
 	std::unique_ptr<Nexus::Graphics::GraphicsDevice> device = nullptr;
@@ -136,7 +136,7 @@ TEST(CreateGraphicsDeviceD3D12, Valid)
 #endif
 
 #if defined(NX_PLATFORM_VULKAN)
-TEST(CreateGraphicsDeviceVulkan, Valid)
+TEST(CreateGraphicsDeviceVulkan, Successful)
 {
 	std::unique_ptr<Nexus::Graphics::IGraphicsAPI>	 api	= nullptr;
 	std::unique_ptr<Nexus::Graphics::GraphicsDevice> device = nullptr;
@@ -153,18 +153,15 @@ bool RunTextureCopyTest(Nexus::Graphics::GraphicsAPI api)
 
 	Nexus::Ref<Nexus::Graphics::CommandList> cmdList = device->CreateCommandList();
 
-	Nexus::Graphics::DeviceBufferDescription bufferDesc = {};
-	bufferDesc.Type										= Nexus::Graphics::DeviceBufferType::Upload;
-	bufferDesc.SizeInBytes								= sizeof(uint32_t);
-	bufferDesc.StrideInBytes							= sizeof(uint32_t);
-	bufferDesc.HostVisible								= true;
+	Nexus::Graphics::DeviceBufferDescription bufferDesc	   = {};
+	bufferDesc.Usage									   = BUFFER_USAGE_NONE;
+	bufferDesc.Access									   = Nexus::Graphics::BufferMemoryAccess::Upload;
+	bufferDesc.SizeInBytes								   = sizeof(uint32_t);
+	bufferDesc.StrideInBytes							   = sizeof(uint32_t);
+	Nexus::Ref<Nexus::Graphics::DeviceBuffer> uploadBuffer = device->CreateDeviceBuffer(bufferDesc);
 
-	std::unique_ptr<Nexus::Graphics::DeviceBuffer> uploadBuffer =
-		std::unique_ptr<Nexus::Graphics::DeviceBuffer>(device->CreateDeviceBuffer(bufferDesc));
-
-	bufferDesc.Type = Nexus::Graphics::DeviceBufferType::Readback;
-	std::unique_ptr<Nexus::Graphics::DeviceBuffer> readbackBuffer =
-		std::unique_ptr<Nexus::Graphics::DeviceBuffer>(device->CreateDeviceBuffer(bufferDesc));
+	bufferDesc.Access										 = Nexus::Graphics::BufferMemoryAccess::Readback;
+	Nexus::Ref<Nexus::Graphics::DeviceBuffer> readbackBuffer = device->CreateDeviceBuffer(bufferDesc);
 
 	Nexus::Graphics::TextureSpecification textureSpec = {};
 	textureSpec.Width								  = 1;
@@ -172,8 +169,8 @@ bool RunTextureCopyTest(Nexus::Graphics::GraphicsAPI api)
 	textureSpec.ArrayLayers							  = 1;
 	textureSpec.MipLevels							  = 1;
 
-	std::unique_ptr<Nexus::Graphics::Texture> sourceTexture = std::unique_ptr<Nexus::Graphics::Texture>(device->CreateTexture(textureSpec));
-	std::unique_ptr<Nexus::Graphics::Texture> destTexture	= std::unique_ptr<Nexus::Graphics::Texture>(device->CreateTexture(textureSpec));
+	Nexus::Ref<Nexus::Graphics::Texture> sourceTexture = device->CreateTexture(textureSpec);
+	Nexus::Ref<Nexus::Graphics::Texture> destTexture   = device->CreateTexture(textureSpec);
 
 	uint32_t col = 0xFF0000FF;
 	uploadBuffer->SetData(&col, 0, sizeof(col));
@@ -181,8 +178,8 @@ bool RunTextureCopyTest(Nexus::Graphics::GraphicsAPI api)
 	cmdList->Begin();
 
 	Nexus::Graphics::BufferTextureCopyDescription uploadCopyDesc = {};
-	uploadCopyDesc.BufferHandle									 = uploadBuffer.get();
-	uploadCopyDesc.TextureHandle								 = sourceTexture.get();
+	uploadCopyDesc.BufferHandle									 = uploadBuffer;
+	uploadCopyDesc.TextureHandle								 = sourceTexture;
 	uploadCopyDesc.BufferOffset									 = 0;
 	uploadCopyDesc.TextureSubresource.X							 = 0;
 	uploadCopyDesc.TextureSubresource.Y							 = 0;
@@ -194,8 +191,8 @@ bool RunTextureCopyTest(Nexus::Graphics::GraphicsAPI api)
 	cmdList->CopyBufferToTexture(uploadCopyDesc);
 
 	Nexus::Graphics::TextureCopyDescription textureCopyDesc = {};
-	textureCopyDesc.Source									= sourceTexture.get();
-	textureCopyDesc.Destination								= destTexture.get();
+	textureCopyDesc.Source									= sourceTexture;
+	textureCopyDesc.Destination								= destTexture;
 	textureCopyDesc.SourceSubresource.X						= 0;
 	textureCopyDesc.SourceSubresource.Y						= 0;
 	textureCopyDesc.SourceSubresource.Z						= 0;
@@ -215,8 +212,8 @@ bool RunTextureCopyTest(Nexus::Graphics::GraphicsAPI api)
 	cmdList->CopyTextureToTexture(textureCopyDesc);
 
 	Nexus::Graphics::BufferTextureCopyDescription readbackCopyDesc = {};
-	readbackCopyDesc.BufferHandle								   = readbackBuffer.get();
-	readbackCopyDesc.TextureHandle								   = destTexture.get();
+	readbackCopyDesc.BufferHandle								   = readbackBuffer;
+	readbackCopyDesc.TextureHandle								   = destTexture;
 	readbackCopyDesc.BufferOffset								   = 0;
 	readbackCopyDesc.TextureSubresource.X						   = 0;
 	readbackCopyDesc.TextureSubresource.Y						   = 0;
@@ -237,21 +234,21 @@ bool RunTextureCopyTest(Nexus::Graphics::GraphicsAPI api)
 }
 
 #if defined(NX_PLATFORM_OPENGL)
-TEST(CopyTextureToBufferOpenGL, Valid)
+TEST(CopyTextureToBufferOpenGL, Successful)
 {
 	EXPECT_TRUE(RunTextureCopyTest(Nexus::Graphics::GraphicsAPI::OpenGL));
 }
 #endif
 
 #if defined(NX_PLATFORM_D3D12)
-TEST(CopyTextureToBufferD3D12, Valid)
+TEST(CopyTextureToBufferD3D12, Successful)
 {
 	EXPECT_TRUE(RunTextureCopyTest(Nexus::Graphics::GraphicsAPI::D3D12));
 }
 #endif
 
 #if defined(NX_PLATFORM_VULKAN)
-TEST(CopyTextureToBufferVulkan, Valid)
+TEST(CopyTextureToBufferVulkan, Successful)
 {
 	EXPECT_TRUE(RunTextureCopyTest(Nexus::Graphics::GraphicsAPI::Vulkan));
 }

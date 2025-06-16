@@ -73,6 +73,14 @@ namespace Nexus::Graphics
 		}
 	}
 
+	void GraphicsDeviceOpenGL::SubmitCommandList(Ref<CommandList> commandList, Ref<Fence> fence)
+	{
+		Ref<CommandListOpenGL>								   commandListGL = std::dynamic_pointer_cast<CommandListOpenGL>(commandList);
+		const std::vector<Nexus::Graphics::RenderCommandData> &commands		 = commandListGL->GetCommandData();
+		m_CommandExecutor.ExecuteCommands(commands, this);
+		m_CommandExecutor.Reset();
+	}
+
 	void GraphicsDeviceOpenGL::SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence)
 	{
 		for (uint32_t i = 0; i < numCommandLists; i++)

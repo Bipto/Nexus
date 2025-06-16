@@ -293,6 +293,20 @@ namespace Nexus::Vk
 		}
 	}
 
+	VkStencilOp GetStencilOp(Nexus::Graphics::StencilOperation operation)
+	{
+		switch (operation)
+		{
+			case Nexus::Graphics::StencilOperation::Keep: return VK_STENCIL_OP_KEEP;
+			case Nexus::Graphics::StencilOperation::Zero: return VK_STENCIL_OP_ZERO;
+			case Nexus::Graphics::StencilOperation::Replace: return VK_STENCIL_OP_REPLACE;
+			case Nexus::Graphics::StencilOperation::Increment: return VK_STENCIL_OP_INCREMENT_AND_CLAMP;
+			case Nexus::Graphics::StencilOperation::Decrement: return VK_STENCIL_OP_DECREMENT_AND_CLAMP;
+			case Nexus::Graphics::StencilOperation::Invert: return VK_STENCIL_OP_INVERT;
+			default: throw std::runtime_error("Failed to find a valid stencil operation");
+		}
+	}
+
 	VkBlendFactor GetVkBlendFactor(Nexus::Graphics::BlendFactor function)
 	{
 		switch (function)
