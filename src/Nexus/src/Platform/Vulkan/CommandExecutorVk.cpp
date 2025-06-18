@@ -16,6 +16,9 @@ namespace Nexus::Graphics
 		m_vkCmdDebugMarkerBeginEXT	= (PFN_vkCmdDebugMarkerBeginEXT)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdDebugMarkerBeginEXT");
 		m_vkCmdDebugMarkerEndEXT	= (PFN_vkCmdDebugMarkerEndEXT)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdDebugMarkerEndEXT");
 		m_vkCmdDebugMarkerInsertEXT = (PFN_vkCmdDebugMarkerInsertEXT)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdDebugMarkerInsertEXT");
+
+		m_vkCmdBeginRenderPass = (PFN_vkCmdBeginRenderPass)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdBeginRenderPass");
+		m_vkCmdEndRenderPass   = (PFN_vkCmdEndRenderPass)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdEndRenderPass");
 	}
 
 	CommandExecutorVk::~CommandExecutorVk()
@@ -283,7 +286,8 @@ namespace Nexus::Graphics
 	{
 		if (m_Rendering)
 		{
-			vkCmdEndRendering(m_CommandBuffer);
+			// vkCmdEndRendering(m_CommandBuffer);
+			vkCmdEndRenderPass(m_CommandBuffer);
 		}
 
 		m_CurrentRenderTarget = command;
@@ -680,6 +684,7 @@ namespace Nexus::Graphics
 	void CommandExecutorVk::StartRenderingToSwapchain(Ref<Swapchain> swapchain)
 	{
 		Ref<SwapchainVk> swapchainVk = std::dynamic_pointer_cast<SwapchainVk>(swapchain);
+		const auto		&swapchainDesc = swapchainVk->GetSpecification();
 
 		m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
 											  swapchainVk->GetColourImage(),
@@ -700,7 +705,19 @@ namespace Nexus::Graphics
 		swapchainVk->SetColorImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 		swapchainVk->SetDepthImageLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
-		VkExtent2D swapchainSize = swapchainVk->GetSwapchainSize();
+		if (swapchainDesc.Samples != 1)
+		{
+			m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
+												  swapchainVk->GetResolveImage(),
+												  0,
+												  0,
+												  swapchainVk->GetResolveImageLayout(),
+												  VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+												  VK_IMAGE_ASPECT_COLOR_BIT);
+			swapchainVk->SetResolveImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+		}
+
+		/* VkExtent2D swapchainSize = swapchainVk->GetSwapchainSize();
 
 		VkRect2D renderArea;
 		renderArea.offset = {0, 0};
@@ -753,7 +770,28 @@ namespace Nexus::Graphics
 		renderingInfo.pColorAttachments	   = &colourAttachment;
 		renderingInfo.pDepthAttachment	   = &depthAttachment;
 
-		vkCmdBeginRendering(m_CommandBuffer, &renderingInfo);
+		vkCmdBeginRendering(m_CommandBuffer, &renderingInfo); */
+
+		VkFramebuffer framebuffer = swapchainVk->GetFramebuffer();
+		VkRenderPass  renderpass  = swapchainVk->GetRenderPass();
+		VkExtent2D	  renderSize  = swapchainVk->GetSwapchainSize();
+
+		NX_ASSERT(framebuffer, "Invalid framebuffer");
+		NX_ASSERT(renderpass, "Invalid renderpass");
+		NX_ASSERT(renderSize.width > 0 && renderSize.height > 0, "Invalid render size");
+
+		VkRenderPassBeginInfo beginInfo = {};
+		beginInfo.sType					= VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		beginInfo.pNext					= nullptr;
+		beginInfo.renderPass			= renderpass;
+		beginInfo.framebuffer			= framebuffer;
+		beginInfo.renderArea.offset		= {0, 0};
+		beginInfo.renderArea.extent		= renderSize;
+		beginInfo.clearValueCount		= 0;
+		beginInfo.pClearValues			= nullptr;
+
+		m_vkCmdBeginRenderPass(m_CommandBuffer, &beginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
 		m_Rendering = true;
 	}
 
@@ -797,7 +835,7 @@ namespace Nexus::Graphics
 			}
 		}
 
-		VkRect2D renderArea {};
+		/* VkRect2D renderArea {};
 		renderArea.offset = {0, 0};
 		renderArea.extent = {vulkanFramebuffer->GetFramebufferSpecification().Width, vulkanFramebuffer->GetFramebufferSpecification().Height};
 
@@ -850,7 +888,20 @@ namespace Nexus::Graphics
 			renderingInfo.pStencilAttachment = nullptr;
 		}
 
-		vkCmdBeginRendering(m_CommandBuffer, &renderingInfo);
+		vkCmdBeginRendering(m_CommandBuffer, &renderingInfo); */
+
+		VkRenderPassBeginInfo beginInfo = {};
+		beginInfo.sType					= VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		beginInfo.pNext					= nullptr;
+		beginInfo.renderPass			= vulkanFramebuffer->GetRenderPass();
+		beginInfo.framebuffer			= vulkanFramebuffer->GetFramebuffer();
+		beginInfo.renderArea.offset		= {0, 0};
+		beginInfo.renderArea.extent		= {vulkanFramebuffer->GetFramebufferSpecification().Width,
+										   vulkanFramebuffer->GetFramebufferSpecification().Height};
+		beginInfo.clearValueCount		= 0;
+		beginInfo.pClearValues			= nullptr;
+		m_vkCmdBeginRenderPass(m_CommandBuffer, &beginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
 		m_Rendering = true;
 	}
 
@@ -858,7 +909,8 @@ namespace Nexus::Graphics
 	{
 		if (m_Rendering)
 		{
-			vkCmdEndRendering(m_CommandBuffer);
+			// vkCmdEndRendering(m_CommandBuffer);
+			m_vkCmdEndRenderPass(m_CommandBuffer);
 
 			if (m_CurrentRenderTarget.GetType() == RenderTargetType::Framebuffer)
 			{

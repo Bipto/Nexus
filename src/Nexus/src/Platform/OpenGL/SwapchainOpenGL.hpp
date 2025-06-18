@@ -22,6 +22,7 @@ namespace Nexus::Graphics
 		virtual void					 SetVSyncState(VSyncState vsyncState) override;
 		virtual Nexus::Point2D<uint32_t> GetSize() override;
 		virtual PixelFormat				 GetColourFormat() override;
+		virtual PixelFormat				 GetDepthFormat() override;
 
 		void							 ResizeIfNecessary();
 		void							 BindAsDrawTarget();

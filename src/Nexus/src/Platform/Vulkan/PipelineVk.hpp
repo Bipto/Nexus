@@ -46,11 +46,13 @@ namespace Nexus::Graphics
 		VkCullModeFlags		GetCullMode();
 
 		std::vector<VkPipelineShaderStageCreateInfo> GetShaderStages();
+		void										 CreateRenderPass();
 
 	  private:
 		VkPipelineLayout  m_PipelineLayout;
 		VkPipeline		  m_Pipeline;
 		GraphicsDeviceVk *m_GraphicsDevice;
+		VkRenderPass	  m_RenderPass = VK_NULL_HANDLE;
 	};
 
 	class ComputePipelineVk : public ComputePipeline, public PipelineVk

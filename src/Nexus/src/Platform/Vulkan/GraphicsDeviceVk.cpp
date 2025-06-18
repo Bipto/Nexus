@@ -20,12 +20,13 @@
 
 namespace Nexus::Graphics
 {
-	GraphicsDeviceVk::GraphicsDeviceVk(std::shared_ptr<IPhysicalDevice> physicalDevice, VkInstance instance, bool debug)
+	GraphicsDeviceVk::GraphicsDeviceVk(std::shared_ptr<IPhysicalDevice> physicalDevice, VkInstance instance, const VulkanDeviceConfig &config)
 		: m_PhysicalDevice(std::dynamic_pointer_cast<PhysicalDeviceVk>(physicalDevice)),
-		  m_Instance(instance)
+		  m_Instance(instance),
+		  m_DeviceConfig(config)
 	{
 		std::shared_ptr<PhysicalDeviceVk> physicalDeviceVk = std::dynamic_pointer_cast<PhysicalDeviceVk>(physicalDevice);
-		CreateDevice(physicalDeviceVk, debug);
+		CreateDevice(physicalDeviceVk, config.Debug);
 		auto deviceExtensions = GetSupportedDeviceExtensions(physicalDeviceVk);
 		CreateAllocator(physicalDeviceVk, instance);
 
@@ -472,26 +473,53 @@ namespace Nexus::Graphics
 		deviceFeatures.sampleRateShading		= VK_TRUE;
 		deviceFeatures.independentBlend			= VK_TRUE;
 
-		VkDeviceCreateInfo createInfo	   = {};
-		createInfo.sType				   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-		createInfo.pNext				   = nullptr;
+		VkDeviceCreateInfo createInfo = {};
+		createInfo.sType			  = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+		createInfo.pNext			  = nullptr;
+
+		VkPhysicalDeviceFeatures2 features2	 = {};
+		features2.sType						 = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+		features2.features.samplerAnisotropy = VK_TRUE;
+		features2.features.samplerAnisotropy = VK_TRUE;
+		features2.features.independentBlend	 = VK_TRUE;
+
+		VkPhysicalDeviceExtendedDynamicStateFeaturesEXT extendedDynamicStateFeatures = {};
+		extendedDynamicStateFeatures.sType				  = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT;
+		extendedDynamicStateFeatures.pNext				  = nullptr;
+		extendedDynamicStateFeatures.extendedDynamicState = VK_FALSE;
+		features2.pNext									  = &extendedDynamicStateFeatures;
+
+		if (m_DeviceConfig.UseDynamicInputBindingStrideIfAvailable)
+		{
+			if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME))
+			{
+				extendedDynamicStateFeatures.extendedDynamicState = VK_TRUE;
+			}
+		}
+
+		createInfo.pNext				   = &features2;
 		createInfo.pQueueCreateInfos	   = &queueCreateInfo;
 		createInfo.queueCreateInfoCount	   = queueCreateInfos.size();
 		createInfo.pQueueCreateInfos	   = queueCreateInfos.data();
-		createInfo.pEnabledFeatures		   = &deviceFeatures;
+		createInfo.pEnabledFeatures		   = nullptr;
 		createInfo.enabledExtensionCount   = deviceExtensions.size();
 		createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 		createInfo.enabledLayerCount	   = 0;
 
 		VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures = {};
-		if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
+		dynamicRenderingFeatures.sType									  = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
+		dynamicRenderingFeatures.pNext									  = nullptr;
+		dynamicRenderingFeatures.dynamicRendering						  = VK_FALSE;
+
+		if (m_DeviceConfig.UseDynamicRenderingIfAvailable)
 		{
-			dynamicRenderingFeatures.sType			  = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
-			dynamicRenderingFeatures.pNext			  = nullptr;
-			dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
-			createInfo.pNext						  = &dynamicRenderingFeatures;
+			if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
+			{
+				dynamicRenderingFeatures.pNext = &dynamicRenderingFeatures;
+			}
 		}
 
+		vkGetPhysicalDeviceFeatures2(m_PhysicalDevice->GetVkPhysicalDevice(), &features2);
 		if (vkCreateDevice(physicalDevice->GetVkPhysicalDevice(), &createInfo, nullptr, &m_Device) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create device");
@@ -633,24 +661,51 @@ namespace Nexus::Graphics
 		extensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 		extensions.push_back(VK_EXT_VERTEX_ATTRIBUTE_DIVISOR_EXTENSION_NAME);
 
-		if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
+		// this is used for vkCmdBindVertexBuffers2
+		if (m_DeviceConfig.UseDynamicInputBindingStrideIfAvailable)
 		{
-			extensions.push_back(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME);
+			if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME))
+			{
+				extensions.push_back(VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME);
+				m_DeviceFeatures.DynamicInputBindingStrideAvailable = true;
+			}
 		}
 
-		if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_MAINTENANCE_5_EXTENSION_NAME))
+		// this is used for dynamic rendering
+		if (m_DeviceConfig.UseDynamicRenderingIfAvailable)
 		{
-			extensions.push_back(VK_KHR_MAINTENANCE_5_EXTENSION_NAME);
+			if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME))
+			{
+				extensions.push_back(VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME);
+
+				// dynamic rendering has a dependency on depth/stencil resolve
+				if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
+				{
+					extensions.push_back(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME);
+					m_DeviceFeatures.DynamicRenderingAvailable = true;
+
+					// this is used for vkCmdBindIndexBuffer2 and requires dynamic rendering
+					if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_MAINTENANCE_5_EXTENSION_NAME))
+					{
+						extensions.push_back(VK_KHR_MAINTENANCE_5_EXTENSION_NAME);
+					}
+				}
+			}
 		}
 
+		// this is used for vkCreateRenderPass2
 		if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME))
 		{
 			extensions.push_back(VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME);
 		}
 
-		if (debug && m_PhysicalDevice->IsExtensionSupported(VK_EXT_DEBUG_MARKER_EXTENSION_NAME))
+		// this is used to set debug object names and groups
+		if (debug)
 		{
-			extensions.push_back(VK_EXT_DEBUG_MARKER_EXTENSION_NAME);
+			if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_DEBUG_MARKER_EXTENSION_NAME))
+			{
+				extensions.push_back(VK_EXT_DEBUG_MARKER_EXTENSION_NAME);
+			}
 		}
 
 		return extensions;
@@ -696,6 +751,11 @@ namespace Nexus::Graphics
 		}
 
 		return buffer;
+	}
+
+	const VulkanDeviceFeatures GraphicsDeviceVk::GetDeviceFeatures() const
+	{
+		return m_DeviceFeatures;
 	}
 
 	bool GraphicsDeviceVk::Validate()

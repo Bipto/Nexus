@@ -54,9 +54,22 @@ namespace Nexus::Vk
 		std::optional<VkFormat> DepthFormat		  = {};
 		std::optional<VkFormat> ResolveFormat	  = {};
 		VkSampleCountFlagBits	Samples			  = VK_SAMPLE_COUNT_1_BIT;
+		bool					IsSwapchain		  = false;
 	};
 
 	VkRenderPass CreateRenderPass(VkDevice device, const VulkanRenderPassDescription &desc);
+
+	struct VulkanFramebufferDescription
+	{
+		std::vector<VkImageView> ColourImageViews = {};
+		VkImageView				 DepthImageView	  = VK_NULL_HANDLE;
+		VkImageView				 ResolveImageView = VK_NULL_HANDLE;
+		VkRenderPass			 VulkanRenderPass = VK_NULL_HANDLE;
+		uint32_t				 Width			  = 0;
+		uint32_t				 Height			  = 0;
+	};
+
+	VkFramebuffer CreateFramebuffer(VkDevice device, const VulkanFramebufferDescription &desc);
 
 	struct AllocatedBuffer
 	{

@@ -132,7 +132,6 @@ namespace Nexus::ImGuiUtils
 		pipelineDesc.ColourFormats[0]		 = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
 		pipelineDesc.ColourTargetCount		 = 1;
 		pipelineDesc.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification().Samples;
-		pipelineDesc.DepthFormat			 = Graphics::PixelFormat::D24_UNorm_S8_UInt;
 
 		pipelineDesc.ColourBlendStates[0].EnableBlending		 = true;
 		pipelineDesc.ColourBlendStates[0].SourceColourBlend		 = Nexus::Graphics::BlendFactor::SourceAlpha;
@@ -145,6 +144,8 @@ namespace Nexus::ImGuiUtils
 		pipelineDesc.RasterizerStateDesc.TriangleCullMode  = Nexus::Graphics::CullMode::CullNone;
 		pipelineDesc.RasterizerStateDesc.TriangleFillMode  = Nexus::Graphics::FillMode::Solid;
 		pipelineDesc.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
+
+		pipelineDesc.DepthFormat = Nexus::GetApplication()->GetPrimarySwapchain()->GetDepthFormat();
 
 		pipelineDesc.DepthStencilDesc.DepthComparisonFunction	= Nexus::Graphics::ComparisonFunction::AlwaysPass;
 		pipelineDesc.DepthStencilDesc.EnableDepthTest			= false;
@@ -173,7 +174,6 @@ namespace Nexus::ImGuiUtils
 		pipelineDesc.ColourFormats[0]		 = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
 		pipelineDesc.ColourTargetCount		 = 1;
 		pipelineDesc.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification().Samples;
-		pipelineDesc.DepthFormat			 = Graphics::PixelFormat::D24_UNorm_S8_UInt;
 
 		pipelineDesc.ColourBlendStates[0].EnableBlending = false;
 

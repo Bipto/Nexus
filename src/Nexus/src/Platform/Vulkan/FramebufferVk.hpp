@@ -24,6 +24,9 @@ namespace Nexus::Graphics
 		Ref<TextureVk> GetVulkanColorTexture(uint32_t index = 0);
 		Ref<TextureVk> GetVulkanDepthTexture();
 
+		VkRenderPass  GetRenderPass();
+		VkFramebuffer GetFramebuffer();
+
 	  private:
 		virtual void Recreate() override;
 
@@ -31,6 +34,7 @@ namespace Nexus::Graphics
 		void CreateDepthTargets();
 
 		void CreateRenderPass();
+		void CreateFramebuffer();
 
 	  private:
 		GraphicsDeviceVk *m_Device;
@@ -39,6 +43,7 @@ namespace Nexus::Graphics
 		Ref<TextureVk>				m_DepthAttachment = nullptr;
 
 		VkRenderPass m_RenderPass = VK_NULL_HANDLE;
+		VkFramebuffer m_Framebuffer = VK_NULL_HANDLE;
 	};
 }	 // namespace Nexus::Graphics
 

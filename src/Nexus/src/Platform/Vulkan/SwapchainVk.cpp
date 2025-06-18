@@ -29,9 +29,8 @@ namespace Nexus::Graphics
 
 		GraphicsDeviceVk *graphicsDeviceVk = (GraphicsDeviceVk *)graphicsDevice;
 		CreateSurface(graphicsDeviceVk->GetVkInstance());
-		CreateAll();
-
 		CreateRenderPass();
+		CreateAll();
 
 		window->AddResizeCallback([&](const WindowResizedEventArgs &args) { RecreateSwapchain(); });
 	}
@@ -40,12 +39,12 @@ namespace Nexus::Graphics
 	{
 		m_GraphicsDevice->WaitForIdle();
 
-		vkDestroyRenderPass(m_GraphicsDevice->GetVkDevice(), m_RenderPass, nullptr);
-
 		CleanupResolveAttachment();
 		CleanupSwapchain();
 		CleanupDepthStencil();
 		CleanupSemaphores();
+		CleanupFramebuffers();
+		vkDestroyRenderPass(m_GraphicsDevice->GetVkDevice(), m_RenderPass, nullptr);
 		vkDestroySurfaceKHR(m_GraphicsDevice->m_Instance, m_Surface, nullptr);
 	}
 
@@ -113,7 +112,7 @@ namespace Nexus::Graphics
 
 	Nexus::Point2D<uint32_t> SwapchainVk::GetSize()
 	{
-		return {m_SwapchainSize.width, m_SwapchainSize.height};
+		return m_Window->GetWindowSize();
 	}
 
 	VkSurfaceFormatKHR SwapchainVk::GetSurfaceFormat()
@@ -121,7 +120,7 @@ namespace Nexus::Graphics
 		return m_SurfaceFormat;
 	}
 
-	VkFormat SwapchainVk::GetDepthFormat()
+	VkFormat SwapchainVk::GetVkDepthFormat()
 	{
 		return m_DepthFormat;
 	}
@@ -139,6 +138,11 @@ namespace Nexus::Graphics
 	PixelFormat SwapchainVk::GetColourFormat()
 	{
 		return Vk::GetNxPixelFormatFromVkPixelFormat(m_SurfaceFormat.format);
+	}
+
+	PixelFormat SwapchainVk::GetDepthFormat()
+	{
+		return PixelFormat::D24_UNorm_S8_UInt;
 	}
 
 	void SwapchainVk::RecreateSwapchain()
@@ -233,13 +237,22 @@ namespace Nexus::Graphics
 		return m_PresentSemaphores[m_GraphicsDevice->GetCurrentFrameIndex()];
 	}
 
-	void SwapchainVk::CreateSurface(VkInstance instance)
+	VkRenderPass SwapchainVk::GetRenderPass() const
 	{
-		m_Surface = PlatformVk::CreateSurface(instance, m_Window);
+		return m_RenderPass;
 	}
 
-	bool SwapchainVk::CreateSwapchain(std::shared_ptr<PhysicalDeviceVk> physicalDevice)
+	VkFramebuffer SwapchainVk::GetFramebuffer() const
 	{
+		return m_Framebuffers[m_CurrentFrameIndex];
+	}
+
+	void SwapchainVk::CreateSurface(VkInstance instance)
+	{
+		Ref<PhysicalDeviceVk> physicalDevice = std::dynamic_pointer_cast<PhysicalDeviceVk>(m_GraphicsDevice->GetPhysicalDevice());
+
+		m_Surface = PlatformVk::CreateSurface(instance, m_Window);
+
 		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice->GetVkPhysicalDevice(), m_Surface, &m_SurfaceCapabilities);
 
 		std::vector<VkSurfaceFormatKHR> surfaceFormats;
@@ -252,7 +265,10 @@ namespace Nexus::Graphics
 		{
 			m_SurfaceFormat = surfaceFormats[0];
 		}
+	}
 
+	bool SwapchainVk::CreateSwapchain(std::shared_ptr<PhysicalDeviceVk> physicalDevice)
+	{
 		Nexus::Point2D<uint32_t> windowSize = m_Window->GetWindowSizeInPixels();
 		uint32_t				 width		= windowSize.X;
 		uint32_t				 height		= windowSize.Y;
@@ -323,8 +339,7 @@ namespace Nexus::Graphics
 	{
 		std::shared_ptr<PhysicalDeviceVk> physicalDevice = std::dynamic_pointer_cast<PhysicalDeviceVk>(graphicsDevice->GetPhysicalDevice());
 
-		VkSampleCountFlagBits samples		   = Vk::GetVkSampleCountFlagsFromSampleCount(m_Specification.Samples);
-		VkBool32 validDepthFormat = GetSupportedDepthFormat(physicalDevice->GetVkPhysicalDevice(), &m_DepthFormat);
+		VkSampleCountFlagBits samples = Vk::GetVkSampleCountFlagsFromSampleCount(m_Specification.Samples);
 		CreateImage(m_SwapchainSize.width,
 					m_SwapchainSize.height,
 					VK_FORMAT_D24_UNORM_S8_UINT,
@@ -373,33 +388,80 @@ namespace Nexus::Graphics
 		}
 	}
 
+	void SwapchainVk::CreateFramebuffers()
+	{
+		CleanupFramebuffers();
+
+		m_Framebuffers.resize(m_SwapchainImageViews.size());
+
+		for (size_t i = 0; i < m_SwapchainImageViews.size(); i++)
+		{
+			NX_ASSERT(m_SwapchainImageViews[i] != VK_NULL_HANDLE, "Swapchain image view is null");
+			NX_ASSERT(m_ResolveImageView != VK_NULL_HANDLE || m_Specification.Samples == 1, "Resolve view is null");
+			NX_ASSERT(m_DepthImageView, "Depth view is null");
+
+			Vk::VulkanFramebufferDescription framebufferDesc = {};
+
+			if (m_Specification.Samples == 1)
+			{
+				framebufferDesc.ColourImageViews.push_back(m_SwapchainImageViews[i]);
+			}
+			else
+			{
+				framebufferDesc.ColourImageViews.push_back(m_ResolveImageView);
+			}
+
+			framebufferDesc.DepthImageView = m_DepthImageView;
+
+			if (m_Specification.Samples != 1)
+			{
+				framebufferDesc.ResolveImageView = m_SwapchainImageViews[i];
+			}
+
+			framebufferDesc.Width			 = m_SwapchainSize.width;
+			framebufferDesc.Height			 = m_SwapchainSize.height;
+			framebufferDesc.VulkanRenderPass = m_RenderPass;
+
+			m_Framebuffers[i] = Vk::CreateFramebuffer(m_GraphicsDevice->GetVkDevice(), framebufferDesc);
+		}
+	}
+
 	void SwapchainVk::CreateRenderPass()
 	{
 		Vk::VulkanRenderPassDescription desc = {};
-		desc.ColourAttachments				 = {m_SurfaceFormat.format};
 		desc.DepthFormat					 = m_DepthFormat;
 
-		if (m_Specification.Samples != 1)
+		if (m_Specification.Samples == 1)
 		{
+			desc.ColourAttachments.push_back(m_SurfaceFormat.format);
+		}
+		else
+		{
+			desc.ColourAttachments.push_back(m_SurfaceFormat.format);
 			desc.ResolveFormat = m_SurfaceFormat.format;
 		}
 
 		desc.Samples = Vk::GetVkSampleCountFlagsFromSampleCount(m_Specification.Samples);
+		desc.IsSwapchain = true;
 
 		m_RenderPass = Vk::CreateRenderPass(m_GraphicsDevice->GetVkDevice(), desc);
 	}
 
 	void SwapchainVk::CreateAll()
 	{
+		vkDestroySurfaceKHR(m_GraphicsDevice->GetVkInstance(), m_Surface, nullptr);
+
 		std::shared_ptr<IPhysicalDevice>  physicalDevice   = m_GraphicsDevice->GetPhysicalDevice();
 		std::shared_ptr<PhysicalDeviceVk> physicalDeviceVk = std::dynamic_pointer_cast<PhysicalDeviceVk>(physicalDevice);
 
+		CreateSurface(m_GraphicsDevice->GetVkInstance());
 		if (CreateSwapchain(physicalDeviceVk))
 		{
 			CreateSwapchainImageViews();
-			CreateDepthStencil((GraphicsDeviceVk *)m_GraphicsDevice);
-			CreateResolveAttachment((GraphicsDeviceVk *)m_GraphicsDevice);
+			CreateDepthStencil(m_GraphicsDevice);
+			CreateResolveAttachment(m_GraphicsDevice);
 			CreateSemaphores();
+			CreateFramebuffers();
 			m_SwapchainValid = true;
 		}
 		else
@@ -437,6 +499,13 @@ namespace Nexus::Graphics
 	void SwapchainVk::CleanupSemaphores()
 	{
 		for (uint32_t i = 0; i < FRAMES_IN_FLIGHT; i++) { vkDestroySemaphore(m_GraphicsDevice->GetVkDevice(), m_PresentSemaphores[i], nullptr); }
+	}
+
+	void SwapchainVk::CleanupFramebuffers()
+	{
+		for (size_t i = 0; i < m_Framebuffers.size(); i++) { vkDestroyFramebuffer(m_GraphicsDevice->GetVkDevice(), m_Framebuffers[i], nullptr); }
+
+		m_Framebuffers.clear();
 	}
 
 	bool SwapchainVk::AcquireNextImage()
@@ -483,28 +552,6 @@ namespace Nexus::Graphics
 		}
 
 		return imageView;
-	}
-
-	VkBool32 SwapchainVk::GetSupportedDepthFormat(VkPhysicalDevice physicalDevice, VkFormat *depthFormat)
-	{
-		std::vector<VkFormat> depthFormats = {VK_FORMAT_D32_SFLOAT_S8_UINT,
-											  VK_FORMAT_D32_SFLOAT,
-											  VK_FORMAT_D24_UNORM_S8_UINT,
-											  VK_FORMAT_D16_UNORM_S8_UINT,
-											  VK_FORMAT_D16_UNORM};
-
-		for (auto &format : depthFormats)
-		{
-			VkFormatProperties formatProps;
-			vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &formatProps);
-			if (formatProps.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
-			{
-				*depthFormat = format;
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 	void SwapchainVk::CreateImage(uint32_t				width,

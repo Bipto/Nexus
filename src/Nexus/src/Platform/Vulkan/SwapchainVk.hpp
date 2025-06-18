@@ -25,7 +25,7 @@ namespace Nexus::Graphics
 		virtual void					 SetVSyncState(VSyncState vsyncState) override;
 		virtual Nexus::Point2D<uint32_t> GetSize() override;
 		VkSurfaceFormatKHR				 GetSurfaceFormat();
-		VkFormat						 GetDepthFormat();
+		VkFormat						 GetVkDepthFormat();
 
 		virtual IWindow *GetWindow() override
 		{
@@ -34,6 +34,7 @@ namespace Nexus::Graphics
 		virtual void Prepare() override;
 
 		virtual PixelFormat GetColourFormat() override;
+		virtual PixelFormat GetDepthFormat() override;
 
 		void		 RecreateSwapchain();
 
@@ -58,6 +59,8 @@ namespace Nexus::Graphics
 
 		bool			   IsSwapchainValid() const;
 		const VkSemaphore &GetSemaphore();
+		VkRenderPass	   GetRenderPass() const;
+		VkFramebuffer	   GetFramebuffer() const;
 
 	  private:
 		void CreateSurface(VkInstance instance);
@@ -67,6 +70,7 @@ namespace Nexus::Graphics
 		void CreateResolveAttachment(GraphicsDeviceVk *graphicsDevice);
 		void CreateSemaphores();
 
+		void CreateFramebuffers();
 		void CreateRenderPass();
 
 		void CreateAll();
@@ -75,11 +79,11 @@ namespace Nexus::Graphics
 		void CleanupDepthStencil();
 		void CleanupResolveAttachment();
 		void CleanupSemaphores();
+		void CleanupFramebuffers();
 
 		bool AcquireNextImage();
 
 		VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
-		VkBool32	GetSupportedDepthFormat(VkPhysicalDevice physicalDevice, VkFormat *depthFormat);
 		void		CreateImage(uint32_t			  width,
 								uint32_t			  height,
 								VkFormat			  format,
@@ -115,12 +119,13 @@ namespace Nexus::Graphics
 		VkImageView	   m_ResolveImageView;
 		VkImageLayout  m_ResolveImageLayout;
 
-		VkFormat	   m_DepthFormat;
+		VkFormat	   m_DepthFormat = VK_FORMAT_D24_UNORM_S8_UINT;
 		VkImage		   m_DepthImage;
 		VkDeviceMemory m_DepthImageMemory;
 		VkImageView	   m_DepthImageView;
 		VkImageLayout  m_DepthLayout;
 
+		std::vector<VkFramebuffer> m_Framebuffers;
 		VkRenderPass m_RenderPass;
 
 		GraphicsDeviceVk *m_GraphicsDevice;

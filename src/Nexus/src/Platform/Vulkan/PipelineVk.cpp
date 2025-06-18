@@ -25,6 +25,8 @@ namespace Nexus::Graphics
 		: GraphicsPipeline(description),
 		  m_GraphicsDevice(graphicsDevice)
 	{
+		CreateRenderPass();
+
 		std::unique_ptr<ResourceSetVk> resourceSet = std::make_unique<ResourceSetVk>(description.ResourceSetSpec, graphicsDevice);
 
 		const auto						  &pipelineLayouts = resourceSet->GetDescriptorSetLayouts();
@@ -134,6 +136,8 @@ namespace Nexus::Graphics
 
 		VkFormat depthStencilFormat = Vk::GetVkPixelDataFormat(m_Description.DepthFormat, true);
 
+		const auto &deviceFeatures = graphicsDevice->GetDeviceFeatures();
+
 		VkPipelineRenderingCreateInfo pipelineRenderingCreateInfo = {};
 		pipelineRenderingCreateInfo.sType						  = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
 		pipelineRenderingCreateInfo.colorAttachmentCount		  = colourFormats.size();
@@ -144,7 +148,15 @@ namespace Nexus::Graphics
 		// create pipeline
 		VkGraphicsPipelineCreateInfo pipelineInfo = {};
 		pipelineInfo.sType						  = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-		pipelineInfo.pNext						  = &pipelineRenderingCreateInfo;
+
+		pipelineInfo.pNext = nullptr;
+
+		// enable dynamic rendering if requested and available
+		if (deviceFeatures.DynamicRenderingAvailable)
+		{
+			pipelineInfo.pNext = &pipelineRenderingCreateInfo;
+		}
+
 		pipelineInfo.stageCount					  = shaderStages.size();
 		pipelineInfo.pStages					  = shaderStages.data();
 		pipelineInfo.pVertexInputState			  = &vertexInputInfo;
@@ -161,18 +173,26 @@ namespace Nexus::Graphics
 		dynamicInfo.pNext							 = nullptr;
 		dynamicInfo.flags							 = 0;
 
-		std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT,
-													 VK_DYNAMIC_STATE_SCISSOR,
-													 VK_DYNAMIC_STATE_STENCIL_REFERENCE,
-													 VK_DYNAMIC_STATE_DEPTH_BOUNDS,
-													 VK_DYNAMIC_STATE_BLEND_CONSTANTS,
-													 VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE};
+		std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
+
+		if (deviceFeatures.DynamicInputBindingStrideAvailable)
+		{
+			dynamicStates.push_back(VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE);
+		}
 
 		dynamicInfo.dynamicStateCount = dynamicStates.size();
 		dynamicInfo.pDynamicStates	  = dynamicStates.data();
 
 		pipelineInfo.pDynamicState = &dynamicInfo;
-		pipelineInfo.renderPass	   = nullptr;
+
+		if (deviceFeatures.DynamicRenderingAvailable)
+		{
+			pipelineInfo.renderPass = nullptr;
+		}
+		else
+		{
+			pipelineInfo.renderPass = m_RenderPass;
+		}
 
 		pipelineInfo.subpass			= 0;
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
@@ -185,6 +205,7 @@ namespace Nexus::Graphics
 
 	GraphicsPipelineVk::~GraphicsPipelineVk()
 	{
+		vkDestroyRenderPass(m_GraphicsDevice->GetVkDevice(), m_RenderPass, nullptr);
 		vkDestroyPipeline(m_GraphicsDevice->GetVkDevice(), m_Pipeline, nullptr);
 		vkDestroyPipelineLayout(m_GraphicsDevice->GetVkDevice(), m_PipelineLayout, nullptr);
 	}
@@ -440,6 +461,26 @@ namespace Nexus::Graphics
 		}
 
 		return shaderStages;
+	}
+
+	void GraphicsPipelineVk::CreateRenderPass()
+	{
+		Vk::VulkanRenderPassDescription renderPassDesc = {};
+
+		for (uint32_t colourAttachmentIndex = 0; colourAttachmentIndex < m_Description.ColourTargetCount; colourAttachmentIndex++)
+		{
+			renderPassDesc.ColourAttachments.push_back(Vk::GetVkPixelDataFormat(m_Description.ColourFormats[colourAttachmentIndex], false));
+		}
+
+		if (m_Description.DepthFormat != PixelFormat::Invalid)
+		{
+			renderPassDesc.DepthFormat = Vk::GetVkPixelDataFormat(m_Description.DepthFormat, true);
+		}
+
+		renderPassDesc.ResolveFormat = {};
+		renderPassDesc.Samples		 = Vk::GetVkSampleCountFlagsFromSampleCount(m_Description.ColourTargetSampleCount);
+
+		m_RenderPass = Vk::CreateRenderPass(m_GraphicsDevice->GetVkDevice(), renderPassDesc);
 	}
 
 	ComputePipelineVk::ComputePipelineVk(const ComputePipelineDescription &description, GraphicsDeviceVk *graphicsDevice)

@@ -91,6 +91,7 @@ namespace Nexus::Graphics
 		{
 			extensionNames.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 			extensionNames.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+			extensionNames.push_back(VK_EXT_VALIDATION_FEATURES_EXTENSION_NAME);
 		}
 
 		return extensionNames;
@@ -119,10 +120,24 @@ namespace Nexus::Graphics
 		appInfo.applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
 		appInfo.pEngineName		   = "Nexus";
 		appInfo.engineVersion	   = VK_MAKE_API_VERSION(0, 1, 0, 0);
-		appInfo.apiVersion		   = VK_API_VERSION_1_3;
+		appInfo.apiVersion		   = VK_API_VERSION_1_4;
+
+		std::vector<VkValidationFeatureEnableEXT> enables = {VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT};
+
+		VkValidationFeaturesEXT validationFeatures		 = {};
+		validationFeatures.sType						 = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT;
+		validationFeatures.enabledValidationFeatureCount = (uint32_t)enables.size();
+		validationFeatures.pEnabledValidationFeatures	 = enables.data();
 
 		VkInstanceCreateInfo instanceCreateInfo = {};
 		instanceCreateInfo.sType				= VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+		instanceCreateInfo.pNext				= nullptr;
+
+		if (createInfo.Debug)
+		{
+			instanceCreateInfo.pNext = &validationFeatures;
+		}
+
 		instanceCreateInfo.pApplicationInfo		= &appInfo;
 
 		if (createInfo.Debug)
@@ -176,7 +191,11 @@ namespace Nexus::Graphics
 
 	Graphics::GraphicsDevice *GraphicsAPI_Vk::CreateGraphicsDevice(std::shared_ptr<IPhysicalDevice> device)
 	{
-		return new GraphicsDeviceVk(device, m_Instance, m_CreateInfo.Debug);
+		VulkanDeviceConfig config					   = {};
+		config.Debug								   = m_CreateInfo.Debug;
+		config.UseDynamicInputBindingStrideIfAvailable = true;
+		config.UseDynamicRenderingIfAvailable		   = false;
+		return new GraphicsDeviceVk(device, m_Instance, config);
 	}
 
 	const GraphicsAPICreateInfo &GraphicsAPI_Vk::GetGraphicsAPICreateInfo() const

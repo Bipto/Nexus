@@ -17,10 +17,23 @@ namespace Nexus::Graphics
 		VkCommandBuffer CommandBuffer;
 	};
 
+	struct VulkanDeviceConfig
+	{
+		bool Debug									 = false;
+		bool UseDynamicRenderingIfAvailable			 = false;
+		bool UseDynamicInputBindingStrideIfAvailable = false;
+	};
+
+	struct VulkanDeviceFeatures
+	{
+		bool DynamicRenderingAvailable			= false;
+		bool DynamicInputBindingStrideAvailable = false;
+	};
+
 	class GraphicsDeviceVk : public GraphicsDevice
 	{
 	  public:
-		GraphicsDeviceVk(std::shared_ptr<IPhysicalDevice> physicalDevice, VkInstance instance, bool debug);
+		GraphicsDeviceVk(std::shared_ptr<IPhysicalDevice> physicalDevice, VkInstance instance, const VulkanDeviceConfig &config);
 		GraphicsDeviceVk(const GraphicsDeviceVk &) = delete;
 		virtual ~GraphicsDeviceVk();
 
@@ -79,6 +92,8 @@ namespace Nexus::Graphics
 		uint32_t			FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties, std::shared_ptr<PhysicalDeviceVk> physicalDevice);
 		Vk::AllocatedBuffer CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
 
+		const VulkanDeviceFeatures GetDeviceFeatures() const;
+
 		virtual bool Validate() override;
 		virtual void SetName(const std::string &name) override;
 
@@ -128,6 +143,9 @@ namespace Nexus::Graphics
 		uint32_t						   m_FrameNumber	   = 0;
 		uint32_t						   m_CurrentFrameIndex = 0;
 		std::unique_ptr<CommandExecutorVk> m_CommandExecutor   = nullptr;
+
+		VulkanDeviceConfig	 m_DeviceConfig	  = {};
+		VulkanDeviceFeatures m_DeviceFeatures = {};
 
 		friend class SwapchainVk;
 	};

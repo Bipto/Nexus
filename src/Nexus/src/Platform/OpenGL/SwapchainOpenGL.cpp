@@ -65,6 +65,11 @@ namespace Nexus::Graphics
 		return PixelFormat::R8_G8_B8_A8_UNorm;
 	}
 
+	PixelFormat SwapchainOpenGL::GetDepthFormat()
+	{
+		return PixelFormat::D24_UNorm_S8_UInt;
+	}
+
 	void SwapchainOpenGL::ResizeIfNecessary()
 	{
 		Nexus::Point2D<uint32_t> windowSize = m_Window->GetWindowSizeInPixels();

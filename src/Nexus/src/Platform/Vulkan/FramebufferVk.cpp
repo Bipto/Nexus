@@ -47,10 +47,24 @@ namespace Nexus::Graphics
 		return m_DepthAttachment;
 	}
 
+	VkRenderPass FramebufferVk::GetRenderPass()
+	{
+		return m_RenderPass;
+	}
+
+	VkFramebuffer FramebufferVk::GetFramebuffer()
+	{
+		return m_Framebuffer;
+	}
+
 	void FramebufferVk::Recreate()
 	{
+		vkDestroyFramebuffer(m_Device->GetVkDevice(), m_Framebuffer, nullptr);
+		m_Framebuffer = VK_NULL_HANDLE;
+
 		CreateColorTargets();
 		CreateDepthTargets();
+		CreateFramebuffer();
 	}
 
 	void FramebufferVk::CreateColorTargets()
@@ -113,6 +127,24 @@ namespace Nexus::Graphics
 		renderPassDesc.Samples		 = Vk::GetVkSampleCountFlagsFromSampleCount(m_Specification.Samples);
 
 		m_RenderPass = Vk::CreateRenderPass(m_Device->GetVkDevice(), renderPassDesc);
+	}
+
+	void FramebufferVk::CreateFramebuffer()
+	{
+		Vk::VulkanFramebufferDescription framebufferDesc = {};
+
+		for (Ref<TextureVk> colourAttachment : m_ColorAttachments) { framebufferDesc.ColourImageViews.push_back(colourAttachment->GetImageView()); }
+
+		if (m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::Invalid)
+		{
+			framebufferDesc.DepthImageView = m_DepthAttachment->GetImageView();
+		}
+
+		framebufferDesc.Width			 = m_Specification.Width;
+		framebufferDesc.Height			 = m_Specification.Height;
+		framebufferDesc.VulkanRenderPass = m_RenderPass;
+
+		m_Framebuffer = Vk::CreateFramebuffer(m_Device->GetVkDevice(), framebufferDesc);
 	}
 }	 // namespace Nexus::Graphics
 

@@ -594,7 +594,16 @@ namespace Nexus::Vk
 			colourAttachment.stencilLoadOp			 = VK_ATTACHMENT_LOAD_OP_LOAD;
 			colourAttachment.stencilStoreOp			 = VK_ATTACHMENT_STORE_OP_STORE;
 			colourAttachment.initialLayout			 = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-			colourAttachment.finalLayout			 = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+			if (desc.IsSwapchain && desc.Samples != 1)
+			{
+				colourAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			}
+			else
+			{
+				colourAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			}
+
 			attachments.push_back(colourAttachment);
 
 			VkAttachmentReference attachmentReference = {};
@@ -709,6 +718,38 @@ namespace Nexus::Vk
 		//{
 		return CreateVkRenderPass(device, desc);
 		//}
+	}
+
+	VkFramebuffer CreateFramebuffer(VkDevice device, const VulkanFramebufferDescription &desc)
+	{
+		std::vector<VkImageView> attachments = {};
+
+		for (VkImageView colourView : desc.ColourImageViews) { attachments.push_back(colourView); }
+
+		if (desc.DepthImageView)
+		{
+			attachments.push_back(desc.DepthImageView);
+		}
+
+		if (desc.ResolveImageView)
+		{
+			attachments.push_back(desc.ResolveImageView);
+		}
+
+		VkFramebufferCreateInfo createInfo = {};
+		createInfo.sType				   = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+		createInfo.renderPass			   = desc.VulkanRenderPass;
+		createInfo.attachmentCount		   = (uint32_t)attachments.size();
+		createInfo.pAttachments			   = attachments.data();
+		createInfo.width				   = desc.Width;
+		createInfo.height				   = desc.Height;
+		createInfo.layers				   = 1;
+
+		VkFramebuffer framebuffer = VK_NULL_HANDLE;
+
+		NX_ASSERT(vkCreateFramebuffer(device, &createInfo, nullptr, &framebuffer) == VK_SUCCESS, "Failed to create framebuffer");
+
+		return framebuffer;
 	}
 }	 // namespace Nexus::Vk
 
