@@ -52,7 +52,10 @@ namespace Nexus::Graphics
 		/// @brief A constructor taking in an initializer list of vertex buffer
 		/// elements to use to create the layout
 		/// @param elements An initializer list of vertex buffer elements
-		VertexBufferLayout(std::initializer_list<VertexBufferElement> elements, StepRate stepRate) : m_Elements(elements), m_StepRate(stepRate)
+		VertexBufferLayout(std::initializer_list<VertexBufferElement> elements, size_t stride, StepRate stepRate)
+			: m_Elements(elements),
+			  m_Stride(stride),
+			  m_StepRate(stepRate)
 		{
 			CalculateOffsets();
 		}
@@ -108,6 +111,11 @@ namespace Nexus::Graphics
 			return 1;
 		}
 
+		size_t GetStride() const
+		{
+			return m_Stride;
+		}
+
 	  private:
 		/// @brief A private method that calculates the offset of each element within
 		/// the buffer
@@ -116,6 +124,9 @@ namespace Nexus::Graphics
 	  private:
 		/// @brief A vector containing the elements within the vertex buffer
 		std::vector<VertexBufferElement> m_Elements = {};
+
+		/// @brief An unsigned integer containing the stride of the vertex buffer
+		size_t m_Stride = 0;
 
 		/// @brief An enum representing how the data should be iterated
 		StepRate m_StepRate = {};
@@ -146,7 +157,9 @@ namespace Nexus::Graphics
 				Nexus::Graphics::VertexBufferLayout({Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::Float3)},
 													StepRate::Vertex); */
 
-			Nexus::Graphics::VertexBufferLayout layout = {{{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}}, StepRate::Vertex};
+			Nexus::Graphics::VertexBufferLayout layout = {{{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}},
+														  sizeof(VertexPosition),
+														  StepRate::Vertex};
 
 			return layout;
 		}
@@ -183,6 +196,7 @@ namespace Nexus::Graphics
 		{
 			Nexus::Graphics::VertexBufferLayout layout = {
 				{{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}, {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"}},
+				sizeof(VertexPositionTexCoord),
 				StepRate::Vertex};
 			return layout;
 		}
@@ -228,6 +242,7 @@ namespace Nexus::Graphics
 			Nexus::Graphics::VertexBufferLayout layout = {{{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
 														   {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
 														   {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"}},
+														  sizeof(VertexPositionTexCoordColor),
 														  StepRate::Vertex};
 			return layout;
 		}
@@ -273,6 +288,7 @@ namespace Nexus::Graphics
 			Nexus::Graphics::VertexBufferLayout layout = {{{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
 														   {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
 														   {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}},
+														  sizeof(VertexPositionTexCoordNormal),
 														  StepRate::Vertex};
 			return layout;
 		}
@@ -332,6 +348,7 @@ namespace Nexus::Graphics
 														   {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
 														   {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
 														   {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}},
+														  sizeof(VertexPositionTexCoordNormalTangentBitangent),
 														  StepRate::Vertex};
 			return layout;
 		}
@@ -397,6 +414,7 @@ namespace Nexus::Graphics
 														   {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
 														   {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
 														   {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}},
+														  sizeof(VertexPositionTexCoordNormalColourTangentBitangent),
 														  StepRate::Vertex};
 			return layout;
 		}

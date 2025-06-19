@@ -21,16 +21,6 @@ namespace Nexus::Graphics
 
 	VkPipelineLayoutCreateInfo CreatePipelineLayoutCreateInfo(const std::vector<VkDescriptorSetLayout> &layouts);
 
-	using StrideMap = std::map<uint32_t, size_t>;
-
-	struct StrideMapComparator
-	{
-		bool operator()(const StrideMap &lhs, const StrideMap &rhs) const
-		{
-			return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
-		}
-	};
-
 	class GraphicsPipelineVk : public GraphicsPipeline, public PipelineVk
 	{
 	  public:
@@ -57,12 +47,11 @@ namespace Nexus::Graphics
 		std::vector<VkPipelineShaderStageCreateInfo> GetShaderStages();
 
 		void	   CreatePipelineLayout();
-		VkPipeline CreateGraphicsPipeline(VkRenderPass renderPass, const std::map<uint32_t, size_t> &strides, bool dynamicStride);
+		VkPipeline CreateGraphicsPipeline(VkRenderPass renderPass);
 
 	  private:
 		VkPipelineLayout															 m_PipelineLayout;
-		std::map<VkRenderPass, std::map<StrideMap, VkPipeline, StrideMapComparator>> m_StaticStridePipelines;
-		VkPipeline																	 m_DynamicStridePipeline = VK_NULL_HANDLE;
+		std::map<VkRenderPass, VkPipeline>											 m_Pipelines;
 		GraphicsDeviceVk															*m_GraphicsDevice;
 	};
 

@@ -269,7 +269,6 @@ namespace Nexus::Graphics
 			vertexBufferView.BufferHandle	   = vertexBuffer;
 			vertexBufferView.Offset			   = 0;
 			vertexBufferView.Size			   = vertexBuffer->GetSizeInBytes();
-			vertexBufferView.Stride			   = vertexBuffer->GetStrideInBytes();
 			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
 			Ref<DeviceBuffer> indexBuffer	  = m_Cube->GetIndexBuffer();
@@ -378,7 +377,6 @@ namespace Nexus::Graphics
 			VertexBufferView  vertexBufferView = {};
 			vertexBufferView.BufferHandle	   = vertexBuffer;
 			vertexBufferView.Offset			   = 0;
-			vertexBufferView.Stride			   = vertexBuffer->GetStrideInBytes();
 			vertexBufferView.Size			   = vertexBuffer->GetSizeInBytes();
 			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 

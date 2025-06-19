@@ -156,6 +156,7 @@ namespace Nexus::ImGuiUtils
 			Nexus::Graphics::VertexBufferLayout({Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"),
 												 Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"),
 												 Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::NormByte4, "TEXCOORD")},
+												sizeof(ImDrawVert),
 												Nexus::Graphics::StepRate::Vertex)};
 
 		Nexus::Graphics::ResourceSetSpecification resources;
@@ -192,6 +193,7 @@ namespace Nexus::ImGuiUtils
 			Nexus::Graphics::VertexBufferLayout({Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"),
 												 Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"),
 												 Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::NormByte4, "TEXCOORD")},
+												sizeof(ImDrawVert),
 												Nexus::Graphics::StepRate::Vertex)};
 
 		Nexus::Graphics::ResourceSetSpecification resources;
@@ -562,7 +564,6 @@ namespace Nexus::ImGuiUtils
 					Graphics::VertexBufferView vertexBufferView = {};
 					vertexBufferView.BufferHandle				= m_VertexBuffer;
 					vertexBufferView.Offset						= 0;
-					vertexBufferView.Stride						= m_VertexBuffer->GetStrideInBytes();
 					vertexBufferView.Size						= m_VertexBuffer->GetSizeInBytes();
 					m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 

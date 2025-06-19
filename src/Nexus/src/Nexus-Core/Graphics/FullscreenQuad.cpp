@@ -30,11 +30,12 @@ namespace Nexus::Graphics
 		{
 			return Nexus::Graphics::VertexBufferLayout(
 				{{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}, {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"}},
+				sizeof(glm::vec3) + sizeof(glm::vec2),
 				StepRate::Vertex);
 		}
 		else
 		{
-			return Nexus::Graphics::VertexBufferLayout({{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}}, StepRate::Vertex);
+			return Nexus::Graphics::VertexBufferLayout({{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}}, sizeof(glm::vec3), StepRate::Vertex);
 		}
 	}
 

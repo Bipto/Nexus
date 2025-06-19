@@ -37,6 +37,7 @@ namespace Nexus::Graphics
 																					   {Nexus::Graphics::ShaderDataType::Float, "TEXCOORD"},
 																					   {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
 																					   {Nexus::Graphics::ShaderDataType::UInt2, "TEXCOORD"}},
+																					  sizeof(BatchVertex),
 																					  Graphics::StepRate::Vertex);
 			return layout;
 		}

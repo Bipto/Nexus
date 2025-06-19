@@ -45,16 +45,17 @@ namespace Nexus::Graphics
 			Ref<DeviceBufferOpenGL> vertexBufferOpenGL = std::dynamic_pointer_cast<DeviceBufferOpenGL>(vertexBufferView.BufferHandle);
 
 			uint32_t offset = 0;
+			size_t	 stride = layout.GetStride();
 
 			// type is an instance buffer, offset to the first instance requested
 			if (layout.IsInstanceBuffer())
 			{
-				offset = firstInstance * vertexBufferView.Stride;
+				offset = firstInstance * stride;
 			}
 			// otherwise, the buffer is a vertex buffer, offset to the first vertex requested
 			else
 			{
-				offset = firstVertex * vertexBufferView.Stride;
+				offset = firstVertex * stride;
 			}
 
 			// offset by the amount specified in the vertex buffer view
@@ -73,16 +74,11 @@ namespace Nexus::Graphics
 
 				if (primitiveType == GL::GLPrimitiveType::Float)
 				{
-					glCall(glVertexAttribPointer(index,
-												 componentCount,
-												 baseType,
-												 normalized,
-												 vertexBufferView.Stride,
-												 (void *)(element.Offset + offset)));
+					glCall(glVertexAttribPointer(index, componentCount, baseType, normalized, stride, (void *)(element.Offset + offset)));
 				}
 				else if (primitiveType == GL::GLPrimitiveType::Int)
 				{
-					glCall(glVertexAttribIPointer(index, componentCount, baseType, vertexBufferView.Stride, (void *)(element.Offset + offset)));
+					glCall(glVertexAttribIPointer(index, componentCount, baseType, stride, (void *)(element.Offset + offset)));
 				}
 				else
 				{

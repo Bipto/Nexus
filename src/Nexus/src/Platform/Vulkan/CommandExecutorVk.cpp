@@ -84,14 +84,12 @@ namespace Nexus::Graphics
 		VkBuffer			vertexBuffers[] = {vertexBufferVk->GetVkBuffer()};
 		VkDeviceSize		offsets[]		= {command.View.Offset};
 		VkDeviceSize		sizes[]			= {command.View.Size};
-		VkDeviceSize		strides[]		= {command.View.Stride};
 
 		const VulkanDeviceFeatures &deviceFeatures = m_Device->GetDeviceFeatures();
-		m_VertexBufferStrides[command.Slot]		   = command.View.Stride;
 
 		if (deviceFeatures.DynamicInputBindingStrideAvailable && m_vkCmdBindVertexBuffers2EXT)
 		{
-			m_vkCmdBindVertexBuffers2EXT(m_CommandBuffer, command.Slot, 1, vertexBuffers, offsets, sizes, strides);
+			m_vkCmdBindVertexBuffers2EXT(m_CommandBuffer, command.Slot, 1, vertexBuffers, offsets, sizes, nullptr);
 		}
 		else
 		{

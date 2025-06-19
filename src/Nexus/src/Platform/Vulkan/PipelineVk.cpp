@@ -30,10 +30,7 @@ namespace Nexus::Graphics
 
 	GraphicsPipelineVk::~GraphicsPipelineVk()
 	{
-		vkDestroyPipeline(m_GraphicsDevice->GetVkDevice(), m_DynamicStridePipeline, nullptr);
-
-		for (const auto &[renderPass, strideMap] : m_StaticStridePipelines)
-			for (const auto &[strideBindings, pipeline] : strideMap) { vkDestroyPipeline(m_GraphicsDevice->GetVkDevice(), pipeline, nullptr); }
+		for (const auto &[renderPass, pipeline] : m_Pipelines) { vkDestroyPipeline(m_GraphicsDevice->GetVkDevice(), pipeline, nullptr); }
 
 		vkDestroyPipelineLayout(m_GraphicsDevice->GetVkDevice(), m_PipelineLayout, nullptr);
 	}
@@ -50,40 +47,13 @@ namespace Nexus::Graphics
 
 	void GraphicsPipelineVk::Bind(VkCommandBuffer cmd, VkRenderPass renderPass, const std::map<uint32_t, size_t> &strides)
 	{
-		VkPipeline pipeline = VK_NULL_HANDLE;
-
-		const VulkanDeviceFeatures &deviceFeatures = m_GraphicsDevice->GetDeviceFeatures();
-		if (deviceFeatures.DynamicInputBindingStrideAvailable)
+		if (m_Pipelines.find(renderPass) == m_Pipelines.end())
 		{
-			// create the pipeline if it doesn't exist
-			if (m_DynamicStridePipeline == VK_NULL_HANDLE)
-			{
-				m_DynamicStridePipeline = CreateGraphicsPipeline(renderPass, strides, true);
-			}
-
-			pipeline = m_DynamicStridePipeline;
-		}
-		else
-		{
-			// create the map for the render pass for the pipeline if it does not exist
-			auto renderPassIt = m_StaticStridePipelines.find(renderPass);
-			if (renderPassIt == m_StaticStridePipelines.end())
-			{
-				m_StaticStridePipelines[renderPass] = {};
-				renderPassIt						= m_StaticStridePipelines.find(renderPass);
-			}
-
-			// create the map for the stride if it does not exist
-			auto strideIt = renderPassIt->second.find(strides);
-			if (strideIt == renderPassIt->second.end())
-			{
-				renderPassIt->second[strides] = CreateGraphicsPipeline(renderPass, strides, false);
-			}
-
-			pipeline = m_StaticStridePipelines[renderPass][strides];
-			NX_ASSERT(pipeline, "Pipeline is not valid");
+			m_Pipelines[renderPass] = CreateGraphicsPipeline(renderPass);
 		}
 
+		VkPipeline pipeline = m_Pipelines.at(renderPass);
+		NX_ASSERT(pipeline, "Failed to find a valid pipeline");
 		vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 	}
 
@@ -335,7 +305,7 @@ namespace Nexus::Graphics
 		}
 	}
 
-	VkPipeline GraphicsPipelineVk::CreateGraphicsPipeline(VkRenderPass renderPass, const std::map<uint32_t, size_t> &strides, bool dynamicStride)
+	VkPipeline GraphicsPipelineVk::CreateGraphicsPipeline(VkRenderPass renderPass)
 	{
 		const VulkanDeviceFeatures &deviceFeatures = m_GraphicsDevice->GetDeviceFeatures();
 
@@ -390,12 +360,7 @@ namespace Nexus::Graphics
 			// create binding descriptions
 			VkVertexInputBindingDescription bindingDescription = {};
 			bindingDescription.binding						   = layoutIndex;
-			bindingDescription.stride						   = 0;
-
-			if (!dynamicStride)
-			{
-				bindingDescription.stride = strides.at(layoutIndex);
-			}
+			bindingDescription.stride						   = layout.GetStride();
 
 			bindingDescription.inputRate = layout.IsInstanceBuffer() ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX;
 			bindingDescriptions.push_back(bindingDescription);
@@ -478,11 +443,6 @@ namespace Nexus::Graphics
 		dynamicInfo.flags							 = 0;
 
 		std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
-
-		if (dynamicStride)
-		{
-			dynamicStates.push_back(VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE);
-		}
 
 		dynamicInfo.dynamicStateCount = dynamicStates.size();
 		dynamicInfo.pDynamicStates	  = dynamicStates.data();

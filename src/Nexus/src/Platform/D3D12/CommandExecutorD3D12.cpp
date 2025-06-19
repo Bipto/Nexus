@@ -56,7 +56,7 @@ namespace Nexus::Graphics
 			D3D12_VERTEX_BUFFER_VIEW bufferView;
 			bufferView.BufferLocation = d3d12VertexBuffer->GetHandle()->GetGPUVirtualAddress() + command.View.Offset;
 			bufferView.SizeInBytes	  = command.View.Size;
-			bufferView.StrideInBytes  = command.View.Stride;
+			bufferView.StrideInBytes  = pipeline->GetPipelineDescription().Layouts.at(command.Slot).GetStride();
 
 			m_CommandList->IASetVertexBuffers(command.Slot, 1, &bufferView);
 		}

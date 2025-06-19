@@ -79,7 +79,7 @@ namespace Nexus::Graphics
 		bool valid = true;
 		for (const auto &[binding, view] : vertexBuffers)
 		{
-			if (view.Stride == 0 || view.Size == 0)
+			if (view.Size == 0)
 				valid = false;
 		}
 

@@ -104,7 +104,6 @@ namespace Nexus::Graphics
 			vertexBufferView.BufferHandle	   = vertexBuffer;
 			vertexBufferView.Offset			   = 0;
 			vertexBufferView.Size			   = vertexBuffer->GetSizeInBytes();
-			vertexBufferView.Stride			   = vertexBuffer->GetStrideInBytes();
 			m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
 			Ref<DeviceBuffer> indexBuffer	  = m_Quad.GetIndexBuffer();

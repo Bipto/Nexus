@@ -9,3 +9,5 @@ src/Demo/android/app/src/main/libs
 android-project/.gradle
 android-project/.idea
 .vscode
+CMakeFiles/TargetDirectories.txt
+cmake_install.cmake
