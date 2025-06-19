@@ -59,17 +59,12 @@ namespace Nexus::Graphics
 
 	bool VertexBufferLayout::IsVertexBuffer() const
 	{
-		return m_InstanceStepRate == 0;
+		return m_StepRate == StepRate::Vertex;
 	}
 
 	bool VertexBufferLayout::IsInstanceBuffer() const
 	{
-		return m_InstanceStepRate != 0;
-	}
-
-	uint32_t VertexBufferLayout::GetInstanceStepRate() const
-	{
-		return m_InstanceStepRate;
+		return m_StepRate == StepRate::Instance;
 	}
 
 	void VertexBufferLayout::CalculateOffsets()

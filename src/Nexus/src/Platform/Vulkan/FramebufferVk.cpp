@@ -13,6 +13,7 @@ namespace Nexus::Graphics
 
 	FramebufferVk::~FramebufferVk()
 	{
+		vkDestroyFramebuffer(m_Device->GetVkDevice(), m_Framebuffer, nullptr);
 		vkDestroyRenderPass(m_Device->GetVkDevice(), m_RenderPass, nullptr);
 	}
 

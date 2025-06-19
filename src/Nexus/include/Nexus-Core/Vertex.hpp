@@ -26,13 +26,19 @@ namespace Nexus::Graphics
 		/// @param type The type of the data within the buffer
 		/// @param name The name of the item within the buffer
 		/// @param normalized Whether the data is normalized
-		 VertexBufferElement(ShaderDataType type, const std::string &name);
+		VertexBufferElement(ShaderDataType type, const std::string &name);
 
-		 /// @brief A method that returns an unsigned 32 bit integer representing the
-		 /// number of components within the element
-		 /// @return The number of components within the element (e.g. Float2 will
-		 /// return 2)
-		 uint32_t GetComponentCount() const;
+		/// @brief A method that returns an unsigned 32 bit integer representing the
+		/// number of components within the element
+		/// @return The number of components within the element (e.g. Float2 will
+		/// return 2)
+		uint32_t GetComponentCount() const;
+	};
+
+	enum class StepRate
+	{
+		Vertex,
+		Instance
 	};
 
 	/// @brief A struct representing a set of vertex elements stored within a vertex
@@ -46,7 +52,7 @@ namespace Nexus::Graphics
 		/// @brief A constructor taking in an initializer list of vertex buffer
 		/// elements to use to create the layout
 		/// @param elements An initializer list of vertex buffer elements
-		VertexBufferLayout(std::initializer_list<VertexBufferElement> elements) : m_Elements(elements)
+		VertexBufferLayout(std::initializer_list<VertexBufferElement> elements, StepRate stepRate) : m_Elements(elements), m_StepRate(stepRate)
 		{
 			CalculateOffsets();
 		}
@@ -97,11 +103,9 @@ namespace Nexus::Graphics
 
 		bool IsInstanceBuffer() const;
 
-		uint32_t GetInstanceStepRate() const;
-
-		 void SetInstanceStepRate(uint32_t instanceStepRate)
-		 {
-			 m_InstanceStepRate = instanceStepRate;
+		uint32_t GetInstanceStepRate() const
+		{
+			return 1;
 		}
 
 	  private:
@@ -111,11 +115,10 @@ namespace Nexus::Graphics
 
 	  private:
 		/// @brief A vector containing the elements within the vertex buffer
-		std::vector<VertexBufferElement> m_Elements;
+		std::vector<VertexBufferElement> m_Elements = {};
 
-		/// @brief An unsigned 32 bit integer representing how the data should be
-		/// stepped through when using instancing
-		uint32_t m_InstanceStepRate = 0;
+		/// @brief An enum representing how the data should be iterated
+		StepRate m_StepRate = {};
 	};
 
 	/// @brief A struct representing a vertex with 3D position in world space
@@ -139,7 +142,12 @@ namespace Nexus::Graphics
 		/// type
 		static Nexus::Graphics::VertexBufferLayout GetLayout()
 		{
-			Nexus::Graphics::VertexBufferLayout layout = {{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}};
+			/* Nexus::Graphics::VertexBufferLayout layout =
+				Nexus::Graphics::VertexBufferLayout({Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::Float3)},
+													StepRate::Vertex); */
+
+			Nexus::Graphics::VertexBufferLayout layout = {{{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}}, StepRate::Vertex};
+
 			return layout;
 		}
 	};
@@ -173,8 +181,9 @@ namespace Nexus::Graphics
 		/// type
 		static Nexus::Graphics::VertexBufferLayout GetLayout()
 		{
-			Nexus::Graphics::VertexBufferLayout layout = {{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
-														  {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"}};
+			Nexus::Graphics::VertexBufferLayout layout = {
+				{{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}, {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"}},
+				StepRate::Vertex};
 			return layout;
 		}
 	};
@@ -216,9 +225,10 @@ namespace Nexus::Graphics
 		/// type
 		static Nexus::Graphics::VertexBufferLayout GetLayout()
 		{
-			Nexus::Graphics::VertexBufferLayout layout = {{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
-														  {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
-														  {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"}};
+			Nexus::Graphics::VertexBufferLayout layout = {{{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
+														   {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
+														   {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"}},
+														  StepRate::Vertex};
 			return layout;
 		}
 	};
@@ -260,9 +270,10 @@ namespace Nexus::Graphics
 		/// type
 		static Nexus::Graphics::VertexBufferLayout GetLayout()
 		{
-			Nexus::Graphics::VertexBufferLayout layout = {{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
-														  {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
-														  {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}};
+			Nexus::Graphics::VertexBufferLayout layout = {{{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
+														   {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
+														   {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}},
+														  StepRate::Vertex};
 			return layout;
 		}
 	};
@@ -316,11 +327,12 @@ namespace Nexus::Graphics
 		/// type
 		static Nexus::Graphics::VertexBufferLayout GetLayout()
 		{
-			Nexus::Graphics::VertexBufferLayout layout = {{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
-														  {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
-														  {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
-														  {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
-														  {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}};
+			Nexus::Graphics::VertexBufferLayout layout = {{{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
+														   {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
+														   {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
+														   {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
+														   {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}},
+														  StepRate::Vertex};
 			return layout;
 		}
 	};
@@ -379,12 +391,13 @@ namespace Nexus::Graphics
 		/// type
 		static Nexus::Graphics::VertexBufferLayout GetLayout()
 		{
-			Nexus::Graphics::VertexBufferLayout layout = {{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
-														  {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
-														  {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
-														  {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
-														  {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
-														  {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}};
+			Nexus::Graphics::VertexBufferLayout layout = {{{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
+														   {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
+														   {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
+														   {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
+														   {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
+														   {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}},
+														  StepRate::Vertex};
 			return layout;
 		}
 	};

@@ -89,7 +89,10 @@ namespace Nexus::Graphics
 					throw std::runtime_error("Failed to find valid primitive type");
 				}
 
-				glCall(glVertexAttribDivisor(index, layout.GetInstanceStepRate()));
+				if (layout.IsInstanceBuffer())
+				{
+					glCall(glVertexAttribDivisor(index, layout.GetInstanceStepRate()));
+				}
 
 				index++;
 			}

@@ -28,11 +28,13 @@ namespace Nexus::Graphics
 	{
 		if (m_HasUV)
 		{
-			return {{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}, {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"}};
+			return Nexus::Graphics::VertexBufferLayout(
+				{{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}, {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"}},
+				StepRate::Vertex);
 		}
 		else
 		{
-			return {{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}};
+			return Nexus::Graphics::VertexBufferLayout({{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}}, StepRate::Vertex);
 		}
 	}
 

@@ -12,7 +12,8 @@ namespace Nexus::Graphics
 {
 	CommandExecutorVk::CommandExecutorVk(GraphicsDeviceVk *device) : m_Device(device)
 	{
-		m_vkCmdBindIndexBuffer2KHR = (PFN_vkCmdBindIndexBuffer2KHR)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdBindIndexBuffer2KHR");
+		m_vkCmdBindVertexBuffers2EXT = (PFN_vkCmdBindVertexBuffers2EXT)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdBindVertexBuffers2EXT");
+		m_vkCmdBindIndexBuffer2KHR	 = (PFN_vkCmdBindIndexBuffer2KHR)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdBindIndexBuffer2KHR");
 		m_vkCmdDebugMarkerBeginEXT	= (PFN_vkCmdDebugMarkerBeginEXT)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdDebugMarkerBeginEXT");
 		m_vkCmdDebugMarkerEndEXT	= (PFN_vkCmdDebugMarkerEndEXT)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdDebugMarkerEndEXT");
 		m_vkCmdDebugMarkerInsertEXT = (PFN_vkCmdDebugMarkerInsertEXT)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdDebugMarkerInsertEXT");
@@ -80,11 +81,22 @@ namespace Nexus::Graphics
 		}
 
 		Ref<DeviceBufferVk> vertexBufferVk	= std::dynamic_pointer_cast<DeviceBufferVk>(command.View.BufferHandle);
-		VkBuffer		vertexBuffers[] = {vertexBufferVk->GetVkBuffer()};
-		VkDeviceSize	offsets[]		= {command.View.Offset};
+		VkBuffer			vertexBuffers[] = {vertexBufferVk->GetVkBuffer()};
+		VkDeviceSize		offsets[]		= {command.View.Offset};
 		VkDeviceSize		sizes[]			= {command.View.Size};
 		VkDeviceSize		strides[]		= {command.View.Stride};
-		vkCmdBindVertexBuffers2(m_CommandBuffer, command.Slot, 1, vertexBuffers, offsets, sizes, strides);
+
+		const VulkanDeviceFeatures &deviceFeatures = m_Device->GetDeviceFeatures();
+		m_VertexBufferStrides[command.Slot]		   = command.View.Stride;
+
+		if (deviceFeatures.DynamicInputBindingStrideAvailable && m_vkCmdBindVertexBuffers2EXT)
+		{
+			m_vkCmdBindVertexBuffers2EXT(m_CommandBuffer, command.Slot, 1, vertexBuffers, offsets, sizes, strides);
+		}
+		else
+		{
+			vkCmdBindVertexBuffers(m_CommandBuffer, command.Slot, 1, vertexBuffers, offsets);
+		}
 	}
 
 	void CommandExecutorVk::ExecuteCommand(SetIndexBufferCommand command, GraphicsDevice *device)
@@ -95,8 +107,8 @@ namespace Nexus::Graphics
 		}
 
 		Ref<DeviceBufferVk> indexBufferVk	  = std::dynamic_pointer_cast<DeviceBufferVk>(command.View.BufferHandle);
-		VkBuffer		indexBufferHandle = indexBufferVk->GetVkBuffer();
-		VkIndexType		indexType		  = Vk::GetVulkanIndexBufferFormat(command.View.BufferFormat);
+		VkBuffer			indexBufferHandle = indexBufferVk->GetVkBuffer();
+		VkIndexType			indexType		  = Vk::GetVulkanIndexBufferFormat(command.View.BufferFormat);
 		VkDeviceSize		offset			  = command.View.Offset;
 		VkDeviceSize		size			  = command.View.Size;
 
@@ -118,9 +130,6 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		auto vulkanPipeline = std::dynamic_pointer_cast<PipelineVk>(command.lock());
-		vulkanPipeline->Bind(m_CommandBuffer);
-
 		m_CurrentlyBoundPipeline = command.lock();
 	}
 
@@ -130,6 +139,8 @@ namespace Nexus::Graphics
 		{
 			return;
 		}
+
+		BindGraphicsPipeline();
 
 		vkCmdDraw(m_CommandBuffer, command.VertexCount, command.InstanceCount, command.VertexStart, command.InstanceStart);
 	}
@@ -141,6 +152,8 @@ namespace Nexus::Graphics
 			return;
 		}
 
+		BindGraphicsPipeline();
+
 		vkCmdDrawIndexed(m_CommandBuffer, command.IndexCount, command.InstanceCount, command.IndexStart, command.VertexStart, command.InstanceStart);
 	}
 
@@ -151,6 +164,8 @@ namespace Nexus::Graphics
 			return;
 		}
 		Ref<DeviceBufferVk> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferVk>(command.IndirectBuffer);
+
+		BindGraphicsPipeline();
 
 		vkCmdDrawIndirect(m_CommandBuffer,
 						  indirectBuffer->GetVkBuffer(),
@@ -166,6 +181,8 @@ namespace Nexus::Graphics
 			return;
 		}
 		Ref<DeviceBufferVk> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferVk>(command.IndirectBuffer);
+
+		BindGraphicsPipeline();
 
 		vkCmdDrawIndexedIndirect(m_CommandBuffer,
 								 indirectBuffer->GetVkBuffer(),
@@ -442,20 +459,20 @@ namespace Nexus::Graphics
 
 		// perform copy
 		{
-			VkBufferImageCopy copyRegion		   = {};
-			copyRegion.bufferOffset				   = command.BufferTextureCopy.BufferOffset;
-			copyRegion.bufferRowLength			   = 0;
-			copyRegion.bufferImageHeight		   = 0;
-			copyRegion.imageSubresource.aspectMask = aspectFlags;
-			copyRegion.imageSubresource.mipLevel   = command.BufferTextureCopy.TextureSubresource.MipLevel;
-			copyRegion.imageSubresource.layerCount = command.BufferTextureCopy.TextureSubresource.Depth;
-			copyRegion.imageOffset.x			   = command.BufferTextureCopy.TextureSubresource.X;
-			copyRegion.imageOffset.y			   = command.BufferTextureCopy.TextureSubresource.Y;
+			VkBufferImageCopy copyRegion			   = {};
+			copyRegion.bufferOffset					   = command.BufferTextureCopy.BufferOffset;
+			copyRegion.bufferRowLength				   = 0;
+			copyRegion.bufferImageHeight			   = 0;
+			copyRegion.imageSubresource.aspectMask	   = aspectFlags;
+			copyRegion.imageSubresource.mipLevel	   = command.BufferTextureCopy.TextureSubresource.MipLevel;
+			copyRegion.imageSubresource.layerCount	   = command.BufferTextureCopy.TextureSubresource.Depth;
+			copyRegion.imageOffset.x				   = command.BufferTextureCopy.TextureSubresource.X;
+			copyRegion.imageOffset.y				   = command.BufferTextureCopy.TextureSubresource.Y;
 			copyRegion.imageOffset.z				   = 0;
-			copyRegion.imageExtent.width		   = command.BufferTextureCopy.TextureSubresource.Width;
-			copyRegion.imageExtent.height		   = command.BufferTextureCopy.TextureSubresource.Height;
-			copyRegion.imageExtent.depth				   = command.BufferTextureCopy.TextureSubresource.Depth;
-			copyRegion.imageSubresource.baseArrayLayer	   = command.BufferTextureCopy.TextureSubresource.ArrayLayer;
+			copyRegion.imageExtent.width			   = command.BufferTextureCopy.TextureSubresource.Width;
+			copyRegion.imageExtent.height			   = command.BufferTextureCopy.TextureSubresource.Height;
+			copyRegion.imageExtent.depth			   = command.BufferTextureCopy.TextureSubresource.Depth;
+			copyRegion.imageSubresource.baseArrayLayer = command.BufferTextureCopy.TextureSubresource.ArrayLayer;
 
 			vkCmdCopyBufferToImage(m_CommandBuffer, buffer->GetVkBuffer(), texture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
 		}
@@ -502,19 +519,19 @@ namespace Nexus::Graphics
 
 		// perform copy
 		{
-			VkBufferImageCopy copyRegion		   = {};
-			copyRegion.bufferOffset				   = command.TextureBufferCopy.BufferOffset;
-			copyRegion.bufferRowLength			   = 0;
-			copyRegion.bufferImageHeight		   = 0;
-			copyRegion.imageSubresource.aspectMask = aspectFlags;
-			copyRegion.imageSubresource.mipLevel   = command.TextureBufferCopy.TextureSubresource.MipLevel;
-			copyRegion.imageSubresource.layerCount = command.TextureBufferCopy.TextureSubresource.Depth;
-			copyRegion.imageOffset.x			   = command.TextureBufferCopy.TextureSubresource.X;
-			copyRegion.imageOffset.y			   = command.TextureBufferCopy.TextureSubresource.Y;
+			VkBufferImageCopy copyRegion			   = {};
+			copyRegion.bufferOffset					   = command.TextureBufferCopy.BufferOffset;
+			copyRegion.bufferRowLength				   = 0;
+			copyRegion.bufferImageHeight			   = 0;
+			copyRegion.imageSubresource.aspectMask	   = aspectFlags;
+			copyRegion.imageSubresource.mipLevel	   = command.TextureBufferCopy.TextureSubresource.MipLevel;
+			copyRegion.imageSubresource.layerCount	   = command.TextureBufferCopy.TextureSubresource.Depth;
+			copyRegion.imageOffset.x				   = command.TextureBufferCopy.TextureSubresource.X;
+			copyRegion.imageOffset.y				   = command.TextureBufferCopy.TextureSubresource.Y;
 			copyRegion.imageOffset.z				   = command.TextureBufferCopy.TextureSubresource.Z;
-			copyRegion.imageExtent.width		   = command.TextureBufferCopy.TextureSubresource.Width;
-			copyRegion.imageExtent.height		   = command.TextureBufferCopy.TextureSubresource.Height;
-			copyRegion.imageExtent.depth		   = command.TextureBufferCopy.TextureSubresource.Depth;
+			copyRegion.imageExtent.width			   = command.TextureBufferCopy.TextureSubresource.Width;
+			copyRegion.imageExtent.height			   = command.TextureBufferCopy.TextureSubresource.Height;
+			copyRegion.imageExtent.depth			   = command.TextureBufferCopy.TextureSubresource.Depth;
 			copyRegion.imageSubresource.baseArrayLayer = command.TextureBufferCopy.TextureSubresource.ArrayLayer;
 
 			vkCmdCopyImageToBuffer(m_CommandBuffer, texture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, buffer->GetVkBuffer(), 1, &copyRegion);
@@ -584,22 +601,22 @@ namespace Nexus::Graphics
 			VkImageCopy copyRegion = {};
 
 			// src
-			copyRegion.srcSubresource.aspectMask = srcAspect;
-			copyRegion.srcSubresource.mipLevel	 = command.TextureCopy.SourceSubresource.MipLevel;
-			copyRegion.srcSubresource.layerCount = command.TextureCopy.SourceSubresource.Depth;
-			copyRegion.srcOffset.x				 = command.TextureCopy.SourceSubresource.X;
-			copyRegion.srcOffset.y				 = command.TextureCopy.SourceSubresource.Y;
+			copyRegion.srcSubresource.aspectMask	 = srcAspect;
+			copyRegion.srcSubresource.mipLevel		 = command.TextureCopy.SourceSubresource.MipLevel;
+			copyRegion.srcSubresource.layerCount	 = command.TextureCopy.SourceSubresource.Depth;
+			copyRegion.srcOffset.x					 = command.TextureCopy.SourceSubresource.X;
+			copyRegion.srcOffset.y					 = command.TextureCopy.SourceSubresource.Y;
 			copyRegion.srcOffset.z					 = command.TextureCopy.SourceSubresource.Z;
 			copyRegion.srcSubresource.baseArrayLayer = command.TextureCopy.SourceSubresource.ArrayLayer;
-			copyRegion.extent.width				 = command.TextureCopy.SourceSubresource.Width;
-			copyRegion.extent.height			 = command.TextureCopy.SourceSubresource.Height;
-			copyRegion.extent.depth				 = command.TextureCopy.SourceSubresource.Depth;
+			copyRegion.extent.width					 = command.TextureCopy.SourceSubresource.Width;
+			copyRegion.extent.height				 = command.TextureCopy.SourceSubresource.Height;
+			copyRegion.extent.depth					 = command.TextureCopy.SourceSubresource.Depth;
 
 			// dst
-			copyRegion.dstSubresource.aspectMask = dstAspect;
-			copyRegion.dstSubresource.mipLevel	 = command.TextureCopy.DestinationSubresource.MipLevel;
-			copyRegion.dstSubresource.layerCount = command.TextureCopy.DestinationSubresource.Depth;
-			copyRegion.dstOffset.x				 = command.TextureCopy.DestinationSubresource.X;
+			copyRegion.dstSubresource.aspectMask	 = dstAspect;
+			copyRegion.dstSubresource.mipLevel		 = command.TextureCopy.DestinationSubresource.MipLevel;
+			copyRegion.dstSubresource.layerCount	 = command.TextureCopy.DestinationSubresource.Depth;
+			copyRegion.dstOffset.x					 = command.TextureCopy.DestinationSubresource.X;
 			copyRegion.dstOffset.y					 = command.TextureCopy.DestinationSubresource.Y;
 			copyRegion.dstOffset.z					 = command.TextureCopy.DestinationSubresource.Z;
 			copyRegion.dstSubresource.baseArrayLayer = command.TextureCopy.DestinationSubresource.ArrayLayer;
@@ -683,7 +700,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::StartRenderingToSwapchain(Ref<Swapchain> swapchain)
 	{
-		Ref<SwapchainVk> swapchainVk = std::dynamic_pointer_cast<SwapchainVk>(swapchain);
+		Ref<SwapchainVk> swapchainVk   = std::dynamic_pointer_cast<SwapchainVk>(swapchain);
 		const auto		&swapchainDesc = swapchainVk->GetSpecification();
 
 		m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
@@ -946,6 +963,7 @@ namespace Nexus::Graphics
 			}
 		}
 	}
+
 	bool CommandExecutorVk::ValidateIsRendering()
 	{
 		if (!m_Rendering)
@@ -954,6 +972,27 @@ namespace Nexus::Graphics
 			return false;
 		}
 		return true;
+	}
+
+	void CommandExecutorVk::BindGraphicsPipeline()
+	{
+		auto						vulkanPipeline = std::dynamic_pointer_cast<PipelineVk>(m_CurrentlyBoundPipeline.lock());
+		const VulkanDeviceFeatures &deviceFeatures = m_Device->GetDeviceFeatures();
+
+		if (Ref<Swapchain> swapchain = m_CurrentRenderTarget.GetSwapchain().lock())
+		{
+			Ref<SwapchainVk> swapchainVk = std::dynamic_pointer_cast<SwapchainVk>(swapchain);
+			vulkanPipeline->Bind(m_CommandBuffer, swapchainVk->GetRenderPass(), m_VertexBufferStrides);
+		}
+		else if (Ref<Framebuffer> framebuffer = m_CurrentRenderTarget.GetFramebuffer().lock())
+		{
+			Ref<FramebufferVk> framebufferVk = std::dynamic_pointer_cast<FramebufferVk>(framebuffer);
+			vulkanPipeline->Bind(m_CommandBuffer, framebufferVk->GetRenderPass(), m_VertexBufferStrides);
+		}
+		else
+		{
+			throw std::runtime_error("Failed to find a valid render target type");
+		}
 	}
 }	 // namespace Nexus::Graphics
 

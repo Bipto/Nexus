@@ -503,7 +503,11 @@ namespace Nexus::Graphics
 
 	void SwapchainVk::CleanupFramebuffers()
 	{
-		for (size_t i = 0; i < m_Framebuffers.size(); i++) { vkDestroyFramebuffer(m_GraphicsDevice->GetVkDevice(), m_Framebuffers[i], nullptr); }
+		for (size_t i = 0; i < m_Framebuffers.size(); i++)
+		{
+			int x = 0;
+			vkDestroyFramebuffer(m_GraphicsDevice->GetVkDevice(), m_Framebuffers[i], nullptr);
+		}
 
 		m_Framebuffers.clear();
 	}

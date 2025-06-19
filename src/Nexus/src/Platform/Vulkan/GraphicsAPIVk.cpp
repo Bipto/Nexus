@@ -120,7 +120,7 @@ namespace Nexus::Graphics
 		appInfo.applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
 		appInfo.pEngineName		   = "Nexus";
 		appInfo.engineVersion	   = VK_MAKE_API_VERSION(0, 1, 0, 0);
-		appInfo.apiVersion		   = VK_API_VERSION_1_4;
+		appInfo.apiVersion		   = VK_API_VERSION_1_1;
 
 		std::vector<VkValidationFeatureEnableEXT> enables = {VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT};
 
