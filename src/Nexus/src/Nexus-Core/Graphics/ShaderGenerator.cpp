@@ -17,6 +17,11 @@ spv::ExecutionModel GetShaderExecutionModel(Nexus::Graphics::ShaderStage stage)
 		case Nexus::Graphics::ShaderStage::TesselationControl: return spv::ExecutionModel::ExecutionModelTessellationControl;
 		case Nexus::Graphics::ShaderStage::TesselationEvaluation: return spv::ExecutionModel::ExecutionModelTessellationEvaluation;
 		case Nexus::Graphics::ShaderStage::Vertex: return spv::ExecutionModel::ExecutionModelVertex;
+		case Nexus::Graphics::ShaderStage::RayGeneration: return spv::ExecutionModel::ExecutionModelRayGenerationKHR;
+		case Nexus::Graphics::ShaderStage::RayAnyHit: return spv::ExecutionModel::ExecutionModelAnyHitKHR;
+		case Nexus::Graphics::ShaderStage::RayClosestHit: return spv::ExecutionModel::ExecutionModelClosestHitKHR;
+		case Nexus::Graphics::ShaderStage::RayIntersection: return spv::ExecutionModel::ExecutionModelIntersectionKHR;
+		case Nexus::Graphics::ShaderStage::RayMiss: return spv::ExecutionModel::ExecutionModelMissKHR;
 		default: throw std::runtime_error("Failed to find a valid shader stage");
 	}
 }

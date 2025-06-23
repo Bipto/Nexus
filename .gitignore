@@ -11,3 +11,7 @@ android-project/.idea
 .vscode
 CMakeFiles/TargetDirectories.txt
 cmake_install.cmake
+docs/rtf
+docs/docbook
+docs/html
+docs/latex

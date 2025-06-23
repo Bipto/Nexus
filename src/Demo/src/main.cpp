@@ -320,7 +320,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 	spec.WindowProperties.RendersPerSecond = {};
 	spec.WindowProperties.UpdatesPerSecond = {};
 
-	spec.SwapchainSpecification.Samples	   = 1;
+	spec.SwapchainSpecification.Samples	   = 8;
 	spec.SwapchainSpecification.VSyncState = Nexus::Graphics::VSyncState::Enabled;
 
 	spec.Organization = "Nexus";

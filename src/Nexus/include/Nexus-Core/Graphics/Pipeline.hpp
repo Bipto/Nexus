@@ -66,6 +66,17 @@ namespace Nexus::Graphics
 		Ref<ShaderModule>		 ComputeShader	 = nullptr;
 	};
 
+	struct RayTracingPipelineDescription
+	{
+		ResourceSetSpecification ResourceSetSpec	   = {};
+		Ref<ShaderModule>		 RayGenShader		   = nullptr;
+		Ref<ShaderModule>		 RayMissShader		   = nullptr;
+		Ref<ShaderModule>		 RayClosestHitShader   = nullptr;
+		Ref<ShaderModule>		 RayAnyHitShader	   = nullptr;
+		Ref<ShaderModule>		 RayIntersectionShader = nullptr;
+		uint32_t				 MaxRecursionDepth	   = 0;
+	};
+
 	enum class PipelineType
 	{
 		Graphics,

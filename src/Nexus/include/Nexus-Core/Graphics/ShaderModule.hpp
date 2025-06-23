@@ -14,7 +14,12 @@ namespace Nexus::Graphics
 		Geometry,
 		TesselationControl,
 		TesselationEvaluation,
-		Vertex
+		Vertex,
+		RayGeneration,
+		RayMiss,
+		RayClosestHit,
+		RayAnyHit,
+		RayIntersection
 	};
 
 	struct ShaderAttribute
