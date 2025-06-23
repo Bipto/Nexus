@@ -97,6 +97,10 @@ namespace Nexus::Graphics
 		virtual bool Validate() override;
 		virtual void SetName(const std::string &name) override;
 
+		virtual PixelFormatProperties GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const override;
+		virtual const DeviceFeatures &GetPhysicalDeviceFeatures() const override;
+		virtual const DeviceLimits	 &GetPhysicalDeviceLimits() const override;
+
 		// vulkan functions
 	  private:
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) override;
@@ -146,6 +150,9 @@ namespace Nexus::Graphics
 
 		VulkanDeviceConfig	 m_DeviceConfig	  = {};
 		VulkanDeviceFeatures m_DeviceFeatures = {};
+
+		DeviceFeatures m_Features = {};
+		DeviceLimits   m_Limits	  = {};
 
 		friend class SwapchainVk;
 	};

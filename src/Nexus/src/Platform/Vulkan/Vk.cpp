@@ -62,6 +62,26 @@ namespace Nexus::Vk
 			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UNorm: return VK_FORMAT_A2B10G10R10_UNORM_PACK32;
 			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UInt: return VK_FORMAT_A2B10G10R10_UINT_PACK32;
 			case Nexus::Graphics::PixelFormat::R11_G11_B10_Float: return VK_FORMAT_B10G11R11_UFLOAT_PACK32;
+
+			case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A1_UNorm: return VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK;
+			case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A8_UNorm: return VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK;
+			case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_UNorm: return VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK;
+
+			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm: return VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
+			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm_SRgb: return VK_FORMAT_BC1_RGB_SRGB_BLOCK;
+			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm: return VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
+			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm_SRgb: return VK_FORMAT_BC1_RGBA_SRGB_BLOCK;
+			case Nexus::Graphics::PixelFormat::BC2_UNorm: return VK_FORMAT_BC2_UNORM_BLOCK;
+			case Nexus::Graphics::PixelFormat::BC2_UNorm_SRgb: return VK_FORMAT_BC2_SRGB_BLOCK;
+			case Nexus::Graphics::PixelFormat::BC3_UNorm: return VK_FORMAT_BC3_UNORM_BLOCK;
+			case Nexus::Graphics::PixelFormat::BC3_UNorm_SRgb: return VK_FORMAT_BC3_SRGB_BLOCK;
+			case Nexus::Graphics::PixelFormat::BC4_UNorm: return VK_FORMAT_BC4_UNORM_BLOCK;
+			case Nexus::Graphics::PixelFormat::BC4_SNorm: return VK_FORMAT_BC4_SNORM_BLOCK;
+			case Nexus::Graphics::PixelFormat::BC5_UNorm: return VK_FORMAT_BC5_UNORM_BLOCK;
+			case Nexus::Graphics::PixelFormat::BC5_SNorm: return VK_FORMAT_BC5_SNORM_BLOCK;
+			case Nexus::Graphics::PixelFormat::BC7_UNorm: return VK_FORMAT_BC7_UNORM_BLOCK;
+			case Nexus::Graphics::PixelFormat::BC7_UNorm_SRgb: return VK_FORMAT_BC7_SRGB_BLOCK;
+
 			default: throw std::runtime_error("Failed to find a valid format");
 		}
 	}

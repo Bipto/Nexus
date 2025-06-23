@@ -32,15 +32,6 @@ namespace Nexus::Graphics
 		return m_DeviceName;
 	}
 
-	const PhysicalDeviceFeatures &PhysicalDeviceWGL::GetPhysicalDeviceFeatures() const
-	{
-		return m_Features;
-	}
-	const PhysicalDeviceLimits &PhysicalDeviceWGL::GetPhysicalDeviceLimits() const
-	{
-		return m_Limits;
-	}
-
 	GL::IOffscreenContext *PhysicalDeviceWGL::GetOffscreenContext()
 	{
 		return m_OffscreenContext.get();

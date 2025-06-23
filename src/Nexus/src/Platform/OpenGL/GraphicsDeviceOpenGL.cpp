@@ -265,6 +265,22 @@ namespace Nexus::Graphics
 		return extensions;
 	}
 
+	PixelFormatProperties GraphicsDeviceOpenGL::GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const
+	{
+		PixelFormatProperties properties = {};
+		return properties;
+	}
+
+	const DeviceFeatures &GraphicsDeviceOpenGL::GetPhysicalDeviceFeatures() const
+	{
+		return m_Features;
+	}
+
+	const DeviceLimits &GraphicsDeviceOpenGL::GetPhysicalDeviceLimits() const
+	{
+		return m_Limits;
+	}
+
 	Ref<GraphicsPipeline> GraphicsDeviceOpenGL::CreateGraphicsPipeline(const GraphicsPipelineDescription &description)
 	{
 		return CreateRef<GraphicsPipelineOpenGL>(description);

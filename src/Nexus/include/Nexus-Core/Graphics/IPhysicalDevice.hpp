@@ -9,8 +9,6 @@ namespace Nexus::Graphics
 	{
 	  public:
 		virtual ~IPhysicalDevice()												= default;
-		virtual const std::string			 &GetDeviceName() const				= 0;
-		virtual const PhysicalDeviceFeatures &GetPhysicalDeviceFeatures() const = 0;
-		virtual const PhysicalDeviceLimits	 &GetPhysicalDeviceLimits() const	= 0;
+		virtual const std::string &GetDeviceName() const						= 0;
 	};
 }	 // namespace Nexus::Graphics

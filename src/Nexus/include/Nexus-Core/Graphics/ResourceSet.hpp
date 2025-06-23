@@ -8,18 +8,11 @@
 
 namespace Nexus::Graphics
 {
-	enum class ResourceType
-	{
-		CombinedImageSampler,
-		UniformBuffer
-	};
-
 	struct ResourceBinding
 	{
 		std::string	 Name;
 		uint32_t	 Set;
 		uint32_t	 Binding;
-		ResourceType Type;
 	};
 
 	struct BindingInfo

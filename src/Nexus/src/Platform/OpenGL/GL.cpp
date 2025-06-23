@@ -229,6 +229,24 @@ namespace Nexus::GL
 	#endif
 			case Nexus::Graphics::PixelFormat::R11_G11_B10_Float: return GL_UNSIGNED_INT_10F_11F_11F_REV;
 
+			case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A1_UNorm:
+			case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A8_UNorm:
+			case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_UNorm:
+			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm:
+			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm_SRgb:
+			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm:
+			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm_SRgb:
+			case Nexus::Graphics::PixelFormat::BC2_UNorm:
+			case Nexus::Graphics::PixelFormat::BC2_UNorm_SRgb:
+			case Nexus::Graphics::PixelFormat::BC3_UNorm:
+			case Nexus::Graphics::PixelFormat::BC3_UNorm_SRgb:
+			case Nexus::Graphics::PixelFormat::BC4_UNorm:
+			case Nexus::Graphics::PixelFormat::BC4_SNorm:
+			case Nexus::Graphics::PixelFormat::BC5_UNorm:
+			case Nexus::Graphics::PixelFormat::BC5_SNorm:
+			case Nexus::Graphics::PixelFormat::BC7_UNorm:
+			case Nexus::Graphics::PixelFormat::BC7_UNorm_SRgb: return GL_UNSIGNED_BYTE;
+
 			default: throw std::runtime_error("Failed to find a valid format");
 		}
 	}
@@ -289,6 +307,25 @@ namespace Nexus::GL
 			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UNorm: return GL_RGBA;
 			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UInt: return GL_RGBA_INTEGER;
 			case Nexus::Graphics::PixelFormat::R11_G11_B10_Float: return GL_RGB;
+
+			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm:
+			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm_SRgb:
+			case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_UNorm: return GL_RGB;
+
+			case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A1_UNorm:
+			case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A8_UNorm:
+			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm:
+			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm_SRgb:
+			case Nexus::Graphics::PixelFormat::BC2_UNorm:
+			case Nexus::Graphics::PixelFormat::BC2_UNorm_SRgb:
+			case Nexus::Graphics::PixelFormat::BC3_UNorm:
+			case Nexus::Graphics::PixelFormat::BC3_UNorm_SRgb:
+			case Nexus::Graphics::PixelFormat::BC4_UNorm:
+			case Nexus::Graphics::PixelFormat::BC4_SNorm:
+			case Nexus::Graphics::PixelFormat::BC5_UNorm:
+			case Nexus::Graphics::PixelFormat::BC5_SNorm:
+			case Nexus::Graphics::PixelFormat::BC7_UNorm:
+			case Nexus::Graphics::PixelFormat::BC7_UNorm_SRgb: return GL_RGBA;
 
 			default: throw std::runtime_error("Failed to find a valid format");
 		}
@@ -352,6 +389,24 @@ namespace Nexus::GL
 			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UNorm: return GL_RGB10_A2;
 			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UInt: return GL_RGB10_A2UI;
 			case Nexus::Graphics::PixelFormat::R11_G11_B10_Float: return GL_R11F_G11F_B10F;
+
+			case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A1_UNorm: return GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2;
+			case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A8_UNorm: return GL_COMPRESSED_RGBA;
+			case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_UNorm: return GL_COMPRESSED_RGB8_ETC2;
+			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm: return GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
+			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm_SRgb: return GL_COMPRESSED_SRGB_S3TC_DXT1_EXT;
+			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm: return GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm_SRgb: return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT;
+			case Nexus::Graphics::PixelFormat::BC2_UNorm: return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+			case Nexus::Graphics::PixelFormat::BC2_UNorm_SRgb: return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT;
+			case Nexus::Graphics::PixelFormat::BC3_UNorm: return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+			case Nexus::Graphics::PixelFormat::BC3_UNorm_SRgb: return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
+			case Nexus::Graphics::PixelFormat::BC4_UNorm: return GL_COMPRESSED_RED_RGTC1;
+			case Nexus::Graphics::PixelFormat::BC4_SNorm: return GL_COMPRESSED_SIGNED_RED_RGTC1;
+			case Nexus::Graphics::PixelFormat::BC5_UNorm: return GL_COMPRESSED_RG_RGTC2;
+			case Nexus::Graphics::PixelFormat::BC5_SNorm: return GL_COMPRESSED_SIGNED_RG_RGTC2;
+			case Nexus::Graphics::PixelFormat::BC7_UNorm: return GL_COMPRESSED_RGBA_BPTC_UNORM;
+			case Nexus::Graphics::PixelFormat::BC7_UNorm_SRgb: return GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM;
 
 			default: throw std::runtime_error("Failed to find a valid format");
 		}

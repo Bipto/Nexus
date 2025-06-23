@@ -792,6 +792,22 @@ namespace Nexus::Graphics
 		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_COMMAND_BUFFER, (uint64_t)m_UploadContext.UploadFence, uploadCmdBufferName.c_str());
 	}
 
+	PixelFormatProperties GraphicsDeviceVk::GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const
+	{
+		PixelFormatProperties properties = {};
+		return properties;
+	}
+
+	const DeviceFeatures &GraphicsDeviceVk::GetPhysicalDeviceFeatures() const
+	{
+		return m_Features;
+	}
+
+	const DeviceLimits &GraphicsDeviceVk::GetPhysicalDeviceLimits() const
+	{
+		return m_Limits;
+	}
+
 	uint32_t GraphicsDeviceVk::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties, std::shared_ptr<PhysicalDeviceVk> physicalDevice)
 	{
 		VkPhysicalDeviceMemoryProperties memProperties;

@@ -104,7 +104,6 @@ namespace Nexus::Graphics
 			resource.Name	 = image.name;
 			resource.Set	 = set;
 			resource.Binding = binding;
-			resource.Type	 = ResourceType::CombinedImageSampler;
 			resources.SampledImages.push_back(resource);
 		}
 
@@ -117,7 +116,6 @@ namespace Nexus::Graphics
 			resource.Name	 = uniformBuffer.name;
 			resource.Set	 = set;
 			resource.Binding = binding;
-			resource.Type	 = ResourceType::UniformBuffer;
 			resources.UniformBuffers.push_back(resource);
 		}
 	}

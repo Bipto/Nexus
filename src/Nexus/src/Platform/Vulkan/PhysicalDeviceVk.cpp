@@ -22,16 +22,6 @@ namespace Nexus::Graphics
 		return m_Name;
 	}
 
-	const PhysicalDeviceFeatures &PhysicalDeviceVk::GetPhysicalDeviceFeatures() const
-	{
-		return m_Features;
-	}
-
-	const PhysicalDeviceLimits &PhysicalDeviceVk::GetPhysicalDeviceLimits() const
-	{
-		return m_Limits;
-	}
-
 	VkPhysicalDevice PhysicalDeviceVk::GetVkPhysicalDevice() const
 	{
 		return m_Device;

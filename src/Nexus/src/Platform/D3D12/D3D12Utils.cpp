@@ -64,6 +64,22 @@ namespace Nexus::D3D12
 			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UNorm: return DXGI_FORMAT_R10G10B10A2_UNORM;
 			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UInt: return DXGI_FORMAT_R10G10B10A2_UINT;
 			case Nexus::Graphics::PixelFormat::R11_G11_B10_Float: return DXGI_FORMAT_R11G11B10_FLOAT;
+
+			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm:
+			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm: return DXGI_FORMAT_BC1_UNORM;
+			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm_SRgb:
+			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm_SRgb: return DXGI_FORMAT_BC1_UNORM_SRGB;
+			case Nexus::Graphics::PixelFormat::BC2_UNorm: return DXGI_FORMAT_BC2_UNORM;
+			case Nexus::Graphics::PixelFormat::BC2_UNorm_SRgb: return DXGI_FORMAT_BC2_UNORM_SRGB;
+			case Nexus::Graphics::PixelFormat::BC3_UNorm: return DXGI_FORMAT_BC3_UNORM;
+			case Nexus::Graphics::PixelFormat::BC3_UNorm_SRgb: return DXGI_FORMAT_BC3_UNORM_SRGB;
+			case Nexus::Graphics::PixelFormat::BC4_UNorm: return DXGI_FORMAT_BC4_UNORM;
+			case Nexus::Graphics::PixelFormat::BC4_SNorm: return DXGI_FORMAT_BC4_SNORM;
+			case Nexus::Graphics::PixelFormat::BC5_UNorm: return DXGI_FORMAT_BC5_UNORM;
+			case Nexus::Graphics::PixelFormat::BC5_SNorm: return DXGI_FORMAT_BC5_SNORM;
+			case Nexus::Graphics::PixelFormat::BC7_UNorm: return DXGI_FORMAT_BC7_UNORM;
+			case Nexus::Graphics::PixelFormat::BC7_UNorm_SRgb: return DXGI_FORMAT_BC7_UNORM_SRGB;
+
 			default: throw std::runtime_error("Failed to find a valid format");
 		}
 	}

@@ -13,6 +13,7 @@
 #include "Nexus-Core/IWindow.hpp"
 #include "Nexus-Core/Types.hpp"
 #include "Pipeline.hpp"
+#include "PixelFormatProperties.hpp"
 #include "ResourceSet.hpp"
 #include "Sampler.hpp"
 #include "ShaderModule.hpp"
@@ -169,6 +170,11 @@ namespace Nexus::Graphics
 		virtual void							 SetName(const std::string &name) override;
 		virtual const std::string				&GetName() override;
 		virtual std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const = 0;
+
+		virtual PixelFormatProperties GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const = 0;
+
+		virtual const DeviceFeatures &GetPhysicalDeviceFeatures() const = 0;
+		virtual const DeviceLimits	 &GetPhysicalDeviceLimits() const	= 0;
 
 	  private:
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) = 0;

@@ -16,8 +16,6 @@ namespace Nexus::Graphics
 		PhysicalDeviceWGL(const std::string &deviceName, const std::vector<std::string> &displayNames);
 		virtual ~PhysicalDeviceWGL();
 		const std::string					 &GetDeviceName() const final;
-		virtual const PhysicalDeviceFeatures &GetPhysicalDeviceFeatures() const final;
-		virtual const PhysicalDeviceLimits	 &GetPhysicalDeviceLimits() const final;
 		virtual GL::IOffscreenContext		 *GetOffscreenContext() final;
 
 		HDC GetHDC() const;
@@ -25,8 +23,6 @@ namespace Nexus::Graphics
 	  private:
 		std::string				 m_DeviceName	= {};
 		std::vector<std::string> m_DisplayNames = {};
-		PhysicalDeviceFeatures	 m_Features		= {};
-		PhysicalDeviceLimits	 m_Limits		= {};
 
 		HDC m_HDC = {};
 		std::unique_ptr<GL::OffscreenContextWGL> m_OffscreenContext = nullptr;

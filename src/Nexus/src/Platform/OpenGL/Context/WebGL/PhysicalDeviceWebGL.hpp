@@ -14,8 +14,6 @@ namespace Nexus::Graphics
 		PhysicalDeviceWebGL(const std::string &deviceName);
 		virtual ~PhysicalDeviceWebGL();
 		const std::string					 &GetDeviceName() const final;
-		virtual const PhysicalDeviceFeatures &GetPhysicalDeviceFeatures() const final;
-		virtual const PhysicalDeviceLimits	 &GetPhysicalDeviceLimits() const final;
 		virtual GL::IOffscreenContext		 *GetOffscreenContext() final;
 
 	  private:

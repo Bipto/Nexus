@@ -22,16 +22,6 @@ namespace Nexus::Graphics
 		return m_Name;
 	}
 
-	const PhysicalDeviceFeatures &PhysicalDeviceD3D12::GetPhysicalDeviceFeatures() const
-	{
-		return m_Features;
-	}
-
-	const PhysicalDeviceLimits &PhysicalDeviceD3D12::GetPhysicalDeviceLimits() const
-	{
-		return m_Limits;
-	}
-
 	Microsoft::WRL::ComPtr<IDXGIAdapter4> PhysicalDeviceD3D12::GetAdapter() const
 	{
 		return m_Adapter;
