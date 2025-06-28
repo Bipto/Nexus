@@ -27,6 +27,11 @@ namespace Nexus::Graphics
 		}
 	}
 
+	ShaderModuleOpenGL::~ShaderModuleOpenGL()
+	{
+		glDeleteShader(m_Handle);
+	}
+
 	GLenum ShaderModuleOpenGL::GetGLShaderStage()
 	{
 		return m_ShaderStage;
