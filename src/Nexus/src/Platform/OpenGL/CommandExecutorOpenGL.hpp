@@ -45,13 +45,13 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(EndDebugGroupCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(InsertDebugMarkerCommand command, GraphicsDevice *device) override;
 
-		void BindResourceSet(Ref<ResourceSetOpenGL> resourceSet);
-		void ExecuteGraphicsCommand(Ref<GraphicsPipelineOpenGL>									 pipeline,
-									const std::map<uint32_t, Nexus::Graphics::VertexBufferView> &vertexBuffers,
-									std::optional<Nexus::Graphics::IndexBufferView>				 indexBuffer,
-									uint32_t													 vertexOffset,
-									uint32_t													 instanceOffset,
-									std::function<void(Ref<GraphicsPipelineOpenGL> pipeline)>	 drawCall);
+		void BindResourceSet(Ref<ResourceSetOpenGL> resourceSet, const GladGLContext &context);
+		void ExecuteGraphicsCommand(Ref<GraphicsPipelineOpenGL>																pipeline,
+									const std::map<uint32_t, Nexus::Graphics::VertexBufferView>							   &vertexBuffers,
+									std::optional<Nexus::Graphics::IndexBufferView>											indexBuffer,
+									uint32_t																				vertexOffset,
+									uint32_t																				instanceOffset,
+									std::function<void(Ref<GraphicsPipelineOpenGL> pipeline, const GladGLContext &context)> drawCall);
 
 	  private:
 		std::optional<Ref<Pipeline>>											m_CurrentlyBoundPipeline	  = {};

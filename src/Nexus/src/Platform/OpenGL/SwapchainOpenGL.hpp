@@ -27,6 +27,8 @@ namespace Nexus::Graphics
 		void							 ResizeIfNecessary();
 		void							 BindAsDrawTarget();
 
+		GL::IViewContext *GetViewContext();
+
 		virtual IWindow *GetWindow() override
 		{
 			return m_Window;
@@ -39,7 +41,7 @@ namespace Nexus::Graphics
 
 		uint32_t						  m_SwapchainWidth	= 0;
 		uint32_t						  m_SwapchainHeight = 0;
-		std::unique_ptr<GL::IViewContext> ViewContext		= {};
+		std::unique_ptr<GL::IViewContext> m_ViewContext		= {};
 	};
 }	 // namespace Nexus::Graphics
 

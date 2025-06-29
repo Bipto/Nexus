@@ -20,8 +20,6 @@ namespace Nexus::Graphics
 		GraphicsDeviceOpenGL(const GraphicsDeviceOpenGL &) = delete;
 		virtual ~GraphicsDeviceOpenGL();
 
-		void		 SetFramebuffer(WeakRef<Framebuffer> framebuffer);
-		void		 SetSwapchain(WeakRef<Swapchain> swapchain);
 		virtual void SubmitCommandList(Ref<CommandList> commandList, Ref<Fence> fence) override;
 		virtual void SubmitCommandLists(Ref<CommandList> *commandLists, uint32_t numCommandLists, Ref<Fence> fence) override;
 
@@ -62,22 +60,14 @@ namespace Nexus::Graphics
 
 		GL::IOffscreenContext *GetOffscreenContext();
 
-		void CopyBufferToTexture(Ref<TextureOpenGL>		 texture,
-								 Ref<DeviceBufferOpenGL> buffer,
-								 uint32_t				 bufferOffset,
-								 SubresourceDescription	 subresource);
-
-		void CopyTextureToBuffer(Ref<TextureOpenGL>		 texture,
-								 Ref<DeviceBufferOpenGL> buffer,
-								 uint32_t				 bufferOffset,
-								 SubresourceDescription	 subresource);
-
 		virtual const DeviceFeatures &GetPhysicalDeviceFeatures() const override;
 		virtual const DeviceLimits	 &GetPhysicalDeviceLimits() const override;
 
+		Ref<PhysicalDeviceOpenGL> GetPhysicalDeviceOpenGL();
+
 	  private:
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) override;
-		std::vector<std::string>  GetSupportedExtensions();
+		std::vector<std::string>  GetSupportedExtensions(const GladGLContext &context);
 
 		virtual PixelFormatProperties GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const override;
 

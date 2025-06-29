@@ -66,6 +66,7 @@ list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/SPIRV-Headers)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/SPIRV-Tools)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glslang)
 list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/shaderc)
+list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glad2)
 
 include (FetchContent)
 
@@ -91,10 +92,7 @@ if (DEFINED NX_PLATFORM_OPENGL)
 
   if (WIN32)
       list(APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_WGL=1)
-      list(APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_GL_GLAD=1)
       list(APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_GL_DESKTOP=1)
-      list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glad_wgl)
-      list(APPEND NEXUS_LINKED_LIBRARIES glad_wgl)
 
   elseif(LINUX OR ANDROID OR __ANDROID__)
     if (LINUX)
@@ -103,11 +101,10 @@ if (DEFINED NX_PLATFORM_OPENGL)
       pkg_check_modules(EGL REQUIRED egl)
     endif()
 
+    list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_OPENGLES)
     list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_EGL=1)
-    list (APPEND NEXUS_COMPILE_DEFINITIONS NX_PLATFORM_GL_GLAD=1)
     list (APPEND NEXUS_INCLUDE_DIRS ${EGL_INCLUDE_DIRS})
-    list(APPEND NEXUS_LINKED_LIBRARIES glad_egl ${EGL_LIBRARIES})
-    list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glad_egl)
+    list(APPEND NEXUS_LINKED_LIBRARIES ${EGL_LIBRARIES})
 
     if (ANDROID)
       find_library(GLES3_LIB GLESv3)
@@ -154,7 +151,6 @@ if (DEFINED NX_PLATFORM_OPENAL)
 endif()
 
 #external dependencies
-list(APPEND NEXUS_LIBRARY_SUBDIRECTORIES external/glad)
 
 set(ENGINE_SOURCES "include/Nexus.hpp" "src/Nexus.cpp")
 file (GLOB_RECURSE NEXUS_SOURCES "include/*.hpp" "src/Nexus-Core/*.cpp")
@@ -241,7 +237,6 @@ list (APPEND NEXUS_INCLUDE_DIRS
 )
 
 list (APPEND NEXUS_LINKED_LIBRARIES 
-  glad
   SDL3::SDL3
   assimp
   libnyquist
@@ -253,7 +248,8 @@ list (APPEND NEXUS_LINKED_LIBRARIES
   yaml-cpp::yaml-cpp
   glm::glm
   imgui
-  imguizmo)
+  imguizmo
+  glad2)
 
 #precompiled header
 #target_precompile_headers(Nexus PRIVATE include/Nexus-Core/nxpch.hpp)

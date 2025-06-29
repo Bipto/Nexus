@@ -64,31 +64,36 @@ namespace Nexus::Graphics
 		}
 	}
 
-	void CommandExecutorOpenGL::ExecuteGraphicsCommand(Ref<GraphicsPipelineOpenGL>									pipeline,
-													   const std::map<uint32_t, Nexus::Graphics::VertexBufferView> &vertexBuffers,
-													   std::optional<Nexus::Graphics::IndexBufferView>				indexBuffer,
-													   uint32_t														vertexOffset,
-													   uint32_t														instanceOffset,
-													   std::function<void(Ref<GraphicsPipelineOpenGL> pipeline)>	drawCall)
+	void CommandExecutorOpenGL::ExecuteGraphicsCommand(
+		Ref<GraphicsPipelineOpenGL>																pipeline,
+		const std::map<uint32_t, Nexus::Graphics::VertexBufferView>							   &vertexBuffers,
+		std::optional<Nexus::Graphics::IndexBufferView>											indexBuffer,
+		uint32_t																				vertexOffset,
+		uint32_t																				instanceOffset,
+		std::function<void(Ref<GraphicsPipelineOpenGL> pipeline, const GladGLContext &context)> drawCall)
 	{
-		pipeline->CreateVAO();
-		pipeline->BindBuffers(vertexBuffers, indexBuffer, vertexOffset, instanceOffset);
-		pipeline->Bind();
-		BindResourceSet(m_BoundResourceSet);
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context)
+			{
+				pipeline->CreateVAO(context);
+				pipeline->BindBuffers(vertexBuffers, indexBuffer, vertexOffset, instanceOffset, context);
+				pipeline->Bind(context);
+				BindResourceSet(m_BoundResourceSet, context);
 
-		bool valid = true;
-		for (const auto &[binding, view] : vertexBuffers)
-		{
-			if (view.Size == 0)
-				valid = false;
-		}
+				bool valid = true;
+				for (const auto &[binding, view] : vertexBuffers)
+				{
+					if (view.Size == 0)
+						valid = false;
+				}
 
-		if (valid)
-		{
-			drawCall(pipeline);
-		}
+				if (valid)
+				{
+					drawCall(pipeline, context);
+				}
 
-		pipeline->DestroyVAO();
+				pipeline->DestroyVAO(context);
+			});
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(DrawDescription command, GraphicsDevice *device)
@@ -103,18 +108,19 @@ namespace Nexus::Graphics
 			Ref<Pipeline> pipeline = m_CurrentlyBoundPipeline.value();
 			if (pipeline->GetType() == PipelineType::Graphics)
 			{
-				ExecuteGraphicsCommand(std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline),
-									   m_CurrentlyBoundVertexBuffers,
-									   m_BoundIndexBuffer,
-									   command.VertexStart,
-									   command.InstanceStart,
-									   [&](Ref<GraphicsPipelineOpenGL> graphicsPipeline)
-									   {
-										   glCall(glDrawArraysInstanced(GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology),
-																		command.VertexStart,
-																		command.VertexCount,
-																		command.InstanceCount));
-									   });
+				ExecuteGraphicsCommand(
+					std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline),
+					m_CurrentlyBoundVertexBuffers,
+					m_BoundIndexBuffer,
+					command.VertexStart,
+					command.InstanceStart,
+					[&](Ref<GraphicsPipelineOpenGL> graphicsPipeline, const GladGLContext &context)
+					{
+						glCall(context.DrawArraysInstanced(GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology),
+														   command.VertexStart,
+														   command.VertexCount,
+														   command.InstanceCount));
+					});
 			}
 		}
 	}
@@ -137,20 +143,20 @@ namespace Nexus::Graphics
 				uint32_t		 offset			  = (command.IndexStart * indexSizeInBytes) + indexBufferView.Offset;
 				GLenum			 indexFormat	  = GL::GetGLIndexBufferFormat(indexBufferView.BufferFormat);
 
-				ExecuteGraphicsCommand(std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline),
-									   m_CurrentlyBoundVertexBuffers,
-									   m_BoundIndexBuffer,
-									   command.VertexStart,
-									   command.InstanceStart,
-									   [&](Ref<GraphicsPipelineOpenGL> graphicsPipeline)
-									   {
-										   glCall(
-											   glDrawElementsInstanced(GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology),
-																	   command.IndexCount,
-																	   indexFormat,
-																	   (void *)(uint64_t)offset,
-																	   command.InstanceCount));
-									   });
+				ExecuteGraphicsCommand(
+					std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline),
+					m_CurrentlyBoundVertexBuffers,
+					m_BoundIndexBuffer,
+					command.VertexStart,
+					command.InstanceStart,
+					[&](Ref<GraphicsPipelineOpenGL> graphicsPipeline, const GladGLContext &context)
+					{
+						glCall(context.DrawElementsInstanced(GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology),
+															 command.IndexCount,
+															 indexFormat,
+															 (void *)(uint64_t)offset,
+															 command.InstanceCount));
+					});
 			}
 		}
 	}
@@ -169,22 +175,26 @@ namespace Nexus::Graphics
 			{
 	#if !defined(__EMSCRIPTEN__)
 				Ref<DeviceBufferOpenGL> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.IndirectBuffer);
-				indirectBuffer->Bind(GL_DRAW_INDIRECT_BUFFER);
+
 				ExecuteGraphicsCommand(std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline),
 									   m_CurrentlyBoundVertexBuffers,
 									   m_BoundIndexBuffer,
 									   0,
 									   0,
-									   [&](Ref<GraphicsPipelineOpenGL> graphicsPipeline)
+									   [&](Ref<GraphicsPipelineOpenGL> graphicsPipeline, const GladGLContext &context)
 									   {
+										   context.BindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetHandle());
+
 										   uint32_t indirectOffset = command.Offset;
 										   for (uint32_t i = 0; i < command.DrawCount; i++)
 										   {
-											   glDrawArraysIndirect(GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology),
-																	(const void *)(uint64_t)indirectOffset);
+											   context.DrawArraysIndirect(
+												   GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology),
+												   (const void *)(uint64_t)indirectOffset);
 										   }
+
+										   context.BindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 									   });
-				GL::ClearBufferBinding(GL_DRAW_INDIRECT_BUFFER);
 	#endif
 			}
 		}
@@ -209,25 +219,26 @@ namespace Nexus::Graphics
 
 	#if !defined(__EMSCRIPTEN__)
 				Ref<DeviceBufferOpenGL> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.IndirectBuffer);
-				indirectBuffer->Bind(GL_DRAW_INDIRECT_BUFFER);
 
 				ExecuteGraphicsCommand(std::dynamic_pointer_cast<GraphicsPipelineOpenGL>(pipeline),
 									   m_CurrentlyBoundVertexBuffers,
 									   m_BoundIndexBuffer,
 									   0,
 									   0,
-									   [&](Ref<GraphicsPipelineOpenGL> graphicsPipeline)
+									   [&](Ref<GraphicsPipelineOpenGL> graphicsPipeline, const GladGLContext &context)
 									   {
+										   context.BindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer->GetHandle());
 										   uint32_t indirectOffset = command.Offset;
 										   for (uint32_t i = 0; i < command.DrawCount; i++)
 										   {
-											   glDrawElementsIndirect(GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology),
-																	  indexFormat,
-																	  (const void *)(uint64_t)indirectOffset);
+											   context.DrawElementsIndirect(
+												   GL::GetTopology(graphicsPipeline->GetPipelineDescription().PrimitiveTopology),
+												   indexFormat,
+												   (const void *)(uint64_t)indirectOffset);
 										   }
+										   context.BindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 									   });
 
-				GL::ClearBufferBinding(GL_DRAW_INDIRECT_BUFFER);
 	#endif
 			}
 		}
@@ -240,13 +251,17 @@ namespace Nexus::Graphics
 			return;
 		}
 
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context)
+			{
 	#if !defined(__EMSCRIPTEN__)
-		Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());
-		pipeline->Bind();
-		BindResourceSet(m_BoundResourceSet);
-		glDispatchCompute(command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
-		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+				Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());
+				pipeline->Bind(context);
+				BindResourceSet(m_BoundResourceSet, context);
+				context.DispatchCompute(command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
+				context.MemoryBarrierEXT(GL_ALL_BARRIER_BITS);
 	#endif
+			});
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(DispatchIndirectDescription command, GraphicsDevice *device)
@@ -258,17 +273,23 @@ namespace Nexus::Graphics
 
 	#if !defined(__EMSCRIPTEN__)
 		Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());
-		pipeline->Bind();
-		BindResourceSet(m_BoundResourceSet);
 
-		if (Ref<DeviceBuffer> buffer = command.IndirectBuffer)
-		{
-			Ref<DeviceBufferOpenGL> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(buffer);
-			indirectBuffer->Bind(GL_DISPATCH_INDIRECT_BUFFER);
-			glDispatchComputeIndirect(command.Offset);
-			glMemoryBarrier(GL_ALL_BARRIER_BITS);
-			GL::ClearBufferBinding(GL_DISPATCH_INDIRECT_BUFFER);
-		}
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context)
+			{
+				pipeline->Bind(context);
+				BindResourceSet(m_BoundResourceSet, context);
+
+				if (Ref<DeviceBuffer> buffer = command.IndirectBuffer)
+				{
+					Ref<DeviceBufferOpenGL> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(buffer);
+					context.BindBuffer(GL_DISPATCH_INDIRECT_BUFFER, indirectBuffer->GetHandle());
+					context.DispatchComputeIndirect(command.Offset);
+					context.MemoryBarrierEXT(GL_ALL_BARRIER_BITS);
+					context.BindBuffer(GL_DISPATCH_INDIRECT_BUFFER, 0);
+				}
+			});
+
 	#endif
 	}
 
@@ -291,27 +312,31 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		if (command.Rect.has_value())
-		{
-			Graphics::ClearRect rect = command.Rect.value();
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context)
+			{
+				if (command.Rect.has_value())
+				{
+					Graphics::ClearRect rect = command.Rect.value();
 
-			GLint scissorBox[4];
-			glGetIntegerv(GL_SCISSOR_BOX, scissorBox);
+					GLint scissorBox[4];
+					context.GetIntegerv(GL_SCISSOR_BOX, scissorBox);
 
-			RenderTarget target	  = m_CurrentRenderTarget.value();
-			float		 scissorY = target.GetSize().Y - rect.Height - rect.Y;
-			glCall(glScissor(rect.X, scissorY, rect.Width, rect.Height));
+					RenderTarget target	  = m_CurrentRenderTarget.value();
+					float		 scissorY = target.GetSize().Y - rect.Height - rect.Y;
+					glCall(context.Scissor(rect.X, scissorY, rect.Width, rect.Height));
 
-			float color[] = {command.Color.Red, command.Color.Green, command.Color.Blue, command.Color.Alpha};
-			glCall(glClearBufferfv(GL_COLOR, command.Index, color));
+					float color[] = {command.Color.Red, command.Color.Green, command.Color.Blue, command.Color.Alpha};
+					glCall(context.ClearBufferfv(GL_COLOR, command.Index, color));
 
-			glCall(glScissor(scissorBox[0], scissorBox[1], scissorBox[2], scissorBox[3]));
-		}
-		else
-		{
-			float color[] = {command.Color.Red, command.Color.Green, command.Color.Blue, command.Color.Alpha};
-			glCall(glClearBufferfv(GL_COLOR, command.Index, color));
-		}
+					glCall(context.Scissor(scissorBox[0], scissorBox[1], scissorBox[2], scissorBox[3]));
+				}
+				else
+				{
+					float color[] = {command.Color.Red, command.Color.Green, command.Color.Blue, command.Color.Alpha};
+					glCall(context.ClearBufferfv(GL_COLOR, command.Index, color));
+				}
+			});
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDevice *device)
@@ -324,10 +349,14 @@ namespace Nexus::Graphics
 		GLfloat depth	= command.Value.Depth;
 		GLint	stencil = command.Value.Stencil;
 
-		// enable clearing of depth buffer
-		glDepthMask(GL_TRUE);
-		glClearBufferfi(GL_DEPTH_STENCIL, 0, depth, stencil);
-		glDepthMask(GL_FALSE);
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context)
+			{
+				// enable clearing of depth buffer
+				context.DepthMask(GL_TRUE);
+				context.ClearBufferfi(GL_DEPTH_STENCIL, 0, depth, stencil);
+				context.DepthMask(GL_FALSE);
+			});
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(RenderTarget command, GraphicsDevice *device)
@@ -340,19 +369,26 @@ namespace Nexus::Graphics
 			if (target.GetType() == RenderTargetType::Swapchain)
 			{
 				Nexus::GL::IOffscreenContext *offscreenContext = deviceGL->GetOffscreenContext();
-				offscreenContext->MakeCurrent();
+				GL::SetCurrentContext(offscreenContext);
 			}
 		}
 
 		if (command.GetType() == RenderTargetType::Framebuffer)
 		{
 			WeakRef<Framebuffer> fb = command.GetFramebuffer();
-			deviceGL->SetFramebuffer(fb);
+			if (Ref<FramebufferOpenGL> framebuffer = std::dynamic_pointer_cast<FramebufferOpenGL>(fb.lock()))
+			{
+				GL::ExecuteGLCommands([&](const GladGLContext &context) { framebuffer->BindAsDrawBuffer(context); });
+			}
 		}
 		else if (command.GetType() == RenderTargetType::Swapchain)
 		{
 			WeakRef<Swapchain> sc = command.GetSwapchain();
-			deviceGL->SetSwapchain(sc);
+			if (Ref<SwapchainOpenGL> swapchain = std::dynamic_pointer_cast<SwapchainOpenGL>(sc.lock()))
+			{
+				swapchain->BindAsDrawTarget();
+				GL::SetCurrentContext(swapchain->GetViewContext());
+			}
 		}
 		else
 		{
@@ -369,13 +405,17 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		RenderTarget target = m_CurrentRenderTarget.value();
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context)
+			{
+				RenderTarget target = m_CurrentRenderTarget.value();
 
-		float left	 = command.X;
-		float bottom = target.GetSize().Y - (command.Y + command.Height);
+				float left	 = command.X;
+				float bottom = target.GetSize().Y - (command.Y + command.Height);
 
-		glCall(glViewport(left, bottom, command.Width, command.Height));
-		glCall(glDepthRangef(command.MinDepth, command.MaxDepth));
+				glCall(context.Viewport(left, bottom, command.Width, command.Height));
+				glCall(context.DepthRangef(command.MinDepth, command.MaxDepth));
+			});
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const Scissor &command, GraphicsDevice *device)
@@ -385,10 +425,14 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		RenderTarget target	  = m_CurrentRenderTarget.value();
-		float		 scissorY = target.GetSize().Y - command.Height - command.Y;
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context)
+			{
+				RenderTarget target	  = m_CurrentRenderTarget.value();
+				float		 scissorY = target.GetSize().Y - command.Height - command.Y;
 
-		glCall(glScissor(command.X, scissorY, command.Width, command.Height));
+				glCall(context.Scissor(command.X, scissorY, command.Width, command.Height));
+			});
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(ResolveSamplesToSwapchainCommand command, GraphicsDevice *device)
@@ -401,19 +445,35 @@ namespace Nexus::Graphics
 		Ref<FramebufferOpenGL> framebuffer = std::dynamic_pointer_cast<FramebufferOpenGL>(command.Source);
 		Ref<SwapchainOpenGL>   swapchain   = std::dynamic_pointer_cast<SwapchainOpenGL>(command.Target);
 
-		framebuffer->BindAsReadBuffer(command.SourceIndex);
 		swapchain->BindAsDrawTarget();
+		GL::IViewContext *viewContext = swapchain->GetViewContext();
+		GL::SetCurrentContext(viewContext);
 
-		uint32_t framebufferWidth  = framebuffer->GetFramebufferSpecification().Width;
-		uint32_t framebufferHeight = framebuffer->GetFramebufferSpecification().Height;
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context)
+			{
+				framebuffer->BindAsReadBuffer(command.SourceIndex, context);
 
-		Ref<Texture> framebufferTexture = framebuffer->GetColorTexture(command.SourceIndex);
+				uint32_t framebufferWidth  = framebuffer->GetFramebufferSpecification().Width;
+				uint32_t framebufferHeight = framebuffer->GetFramebufferSpecification().Height;
 
-		Nexus::IWindow *window			= swapchain->GetWindow();
-		uint32_t		swapchainWidth	= window->GetWindowSize().X;
-		uint32_t		swapchainHeight = window->GetWindowSize().Y;
+				Ref<Texture> framebufferTexture = framebuffer->GetColorTexture(command.SourceIndex);
 
-		glCall(glBlitFramebuffer(0, 0, framebufferWidth, framebufferHeight, 0, 0, swapchainWidth, swapchainHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR));
+				Nexus::IWindow *window			= swapchain->GetWindow();
+				uint32_t		swapchainWidth	= window->GetWindowSize().X;
+				uint32_t		swapchainHeight = window->GetWindowSize().Y;
+
+				glCall(context.BlitFramebuffer(0,
+											   0,
+											   framebufferWidth,
+											   framebufferHeight,
+											   0,
+											   0,
+											   swapchainWidth,
+											   swapchainHeight,
+											   GL_COLOR_BUFFER_BIT,
+											   GL_LINEAR));
+			});
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(StartTimingQueryCommand command, GraphicsDevice *device)
@@ -426,16 +486,20 @@ namespace Nexus::Graphics
 
 		Ref<TimingQueryOpenGL> query = std::dynamic_pointer_cast<TimingQueryOpenGL>(command.Query);
 
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context)
+			{
 	#if defined(__EMSCRIPTEN__) || defined(ANDROID)
-		glFinish();
-		uint64_t now   = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-		query->m_Start = now;
+				context.Finish();
+				uint64_t now   = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+				query->m_Start = now;
 	#else
-		glFinish();
-		GLint64 timer;
-		glCall(glGetInteger64v(GL_TIMESTAMP, &timer));
-		query->m_Start = (uint64_t)timer;
+				context.Finish();
+				GLint64 timer;
+				glCall(context.GetInteger64v(GL_TIMESTAMP, &timer));
+				query->m_Start = (uint64_t)timer;
 	#endif
+			});
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(StopTimingQueryCommand command, GraphicsDevice *device)
@@ -448,16 +512,20 @@ namespace Nexus::Graphics
 
 		Ref<TimingQueryOpenGL> query = std::dynamic_pointer_cast<TimingQueryOpenGL>(command.Query);
 
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context)
+			{
 	#if defined(__EMSCRIPTEN__) || defined(ANDROID)
-		glFinish();
-		uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-		query->m_End = now;
+				context.Finish();
+				uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+				query->m_End = now;
 	#else
-		glFinish();
-		GLint64 timer;
-		glCall(glGetInteger64v(GL_TIMESTAMP, &timer));
-		query->m_End = (uint64_t)timer;
+				context.Finish();
+				GLint64 timer;
+				glCall(context.GetInteger64v(GL_TIMESTAMP, &timer));
+				query->m_End = (uint64_t)timer;
 	#endif
+			});
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device)
@@ -465,8 +533,14 @@ namespace Nexus::Graphics
 		Ref<DeviceBufferOpenGL> buffer		  = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.BufferTextureCopy.BufferHandle);
 		Ref<TextureOpenGL>		textureOpenGL = std::dynamic_pointer_cast<TextureOpenGL>(command.BufferTextureCopy.TextureHandle);
 
-		GraphicsDeviceOpenGL *deviceGL = (GraphicsDeviceOpenGL *)device;
-		deviceGL->CopyBufferToTexture(textureOpenGL, buffer, command.BufferTextureCopy.BufferOffset, command.BufferTextureCopy.TextureSubresource);
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context) {
+				GL::CopyBufferToTexture(textureOpenGL,
+										buffer,
+										command.BufferTextureCopy.BufferOffset,
+										command.BufferTextureCopy.TextureSubresource,
+										context);
+			});
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const CopyTextureToBufferCommand &command, GraphicsDevice *device)
@@ -474,8 +548,14 @@ namespace Nexus::Graphics
 		Ref<DeviceBufferOpenGL> buffer		  = std::dynamic_pointer_cast<DeviceBufferOpenGL>(command.TextureBufferCopy.BufferHandle);
 		Ref<TextureOpenGL>		textureOpenGL = std::dynamic_pointer_cast<TextureOpenGL>(command.TextureBufferCopy.TextureHandle);
 
-		GraphicsDeviceOpenGL *deviceGL = (GraphicsDeviceOpenGL *)device;
-		deviceGL->CopyTextureToBuffer(textureOpenGL, buffer, command.TextureBufferCopy.BufferOffset, command.TextureBufferCopy.TextureSubresource);
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context) {
+				GL::CopyTextureToBuffer(textureOpenGL,
+										buffer,
+										command.TextureBufferCopy.BufferOffset,
+										command.TextureBufferCopy.TextureSubresource,
+										context);
+			});
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(const CopyTextureToTextureCommand &command, GraphicsDevice *device)
@@ -489,84 +569,120 @@ namespace Nexus::Graphics
 		GLenum dstGlAspect		 = GL::GetGLImageAspect(command.TextureCopy.DestinationSubresource.Aspect);
 		GLenum dstAttachmentType = GL::GetAttachmentType(command.TextureCopy.DestinationSubresource.Aspect, 0);
 
-		for (uint32_t layer = command.TextureCopy.SourceSubresource.Z; layer < command.TextureCopy.SourceSubresource.Depth; layer++)
-		{
-			GLuint sourceFramebufferHandle = 0;
-			GLuint destFramebufferHandle   = 0;
-
-			// set up source framebuffer
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context)
 			{
-				glCall(glGenFramebuffers(1, &sourceFramebufferHandle));
-				glCall(glBindFramebuffer(GL_FRAMEBUFFER, sourceFramebufferHandle));
-				GLenum aspectMask = GL::GetGLImageAspect(command.TextureCopy.SourceSubresource.Aspect);
-				GL::AttachTexture(sourceFramebufferHandle,
-								  sourceTexture,
-								  command.TextureCopy.SourceSubresource.MipLevel,
-								  layer,
-								  copyDesc.SourceSubresource.Aspect,
-								  0);
-				GL::ValidateFramebuffer(sourceFramebufferHandle);
-			}
+				for (uint32_t layer = command.TextureCopy.SourceSubresource.Z; layer < command.TextureCopy.SourceSubresource.Depth; layer++)
+				{
+					GLuint sourceFramebufferHandle = 0;
+					GLuint destFramebufferHandle   = 0;
 
-			// set up dest framebuffer
-			{
-				glCall(glGenFramebuffers(1, &destFramebufferHandle));
-				glCall(glBindFramebuffer(GL_FRAMEBUFFER, destFramebufferHandle));
-				GLenum aspectMask = GL::GetGLImageAspect(command.TextureCopy.DestinationSubresource.Aspect);
-				GL::AttachTexture(destFramebufferHandle,
-								  destTexture,
-								  command.TextureCopy.DestinationSubresource.MipLevel,
-								  layer,
-								  copyDesc.DestinationSubresource.Aspect,
-								  0);
-				GL::ValidateFramebuffer(destFramebufferHandle);
-			}
+					// set up source framebuffer
+					{
+						glCall(context.GenFramebuffers(1, &sourceFramebufferHandle));
+						glCall(context.BindFramebuffer(GL_FRAMEBUFFER, sourceFramebufferHandle));
+						GLenum aspectMask = GL::GetGLImageAspect(command.TextureCopy.SourceSubresource.Aspect);
+						GL::AttachTexture(sourceFramebufferHandle,
+										  sourceTexture,
+										  command.TextureCopy.SourceSubresource.MipLevel,
+										  layer,
+										  copyDesc.SourceSubresource.Aspect,
+										  0,
+										  context);
+						GL::ValidateFramebuffer(sourceFramebufferHandle, context);
+					}
 
-			glBindFramebuffer(GL_READ_FRAMEBUFFER, sourceFramebufferHandle);
-			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, destFramebufferHandle);
+					// set up dest framebuffer
+					{
+						glCall(context.GenFramebuffers(1, &destFramebufferHandle));
+						glCall(context.BindFramebuffer(GL_FRAMEBUFFER, destFramebufferHandle));
+						GLenum aspectMask = GL::GetGLImageAspect(command.TextureCopy.DestinationSubresource.Aspect);
+						GL::AttachTexture(destFramebufferHandle,
+										  destTexture,
+										  command.TextureCopy.DestinationSubresource.MipLevel,
+										  layer,
+										  copyDesc.DestinationSubresource.Aspect,
+										  0,
+										  context);
+						GL::ValidateFramebuffer(destFramebufferHandle, context);
+					}
 
-			// copy all attached aspect masks
-			glBlitFramebuffer(command.TextureCopy.SourceSubresource.X,
-							  command.TextureCopy.SourceSubresource.Y,
-							  command.TextureCopy.SourceSubresource.Width,
-							  command.TextureCopy.SourceSubresource.Height,
-							  command.TextureCopy.DestinationSubresource.X,
-							  command.TextureCopy.DestinationSubresource.Y,
-							  command.TextureCopy.DestinationSubresource.Width,
-							  command.TextureCopy.DestinationSubresource.Height,
-							  GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT,
-							  GL_NEAREST);
+					context.BindFramebuffer(GL_READ_FRAMEBUFFER, sourceFramebufferHandle);
+					context.BindFramebuffer(GL_DRAW_FRAMEBUFFER, destFramebufferHandle);
 
-			glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+					// copy all attached aspect masks
+					context.BlitFramebuffer(command.TextureCopy.SourceSubresource.X,
+											command.TextureCopy.SourceSubresource.Y,
+											command.TextureCopy.SourceSubresource.Width,
+											command.TextureCopy.SourceSubresource.Height,
+											command.TextureCopy.DestinationSubresource.X,
+											command.TextureCopy.DestinationSubresource.Y,
+											command.TextureCopy.DestinationSubresource.Width,
+											command.TextureCopy.DestinationSubresource.Height,
+											GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT,
+											GL_NEAREST);
 
-			glCall(glDeleteFramebuffers(1, &sourceFramebufferHandle));
-			glCall(glDeleteFramebuffers(1, &destFramebufferHandle));
-		}
+					context.BindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+					context.BindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+					glCall(context.DeleteFramebuffers(1, &sourceFramebufferHandle));
+					glCall(context.DeleteFramebuffers(1, &destFramebufferHandle));
+				}
+			});
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(BeginDebugGroupCommand command, GraphicsDevice *device)
 	{
-		glCall(glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 1, -1, command.GroupName.c_str()));
-	}
+		//if glPushDebugGroup occurs on different contexts, we start getting errors about GL_STACK_OVERFLOW,
+		//so we have to fix this by running all debug group functions from the GraphicsDevice context
+		GL::IGLContext		 *previousContext = GL::GetCurrentContext();
+
+		GraphicsDeviceOpenGL *deviceGL		  = (GraphicsDeviceOpenGL *)device;
+		Nexus::Ref<Nexus::Graphics::PhysicalDeviceOpenGL> physicalDevice = deviceGL->GetPhysicalDeviceOpenGL();
+		GL::SetCurrentContext(physicalDevice->GetOffscreenContext());
+
+		GL::ExecuteGLCommands([&](const GladGLContext &context)
+							  { glCall(context.PushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 1, -1, command.GroupName.c_str())); });
+	
+		GL::SetCurrentContext(previousContext);
+							}
 
 	void CommandExecutorOpenGL::ExecuteCommand(EndDebugGroupCommand command, GraphicsDevice *device)
 	{
-		glPopDebugGroup();
+		//if glPushDebugGroup occurs on different contexts, we start getting errors about GL_STACK_OVERFLOW,
+		//so we have to fix this by running all debug group functions from the GraphicsDevice context
+		GL::IGLContext		 *previousContext = GL::GetCurrentContext();
+
+		GraphicsDeviceOpenGL *deviceGL		  = (GraphicsDeviceOpenGL *)device;
+		Nexus::Ref<Nexus::Graphics::PhysicalDeviceOpenGL> physicalDevice = deviceGL->GetPhysicalDeviceOpenGL();
+		GL::SetCurrentContext(physicalDevice->GetOffscreenContext());
+
+		GL::ExecuteGLCommands([&](const GladGLContext &context) { context.PopDebugGroup(); });
+
+		GL::SetCurrentContext(previousContext);
 	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(InsertDebugMarkerCommand command, GraphicsDevice *device)
 	{
-		glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_MARKER, 0, GL_DEBUG_SEVERITY_NOTIFICATION, -1, command.MarkerName.c_str());
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context)
+			{
+				context.DebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION,
+										   GL_DEBUG_TYPE_MARKER,
+										   0,
+										   GL_DEBUG_SEVERITY_NOTIFICATION,
+										   -1,
+										   command.MarkerName.c_str());
+			});
 	}
 
-	void CommandExecutorOpenGL::BindResourceSet(Ref<ResourceSetOpenGL> resourceSet)
+	void CommandExecutorOpenGL::BindResourceSet(Ref<ResourceSetOpenGL> resourceSet, const GladGLContext &context)
 	{
 		Nexus::Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());
 		if (!pipeline)
 			return;
 
-		pipeline->Bind();
+		pipeline->Bind(context);
 
 		const auto &combinedImageSamplers = resourceSet->GetBoundCombinedImageSamplers();
 		const auto &uniformBufferBindings = resourceSet->GetBoundUniformBuffers();
@@ -591,7 +707,7 @@ namespace Nexus::Graphics
 			Ref<SamplerOpenGL> glSampler = std::dynamic_pointer_cast<SamplerOpenGL>(combinedImageSampler.ImageSampler);
 
 			// find the slot in the shader where the uniform is located
-			GLint location = glGetUniformLocation(pipeline->GetShaderHandle(), name.c_str());
+			GLint location = context.GetUniformLocation(pipeline->GetShaderHandle(), name.c_str());
 
 			if (location != -1)
 			{
@@ -608,13 +724,16 @@ namespace Nexus::Graphics
 		{
 			Ref<DeviceBufferOpenGL> uniformBufferGL = std::dynamic_pointer_cast<DeviceBufferOpenGL>(uniformBufferView.BufferHandle);
 
-			GLint location = glGetUniformBlockIndex(pipeline->GetShaderHandle(), name.c_str());
+			GLint location = context.GetUniformBlockIndex(pipeline->GetShaderHandle(), name.c_str());
 
 			if (location != -1)
 			{
-				glCall(glUniformBlockBinding(pipeline->GetShaderHandle(), location, uniformBufferSlot));
-
-				uniformBufferGL->BindRange(GL_UNIFORM_BUFFER, uniformBufferSlot, uniformBufferView.Offset, uniformBufferView.Size);
+				glCall(context.UniformBlockBinding(pipeline->GetShaderHandle(), location, uniformBufferSlot));
+				context.BindBufferRange(GL_UNIFORM_BUFFER,
+										uniformBufferSlot,
+										uniformBufferGL->GetHandle(),
+										uniformBufferView.Offset,
+										uniformBufferView.Size);
 
 				uniformBufferSlot++;
 			}
@@ -622,7 +741,7 @@ namespace Nexus::Graphics
 
 		for (const auto [name, storageImageView] : storageImageBindings)
 		{
-			GLint location = glGetUniformLocation(pipeline->GetShaderHandle(), name.c_str());
+			GLint location = context.GetUniformLocation(pipeline->GetShaderHandle(), name.c_str());
 
 			if (location != -1)
 			{
@@ -637,13 +756,13 @@ namespace Nexus::Graphics
 					layered = GL_TRUE;
 				}
 
-				glCall(glBindImageTexture(location,
-										  texture->GetHandle(),
-										  storageImageView.MipLevel,
-										  layered,
-										  storageImageView.ArrayLayer,
-										  access,
-										  format));
+				glCall(context.BindImageTexture(location,
+												texture->GetHandle(),
+												storageImageView.MipLevel,
+												layered,
+												storageImageView.ArrayLayer,
+												access,
+												format));
 	#endif
 			}
 		}
@@ -652,7 +771,7 @@ namespace Nexus::Graphics
 		for (const auto [name, storageBufferView] : storageBufferBindings)
 		{
 			// GLint location = glGetUniformLocation(pipeline->GetShaderHandle(), name.c_str());
-			GLuint location = glGetProgramResourceIndex(pipeline->GetShaderHandle(), GL_SHADER_STORAGE_BLOCK, name.c_str());
+			GLuint location = context.GetProgramResourceIndex(pipeline->GetShaderHandle(), GL_SHADER_STORAGE_BLOCK, name.c_str());
 
 			if (location != -1)
 			{
@@ -660,7 +779,8 @@ namespace Nexus::Graphics
 				Ref<DeviceBufferOpenGL> buffer = std::dynamic_pointer_cast<DeviceBufferOpenGL>(storageBufferView.BufferHandle);
 				size_t					offset = storageBufferView.Offset;
 				size_t					size   = storageBufferView.SizeInBytes;
-				buffer->BindRange(GL_SHADER_STORAGE_BUFFER, storageBufferSlot, offset, size);
+				context.BindBufferRange(GL_SHADER_STORAGE_BUFFER, storageBufferSlot, buffer->GetHandle(), offset, size);
+
 				storageBufferSlot++;
 	#endif
 			}

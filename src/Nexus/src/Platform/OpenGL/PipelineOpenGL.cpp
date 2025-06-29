@@ -6,9 +6,13 @@
 	#include "GL.hpp"
 	#include "ShaderModuleOpenGL.hpp"
 
+	#include "GraphicsDeviceOpenGL.hpp"
+
 namespace Nexus::Graphics
 {
-	GraphicsPipelineOpenGL::GraphicsPipelineOpenGL(const GraphicsPipelineDescription &description) : GraphicsPipeline(description)
+	GraphicsPipelineOpenGL::GraphicsPipelineOpenGL(const GraphicsPipelineDescription &description, GraphicsDeviceOpenGL *device)
+		: GraphicsPipeline(description),
+		  m_Device(device)
 	{
 		CreateShader();
 	}
@@ -25,9 +29,10 @@ namespace Nexus::Graphics
 	void GraphicsPipelineOpenGL::BindBuffers(const std::map<uint32_t, VertexBufferView> &vertexBuffers,
 											 std::optional<IndexBufferView>				 indexBuffer,
 											 uint32_t									 firstVertex,
-											 uint32_t									 firstInstance)
+											 uint32_t									 firstInstance,
+											 const GladGLContext						&context)
 	{
-		glCall(glBindVertexArray(m_VAO));
+		glCall(context.BindVertexArray(m_VAO));
 
 		uint32_t index = 0;
 		for (const auto &[slot, vertexBufferView] : vertexBuffers)
@@ -69,16 +74,16 @@ namespace Nexus::Graphics
 				GL::GLPrimitiveType primitiveType = GL::GLPrimitiveType::Unknown;
 				GL::GetBaseType(element, baseType, componentCount, normalized, primitiveType);
 
-				glCall(glEnableVertexAttribArray(index));
-				vertexBufferOpenGL->Bind(GL_ARRAY_BUFFER);
+				glCall(context.EnableVertexAttribArray(index));
+				context.BindBuffer(GL_ARRAY_BUFFER, vertexBufferOpenGL->GetHandle());
 
 				if (primitiveType == GL::GLPrimitiveType::Float)
 				{
-					glCall(glVertexAttribPointer(index, componentCount, baseType, normalized, stride, (void *)(element.Offset + offset)));
+					glCall(context.VertexAttribPointer(index, componentCount, baseType, normalized, stride, (void *)(element.Offset + offset)));
 				}
 				else if (primitiveType == GL::GLPrimitiveType::Int)
 				{
-					glCall(glVertexAttribIPointer(index, componentCount, baseType, stride, (void *)(element.Offset + offset)));
+					glCall(context.VertexAttribIPointer(index, componentCount, baseType, stride, (void *)(element.Offset + offset)));
 				}
 				else
 				{
@@ -87,7 +92,7 @@ namespace Nexus::Graphics
 
 				if (layout.IsInstanceBuffer())
 				{
-					glCall(glVertexAttribDivisor(index, layout.GetInstanceStepRate()));
+					glCall(context.VertexAttribDivisor(index, layout.GetInstanceStepRate()));
 				}
 
 				index++;
@@ -95,21 +100,21 @@ namespace Nexus::Graphics
 
 			if (indexBuffer)
 			{
-				IndexBufferView	   &view			   = indexBuffer.value();
+				IndexBufferView		   &view			   = indexBuffer.value();
 				Ref<DeviceBufferOpenGL> deviceBufferOpenGL = std::dynamic_pointer_cast<DeviceBufferOpenGL>(view.BufferHandle);
-				deviceBufferOpenGL->Bind(GL_ELEMENT_ARRAY_BUFFER);
+				context.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, deviceBufferOpenGL->GetHandle());
 			}
 		}
 	}
 
-	void GraphicsPipelineOpenGL::Bind()
+	void GraphicsPipelineOpenGL::Bind(const GladGLContext &context)
 	{
-		glCall(glBindVertexArray(m_VAO));
+		glCall(context.BindVertexArray(m_VAO));
 
-		SetupDepthStencil();
-		SetupRasterizer();
-		SetupBlending();
-		SetShader();
+		SetupDepthStencil(context);
+		SetupRasterizer(context);
+		SetupBlending(context);
+		SetShader(context);
 	}
 
 	uint32_t GraphicsPipelineOpenGL::GetShaderHandle() const
@@ -117,51 +122,51 @@ namespace Nexus::Graphics
 		return m_ShaderHandle;
 	}
 
-	void GraphicsPipelineOpenGL::CreateVAO()
+	void GraphicsPipelineOpenGL::CreateVAO(const GladGLContext &context)
 	{
-		glCall(glGenVertexArrays(1, &m_VAO));
-		glCall(glBindVertexArray(m_VAO));
+		glCall(context.GenVertexArrays(1, &m_VAO));
+		glCall(context.BindVertexArray(m_VAO));
 	}
 
-	void GraphicsPipelineOpenGL::DestroyVAO()
+	void GraphicsPipelineOpenGL::DestroyVAO(const GladGLContext &context)
 	{
-		glCall(glBindVertexArray(0));
-		glCall(glDeleteVertexArrays(1, &m_VAO));
+		glCall(context.BindVertexArray(0));
+		glCall(context.DeleteVertexArrays(1, &m_VAO));
 	}
 
-	void GraphicsPipelineOpenGL::SetupDepthStencil()
+	void GraphicsPipelineOpenGL::SetupDepthStencil(const GladGLContext &context)
 	{
 		// enable/disable depth testing
 		if (m_Description.DepthStencilDesc.EnableDepthTest)
 		{
-			glCall(glEnable(GL_DEPTH_TEST));
+			glCall(context.Enable(GL_DEPTH_TEST));
 		}
 		else
 		{
-			glCall(glDisable(GL_DEPTH_TEST));
+			glCall(context.Disable(GL_DEPTH_TEST));
 		}
 
 		// enable/disable depth writing
 		if (m_Description.DepthStencilDesc.EnableDepthWrite)
 		{
-			glCall(glDepthMask(GL_TRUE));
+			glCall(context.DepthMask(GL_TRUE));
 		}
 		else
 		{
-			glCall(glDepthMask(GL_FALSE));
+			glCall(context.DepthMask(GL_FALSE));
 		}
 
 		// set up stencil options
 		if (m_Description.DepthStencilDesc.EnableStencilTest)
 		{
-			glCall(glEnable(GL_STENCIL_TEST));
+			glCall(context.Enable(GL_STENCIL_TEST));
 		}
 		else
 		{
-			glCall(glDisable(GL_STENCIL_TEST));
+			glCall(context.Disable(GL_STENCIL_TEST));
 		}
 
-		glCall(glStencilMask(m_Description.DepthStencilDesc.StencilWriteMask));
+		glCall(context.StencilMask(m_Description.DepthStencilDesc.StencilWriteMask));
 
 		// front face
 		{
@@ -169,13 +174,13 @@ namespace Nexus::Graphics
 			GLenum dpfail = GL::GetStencilOperation(m_Description.DepthStencilDesc.Front.StencilSuccessDepthFailOperation);
 			GLenum dppass = GL::GetStencilOperation(m_Description.DepthStencilDesc.Front.StencilSuccessDepthSuccessOperation);
 
-			glCall(glStencilOpSeparate(GL_FRONT, sfail, dpfail, dppass));
+			glCall(context.StencilOpSeparate(GL_FRONT, sfail, dpfail, dppass));
 
 			GLenum stencilCompareFunc = GL::GetComparisonFunction(m_Description.DepthStencilDesc.Front.StencilComparisonFunction);
-			glCall(glStencilFuncSeparate(GL_FRONT,
-										 stencilCompareFunc,
-										 m_Description.DepthStencilDesc.StencilReference,
-										 m_Description.DepthStencilDesc.StencilCompareMask));
+			glCall(context.StencilFuncSeparate(GL_FRONT,
+											   stencilCompareFunc,
+											   m_Description.DepthStencilDesc.StencilReference,
+											   m_Description.DepthStencilDesc.StencilCompareMask));
 		}
 
 		// back face
@@ -184,87 +189,87 @@ namespace Nexus::Graphics
 			GLenum dpfail = GL::GetStencilOperation(m_Description.DepthStencilDesc.Back.StencilSuccessDepthFailOperation);
 			GLenum dppass = GL::GetStencilOperation(m_Description.DepthStencilDesc.Back.StencilSuccessDepthSuccessOperation);
 
-			glCall(glStencilOpSeparate(GL_BACK, sfail, dpfail, dppass));
+			glCall(context.StencilOpSeparate(GL_BACK, sfail, dpfail, dppass));
 
 			GLenum stencilCompareFunc = GL::GetComparisonFunction(m_Description.DepthStencilDesc.Back.StencilComparisonFunction);
-			glCall(glStencilFuncSeparate(GL_BACK,
-										 stencilCompareFunc,
-										 m_Description.DepthStencilDesc.StencilReference,
-										 m_Description.DepthStencilDesc.StencilCompareMask));
+			glCall(context.StencilFuncSeparate(GL_BACK,
+											   stencilCompareFunc,
+											   m_Description.DepthStencilDesc.StencilReference,
+											   m_Description.DepthStencilDesc.StencilCompareMask));
 		}
 
 		GLenum depthFunction = GL::GetComparisonFunction(m_Description.DepthStencilDesc.DepthComparisonFunction);
-		glCall(glDepthFunc(depthFunction));
+		glCall(context.DepthFunc(depthFunction));
 	}
 
-	void GraphicsPipelineOpenGL::SetupRasterizer()
+	void GraphicsPipelineOpenGL::SetupRasterizer(const GladGLContext &context)
 	{
 		if (m_Description.RasterizerStateDesc.TriangleCullMode == CullMode::CullNone)
 		{
-			glCall(glDisable(GL_CULL_FACE));
+			glCall(context.Disable(GL_CULL_FACE));
 		}
 		else
 		{
-			glCall(glEnable(GL_CULL_FACE));
+			glCall(context.Enable(GL_CULL_FACE));
 		}
 
 		switch (m_Description.RasterizerStateDesc.TriangleCullMode)
 		{
-			case CullMode::Back: glCall(glCullFace(GL_BACK)); break;
-			case CullMode::Front: glCall(glCullFace(GL_FRONT)); break;
-			default: glCall(glCullFace(GL_FRONT_AND_BACK)); break;
+			case CullMode::Back: glCall(context.CullFace(GL_BACK)); break;
+			case CullMode::Front: glCall(context.CullFace(GL_FRONT)); break;
+			default: glCall(context.CullFace(GL_FRONT_AND_BACK)); break;
 		}
 
 	#if !defined(__ANDROID__) && !defined(ANDROID) && !defined(__EMSCRIPTEN__)
 		if (m_Description.RasterizerStateDesc.DepthClipEnabled)
 		{
-			glCall(glEnable(GL_DEPTH_CLAMP));
+			glCall(context.Enable(GL_DEPTH_CLAMP));
 		}
 		else
 		{
-			glCall(glDisable(GL_DEPTH_CLAMP));
+			glCall(context.Disable(GL_DEPTH_CLAMP));
 		}
 	#endif
 
 	#if !defined(__ANDROID__) && !defined(ANDROID) && !defined(__EMSCRIPTEN__)
 		switch (m_Description.RasterizerStateDesc.TriangleFillMode)
 		{
-			case FillMode::Solid: glCall(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)); break;
-			case FillMode::Wireframe: glCall(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)); break;
+			case FillMode::Solid: glCall(context.PolygonMode(GL_FRONT_AND_BACK, GL_FILL)); break;
+			case FillMode::Wireframe: glCall(context.PolygonMode(GL_FRONT_AND_BACK, GL_LINE)); break;
 		}
 	#endif
 
 		switch (m_Description.RasterizerStateDesc.TriangleFrontFace)
 		{
-			case FrontFace::Clockwise: glCall(glFrontFace(GL_CW)); break;
-			case FrontFace::CounterClockwise: glCall(glFrontFace(GL_CCW)); break;
+			case FrontFace::Clockwise: glCall(context.FrontFace(GL_CW)); break;
+			case FrontFace::CounterClockwise: glCall(context.FrontFace(GL_CCW)); break;
 		}
 
 	#if !defined(__EMSCRIPTEN__)
 		for (size_t i = 0; i < m_Description.ColourBlendStates.size(); i++)
 		{
 			const auto &colourBlendState = m_Description.ColourBlendStates[i];
-			glColorMaski(i,
-						 colourBlendState.PixelWriteMask.Red,
-						 colourBlendState.PixelWriteMask.Green,
-						 colourBlendState.PixelWriteMask.Blue,
-						 colourBlendState.PixelWriteMask.Alpha);
+			context.ColorMaski(i,
+							   colourBlendState.PixelWriteMask.Red,
+							   colourBlendState.PixelWriteMask.Green,
+							   colourBlendState.PixelWriteMask.Blue,
+							   colourBlendState.PixelWriteMask.Alpha);
 		}
 	#else
 		const auto &colourBlendState = m_Description.ColourBlendStates[0];
-		glColorMask(colourBlendState.PixelWriteMask.Red,
-					colourBlendState.PixelWriteMask.Green,
-					colourBlendState.PixelWriteMask.Blue,
-					colourBlendState.PixelWriteMask.Alpha);
+		context.ColorMask(colourBlendState.PixelWriteMask.Red,
+						  colourBlendState.PixelWriteMask.Green,
+						  colourBlendState.PixelWriteMask.Blue,
+						  colourBlendState.PixelWriteMask.Alpha);
 	#endif
 
 		// vulkan requires scissor test to be enabled
-		glCall(glEnable(GL_SCISSOR_TEST));
+		glCall(context.Enable(GL_SCISSOR_TEST));
 	}
 
-	void GraphicsPipelineOpenGL::SetupBlending()
+	void GraphicsPipelineOpenGL::SetupBlending(const GladGLContext &context)
 	{
-		glCall(glEnable(GL_BLEND));
+		glCall(context.Enable(GL_BLEND));
 
 	#if defined(__EMSCRIPTEN__)
 		if (m_Description.ColourBlendStates[0].EnableBlending)
@@ -274,16 +279,16 @@ namespace Nexus::Graphics
 
 			auto destinationColourFunction = GL::GetBlendFactor(m_Description.ColourBlendStates[0].DestinationColourBlend);
 			auto destinationAlphaFunction  = GL::GetBlendFactor(m_Description.ColourBlendStates[0].DestinationAlphaBlend);
-			glCall(glBlendFuncSeparate(sourceColourFunction, destinationColourFunction, sourceAlphaFunction, destinationAlphaFunction));
+			glCall(context.BlendFuncSeparate(sourceColourFunction, destinationColourFunction, sourceAlphaFunction, destinationAlphaFunction));
 
 			auto colorBlendFunction = GL::GetBlendFunction(m_Description.ColourBlendStates[0].ColorBlendFunction);
 			auto alphaBlendFunction = GL::GetBlendFunction(m_Description.ColourBlendStates[0].AlphaBlendFunction);
-			glCall(glBlendEquationSeparate(colorBlendFunction, alphaBlendFunction));
+			glCall(context.BlendEquationSeparate(colorBlendFunction, alphaBlendFunction));
 		}
 		else
 		{
-			glBlendFunc(GL_ONE, GL_ZERO);
-			glBlendEquation(GL_FUNC_ADD);
+			context.BlendFunc(GL_ONE, GL_ZERO);
+			context.BlendEquation(GL_FUNC_ADD);
 		}
 	#else
 		for (size_t i = 0; i < m_Description.ColourBlendStates.size(); i++)
@@ -295,88 +300,94 @@ namespace Nexus::Graphics
 
 				auto destinationColourFunction = GL::GetBlendFactor(m_Description.ColourBlendStates[i].DestinationColourBlend);
 				auto destinationAlphaFunction  = GL::GetBlendFactor(m_Description.ColourBlendStates[i].DestinationAlphaBlend);
-				glCall(glBlendFuncSeparatei(i, sourceColourFunction, destinationColourFunction, sourceAlphaFunction, destinationAlphaFunction));
+				glCall(context.BlendFuncSeparatei(i, sourceColourFunction, destinationColourFunction, sourceAlphaFunction, destinationAlphaFunction));
 
 				auto colorBlendFunction = GL::GetBlendFunction(m_Description.ColourBlendStates[i].ColorBlendFunction);
 				auto alphaBlendFunction = GL::GetBlendFunction(m_Description.ColourBlendStates[i].AlphaBlendFunction);
-				glCall(glBlendEquationSeparatei(i, colorBlendFunction, alphaBlendFunction));
+				glCall(context.BlendEquationSeparatei(i, colorBlendFunction, alphaBlendFunction));
 			}
 			// disable blending for this attachment
 			else
 			{
-				glBlendFunci(i, GL_ONE, GL_ZERO);
-				glBlendEquationi(i, GL_FUNC_ADD);
+				context.BlendFunci(i, GL_ONE, GL_ZERO);
+				context.BlendEquationi(i, GL_FUNC_ADD);
 			}
 		}
 	#endif
 	}
 
-	void GraphicsPipelineOpenGL::SetShader()
+	void GraphicsPipelineOpenGL::SetShader(const GladGLContext &context)
 	{
-		glCall(glUseProgram(m_ShaderHandle));
+		glCall(context.UseProgram(m_ShaderHandle));
 	}
 
 	void GraphicsPipelineOpenGL::CreateShader()
 	{
-		m_ShaderHandle = glCreateProgram();
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context)
+			{
+				m_ShaderHandle = context.CreateProgram();
 
-		std::vector<Ref<ShaderModuleOpenGL>> modules;
+				std::vector<Ref<ShaderModuleOpenGL>> modules;
 
-		if (m_Description.FragmentModule)
-		{
-			auto glFragmentModule = std::dynamic_pointer_cast<ShaderModuleOpenGL>(m_Description.FragmentModule);
-			NX_ASSERT(glFragmentModule->GetShaderStage() == ShaderStage::Fragment, "Shader module is not a fragment shader");
-			modules.push_back(glFragmentModule);
-		}
+				if (m_Description.FragmentModule)
+				{
+					auto glFragmentModule = std::dynamic_pointer_cast<ShaderModuleOpenGL>(m_Description.FragmentModule);
+					NX_ASSERT(glFragmentModule->GetShaderStage() == ShaderStage::Fragment, "Shader module is not a fragment shader");
+					modules.push_back(glFragmentModule);
+				}
 
-		if (m_Description.GeometryModule)
-		{
-			auto glGeometryModule = std::dynamic_pointer_cast<ShaderModuleOpenGL>(m_Description.GeometryModule);
-			NX_ASSERT(glGeometryModule->GetShaderStage() == ShaderStage::Geometry, "Shader module is not a geometry shader");
-			modules.push_back(glGeometryModule);
-		}
+				if (m_Description.GeometryModule)
+				{
+					auto glGeometryModule = std::dynamic_pointer_cast<ShaderModuleOpenGL>(m_Description.GeometryModule);
+					NX_ASSERT(glGeometryModule->GetShaderStage() == ShaderStage::Geometry, "Shader module is not a geometry shader");
+					modules.push_back(glGeometryModule);
+				}
 
-		if (m_Description.TesselationControlModule)
-		{
-			auto glTesselationControlModule = std::dynamic_pointer_cast<ShaderModuleOpenGL>(m_Description.TesselationControlModule);
-			NX_ASSERT(glTesselationControlModule->GetShaderStage() == ShaderStage::TesselationControl,
-					  "Shader module is not a tesselation control shader");
-			modules.push_back(glTesselationControlModule);
-		}
+				if (m_Description.TesselationControlModule)
+				{
+					auto glTesselationControlModule = std::dynamic_pointer_cast<ShaderModuleOpenGL>(m_Description.TesselationControlModule);
+					NX_ASSERT(glTesselationControlModule->GetShaderStage() == ShaderStage::TesselationControl,
+							  "Shader module is not a tesselation control shader");
+					modules.push_back(glTesselationControlModule);
+				}
 
-		if (m_Description.TesselationEvaluationModule)
-		{
-			auto glEvaluationModule = std::dynamic_pointer_cast<ShaderModuleOpenGL>(m_Description.TesselationEvaluationModule);
-			NX_ASSERT(glEvaluationModule->GetShaderStage() == ShaderStage::TesselationEvaluation,
-					  "Shader module is not a tesselation evaluation shader");
-			modules.push_back(glEvaluationModule);
-		}
+				if (m_Description.TesselationEvaluationModule)
+				{
+					auto glEvaluationModule = std::dynamic_pointer_cast<ShaderModuleOpenGL>(m_Description.TesselationEvaluationModule);
+					NX_ASSERT(glEvaluationModule->GetShaderStage() == ShaderStage::TesselationEvaluation,
+							  "Shader module is not a tesselation evaluation shader");
+					modules.push_back(glEvaluationModule);
+				}
 
-		if (m_Description.VertexModule)
-		{
-			auto glVertexModule = std::dynamic_pointer_cast<ShaderModuleOpenGL>(m_Description.VertexModule);
-			NX_ASSERT(glVertexModule->GetShaderStage() == ShaderStage::Vertex, "Shader module is not a vertex shader");
-			modules.push_back(glVertexModule);
-		}
+				if (m_Description.VertexModule)
+				{
+					auto glVertexModule = std::dynamic_pointer_cast<ShaderModuleOpenGL>(m_Description.VertexModule);
+					NX_ASSERT(glVertexModule->GetShaderStage() == ShaderStage::Vertex, "Shader module is not a vertex shader");
+					modules.push_back(glVertexModule);
+				}
 
-		for (const auto &module : modules) { glCall(glAttachShader(m_ShaderHandle, module->GetHandle())); }
+				for (const auto &module : modules) { glCall(context.AttachShader(m_ShaderHandle, module->GetHandle())); }
 
-		glCall(glLinkProgram(m_ShaderHandle));
+				glCall(context.LinkProgram(m_ShaderHandle));
 
-		int success;
-		glCall(glGetProgramiv(m_ShaderHandle, GL_LINK_STATUS, &success));
-		if (!success)
-		{
-			char infoLog[512];
-			glCall(glGetProgramInfoLog(m_ShaderHandle, 512, nullptr, infoLog));
-			std::string errorMessage = "Error: Shader Program - " + std::string(infoLog);
-			NX_ERROR(errorMessage);
-		}
+				int success;
+				glCall(context.GetProgramiv(m_ShaderHandle, GL_LINK_STATUS, &success));
+				if (!success)
+				{
+					char infoLog[512];
+					glCall(context.GetProgramInfoLog(m_ShaderHandle, 512, nullptr, infoLog));
+					std::string errorMessage = "Error: Shader Program - " + std::string(infoLog);
+					NX_ERROR(errorMessage);
+				}
 
-		for (const auto &module : modules) { glCall(glDetachShader(m_ShaderHandle, module->GetHandle())); }
+				for (const auto &module : modules) { glCall(context.DetachShader(m_ShaderHandle, module->GetHandle())); }
+			});
 	}
 
-	ComputePipelineOpenGL::ComputePipelineOpenGL(const ComputePipelineDescription &description) : ComputePipeline(description)
+	ComputePipelineOpenGL::ComputePipelineOpenGL(const ComputePipelineDescription &description, GraphicsDeviceOpenGL *device)
+		: ComputePipeline(description),
+		  m_Device(device)
 	{
 		CreateShader();
 	}
@@ -385,9 +396,9 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void ComputePipelineOpenGL::Bind()
+	void ComputePipelineOpenGL::Bind(const GladGLContext &context)
 	{
-		glUseProgram(m_ShaderHandle);
+		context.UseProgram(m_ShaderHandle);
 	}
 
 	uint32_t ComputePipelineOpenGL::GetShaderHandle() const
@@ -402,21 +413,25 @@ namespace Nexus::Graphics
 		Nexus::Ref<Nexus::Graphics::ShaderModuleOpenGL> computeShader =
 			std::dynamic_pointer_cast<Nexus::Graphics::ShaderModuleOpenGL>(m_Description.ComputeShader);
 
-		m_ShaderHandle = glCreateProgram();
-		glCall(glAttachShader(m_ShaderHandle, computeShader->GetHandle()));
-		glCall(glLinkProgram(m_ShaderHandle));
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context)
+			{
+				m_ShaderHandle = context.CreateProgram();
+				glCall(context.AttachShader(m_ShaderHandle, computeShader->GetHandle()));
+				glCall(context.LinkProgram(m_ShaderHandle));
 
-		int success;
-		glCall(glGetProgramiv(m_ShaderHandle, GL_LINK_STATUS, &success));
-		if (!success)
-		{
-			char infoLog[512];
-			glCall(glGetProgramInfoLog(m_ShaderHandle, 512, nullptr, infoLog));
-			std::string errorMessage = "Error: Shader Program - " + std::string(infoLog);
-			NX_ERROR(errorMessage);
-		}
+				int success;
+				glCall(context.GetProgramiv(m_ShaderHandle, GL_LINK_STATUS, &success));
+				if (!success)
+				{
+					char infoLog[512];
+					glCall(context.GetProgramInfoLog(m_ShaderHandle, 512, nullptr, infoLog));
+					std::string errorMessage = "Error: Shader Program - " + std::string(infoLog);
+					NX_ERROR(errorMessage);
+				}
 
-		glCall(glDetachShader(m_ShaderHandle, computeShader->GetHandle()));
+				glCall(context.DetachShader(m_ShaderHandle, computeShader->GetHandle()));
+			});
 	}
 }	 // namespace Nexus::Graphics
 

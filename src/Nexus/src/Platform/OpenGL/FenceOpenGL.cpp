@@ -1,8 +1,10 @@
 #include "FenceOpenGL.hpp"
 
+#include "GraphicsDeviceOpenGL.hpp"
+
 namespace Nexus::Graphics
 {
-	FenceOpenGL::FenceOpenGL(const FenceDescription &desc)
+	FenceOpenGL::FenceOpenGL(const FenceDescription &desc, GraphicsDeviceOpenGL *device) : m_Description(desc), m_Device(device)
 	{
 		CreateFence(desc.Signalled);
 	}
@@ -15,7 +17,7 @@ namespace Nexus::Graphics
 	bool FenceOpenGL::IsSignalled() const
 	{
 		GLint status;
-		glGetSynciv(m_Sync, GL_SYNC_STATUS, sizeof(status), nullptr, &status);
+		GL::ExecuteGLCommands([&](const GladGLContext &context) { context.GetSynciv(m_Sync, GL_SYNC_STATUS, sizeof(status), nullptr, &status); });
 		return status == GL_SIGNALED;
 	}
 
@@ -37,26 +39,33 @@ namespace Nexus::Graphics
 
 	GLenum FenceOpenGL::Wait(TimeSpan timeout)
 	{
-		return glClientWaitSync(m_Sync, GL_SYNC_FLUSH_COMMANDS_BIT, timeout.GetNanoseconds<uint64_t>());
+		GLenum result = 0;
+		GL::ExecuteGLCommands([&](const GladGLContext &context)
+							  { result = context.ClientWaitSync(m_Sync, GL_SYNC_FLUSH_COMMANDS_BIT, timeout.GetNanoseconds<uint64_t>()); });
+		return result;
 	}
 
 	void FenceOpenGL::CreateFence(bool signalled)
 	{
-		m_Sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-
-		// wait for the new fence to be signalled
-		if (signalled)
-		{
-			GLenum result = Wait(TimeSpan::FromNanoseconds(0));
-			if (result == GL_WAIT_FAILED)
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context)
 			{
-				throw std::runtime_error("Failed to wait for fence");
-			}
-		}
+				m_Sync = context.FenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+
+				// wait for the new fence to be signalled
+				if (signalled)
+				{
+					GLenum result = Wait(TimeSpan::FromNanoseconds(0));
+					if (result == GL_WAIT_FAILED)
+					{
+						throw std::runtime_error("Failed to wait for fence");
+					}
+				}
+			});
 	}
 
 	void FenceOpenGL::DestroyFence()
 	{
-		glDeleteSync(m_Sync);
+		GL::ExecuteGLCommands([&](const GladGLContext &context) { context.DeleteSync(m_Sync); });
 	}
 }	 // namespace Nexus::Graphics

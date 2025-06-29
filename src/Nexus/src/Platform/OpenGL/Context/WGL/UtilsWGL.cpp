@@ -9,14 +9,10 @@ namespace Nexus::GL
 {
 	void LoadGLFunctionsIfNeeded(HDC hdc)
 	{
-		if (!gladLoadWGL(hdc))
+		int version = gladLoaderLoadWGL(hdc);
+		if (!version)
 		{
 			MessageBox(NULL, "Failed to load WGL", "Error", MB_OK);
-		}
-
-		if (!gladLoadGL())
-		{
-			MessageBox(NULL, "Failed to load OpenGL function pointers", "Error", MB_OK);
 		}
 	}
 

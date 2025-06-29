@@ -3,7 +3,7 @@
 #if defined(NX_PLATFORM_WGL)
 
 	#include "Platform/Windows/WindowsInclude.hpp"
-	#include "glad/glad_wgl.h"
+	#include "glad/wgl.h"
 	#include "Platform/OpenGL/PhysicalDeviceOpenGL.hpp"
 	#include "OffscreenContextWGL.hpp"
 	#include "Nexus-Core/nxpch.hpp"

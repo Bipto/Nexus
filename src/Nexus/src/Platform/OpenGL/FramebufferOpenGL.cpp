@@ -16,18 +16,17 @@ namespace Nexus::Graphics
 
 	FramebufferOpenGL::~FramebufferOpenGL()
 	{
-		DeleteTextures();
 	}
 
-	void FramebufferOpenGL::BindAsReadBuffer(uint32_t texture)
+	void FramebufferOpenGL::BindAsReadBuffer(uint32_t texture, const GladGLContext &context)
 	{
-		glCall(glBindFramebuffer(GL_READ_FRAMEBUFFER, m_FBO));
-		glCall(glReadBuffer(GL_COLOR_ATTACHMENT0 + texture));
+		glCall(context.BindFramebuffer(GL_READ_FRAMEBUFFER, m_FBO));
+		glCall(context.ReadBuffer(GL_COLOR_ATTACHMENT0 + texture));
 	}
 
-	void FramebufferOpenGL::BindAsDrawBuffer()
+	void FramebufferOpenGL::BindAsDrawBuffer(const GladGLContext &context)
 	{
-		glCall(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_FBO));
+		glCall(context.BindFramebuffer(GL_DRAW_FRAMEBUFFER, m_FBO));
 		auto width	= m_Specification.Width;
 		auto height = m_Specification.Height;
 
@@ -37,15 +36,16 @@ namespace Nexus::Graphics
 			drawBuffers.push_back(GL_COLOR_ATTACHMENT0 + i);
 		}
 
-		glDrawBuffers(drawBuffers.size(), drawBuffers.data());
+		context.DrawBuffers(drawBuffers.size(), drawBuffers.data());
 
-		glCall(glViewport(0, 0, width, height));
-		glCall(glScissor(0, 0, width, height));
+		glCall(context.Viewport(0, 0, width, height));
+		glCall(context.Scissor(0, 0, width, height));
 	}
 
 	void FramebufferOpenGL::Unbind()
 	{
-		glCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+		GL::IOffscreenContext *offscreenContext = m_Device->GetOffscreenContext();
+		GL::ExecuteGLCommands([&](const GladGLContext &context) { glCall(context.BindFramebuffer(GL_FRAMEBUFFER, 0)); });
 	}
 
 	int32_t FramebufferOpenGL::GetHandle()
@@ -55,20 +55,23 @@ namespace Nexus::Graphics
 
 	void FramebufferOpenGL::Recreate()
 	{
-		DeleteTextures();
+		GL::IOffscreenContext *offscreenContext = m_Device->GetOffscreenContext();
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context)
+			{
+				glCall(context.GenFramebuffers(1, &m_FBO));
+				glCall(context.BindFramebuffer(GL_FRAMEBUFFER, m_FBO));
 
-		glCall(glGenFramebuffers(1, &m_FBO));
-		glCall(glBindFramebuffer(GL_FRAMEBUFFER, m_FBO));
+				CreateTextures(context);
 
-		CreateTextures();
+				GLenum status = context.CheckFramebufferStatus(GL_FRAMEBUFFER);
+				if (status != GL_FRAMEBUFFER_COMPLETE)
+				{
+					std::cout << "Failed to create framebuffer" << std::endl;
+				}
 
-		GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-		if (status != GL_FRAMEBUFFER_COMPLETE)
-		{
-			std::cout << "Failed to create framebuffer" << std::endl;
-		}
-
-		glCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+				glCall(context.BindFramebuffer(GL_FRAMEBUFFER, 0));
+			});
 	}
 
 	const FramebufferSpecification FramebufferOpenGL::GetFramebufferSpecification()
@@ -92,7 +95,7 @@ namespace Nexus::Graphics
 		return m_DepthAttachment;
 	}
 
-	void FramebufferOpenGL::CreateTextures()
+	void FramebufferOpenGL::CreateTextures(const GladGLContext &context)
 	{
 		m_ColorAttachments.clear();
 
@@ -116,7 +119,7 @@ namespace Nexus::Graphics
 			Ref<TextureOpenGL> textureGL = std::dynamic_pointer_cast<TextureOpenGL>(texture);
 			m_ColorAttachments.push_back(textureGL);
 
-			GL::AttachTexture(m_FBO, textureGL, 0, 0, Graphics::ImageAspect::Colour, i);
+			GL::AttachTexture(m_FBO, textureGL, 0, 0, Graphics::ImageAspect::Colour, i, context);
 		}
 
 		if (m_Specification.DepthAttachmentSpecification.DepthFormat != PixelFormat::Invalid)
@@ -130,12 +133,8 @@ namespace Nexus::Graphics
 			m_DepthAttachment						   = Ref<Texture>(m_Device->CreateTexture(textureSpec));
 
 			Ref<TextureOpenGL> textureGL = std::dynamic_pointer_cast<TextureOpenGL>(m_DepthAttachment);
-			GL::AttachTexture(m_FBO, textureGL, 0, 0, Graphics::ImageAspect::DepthStencil, 0);
+			GL::AttachTexture(m_FBO, textureGL, 0, 0, Graphics::ImageAspect::DepthStencil, 0, context);
 		}
-	}
-
-	void FramebufferOpenGL::DeleteTextures()
-	{
 	}
 }	 // namespace Nexus::Graphics
 

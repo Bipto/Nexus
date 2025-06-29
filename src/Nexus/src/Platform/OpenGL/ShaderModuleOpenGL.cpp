@@ -4,32 +4,42 @@
 
 	#include "Nexus-Core/Logging/Log.hpp"
 
+	#include "GraphicsDeviceOpenGL.hpp"
+
 namespace Nexus::Graphics
 {
-	ShaderModuleOpenGL::ShaderModuleOpenGL(const ShaderModuleSpecification &shaderModuleSpec, const ResourceSetSpecification &resourceSpec)
+	ShaderModuleOpenGL::ShaderModuleOpenGL(const ShaderModuleSpecification &shaderModuleSpec,
+										   const ResourceSetSpecification  &resourceSpec,
+										   GraphicsDeviceOpenGL			   *device)
 		: ShaderModule(shaderModuleSpec, resourceSpec),
-		  m_ShaderStage(GL::GetShaderStage(m_ModuleSpecification.ShadingStage))
+		  m_ShaderStage(GL::GetShaderStage(m_ModuleSpecification.ShadingStage)),
+		  m_Device(device)
 	{
-		m_Handle		   = glCreateShader(m_ShaderStage);
-		const char *source = m_ModuleSpecification.Source.c_str();
-		glCall(glShaderSource(m_Handle, 1, &source, nullptr));
-		glCall(glCompileShader(m_Handle));
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context)
+			{
+				m_Handle		   = context.CreateShader(m_ShaderStage);
+				const char *source = m_ModuleSpecification.Source.c_str();
+				glCall(context.ShaderSource(m_Handle, 1, &source, nullptr));
+				glCall(context.CompileShader(m_Handle));
 
-		int success;
-		glCall(glGetShaderiv(m_Handle, GL_COMPILE_STATUS, &success));
+				int success;
+				glCall(context.GetShaderiv(m_Handle, GL_COMPILE_STATUS, &success));
 
-		if (!success)
-		{
-			char infoLog[512];
-			glCall(glGetShaderInfoLog(m_Handle, 512, NULL, infoLog));
-			std::string errorMessage = "Error: Vertex Shader - " + std::string(infoLog);
-			NX_ERROR(errorMessage);
-		}
+				if (!success)
+				{
+					char infoLog[512];
+					glCall(context.GetShaderInfoLog(m_Handle, 512, NULL, infoLog));
+					std::string errorMessage = "Error: Vertex Shader - " + std::string(infoLog);
+					NX_ERROR(errorMessage);
+				}
+			});
 	}
 
 	ShaderModuleOpenGL::~ShaderModuleOpenGL()
 	{
-		glDeleteShader(m_Handle);
+		GL::IOffscreenContext *offscreenContext = m_Device->GetOffscreenContext();
+		GL::ExecuteGLCommands([&](const GladGLContext &context) { context.DeleteShader(m_Handle); });
 	}
 
 	GLenum ShaderModuleOpenGL::GetGLShaderStage()

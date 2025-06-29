@@ -21,6 +21,7 @@
 
 	#include "Platform/OpenGL/GraphicsDeviceOpenGL.hpp"
 	#include "TextureOpenGL.hpp"
+	#include "DeviceBufferOpenGL.hpp"
 	#include "Nexus-Core/Platform.hpp"
 
 namespace Nexus::GL
@@ -115,7 +116,7 @@ namespace Nexus::GL
 			case Nexus::Graphics::SamplerAddressMode::Wrap: return GL_REPEAT;
 			case Nexus::Graphics::SamplerAddressMode::MirrorOnce: return GL_MIRROR_CLAMP_TO_EDGE_EXT;
 			case Nexus::Graphics::SamplerAddressMode::Mirror: return GL_MIRRORED_REPEAT;
-			case Nexus::Graphics::SamplerAddressMode::Border: return GL_CLAMP_TO_BORDER_EXT;
+			case Nexus::Graphics::SamplerAddressMode::Border: return GL_CLAMP_TO_BORDER;
 			case Nexus::Graphics::SamplerAddressMode::Clamp: return GL_CLAMP_TO_EDGE;
 			default: throw std::runtime_error("Failed to find a valid address mode");
 		}
@@ -340,7 +341,7 @@ namespace Nexus::GL
 			case Nexus::Graphics::PixelFormat::R8_UInt: return GL_R8UI;
 			case Nexus::Graphics::PixelFormat::R8_SInt: return GL_R8I;
 
-			case Nexus::Graphics::PixelFormat::R16_UNorm: return depthFormat ? GL_DEPTH_COMPONENT16 : GL_R16_EXT;
+			case Nexus::Graphics::PixelFormat::R16_UNorm: return depthFormat ? GL_DEPTH_COMPONENT16 : GL_R16;
 			case Nexus::Graphics::PixelFormat::R16_SNorm: return GL_R16I;
 			case Nexus::Graphics::PixelFormat::R16_UInt: return GL_R16UI;
 			case Nexus::Graphics::PixelFormat::R16_SInt: return GL_R16I;
@@ -355,7 +356,7 @@ namespace Nexus::GL
 			case Nexus::Graphics::PixelFormat::R8_G8_UInt: return GL_RG8UI;
 			case Nexus::Graphics::PixelFormat::R8_G8_SInt: return GL_RG8I;
 
-			case Nexus::Graphics::PixelFormat::R16_G16_UNorm: return GL_RG16_EXT;
+			case Nexus::Graphics::PixelFormat::R16_G16_UNorm: return GL_RG16;
 			case Nexus::Graphics::PixelFormat::R16_G16_SNorm: return GL_RG16I;
 			case Nexus::Graphics::PixelFormat::R16_G16_UInt: return GL_RG16UI;
 			case Nexus::Graphics::PixelFormat::R16_G16_SInt: return GL_RG16I;
@@ -589,10 +590,10 @@ namespace Nexus::GL
 		}
 	}
 
-	void ValidateFramebuffer(GLuint framebuffer)
+	void ValidateFramebuffer(GLuint framebuffer, const GladGLContext &context)
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-		GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		context.BindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+		GLenum status = context.CheckFramebufferStatus(GL_FRAMEBUFFER);
 
 		if (status == GL_FRAMEBUFFER_COMPLETE)
 		{
@@ -623,9 +624,10 @@ namespace Nexus::GL
 					   uint32_t						mipLevel,
 					   uint32_t						arrayLayer,
 					   Graphics::ImageAspect		aspect,
-					   uint32_t						colourIndex)
+					   uint32_t						colourIndex,
+					   const GladGLContext		   &context)
 	{
-		glCall(glBindFramebuffer(GL_FRAMEBUFFER, framebuffer));
+		glCall(context.BindFramebuffer(GL_FRAMEBUFFER, framebuffer));
 		GLenum attachmentType = GL::GetAttachmentType(aspect, colourIndex);
 
 		uint32_t				textureHandle  = texture->GetHandle();
@@ -636,27 +638,32 @@ namespace Nexus::GL
 		{
 			case GLInternalTextureFormat::Texture1D:
 	#if !defined(__EMSCRIPTEN__)
-				glCall(glFramebufferTexture1D(GL_FRAMEBUFFER, attachmentType, textureTarget, textureHandle, mipLevel));
+				glCall(context.FramebufferTexture1D(GL_FRAMEBUFFER, attachmentType, textureTarget, textureHandle, mipLevel));
 				break;
 	#else
 				throw std::runtime_error("1D textures are not supported by WebGL");
 	#endif
 			case GLInternalTextureFormat::Texture1DArray:
-				glCall(glFramebufferTextureLayer(GL_FRAMEBUFFER, attachmentType, textureHandle, mipLevel, arrayLayer));
+				glCall(context.FramebufferTextureLayer(GL_FRAMEBUFFER, attachmentType, textureHandle, mipLevel, arrayLayer));
 				break;
 			case GLInternalTextureFormat::Texture2D:
 			case GLInternalTextureFormat::Texture2DMultisample:
-				glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, textureTarget, textureHandle, mipLevel));
+				glCall(context.FramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, textureTarget, textureHandle, mipLevel));
 				break;
 			case GLInternalTextureFormat::Texture2DArray:
 			case GLInternalTextureFormat::Texture2DArrayMultisample:
 			case GLInternalTextureFormat::CubemapArray:
 			case GLInternalTextureFormat::Texture3D:
-				glCall(glFramebufferTextureLayer(GL_FRAMEBUFFER, attachmentType, textureHandle, mipLevel, arrayLayer));
+				glCall(context.FramebufferTextureLayer(GL_FRAMEBUFFER, attachmentType, textureHandle, mipLevel, arrayLayer));
 				break;
 			case GLInternalTextureFormat::Cubemap:
-				glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_TEXTURE_CUBE_MAP_POSITIVE_X + arrayLayer, textureTarget, textureHandle, mipLevel));
+				glCall(context.FramebufferTexture2D(GL_FRAMEBUFFER,
+													GL_TEXTURE_CUBE_MAP_POSITIVE_X + arrayLayer,
+													textureTarget,
+													textureHandle,
+													mipLevel));
 				break;
+			default: throw std::runtime_error("Could not find a valid texture format type");
 		}
 	}
 
@@ -918,11 +925,6 @@ namespace Nexus::GL
 		}
 	}
 
-	void ClearBufferBinding(GLenum target)
-	{
-		glBindBuffer(target, 0);
-	}
-
 	GLenum GetGLImageAspect(Graphics::ImageAspect aspect)
 	{
 		switch (aspect)
@@ -1066,6 +1068,167 @@ namespace Nexus::GL
 	#else
 		#error No OpenGL backend available
 	#endif
+	}
+
+	void CopyBufferToTexture(Ref<Graphics::TextureOpenGL>	   texture,
+							 Ref<Graphics::DeviceBufferOpenGL> buffer,
+							 uint32_t						   bufferOffset,
+							 Graphics::SubresourceDescription  subresource,
+							 const GladGLContext			  &context)
+	{
+		NX_ASSERT(texture->GetSpecification().Samples == 1, "Cannot set data in a multisampled texture");
+
+		if (subresource.Depth > 1)
+		{
+			NX_ASSERT(texture->GetSpecification().Type == Graphics::TextureType::Texture3D,
+					  "Attempting to set data in a multi-layer texture, but texture is not multi layer");
+		}
+
+		GLenum textureType = texture->GetTextureType();
+		GLenum dataFormat  = texture->GetDataFormat();
+		GLenum baseType	   = texture->GetBaseType();
+
+		glCall(context.BindTexture(textureType, texture->GetHandle()));
+		context.BindBuffer(GL_PIXEL_UNPACK_BUFFER, buffer->GetHandle());
+
+		GLenum	 glAspect	= GL::GetGLImageAspect(subresource.Aspect);
+		uint32_t bufferSize = (subresource.Width - subresource.X) * (subresource.Height - subresource.Y) *
+							  (uint32_t)GetPixelFormatSizeInBytes(texture->GetSpecification().Format);
+
+		switch (texture->GetInternalGLTextureFormat())
+		{
+			case GL::GLInternalTextureFormat::Texture1D:
+	#if !defined(__EMSCRIPTEN__)
+				glCall(context.TexSubImage1D(textureType,
+											 subresource.MipLevel,
+											 subresource.X,
+											 subresource.Width,
+											 dataFormat,
+											 baseType,
+											 (const void *)(uint64_t)bufferOffset));
+				break;
+	#else
+				throw std::runtime_error("1D textures are not supported in WebGL");
+	#endif
+			case GL::GLInternalTextureFormat::Texture1DArray:
+			case GL::GLInternalTextureFormat::Texture2D:
+			case GL::GLInternalTextureFormat::Texture2DMultisample:
+				glCall(context.TexSubImage2D(textureType,
+											 subresource.MipLevel,
+											 subresource.X,
+											 subresource.Y,
+											 subresource.Width,
+											 subresource.Height,
+											 dataFormat,
+											 baseType,
+											 (const void *)(uint64_t)bufferOffset));
+				break;
+			case GL::GLInternalTextureFormat::Cubemap:
+				glCall(context.TexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + subresource.ArrayLayer,
+											 subresource.MipLevel,
+											 subresource.X,
+											 subresource.Y,
+											 subresource.Width,
+											 subresource.Height,
+											 dataFormat,
+											 baseType,
+											 (const void *)(uint64_t)bufferOffset));
+				break;
+			case GL::GLInternalTextureFormat::Texture2DArray:
+			case GL::GLInternalTextureFormat::CubemapArray:
+			case GL::GLInternalTextureFormat::Texture3D:
+			case GL::GLInternalTextureFormat::Texture2DArrayMultisample:
+				glCall(context.TexSubImage3D(textureType,
+											 subresource.MipLevel,
+											 subresource.X,
+											 subresource.Y,
+											 subresource.ArrayLayer,
+											 subresource.Width,
+											 subresource.Height,
+											 subresource.Depth,
+											 dataFormat,
+											 baseType,
+											 (const void *)(uint64_t)bufferOffset));
+				break;
+		}
+
+		context.BindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+		glCall(context.BindTexture(textureType, 0));
+	}
+
+	void CopyTextureToBuffer(Ref<Graphics::TextureOpenGL>	   texture,
+							 Ref<Graphics::DeviceBufferOpenGL> buffer,
+							 uint32_t						   bufferOffset,
+							 Graphics::SubresourceDescription  subresource,
+							 const GladGLContext			  &context)
+	{
+		const auto &textureSpecification = texture->GetSpecification();
+
+		size_t layerSize =
+			(subresource.Width - subresource.X) * (subresource.Height - subresource.Y) * GetPixelFormatSizeInBytes(textureSpecification.Format);
+		size_t bufferSize = layerSize * subresource.Depth;
+		GLenum glAspect	  = GL::GetGLImageAspect(subresource.Aspect);
+
+		GLenum textureType = texture->GetTextureType();
+		GLenum dataFormat  = texture->GetDataFormat();
+		GLenum baseType	   = texture->GetBaseType();
+
+		context.BindBuffer(GL_PIXEL_PACK_BUFFER, buffer->GetHandle());
+
+		for (uint32_t layer = subresource.Z; layer < subresource.Depth; layer++)
+		{
+			GLuint framebufferHandle = 0;
+			glCall(context.GenFramebuffers(1, &framebufferHandle));
+			glCall(context.BindFramebuffer(GL_FRAMEBUFFER, framebufferHandle));
+			GL::AttachTexture(framebufferHandle, texture, subresource.MipLevel, layer, subresource.Aspect, 0, context);
+
+			GL::ValidateFramebuffer(framebufferHandle, context);
+
+			glCall(context.ReadBuffer(GL_COLOR_ATTACHMENT0));
+			glCall(context.ReadPixels(subresource.X,
+									  subresource.Y,
+									  subresource.Width,
+									  subresource.Height,
+									  dataFormat,
+									  baseType,
+									  (void *)(uint64_t)bufferOffset));
+
+			glCall(context.Flush());
+			glCall(context.Finish());
+
+			glCall(context.DeleteFramebuffers(1, &framebufferHandle));
+			bufferOffset += layerSize;
+		}
+
+		glCall(context.BindTexture(textureType, 0));
+		glCall(context.BindBuffer(GL_PIXEL_PACK_BUFFER, 0));
+	}
+
+	static IGLContext *s_Context = nullptr;
+
+	IGLContext *GetCurrentContext()
+	{
+		return s_Context;
+	}
+
+	void SetCurrentContext(IGLContext *context)
+	{
+		s_Context = context;
+		s_Context->MakeCurrent();
+	}
+
+	void ClearCurrentContext()
+	{
+		s_Context = nullptr;
+	}
+
+	void ExecuteGLCommands(std::function<void(const GladGLContext &context)> function)
+	{
+		if (s_Context)
+		{
+			const GladGLContext &gladContext = s_Context->GetContext();
+			function(gladContext);
+		}
 	}
 
 	GLenum GetSamplerState(Nexus::Graphics::SamplerState state)

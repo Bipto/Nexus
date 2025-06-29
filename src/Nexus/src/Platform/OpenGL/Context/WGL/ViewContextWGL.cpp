@@ -2,7 +2,9 @@
 
 	#include "ViewContextWGL.hpp"
 
-	#include "glad/glad_wgl.h"
+	#include "glad/wgl.h"
+
+	#include "Platform/OpenGL/GL.hpp"
 
 namespace Nexus::GL
 {
@@ -13,14 +15,19 @@ namespace Nexus::GL
 		  m_PBuffer(context)
 	{
 		m_HGLRC = CreateSharedContext(m_HDC, context->GetHGLRC(), spec);
+		m_FunctionContext.Load();
 	}
 
 	ViewContextWGL::~ViewContextWGL()
 	{
+		GL::ClearCurrentContext();
+
 		// wglMakeCurrent(NULL, NULL);
 
 		// TODO: Why does this crash sometimes???
 		// wglDeleteContext(m_HGLRC);
+
+		if (GL::GetCurrentContext() == this) {}
 
 		m_PBuffer->MakeCurrent();
 	}
@@ -53,7 +60,7 @@ namespace Nexus::GL
 			PrintErrorMessage(errorCode);
 		}
 
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		m_FunctionContext.ExecuteCommands([&](const GladGLContext &context) { context.BindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); });
 
 		return success;
 	}
@@ -181,6 +188,11 @@ namespace Nexus::GL
 	bool ViewContextWGL::Validate()
 	{
 		return m_HWND != nullptr && m_HDC != nullptr && m_HGLRC != nullptr;
+	}
+
+	const GladGLContext &ViewContextWGL::GetContext() const
+	{
+		return m_FunctionContext.GetContext();
 	}
 }	 // namespace Nexus::GL
 

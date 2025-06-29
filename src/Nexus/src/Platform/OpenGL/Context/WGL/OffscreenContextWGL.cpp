@@ -3,6 +3,8 @@
 	#include "OffscreenContextWGL.hpp"
 	#include "PhysicalDeviceWGL.hpp"
 
+	#include "Platform/OpenGL/GL.hpp"
+
 namespace Nexus::GL
 {
 	OffscreenContextWGL::OffscreenContextWGL(const ContextSpecification &spec, Graphics::IPhysicalDevice *device)
@@ -16,10 +18,13 @@ namespace Nexus::GL
 		m_HGLRC	  = hglrc;
 
 		wglMakeCurrent(m_HDC, m_HGLRC);
+		m_FunctionContext.Load();
 	}
 
 	OffscreenContextWGL::~OffscreenContextWGL()
 	{
+		GL::ClearCurrentContext();
+
 		wglMakeCurrent(NULL, NULL);
 		wglDeleteContext(m_HGLRC);
 		wglDestroyPbufferARB(m_PBuffer);
@@ -93,6 +98,11 @@ namespace Nexus::GL
 	bool OffscreenContextWGL::Validate()
 	{
 		return m_HGLRC != nullptr && m_PBuffer != nullptr && m_HDC != nullptr;
+	}
+
+	const GladGLContext &OffscreenContextWGL::GetContext() const
+	{
+		return m_FunctionContext.GetContext();
 	}
 }	 // namespace Nexus::GL
 
