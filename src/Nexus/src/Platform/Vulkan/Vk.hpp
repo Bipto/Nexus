@@ -2,6 +2,9 @@
 
 #if defined(NX_PLATFORM_VULKAN)
 
+	#include "vulkan/vulkan.h"
+	#include "vk_mem_alloc.h"
+
 	#include "Nexus-Core/Graphics/Framebuffer.hpp"
 	#include "Nexus-Core/Graphics/SamplerState.hpp"
 	#include "Nexus-Core/Graphics/ShaderDataType.hpp"
@@ -9,8 +12,6 @@
 	#include "Nexus-Core/Graphics/Texture.hpp"
 	#include "Nexus-Core/Graphics/DeviceBuffer.hpp"
 	#include "Nexus-Core/Graphics/CommandList.hpp"
-	#include "vk_mem_alloc.h"
-	#include "vulkan/vulkan.h"
 
 const uint32_t FRAMES_IN_FLIGHT = 3;
 

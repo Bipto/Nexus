@@ -70,6 +70,10 @@ def run_doxygen():
         print(f"Error running doxygen: {e}")
         
     os.chdir("docs")
-        
-run_doxygen()
-generate_pdf()
+       
+       
+if (__name__ == "__main__"):
+    run_doxygen()
+    generate_pdf()
+    print("Done!")
+    input()

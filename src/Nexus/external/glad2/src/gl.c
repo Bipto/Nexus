@@ -30,345 +30,71 @@ extern "C" {
 
 static void glad_gl_load_GL_VERSION_1_0(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
     if(!context->VERSION_1_0) return;
-    context->Accum = (PFNGLACCUMPROC) load(userptr, "glAccum");
-    context->AlphaFunc = (PFNGLALPHAFUNCPROC) load(userptr, "glAlphaFunc");
-    context->Begin = (PFNGLBEGINPROC) load(userptr, "glBegin");
-    context->Bitmap = (PFNGLBITMAPPROC) load(userptr, "glBitmap");
     context->BlendFunc = (PFNGLBLENDFUNCPROC) load(userptr, "glBlendFunc");
-    context->CallList = (PFNGLCALLLISTPROC) load(userptr, "glCallList");
-    context->CallLists = (PFNGLCALLLISTSPROC) load(userptr, "glCallLists");
     context->Clear = (PFNGLCLEARPROC) load(userptr, "glClear");
-    context->ClearAccum = (PFNGLCLEARACCUMPROC) load(userptr, "glClearAccum");
     context->ClearColor = (PFNGLCLEARCOLORPROC) load(userptr, "glClearColor");
     context->ClearDepth = (PFNGLCLEARDEPTHPROC) load(userptr, "glClearDepth");
-    context->ClearIndex = (PFNGLCLEARINDEXPROC) load(userptr, "glClearIndex");
     context->ClearStencil = (PFNGLCLEARSTENCILPROC) load(userptr, "glClearStencil");
-    context->ClipPlane = (PFNGLCLIPPLANEPROC) load(userptr, "glClipPlane");
-    context->Color3b = (PFNGLCOLOR3BPROC) load(userptr, "glColor3b");
-    context->Color3bv = (PFNGLCOLOR3BVPROC) load(userptr, "glColor3bv");
-    context->Color3d = (PFNGLCOLOR3DPROC) load(userptr, "glColor3d");
-    context->Color3dv = (PFNGLCOLOR3DVPROC) load(userptr, "glColor3dv");
-    context->Color3f = (PFNGLCOLOR3FPROC) load(userptr, "glColor3f");
-    context->Color3fv = (PFNGLCOLOR3FVPROC) load(userptr, "glColor3fv");
-    context->Color3i = (PFNGLCOLOR3IPROC) load(userptr, "glColor3i");
-    context->Color3iv = (PFNGLCOLOR3IVPROC) load(userptr, "glColor3iv");
-    context->Color3s = (PFNGLCOLOR3SPROC) load(userptr, "glColor3s");
-    context->Color3sv = (PFNGLCOLOR3SVPROC) load(userptr, "glColor3sv");
-    context->Color3ub = (PFNGLCOLOR3UBPROC) load(userptr, "glColor3ub");
-    context->Color3ubv = (PFNGLCOLOR3UBVPROC) load(userptr, "glColor3ubv");
-    context->Color3ui = (PFNGLCOLOR3UIPROC) load(userptr, "glColor3ui");
-    context->Color3uiv = (PFNGLCOLOR3UIVPROC) load(userptr, "glColor3uiv");
-    context->Color3us = (PFNGLCOLOR3USPROC) load(userptr, "glColor3us");
-    context->Color3usv = (PFNGLCOLOR3USVPROC) load(userptr, "glColor3usv");
-    context->Color4b = (PFNGLCOLOR4BPROC) load(userptr, "glColor4b");
-    context->Color4bv = (PFNGLCOLOR4BVPROC) load(userptr, "glColor4bv");
-    context->Color4d = (PFNGLCOLOR4DPROC) load(userptr, "glColor4d");
-    context->Color4dv = (PFNGLCOLOR4DVPROC) load(userptr, "glColor4dv");
-    context->Color4f = (PFNGLCOLOR4FPROC) load(userptr, "glColor4f");
-    context->Color4fv = (PFNGLCOLOR4FVPROC) load(userptr, "glColor4fv");
-    context->Color4i = (PFNGLCOLOR4IPROC) load(userptr, "glColor4i");
-    context->Color4iv = (PFNGLCOLOR4IVPROC) load(userptr, "glColor4iv");
-    context->Color4s = (PFNGLCOLOR4SPROC) load(userptr, "glColor4s");
-    context->Color4sv = (PFNGLCOLOR4SVPROC) load(userptr, "glColor4sv");
-    context->Color4ub = (PFNGLCOLOR4UBPROC) load(userptr, "glColor4ub");
-    context->Color4ubv = (PFNGLCOLOR4UBVPROC) load(userptr, "glColor4ubv");
-    context->Color4ui = (PFNGLCOLOR4UIPROC) load(userptr, "glColor4ui");
-    context->Color4uiv = (PFNGLCOLOR4UIVPROC) load(userptr, "glColor4uiv");
-    context->Color4us = (PFNGLCOLOR4USPROC) load(userptr, "glColor4us");
-    context->Color4usv = (PFNGLCOLOR4USVPROC) load(userptr, "glColor4usv");
     context->ColorMask = (PFNGLCOLORMASKPROC) load(userptr, "glColorMask");
-    context->ColorMaterial = (PFNGLCOLORMATERIALPROC) load(userptr, "glColorMaterial");
-    context->CopyPixels = (PFNGLCOPYPIXELSPROC) load(userptr, "glCopyPixels");
     context->CullFace = (PFNGLCULLFACEPROC) load(userptr, "glCullFace");
-    context->DeleteLists = (PFNGLDELETELISTSPROC) load(userptr, "glDeleteLists");
     context->DepthFunc = (PFNGLDEPTHFUNCPROC) load(userptr, "glDepthFunc");
     context->DepthMask = (PFNGLDEPTHMASKPROC) load(userptr, "glDepthMask");
     context->DepthRange = (PFNGLDEPTHRANGEPROC) load(userptr, "glDepthRange");
     context->Disable = (PFNGLDISABLEPROC) load(userptr, "glDisable");
     context->DrawBuffer = (PFNGLDRAWBUFFERPROC) load(userptr, "glDrawBuffer");
-    context->DrawPixels = (PFNGLDRAWPIXELSPROC) load(userptr, "glDrawPixels");
-    context->EdgeFlag = (PFNGLEDGEFLAGPROC) load(userptr, "glEdgeFlag");
-    context->EdgeFlagv = (PFNGLEDGEFLAGVPROC) load(userptr, "glEdgeFlagv");
     context->Enable = (PFNGLENABLEPROC) load(userptr, "glEnable");
-    context->End = (PFNGLENDPROC) load(userptr, "glEnd");
-    context->EndList = (PFNGLENDLISTPROC) load(userptr, "glEndList");
-    context->EvalCoord1d = (PFNGLEVALCOORD1DPROC) load(userptr, "glEvalCoord1d");
-    context->EvalCoord1dv = (PFNGLEVALCOORD1DVPROC) load(userptr, "glEvalCoord1dv");
-    context->EvalCoord1f = (PFNGLEVALCOORD1FPROC) load(userptr, "glEvalCoord1f");
-    context->EvalCoord1fv = (PFNGLEVALCOORD1FVPROC) load(userptr, "glEvalCoord1fv");
-    context->EvalCoord2d = (PFNGLEVALCOORD2DPROC) load(userptr, "glEvalCoord2d");
-    context->EvalCoord2dv = (PFNGLEVALCOORD2DVPROC) load(userptr, "glEvalCoord2dv");
-    context->EvalCoord2f = (PFNGLEVALCOORD2FPROC) load(userptr, "glEvalCoord2f");
-    context->EvalCoord2fv = (PFNGLEVALCOORD2FVPROC) load(userptr, "glEvalCoord2fv");
-    context->EvalMesh1 = (PFNGLEVALMESH1PROC) load(userptr, "glEvalMesh1");
-    context->EvalMesh2 = (PFNGLEVALMESH2PROC) load(userptr, "glEvalMesh2");
-    context->EvalPoint1 = (PFNGLEVALPOINT1PROC) load(userptr, "glEvalPoint1");
-    context->EvalPoint2 = (PFNGLEVALPOINT2PROC) load(userptr, "glEvalPoint2");
-    context->FeedbackBuffer = (PFNGLFEEDBACKBUFFERPROC) load(userptr, "glFeedbackBuffer");
     context->Finish = (PFNGLFINISHPROC) load(userptr, "glFinish");
     context->Flush = (PFNGLFLUSHPROC) load(userptr, "glFlush");
-    context->Fogf = (PFNGLFOGFPROC) load(userptr, "glFogf");
-    context->Fogfv = (PFNGLFOGFVPROC) load(userptr, "glFogfv");
-    context->Fogi = (PFNGLFOGIPROC) load(userptr, "glFogi");
-    context->Fogiv = (PFNGLFOGIVPROC) load(userptr, "glFogiv");
     context->FrontFace = (PFNGLFRONTFACEPROC) load(userptr, "glFrontFace");
-    context->Frustum = (PFNGLFRUSTUMPROC) load(userptr, "glFrustum");
-    context->GenLists = (PFNGLGENLISTSPROC) load(userptr, "glGenLists");
     context->GetBooleanv = (PFNGLGETBOOLEANVPROC) load(userptr, "glGetBooleanv");
-    context->GetClipPlane = (PFNGLGETCLIPPLANEPROC) load(userptr, "glGetClipPlane");
     context->GetDoublev = (PFNGLGETDOUBLEVPROC) load(userptr, "glGetDoublev");
     context->GetError = (PFNGLGETERRORPROC) load(userptr, "glGetError");
     context->GetFloatv = (PFNGLGETFLOATVPROC) load(userptr, "glGetFloatv");
     context->GetIntegerv = (PFNGLGETINTEGERVPROC) load(userptr, "glGetIntegerv");
-    context->GetLightfv = (PFNGLGETLIGHTFVPROC) load(userptr, "glGetLightfv");
-    context->GetLightiv = (PFNGLGETLIGHTIVPROC) load(userptr, "glGetLightiv");
-    context->GetMapdv = (PFNGLGETMAPDVPROC) load(userptr, "glGetMapdv");
-    context->GetMapfv = (PFNGLGETMAPFVPROC) load(userptr, "glGetMapfv");
-    context->GetMapiv = (PFNGLGETMAPIVPROC) load(userptr, "glGetMapiv");
-    context->GetMaterialfv = (PFNGLGETMATERIALFVPROC) load(userptr, "glGetMaterialfv");
-    context->GetMaterialiv = (PFNGLGETMATERIALIVPROC) load(userptr, "glGetMaterialiv");
-    context->GetPixelMapfv = (PFNGLGETPIXELMAPFVPROC) load(userptr, "glGetPixelMapfv");
-    context->GetPixelMapuiv = (PFNGLGETPIXELMAPUIVPROC) load(userptr, "glGetPixelMapuiv");
-    context->GetPixelMapusv = (PFNGLGETPIXELMAPUSVPROC) load(userptr, "glGetPixelMapusv");
-    context->GetPolygonStipple = (PFNGLGETPOLYGONSTIPPLEPROC) load(userptr, "glGetPolygonStipple");
     context->GetString = (PFNGLGETSTRINGPROC) load(userptr, "glGetString");
-    context->GetTexEnvfv = (PFNGLGETTEXENVFVPROC) load(userptr, "glGetTexEnvfv");
-    context->GetTexEnviv = (PFNGLGETTEXENVIVPROC) load(userptr, "glGetTexEnviv");
-    context->GetTexGendv = (PFNGLGETTEXGENDVPROC) load(userptr, "glGetTexGendv");
-    context->GetTexGenfv = (PFNGLGETTEXGENFVPROC) load(userptr, "glGetTexGenfv");
-    context->GetTexGeniv = (PFNGLGETTEXGENIVPROC) load(userptr, "glGetTexGeniv");
     context->GetTexImage = (PFNGLGETTEXIMAGEPROC) load(userptr, "glGetTexImage");
     context->GetTexLevelParameterfv = (PFNGLGETTEXLEVELPARAMETERFVPROC) load(userptr, "glGetTexLevelParameterfv");
     context->GetTexLevelParameteriv = (PFNGLGETTEXLEVELPARAMETERIVPROC) load(userptr, "glGetTexLevelParameteriv");
     context->GetTexParameterfv = (PFNGLGETTEXPARAMETERFVPROC) load(userptr, "glGetTexParameterfv");
     context->GetTexParameteriv = (PFNGLGETTEXPARAMETERIVPROC) load(userptr, "glGetTexParameteriv");
     context->Hint = (PFNGLHINTPROC) load(userptr, "glHint");
-    context->IndexMask = (PFNGLINDEXMASKPROC) load(userptr, "glIndexMask");
-    context->Indexd = (PFNGLINDEXDPROC) load(userptr, "glIndexd");
-    context->Indexdv = (PFNGLINDEXDVPROC) load(userptr, "glIndexdv");
-    context->Indexf = (PFNGLINDEXFPROC) load(userptr, "glIndexf");
-    context->Indexfv = (PFNGLINDEXFVPROC) load(userptr, "glIndexfv");
-    context->Indexi = (PFNGLINDEXIPROC) load(userptr, "glIndexi");
-    context->Indexiv = (PFNGLINDEXIVPROC) load(userptr, "glIndexiv");
-    context->Indexs = (PFNGLINDEXSPROC) load(userptr, "glIndexs");
-    context->Indexsv = (PFNGLINDEXSVPROC) load(userptr, "glIndexsv");
-    context->InitNames = (PFNGLINITNAMESPROC) load(userptr, "glInitNames");
     context->IsEnabled = (PFNGLISENABLEDPROC) load(userptr, "glIsEnabled");
-    context->IsList = (PFNGLISLISTPROC) load(userptr, "glIsList");
-    context->LightModelf = (PFNGLLIGHTMODELFPROC) load(userptr, "glLightModelf");
-    context->LightModelfv = (PFNGLLIGHTMODELFVPROC) load(userptr, "glLightModelfv");
-    context->LightModeli = (PFNGLLIGHTMODELIPROC) load(userptr, "glLightModeli");
-    context->LightModeliv = (PFNGLLIGHTMODELIVPROC) load(userptr, "glLightModeliv");
-    context->Lightf = (PFNGLLIGHTFPROC) load(userptr, "glLightf");
-    context->Lightfv = (PFNGLLIGHTFVPROC) load(userptr, "glLightfv");
-    context->Lighti = (PFNGLLIGHTIPROC) load(userptr, "glLighti");
-    context->Lightiv = (PFNGLLIGHTIVPROC) load(userptr, "glLightiv");
-    context->LineStipple = (PFNGLLINESTIPPLEPROC) load(userptr, "glLineStipple");
     context->LineWidth = (PFNGLLINEWIDTHPROC) load(userptr, "glLineWidth");
-    context->ListBase = (PFNGLLISTBASEPROC) load(userptr, "glListBase");
-    context->LoadIdentity = (PFNGLLOADIDENTITYPROC) load(userptr, "glLoadIdentity");
-    context->LoadMatrixd = (PFNGLLOADMATRIXDPROC) load(userptr, "glLoadMatrixd");
-    context->LoadMatrixf = (PFNGLLOADMATRIXFPROC) load(userptr, "glLoadMatrixf");
-    context->LoadName = (PFNGLLOADNAMEPROC) load(userptr, "glLoadName");
     context->LogicOp = (PFNGLLOGICOPPROC) load(userptr, "glLogicOp");
-    context->Map1d = (PFNGLMAP1DPROC) load(userptr, "glMap1d");
-    context->Map1f = (PFNGLMAP1FPROC) load(userptr, "glMap1f");
-    context->Map2d = (PFNGLMAP2DPROC) load(userptr, "glMap2d");
-    context->Map2f = (PFNGLMAP2FPROC) load(userptr, "glMap2f");
-    context->MapGrid1d = (PFNGLMAPGRID1DPROC) load(userptr, "glMapGrid1d");
-    context->MapGrid1f = (PFNGLMAPGRID1FPROC) load(userptr, "glMapGrid1f");
-    context->MapGrid2d = (PFNGLMAPGRID2DPROC) load(userptr, "glMapGrid2d");
-    context->MapGrid2f = (PFNGLMAPGRID2FPROC) load(userptr, "glMapGrid2f");
-    context->Materialf = (PFNGLMATERIALFPROC) load(userptr, "glMaterialf");
-    context->Materialfv = (PFNGLMATERIALFVPROC) load(userptr, "glMaterialfv");
-    context->Materiali = (PFNGLMATERIALIPROC) load(userptr, "glMateriali");
-    context->Materialiv = (PFNGLMATERIALIVPROC) load(userptr, "glMaterialiv");
-    context->MatrixMode = (PFNGLMATRIXMODEPROC) load(userptr, "glMatrixMode");
-    context->MultMatrixd = (PFNGLMULTMATRIXDPROC) load(userptr, "glMultMatrixd");
-    context->MultMatrixf = (PFNGLMULTMATRIXFPROC) load(userptr, "glMultMatrixf");
-    context->NewList = (PFNGLNEWLISTPROC) load(userptr, "glNewList");
-    context->Normal3b = (PFNGLNORMAL3BPROC) load(userptr, "glNormal3b");
-    context->Normal3bv = (PFNGLNORMAL3BVPROC) load(userptr, "glNormal3bv");
-    context->Normal3d = (PFNGLNORMAL3DPROC) load(userptr, "glNormal3d");
-    context->Normal3dv = (PFNGLNORMAL3DVPROC) load(userptr, "glNormal3dv");
-    context->Normal3f = (PFNGLNORMAL3FPROC) load(userptr, "glNormal3f");
-    context->Normal3fv = (PFNGLNORMAL3FVPROC) load(userptr, "glNormal3fv");
-    context->Normal3i = (PFNGLNORMAL3IPROC) load(userptr, "glNormal3i");
-    context->Normal3iv = (PFNGLNORMAL3IVPROC) load(userptr, "glNormal3iv");
-    context->Normal3s = (PFNGLNORMAL3SPROC) load(userptr, "glNormal3s");
-    context->Normal3sv = (PFNGLNORMAL3SVPROC) load(userptr, "glNormal3sv");
-    context->Ortho = (PFNGLORTHOPROC) load(userptr, "glOrtho");
-    context->PassThrough = (PFNGLPASSTHROUGHPROC) load(userptr, "glPassThrough");
-    context->PixelMapfv = (PFNGLPIXELMAPFVPROC) load(userptr, "glPixelMapfv");
-    context->PixelMapuiv = (PFNGLPIXELMAPUIVPROC) load(userptr, "glPixelMapuiv");
-    context->PixelMapusv = (PFNGLPIXELMAPUSVPROC) load(userptr, "glPixelMapusv");
     context->PixelStoref = (PFNGLPIXELSTOREFPROC) load(userptr, "glPixelStoref");
     context->PixelStorei = (PFNGLPIXELSTOREIPROC) load(userptr, "glPixelStorei");
-    context->PixelTransferf = (PFNGLPIXELTRANSFERFPROC) load(userptr, "glPixelTransferf");
-    context->PixelTransferi = (PFNGLPIXELTRANSFERIPROC) load(userptr, "glPixelTransferi");
-    context->PixelZoom = (PFNGLPIXELZOOMPROC) load(userptr, "glPixelZoom");
     context->PointSize = (PFNGLPOINTSIZEPROC) load(userptr, "glPointSize");
     context->PolygonMode = (PFNGLPOLYGONMODEPROC) load(userptr, "glPolygonMode");
-    context->PolygonStipple = (PFNGLPOLYGONSTIPPLEPROC) load(userptr, "glPolygonStipple");
-    context->PopAttrib = (PFNGLPOPATTRIBPROC) load(userptr, "glPopAttrib");
-    context->PopMatrix = (PFNGLPOPMATRIXPROC) load(userptr, "glPopMatrix");
-    context->PopName = (PFNGLPOPNAMEPROC) load(userptr, "glPopName");
-    context->PushAttrib = (PFNGLPUSHATTRIBPROC) load(userptr, "glPushAttrib");
-    context->PushMatrix = (PFNGLPUSHMATRIXPROC) load(userptr, "glPushMatrix");
-    context->PushName = (PFNGLPUSHNAMEPROC) load(userptr, "glPushName");
-    context->RasterPos2d = (PFNGLRASTERPOS2DPROC) load(userptr, "glRasterPos2d");
-    context->RasterPos2dv = (PFNGLRASTERPOS2DVPROC) load(userptr, "glRasterPos2dv");
-    context->RasterPos2f = (PFNGLRASTERPOS2FPROC) load(userptr, "glRasterPos2f");
-    context->RasterPos2fv = (PFNGLRASTERPOS2FVPROC) load(userptr, "glRasterPos2fv");
-    context->RasterPos2i = (PFNGLRASTERPOS2IPROC) load(userptr, "glRasterPos2i");
-    context->RasterPos2iv = (PFNGLRASTERPOS2IVPROC) load(userptr, "glRasterPos2iv");
-    context->RasterPos2s = (PFNGLRASTERPOS2SPROC) load(userptr, "glRasterPos2s");
-    context->RasterPos2sv = (PFNGLRASTERPOS2SVPROC) load(userptr, "glRasterPos2sv");
-    context->RasterPos3d = (PFNGLRASTERPOS3DPROC) load(userptr, "glRasterPos3d");
-    context->RasterPos3dv = (PFNGLRASTERPOS3DVPROC) load(userptr, "glRasterPos3dv");
-    context->RasterPos3f = (PFNGLRASTERPOS3FPROC) load(userptr, "glRasterPos3f");
-    context->RasterPos3fv = (PFNGLRASTERPOS3FVPROC) load(userptr, "glRasterPos3fv");
-    context->RasterPos3i = (PFNGLRASTERPOS3IPROC) load(userptr, "glRasterPos3i");
-    context->RasterPos3iv = (PFNGLRASTERPOS3IVPROC) load(userptr, "glRasterPos3iv");
-    context->RasterPos3s = (PFNGLRASTERPOS3SPROC) load(userptr, "glRasterPos3s");
-    context->RasterPos3sv = (PFNGLRASTERPOS3SVPROC) load(userptr, "glRasterPos3sv");
-    context->RasterPos4d = (PFNGLRASTERPOS4DPROC) load(userptr, "glRasterPos4d");
-    context->RasterPos4dv = (PFNGLRASTERPOS4DVPROC) load(userptr, "glRasterPos4dv");
-    context->RasterPos4f = (PFNGLRASTERPOS4FPROC) load(userptr, "glRasterPos4f");
-    context->RasterPos4fv = (PFNGLRASTERPOS4FVPROC) load(userptr, "glRasterPos4fv");
-    context->RasterPos4i = (PFNGLRASTERPOS4IPROC) load(userptr, "glRasterPos4i");
-    context->RasterPos4iv = (PFNGLRASTERPOS4IVPROC) load(userptr, "glRasterPos4iv");
-    context->RasterPos4s = (PFNGLRASTERPOS4SPROC) load(userptr, "glRasterPos4s");
-    context->RasterPos4sv = (PFNGLRASTERPOS4SVPROC) load(userptr, "glRasterPos4sv");
     context->ReadBuffer = (PFNGLREADBUFFERPROC) load(userptr, "glReadBuffer");
     context->ReadPixels = (PFNGLREADPIXELSPROC) load(userptr, "glReadPixels");
-    context->Rectd = (PFNGLRECTDPROC) load(userptr, "glRectd");
-    context->Rectdv = (PFNGLRECTDVPROC) load(userptr, "glRectdv");
-    context->Rectf = (PFNGLRECTFPROC) load(userptr, "glRectf");
-    context->Rectfv = (PFNGLRECTFVPROC) load(userptr, "glRectfv");
-    context->Recti = (PFNGLRECTIPROC) load(userptr, "glRecti");
-    context->Rectiv = (PFNGLRECTIVPROC) load(userptr, "glRectiv");
-    context->Rects = (PFNGLRECTSPROC) load(userptr, "glRects");
-    context->Rectsv = (PFNGLRECTSVPROC) load(userptr, "glRectsv");
-    context->RenderMode = (PFNGLRENDERMODEPROC) load(userptr, "glRenderMode");
-    context->Rotated = (PFNGLROTATEDPROC) load(userptr, "glRotated");
-    context->Rotatef = (PFNGLROTATEFPROC) load(userptr, "glRotatef");
-    context->Scaled = (PFNGLSCALEDPROC) load(userptr, "glScaled");
-    context->Scalef = (PFNGLSCALEFPROC) load(userptr, "glScalef");
     context->Scissor = (PFNGLSCISSORPROC) load(userptr, "glScissor");
-    context->SelectBuffer = (PFNGLSELECTBUFFERPROC) load(userptr, "glSelectBuffer");
-    context->ShadeModel = (PFNGLSHADEMODELPROC) load(userptr, "glShadeModel");
     context->StencilFunc = (PFNGLSTENCILFUNCPROC) load(userptr, "glStencilFunc");
     context->StencilMask = (PFNGLSTENCILMASKPROC) load(userptr, "glStencilMask");
     context->StencilOp = (PFNGLSTENCILOPPROC) load(userptr, "glStencilOp");
-    context->TexCoord1d = (PFNGLTEXCOORD1DPROC) load(userptr, "glTexCoord1d");
-    context->TexCoord1dv = (PFNGLTEXCOORD1DVPROC) load(userptr, "glTexCoord1dv");
-    context->TexCoord1f = (PFNGLTEXCOORD1FPROC) load(userptr, "glTexCoord1f");
-    context->TexCoord1fv = (PFNGLTEXCOORD1FVPROC) load(userptr, "glTexCoord1fv");
-    context->TexCoord1i = (PFNGLTEXCOORD1IPROC) load(userptr, "glTexCoord1i");
-    context->TexCoord1iv = (PFNGLTEXCOORD1IVPROC) load(userptr, "glTexCoord1iv");
-    context->TexCoord1s = (PFNGLTEXCOORD1SPROC) load(userptr, "glTexCoord1s");
-    context->TexCoord1sv = (PFNGLTEXCOORD1SVPROC) load(userptr, "glTexCoord1sv");
-    context->TexCoord2d = (PFNGLTEXCOORD2DPROC) load(userptr, "glTexCoord2d");
-    context->TexCoord2dv = (PFNGLTEXCOORD2DVPROC) load(userptr, "glTexCoord2dv");
-    context->TexCoord2f = (PFNGLTEXCOORD2FPROC) load(userptr, "glTexCoord2f");
-    context->TexCoord2fv = (PFNGLTEXCOORD2FVPROC) load(userptr, "glTexCoord2fv");
-    context->TexCoord2i = (PFNGLTEXCOORD2IPROC) load(userptr, "glTexCoord2i");
-    context->TexCoord2iv = (PFNGLTEXCOORD2IVPROC) load(userptr, "glTexCoord2iv");
-    context->TexCoord2s = (PFNGLTEXCOORD2SPROC) load(userptr, "glTexCoord2s");
-    context->TexCoord2sv = (PFNGLTEXCOORD2SVPROC) load(userptr, "glTexCoord2sv");
-    context->TexCoord3d = (PFNGLTEXCOORD3DPROC) load(userptr, "glTexCoord3d");
-    context->TexCoord3dv = (PFNGLTEXCOORD3DVPROC) load(userptr, "glTexCoord3dv");
-    context->TexCoord3f = (PFNGLTEXCOORD3FPROC) load(userptr, "glTexCoord3f");
-    context->TexCoord3fv = (PFNGLTEXCOORD3FVPROC) load(userptr, "glTexCoord3fv");
-    context->TexCoord3i = (PFNGLTEXCOORD3IPROC) load(userptr, "glTexCoord3i");
-    context->TexCoord3iv = (PFNGLTEXCOORD3IVPROC) load(userptr, "glTexCoord3iv");
-    context->TexCoord3s = (PFNGLTEXCOORD3SPROC) load(userptr, "glTexCoord3s");
-    context->TexCoord3sv = (PFNGLTEXCOORD3SVPROC) load(userptr, "glTexCoord3sv");
-    context->TexCoord4d = (PFNGLTEXCOORD4DPROC) load(userptr, "glTexCoord4d");
-    context->TexCoord4dv = (PFNGLTEXCOORD4DVPROC) load(userptr, "glTexCoord4dv");
-    context->TexCoord4f = (PFNGLTEXCOORD4FPROC) load(userptr, "glTexCoord4f");
-    context->TexCoord4fv = (PFNGLTEXCOORD4FVPROC) load(userptr, "glTexCoord4fv");
-    context->TexCoord4i = (PFNGLTEXCOORD4IPROC) load(userptr, "glTexCoord4i");
-    context->TexCoord4iv = (PFNGLTEXCOORD4IVPROC) load(userptr, "glTexCoord4iv");
-    context->TexCoord4s = (PFNGLTEXCOORD4SPROC) load(userptr, "glTexCoord4s");
-    context->TexCoord4sv = (PFNGLTEXCOORD4SVPROC) load(userptr, "glTexCoord4sv");
-    context->TexEnvf = (PFNGLTEXENVFPROC) load(userptr, "glTexEnvf");
-    context->TexEnvfv = (PFNGLTEXENVFVPROC) load(userptr, "glTexEnvfv");
-    context->TexEnvi = (PFNGLTEXENVIPROC) load(userptr, "glTexEnvi");
-    context->TexEnviv = (PFNGLTEXENVIVPROC) load(userptr, "glTexEnviv");
-    context->TexGend = (PFNGLTEXGENDPROC) load(userptr, "glTexGend");
-    context->TexGendv = (PFNGLTEXGENDVPROC) load(userptr, "glTexGendv");
-    context->TexGenf = (PFNGLTEXGENFPROC) load(userptr, "glTexGenf");
-    context->TexGenfv = (PFNGLTEXGENFVPROC) load(userptr, "glTexGenfv");
-    context->TexGeni = (PFNGLTEXGENIPROC) load(userptr, "glTexGeni");
-    context->TexGeniv = (PFNGLTEXGENIVPROC) load(userptr, "glTexGeniv");
     context->TexImage1D = (PFNGLTEXIMAGE1DPROC) load(userptr, "glTexImage1D");
     context->TexImage2D = (PFNGLTEXIMAGE2DPROC) load(userptr, "glTexImage2D");
     context->TexParameterf = (PFNGLTEXPARAMETERFPROC) load(userptr, "glTexParameterf");
     context->TexParameterfv = (PFNGLTEXPARAMETERFVPROC) load(userptr, "glTexParameterfv");
     context->TexParameteri = (PFNGLTEXPARAMETERIPROC) load(userptr, "glTexParameteri");
     context->TexParameteriv = (PFNGLTEXPARAMETERIVPROC) load(userptr, "glTexParameteriv");
-    context->Translated = (PFNGLTRANSLATEDPROC) load(userptr, "glTranslated");
-    context->Translatef = (PFNGLTRANSLATEFPROC) load(userptr, "glTranslatef");
-    context->Vertex2d = (PFNGLVERTEX2DPROC) load(userptr, "glVertex2d");
-    context->Vertex2dv = (PFNGLVERTEX2DVPROC) load(userptr, "glVertex2dv");
-    context->Vertex2f = (PFNGLVERTEX2FPROC) load(userptr, "glVertex2f");
-    context->Vertex2fv = (PFNGLVERTEX2FVPROC) load(userptr, "glVertex2fv");
-    context->Vertex2i = (PFNGLVERTEX2IPROC) load(userptr, "glVertex2i");
-    context->Vertex2iv = (PFNGLVERTEX2IVPROC) load(userptr, "glVertex2iv");
-    context->Vertex2s = (PFNGLVERTEX2SPROC) load(userptr, "glVertex2s");
-    context->Vertex2sv = (PFNGLVERTEX2SVPROC) load(userptr, "glVertex2sv");
-    context->Vertex3d = (PFNGLVERTEX3DPROC) load(userptr, "glVertex3d");
-    context->Vertex3dv = (PFNGLVERTEX3DVPROC) load(userptr, "glVertex3dv");
-    context->Vertex3f = (PFNGLVERTEX3FPROC) load(userptr, "glVertex3f");
-    context->Vertex3fv = (PFNGLVERTEX3FVPROC) load(userptr, "glVertex3fv");
-    context->Vertex3i = (PFNGLVERTEX3IPROC) load(userptr, "glVertex3i");
-    context->Vertex3iv = (PFNGLVERTEX3IVPROC) load(userptr, "glVertex3iv");
-    context->Vertex3s = (PFNGLVERTEX3SPROC) load(userptr, "glVertex3s");
-    context->Vertex3sv = (PFNGLVERTEX3SVPROC) load(userptr, "glVertex3sv");
-    context->Vertex4d = (PFNGLVERTEX4DPROC) load(userptr, "glVertex4d");
-    context->Vertex4dv = (PFNGLVERTEX4DVPROC) load(userptr, "glVertex4dv");
-    context->Vertex4f = (PFNGLVERTEX4FPROC) load(userptr, "glVertex4f");
-    context->Vertex4fv = (PFNGLVERTEX4FVPROC) load(userptr, "glVertex4fv");
-    context->Vertex4i = (PFNGLVERTEX4IPROC) load(userptr, "glVertex4i");
-    context->Vertex4iv = (PFNGLVERTEX4IVPROC) load(userptr, "glVertex4iv");
-    context->Vertex4s = (PFNGLVERTEX4SPROC) load(userptr, "glVertex4s");
-    context->Vertex4sv = (PFNGLVERTEX4SVPROC) load(userptr, "glVertex4sv");
     context->Viewport = (PFNGLVIEWPORTPROC) load(userptr, "glViewport");
 }
 static void glad_gl_load_GL_VERSION_1_1(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
     if(!context->VERSION_1_1) return;
-    context->AreTexturesResident = (PFNGLARETEXTURESRESIDENTPROC) load(userptr, "glAreTexturesResident");
-    context->ArrayElement = (PFNGLARRAYELEMENTPROC) load(userptr, "glArrayElement");
     context->BindTexture = (PFNGLBINDTEXTUREPROC) load(userptr, "glBindTexture");
-    context->ColorPointer = (PFNGLCOLORPOINTERPROC) load(userptr, "glColorPointer");
     context->CopyTexImage1D = (PFNGLCOPYTEXIMAGE1DPROC) load(userptr, "glCopyTexImage1D");
     context->CopyTexImage2D = (PFNGLCOPYTEXIMAGE2DPROC) load(userptr, "glCopyTexImage2D");
     context->CopyTexSubImage1D = (PFNGLCOPYTEXSUBIMAGE1DPROC) load(userptr, "glCopyTexSubImage1D");
     context->CopyTexSubImage2D = (PFNGLCOPYTEXSUBIMAGE2DPROC) load(userptr, "glCopyTexSubImage2D");
     context->DeleteTextures = (PFNGLDELETETEXTURESPROC) load(userptr, "glDeleteTextures");
-    context->DisableClientState = (PFNGLDISABLECLIENTSTATEPROC) load(userptr, "glDisableClientState");
     context->DrawArrays = (PFNGLDRAWARRAYSPROC) load(userptr, "glDrawArrays");
     context->DrawElements = (PFNGLDRAWELEMENTSPROC) load(userptr, "glDrawElements");
-    context->EdgeFlagPointer = (PFNGLEDGEFLAGPOINTERPROC) load(userptr, "glEdgeFlagPointer");
-    context->EnableClientState = (PFNGLENABLECLIENTSTATEPROC) load(userptr, "glEnableClientState");
     context->GenTextures = (PFNGLGENTEXTURESPROC) load(userptr, "glGenTextures");
     context->GetPointerv = (PFNGLGETPOINTERVPROC) load(userptr, "glGetPointerv");
-    context->IndexPointer = (PFNGLINDEXPOINTERPROC) load(userptr, "glIndexPointer");
-    context->Indexub = (PFNGLINDEXUBPROC) load(userptr, "glIndexub");
-    context->Indexubv = (PFNGLINDEXUBVPROC) load(userptr, "glIndexubv");
-    context->InterleavedArrays = (PFNGLINTERLEAVEDARRAYSPROC) load(userptr, "glInterleavedArrays");
     context->IsTexture = (PFNGLISTEXTUREPROC) load(userptr, "glIsTexture");
-    context->NormalPointer = (PFNGLNORMALPOINTERPROC) load(userptr, "glNormalPointer");
     context->PolygonOffset = (PFNGLPOLYGONOFFSETPROC) load(userptr, "glPolygonOffset");
-    context->PopClientAttrib = (PFNGLPOPCLIENTATTRIBPROC) load(userptr, "glPopClientAttrib");
-    context->PrioritizeTextures = (PFNGLPRIORITIZETEXTURESPROC) load(userptr, "glPrioritizeTextures");
-    context->PushClientAttrib = (PFNGLPUSHCLIENTATTRIBPROC) load(userptr, "glPushClientAttrib");
-    context->TexCoordPointer = (PFNGLTEXCOORDPOINTERPROC) load(userptr, "glTexCoordPointer");
     context->TexSubImage1D = (PFNGLTEXSUBIMAGE1DPROC) load(userptr, "glTexSubImage1D");
     context->TexSubImage2D = (PFNGLTEXSUBIMAGE2DPROC) load(userptr, "glTexSubImage2D");
-    context->VertexPointer = (PFNGLVERTEXPOINTERPROC) load(userptr, "glVertexPointer");
 }
 static void glad_gl_load_GL_VERSION_1_2(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
     if(!context->VERSION_1_2) return;
@@ -380,7 +106,6 @@ static void glad_gl_load_GL_VERSION_1_2(GladGLContext *context, GLADuserptrloadf
 static void glad_gl_load_GL_VERSION_1_3(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
     if(!context->VERSION_1_3) return;
     context->ActiveTexture = (PFNGLACTIVETEXTUREPROC) load(userptr, "glActiveTexture");
-    context->ClientActiveTexture = (PFNGLCLIENTACTIVETEXTUREPROC) load(userptr, "glClientActiveTexture");
     context->CompressedTexImage1D = (PFNGLCOMPRESSEDTEXIMAGE1DPROC) load(userptr, "glCompressedTexImage1D");
     context->CompressedTexImage2D = (PFNGLCOMPRESSEDTEXIMAGE2DPROC) load(userptr, "glCompressedTexImage2D");
     context->CompressedTexImage3D = (PFNGLCOMPRESSEDTEXIMAGE3DPROC) load(userptr, "glCompressedTexImage3D");
@@ -388,42 +113,6 @@ static void glad_gl_load_GL_VERSION_1_3(GladGLContext *context, GLADuserptrloadf
     context->CompressedTexSubImage2D = (PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC) load(userptr, "glCompressedTexSubImage2D");
     context->CompressedTexSubImage3D = (PFNGLCOMPRESSEDTEXSUBIMAGE3DPROC) load(userptr, "glCompressedTexSubImage3D");
     context->GetCompressedTexImage = (PFNGLGETCOMPRESSEDTEXIMAGEPROC) load(userptr, "glGetCompressedTexImage");
-    context->LoadTransposeMatrixd = (PFNGLLOADTRANSPOSEMATRIXDPROC) load(userptr, "glLoadTransposeMatrixd");
-    context->LoadTransposeMatrixf = (PFNGLLOADTRANSPOSEMATRIXFPROC) load(userptr, "glLoadTransposeMatrixf");
-    context->MultTransposeMatrixd = (PFNGLMULTTRANSPOSEMATRIXDPROC) load(userptr, "glMultTransposeMatrixd");
-    context->MultTransposeMatrixf = (PFNGLMULTTRANSPOSEMATRIXFPROC) load(userptr, "glMultTransposeMatrixf");
-    context->MultiTexCoord1d = (PFNGLMULTITEXCOORD1DPROC) load(userptr, "glMultiTexCoord1d");
-    context->MultiTexCoord1dv = (PFNGLMULTITEXCOORD1DVPROC) load(userptr, "glMultiTexCoord1dv");
-    context->MultiTexCoord1f = (PFNGLMULTITEXCOORD1FPROC) load(userptr, "glMultiTexCoord1f");
-    context->MultiTexCoord1fv = (PFNGLMULTITEXCOORD1FVPROC) load(userptr, "glMultiTexCoord1fv");
-    context->MultiTexCoord1i = (PFNGLMULTITEXCOORD1IPROC) load(userptr, "glMultiTexCoord1i");
-    context->MultiTexCoord1iv = (PFNGLMULTITEXCOORD1IVPROC) load(userptr, "glMultiTexCoord1iv");
-    context->MultiTexCoord1s = (PFNGLMULTITEXCOORD1SPROC) load(userptr, "glMultiTexCoord1s");
-    context->MultiTexCoord1sv = (PFNGLMULTITEXCOORD1SVPROC) load(userptr, "glMultiTexCoord1sv");
-    context->MultiTexCoord2d = (PFNGLMULTITEXCOORD2DPROC) load(userptr, "glMultiTexCoord2d");
-    context->MultiTexCoord2dv = (PFNGLMULTITEXCOORD2DVPROC) load(userptr, "glMultiTexCoord2dv");
-    context->MultiTexCoord2f = (PFNGLMULTITEXCOORD2FPROC) load(userptr, "glMultiTexCoord2f");
-    context->MultiTexCoord2fv = (PFNGLMULTITEXCOORD2FVPROC) load(userptr, "glMultiTexCoord2fv");
-    context->MultiTexCoord2i = (PFNGLMULTITEXCOORD2IPROC) load(userptr, "glMultiTexCoord2i");
-    context->MultiTexCoord2iv = (PFNGLMULTITEXCOORD2IVPROC) load(userptr, "glMultiTexCoord2iv");
-    context->MultiTexCoord2s = (PFNGLMULTITEXCOORD2SPROC) load(userptr, "glMultiTexCoord2s");
-    context->MultiTexCoord2sv = (PFNGLMULTITEXCOORD2SVPROC) load(userptr, "glMultiTexCoord2sv");
-    context->MultiTexCoord3d = (PFNGLMULTITEXCOORD3DPROC) load(userptr, "glMultiTexCoord3d");
-    context->MultiTexCoord3dv = (PFNGLMULTITEXCOORD3DVPROC) load(userptr, "glMultiTexCoord3dv");
-    context->MultiTexCoord3f = (PFNGLMULTITEXCOORD3FPROC) load(userptr, "glMultiTexCoord3f");
-    context->MultiTexCoord3fv = (PFNGLMULTITEXCOORD3FVPROC) load(userptr, "glMultiTexCoord3fv");
-    context->MultiTexCoord3i = (PFNGLMULTITEXCOORD3IPROC) load(userptr, "glMultiTexCoord3i");
-    context->MultiTexCoord3iv = (PFNGLMULTITEXCOORD3IVPROC) load(userptr, "glMultiTexCoord3iv");
-    context->MultiTexCoord3s = (PFNGLMULTITEXCOORD3SPROC) load(userptr, "glMultiTexCoord3s");
-    context->MultiTexCoord3sv = (PFNGLMULTITEXCOORD3SVPROC) load(userptr, "glMultiTexCoord3sv");
-    context->MultiTexCoord4d = (PFNGLMULTITEXCOORD4DPROC) load(userptr, "glMultiTexCoord4d");
-    context->MultiTexCoord4dv = (PFNGLMULTITEXCOORD4DVPROC) load(userptr, "glMultiTexCoord4dv");
-    context->MultiTexCoord4f = (PFNGLMULTITEXCOORD4FPROC) load(userptr, "glMultiTexCoord4f");
-    context->MultiTexCoord4fv = (PFNGLMULTITEXCOORD4FVPROC) load(userptr, "glMultiTexCoord4fv");
-    context->MultiTexCoord4i = (PFNGLMULTITEXCOORD4IPROC) load(userptr, "glMultiTexCoord4i");
-    context->MultiTexCoord4iv = (PFNGLMULTITEXCOORD4IVPROC) load(userptr, "glMultiTexCoord4iv");
-    context->MultiTexCoord4s = (PFNGLMULTITEXCOORD4SPROC) load(userptr, "glMultiTexCoord4s");
-    context->MultiTexCoord4sv = (PFNGLMULTITEXCOORD4SVPROC) load(userptr, "glMultiTexCoord4sv");
     context->SampleCoverage = (PFNGLSAMPLECOVERAGEPROC) load(userptr, "glSampleCoverage");
 }
 static void glad_gl_load_GL_VERSION_1_4(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
@@ -431,50 +120,12 @@ static void glad_gl_load_GL_VERSION_1_4(GladGLContext *context, GLADuserptrloadf
     context->BlendColor = (PFNGLBLENDCOLORPROC) load(userptr, "glBlendColor");
     context->BlendEquation = (PFNGLBLENDEQUATIONPROC) load(userptr, "glBlendEquation");
     context->BlendFuncSeparate = (PFNGLBLENDFUNCSEPARATEPROC) load(userptr, "glBlendFuncSeparate");
-    context->FogCoordPointer = (PFNGLFOGCOORDPOINTERPROC) load(userptr, "glFogCoordPointer");
-    context->FogCoordd = (PFNGLFOGCOORDDPROC) load(userptr, "glFogCoordd");
-    context->FogCoorddv = (PFNGLFOGCOORDDVPROC) load(userptr, "glFogCoorddv");
-    context->FogCoordf = (PFNGLFOGCOORDFPROC) load(userptr, "glFogCoordf");
-    context->FogCoordfv = (PFNGLFOGCOORDFVPROC) load(userptr, "glFogCoordfv");
     context->MultiDrawArrays = (PFNGLMULTIDRAWARRAYSPROC) load(userptr, "glMultiDrawArrays");
     context->MultiDrawElements = (PFNGLMULTIDRAWELEMENTSPROC) load(userptr, "glMultiDrawElements");
     context->PointParameterf = (PFNGLPOINTPARAMETERFPROC) load(userptr, "glPointParameterf");
     context->PointParameterfv = (PFNGLPOINTPARAMETERFVPROC) load(userptr, "glPointParameterfv");
     context->PointParameteri = (PFNGLPOINTPARAMETERIPROC) load(userptr, "glPointParameteri");
     context->PointParameteriv = (PFNGLPOINTPARAMETERIVPROC) load(userptr, "glPointParameteriv");
-    context->SecondaryColor3b = (PFNGLSECONDARYCOLOR3BPROC) load(userptr, "glSecondaryColor3b");
-    context->SecondaryColor3bv = (PFNGLSECONDARYCOLOR3BVPROC) load(userptr, "glSecondaryColor3bv");
-    context->SecondaryColor3d = (PFNGLSECONDARYCOLOR3DPROC) load(userptr, "glSecondaryColor3d");
-    context->SecondaryColor3dv = (PFNGLSECONDARYCOLOR3DVPROC) load(userptr, "glSecondaryColor3dv");
-    context->SecondaryColor3f = (PFNGLSECONDARYCOLOR3FPROC) load(userptr, "glSecondaryColor3f");
-    context->SecondaryColor3fv = (PFNGLSECONDARYCOLOR3FVPROC) load(userptr, "glSecondaryColor3fv");
-    context->SecondaryColor3i = (PFNGLSECONDARYCOLOR3IPROC) load(userptr, "glSecondaryColor3i");
-    context->SecondaryColor3iv = (PFNGLSECONDARYCOLOR3IVPROC) load(userptr, "glSecondaryColor3iv");
-    context->SecondaryColor3s = (PFNGLSECONDARYCOLOR3SPROC) load(userptr, "glSecondaryColor3s");
-    context->SecondaryColor3sv = (PFNGLSECONDARYCOLOR3SVPROC) load(userptr, "glSecondaryColor3sv");
-    context->SecondaryColor3ub = (PFNGLSECONDARYCOLOR3UBPROC) load(userptr, "glSecondaryColor3ub");
-    context->SecondaryColor3ubv = (PFNGLSECONDARYCOLOR3UBVPROC) load(userptr, "glSecondaryColor3ubv");
-    context->SecondaryColor3ui = (PFNGLSECONDARYCOLOR3UIPROC) load(userptr, "glSecondaryColor3ui");
-    context->SecondaryColor3uiv = (PFNGLSECONDARYCOLOR3UIVPROC) load(userptr, "glSecondaryColor3uiv");
-    context->SecondaryColor3us = (PFNGLSECONDARYCOLOR3USPROC) load(userptr, "glSecondaryColor3us");
-    context->SecondaryColor3usv = (PFNGLSECONDARYCOLOR3USVPROC) load(userptr, "glSecondaryColor3usv");
-    context->SecondaryColorPointer = (PFNGLSECONDARYCOLORPOINTERPROC) load(userptr, "glSecondaryColorPointer");
-    context->WindowPos2d = (PFNGLWINDOWPOS2DPROC) load(userptr, "glWindowPos2d");
-    context->WindowPos2dv = (PFNGLWINDOWPOS2DVPROC) load(userptr, "glWindowPos2dv");
-    context->WindowPos2f = (PFNGLWINDOWPOS2FPROC) load(userptr, "glWindowPos2f");
-    context->WindowPos2fv = (PFNGLWINDOWPOS2FVPROC) load(userptr, "glWindowPos2fv");
-    context->WindowPos2i = (PFNGLWINDOWPOS2IPROC) load(userptr, "glWindowPos2i");
-    context->WindowPos2iv = (PFNGLWINDOWPOS2IVPROC) load(userptr, "glWindowPos2iv");
-    context->WindowPos2s = (PFNGLWINDOWPOS2SPROC) load(userptr, "glWindowPos2s");
-    context->WindowPos2sv = (PFNGLWINDOWPOS2SVPROC) load(userptr, "glWindowPos2sv");
-    context->WindowPos3d = (PFNGLWINDOWPOS3DPROC) load(userptr, "glWindowPos3d");
-    context->WindowPos3dv = (PFNGLWINDOWPOS3DVPROC) load(userptr, "glWindowPos3dv");
-    context->WindowPos3f = (PFNGLWINDOWPOS3FPROC) load(userptr, "glWindowPos3f");
-    context->WindowPos3fv = (PFNGLWINDOWPOS3FVPROC) load(userptr, "glWindowPos3fv");
-    context->WindowPos3i = (PFNGLWINDOWPOS3IPROC) load(userptr, "glWindowPos3i");
-    context->WindowPos3iv = (PFNGLWINDOWPOS3IVPROC) load(userptr, "glWindowPos3iv");
-    context->WindowPos3s = (PFNGLWINDOWPOS3SPROC) load(userptr, "glWindowPos3s");
-    context->WindowPos3sv = (PFNGLWINDOWPOS3SVPROC) load(userptr, "glWindowPos3sv");
 }
 static void glad_gl_load_GL_VERSION_1_5(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
     if(!context->VERSION_1_5) return;
@@ -734,10 +385,6 @@ static void glad_gl_load_GL_VERSION_3_3(GladGLContext *context, GLADuserptrloadf
     if(!context->VERSION_3_3) return;
     context->BindFragDataLocationIndexed = (PFNGLBINDFRAGDATALOCATIONINDEXEDPROC) load(userptr, "glBindFragDataLocationIndexed");
     context->BindSampler = (PFNGLBINDSAMPLERPROC) load(userptr, "glBindSampler");
-    context->ColorP3ui = (PFNGLCOLORP3UIPROC) load(userptr, "glColorP3ui");
-    context->ColorP3uiv = (PFNGLCOLORP3UIVPROC) load(userptr, "glColorP3uiv");
-    context->ColorP4ui = (PFNGLCOLORP4UIPROC) load(userptr, "glColorP4ui");
-    context->ColorP4uiv = (PFNGLCOLORP4UIVPROC) load(userptr, "glColorP4uiv");
     context->DeleteSamplers = (PFNGLDELETESAMPLERSPROC) load(userptr, "glDeleteSamplers");
     context->GenSamplers = (PFNGLGENSAMPLERSPROC) load(userptr, "glGenSamplers");
     context->GetFragDataIndex = (PFNGLGETFRAGDATAINDEXPROC) load(userptr, "glGetFragDataIndex");
@@ -748,16 +395,6 @@ static void glad_gl_load_GL_VERSION_3_3(GladGLContext *context, GLADuserptrloadf
     context->GetSamplerParameterfv = (PFNGLGETSAMPLERPARAMETERFVPROC) load(userptr, "glGetSamplerParameterfv");
     context->GetSamplerParameteriv = (PFNGLGETSAMPLERPARAMETERIVPROC) load(userptr, "glGetSamplerParameteriv");
     context->IsSampler = (PFNGLISSAMPLERPROC) load(userptr, "glIsSampler");
-    context->MultiTexCoordP1ui = (PFNGLMULTITEXCOORDP1UIPROC) load(userptr, "glMultiTexCoordP1ui");
-    context->MultiTexCoordP1uiv = (PFNGLMULTITEXCOORDP1UIVPROC) load(userptr, "glMultiTexCoordP1uiv");
-    context->MultiTexCoordP2ui = (PFNGLMULTITEXCOORDP2UIPROC) load(userptr, "glMultiTexCoordP2ui");
-    context->MultiTexCoordP2uiv = (PFNGLMULTITEXCOORDP2UIVPROC) load(userptr, "glMultiTexCoordP2uiv");
-    context->MultiTexCoordP3ui = (PFNGLMULTITEXCOORDP3UIPROC) load(userptr, "glMultiTexCoordP3ui");
-    context->MultiTexCoordP3uiv = (PFNGLMULTITEXCOORDP3UIVPROC) load(userptr, "glMultiTexCoordP3uiv");
-    context->MultiTexCoordP4ui = (PFNGLMULTITEXCOORDP4UIPROC) load(userptr, "glMultiTexCoordP4ui");
-    context->MultiTexCoordP4uiv = (PFNGLMULTITEXCOORDP4UIVPROC) load(userptr, "glMultiTexCoordP4uiv");
-    context->NormalP3ui = (PFNGLNORMALP3UIPROC) load(userptr, "glNormalP3ui");
-    context->NormalP3uiv = (PFNGLNORMALP3UIVPROC) load(userptr, "glNormalP3uiv");
     context->QueryCounter = (PFNGLQUERYCOUNTERPROC) load(userptr, "glQueryCounter");
     context->SamplerParameterIiv = (PFNGLSAMPLERPARAMETERIIVPROC) load(userptr, "glSamplerParameterIiv");
     context->SamplerParameterIuiv = (PFNGLSAMPLERPARAMETERIUIVPROC) load(userptr, "glSamplerParameterIuiv");
@@ -765,16 +402,6 @@ static void glad_gl_load_GL_VERSION_3_3(GladGLContext *context, GLADuserptrloadf
     context->SamplerParameterfv = (PFNGLSAMPLERPARAMETERFVPROC) load(userptr, "glSamplerParameterfv");
     context->SamplerParameteri = (PFNGLSAMPLERPARAMETERIPROC) load(userptr, "glSamplerParameteri");
     context->SamplerParameteriv = (PFNGLSAMPLERPARAMETERIVPROC) load(userptr, "glSamplerParameteriv");
-    context->SecondaryColorP3ui = (PFNGLSECONDARYCOLORP3UIPROC) load(userptr, "glSecondaryColorP3ui");
-    context->SecondaryColorP3uiv = (PFNGLSECONDARYCOLORP3UIVPROC) load(userptr, "glSecondaryColorP3uiv");
-    context->TexCoordP1ui = (PFNGLTEXCOORDP1UIPROC) load(userptr, "glTexCoordP1ui");
-    context->TexCoordP1uiv = (PFNGLTEXCOORDP1UIVPROC) load(userptr, "glTexCoordP1uiv");
-    context->TexCoordP2ui = (PFNGLTEXCOORDP2UIPROC) load(userptr, "glTexCoordP2ui");
-    context->TexCoordP2uiv = (PFNGLTEXCOORDP2UIVPROC) load(userptr, "glTexCoordP2uiv");
-    context->TexCoordP3ui = (PFNGLTEXCOORDP3UIPROC) load(userptr, "glTexCoordP3ui");
-    context->TexCoordP3uiv = (PFNGLTEXCOORDP3UIVPROC) load(userptr, "glTexCoordP3uiv");
-    context->TexCoordP4ui = (PFNGLTEXCOORDP4UIPROC) load(userptr, "glTexCoordP4ui");
-    context->TexCoordP4uiv = (PFNGLTEXCOORDP4UIVPROC) load(userptr, "glTexCoordP4uiv");
     context->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC) load(userptr, "glVertexAttribDivisor");
     context->VertexAttribP1ui = (PFNGLVERTEXATTRIBP1UIPROC) load(userptr, "glVertexAttribP1ui");
     context->VertexAttribP1uiv = (PFNGLVERTEXATTRIBP1UIVPROC) load(userptr, "glVertexAttribP1uiv");
@@ -784,12 +411,6 @@ static void glad_gl_load_GL_VERSION_3_3(GladGLContext *context, GLADuserptrloadf
     context->VertexAttribP3uiv = (PFNGLVERTEXATTRIBP3UIVPROC) load(userptr, "glVertexAttribP3uiv");
     context->VertexAttribP4ui = (PFNGLVERTEXATTRIBP4UIPROC) load(userptr, "glVertexAttribP4ui");
     context->VertexAttribP4uiv = (PFNGLVERTEXATTRIBP4UIVPROC) load(userptr, "glVertexAttribP4uiv");
-    context->VertexP2ui = (PFNGLVERTEXP2UIPROC) load(userptr, "glVertexP2ui");
-    context->VertexP2uiv = (PFNGLVERTEXP2UIVPROC) load(userptr, "glVertexP2uiv");
-    context->VertexP3ui = (PFNGLVERTEXP3UIPROC) load(userptr, "glVertexP3ui");
-    context->VertexP3uiv = (PFNGLVERTEXP3UIVPROC) load(userptr, "glVertexP3uiv");
-    context->VertexP4ui = (PFNGLVERTEXP4UIPROC) load(userptr, "glVertexP4ui");
-    context->VertexP4uiv = (PFNGLVERTEXP4UIVPROC) load(userptr, "glVertexP4uiv");
 }
 static void glad_gl_load_GL_VERSION_4_0(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
     if(!context->VERSION_4_0) return;
@@ -1065,19 +686,7 @@ static void glad_gl_load_GL_VERSION_4_5(GladGLContext *context, GLADuserptrloadf
     context->GetVertexArrayIndexed64iv = (PFNGLGETVERTEXARRAYINDEXED64IVPROC) load(userptr, "glGetVertexArrayIndexed64iv");
     context->GetVertexArrayIndexediv = (PFNGLGETVERTEXARRAYINDEXEDIVPROC) load(userptr, "glGetVertexArrayIndexediv");
     context->GetVertexArrayiv = (PFNGLGETVERTEXARRAYIVPROC) load(userptr, "glGetVertexArrayiv");
-    context->GetnColorTable = (PFNGLGETNCOLORTABLEPROC) load(userptr, "glGetnColorTable");
     context->GetnCompressedTexImage = (PFNGLGETNCOMPRESSEDTEXIMAGEPROC) load(userptr, "glGetnCompressedTexImage");
-    context->GetnConvolutionFilter = (PFNGLGETNCONVOLUTIONFILTERPROC) load(userptr, "glGetnConvolutionFilter");
-    context->GetnHistogram = (PFNGLGETNHISTOGRAMPROC) load(userptr, "glGetnHistogram");
-    context->GetnMapdv = (PFNGLGETNMAPDVPROC) load(userptr, "glGetnMapdv");
-    context->GetnMapfv = (PFNGLGETNMAPFVPROC) load(userptr, "glGetnMapfv");
-    context->GetnMapiv = (PFNGLGETNMAPIVPROC) load(userptr, "glGetnMapiv");
-    context->GetnMinmax = (PFNGLGETNMINMAXPROC) load(userptr, "glGetnMinmax");
-    context->GetnPixelMapfv = (PFNGLGETNPIXELMAPFVPROC) load(userptr, "glGetnPixelMapfv");
-    context->GetnPixelMapuiv = (PFNGLGETNPIXELMAPUIVPROC) load(userptr, "glGetnPixelMapuiv");
-    context->GetnPixelMapusv = (PFNGLGETNPIXELMAPUSVPROC) load(userptr, "glGetnPixelMapusv");
-    context->GetnPolygonStipple = (PFNGLGETNPOLYGONSTIPPLEPROC) load(userptr, "glGetnPolygonStipple");
-    context->GetnSeparableFilter = (PFNGLGETNSEPARABLEFILTERPROC) load(userptr, "glGetnSeparableFilter");
     context->GetnTexImage = (PFNGLGETNTEXIMAGEPROC) load(userptr, "glGetnTexImage");
     context->GetnUniformdv = (PFNGLGETNUNIFORMDVPROC) load(userptr, "glGetnUniformdv");
     context->GetnUniformfv = (PFNGLGETNUNIFORMFVPROC) load(userptr, "glGetnUniformfv");
@@ -1136,6 +745,376 @@ static void glad_gl_load_GL_VERSION_4_6(GladGLContext *context, GLADuserptrloadf
     context->MultiDrawElementsIndirectCount = (PFNGLMULTIDRAWELEMENTSINDIRECTCOUNTPROC) load(userptr, "glMultiDrawElementsIndirectCount");
     context->PolygonOffsetClamp = (PFNGLPOLYGONOFFSETCLAMPPROC) load(userptr, "glPolygonOffsetClamp");
     context->SpecializeShader = (PFNGLSPECIALIZESHADERPROC) load(userptr, "glSpecializeShader");
+}
+static void glad_gl_load_GL_ES_VERSION_2_0(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->ES_VERSION_2_0) return;
+    context->ActiveTexture = (PFNGLACTIVETEXTUREPROC) load(userptr, "glActiveTexture");
+    context->AttachShader = (PFNGLATTACHSHADERPROC) load(userptr, "glAttachShader");
+    context->BindAttribLocation = (PFNGLBINDATTRIBLOCATIONPROC) load(userptr, "glBindAttribLocation");
+    context->BindBuffer = (PFNGLBINDBUFFERPROC) load(userptr, "glBindBuffer");
+    context->BindFramebuffer = (PFNGLBINDFRAMEBUFFERPROC) load(userptr, "glBindFramebuffer");
+    context->BindRenderbuffer = (PFNGLBINDRENDERBUFFERPROC) load(userptr, "glBindRenderbuffer");
+    context->BindTexture = (PFNGLBINDTEXTUREPROC) load(userptr, "glBindTexture");
+    context->BlendColor = (PFNGLBLENDCOLORPROC) load(userptr, "glBlendColor");
+    context->BlendEquation = (PFNGLBLENDEQUATIONPROC) load(userptr, "glBlendEquation");
+    context->BlendEquationSeparate = (PFNGLBLENDEQUATIONSEPARATEPROC) load(userptr, "glBlendEquationSeparate");
+    context->BlendFunc = (PFNGLBLENDFUNCPROC) load(userptr, "glBlendFunc");
+    context->BlendFuncSeparate = (PFNGLBLENDFUNCSEPARATEPROC) load(userptr, "glBlendFuncSeparate");
+    context->BufferData = (PFNGLBUFFERDATAPROC) load(userptr, "glBufferData");
+    context->BufferSubData = (PFNGLBUFFERSUBDATAPROC) load(userptr, "glBufferSubData");
+    context->CheckFramebufferStatus = (PFNGLCHECKFRAMEBUFFERSTATUSPROC) load(userptr, "glCheckFramebufferStatus");
+    context->Clear = (PFNGLCLEARPROC) load(userptr, "glClear");
+    context->ClearColor = (PFNGLCLEARCOLORPROC) load(userptr, "glClearColor");
+    context->ClearDepthf = (PFNGLCLEARDEPTHFPROC) load(userptr, "glClearDepthf");
+    context->ClearStencil = (PFNGLCLEARSTENCILPROC) load(userptr, "glClearStencil");
+    context->ColorMask = (PFNGLCOLORMASKPROC) load(userptr, "glColorMask");
+    context->CompileShader = (PFNGLCOMPILESHADERPROC) load(userptr, "glCompileShader");
+    context->CompressedTexImage2D = (PFNGLCOMPRESSEDTEXIMAGE2DPROC) load(userptr, "glCompressedTexImage2D");
+    context->CompressedTexSubImage2D = (PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC) load(userptr, "glCompressedTexSubImage2D");
+    context->CopyTexImage2D = (PFNGLCOPYTEXIMAGE2DPROC) load(userptr, "glCopyTexImage2D");
+    context->CopyTexSubImage2D = (PFNGLCOPYTEXSUBIMAGE2DPROC) load(userptr, "glCopyTexSubImage2D");
+    context->CreateProgram = (PFNGLCREATEPROGRAMPROC) load(userptr, "glCreateProgram");
+    context->CreateShader = (PFNGLCREATESHADERPROC) load(userptr, "glCreateShader");
+    context->CullFace = (PFNGLCULLFACEPROC) load(userptr, "glCullFace");
+    context->DeleteBuffers = (PFNGLDELETEBUFFERSPROC) load(userptr, "glDeleteBuffers");
+    context->DeleteFramebuffers = (PFNGLDELETEFRAMEBUFFERSPROC) load(userptr, "glDeleteFramebuffers");
+    context->DeleteProgram = (PFNGLDELETEPROGRAMPROC) load(userptr, "glDeleteProgram");
+    context->DeleteRenderbuffers = (PFNGLDELETERENDERBUFFERSPROC) load(userptr, "glDeleteRenderbuffers");
+    context->DeleteShader = (PFNGLDELETESHADERPROC) load(userptr, "glDeleteShader");
+    context->DeleteTextures = (PFNGLDELETETEXTURESPROC) load(userptr, "glDeleteTextures");
+    context->DepthFunc = (PFNGLDEPTHFUNCPROC) load(userptr, "glDepthFunc");
+    context->DepthMask = (PFNGLDEPTHMASKPROC) load(userptr, "glDepthMask");
+    context->DepthRangef = (PFNGLDEPTHRANGEFPROC) load(userptr, "glDepthRangef");
+    context->DetachShader = (PFNGLDETACHSHADERPROC) load(userptr, "glDetachShader");
+    context->Disable = (PFNGLDISABLEPROC) load(userptr, "glDisable");
+    context->DisableVertexAttribArray = (PFNGLDISABLEVERTEXATTRIBARRAYPROC) load(userptr, "glDisableVertexAttribArray");
+    context->DrawArrays = (PFNGLDRAWARRAYSPROC) load(userptr, "glDrawArrays");
+    context->DrawElements = (PFNGLDRAWELEMENTSPROC) load(userptr, "glDrawElements");
+    context->Enable = (PFNGLENABLEPROC) load(userptr, "glEnable");
+    context->EnableVertexAttribArray = (PFNGLENABLEVERTEXATTRIBARRAYPROC) load(userptr, "glEnableVertexAttribArray");
+    context->Finish = (PFNGLFINISHPROC) load(userptr, "glFinish");
+    context->Flush = (PFNGLFLUSHPROC) load(userptr, "glFlush");
+    context->FramebufferRenderbuffer = (PFNGLFRAMEBUFFERRENDERBUFFERPROC) load(userptr, "glFramebufferRenderbuffer");
+    context->FramebufferTexture2D = (PFNGLFRAMEBUFFERTEXTURE2DPROC) load(userptr, "glFramebufferTexture2D");
+    context->FrontFace = (PFNGLFRONTFACEPROC) load(userptr, "glFrontFace");
+    context->GenBuffers = (PFNGLGENBUFFERSPROC) load(userptr, "glGenBuffers");
+    context->GenFramebuffers = (PFNGLGENFRAMEBUFFERSPROC) load(userptr, "glGenFramebuffers");
+    context->GenRenderbuffers = (PFNGLGENRENDERBUFFERSPROC) load(userptr, "glGenRenderbuffers");
+    context->GenTextures = (PFNGLGENTEXTURESPROC) load(userptr, "glGenTextures");
+    context->GenerateMipmap = (PFNGLGENERATEMIPMAPPROC) load(userptr, "glGenerateMipmap");
+    context->GetActiveAttrib = (PFNGLGETACTIVEATTRIBPROC) load(userptr, "glGetActiveAttrib");
+    context->GetActiveUniform = (PFNGLGETACTIVEUNIFORMPROC) load(userptr, "glGetActiveUniform");
+    context->GetAttachedShaders = (PFNGLGETATTACHEDSHADERSPROC) load(userptr, "glGetAttachedShaders");
+    context->GetAttribLocation = (PFNGLGETATTRIBLOCATIONPROC) load(userptr, "glGetAttribLocation");
+    context->GetBooleanv = (PFNGLGETBOOLEANVPROC) load(userptr, "glGetBooleanv");
+    context->GetBufferParameteriv = (PFNGLGETBUFFERPARAMETERIVPROC) load(userptr, "glGetBufferParameteriv");
+    context->GetError = (PFNGLGETERRORPROC) load(userptr, "glGetError");
+    context->GetFloatv = (PFNGLGETFLOATVPROC) load(userptr, "glGetFloatv");
+    context->GetFramebufferAttachmentParameteriv = (PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC) load(userptr, "glGetFramebufferAttachmentParameteriv");
+    context->GetIntegerv = (PFNGLGETINTEGERVPROC) load(userptr, "glGetIntegerv");
+    context->GetProgramInfoLog = (PFNGLGETPROGRAMINFOLOGPROC) load(userptr, "glGetProgramInfoLog");
+    context->GetProgramiv = (PFNGLGETPROGRAMIVPROC) load(userptr, "glGetProgramiv");
+    context->GetRenderbufferParameteriv = (PFNGLGETRENDERBUFFERPARAMETERIVPROC) load(userptr, "glGetRenderbufferParameteriv");
+    context->GetShaderInfoLog = (PFNGLGETSHADERINFOLOGPROC) load(userptr, "glGetShaderInfoLog");
+    context->GetShaderPrecisionFormat = (PFNGLGETSHADERPRECISIONFORMATPROC) load(userptr, "glGetShaderPrecisionFormat");
+    context->GetShaderSource = (PFNGLGETSHADERSOURCEPROC) load(userptr, "glGetShaderSource");
+    context->GetShaderiv = (PFNGLGETSHADERIVPROC) load(userptr, "glGetShaderiv");
+    context->GetString = (PFNGLGETSTRINGPROC) load(userptr, "glGetString");
+    context->GetTexParameterfv = (PFNGLGETTEXPARAMETERFVPROC) load(userptr, "glGetTexParameterfv");
+    context->GetTexParameteriv = (PFNGLGETTEXPARAMETERIVPROC) load(userptr, "glGetTexParameteriv");
+    context->GetUniformLocation = (PFNGLGETUNIFORMLOCATIONPROC) load(userptr, "glGetUniformLocation");
+    context->GetUniformfv = (PFNGLGETUNIFORMFVPROC) load(userptr, "glGetUniformfv");
+    context->GetUniformiv = (PFNGLGETUNIFORMIVPROC) load(userptr, "glGetUniformiv");
+    context->GetVertexAttribPointerv = (PFNGLGETVERTEXATTRIBPOINTERVPROC) load(userptr, "glGetVertexAttribPointerv");
+    context->GetVertexAttribfv = (PFNGLGETVERTEXATTRIBFVPROC) load(userptr, "glGetVertexAttribfv");
+    context->GetVertexAttribiv = (PFNGLGETVERTEXATTRIBIVPROC) load(userptr, "glGetVertexAttribiv");
+    context->Hint = (PFNGLHINTPROC) load(userptr, "glHint");
+    context->IsBuffer = (PFNGLISBUFFERPROC) load(userptr, "glIsBuffer");
+    context->IsEnabled = (PFNGLISENABLEDPROC) load(userptr, "glIsEnabled");
+    context->IsFramebuffer = (PFNGLISFRAMEBUFFERPROC) load(userptr, "glIsFramebuffer");
+    context->IsProgram = (PFNGLISPROGRAMPROC) load(userptr, "glIsProgram");
+    context->IsRenderbuffer = (PFNGLISRENDERBUFFERPROC) load(userptr, "glIsRenderbuffer");
+    context->IsShader = (PFNGLISSHADERPROC) load(userptr, "glIsShader");
+    context->IsTexture = (PFNGLISTEXTUREPROC) load(userptr, "glIsTexture");
+    context->LineWidth = (PFNGLLINEWIDTHPROC) load(userptr, "glLineWidth");
+    context->LinkProgram = (PFNGLLINKPROGRAMPROC) load(userptr, "glLinkProgram");
+    context->PixelStorei = (PFNGLPIXELSTOREIPROC) load(userptr, "glPixelStorei");
+    context->PolygonOffset = (PFNGLPOLYGONOFFSETPROC) load(userptr, "glPolygonOffset");
+    context->ReadPixels = (PFNGLREADPIXELSPROC) load(userptr, "glReadPixels");
+    context->ReleaseShaderCompiler = (PFNGLRELEASESHADERCOMPILERPROC) load(userptr, "glReleaseShaderCompiler");
+    context->RenderbufferStorage = (PFNGLRENDERBUFFERSTORAGEPROC) load(userptr, "glRenderbufferStorage");
+    context->SampleCoverage = (PFNGLSAMPLECOVERAGEPROC) load(userptr, "glSampleCoverage");
+    context->Scissor = (PFNGLSCISSORPROC) load(userptr, "glScissor");
+    context->ShaderBinary = (PFNGLSHADERBINARYPROC) load(userptr, "glShaderBinary");
+    context->ShaderSource = (PFNGLSHADERSOURCEPROC) load(userptr, "glShaderSource");
+    context->StencilFunc = (PFNGLSTENCILFUNCPROC) load(userptr, "glStencilFunc");
+    context->StencilFuncSeparate = (PFNGLSTENCILFUNCSEPARATEPROC) load(userptr, "glStencilFuncSeparate");
+    context->StencilMask = (PFNGLSTENCILMASKPROC) load(userptr, "glStencilMask");
+    context->StencilMaskSeparate = (PFNGLSTENCILMASKSEPARATEPROC) load(userptr, "glStencilMaskSeparate");
+    context->StencilOp = (PFNGLSTENCILOPPROC) load(userptr, "glStencilOp");
+    context->StencilOpSeparate = (PFNGLSTENCILOPSEPARATEPROC) load(userptr, "glStencilOpSeparate");
+    context->TexImage2D = (PFNGLTEXIMAGE2DPROC) load(userptr, "glTexImage2D");
+    context->TexParameterf = (PFNGLTEXPARAMETERFPROC) load(userptr, "glTexParameterf");
+    context->TexParameterfv = (PFNGLTEXPARAMETERFVPROC) load(userptr, "glTexParameterfv");
+    context->TexParameteri = (PFNGLTEXPARAMETERIPROC) load(userptr, "glTexParameteri");
+    context->TexParameteriv = (PFNGLTEXPARAMETERIVPROC) load(userptr, "glTexParameteriv");
+    context->TexSubImage2D = (PFNGLTEXSUBIMAGE2DPROC) load(userptr, "glTexSubImage2D");
+    context->Uniform1f = (PFNGLUNIFORM1FPROC) load(userptr, "glUniform1f");
+    context->Uniform1fv = (PFNGLUNIFORM1FVPROC) load(userptr, "glUniform1fv");
+    context->Uniform1i = (PFNGLUNIFORM1IPROC) load(userptr, "glUniform1i");
+    context->Uniform1iv = (PFNGLUNIFORM1IVPROC) load(userptr, "glUniform1iv");
+    context->Uniform2f = (PFNGLUNIFORM2FPROC) load(userptr, "glUniform2f");
+    context->Uniform2fv = (PFNGLUNIFORM2FVPROC) load(userptr, "glUniform2fv");
+    context->Uniform2i = (PFNGLUNIFORM2IPROC) load(userptr, "glUniform2i");
+    context->Uniform2iv = (PFNGLUNIFORM2IVPROC) load(userptr, "glUniform2iv");
+    context->Uniform3f = (PFNGLUNIFORM3FPROC) load(userptr, "glUniform3f");
+    context->Uniform3fv = (PFNGLUNIFORM3FVPROC) load(userptr, "glUniform3fv");
+    context->Uniform3i = (PFNGLUNIFORM3IPROC) load(userptr, "glUniform3i");
+    context->Uniform3iv = (PFNGLUNIFORM3IVPROC) load(userptr, "glUniform3iv");
+    context->Uniform4f = (PFNGLUNIFORM4FPROC) load(userptr, "glUniform4f");
+    context->Uniform4fv = (PFNGLUNIFORM4FVPROC) load(userptr, "glUniform4fv");
+    context->Uniform4i = (PFNGLUNIFORM4IPROC) load(userptr, "glUniform4i");
+    context->Uniform4iv = (PFNGLUNIFORM4IVPROC) load(userptr, "glUniform4iv");
+    context->UniformMatrix2fv = (PFNGLUNIFORMMATRIX2FVPROC) load(userptr, "glUniformMatrix2fv");
+    context->UniformMatrix3fv = (PFNGLUNIFORMMATRIX3FVPROC) load(userptr, "glUniformMatrix3fv");
+    context->UniformMatrix4fv = (PFNGLUNIFORMMATRIX4FVPROC) load(userptr, "glUniformMatrix4fv");
+    context->UseProgram = (PFNGLUSEPROGRAMPROC) load(userptr, "glUseProgram");
+    context->ValidateProgram = (PFNGLVALIDATEPROGRAMPROC) load(userptr, "glValidateProgram");
+    context->VertexAttrib1f = (PFNGLVERTEXATTRIB1FPROC) load(userptr, "glVertexAttrib1f");
+    context->VertexAttrib1fv = (PFNGLVERTEXATTRIB1FVPROC) load(userptr, "glVertexAttrib1fv");
+    context->VertexAttrib2f = (PFNGLVERTEXATTRIB2FPROC) load(userptr, "glVertexAttrib2f");
+    context->VertexAttrib2fv = (PFNGLVERTEXATTRIB2FVPROC) load(userptr, "glVertexAttrib2fv");
+    context->VertexAttrib3f = (PFNGLVERTEXATTRIB3FPROC) load(userptr, "glVertexAttrib3f");
+    context->VertexAttrib3fv = (PFNGLVERTEXATTRIB3FVPROC) load(userptr, "glVertexAttrib3fv");
+    context->VertexAttrib4f = (PFNGLVERTEXATTRIB4FPROC) load(userptr, "glVertexAttrib4f");
+    context->VertexAttrib4fv = (PFNGLVERTEXATTRIB4FVPROC) load(userptr, "glVertexAttrib4fv");
+    context->VertexAttribPointer = (PFNGLVERTEXATTRIBPOINTERPROC) load(userptr, "glVertexAttribPointer");
+    context->Viewport = (PFNGLVIEWPORTPROC) load(userptr, "glViewport");
+}
+static void glad_gl_load_GL_ES_VERSION_3_0(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->ES_VERSION_3_0) return;
+    context->BeginQuery = (PFNGLBEGINQUERYPROC) load(userptr, "glBeginQuery");
+    context->BeginTransformFeedback = (PFNGLBEGINTRANSFORMFEEDBACKPROC) load(userptr, "glBeginTransformFeedback");
+    context->BindBufferBase = (PFNGLBINDBUFFERBASEPROC) load(userptr, "glBindBufferBase");
+    context->BindBufferRange = (PFNGLBINDBUFFERRANGEPROC) load(userptr, "glBindBufferRange");
+    context->BindSampler = (PFNGLBINDSAMPLERPROC) load(userptr, "glBindSampler");
+    context->BindTransformFeedback = (PFNGLBINDTRANSFORMFEEDBACKPROC) load(userptr, "glBindTransformFeedback");
+    context->BindVertexArray = (PFNGLBINDVERTEXARRAYPROC) load(userptr, "glBindVertexArray");
+    context->BlitFramebuffer = (PFNGLBLITFRAMEBUFFERPROC) load(userptr, "glBlitFramebuffer");
+    context->ClearBufferfi = (PFNGLCLEARBUFFERFIPROC) load(userptr, "glClearBufferfi");
+    context->ClearBufferfv = (PFNGLCLEARBUFFERFVPROC) load(userptr, "glClearBufferfv");
+    context->ClearBufferiv = (PFNGLCLEARBUFFERIVPROC) load(userptr, "glClearBufferiv");
+    context->ClearBufferuiv = (PFNGLCLEARBUFFERUIVPROC) load(userptr, "glClearBufferuiv");
+    context->ClientWaitSync = (PFNGLCLIENTWAITSYNCPROC) load(userptr, "glClientWaitSync");
+    context->CompressedTexImage3D = (PFNGLCOMPRESSEDTEXIMAGE3DPROC) load(userptr, "glCompressedTexImage3D");
+    context->CompressedTexSubImage3D = (PFNGLCOMPRESSEDTEXSUBIMAGE3DPROC) load(userptr, "glCompressedTexSubImage3D");
+    context->CopyBufferSubData = (PFNGLCOPYBUFFERSUBDATAPROC) load(userptr, "glCopyBufferSubData");
+    context->CopyTexSubImage3D = (PFNGLCOPYTEXSUBIMAGE3DPROC) load(userptr, "glCopyTexSubImage3D");
+    context->DeleteQueries = (PFNGLDELETEQUERIESPROC) load(userptr, "glDeleteQueries");
+    context->DeleteSamplers = (PFNGLDELETESAMPLERSPROC) load(userptr, "glDeleteSamplers");
+    context->DeleteSync = (PFNGLDELETESYNCPROC) load(userptr, "glDeleteSync");
+    context->DeleteTransformFeedbacks = (PFNGLDELETETRANSFORMFEEDBACKSPROC) load(userptr, "glDeleteTransformFeedbacks");
+    context->DeleteVertexArrays = (PFNGLDELETEVERTEXARRAYSPROC) load(userptr, "glDeleteVertexArrays");
+    context->DrawArraysInstanced = (PFNGLDRAWARRAYSINSTANCEDPROC) load(userptr, "glDrawArraysInstanced");
+    context->DrawBuffers = (PFNGLDRAWBUFFERSPROC) load(userptr, "glDrawBuffers");
+    context->DrawElementsInstanced = (PFNGLDRAWELEMENTSINSTANCEDPROC) load(userptr, "glDrawElementsInstanced");
+    context->DrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC) load(userptr, "glDrawRangeElements");
+    context->EndQuery = (PFNGLENDQUERYPROC) load(userptr, "glEndQuery");
+    context->EndTransformFeedback = (PFNGLENDTRANSFORMFEEDBACKPROC) load(userptr, "glEndTransformFeedback");
+    context->FenceSync = (PFNGLFENCESYNCPROC) load(userptr, "glFenceSync");
+    context->FlushMappedBufferRange = (PFNGLFLUSHMAPPEDBUFFERRANGEPROC) load(userptr, "glFlushMappedBufferRange");
+    context->FramebufferTextureLayer = (PFNGLFRAMEBUFFERTEXTURELAYERPROC) load(userptr, "glFramebufferTextureLayer");
+    context->GenQueries = (PFNGLGENQUERIESPROC) load(userptr, "glGenQueries");
+    context->GenSamplers = (PFNGLGENSAMPLERSPROC) load(userptr, "glGenSamplers");
+    context->GenTransformFeedbacks = (PFNGLGENTRANSFORMFEEDBACKSPROC) load(userptr, "glGenTransformFeedbacks");
+    context->GenVertexArrays = (PFNGLGENVERTEXARRAYSPROC) load(userptr, "glGenVertexArrays");
+    context->GetActiveUniformBlockName = (PFNGLGETACTIVEUNIFORMBLOCKNAMEPROC) load(userptr, "glGetActiveUniformBlockName");
+    context->GetActiveUniformBlockiv = (PFNGLGETACTIVEUNIFORMBLOCKIVPROC) load(userptr, "glGetActiveUniformBlockiv");
+    context->GetActiveUniformsiv = (PFNGLGETACTIVEUNIFORMSIVPROC) load(userptr, "glGetActiveUniformsiv");
+    context->GetBufferParameteri64v = (PFNGLGETBUFFERPARAMETERI64VPROC) load(userptr, "glGetBufferParameteri64v");
+    context->GetBufferPointerv = (PFNGLGETBUFFERPOINTERVPROC) load(userptr, "glGetBufferPointerv");
+    context->GetFragDataLocation = (PFNGLGETFRAGDATALOCATIONPROC) load(userptr, "glGetFragDataLocation");
+    context->GetInteger64i_v = (PFNGLGETINTEGER64I_VPROC) load(userptr, "glGetInteger64i_v");
+    context->GetInteger64v = (PFNGLGETINTEGER64VPROC) load(userptr, "glGetInteger64v");
+    context->GetIntegeri_v = (PFNGLGETINTEGERI_VPROC) load(userptr, "glGetIntegeri_v");
+    context->GetInternalformativ = (PFNGLGETINTERNALFORMATIVPROC) load(userptr, "glGetInternalformativ");
+    context->GetProgramBinary = (PFNGLGETPROGRAMBINARYPROC) load(userptr, "glGetProgramBinary");
+    context->GetQueryObjectuiv = (PFNGLGETQUERYOBJECTUIVPROC) load(userptr, "glGetQueryObjectuiv");
+    context->GetQueryiv = (PFNGLGETQUERYIVPROC) load(userptr, "glGetQueryiv");
+    context->GetSamplerParameterfv = (PFNGLGETSAMPLERPARAMETERFVPROC) load(userptr, "glGetSamplerParameterfv");
+    context->GetSamplerParameteriv = (PFNGLGETSAMPLERPARAMETERIVPROC) load(userptr, "glGetSamplerParameteriv");
+    context->GetStringi = (PFNGLGETSTRINGIPROC) load(userptr, "glGetStringi");
+    context->GetSynciv = (PFNGLGETSYNCIVPROC) load(userptr, "glGetSynciv");
+    context->GetTransformFeedbackVarying = (PFNGLGETTRANSFORMFEEDBACKVARYINGPROC) load(userptr, "glGetTransformFeedbackVarying");
+    context->GetUniformBlockIndex = (PFNGLGETUNIFORMBLOCKINDEXPROC) load(userptr, "glGetUniformBlockIndex");
+    context->GetUniformIndices = (PFNGLGETUNIFORMINDICESPROC) load(userptr, "glGetUniformIndices");
+    context->GetUniformuiv = (PFNGLGETUNIFORMUIVPROC) load(userptr, "glGetUniformuiv");
+    context->GetVertexAttribIiv = (PFNGLGETVERTEXATTRIBIIVPROC) load(userptr, "glGetVertexAttribIiv");
+    context->GetVertexAttribIuiv = (PFNGLGETVERTEXATTRIBIUIVPROC) load(userptr, "glGetVertexAttribIuiv");
+    context->InvalidateFramebuffer = (PFNGLINVALIDATEFRAMEBUFFERPROC) load(userptr, "glInvalidateFramebuffer");
+    context->InvalidateSubFramebuffer = (PFNGLINVALIDATESUBFRAMEBUFFERPROC) load(userptr, "glInvalidateSubFramebuffer");
+    context->IsQuery = (PFNGLISQUERYPROC) load(userptr, "glIsQuery");
+    context->IsSampler = (PFNGLISSAMPLERPROC) load(userptr, "glIsSampler");
+    context->IsSync = (PFNGLISSYNCPROC) load(userptr, "glIsSync");
+    context->IsTransformFeedback = (PFNGLISTRANSFORMFEEDBACKPROC) load(userptr, "glIsTransformFeedback");
+    context->IsVertexArray = (PFNGLISVERTEXARRAYPROC) load(userptr, "glIsVertexArray");
+    context->MapBufferRange = (PFNGLMAPBUFFERRANGEPROC) load(userptr, "glMapBufferRange");
+    context->PauseTransformFeedback = (PFNGLPAUSETRANSFORMFEEDBACKPROC) load(userptr, "glPauseTransformFeedback");
+    context->ProgramBinary = (PFNGLPROGRAMBINARYPROC) load(userptr, "glProgramBinary");
+    context->ProgramParameteri = (PFNGLPROGRAMPARAMETERIPROC) load(userptr, "glProgramParameteri");
+    context->ReadBuffer = (PFNGLREADBUFFERPROC) load(userptr, "glReadBuffer");
+    context->RenderbufferStorageMultisample = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEPROC) load(userptr, "glRenderbufferStorageMultisample");
+    context->ResumeTransformFeedback = (PFNGLRESUMETRANSFORMFEEDBACKPROC) load(userptr, "glResumeTransformFeedback");
+    context->SamplerParameterf = (PFNGLSAMPLERPARAMETERFPROC) load(userptr, "glSamplerParameterf");
+    context->SamplerParameterfv = (PFNGLSAMPLERPARAMETERFVPROC) load(userptr, "glSamplerParameterfv");
+    context->SamplerParameteri = (PFNGLSAMPLERPARAMETERIPROC) load(userptr, "glSamplerParameteri");
+    context->SamplerParameteriv = (PFNGLSAMPLERPARAMETERIVPROC) load(userptr, "glSamplerParameteriv");
+    context->TexImage3D = (PFNGLTEXIMAGE3DPROC) load(userptr, "glTexImage3D");
+    context->TexStorage2D = (PFNGLTEXSTORAGE2DPROC) load(userptr, "glTexStorage2D");
+    context->TexStorage3D = (PFNGLTEXSTORAGE3DPROC) load(userptr, "glTexStorage3D");
+    context->TexSubImage3D = (PFNGLTEXSUBIMAGE3DPROC) load(userptr, "glTexSubImage3D");
+    context->TransformFeedbackVaryings = (PFNGLTRANSFORMFEEDBACKVARYINGSPROC) load(userptr, "glTransformFeedbackVaryings");
+    context->Uniform1ui = (PFNGLUNIFORM1UIPROC) load(userptr, "glUniform1ui");
+    context->Uniform1uiv = (PFNGLUNIFORM1UIVPROC) load(userptr, "glUniform1uiv");
+    context->Uniform2ui = (PFNGLUNIFORM2UIPROC) load(userptr, "glUniform2ui");
+    context->Uniform2uiv = (PFNGLUNIFORM2UIVPROC) load(userptr, "glUniform2uiv");
+    context->Uniform3ui = (PFNGLUNIFORM3UIPROC) load(userptr, "glUniform3ui");
+    context->Uniform3uiv = (PFNGLUNIFORM3UIVPROC) load(userptr, "glUniform3uiv");
+    context->Uniform4ui = (PFNGLUNIFORM4UIPROC) load(userptr, "glUniform4ui");
+    context->Uniform4uiv = (PFNGLUNIFORM4UIVPROC) load(userptr, "glUniform4uiv");
+    context->UniformBlockBinding = (PFNGLUNIFORMBLOCKBINDINGPROC) load(userptr, "glUniformBlockBinding");
+    context->UniformMatrix2x3fv = (PFNGLUNIFORMMATRIX2X3FVPROC) load(userptr, "glUniformMatrix2x3fv");
+    context->UniformMatrix2x4fv = (PFNGLUNIFORMMATRIX2X4FVPROC) load(userptr, "glUniformMatrix2x4fv");
+    context->UniformMatrix3x2fv = (PFNGLUNIFORMMATRIX3X2FVPROC) load(userptr, "glUniformMatrix3x2fv");
+    context->UniformMatrix3x4fv = (PFNGLUNIFORMMATRIX3X4FVPROC) load(userptr, "glUniformMatrix3x4fv");
+    context->UniformMatrix4x2fv = (PFNGLUNIFORMMATRIX4X2FVPROC) load(userptr, "glUniformMatrix4x2fv");
+    context->UniformMatrix4x3fv = (PFNGLUNIFORMMATRIX4X3FVPROC) load(userptr, "glUniformMatrix4x3fv");
+    context->UnmapBuffer = (PFNGLUNMAPBUFFERPROC) load(userptr, "glUnmapBuffer");
+    context->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC) load(userptr, "glVertexAttribDivisor");
+    context->VertexAttribI4i = (PFNGLVERTEXATTRIBI4IPROC) load(userptr, "glVertexAttribI4i");
+    context->VertexAttribI4iv = (PFNGLVERTEXATTRIBI4IVPROC) load(userptr, "glVertexAttribI4iv");
+    context->VertexAttribI4ui = (PFNGLVERTEXATTRIBI4UIPROC) load(userptr, "glVertexAttribI4ui");
+    context->VertexAttribI4uiv = (PFNGLVERTEXATTRIBI4UIVPROC) load(userptr, "glVertexAttribI4uiv");
+    context->VertexAttribIPointer = (PFNGLVERTEXATTRIBIPOINTERPROC) load(userptr, "glVertexAttribIPointer");
+    context->WaitSync = (PFNGLWAITSYNCPROC) load(userptr, "glWaitSync");
+}
+static void glad_gl_load_GL_ES_VERSION_3_1(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->ES_VERSION_3_1) return;
+    context->ActiveShaderProgram = (PFNGLACTIVESHADERPROGRAMPROC) load(userptr, "glActiveShaderProgram");
+    context->BindImageTexture = (PFNGLBINDIMAGETEXTUREPROC) load(userptr, "glBindImageTexture");
+    context->BindProgramPipeline = (PFNGLBINDPROGRAMPIPELINEPROC) load(userptr, "glBindProgramPipeline");
+    context->BindVertexBuffer = (PFNGLBINDVERTEXBUFFERPROC) load(userptr, "glBindVertexBuffer");
+    context->CreateShaderProgramv = (PFNGLCREATESHADERPROGRAMVPROC) load(userptr, "glCreateShaderProgramv");
+    context->DeleteProgramPipelines = (PFNGLDELETEPROGRAMPIPELINESPROC) load(userptr, "glDeleteProgramPipelines");
+    context->DispatchCompute = (PFNGLDISPATCHCOMPUTEPROC) load(userptr, "glDispatchCompute");
+    context->DispatchComputeIndirect = (PFNGLDISPATCHCOMPUTEINDIRECTPROC) load(userptr, "glDispatchComputeIndirect");
+    context->DrawArraysIndirect = (PFNGLDRAWARRAYSINDIRECTPROC) load(userptr, "glDrawArraysIndirect");
+    context->DrawElementsIndirect = (PFNGLDRAWELEMENTSINDIRECTPROC) load(userptr, "glDrawElementsIndirect");
+    context->FramebufferParameteri = (PFNGLFRAMEBUFFERPARAMETERIPROC) load(userptr, "glFramebufferParameteri");
+    context->GenProgramPipelines = (PFNGLGENPROGRAMPIPELINESPROC) load(userptr, "glGenProgramPipelines");
+    context->GetBooleani_v = (PFNGLGETBOOLEANI_VPROC) load(userptr, "glGetBooleani_v");
+    context->GetFramebufferParameteriv = (PFNGLGETFRAMEBUFFERPARAMETERIVPROC) load(userptr, "glGetFramebufferParameteriv");
+    context->GetMultisamplefv = (PFNGLGETMULTISAMPLEFVPROC) load(userptr, "glGetMultisamplefv");
+    context->GetProgramInterfaceiv = (PFNGLGETPROGRAMINTERFACEIVPROC) load(userptr, "glGetProgramInterfaceiv");
+    context->GetProgramPipelineInfoLog = (PFNGLGETPROGRAMPIPELINEINFOLOGPROC) load(userptr, "glGetProgramPipelineInfoLog");
+    context->GetProgramPipelineiv = (PFNGLGETPROGRAMPIPELINEIVPROC) load(userptr, "glGetProgramPipelineiv");
+    context->GetProgramResourceIndex = (PFNGLGETPROGRAMRESOURCEINDEXPROC) load(userptr, "glGetProgramResourceIndex");
+    context->GetProgramResourceLocation = (PFNGLGETPROGRAMRESOURCELOCATIONPROC) load(userptr, "glGetProgramResourceLocation");
+    context->GetProgramResourceName = (PFNGLGETPROGRAMRESOURCENAMEPROC) load(userptr, "glGetProgramResourceName");
+    context->GetProgramResourceiv = (PFNGLGETPROGRAMRESOURCEIVPROC) load(userptr, "glGetProgramResourceiv");
+    context->GetTexLevelParameterfv = (PFNGLGETTEXLEVELPARAMETERFVPROC) load(userptr, "glGetTexLevelParameterfv");
+    context->GetTexLevelParameteriv = (PFNGLGETTEXLEVELPARAMETERIVPROC) load(userptr, "glGetTexLevelParameteriv");
+    context->IsProgramPipeline = (PFNGLISPROGRAMPIPELINEPROC) load(userptr, "glIsProgramPipeline");
+    context->MemoryBarrier = (PFNGLMEMORYBARRIERPROC) load(userptr, "glMemoryBarrier");
+    context->MemoryBarrierByRegion = (PFNGLMEMORYBARRIERBYREGIONPROC) load(userptr, "glMemoryBarrierByRegion");
+    context->ProgramUniform1f = (PFNGLPROGRAMUNIFORM1FPROC) load(userptr, "glProgramUniform1f");
+    context->ProgramUniform1fv = (PFNGLPROGRAMUNIFORM1FVPROC) load(userptr, "glProgramUniform1fv");
+    context->ProgramUniform1i = (PFNGLPROGRAMUNIFORM1IPROC) load(userptr, "glProgramUniform1i");
+    context->ProgramUniform1iv = (PFNGLPROGRAMUNIFORM1IVPROC) load(userptr, "glProgramUniform1iv");
+    context->ProgramUniform1ui = (PFNGLPROGRAMUNIFORM1UIPROC) load(userptr, "glProgramUniform1ui");
+    context->ProgramUniform1uiv = (PFNGLPROGRAMUNIFORM1UIVPROC) load(userptr, "glProgramUniform1uiv");
+    context->ProgramUniform2f = (PFNGLPROGRAMUNIFORM2FPROC) load(userptr, "glProgramUniform2f");
+    context->ProgramUniform2fv = (PFNGLPROGRAMUNIFORM2FVPROC) load(userptr, "glProgramUniform2fv");
+    context->ProgramUniform2i = (PFNGLPROGRAMUNIFORM2IPROC) load(userptr, "glProgramUniform2i");
+    context->ProgramUniform2iv = (PFNGLPROGRAMUNIFORM2IVPROC) load(userptr, "glProgramUniform2iv");
+    context->ProgramUniform2ui = (PFNGLPROGRAMUNIFORM2UIPROC) load(userptr, "glProgramUniform2ui");
+    context->ProgramUniform2uiv = (PFNGLPROGRAMUNIFORM2UIVPROC) load(userptr, "glProgramUniform2uiv");
+    context->ProgramUniform3f = (PFNGLPROGRAMUNIFORM3FPROC) load(userptr, "glProgramUniform3f");
+    context->ProgramUniform3fv = (PFNGLPROGRAMUNIFORM3FVPROC) load(userptr, "glProgramUniform3fv");
+    context->ProgramUniform3i = (PFNGLPROGRAMUNIFORM3IPROC) load(userptr, "glProgramUniform3i");
+    context->ProgramUniform3iv = (PFNGLPROGRAMUNIFORM3IVPROC) load(userptr, "glProgramUniform3iv");
+    context->ProgramUniform3ui = (PFNGLPROGRAMUNIFORM3UIPROC) load(userptr, "glProgramUniform3ui");
+    context->ProgramUniform3uiv = (PFNGLPROGRAMUNIFORM3UIVPROC) load(userptr, "glProgramUniform3uiv");
+    context->ProgramUniform4f = (PFNGLPROGRAMUNIFORM4FPROC) load(userptr, "glProgramUniform4f");
+    context->ProgramUniform4fv = (PFNGLPROGRAMUNIFORM4FVPROC) load(userptr, "glProgramUniform4fv");
+    context->ProgramUniform4i = (PFNGLPROGRAMUNIFORM4IPROC) load(userptr, "glProgramUniform4i");
+    context->ProgramUniform4iv = (PFNGLPROGRAMUNIFORM4IVPROC) load(userptr, "glProgramUniform4iv");
+    context->ProgramUniform4ui = (PFNGLPROGRAMUNIFORM4UIPROC) load(userptr, "glProgramUniform4ui");
+    context->ProgramUniform4uiv = (PFNGLPROGRAMUNIFORM4UIVPROC) load(userptr, "glProgramUniform4uiv");
+    context->ProgramUniformMatrix2fv = (PFNGLPROGRAMUNIFORMMATRIX2FVPROC) load(userptr, "glProgramUniformMatrix2fv");
+    context->ProgramUniformMatrix2x3fv = (PFNGLPROGRAMUNIFORMMATRIX2X3FVPROC) load(userptr, "glProgramUniformMatrix2x3fv");
+    context->ProgramUniformMatrix2x4fv = (PFNGLPROGRAMUNIFORMMATRIX2X4FVPROC) load(userptr, "glProgramUniformMatrix2x4fv");
+    context->ProgramUniformMatrix3fv = (PFNGLPROGRAMUNIFORMMATRIX3FVPROC) load(userptr, "glProgramUniformMatrix3fv");
+    context->ProgramUniformMatrix3x2fv = (PFNGLPROGRAMUNIFORMMATRIX3X2FVPROC) load(userptr, "glProgramUniformMatrix3x2fv");
+    context->ProgramUniformMatrix3x4fv = (PFNGLPROGRAMUNIFORMMATRIX3X4FVPROC) load(userptr, "glProgramUniformMatrix3x4fv");
+    context->ProgramUniformMatrix4fv = (PFNGLPROGRAMUNIFORMMATRIX4FVPROC) load(userptr, "glProgramUniformMatrix4fv");
+    context->ProgramUniformMatrix4x2fv = (PFNGLPROGRAMUNIFORMMATRIX4X2FVPROC) load(userptr, "glProgramUniformMatrix4x2fv");
+    context->ProgramUniformMatrix4x3fv = (PFNGLPROGRAMUNIFORMMATRIX4X3FVPROC) load(userptr, "glProgramUniformMatrix4x3fv");
+    context->SampleMaski = (PFNGLSAMPLEMASKIPROC) load(userptr, "glSampleMaski");
+    context->TexStorage2DMultisample = (PFNGLTEXSTORAGE2DMULTISAMPLEPROC) load(userptr, "glTexStorage2DMultisample");
+    context->UseProgramStages = (PFNGLUSEPROGRAMSTAGESPROC) load(userptr, "glUseProgramStages");
+    context->ValidateProgramPipeline = (PFNGLVALIDATEPROGRAMPIPELINEPROC) load(userptr, "glValidateProgramPipeline");
+    context->VertexAttribBinding = (PFNGLVERTEXATTRIBBINDINGPROC) load(userptr, "glVertexAttribBinding");
+    context->VertexAttribFormat = (PFNGLVERTEXATTRIBFORMATPROC) load(userptr, "glVertexAttribFormat");
+    context->VertexAttribIFormat = (PFNGLVERTEXATTRIBIFORMATPROC) load(userptr, "glVertexAttribIFormat");
+    context->VertexBindingDivisor = (PFNGLVERTEXBINDINGDIVISORPROC) load(userptr, "glVertexBindingDivisor");
+}
+static void glad_gl_load_GL_ES_VERSION_3_2(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->ES_VERSION_3_2) return;
+    context->BlendBarrier = (PFNGLBLENDBARRIERPROC) load(userptr, "glBlendBarrier");
+    context->BlendEquationSeparatei = (PFNGLBLENDEQUATIONSEPARATEIPROC) load(userptr, "glBlendEquationSeparatei");
+    context->BlendEquationi = (PFNGLBLENDEQUATIONIPROC) load(userptr, "glBlendEquationi");
+    context->BlendFuncSeparatei = (PFNGLBLENDFUNCSEPARATEIPROC) load(userptr, "glBlendFuncSeparatei");
+    context->BlendFunci = (PFNGLBLENDFUNCIPROC) load(userptr, "glBlendFunci");
+    context->ColorMaski = (PFNGLCOLORMASKIPROC) load(userptr, "glColorMaski");
+    context->CopyImageSubData = (PFNGLCOPYIMAGESUBDATAPROC) load(userptr, "glCopyImageSubData");
+    context->DebugMessageCallback = (PFNGLDEBUGMESSAGECALLBACKPROC) load(userptr, "glDebugMessageCallback");
+    context->DebugMessageControl = (PFNGLDEBUGMESSAGECONTROLPROC) load(userptr, "glDebugMessageControl");
+    context->DebugMessageInsert = (PFNGLDEBUGMESSAGEINSERTPROC) load(userptr, "glDebugMessageInsert");
+    context->Disablei = (PFNGLDISABLEIPROC) load(userptr, "glDisablei");
+    context->DrawElementsBaseVertex = (PFNGLDRAWELEMENTSBASEVERTEXPROC) load(userptr, "glDrawElementsBaseVertex");
+    context->DrawElementsInstancedBaseVertex = (PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXPROC) load(userptr, "glDrawElementsInstancedBaseVertex");
+    context->DrawRangeElementsBaseVertex = (PFNGLDRAWRANGEELEMENTSBASEVERTEXPROC) load(userptr, "glDrawRangeElementsBaseVertex");
+    context->Enablei = (PFNGLENABLEIPROC) load(userptr, "glEnablei");
+    context->FramebufferTexture = (PFNGLFRAMEBUFFERTEXTUREPROC) load(userptr, "glFramebufferTexture");
+    context->GetDebugMessageLog = (PFNGLGETDEBUGMESSAGELOGPROC) load(userptr, "glGetDebugMessageLog");
+    context->GetGraphicsResetStatus = (PFNGLGETGRAPHICSRESETSTATUSPROC) load(userptr, "glGetGraphicsResetStatus");
+    context->GetObjectLabel = (PFNGLGETOBJECTLABELPROC) load(userptr, "glGetObjectLabel");
+    context->GetObjectPtrLabel = (PFNGLGETOBJECTPTRLABELPROC) load(userptr, "glGetObjectPtrLabel");
+    context->GetPointerv = (PFNGLGETPOINTERVPROC) load(userptr, "glGetPointerv");
+    context->GetSamplerParameterIiv = (PFNGLGETSAMPLERPARAMETERIIVPROC) load(userptr, "glGetSamplerParameterIiv");
+    context->GetSamplerParameterIuiv = (PFNGLGETSAMPLERPARAMETERIUIVPROC) load(userptr, "glGetSamplerParameterIuiv");
+    context->GetTexParameterIiv = (PFNGLGETTEXPARAMETERIIVPROC) load(userptr, "glGetTexParameterIiv");
+    context->GetTexParameterIuiv = (PFNGLGETTEXPARAMETERIUIVPROC) load(userptr, "glGetTexParameterIuiv");
+    context->GetnUniformfv = (PFNGLGETNUNIFORMFVPROC) load(userptr, "glGetnUniformfv");
+    context->GetnUniformiv = (PFNGLGETNUNIFORMIVPROC) load(userptr, "glGetnUniformiv");
+    context->GetnUniformuiv = (PFNGLGETNUNIFORMUIVPROC) load(userptr, "glGetnUniformuiv");
+    context->IsEnabledi = (PFNGLISENABLEDIPROC) load(userptr, "glIsEnabledi");
+    context->MinSampleShading = (PFNGLMINSAMPLESHADINGPROC) load(userptr, "glMinSampleShading");
+    context->ObjectLabel = (PFNGLOBJECTLABELPROC) load(userptr, "glObjectLabel");
+    context->ObjectPtrLabel = (PFNGLOBJECTPTRLABELPROC) load(userptr, "glObjectPtrLabel");
+    context->PatchParameteri = (PFNGLPATCHPARAMETERIPROC) load(userptr, "glPatchParameteri");
+    context->PopDebugGroup = (PFNGLPOPDEBUGGROUPPROC) load(userptr, "glPopDebugGroup");
+    context->PrimitiveBoundingBox = (PFNGLPRIMITIVEBOUNDINGBOXPROC) load(userptr, "glPrimitiveBoundingBox");
+    context->PushDebugGroup = (PFNGLPUSHDEBUGGROUPPROC) load(userptr, "glPushDebugGroup");
+    context->ReadnPixels = (PFNGLREADNPIXELSPROC) load(userptr, "glReadnPixels");
+    context->SamplerParameterIiv = (PFNGLSAMPLERPARAMETERIIVPROC) load(userptr, "glSamplerParameterIiv");
+    context->SamplerParameterIuiv = (PFNGLSAMPLERPARAMETERIUIVPROC) load(userptr, "glSamplerParameterIuiv");
+    context->TexBuffer = (PFNGLTEXBUFFERPROC) load(userptr, "glTexBuffer");
+    context->TexBufferRange = (PFNGLTEXBUFFERRANGEPROC) load(userptr, "glTexBufferRange");
+    context->TexParameterIiv = (PFNGLTEXPARAMETERIIVPROC) load(userptr, "glTexParameterIiv");
+    context->TexParameterIuiv = (PFNGLTEXPARAMETERIUIVPROC) load(userptr, "glTexParameterIuiv");
+    context->TexStorage3DMultisample = (PFNGLTEXSTORAGE3DMULTISAMPLEPROC) load(userptr, "glTexStorage3DMultisample");
 }
 static void glad_gl_load_GL_3DFX_tbuffer(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
     if(!context->_3DFX_tbuffer) return;
@@ -1673,38 +1652,6 @@ static void glad_gl_load_GL_ARB_imaging(GladGLContext *context, GLADuserptrloadf
     if(!context->ARB_imaging) return;
     context->BlendColor = (PFNGLBLENDCOLORPROC) load(userptr, "glBlendColor");
     context->BlendEquation = (PFNGLBLENDEQUATIONPROC) load(userptr, "glBlendEquation");
-    context->ColorSubTable = (PFNGLCOLORSUBTABLEPROC) load(userptr, "glColorSubTable");
-    context->ColorTable = (PFNGLCOLORTABLEPROC) load(userptr, "glColorTable");
-    context->ColorTableParameterfv = (PFNGLCOLORTABLEPARAMETERFVPROC) load(userptr, "glColorTableParameterfv");
-    context->ColorTableParameteriv = (PFNGLCOLORTABLEPARAMETERIVPROC) load(userptr, "glColorTableParameteriv");
-    context->ConvolutionFilter1D = (PFNGLCONVOLUTIONFILTER1DPROC) load(userptr, "glConvolutionFilter1D");
-    context->ConvolutionFilter2D = (PFNGLCONVOLUTIONFILTER2DPROC) load(userptr, "glConvolutionFilter2D");
-    context->ConvolutionParameterf = (PFNGLCONVOLUTIONPARAMETERFPROC) load(userptr, "glConvolutionParameterf");
-    context->ConvolutionParameterfv = (PFNGLCONVOLUTIONPARAMETERFVPROC) load(userptr, "glConvolutionParameterfv");
-    context->ConvolutionParameteri = (PFNGLCONVOLUTIONPARAMETERIPROC) load(userptr, "glConvolutionParameteri");
-    context->ConvolutionParameteriv = (PFNGLCONVOLUTIONPARAMETERIVPROC) load(userptr, "glConvolutionParameteriv");
-    context->CopyColorSubTable = (PFNGLCOPYCOLORSUBTABLEPROC) load(userptr, "glCopyColorSubTable");
-    context->CopyColorTable = (PFNGLCOPYCOLORTABLEPROC) load(userptr, "glCopyColorTable");
-    context->CopyConvolutionFilter1D = (PFNGLCOPYCONVOLUTIONFILTER1DPROC) load(userptr, "glCopyConvolutionFilter1D");
-    context->CopyConvolutionFilter2D = (PFNGLCOPYCONVOLUTIONFILTER2DPROC) load(userptr, "glCopyConvolutionFilter2D");
-    context->GetColorTable = (PFNGLGETCOLORTABLEPROC) load(userptr, "glGetColorTable");
-    context->GetColorTableParameterfv = (PFNGLGETCOLORTABLEPARAMETERFVPROC) load(userptr, "glGetColorTableParameterfv");
-    context->GetColorTableParameteriv = (PFNGLGETCOLORTABLEPARAMETERIVPROC) load(userptr, "glGetColorTableParameteriv");
-    context->GetConvolutionFilter = (PFNGLGETCONVOLUTIONFILTERPROC) load(userptr, "glGetConvolutionFilter");
-    context->GetConvolutionParameterfv = (PFNGLGETCONVOLUTIONPARAMETERFVPROC) load(userptr, "glGetConvolutionParameterfv");
-    context->GetConvolutionParameteriv = (PFNGLGETCONVOLUTIONPARAMETERIVPROC) load(userptr, "glGetConvolutionParameteriv");
-    context->GetHistogram = (PFNGLGETHISTOGRAMPROC) load(userptr, "glGetHistogram");
-    context->GetHistogramParameterfv = (PFNGLGETHISTOGRAMPARAMETERFVPROC) load(userptr, "glGetHistogramParameterfv");
-    context->GetHistogramParameteriv = (PFNGLGETHISTOGRAMPARAMETERIVPROC) load(userptr, "glGetHistogramParameteriv");
-    context->GetMinmax = (PFNGLGETMINMAXPROC) load(userptr, "glGetMinmax");
-    context->GetMinmaxParameterfv = (PFNGLGETMINMAXPARAMETERFVPROC) load(userptr, "glGetMinmaxParameterfv");
-    context->GetMinmaxParameteriv = (PFNGLGETMINMAXPARAMETERIVPROC) load(userptr, "glGetMinmaxParameteriv");
-    context->GetSeparableFilter = (PFNGLGETSEPARABLEFILTERPROC) load(userptr, "glGetSeparableFilter");
-    context->Histogram = (PFNGLHISTOGRAMPROC) load(userptr, "glHistogram");
-    context->Minmax = (PFNGLMINMAXPROC) load(userptr, "glMinmax");
-    context->ResetHistogram = (PFNGLRESETHISTOGRAMPROC) load(userptr, "glResetHistogram");
-    context->ResetMinmax = (PFNGLRESETMINMAXPROC) load(userptr, "glResetMinmax");
-    context->SeparableFilter2D = (PFNGLSEPARABLEFILTER2DPROC) load(userptr, "glSeparableFilter2D");
 }
 static void glad_gl_load_GL_ARB_indirect_parameters(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
     if(!context->ARB_indirect_parameters) return;
@@ -1840,19 +1787,7 @@ static void glad_gl_load_GL_ARB_provoking_vertex(GladGLContext *context, GLADuse
 static void glad_gl_load_GL_ARB_robustness(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
     if(!context->ARB_robustness) return;
     context->GetGraphicsResetStatusARB = (PFNGLGETGRAPHICSRESETSTATUSARBPROC) load(userptr, "glGetGraphicsResetStatusARB");
-    context->GetnColorTableARB = (PFNGLGETNCOLORTABLEARBPROC) load(userptr, "glGetnColorTableARB");
     context->GetnCompressedTexImageARB = (PFNGLGETNCOMPRESSEDTEXIMAGEARBPROC) load(userptr, "glGetnCompressedTexImageARB");
-    context->GetnConvolutionFilterARB = (PFNGLGETNCONVOLUTIONFILTERARBPROC) load(userptr, "glGetnConvolutionFilterARB");
-    context->GetnHistogramARB = (PFNGLGETNHISTOGRAMARBPROC) load(userptr, "glGetnHistogramARB");
-    context->GetnMapdvARB = (PFNGLGETNMAPDVARBPROC) load(userptr, "glGetnMapdvARB");
-    context->GetnMapfvARB = (PFNGLGETNMAPFVARBPROC) load(userptr, "glGetnMapfvARB");
-    context->GetnMapivARB = (PFNGLGETNMAPIVARBPROC) load(userptr, "glGetnMapivARB");
-    context->GetnMinmaxARB = (PFNGLGETNMINMAXARBPROC) load(userptr, "glGetnMinmaxARB");
-    context->GetnPixelMapfvARB = (PFNGLGETNPIXELMAPFVARBPROC) load(userptr, "glGetnPixelMapfvARB");
-    context->GetnPixelMapuivARB = (PFNGLGETNPIXELMAPUIVARBPROC) load(userptr, "glGetnPixelMapuivARB");
-    context->GetnPixelMapusvARB = (PFNGLGETNPIXELMAPUSVARBPROC) load(userptr, "glGetnPixelMapusvARB");
-    context->GetnPolygonStippleARB = (PFNGLGETNPOLYGONSTIPPLEARBPROC) load(userptr, "glGetnPolygonStippleARB");
-    context->GetnSeparableFilterARB = (PFNGLGETNSEPARABLEFILTERARBPROC) load(userptr, "glGetnSeparableFilterARB");
     context->GetnTexImageARB = (PFNGLGETNTEXIMAGEARBPROC) load(userptr, "glGetnTexImageARB");
     context->GetnUniformdvARB = (PFNGLGETNUNIFORMDVARBPROC) load(userptr, "glGetnUniformdvARB");
     context->GetnUniformfvARB = (PFNGLGETNUNIFORMFVARBPROC) load(userptr, "glGetnUniformfvARB");
@@ -2315,30 +2250,6 @@ static void glad_gl_load_GL_ARB_vertex_shader(GladGLContext *context, GLADuserpt
 }
 static void glad_gl_load_GL_ARB_vertex_type_2_10_10_10_rev(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
     if(!context->ARB_vertex_type_2_10_10_10_rev) return;
-    context->ColorP3ui = (PFNGLCOLORP3UIPROC) load(userptr, "glColorP3ui");
-    context->ColorP3uiv = (PFNGLCOLORP3UIVPROC) load(userptr, "glColorP3uiv");
-    context->ColorP4ui = (PFNGLCOLORP4UIPROC) load(userptr, "glColorP4ui");
-    context->ColorP4uiv = (PFNGLCOLORP4UIVPROC) load(userptr, "glColorP4uiv");
-    context->MultiTexCoordP1ui = (PFNGLMULTITEXCOORDP1UIPROC) load(userptr, "glMultiTexCoordP1ui");
-    context->MultiTexCoordP1uiv = (PFNGLMULTITEXCOORDP1UIVPROC) load(userptr, "glMultiTexCoordP1uiv");
-    context->MultiTexCoordP2ui = (PFNGLMULTITEXCOORDP2UIPROC) load(userptr, "glMultiTexCoordP2ui");
-    context->MultiTexCoordP2uiv = (PFNGLMULTITEXCOORDP2UIVPROC) load(userptr, "glMultiTexCoordP2uiv");
-    context->MultiTexCoordP3ui = (PFNGLMULTITEXCOORDP3UIPROC) load(userptr, "glMultiTexCoordP3ui");
-    context->MultiTexCoordP3uiv = (PFNGLMULTITEXCOORDP3UIVPROC) load(userptr, "glMultiTexCoordP3uiv");
-    context->MultiTexCoordP4ui = (PFNGLMULTITEXCOORDP4UIPROC) load(userptr, "glMultiTexCoordP4ui");
-    context->MultiTexCoordP4uiv = (PFNGLMULTITEXCOORDP4UIVPROC) load(userptr, "glMultiTexCoordP4uiv");
-    context->NormalP3ui = (PFNGLNORMALP3UIPROC) load(userptr, "glNormalP3ui");
-    context->NormalP3uiv = (PFNGLNORMALP3UIVPROC) load(userptr, "glNormalP3uiv");
-    context->SecondaryColorP3ui = (PFNGLSECONDARYCOLORP3UIPROC) load(userptr, "glSecondaryColorP3ui");
-    context->SecondaryColorP3uiv = (PFNGLSECONDARYCOLORP3UIVPROC) load(userptr, "glSecondaryColorP3uiv");
-    context->TexCoordP1ui = (PFNGLTEXCOORDP1UIPROC) load(userptr, "glTexCoordP1ui");
-    context->TexCoordP1uiv = (PFNGLTEXCOORDP1UIVPROC) load(userptr, "glTexCoordP1uiv");
-    context->TexCoordP2ui = (PFNGLTEXCOORDP2UIPROC) load(userptr, "glTexCoordP2ui");
-    context->TexCoordP2uiv = (PFNGLTEXCOORDP2UIVPROC) load(userptr, "glTexCoordP2uiv");
-    context->TexCoordP3ui = (PFNGLTEXCOORDP3UIPROC) load(userptr, "glTexCoordP3ui");
-    context->TexCoordP3uiv = (PFNGLTEXCOORDP3UIVPROC) load(userptr, "glTexCoordP3uiv");
-    context->TexCoordP4ui = (PFNGLTEXCOORDP4UIPROC) load(userptr, "glTexCoordP4ui");
-    context->TexCoordP4uiv = (PFNGLTEXCOORDP4UIVPROC) load(userptr, "glTexCoordP4uiv");
     context->VertexAttribP1ui = (PFNGLVERTEXATTRIBP1UIPROC) load(userptr, "glVertexAttribP1ui");
     context->VertexAttribP1uiv = (PFNGLVERTEXATTRIBP1UIVPROC) load(userptr, "glVertexAttribP1uiv");
     context->VertexAttribP2ui = (PFNGLVERTEXATTRIBP2UIPROC) load(userptr, "glVertexAttribP2ui");
@@ -2347,12 +2258,6 @@ static void glad_gl_load_GL_ARB_vertex_type_2_10_10_10_rev(GladGLContext *contex
     context->VertexAttribP3uiv = (PFNGLVERTEXATTRIBP3UIVPROC) load(userptr, "glVertexAttribP3uiv");
     context->VertexAttribP4ui = (PFNGLVERTEXATTRIBP4UIPROC) load(userptr, "glVertexAttribP4ui");
     context->VertexAttribP4uiv = (PFNGLVERTEXATTRIBP4UIVPROC) load(userptr, "glVertexAttribP4uiv");
-    context->VertexP2ui = (PFNGLVERTEXP2UIPROC) load(userptr, "glVertexP2ui");
-    context->VertexP2uiv = (PFNGLVERTEXP2UIVPROC) load(userptr, "glVertexP2uiv");
-    context->VertexP3ui = (PFNGLVERTEXP3UIPROC) load(userptr, "glVertexP3ui");
-    context->VertexP3uiv = (PFNGLVERTEXP3UIVPROC) load(userptr, "glVertexP3uiv");
-    context->VertexP4ui = (PFNGLVERTEXP4UIPROC) load(userptr, "glVertexP4ui");
-    context->VertexP4uiv = (PFNGLVERTEXP4UIVPROC) load(userptr, "glVertexP4uiv");
 }
 static void glad_gl_load_GL_ARB_viewport_array(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
     if(!context->ARB_viewport_array) return;
@@ -3129,8 +3034,52 @@ static void glad_gl_load_GL_EXT_semaphore_win32(GladGLContext *context, GLADuser
 static void glad_gl_load_GL_EXT_separate_shader_objects(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
     if(!context->EXT_separate_shader_objects) return;
     context->ActiveProgramEXT = (PFNGLACTIVEPROGRAMEXTPROC) load(userptr, "glActiveProgramEXT");
+    context->ActiveShaderProgramEXT = (PFNGLACTIVESHADERPROGRAMEXTPROC) load(userptr, "glActiveShaderProgramEXT");
+    context->BindProgramPipelineEXT = (PFNGLBINDPROGRAMPIPELINEEXTPROC) load(userptr, "glBindProgramPipelineEXT");
     context->CreateShaderProgramEXT = (PFNGLCREATESHADERPROGRAMEXTPROC) load(userptr, "glCreateShaderProgramEXT");
+    context->CreateShaderProgramvEXT = (PFNGLCREATESHADERPROGRAMVEXTPROC) load(userptr, "glCreateShaderProgramvEXT");
+    context->DeleteProgramPipelinesEXT = (PFNGLDELETEPROGRAMPIPELINESEXTPROC) load(userptr, "glDeleteProgramPipelinesEXT");
+    context->GenProgramPipelinesEXT = (PFNGLGENPROGRAMPIPELINESEXTPROC) load(userptr, "glGenProgramPipelinesEXT");
+    context->GetProgramPipelineInfoLogEXT = (PFNGLGETPROGRAMPIPELINEINFOLOGEXTPROC) load(userptr, "glGetProgramPipelineInfoLogEXT");
+    context->GetProgramPipelineivEXT = (PFNGLGETPROGRAMPIPELINEIVEXTPROC) load(userptr, "glGetProgramPipelineivEXT");
+    context->IsProgramPipelineEXT = (PFNGLISPROGRAMPIPELINEEXTPROC) load(userptr, "glIsProgramPipelineEXT");
+    context->ProgramParameteriEXT = (PFNGLPROGRAMPARAMETERIEXTPROC) load(userptr, "glProgramParameteriEXT");
+    context->ProgramUniform1fEXT = (PFNGLPROGRAMUNIFORM1FEXTPROC) load(userptr, "glProgramUniform1fEXT");
+    context->ProgramUniform1fvEXT = (PFNGLPROGRAMUNIFORM1FVEXTPROC) load(userptr, "glProgramUniform1fvEXT");
+    context->ProgramUniform1iEXT = (PFNGLPROGRAMUNIFORM1IEXTPROC) load(userptr, "glProgramUniform1iEXT");
+    context->ProgramUniform1ivEXT = (PFNGLPROGRAMUNIFORM1IVEXTPROC) load(userptr, "glProgramUniform1ivEXT");
+    context->ProgramUniform1uiEXT = (PFNGLPROGRAMUNIFORM1UIEXTPROC) load(userptr, "glProgramUniform1uiEXT");
+    context->ProgramUniform1uivEXT = (PFNGLPROGRAMUNIFORM1UIVEXTPROC) load(userptr, "glProgramUniform1uivEXT");
+    context->ProgramUniform2fEXT = (PFNGLPROGRAMUNIFORM2FEXTPROC) load(userptr, "glProgramUniform2fEXT");
+    context->ProgramUniform2fvEXT = (PFNGLPROGRAMUNIFORM2FVEXTPROC) load(userptr, "glProgramUniform2fvEXT");
+    context->ProgramUniform2iEXT = (PFNGLPROGRAMUNIFORM2IEXTPROC) load(userptr, "glProgramUniform2iEXT");
+    context->ProgramUniform2ivEXT = (PFNGLPROGRAMUNIFORM2IVEXTPROC) load(userptr, "glProgramUniform2ivEXT");
+    context->ProgramUniform2uiEXT = (PFNGLPROGRAMUNIFORM2UIEXTPROC) load(userptr, "glProgramUniform2uiEXT");
+    context->ProgramUniform2uivEXT = (PFNGLPROGRAMUNIFORM2UIVEXTPROC) load(userptr, "glProgramUniform2uivEXT");
+    context->ProgramUniform3fEXT = (PFNGLPROGRAMUNIFORM3FEXTPROC) load(userptr, "glProgramUniform3fEXT");
+    context->ProgramUniform3fvEXT = (PFNGLPROGRAMUNIFORM3FVEXTPROC) load(userptr, "glProgramUniform3fvEXT");
+    context->ProgramUniform3iEXT = (PFNGLPROGRAMUNIFORM3IEXTPROC) load(userptr, "glProgramUniform3iEXT");
+    context->ProgramUniform3ivEXT = (PFNGLPROGRAMUNIFORM3IVEXTPROC) load(userptr, "glProgramUniform3ivEXT");
+    context->ProgramUniform3uiEXT = (PFNGLPROGRAMUNIFORM3UIEXTPROC) load(userptr, "glProgramUniform3uiEXT");
+    context->ProgramUniform3uivEXT = (PFNGLPROGRAMUNIFORM3UIVEXTPROC) load(userptr, "glProgramUniform3uivEXT");
+    context->ProgramUniform4fEXT = (PFNGLPROGRAMUNIFORM4FEXTPROC) load(userptr, "glProgramUniform4fEXT");
+    context->ProgramUniform4fvEXT = (PFNGLPROGRAMUNIFORM4FVEXTPROC) load(userptr, "glProgramUniform4fvEXT");
+    context->ProgramUniform4iEXT = (PFNGLPROGRAMUNIFORM4IEXTPROC) load(userptr, "glProgramUniform4iEXT");
+    context->ProgramUniform4ivEXT = (PFNGLPROGRAMUNIFORM4IVEXTPROC) load(userptr, "glProgramUniform4ivEXT");
+    context->ProgramUniform4uiEXT = (PFNGLPROGRAMUNIFORM4UIEXTPROC) load(userptr, "glProgramUniform4uiEXT");
+    context->ProgramUniform4uivEXT = (PFNGLPROGRAMUNIFORM4UIVEXTPROC) load(userptr, "glProgramUniform4uivEXT");
+    context->ProgramUniformMatrix2fvEXT = (PFNGLPROGRAMUNIFORMMATRIX2FVEXTPROC) load(userptr, "glProgramUniformMatrix2fvEXT");
+    context->ProgramUniformMatrix2x3fvEXT = (PFNGLPROGRAMUNIFORMMATRIX2X3FVEXTPROC) load(userptr, "glProgramUniformMatrix2x3fvEXT");
+    context->ProgramUniformMatrix2x4fvEXT = (PFNGLPROGRAMUNIFORMMATRIX2X4FVEXTPROC) load(userptr, "glProgramUniformMatrix2x4fvEXT");
+    context->ProgramUniformMatrix3fvEXT = (PFNGLPROGRAMUNIFORMMATRIX3FVEXTPROC) load(userptr, "glProgramUniformMatrix3fvEXT");
+    context->ProgramUniformMatrix3x2fvEXT = (PFNGLPROGRAMUNIFORMMATRIX3X2FVEXTPROC) load(userptr, "glProgramUniformMatrix3x2fvEXT");
+    context->ProgramUniformMatrix3x4fvEXT = (PFNGLPROGRAMUNIFORMMATRIX3X4FVEXTPROC) load(userptr, "glProgramUniformMatrix3x4fvEXT");
+    context->ProgramUniformMatrix4fvEXT = (PFNGLPROGRAMUNIFORMMATRIX4FVEXTPROC) load(userptr, "glProgramUniformMatrix4fvEXT");
+    context->ProgramUniformMatrix4x2fvEXT = (PFNGLPROGRAMUNIFORMMATRIX4X2FVEXTPROC) load(userptr, "glProgramUniformMatrix4x2fvEXT");
+    context->ProgramUniformMatrix4x3fvEXT = (PFNGLPROGRAMUNIFORMMATRIX4X3FVEXTPROC) load(userptr, "glProgramUniformMatrix4x3fvEXT");
+    context->UseProgramStagesEXT = (PFNGLUSEPROGRAMSTAGESEXTPROC) load(userptr, "glUseProgramStagesEXT");
     context->UseShaderProgramEXT = (PFNGLUSESHADERPROGRAMEXTPROC) load(userptr, "glUseShaderProgramEXT");
+    context->ValidateProgramPipelineEXT = (PFNGLVALIDATEPROGRAMPIPELINEEXTPROC) load(userptr, "glValidateProgramPipelineEXT");
 }
 static void glad_gl_load_GL_EXT_shader_framebuffer_fetch_non_coherent(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
     if(!context->EXT_shader_framebuffer_fetch_non_coherent) return;
@@ -3380,16 +3329,27 @@ static void glad_gl_load_GL_KHR_blend_equation_advanced(GladGLContext *context, 
 static void glad_gl_load_GL_KHR_debug(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
     if(!context->KHR_debug) return;
     context->DebugMessageCallback = (PFNGLDEBUGMESSAGECALLBACKPROC) load(userptr, "glDebugMessageCallback");
+    context->DebugMessageCallbackKHR = (PFNGLDEBUGMESSAGECALLBACKKHRPROC) load(userptr, "glDebugMessageCallbackKHR");
     context->DebugMessageControl = (PFNGLDEBUGMESSAGECONTROLPROC) load(userptr, "glDebugMessageControl");
+    context->DebugMessageControlKHR = (PFNGLDEBUGMESSAGECONTROLKHRPROC) load(userptr, "glDebugMessageControlKHR");
     context->DebugMessageInsert = (PFNGLDEBUGMESSAGEINSERTPROC) load(userptr, "glDebugMessageInsert");
+    context->DebugMessageInsertKHR = (PFNGLDEBUGMESSAGEINSERTKHRPROC) load(userptr, "glDebugMessageInsertKHR");
     context->GetDebugMessageLog = (PFNGLGETDEBUGMESSAGELOGPROC) load(userptr, "glGetDebugMessageLog");
+    context->GetDebugMessageLogKHR = (PFNGLGETDEBUGMESSAGELOGKHRPROC) load(userptr, "glGetDebugMessageLogKHR");
     context->GetObjectLabel = (PFNGLGETOBJECTLABELPROC) load(userptr, "glGetObjectLabel");
+    context->GetObjectLabelKHR = (PFNGLGETOBJECTLABELKHRPROC) load(userptr, "glGetObjectLabelKHR");
     context->GetObjectPtrLabel = (PFNGLGETOBJECTPTRLABELPROC) load(userptr, "glGetObjectPtrLabel");
+    context->GetObjectPtrLabelKHR = (PFNGLGETOBJECTPTRLABELKHRPROC) load(userptr, "glGetObjectPtrLabelKHR");
     context->GetPointerv = (PFNGLGETPOINTERVPROC) load(userptr, "glGetPointerv");
+    context->GetPointervKHR = (PFNGLGETPOINTERVKHRPROC) load(userptr, "glGetPointervKHR");
     context->ObjectLabel = (PFNGLOBJECTLABELPROC) load(userptr, "glObjectLabel");
+    context->ObjectLabelKHR = (PFNGLOBJECTLABELKHRPROC) load(userptr, "glObjectLabelKHR");
     context->ObjectPtrLabel = (PFNGLOBJECTPTRLABELPROC) load(userptr, "glObjectPtrLabel");
+    context->ObjectPtrLabelKHR = (PFNGLOBJECTPTRLABELKHRPROC) load(userptr, "glObjectPtrLabelKHR");
     context->PopDebugGroup = (PFNGLPOPDEBUGGROUPPROC) load(userptr, "glPopDebugGroup");
+    context->PopDebugGroupKHR = (PFNGLPOPDEBUGGROUPKHRPROC) load(userptr, "glPopDebugGroupKHR");
     context->PushDebugGroup = (PFNGLPUSHDEBUGGROUPPROC) load(userptr, "glPushDebugGroup");
+    context->PushDebugGroupKHR = (PFNGLPUSHDEBUGGROUPKHRPROC) load(userptr, "glPushDebugGroupKHR");
 }
 static void glad_gl_load_GL_KHR_parallel_shader_compile(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
     if(!context->KHR_parallel_shader_compile) return;
@@ -3398,10 +3358,15 @@ static void glad_gl_load_GL_KHR_parallel_shader_compile(GladGLContext *context, 
 static void glad_gl_load_GL_KHR_robustness(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
     if(!context->KHR_robustness) return;
     context->GetGraphicsResetStatus = (PFNGLGETGRAPHICSRESETSTATUSPROC) load(userptr, "glGetGraphicsResetStatus");
+    context->GetGraphicsResetStatusKHR = (PFNGLGETGRAPHICSRESETSTATUSKHRPROC) load(userptr, "glGetGraphicsResetStatusKHR");
     context->GetnUniformfv = (PFNGLGETNUNIFORMFVPROC) load(userptr, "glGetnUniformfv");
+    context->GetnUniformfvKHR = (PFNGLGETNUNIFORMFVKHRPROC) load(userptr, "glGetnUniformfvKHR");
     context->GetnUniformiv = (PFNGLGETNUNIFORMIVPROC) load(userptr, "glGetnUniformiv");
+    context->GetnUniformivKHR = (PFNGLGETNUNIFORMIVKHRPROC) load(userptr, "glGetnUniformivKHR");
     context->GetnUniformuiv = (PFNGLGETNUNIFORMUIVPROC) load(userptr, "glGetnUniformuiv");
+    context->GetnUniformuivKHR = (PFNGLGETNUNIFORMUIVKHRPROC) load(userptr, "glGetnUniformuivKHR");
     context->ReadnPixels = (PFNGLREADNPIXELSPROC) load(userptr, "glReadnPixels");
+    context->ReadnPixelsKHR = (PFNGLREADNPIXELSKHRPROC) load(userptr, "glReadnPixelsKHR");
 }
 static void glad_gl_load_GL_MESA_framebuffer_flip_y(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
     if(!context->MESA_framebuffer_flip_y) return;
@@ -3799,8 +3764,6 @@ static void glad_gl_load_GL_NV_path_rendering(GladGLContext *context, GLADuserpt
     context->CoverStrokePathNV = (PFNGLCOVERSTROKEPATHNVPROC) load(userptr, "glCoverStrokePathNV");
     context->DeletePathsNV = (PFNGLDELETEPATHSNVPROC) load(userptr, "glDeletePathsNV");
     context->GenPathsNV = (PFNGLGENPATHSNVPROC) load(userptr, "glGenPathsNV");
-    context->GetPathColorGenfvNV = (PFNGLGETPATHCOLORGENFVNVPROC) load(userptr, "glGetPathColorGenfvNV");
-    context->GetPathColorGenivNV = (PFNGLGETPATHCOLORGENIVNVPROC) load(userptr, "glGetPathColorGenivNV");
     context->GetPathCommandsNV = (PFNGLGETPATHCOMMANDSNVPROC) load(userptr, "glGetPathCommandsNV");
     context->GetPathCoordsNV = (PFNGLGETPATHCOORDSNVPROC) load(userptr, "glGetPathCoordsNV");
     context->GetPathDashArrayNV = (PFNGLGETPATHDASHARRAYNVPROC) load(userptr, "glGetPathDashArrayNV");
@@ -3810,8 +3773,6 @@ static void glad_gl_load_GL_NV_path_rendering(GladGLContext *context, GLADuserpt
     context->GetPathParameterfvNV = (PFNGLGETPATHPARAMETERFVNVPROC) load(userptr, "glGetPathParameterfvNV");
     context->GetPathParameterivNV = (PFNGLGETPATHPARAMETERIVNVPROC) load(userptr, "glGetPathParameterivNV");
     context->GetPathSpacingNV = (PFNGLGETPATHSPACINGNVPROC) load(userptr, "glGetPathSpacingNV");
-    context->GetPathTexGenfvNV = (PFNGLGETPATHTEXGENFVNVPROC) load(userptr, "glGetPathTexGenfvNV");
-    context->GetPathTexGenivNV = (PFNGLGETPATHTEXGENIVNVPROC) load(userptr, "glGetPathTexGenivNV");
     context->GetProgramResourcefvNV = (PFNGLGETPROGRAMRESOURCEFVNVPROC) load(userptr, "glGetProgramResourcefvNV");
     context->InterpolatePathsNV = (PFNGLINTERPOLATEPATHSNVPROC) load(userptr, "glInterpolatePathsNV");
     context->IsPathNV = (PFNGLISPATHNVPROC) load(userptr, "glIsPathNV");
@@ -3842,12 +3803,10 @@ static void glad_gl_load_GL_NV_path_rendering(GladGLContext *context, GLADuserpt
     context->MatrixScalefEXT = (PFNGLMATRIXSCALEFEXTPROC) load(userptr, "glMatrixScalefEXT");
     context->MatrixTranslatedEXT = (PFNGLMATRIXTRANSLATEDEXTPROC) load(userptr, "glMatrixTranslatedEXT");
     context->MatrixTranslatefEXT = (PFNGLMATRIXTRANSLATEFEXTPROC) load(userptr, "glMatrixTranslatefEXT");
-    context->PathColorGenNV = (PFNGLPATHCOLORGENNVPROC) load(userptr, "glPathColorGenNV");
     context->PathCommandsNV = (PFNGLPATHCOMMANDSNVPROC) load(userptr, "glPathCommandsNV");
     context->PathCoordsNV = (PFNGLPATHCOORDSNVPROC) load(userptr, "glPathCoordsNV");
     context->PathCoverDepthFuncNV = (PFNGLPATHCOVERDEPTHFUNCNVPROC) load(userptr, "glPathCoverDepthFuncNV");
     context->PathDashArrayNV = (PFNGLPATHDASHARRAYNVPROC) load(userptr, "glPathDashArrayNV");
-    context->PathFogGenNV = (PFNGLPATHFOGGENNVPROC) load(userptr, "glPathFogGenNV");
     context->PathGlyphIndexArrayNV = (PFNGLPATHGLYPHINDEXARRAYNVPROC) load(userptr, "glPathGlyphIndexArrayNV");
     context->PathGlyphIndexRangeNV = (PFNGLPATHGLYPHINDEXRANGENVPROC) load(userptr, "glPathGlyphIndexRangeNV");
     context->PathGlyphRangeNV = (PFNGLPATHGLYPHRANGENVPROC) load(userptr, "glPathGlyphRangeNV");
@@ -3862,7 +3821,6 @@ static void glad_gl_load_GL_NV_path_rendering(GladGLContext *context, GLADuserpt
     context->PathStringNV = (PFNGLPATHSTRINGNVPROC) load(userptr, "glPathStringNV");
     context->PathSubCommandsNV = (PFNGLPATHSUBCOMMANDSNVPROC) load(userptr, "glPathSubCommandsNV");
     context->PathSubCoordsNV = (PFNGLPATHSUBCOORDSNVPROC) load(userptr, "glPathSubCoordsNV");
-    context->PathTexGenNV = (PFNGLPATHTEXGENNVPROC) load(userptr, "glPathTexGenNV");
     context->PointAlongPathNV = (PFNGLPOINTALONGPATHNVPROC) load(userptr, "glPointAlongPathNV");
     context->ProgramPathFragmentInputGenNV = (PFNGLPROGRAMPATHFRAGMENTINPUTGENNVPROC) load(userptr, "glProgramPathFragmentInputGenNV");
     context->StencilFillPathInstancedNV = (PFNGLSTENCILFILLPATHINSTANCEDNVPROC) load(userptr, "glStencilFillPathInstancedNV");
@@ -4553,8 +4511,1848 @@ static void glad_gl_load_GL_SUN_vertex(GladGLContext *context, GLADuserptrloadfu
     context->TexCoord4fVertex4fSUN = (PFNGLTEXCOORD4FVERTEX4FSUNPROC) load(userptr, "glTexCoord4fVertex4fSUN");
     context->TexCoord4fVertex4fvSUN = (PFNGLTEXCOORD4FVERTEX4FVSUNPROC) load(userptr, "glTexCoord4fVertex4fvSUN");
 }
+static void glad_gl_load_GL_ANGLE_framebuffer_blit(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->ANGLE_framebuffer_blit) return;
+    context->BlitFramebufferANGLE = (PFNGLBLITFRAMEBUFFERANGLEPROC) load(userptr, "glBlitFramebufferANGLE");
+}
+static void glad_gl_load_GL_ANGLE_framebuffer_multisample(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->ANGLE_framebuffer_multisample) return;
+    context->RenderbufferStorageMultisampleANGLE = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEANGLEPROC) load(userptr, "glRenderbufferStorageMultisampleANGLE");
+}
+static void glad_gl_load_GL_ANGLE_instanced_arrays(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->ANGLE_instanced_arrays) return;
+    context->DrawArraysInstancedANGLE = (PFNGLDRAWARRAYSINSTANCEDANGLEPROC) load(userptr, "glDrawArraysInstancedANGLE");
+    context->DrawElementsInstancedANGLE = (PFNGLDRAWELEMENTSINSTANCEDANGLEPROC) load(userptr, "glDrawElementsInstancedANGLE");
+    context->VertexAttribDivisorANGLE = (PFNGLVERTEXATTRIBDIVISORANGLEPROC) load(userptr, "glVertexAttribDivisorANGLE");
+}
+static void glad_gl_load_GL_ANGLE_translated_shader_source(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->ANGLE_translated_shader_source) return;
+    context->GetTranslatedShaderSourceANGLE = (PFNGLGETTRANSLATEDSHADERSOURCEANGLEPROC) load(userptr, "glGetTranslatedShaderSourceANGLE");
+}
+static void glad_gl_load_GL_APPLE_copy_texture_levels(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->APPLE_copy_texture_levels) return;
+    context->CopyTextureLevelsAPPLE = (PFNGLCOPYTEXTURELEVELSAPPLEPROC) load(userptr, "glCopyTextureLevelsAPPLE");
+}
+static void glad_gl_load_GL_APPLE_framebuffer_multisample(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->APPLE_framebuffer_multisample) return;
+    context->RenderbufferStorageMultisampleAPPLE = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEAPPLEPROC) load(userptr, "glRenderbufferStorageMultisampleAPPLE");
+    context->ResolveMultisampleFramebufferAPPLE = (PFNGLRESOLVEMULTISAMPLEFRAMEBUFFERAPPLEPROC) load(userptr, "glResolveMultisampleFramebufferAPPLE");
+}
+static void glad_gl_load_GL_APPLE_sync(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->APPLE_sync) return;
+    context->ClientWaitSyncAPPLE = (PFNGLCLIENTWAITSYNCAPPLEPROC) load(userptr, "glClientWaitSyncAPPLE");
+    context->DeleteSyncAPPLE = (PFNGLDELETESYNCAPPLEPROC) load(userptr, "glDeleteSyncAPPLE");
+    context->FenceSyncAPPLE = (PFNGLFENCESYNCAPPLEPROC) load(userptr, "glFenceSyncAPPLE");
+    context->GetInteger64vAPPLE = (PFNGLGETINTEGER64VAPPLEPROC) load(userptr, "glGetInteger64vAPPLE");
+    context->GetSyncivAPPLE = (PFNGLGETSYNCIVAPPLEPROC) load(userptr, "glGetSyncivAPPLE");
+    context->IsSyncAPPLE = (PFNGLISSYNCAPPLEPROC) load(userptr, "glIsSyncAPPLE");
+    context->WaitSyncAPPLE = (PFNGLWAITSYNCAPPLEPROC) load(userptr, "glWaitSyncAPPLE");
+}
+static void glad_gl_load_GL_ARM_shader_core_properties(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->ARM_shader_core_properties) return;
+    context->MaxActiveShaderCoresARM = (PFNGLMAXACTIVESHADERCORESARMPROC) load(userptr, "glMaxActiveShaderCoresARM");
+}
+static void glad_gl_load_GL_EXT_base_instance(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_base_instance) return;
+    context->DrawArraysInstancedBaseInstanceEXT = (PFNGLDRAWARRAYSINSTANCEDBASEINSTANCEEXTPROC) load(userptr, "glDrawArraysInstancedBaseInstanceEXT");
+    context->DrawElementsInstancedBaseInstanceEXT = (PFNGLDRAWELEMENTSINSTANCEDBASEINSTANCEEXTPROC) load(userptr, "glDrawElementsInstancedBaseInstanceEXT");
+    context->DrawElementsInstancedBaseVertexBaseInstanceEXT = (PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXBASEINSTANCEEXTPROC) load(userptr, "glDrawElementsInstancedBaseVertexBaseInstanceEXT");
+}
+static void glad_gl_load_GL_EXT_blend_func_extended(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_blend_func_extended) return;
+    context->BindFragDataLocationEXT = (PFNGLBINDFRAGDATALOCATIONEXTPROC) load(userptr, "glBindFragDataLocationEXT");
+    context->BindFragDataLocationIndexedEXT = (PFNGLBINDFRAGDATALOCATIONINDEXEDEXTPROC) load(userptr, "glBindFragDataLocationIndexedEXT");
+    context->GetFragDataIndexEXT = (PFNGLGETFRAGDATAINDEXEXTPROC) load(userptr, "glGetFragDataIndexEXT");
+    context->GetProgramResourceLocationIndexEXT = (PFNGLGETPROGRAMRESOURCELOCATIONINDEXEXTPROC) load(userptr, "glGetProgramResourceLocationIndexEXT");
+}
+static void glad_gl_load_GL_EXT_buffer_storage(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_buffer_storage) return;
+    context->BufferStorageEXT = (PFNGLBUFFERSTORAGEEXTPROC) load(userptr, "glBufferStorageEXT");
+}
+static void glad_gl_load_GL_EXT_clear_texture(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_clear_texture) return;
+    context->ClearTexImageEXT = (PFNGLCLEARTEXIMAGEEXTPROC) load(userptr, "glClearTexImageEXT");
+    context->ClearTexSubImageEXT = (PFNGLCLEARTEXSUBIMAGEEXTPROC) load(userptr, "glClearTexSubImageEXT");
+}
+static void glad_gl_load_GL_EXT_clip_control(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_clip_control) return;
+    context->ClipControlEXT = (PFNGLCLIPCONTROLEXTPROC) load(userptr, "glClipControlEXT");
+}
+static void glad_gl_load_GL_EXT_copy_image(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_copy_image) return;
+    context->CopyImageSubDataEXT = (PFNGLCOPYIMAGESUBDATAEXTPROC) load(userptr, "glCopyImageSubDataEXT");
+}
+static void glad_gl_load_GL_EXT_discard_framebuffer(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_discard_framebuffer) return;
+    context->DiscardFramebufferEXT = (PFNGLDISCARDFRAMEBUFFEREXTPROC) load(userptr, "glDiscardFramebufferEXT");
+}
+static void glad_gl_load_GL_EXT_disjoint_timer_query(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_disjoint_timer_query) return;
+    context->BeginQueryEXT = (PFNGLBEGINQUERYEXTPROC) load(userptr, "glBeginQueryEXT");
+    context->DeleteQueriesEXT = (PFNGLDELETEQUERIESEXTPROC) load(userptr, "glDeleteQueriesEXT");
+    context->EndQueryEXT = (PFNGLENDQUERYEXTPROC) load(userptr, "glEndQueryEXT");
+    context->GenQueriesEXT = (PFNGLGENQUERIESEXTPROC) load(userptr, "glGenQueriesEXT");
+    context->GetInteger64vEXT = (PFNGLGETINTEGER64VEXTPROC) load(userptr, "glGetInteger64vEXT");
+    context->GetQueryObjecti64vEXT = (PFNGLGETQUERYOBJECTI64VEXTPROC) load(userptr, "glGetQueryObjecti64vEXT");
+    context->GetQueryObjectivEXT = (PFNGLGETQUERYOBJECTIVEXTPROC) load(userptr, "glGetQueryObjectivEXT");
+    context->GetQueryObjectui64vEXT = (PFNGLGETQUERYOBJECTUI64VEXTPROC) load(userptr, "glGetQueryObjectui64vEXT");
+    context->GetQueryObjectuivEXT = (PFNGLGETQUERYOBJECTUIVEXTPROC) load(userptr, "glGetQueryObjectuivEXT");
+    context->GetQueryivEXT = (PFNGLGETQUERYIVEXTPROC) load(userptr, "glGetQueryivEXT");
+    context->IsQueryEXT = (PFNGLISQUERYEXTPROC) load(userptr, "glIsQueryEXT");
+    context->QueryCounterEXT = (PFNGLQUERYCOUNTEREXTPROC) load(userptr, "glQueryCounterEXT");
+}
+static void glad_gl_load_GL_EXT_draw_buffers(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_draw_buffers) return;
+    context->DrawBuffersEXT = (PFNGLDRAWBUFFERSEXTPROC) load(userptr, "glDrawBuffersEXT");
+}
+static void glad_gl_load_GL_EXT_draw_buffers_indexed(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_draw_buffers_indexed) return;
+    context->BlendEquationSeparateiEXT = (PFNGLBLENDEQUATIONSEPARATEIEXTPROC) load(userptr, "glBlendEquationSeparateiEXT");
+    context->BlendEquationiEXT = (PFNGLBLENDEQUATIONIEXTPROC) load(userptr, "glBlendEquationiEXT");
+    context->BlendFuncSeparateiEXT = (PFNGLBLENDFUNCSEPARATEIEXTPROC) load(userptr, "glBlendFuncSeparateiEXT");
+    context->BlendFunciEXT = (PFNGLBLENDFUNCIEXTPROC) load(userptr, "glBlendFunciEXT");
+    context->ColorMaskiEXT = (PFNGLCOLORMASKIEXTPROC) load(userptr, "glColorMaskiEXT");
+    context->DisableiEXT = (PFNGLDISABLEIEXTPROC) load(userptr, "glDisableiEXT");
+    context->EnableiEXT = (PFNGLENABLEIEXTPROC) load(userptr, "glEnableiEXT");
+    context->IsEnablediEXT = (PFNGLISENABLEDIEXTPROC) load(userptr, "glIsEnablediEXT");
+}
+static void glad_gl_load_GL_EXT_draw_elements_base_vertex(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_draw_elements_base_vertex) return;
+    context->DrawElementsBaseVertexEXT = (PFNGLDRAWELEMENTSBASEVERTEXEXTPROC) load(userptr, "glDrawElementsBaseVertexEXT");
+    context->DrawElementsInstancedBaseVertexEXT = (PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXEXTPROC) load(userptr, "glDrawElementsInstancedBaseVertexEXT");
+    context->DrawRangeElementsBaseVertexEXT = (PFNGLDRAWRANGEELEMENTSBASEVERTEXEXTPROC) load(userptr, "glDrawRangeElementsBaseVertexEXT");
+    context->MultiDrawElementsBaseVertexEXT = (PFNGLMULTIDRAWELEMENTSBASEVERTEXEXTPROC) load(userptr, "glMultiDrawElementsBaseVertexEXT");
+}
+static void glad_gl_load_GL_EXT_draw_transform_feedback(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_draw_transform_feedback) return;
+    context->DrawTransformFeedbackEXT = (PFNGLDRAWTRANSFORMFEEDBACKEXTPROC) load(userptr, "glDrawTransformFeedbackEXT");
+    context->DrawTransformFeedbackInstancedEXT = (PFNGLDRAWTRANSFORMFEEDBACKINSTANCEDEXTPROC) load(userptr, "glDrawTransformFeedbackInstancedEXT");
+}
+static void glad_gl_load_GL_EXT_fragment_shading_rate(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_fragment_shading_rate) return;
+    context->FramebufferShadingRateEXT = (PFNGLFRAMEBUFFERSHADINGRATEEXTPROC) load(userptr, "glFramebufferShadingRateEXT");
+    context->GetFragmentShadingRatesEXT = (PFNGLGETFRAGMENTSHADINGRATESEXTPROC) load(userptr, "glGetFragmentShadingRatesEXT");
+    context->ShadingRateCombinerOpsEXT = (PFNGLSHADINGRATECOMBINEROPSEXTPROC) load(userptr, "glShadingRateCombinerOpsEXT");
+    context->ShadingRateEXT = (PFNGLSHADINGRATEEXTPROC) load(userptr, "glShadingRateEXT");
+}
+static void glad_gl_load_GL_EXT_geometry_shader(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_geometry_shader) return;
+    context->FramebufferTextureEXT = (PFNGLFRAMEBUFFERTEXTUREEXTPROC) load(userptr, "glFramebufferTextureEXT");
+}
+static void glad_gl_load_GL_EXT_instanced_arrays(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_instanced_arrays) return;
+    context->DrawArraysInstancedEXT = (PFNGLDRAWARRAYSINSTANCEDEXTPROC) load(userptr, "glDrawArraysInstancedEXT");
+    context->DrawElementsInstancedEXT = (PFNGLDRAWELEMENTSINSTANCEDEXTPROC) load(userptr, "glDrawElementsInstancedEXT");
+    context->VertexAttribDivisorEXT = (PFNGLVERTEXATTRIBDIVISOREXTPROC) load(userptr, "glVertexAttribDivisorEXT");
+}
+static void glad_gl_load_GL_EXT_map_buffer_range(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_map_buffer_range) return;
+    context->FlushMappedBufferRangeEXT = (PFNGLFLUSHMAPPEDBUFFERRANGEEXTPROC) load(userptr, "glFlushMappedBufferRangeEXT");
+    context->MapBufferRangeEXT = (PFNGLMAPBUFFERRANGEEXTPROC) load(userptr, "glMapBufferRangeEXT");
+}
+static void glad_gl_load_GL_EXT_multi_draw_indirect(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_multi_draw_indirect) return;
+    context->MultiDrawArraysIndirectEXT = (PFNGLMULTIDRAWARRAYSINDIRECTEXTPROC) load(userptr, "glMultiDrawArraysIndirectEXT");
+    context->MultiDrawElementsIndirectEXT = (PFNGLMULTIDRAWELEMENTSINDIRECTEXTPROC) load(userptr, "glMultiDrawElementsIndirectEXT");
+}
+static void glad_gl_load_GL_EXT_multisampled_render_to_texture(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_multisampled_render_to_texture) return;
+    context->FramebufferTexture2DMultisampleEXT = (PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC) load(userptr, "glFramebufferTexture2DMultisampleEXT");
+    context->RenderbufferStorageMultisampleEXT = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC) load(userptr, "glRenderbufferStorageMultisampleEXT");
+}
+static void glad_gl_load_GL_EXT_multiview_draw_buffers(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_multiview_draw_buffers) return;
+    context->DrawBuffersIndexedEXT = (PFNGLDRAWBUFFERSINDEXEDEXTPROC) load(userptr, "glDrawBuffersIndexedEXT");
+    context->GetIntegeri_vEXT = (PFNGLGETINTEGERI_VEXTPROC) load(userptr, "glGetIntegeri_vEXT");
+    context->ReadBufferIndexedEXT = (PFNGLREADBUFFERINDEXEDEXTPROC) load(userptr, "glReadBufferIndexedEXT");
+}
+static void glad_gl_load_GL_EXT_occlusion_query_boolean(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_occlusion_query_boolean) return;
+    context->BeginQueryEXT = (PFNGLBEGINQUERYEXTPROC) load(userptr, "glBeginQueryEXT");
+    context->DeleteQueriesEXT = (PFNGLDELETEQUERIESEXTPROC) load(userptr, "glDeleteQueriesEXT");
+    context->EndQueryEXT = (PFNGLENDQUERYEXTPROC) load(userptr, "glEndQueryEXT");
+    context->GenQueriesEXT = (PFNGLGENQUERIESEXTPROC) load(userptr, "glGenQueriesEXT");
+    context->GetQueryObjectuivEXT = (PFNGLGETQUERYOBJECTUIVEXTPROC) load(userptr, "glGetQueryObjectuivEXT");
+    context->GetQueryivEXT = (PFNGLGETQUERYIVEXTPROC) load(userptr, "glGetQueryivEXT");
+    context->IsQueryEXT = (PFNGLISQUERYEXTPROC) load(userptr, "glIsQueryEXT");
+}
+static void glad_gl_load_GL_EXT_primitive_bounding_box(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_primitive_bounding_box) return;
+    context->PrimitiveBoundingBoxEXT = (PFNGLPRIMITIVEBOUNDINGBOXEXTPROC) load(userptr, "glPrimitiveBoundingBoxEXT");
+}
+static void glad_gl_load_GL_EXT_robustness(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_robustness) return;
+    context->GetGraphicsResetStatusEXT = (PFNGLGETGRAPHICSRESETSTATUSEXTPROC) load(userptr, "glGetGraphicsResetStatusEXT");
+    context->GetnUniformfvEXT = (PFNGLGETNUNIFORMFVEXTPROC) load(userptr, "glGetnUniformfvEXT");
+    context->GetnUniformivEXT = (PFNGLGETNUNIFORMIVEXTPROC) load(userptr, "glGetnUniformivEXT");
+    context->ReadnPixelsEXT = (PFNGLREADNPIXELSEXTPROC) load(userptr, "glReadnPixelsEXT");
+}
+static void glad_gl_load_GL_EXT_shader_pixel_local_storage2(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_shader_pixel_local_storage2) return;
+    context->ClearPixelLocalStorageuiEXT = (PFNGLCLEARPIXELLOCALSTORAGEUIEXTPROC) load(userptr, "glClearPixelLocalStorageuiEXT");
+    context->FramebufferPixelLocalStorageSizeEXT = (PFNGLFRAMEBUFFERPIXELLOCALSTORAGESIZEEXTPROC) load(userptr, "glFramebufferPixelLocalStorageSizeEXT");
+    context->GetFramebufferPixelLocalStorageSizeEXT = (PFNGLGETFRAMEBUFFERPIXELLOCALSTORAGESIZEEXTPROC) load(userptr, "glGetFramebufferPixelLocalStorageSizeEXT");
+}
+static void glad_gl_load_GL_EXT_sparse_texture(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_sparse_texture) return;
+    context->TexPageCommitmentEXT = (PFNGLTEXPAGECOMMITMENTEXTPROC) load(userptr, "glTexPageCommitmentEXT");
+}
+static void glad_gl_load_GL_EXT_tessellation_shader(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_tessellation_shader) return;
+    context->PatchParameteriEXT = (PFNGLPATCHPARAMETERIEXTPROC) load(userptr, "glPatchParameteriEXT");
+}
+static void glad_gl_load_GL_EXT_texture_border_clamp(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_texture_border_clamp) return;
+    context->GetSamplerParameterIivEXT = (PFNGLGETSAMPLERPARAMETERIIVEXTPROC) load(userptr, "glGetSamplerParameterIivEXT");
+    context->GetSamplerParameterIuivEXT = (PFNGLGETSAMPLERPARAMETERIUIVEXTPROC) load(userptr, "glGetSamplerParameterIuivEXT");
+    context->GetTexParameterIivEXT = (PFNGLGETTEXPARAMETERIIVEXTPROC) load(userptr, "glGetTexParameterIivEXT");
+    context->GetTexParameterIuivEXT = (PFNGLGETTEXPARAMETERIUIVEXTPROC) load(userptr, "glGetTexParameterIuivEXT");
+    context->SamplerParameterIivEXT = (PFNGLSAMPLERPARAMETERIIVEXTPROC) load(userptr, "glSamplerParameterIivEXT");
+    context->SamplerParameterIuivEXT = (PFNGLSAMPLERPARAMETERIUIVEXTPROC) load(userptr, "glSamplerParameterIuivEXT");
+    context->TexParameterIivEXT = (PFNGLTEXPARAMETERIIVEXTPROC) load(userptr, "glTexParameterIivEXT");
+    context->TexParameterIuivEXT = (PFNGLTEXPARAMETERIUIVEXTPROC) load(userptr, "glTexParameterIuivEXT");
+}
+static void glad_gl_load_GL_EXT_texture_buffer(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_texture_buffer) return;
+    context->TexBufferEXT = (PFNGLTEXBUFFEREXTPROC) load(userptr, "glTexBufferEXT");
+    context->TexBufferRangeEXT = (PFNGLTEXBUFFERRANGEEXTPROC) load(userptr, "glTexBufferRangeEXT");
+}
+static void glad_gl_load_GL_EXT_texture_storage_compression(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_texture_storage_compression) return;
+    context->TexStorageAttribs2DEXT = (PFNGLTEXSTORAGEATTRIBS2DEXTPROC) load(userptr, "glTexStorageAttribs2DEXT");
+    context->TexStorageAttribs3DEXT = (PFNGLTEXSTORAGEATTRIBS3DEXTPROC) load(userptr, "glTexStorageAttribs3DEXT");
+}
+static void glad_gl_load_GL_EXT_texture_view(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->EXT_texture_view) return;
+    context->TextureViewEXT = (PFNGLTEXTUREVIEWEXTPROC) load(userptr, "glTextureViewEXT");
+}
+static void glad_gl_load_GL_IMG_bindless_texture(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->IMG_bindless_texture) return;
+    context->GetTextureHandleIMG = (PFNGLGETTEXTUREHANDLEIMGPROC) load(userptr, "glGetTextureHandleIMG");
+    context->GetTextureSamplerHandleIMG = (PFNGLGETTEXTURESAMPLERHANDLEIMGPROC) load(userptr, "glGetTextureSamplerHandleIMG");
+    context->ProgramUniformHandleui64IMG = (PFNGLPROGRAMUNIFORMHANDLEUI64IMGPROC) load(userptr, "glProgramUniformHandleui64IMG");
+    context->ProgramUniformHandleui64vIMG = (PFNGLPROGRAMUNIFORMHANDLEUI64VIMGPROC) load(userptr, "glProgramUniformHandleui64vIMG");
+    context->UniformHandleui64IMG = (PFNGLUNIFORMHANDLEUI64IMGPROC) load(userptr, "glUniformHandleui64IMG");
+    context->UniformHandleui64vIMG = (PFNGLUNIFORMHANDLEUI64VIMGPROC) load(userptr, "glUniformHandleui64vIMG");
+}
+static void glad_gl_load_GL_IMG_framebuffer_downsample(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->IMG_framebuffer_downsample) return;
+    context->FramebufferTexture2DDownsampleIMG = (PFNGLFRAMEBUFFERTEXTURE2DDOWNSAMPLEIMGPROC) load(userptr, "glFramebufferTexture2DDownsampleIMG");
+    context->FramebufferTextureLayerDownsampleIMG = (PFNGLFRAMEBUFFERTEXTURELAYERDOWNSAMPLEIMGPROC) load(userptr, "glFramebufferTextureLayerDownsampleIMG");
+}
+static void glad_gl_load_GL_IMG_multisampled_render_to_texture(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->IMG_multisampled_render_to_texture) return;
+    context->FramebufferTexture2DMultisampleIMG = (PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEIMGPROC) load(userptr, "glFramebufferTexture2DMultisampleIMG");
+    context->RenderbufferStorageMultisampleIMG = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEIMGPROC) load(userptr, "glRenderbufferStorageMultisampleIMG");
+}
+static void glad_gl_load_GL_MESA_sampler_objects(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->MESA_sampler_objects) return;
+    context->BindSampler = (PFNGLBINDSAMPLERPROC) load(userptr, "glBindSampler");
+    context->DeleteSamplers = (PFNGLDELETESAMPLERSPROC) load(userptr, "glDeleteSamplers");
+    context->GenSamplers = (PFNGLGENSAMPLERSPROC) load(userptr, "glGenSamplers");
+    context->GetSamplerParameterfv = (PFNGLGETSAMPLERPARAMETERFVPROC) load(userptr, "glGetSamplerParameterfv");
+    context->GetSamplerParameteriv = (PFNGLGETSAMPLERPARAMETERIVPROC) load(userptr, "glGetSamplerParameteriv");
+    context->IsSampler = (PFNGLISSAMPLERPROC) load(userptr, "glIsSampler");
+    context->SamplerParameterf = (PFNGLSAMPLERPARAMETERFPROC) load(userptr, "glSamplerParameterf");
+    context->SamplerParameterfv = (PFNGLSAMPLERPARAMETERFVPROC) load(userptr, "glSamplerParameterfv");
+    context->SamplerParameteri = (PFNGLSAMPLERPARAMETERIPROC) load(userptr, "glSamplerParameteri");
+    context->SamplerParameteriv = (PFNGLSAMPLERPARAMETERIVPROC) load(userptr, "glSamplerParameteriv");
+}
+static void glad_gl_load_GL_NV_copy_buffer(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->NV_copy_buffer) return;
+    context->CopyBufferSubDataNV = (PFNGLCOPYBUFFERSUBDATANVPROC) load(userptr, "glCopyBufferSubDataNV");
+}
+static void glad_gl_load_GL_NV_coverage_sample(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->NV_coverage_sample) return;
+    context->CoverageMaskNV = (PFNGLCOVERAGEMASKNVPROC) load(userptr, "glCoverageMaskNV");
+    context->CoverageOperationNV = (PFNGLCOVERAGEOPERATIONNVPROC) load(userptr, "glCoverageOperationNV");
+}
+static void glad_gl_load_GL_NV_draw_buffers(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->NV_draw_buffers) return;
+    context->DrawBuffersNV = (PFNGLDRAWBUFFERSNVPROC) load(userptr, "glDrawBuffersNV");
+}
+static void glad_gl_load_GL_NV_draw_instanced(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->NV_draw_instanced) return;
+    context->DrawArraysInstancedNV = (PFNGLDRAWARRAYSINSTANCEDNVPROC) load(userptr, "glDrawArraysInstancedNV");
+    context->DrawElementsInstancedNV = (PFNGLDRAWELEMENTSINSTANCEDNVPROC) load(userptr, "glDrawElementsInstancedNV");
+}
+static void glad_gl_load_GL_NV_framebuffer_blit(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->NV_framebuffer_blit) return;
+    context->BlitFramebufferNV = (PFNGLBLITFRAMEBUFFERNVPROC) load(userptr, "glBlitFramebufferNV");
+}
+static void glad_gl_load_GL_NV_framebuffer_multisample(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->NV_framebuffer_multisample) return;
+    context->RenderbufferStorageMultisampleNV = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLENVPROC) load(userptr, "glRenderbufferStorageMultisampleNV");
+}
+static void glad_gl_load_GL_NV_instanced_arrays(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->NV_instanced_arrays) return;
+    context->VertexAttribDivisorNV = (PFNGLVERTEXATTRIBDIVISORNVPROC) load(userptr, "glVertexAttribDivisorNV");
+}
+static void glad_gl_load_GL_NV_non_square_matrices(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->NV_non_square_matrices) return;
+    context->UniformMatrix2x3fvNV = (PFNGLUNIFORMMATRIX2X3FVNVPROC) load(userptr, "glUniformMatrix2x3fvNV");
+    context->UniformMatrix2x4fvNV = (PFNGLUNIFORMMATRIX2X4FVNVPROC) load(userptr, "glUniformMatrix2x4fvNV");
+    context->UniformMatrix3x2fvNV = (PFNGLUNIFORMMATRIX3X2FVNVPROC) load(userptr, "glUniformMatrix3x2fvNV");
+    context->UniformMatrix3x4fvNV = (PFNGLUNIFORMMATRIX3X4FVNVPROC) load(userptr, "glUniformMatrix3x4fvNV");
+    context->UniformMatrix4x2fvNV = (PFNGLUNIFORMMATRIX4X2FVNVPROC) load(userptr, "glUniformMatrix4x2fvNV");
+    context->UniformMatrix4x3fvNV = (PFNGLUNIFORMMATRIX4X3FVNVPROC) load(userptr, "glUniformMatrix4x3fvNV");
+}
+static void glad_gl_load_GL_NV_polygon_mode(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->NV_polygon_mode) return;
+    context->PolygonModeNV = (PFNGLPOLYGONMODENVPROC) load(userptr, "glPolygonModeNV");
+}
+static void glad_gl_load_GL_NV_read_buffer(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->NV_read_buffer) return;
+    context->ReadBufferNV = (PFNGLREADBUFFERNVPROC) load(userptr, "glReadBufferNV");
+}
+static void glad_gl_load_GL_NV_viewport_array(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->NV_viewport_array) return;
+    context->DepthRangeArrayfvNV = (PFNGLDEPTHRANGEARRAYFVNVPROC) load(userptr, "glDepthRangeArrayfvNV");
+    context->DepthRangeIndexedfNV = (PFNGLDEPTHRANGEINDEXEDFNVPROC) load(userptr, "glDepthRangeIndexedfNV");
+    context->DisableiNV = (PFNGLDISABLEINVPROC) load(userptr, "glDisableiNV");
+    context->EnableiNV = (PFNGLENABLEINVPROC) load(userptr, "glEnableiNV");
+    context->GetFloati_vNV = (PFNGLGETFLOATI_VNVPROC) load(userptr, "glGetFloati_vNV");
+    context->IsEnablediNV = (PFNGLISENABLEDINVPROC) load(userptr, "glIsEnablediNV");
+    context->ScissorArrayvNV = (PFNGLSCISSORARRAYVNVPROC) load(userptr, "glScissorArrayvNV");
+    context->ScissorIndexedNV = (PFNGLSCISSORINDEXEDNVPROC) load(userptr, "glScissorIndexedNV");
+    context->ScissorIndexedvNV = (PFNGLSCISSORINDEXEDVNVPROC) load(userptr, "glScissorIndexedvNV");
+    context->ViewportArrayvNV = (PFNGLVIEWPORTARRAYVNVPROC) load(userptr, "glViewportArrayvNV");
+    context->ViewportIndexedfNV = (PFNGLVIEWPORTINDEXEDFNVPROC) load(userptr, "glViewportIndexedfNV");
+    context->ViewportIndexedfvNV = (PFNGLVIEWPORTINDEXEDFVNVPROC) load(userptr, "glViewportIndexedfvNV");
+}
+static void glad_gl_load_GL_OES_EGL_image(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->OES_EGL_image) return;
+    context->EGLImageTargetRenderbufferStorageOES = (PFNGLEGLIMAGETARGETRENDERBUFFERSTORAGEOESPROC) load(userptr, "glEGLImageTargetRenderbufferStorageOES");
+    context->EGLImageTargetTexture2DOES = (PFNGLEGLIMAGETARGETTEXTURE2DOESPROC) load(userptr, "glEGLImageTargetTexture2DOES");
+}
+static void glad_gl_load_GL_OES_EGL_image_external(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->OES_EGL_image_external) return;
+    context->EGLImageTargetTexture2DOES = (PFNGLEGLIMAGETARGETTEXTURE2DOESPROC) load(userptr, "glEGLImageTargetTexture2DOES");
+}
+static void glad_gl_load_GL_OES_copy_image(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->OES_copy_image) return;
+    context->CopyImageSubDataOES = (PFNGLCOPYIMAGESUBDATAOESPROC) load(userptr, "glCopyImageSubDataOES");
+}
+static void glad_gl_load_GL_OES_draw_buffers_indexed(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->OES_draw_buffers_indexed) return;
+    context->BlendEquationSeparateiOES = (PFNGLBLENDEQUATIONSEPARATEIOESPROC) load(userptr, "glBlendEquationSeparateiOES");
+    context->BlendEquationiOES = (PFNGLBLENDEQUATIONIOESPROC) load(userptr, "glBlendEquationiOES");
+    context->BlendFuncSeparateiOES = (PFNGLBLENDFUNCSEPARATEIOESPROC) load(userptr, "glBlendFuncSeparateiOES");
+    context->BlendFunciOES = (PFNGLBLENDFUNCIOESPROC) load(userptr, "glBlendFunciOES");
+    context->ColorMaskiOES = (PFNGLCOLORMASKIOESPROC) load(userptr, "glColorMaskiOES");
+    context->DisableiOES = (PFNGLDISABLEIOESPROC) load(userptr, "glDisableiOES");
+    context->EnableiOES = (PFNGLENABLEIOESPROC) load(userptr, "glEnableiOES");
+    context->IsEnablediOES = (PFNGLISENABLEDIOESPROC) load(userptr, "glIsEnablediOES");
+}
+static void glad_gl_load_GL_OES_draw_elements_base_vertex(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->OES_draw_elements_base_vertex) return;
+    context->DrawElementsBaseVertexOES = (PFNGLDRAWELEMENTSBASEVERTEXOESPROC) load(userptr, "glDrawElementsBaseVertexOES");
+    context->DrawElementsInstancedBaseVertexOES = (PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXOESPROC) load(userptr, "glDrawElementsInstancedBaseVertexOES");
+    context->DrawRangeElementsBaseVertexOES = (PFNGLDRAWRANGEELEMENTSBASEVERTEXOESPROC) load(userptr, "glDrawRangeElementsBaseVertexOES");
+    context->MultiDrawElementsBaseVertexEXT = (PFNGLMULTIDRAWELEMENTSBASEVERTEXEXTPROC) load(userptr, "glMultiDrawElementsBaseVertexEXT");
+}
+static void glad_gl_load_GL_OES_geometry_shader(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->OES_geometry_shader) return;
+    context->FramebufferTextureOES = (PFNGLFRAMEBUFFERTEXTUREOESPROC) load(userptr, "glFramebufferTextureOES");
+}
+static void glad_gl_load_GL_OES_get_program_binary(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->OES_get_program_binary) return;
+    context->GetProgramBinaryOES = (PFNGLGETPROGRAMBINARYOESPROC) load(userptr, "glGetProgramBinaryOES");
+    context->ProgramBinaryOES = (PFNGLPROGRAMBINARYOESPROC) load(userptr, "glProgramBinaryOES");
+}
+static void glad_gl_load_GL_OES_mapbuffer(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->OES_mapbuffer) return;
+    context->GetBufferPointervOES = (PFNGLGETBUFFERPOINTERVOESPROC) load(userptr, "glGetBufferPointervOES");
+    context->MapBufferOES = (PFNGLMAPBUFFEROESPROC) load(userptr, "glMapBufferOES");
+    context->UnmapBufferOES = (PFNGLUNMAPBUFFEROESPROC) load(userptr, "glUnmapBufferOES");
+}
+static void glad_gl_load_GL_OES_primitive_bounding_box(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->OES_primitive_bounding_box) return;
+    context->PrimitiveBoundingBoxOES = (PFNGLPRIMITIVEBOUNDINGBOXOESPROC) load(userptr, "glPrimitiveBoundingBoxOES");
+}
+static void glad_gl_load_GL_OES_sample_shading(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->OES_sample_shading) return;
+    context->MinSampleShadingOES = (PFNGLMINSAMPLESHADINGOESPROC) load(userptr, "glMinSampleShadingOES");
+}
+static void glad_gl_load_GL_OES_tessellation_shader(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->OES_tessellation_shader) return;
+    context->PatchParameteriOES = (PFNGLPATCHPARAMETERIOESPROC) load(userptr, "glPatchParameteriOES");
+}
+static void glad_gl_load_GL_OES_texture_3D(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->OES_texture_3D) return;
+    context->CompressedTexImage3DOES = (PFNGLCOMPRESSEDTEXIMAGE3DOESPROC) load(userptr, "glCompressedTexImage3DOES");
+    context->CompressedTexSubImage3DOES = (PFNGLCOMPRESSEDTEXSUBIMAGE3DOESPROC) load(userptr, "glCompressedTexSubImage3DOES");
+    context->CopyTexSubImage3DOES = (PFNGLCOPYTEXSUBIMAGE3DOESPROC) load(userptr, "glCopyTexSubImage3DOES");
+    context->FramebufferTexture3DOES = (PFNGLFRAMEBUFFERTEXTURE3DOESPROC) load(userptr, "glFramebufferTexture3DOES");
+    context->TexImage3DOES = (PFNGLTEXIMAGE3DOESPROC) load(userptr, "glTexImage3DOES");
+    context->TexSubImage3DOES = (PFNGLTEXSUBIMAGE3DOESPROC) load(userptr, "glTexSubImage3DOES");
+}
+static void glad_gl_load_GL_OES_texture_border_clamp(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->OES_texture_border_clamp) return;
+    context->GetSamplerParameterIivOES = (PFNGLGETSAMPLERPARAMETERIIVOESPROC) load(userptr, "glGetSamplerParameterIivOES");
+    context->GetSamplerParameterIuivOES = (PFNGLGETSAMPLERPARAMETERIUIVOESPROC) load(userptr, "glGetSamplerParameterIuivOES");
+    context->GetTexParameterIivOES = (PFNGLGETTEXPARAMETERIIVOESPROC) load(userptr, "glGetTexParameterIivOES");
+    context->GetTexParameterIuivOES = (PFNGLGETTEXPARAMETERIUIVOESPROC) load(userptr, "glGetTexParameterIuivOES");
+    context->SamplerParameterIivOES = (PFNGLSAMPLERPARAMETERIIVOESPROC) load(userptr, "glSamplerParameterIivOES");
+    context->SamplerParameterIuivOES = (PFNGLSAMPLERPARAMETERIUIVOESPROC) load(userptr, "glSamplerParameterIuivOES");
+    context->TexParameterIivOES = (PFNGLTEXPARAMETERIIVOESPROC) load(userptr, "glTexParameterIivOES");
+    context->TexParameterIuivOES = (PFNGLTEXPARAMETERIUIVOESPROC) load(userptr, "glTexParameterIuivOES");
+}
+static void glad_gl_load_GL_OES_texture_buffer(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->OES_texture_buffer) return;
+    context->TexBufferOES = (PFNGLTEXBUFFEROESPROC) load(userptr, "glTexBufferOES");
+    context->TexBufferRangeOES = (PFNGLTEXBUFFERRANGEOESPROC) load(userptr, "glTexBufferRangeOES");
+}
+static void glad_gl_load_GL_OES_texture_storage_multisample_2d_array(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->OES_texture_storage_multisample_2d_array) return;
+    context->TexStorage3DMultisampleOES = (PFNGLTEXSTORAGE3DMULTISAMPLEOESPROC) load(userptr, "glTexStorage3DMultisampleOES");
+}
+static void glad_gl_load_GL_OES_texture_view(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->OES_texture_view) return;
+    context->TextureViewOES = (PFNGLTEXTUREVIEWOESPROC) load(userptr, "glTextureViewOES");
+}
+static void glad_gl_load_GL_OES_vertex_array_object(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->OES_vertex_array_object) return;
+    context->BindVertexArrayOES = (PFNGLBINDVERTEXARRAYOESPROC) load(userptr, "glBindVertexArrayOES");
+    context->DeleteVertexArraysOES = (PFNGLDELETEVERTEXARRAYSOESPROC) load(userptr, "glDeleteVertexArraysOES");
+    context->GenVertexArraysOES = (PFNGLGENVERTEXARRAYSOESPROC) load(userptr, "glGenVertexArraysOES");
+    context->IsVertexArrayOES = (PFNGLISVERTEXARRAYOESPROC) load(userptr, "glIsVertexArrayOES");
+}
+static void glad_gl_load_GL_OES_viewport_array(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->OES_viewport_array) return;
+    context->DepthRangeArrayfvOES = (PFNGLDEPTHRANGEARRAYFVOESPROC) load(userptr, "glDepthRangeArrayfvOES");
+    context->DepthRangeIndexedfOES = (PFNGLDEPTHRANGEINDEXEDFOESPROC) load(userptr, "glDepthRangeIndexedfOES");
+    context->DisableiOES = (PFNGLDISABLEIOESPROC) load(userptr, "glDisableiOES");
+    context->EnableiOES = (PFNGLENABLEIOESPROC) load(userptr, "glEnableiOES");
+    context->GetFloati_vOES = (PFNGLGETFLOATI_VOESPROC) load(userptr, "glGetFloati_vOES");
+    context->IsEnablediOES = (PFNGLISENABLEDIOESPROC) load(userptr, "glIsEnablediOES");
+    context->ScissorArrayvOES = (PFNGLSCISSORARRAYVOESPROC) load(userptr, "glScissorArrayvOES");
+    context->ScissorIndexedOES = (PFNGLSCISSORINDEXEDOESPROC) load(userptr, "glScissorIndexedOES");
+    context->ScissorIndexedvOES = (PFNGLSCISSORINDEXEDVOESPROC) load(userptr, "glScissorIndexedvOES");
+    context->ViewportArrayvOES = (PFNGLVIEWPORTARRAYVOESPROC) load(userptr, "glViewportArrayvOES");
+    context->ViewportIndexedfOES = (PFNGLVIEWPORTINDEXEDFOESPROC) load(userptr, "glViewportIndexedfOES");
+    context->ViewportIndexedfvOES = (PFNGLVIEWPORTINDEXEDFVOESPROC) load(userptr, "glViewportIndexedfvOES");
+}
+static void glad_gl_load_GL_OVR_multiview_multisampled_render_to_texture(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->OVR_multiview_multisampled_render_to_texture) return;
+    context->FramebufferTextureMultisampleMultiviewOVR = (PFNGLFRAMEBUFFERTEXTUREMULTISAMPLEMULTIVIEWOVRPROC) load(userptr, "glFramebufferTextureMultisampleMultiviewOVR");
+}
+static void glad_gl_load_GL_QCOM_alpha_test(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->QCOM_alpha_test) return;
+    context->AlphaFuncQCOM = (PFNGLALPHAFUNCQCOMPROC) load(userptr, "glAlphaFuncQCOM");
+}
+static void glad_gl_load_GL_QCOM_driver_control(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->QCOM_driver_control) return;
+    context->DisableDriverControlQCOM = (PFNGLDISABLEDRIVERCONTROLQCOMPROC) load(userptr, "glDisableDriverControlQCOM");
+    context->EnableDriverControlQCOM = (PFNGLENABLEDRIVERCONTROLQCOMPROC) load(userptr, "glEnableDriverControlQCOM");
+    context->GetDriverControlStringQCOM = (PFNGLGETDRIVERCONTROLSTRINGQCOMPROC) load(userptr, "glGetDriverControlStringQCOM");
+    context->GetDriverControlsQCOM = (PFNGLGETDRIVERCONTROLSQCOMPROC) load(userptr, "glGetDriverControlsQCOM");
+}
+static void glad_gl_load_GL_QCOM_extended_get(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->QCOM_extended_get) return;
+    context->ExtGetBufferPointervQCOM = (PFNGLEXTGETBUFFERPOINTERVQCOMPROC) load(userptr, "glExtGetBufferPointervQCOM");
+    context->ExtGetBuffersQCOM = (PFNGLEXTGETBUFFERSQCOMPROC) load(userptr, "glExtGetBuffersQCOM");
+    context->ExtGetFramebuffersQCOM = (PFNGLEXTGETFRAMEBUFFERSQCOMPROC) load(userptr, "glExtGetFramebuffersQCOM");
+    context->ExtGetRenderbuffersQCOM = (PFNGLEXTGETRENDERBUFFERSQCOMPROC) load(userptr, "glExtGetRenderbuffersQCOM");
+    context->ExtGetTexLevelParameterivQCOM = (PFNGLEXTGETTEXLEVELPARAMETERIVQCOMPROC) load(userptr, "glExtGetTexLevelParameterivQCOM");
+    context->ExtGetTexSubImageQCOM = (PFNGLEXTGETTEXSUBIMAGEQCOMPROC) load(userptr, "glExtGetTexSubImageQCOM");
+    context->ExtGetTexturesQCOM = (PFNGLEXTGETTEXTURESQCOMPROC) load(userptr, "glExtGetTexturesQCOM");
+    context->ExtTexObjectStateOverrideiQCOM = (PFNGLEXTTEXOBJECTSTATEOVERRIDEIQCOMPROC) load(userptr, "glExtTexObjectStateOverrideiQCOM");
+}
+static void glad_gl_load_GL_QCOM_extended_get2(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->QCOM_extended_get2) return;
+    context->ExtGetProgramBinarySourceQCOM = (PFNGLEXTGETPROGRAMBINARYSOURCEQCOMPROC) load(userptr, "glExtGetProgramBinarySourceQCOM");
+    context->ExtGetProgramsQCOM = (PFNGLEXTGETPROGRAMSQCOMPROC) load(userptr, "glExtGetProgramsQCOM");
+    context->ExtGetShadersQCOM = (PFNGLEXTGETSHADERSQCOMPROC) load(userptr, "glExtGetShadersQCOM");
+    context->ExtIsProgramBinaryQCOM = (PFNGLEXTISPROGRAMBINARYQCOMPROC) load(userptr, "glExtIsProgramBinaryQCOM");
+}
+static void glad_gl_load_GL_QCOM_frame_extrapolation(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->QCOM_frame_extrapolation) return;
+    context->ExtrapolateTex2DQCOM = (PFNGLEXTRAPOLATETEX2DQCOMPROC) load(userptr, "glExtrapolateTex2DQCOM");
+}
+static void glad_gl_load_GL_QCOM_framebuffer_foveated(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->QCOM_framebuffer_foveated) return;
+    context->FramebufferFoveationConfigQCOM = (PFNGLFRAMEBUFFERFOVEATIONCONFIGQCOMPROC) load(userptr, "glFramebufferFoveationConfigQCOM");
+    context->FramebufferFoveationParametersQCOM = (PFNGLFRAMEBUFFERFOVEATIONPARAMETERSQCOMPROC) load(userptr, "glFramebufferFoveationParametersQCOM");
+}
+static void glad_gl_load_GL_QCOM_motion_estimation(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->QCOM_motion_estimation) return;
+    context->TexEstimateMotionQCOM = (PFNGLTEXESTIMATEMOTIONQCOMPROC) load(userptr, "glTexEstimateMotionQCOM");
+    context->TexEstimateMotionRegionsQCOM = (PFNGLTEXESTIMATEMOTIONREGIONSQCOMPROC) load(userptr, "glTexEstimateMotionRegionsQCOM");
+}
+static void glad_gl_load_GL_QCOM_shader_framebuffer_fetch_noncoherent(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->QCOM_shader_framebuffer_fetch_noncoherent) return;
+    context->FramebufferFetchBarrierQCOM = (PFNGLFRAMEBUFFERFETCHBARRIERQCOMPROC) load(userptr, "glFramebufferFetchBarrierQCOM");
+}
+static void glad_gl_load_GL_QCOM_shading_rate(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->QCOM_shading_rate) return;
+    context->ShadingRateQCOM = (PFNGLSHADINGRATEQCOMPROC) load(userptr, "glShadingRateQCOM");
+}
+static void glad_gl_load_GL_QCOM_texture_foveated(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->QCOM_texture_foveated) return;
+    context->TextureFoveationParametersQCOM = (PFNGLTEXTUREFOVEATIONPARAMETERSQCOMPROC) load(userptr, "glTextureFoveationParametersQCOM");
+}
+static void glad_gl_load_GL_QCOM_tiled_rendering(GladGLContext *context, GLADuserptrloadfunc load, void* userptr) {
+    if(!context->QCOM_tiled_rendering) return;
+    context->EndTilingQCOM = (PFNGLENDTILINGQCOMPROC) load(userptr, "glEndTilingQCOM");
+    context->StartTilingQCOM = (PFNGLSTARTTILINGQCOMPROC) load(userptr, "glStartTilingQCOM");
+}
 
 
+static void glad_gl_resolve_aliases(GladGLContext *context) {
+    if (context->ActiveTexture == NULL && context->ActiveTextureARB != NULL) context->ActiveTexture = (PFNGLACTIVETEXTUREPROC)context->ActiveTextureARB;
+    if (context->ActiveTextureARB == NULL && context->ActiveTexture != NULL) context->ActiveTextureARB = (PFNGLACTIVETEXTUREARBPROC)context->ActiveTexture;
+    if (context->AttachObjectARB == NULL && context->AttachShader != NULL) context->AttachObjectARB = (PFNGLATTACHOBJECTARBPROC)context->AttachShader;
+    if (context->AttachShader == NULL && context->AttachObjectARB != NULL) context->AttachShader = (PFNGLATTACHSHADERPROC)context->AttachObjectARB;
+    if (context->BeginConditionalRender == NULL && context->BeginConditionalRenderNV != NULL) context->BeginConditionalRender = (PFNGLBEGINCONDITIONALRENDERPROC)context->BeginConditionalRenderNV;
+    if (context->BeginConditionalRenderNV == NULL && context->BeginConditionalRender != NULL) context->BeginConditionalRenderNV = (PFNGLBEGINCONDITIONALRENDERNVPROC)context->BeginConditionalRender;
+    if (context->BeginQuery == NULL && context->BeginQueryARB != NULL) context->BeginQuery = (PFNGLBEGINQUERYPROC)context->BeginQueryARB;
+    if (context->BeginQueryARB == NULL && context->BeginQuery != NULL) context->BeginQueryARB = (PFNGLBEGINQUERYARBPROC)context->BeginQuery;
+    if (context->BeginTransformFeedback == NULL && context->BeginTransformFeedbackEXT != NULL) context->BeginTransformFeedback = (PFNGLBEGINTRANSFORMFEEDBACKPROC)context->BeginTransformFeedbackEXT;
+    if (context->BeginTransformFeedback == NULL && context->BeginTransformFeedbackNV != NULL) context->BeginTransformFeedback = (PFNGLBEGINTRANSFORMFEEDBACKPROC)context->BeginTransformFeedbackNV;
+    if (context->BeginTransformFeedbackEXT == NULL && context->BeginTransformFeedback != NULL) context->BeginTransformFeedbackEXT = (PFNGLBEGINTRANSFORMFEEDBACKEXTPROC)context->BeginTransformFeedback;
+    if (context->BeginTransformFeedbackEXT == NULL && context->BeginTransformFeedbackNV != NULL) context->BeginTransformFeedbackEXT = (PFNGLBEGINTRANSFORMFEEDBACKEXTPROC)context->BeginTransformFeedbackNV;
+    if (context->BeginTransformFeedbackNV == NULL && context->BeginTransformFeedback != NULL) context->BeginTransformFeedbackNV = (PFNGLBEGINTRANSFORMFEEDBACKNVPROC)context->BeginTransformFeedback;
+    if (context->BeginTransformFeedbackNV == NULL && context->BeginTransformFeedbackEXT != NULL) context->BeginTransformFeedbackNV = (PFNGLBEGINTRANSFORMFEEDBACKNVPROC)context->BeginTransformFeedbackEXT;
+    if (context->BindAttribLocation == NULL && context->BindAttribLocationARB != NULL) context->BindAttribLocation = (PFNGLBINDATTRIBLOCATIONPROC)context->BindAttribLocationARB;
+    if (context->BindAttribLocationARB == NULL && context->BindAttribLocation != NULL) context->BindAttribLocationARB = (PFNGLBINDATTRIBLOCATIONARBPROC)context->BindAttribLocation;
+    if (context->BindBuffer == NULL && context->BindBufferARB != NULL) context->BindBuffer = (PFNGLBINDBUFFERPROC)context->BindBufferARB;
+    if (context->BindBufferARB == NULL && context->BindBuffer != NULL) context->BindBufferARB = (PFNGLBINDBUFFERARBPROC)context->BindBuffer;
+    if (context->BindBufferBase == NULL && context->BindBufferBaseEXT != NULL) context->BindBufferBase = (PFNGLBINDBUFFERBASEPROC)context->BindBufferBaseEXT;
+    if (context->BindBufferBase == NULL && context->BindBufferBaseNV != NULL) context->BindBufferBase = (PFNGLBINDBUFFERBASEPROC)context->BindBufferBaseNV;
+    if (context->BindBufferBaseEXT == NULL && context->BindBufferBase != NULL) context->BindBufferBaseEXT = (PFNGLBINDBUFFERBASEEXTPROC)context->BindBufferBase;
+    if (context->BindBufferBaseEXT == NULL && context->BindBufferBaseNV != NULL) context->BindBufferBaseEXT = (PFNGLBINDBUFFERBASEEXTPROC)context->BindBufferBaseNV;
+    if (context->BindBufferBaseNV == NULL && context->BindBufferBase != NULL) context->BindBufferBaseNV = (PFNGLBINDBUFFERBASENVPROC)context->BindBufferBase;
+    if (context->BindBufferBaseNV == NULL && context->BindBufferBaseEXT != NULL) context->BindBufferBaseNV = (PFNGLBINDBUFFERBASENVPROC)context->BindBufferBaseEXT;
+    if (context->BindBufferOffsetEXT == NULL && context->BindBufferOffsetNV != NULL) context->BindBufferOffsetEXT = (PFNGLBINDBUFFEROFFSETEXTPROC)context->BindBufferOffsetNV;
+    if (context->BindBufferOffsetNV == NULL && context->BindBufferOffsetEXT != NULL) context->BindBufferOffsetNV = (PFNGLBINDBUFFEROFFSETNVPROC)context->BindBufferOffsetEXT;
+    if (context->BindBufferRange == NULL && context->BindBufferRangeEXT != NULL) context->BindBufferRange = (PFNGLBINDBUFFERRANGEPROC)context->BindBufferRangeEXT;
+    if (context->BindBufferRange == NULL && context->BindBufferRangeNV != NULL) context->BindBufferRange = (PFNGLBINDBUFFERRANGEPROC)context->BindBufferRangeNV;
+    if (context->BindBufferRangeEXT == NULL && context->BindBufferRange != NULL) context->BindBufferRangeEXT = (PFNGLBINDBUFFERRANGEEXTPROC)context->BindBufferRange;
+    if (context->BindBufferRangeEXT == NULL && context->BindBufferRangeNV != NULL) context->BindBufferRangeEXT = (PFNGLBINDBUFFERRANGEEXTPROC)context->BindBufferRangeNV;
+    if (context->BindBufferRangeNV == NULL && context->BindBufferRange != NULL) context->BindBufferRangeNV = (PFNGLBINDBUFFERRANGENVPROC)context->BindBufferRange;
+    if (context->BindBufferRangeNV == NULL && context->BindBufferRangeEXT != NULL) context->BindBufferRangeNV = (PFNGLBINDBUFFERRANGENVPROC)context->BindBufferRangeEXT;
+    if (context->BindFragDataLocation == NULL && context->BindFragDataLocationEXT != NULL) context->BindFragDataLocation = (PFNGLBINDFRAGDATALOCATIONPROC)context->BindFragDataLocationEXT;
+    if (context->BindFragDataLocationEXT == NULL && context->BindFragDataLocation != NULL) context->BindFragDataLocationEXT = (PFNGLBINDFRAGDATALOCATIONEXTPROC)context->BindFragDataLocation;
+    if (context->BindFragDataLocationIndexed == NULL && context->BindFragDataLocationIndexedEXT != NULL) context->BindFragDataLocationIndexed = (PFNGLBINDFRAGDATALOCATIONINDEXEDPROC)context->BindFragDataLocationIndexedEXT;
+    if (context->BindFragDataLocationIndexedEXT == NULL && context->BindFragDataLocationIndexed != NULL) context->BindFragDataLocationIndexedEXT = (PFNGLBINDFRAGDATALOCATIONINDEXEDEXTPROC)context->BindFragDataLocationIndexed;
+    if (context->BindProgramARB == NULL && context->BindProgramNV != NULL) context->BindProgramARB = (PFNGLBINDPROGRAMARBPROC)context->BindProgramNV;
+    if (context->BindProgramNV == NULL && context->BindProgramARB != NULL) context->BindProgramNV = (PFNGLBINDPROGRAMNVPROC)context->BindProgramARB;
+    if (context->BindTexture == NULL && context->BindTextureEXT != NULL) context->BindTexture = (PFNGLBINDTEXTUREPROC)context->BindTextureEXT;
+    if (context->BindTextureEXT == NULL && context->BindTexture != NULL) context->BindTextureEXT = (PFNGLBINDTEXTUREEXTPROC)context->BindTexture;
+    if (context->BindVertexArray == NULL && context->BindVertexArrayOES != NULL) context->BindVertexArray = (PFNGLBINDVERTEXARRAYPROC)context->BindVertexArrayOES;
+    if (context->BindVertexArrayOES == NULL && context->BindVertexArray != NULL) context->BindVertexArrayOES = (PFNGLBINDVERTEXARRAYOESPROC)context->BindVertexArray;
+    if (context->BlendBarrier == NULL && context->BlendBarrierKHR != NULL) context->BlendBarrier = (PFNGLBLENDBARRIERPROC)context->BlendBarrierKHR;
+    if (context->BlendBarrier == NULL && context->BlendBarrierNV != NULL) context->BlendBarrier = (PFNGLBLENDBARRIERPROC)context->BlendBarrierNV;
+    if (context->BlendBarrierKHR == NULL && context->BlendBarrier != NULL) context->BlendBarrierKHR = (PFNGLBLENDBARRIERKHRPROC)context->BlendBarrier;
+    if (context->BlendBarrierKHR == NULL && context->BlendBarrierNV != NULL) context->BlendBarrierKHR = (PFNGLBLENDBARRIERKHRPROC)context->BlendBarrierNV;
+    if (context->BlendBarrierNV == NULL && context->BlendBarrier != NULL) context->BlendBarrierNV = (PFNGLBLENDBARRIERNVPROC)context->BlendBarrier;
+    if (context->BlendBarrierNV == NULL && context->BlendBarrierKHR != NULL) context->BlendBarrierNV = (PFNGLBLENDBARRIERNVPROC)context->BlendBarrierKHR;
+    if (context->BlendColor == NULL && context->BlendColorEXT != NULL) context->BlendColor = (PFNGLBLENDCOLORPROC)context->BlendColorEXT;
+    if (context->BlendColorEXT == NULL && context->BlendColor != NULL) context->BlendColorEXT = (PFNGLBLENDCOLOREXTPROC)context->BlendColor;
+    if (context->BlendEquation == NULL && context->BlendEquationEXT != NULL) context->BlendEquation = (PFNGLBLENDEQUATIONPROC)context->BlendEquationEXT;
+    if (context->BlendEquationEXT == NULL && context->BlendEquation != NULL) context->BlendEquationEXT = (PFNGLBLENDEQUATIONEXTPROC)context->BlendEquation;
+    if (context->BlendEquationi == NULL && context->BlendEquationIndexedAMD != NULL) context->BlendEquationi = (PFNGLBLENDEQUATIONIPROC)context->BlendEquationIndexedAMD;
+    if (context->BlendEquationi == NULL && context->BlendEquationiARB != NULL) context->BlendEquationi = (PFNGLBLENDEQUATIONIPROC)context->BlendEquationiARB;
+    if (context->BlendEquationi == NULL && context->BlendEquationiEXT != NULL) context->BlendEquationi = (PFNGLBLENDEQUATIONIPROC)context->BlendEquationiEXT;
+    if (context->BlendEquationi == NULL && context->BlendEquationiOES != NULL) context->BlendEquationi = (PFNGLBLENDEQUATIONIPROC)context->BlendEquationiOES;
+    if (context->BlendEquationiARB == NULL && context->BlendEquationIndexedAMD != NULL) context->BlendEquationiARB = (PFNGLBLENDEQUATIONIARBPROC)context->BlendEquationIndexedAMD;
+    if (context->BlendEquationiARB == NULL && context->BlendEquationi != NULL) context->BlendEquationiARB = (PFNGLBLENDEQUATIONIARBPROC)context->BlendEquationi;
+    if (context->BlendEquationiARB == NULL && context->BlendEquationiEXT != NULL) context->BlendEquationiARB = (PFNGLBLENDEQUATIONIARBPROC)context->BlendEquationiEXT;
+    if (context->BlendEquationiARB == NULL && context->BlendEquationiOES != NULL) context->BlendEquationiARB = (PFNGLBLENDEQUATIONIARBPROC)context->BlendEquationiOES;
+    if (context->BlendEquationiEXT == NULL && context->BlendEquationIndexedAMD != NULL) context->BlendEquationiEXT = (PFNGLBLENDEQUATIONIEXTPROC)context->BlendEquationIndexedAMD;
+    if (context->BlendEquationiEXT == NULL && context->BlendEquationi != NULL) context->BlendEquationiEXT = (PFNGLBLENDEQUATIONIEXTPROC)context->BlendEquationi;
+    if (context->BlendEquationiEXT == NULL && context->BlendEquationiARB != NULL) context->BlendEquationiEXT = (PFNGLBLENDEQUATIONIEXTPROC)context->BlendEquationiARB;
+    if (context->BlendEquationiEXT == NULL && context->BlendEquationiOES != NULL) context->BlendEquationiEXT = (PFNGLBLENDEQUATIONIEXTPROC)context->BlendEquationiOES;
+    if (context->BlendEquationIndexedAMD == NULL && context->BlendEquationi != NULL) context->BlendEquationIndexedAMD = (PFNGLBLENDEQUATIONINDEXEDAMDPROC)context->BlendEquationi;
+    if (context->BlendEquationIndexedAMD == NULL && context->BlendEquationiARB != NULL) context->BlendEquationIndexedAMD = (PFNGLBLENDEQUATIONINDEXEDAMDPROC)context->BlendEquationiARB;
+    if (context->BlendEquationIndexedAMD == NULL && context->BlendEquationiEXT != NULL) context->BlendEquationIndexedAMD = (PFNGLBLENDEQUATIONINDEXEDAMDPROC)context->BlendEquationiEXT;
+    if (context->BlendEquationIndexedAMD == NULL && context->BlendEquationiOES != NULL) context->BlendEquationIndexedAMD = (PFNGLBLENDEQUATIONINDEXEDAMDPROC)context->BlendEquationiOES;
+    if (context->BlendEquationiOES == NULL && context->BlendEquationIndexedAMD != NULL) context->BlendEquationiOES = (PFNGLBLENDEQUATIONIOESPROC)context->BlendEquationIndexedAMD;
+    if (context->BlendEquationiOES == NULL && context->BlendEquationi != NULL) context->BlendEquationiOES = (PFNGLBLENDEQUATIONIOESPROC)context->BlendEquationi;
+    if (context->BlendEquationiOES == NULL && context->BlendEquationiARB != NULL) context->BlendEquationiOES = (PFNGLBLENDEQUATIONIOESPROC)context->BlendEquationiARB;
+    if (context->BlendEquationiOES == NULL && context->BlendEquationiEXT != NULL) context->BlendEquationiOES = (PFNGLBLENDEQUATIONIOESPROC)context->BlendEquationiEXT;
+    if (context->BlendEquationSeparate == NULL && context->BlendEquationSeparateEXT != NULL) context->BlendEquationSeparate = (PFNGLBLENDEQUATIONSEPARATEPROC)context->BlendEquationSeparateEXT;
+    if (context->BlendEquationSeparateEXT == NULL && context->BlendEquationSeparate != NULL) context->BlendEquationSeparateEXT = (PFNGLBLENDEQUATIONSEPARATEEXTPROC)context->BlendEquationSeparate;
+    if (context->BlendEquationSeparatei == NULL && context->BlendEquationSeparateIndexedAMD != NULL) context->BlendEquationSeparatei = (PFNGLBLENDEQUATIONSEPARATEIPROC)context->BlendEquationSeparateIndexedAMD;
+    if (context->BlendEquationSeparatei == NULL && context->BlendEquationSeparateiARB != NULL) context->BlendEquationSeparatei = (PFNGLBLENDEQUATIONSEPARATEIPROC)context->BlendEquationSeparateiARB;
+    if (context->BlendEquationSeparatei == NULL && context->BlendEquationSeparateiEXT != NULL) context->BlendEquationSeparatei = (PFNGLBLENDEQUATIONSEPARATEIPROC)context->BlendEquationSeparateiEXT;
+    if (context->BlendEquationSeparatei == NULL && context->BlendEquationSeparateiOES != NULL) context->BlendEquationSeparatei = (PFNGLBLENDEQUATIONSEPARATEIPROC)context->BlendEquationSeparateiOES;
+    if (context->BlendEquationSeparateiARB == NULL && context->BlendEquationSeparateIndexedAMD != NULL) context->BlendEquationSeparateiARB = (PFNGLBLENDEQUATIONSEPARATEIARBPROC)context->BlendEquationSeparateIndexedAMD;
+    if (context->BlendEquationSeparateiARB == NULL && context->BlendEquationSeparatei != NULL) context->BlendEquationSeparateiARB = (PFNGLBLENDEQUATIONSEPARATEIARBPROC)context->BlendEquationSeparatei;
+    if (context->BlendEquationSeparateiARB == NULL && context->BlendEquationSeparateiEXT != NULL) context->BlendEquationSeparateiARB = (PFNGLBLENDEQUATIONSEPARATEIARBPROC)context->BlendEquationSeparateiEXT;
+    if (context->BlendEquationSeparateiARB == NULL && context->BlendEquationSeparateiOES != NULL) context->BlendEquationSeparateiARB = (PFNGLBLENDEQUATIONSEPARATEIARBPROC)context->BlendEquationSeparateiOES;
+    if (context->BlendEquationSeparateiEXT == NULL && context->BlendEquationSeparateIndexedAMD != NULL) context->BlendEquationSeparateiEXT = (PFNGLBLENDEQUATIONSEPARATEIEXTPROC)context->BlendEquationSeparateIndexedAMD;
+    if (context->BlendEquationSeparateiEXT == NULL && context->BlendEquationSeparatei != NULL) context->BlendEquationSeparateiEXT = (PFNGLBLENDEQUATIONSEPARATEIEXTPROC)context->BlendEquationSeparatei;
+    if (context->BlendEquationSeparateiEXT == NULL && context->BlendEquationSeparateiARB != NULL) context->BlendEquationSeparateiEXT = (PFNGLBLENDEQUATIONSEPARATEIEXTPROC)context->BlendEquationSeparateiARB;
+    if (context->BlendEquationSeparateiEXT == NULL && context->BlendEquationSeparateiOES != NULL) context->BlendEquationSeparateiEXT = (PFNGLBLENDEQUATIONSEPARATEIEXTPROC)context->BlendEquationSeparateiOES;
+    if (context->BlendEquationSeparateIndexedAMD == NULL && context->BlendEquationSeparatei != NULL) context->BlendEquationSeparateIndexedAMD = (PFNGLBLENDEQUATIONSEPARATEINDEXEDAMDPROC)context->BlendEquationSeparatei;
+    if (context->BlendEquationSeparateIndexedAMD == NULL && context->BlendEquationSeparateiARB != NULL) context->BlendEquationSeparateIndexedAMD = (PFNGLBLENDEQUATIONSEPARATEINDEXEDAMDPROC)context->BlendEquationSeparateiARB;
+    if (context->BlendEquationSeparateIndexedAMD == NULL && context->BlendEquationSeparateiEXT != NULL) context->BlendEquationSeparateIndexedAMD = (PFNGLBLENDEQUATIONSEPARATEINDEXEDAMDPROC)context->BlendEquationSeparateiEXT;
+    if (context->BlendEquationSeparateIndexedAMD == NULL && context->BlendEquationSeparateiOES != NULL) context->BlendEquationSeparateIndexedAMD = (PFNGLBLENDEQUATIONSEPARATEINDEXEDAMDPROC)context->BlendEquationSeparateiOES;
+    if (context->BlendEquationSeparateiOES == NULL && context->BlendEquationSeparateIndexedAMD != NULL) context->BlendEquationSeparateiOES = (PFNGLBLENDEQUATIONSEPARATEIOESPROC)context->BlendEquationSeparateIndexedAMD;
+    if (context->BlendEquationSeparateiOES == NULL && context->BlendEquationSeparatei != NULL) context->BlendEquationSeparateiOES = (PFNGLBLENDEQUATIONSEPARATEIOESPROC)context->BlendEquationSeparatei;
+    if (context->BlendEquationSeparateiOES == NULL && context->BlendEquationSeparateiARB != NULL) context->BlendEquationSeparateiOES = (PFNGLBLENDEQUATIONSEPARATEIOESPROC)context->BlendEquationSeparateiARB;
+    if (context->BlendEquationSeparateiOES == NULL && context->BlendEquationSeparateiEXT != NULL) context->BlendEquationSeparateiOES = (PFNGLBLENDEQUATIONSEPARATEIOESPROC)context->BlendEquationSeparateiEXT;
+    if (context->BlendFunci == NULL && context->BlendFuncIndexedAMD != NULL) context->BlendFunci = (PFNGLBLENDFUNCIPROC)context->BlendFuncIndexedAMD;
+    if (context->BlendFunci == NULL && context->BlendFunciARB != NULL) context->BlendFunci = (PFNGLBLENDFUNCIPROC)context->BlendFunciARB;
+    if (context->BlendFunci == NULL && context->BlendFunciEXT != NULL) context->BlendFunci = (PFNGLBLENDFUNCIPROC)context->BlendFunciEXT;
+    if (context->BlendFunci == NULL && context->BlendFunciOES != NULL) context->BlendFunci = (PFNGLBLENDFUNCIPROC)context->BlendFunciOES;
+    if (context->BlendFunciARB == NULL && context->BlendFuncIndexedAMD != NULL) context->BlendFunciARB = (PFNGLBLENDFUNCIARBPROC)context->BlendFuncIndexedAMD;
+    if (context->BlendFunciARB == NULL && context->BlendFunci != NULL) context->BlendFunciARB = (PFNGLBLENDFUNCIARBPROC)context->BlendFunci;
+    if (context->BlendFunciARB == NULL && context->BlendFunciEXT != NULL) context->BlendFunciARB = (PFNGLBLENDFUNCIARBPROC)context->BlendFunciEXT;
+    if (context->BlendFunciARB == NULL && context->BlendFunciOES != NULL) context->BlendFunciARB = (PFNGLBLENDFUNCIARBPROC)context->BlendFunciOES;
+    if (context->BlendFunciEXT == NULL && context->BlendFuncIndexedAMD != NULL) context->BlendFunciEXT = (PFNGLBLENDFUNCIEXTPROC)context->BlendFuncIndexedAMD;
+    if (context->BlendFunciEXT == NULL && context->BlendFunci != NULL) context->BlendFunciEXT = (PFNGLBLENDFUNCIEXTPROC)context->BlendFunci;
+    if (context->BlendFunciEXT == NULL && context->BlendFunciARB != NULL) context->BlendFunciEXT = (PFNGLBLENDFUNCIEXTPROC)context->BlendFunciARB;
+    if (context->BlendFunciEXT == NULL && context->BlendFunciOES != NULL) context->BlendFunciEXT = (PFNGLBLENDFUNCIEXTPROC)context->BlendFunciOES;
+    if (context->BlendFuncIndexedAMD == NULL && context->BlendFunci != NULL) context->BlendFuncIndexedAMD = (PFNGLBLENDFUNCINDEXEDAMDPROC)context->BlendFunci;
+    if (context->BlendFuncIndexedAMD == NULL && context->BlendFunciARB != NULL) context->BlendFuncIndexedAMD = (PFNGLBLENDFUNCINDEXEDAMDPROC)context->BlendFunciARB;
+    if (context->BlendFuncIndexedAMD == NULL && context->BlendFunciEXT != NULL) context->BlendFuncIndexedAMD = (PFNGLBLENDFUNCINDEXEDAMDPROC)context->BlendFunciEXT;
+    if (context->BlendFuncIndexedAMD == NULL && context->BlendFunciOES != NULL) context->BlendFuncIndexedAMD = (PFNGLBLENDFUNCINDEXEDAMDPROC)context->BlendFunciOES;
+    if (context->BlendFunciOES == NULL && context->BlendFuncIndexedAMD != NULL) context->BlendFunciOES = (PFNGLBLENDFUNCIOESPROC)context->BlendFuncIndexedAMD;
+    if (context->BlendFunciOES == NULL && context->BlendFunci != NULL) context->BlendFunciOES = (PFNGLBLENDFUNCIOESPROC)context->BlendFunci;
+    if (context->BlendFunciOES == NULL && context->BlendFunciARB != NULL) context->BlendFunciOES = (PFNGLBLENDFUNCIOESPROC)context->BlendFunciARB;
+    if (context->BlendFunciOES == NULL && context->BlendFunciEXT != NULL) context->BlendFunciOES = (PFNGLBLENDFUNCIOESPROC)context->BlendFunciEXT;
+    if (context->BlendFuncSeparate == NULL && context->BlendFuncSeparateEXT != NULL) context->BlendFuncSeparate = (PFNGLBLENDFUNCSEPARATEPROC)context->BlendFuncSeparateEXT;
+    if (context->BlendFuncSeparate == NULL && context->BlendFuncSeparateINGR != NULL) context->BlendFuncSeparate = (PFNGLBLENDFUNCSEPARATEPROC)context->BlendFuncSeparateINGR;
+    if (context->BlendFuncSeparateEXT == NULL && context->BlendFuncSeparate != NULL) context->BlendFuncSeparateEXT = (PFNGLBLENDFUNCSEPARATEEXTPROC)context->BlendFuncSeparate;
+    if (context->BlendFuncSeparateEXT == NULL && context->BlendFuncSeparateINGR != NULL) context->BlendFuncSeparateEXT = (PFNGLBLENDFUNCSEPARATEEXTPROC)context->BlendFuncSeparateINGR;
+    if (context->BlendFuncSeparatei == NULL && context->BlendFuncSeparateIndexedAMD != NULL) context->BlendFuncSeparatei = (PFNGLBLENDFUNCSEPARATEIPROC)context->BlendFuncSeparateIndexedAMD;
+    if (context->BlendFuncSeparatei == NULL && context->BlendFuncSeparateiARB != NULL) context->BlendFuncSeparatei = (PFNGLBLENDFUNCSEPARATEIPROC)context->BlendFuncSeparateiARB;
+    if (context->BlendFuncSeparatei == NULL && context->BlendFuncSeparateiEXT != NULL) context->BlendFuncSeparatei = (PFNGLBLENDFUNCSEPARATEIPROC)context->BlendFuncSeparateiEXT;
+    if (context->BlendFuncSeparatei == NULL && context->BlendFuncSeparateiOES != NULL) context->BlendFuncSeparatei = (PFNGLBLENDFUNCSEPARATEIPROC)context->BlendFuncSeparateiOES;
+    if (context->BlendFuncSeparateiARB == NULL && context->BlendFuncSeparateIndexedAMD != NULL) context->BlendFuncSeparateiARB = (PFNGLBLENDFUNCSEPARATEIARBPROC)context->BlendFuncSeparateIndexedAMD;
+    if (context->BlendFuncSeparateiARB == NULL && context->BlendFuncSeparatei != NULL) context->BlendFuncSeparateiARB = (PFNGLBLENDFUNCSEPARATEIARBPROC)context->BlendFuncSeparatei;
+    if (context->BlendFuncSeparateiARB == NULL && context->BlendFuncSeparateiEXT != NULL) context->BlendFuncSeparateiARB = (PFNGLBLENDFUNCSEPARATEIARBPROC)context->BlendFuncSeparateiEXT;
+    if (context->BlendFuncSeparateiARB == NULL && context->BlendFuncSeparateiOES != NULL) context->BlendFuncSeparateiARB = (PFNGLBLENDFUNCSEPARATEIARBPROC)context->BlendFuncSeparateiOES;
+    if (context->BlendFuncSeparateiEXT == NULL && context->BlendFuncSeparateIndexedAMD != NULL) context->BlendFuncSeparateiEXT = (PFNGLBLENDFUNCSEPARATEIEXTPROC)context->BlendFuncSeparateIndexedAMD;
+    if (context->BlendFuncSeparateiEXT == NULL && context->BlendFuncSeparatei != NULL) context->BlendFuncSeparateiEXT = (PFNGLBLENDFUNCSEPARATEIEXTPROC)context->BlendFuncSeparatei;
+    if (context->BlendFuncSeparateiEXT == NULL && context->BlendFuncSeparateiARB != NULL) context->BlendFuncSeparateiEXT = (PFNGLBLENDFUNCSEPARATEIEXTPROC)context->BlendFuncSeparateiARB;
+    if (context->BlendFuncSeparateiEXT == NULL && context->BlendFuncSeparateiOES != NULL) context->BlendFuncSeparateiEXT = (PFNGLBLENDFUNCSEPARATEIEXTPROC)context->BlendFuncSeparateiOES;
+    if (context->BlendFuncSeparateIndexedAMD == NULL && context->BlendFuncSeparatei != NULL) context->BlendFuncSeparateIndexedAMD = (PFNGLBLENDFUNCSEPARATEINDEXEDAMDPROC)context->BlendFuncSeparatei;
+    if (context->BlendFuncSeparateIndexedAMD == NULL && context->BlendFuncSeparateiARB != NULL) context->BlendFuncSeparateIndexedAMD = (PFNGLBLENDFUNCSEPARATEINDEXEDAMDPROC)context->BlendFuncSeparateiARB;
+    if (context->BlendFuncSeparateIndexedAMD == NULL && context->BlendFuncSeparateiEXT != NULL) context->BlendFuncSeparateIndexedAMD = (PFNGLBLENDFUNCSEPARATEINDEXEDAMDPROC)context->BlendFuncSeparateiEXT;
+    if (context->BlendFuncSeparateIndexedAMD == NULL && context->BlendFuncSeparateiOES != NULL) context->BlendFuncSeparateIndexedAMD = (PFNGLBLENDFUNCSEPARATEINDEXEDAMDPROC)context->BlendFuncSeparateiOES;
+    if (context->BlendFuncSeparateINGR == NULL && context->BlendFuncSeparate != NULL) context->BlendFuncSeparateINGR = (PFNGLBLENDFUNCSEPARATEINGRPROC)context->BlendFuncSeparate;
+    if (context->BlendFuncSeparateINGR == NULL && context->BlendFuncSeparateEXT != NULL) context->BlendFuncSeparateINGR = (PFNGLBLENDFUNCSEPARATEINGRPROC)context->BlendFuncSeparateEXT;
+    if (context->BlendFuncSeparateiOES == NULL && context->BlendFuncSeparateIndexedAMD != NULL) context->BlendFuncSeparateiOES = (PFNGLBLENDFUNCSEPARATEIOESPROC)context->BlendFuncSeparateIndexedAMD;
+    if (context->BlendFuncSeparateiOES == NULL && context->BlendFuncSeparatei != NULL) context->BlendFuncSeparateiOES = (PFNGLBLENDFUNCSEPARATEIOESPROC)context->BlendFuncSeparatei;
+    if (context->BlendFuncSeparateiOES == NULL && context->BlendFuncSeparateiARB != NULL) context->BlendFuncSeparateiOES = (PFNGLBLENDFUNCSEPARATEIOESPROC)context->BlendFuncSeparateiARB;
+    if (context->BlendFuncSeparateiOES == NULL && context->BlendFuncSeparateiEXT != NULL) context->BlendFuncSeparateiOES = (PFNGLBLENDFUNCSEPARATEIOESPROC)context->BlendFuncSeparateiEXT;
+    if (context->BlitFramebuffer == NULL && context->BlitFramebufferEXT != NULL) context->BlitFramebuffer = (PFNGLBLITFRAMEBUFFERPROC)context->BlitFramebufferEXT;
+    if (context->BlitFramebuffer == NULL && context->BlitFramebufferNV != NULL) context->BlitFramebuffer = (PFNGLBLITFRAMEBUFFERPROC)context->BlitFramebufferNV;
+    if (context->BlitFramebufferEXT == NULL && context->BlitFramebuffer != NULL) context->BlitFramebufferEXT = (PFNGLBLITFRAMEBUFFEREXTPROC)context->BlitFramebuffer;
+    if (context->BlitFramebufferEXT == NULL && context->BlitFramebufferNV != NULL) context->BlitFramebufferEXT = (PFNGLBLITFRAMEBUFFEREXTPROC)context->BlitFramebufferNV;
+    if (context->BlitFramebufferNV == NULL && context->BlitFramebuffer != NULL) context->BlitFramebufferNV = (PFNGLBLITFRAMEBUFFERNVPROC)context->BlitFramebuffer;
+    if (context->BlitFramebufferNV == NULL && context->BlitFramebufferEXT != NULL) context->BlitFramebufferNV = (PFNGLBLITFRAMEBUFFERNVPROC)context->BlitFramebufferEXT;
+    if (context->BufferData == NULL && context->BufferDataARB != NULL) context->BufferData = (PFNGLBUFFERDATAPROC)context->BufferDataARB;
+    if (context->BufferDataARB == NULL && context->BufferData != NULL) context->BufferDataARB = (PFNGLBUFFERDATAARBPROC)context->BufferData;
+    if (context->BufferStorage == NULL && context->BufferStorageEXT != NULL) context->BufferStorage = (PFNGLBUFFERSTORAGEPROC)context->BufferStorageEXT;
+    if (context->BufferStorageEXT == NULL && context->BufferStorage != NULL) context->BufferStorageEXT = (PFNGLBUFFERSTORAGEEXTPROC)context->BufferStorage;
+    if (context->BufferSubData == NULL && context->BufferSubDataARB != NULL) context->BufferSubData = (PFNGLBUFFERSUBDATAPROC)context->BufferSubDataARB;
+    if (context->BufferSubDataARB == NULL && context->BufferSubData != NULL) context->BufferSubDataARB = (PFNGLBUFFERSUBDATAARBPROC)context->BufferSubData;
+    if (context->CheckFramebufferStatus == NULL && context->CheckFramebufferStatusEXT != NULL) context->CheckFramebufferStatus = (PFNGLCHECKFRAMEBUFFERSTATUSPROC)context->CheckFramebufferStatusEXT;
+    if (context->CheckFramebufferStatusEXT == NULL && context->CheckFramebufferStatus != NULL) context->CheckFramebufferStatusEXT = (PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC)context->CheckFramebufferStatus;
+    if (context->ClampColor == NULL && context->ClampColorARB != NULL) context->ClampColor = (PFNGLCLAMPCOLORPROC)context->ClampColorARB;
+    if (context->ClampColorARB == NULL && context->ClampColor != NULL) context->ClampColorARB = (PFNGLCLAMPCOLORARBPROC)context->ClampColor;
+    if (context->ClearDepthf == NULL && context->ClearDepthfOES != NULL) context->ClearDepthf = (PFNGLCLEARDEPTHFPROC)context->ClearDepthfOES;
+    if (context->ClearDepthfOES == NULL && context->ClearDepthf != NULL) context->ClearDepthfOES = (PFNGLCLEARDEPTHFOESPROC)context->ClearDepthf;
+    if (context->ClearTexImage == NULL && context->ClearTexImageEXT != NULL) context->ClearTexImage = (PFNGLCLEARTEXIMAGEPROC)context->ClearTexImageEXT;
+    if (context->ClearTexImageEXT == NULL && context->ClearTexImage != NULL) context->ClearTexImageEXT = (PFNGLCLEARTEXIMAGEEXTPROC)context->ClearTexImage;
+    if (context->ClearTexSubImage == NULL && context->ClearTexSubImageEXT != NULL) context->ClearTexSubImage = (PFNGLCLEARTEXSUBIMAGEPROC)context->ClearTexSubImageEXT;
+    if (context->ClearTexSubImageEXT == NULL && context->ClearTexSubImage != NULL) context->ClearTexSubImageEXT = (PFNGLCLEARTEXSUBIMAGEEXTPROC)context->ClearTexSubImage;
+    if (context->ClientWaitSync == NULL && context->ClientWaitSyncAPPLE != NULL) context->ClientWaitSync = (PFNGLCLIENTWAITSYNCPROC)context->ClientWaitSyncAPPLE;
+    if (context->ClientWaitSyncAPPLE == NULL && context->ClientWaitSync != NULL) context->ClientWaitSyncAPPLE = (PFNGLCLIENTWAITSYNCAPPLEPROC)context->ClientWaitSync;
+    if (context->ClipControl == NULL && context->ClipControlEXT != NULL) context->ClipControl = (PFNGLCLIPCONTROLPROC)context->ClipControlEXT;
+    if (context->ClipControlEXT == NULL && context->ClipControl != NULL) context->ClipControlEXT = (PFNGLCLIPCONTROLEXTPROC)context->ClipControl;
+    if (context->ColorMaski == NULL && context->ColorMaskIndexedEXT != NULL) context->ColorMaski = (PFNGLCOLORMASKIPROC)context->ColorMaskIndexedEXT;
+    if (context->ColorMaski == NULL && context->ColorMaskiEXT != NULL) context->ColorMaski = (PFNGLCOLORMASKIPROC)context->ColorMaskiEXT;
+    if (context->ColorMaski == NULL && context->ColorMaskiOES != NULL) context->ColorMaski = (PFNGLCOLORMASKIPROC)context->ColorMaskiOES;
+    if (context->ColorMaskiEXT == NULL && context->ColorMaskIndexedEXT != NULL) context->ColorMaskiEXT = (PFNGLCOLORMASKIEXTPROC)context->ColorMaskIndexedEXT;
+    if (context->ColorMaskiEXT == NULL && context->ColorMaski != NULL) context->ColorMaskiEXT = (PFNGLCOLORMASKIEXTPROC)context->ColorMaski;
+    if (context->ColorMaskiEXT == NULL && context->ColorMaskiOES != NULL) context->ColorMaskiEXT = (PFNGLCOLORMASKIEXTPROC)context->ColorMaskiOES;
+    if (context->ColorMaskIndexedEXT == NULL && context->ColorMaski != NULL) context->ColorMaskIndexedEXT = (PFNGLCOLORMASKINDEXEDEXTPROC)context->ColorMaski;
+    if (context->ColorMaskIndexedEXT == NULL && context->ColorMaskiEXT != NULL) context->ColorMaskIndexedEXT = (PFNGLCOLORMASKINDEXEDEXTPROC)context->ColorMaskiEXT;
+    if (context->ColorMaskIndexedEXT == NULL && context->ColorMaskiOES != NULL) context->ColorMaskIndexedEXT = (PFNGLCOLORMASKINDEXEDEXTPROC)context->ColorMaskiOES;
+    if (context->ColorMaskiOES == NULL && context->ColorMaskIndexedEXT != NULL) context->ColorMaskiOES = (PFNGLCOLORMASKIOESPROC)context->ColorMaskIndexedEXT;
+    if (context->ColorMaskiOES == NULL && context->ColorMaski != NULL) context->ColorMaskiOES = (PFNGLCOLORMASKIOESPROC)context->ColorMaski;
+    if (context->ColorMaskiOES == NULL && context->ColorMaskiEXT != NULL) context->ColorMaskiOES = (PFNGLCOLORMASKIOESPROC)context->ColorMaskiEXT;
+    if (context->CompileShader == NULL && context->CompileShaderARB != NULL) context->CompileShader = (PFNGLCOMPILESHADERPROC)context->CompileShaderARB;
+    if (context->CompileShaderARB == NULL && context->CompileShader != NULL) context->CompileShaderARB = (PFNGLCOMPILESHADERARBPROC)context->CompileShader;
+    if (context->CompressedTexImage1D == NULL && context->CompressedTexImage1DARB != NULL) context->CompressedTexImage1D = (PFNGLCOMPRESSEDTEXIMAGE1DPROC)context->CompressedTexImage1DARB;
+    if (context->CompressedTexImage1DARB == NULL && context->CompressedTexImage1D != NULL) context->CompressedTexImage1DARB = (PFNGLCOMPRESSEDTEXIMAGE1DARBPROC)context->CompressedTexImage1D;
+    if (context->CompressedTexImage2D == NULL && context->CompressedTexImage2DARB != NULL) context->CompressedTexImage2D = (PFNGLCOMPRESSEDTEXIMAGE2DPROC)context->CompressedTexImage2DARB;
+    if (context->CompressedTexImage2DARB == NULL && context->CompressedTexImage2D != NULL) context->CompressedTexImage2DARB = (PFNGLCOMPRESSEDTEXIMAGE2DARBPROC)context->CompressedTexImage2D;
+    if (context->CompressedTexImage3D == NULL && context->CompressedTexImage3DARB != NULL) context->CompressedTexImage3D = (PFNGLCOMPRESSEDTEXIMAGE3DPROC)context->CompressedTexImage3DARB;
+    if (context->CompressedTexImage3DARB == NULL && context->CompressedTexImage3D != NULL) context->CompressedTexImage3DARB = (PFNGLCOMPRESSEDTEXIMAGE3DARBPROC)context->CompressedTexImage3D;
+    if (context->CompressedTexSubImage1D == NULL && context->CompressedTexSubImage1DARB != NULL) context->CompressedTexSubImage1D = (PFNGLCOMPRESSEDTEXSUBIMAGE1DPROC)context->CompressedTexSubImage1DARB;
+    if (context->CompressedTexSubImage1DARB == NULL && context->CompressedTexSubImage1D != NULL) context->CompressedTexSubImage1DARB = (PFNGLCOMPRESSEDTEXSUBIMAGE1DARBPROC)context->CompressedTexSubImage1D;
+    if (context->CompressedTexSubImage2D == NULL && context->CompressedTexSubImage2DARB != NULL) context->CompressedTexSubImage2D = (PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC)context->CompressedTexSubImage2DARB;
+    if (context->CompressedTexSubImage2DARB == NULL && context->CompressedTexSubImage2D != NULL) context->CompressedTexSubImage2DARB = (PFNGLCOMPRESSEDTEXSUBIMAGE2DARBPROC)context->CompressedTexSubImage2D;
+    if (context->CompressedTexSubImage3D == NULL && context->CompressedTexSubImage3DARB != NULL) context->CompressedTexSubImage3D = (PFNGLCOMPRESSEDTEXSUBIMAGE3DPROC)context->CompressedTexSubImage3DARB;
+    if (context->CompressedTexSubImage3DARB == NULL && context->CompressedTexSubImage3D != NULL) context->CompressedTexSubImage3DARB = (PFNGLCOMPRESSEDTEXSUBIMAGE3DARBPROC)context->CompressedTexSubImage3D;
+    if (context->CopyBufferSubData == NULL && context->CopyBufferSubDataNV != NULL) context->CopyBufferSubData = (PFNGLCOPYBUFFERSUBDATAPROC)context->CopyBufferSubDataNV;
+    if (context->CopyBufferSubDataNV == NULL && context->CopyBufferSubData != NULL) context->CopyBufferSubDataNV = (PFNGLCOPYBUFFERSUBDATANVPROC)context->CopyBufferSubData;
+    if (context->CopyImageSubData == NULL && context->CopyImageSubDataEXT != NULL) context->CopyImageSubData = (PFNGLCOPYIMAGESUBDATAPROC)context->CopyImageSubDataEXT;
+    if (context->CopyImageSubData == NULL && context->CopyImageSubDataOES != NULL) context->CopyImageSubData = (PFNGLCOPYIMAGESUBDATAPROC)context->CopyImageSubDataOES;
+    if (context->CopyImageSubDataEXT == NULL && context->CopyImageSubData != NULL) context->CopyImageSubDataEXT = (PFNGLCOPYIMAGESUBDATAEXTPROC)context->CopyImageSubData;
+    if (context->CopyImageSubDataEXT == NULL && context->CopyImageSubDataOES != NULL) context->CopyImageSubDataEXT = (PFNGLCOPYIMAGESUBDATAEXTPROC)context->CopyImageSubDataOES;
+    if (context->CopyImageSubDataOES == NULL && context->CopyImageSubData != NULL) context->CopyImageSubDataOES = (PFNGLCOPYIMAGESUBDATAOESPROC)context->CopyImageSubData;
+    if (context->CopyImageSubDataOES == NULL && context->CopyImageSubDataEXT != NULL) context->CopyImageSubDataOES = (PFNGLCOPYIMAGESUBDATAOESPROC)context->CopyImageSubDataEXT;
+    if (context->CopyTexImage1D == NULL && context->CopyTexImage1DEXT != NULL) context->CopyTexImage1D = (PFNGLCOPYTEXIMAGE1DPROC)context->CopyTexImage1DEXT;
+    if (context->CopyTexImage1DEXT == NULL && context->CopyTexImage1D != NULL) context->CopyTexImage1DEXT = (PFNGLCOPYTEXIMAGE1DEXTPROC)context->CopyTexImage1D;
+    if (context->CopyTexImage2D == NULL && context->CopyTexImage2DEXT != NULL) context->CopyTexImage2D = (PFNGLCOPYTEXIMAGE2DPROC)context->CopyTexImage2DEXT;
+    if (context->CopyTexImage2DEXT == NULL && context->CopyTexImage2D != NULL) context->CopyTexImage2DEXT = (PFNGLCOPYTEXIMAGE2DEXTPROC)context->CopyTexImage2D;
+    if (context->CopyTexSubImage1D == NULL && context->CopyTexSubImage1DEXT != NULL) context->CopyTexSubImage1D = (PFNGLCOPYTEXSUBIMAGE1DPROC)context->CopyTexSubImage1DEXT;
+    if (context->CopyTexSubImage1DEXT == NULL && context->CopyTexSubImage1D != NULL) context->CopyTexSubImage1DEXT = (PFNGLCOPYTEXSUBIMAGE1DEXTPROC)context->CopyTexSubImage1D;
+    if (context->CopyTexSubImage2D == NULL && context->CopyTexSubImage2DEXT != NULL) context->CopyTexSubImage2D = (PFNGLCOPYTEXSUBIMAGE2DPROC)context->CopyTexSubImage2DEXT;
+    if (context->CopyTexSubImage2DEXT == NULL && context->CopyTexSubImage2D != NULL) context->CopyTexSubImage2DEXT = (PFNGLCOPYTEXSUBIMAGE2DEXTPROC)context->CopyTexSubImage2D;
+    if (context->CopyTexSubImage3D == NULL && context->CopyTexSubImage3DEXT != NULL) context->CopyTexSubImage3D = (PFNGLCOPYTEXSUBIMAGE3DPROC)context->CopyTexSubImage3DEXT;
+    if (context->CopyTexSubImage3DEXT == NULL && context->CopyTexSubImage3D != NULL) context->CopyTexSubImage3DEXT = (PFNGLCOPYTEXSUBIMAGE3DEXTPROC)context->CopyTexSubImage3D;
+    if (context->CreateProgram == NULL && context->CreateProgramObjectARB != NULL) context->CreateProgram = (PFNGLCREATEPROGRAMPROC)context->CreateProgramObjectARB;
+    if (context->CreateProgramObjectARB == NULL && context->CreateProgram != NULL) context->CreateProgramObjectARB = (PFNGLCREATEPROGRAMOBJECTARBPROC)context->CreateProgram;
+    if (context->CreateShader == NULL && context->CreateShaderObjectARB != NULL) context->CreateShader = (PFNGLCREATESHADERPROC)context->CreateShaderObjectARB;
+    if (context->CreateShaderObjectARB == NULL && context->CreateShader != NULL) context->CreateShaderObjectARB = (PFNGLCREATESHADEROBJECTARBPROC)context->CreateShader;
+    if (context->DebugMessageCallback == NULL && context->DebugMessageCallbackARB != NULL) context->DebugMessageCallback = (PFNGLDEBUGMESSAGECALLBACKPROC)context->DebugMessageCallbackARB;
+    if (context->DebugMessageCallback == NULL && context->DebugMessageCallbackKHR != NULL) context->DebugMessageCallback = (PFNGLDEBUGMESSAGECALLBACKPROC)context->DebugMessageCallbackKHR;
+    if (context->DebugMessageCallbackARB == NULL && context->DebugMessageCallback != NULL) context->DebugMessageCallbackARB = (PFNGLDEBUGMESSAGECALLBACKARBPROC)context->DebugMessageCallback;
+    if (context->DebugMessageCallbackARB == NULL && context->DebugMessageCallbackKHR != NULL) context->DebugMessageCallbackARB = (PFNGLDEBUGMESSAGECALLBACKARBPROC)context->DebugMessageCallbackKHR;
+    if (context->DebugMessageCallbackKHR == NULL && context->DebugMessageCallback != NULL) context->DebugMessageCallbackKHR = (PFNGLDEBUGMESSAGECALLBACKKHRPROC)context->DebugMessageCallback;
+    if (context->DebugMessageCallbackKHR == NULL && context->DebugMessageCallbackARB != NULL) context->DebugMessageCallbackKHR = (PFNGLDEBUGMESSAGECALLBACKKHRPROC)context->DebugMessageCallbackARB;
+    if (context->DebugMessageControl == NULL && context->DebugMessageControlARB != NULL) context->DebugMessageControl = (PFNGLDEBUGMESSAGECONTROLPROC)context->DebugMessageControlARB;
+    if (context->DebugMessageControl == NULL && context->DebugMessageControlKHR != NULL) context->DebugMessageControl = (PFNGLDEBUGMESSAGECONTROLPROC)context->DebugMessageControlKHR;
+    if (context->DebugMessageControlARB == NULL && context->DebugMessageControl != NULL) context->DebugMessageControlARB = (PFNGLDEBUGMESSAGECONTROLARBPROC)context->DebugMessageControl;
+    if (context->DebugMessageControlARB == NULL && context->DebugMessageControlKHR != NULL) context->DebugMessageControlARB = (PFNGLDEBUGMESSAGECONTROLARBPROC)context->DebugMessageControlKHR;
+    if (context->DebugMessageControlKHR == NULL && context->DebugMessageControl != NULL) context->DebugMessageControlKHR = (PFNGLDEBUGMESSAGECONTROLKHRPROC)context->DebugMessageControl;
+    if (context->DebugMessageControlKHR == NULL && context->DebugMessageControlARB != NULL) context->DebugMessageControlKHR = (PFNGLDEBUGMESSAGECONTROLKHRPROC)context->DebugMessageControlARB;
+    if (context->DebugMessageInsert == NULL && context->DebugMessageInsertARB != NULL) context->DebugMessageInsert = (PFNGLDEBUGMESSAGEINSERTPROC)context->DebugMessageInsertARB;
+    if (context->DebugMessageInsert == NULL && context->DebugMessageInsertKHR != NULL) context->DebugMessageInsert = (PFNGLDEBUGMESSAGEINSERTPROC)context->DebugMessageInsertKHR;
+    if (context->DebugMessageInsertARB == NULL && context->DebugMessageInsert != NULL) context->DebugMessageInsertARB = (PFNGLDEBUGMESSAGEINSERTARBPROC)context->DebugMessageInsert;
+    if (context->DebugMessageInsertARB == NULL && context->DebugMessageInsertKHR != NULL) context->DebugMessageInsertARB = (PFNGLDEBUGMESSAGEINSERTARBPROC)context->DebugMessageInsertKHR;
+    if (context->DebugMessageInsertKHR == NULL && context->DebugMessageInsert != NULL) context->DebugMessageInsertKHR = (PFNGLDEBUGMESSAGEINSERTKHRPROC)context->DebugMessageInsert;
+    if (context->DebugMessageInsertKHR == NULL && context->DebugMessageInsertARB != NULL) context->DebugMessageInsertKHR = (PFNGLDEBUGMESSAGEINSERTKHRPROC)context->DebugMessageInsertARB;
+    if (context->DeleteBuffers == NULL && context->DeleteBuffersARB != NULL) context->DeleteBuffers = (PFNGLDELETEBUFFERSPROC)context->DeleteBuffersARB;
+    if (context->DeleteBuffersARB == NULL && context->DeleteBuffers != NULL) context->DeleteBuffersARB = (PFNGLDELETEBUFFERSARBPROC)context->DeleteBuffers;
+    if (context->DeleteFramebuffers == NULL && context->DeleteFramebuffersEXT != NULL) context->DeleteFramebuffers = (PFNGLDELETEFRAMEBUFFERSPROC)context->DeleteFramebuffersEXT;
+    if (context->DeleteFramebuffersEXT == NULL && context->DeleteFramebuffers != NULL) context->DeleteFramebuffersEXT = (PFNGLDELETEFRAMEBUFFERSEXTPROC)context->DeleteFramebuffers;
+    if (context->DeleteProgramsARB == NULL && context->DeleteProgramsNV != NULL) context->DeleteProgramsARB = (PFNGLDELETEPROGRAMSARBPROC)context->DeleteProgramsNV;
+    if (context->DeleteProgramsNV == NULL && context->DeleteProgramsARB != NULL) context->DeleteProgramsNV = (PFNGLDELETEPROGRAMSNVPROC)context->DeleteProgramsARB;
+    if (context->DeleteQueries == NULL && context->DeleteQueriesARB != NULL) context->DeleteQueries = (PFNGLDELETEQUERIESPROC)context->DeleteQueriesARB;
+    if (context->DeleteQueriesARB == NULL && context->DeleteQueries != NULL) context->DeleteQueriesARB = (PFNGLDELETEQUERIESARBPROC)context->DeleteQueries;
+    if (context->DeleteRenderbuffers == NULL && context->DeleteRenderbuffersEXT != NULL) context->DeleteRenderbuffers = (PFNGLDELETERENDERBUFFERSPROC)context->DeleteRenderbuffersEXT;
+    if (context->DeleteRenderbuffersEXT == NULL && context->DeleteRenderbuffers != NULL) context->DeleteRenderbuffersEXT = (PFNGLDELETERENDERBUFFERSEXTPROC)context->DeleteRenderbuffers;
+    if (context->DeleteSync == NULL && context->DeleteSyncAPPLE != NULL) context->DeleteSync = (PFNGLDELETESYNCPROC)context->DeleteSyncAPPLE;
+    if (context->DeleteSyncAPPLE == NULL && context->DeleteSync != NULL) context->DeleteSyncAPPLE = (PFNGLDELETESYNCAPPLEPROC)context->DeleteSync;
+    if (context->DeleteTransformFeedbacks == NULL && context->DeleteTransformFeedbacksNV != NULL) context->DeleteTransformFeedbacks = (PFNGLDELETETRANSFORMFEEDBACKSPROC)context->DeleteTransformFeedbacksNV;
+    if (context->DeleteTransformFeedbacksNV == NULL && context->DeleteTransformFeedbacks != NULL) context->DeleteTransformFeedbacksNV = (PFNGLDELETETRANSFORMFEEDBACKSNVPROC)context->DeleteTransformFeedbacks;
+    if (context->DeleteVertexArrays == NULL && context->DeleteVertexArraysAPPLE != NULL) context->DeleteVertexArrays = (PFNGLDELETEVERTEXARRAYSPROC)context->DeleteVertexArraysAPPLE;
+    if (context->DeleteVertexArrays == NULL && context->DeleteVertexArraysOES != NULL) context->DeleteVertexArrays = (PFNGLDELETEVERTEXARRAYSPROC)context->DeleteVertexArraysOES;
+    if (context->DeleteVertexArraysAPPLE == NULL && context->DeleteVertexArrays != NULL) context->DeleteVertexArraysAPPLE = (PFNGLDELETEVERTEXARRAYSAPPLEPROC)context->DeleteVertexArrays;
+    if (context->DeleteVertexArraysAPPLE == NULL && context->DeleteVertexArraysOES != NULL) context->DeleteVertexArraysAPPLE = (PFNGLDELETEVERTEXARRAYSAPPLEPROC)context->DeleteVertexArraysOES;
+    if (context->DeleteVertexArraysOES == NULL && context->DeleteVertexArrays != NULL) context->DeleteVertexArraysOES = (PFNGLDELETEVERTEXARRAYSOESPROC)context->DeleteVertexArrays;
+    if (context->DeleteVertexArraysOES == NULL && context->DeleteVertexArraysAPPLE != NULL) context->DeleteVertexArraysOES = (PFNGLDELETEVERTEXARRAYSOESPROC)context->DeleteVertexArraysAPPLE;
+    if (context->DepthRangef == NULL && context->DepthRangefOES != NULL) context->DepthRangef = (PFNGLDEPTHRANGEFPROC)context->DepthRangefOES;
+    if (context->DepthRangefOES == NULL && context->DepthRangef != NULL) context->DepthRangefOES = (PFNGLDEPTHRANGEFOESPROC)context->DepthRangef;
+    if (context->DetachObjectARB == NULL && context->DetachShader != NULL) context->DetachObjectARB = (PFNGLDETACHOBJECTARBPROC)context->DetachShader;
+    if (context->DetachShader == NULL && context->DetachObjectARB != NULL) context->DetachShader = (PFNGLDETACHSHADERPROC)context->DetachObjectARB;
+    if (context->Disablei == NULL && context->DisableIndexedEXT != NULL) context->Disablei = (PFNGLDISABLEIPROC)context->DisableIndexedEXT;
+    if (context->Disablei == NULL && context->DisableiEXT != NULL) context->Disablei = (PFNGLDISABLEIPROC)context->DisableiEXT;
+    if (context->Disablei == NULL && context->DisableiNV != NULL) context->Disablei = (PFNGLDISABLEIPROC)context->DisableiNV;
+    if (context->Disablei == NULL && context->DisableiOES != NULL) context->Disablei = (PFNGLDISABLEIPROC)context->DisableiOES;
+    if (context->DisableiEXT == NULL && context->DisableIndexedEXT != NULL) context->DisableiEXT = (PFNGLDISABLEIEXTPROC)context->DisableIndexedEXT;
+    if (context->DisableiEXT == NULL && context->Disablei != NULL) context->DisableiEXT = (PFNGLDISABLEIEXTPROC)context->Disablei;
+    if (context->DisableiEXT == NULL && context->DisableiNV != NULL) context->DisableiEXT = (PFNGLDISABLEIEXTPROC)context->DisableiNV;
+    if (context->DisableiEXT == NULL && context->DisableiOES != NULL) context->DisableiEXT = (PFNGLDISABLEIEXTPROC)context->DisableiOES;
+    if (context->DisableIndexedEXT == NULL && context->Disablei != NULL) context->DisableIndexedEXT = (PFNGLDISABLEINDEXEDEXTPROC)context->Disablei;
+    if (context->DisableIndexedEXT == NULL && context->DisableiEXT != NULL) context->DisableIndexedEXT = (PFNGLDISABLEINDEXEDEXTPROC)context->DisableiEXT;
+    if (context->DisableIndexedEXT == NULL && context->DisableiNV != NULL) context->DisableIndexedEXT = (PFNGLDISABLEINDEXEDEXTPROC)context->DisableiNV;
+    if (context->DisableIndexedEXT == NULL && context->DisableiOES != NULL) context->DisableIndexedEXT = (PFNGLDISABLEINDEXEDEXTPROC)context->DisableiOES;
+    if (context->DisableiNV == NULL && context->DisableIndexedEXT != NULL) context->DisableiNV = (PFNGLDISABLEINVPROC)context->DisableIndexedEXT;
+    if (context->DisableiNV == NULL && context->Disablei != NULL) context->DisableiNV = (PFNGLDISABLEINVPROC)context->Disablei;
+    if (context->DisableiNV == NULL && context->DisableiEXT != NULL) context->DisableiNV = (PFNGLDISABLEINVPROC)context->DisableiEXT;
+    if (context->DisableiNV == NULL && context->DisableiOES != NULL) context->DisableiNV = (PFNGLDISABLEINVPROC)context->DisableiOES;
+    if (context->DisableiOES == NULL && context->DisableIndexedEXT != NULL) context->DisableiOES = (PFNGLDISABLEIOESPROC)context->DisableIndexedEXT;
+    if (context->DisableiOES == NULL && context->Disablei != NULL) context->DisableiOES = (PFNGLDISABLEIOESPROC)context->Disablei;
+    if (context->DisableiOES == NULL && context->DisableiEXT != NULL) context->DisableiOES = (PFNGLDISABLEIOESPROC)context->DisableiEXT;
+    if (context->DisableiOES == NULL && context->DisableiNV != NULL) context->DisableiOES = (PFNGLDISABLEIOESPROC)context->DisableiNV;
+    if (context->DisableVertexAttribArray == NULL && context->DisableVertexAttribArrayARB != NULL) context->DisableVertexAttribArray = (PFNGLDISABLEVERTEXATTRIBARRAYPROC)context->DisableVertexAttribArrayARB;
+    if (context->DisableVertexAttribArrayARB == NULL && context->DisableVertexAttribArray != NULL) context->DisableVertexAttribArrayARB = (PFNGLDISABLEVERTEXATTRIBARRAYARBPROC)context->DisableVertexAttribArray;
+    if (context->DrawArrays == NULL && context->DrawArraysEXT != NULL) context->DrawArrays = (PFNGLDRAWARRAYSPROC)context->DrawArraysEXT;
+    if (context->DrawArraysEXT == NULL && context->DrawArrays != NULL) context->DrawArraysEXT = (PFNGLDRAWARRAYSEXTPROC)context->DrawArrays;
+    if (context->DrawArraysInstanced == NULL && context->DrawArraysInstancedANGLE != NULL) context->DrawArraysInstanced = (PFNGLDRAWARRAYSINSTANCEDPROC)context->DrawArraysInstancedANGLE;
+    if (context->DrawArraysInstanced == NULL && context->DrawArraysInstancedARB != NULL) context->DrawArraysInstanced = (PFNGLDRAWARRAYSINSTANCEDPROC)context->DrawArraysInstancedARB;
+    if (context->DrawArraysInstanced == NULL && context->DrawArraysInstancedEXT != NULL) context->DrawArraysInstanced = (PFNGLDRAWARRAYSINSTANCEDPROC)context->DrawArraysInstancedEXT;
+    if (context->DrawArraysInstanced == NULL && context->DrawArraysInstancedNV != NULL) context->DrawArraysInstanced = (PFNGLDRAWARRAYSINSTANCEDPROC)context->DrawArraysInstancedNV;
+    if (context->DrawArraysInstancedANGLE == NULL && context->DrawArraysInstanced != NULL) context->DrawArraysInstancedANGLE = (PFNGLDRAWARRAYSINSTANCEDANGLEPROC)context->DrawArraysInstanced;
+    if (context->DrawArraysInstancedANGLE == NULL && context->DrawArraysInstancedARB != NULL) context->DrawArraysInstancedANGLE = (PFNGLDRAWARRAYSINSTANCEDANGLEPROC)context->DrawArraysInstancedARB;
+    if (context->DrawArraysInstancedANGLE == NULL && context->DrawArraysInstancedEXT != NULL) context->DrawArraysInstancedANGLE = (PFNGLDRAWARRAYSINSTANCEDANGLEPROC)context->DrawArraysInstancedEXT;
+    if (context->DrawArraysInstancedANGLE == NULL && context->DrawArraysInstancedNV != NULL) context->DrawArraysInstancedANGLE = (PFNGLDRAWARRAYSINSTANCEDANGLEPROC)context->DrawArraysInstancedNV;
+    if (context->DrawArraysInstancedARB == NULL && context->DrawArraysInstanced != NULL) context->DrawArraysInstancedARB = (PFNGLDRAWARRAYSINSTANCEDARBPROC)context->DrawArraysInstanced;
+    if (context->DrawArraysInstancedARB == NULL && context->DrawArraysInstancedANGLE != NULL) context->DrawArraysInstancedARB = (PFNGLDRAWARRAYSINSTANCEDARBPROC)context->DrawArraysInstancedANGLE;
+    if (context->DrawArraysInstancedARB == NULL && context->DrawArraysInstancedEXT != NULL) context->DrawArraysInstancedARB = (PFNGLDRAWARRAYSINSTANCEDARBPROC)context->DrawArraysInstancedEXT;
+    if (context->DrawArraysInstancedARB == NULL && context->DrawArraysInstancedNV != NULL) context->DrawArraysInstancedARB = (PFNGLDRAWARRAYSINSTANCEDARBPROC)context->DrawArraysInstancedNV;
+    if (context->DrawArraysInstancedBaseInstance == NULL && context->DrawArraysInstancedBaseInstanceEXT != NULL) context->DrawArraysInstancedBaseInstance = (PFNGLDRAWARRAYSINSTANCEDBASEINSTANCEPROC)context->DrawArraysInstancedBaseInstanceEXT;
+    if (context->DrawArraysInstancedBaseInstanceEXT == NULL && context->DrawArraysInstancedBaseInstance != NULL) context->DrawArraysInstancedBaseInstanceEXT = (PFNGLDRAWARRAYSINSTANCEDBASEINSTANCEEXTPROC)context->DrawArraysInstancedBaseInstance;
+    if (context->DrawArraysInstancedEXT == NULL && context->DrawArraysInstanced != NULL) context->DrawArraysInstancedEXT = (PFNGLDRAWARRAYSINSTANCEDEXTPROC)context->DrawArraysInstanced;
+    if (context->DrawArraysInstancedEXT == NULL && context->DrawArraysInstancedANGLE != NULL) context->DrawArraysInstancedEXT = (PFNGLDRAWARRAYSINSTANCEDEXTPROC)context->DrawArraysInstancedANGLE;
+    if (context->DrawArraysInstancedEXT == NULL && context->DrawArraysInstancedARB != NULL) context->DrawArraysInstancedEXT = (PFNGLDRAWARRAYSINSTANCEDEXTPROC)context->DrawArraysInstancedARB;
+    if (context->DrawArraysInstancedEXT == NULL && context->DrawArraysInstancedNV != NULL) context->DrawArraysInstancedEXT = (PFNGLDRAWARRAYSINSTANCEDEXTPROC)context->DrawArraysInstancedNV;
+    if (context->DrawArraysInstancedNV == NULL && context->DrawArraysInstanced != NULL) context->DrawArraysInstancedNV = (PFNGLDRAWARRAYSINSTANCEDNVPROC)context->DrawArraysInstanced;
+    if (context->DrawArraysInstancedNV == NULL && context->DrawArraysInstancedANGLE != NULL) context->DrawArraysInstancedNV = (PFNGLDRAWARRAYSINSTANCEDNVPROC)context->DrawArraysInstancedANGLE;
+    if (context->DrawArraysInstancedNV == NULL && context->DrawArraysInstancedARB != NULL) context->DrawArraysInstancedNV = (PFNGLDRAWARRAYSINSTANCEDNVPROC)context->DrawArraysInstancedARB;
+    if (context->DrawArraysInstancedNV == NULL && context->DrawArraysInstancedEXT != NULL) context->DrawArraysInstancedNV = (PFNGLDRAWARRAYSINSTANCEDNVPROC)context->DrawArraysInstancedEXT;
+    if (context->DrawBuffers == NULL && context->DrawBuffersARB != NULL) context->DrawBuffers = (PFNGLDRAWBUFFERSPROC)context->DrawBuffersARB;
+    if (context->DrawBuffers == NULL && context->DrawBuffersATI != NULL) context->DrawBuffers = (PFNGLDRAWBUFFERSPROC)context->DrawBuffersATI;
+    if (context->DrawBuffers == NULL && context->DrawBuffersEXT != NULL) context->DrawBuffers = (PFNGLDRAWBUFFERSPROC)context->DrawBuffersEXT;
+    if (context->DrawBuffersARB == NULL && context->DrawBuffers != NULL) context->DrawBuffersARB = (PFNGLDRAWBUFFERSARBPROC)context->DrawBuffers;
+    if (context->DrawBuffersARB == NULL && context->DrawBuffersATI != NULL) context->DrawBuffersARB = (PFNGLDRAWBUFFERSARBPROC)context->DrawBuffersATI;
+    if (context->DrawBuffersARB == NULL && context->DrawBuffersEXT != NULL) context->DrawBuffersARB = (PFNGLDRAWBUFFERSARBPROC)context->DrawBuffersEXT;
+    if (context->DrawBuffersATI == NULL && context->DrawBuffers != NULL) context->DrawBuffersATI = (PFNGLDRAWBUFFERSATIPROC)context->DrawBuffers;
+    if (context->DrawBuffersATI == NULL && context->DrawBuffersARB != NULL) context->DrawBuffersATI = (PFNGLDRAWBUFFERSATIPROC)context->DrawBuffersARB;
+    if (context->DrawBuffersATI == NULL && context->DrawBuffersEXT != NULL) context->DrawBuffersATI = (PFNGLDRAWBUFFERSATIPROC)context->DrawBuffersEXT;
+    if (context->DrawBuffersEXT == NULL && context->DrawBuffers != NULL) context->DrawBuffersEXT = (PFNGLDRAWBUFFERSEXTPROC)context->DrawBuffers;
+    if (context->DrawBuffersEXT == NULL && context->DrawBuffersARB != NULL) context->DrawBuffersEXT = (PFNGLDRAWBUFFERSEXTPROC)context->DrawBuffersARB;
+    if (context->DrawBuffersEXT == NULL && context->DrawBuffersATI != NULL) context->DrawBuffersEXT = (PFNGLDRAWBUFFERSEXTPROC)context->DrawBuffersATI;
+    if (context->DrawElementsBaseVertex == NULL && context->DrawElementsBaseVertexEXT != NULL) context->DrawElementsBaseVertex = (PFNGLDRAWELEMENTSBASEVERTEXPROC)context->DrawElementsBaseVertexEXT;
+    if (context->DrawElementsBaseVertex == NULL && context->DrawElementsBaseVertexOES != NULL) context->DrawElementsBaseVertex = (PFNGLDRAWELEMENTSBASEVERTEXPROC)context->DrawElementsBaseVertexOES;
+    if (context->DrawElementsBaseVertexEXT == NULL && context->DrawElementsBaseVertex != NULL) context->DrawElementsBaseVertexEXT = (PFNGLDRAWELEMENTSBASEVERTEXEXTPROC)context->DrawElementsBaseVertex;
+    if (context->DrawElementsBaseVertexEXT == NULL && context->DrawElementsBaseVertexOES != NULL) context->DrawElementsBaseVertexEXT = (PFNGLDRAWELEMENTSBASEVERTEXEXTPROC)context->DrawElementsBaseVertexOES;
+    if (context->DrawElementsBaseVertexOES == NULL && context->DrawElementsBaseVertex != NULL) context->DrawElementsBaseVertexOES = (PFNGLDRAWELEMENTSBASEVERTEXOESPROC)context->DrawElementsBaseVertex;
+    if (context->DrawElementsBaseVertexOES == NULL && context->DrawElementsBaseVertexEXT != NULL) context->DrawElementsBaseVertexOES = (PFNGLDRAWELEMENTSBASEVERTEXOESPROC)context->DrawElementsBaseVertexEXT;
+    if (context->DrawElementsInstanced == NULL && context->DrawElementsInstancedANGLE != NULL) context->DrawElementsInstanced = (PFNGLDRAWELEMENTSINSTANCEDPROC)context->DrawElementsInstancedANGLE;
+    if (context->DrawElementsInstanced == NULL && context->DrawElementsInstancedARB != NULL) context->DrawElementsInstanced = (PFNGLDRAWELEMENTSINSTANCEDPROC)context->DrawElementsInstancedARB;
+    if (context->DrawElementsInstanced == NULL && context->DrawElementsInstancedEXT != NULL) context->DrawElementsInstanced = (PFNGLDRAWELEMENTSINSTANCEDPROC)context->DrawElementsInstancedEXT;
+    if (context->DrawElementsInstanced == NULL && context->DrawElementsInstancedNV != NULL) context->DrawElementsInstanced = (PFNGLDRAWELEMENTSINSTANCEDPROC)context->DrawElementsInstancedNV;
+    if (context->DrawElementsInstancedANGLE == NULL && context->DrawElementsInstanced != NULL) context->DrawElementsInstancedANGLE = (PFNGLDRAWELEMENTSINSTANCEDANGLEPROC)context->DrawElementsInstanced;
+    if (context->DrawElementsInstancedANGLE == NULL && context->DrawElementsInstancedARB != NULL) context->DrawElementsInstancedANGLE = (PFNGLDRAWELEMENTSINSTANCEDANGLEPROC)context->DrawElementsInstancedARB;
+    if (context->DrawElementsInstancedANGLE == NULL && context->DrawElementsInstancedEXT != NULL) context->DrawElementsInstancedANGLE = (PFNGLDRAWELEMENTSINSTANCEDANGLEPROC)context->DrawElementsInstancedEXT;
+    if (context->DrawElementsInstancedANGLE == NULL && context->DrawElementsInstancedNV != NULL) context->DrawElementsInstancedANGLE = (PFNGLDRAWELEMENTSINSTANCEDANGLEPROC)context->DrawElementsInstancedNV;
+    if (context->DrawElementsInstancedARB == NULL && context->DrawElementsInstanced != NULL) context->DrawElementsInstancedARB = (PFNGLDRAWELEMENTSINSTANCEDARBPROC)context->DrawElementsInstanced;
+    if (context->DrawElementsInstancedARB == NULL && context->DrawElementsInstancedANGLE != NULL) context->DrawElementsInstancedARB = (PFNGLDRAWELEMENTSINSTANCEDARBPROC)context->DrawElementsInstancedANGLE;
+    if (context->DrawElementsInstancedARB == NULL && context->DrawElementsInstancedEXT != NULL) context->DrawElementsInstancedARB = (PFNGLDRAWELEMENTSINSTANCEDARBPROC)context->DrawElementsInstancedEXT;
+    if (context->DrawElementsInstancedARB == NULL && context->DrawElementsInstancedNV != NULL) context->DrawElementsInstancedARB = (PFNGLDRAWELEMENTSINSTANCEDARBPROC)context->DrawElementsInstancedNV;
+    if (context->DrawElementsInstancedBaseInstance == NULL && context->DrawElementsInstancedBaseInstanceEXT != NULL) context->DrawElementsInstancedBaseInstance = (PFNGLDRAWELEMENTSINSTANCEDBASEINSTANCEPROC)context->DrawElementsInstancedBaseInstanceEXT;
+    if (context->DrawElementsInstancedBaseInstanceEXT == NULL && context->DrawElementsInstancedBaseInstance != NULL) context->DrawElementsInstancedBaseInstanceEXT = (PFNGLDRAWELEMENTSINSTANCEDBASEINSTANCEEXTPROC)context->DrawElementsInstancedBaseInstance;
+    if (context->DrawElementsInstancedBaseVertex == NULL && context->DrawElementsInstancedBaseVertexEXT != NULL) context->DrawElementsInstancedBaseVertex = (PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXPROC)context->DrawElementsInstancedBaseVertexEXT;
+    if (context->DrawElementsInstancedBaseVertex == NULL && context->DrawElementsInstancedBaseVertexOES != NULL) context->DrawElementsInstancedBaseVertex = (PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXPROC)context->DrawElementsInstancedBaseVertexOES;
+    if (context->DrawElementsInstancedBaseVertexBaseInstance == NULL && context->DrawElementsInstancedBaseVertexBaseInstanceEXT != NULL) context->DrawElementsInstancedBaseVertexBaseInstance = (PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXBASEINSTANCEPROC)context->DrawElementsInstancedBaseVertexBaseInstanceEXT;
+    if (context->DrawElementsInstancedBaseVertexBaseInstanceEXT == NULL && context->DrawElementsInstancedBaseVertexBaseInstance != NULL) context->DrawElementsInstancedBaseVertexBaseInstanceEXT = (PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXBASEINSTANCEEXTPROC)context->DrawElementsInstancedBaseVertexBaseInstance;
+    if (context->DrawElementsInstancedBaseVertexEXT == NULL && context->DrawElementsInstancedBaseVertex != NULL) context->DrawElementsInstancedBaseVertexEXT = (PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXEXTPROC)context->DrawElementsInstancedBaseVertex;
+    if (context->DrawElementsInstancedBaseVertexEXT == NULL && context->DrawElementsInstancedBaseVertexOES != NULL) context->DrawElementsInstancedBaseVertexEXT = (PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXEXTPROC)context->DrawElementsInstancedBaseVertexOES;
+    if (context->DrawElementsInstancedBaseVertexOES == NULL && context->DrawElementsInstancedBaseVertex != NULL) context->DrawElementsInstancedBaseVertexOES = (PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXOESPROC)context->DrawElementsInstancedBaseVertex;
+    if (context->DrawElementsInstancedBaseVertexOES == NULL && context->DrawElementsInstancedBaseVertexEXT != NULL) context->DrawElementsInstancedBaseVertexOES = (PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXOESPROC)context->DrawElementsInstancedBaseVertexEXT;
+    if (context->DrawElementsInstancedEXT == NULL && context->DrawElementsInstanced != NULL) context->DrawElementsInstancedEXT = (PFNGLDRAWELEMENTSINSTANCEDEXTPROC)context->DrawElementsInstanced;
+    if (context->DrawElementsInstancedEXT == NULL && context->DrawElementsInstancedANGLE != NULL) context->DrawElementsInstancedEXT = (PFNGLDRAWELEMENTSINSTANCEDEXTPROC)context->DrawElementsInstancedANGLE;
+    if (context->DrawElementsInstancedEXT == NULL && context->DrawElementsInstancedARB != NULL) context->DrawElementsInstancedEXT = (PFNGLDRAWELEMENTSINSTANCEDEXTPROC)context->DrawElementsInstancedARB;
+    if (context->DrawElementsInstancedEXT == NULL && context->DrawElementsInstancedNV != NULL) context->DrawElementsInstancedEXT = (PFNGLDRAWELEMENTSINSTANCEDEXTPROC)context->DrawElementsInstancedNV;
+    if (context->DrawElementsInstancedNV == NULL && context->DrawElementsInstanced != NULL) context->DrawElementsInstancedNV = (PFNGLDRAWELEMENTSINSTANCEDNVPROC)context->DrawElementsInstanced;
+    if (context->DrawElementsInstancedNV == NULL && context->DrawElementsInstancedANGLE != NULL) context->DrawElementsInstancedNV = (PFNGLDRAWELEMENTSINSTANCEDNVPROC)context->DrawElementsInstancedANGLE;
+    if (context->DrawElementsInstancedNV == NULL && context->DrawElementsInstancedARB != NULL) context->DrawElementsInstancedNV = (PFNGLDRAWELEMENTSINSTANCEDNVPROC)context->DrawElementsInstancedARB;
+    if (context->DrawElementsInstancedNV == NULL && context->DrawElementsInstancedEXT != NULL) context->DrawElementsInstancedNV = (PFNGLDRAWELEMENTSINSTANCEDNVPROC)context->DrawElementsInstancedEXT;
+    if (context->DrawRangeElements == NULL && context->DrawRangeElementsEXT != NULL) context->DrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC)context->DrawRangeElementsEXT;
+    if (context->DrawRangeElementsBaseVertex == NULL && context->DrawRangeElementsBaseVertexEXT != NULL) context->DrawRangeElementsBaseVertex = (PFNGLDRAWRANGEELEMENTSBASEVERTEXPROC)context->DrawRangeElementsBaseVertexEXT;
+    if (context->DrawRangeElementsBaseVertex == NULL && context->DrawRangeElementsBaseVertexOES != NULL) context->DrawRangeElementsBaseVertex = (PFNGLDRAWRANGEELEMENTSBASEVERTEXPROC)context->DrawRangeElementsBaseVertexOES;
+    if (context->DrawRangeElementsBaseVertexEXT == NULL && context->DrawRangeElementsBaseVertex != NULL) context->DrawRangeElementsBaseVertexEXT = (PFNGLDRAWRANGEELEMENTSBASEVERTEXEXTPROC)context->DrawRangeElementsBaseVertex;
+    if (context->DrawRangeElementsBaseVertexEXT == NULL && context->DrawRangeElementsBaseVertexOES != NULL) context->DrawRangeElementsBaseVertexEXT = (PFNGLDRAWRANGEELEMENTSBASEVERTEXEXTPROC)context->DrawRangeElementsBaseVertexOES;
+    if (context->DrawRangeElementsBaseVertexOES == NULL && context->DrawRangeElementsBaseVertex != NULL) context->DrawRangeElementsBaseVertexOES = (PFNGLDRAWRANGEELEMENTSBASEVERTEXOESPROC)context->DrawRangeElementsBaseVertex;
+    if (context->DrawRangeElementsBaseVertexOES == NULL && context->DrawRangeElementsBaseVertexEXT != NULL) context->DrawRangeElementsBaseVertexOES = (PFNGLDRAWRANGEELEMENTSBASEVERTEXOESPROC)context->DrawRangeElementsBaseVertexEXT;
+    if (context->DrawRangeElementsEXT == NULL && context->DrawRangeElements != NULL) context->DrawRangeElementsEXT = (PFNGLDRAWRANGEELEMENTSEXTPROC)context->DrawRangeElements;
+    if (context->DrawTransformFeedback == NULL && context->DrawTransformFeedbackEXT != NULL) context->DrawTransformFeedback = (PFNGLDRAWTRANSFORMFEEDBACKPROC)context->DrawTransformFeedbackEXT;
+    if (context->DrawTransformFeedback == NULL && context->DrawTransformFeedbackNV != NULL) context->DrawTransformFeedback = (PFNGLDRAWTRANSFORMFEEDBACKPROC)context->DrawTransformFeedbackNV;
+    if (context->DrawTransformFeedbackEXT == NULL && context->DrawTransformFeedback != NULL) context->DrawTransformFeedbackEXT = (PFNGLDRAWTRANSFORMFEEDBACKEXTPROC)context->DrawTransformFeedback;
+    if (context->DrawTransformFeedbackEXT == NULL && context->DrawTransformFeedbackNV != NULL) context->DrawTransformFeedbackEXT = (PFNGLDRAWTRANSFORMFEEDBACKEXTPROC)context->DrawTransformFeedbackNV;
+    if (context->DrawTransformFeedbackInstanced == NULL && context->DrawTransformFeedbackInstancedEXT != NULL) context->DrawTransformFeedbackInstanced = (PFNGLDRAWTRANSFORMFEEDBACKINSTANCEDPROC)context->DrawTransformFeedbackInstancedEXT;
+    if (context->DrawTransformFeedbackInstancedEXT == NULL && context->DrawTransformFeedbackInstanced != NULL) context->DrawTransformFeedbackInstancedEXT = (PFNGLDRAWTRANSFORMFEEDBACKINSTANCEDEXTPROC)context->DrawTransformFeedbackInstanced;
+    if (context->DrawTransformFeedbackNV == NULL && context->DrawTransformFeedback != NULL) context->DrawTransformFeedbackNV = (PFNGLDRAWTRANSFORMFEEDBACKNVPROC)context->DrawTransformFeedback;
+    if (context->DrawTransformFeedbackNV == NULL && context->DrawTransformFeedbackEXT != NULL) context->DrawTransformFeedbackNV = (PFNGLDRAWTRANSFORMFEEDBACKNVPROC)context->DrawTransformFeedbackEXT;
+    if (context->Enablei == NULL && context->EnableIndexedEXT != NULL) context->Enablei = (PFNGLENABLEIPROC)context->EnableIndexedEXT;
+    if (context->Enablei == NULL && context->EnableiEXT != NULL) context->Enablei = (PFNGLENABLEIPROC)context->EnableiEXT;
+    if (context->Enablei == NULL && context->EnableiNV != NULL) context->Enablei = (PFNGLENABLEIPROC)context->EnableiNV;
+    if (context->Enablei == NULL && context->EnableiOES != NULL) context->Enablei = (PFNGLENABLEIPROC)context->EnableiOES;
+    if (context->EnableiEXT == NULL && context->EnableIndexedEXT != NULL) context->EnableiEXT = (PFNGLENABLEIEXTPROC)context->EnableIndexedEXT;
+    if (context->EnableiEXT == NULL && context->Enablei != NULL) context->EnableiEXT = (PFNGLENABLEIEXTPROC)context->Enablei;
+    if (context->EnableiEXT == NULL && context->EnableiNV != NULL) context->EnableiEXT = (PFNGLENABLEIEXTPROC)context->EnableiNV;
+    if (context->EnableiEXT == NULL && context->EnableiOES != NULL) context->EnableiEXT = (PFNGLENABLEIEXTPROC)context->EnableiOES;
+    if (context->EnableIndexedEXT == NULL && context->Enablei != NULL) context->EnableIndexedEXT = (PFNGLENABLEINDEXEDEXTPROC)context->Enablei;
+    if (context->EnableIndexedEXT == NULL && context->EnableiEXT != NULL) context->EnableIndexedEXT = (PFNGLENABLEINDEXEDEXTPROC)context->EnableiEXT;
+    if (context->EnableIndexedEXT == NULL && context->EnableiNV != NULL) context->EnableIndexedEXT = (PFNGLENABLEINDEXEDEXTPROC)context->EnableiNV;
+    if (context->EnableIndexedEXT == NULL && context->EnableiOES != NULL) context->EnableIndexedEXT = (PFNGLENABLEINDEXEDEXTPROC)context->EnableiOES;
+    if (context->EnableiNV == NULL && context->EnableIndexedEXT != NULL) context->EnableiNV = (PFNGLENABLEINVPROC)context->EnableIndexedEXT;
+    if (context->EnableiNV == NULL && context->Enablei != NULL) context->EnableiNV = (PFNGLENABLEINVPROC)context->Enablei;
+    if (context->EnableiNV == NULL && context->EnableiEXT != NULL) context->EnableiNV = (PFNGLENABLEINVPROC)context->EnableiEXT;
+    if (context->EnableiNV == NULL && context->EnableiOES != NULL) context->EnableiNV = (PFNGLENABLEINVPROC)context->EnableiOES;
+    if (context->EnableiOES == NULL && context->EnableIndexedEXT != NULL) context->EnableiOES = (PFNGLENABLEIOESPROC)context->EnableIndexedEXT;
+    if (context->EnableiOES == NULL && context->Enablei != NULL) context->EnableiOES = (PFNGLENABLEIOESPROC)context->Enablei;
+    if (context->EnableiOES == NULL && context->EnableiEXT != NULL) context->EnableiOES = (PFNGLENABLEIOESPROC)context->EnableiEXT;
+    if (context->EnableiOES == NULL && context->EnableiNV != NULL) context->EnableiOES = (PFNGLENABLEIOESPROC)context->EnableiNV;
+    if (context->EnableVertexAttribArray == NULL && context->EnableVertexAttribArrayARB != NULL) context->EnableVertexAttribArray = (PFNGLENABLEVERTEXATTRIBARRAYPROC)context->EnableVertexAttribArrayARB;
+    if (context->EnableVertexAttribArrayARB == NULL && context->EnableVertexAttribArray != NULL) context->EnableVertexAttribArrayARB = (PFNGLENABLEVERTEXATTRIBARRAYARBPROC)context->EnableVertexAttribArray;
+    if (context->EndConditionalRender == NULL && context->EndConditionalRenderNV != NULL) context->EndConditionalRender = (PFNGLENDCONDITIONALRENDERPROC)context->EndConditionalRenderNV;
+    if (context->EndConditionalRender == NULL && context->EndConditionalRenderNVX != NULL) context->EndConditionalRender = (PFNGLENDCONDITIONALRENDERPROC)context->EndConditionalRenderNVX;
+    if (context->EndConditionalRenderNV == NULL && context->EndConditionalRender != NULL) context->EndConditionalRenderNV = (PFNGLENDCONDITIONALRENDERNVPROC)context->EndConditionalRender;
+    if (context->EndConditionalRenderNV == NULL && context->EndConditionalRenderNVX != NULL) context->EndConditionalRenderNV = (PFNGLENDCONDITIONALRENDERNVPROC)context->EndConditionalRenderNVX;
+    if (context->EndConditionalRenderNVX == NULL && context->EndConditionalRender != NULL) context->EndConditionalRenderNVX = (PFNGLENDCONDITIONALRENDERNVXPROC)context->EndConditionalRender;
+    if (context->EndConditionalRenderNVX == NULL && context->EndConditionalRenderNV != NULL) context->EndConditionalRenderNVX = (PFNGLENDCONDITIONALRENDERNVXPROC)context->EndConditionalRenderNV;
+    if (context->EndQuery == NULL && context->EndQueryARB != NULL) context->EndQuery = (PFNGLENDQUERYPROC)context->EndQueryARB;
+    if (context->EndQueryARB == NULL && context->EndQuery != NULL) context->EndQueryARB = (PFNGLENDQUERYARBPROC)context->EndQuery;
+    if (context->EndTransformFeedback == NULL && context->EndTransformFeedbackEXT != NULL) context->EndTransformFeedback = (PFNGLENDTRANSFORMFEEDBACKPROC)context->EndTransformFeedbackEXT;
+    if (context->EndTransformFeedback == NULL && context->EndTransformFeedbackNV != NULL) context->EndTransformFeedback = (PFNGLENDTRANSFORMFEEDBACKPROC)context->EndTransformFeedbackNV;
+    if (context->EndTransformFeedbackEXT == NULL && context->EndTransformFeedback != NULL) context->EndTransformFeedbackEXT = (PFNGLENDTRANSFORMFEEDBACKEXTPROC)context->EndTransformFeedback;
+    if (context->EndTransformFeedbackEXT == NULL && context->EndTransformFeedbackNV != NULL) context->EndTransformFeedbackEXT = (PFNGLENDTRANSFORMFEEDBACKEXTPROC)context->EndTransformFeedbackNV;
+    if (context->EndTransformFeedbackNV == NULL && context->EndTransformFeedback != NULL) context->EndTransformFeedbackNV = (PFNGLENDTRANSFORMFEEDBACKNVPROC)context->EndTransformFeedback;
+    if (context->EndTransformFeedbackNV == NULL && context->EndTransformFeedbackEXT != NULL) context->EndTransformFeedbackNV = (PFNGLENDTRANSFORMFEEDBACKNVPROC)context->EndTransformFeedbackEXT;
+    if (context->FenceSync == NULL && context->FenceSyncAPPLE != NULL) context->FenceSync = (PFNGLFENCESYNCPROC)context->FenceSyncAPPLE;
+    if (context->FenceSyncAPPLE == NULL && context->FenceSync != NULL) context->FenceSyncAPPLE = (PFNGLFENCESYNCAPPLEPROC)context->FenceSync;
+    if (context->FlushMappedBufferRange == NULL && context->FlushMappedBufferRangeAPPLE != NULL) context->FlushMappedBufferRange = (PFNGLFLUSHMAPPEDBUFFERRANGEPROC)context->FlushMappedBufferRangeAPPLE;
+    if (context->FlushMappedBufferRange == NULL && context->FlushMappedBufferRangeEXT != NULL) context->FlushMappedBufferRange = (PFNGLFLUSHMAPPEDBUFFERRANGEPROC)context->FlushMappedBufferRangeEXT;
+    if (context->FlushMappedBufferRangeAPPLE == NULL && context->FlushMappedBufferRange != NULL) context->FlushMappedBufferRangeAPPLE = (PFNGLFLUSHMAPPEDBUFFERRANGEAPPLEPROC)context->FlushMappedBufferRange;
+    if (context->FlushMappedBufferRangeAPPLE == NULL && context->FlushMappedBufferRangeEXT != NULL) context->FlushMappedBufferRangeAPPLE = (PFNGLFLUSHMAPPEDBUFFERRANGEAPPLEPROC)context->FlushMappedBufferRangeEXT;
+    if (context->FlushMappedBufferRangeEXT == NULL && context->FlushMappedBufferRange != NULL) context->FlushMappedBufferRangeEXT = (PFNGLFLUSHMAPPEDBUFFERRANGEEXTPROC)context->FlushMappedBufferRange;
+    if (context->FlushMappedBufferRangeEXT == NULL && context->FlushMappedBufferRangeAPPLE != NULL) context->FlushMappedBufferRangeEXT = (PFNGLFLUSHMAPPEDBUFFERRANGEEXTPROC)context->FlushMappedBufferRangeAPPLE;
+    if (context->FramebufferRenderbuffer == NULL && context->FramebufferRenderbufferEXT != NULL) context->FramebufferRenderbuffer = (PFNGLFRAMEBUFFERRENDERBUFFERPROC)context->FramebufferRenderbufferEXT;
+    if (context->FramebufferRenderbufferEXT == NULL && context->FramebufferRenderbuffer != NULL) context->FramebufferRenderbufferEXT = (PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC)context->FramebufferRenderbuffer;
+    if (context->FramebufferTexture == NULL && context->FramebufferTextureARB != NULL) context->FramebufferTexture = (PFNGLFRAMEBUFFERTEXTUREPROC)context->FramebufferTextureARB;
+    if (context->FramebufferTexture == NULL && context->FramebufferTextureEXT != NULL) context->FramebufferTexture = (PFNGLFRAMEBUFFERTEXTUREPROC)context->FramebufferTextureEXT;
+    if (context->FramebufferTexture == NULL && context->FramebufferTextureOES != NULL) context->FramebufferTexture = (PFNGLFRAMEBUFFERTEXTUREPROC)context->FramebufferTextureOES;
+    if (context->FramebufferTexture1D == NULL && context->FramebufferTexture1DEXT != NULL) context->FramebufferTexture1D = (PFNGLFRAMEBUFFERTEXTURE1DPROC)context->FramebufferTexture1DEXT;
+    if (context->FramebufferTexture1DEXT == NULL && context->FramebufferTexture1D != NULL) context->FramebufferTexture1DEXT = (PFNGLFRAMEBUFFERTEXTURE1DEXTPROC)context->FramebufferTexture1D;
+    if (context->FramebufferTexture2D == NULL && context->FramebufferTexture2DEXT != NULL) context->FramebufferTexture2D = (PFNGLFRAMEBUFFERTEXTURE2DPROC)context->FramebufferTexture2DEXT;
+    if (context->FramebufferTexture2DEXT == NULL && context->FramebufferTexture2D != NULL) context->FramebufferTexture2DEXT = (PFNGLFRAMEBUFFERTEXTURE2DEXTPROC)context->FramebufferTexture2D;
+    if (context->FramebufferTexture3D == NULL && context->FramebufferTexture3DEXT != NULL) context->FramebufferTexture3D = (PFNGLFRAMEBUFFERTEXTURE3DPROC)context->FramebufferTexture3DEXT;
+    if (context->FramebufferTexture3DEXT == NULL && context->FramebufferTexture3D != NULL) context->FramebufferTexture3DEXT = (PFNGLFRAMEBUFFERTEXTURE3DEXTPROC)context->FramebufferTexture3D;
+    if (context->FramebufferTextureARB == NULL && context->FramebufferTexture != NULL) context->FramebufferTextureARB = (PFNGLFRAMEBUFFERTEXTUREARBPROC)context->FramebufferTexture;
+    if (context->FramebufferTextureARB == NULL && context->FramebufferTextureEXT != NULL) context->FramebufferTextureARB = (PFNGLFRAMEBUFFERTEXTUREARBPROC)context->FramebufferTextureEXT;
+    if (context->FramebufferTextureARB == NULL && context->FramebufferTextureOES != NULL) context->FramebufferTextureARB = (PFNGLFRAMEBUFFERTEXTUREARBPROC)context->FramebufferTextureOES;
+    if (context->FramebufferTextureEXT == NULL && context->FramebufferTexture != NULL) context->FramebufferTextureEXT = (PFNGLFRAMEBUFFERTEXTUREEXTPROC)context->FramebufferTexture;
+    if (context->FramebufferTextureEXT == NULL && context->FramebufferTextureARB != NULL) context->FramebufferTextureEXT = (PFNGLFRAMEBUFFERTEXTUREEXTPROC)context->FramebufferTextureARB;
+    if (context->FramebufferTextureEXT == NULL && context->FramebufferTextureOES != NULL) context->FramebufferTextureEXT = (PFNGLFRAMEBUFFERTEXTUREEXTPROC)context->FramebufferTextureOES;
+    if (context->FramebufferTextureFaceARB == NULL && context->FramebufferTextureFaceEXT != NULL) context->FramebufferTextureFaceARB = (PFNGLFRAMEBUFFERTEXTUREFACEARBPROC)context->FramebufferTextureFaceEXT;
+    if (context->FramebufferTextureFaceEXT == NULL && context->FramebufferTextureFaceARB != NULL) context->FramebufferTextureFaceEXT = (PFNGLFRAMEBUFFERTEXTUREFACEEXTPROC)context->FramebufferTextureFaceARB;
+    if (context->FramebufferTextureLayer == NULL && context->FramebufferTextureLayerARB != NULL) context->FramebufferTextureLayer = (PFNGLFRAMEBUFFERTEXTURELAYERPROC)context->FramebufferTextureLayerARB;
+    if (context->FramebufferTextureLayer == NULL && context->FramebufferTextureLayerEXT != NULL) context->FramebufferTextureLayer = (PFNGLFRAMEBUFFERTEXTURELAYERPROC)context->FramebufferTextureLayerEXT;
+    if (context->FramebufferTextureLayerARB == NULL && context->FramebufferTextureLayer != NULL) context->FramebufferTextureLayerARB = (PFNGLFRAMEBUFFERTEXTURELAYERARBPROC)context->FramebufferTextureLayer;
+    if (context->FramebufferTextureLayerARB == NULL && context->FramebufferTextureLayerEXT != NULL) context->FramebufferTextureLayerARB = (PFNGLFRAMEBUFFERTEXTURELAYERARBPROC)context->FramebufferTextureLayerEXT;
+    if (context->FramebufferTextureLayerEXT == NULL && context->FramebufferTextureLayer != NULL) context->FramebufferTextureLayerEXT = (PFNGLFRAMEBUFFERTEXTURELAYEREXTPROC)context->FramebufferTextureLayer;
+    if (context->FramebufferTextureLayerEXT == NULL && context->FramebufferTextureLayerARB != NULL) context->FramebufferTextureLayerEXT = (PFNGLFRAMEBUFFERTEXTURELAYEREXTPROC)context->FramebufferTextureLayerARB;
+    if (context->FramebufferTextureOES == NULL && context->FramebufferTexture != NULL) context->FramebufferTextureOES = (PFNGLFRAMEBUFFERTEXTUREOESPROC)context->FramebufferTexture;
+    if (context->FramebufferTextureOES == NULL && context->FramebufferTextureARB != NULL) context->FramebufferTextureOES = (PFNGLFRAMEBUFFERTEXTUREOESPROC)context->FramebufferTextureARB;
+    if (context->FramebufferTextureOES == NULL && context->FramebufferTextureEXT != NULL) context->FramebufferTextureOES = (PFNGLFRAMEBUFFERTEXTUREOESPROC)context->FramebufferTextureEXT;
+    if (context->GenBuffers == NULL && context->GenBuffersARB != NULL) context->GenBuffers = (PFNGLGENBUFFERSPROC)context->GenBuffersARB;
+    if (context->GenBuffersARB == NULL && context->GenBuffers != NULL) context->GenBuffersARB = (PFNGLGENBUFFERSARBPROC)context->GenBuffers;
+    if (context->GenerateMipmap == NULL && context->GenerateMipmapEXT != NULL) context->GenerateMipmap = (PFNGLGENERATEMIPMAPPROC)context->GenerateMipmapEXT;
+    if (context->GenerateMipmapEXT == NULL && context->GenerateMipmap != NULL) context->GenerateMipmapEXT = (PFNGLGENERATEMIPMAPEXTPROC)context->GenerateMipmap;
+    if (context->GenFramebuffers == NULL && context->GenFramebuffersEXT != NULL) context->GenFramebuffers = (PFNGLGENFRAMEBUFFERSPROC)context->GenFramebuffersEXT;
+    if (context->GenFramebuffersEXT == NULL && context->GenFramebuffers != NULL) context->GenFramebuffersEXT = (PFNGLGENFRAMEBUFFERSEXTPROC)context->GenFramebuffers;
+    if (context->GenProgramsARB == NULL && context->GenProgramsNV != NULL) context->GenProgramsARB = (PFNGLGENPROGRAMSARBPROC)context->GenProgramsNV;
+    if (context->GenProgramsNV == NULL && context->GenProgramsARB != NULL) context->GenProgramsNV = (PFNGLGENPROGRAMSNVPROC)context->GenProgramsARB;
+    if (context->GenQueries == NULL && context->GenQueriesARB != NULL) context->GenQueries = (PFNGLGENQUERIESPROC)context->GenQueriesARB;
+    if (context->GenQueriesARB == NULL && context->GenQueries != NULL) context->GenQueriesARB = (PFNGLGENQUERIESARBPROC)context->GenQueries;
+    if (context->GenRenderbuffers == NULL && context->GenRenderbuffersEXT != NULL) context->GenRenderbuffers = (PFNGLGENRENDERBUFFERSPROC)context->GenRenderbuffersEXT;
+    if (context->GenRenderbuffersEXT == NULL && context->GenRenderbuffers != NULL) context->GenRenderbuffersEXT = (PFNGLGENRENDERBUFFERSEXTPROC)context->GenRenderbuffers;
+    if (context->GenTransformFeedbacks == NULL && context->GenTransformFeedbacksNV != NULL) context->GenTransformFeedbacks = (PFNGLGENTRANSFORMFEEDBACKSPROC)context->GenTransformFeedbacksNV;
+    if (context->GenTransformFeedbacksNV == NULL && context->GenTransformFeedbacks != NULL) context->GenTransformFeedbacksNV = (PFNGLGENTRANSFORMFEEDBACKSNVPROC)context->GenTransformFeedbacks;
+    if (context->GenVertexArrays == NULL && context->GenVertexArraysAPPLE != NULL) context->GenVertexArrays = (PFNGLGENVERTEXARRAYSPROC)context->GenVertexArraysAPPLE;
+    if (context->GenVertexArrays == NULL && context->GenVertexArraysOES != NULL) context->GenVertexArrays = (PFNGLGENVERTEXARRAYSPROC)context->GenVertexArraysOES;
+    if (context->GenVertexArraysAPPLE == NULL && context->GenVertexArrays != NULL) context->GenVertexArraysAPPLE = (PFNGLGENVERTEXARRAYSAPPLEPROC)context->GenVertexArrays;
+    if (context->GenVertexArraysAPPLE == NULL && context->GenVertexArraysOES != NULL) context->GenVertexArraysAPPLE = (PFNGLGENVERTEXARRAYSAPPLEPROC)context->GenVertexArraysOES;
+    if (context->GenVertexArraysOES == NULL && context->GenVertexArrays != NULL) context->GenVertexArraysOES = (PFNGLGENVERTEXARRAYSOESPROC)context->GenVertexArrays;
+    if (context->GenVertexArraysOES == NULL && context->GenVertexArraysAPPLE != NULL) context->GenVertexArraysOES = (PFNGLGENVERTEXARRAYSOESPROC)context->GenVertexArraysAPPLE;
+    if (context->GetActiveAttrib == NULL && context->GetActiveAttribARB != NULL) context->GetActiveAttrib = (PFNGLGETACTIVEATTRIBPROC)context->GetActiveAttribARB;
+    if (context->GetActiveAttribARB == NULL && context->GetActiveAttrib != NULL) context->GetActiveAttribARB = (PFNGLGETACTIVEATTRIBARBPROC)context->GetActiveAttrib;
+    if (context->GetActiveUniform == NULL && context->GetActiveUniformARB != NULL) context->GetActiveUniform = (PFNGLGETACTIVEUNIFORMPROC)context->GetActiveUniformARB;
+    if (context->GetActiveUniformARB == NULL && context->GetActiveUniform != NULL) context->GetActiveUniformARB = (PFNGLGETACTIVEUNIFORMARBPROC)context->GetActiveUniform;
+    if (context->GetAttribLocation == NULL && context->GetAttribLocationARB != NULL) context->GetAttribLocation = (PFNGLGETATTRIBLOCATIONPROC)context->GetAttribLocationARB;
+    if (context->GetAttribLocationARB == NULL && context->GetAttribLocation != NULL) context->GetAttribLocationARB = (PFNGLGETATTRIBLOCATIONARBPROC)context->GetAttribLocation;
+    if (context->GetBooleani_v == NULL && context->GetBooleanIndexedvEXT != NULL) context->GetBooleani_v = (PFNGLGETBOOLEANI_VPROC)context->GetBooleanIndexedvEXT;
+    if (context->GetBooleanIndexedvEXT == NULL && context->GetBooleani_v != NULL) context->GetBooleanIndexedvEXT = (PFNGLGETBOOLEANINDEXEDVEXTPROC)context->GetBooleani_v;
+    if (context->GetBufferParameteriv == NULL && context->GetBufferParameterivARB != NULL) context->GetBufferParameteriv = (PFNGLGETBUFFERPARAMETERIVPROC)context->GetBufferParameterivARB;
+    if (context->GetBufferParameterivARB == NULL && context->GetBufferParameteriv != NULL) context->GetBufferParameterivARB = (PFNGLGETBUFFERPARAMETERIVARBPROC)context->GetBufferParameteriv;
+    if (context->GetBufferPointerv == NULL && context->GetBufferPointervARB != NULL) context->GetBufferPointerv = (PFNGLGETBUFFERPOINTERVPROC)context->GetBufferPointervARB;
+    if (context->GetBufferPointerv == NULL && context->GetBufferPointervOES != NULL) context->GetBufferPointerv = (PFNGLGETBUFFERPOINTERVPROC)context->GetBufferPointervOES;
+    if (context->GetBufferPointervARB == NULL && context->GetBufferPointerv != NULL) context->GetBufferPointervARB = (PFNGLGETBUFFERPOINTERVARBPROC)context->GetBufferPointerv;
+    if (context->GetBufferPointervARB == NULL && context->GetBufferPointervOES != NULL) context->GetBufferPointervARB = (PFNGLGETBUFFERPOINTERVARBPROC)context->GetBufferPointervOES;
+    if (context->GetBufferPointervOES == NULL && context->GetBufferPointerv != NULL) context->GetBufferPointervOES = (PFNGLGETBUFFERPOINTERVOESPROC)context->GetBufferPointerv;
+    if (context->GetBufferPointervOES == NULL && context->GetBufferPointervARB != NULL) context->GetBufferPointervOES = (PFNGLGETBUFFERPOINTERVOESPROC)context->GetBufferPointervARB;
+    if (context->GetBufferSubData == NULL && context->GetBufferSubDataARB != NULL) context->GetBufferSubData = (PFNGLGETBUFFERSUBDATAPROC)context->GetBufferSubDataARB;
+    if (context->GetBufferSubDataARB == NULL && context->GetBufferSubData != NULL) context->GetBufferSubDataARB = (PFNGLGETBUFFERSUBDATAARBPROC)context->GetBufferSubData;
+    if (context->GetCompressedTexImage == NULL && context->GetCompressedTexImageARB != NULL) context->GetCompressedTexImage = (PFNGLGETCOMPRESSEDTEXIMAGEPROC)context->GetCompressedTexImageARB;
+    if (context->GetCompressedTexImageARB == NULL && context->GetCompressedTexImage != NULL) context->GetCompressedTexImageARB = (PFNGLGETCOMPRESSEDTEXIMAGEARBPROC)context->GetCompressedTexImage;
+    if (context->GetDebugMessageLog == NULL && context->GetDebugMessageLogARB != NULL) context->GetDebugMessageLog = (PFNGLGETDEBUGMESSAGELOGPROC)context->GetDebugMessageLogARB;
+    if (context->GetDebugMessageLog == NULL && context->GetDebugMessageLogKHR != NULL) context->GetDebugMessageLog = (PFNGLGETDEBUGMESSAGELOGPROC)context->GetDebugMessageLogKHR;
+    if (context->GetDebugMessageLogARB == NULL && context->GetDebugMessageLog != NULL) context->GetDebugMessageLogARB = (PFNGLGETDEBUGMESSAGELOGARBPROC)context->GetDebugMessageLog;
+    if (context->GetDebugMessageLogARB == NULL && context->GetDebugMessageLogKHR != NULL) context->GetDebugMessageLogARB = (PFNGLGETDEBUGMESSAGELOGARBPROC)context->GetDebugMessageLogKHR;
+    if (context->GetDebugMessageLogKHR == NULL && context->GetDebugMessageLog != NULL) context->GetDebugMessageLogKHR = (PFNGLGETDEBUGMESSAGELOGKHRPROC)context->GetDebugMessageLog;
+    if (context->GetDebugMessageLogKHR == NULL && context->GetDebugMessageLogARB != NULL) context->GetDebugMessageLogKHR = (PFNGLGETDEBUGMESSAGELOGKHRPROC)context->GetDebugMessageLogARB;
+    if (context->GetDoublei_v == NULL && context->GetDoubleIndexedvEXT != NULL) context->GetDoublei_v = (PFNGLGETDOUBLEI_VPROC)context->GetDoubleIndexedvEXT;
+    if (context->GetDoublei_v == NULL && context->GetDoublei_vEXT != NULL) context->GetDoublei_v = (PFNGLGETDOUBLEI_VPROC)context->GetDoublei_vEXT;
+    if (context->GetDoublei_vEXT == NULL && context->GetDoubleIndexedvEXT != NULL) context->GetDoublei_vEXT = (PFNGLGETDOUBLEI_VEXTPROC)context->GetDoubleIndexedvEXT;
+    if (context->GetDoublei_vEXT == NULL && context->GetDoublei_v != NULL) context->GetDoublei_vEXT = (PFNGLGETDOUBLEI_VEXTPROC)context->GetDoublei_v;
+    if (context->GetDoubleIndexedvEXT == NULL && context->GetDoublei_v != NULL) context->GetDoubleIndexedvEXT = (PFNGLGETDOUBLEINDEXEDVEXTPROC)context->GetDoublei_v;
+    if (context->GetDoubleIndexedvEXT == NULL && context->GetDoublei_vEXT != NULL) context->GetDoubleIndexedvEXT = (PFNGLGETDOUBLEINDEXEDVEXTPROC)context->GetDoublei_vEXT;
+    if (context->GetFloati_v == NULL && context->GetFloatIndexedvEXT != NULL) context->GetFloati_v = (PFNGLGETFLOATI_VPROC)context->GetFloatIndexedvEXT;
+    if (context->GetFloati_v == NULL && context->GetFloati_vEXT != NULL) context->GetFloati_v = (PFNGLGETFLOATI_VPROC)context->GetFloati_vEXT;
+    if (context->GetFloati_v == NULL && context->GetFloati_vNV != NULL) context->GetFloati_v = (PFNGLGETFLOATI_VPROC)context->GetFloati_vNV;
+    if (context->GetFloati_v == NULL && context->GetFloati_vOES != NULL) context->GetFloati_v = (PFNGLGETFLOATI_VPROC)context->GetFloati_vOES;
+    if (context->GetFloati_vEXT == NULL && context->GetFloatIndexedvEXT != NULL) context->GetFloati_vEXT = (PFNGLGETFLOATI_VEXTPROC)context->GetFloatIndexedvEXT;
+    if (context->GetFloati_vEXT == NULL && context->GetFloati_v != NULL) context->GetFloati_vEXT = (PFNGLGETFLOATI_VEXTPROC)context->GetFloati_v;
+    if (context->GetFloati_vEXT == NULL && context->GetFloati_vNV != NULL) context->GetFloati_vEXT = (PFNGLGETFLOATI_VEXTPROC)context->GetFloati_vNV;
+    if (context->GetFloati_vEXT == NULL && context->GetFloati_vOES != NULL) context->GetFloati_vEXT = (PFNGLGETFLOATI_VEXTPROC)context->GetFloati_vOES;
+    if (context->GetFloati_vNV == NULL && context->GetFloatIndexedvEXT != NULL) context->GetFloati_vNV = (PFNGLGETFLOATI_VNVPROC)context->GetFloatIndexedvEXT;
+    if (context->GetFloati_vNV == NULL && context->GetFloati_v != NULL) context->GetFloati_vNV = (PFNGLGETFLOATI_VNVPROC)context->GetFloati_v;
+    if (context->GetFloati_vNV == NULL && context->GetFloati_vEXT != NULL) context->GetFloati_vNV = (PFNGLGETFLOATI_VNVPROC)context->GetFloati_vEXT;
+    if (context->GetFloati_vNV == NULL && context->GetFloati_vOES != NULL) context->GetFloati_vNV = (PFNGLGETFLOATI_VNVPROC)context->GetFloati_vOES;
+    if (context->GetFloati_vOES == NULL && context->GetFloatIndexedvEXT != NULL) context->GetFloati_vOES = (PFNGLGETFLOATI_VOESPROC)context->GetFloatIndexedvEXT;
+    if (context->GetFloati_vOES == NULL && context->GetFloati_v != NULL) context->GetFloati_vOES = (PFNGLGETFLOATI_VOESPROC)context->GetFloati_v;
+    if (context->GetFloati_vOES == NULL && context->GetFloati_vEXT != NULL) context->GetFloati_vOES = (PFNGLGETFLOATI_VOESPROC)context->GetFloati_vEXT;
+    if (context->GetFloati_vOES == NULL && context->GetFloati_vNV != NULL) context->GetFloati_vOES = (PFNGLGETFLOATI_VOESPROC)context->GetFloati_vNV;
+    if (context->GetFloatIndexedvEXT == NULL && context->GetFloati_v != NULL) context->GetFloatIndexedvEXT = (PFNGLGETFLOATINDEXEDVEXTPROC)context->GetFloati_v;
+    if (context->GetFloatIndexedvEXT == NULL && context->GetFloati_vEXT != NULL) context->GetFloatIndexedvEXT = (PFNGLGETFLOATINDEXEDVEXTPROC)context->GetFloati_vEXT;
+    if (context->GetFloatIndexedvEXT == NULL && context->GetFloati_vNV != NULL) context->GetFloatIndexedvEXT = (PFNGLGETFLOATINDEXEDVEXTPROC)context->GetFloati_vNV;
+    if (context->GetFloatIndexedvEXT == NULL && context->GetFloati_vOES != NULL) context->GetFloatIndexedvEXT = (PFNGLGETFLOATINDEXEDVEXTPROC)context->GetFloati_vOES;
+    if (context->GetFragDataIndex == NULL && context->GetFragDataIndexEXT != NULL) context->GetFragDataIndex = (PFNGLGETFRAGDATAINDEXPROC)context->GetFragDataIndexEXT;
+    if (context->GetFragDataIndexEXT == NULL && context->GetFragDataIndex != NULL) context->GetFragDataIndexEXT = (PFNGLGETFRAGDATAINDEXEXTPROC)context->GetFragDataIndex;
+    if (context->GetFragDataLocation == NULL && context->GetFragDataLocationEXT != NULL) context->GetFragDataLocation = (PFNGLGETFRAGDATALOCATIONPROC)context->GetFragDataLocationEXT;
+    if (context->GetFragDataLocationEXT == NULL && context->GetFragDataLocation != NULL) context->GetFragDataLocationEXT = (PFNGLGETFRAGDATALOCATIONEXTPROC)context->GetFragDataLocation;
+    if (context->GetFramebufferAttachmentParameteriv == NULL && context->GetFramebufferAttachmentParameterivEXT != NULL) context->GetFramebufferAttachmentParameteriv = (PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC)context->GetFramebufferAttachmentParameterivEXT;
+    if (context->GetFramebufferAttachmentParameterivEXT == NULL && context->GetFramebufferAttachmentParameteriv != NULL) context->GetFramebufferAttachmentParameterivEXT = (PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC)context->GetFramebufferAttachmentParameteriv;
+    if (context->GetGraphicsResetStatus == NULL && context->GetGraphicsResetStatusEXT != NULL) context->GetGraphicsResetStatus = (PFNGLGETGRAPHICSRESETSTATUSPROC)context->GetGraphicsResetStatusEXT;
+    if (context->GetGraphicsResetStatus == NULL && context->GetGraphicsResetStatusKHR != NULL) context->GetGraphicsResetStatus = (PFNGLGETGRAPHICSRESETSTATUSPROC)context->GetGraphicsResetStatusKHR;
+    if (context->GetGraphicsResetStatusEXT == NULL && context->GetGraphicsResetStatus != NULL) context->GetGraphicsResetStatusEXT = (PFNGLGETGRAPHICSRESETSTATUSEXTPROC)context->GetGraphicsResetStatus;
+    if (context->GetGraphicsResetStatusEXT == NULL && context->GetGraphicsResetStatusKHR != NULL) context->GetGraphicsResetStatusEXT = (PFNGLGETGRAPHICSRESETSTATUSEXTPROC)context->GetGraphicsResetStatusKHR;
+    if (context->GetGraphicsResetStatusKHR == NULL && context->GetGraphicsResetStatus != NULL) context->GetGraphicsResetStatusKHR = (PFNGLGETGRAPHICSRESETSTATUSKHRPROC)context->GetGraphicsResetStatus;
+    if (context->GetGraphicsResetStatusKHR == NULL && context->GetGraphicsResetStatusEXT != NULL) context->GetGraphicsResetStatusKHR = (PFNGLGETGRAPHICSRESETSTATUSKHRPROC)context->GetGraphicsResetStatusEXT;
+    if (context->GetInteger64v == NULL && context->GetInteger64vAPPLE != NULL) context->GetInteger64v = (PFNGLGETINTEGER64VPROC)context->GetInteger64vAPPLE;
+    if (context->GetInteger64v == NULL && context->GetInteger64vEXT != NULL) context->GetInteger64v = (PFNGLGETINTEGER64VPROC)context->GetInteger64vEXT;
+    if (context->GetInteger64vAPPLE == NULL && context->GetInteger64v != NULL) context->GetInteger64vAPPLE = (PFNGLGETINTEGER64VAPPLEPROC)context->GetInteger64v;
+    if (context->GetInteger64vAPPLE == NULL && context->GetInteger64vEXT != NULL) context->GetInteger64vAPPLE = (PFNGLGETINTEGER64VAPPLEPROC)context->GetInteger64vEXT;
+    if (context->GetInteger64vEXT == NULL && context->GetInteger64v != NULL) context->GetInteger64vEXT = (PFNGLGETINTEGER64VEXTPROC)context->GetInteger64v;
+    if (context->GetInteger64vEXT == NULL && context->GetInteger64vAPPLE != NULL) context->GetInteger64vEXT = (PFNGLGETINTEGER64VEXTPROC)context->GetInteger64vAPPLE;
+    if (context->GetIntegeri_v == NULL && context->GetIntegerIndexedvEXT != NULL) context->GetIntegeri_v = (PFNGLGETINTEGERI_VPROC)context->GetIntegerIndexedvEXT;
+    if (context->GetIntegerIndexedvEXT == NULL && context->GetIntegeri_v != NULL) context->GetIntegerIndexedvEXT = (PFNGLGETINTEGERINDEXEDVEXTPROC)context->GetIntegeri_v;
+    if (context->GetMultisamplefv == NULL && context->GetMultisamplefvNV != NULL) context->GetMultisamplefv = (PFNGLGETMULTISAMPLEFVPROC)context->GetMultisamplefvNV;
+    if (context->GetMultisamplefvNV == NULL && context->GetMultisamplefv != NULL) context->GetMultisamplefvNV = (PFNGLGETMULTISAMPLEFVNVPROC)context->GetMultisamplefv;
+    if (context->GetnUniformfv == NULL && context->GetnUniformfvEXT != NULL) context->GetnUniformfv = (PFNGLGETNUNIFORMFVPROC)context->GetnUniformfvEXT;
+    if (context->GetnUniformfv == NULL && context->GetnUniformfvKHR != NULL) context->GetnUniformfv = (PFNGLGETNUNIFORMFVPROC)context->GetnUniformfvKHR;
+    if (context->GetnUniformfvEXT == NULL && context->GetnUniformfv != NULL) context->GetnUniformfvEXT = (PFNGLGETNUNIFORMFVEXTPROC)context->GetnUniformfv;
+    if (context->GetnUniformfvEXT == NULL && context->GetnUniformfvKHR != NULL) context->GetnUniformfvEXT = (PFNGLGETNUNIFORMFVEXTPROC)context->GetnUniformfvKHR;
+    if (context->GetnUniformfvKHR == NULL && context->GetnUniformfv != NULL) context->GetnUniformfvKHR = (PFNGLGETNUNIFORMFVKHRPROC)context->GetnUniformfv;
+    if (context->GetnUniformfvKHR == NULL && context->GetnUniformfvEXT != NULL) context->GetnUniformfvKHR = (PFNGLGETNUNIFORMFVKHRPROC)context->GetnUniformfvEXT;
+    if (context->GetnUniformiv == NULL && context->GetnUniformivEXT != NULL) context->GetnUniformiv = (PFNGLGETNUNIFORMIVPROC)context->GetnUniformivEXT;
+    if (context->GetnUniformiv == NULL && context->GetnUniformivKHR != NULL) context->GetnUniformiv = (PFNGLGETNUNIFORMIVPROC)context->GetnUniformivKHR;
+    if (context->GetnUniformivEXT == NULL && context->GetnUniformiv != NULL) context->GetnUniformivEXT = (PFNGLGETNUNIFORMIVEXTPROC)context->GetnUniformiv;
+    if (context->GetnUniformivEXT == NULL && context->GetnUniformivKHR != NULL) context->GetnUniformivEXT = (PFNGLGETNUNIFORMIVEXTPROC)context->GetnUniformivKHR;
+    if (context->GetnUniformivKHR == NULL && context->GetnUniformiv != NULL) context->GetnUniformivKHR = (PFNGLGETNUNIFORMIVKHRPROC)context->GetnUniformiv;
+    if (context->GetnUniformivKHR == NULL && context->GetnUniformivEXT != NULL) context->GetnUniformivKHR = (PFNGLGETNUNIFORMIVKHRPROC)context->GetnUniformivEXT;
+    if (context->GetnUniformuiv == NULL && context->GetnUniformuivKHR != NULL) context->GetnUniformuiv = (PFNGLGETNUNIFORMUIVPROC)context->GetnUniformuivKHR;
+    if (context->GetnUniformuivKHR == NULL && context->GetnUniformuiv != NULL) context->GetnUniformuivKHR = (PFNGLGETNUNIFORMUIVKHRPROC)context->GetnUniformuiv;
+    if (context->GetObjectLabel == NULL && context->GetObjectLabelKHR != NULL) context->GetObjectLabel = (PFNGLGETOBJECTLABELPROC)context->GetObjectLabelKHR;
+    if (context->GetObjectLabelKHR == NULL && context->GetObjectLabel != NULL) context->GetObjectLabelKHR = (PFNGLGETOBJECTLABELKHRPROC)context->GetObjectLabel;
+    if (context->GetObjectPtrLabel == NULL && context->GetObjectPtrLabelKHR != NULL) context->GetObjectPtrLabel = (PFNGLGETOBJECTPTRLABELPROC)context->GetObjectPtrLabelKHR;
+    if (context->GetObjectPtrLabelKHR == NULL && context->GetObjectPtrLabel != NULL) context->GetObjectPtrLabelKHR = (PFNGLGETOBJECTPTRLABELKHRPROC)context->GetObjectPtrLabel;
+    if (context->GetPointerv == NULL && context->GetPointervEXT != NULL) context->GetPointerv = (PFNGLGETPOINTERVPROC)context->GetPointervEXT;
+    if (context->GetPointerv == NULL && context->GetPointervKHR != NULL) context->GetPointerv = (PFNGLGETPOINTERVPROC)context->GetPointervKHR;
+    if (context->GetPointervEXT == NULL && context->GetPointerv != NULL) context->GetPointervEXT = (PFNGLGETPOINTERVEXTPROC)context->GetPointerv;
+    if (context->GetPointervEXT == NULL && context->GetPointervKHR != NULL) context->GetPointervEXT = (PFNGLGETPOINTERVEXTPROC)context->GetPointervKHR;
+    if (context->GetPointervKHR == NULL && context->GetPointerv != NULL) context->GetPointervKHR = (PFNGLGETPOINTERVKHRPROC)context->GetPointerv;
+    if (context->GetPointervKHR == NULL && context->GetPointervEXT != NULL) context->GetPointervKHR = (PFNGLGETPOINTERVKHRPROC)context->GetPointervEXT;
+    if (context->GetProgramBinary == NULL && context->GetProgramBinaryOES != NULL) context->GetProgramBinary = (PFNGLGETPROGRAMBINARYPROC)context->GetProgramBinaryOES;
+    if (context->GetProgramBinaryOES == NULL && context->GetProgramBinary != NULL) context->GetProgramBinaryOES = (PFNGLGETPROGRAMBINARYOESPROC)context->GetProgramBinary;
+    if (context->GetQueryiv == NULL && context->GetQueryivARB != NULL) context->GetQueryiv = (PFNGLGETQUERYIVPROC)context->GetQueryivARB;
+    if (context->GetQueryivARB == NULL && context->GetQueryiv != NULL) context->GetQueryivARB = (PFNGLGETQUERYIVARBPROC)context->GetQueryiv;
+    if (context->GetQueryObjecti64v == NULL && context->GetQueryObjecti64vEXT != NULL) context->GetQueryObjecti64v = (PFNGLGETQUERYOBJECTI64VPROC)context->GetQueryObjecti64vEXT;
+    if (context->GetQueryObjecti64vEXT == NULL && context->GetQueryObjecti64v != NULL) context->GetQueryObjecti64vEXT = (PFNGLGETQUERYOBJECTI64VEXTPROC)context->GetQueryObjecti64v;
+    if (context->GetQueryObjectiv == NULL && context->GetQueryObjectivARB != NULL) context->GetQueryObjectiv = (PFNGLGETQUERYOBJECTIVPROC)context->GetQueryObjectivARB;
+    if (context->GetQueryObjectiv == NULL && context->GetQueryObjectivEXT != NULL) context->GetQueryObjectiv = (PFNGLGETQUERYOBJECTIVPROC)context->GetQueryObjectivEXT;
+    if (context->GetQueryObjectivARB == NULL && context->GetQueryObjectiv != NULL) context->GetQueryObjectivARB = (PFNGLGETQUERYOBJECTIVARBPROC)context->GetQueryObjectiv;
+    if (context->GetQueryObjectivARB == NULL && context->GetQueryObjectivEXT != NULL) context->GetQueryObjectivARB = (PFNGLGETQUERYOBJECTIVARBPROC)context->GetQueryObjectivEXT;
+    if (context->GetQueryObjectivEXT == NULL && context->GetQueryObjectiv != NULL) context->GetQueryObjectivEXT = (PFNGLGETQUERYOBJECTIVEXTPROC)context->GetQueryObjectiv;
+    if (context->GetQueryObjectivEXT == NULL && context->GetQueryObjectivARB != NULL) context->GetQueryObjectivEXT = (PFNGLGETQUERYOBJECTIVEXTPROC)context->GetQueryObjectivARB;
+    if (context->GetQueryObjectui64v == NULL && context->GetQueryObjectui64vEXT != NULL) context->GetQueryObjectui64v = (PFNGLGETQUERYOBJECTUI64VPROC)context->GetQueryObjectui64vEXT;
+    if (context->GetQueryObjectui64vEXT == NULL && context->GetQueryObjectui64v != NULL) context->GetQueryObjectui64vEXT = (PFNGLGETQUERYOBJECTUI64VEXTPROC)context->GetQueryObjectui64v;
+    if (context->GetQueryObjectuiv == NULL && context->GetQueryObjectuivARB != NULL) context->GetQueryObjectuiv = (PFNGLGETQUERYOBJECTUIVPROC)context->GetQueryObjectuivARB;
+    if (context->GetQueryObjectuivARB == NULL && context->GetQueryObjectuiv != NULL) context->GetQueryObjectuivARB = (PFNGLGETQUERYOBJECTUIVARBPROC)context->GetQueryObjectuiv;
+    if (context->GetRenderbufferParameteriv == NULL && context->GetRenderbufferParameterivEXT != NULL) context->GetRenderbufferParameteriv = (PFNGLGETRENDERBUFFERPARAMETERIVPROC)context->GetRenderbufferParameterivEXT;
+    if (context->GetRenderbufferParameterivEXT == NULL && context->GetRenderbufferParameteriv != NULL) context->GetRenderbufferParameterivEXT = (PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC)context->GetRenderbufferParameteriv;
+    if (context->GetSamplerParameterIiv == NULL && context->GetSamplerParameterIivEXT != NULL) context->GetSamplerParameterIiv = (PFNGLGETSAMPLERPARAMETERIIVPROC)context->GetSamplerParameterIivEXT;
+    if (context->GetSamplerParameterIiv == NULL && context->GetSamplerParameterIivOES != NULL) context->GetSamplerParameterIiv = (PFNGLGETSAMPLERPARAMETERIIVPROC)context->GetSamplerParameterIivOES;
+    if (context->GetSamplerParameterIivEXT == NULL && context->GetSamplerParameterIiv != NULL) context->GetSamplerParameterIivEXT = (PFNGLGETSAMPLERPARAMETERIIVEXTPROC)context->GetSamplerParameterIiv;
+    if (context->GetSamplerParameterIivEXT == NULL && context->GetSamplerParameterIivOES != NULL) context->GetSamplerParameterIivEXT = (PFNGLGETSAMPLERPARAMETERIIVEXTPROC)context->GetSamplerParameterIivOES;
+    if (context->GetSamplerParameterIivOES == NULL && context->GetSamplerParameterIiv != NULL) context->GetSamplerParameterIivOES = (PFNGLGETSAMPLERPARAMETERIIVOESPROC)context->GetSamplerParameterIiv;
+    if (context->GetSamplerParameterIivOES == NULL && context->GetSamplerParameterIivEXT != NULL) context->GetSamplerParameterIivOES = (PFNGLGETSAMPLERPARAMETERIIVOESPROC)context->GetSamplerParameterIivEXT;
+    if (context->GetSamplerParameterIuiv == NULL && context->GetSamplerParameterIuivEXT != NULL) context->GetSamplerParameterIuiv = (PFNGLGETSAMPLERPARAMETERIUIVPROC)context->GetSamplerParameterIuivEXT;
+    if (context->GetSamplerParameterIuiv == NULL && context->GetSamplerParameterIuivOES != NULL) context->GetSamplerParameterIuiv = (PFNGLGETSAMPLERPARAMETERIUIVPROC)context->GetSamplerParameterIuivOES;
+    if (context->GetSamplerParameterIuivEXT == NULL && context->GetSamplerParameterIuiv != NULL) context->GetSamplerParameterIuivEXT = (PFNGLGETSAMPLERPARAMETERIUIVEXTPROC)context->GetSamplerParameterIuiv;
+    if (context->GetSamplerParameterIuivEXT == NULL && context->GetSamplerParameterIuivOES != NULL) context->GetSamplerParameterIuivEXT = (PFNGLGETSAMPLERPARAMETERIUIVEXTPROC)context->GetSamplerParameterIuivOES;
+    if (context->GetSamplerParameterIuivOES == NULL && context->GetSamplerParameterIuiv != NULL) context->GetSamplerParameterIuivOES = (PFNGLGETSAMPLERPARAMETERIUIVOESPROC)context->GetSamplerParameterIuiv;
+    if (context->GetSamplerParameterIuivOES == NULL && context->GetSamplerParameterIuivEXT != NULL) context->GetSamplerParameterIuivOES = (PFNGLGETSAMPLERPARAMETERIUIVOESPROC)context->GetSamplerParameterIuivEXT;
+    if (context->GetShaderSource == NULL && context->GetShaderSourceARB != NULL) context->GetShaderSource = (PFNGLGETSHADERSOURCEPROC)context->GetShaderSourceARB;
+    if (context->GetShaderSourceARB == NULL && context->GetShaderSource != NULL) context->GetShaderSourceARB = (PFNGLGETSHADERSOURCEARBPROC)context->GetShaderSource;
+    if (context->GetSynciv == NULL && context->GetSyncivAPPLE != NULL) context->GetSynciv = (PFNGLGETSYNCIVPROC)context->GetSyncivAPPLE;
+    if (context->GetSyncivAPPLE == NULL && context->GetSynciv != NULL) context->GetSyncivAPPLE = (PFNGLGETSYNCIVAPPLEPROC)context->GetSynciv;
+    if (context->GetTexParameterIiv == NULL && context->GetTexParameterIivEXT != NULL) context->GetTexParameterIiv = (PFNGLGETTEXPARAMETERIIVPROC)context->GetTexParameterIivEXT;
+    if (context->GetTexParameterIiv == NULL && context->GetTexParameterIivOES != NULL) context->GetTexParameterIiv = (PFNGLGETTEXPARAMETERIIVPROC)context->GetTexParameterIivOES;
+    if (context->GetTexParameterIivEXT == NULL && context->GetTexParameterIiv != NULL) context->GetTexParameterIivEXT = (PFNGLGETTEXPARAMETERIIVEXTPROC)context->GetTexParameterIiv;
+    if (context->GetTexParameterIivEXT == NULL && context->GetTexParameterIivOES != NULL) context->GetTexParameterIivEXT = (PFNGLGETTEXPARAMETERIIVEXTPROC)context->GetTexParameterIivOES;
+    if (context->GetTexParameterIivOES == NULL && context->GetTexParameterIiv != NULL) context->GetTexParameterIivOES = (PFNGLGETTEXPARAMETERIIVOESPROC)context->GetTexParameterIiv;
+    if (context->GetTexParameterIivOES == NULL && context->GetTexParameterIivEXT != NULL) context->GetTexParameterIivOES = (PFNGLGETTEXPARAMETERIIVOESPROC)context->GetTexParameterIivEXT;
+    if (context->GetTexParameterIuiv == NULL && context->GetTexParameterIuivEXT != NULL) context->GetTexParameterIuiv = (PFNGLGETTEXPARAMETERIUIVPROC)context->GetTexParameterIuivEXT;
+    if (context->GetTexParameterIuiv == NULL && context->GetTexParameterIuivOES != NULL) context->GetTexParameterIuiv = (PFNGLGETTEXPARAMETERIUIVPROC)context->GetTexParameterIuivOES;
+    if (context->GetTexParameterIuivEXT == NULL && context->GetTexParameterIuiv != NULL) context->GetTexParameterIuivEXT = (PFNGLGETTEXPARAMETERIUIVEXTPROC)context->GetTexParameterIuiv;
+    if (context->GetTexParameterIuivEXT == NULL && context->GetTexParameterIuivOES != NULL) context->GetTexParameterIuivEXT = (PFNGLGETTEXPARAMETERIUIVEXTPROC)context->GetTexParameterIuivOES;
+    if (context->GetTexParameterIuivOES == NULL && context->GetTexParameterIuiv != NULL) context->GetTexParameterIuivOES = (PFNGLGETTEXPARAMETERIUIVOESPROC)context->GetTexParameterIuiv;
+    if (context->GetTexParameterIuivOES == NULL && context->GetTexParameterIuivEXT != NULL) context->GetTexParameterIuivOES = (PFNGLGETTEXPARAMETERIUIVOESPROC)context->GetTexParameterIuivEXT;
+    if (context->GetTextureHandleARB == NULL && context->GetTextureHandleIMG != NULL) context->GetTextureHandleARB = (PFNGLGETTEXTUREHANDLEARBPROC)context->GetTextureHandleIMG;
+    if (context->GetTextureHandleIMG == NULL && context->GetTextureHandleARB != NULL) context->GetTextureHandleIMG = (PFNGLGETTEXTUREHANDLEIMGPROC)context->GetTextureHandleARB;
+    if (context->GetTextureSamplerHandleARB == NULL && context->GetTextureSamplerHandleIMG != NULL) context->GetTextureSamplerHandleARB = (PFNGLGETTEXTURESAMPLERHANDLEARBPROC)context->GetTextureSamplerHandleIMG;
+    if (context->GetTextureSamplerHandleIMG == NULL && context->GetTextureSamplerHandleARB != NULL) context->GetTextureSamplerHandleIMG = (PFNGLGETTEXTURESAMPLERHANDLEIMGPROC)context->GetTextureSamplerHandleARB;
+    if (context->GetTransformFeedbackVarying == NULL && context->GetTransformFeedbackVaryingEXT != NULL) context->GetTransformFeedbackVarying = (PFNGLGETTRANSFORMFEEDBACKVARYINGPROC)context->GetTransformFeedbackVaryingEXT;
+    if (context->GetTransformFeedbackVaryingEXT == NULL && context->GetTransformFeedbackVarying != NULL) context->GetTransformFeedbackVaryingEXT = (PFNGLGETTRANSFORMFEEDBACKVARYINGEXTPROC)context->GetTransformFeedbackVarying;
+    if (context->GetUniformfv == NULL && context->GetUniformfvARB != NULL) context->GetUniformfv = (PFNGLGETUNIFORMFVPROC)context->GetUniformfvARB;
+    if (context->GetUniformfvARB == NULL && context->GetUniformfv != NULL) context->GetUniformfvARB = (PFNGLGETUNIFORMFVARBPROC)context->GetUniformfv;
+    if (context->GetUniformiv == NULL && context->GetUniformivARB != NULL) context->GetUniformiv = (PFNGLGETUNIFORMIVPROC)context->GetUniformivARB;
+    if (context->GetUniformivARB == NULL && context->GetUniformiv != NULL) context->GetUniformivARB = (PFNGLGETUNIFORMIVARBPROC)context->GetUniformiv;
+    if (context->GetUniformLocation == NULL && context->GetUniformLocationARB != NULL) context->GetUniformLocation = (PFNGLGETUNIFORMLOCATIONPROC)context->GetUniformLocationARB;
+    if (context->GetUniformLocationARB == NULL && context->GetUniformLocation != NULL) context->GetUniformLocationARB = (PFNGLGETUNIFORMLOCATIONARBPROC)context->GetUniformLocation;
+    if (context->GetUniformuiv == NULL && context->GetUniformuivEXT != NULL) context->GetUniformuiv = (PFNGLGETUNIFORMUIVPROC)context->GetUniformuivEXT;
+    if (context->GetUniformuivEXT == NULL && context->GetUniformuiv != NULL) context->GetUniformuivEXT = (PFNGLGETUNIFORMUIVEXTPROC)context->GetUniformuiv;
+    if (context->GetVertexAttribdv == NULL && context->GetVertexAttribdvARB != NULL) context->GetVertexAttribdv = (PFNGLGETVERTEXATTRIBDVPROC)context->GetVertexAttribdvARB;
+    if (context->GetVertexAttribdv == NULL && context->GetVertexAttribdvNV != NULL) context->GetVertexAttribdv = (PFNGLGETVERTEXATTRIBDVPROC)context->GetVertexAttribdvNV;
+    if (context->GetVertexAttribdvARB == NULL && context->GetVertexAttribdv != NULL) context->GetVertexAttribdvARB = (PFNGLGETVERTEXATTRIBDVARBPROC)context->GetVertexAttribdv;
+    if (context->GetVertexAttribdvARB == NULL && context->GetVertexAttribdvNV != NULL) context->GetVertexAttribdvARB = (PFNGLGETVERTEXATTRIBDVARBPROC)context->GetVertexAttribdvNV;
+    if (context->GetVertexAttribdvNV == NULL && context->GetVertexAttribdv != NULL) context->GetVertexAttribdvNV = (PFNGLGETVERTEXATTRIBDVNVPROC)context->GetVertexAttribdv;
+    if (context->GetVertexAttribdvNV == NULL && context->GetVertexAttribdvARB != NULL) context->GetVertexAttribdvNV = (PFNGLGETVERTEXATTRIBDVNVPROC)context->GetVertexAttribdvARB;
+    if (context->GetVertexAttribfv == NULL && context->GetVertexAttribfvARB != NULL) context->GetVertexAttribfv = (PFNGLGETVERTEXATTRIBFVPROC)context->GetVertexAttribfvARB;
+    if (context->GetVertexAttribfv == NULL && context->GetVertexAttribfvNV != NULL) context->GetVertexAttribfv = (PFNGLGETVERTEXATTRIBFVPROC)context->GetVertexAttribfvNV;
+    if (context->GetVertexAttribfvARB == NULL && context->GetVertexAttribfv != NULL) context->GetVertexAttribfvARB = (PFNGLGETVERTEXATTRIBFVARBPROC)context->GetVertexAttribfv;
+    if (context->GetVertexAttribfvARB == NULL && context->GetVertexAttribfvNV != NULL) context->GetVertexAttribfvARB = (PFNGLGETVERTEXATTRIBFVARBPROC)context->GetVertexAttribfvNV;
+    if (context->GetVertexAttribfvNV == NULL && context->GetVertexAttribfv != NULL) context->GetVertexAttribfvNV = (PFNGLGETVERTEXATTRIBFVNVPROC)context->GetVertexAttribfv;
+    if (context->GetVertexAttribfvNV == NULL && context->GetVertexAttribfvARB != NULL) context->GetVertexAttribfvNV = (PFNGLGETVERTEXATTRIBFVNVPROC)context->GetVertexAttribfvARB;
+    if (context->GetVertexAttribIiv == NULL && context->GetVertexAttribIivEXT != NULL) context->GetVertexAttribIiv = (PFNGLGETVERTEXATTRIBIIVPROC)context->GetVertexAttribIivEXT;
+    if (context->GetVertexAttribIivEXT == NULL && context->GetVertexAttribIiv != NULL) context->GetVertexAttribIivEXT = (PFNGLGETVERTEXATTRIBIIVEXTPROC)context->GetVertexAttribIiv;
+    if (context->GetVertexAttribIuiv == NULL && context->GetVertexAttribIuivEXT != NULL) context->GetVertexAttribIuiv = (PFNGLGETVERTEXATTRIBIUIVPROC)context->GetVertexAttribIuivEXT;
+    if (context->GetVertexAttribIuivEXT == NULL && context->GetVertexAttribIuiv != NULL) context->GetVertexAttribIuivEXT = (PFNGLGETVERTEXATTRIBIUIVEXTPROC)context->GetVertexAttribIuiv;
+    if (context->GetVertexAttribiv == NULL && context->GetVertexAttribivARB != NULL) context->GetVertexAttribiv = (PFNGLGETVERTEXATTRIBIVPROC)context->GetVertexAttribivARB;
+    if (context->GetVertexAttribiv == NULL && context->GetVertexAttribivNV != NULL) context->GetVertexAttribiv = (PFNGLGETVERTEXATTRIBIVPROC)context->GetVertexAttribivNV;
+    if (context->GetVertexAttribivARB == NULL && context->GetVertexAttribiv != NULL) context->GetVertexAttribivARB = (PFNGLGETVERTEXATTRIBIVARBPROC)context->GetVertexAttribiv;
+    if (context->GetVertexAttribivARB == NULL && context->GetVertexAttribivNV != NULL) context->GetVertexAttribivARB = (PFNGLGETVERTEXATTRIBIVARBPROC)context->GetVertexAttribivNV;
+    if (context->GetVertexAttribivNV == NULL && context->GetVertexAttribiv != NULL) context->GetVertexAttribivNV = (PFNGLGETVERTEXATTRIBIVNVPROC)context->GetVertexAttribiv;
+    if (context->GetVertexAttribivNV == NULL && context->GetVertexAttribivARB != NULL) context->GetVertexAttribivNV = (PFNGLGETVERTEXATTRIBIVNVPROC)context->GetVertexAttribivARB;
+    if (context->GetVertexAttribLdv == NULL && context->GetVertexAttribLdvEXT != NULL) context->GetVertexAttribLdv = (PFNGLGETVERTEXATTRIBLDVPROC)context->GetVertexAttribLdvEXT;
+    if (context->GetVertexAttribLdvEXT == NULL && context->GetVertexAttribLdv != NULL) context->GetVertexAttribLdvEXT = (PFNGLGETVERTEXATTRIBLDVEXTPROC)context->GetVertexAttribLdv;
+    if (context->GetVertexAttribPointerv == NULL && context->GetVertexAttribPointervARB != NULL) context->GetVertexAttribPointerv = (PFNGLGETVERTEXATTRIBPOINTERVPROC)context->GetVertexAttribPointervARB;
+    if (context->GetVertexAttribPointerv == NULL && context->GetVertexAttribPointervNV != NULL) context->GetVertexAttribPointerv = (PFNGLGETVERTEXATTRIBPOINTERVPROC)context->GetVertexAttribPointervNV;
+    if (context->GetVertexAttribPointervARB == NULL && context->GetVertexAttribPointerv != NULL) context->GetVertexAttribPointervARB = (PFNGLGETVERTEXATTRIBPOINTERVARBPROC)context->GetVertexAttribPointerv;
+    if (context->GetVertexAttribPointervARB == NULL && context->GetVertexAttribPointervNV != NULL) context->GetVertexAttribPointervARB = (PFNGLGETVERTEXATTRIBPOINTERVARBPROC)context->GetVertexAttribPointervNV;
+    if (context->GetVertexAttribPointervNV == NULL && context->GetVertexAttribPointerv != NULL) context->GetVertexAttribPointervNV = (PFNGLGETVERTEXATTRIBPOINTERVNVPROC)context->GetVertexAttribPointerv;
+    if (context->GetVertexAttribPointervNV == NULL && context->GetVertexAttribPointervARB != NULL) context->GetVertexAttribPointervNV = (PFNGLGETVERTEXATTRIBPOINTERVNVPROC)context->GetVertexAttribPointervARB;
+    if (context->IsBuffer == NULL && context->IsBufferARB != NULL) context->IsBuffer = (PFNGLISBUFFERPROC)context->IsBufferARB;
+    if (context->IsBufferARB == NULL && context->IsBuffer != NULL) context->IsBufferARB = (PFNGLISBUFFERARBPROC)context->IsBuffer;
+    if (context->IsEnabledi == NULL && context->IsEnabledIndexedEXT != NULL) context->IsEnabledi = (PFNGLISENABLEDIPROC)context->IsEnabledIndexedEXT;
+    if (context->IsEnabledi == NULL && context->IsEnablediEXT != NULL) context->IsEnabledi = (PFNGLISENABLEDIPROC)context->IsEnablediEXT;
+    if (context->IsEnabledi == NULL && context->IsEnablediNV != NULL) context->IsEnabledi = (PFNGLISENABLEDIPROC)context->IsEnablediNV;
+    if (context->IsEnabledi == NULL && context->IsEnablediOES != NULL) context->IsEnabledi = (PFNGLISENABLEDIPROC)context->IsEnablediOES;
+    if (context->IsEnablediEXT == NULL && context->IsEnabledIndexedEXT != NULL) context->IsEnablediEXT = (PFNGLISENABLEDIEXTPROC)context->IsEnabledIndexedEXT;
+    if (context->IsEnablediEXT == NULL && context->IsEnabledi != NULL) context->IsEnablediEXT = (PFNGLISENABLEDIEXTPROC)context->IsEnabledi;
+    if (context->IsEnablediEXT == NULL && context->IsEnablediNV != NULL) context->IsEnablediEXT = (PFNGLISENABLEDIEXTPROC)context->IsEnablediNV;
+    if (context->IsEnablediEXT == NULL && context->IsEnablediOES != NULL) context->IsEnablediEXT = (PFNGLISENABLEDIEXTPROC)context->IsEnablediOES;
+    if (context->IsEnabledIndexedEXT == NULL && context->IsEnabledi != NULL) context->IsEnabledIndexedEXT = (PFNGLISENABLEDINDEXEDEXTPROC)context->IsEnabledi;
+    if (context->IsEnabledIndexedEXT == NULL && context->IsEnablediEXT != NULL) context->IsEnabledIndexedEXT = (PFNGLISENABLEDINDEXEDEXTPROC)context->IsEnablediEXT;
+    if (context->IsEnabledIndexedEXT == NULL && context->IsEnablediNV != NULL) context->IsEnabledIndexedEXT = (PFNGLISENABLEDINDEXEDEXTPROC)context->IsEnablediNV;
+    if (context->IsEnabledIndexedEXT == NULL && context->IsEnablediOES != NULL) context->IsEnabledIndexedEXT = (PFNGLISENABLEDINDEXEDEXTPROC)context->IsEnablediOES;
+    if (context->IsEnablediNV == NULL && context->IsEnabledIndexedEXT != NULL) context->IsEnablediNV = (PFNGLISENABLEDINVPROC)context->IsEnabledIndexedEXT;
+    if (context->IsEnablediNV == NULL && context->IsEnabledi != NULL) context->IsEnablediNV = (PFNGLISENABLEDINVPROC)context->IsEnabledi;
+    if (context->IsEnablediNV == NULL && context->IsEnablediEXT != NULL) context->IsEnablediNV = (PFNGLISENABLEDINVPROC)context->IsEnablediEXT;
+    if (context->IsEnablediNV == NULL && context->IsEnablediOES != NULL) context->IsEnablediNV = (PFNGLISENABLEDINVPROC)context->IsEnablediOES;
+    if (context->IsEnablediOES == NULL && context->IsEnabledIndexedEXT != NULL) context->IsEnablediOES = (PFNGLISENABLEDIOESPROC)context->IsEnabledIndexedEXT;
+    if (context->IsEnablediOES == NULL && context->IsEnabledi != NULL) context->IsEnablediOES = (PFNGLISENABLEDIOESPROC)context->IsEnabledi;
+    if (context->IsEnablediOES == NULL && context->IsEnablediEXT != NULL) context->IsEnablediOES = (PFNGLISENABLEDIOESPROC)context->IsEnablediEXT;
+    if (context->IsEnablediOES == NULL && context->IsEnablediNV != NULL) context->IsEnablediOES = (PFNGLISENABLEDIOESPROC)context->IsEnablediNV;
+    if (context->IsFramebuffer == NULL && context->IsFramebufferEXT != NULL) context->IsFramebuffer = (PFNGLISFRAMEBUFFERPROC)context->IsFramebufferEXT;
+    if (context->IsFramebufferEXT == NULL && context->IsFramebuffer != NULL) context->IsFramebufferEXT = (PFNGLISFRAMEBUFFEREXTPROC)context->IsFramebuffer;
+    if (context->IsProgramARB == NULL && context->IsProgramNV != NULL) context->IsProgramARB = (PFNGLISPROGRAMARBPROC)context->IsProgramNV;
+    if (context->IsProgramNV == NULL && context->IsProgramARB != NULL) context->IsProgramNV = (PFNGLISPROGRAMNVPROC)context->IsProgramARB;
+    if (context->IsQuery == NULL && context->IsQueryARB != NULL) context->IsQuery = (PFNGLISQUERYPROC)context->IsQueryARB;
+    if (context->IsQueryARB == NULL && context->IsQuery != NULL) context->IsQueryARB = (PFNGLISQUERYARBPROC)context->IsQuery;
+    if (context->IsRenderbuffer == NULL && context->IsRenderbufferEXT != NULL) context->IsRenderbuffer = (PFNGLISRENDERBUFFERPROC)context->IsRenderbufferEXT;
+    if (context->IsRenderbufferEXT == NULL && context->IsRenderbuffer != NULL) context->IsRenderbufferEXT = (PFNGLISRENDERBUFFEREXTPROC)context->IsRenderbuffer;
+    if (context->IsSync == NULL && context->IsSyncAPPLE != NULL) context->IsSync = (PFNGLISSYNCPROC)context->IsSyncAPPLE;
+    if (context->IsSyncAPPLE == NULL && context->IsSync != NULL) context->IsSyncAPPLE = (PFNGLISSYNCAPPLEPROC)context->IsSync;
+    if (context->IsTransformFeedback == NULL && context->IsTransformFeedbackNV != NULL) context->IsTransformFeedback = (PFNGLISTRANSFORMFEEDBACKPROC)context->IsTransformFeedbackNV;
+    if (context->IsTransformFeedbackNV == NULL && context->IsTransformFeedback != NULL) context->IsTransformFeedbackNV = (PFNGLISTRANSFORMFEEDBACKNVPROC)context->IsTransformFeedback;
+    if (context->IsVertexArray == NULL && context->IsVertexArrayAPPLE != NULL) context->IsVertexArray = (PFNGLISVERTEXARRAYPROC)context->IsVertexArrayAPPLE;
+    if (context->IsVertexArray == NULL && context->IsVertexArrayOES != NULL) context->IsVertexArray = (PFNGLISVERTEXARRAYPROC)context->IsVertexArrayOES;
+    if (context->IsVertexArrayAPPLE == NULL && context->IsVertexArray != NULL) context->IsVertexArrayAPPLE = (PFNGLISVERTEXARRAYAPPLEPROC)context->IsVertexArray;
+    if (context->IsVertexArrayAPPLE == NULL && context->IsVertexArrayOES != NULL) context->IsVertexArrayAPPLE = (PFNGLISVERTEXARRAYAPPLEPROC)context->IsVertexArrayOES;
+    if (context->IsVertexArrayOES == NULL && context->IsVertexArray != NULL) context->IsVertexArrayOES = (PFNGLISVERTEXARRAYOESPROC)context->IsVertexArray;
+    if (context->IsVertexArrayOES == NULL && context->IsVertexArrayAPPLE != NULL) context->IsVertexArrayOES = (PFNGLISVERTEXARRAYOESPROC)context->IsVertexArrayAPPLE;
+    if (context->LinkProgram == NULL && context->LinkProgramARB != NULL) context->LinkProgram = (PFNGLLINKPROGRAMPROC)context->LinkProgramARB;
+    if (context->LinkProgramARB == NULL && context->LinkProgram != NULL) context->LinkProgramARB = (PFNGLLINKPROGRAMARBPROC)context->LinkProgram;
+    if (context->MapBuffer == NULL && context->MapBufferARB != NULL) context->MapBuffer = (PFNGLMAPBUFFERPROC)context->MapBufferARB;
+    if (context->MapBuffer == NULL && context->MapBufferOES != NULL) context->MapBuffer = (PFNGLMAPBUFFERPROC)context->MapBufferOES;
+    if (context->MapBufferARB == NULL && context->MapBuffer != NULL) context->MapBufferARB = (PFNGLMAPBUFFERARBPROC)context->MapBuffer;
+    if (context->MapBufferARB == NULL && context->MapBufferOES != NULL) context->MapBufferARB = (PFNGLMAPBUFFERARBPROC)context->MapBufferOES;
+    if (context->MapBufferOES == NULL && context->MapBuffer != NULL) context->MapBufferOES = (PFNGLMAPBUFFEROESPROC)context->MapBuffer;
+    if (context->MapBufferOES == NULL && context->MapBufferARB != NULL) context->MapBufferOES = (PFNGLMAPBUFFEROESPROC)context->MapBufferARB;
+    if (context->MapBufferRange == NULL && context->MapBufferRangeEXT != NULL) context->MapBufferRange = (PFNGLMAPBUFFERRANGEPROC)context->MapBufferRangeEXT;
+    if (context->MapBufferRangeEXT == NULL && context->MapBufferRange != NULL) context->MapBufferRangeEXT = (PFNGLMAPBUFFERRANGEEXTPROC)context->MapBufferRange;
+    if (context->MaxShaderCompilerThreadsARB == NULL && context->MaxShaderCompilerThreadsKHR != NULL) context->MaxShaderCompilerThreadsARB = (PFNGLMAXSHADERCOMPILERTHREADSARBPROC)context->MaxShaderCompilerThreadsKHR;
+    if (context->MaxShaderCompilerThreadsKHR == NULL && context->MaxShaderCompilerThreadsARB != NULL) context->MaxShaderCompilerThreadsKHR = (PFNGLMAXSHADERCOMPILERTHREADSKHRPROC)context->MaxShaderCompilerThreadsARB;
+    if (context->MemoryBarrier == NULL && context->MemoryBarrierEXT != NULL) context->MemoryBarrier = (PFNGLMEMORYBARRIERPROC)context->MemoryBarrierEXT;
+    if (context->MemoryBarrierEXT == NULL && context->MemoryBarrier != NULL) context->MemoryBarrierEXT = (PFNGLMEMORYBARRIEREXTPROC)context->MemoryBarrier;
+    if (context->MinSampleShading == NULL && context->MinSampleShadingARB != NULL) context->MinSampleShading = (PFNGLMINSAMPLESHADINGPROC)context->MinSampleShadingARB;
+    if (context->MinSampleShading == NULL && context->MinSampleShadingOES != NULL) context->MinSampleShading = (PFNGLMINSAMPLESHADINGPROC)context->MinSampleShadingOES;
+    if (context->MinSampleShadingARB == NULL && context->MinSampleShading != NULL) context->MinSampleShadingARB = (PFNGLMINSAMPLESHADINGARBPROC)context->MinSampleShading;
+    if (context->MinSampleShadingARB == NULL && context->MinSampleShadingOES != NULL) context->MinSampleShadingARB = (PFNGLMINSAMPLESHADINGARBPROC)context->MinSampleShadingOES;
+    if (context->MinSampleShadingOES == NULL && context->MinSampleShading != NULL) context->MinSampleShadingOES = (PFNGLMINSAMPLESHADINGOESPROC)context->MinSampleShading;
+    if (context->MinSampleShadingOES == NULL && context->MinSampleShadingARB != NULL) context->MinSampleShadingOES = (PFNGLMINSAMPLESHADINGOESPROC)context->MinSampleShadingARB;
+    if (context->MultiDrawArrays == NULL && context->MultiDrawArraysEXT != NULL) context->MultiDrawArrays = (PFNGLMULTIDRAWARRAYSPROC)context->MultiDrawArraysEXT;
+    if (context->MultiDrawArraysEXT == NULL && context->MultiDrawArrays != NULL) context->MultiDrawArraysEXT = (PFNGLMULTIDRAWARRAYSEXTPROC)context->MultiDrawArrays;
+    if (context->MultiDrawArraysIndirect == NULL && context->MultiDrawArraysIndirectAMD != NULL) context->MultiDrawArraysIndirect = (PFNGLMULTIDRAWARRAYSINDIRECTPROC)context->MultiDrawArraysIndirectAMD;
+    if (context->MultiDrawArraysIndirect == NULL && context->MultiDrawArraysIndirectEXT != NULL) context->MultiDrawArraysIndirect = (PFNGLMULTIDRAWARRAYSINDIRECTPROC)context->MultiDrawArraysIndirectEXT;
+    if (context->MultiDrawArraysIndirectAMD == NULL && context->MultiDrawArraysIndirect != NULL) context->MultiDrawArraysIndirectAMD = (PFNGLMULTIDRAWARRAYSINDIRECTAMDPROC)context->MultiDrawArraysIndirect;
+    if (context->MultiDrawArraysIndirectAMD == NULL && context->MultiDrawArraysIndirectEXT != NULL) context->MultiDrawArraysIndirectAMD = (PFNGLMULTIDRAWARRAYSINDIRECTAMDPROC)context->MultiDrawArraysIndirectEXT;
+    if (context->MultiDrawArraysIndirectCount == NULL && context->MultiDrawArraysIndirectCountARB != NULL) context->MultiDrawArraysIndirectCount = (PFNGLMULTIDRAWARRAYSINDIRECTCOUNTPROC)context->MultiDrawArraysIndirectCountARB;
+    if (context->MultiDrawArraysIndirectCountARB == NULL && context->MultiDrawArraysIndirectCount != NULL) context->MultiDrawArraysIndirectCountARB = (PFNGLMULTIDRAWARRAYSINDIRECTCOUNTARBPROC)context->MultiDrawArraysIndirectCount;
+    if (context->MultiDrawArraysIndirectEXT == NULL && context->MultiDrawArraysIndirect != NULL) context->MultiDrawArraysIndirectEXT = (PFNGLMULTIDRAWARRAYSINDIRECTEXTPROC)context->MultiDrawArraysIndirect;
+    if (context->MultiDrawArraysIndirectEXT == NULL && context->MultiDrawArraysIndirectAMD != NULL) context->MultiDrawArraysIndirectEXT = (PFNGLMULTIDRAWARRAYSINDIRECTEXTPROC)context->MultiDrawArraysIndirectAMD;
+    if (context->MultiDrawElements == NULL && context->MultiDrawElementsEXT != NULL) context->MultiDrawElements = (PFNGLMULTIDRAWELEMENTSPROC)context->MultiDrawElementsEXT;
+    if (context->MultiDrawElementsBaseVertex == NULL && context->MultiDrawElementsBaseVertexEXT != NULL) context->MultiDrawElementsBaseVertex = (PFNGLMULTIDRAWELEMENTSBASEVERTEXPROC)context->MultiDrawElementsBaseVertexEXT;
+    if (context->MultiDrawElementsBaseVertexEXT == NULL && context->MultiDrawElementsBaseVertex != NULL) context->MultiDrawElementsBaseVertexEXT = (PFNGLMULTIDRAWELEMENTSBASEVERTEXEXTPROC)context->MultiDrawElementsBaseVertex;
+    if (context->MultiDrawElementsEXT == NULL && context->MultiDrawElements != NULL) context->MultiDrawElementsEXT = (PFNGLMULTIDRAWELEMENTSEXTPROC)context->MultiDrawElements;
+    if (context->MultiDrawElementsIndirect == NULL && context->MultiDrawElementsIndirectAMD != NULL) context->MultiDrawElementsIndirect = (PFNGLMULTIDRAWELEMENTSINDIRECTPROC)context->MultiDrawElementsIndirectAMD;
+    if (context->MultiDrawElementsIndirect == NULL && context->MultiDrawElementsIndirectEXT != NULL) context->MultiDrawElementsIndirect = (PFNGLMULTIDRAWELEMENTSINDIRECTPROC)context->MultiDrawElementsIndirectEXT;
+    if (context->MultiDrawElementsIndirectAMD == NULL && context->MultiDrawElementsIndirect != NULL) context->MultiDrawElementsIndirectAMD = (PFNGLMULTIDRAWELEMENTSINDIRECTAMDPROC)context->MultiDrawElementsIndirect;
+    if (context->MultiDrawElementsIndirectAMD == NULL && context->MultiDrawElementsIndirectEXT != NULL) context->MultiDrawElementsIndirectAMD = (PFNGLMULTIDRAWELEMENTSINDIRECTAMDPROC)context->MultiDrawElementsIndirectEXT;
+    if (context->MultiDrawElementsIndirectCount == NULL && context->MultiDrawElementsIndirectCountARB != NULL) context->MultiDrawElementsIndirectCount = (PFNGLMULTIDRAWELEMENTSINDIRECTCOUNTPROC)context->MultiDrawElementsIndirectCountARB;
+    if (context->MultiDrawElementsIndirectCountARB == NULL && context->MultiDrawElementsIndirectCount != NULL) context->MultiDrawElementsIndirectCountARB = (PFNGLMULTIDRAWELEMENTSINDIRECTCOUNTARBPROC)context->MultiDrawElementsIndirectCount;
+    if (context->MultiDrawElementsIndirectEXT == NULL && context->MultiDrawElementsIndirect != NULL) context->MultiDrawElementsIndirectEXT = (PFNGLMULTIDRAWELEMENTSINDIRECTEXTPROC)context->MultiDrawElementsIndirect;
+    if (context->MultiDrawElementsIndirectEXT == NULL && context->MultiDrawElementsIndirectAMD != NULL) context->MultiDrawElementsIndirectEXT = (PFNGLMULTIDRAWELEMENTSINDIRECTEXTPROC)context->MultiDrawElementsIndirectAMD;
+    if (context->NamedBufferStorage == NULL && context->NamedBufferStorageEXT != NULL) context->NamedBufferStorage = (PFNGLNAMEDBUFFERSTORAGEPROC)context->NamedBufferStorageEXT;
+    if (context->NamedBufferStorageEXT == NULL && context->NamedBufferStorage != NULL) context->NamedBufferStorageEXT = (PFNGLNAMEDBUFFERSTORAGEEXTPROC)context->NamedBufferStorage;
+    if (context->NamedBufferSubData == NULL && context->NamedBufferSubDataEXT != NULL) context->NamedBufferSubData = (PFNGLNAMEDBUFFERSUBDATAPROC)context->NamedBufferSubDataEXT;
+    if (context->NamedBufferSubDataEXT == NULL && context->NamedBufferSubData != NULL) context->NamedBufferSubDataEXT = (PFNGLNAMEDBUFFERSUBDATAEXTPROC)context->NamedBufferSubData;
+    if (context->ObjectLabel == NULL && context->ObjectLabelKHR != NULL) context->ObjectLabel = (PFNGLOBJECTLABELPROC)context->ObjectLabelKHR;
+    if (context->ObjectLabelKHR == NULL && context->ObjectLabel != NULL) context->ObjectLabelKHR = (PFNGLOBJECTLABELKHRPROC)context->ObjectLabel;
+    if (context->ObjectPtrLabel == NULL && context->ObjectPtrLabelKHR != NULL) context->ObjectPtrLabel = (PFNGLOBJECTPTRLABELPROC)context->ObjectPtrLabelKHR;
+    if (context->ObjectPtrLabelKHR == NULL && context->ObjectPtrLabel != NULL) context->ObjectPtrLabelKHR = (PFNGLOBJECTPTRLABELKHRPROC)context->ObjectPtrLabel;
+    if (context->PatchParameteri == NULL && context->PatchParameteriEXT != NULL) context->PatchParameteri = (PFNGLPATCHPARAMETERIPROC)context->PatchParameteriEXT;
+    if (context->PatchParameteri == NULL && context->PatchParameteriOES != NULL) context->PatchParameteri = (PFNGLPATCHPARAMETERIPROC)context->PatchParameteriOES;
+    if (context->PatchParameteriEXT == NULL && context->PatchParameteri != NULL) context->PatchParameteriEXT = (PFNGLPATCHPARAMETERIEXTPROC)context->PatchParameteri;
+    if (context->PatchParameteriEXT == NULL && context->PatchParameteriOES != NULL) context->PatchParameteriEXT = (PFNGLPATCHPARAMETERIEXTPROC)context->PatchParameteriOES;
+    if (context->PatchParameteriOES == NULL && context->PatchParameteri != NULL) context->PatchParameteriOES = (PFNGLPATCHPARAMETERIOESPROC)context->PatchParameteri;
+    if (context->PatchParameteriOES == NULL && context->PatchParameteriEXT != NULL) context->PatchParameteriOES = (PFNGLPATCHPARAMETERIOESPROC)context->PatchParameteriEXT;
+    if (context->PauseTransformFeedback == NULL && context->PauseTransformFeedbackNV != NULL) context->PauseTransformFeedback = (PFNGLPAUSETRANSFORMFEEDBACKPROC)context->PauseTransformFeedbackNV;
+    if (context->PauseTransformFeedbackNV == NULL && context->PauseTransformFeedback != NULL) context->PauseTransformFeedbackNV = (PFNGLPAUSETRANSFORMFEEDBACKNVPROC)context->PauseTransformFeedback;
+    if (context->PointParameterf == NULL && context->PointParameterfARB != NULL) context->PointParameterf = (PFNGLPOINTPARAMETERFPROC)context->PointParameterfARB;
+    if (context->PointParameterf == NULL && context->PointParameterfEXT != NULL) context->PointParameterf = (PFNGLPOINTPARAMETERFPROC)context->PointParameterfEXT;
+    if (context->PointParameterf == NULL && context->PointParameterfSGIS != NULL) context->PointParameterf = (PFNGLPOINTPARAMETERFPROC)context->PointParameterfSGIS;
+    if (context->PointParameterfARB == NULL && context->PointParameterf != NULL) context->PointParameterfARB = (PFNGLPOINTPARAMETERFARBPROC)context->PointParameterf;
+    if (context->PointParameterfARB == NULL && context->PointParameterfEXT != NULL) context->PointParameterfARB = (PFNGLPOINTPARAMETERFARBPROC)context->PointParameterfEXT;
+    if (context->PointParameterfARB == NULL && context->PointParameterfSGIS != NULL) context->PointParameterfARB = (PFNGLPOINTPARAMETERFARBPROC)context->PointParameterfSGIS;
+    if (context->PointParameterfEXT == NULL && context->PointParameterf != NULL) context->PointParameterfEXT = (PFNGLPOINTPARAMETERFEXTPROC)context->PointParameterf;
+    if (context->PointParameterfEXT == NULL && context->PointParameterfARB != NULL) context->PointParameterfEXT = (PFNGLPOINTPARAMETERFEXTPROC)context->PointParameterfARB;
+    if (context->PointParameterfEXT == NULL && context->PointParameterfSGIS != NULL) context->PointParameterfEXT = (PFNGLPOINTPARAMETERFEXTPROC)context->PointParameterfSGIS;
+    if (context->PointParameterfSGIS == NULL && context->PointParameterf != NULL) context->PointParameterfSGIS = (PFNGLPOINTPARAMETERFSGISPROC)context->PointParameterf;
+    if (context->PointParameterfSGIS == NULL && context->PointParameterfARB != NULL) context->PointParameterfSGIS = (PFNGLPOINTPARAMETERFSGISPROC)context->PointParameterfARB;
+    if (context->PointParameterfSGIS == NULL && context->PointParameterfEXT != NULL) context->PointParameterfSGIS = (PFNGLPOINTPARAMETERFSGISPROC)context->PointParameterfEXT;
+    if (context->PointParameterfv == NULL && context->PointParameterfvARB != NULL) context->PointParameterfv = (PFNGLPOINTPARAMETERFVPROC)context->PointParameterfvARB;
+    if (context->PointParameterfv == NULL && context->PointParameterfvEXT != NULL) context->PointParameterfv = (PFNGLPOINTPARAMETERFVPROC)context->PointParameterfvEXT;
+    if (context->PointParameterfv == NULL && context->PointParameterfvSGIS != NULL) context->PointParameterfv = (PFNGLPOINTPARAMETERFVPROC)context->PointParameterfvSGIS;
+    if (context->PointParameterfvARB == NULL && context->PointParameterfv != NULL) context->PointParameterfvARB = (PFNGLPOINTPARAMETERFVARBPROC)context->PointParameterfv;
+    if (context->PointParameterfvARB == NULL && context->PointParameterfvEXT != NULL) context->PointParameterfvARB = (PFNGLPOINTPARAMETERFVARBPROC)context->PointParameterfvEXT;
+    if (context->PointParameterfvARB == NULL && context->PointParameterfvSGIS != NULL) context->PointParameterfvARB = (PFNGLPOINTPARAMETERFVARBPROC)context->PointParameterfvSGIS;
+    if (context->PointParameterfvEXT == NULL && context->PointParameterfv != NULL) context->PointParameterfvEXT = (PFNGLPOINTPARAMETERFVEXTPROC)context->PointParameterfv;
+    if (context->PointParameterfvEXT == NULL && context->PointParameterfvARB != NULL) context->PointParameterfvEXT = (PFNGLPOINTPARAMETERFVEXTPROC)context->PointParameterfvARB;
+    if (context->PointParameterfvEXT == NULL && context->PointParameterfvSGIS != NULL) context->PointParameterfvEXT = (PFNGLPOINTPARAMETERFVEXTPROC)context->PointParameterfvSGIS;
+    if (context->PointParameterfvSGIS == NULL && context->PointParameterfv != NULL) context->PointParameterfvSGIS = (PFNGLPOINTPARAMETERFVSGISPROC)context->PointParameterfv;
+    if (context->PointParameterfvSGIS == NULL && context->PointParameterfvARB != NULL) context->PointParameterfvSGIS = (PFNGLPOINTPARAMETERFVSGISPROC)context->PointParameterfvARB;
+    if (context->PointParameterfvSGIS == NULL && context->PointParameterfvEXT != NULL) context->PointParameterfvSGIS = (PFNGLPOINTPARAMETERFVSGISPROC)context->PointParameterfvEXT;
+    if (context->PointParameteri == NULL && context->PointParameteriNV != NULL) context->PointParameteri = (PFNGLPOINTPARAMETERIPROC)context->PointParameteriNV;
+    if (context->PointParameteriNV == NULL && context->PointParameteri != NULL) context->PointParameteriNV = (PFNGLPOINTPARAMETERINVPROC)context->PointParameteri;
+    if (context->PointParameteriv == NULL && context->PointParameterivNV != NULL) context->PointParameteriv = (PFNGLPOINTPARAMETERIVPROC)context->PointParameterivNV;
+    if (context->PointParameterivNV == NULL && context->PointParameteriv != NULL) context->PointParameterivNV = (PFNGLPOINTPARAMETERIVNVPROC)context->PointParameteriv;
+    if (context->PolygonMode == NULL && context->PolygonModeNV != NULL) context->PolygonMode = (PFNGLPOLYGONMODEPROC)context->PolygonModeNV;
+    if (context->PolygonModeNV == NULL && context->PolygonMode != NULL) context->PolygonModeNV = (PFNGLPOLYGONMODENVPROC)context->PolygonMode;
+    if (context->PolygonOffsetClamp == NULL && context->PolygonOffsetClampEXT != NULL) context->PolygonOffsetClamp = (PFNGLPOLYGONOFFSETCLAMPPROC)context->PolygonOffsetClampEXT;
+    if (context->PolygonOffsetClampEXT == NULL && context->PolygonOffsetClamp != NULL) context->PolygonOffsetClampEXT = (PFNGLPOLYGONOFFSETCLAMPEXTPROC)context->PolygonOffsetClamp;
+    if (context->PopDebugGroup == NULL && context->PopDebugGroupKHR != NULL) context->PopDebugGroup = (PFNGLPOPDEBUGGROUPPROC)context->PopDebugGroupKHR;
+    if (context->PopDebugGroupKHR == NULL && context->PopDebugGroup != NULL) context->PopDebugGroupKHR = (PFNGLPOPDEBUGGROUPKHRPROC)context->PopDebugGroup;
+    if (context->PrimitiveBoundingBox == NULL && context->PrimitiveBoundingBoxARB != NULL) context->PrimitiveBoundingBox = (PFNGLPRIMITIVEBOUNDINGBOXPROC)context->PrimitiveBoundingBoxARB;
+    if (context->PrimitiveBoundingBox == NULL && context->PrimitiveBoundingBoxEXT != NULL) context->PrimitiveBoundingBox = (PFNGLPRIMITIVEBOUNDINGBOXPROC)context->PrimitiveBoundingBoxEXT;
+    if (context->PrimitiveBoundingBox == NULL && context->PrimitiveBoundingBoxOES != NULL) context->PrimitiveBoundingBox = (PFNGLPRIMITIVEBOUNDINGBOXPROC)context->PrimitiveBoundingBoxOES;
+    if (context->PrimitiveBoundingBoxARB == NULL && context->PrimitiveBoundingBox != NULL) context->PrimitiveBoundingBoxARB = (PFNGLPRIMITIVEBOUNDINGBOXARBPROC)context->PrimitiveBoundingBox;
+    if (context->PrimitiveBoundingBoxARB == NULL && context->PrimitiveBoundingBoxEXT != NULL) context->PrimitiveBoundingBoxARB = (PFNGLPRIMITIVEBOUNDINGBOXARBPROC)context->PrimitiveBoundingBoxEXT;
+    if (context->PrimitiveBoundingBoxARB == NULL && context->PrimitiveBoundingBoxOES != NULL) context->PrimitiveBoundingBoxARB = (PFNGLPRIMITIVEBOUNDINGBOXARBPROC)context->PrimitiveBoundingBoxOES;
+    if (context->PrimitiveBoundingBoxEXT == NULL && context->PrimitiveBoundingBox != NULL) context->PrimitiveBoundingBoxEXT = (PFNGLPRIMITIVEBOUNDINGBOXEXTPROC)context->PrimitiveBoundingBox;
+    if (context->PrimitiveBoundingBoxEXT == NULL && context->PrimitiveBoundingBoxARB != NULL) context->PrimitiveBoundingBoxEXT = (PFNGLPRIMITIVEBOUNDINGBOXEXTPROC)context->PrimitiveBoundingBoxARB;
+    if (context->PrimitiveBoundingBoxEXT == NULL && context->PrimitiveBoundingBoxOES != NULL) context->PrimitiveBoundingBoxEXT = (PFNGLPRIMITIVEBOUNDINGBOXEXTPROC)context->PrimitiveBoundingBoxOES;
+    if (context->PrimitiveBoundingBoxOES == NULL && context->PrimitiveBoundingBox != NULL) context->PrimitiveBoundingBoxOES = (PFNGLPRIMITIVEBOUNDINGBOXOESPROC)context->PrimitiveBoundingBox;
+    if (context->PrimitiveBoundingBoxOES == NULL && context->PrimitiveBoundingBoxARB != NULL) context->PrimitiveBoundingBoxOES = (PFNGLPRIMITIVEBOUNDINGBOXOESPROC)context->PrimitiveBoundingBoxARB;
+    if (context->PrimitiveBoundingBoxOES == NULL && context->PrimitiveBoundingBoxEXT != NULL) context->PrimitiveBoundingBoxOES = (PFNGLPRIMITIVEBOUNDINGBOXOESPROC)context->PrimitiveBoundingBoxEXT;
+    if (context->ProgramBinary == NULL && context->ProgramBinaryOES != NULL) context->ProgramBinary = (PFNGLPROGRAMBINARYPROC)context->ProgramBinaryOES;
+    if (context->ProgramBinaryOES == NULL && context->ProgramBinary != NULL) context->ProgramBinaryOES = (PFNGLPROGRAMBINARYOESPROC)context->ProgramBinary;
+    if (context->ProgramParameteri == NULL && context->ProgramParameteriARB != NULL) context->ProgramParameteri = (PFNGLPROGRAMPARAMETERIPROC)context->ProgramParameteriARB;
+    if (context->ProgramParameteri == NULL && context->ProgramParameteriEXT != NULL) context->ProgramParameteri = (PFNGLPROGRAMPARAMETERIPROC)context->ProgramParameteriEXT;
+    if (context->ProgramParameteriARB == NULL && context->ProgramParameteri != NULL) context->ProgramParameteriARB = (PFNGLPROGRAMPARAMETERIARBPROC)context->ProgramParameteri;
+    if (context->ProgramParameteriARB == NULL && context->ProgramParameteriEXT != NULL) context->ProgramParameteriARB = (PFNGLPROGRAMPARAMETERIARBPROC)context->ProgramParameteriEXT;
+    if (context->ProgramParameteriEXT == NULL && context->ProgramParameteri != NULL) context->ProgramParameteriEXT = (PFNGLPROGRAMPARAMETERIEXTPROC)context->ProgramParameteri;
+    if (context->ProgramParameteriEXT == NULL && context->ProgramParameteriARB != NULL) context->ProgramParameteriEXT = (PFNGLPROGRAMPARAMETERIEXTPROC)context->ProgramParameteriARB;
+    if (context->ProgramUniform1f == NULL && context->ProgramUniform1fEXT != NULL) context->ProgramUniform1f = (PFNGLPROGRAMUNIFORM1FPROC)context->ProgramUniform1fEXT;
+    if (context->ProgramUniform1fEXT == NULL && context->ProgramUniform1f != NULL) context->ProgramUniform1fEXT = (PFNGLPROGRAMUNIFORM1FEXTPROC)context->ProgramUniform1f;
+    if (context->ProgramUniform1fv == NULL && context->ProgramUniform1fvEXT != NULL) context->ProgramUniform1fv = (PFNGLPROGRAMUNIFORM1FVPROC)context->ProgramUniform1fvEXT;
+    if (context->ProgramUniform1fvEXT == NULL && context->ProgramUniform1fv != NULL) context->ProgramUniform1fvEXT = (PFNGLPROGRAMUNIFORM1FVEXTPROC)context->ProgramUniform1fv;
+    if (context->ProgramUniform1i == NULL && context->ProgramUniform1iEXT != NULL) context->ProgramUniform1i = (PFNGLPROGRAMUNIFORM1IPROC)context->ProgramUniform1iEXT;
+    if (context->ProgramUniform1iEXT == NULL && context->ProgramUniform1i != NULL) context->ProgramUniform1iEXT = (PFNGLPROGRAMUNIFORM1IEXTPROC)context->ProgramUniform1i;
+    if (context->ProgramUniform1iv == NULL && context->ProgramUniform1ivEXT != NULL) context->ProgramUniform1iv = (PFNGLPROGRAMUNIFORM1IVPROC)context->ProgramUniform1ivEXT;
+    if (context->ProgramUniform1ivEXT == NULL && context->ProgramUniform1iv != NULL) context->ProgramUniform1ivEXT = (PFNGLPROGRAMUNIFORM1IVEXTPROC)context->ProgramUniform1iv;
+    if (context->ProgramUniform1ui == NULL && context->ProgramUniform1uiEXT != NULL) context->ProgramUniform1ui = (PFNGLPROGRAMUNIFORM1UIPROC)context->ProgramUniform1uiEXT;
+    if (context->ProgramUniform1uiEXT == NULL && context->ProgramUniform1ui != NULL) context->ProgramUniform1uiEXT = (PFNGLPROGRAMUNIFORM1UIEXTPROC)context->ProgramUniform1ui;
+    if (context->ProgramUniform1uiv == NULL && context->ProgramUniform1uivEXT != NULL) context->ProgramUniform1uiv = (PFNGLPROGRAMUNIFORM1UIVPROC)context->ProgramUniform1uivEXT;
+    if (context->ProgramUniform1uivEXT == NULL && context->ProgramUniform1uiv != NULL) context->ProgramUniform1uivEXT = (PFNGLPROGRAMUNIFORM1UIVEXTPROC)context->ProgramUniform1uiv;
+    if (context->ProgramUniform2f == NULL && context->ProgramUniform2fEXT != NULL) context->ProgramUniform2f = (PFNGLPROGRAMUNIFORM2FPROC)context->ProgramUniform2fEXT;
+    if (context->ProgramUniform2fEXT == NULL && context->ProgramUniform2f != NULL) context->ProgramUniform2fEXT = (PFNGLPROGRAMUNIFORM2FEXTPROC)context->ProgramUniform2f;
+    if (context->ProgramUniform2fv == NULL && context->ProgramUniform2fvEXT != NULL) context->ProgramUniform2fv = (PFNGLPROGRAMUNIFORM2FVPROC)context->ProgramUniform2fvEXT;
+    if (context->ProgramUniform2fvEXT == NULL && context->ProgramUniform2fv != NULL) context->ProgramUniform2fvEXT = (PFNGLPROGRAMUNIFORM2FVEXTPROC)context->ProgramUniform2fv;
+    if (context->ProgramUniform2i == NULL && context->ProgramUniform2iEXT != NULL) context->ProgramUniform2i = (PFNGLPROGRAMUNIFORM2IPROC)context->ProgramUniform2iEXT;
+    if (context->ProgramUniform2iEXT == NULL && context->ProgramUniform2i != NULL) context->ProgramUniform2iEXT = (PFNGLPROGRAMUNIFORM2IEXTPROC)context->ProgramUniform2i;
+    if (context->ProgramUniform2iv == NULL && context->ProgramUniform2ivEXT != NULL) context->ProgramUniform2iv = (PFNGLPROGRAMUNIFORM2IVPROC)context->ProgramUniform2ivEXT;
+    if (context->ProgramUniform2ivEXT == NULL && context->ProgramUniform2iv != NULL) context->ProgramUniform2ivEXT = (PFNGLPROGRAMUNIFORM2IVEXTPROC)context->ProgramUniform2iv;
+    if (context->ProgramUniform2ui == NULL && context->ProgramUniform2uiEXT != NULL) context->ProgramUniform2ui = (PFNGLPROGRAMUNIFORM2UIPROC)context->ProgramUniform2uiEXT;
+    if (context->ProgramUniform2uiEXT == NULL && context->ProgramUniform2ui != NULL) context->ProgramUniform2uiEXT = (PFNGLPROGRAMUNIFORM2UIEXTPROC)context->ProgramUniform2ui;
+    if (context->ProgramUniform2uiv == NULL && context->ProgramUniform2uivEXT != NULL) context->ProgramUniform2uiv = (PFNGLPROGRAMUNIFORM2UIVPROC)context->ProgramUniform2uivEXT;
+    if (context->ProgramUniform2uivEXT == NULL && context->ProgramUniform2uiv != NULL) context->ProgramUniform2uivEXT = (PFNGLPROGRAMUNIFORM2UIVEXTPROC)context->ProgramUniform2uiv;
+    if (context->ProgramUniform3f == NULL && context->ProgramUniform3fEXT != NULL) context->ProgramUniform3f = (PFNGLPROGRAMUNIFORM3FPROC)context->ProgramUniform3fEXT;
+    if (context->ProgramUniform3fEXT == NULL && context->ProgramUniform3f != NULL) context->ProgramUniform3fEXT = (PFNGLPROGRAMUNIFORM3FEXTPROC)context->ProgramUniform3f;
+    if (context->ProgramUniform3fv == NULL && context->ProgramUniform3fvEXT != NULL) context->ProgramUniform3fv = (PFNGLPROGRAMUNIFORM3FVPROC)context->ProgramUniform3fvEXT;
+    if (context->ProgramUniform3fvEXT == NULL && context->ProgramUniform3fv != NULL) context->ProgramUniform3fvEXT = (PFNGLPROGRAMUNIFORM3FVEXTPROC)context->ProgramUniform3fv;
+    if (context->ProgramUniform3i == NULL && context->ProgramUniform3iEXT != NULL) context->ProgramUniform3i = (PFNGLPROGRAMUNIFORM3IPROC)context->ProgramUniform3iEXT;
+    if (context->ProgramUniform3iEXT == NULL && context->ProgramUniform3i != NULL) context->ProgramUniform3iEXT = (PFNGLPROGRAMUNIFORM3IEXTPROC)context->ProgramUniform3i;
+    if (context->ProgramUniform3iv == NULL && context->ProgramUniform3ivEXT != NULL) context->ProgramUniform3iv = (PFNGLPROGRAMUNIFORM3IVPROC)context->ProgramUniform3ivEXT;
+    if (context->ProgramUniform3ivEXT == NULL && context->ProgramUniform3iv != NULL) context->ProgramUniform3ivEXT = (PFNGLPROGRAMUNIFORM3IVEXTPROC)context->ProgramUniform3iv;
+    if (context->ProgramUniform3ui == NULL && context->ProgramUniform3uiEXT != NULL) context->ProgramUniform3ui = (PFNGLPROGRAMUNIFORM3UIPROC)context->ProgramUniform3uiEXT;
+    if (context->ProgramUniform3uiEXT == NULL && context->ProgramUniform3ui != NULL) context->ProgramUniform3uiEXT = (PFNGLPROGRAMUNIFORM3UIEXTPROC)context->ProgramUniform3ui;
+    if (context->ProgramUniform3uiv == NULL && context->ProgramUniform3uivEXT != NULL) context->ProgramUniform3uiv = (PFNGLPROGRAMUNIFORM3UIVPROC)context->ProgramUniform3uivEXT;
+    if (context->ProgramUniform3uivEXT == NULL && context->ProgramUniform3uiv != NULL) context->ProgramUniform3uivEXT = (PFNGLPROGRAMUNIFORM3UIVEXTPROC)context->ProgramUniform3uiv;
+    if (context->ProgramUniform4f == NULL && context->ProgramUniform4fEXT != NULL) context->ProgramUniform4f = (PFNGLPROGRAMUNIFORM4FPROC)context->ProgramUniform4fEXT;
+    if (context->ProgramUniform4fEXT == NULL && context->ProgramUniform4f != NULL) context->ProgramUniform4fEXT = (PFNGLPROGRAMUNIFORM4FEXTPROC)context->ProgramUniform4f;
+    if (context->ProgramUniform4fv == NULL && context->ProgramUniform4fvEXT != NULL) context->ProgramUniform4fv = (PFNGLPROGRAMUNIFORM4FVPROC)context->ProgramUniform4fvEXT;
+    if (context->ProgramUniform4fvEXT == NULL && context->ProgramUniform4fv != NULL) context->ProgramUniform4fvEXT = (PFNGLPROGRAMUNIFORM4FVEXTPROC)context->ProgramUniform4fv;
+    if (context->ProgramUniform4i == NULL && context->ProgramUniform4iEXT != NULL) context->ProgramUniform4i = (PFNGLPROGRAMUNIFORM4IPROC)context->ProgramUniform4iEXT;
+    if (context->ProgramUniform4iEXT == NULL && context->ProgramUniform4i != NULL) context->ProgramUniform4iEXT = (PFNGLPROGRAMUNIFORM4IEXTPROC)context->ProgramUniform4i;
+    if (context->ProgramUniform4iv == NULL && context->ProgramUniform4ivEXT != NULL) context->ProgramUniform4iv = (PFNGLPROGRAMUNIFORM4IVPROC)context->ProgramUniform4ivEXT;
+    if (context->ProgramUniform4ivEXT == NULL && context->ProgramUniform4iv != NULL) context->ProgramUniform4ivEXT = (PFNGLPROGRAMUNIFORM4IVEXTPROC)context->ProgramUniform4iv;
+    if (context->ProgramUniform4ui == NULL && context->ProgramUniform4uiEXT != NULL) context->ProgramUniform4ui = (PFNGLPROGRAMUNIFORM4UIPROC)context->ProgramUniform4uiEXT;
+    if (context->ProgramUniform4uiEXT == NULL && context->ProgramUniform4ui != NULL) context->ProgramUniform4uiEXT = (PFNGLPROGRAMUNIFORM4UIEXTPROC)context->ProgramUniform4ui;
+    if (context->ProgramUniform4uiv == NULL && context->ProgramUniform4uivEXT != NULL) context->ProgramUniform4uiv = (PFNGLPROGRAMUNIFORM4UIVPROC)context->ProgramUniform4uivEXT;
+    if (context->ProgramUniform4uivEXT == NULL && context->ProgramUniform4uiv != NULL) context->ProgramUniform4uivEXT = (PFNGLPROGRAMUNIFORM4UIVEXTPROC)context->ProgramUniform4uiv;
+    if (context->ProgramUniformHandleui64ARB == NULL && context->ProgramUniformHandleui64IMG != NULL) context->ProgramUniformHandleui64ARB = (PFNGLPROGRAMUNIFORMHANDLEUI64ARBPROC)context->ProgramUniformHandleui64IMG;
+    if (context->ProgramUniformHandleui64IMG == NULL && context->ProgramUniformHandleui64ARB != NULL) context->ProgramUniformHandleui64IMG = (PFNGLPROGRAMUNIFORMHANDLEUI64IMGPROC)context->ProgramUniformHandleui64ARB;
+    if (context->ProgramUniformHandleui64vARB == NULL && context->ProgramUniformHandleui64vIMG != NULL) context->ProgramUniformHandleui64vARB = (PFNGLPROGRAMUNIFORMHANDLEUI64VARBPROC)context->ProgramUniformHandleui64vIMG;
+    if (context->ProgramUniformHandleui64vIMG == NULL && context->ProgramUniformHandleui64vARB != NULL) context->ProgramUniformHandleui64vIMG = (PFNGLPROGRAMUNIFORMHANDLEUI64VIMGPROC)context->ProgramUniformHandleui64vARB;
+    if (context->ProgramUniformMatrix2fv == NULL && context->ProgramUniformMatrix2fvEXT != NULL) context->ProgramUniformMatrix2fv = (PFNGLPROGRAMUNIFORMMATRIX2FVPROC)context->ProgramUniformMatrix2fvEXT;
+    if (context->ProgramUniformMatrix2fvEXT == NULL && context->ProgramUniformMatrix2fv != NULL) context->ProgramUniformMatrix2fvEXT = (PFNGLPROGRAMUNIFORMMATRIX2FVEXTPROC)context->ProgramUniformMatrix2fv;
+    if (context->ProgramUniformMatrix2x3fv == NULL && context->ProgramUniformMatrix2x3fvEXT != NULL) context->ProgramUniformMatrix2x3fv = (PFNGLPROGRAMUNIFORMMATRIX2X3FVPROC)context->ProgramUniformMatrix2x3fvEXT;
+    if (context->ProgramUniformMatrix2x3fvEXT == NULL && context->ProgramUniformMatrix2x3fv != NULL) context->ProgramUniformMatrix2x3fvEXT = (PFNGLPROGRAMUNIFORMMATRIX2X3FVEXTPROC)context->ProgramUniformMatrix2x3fv;
+    if (context->ProgramUniformMatrix2x4fv == NULL && context->ProgramUniformMatrix2x4fvEXT != NULL) context->ProgramUniformMatrix2x4fv = (PFNGLPROGRAMUNIFORMMATRIX2X4FVPROC)context->ProgramUniformMatrix2x4fvEXT;
+    if (context->ProgramUniformMatrix2x4fvEXT == NULL && context->ProgramUniformMatrix2x4fv != NULL) context->ProgramUniformMatrix2x4fvEXT = (PFNGLPROGRAMUNIFORMMATRIX2X4FVEXTPROC)context->ProgramUniformMatrix2x4fv;
+    if (context->ProgramUniformMatrix3fv == NULL && context->ProgramUniformMatrix3fvEXT != NULL) context->ProgramUniformMatrix3fv = (PFNGLPROGRAMUNIFORMMATRIX3FVPROC)context->ProgramUniformMatrix3fvEXT;
+    if (context->ProgramUniformMatrix3fvEXT == NULL && context->ProgramUniformMatrix3fv != NULL) context->ProgramUniformMatrix3fvEXT = (PFNGLPROGRAMUNIFORMMATRIX3FVEXTPROC)context->ProgramUniformMatrix3fv;
+    if (context->ProgramUniformMatrix3x2fv == NULL && context->ProgramUniformMatrix3x2fvEXT != NULL) context->ProgramUniformMatrix3x2fv = (PFNGLPROGRAMUNIFORMMATRIX3X2FVPROC)context->ProgramUniformMatrix3x2fvEXT;
+    if (context->ProgramUniformMatrix3x2fvEXT == NULL && context->ProgramUniformMatrix3x2fv != NULL) context->ProgramUniformMatrix3x2fvEXT = (PFNGLPROGRAMUNIFORMMATRIX3X2FVEXTPROC)context->ProgramUniformMatrix3x2fv;
+    if (context->ProgramUniformMatrix3x4fv == NULL && context->ProgramUniformMatrix3x4fvEXT != NULL) context->ProgramUniformMatrix3x4fv = (PFNGLPROGRAMUNIFORMMATRIX3X4FVPROC)context->ProgramUniformMatrix3x4fvEXT;
+    if (context->ProgramUniformMatrix3x4fvEXT == NULL && context->ProgramUniformMatrix3x4fv != NULL) context->ProgramUniformMatrix3x4fvEXT = (PFNGLPROGRAMUNIFORMMATRIX3X4FVEXTPROC)context->ProgramUniformMatrix3x4fv;
+    if (context->ProgramUniformMatrix4fv == NULL && context->ProgramUniformMatrix4fvEXT != NULL) context->ProgramUniformMatrix4fv = (PFNGLPROGRAMUNIFORMMATRIX4FVPROC)context->ProgramUniformMatrix4fvEXT;
+    if (context->ProgramUniformMatrix4fvEXT == NULL && context->ProgramUniformMatrix4fv != NULL) context->ProgramUniformMatrix4fvEXT = (PFNGLPROGRAMUNIFORMMATRIX4FVEXTPROC)context->ProgramUniformMatrix4fv;
+    if (context->ProgramUniformMatrix4x2fv == NULL && context->ProgramUniformMatrix4x2fvEXT != NULL) context->ProgramUniformMatrix4x2fv = (PFNGLPROGRAMUNIFORMMATRIX4X2FVPROC)context->ProgramUniformMatrix4x2fvEXT;
+    if (context->ProgramUniformMatrix4x2fvEXT == NULL && context->ProgramUniformMatrix4x2fv != NULL) context->ProgramUniformMatrix4x2fvEXT = (PFNGLPROGRAMUNIFORMMATRIX4X2FVEXTPROC)context->ProgramUniformMatrix4x2fv;
+    if (context->ProgramUniformMatrix4x3fv == NULL && context->ProgramUniformMatrix4x3fvEXT != NULL) context->ProgramUniformMatrix4x3fv = (PFNGLPROGRAMUNIFORMMATRIX4X3FVPROC)context->ProgramUniformMatrix4x3fvEXT;
+    if (context->ProgramUniformMatrix4x3fvEXT == NULL && context->ProgramUniformMatrix4x3fv != NULL) context->ProgramUniformMatrix4x3fvEXT = (PFNGLPROGRAMUNIFORMMATRIX4X3FVEXTPROC)context->ProgramUniformMatrix4x3fv;
+    if (context->ProvokingVertex == NULL && context->ProvokingVertexEXT != NULL) context->ProvokingVertex = (PFNGLPROVOKINGVERTEXPROC)context->ProvokingVertexEXT;
+    if (context->ProvokingVertexEXT == NULL && context->ProvokingVertex != NULL) context->ProvokingVertexEXT = (PFNGLPROVOKINGVERTEXEXTPROC)context->ProvokingVertex;
+    if (context->PushDebugGroup == NULL && context->PushDebugGroupKHR != NULL) context->PushDebugGroup = (PFNGLPUSHDEBUGGROUPPROC)context->PushDebugGroupKHR;
+    if (context->PushDebugGroupKHR == NULL && context->PushDebugGroup != NULL) context->PushDebugGroupKHR = (PFNGLPUSHDEBUGGROUPKHRPROC)context->PushDebugGroup;
+    if (context->QueryCounter == NULL && context->QueryCounterEXT != NULL) context->QueryCounter = (PFNGLQUERYCOUNTERPROC)context->QueryCounterEXT;
+    if (context->QueryCounterEXT == NULL && context->QueryCounter != NULL) context->QueryCounterEXT = (PFNGLQUERYCOUNTEREXTPROC)context->QueryCounter;
+    if (context->ReadnPixels == NULL && context->ReadnPixelsARB != NULL) context->ReadnPixels = (PFNGLREADNPIXELSPROC)context->ReadnPixelsARB;
+    if (context->ReadnPixels == NULL && context->ReadnPixelsEXT != NULL) context->ReadnPixels = (PFNGLREADNPIXELSPROC)context->ReadnPixelsEXT;
+    if (context->ReadnPixels == NULL && context->ReadnPixelsKHR != NULL) context->ReadnPixels = (PFNGLREADNPIXELSPROC)context->ReadnPixelsKHR;
+    if (context->ReadnPixelsARB == NULL && context->ReadnPixels != NULL) context->ReadnPixelsARB = (PFNGLREADNPIXELSARBPROC)context->ReadnPixels;
+    if (context->ReadnPixelsARB == NULL && context->ReadnPixelsEXT != NULL) context->ReadnPixelsARB = (PFNGLREADNPIXELSARBPROC)context->ReadnPixelsEXT;
+    if (context->ReadnPixelsARB == NULL && context->ReadnPixelsKHR != NULL) context->ReadnPixelsARB = (PFNGLREADNPIXELSARBPROC)context->ReadnPixelsKHR;
+    if (context->ReadnPixelsEXT == NULL && context->ReadnPixels != NULL) context->ReadnPixelsEXT = (PFNGLREADNPIXELSEXTPROC)context->ReadnPixels;
+    if (context->ReadnPixelsEXT == NULL && context->ReadnPixelsARB != NULL) context->ReadnPixelsEXT = (PFNGLREADNPIXELSEXTPROC)context->ReadnPixelsARB;
+    if (context->ReadnPixelsEXT == NULL && context->ReadnPixelsKHR != NULL) context->ReadnPixelsEXT = (PFNGLREADNPIXELSEXTPROC)context->ReadnPixelsKHR;
+    if (context->ReadnPixelsKHR == NULL && context->ReadnPixels != NULL) context->ReadnPixelsKHR = (PFNGLREADNPIXELSKHRPROC)context->ReadnPixels;
+    if (context->ReadnPixelsKHR == NULL && context->ReadnPixelsARB != NULL) context->ReadnPixelsKHR = (PFNGLREADNPIXELSKHRPROC)context->ReadnPixelsARB;
+    if (context->ReadnPixelsKHR == NULL && context->ReadnPixelsEXT != NULL) context->ReadnPixelsKHR = (PFNGLREADNPIXELSKHRPROC)context->ReadnPixelsEXT;
+    if (context->RenderbufferStorage == NULL && context->RenderbufferStorageEXT != NULL) context->RenderbufferStorage = (PFNGLRENDERBUFFERSTORAGEPROC)context->RenderbufferStorageEXT;
+    if (context->RenderbufferStorageEXT == NULL && context->RenderbufferStorage != NULL) context->RenderbufferStorageEXT = (PFNGLRENDERBUFFERSTORAGEEXTPROC)context->RenderbufferStorage;
+    if (context->RenderbufferStorageMultisample == NULL && context->RenderbufferStorageMultisampleEXT != NULL) context->RenderbufferStorageMultisample = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEPROC)context->RenderbufferStorageMultisampleEXT;
+    if (context->RenderbufferStorageMultisample == NULL && context->RenderbufferStorageMultisampleNV != NULL) context->RenderbufferStorageMultisample = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEPROC)context->RenderbufferStorageMultisampleNV;
+    if (context->RenderbufferStorageMultisampleEXT == NULL && context->RenderbufferStorageMultisample != NULL) context->RenderbufferStorageMultisampleEXT = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC)context->RenderbufferStorageMultisample;
+    if (context->RenderbufferStorageMultisampleEXT == NULL && context->RenderbufferStorageMultisampleNV != NULL) context->RenderbufferStorageMultisampleEXT = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC)context->RenderbufferStorageMultisampleNV;
+    if (context->RenderbufferStorageMultisampleNV == NULL && context->RenderbufferStorageMultisample != NULL) context->RenderbufferStorageMultisampleNV = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLENVPROC)context->RenderbufferStorageMultisample;
+    if (context->RenderbufferStorageMultisampleNV == NULL && context->RenderbufferStorageMultisampleEXT != NULL) context->RenderbufferStorageMultisampleNV = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLENVPROC)context->RenderbufferStorageMultisampleEXT;
+    if (context->ResumeTransformFeedback == NULL && context->ResumeTransformFeedbackNV != NULL) context->ResumeTransformFeedback = (PFNGLRESUMETRANSFORMFEEDBACKPROC)context->ResumeTransformFeedbackNV;
+    if (context->ResumeTransformFeedbackNV == NULL && context->ResumeTransformFeedback != NULL) context->ResumeTransformFeedbackNV = (PFNGLRESUMETRANSFORMFEEDBACKNVPROC)context->ResumeTransformFeedback;
+    if (context->SampleCoverage == NULL && context->SampleCoverageARB != NULL) context->SampleCoverage = (PFNGLSAMPLECOVERAGEPROC)context->SampleCoverageARB;
+    if (context->SampleCoverageARB == NULL && context->SampleCoverage != NULL) context->SampleCoverageARB = (PFNGLSAMPLECOVERAGEARBPROC)context->SampleCoverage;
+    if (context->SampleMaskEXT == NULL && context->SampleMaskSGIS != NULL) context->SampleMaskEXT = (PFNGLSAMPLEMASKEXTPROC)context->SampleMaskSGIS;
+    if (context->SampleMaskSGIS == NULL && context->SampleMaskEXT != NULL) context->SampleMaskSGIS = (PFNGLSAMPLEMASKSGISPROC)context->SampleMaskEXT;
+    if (context->SamplePatternEXT == NULL && context->SamplePatternSGIS != NULL) context->SamplePatternEXT = (PFNGLSAMPLEPATTERNEXTPROC)context->SamplePatternSGIS;
+    if (context->SamplePatternSGIS == NULL && context->SamplePatternEXT != NULL) context->SamplePatternSGIS = (PFNGLSAMPLEPATTERNSGISPROC)context->SamplePatternEXT;
+    if (context->SamplerParameterIiv == NULL && context->SamplerParameterIivEXT != NULL) context->SamplerParameterIiv = (PFNGLSAMPLERPARAMETERIIVPROC)context->SamplerParameterIivEXT;
+    if (context->SamplerParameterIiv == NULL && context->SamplerParameterIivOES != NULL) context->SamplerParameterIiv = (PFNGLSAMPLERPARAMETERIIVPROC)context->SamplerParameterIivOES;
+    if (context->SamplerParameterIivEXT == NULL && context->SamplerParameterIiv != NULL) context->SamplerParameterIivEXT = (PFNGLSAMPLERPARAMETERIIVEXTPROC)context->SamplerParameterIiv;
+    if (context->SamplerParameterIivEXT == NULL && context->SamplerParameterIivOES != NULL) context->SamplerParameterIivEXT = (PFNGLSAMPLERPARAMETERIIVEXTPROC)context->SamplerParameterIivOES;
+    if (context->SamplerParameterIivOES == NULL && context->SamplerParameterIiv != NULL) context->SamplerParameterIivOES = (PFNGLSAMPLERPARAMETERIIVOESPROC)context->SamplerParameterIiv;
+    if (context->SamplerParameterIivOES == NULL && context->SamplerParameterIivEXT != NULL) context->SamplerParameterIivOES = (PFNGLSAMPLERPARAMETERIIVOESPROC)context->SamplerParameterIivEXT;
+    if (context->SamplerParameterIuiv == NULL && context->SamplerParameterIuivEXT != NULL) context->SamplerParameterIuiv = (PFNGLSAMPLERPARAMETERIUIVPROC)context->SamplerParameterIuivEXT;
+    if (context->SamplerParameterIuiv == NULL && context->SamplerParameterIuivOES != NULL) context->SamplerParameterIuiv = (PFNGLSAMPLERPARAMETERIUIVPROC)context->SamplerParameterIuivOES;
+    if (context->SamplerParameterIuivEXT == NULL && context->SamplerParameterIuiv != NULL) context->SamplerParameterIuivEXT = (PFNGLSAMPLERPARAMETERIUIVEXTPROC)context->SamplerParameterIuiv;
+    if (context->SamplerParameterIuivEXT == NULL && context->SamplerParameterIuivOES != NULL) context->SamplerParameterIuivEXT = (PFNGLSAMPLERPARAMETERIUIVEXTPROC)context->SamplerParameterIuivOES;
+    if (context->SamplerParameterIuivOES == NULL && context->SamplerParameterIuiv != NULL) context->SamplerParameterIuivOES = (PFNGLSAMPLERPARAMETERIUIVOESPROC)context->SamplerParameterIuiv;
+    if (context->SamplerParameterIuivOES == NULL && context->SamplerParameterIuivEXT != NULL) context->SamplerParameterIuivOES = (PFNGLSAMPLERPARAMETERIUIVOESPROC)context->SamplerParameterIuivEXT;
+    if (context->ScissorArrayv == NULL && context->ScissorArrayvNV != NULL) context->ScissorArrayv = (PFNGLSCISSORARRAYVPROC)context->ScissorArrayvNV;
+    if (context->ScissorArrayv == NULL && context->ScissorArrayvOES != NULL) context->ScissorArrayv = (PFNGLSCISSORARRAYVPROC)context->ScissorArrayvOES;
+    if (context->ScissorArrayvNV == NULL && context->ScissorArrayv != NULL) context->ScissorArrayvNV = (PFNGLSCISSORARRAYVNVPROC)context->ScissorArrayv;
+    if (context->ScissorArrayvNV == NULL && context->ScissorArrayvOES != NULL) context->ScissorArrayvNV = (PFNGLSCISSORARRAYVNVPROC)context->ScissorArrayvOES;
+    if (context->ScissorArrayvOES == NULL && context->ScissorArrayv != NULL) context->ScissorArrayvOES = (PFNGLSCISSORARRAYVOESPROC)context->ScissorArrayv;
+    if (context->ScissorArrayvOES == NULL && context->ScissorArrayvNV != NULL) context->ScissorArrayvOES = (PFNGLSCISSORARRAYVOESPROC)context->ScissorArrayvNV;
+    if (context->ScissorIndexed == NULL && context->ScissorIndexedNV != NULL) context->ScissorIndexed = (PFNGLSCISSORINDEXEDPROC)context->ScissorIndexedNV;
+    if (context->ScissorIndexed == NULL && context->ScissorIndexedOES != NULL) context->ScissorIndexed = (PFNGLSCISSORINDEXEDPROC)context->ScissorIndexedOES;
+    if (context->ScissorIndexedNV == NULL && context->ScissorIndexed != NULL) context->ScissorIndexedNV = (PFNGLSCISSORINDEXEDNVPROC)context->ScissorIndexed;
+    if (context->ScissorIndexedNV == NULL && context->ScissorIndexedOES != NULL) context->ScissorIndexedNV = (PFNGLSCISSORINDEXEDNVPROC)context->ScissorIndexedOES;
+    if (context->ScissorIndexedOES == NULL && context->ScissorIndexed != NULL) context->ScissorIndexedOES = (PFNGLSCISSORINDEXEDOESPROC)context->ScissorIndexed;
+    if (context->ScissorIndexedOES == NULL && context->ScissorIndexedNV != NULL) context->ScissorIndexedOES = (PFNGLSCISSORINDEXEDOESPROC)context->ScissorIndexedNV;
+    if (context->ScissorIndexedv == NULL && context->ScissorIndexedvNV != NULL) context->ScissorIndexedv = (PFNGLSCISSORINDEXEDVPROC)context->ScissorIndexedvNV;
+    if (context->ScissorIndexedv == NULL && context->ScissorIndexedvOES != NULL) context->ScissorIndexedv = (PFNGLSCISSORINDEXEDVPROC)context->ScissorIndexedvOES;
+    if (context->ScissorIndexedvNV == NULL && context->ScissorIndexedv != NULL) context->ScissorIndexedvNV = (PFNGLSCISSORINDEXEDVNVPROC)context->ScissorIndexedv;
+    if (context->ScissorIndexedvNV == NULL && context->ScissorIndexedvOES != NULL) context->ScissorIndexedvNV = (PFNGLSCISSORINDEXEDVNVPROC)context->ScissorIndexedvOES;
+    if (context->ScissorIndexedvOES == NULL && context->ScissorIndexedv != NULL) context->ScissorIndexedvOES = (PFNGLSCISSORINDEXEDVOESPROC)context->ScissorIndexedv;
+    if (context->ScissorIndexedvOES == NULL && context->ScissorIndexedvNV != NULL) context->ScissorIndexedvOES = (PFNGLSCISSORINDEXEDVOESPROC)context->ScissorIndexedvNV;
+    if (context->ShaderSource == NULL && context->ShaderSourceARB != NULL) context->ShaderSource = (PFNGLSHADERSOURCEPROC)context->ShaderSourceARB;
+    if (context->ShaderSourceARB == NULL && context->ShaderSource != NULL) context->ShaderSourceARB = (PFNGLSHADERSOURCEARBPROC)context->ShaderSource;
+    if (context->SpecializeShader == NULL && context->SpecializeShaderARB != NULL) context->SpecializeShader = (PFNGLSPECIALIZESHADERPROC)context->SpecializeShaderARB;
+    if (context->SpecializeShaderARB == NULL && context->SpecializeShader != NULL) context->SpecializeShaderARB = (PFNGLSPECIALIZESHADERARBPROC)context->SpecializeShader;
+    if (context->StencilOpSeparate == NULL && context->StencilOpSeparateATI != NULL) context->StencilOpSeparate = (PFNGLSTENCILOPSEPARATEPROC)context->StencilOpSeparateATI;
+    if (context->StencilOpSeparateATI == NULL && context->StencilOpSeparate != NULL) context->StencilOpSeparateATI = (PFNGLSTENCILOPSEPARATEATIPROC)context->StencilOpSeparate;
+    if (context->TexBuffer == NULL && context->TexBufferARB != NULL) context->TexBuffer = (PFNGLTEXBUFFERPROC)context->TexBufferARB;
+    if (context->TexBuffer == NULL && context->TexBufferEXT != NULL) context->TexBuffer = (PFNGLTEXBUFFERPROC)context->TexBufferEXT;
+    if (context->TexBuffer == NULL && context->TexBufferOES != NULL) context->TexBuffer = (PFNGLTEXBUFFERPROC)context->TexBufferOES;
+    if (context->TexBufferARB == NULL && context->TexBuffer != NULL) context->TexBufferARB = (PFNGLTEXBUFFERARBPROC)context->TexBuffer;
+    if (context->TexBufferARB == NULL && context->TexBufferEXT != NULL) context->TexBufferARB = (PFNGLTEXBUFFERARBPROC)context->TexBufferEXT;
+    if (context->TexBufferARB == NULL && context->TexBufferOES != NULL) context->TexBufferARB = (PFNGLTEXBUFFERARBPROC)context->TexBufferOES;
+    if (context->TexBufferEXT == NULL && context->TexBuffer != NULL) context->TexBufferEXT = (PFNGLTEXBUFFEREXTPROC)context->TexBuffer;
+    if (context->TexBufferEXT == NULL && context->TexBufferARB != NULL) context->TexBufferEXT = (PFNGLTEXBUFFEREXTPROC)context->TexBufferARB;
+    if (context->TexBufferEXT == NULL && context->TexBufferOES != NULL) context->TexBufferEXT = (PFNGLTEXBUFFEREXTPROC)context->TexBufferOES;
+    if (context->TexBufferOES == NULL && context->TexBuffer != NULL) context->TexBufferOES = (PFNGLTEXBUFFEROESPROC)context->TexBuffer;
+    if (context->TexBufferOES == NULL && context->TexBufferARB != NULL) context->TexBufferOES = (PFNGLTEXBUFFEROESPROC)context->TexBufferARB;
+    if (context->TexBufferOES == NULL && context->TexBufferEXT != NULL) context->TexBufferOES = (PFNGLTEXBUFFEROESPROC)context->TexBufferEXT;
+    if (context->TexBufferRange == NULL && context->TexBufferRangeEXT != NULL) context->TexBufferRange = (PFNGLTEXBUFFERRANGEPROC)context->TexBufferRangeEXT;
+    if (context->TexBufferRange == NULL && context->TexBufferRangeOES != NULL) context->TexBufferRange = (PFNGLTEXBUFFERRANGEPROC)context->TexBufferRangeOES;
+    if (context->TexBufferRangeEXT == NULL && context->TexBufferRange != NULL) context->TexBufferRangeEXT = (PFNGLTEXBUFFERRANGEEXTPROC)context->TexBufferRange;
+    if (context->TexBufferRangeEXT == NULL && context->TexBufferRangeOES != NULL) context->TexBufferRangeEXT = (PFNGLTEXBUFFERRANGEEXTPROC)context->TexBufferRangeOES;
+    if (context->TexBufferRangeOES == NULL && context->TexBufferRange != NULL) context->TexBufferRangeOES = (PFNGLTEXBUFFERRANGEOESPROC)context->TexBufferRange;
+    if (context->TexBufferRangeOES == NULL && context->TexBufferRangeEXT != NULL) context->TexBufferRangeOES = (PFNGLTEXBUFFERRANGEOESPROC)context->TexBufferRangeEXT;
+    if (context->TexImage3D == NULL && context->TexImage3DEXT != NULL) context->TexImage3D = (PFNGLTEXIMAGE3DPROC)context->TexImage3DEXT;
+    if (context->TexImage3DEXT == NULL && context->TexImage3D != NULL) context->TexImage3DEXT = (PFNGLTEXIMAGE3DEXTPROC)context->TexImage3D;
+    if (context->TexPageCommitmentARB == NULL && context->TexPageCommitmentEXT != NULL) context->TexPageCommitmentARB = (PFNGLTEXPAGECOMMITMENTARBPROC)context->TexPageCommitmentEXT;
+    if (context->TexPageCommitmentEXT == NULL && context->TexPageCommitmentARB != NULL) context->TexPageCommitmentEXT = (PFNGLTEXPAGECOMMITMENTEXTPROC)context->TexPageCommitmentARB;
+    if (context->TexParameterIiv == NULL && context->TexParameterIivEXT != NULL) context->TexParameterIiv = (PFNGLTEXPARAMETERIIVPROC)context->TexParameterIivEXT;
+    if (context->TexParameterIiv == NULL && context->TexParameterIivOES != NULL) context->TexParameterIiv = (PFNGLTEXPARAMETERIIVPROC)context->TexParameterIivOES;
+    if (context->TexParameterIivEXT == NULL && context->TexParameterIiv != NULL) context->TexParameterIivEXT = (PFNGLTEXPARAMETERIIVEXTPROC)context->TexParameterIiv;
+    if (context->TexParameterIivEXT == NULL && context->TexParameterIivOES != NULL) context->TexParameterIivEXT = (PFNGLTEXPARAMETERIIVEXTPROC)context->TexParameterIivOES;
+    if (context->TexParameterIivOES == NULL && context->TexParameterIiv != NULL) context->TexParameterIivOES = (PFNGLTEXPARAMETERIIVOESPROC)context->TexParameterIiv;
+    if (context->TexParameterIivOES == NULL && context->TexParameterIivEXT != NULL) context->TexParameterIivOES = (PFNGLTEXPARAMETERIIVOESPROC)context->TexParameterIivEXT;
+    if (context->TexParameterIuiv == NULL && context->TexParameterIuivEXT != NULL) context->TexParameterIuiv = (PFNGLTEXPARAMETERIUIVPROC)context->TexParameterIuivEXT;
+    if (context->TexParameterIuiv == NULL && context->TexParameterIuivOES != NULL) context->TexParameterIuiv = (PFNGLTEXPARAMETERIUIVPROC)context->TexParameterIuivOES;
+    if (context->TexParameterIuivEXT == NULL && context->TexParameterIuiv != NULL) context->TexParameterIuivEXT = (PFNGLTEXPARAMETERIUIVEXTPROC)context->TexParameterIuiv;
+    if (context->TexParameterIuivEXT == NULL && context->TexParameterIuivOES != NULL) context->TexParameterIuivEXT = (PFNGLTEXPARAMETERIUIVEXTPROC)context->TexParameterIuivOES;
+    if (context->TexParameterIuivOES == NULL && context->TexParameterIuiv != NULL) context->TexParameterIuivOES = (PFNGLTEXPARAMETERIUIVOESPROC)context->TexParameterIuiv;
+    if (context->TexParameterIuivOES == NULL && context->TexParameterIuivEXT != NULL) context->TexParameterIuivOES = (PFNGLTEXPARAMETERIUIVOESPROC)context->TexParameterIuivEXT;
+    if (context->TexStorage1D == NULL && context->TexStorage1DEXT != NULL) context->TexStorage1D = (PFNGLTEXSTORAGE1DPROC)context->TexStorage1DEXT;
+    if (context->TexStorage1DEXT == NULL && context->TexStorage1D != NULL) context->TexStorage1DEXT = (PFNGLTEXSTORAGE1DEXTPROC)context->TexStorage1D;
+    if (context->TexStorage2D == NULL && context->TexStorage2DEXT != NULL) context->TexStorage2D = (PFNGLTEXSTORAGE2DPROC)context->TexStorage2DEXT;
+    if (context->TexStorage2DEXT == NULL && context->TexStorage2D != NULL) context->TexStorage2DEXT = (PFNGLTEXSTORAGE2DEXTPROC)context->TexStorage2D;
+    if (context->TexStorage3D == NULL && context->TexStorage3DEXT != NULL) context->TexStorage3D = (PFNGLTEXSTORAGE3DPROC)context->TexStorage3DEXT;
+    if (context->TexStorage3DEXT == NULL && context->TexStorage3D != NULL) context->TexStorage3DEXT = (PFNGLTEXSTORAGE3DEXTPROC)context->TexStorage3D;
+    if (context->TexStorage3DMultisample == NULL && context->TexStorage3DMultisampleOES != NULL) context->TexStorage3DMultisample = (PFNGLTEXSTORAGE3DMULTISAMPLEPROC)context->TexStorage3DMultisampleOES;
+    if (context->TexStorage3DMultisampleOES == NULL && context->TexStorage3DMultisample != NULL) context->TexStorage3DMultisampleOES = (PFNGLTEXSTORAGE3DMULTISAMPLEOESPROC)context->TexStorage3DMultisample;
+    if (context->TexSubImage1D == NULL && context->TexSubImage1DEXT != NULL) context->TexSubImage1D = (PFNGLTEXSUBIMAGE1DPROC)context->TexSubImage1DEXT;
+    if (context->TexSubImage1DEXT == NULL && context->TexSubImage1D != NULL) context->TexSubImage1DEXT = (PFNGLTEXSUBIMAGE1DEXTPROC)context->TexSubImage1D;
+    if (context->TexSubImage2D == NULL && context->TexSubImage2DEXT != NULL) context->TexSubImage2D = (PFNGLTEXSUBIMAGE2DPROC)context->TexSubImage2DEXT;
+    if (context->TexSubImage2DEXT == NULL && context->TexSubImage2D != NULL) context->TexSubImage2DEXT = (PFNGLTEXSUBIMAGE2DEXTPROC)context->TexSubImage2D;
+    if (context->TexSubImage3D == NULL && context->TexSubImage3DEXT != NULL) context->TexSubImage3D = (PFNGLTEXSUBIMAGE3DPROC)context->TexSubImage3DEXT;
+    if (context->TexSubImage3DEXT == NULL && context->TexSubImage3D != NULL) context->TexSubImage3DEXT = (PFNGLTEXSUBIMAGE3DEXTPROC)context->TexSubImage3D;
+    if (context->TextureView == NULL && context->TextureViewEXT != NULL) context->TextureView = (PFNGLTEXTUREVIEWPROC)context->TextureViewEXT;
+    if (context->TextureView == NULL && context->TextureViewOES != NULL) context->TextureView = (PFNGLTEXTUREVIEWPROC)context->TextureViewOES;
+    if (context->TextureViewEXT == NULL && context->TextureView != NULL) context->TextureViewEXT = (PFNGLTEXTUREVIEWEXTPROC)context->TextureView;
+    if (context->TextureViewEXT == NULL && context->TextureViewOES != NULL) context->TextureViewEXT = (PFNGLTEXTUREVIEWEXTPROC)context->TextureViewOES;
+    if (context->TextureViewOES == NULL && context->TextureView != NULL) context->TextureViewOES = (PFNGLTEXTUREVIEWOESPROC)context->TextureView;
+    if (context->TextureViewOES == NULL && context->TextureViewEXT != NULL) context->TextureViewOES = (PFNGLTEXTUREVIEWOESPROC)context->TextureViewEXT;
+    if (context->TransformFeedbackVaryings == NULL && context->TransformFeedbackVaryingsEXT != NULL) context->TransformFeedbackVaryings = (PFNGLTRANSFORMFEEDBACKVARYINGSPROC)context->TransformFeedbackVaryingsEXT;
+    if (context->TransformFeedbackVaryingsEXT == NULL && context->TransformFeedbackVaryings != NULL) context->TransformFeedbackVaryingsEXT = (PFNGLTRANSFORMFEEDBACKVARYINGSEXTPROC)context->TransformFeedbackVaryings;
+    if (context->Uniform1f == NULL && context->Uniform1fARB != NULL) context->Uniform1f = (PFNGLUNIFORM1FPROC)context->Uniform1fARB;
+    if (context->Uniform1fARB == NULL && context->Uniform1f != NULL) context->Uniform1fARB = (PFNGLUNIFORM1FARBPROC)context->Uniform1f;
+    if (context->Uniform1fv == NULL && context->Uniform1fvARB != NULL) context->Uniform1fv = (PFNGLUNIFORM1FVPROC)context->Uniform1fvARB;
+    if (context->Uniform1fvARB == NULL && context->Uniform1fv != NULL) context->Uniform1fvARB = (PFNGLUNIFORM1FVARBPROC)context->Uniform1fv;
+    if (context->Uniform1i == NULL && context->Uniform1iARB != NULL) context->Uniform1i = (PFNGLUNIFORM1IPROC)context->Uniform1iARB;
+    if (context->Uniform1iARB == NULL && context->Uniform1i != NULL) context->Uniform1iARB = (PFNGLUNIFORM1IARBPROC)context->Uniform1i;
+    if (context->Uniform1iv == NULL && context->Uniform1ivARB != NULL) context->Uniform1iv = (PFNGLUNIFORM1IVPROC)context->Uniform1ivARB;
+    if (context->Uniform1ivARB == NULL && context->Uniform1iv != NULL) context->Uniform1ivARB = (PFNGLUNIFORM1IVARBPROC)context->Uniform1iv;
+    if (context->Uniform1ui == NULL && context->Uniform1uiEXT != NULL) context->Uniform1ui = (PFNGLUNIFORM1UIPROC)context->Uniform1uiEXT;
+    if (context->Uniform1uiEXT == NULL && context->Uniform1ui != NULL) context->Uniform1uiEXT = (PFNGLUNIFORM1UIEXTPROC)context->Uniform1ui;
+    if (context->Uniform1uiv == NULL && context->Uniform1uivEXT != NULL) context->Uniform1uiv = (PFNGLUNIFORM1UIVPROC)context->Uniform1uivEXT;
+    if (context->Uniform1uivEXT == NULL && context->Uniform1uiv != NULL) context->Uniform1uivEXT = (PFNGLUNIFORM1UIVEXTPROC)context->Uniform1uiv;
+    if (context->Uniform2f == NULL && context->Uniform2fARB != NULL) context->Uniform2f = (PFNGLUNIFORM2FPROC)context->Uniform2fARB;
+    if (context->Uniform2fARB == NULL && context->Uniform2f != NULL) context->Uniform2fARB = (PFNGLUNIFORM2FARBPROC)context->Uniform2f;
+    if (context->Uniform2fv == NULL && context->Uniform2fvARB != NULL) context->Uniform2fv = (PFNGLUNIFORM2FVPROC)context->Uniform2fvARB;
+    if (context->Uniform2fvARB == NULL && context->Uniform2fv != NULL) context->Uniform2fvARB = (PFNGLUNIFORM2FVARBPROC)context->Uniform2fv;
+    if (context->Uniform2i == NULL && context->Uniform2iARB != NULL) context->Uniform2i = (PFNGLUNIFORM2IPROC)context->Uniform2iARB;
+    if (context->Uniform2iARB == NULL && context->Uniform2i != NULL) context->Uniform2iARB = (PFNGLUNIFORM2IARBPROC)context->Uniform2i;
+    if (context->Uniform2iv == NULL && context->Uniform2ivARB != NULL) context->Uniform2iv = (PFNGLUNIFORM2IVPROC)context->Uniform2ivARB;
+    if (context->Uniform2ivARB == NULL && context->Uniform2iv != NULL) context->Uniform2ivARB = (PFNGLUNIFORM2IVARBPROC)context->Uniform2iv;
+    if (context->Uniform2ui == NULL && context->Uniform2uiEXT != NULL) context->Uniform2ui = (PFNGLUNIFORM2UIPROC)context->Uniform2uiEXT;
+    if (context->Uniform2uiEXT == NULL && context->Uniform2ui != NULL) context->Uniform2uiEXT = (PFNGLUNIFORM2UIEXTPROC)context->Uniform2ui;
+    if (context->Uniform2uiv == NULL && context->Uniform2uivEXT != NULL) context->Uniform2uiv = (PFNGLUNIFORM2UIVPROC)context->Uniform2uivEXT;
+    if (context->Uniform2uivEXT == NULL && context->Uniform2uiv != NULL) context->Uniform2uivEXT = (PFNGLUNIFORM2UIVEXTPROC)context->Uniform2uiv;
+    if (context->Uniform3f == NULL && context->Uniform3fARB != NULL) context->Uniform3f = (PFNGLUNIFORM3FPROC)context->Uniform3fARB;
+    if (context->Uniform3fARB == NULL && context->Uniform3f != NULL) context->Uniform3fARB = (PFNGLUNIFORM3FARBPROC)context->Uniform3f;
+    if (context->Uniform3fv == NULL && context->Uniform3fvARB != NULL) context->Uniform3fv = (PFNGLUNIFORM3FVPROC)context->Uniform3fvARB;
+    if (context->Uniform3fvARB == NULL && context->Uniform3fv != NULL) context->Uniform3fvARB = (PFNGLUNIFORM3FVARBPROC)context->Uniform3fv;
+    if (context->Uniform3i == NULL && context->Uniform3iARB != NULL) context->Uniform3i = (PFNGLUNIFORM3IPROC)context->Uniform3iARB;
+    if (context->Uniform3iARB == NULL && context->Uniform3i != NULL) context->Uniform3iARB = (PFNGLUNIFORM3IARBPROC)context->Uniform3i;
+    if (context->Uniform3iv == NULL && context->Uniform3ivARB != NULL) context->Uniform3iv = (PFNGLUNIFORM3IVPROC)context->Uniform3ivARB;
+    if (context->Uniform3ivARB == NULL && context->Uniform3iv != NULL) context->Uniform3ivARB = (PFNGLUNIFORM3IVARBPROC)context->Uniform3iv;
+    if (context->Uniform3ui == NULL && context->Uniform3uiEXT != NULL) context->Uniform3ui = (PFNGLUNIFORM3UIPROC)context->Uniform3uiEXT;
+    if (context->Uniform3uiEXT == NULL && context->Uniform3ui != NULL) context->Uniform3uiEXT = (PFNGLUNIFORM3UIEXTPROC)context->Uniform3ui;
+    if (context->Uniform3uiv == NULL && context->Uniform3uivEXT != NULL) context->Uniform3uiv = (PFNGLUNIFORM3UIVPROC)context->Uniform3uivEXT;
+    if (context->Uniform3uivEXT == NULL && context->Uniform3uiv != NULL) context->Uniform3uivEXT = (PFNGLUNIFORM3UIVEXTPROC)context->Uniform3uiv;
+    if (context->Uniform4f == NULL && context->Uniform4fARB != NULL) context->Uniform4f = (PFNGLUNIFORM4FPROC)context->Uniform4fARB;
+    if (context->Uniform4fARB == NULL && context->Uniform4f != NULL) context->Uniform4fARB = (PFNGLUNIFORM4FARBPROC)context->Uniform4f;
+    if (context->Uniform4fv == NULL && context->Uniform4fvARB != NULL) context->Uniform4fv = (PFNGLUNIFORM4FVPROC)context->Uniform4fvARB;
+    if (context->Uniform4fvARB == NULL && context->Uniform4fv != NULL) context->Uniform4fvARB = (PFNGLUNIFORM4FVARBPROC)context->Uniform4fv;
+    if (context->Uniform4i == NULL && context->Uniform4iARB != NULL) context->Uniform4i = (PFNGLUNIFORM4IPROC)context->Uniform4iARB;
+    if (context->Uniform4iARB == NULL && context->Uniform4i != NULL) context->Uniform4iARB = (PFNGLUNIFORM4IARBPROC)context->Uniform4i;
+    if (context->Uniform4iv == NULL && context->Uniform4ivARB != NULL) context->Uniform4iv = (PFNGLUNIFORM4IVPROC)context->Uniform4ivARB;
+    if (context->Uniform4ivARB == NULL && context->Uniform4iv != NULL) context->Uniform4ivARB = (PFNGLUNIFORM4IVARBPROC)context->Uniform4iv;
+    if (context->Uniform4ui == NULL && context->Uniform4uiEXT != NULL) context->Uniform4ui = (PFNGLUNIFORM4UIPROC)context->Uniform4uiEXT;
+    if (context->Uniform4uiEXT == NULL && context->Uniform4ui != NULL) context->Uniform4uiEXT = (PFNGLUNIFORM4UIEXTPROC)context->Uniform4ui;
+    if (context->Uniform4uiv == NULL && context->Uniform4uivEXT != NULL) context->Uniform4uiv = (PFNGLUNIFORM4UIVPROC)context->Uniform4uivEXT;
+    if (context->Uniform4uivEXT == NULL && context->Uniform4uiv != NULL) context->Uniform4uivEXT = (PFNGLUNIFORM4UIVEXTPROC)context->Uniform4uiv;
+    if (context->UniformHandleui64ARB == NULL && context->UniformHandleui64IMG != NULL) context->UniformHandleui64ARB = (PFNGLUNIFORMHANDLEUI64ARBPROC)context->UniformHandleui64IMG;
+    if (context->UniformHandleui64IMG == NULL && context->UniformHandleui64ARB != NULL) context->UniformHandleui64IMG = (PFNGLUNIFORMHANDLEUI64IMGPROC)context->UniformHandleui64ARB;
+    if (context->UniformHandleui64vARB == NULL && context->UniformHandleui64vIMG != NULL) context->UniformHandleui64vARB = (PFNGLUNIFORMHANDLEUI64VARBPROC)context->UniformHandleui64vIMG;
+    if (context->UniformHandleui64vIMG == NULL && context->UniformHandleui64vARB != NULL) context->UniformHandleui64vIMG = (PFNGLUNIFORMHANDLEUI64VIMGPROC)context->UniformHandleui64vARB;
+    if (context->UniformMatrix2fv == NULL && context->UniformMatrix2fvARB != NULL) context->UniformMatrix2fv = (PFNGLUNIFORMMATRIX2FVPROC)context->UniformMatrix2fvARB;
+    if (context->UniformMatrix2fvARB == NULL && context->UniformMatrix2fv != NULL) context->UniformMatrix2fvARB = (PFNGLUNIFORMMATRIX2FVARBPROC)context->UniformMatrix2fv;
+    if (context->UniformMatrix2x3fv == NULL && context->UniformMatrix2x3fvNV != NULL) context->UniformMatrix2x3fv = (PFNGLUNIFORMMATRIX2X3FVPROC)context->UniformMatrix2x3fvNV;
+    if (context->UniformMatrix2x3fvNV == NULL && context->UniformMatrix2x3fv != NULL) context->UniformMatrix2x3fvNV = (PFNGLUNIFORMMATRIX2X3FVNVPROC)context->UniformMatrix2x3fv;
+    if (context->UniformMatrix2x4fv == NULL && context->UniformMatrix2x4fvNV != NULL) context->UniformMatrix2x4fv = (PFNGLUNIFORMMATRIX2X4FVPROC)context->UniformMatrix2x4fvNV;
+    if (context->UniformMatrix2x4fvNV == NULL && context->UniformMatrix2x4fv != NULL) context->UniformMatrix2x4fvNV = (PFNGLUNIFORMMATRIX2X4FVNVPROC)context->UniformMatrix2x4fv;
+    if (context->UniformMatrix3fv == NULL && context->UniformMatrix3fvARB != NULL) context->UniformMatrix3fv = (PFNGLUNIFORMMATRIX3FVPROC)context->UniformMatrix3fvARB;
+    if (context->UniformMatrix3fvARB == NULL && context->UniformMatrix3fv != NULL) context->UniformMatrix3fvARB = (PFNGLUNIFORMMATRIX3FVARBPROC)context->UniformMatrix3fv;
+    if (context->UniformMatrix3x2fv == NULL && context->UniformMatrix3x2fvNV != NULL) context->UniformMatrix3x2fv = (PFNGLUNIFORMMATRIX3X2FVPROC)context->UniformMatrix3x2fvNV;
+    if (context->UniformMatrix3x2fvNV == NULL && context->UniformMatrix3x2fv != NULL) context->UniformMatrix3x2fvNV = (PFNGLUNIFORMMATRIX3X2FVNVPROC)context->UniformMatrix3x2fv;
+    if (context->UniformMatrix3x4fv == NULL && context->UniformMatrix3x4fvNV != NULL) context->UniformMatrix3x4fv = (PFNGLUNIFORMMATRIX3X4FVPROC)context->UniformMatrix3x4fvNV;
+    if (context->UniformMatrix3x4fvNV == NULL && context->UniformMatrix3x4fv != NULL) context->UniformMatrix3x4fvNV = (PFNGLUNIFORMMATRIX3X4FVNVPROC)context->UniformMatrix3x4fv;
+    if (context->UniformMatrix4fv == NULL && context->UniformMatrix4fvARB != NULL) context->UniformMatrix4fv = (PFNGLUNIFORMMATRIX4FVPROC)context->UniformMatrix4fvARB;
+    if (context->UniformMatrix4fvARB == NULL && context->UniformMatrix4fv != NULL) context->UniformMatrix4fvARB = (PFNGLUNIFORMMATRIX4FVARBPROC)context->UniformMatrix4fv;
+    if (context->UniformMatrix4x2fv == NULL && context->UniformMatrix4x2fvNV != NULL) context->UniformMatrix4x2fv = (PFNGLUNIFORMMATRIX4X2FVPROC)context->UniformMatrix4x2fvNV;
+    if (context->UniformMatrix4x2fvNV == NULL && context->UniformMatrix4x2fv != NULL) context->UniformMatrix4x2fvNV = (PFNGLUNIFORMMATRIX4X2FVNVPROC)context->UniformMatrix4x2fv;
+    if (context->UniformMatrix4x3fv == NULL && context->UniformMatrix4x3fvNV != NULL) context->UniformMatrix4x3fv = (PFNGLUNIFORMMATRIX4X3FVPROC)context->UniformMatrix4x3fvNV;
+    if (context->UniformMatrix4x3fvNV == NULL && context->UniformMatrix4x3fv != NULL) context->UniformMatrix4x3fvNV = (PFNGLUNIFORMMATRIX4X3FVNVPROC)context->UniformMatrix4x3fv;
+    if (context->UnmapBuffer == NULL && context->UnmapBufferARB != NULL) context->UnmapBuffer = (PFNGLUNMAPBUFFERPROC)context->UnmapBufferARB;
+    if (context->UnmapBuffer == NULL && context->UnmapBufferOES != NULL) context->UnmapBuffer = (PFNGLUNMAPBUFFERPROC)context->UnmapBufferOES;
+    if (context->UnmapBufferARB == NULL && context->UnmapBuffer != NULL) context->UnmapBufferARB = (PFNGLUNMAPBUFFERARBPROC)context->UnmapBuffer;
+    if (context->UnmapBufferARB == NULL && context->UnmapBufferOES != NULL) context->UnmapBufferARB = (PFNGLUNMAPBUFFERARBPROC)context->UnmapBufferOES;
+    if (context->UnmapBufferOES == NULL && context->UnmapBuffer != NULL) context->UnmapBufferOES = (PFNGLUNMAPBUFFEROESPROC)context->UnmapBuffer;
+    if (context->UnmapBufferOES == NULL && context->UnmapBufferARB != NULL) context->UnmapBufferOES = (PFNGLUNMAPBUFFEROESPROC)context->UnmapBufferARB;
+    if (context->UseProgram == NULL && context->UseProgramObjectARB != NULL) context->UseProgram = (PFNGLUSEPROGRAMPROC)context->UseProgramObjectARB;
+    if (context->UseProgramObjectARB == NULL && context->UseProgram != NULL) context->UseProgramObjectARB = (PFNGLUSEPROGRAMOBJECTARBPROC)context->UseProgram;
+    if (context->ValidateProgram == NULL && context->ValidateProgramARB != NULL) context->ValidateProgram = (PFNGLVALIDATEPROGRAMPROC)context->ValidateProgramARB;
+    if (context->ValidateProgramARB == NULL && context->ValidateProgram != NULL) context->ValidateProgramARB = (PFNGLVALIDATEPROGRAMARBPROC)context->ValidateProgram;
+    if (context->VertexAttrib1d == NULL && context->VertexAttrib1dARB != NULL) context->VertexAttrib1d = (PFNGLVERTEXATTRIB1DPROC)context->VertexAttrib1dARB;
+    if (context->VertexAttrib1d == NULL && context->VertexAttrib1dNV != NULL) context->VertexAttrib1d = (PFNGLVERTEXATTRIB1DPROC)context->VertexAttrib1dNV;
+    if (context->VertexAttrib1dARB == NULL && context->VertexAttrib1d != NULL) context->VertexAttrib1dARB = (PFNGLVERTEXATTRIB1DARBPROC)context->VertexAttrib1d;
+    if (context->VertexAttrib1dARB == NULL && context->VertexAttrib1dNV != NULL) context->VertexAttrib1dARB = (PFNGLVERTEXATTRIB1DARBPROC)context->VertexAttrib1dNV;
+    if (context->VertexAttrib1dNV == NULL && context->VertexAttrib1d != NULL) context->VertexAttrib1dNV = (PFNGLVERTEXATTRIB1DNVPROC)context->VertexAttrib1d;
+    if (context->VertexAttrib1dNV == NULL && context->VertexAttrib1dARB != NULL) context->VertexAttrib1dNV = (PFNGLVERTEXATTRIB1DNVPROC)context->VertexAttrib1dARB;
+    if (context->VertexAttrib1dv == NULL && context->VertexAttrib1dvARB != NULL) context->VertexAttrib1dv = (PFNGLVERTEXATTRIB1DVPROC)context->VertexAttrib1dvARB;
+    if (context->VertexAttrib1dv == NULL && context->VertexAttrib1dvNV != NULL) context->VertexAttrib1dv = (PFNGLVERTEXATTRIB1DVPROC)context->VertexAttrib1dvNV;
+    if (context->VertexAttrib1dvARB == NULL && context->VertexAttrib1dv != NULL) context->VertexAttrib1dvARB = (PFNGLVERTEXATTRIB1DVARBPROC)context->VertexAttrib1dv;
+    if (context->VertexAttrib1dvARB == NULL && context->VertexAttrib1dvNV != NULL) context->VertexAttrib1dvARB = (PFNGLVERTEXATTRIB1DVARBPROC)context->VertexAttrib1dvNV;
+    if (context->VertexAttrib1dvNV == NULL && context->VertexAttrib1dv != NULL) context->VertexAttrib1dvNV = (PFNGLVERTEXATTRIB1DVNVPROC)context->VertexAttrib1dv;
+    if (context->VertexAttrib1dvNV == NULL && context->VertexAttrib1dvARB != NULL) context->VertexAttrib1dvNV = (PFNGLVERTEXATTRIB1DVNVPROC)context->VertexAttrib1dvARB;
+    if (context->VertexAttrib1f == NULL && context->VertexAttrib1fARB != NULL) context->VertexAttrib1f = (PFNGLVERTEXATTRIB1FPROC)context->VertexAttrib1fARB;
+    if (context->VertexAttrib1f == NULL && context->VertexAttrib1fNV != NULL) context->VertexAttrib1f = (PFNGLVERTEXATTRIB1FPROC)context->VertexAttrib1fNV;
+    if (context->VertexAttrib1fARB == NULL && context->VertexAttrib1f != NULL) context->VertexAttrib1fARB = (PFNGLVERTEXATTRIB1FARBPROC)context->VertexAttrib1f;
+    if (context->VertexAttrib1fARB == NULL && context->VertexAttrib1fNV != NULL) context->VertexAttrib1fARB = (PFNGLVERTEXATTRIB1FARBPROC)context->VertexAttrib1fNV;
+    if (context->VertexAttrib1fNV == NULL && context->VertexAttrib1f != NULL) context->VertexAttrib1fNV = (PFNGLVERTEXATTRIB1FNVPROC)context->VertexAttrib1f;
+    if (context->VertexAttrib1fNV == NULL && context->VertexAttrib1fARB != NULL) context->VertexAttrib1fNV = (PFNGLVERTEXATTRIB1FNVPROC)context->VertexAttrib1fARB;
+    if (context->VertexAttrib1fv == NULL && context->VertexAttrib1fvARB != NULL) context->VertexAttrib1fv = (PFNGLVERTEXATTRIB1FVPROC)context->VertexAttrib1fvARB;
+    if (context->VertexAttrib1fv == NULL && context->VertexAttrib1fvNV != NULL) context->VertexAttrib1fv = (PFNGLVERTEXATTRIB1FVPROC)context->VertexAttrib1fvNV;
+    if (context->VertexAttrib1fvARB == NULL && context->VertexAttrib1fv != NULL) context->VertexAttrib1fvARB = (PFNGLVERTEXATTRIB1FVARBPROC)context->VertexAttrib1fv;
+    if (context->VertexAttrib1fvARB == NULL && context->VertexAttrib1fvNV != NULL) context->VertexAttrib1fvARB = (PFNGLVERTEXATTRIB1FVARBPROC)context->VertexAttrib1fvNV;
+    if (context->VertexAttrib1fvNV == NULL && context->VertexAttrib1fv != NULL) context->VertexAttrib1fvNV = (PFNGLVERTEXATTRIB1FVNVPROC)context->VertexAttrib1fv;
+    if (context->VertexAttrib1fvNV == NULL && context->VertexAttrib1fvARB != NULL) context->VertexAttrib1fvNV = (PFNGLVERTEXATTRIB1FVNVPROC)context->VertexAttrib1fvARB;
+    if (context->VertexAttrib1s == NULL && context->VertexAttrib1sARB != NULL) context->VertexAttrib1s = (PFNGLVERTEXATTRIB1SPROC)context->VertexAttrib1sARB;
+    if (context->VertexAttrib1s == NULL && context->VertexAttrib1sNV != NULL) context->VertexAttrib1s = (PFNGLVERTEXATTRIB1SPROC)context->VertexAttrib1sNV;
+    if (context->VertexAttrib1sARB == NULL && context->VertexAttrib1s != NULL) context->VertexAttrib1sARB = (PFNGLVERTEXATTRIB1SARBPROC)context->VertexAttrib1s;
+    if (context->VertexAttrib1sARB == NULL && context->VertexAttrib1sNV != NULL) context->VertexAttrib1sARB = (PFNGLVERTEXATTRIB1SARBPROC)context->VertexAttrib1sNV;
+    if (context->VertexAttrib1sNV == NULL && context->VertexAttrib1s != NULL) context->VertexAttrib1sNV = (PFNGLVERTEXATTRIB1SNVPROC)context->VertexAttrib1s;
+    if (context->VertexAttrib1sNV == NULL && context->VertexAttrib1sARB != NULL) context->VertexAttrib1sNV = (PFNGLVERTEXATTRIB1SNVPROC)context->VertexAttrib1sARB;
+    if (context->VertexAttrib1sv == NULL && context->VertexAttrib1svARB != NULL) context->VertexAttrib1sv = (PFNGLVERTEXATTRIB1SVPROC)context->VertexAttrib1svARB;
+    if (context->VertexAttrib1sv == NULL && context->VertexAttrib1svNV != NULL) context->VertexAttrib1sv = (PFNGLVERTEXATTRIB1SVPROC)context->VertexAttrib1svNV;
+    if (context->VertexAttrib1svARB == NULL && context->VertexAttrib1sv != NULL) context->VertexAttrib1svARB = (PFNGLVERTEXATTRIB1SVARBPROC)context->VertexAttrib1sv;
+    if (context->VertexAttrib1svARB == NULL && context->VertexAttrib1svNV != NULL) context->VertexAttrib1svARB = (PFNGLVERTEXATTRIB1SVARBPROC)context->VertexAttrib1svNV;
+    if (context->VertexAttrib1svNV == NULL && context->VertexAttrib1sv != NULL) context->VertexAttrib1svNV = (PFNGLVERTEXATTRIB1SVNVPROC)context->VertexAttrib1sv;
+    if (context->VertexAttrib1svNV == NULL && context->VertexAttrib1svARB != NULL) context->VertexAttrib1svNV = (PFNGLVERTEXATTRIB1SVNVPROC)context->VertexAttrib1svARB;
+    if (context->VertexAttrib2d == NULL && context->VertexAttrib2dARB != NULL) context->VertexAttrib2d = (PFNGLVERTEXATTRIB2DPROC)context->VertexAttrib2dARB;
+    if (context->VertexAttrib2d == NULL && context->VertexAttrib2dNV != NULL) context->VertexAttrib2d = (PFNGLVERTEXATTRIB2DPROC)context->VertexAttrib2dNV;
+    if (context->VertexAttrib2dARB == NULL && context->VertexAttrib2d != NULL) context->VertexAttrib2dARB = (PFNGLVERTEXATTRIB2DARBPROC)context->VertexAttrib2d;
+    if (context->VertexAttrib2dARB == NULL && context->VertexAttrib2dNV != NULL) context->VertexAttrib2dARB = (PFNGLVERTEXATTRIB2DARBPROC)context->VertexAttrib2dNV;
+    if (context->VertexAttrib2dNV == NULL && context->VertexAttrib2d != NULL) context->VertexAttrib2dNV = (PFNGLVERTEXATTRIB2DNVPROC)context->VertexAttrib2d;
+    if (context->VertexAttrib2dNV == NULL && context->VertexAttrib2dARB != NULL) context->VertexAttrib2dNV = (PFNGLVERTEXATTRIB2DNVPROC)context->VertexAttrib2dARB;
+    if (context->VertexAttrib2dv == NULL && context->VertexAttrib2dvARB != NULL) context->VertexAttrib2dv = (PFNGLVERTEXATTRIB2DVPROC)context->VertexAttrib2dvARB;
+    if (context->VertexAttrib2dv == NULL && context->VertexAttrib2dvNV != NULL) context->VertexAttrib2dv = (PFNGLVERTEXATTRIB2DVPROC)context->VertexAttrib2dvNV;
+    if (context->VertexAttrib2dvARB == NULL && context->VertexAttrib2dv != NULL) context->VertexAttrib2dvARB = (PFNGLVERTEXATTRIB2DVARBPROC)context->VertexAttrib2dv;
+    if (context->VertexAttrib2dvARB == NULL && context->VertexAttrib2dvNV != NULL) context->VertexAttrib2dvARB = (PFNGLVERTEXATTRIB2DVARBPROC)context->VertexAttrib2dvNV;
+    if (context->VertexAttrib2dvNV == NULL && context->VertexAttrib2dv != NULL) context->VertexAttrib2dvNV = (PFNGLVERTEXATTRIB2DVNVPROC)context->VertexAttrib2dv;
+    if (context->VertexAttrib2dvNV == NULL && context->VertexAttrib2dvARB != NULL) context->VertexAttrib2dvNV = (PFNGLVERTEXATTRIB2DVNVPROC)context->VertexAttrib2dvARB;
+    if (context->VertexAttrib2f == NULL && context->VertexAttrib2fARB != NULL) context->VertexAttrib2f = (PFNGLVERTEXATTRIB2FPROC)context->VertexAttrib2fARB;
+    if (context->VertexAttrib2f == NULL && context->VertexAttrib2fNV != NULL) context->VertexAttrib2f = (PFNGLVERTEXATTRIB2FPROC)context->VertexAttrib2fNV;
+    if (context->VertexAttrib2fARB == NULL && context->VertexAttrib2f != NULL) context->VertexAttrib2fARB = (PFNGLVERTEXATTRIB2FARBPROC)context->VertexAttrib2f;
+    if (context->VertexAttrib2fARB == NULL && context->VertexAttrib2fNV != NULL) context->VertexAttrib2fARB = (PFNGLVERTEXATTRIB2FARBPROC)context->VertexAttrib2fNV;
+    if (context->VertexAttrib2fNV == NULL && context->VertexAttrib2f != NULL) context->VertexAttrib2fNV = (PFNGLVERTEXATTRIB2FNVPROC)context->VertexAttrib2f;
+    if (context->VertexAttrib2fNV == NULL && context->VertexAttrib2fARB != NULL) context->VertexAttrib2fNV = (PFNGLVERTEXATTRIB2FNVPROC)context->VertexAttrib2fARB;
+    if (context->VertexAttrib2fv == NULL && context->VertexAttrib2fvARB != NULL) context->VertexAttrib2fv = (PFNGLVERTEXATTRIB2FVPROC)context->VertexAttrib2fvARB;
+    if (context->VertexAttrib2fv == NULL && context->VertexAttrib2fvNV != NULL) context->VertexAttrib2fv = (PFNGLVERTEXATTRIB2FVPROC)context->VertexAttrib2fvNV;
+    if (context->VertexAttrib2fvARB == NULL && context->VertexAttrib2fv != NULL) context->VertexAttrib2fvARB = (PFNGLVERTEXATTRIB2FVARBPROC)context->VertexAttrib2fv;
+    if (context->VertexAttrib2fvARB == NULL && context->VertexAttrib2fvNV != NULL) context->VertexAttrib2fvARB = (PFNGLVERTEXATTRIB2FVARBPROC)context->VertexAttrib2fvNV;
+    if (context->VertexAttrib2fvNV == NULL && context->VertexAttrib2fv != NULL) context->VertexAttrib2fvNV = (PFNGLVERTEXATTRIB2FVNVPROC)context->VertexAttrib2fv;
+    if (context->VertexAttrib2fvNV == NULL && context->VertexAttrib2fvARB != NULL) context->VertexAttrib2fvNV = (PFNGLVERTEXATTRIB2FVNVPROC)context->VertexAttrib2fvARB;
+    if (context->VertexAttrib2s == NULL && context->VertexAttrib2sARB != NULL) context->VertexAttrib2s = (PFNGLVERTEXATTRIB2SPROC)context->VertexAttrib2sARB;
+    if (context->VertexAttrib2s == NULL && context->VertexAttrib2sNV != NULL) context->VertexAttrib2s = (PFNGLVERTEXATTRIB2SPROC)context->VertexAttrib2sNV;
+    if (context->VertexAttrib2sARB == NULL && context->VertexAttrib2s != NULL) context->VertexAttrib2sARB = (PFNGLVERTEXATTRIB2SARBPROC)context->VertexAttrib2s;
+    if (context->VertexAttrib2sARB == NULL && context->VertexAttrib2sNV != NULL) context->VertexAttrib2sARB = (PFNGLVERTEXATTRIB2SARBPROC)context->VertexAttrib2sNV;
+    if (context->VertexAttrib2sNV == NULL && context->VertexAttrib2s != NULL) context->VertexAttrib2sNV = (PFNGLVERTEXATTRIB2SNVPROC)context->VertexAttrib2s;
+    if (context->VertexAttrib2sNV == NULL && context->VertexAttrib2sARB != NULL) context->VertexAttrib2sNV = (PFNGLVERTEXATTRIB2SNVPROC)context->VertexAttrib2sARB;
+    if (context->VertexAttrib2sv == NULL && context->VertexAttrib2svARB != NULL) context->VertexAttrib2sv = (PFNGLVERTEXATTRIB2SVPROC)context->VertexAttrib2svARB;
+    if (context->VertexAttrib2sv == NULL && context->VertexAttrib2svNV != NULL) context->VertexAttrib2sv = (PFNGLVERTEXATTRIB2SVPROC)context->VertexAttrib2svNV;
+    if (context->VertexAttrib2svARB == NULL && context->VertexAttrib2sv != NULL) context->VertexAttrib2svARB = (PFNGLVERTEXATTRIB2SVARBPROC)context->VertexAttrib2sv;
+    if (context->VertexAttrib2svARB == NULL && context->VertexAttrib2svNV != NULL) context->VertexAttrib2svARB = (PFNGLVERTEXATTRIB2SVARBPROC)context->VertexAttrib2svNV;
+    if (context->VertexAttrib2svNV == NULL && context->VertexAttrib2sv != NULL) context->VertexAttrib2svNV = (PFNGLVERTEXATTRIB2SVNVPROC)context->VertexAttrib2sv;
+    if (context->VertexAttrib2svNV == NULL && context->VertexAttrib2svARB != NULL) context->VertexAttrib2svNV = (PFNGLVERTEXATTRIB2SVNVPROC)context->VertexAttrib2svARB;
+    if (context->VertexAttrib3d == NULL && context->VertexAttrib3dARB != NULL) context->VertexAttrib3d = (PFNGLVERTEXATTRIB3DPROC)context->VertexAttrib3dARB;
+    if (context->VertexAttrib3d == NULL && context->VertexAttrib3dNV != NULL) context->VertexAttrib3d = (PFNGLVERTEXATTRIB3DPROC)context->VertexAttrib3dNV;
+    if (context->VertexAttrib3dARB == NULL && context->VertexAttrib3d != NULL) context->VertexAttrib3dARB = (PFNGLVERTEXATTRIB3DARBPROC)context->VertexAttrib3d;
+    if (context->VertexAttrib3dARB == NULL && context->VertexAttrib3dNV != NULL) context->VertexAttrib3dARB = (PFNGLVERTEXATTRIB3DARBPROC)context->VertexAttrib3dNV;
+    if (context->VertexAttrib3dNV == NULL && context->VertexAttrib3d != NULL) context->VertexAttrib3dNV = (PFNGLVERTEXATTRIB3DNVPROC)context->VertexAttrib3d;
+    if (context->VertexAttrib3dNV == NULL && context->VertexAttrib3dARB != NULL) context->VertexAttrib3dNV = (PFNGLVERTEXATTRIB3DNVPROC)context->VertexAttrib3dARB;
+    if (context->VertexAttrib3dv == NULL && context->VertexAttrib3dvARB != NULL) context->VertexAttrib3dv = (PFNGLVERTEXATTRIB3DVPROC)context->VertexAttrib3dvARB;
+    if (context->VertexAttrib3dv == NULL && context->VertexAttrib3dvNV != NULL) context->VertexAttrib3dv = (PFNGLVERTEXATTRIB3DVPROC)context->VertexAttrib3dvNV;
+    if (context->VertexAttrib3dvARB == NULL && context->VertexAttrib3dv != NULL) context->VertexAttrib3dvARB = (PFNGLVERTEXATTRIB3DVARBPROC)context->VertexAttrib3dv;
+    if (context->VertexAttrib3dvARB == NULL && context->VertexAttrib3dvNV != NULL) context->VertexAttrib3dvARB = (PFNGLVERTEXATTRIB3DVARBPROC)context->VertexAttrib3dvNV;
+    if (context->VertexAttrib3dvNV == NULL && context->VertexAttrib3dv != NULL) context->VertexAttrib3dvNV = (PFNGLVERTEXATTRIB3DVNVPROC)context->VertexAttrib3dv;
+    if (context->VertexAttrib3dvNV == NULL && context->VertexAttrib3dvARB != NULL) context->VertexAttrib3dvNV = (PFNGLVERTEXATTRIB3DVNVPROC)context->VertexAttrib3dvARB;
+    if (context->VertexAttrib3f == NULL && context->VertexAttrib3fARB != NULL) context->VertexAttrib3f = (PFNGLVERTEXATTRIB3FPROC)context->VertexAttrib3fARB;
+    if (context->VertexAttrib3f == NULL && context->VertexAttrib3fNV != NULL) context->VertexAttrib3f = (PFNGLVERTEXATTRIB3FPROC)context->VertexAttrib3fNV;
+    if (context->VertexAttrib3fARB == NULL && context->VertexAttrib3f != NULL) context->VertexAttrib3fARB = (PFNGLVERTEXATTRIB3FARBPROC)context->VertexAttrib3f;
+    if (context->VertexAttrib3fARB == NULL && context->VertexAttrib3fNV != NULL) context->VertexAttrib3fARB = (PFNGLVERTEXATTRIB3FARBPROC)context->VertexAttrib3fNV;
+    if (context->VertexAttrib3fNV == NULL && context->VertexAttrib3f != NULL) context->VertexAttrib3fNV = (PFNGLVERTEXATTRIB3FNVPROC)context->VertexAttrib3f;
+    if (context->VertexAttrib3fNV == NULL && context->VertexAttrib3fARB != NULL) context->VertexAttrib3fNV = (PFNGLVERTEXATTRIB3FNVPROC)context->VertexAttrib3fARB;
+    if (context->VertexAttrib3fv == NULL && context->VertexAttrib3fvARB != NULL) context->VertexAttrib3fv = (PFNGLVERTEXATTRIB3FVPROC)context->VertexAttrib3fvARB;
+    if (context->VertexAttrib3fv == NULL && context->VertexAttrib3fvNV != NULL) context->VertexAttrib3fv = (PFNGLVERTEXATTRIB3FVPROC)context->VertexAttrib3fvNV;
+    if (context->VertexAttrib3fvARB == NULL && context->VertexAttrib3fv != NULL) context->VertexAttrib3fvARB = (PFNGLVERTEXATTRIB3FVARBPROC)context->VertexAttrib3fv;
+    if (context->VertexAttrib3fvARB == NULL && context->VertexAttrib3fvNV != NULL) context->VertexAttrib3fvARB = (PFNGLVERTEXATTRIB3FVARBPROC)context->VertexAttrib3fvNV;
+    if (context->VertexAttrib3fvNV == NULL && context->VertexAttrib3fv != NULL) context->VertexAttrib3fvNV = (PFNGLVERTEXATTRIB3FVNVPROC)context->VertexAttrib3fv;
+    if (context->VertexAttrib3fvNV == NULL && context->VertexAttrib3fvARB != NULL) context->VertexAttrib3fvNV = (PFNGLVERTEXATTRIB3FVNVPROC)context->VertexAttrib3fvARB;
+    if (context->VertexAttrib3s == NULL && context->VertexAttrib3sARB != NULL) context->VertexAttrib3s = (PFNGLVERTEXATTRIB3SPROC)context->VertexAttrib3sARB;
+    if (context->VertexAttrib3s == NULL && context->VertexAttrib3sNV != NULL) context->VertexAttrib3s = (PFNGLVERTEXATTRIB3SPROC)context->VertexAttrib3sNV;
+    if (context->VertexAttrib3sARB == NULL && context->VertexAttrib3s != NULL) context->VertexAttrib3sARB = (PFNGLVERTEXATTRIB3SARBPROC)context->VertexAttrib3s;
+    if (context->VertexAttrib3sARB == NULL && context->VertexAttrib3sNV != NULL) context->VertexAttrib3sARB = (PFNGLVERTEXATTRIB3SARBPROC)context->VertexAttrib3sNV;
+    if (context->VertexAttrib3sNV == NULL && context->VertexAttrib3s != NULL) context->VertexAttrib3sNV = (PFNGLVERTEXATTRIB3SNVPROC)context->VertexAttrib3s;
+    if (context->VertexAttrib3sNV == NULL && context->VertexAttrib3sARB != NULL) context->VertexAttrib3sNV = (PFNGLVERTEXATTRIB3SNVPROC)context->VertexAttrib3sARB;
+    if (context->VertexAttrib3sv == NULL && context->VertexAttrib3svARB != NULL) context->VertexAttrib3sv = (PFNGLVERTEXATTRIB3SVPROC)context->VertexAttrib3svARB;
+    if (context->VertexAttrib3sv == NULL && context->VertexAttrib3svNV != NULL) context->VertexAttrib3sv = (PFNGLVERTEXATTRIB3SVPROC)context->VertexAttrib3svNV;
+    if (context->VertexAttrib3svARB == NULL && context->VertexAttrib3sv != NULL) context->VertexAttrib3svARB = (PFNGLVERTEXATTRIB3SVARBPROC)context->VertexAttrib3sv;
+    if (context->VertexAttrib3svARB == NULL && context->VertexAttrib3svNV != NULL) context->VertexAttrib3svARB = (PFNGLVERTEXATTRIB3SVARBPROC)context->VertexAttrib3svNV;
+    if (context->VertexAttrib3svNV == NULL && context->VertexAttrib3sv != NULL) context->VertexAttrib3svNV = (PFNGLVERTEXATTRIB3SVNVPROC)context->VertexAttrib3sv;
+    if (context->VertexAttrib3svNV == NULL && context->VertexAttrib3svARB != NULL) context->VertexAttrib3svNV = (PFNGLVERTEXATTRIB3SVNVPROC)context->VertexAttrib3svARB;
+    if (context->VertexAttrib4bv == NULL && context->VertexAttrib4bvARB != NULL) context->VertexAttrib4bv = (PFNGLVERTEXATTRIB4BVPROC)context->VertexAttrib4bvARB;
+    if (context->VertexAttrib4bvARB == NULL && context->VertexAttrib4bv != NULL) context->VertexAttrib4bvARB = (PFNGLVERTEXATTRIB4BVARBPROC)context->VertexAttrib4bv;
+    if (context->VertexAttrib4d == NULL && context->VertexAttrib4dARB != NULL) context->VertexAttrib4d = (PFNGLVERTEXATTRIB4DPROC)context->VertexAttrib4dARB;
+    if (context->VertexAttrib4d == NULL && context->VertexAttrib4dNV != NULL) context->VertexAttrib4d = (PFNGLVERTEXATTRIB4DPROC)context->VertexAttrib4dNV;
+    if (context->VertexAttrib4dARB == NULL && context->VertexAttrib4d != NULL) context->VertexAttrib4dARB = (PFNGLVERTEXATTRIB4DARBPROC)context->VertexAttrib4d;
+    if (context->VertexAttrib4dARB == NULL && context->VertexAttrib4dNV != NULL) context->VertexAttrib4dARB = (PFNGLVERTEXATTRIB4DARBPROC)context->VertexAttrib4dNV;
+    if (context->VertexAttrib4dNV == NULL && context->VertexAttrib4d != NULL) context->VertexAttrib4dNV = (PFNGLVERTEXATTRIB4DNVPROC)context->VertexAttrib4d;
+    if (context->VertexAttrib4dNV == NULL && context->VertexAttrib4dARB != NULL) context->VertexAttrib4dNV = (PFNGLVERTEXATTRIB4DNVPROC)context->VertexAttrib4dARB;
+    if (context->VertexAttrib4dv == NULL && context->VertexAttrib4dvARB != NULL) context->VertexAttrib4dv = (PFNGLVERTEXATTRIB4DVPROC)context->VertexAttrib4dvARB;
+    if (context->VertexAttrib4dv == NULL && context->VertexAttrib4dvNV != NULL) context->VertexAttrib4dv = (PFNGLVERTEXATTRIB4DVPROC)context->VertexAttrib4dvNV;
+    if (context->VertexAttrib4dvARB == NULL && context->VertexAttrib4dv != NULL) context->VertexAttrib4dvARB = (PFNGLVERTEXATTRIB4DVARBPROC)context->VertexAttrib4dv;
+    if (context->VertexAttrib4dvARB == NULL && context->VertexAttrib4dvNV != NULL) context->VertexAttrib4dvARB = (PFNGLVERTEXATTRIB4DVARBPROC)context->VertexAttrib4dvNV;
+    if (context->VertexAttrib4dvNV == NULL && context->VertexAttrib4dv != NULL) context->VertexAttrib4dvNV = (PFNGLVERTEXATTRIB4DVNVPROC)context->VertexAttrib4dv;
+    if (context->VertexAttrib4dvNV == NULL && context->VertexAttrib4dvARB != NULL) context->VertexAttrib4dvNV = (PFNGLVERTEXATTRIB4DVNVPROC)context->VertexAttrib4dvARB;
+    if (context->VertexAttrib4f == NULL && context->VertexAttrib4fARB != NULL) context->VertexAttrib4f = (PFNGLVERTEXATTRIB4FPROC)context->VertexAttrib4fARB;
+    if (context->VertexAttrib4f == NULL && context->VertexAttrib4fNV != NULL) context->VertexAttrib4f = (PFNGLVERTEXATTRIB4FPROC)context->VertexAttrib4fNV;
+    if (context->VertexAttrib4fARB == NULL && context->VertexAttrib4f != NULL) context->VertexAttrib4fARB = (PFNGLVERTEXATTRIB4FARBPROC)context->VertexAttrib4f;
+    if (context->VertexAttrib4fARB == NULL && context->VertexAttrib4fNV != NULL) context->VertexAttrib4fARB = (PFNGLVERTEXATTRIB4FARBPROC)context->VertexAttrib4fNV;
+    if (context->VertexAttrib4fNV == NULL && context->VertexAttrib4f != NULL) context->VertexAttrib4fNV = (PFNGLVERTEXATTRIB4FNVPROC)context->VertexAttrib4f;
+    if (context->VertexAttrib4fNV == NULL && context->VertexAttrib4fARB != NULL) context->VertexAttrib4fNV = (PFNGLVERTEXATTRIB4FNVPROC)context->VertexAttrib4fARB;
+    if (context->VertexAttrib4fv == NULL && context->VertexAttrib4fvARB != NULL) context->VertexAttrib4fv = (PFNGLVERTEXATTRIB4FVPROC)context->VertexAttrib4fvARB;
+    if (context->VertexAttrib4fv == NULL && context->VertexAttrib4fvNV != NULL) context->VertexAttrib4fv = (PFNGLVERTEXATTRIB4FVPROC)context->VertexAttrib4fvNV;
+    if (context->VertexAttrib4fvARB == NULL && context->VertexAttrib4fv != NULL) context->VertexAttrib4fvARB = (PFNGLVERTEXATTRIB4FVARBPROC)context->VertexAttrib4fv;
+    if (context->VertexAttrib4fvARB == NULL && context->VertexAttrib4fvNV != NULL) context->VertexAttrib4fvARB = (PFNGLVERTEXATTRIB4FVARBPROC)context->VertexAttrib4fvNV;
+    if (context->VertexAttrib4fvNV == NULL && context->VertexAttrib4fv != NULL) context->VertexAttrib4fvNV = (PFNGLVERTEXATTRIB4FVNVPROC)context->VertexAttrib4fv;
+    if (context->VertexAttrib4fvNV == NULL && context->VertexAttrib4fvARB != NULL) context->VertexAttrib4fvNV = (PFNGLVERTEXATTRIB4FVNVPROC)context->VertexAttrib4fvARB;
+    if (context->VertexAttrib4iv == NULL && context->VertexAttrib4ivARB != NULL) context->VertexAttrib4iv = (PFNGLVERTEXATTRIB4IVPROC)context->VertexAttrib4ivARB;
+    if (context->VertexAttrib4ivARB == NULL && context->VertexAttrib4iv != NULL) context->VertexAttrib4ivARB = (PFNGLVERTEXATTRIB4IVARBPROC)context->VertexAttrib4iv;
+    if (context->VertexAttrib4Nbv == NULL && context->VertexAttrib4NbvARB != NULL) context->VertexAttrib4Nbv = (PFNGLVERTEXATTRIB4NBVPROC)context->VertexAttrib4NbvARB;
+    if (context->VertexAttrib4NbvARB == NULL && context->VertexAttrib4Nbv != NULL) context->VertexAttrib4NbvARB = (PFNGLVERTEXATTRIB4NBVARBPROC)context->VertexAttrib4Nbv;
+    if (context->VertexAttrib4Niv == NULL && context->VertexAttrib4NivARB != NULL) context->VertexAttrib4Niv = (PFNGLVERTEXATTRIB4NIVPROC)context->VertexAttrib4NivARB;
+    if (context->VertexAttrib4NivARB == NULL && context->VertexAttrib4Niv != NULL) context->VertexAttrib4NivARB = (PFNGLVERTEXATTRIB4NIVARBPROC)context->VertexAttrib4Niv;
+    if (context->VertexAttrib4Nsv == NULL && context->VertexAttrib4NsvARB != NULL) context->VertexAttrib4Nsv = (PFNGLVERTEXATTRIB4NSVPROC)context->VertexAttrib4NsvARB;
+    if (context->VertexAttrib4NsvARB == NULL && context->VertexAttrib4Nsv != NULL) context->VertexAttrib4NsvARB = (PFNGLVERTEXATTRIB4NSVARBPROC)context->VertexAttrib4Nsv;
+    if (context->VertexAttrib4Nub == NULL && context->VertexAttrib4NubARB != NULL) context->VertexAttrib4Nub = (PFNGLVERTEXATTRIB4NUBPROC)context->VertexAttrib4NubARB;
+    if (context->VertexAttrib4Nub == NULL && context->VertexAttrib4ubNV != NULL) context->VertexAttrib4Nub = (PFNGLVERTEXATTRIB4NUBPROC)context->VertexAttrib4ubNV;
+    if (context->VertexAttrib4NubARB == NULL && context->VertexAttrib4Nub != NULL) context->VertexAttrib4NubARB = (PFNGLVERTEXATTRIB4NUBARBPROC)context->VertexAttrib4Nub;
+    if (context->VertexAttrib4NubARB == NULL && context->VertexAttrib4ubNV != NULL) context->VertexAttrib4NubARB = (PFNGLVERTEXATTRIB4NUBARBPROC)context->VertexAttrib4ubNV;
+    if (context->VertexAttrib4Nubv == NULL && context->VertexAttrib4NubvARB != NULL) context->VertexAttrib4Nubv = (PFNGLVERTEXATTRIB4NUBVPROC)context->VertexAttrib4NubvARB;
+    if (context->VertexAttrib4Nubv == NULL && context->VertexAttrib4ubvNV != NULL) context->VertexAttrib4Nubv = (PFNGLVERTEXATTRIB4NUBVPROC)context->VertexAttrib4ubvNV;
+    if (context->VertexAttrib4NubvARB == NULL && context->VertexAttrib4Nubv != NULL) context->VertexAttrib4NubvARB = (PFNGLVERTEXATTRIB4NUBVARBPROC)context->VertexAttrib4Nubv;
+    if (context->VertexAttrib4NubvARB == NULL && context->VertexAttrib4ubvNV != NULL) context->VertexAttrib4NubvARB = (PFNGLVERTEXATTRIB4NUBVARBPROC)context->VertexAttrib4ubvNV;
+    if (context->VertexAttrib4Nuiv == NULL && context->VertexAttrib4NuivARB != NULL) context->VertexAttrib4Nuiv = (PFNGLVERTEXATTRIB4NUIVPROC)context->VertexAttrib4NuivARB;
+    if (context->VertexAttrib4NuivARB == NULL && context->VertexAttrib4Nuiv != NULL) context->VertexAttrib4NuivARB = (PFNGLVERTEXATTRIB4NUIVARBPROC)context->VertexAttrib4Nuiv;
+    if (context->VertexAttrib4Nusv == NULL && context->VertexAttrib4NusvARB != NULL) context->VertexAttrib4Nusv = (PFNGLVERTEXATTRIB4NUSVPROC)context->VertexAttrib4NusvARB;
+    if (context->VertexAttrib4NusvARB == NULL && context->VertexAttrib4Nusv != NULL) context->VertexAttrib4NusvARB = (PFNGLVERTEXATTRIB4NUSVARBPROC)context->VertexAttrib4Nusv;
+    if (context->VertexAttrib4s == NULL && context->VertexAttrib4sARB != NULL) context->VertexAttrib4s = (PFNGLVERTEXATTRIB4SPROC)context->VertexAttrib4sARB;
+    if (context->VertexAttrib4s == NULL && context->VertexAttrib4sNV != NULL) context->VertexAttrib4s = (PFNGLVERTEXATTRIB4SPROC)context->VertexAttrib4sNV;
+    if (context->VertexAttrib4sARB == NULL && context->VertexAttrib4s != NULL) context->VertexAttrib4sARB = (PFNGLVERTEXATTRIB4SARBPROC)context->VertexAttrib4s;
+    if (context->VertexAttrib4sARB == NULL && context->VertexAttrib4sNV != NULL) context->VertexAttrib4sARB = (PFNGLVERTEXATTRIB4SARBPROC)context->VertexAttrib4sNV;
+    if (context->VertexAttrib4sNV == NULL && context->VertexAttrib4s != NULL) context->VertexAttrib4sNV = (PFNGLVERTEXATTRIB4SNVPROC)context->VertexAttrib4s;
+    if (context->VertexAttrib4sNV == NULL && context->VertexAttrib4sARB != NULL) context->VertexAttrib4sNV = (PFNGLVERTEXATTRIB4SNVPROC)context->VertexAttrib4sARB;
+    if (context->VertexAttrib4sv == NULL && context->VertexAttrib4svARB != NULL) context->VertexAttrib4sv = (PFNGLVERTEXATTRIB4SVPROC)context->VertexAttrib4svARB;
+    if (context->VertexAttrib4sv == NULL && context->VertexAttrib4svNV != NULL) context->VertexAttrib4sv = (PFNGLVERTEXATTRIB4SVPROC)context->VertexAttrib4svNV;
+    if (context->VertexAttrib4svARB == NULL && context->VertexAttrib4sv != NULL) context->VertexAttrib4svARB = (PFNGLVERTEXATTRIB4SVARBPROC)context->VertexAttrib4sv;
+    if (context->VertexAttrib4svARB == NULL && context->VertexAttrib4svNV != NULL) context->VertexAttrib4svARB = (PFNGLVERTEXATTRIB4SVARBPROC)context->VertexAttrib4svNV;
+    if (context->VertexAttrib4svNV == NULL && context->VertexAttrib4sv != NULL) context->VertexAttrib4svNV = (PFNGLVERTEXATTRIB4SVNVPROC)context->VertexAttrib4sv;
+    if (context->VertexAttrib4svNV == NULL && context->VertexAttrib4svARB != NULL) context->VertexAttrib4svNV = (PFNGLVERTEXATTRIB4SVNVPROC)context->VertexAttrib4svARB;
+    if (context->VertexAttrib4ubNV == NULL && context->VertexAttrib4Nub != NULL) context->VertexAttrib4ubNV = (PFNGLVERTEXATTRIB4UBNVPROC)context->VertexAttrib4Nub;
+    if (context->VertexAttrib4ubNV == NULL && context->VertexAttrib4NubARB != NULL) context->VertexAttrib4ubNV = (PFNGLVERTEXATTRIB4UBNVPROC)context->VertexAttrib4NubARB;
+    if (context->VertexAttrib4ubv == NULL && context->VertexAttrib4ubvARB != NULL) context->VertexAttrib4ubv = (PFNGLVERTEXATTRIB4UBVPROC)context->VertexAttrib4ubvARB;
+    if (context->VertexAttrib4ubvARB == NULL && context->VertexAttrib4ubv != NULL) context->VertexAttrib4ubvARB = (PFNGLVERTEXATTRIB4UBVARBPROC)context->VertexAttrib4ubv;
+    if (context->VertexAttrib4ubvNV == NULL && context->VertexAttrib4Nubv != NULL) context->VertexAttrib4ubvNV = (PFNGLVERTEXATTRIB4UBVNVPROC)context->VertexAttrib4Nubv;
+    if (context->VertexAttrib4ubvNV == NULL && context->VertexAttrib4NubvARB != NULL) context->VertexAttrib4ubvNV = (PFNGLVERTEXATTRIB4UBVNVPROC)context->VertexAttrib4NubvARB;
+    if (context->VertexAttrib4uiv == NULL && context->VertexAttrib4uivARB != NULL) context->VertexAttrib4uiv = (PFNGLVERTEXATTRIB4UIVPROC)context->VertexAttrib4uivARB;
+    if (context->VertexAttrib4uivARB == NULL && context->VertexAttrib4uiv != NULL) context->VertexAttrib4uivARB = (PFNGLVERTEXATTRIB4UIVARBPROC)context->VertexAttrib4uiv;
+    if (context->VertexAttrib4usv == NULL && context->VertexAttrib4usvARB != NULL) context->VertexAttrib4usv = (PFNGLVERTEXATTRIB4USVPROC)context->VertexAttrib4usvARB;
+    if (context->VertexAttrib4usvARB == NULL && context->VertexAttrib4usv != NULL) context->VertexAttrib4usvARB = (PFNGLVERTEXATTRIB4USVARBPROC)context->VertexAttrib4usv;
+    if (context->VertexAttribDivisor == NULL && context->VertexAttribDivisorANGLE != NULL) context->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC)context->VertexAttribDivisorANGLE;
+    if (context->VertexAttribDivisor == NULL && context->VertexAttribDivisorARB != NULL) context->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC)context->VertexAttribDivisorARB;
+    if (context->VertexAttribDivisor == NULL && context->VertexAttribDivisorEXT != NULL) context->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC)context->VertexAttribDivisorEXT;
+    if (context->VertexAttribDivisor == NULL && context->VertexAttribDivisorNV != NULL) context->VertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC)context->VertexAttribDivisorNV;
+    if (context->VertexAttribDivisorANGLE == NULL && context->VertexAttribDivisor != NULL) context->VertexAttribDivisorANGLE = (PFNGLVERTEXATTRIBDIVISORANGLEPROC)context->VertexAttribDivisor;
+    if (context->VertexAttribDivisorANGLE == NULL && context->VertexAttribDivisorARB != NULL) context->VertexAttribDivisorANGLE = (PFNGLVERTEXATTRIBDIVISORANGLEPROC)context->VertexAttribDivisorARB;
+    if (context->VertexAttribDivisorANGLE == NULL && context->VertexAttribDivisorEXT != NULL) context->VertexAttribDivisorANGLE = (PFNGLVERTEXATTRIBDIVISORANGLEPROC)context->VertexAttribDivisorEXT;
+    if (context->VertexAttribDivisorANGLE == NULL && context->VertexAttribDivisorNV != NULL) context->VertexAttribDivisorANGLE = (PFNGLVERTEXATTRIBDIVISORANGLEPROC)context->VertexAttribDivisorNV;
+    if (context->VertexAttribDivisorARB == NULL && context->VertexAttribDivisor != NULL) context->VertexAttribDivisorARB = (PFNGLVERTEXATTRIBDIVISORARBPROC)context->VertexAttribDivisor;
+    if (context->VertexAttribDivisorARB == NULL && context->VertexAttribDivisorANGLE != NULL) context->VertexAttribDivisorARB = (PFNGLVERTEXATTRIBDIVISORARBPROC)context->VertexAttribDivisorANGLE;
+    if (context->VertexAttribDivisorARB == NULL && context->VertexAttribDivisorEXT != NULL) context->VertexAttribDivisorARB = (PFNGLVERTEXATTRIBDIVISORARBPROC)context->VertexAttribDivisorEXT;
+    if (context->VertexAttribDivisorARB == NULL && context->VertexAttribDivisorNV != NULL) context->VertexAttribDivisorARB = (PFNGLVERTEXATTRIBDIVISORARBPROC)context->VertexAttribDivisorNV;
+    if (context->VertexAttribDivisorEXT == NULL && context->VertexAttribDivisor != NULL) context->VertexAttribDivisorEXT = (PFNGLVERTEXATTRIBDIVISOREXTPROC)context->VertexAttribDivisor;
+    if (context->VertexAttribDivisorEXT == NULL && context->VertexAttribDivisorANGLE != NULL) context->VertexAttribDivisorEXT = (PFNGLVERTEXATTRIBDIVISOREXTPROC)context->VertexAttribDivisorANGLE;
+    if (context->VertexAttribDivisorEXT == NULL && context->VertexAttribDivisorARB != NULL) context->VertexAttribDivisorEXT = (PFNGLVERTEXATTRIBDIVISOREXTPROC)context->VertexAttribDivisorARB;
+    if (context->VertexAttribDivisorEXT == NULL && context->VertexAttribDivisorNV != NULL) context->VertexAttribDivisorEXT = (PFNGLVERTEXATTRIBDIVISOREXTPROC)context->VertexAttribDivisorNV;
+    if (context->VertexAttribDivisorNV == NULL && context->VertexAttribDivisor != NULL) context->VertexAttribDivisorNV = (PFNGLVERTEXATTRIBDIVISORNVPROC)context->VertexAttribDivisor;
+    if (context->VertexAttribDivisorNV == NULL && context->VertexAttribDivisorANGLE != NULL) context->VertexAttribDivisorNV = (PFNGLVERTEXATTRIBDIVISORNVPROC)context->VertexAttribDivisorANGLE;
+    if (context->VertexAttribDivisorNV == NULL && context->VertexAttribDivisorARB != NULL) context->VertexAttribDivisorNV = (PFNGLVERTEXATTRIBDIVISORNVPROC)context->VertexAttribDivisorARB;
+    if (context->VertexAttribDivisorNV == NULL && context->VertexAttribDivisorEXT != NULL) context->VertexAttribDivisorNV = (PFNGLVERTEXATTRIBDIVISORNVPROC)context->VertexAttribDivisorEXT;
+    if (context->VertexAttribI1i == NULL && context->VertexAttribI1iEXT != NULL) context->VertexAttribI1i = (PFNGLVERTEXATTRIBI1IPROC)context->VertexAttribI1iEXT;
+    if (context->VertexAttribI1iEXT == NULL && context->VertexAttribI1i != NULL) context->VertexAttribI1iEXT = (PFNGLVERTEXATTRIBI1IEXTPROC)context->VertexAttribI1i;
+    if (context->VertexAttribI1iv == NULL && context->VertexAttribI1ivEXT != NULL) context->VertexAttribI1iv = (PFNGLVERTEXATTRIBI1IVPROC)context->VertexAttribI1ivEXT;
+    if (context->VertexAttribI1ivEXT == NULL && context->VertexAttribI1iv != NULL) context->VertexAttribI1ivEXT = (PFNGLVERTEXATTRIBI1IVEXTPROC)context->VertexAttribI1iv;
+    if (context->VertexAttribI1ui == NULL && context->VertexAttribI1uiEXT != NULL) context->VertexAttribI1ui = (PFNGLVERTEXATTRIBI1UIPROC)context->VertexAttribI1uiEXT;
+    if (context->VertexAttribI1uiEXT == NULL && context->VertexAttribI1ui != NULL) context->VertexAttribI1uiEXT = (PFNGLVERTEXATTRIBI1UIEXTPROC)context->VertexAttribI1ui;
+    if (context->VertexAttribI1uiv == NULL && context->VertexAttribI1uivEXT != NULL) context->VertexAttribI1uiv = (PFNGLVERTEXATTRIBI1UIVPROC)context->VertexAttribI1uivEXT;
+    if (context->VertexAttribI1uivEXT == NULL && context->VertexAttribI1uiv != NULL) context->VertexAttribI1uivEXT = (PFNGLVERTEXATTRIBI1UIVEXTPROC)context->VertexAttribI1uiv;
+    if (context->VertexAttribI2i == NULL && context->VertexAttribI2iEXT != NULL) context->VertexAttribI2i = (PFNGLVERTEXATTRIBI2IPROC)context->VertexAttribI2iEXT;
+    if (context->VertexAttribI2iEXT == NULL && context->VertexAttribI2i != NULL) context->VertexAttribI2iEXT = (PFNGLVERTEXATTRIBI2IEXTPROC)context->VertexAttribI2i;
+    if (context->VertexAttribI2iv == NULL && context->VertexAttribI2ivEXT != NULL) context->VertexAttribI2iv = (PFNGLVERTEXATTRIBI2IVPROC)context->VertexAttribI2ivEXT;
+    if (context->VertexAttribI2ivEXT == NULL && context->VertexAttribI2iv != NULL) context->VertexAttribI2ivEXT = (PFNGLVERTEXATTRIBI2IVEXTPROC)context->VertexAttribI2iv;
+    if (context->VertexAttribI2ui == NULL && context->VertexAttribI2uiEXT != NULL) context->VertexAttribI2ui = (PFNGLVERTEXATTRIBI2UIPROC)context->VertexAttribI2uiEXT;
+    if (context->VertexAttribI2uiEXT == NULL && context->VertexAttribI2ui != NULL) context->VertexAttribI2uiEXT = (PFNGLVERTEXATTRIBI2UIEXTPROC)context->VertexAttribI2ui;
+    if (context->VertexAttribI2uiv == NULL && context->VertexAttribI2uivEXT != NULL) context->VertexAttribI2uiv = (PFNGLVERTEXATTRIBI2UIVPROC)context->VertexAttribI2uivEXT;
+    if (context->VertexAttribI2uivEXT == NULL && context->VertexAttribI2uiv != NULL) context->VertexAttribI2uivEXT = (PFNGLVERTEXATTRIBI2UIVEXTPROC)context->VertexAttribI2uiv;
+    if (context->VertexAttribI3i == NULL && context->VertexAttribI3iEXT != NULL) context->VertexAttribI3i = (PFNGLVERTEXATTRIBI3IPROC)context->VertexAttribI3iEXT;
+    if (context->VertexAttribI3iEXT == NULL && context->VertexAttribI3i != NULL) context->VertexAttribI3iEXT = (PFNGLVERTEXATTRIBI3IEXTPROC)context->VertexAttribI3i;
+    if (context->VertexAttribI3iv == NULL && context->VertexAttribI3ivEXT != NULL) context->VertexAttribI3iv = (PFNGLVERTEXATTRIBI3IVPROC)context->VertexAttribI3ivEXT;
+    if (context->VertexAttribI3ivEXT == NULL && context->VertexAttribI3iv != NULL) context->VertexAttribI3ivEXT = (PFNGLVERTEXATTRIBI3IVEXTPROC)context->VertexAttribI3iv;
+    if (context->VertexAttribI3ui == NULL && context->VertexAttribI3uiEXT != NULL) context->VertexAttribI3ui = (PFNGLVERTEXATTRIBI3UIPROC)context->VertexAttribI3uiEXT;
+    if (context->VertexAttribI3uiEXT == NULL && context->VertexAttribI3ui != NULL) context->VertexAttribI3uiEXT = (PFNGLVERTEXATTRIBI3UIEXTPROC)context->VertexAttribI3ui;
+    if (context->VertexAttribI3uiv == NULL && context->VertexAttribI3uivEXT != NULL) context->VertexAttribI3uiv = (PFNGLVERTEXATTRIBI3UIVPROC)context->VertexAttribI3uivEXT;
+    if (context->VertexAttribI3uivEXT == NULL && context->VertexAttribI3uiv != NULL) context->VertexAttribI3uivEXT = (PFNGLVERTEXATTRIBI3UIVEXTPROC)context->VertexAttribI3uiv;
+    if (context->VertexAttribI4bv == NULL && context->VertexAttribI4bvEXT != NULL) context->VertexAttribI4bv = (PFNGLVERTEXATTRIBI4BVPROC)context->VertexAttribI4bvEXT;
+    if (context->VertexAttribI4bvEXT == NULL && context->VertexAttribI4bv != NULL) context->VertexAttribI4bvEXT = (PFNGLVERTEXATTRIBI4BVEXTPROC)context->VertexAttribI4bv;
+    if (context->VertexAttribI4i == NULL && context->VertexAttribI4iEXT != NULL) context->VertexAttribI4i = (PFNGLVERTEXATTRIBI4IPROC)context->VertexAttribI4iEXT;
+    if (context->VertexAttribI4iEXT == NULL && context->VertexAttribI4i != NULL) context->VertexAttribI4iEXT = (PFNGLVERTEXATTRIBI4IEXTPROC)context->VertexAttribI4i;
+    if (context->VertexAttribI4iv == NULL && context->VertexAttribI4ivEXT != NULL) context->VertexAttribI4iv = (PFNGLVERTEXATTRIBI4IVPROC)context->VertexAttribI4ivEXT;
+    if (context->VertexAttribI4ivEXT == NULL && context->VertexAttribI4iv != NULL) context->VertexAttribI4ivEXT = (PFNGLVERTEXATTRIBI4IVEXTPROC)context->VertexAttribI4iv;
+    if (context->VertexAttribI4sv == NULL && context->VertexAttribI4svEXT != NULL) context->VertexAttribI4sv = (PFNGLVERTEXATTRIBI4SVPROC)context->VertexAttribI4svEXT;
+    if (context->VertexAttribI4svEXT == NULL && context->VertexAttribI4sv != NULL) context->VertexAttribI4svEXT = (PFNGLVERTEXATTRIBI4SVEXTPROC)context->VertexAttribI4sv;
+    if (context->VertexAttribI4ubv == NULL && context->VertexAttribI4ubvEXT != NULL) context->VertexAttribI4ubv = (PFNGLVERTEXATTRIBI4UBVPROC)context->VertexAttribI4ubvEXT;
+    if (context->VertexAttribI4ubvEXT == NULL && context->VertexAttribI4ubv != NULL) context->VertexAttribI4ubvEXT = (PFNGLVERTEXATTRIBI4UBVEXTPROC)context->VertexAttribI4ubv;
+    if (context->VertexAttribI4ui == NULL && context->VertexAttribI4uiEXT != NULL) context->VertexAttribI4ui = (PFNGLVERTEXATTRIBI4UIPROC)context->VertexAttribI4uiEXT;
+    if (context->VertexAttribI4uiEXT == NULL && context->VertexAttribI4ui != NULL) context->VertexAttribI4uiEXT = (PFNGLVERTEXATTRIBI4UIEXTPROC)context->VertexAttribI4ui;
+    if (context->VertexAttribI4uiv == NULL && context->VertexAttribI4uivEXT != NULL) context->VertexAttribI4uiv = (PFNGLVERTEXATTRIBI4UIVPROC)context->VertexAttribI4uivEXT;
+    if (context->VertexAttribI4uivEXT == NULL && context->VertexAttribI4uiv != NULL) context->VertexAttribI4uivEXT = (PFNGLVERTEXATTRIBI4UIVEXTPROC)context->VertexAttribI4uiv;
+    if (context->VertexAttribI4usv == NULL && context->VertexAttribI4usvEXT != NULL) context->VertexAttribI4usv = (PFNGLVERTEXATTRIBI4USVPROC)context->VertexAttribI4usvEXT;
+    if (context->VertexAttribI4usvEXT == NULL && context->VertexAttribI4usv != NULL) context->VertexAttribI4usvEXT = (PFNGLVERTEXATTRIBI4USVEXTPROC)context->VertexAttribI4usv;
+    if (context->VertexAttribIPointer == NULL && context->VertexAttribIPointerEXT != NULL) context->VertexAttribIPointer = (PFNGLVERTEXATTRIBIPOINTERPROC)context->VertexAttribIPointerEXT;
+    if (context->VertexAttribIPointerEXT == NULL && context->VertexAttribIPointer != NULL) context->VertexAttribIPointerEXT = (PFNGLVERTEXATTRIBIPOINTEREXTPROC)context->VertexAttribIPointer;
+    if (context->VertexAttribL1d == NULL && context->VertexAttribL1dEXT != NULL) context->VertexAttribL1d = (PFNGLVERTEXATTRIBL1DPROC)context->VertexAttribL1dEXT;
+    if (context->VertexAttribL1dEXT == NULL && context->VertexAttribL1d != NULL) context->VertexAttribL1dEXT = (PFNGLVERTEXATTRIBL1DEXTPROC)context->VertexAttribL1d;
+    if (context->VertexAttribL1dv == NULL && context->VertexAttribL1dvEXT != NULL) context->VertexAttribL1dv = (PFNGLVERTEXATTRIBL1DVPROC)context->VertexAttribL1dvEXT;
+    if (context->VertexAttribL1dvEXT == NULL && context->VertexAttribL1dv != NULL) context->VertexAttribL1dvEXT = (PFNGLVERTEXATTRIBL1DVEXTPROC)context->VertexAttribL1dv;
+    if (context->VertexAttribL2d == NULL && context->VertexAttribL2dEXT != NULL) context->VertexAttribL2d = (PFNGLVERTEXATTRIBL2DPROC)context->VertexAttribL2dEXT;
+    if (context->VertexAttribL2dEXT == NULL && context->VertexAttribL2d != NULL) context->VertexAttribL2dEXT = (PFNGLVERTEXATTRIBL2DEXTPROC)context->VertexAttribL2d;
+    if (context->VertexAttribL2dv == NULL && context->VertexAttribL2dvEXT != NULL) context->VertexAttribL2dv = (PFNGLVERTEXATTRIBL2DVPROC)context->VertexAttribL2dvEXT;
+    if (context->VertexAttribL2dvEXT == NULL && context->VertexAttribL2dv != NULL) context->VertexAttribL2dvEXT = (PFNGLVERTEXATTRIBL2DVEXTPROC)context->VertexAttribL2dv;
+    if (context->VertexAttribL3d == NULL && context->VertexAttribL3dEXT != NULL) context->VertexAttribL3d = (PFNGLVERTEXATTRIBL3DPROC)context->VertexAttribL3dEXT;
+    if (context->VertexAttribL3dEXT == NULL && context->VertexAttribL3d != NULL) context->VertexAttribL3dEXT = (PFNGLVERTEXATTRIBL3DEXTPROC)context->VertexAttribL3d;
+    if (context->VertexAttribL3dv == NULL && context->VertexAttribL3dvEXT != NULL) context->VertexAttribL3dv = (PFNGLVERTEXATTRIBL3DVPROC)context->VertexAttribL3dvEXT;
+    if (context->VertexAttribL3dvEXT == NULL && context->VertexAttribL3dv != NULL) context->VertexAttribL3dvEXT = (PFNGLVERTEXATTRIBL3DVEXTPROC)context->VertexAttribL3dv;
+    if (context->VertexAttribL4d == NULL && context->VertexAttribL4dEXT != NULL) context->VertexAttribL4d = (PFNGLVERTEXATTRIBL4DPROC)context->VertexAttribL4dEXT;
+    if (context->VertexAttribL4dEXT == NULL && context->VertexAttribL4d != NULL) context->VertexAttribL4dEXT = (PFNGLVERTEXATTRIBL4DEXTPROC)context->VertexAttribL4d;
+    if (context->VertexAttribL4dv == NULL && context->VertexAttribL4dvEXT != NULL) context->VertexAttribL4dv = (PFNGLVERTEXATTRIBL4DVPROC)context->VertexAttribL4dvEXT;
+    if (context->VertexAttribL4dvEXT == NULL && context->VertexAttribL4dv != NULL) context->VertexAttribL4dvEXT = (PFNGLVERTEXATTRIBL4DVEXTPROC)context->VertexAttribL4dv;
+    if (context->VertexAttribLPointer == NULL && context->VertexAttribLPointerEXT != NULL) context->VertexAttribLPointer = (PFNGLVERTEXATTRIBLPOINTERPROC)context->VertexAttribLPointerEXT;
+    if (context->VertexAttribLPointerEXT == NULL && context->VertexAttribLPointer != NULL) context->VertexAttribLPointerEXT = (PFNGLVERTEXATTRIBLPOINTEREXTPROC)context->VertexAttribLPointer;
+    if (context->VertexAttribPointer == NULL && context->VertexAttribPointerARB != NULL) context->VertexAttribPointer = (PFNGLVERTEXATTRIBPOINTERPROC)context->VertexAttribPointerARB;
+    if (context->VertexAttribPointerARB == NULL && context->VertexAttribPointer != NULL) context->VertexAttribPointerARB = (PFNGLVERTEXATTRIBPOINTERARBPROC)context->VertexAttribPointer;
+    if (context->ViewportArrayv == NULL && context->ViewportArrayvNV != NULL) context->ViewportArrayv = (PFNGLVIEWPORTARRAYVPROC)context->ViewportArrayvNV;
+    if (context->ViewportArrayv == NULL && context->ViewportArrayvOES != NULL) context->ViewportArrayv = (PFNGLVIEWPORTARRAYVPROC)context->ViewportArrayvOES;
+    if (context->ViewportArrayvNV == NULL && context->ViewportArrayv != NULL) context->ViewportArrayvNV = (PFNGLVIEWPORTARRAYVNVPROC)context->ViewportArrayv;
+    if (context->ViewportArrayvNV == NULL && context->ViewportArrayvOES != NULL) context->ViewportArrayvNV = (PFNGLVIEWPORTARRAYVNVPROC)context->ViewportArrayvOES;
+    if (context->ViewportArrayvOES == NULL && context->ViewportArrayv != NULL) context->ViewportArrayvOES = (PFNGLVIEWPORTARRAYVOESPROC)context->ViewportArrayv;
+    if (context->ViewportArrayvOES == NULL && context->ViewportArrayvNV != NULL) context->ViewportArrayvOES = (PFNGLVIEWPORTARRAYVOESPROC)context->ViewportArrayvNV;
+    if (context->ViewportIndexedf == NULL && context->ViewportIndexedfNV != NULL) context->ViewportIndexedf = (PFNGLVIEWPORTINDEXEDFPROC)context->ViewportIndexedfNV;
+    if (context->ViewportIndexedf == NULL && context->ViewportIndexedfOES != NULL) context->ViewportIndexedf = (PFNGLVIEWPORTINDEXEDFPROC)context->ViewportIndexedfOES;
+    if (context->ViewportIndexedfNV == NULL && context->ViewportIndexedf != NULL) context->ViewportIndexedfNV = (PFNGLVIEWPORTINDEXEDFNVPROC)context->ViewportIndexedf;
+    if (context->ViewportIndexedfNV == NULL && context->ViewportIndexedfOES != NULL) context->ViewportIndexedfNV = (PFNGLVIEWPORTINDEXEDFNVPROC)context->ViewportIndexedfOES;
+    if (context->ViewportIndexedfOES == NULL && context->ViewportIndexedf != NULL) context->ViewportIndexedfOES = (PFNGLVIEWPORTINDEXEDFOESPROC)context->ViewportIndexedf;
+    if (context->ViewportIndexedfOES == NULL && context->ViewportIndexedfNV != NULL) context->ViewportIndexedfOES = (PFNGLVIEWPORTINDEXEDFOESPROC)context->ViewportIndexedfNV;
+    if (context->ViewportIndexedfv == NULL && context->ViewportIndexedfvNV != NULL) context->ViewportIndexedfv = (PFNGLVIEWPORTINDEXEDFVPROC)context->ViewportIndexedfvNV;
+    if (context->ViewportIndexedfv == NULL && context->ViewportIndexedfvOES != NULL) context->ViewportIndexedfv = (PFNGLVIEWPORTINDEXEDFVPROC)context->ViewportIndexedfvOES;
+    if (context->ViewportIndexedfvNV == NULL && context->ViewportIndexedfv != NULL) context->ViewportIndexedfvNV = (PFNGLVIEWPORTINDEXEDFVNVPROC)context->ViewportIndexedfv;
+    if (context->ViewportIndexedfvNV == NULL && context->ViewportIndexedfvOES != NULL) context->ViewportIndexedfvNV = (PFNGLVIEWPORTINDEXEDFVNVPROC)context->ViewportIndexedfvOES;
+    if (context->ViewportIndexedfvOES == NULL && context->ViewportIndexedfv != NULL) context->ViewportIndexedfvOES = (PFNGLVIEWPORTINDEXEDFVOESPROC)context->ViewportIndexedfv;
+    if (context->ViewportIndexedfvOES == NULL && context->ViewportIndexedfvNV != NULL) context->ViewportIndexedfvOES = (PFNGLVIEWPORTINDEXEDFVOESPROC)context->ViewportIndexedfvNV;
+    if (context->WaitSync == NULL && context->WaitSyncAPPLE != NULL) context->WaitSync = (PFNGLWAITSYNCPROC)context->WaitSyncAPPLE;
+    if (context->WaitSyncAPPLE == NULL && context->WaitSync != NULL) context->WaitSyncAPPLE = (PFNGLWAITSYNCAPPLEPROC)context->WaitSync;
+}
 
 static void glad_gl_free_extensions(char **exts_i) {
     if (exts_i != NULL) {
@@ -5659,6 +7457,7 @@ int gladLoadGLContextUserPtr(GladGLContext *context, GLADuserptrloadfunc load, v
     glad_gl_load_GL_SUN_vertex(context, load, userptr);
 
 
+    glad_gl_resolve_aliases(context);
 
     return version;
 }
@@ -5666,6 +7465,531 @@ int gladLoadGLContextUserPtr(GladGLContext *context, GLADuserptrloadfunc load, v
 
 int gladLoadGLContext(GladGLContext *context, GLADloadfunc load) {
     return gladLoadGLContextUserPtr(context, glad_gl_get_proc_from_userptr, GLAD_GNUC_EXTENSION (void*) load);
+}
+
+static int glad_gl_find_extensions_gles2(GladGLContext *context) {
+    const char *exts = NULL;
+    char **exts_i = NULL;
+    if (!glad_gl_get_extensions(context, &exts, &exts_i)) return 0;
+
+    context->AMD_framebuffer_multisample_advanced = glad_gl_has_extension(exts, exts_i, "GL_AMD_framebuffer_multisample_advanced");
+    context->AMD_performance_monitor = glad_gl_has_extension(exts, exts_i, "GL_AMD_performance_monitor");
+    context->APPLE_rgb_422 = glad_gl_has_extension(exts, exts_i, "GL_APPLE_rgb_422");
+    context->EXT_EGL_image_storage = glad_gl_has_extension(exts, exts_i, "GL_EXT_EGL_image_storage");
+    context->EXT_blend_minmax = glad_gl_has_extension(exts, exts_i, "GL_EXT_blend_minmax");
+    context->EXT_debug_label = glad_gl_has_extension(exts, exts_i, "GL_EXT_debug_label");
+    context->EXT_debug_marker = glad_gl_has_extension(exts, exts_i, "GL_EXT_debug_marker");
+    context->EXT_draw_instanced = glad_gl_has_extension(exts, exts_i, "GL_EXT_draw_instanced");
+    context->EXT_external_buffer = glad_gl_has_extension(exts, exts_i, "GL_EXT_external_buffer");
+    context->EXT_framebuffer_blit_layers = glad_gl_has_extension(exts, exts_i, "GL_EXT_framebuffer_blit_layers");
+    context->EXT_memory_object = glad_gl_has_extension(exts, exts_i, "GL_EXT_memory_object");
+    context->EXT_memory_object_fd = glad_gl_has_extension(exts, exts_i, "GL_EXT_memory_object_fd");
+    context->EXT_memory_object_win32 = glad_gl_has_extension(exts, exts_i, "GL_EXT_memory_object_win32");
+    context->EXT_multi_draw_arrays = glad_gl_has_extension(exts, exts_i, "GL_EXT_multi_draw_arrays");
+    context->EXT_multiview_tessellation_geometry_shader = glad_gl_has_extension(exts, exts_i, "GL_EXT_multiview_tessellation_geometry_shader");
+    context->EXT_multiview_texture_multisample = glad_gl_has_extension(exts, exts_i, "GL_EXT_multiview_texture_multisample");
+    context->EXT_multiview_timer_query = glad_gl_has_extension(exts, exts_i, "GL_EXT_multiview_timer_query");
+    context->EXT_polygon_offset_clamp = glad_gl_has_extension(exts, exts_i, "GL_EXT_polygon_offset_clamp");
+    context->EXT_post_depth_coverage = glad_gl_has_extension(exts, exts_i, "GL_EXT_post_depth_coverage");
+    context->EXT_raster_multisample = glad_gl_has_extension(exts, exts_i, "GL_EXT_raster_multisample");
+    context->EXT_semaphore = glad_gl_has_extension(exts, exts_i, "GL_EXT_semaphore");
+    context->EXT_semaphore_fd = glad_gl_has_extension(exts, exts_i, "GL_EXT_semaphore_fd");
+    context->EXT_semaphore_win32 = glad_gl_has_extension(exts, exts_i, "GL_EXT_semaphore_win32");
+    context->EXT_separate_shader_objects = glad_gl_has_extension(exts, exts_i, "GL_EXT_separate_shader_objects");
+    context->EXT_shader_framebuffer_fetch = glad_gl_has_extension(exts, exts_i, "GL_EXT_shader_framebuffer_fetch");
+    context->EXT_shader_framebuffer_fetch_non_coherent = glad_gl_has_extension(exts, exts_i, "GL_EXT_shader_framebuffer_fetch_non_coherent");
+    context->EXT_shader_integer_mix = glad_gl_has_extension(exts, exts_i, "GL_EXT_shader_integer_mix");
+    context->EXT_shader_samples_identical = glad_gl_has_extension(exts, exts_i, "GL_EXT_shader_samples_identical");
+    context->EXT_sparse_texture2 = glad_gl_has_extension(exts, exts_i, "GL_EXT_sparse_texture2");
+    context->EXT_texture_compression_rgtc = glad_gl_has_extension(exts, exts_i, "GL_EXT_texture_compression_rgtc");
+    context->EXT_texture_compression_s3tc = glad_gl_has_extension(exts, exts_i, "GL_EXT_texture_compression_s3tc");
+    context->EXT_texture_filter_anisotropic = glad_gl_has_extension(exts, exts_i, "GL_EXT_texture_filter_anisotropic");
+    context->EXT_texture_filter_minmax = glad_gl_has_extension(exts, exts_i, "GL_EXT_texture_filter_minmax");
+    context->EXT_texture_sRGB_R8 = glad_gl_has_extension(exts, exts_i, "GL_EXT_texture_sRGB_R8");
+    context->EXT_texture_sRGB_RG8 = glad_gl_has_extension(exts, exts_i, "GL_EXT_texture_sRGB_RG8");
+    context->EXT_texture_sRGB_decode = glad_gl_has_extension(exts, exts_i, "GL_EXT_texture_sRGB_decode");
+    context->EXT_texture_shadow_lod = glad_gl_has_extension(exts, exts_i, "GL_EXT_texture_shadow_lod");
+    context->EXT_texture_storage = glad_gl_has_extension(exts, exts_i, "GL_EXT_texture_storage");
+    context->EXT_win32_keyed_mutex = glad_gl_has_extension(exts, exts_i, "GL_EXT_win32_keyed_mutex");
+    context->EXT_window_rectangles = glad_gl_has_extension(exts, exts_i, "GL_EXT_window_rectangles");
+    context->INTEL_blackhole_render = glad_gl_has_extension(exts, exts_i, "GL_INTEL_blackhole_render");
+    context->INTEL_conservative_rasterization = glad_gl_has_extension(exts, exts_i, "GL_INTEL_conservative_rasterization");
+    context->INTEL_framebuffer_CMAA = glad_gl_has_extension(exts, exts_i, "GL_INTEL_framebuffer_CMAA");
+    context->INTEL_performance_query = glad_gl_has_extension(exts, exts_i, "GL_INTEL_performance_query");
+    context->KHR_blend_equation_advanced = glad_gl_has_extension(exts, exts_i, "GL_KHR_blend_equation_advanced");
+    context->KHR_blend_equation_advanced_coherent = glad_gl_has_extension(exts, exts_i, "GL_KHR_blend_equation_advanced_coherent");
+    context->KHR_context_flush_control = glad_gl_has_extension(exts, exts_i, "GL_KHR_context_flush_control");
+    context->KHR_debug = glad_gl_has_extension(exts, exts_i, "GL_KHR_debug");
+    context->KHR_no_error = glad_gl_has_extension(exts, exts_i, "GL_KHR_no_error");
+    context->KHR_parallel_shader_compile = glad_gl_has_extension(exts, exts_i, "GL_KHR_parallel_shader_compile");
+    context->KHR_robust_buffer_access_behavior = glad_gl_has_extension(exts, exts_i, "GL_KHR_robust_buffer_access_behavior");
+    context->KHR_robustness = glad_gl_has_extension(exts, exts_i, "GL_KHR_robustness");
+    context->KHR_shader_subgroup = glad_gl_has_extension(exts, exts_i, "GL_KHR_shader_subgroup");
+    context->KHR_texture_compression_astc_hdr = glad_gl_has_extension(exts, exts_i, "GL_KHR_texture_compression_astc_hdr");
+    context->KHR_texture_compression_astc_ldr = glad_gl_has_extension(exts, exts_i, "GL_KHR_texture_compression_astc_ldr");
+    context->KHR_texture_compression_astc_sliced_3d = glad_gl_has_extension(exts, exts_i, "GL_KHR_texture_compression_astc_sliced_3d");
+    context->MESA_framebuffer_flip_x = glad_gl_has_extension(exts, exts_i, "GL_MESA_framebuffer_flip_x");
+    context->MESA_framebuffer_flip_y = glad_gl_has_extension(exts, exts_i, "GL_MESA_framebuffer_flip_y");
+    context->MESA_framebuffer_swap_xy = glad_gl_has_extension(exts, exts_i, "GL_MESA_framebuffer_swap_xy");
+    context->MESA_program_binary_formats = glad_gl_has_extension(exts, exts_i, "GL_MESA_program_binary_formats");
+    context->MESA_shader_integer_functions = glad_gl_has_extension(exts, exts_i, "GL_MESA_shader_integer_functions");
+    context->MESA_texture_const_bandwidth = glad_gl_has_extension(exts, exts_i, "GL_MESA_texture_const_bandwidth");
+    context->NVX_blend_equation_advanced_multi_draw_buffers = glad_gl_has_extension(exts, exts_i, "GL_NVX_blend_equation_advanced_multi_draw_buffers");
+    context->NV_bindless_texture = glad_gl_has_extension(exts, exts_i, "GL_NV_bindless_texture");
+    context->NV_blend_equation_advanced = glad_gl_has_extension(exts, exts_i, "GL_NV_blend_equation_advanced");
+    context->NV_blend_equation_advanced_coherent = glad_gl_has_extension(exts, exts_i, "GL_NV_blend_equation_advanced_coherent");
+    context->NV_blend_minmax_factor = glad_gl_has_extension(exts, exts_i, "GL_NV_blend_minmax_factor");
+    context->NV_clip_space_w_scaling = glad_gl_has_extension(exts, exts_i, "GL_NV_clip_space_w_scaling");
+    context->NV_compute_shader_derivatives = glad_gl_has_extension(exts, exts_i, "GL_NV_compute_shader_derivatives");
+    context->NV_conditional_render = glad_gl_has_extension(exts, exts_i, "GL_NV_conditional_render");
+    context->NV_conservative_raster = glad_gl_has_extension(exts, exts_i, "GL_NV_conservative_raster");
+    context->NV_conservative_raster_pre_snap = glad_gl_has_extension(exts, exts_i, "GL_NV_conservative_raster_pre_snap");
+    context->NV_conservative_raster_pre_snap_triangles = glad_gl_has_extension(exts, exts_i, "GL_NV_conservative_raster_pre_snap_triangles");
+    context->NV_draw_vulkan_image = glad_gl_has_extension(exts, exts_i, "GL_NV_draw_vulkan_image");
+    context->NV_fence = glad_gl_has_extension(exts, exts_i, "GL_NV_fence");
+    context->NV_fill_rectangle = glad_gl_has_extension(exts, exts_i, "GL_NV_fill_rectangle");
+    context->NV_fragment_coverage_to_color = glad_gl_has_extension(exts, exts_i, "GL_NV_fragment_coverage_to_color");
+    context->NV_fragment_shader_barycentric = glad_gl_has_extension(exts, exts_i, "GL_NV_fragment_shader_barycentric");
+    context->NV_fragment_shader_interlock = glad_gl_has_extension(exts, exts_i, "GL_NV_fragment_shader_interlock");
+    context->NV_framebuffer_mixed_samples = glad_gl_has_extension(exts, exts_i, "GL_NV_framebuffer_mixed_samples");
+    context->NV_geometry_shader_passthrough = glad_gl_has_extension(exts, exts_i, "GL_NV_geometry_shader_passthrough");
+    context->NV_gpu_shader5 = glad_gl_has_extension(exts, exts_i, "GL_NV_gpu_shader5");
+    context->NV_internalformat_sample_query = glad_gl_has_extension(exts, exts_i, "GL_NV_internalformat_sample_query");
+    context->NV_memory_attachment = glad_gl_has_extension(exts, exts_i, "GL_NV_memory_attachment");
+    context->NV_memory_object_sparse = glad_gl_has_extension(exts, exts_i, "GL_NV_memory_object_sparse");
+    context->NV_mesh_shader = glad_gl_has_extension(exts, exts_i, "GL_NV_mesh_shader");
+    context->NV_path_rendering = glad_gl_has_extension(exts, exts_i, "GL_NV_path_rendering");
+    context->NV_path_rendering_shared_edge = glad_gl_has_extension(exts, exts_i, "GL_NV_path_rendering_shared_edge");
+    context->NV_primitive_shading_rate = glad_gl_has_extension(exts, exts_i, "GL_NV_primitive_shading_rate");
+    context->NV_representative_fragment_test = glad_gl_has_extension(exts, exts_i, "GL_NV_representative_fragment_test");
+    context->NV_sample_locations = glad_gl_has_extension(exts, exts_i, "GL_NV_sample_locations");
+    context->NV_sample_mask_override_coverage = glad_gl_has_extension(exts, exts_i, "GL_NV_sample_mask_override_coverage");
+    context->NV_scissor_exclusive = glad_gl_has_extension(exts, exts_i, "GL_NV_scissor_exclusive");
+    context->NV_shader_atomic_fp16_vector = glad_gl_has_extension(exts, exts_i, "GL_NV_shader_atomic_fp16_vector");
+    context->NV_shader_subgroup_partitioned = glad_gl_has_extension(exts, exts_i, "GL_NV_shader_subgroup_partitioned");
+    context->NV_shader_texture_footprint = glad_gl_has_extension(exts, exts_i, "GL_NV_shader_texture_footprint");
+    context->NV_shading_rate_image = glad_gl_has_extension(exts, exts_i, "GL_NV_shading_rate_image");
+    context->NV_stereo_view_rendering = glad_gl_has_extension(exts, exts_i, "GL_NV_stereo_view_rendering");
+    context->NV_texture_barrier = glad_gl_has_extension(exts, exts_i, "GL_NV_texture_barrier");
+    context->NV_timeline_semaphore = glad_gl_has_extension(exts, exts_i, "GL_NV_timeline_semaphore");
+    context->NV_viewport_array2 = glad_gl_has_extension(exts, exts_i, "GL_NV_viewport_array2");
+    context->NV_viewport_swizzle = glad_gl_has_extension(exts, exts_i, "GL_NV_viewport_swizzle");
+    context->OES_compressed_paletted_texture = glad_gl_has_extension(exts, exts_i, "GL_OES_compressed_paletted_texture");
+    context->OVR_multiview = glad_gl_has_extension(exts, exts_i, "GL_OVR_multiview");
+    context->OVR_multiview2 = glad_gl_has_extension(exts, exts_i, "GL_OVR_multiview2");
+    context->AMD_compressed_3DC_texture = glad_gl_has_extension(exts, exts_i, "GL_AMD_compressed_3DC_texture");
+    context->AMD_compressed_ATC_texture = glad_gl_has_extension(exts, exts_i, "GL_AMD_compressed_ATC_texture");
+    context->AMD_program_binary_Z400 = glad_gl_has_extension(exts, exts_i, "GL_AMD_program_binary_Z400");
+    context->ANDROID_extension_pack_es31a = glad_gl_has_extension(exts, exts_i, "GL_ANDROID_extension_pack_es31a");
+    context->ANGLE_depth_texture = glad_gl_has_extension(exts, exts_i, "GL_ANGLE_depth_texture");
+    context->ANGLE_framebuffer_blit = glad_gl_has_extension(exts, exts_i, "GL_ANGLE_framebuffer_blit");
+    context->ANGLE_framebuffer_multisample = glad_gl_has_extension(exts, exts_i, "GL_ANGLE_framebuffer_multisample");
+    context->ANGLE_instanced_arrays = glad_gl_has_extension(exts, exts_i, "GL_ANGLE_instanced_arrays");
+    context->ANGLE_pack_reverse_row_order = glad_gl_has_extension(exts, exts_i, "GL_ANGLE_pack_reverse_row_order");
+    context->ANGLE_program_binary = glad_gl_has_extension(exts, exts_i, "GL_ANGLE_program_binary");
+    context->ANGLE_texture_compression_dxt3 = glad_gl_has_extension(exts, exts_i, "GL_ANGLE_texture_compression_dxt3");
+    context->ANGLE_texture_compression_dxt5 = glad_gl_has_extension(exts, exts_i, "GL_ANGLE_texture_compression_dxt5");
+    context->ANGLE_texture_usage = glad_gl_has_extension(exts, exts_i, "GL_ANGLE_texture_usage");
+    context->ANGLE_translated_shader_source = glad_gl_has_extension(exts, exts_i, "GL_ANGLE_translated_shader_source");
+    context->APPLE_clip_distance = glad_gl_has_extension(exts, exts_i, "GL_APPLE_clip_distance");
+    context->APPLE_color_buffer_packed_float = glad_gl_has_extension(exts, exts_i, "GL_APPLE_color_buffer_packed_float");
+    context->APPLE_copy_texture_levels = glad_gl_has_extension(exts, exts_i, "GL_APPLE_copy_texture_levels");
+    context->APPLE_framebuffer_multisample = glad_gl_has_extension(exts, exts_i, "GL_APPLE_framebuffer_multisample");
+    context->APPLE_sync = glad_gl_has_extension(exts, exts_i, "GL_APPLE_sync");
+    context->APPLE_texture_format_BGRA8888 = glad_gl_has_extension(exts, exts_i, "GL_APPLE_texture_format_BGRA8888");
+    context->APPLE_texture_max_level = glad_gl_has_extension(exts, exts_i, "GL_APPLE_texture_max_level");
+    context->APPLE_texture_packed_float = glad_gl_has_extension(exts, exts_i, "GL_APPLE_texture_packed_float");
+    context->ARM_mali_program_binary = glad_gl_has_extension(exts, exts_i, "GL_ARM_mali_program_binary");
+    context->ARM_mali_shader_binary = glad_gl_has_extension(exts, exts_i, "GL_ARM_mali_shader_binary");
+    context->ARM_rgba8 = glad_gl_has_extension(exts, exts_i, "GL_ARM_rgba8");
+    context->ARM_shader_core_properties = glad_gl_has_extension(exts, exts_i, "GL_ARM_shader_core_properties");
+    context->ARM_shader_framebuffer_fetch = glad_gl_has_extension(exts, exts_i, "GL_ARM_shader_framebuffer_fetch");
+    context->ARM_shader_framebuffer_fetch_depth_stencil = glad_gl_has_extension(exts, exts_i, "GL_ARM_shader_framebuffer_fetch_depth_stencil");
+    context->ARM_texture_unnormalized_coordinates = glad_gl_has_extension(exts, exts_i, "GL_ARM_texture_unnormalized_coordinates");
+    context->DMP_program_binary = glad_gl_has_extension(exts, exts_i, "GL_DMP_program_binary");
+    context->DMP_shader_binary = glad_gl_has_extension(exts, exts_i, "GL_DMP_shader_binary");
+    context->EXT_EGL_image_array = glad_gl_has_extension(exts, exts_i, "GL_EXT_EGL_image_array");
+    context->EXT_EGL_image_storage_compression = glad_gl_has_extension(exts, exts_i, "GL_EXT_EGL_image_storage_compression");
+    context->EXT_YUV_target = glad_gl_has_extension(exts, exts_i, "GL_EXT_YUV_target");
+    context->EXT_base_instance = glad_gl_has_extension(exts, exts_i, "GL_EXT_base_instance");
+    context->EXT_blend_func_extended = glad_gl_has_extension(exts, exts_i, "GL_EXT_blend_func_extended");
+    context->EXT_buffer_storage = glad_gl_has_extension(exts, exts_i, "GL_EXT_buffer_storage");
+    context->EXT_clear_texture = glad_gl_has_extension(exts, exts_i, "GL_EXT_clear_texture");
+    context->EXT_clip_control = glad_gl_has_extension(exts, exts_i, "GL_EXT_clip_control");
+    context->EXT_clip_cull_distance = glad_gl_has_extension(exts, exts_i, "GL_EXT_clip_cull_distance");
+    context->EXT_color_buffer_float = glad_gl_has_extension(exts, exts_i, "GL_EXT_color_buffer_float");
+    context->EXT_color_buffer_half_float = glad_gl_has_extension(exts, exts_i, "GL_EXT_color_buffer_half_float");
+    context->EXT_conservative_depth = glad_gl_has_extension(exts, exts_i, "GL_EXT_conservative_depth");
+    context->EXT_copy_image = glad_gl_has_extension(exts, exts_i, "GL_EXT_copy_image");
+    context->EXT_depth_clamp = glad_gl_has_extension(exts, exts_i, "GL_EXT_depth_clamp");
+    context->EXT_discard_framebuffer = glad_gl_has_extension(exts, exts_i, "GL_EXT_discard_framebuffer");
+    context->EXT_disjoint_timer_query = glad_gl_has_extension(exts, exts_i, "GL_EXT_disjoint_timer_query");
+    context->EXT_draw_buffers = glad_gl_has_extension(exts, exts_i, "GL_EXT_draw_buffers");
+    context->EXT_draw_buffers_indexed = glad_gl_has_extension(exts, exts_i, "GL_EXT_draw_buffers_indexed");
+    context->EXT_draw_elements_base_vertex = glad_gl_has_extension(exts, exts_i, "GL_EXT_draw_elements_base_vertex");
+    context->EXT_draw_transform_feedback = glad_gl_has_extension(exts, exts_i, "GL_EXT_draw_transform_feedback");
+    context->EXT_float_blend = glad_gl_has_extension(exts, exts_i, "GL_EXT_float_blend");
+    context->EXT_fragment_shading_rate = glad_gl_has_extension(exts, exts_i, "GL_EXT_fragment_shading_rate");
+    context->EXT_geometry_point_size = glad_gl_has_extension(exts, exts_i, "GL_EXT_geometry_point_size");
+    context->EXT_geometry_shader = glad_gl_has_extension(exts, exts_i, "GL_EXT_geometry_shader");
+    context->EXT_gpu_shader5 = glad_gl_has_extension(exts, exts_i, "GL_EXT_gpu_shader5");
+    context->EXT_instanced_arrays = glad_gl_has_extension(exts, exts_i, "GL_EXT_instanced_arrays");
+    context->EXT_map_buffer_range = glad_gl_has_extension(exts, exts_i, "GL_EXT_map_buffer_range");
+    context->EXT_multi_draw_indirect = glad_gl_has_extension(exts, exts_i, "GL_EXT_multi_draw_indirect");
+    context->EXT_multisampled_compatibility = glad_gl_has_extension(exts, exts_i, "GL_EXT_multisampled_compatibility");
+    context->EXT_multisampled_render_to_texture = glad_gl_has_extension(exts, exts_i, "GL_EXT_multisampled_render_to_texture");
+    context->EXT_multisampled_render_to_texture2 = glad_gl_has_extension(exts, exts_i, "GL_EXT_multisampled_render_to_texture2");
+    context->EXT_multiview_draw_buffers = glad_gl_has_extension(exts, exts_i, "GL_EXT_multiview_draw_buffers");
+    context->EXT_occlusion_query_boolean = glad_gl_has_extension(exts, exts_i, "GL_EXT_occlusion_query_boolean");
+    context->EXT_primitive_bounding_box = glad_gl_has_extension(exts, exts_i, "GL_EXT_primitive_bounding_box");
+    context->EXT_protected_textures = glad_gl_has_extension(exts, exts_i, "GL_EXT_protected_textures");
+    context->EXT_pvrtc_sRGB = glad_gl_has_extension(exts, exts_i, "GL_EXT_pvrtc_sRGB");
+    context->EXT_read_format_bgra = glad_gl_has_extension(exts, exts_i, "GL_EXT_read_format_bgra");
+    context->EXT_render_snorm = glad_gl_has_extension(exts, exts_i, "GL_EXT_render_snorm");
+    context->EXT_robustness = glad_gl_has_extension(exts, exts_i, "GL_EXT_robustness");
+    context->EXT_sRGB = glad_gl_has_extension(exts, exts_i, "GL_EXT_sRGB");
+    context->EXT_sRGB_write_control = glad_gl_has_extension(exts, exts_i, "GL_EXT_sRGB_write_control");
+    context->EXT_separate_depth_stencil = glad_gl_has_extension(exts, exts_i, "GL_EXT_separate_depth_stencil");
+    context->EXT_shader_group_vote = glad_gl_has_extension(exts, exts_i, "GL_EXT_shader_group_vote");
+    context->EXT_shader_implicit_conversions = glad_gl_has_extension(exts, exts_i, "GL_EXT_shader_implicit_conversions");
+    context->EXT_shader_io_blocks = glad_gl_has_extension(exts, exts_i, "GL_EXT_shader_io_blocks");
+    context->EXT_shader_non_constant_global_initializers = glad_gl_has_extension(exts, exts_i, "GL_EXT_shader_non_constant_global_initializers");
+    context->EXT_shader_pixel_local_storage = glad_gl_has_extension(exts, exts_i, "GL_EXT_shader_pixel_local_storage");
+    context->EXT_shader_pixel_local_storage2 = glad_gl_has_extension(exts, exts_i, "GL_EXT_shader_pixel_local_storage2");
+    context->EXT_shader_texture_lod = glad_gl_has_extension(exts, exts_i, "GL_EXT_shader_texture_lod");
+    context->EXT_shadow_samplers = glad_gl_has_extension(exts, exts_i, "GL_EXT_shadow_samplers");
+    context->EXT_sparse_texture = glad_gl_has_extension(exts, exts_i, "GL_EXT_sparse_texture");
+    context->EXT_tessellation_point_size = glad_gl_has_extension(exts, exts_i, "GL_EXT_tessellation_point_size");
+    context->EXT_tessellation_shader = glad_gl_has_extension(exts, exts_i, "GL_EXT_tessellation_shader");
+    context->EXT_texture_border_clamp = glad_gl_has_extension(exts, exts_i, "GL_EXT_texture_border_clamp");
+    context->EXT_texture_buffer = glad_gl_has_extension(exts, exts_i, "GL_EXT_texture_buffer");
+    context->EXT_texture_compression_astc_decode_mode = glad_gl_has_extension(exts, exts_i, "GL_EXT_texture_compression_astc_decode_mode");
+    context->EXT_texture_compression_bptc = glad_gl_has_extension(exts, exts_i, "GL_EXT_texture_compression_bptc");
+    context->EXT_texture_compression_dxt1 = glad_gl_has_extension(exts, exts_i, "GL_EXT_texture_compression_dxt1");
+    context->EXT_texture_compression_s3tc_srgb = glad_gl_has_extension(exts, exts_i, "GL_EXT_texture_compression_s3tc_srgb");
+    context->EXT_texture_cube_map_array = glad_gl_has_extension(exts, exts_i, "GL_EXT_texture_cube_map_array");
+    context->EXT_texture_format_BGRA8888 = glad_gl_has_extension(exts, exts_i, "GL_EXT_texture_format_BGRA8888");
+    context->EXT_texture_format_sRGB_override = glad_gl_has_extension(exts, exts_i, "GL_EXT_texture_format_sRGB_override");
+    context->EXT_texture_mirror_clamp_to_edge = glad_gl_has_extension(exts, exts_i, "GL_EXT_texture_mirror_clamp_to_edge");
+    context->EXT_texture_norm16 = glad_gl_has_extension(exts, exts_i, "GL_EXT_texture_norm16");
+    context->EXT_texture_query_lod = glad_gl_has_extension(exts, exts_i, "GL_EXT_texture_query_lod");
+    context->EXT_texture_rg = glad_gl_has_extension(exts, exts_i, "GL_EXT_texture_rg");
+    context->EXT_texture_storage_compression = glad_gl_has_extension(exts, exts_i, "GL_EXT_texture_storage_compression");
+    context->EXT_texture_type_2_10_10_10_REV = glad_gl_has_extension(exts, exts_i, "GL_EXT_texture_type_2_10_10_10_REV");
+    context->EXT_texture_view = glad_gl_has_extension(exts, exts_i, "GL_EXT_texture_view");
+    context->EXT_unpack_subimage = glad_gl_has_extension(exts, exts_i, "GL_EXT_unpack_subimage");
+    context->FJ_shader_binary_GCCSO = glad_gl_has_extension(exts, exts_i, "GL_FJ_shader_binary_GCCSO");
+    context->IMG_bindless_texture = glad_gl_has_extension(exts, exts_i, "GL_IMG_bindless_texture");
+    context->IMG_framebuffer_downsample = glad_gl_has_extension(exts, exts_i, "GL_IMG_framebuffer_downsample");
+    context->IMG_multisampled_render_to_texture = glad_gl_has_extension(exts, exts_i, "GL_IMG_multisampled_render_to_texture");
+    context->IMG_program_binary = glad_gl_has_extension(exts, exts_i, "GL_IMG_program_binary");
+    context->IMG_read_format = glad_gl_has_extension(exts, exts_i, "GL_IMG_read_format");
+    context->IMG_shader_binary = glad_gl_has_extension(exts, exts_i, "GL_IMG_shader_binary");
+    context->IMG_texture_compression_pvrtc = glad_gl_has_extension(exts, exts_i, "GL_IMG_texture_compression_pvrtc");
+    context->IMG_texture_compression_pvrtc2 = glad_gl_has_extension(exts, exts_i, "GL_IMG_texture_compression_pvrtc2");
+    context->IMG_texture_filter_cubic = glad_gl_has_extension(exts, exts_i, "GL_IMG_texture_filter_cubic");
+    context->MESA_bgra = glad_gl_has_extension(exts, exts_i, "GL_MESA_bgra");
+    context->MESA_sampler_objects = glad_gl_has_extension(exts, exts_i, "GL_MESA_sampler_objects");
+    context->NV_copy_buffer = glad_gl_has_extension(exts, exts_i, "GL_NV_copy_buffer");
+    context->NV_coverage_sample = glad_gl_has_extension(exts, exts_i, "GL_NV_coverage_sample");
+    context->NV_depth_nonlinear = glad_gl_has_extension(exts, exts_i, "GL_NV_depth_nonlinear");
+    context->NV_draw_buffers = glad_gl_has_extension(exts, exts_i, "GL_NV_draw_buffers");
+    context->NV_draw_instanced = glad_gl_has_extension(exts, exts_i, "GL_NV_draw_instanced");
+    context->NV_explicit_attrib_location = glad_gl_has_extension(exts, exts_i, "GL_NV_explicit_attrib_location");
+    context->NV_fbo_color_attachments = glad_gl_has_extension(exts, exts_i, "GL_NV_fbo_color_attachments");
+    context->NV_framebuffer_blit = glad_gl_has_extension(exts, exts_i, "GL_NV_framebuffer_blit");
+    context->NV_framebuffer_multisample = glad_gl_has_extension(exts, exts_i, "GL_NV_framebuffer_multisample");
+    context->NV_generate_mipmap_sRGB = glad_gl_has_extension(exts, exts_i, "GL_NV_generate_mipmap_sRGB");
+    context->NV_image_formats = glad_gl_has_extension(exts, exts_i, "GL_NV_image_formats");
+    context->NV_instanced_arrays = glad_gl_has_extension(exts, exts_i, "GL_NV_instanced_arrays");
+    context->NV_non_square_matrices = glad_gl_has_extension(exts, exts_i, "GL_NV_non_square_matrices");
+    context->NV_pack_subimage = glad_gl_has_extension(exts, exts_i, "GL_NV_pack_subimage");
+    context->NV_pixel_buffer_object = glad_gl_has_extension(exts, exts_i, "GL_NV_pixel_buffer_object");
+    context->NV_polygon_mode = glad_gl_has_extension(exts, exts_i, "GL_NV_polygon_mode");
+    context->NV_read_buffer = glad_gl_has_extension(exts, exts_i, "GL_NV_read_buffer");
+    context->NV_read_buffer_front = glad_gl_has_extension(exts, exts_i, "GL_NV_read_buffer_front");
+    context->NV_read_depth = glad_gl_has_extension(exts, exts_i, "GL_NV_read_depth");
+    context->NV_read_depth_stencil = glad_gl_has_extension(exts, exts_i, "GL_NV_read_depth_stencil");
+    context->NV_read_stencil = glad_gl_has_extension(exts, exts_i, "GL_NV_read_stencil");
+    context->NV_sRGB_formats = glad_gl_has_extension(exts, exts_i, "GL_NV_sRGB_formats");
+    context->NV_shader_noperspective_interpolation = glad_gl_has_extension(exts, exts_i, "GL_NV_shader_noperspective_interpolation");
+    context->NV_shadow_samplers_array = glad_gl_has_extension(exts, exts_i, "GL_NV_shadow_samplers_array");
+    context->NV_shadow_samplers_cube = glad_gl_has_extension(exts, exts_i, "GL_NV_shadow_samplers_cube");
+    context->NV_texture_border_clamp = glad_gl_has_extension(exts, exts_i, "GL_NV_texture_border_clamp");
+    context->NV_texture_compression_s3tc_update = glad_gl_has_extension(exts, exts_i, "GL_NV_texture_compression_s3tc_update");
+    context->NV_texture_npot_2D_mipmap = glad_gl_has_extension(exts, exts_i, "GL_NV_texture_npot_2D_mipmap");
+    context->NV_viewport_array = glad_gl_has_extension(exts, exts_i, "GL_NV_viewport_array");
+    context->OES_EGL_image = glad_gl_has_extension(exts, exts_i, "GL_OES_EGL_image");
+    context->OES_EGL_image_external = glad_gl_has_extension(exts, exts_i, "GL_OES_EGL_image_external");
+    context->OES_EGL_image_external_essl3 = glad_gl_has_extension(exts, exts_i, "GL_OES_EGL_image_external_essl3");
+    context->OES_compressed_ETC1_RGB8_sub_texture = glad_gl_has_extension(exts, exts_i, "GL_OES_compressed_ETC1_RGB8_sub_texture");
+    context->OES_compressed_ETC1_RGB8_texture = glad_gl_has_extension(exts, exts_i, "GL_OES_compressed_ETC1_RGB8_texture");
+    context->OES_copy_image = glad_gl_has_extension(exts, exts_i, "GL_OES_copy_image");
+    context->OES_depth24 = glad_gl_has_extension(exts, exts_i, "GL_OES_depth24");
+    context->OES_depth32 = glad_gl_has_extension(exts, exts_i, "GL_OES_depth32");
+    context->OES_depth_texture = glad_gl_has_extension(exts, exts_i, "GL_OES_depth_texture");
+    context->OES_draw_buffers_indexed = glad_gl_has_extension(exts, exts_i, "GL_OES_draw_buffers_indexed");
+    context->OES_draw_elements_base_vertex = glad_gl_has_extension(exts, exts_i, "GL_OES_draw_elements_base_vertex");
+    context->OES_element_index_uint = glad_gl_has_extension(exts, exts_i, "GL_OES_element_index_uint");
+    context->OES_fbo_render_mipmap = glad_gl_has_extension(exts, exts_i, "GL_OES_fbo_render_mipmap");
+    context->OES_fragment_precision_high = glad_gl_has_extension(exts, exts_i, "GL_OES_fragment_precision_high");
+    context->OES_geometry_point_size = glad_gl_has_extension(exts, exts_i, "GL_OES_geometry_point_size");
+    context->OES_geometry_shader = glad_gl_has_extension(exts, exts_i, "GL_OES_geometry_shader");
+    context->OES_get_program_binary = glad_gl_has_extension(exts, exts_i, "GL_OES_get_program_binary");
+    context->OES_gpu_shader5 = glad_gl_has_extension(exts, exts_i, "GL_OES_gpu_shader5");
+    context->OES_mapbuffer = glad_gl_has_extension(exts, exts_i, "GL_OES_mapbuffer");
+    context->OES_packed_depth_stencil = glad_gl_has_extension(exts, exts_i, "GL_OES_packed_depth_stencil");
+    context->OES_primitive_bounding_box = glad_gl_has_extension(exts, exts_i, "GL_OES_primitive_bounding_box");
+    context->OES_required_internalformat = glad_gl_has_extension(exts, exts_i, "GL_OES_required_internalformat");
+    context->OES_rgb8_rgba8 = glad_gl_has_extension(exts, exts_i, "GL_OES_rgb8_rgba8");
+    context->OES_sample_shading = glad_gl_has_extension(exts, exts_i, "GL_OES_sample_shading");
+    context->OES_sample_variables = glad_gl_has_extension(exts, exts_i, "GL_OES_sample_variables");
+    context->OES_shader_image_atomic = glad_gl_has_extension(exts, exts_i, "GL_OES_shader_image_atomic");
+    context->OES_shader_io_blocks = glad_gl_has_extension(exts, exts_i, "GL_OES_shader_io_blocks");
+    context->OES_shader_multisample_interpolation = glad_gl_has_extension(exts, exts_i, "GL_OES_shader_multisample_interpolation");
+    context->OES_standard_derivatives = glad_gl_has_extension(exts, exts_i, "GL_OES_standard_derivatives");
+    context->OES_stencil1 = glad_gl_has_extension(exts, exts_i, "GL_OES_stencil1");
+    context->OES_stencil4 = glad_gl_has_extension(exts, exts_i, "GL_OES_stencil4");
+    context->OES_surfaceless_context = glad_gl_has_extension(exts, exts_i, "GL_OES_surfaceless_context");
+    context->OES_tessellation_point_size = glad_gl_has_extension(exts, exts_i, "GL_OES_tessellation_point_size");
+    context->OES_tessellation_shader = glad_gl_has_extension(exts, exts_i, "GL_OES_tessellation_shader");
+    context->OES_texture_3D = glad_gl_has_extension(exts, exts_i, "GL_OES_texture_3D");
+    context->OES_texture_border_clamp = glad_gl_has_extension(exts, exts_i, "GL_OES_texture_border_clamp");
+    context->OES_texture_buffer = glad_gl_has_extension(exts, exts_i, "GL_OES_texture_buffer");
+    context->OES_texture_compression_astc = glad_gl_has_extension(exts, exts_i, "GL_OES_texture_compression_astc");
+    context->OES_texture_cube_map_array = glad_gl_has_extension(exts, exts_i, "GL_OES_texture_cube_map_array");
+    context->OES_texture_float = glad_gl_has_extension(exts, exts_i, "GL_OES_texture_float");
+    context->OES_texture_float_linear = glad_gl_has_extension(exts, exts_i, "GL_OES_texture_float_linear");
+    context->OES_texture_half_float = glad_gl_has_extension(exts, exts_i, "GL_OES_texture_half_float");
+    context->OES_texture_half_float_linear = glad_gl_has_extension(exts, exts_i, "GL_OES_texture_half_float_linear");
+    context->OES_texture_npot = glad_gl_has_extension(exts, exts_i, "GL_OES_texture_npot");
+    context->OES_texture_stencil8 = glad_gl_has_extension(exts, exts_i, "GL_OES_texture_stencil8");
+    context->OES_texture_storage_multisample_2d_array = glad_gl_has_extension(exts, exts_i, "GL_OES_texture_storage_multisample_2d_array");
+    context->OES_texture_view = glad_gl_has_extension(exts, exts_i, "GL_OES_texture_view");
+    context->OES_vertex_array_object = glad_gl_has_extension(exts, exts_i, "GL_OES_vertex_array_object");
+    context->OES_vertex_half_float = glad_gl_has_extension(exts, exts_i, "GL_OES_vertex_half_float");
+    context->OES_vertex_type_10_10_10_2 = glad_gl_has_extension(exts, exts_i, "GL_OES_vertex_type_10_10_10_2");
+    context->OES_viewport_array = glad_gl_has_extension(exts, exts_i, "GL_OES_viewport_array");
+    context->OVR_multiview_multisampled_render_to_texture = glad_gl_has_extension(exts, exts_i, "GL_OVR_multiview_multisampled_render_to_texture");
+    context->QCOM_YUV_texture_gather = glad_gl_has_extension(exts, exts_i, "GL_QCOM_YUV_texture_gather");
+    context->QCOM_alpha_test = glad_gl_has_extension(exts, exts_i, "GL_QCOM_alpha_test");
+    context->QCOM_binning_control = glad_gl_has_extension(exts, exts_i, "GL_QCOM_binning_control");
+    context->QCOM_driver_control = glad_gl_has_extension(exts, exts_i, "GL_QCOM_driver_control");
+    context->QCOM_extended_get = glad_gl_has_extension(exts, exts_i, "GL_QCOM_extended_get");
+    context->QCOM_extended_get2 = glad_gl_has_extension(exts, exts_i, "GL_QCOM_extended_get2");
+    context->QCOM_frame_extrapolation = glad_gl_has_extension(exts, exts_i, "GL_QCOM_frame_extrapolation");
+    context->QCOM_framebuffer_foveated = glad_gl_has_extension(exts, exts_i, "GL_QCOM_framebuffer_foveated");
+    context->QCOM_motion_estimation = glad_gl_has_extension(exts, exts_i, "GL_QCOM_motion_estimation");
+    context->QCOM_perfmon_global_mode = glad_gl_has_extension(exts, exts_i, "GL_QCOM_perfmon_global_mode");
+    context->QCOM_render_sRGB_R8_RG8 = glad_gl_has_extension(exts, exts_i, "GL_QCOM_render_sRGB_R8_RG8");
+    context->QCOM_render_shared_exponent = glad_gl_has_extension(exts, exts_i, "GL_QCOM_render_shared_exponent");
+    context->QCOM_shader_framebuffer_fetch_noncoherent = glad_gl_has_extension(exts, exts_i, "GL_QCOM_shader_framebuffer_fetch_noncoherent");
+    context->QCOM_shader_framebuffer_fetch_rate = glad_gl_has_extension(exts, exts_i, "GL_QCOM_shader_framebuffer_fetch_rate");
+    context->QCOM_shading_rate = glad_gl_has_extension(exts, exts_i, "GL_QCOM_shading_rate");
+    context->QCOM_texture_foveated = glad_gl_has_extension(exts, exts_i, "GL_QCOM_texture_foveated");
+    context->QCOM_texture_foveated2 = glad_gl_has_extension(exts, exts_i, "GL_QCOM_texture_foveated2");
+    context->QCOM_texture_foveated_subsampled_layout = glad_gl_has_extension(exts, exts_i, "GL_QCOM_texture_foveated_subsampled_layout");
+    context->QCOM_texture_lod_bias = glad_gl_has_extension(exts, exts_i, "GL_QCOM_texture_lod_bias");
+    context->QCOM_tiled_rendering = glad_gl_has_extension(exts, exts_i, "GL_QCOM_tiled_rendering");
+    context->QCOM_writeonly_rendering = glad_gl_has_extension(exts, exts_i, "GL_QCOM_writeonly_rendering");
+    context->QCOM_ycbcr_degamma = glad_gl_has_extension(exts, exts_i, "GL_QCOM_ycbcr_degamma");
+    context->VIV_shader_binary = glad_gl_has_extension(exts, exts_i, "GL_VIV_shader_binary");
+
+    glad_gl_free_extensions(exts_i);
+
+    return 1;
+}
+
+static int glad_gl_find_core_gles2(GladGLContext *context) {
+    int i;
+    const char* version;
+    const char* prefixes[] = {
+        "OpenGL ES-CM ",
+        "OpenGL ES-CL ",
+        "OpenGL ES ",
+        "OpenGL SC ",
+        NULL
+    };
+    int major = 0;
+    int minor = 0;
+    version = (const char*) context->GetString(GL_VERSION);
+    if (!version) return 0;
+    for (i = 0;  prefixes[i];  i++) {
+        const size_t length = strlen(prefixes[i]);
+        if (strncmp(version, prefixes[i], length) == 0) {
+            version += length;
+            break;
+        }
+    }
+
+    GLAD_IMPL_UTIL_SSCANF(version, "%d.%d", &major, &minor);
+
+    context->ES_VERSION_2_0 = (major == 2 && minor >= 0) || major > 2;
+    context->ES_VERSION_3_0 = (major == 3 && minor >= 0) || major > 3;
+    context->ES_VERSION_3_1 = (major == 3 && minor >= 1) || major > 3;
+    context->ES_VERSION_3_2 = (major == 3 && minor >= 2) || major > 3;
+
+    return GLAD_MAKE_VERSION(major, minor);
+}
+
+int gladLoadGLES2ContextUserPtr(GladGLContext *context, GLADuserptrloadfunc load, void *userptr) {
+    int version;
+
+    context->GetString = (PFNGLGETSTRINGPROC) load(userptr, "glGetString");
+    if(context->GetString == NULL) return 0;
+    version = glad_gl_find_core_gles2(context);
+
+    glad_gl_load_GL_ES_VERSION_2_0(context, load, userptr);
+    glad_gl_load_GL_ES_VERSION_3_0(context, load, userptr);
+    glad_gl_load_GL_ES_VERSION_3_1(context, load, userptr);
+    glad_gl_load_GL_ES_VERSION_3_2(context, load, userptr);
+
+    if (!glad_gl_find_extensions_gles2(context)) return 0;
+    glad_gl_load_GL_AMD_framebuffer_multisample_advanced(context, load, userptr);
+    glad_gl_load_GL_AMD_performance_monitor(context, load, userptr);
+    glad_gl_load_GL_EXT_EGL_image_storage(context, load, userptr);
+    glad_gl_load_GL_EXT_blend_minmax(context, load, userptr);
+    glad_gl_load_GL_EXT_debug_label(context, load, userptr);
+    glad_gl_load_GL_EXT_debug_marker(context, load, userptr);
+    glad_gl_load_GL_EXT_draw_instanced(context, load, userptr);
+    glad_gl_load_GL_EXT_external_buffer(context, load, userptr);
+    glad_gl_load_GL_EXT_framebuffer_blit_layers(context, load, userptr);
+    glad_gl_load_GL_EXT_memory_object(context, load, userptr);
+    glad_gl_load_GL_EXT_memory_object_fd(context, load, userptr);
+    glad_gl_load_GL_EXT_memory_object_win32(context, load, userptr);
+    glad_gl_load_GL_EXT_multi_draw_arrays(context, load, userptr);
+    glad_gl_load_GL_EXT_polygon_offset_clamp(context, load, userptr);
+    glad_gl_load_GL_EXT_raster_multisample(context, load, userptr);
+    glad_gl_load_GL_EXT_semaphore(context, load, userptr);
+    glad_gl_load_GL_EXT_semaphore_fd(context, load, userptr);
+    glad_gl_load_GL_EXT_semaphore_win32(context, load, userptr);
+    glad_gl_load_GL_EXT_separate_shader_objects(context, load, userptr);
+    glad_gl_load_GL_EXT_shader_framebuffer_fetch_non_coherent(context, load, userptr);
+    glad_gl_load_GL_EXT_texture_storage(context, load, userptr);
+    glad_gl_load_GL_EXT_win32_keyed_mutex(context, load, userptr);
+    glad_gl_load_GL_EXT_window_rectangles(context, load, userptr);
+    glad_gl_load_GL_INTEL_framebuffer_CMAA(context, load, userptr);
+    glad_gl_load_GL_INTEL_performance_query(context, load, userptr);
+    glad_gl_load_GL_KHR_blend_equation_advanced(context, load, userptr);
+    glad_gl_load_GL_KHR_debug(context, load, userptr);
+    glad_gl_load_GL_KHR_parallel_shader_compile(context, load, userptr);
+    glad_gl_load_GL_KHR_robustness(context, load, userptr);
+    glad_gl_load_GL_MESA_framebuffer_flip_y(context, load, userptr);
+    glad_gl_load_GL_NV_bindless_texture(context, load, userptr);
+    glad_gl_load_GL_NV_blend_equation_advanced(context, load, userptr);
+    glad_gl_load_GL_NV_clip_space_w_scaling(context, load, userptr);
+    glad_gl_load_GL_NV_conditional_render(context, load, userptr);
+    glad_gl_load_GL_NV_conservative_raster(context, load, userptr);
+    glad_gl_load_GL_NV_conservative_raster_pre_snap_triangles(context, load, userptr);
+    glad_gl_load_GL_NV_draw_vulkan_image(context, load, userptr);
+    glad_gl_load_GL_NV_fence(context, load, userptr);
+    glad_gl_load_GL_NV_fragment_coverage_to_color(context, load, userptr);
+    glad_gl_load_GL_NV_framebuffer_mixed_samples(context, load, userptr);
+    glad_gl_load_GL_NV_gpu_shader5(context, load, userptr);
+    glad_gl_load_GL_NV_internalformat_sample_query(context, load, userptr);
+    glad_gl_load_GL_NV_memory_attachment(context, load, userptr);
+    glad_gl_load_GL_NV_memory_object_sparse(context, load, userptr);
+    glad_gl_load_GL_NV_mesh_shader(context, load, userptr);
+    glad_gl_load_GL_NV_path_rendering(context, load, userptr);
+    glad_gl_load_GL_NV_sample_locations(context, load, userptr);
+    glad_gl_load_GL_NV_scissor_exclusive(context, load, userptr);
+    glad_gl_load_GL_NV_shading_rate_image(context, load, userptr);
+    glad_gl_load_GL_NV_texture_barrier(context, load, userptr);
+    glad_gl_load_GL_NV_timeline_semaphore(context, load, userptr);
+    glad_gl_load_GL_NV_viewport_swizzle(context, load, userptr);
+    glad_gl_load_GL_OVR_multiview(context, load, userptr);
+    glad_gl_load_GL_ANGLE_framebuffer_blit(context, load, userptr);
+    glad_gl_load_GL_ANGLE_framebuffer_multisample(context, load, userptr);
+    glad_gl_load_GL_ANGLE_instanced_arrays(context, load, userptr);
+    glad_gl_load_GL_ANGLE_translated_shader_source(context, load, userptr);
+    glad_gl_load_GL_APPLE_copy_texture_levels(context, load, userptr);
+    glad_gl_load_GL_APPLE_framebuffer_multisample(context, load, userptr);
+    glad_gl_load_GL_APPLE_sync(context, load, userptr);
+    glad_gl_load_GL_ARM_shader_core_properties(context, load, userptr);
+    glad_gl_load_GL_EXT_base_instance(context, load, userptr);
+    glad_gl_load_GL_EXT_blend_func_extended(context, load, userptr);
+    glad_gl_load_GL_EXT_buffer_storage(context, load, userptr);
+    glad_gl_load_GL_EXT_clear_texture(context, load, userptr);
+    glad_gl_load_GL_EXT_clip_control(context, load, userptr);
+    glad_gl_load_GL_EXT_copy_image(context, load, userptr);
+    glad_gl_load_GL_EXT_discard_framebuffer(context, load, userptr);
+    glad_gl_load_GL_EXT_disjoint_timer_query(context, load, userptr);
+    glad_gl_load_GL_EXT_draw_buffers(context, load, userptr);
+    glad_gl_load_GL_EXT_draw_buffers_indexed(context, load, userptr);
+    glad_gl_load_GL_EXT_draw_elements_base_vertex(context, load, userptr);
+    glad_gl_load_GL_EXT_draw_transform_feedback(context, load, userptr);
+    glad_gl_load_GL_EXT_fragment_shading_rate(context, load, userptr);
+    glad_gl_load_GL_EXT_geometry_shader(context, load, userptr);
+    glad_gl_load_GL_EXT_instanced_arrays(context, load, userptr);
+    glad_gl_load_GL_EXT_map_buffer_range(context, load, userptr);
+    glad_gl_load_GL_EXT_multi_draw_indirect(context, load, userptr);
+    glad_gl_load_GL_EXT_multisampled_render_to_texture(context, load, userptr);
+    glad_gl_load_GL_EXT_multiview_draw_buffers(context, load, userptr);
+    glad_gl_load_GL_EXT_occlusion_query_boolean(context, load, userptr);
+    glad_gl_load_GL_EXT_primitive_bounding_box(context, load, userptr);
+    glad_gl_load_GL_EXT_robustness(context, load, userptr);
+    glad_gl_load_GL_EXT_shader_pixel_local_storage2(context, load, userptr);
+    glad_gl_load_GL_EXT_sparse_texture(context, load, userptr);
+    glad_gl_load_GL_EXT_tessellation_shader(context, load, userptr);
+    glad_gl_load_GL_EXT_texture_border_clamp(context, load, userptr);
+    glad_gl_load_GL_EXT_texture_buffer(context, load, userptr);
+    glad_gl_load_GL_EXT_texture_storage_compression(context, load, userptr);
+    glad_gl_load_GL_EXT_texture_view(context, load, userptr);
+    glad_gl_load_GL_IMG_bindless_texture(context, load, userptr);
+    glad_gl_load_GL_IMG_framebuffer_downsample(context, load, userptr);
+    glad_gl_load_GL_IMG_multisampled_render_to_texture(context, load, userptr);
+    glad_gl_load_GL_MESA_sampler_objects(context, load, userptr);
+    glad_gl_load_GL_NV_copy_buffer(context, load, userptr);
+    glad_gl_load_GL_NV_coverage_sample(context, load, userptr);
+    glad_gl_load_GL_NV_draw_buffers(context, load, userptr);
+    glad_gl_load_GL_NV_draw_instanced(context, load, userptr);
+    glad_gl_load_GL_NV_framebuffer_blit(context, load, userptr);
+    glad_gl_load_GL_NV_framebuffer_multisample(context, load, userptr);
+    glad_gl_load_GL_NV_instanced_arrays(context, load, userptr);
+    glad_gl_load_GL_NV_non_square_matrices(context, load, userptr);
+    glad_gl_load_GL_NV_polygon_mode(context, load, userptr);
+    glad_gl_load_GL_NV_read_buffer(context, load, userptr);
+    glad_gl_load_GL_NV_viewport_array(context, load, userptr);
+    glad_gl_load_GL_OES_EGL_image(context, load, userptr);
+    glad_gl_load_GL_OES_EGL_image_external(context, load, userptr);
+    glad_gl_load_GL_OES_copy_image(context, load, userptr);
+    glad_gl_load_GL_OES_draw_buffers_indexed(context, load, userptr);
+    glad_gl_load_GL_OES_draw_elements_base_vertex(context, load, userptr);
+    glad_gl_load_GL_OES_geometry_shader(context, load, userptr);
+    glad_gl_load_GL_OES_get_program_binary(context, load, userptr);
+    glad_gl_load_GL_OES_mapbuffer(context, load, userptr);
+    glad_gl_load_GL_OES_primitive_bounding_box(context, load, userptr);
+    glad_gl_load_GL_OES_sample_shading(context, load, userptr);
+    glad_gl_load_GL_OES_tessellation_shader(context, load, userptr);
+    glad_gl_load_GL_OES_texture_3D(context, load, userptr);
+    glad_gl_load_GL_OES_texture_border_clamp(context, load, userptr);
+    glad_gl_load_GL_OES_texture_buffer(context, load, userptr);
+    glad_gl_load_GL_OES_texture_storage_multisample_2d_array(context, load, userptr);
+    glad_gl_load_GL_OES_texture_view(context, load, userptr);
+    glad_gl_load_GL_OES_vertex_array_object(context, load, userptr);
+    glad_gl_load_GL_OES_viewport_array(context, load, userptr);
+    glad_gl_load_GL_OVR_multiview_multisampled_render_to_texture(context, load, userptr);
+    glad_gl_load_GL_QCOM_alpha_test(context, load, userptr);
+    glad_gl_load_GL_QCOM_driver_control(context, load, userptr);
+    glad_gl_load_GL_QCOM_extended_get(context, load, userptr);
+    glad_gl_load_GL_QCOM_extended_get2(context, load, userptr);
+    glad_gl_load_GL_QCOM_frame_extrapolation(context, load, userptr);
+    glad_gl_load_GL_QCOM_framebuffer_foveated(context, load, userptr);
+    glad_gl_load_GL_QCOM_motion_estimation(context, load, userptr);
+    glad_gl_load_GL_QCOM_shader_framebuffer_fetch_noncoherent(context, load, userptr);
+    glad_gl_load_GL_QCOM_shading_rate(context, load, userptr);
+    glad_gl_load_GL_QCOM_texture_foveated(context, load, userptr);
+    glad_gl_load_GL_QCOM_tiled_rendering(context, load, userptr);
+
+
+    glad_gl_resolve_aliases(context);
+
+    return version;
+}
+
+
+int gladLoadGLES2Context(GladGLContext *context, GLADloadfunc load) {
+    return gladLoadGLES2ContextUserPtr(context, glad_gl_get_proc_from_userptr, GLAD_GNUC_EXTENSION (void*) load);
 }
 
 
@@ -5837,6 +8161,191 @@ void gladLoaderUnloadGLContext(GladGLContext *context) {
 }
 
 #endif /* GLAD_GL */
+#ifdef GLAD_GLES2
+
+#ifndef GLAD_LOADER_LIBRARY_C_
+#define GLAD_LOADER_LIBRARY_C_
+
+#include <stddef.h>
+#include <stdlib.h>
+
+#if GLAD_PLATFORM_WIN32
+#include <windows.h>
+#else
+#include <dlfcn.h>
+#endif
+
+
+static void* glad_get_dlopen_handle(const char *lib_names[], int length) {
+    void *handle = NULL;
+    int i;
+
+    for (i = 0; i < length; ++i) {
+#if GLAD_PLATFORM_WIN32
+  #if GLAD_PLATFORM_UWP
+        size_t buffer_size = (strlen(lib_names[i]) + 1) * sizeof(WCHAR);
+        LPWSTR buffer = (LPWSTR) malloc(buffer_size);
+        if (buffer != NULL) {
+            int ret = MultiByteToWideChar(CP_ACP, 0, lib_names[i], -1, buffer, buffer_size);
+            if (ret != 0) {
+                handle = (void*) LoadPackagedLibrary(buffer, 0);
+            }
+            free((void*) buffer);
+        }
+  #else
+        handle = (void*) LoadLibraryA(lib_names[i]);
+  #endif
+#else
+        handle = dlopen(lib_names[i], RTLD_LAZY | RTLD_LOCAL);
+#endif
+        if (handle != NULL) {
+            return handle;
+        }
+    }
+
+    return NULL;
+}
+
+static void glad_close_dlopen_handle(void* handle) {
+    if (handle != NULL) {
+#if GLAD_PLATFORM_WIN32
+        FreeLibrary((HMODULE) handle);
+#else
+        dlclose(handle);
+#endif
+    }
+}
+
+static GLADapiproc glad_dlsym_handle(void* handle, const char *name) {
+    if (handle == NULL) {
+        return NULL;
+    }
+
+#if GLAD_PLATFORM_WIN32
+    return (GLADapiproc) GetProcAddress((HMODULE) handle, name);
+#else
+    return GLAD_GNUC_EXTENSION (GLADapiproc) dlsym(handle, name);
+#endif
+}
+
+#endif /* GLAD_LOADER_LIBRARY_C_ */
+
+#if GLAD_PLATFORM_EMSCRIPTEN
+#ifndef GLAD_EGL_H_
+  typedef void (*__eglMustCastToProperFunctionPointerType)(void);
+  typedef __eglMustCastToProperFunctionPointerType (GLAD_API_PTR *PFNEGLGETPROCADDRESSPROC)(const char *name);
+#endif
+  extern __eglMustCastToProperFunctionPointerType emscripten_GetProcAddress(const char *name);
+#elif defined(GLAD_GLES2_USE_SYSTEM_EGL)
+  #include <EGL/egl.h>
+  typedef __eglMustCastToProperFunctionPointerType (GLAD_API_PTR *PFNEGLGETPROCADDRESSPROC)(const char *name);
+#else
+  #include <glad/egl.h>
+#endif
+
+
+struct _glad_gles2_userptr {
+    void *handle;
+    PFNEGLGETPROCADDRESSPROC get_proc_address_ptr;
+};
+
+
+static GLADapiproc glad_gles2_get_proc(void *vuserptr, const char* name) {
+    struct _glad_gles2_userptr userptr = *(struct _glad_gles2_userptr*) vuserptr;
+    GLADapiproc result = NULL;
+
+#if GLAD_PLATFORM_EMSCRIPTEN
+    GLAD_UNUSED(&glad_dlsym_handle);
+#else
+    result = glad_dlsym_handle(userptr.handle, name);
+#endif
+    if (result == NULL) {
+        result = userptr.get_proc_address_ptr(name);
+    }
+
+    return result;
+}
+
+
+static void* glad_gles2_dlopen_handle(GladGLContext *context) {
+#if GLAD_PLATFORM_EMSCRIPTEN
+#elif GLAD_PLATFORM_APPLE
+    static const char *NAMES[] = {"libGLESv2.dylib"};
+#elif GLAD_PLATFORM_WIN32
+    static const char *NAMES[] = {"GLESv2.dll", "libGLESv2.dll"};
+#else
+    static const char *NAMES[] = {"libGLESv2.so.2", "libGLESv2.so"};
+#endif
+
+#if GLAD_PLATFORM_EMSCRIPTEN
+    GLAD_UNUSED(&glad_get_dlopen_handle);
+    return NULL;
+#else
+    if (context->glad_loader_handle == NULL) {
+        context->glad_loader_handle = glad_get_dlopen_handle(NAMES, sizeof(NAMES) / sizeof(NAMES[0]));
+    }
+
+    return context->glad_loader_handle;
+#endif
+}
+
+static struct _glad_gles2_userptr glad_gles2_build_userptr(void *handle) {
+    struct _glad_gles2_userptr userptr;
+#if GLAD_PLATFORM_EMSCRIPTEN
+    GLAD_UNUSED(handle);
+    userptr.get_proc_address_ptr = emscripten_GetProcAddress;
+#else
+    userptr.handle = handle;
+    userptr.get_proc_address_ptr = eglGetProcAddress;
+#endif
+    return userptr;
+}
+
+int gladLoaderLoadGLES2Context(GladGLContext *context) {
+    int version = 0;
+    void *handle = NULL;
+    int did_load = 0;
+    struct _glad_gles2_userptr userptr;
+
+#if GLAD_PLATFORM_EMSCRIPTEN
+    GLAD_UNUSED(handle);
+    GLAD_UNUSED(did_load);
+    GLAD_UNUSED(&glad_gles2_dlopen_handle);
+    GLAD_UNUSED(&glad_gles2_build_userptr);
+    userptr.get_proc_address_ptr = emscripten_GetProcAddress;
+    version = gladLoadGLES2ContextUserPtr(context, glad_gles2_get_proc, &userptr);
+#else
+#ifndef GLAD_GLES2_USE_SYSTEM_EGL
+    if (eglGetProcAddress == NULL) {
+        return 0;
+    }
+#endif
+    did_load = context->glad_loader_handle == NULL;
+    handle = glad_gles2_dlopen_handle(context);
+    if (handle != NULL) {
+        userptr = glad_gles2_build_userptr(handle);
+
+        version = gladLoadGLES2ContextUserPtr(context, glad_gles2_get_proc, &userptr);
+
+        if (!version && did_load) {
+            gladLoaderUnloadGLES2Context(context);
+        }
+    }
+#endif
+
+    return version;
+}
+
+
+
+void gladLoaderUnloadGLES2Context(GladGLContext *context) {
+    if (context->glad_loader_handle != NULL) {
+        glad_close_dlopen_handle(context->glad_loader_handle);
+        context->glad_loader_handle = NULL;
+    }
+}
+
+#endif /* GLAD_GLES2 */
 
 #ifdef __cplusplus
 }
