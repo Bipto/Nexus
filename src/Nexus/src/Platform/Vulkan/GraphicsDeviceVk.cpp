@@ -33,6 +33,8 @@ namespace Nexus::Graphics
 		CreateCommandStructures();
 		CreateSynchronisationStructures();
 
+		LoadExtensionFunctions();
+
 		m_CommandExecutor = std::make_unique<CommandExecutorVk>(this);
 	}
 
@@ -283,6 +285,15 @@ namespace Nexus::Graphics
 		return GraphicsAPI::Vulkan;
 	}
 
+	void GraphicsDeviceVk::SetObjectName(VkObjectType type, uint64_t handle, const char *nam)
+	{
+	}
+
+	const DeviceExtensionFunctions &GraphicsDeviceVk::GetExtensionFunctions() const
+	{
+		return m_ExtensionFunctions;
+	}
+
 	VkInstance GraphicsDeviceVk::GetVkInstance()
 	{
 		return m_Instance;
@@ -489,12 +500,9 @@ namespace Nexus::Graphics
 		extendedDynamicStateFeatures.extendedDynamicState = VK_FALSE;
 		features2.pNext									  = &extendedDynamicStateFeatures;
 
-		if (m_DeviceConfig.UseDynamicInputBindingStrideIfAvailable)
+		if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME))
 		{
-			if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME))
-			{
-				extendedDynamicStateFeatures.extendedDynamicState = VK_TRUE;
-			}
+			extendedDynamicStateFeatures.extendedDynamicState = VK_TRUE;
 		}
 
 		createInfo.pNext				   = &features2;
@@ -515,7 +523,8 @@ namespace Nexus::Graphics
 		{
 			if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
 			{
-				dynamicRenderingFeatures.pNext = &dynamicRenderingFeatures;
+				dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
+				features2.pNext							  = &dynamicRenderingFeatures;
 			}
 		}
 
@@ -585,6 +594,29 @@ namespace Nexus::Graphics
 		{
 			throw std::runtime_error("Failed to create fence");
 		}
+	}
+
+	void GraphicsDeviceVk::LoadExtensionFunctions()
+	{
+		m_ExtensionFunctions.vkCmdBindVertexBuffers2EXT = (PFN_vkCmdBindVertexBuffers2EXT)vkGetDeviceProcAddr(m_Device, "vkCmdBindVertexBuffers2EXT");
+
+		m_ExtensionFunctions.vkCmdBindIndexBuffer2KHR  = (PFN_vkCmdBindIndexBuffer2KHR)vkGetDeviceProcAddr(m_Device, "vkCmdBindIndexBuffer2KHR");
+		m_ExtensionFunctions.vkCmdDebugMarkerBeginEXT  = (PFN_vkCmdDebugMarkerBeginEXT)vkGetDeviceProcAddr(m_Device, "vkCmdDebugMarkerBeginEXT");
+		m_ExtensionFunctions.vkCmdDebugMarkerEndEXT	   = (PFN_vkCmdDebugMarkerEndEXT)vkGetDeviceProcAddr(m_Device, "vkCmdDebugMarkerEndEXT");
+		m_ExtensionFunctions.vkCmdDebugMarkerInsertEXT = (PFN_vkCmdDebugMarkerInsertEXT)vkGetDeviceProcAddr(m_Device, "vkCmdDebugMarkerInsertEXT");
+
+		m_ExtensionFunctions.vkCmdBeginDebugUtilsLabelEXT =
+			(PFN_vkCmdBeginDebugUtilsLabelEXT)vkGetDeviceProcAddr(m_Device, "vkCmdBeginDebugUtilsLabelEXT");
+		m_ExtensionFunctions.vkCmdEndDebugUtilsLabelEXT = (PFN_vkCmdEndDebugUtilsLabelEXT)vkGetDeviceProcAddr(m_Device, "vkCmdEndDebugUtilsLabelEXT");
+		m_ExtensionFunctions.vkCmdInsertDebugUtilsLabelEXT =
+			(PFN_vkCmdInsertDebugUtilsLabelEXT)vkGetDeviceProcAddr(m_Device, "vkCmdInsertDebugUtilsLabelEXT");
+
+		m_ExtensionFunctions.vkCmdBeginRenderPass2KHR = (PFN_vkCmdBeginRenderPass2KHR)vkGetDeviceProcAddr(m_Device, "vkCmdBeginRenderPass2KHR");
+		m_ExtensionFunctions.vkCmdEndRenderPass2KHR	  = (PFN_vkCmdEndRenderPass2KHR)vkGetDeviceProcAddr(m_Device, "vkCmdEndRenderPass2KHR");
+		m_ExtensionFunctions.vkCreateRenderPass2KHR	  = (PFN_vkCreateRenderPass2KHR)vkGetDeviceProcAddr(m_Device, "vkCreateRenderPass2KHR");
+
+		m_ExtensionFunctions.vkCmdBeginRenderingKHR = (PFN_vkCmdBeginRenderingKHR)vkGetDeviceProcAddr(m_Device, "vkCmdBeginRenderingKHR");
+		m_ExtensionFunctions.vkCmdEndRenderingKHR	= (PFN_vkCmdEndRenderingKHR)vkGetDeviceProcAddr(m_Device, "vkCmdEndRenderingKHR");
 	}
 
 	VkImageView GraphicsDeviceVk::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
@@ -661,14 +693,10 @@ namespace Nexus::Graphics
 		extensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 		extensions.push_back(VK_EXT_VERTEX_ATTRIBUTE_DIVISOR_EXTENSION_NAME);
 
-		// this is used for vkCmdBindVertexBuffers2
-		if (m_DeviceConfig.UseDynamicInputBindingStrideIfAvailable)
+		// this is used for vkCmdBindVertexBuffers2	{
+		if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME))
 		{
-			if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME))
-			{
-				extensions.push_back(VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME);
-				m_DeviceFeatures.DynamicInputBindingStrideAvailable = true;
-			}
+			extensions.push_back(VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME);
 		}
 
 		// this is used for dynamic rendering

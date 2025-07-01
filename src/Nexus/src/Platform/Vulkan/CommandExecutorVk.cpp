@@ -12,14 +12,6 @@ namespace Nexus::Graphics
 {
 	CommandExecutorVk::CommandExecutorVk(GraphicsDeviceVk *device) : m_Device(device)
 	{
-		m_vkCmdBindVertexBuffers2EXT = (PFN_vkCmdBindVertexBuffers2EXT)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdBindVertexBuffers2EXT");
-		m_vkCmdBindIndexBuffer2KHR	 = (PFN_vkCmdBindIndexBuffer2KHR)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdBindIndexBuffer2KHR");
-		m_vkCmdDebugMarkerBeginEXT	= (PFN_vkCmdDebugMarkerBeginEXT)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdDebugMarkerBeginEXT");
-		m_vkCmdDebugMarkerEndEXT	= (PFN_vkCmdDebugMarkerEndEXT)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdDebugMarkerEndEXT");
-		m_vkCmdDebugMarkerInsertEXT = (PFN_vkCmdDebugMarkerInsertEXT)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdDebugMarkerInsertEXT");
-
-		m_vkCmdBeginRenderPass = (PFN_vkCmdBeginRenderPass)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdBeginRenderPass");
-		m_vkCmdEndRenderPass   = (PFN_vkCmdEndRenderPass)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdEndRenderPass");
 	}
 
 	CommandExecutorVk::~CommandExecutorVk()
@@ -85,11 +77,11 @@ namespace Nexus::Graphics
 		VkDeviceSize		offsets[]		= {command.View.Offset};
 		VkDeviceSize		sizes[]			= {command.View.Size};
 
-		const VulkanDeviceFeatures &deviceFeatures = m_Device->GetDeviceFeatures();
+		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
 
-		if (deviceFeatures.DynamicInputBindingStrideAvailable && m_vkCmdBindVertexBuffers2EXT)
+		if (functions.vkCmdBindVertexBuffers2EXT)
 		{
-			m_vkCmdBindVertexBuffers2EXT(m_CommandBuffer, command.Slot, 1, vertexBuffers, offsets, sizes, nullptr);
+			functions.vkCmdBindVertexBuffers2EXT(m_CommandBuffer, command.Slot, 1, vertexBuffers, offsets, sizes, nullptr);
 		}
 		else
 		{
@@ -110,9 +102,11 @@ namespace Nexus::Graphics
 		VkDeviceSize		offset			  = command.View.Offset;
 		VkDeviceSize		size			  = command.View.Size;
 
-		if (m_vkCmdBindIndexBuffer2KHR)
+		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+
+		if (functions.vkCmdBindIndexBuffer2KHR)
 		{
-			m_vkCmdBindIndexBuffer2KHR(m_CommandBuffer, indexBufferHandle, offset, size, indexType);
+			functions.vkCmdBindIndexBuffer2KHR(m_CommandBuffer, indexBufferHandle, offset, size, indexType);
 		}
 		else
 		{
@@ -299,11 +293,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(RenderTarget command, GraphicsDevice *device)
 	{
-		if (m_Rendering)
-		{
-			// vkCmdEndRendering(m_CommandBuffer);
-			vkCmdEndRenderPass(m_CommandBuffer);
-		}
+		StopRendering();
 
 		m_CurrentRenderTarget = command;
 		m_RenderSize		  = {m_CurrentRenderTarget.GetSize().X, m_CurrentRenderTarget.GetSize().Y};
@@ -662,38 +652,171 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(BeginDebugGroupCommand command, GraphicsDevice *device)
 	{
-		if (!m_vkCmdDebugMarkerBeginEXT)
-		{
-			return;
-		}
+		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
 
-		VkDebugMarkerMarkerInfoEXT markerInfo = {};
-		markerInfo.sType					  = VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT;
-		markerInfo.pMarkerName				  = command.GroupName.c_str();
-		m_vkCmdDebugMarkerBeginEXT(m_CommandBuffer, &markerInfo);
+		if (functions.vkCmdBeginDebugUtilsLabelEXT)
+		{
+			VkDebugUtilsLabelEXT labelEXT = {};
+			labelEXT.sType				  = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
+			labelEXT.pNext				  = nullptr;
+			labelEXT.pLabelName			  = command.GroupName.c_str();
+			labelEXT.color[0]			  = 0;
+			labelEXT.color[1]			  = 0;
+			labelEXT.color[2]			  = 0;
+			labelEXT.color[3]			  = 0;
+			functions.vkCmdBeginDebugUtilsLabelEXT(m_CommandBuffer, &labelEXT);
+		}
+		else if (functions.vkCmdDebugMarkerBeginEXT)
+		{
+			VkDebugMarkerMarkerInfoEXT markerInfo = {};
+			markerInfo.sType					  = VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT;
+			markerInfo.pMarkerName				  = command.GroupName.c_str();
+			functions.vkCmdDebugMarkerBeginEXT(m_CommandBuffer, &markerInfo);
+		}
 	}
 
 	void CommandExecutorVk::ExecuteCommand(EndDebugGroupCommand command, GraphicsDevice *device)
 	{
-		if (!m_vkCmdDebugMarkerEndEXT)
-		{
-			return;
-		}
+		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
 
-		m_vkCmdDebugMarkerEndEXT(m_CommandBuffer);
+		if (functions.vkCmdEndDebugUtilsLabelEXT)
+		{
+			functions.vkCmdEndDebugUtilsLabelEXT(m_CommandBuffer);
+		}
+		else if (functions.vkCmdDebugMarkerEndEXT)
+		{
+			functions.vkCmdDebugMarkerEndEXT(m_CommandBuffer);
+		}
 	}
 
 	void CommandExecutorVk::ExecuteCommand(InsertDebugMarkerCommand command, GraphicsDevice *device)
 	{
-		if (!m_vkCmdDebugMarkerInsertEXT)
+		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+
+		if (functions.vkCmdInsertDebugUtilsLabelEXT)
 		{
-			return;
+			VkDebugUtilsLabelEXT labelEXT = {};
+			labelEXT.sType				  = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
+			labelEXT.pNext				  = nullptr;
+			labelEXT.pLabelName			  = command.MarkerName.c_str();
+			labelEXT.color[0]			  = 0;
+			labelEXT.color[1]			  = 0;
+			labelEXT.color[2]			  = 0;
+			labelEXT.color[3]			  = 0;
+			functions.vkCmdInsertDebugUtilsLabelEXT(m_CommandBuffer, &labelEXT);
+		}
+		else if (functions.vkCmdDebugMarkerInsertEXT)
+		{
+			VkDebugMarkerMarkerInfoEXT markerInfo = {};
+			markerInfo.sType					  = VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT;
+			markerInfo.pMarkerName				  = command.MarkerName.c_str();
+			functions.vkCmdDebugMarkerInsertEXT(m_CommandBuffer, &markerInfo);
+		}
+	}
+
+	void BeginRenderPass(GraphicsDeviceVk			 *device,
+						 const VkRenderPassBeginInfo &beginInfo,
+						 VkSubpassContents			  subpassContents,
+						 VkCommandBuffer			  commandBuffer)
+	{
+		const DeviceExtensionFunctions &functions = device->GetExtensionFunctions();
+		if (functions.vkCmdBeginRenderPass2KHR)
+		{
+			VkSubpassBeginInfo subpassInfo = {};
+			subpassInfo.sType			   = VK_STRUCTURE_TYPE_SUBPASS_BEGIN_INFO;
+			subpassInfo.pNext			   = nullptr;
+			subpassInfo.contents		   = subpassContents;
+
+			functions.vkCmdBeginRenderPass2KHR(commandBuffer, &beginInfo, &subpassInfo);
+		}
+		else
+		{
+			vkCmdBeginRenderPass(commandBuffer, &beginInfo, subpassContents);
+		}
+	}
+
+	void BeginDynamicRenderingToSwapchain(GraphicsDeviceVk *device, Ref<SwapchainVk> swapchain, VkCommandBuffer commandBuffer)
+	{
+		VkExtent2D swapchainSize = swapchain->GetSwapchainSize();
+
+		VkRect2D renderArea;
+		renderArea.offset = {0, 0};
+		renderArea.extent = swapchainSize;
+
+		VkRenderingAttachmentInfo colourAttachment = {};
+		colourAttachment.sType					   = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+
+		if (swapchain->GetSpecification().Samples == 1)
+		{
+			colourAttachment.imageView	 = swapchain->GetColourImageView();
+			colourAttachment.imageLayout = swapchain->GetColorImageLayout();
+		}
+		else
+		{
+			device->TransitionVulkanImageLayout(commandBuffer,
+												swapchain->GetResolveImage(),
+												0,
+												0,
+												swapchain->GetResolveImageLayout(),
+												VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+												VK_IMAGE_ASPECT_COLOR_BIT);
+			swapchain->SetResolveImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+
+			colourAttachment.imageView	 = swapchain->GetResolveImageView();
+			colourAttachment.imageLayout = swapchain->GetResolveImageLayout();
+
+			colourAttachment.resolveImageView	= swapchain->GetColourImageView();
+			colourAttachment.resolveImageLayout = swapchain->GetColorImageLayout();
+			colourAttachment.resolveMode		= VK_RESOLVE_MODE_AVERAGE_BIT;
 		}
 
-		VkDebugMarkerMarkerInfoEXT markerInfo = {};
-		markerInfo.sType					  = VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT;
-		markerInfo.pMarkerName				  = command.MarkerName.c_str();
-		m_vkCmdDebugMarkerInsertEXT(m_CommandBuffer, &markerInfo);
+		colourAttachment.loadOp		= VK_ATTACHMENT_LOAD_OP_LOAD;
+		colourAttachment.storeOp	= VK_ATTACHMENT_STORE_OP_STORE;
+		colourAttachment.clearValue = {};
+
+		VkRenderingAttachmentInfo depthAttachment = {};
+		depthAttachment.sType					  = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+		depthAttachment.imageView				  = swapchain->GetDepthImageView();
+		depthAttachment.imageLayout				  = swapchain->GetDepthImageLayout();
+		depthAttachment.loadOp					  = VK_ATTACHMENT_LOAD_OP_LOAD;
+		depthAttachment.storeOp					  = VK_ATTACHMENT_STORE_OP_STORE;
+		depthAttachment.clearValue				  = {};
+
+		VkRenderingInfo renderingInfo	   = {};
+		renderingInfo.sType				   = VK_STRUCTURE_TYPE_RENDERING_INFO;
+		renderingInfo.renderArea		   = renderArea;
+		renderingInfo.layerCount		   = 1;
+		renderingInfo.colorAttachmentCount = 1;
+		renderingInfo.pColorAttachments	   = &colourAttachment;
+		renderingInfo.pDepthAttachment	   = &depthAttachment;
+
+		const DeviceExtensionFunctions &functions = device->GetExtensionFunctions();
+		functions.vkCmdBeginRenderingKHR(commandBuffer, &renderingInfo);
+	}
+
+	void BeginRenderPassToSwapchain(GraphicsDeviceVk *device, Ref<SwapchainVk> swapchain, VkCommandBuffer commandBuffer)
+	{
+		VkFramebuffer framebuffer = swapchain->GetFramebuffer();
+		VkRenderPass  renderpass  = swapchain->GetRenderPass();
+		VkExtent2D	  renderSize  = swapchain->GetSwapchainSize();
+
+		NX_ASSERT(framebuffer, "Invalid framebuffer");
+		NX_ASSERT(renderpass, "Invalid renderpass");
+		NX_ASSERT(renderSize.width > 0 && renderSize.height > 0, "Invalid render size");
+
+		VkRenderPassBeginInfo beginInfo = {};
+		beginInfo.sType					= VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		beginInfo.pNext					= nullptr;
+		beginInfo.renderPass			= renderpass;
+		beginInfo.framebuffer			= framebuffer;
+		beginInfo.renderArea.offset		= {0, 0};
+		beginInfo.renderArea.extent		= renderSize;
+		beginInfo.clearValueCount		= 0;
+		beginInfo.pClearValues			= nullptr;
+
+		VkSubpassContents subpassContents = VK_SUBPASS_CONTENTS_INLINE;
+
+		BeginRenderPass(device, beginInfo, subpassContents, commandBuffer);
 	}
 
 	void CommandExecutorVk::StartRenderingToSwapchain(Ref<Swapchain> swapchain)
@@ -732,82 +855,93 @@ namespace Nexus::Graphics
 			swapchainVk->SetResolveImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 		}
 
-		/* VkExtent2D swapchainSize = swapchainVk->GetSwapchainSize();
-
-		VkRect2D renderArea;
-		renderArea.offset = {0, 0};
-		renderArea.extent = swapchainSize;
-
-		VkRenderingAttachmentInfo colourAttachment = {};
-		colourAttachment.sType					   = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-
-		if (swapchain->GetSpecification().Samples == 1)
+		const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
+		if (features.DynamicRenderingAvailable)
 		{
-			colourAttachment.imageView	 = swapchainVk->GetColourImageView();
-			colourAttachment.imageLayout = swapchainVk->GetColorImageLayout();
+			BeginDynamicRenderingToSwapchain(m_Device, swapchainVk, m_CommandBuffer);
 		}
 		else
 		{
-			m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
-												  swapchainVk->GetResolveImage(),
-												  0,
-												  0,
-												  swapchainVk->GetResolveImageLayout(),
-												  VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-												  VK_IMAGE_ASPECT_COLOR_BIT);
-			swapchainVk->SetResolveImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-
-			colourAttachment.imageView	 = swapchainVk->GetResolveImageView();
-			colourAttachment.imageLayout = swapchainVk->GetResolveImageLayout();
-
-			colourAttachment.resolveImageView	= swapchainVk->GetColourImageView();
-			colourAttachment.resolveImageLayout = swapchainVk->GetColorImageLayout();
-			colourAttachment.resolveMode		= VK_RESOLVE_MODE_AVERAGE_BIT;
+			BeginRenderPassToSwapchain(m_Device, swapchainVk, m_CommandBuffer);
 		}
 
-		colourAttachment.loadOp		= VK_ATTACHMENT_LOAD_OP_LOAD;
-		colourAttachment.storeOp	= VK_ATTACHMENT_STORE_OP_STORE;
-		colourAttachment.clearValue = {};
+		m_Rendering = true;
+	}
 
+	void BeginDynamicRenderingToFramebuffer(GraphicsDeviceVk *device, Ref<FramebufferVk> framebuffer, VkCommandBuffer commandBuffer)
+	{
+		VkRect2D renderArea {};
+		renderArea.offset = {0, 0};
+		renderArea.extent = {framebuffer->GetFramebufferSpecification().Width, framebuffer->GetFramebufferSpecification().Height};
+
+		std::vector<VkRenderingAttachmentInfo> colourAttachments;
+
+		// attach colour textures
+		for (uint32_t colourAttachmentIndex = 0; colourAttachmentIndex < framebuffer->GetColorTextureCount(); colourAttachmentIndex++)
+		{
+			Ref<TextureVk> texture = framebuffer->GetVulkanColorTexture(colourAttachmentIndex);
+
+			VkRenderingAttachmentInfo colourAttachment = {};
+			colourAttachment.sType					   = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+			colourAttachment.imageView				   = texture->GetImageView();
+			colourAttachment.imageLayout			   = texture->GetImageLayout(0, 0);
+			colourAttachment.loadOp					   = VK_ATTACHMENT_LOAD_OP_LOAD;
+			colourAttachment.storeOp				   = VK_ATTACHMENT_STORE_OP_STORE;
+			colourAttachment.clearValue				   = {};
+			colourAttachments.push_back(colourAttachment);
+		}
+
+		// set up depth attachment (may be unused)
 		VkRenderingAttachmentInfo depthAttachment = {};
-		depthAttachment.sType					  = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-		depthAttachment.imageView				  = swapchainVk->GetDepthImageView();
-		depthAttachment.imageLayout				  = swapchainVk->GetDepthImageLayout();
-		depthAttachment.loadOp					  = VK_ATTACHMENT_LOAD_OP_LOAD;
-		depthAttachment.storeOp					  = VK_ATTACHMENT_STORE_OP_STORE;
-		depthAttachment.clearValue				  = {};
+		if (framebuffer->HasDepthTexture())
+		{
+			Ref<TextureVk> texture = framebuffer->GetVulkanDepthTexture();
+
+			depthAttachment.sType		= VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+			depthAttachment.imageView	= texture->GetImageView();
+			depthAttachment.imageLayout = texture->GetImageLayout(0, 0);
+			depthAttachment.loadOp		= VK_ATTACHMENT_LOAD_OP_LOAD;
+			depthAttachment.storeOp		= VK_ATTACHMENT_STORE_OP_STORE;
+			depthAttachment.clearValue	= {};
+		}
 
 		VkRenderingInfo renderingInfo	   = {};
 		renderingInfo.sType				   = VK_STRUCTURE_TYPE_RENDERING_INFO;
 		renderingInfo.renderArea		   = renderArea;
 		renderingInfo.layerCount		   = 1;
-		renderingInfo.colorAttachmentCount = 1;
-		renderingInfo.pColorAttachments	   = &colourAttachment;
-		renderingInfo.pDepthAttachment	   = &depthAttachment;
+		renderingInfo.colorAttachmentCount = colourAttachments.size();
+		renderingInfo.pColorAttachments	   = colourAttachments.data();
 
-		vkCmdBeginRendering(m_CommandBuffer, &renderingInfo); */
+		if (framebuffer->HasDepthTexture())
+		{
+			renderingInfo.pDepthAttachment	 = &depthAttachment;
+			renderingInfo.pStencilAttachment = &depthAttachment;
+		}
+		else
+		{
+			renderingInfo.pDepthAttachment	 = nullptr;
+			renderingInfo.pStencilAttachment = nullptr;
+		}
 
-		VkFramebuffer framebuffer = swapchainVk->GetFramebuffer();
-		VkRenderPass  renderpass  = swapchainVk->GetRenderPass();
-		VkExtent2D	  renderSize  = swapchainVk->GetSwapchainSize();
+		const DeviceExtensionFunctions &functions = device->GetExtensionFunctions();
+		functions.vkCmdBeginRenderingKHR(commandBuffer, &renderingInfo);
+	}
 
-		NX_ASSERT(framebuffer, "Invalid framebuffer");
-		NX_ASSERT(renderpass, "Invalid renderpass");
-		NX_ASSERT(renderSize.width > 0 && renderSize.height > 0, "Invalid render size");
-
+	void BeginRenderPassToFramebuffer(GraphicsDeviceVk *device, Ref<FramebufferVk> framebuffer, VkCommandBuffer commandBuffer)
+	{
 		VkRenderPassBeginInfo beginInfo = {};
 		beginInfo.sType					= VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 		beginInfo.pNext					= nullptr;
-		beginInfo.renderPass			= renderpass;
-		beginInfo.framebuffer			= framebuffer;
+		beginInfo.renderPass			= framebuffer->GetRenderPass();
+		beginInfo.framebuffer			= framebuffer->GetFramebuffer();
 		beginInfo.renderArea.offset		= {0, 0};
-		beginInfo.renderArea.extent		= renderSize;
+		beginInfo.renderArea.extent		= {framebuffer->GetFramebufferSpecification().Width, framebuffer->GetFramebufferSpecification().Height};
 		beginInfo.clearValueCount		= 0;
 		beginInfo.pClearValues			= nullptr;
 
-		m_vkCmdBeginRenderPass(m_CommandBuffer, &beginInfo, VK_SUBPASS_CONTENTS_INLINE);
+		VkSubpassContents subpassContents = VK_SUBPASS_CONTENTS_INLINE;
 
-		m_Rendering = true;
+		BeginRenderPass(device, beginInfo, subpassContents, commandBuffer);
 	}
 
 	void CommandExecutorVk::StartRenderingToFramebuffer(Ref<Framebuffer> framebuffer)
@@ -850,72 +984,15 @@ namespace Nexus::Graphics
 			}
 		}
 
-		/* VkRect2D renderArea {};
-		renderArea.offset = {0, 0};
-		renderArea.extent = {vulkanFramebuffer->GetFramebufferSpecification().Width, vulkanFramebuffer->GetFramebufferSpecification().Height};
-
-		std::vector<VkRenderingAttachmentInfo> colourAttachments;
-
-		// attach colour textures
-		for (uint32_t colourAttachmentIndex = 0; colourAttachmentIndex < vulkanFramebuffer->GetColorTextureCount(); colourAttachmentIndex++)
+		const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
+		if (features.DynamicRenderingAvailable)
 		{
-			Ref<TextureVk> texture = vulkanFramebuffer->GetVulkanColorTexture(colourAttachmentIndex);
-
-			VkRenderingAttachmentInfo colourAttachment = {};
-			colourAttachment.sType					   = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-			colourAttachment.imageView				   = texture->GetImageView();
-			colourAttachment.imageLayout			   = texture->GetImageLayout(0, 0);
-			colourAttachment.loadOp					   = VK_ATTACHMENT_LOAD_OP_LOAD;
-			colourAttachment.storeOp				   = VK_ATTACHMENT_STORE_OP_STORE;
-			colourAttachment.clearValue				   = {};
-			colourAttachments.push_back(colourAttachment);
-		}
-
-		// set up depth attachment (may be unused)
-		VkRenderingAttachmentInfo depthAttachment = {};
-		if (framebuffer->HasDepthTexture())
-		{
-			Ref<TextureVk> texture = vulkanFramebuffer->GetVulkanDepthTexture();
-
-			depthAttachment.sType		= VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-			depthAttachment.imageView	= texture->GetImageView();
-			depthAttachment.imageLayout = texture->GetImageLayout(0, 0);
-			depthAttachment.loadOp		= VK_ATTACHMENT_LOAD_OP_LOAD;
-			depthAttachment.storeOp		= VK_ATTACHMENT_STORE_OP_STORE;
-			depthAttachment.clearValue	= {};
-		}
-
-		VkRenderingInfo renderingInfo	   = {};
-		renderingInfo.sType				   = VK_STRUCTURE_TYPE_RENDERING_INFO;
-		renderingInfo.renderArea		   = renderArea;
-		renderingInfo.layerCount		   = 1;
-		renderingInfo.colorAttachmentCount = colourAttachments.size();
-		renderingInfo.pColorAttachments	   = colourAttachments.data();
-
-		if (vulkanFramebuffer->HasDepthTexture())
-		{
-			renderingInfo.pDepthAttachment	 = &depthAttachment;
-			renderingInfo.pStencilAttachment = &depthAttachment;
+			BeginDynamicRenderingToFramebuffer(m_Device, vulkanFramebuffer, m_CommandBuffer);
 		}
 		else
 		{
-			renderingInfo.pDepthAttachment	 = nullptr;
-			renderingInfo.pStencilAttachment = nullptr;
+			BeginRenderPassToFramebuffer(m_Device, vulkanFramebuffer, m_CommandBuffer);
 		}
-
-		vkCmdBeginRendering(m_CommandBuffer, &renderingInfo); */
-
-		VkRenderPassBeginInfo beginInfo = {};
-		beginInfo.sType					= VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		beginInfo.pNext					= nullptr;
-		beginInfo.renderPass			= vulkanFramebuffer->GetRenderPass();
-		beginInfo.framebuffer			= vulkanFramebuffer->GetFramebuffer();
-		beginInfo.renderArea.offset		= {0, 0};
-		beginInfo.renderArea.extent		= {vulkanFramebuffer->GetFramebufferSpecification().Width,
-										   vulkanFramebuffer->GetFramebufferSpecification().Height};
-		beginInfo.clearValueCount		= 0;
-		beginInfo.pClearValues			= nullptr;
-		m_vkCmdBeginRenderPass(m_CommandBuffer, &beginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 		m_Rendering = true;
 	}
@@ -924,8 +1001,15 @@ namespace Nexus::Graphics
 	{
 		if (m_Rendering)
 		{
-			// vkCmdEndRendering(m_CommandBuffer);
-			m_vkCmdEndRenderPass(m_CommandBuffer);
+			const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
+			if (features.DynamicRenderingAvailable)
+			{
+				vkCmdEndRendering(m_CommandBuffer);
+			}
+			else
+			{
+				vkCmdEndRenderPass(m_CommandBuffer);
+			}
 
 			if (m_CurrentRenderTarget.GetType() == RenderTargetType::Framebuffer)
 			{
@@ -980,12 +1064,29 @@ namespace Nexus::Graphics
 		if (Ref<Swapchain> swapchain = m_CurrentRenderTarget.GetSwapchain().lock())
 		{
 			Ref<SwapchainVk> swapchainVk = std::dynamic_pointer_cast<SwapchainVk>(swapchain);
-			vulkanPipeline->Bind(m_CommandBuffer, swapchainVk->GetRenderPass(), m_VertexBufferStrides);
+
+			VkRenderPass renderPass = VK_NULL_HANDLE;
+
+			const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
+			if (!features.DynamicRenderingAvailable)
+			{
+				renderPass = swapchainVk->GetRenderPass();
+			}
+
+			vulkanPipeline->Bind(m_CommandBuffer, renderPass, m_VertexBufferStrides);
 		}
 		else if (Ref<Framebuffer> framebuffer = m_CurrentRenderTarget.GetFramebuffer().lock())
 		{
-			Ref<FramebufferVk> framebufferVk = std::dynamic_pointer_cast<FramebufferVk>(framebuffer);
-			vulkanPipeline->Bind(m_CommandBuffer, framebufferVk->GetRenderPass(), m_VertexBufferStrides);
+			VkRenderPass renderPass = VK_NULL_HANDLE;
+
+			const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
+			if (!features.DynamicRenderingAvailable)
+			{
+				Ref<FramebufferVk> framebufferVk = std::dynamic_pointer_cast<FramebufferVk>(framebuffer);
+				renderPass						 = framebufferVk->GetRenderPass();
+			}
+
+			vulkanPipeline->Bind(m_CommandBuffer, renderPass, m_VertexBufferStrides);
 		}
 		else
 		{

@@ -444,7 +444,7 @@ namespace Nexus::Graphics
 		desc.Samples = Vk::GetVkSampleCountFlagsFromSampleCount(m_Specification.Samples);
 		desc.IsSwapchain = true;
 
-		m_RenderPass = Vk::CreateRenderPass(m_GraphicsDevice->GetVkDevice(), desc);
+		m_RenderPass = Vk::CreateRenderPass(m_GraphicsDevice, desc);
 	}
 
 	void SwapchainVk::CreateAll()

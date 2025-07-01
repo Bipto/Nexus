@@ -21,13 +21,34 @@ namespace Nexus::Graphics
 	{
 		bool Debug									 = false;
 		bool UseDynamicRenderingIfAvailable			 = false;
-		bool UseDynamicInputBindingStrideIfAvailable = false;
 	};
 
 	struct VulkanDeviceFeatures
 	{
 		bool DynamicRenderingAvailable			= false;
-		bool DynamicInputBindingStrideAvailable = false;
+	};
+
+	struct DeviceExtensionFunctions
+	{
+		PFN_vkCmdBindVertexBuffers2EXT vkCmdBindVertexBuffers2EXT = VK_NULL_HANDLE;
+		PFN_vkCmdBindIndexBuffer2KHR   vkCmdBindIndexBuffer2KHR	  = VK_NULL_HANDLE;
+
+		// these are the more modern debug functions, so use these if available
+		PFN_vkCmdBeginDebugUtilsLabelEXT  vkCmdBeginDebugUtilsLabelEXT	= VK_NULL_HANDLE;
+		PFN_vkCmdEndDebugUtilsLabelEXT	  vkCmdEndDebugUtilsLabelEXT	= VK_NULL_HANDLE;
+		PFN_vkCmdInsertDebugUtilsLabelEXT vkCmdInsertDebugUtilsLabelEXT = VK_NULL_HANDLE;
+
+		// otherwise, fall back to these
+		PFN_vkCmdDebugMarkerBeginEXT  vkCmdDebugMarkerBeginEXT	= VK_NULL_HANDLE;
+		PFN_vkCmdDebugMarkerEndEXT	  vkCmdDebugMarkerEndEXT	= VK_NULL_HANDLE;
+		PFN_vkCmdDebugMarkerInsertEXT vkCmdDebugMarkerInsertEXT = VK_NULL_HANDLE;
+
+		PFN_vkCmdBeginRenderPass2KHR vkCmdBeginRenderPass2KHR = VK_NULL_HANDLE;
+		PFN_vkCmdEndRenderPass2KHR	 vkCmdEndRenderPass2KHR	  = VK_NULL_HANDLE;
+		PFN_vkCreateRenderPass2KHR	 vkCreateRenderPass2KHR	  = VK_NULL_HANDLE;
+
+		PFN_vkCmdBeginRenderingKHR vkCmdBeginRenderingKHR = VK_NULL_HANDLE;
+		PFN_vkCmdEndRenderingKHR   vkCmdEndRenderingKHR	  = VK_NULL_HANDLE;
 	};
 
 	class GraphicsDeviceVk : public GraphicsDevice
@@ -74,6 +95,9 @@ namespace Nexus::Graphics
 
 		virtual GraphicsAPI GetGraphicsAPI() override;
 
+		void							SetObjectName(VkObjectType type, uint64_t handle, const char *name);
+		const DeviceExtensionFunctions &GetExtensionFunctions() const;
+
 		VkInstance	 GetVkInstance();
 		VkDevice	 GetVkDevice();
 		uint32_t	 GetGraphicsFamily();
@@ -111,6 +135,8 @@ namespace Nexus::Graphics
 
 		void CreateCommandStructures();
 		void CreateSynchronisationStructures();
+
+		void LoadExtensionFunctions();
 
 	  private:
 		// utility functions
@@ -153,6 +179,8 @@ namespace Nexus::Graphics
 
 		DeviceFeatures m_Features = {};
 		DeviceLimits   m_Limits	  = {};
+
+		DeviceExtensionFunctions m_ExtensionFunctions = {};
 
 		friend class SwapchainVk;
 	};

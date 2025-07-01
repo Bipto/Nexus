@@ -127,7 +127,7 @@ namespace Nexus::Graphics
 		renderPassDesc.ResolveFormat = {};
 		renderPassDesc.Samples		 = Vk::GetVkSampleCountFlagsFromSampleCount(m_Specification.Samples);
 
-		m_RenderPass = Vk::CreateRenderPass(m_Device->GetVkDevice(), renderPassDesc);
+		m_RenderPass = Vk::CreateRenderPass(m_Device, renderPassDesc);
 	}
 
 	void FramebufferVk::CreateFramebuffer()

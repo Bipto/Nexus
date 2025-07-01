@@ -68,15 +68,6 @@ namespace Nexus::Graphics
 		VkCommandBuffer m_CommandBuffer = nullptr;
 
 		std::map<uint32_t, size_t> m_VertexBufferStrides;
-
-		PFN_vkCmdBindVertexBuffers2EXT m_vkCmdBindVertexBuffers2EXT = VK_NULL_HANDLE;
-		PFN_vkCmdBindIndexBuffer2KHR m_vkCmdBindIndexBuffer2KHR = VK_NULL_HANDLE;
-		PFN_vkCmdDebugMarkerBeginEXT  m_vkCmdDebugMarkerBeginEXT  = VK_NULL_HANDLE;
-		PFN_vkCmdDebugMarkerEndEXT	  m_vkCmdDebugMarkerEndEXT	  = VK_NULL_HANDLE;
-		PFN_vkCmdDebugMarkerInsertEXT m_vkCmdDebugMarkerInsertEXT = VK_NULL_HANDLE;
-
-		PFN_vkCmdBeginRenderPass m_vkCmdBeginRenderPass = VK_NULL_HANDLE;
-		PFN_vkCmdEndRenderPass	 m_vkCmdEndRenderPass	= VK_NULL_HANDLE;
 	};
 }	 // namespace Nexus::Graphics
 

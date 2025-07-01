@@ -15,6 +15,11 @@
 
 const uint32_t FRAMES_IN_FLIGHT = 3;
 
+namespace Nexus::Graphics
+{
+	class GraphicsDeviceVk;
+}
+
 namespace Nexus::Vk
 {
 
@@ -58,7 +63,7 @@ namespace Nexus::Vk
 		bool					IsSwapchain		  = false;
 	};
 
-	VkRenderPass CreateRenderPass(VkDevice device, const VulkanRenderPassDescription &desc);
+	VkRenderPass CreateRenderPass(Graphics::GraphicsDeviceVk *device, const VulkanRenderPassDescription &desc);
 
 	struct VulkanFramebufferDescription
 	{

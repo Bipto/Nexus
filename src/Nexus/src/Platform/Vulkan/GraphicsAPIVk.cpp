@@ -143,7 +143,8 @@ namespace Nexus::Graphics
 		instanceCreateInfo.sType				= VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 		instanceCreateInfo.pNext				= nullptr;
 
-		if (createInfo.Debug)
+		static bool EnableGPULevelDebugging = false;
+		if (createInfo.Debug && EnableGPULevelDebugging)
 		{
 			instanceCreateInfo.pNext = &validationFeatures;
 		}
@@ -203,7 +204,6 @@ namespace Nexus::Graphics
 	{
 		VulkanDeviceConfig config					   = {};
 		config.Debug								   = m_CreateInfo.Debug;
-		config.UseDynamicInputBindingStrideIfAvailable = true;
 		config.UseDynamicRenderingIfAvailable		   = false;
 		return new GraphicsDeviceVk(device, m_Instance, config);
 	}
