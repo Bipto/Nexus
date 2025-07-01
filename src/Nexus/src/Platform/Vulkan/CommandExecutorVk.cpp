@@ -155,6 +155,7 @@ namespace Nexus::Graphics
 		{
 			return;
 		}
+
 		Ref<DeviceBufferVk> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferVk>(command.IndirectBuffer);
 
 		BindGraphicsPipeline();
@@ -172,6 +173,7 @@ namespace Nexus::Graphics
 		{
 			return;
 		}
+
 		Ref<DeviceBufferVk> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferVk>(command.IndirectBuffer);
 
 		BindGraphicsPipeline();
@@ -204,6 +206,44 @@ namespace Nexus::Graphics
 		{
 			Ref<DeviceBufferVk> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferVk>(buffer);
 			vkCmdDispatchIndirect(m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset);
+		}
+	}
+
+	void CommandExecutorVk::ExecuteCommand(DrawMeshDescription command, GraphicsDevice *device)
+	{
+		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
+		{
+			return;
+		}
+
+		BindGraphicsPipeline();
+
+		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+		if (functions.vkCmdDrawMeshTasksEXT)
+		{
+			functions.vkCmdDrawMeshTasksEXT(m_CommandBuffer, command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
+		}
+	}
+
+	void CommandExecutorVk::ExecuteCommand(DrawMeshIndirectDescription command, GraphicsDevice *device)
+	{
+		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
+		{
+			return;
+		}
+
+		Ref<DeviceBufferVk> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferVk>(command.IndirectBuffer);
+
+		BindGraphicsPipeline();
+
+		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+		if (functions.vkCmdDrawMeshTasksIndirectEXT)
+		{
+			functions.vkCmdDrawMeshTasksIndirectEXT(m_CommandBuffer,
+													indirectBuffer->GetVkBuffer(),
+													command.Offset,
+													command.DrawCount,
+													indirectBuffer->GetStrideInBytes());
 		}
 	}
 

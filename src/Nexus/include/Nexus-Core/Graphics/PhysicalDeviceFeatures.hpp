@@ -33,5 +33,6 @@ namespace Nexus::Graphics
 		bool SupportShaderStorageImageMultisample = false;
 		bool SupportsCubemapArray				  = false;
 		bool SupportsIndependentBlend			  = false;
+		bool SupportsMeshTaskShaders			  = false;
 	};
 }	 // namespace Nexus::Graphics

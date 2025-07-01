@@ -514,9 +514,20 @@ namespace Nexus::Graphics
 		createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 		createInfo.enabledLayerCount	   = 0;
 
+		VkPhysicalDeviceMeshShaderFeaturesEXT meshShaderFeatures = {};
+		meshShaderFeatures.sType								 = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT;
+		meshShaderFeatures.taskShader							 = VK_FALSE;
+		meshShaderFeatures.meshShader							 = VK_FALSE;
+
+		if (m_Features.SupportsMeshTaskShaders)
+		{
+			meshShaderFeatures.taskShader = VK_TRUE;
+			meshShaderFeatures.meshShader = VK_TRUE;
+		}
+
 		VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures = {};
 		dynamicRenderingFeatures.sType									  = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
-		dynamicRenderingFeatures.pNext									  = nullptr;
+		dynamicRenderingFeatures.pNext									  = &meshShaderFeatures;
 		dynamicRenderingFeatures.dynamicRendering						  = VK_FALSE;
 
 		if (m_DeviceConfig.UseDynamicRenderingIfAvailable)
@@ -617,6 +628,10 @@ namespace Nexus::Graphics
 
 		m_ExtensionFunctions.vkCmdBeginRenderingKHR = (PFN_vkCmdBeginRenderingKHR)vkGetDeviceProcAddr(m_Device, "vkCmdBeginRenderingKHR");
 		m_ExtensionFunctions.vkCmdEndRenderingKHR	= (PFN_vkCmdEndRenderingKHR)vkGetDeviceProcAddr(m_Device, "vkCmdEndRenderingKHR");
+
+		m_ExtensionFunctions.vkCmdDrawMeshTasksEXT = (PFN_vkCmdDrawMeshTasksEXT)vkGetDeviceProcAddr(m_Device, "vkCmdDrawMeshTasksEXT");
+		m_ExtensionFunctions.vkCmdDrawMeshTasksIndirectEXT =
+			(PFN_vkCmdDrawMeshTasksIndirectEXT)vkGetDeviceProcAddr(m_Device, "vkCmdDrawMeshTasksIndirectEXT");
 	}
 
 	VkImageView GraphicsDeviceVk::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
@@ -725,6 +740,23 @@ namespace Nexus::Graphics
 		if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME))
 		{
 			extensions.push_back(VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME);
+		}
+
+		// mesh shaders
+		if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_MESH_SHADER_EXTENSION_NAME))
+		{
+			extensions.push_back(VK_EXT_MESH_SHADER_EXTENSION_NAME);
+
+			if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_SPIRV_1_4_EXTENSION_NAME))
+			{
+				extensions.push_back(VK_KHR_SPIRV_1_4_EXTENSION_NAME);
+
+				if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME))
+				{
+					extensions.push_back(VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME);
+					m_Features.SupportsMeshTaskShaders = true;
+				}
+			}
 		}
 
 		// this is used to set debug object names and groups

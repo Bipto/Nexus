@@ -287,6 +287,20 @@ namespace Nexus::Graphics
 			shaderStages.push_back(CreateShaderStageCreateInfo(vulkanVertexModule));
 		}
 
+		if (m_Description.MeshModule)
+		{
+			auto vulkanMeshModule = std::dynamic_pointer_cast<ShaderModuleVk>(m_Description.MeshModule);
+			NX_ASSERT(vulkanMeshModule->GetShaderStage() == ShaderStage::Mesh, "Shader module is not a mesh shader");
+			shaderStages.push_back(CreateShaderStageCreateInfo(vulkanMeshModule));
+		}
+
+		if (m_Description.TaskModule)
+		{
+			auto vulkanTaskModule = std::dynamic_pointer_cast<ShaderModuleVk>(m_Description.MeshModule);
+			NX_ASSERT(vulkanTaskModule->GetShaderStage() == ShaderStage::Task, "Shader module is not a task shader");
+			shaderStages.push_back(CreateShaderStageCreateInfo(vulkanTaskModule));
+		}
+
 		return shaderStages;
 	}
 

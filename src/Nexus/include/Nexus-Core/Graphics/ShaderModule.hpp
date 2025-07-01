@@ -19,7 +19,9 @@ namespace Nexus::Graphics
 		RayMiss,
 		RayClosestHit,
 		RayAnyHit,
-		RayIntersection
+		RayIntersection,
+		Mesh,
+		Task
 	};
 
 	struct ShaderAttribute

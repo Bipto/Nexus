@@ -16,6 +16,7 @@
 #include "Demos/HelloTriangleIndexed.hpp"
 #include "Demos/HelloTriangleIndirect.hpp"
 #include "Demos/HelloTriangleIndirectIndexedDemo.hpp"
+#include "Demos/HelloTriangleMeshShaders.hpp"
 #include "Demos/InstancingDemo.hpp"
 #include "Demos/Lighting.hpp"
 #include "Demos/MipmapDemo.hpp"
@@ -80,6 +81,7 @@ class DemoApplication : public Nexus::Application
 		RegisterGraphicsDemo<Demos::HelloTriangleIndexedDemo>("Hello Triangle Indexed");
 		RegisterGraphicsDemo<Demos::HelloTriangleIndirectDemo>("Hello Triangle Indirect");
 		RegisterGraphicsDemo<Demos::HelloTriangleIndirectIndexedDemo>("Hello Triangle Indexed Indirect");
+		RegisterGraphicsDemo<Demos::HelloTriangleMeshShadersDemo>("Hello Triangle Mesh Shaders");
 		RegisterGraphicsDemo<Demos::TexturingDemo>("Texturing");
 		RegisterGraphicsDemo<Demos::BatchingDemo>("Batching");
 		RegisterGraphicsDemo<Demos::FramebufferDemo>("Framebuffers");

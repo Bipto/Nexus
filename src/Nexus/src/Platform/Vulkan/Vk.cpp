@@ -462,12 +462,22 @@ namespace Nexus::Vk
 	{
 		switch (stage)
 		{
+			case Nexus::Graphics::ShaderStage::Compute: return VK_SHADER_STAGE_COMPUTE_BIT;
 			case Nexus::Graphics::ShaderStage::Fragment: return VK_SHADER_STAGE_FRAGMENT_BIT;
 			case Nexus::Graphics::ShaderStage::Geometry: return VK_SHADER_STAGE_GEOMETRY_BIT;
 			case Nexus::Graphics::ShaderStage::TesselationControl: return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
 			case Nexus::Graphics::ShaderStage::TesselationEvaluation: return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
-			case Nexus::Graphics::ShaderStage::Compute: return VK_SHADER_STAGE_COMPUTE_BIT;
 			case Nexus::Graphics::ShaderStage::Vertex: return VK_SHADER_STAGE_VERTEX_BIT;
+
+			case Nexus::Graphics::ShaderStage::RayGeneration: return VK_SHADER_STAGE_RAYGEN_BIT_KHR;
+			case Nexus::Graphics::ShaderStage::RayMiss: return VK_SHADER_STAGE_MISS_BIT_KHR;
+			case Nexus::Graphics::ShaderStage::RayClosestHit: return VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR;
+			case Nexus::Graphics::ShaderStage::RayAnyHit: return VK_SHADER_STAGE_ANY_HIT_BIT_KHR;
+			case Nexus::Graphics::ShaderStage::RayIntersection: return VK_SHADER_STAGE_INTERSECTION_BIT_KHR;
+
+			case Nexus::Graphics::ShaderStage::Mesh: return VK_SHADER_STAGE_MESH_BIT_EXT;
+			case Nexus::Graphics::ShaderStage::Task: return VK_SHADER_STAGE_TASK_BIT_EXT;
+
 			default: throw std::runtime_error("Failed to find a valid shader stage");
 		}
 	}

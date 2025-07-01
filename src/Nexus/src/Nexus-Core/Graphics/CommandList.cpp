@@ -141,6 +141,30 @@ namespace Nexus::Graphics
 		m_Commands.push_back(desc);
 	}
 
+	void CommandList::DrawMesh(const DrawMeshDescription &desc)
+	{
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
+		m_Commands.push_back(desc);
+	}
+
+	void CommandList::DrawMeshIndirect(const DrawMeshIndirectDescription &desc)
+	{
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
+		m_Commands.push_back(desc);
+	}
+
 	void CommandList::SetResourceSet(Ref<ResourceSet> resources)
 	{
 		if (!m_Started)

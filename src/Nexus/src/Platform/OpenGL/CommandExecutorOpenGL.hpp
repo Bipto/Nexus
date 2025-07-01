@@ -28,6 +28,8 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(DrawIndirectIndexedDescription command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(DispatchDescription command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(DispatchIndirectDescription command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DrawMeshDescription command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DrawMeshIndirectDescription command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(ClearColorTargetCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDevice *device) override;

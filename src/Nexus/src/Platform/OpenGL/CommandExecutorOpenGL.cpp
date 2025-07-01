@@ -293,6 +293,14 @@ namespace Nexus::Graphics
 	#endif
 	}
 
+	void CommandExecutorOpenGL::ExecuteCommand(DrawMeshDescription command, GraphicsDevice *device)
+	{
+	}
+
+	void CommandExecutorOpenGL::ExecuteCommand(DrawMeshIndirectDescription command, GraphicsDevice *device)
+	{
+	}
+
 	void CommandExecutorOpenGL::ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)
 	{
 		if (!command)
@@ -633,27 +641,27 @@ namespace Nexus::Graphics
 
 	void CommandExecutorOpenGL::ExecuteCommand(BeginDebugGroupCommand command, GraphicsDevice *device)
 	{
-		//if glPushDebugGroup occurs on different contexts, we start getting errors about GL_STACK_OVERFLOW,
-		//so we have to fix this by running all debug group functions from the GraphicsDevice context
-		GL::IGLContext		 *previousContext = GL::GetCurrentContext();
+		// if glPushDebugGroup occurs on different contexts, we start getting errors about GL_STACK_OVERFLOW,
+		// so we have to fix this by running all debug group functions from the GraphicsDevice context
+		GL::IGLContext *previousContext = GL::GetCurrentContext();
 
-		GraphicsDeviceOpenGL *deviceGL		  = (GraphicsDeviceOpenGL *)device;
+		GraphicsDeviceOpenGL							 *deviceGL		 = (GraphicsDeviceOpenGL *)device;
 		Nexus::Ref<Nexus::Graphics::PhysicalDeviceOpenGL> physicalDevice = deviceGL->GetPhysicalDeviceOpenGL();
 		GL::SetCurrentContext(physicalDevice->GetOffscreenContext());
 
 		GL::ExecuteGLCommands([&](const GladGLContext &context)
 							  { glCall(context.PushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 1, -1, command.GroupName.c_str())); });
-	
+
 		GL::SetCurrentContext(previousContext);
-							}
+	}
 
 	void CommandExecutorOpenGL::ExecuteCommand(EndDebugGroupCommand command, GraphicsDevice *device)
 	{
-		//if glPushDebugGroup occurs on different contexts, we start getting errors about GL_STACK_OVERFLOW,
-		//so we have to fix this by running all debug group functions from the GraphicsDevice context
-		GL::IGLContext		 *previousContext = GL::GetCurrentContext();
+		// if glPushDebugGroup occurs on different contexts, we start getting errors about GL_STACK_OVERFLOW,
+		// so we have to fix this by running all debug group functions from the GraphicsDevice context
+		GL::IGLContext *previousContext = GL::GetCurrentContext();
 
-		GraphicsDeviceOpenGL *deviceGL		  = (GraphicsDeviceOpenGL *)device;
+		GraphicsDeviceOpenGL							 *deviceGL		 = (GraphicsDeviceOpenGL *)device;
 		Nexus::Ref<Nexus::Graphics::PhysicalDeviceOpenGL> physicalDevice = deviceGL->GetPhysicalDeviceOpenGL();
 		GL::SetCurrentContext(physicalDevice->GetOffscreenContext());
 

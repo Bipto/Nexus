@@ -182,6 +182,22 @@ namespace Nexus::Graphics
 		}
 	}
 
+	void CommandExecutorD3D12::ExecuteCommand(DrawMeshDescription command, GraphicsDevice *device)
+	{
+		if (!ValidateForComputeCall(m_CurrentlyBoundPipeline))
+		{
+			return;
+		}
+	}
+
+	void CommandExecutorD3D12::ExecuteCommand(DrawMeshIndirectDescription command, GraphicsDevice *device)
+	{
+		if (!ValidateForComputeCall(m_CurrentlyBoundPipeline))
+		{
+			return;
+		}
+	}
+
 	void CommandExecutorD3D12::ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device)
 	{
 		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget))

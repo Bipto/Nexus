@@ -58,6 +58,12 @@ namespace Nexus::Graphics
 
 		/// @brief The vertex shader to use with the pipeline (optional)
 		Ref<ShaderModule> VertexModule = nullptr;
+
+		/// @brief The mesh shader to use with the pipeline (optional)
+		Ref<ShaderModule> MeshModule = nullptr;
+
+		/// @brief The task shader to use with the pipeline (optional)
+		Ref<ShaderModule> TaskModule = nullptr;
 	};
 
 	struct ComputePipelineDescription

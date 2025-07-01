@@ -22,6 +22,8 @@ spv::ExecutionModel GetShaderExecutionModel(Nexus::Graphics::ShaderStage stage)
 		case Nexus::Graphics::ShaderStage::RayClosestHit: return spv::ExecutionModel::ExecutionModelClosestHitKHR;
 		case Nexus::Graphics::ShaderStage::RayIntersection: return spv::ExecutionModel::ExecutionModelIntersectionKHR;
 		case Nexus::Graphics::ShaderStage::RayMiss: return spv::ExecutionModel::ExecutionModelMissKHR;
+		case Nexus::Graphics::ShaderStage::Mesh: return spv::ExecutionModel::ExecutionModelMeshEXT;
+		case Nexus::Graphics::ShaderStage::Task: return spv::ExecutionModel::ExecutionModelTaskEXT;
 		default: throw std::runtime_error("Failed to find a valid shader stage");
 	}
 }
@@ -38,6 +40,13 @@ namespace Nexus::Graphics
 			case ShaderStage::TesselationControl: return shaderc_glsl_tess_control_shader;
 			case ShaderStage::TesselationEvaluation: return shaderc_glsl_tess_evaluation_shader;
 			case ShaderStage::Vertex: return shaderc_glsl_vertex_shader;
+			case Nexus::Graphics::ShaderStage::RayGeneration: return shaderc_glsl_raygen_shader;
+			case Nexus::Graphics::ShaderStage::RayAnyHit: return shaderc_glsl_anyhit_shader;
+			case Nexus::Graphics::ShaderStage::RayClosestHit: return shaderc_glsl_closesthit_shader;
+			case Nexus::Graphics::ShaderStage::RayIntersection: return shaderc_glsl_intersection_shader;
+			case Nexus::Graphics::ShaderStage::RayMiss: return shaderc_glsl_miss_shader;
+			case ShaderStage::Mesh: return shaderc_glsl_mesh_shader;
+			case ShaderStage::Task: return shaderc_glsl_task_shader;
 			default: throw std::runtime_error("Failed to find a valid shader stage");
 		}
 	}
@@ -251,7 +260,12 @@ namespace Nexus::Graphics
 		// compile to SPIR-V
 		shaderc::Compiler		   compiler;
 		auto					   shaderType = GetTypeOfShader(options.Stage);
-		shaderc::CompilationResult result	  = compiler.CompileGlslToSpv(source, shaderType, options.ShaderName.c_str());
+		shaderc::CompileOptions	   compileOptions = {};
+		compileOptions.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_3);
+		compileOptions.SetTargetSpirv(shaderc_spirv_version_1_6);
+		compileOptions.SetGenerateDebugInfo();
+
+		shaderc::CompilationResult result = compiler.CompileGlslToSpv(source, shaderType, options.ShaderName.c_str(), compileOptions);
 
 		if (result.GetCompilationStatus() != shaderc_compilation_status_success)
 		{
@@ -334,12 +348,7 @@ namespace Nexus::Graphics
 
 		if (options.OutputFormat == ShaderLanguage::SPIRV)
 		{
-			shaderc::Compiler		   compiler;
-			auto					   shaderType = GetTypeOfShader(options.Stage);
-			shaderc::CompilationResult result	  = compiler.CompileGlslToSpv(output.Source, shaderType, options.ShaderName.c_str());
-
-			std::vector<uint32_t> spirv_binary = {result.begin(), result.end()};
-			output.SpirvBinary				   = spirv_binary;
+			output.SpirvBinary = spirv_binary;
 		}
 
 		output.Successful = true;
