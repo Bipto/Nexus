@@ -25,7 +25,8 @@ namespace Nexus::Graphics
 		GL::GLInternalTextureFormat GetInternalGLTextureFormat() const;
 
 	  private:
-		void CreateTextureFaces(const GladGLContext &context);
+		void CreateTextureFacesDSA(const GladGLContext &context);
+		void CreateTextureFacesNonDSA(const GladGLContext &context);
 
 	  private:
 		GraphicsDeviceOpenGL *m_Device = nullptr;

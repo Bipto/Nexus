@@ -81,7 +81,13 @@ class DemoApplication : public Nexus::Application
 		RegisterGraphicsDemo<Demos::HelloTriangleIndexedDemo>("Hello Triangle Indexed");
 		RegisterGraphicsDemo<Demos::HelloTriangleIndirectDemo>("Hello Triangle Indirect");
 		RegisterGraphicsDemo<Demos::HelloTriangleIndirectIndexedDemo>("Hello Triangle Indexed Indirect");
-		RegisterGraphicsDemo<Demos::HelloTriangleMeshShadersDemo>("Hello Triangle Mesh Shaders");
+
+		const Nexus::Graphics::DeviceFeatures deviceFeatures = m_GraphicsDevice->GetPhysicalDeviceFeatures();
+		if (deviceFeatures.SupportsMeshTaskShaders)
+		{
+			RegisterGraphicsDemo<Demos::HelloTriangleMeshShadersDemo>("Hello Triangle Mesh Shaders");
+		}
+
 		RegisterGraphicsDemo<Demos::TexturingDemo>("Texturing");
 		RegisterGraphicsDemo<Demos::BatchingDemo>("Batching");
 		RegisterGraphicsDemo<Demos::FramebufferDemo>("Framebuffers");

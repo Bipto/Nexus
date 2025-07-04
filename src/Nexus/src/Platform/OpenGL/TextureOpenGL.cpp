@@ -36,13 +36,14 @@ namespace Nexus::Graphics
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
 			{
-				glCall(context.GenTextures(1, &m_Handle));
-				glCall(context.BindTexture(m_TextureType, m_Handle));
-				glCall(context.PixelStorei(GL_PACK_ALIGNMENT, 1));
-				glCall(context.PixelStorei(GL_UNPACK_ALIGNMENT, 1));
-				glCall(context.TexParameteri(m_TextureType, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-				glCall(context.TexParameteri(m_TextureType, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-				CreateTextureFaces(context);
+				if (context.EXT_direct_state_access || context.ARB_direct_state_access)
+				{
+					CreateTextureFacesDSA(context);
+				}
+				else
+				{
+					CreateTextureFacesNonDSA(context);
+				}
 			});
 	}
 
@@ -82,8 +83,76 @@ namespace Nexus::Graphics
 		return m_BaseType;
 	}
 
-	void TextureOpenGL::CreateTextureFaces(const GladGLContext &context)
+	void TextureOpenGL::CreateTextureFacesDSA(const GladGLContext &context)
 	{
+		context.CreateTextures(m_TextureType, 1, &m_Handle);
+		context.TextureParameteri(m_Handle, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		context.TextureParameteri(m_Handle, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		context.PixelStorei(GL_PACK_ALIGNMENT, 1);
+		context.PixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+		switch (m_GLInternalTextureFormat)
+		{
+			case GL::GLInternalTextureFormat::Texture1D:
+	#if !defined(__EMSCRIPTEN__)
+				glCall(context.TextureStorage1D(m_Handle, m_Specification.MipLevels, m_InternalFormat, m_Specification.Width));
+				break;
+	#else
+				throw std::runtime_error("1D textures are not supported by WebGL");
+	#endif
+			case GL::GLInternalTextureFormat::Texture1DArray:
+			case GL::GLInternalTextureFormat::Texture2D:
+			case GL::GLInternalTextureFormat::Cubemap:
+				glCall(
+					context.TextureStorage2D(m_Handle, m_Specification.MipLevels, m_InternalFormat, m_Specification.Width, m_Specification.Height));
+				break;
+			case GL::GLInternalTextureFormat::Texture2DMultisample:
+	#if !defined(__EMSCRIPTEN__)
+				glCall(context.TextureStorage2DMultisample(m_Handle,
+														   m_Specification.MipLevels,
+														   m_InternalFormat,
+														   m_Specification.Width,
+														   m_Specification.Height,
+														   GL_TRUE));
+				break;
+	#else
+				throw std::runtime_error("Multisampled textures are not supported by WebGL");
+	#endif
+			case GL::GLInternalTextureFormat::Texture2DArray:
+			case GL::GLInternalTextureFormat::CubemapArray:
+			case GL::GLInternalTextureFormat::Texture3D:
+				glCall(context.TextureStorage3D(m_Handle,
+												m_Specification.MipLevels,
+												m_InternalFormat,
+												m_Specification.Width,
+												m_Specification.Height,
+												m_Specification.Depth));
+				break;
+			case GL::GLInternalTextureFormat::Texture2DArrayMultisample:
+	#if !defined(__EMSCRIPTEN__)
+				glCall(context.TextureStorage3DMultisample(m_Handle,
+														   m_Specification.Samples,
+														   m_InternalFormat,
+														   m_Specification.Width,
+														   m_Specification.Height,
+														   m_Specification.Depth,
+														   GL_TRUE));
+				break;
+	#else
+				throw std::runtime_error("Multisampled textures are not supported by WebGL");
+	#endif
+		}
+	}
+
+	void TextureOpenGL::CreateTextureFacesNonDSA(const GladGLContext &context)
+	{
+		glCall(context.GenTextures(1, &m_Handle));
+		glCall(context.BindTexture(m_TextureType, m_Handle));
+		glCall(context.PixelStorei(GL_PACK_ALIGNMENT, 1));
+		glCall(context.PixelStorei(GL_UNPACK_ALIGNMENT, 1));
+		glCall(context.TexParameteri(m_TextureType, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+		glCall(context.TexParameteri(m_TextureType, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+
 		switch (m_GLInternalTextureFormat)
 		{
 			case GL::GLInternalTextureFormat::Texture1D:
