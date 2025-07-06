@@ -149,7 +149,7 @@ namespace Nexus::Graphics
 			instanceCreateInfo.pNext = &validationFeatures;
 		}
 
-		instanceCreateInfo.pApplicationInfo		= &appInfo;
+		instanceCreateInfo.pApplicationInfo = &appInfo;
 
 		if (createInfo.Debug)
 		{
@@ -202,9 +202,9 @@ namespace Nexus::Graphics
 
 	Graphics::GraphicsDevice *GraphicsAPI_Vk::CreateGraphicsDevice(std::shared_ptr<IPhysicalDevice> device)
 	{
-		VulkanDeviceConfig config					   = {};
-		config.Debug								   = m_CreateInfo.Debug;
-		config.UseDynamicRenderingIfAvailable		   = false;
+		VulkanDeviceConfig config			  = {};
+		config.Debug						  = m_CreateInfo.Debug;
+		config.UseDynamicRenderingIfAvailable = true;
 		return new GraphicsDeviceVk(device, m_Instance, config);
 	}
 

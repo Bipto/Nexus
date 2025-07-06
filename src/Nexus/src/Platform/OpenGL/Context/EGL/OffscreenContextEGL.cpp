@@ -2,7 +2,7 @@
 
 	#include "OffscreenContextEGL.hpp"
 
-	#include "glad/glad.h"
+	#include "glad/gl.h"
 
 	#if defined(NX_PLATFORM_LINUX)
 		#include "Platform/X11/X11Include.hpp"
@@ -10,11 +10,17 @@
 
 	#include "EGLUtils.hpp"
 
+	#include "Platform/OpenGL/GL.hpp"
+
+	#include "Nexus-Core/Platform.hpp"
+
 namespace Nexus::GL
 {
-	OffscreenContextEGL::OffscreenContextEGL(EGLDisplay display, const ContextSpecification &spec) : m_EGLDisplay(display), m_Specification(spec)
+	OffscreenContextEGL::OffscreenContextEGL(const ContextSpecification &spec, EGLDisplay display) : m_Specification(spec)
 
 	{
+		m_EGLDisplay = display;
+
 		if (m_EGLDisplay == EGL_NO_DISPLAY)
 		{
 			std::cout << "Failed to get EGL display: ";
@@ -30,6 +36,10 @@ namespace Nexus::GL
 			const char *errorMessage = eglGetErrorString(eglGetError());
 			std::cout << errorMessage << std::endl;
 		}
+
+		const char *apis = eglQueryString(m_EGLDisplay, EGL_CLIENT_APIS);
+
+		int version = gladLoadEGL(m_EGLDisplay, eglGetProcAddress);
 
 		if (spec.GLVersion == GL::OpenGLVersion::OpenGL)
 		{
@@ -78,33 +88,44 @@ namespace Nexus::GL
 		}
 
 		std::vector<EGLint> contextAttribs;
-		/*contextAttribs.push_back(EGL_CONTEXT_MAJOR_VERSION);
-		contextAttribs.push_back(spec.VersionMajor);
-		contextAttribs.push_back(EGL_CONTEXT_MINOR_VERSION);
-		contextAttribs.push_back(spec.VersionMinor);
 
-		if (spec.GLVersion == GL::OpenGLVersion::OpenGL)
+		if (EGL::HasExtension(m_EGLDisplay, "EGL_KHR_create_context"))
 		{
+			if (spec.GLVersion == GL::OpenGLVersion::OpenGL)
+			{
+				contextAttribs.push_back(EGL_CONTEXT_MAJOR_VERSION_KHR);
+				contextAttribs.push_back(spec.VersionMajor);
+				contextAttribs.push_back(EGL_CONTEXT_MINOR_VERSION_KHR);
+				contextAttribs.push_back(spec.VersionMinor);
+			}
+			else
+			{
+				contextAttribs.push_back(EGL_CONTEXT_CLIENT_VERSION);
+				contextAttribs.push_back(spec.VersionMajor);
+			}
+
+			contextAttribs.push_back(EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR);
 			if (spec.UseCoreProfile)
 			{
-				contextAttribs.push_back(EGL_CONTEXT_OPENGL_PROFILE_MASK);
 				contextAttribs.push_back(EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT);
 			}
 			else
 			{
-				contextAttribs.push_back(EGL_CONTEXT_OPENGL_PROFILE_MASK);
 				contextAttribs.push_back(EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT);
 			}
 
 			if (spec.Debug)
 			{
-				contextAttribs.push_back(EGL_CONTEXT_OPENGL_DEBUG);
-				contextAttribs.push_back(EGL_TRUE);
+				contextAttribs.push_back(EGL_CONTEXT_FLAGS_KHR);
+				contextAttribs.push_back(EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR);
 			}
-		} */
+			else
+			{
+				contextAttribs.push_back(EGL_CONTEXT_FLAGS_KHR);
+				contextAttribs.push_back(0);
+			}
+		}
 
-		contextAttribs.push_back(EGL_CONTEXT_CLIENT_VERSION);
-		contextAttribs.push_back(3);
 		contextAttribs.push_back(EGL_NONE);
 
 		m_Context = eglCreateContext(m_EGLDisplay, config, EGL_NO_CONTEXT, contextAttribs.data());
@@ -122,19 +143,13 @@ namespace Nexus::GL
 			std::cout << errorMessage << std::endl;
 		}
 
-		if (!gladLoadEGL())
-		{
-			std::cout << "Failed to load EGL functions" << std::endl;
-		}
-
-		if (!gladLoadGLLoader((GLADloadproc)eglGetProcAddress))
-		{
-			std::cout << "Failed to load OpenGL functions" << std::endl;
-		}
+		gladLoaderLoadGLContext(&m_GladContext);
 	}
 
 	OffscreenContextEGL::~OffscreenContextEGL()
 	{
+		GL::ClearCurrentContext();
+		gladLoaderUnloadGLContext(&m_GladContext);
 		eglDestroyContext(m_EGLDisplay, m_Context);
 		eglTerminate(m_EGLDisplay);
 	}
@@ -144,7 +159,7 @@ namespace Nexus::GL
 		return eglMakeCurrent(m_EGLDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, m_Context);
 	}
 
-	EGLContext OffscreenContextEGL::GetContext()
+	EGLContext OffscreenContextEGL::GetEGLContext()
 	{
 		return m_Context;
 	}
@@ -152,6 +167,11 @@ namespace Nexus::GL
 	bool OffscreenContextEGL::Validate()
 	{
 		return m_EGLDisplay != 0 && m_Context != 0;
+	}
+
+	const GladGLContext &OffscreenContextEGL::GetContext() const
+	{
+		return m_GladContext;
 	}
 
 }	 // namespace Nexus::GL

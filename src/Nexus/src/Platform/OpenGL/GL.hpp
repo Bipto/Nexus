@@ -23,14 +23,14 @@
 
 	#include "OpenGLFunctionContext.hpp"
 
+	#include "Nexus-Core/Graphics/IPhysicalDevice.hpp"
 	#include "Nexus-Core/Graphics/ShaderModule.hpp"
 	#include "Nexus-Core/Graphics/Texture.hpp"
 	#include "Nexus-Core/Logging/Log.hpp"
 	#include "Nexus-Core/Vertex.hpp"
-	#include "Nexus-Core/Graphics/IPhysicalDevice.hpp"
 
-	#include "Nexus-Core/IWindow.hpp"
 	#include "Nexus-Core/Graphics/CommandList.hpp"
+	#include "Nexus-Core/IWindow.hpp"
 
 	#include "Context/IOffscreenContext.hpp"
 	#include "Context/IViewContext.hpp"
@@ -39,7 +39,7 @@ namespace Nexus::Graphics
 {
 	class TextureOpenGL;
 	class DeviceBufferOpenGL;
-}
+}	 // namespace Nexus::Graphics
 
 namespace Nexus::GL
 {
@@ -108,8 +108,7 @@ namespace Nexus::GL
 
 	std::vector<GLenum> GetWebGLBufferTargets(uint16_t usage);
 
-	std::unique_ptr<IOffscreenContext> CreateOffscreenContext(Graphics::IPhysicalDevice *physicalDevice);
-	std::unique_ptr<IViewContext>	   CreateViewContext(IWindow *window, Graphics::GraphicsDevice *device);
+	std::unique_ptr<IViewContext> CreateViewContext(IWindow *window, Graphics::GraphicsDevice *device);
 
 	void CopyBufferToTexture(Ref<Graphics::TextureOpenGL>	   texture,
 							 Ref<Graphics::DeviceBufferOpenGL> buffer,
@@ -128,6 +127,7 @@ namespace Nexus::GL
 	/// @return A boolean indicating whether OpenGL was able to be initialized
 	bool													LoadOpenGL();
 	std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> LoadAvailablePhysicalDevices();
+	std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> LoadAvailablePhysicalDevices(bool debug);
 
 	IGLContext *GetCurrentContext();
 	void		SetCurrentContext(IGLContext *context);

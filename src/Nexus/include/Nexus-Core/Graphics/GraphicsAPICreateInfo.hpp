@@ -14,4 +14,11 @@ namespace Nexus::Graphics
 		/// @brief Graphics will be created using Vulkan
 		Vulkan
 	};
+
+	struct GraphicsAPICreateInfo
+	{
+		GraphicsAPI API	  = GraphicsAPI::OpenGL;
+		bool		Debug = false;
+	};
+
 }	 // namespace Nexus::Graphics

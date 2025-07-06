@@ -2,21 +2,20 @@
 
 	#include "GraphicsDeviceVk.hpp"
 
-	#include "DeviceBufferVk.hpp"
 	#include "CommandListVk.hpp"
+	#include "DeviceBufferVk.hpp"
+	#include "FenceVk.hpp"
 	#include "FramebufferVk.hpp"
 	#include "Nexus-Core/nxpch.hpp"
+	#include "PhysicalDeviceVk.hpp"
 	#include "PipelineVk.hpp"
+	#include "PlatformVk.hpp"
 	#include "ResourceSetVk.hpp"
 	#include "SamplerVk.hpp"
 	#include "ShaderModuleVk.hpp"
+	#include "SwapchainVk.hpp"
 	#include "TextureVk.hpp"
 	#include "TimingQueryVk.hpp"
-	#include "SwapchainVk.hpp"
-	#include "PlatformVk.hpp"
-	#include "PhysicalDeviceVk.hpp"
-	#include "DeviceBufferVk.hpp"
-	#include "FenceVk.hpp"
 
 namespace Nexus::Graphics
 {
@@ -717,15 +716,15 @@ namespace Nexus::Graphics
 		// this is used for dynamic rendering
 		if (m_DeviceConfig.UseDynamicRenderingIfAvailable)
 		{
-			if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME))
+			// dynamic rendering has a dependency on depth/stencil resolve
+			if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
 			{
-				extensions.push_back(VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME);
+				extensions.push_back(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME);
+				m_DeviceFeatures.DynamicRenderingAvailable = true;
 
-				// dynamic rendering has a dependency on depth/stencil resolve
-				if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
+				if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME))
 				{
-					extensions.push_back(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME);
-					m_DeviceFeatures.DynamicRenderingAvailable = true;
+					extensions.push_back(VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME);
 
 					// this is used for vkCmdBindIndexBuffer2 and requires dynamic rendering
 					if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_MAINTENANCE_5_EXTENSION_NAME))
