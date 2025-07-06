@@ -417,6 +417,7 @@ namespace Nexus::GL
 	{
 		switch (format)
 		{
+			case Nexus::Graphics::IndexBufferFormat::UInt8: return GL_UNSIGNED_BYTE;
 			case Nexus::Graphics::IndexBufferFormat::UInt16: return GL_UNSIGNED_SHORT;
 			case Nexus::Graphics::IndexBufferFormat::UInt32: return GL_UNSIGNED_INT;
 			default: throw std::runtime_error("Failed to find a valid index buffer format");

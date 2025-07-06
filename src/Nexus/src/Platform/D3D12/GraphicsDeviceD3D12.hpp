@@ -97,6 +97,7 @@ namespace Nexus::Graphics
 		virtual PixelFormatProperties GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const override;
 		virtual const DeviceFeatures &GetPhysicalDeviceFeatures() const override;
 		virtual const DeviceLimits	 &GetPhysicalDeviceLimits() const override;
+		virtual bool				  IsIndexBufferFormatSupported(IndexBufferFormat format) const override;
 
 	  private:
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) override;

@@ -175,6 +175,7 @@ namespace Nexus::Graphics
 
 		virtual const DeviceFeatures &GetPhysicalDeviceFeatures() const = 0;
 		virtual const DeviceLimits	 &GetPhysicalDeviceLimits() const	= 0;
+		virtual bool				  IsIndexBufferFormatSupported(IndexBufferFormat format) const = 0;
 
 	  private:
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) = 0;

@@ -493,6 +493,11 @@ namespace Nexus::Graphics
 		features2.features.samplerAnisotropy = VK_TRUE;
 		features2.features.independentBlend	 = VK_TRUE;
 
+		VkPhysicalDeviceIndexTypeUint8FeaturesEXT indexType8Features = {};
+		indexType8Features.sType									 = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INDEX_TYPE_UINT8_FEATURES_EXT;
+		indexType8Features.pNext									 = nullptr;
+		indexType8Features.indexTypeUint8							 = VK_TRUE;
+
 		VkPhysicalDeviceExtendedDynamicStateFeaturesEXT extendedDynamicStateFeatures = {};
 		extendedDynamicStateFeatures.sType				  = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT;
 		extendedDynamicStateFeatures.pNext				  = nullptr;
@@ -758,6 +763,20 @@ namespace Nexus::Graphics
 			}
 		}
 
+		// 8 bit indices
+		{
+			if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_INDEX_TYPE_UINT8_EXTENSION_NAME))
+			{
+				extensions.push_back(VK_EXT_INDEX_TYPE_UINT8_EXTENSION_NAME);
+				m_DeviceFeatures.Supports8BitIndices = true;
+			}
+			else if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_INDEX_TYPE_UINT8_EXTENSION_NAME))
+			{
+				extensions.push_back(VK_KHR_INDEX_TYPE_UINT8_EXTENSION_NAME);
+				m_DeviceFeatures.Supports8BitIndices = true;
+			}
+		}
+
 		// this is used to set debug object names and groups
 		if (debug)
 		{
@@ -865,6 +884,17 @@ namespace Nexus::Graphics
 	const DeviceLimits &GraphicsDeviceVk::GetPhysicalDeviceLimits() const
 	{
 		return m_Limits;
+	}
+
+	bool GraphicsDeviceVk::IsIndexBufferFormatSupported(IndexBufferFormat format) const
+	{
+		switch (format)
+		{
+			case IndexBufferFormat::UInt8: return m_DeviceFeatures.Supports8BitIndices;
+			case IndexBufferFormat::UInt16:
+			case IndexBufferFormat::UInt32: return true;
+			default: throw std::runtime_error("Failed to find valid index buffer format");
+		}
 	}
 
 	uint32_t GraphicsDeviceVk::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties, std::shared_ptr<PhysicalDeviceVk> physicalDevice)

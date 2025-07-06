@@ -87,6 +87,17 @@ namespace Nexus::GL
 			contextAttributes.push_back(WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB);
 		}
 
+		if (spec.Debug)
+		{
+			contextAttributes.push_back(WGL_CONTEXT_FLAGS_ARB);
+			contextAttributes.push_back(WGL_CONTEXT_DEBUG_BIT_ARB);
+		}
+		else
+		{
+			contextAttributes.push_back(WGL_CONTEXT_OPENGL_NO_ERROR_ARB);
+			contextAttributes.push_back(TRUE);
+		}
+
 		contextAttributes.push_back(0);
 
 		HGLRC pbufferContext = wglCreateContextAttribsARB(pbufferDC, NULL, contextAttributes.data());

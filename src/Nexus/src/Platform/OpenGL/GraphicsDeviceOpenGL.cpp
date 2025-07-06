@@ -140,6 +140,18 @@ namespace Nexus::Graphics
 		return m_Limits;
 	}
 
+	bool GraphicsDeviceOpenGL::IsIndexBufferFormatSupported(IndexBufferFormat format) const
+	{
+		switch (format)
+		{
+			case IndexBufferFormat::UInt8:
+			case IndexBufferFormat::UInt16:
+			case IndexBufferFormat::UInt32: return true;
+
+			default: throw std::runtime_error("Failed to find a valid format");
+		}
+	}
+
 	Ref<PhysicalDeviceOpenGL> GraphicsDeviceOpenGL::GetPhysicalDeviceOpenGL()
 	{
 		return m_PhysicalDevice;

@@ -26,6 +26,7 @@ namespace Nexus::Graphics
 	struct VulkanDeviceFeatures
 	{
 		bool DynamicRenderingAvailable			= false;
+		bool Supports8BitIndices				= false;
 	};
 
 	struct DeviceExtensionFunctions
@@ -127,6 +128,7 @@ namespace Nexus::Graphics
 		virtual PixelFormatProperties GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const override;
 		virtual const DeviceFeatures &GetPhysicalDeviceFeatures() const override;
 		virtual const DeviceLimits	 &GetPhysicalDeviceLimits() const override;
+		virtual bool				  IsIndexBufferFormatSupported(IndexBufferFormat format) const override;
 
 		// vulkan functions
 	  private:

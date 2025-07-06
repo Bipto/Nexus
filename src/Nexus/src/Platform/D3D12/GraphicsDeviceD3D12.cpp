@@ -406,6 +406,17 @@ namespace Nexus::Graphics
 		return m_Limits;
 	}
 
+	bool GraphicsDeviceD3D12::IsIndexBufferFormatSupported(IndexBufferFormat format) const
+	{
+		switch (format)
+		{
+			case IndexBufferFormat::UInt8: return false;
+			case IndexBufferFormat::UInt16:
+			case IndexBufferFormat::UInt32: return true;
+			default: throw std::runtime_error("Failed to find index buffer format");
+		}
+	}
+
 	void GraphicsDeviceD3D12::InitUploadCommandList()
 	{
 		m_UploadCommandAllocator->Reset();
