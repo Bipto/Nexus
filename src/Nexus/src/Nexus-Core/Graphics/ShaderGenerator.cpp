@@ -379,6 +379,8 @@ namespace Nexus::Graphics
 			case Nexus::Graphics::ShaderStage::TesselationControl: return "tcs_main";
 			case Nexus::Graphics::ShaderStage::TesselationEvaluation: return "tes_main";
 			case Nexus::Graphics::ShaderStage::Vertex: return "vs_main";
+			case Nexus::Graphics::ShaderStage::Mesh: return "ms_main";
+			case Nexus::Graphics::ShaderStage::Task: return "ts_main";
 			default: throw std::runtime_error("Failed to find a valid shader stage");
 		}
 	}

@@ -457,6 +457,8 @@ namespace Nexus::Graphics
 		m_Features.SupportShaderStorageImageMultisample = true;
 		m_Features.SupportsCubemapArray					= true;
 		m_Features.SupportsIndependentBlend				= true;
+
+		m_Features.SupportsMeshTaskShaders = true;
 	}
 
 	inline void GraphicsDeviceD3D12::ReportLiveObjects()
