@@ -1,6 +1,6 @@
 #pragma once
 
-#include "glad/glad_egl.h"
+#include "egl_include.hpp"
 
 #define CASE_STR(value)                                                                                                                              \
 	case value: return #value;

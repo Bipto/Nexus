@@ -6,8 +6,8 @@
 
 	#if defined(NX_PLATFORM_WGL)
 		#include "Context/WGL/OffscreenContextWGL.hpp"
-		#include "Context/WGL/ViewContextWGL.hpp"
 		#include "Context/WGL/PhysicalDeviceWGL.hpp"
+		#include "Context/WGL/ViewContextWGL.hpp"
 	#elif defined(NX_PLATFORM_EGL)
 		#include "Context/EGL/OffscreenContextEGL.hpp"
 		#include "Context/EGL/ViewContextEGL.hpp"
@@ -19,10 +19,10 @@
 		#include "Context/GLX/ViewContextGLX.hpp"
 	#endif
 
-	#include "Platform/OpenGL/GraphicsDeviceOpenGL.hpp"
-	#include "TextureOpenGL.hpp"
 	#include "DeviceBufferOpenGL.hpp"
 	#include "Nexus-Core/Platform.hpp"
+	#include "Platform/OpenGL/GraphicsDeviceOpenGL.hpp"
+	#include "TextureOpenGL.hpp"
 
 namespace Nexus::GL
 {
@@ -986,49 +986,6 @@ namespace Nexus::GL
 		}
 
 		return targets;
-	}
-
-	std::unique_ptr<IOffscreenContext> CreateOffscreenContext(Graphics::IPhysicalDevice *physicalDevice)
-	{
-		GL::ContextSpecification spec = {};
-		spec.Debug					  = true;
-		spec.Samples				  = 1;
-		spec.GLVersion				  = GL::OpenGLVersion::OpenGL;
-
-	#if defined(NX_PLATFORM_WGL)
-		return std::make_unique<OffscreenContextWGL>(spec, physicalDevice);
-	#elif defined(NX_PLATFORM_EGL)
-
-		#if defined(NX_PLATFORM_ANDROID)
-		spec.GLVersion	  = GL::OpenGLVersion::OpenGLES;
-		spec.VersionMajor = 3;
-		spec.VersionMinor = 2;
-		#endif
-
-		Nexus::WindowSpecification windowSpec {};
-		windowSpec.Width	 = 1;
-		windowSpec.Height	 = 1;
-		windowSpec.Resizable = false;
-
-		Nexus::Graphics::SwapchainSpecification swapchainSpec {};
-
-		IWindow *window = Platform::CreatePlatformWindow(windowSpec);
-		window->Hide();
-
-		NativeWindowInfo windowInfo = window->GetNativeWindowInfo();
-
-		EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-		#if !defined(NX_PLATFORM_ANDROID)
-		display = eglGetDisplay(windowInfo.display);
-		#endif
-		return std::make_unique<OffscreenContextEGL>(display, spec);
-	#elif defined(NX_PLATFORM_WEBGL)
-		return std::make_unique<OffscreenContextWebGL>("offscreenContext");
-	#elif defined(NX_PLATFORM_GLX)
-		return std::make_unique<OffscreenContextGLX>(spec);
-	#else
-		#error No OpenGL backend available
-	#endif
 	}
 
 	std::unique_ptr<IViewContext> CreateViewContext(IWindow *window, Graphics::GraphicsDevice *device)

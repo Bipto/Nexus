@@ -2,30 +2,29 @@
 
 	#include "GraphicsDeviceOpenGL.hpp"
 
-	#include "DeviceBufferOpenGL.hpp"
 	#include "CommandListOpenGL.hpp"
+	#include "DeviceBufferOpenGL.hpp"
+	#include "FenceOpenGL.hpp"
 	#include "PipelineOpenGL.hpp"
 	#include "ResourceSetOpenGL.hpp"
 	#include "SamplerOpenGL.hpp"
 	#include "ShaderModuleOpenGL.hpp"
+	#include "SwapchainOpenGL.hpp"
 	#include "TextureOpenGL.hpp"
 	#include "TimingQueryOpenGL.hpp"
-	#include "SwapchainOpenGL.hpp"
-	#include "DeviceBufferOpenGL.hpp"
-	#include "FenceOpenGL.hpp"
 
-	#if !defined(__EMSCRIPTEN__)
-void APIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam)
-{
-	if (type == GL_DEBUG_TYPE_ERROR)
-	{
-		std::cout << "OpenGL Debug Message: " << message << std::endl;
-	}
-}
-	#endif
+	#include "glad/gl.h"
 
 namespace Nexus::Graphics
 {
+	void glDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam)
+	{
+		if (type == GL_DEBUG_TYPE_ERROR)
+		{
+			std::cout << "OpenGL Debug Message: " << message << std::endl;
+		}
+	}
+
 	GraphicsDeviceOpenGL::GraphicsDeviceOpenGL(std::shared_ptr<IPhysicalDevice> physicalDevice, bool enableDebug)
 	{
 		m_PhysicalDevice = std::dynamic_pointer_cast<PhysicalDeviceOpenGL>(physicalDevice);
@@ -44,7 +43,7 @@ namespace Nexus::Graphics
 				{
 					context.Enable(GL_DEBUG_OUTPUT);
 					context.Enable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-					context.DebugMessageCallback(debugCallback, nullptr);
+					context.DebugMessageCallback(glDebugCallback, nullptr);
 				}
 	#endif
 			});

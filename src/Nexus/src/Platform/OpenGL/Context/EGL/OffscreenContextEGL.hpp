@@ -6,7 +6,8 @@
 	#include "Platform/OpenGL/Context/IOffscreenContext.hpp"
 	#include "Platform/OpenGL/ContextSpecification.hpp"
 
-	#include "glad/glad_egl.h"
+	#include "egl_include.hpp"
+	#include "glad/gl.h"
 
 	#if defined(NX_PLATFORM_LINUX)
 		#include "Platform/X11/X11Include.hpp"
@@ -16,18 +17,20 @@ namespace Nexus::GL
 	class OffscreenContextEGL : public IOffscreenContext
 	{
 	  public:
-		OffscreenContextEGL(EGLDisplay display, const ContextSpecification &spec);
+		OffscreenContextEGL(const ContextSpecification &spec);
 		virtual ~OffscreenContextEGL();
-		virtual bool MakeCurrent() override;
-		virtual bool Validate() override;
+		virtual bool				 MakeCurrent() override;
+		virtual bool				 Validate() override;
+		virtual const GladGLContext &GetContext() const override;
 
-		EGLContext GetContext();
+		EGLContext GetEGLContext();
 
 	  private:
 		EGLDisplay m_EGLDisplay = {};
 		EGLContext m_Context	= {};
 
 		ContextSpecification m_Specification;
+		GladGLContext		 m_GladContext = {};
 	};
 }	 // namespace Nexus::GL
 

@@ -2,8 +2,9 @@
 
 	#include "ViewContextEGL.hpp"
 
-	#include "glad/glad.h"
-	#include "glad/glad_egl.h"
+	#include "glad/gl.h"
+
+	#include "Platform/OpenGL/GL.hpp"
 
 	#include "EGLUtils.hpp"
 
@@ -27,6 +28,7 @@ namespace Nexus::GL
 		{
 			configAttribs.push_back(EGL_OPENGL_ES3_BIT);
 		}
+
 		configAttribs.push_back(EGL_RED_SIZE);
 		configAttribs.push_back(spec.RedBits);
 		configAttribs.push_back(EGL_GREEN_SIZE);
@@ -40,13 +42,12 @@ namespace Nexus::GL
 		configAttribs.push_back(EGL_STENCIL_SIZE);
 		configAttribs.push_back(spec.StencilBits);
 
-		if (spec.Samples != Graphics::SampleCount::SampleCount1)
+		if (spec.Samples != 1)
 		{
-			uint32_t samples = Graphics::GetSampleCount(spec.Samples);
 			configAttribs.push_back(EGL_SAMPLE_BUFFERS);
 			configAttribs.push_back(1);
 			configAttribs.push_back(EGL_SAMPLES);
-			configAttribs.push_back(samples);
+			configAttribs.push_back(spec.Samples);
 		}
 
 		configAttribs.push_back(EGL_NONE);
@@ -109,7 +110,9 @@ namespace Nexus::GL
 			contextAttribs.push_back(EGL_TRUE);
 		}
 
-		m_Context = eglCreateContext(m_EGLDisplay, config, pbuffer->GetContext(), contextAttribs.data());
+		contextAttribs.push_back(EGL_NONE);
+
+		m_Context = eglCreateContext(m_EGLDisplay, config, pbuffer->GetEGLContext(), contextAttribs.data());
 		if (m_Context == EGL_NO_CONTEXT)
 		{
 			std::cout << "Failed to create OpenGL context: ";
@@ -128,10 +131,16 @@ namespace Nexus::GL
 		}
 
 		SetVSync(spec.Vsync);
+
+		MakeCurrent();
+		gladLoaderLoadGLContext(&m_GladContext);
 	}
 
 	ViewContextEGL::~ViewContextEGL()
 	{
+		GL::ClearCurrentContext();
+		gladLoaderUnloadGLContext(&m_GladContext);
+		eglDestroyContext(m_EGLDisplay, m_Context);
 	}
 
 	bool ViewContextEGL::MakeCurrent()
@@ -141,6 +150,7 @@ namespace Nexus::GL
 
 	void ViewContextEGL::Swap()
 	{
+		GL::SetCurrentContext(this);
 		eglSwapBuffers(m_EGLDisplay, m_Surface);
 	}
 
@@ -157,6 +167,11 @@ namespace Nexus::GL
 	bool ViewContextEGL::Validate()
 	{
 		return m_EGLDisplay != 0 && m_NativeWindow != 0 && m_Surface != 0 && m_Context != 0;
+	}
+
+	const GladGLContext &ViewContextEGL::GetContext() const
+	{
+		return m_GladContext;
 	}
 }	 // namespace Nexus::GL
 
