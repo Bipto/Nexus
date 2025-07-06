@@ -127,6 +127,7 @@ namespace Nexus::GL
 	/// @return A boolean indicating whether OpenGL was able to be initialized
 	bool													LoadOpenGL();
 	std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> LoadAvailablePhysicalDevices();
+	std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> LoadAvailablePhysicalDevices(bool debug);
 
 	IGLContext *GetCurrentContext();
 	void		SetCurrentContext(IGLContext *context);

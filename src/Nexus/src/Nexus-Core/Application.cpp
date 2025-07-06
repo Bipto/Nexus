@@ -18,11 +18,7 @@ namespace Nexus
 
 		m_Window = Platform::CreatePlatformWindow(spec.WindowProperties);
 
-		Graphics::GraphicsAPICreateInfo createInfo = {};
-		createInfo.API							   = spec.GraphicsAPI;
-		createInfo.Debug						   = true;
-
-		m_GraphicsAPI = std::unique_ptr<Graphics::IGraphicsAPI>(Graphics::IGraphicsAPI::CreateAPI(createInfo));
+		m_GraphicsAPI = std::unique_ptr<Graphics::IGraphicsAPI>(Graphics::IGraphicsAPI::CreateAPI(spec.GraphicsCreateInfo));
 
 		std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> physicalDevices = m_GraphicsAPI->GetPhysicalDevices();
 		m_GraphicsDevice = std::unique_ptr<Graphics::GraphicsDevice>(m_GraphicsAPI->CreateGraphicsDevice(physicalDevices[0]));

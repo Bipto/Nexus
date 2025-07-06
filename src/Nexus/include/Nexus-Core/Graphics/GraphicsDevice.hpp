@@ -22,7 +22,7 @@
 #include "TimingQuery.hpp"
 #include "Viewport.hpp"
 
-#include "Nexus-Core/Graphics/GraphicsAPIType.hpp"
+#include "Nexus-Core/Graphics/GraphicsAPICreateInfo.hpp"
 
 #include "Nexus-Core/IResource.hpp"
 

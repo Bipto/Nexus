@@ -10,7 +10,7 @@ namespace Nexus::Graphics
 	class PhysicalDeviceEGL final : public PhysicalDeviceOpenGL
 	{
 	  public:
-		PhysicalDeviceEGL();
+		PhysicalDeviceEGL(bool debug, EGLDisplay display);
 		virtual ~PhysicalDeviceEGL();
 		const std::string			  &GetDeviceName() const final;
 		virtual GL::IOffscreenContext *GetOffscreenContext() final;

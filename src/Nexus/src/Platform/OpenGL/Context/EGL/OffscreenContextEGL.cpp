@@ -16,24 +16,9 @@
 
 namespace Nexus::GL
 {
-	OffscreenContextEGL::OffscreenContextEGL(const ContextSpecification &spec) : m_Specification(spec)
+	OffscreenContextEGL::OffscreenContextEGL(const ContextSpecification &spec, EGLDisplay display) : m_Specification(spec)
 
 	{
-		Nexus::WindowSpecification windowSpec {};
-		windowSpec.Width	 = 1;
-		windowSpec.Height	 = 1;
-		windowSpec.Resizable = false;
-		IWindow *window		 = Platform::CreatePlatformWindow(windowSpec);
-		window->Hide();
-
-		NativeWindowInfo windowInfo = window->GetNativeWindowInfo();
-
-	#if !defined(NX_PLATFORM_ANDROID)
-		EGLDisplay display = eglGetDisplay(windowInfo.display);
-	#else
-		EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-	#endif
-
 		m_EGLDisplay = display;
 
 		if (m_EGLDisplay == EGL_NO_DISPLAY)
@@ -103,8 +88,44 @@ namespace Nexus::GL
 		}
 
 		std::vector<EGLint> contextAttribs;
-		contextAttribs.push_back(EGL_CONTEXT_CLIENT_VERSION);
-		contextAttribs.push_back(3);
+
+		if (EGL::HasExtension(m_EGLDisplay, "EGL_KHR_create_context"))
+		{
+			if (spec.GLVersion == GL::OpenGLVersion::OpenGL)
+			{
+				contextAttribs.push_back(EGL_CONTEXT_MAJOR_VERSION_KHR);
+				contextAttribs.push_back(spec.VersionMajor);
+				contextAttribs.push_back(EGL_CONTEXT_MINOR_VERSION_KHR);
+				contextAttribs.push_back(spec.VersionMinor);
+			}
+			else
+			{
+				contextAttribs.push_back(EGL_CONTEXT_CLIENT_VERSION);
+				contextAttribs.push_back(spec.VersionMajor);
+			}
+
+			contextAttribs.push_back(EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR);
+			if (spec.UseCoreProfile)
+			{
+				contextAttribs.push_back(EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT);
+			}
+			else
+			{
+				contextAttribs.push_back(EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT);
+			}
+
+			if (spec.Debug)
+			{
+				contextAttribs.push_back(EGL_CONTEXT_FLAGS_KHR);
+				contextAttribs.push_back(EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR);
+			}
+			else
+			{
+				contextAttribs.push_back(EGL_CONTEXT_FLAGS_KHR);
+				contextAttribs.push_back(0);
+			}
+		}
+
 		contextAttribs.push_back(EGL_NONE);
 
 		m_Context = eglCreateContext(m_EGLDisplay, config, EGL_NO_CONTEXT, contextAttribs.data());

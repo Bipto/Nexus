@@ -17,7 +17,7 @@ namespace Nexus::GL
 	class OffscreenContextEGL : public IOffscreenContext
 	{
 	  public:
-		OffscreenContextEGL(const ContextSpecification &spec);
+		OffscreenContextEGL(const ContextSpecification &spec, EGLDisplay display);
 		virtual ~OffscreenContextEGL();
 		virtual bool				 MakeCurrent() override;
 		virtual bool				 Validate() override;

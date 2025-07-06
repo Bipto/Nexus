@@ -2,7 +2,7 @@
 
 namespace Nexus::Graphics
 {
-	PhysicalDeviceEGL::PhysicalDeviceEGL()
+	PhysicalDeviceEGL::PhysicalDeviceEGL(bool debug, EGLDisplay display)
 	{
 		GL::ContextSpecification spec;
 		spec.GLVersion = GL::OpenGLVersion::OpenGL;
@@ -11,7 +11,9 @@ namespace Nexus::Graphics
 		spec.GLVersion = GL::OpenGLVersion::OpenGLES;
 #endif
 
-		m_OffscreenContext = std::make_unique<GL::OffscreenContextEGL>(spec);
+		spec.Debug = debug;
+
+		m_OffscreenContext = std::make_unique<GL::OffscreenContextEGL>(spec, display);
 		m_OffscreenContext->MakeCurrent();
 
 		const GladGLContext &gladContext = m_OffscreenContext->GetContext();
