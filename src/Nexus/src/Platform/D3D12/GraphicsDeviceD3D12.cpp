@@ -385,11 +385,6 @@ namespace Nexus::Graphics
 		return m_Device && m_CommandQueue && m_Fence && m_UploadCommandAllocator && m_UploadCommandList && m_DxgiFactory;
 	}
 
-	void GraphicsDeviceD3D12::SetName(const std::string &name)
-	{
-		GraphicsDevice::SetName(name);
-	}
-
 	PixelFormatProperties GraphicsDeviceD3D12::GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const
 	{
 		PixelFormatProperties properties = {};

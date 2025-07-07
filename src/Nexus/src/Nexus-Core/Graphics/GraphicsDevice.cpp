@@ -182,16 +182,6 @@ namespace Nexus::Graphics
 		return true;
 	}
 
-	void GraphicsDevice::SetName(const std::string &name)
-	{
-		m_Name = name;
-	}
-
-	const std::string &GraphicsDevice::GetName()
-	{
-		return m_Name;
-	}
-
 	Ref<ShaderModule> GraphicsDevice::TryLoadCachedShader(const std::string &source,
 														  const std::string &name,
 														  ShaderStage		 stage,

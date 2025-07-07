@@ -19,14 +19,14 @@ namespace Nexus::Graphics
 
 	struct VulkanDeviceConfig
 	{
-		bool Debug									 = false;
-		bool UseDynamicRenderingIfAvailable			 = false;
+		bool Debug							= false;
+		bool UseDynamicRenderingIfAvailable = false;
 	};
 
 	struct VulkanDeviceFeatures
 	{
-		bool DynamicRenderingAvailable			= false;
-		bool Supports8BitIndices				= false;
+		bool DynamicRenderingAvailable = false;
+		bool Supports8BitIndices	   = false;
 	};
 
 	struct DeviceExtensionFunctions
@@ -38,11 +38,13 @@ namespace Nexus::Graphics
 		PFN_vkCmdBeginDebugUtilsLabelEXT  vkCmdBeginDebugUtilsLabelEXT	= VK_NULL_HANDLE;
 		PFN_vkCmdEndDebugUtilsLabelEXT	  vkCmdEndDebugUtilsLabelEXT	= VK_NULL_HANDLE;
 		PFN_vkCmdInsertDebugUtilsLabelEXT vkCmdInsertDebugUtilsLabelEXT = VK_NULL_HANDLE;
+		PFN_vkSetDebugUtilsObjectNameEXT  vkSetDebugUtilsObjectNameEXT	= VK_NULL_HANDLE;
 
 		// otherwise, fall back to these
-		PFN_vkCmdDebugMarkerBeginEXT  vkCmdDebugMarkerBeginEXT	= VK_NULL_HANDLE;
-		PFN_vkCmdDebugMarkerEndEXT	  vkCmdDebugMarkerEndEXT	= VK_NULL_HANDLE;
-		PFN_vkCmdDebugMarkerInsertEXT vkCmdDebugMarkerInsertEXT = VK_NULL_HANDLE;
+		PFN_vkCmdDebugMarkerBeginEXT	  vkCmdDebugMarkerBeginEXT		= VK_NULL_HANDLE;
+		PFN_vkCmdDebugMarkerEndEXT		  vkCmdDebugMarkerEndEXT		= VK_NULL_HANDLE;
+		PFN_vkCmdDebugMarkerInsertEXT	  vkCmdDebugMarkerInsertEXT		= VK_NULL_HANDLE;
+		PFN_vkDebugMarkerSetObjectNameEXT vkDebugMarkerSetObjectNameEXT = VK_NULL_HANDLE;
 
 		PFN_vkCmdBeginRenderPass2KHR vkCmdBeginRenderPass2KHR = VK_NULL_HANDLE;
 		PFN_vkCmdEndRenderPass2KHR	 vkCmdEndRenderPass2KHR	  = VK_NULL_HANDLE;
@@ -123,7 +125,6 @@ namespace Nexus::Graphics
 		const VulkanDeviceFeatures GetDeviceFeatures() const;
 
 		virtual bool Validate() override;
-		virtual void SetName(const std::string &name) override;
 
 		virtual PixelFormatProperties GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const override;
 		virtual const DeviceFeatures &GetPhysicalDeviceFeatures() const override;

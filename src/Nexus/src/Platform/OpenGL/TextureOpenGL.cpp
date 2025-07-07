@@ -44,6 +44,11 @@ namespace Nexus::Graphics
 				{
 					CreateTextureFacesNonDSA(context);
 				}
+
+				if (context.KHR_debug)
+				{
+					context.ObjectLabelKHR(GL_TEXTURE, m_Handle, -1, m_Specification.DebugName.c_str());
+				}
 			});
 	}
 

@@ -37,6 +37,7 @@ namespace Nexus::Graphics
 		TextureType Type		= TextureType::Texture2D;
 		uint32_t	Samples		= 1;
 		uint8_t		Usage		= 0;
+		std::string DebugName	= "Texture";
 	};
 
 	class NX_API Texture

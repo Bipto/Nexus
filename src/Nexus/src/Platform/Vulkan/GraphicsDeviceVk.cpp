@@ -284,8 +284,19 @@ namespace Nexus::Graphics
 		return GraphicsAPI::Vulkan;
 	}
 
-	void GraphicsDeviceVk::SetObjectName(VkObjectType type, uint64_t handle, const char *nam)
+	void GraphicsDeviceVk::SetObjectName(VkObjectType type, uint64_t handle, const char *name)
 	{
+		VkDebugUtilsObjectNameInfoEXT nameInfo = {};
+		nameInfo.sType						   = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+		nameInfo.pNext						   = nullptr;
+		nameInfo.objectType					   = type;
+		nameInfo.objectHandle				   = handle;
+		nameInfo.pObjectName				   = name;
+
+		if (m_ExtensionFunctions.vkSetDebugUtilsObjectNameEXT)
+		{
+			m_ExtensionFunctions.vkSetDebugUtilsObjectNameEXT(m_Device, &nameInfo);
+		}
 	}
 
 	const DeviceExtensionFunctions &GraphicsDeviceVk::GetExtensionFunctions() const
@@ -625,10 +636,14 @@ namespace Nexus::Graphics
 		m_ExtensionFunctions.vkCmdEndDebugUtilsLabelEXT = (PFN_vkCmdEndDebugUtilsLabelEXT)vkGetDeviceProcAddr(m_Device, "vkCmdEndDebugUtilsLabelEXT");
 		m_ExtensionFunctions.vkCmdInsertDebugUtilsLabelEXT =
 			(PFN_vkCmdInsertDebugUtilsLabelEXT)vkGetDeviceProcAddr(m_Device, "vkCmdInsertDebugUtilsLabelEXT");
+		m_ExtensionFunctions.vkSetDebugUtilsObjectNameEXT =
+			(PFN_vkSetDebugUtilsObjectNameEXT)vkGetDeviceProcAddr(m_Device, "vkSetDebugUtilsObjectNameEXT");
 
 		m_ExtensionFunctions.vkCmdBeginRenderPass2KHR = (PFN_vkCmdBeginRenderPass2KHR)vkGetDeviceProcAddr(m_Device, "vkCmdBeginRenderPass2KHR");
 		m_ExtensionFunctions.vkCmdEndRenderPass2KHR	  = (PFN_vkCmdEndRenderPass2KHR)vkGetDeviceProcAddr(m_Device, "vkCmdEndRenderPass2KHR");
 		m_ExtensionFunctions.vkCreateRenderPass2KHR	  = (PFN_vkCreateRenderPass2KHR)vkGetDeviceProcAddr(m_Device, "vkCreateRenderPass2KHR");
+		m_ExtensionFunctions.vkDebugMarkerSetObjectNameEXT =
+			(PFN_vkDebugMarkerSetObjectNameEXT)vkGetDeviceProcAddr(m_Device, "vkDebugMarkerSetObjectNameEXT");
 
 		m_ExtensionFunctions.vkCmdBeginRenderingKHR = (PFN_vkCmdBeginRenderingKHR)vkGetDeviceProcAddr(m_Device, "vkCmdBeginRenderingKHR");
 		m_ExtensionFunctions.vkCmdEndRenderingKHR	= (PFN_vkCmdEndRenderingKHR)vkGetDeviceProcAddr(m_Device, "vkCmdEndRenderingKHR");
@@ -839,35 +854,6 @@ namespace Nexus::Graphics
 	bool GraphicsDeviceVk::Validate()
 	{
 		return m_Device != VK_NULL_HANDLE && m_Allocator != VK_NULL_HANDLE;
-	}
-
-	void GraphicsDeviceVk::SetName(const std::string &name)
-	{
-		GraphicsDevice::SetName(name);
-
-		/* std::string instanceName = name + std::string(" - Instance");
-		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_INSTANCE, (uint64_t)m_Instance, instanceName.c_str());
-
-		std::string physicalDeviceName = name + std::string(" - PhysicalDevice");
-		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_PHYSICAL_DEVICE, (uint64_t)m_PhysicalDevice, physicalDeviceName.c_str()); */
-
-		std::string deviceName = name + std::string(" - Device");
-		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_DEVICE, (uint64_t)m_Device, deviceName.c_str());
-
-		/* if (m_Specification.DebugLayer)
-		{
-			std::string debugName = name + std::string(" - Debug Messenger");
-			Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_DEBUG_UTILS_MESSENGER_EXT, (uint64_t)m_DebugMessenger, debugName.c_str());
-		} */
-
-		std::string uploadFenceName = name + std::string(" - Upload Context Fence");
-		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_FENCE, (uint64_t)m_UploadContext.UploadFence, uploadFenceName.c_str());
-
-		std::string uploadCmdPoolName = name + std::string(" - Upload Command Pool");
-		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_COMMAND_POOL, (uint64_t)m_UploadContext.CommandPool, uploadCmdPoolName.c_str());
-
-		std::string uploadCmdBufferName = name + std::string(" - Upload Commamd Buffer");
-		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_COMMAND_BUFFER, (uint64_t)m_UploadContext.UploadFence, uploadCmdBufferName.c_str());
 	}
 
 	PixelFormatProperties GraphicsDeviceVk::GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const

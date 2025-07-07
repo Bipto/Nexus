@@ -219,6 +219,7 @@ namespace Nexus::ImGuiUtils
 		spec.Height							= height;
 		spec.Format							= Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
 		spec.Usage							= Graphics::TextureUsage_Sampled;
+		spec.DebugName						= "ImGui Font Texture";
 		m_FontTexture						= m_GraphicsDevice->CreateTexture(spec);
 		m_GraphicsDevice->WriteToTexture(m_FontTexture, 0, 0, 0, 0, 0, width, height, pixels, bufferSize);
 

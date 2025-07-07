@@ -92,7 +92,6 @@ namespace Nexus::Graphics
 		void ResourceBarrierSwapchainDepth(ID3D12GraphicsCommandList7 *cmd, Ref<SwapchainD3D12> resource, D3D12_RESOURCE_STATES after);
 
 		virtual bool Validate() override;
-		virtual void SetName(const std::string &name) override;
 
 		virtual PixelFormatProperties GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const override;
 		virtual const DeviceFeatures &GetPhysicalDeviceFeatures() const override;
