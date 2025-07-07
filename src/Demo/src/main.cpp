@@ -16,6 +16,7 @@
 #include "Demos/HelloTriangleIndexed.hpp"
 #include "Demos/HelloTriangleIndirect.hpp"
 #include "Demos/HelloTriangleIndirectIndexedDemo.hpp"
+#include "Demos/HelloTriangleMeshShaders.hpp"
 #include "Demos/InstancingDemo.hpp"
 #include "Demos/Lighting.hpp"
 #include "Demos/MipmapDemo.hpp"
@@ -80,6 +81,13 @@ class DemoApplication : public Nexus::Application
 		RegisterGraphicsDemo<Demos::HelloTriangleIndexedDemo>("Hello Triangle Indexed");
 		RegisterGraphicsDemo<Demos::HelloTriangleIndirectDemo>("Hello Triangle Indirect");
 		RegisterGraphicsDemo<Demos::HelloTriangleIndirectIndexedDemo>("Hello Triangle Indexed Indirect");
+
+		const Nexus::Graphics::DeviceFeatures deviceFeatures = m_GraphicsDevice->GetPhysicalDeviceFeatures();
+		if (deviceFeatures.SupportsMeshTaskShaders)
+		{
+			RegisterGraphicsDemo<Demos::HelloTriangleMeshShadersDemo>("Hello Triangle Mesh Shaders");
+		}
+
 		RegisterGraphicsDemo<Demos::TexturingDemo>("Texturing");
 		RegisterGraphicsDemo<Demos::BatchingDemo>("Batching");
 		RegisterGraphicsDemo<Demos::FramebufferDemo>("Framebuffers");
@@ -310,8 +318,11 @@ class DemoApplication : public Nexus::Application
 Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &arguments)
 {
 	Nexus::ApplicationSpecification spec;
-	spec.GraphicsAPI = Nexus::Graphics::GraphicsAPI::OpenGL;
-	spec.AudioAPI	 = Nexus::Audio::AudioAPI::OpenAL;
+
+	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::Vulkan;
+	spec.GraphicsCreateInfo.Debug = true;
+
+	spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;
 
 	spec.WindowProperties.Width			   = 1280;
 	spec.WindowProperties.Height		   = 720;

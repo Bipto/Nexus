@@ -104,6 +104,8 @@ namespace Nexus::Graphics
 					}
 				}
 			});
+
+		m_GraphicsDevice->SetObjectName(VK_OBJECT_TYPE_IMAGE, (uint64_t)m_Image, m_Specification.DebugName.c_str());
 	}
 
 	TextureVk::~TextureVk()

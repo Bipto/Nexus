@@ -20,13 +20,12 @@ namespace YAML
 			node.push_back(rhs.Name);
 			node.push_back(rhs.Set);
 			node.push_back(rhs.Binding);
-			node.push_back((uint32_t)rhs.Type);
 			return node;
 		}
 
 		static bool decode(const Node &node, Nexus::Graphics::ResourceBinding &rhs)
 		{
-			if (!node.IsSequence() || node.size() != 4)
+			if (!node.IsSequence() || node.size() != 3)
 			{
 				return false;
 			}
@@ -34,7 +33,6 @@ namespace YAML
 			rhs.Name	= node[0].as<std::string>();
 			rhs.Set		= node[1].as<uint32_t>();
 			rhs.Binding = node[2].as<uint32_t>();
-			rhs.Type	= (Nexus::Graphics::ResourceType)node[3].as<uint32_t>();
 			return true;
 		}
 	};

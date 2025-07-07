@@ -22,9 +22,12 @@ namespace Nexus::Graphics
 		virtual void					 SetVSyncState(VSyncState vsyncState) override;
 		virtual Nexus::Point2D<uint32_t> GetSize() override;
 		virtual PixelFormat				 GetColourFormat() override;
+		virtual PixelFormat				 GetDepthFormat() override;
 
 		void							 ResizeIfNecessary();
 		void							 BindAsDrawTarget();
+
+		GL::IViewContext *GetViewContext();
 
 		virtual IWindow *GetWindow() override
 		{
@@ -38,7 +41,7 @@ namespace Nexus::Graphics
 
 		uint32_t						  m_SwapchainWidth	= 0;
 		uint32_t						  m_SwapchainHeight = 0;
-		std::unique_ptr<GL::IViewContext> ViewContext		= {};
+		std::unique_ptr<GL::IViewContext> m_ViewContext		= {};
 	};
 }	 // namespace Nexus::Graphics
 

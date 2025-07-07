@@ -7,7 +7,7 @@
 	#include "Platform/OpenGL/ContextSpecification.hpp"
 
 	#include "Platform/Windows/WindowsInclude.hpp"
-	#include "glad/glad_wgl.h"
+	#include "glad/wgl.h"
 
 namespace Nexus::GL
 {
@@ -18,6 +18,7 @@ namespace Nexus::GL
 		virtual ~OffscreenContextWGL();
 		virtual bool MakeCurrent() override;
 		virtual bool Validate() override;
+		virtual const GladGLContext &GetContext() const override;
 
 		HGLRC GetHGLRC();
 
@@ -30,6 +31,8 @@ namespace Nexus::GL
 		HGLRC		m_HGLRC	  = {};
 		HPBUFFERARB m_PBuffer = {};
 		HDC			m_HDC	  = {};
+
+		OpenGLFunctionContext m_FunctionContext = {};
 
 	  private:
 		inline static bool s_GLFunctionsLoaded = false;

@@ -117,7 +117,6 @@ namespace Demos
 				Nexus::Graphics::VertexBufferView vertexBufferView = {};
 				vertexBufferView.BufferHandle					   = m_CubeMesh->GetVertexBuffer();
 				vertexBufferView.Offset							   = 0;
-				vertexBufferView.Stride							   = m_CubeMesh->GetVertexBuffer()->GetStrideInBytes();
 				vertexBufferView.Size							   = m_CubeMesh->GetVertexBuffer()->GetSizeInBytes();
 				m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
@@ -125,7 +124,6 @@ namespace Demos
 				instanceBufferView.BufferHandle						 = m_InstanceBuffer;
 				instanceBufferView.Offset							 = 0;
 				instanceBufferView.Size								 = m_InstanceBuffer->GetSizeInBytes();
-				instanceBufferView.Stride							 = m_InstanceBuffer->GetStrideInBytes();
 				m_CommandList->SetVertexBuffer(instanceBufferView, 1);
 
 				Nexus::Graphics::IndexBufferView indexBufferView = {};
@@ -136,13 +134,14 @@ namespace Demos
 				m_CommandList->SetIndexBuffer(indexBufferView);
 
 				auto indexCount = m_CubeMesh->GetIndexBuffer()->GetCount();
+				auto instanceCount = m_InstanceBuffer->GetSizeInBytes() / m_InstanceBuffer->GetStrideInBytes();
 
 				Nexus::Graphics::DrawIndexedDescription drawDesc = {};
 				drawDesc.VertexStart							 = 0;
 				drawDesc.IndexStart								 = 0;
 				drawDesc.InstanceStart							 = 0;
 				drawDesc.IndexCount								 = indexCount;
-				drawDesc.InstanceCount							 = 1;
+				drawDesc.InstanceCount							 = instanceCount;
 				m_CommandList->DrawIndexed(drawDesc);
 			}
 
@@ -183,17 +182,20 @@ namespace Demos
 																 {"normalMapSampler", 1, 1},
 																 {"specularMapSampler", 1, 2}};
 
-			Nexus::Graphics::VertexBufferLayout vertexLayout = {{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
-																{Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
-																{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
-																{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
-																{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}};
+			Nexus::Graphics::VertexBufferLayout vertexLayout = {{{Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
+																 {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
+																 {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
+																 {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
+																 {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"}},
+																sizeof(VB_UNIFORM_CAMERA_DEMO_INSTANCING),
+																Nexus::Graphics::StepRate::Vertex};
 
-			Nexus::Graphics::VertexBufferLayout instanceLayout = {{Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
-																  {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
-																  {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
-																  {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"}};
-			instanceLayout.SetInstanceStepRate(1);
+			Nexus::Graphics::VertexBufferLayout instanceLayout = {{{Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
+																   {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
+																   {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
+																   {Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"}},
+																  sizeof(glm::mat4),
+																  Nexus::Graphics::StepRate::Instance};
 
 			pipelineDescription.Layouts = {vertexLayout, instanceLayout};
 

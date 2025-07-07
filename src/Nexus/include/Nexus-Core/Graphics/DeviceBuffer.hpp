@@ -9,6 +9,7 @@ namespace Nexus::Graphics
 {
 	enum class IndexBufferFormat
 	{
+		UInt8,
 		UInt16,
 		UInt32
 	};
@@ -17,6 +18,7 @@ namespace Nexus::Graphics
 	{
 		switch (format)
 		{
+			case IndexBufferFormat::UInt8: return sizeof(uint8_t);
 			case IndexBufferFormat::UInt16: return sizeof(uint16_t);
 			case IndexBufferFormat::UInt32: return sizeof(uint32_t);
 			default: throw std::runtime_error("Failed to find a valid index buffer format");
@@ -115,7 +117,6 @@ namespace Nexus::Graphics
 		Ref<DeviceBuffer> BufferHandle = {};
 		size_t			  Offset	   = 0;
 		size_t			  Size		   = 0;
-		size_t			  Stride	   = 0;
 	};
 
 	struct IndexBufferView

@@ -132,7 +132,6 @@ namespace Nexus::ImGuiUtils
 		pipelineDesc.ColourFormats[0]		 = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
 		pipelineDesc.ColourTargetCount		 = 1;
 		pipelineDesc.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification().Samples;
-		pipelineDesc.DepthFormat			 = Graphics::PixelFormat::D24_UNorm_S8_UInt;
 
 		pipelineDesc.ColourBlendStates[0].EnableBlending		 = true;
 		pipelineDesc.ColourBlendStates[0].SourceColourBlend		 = Nexus::Graphics::BlendFactor::SourceAlpha;
@@ -146,14 +145,19 @@ namespace Nexus::ImGuiUtils
 		pipelineDesc.RasterizerStateDesc.TriangleFillMode  = Nexus::Graphics::FillMode::Solid;
 		pipelineDesc.RasterizerStateDesc.TriangleFrontFace = Nexus::Graphics::FrontFace::CounterClockwise;
 
+		pipelineDesc.DepthFormat = Nexus::GetApplication()->GetPrimarySwapchain()->GetDepthFormat();
+
 		pipelineDesc.DepthStencilDesc.DepthComparisonFunction	= Nexus::Graphics::ComparisonFunction::AlwaysPass;
 		pipelineDesc.DepthStencilDesc.EnableDepthTest			= false;
 		pipelineDesc.DepthStencilDesc.EnableDepthWrite			= false;
 		pipelineDesc.DepthStencilDesc.EnableStencilTest			= false;
 
-		pipelineDesc.Layouts = {{{Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
-								 {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
-								 {Nexus::Graphics::ShaderDataType::NormByte4, "TEXCOORD"}}};
+		pipelineDesc.Layouts = {
+			Nexus::Graphics::VertexBufferLayout({Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"),
+												 Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"),
+												 Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::NormByte4, "TEXCOORD")},
+												sizeof(ImDrawVert),
+												Nexus::Graphics::StepRate::Vertex)};
 
 		Nexus::Graphics::ResourceSetSpecification resources;
 		resources += m_VertexShader->GetResourceSetSpecification();
@@ -173,7 +177,6 @@ namespace Nexus::ImGuiUtils
 		pipelineDesc.ColourFormats[0]		 = Nexus::GetApplication()->GetPrimarySwapchain()->GetColourFormat();
 		pipelineDesc.ColourTargetCount		 = 1;
 		pipelineDesc.ColourTargetSampleCount = Nexus::GetApplication()->GetPrimarySwapchain()->GetSpecification().Samples;
-		pipelineDesc.DepthFormat			 = Graphics::PixelFormat::D24_UNorm_S8_UInt;
 
 		pipelineDesc.ColourBlendStates[0].EnableBlending = false;
 
@@ -186,9 +189,12 @@ namespace Nexus::ImGuiUtils
 		pipelineDesc.DepthStencilDesc.EnableDepthWrite			= false;
 		pipelineDesc.DepthStencilDesc.EnableStencilTest			= false;
 
-		pipelineDesc.Layouts = {{{Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
-								 {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
-								 {Nexus::Graphics::ShaderDataType::NormByte4, "TEXCOORD"}}};
+		pipelineDesc.Layouts = {
+			Nexus::Graphics::VertexBufferLayout({Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"),
+												 Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"),
+												 Nexus::Graphics::VertexBufferElement(Nexus::Graphics::ShaderDataType::NormByte4, "TEXCOORD")},
+												sizeof(ImDrawVert),
+												Nexus::Graphics::StepRate::Vertex)};
 
 		Nexus::Graphics::ResourceSetSpecification resources;
 		resources += m_VertexShader->GetResourceSetSpecification();
@@ -213,6 +219,7 @@ namespace Nexus::ImGuiUtils
 		spec.Height							= height;
 		spec.Format							= Graphics::PixelFormat::R8_G8_B8_A8_UNorm;
 		spec.Usage							= Graphics::TextureUsage_Sampled;
+		spec.DebugName						= "ImGui Font Texture";
 		m_FontTexture						= m_GraphicsDevice->CreateTexture(spec);
 		m_GraphicsDevice->WriteToTexture(m_FontTexture, 0, 0, 0, 0, 0, width, height, pixels, bufferSize);
 
@@ -558,7 +565,6 @@ namespace Nexus::ImGuiUtils
 					Graphics::VertexBufferView vertexBufferView = {};
 					vertexBufferView.BufferHandle				= m_VertexBuffer;
 					vertexBufferView.Offset						= 0;
-					vertexBufferView.Stride						= m_VertexBuffer->GetStrideInBytes();
 					vertexBufferView.Size						= m_VertexBuffer->GetSizeInBytes();
 					m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 

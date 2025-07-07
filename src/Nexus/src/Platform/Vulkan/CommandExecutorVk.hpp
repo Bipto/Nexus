@@ -30,6 +30,8 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(DrawIndirectIndexedDescription command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(DispatchDescription command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(DispatchIndirectDescription command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DrawMeshDescription command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DrawMeshIndirectDescription command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(ClearColorTargetCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDevice *device) override;
@@ -39,9 +41,6 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(ResolveSamplesToSwapchainCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(StartTimingQueryCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(StopTimingQueryCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(SetStencilRefCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(SetDepthBoundsCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(SetBlendFactorCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(const CopyTextureToBufferCommand &command, GraphicsDevice *device) override;
@@ -56,6 +55,8 @@ namespace Nexus::Graphics
 		void TransitionFramebufferToShaderReadonly(Ref<Framebuffer> framebuffer);
 		bool ValidateIsRendering();
 
+		void BindGraphicsPipeline();
+
 	  private:
 		GraphicsDeviceVk *m_Device = nullptr;
 
@@ -68,10 +69,10 @@ namespace Nexus::Graphics
 
 		VkCommandBuffer m_CommandBuffer = nullptr;
 
-		PFN_vkCmdBindIndexBuffer2KHR m_vkCmdBindIndexBuffer2KHR = VK_NULL_HANDLE;
-		PFN_vkCmdDebugMarkerBeginEXT  m_vkCmdDebugMarkerBeginEXT  = VK_NULL_HANDLE;
-		PFN_vkCmdDebugMarkerEndEXT	  m_vkCmdDebugMarkerEndEXT	  = VK_NULL_HANDLE;
-		PFN_vkCmdDebugMarkerInsertEXT m_vkCmdDebugMarkerInsertEXT = VK_NULL_HANDLE;
+		std::map<uint32_t, size_t> m_VertexBufferStrides;
+
+		std::vector<RenderCommandData> m_Commands;
+		size_t						   m_CurrentCommandIndex = 0;
 	};
 }	 // namespace Nexus::Graphics
 

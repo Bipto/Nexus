@@ -17,10 +17,50 @@ namespace Nexus::Graphics
 		VkCommandBuffer CommandBuffer;
 	};
 
+	struct VulkanDeviceConfig
+	{
+		bool Debug							= false;
+		bool UseDynamicRenderingIfAvailable = false;
+	};
+
+	struct VulkanDeviceFeatures
+	{
+		bool DynamicRenderingAvailable = false;
+		bool Supports8BitIndices	   = false;
+	};
+
+	struct DeviceExtensionFunctions
+	{
+		PFN_vkCmdBindVertexBuffers2EXT vkCmdBindVertexBuffers2EXT = VK_NULL_HANDLE;
+		PFN_vkCmdBindIndexBuffer2KHR   vkCmdBindIndexBuffer2KHR	  = VK_NULL_HANDLE;
+
+		// these are the more modern debug functions, so use these if available
+		PFN_vkCmdBeginDebugUtilsLabelEXT  vkCmdBeginDebugUtilsLabelEXT	= VK_NULL_HANDLE;
+		PFN_vkCmdEndDebugUtilsLabelEXT	  vkCmdEndDebugUtilsLabelEXT	= VK_NULL_HANDLE;
+		PFN_vkCmdInsertDebugUtilsLabelEXT vkCmdInsertDebugUtilsLabelEXT = VK_NULL_HANDLE;
+		PFN_vkSetDebugUtilsObjectNameEXT  vkSetDebugUtilsObjectNameEXT	= VK_NULL_HANDLE;
+
+		// otherwise, fall back to these
+		PFN_vkCmdDebugMarkerBeginEXT	  vkCmdDebugMarkerBeginEXT		= VK_NULL_HANDLE;
+		PFN_vkCmdDebugMarkerEndEXT		  vkCmdDebugMarkerEndEXT		= VK_NULL_HANDLE;
+		PFN_vkCmdDebugMarkerInsertEXT	  vkCmdDebugMarkerInsertEXT		= VK_NULL_HANDLE;
+		PFN_vkDebugMarkerSetObjectNameEXT vkDebugMarkerSetObjectNameEXT = VK_NULL_HANDLE;
+
+		PFN_vkCmdBeginRenderPass2KHR vkCmdBeginRenderPass2KHR = VK_NULL_HANDLE;
+		PFN_vkCmdEndRenderPass2KHR	 vkCmdEndRenderPass2KHR	  = VK_NULL_HANDLE;
+		PFN_vkCreateRenderPass2KHR	 vkCreateRenderPass2KHR	  = VK_NULL_HANDLE;
+
+		PFN_vkCmdBeginRenderingKHR vkCmdBeginRenderingKHR = VK_NULL_HANDLE;
+		PFN_vkCmdEndRenderingKHR   vkCmdEndRenderingKHR	  = VK_NULL_HANDLE;
+
+		PFN_vkCmdDrawMeshTasksEXT		  vkCmdDrawMeshTasksEXT			= VK_NULL_HANDLE;
+		PFN_vkCmdDrawMeshTasksIndirectEXT vkCmdDrawMeshTasksIndirectEXT = VK_NULL_HANDLE;
+	};
+
 	class GraphicsDeviceVk : public GraphicsDevice
 	{
 	  public:
-		GraphicsDeviceVk(std::shared_ptr<IPhysicalDevice> physicalDevice, VkInstance instance, bool debug);
+		GraphicsDeviceVk(std::shared_ptr<IPhysicalDevice> physicalDevice, VkInstance instance, const VulkanDeviceConfig &config);
 		GraphicsDeviceVk(const GraphicsDeviceVk &) = delete;
 		virtual ~GraphicsDeviceVk();
 
@@ -61,6 +101,9 @@ namespace Nexus::Graphics
 
 		virtual GraphicsAPI GetGraphicsAPI() override;
 
+		void							SetObjectName(VkObjectType type, uint64_t handle, const char *name);
+		const DeviceExtensionFunctions &GetExtensionFunctions() const;
+
 		VkInstance	 GetVkInstance();
 		VkDevice	 GetVkDevice();
 		uint32_t	 GetGraphicsFamily();
@@ -79,8 +122,14 @@ namespace Nexus::Graphics
 		uint32_t			FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties, std::shared_ptr<PhysicalDeviceVk> physicalDevice);
 		Vk::AllocatedBuffer CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
 
+		const VulkanDeviceFeatures GetDeviceFeatures() const;
+
 		virtual bool Validate() override;
-		virtual void SetName(const std::string &name) override;
+
+		virtual PixelFormatProperties GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const override;
+		virtual const DeviceFeatures &GetPhysicalDeviceFeatures() const override;
+		virtual const DeviceLimits	 &GetPhysicalDeviceLimits() const override;
+		virtual bool				  IsIndexBufferFormatSupported(IndexBufferFormat format) const override;
 
 		// vulkan functions
 	  private:
@@ -92,6 +141,8 @@ namespace Nexus::Graphics
 
 		void CreateCommandStructures();
 		void CreateSynchronisationStructures();
+
+		void LoadExtensionFunctions();
 
 	  private:
 		// utility functions
@@ -128,6 +179,14 @@ namespace Nexus::Graphics
 		uint32_t						   m_FrameNumber	   = 0;
 		uint32_t						   m_CurrentFrameIndex = 0;
 		std::unique_ptr<CommandExecutorVk> m_CommandExecutor   = nullptr;
+
+		VulkanDeviceConfig	 m_DeviceConfig	  = {};
+		VulkanDeviceFeatures m_DeviceFeatures = {};
+
+		DeviceFeatures m_Features = {};
+		DeviceLimits   m_Limits	  = {};
+
+		DeviceExtensionFunctions m_ExtensionFunctions = {};
 
 		friend class SwapchainVk;
 	};

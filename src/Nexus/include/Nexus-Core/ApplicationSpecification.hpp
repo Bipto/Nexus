@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Nexus-Core/Graphics/GraphicsAPIType.hpp"
+#include "Nexus-Core/Graphics/GraphicsAPICreateInfo.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
 namespace Nexus::Audio
@@ -81,8 +81,8 @@ namespace Nexus
 	/// @brief A struct representing options to use when creating an application
 	struct ApplicationSpecification
 	{
-		/// @brief The graphics API to use for rendering
-		Graphics::GraphicsAPI GraphicsAPI;
+		/// @brief The graphics configuration to use when creating a GraphicsAPI and GraphicsDevice
+		Graphics::GraphicsAPICreateInfo GraphicsCreateInfo;
 
 		/// @brief The audio API to use to support sound effects
 		Audio::AudioAPI AudioAPI;
@@ -93,9 +93,13 @@ namespace Nexus
 		/// @brief Properties to configure the initial swapchain
 		Graphics::SwapchainSpecification SwapchainSpecification;
 
+		/// @brief Controls how the application will call Render(), Update() and Tick(), if true they will only be called following user input
 		bool EventDriven = false;
 
+		/// @brief The organization associated with the application, used for selecting a storage location
 		const char *Organization = "Nexus";
-		const char *App			 = "Application";
+
+		/// @brief The name associated with the application, used for selecting a storage location
+		const char *App = "Application";
 	};
 }	 // namespace Nexus

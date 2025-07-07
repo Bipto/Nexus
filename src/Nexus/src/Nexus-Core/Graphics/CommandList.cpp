@@ -141,6 +141,30 @@ namespace Nexus::Graphics
 		m_Commands.push_back(desc);
 	}
 
+	void CommandList::DrawMesh(const DrawMeshDescription &desc)
+	{
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
+		m_Commands.push_back(desc);
+	}
+
+	void CommandList::DrawMeshIndirect(const DrawMeshIndirectDescription &desc)
+	{
+		if (!m_Started)
+		{
+			NX_ERROR("Attempting to record a command into a CommandList without "
+					 "calling Begin()");
+			return;
+		}
+
+		m_Commands.push_back(desc);
+	}
+
 	void CommandList::SetResourceSet(Ref<ResourceSet> resources)
 	{
 		if (!m_Started)
@@ -292,52 +316,6 @@ namespace Nexus::Graphics
 
 		StopTimingQueryCommand command;
 		command.Query = query;
-		m_Commands.push_back(command);
-	}
-
-	void CommandList::SetStencilRef(uint32_t stencil)
-	{
-		if (!m_Started)
-		{
-			NX_ERROR("Attempting to record a command into a CommandList without "
-					 "calling Begin()");
-			return;
-		}
-
-		SetStencilRefCommand command;
-		command.Value = stencil;
-		m_Commands.push_back(command);
-	}
-
-	void CommandList::SetDepthBounds(float min, float max)
-	{
-		if (!m_Started)
-		{
-			NX_ERROR("Attempting to record a command into a CommandList without "
-					 "calling Begin()");
-			return;
-		}
-
-		SetDepthBoundsCommand command;
-		command.Min = min;
-		command.Max = max;
-		m_Commands.push_back(command);
-	}
-
-	void CommandList::SetBlendFactor(float r, float g, float b, float a)
-	{
-		if (!m_Started)
-		{
-			NX_ERROR("Attempting to record a command into a CommandList without "
-					 "calling Begin()");
-			return;
-		}
-
-		SetBlendFactorCommand command;
-		command.R = r;
-		command.G = g;
-		command.B = b;
-		command.A = a;
 		m_Commands.push_back(command);
 	}
 

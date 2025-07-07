@@ -4,7 +4,7 @@
 
 namespace Nexus::Graphics
 {
-	PhysicalDeviceWGL::PhysicalDeviceWGL(const std::string &deviceName, const std::vector<std::string> &displayNames)
+	PhysicalDeviceWGL::PhysicalDeviceWGL(const std::string &deviceName, const std::vector<std::string> &displayNames, bool debug)
 		: m_DeviceName(deviceName),
 		  m_DisplayNames(displayNames)
 	{
@@ -17,6 +17,7 @@ namespace Nexus::Graphics
 
 		GL::ContextSpecification spec;
 		spec.GLVersion = GL::OpenGLVersion::OpenGL;
+		spec.Debug	   = debug;
 
 		m_OffscreenContext = std::make_unique<GL::OffscreenContextWGL>(spec, this);
 		m_OffscreenContext->MakeCurrent();
@@ -30,15 +31,6 @@ namespace Nexus::Graphics
 	const std::string &PhysicalDeviceWGL::GetDeviceName() const
 	{
 		return m_DeviceName;
-	}
-
-	const PhysicalDeviceFeatures &PhysicalDeviceWGL::GetPhysicalDeviceFeatures() const
-	{
-		return m_Features;
-	}
-	const PhysicalDeviceLimits &PhysicalDeviceWGL::GetPhysicalDeviceLimits() const
-	{
-		return m_Limits;
 	}
 
 	GL::IOffscreenContext *PhysicalDeviceWGL::GetOffscreenContext()

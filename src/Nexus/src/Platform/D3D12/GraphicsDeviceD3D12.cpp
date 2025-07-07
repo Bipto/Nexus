@@ -26,7 +26,7 @@ namespace Nexus::Graphics
 		Microsoft::WRL::ComPtr<IDXGIAdapter4> adapter			  = physicalDeviceD3D12->GetAdapter();
 
 		// create the D3D12Device
-		if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&m_Device))))
+		if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), physicalDeviceD3D12->GetMaximumSupportedFeatureLevel(), IID_PPV_ARGS(&m_Device))))
 		{
 			// Create a command queue to submit work to the GPU
 			D3D12_COMMAND_QUEUE_DESC commandQueueDesc {};
@@ -59,6 +59,8 @@ namespace Nexus::Graphics
 		}
 
 		m_CommandExecutor = std::make_unique<CommandExecutorD3D12>(m_Device);
+
+		GetLimitsAndFeatures();
 	}
 
 	GraphicsDeviceD3D12::~GraphicsDeviceD3D12()
@@ -383,9 +385,31 @@ namespace Nexus::Graphics
 		return m_Device && m_CommandQueue && m_Fence && m_UploadCommandAllocator && m_UploadCommandList && m_DxgiFactory;
 	}
 
-	void GraphicsDeviceD3D12::SetName(const std::string &name)
+	PixelFormatProperties GraphicsDeviceD3D12::GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const
 	{
-		GraphicsDevice::SetName(name);
+		PixelFormatProperties properties = {};
+		return properties;
+	}
+
+	const DeviceFeatures &GraphicsDeviceD3D12::GetPhysicalDeviceFeatures() const
+	{
+		return m_Features;
+	}
+
+	const DeviceLimits &GraphicsDeviceD3D12::GetPhysicalDeviceLimits() const
+	{
+		return m_Limits;
+	}
+
+	bool GraphicsDeviceD3D12::IsIndexBufferFormatSupported(IndexBufferFormat format) const
+	{
+		switch (format)
+		{
+			case IndexBufferFormat::UInt8: return false;
+			case IndexBufferFormat::UInt16:
+			case IndexBufferFormat::UInt32: return true;
+			default: throw std::runtime_error("Failed to find index buffer format");
+		}
 	}
 
 	void GraphicsDeviceD3D12::InitUploadCommandList()
@@ -404,6 +428,45 @@ namespace Nexus::Graphics
 		}
 	}
 
+	void GraphicsDeviceD3D12::GetLimitsAndFeatures()
+	{
+		D3D12_FEATURE_DATA_GPU_VIRTUAL_ADDRESS_SUPPORT vaSupport = {};
+
+		m_Limits.Texture1D = true;
+		m_Limits.Texture2D = true;
+		m_Limits.Texture3D = true;
+
+		m_Limits.MaxUniformBufferRange = D3D12_REQ_CONSTANT_BUFFER_ELEMENT_COUNT;
+
+		HRESULT hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_GPU_VIRTUAL_ADDRESS_SUPPORT, &vaSupport, sizeof(vaSupport));
+		if (SUCCEEDED(hr))
+		{
+			m_Limits.MaxStorageBufferRange = vaSupport.MaxGPUVirtualAddressBitsPerResource;
+		}
+
+		m_Limits.MaxVertexInputAttributes			 = 32;
+		m_Limits.MaxVertexInputBindings				 = 32;
+		m_Limits.MaxVertexInputOffset				 = std::numeric_limits<uint32_t>::max();
+		m_Limits.MaxVertexInputStride				 = 255;
+		m_Limits.MaxFramebufferColourAttachmentCount = 8;
+		m_Limits.MaxViewports						 = D3D12_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE;
+
+		m_Features.SupportsGeometryShaders				= true;
+		m_Features.SupportsTesselationShaders			= true;
+		m_Features.SupportsComputeShaders				= true;
+		m_Features.SupportsStorageBuffers				= true;
+		m_Features.SupportsMultiviewport				= true;
+		m_Features.SupportsSamplerAnisotropy			= true;
+		m_Features.SupportsETC2Compression				= false;
+		m_Features.SupportsASTC_LDRCompression			= true;
+		m_Features.SupportsBCCompression				= true;
+		m_Features.SupportShaderStorageImageMultisample = true;
+		m_Features.SupportsCubemapArray					= true;
+		m_Features.SupportsIndependentBlend				= true;
+
+		m_Features.SupportsMeshTaskShaders = true;
+	}
+
 	inline void GraphicsDeviceD3D12::ReportLiveObjects()
 	{
 		// initialise dxgi debug layer
@@ -413,7 +476,6 @@ namespace Nexus::Graphics
 			OutputDebugStringW(L"Reporting live D3D12 objects:\n");
 			debug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_SUMMARY | DXGI_DEBUG_RLO_IGNORE_INTERNAL));
 		}
-	}
+	}	 // namespace Nexus::Graphics
 }	 // namespace Nexus::Graphics
-
 #endif

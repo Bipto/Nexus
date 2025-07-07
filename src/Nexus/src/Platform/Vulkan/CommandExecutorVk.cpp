@@ -12,10 +12,6 @@ namespace Nexus::Graphics
 {
 	CommandExecutorVk::CommandExecutorVk(GraphicsDeviceVk *device) : m_Device(device)
 	{
-		m_vkCmdBindIndexBuffer2KHR = (PFN_vkCmdBindIndexBuffer2KHR)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdBindIndexBuffer2KHR");
-		m_vkCmdDebugMarkerBeginEXT	= (PFN_vkCmdDebugMarkerBeginEXT)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdDebugMarkerBeginEXT");
-		m_vkCmdDebugMarkerEndEXT	= (PFN_vkCmdDebugMarkerEndEXT)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdDebugMarkerEndEXT");
-		m_vkCmdDebugMarkerInsertEXT = (PFN_vkCmdDebugMarkerInsertEXT)vkGetDeviceProcAddr(m_Device->GetVkDevice(), "vkCmdDebugMarkerInsertEXT");
 	}
 
 	CommandExecutorVk::~CommandExecutorVk()
@@ -47,8 +43,10 @@ namespace Nexus::Graphics
 
 		// execute commands
 		{
-			for (const auto &element : commands)
+			m_Commands = commands;
+			for (m_CurrentCommandIndex = 0; m_CurrentCommandIndex < commands.size(); m_CurrentCommandIndex++)
 			{
+				const auto &element = commands.at(m_CurrentCommandIndex);
 				std::visit([&](auto &&arg) { ExecuteCommand(arg, device); }, element);
 			}
 		}
@@ -77,11 +75,20 @@ namespace Nexus::Graphics
 		}
 
 		Ref<DeviceBufferVk> vertexBufferVk	= std::dynamic_pointer_cast<DeviceBufferVk>(command.View.BufferHandle);
-		VkBuffer		vertexBuffers[] = {vertexBufferVk->GetVkBuffer()};
-		VkDeviceSize	offsets[]		= {command.View.Offset};
+		VkBuffer			vertexBuffers[] = {vertexBufferVk->GetVkBuffer()};
+		VkDeviceSize		offsets[]		= {command.View.Offset};
 		VkDeviceSize		sizes[]			= {command.View.Size};
-		VkDeviceSize		strides[]		= {command.View.Stride};
-		vkCmdBindVertexBuffers2(m_CommandBuffer, command.Slot, 1, vertexBuffers, offsets, sizes, strides);
+
+		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+
+		if (functions.vkCmdBindVertexBuffers2EXT)
+		{
+			functions.vkCmdBindVertexBuffers2EXT(m_CommandBuffer, command.Slot, 1, vertexBuffers, offsets, sizes, nullptr);
+		}
+		else
+		{
+			vkCmdBindVertexBuffers(m_CommandBuffer, command.Slot, 1, vertexBuffers, offsets);
+		}
 	}
 
 	void CommandExecutorVk::ExecuteCommand(SetIndexBufferCommand command, GraphicsDevice *device)
@@ -92,14 +99,16 @@ namespace Nexus::Graphics
 		}
 
 		Ref<DeviceBufferVk> indexBufferVk	  = std::dynamic_pointer_cast<DeviceBufferVk>(command.View.BufferHandle);
-		VkBuffer		indexBufferHandle = indexBufferVk->GetVkBuffer();
-		VkIndexType		indexType		  = Vk::GetVulkanIndexBufferFormat(command.View.BufferFormat);
+		VkBuffer			indexBufferHandle = indexBufferVk->GetVkBuffer();
+		VkIndexType			indexType		  = Vk::GetVulkanIndexBufferFormat(command.View.BufferFormat);
 		VkDeviceSize		offset			  = command.View.Offset;
 		VkDeviceSize		size			  = command.View.Size;
 
-		if (m_vkCmdBindIndexBuffer2KHR)
+		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+
+		if (functions.vkCmdBindIndexBuffer2KHR)
 		{
-			m_vkCmdBindIndexBuffer2KHR(m_CommandBuffer, indexBufferHandle, offset, size, indexType);
+			functions.vkCmdBindIndexBuffer2KHR(m_CommandBuffer, indexBufferHandle, offset, size, indexType);
 		}
 		else
 		{
@@ -115,9 +124,6 @@ namespace Nexus::Graphics
 			return;
 		}
 
-		auto vulkanPipeline = std::dynamic_pointer_cast<PipelineVk>(command.lock());
-		vulkanPipeline->Bind(m_CommandBuffer);
-
 		m_CurrentlyBoundPipeline = command.lock();
 	}
 
@@ -127,6 +133,8 @@ namespace Nexus::Graphics
 		{
 			return;
 		}
+
+		BindGraphicsPipeline();
 
 		vkCmdDraw(m_CommandBuffer, command.VertexCount, command.InstanceCount, command.VertexStart, command.InstanceStart);
 	}
@@ -138,6 +146,8 @@ namespace Nexus::Graphics
 			return;
 		}
 
+		BindGraphicsPipeline();
+
 		vkCmdDrawIndexed(m_CommandBuffer, command.IndexCount, command.InstanceCount, command.IndexStart, command.VertexStart, command.InstanceStart);
 	}
 
@@ -147,7 +157,10 @@ namespace Nexus::Graphics
 		{
 			return;
 		}
+
 		Ref<DeviceBufferVk> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferVk>(command.IndirectBuffer);
+
+		BindGraphicsPipeline();
 
 		vkCmdDrawIndirect(m_CommandBuffer,
 						  indirectBuffer->GetVkBuffer(),
@@ -162,7 +175,10 @@ namespace Nexus::Graphics
 		{
 			return;
 		}
+
 		Ref<DeviceBufferVk> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferVk>(command.IndirectBuffer);
+
+		BindGraphicsPipeline();
 
 		vkCmdDrawIndexedIndirect(m_CommandBuffer,
 								 indirectBuffer->GetVkBuffer(),
@@ -192,6 +208,44 @@ namespace Nexus::Graphics
 		{
 			Ref<DeviceBufferVk> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferVk>(buffer);
 			vkCmdDispatchIndirect(m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset);
+		}
+	}
+
+	void CommandExecutorVk::ExecuteCommand(DrawMeshDescription command, GraphicsDevice *device)
+	{
+		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
+		{
+			return;
+		}
+
+		BindGraphicsPipeline();
+
+		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+		if (functions.vkCmdDrawMeshTasksEXT)
+		{
+			functions.vkCmdDrawMeshTasksEXT(m_CommandBuffer, command.WorkGroupCountX, command.WorkGroupCountY, command.WorkGroupCountZ);
+		}
+	}
+
+	void CommandExecutorVk::ExecuteCommand(DrawMeshIndirectDescription command, GraphicsDevice *device)
+	{
+		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
+		{
+			return;
+		}
+
+		Ref<DeviceBufferVk> indirectBuffer = std::dynamic_pointer_cast<DeviceBufferVk>(command.IndirectBuffer);
+
+		BindGraphicsPipeline();
+
+		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+		if (functions.vkCmdDrawMeshTasksIndirectEXT)
+		{
+			functions.vkCmdDrawMeshTasksIndirectEXT(m_CommandBuffer,
+													indirectBuffer->GetVkBuffer(),
+													command.Offset,
+													command.DrawCount,
+													indirectBuffer->GetStrideInBytes());
 		}
 	}
 
@@ -281,10 +335,7 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(RenderTarget command, GraphicsDevice *device)
 	{
-		if (m_Rendering)
-		{
-			vkCmdEndRendering(m_CommandBuffer);
-		}
+		StopRendering();
 
 		m_CurrentRenderTarget = command;
 		m_RenderSize		  = {m_CurrentRenderTarget.GetSize().X, m_CurrentRenderTarget.GetSize().Y};
@@ -399,37 +450,6 @@ namespace Nexus::Graphics
 		vkCmdWriteTimestamp(m_CommandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, queryVk->GetQueryPool(), 1);
 	}
 
-	void CommandExecutorVk::ExecuteCommand(SetStencilRefCommand command, GraphicsDevice *device)
-	{
-		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
-		{
-			return;
-		}
-
-		vkCmdSetStencilReference(m_CommandBuffer, VK_STENCIL_FACE_FRONT_AND_BACK, command.Value);
-	}
-
-	void CommandExecutorVk::ExecuteCommand(SetDepthBoundsCommand command, GraphicsDevice *device)
-	{
-		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
-		{
-			return;
-		}
-
-		vkCmdSetDepthBounds(m_CommandBuffer, command.Min, command.Max);
-	}
-
-	void CommandExecutorVk::ExecuteCommand(SetBlendFactorCommand command, GraphicsDevice *device)
-	{
-		if (!ValidateForGraphicsCall(m_CurrentlyBoundPipeline, m_CurrentRenderTarget) || !ValidateIsRendering())
-		{
-			return;
-		}
-
-		const float blends[] = {command.R, command.G, command.B, command.A};
-		vkCmdSetBlendConstants(m_CommandBuffer, blends);
-	}
-
 	void CommandExecutorVk::ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device)
 	{
 		Ref<DeviceBufferVk> src = std::dynamic_pointer_cast<DeviceBufferVk>(command.BufferCopy.Source);
@@ -469,20 +489,20 @@ namespace Nexus::Graphics
 
 		// perform copy
 		{
-			VkBufferImageCopy copyRegion		   = {};
-			copyRegion.bufferOffset				   = command.BufferTextureCopy.BufferOffset;
-			copyRegion.bufferRowLength			   = 0;
-			copyRegion.bufferImageHeight		   = 0;
-			copyRegion.imageSubresource.aspectMask = aspectFlags;
-			copyRegion.imageSubresource.mipLevel   = command.BufferTextureCopy.TextureSubresource.MipLevel;
-			copyRegion.imageSubresource.layerCount = command.BufferTextureCopy.TextureSubresource.Depth;
-			copyRegion.imageOffset.x			   = command.BufferTextureCopy.TextureSubresource.X;
-			copyRegion.imageOffset.y			   = command.BufferTextureCopy.TextureSubresource.Y;
+			VkBufferImageCopy copyRegion			   = {};
+			copyRegion.bufferOffset					   = command.BufferTextureCopy.BufferOffset;
+			copyRegion.bufferRowLength				   = 0;
+			copyRegion.bufferImageHeight			   = 0;
+			copyRegion.imageSubresource.aspectMask	   = aspectFlags;
+			copyRegion.imageSubresource.mipLevel	   = command.BufferTextureCopy.TextureSubresource.MipLevel;
+			copyRegion.imageSubresource.layerCount	   = command.BufferTextureCopy.TextureSubresource.Depth;
+			copyRegion.imageOffset.x				   = command.BufferTextureCopy.TextureSubresource.X;
+			copyRegion.imageOffset.y				   = command.BufferTextureCopy.TextureSubresource.Y;
 			copyRegion.imageOffset.z				   = 0;
-			copyRegion.imageExtent.width		   = command.BufferTextureCopy.TextureSubresource.Width;
-			copyRegion.imageExtent.height		   = command.BufferTextureCopy.TextureSubresource.Height;
-			copyRegion.imageExtent.depth				   = command.BufferTextureCopy.TextureSubresource.Depth;
-			copyRegion.imageSubresource.baseArrayLayer	   = command.BufferTextureCopy.TextureSubresource.ArrayLayer;
+			copyRegion.imageExtent.width			   = command.BufferTextureCopy.TextureSubresource.Width;
+			copyRegion.imageExtent.height			   = command.BufferTextureCopy.TextureSubresource.Height;
+			copyRegion.imageExtent.depth			   = command.BufferTextureCopy.TextureSubresource.Depth;
+			copyRegion.imageSubresource.baseArrayLayer = command.BufferTextureCopy.TextureSubresource.ArrayLayer;
 
 			vkCmdCopyBufferToImage(m_CommandBuffer, buffer->GetVkBuffer(), texture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
 		}
@@ -529,19 +549,19 @@ namespace Nexus::Graphics
 
 		// perform copy
 		{
-			VkBufferImageCopy copyRegion		   = {};
-			copyRegion.bufferOffset				   = command.TextureBufferCopy.BufferOffset;
-			copyRegion.bufferRowLength			   = 0;
-			copyRegion.bufferImageHeight		   = 0;
-			copyRegion.imageSubresource.aspectMask = aspectFlags;
-			copyRegion.imageSubresource.mipLevel   = command.TextureBufferCopy.TextureSubresource.MipLevel;
-			copyRegion.imageSubresource.layerCount = command.TextureBufferCopy.TextureSubresource.Depth;
-			copyRegion.imageOffset.x			   = command.TextureBufferCopy.TextureSubresource.X;
-			copyRegion.imageOffset.y			   = command.TextureBufferCopy.TextureSubresource.Y;
+			VkBufferImageCopy copyRegion			   = {};
+			copyRegion.bufferOffset					   = command.TextureBufferCopy.BufferOffset;
+			copyRegion.bufferRowLength				   = 0;
+			copyRegion.bufferImageHeight			   = 0;
+			copyRegion.imageSubresource.aspectMask	   = aspectFlags;
+			copyRegion.imageSubresource.mipLevel	   = command.TextureBufferCopy.TextureSubresource.MipLevel;
+			copyRegion.imageSubresource.layerCount	   = command.TextureBufferCopy.TextureSubresource.Depth;
+			copyRegion.imageOffset.x				   = command.TextureBufferCopy.TextureSubresource.X;
+			copyRegion.imageOffset.y				   = command.TextureBufferCopy.TextureSubresource.Y;
 			copyRegion.imageOffset.z				   = command.TextureBufferCopy.TextureSubresource.Z;
-			copyRegion.imageExtent.width		   = command.TextureBufferCopy.TextureSubresource.Width;
-			copyRegion.imageExtent.height		   = command.TextureBufferCopy.TextureSubresource.Height;
-			copyRegion.imageExtent.depth		   = command.TextureBufferCopy.TextureSubresource.Depth;
+			copyRegion.imageExtent.width			   = command.TextureBufferCopy.TextureSubresource.Width;
+			copyRegion.imageExtent.height			   = command.TextureBufferCopy.TextureSubresource.Height;
+			copyRegion.imageExtent.depth			   = command.TextureBufferCopy.TextureSubresource.Depth;
 			copyRegion.imageSubresource.baseArrayLayer = command.TextureBufferCopy.TextureSubresource.ArrayLayer;
 
 			vkCmdCopyImageToBuffer(m_CommandBuffer, texture->GetImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, buffer->GetVkBuffer(), 1, &copyRegion);
@@ -611,22 +631,22 @@ namespace Nexus::Graphics
 			VkImageCopy copyRegion = {};
 
 			// src
-			copyRegion.srcSubresource.aspectMask = srcAspect;
-			copyRegion.srcSubresource.mipLevel	 = command.TextureCopy.SourceSubresource.MipLevel;
-			copyRegion.srcSubresource.layerCount = command.TextureCopy.SourceSubresource.Depth;
-			copyRegion.srcOffset.x				 = command.TextureCopy.SourceSubresource.X;
-			copyRegion.srcOffset.y				 = command.TextureCopy.SourceSubresource.Y;
+			copyRegion.srcSubresource.aspectMask	 = srcAspect;
+			copyRegion.srcSubresource.mipLevel		 = command.TextureCopy.SourceSubresource.MipLevel;
+			copyRegion.srcSubresource.layerCount	 = command.TextureCopy.SourceSubresource.Depth;
+			copyRegion.srcOffset.x					 = command.TextureCopy.SourceSubresource.X;
+			copyRegion.srcOffset.y					 = command.TextureCopy.SourceSubresource.Y;
 			copyRegion.srcOffset.z					 = command.TextureCopy.SourceSubresource.Z;
 			copyRegion.srcSubresource.baseArrayLayer = command.TextureCopy.SourceSubresource.ArrayLayer;
-			copyRegion.extent.width				 = command.TextureCopy.SourceSubresource.Width;
-			copyRegion.extent.height			 = command.TextureCopy.SourceSubresource.Height;
-			copyRegion.extent.depth				 = command.TextureCopy.SourceSubresource.Depth;
+			copyRegion.extent.width					 = command.TextureCopy.SourceSubresource.Width;
+			copyRegion.extent.height				 = command.TextureCopy.SourceSubresource.Height;
+			copyRegion.extent.depth					 = command.TextureCopy.SourceSubresource.Depth;
 
 			// dst
-			copyRegion.dstSubresource.aspectMask = dstAspect;
-			copyRegion.dstSubresource.mipLevel	 = command.TextureCopy.DestinationSubresource.MipLevel;
-			copyRegion.dstSubresource.layerCount = command.TextureCopy.DestinationSubresource.Depth;
-			copyRegion.dstOffset.x				 = command.TextureCopy.DestinationSubresource.X;
+			copyRegion.dstSubresource.aspectMask	 = dstAspect;
+			copyRegion.dstSubresource.mipLevel		 = command.TextureCopy.DestinationSubresource.MipLevel;
+			copyRegion.dstSubresource.layerCount	 = command.TextureCopy.DestinationSubresource.Depth;
+			copyRegion.dstOffset.x					 = command.TextureCopy.DestinationSubresource.X;
 			copyRegion.dstOffset.y					 = command.TextureCopy.DestinationSubresource.Y;
 			copyRegion.dstOffset.z					 = command.TextureCopy.DestinationSubresource.Z;
 			copyRegion.dstSubresource.baseArrayLayer = command.TextureCopy.DestinationSubresource.ArrayLayer;
@@ -674,43 +694,194 @@ namespace Nexus::Graphics
 
 	void CommandExecutorVk::ExecuteCommand(BeginDebugGroupCommand command, GraphicsDevice *device)
 	{
-		if (!m_vkCmdDebugMarkerBeginEXT)
-		{
-			return;
-		}
+		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
 
-		VkDebugMarkerMarkerInfoEXT markerInfo = {};
-		markerInfo.sType					  = VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT;
-		markerInfo.pMarkerName				  = command.GroupName.c_str();
-		m_vkCmdDebugMarkerBeginEXT(m_CommandBuffer, &markerInfo);
+		if (functions.vkCmdBeginDebugUtilsLabelEXT)
+		{
+			VkDebugUtilsLabelEXT labelEXT = {};
+			labelEXT.sType				  = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
+			labelEXT.pNext				  = nullptr;
+			labelEXT.pLabelName			  = command.GroupName.c_str();
+			labelEXT.color[0]			  = 0;
+			labelEXT.color[1]			  = 0;
+			labelEXT.color[2]			  = 0;
+			labelEXT.color[3]			  = 0;
+			functions.vkCmdBeginDebugUtilsLabelEXT(m_CommandBuffer, &labelEXT);
+		}
+		else if (functions.vkCmdDebugMarkerBeginEXT)
+		{
+			VkDebugMarkerMarkerInfoEXT markerInfo = {};
+			markerInfo.sType					  = VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT;
+			markerInfo.pMarkerName				  = command.GroupName.c_str();
+			functions.vkCmdDebugMarkerBeginEXT(m_CommandBuffer, &markerInfo);
+		}
 	}
 
 	void CommandExecutorVk::ExecuteCommand(EndDebugGroupCommand command, GraphicsDevice *device)
 	{
-		if (!m_vkCmdDebugMarkerEndEXT)
+		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+
+		// if this is the last command in the buffer, then we must explicitly stop rendering to ensure that the implict render pass management occurs
+		// in the correct order
+		if (m_CurrentCommandIndex >= m_Commands.size() - 1)
 		{
-			return;
+			StopRendering();
+		}
+		// otherwise, if the next command is to set a new render target, we need to stop rendering to ensure that they show in the correct order in
+		// debuggers
+		else
+		{
+			RenderCommandData data = m_Commands.at(m_CurrentCommandIndex);
+			if (std::holds_alternative<RenderTarget>(data))
+			{
+				StopRendering();
+			}
 		}
 
-		m_vkCmdDebugMarkerEndEXT(m_CommandBuffer);
+		if (functions.vkCmdEndDebugUtilsLabelEXT)
+		{
+			functions.vkCmdEndDebugUtilsLabelEXT(m_CommandBuffer);
+		}
+		else if (functions.vkCmdDebugMarkerEndEXT)
+		{
+			functions.vkCmdDebugMarkerEndEXT(m_CommandBuffer);
+		}
 	}
 
 	void CommandExecutorVk::ExecuteCommand(InsertDebugMarkerCommand command, GraphicsDevice *device)
 	{
-		if (!m_vkCmdDebugMarkerInsertEXT)
+		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+
+		if (functions.vkCmdInsertDebugUtilsLabelEXT)
 		{
-			return;
+			VkDebugUtilsLabelEXT labelEXT = {};
+			labelEXT.sType				  = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
+			labelEXT.pNext				  = nullptr;
+			labelEXT.pLabelName			  = command.MarkerName.c_str();
+			labelEXT.color[0]			  = 0;
+			labelEXT.color[1]			  = 0;
+			labelEXT.color[2]			  = 0;
+			labelEXT.color[3]			  = 0;
+			functions.vkCmdInsertDebugUtilsLabelEXT(m_CommandBuffer, &labelEXT);
+		}
+		else if (functions.vkCmdDebugMarkerInsertEXT)
+		{
+			VkDebugMarkerMarkerInfoEXT markerInfo = {};
+			markerInfo.sType					  = VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT;
+			markerInfo.pMarkerName				  = command.MarkerName.c_str();
+			functions.vkCmdDebugMarkerInsertEXT(m_CommandBuffer, &markerInfo);
+		}
+	}
+
+	void BeginRenderPass(GraphicsDeviceVk			 *device,
+						 const VkRenderPassBeginInfo &beginInfo,
+						 VkSubpassContents			  subpassContents,
+						 VkCommandBuffer			  commandBuffer)
+	{
+		const DeviceExtensionFunctions &functions = device->GetExtensionFunctions();
+		if (functions.vkCmdBeginRenderPass2KHR)
+		{
+			VkSubpassBeginInfo subpassInfo = {};
+			subpassInfo.sType			   = VK_STRUCTURE_TYPE_SUBPASS_BEGIN_INFO;
+			subpassInfo.pNext			   = nullptr;
+			subpassInfo.contents		   = subpassContents;
+
+			functions.vkCmdBeginRenderPass2KHR(commandBuffer, &beginInfo, &subpassInfo);
+		}
+		else
+		{
+			vkCmdBeginRenderPass(commandBuffer, &beginInfo, subpassContents);
+		}
+	}
+
+	void BeginDynamicRenderingToSwapchain(GraphicsDeviceVk *device, Ref<SwapchainVk> swapchain, VkCommandBuffer commandBuffer)
+	{
+		VkExtent2D swapchainSize = swapchain->GetSwapchainSize();
+
+		VkRect2D renderArea;
+		renderArea.offset = {0, 0};
+		renderArea.extent = swapchainSize;
+
+		VkRenderingAttachmentInfo colourAttachment = {};
+		colourAttachment.sType					   = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+
+		if (swapchain->GetSpecification().Samples == 1)
+		{
+			colourAttachment.imageView	 = swapchain->GetColourImageView();
+			colourAttachment.imageLayout = swapchain->GetColorImageLayout();
+		}
+		else
+		{
+			device->TransitionVulkanImageLayout(commandBuffer,
+												swapchain->GetResolveImage(),
+												0,
+												0,
+												swapchain->GetResolveImageLayout(),
+												VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+												VK_IMAGE_ASPECT_COLOR_BIT);
+			swapchain->SetResolveImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+
+			colourAttachment.imageView	 = swapchain->GetResolveImageView();
+			colourAttachment.imageLayout = swapchain->GetResolveImageLayout();
+
+			colourAttachment.resolveImageView	= swapchain->GetColourImageView();
+			colourAttachment.resolveImageLayout = swapchain->GetColorImageLayout();
+			colourAttachment.resolveMode		= VK_RESOLVE_MODE_AVERAGE_BIT;
 		}
 
-		VkDebugMarkerMarkerInfoEXT markerInfo = {};
-		markerInfo.sType					  = VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT;
-		markerInfo.pMarkerName				  = command.MarkerName.c_str();
-		m_vkCmdDebugMarkerInsertEXT(m_CommandBuffer, &markerInfo);
+		colourAttachment.loadOp		= VK_ATTACHMENT_LOAD_OP_LOAD;
+		colourAttachment.storeOp	= VK_ATTACHMENT_STORE_OP_STORE;
+		colourAttachment.clearValue = {};
+
+		VkRenderingAttachmentInfo depthAttachment = {};
+		depthAttachment.sType					  = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+		depthAttachment.imageView				  = swapchain->GetDepthImageView();
+		depthAttachment.imageLayout				  = swapchain->GetDepthImageLayout();
+		depthAttachment.loadOp					  = VK_ATTACHMENT_LOAD_OP_LOAD;
+		depthAttachment.storeOp					  = VK_ATTACHMENT_STORE_OP_STORE;
+		depthAttachment.clearValue				  = {};
+
+		VkRenderingInfo renderingInfo	   = {};
+		renderingInfo.sType				   = VK_STRUCTURE_TYPE_RENDERING_INFO;
+		renderingInfo.renderArea		   = renderArea;
+		renderingInfo.layerCount		   = 1;
+		renderingInfo.colorAttachmentCount = 1;
+		renderingInfo.pColorAttachments	   = &colourAttachment;
+		renderingInfo.pDepthAttachment	   = &depthAttachment;
+
+		const DeviceExtensionFunctions &functions = device->GetExtensionFunctions();
+		functions.vkCmdBeginRenderingKHR(commandBuffer, &renderingInfo);
+	}
+
+	void BeginRenderPassToSwapchain(GraphicsDeviceVk *device, Ref<SwapchainVk> swapchain, VkCommandBuffer commandBuffer)
+	{
+		VkFramebuffer framebuffer = swapchain->GetFramebuffer();
+		VkRenderPass  renderpass  = swapchain->GetRenderPass();
+		VkExtent2D	  renderSize  = swapchain->GetSwapchainSize();
+
+		NX_ASSERT(framebuffer, "Invalid framebuffer");
+		NX_ASSERT(renderpass, "Invalid renderpass");
+		NX_ASSERT(renderSize.width > 0 && renderSize.height > 0, "Invalid render size");
+
+		VkRenderPassBeginInfo beginInfo = {};
+		beginInfo.sType					= VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		beginInfo.pNext					= nullptr;
+		beginInfo.renderPass			= renderpass;
+		beginInfo.framebuffer			= framebuffer;
+		beginInfo.renderArea.offset		= {0, 0};
+		beginInfo.renderArea.extent		= renderSize;
+		beginInfo.clearValueCount		= 0;
+		beginInfo.pClearValues			= nullptr;
+
+		VkSubpassContents subpassContents = VK_SUBPASS_CONTENTS_INLINE;
+
+		BeginRenderPass(device, beginInfo, subpassContents, commandBuffer);
 	}
 
 	void CommandExecutorVk::StartRenderingToSwapchain(Ref<Swapchain> swapchain)
 	{
-		Ref<SwapchainVk> swapchainVk = std::dynamic_pointer_cast<SwapchainVk>(swapchain);
+		Ref<SwapchainVk> swapchainVk   = std::dynamic_pointer_cast<SwapchainVk>(swapchain);
+		const auto		&swapchainDesc = swapchainVk->GetSpecification();
 
 		m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
 											  swapchainVk->GetColourImage(),
@@ -731,21 +902,7 @@ namespace Nexus::Graphics
 		swapchainVk->SetColorImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 		swapchainVk->SetDepthImageLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
-		VkExtent2D swapchainSize = swapchainVk->GetSwapchainSize();
-
-		VkRect2D renderArea;
-		renderArea.offset = {0, 0};
-		renderArea.extent = swapchainSize;
-
-		VkRenderingAttachmentInfo colourAttachment = {};
-		colourAttachment.sType					   = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-
-		if (swapchain->GetSpecification().Samples == 1)
-		{
-			colourAttachment.imageView	 = swapchainVk->GetColourImageView();
-			colourAttachment.imageLayout = swapchainVk->GetColorImageLayout();
-		}
-		else
+		if (swapchainDesc.Samples != 1)
 		{
 			m_Device->TransitionVulkanImageLayout(m_CommandBuffer,
 												  swapchainVk->GetResolveImage(),
@@ -755,37 +912,95 @@ namespace Nexus::Graphics
 												  VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
 												  VK_IMAGE_ASPECT_COLOR_BIT);
 			swapchainVk->SetResolveImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-
-			colourAttachment.imageView	 = swapchainVk->GetResolveImageView();
-			colourAttachment.imageLayout = swapchainVk->GetResolveImageLayout();
-
-			colourAttachment.resolveImageView	= swapchainVk->GetColourImageView();
-			colourAttachment.resolveImageLayout = swapchainVk->GetColorImageLayout();
-			colourAttachment.resolveMode		= VK_RESOLVE_MODE_AVERAGE_BIT;
 		}
 
-		colourAttachment.loadOp		= VK_ATTACHMENT_LOAD_OP_LOAD;
-		colourAttachment.storeOp	= VK_ATTACHMENT_STORE_OP_STORE;
-		colourAttachment.clearValue = {};
+		const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
+		if (features.DynamicRenderingAvailable)
+		{
+			BeginDynamicRenderingToSwapchain(m_Device, swapchainVk, m_CommandBuffer);
+		}
+		else
+		{
+			BeginRenderPassToSwapchain(m_Device, swapchainVk, m_CommandBuffer);
+		}
 
+		m_Rendering = true;
+	}
+
+	void BeginDynamicRenderingToFramebuffer(GraphicsDeviceVk *device, Ref<FramebufferVk> framebuffer, VkCommandBuffer commandBuffer)
+	{
+		VkRect2D renderArea {};
+		renderArea.offset = {0, 0};
+		renderArea.extent = {framebuffer->GetFramebufferSpecification().Width, framebuffer->GetFramebufferSpecification().Height};
+
+		std::vector<VkRenderingAttachmentInfo> colourAttachments;
+
+		// attach colour textures
+		for (uint32_t colourAttachmentIndex = 0; colourAttachmentIndex < framebuffer->GetColorTextureCount(); colourAttachmentIndex++)
+		{
+			Ref<TextureVk> texture = framebuffer->GetVulkanColorTexture(colourAttachmentIndex);
+
+			VkRenderingAttachmentInfo colourAttachment = {};
+			colourAttachment.sType					   = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+			colourAttachment.imageView				   = texture->GetImageView();
+			colourAttachment.imageLayout			   = texture->GetImageLayout(0, 0);
+			colourAttachment.loadOp					   = VK_ATTACHMENT_LOAD_OP_LOAD;
+			colourAttachment.storeOp				   = VK_ATTACHMENT_STORE_OP_STORE;
+			colourAttachment.clearValue				   = {};
+			colourAttachments.push_back(colourAttachment);
+		}
+
+		// set up depth attachment (may be unused)
 		VkRenderingAttachmentInfo depthAttachment = {};
-		depthAttachment.sType					  = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-		depthAttachment.imageView				  = swapchainVk->GetDepthImageView();
-		depthAttachment.imageLayout				  = swapchainVk->GetDepthImageLayout();
-		depthAttachment.loadOp					  = VK_ATTACHMENT_LOAD_OP_LOAD;
-		depthAttachment.storeOp					  = VK_ATTACHMENT_STORE_OP_STORE;
-		depthAttachment.clearValue				  = {};
+		if (framebuffer->HasDepthTexture())
+		{
+			Ref<TextureVk> texture = framebuffer->GetVulkanDepthTexture();
+
+			depthAttachment.sType		= VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+			depthAttachment.imageView	= texture->GetImageView();
+			depthAttachment.imageLayout = texture->GetImageLayout(0, 0);
+			depthAttachment.loadOp		= VK_ATTACHMENT_LOAD_OP_LOAD;
+			depthAttachment.storeOp		= VK_ATTACHMENT_STORE_OP_STORE;
+			depthAttachment.clearValue	= {};
+		}
 
 		VkRenderingInfo renderingInfo	   = {};
 		renderingInfo.sType				   = VK_STRUCTURE_TYPE_RENDERING_INFO;
 		renderingInfo.renderArea		   = renderArea;
 		renderingInfo.layerCount		   = 1;
-		renderingInfo.colorAttachmentCount = 1;
-		renderingInfo.pColorAttachments	   = &colourAttachment;
-		renderingInfo.pDepthAttachment	   = &depthAttachment;
+		renderingInfo.colorAttachmentCount = colourAttachments.size();
+		renderingInfo.pColorAttachments	   = colourAttachments.data();
 
-		vkCmdBeginRendering(m_CommandBuffer, &renderingInfo);
-		m_Rendering = true;
+		if (framebuffer->HasDepthTexture())
+		{
+			renderingInfo.pDepthAttachment	 = &depthAttachment;
+			renderingInfo.pStencilAttachment = &depthAttachment;
+		}
+		else
+		{
+			renderingInfo.pDepthAttachment	 = nullptr;
+			renderingInfo.pStencilAttachment = nullptr;
+		}
+
+		const DeviceExtensionFunctions &functions = device->GetExtensionFunctions();
+		functions.vkCmdBeginRenderingKHR(commandBuffer, &renderingInfo);
+	}
+
+	void BeginRenderPassToFramebuffer(GraphicsDeviceVk *device, Ref<FramebufferVk> framebuffer, VkCommandBuffer commandBuffer)
+	{
+		VkRenderPassBeginInfo beginInfo = {};
+		beginInfo.sType					= VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		beginInfo.pNext					= nullptr;
+		beginInfo.renderPass			= framebuffer->GetRenderPass();
+		beginInfo.framebuffer			= framebuffer->GetFramebuffer();
+		beginInfo.renderArea.offset		= {0, 0};
+		beginInfo.renderArea.extent		= {framebuffer->GetFramebufferSpecification().Width, framebuffer->GetFramebufferSpecification().Height};
+		beginInfo.clearValueCount		= 0;
+		beginInfo.pClearValues			= nullptr;
+
+		VkSubpassContents subpassContents = VK_SUBPASS_CONTENTS_INLINE;
+
+		BeginRenderPass(device, beginInfo, subpassContents, commandBuffer);
 	}
 
 	void CommandExecutorVk::StartRenderingToFramebuffer(Ref<Framebuffer> framebuffer)
@@ -828,60 +1043,16 @@ namespace Nexus::Graphics
 			}
 		}
 
-		VkRect2D renderArea {};
-		renderArea.offset = {0, 0};
-		renderArea.extent = {vulkanFramebuffer->GetFramebufferSpecification().Width, vulkanFramebuffer->GetFramebufferSpecification().Height};
-
-		std::vector<VkRenderingAttachmentInfo> colourAttachments;
-
-		// attach colour textures
-		for (uint32_t colourAttachmentIndex = 0; colourAttachmentIndex < vulkanFramebuffer->GetColorTextureCount(); colourAttachmentIndex++)
+		const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
+		if (features.DynamicRenderingAvailable)
 		{
-			Ref<TextureVk> texture = vulkanFramebuffer->GetVulkanColorTexture(colourAttachmentIndex);
-
-			VkRenderingAttachmentInfo colourAttachment = {};
-			colourAttachment.sType					   = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-			colourAttachment.imageView				   = texture->GetImageView();
-			colourAttachment.imageLayout			   = texture->GetImageLayout(0, 0);
-			colourAttachment.loadOp					   = VK_ATTACHMENT_LOAD_OP_LOAD;
-			colourAttachment.storeOp				   = VK_ATTACHMENT_STORE_OP_STORE;
-			colourAttachment.clearValue				   = {};
-			colourAttachments.push_back(colourAttachment);
-		}
-
-		// set up depth attachment (may be unused)
-		VkRenderingAttachmentInfo depthAttachment = {};
-		if (framebuffer->HasDepthTexture())
-		{
-			Ref<TextureVk> texture = vulkanFramebuffer->GetVulkanDepthTexture();
-
-			depthAttachment.sType		= VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-			depthAttachment.imageView	= texture->GetImageView();
-			depthAttachment.imageLayout = texture->GetImageLayout(0, 0);
-			depthAttachment.loadOp		= VK_ATTACHMENT_LOAD_OP_LOAD;
-			depthAttachment.storeOp		= VK_ATTACHMENT_STORE_OP_STORE;
-			depthAttachment.clearValue	= {};
-		}
-
-		VkRenderingInfo renderingInfo	   = {};
-		renderingInfo.sType				   = VK_STRUCTURE_TYPE_RENDERING_INFO;
-		renderingInfo.renderArea		   = renderArea;
-		renderingInfo.layerCount		   = 1;
-		renderingInfo.colorAttachmentCount = colourAttachments.size();
-		renderingInfo.pColorAttachments	   = colourAttachments.data();
-
-		if (vulkanFramebuffer->HasDepthTexture())
-		{
-			renderingInfo.pDepthAttachment	 = &depthAttachment;
-			renderingInfo.pStencilAttachment = &depthAttachment;
+			BeginDynamicRenderingToFramebuffer(m_Device, vulkanFramebuffer, m_CommandBuffer);
 		}
 		else
 		{
-			renderingInfo.pDepthAttachment	 = nullptr;
-			renderingInfo.pStencilAttachment = nullptr;
+			BeginRenderPassToFramebuffer(m_Device, vulkanFramebuffer, m_CommandBuffer);
 		}
 
-		vkCmdBeginRendering(m_CommandBuffer, &renderingInfo);
 		m_Rendering = true;
 	}
 
@@ -889,7 +1060,15 @@ namespace Nexus::Graphics
 	{
 		if (m_Rendering)
 		{
-			vkCmdEndRendering(m_CommandBuffer);
+			const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
+			if (features.DynamicRenderingAvailable)
+			{
+				vkCmdEndRendering(m_CommandBuffer);
+			}
+			else
+			{
+				vkCmdEndRenderPass(m_CommandBuffer);
+			}
 
 			if (m_CurrentRenderTarget.GetType() == RenderTargetType::Framebuffer)
 			{
@@ -925,6 +1104,7 @@ namespace Nexus::Graphics
 			}
 		}
 	}
+
 	bool CommandExecutorVk::ValidateIsRendering()
 	{
 		if (!m_Rendering)
@@ -933,6 +1113,44 @@ namespace Nexus::Graphics
 			return false;
 		}
 		return true;
+	}
+
+	void CommandExecutorVk::BindGraphicsPipeline()
+	{
+		auto						vulkanPipeline = std::dynamic_pointer_cast<PipelineVk>(m_CurrentlyBoundPipeline.lock());
+		const VulkanDeviceFeatures &deviceFeatures = m_Device->GetDeviceFeatures();
+
+		if (Ref<Swapchain> swapchain = m_CurrentRenderTarget.GetSwapchain().lock())
+		{
+			Ref<SwapchainVk> swapchainVk = std::dynamic_pointer_cast<SwapchainVk>(swapchain);
+
+			VkRenderPass renderPass = VK_NULL_HANDLE;
+
+			const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
+			if (!features.DynamicRenderingAvailable)
+			{
+				renderPass = swapchainVk->GetRenderPass();
+			}
+
+			vulkanPipeline->Bind(m_CommandBuffer, renderPass, m_VertexBufferStrides);
+		}
+		else if (Ref<Framebuffer> framebuffer = m_CurrentRenderTarget.GetFramebuffer().lock())
+		{
+			VkRenderPass renderPass = VK_NULL_HANDLE;
+
+			const VulkanDeviceFeatures &features = m_Device->GetDeviceFeatures();
+			if (!features.DynamicRenderingAvailable)
+			{
+				Ref<FramebufferVk> framebufferVk = std::dynamic_pointer_cast<FramebufferVk>(framebuffer);
+				renderPass						 = framebufferVk->GetRenderPass();
+			}
+
+			vulkanPipeline->Bind(m_CommandBuffer, renderPass, m_VertexBufferStrides);
+		}
+		else
+		{
+			throw std::runtime_error("Failed to find a valid render target type");
+		}
 	}
 }	 // namespace Nexus::Graphics
 

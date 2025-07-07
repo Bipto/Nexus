@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.30)
+cmake_minimum_required(VERSION 3.28)
 
 macro(nexus_copy_required_binaries)
   if (WIN32)
@@ -92,7 +92,7 @@ endmacro()
 
 macro(nexus_add_all_subdirs SUBDIRS)
   foreach (SUBDIR ${SUBDIRS})
-    add_subdirectory(${SUBDIR})
+    add_subdirectory(${SUBDIR} EXCLUDE_FROM_ALL)
   endforeach()
 endmacro()
 

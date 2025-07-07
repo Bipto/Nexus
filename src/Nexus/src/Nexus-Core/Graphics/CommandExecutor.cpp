@@ -116,15 +116,16 @@ namespace Nexus::Graphics
 		if (target.has_value())
 		{
 			RenderTarget t = target.value();
+			Point2D<uint32_t> renderTargetSize = t.GetSize();
 
-			if (viewport.X + viewport.Width > t.GetSize().X)
+			if (viewport.X + viewport.Width > renderTargetSize.X)
 			{
 				NX_ERROR("Attempting to set a viewport with a total width that is "
 						 "greater than the width of the bound render target");
 				valid = false;
 			}
 
-			if (viewport.Y + viewport.Height > t.GetSize().Y)
+			if (viewport.Y + viewport.Height > renderTargetSize.Y)
 			{
 				NX_ERROR("Attempting to set a viewport with a total height that is "
 						 "greater than the height of the bound render target");

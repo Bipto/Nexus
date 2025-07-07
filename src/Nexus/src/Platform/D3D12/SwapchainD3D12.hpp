@@ -28,6 +28,7 @@ namespace Nexus::Graphics
 		virtual Nexus::Point2D<uint32_t>		GetSize() override;
 		virtual void							Prepare() override;
 		virtual PixelFormat						GetColourFormat() override;
+		virtual PixelFormat						GetDepthFormat() override;
 
 		Microsoft::WRL::ComPtr<ID3D12Resource2> RetrieveBufferHandle();
 		uint32_t								GetCurrentBufferIndex();

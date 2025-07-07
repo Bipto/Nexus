@@ -9,14 +9,10 @@ namespace Nexus::GL
 {
 	void LoadGLFunctionsIfNeeded(HDC hdc)
 	{
-		if (!gladLoadWGL(hdc))
+		int version = gladLoaderLoadWGL(hdc);
+		if (!version)
 		{
 			MessageBox(NULL, "Failed to load WGL", "Error", MB_OK);
-		}
-
-		if (!gladLoadGL())
-		{
-			MessageBox(NULL, "Failed to load OpenGL function pointers", "Error", MB_OK);
 		}
 	}
 
@@ -101,7 +97,7 @@ namespace Nexus::GL
 		return true;
 	}
 
-	std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> LoadAvailablePhysicalDevices()
+	std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> LoadAvailablePhysicalDevices(bool debug)
 	{
 		std::map<std::string, std::vector<std::string>> displays;
 
@@ -121,7 +117,7 @@ namespace Nexus::GL
 		std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> physicalDevices;
 		for (const auto &[name, attachedDisplays] : displays)
 		{
-			std::shared_ptr<Graphics::IPhysicalDevice> physicalDevice = std::make_shared<Graphics::PhysicalDeviceWGL>(name, attachedDisplays);
+			std::shared_ptr<Graphics::IPhysicalDevice> physicalDevice = std::make_shared<Graphics::PhysicalDeviceWGL>(name, attachedDisplays, debug);
 			physicalDevices.push_back(physicalDevice);
 		}
 

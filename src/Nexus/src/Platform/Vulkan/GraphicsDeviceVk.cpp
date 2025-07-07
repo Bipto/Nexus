@@ -2,35 +2,37 @@
 
 	#include "GraphicsDeviceVk.hpp"
 
-	#include "DeviceBufferVk.hpp"
 	#include "CommandListVk.hpp"
+	#include "DeviceBufferVk.hpp"
+	#include "FenceVk.hpp"
 	#include "FramebufferVk.hpp"
 	#include "Nexus-Core/nxpch.hpp"
+	#include "PhysicalDeviceVk.hpp"
 	#include "PipelineVk.hpp"
+	#include "PlatformVk.hpp"
 	#include "ResourceSetVk.hpp"
 	#include "SamplerVk.hpp"
 	#include "ShaderModuleVk.hpp"
+	#include "SwapchainVk.hpp"
 	#include "TextureVk.hpp"
 	#include "TimingQueryVk.hpp"
-	#include "SwapchainVk.hpp"
-	#include "PlatformVk.hpp"
-	#include "PhysicalDeviceVk.hpp"
-	#include "DeviceBufferVk.hpp"
-	#include "FenceVk.hpp"
 
 namespace Nexus::Graphics
 {
-	GraphicsDeviceVk::GraphicsDeviceVk(std::shared_ptr<IPhysicalDevice> physicalDevice, VkInstance instance, bool debug)
+	GraphicsDeviceVk::GraphicsDeviceVk(std::shared_ptr<IPhysicalDevice> physicalDevice, VkInstance instance, const VulkanDeviceConfig &config)
 		: m_PhysicalDevice(std::dynamic_pointer_cast<PhysicalDeviceVk>(physicalDevice)),
-		  m_Instance(instance)
+		  m_Instance(instance),
+		  m_DeviceConfig(config)
 	{
 		std::shared_ptr<PhysicalDeviceVk> physicalDeviceVk = std::dynamic_pointer_cast<PhysicalDeviceVk>(physicalDevice);
-		CreateDevice(physicalDeviceVk, debug);
+		CreateDevice(physicalDeviceVk, config.Debug);
 		auto deviceExtensions = GetSupportedDeviceExtensions(physicalDeviceVk);
 		CreateAllocator(physicalDeviceVk, instance);
 
 		CreateCommandStructures();
 		CreateSynchronisationStructures();
+
+		LoadExtensionFunctions();
 
 		m_CommandExecutor = std::make_unique<CommandExecutorVk>(this);
 	}
@@ -282,6 +284,26 @@ namespace Nexus::Graphics
 		return GraphicsAPI::Vulkan;
 	}
 
+	void GraphicsDeviceVk::SetObjectName(VkObjectType type, uint64_t handle, const char *name)
+	{
+		VkDebugUtilsObjectNameInfoEXT nameInfo = {};
+		nameInfo.sType						   = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+		nameInfo.pNext						   = nullptr;
+		nameInfo.objectType					   = type;
+		nameInfo.objectHandle				   = handle;
+		nameInfo.pObjectName				   = name;
+
+		if (m_ExtensionFunctions.vkSetDebugUtilsObjectNameEXT)
+		{
+			m_ExtensionFunctions.vkSetDebugUtilsObjectNameEXT(m_Device, &nameInfo);
+		}
+	}
+
+	const DeviceExtensionFunctions &GraphicsDeviceVk::GetExtensionFunctions() const
+	{
+		return m_ExtensionFunctions;
+	}
+
 	VkInstance GraphicsDeviceVk::GetVkInstance()
 	{
 		return m_Instance;
@@ -472,22 +494,67 @@ namespace Nexus::Graphics
 		deviceFeatures.sampleRateShading		= VK_TRUE;
 		deviceFeatures.independentBlend			= VK_TRUE;
 
-		VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures = {};
-		dynamicRenderingFeatures.sType									  = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
-		dynamicRenderingFeatures.pNext									  = nullptr;
-		dynamicRenderingFeatures.dynamicRendering						  = VK_TRUE;
+		VkDeviceCreateInfo createInfo = {};
+		createInfo.sType			  = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+		createInfo.pNext			  = nullptr;
 
-		VkDeviceCreateInfo createInfo	   = {};
-		createInfo.sType				   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-		createInfo.pNext				   = &dynamicRenderingFeatures;
+		VkPhysicalDeviceFeatures2 features2	 = {};
+		features2.sType						 = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+		features2.features.samplerAnisotropy = VK_TRUE;
+		features2.features.samplerAnisotropy = VK_TRUE;
+		features2.features.independentBlend	 = VK_TRUE;
+
+		VkPhysicalDeviceIndexTypeUint8FeaturesEXT indexType8Features = {};
+		indexType8Features.sType									 = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INDEX_TYPE_UINT8_FEATURES_EXT;
+		indexType8Features.pNext									 = nullptr;
+		indexType8Features.indexTypeUint8							 = VK_TRUE;
+
+		VkPhysicalDeviceExtendedDynamicStateFeaturesEXT extendedDynamicStateFeatures = {};
+		extendedDynamicStateFeatures.sType				  = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT;
+		extendedDynamicStateFeatures.pNext				  = nullptr;
+		extendedDynamicStateFeatures.extendedDynamicState = VK_FALSE;
+		features2.pNext									  = &extendedDynamicStateFeatures;
+
+		if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME))
+		{
+			extendedDynamicStateFeatures.extendedDynamicState = VK_TRUE;
+		}
+
+		createInfo.pNext				   = &features2;
 		createInfo.pQueueCreateInfos	   = &queueCreateInfo;
 		createInfo.queueCreateInfoCount	   = queueCreateInfos.size();
 		createInfo.pQueueCreateInfos	   = queueCreateInfos.data();
-		createInfo.pEnabledFeatures		   = &deviceFeatures;
+		createInfo.pEnabledFeatures		   = nullptr;
 		createInfo.enabledExtensionCount   = deviceExtensions.size();
 		createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 		createInfo.enabledLayerCount	   = 0;
 
+		VkPhysicalDeviceMeshShaderFeaturesEXT meshShaderFeatures = {};
+		meshShaderFeatures.sType								 = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT;
+		meshShaderFeatures.taskShader							 = VK_FALSE;
+		meshShaderFeatures.meshShader							 = VK_FALSE;
+
+		if (m_Features.SupportsMeshTaskShaders)
+		{
+			meshShaderFeatures.taskShader = VK_TRUE;
+			meshShaderFeatures.meshShader = VK_TRUE;
+		}
+
+		VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures = {};
+		dynamicRenderingFeatures.sType									  = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
+		dynamicRenderingFeatures.pNext									  = &meshShaderFeatures;
+		dynamicRenderingFeatures.dynamicRendering						  = VK_FALSE;
+
+		if (m_DeviceConfig.UseDynamicRenderingIfAvailable)
+		{
+			if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
+			{
+				dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
+				features2.pNext							  = &dynamicRenderingFeatures;
+			}
+		}
+
+		vkGetPhysicalDeviceFeatures2(m_PhysicalDevice->GetVkPhysicalDevice(), &features2);
 		if (vkCreateDevice(physicalDevice->GetVkPhysicalDevice(), &createInfo, nullptr, &m_Device) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create device");
@@ -553,6 +620,37 @@ namespace Nexus::Graphics
 		{
 			throw std::runtime_error("Failed to create fence");
 		}
+	}
+
+	void GraphicsDeviceVk::LoadExtensionFunctions()
+	{
+		m_ExtensionFunctions.vkCmdBindVertexBuffers2EXT = (PFN_vkCmdBindVertexBuffers2EXT)vkGetDeviceProcAddr(m_Device, "vkCmdBindVertexBuffers2EXT");
+
+		m_ExtensionFunctions.vkCmdBindIndexBuffer2KHR  = (PFN_vkCmdBindIndexBuffer2KHR)vkGetDeviceProcAddr(m_Device, "vkCmdBindIndexBuffer2KHR");
+		m_ExtensionFunctions.vkCmdDebugMarkerBeginEXT  = (PFN_vkCmdDebugMarkerBeginEXT)vkGetDeviceProcAddr(m_Device, "vkCmdDebugMarkerBeginEXT");
+		m_ExtensionFunctions.vkCmdDebugMarkerEndEXT	   = (PFN_vkCmdDebugMarkerEndEXT)vkGetDeviceProcAddr(m_Device, "vkCmdDebugMarkerEndEXT");
+		m_ExtensionFunctions.vkCmdDebugMarkerInsertEXT = (PFN_vkCmdDebugMarkerInsertEXT)vkGetDeviceProcAddr(m_Device, "vkCmdDebugMarkerInsertEXT");
+
+		m_ExtensionFunctions.vkCmdBeginDebugUtilsLabelEXT =
+			(PFN_vkCmdBeginDebugUtilsLabelEXT)vkGetDeviceProcAddr(m_Device, "vkCmdBeginDebugUtilsLabelEXT");
+		m_ExtensionFunctions.vkCmdEndDebugUtilsLabelEXT = (PFN_vkCmdEndDebugUtilsLabelEXT)vkGetDeviceProcAddr(m_Device, "vkCmdEndDebugUtilsLabelEXT");
+		m_ExtensionFunctions.vkCmdInsertDebugUtilsLabelEXT =
+			(PFN_vkCmdInsertDebugUtilsLabelEXT)vkGetDeviceProcAddr(m_Device, "vkCmdInsertDebugUtilsLabelEXT");
+		m_ExtensionFunctions.vkSetDebugUtilsObjectNameEXT =
+			(PFN_vkSetDebugUtilsObjectNameEXT)vkGetDeviceProcAddr(m_Device, "vkSetDebugUtilsObjectNameEXT");
+
+		m_ExtensionFunctions.vkCmdBeginRenderPass2KHR = (PFN_vkCmdBeginRenderPass2KHR)vkGetDeviceProcAddr(m_Device, "vkCmdBeginRenderPass2KHR");
+		m_ExtensionFunctions.vkCmdEndRenderPass2KHR	  = (PFN_vkCmdEndRenderPass2KHR)vkGetDeviceProcAddr(m_Device, "vkCmdEndRenderPass2KHR");
+		m_ExtensionFunctions.vkCreateRenderPass2KHR	  = (PFN_vkCreateRenderPass2KHR)vkGetDeviceProcAddr(m_Device, "vkCreateRenderPass2KHR");
+		m_ExtensionFunctions.vkDebugMarkerSetObjectNameEXT =
+			(PFN_vkDebugMarkerSetObjectNameEXT)vkGetDeviceProcAddr(m_Device, "vkDebugMarkerSetObjectNameEXT");
+
+		m_ExtensionFunctions.vkCmdBeginRenderingKHR = (PFN_vkCmdBeginRenderingKHR)vkGetDeviceProcAddr(m_Device, "vkCmdBeginRenderingKHR");
+		m_ExtensionFunctions.vkCmdEndRenderingKHR	= (PFN_vkCmdEndRenderingKHR)vkGetDeviceProcAddr(m_Device, "vkCmdEndRenderingKHR");
+
+		m_ExtensionFunctions.vkCmdDrawMeshTasksEXT = (PFN_vkCmdDrawMeshTasksEXT)vkGetDeviceProcAddr(m_Device, "vkCmdDrawMeshTasksEXT");
+		m_ExtensionFunctions.vkCmdDrawMeshTasksIndirectEXT =
+			(PFN_vkCmdDrawMeshTasksIndirectEXT)vkGetDeviceProcAddr(m_Device, "vkCmdDrawMeshTasksIndirectEXT");
 	}
 
 	VkImageView GraphicsDeviceVk::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
@@ -628,12 +726,79 @@ namespace Nexus::Graphics
 		std::vector<const char *> extensions;
 		extensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 		extensions.push_back(VK_EXT_VERTEX_ATTRIBUTE_DIVISOR_EXTENSION_NAME);
-		extensions.push_back(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME);
-		extensions.push_back(VK_KHR_MAINTENANCE_5_EXTENSION_NAME);
 
+		// this is used for vkCmdBindVertexBuffers2	{
+		if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME))
+		{
+			extensions.push_back(VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME);
+		}
+
+		// this is used for dynamic rendering
+		if (m_DeviceConfig.UseDynamicRenderingIfAvailable)
+		{
+			// dynamic rendering has a dependency on depth/stencil resolve
+			if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
+			{
+				extensions.push_back(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME);
+				m_DeviceFeatures.DynamicRenderingAvailable = true;
+
+				if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME))
+				{
+					extensions.push_back(VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME);
+
+					// this is used for vkCmdBindIndexBuffer2 and requires dynamic rendering
+					if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_MAINTENANCE_5_EXTENSION_NAME))
+					{
+						extensions.push_back(VK_KHR_MAINTENANCE_5_EXTENSION_NAME);
+					}
+				}
+			}
+		}
+
+		// this is used for vkCreateRenderPass2
+		if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME))
+		{
+			extensions.push_back(VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME);
+		}
+
+		// mesh shaders
+		if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_MESH_SHADER_EXTENSION_NAME))
+		{
+			extensions.push_back(VK_EXT_MESH_SHADER_EXTENSION_NAME);
+
+			if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_SPIRV_1_4_EXTENSION_NAME))
+			{
+				extensions.push_back(VK_KHR_SPIRV_1_4_EXTENSION_NAME);
+
+				if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME))
+				{
+					extensions.push_back(VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME);
+					m_Features.SupportsMeshTaskShaders = true;
+				}
+			}
+		}
+
+		// 8 bit indices
+		{
+			if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_INDEX_TYPE_UINT8_EXTENSION_NAME))
+			{
+				extensions.push_back(VK_EXT_INDEX_TYPE_UINT8_EXTENSION_NAME);
+				m_DeviceFeatures.Supports8BitIndices = true;
+			}
+			else if (m_PhysicalDevice->IsExtensionSupported(VK_KHR_INDEX_TYPE_UINT8_EXTENSION_NAME))
+			{
+				extensions.push_back(VK_KHR_INDEX_TYPE_UINT8_EXTENSION_NAME);
+				m_DeviceFeatures.Supports8BitIndices = true;
+			}
+		}
+
+		// this is used to set debug object names and groups
 		if (debug)
 		{
-			extensions.push_back(VK_EXT_DEBUG_MARKER_EXTENSION_NAME);
+			if (m_PhysicalDevice->IsExtensionSupported(VK_EXT_DEBUG_MARKER_EXTENSION_NAME))
+			{
+				extensions.push_back(VK_EXT_DEBUG_MARKER_EXTENSION_NAME);
+			}
 		}
 
 		return extensions;
@@ -681,38 +846,41 @@ namespace Nexus::Graphics
 		return buffer;
 	}
 
+	const VulkanDeviceFeatures GraphicsDeviceVk::GetDeviceFeatures() const
+	{
+		return m_DeviceFeatures;
+	}
+
 	bool GraphicsDeviceVk::Validate()
 	{
 		return m_Device != VK_NULL_HANDLE && m_Allocator != VK_NULL_HANDLE;
 	}
 
-	void GraphicsDeviceVk::SetName(const std::string &name)
+	PixelFormatProperties GraphicsDeviceVk::GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const
 	{
-		GraphicsDevice::SetName(name);
+		PixelFormatProperties properties = {};
+		return properties;
+	}
 
-		/* std::string instanceName = name + std::string(" - Instance");
-		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_INSTANCE, (uint64_t)m_Instance, instanceName.c_str());
+	const DeviceFeatures &GraphicsDeviceVk::GetPhysicalDeviceFeatures() const
+	{
+		return m_Features;
+	}
 
-		std::string physicalDeviceName = name + std::string(" - PhysicalDevice");
-		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_PHYSICAL_DEVICE, (uint64_t)m_PhysicalDevice, physicalDeviceName.c_str()); */
+	const DeviceLimits &GraphicsDeviceVk::GetPhysicalDeviceLimits() const
+	{
+		return m_Limits;
+	}
 
-		std::string deviceName = name + std::string(" - Device");
-		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_DEVICE, (uint64_t)m_Device, deviceName.c_str());
-
-		/* if (m_Specification.DebugLayer)
+	bool GraphicsDeviceVk::IsIndexBufferFormatSupported(IndexBufferFormat format) const
+	{
+		switch (format)
 		{
-			std::string debugName = name + std::string(" - Debug Messenger");
-			Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_DEBUG_UTILS_MESSENGER_EXT, (uint64_t)m_DebugMessenger, debugName.c_str());
-		} */
-
-		std::string uploadFenceName = name + std::string(" - Upload Context Fence");
-		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_FENCE, (uint64_t)m_UploadContext.UploadFence, uploadFenceName.c_str());
-
-		std::string uploadCmdPoolName = name + std::string(" - Upload Command Pool");
-		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_COMMAND_POOL, (uint64_t)m_UploadContext.CommandPool, uploadCmdPoolName.c_str());
-
-		std::string uploadCmdBufferName = name + std::string(" - Upload Commamd Buffer");
-		Vk::SetObjectName(m_Device, VK_OBJECT_TYPE_COMMAND_BUFFER, (uint64_t)m_UploadContext.UploadFence, uploadCmdBufferName.c_str());
+			case IndexBufferFormat::UInt8: return m_DeviceFeatures.Supports8BitIndices;
+			case IndexBufferFormat::UInt16:
+			case IndexBufferFormat::UInt32: return true;
+			default: throw std::runtime_error("Failed to find valid index buffer format");
+		}
 	}
 
 	uint32_t GraphicsDeviceVk::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties, std::shared_ptr<PhysicalDeviceVk> physicalDevice)

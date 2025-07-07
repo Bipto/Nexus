@@ -10,25 +10,27 @@
 		#include <webgl/webgl2.h>
 	#endif
 
-	#if defined(__EMSCRIPTEN__) || defined(ANDROID)
-		#include <GLES3/gl32.h>
-		#include <GLES2/gl2ext.h>
-	#elif defined(__ANDROID__)
-		#include <GLES3/gl32.h>
-		#include <glad/glad_egl.h>
-	#else
-		#include "Platform/Windows/WindowsInclude.hpp"
-		#include "glad/glad.h"
-	#endif
+/* #if defined(__EMSCRIPTEN__) || defined(ANDROID)
+	#include <GLES3/gl32.h>
+	#include <GLES2/gl2ext.h>
+#elif defined(__ANDROID__)
+	#include <GLES3/gl32.h>
+	#include <glad/glad_egl.h>
+#else
+	#include "Platform/Windows/WindowsInclude.hpp"
+	#include "glad/glad.h"
+#endif */
 
+	#include "OpenGLFunctionContext.hpp"
+
+	#include "Nexus-Core/Graphics/IPhysicalDevice.hpp"
 	#include "Nexus-Core/Graphics/ShaderModule.hpp"
 	#include "Nexus-Core/Graphics/Texture.hpp"
 	#include "Nexus-Core/Logging/Log.hpp"
 	#include "Nexus-Core/Vertex.hpp"
-	#include "Nexus-Core/Graphics/IPhysicalDevice.hpp"
 
-	#include "Nexus-Core/IWindow.hpp"
 	#include "Nexus-Core/Graphics/CommandList.hpp"
+	#include "Nexus-Core/IWindow.hpp"
 
 	#include "Context/IOffscreenContext.hpp"
 	#include "Context/IViewContext.hpp"
@@ -36,7 +38,8 @@
 namespace Nexus::Graphics
 {
 	class TextureOpenGL;
-}
+	class DeviceBufferOpenGL;
+}	 // namespace Nexus::Graphics
 
 namespace Nexus::GL
 {
@@ -84,13 +87,14 @@ namespace Nexus::GL
 	GLenum GetTextureType(const Graphics::TextureSpecification &spec);
 
 	GLInternalTextureFormat GetGLInternalTextureFormat(const Graphics::TextureSpecification &spec);
-	void					ValidateFramebuffer(GLuint framebuffer);
+	void					ValidateFramebuffer(GLuint framebuffer, const GladGLContext &context);
 	void					AttachTexture(GLuint					   framebuffer,
 										  Ref<Graphics::TextureOpenGL> texture,
 										  uint32_t					   mipLevel,
 										  uint32_t					   arrayLayer,
 										  Graphics::ImageAspect		   aspect,
-										  uint32_t					   colourIndex);
+										  uint32_t					   colourIndex,
+										  const GladGLContext		  &context);
 
 	void GetBaseType(const Graphics::VertexBufferElement &element,
 					 GLenum								 &baseType,
@@ -98,22 +102,37 @@ namespace Nexus::GL
 					 GLboolean							 &normalized,
 					 GLPrimitiveType					 &primitiveType);
 
-	void ClearBufferBinding(GLenum target);
-
 	GLenum GetGLImageAspect(Graphics::ImageAspect aspect);
 	GLenum GetAttachmentType(Graphics::ImageAspect aspect, uint32_t index);
 	GLenum GetBufferMaskToCopy(Graphics::ImageAspect aspect);
 
 	std::vector<GLenum> GetWebGLBufferTargets(uint16_t usage);
 
-	std::unique_ptr<IOffscreenContext> CreateOffscreenContext(Graphics::IPhysicalDevice *physicalDevice);
-	std::unique_ptr<IViewContext>	   CreateViewContext(IWindow *window, Graphics::GraphicsDevice *device);
+	std::unique_ptr<IViewContext> CreateViewContext(IWindow *window, Graphics::GraphicsDevice *device);
+
+	void CopyBufferToTexture(Ref<Graphics::TextureOpenGL>	   texture,
+							 Ref<Graphics::DeviceBufferOpenGL> buffer,
+							 uint32_t						   bufferOffset,
+							 Graphics::SubresourceDescription  subresource,
+							 const GladGLContext			  &context);
+
+	void CopyTextureToBuffer(Ref<Graphics::TextureOpenGL>	   texture,
+							 Ref<Graphics::DeviceBufferOpenGL> buffer,
+							 uint32_t						   bufferOffset,
+							 Graphics::SubresourceDescription  subresource,
+							 const GladGLContext			  &context);
 
 	/// @brief Function that loads required OpenGL functions,
 	// this function should be called by IGraphicsAPI
 	/// @return A boolean indicating whether OpenGL was able to be initialized
 	bool													LoadOpenGL();
 	std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> LoadAvailablePhysicalDevices();
+	std::vector<std::shared_ptr<Graphics::IPhysicalDevice>> LoadAvailablePhysicalDevices(bool debug);
+
+	IGLContext *GetCurrentContext();
+	void		SetCurrentContext(IGLContext *context);
+	void		ClearCurrentContext();
+	void		ExecuteGLCommands(std::function<void(const GladGLContext &context)> function);
 
 }	 // namespace Nexus::GL
 

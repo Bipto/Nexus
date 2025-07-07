@@ -7,10 +7,12 @@
 
 namespace Nexus::Graphics
 {
+	class GraphicsDeviceOpenGL;
+
 	class FenceOpenGL : public Fence
 	{
 	  public:
-		FenceOpenGL(const FenceDescription &desc);
+		FenceOpenGL(const FenceDescription &desc, GraphicsDeviceOpenGL *device);
 		virtual ~FenceOpenGL();
 
 		bool					IsSignalled() const final;
@@ -25,6 +27,7 @@ namespace Nexus::Graphics
 		void DestroyFence();
 
 	  private:
+		GraphicsDeviceOpenGL *m_Device		= nullptr;
 		FenceDescription m_Description = {};
 		GLsync			 m_Sync		   = {};
 	};

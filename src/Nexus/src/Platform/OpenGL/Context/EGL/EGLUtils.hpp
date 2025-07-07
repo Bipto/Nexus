@@ -1,6 +1,6 @@
 #pragma once
 
-#include "glad/glad_egl.h"
+#include "egl_include.hpp"
 
 #define CASE_STR(value)                                                                                                                              \
 	case value: return #value;
@@ -27,3 +27,12 @@ inline const char *eglGetErrorString(EGLint error)
 	}
 }
 #undef CASE_STR
+
+namespace EGL
+{
+	inline bool HasExtension(EGLDisplay display, const char *name)
+	{
+		const char *extensions = eglQueryString(display, EGL_EXTENSIONS);
+		return extensions && strstr(extensions, name) != nullptr;
+	}
+}	 // namespace EGL

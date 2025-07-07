@@ -88,6 +88,11 @@ namespace Nexus::Graphics
 		return PixelFormat::R8_G8_B8_A8_UNorm;
 	}
 
+	PixelFormat SwapchainD3D12::GetDepthFormat()
+	{
+		return PixelFormat::D24_UNorm_S8_UInt;
+	}
+
 	Microsoft::WRL::ComPtr<ID3D12Resource2> SwapchainD3D12::RetrieveBufferHandle()
 	{
 		return m_Buffers.at(m_CurrentBufferIndex);

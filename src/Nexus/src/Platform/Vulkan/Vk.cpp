@@ -1,5 +1,7 @@
 #include "Vk.hpp"
 
+#include "GraphicsDeviceVk.hpp"
+
 #if defined(NX_PLATFORM_VULKAN)
 
 namespace Nexus::Vk
@@ -62,6 +64,26 @@ namespace Nexus::Vk
 			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UNorm: return VK_FORMAT_A2B10G10R10_UNORM_PACK32;
 			case Nexus::Graphics::PixelFormat::R10_G10_B10_A2_UInt: return VK_FORMAT_A2B10G10R10_UINT_PACK32;
 			case Nexus::Graphics::PixelFormat::R11_G11_B10_Float: return VK_FORMAT_B10G11R11_UFLOAT_PACK32;
+
+			case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A1_UNorm: return VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK;
+			case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_A8_UNorm: return VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK;
+			case Nexus::Graphics::PixelFormat::ETC2_R8_G8_B8_UNorm: return VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK;
+
+			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm: return VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
+			case Nexus::Graphics::PixelFormat::BC1_Rgb_UNorm_SRgb: return VK_FORMAT_BC1_RGB_SRGB_BLOCK;
+			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm: return VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
+			case Nexus::Graphics::PixelFormat::BC1_Rgba_UNorm_SRgb: return VK_FORMAT_BC1_RGBA_SRGB_BLOCK;
+			case Nexus::Graphics::PixelFormat::BC2_UNorm: return VK_FORMAT_BC2_UNORM_BLOCK;
+			case Nexus::Graphics::PixelFormat::BC2_UNorm_SRgb: return VK_FORMAT_BC2_SRGB_BLOCK;
+			case Nexus::Graphics::PixelFormat::BC3_UNorm: return VK_FORMAT_BC3_UNORM_BLOCK;
+			case Nexus::Graphics::PixelFormat::BC3_UNorm_SRgb: return VK_FORMAT_BC3_SRGB_BLOCK;
+			case Nexus::Graphics::PixelFormat::BC4_UNorm: return VK_FORMAT_BC4_UNORM_BLOCK;
+			case Nexus::Graphics::PixelFormat::BC4_SNorm: return VK_FORMAT_BC4_SNORM_BLOCK;
+			case Nexus::Graphics::PixelFormat::BC5_UNorm: return VK_FORMAT_BC5_UNORM_BLOCK;
+			case Nexus::Graphics::PixelFormat::BC5_SNorm: return VK_FORMAT_BC5_SNORM_BLOCK;
+			case Nexus::Graphics::PixelFormat::BC7_UNorm: return VK_FORMAT_BC7_UNORM_BLOCK;
+			case Nexus::Graphics::PixelFormat::BC7_UNorm_SRgb: return VK_FORMAT_BC7_SRGB_BLOCK;
+
 			default: throw std::runtime_error("Failed to find a valid format");
 		}
 	}
@@ -440,12 +462,22 @@ namespace Nexus::Vk
 	{
 		switch (stage)
 		{
+			case Nexus::Graphics::ShaderStage::Compute: return VK_SHADER_STAGE_COMPUTE_BIT;
 			case Nexus::Graphics::ShaderStage::Fragment: return VK_SHADER_STAGE_FRAGMENT_BIT;
 			case Nexus::Graphics::ShaderStage::Geometry: return VK_SHADER_STAGE_GEOMETRY_BIT;
 			case Nexus::Graphics::ShaderStage::TesselationControl: return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
 			case Nexus::Graphics::ShaderStage::TesselationEvaluation: return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
-			case Nexus::Graphics::ShaderStage::Compute: return VK_SHADER_STAGE_COMPUTE_BIT;
 			case Nexus::Graphics::ShaderStage::Vertex: return VK_SHADER_STAGE_VERTEX_BIT;
+
+			case Nexus::Graphics::ShaderStage::RayGeneration: return VK_SHADER_STAGE_RAYGEN_BIT_KHR;
+			case Nexus::Graphics::ShaderStage::RayMiss: return VK_SHADER_STAGE_MISS_BIT_KHR;
+			case Nexus::Graphics::ShaderStage::RayClosestHit: return VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR;
+			case Nexus::Graphics::ShaderStage::RayAnyHit: return VK_SHADER_STAGE_ANY_HIT_BIT_KHR;
+			case Nexus::Graphics::ShaderStage::RayIntersection: return VK_SHADER_STAGE_INTERSECTION_BIT_KHR;
+
+			case Nexus::Graphics::ShaderStage::Mesh: return VK_SHADER_STAGE_MESH_BIT_EXT;
+			case Nexus::Graphics::ShaderStage::Task: return VK_SHADER_STAGE_TASK_BIT_EXT;
+
 			default: throw std::runtime_error("Failed to find a valid shader stage");
 		}
 	}
@@ -454,6 +486,7 @@ namespace Nexus::Vk
 	{
 		switch (format)
 		{
+			case Nexus::Graphics::IndexBufferFormat::UInt8: return VK_INDEX_TYPE_UINT8_EXT;
 			case Nexus::Graphics::IndexBufferFormat::UInt16: return VK_INDEX_TYPE_UINT16;
 			case Nexus::Graphics::IndexBufferFormat::UInt32: return VK_INDEX_TYPE_UINT32;
 			default: throw std::runtime_error("Failed to find a valid index buffer format");
@@ -574,6 +607,313 @@ namespace Nexus::Vk
 			case Graphics::ImageAspect::DepthStencil: return VkImageAspectFlagBits(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
 			default: throw std::runtime_error("Failed to find valid aspect flags");
 		}
+	}
+
+	VkRenderPass CreateVkRenderPass(VkDevice device, const VulkanRenderPassDescription &desc)
+	{
+		std::vector<VkAttachmentDescription> attachments;
+		std::vector<VkAttachmentReference>	 colourAttachmentReferences;
+		VkAttachmentReference				 depthAttachmentReference;
+		VkAttachmentReference				 resolveAttachmentReference;
+		size_t								 attachmentIndex = 0;
+
+		for (VkFormat colourAttachmentFormat : desc.ColourAttachments)
+		{
+			VkAttachmentDescription colourAttachment = {};
+			colourAttachment.format					 = colourAttachmentFormat;
+			colourAttachment.samples				 = desc.Samples;
+			colourAttachment.loadOp					 = VK_ATTACHMENT_LOAD_OP_LOAD;
+			colourAttachment.storeOp				 = VK_ATTACHMENT_STORE_OP_STORE;
+			colourAttachment.stencilLoadOp			 = VK_ATTACHMENT_LOAD_OP_LOAD;
+			colourAttachment.stencilStoreOp			 = VK_ATTACHMENT_STORE_OP_STORE;
+			colourAttachment.initialLayout			 = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+			if (desc.IsSwapchain && desc.Samples != 1)
+			{
+				colourAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			}
+			else
+			{
+				colourAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			}
+
+			attachments.push_back(colourAttachment);
+
+			VkAttachmentReference attachmentReference = {};
+			attachmentReference.attachment			  = attachmentIndex;
+			attachmentReference.layout				  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			colourAttachmentReferences.push_back(attachmentReference);
+
+			attachmentIndex++;
+		}
+
+		if (desc.DepthFormat)
+		{
+			VkFormat depthFormatVal = desc.DepthFormat.value();
+
+			VkAttachmentDescription depthAttachment = {};
+			depthAttachment.format					= depthFormatVal;
+			depthAttachment.samples					= desc.Samples;
+			depthAttachment.loadOp					= VK_ATTACHMENT_LOAD_OP_LOAD;
+			depthAttachment.storeOp					= VK_ATTACHMENT_STORE_OP_STORE;
+			depthAttachment.stencilLoadOp			= VK_ATTACHMENT_LOAD_OP_LOAD;
+			depthAttachment.stencilStoreOp			= VK_ATTACHMENT_STORE_OP_STORE;
+			depthAttachment.initialLayout			= VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+			depthAttachment.finalLayout				= VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+			attachments.push_back(depthAttachment);
+
+			depthAttachmentReference.attachment = attachmentIndex;
+			depthAttachmentReference.layout		= VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+			attachmentIndex++;
+		}
+
+		if (desc.ResolveFormat)
+		{
+			VkFormat resolveFormatVal = desc.ResolveFormat.value();
+
+			VkAttachmentDescription resolveAttachment = {};
+			resolveAttachment.format				  = resolveFormatVal;
+			resolveAttachment.samples				  = VK_SAMPLE_COUNT_1_BIT;
+			resolveAttachment.loadOp				  = VK_ATTACHMENT_LOAD_OP_LOAD;
+			resolveAttachment.storeOp				  = VK_ATTACHMENT_STORE_OP_STORE;
+			resolveAttachment.stencilLoadOp			  = VK_ATTACHMENT_LOAD_OP_LOAD;
+			resolveAttachment.stencilStoreOp		  = VK_ATTACHMENT_STORE_OP_STORE;
+			resolveAttachment.initialLayout			  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			resolveAttachment.finalLayout			  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			attachments.push_back(resolveAttachment);
+
+			resolveAttachmentReference.attachment = attachmentIndex;
+			resolveAttachmentReference.layout	  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+			attachmentIndex++;
+		}
+
+		VkSubpassDescription subpassDescription	   = {};
+		subpassDescription.flags				   = 0;
+		subpassDescription.pipelineBindPoint	   = VK_PIPELINE_BIND_POINT_GRAPHICS;
+		subpassDescription.colorAttachmentCount	   = colourAttachmentReferences.size();
+		subpassDescription.pColorAttachments	   = colourAttachmentReferences.data();
+		subpassDescription.pDepthStencilAttachment = nullptr;
+
+		if (desc.DepthFormat)
+		{
+			subpassDescription.pDepthStencilAttachment = &depthAttachmentReference;
+		}
+
+		subpassDescription.inputAttachmentCount	   = 0;
+		subpassDescription.pInputAttachments	   = nullptr;
+		subpassDescription.preserveAttachmentCount = 0;
+		subpassDescription.pPreserveAttachments	   = nullptr;
+		subpassDescription.pResolveAttachments	   = nullptr;
+
+		if (desc.ResolveFormat)
+		{
+			subpassDescription.pResolveAttachments = &resolveAttachmentReference;
+		}
+
+		std::vector<VkSubpassDependency> dependencies(1);
+		dependencies[0].srcSubpass		= VK_SUBPASS_EXTERNAL;
+		dependencies[0].dstSubpass		= 0;
+		dependencies[0].srcStageMask	= VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+		dependencies[0].dstStageMask	= VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependencies[0].srcAccessMask	= VK_ACCESS_MEMORY_READ_BIT;
+		dependencies[0].dstAccessMask	= VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+		VkRenderPassCreateInfo createInfo = {};
+		createInfo.sType				  = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+		createInfo.attachmentCount		  = (uint32_t)attachments.size();
+		createInfo.pAttachments			  = attachments.data();
+		createInfo.subpassCount			  = 1;
+		createInfo.pSubpasses			  = &subpassDescription;
+		createInfo.dependencyCount		  = (uint32_t)dependencies.size();
+		createInfo.pDependencies		  = dependencies.data();
+
+		VkRenderPass renderPass = VK_NULL_HANDLE;
+		NX_ASSERT(vkCreateRenderPass(device, &createInfo, nullptr, &renderPass) == VK_SUCCESS, "Failed to create render pass");
+		return renderPass;
+	}
+
+	VkRenderPass CreateVkRenderPass2(PFN_vkCreateRenderPass2KHR func, VkDevice device, const VulkanRenderPassDescription &desc)
+	{
+		std::vector<VkAttachmentDescription2KHR> attachments				= {};
+		std::vector<VkAttachmentReference2KHR>	 colourAttachmentReferences = {};
+		VkAttachmentReference2KHR				 depthAttachmentReference;
+		VkAttachmentReference2KHR				 resolveAttachmentReference;
+		size_t									 attachmentIndex = 0;
+
+		for (VkFormat colourAttachmentFormat : desc.ColourAttachments)
+		{
+			VkAttachmentDescription2KHR colourAttachment = {};
+			colourAttachment.sType						 = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2_KHR;
+			colourAttachment.pNext						 = nullptr;
+			colourAttachment.flags						 = 0;
+			colourAttachment.format						 = colourAttachmentFormat;
+			colourAttachment.samples					 = desc.Samples;
+			colourAttachment.loadOp						 = VK_ATTACHMENT_LOAD_OP_LOAD;
+			colourAttachment.storeOp					 = VK_ATTACHMENT_STORE_OP_STORE;
+			colourAttachment.stencilLoadOp				 = VK_ATTACHMENT_LOAD_OP_LOAD;
+			colourAttachment.stencilStoreOp				 = VK_ATTACHMENT_STORE_OP_STORE;
+			colourAttachment.initialLayout				 = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			colourAttachment.finalLayout				 = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			attachments.push_back(colourAttachment);
+
+			VkAttachmentReference2KHR attachmentReference = {};
+			attachmentReference.sType					  = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2_KHR;
+			attachmentReference.pNext					  = nullptr;
+			attachmentReference.attachment				  = attachmentIndex;
+			attachmentReference.layout					  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			colourAttachmentReferences.push_back(attachmentReference);
+			attachmentIndex++;
+		}
+
+		if (desc.DepthFormat)
+		{
+			VkFormat depthFormat = desc.DepthFormat.value();
+
+			VkAttachmentDescription2KHR depthAttachment = {};
+			depthAttachment.sType						= VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2_KHR;
+			depthAttachment.pNext						= nullptr;
+			depthAttachment.flags						= 0;
+			depthAttachment.format						= depthFormat;
+			depthAttachment.samples						= desc.Samples;
+			depthAttachment.loadOp						= VK_ATTACHMENT_LOAD_OP_LOAD;
+			depthAttachment.storeOp						= VK_ATTACHMENT_STORE_OP_STORE;
+			depthAttachment.stencilLoadOp				= VK_ATTACHMENT_LOAD_OP_LOAD;
+			depthAttachment.stencilStoreOp				= VK_ATTACHMENT_STORE_OP_STORE;
+			depthAttachment.initialLayout				= VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+			depthAttachment.finalLayout					= VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+			attachments.push_back(depthAttachment);
+
+			depthAttachmentReference.sType		= VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2_KHR;
+			depthAttachmentReference.pNext		= nullptr;
+			depthAttachmentReference.attachment = attachmentIndex;
+			depthAttachmentReference.layout		= VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+			attachmentIndex++;
+		}
+
+		if (desc.ResolveFormat)
+		{
+			VkFormat resolveFormat = desc.ResolveFormat.value();
+
+			VkAttachmentDescription2KHR resolveAttachment = {};
+			resolveAttachment.sType						  = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2_KHR;
+			resolveAttachment.pNext						  = nullptr;
+			resolveAttachment.flags						  = 0;
+			resolveAttachment.format					  = resolveFormat;
+			resolveAttachment.samples					  = VK_SAMPLE_COUNT_1_BIT;
+			resolveAttachment.loadOp					  = VK_ATTACHMENT_LOAD_OP_LOAD;
+			resolveAttachment.storeOp					  = VK_ATTACHMENT_STORE_OP_STORE;
+			resolveAttachment.stencilLoadOp				  = VK_ATTACHMENT_LOAD_OP_LOAD;
+			resolveAttachment.stencilStoreOp			  = VK_ATTACHMENT_STORE_OP_STORE;
+			resolveAttachment.initialLayout				  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			resolveAttachment.finalLayout				  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			attachments.push_back(resolveAttachment);
+
+			resolveAttachmentReference.sType	  = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2_KHR;
+			resolveAttachmentReference.pNext	  = nullptr;
+			resolveAttachmentReference.attachment = attachmentIndex;
+			resolveAttachmentReference.layout	  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+			attachmentIndex++;
+		}
+
+		VkSubpassDescription2KHR subpassDescription = {};
+		subpassDescription.sType					= VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_2_KHR;
+		subpassDescription.pNext					= nullptr;
+		subpassDescription.flags					= 0;
+		subpassDescription.pipelineBindPoint		= VK_PIPELINE_BIND_POINT_GRAPHICS;
+		subpassDescription.colorAttachmentCount		= colourAttachmentReferences.size();
+		subpassDescription.pColorAttachments		= colourAttachmentReferences.data();
+		subpassDescription.pDepthStencilAttachment	= nullptr;
+
+		if (desc.DepthFormat)
+		{
+			subpassDescription.pDepthStencilAttachment = &depthAttachmentReference;
+		}
+
+		subpassDescription.inputAttachmentCount	   = 0;
+		subpassDescription.pInputAttachments	   = nullptr;
+		subpassDescription.preserveAttachmentCount = 0;
+		subpassDescription.pPreserveAttachments	   = nullptr;
+		subpassDescription.pResolveAttachments	   = nullptr;
+
+		if (desc.ResolveFormat)
+		{
+			subpassDescription.pResolveAttachments = &resolveAttachmentReference;
+		}
+
+		std::vector<VkSubpassDependency2KHR> dependencies(1);
+		dependencies[0].sType			= VK_STRUCTURE_TYPE_SUBPASS_DEPENDENCY_2_KHR;
+		dependencies[0].pNext			= nullptr;
+		dependencies[0].srcSubpass		= VK_SUBPASS_EXTERNAL;
+		dependencies[0].dstSubpass		= 0;
+		dependencies[0].srcStageMask	= VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+		dependencies[0].dstStageMask	= VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependencies[0].srcAccessMask	= VK_ACCESS_MEMORY_READ_BIT;
+		dependencies[0].dstAccessMask	= VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+		VkRenderPassCreateInfo2KHR createInfo = {};
+		createInfo.sType					  = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2_KHR;
+		createInfo.pNext					  = nullptr;
+		createInfo.flags					  = 0;
+		createInfo.attachmentCount			  = attachments.size();
+		createInfo.pAttachments				  = attachments.data();
+		createInfo.subpassCount				  = 1;
+		createInfo.pSubpasses				  = &subpassDescription;
+		createInfo.dependencyCount			  = dependencies.size();
+		createInfo.pDependencies			  = dependencies.data();
+		createInfo.correlatedViewMaskCount	  = 0;
+		createInfo.pCorrelatedViewMasks		  = nullptr;
+
+		VkRenderPass renderPass = VK_NULL_HANDLE;
+		NX_ASSERT(func(device, &createInfo, nullptr, &renderPass) == VK_SUCCESS, "Failed to create render pass");
+		return renderPass;
+	}
+
+	VkRenderPass CreateRenderPass(Graphics::GraphicsDeviceVk *device, const VulkanRenderPassDescription &desc)
+	{
+		const Graphics::DeviceExtensionFunctions &functions = device->GetExtensionFunctions();
+		if (functions.vkCreateRenderPass2KHR)
+		{
+			return CreateVkRenderPass2(functions.vkCreateRenderPass2KHR, device->GetVkDevice(), desc);
+		}
+		return CreateVkRenderPass(device->GetVkDevice(), desc);
+	}
+
+	VkFramebuffer CreateFramebuffer(VkDevice device, const VulkanFramebufferDescription &desc)
+	{
+		std::vector<VkImageView> attachments = {};
+
+		for (VkImageView colourView : desc.ColourImageViews) { attachments.push_back(colourView); }
+
+		if (desc.DepthImageView)
+		{
+			attachments.push_back(desc.DepthImageView);
+		}
+
+		if (desc.ResolveImageView)
+		{
+			attachments.push_back(desc.ResolveImageView);
+		}
+
+		VkFramebufferCreateInfo createInfo = {};
+		createInfo.sType				   = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+		createInfo.renderPass			   = desc.VulkanRenderPass;
+		createInfo.attachmentCount		   = (uint32_t)attachments.size();
+		createInfo.pAttachments			   = attachments.data();
+		createInfo.width				   = desc.Width;
+		createInfo.height				   = desc.Height;
+		createInfo.layers				   = 1;
+
+		VkFramebuffer framebuffer = VK_NULL_HANDLE;
+
+		NX_ASSERT(vkCreateFramebuffer(device, &createInfo, nullptr, &framebuffer) == VK_SUCCESS, "Failed to create framebuffer");
+
+		return framebuffer;
 	}
 }	 // namespace Nexus::Vk
 

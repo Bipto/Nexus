@@ -32,11 +32,13 @@ namespace Nexus::Graphics
 
 		static Nexus::Graphics::VertexBufferLayout GetLayout()
 		{
-			Nexus::Graphics::VertexBufferLayout layout = {{Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
-														  {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
-														  {Nexus::Graphics::ShaderDataType::Float, "TEXCOORD"},
-														  {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
-														  {Nexus::Graphics::ShaderDataType::UInt2, "TEXCOORD"}};
+			Nexus::Graphics::VertexBufferLayout layout = Graphics::VertexBufferLayout({{Nexus::Graphics::ShaderDataType::Float4, "TEXCOORD"},
+																					   {Nexus::Graphics::ShaderDataType::Float3, "TEXCOORD"},
+																					   {Nexus::Graphics::ShaderDataType::Float, "TEXCOORD"},
+																					   {Nexus::Graphics::ShaderDataType::Float2, "TEXCOORD"},
+																					   {Nexus::Graphics::ShaderDataType::UInt2, "TEXCOORD"}},
+																					  sizeof(BatchVertex),
+																					  Graphics::StepRate::Vertex);
 			return layout;
 		}
 	};

@@ -207,24 +207,24 @@ namespace Nexus::Graphics
 	Nexus::Graphics::ResourceSetSpecification GetResourceSetSpecification()
 	{
 		Nexus::Graphics::ResourceSetSpecification resourceSpec;
-		resourceSpec.SampledImages = {{"texture0", 1, 0, Nexus::Graphics::ResourceType::CombinedImageSampler},
-									  {"texture1", 1, 1, Nexus::Graphics::ResourceType::CombinedImageSampler},
-									  {"texture2", 1, 2, Nexus::Graphics::ResourceType::CombinedImageSampler},
-									  {"texture3", 1, 3, Nexus::Graphics::ResourceType::CombinedImageSampler},
-									  {"texture4", 1, 4, Nexus::Graphics::ResourceType::CombinedImageSampler},
-									  {"texture5", 1, 5, Nexus::Graphics::ResourceType::CombinedImageSampler},
-									  {"texture6", 1, 6, Nexus::Graphics::ResourceType::CombinedImageSampler},
-									  {"texture7", 1, 7, Nexus::Graphics::ResourceType::CombinedImageSampler},
-									  {"texture8", 1, 8, Nexus::Graphics::ResourceType::CombinedImageSampler},
-									  {"texture9", 1, 9, Nexus::Graphics::ResourceType::CombinedImageSampler},
-									  {"texture10", 1, 10, Nexus::Graphics::ResourceType::CombinedImageSampler},
-									  {"texture11", 1, 11, Nexus::Graphics::ResourceType::CombinedImageSampler},
-									  {"texture12", 1, 12, Nexus::Graphics::ResourceType::CombinedImageSampler},
-									  {"texture13", 1, 13, Nexus::Graphics::ResourceType::CombinedImageSampler},
-									  {"texture14", 1, 14, Nexus::Graphics::ResourceType::CombinedImageSampler},
-									  {"texture15", 1, 15, Nexus::Graphics::ResourceType::CombinedImageSampler}};
+		resourceSpec.SampledImages = {{"texture0", 1, 0},
+									  {"texture1", 1, 1},
+									  {"texture2", 1, 2},
+									  {"texture3", 1, 3},
+									  {"texture4", 1, 4},
+									  {"texture5", 1, 5},
+									  {"texture6", 1, 6},
+									  {"texture7", 1, 7},
+									  {"texture8", 1, 8},
+									  {"texture9", 1, 9},
+									  {"texture10", 1, 10},
+									  {"texture11", 1, 11},
+									  {"texture12", 1, 12},
+									  {"texture13", 1, 13},
+									  {"texture14", 1, 14},
+									  {"texture15", 1, 15}};
 
-		resourceSpec.UniformBuffers = {{"MVP", 0, 0, Nexus::Graphics::ResourceType::UniformBuffer}};
+		resourceSpec.UniformBuffers = {{"MVP", 0, 0}};
 
 		return resourceSpec;
 	}
@@ -1189,7 +1189,6 @@ namespace Nexus::Graphics
 		vertexBufferView.BufferHandle	  = info.VertexBuffer;
 		vertexBufferView.Offset			  = 0;
 		vertexBufferView.Size			  = info.VertexBuffer->GetSizeInBytes();
-		vertexBufferView.Stride			  = info.VertexBuffer->GetStrideInBytes();
 		m_CommandList->SetVertexBuffer(vertexBufferView, 0);
 
 		IndexBufferView indexBufferView = {};

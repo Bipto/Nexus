@@ -170,28 +170,42 @@ namespace Nexus::Graphics
 
 	struct DispatchIndirectDescription
 	{
-		Ref<DeviceBuffer>	  IndirectBuffer = {};
-		uint32_t			  Offset		 = 0;
+		Ref<DeviceBuffer> IndirectBuffer = {};
+		uint32_t		  Offset		 = 0;
+	};
+
+	struct DrawMeshDescription
+	{
+		uint32_t WorkGroupCountX = 0;
+		uint32_t WorkGroupCountY = 0;
+		uint32_t WorkGroupCountZ = 0;
+	};
+
+	struct DrawMeshIndirectDescription
+	{
+		Ref<DeviceBuffer> IndirectBuffer = {};
+		uint32_t		  Offset		 = 0;
+		uint32_t		  DrawCount		 = 0;
 	};
 
 	struct ClearColorTargetCommand
 	{
-		uint32_t		Index = {};
-		ClearColorValue Color = {};
+		uint32_t				 Index = {};
+		ClearColorValue			 Color = {};
 		std::optional<ClearRect> Rect  = {};
 	};
 
 	struct ClearDepthStencilTargetCommand
 	{
-		ClearDepthStencilValue Value = {};
+		ClearDepthStencilValue	 Value = {};
 		std::optional<ClearRect> Rect  = {};
 	};
 
 	struct ResolveSamplesToSwapchainCommand
 	{
-		Ref<Framebuffer>	 Source		 = {};
-		uint32_t			 SourceIndex = {};
-		Ref<Swapchain>		 Target		 = {};
+		Ref<Framebuffer> Source		 = {};
+		uint32_t		 SourceIndex = {};
+		Ref<Swapchain>	 Target		 = {};
 	};
 
 	struct StartTimingQueryCommand
@@ -202,25 +216,6 @@ namespace Nexus::Graphics
 	struct StopTimingQueryCommand
 	{
 		Ref<TimingQuery> Query = {};
-	};
-
-	struct SetStencilRefCommand
-	{
-		uint32_t Value = {};
-	};
-
-	struct SetDepthBoundsCommand
-	{
-		float Min = {};
-		float Max = {};
-	};
-
-	struct SetBlendFactorCommand
-	{
-		float R = {};
-		float G = {};
-		float B = {};
-		float A = {};
 	};
 
 	struct CopyBufferToBufferCommand
@@ -252,6 +247,8 @@ namespace Nexus::Graphics
 						 DrawIndirectIndexedDescription,
 						 DispatchDescription,
 						 DispatchIndirectDescription,
+						 DrawMeshDescription,
+						 DrawMeshIndirectDescription,
 						 Ref<ResourceSet>,
 						 ClearColorTargetCommand,
 						 ClearDepthStencilTargetCommand,
@@ -261,9 +258,6 @@ namespace Nexus::Graphics
 						 ResolveSamplesToSwapchainCommand,
 						 StartTimingQueryCommand,
 						 StopTimingQueryCommand,
-						 SetStencilRefCommand,
-						 SetDepthBoundsCommand,
-						 SetBlendFactorCommand,
 						 CopyBufferToBufferCommand,
 						 CopyBufferToTextureCommand,
 						 CopyTextureToBufferCommand,
@@ -322,6 +316,10 @@ namespace Nexus::Graphics
 
 		void DispatchIndirect(const DispatchIndirectDescription &desc);
 
+		void DrawMesh(const DrawMeshDescription &desc);
+
+		void DrawMeshIndirect(const DrawMeshIndirectDescription &desc);
+
 		/// @brief A method that updates the resources bound within a pipeline
 		/// @param resources A reference counted pointer to a ResourceSet
 		void SetResourceSet(Ref<ResourceSet> resources);
@@ -345,12 +343,6 @@ namespace Nexus::Graphics
 		void StartTimingQuery(Ref<TimingQuery> query);
 
 		void StopTimingQuery(Ref<TimingQuery> query);
-
-		void SetStencilRef(uint32_t stencil);
-
-		void SetDepthBounds(float min, float max);
-
-		void SetBlendFactor(float r, float g, float b, float a);
 
 		void CopyBufferToBuffer(const BufferCopyDescription &bufferCopy);
 

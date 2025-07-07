@@ -52,6 +52,25 @@ namespace Nexus::Graphics
 		R8_SNorm,
 		R8_UInt,
 		R8_UNorm,
+
+		// compressed formats
+		ETC2_R8_G8_B8_A1_UNorm,
+		ETC2_R8_G8_B8_A8_UNorm,
+		ETC2_R8_G8_B8_UNorm,
+		BC1_Rgb_UNorm,
+		BC1_Rgb_UNorm_SRgb,
+		BC1_Rgba_UNorm,
+		BC1_Rgba_UNorm_SRgb,
+		BC2_UNorm,
+		BC2_UNorm_SRgb,
+		BC3_UNorm,
+		BC3_UNorm_SRgb,
+		BC4_UNorm,
+		BC4_SNorm,
+		BC5_UNorm,
+		BC5_SNorm,
+		BC7_UNorm,
+		BC7_UNorm_SRgb
 	};
 
 	static size_t GetPixelFormatSizeInBits(PixelFormat format)

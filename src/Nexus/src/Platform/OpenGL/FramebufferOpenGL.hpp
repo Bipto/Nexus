@@ -16,8 +16,8 @@ namespace Nexus::Graphics
 		FramebufferOpenGL(const FramebufferSpecification &spec, GraphicsDeviceOpenGL *graphicsDevice);
 		~FramebufferOpenGL();
 
-		void	BindAsReadBuffer(uint32_t texture);
-		void	BindAsDrawBuffer();
+		void	BindAsReadBuffer(uint32_t texture, const GladGLContext &context);
+		void	BindAsDrawBuffer(const GladGLContext &context);
 		void	Unbind();
 		int32_t GetHandle();
 
@@ -29,8 +29,7 @@ namespace Nexus::Graphics
 
 	  private:
 		virtual void Recreate() override;
-		void		 CreateTextures();
-		void		 DeleteTextures();
+		void		 CreateTextures(const GladGLContext &context);
 
 	  private:
 		unsigned int m_FBO;

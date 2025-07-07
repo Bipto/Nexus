@@ -354,15 +354,15 @@ namespace Nexus::Graphics
 				const auto &element = layout.GetElement(i);
 
 				D3D12_INPUT_CLASSIFICATION classification =
-					(layout.GetInstanceStepRate() != 0) ? D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA : D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+					layout.IsInstanceBuffer() ? D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA : D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
 
-				D3D12_INPUT_ELEMENT_DESC desc = {element.Name.c_str(),
-												 elementIndex,
-												 D3D12::GetD3D12BaseType(element),
-												 layoutIndex,
-												 (UINT)element.Offset,
-												 classification,
-												 layout.GetInstanceStepRate()};
+				D3D12_INPUT_ELEMENT_DESC desc =
+					{element.Name.c_str(), elementIndex, D3D12::GetD3D12BaseType(element), layoutIndex, (UINT)element.Offset, classification, 0};
+
+				if (layout.IsInstanceBuffer())
+				{
+					desc.InstanceDataStepRate = layout.GetInstanceStepRate();
+				}
 
 				m_InputLayout.push_back(desc);
 				elementIndex++;

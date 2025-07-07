@@ -13,6 +13,7 @@
 #include "Nexus-Core/IWindow.hpp"
 #include "Nexus-Core/Types.hpp"
 #include "Pipeline.hpp"
+#include "PixelFormatProperties.hpp"
 #include "ResourceSet.hpp"
 #include "Sampler.hpp"
 #include "ShaderModule.hpp"
@@ -21,14 +22,12 @@
 #include "TimingQuery.hpp"
 #include "Viewport.hpp"
 
-#include "Nexus-Core/Graphics/GraphicsAPIType.hpp"
-
-#include "Nexus-Core/IResource.hpp"
+#include "Nexus-Core/Graphics/GraphicsAPICreateInfo.hpp"
 
 namespace Nexus::Graphics
 {
 	/// @brief A class representing an abstraction over a graphics API
-	class NX_API GraphicsDevice : public IResource
+	class NX_API GraphicsDevice
 	{
 	  public:
 		GraphicsDevice() = default;
@@ -165,10 +164,14 @@ namespace Nexus::Graphics
 										  uint32_t	   width,
 										  uint32_t	   height);
 
-		virtual bool							 Validate() override;
-		virtual void							 SetName(const std::string &name) override;
-		virtual const std::string				&GetName() override;
+		virtual bool							 Validate()				   = 0;
 		virtual std::shared_ptr<IPhysicalDevice> GetPhysicalDevice() const = 0;
+
+		virtual PixelFormatProperties GetPixelFormatProperties(PixelFormat format, TextureType type, TextureUsageFlags usage) const = 0;
+
+		virtual const DeviceFeatures &GetPhysicalDeviceFeatures() const = 0;
+		virtual const DeviceLimits	 &GetPhysicalDeviceLimits() const	= 0;
+		virtual bool				  IsIndexBufferFormatSupported(IndexBufferFormat format) const = 0;
 
 	  private:
 		virtual Ref<ShaderModule> CreateShaderModule(const ShaderModuleSpecification &moduleSpec, const ResourceSetSpecification &resources) = 0;
@@ -176,6 +179,5 @@ namespace Nexus::Graphics
 
 	  protected:
 		Ref<CommandList> m_ImmediateCommandList = nullptr;
-		std::string		 m_Name					= "GraphicsDevice";
 	};
 }	 // namespace Nexus::Graphics

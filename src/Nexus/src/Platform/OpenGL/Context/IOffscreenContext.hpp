@@ -1,16 +1,15 @@
 #pragma once
 
+#include "IGLContext.hpp"
 #include "Nexus-Core/Graphics/IPhysicalDevice.hpp"
 
 namespace Nexus::GL
 {
-	class IOffscreenContext
+	class IOffscreenContext : public IGLContext
 	{
 	  public:
 		virtual ~IOffscreenContext()
 		{
 		}
-		virtual bool MakeCurrent() = 0;
-		virtual bool Validate()	   = 0;
 	};
 }	 // namespace Nexus::GL

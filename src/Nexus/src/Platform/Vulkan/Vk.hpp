@@ -2,6 +2,9 @@
 
 #if defined(NX_PLATFORM_VULKAN)
 
+	#include "vulkan/vulkan.h"
+	#include "vk_mem_alloc.h"
+
 	#include "Nexus-Core/Graphics/Framebuffer.hpp"
 	#include "Nexus-Core/Graphics/SamplerState.hpp"
 	#include "Nexus-Core/Graphics/ShaderDataType.hpp"
@@ -9,10 +12,13 @@
 	#include "Nexus-Core/Graphics/Texture.hpp"
 	#include "Nexus-Core/Graphics/DeviceBuffer.hpp"
 	#include "Nexus-Core/Graphics/CommandList.hpp"
-	#include "vk_mem_alloc.h"
-	#include "vulkan/vulkan.h"
 
 const uint32_t FRAMES_IN_FLIGHT = 3;
+
+namespace Nexus::Graphics
+{
+	class GraphicsDeviceVk;
+}
 
 namespace Nexus::Vk
 {
@@ -47,6 +53,29 @@ namespace Nexus::Vk
 	VkSampleCountFlagBits GetVkSampleCountFlagsFromSampleCount(uint32_t samples);
 
 	VkImageAspectFlagBits GetAspectFlags(Graphics::ImageAspect aspect);
+
+	struct VulkanRenderPassDescription
+	{
+		std::vector<VkFormat>	ColourAttachments = {};
+		std::optional<VkFormat> DepthFormat		  = {};
+		std::optional<VkFormat> ResolveFormat	  = {};
+		VkSampleCountFlagBits	Samples			  = VK_SAMPLE_COUNT_1_BIT;
+		bool					IsSwapchain		  = false;
+	};
+
+	VkRenderPass CreateRenderPass(Graphics::GraphicsDeviceVk *device, const VulkanRenderPassDescription &desc);
+
+	struct VulkanFramebufferDescription
+	{
+		std::vector<VkImageView> ColourImageViews = {};
+		VkImageView				 DepthImageView	  = VK_NULL_HANDLE;
+		VkImageView				 ResolveImageView = VK_NULL_HANDLE;
+		VkRenderPass			 VulkanRenderPass = VK_NULL_HANDLE;
+		uint32_t				 Width			  = 0;
+		uint32_t				 Height			  = 0;
+	};
+
+	VkFramebuffer CreateFramebuffer(VkDevice device, const VulkanFramebufferDescription &desc);
 
 	struct AllocatedBuffer
 	{

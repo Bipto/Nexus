@@ -25,167 +25,13 @@ namespace Nexus::Graphics
 		: GraphicsPipeline(description),
 		  m_GraphicsDevice(graphicsDevice)
 	{
-		std::unique_ptr<ResourceSetVk> resourceSet = std::make_unique<ResourceSetVk>(description.ResourceSetSpec, graphicsDevice);
-
-		const auto						  &pipelineLayouts = resourceSet->GetDescriptorSetLayouts();
-		std::vector<VkDescriptorSetLayout> layouts;
-		for (const auto &layout : pipelineLayouts) { layouts.push_back(layout.second); }
-
-		VkPipelineLayoutCreateInfo layoutInfo = CreatePipelineLayoutCreateInfo(layouts);
-		if (vkCreatePipelineLayout(graphicsDevice->GetVkDevice(), &layoutInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS)
-		{
-			throw std::runtime_error("Failed to create pipeline layout");
-		}
-
-		VkPipelineDepthStencilStateCreateInfo  depthStencilInfo = CreatePipelineDepthStencilStateCreateInfo();
-		VkPipelineRasterizationStateCreateInfo rasterizerInfo	= CreateRasterizationStateCreateInfo(GetPolygonMode(), GetCullMode());
-		VkPipelineMultisampleStateCreateInfo   multisampleInfo	= CreateMultisampleStateCreateInfo();
-
-		VkPipelineViewportStateCreateInfo viewportState = {};
-		viewportState.sType								= VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-		viewportState.pNext								= nullptr;
-
-		viewportState.viewportCount = 1;
-		viewportState.pViewports	= nullptr;
-		viewportState.scissorCount	= 1;
-		viewportState.pScissors		= nullptr;
-
-		std::vector<VkPipelineColorBlendAttachmentState> blendStates = CreateColorBlendAttachmentStates();
-
-		VkPipelineColorBlendStateCreateInfo colorBlending = {};
-		colorBlending.sType								  = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-		colorBlending.pNext								  = nullptr;
-		colorBlending.logicOpEnable						  = VK_FALSE;
-		colorBlending.logicOp							  = VK_LOGIC_OP_COPY;
-		colorBlending.attachmentCount					  = blendStates.size();
-		colorBlending.pAttachments						  = blendStates.data();
-
-		// create vertex input layout
-		std::vector<VkVertexInputAttributeDescription>		   attributeDescriptions;
-		std::vector<VkVertexInputBindingDescription>		   bindingDescriptions;
-		std::vector<VkVertexInputBindingDivisorDescriptionEXT> divisorDescriptions;
-
-		uint32_t elementIndex = 0;
-		for (uint32_t layoutIndex = 0; layoutIndex < m_Description.Layouts.size(); layoutIndex++)
-		{
-			const auto &layout = m_Description.Layouts.at(layoutIndex);
-
-			// create attribute descriptions
-			for (uint32_t i = 0; i < layout.GetNumberOfElements(); i++)
-			{
-				const auto &element = layout.GetElement(i);
-
-				VkVertexInputAttributeDescription attributeDescription = {};
-				attributeDescription.binding						   = layoutIndex;
-				attributeDescription.location						   = elementIndex;
-				attributeDescription.format							   = Vk::GetShaderDataType(element.Type);
-				attributeDescription.offset							   = element.Offset;
-				attributeDescriptions.push_back(attributeDescription);
-
-				elementIndex++;
-			}
-
-			// create binding descriptions
-			VkVertexInputBindingDescription bindingDescription = {};
-			bindingDescription.binding						   = layoutIndex;
-			bindingDescription.stride						   = 0;
-			bindingDescription.inputRate = (layout.GetInstanceStepRate() != 0) ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX;
-			bindingDescriptions.push_back(bindingDescription);
-
-			if (layout.IsInstanceBuffer())
-			{
-				VkVertexInputBindingDivisorDescriptionEXT divisorDescription = {};
-				divisorDescription.binding									 = layoutIndex;
-				divisorDescription.divisor									 = layout.GetInstanceStepRate();
-				divisorDescriptions.push_back(divisorDescription);
-			}
-		}
-
-		VkPipelineVertexInputDivisorStateCreateInfoEXT divisorInfo = {};
-		divisorInfo.sType										   = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO_EXT;
-		divisorInfo.pNext										   = nullptr;
-		divisorInfo.vertexBindingDivisorCount					   = divisorDescriptions.size();
-		divisorInfo.pVertexBindingDivisors						   = divisorDescriptions.data();
-
-		VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
-		vertexInputInfo.sType								 = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		vertexInputInfo.pNext								 = nullptr;
-
-		if (divisorInfo.vertexBindingDivisorCount > 0)
-		{
-			vertexInputInfo.pNext = &divisorInfo;
-		}
-
-		vertexInputInfo.vertexBindingDescriptionCount	= bindingDescriptions.size();
-		vertexInputInfo.pVertexBindingDescriptions		= bindingDescriptions.data();
-		vertexInputInfo.vertexAttributeDescriptionCount = attributeDescriptions.size();
-		vertexInputInfo.pVertexAttributeDescriptions	= attributeDescriptions.data();
-
-		VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo = CreateInputAssemblyCreateInfo(GetPrimitiveTopology());
-
-		const auto &shaderStages = GetShaderStages();
-
-		std::vector<VkFormat> colourFormats;
-
-		for (uint32_t i = 0; i < m_Description.ColourTargetCount; i++)
-		{
-			colourFormats.push_back(Vk::GetVkPixelDataFormat(m_Description.ColourFormats[i], false));
-		}
-
-		VkFormat depthStencilFormat = Vk::GetVkPixelDataFormat(m_Description.DepthFormat, true);
-
-		VkPipelineRenderingCreateInfo pipelineRenderingCreateInfo = {};
-		pipelineRenderingCreateInfo.sType						  = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
-		pipelineRenderingCreateInfo.colorAttachmentCount		  = colourFormats.size();
-		pipelineRenderingCreateInfo.pColorAttachmentFormats		  = colourFormats.data();
-		pipelineRenderingCreateInfo.depthAttachmentFormat		  = depthStencilFormat;
-		pipelineRenderingCreateInfo.stencilAttachmentFormat		  = depthStencilFormat;
-
-		// create pipeline
-		VkGraphicsPipelineCreateInfo pipelineInfo = {};
-		pipelineInfo.sType						  = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-		pipelineInfo.pNext						  = &pipelineRenderingCreateInfo;
-		pipelineInfo.stageCount					  = shaderStages.size();
-		pipelineInfo.pStages					  = shaderStages.data();
-		pipelineInfo.pVertexInputState			  = &vertexInputInfo;
-		pipelineInfo.pInputAssemblyState		  = &inputAssemblyInfo;
-		pipelineInfo.pViewportState				  = &viewportState;
-		pipelineInfo.pRasterizationState		  = &rasterizerInfo;
-		pipelineInfo.pMultisampleState			  = &multisampleInfo;
-		pipelineInfo.pColorBlendState			  = &colorBlending;
-		pipelineInfo.pDepthStencilState			  = &depthStencilInfo;
-		pipelineInfo.layout						  = m_PipelineLayout;
-
-		VkPipelineDynamicStateCreateInfo dynamicInfo = {};
-		dynamicInfo.sType							 = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-		dynamicInfo.pNext							 = nullptr;
-		dynamicInfo.flags							 = 0;
-
-		std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT,
-													 VK_DYNAMIC_STATE_SCISSOR,
-													 VK_DYNAMIC_STATE_STENCIL_REFERENCE,
-													 VK_DYNAMIC_STATE_DEPTH_BOUNDS,
-													 VK_DYNAMIC_STATE_BLEND_CONSTANTS,
-													 VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE};
-
-		dynamicInfo.dynamicStateCount = dynamicStates.size();
-		dynamicInfo.pDynamicStates	  = dynamicStates.data();
-
-		pipelineInfo.pDynamicState = &dynamicInfo;
-		pipelineInfo.renderPass	   = nullptr;
-
-		pipelineInfo.subpass			= 0;
-		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
-
-		if (vkCreateGraphicsPipelines(m_GraphicsDevice->GetVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_Pipeline) != VK_SUCCESS)
-		{
-			throw std::runtime_error("Failed to create graphics pipeline");
-		}
+		CreatePipelineLayout();
 	}
 
 	GraphicsPipelineVk::~GraphicsPipelineVk()
 	{
-		vkDestroyPipeline(m_GraphicsDevice->GetVkDevice(), m_Pipeline, nullptr);
+		for (const auto &[renderPass, pipeline] : m_Pipelines) { vkDestroyPipeline(m_GraphicsDevice->GetVkDevice(), pipeline, nullptr); }
+
 		vkDestroyPipelineLayout(m_GraphicsDevice->GetVkDevice(), m_PipelineLayout, nullptr);
 	}
 
@@ -194,19 +40,21 @@ namespace Nexus::Graphics
 		return m_Description;
 	}
 
-	VkPipeline GraphicsPipelineVk::GetPipeline()
-	{
-		return m_Pipeline;
-	}
-
 	VkPipelineLayout GraphicsPipelineVk::GetPipelineLayout()
 	{
 		return m_PipelineLayout;
 	}
 
-	void GraphicsPipelineVk::Bind(VkCommandBuffer cmd)
+	void GraphicsPipelineVk::Bind(VkCommandBuffer cmd, VkRenderPass renderPass, const std::map<uint32_t, size_t> &strides)
 	{
-		vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
+		if (m_Pipelines.find(renderPass) == m_Pipelines.end())
+		{
+			m_Pipelines[renderPass] = CreateGraphicsPipeline(renderPass);
+		}
+
+		VkPipeline pipeline = m_Pipelines.at(renderPass);
+		NX_ASSERT(pipeline, "Failed to find a valid pipeline");
+		vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 	}
 
 	void GraphicsPipelineVk::SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet)
@@ -439,7 +287,194 @@ namespace Nexus::Graphics
 			shaderStages.push_back(CreateShaderStageCreateInfo(vulkanVertexModule));
 		}
 
+		if (m_Description.MeshModule)
+		{
+			auto vulkanMeshModule = std::dynamic_pointer_cast<ShaderModuleVk>(m_Description.MeshModule);
+			NX_ASSERT(vulkanMeshModule->GetShaderStage() == ShaderStage::Mesh, "Shader module is not a mesh shader");
+			shaderStages.push_back(CreateShaderStageCreateInfo(vulkanMeshModule));
+		}
+
+		if (m_Description.TaskModule)
+		{
+			auto vulkanTaskModule = std::dynamic_pointer_cast<ShaderModuleVk>(m_Description.MeshModule);
+			NX_ASSERT(vulkanTaskModule->GetShaderStage() == ShaderStage::Task, "Shader module is not a task shader");
+			shaderStages.push_back(CreateShaderStageCreateInfo(vulkanTaskModule));
+		}
+
 		return shaderStages;
+	}
+
+	void GraphicsPipelineVk::CreatePipelineLayout()
+	{
+		std::unique_ptr<ResourceSetVk> resourceSet = std::make_unique<ResourceSetVk>(m_Description.ResourceSetSpec, m_GraphicsDevice);
+
+		const auto						  &pipelineLayouts = resourceSet->GetDescriptorSetLayouts();
+		std::vector<VkDescriptorSetLayout> layouts;
+		for (const auto &layout : pipelineLayouts) { layouts.push_back(layout.second); }
+
+		VkPipelineLayoutCreateInfo layoutInfo = CreatePipelineLayoutCreateInfo(layouts);
+		if (vkCreatePipelineLayout(m_GraphicsDevice->GetVkDevice(), &layoutInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to create pipeline layout");
+		}
+	}
+
+	VkPipeline GraphicsPipelineVk::CreateGraphicsPipeline(VkRenderPass renderPass)
+	{
+		const VulkanDeviceFeatures &deviceFeatures = m_GraphicsDevice->GetDeviceFeatures();
+
+		VkPipelineDepthStencilStateCreateInfo  depthStencilInfo = CreatePipelineDepthStencilStateCreateInfo();
+		VkPipelineRasterizationStateCreateInfo rasterizerInfo	= CreateRasterizationStateCreateInfo(GetPolygonMode(), GetCullMode());
+		VkPipelineMultisampleStateCreateInfo   multisampleInfo	= CreateMultisampleStateCreateInfo();
+
+		VkPipelineViewportStateCreateInfo viewportState = {};
+		viewportState.sType								= VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+		viewportState.pNext								= nullptr;
+
+		viewportState.viewportCount = 1;
+		viewportState.pViewports	= nullptr;
+		viewportState.scissorCount	= 1;
+		viewportState.pScissors		= nullptr;
+
+		std::vector<VkPipelineColorBlendAttachmentState> blendStates = CreateColorBlendAttachmentStates();
+
+		VkPipelineColorBlendStateCreateInfo colorBlending = {};
+		colorBlending.sType								  = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+		colorBlending.pNext								  = nullptr;
+		colorBlending.logicOpEnable						  = VK_FALSE;
+		colorBlending.logicOp							  = VK_LOGIC_OP_COPY;
+		colorBlending.attachmentCount					  = blendStates.size();
+		colorBlending.pAttachments						  = blendStates.data();
+
+		// create vertex input layout
+		std::vector<VkVertexInputAttributeDescription>		   attributeDescriptions;
+		std::vector<VkVertexInputBindingDescription>		   bindingDescriptions;
+		std::vector<VkVertexInputBindingDivisorDescriptionEXT> divisorDescriptions;
+
+		uint32_t elementIndex = 0;
+		for (uint32_t layoutIndex = 0; layoutIndex < m_Description.Layouts.size(); layoutIndex++)
+		{
+			const auto &layout = m_Description.Layouts.at(layoutIndex);
+
+			// create attribute descriptions
+			for (uint32_t i = 0; i < layout.GetNumberOfElements(); i++)
+			{
+				const auto &element = layout.GetElement(i);
+
+				VkVertexInputAttributeDescription attributeDescription = {};
+				attributeDescription.binding						   = layoutIndex;
+				attributeDescription.location						   = elementIndex;
+				attributeDescription.format							   = Vk::GetShaderDataType(element.Type);
+				attributeDescription.offset							   = element.Offset;
+				attributeDescriptions.push_back(attributeDescription);
+
+				elementIndex++;
+			}
+
+			// create binding descriptions
+			VkVertexInputBindingDescription bindingDescription = {};
+			bindingDescription.binding						   = layoutIndex;
+			bindingDescription.stride						   = layout.GetStride();
+
+			bindingDescription.inputRate = layout.IsInstanceBuffer() ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX;
+			bindingDescriptions.push_back(bindingDescription);
+
+			if (layout.IsInstanceBuffer())
+			{
+				VkVertexInputBindingDivisorDescriptionEXT divisorDescription = {};
+				divisorDescription.binding									 = layoutIndex;
+				divisorDescription.divisor									 = layout.GetInstanceStepRate();
+				divisorDescriptions.push_back(divisorDescription);
+			}
+		}
+
+		VkPipelineVertexInputDivisorStateCreateInfoEXT divisorInfo = {};
+		divisorInfo.sType										   = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO_EXT;
+		divisorInfo.pNext										   = nullptr;
+		divisorInfo.vertexBindingDivisorCount					   = divisorDescriptions.size();
+		divisorInfo.pVertexBindingDivisors						   = divisorDescriptions.data();
+
+		VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
+		vertexInputInfo.sType								 = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+		vertexInputInfo.pNext								 = nullptr;
+
+		if (divisorInfo.vertexBindingDivisorCount > 0)
+		{
+			vertexInputInfo.pNext = &divisorInfo;
+		}
+
+		vertexInputInfo.vertexBindingDescriptionCount	= bindingDescriptions.size();
+		vertexInputInfo.pVertexBindingDescriptions		= bindingDescriptions.data();
+		vertexInputInfo.vertexAttributeDescriptionCount = attributeDescriptions.size();
+		vertexInputInfo.pVertexAttributeDescriptions	= attributeDescriptions.data();
+
+		VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo = CreateInputAssemblyCreateInfo(GetPrimitiveTopology());
+
+		const auto &shaderStages = GetShaderStages();
+
+		std::vector<VkFormat> colourFormats;
+
+		for (uint32_t i = 0; i < m_Description.ColourTargetCount; i++)
+		{
+			colourFormats.push_back(Vk::GetVkPixelDataFormat(m_Description.ColourFormats[i], false));
+		}
+
+		VkFormat depthStencilFormat = Vk::GetVkPixelDataFormat(m_Description.DepthFormat, true);
+
+		VkPipelineRenderingCreateInfo pipelineRenderingCreateInfo = {};
+		pipelineRenderingCreateInfo.sType						  = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
+		pipelineRenderingCreateInfo.colorAttachmentCount		  = colourFormats.size();
+		pipelineRenderingCreateInfo.pColorAttachmentFormats		  = colourFormats.data();
+		pipelineRenderingCreateInfo.depthAttachmentFormat		  = depthStencilFormat;
+		pipelineRenderingCreateInfo.stencilAttachmentFormat		  = depthStencilFormat;
+
+		// create pipeline
+		VkGraphicsPipelineCreateInfo pipelineInfo = {};
+		pipelineInfo.sType						  = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+
+		pipelineInfo.pNext = nullptr;
+
+		// enable dynamic rendering if requested and available
+		if (deviceFeatures.DynamicRenderingAvailable)
+		{
+			pipelineInfo.pNext = &pipelineRenderingCreateInfo;
+		}
+
+		pipelineInfo.stageCount			 = shaderStages.size();
+		pipelineInfo.pStages			 = shaderStages.data();
+		pipelineInfo.pVertexInputState	 = &vertexInputInfo;
+		pipelineInfo.pInputAssemblyState = &inputAssemblyInfo;
+		pipelineInfo.pViewportState		 = &viewportState;
+		pipelineInfo.pRasterizationState = &rasterizerInfo;
+		pipelineInfo.pMultisampleState	 = &multisampleInfo;
+		pipelineInfo.pColorBlendState	 = &colorBlending;
+		pipelineInfo.pDepthStencilState	 = &depthStencilInfo;
+		pipelineInfo.layout				 = m_PipelineLayout;
+
+		VkPipelineDynamicStateCreateInfo dynamicInfo = {};
+		dynamicInfo.sType							 = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+		dynamicInfo.pNext							 = nullptr;
+		dynamicInfo.flags							 = 0;
+
+		std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
+
+		dynamicInfo.dynamicStateCount = dynamicStates.size();
+		dynamicInfo.pDynamicStates	  = dynamicStates.data();
+
+		pipelineInfo.pDynamicState = &dynamicInfo;
+		pipelineInfo.renderPass	   = renderPass;
+
+		pipelineInfo.subpass			= 0;
+		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+
+		VkPipeline pipeline = VK_NULL_HANDLE;
+
+		if (vkCreateGraphicsPipelines(m_GraphicsDevice->GetVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to create graphics pipeline");
+		}
+
+		return pipeline;
 	}
 
 	ComputePipelineVk::ComputePipelineVk(const ComputePipelineDescription &description, GraphicsDeviceVk *graphicsDevice)
@@ -484,7 +519,7 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void ComputePipelineVk::Bind(VkCommandBuffer cmd)
+	void ComputePipelineVk::Bind(VkCommandBuffer cmd, VkRenderPass renderPass, const std::map<uint32_t, size_t> &strides)
 	{
 		vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, m_Pipeline);
 	}

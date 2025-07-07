@@ -1,17 +1,12 @@
 #pragma once
 
+#include "Nexus-Core/Graphics/GraphicsAPICreateInfo.hpp"
 #include "Nexus-Core/Graphics/GraphicsDevice.hpp"
 #include "Nexus-Core/Graphics/IPhysicalDevice.hpp"
 #include "Nexus-Core/nxpch.hpp"
 
 namespace Nexus::Graphics
 {
-
-	struct GraphicsAPICreateInfo
-	{
-		GraphicsAPI API	  = GraphicsAPI::OpenGL;
-		bool		Debug = false;
-	};
 
 	class NX_API IGraphicsAPI
 	{

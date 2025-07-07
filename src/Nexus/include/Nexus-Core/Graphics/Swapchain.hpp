@@ -30,6 +30,7 @@ namespace Nexus::Graphics
 		virtual void					 Prepare()							  = 0;
 		virtual Nexus::Point2D<uint32_t> GetSize()							  = 0;
 		virtual PixelFormat				 GetColourFormat()					  = 0;
+		virtual PixelFormat				 GetDepthFormat()					  = 0;
 
 		const SwapchainSpecification &GetSpecification()
 		{

@@ -15,8 +15,8 @@ namespace Nexus::Graphics
 		{
 		}
 
-		virtual void Bind(VkCommandBuffer cmd)											 = 0;
-		virtual void SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet) = 0;
+		virtual void Bind(VkCommandBuffer cmd, VkRenderPass renderPass, const std::map<uint32_t, size_t> &strides) = 0;
+		virtual void SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet)						   = 0;
 	};
 
 	VkPipelineLayoutCreateInfo CreatePipelineLayoutCreateInfo(const std::vector<VkDescriptorSetLayout> &layouts);
@@ -27,10 +27,9 @@ namespace Nexus::Graphics
 		GraphicsPipelineVk(const GraphicsPipelineDescription &description, GraphicsDeviceVk *graphicsDevice);
 		~GraphicsPipelineVk();
 		virtual const GraphicsPipelineDescription &GetPipelineDescription() const override;
-		VkPipeline								   GetPipeline();
 		VkPipelineLayout						   GetPipelineLayout();
 
-		virtual void Bind(VkCommandBuffer cmd) final;
+		virtual void Bind(VkCommandBuffer cmd, VkRenderPass renderPass, const std::map<uint32_t, size_t> &) final;
 		virtual void SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet) final;
 
 	  private:
@@ -47,10 +46,13 @@ namespace Nexus::Graphics
 
 		std::vector<VkPipelineShaderStageCreateInfo> GetShaderStages();
 
+		void	   CreatePipelineLayout();
+		VkPipeline CreateGraphicsPipeline(VkRenderPass renderPass);
+
 	  private:
-		VkPipelineLayout  m_PipelineLayout;
-		VkPipeline		  m_Pipeline;
-		GraphicsDeviceVk *m_GraphicsDevice;
+		VkPipelineLayout															 m_PipelineLayout;
+		std::map<VkRenderPass, VkPipeline>											 m_Pipelines;
+		GraphicsDeviceVk															*m_GraphicsDevice;
 	};
 
 	class ComputePipelineVk : public ComputePipeline, public PipelineVk
@@ -58,7 +60,7 @@ namespace Nexus::Graphics
 	  public:
 		ComputePipelineVk(const ComputePipelineDescription &description, GraphicsDeviceVk *graphicsDevice);
 		virtual ~ComputePipelineVk();
-		virtual void Bind(VkCommandBuffer cmd) final;
+		virtual void Bind(VkCommandBuffer cmd, VkRenderPass renderPass, const std::map<uint32_t, size_t> &strides) final;
 		virtual void SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet) final;
 
 	  private:

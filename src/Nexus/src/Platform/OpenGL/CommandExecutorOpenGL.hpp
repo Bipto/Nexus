@@ -28,6 +28,8 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(DrawIndirectIndexedDescription command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(DispatchDescription command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(DispatchIndirectDescription command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DrawMeshDescription command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(DrawMeshIndirectDescription command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(Ref<ResourceSet> command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(ClearColorTargetCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(ClearDepthStencilTargetCommand command, GraphicsDevice *device) override;
@@ -37,9 +39,6 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(ResolveSamplesToSwapchainCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(StartTimingQueryCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(StopTimingQueryCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(SetStencilRefCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(SetDepthBoundsCommand command, GraphicsDevice *device) override;
-		virtual void ExecuteCommand(SetBlendFactorCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(const CopyBufferToBufferCommand &command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(const CopyBufferToTextureCommand &command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(const CopyTextureToBufferCommand &command, GraphicsDevice *device) override;
@@ -48,13 +47,13 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(EndDebugGroupCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(InsertDebugMarkerCommand command, GraphicsDevice *device) override;
 
-		void BindResourceSet(Ref<ResourceSetOpenGL> resourceSet);
-		void ExecuteGraphicsCommand(Ref<GraphicsPipelineOpenGL>									 pipeline,
-									const std::map<uint32_t, Nexus::Graphics::VertexBufferView> &vertexBuffers,
-									std::optional<Nexus::Graphics::IndexBufferView>				 indexBuffer,
-									uint32_t													 vertexOffset,
-									uint32_t													 instanceOffset,
-									std::function<void(Ref<GraphicsPipelineOpenGL> pipeline)>	 drawCall);
+		void BindResourceSet(Ref<ResourceSetOpenGL> resourceSet, const GladGLContext &context);
+		void ExecuteGraphicsCommand(Ref<GraphicsPipelineOpenGL>																pipeline,
+									const std::map<uint32_t, Nexus::Graphics::VertexBufferView>							   &vertexBuffers,
+									std::optional<Nexus::Graphics::IndexBufferView>											indexBuffer,
+									uint32_t																				vertexOffset,
+									uint32_t																				instanceOffset,
+									std::function<void(Ref<GraphicsPipelineOpenGL> pipeline, const GladGLContext &context)> drawCall);
 
 	  private:
 		std::optional<Ref<Pipeline>>											m_CurrentlyBoundPipeline	  = {};

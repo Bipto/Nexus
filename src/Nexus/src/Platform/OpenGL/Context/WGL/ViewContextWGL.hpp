@@ -21,6 +21,7 @@ namespace Nexus::GL
 		virtual void						SetVSync(bool enabled) override;
 		virtual const ContextSpecification &GetSpecification() const override;
 		virtual bool						Validate() override;
+		virtual const GladGLContext		   &GetContext() const override;
 
 	  private:
 		HGLRC CreateSharedContext(HDC hdc, HGLRC sharedContext, const ContextSpecification &spec);
@@ -32,6 +33,8 @@ namespace Nexus::GL
 
 		OffscreenContextWGL *m_PBuffer		 = {};
 		ContextSpecification m_Specification = {};
+
+		OpenGLFunctionContext m_FunctionContext = {};
 	};
 }	 // namespace Nexus::GL
 

@@ -6,7 +6,7 @@
 int main()
 {
 	Nexus::Graphics::GraphicsAPICreateInfo createInfo = {};
-	createInfo.API									  = Nexus::Graphics::GraphicsAPI::D3D12;
+	createInfo.API									  = Nexus::Graphics::GraphicsAPI::OpenGL;
 	std::unique_ptr<Nexus::Graphics::IGraphicsAPI> api =
 		std::unique_ptr<Nexus::Graphics::IGraphicsAPI>(Nexus::Graphics::IGraphicsAPI::CreateAPI(createInfo));
 

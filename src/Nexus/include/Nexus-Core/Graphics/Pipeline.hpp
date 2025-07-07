@@ -58,12 +58,29 @@ namespace Nexus::Graphics
 
 		/// @brief The vertex shader to use with the pipeline (optional)
 		Ref<ShaderModule> VertexModule = nullptr;
+
+		/// @brief The mesh shader to use with the pipeline (optional)
+		Ref<ShaderModule> MeshModule = nullptr;
+
+		/// @brief The task shader to use with the pipeline (optional)
+		Ref<ShaderModule> TaskModule = nullptr;
 	};
 
 	struct ComputePipelineDescription
 	{
 		ResourceSetSpecification ResourceSetSpec = {};
 		Ref<ShaderModule>		 ComputeShader	 = nullptr;
+	};
+
+	struct RayTracingPipelineDescription
+	{
+		ResourceSetSpecification ResourceSetSpec	   = {};
+		Ref<ShaderModule>		 RayGenShader		   = nullptr;
+		Ref<ShaderModule>		 RayMissShader		   = nullptr;
+		Ref<ShaderModule>		 RayClosestHitShader   = nullptr;
+		Ref<ShaderModule>		 RayAnyHitShader	   = nullptr;
+		Ref<ShaderModule>		 RayIntersectionShader = nullptr;
+		uint32_t				 MaxRecursionDepth	   = 0;
 	};
 
 	enum class PipelineType
