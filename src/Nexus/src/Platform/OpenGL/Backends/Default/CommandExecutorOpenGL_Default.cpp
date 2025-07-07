@@ -16,17 +16,28 @@ namespace Nexus::Graphics
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
 			{
-				context.BindBuffer(GL_COPY_READ_BUFFER, src->GetHandle());
-				context.BindBuffer(GL_COPY_WRITE_BUFFER, dst->GetHandle());
+				if (context.ARB_direct_state_access || context.EXT_direct_state_access)
+				{
+					context.CopyNamedBufferSubData(src->GetHandle(),
+												   dst->GetHandle(),
+												   command.BufferCopy.ReadOffset,
+												   command.BufferCopy.WriteOffset,
+												   command.BufferCopy.Size);
+				}
+				else
+				{
+					context.BindBuffer(GL_COPY_READ_BUFFER, src->GetHandle());
+					context.BindBuffer(GL_COPY_WRITE_BUFFER, dst->GetHandle());
 
-				context.CopyBufferSubData(GL_COPY_READ_BUFFER,
-										  GL_COPY_WRITE_BUFFER,
-										  command.BufferCopy.ReadOffset,
-										  command.BufferCopy.WriteOffset,
-										  command.BufferCopy.Size);
+					context.CopyBufferSubData(GL_COPY_READ_BUFFER,
+											  GL_COPY_WRITE_BUFFER,
+											  command.BufferCopy.ReadOffset,
+											  command.BufferCopy.WriteOffset,
+											  command.BufferCopy.Size);
 
-				context.BindBuffer(GL_COPY_READ_BUFFER, 0);
-				context.BindBuffer(GL_COPY_WRITE_BUFFER, 0);
+					context.BindBuffer(GL_COPY_READ_BUFFER, 0);
+					context.BindBuffer(GL_COPY_WRITE_BUFFER, 0);
+				}
 			});
 	}
 }	 // namespace Nexus::Graphics

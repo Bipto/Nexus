@@ -619,13 +619,13 @@ namespace Nexus::GL
 		}
 	}
 
-	void AttachTexture(GLuint						framebuffer,
-					   Ref<Graphics::TextureOpenGL> texture,
-					   uint32_t						mipLevel,
-					   uint32_t						arrayLayer,
-					   Graphics::ImageAspect		aspect,
-					   uint32_t						colourIndex,
-					   const GladGLContext		   &context)
+	void AttachTextureNonDSA(GLuint						  framebuffer,
+							 Ref<Graphics::TextureOpenGL> texture,
+							 uint32_t					  mipLevel,
+							 uint32_t					  arrayLayer,
+							 Graphics::ImageAspect		  aspect,
+							 uint32_t					  colourIndex,
+							 const GladGLContext		 &context)
 	{
 		glCall(context.BindFramebuffer(GL_FRAMEBUFFER, framebuffer));
 		GLenum attachmentType = GL::GetAttachmentType(aspect, colourIndex);
@@ -665,6 +665,17 @@ namespace Nexus::GL
 				break;
 			default: throw std::runtime_error("Could not find a valid texture format type");
 		}
+	}
+
+	void AttachTexture(GLuint						framebuffer,
+					   Ref<Graphics::TextureOpenGL> texture,
+					   uint32_t						mipLevel,
+					   uint32_t						arrayLayer,
+					   Graphics::ImageAspect		aspect,
+					   uint32_t						colourIndex,
+					   const GladGLContext		   &context)
+	{
+		AttachTextureNonDSA(framebuffer, texture, mipLevel, arrayLayer, aspect, colourIndex, context);
 	}
 
 	void GetBaseType(const Graphics::VertexBufferElement &element,
@@ -1027,11 +1038,94 @@ namespace Nexus::GL
 	#endif
 	}
 
-	void CopyBufferToTexture(Ref<Graphics::TextureOpenGL>	   texture,
-							 Ref<Graphics::DeviceBufferOpenGL> buffer,
-							 uint32_t						   bufferOffset,
-							 Graphics::SubresourceDescription  subresource,
-							 const GladGLContext			  &context)
+	void CopyBufferToTextureDSA(Ref<Graphics::TextureOpenGL>	  texture,
+								Ref<Graphics::DeviceBufferOpenGL> buffer,
+								uint32_t						  bufferOffset,
+								Graphics::SubresourceDescription  subresource,
+								const GladGLContext				 &context)
+	{
+		NX_ASSERT(texture->GetSpecification().Samples == 1, "Cannot set data in a multisampled texture");
+
+		if (subresource.Depth > 1)
+		{
+			NX_ASSERT(texture->GetSpecification().Type == Graphics::TextureType::Texture3D,
+					  "Attempting to set data in a multi-layer texture, but texture is not multi layer");
+		}
+
+		GLenum dataFormat = texture->GetDataFormat();
+		GLenum baseType	  = texture->GetBaseType();
+
+		context.BindBuffer(GL_PIXEL_UNPACK_BUFFER, buffer->GetHandle());
+
+		GLenum	 glAspect	= GL::GetGLImageAspect(subresource.Aspect);
+		uint32_t bufferSize = (subresource.Width - subresource.X) * (subresource.Height - subresource.Y) *
+							  (uint32_t)GetPixelFormatSizeInBytes(texture->GetSpecification().Format);
+
+		switch (texture->GetInternalGLTextureFormat())
+		{
+			case GL::GLInternalTextureFormat::Texture1D:
+	#if !defined(__EMSCRIPTEN__)
+				glCall(context.TextureSubImage1D(texture->GetHandle(),
+												 subresource.MipLevel,
+												 subresource.X,
+												 subresource.Width,
+												 dataFormat,
+												 baseType,
+												 (const void *)(uint64_t)bufferOffset));
+				break;
+	#else
+				throw std::runtime_error("1D textures are not supported in WebGL");
+	#endif
+			case GL::GLInternalTextureFormat::Texture1DArray:
+			case GL::GLInternalTextureFormat::Texture2D:
+			case GL::GLInternalTextureFormat::Texture2DMultisample:
+				glCall(context.TextureSubImage2D(texture->GetHandle(),
+												 subresource.MipLevel,
+												 subresource.X,
+												 subresource.Y,
+												 subresource.Width,
+												 subresource.Height,
+												 dataFormat,
+												 baseType,
+												 (const void *)(uint64_t)bufferOffset));
+				break;
+			case GL::GLInternalTextureFormat::Cubemap:
+				glCall(context.TextureSubImage2D(texture->GetHandle(),
+												 subresource.MipLevel,
+												 subresource.X,
+												 subresource.Y,
+												 subresource.Width,
+												 subresource.Height,
+												 dataFormat,
+												 baseType,
+												 (const void *)(uint64_t)bufferOffset));
+				break;
+			case GL::GLInternalTextureFormat::Texture2DArray:
+			case GL::GLInternalTextureFormat::CubemapArray:
+			case GL::GLInternalTextureFormat::Texture3D:
+			case GL::GLInternalTextureFormat::Texture2DArrayMultisample:
+				glCall(context.TextureSubImage3D(texture->GetHandle(),
+												 subresource.MipLevel,
+												 subresource.X,
+												 subresource.Y,
+												 subresource.ArrayLayer,
+												 subresource.Width,
+												 subresource.Height,
+												 subresource.Depth,
+												 dataFormat,
+												 baseType,
+												 (const void *)(uint64_t)bufferOffset));
+				break;
+		}
+
+		context.BindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+	}
+
+	void CopyBufferToTextureNonDSA(Ref<Graphics::TextureOpenGL>		 texture,
+								   Ref<Graphics::DeviceBufferOpenGL> buffer,
+								   uint32_t							 bufferOffset,
+								   Graphics::SubresourceDescription	 subresource,
+								   const GladGLContext				&context)
 	{
 		NX_ASSERT(texture->GetSpecification().Samples == 1, "Cannot set data in a multisampled texture");
 
@@ -1113,11 +1207,72 @@ namespace Nexus::GL
 		glCall(context.BindTexture(textureType, 0));
 	}
 
-	void CopyTextureToBuffer(Ref<Graphics::TextureOpenGL>	   texture,
+	void CopyBufferToTexture(Ref<Graphics::TextureOpenGL>	   texture,
 							 Ref<Graphics::DeviceBufferOpenGL> buffer,
 							 uint32_t						   bufferOffset,
 							 Graphics::SubresourceDescription  subresource,
 							 const GladGLContext			  &context)
+	{
+		if (context.ARB_direct_state_access || context.EXT_direct_state_access)
+		{
+			CopyBufferToTextureDSA(texture, buffer, bufferOffset, subresource, context);
+		}
+		else
+		{
+			CopyBufferToTextureNonDSA(texture, buffer, bufferOffset, subresource, context);
+		}
+	}
+
+	void CopyTextureToBufferDSA(Ref<Graphics::TextureOpenGL>	  texture,
+								Ref<Graphics::DeviceBufferOpenGL> buffer,
+								uint32_t						  bufferOffset,
+								Graphics::SubresourceDescription  subresource,
+								const GladGLContext				 &context)
+	{
+		const auto &textureSpecification = texture->GetSpecification();
+
+		size_t layerSize =
+			(subresource.Width - subresource.X) * (subresource.Height - subresource.Y) * GetPixelFormatSizeInBytes(textureSpecification.Format);
+		size_t bufferSize = layerSize * subresource.Depth;
+		GLenum glAspect	  = GL::GetGLImageAspect(subresource.Aspect);
+
+		GLenum dataFormat = texture->GetDataFormat();
+		GLenum baseType	  = texture->GetBaseType();
+
+		context.BindBuffer(GL_PIXEL_PACK_BUFFER, buffer->GetHandle());
+
+		for (uint32_t layer = subresource.Z; layer < subresource.Depth; layer++)
+		{
+			GLuint framebufferHandle = 0;
+			glCall(context.CreateFramebuffers(1, &framebufferHandle));
+			GL::AttachTexture(framebufferHandle, texture, subresource.MipLevel, layer, subresource.Aspect, 0, context);
+
+			if (context.CheckNamedFramebufferStatus(framebufferHandle, GL_READ_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			{
+				throw std::runtime_error("Framebuffer incomplete during texture read");
+			}
+
+			glCall(context.ReadBuffer(GL_COLOR_ATTACHMENT0));
+			glCall(context.ReadPixels(subresource.X,
+									  subresource.Y,
+									  subresource.Width,
+									  subresource.Height,
+									  dataFormat,
+									  baseType,
+									  (void *)(uint64_t)bufferOffset));
+
+			glCall(context.DeleteFramebuffers(1, &framebufferHandle));
+			bufferOffset += layerSize;
+		}
+
+		glCall(context.BindBuffer(GL_PIXEL_PACK_BUFFER, 0));
+	}
+
+	void CopyTextureToBufferNonDSA(Ref<Graphics::TextureOpenGL>		 texture,
+								   Ref<Graphics::DeviceBufferOpenGL> buffer,
+								   uint32_t							 bufferOffset,
+								   Graphics::SubresourceDescription	 subresource,
+								   const GladGLContext				&context)
 	{
 		const auto &textureSpecification = texture->GetSpecification();
 
@@ -1159,6 +1314,22 @@ namespace Nexus::GL
 
 		glCall(context.BindTexture(textureType, 0));
 		glCall(context.BindBuffer(GL_PIXEL_PACK_BUFFER, 0));
+	}
+
+	void CopyTextureToBuffer(Ref<Graphics::TextureOpenGL>	   texture,
+							 Ref<Graphics::DeviceBufferOpenGL> buffer,
+							 uint32_t						   bufferOffset,
+							 Graphics::SubresourceDescription  subresource,
+							 const GladGLContext			  &context)
+	{
+		if (context.ARB_direct_state_access || context.EXT_direct_state_access)
+		{
+			CopyTextureToBufferDSA(texture, buffer, bufferOffset, subresource, context);
+		}
+		else
+		{
+			CopyTextureToBufferNonDSA(texture, buffer, bufferOffset, subresource, context);
+		}
 	}
 
 	static IGLContext *s_Context = nullptr;

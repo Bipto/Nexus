@@ -57,9 +57,15 @@ namespace Nexus::Graphics
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
 			{
-				glCall(context.Uniform1i(slot, slot));
-				glCall(context.ActiveTexture(GL_TEXTURE0 + slot));
-				glCall(context.BindTexture(m_TextureType, m_Handle));
+				if (context.ARB_direct_state_access || context.EXT_direct_state_access)
+				{
+					glCall(context.BindTextureUnit(slot, m_Handle));
+				}
+				else
+				{
+					glCall(context.ActiveTexture(GL_TEXTURE0 + slot));
+					glCall(context.BindTexture(m_TextureType, m_Handle));
+				}
 			});
 	}
 

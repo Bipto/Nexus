@@ -13,9 +13,17 @@ namespace Nexus::Graphics
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
 			{
-				glCall(context.GenBuffers(1, &m_BufferHandle));
-				glCall(context.BindBuffer(GL_COPY_READ_BUFFER, m_BufferHandle));
-				glCall(context.BufferData(GL_COPY_READ_BUFFER, m_BufferDescription.SizeInBytes, nullptr, bufferUsage));
+				if (context.ARB_direct_state_access || context.EXT_direct_state_access)
+				{
+					glCall(context.CreateBuffers(1, &m_BufferHandle));
+					glCall(context.NamedBufferData(m_BufferHandle, m_BufferDescription.SizeInBytes, nullptr, bufferUsage));
+				}
+				else
+				{
+					glCall(context.GenBuffers(1, &m_BufferHandle));
+					glCall(context.BindBuffer(GL_COPY_READ_BUFFER, m_BufferHandle));
+					glCall(context.BufferData(GL_COPY_READ_BUFFER, m_BufferDescription.SizeInBytes, nullptr, bufferUsage));
+				}
 			});
 	}
 
@@ -31,8 +39,15 @@ namespace Nexus::Graphics
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
 			{
-				glCall(context.BindBuffer(GL_COPY_READ_BUFFER, m_BufferHandle));
-				glCall(context.BufferSubData(GL_COPY_READ_BUFFER, offset, size, data));
+				if (context.ARB_direct_state_access || context.EXT_direct_state_access)
+				{
+					glCall(context.NamedBufferSubData(m_BufferHandle, offset, size, data));
+				}
+				else
+				{
+					glCall(context.BindBuffer(GL_COPY_READ_BUFFER, m_BufferHandle));
+					glCall(context.BufferSubData(GL_COPY_READ_BUFFER, offset, size, data));
+				}
 			});
 	}
 
@@ -45,15 +60,22 @@ namespace Nexus::Graphics
 		GL::ExecuteGLCommands(
 			[&](const GladGLContext &context)
 			{
-				glCall(context.BindBuffer(GL_COPY_READ_BUFFER, m_BufferHandle));
-
-				void *mappedData = context.MapBufferRange(GL_COPY_READ_BUFFER, offset, size, GL_MAP_READ_BIT);
-				if (mappedData)
+				if (context.ARB_direct_state_access || context.EXT_direct_state_access)
 				{
-					memcpy(data.data(), mappedData, size);
+					glCall(context.GetNamedBufferSubData(m_BufferHandle, offset, size, data.data()));
 				}
+				else
+				{
+					glCall(context.BindBuffer(GL_COPY_READ_BUFFER, m_BufferHandle));
 
-				context.UnmapBuffer(GL_COPY_READ_BUFFER);
+					void *mappedData = context.MapBufferRange(GL_COPY_READ_BUFFER, offset, size, GL_MAP_READ_BIT);
+					if (mappedData)
+					{
+						memcpy(data.data(), mappedData, size);
+					}
+
+					context.UnmapBuffer(GL_COPY_READ_BUFFER);
+				}
 			});
 
 		return data;
