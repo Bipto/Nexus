@@ -70,6 +70,9 @@ namespace Nexus::Graphics
 		VkCommandBuffer m_CommandBuffer = nullptr;
 
 		std::map<uint32_t, size_t> m_VertexBufferStrides;
+
+		std::vector<RenderCommandData> m_Commands;
+		size_t						   m_CurrentCommandIndex = 0;
 	};
 }	 // namespace Nexus::Graphics
 

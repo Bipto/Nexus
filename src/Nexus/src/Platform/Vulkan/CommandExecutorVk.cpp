@@ -43,8 +43,10 @@ namespace Nexus::Graphics
 
 		// execute commands
 		{
-			for (const auto &element : commands)
+			m_Commands = commands;
+			for (m_CurrentCommandIndex = 0; m_CurrentCommandIndex < commands.size(); m_CurrentCommandIndex++)
 			{
+				const auto &element = commands.at(m_CurrentCommandIndex);
 				std::visit([&](auto &&arg) { ExecuteCommand(arg, device); }, element);
 			}
 		}
@@ -718,6 +720,23 @@ namespace Nexus::Graphics
 	void CommandExecutorVk::ExecuteCommand(EndDebugGroupCommand command, GraphicsDevice *device)
 	{
 		const DeviceExtensionFunctions &functions = m_Device->GetExtensionFunctions();
+
+		// if this is the last command in the buffer, then we must explicitly stop rendering to ensure that the implict render pass management occurs
+		// in the correct order
+		if (m_CurrentCommandIndex >= m_Commands.size() - 1)
+		{
+			StopRendering();
+		}
+		// otherwise, if the next command is to set a new render target, we need to stop rendering to ensure that they show in the correct order in
+		// debuggers
+		else
+		{
+			RenderCommandData data = m_Commands.at(m_CurrentCommandIndex);
+			if (std::holds_alternative<RenderTarget>(data))
+			{
+				StopRendering();
+			}
+		}
 
 		if (functions.vkCmdEndDebugUtilsLabelEXT)
 		{
