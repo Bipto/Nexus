@@ -122,6 +122,11 @@ namespace Nexus::GL
 							 Graphics::SubresourceDescription  subresource,
 							 const GladGLContext			  &context);
 
+	void CopyTextureToTexture(Ref<Graphics::TextureOpenGL>			  source,
+							  Ref<Graphics::TextureOpenGL>			  destination,
+							  const Graphics::TextureCopyDescription &copyDesc,
+							  const GladGLContext					 &context);
+
 	/// @brief Function that loads required OpenGL functions,
 	// this function should be called by IGraphicsAPI
 	/// @return A boolean indicating whether OpenGL was able to be initialized

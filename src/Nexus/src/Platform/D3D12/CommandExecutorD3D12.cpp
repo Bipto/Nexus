@@ -14,9 +14,6 @@ namespace Nexus::Graphics
 {
 	CommandExecutorD3D12::CommandExecutorD3D12(Microsoft::WRL::ComPtr<ID3D12Device9> device) : m_Device(device)
 	{
-		CreateDrawIndirectSignatureCommand();
-		CreateDrawIndexedIndirectSignatureCommand();
-		CreateDispatchIndirectSignatureCommand();
 	}
 
 	CommandExecutorD3D12::~CommandExecutorD3D12()
@@ -126,8 +123,10 @@ namespace Nexus::Graphics
 			Ref<DeviceBufferD3D12>					indirectBuffer		 = std::dynamic_pointer_cast<DeviceBufferD3D12>(command.IndirectBuffer);
 			Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
 
-			m_CommandList
-				->ExecuteIndirect(m_DrawIndirectCommandSignature.Get(), command.DrawCount, indirectBufferHandle.Get(), command.Offset, nullptr, 0);
+			Microsoft::WRL::ComPtr<ID3D12CommandSignature> signature =
+				GetOrCreateIndirectCommandSignature(D3D12_INDIRECT_ARGUMENT_TYPE_DRAW, command.Stride);
+
+			m_CommandList->ExecuteIndirect(signature.Get(), command.DrawCount, indirectBufferHandle.Get(), command.Offset, nullptr, 0);
 		}
 	}
 
@@ -148,12 +147,10 @@ namespace Nexus::Graphics
 			Nexus::Ref<Nexus::Graphics::GraphicsPipelineD3D12> pipeline =
 				std::dynamic_pointer_cast<GraphicsPipelineD3D12>(m_CurrentlyBoundPipeline.value());
 
-			m_CommandList->ExecuteIndirect(m_DrawIndexedIndirectCommandSignature.Get(),
-										   command.DrawCount,
-										   indirectBufferHandle.Get(),
-										   command.Offset,
-										   nullptr,
-										   0);
+			Microsoft::WRL::ComPtr<ID3D12CommandSignature> signature =
+				GetOrCreateIndirectCommandSignature(D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED, command.Stride);
+
+			m_CommandList->ExecuteIndirect(signature.Get(), command.DrawCount, indirectBufferHandle.Get(), command.Offset, nullptr, 0);
 		}
 	}
 
@@ -178,7 +175,11 @@ namespace Nexus::Graphics
 		{
 			Ref<DeviceBufferD3D12>					indirectBuffer		 = std::dynamic_pointer_cast<DeviceBufferD3D12>(buffer);
 			Microsoft::WRL::ComPtr<ID3D12Resource2> indirectBufferHandle = indirectBuffer->GetHandle();
-			m_CommandList->ExecuteIndirect(m_DispatchIndirectCommandSignature.Get(), 1, indirectBufferHandle.Get(), command.Offset, nullptr, 0);
+
+			Microsoft::WRL::ComPtr<ID3D12CommandSignature> signature =
+				GetOrCreateIndirectCommandSignature(D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH, command.Stride);
+
+			m_CommandList->ExecuteIndirect(signature.Get(), 1, indirectBufferHandle.Get(), command.Offset, nullptr, 0);
 		}
 	}
 
@@ -757,26 +758,6 @@ namespace Nexus::Graphics
 
 		RenderTarget target = m_CurrentRenderTarget.value();
 
-		/* if (target.GetType() == RenderTargetType::Swapchain)
-		{
-			WeakRef<> swapchain = std::dynamic_pointer_cast<SwapchainD3D12>(target.GetSwapchain());
-
-			auto swapchainColourState = swapchain->GetCurrentTextureState();
-			if (swapchainColourState != D3D12_RESOURCE_STATE_PRESENT)
-			{
-				D3D12_RESOURCE_BARRIER presentBarrier;
-				presentBarrier.Type					  = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-				presentBarrier.Flags				  = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-				presentBarrier.Transition.pResource	  = swapchain->RetrieveBufferHandle().Get();
-				presentBarrier.Transition.Subresource = 0;
-				presentBarrier.Transition.StateBefore = swapchainColourState;
-				presentBarrier.Transition.StateAfter  = D3D12_RESOURCE_STATE_PRESENT;
-				m_CommandList->ResourceBarrier(1, &presentBarrier);
-
-				swapchain->SetTextureState(D3D12_RESOURCE_STATE_PRESENT);
-			}
-		} */
-
 		// check that the swapchain is still valid
 		WeakRef<Swapchain> swapchain = target.GetSwapchain();
 		if (auto sc = swapchain.lock())
@@ -840,6 +821,31 @@ namespace Nexus::Graphics
 		commandSignatureDesc.ByteStride					  = sizeof(D3D12_DISPATCH_ARGUMENTS);
 
 		m_Device->CreateCommandSignature(&commandSignatureDesc, nullptr, IID_PPV_ARGS(m_DispatchIndirectCommandSignature.GetAddressOf()));
+	}
+
+	Microsoft::WRL::ComPtr<ID3D12CommandSignature> CommandExecutorD3D12::GetOrCreateIndirectCommandSignature(D3D12_INDIRECT_ARGUMENT_TYPE type,
+																											 size_t						  stride)
+	{
+		// element found in map
+		if (m_IndirectCommandSignatures[type].find(stride) != m_IndirectCommandSignatures[type].end())
+		{
+			return m_IndirectCommandSignatures[type][stride];
+		}
+		else
+		{
+			D3D12_INDIRECT_ARGUMENT_DESC argumentDesc = {};
+			argumentDesc.Type						  = type;
+
+			D3D12_COMMAND_SIGNATURE_DESC commandSignatureDesc = {};
+			commandSignatureDesc.pArgumentDescs				  = &argumentDesc;
+			commandSignatureDesc.NumArgumentDescs			  = 1;
+			commandSignatureDesc.ByteStride					  = stride;
+
+			Microsoft::WRL::ComPtr<ID3D12CommandSignature> signature;
+			m_Device->CreateCommandSignature(&commandSignatureDesc, nullptr, IID_PPV_ARGS(signature.GetAddressOf()));
+			m_IndirectCommandSignatures[type][stride] = signature;
+			return signature;
+		}
 	}
 }	 // namespace Nexus::Graphics
 

@@ -61,6 +61,8 @@ namespace Nexus::Graphics
 		void CreateDrawIndexedIndirectSignatureCommand();
 		void CreateDispatchIndirectSignatureCommand();
 
+		Microsoft::WRL::ComPtr<ID3D12CommandSignature> GetOrCreateIndirectCommandSignature(D3D12_INDIRECT_ARGUMENT_TYPE type, size_t stride);
+
 	  private:
 		Microsoft::WRL::ComPtr<ID3D12Device9>			   m_Device		 = nullptr;
 		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> m_CommandList = nullptr;
@@ -74,6 +76,8 @@ namespace Nexus::Graphics
 		Microsoft::WRL::ComPtr<ID3D12CommandSignature> m_DrawIndirectCommandSignature		 = nullptr;
 		Microsoft::WRL::ComPtr<ID3D12CommandSignature> m_DrawIndexedIndirectCommandSignature = nullptr;
 		Microsoft::WRL::ComPtr<ID3D12CommandSignature> m_DispatchIndirectCommandSignature	 = nullptr;
+
+		std::map<D3D12_INDIRECT_ARGUMENT_TYPE, std::map<size_t, Microsoft::WRL::ComPtr<ID3D12CommandSignature>>> m_IndirectCommandSignatures = {};
 	};
 }	 // namespace Nexus::Graphics
 

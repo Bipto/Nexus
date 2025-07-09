@@ -102,6 +102,7 @@ namespace Demos
 			drawDesc.IndirectBuffer									 = m_IndirectBuffer;
 			drawDesc.Offset											 = 0;
 			drawDesc.DrawCount										 = 1;
+			drawDesc.Stride											 = m_IndirectBuffer->GetStrideInBytes();
 			m_CommandList->DrawIndexedIndirect(drawDesc);
 
 			m_CommandList->End();

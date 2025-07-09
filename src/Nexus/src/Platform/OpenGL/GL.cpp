@@ -1090,16 +1090,6 @@ namespace Nexus::GL
 												 (const void *)(uint64_t)bufferOffset));
 				break;
 			case GL::GLInternalTextureFormat::Cubemap:
-				glCall(context.TextureSubImage2D(texture->GetHandle(),
-												 subresource.MipLevel,
-												 subresource.X,
-												 subresource.Y,
-												 subresource.Width,
-												 subresource.Height,
-												 dataFormat,
-												 baseType,
-												 (const void *)(uint64_t)bufferOffset));
-				break;
 			case GL::GLInternalTextureFormat::Texture2DArray:
 			case GL::GLInternalTextureFormat::CubemapArray:
 			case GL::GLInternalTextureFormat::Texture3D:
@@ -1329,6 +1319,150 @@ namespace Nexus::GL
 		else
 		{
 			CopyTextureToBufferNonDSA(texture, buffer, bufferOffset, subresource, context);
+		}
+	}
+
+	void CopyTextureToTextureDSA(Ref<Graphics::TextureOpenGL>			 source,
+								 Ref<Graphics::TextureOpenGL>			 destination,
+								 const Graphics::TextureCopyDescription &copyDesc,
+								 const GladGLContext					&context)
+	{
+		GLenum srcGlAspect		 = GL::GetGLImageAspect(copyDesc.SourceSubresource.Aspect);
+		GLenum srcAttachmentType = GL::GetAttachmentType(copyDesc.SourceSubresource.Aspect, 0);
+		GLenum dstGlAspect		 = GL::GetGLImageAspect(copyDesc.DestinationSubresource.Aspect);
+		GLenum dstAttachmentType = GL::GetAttachmentType(copyDesc.DestinationSubresource.Aspect, 0);
+
+		for (uint32_t layer = copyDesc.SourceSubresource.Z; layer < copyDesc.SourceSubresource.Depth; layer++)
+		{
+			GLuint sourceFramebufferHandle = 0;
+			GLuint destFramebufferHandle   = 0;
+
+			// set up source framebuffer
+			{
+				context.CreateFramebuffers(1, &sourceFramebufferHandle);
+				GLenum aspectMask = GL::GetGLImageAspect(copyDesc.SourceSubresource.Aspect);
+				GL::AttachTexture(sourceFramebufferHandle,
+								  source,
+								  copyDesc.SourceSubresource.MipLevel,
+								  layer,
+								  copyDesc.SourceSubresource.Aspect,
+								  0,
+								  context);
+				GL::ValidateFramebuffer(sourceFramebufferHandle, context);
+			}
+
+			// set up dest framebuffer
+			{
+				context.CreateFramebuffers(1, &destFramebufferHandle);
+				GLenum aspectMask = GL::GetGLImageAspect(copyDesc.DestinationSubresource.Aspect);
+				GL::AttachTexture(destFramebufferHandle,
+								  destination,
+								  copyDesc.DestinationSubresource.MipLevel,
+								  layer,
+								  copyDesc.DestinationSubresource.Aspect,
+								  0,
+								  context);
+				GL::ValidateFramebuffer(destFramebufferHandle, context);
+			}
+
+			context.BlitNamedFramebuffer(sourceFramebufferHandle,
+										 destFramebufferHandle,
+										 copyDesc.SourceSubresource.X,
+										 copyDesc.SourceSubresource.Y,
+										 copyDesc.SourceSubresource.Width,
+										 copyDesc.SourceSubresource.Height,
+										 copyDesc.DestinationSubresource.X,
+										 copyDesc.DestinationSubresource.Y,
+										 copyDesc.DestinationSubresource.Width,
+										 copyDesc.DestinationSubresource.Height,
+										 GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT,
+										 GL_NEAREST);
+
+			std::array<uint32_t, 2> framebuffers = {sourceFramebufferHandle, destFramebufferHandle};
+			context.DeleteFramebuffers(framebuffers.size(), framebuffers.data());
+		}
+	}
+
+	void CopyTextureToTextureNonDSA(Ref<Graphics::TextureOpenGL>			source,
+									Ref<Graphics::TextureOpenGL>			destination,
+									const Graphics::TextureCopyDescription &copyDesc,
+									const GladGLContext					   &context)
+	{
+		GLenum srcGlAspect		 = GL::GetGLImageAspect(copyDesc.SourceSubresource.Aspect);
+		GLenum srcAttachmentType = GL::GetAttachmentType(copyDesc.SourceSubresource.Aspect, 0);
+		GLenum dstGlAspect		 = GL::GetGLImageAspect(copyDesc.DestinationSubresource.Aspect);
+		GLenum dstAttachmentType = GL::GetAttachmentType(copyDesc.DestinationSubresource.Aspect, 0);
+
+		for (uint32_t layer = copyDesc.SourceSubresource.Z; layer < copyDesc.SourceSubresource.Depth; layer++)
+		{
+			GLuint sourceFramebufferHandle = 0;
+			GLuint destFramebufferHandle   = 0;
+
+			// set up source framebuffer
+			{
+				glCall(context.GenFramebuffers(1, &sourceFramebufferHandle));
+				glCall(context.BindFramebuffer(GL_FRAMEBUFFER, sourceFramebufferHandle));
+				GLenum aspectMask = GL::GetGLImageAspect(copyDesc.SourceSubresource.Aspect);
+				GL::AttachTexture(sourceFramebufferHandle,
+								  source,
+								  copyDesc.SourceSubresource.MipLevel,
+								  layer,
+								  copyDesc.SourceSubresource.Aspect,
+								  0,
+								  context);
+				GL::ValidateFramebuffer(sourceFramebufferHandle, context);
+			}
+
+			// set up dest framebuffer
+			{
+				glCall(context.GenFramebuffers(1, &destFramebufferHandle));
+				glCall(context.BindFramebuffer(GL_FRAMEBUFFER, destFramebufferHandle));
+				GLenum aspectMask = GL::GetGLImageAspect(copyDesc.DestinationSubresource.Aspect);
+				GL::AttachTexture(destFramebufferHandle,
+								  destination,
+								  copyDesc.DestinationSubresource.MipLevel,
+								  layer,
+								  copyDesc.DestinationSubresource.Aspect,
+								  0,
+								  context);
+				GL::ValidateFramebuffer(destFramebufferHandle, context);
+			}
+
+			context.BindFramebuffer(GL_READ_FRAMEBUFFER, sourceFramebufferHandle);
+			context.BindFramebuffer(GL_DRAW_FRAMEBUFFER, destFramebufferHandle);
+
+			// copy all attached aspect masks
+			context.BlitFramebuffer(copyDesc.SourceSubresource.X,
+									copyDesc.SourceSubresource.Y,
+									copyDesc.SourceSubresource.Width,
+									copyDesc.SourceSubresource.Height,
+									copyDesc.DestinationSubresource.X,
+									copyDesc.DestinationSubresource.Y,
+									copyDesc.DestinationSubresource.Width,
+									copyDesc.DestinationSubresource.Height,
+									GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT,
+									GL_NEAREST);
+
+			context.BindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+			context.BindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+			glCall(context.DeleteFramebuffers(1, &sourceFramebufferHandle));
+			glCall(context.DeleteFramebuffers(1, &destFramebufferHandle));
+		}
+	}
+
+	void CopyTextureToTexture(Ref<Graphics::TextureOpenGL>			  source,
+							  Ref<Graphics::TextureOpenGL>			  destination,
+							  const Graphics::TextureCopyDescription &copyDesc,
+							  const GladGLContext					 &context)
+	{
+		if (context.ARB_direct_state_access || context.EXT_direct_state_access)
+		{
+			CopyTextureToTextureDSA(source, destination, copyDesc, context);
+		}
+		else
+		{
+			CopyTextureToTextureNonDSA(source, destination, copyDesc, context);
 		}
 	}
 

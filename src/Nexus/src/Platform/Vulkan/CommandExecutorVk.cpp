@@ -162,11 +162,7 @@ namespace Nexus::Graphics
 
 		BindGraphicsPipeline();
 
-		vkCmdDrawIndirect(m_CommandBuffer,
-						  indirectBuffer->GetVkBuffer(),
-						  command.Offset,
-						  command.DrawCount,
-						  indirectBuffer->GetDescription().StrideInBytes);
+		vkCmdDrawIndirect(m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset, command.DrawCount, command.Stride);
 	}
 
 	void CommandExecutorVk::ExecuteCommand(DrawIndirectIndexedDescription command, GraphicsDevice *device)
@@ -180,11 +176,7 @@ namespace Nexus::Graphics
 
 		BindGraphicsPipeline();
 
-		vkCmdDrawIndexedIndirect(m_CommandBuffer,
-								 indirectBuffer->GetVkBuffer(),
-								 command.Offset,
-								 command.DrawCount,
-								 indirectBuffer->GetDescription().StrideInBytes);
+		vkCmdDrawIndexedIndirect(m_CommandBuffer, indirectBuffer->GetVkBuffer(), command.Offset, command.DrawCount, command.Stride);
 	}
 
 	void CommandExecutorVk::ExecuteCommand(DispatchDescription command, GraphicsDevice *device)
@@ -245,7 +237,7 @@ namespace Nexus::Graphics
 													indirectBuffer->GetVkBuffer(),
 													command.Offset,
 													command.DrawCount,
-													indirectBuffer->GetStrideInBytes());
+													command.Stride);
 		}
 	}
 

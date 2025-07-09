@@ -150,15 +150,17 @@ namespace Nexus::Graphics
 	struct DrawIndirectDescription
 	{
 		Ref<DeviceBuffer> IndirectBuffer = nullptr;
-		uint32_t		  Offset		 = 0;
-		uint32_t		  DrawCount		 = 0;
+		size_t			  Offset		 = 0;
+		size_t			  Stride		 = 0;
+		size_t			  DrawCount		 = 0;
 	};
 
 	struct DrawIndirectIndexedDescription
 	{
 		Ref<DeviceBuffer> IndirectBuffer = nullptr;
-		uint32_t		  Offset		 = 0;
-		uint32_t		  DrawCount		 = 0;
+		size_t			  Offset		 = 0;
+		size_t			  Stride		 = 0;
+		size_t			  DrawCount		 = 0;
 	};
 
 	struct DispatchDescription
@@ -171,7 +173,8 @@ namespace Nexus::Graphics
 	struct DispatchIndirectDescription
 	{
 		Ref<DeviceBuffer> IndirectBuffer = {};
-		uint32_t		  Offset		 = 0;
+		size_t			  Offset		 = 0;
+		size_t			  Stride		 = 0;
 	};
 
 	struct DrawMeshDescription
@@ -184,8 +187,9 @@ namespace Nexus::Graphics
 	struct DrawMeshIndirectDescription
 	{
 		Ref<DeviceBuffer> IndirectBuffer = {};
-		uint32_t		  Offset		 = 0;
-		uint32_t		  DrawCount		 = 0;
+		size_t			  Offset		 = 0;
+		size_t			  Stride		 = 0;
+		size_t			  DrawCount		 = 0;
 	};
 
 	struct ClearColorTargetCommand

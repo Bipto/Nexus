@@ -68,6 +68,7 @@ namespace Demos
 			Nexus::Graphics::DispatchIndirectDescription dispatchDesc = {};
 			dispatchDesc.IndirectBuffer								  = m_IndirectBuffer;
 			dispatchDesc.Offset										  = 0;
+			dispatchDesc.Stride										  = m_IndirectBuffer->GetStrideInBytes();
 			m_CommandList->DispatchIndirect(dispatchDesc);
 
 			m_CommandList->SetRenderTarget(Nexus::Graphics::RenderTarget(Nexus::GetApplication()->GetPrimarySwapchain()));
