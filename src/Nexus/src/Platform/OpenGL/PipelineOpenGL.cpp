@@ -198,8 +198,24 @@ namespace Nexus::Graphics
 											   m_Description.DepthStencilDesc.StencilCompareMask));
 		}
 
+		// depth comparison
 		GLenum depthFunction = GL::GetComparisonFunction(m_Description.DepthStencilDesc.DepthComparisonFunction);
 		glCall(context.DepthFunc(depthFunction));
+
+		// depths bounds testing
+		if (context.DepthBoundsEXT)
+		{
+			if (m_Description.DepthStencilDesc.EnableDepthsBoundsTest)
+			{
+				context.Enable(GL_DEPTH_BOUNDS_TEST_EXT);
+			}
+			else
+			{
+				context.Disable(GL_DEPTH_BOUNDS_TEST_EXT);
+			}
+
+			context.DepthBoundsEXT(m_Description.DepthStencilDesc.MinDepth, m_Description.DepthStencilDesc.MaxDepth);
+		}
 	}
 
 	void GraphicsPipelineOpenGL::SetupRasterizer(const GladGLContext &context)

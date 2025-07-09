@@ -143,14 +143,18 @@ namespace Nexus::D3D12
 		{
 			case Nexus::Graphics::BlendFactor::Zero: return D3D12_BLEND_ZERO;
 			case Nexus::Graphics::BlendFactor::One: return D3D12_BLEND_ONE;
-			case Nexus::Graphics::BlendFactor::SourceColor: return D3D12_BLEND_SRC_COLOR;
-			case Nexus::Graphics::BlendFactor::OneMinusSourceColor: return D3D12_BLEND_INV_SRC_COLOR;
-			case Nexus::Graphics::BlendFactor::DestinationColor: return D3D12_BLEND_DEST_COLOR;
-			case Nexus::Graphics::BlendFactor::OneMinusDestinationColor: return D3D12_BLEND_INV_DEST_COLOR;
+			case Nexus::Graphics::BlendFactor::SourceColour: return D3D12_BLEND_SRC_COLOR;
+			case Nexus::Graphics::BlendFactor::OneMinusSourceColour: return D3D12_BLEND_INV_SRC_COLOR;
+			case Nexus::Graphics::BlendFactor::DestinationColour: return D3D12_BLEND_DEST_COLOR;
+			case Nexus::Graphics::BlendFactor::OneMinusDestinationColour: return D3D12_BLEND_INV_DEST_COLOR;
 			case Nexus::Graphics::BlendFactor::SourceAlpha: return D3D12_BLEND_SRC_ALPHA;
 			case Nexus::Graphics::BlendFactor::OneMinusSourceAlpha: return D3D12_BLEND_INV_SRC_ALPHA;
 			case Nexus::Graphics::BlendFactor::DestinationAlpha: return D3D12_BLEND_DEST_ALPHA;
 			case Nexus::Graphics::BlendFactor::OneMinusDestinationAlpha: return D3D12_BLEND_INV_DEST_ALPHA;
+			case Nexus::Graphics::BlendFactor::FactorColour: return D3D12_BLEND_BLEND_FACTOR;
+			case Nexus::Graphics::BlendFactor::OneMinusFactorColour: return D3D12_BLEND_INV_BLEND_FACTOR;
+			case Nexus::Graphics::BlendFactor::FactorAlpha: return D3D12_BLEND_ALPHA_FACTOR;
+			case Nexus::Graphics::BlendFactor::OneMinusFactorAlpha: return D3D12_BLEND_INV_ALPHA_FACTOR;
 			default: throw std::runtime_error("Failed to find a valid blend function");
 		}
 	}

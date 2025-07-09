@@ -127,9 +127,16 @@ namespace Nexus::Graphics
 		std::optional<ClearRect> Rect = {};
 	};
 
+	struct BlendFactorDesc
+	{
+		float Red	= 0.0f;
+		float Green = 0.0f;
+		float Blue	= 0.0f;
+		float Alpha = 0.0f;
+	};
+
 	/// @brief A struct representing a draw command to be executed using a vertex
 	/// buffer
-
 	struct DrawDescription
 	{
 		uint32_t VertexCount   = 0;
@@ -242,6 +249,11 @@ namespace Nexus::Graphics
 		TextureCopyDescription TextureCopy = {};
 	};
 
+	struct SetBlendFactorCommand
+	{
+		BlendFactorDesc BlendFactorDesc = {};
+	};
+
 	typedef std::variant<SetVertexBufferCommand,
 						 SetIndexBufferCommand,
 						 WeakRef<Pipeline>,
@@ -268,7 +280,8 @@ namespace Nexus::Graphics
 						 CopyTextureToTextureCommand,
 						 BeginDebugGroupCommand,
 						 EndDebugGroupCommand,
-						 InsertDebugMarkerCommand>
+						 InsertDebugMarkerCommand,
+						 SetBlendFactorCommand>
 		RenderCommandData;
 
 	struct CommandListSpecification
@@ -361,6 +374,8 @@ namespace Nexus::Graphics
 		void EndDebugGroup();
 
 		void InsertDebugMarker(const std::string &name);
+
+		void SetBlendFactor(const BlendFactorDesc &blendFactor);
 
 		const std::vector<RenderCommandData> &GetCommandData() const;
 		const CommandListSpecification		 &GetSpecification();

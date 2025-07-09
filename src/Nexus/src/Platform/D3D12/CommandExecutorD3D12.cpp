@@ -693,6 +693,16 @@ namespace Nexus::Graphics
 		m_CommandList->SetMarker(0, markerGroup.c_str(), (UINT)markerGroup.size() * sizeof(wchar_t));
 	}
 
+	void CommandExecutorD3D12::ExecuteCommand(SetBlendFactorCommand command, GraphicsDevice *device)
+	{
+		float blendFactor[4] = {command.BlendFactorDesc.Red,
+								command.BlendFactorDesc.Green,
+								command.BlendFactorDesc.Blue,
+								command.BlendFactorDesc.Alpha};
+
+		m_CommandList->OMSetBlendFactor(blendFactor);
+	}
+
 	void CommandExecutorD3D12::SetSwapchain(WeakRef<Swapchain> swapchain, GraphicsDevice *device)
 	{
 		if (Ref<Swapchain> sc = swapchain.lock())

@@ -653,6 +653,17 @@ namespace Nexus::Graphics
 			});
 	}
 
+	void CommandExecutorOpenGL::ExecuteCommand(SetBlendFactorCommand command, GraphicsDevice *device)
+	{
+		GL::ExecuteGLCommands(
+			[&](const GladGLContext &context) {
+				context.BlendColor(command.BlendFactorDesc.Red,
+								   command.BlendFactorDesc.Green,
+								   command.BlendFactorDesc.Blue,
+								   command.BlendFactorDesc.Alpha);
+			});
+	}
+
 	void CommandExecutorOpenGL::BindResourceSet(Ref<ResourceSetOpenGL> resourceSet, const GladGLContext &context)
 	{
 		Nexus::Ref<PipelineOpenGL> pipeline = std::dynamic_pointer_cast<PipelineOpenGL>(m_CurrentlyBoundPipeline.value());

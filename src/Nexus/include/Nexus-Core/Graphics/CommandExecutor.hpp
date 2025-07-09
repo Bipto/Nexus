@@ -50,5 +50,6 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(BeginDebugGroupCommand command, GraphicsDevice *device)				= 0;
 		virtual void ExecuteCommand(EndDebugGroupCommand command, GraphicsDevice *device)				= 0;
 		virtual void ExecuteCommand(InsertDebugMarkerCommand command, GraphicsDevice *device)			= 0;
+		virtual void ExecuteCommand(SetBlendFactorCommand command, GraphicsDevice *device)				= 0;
 	};
 };	  // namespace Nexus::Graphics

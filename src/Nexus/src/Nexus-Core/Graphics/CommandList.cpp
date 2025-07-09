@@ -416,6 +416,13 @@ namespace Nexus::Graphics
 		m_Commands.push_back(command);
 	}
 
+	void CommandList::SetBlendFactor(const BlendFactorDesc &blendFactor)
+	{
+		SetBlendFactorCommand command;
+		command.BlendFactorDesc = blendFactor;
+		m_Commands.push_back(command);
+	}
+
 	const std::vector<RenderCommandData> &CommandList::GetCommandData() const
 	{
 		return m_Commands;

@@ -46,6 +46,7 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(BeginDebugGroupCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(EndDebugGroupCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(InsertDebugMarkerCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(SetBlendFactorCommand command, GraphicsDevice *device) override;
 
 		void BindResourceSet(Ref<ResourceSetOpenGL> resourceSet, const GladGLContext &context);
 		void ExecuteGraphicsCommand(Ref<GraphicsPipelineOpenGL>																pipeline,

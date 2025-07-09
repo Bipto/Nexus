@@ -765,6 +765,16 @@ namespace Nexus::Graphics
 		}
 	}
 
+	void CommandExecutorVk::ExecuteCommand(SetBlendFactorCommand command, GraphicsDevice *device)
+	{
+		float blendConstants[4] = {command.BlendFactorDesc.Red,
+								   command.BlendFactorDesc.Green,
+								   command.BlendFactorDesc.Blue,
+								   command.BlendFactorDesc.Alpha};
+
+		vkCmdSetBlendConstants(m_CommandBuffer, blendConstants);
+	}
+
 	void BeginRenderPass(GraphicsDeviceVk			 *device,
 						 const VkRenderPassBeginInfo &beginInfo,
 						 VkSubpassContents			  subpassContents,

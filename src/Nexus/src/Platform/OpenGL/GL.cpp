@@ -82,14 +82,18 @@ namespace Nexus::GL
 		{
 			case Nexus::Graphics::BlendFactor::Zero: return GL_ZERO;
 			case Nexus::Graphics::BlendFactor::One: return GL_ONE;
-			case Nexus::Graphics::BlendFactor::SourceColor: return GL_SRC_COLOR;
-			case Nexus::Graphics::BlendFactor::OneMinusSourceColor: return GL_ONE_MINUS_SRC_COLOR;
-			case Nexus::Graphics::BlendFactor::DestinationColor: return GL_DST_COLOR;
-			case Nexus::Graphics::BlendFactor::OneMinusDestinationColor: return GL_ONE_MINUS_DST_COLOR;
+			case Nexus::Graphics::BlendFactor::SourceColour: return GL_SRC_COLOR;
+			case Nexus::Graphics::BlendFactor::OneMinusSourceColour: return GL_ONE_MINUS_SRC_COLOR;
+			case Nexus::Graphics::BlendFactor::DestinationColour: return GL_DST_COLOR;
+			case Nexus::Graphics::BlendFactor::OneMinusDestinationColour: return GL_ONE_MINUS_DST_COLOR;
 			case Nexus::Graphics::BlendFactor::SourceAlpha: return GL_SRC_ALPHA;
 			case Nexus::Graphics::BlendFactor::OneMinusSourceAlpha: return GL_ONE_MINUS_SRC_ALPHA;
 			case Nexus::Graphics::BlendFactor::DestinationAlpha: return GL_DST_ALPHA;
 			case Nexus::Graphics::BlendFactor::OneMinusDestinationAlpha: return GL_ONE_MINUS_DST_ALPHA;
+			case Nexus::Graphics::BlendFactor::FactorColour: return GL_CONSTANT_COLOR;
+			case Nexus::Graphics::BlendFactor::OneMinusFactorColour: return GL_ONE_MINUS_CONSTANT_COLOR;
+			case Nexus::Graphics::BlendFactor::FactorAlpha: return GL_CONSTANT_ALPHA;
+			case Nexus::Graphics::BlendFactor::OneMinusFactorAlpha: return GL_ONE_MINUS_CONSTANT_ALPHA;
 		}
 
 		throw std::runtime_error("Failed to find a valid blend function");

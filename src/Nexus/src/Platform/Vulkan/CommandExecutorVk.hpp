@@ -48,6 +48,7 @@ namespace Nexus::Graphics
 		virtual void ExecuteCommand(BeginDebugGroupCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(EndDebugGroupCommand command, GraphicsDevice *device) override;
 		virtual void ExecuteCommand(InsertDebugMarkerCommand command, GraphicsDevice *device) override;
+		virtual void ExecuteCommand(SetBlendFactorCommand command, GraphicsDevice *device) override;
 
 		void StartRenderingToSwapchain(Ref<Swapchain> swapchain);
 		void StartRenderingToFramebuffer(Ref<Framebuffer> framebuffer);

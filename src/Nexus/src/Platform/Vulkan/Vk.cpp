@@ -337,14 +337,19 @@ namespace Nexus::Vk
 		{
 			case Nexus::Graphics::BlendFactor::Zero: return VK_BLEND_FACTOR_ZERO;
 			case Nexus::Graphics::BlendFactor::One: return VK_BLEND_FACTOR_ONE;
-			case Nexus::Graphics::BlendFactor::SourceColor: return VK_BLEND_FACTOR_SRC_COLOR;
-			case Nexus::Graphics::BlendFactor::OneMinusSourceColor: return VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
-			case Nexus::Graphics::BlendFactor::DestinationColor: return VK_BLEND_FACTOR_DST_COLOR;
-			case Nexus::Graphics::BlendFactor::OneMinusDestinationColor: return VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
+			case Nexus::Graphics::BlendFactor::SourceColour: return VK_BLEND_FACTOR_SRC_COLOR;
+			case Nexus::Graphics::BlendFactor::OneMinusSourceColour: return VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
+			case Nexus::Graphics::BlendFactor::DestinationColour: return VK_BLEND_FACTOR_DST_COLOR;
+			case Nexus::Graphics::BlendFactor::OneMinusDestinationColour: return VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
 			case Nexus::Graphics::BlendFactor::SourceAlpha: return VK_BLEND_FACTOR_SRC_ALPHA;
 			case Nexus::Graphics::BlendFactor::OneMinusSourceAlpha: return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
 			case Nexus::Graphics::BlendFactor::DestinationAlpha: return VK_BLEND_FACTOR_DST_ALPHA;
 			case Nexus::Graphics::BlendFactor::OneMinusDestinationAlpha: return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
+			case Nexus::Graphics::BlendFactor::FactorColour: return VK_BLEND_FACTOR_CONSTANT_COLOR;
+			case Nexus::Graphics::BlendFactor::OneMinusFactorColour: VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR;
+			case Nexus::Graphics::BlendFactor::FactorAlpha: return VK_BLEND_FACTOR_CONSTANT_ALPHA;
+			case Nexus::Graphics::BlendFactor::OneMinusFactorAlpha: return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA;
+
 			default: throw std::runtime_error("Failed to find a valid blend factor");
 		}
 	}
@@ -1029,9 +1034,17 @@ namespace Nexus::Vk
 		info.depthWriteEnable					   = depthStencilDesc.EnableDepthWrite;
 		info.depthCompareOp						   = Vk::GetCompareOp(depthStencilDesc.DepthComparisonFunction);
 
-		info.depthBoundsTestEnable = VK_FALSE;
-		// info.minDepthBounds		   = depthStencilDesc.MinDepth;
-		// info.maxDepthBounds		   = depthStencilDesc.MaxDepth;
+		if (depthStencilDesc.EnableDepthsBoundsTest)
+		{
+			info.depthBoundsTestEnable = VK_TRUE;
+		}
+		else
+		{
+			info.depthBoundsTestEnable = VK_FALSE;
+		}
+
+		info.minDepthBounds = depthStencilDesc.MinDepth;
+		info.maxDepthBounds = depthStencilDesc.MaxDepth;
 
 		info.stencilTestEnable = depthStencilDesc.EnableStencilTest;
 
@@ -1263,7 +1276,7 @@ namespace Nexus::Vk
 		dynamicInfo.pNext							 = nullptr;
 		dynamicInfo.flags							 = 0;
 
-		std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
+		std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_BLEND_CONSTANTS};
 
 		dynamicInfo.dynamicStateCount = dynamicStates.size();
 		dynamicInfo.pDynamicStates	  = dynamicStates.data();
