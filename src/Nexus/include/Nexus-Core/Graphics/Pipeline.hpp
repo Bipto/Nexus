@@ -72,6 +72,46 @@ namespace Nexus::Graphics
 		Ref<ShaderModule>		 ComputeShader	 = nullptr;
 	};
 
+	struct MeshletPipelineDescription
+	{
+		/// @brief How the pipeline should handle depth and stencil testing
+		DepthStencilDescription DepthStencilDesc;
+
+		/// @brief How the pipeline should handle rasterization
+		RasterizerStateDescription RasterizerStateDesc;
+
+		/// @brief How the pipeline should handle the vertex buffer data
+		Topology PrimitiveTopology = Topology::TriangleList;
+
+		/// @brief A resource set specification describing how resources are allocated
+		/// in the pipeline
+		ResourceSetSpecification ResourceSetSpec;
+
+		/// @brief An array containing the colour formats that will be used with the pipeline
+		std::array<PixelFormat, 8> ColourFormats;
+
+		/// @brief An unsigned 32 bit integer representing the number of attachments that will be used with the pipeline
+		uint32_t ColourTargetCount = 1;
+
+		/// @brief An array containing the blend state for each attachment to be used with the pipelin
+		std::array<BlendStateDescription, 8> ColourBlendStates;
+
+		/// @brief How many samples will be used with the pipeline
+		uint32_t ColourTargetSampleCount = 1;
+
+		/// @brief The depth format that will be used with the pipeline
+		PixelFormat DepthFormat = PixelFormat::D24_UNorm_S8_UInt;
+
+		/// @brief The fragment shader that will be used with the pipeline
+		Ref<ShaderModule> FragmentModule = nullptr;
+
+		/// @brief The mesh shader to use with the pipeline (optional)
+		Ref<ShaderModule> MeshModule = nullptr;
+
+		/// @brief The task shader to use with the pipeline (optional)
+		Ref<ShaderModule> TaskModule = nullptr;
+	};
+
 	struct RayTracingPipelineDescription
 	{
 		ResourceSetSpecification ResourceSetSpec	   = {};
@@ -86,7 +126,9 @@ namespace Nexus::Graphics
 	enum class PipelineType
 	{
 		Graphics,
-		Compute
+		Compute,
+		Meshlet,
+		RayTracing
 	};
 
 	class Pipeline
@@ -173,5 +215,35 @@ namespace Nexus::Graphics
 
 	  protected:
 		ComputePipelineDescription m_Description = {};
+	};
+
+	class MeshletPipeline : public Pipeline
+	{
+	  public:
+		MeshletPipeline(const MeshletPipelineDescription &description) : m_Description(description)
+		{
+		}
+
+		~MeshletPipeline()
+		{
+		}
+
+		const MeshletPipelineDescription &GetPipelineDescription()
+		{
+			return m_Description;
+		}
+
+		virtual PipelineType GetType() const final
+		{
+			return PipelineType::Compute;
+		}
+
+		virtual ResourceSetSpecification GetResourceSetSpecification() const final
+		{
+			return m_Description.ResourceSetSpec;
+		}
+
+	  protected:
+		MeshletPipelineDescription m_Description = {};
 	};
 }	 // namespace Nexus::Graphics

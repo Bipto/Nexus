@@ -319,7 +319,7 @@ Nexus::Application *Nexus::CreateApplication(const CommandLineArguments &argumen
 {
 	Nexus::ApplicationSpecification spec;
 
-	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::D3D12;
+	spec.GraphicsCreateInfo.API	  = Nexus::Graphics::GraphicsAPI::Vulkan;
 	spec.GraphicsCreateInfo.Debug = true;
 
 	spec.AudioAPI = Nexus::Audio::AudioAPI::OpenAL;

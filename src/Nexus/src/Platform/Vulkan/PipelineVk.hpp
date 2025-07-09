@@ -19,8 +19,6 @@ namespace Nexus::Graphics
 		virtual void SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet)						   = 0;
 	};
 
-	VkPipelineLayoutCreateInfo CreatePipelineLayoutCreateInfo(const std::vector<VkDescriptorSetLayout> &layouts);
-
 	class GraphicsPipelineVk : public GraphicsPipeline, public PipelineVk
 	{
 	  public:
@@ -33,26 +31,16 @@ namespace Nexus::Graphics
 		virtual void SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet) final;
 
 	  private:
-		VkPipelineShaderStageCreateInfo					 CreatePipelineShaderStageCreateInfo(VkShaderStageFlagBits stage, VkShaderModule module);
-		VkPipelineInputAssemblyStateCreateInfo			 CreateInputAssemblyCreateInfo(VkPrimitiveTopology topology);
-		VkPipelineRasterizationStateCreateInfo			 CreateRasterizationStateCreateInfo(VkPolygonMode polygonMode, VkCullModeFlags cullingFlags);
-		VkPipelineMultisampleStateCreateInfo			 CreateMultisampleStateCreateInfo();
-		std::vector<VkPipelineColorBlendAttachmentState> CreateColorBlendAttachmentStates();
-		VkPipelineDepthStencilStateCreateInfo			 CreatePipelineDepthStencilStateCreateInfo();
-
-		VkPrimitiveTopology GetPrimitiveTopology();
-		VkPolygonMode		GetPolygonMode();
-		VkCullModeFlags		GetCullMode();
-
 		std::vector<VkPipelineShaderStageCreateInfo> GetShaderStages();
 
-		void	   CreatePipelineLayout();
-		VkPipeline CreateGraphicsPipeline(VkRenderPass renderPass);
-
 	  private:
-		VkPipelineLayout															 m_PipelineLayout;
-		std::map<VkRenderPass, VkPipeline>											 m_Pipelines;
-		GraphicsDeviceVk															*m_GraphicsDevice;
+		VkPipelineLayout				   m_PipelineLayout;
+		std::map<VkRenderPass, VkPipeline> m_Pipelines;
+		GraphicsDeviceVk				  *m_GraphicsDevice;
+	};
+
+	class MeshletPipelineVk : public MeshletPipeline, public PipelineVk
+	{
 	};
 
 	class ComputePipelineVk : public ComputePipeline, public PipelineVk

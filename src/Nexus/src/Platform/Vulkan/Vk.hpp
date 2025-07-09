@@ -18,6 +18,8 @@ const uint32_t FRAMES_IN_FLIGHT = 3;
 namespace Nexus::Graphics
 {
 	class GraphicsDeviceVk;
+	class ShaderModuleVk;
+	class ResourceSetVk;
 }
 
 namespace Nexus::Vk
@@ -82,6 +84,41 @@ namespace Nexus::Vk
 		VkBuffer	  Buffer;
 		VmaAllocation Allocation;
 	};
+
+	// pipeline methods
+	VkPipelineShaderStageCreateInfo					 CreatePipelineShaderStageCreateInfo(VkShaderStageFlagBits stage, VkShaderModule module);
+	VkPipelineInputAssemblyStateCreateInfo			 CreateInputAssemblyCreateInfo(VkPrimitiveTopology topology);
+	VkPipelineRasterizationStateCreateInfo			 CreateRasterizationStateCreateInfo(const Graphics::RasterizerStateDescription &rasterizerDesc);
+	VkPipelineMultisampleStateCreateInfo			 CreateMultisampleStateCreateInfo(uint32_t sampleCount);
+	std::vector<VkPipelineColorBlendAttachmentState> CreateColorBlendAttachmentStates(
+		uint32_t											  colourAttachmentCount,
+		const std::array<Graphics::BlendStateDescription, 8> &blendStates);
+	VkPipelineDepthStencilStateCreateInfo CreatePipelineDepthStencilStateCreateInfo(const Graphics::DepthStencilDescription &depthStencilDesc);
+
+	VkPrimitiveTopology GetPrimitiveTopology(Graphics::Topology topology);
+	VkPolygonMode		GetPolygonMode(Graphics::FillMode fillMode);
+	VkCullModeFlags		GetCullMode(Graphics::CullMode cullMode);
+
+	void CreateVertexInputLayout(const std::vector<Graphics::VertexBufferLayout> &layouts,
+								 std::vector<VkVertexInputAttributeDescription>	 &attributeDescriptions,
+								 std::vector<VkVertexInputBindingDescription>	 &inputBindingDescriptions);
+
+	VkPipelineShaderStageCreateInfo CreateShaderStageCreateInfo(Nexus::Ref<Nexus::Graphics::ShaderModuleVk> module);
+
+	VkPipelineLayout CreatePipelineLayout(const Graphics::ResourceSetSpecification &resourceSetInfo, Graphics::GraphicsDeviceVk *device);
+	VkPipeline		 CreateGraphicsPipeline(VkRenderPass											renderPass,
+											Graphics::GraphicsDeviceVk							   *device,
+											const Graphics::DepthStencilDescription				   &depthStencilDesc,
+											const Graphics::RasterizerStateDescription			   &rasterizerDesc,
+											uint32_t												samples,
+											const std::vector<VkPipelineShaderStageCreateInfo>	   &shaderStages,
+											uint32_t												colourTargetCount,
+											const std::array<Graphics::PixelFormat, 8>			   &colourFormats,
+											const std::array<Graphics::BlendStateDescription, 8>   &blendStates,
+											Graphics::PixelFormat									depthFormat,
+											VkPipelineLayout										pipelineLayout,
+											Graphics::Topology										topology,
+											const std::vector<Nexus::Graphics::VertexBufferLayout> &layouts);
 }	 // namespace Nexus::Vk
 
 #endif
