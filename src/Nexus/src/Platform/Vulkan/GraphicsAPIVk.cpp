@@ -204,7 +204,7 @@ namespace Nexus::Graphics
 	{
 		VulkanDeviceConfig config			  = {};
 		config.Debug						  = m_CreateInfo.Debug;
-		config.UseDynamicRenderingIfAvailable = true;
+		config.UseDynamicRenderingIfAvailable = false;
 		return new GraphicsDeviceVk(device, m_Instance, config);
 	}
 

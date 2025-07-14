@@ -1134,7 +1134,7 @@ namespace Nexus::Graphics
 				renderPass = swapchainVk->GetRenderPass();
 			}
 
-			vulkanPipeline->Bind(m_CommandBuffer, renderPass, m_VertexBufferStrides);
+			vulkanPipeline->Bind(m_CommandBuffer, renderPass);
 		}
 		else if (Ref<Framebuffer> framebuffer = m_CurrentRenderTarget.GetFramebuffer().lock())
 		{
@@ -1147,7 +1147,7 @@ namespace Nexus::Graphics
 				renderPass						 = framebufferVk->GetRenderPass();
 			}
 
-			vulkanPipeline->Bind(m_CommandBuffer, renderPass, m_VertexBufferStrides);
+			vulkanPipeline->Bind(m_CommandBuffer, renderPass);
 		}
 		else
 		{

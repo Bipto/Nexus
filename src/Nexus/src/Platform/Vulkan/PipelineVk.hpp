@@ -15,7 +15,7 @@ namespace Nexus::Graphics
 		{
 		}
 
-		virtual void Bind(VkCommandBuffer cmd, VkRenderPass renderPass, const std::map<uint32_t, size_t> &strides) = 0;
+		virtual void Bind(VkCommandBuffer cmd, VkRenderPass renderPass) = 0;
 		virtual void SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet)						   = 0;
 	};
 
@@ -27,7 +27,7 @@ namespace Nexus::Graphics
 		virtual const GraphicsPipelineDescription &GetPipelineDescription() const override;
 		VkPipelineLayout						   GetPipelineLayout();
 
-		virtual void Bind(VkCommandBuffer cmd, VkRenderPass renderPass, const std::map<uint32_t, size_t> &) final;
+		virtual void Bind(VkCommandBuffer cmd, VkRenderPass renderPass) final;
 		virtual void SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet) final;
 
 	  private:
@@ -48,7 +48,7 @@ namespace Nexus::Graphics
 	  public:
 		ComputePipelineVk(const ComputePipelineDescription &description, GraphicsDeviceVk *graphicsDevice);
 		virtual ~ComputePipelineVk();
-		virtual void Bind(VkCommandBuffer cmd, VkRenderPass renderPass, const std::map<uint32_t, size_t> &strides) final;
+		virtual void Bind(VkCommandBuffer cmd, VkRenderPass renderPass) final;
 		virtual void SetResourceSet(VkCommandBuffer cmd, Ref<ResourceSetVk> resourceSet) final;
 
 	  private:

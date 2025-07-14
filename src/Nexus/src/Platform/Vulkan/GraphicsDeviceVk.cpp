@@ -48,6 +48,15 @@ namespace Nexus::Graphics
 
 		// cleanup allocators
 		{
+			char *statsString = nullptr;
+			vmaBuildStatsString(m_Allocator, &statsString, false);
+
+			std::ofstream outFile("VmaStats.json");
+			outFile << statsString;
+			outFile.close();
+
+			vmaFreeStatsString(m_Allocator, statsString);
+
 			vmaDestroyAllocator(m_Allocator);
 		}
 
@@ -535,6 +544,8 @@ namespace Nexus::Graphics
 		meshShaderFeatures.sType								 = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT;
 		meshShaderFeatures.taskShader							 = VK_FALSE;
 		meshShaderFeatures.meshShader							 = VK_FALSE;
+		meshShaderFeatures.multiviewMeshShader					  = VK_FALSE;
+		meshShaderFeatures.primitiveFragmentShadingRateMeshShader = VK_FALSE;
 
 		if (m_Features.SupportsMeshTaskShaders)
 		{

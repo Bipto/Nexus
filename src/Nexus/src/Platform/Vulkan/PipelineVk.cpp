@@ -32,7 +32,7 @@ namespace Nexus::Graphics
 		return m_PipelineLayout;
 	}
 
-	void GraphicsPipelineVk::Bind(VkCommandBuffer cmd, VkRenderPass renderPass, const std::map<uint32_t, size_t> &strides)
+	void GraphicsPipelineVk::Bind(VkCommandBuffer cmd, VkRenderPass renderPass)
 	{
 		if (m_Pipelines.find(renderPass) == m_Pipelines.end())
 		{
@@ -156,7 +156,7 @@ namespace Nexus::Graphics
 	{
 	}
 
-	void ComputePipelineVk::Bind(VkCommandBuffer cmd, VkRenderPass renderPass, const std::map<uint32_t, size_t> &strides)
+	void ComputePipelineVk::Bind(VkCommandBuffer cmd, VkRenderPass renderPass)
 	{
 		vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, m_Pipeline);
 	}
