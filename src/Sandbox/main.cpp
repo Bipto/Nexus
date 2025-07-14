@@ -3,6 +3,8 @@
 
 #include "Nexus-Core/Renderer/BatchRenderer.hpp"
 
+#include "Nexus-Core/Audio/AudioDevice.hpp"
+
 int main()
 {
 	Nexus::Graphics::GraphicsAPICreateInfo createInfo = {};

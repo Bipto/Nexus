@@ -493,6 +493,7 @@ namespace Nexus::Graphics
 		deviceFeatures.samplerAnisotropy		= VK_TRUE;
 		deviceFeatures.sampleRateShading		= VK_TRUE;
 		deviceFeatures.independentBlend			= VK_TRUE;
+		deviceFeatures.depthBounds				= VK_TRUE;
 
 		VkDeviceCreateInfo createInfo = {};
 		createInfo.sType			  = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -501,8 +502,9 @@ namespace Nexus::Graphics
 		VkPhysicalDeviceFeatures2 features2	 = {};
 		features2.sType						 = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
 		features2.features.samplerAnisotropy = VK_TRUE;
-		features2.features.samplerAnisotropy = VK_TRUE;
+		features2.features.sampleRateShading = VK_TRUE;
 		features2.features.independentBlend	 = VK_TRUE;
+		features2.features.depthBounds		 = VK_TRUE;
 
 		VkPhysicalDeviceIndexTypeUint8FeaturesEXT indexType8Features = {};
 		indexType8Features.sType									 = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INDEX_TYPE_UINT8_FEATURES_EXT;

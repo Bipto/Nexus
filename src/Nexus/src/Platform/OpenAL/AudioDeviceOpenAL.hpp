@@ -17,10 +17,12 @@ namespace Nexus::Audio
 		{
 			return AudioAPI::OpenAL;
 		}
-		virtual Ref<AudioBuffer> CreateAudioBufferFromWavFile(const std::string &filepath) override;
-		virtual Ref<AudioBuffer> CreateAudioBufferFromMP3File(const std::string &filepath) override;
-		virtual Ref<AudioSource> CreateAudioSource(Ref<AudioBuffer> buffer) override;
-		virtual void			 PlaySource(Ref<AudioSource> source) override;
+		Ref<AudioBuffer> CreateAudioBuffer() final;
+		Ref<AudioSource> CreateAudioSource() final;
+		void			 Play(Ref<AudioSource> source) final;
+		void			 Pause(Ref<AudioSource> source) final;
+		void			 Stop(Ref<AudioSource> source) final;
+		void			 Rewind(Ref<AudioSource> source) final;
 
 	  private:
 		ALCdevice  *m_Device  = nullptr;

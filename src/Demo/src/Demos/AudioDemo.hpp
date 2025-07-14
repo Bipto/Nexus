@@ -2,6 +2,8 @@
 
 #include "Demo.hpp"
 
+#include "Nexus-Core/Audio/AudioLoader.hpp"
+
 namespace Demos
 {
 	class AudioDemo : public Demo
@@ -19,9 +21,10 @@ namespace Demos
 		virtual void Load() override
 		{
 			m_CommandList = m_GraphicsDevice->CreateCommandList();
-			m_AudioBuffer =
-				m_AudioDevice->CreateAudioBufferFromWavFile({Nexus::FileSystem::GetFilePathAbsolute("resources/demo/audio/laser_shoot.wav")});
-			m_AudioSource = m_AudioDevice->CreateAudioSource(m_AudioBuffer);
+			m_AudioBuffer = Nexus::Audio::AudioLoader::LoadWavFile({Nexus::FileSystem::GetFilePathAbsolute("resources/demo/audio/laser_shoot.wav")},
+																   m_AudioDevice);
+			m_AudioSource = m_AudioDevice->CreateAudioSource();
+			m_AudioSource->SetStaticSourceBuffer(m_AudioBuffer);
 		}
 
 		virtual void Render(Nexus::TimeSpan time) override
@@ -39,7 +42,17 @@ namespace Demos
 			ImGui::Text("Press button to play a sound effect");
 			if (ImGui::Button("Play"))
 			{
-				m_AudioDevice->PlaySource(m_AudioSource);
+				m_AudioDevice->Play(m_AudioSource);
+			}
+
+			if (ImGui::DragFloat("Gain", &m_Gain, 0.01f, 0.0f, 1.0f))
+			{
+				m_AudioSource->SetGain(m_Gain);
+			}
+
+			if (ImGui::Checkbox("Loop", &m_IsLooping))
+			{
+				m_AudioSource->SetIsLooping(m_IsLooping);
 			}
 		}
 
@@ -54,5 +67,8 @@ namespace Demos
 
 		Nexus::Ref<Nexus::Audio::AudioBuffer> m_AudioBuffer;
 		Nexus::Ref<Nexus::Audio::AudioSource> m_AudioSource;
+
+		float m_Gain	  = 1.0f;
+		bool  m_IsLooping = false;
 	};
 }	 // namespace Demos
