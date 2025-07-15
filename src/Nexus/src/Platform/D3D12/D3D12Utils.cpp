@@ -485,5 +485,327 @@ namespace Nexus::D3D12
 
 		return uav;
 	}
+
+	void CreateRootSignature(const Nexus::Graphics::ResourceSetSpecification &resourceSet,
+							 ID3D12Device9									 *device,
+							 Microsoft::WRL::ComPtr<ID3DBlob>				 &inRootSignatureBlob,
+							 Microsoft::WRL::ComPtr<ID3D12RootSignature>	 &inRootSignature)
+	{
+		D3D12_ROOT_SIGNATURE_DESC desc = {};
+		desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
+		desc.NumParameters	   = 0;
+		desc.NumStaticSamplers = 0;
+
+		std::vector<D3D12_DESCRIPTOR_RANGE> samplerRanges;
+		std::vector<D3D12_DESCRIPTOR_RANGE> textureConstantBufferRanges;
+		std::vector<D3D12_DESCRIPTOR_RANGE> storageImageRanges;
+		std::vector<D3D12_DESCRIPTOR_RANGE> storageBufferRanges;
+
+		for (size_t i = 0; i < resourceSet.SampledImages.size(); i++)
+		{
+			const auto &textureInfo = resourceSet.SampledImages.at(i);
+			uint32_t	slot		= Graphics::ResourceSet::GetLinearDescriptorSlot(textureInfo.Set, textureInfo.Binding);
+
+			D3D12_DESCRIPTOR_RANGE samplerRange			   = {};
+			samplerRange.RangeType						   = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+			samplerRange.BaseShaderRegister				   = slot;
+			samplerRange.NumDescriptors					   = 1;
+			samplerRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+			samplerRange.RegisterSpace					   = 0;
+			samplerRanges.push_back(samplerRange);
+
+			D3D12_DESCRIPTOR_RANGE textureRange			   = {};
+			textureRange.RangeType						   = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+			textureRange.BaseShaderRegister				   = slot;
+			textureRange.NumDescriptors					   = 1;
+			textureRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+			textureRange.RegisterSpace					   = 0;
+			textureConstantBufferRanges.push_back(textureRange);
+		}
+
+		for (size_t i = 0; i < resourceSet.UniformBuffers.size(); i++)
+		{
+			const auto &uniformBufferInfo = resourceSet.UniformBuffers.at(i);
+			uint32_t	slot			  = Graphics::ResourceSet::GetLinearDescriptorSlot(uniformBufferInfo.Set, uniformBufferInfo.Binding);
+
+			D3D12_DESCRIPTOR_RANGE constantBufferRange			  = {};
+			constantBufferRange.RangeType						  = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+			constantBufferRange.BaseShaderRegister				  = slot;
+			constantBufferRange.NumDescriptors					  = 1;
+			constantBufferRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+			constantBufferRange.RegisterSpace					  = 0;
+			textureConstantBufferRanges.push_back(constantBufferRange);
+		}
+
+		for (size_t i = 0; i < resourceSet.StorageImages.size(); i++)
+		{
+			const auto &storageImageInfo = resourceSet.StorageImages.at(i);
+			uint32_t	slot			 = Graphics::ResourceSet::GetLinearDescriptorSlot(storageImageInfo.Set, storageImageInfo.Binding);
+
+			D3D12_DESCRIPTOR_RANGE storageImageRange			= {};
+			storageImageRange.RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+			storageImageRange.BaseShaderRegister				= slot;
+			storageImageRange.NumDescriptors					= 1;
+			storageImageRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+			storageImageRange.RegisterSpace						= 0;
+			storageImageRanges.push_back(storageImageRange);
+		}
+
+		for (size_t i = 0; i < resourceSet.StorageBuffers.size(); i++)
+		{
+			const auto &storageBufferInfo = resourceSet.StorageBuffers.at(i);
+			uint32_t	slot			  = Graphics::ResourceSet::GetLinearDescriptorSlot(storageBufferInfo.Set, storageBufferInfo.Binding);
+
+			D3D12_DESCRIPTOR_RANGE storageBufferRange			 = {};
+			storageBufferRange.RangeType						 = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+			storageBufferRange.BaseShaderRegister				 = slot;
+			storageBufferRange.NumDescriptors					 = 1;
+			storageBufferRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+			storageBufferRange.RegisterSpace					 = 0;
+			storageBufferRanges.push_back(storageBufferRange);
+		}
+
+		std::vector<D3D12_ROOT_PARAMETER> rootParameters;
+
+		// sampler parameter
+		{
+			D3D12_ROOT_DESCRIPTOR_TABLE descriptorTable = {};
+			descriptorTable.NumDescriptorRanges			= samplerRanges.size();
+			descriptorTable.pDescriptorRanges			= samplerRanges.data();
+
+			D3D12_ROOT_PARAMETER parameter = {};
+			parameter.ParameterType		   = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+			parameter.DescriptorTable	   = descriptorTable;
+			parameter.ShaderVisibility	   = D3D12_SHADER_VISIBILITY_ALL;
+
+			if (samplerRanges.size() > 0)
+			{
+				rootParameters.push_back(parameter);
+			}
+		}
+
+		// texture constant buffer parameter
+		{
+			D3D12_ROOT_DESCRIPTOR_TABLE descriptorTable = {};
+			descriptorTable.NumDescriptorRanges			= textureConstantBufferRanges.size();
+			descriptorTable.pDescriptorRanges			= textureConstantBufferRanges.data();
+
+			D3D12_ROOT_PARAMETER parameter = {};
+			parameter.ParameterType		   = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+			parameter.DescriptorTable	   = descriptorTable;
+			parameter.ShaderVisibility	   = D3D12_SHADER_VISIBILITY_ALL;
+
+			if (textureConstantBufferRanges.size() > 0)
+			{
+				rootParameters.push_back(parameter);
+			}
+		}
+
+		// storage image parameter
+		{
+			D3D12_ROOT_DESCRIPTOR_TABLE descriptorTable = {};
+			descriptorTable.NumDescriptorRanges			= storageImageRanges.size();
+			descriptorTable.pDescriptorRanges			= storageImageRanges.data();
+
+			D3D12_ROOT_PARAMETER parameter = {};
+			parameter.ParameterType		   = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+			parameter.DescriptorTable	   = descriptorTable;
+			parameter.ShaderVisibility	   = D3D12_SHADER_VISIBILITY_ALL;
+
+			if (storageImageRanges.size() > 0)
+			{
+				rootParameters.push_back(parameter);
+			}
+		}
+
+		// storage buffer parameter
+		{
+			D3D12_ROOT_DESCRIPTOR_TABLE descriptorTable = {};
+			descriptorTable.NumDescriptorRanges			= storageBufferRanges.size();
+			descriptorTable.pDescriptorRanges			= storageBufferRanges.data();
+
+			D3D12_ROOT_PARAMETER parameter = {};
+			parameter.ParameterType		   = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+			parameter.DescriptorTable	   = descriptorTable;
+			parameter.ShaderVisibility	   = D3D12_SHADER_VISIBILITY_ALL;
+
+			if (storageBufferRanges.size() > 0)
+			{
+				rootParameters.push_back(parameter);
+			}
+		}
+
+		desc.NumParameters = rootParameters.size();
+		desc.pParameters   = rootParameters.data();
+
+		Microsoft::WRL::ComPtr<ID3DBlob> errorBlob;
+		if (SUCCEEDED(D3D12SerializeRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION_1, &inRootSignatureBlob, &errorBlob)))
+		{
+			device->CreateRootSignature(0,
+										inRootSignatureBlob->GetBufferPointer(),
+										inRootSignatureBlob->GetBufferSize(),
+										IID_PPV_ARGS(&inRootSignature));
+		}
+		else
+		{
+			std::string errorMessage = std::string((char *)errorBlob->GetBufferPointer());
+			NX_ERROR(errorMessage);
+		}
+	}
+
+	std::vector<D3D12_INPUT_ELEMENT_DESC> CreateInputLayout(const std::vector<Graphics::VertexBufferLayout> &layouts)
+	{
+		std::vector<D3D12_INPUT_ELEMENT_DESC> inputLayouts = {};
+
+		uint32_t elementIndex = 0;
+		for (uint32_t layoutIndex = 0; layoutIndex < layouts.size(); layoutIndex++)
+		{
+			const auto &layout = layouts.at(layoutIndex);
+
+			for (uint32_t i = 0; i < layout.GetNumberOfElements(); i++)
+			{
+				const auto &element = layout.GetElement(i);
+
+				D3D12_INPUT_CLASSIFICATION classification =
+					layout.IsInstanceBuffer() ? D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA : D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+
+				D3D12_INPUT_ELEMENT_DESC desc =
+					{element.Name.c_str(), elementIndex, D3D12::GetD3D12BaseType(element), layoutIndex, (UINT)element.Offset, classification, 0};
+
+				if (layout.IsInstanceBuffer())
+				{
+					desc.InstanceDataStepRate = layout.GetInstanceStepRate();
+				}
+
+				inputLayouts.push_back(desc);
+				elementIndex++;
+			}
+		}
+
+		return inputLayouts;
+	}
+
+	D3D_PRIMITIVE_TOPOLOGY CreatePrimitiveTopology(Graphics::Topology topology)
+	{
+		switch (topology)
+		{
+			case Graphics::Topology::LineList: return D3D_PRIMITIVE_TOPOLOGY_LINELIST;
+			case Graphics::Topology::LineStrip: return D3D_PRIMITIVE_TOPOLOGY_LINESTRIP;
+			case Graphics::Topology::PointList: return D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
+			case Graphics::Topology::TriangleList: return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+			case Graphics::Topology::TriangleStrip: return D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
+			default: throw std::runtime_error("Failed to find a valid topology");
+		}
+	}
+
+	D3D12_RASTERIZER_DESC CreateRasterizerState(const Graphics::RasterizerStateDescription &rasterizerState)
+	{
+		D3D12_RASTERIZER_DESC desc {};
+		desc.FillMode = D3D12_FILL_MODE_SOLID;
+		desc.CullMode = D3D12::GetCullMode(rasterizerState.TriangleCullMode);
+
+		if (rasterizerState.TriangleFrontFace == Nexus::Graphics::FrontFace::CounterClockwise)
+		{
+			desc.FrontCounterClockwise = true;
+		}
+		else
+		{
+			desc.FrontCounterClockwise = false;
+		}
+
+		desc.DepthBias			   = 0;
+		desc.DepthBiasClamp		   = .0f;
+		desc.SlopeScaledDepthBias  = .0f;
+		desc.DepthClipEnable	   = FALSE;
+		desc.MultisampleEnable	   = FALSE;
+		desc.AntialiasedLineEnable = FALSE;
+		desc.ForcedSampleCount	   = 0;
+		return desc;
+	}
+
+	D3D12_STREAM_OUTPUT_DESC CreateStreamOutputDesc()
+	{
+		D3D12_STREAM_OUTPUT_DESC desc {};
+		desc.NumEntries		  = 0;
+		desc.NumStrides		  = 0;
+		desc.pBufferStrides	  = nullptr;
+		desc.RasterizedStream = 0;
+		return desc;
+	}
+
+	D3D12_BLEND_DESC CreateBlendStateDesc(const std::array<Graphics::BlendStateDescription, 8> &colourBlendStates)
+	{
+		D3D12_BLEND_DESC desc {};
+		desc.AlphaToCoverageEnable	= FALSE;
+		desc.IndependentBlendEnable = TRUE;
+
+		for (size_t i = 0; i < colourBlendStates.size(); i++)
+		{
+			desc.RenderTarget[i].BlendEnable	= colourBlendStates[i].EnableBlending;
+			desc.RenderTarget[i].SrcBlend		= D3D12::GetBlendFunction(colourBlendStates[i].SourceColourBlend);
+			desc.RenderTarget[i].SrcBlend		= D3D12::GetBlendFunction(colourBlendStates[i].SourceColourBlend);
+			desc.RenderTarget[i].DestBlend		= D3D12::GetBlendFunction(colourBlendStates[i].DestinationColourBlend);
+			desc.RenderTarget[i].BlendOp		= D3D12::GetBlendEquation(colourBlendStates[i].ColorBlendFunction);
+			desc.RenderTarget[i].SrcBlendAlpha	= D3D12::GetBlendFunction(colourBlendStates[i].SourceAlphaBlend);
+			desc.RenderTarget[i].DestBlendAlpha = D3D12::GetBlendFunction(colourBlendStates[i].DestinationAlphaBlend);
+			desc.RenderTarget[i].BlendOpAlpha	= D3D12::GetBlendEquation(colourBlendStates[i].AlphaBlendFunction);
+			desc.RenderTarget[i].LogicOpEnable	= FALSE;
+			desc.RenderTarget[i].LogicOp		= D3D12_LOGIC_OP_NOOP;
+
+			uint8_t writeMask = 0;
+			if (colourBlendStates[i].PixelWriteMask.Red)
+			{
+				writeMask |= D3D12_COLOR_WRITE_ENABLE_RED;
+			}
+			if (colourBlendStates[i].PixelWriteMask.Green)
+			{
+				writeMask |= D3D12_COLOR_WRITE_ENABLE_GREEN;
+			}
+			if (colourBlendStates[i].PixelWriteMask.Blue)
+			{
+				writeMask |= D3D12_COLOR_WRITE_ENABLE_BLUE;
+			}
+			if (colourBlendStates[i].PixelWriteMask.Alpha)
+			{
+				writeMask |= D3D12_COLOR_WRITE_ENABLE_ALPHA;
+			}
+
+			desc.RenderTarget[i].RenderTargetWriteMask = writeMask;
+		}
+
+		return desc;
+	}
+
+	D3D12_DEPTH_STENCIL_DESC CreateDepthStencilDesc(const Graphics::DepthStencilDescription &depthStencilDesc)
+	{
+		D3D12_DEPTH_STENCIL_DESC desc {};
+		desc.DepthEnable = depthStencilDesc.EnableDepthTest;
+		desc.DepthFunc	 = D3D12::GetComparisonFunction(depthStencilDesc.DepthComparisonFunction);
+
+		if (depthStencilDesc.EnableDepthWrite)
+		{
+			desc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+		}
+		else
+		{
+			desc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+		}
+
+		desc.StencilEnable	  = depthStencilDesc.EnableStencilTest;
+		desc.StencilReadMask  = depthStencilDesc.StencilCompareMask;
+		desc.StencilWriteMask = depthStencilDesc.StencilWriteMask;
+
+		desc.FrontFace.StencilFunc		  = D3D12::GetComparisonFunction(depthStencilDesc.Front.StencilComparisonFunction);
+		desc.FrontFace.StencilDepthFailOp = D3D12::GetStencilOperation(depthStencilDesc.Front.StencilSuccessDepthFailOperation);
+		desc.FrontFace.StencilFailOp	  = D3D12::GetStencilOperation(depthStencilDesc.Front.StencilFailOperation);
+		desc.FrontFace.StencilPassOp	  = D3D12::GetStencilOperation(depthStencilDesc.Front.StencilSuccessDepthSuccessOperation);
+
+		desc.BackFace.StencilFunc		 = D3D12::GetComparisonFunction(depthStencilDesc.Back.StencilComparisonFunction);
+		desc.BackFace.StencilDepthFailOp = D3D12::GetStencilOperation(depthStencilDesc.Back.StencilSuccessDepthFailOperation);
+		desc.BackFace.StencilFailOp		 = D3D12::GetStencilOperation(depthStencilDesc.Back.StencilFailOperation);
+		desc.BackFace.StencilPassOp		 = D3D12::GetStencilOperation(depthStencilDesc.Back.StencilSuccessDepthSuccessOperation);
+
+		return desc;
+	}
 }	 // namespace Nexus::D3D12
 #endif

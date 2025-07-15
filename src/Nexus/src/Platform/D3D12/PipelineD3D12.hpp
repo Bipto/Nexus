@@ -30,14 +30,6 @@ namespace Nexus::Graphics
 		void Bind(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> commandList) final;
 
 	  private:
-		void CreateInputLayout();
-		void CreatePrimitiveTopology();
-
-		D3D12_RASTERIZER_DESC	 CreateRasterizerState();
-		D3D12_STREAM_OUTPUT_DESC CreateStreamOutputDesc();
-		D3D12_BLEND_DESC		 CreateBlendStateDesc();
-		D3D12_DEPTH_STENCIL_DESC CreateDepthStencilDesc();
-
 		void CreatePipeline(ID3D12Device9 *device);
 
 	  private:

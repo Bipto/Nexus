@@ -42,6 +42,19 @@ namespace Nexus::D3D12
 	D3D12_SHADER_RESOURCE_VIEW_DESC CreateTextureSrvView(const Graphics::TextureSpecification &spec);
 	D3D12_UNORDERED_ACCESS_VIEW_DESC CreateTextureUavView(const Graphics::StorageImageView &view);
 
+	// pipeline
+	void CreateRootSignature(const Nexus::Graphics::ResourceSetSpecification &resourceSet,
+							 ID3D12Device9									 *device,
+							 Microsoft::WRL::ComPtr<ID3DBlob>				 &inRootSignatureBlob,
+							 Microsoft::WRL::ComPtr<ID3D12RootSignature>	 &inRootSignature);
+
+	std::vector<D3D12_INPUT_ELEMENT_DESC> CreateInputLayout(const std::vector<Graphics::VertexBufferLayout> &layouts);
+	D3D_PRIMITIVE_TOPOLOGY				  CreatePrimitiveTopology(Graphics::Topology topology);
+	D3D12_RASTERIZER_DESC				  CreateRasterizerState(const Graphics::RasterizerStateDescription &rasterizerState);
+	D3D12_STREAM_OUTPUT_DESC			  CreateStreamOutputDesc();
+	D3D12_BLEND_DESC					  CreateBlendStateDesc(const std::array<Graphics::BlendStateDescription, 8> &colourBlendStates);
+	D3D12_DEPTH_STENCIL_DESC			  CreateDepthStencilDesc(const Graphics::DepthStencilDescription &depthStencilDesc);
+
 }	 // namespace Nexus::D3D12
 
 #endif

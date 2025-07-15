@@ -105,7 +105,7 @@ namespace Nexus::Graphics
 		/// @brief The fragment shader that will be used with the pipeline
 		Ref<ShaderModule> FragmentModule = nullptr;
 
-		/// @brief The mesh shader to use with the pipeline (optional)
+		/// @brief The mesh shader to use with the pipeline
 		Ref<ShaderModule> MeshModule = nullptr;
 
 		/// @brief The task shader to use with the pipeline (optional)
