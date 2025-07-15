@@ -49,6 +49,7 @@ namespace Nexus::Graphics
 				const auto &element = commands.at(m_CurrentCommandIndex);
 				std::visit([&](auto &&arg) { ExecuteCommand(arg, device); }, element);
 			}
+			m_Commands.clear();
 		}
 
 		// end
